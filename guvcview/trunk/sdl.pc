@@ -1,0 +1,15 @@
+prefix=/usr
+exec_prefix=/usr
+libdir=/usr/lib
+includedir=/usr/include
+target=x11
+
+sdl_binary_version=1.2.10
+sdl_host=i686-redhat-linux-gnu
+
+Name: SDL
+Description: Simple Direct Media Layer
+Version: 1.2.10
+Requires:
+Libs: -L${libdir} -lSDL -lpthread
+Cflags: -I${includedir}/SDL -D_GNU_SOURCE=1 -D_REENTRANT
