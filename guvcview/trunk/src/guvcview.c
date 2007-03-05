@@ -1,22 +1,23 @@
-/*******************************************************************************
-#	    guvcview              http://berlios																				#
-#     Paulo Assis <pj.assis@gmail.com>																		#
-#																																		#
-# This program is free software; you can redistribute it and/or modify         				#
-# it under the terms of the GNU General Public License as published by         				#
+/***************************************************************************************************
+#	    guvcview              http://guvcview.berlios.de													#
+#     Paulo Assis <pj.assis@gmail.com>																	#
+#																															#
+# This program is free software; you can redistribute it and/or modify    						#
+# it under the terms of the GNU General Public License as published by    				#
 # the Free Software Foundation; either version 2 of the License, or            					#
-# (at your option) any later version.                                          										#
-#                                                                              														#
+# (at your option) any later version.                                          									#
+#                                                                              											#
 # This program is distributed in the hope that it will be useful,              						#
 # but WITHOUT ANY WARRANTY; without even the implied warranty of               		#
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                		#
-# GNU General Public License for more details.                                 							#
-#                                                                              														#
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the           #
+# GNU General Public License for more details.                                 						#
+#                                                                              											#
 # You should have received a copy of the GNU General Public License            			#
 # along with this program; if not, write to the Free Software                  						#
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA    			#
-#                                                                              														#
-*******************************************************************************/
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA    		#
+#                                                                              											#
+****************************************************************************************************/
+
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -45,24 +46,12 @@
 #include <gdk/gdkx.h>
 
 #include "v4l2uvc.h"
-#include "utils.h"
 #include "avilib.h"
-/* Fixed point arithmetic */
-#define FIXED	Sint32
-#define FIXED_BITS 16
-#define TO_FIXED(X) (((Sint32)(X))<<(FIXED_BITS))
-#define FROM_FIXED(X) (((Sint32)(X))>>(FIXED_BITS))
-#define VERSION "0.1"
-#define INCPANTILT 64 // 1°
+
 
 static const char version[] = VERSION;
 struct vdIn *videoIn;
 
-#define WINSIZEX 700
-#define WINSIZEY 420
-
-#define AUTO_EXP 8
-#define MAN_EXP	2
 
 /* The main display surface */
 GtkWidget *mainwin;
