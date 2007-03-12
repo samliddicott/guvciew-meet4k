@@ -1,23 +1,22 @@
-/***************************************************************************************************
-#	    guvcview              http://guvcview.berlios.de													#
-#     Paulo Assis <pj.assis@gmail.com>																	#
-#																															#
-# This program is free software; you can redistribute it and/or modify    						#
-# it under the terms of the GNU General Public License as published by    				#
-# the Free Software Foundation; either version 2 of the License, or            					#
-# (at your option) any later version.                                          									#
-#                                                                              											#
-# This program is distributed in the hope that it will be useful,              						#
-# but WITHOUT ANY WARRANTY; without even the implied warranty of               		#
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the           #
-# GNU General Public License for more details.                                 						#
-#                                                                              											#
-# You should have received a copy of the GNU General Public License            			#
-# along with this program; if not, write to the Free Software                  						#
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA    		#
-#                                                                              											#
-****************************************************************************************************/
-
+/*************************************************************************************************
+#	    guvcview              http://guvcview.berlios.de												#
+#     Paulo Assis <pj.assis@gmail.com>																#
+#																														#
+# This program is free software; you can redistribute it and/or modify         				#
+# it under the terms of the GNU General Public License as published by   				#
+# the Free Software Foundation; either version 2 of the License, or           				#
+# (at your option) any later version.                                          								#
+#                                                                              										#
+# This program is distributed in the hope that it will be useful,              					#
+# but WITHOUT ANY WARRANTY; without even the implied warranty of             		#
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the  		#
+# GNU General Public License for more details.                                 					#
+#                                                                              										#
+# You should have received a copy of the GNU General Public License           		#
+# along with this program; if not, write to the Free Software                  					#
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA		#
+#                                                                              										#
+*************************************************************************************************/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -51,7 +50,7 @@
 
 static const char version[] = VERSION;
 struct vdIn *videoIn;
-
+char *confPath;
 
 /* The main display surface */
 GtkWidget *mainwin;
@@ -74,7 +73,19 @@ Uint32 * pim;
 //unsigned char *pixeldata = (unsigned char *)&aviIm;
 
 unsigned char frmrate;
+
 char *capt;
+
+int fps = DEFAULT_FPS;
+int bpp = 0; //current bytes per pixel
+int hwaccel = 1; //use hardware acceleration
+int grabmethod = 1;//standart MJPEG
+int width = DEFAULT_WIDTH;
+int height = DEFAULT_HEIGHT;
+int winwidth=WINSIZEX;
+int winheight=WINSIZEY;
+const char *mode="jpg"; /*jpg (default) or yuv*/
+int format = V4L2_PIX_FMT_MJPEG;
 
 /*currently it as no used - all variables are global*/
 //~ struct pt_data {
@@ -98,6 +109,7 @@ delete_event (GtkWidget *widget, GdkEventConfigure *event)
 	SDL_WaitThread(mythread, NULL);//wait for thread to finish
 	
 	SDL_Quit();
+	gtk_window_get_size(mainwin,&winwidth,&winheight);//mainwin or widget
 	gtk_main_quit();
 	
 	//SDL_FreeSurface(ImageSurf);
@@ -108,7 +120,8 @@ delete_event (GtkWidget *widget, GdkEventConfigure *event)
     free(videoIn);
 	free(capt);
 	
-    printf(" Clean Up done -- Quit \n");
+    printf(" Clean Up done  \n");
+    writeConf(confPath);
 	
 	return 0;
 }
@@ -261,11 +274,27 @@ static void
 FrameRate_changed (GtkComboBox * FrameRate, void *data)
 {
 	int index = gtk_combo_box_get_active (FrameRate);
-      	 
-	input_set_framerate (videoIn, index);
+      	
+	switch (index) {
+	  case 0: //15 fps
+	   fps = 15;
+	   break;
+	  case 1: //25 fps
+	   fps = 25;
+	   break;
+      case 2: // 30 fps
+	   fps = 30;
+	   break;
+      default:
+       /* set to the lowest*/
+      	   fps = 15;
+	}
+ 
+	input_set_framerate (videoIn, fps);
 	
 	input_get_framerate(videoIn);
-	printf("hardware fps is %d ,%i/%i\n",videoIn->fps,
+	fps=videoIn->fps;
+	printf("hardware fps is %d ,%i/%i\n",fps,
 	            videoIn->streamparm.parm.capture.timeperframe.numerator,
 	            videoIn->streamparm.parm.capture.timeperframe.denominator);
 	
@@ -343,9 +372,9 @@ draw_controls (VidState *s)
     }
     
     s->control = input_enum_controls (videoIn, &s->num_controls);
-    fprintf(stderr,"V4L2_CID_BASE=0x%x\n",V4L2_CID_BASE);
-	fprintf(stderr,"V4L2_CID_PRIVATE_BASE=0x%x\n",V4L2_CID_PRIVATE_BASE);
-	fprintf(stderr,"V4L2_CID_PRIVATE_LAST=0x%x\n",V4L2_CID_PRIVATE_LAST);
+    //fprintf(stderr,"V4L2_CID_BASE=0x%x\n",V4L2_CID_BASE);
+	//fprintf(stderr,"V4L2_CID_PRIVATE_BASE=0x%x\n",V4L2_CID_PRIVATE_BASE);
+	//fprintf(stderr,"V4L2_CID_PRIVATE_LAST=0x%x\n",V4L2_CID_PRIVATE_LAST);
     fprintf(stderr,"Controls:\n");
     for (i = 0; i < s->num_controls; i++) {
 		fprintf(stderr,"control[%d]: 0x%x",i,s->control[i].id);
@@ -632,6 +661,90 @@ int main_loop(void *data)
    return ret;	
 }
 
+int writeConf(const char *confpath) {
+	int ret=1;
+	FILE *fp;
+	if ((fp = fopen(confpath,"w"))!=NULL) {
+   		fprintf(fp,"# guvcview configuration file\n\n");
+   		fprintf(fp,"# video resolution - hardware supported (logitech) 320x240 640x480\n");
+   		fprintf(fp,"resolution=%ix%i\n",width,height);
+   		fprintf(fp,"# control window size: default %ix%i\n",WINSIZEX,WINSIZEY);
+   		fprintf(fp,"windowsize=%ix%i\n",winwidth,winheight);
+   		fprintf(fp,"# mode video format 'yuv' or 'jpg'(default)\n");
+   		fprintf(fp,"mode=%s\n",mode);
+   		fprintf(fp,"# frames per sec. - hardware supported 15 25 32 - default( %i )\n",DEFAULT_FPS);
+   		fprintf(fp,"fps=%i\n",fps);
+   		fprintf(fp,"# bytes per pixel: default (0 - current)\n");
+   		fprintf(fp,"bpp=%i\n",bpp);
+   		fprintf(fp,"# hardware accelaration: 0 1 (default - 1)\n");
+   		fprintf(fp,"hwaccel=%i\n",hwaccel);
+   		fprintf(fp,"# video grab method: 0 -read 1 -mmap (default - 1)\n");
+   		fprintf(fp,"grabmethod=%i\n",grabmethod);
+   		
+   		printf("write %s OK\n",confpath);
+   		fclose(fp);
+	} else {
+	printf("Could not write file %s \n Please check file permissions\n",confpath);
+	ret=0;
+	}
+	return ret;
+}
+
+int readConf(const char *confpath) {
+	int ret=1;
+	char variable[20];
+	char value[20];
+
+	int i=0;
+	int j=0;
+
+
+	FILE *fp;
+
+	if((fp = fopen(confpath,"r"))!=NULL) {
+		char line[80];
+
+  		while (fgets(line, 80, fp) != NULL) {
+			//printf("%s-->\n",line);
+			j++;
+			if ((line[0]=='#') || (line[0]==' ') || (line[0]=='\n')) {
+					//printf("Skip line %i\n",j);
+			} else if ((i=sscanf(line,"%[^#=]=%[^#\n ]",variable,value))==2){
+					//printf("line nr %i found %i\n",j,i);
+					//printf ("%s : %s\n",variable,value);
+					/* set variables */
+					if (strcmp(variable,"resolution")==0) {
+						if ((i=sscanf(value,"%ix%i",&width,&height))==2)
+							printf("resolution: %i x %i\n",width,height); 			
+					} else if (strcmp(variable,"windowsize")==0) {
+						if ((i=sscanf(value,"%ix%i",&winwidth,&winheight))==2)
+							printf("windowsize: %i x %i\n",winwidth,winheight);
+						} else if 	(strcmp(variable,"mode")==0) {
+							mode=strdup(value);
+							printf("mode: %s\n",mode);
+						} else if 	(strcmp(variable,"fps")==0) {
+								if ((i=sscanf(value,"%i",&fps))==1)
+									printf("fps: %i\n",fps);
+						} else if 	(strcmp(variable,"bpp")==0) {
+								if ((i=sscanf(value,"%i",&bpp))==1)
+									printf("bpp: %i\n",bpp);
+						} else if 	(strcmp(variable,"hwaccel")==0) {
+								if ((i=sscanf(value,"%i",&hwaccel))==1)
+									printf("hwaccel: %i\n",hwaccel);
+						} else if 	(strcmp(variable,"grabmethod")==0) {
+								if ((i=sscanf(value,"%i",&grabmethod))==1)
+									printf("grabmethod: %i\n",grabmethod);
+						}
+			}
+		}
+		fclose(fp);
+	} else {
+   		printf("Could not open %s for read,\n will try to create it\n",confpath);
+   		ret=writeConf(confpath);
+	}
+	return ret;
+}
+
 int main(int argc, char *argv[])
 {
     const SDL_VideoInfo *info;
@@ -653,23 +766,25 @@ int main(int argc, char *argv[])
     SDL_Thread *mythread;
    
     capt = (char *) calloc(1, 100 * sizeof(char));
-    
-    int bpp = 0; //current bytes per pixel
-    int hwaccel = 1; //use hardware acceleration
+       
+    char *home;
     const char *videodevice = NULL;
-    const char *mode = NULL;
-    int format = V4L2_PIX_FMT_MJPEG;
+    //const char *mode = NULL;
+    
     int i;
-    int grabmethod = 1;//standart MJPEG
-    int width = DEFAULT_WIDTH;
-    int height = DEFAULT_HEIGHT;
+    
+    
     char *separateur;
     char *sizestring = NULL;
     int enableRawStreamCapture = 0;
     int enableRawFrameCapture = 0;
 	
-	
-	printf("guvcview version %s \n", version);
+    home=getenv("HOME");	
+    confPath=strcat(home,"/.guvcviewrc");
+    
+    readConf(confPath);
+
+    printf("guvcview version %s \n", version);
 	
     
     for (i = 1; i < argc; i++) {
@@ -695,22 +810,20 @@ int main(int argc, char *argv[])
 	}
 	if (strcmp(argv[i], "-f") == 0) {
 	    if (i + 1 >= argc) {
-		printf("No parameter specified with -f, aborting.\n");
-		exit(1);
-	    }
-	    mode = strdup(argv[i + 1]);
-
-	    if (strncmp(mode, "yuv", 3) == 0) {
-		format = V4L2_PIX_FMT_YUYV;
-
-	    } else if (strncmp(mode, "jpg", 3) == 0) {
-		format = V4L2_PIX_FMT_MJPEG;
-
+		printf("No parameter specified with -f, aborting.\n");	
 	    } else {
-		format = V4L2_PIX_FMT_MJPEG;
-
-	    }
+	    mode = strdup(argv[i + 1]);
+		}
 	}
+	    
+	if (strncmp(mode, "yuv", 3) == 0) {
+		format = V4L2_PIX_FMT_YUYV;
+	} else if (strncmp(mode, "jpg", 3) == 0) {
+		format = V4L2_PIX_FMT_MJPEG;
+	} else {
+		format = V4L2_PIX_FMT_MJPEG;
+	}
+	
 	if (strcmp(argv[i], "-s") == 0) {
 	    if (i + 1 >= argc) {
 		printf("No parameter specified with -s, aborting.\n");
@@ -767,8 +880,8 @@ int main(int argc, char *argv[])
 	/* Create a main window */
 	mainwin = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_title (GTK_WINDOW (mainwin), "GUVCViewer Controls");
-	gtk_widget_set_usize(mainwin, WINSIZEX, WINSIZEY);
-
+	//gtk_widget_set_usize(mainwin, winwidth, winheight);
+	gtk_window_resize(mainwin,winwidth,winheight);
 	/* Add event handlers */
 	gtk_signal_connect(GTK_OBJECT(mainwin), "delete_event", GTK_SIGNAL_FUNC(delete_event), 0);
 	
@@ -786,13 +899,21 @@ int main(int argc, char *argv[])
 	exit(1);
     }
 	
-    /* For this version, we will use hardware acceleration */
-    if(hwaccel)
-     if ( ! getenv("SDL_VIDEO_YUV_HWACCEL") ) {
-        putenv("SDL_VIDEO_YUV_HWACCEL=1");
-     }
-	 if ( ! getenv("SDL_VIDEO_YUV_DIRECT") ) {
-		putenv("SDL_VIDEO_YUV_DIRECT=1"); 
+    /* For this version, we will use hardware acceleration as default*/
+    if(hwaccel) {
+     	if ( ! getenv("SDL_VIDEO_YUV_HWACCEL") ) {
+        	putenv("SDL_VIDEO_YUV_HWACCEL=1");
+     	}
+	 	if ( ! getenv("SDL_VIDEO_YUV_DIRECT") ) {
+			putenv("SDL_VIDEO_YUV_DIRECT=1"); 
+	 	}
+	 } else {
+	 	if ( ! getenv("SDL_VIDEO_YUV_HWACCEL") ) {
+        	putenv("SDL_VIDEO_YUV_HWACCEL=0");
+     	}
+	 	if ( ! getenv("SDL_VIDEO_YUV_DIRECT") ) {
+			putenv("SDL_VIDEO_YUV_DIRECT=0"); 
+	 	}
 	 }
      
     if (SDL_VideoDriverName(driver, sizeof(driver))) {
@@ -845,7 +966,7 @@ int main(int argc, char *argv[])
     videoIn = (struct vdIn *) calloc(1, sizeof(struct vdIn));
     if (init_videoIn
 	(videoIn, (char *) videodevice, width, height, format,
-	 grabmethod) < 0)
+	 grabmethod, fps) < 0)
 	exit(1);
     pscreen =
 	SDL_SetVideoMode(videoIn->width, videoIn->height, bpp,
@@ -944,7 +1065,7 @@ int main(int argc, char *argv[])
 	   case 25:	
 	    gtk_combo_box_set_active(GTK_COMBO_BOX(FrameRate),1);
 	    break;
-	   case 33:
+	   case 30:
 		gtk_combo_box_set_active(GTK_COMBO_BOX(FrameRate),2);
 	    break;
 	   default:
