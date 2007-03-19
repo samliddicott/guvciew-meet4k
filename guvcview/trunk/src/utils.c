@@ -1190,11 +1190,7 @@ return 0;
 
 Pix *yuv2rgb(unsigned int YUVMacroPix, int format, Pix *pixe) 
 {
-   unsigned int pixel32;
-   //Pix *pixe;
-
-   //pixe= malloc(sizeof(Pix));
-   unsigned char *pixel = (unsigned char *)&pixel32;
+  
 
    int y ,y1 ,u ,v ,r ,g ,b ,r1 ,g1 ,b1;
 
@@ -1328,34 +1324,52 @@ Pix *yuv2rgb(unsigned int YUVMacroPix, int format, Pix *pixe)
    pixe->g1=g1;
    pixe->b1=b1;
    
- 
-   pixel[0] = b;
-   pixel[1] = g;
-   pixel[2] = r;
-   pixel[3] = 0; //Alpha
-   
-   pixe->pixel1=pixel32;
-   
-   pixel[0] = b1;
-   pixel[1] = g1;
-   pixel[2] = r1;
-   pixel[3] = 0; //Alpha
-	
-   pixe->pixel2=pixel32;
-	
-   //~ /* Debug*/
-
-   //~ printf("yuv2rgb(%i, %i, %i) -> %i, %i, %i  (0x%x)\n",
-
-	  //~ y, u, v,
-
-	  //~ pixel[0], pixel[1], pixel[2],
-
-	  //~ pixel32);
-
-   
-
-   
-
    return pixe;
+}
+
+
+int 
+SaveBPM(char *Filename, long width, long height, int BitCount, BYTE *ImagePix) {
+
+int ret=0;
+BITMAPFILEHEADER BmpFileh;
+BITMAPINFOHEADER BmpInfoh;
+DWORD imgsize;
+FILE *fp;
+
+imgsize=width*height*BitCount/8;
+
+BmpFileh.bfType=0x4d42;//must be BM (x4d42) 
+BmpFileh.bfSize=sizeof(BITMAPFILEHEADER)+sizeof(BITMAPINFOHEADER)+imgsize; //Specifies the size, in bytes, of the bitmap file
+BmpFileh.bfReserved1=0; //Reserved; must be zero
+BmpFileh.bfReserved2=0; //Reserved; must be zero
+BmpFileh.bfOffBits=sizeof(BITMAPFILEHEADER)+sizeof(BITMAPINFOHEADER); /*Specifies the offset, in bytes, 
+			    from the beginning of the BITMAPFILEHEADER structure 
+			    to the bitmap bits*/
+
+BmpInfoh.biSize=40;
+BmpInfoh.biWidth=width; 
+BmpInfoh.biHeight=height; 
+BmpInfoh.biPlanes=1; 
+BmpInfoh.biBitCount=BitCount; 
+BmpInfoh.biCompression=0; // 0 
+BmpInfoh.biSizeImage=imgsize; 
+BmpInfoh.biXPelsPerMeter=0; 
+BmpInfoh.biYPelsPerMeter=0; 
+BmpInfoh.biClrUsed=0; 
+BmpInfoh.biClrImportant=0;
+
+if ((fp = fopen(Filename,"wb"))!=NULL) {  // (wb) write in binary mode
+		fwrite(&BmpFileh, sizeof(BITMAPFILEHEADER), 1, fp);
+		fwrite(&BmpInfoh, sizeof(BITMAPINFOHEADER),1,fp);
+		fwrite(ImagePix,imgsize,1,fp);
+		
+		fclose(fp);
+} else {
+	ret=1;
+	printf("ERROR: Could not open file %s for write \n",Filename);
+}
+
+
+return ret;
 }

@@ -80,11 +80,11 @@ struct vdIn {
     int framesizeIn;
     int signalquit;
     int capAVI;
-	char *AVIFName;
-	int fps;
+    char *AVIFName;
+    int fps;
     int getPict;
-	int capImage;
-	char *ImageFName;
+    int capImage;
+    char *ImageFName;
     int rawFrameCapture;
     /* raw frame capture */
     unsigned int fileCounter;
@@ -140,7 +140,7 @@ typedef struct _VidState {
 
 int
 init_videoIn(struct vdIn *vd, char *device, int width, int height,
-	     int format, int grabmethod);
+	     int format, int grabmethod, int fps);
 //~ int change_format(struct vdIn *vd);
 int uvcGrab(struct vdIn *vd);
 void close_v4l2(struct vdIn *vd);
@@ -152,7 +152,7 @@ void close_v4l2(struct vdIn *vd);
 
 int input_get_control (struct vdIn * device, InputControl * control, int * val);
 int input_set_control (struct vdIn * device, InputControl * control, int val);
-int input_set_framerate (struct vdIn * device, int val);
+int input_set_framerate (struct vdIn * device, int fps);
 int input_get_framerate (struct vdIn * device);
 InputControl *
 input_enum_controls (struct vdIn * device, int * num_controls);

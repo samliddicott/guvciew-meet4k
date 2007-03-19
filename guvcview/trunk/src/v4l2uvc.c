@@ -27,7 +27,7 @@ static int init_v4l2(struct vdIn *vd);
 
 int
 init_videoIn(struct vdIn *vd, char *device, int width, int height,
-	     int format, int grabmethod)
+	     int format, int grabmethod, int fps)
 {
     //~ int ret = -1;
     //~ int i;
@@ -46,8 +46,8 @@ init_videoIn(struct vdIn *vd, char *device, int width, int height,
     snprintf(vd->videodevice, 12, "%s", device);
     printf("video %s \n", vd->videodevice);
     vd->capAVI = FALSE;
-	vd->AVIFName = DEFAULT_AVI_FNAME;
-	vd->fps = fps;
+    vd->AVIFName = DEFAULT_AVI_FNAME;
+    vd->fps = fps;
     vd->getPict = 0;
     vd->signalquit = 1;
     vd->width = width;
@@ -199,7 +199,7 @@ static int init_v4l2(struct vdIn *vd)
 	
 	vd->streamparm.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 	vd->streamparm.parm.capture.timeperframe.numerator = 1;
-	vd->streamparm.parm.capture.timeperframe.denominator = DEFAULT_FPS;
+	vd->streamparm.parm.capture.timeperframe.denominator = vd->fps;
 	ret = ioctl(vd->fd,VIDIOC_S_PARM,&vd->streamparm);
 	if (ret < 0) {
 	printf("Unable to set timeperframe: %d.\n", errno);
@@ -568,10 +568,10 @@ input_set_control (struct vdIn * device, InputControl * control, int val)
 }
 
 int
-input_set_framerate (struct vdIn * device, int val)
+input_set_framerate (struct vdIn * device, int fps)
 {
    
-    int fd, ret, fps;
+	int fd, ret;
 
     //~ if (device->fd < 0) {
         //~ fd = open (device->videodevice, O_RDWR | O_NONBLOCK, 0);
@@ -579,41 +579,22 @@ input_set_framerate (struct vdIn * device, int val)
             //~ return -1;
     //~ }
     //~ else {
-        fd = device->fd;
+	fd = device->fd;
     //~ }
-    switch (val) {
-	  case 0: //15 fps
-	   device->streamparm.parm.capture.timeperframe.numerator = 1;
-	   device->streamparm.parm.capture.timeperframe.denominator = 15;
-	   fps = 15;
-	   break;
-	  case 1: //25 fps
-	   device->streamparm.parm.capture.timeperframe.numerator = 1;
-	   device->streamparm.parm.capture.timeperframe.denominator = 25;
-	   fps = 25;
-	   break;
-      case 2: // 30 fps
-       device->streamparm.parm.capture.timeperframe.numerator = 1;
-	   device->streamparm.parm.capture.timeperframe.denominator = 30;
-	   fps = 30;
-	   break;
-      default:
-       /* set to the lowest*/
-       device->streamparm.parm.capture.timeperframe.numerator = 1;
-	   device->streamparm.parm.capture.timeperframe.denominator = 15; 
-       fps = 15;
-	} 
+	device->streamparm.parm.capture.timeperframe.numerator = 1;
+	device->streamparm.parm.capture.timeperframe.denominator = fps;
+	 
 	ret = ioctl(fd,VIDIOC_S_PARM,&device->streamparm);
 	if (ret < 0) {
-	printf("Unable to set timeperframe: %d.\n", errno);
+		printf("Unable to set timeperframe: %d.\n", errno);
 	} else {
-	 device->fps = fps; 
+		device->fps = fps; 
 	}		
 
     //~ if (device->fd < 0)
         //~ close(fd);
 
-    return ret;
+	return ret;
 }
 
 int
@@ -636,7 +617,8 @@ input_get_framerate (struct vdIn * device)
 	printf("Unable to get timeperframe: %d.\n", errno);
 	} else {
 		/*it seems numerator is allways 1*/
-	 device->fps = device->streamparm.parm.capture.timeperframe.denominator; 
+	 fps = device->streamparm.parm.capture.timeperframe.denominator; 
+	 device->fps=fps;	
 	}		
 
     //~ if (device->fd < 0)

@@ -364,16 +364,23 @@ static int avi_close_output_file(avi_t *AVI)
    OUTLONG(0);                  /* Frame */
    OUTLONG(0);                  /* Frame */
 
-   /* The video stream format */
-
+   /* The video stream format i- this is a BITMAPINFO structure*/
+ 
    OUT4CC ("strf");
-   OUTLONG(40);                 /* # of bytes to follow */
-   OUTLONG(40);                 /* Size */
-   OUTLONG(AVI->width);         /* Width */
-   OUTLONG(AVI->height);        /* Height */
-   OUTSHRT(1); OUTSHRT(24);     /* Planes, Count */
-   OUT4CC (AVI->compressor);    /* Compression */
-   OUTLONG(AVI->width*AVI->height);  /* SizeImage (in bytes?) */
+   OUTLONG(40);                 /* # of bytes to follow (biSize) ?????*/
+   OUTLONG(40);                 /* biSize */
+   OUTLONG(AVI->width);         /* biWidth */
+   OUTLONG(AVI->height);        /* biHeight */
+   OUTSHRT(1);     /* Planes - allways 1 */ 
+   if (strcmp(AVI->compressor,"DIB ")==0) {  /* Compression ->for DIB 24 = BI_RGB */
+		OUTSHRT(24); /*Count - bitsperpixel - 1,4,8 or 24  32*/  		
+		OUTLONG(0);
+   	}
+   	else {
+		OUTSHRT(24); /*Count - bitsperpixel - 1,4,8 or 24  32*/
+   		OUT4CC (AVI->compressor);    
+   	}
+   OUTLONG(AVI->width*AVI->height);  /* SizeImage (in bytes?) should be biSizeImage = ((((biWidth * biBitCount) + 31) & ~31) >> 3) * biHeight*/
    OUTLONG(0);                  /* XPelsPerMeter */
    OUTLONG(0);                  /* YPelsPerMeter */
    OUTLONG(0);                  /* ClrUsed: Number of colors used */

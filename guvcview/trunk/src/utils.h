@@ -17,8 +17,18 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA		#
 #                                                                              										#
 *************************************************************************************************/
+typedef  unsigned char BYTE;
+typedef  unsigned int DWORD;
+typedef  unsigned int LONG;
+typedef  unsigned int UINT;
+typedef  unsigned short  int WORD;
 
 static int debug = 0;
+
+#define BI_RGB 0;
+#define BI_RLE4 1;
+#define BI_RLE8 2;
+#define BI_BITFIELDS 3;
 
 /* Fixed point arithmetic */
 #define FIXED	Sint32
@@ -44,7 +54,6 @@ static int debug = 0;
 #define DEFAULT_AVI_FNAME	"capture.avi"
 #define DEFAULT_FPS	25
 
-static int fps=DEFAULT_FPS;
 
 /*                      */
 #define ERR_NO_SOI 1
@@ -63,21 +72,47 @@ static int fps=DEFAULT_FPS;
 #define ERR_BAD_TABLES 14
 #define ERR_DEPTH_MISMATCH 15
 
+
+
 typedef struct _Pix {
-unsigned int pixel1;
-unsigned int pixel2;
-unsigned char y;
-unsigned char u;
-unsigned char v;
-unsigned char y1;
-unsigned char r;
-unsigned char g;
-unsigned char b;
-unsigned char r1;
-unsigned char g1;
-unsigned char b1;
+//unsigned int pixel1;
+//unsigned int pixel2;
+BYTE y;
+BYTE u;
+BYTE v;
+BYTE y1;
+BYTE r;
+BYTE g;
+BYTE b;
+BYTE r1;
+BYTE g1;
+BYTE b1;
 	
 } Pix;
+
+typedef struct tagBITMAPFILEHEADER { 
+  WORD    bfType; //Specifies the file type, must be BM
+  DWORD   bfSize; //Specifies the size, in bytes, of the bitmap file
+  WORD    bfReserved1; //Reserved; must be zero
+  WORD    bfReserved2; //Reserved; must be zero
+  DWORD   bfOffBits; /*Specifies the offset, in bytes, 
+			    from the beginning of the BITMAPFILEHEADER structure 
+			    to the bitmap bits= FileHeader+InfoHeader+RGBQUAD(0 for 24bit BMP)=64*/
+}   __attribute__ ((packed)) BITMAPFILEHEADER, *PBITMAPFILEHEADER;
+
+typedef struct tagBITMAPINFOHEADER{
+  DWORD  biSize; 
+  LONG   biWidth; 
+  LONG   biHeight; 
+  WORD   biPlanes; 
+  WORD   biBitCount; 
+  DWORD  biCompression; 
+  DWORD  biSizeImage; 
+  LONG   biXPelsPerMeter; 
+  LONG   biYPelsPerMeter; 
+  DWORD  biClrUsed; 
+  DWORD  biClrImportant; 
+}  __attribute__ ((packed)) BITMAPINFOHEADER, *PBITMAPINFOHEADER;
 
 int jpeg_decode(unsigned char **pic, unsigned char *buf, int *width,
 		int *height);
@@ -85,3 +120,5 @@ int jpeg_decode(unsigned char **pic, unsigned char *buf, int *width,
 //~ get_picture(unsigned char *buf,int size);
 
 Pix *yuv2rgb(unsigned int YUVMacroPix, int format, Pix *pixe);
+
+int SaveBPM(char *Filename, long width, long height, int BitCount, BYTE *ImagePix);
