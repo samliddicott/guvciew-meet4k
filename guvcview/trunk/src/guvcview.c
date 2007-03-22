@@ -926,14 +926,6 @@ int main(int argc, char *argv[])
 	    mode = strdup(argv[i + 1]);
 		}
 	}
-	    
-	if (strncmp(mode, "yuv", 3) == 0) {
-		format = V4L2_PIX_FMT_YUYV;
-	} else if (strncmp(mode, "jpg", 3) == 0) {
-		format = V4L2_PIX_FMT_MJPEG;
-	} else {
-		format = V4L2_PIX_FMT_MJPEG;
-	}
 	
 	if (strcmp(argv[i], "-s") == 0) {
 	    if (i + 1 >= argc) {
@@ -984,6 +976,14 @@ int main(int argc, char *argv[])
 	    exit(0);
 	  }
     }
+    
+    if (strncmp(mode, "yuv", 3) == 0) {
+		format = V4L2_PIX_FMT_YUYV;
+	} else if (strncmp(mode, "jpg", 3) == 0) {
+		format = V4L2_PIX_FMT_MJPEG;
+	} else {
+		format = V4L2_PIX_FMT_MJPEG;
+	}
 	
 	gtk_init(&argc, &argv);
 	
