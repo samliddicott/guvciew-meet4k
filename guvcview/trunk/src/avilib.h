@@ -1,6 +1,6 @@
 #ifndef AVILIB_H
 #define AVILIB_H
-
+#include "utils.h"
 
 typedef struct
 {
@@ -119,12 +119,12 @@ typedef struct
 #define IBM_FORMAT_ADPCM                (0x0103)
 
 
-avi_t* AVI_open_output_file(char * filename);
+avi_t* AVI_open_output_file(const char * filename);
 void AVI_set_video(avi_t *AVI, int width, int height, double fps, char *compressor);
 void AVI_set_audio(avi_t *AVI, int channels, long rate, int bits, int format);
-int  AVI_write_frame(avi_t *AVI, char *data, long bytes);
+int  AVI_write_frame(avi_t *AVI, BYTE *data, long bytes);
 int  AVI_dup_frame(avi_t *AVI);
-int  AVI_write_audio(avi_t *AVI, char *data, long bytes);
+int  AVI_write_audio(avi_t *AVI, BYTE *data, long bytes);
 long AVI_bytes_remain(avi_t *AVI);
 int  AVI_close(avi_t *AVI);
 
