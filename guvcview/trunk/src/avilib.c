@@ -67,11 +67,11 @@ static void long2str(unsigned char *dst, int n)
 /* Convert a string of 4 or 2 bytes to a number,
    also working on big endian machines */
 
-static unsigned long str2ulong(unsigned char *str)
+static unsigned long str2ulong(BYTE *str)
 {
    return ( str[0] | (str[1]<<8) | (str[2]<<16) | (str[3]<<24) );
 }
-static unsigned long str2ushort(unsigned char *str)
+static unsigned long str2ushort(BYTE *str)
 {
    return ( str[0] | (str[1]<<8) );
 }
@@ -157,7 +157,7 @@ static int avi_add_index_entry(avi_t *AVI, unsigned char *tag, long flags, long 
    returns a pointer to avi_t on success, a zero pointer on error
 */
 
-avi_t* AVI_open_output_file(char * filename)
+avi_t* AVI_open_output_file(const char * filename)
 {
    avi_t *AVI;
    int i;
@@ -267,7 +267,7 @@ static int avi_close_output_file(avi_t *AVI)
       readable in the most cases */
 
    idxerror = 0;
-   ret = avi_add_chunk(AVI,"idx1",(void*)AVI->idx,AVI->n_idx*16);
+   ret = avi_add_chunk(AVI,"idx1",(void *)AVI->idx,AVI->n_idx*16);
    hasIndex = (ret==0);
    if(ret)
    {
@@ -494,10 +494,10 @@ static int avi_close_output_file(avi_t *AVI)
 
 */
 
-static int avi_write_data(avi_t *AVI, char *data, long length, int audio)
+static int avi_write_data(avi_t *AVI, BYTE *data, long length, int audio)
 {
    int n;
-
+   unsigned char *tag;
    /* Check for maximum file length */
 
    if ( (AVI->pos + 8 + length + 8 + (AVI->n_idx+1)*16) > AVI_MAX_LEN )
@@ -507,27 +507,30 @@ static int avi_write_data(avi_t *AVI, char *data, long length, int audio)
    }
 
    /* Add index entry */
-
    if(audio)
-      n = avi_add_index_entry(AVI,"01wb",0x00,AVI->pos,length);
+		tag="01wb";
    else
-      n = avi_add_index_entry(AVI,"00db",0x10,AVI->pos,length);
+		tag="00db";
+	
+   n = avi_add_index_entry(AVI,tag,0x00,AVI->pos,length);
 
    if(n) return -1;
 
    /* Output tag and data */
 
    if(audio)
-      n = avi_add_chunk(AVI,"01wb",data,length);
+      tag="01wb";
    else
-      n = avi_add_chunk(AVI,"00db",data,length);
+      tag="00db";
+	  
+   n = avi_add_chunk(AVI,tag,data,length);
 
    if (n) return -1;
 
    return 0;
 }
 
-int AVI_write_frame(avi_t *AVI, char *data, long bytes)
+int AVI_write_frame(avi_t *AVI, BYTE *data, long bytes)
 {
    long pos;
 
@@ -546,13 +549,14 @@ int AVI_dup_frame(avi_t *AVI)
    if(AVI->mode==AVI_MODE_READ) { AVI_errno = AVI_ERR_NOT_PERM; return -1; }
 
    if(AVI->last_pos==0) return 0; /* No previous real frame */
-   if(avi_add_index_entry(AVI,"00db",0x10,AVI->last_pos,AVI->last_len)) return -1;
+   unsigned char *tag="00db";
+   if(avi_add_index_entry(AVI,tag,0x10,AVI->last_pos,AVI->last_len)) return -1;
    AVI->video_frames++;
    AVI->must_use_index = 1;
    return 0;
 }
 
-int AVI_write_audio(avi_t *AVI, char *data, long bytes)
+int AVI_write_audio(avi_t *AVI, BYTE *data, long bytes)
 {
    if(AVI->mode==AVI_MODE_READ) { AVI_errno = AVI_ERR_NOT_PERM; return -1; }
 
@@ -619,7 +623,7 @@ avi_t *AVI_open_input_file(char *filename, int getIndex)
    int auds_strh_seen = 0;
    int auds_strf_seen = 0;
    int num_stream = 0;
-   char data[256];
+   BYTE data[256];
 
    /* Create avi_t structure */
 
@@ -1097,7 +1101,7 @@ int AVI_read_data(avi_t *AVI, char *vidbuf, long max_vidbuf,
  */
 
    int n;
-   char data[8];
+   BYTE data[8];
 
    if(AVI->mode==AVI_MODE_WRITE) return 0;
 
