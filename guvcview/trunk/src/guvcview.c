@@ -45,31 +45,43 @@
 #include <gdk/gdkx.h>
 
 #include "v4l2uvc.h"
-#include "avilib.h"
+//#include "avilib.h"
 
 
 static const char version[] = VERSION;
 struct vdIn *videoIn;
-char *confPath;
+char confPath[80];
 int AVIFormat=1; /*1-"YUY2"  2-"DIB "(rgb32) */
+VidState * s;
 
-/* The main display surface */
+/* The main window*/
 GtkWidget *mainwin;
+/* A restart Dialog */
+GtkWidget *restartdialog;
 
+/*thread definitions*/
+pthread_t mythread;
+pthread_attr_t attr;
+ 
+int ARG_C;
+char **ARG_V;
+
+/*the main SDL surface*/
 SDL_Surface *pscreen = NULL;
+
 SDL_Surface *ImageSurf = NULL;
 SDL_Overlay *overlay;
 SDL_Rect drect;
 SDL_Event sdlevent;
-SDL_Thread *mythread;
+
 Uint32 currtime;
 Uint32 lasttime;
 Uint32 AVIstarttime;
 Uint32 AVIstoptime;
 Uint32 framecount=0;
 avi_t *AviOut;
-unsigned char *p = NULL;
-char * pim;
+BYTE *p = NULL;
+BYTE * pim;
 //Uint32 * aviIm;
 //unsigned char *pixeldata = (unsigned char *)&aviIm;
 
@@ -80,7 +92,7 @@ char *capt;
 int fps = DEFAULT_FPS;
 int bpp = 0; //current bytes per pixel
 int hwaccel = 1; //use hardware acceleration
-int grabmethod = 1;//standart MJPEG
+int grabmethod = 1;//default mmap(1) or read(0)
 int width = DEFAULT_WIDTH;
 int height = DEFAULT_HEIGHT;
 int winwidth=WINSIZEX;
@@ -88,7 +100,7 @@ int winheight=WINSIZEY;
 const char *mode="jpg"; /*jpg (default) or yuv*/
 int format = V4L2_PIX_FMT_MJPEG;
 
-/*currently it as no used - all variables are global*/
+/*currently it as no use - all variables are global*/
 //~ struct pt_data {
     //~ SDL_Surface **ptscreen;
 	//~ SDL_Overlay **ptoverlay;
@@ -101,28 +113,176 @@ int format = V4L2_PIX_FMT_MJPEG;
 
 static Uint32 SDL_VIDEO_Flags =
     SDL_ANYFORMAT | SDL_DOUBLEBUF | SDL_RESIZABLE;
-    
+
+
+static
+int writeConf(const char *confpath) {
+	int ret=1;
+	FILE *fp;
+	if ((fp = fopen(confpath,"w"))!=NULL) {
+   		fprintf(fp,"# guvcview configuration file\n\n");
+   		fprintf(fp,"# video resolution - hardware supported (logitech) 320x240 640x480\n");
+   		fprintf(fp,"resolution=%ix%i\n",width,height);
+   		fprintf(fp,"# control window size: default %ix%i\n",WINSIZEX,WINSIZEY);
+   		fprintf(fp,"windowsize=%ix%i\n",winwidth,winheight);
+   		fprintf(fp,"# mode video format 'yuv' or 'jpg'(default)\n");
+   		fprintf(fp,"mode=%s\n",mode);
+   		fprintf(fp,"# frames per sec. - hardware supported 15 25 32 - default( %i )\n",DEFAULT_FPS);
+   		fprintf(fp,"fps=%i\n",fps);
+   		fprintf(fp,"# bytes per pixel: default (0 - current)\n");
+   		fprintf(fp,"bpp=%i\n",bpp);
+   		fprintf(fp,"# hardware accelaration: 0 1 (default - 1)\n");
+   		fprintf(fp,"hwaccel=%i\n",hwaccel);
+   		fprintf(fp,"# video grab method: 0 -read 1 -mmap (default - 1)\n");
+   		fprintf(fp,"grabmethod=%i\n",grabmethod);
+   		
+   		printf("write %s OK\n",confpath);
+   		fclose(fp);
+	} else {
+	printf("Could not write file %s \n Please check file permissions\n",confpath);
+	ret=0;
+	exit(0);
+	}
+	return ret;
+}
+
+static
+int readConf(const char *confpath) {
+	int ret=1;
+	char variable[20];
+	char value[20];
+
+	int i=0;
+	int j=0;
+
+
+	FILE *fp;
+
+	if((fp = fopen(confpath,"r"))!=NULL) {
+		char line[80];
+
+  		while (fgets(line, 80, fp) != NULL) {
+			//printf("%s-->\n",line);
+			j++;
+			if ((line[0]=='#') || (line[0]==' ') || (line[0]=='\n')) {
+					//printf("Skip line %i\n",j);
+			} else if ((i=sscanf(line,"%[^#=]=%[^#\n ]",variable,value))==2){
+					//printf("line nr %i found %i\n",j,i);
+					//printf ("%s : %s\n",variable,value);
+					/* set variables */
+					if (strcmp(variable,"resolution")==0) {
+						if ((i=sscanf(value,"%ix%i",&width,&height))==2)
+							printf("resolution: %i x %i\n",width,height); 			
+					} else if (strcmp(variable,"windowsize")==0) {
+						if ((i=sscanf(value,"%ix%i",&winwidth,&winheight))==2)
+							printf("windowsize: %i x %i\n",winwidth,winheight);
+						} else if 	(strcmp(variable,"mode")==0) {
+							mode=strdup(value);
+							printf("mode: %s\n",mode);
+						} else if 	(strcmp(variable,"fps")==0) {
+								if ((i=sscanf(value,"%i",&fps))==1)
+									printf("fps: %i\n",fps);
+						} else if 	(strcmp(variable,"bpp")==0) {
+								if ((i=sscanf(value,"%i",&bpp))==1)
+									printf("bpp: %i\n",bpp);
+						} else if 	(strcmp(variable,"hwaccel")==0) {
+								if ((i=sscanf(value,"%i",&hwaccel))==1)
+									printf("hwaccel: %i\n",hwaccel);
+						} else if 	(strcmp(variable,"grabmethod")==0) {
+								if ((i=sscanf(value,"%i",&grabmethod))==1)
+									printf("grabmethod: %i\n",grabmethod);
+						}
+			}
+		}
+		fclose(fp);
+	} else {
+   		printf("Could not open %s for read,\n will try to create it\n",confpath);
+   		ret=writeConf(confpath);
+	}
+	return ret;
+}
+
+gint 
+shutd (gint restart) 
+{
+ 	int exec_status=0;
+	int i;
+	int tstatus;
+	
+    printf("Shuting Down Thread\n");
+	videoIn->signalquit=0;
+	printf("waiting for thread to finish\n");
+	/* Free attribute and wait for the thread */
+    pthread_attr_destroy(&attr);
+	
+	int rc = pthread_join(mythread, (void **)&tstatus);
+    if (rc)
+      {
+         printf("ERROR; return code from pthread_join() is %d\n", rc);
+         exit(-1);
+      }
+    printf("Completed join with thread status= %d\n", tstatus);
+	
+	
+	gtk_window_get_size(GTK_WINDOW(mainwin),&winwidth,&winheight);//mainwin or widget
+	
+	
+	close_v4l2(videoIn);
+	close(videoIn->fd);
+	printf("closed strutures\n");
+    free(videoIn);
+	free(capt);
+	
+	SDL_Quit();
+	printf("SDL Quit\n");
+	printf("cleaned allocations - 50%%\n");
+	gtk_main_quit();
+	
+    printf("GTK quit\n");
+    writeConf(confPath);
+	input_free_controls (s->control, s->num_controls);
+	printf("free controls - vidState\n");
+	
+	char locpath[30];
+	char fullpath[50];
+	char *pwd;
+	
+ 	if (restart==1) {
+		 		 		
+		 if (sscanf(ARG_V[0],"./%s",locpath)==1) { //guvcview started from local path
+		 	pwd=getenv("PWD");
+			sprintf(fullpath,"%s/%s",pwd,locpath);
+			if((ARG_V[0]=realloc(ARG_V[0],(strlen(fullpath)+1)*sizeof(char)))!=NULL){
+				strcpy(ARG_V[0],fullpath);
+			} else {
+				printf("Couldn't realloc mem (terminating..)\n");
+				for(i=0;i<ARG_C;i++){
+					free(ARG_V[i]);
+				}
+				free(ARG_V);
+				printf("cleaned allocations - 100%%\n");
+				return(2);
+			}
+		 } 
+		 
+		 printf("restarting guvcview\n");
+		 exec_status = execvp(ARG_V[0], ARG_V);
+ 	}
+	
+	for(i=0;i<ARG_C;i++){
+		free(ARG_V[i]);
+	}
+	free(ARG_V);
+	printf("cleanig allocations - 100%%\n");
+	return exec_status;
+}
+
+
 /* Event handlers */
 gint
 delete_event (GtkWidget *widget, GdkEventConfigure *event)
 {
-	videoIn->signalquit=0;
-	SDL_WaitThread(mythread, NULL);//wait for thread to finish
-	
-	SDL_Quit();
-	gtk_window_get_size(mainwin,&winwidth,&winheight);//mainwin or widget
-	gtk_main_quit();
-	
-	//SDL_FreeSurface(ImageSurf);
-	
-	close_v4l2(videoIn);
-	close(videoIn->fd);
-	
-    free(videoIn);
-	free(capt);
-	
-    printf(" Clean Up done  \n");
-    writeConf(confPath);
+	shutd(0);//shutDown
 	
 	return 0;
 }
@@ -135,7 +295,7 @@ aviClose (void)
     {
       printf ("AVI close asked \n");
       tottime = AVIstoptime - AVIstarttime;
-	  printf("AVI: %i in %x\n",framecount,tottime);
+	  printf("AVI: %i in %lf\n",framecount,tottime);
       
 	  if (tottime > 0) {
 	    /*try to find the real frame rate*/
@@ -274,23 +434,59 @@ combo_changed (GtkComboBox * combo, VidState * s)
 static void
 resolution_changed (GtkComboBox * Resolution, void *data)
 {
+	/* The new resolution is writen to conf file at exit             */
+	/* then is read back at start. This means that for changing */
+	/* resolution we must restart the application                    */
+	
+	/*Resolutions are hardcoded - should be given by driver     */
+	
 	int index = gtk_combo_box_get_active(Resolution);
 	
 	switch (index) {
-	  case 0: //320x240
-	    width=320;
-	    height=240;
-	    break;
-	  case 1:
-	    width=640;
-	    height=480;
-	    break;
-	}
+	       case 0: //320x240
+	        width=320;
+	        height=240;
+	        break;
+	       case 1: //640x480
+	        width=640;
+	        height=480;
+	        break;
+	     }	
+	
+	restartdialog = gtk_dialog_new_with_buttons ("Program Restart",
+                                                  GTK_WINDOW(mainwin),
+                                                  GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+                                                  "now",
+                                                  GTK_RESPONSE_ACCEPT,
+                                                  "Later",
+                                                  GTK_RESPONSE_REJECT,
+                                                  NULL);
+	
+	GtkWidget *message = gtk_label_new ("Changes will only take effect after guvcview restart.\n\n\nRestart now?\n");
+	gtk_container_add (GTK_CONTAINER (GTK_DIALOG(restartdialog)->vbox), message);
+	gtk_widget_show_all(GTK_WIDGET(GTK_CONTAINER (GTK_DIALOG(restartdialog)->vbox)));
+	
+  gint result = gtk_dialog_run (GTK_DIALOG (restartdialog));
+  switch (result)
+    {
+      case GTK_RESPONSE_ACCEPT:
+         /*restart app*/
+		 shutd(1);
+         break;
+      default:
+         /* do nothing since Restart rejected*/		
+         break;
+    }
+  
+  gtk_widget_destroy (restartdialog);
+		
 }
 
 static void
 FrameRate_changed (GtkComboBox * FrameRate, void *data)
 {
+	/*Frame Rates are hardcoded - should be given by driver */
+	
 	int index = gtk_combo_box_get_active (FrameRate);
       	
 	switch (index) {
@@ -332,7 +528,7 @@ static void
 capture_image (GtkButton * CapImageButt, GtkWidget * ImageFNameEntry)
 {
   
-  char * filename = gtk_entry_get_text(GTK_ENTRY(ImageFNameEntry));
+  const char *filename = gtk_entry_get_text(GTK_ENTRY(ImageFNameEntry));
 	
 	videoIn->ImageFName = filename;
 	videoIn->capImage = TRUE;
@@ -341,7 +537,7 @@ capture_image (GtkButton * CapImageButt, GtkWidget * ImageFNameEntry)
 static void
 capture_avi (GtkButton * CapAVIButt, GtkWidget * AVIFNameEntry)
 {
-	char *filename = gtk_entry_get_text(GTK_ENTRY(AVIFNameEntry));
+	const char *filename = gtk_entry_get_text(GTK_ENTRY(AVIFNameEntry));
 	char *compression="YUY2";
 
 	switch (AVIFormat) {
@@ -423,7 +619,10 @@ draw_controls (VidState *s)
                 s->control[i].default_val);
     }
 
-    s->control_info = malloc (s->num_controls * sizeof (ControlInfo));
+   if((s->control_info = malloc (s->num_controls * sizeof (ControlInfo)))==NULL){
+   			printf("couldn't allocate memory for: s->control_info\n");
+			exit(1); 
+   }
 
     for (i = 0; i < s->num_controls; i++) {
         ControlInfo * ci = s->control_info + i;
@@ -584,16 +783,20 @@ draw_controls (VidState *s)
 
 
 
-int main_loop(void *data)
+void *main_loop(void *data)
 {
 	int ret=0;
 	int i,j,k,l,m,n,o;
 	unsigned int YUVMacroPix;
 	unsigned char *pix8 = (unsigned char *)&YUVMacroPix;
 	Pix *pix2;
-	char *pix;
-	pix2= malloc(sizeof(Pix));
-	
+	//char *pix;
+	if ((pix2= malloc(sizeof(Pix)))==NULL) {
+		printf("couldn't allocate memory for: pix2\n");
+		ret=1;
+		//return(ret);
+		pthread_exit((void *) 1);
+	}
 	//fprintf(stderr,"Thread started...\n");
 	/*
 		ImageSurf=SDL_CreateRGBSurface(SDL_SWSURFACE, overlay->w,
@@ -612,7 +815,7 @@ int main_loop(void *data)
 	 if (uvcGrab(videoIn) < 0) {
 	    printf("Error grabbing=> Frame Rate is %d\n",frmrate);
 	    videoIn->signalquit=0;
-		ret = -1;
+		ret = 2;
 	 }
 	
 	 SDL_LockYUVOverlay(overlay);
@@ -624,7 +827,12 @@ int main_loop(void *data)
 	 /*capture Image*/
 	 if (videoIn->capImage){
 
-		pim= malloc((pscreen->w)*(pscreen->h)*3);/*24 bits -> 3bytes 32 bits ->4 bytes*/
+		if((pim= malloc((pscreen->w)*(pscreen->h)*3))==NULL){/*24 bits -> 3bytes 32 bits ->4 bytes*/
+		 	printf("Couldn't allocate memory for: pim\n");
+	     	videoIn->signalquit=0;
+			ret = 3;
+		
+		}
 		
 		//char *ppmheader = "P6\n# Generated by guvcview\n320 240\n255\n";
 		//FILE * out = fopen("Yimage.ppm", "wb"); //saving as ppm
@@ -702,7 +910,11 @@ int main_loop(void *data)
 		   break;
 		case 2:
 		    framesize=(pscreen->w)*(pscreen->h)*3; /*DIB 24/32 -> 3/4 bytes per pixel*/ 
-		    pim= malloc(framesize);
+		    if((pim= malloc(framesize))==NULL){
+				printf("Couldn't allocate memory for: pim\n");
+	     		videoIn->signalquit=0;
+				ret = 4;
+			}
 		    k=overlay->h;
 					
 		for(j=0;j<(overlay->h);j++){
@@ -756,7 +968,7 @@ int main_loop(void *data)
 	   framecount++;	   
 		  
 	  } 
-	  SDL_Delay(10);
+	  SDL_Delay(SDL_WAIT_TIME);
 	
   }
   
@@ -767,97 +979,36 @@ int main_loop(void *data)
    }	   
    printf("Thread terminated...\n");
    free (pix2);
-  
-   return (ret);	
+   printf("cleanig Thread allocations 100%%\n");
+   fflush(NULL);//flush all output buffers
+   //return (ret);	
+   pthread_exit((void *) 0);
 }
 
-int writeConf(const char *confpath) {
-	int ret=1;
-	FILE *fp;
-	if ((fp = fopen(confpath,"w"))!=NULL) {
-   		fprintf(fp,"# guvcview configuration file\n\n");
-   		fprintf(fp,"# video resolution - hardware supported (logitech) 320x240 640x480\n");
-   		fprintf(fp,"resolution=%ix%i\n",width,height);
-   		fprintf(fp,"# control window size: default %ix%i\n",WINSIZEX,WINSIZEY);
-   		fprintf(fp,"windowsize=%ix%i\n",winwidth,winheight);
-   		fprintf(fp,"# mode video format 'yuv' or 'jpg'(default)\n");
-   		fprintf(fp,"mode=%s\n",mode);
-   		fprintf(fp,"# frames per sec. - hardware supported 15 25 32 - default( %i )\n",DEFAULT_FPS);
-   		fprintf(fp,"fps=%i\n",fps);
-   		fprintf(fp,"# bytes per pixel: default (0 - current)\n");
-   		fprintf(fp,"bpp=%i\n",bpp);
-   		fprintf(fp,"# hardware accelaration: 0 1 (default - 1)\n");
-   		fprintf(fp,"hwaccel=%i\n",hwaccel);
-   		fprintf(fp,"# video grab method: 0 -read 1 -mmap (default - 1)\n");
-   		fprintf(fp,"grabmethod=%i\n",grabmethod);
-   		
-   		printf("write %s OK\n",confpath);
-   		fclose(fp);
-	} else {
-	printf("Could not write file %s \n Please check file permissions\n",confpath);
-	ret=0;
-	}
-	return ret;
-}
 
-int readConf(const char *confpath) {
-	int ret=1;
-	char variable[20];
-	char value[20];
-
-	int i=0;
-	int j=0;
-
-
-	FILE *fp;
-
-	if((fp = fopen(confpath,"r"))!=NULL) {
-		char line[80];
-
-  		while (fgets(line, 80, fp) != NULL) {
-			//printf("%s-->\n",line);
-			j++;
-			if ((line[0]=='#') || (line[0]==' ') || (line[0]=='\n')) {
-					//printf("Skip line %i\n",j);
-			} else if ((i=sscanf(line,"%[^#=]=%[^#\n ]",variable,value))==2){
-					//printf("line nr %i found %i\n",j,i);
-					//printf ("%s : %s\n",variable,value);
-					/* set variables */
-					if (strcmp(variable,"resolution")==0) {
-						if ((i=sscanf(value,"%ix%i",&width,&height))==2)
-							printf("resolution: %i x %i\n",width,height); 			
-					} else if (strcmp(variable,"windowsize")==0) {
-						if ((i=sscanf(value,"%ix%i",&winwidth,&winheight))==2)
-							printf("windowsize: %i x %i\n",winwidth,winheight);
-						} else if 	(strcmp(variable,"mode")==0) {
-							mode=strdup(value);
-							printf("mode: %s\n",mode);
-						} else if 	(strcmp(variable,"fps")==0) {
-								if ((i=sscanf(value,"%i",&fps))==1)
-									printf("fps: %i\n",fps);
-						} else if 	(strcmp(variable,"bpp")==0) {
-								if ((i=sscanf(value,"%i",&bpp))==1)
-									printf("bpp: %i\n",bpp);
-						} else if 	(strcmp(variable,"hwaccel")==0) {
-								if ((i=sscanf(value,"%i",&hwaccel))==1)
-									printf("hwaccel: %i\n",hwaccel);
-						} else if 	(strcmp(variable,"grabmethod")==0) {
-								if ((i=sscanf(value,"%i",&grabmethod))==1)
-									printf("grabmethod: %i\n",grabmethod);
-						}
-			}
-		}
-		fclose(fp);
-	} else {
-   		printf("Could not open %s for read,\n will try to create it\n",confpath);
-   		ret=writeConf(confpath);
-	}
-	return ret;
-}
 
 int main(int argc, char *argv[])
 {
-    const SDL_VideoInfo *info;
+    
+	int i;
+	
+	ARG_C=argc;
+	if((ARG_V=malloc(argc*sizeof(argv)))==NULL){//allocs the size of the array
+		printf("couldn't allocate memory for: ARG_V)\n");
+		exit(1); 
+	};
+	for(i=0;i<argc;i++) { 
+		/*allocs size for the strings in the array*/
+		/* sizeof(char) should be 1 but we use it just in case*/
+		if ((ARG_V[i] = malloc((strlen(argv[i]) + 1)*sizeof(char)))!=NULL) { //must check for NULL - out of mem	  
+		 	strcpy(ARG_V[i],argv[i]);
+			printf("ARG_V[%i]=%s argv[%i]=%s\n",i,ARG_V[i],i,argv[i]);
+		} else {
+			printf("couldn't allocate memory for: ARG_V[%i]\n",i);
+			exit(1); 
+		}
+	}
+	const SDL_VideoInfo *info;
     char driver[128];
     GtkWidget * boxh;
 	GtkWidget *Resolution;
@@ -872,17 +1023,29 @@ int main(int argc, char *argv[])
 	GtkWidget *AVIComp;
 	GtkWidget *label_AVIComp;
 	
-	VidState * s;
-	s = malloc (sizeof (VidState));
-    SDL_Thread *mythread;
-   
-    capt = (char *) calloc(1, 100 * sizeof(char));
-       
-    char *home;
-    const char *videodevice = NULL;
-    //const char *mode = NULL;
+	//VidState * s;
+	if ((s = malloc (sizeof (VidState)))==NULL){
+		printf("couldn't allocate memory for: s\n");
+		exit(1); 
+	}
     
-    int i;
+
+	//SDL_Thread *mythread;
+	
+	/* Initialize and set thread detached attribute */
+    pthread_attr_init(&attr);
+    pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
+	
+
+   
+    if((capt = (char *) calloc(1, 100 * sizeof(char)))==NULL){
+		printf("couldn't calloc memory for: capt\n");
+		exit(1);
+	}
+       
+    const char *home;
+    const char *videodevice = NULL;
+    //const char *mode = NULL
     
     
     char *separateur;
@@ -890,8 +1053,12 @@ int main(int argc, char *argv[])
     int enableRawStreamCapture = 0;
     int enableRawFrameCapture = 0;
 	
-    home=getenv("HOME");	
-    confPath=strcat(home,"/.guvcviewrc");
+	home = getenv("HOME");
+	//confPath=malloc((strlen(home)+1)*sizeof(char));
+	//printf("size is...%i",strlen(home));
+    //strcpy(confPath,home);
+	sprintf(confPath,"%s%s", home,"/.guvcviewrc");
+    //strcat(confPath,"/.guvcviewrc");
     
     readConf(confPath);
 
@@ -979,10 +1146,13 @@ int main(int argc, char *argv[])
     
     if (strncmp(mode, "yuv", 3) == 0) {
 		format = V4L2_PIX_FMT_YUYV;
+		printf("Format is yuyv\n");
 	} else if (strncmp(mode, "jpg", 3) == 0) {
 		format = V4L2_PIX_FMT_MJPEG;
+		printf("Format is MJPEG\n");
 	} else {
 		format = V4L2_PIX_FMT_MJPEG;
+		printf("Format is Default MJPEG\n");
 	}
 	
 	gtk_init(&argc, &argv);
@@ -992,7 +1162,7 @@ int main(int argc, char *argv[])
 	mainwin = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_title (GTK_WINDOW (mainwin), "GUVCViewer Controls");
 	//gtk_widget_set_usize(mainwin, winwidth, winheight);
-	gtk_window_resize(mainwin,winwidth,winheight);
+	gtk_window_resize(GTK_WINDOW(mainwin),winwidth,winheight);
 	/* Add event handlers */
 	gtk_signal_connect(GTK_OBJECT(mainwin), "delete_event", GTK_SIGNAL_FUNC(delete_event), 0);
 	
@@ -1074,7 +1244,10 @@ int main(int argc, char *argv[])
 	videodevice = "/dev/video0";
     }
 	
-    videoIn = (struct vdIn *) calloc(1, sizeof(struct vdIn));
+    if((videoIn = (struct vdIn *) calloc(1, sizeof(struct vdIn)))==NULL){
+   		printf("couldn't allocate memory for: videoIn\n");
+		exit(1); 
+    }
     if (init_videoIn
 	(videoIn, (char *) videodevice, width, height, format,
 	 grabmethod, fps) < 0)
@@ -1266,265 +1439,20 @@ int main(int argc, char *argv[])
 	
 	gtk_widget_show (mainwin);
 	
-	
-	//~ mythread = SDL_CreateThread( main_loop,(void *) &ptdata);
-	mythread = SDL_CreateThread( main_loop,NULL);
-	
+	/* Creating the main loop thread*/
+	//mythread = SDL_CreateThread( main_loop,NULL);
+	int rc = pthread_create(&mythread, &attr, main_loop, NULL); 
+      if (rc)
+      {
+         printf("ERROR; return code from pthread_create() is %d\n", rc);
+         exit(2);
+      }
     
 	/* The last thing to get called */
 	gtk_main();
 
-	input_free_controls (s->control, s->num_controls);
+	//input_free_controls (s->control, s->num_controls);
 
 	return 0;
 }
 
-//~ action_gui
-//~ GUI_whichbutton(int x, int y, SDL_Surface * pscreen, struct vdIn *videoIn)
-//~ {
-    //~ int nbutton, retval;
-    //~ FIXED scaleh = TO_FIXED(pscreen->h) / (videoIn->height + 32);
-    //~ int nheight = FROM_FIXED(scaleh * videoIn->height);
-    //~ if (y < nheight)
-	//~ return (A_VIDEO);
-    //~ nbutton = FROM_FIXED(scaleh * 32);
-    //~ /* 8 buttons across the screen, corresponding to 0-7 extand to 16*/
-    //~ retval = (x * 16) / (pscreen->w);
-    //~ /* Bottom half of the button denoted by flag|0x10 */
-    //~ if (y > (nheight + (nbutton / 2)))
-	//~ retval |= 0x10;
-    //~ return ((action_gui) retval);
-//~ }
-
-//~ action_gui GUI_keytoaction(SDLKey key)
-//~ {
-	//~ int i = 0;
-	//~ while(keyaction[i].key){
-		//~ if (keyaction[i].key == key)
-			//~ return (keyaction[i].action);
-		//~ i++;
-	//~ }
-
-	//~ return (A_VIDEO);
-//~ }
-
-//~ static int eventThread(void *data)
-//~ {
-    //~ struct pt_data *gdata = (struct pt_data *) data;
-
-    //~ SDL_Surface *pscreen = *gdata->ptscreen;
-    //~ struct vdIn *videoIn = gdata->ptvideoIn;
-    //~ SDL_Event *sdlevent = gdata->ptsdlevent;
-    //~ SDL_Rect *drect = gdata->drect;
-    //~ SDL_mutex *affmutex = gdata->affmutex;
-    //~ unsigned char frmrate;
-    //~ int x, y;
-    //~ int mouseon = 0;
-    //~ int value = 0;
-    //~ int len = 0;
-    //~ short incpantilt = INCPANTILT;
-    //~ int boucle = 0;
-    //~ action_gui curr_action = A_VIDEO;
-    //~ while (videoIn->signalquit) {
-	//~ SDL_LockMutex(affmutex);
-	//~ frmrate = gdata->frmrate;
-	//~ while (SDL_PollEvent(sdlevent)) {	//scan the event queue
-	    //~ switch (sdlevent->type) {
-	    //~ case SDL_KEYUP:
-	    //~ case SDL_MOUSEBUTTONUP:
-		//~ mouseon = 0;
-		//~ incpantilt = INCPANTILT;
-		//~ boucle = 0;
-		//~ break;
-	    //~ case SDL_MOUSEBUTTONDOWN:
-		//~ mouseon = 1;
-	    //~ case SDL_MOUSEMOTION:
-		//~ SDL_GetMouseState(&x, &y);
-		//~ curr_action = GUI_whichbutton(x, y, pscreen, videoIn);
-		//~ break;
-	    //~ case SDL_VIDEORESIZE:
-		//~ pscreen =
-		    //~ SDL_SetVideoMode(sdlevent->resize.w,
-				     //~ sdlevent->resize.h, 0,
-				     //~ SDL_VIDEO_Flags);
-		//~ drect->w = sdlevent->resize.w;
-		//~ drect->h = sdlevent->resize.h;
-		//~ break;
-	    //~ case SDL_KEYDOWN:
-		//~ curr_action = GUI_keytoaction(sdlevent->key.keysym.sym);
-		//~ if (curr_action != A_VIDEO)
-		    //~ mouseon = 1;
-		//~ break;
-	    //~ case SDL_QUIT:
-		//~ printf("\nStop asked\n");
-		//~ videoIn->signalquit = 0;
-		//~ break;
-	    //~ }
-	//~ }			//end if poll
-	//~ SDL_UnlockMutex(affmutex);
-	//~ /* traiter les actions */
-	//~ value = 0;
-	//~ if (mouseon){
-	//~ boucle++;
-	//~ switch (curr_action) {
-	//~ case A_BRIGHTNESS_UP:  
-		//~ if ((value =
-		     //~ v4l2UpControl(videoIn, V4L2_CID_BRIGHTNESS)) < 0)
-		    //~ printf("Set Brightness up error\n");
-	    //~ break;
-	//~ case A_CONTRAST_UP:
-		//~ if ((value =
-		     //~ v4l2UpControl(videoIn, V4L2_CID_CONTRAST)) < 0)
-		    //~ printf("Set Contrast up error \n");
-	    //~ break;
-	//~ case A_SATURATION_UP:
-		//~ if ((value =
-		     //~ v4l2UpControl(videoIn, V4L2_CID_SATURATION)) < 0)
-		    //~ printf("Set Saturation up error\n");
-	    //~ break;
-	//~ case A_GAIN_UP:
-		//~ if ((value = v4l2UpControl(videoIn, V4L2_CID_GAIN)) < 0)
-		    //~ printf("Set Gain up error\n");
-	    //~ break;
-	//~ case A_SHARPNESS_UP:
-		//~ if ((value =
-		     //~ v4l2UpControl(videoIn, V4L2_CID_SHARPNESS)) < 0)
-		    //~ printf("Set Sharpness up error\n");
-	    //~ break;
-	//~ case A_PAN_UP:
-		//~ if ((value =v4L2UpDownPan(videoIn, -incpantilt)) < 0)
-		    //~ printf("Set Pan up error\n");
-	    //~ break;
-	    //~ case A_TILT_UP:
-		//~ if ((value =v4L2UpDownTilt(videoIn, -incpantilt)) < 0)
-		    //~ printf("Set Tilt up error\n");
-	    //~ break;
-	//~ case A_SCREENSHOT:
-		//~ SDL_Delay(200);
-		//~ videoIn->getPict = 1;
-		//~ value = 1;
-	    //~ break;
-	//~ case A_RESET:
-	   
-		//~ if (v4l2ResetControl(videoIn, V4L2_CID_BRIGHTNESS) < 0)
-		    //~ printf("reset Brightness error\n");
-		//~ if (v4l2ResetControl(videoIn, V4L2_CID_SATURATION) < 0)
-		    //~ printf("reset Saturation error\n");
-		//~ if (v4l2ResetControl(videoIn, V4L2_CID_CONTRAST) < 0)
-		    //~ printf("reset Contrast error\n");
-		//~ if (v4l2ResetControl(videoIn, V4L2_CID_HUE) < 0)
-		    //~ printf("reset Hue error\n");
-		//~ if (v4l2ResetControl(videoIn, V4L2_CID_SHARPNESS) < 0)
-		    //~ printf("reset Sharpness error\n");
-		//~ if (v4l2ResetControl(videoIn, V4L2_CID_GAMMA) < 0)
-		    //~ printf("reset Gamma error\n");
-		//~ if (v4l2ResetControl(videoIn, V4L2_CID_GAIN) < 0)
-		    //~ printf("reset Gain error\n");
-		//~ if (v4l2ResetPanTilt(videoIn,3) < 0)
-		    //~ printf("reset pantilt error\n");
-	   
-	    //~ break;
-	//~ case A_BRIGHTNESS_DOWN:
-		//~ if ((value = v4l2DownControl(videoIn, V4L2_CID_BRIGHTNESS)) < 0)
-		    //~ printf("Set Brightness down error\n");
-	    //~ break;
-	//~ case A_CONTRAST_DOWN:
-		//~ if ((value = v4l2DownControl(videoIn, V4L2_CID_CONTRAST)) < 0)
-		    //~ printf("Set Contrast down error\n");
-	    //~ break;
-	//~ case A_SATURATION_DOWN:
-		//~ if ((value = v4l2DownControl(videoIn, V4L2_CID_SATURATION)) < 0)
-		    //~ printf("Set Saturation down error\n");
-	    //~ break;
-	//~ case A_GAIN_DOWN:
-		//~ if ((value = v4l2DownControl(videoIn, V4L2_CID_GAIN)) < 0)
-		    //~ printf("Set Gain down error\n");
-	    //~ break;
-	//~ case A_SHARPNESS_DOWN:
-		//~ if ((value = v4l2DownControl(videoIn, V4L2_CID_SHARPNESS)) < 0)
-		    //~ printf("Set Sharpness down error\n");
-	    //~ break;
-	//~ case A_PAN_DOWN: 
-		//~ if ((value =v4L2UpDownPan(videoIn, incpantilt)) < 0)	    
-		    //~ printf("Set Pan down error\n");
-	    //~ break;
-	//~ case A_TILT_DOWN: 
-		//~ if ((value =v4L2UpDownTilt(videoIn,incpantilt)) < 0)	    
-		    //~ printf("Set Tilt down error\n");
-	    //~ break;
-	//~ case A_RECORD_TOGGLE:
-		//~ videoIn->toggleAvi = !videoIn->toggleAvi;
-		//~ value = videoIn->toggleAvi;
-	    //~ break;
-	//~ case A_QUIT:  
-		//~ videoIn->signalquit = 0;
-	    //~ break;
-	//~ case A_VIDEO:
-	    //~ break;
-	//~ case A_CAPTURE_FRAME:
-		//~ value = 1;
-		//~ videoIn->rawFrameCapture = 1;
-		//~ break;
-	//~ case A_CAPTURE_FRAMESTREAM:
-		//~ value = 1;
-		//~ if (!videoIn->rawFrameCapture) {
-			//~ videoIn->rawFrameCapture = 2;
-			//~ videoIn->rfsBytesWritten = 0;
-			//~ videoIn->rfsFramesWritten = 0;
-			//~ printf("Starting raw frame stream capturing ...\n");
-		//~ } else if(videoIn->framesWritten >= 5) {
-			//~ videoIn->rawFrameCapture = 0;
-			//~ printf("Stopped raw frame stream capturing. %u bytes written for %u frames.\n",
-					//~ videoIn->rfsBytesWritten, videoIn->rfsFramesWritten);
-		//~ }
-		//~ break;
-	//~ case A_CAPTURE_STREAM:
-		//~ value = 1;
-		//~ if (videoIn->captureFile == NULL) {
-			//~ videoIn->captureFile = fopen("stream.raw", "wb");
-			//~ if(videoIn->captureFile == NULL) {
-				//~ perror("Unable to open file for raw stream capturing");
-			//~ } else {
-				//~ printf("Starting raw stream capturing to stream.raw ...\n");
-			//~ }
-			//~ videoIn->bytesWritten = 0;
-			//~ videoIn->framesWritten = 0;
-		//~ } else if(videoIn->framesWritten >= 5) {
-			//~ fclose(videoIn->captureFile);
-			//~ printf("Stopped raw stream capturing to stream.raw. %u bytes written for %u frames.\n",
-					//~ videoIn->bytesWritten, videoIn->framesWritten);
-			//~ videoIn->captureFile = NULL;
-		//~ }
-		//~ break;
-	//~ default:
-	    //~ break;
-	//~ }
-	//~ if(!(boucle%10)) // smooth pan tilt method
-		//~ if(incpantilt < (10*INCPANTILT))
-	   		 //~ incpantilt += (INCPANTILT/4);
-	//~ if(value){
-	//~ len = strlen(title_act[curr_action].title)+8;
-	//~ snprintf(videoIn->status, len,"%s %06d",title_act[curr_action].title,value);
-	//~ }
-	//~ } else { // mouseon
-	
-	//~ len = strlen(title_act[curr_action].title)+9;
-	//~ snprintf(videoIn->status, len,"%s, %02d Fps",title_act[curr_action].title, frmrate);
-	
-	//~ }
-	//~ SDL_Delay(50);
-	//~ //printf("fp/s %d \n",frmrate);
-    //~ }				//end main loop
-
-	//~ /* Close the stream capture file */
-	//~ if (videoIn->captureFile) {
-		//~ fclose(videoIn->captureFile);
-		//~ printf("Stopped raw stream capturing to stream.raw. %u bytes written for %u frames.\n",
-					//~ videoIn->bytesWritten, videoIn->framesWritten);
-	//~ }
-	//~ /* Display stats for raw frame stream capturing */
-	//~ if (videoIn->rawFrameCapture == 2) {
-		//~ printf("Stopped raw frame stream capturing. %u bytes written for %u frames.\n",
-					//~ videoIn->rfsBytesWritten, videoIn->rfsFramesWritten);
-	//~ }
-//~ }

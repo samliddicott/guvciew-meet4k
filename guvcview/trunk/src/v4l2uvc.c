@@ -23,8 +23,6 @@
 #include "v4l2uvc.h"
 
 
-static int init_v4l2(struct vdIn *vd);
-
 int
 init_videoIn(struct vdIn *vd, char *device, int width, int height,
 	     int format, int grabmethod, int fps)
@@ -40,9 +38,18 @@ init_videoIn(struct vdIn *vd, char *device, int width, int height,
     vd->videodevice = NULL;
     vd->status = NULL;
     vd->pictName = NULL;
-    vd->videodevice = (char *) calloc(1, 16 * sizeof(char));
-    vd->status = (char *) calloc(1, 100 * sizeof(char));
-    vd->pictName = (char *) calloc(1, 80 * sizeof(char));
+    if((vd->videodevice = (char *) calloc(1, 16 * sizeof(char)))==NULL){
+		printf("couldn't calloc memory for:vd->videodevice\n");
+		goto error1;
+	}
+    if((vd->status = (char *) calloc(1, 100 * sizeof(char)))==NULL){
+		printf("couldn't calloc memory for:vd->status\n");
+		goto error2;
+	}
+    if((vd->pictName = (char *) calloc(1, 80 * sizeof(char)))==NULL){
+		printf("couldn't calloc memory for:vd->pictName\n");
+		goto error3;
+	}
     snprintf(vd->videodevice, 12, "%s", device);
     printf("video %s \n", vd->videodevice);
     vd->capAVI = FALSE;
@@ -69,38 +76,50 @@ init_videoIn(struct vdIn *vd, char *device, int width, int height,
 	
     if (init_v4l2(vd) < 0) {
 	printf(" Init v4L2 failed !! exit fatal \n");
-	goto error;;
+	goto error3;
     }
-    /* alloc a temp buffer to reconstruct the pict */
+    /* alloc a temp buffer to reconstruct the pict (MJPEG)*/
     vd->framesizeIn = (vd->width * vd->height << 1);
     switch (vd->formatIn) {
     case V4L2_PIX_FMT_MJPEG:
 	vd->tmpbuffer =
 	    (unsigned char *) calloc(1, (size_t) vd->framesizeIn);
-	if (!vd->tmpbuffer)
-	    goto error;
+	if (!vd->tmpbuffer) {
+	   printf("couldn't calloc memory for:vd->tmpbuffer\n");
+		goto error5;
+	}
 	vd->framebuffer =
 	    (unsigned char *) calloc(1,
 				     (size_t) vd->width * (vd->height +
 							   8) * 2);
 	break;
-    case V4L2_PIX_FMT_YUYV:
+    case V4L2_PIX_FMT_YUYV:/*YUYV doesn't need a temp buffer*/
 	vd->framebuffer =
 	    (unsigned char *) calloc(1, (size_t) vd->framesizeIn);
 	break;
     default:
 	printf(" should never arrive exit fatal !!\n");
-	goto error;
+	goto error5;
 	break;
     }
-    if (!vd->framebuffer)
-	goto error;
+    if (!vd->framebuffer) {
+	printf("couldn't calloc memory for:vd->framebuffer\n");	
+	goto error6;
+	}
     return 0;
-  error:
-    free(vd->videodevice);
-    free(vd->status);
+	/*error: clean up allocs*/
+  error6:
+	free(vd->framebuffer);
+  error5:
+    free(vd->tmpbuffer);
+  error4:
+	close(vd->fd);
+  error3:
     free(vd->pictName);
-    close(vd->fd);
+  error2:
+    free(vd->status);
+  error1:
+    free(vd->videodevice);
     return -1;
 }
 
@@ -711,4 +730,5 @@ input_free_controls (InputControl * control, int num_controls)
         }
     }
     free (control);
+	printf("cleaned allocations - 80%%\n");
 }

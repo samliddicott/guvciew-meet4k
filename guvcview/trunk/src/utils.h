@@ -17,13 +17,12 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA		#
 #                                                                              										#
 *************************************************************************************************/
-typedef  unsigned char BYTE;
+typedef unsigned char BYTE;
 typedef  unsigned int DWORD;
 typedef  unsigned int LONG;
 typedef  unsigned int UINT;
 typedef  unsigned short  int WORD;
 
-static int debug = 0;
 
 #define BI_RGB 0;
 #define BI_RLE4 1;
@@ -53,7 +52,7 @@ static int debug = 0;
 #define DEFAULT_IMAGE_FNAME "Image.bmp"
 #define DEFAULT_AVI_FNAME	"capture.avi"
 #define DEFAULT_FPS	25
-
+#define SDL_WAIT_TIME 10
 
 /*                      */
 #define ERR_NO_SOI 1
@@ -90,6 +89,7 @@ BYTE b1;
 	
 } Pix;
 
+
 typedef struct tagBITMAPFILEHEADER { 
   WORD    bfType; //Specifies the file type, must be BM
   DWORD   bfSize; //Specifies the size, in bytes, of the bitmap file
@@ -99,6 +99,7 @@ typedef struct tagBITMAPFILEHEADER {
 			    from the beginning of the BITMAPFILEHEADER structure 
 			    to the bitmap bits= FileHeader+InfoHeader+RGBQUAD(0 for 24bit BMP)=64*/
 }   __attribute__ ((packed)) BITMAPFILEHEADER, *PBITMAPFILEHEADER;
+
 
 typedef struct tagBITMAPINFOHEADER{
   DWORD  biSize; 
@@ -114,6 +115,7 @@ typedef struct tagBITMAPINFOHEADER{
   DWORD  biClrImportant; 
 }  __attribute__ ((packed)) BITMAPINFOHEADER, *PBITMAPINFOHEADER;
 
+
 int jpeg_decode(unsigned char **pic, unsigned char *buf, int *width,
 		int *height);
 //~ int 
@@ -121,4 +123,5 @@ int jpeg_decode(unsigned char **pic, unsigned char *buf, int *width,
 
 Pix *yuv2rgb(unsigned int YUVMacroPix, int format, Pix *pixe);
 
-int SaveBPM(char *Filename, long width, long height, int BitCount, BYTE *ImagePix);
+
+int SaveBPM(const char *Filename, long width, long height, int BitCount, BYTE *ImagePix);
