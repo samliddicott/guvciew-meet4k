@@ -18,7 +18,7 @@
 #                                                                              										#
 *************************************************************************************************/
 
-#include "utils.h"
+#include "avilib.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -1329,7 +1329,7 @@ Pix *yuv2rgb(unsigned int YUVMacroPix, int format, Pix *pixe)
 
 
 int 
-SaveBPM(char *Filename, long width, long height, int BitCount, BYTE *ImagePix) {
+SaveBPM(const char *Filename, long width, long height, int BitCount, BYTE *ImagePix) {
 
 int ret=0;
 BITMAPFILEHEADER BmpFileh;
