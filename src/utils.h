@@ -23,6 +23,7 @@ typedef  unsigned int LONG;
 typedef  unsigned int UINT;
 typedef  unsigned short  int WORD;
 
+#define VERSION "0.4.1"
 
 #define BI_RGB 0;
 #define BI_RLE4 1;
@@ -34,7 +35,7 @@ typedef  unsigned short  int WORD;
 #define FIXED_BITS 16
 #define TO_FIXED(X) (((Sint32)(X))<<(FIXED_BITS))
 #define FROM_FIXED(X) (((Sint32)(X))>>(FIXED_BITS))
-#define VERSION "0.1"
+
 #define INCPANTILT 64 // 1°
 
 #define WINSIZEX 700

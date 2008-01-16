@@ -51,7 +51,7 @@
 static const char version[] = VERSION;
 struct vdIn *videoIn;
 char confPath[80];
-int AVIFormat=1; /*1-"YUY2"  2-"DIB "(rgb32) */
+int AVIFormat=1; /*1-"YUY2"  2-"DIB "(rgb32) 3-"MJPG"*/
 VidState * s;
 
 /* The main window*/
@@ -547,6 +547,9 @@ capture_avi (GtkButton * CapAVIButt, GtkWidget * AVIFNameEntry)
 	 case 2:
 		compression="DIB ";
 		break;
+	 case 3:
+		compression="MJPG";
+		break;
 	 default:
 		compression="YUY2";
 	}	
@@ -572,7 +575,7 @@ capture_avi (GtkButton * CapAVIButt, GtkWidget * AVIFNameEntry)
 	   printf("starting AVI capture to %s\n",filename);
 	   gtk_button_set_label(CapAVIButt,"Stop");  
 	   AviOut = AVI_open_output_file(filename);
-	   /*4CC compression "YUY2" (YUV) or "DIB " (RGB24)  or  whathever*/	
+	   /*4CC compression "YUY2" (YUV) or "DIB " (RGB24)  or  "MJPG"*/	
 	   
 	   AVI_set_video(AviOut, videoIn->width, videoIn->height, videoIn->fps,compression);		
 	 
@@ -962,6 +965,11 @@ void *main_loop(void *data)
 	                printf ("write error on avi out \n");
 		     free(pim);
 		     break;
+		  case 3: /*MJPG*/
+			   if (AVI_write_frame (AviOut,
+			       videoIn->tmpbuffer, videoIn->buf.bytesused) < 0)
+	                printf ("write error on avi out \n");
+			 break;
 
 
 		} 
@@ -1404,6 +1412,7 @@ int main(int argc, char *argv[])
 	AVIComp = gtk_combo_box_new_text ();
 	gtk_combo_box_append_text(GTK_COMBO_BOX(AVIComp),"YUY2 - uncomp YUV");
 	gtk_combo_box_append_text(GTK_COMBO_BOX(AVIComp),"RGB - uncomp BMP");
+	gtk_combo_box_append_text(GTK_COMBO_BOX(AVIComp),"MJPG - compressed");
 	gtk_table_attach(GTK_TABLE(table2), AVIComp, 1, 3, 6, 7,
                     GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (AVIComp);
@@ -1415,6 +1424,9 @@ int main(int argc, char *argv[])
 	   case 2:	
 	    	gtk_combo_box_set_active(GTK_COMBO_BOX(AVIComp),1);
 	    break;
+	   case 3:/*MJPG*/
+			gtk_combo_box_set_active(GTK_COMBO_BOX(AVIComp),2);
+		break;
 	   default:
 	    /*set Format to YUY2*/
 	    	AVIFormat=1;
