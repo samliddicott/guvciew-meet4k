@@ -1,0 +1,12 @@
+Source: guvcview
+Section: Audio&Video
+Priority: extra
+Maintainer: Paulo Assis <pj.assis@gmail.com>
+Build-Depends: debhelper (>= 5), autotools-dev, libsdl1.2-dev, libgtk2.0-dev, portaudio19-dev
+Standards-Version: 3.7.2
+
+Package: guvcview
+Architecture: i386
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: GTK UVC Viewer 
+ Video capture tool for linux uvc driver compliant cameras (most of logitech and a lot more). It can capture still images or avi movies.
