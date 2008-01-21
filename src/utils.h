@@ -25,6 +25,40 @@ typedef  unsigned short  int WORD;
 
 #define VERSION "0.4.1"
 
+/*portaudio defs*/
+#define SAMPLE_RATE  (44100)
+#define FRAMES_PER_BUFFER (1024)
+#define NUM_SECONDS     (2) /*allways writes 2 second bloks*/
+/* sound can go for more 2 seconds than video, must clip in post processing*/
+
+#define NUM_CHANNELS    (2) /* 2-stereo 1-mono */
+/* #define DITHER_FLAG     (paDitherOff)  */
+#define DITHER_FLAG     (0) /**/
+
+/* Select sample format to 16bit. */
+#if 0
+#define PA_SAMPLE_TYPE  paFloat32
+typedef float SAMPLE;
+#define SAMPLE_SILENCE  (0.0f)
+#define PRINTF_S_FORMAT "%.8f"
+#elif 1
+#define PA_SAMPLE_TYPE  paInt16 /* Default */
+typedef short SAMPLE;
+#define SAMPLE_SILENCE  (0)
+#define PRINTF_S_FORMAT "%d"
+#elif 0
+#define PA_SAMPLE_TYPE  paInt8
+typedef char SAMPLE;
+#define SAMPLE_SILENCE  (0)
+#define PRINTF_S_FORMAT "%d"
+#else
+#define PA_SAMPLE_TYPE  paUInt8
+typedef unsigned char SAMPLE;
+#define SAMPLE_SILENCE  (128)
+#define PRINTF_S_FORMAT "%d"
+#endif
+
+/*video defs*/
 #define BI_RGB 0;
 #define BI_RLE4 1;
 #define BI_RLE8 2;
@@ -53,8 +87,8 @@ typedef  unsigned short  int WORD;
 #define DEFAULT_IMAGE_FNAME "Image.bmp"
 #define DEFAULT_AVI_FNAME	"capture.avi"
 #define DEFAULT_FPS	25
-#define SDL_WAIT_TIME 10
-
+#define SDL_WAIT_TIME 10 /*SDL - Thread loop sleep time */
+#define SND_WAIT_TIME 30 /*sound capture- Thread loop sleep time*/
 /*                      */
 #define ERR_NO_SOI 1
 #define ERR_NOT_8BIT 2

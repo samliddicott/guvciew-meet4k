@@ -43,6 +43,7 @@
 
 #include <gtk/gtk.h>
 #include <gdk/gdkx.h>
+#include <portaudio.h>
 
 #include "v4l2uvc.h"
 //#include "avilib.h"
@@ -62,6 +63,9 @@ GtkWidget *restartdialog;
 /*thread definitions*/
 pthread_t mythread;
 pthread_attr_t attr;
+
+pthread_t sndthread;
+pthread_attr_t sndattr;
  
 int ARG_C;
 char **ARG_V;
@@ -87,7 +91,18 @@ BYTE * pim;
 
 unsigned char frmrate;
 
+char *sndfile; /*temporary snd filename*/
 char *capt;
+int Sound_enable=1; /*Enable Sound by Default*/
+int Sound_SampRate=SAMPLE_RATE;
+int Sound_numInputDev=0;
+int Sound_IndexDev[20]; /*up to 20 input devices*/
+int Sound_DefDev=0;
+int Sound_UseDev=0;
+int Sound_NumChan=2;
+
+//~ PaSampleFormat Sound_Format=paInt16;
+//~ int Sound_SampBits=16;
 
 int fps = DEFAULT_FPS;
 int bpp = 0; //current bytes per pixel
@@ -99,16 +114,6 @@ int winwidth=WINSIZEX;
 int winheight=WINSIZEY;
 const char *mode="jpg"; /*jpg (default) or yuv*/
 int format = V4L2_PIX_FMT_MJPEG;
-
-/*currently it as no use - all variables are global*/
-//~ struct pt_data {
-    //~ SDL_Surface **ptscreen;
-	//~ SDL_Overlay **ptoverlay;
-    //~ SDL_Event *ptsdlevent;
-    //~ SDL_Rect *drect;
-    //~ struct vdIn *ptvideoIn;
-    //~ unsigned char frmrate;
-//~ } ptdata;
 
 
 static Uint32 SDL_VIDEO_Flags =
@@ -202,6 +207,173 @@ int readConf(const char *confpath) {
 	return ret;
 }
 
+/******************** sound callback **************************/
+
+//~ typedef struct
+//~ {
+    //~ int          frameIndex;  /* Index into sample array. */
+    //~ int          maxFrameIndex;
+	//~ int			 buf_full;
+    //~ SAMPLE      *recordedSamples;
+//~ } paCapData;
+
+//~ /* This routine will be called by the PortAudio engine when audio is needed.
+//~ ** It may be called at interrupt level on some machines so don't do anything
+//~ ** that could mess up the system like calling malloc() or free().
+//~ */
+//~ static int recordCallback( const void *inputBuffer, void *outputBuffer,
+                           //~ unsigned long framesPerBuffer,
+                           //~ const PaStreamCallbackTimeInfo* timeInfo,
+                           //~ PaStreamCallbackFlags statusFlags,
+                           //~ void *userData )
+//~ {
+    //~ paCapData *s_data = (paCapData*)userData;
+    //~ const SAMPLE *rptr = (const SAMPLE*)inputBuffer;
+    //~ SAMPLE *wptr = &s_data->recordedSamples[s_data->frameIndex * NUM_CHANNELS];
+    //~ long framesToCalc;
+    //~ long i;
+    //~ int finished;
+    //~ unsigned long framesLeft = s_data->maxFrameIndex - s_data->frameIndex;
+
+    //~ (void) outputBuffer; /* Prevent unused variable warnings. */
+    //~ (void) timeInfo;
+    //~ (void) statusFlags;
+    //~ (void) userData;
+
+    //~ if( framesLeft < framesPerBuffer )
+    //~ {
+        //~ framesToCalc = framesLeft;
+        //~ finished = paComplete;
+		//~ s_data->buf_full=1;
+    //~ }
+    //~ else
+    //~ {
+        //~ framesToCalc = framesPerBuffer;
+        //~ finished = paContinue;
+    //~ }
+
+    //~ if( inputBuffer == NULL )
+    //~ {
+        //~ for( i=0; i<framesToCalc; i++ )
+        //~ {
+            //~ *wptr++ = SAMPLE_SILENCE;  /* left */
+            //~ if( NUM_CHANNELS == 2 ) *wptr++ = SAMPLE_SILENCE;  /* right */
+        //~ }
+    //~ }
+    //~ else
+    //~ {
+        //~ for( i=0; i<framesToCalc; i++ )
+        //~ {
+            //~ *wptr++ = *rptr++;  /* left */
+            //~ if( NUM_CHANNELS == 2 ) *wptr++ = *rptr++;  /* right */
+        //~ }
+    //~ }
+    //~ s_data->frameIndex += framesToCalc;
+    //~ return finished;
+//~ }
+/*************** sound threaded loop ************************************/
+void *sound_capture(void *data)
+{
+    PaStreamParameters inputParameters, outputParameters;
+    PaStream *stream;
+    PaError err;
+	//paCapData  snd_data;
+    SAMPLE *recordedSamples;
+    int i;
+    int totalFrames;
+    int numSamples;
+    int numBytes;
+	
+	FILE  *fid;
+    fid = fopen(sndfile, "wb+");
+    if( fid == NULL )
+    {
+       printf("Could not open file.");
+    }
+	
+	err = Pa_Initialize();
+    if( err != paNoError ) goto error;
+	/* Record for a few seconds. */
+	
+	//~ if(Pa_GetDeviceInfo( inputParameters.device )->defaultSampleRate<Sound_SampRate) {
+		//~ Sound_SampRate=Pa_GetDeviceInfo( inputParameters.device )->defaultSampleRate;
+	//~ }
+	
+	totalFrames = NUM_SECONDS * Sound_SampRate;
+	
+	
+    numSamples = totalFrames * Sound_NumChan;
+ 
+    numBytes = numSamples * sizeof(SAMPLE);
+
+   
+	recordedSamples = (SAMPLE *) malloc( numBytes );
+	
+    if( recordedSamples == NULL )
+    {
+        printf("Could not allocate record array.\n");
+        exit(1);
+    }
+    for( i=0; i<numSamples; i++ ) recordedSamples[i] = 0;
+
+    inputParameters.device = Sound_UseDev; /* input device */
+    inputParameters.channelCount = Sound_NumChan;
+    inputParameters.sampleFormat = PA_SAMPLE_TYPE;
+    inputParameters.suggestedLatency = Pa_GetDeviceInfo( inputParameters.device )->defaultLowInputLatency;
+    inputParameters.hostApiSpecificStreamInfo = NULL; 
+	
+	 /* Record some audio. -------------------------------------------- */
+    err = Pa_OpenStream(
+              &stream,
+              &inputParameters,
+              NULL,                  /* &outputParameters, */
+              Sound_SampRate,
+              FRAMES_PER_BUFFER,
+              paClipOff,      /* we won't output out of range samples so don't bother clipping them */
+              NULL, /* sound callback - using blocking API*/
+              NULL ); /* callback userData -no callback no data */
+    if( err != paNoError ) goto error;
+  
+    err = Pa_StartStream( stream );
+    if( err != paNoError ) goto error;
+    /* capture loop -----------------------------------------------------*/
+	do {
+	   Pa_Sleep(SND_WAIT_TIME); 
+       err = Pa_ReadStream( stream, recordedSamples, totalFrames );
+       if( err != paNoError ) break;
+	   /* Write recorded data to a file. */
+       //if (snd_data.buf_full!=0) {
+          fwrite( recordedSamples, Sound_NumChan * sizeof(SAMPLE), totalFrames, fid );
+	   	//  snd_data.buf_full=0;
+	   //}   
+    	
+    } while (videoIn->capAVI);   
+	
+    if( err != paNoError ) goto error; //case error in loop
+	
+    fclose( fid );
+    printf("Wrote sound data to '%s'\n",sndfile);
+    err = Pa_CloseStream( stream );
+    if( err != paNoError ) goto error; 
+	
+    free( recordedSamples  );
+
+    Pa_Terminate();
+    return(0);
+
+error:
+	fclose(fid);
+	free( recordedSamples );
+    Pa_Terminate();
+    fprintf( stderr, "An error occured while using the portaudio stream\n" );
+    fprintf( stderr, "Error number: %d\n", err );
+    fprintf( stderr, "Error message: %s\n", Pa_GetErrorText( err ) );
+    return(-1);
+	
+}
+
+
+/************************ clean up and shut down ***************************/
 gint 
 shutd (gint restart) 
 {
@@ -232,7 +404,7 @@ shutd (gint restart)
 	printf("closed strutures\n");
     free(videoIn);
 	free(capt);
-	
+	free(sndfile);
 	SDL_Quit();
 	printf("SDL Quit\n");
 	printf("cleaned allocations - 50%%\n");
@@ -291,6 +463,8 @@ void
 aviClose (void)
 {
   double tottime = -1;
+  int tstatus;
+	
   if (AviOut)
     {
       printf ("AVI close asked \n");
@@ -305,7 +479,59 @@ aviClose (void)
 		/*set the hardware frame rate*/   
 		AviOut->fps=videoIn->fps;
 	  }
+	  /******************* write audio to avi if Sound Enable********************/
+	  if (Sound_enable > 0) {
+	  	SAMPLE *recordedSamples;
+      	int i;  
+      	int totalFrames;
+      	int numSamples;
+      	long numBytes;
+		
+	  	totalFrames = NUM_SECONDS * Sound_SampRate;
+      	numSamples = totalFrames * Sound_NumChan;
+ 
+	    numBytes = numSamples * sizeof(SAMPLE);
+
+    	recordedSamples = (SAMPLE *) malloc( numBytes );
+
+      	if( recordedSamples == NULL )
+      	{
+        	printf("Could not allocate record array.\n");
+        	exit(1);
+      	}
+      	for( i=0; i<numSamples; i++ ) recordedSamples[i] = 0;
 	  
+	  	printf("waiting for thread to finish\n");
+	  	/* Free attribute and wait for the thread */
+      	pthread_attr_destroy(&sndattr);
+	
+	  	int sndrc = pthread_join(sndthread, (void **)&tstatus);
+      	if (sndrc)
+      	{
+         	printf("ERROR; return code from pthread_join() is %d\n", sndrc);
+         	exit(-1);
+      	}
+      	printf("Completed join with thread status= %d\n", tstatus);	
+	 
+	  	AVI_set_audio(AviOut, Sound_NumChan, Sound_SampRate, sizeof(SAMPLE)*8,WAVE_FORMAT_PCM);
+	  	printf("sample size: %i bits\n",sizeof(SAMPLE)*8);
+	  	FILE *fip;
+	  	fip=fopen(sndfile,"rb");
+	  	if( fip == NULL )
+      	{
+        	printf("Could not open snd data file.\n");
+      	} else {
+			while(fread( recordedSamples, Sound_NumChan * sizeof(SAMPLE), totalFrames, fip )!=0){  
+	     	   AVI_write_audio(AviOut,(BYTE *) recordedSamples,numBytes);
+		    }
+		    /*remove file*/
+		}
+		fclose(fip);
+	    free( recordedSamples );
+	  }
+	
+	  	
+		
       AVI_close (AviOut);
       printf ("close avi\n");
       AviOut = NULL;
@@ -515,6 +741,56 @@ FrameRate_changed (GtkComboBox * FrameRate, void *data)
 }
 
 static void
+SndSampleRate_changed (GtkComboBox * SampleRate, void *data)
+{
+	int index = gtk_combo_box_get_active (SampleRate);
+   switch (index) {
+	   case 0:/*44100*/
+			Sound_SampRate=44100;
+	    break;
+	   case 1:/*22050*/	
+	    	Sound_SampRate=22050;
+	    break;
+	   case 2:/*16000*/	
+	    	Sound_SampRate=16000;
+	    break;
+	   case 3:/*11025*/
+			Sound_SampRate=11025;
+		break;
+	   default:
+	    /*set Default to SAMPLE_RATE*/
+	    	Sound_SampRate=SAMPLE_RATE;	
+ 	}	
+	
+}
+
+static void
+SndDevice_changed (GtkComboBox * SoundDevice, void *data)
+{
+	int index = gtk_combo_box_get_active (SoundDevice);
+	Sound_UseDev=Sound_IndexDev[index];
+	
+}
+
+static void
+SndNumChan_changed (GtkComboBox * SoundChan, void *data)
+{
+	int index = gtk_combo_box_get_active (SoundChan);
+	switch (index) {
+	   case 0:/*1 - mono*/
+			Sound_NumChan=1;
+	    break;
+	   case 1:/*2 - stereo*/	
+	    	Sound_NumChan=2;
+	    break;
+	   default:
+	    /*set Default to NUM_CHANNELS*/
+	    	Sound_NumChan=NUM_CHANNELS;	
+ 	}
+	
+}
+
+static void
 AVIComp_changed (GtkComboBox * AVIComp, void *data)
 {
 	int index = gtk_combo_box_get_active (AVIComp);
@@ -538,20 +814,20 @@ static void
 capture_avi (GtkButton * CapAVIButt, GtkWidget * AVIFNameEntry)
 {
 	const char *filename = gtk_entry_get_text(GTK_ENTRY(AVIFNameEntry));
-	char *compression="YUY2";
+	char *compression="MJPG";
 
 	switch (AVIFormat) {
 	 case 1:
-		compression="YUY2";
-		break;
-	 case 2:
-		compression="DIB ";
-		break;
-	 case 3:
 		compression="MJPG";
 		break;
-	 default:
+	 case 2:
 		compression="YUY2";
+		break;
+	 case 3:
+		compression="DIB ";
+		break;
+	 default:
+		compression="MJPG";
 	}	
 	if(videoIn->capAVI) {
 	 printf("stoping AVI capture\n");
@@ -578,15 +854,33 @@ capture_avi (GtkButton * CapAVIButt, GtkWidget * AVIFNameEntry)
 	   /*4CC compression "YUY2" (YUV) or "DIB " (RGB24)  or  "MJPG"*/	
 	   
 	   AVI_set_video(AviOut, videoIn->width, videoIn->height, videoIn->fps,compression);		
-	 
+	   /* audio will be set in aviClose - if enabled*/
 	   videoIn->AVIFName = filename;
 	   AVIstarttime = ms_time();
        printf("AVI start time:%d\n",AVIstarttime);		
 	   videoIn->capAVI = TRUE;
+	   /* Creating the sound capture loop thread if Sound Enable*/ 
+	   if(Sound_enable > 0) { 
+	      int rsnd = pthread_create(&sndthread, &sndattr, sound_capture, NULL); 
+          if (rsnd)
+          {
+             printf("ERROR; return code from snd pthread_create() is %d\n", rsnd);
+          }
+		}
+		 
 	 }
 	}	
 }
 
+static void
+SndEnable_changed (GtkToggleButton * toggle, VidState * s)
+{
+	if(videoIn->capAVI) { /*must not change Sound flag while in AVI capture*/
+		gtk_toggle_button_set_active (toggle,(Sound_enable > 0));
+	} else {
+		Sound_enable = gtk_toggle_button_get_active (toggle) ? 1 : 0;
+	}
+}
 
 static void
 draw_controls (VidState *s)
@@ -785,7 +1079,6 @@ draw_controls (VidState *s)
 }
 
 
-
 void *main_loop(void *data)
 {
 	int ret=0;
@@ -905,13 +1198,19 @@ void *main_loop(void *data)
 	  if (videoIn->capAVI && videoIn->signalquit){
 	   long framesize;		
 	   switch (AVIFormat) {
-		case 1:
+		   
+		case 1: /*MJPG*/
+			   if (AVI_write_frame (AviOut,
+			       videoIn->tmpbuffer, videoIn->buf.bytesused) < 0)
+	                printf ("write error on avi out \n");
+			 break;
+		case 2:
 	  	   framesize=(pscreen->w)*(pscreen->h)*2; /*YUY2 -> 2 bytes per pixel */
 	           if (AVI_write_frame (AviOut,
 			       p, framesize) < 0)
 	                printf ("write error on avi out \n");
 		   break;
-		case 2:
+		case 3:
 		    framesize=(pscreen->w)*(pscreen->h)*3; /*DIB 24/32 -> 3/4 bytes per pixel*/ 
 		    if((pim= malloc(framesize))==NULL){
 				printf("Couldn't allocate memory for: pim\n");
@@ -965,12 +1264,6 @@ void *main_loop(void *data)
 	                printf ("write error on avi out \n");
 		     free(pim);
 		     break;
-		  case 3: /*MJPG*/
-			   if (AVI_write_frame (AviOut,
-			       videoIn->tmpbuffer, videoIn->buf.bytesused) < 0)
-	                printf ("write error on avi out \n");
-			 break;
-
 
 		} 
 	   framecount++;	   
@@ -994,12 +1287,10 @@ void *main_loop(void *data)
 }
 
 
-
 int main(int argc, char *argv[])
 {
-    
 	int i;
-	
+	sndfile= tempnam (NULL, "gsnd_");/*generates a temporary file name*/
 	ARG_C=argc;
 	if((ARG_V=malloc(argc*sizeof(argv)))==NULL){//allocs the size of the array
 		printf("couldn't allocate memory for: ARG_V)\n");
@@ -1030,13 +1321,20 @@ int main(int argc, char *argv[])
 	GtkWidget *AVIFNameEntry;
 	GtkWidget *AVIComp;
 	GtkWidget *label_AVIComp;
-	
+	GtkWidget *SndEnable; 
+	GtkWidget *SndSampleRate;
+	GtkWidget *SndDevice;
+	GtkWidget *SndNumChan;
+	GtkWidget *label_SndSampRate;
+	GtkWidget *label_SndDevice;
+	GtkWidget *label_SndNumChan;
 	//VidState * s;
 	if ((s = malloc (sizeof (VidState)))==NULL){
 		printf("couldn't allocate memory for: s\n");
 		exit(1); 
 	}
     
+	
 
 	//SDL_Thread *mythread;
 	
@@ -1044,7 +1342,9 @@ int main(int argc, char *argv[])
     pthread_attr_init(&attr);
     pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
 	
-
+	/* Initialize and set snd thread detached attribute */
+    pthread_attr_init(&sndattr);
+    pthread_attr_setdetachstate(&sndattr, PTHREAD_CREATE_JOINABLE);
    
     if((capt = (char *) calloc(1, 100 * sizeof(char)))==NULL){
 		printf("couldn't calloc memory for: capt\n");
@@ -1410,25 +1710,26 @@ int main(int argc, char *argv[])
 	
 	/* AVI Compressor */
 	AVIComp = gtk_combo_box_new_text ();
+	gtk_combo_box_append_text(GTK_COMBO_BOX(AVIComp),"MJPG - compressed");
 	gtk_combo_box_append_text(GTK_COMBO_BOX(AVIComp),"YUY2 - uncomp YUV");
 	gtk_combo_box_append_text(GTK_COMBO_BOX(AVIComp),"RGB - uncomp BMP");
-	gtk_combo_box_append_text(GTK_COMBO_BOX(AVIComp),"MJPG - compressed");
+	
 	gtk_table_attach(GTK_TABLE(table2), AVIComp, 1, 3, 6, 7,
                     GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (AVIComp);
 
 	switch (AVIFormat) {
-	   case 1:
+	   case 1:/*MJPG*/
 		gtk_combo_box_set_active(GTK_COMBO_BOX(AVIComp),0);
 	    break;
-	   case 2:	
+	   case 2:/*YUY2*/	
 	    	gtk_combo_box_set_active(GTK_COMBO_BOX(AVIComp),1);
 	    break;
-	   case 3:/*MJPG*/
+	   case 3:/*DIB*/
 			gtk_combo_box_set_active(GTK_COMBO_BOX(AVIComp),2);
 		break;
 	   default:
-	    /*set Format to YUY2*/
+	    /*set Format to MJPG*/
 	    	AVIFormat=1;
 		gtk_combo_box_set_active(GTK_COMBO_BOX(AVIComp),0);
  	}
@@ -1444,8 +1745,230 @@ int main(int argc, char *argv[])
 
     gtk_widget_show (label_AVIComp);
 
+    /* sound interface ----------------------------------------*/
+	
+	/*get sound device list and info-----------------------------------------------*/
+	
+	SndDevice = gtk_combo_box_new_text ();
+		
+	int     it, numDevices, defaultDisplayed;
+    const   PaDeviceInfo *deviceInfo;
+    PaStreamParameters inputParameters, outputParameters;
+    PaError err;
+	
+	Pa_Initialize();
+	
+	numDevices = Pa_GetDeviceCount();
+    if( numDevices < 0 )
+    {
+        printf( "SOUND DISABLE: Pa_CountDevices returned 0x%x\n", numDevices );
+        err = numDevices;
+        Pa_Terminate();
+		Sound_enable=0;
+    } else {
+	
+	 	for( it=0; it<numDevices; it++ )
+    	{
+        	deviceInfo = Pa_GetDeviceInfo( it );
+        	printf( "--------------------------------------- device #%d\n", it );
+                
+    		/* Mark global and API specific default devices */
+        	defaultDisplayed = 0;
+        	if( it == Pa_GetDefaultInputDevice() )
+        	{
+            	printf( "[ Default Input" );
+            	defaultDisplayed = 1;
+				Sound_DefDev=Sound_numInputDev;/*index in array of input devs*/
+        	}
+        	else if( it == Pa_GetHostApiInfo( deviceInfo->hostApi )->defaultInputDevice )
+        	{
+            	const PaHostApiInfo *hostInfo = Pa_GetHostApiInfo( deviceInfo->hostApi );
+            	printf( "[ Default %s Input", hostInfo->name );
+            	defaultDisplayed = 1;
+				Sound_DefDev=Sound_numInputDev;/*index in array of input devs*/
+        	}
+        
+        	if( it == Pa_GetDefaultOutputDevice() )
+        	{
+            	printf( (defaultDisplayed ? "," : "[") );
+            	printf( " Default Output" );
+            	defaultDisplayed = 1;
+        	}
+        	else if( it == Pa_GetHostApiInfo( deviceInfo->hostApi )->defaultOutputDevice )
+        	{
+            	const PaHostApiInfo *hostInfo = Pa_GetHostApiInfo( deviceInfo->hostApi );
+            	printf( (defaultDisplayed ? "," : "[") );                
+           		printf( " Default %s Output", hostInfo->name );
+            	defaultDisplayed = 1;
+        	}
 
+        	if( defaultDisplayed )
+            	printf( " ]\n" );
 
+    		/* print device info fields */
+        	printf( "Name                        = %s\n", deviceInfo->name );
+        	printf( "Host API                    = %s\n",  Pa_GetHostApiInfo( deviceInfo->hostApi )->name );
+        	
+			printf( "Max inputs = %d", deviceInfo->maxInputChannels  );
+			if (deviceInfo->maxInputChannels >0) {
+				Sound_IndexDev[Sound_numInputDev]=it; /*saves dev id*/
+				Sound_numInputDev++;
+				gtk_combo_box_append_text(GTK_COMBO_BOX(SndDevice),deviceInfo->name);		
+			}
+			
+        	printf( ", Max outputs = %d\n", deviceInfo->maxOutputChannels  );
+
+        	printf( "Default low input latency   = %8.3f\n", deviceInfo->defaultLowInputLatency  );
+        	printf( "Default low output latency  = %8.3f\n", deviceInfo->defaultLowOutputLatency  );
+        	printf( "Default high input latency  = %8.3f\n", deviceInfo->defaultHighInputLatency  );
+        	printf( "Default high output latency = %8.3f\n", deviceInfo->defaultHighOutputLatency  );
+			printf( "Default sample rate         = %8.2f\n", deviceInfo->defaultSampleRate );
+			
+		}
+		Pa_Terminate();
+
+    	printf("----------------------------------------------\n");
+	
+	}
+	
+	gtk_table_attach(GTK_TABLE(table2), SndDevice, 1, 3, 8, 9,
+                    GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_widget_show (SndDevice);
+	gtk_combo_box_set_active(GTK_COMBO_BOX(SndDevice),Sound_DefDev);
+	
+	gtk_widget_set_sensitive (SndDevice, TRUE);
+	g_signal_connect (GTK_COMBO_BOX(SndDevice), "changed",
+    	G_CALLBACK (SndDevice_changed), NULL);
+	
+	label_SndDevice = gtk_label_new("Imput Device:");
+	gtk_misc_set_alignment (GTK_MISC (label_SndDevice), 1, 0.5);
+
+    gtk_table_attach (GTK_TABLE(table2), label_SndDevice, 0, 1, 8, 9,
+                    GTK_FILL, 0, 0, 0);
+
+    gtk_widget_show (label_SndDevice);
+	
+	
+	if (Sound_numInputDev == 0) Sound_enable=0;
+	
+	SndEnable=gtk_check_button_new_with_label (" Sound");
+	gtk_table_attach(GTK_TABLE(table2), SndEnable, 0, 1, 7, 8,
+                    GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	
+	gtk_toggle_button_set_active(GTK_CHECK_BUTTON(SndEnable),(Sound_enable > 0));
+	gtk_widget_show (SndEnable);
+	g_signal_connect (GTK_CHECK_BUTTON(SndEnable), "toggled",
+    	G_CALLBACK (SndEnable_changed), NULL);
+	
+	SndSampleRate= gtk_combo_box_new_text ();
+	gtk_combo_box_append_text(GTK_COMBO_BOX(SndSampleRate),"44100");
+	gtk_combo_box_append_text(GTK_COMBO_BOX(SndSampleRate),"22050");
+	gtk_combo_box_append_text(GTK_COMBO_BOX(SndSampleRate),"16000");
+	gtk_combo_box_append_text(GTK_COMBO_BOX(SndSampleRate),"11025");
+	
+	gtk_table_attach(GTK_TABLE(table2), SndSampleRate, 1, 3, 9, 10,
+                    GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_widget_show (SndSampleRate);
+	
+	switch (Sound_SampRate) {
+	   case 44100:/*44100*/
+			gtk_combo_box_set_active(GTK_COMBO_BOX(SndSampleRate),0);
+	    break;
+	   case 22050:/*22050*/	
+	    	gtk_combo_box_set_active(GTK_COMBO_BOX(SndSampleRate),1);
+	    break;
+	   case 16000:/*16000*/	
+	    	gtk_combo_box_set_active(GTK_COMBO_BOX(SndSampleRate),2);
+	    break;
+	   case 11025:/*11025*/
+			gtk_combo_box_set_active(GTK_COMBO_BOX(SndSampleRate),3);
+		break;
+	   default:
+	    /*set Default to SAMPLE_RATE*/
+	    	Sound_SampRate=SAMPLE_RATE;
+		gtk_combo_box_set_active(GTK_COMBO_BOX(SndSampleRate),0);
+ 	}
+	
+	gtk_widget_set_sensitive (SndSampleRate, TRUE);
+	g_signal_connect (GTK_COMBO_BOX(SndSampleRate), "changed",
+    	G_CALLBACK (SndSampleRate_changed), NULL);
+	
+	label_SndSampRate = gtk_label_new("Sample Rate:");
+	gtk_misc_set_alignment (GTK_MISC (label_SndSampRate), 1, 0.5);
+
+    gtk_table_attach (GTK_TABLE(table2), label_SndSampRate, 0, 1, 9, 10,
+                    GTK_FILL, 0, 0, 0);
+
+    gtk_widget_show (label_SndSampRate);
+	
+	SndNumChan= gtk_combo_box_new_text ();
+	gtk_combo_box_append_text(GTK_COMBO_BOX(SndNumChan),"1 - mono");
+	gtk_combo_box_append_text(GTK_COMBO_BOX(SndNumChan),"2 - stereo");
+	
+	gtk_table_attach(GTK_TABLE(table2), SndNumChan, 1, 3, 10, 11,
+                    GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_widget_show (SndNumChan);
+	switch (Sound_NumChan) {
+	   case 1:/*mono*/
+			gtk_combo_box_set_active(GTK_COMBO_BOX(SndNumChan),0);
+	    break;
+	   case 2:/*stereo*/	
+	    	gtk_combo_box_set_active(GTK_COMBO_BOX(SndNumChan),1);
+	    break;
+	   default:
+	    /*set Default to SAMPLE_RATE*/
+	    	Sound_NumChan=NUM_CHANNELS;	
+	}
+	gtk_widget_set_sensitive (SndNumChan, TRUE);
+	g_signal_connect (GTK_COMBO_BOX(SndNumChan), "changed",
+    	G_CALLBACK (SndNumChan_changed), NULL);
+	
+	label_SndNumChan = gtk_label_new("Chanels:");
+	gtk_misc_set_alignment (GTK_MISC (label_SndNumChan), 1, 0.5);
+
+    gtk_table_attach (GTK_TABLE(table2), label_SndNumChan, 0, 1, 10, 11,
+                    GTK_FILL, 0, 0, 0);
+
+    gtk_widget_show (label_SndNumChan);
+	
+	//~ SndSampleBits= gtk_combo_box_new_text ();
+	//~ gtk_combo_box_append_text(GTK_COMBO_BOX(SndSampleBits),"16");
+	//~ gtk_combo_box_append_text(GTK_COMBO_BOX(SndSampleBits),"8");
+	
+	
+	//~ gtk_table_attach(GTK_TABLE(table2), SndSampleBits, 1, 3, 9, 10,
+                    //~ GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	//~ gtk_widget_show (SndSampleBits);
+	
+	//~ switch (Sound_SampBits) {
+	   //~ case 16:/*16 bits*/
+			//~ gtk_combo_box_set_active(GTK_COMBO_BOX(SndSampleRate),0);
+			//~ Sound_Format=paInt16;
+	    //~ break;
+	   //~ case 8:/*8 bits*/	
+	    	//~ gtk_combo_box_set_active(GTK_COMBO_BOX(SndSampleRate),1);
+			//~ Sound_Format=paInt8;
+	    //~ break;
+	   //~ default:
+	    //~ /*set Default to 16*/
+	    	//~ Sound_SampBits=16;
+			//~ Sound_Format=paInt16;
+		    //~ gtk_combo_box_set_active(GTK_COMBO_BOX(SndSampleBits),0);
+ 	//~ }
+	
+	//~ gtk_widget_set_sensitive (SndSampleBits, TRUE);
+	//~ g_signal_connect (GTK_COMBO_BOX(SndSampleBits), "changed",
+    	//~ G_CALLBACK (SndSampleBits_changed), NULL);
+	
+	//~ label_SndSampRate = gtk_label_new("Sample Bits:");
+	//~ gtk_misc_set_alignment (GTK_MISC (label_SndSampBits), 1, 0.5);
+
+    //~ gtk_table_attach (GTK_TABLE(table2), label_SndSampBits, 0, 1, 9, 10,
+                    //~ GTK_FILL, 0, 0, 0);
+
+    //~ gtk_widget_show (label_SndSampBits);
+	
+	/* main container -----------------------------------------*/
 	gtk_container_add (GTK_CONTAINER (mainwin), boxh);
     gtk_widget_show (boxh);
 	
