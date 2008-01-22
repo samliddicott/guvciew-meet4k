@@ -91,15 +91,18 @@ BYTE * pim;
 
 unsigned char frmrate;
 
+
 char *sndfile; /*temporary snd filename*/
 char *capt;
 int Sound_enable=1; /*Enable Sound by Default*/
-int Sound_SampRate=SAMPLE_RATE;
+double Sound_SampRate=SAMPLE_RATE;
 int Sound_numInputDev=0;
-int Sound_IndexDev[20]; /*up to 20 input devices*/
+sndDev Sound_IndexDev[20]; /*up to 20 input devices*/
 int Sound_DefDev=0;
 int Sound_UseDev=0;
 int Sound_NumChan=2;
+
+
 
 //~ PaSampleFormat Sound_Format=paInt16;
 //~ int Sound_SampBits=16;
@@ -208,7 +211,7 @@ int readConf(const char *confpath) {
 }
 
 /******************** sound callback **************************/
-
+/******************** no callback using blocking API **********/
 //~ typedef struct
 //~ {
     //~ int          frameIndex;  /* Index into sample array. */
@@ -744,23 +747,8 @@ static void
 SndSampleRate_changed (GtkComboBox * SampleRate, void *data)
 {
 	int index = gtk_combo_box_get_active (SampleRate);
-   switch (index) {
-	   case 0:/*44100*/
-			Sound_SampRate=44100;
-	    break;
-	   case 1:/*22050*/	
-	    	Sound_SampRate=22050;
-	    break;
-	   case 2:/*16000*/	
-	    	Sound_SampRate=16000;
-	    break;
-	   case 3:/*11025*/
-			Sound_SampRate=11025;
-		break;
-	   default:
-	    /*set Default to SAMPLE_RATE*/
-	    	Sound_SampRate=SAMPLE_RATE;	
- 	}	
+   	Sound_SampRate=standardSampleRates[index];
+	
 	
 }
 
@@ -768,7 +756,7 @@ static void
 SndDevice_changed (GtkComboBox * SoundDevice, void *data)
 {
 	int index = gtk_combo_box_get_active (SoundDevice);
-	Sound_UseDev=Sound_IndexDev[index];
+	Sound_UseDev=Sound_IndexDev[index].id;
 	
 }
 
@@ -1778,7 +1766,7 @@ int main(int argc, char *argv[])
         	{
             	printf( "[ Default Input" );
             	defaultDisplayed = 1;
-				Sound_DefDev=Sound_numInputDev;/*index in array of input devs*/
+				Sound_DefDev=Sound_numInputDev;/*default index in array of input devs*/
         	}
         	else if( it == Pa_GetHostApiInfo( deviceInfo->hostApi )->defaultInputDevice )
         	{
@@ -1809,9 +1797,13 @@ int main(int argc, char *argv[])
         	printf( "Name                        = %s\n", deviceInfo->name );
         	printf( "Host API                    = %s\n",  Pa_GetHostApiInfo( deviceInfo->hostApi )->name );
         	
-			printf( "Max inputs = %d", deviceInfo->maxInputChannels  );
+			printf( "Max inputs = %d", deviceInfo->maxInputChannels  );/*if it's a input device*/
 			if (deviceInfo->maxInputChannels >0) {
-				Sound_IndexDev[Sound_numInputDev]=it; /*saves dev id*/
+				Sound_IndexDev[Sound_numInputDev].id=it; /*saves dev id*/
+				Sound_IndexDev[Sound_numInputDev].chan=deviceInfo->maxInputChannels;
+				Sound_IndexDev[Sound_numInputDev].samprate=deviceInfo->defaultSampleRate;
+				//Sound_IndexDev[Sound_numInputDev].Hlatency=deviceInfo->defaultHighInputLatency;
+				//Sound_IndexDev[Sound_numInputDev].Llatency=deviceInfo->defaultLowInputLatency;
 				Sound_numInputDev++;
 				gtk_combo_box_append_text(GTK_COMBO_BOX(SndDevice),deviceInfo->name);		
 			}
@@ -1861,33 +1853,44 @@ int main(int argc, char *argv[])
     	G_CALLBACK (SndEnable_changed), NULL);
 	
 	SndSampleRate= gtk_combo_box_new_text ();
-	gtk_combo_box_append_text(GTK_COMBO_BOX(SndSampleRate),"44100");
-	gtk_combo_box_append_text(GTK_COMBO_BOX(SndSampleRate),"22050");
-	gtk_combo_box_append_text(GTK_COMBO_BOX(SndSampleRate),"16000");
-	gtk_combo_box_append_text(GTK_COMBO_BOX(SndSampleRate),"11025");
+	for( i=0; standardSampleRates[i] > 0; i++ )
+    {
+		char dst[8];
+		sprintf(dst,"%0.0f",standardSampleRates[i]);
+		gtk_combo_box_append_text(GTK_COMBO_BOX(SndSampleRate),dst);
+	}
 	
 	gtk_table_attach(GTK_TABLE(table2), SndSampleRate, 1, 3, 9, 10,
                     GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (SndSampleRate);
 	
-	switch (Sound_SampRate) {
-	   case 44100:/*44100*/
-			gtk_combo_box_set_active(GTK_COMBO_BOX(SndSampleRate),0);
-	    break;
-	   case 22050:/*22050*/	
-	    	gtk_combo_box_set_active(GTK_COMBO_BOX(SndSampleRate),1);
-	    break;
-	   case 16000:/*16000*/	
-	    	gtk_combo_box_set_active(GTK_COMBO_BOX(SndSampleRate),2);
-	    break;
-	   case 11025:/*11025*/
-			gtk_combo_box_set_active(GTK_COMBO_BOX(SndSampleRate),3);
-		break;
-	   default:
-	    /*set Default to SAMPLE_RATE*/
-	    	Sound_SampRate=SAMPLE_RATE;
-		gtk_combo_box_set_active(GTK_COMBO_BOX(SndSampleRate),0);
- 	}
+	//~ switch (Sound_SampRate) {
+	   //~ case 44100:/*44100*/
+			//~ gtk_combo_box_set_active(GTK_COMBO_BOX(SndSampleRate),0);
+	    //~ break;
+	   //~ case 22050:/*22050*/	
+	    	//~ gtk_combo_box_set_active(GTK_COMBO_BOX(SndSampleRate),1);
+	    //~ break;
+	   //~ case 16000:/*16000*/	
+	    	//~ gtk_combo_box_set_active(GTK_COMBO_BOX(SndSampleRate),2);
+	    //~ break;
+	   //~ case 11025:/*11025*/
+			//~ gtk_combo_box_set_active(GTK_COMBO_BOX(SndSampleRate),3);
+		//~ break;
+	   //~ default:
+	    //~ /*set Default to SAMPLE_RATE*/
+	    	//~ Sound_SampRate=SAMPLE_RATE;
+		//~ gtk_combo_box_set_active(GTK_COMBO_BOX(SndSampleRate),0);
+		//~}
+	for( i=0; standardSampleRates[i] > 0; i++ )
+            {
+				if (Sound_SampRate==standardSampleRates[i]){ 
+					gtk_combo_box_set_active(GTK_COMBO_BOX(SndSampleRate),i);
+					break;
+				}
+			}
+	
+ 	
 	
 	gtk_widget_set_sensitive (SndSampleRate, TRUE);
 	g_signal_connect (GTK_COMBO_BOX(SndSampleRate), "changed",

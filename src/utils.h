@@ -87,8 +87,8 @@ typedef unsigned char SAMPLE;
 #define DEFAULT_IMAGE_FNAME "Image.bmp"
 #define DEFAULT_AVI_FNAME	"capture.avi"
 #define DEFAULT_FPS	25
-#define SDL_WAIT_TIME 10 /*SDL - Thread loop sleep time */
-#define SND_WAIT_TIME 30 /*sound capture- Thread loop sleep time*/
+#define SDL_WAIT_TIME 20 /*SDL - Thread loop sleep time */
+#define SND_WAIT_TIME 20 /*sound capture- Thread loop sleep time*/
 /*                      */
 #define ERR_NO_SOI 1
 #define ERR_NOT_8BIT 2
@@ -106,7 +106,19 @@ typedef unsigned char SAMPLE;
 #define ERR_BAD_TABLES 14
 #define ERR_DEPTH_MISMATCH 15
 
+typedef struct _sndDev {
+ int id;
+ int chan;
+ double samprate;
+ //PaTime Hlatency;
+ //PaTime Llatency;
+} sndDev;
 
+static double standardSampleRates[] = {  8000.0,  9600.0, 11025.0, 12000.0,
+                                            16000.0,          22050.0, 24000.0,
+                                            32000.0,          44100.0, 48000.0,
+                                                              88200.0, 96000.0,
+                                               -1.0 }; /* Negative terminated list. */
 
 typedef struct _Pix {
 //unsigned int pixel1;
