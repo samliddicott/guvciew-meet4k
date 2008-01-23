@@ -46,13 +46,13 @@
 #include <portaudio.h>
 
 #include "v4l2uvc.h"
-//#include "avilib.h"
+
 
 
 static const char version[] = VERSION;
 struct vdIn *videoIn;
 char confPath[80];
-int AVIFormat=1; /*1-"YUY2"  2-"DIB "(rgb32) 3-"MJPG"*/
+int AVIFormat=1; /*1-"MJPG"  2-"YUY2" 3-"DIB "(rgb32)*/
 VidState * s;
 
 /* The main window*/
@@ -60,13 +60,26 @@ GtkWidget *mainwin;
 /* A restart Dialog */
 GtkWidget *restartdialog;
 
+/* Must set this as global so they */
+/* can be set from any callback.   */
+/* When AVI is in capture mode we  */
+/* can't change settings           */
+GtkWidget *AVIComp;
+GtkWidget *SndEnable; 
+GtkWidget *SndSampleRate;
+GtkWidget *SndDevice;
+GtkWidget *SndNumChan;
+
+
+
 /*thread definitions*/
 pthread_t mythread;
 pthread_attr_t attr;
 
 pthread_t sndthread;
 pthread_attr_t sndattr;
- 
+
+/* parameters passed when restarting*/
 int ARG_C;
 char **ARG_V;
 
@@ -95,12 +108,12 @@ unsigned char frmrate;
 char *sndfile; /*temporary snd filename*/
 char *capt;
 int Sound_enable=1; /*Enable Sound by Default*/
-double Sound_SampRate=SAMPLE_RATE;
+int Sound_SampRate=SAMPLE_RATE;
 int Sound_numInputDev=0;
 sndDev Sound_IndexDev[20]; /*up to 20 input devices*/
-int Sound_DefDev=0;
+int Sound_DefDev=0; 
 int Sound_UseDev=0;
-int Sound_NumChan=2;
+int Sound_NumChan=NUM_CHANNELS;
 
 
 
@@ -117,6 +130,7 @@ int winwidth=WINSIZEX;
 int winheight=WINSIZEY;
 const char *mode="jpg"; /*jpg (default) or yuv*/
 int format = V4L2_PIX_FMT_MJPEG;
+//int freq=50;
 
 
 static Uint32 SDL_VIDEO_Flags =
@@ -143,6 +157,7 @@ int writeConf(const char *confpath) {
    		fprintf(fp,"hwaccel=%i\n",hwaccel);
    		fprintf(fp,"# video grab method: 0 -read 1 -mmap (default - 1)\n");
    		fprintf(fp,"grabmethod=%i\n",grabmethod);
+		//fprintf(fp,"frequency=%i\n",freq);
    		
    		printf("write %s OK\n",confpath);
    		fclose(fp);
@@ -199,7 +214,10 @@ int readConf(const char *confpath) {
 						} else if 	(strcmp(variable,"grabmethod")==0) {
 								if ((i=sscanf(value,"%i",&grabmethod))==1)
 									printf("grabmethod: %i\n",grabmethod);
-						}
+						}/* else if 	(strcmp(variable,"frequency")==0) {
+								if ((i=sscanf(value,"%i",&freq))==1)
+									printf("frequency: %i\n",freq);
+						}*/
 			}
 		}
 		fclose(fp);
@@ -298,18 +316,19 @@ void *sound_capture(void *data)
     if( err != paNoError ) goto error;
 	/* Record for a few seconds. */
 	
-	//~ if(Pa_GetDeviceInfo( inputParameters.device )->defaultSampleRate<Sound_SampRate) {
-		//~ Sound_SampRate=Pa_GetDeviceInfo( inputParameters.device )->defaultSampleRate;
-	//~ }
+	if(Sound_SampRate==stdSampleRates[0])
+		Sound_SampRate=Sound_IndexDev[Sound_UseDev].samprate;/*using default*/
 	
+	if(Sound_NumChan==0) {
+		/*using default if channels <3 or stereo(2) otherwise*/
+		Sound_NumChan=(Sound_IndexDev[Sound_UseDev].chan<3)?Sound_IndexDev[Sound_UseDev].chan:2;
+	}
+	printf("dev:%d SampleRate:%d Chanels:%d\n",Sound_IndexDev[Sound_UseDev].id,Sound_SampRate,Sound_NumChan);
+	
+	/* setting maximum buffer size*/
 	totalFrames = NUM_SECONDS * Sound_SampRate;
-	
-	
     numSamples = totalFrames * Sound_NumChan;
- 
     numBytes = numSamples * sizeof(SAMPLE);
-
-   
 	recordedSamples = (SAMPLE *) malloc( numBytes );
 	
     if( recordedSamples == NULL )
@@ -319,7 +338,7 @@ void *sound_capture(void *data)
     }
     for( i=0; i<numSamples; i++ ) recordedSamples[i] = 0;
 
-    inputParameters.device = Sound_UseDev; /* input device */
+    inputParameters.device = Sound_IndexDev[Sound_UseDev].id; /* input device */
     inputParameters.channelCount = Sound_NumChan;
     inputParameters.sampleFormat = PA_SAMPLE_TYPE;
     inputParameters.suggestedLatency = Pa_GetDeviceInfo( inputParameters.device )->defaultLowInputLatency;
@@ -331,25 +350,26 @@ void *sound_capture(void *data)
               &inputParameters,
               NULL,                  /* &outputParameters, */
               Sound_SampRate,
-              FRAMES_PER_BUFFER,
-              paClipOff,      /* we won't output out of range samples so don't bother clipping them */
+              FRAMES_PER_BUFFER,/*FRAMES_PER_BUFFER*/
+              paNoFlag,      /* we won't output out of range samples so don't bother clipping them */
               NULL, /* sound callback - using blocking API*/
               NULL ); /* callback userData -no callback no data */
     if( err != paNoError ) goto error;
+	
+	//err=PaAlsa_SetNumPeriods();
   
     err = Pa_StartStream( stream );
     if( err != paNoError ) goto error;
     /* capture loop -----------------------------------------------------*/
+	unsigned long framesready;
 	do {
-	   Pa_Sleep(SND_WAIT_TIME); 
-       err = Pa_ReadStream( stream, recordedSamples, totalFrames );
-       if( err != paNoError ) break;
-	   /* Write recorded data to a file. */
-       //if (snd_data.buf_full!=0) {
-          fwrite( recordedSamples, Sound_NumChan * sizeof(SAMPLE), totalFrames, fid );
-	   	//  snd_data.buf_full=0;
-	   //}   
-    	
+	   //Pa_Sleep(SND_WAIT_TIME);
+	   /*will just get the available frames and not totalFrames*/
+	   framesready =Pa_GetStreamReadAvailable( stream );
+       err = Pa_ReadStream( stream, recordedSamples, framesready );
+       //if( err != paNoError ) break; /*will break with input overflow*/
+	   /* Write recorded data to a file. */  
+          fwrite( recordedSamples, Sound_NumChan * sizeof(SAMPLE), framesready, fid );
     } while (videoIn->capAVI);   
 	
     if( err != paNoError ) goto error; //case error in loop
@@ -747,7 +767,7 @@ static void
 SndSampleRate_changed (GtkComboBox * SampleRate, void *data)
 {
 	int index = gtk_combo_box_get_active (SampleRate);
-   	Sound_SampRate=standardSampleRates[index];
+   	Sound_SampRate=stdSampleRates[index];
 	
 	
 }
@@ -755,8 +775,9 @@ SndSampleRate_changed (GtkComboBox * SampleRate, void *data)
 static void
 SndDevice_changed (GtkComboBox * SoundDevice, void *data)
 {
-	int index = gtk_combo_box_get_active (SoundDevice);
-	Sound_UseDev=Sound_IndexDev[index].id;
+ 
+	Sound_UseDev=gtk_combo_box_get_active (SoundDevice);
+	printf("using device id:%d\n",Sound_IndexDev[Sound_UseDev].id);
 	
 }
 
@@ -764,18 +785,7 @@ static void
 SndNumChan_changed (GtkComboBox * SoundChan, void *data)
 {
 	int index = gtk_combo_box_get_active (SoundChan);
-	switch (index) {
-	   case 0:/*1 - mono*/
-			Sound_NumChan=1;
-	    break;
-	   case 1:/*2 - stereo*/	
-	    	Sound_NumChan=2;
-	    break;
-	   default:
-	    /*set Default to NUM_CHANNELS*/
-	    	Sound_NumChan=NUM_CHANNELS;	
- 	}
-	
+	Sound_NumChan=index; /*0-device default 1-mono 2-stereo*/	
 }
 
 static void
@@ -823,7 +833,15 @@ capture_avi (GtkButton * CapAVIButt, GtkWidget * AVIFNameEntry)
 	 AVIstoptime = ms_time();
 	 printf("AVI stop time:%d\n",AVIstoptime);	
 	 videoIn->capAVI = FALSE;
-	 aviClose();		
+	 aviClose();
+	 /*enabling sound and avi compression controls*/
+	 gtk_widget_set_sensitive (AVIComp, TRUE);
+	 gtk_widget_set_sensitive (SndEnable,TRUE);	
+	 if(Sound_enable > 0) {	 
+ 	 	gtk_widget_set_sensitive (SndSampleRate,TRUE);
+ 	 	gtk_widget_set_sensitive (SndDevice,TRUE);
+ 	 	gtk_widget_set_sensitive (SndNumChan,TRUE);
+	 }
 	} 
 	else {
 	 if (!(videoIn->signalquit)) {
@@ -831,8 +849,19 @@ capture_avi (GtkButton * CapAVIButt, GtkWidget * AVIFNameEntry)
         /* we have to close AVI                  */
      printf("close AVI since thread as exited\n");
 	 gtk_button_set_label(CapAVIButt,"Capture");
+	 //AVIstoptime = ms_time();
 	 printf("AVI stop time:%d\n",AVIstoptime);	
-	 aviClose(); 		 
+	 videoIn->capAVI = FALSE;
+	 aviClose();
+	 /*enabling sound and avi compression controls*/
+	 gtk_widget_set_sensitive (AVIComp, TRUE);
+	 gtk_widget_set_sensitive (SndEnable,TRUE); 
+ 	 if(Sound_enable > 0) {	 
+ 	 	gtk_widget_set_sensitive (SndSampleRate,TRUE);
+ 	 	gtk_widget_set_sensitive (SndDevice,TRUE);
+ 	 	gtk_widget_set_sensitive (SndNumChan,TRUE);
+	 }
+	 
 	 } 
 	 else {
 	   /* thread is running so start AVI capture*/	 
@@ -847,6 +876,12 @@ capture_avi (GtkButton * CapAVIButt, GtkWidget * AVIFNameEntry)
 	   AVIstarttime = ms_time();
        printf("AVI start time:%d\n",AVIstarttime);		
 	   videoIn->capAVI = TRUE;
+	   /*disabling sound and avi compression controls*/
+	   gtk_widget_set_sensitive (AVIComp, FALSE);
+	   gtk_widget_set_sensitive (SndEnable,FALSE); 
+ 	   gtk_widget_set_sensitive (SndSampleRate,FALSE);
+ 	   gtk_widget_set_sensitive (SndDevice,FALSE);
+ 	   gtk_widget_set_sensitive (SndNumChan,FALSE);
 	   /* Creating the sound capture loop thread if Sound Enable*/ 
 	   if(Sound_enable > 0) { 
 	      int rsnd = pthread_create(&sndthread, &sndattr, sound_capture, NULL); 
@@ -863,11 +898,16 @@ capture_avi (GtkButton * CapAVIButt, GtkWidget * AVIFNameEntry)
 static void
 SndEnable_changed (GtkToggleButton * toggle, VidState * s)
 {
-	if(videoIn->capAVI) { /*must not change Sound flag while in AVI capture*/
-		gtk_toggle_button_set_active (toggle,(Sound_enable > 0));
-	} else {
 		Sound_enable = gtk_toggle_button_get_active (toggle) ? 1 : 0;
-	}
+	    if (!Sound_enable) {
+			gtk_widget_set_sensitive (SndSampleRate,FALSE);
+ 	   		gtk_widget_set_sensitive (SndDevice,FALSE);
+ 	   		gtk_widget_set_sensitive (SndNumChan,FALSE);	
+		} else { 
+ 	 		gtk_widget_set_sensitive (SndSampleRate,TRUE);
+ 	 		gtk_widget_set_sensitive (SndDevice,TRUE);
+ 	 		gtk_widget_set_sensitive (SndNumChan,TRUE);
+		}
 }
 
 static void
@@ -1307,12 +1347,7 @@ int main(int argc, char *argv[])
 	GtkWidget *ImageFNameEntry;
 	GtkWidget *CapAVIButt;
 	GtkWidget *AVIFNameEntry;
-	GtkWidget *AVIComp;
 	GtkWidget *label_AVIComp;
-	GtkWidget *SndEnable; 
-	GtkWidget *SndSampleRate;
-	GtkWidget *SndDevice;
-	GtkWidget *SndNumChan;
 	GtkWidget *label_SndSampRate;
 	GtkWidget *label_SndDevice;
 	GtkWidget *label_SndNumChan;
@@ -1762,6 +1797,8 @@ int main(int argc, char *argv[])
                 
     		/* Mark global and API specific default devices */
         	defaultDisplayed = 0;
+		    /* Default Input will save the ALSA default device index*/
+			/* since ALSA lists after OSS							*/
         	if( it == Pa_GetDefaultInputDevice() )
         	{
             	printf( "[ Default Input" );
@@ -1772,33 +1809,34 @@ int main(int argc, char *argv[])
         	{
             	const PaHostApiInfo *hostInfo = Pa_GetHostApiInfo( deviceInfo->hostApi );
             	printf( "[ Default %s Input", hostInfo->name );
-            	defaultDisplayed = 1;
+            	defaultDisplayed = 2;
 				Sound_DefDev=Sound_numInputDev;/*index in array of input devs*/
         	}
-        
+        /* Output device doesn't matter for capture*/
         	if( it == Pa_GetDefaultOutputDevice() )
         	{
             	printf( (defaultDisplayed ? "," : "[") );
             	printf( " Default Output" );
-            	defaultDisplayed = 1;
+            	defaultDisplayed = 3;
         	}
         	else if( it == Pa_GetHostApiInfo( deviceInfo->hostApi )->defaultOutputDevice )
         	{
             	const PaHostApiInfo *hostInfo = Pa_GetHostApiInfo( deviceInfo->hostApi );
             	printf( (defaultDisplayed ? "," : "[") );                
-           		printf( " Default %s Output", hostInfo->name );
-            	defaultDisplayed = 1;
+           		printf( " Default %s Output", hostInfo->name );/* OSS ALSA etc*/
+            	defaultDisplayed = 4;
         	}
 
-        	if( defaultDisplayed )
+        	if( defaultDisplayed!=0 )
             	printf( " ]\n" );
 
     		/* print device info fields */
         	printf( "Name                        = %s\n", deviceInfo->name );
         	printf( "Host API                    = %s\n",  Pa_GetHostApiInfo( deviceInfo->hostApi )->name );
         	
-			printf( "Max inputs = %d", deviceInfo->maxInputChannels  );/*if it's a input device*/
-			if (deviceInfo->maxInputChannels >0) {
+			printf( "Max inputs = %d", deviceInfo->maxInputChannels  );
+			/* if it as input channels it's a capture device*/
+			if (deviceInfo->maxInputChannels >0) { 
 				Sound_IndexDev[Sound_numInputDev].id=it; /*saves dev id*/
 				Sound_IndexDev[Sound_numInputDev].chan=deviceInfo->maxInputChannels;
 				Sound_IndexDev[Sound_numInputDev].samprate=deviceInfo->defaultSampleRate;
@@ -1827,6 +1865,7 @@ int main(int argc, char *argv[])
                     GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (SndDevice);
 	gtk_combo_box_set_active(GTK_COMBO_BOX(SndDevice),Sound_DefDev);
+	Sound_UseDev=Sound_DefDev;/* using default device*/
 	
 	gtk_widget_set_sensitive (SndDevice, TRUE);
 	g_signal_connect (GTK_COMBO_BOX(SndDevice), "changed",
@@ -1842,6 +1881,7 @@ int main(int argc, char *argv[])
 	
 	
 	if (Sound_numInputDev == 0) Sound_enable=0;
+	printf("SOUND DISABLE: no imput devices detected\n");
 	
 	SndEnable=gtk_check_button_new_with_label (" Sound");
 	gtk_table_attach(GTK_TABLE(table2), SndEnable, 0, 1, 7, 8,
@@ -1853,10 +1893,11 @@ int main(int argc, char *argv[])
     	G_CALLBACK (SndEnable_changed), NULL);
 	
 	SndSampleRate= gtk_combo_box_new_text ();
-	for( i=0; standardSampleRates[i] > 0; i++ )
+	gtk_combo_box_append_text(GTK_COMBO_BOX(SndSampleRate),"Dev. Default");
+	for( i=1; stdSampleRates[i] > 0; i++ )
     {
 		char dst[8];
-		sprintf(dst,"%0.0f",standardSampleRates[i]);
+		sprintf(dst,"%d",stdSampleRates[i]);
 		gtk_combo_box_append_text(GTK_COMBO_BOX(SndSampleRate),dst);
 	}
 	
@@ -1864,31 +1905,20 @@ int main(int argc, char *argv[])
                     GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (SndSampleRate);
 	
-	//~ switch (Sound_SampRate) {
-	   //~ case 44100:/*44100*/
-			//~ gtk_combo_box_set_active(GTK_COMBO_BOX(SndSampleRate),0);
-	    //~ break;
-	   //~ case 22050:/*22050*/	
-	    	//~ gtk_combo_box_set_active(GTK_COMBO_BOX(SndSampleRate),1);
-	    //~ break;
-	   //~ case 16000:/*16000*/	
-	    	//~ gtk_combo_box_set_active(GTK_COMBO_BOX(SndSampleRate),2);
-	    //~ break;
-	   //~ case 11025:/*11025*/
-			//~ gtk_combo_box_set_active(GTK_COMBO_BOX(SndSampleRate),3);
-		//~ break;
-	   //~ default:
-	    //~ /*set Default to SAMPLE_RATE*/
-	    	//~ Sound_SampRate=SAMPLE_RATE;
-		//~ gtk_combo_box_set_active(GTK_COMBO_BOX(SndSampleRate),0);
-		//~}
-	for( i=0; standardSampleRates[i] > 0; i++ )
-            {
-				if (Sound_SampRate==standardSampleRates[i]){ 
-					gtk_combo_box_set_active(GTK_COMBO_BOX(SndSampleRate),i);
-					break;
-				}
-			}
+	//gtk_combo_box_set_active(GTK_COMBO_BOX(SndSampleRate),Sound_IndexDev[Sound_DefDev]);
+	printf("device:%d default sample rate:%d\n",Sound_IndexDev[Sound_UseDev].id,
+		                              Sound_IndexDev[Sound_UseDev].samprate);
+	
+	gtk_combo_box_set_active(GTK_COMBO_BOX(SndSampleRate),0); /*device default*/
+	//~ for( i=0; stdSampleRates[i] > 0; i++ )
+            //~ {
+				//~ if (Sound_IndexDev[Sound_UseDev].samprate==stdSampleRates[i]){ 
+					//~ gtk_combo_box_set_active(GTK_COMBO_BOX(SndSampleRate),i);
+					//~ Sound_SampRate=Sound_IndexDev[Sound_UseDev].samprate;
+					//~ printf("SampleRate initial:%d\n",Sound_SampRate);
+					//~ break;
+				//~ }
+			//~ }
 	
  	
 	
@@ -1905,6 +1935,7 @@ int main(int argc, char *argv[])
     gtk_widget_show (label_SndSampRate);
 	
 	SndNumChan= gtk_combo_box_new_text ();
+	gtk_combo_box_append_text(GTK_COMBO_BOX(SndNumChan),"Dev. Default");
 	gtk_combo_box_append_text(GTK_COMBO_BOX(SndNumChan),"1 - mono");
 	gtk_combo_box_append_text(GTK_COMBO_BOX(SndNumChan),"2 - stereo");
 	
@@ -1912,14 +1943,16 @@ int main(int argc, char *argv[])
                     GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (SndNumChan);
 	switch (Sound_NumChan) {
-	   case 1:/*mono*/
+	   case 0:/*device default*/
 			gtk_combo_box_set_active(GTK_COMBO_BOX(SndNumChan),0);
 	    break;
-	   case 2:/*stereo*/	
+	   case 1:/*mono*/	
 	    	gtk_combo_box_set_active(GTK_COMBO_BOX(SndNumChan),1);
 	    break;
+		case 2:/*stereo*/
+			gtk_combo_box_set_active(GTK_COMBO_BOX(SndNumChan),2);
 	   default:
-	    /*set Default to SAMPLE_RATE*/
+	    /*set Default to NUM_CHANNELS*/
 	    	Sound_NumChan=NUM_CHANNELS;	
 	}
 	gtk_widget_set_sensitive (SndNumChan, TRUE);
@@ -1933,6 +1966,7 @@ int main(int argc, char *argv[])
                     GTK_FILL, 0, 0, 0);
 
     gtk_widget_show (label_SndNumChan);
+	printf("SampleRate:%d Channels:%d\n",Sound_SampRate,Sound_NumChan);
 	
 	//~ SndSampleBits= gtk_combo_box_new_text ();
 	//~ gtk_combo_box_append_text(GTK_COMBO_BOX(SndSampleBits),"16");

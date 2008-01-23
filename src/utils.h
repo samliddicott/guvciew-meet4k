@@ -23,15 +23,15 @@ typedef  unsigned int LONG;
 typedef  unsigned int UINT;
 typedef  unsigned short  int WORD;
 
-#define VERSION "0.4.1"
+#define VERSION "0.5.1"
 
 /*portaudio defs*/
-#define SAMPLE_RATE  (44100)
-#define FRAMES_PER_BUFFER (1024)
+#define SAMPLE_RATE  (0) /* 0 device default*/
+#define FRAMES_PER_BUFFER (4096)
 #define NUM_SECONDS     (2) /*allways writes 2 second bloks*/
 /* sound can go for more 2 seconds than video, must clip in post processing*/
 
-#define NUM_CHANNELS    (2) /* 2-stereo 1-mono */
+#define NUM_CHANNELS    (0) /* 0-device default 1-mono 2-stereo */
 /* #define DITHER_FLAG     (paDitherOff)  */
 #define DITHER_FLAG     (0) /**/
 
@@ -87,8 +87,8 @@ typedef unsigned char SAMPLE;
 #define DEFAULT_IMAGE_FNAME "Image.bmp"
 #define DEFAULT_AVI_FNAME	"capture.avi"
 #define DEFAULT_FPS	25
-#define SDL_WAIT_TIME 20 /*SDL - Thread loop sleep time */
-#define SND_WAIT_TIME 20 /*sound capture- Thread loop sleep time*/
+#define SDL_WAIT_TIME 30 /*SDL - Thread loop sleep time */
+#define SND_WAIT_TIME 40 /*sound capture- Thread loop sleep time*/
 /*                      */
 #define ERR_NO_SOI 1
 #define ERR_NOT_8BIT 2
@@ -109,16 +109,17 @@ typedef unsigned char SAMPLE;
 typedef struct _sndDev {
  int id;
  int chan;
- double samprate;
+ int samprate;
  //PaTime Hlatency;
  //PaTime Llatency;
 } sndDev;
 
-static double standardSampleRates[] = {  8000.0,  9600.0, 11025.0, 12000.0,
-                                            16000.0,          22050.0, 24000.0,
-                                            32000.0,          44100.0, 48000.0,
-                                                              88200.0, 96000.0,
-                                               -1.0 }; /* Negative terminated list. */
+/* 0.0 is device default*/
+static int stdSampleRates[] = { 0, 8000,  9600, 11025, 12000,
+                                   16000, 22050, 24000,
+                                   32000, 44100, 48000,
+                                   88200, 96000,
+                                   -1 }; /* Negative terminated list. */
 
 typedef struct _Pix {
 //unsigned int pixel1;
