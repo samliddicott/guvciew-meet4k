@@ -140,6 +140,15 @@ static Uint32 SDL_VIDEO_Flags =
     SDL_ANYFORMAT | SDL_DOUBLEBUF | SDL_RESIZABLE;
 
 
+double
+ms_time (void)
+{
+  static struct timeval tod;
+  gettimeofday (&tod, NULL);
+  return ((double) tod.tv_sec * 1000.0 + (double) tod.tv_usec / 1000.0);
+
+}
+
 static
 int writeConf(const char *confpath) {
 	int ret=1;
@@ -400,83 +409,6 @@ error:
 }
 
 
-/************************ clean up and shut down ***************************/
-gint 
-shutd (gint restart) 
-{
- 	int exec_status=0;
-	int i;
-	int tstatus;
-	
-    printf("Shuting Down Thread\n");
-	videoIn->signalquit=0;
-	printf("waiting for thread to finish\n");
-	/* Free attribute and wait for the thread */
-    pthread_attr_destroy(&attr);
-	
-	int rc = pthread_join(mythread, (void **)&tstatus);
-    if (rc)
-      {
-         printf("ERROR; return code from pthread_join() is %d\n", rc);
-         exit(-1);
-      }
-    printf("Completed join with thread status= %d\n", tstatus);
-	
-	
-	gtk_window_get_size(GTK_WINDOW(mainwin),&winwidth,&winheight);//mainwin or widget
-	
-	
-	close_v4l2(videoIn);
-	close(videoIn->fd);
-	printf("closed strutures\n");
-    free(videoIn);
-	free(capt);
-	free(sndfile);
-	SDL_Quit();
-	printf("SDL Quit\n");
-	printf("cleaned allocations - 50%%\n");
-	gtk_main_quit();
-	
-    printf("GTK quit\n");
-    writeConf(confPath);
-	input_free_controls (s->control, s->num_controls);
-	printf("free controls - vidState\n");
-	
-	char locpath[30];
-	char fullpath[50];
-	char *pwd;
-	
- 	if (restart==1) {
-		 		 		
-		 if (sscanf(ARG_V[0],"./%s",locpath)==1) { //guvcview started from local path
-		 	pwd=getenv("PWD");
-			sprintf(fullpath,"%s/%s",pwd,locpath);
-			if((ARG_V[0]=realloc(ARG_V[0],(strlen(fullpath)+1)*sizeof(char)))!=NULL){
-				strcpy(ARG_V[0],fullpath);
-			} else {
-				printf("Couldn't realloc mem (terminating..)\n");
-				for(i=0;i<ARG_C;i++){
-					free(ARG_V[i]);
-				}
-				free(ARG_V);
-				printf("cleaned allocations - 100%%\n");
-				return(2);
-			}
-		 } 
-		 
-		 printf("restarting guvcview\n");
-		 exec_status = execvp(ARG_V[0], ARG_V);
- 	}
-	
-	for(i=0;i<ARG_C;i++){
-		free(ARG_V[i]);
-	}
-	free(ARG_V);
-	printf("cleanig allocations - 100%%\n");
-	return exec_status;
-}
-
-
 /* Event handlers */
 gint
 delete_event (GtkWidget *widget, GdkEventConfigure *event)
@@ -585,14 +517,6 @@ num_chars (int n)
     return i;
 }
 
-double
-ms_time (void)
-{
-  static struct timeval tod;
-  gettimeofday (&tod, NULL);
-  return ((double) tod.tv_sec * 1000.0 + (double) tod.tv_usec / 1000.0);
-
-}
 
 
 /*Controls*/
@@ -2037,5 +1961,91 @@ int main(int argc, char *argv[])
 	//input_free_controls (s->control, s->num_controls);
 
 	return 0;
+}
+
+/************************ clean up and shut down ***************************/
+gint 
+shutd (gint restart) 
+{
+ 	int exec_status=0;
+	int i;
+	int tstatus;
+	
+    printf("Shuting Down Thread\n");
+	videoIn->signalquit=0;
+	printf("waiting for thread to finish\n");
+	/*shuting down while in avi capture mode*/
+	/*must close avi						*/
+	if(videoIn->capAVI) {
+		printf("stoping AVI capture\n");
+	 	AVIstoptime = ms_time();
+	 	printf("AVI stop time:%d\n",AVIstoptime);	
+	 	videoIn->capAVI = FALSE;
+	 	aviClose();
+	}
+	
+	/* Free attribute and wait for the thread */
+    pthread_attr_destroy(&attr);
+	
+	int rc = pthread_join(mythread, (void **)&tstatus);
+    if (rc)
+      {
+         printf("ERROR; return code from pthread_join() is %d\n", rc);
+         exit(-1);
+      }
+    printf("Completed join with thread status= %d\n", tstatus);
+	
+	
+	gtk_window_get_size(GTK_WINDOW(mainwin),&winwidth,&winheight);//mainwin or widget
+	
+	
+	close_v4l2(videoIn);
+	close(videoIn->fd);
+	printf("closed strutures\n");
+    free(videoIn);
+	free(capt);
+	free(sndfile);
+	SDL_Quit();
+	printf("SDL Quit\n");
+	printf("cleaned allocations - 50%%\n");
+	gtk_main_quit();
+	
+    printf("GTK quit\n");
+    writeConf(confPath);
+	input_free_controls (s->control, s->num_controls);
+	printf("free controls - vidState\n");
+	
+	char locpath[30];
+	char fullpath[50];
+	char *pwd;
+	
+ 	if (restart==1) {
+		 		 		
+		 if (sscanf(ARG_V[0],"./%s",locpath)==1) { //guvcview started from local path
+		 	pwd=getenv("PWD");
+			sprintf(fullpath,"%s/%s",pwd,locpath);
+			if((ARG_V[0]=realloc(ARG_V[0],(strlen(fullpath)+1)*sizeof(char)))!=NULL){
+				strcpy(ARG_V[0],fullpath);
+			} else {
+				printf("Couldn't realloc mem (terminating..)\n");
+				for(i=0;i<ARG_C;i++){
+					free(ARG_V[i]);
+				}
+				free(ARG_V);
+				printf("cleaned allocations - 100%%\n");
+				return(2);
+			}
+		 } 
+		 
+		 printf("restarting guvcview\n");
+		 exec_status = execvp(ARG_V[0], ARG_V);
+ 	}
+	
+	for(i=0;i<ARG_C;i++){
+		free(ARG_V[i]);
+	}
+	free(ARG_V);
+	printf("cleanig allocations - 100%%\n");
+	return exec_status;
 }
 
