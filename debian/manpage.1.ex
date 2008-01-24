@@ -19,10 +19,10 @@
 guvcview \- UVC video (and sound) capture tool
 .SH SYNOPSIS
 .B guvcview
-.RI [ options ] " files" ...
+.RI [ options ]  ...
 .br
 .B bar
-.RI [ options ] " files" ...
+.RI [ options ]  ...
 .SH DESCRIPTION
 This manual page documents briefly the
 .B guvcview
@@ -33,12 +33,21 @@ commands.
 .\" TeX users may be more comfortable with the \fB<whatever>\fP and
 .\" \fI<whatever>\fP escape sequences to invode bold face and italics, 
 .\" respectively.
-\fBguvcview\fP is a program that...
+\fBguvcview\fP is a program that enables video capture through the UVC driver 
 .SH OPTIONS
 For a complete description, see the Info files.
 .TP
 .B \-h, 
-Show summary of options.
+usage: guvcview [-h -d -g -f -s -c -C -S] 
+	-h	print this message
+	-d	/dev/videoX       use videoX device
+	-g	use read method for grab instead mmap
+	-w	disable SDL hardware accel.
+	-f	video format  default jpg  others options are yuv jpg
+	-s	widthxheight      use specified input size
+	-c	enable raw frame capturing for the first frame
+	-C	enable raw frame stream capturing from the start
+	-S	enable raw stream capturing from the start
 .TP
 .B \-v, 
 Show version of program.
@@ -47,7 +56,7 @@ Show version of program.
 .BR baz (1).
 .br
 The programs will be documented fully by
-.IR "As soon as possibler" ,
+.IR the author ,
 available via the Info system.
 .SH AUTHOR
 guvcview was written by <Paulo Assis - pj.assis@gmail.com>.

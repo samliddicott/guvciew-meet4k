@@ -1,10 +1,10 @@
 Document: guvcview
 Title: Debian guvcview Manual
-Author: <insert document author here>
+Author: Paulo Assis
 Abstract: This manual describes what guvcview is
  and how it can be used to
  manage online manuals on Debian systems.
-Section: unknown
+Section: Audio&Video
 
 Format: debiandoc-sgml
 Files: /usr/share/doc/guvcview/guvcview.sgml.gz

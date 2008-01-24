@@ -87,7 +87,7 @@ char **ARG_V;
 SDL_Surface *pscreen = NULL;
 
 SDL_Surface *ImageSurf = NULL;
-SDL_Overlay *overlay;
+SDL_Overlay *overlay=NULL;
 SDL_Rect drect;
 SDL_Event sdlevent;
 
@@ -98,22 +98,25 @@ Uint32 AVIstoptime;
 Uint32 framecount=0;
 avi_t *AviOut;
 BYTE *p = NULL;
-BYTE * pim;
+BYTE * pim= NULL;
+BYTE * pavi=NULL;
 //Uint32 * aviIm;
 //unsigned char *pixeldata = (unsigned char *)&aviIm;
 
 unsigned char frmrate;
 
 
-char *sndfile; /*temporary snd filename*/
-char *capt;
+char *sndfile=NULL; /*temporary snd filename*/
+char *capt=NULL;
 int Sound_enable=1; /*Enable Sound by Default*/
 int Sound_SampRate=SAMPLE_RATE;
+int Sound_SampRateInd=0;
 int Sound_numInputDev=0;
 sndDev Sound_IndexDev[20]; /*up to 20 input devices*/
 int Sound_DefDev=0; 
 int Sound_UseDev=0;
 int Sound_NumChan=NUM_CHANNELS;
+int Sound_NumChanInd=0;
 
 
 
@@ -299,7 +302,7 @@ void *sound_capture(void *data)
     PaStream *stream;
     PaError err;
 	//paCapData  snd_data;
-    SAMPLE *recordedSamples;
+    SAMPLE *recordedSamples=NULL;
     int i;
     int totalFrames;
     int numSamples;
@@ -316,13 +319,14 @@ void *sound_capture(void *data)
     if( err != paNoError ) goto error;
 	/* Record for a few seconds. */
 	
-	if(Sound_SampRate==stdSampleRates[0])
+	if(Sound_SampRateInd==0)
 		Sound_SampRate=Sound_IndexDev[Sound_UseDev].samprate;/*using default*/
 	
-	if(Sound_NumChan==0) {
+	if(Sound_NumChanInd==0) {
 		/*using default if channels <3 or stereo(2) otherwise*/
 		Sound_NumChan=(Sound_IndexDev[Sound_UseDev].chan<3)?Sound_IndexDev[Sound_UseDev].chan:2;
 	}
+	//printf("dev:%d samprate:%d chan:%d\n",Sound_IndexDev[Sound_UseDev].id,Sound_IndexDev[Sound_UseDev].samprate,Sound_IndexDev[Sound_UseDev].chan);
 	printf("dev:%d SampleRate:%d Chanels:%d\n",Sound_IndexDev[Sound_UseDev].id,Sound_SampRate,Sound_NumChan);
 	
 	/* setting maximum buffer size*/
@@ -351,7 +355,7 @@ void *sound_capture(void *data)
               NULL,                  /* &outputParameters, */
               Sound_SampRate,
               FRAMES_PER_BUFFER,/*FRAMES_PER_BUFFER*/
-              paNoFlag,      /* we won't output out of range samples so don't bother clipping them */
+              paNoFlag,      /* clip and dhiter*/
               NULL, /* sound callback - using blocking API*/
               NULL ); /* callback userData -no callback no data */
     if( err != paNoError ) goto error;
@@ -365,11 +369,11 @@ void *sound_capture(void *data)
 	do {
 	   //Pa_Sleep(SND_WAIT_TIME);
 	   /*will just get the available frames and not totalFrames*/
-	   framesready =Pa_GetStreamReadAvailable( stream );
-       err = Pa_ReadStream( stream, recordedSamples, framesready );
+	   //framesready =Pa_GetStreamReadAvailable( stream );
+       err = Pa_ReadStream( stream, recordedSamples, totalFrames );
        //if( err != paNoError ) break; /*will break with input overflow*/
 	   /* Write recorded data to a file. */  
-          fwrite( recordedSamples, Sound_NumChan * sizeof(SAMPLE), framesready, fid );
+          fwrite( recordedSamples, Sound_NumChan * sizeof(SAMPLE), totalFrames, fid );
     } while (videoIn->capAVI);   
 	
     if( err != paNoError ) goto error; //case error in loop
@@ -379,8 +383,8 @@ void *sound_capture(void *data)
     err = Pa_CloseStream( stream );
     if( err != paNoError ) goto error; 
 	
-    free( recordedSamples  );
-
+    if(recordedSamples!=NULL) free( recordedSamples  );
+    recordedSamples=NULL;
     Pa_Terminate();
     return(0);
 
@@ -504,7 +508,7 @@ aviClose (void)
 	  }
 	  /******************* write audio to avi if Sound Enable********************/
 	  if (Sound_enable > 0) {
-	  	SAMPLE *recordedSamples;
+	  	SAMPLE *recordedSamples=NULL;
       	int i;  
       	int totalFrames;
       	int numSamples;
@@ -550,7 +554,8 @@ aviClose (void)
 		    /*remove file*/
 		}
 		fclose(fip);
-	    free( recordedSamples );
+	    if (recordedSamples!=NULL) free( recordedSamples );
+		recordedSamples=NULL;
 	  }
 	
 	  	
@@ -766,8 +771,8 @@ FrameRate_changed (GtkComboBox * FrameRate, void *data)
 static void
 SndSampleRate_changed (GtkComboBox * SampleRate, void *data)
 {
-	int index = gtk_combo_box_get_active (SampleRate);
-   	Sound_SampRate=stdSampleRates[index];
+	Sound_SampRateInd = gtk_combo_box_get_active (SampleRate);
+   	Sound_SampRate=stdSampleRates[Sound_SampRateInd];
 	
 	
 }
@@ -777,6 +782,7 @@ SndDevice_changed (GtkComboBox * SoundDevice, void *data)
 {
  
 	Sound_UseDev=gtk_combo_box_get_active (SoundDevice);
+	
 	printf("using device id:%d\n",Sound_IndexDev[Sound_UseDev].id);
 	
 }
@@ -784,8 +790,8 @@ SndDevice_changed (GtkComboBox * SoundDevice, void *data)
 static void
 SndNumChan_changed (GtkComboBox * SoundChan, void *data)
 {
-	int index = gtk_combo_box_get_active (SoundChan);
-	Sound_NumChan=index; /*0-device default 1-mono 2-stereo*/	
+	Sound_NumChanInd = gtk_combo_box_get_active (SoundChan);
+	Sound_NumChan=Sound_NumChanInd; /*0-device default 1-mono 2-stereo*/	
 }
 
 static void
@@ -1150,12 +1156,12 @@ void *main_loop(void *data)
 	
 	 /*capture Image*/
 	 if (videoIn->capImage){
-
-		if((pim= malloc((pscreen->w)*(pscreen->h)*3))==NULL){/*24 bits -> 3bytes 32 bits ->4 bytes*/
+        if(pim==NULL) {  
+		  if((pim= malloc((pscreen->w)*(pscreen->h)*3))==NULL){/*24 bits -> 3bytes 32 bits ->4 bytes*/
 		 	printf("Couldn't allocate memory for: pim\n");
 	     	videoIn->signalquit=0;
-			ret = 3;
-		
+			ret = 3;		
+		  }
 		}
 		
 		//char *ppmheader = "P6\n# Generated by guvcview\n320 240\n255\n";
@@ -1205,7 +1211,7 @@ void *main_loop(void *data)
 				pim[o+5+m]=pix2->r1;	
 		  	}
 			k--;
-	    	}
+	    }
        /* SDL_LockSurface(ImageSurf);	
 		memcpy(pix, pim,(pscreen->w)*(pscreen->h)*3); //24 bits -> 3bytes 32 bits ->4 bytes
 		SDL_UnlockSurface(ImageSurf);*/
@@ -1218,7 +1224,6 @@ void *main_loop(void *data)
 	    else {	  
           printf ("Capture Image to %s \n",videoIn->ImageFName);
         }
-		free(pim);
 	    videoIn->capImage=FALSE;	
 	  }
 	  
@@ -1240,10 +1245,12 @@ void *main_loop(void *data)
 		   break;
 		case 3:
 		    framesize=(pscreen->w)*(pscreen->h)*3; /*DIB 24/32 -> 3/4 bytes per pixel*/ 
-		    if((pim= malloc(framesize))==NULL){
+		    if(pavi==NULL){
+		      if((pavi= malloc(framesize))==NULL){
 				printf("Couldn't allocate memory for: pim\n");
 	     		videoIn->signalquit=0;
 				ret = 4;
+			  }
 			}
 		    k=overlay->h;
 					
@@ -1276,21 +1283,20 @@ void *main_loop(void *data)
 				o=i*6;				
 			
 				/*first pixel*/
-				pim[o+m]=pix2->b;
-				pim[o+1+m]=pix2->g;
-				pim[o+2+m]=pix2->r;
+				pavi[o+m]=pix2->b;
+				pavi[o+1+m]=pix2->g;
+				pavi[o+2+m]=pix2->r;
 				/*second pixel*/
-				pim[o+3+m]=pix2->b1;
-				pim[o+4+m]=pix2->g1;
-				pim[o+5+m]=pix2->r1;	
+				pavi[o+3+m]=pix2->b1;
+				pavi[o+4+m]=pix2->g1;
+				pavi[o+5+m]=pix2->r1;	
 		  	}
 			k--;
 	    	}
 		     
 		     if (AVI_write_frame (AviOut,
-			       pim, framesize) < 0)
+			       pavi, framesize) < 0)
 	                printf ("write error on avi out \n");
-		     free(pim);
 		     break;
 
 		} 
@@ -1307,7 +1313,12 @@ void *main_loop(void *data)
 	videoIn->capAVI = FALSE;   
    }	   
    printf("Thread terminated...\n");
-   free (pix2);
+   if(pix2!=NULL) free (pix2);
+   pix2=NULL;
+   if(pim!=NULL) free(pim);
+   pim=NULL;
+   if(pavi!=NULL)	free(pavi);
+   pavi=NULL;
    printf("cleanig Thread allocations 100%%\n");
    fflush(NULL);//flush all output buffers
    //return (ret);	
@@ -1880,8 +1891,8 @@ int main(int argc, char *argv[])
     gtk_widget_show (label_SndDevice);
 	
 	
-	if (Sound_numInputDev == 0) Sound_enable=0;
-	printf("SOUND DISABLE: no imput devices detected\n");
+	//~ if (Sound_numInputDev == 0) Sound_enable=0;
+	//~ printf("SOUND DISABLE: no imput devices detected\n");
 	
 	SndEnable=gtk_check_button_new_with_label (" Sound");
 	gtk_table_attach(GTK_TABLE(table2), SndEnable, 0, 1, 7, 8,

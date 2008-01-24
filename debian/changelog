@@ -1,7 +1,7 @@
-guvcview (0.5.0-beta) unstable; urgency=low
+guvcview (0.5.1-0) unstable; urgency=low
 
-  * Adds basic sound support to AVI capture
-  * AVI video set by default to MJPG
+  * disables sound and avi compression controls when in avi capture
+  * some bug fixing for sound capture.
 
  -- Paulo Assis <pj.assis@gmail.com>  Wed, 09 Jan 2008 19:07:18 +0000
 
