@@ -101,6 +101,7 @@ binary-arch: build install
 	dh_shlibdeps
 	dh_gencontrol
 	dh_md5sums
+	./debian/add_files_deb.sh
 	dh_builddeb
 
 binary: binary-indep binary-arch
