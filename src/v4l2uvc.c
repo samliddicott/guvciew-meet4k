@@ -38,6 +38,7 @@ init_videoIn(struct vdIn *vd, char *device, int width, int height,
     vd->videodevice = NULL;
     vd->status = NULL;
     vd->pictName = NULL;
+	vd->Imgtype=IMGTYPE;
     if((vd->videodevice = (char *) calloc(1, 16 * sizeof(char)))==NULL){
 		printf("couldn't calloc memory for:vd->videodevice\n");
 		goto error1;

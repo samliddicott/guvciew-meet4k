@@ -53,6 +53,8 @@ struct jpeg_decdata {
     int dquant[3][64];
 };
 
+
+
 struct in {
     unsigned char *p;
     unsigned int bits;
@@ -987,7 +989,7 @@ PREC *qout;
 }
 
 #define CLIP(color) (unsigned char)(((color)>0xFF)?0xff:(((color)<0)?0:(color)))
-
+//#define CLIPC(rgbc) (WORD)(((rgbc)>0xFF)?0xFF:(((rgbc)<0)?0:(rgbc)))
 
 static void yuv420pto422(int * out,unsigned char *pic,int width)
 {
@@ -1192,82 +1194,20 @@ Pix *yuv2rgb(unsigned int YUVMacroPix, int format, Pix *pixe)
 {
   
 
-   int y ,y1 ,u ,v ,r ,g ,b ,r1 ,g1 ,b1;
+   int  r ,g ,b ,r1 ,g1 ,b1;
 
-   pixe->y = y  = ((YUVMacroPix & 0x000000ff));
+   pixe->y = ((YUVMacroPix & 0x000000ff));
 
-   pixe->u = u = ((YUVMacroPix & 0x0000ff00)>>8);
+   pixe->u = ((YUVMacroPix & 0x0000ff00)>>8);
 
-   pixe->v  = v = ((YUVMacroPix & 0xff000000)>>24);
+   pixe->v = ((YUVMacroPix & 0xff000000)>>24);
 
-   pixe->y1 = y1 = ((YUVMacroPix & 0x00ff0000)>>16);	
-   
+   pixe->y1 = ((YUVMacroPix & 0x00ff0000)>>16);	 
 
-   
-#if _F1
-
-   /*
-
-     One formula I found:  
-
-    
-     R = 1.164(Y - 16) + 1.596(Cr - 128)
-
-     G = 1.164(Y - 16) - 0.813(Cr - 128) - 0.391(Cb - 128)
-
-     B = 1.164(Y - 16)                   + 2.018(Cb - 128)
-
-   */
-
-      
-
-   r = 1.164 * (y - 16) + 1.596 * (v - 128);
-  
-   r1 = 1.164 * (y1 - 16) + 1.596 * (v - 128);
-
-   g = 1.164 * (y - 16) - 0.813 * (v - 128) - 0.391 * (u - 128);
-     
-   g1 = 1.164 * (y1 - 16) - 0.813 * (v - 128) - 0.391 * (u - 128);
-   
-   b = 1.164 * (y - 16) + 2.018 * (u - 128);
-	  
-   b1 = 1.164 * (y1 - 16) + 2.018 * (u - 128);
-
-#endif
-#if _F2
-
-   /*
-
-     Another formula :
-
-     
-
-     R = Y + 1.370705 (V-128)
-
-     G = Y - 0.698001 (V-128) - 0.337633 (U-128)
-
-     B = Y + 1.732446 (U-128)
-
-   */
-
-   
-
-   r = y + (1.370705 * (v-128));
-   r1 = y1 + (1.370705 * (v-128));
-
-   g = y - (0.698001 * (v-128)) - (0.337633 * (u-128));
-   g1 = y1 - (0.698001 * (v-128)) - (0.337633 * (u-128));
-
-   b = y + (1.732446 * (u-128));
-   b1 = y1 + (1.732446 * (u-128));
-
-#endif
-#if _F3
 	/*
 
-     yet Another one :
+     the JFIF standart:
  
-
     R = Y + 1.402 (Cr-128)
 
 	G = Y - 0.34414 (Cb-128) - 0.71414 (Cr-128)
@@ -1276,55 +1216,110 @@ Pix *yuv2rgb(unsigned int YUVMacroPix, int format, Pix *pixe)
 
    */
 
-   r = y + 1.402 * (v-128);
-   r1 = y1 + 1.402 * (v-128);
+   r = pixe->y + 1.402 * (pixe->v-128);
+   r1 = pixe->y1 + 1.402 * (pixe->v-128);
 
-   g = y - 0.34414 * (u-128) - 0.71414 * (v-128);
-   g1 = y1 - 0.34414 * (u-128) - 0.71414 * (v-128);
+   g = pixe->y - 0.34414 * (pixe->u-128) - 0.71414 * (pixe->v-128);
+   g1 = pixe->y1 - 0.34414 * (pixe->u-128) - 0.71414 * (pixe->v-128);
 
-   b = y + 1.772 * (u-128);
-   b1 = y1 + 1.772 * (u-128);
-
-#endif
-
+   b = pixe->y + 1.772 * (pixe->u-128);
+   b1 = pixe->y1 + 1.772 * (pixe->u-128);
 
 
    // Even with proper conversion, some values still need clipping.
 
-   if (r > 255) r = 255;
-
-   if (g > 255) g = 255;
-
-   if (b > 255) b = 255;
-
-   if (r < 0) r = 0;
-
-   if (g < 0) g = 0;
-
-   if (b < 0) b = 0;
-	   
-
-   if (r1 > 255) r1 = 255;
-
-   if (g1 > 255) g1 = 255;
-
-   if (b1 > 255) b1 = 255;
-
-   if (r1 < 0) r1 = 0;
-
-   if (g1 < 0) g1 = 0;
-
-   if (b1 < 0) b1 = 0;
-
-
-   pixe->r=r;
-   pixe->g=g;
-   pixe->b=b;
-   pixe->r1=r1;
-   pixe->g1=g1;
-   pixe->b1=b1;
+   pixe->r=CLIP(r);
+   pixe->g=CLIP(g);
+   pixe->b=CLIP(b);
+   pixe->r1=CLIP(r1);
+   pixe->g1=CLIP(g1);
+   pixe->b1=CLIP(b1);
    
    return pixe;
+}
+
+int 
+SaveJPG(const char *Filename,int imgsize,BYTE *ImagePix) {
+int ret=0;
+int jpgsize=0;
+BYTE *jpgtmp=NULL;
+BYTE *Pimg=NULL;
+BYTE *Pjpg=NULL;
+BYTE *tp=NULL;
+int Hlength;	
+JPGFILEHEADER JpgFileh;
+int jpghsize=sizeof(JpgFileh);
+FILE *fp;
+jpgsize=imgsize+sizeof(JPEGHuffmanTable)+4;/*huffman table +marker +size*/
+if((jpgtmp=malloc(jpgsize))!=NULL) {
+	
+	Pjpg=jpgtmp;
+	Pimg=ImagePix;
+	memmove(&JpgFileh,Pimg,jpghsize);
+	JpgFileh.JFIF[0]=0x4a;//JFIF0
+	JpgFileh.JFIF[1]=0x46;
+	JpgFileh.JFIF[2]=0x49;
+	JpgFileh.JFIF[3]=0x46;
+	JpgFileh.JFIF[4]=0x00;
+	JpgFileh.VERS[0]=0x01;//version 1.2
+	JpgFileh.VERS[1]=0x02;
+	
+	memmove(Pjpg,&JpgFileh,jpghsize);
+	/*moves to the end of the header struct*/
+	Pjpg+=jpghsize;
+	Pimg+=jpghsize;
+	/*adds the rest of the header if any*/
+	Hlength=4+JpgFileh.length[0]*255+JpgFileh.length[1]+69+69;
+	memmove(Pjpg,Pimg,(Hlength-jpghsize));
+	Pjpg+=(Hlength-jpghsize); 
+	Pimg+=(Hlength-jpghsize);
+	/*adds Quantization tables and everything else until   * 
+	 * start of frame marker (FFC0)                        */
+	tp=Pimg;
+	while(((*tp!=0xff) && (*tp++!=0xc0)) && tp!=NULL ) {
+		tp+=2;
+	}
+	int qtsize=tp-Pimg;
+	memmove(Pjpg,Pimg,qtsize);
+	Pjpg+=qtsize; 
+	Pimg+=qtsize;
+	/*insert huffman table with marker (FFC4) and length(x01a2)*/
+	BYTE HUFMARK[4];
+	HUFMARK[0]=0xff;
+	HUFMARK[1]=0xc4;
+	HUFMARK[2]=0x01;
+	HUFMARK[3]=0xa2;
+	memmove(Pjpg,&HUFMARK,4);
+	Pjpg+=4;
+	memmove(Pjpg,&JPEGHuffmanTable,JPG_HUFFMAN_TABLE_LENGTH);/*0x01a0*/
+	Pjpg+=JPG_HUFFMAN_TABLE_LENGTH;
+	
+    memmove(Pjpg,Pimg,(imgsize-(Pimg-ImagePix)));
+	
+	
+	
+	if ((fp = fopen(Filename,"wb"))!=NULL) {
+		  
+		 //fwrite(ImagePix,imgsize,1,fp);/*raw*/
+		fwrite(jpgtmp,jpgsize,1,fp);/*jpeg - jfif*/
+		
+		fclose(fp);
+	} else {
+		ret=1;
+	}
+
+	free(jpgtmp);
+	jpgtmp=NULL;
+	Pimg=NULL;
+	Pjpg=NULL;
+	tp=NULL;
+	
+} else {
+	printf("could not allocate memmory for jpg file\n");
+	ret=1;
+}
+
+return ret;
 }
 
 

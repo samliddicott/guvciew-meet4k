@@ -84,6 +84,7 @@ struct vdIn {
     int fps;
     int getPict;
     int capImage;
+	int	Imgtype;/*imgs 0-JPG 1-BMP*/
     const char *ImageFName;
     int rawFrameCapture;
     /* raw frame capture */

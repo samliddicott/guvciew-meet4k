@@ -21,7 +21,7 @@ typedef unsigned char BYTE;
 typedef  unsigned int DWORD;
 typedef  unsigned int LONG;
 typedef  unsigned int UINT;
-typedef  unsigned short  int WORD;
+typedef  unsigned short int WORD;
 
 #define VERSION "0.5.1"
 
@@ -84,7 +84,8 @@ typedef unsigned char SAMPLE;
 #define DEFAULT_WIDTH 320
 #define DEFAULT_HEIGHT 240
 
-#define DEFAULT_IMAGE_FNAME "Image.bmp"
+#define DEFAULT_IMAGE_FNAME "Image.jpg"
+#define IMGTYPE (0) /*default type 0-jpg 1-bmp*/
 #define DEFAULT_AVI_FNAME	"capture.avi"
 #define DEFAULT_FPS	25
 #define SDL_WAIT_TIME 30 /*SDL - Thread loop sleep time */
@@ -105,6 +106,7 @@ typedef unsigned char SAMPLE;
 #define ERR_NO_EOI 13
 #define ERR_BAD_TABLES 14
 #define ERR_DEPTH_MISMATCH 15
+
 
 typedef struct _sndDev {
  int id;
@@ -163,9 +165,23 @@ typedef struct tagBITMAPINFOHEADER{
   DWORD  biClrImportant; 
 }  __attribute__ ((packed)) BITMAPINFOHEADER, *PBITMAPINFOHEADER;
 
+typedef struct tagJPGFILEHEADER {
+	BYTE SOI[2];/*SOI Marker 0xFFD8*/
+	BYTE APP0[2];/*APP0 MARKER 0xFF0E*/
+	BYTE length[2];/*length of header without APP0 in bytes*/
+	BYTE JFIF[5];/*set to JFIF0 0x4A46494600*/
+	BYTE VERS[2];/*1-2 0x0102*/
+	BYTE density;/*0 - No units, aspect ratio only specified
+				   1 - Pixels per Inch on quickcam5000pro
+				   2 - Pixels per Centimetre                */
+	BYTE xdensity[2];/*120 on quickcam5000pro*/
+	BYTE ydensity[2];/*120 on quickcam5000pro*/
+	BYTE WTN;/*width Thumbnail 0*/
+	BYTE HTN;/*height Thumbnail 0*/	
+} __attribute__ ((packed)) JPGFILEHEADER, *PJPGFILEHEADER;
 
-int jpeg_decode(unsigned char **pic, unsigned char *buf, int *width,
-		int *height);
+int 
+SaveJPG(const char *Filename,int imgsize,BYTE *ImagePix);
 //~ int 
 //~ get_picture(unsigned char *buf,int size);
 

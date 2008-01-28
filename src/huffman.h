@@ -47,7 +47,7 @@ static unsigned char dht_data[DHT_SIZE] = {
     0xe8, 0xe9, 0xea, 0xf2, 0xf3, 0xf4, 0xf5, 0xf6, 0xf7, 0xf8, 0xf9, 0xfa
 };
 
-#define JPG_HUFFMAN_TABLE_LENGTH 0x1A0
+#define JPG_HUFFMAN_TABLE_LENGTH 0x01A0
 
 const unsigned char JPEGHuffmanTable[JPG_HUFFMAN_TABLE_LENGTH]
     = {
