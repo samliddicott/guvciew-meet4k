@@ -23,7 +23,7 @@ typedef  unsigned int LONG;
 typedef  unsigned int UINT;
 typedef  unsigned short int WORD;
 
-#define VERSION "0.5.1"
+#define VERSION "0.5.2"
 
 /*portaudio defs*/
 #define SAMPLE_RATE  (0) /* 0 device default*/
@@ -88,6 +88,7 @@ typedef unsigned char SAMPLE;
 #define IMGTYPE (0) /*default type 0-jpg 1-bmp*/
 #define DEFAULT_AVI_FNAME	"capture.avi"
 #define DEFAULT_FPS	25
+#define DEFAULT_FPS_NUM 1
 #define SDL_WAIT_TIME 30 /*SDL - Thread loop sleep time */
 #define SND_WAIT_TIME 40 /*sound capture- Thread loop sleep time*/
 /*                      */

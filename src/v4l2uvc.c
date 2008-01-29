@@ -22,10 +22,31 @@
 
 #include "v4l2uvc.h"
 
+int check_videoIn(struct vdIn *vd)
+{
+int ret;
+ if (vd == NULL)
+	return -1;
+
+    if ((vd->cap.capabilities & V4L2_CAP_VIDEO_CAPTURE) == 0) {
+	printf("Error opening device %s: video capture not supported.\n",
+	       vd->videodevice);
+    }
+    if (!(vd->cap.capabilities & V4L2_CAP_STREAMING)) {
+	    printf("%s does not support streaming i/o\n", vd->videodevice);
+    }
+    if (!(vd->cap.capabilities & V4L2_CAP_READWRITE)) {
+	    printf("%s does not support read i/o\n", vd->videodevice);
+    }
+    enum_frame_formats(vd);
+    return 0;
+}
+
+
 
 int
 init_videoIn(struct vdIn *vd, char *device, int width, int height,
-	     int format, int grabmethod, int fps)
+	     int format, int grabmethod, int fps, int fps_num)
 {
     //~ int ret = -1;
     //~ int i;
@@ -56,6 +77,7 @@ init_videoIn(struct vdIn *vd, char *device, int width, int height,
     vd->capAVI = FALSE;
     vd->AVIFName = DEFAULT_AVI_FNAME;
     vd->fps = fps;
+	vd->fps_num = fps_num;
     vd->getPict = 0;
     vd->signalquit = 1;
     vd->width = width;
@@ -124,35 +146,6 @@ init_videoIn(struct vdIn *vd, char *device, int width, int height,
     return -1;
 }
 
-//~ int change_format(struct vdIn *vd)
-//~ {
-	//~ if (vd->fd > 0) {
-        //~ close(vd->fd);
-    //~ }
-	
-	//~ /* set format in */
-    //~ memset(&vd->fmt, 0, sizeof(struct v4l2_format));
-    //~ vd->fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-    //~ vd->fmt.fmt.pix.width = vd->width;
-    //~ vd->fmt.fmt.pix.height = vd->height;
-    //~ vd->fmt.fmt.pix.pixelformat = vd->formatIn;
-    //~ vd->fmt.fmt.pix.field = V4L2_FIELD_ANY;
-    //~ int ret = ioctl(vd->fd, VIDIOC_S_FMT, &vd->fmt);
-    //~ if (ret < 0) {
-	//~ printf("Unable to set format: %d.\n", errno);
-	//~ return -1;
-    //~ }
-    //~ if ((vd->fmt.fmt.pix.width != vd->width) ||
-	//~ (vd->fmt.fmt.pix.height != vd->height)) {
-	//~ printf(" format asked unavailable get width %d height %d \n",
-	       //~ vd->fmt.fmt.pix.width, vd->fmt.fmt.pix.height);
-	//~ vd->width = vd->fmt.fmt.pix.width;
-	//~ vd->height = vd->fmt.fmt.pix.height;
-	//~ /* look the format is not part of the deal ??? */
-	//~ //vd->formatIn = vd->fmt.fmt.pix.pixelformat;
-    //~ }
-	//~ return 0;
-//~ }
 
 
 static int init_v4l2(struct vdIn *vd)
@@ -588,7 +581,7 @@ input_set_control (struct vdIn * device, InputControl * control, int val)
 }
 
 int
-input_set_framerate (struct vdIn * device, int fps)
+input_set_framerate (struct vdIn * device, int fps, int fps_num)
 {
    
 	int fd, ret;
@@ -601,14 +594,15 @@ input_set_framerate (struct vdIn * device, int fps)
     //~ else {
 	fd = device->fd;
     //~ }
-	device->streamparm.parm.capture.timeperframe.numerator = 1;
+	device->streamparm.parm.capture.timeperframe.numerator = fps_num;
 	device->streamparm.parm.capture.timeperframe.denominator = fps;
 	 
 	ret = ioctl(fd,VIDIOC_S_PARM,&device->streamparm);
 	if (ret < 0) {
 		printf("Unable to set timeperframe: %d.\n", errno);
 	} else {
-		device->fps = fps; 
+		device->fps = fps;
+		device->fps_num = fps_num;
 	}		
 
     //~ if (device->fd < 0)
@@ -621,7 +615,7 @@ int
 input_get_framerate (struct vdIn * device)
 {
    
-    int fd, ret, fps;
+    int fd, ret, fps, fps_num;
 
     //~ if (device->fd < 0) {
         //~ fd = open (device->videodevice, O_RDWR | O_NONBLOCK, 0);
@@ -637,8 +631,10 @@ input_get_framerate (struct vdIn * device)
 	printf("Unable to get timeperframe: %d.\n", errno);
 	} else {
 		/*it seems numerator is allways 1*/
-	 fps = device->streamparm.parm.capture.timeperframe.denominator; 
-	 device->fps=fps;	
+	 fps = device->streamparm.parm.capture.timeperframe.denominator;
+	 fps_num = device->streamparm.parm.capture.timeperframe.numerator;
+	 device->fps=fps;
+	 device->fps_num=fps_num;
 	}		
 
     //~ if (device->fd < 0)
@@ -732,4 +728,140 @@ input_free_controls (InputControl * control, int num_controls)
     }
     free (control);
 	printf("cleaned allocations - 80%%\n");
+}
+/******************************* enumerations *********************************/
+int enum_frame_intervals(struct vdIn *vd, __u32 pixfmt, __u32 width, __u32 height, 
+						         int list_form, int list_ind)
+{
+	int ret;
+	struct v4l2_frmivalenum fival;
+	int list_fps=0;
+	memset(&fival, 0, sizeof(fival));
+	fival.index = 0;
+	fival.pixel_format = pixfmt;
+	fival.width = width;
+	fival.height = height;
+	printf("\tTime interval between frame: ");
+	while ((ret = ioctl(vd->fd, VIDIOC_ENUM_FRAMEINTERVALS, &fival)) == 0) {
+		if (fival.type == V4L2_FRMIVAL_TYPE_DISCRETE) {
+				printf("%u/%u, ",
+						fival.discrete.numerator, fival.discrete.denominator);
+				listVidCap[list_form][list_ind].framerate_num[list_fps]=fival.discrete.numerator;
+				listVidCap[list_form][list_ind].framerate_denom[list_fps]=fival.discrete.denominator;
+				if(list_fps<(MAX_LIST_FPS-1)) list_fps++;
+		} else if (fival.type == V4L2_FRMIVAL_TYPE_CONTINUOUS) {
+				printf("{min { %u/%u } .. max { %u/%u } }, ",
+						fival.stepwise.min.numerator, fival.stepwise.min.numerator,
+						fival.stepwise.max.denominator, fival.stepwise.max.denominator);
+				break;
+		} else if (fival.type == V4L2_FRMIVAL_TYPE_STEPWISE) {
+				printf("{min { %u/%u } .. max { %u/%u } / "
+						"stepsize { %u/%u } }, ",
+						fival.stepwise.min.numerator, fival.stepwise.min.denominator,
+						fival.stepwise.max.numerator, fival.stepwise.max.denominator,
+						fival.stepwise.step.numerator, fival.stepwise.step.denominator);
+				break;
+		}
+		fival.index++;
+	}
+	listVidCap[list_form][list_ind].numb_frates=list_fps;
+	printf("\n");
+	if (ret != 0 && errno != EINVAL) {
+		printf("ERROR enumerating frame intervals: %d\n", errno);
+		return errno;
+	}
+
+	return 0;
+}
+int enum_frame_sizes(struct vdIn *vd, __u32 pixfmt)
+{
+	int ret;
+	int list_ind=0;
+	int list_form=0;
+	
+	struct v4l2_frmsizeenum fsize;
+
+	memset(&fsize, 0, sizeof(fsize));
+	fsize.index = 0;
+	fsize.pixel_format = pixfmt;
+	while ((ret = ioctl(vd->fd, VIDIOC_ENUM_FRAMESIZES, &fsize)) == 0) {
+		if (fsize.type == V4L2_FRMSIZE_TYPE_DISCRETE) {
+			printf("{ discrete: width = %u, height = %u }\n",
+					fsize.discrete.width, fsize.discrete.height);
+			switch(pixfmt) {
+				case V4L2_PIX_FMT_MJPEG:
+					list_form=0;
+					listVidCap[list_form][list_ind].width=fsize.discrete.width;
+					listVidCap[list_form][list_ind].height=fsize.discrete.height;
+		/*if this is the selected format set number of resolutions for combobox*/
+					if(vd->formatIn == pixfmt) vd->numb_resol=list_ind+1;
+					break;
+				case V4L2_PIX_FMT_YUYV:
+					list_form=1;
+					listVidCap[list_form][list_ind].width=fsize.discrete.width;
+					listVidCap[list_form][list_ind].height=fsize.discrete.height;
+		/*if this is the selected format set number of resolutions for combobox*/
+					if(vd->formatIn == pixfmt) vd->numb_resol=list_ind+1;
+					break;
+					
+			}
+			ret = enum_frame_intervals(vd, pixfmt,
+					fsize.discrete.width, fsize.discrete.height,
+									                  list_form,list_ind);
+			if(list_ind<(MAX_LIST_VIDCAP-1)) list_ind++;
+			if (ret != 0)
+				printf("  Unable to enumerate frame sizes.\n");
+		} else if (fsize.type == V4L2_FRMSIZE_TYPE_CONTINUOUS) {
+			printf("{ continuous: min { width = %u, height = %u } .. "
+					"max { width = %u, height = %u } }\n",
+					fsize.stepwise.min_width, fsize.stepwise.min_height,
+					fsize.stepwise.max_width, fsize.stepwise.max_height);
+			printf("  Refusing to enumerate frame intervals.\n");
+			break;
+		} else if (fsize.type == V4L2_FRMSIZE_TYPE_STEPWISE) {
+			printf("{ stepwise: min { width = %u, height = %u } .. "
+					"max { width = %u, height = %u } / "
+					"stepsize { width = %u, height = %u } }\n",
+					fsize.stepwise.min_width, fsize.stepwise.min_height,
+					fsize.stepwise.max_width, fsize.stepwise.max_height,
+					fsize.stepwise.step_width, fsize.stepwise.step_height);
+			printf("  Refusing to enumerate frame intervals.\n");
+			break;
+		}
+		fsize.index++;
+	}
+	if (ret != 0 && errno != EINVAL) {
+		printf("ERROR enumerating frame sizes: %d\n", errno);
+		return errno;
+	}
+
+	return 0;
+}
+
+int enum_frame_formats(struct vdIn *vd)
+{
+	int ret;
+	struct v4l2_fmtdesc fmt;
+	
+
+	memset(&fmt, 0, sizeof(fmt));
+	fmt.index = 0;
+	fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+	while ((ret = ioctl(vd->fd, VIDIOC_ENUM_FMT, &fmt)) == 0) {
+		
+		fmt.index++;
+		printf("{ pixelformat = '%c%c%c%c', description = '%s' }\n",
+				fmt.pixelformat & 0xFF, (fmt.pixelformat >> 8) & 0xFF,
+				(fmt.pixelformat >> 16) & 0xFF, (fmt.pixelformat >> 24) & 0xFF,
+				fmt.description);
+		ret = enum_frame_sizes(vd, fmt.pixelformat);
+		if (ret != 0)
+			printf("  Unable to enumerate frame sizes.\n");
+	}
+	if (errno != EINVAL) {
+		printf("ERROR enumerating frame formats: %d\n", errno);
+		return errno;
+	}
+
+	return 0;
 }

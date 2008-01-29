@@ -75,6 +75,7 @@ struct vdIn {
     int grabmethod;
     int width;
     int height;
+	int numb_resol;
     int formatIn;
     int formatOut;
     int framesizeIn;
@@ -82,6 +83,7 @@ struct vdIn {
     int capAVI;
     const char *AVIFName;
     int fps;
+	int fps_num;
     int getPict;
     int capImage;
 	int	Imgtype;/*imgs 0-JPG 1-BMP*/
@@ -139,9 +141,25 @@ typedef struct _VidState {
     ControlInfo * control_info;
 } VidState;
 
+#define MAX_LIST_FPS (10)
+#define MAX_LIST_VIDCAP (20)
+
+typedef struct _VidCap {
+	int width;
+	int height;
+	int framerate_num[MAX_LIST_FPS];/*numerator - should be 1 in almost all cases*/
+	int framerate_denom[MAX_LIST_FPS];/*denominator - gives fps*/
+	int numb_frates;
+} VidCap;
+
+VidCap listVidCap[2][MAX_LIST_VIDCAP];/*2 supported formats 0-MJPG and 1-YUYV*/
+						 /* 20 settings for each format*/
+
+int check_videoIn(struct vdIn *vd);
+
 int
 init_videoIn(struct vdIn *vd, char *device, int width, int height,
-	     int format, int grabmethod, int fps);
+	     int format, int grabmethod, int fps, int fps_num);
 //~ int change_format(struct vdIn *vd);
 int uvcGrab(struct vdIn *vd);
 void close_v4l2(struct vdIn *vd);
@@ -153,7 +171,7 @@ void close_v4l2(struct vdIn *vd);
 
 int input_get_control (struct vdIn * device, InputControl * control, int * val);
 int input_set_control (struct vdIn * device, InputControl * control, int val);
-int input_set_framerate (struct vdIn * device, int fps);
+int input_set_framerate (struct vdIn * device, int fps, int fps_num);
 int input_get_framerate (struct vdIn * device);
 InputControl *
 input_enum_controls (struct vdIn * device, int * num_controls);
@@ -163,3 +181,9 @@ void
 input_free_controls (InputControl * control, int num_controls);
 
 static int init_v4l2(struct vdIn *vd);
+
+int enum_frame_intervals(struct vdIn *vd, __u32 pixfmt, __u32 width, __u32 height,
+						 int list_form, int list_ind);
+int enum_frame_sizes(struct vdIn *vd, __u32 pixfmt);
+int enum_frame_formats(struct vdIn *vd);
+

@@ -123,6 +123,7 @@ int Sound_NumChanInd=0;
 //~ int Sound_SampBits=16;
 
 int fps = DEFAULT_FPS;
+int fps_num = DEFAULT_FPS_NUM;
 int bpp = 0; //current bytes per pixel
 int hwaccel = 1; //use hardware acceleration
 int grabmethod = 1;//default mmap(1) or read(0)
@@ -132,6 +133,7 @@ int winwidth=WINSIZEX;
 int winheight=WINSIZEY;
 const char *mode="jpg"; /*jpg (default) or yuv*/
 int format = V4L2_PIX_FMT_MJPEG;
+int formind = 0; /*0-MJPG 1-YUYV*/
 //int freq=50;
 
 
@@ -161,7 +163,7 @@ int writeConf(const char *confpath) {
    		fprintf(fp,"# mode video format 'yuv' or 'jpg'(default)\n");
    		fprintf(fp,"mode=%s\n",mode);
    		fprintf(fp,"# frames per sec. - hardware supported 15 25 32 - default( %i )\n",DEFAULT_FPS);
-   		fprintf(fp,"fps=%i\n",fps);
+   		fprintf(fp,"fps=%d/%d\n",fps_num,fps);
    		fprintf(fp,"# bytes per pixel: default (0 - current)\n");
    		fprintf(fp,"bpp=%i\n",bpp);
    		fprintf(fp,"# hardware accelaration: 0 1 (default - 1)\n");
@@ -214,8 +216,8 @@ int readConf(const char *confpath) {
 							mode=strdup(value);
 							printf("mode: %s\n",mode);
 						} else if 	(strcmp(variable,"fps")==0) {
-								if ((i=sscanf(value,"%i",&fps))==1)
-									printf("fps: %i\n",fps);
+								if ((i=sscanf(value,"%i/%i",&fps_num,&fps))==1)
+									printf("fps: %i/%i\n",fps_num,fps);
 						} else if 	(strcmp(variable,"bpp")==0) {
 								if ((i=sscanf(value,"%i",&bpp))==1)
 									printf("bpp: %i\n",bpp);
@@ -239,70 +241,7 @@ int readConf(const char *confpath) {
 	return ret;
 }
 
-/******************** sound callback **************************/
-/******************** no callback using blocking API **********/
-//~ typedef struct
-//~ {
-    //~ int          frameIndex;  /* Index into sample array. */
-    //~ int          maxFrameIndex;
-	//~ int			 buf_full;
-    //~ SAMPLE      *recordedSamples;
-//~ } paCapData;
 
-//~ /* This routine will be called by the PortAudio engine when audio is needed.
-//~ ** It may be called at interrupt level on some machines so don't do anything
-//~ ** that could mess up the system like calling malloc() or free().
-//~ */
-//~ static int recordCallback( const void *inputBuffer, void *outputBuffer,
-                           //~ unsigned long framesPerBuffer,
-                           //~ const PaStreamCallbackTimeInfo* timeInfo,
-                           //~ PaStreamCallbackFlags statusFlags,
-                           //~ void *userData )
-//~ {
-    //~ paCapData *s_data = (paCapData*)userData;
-    //~ const SAMPLE *rptr = (const SAMPLE*)inputBuffer;
-    //~ SAMPLE *wptr = &s_data->recordedSamples[s_data->frameIndex * NUM_CHANNELS];
-    //~ long framesToCalc;
-    //~ long i;
-    //~ int finished;
-    //~ unsigned long framesLeft = s_data->maxFrameIndex - s_data->frameIndex;
-
-    //~ (void) outputBuffer; /* Prevent unused variable warnings. */
-    //~ (void) timeInfo;
-    //~ (void) statusFlags;
-    //~ (void) userData;
-
-    //~ if( framesLeft < framesPerBuffer )
-    //~ {
-        //~ framesToCalc = framesLeft;
-        //~ finished = paComplete;
-		//~ s_data->buf_full=1;
-    //~ }
-    //~ else
-    //~ {
-        //~ framesToCalc = framesPerBuffer;
-        //~ finished = paContinue;
-    //~ }
-
-    //~ if( inputBuffer == NULL )
-    //~ {
-        //~ for( i=0; i<framesToCalc; i++ )
-        //~ {
-            //~ *wptr++ = SAMPLE_SILENCE;  /* left */
-            //~ if( NUM_CHANNELS == 2 ) *wptr++ = SAMPLE_SILENCE;  /* right */
-        //~ }
-    //~ }
-    //~ else
-    //~ {
-        //~ for( i=0; i<framesToCalc; i++ )
-        //~ {
-            //~ *wptr++ = *rptr++;  /* left */
-            //~ if( NUM_CHANNELS == 2 ) *wptr++ = *rptr++;  /* right */
-        //~ }
-    //~ }
-    //~ s_data->frameIndex += framesToCalc;
-    //~ return finished;
-//~ }
 /*************** sound threaded loop ************************************/
 void *sound_capture(void *data)
 {
@@ -618,17 +557,9 @@ resolution_changed (GtkComboBox * Resolution, void *data)
 	/*Resolutions are hardcoded - should be given by driver     */
 	
 	int index = gtk_combo_box_get_active(Resolution);
+	width=listVidCap[formind][index].width;
+	height=listVidCap[formind][index].height;
 	
-	switch (index) {
-	       case 0: //320x240
-	        width=320;
-	        height=240;
-	        break;
-	       case 1: //640x480
-	        width=640;
-	        height=480;
-	        break;
-	     }	
 	
 	restartdialog = gtk_dialog_new_with_buttons ("Program Restart",
                                                   GTK_WINDOW(mainwin),
@@ -660,32 +591,21 @@ resolution_changed (GtkComboBox * Resolution, void *data)
 }
 
 static void
-FrameRate_changed (GtkComboBox * FrameRate, void *data)
+FrameRate_changed (GtkComboBox * FrameRate,GtkComboBox * Resolution)
 {
-	/*Frame Rates are hardcoded - should be given by driver */
+	int resind = gtk_combo_box_get_active(Resolution);
 	
 	int index = gtk_combo_box_get_active (FrameRate);
       	
-	switch (index) {
-	  case 0: //15 fps
-	   fps = 15;
-	   break;
-	  case 1: //25 fps
-	   fps = 25;
-	   break;
-      	  case 2: // 30 fps
-	   fps = 30;
-	   break;
-          default:
-          /* set to the lowest*/
-      	   fps = 15;
-	}
+	fps=listVidCap[formind][resind].framerate_denom[index];
+	fps_num=listVidCap[formind][resind].framerate_num[index];
  
-	input_set_framerate (videoIn, fps);
+	input_set_framerate (videoIn, fps, fps_num);
 	
 	input_get_framerate(videoIn);
 	fps=videoIn->fps;
-	printf("hardware fps is %d ,%i/%i\n",fps,
+	fps_num=videoIn->fps_num;
+	printf("hardware fps is %d/%d ,%i/%i\n",fps,fps_num,
 	            videoIn->streamparm.parm.capture.timeperframe.numerator,
 	            videoIn->streamparm.parm.capture.timeperframe.denominator);
 	
@@ -1401,14 +1321,21 @@ int main(int argc, char *argv[])
     
     if (strncmp(mode, "yuv", 3) == 0) {
 		format = V4L2_PIX_FMT_YUYV;
+		formind = 1;
 		printf("Format is yuyv\n");
 	} else if (strncmp(mode, "jpg", 3) == 0) {
 		format = V4L2_PIX_FMT_MJPEG;
+		formind = 0;
 		printf("Format is MJPEG\n");
 	} else {
 		format = V4L2_PIX_FMT_MJPEG;
+		formind = 0;
 		printf("Format is Default MJPEG\n");
 	}
+	
+	
+	
+	/********************************** GTK init ****************************/
 	
 	gtk_init(&argc, &argv);
 	
@@ -1505,8 +1432,11 @@ int main(int argc, char *argv[])
     }
     if (init_videoIn
 	(videoIn, (char *) videodevice, width, height, format,
-	 grabmethod, fps) < 0)
+	 grabmethod, fps, fps_num) < 0)
 	exit(1);
+	
+	check_videoIn(videoIn);
+	
     pscreen =
 	SDL_SetVideoMode(videoIn->width, videoIn->height, bpp,
 			 SDL_VIDEO_Flags);
@@ -1565,16 +1495,22 @@ int main(int argc, char *argv[])
 	
 	/* Resolution*/
 	Resolution = gtk_combo_box_new_text ();
-	gtk_combo_box_append_text(GTK_COMBO_BOX(Resolution),"320x240");
-	gtk_combo_box_append_text(GTK_COMBO_BOX(Resolution),"640x480");
+	char temp_str[9];
+	int defres=0;
+	for(i=0;i<videoIn->numb_resol;i++) {
+		if (listVidCap[formind][i].width>0){
+			sprintf(temp_str,"%ix%i",listVidCap[formind][i].width,
+				             listVidCap[formind][i].height);
+			gtk_combo_box_append_text(GTK_COMBO_BOX(Resolution),temp_str);
+			if ((width==listVidCap[formind][i].width) && (height==listVidCap[formind][i].height)){
+				defres=i;
+			}
+		}
+	}
+	gtk_combo_box_set_active(GTK_COMBO_BOX(Resolution),defres);
 	gtk_table_attach(GTK_TABLE(table2), Resolution, 1, 3, 3, 4,
                     GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (Resolution);
-	
-	if (width==640 && height==480)
-	   gtk_combo_box_set_active(GTK_COMBO_BOX(Resolution),1);
-	else 
-	   gtk_combo_box_set_active(GTK_COMBO_BOX(Resolution),0);
 	
 	gtk_widget_set_sensitive (Resolution, TRUE);
 	g_signal_connect (GTK_COMBO_BOX(Resolution), "changed",
@@ -1590,27 +1526,24 @@ int main(int argc, char *argv[])
 	
 	/* Frame Rate */
 	FrameRate = gtk_combo_box_new_text ();
-	gtk_combo_box_append_text(GTK_COMBO_BOX(FrameRate),"15 fps");
-	gtk_combo_box_append_text(GTK_COMBO_BOX(FrameRate),"25 fps");
-	gtk_combo_box_append_text(GTK_COMBO_BOX(FrameRate),"30 fps");
+	int deffps=0;
+	for(i=0;i<listVidCap[formind][defres].numb_frates;i++) {
+		sprintf(temp_str,"%i/%i fps",listVidCap[formind][defres].framerate_num[i],
+				             listVidCap[formind][defres].framerate_denom[i]);
+		gtk_combo_box_append_text(GTK_COMBO_BOX(FrameRate),temp_str);
+		if ((videoIn->fps_num==listVidCap[formind][defres].framerate_num[i]) && 
+			      (videoIn->fps==listVidCap[formind][defres].framerate_denom[i])){
+				deffps=i;
+		}
+	}
+	
 	gtk_table_attach(GTK_TABLE(table2), FrameRate, 1, 3, 2, 3,
                     GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (FrameRate);
 	
-	switch (videoIn->fps) {
-	   case 15:
-		gtk_combo_box_set_active(GTK_COMBO_BOX(FrameRate),0);
-	    break;
-	   case 25:	
-	    gtk_combo_box_set_active(GTK_COMBO_BOX(FrameRate),1);
-	    break;
-	   case 30:
-		gtk_combo_box_set_active(GTK_COMBO_BOX(FrameRate),2);
-	    break;
-	   default:
-	    /*set to the lowest fps*/
-	    gtk_combo_box_set_active(GTK_COMBO_BOX(FrameRate),0);
- 	}
+	
+	gtk_combo_box_set_active(GTK_COMBO_BOX(FrameRate),deffps);
+	    
 	gtk_widget_set_sensitive (FrameRate, TRUE);
 	g_signal_connect (GTK_COMBO_BOX(FrameRate), "changed",
     	G_CALLBACK (FrameRate_changed), NULL);
