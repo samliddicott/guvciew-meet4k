@@ -637,26 +637,33 @@ ImageType_changed (GtkComboBox * ImageType,GtkEntry *ImageFNameEntry)
 {
 	gchar *filename;
 	gchar *basename;
-	videoIn->Imgtype=gtk_combo_box_get_active (ImageType);
-	switch(videoIn->Imgtype){
-		case 0:
-			filename=gtk_entry_get_text(ImageFNameEntry);
-			sscanf(filename,"%[^.]",basename);
-			sprintf(filename,"%s.jpg",basename);
-			break;
-		case 1:
-			filename=gtk_entry_get_text(ImageFNameEntry);
-			sscanf(filename,"%[^.]",basename);
-			sprintf(filename,"%s.bmp",basename);
-			break;
-		default:
-			filename=DEFAULT_IMAGE_FNAME;
+	if(videoIn->formatIn==V4L2_PIX_FMT_MJPEG){
+		videoIn->Imgtype=gtk_combo_box_get_active (ImageType);
+		switch(videoIn->Imgtype){
+			case 0:
+				filename=gtk_entry_get_text(ImageFNameEntry);
+				sscanf(filename,"%[^.]",basename);
+				sprintf(filename,"%s.jpg",basename);
+				break;
+			case 1:
+				filename=gtk_entry_get_text(ImageFNameEntry);
+				sscanf(filename,"%[^.]",basename);
+				sprintf(filename,"%s.bmp",basename);
+				break;
+			default:
+				filename=DEFAULT_IMAGE_FNAME;
+		}
+	} else { /*formatIn==V4L2_PIX_FMT_YUYV only .bmp available*/
+				videoIn->Imgtype=1;
+				filename=gtk_entry_get_text(ImageFNameEntry);
+				sscanf(filename,"%[^.]",basename);
+				sprintf(filename,"%s.bmp",basename);	
 	}
+	
 	printf("set filename to:%s\n",filename);
 	gtk_entry_set_text(ImageFNameEntry,filename);
 	//gtk_widget_show(ImageFNameEntry);
 	videoIn->ImageFName = filename;
-
 }
 
 static void
@@ -681,7 +688,11 @@ AVIComp_changed (GtkComboBox * AVIComp, void *data)
 {
 	int index = gtk_combo_box_get_active (AVIComp);
       	
-	AVIFormat=index+1;	
+	if (videoIn->formatIn== V4L2_PIX_FMT_MJPEG){
+		AVIFormat=index+1;
+	} else {
+		AVIFormat=index+2; /*disable MJPG*/
+	}
 
 }
 
@@ -690,7 +701,7 @@ static void
 capture_image (GtkButton * CapImageButt, GtkWidget * ImageFNameEntry)
 {
   
-  const char *filename = gtk_entry_get_text(GTK_ENTRY(ImageFNameEntry));
+  	const char *filename = gtk_entry_get_text(GTK_ENTRY(ImageFNameEntry));
 	
 	videoIn->ImageFName = filename;
 	videoIn->capImage = TRUE;
@@ -1082,7 +1093,7 @@ void *main_loop(void *data)
 	 if (videoIn->capImage){
 		 switch(videoIn->Imgtype) {
 		 case 0:/*jpg*/
-		    if(SaveJPG(videoIn->ImageFName,videoIn->buf.bytesused,
+			if(SaveJPG(videoIn->ImageFName,videoIn->buf.bytesused,
 					                       videoIn->tmpbuffer)) {
 	             fprintf (stderr,"Error: Couldn't capture Image to %s \n",
 			     videoIn->ImageFName);		
@@ -1585,15 +1596,25 @@ int main(int argc, char *argv[])
 	/* Image Capture*/
 	CapImageButt = gtk_button_new_with_label("Capture");
 	ImageFNameEntry = gtk_entry_new();
-	gtk_entry_set_text(GTK_ENTRY(ImageFNameEntry),DEFAULT_IMAGE_FNAME);
+	
+	if (videoIn->formatIn== V4L2_PIX_FMT_MJPEG) {
+		gtk_entry_set_text(GTK_ENTRY(ImageFNameEntry),DEFAULT_IMAGE_FNAME);
+	} else { /*disable jpg*/
+		gtk_entry_set_text(GTK_ENTRY(ImageFNameEntry),DEFAULT_BMP_FNAME);
+	}
 	gtk_table_attach(GTK_TABLE(table2), CapImageButt, 0, 1, 4, 5,
                     GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_table_attach(GTK_TABLE(table2), ImageFNameEntry, 1, 2, 4, 5,
                     GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	ImageType=gtk_combo_box_new_text ();
-	gtk_combo_box_append_text(GTK_COMBO_BOX(ImageType),"JPG");
+	/*if YUYV on input disable jpg capture*/
+	if (videoIn->formatIn== V4L2_PIX_FMT_MJPEG) {
+		gtk_combo_box_append_text(GTK_COMBO_BOX(ImageType),"JPG");
+	} else {
+		videoIn->Imgtype=1;
+	}
 	gtk_combo_box_append_text(GTK_COMBO_BOX(ImageType),"BMP");
-	gtk_combo_box_set_active(GTK_COMBO_BOX(ImageType),IMGTYPE);
+	gtk_combo_box_set_active(GTK_COMBO_BOX(ImageType),0);
 	gtk_table_attach(GTK_TABLE(table2), ImageType, 2, 3, 4, 5,
                     GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (ImageType);
@@ -1626,7 +1647,11 @@ int main(int argc, char *argv[])
 	
 	/* AVI Compressor */
 	AVIComp = gtk_combo_box_new_text ();
-	gtk_combo_box_append_text(GTK_COMBO_BOX(AVIComp),"MJPG - compressed");
+	if (videoIn->formatIn== V4L2_PIX_FMT_MJPEG) {
+		gtk_combo_box_append_text(GTK_COMBO_BOX(AVIComp),"MJPG - compressed");
+	} else {
+		AVIFormat=2; /*set YUY2 as default*/
+	}
 	gtk_combo_box_append_text(GTK_COMBO_BOX(AVIComp),"YUY2 - uncomp YUV");
 	gtk_combo_box_append_text(GTK_COMBO_BOX(AVIComp),"RGB - uncomp BMP");
 	

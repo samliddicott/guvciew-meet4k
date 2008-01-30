@@ -85,7 +85,8 @@ typedef unsigned char SAMPLE;
 #define DEFAULT_HEIGHT 240
 
 #define DEFAULT_IMAGE_FNAME "Image.jpg"
-#define IMGTYPE (0) /*default type 0-jpg 1-bmp*/
+#define DEFAULT_BMP_FNAME "Image.bmp"
+#define IMGTYPE (0) /*default type (varies if on MJPEG or YUYV input)*/
 #define DEFAULT_AVI_FNAME	"capture.avi"
 #define DEFAULT_FPS	25
 #define DEFAULT_FPS_NUM 1
