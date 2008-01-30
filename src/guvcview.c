@@ -689,9 +689,9 @@ AVIComp_changed (GtkComboBox * AVIComp, void *data)
 	int index = gtk_combo_box_get_active (AVIComp);
       	
 	if (videoIn->formatIn== V4L2_PIX_FMT_MJPEG){
-		AVIFormat=index+1;
+		AVIFormat=index;
 	} else {
-		AVIFormat=index+2; /*disable MJPG*/
+		AVIFormat=index+1; /*disable MJPG*/
 	}
 
 }
@@ -714,13 +714,13 @@ capture_avi (GtkButton * CapAVIButt, GtkWidget * AVIFNameEntry)
 	char *compression="MJPG";
 
 	switch (AVIFormat) {
-	 case 1:
+	 case 0:
 		compression="MJPG";
 		break;
-	 case 2:
+	 case 1:
 		compression="YUY2";
 		break;
-	 case 3:
+	 case 2:
 		compression="DIB ";
 		break;
 	 default:
@@ -1129,18 +1129,18 @@ void *main_loop(void *data)
 	   long framesize;		
 	   switch (AVIFormat) {
 		   
-		case 1: /*MJPG*/
+		case 0: /*MJPG*/
 			   if (AVI_write_frame (AviOut,
 			       videoIn->tmpbuffer, videoIn->buf.bytesused) < 0)
 	                printf ("write error on avi out \n");
 			 break;
-		case 2:
+		case 1:
 	  	   framesize=(pscreen->w)*(pscreen->h)*2; /*YUY2 -> 2 bytes per pixel */
 	           if (AVI_write_frame (AviOut,
 			       p, framesize) < 0)
 	                printf ("write error on avi out \n");
 		   break;
-		case 3:
+		case 2:
 		    framesize=(pscreen->w)*(pscreen->h)*3; /*DIB 24/32 -> 3/4 bytes per pixel*/ 
 		    if(pavi==NULL){
 		      if((pavi= malloc(framesize))==NULL){
@@ -1650,7 +1650,7 @@ int main(int argc, char *argv[])
 	if (videoIn->formatIn== V4L2_PIX_FMT_MJPEG) {
 		gtk_combo_box_append_text(GTK_COMBO_BOX(AVIComp),"MJPG - compressed");
 	} else {
-		AVIFormat=2; /*set YUY2 as default*/
+		AVIFormat=1; /*set YUY2 as default*/
 	}
 	gtk_combo_box_append_text(GTK_COMBO_BOX(AVIComp),"YUY2 - uncomp YUV");
 	gtk_combo_box_append_text(GTK_COMBO_BOX(AVIComp),"RGB - uncomp BMP");
