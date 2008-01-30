@@ -211,7 +211,7 @@ static int init_v4l2(struct vdIn *vd)
     }
 	
 	vd->streamparm.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-	vd->streamparm.parm.capture.timeperframe.numerator = 1;
+	vd->streamparm.parm.capture.timeperframe.numerator = vd->fps_num;
 	vd->streamparm.parm.capture.timeperframe.denominator = vd->fps;
 	ret = ioctl(vd->fd,VIDIOC_S_PARM,&vd->streamparm);
 	if (ret < 0) {

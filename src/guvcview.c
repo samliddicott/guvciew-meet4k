@@ -554,12 +554,24 @@ resolution_changed (GtkComboBox * Resolution, void *data)
 	/* then is read back at start. This means that for changing */
 	/* resolution we must restart the application                    */
 	
-	/*Resolutions are hardcoded - should be given by driver     */
-	
 	int index = gtk_combo_box_get_active(Resolution);
 	width=listVidCap[formind][index].width;
 	height=listVidCap[formind][index].height;
 	
+	/*check if frame rate is available at the new resolution*/
+	int i=0;
+	int deffps=0;
+	for(i=0;i<listVidCap[formind][index].numb_frates;i++) {
+		if ((listVidCap[formind][index].framerate_num[i]==fps_num) && 
+		       (listVidCap[formind][index].framerate_denom[i]==fps)) deffps=i;	
+	}
+	/*frame rate is not available so set to minimum*/
+	if (deffps==0) {
+		fps_num=listVidCap[formind][index].framerate_num[0];
+		fps=listVidCap[formind][index].framerate_denom[0];		
+	}
+
+
 	
 	restartdialog = gtk_dialog_new_with_buttons ("Program Restart",
                                                   GTK_WINDOW(mainwin),
@@ -840,7 +852,8 @@ draw_controls (VidState *s)
             g_object_set_data (G_OBJECT (ci->widget), "control_info", ci);
             gtk_widget_show (ci->widget);
             gtk_table_attach (GTK_TABLE (s->table), ci->widget, 1, 3, 3+i, 4+i,
-                    GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+                    GTK_EXPAND | GTK_SHRINK | GTK_FILL, 1, 0, 0);
+			
 
             if (input_get_control (videoIn, c, &val) == 0) {
                 gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (ci->widget),
@@ -858,6 +871,7 @@ draw_controls (VidState *s)
             
             g_signal_connect (G_OBJECT (ci->widget), "toggled",
                     G_CALLBACK (check_changed), s);
+			
 	        
 	    } else if (c->type == INPUT_CONTROL_TYPE_INTEGER) {
             PangoFontDescription * desc;
@@ -943,7 +957,7 @@ draw_controls (VidState *s)
                 gtk_combo_box_append_text (GTK_COMBO_BOX (ci->widget), c->entries[j]);
             }
 
-            gtk_table_attach (GTK_TABLE (s->table), ci->widget, 1, 3, 3+i, 4+i,
+            gtk_table_attach (GTK_TABLE (s->table), ci->widget, 1, 2, 3+i, 4+i,
                     GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
             g_object_set_data (G_OBJECT (ci->widget), "control_info", ci);
             gtk_widget_show (ci->widget);
@@ -1425,7 +1439,7 @@ int main(int argc, char *argv[])
     if (videodevice == NULL || *videodevice == 0) {
 	videodevice = "/dev/video0";
     }
-	
+    /*--------------------- init videoIn structure --------------------------*/	
     if((videoIn = (struct vdIn *) calloc(1, sizeof(struct vdIn)))==NULL){
    		printf("couldn't allocate memory for: videoIn\n");
 		exit(1); 
@@ -1437,19 +1451,19 @@ int main(int argc, char *argv[])
 	
 	check_videoIn(videoIn);
 	
-    pscreen =
-	SDL_SetVideoMode(videoIn->width, videoIn->height, bpp,
-			 SDL_VIDEO_Flags);
-    overlay =
-	SDL_CreateYUVOverlay(videoIn->width, videoIn->height,
-			     SDL_YUY2_OVERLAY, pscreen);
-	
-    p = (unsigned char *) overlay->pixels[0];
-    
-	drect.x = 0;
-    drect.y = 0;
-    drect.w = pscreen->w;
-    drect.h = pscreen->h;
+//~    pscreen =
+//~	SDL_SetVideoMode(videoIn->width, videoIn->height, bpp,
+//~			 SDL_VIDEO_Flags);
+//~    overlay =
+//~	SDL_CreateYUVOverlay(videoIn->width, videoIn->height,
+//~			     SDL_YUY2_OVERLAY, pscreen);
+//~	
+//~    p = (unsigned char *) overlay->pixels[0];
+//~    
+//~    drect.x = 0;
+//~    drect.y = 0;
+//~    drect.w = pscreen->w;
+//~    drect.h = pscreen->h;
     
 	if (enableRawStreamCapture) {
 		videoIn->captureFile = fopen("stream.raw", "wb");
@@ -1462,8 +1476,8 @@ int main(int argc, char *argv[])
     if (enableRawFrameCapture)
 		videoIn->rawFrameCapture = enableRawFrameCapture;
 
-   	SDL_WM_SetCaption("GUVCVideo", NULL);
-    lasttime = SDL_GetTicks();
+//~  SDL_WM_SetCaption("GUVCVideo", NULL);
+//~  lasttime = SDL_GetTicks();
     
 	
     /* initialize thread data - no use for it*/
@@ -1473,12 +1487,12 @@ int main(int argc, char *argv[])
     //~ ptdata.ptsdlevent = &sdlevent;
     //~ ptdata.drect = &drect;
     
-	
+	/*--------------------GTK widgets---------------------------------*/
 	s->table = gtk_table_new (1, 3, FALSE);
    	gtk_table_set_row_spacings (GTK_TABLE (s->table), 10);
     gtk_table_set_col_spacings (GTK_TABLE (s->table), 10);
     gtk_container_set_border_width (GTK_CONTAINER (s->table), 10);
-    gtk_widget_set_size_request (s->table, 400, -1);
+    gtk_widget_set_size_request (s->table, 440, -1);
 	
 	s->control = NULL;
 	draw_controls(s);
@@ -1508,6 +1522,12 @@ int main(int argc, char *argv[])
 		}
 	}
 	gtk_combo_box_set_active(GTK_COMBO_BOX(Resolution),defres);
+	if (defres==0) {
+		width=listVidCap[formind][0].width;
+		height=listVidCap[formind][0].height;
+		videoIn->width=width;
+		videoIn->height=height;
+	}
 	gtk_table_attach(GTK_TABLE(table2), Resolution, 1, 3, 3, 4,
                     GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (Resolution);
@@ -1543,6 +1563,12 @@ int main(int argc, char *argv[])
 	
 	
 	gtk_combo_box_set_active(GTK_COMBO_BOX(FrameRate),deffps);
+	if (deffps==0) {
+		fps=listVidCap[formind][defres].framerate_denom[0];
+		fps_num=listVidCap[formind][0].framerate_num[0];
+		videoIn->fps=fps;
+		videoIn->fps_num=fps_num;
+	}
 	    
 	gtk_widget_set_sensitive (FrameRate, TRUE);
 	g_signal_connect (GTK_COMBO_BOX(FrameRate), "changed",
@@ -1871,21 +1897,39 @@ int main(int argc, char *argv[])
                     //~ GTK_FILL, 0, 0, 0);
 
     //~ gtk_widget_show (label_SndSampBits);
+    
+/*------------------------------ SDL init video ---------------------*/
+	pscreen =
+	SDL_SetVideoMode(videoIn->width, videoIn->height, bpp,
+			 SDL_VIDEO_Flags);
+	overlay =
+	SDL_CreateYUVOverlay(videoIn->width, videoIn->height,
+			     SDL_YUY2_OVERLAY, pscreen);
 	
+	p = (unsigned char *) overlay->pixels[0];
+    
+	drect.x = 0;
+	drect.y = 0;
+	drect.w = pscreen->w;
+	drect.h = pscreen->h;
+
+	SDL_WM_SetCaption("GUVCVideo", NULL);
+	lasttime = SDL_GetTicks();
+
+
 	/* main container -----------------------------------------*/
 	gtk_container_add (GTK_CONTAINER (mainwin), boxh);
-    gtk_widget_show (boxh);
+	gtk_widget_show (boxh);
 	
 	gtk_widget_show (mainwin);
 	
 	/* Creating the main loop thread*/
 	//mythread = SDL_CreateThread( main_loop,NULL);
 	int rc = pthread_create(&mythread, &attr, main_loop, NULL); 
-      if (rc)
-      {
-         printf("ERROR; return code from pthread_create() is %d\n", rc);
-         exit(2);
-      }
+ 	if (rc) {
+         	printf("ERROR; return code from pthread_create() is %d\n", rc);
+        	exit(2);
+      	}
     
 	/* The last thing to get called */
 	gtk_main();
