@@ -79,8 +79,9 @@ pthread_t sndthread;
 pthread_attr_t sndattr;
 
 /* parameters passed when restarting*/
-int ARG_C;
-char **ARG_V;
+//~int ARG_C;
+//~char **ARG_V;
+const char *EXEC_CALL;
 
 /*the main SDL surface*/
 SDL_Surface *pscreen = NULL;
@@ -410,9 +411,10 @@ aviClose (void)
 			while(fread( recordedSamples, Sound_NumChan * sizeof(SAMPLE), totalFrames, fip )!=0){  
 	     	   AVI_write_audio(AviOut,(BYTE *) recordedSamples,numBytes);
 		    }
-		    /*remove audio file*/
 		}
 		fclose(fip);
+		/*remove audio file*/
+		unlink(sndfile);
 	    if (recordedSamples!=NULL) free( recordedSamples );
 		recordedSamples=NULL;
 	  }
@@ -1180,22 +1182,14 @@ int main(int argc, char *argv[])
 {
 	int i;
 	sndfile= tempnam (NULL, "gsnd_");/*generates a temporary file name*/
-	ARG_C=argc;
-	if((ARG_V=malloc(argc*sizeof(argv)))==NULL){//allocs the size of the array
-		printf("couldn't allocate memory for: ARG_V)\n");
-		exit(1); 
-	};
-	for(i=0;i<argc;i++) { 
-		/*allocs size for the strings in the array*/
-		/* sizeof(char) should be 1 but we use it just in case*/
-		if ((ARG_V[i] = malloc((strlen(argv[i]) + 1)*sizeof(char)))!=NULL) { 
-		 	strcpy(ARG_V[i],argv[i]);
-			printf("ARG_V[%i]=%s argv[%i]=%s\n",i,ARG_V[i],i,argv[i]);
-		} else {
-			printf("couldn't allocate memory for: ARG_V[%i]\n",i);
-			exit(1); 
-		}
+	
+	if((EXEC_CALL=malloc(strlen(argv[0])*sizeof(char)))==NULL) {
+		printf("couldn't allocate memory for: EXEC_CALL)\n");
+		exit(1);
 	}
+	strcpy(EXEC_CALL,argv[0]);/*stores argv[0] - program call string*/
+	//printf("EXEC_CALL=%s argv[0]=%s\n",EXEC_CALL,argv[0]);
+	
 	const SDL_VideoInfo *info;
     char driver[128];
     GtkWidget * boxh;
@@ -1972,31 +1966,11 @@ shutd (gint restart)
 	char *pwd;
 	
  	if (restart==1) {
-		 		 		
-		 if (sscanf(ARG_V[0],"./%s",locpath)==1) { //guvcview started from local path
-		 	pwd=getenv("PWD");
-			sprintf(fullpath,"%s/%s",pwd,locpath);
-			if((ARG_V[0]=realloc(ARG_V[0],(strlen(fullpath)+1)*sizeof(char)))!=NULL){
-				strcpy(ARG_V[0],fullpath);
-			} else {
-				printf("Couldn't realloc mem (terminating..)\n");
-				for(i=0;i<ARG_C;i++){
-					free(ARG_V[i]);
-				}
-				free(ARG_V);
-				printf("cleaned allocations - 100%%\n");
-				return(2);
-			}
-		 } 
-		 
-		 printf("restarting guvcview\n");
-		 exec_status = execvp(ARG_V[0], ARG_V);
+		 printf("restarting guvcview with command: %s\n",EXEC_CALL);
+		 exec_status = execlp(EXEC_CALL,EXEC_CALL,NULL);/*No parameters passed*/
  	}
 	
-	for(i=0;i<ARG_C;i++){
-		free(ARG_V[i]);
-	}
-	free(ARG_V);
+	free(EXEC_CALL);
 	printf("cleanig allocations - 100%%\n");
 	return exec_status;
 }
