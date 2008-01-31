@@ -1,22 +1,22 @@
-/*************************************************************************************************
-#	    guvcview              http://guvcview.berlios.de												#
-#     Paulo Assis <pj.assis@gmail.com>																#
-#																														#
-# This program is free software; you can redistribute it and/or modify         				#
-# it under the terms of the GNU General Public License as published by   				#
-# the Free Software Foundation; either version 2 of the License, or           				#
-# (at your option) any later version.                                          								#
-#                                                                              										#
-# This program is distributed in the hope that it will be useful,              					#
-# but WITHOUT ANY WARRANTY; without even the implied warranty of             		#
+/*******************************************************************************#
+#	    guvcview              http://guvcview.berlios.de			#
+#     Paulo Assis <pj.assis@gmail.com>						#
+#										#
+# This program is free software; you can redistribute it and/or modify         	#
+# it under the terms of the GNU General Public License as published by   	#
+# the Free Software Foundation; either version 2 of the License, or           	#
+# (at your option) any later version.                                          	#
+#                                                                              	#
+# This program is distributed in the hope that it will be useful,              	#
+# but WITHOUT ANY WARRANTY; without even the implied warranty of             	#
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the  		#
-# GNU General Public License for more details.                                 					#
-#                                                                              										#
-# You should have received a copy of the GNU General Public License           		#
-# along with this program; if not, write to the Free Software                  					#
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA		#
-#                                                                              										#
-*************************************************************************************************/
+# GNU General Public License for more details.                                 	#
+#                                                                              	#
+# You should have received a copy of the GNU General Public License           	#
+# along with this program; if not, write to the Free Software                  	#
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA	#
+#                                                                              	#
+********************************************************************************/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -52,7 +52,7 @@
 static const char version[] = VERSION;
 struct vdIn *videoIn;
 char confPath[80];
-int AVIFormat=1; /*1-"MJPG"  2-"YUY2" 3-"DIB "(rgb32)*/
+int AVIFormat=1; /*0-"MJPG"  1-"YUY2" 2-"DIB "(rgb32)*/
 VidState * s;
 
 /* The main window*/
@@ -111,16 +111,12 @@ int Sound_enable=1; /*Enable Sound by Default*/
 int Sound_SampRate=SAMPLE_RATE;
 int Sound_SampRateInd=0;
 int Sound_numInputDev=0;
-sndDev Sound_IndexDev[20]; /*up to 20 input devices*/
+sndDev Sound_IndexDev[20]; /*up to 20 input devices (should be alocated dinamicly)*/
 int Sound_DefDev=0; 
 int Sound_UseDev=0;
 int Sound_NumChan=NUM_CHANNELS;
 int Sound_NumChanInd=0;
 
-
-
-//~ PaSampleFormat Sound_Format=paInt16;
-//~ int Sound_SampBits=16;
 
 int fps = DEFAULT_FPS;
 int fps_num = DEFAULT_FPS_NUM;
@@ -242,7 +238,7 @@ int readConf(const char *confpath) {
 }
 
 
-/*************** sound threaded loop ************************************/
+/********************** sound threaded loop ************************************/
 void *sound_capture(void *data)
 {
     PaStreamParameters inputParameters, outputParameters;
@@ -273,7 +269,6 @@ void *sound_capture(void *data)
 		/*using default if channels <3 or stereo(2) otherwise*/
 		Sound_NumChan=(Sound_IndexDev[Sound_UseDev].chan<3)?Sound_IndexDev[Sound_UseDev].chan:2;
 	}
-	//printf("dev:%d samprate:%d chan:%d\n",Sound_IndexDev[Sound_UseDev].id,Sound_IndexDev[Sound_UseDev].samprate,Sound_IndexDev[Sound_UseDev].chan);
 	printf("dev:%d SampleRate:%d Chanels:%d\n",Sound_IndexDev[Sound_UseDev].id,Sound_SampRate,Sound_NumChan);
 	
 	/* setting maximum buffer size*/
@@ -295,7 +290,7 @@ void *sound_capture(void *data)
     inputParameters.suggestedLatency = Pa_GetDeviceInfo( inputParameters.device )->defaultLowInputLatency;
     inputParameters.hostApiSpecificStreamInfo = NULL; 
 	
-	 /* Record some audio. -------------------------------------------- */
+	 /*---------------------- Record some audio. ----------------------------- */
     err = Pa_OpenStream(
               &stream,
               &inputParameters,
@@ -306,24 +301,18 @@ void *sound_capture(void *data)
               NULL, /* sound callback - using blocking API*/
               NULL ); /* callback userData -no callback no data */
     if( err != paNoError ) goto error;
-	
-	//err=PaAlsa_SetNumPeriods();
   
     err = Pa_StartStream( stream );
     if( err != paNoError ) goto error;
-    /* capture loop -----------------------------------------------------*/
+    /*------------------------- capture loop ----------------------------------*/
 	unsigned long framesready;
 	do {
 	   //Pa_Sleep(SND_WAIT_TIME);
-	   /*will just get the available frames and not totalFrames*/
-	   //framesready =Pa_GetStreamReadAvailable( stream );
        err = Pa_ReadStream( stream, recordedSamples, totalFrames );
        //if( err != paNoError ) break; /*will break with input overflow*/
 	   /* Write recorded data to a file. */  
           fwrite( recordedSamples, Sound_NumChan * sizeof(SAMPLE), totalFrames, fid );
     } while (videoIn->capAVI);   
-	
-    if( err != paNoError ) goto error; //case error in loop
 	
     fclose( fid );
     printf("Wrote sound data to '%s'\n",sndfile);
@@ -347,7 +336,7 @@ error:
 }
 
 
-/* Event handlers */
+/*------------------------------ Event handlers -------------------------------*/
 gint
 delete_event (GtkWidget *widget, GdkEventConfigure *event)
 {
@@ -376,7 +365,7 @@ aviClose (void)
 		/*set the hardware frame rate*/   
 		AviOut->fps=videoIn->fps;
 	  }
-	  /******************* write audio to avi if Sound Enable********************/
+	  /******************* write audio to avi if Sound Enable*******************/
 	  if (Sound_enable > 0) {
 	  	SAMPLE *recordedSamples=NULL;
       	int i;  
@@ -421,7 +410,7 @@ aviClose (void)
 			while(fread( recordedSamples, Sound_NumChan * sizeof(SAMPLE), totalFrames, fip )!=0){  
 	     	   AVI_write_audio(AviOut,(BYTE *) recordedSamples,numBytes);
 		    }
-		    /*remove file*/
+		    /*remove audio file*/
 		}
 		fclose(fip);
 	    if (recordedSamples!=NULL) free( recordedSamples );
@@ -457,7 +446,7 @@ num_chars (int n)
 
 
 
-/*Controls*/
+/*-------------------------Controls--------------------------------------------*/
 static void
 set_slider_label (GtkRange * range)
 {
@@ -653,7 +642,7 @@ ImageType_changed (GtkComboBox * ImageType,GtkEntry *ImageFNameEntry)
 			default:
 				filename=DEFAULT_IMAGE_FNAME;
 		}
-	} else { /*formatIn==V4L2_PIX_FMT_YUYV only .bmp available*/
+	} else { /*formatIn==V4L2_PIX_FMT_YUYV (only .bmp available)*/
 				videoIn->Imgtype=1;
 				filename=gtk_entry_get_text(ImageFNameEntry);
 				sscanf(filename,"%[^.]",basename);
@@ -661,7 +650,8 @@ ImageType_changed (GtkComboBox * ImageType,GtkEntry *ImageFNameEntry)
 	}
 	
 	printf("set filename to:%s\n",filename);
-	gtk_entry_set_text(ImageFNameEntry,filename);
+	gtk_entry_set_text(ImageFNameEntry,filename);/*doesn't seem to change 
+													until text selected*/
 	//gtk_widget_show(ImageFNameEntry);
 	videoIn->ImageFName = filename;
 }
@@ -691,7 +681,7 @@ AVIComp_changed (GtkComboBox * AVIComp, void *data)
 	if (videoIn->formatIn== V4L2_PIX_FMT_MJPEG){
 		AVIFormat=index;
 	} else {
-		AVIFormat=index+1; /*disable MJPG*/
+		AVIFormat=index+1; /*disable MJPG (AVIFormat=0)*/
 	}
 
 }
@@ -1016,23 +1006,23 @@ void *convertBMP(BYTE *pframe,Pix *pix2) {
 	k=overlay->h;
 	
 	for(j=0;j<(overlay->h);j++){
-		l=j*overlay->pitches[0];/*must add lines already writen=*/
-						/*pitches is the overlay number */
-						/*off bytes in a line (2*width) */
+		l=j*overlay->pitches[0];        /* overlay line number               */
+						/* pitches is the overlay number off */
+						/* bytes in a line (2*width)         */
 			
-		m=(k*3*overlay->pitches[0])>>1;/*must add lines already writen=*/
+		m=(k*3*overlay->pitches[0])>>1;       /*iterator for rgb                  */
 						      /*for this case (rgb) every pixel   */
 						      /*as 3 bytes (3*width=3*pitches/2)  */
-						      /* >>1 = (/2) divide by 2 (?faster?)*/
+						      /*             >>1 = /2             */
 		for (i=0;i<((overlay->pitches[0])>>2);i++){ /*>>2 = (/4)*/
 					/*iterate every 4 bytes (32 bits)*/
 					/*Y-U-V-Y1 =>2 pixel (4 bytes)   */
 				
 			n=i<<2;/*<<2 = (*4) multiply by 4 (?faster?)*/					
-			pix8[0] = p[n+l];
-			pix8[1] = p[n+1+l];
-			pix8[2] = p[n+2+l];
-			pix8[3] = p[n+3+l];
+			pix8[0] = p[n+l];   /* Y0  */
+			pix8[1] = p[n+1+l]; /* U01 */
+			pix8[2] = p[n+2+l]; /* V01 */
+			pix8[3] = p[n+3+l]; /* Y1  */
 			/*get RGB data*/
 			pix2=yuv2rgb(YUVMacroPix,0,pix2);
 			
@@ -1071,24 +1061,26 @@ void *main_loop(void *data)
 	*/
 	while (videoIn->signalquit) {
 	 currtime = SDL_GetTicks();
-	  if (currtime - lasttime > 0) {
+	 if (currtime - lasttime > 0) {
 		frmrate = 1000/(currtime - lasttime);
 	 }
 	 lasttime = currtime;
 	
+	 /*-------------------------- Grab Frame ----------------------------------*/
 	 if (uvcGrab(videoIn) < 0) {
 	    printf("Error grabbing=> Frame Rate is %d\n",frmrate);
 	    videoIn->signalquit=0;
 		ret = 2;
 	 }
 	
+	 /*------------------------- Display Frame --------------------------------*/
 	 SDL_LockYUVOverlay(overlay);
 	 memcpy(p, videoIn->framebuffer,
 	       videoIn->width * (videoIn->height) * 2);
 	 SDL_UnlockYUVOverlay(overlay);
 	 SDL_DisplayYUVOverlay(overlay, &drect);
 	
-	 /*capture Image*/
+	 /*-------------------------capture Image----------------------------------*/
 	 char fbasename[20];
 	 if (videoIn->capImage){
 		 switch(videoIn->Imgtype) {
@@ -1103,7 +1095,8 @@ void *main_loop(void *data)
 			break;
 		 case 1:/*bmp*/
          	if(pim==NULL) {  
-		  		if((pim= malloc((pscreen->w)*(pscreen->h)*3))==NULL){/*24 bits -> 3bytes 32 bits ->4 bytes*/
+				 /*24 bits -> 3bytes     32 bits ->4 bytes*/
+		  		if((pim= malloc((pscreen->w)*(pscreen->h)*3))==NULL){
 		 			printf("Couldn't allocate memory for: pim\n");
 	     			videoIn->signalquit=0;
 				ret = 3;		
@@ -1124,7 +1117,7 @@ void *main_loop(void *data)
 	     videoIn->capImage=FALSE;	
 	  }
 	  
-	  /*capture AVI */
+	  /*---------------------------capture AVI---------------------------------*/
 	  if (videoIn->capAVI && videoIn->signalquit){
 	   long framesize;		
 	   switch (AVIFormat) {
@@ -1164,25 +1157,25 @@ void *main_loop(void *data)
 	
   }
   
-  /*check if thread exited while AVI in capture mode*/
-   if (videoIn->capAVI) {
-    AVIstoptime = ms_time();
+   /*check if thread exited while AVI in capture mode*/
+  if (videoIn->capAVI) {
+  	AVIstoptime = ms_time();
 	videoIn->capAVI = FALSE;   
-   }	   
-   printf("Thread terminated...\n");
-   if(pix2!=NULL) free (pix2);
-   pix2=NULL;
-   if(pim!=NULL) free(pim);
-   pim=NULL;
-   if(pavi!=NULL)	free(pavi);
-   pavi=NULL;
-   printf("cleanig Thread allocations 100%%\n");
-   fflush(NULL);//flush all output buffers
-   //return (ret);	
-   pthread_exit((void *) 0);
+  }	   
+  printf("Thread terminated...\n");
+  if(pix2!=NULL) free (pix2);
+  pix2=NULL;
+  if(pim!=NULL) free(pim);
+  pim=NULL;
+  if(pavi!=NULL)	free(pavi);
+  pavi=NULL;
+  printf("cleanig Thread allocations 100%%\n");
+  fflush(NULL);//flush all output buffers
+  //return (ret);	
+  pthread_exit((void *) 0);
 }
 
-
+/******************************** MAIN *****************************************/
 int main(int argc, char *argv[])
 {
 	int i;
@@ -1195,7 +1188,7 @@ int main(int argc, char *argv[])
 	for(i=0;i<argc;i++) { 
 		/*allocs size for the strings in the array*/
 		/* sizeof(char) should be 1 but we use it just in case*/
-		if ((ARG_V[i] = malloc((strlen(argv[i]) + 1)*sizeof(char)))!=NULL) { //must check for NULL - out of mem	  
+		if ((ARG_V[i] = malloc((strlen(argv[i]) + 1)*sizeof(char)))!=NULL) { 
 		 	strcpy(ARG_V[i],argv[i]);
 			printf("ARG_V[%i]=%s argv[%i]=%s\n",i,ARG_V[i],i,argv[i]);
 		} else {
@@ -1225,10 +1218,6 @@ int main(int argc, char *argv[])
 		printf("couldn't allocate memory for: s\n");
 		exit(1); 
 	}
-    
-	
-
-	//SDL_Thread *mythread;
 	
 	/* Initialize and set thread detached attribute */
     pthread_attr_init(&attr);
@@ -1360,7 +1349,7 @@ int main(int argc, char *argv[])
 	
 	
 	
-	/********************************** GTK init ****************************/
+	/*---------------------------- GTK init -----------------------------------*/
 	
 	gtk_init(&argc, &argv);
 	
@@ -1373,15 +1362,8 @@ int main(int argc, char *argv[])
 	/* Add event handlers */
 	gtk_signal_connect(GTK_OBJECT(mainwin), "delete_event", GTK_SIGNAL_FUNC(delete_event), 0);
 	
-	/* Hack to get SDL to use GTK window */
-	//~ { char SDL_windowhack[32];
-		//~ sprintf(SDL_windowhack,"SDL_WINDOWID=%ld",
-			//~ GDK_WINDOW_XWINDOW(mainwin->window));
-		//~ putenv(SDL_windowhack);
-		//~ fprintf(stderr,"SDL_WINDOWID=%ld\n",GDK_WINDOW_XWINDOW(mainwin->window));
-	//~ }
 	
-    /************* Test SDL capabilities ************/
+    /*----------------------------- Test SDL capabilities ---------------------*/
     if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER) < 0) {
 	fprintf(stderr, "Couldn't initialize SDL: %s\n", SDL_GetError());
 	exit(1);
@@ -1450,7 +1432,7 @@ int main(int argc, char *argv[])
     if (videodevice == NULL || *videodevice == 0) {
 	videodevice = "/dev/video0";
     }
-    /*--------------------- init videoIn structure --------------------------*/	
+    /*----------------------- init videoIn structure --------------------------*/	
     if((videoIn = (struct vdIn *) calloc(1, sizeof(struct vdIn)))==NULL){
    		printf("couldn't allocate memory for: videoIn\n");
 		exit(1); 
@@ -1459,22 +1441,10 @@ int main(int argc, char *argv[])
 	(videoIn, (char *) videodevice, width, height, format,
 	 grabmethod, fps, fps_num) < 0)
 	exit(1);
-	
+	/* populate video capabilities structure array*/ 
 	check_videoIn(videoIn);
 	
-//~    pscreen =
-//~	SDL_SetVideoMode(videoIn->width, videoIn->height, bpp,
-//~			 SDL_VIDEO_Flags);
-//~    overlay =
-//~	SDL_CreateYUVOverlay(videoIn->width, videoIn->height,
-//~			     SDL_YUY2_OVERLAY, pscreen);
-//~	
-//~    p = (unsigned char *) overlay->pixels[0];
-//~    
-//~    drect.x = 0;
-//~    drect.y = 0;
-//~    drect.w = pscreen->w;
-//~    drect.h = pscreen->h;
+
     
 	if (enableRawStreamCapture) {
 		videoIn->captureFile = fopen("stream.raw", "wb");
@@ -1488,17 +1458,9 @@ int main(int argc, char *argv[])
 		videoIn->rawFrameCapture = enableRawFrameCapture;
 
 //~  SDL_WM_SetCaption("GUVCVideo", NULL);
-//~  lasttime = SDL_GetTicks();
+
     
-	
-    /* initialize thread data - no use for it*/
-    //~ ptdata.ptscreen = &pscreen;
-	//~ ptdata.ptoverlay= &overlay;
-    //~ ptdata.ptvideoIn = videoIn;
-    //~ ptdata.ptsdlevent = &sdlevent;
-    //~ ptdata.drect = &drect;
-    
-	/*--------------------GTK widgets---------------------------------*/
+	/*-----------------------------GTK widgets---------------------------------*/
 	s->table = gtk_table_new (1, 3, FALSE);
    	gtk_table_set_row_spacings (GTK_TABLE (s->table), 10);
     gtk_table_set_col_spacings (GTK_TABLE (s->table), 10);
@@ -1526,13 +1488,14 @@ int main(int argc, char *argv[])
 		if (listVidCap[formind][i].width>0){
 			sprintf(temp_str,"%ix%i",listVidCap[formind][i].width,
 				             listVidCap[formind][i].height);
-			gtk_combo_box_append_text(GTK_COMBO_BOX(Resolution),temp_str);
-			if ((width==listVidCap[formind][i].width) && (height==listVidCap[formind][i].height)){
-				defres=i;
+			gtk_combo_box_append_text(Resolution,temp_str);
+			if ((width==listVidCap[formind][i].width) && 
+				                   (height==listVidCap[formind][i].height)){
+				defres=i;/*set selected*/
 			}
 		}
 	}
-	gtk_combo_box_set_active(GTK_COMBO_BOX(Resolution),defres);
+	gtk_combo_box_set_active(Resolution,defres);
 	if (defres==0) {
 		width=listVidCap[formind][0].width;
 		height=listVidCap[formind][0].height;
@@ -1544,7 +1507,7 @@ int main(int argc, char *argv[])
 	gtk_widget_show (Resolution);
 	
 	gtk_widget_set_sensitive (Resolution, TRUE);
-	g_signal_connect (GTK_COMBO_BOX(Resolution), "changed",
+	g_signal_connect (Resolution, "changed",
     		G_CALLBACK (resolution_changed), NULL);
 	
 	labelResol = gtk_label_new("Resolution:");
@@ -1561,10 +1524,10 @@ int main(int argc, char *argv[])
 	for(i=0;i<listVidCap[formind][defres].numb_frates;i++) {
 		sprintf(temp_str,"%i/%i fps",listVidCap[formind][defres].framerate_num[i],
 				             listVidCap[formind][defres].framerate_denom[i]);
-		gtk_combo_box_append_text(GTK_COMBO_BOX(FrameRate),temp_str);
+		gtk_combo_box_append_text(FrameRate,temp_str);
 		if ((videoIn->fps_num==listVidCap[formind][defres].framerate_num[i]) && 
 			      (videoIn->fps==listVidCap[formind][defres].framerate_denom[i])){
-				deffps=i;
+				deffps=i;/*set selected*/
 		}
 	}
 	
@@ -1573,7 +1536,7 @@ int main(int argc, char *argv[])
 	gtk_widget_show (FrameRate);
 	
 	
-	gtk_combo_box_set_active(GTK_COMBO_BOX(FrameRate),deffps);
+	gtk_combo_box_set_active(FrameRate,deffps);
 	if (deffps==0) {
 		fps=listVidCap[formind][defres].framerate_denom[0];
 		fps_num=listVidCap[formind][0].framerate_num[0];
@@ -1583,7 +1546,7 @@ int main(int argc, char *argv[])
 	    
 	gtk_widget_set_sensitive (FrameRate, TRUE);
 	g_signal_connect (GTK_COMBO_BOX(FrameRate), "changed",
-    	G_CALLBACK (FrameRate_changed), NULL);
+    	G_CALLBACK (FrameRate_changed), Resolution);
 	
 	label_FPS = gtk_label_new("Frame Rate:");
 	gtk_misc_set_alignment (GTK_MISC (label_FPS), 1, 0.5);
@@ -1648,7 +1611,9 @@ int main(int argc, char *argv[])
 	/* AVI Compressor */
 	AVIComp = gtk_combo_box_new_text ();
 	if (videoIn->formatIn== V4L2_PIX_FMT_MJPEG) {
+		/* disable MJP if V4L2_PIX_FMT_YUYV*/
 		gtk_combo_box_append_text(GTK_COMBO_BOX(AVIComp),"MJPG - compressed");
+		AVIFormat=0;/*set MJPG as default*/
 	} else {
 		AVIFormat=1; /*set YUY2 as default*/
 	}
@@ -1658,22 +1623,8 @@ int main(int argc, char *argv[])
 	gtk_table_attach(GTK_TABLE(table2), AVIComp, 1, 3, 6, 7,
                     GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (AVIComp);
-
-	switch (AVIFormat) {
-	   case 1:/*MJPG*/
-		gtk_combo_box_set_active(GTK_COMBO_BOX(AVIComp),0);
-	    break;
-	   case 2:/*YUY2*/	
-	    	gtk_combo_box_set_active(GTK_COMBO_BOX(AVIComp),1);
-	    break;
-	   case 3:/*DIB*/
-			gtk_combo_box_set_active(GTK_COMBO_BOX(AVIComp),2);
-		break;
-	   default:
-	    /*set Format to MJPG*/
-	    	AVIFormat=1;
-		gtk_combo_box_set_active(GTK_COMBO_BOX(AVIComp),0);
- 	}
+	gtk_combo_box_set_active(GTK_COMBO_BOX(AVIComp),0);
+ 	
 	gtk_widget_set_sensitive (AVIComp, TRUE);
 	g_signal_connect (GTK_COMBO_BOX(AVIComp), "changed",
     	G_CALLBACK (AVIComp_changed), NULL);
