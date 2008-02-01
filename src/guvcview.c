@@ -316,7 +316,7 @@ void *sound_capture(void *data)
     } while (videoIn->capAVI);   
 	
     fclose( fid );
-    printf("Wrote sound data to '%s'\n",sndfile);
+    //printf("Wrote sound data to '%s'\n",sndfile);
     err = Pa_CloseStream( stream );
     if( err != paNoError ) goto error; 
 	
@@ -999,50 +999,86 @@ draw_controls (VidState *s)
 
 }
 
-void *convertBMP(BYTE *pframe,Pix *pix2) {
-	int ret=0;
-	int i,j,k,l,m,n,o;
-	DWORD YUVMacroPix;
-	BYTE *pix8 = (BYTE *)&YUVMacroPix;	
+//~ void *convertBMP(BYTE *pframe,Pix *pix2) {
+	//~ int ret=0;
+	//~ int i,j,k,l,m,n,o;
+	//~ DWORD YUVMacroPix;
+	//~ BYTE *pix8 = (BYTE *)&YUVMacroPix;	
 		
-	k=overlay->h;
+	//~ k=overlay->h;
 	
-	for(j=0;j<(overlay->h);j++){
-		l=j*overlay->pitches[0];        /* overlay line number               */
-						/* pitches is the overlay number off */
-						/* bytes in a line (2*width)         */
+	//~ for(j=0;j<(overlay->h);j++){
+		//~ l=j*overlay->pitches[0];        /* overlay line number               */
+						//~ /* pitches is the overlay number off */
+						//~ /* bytes in a line (2*width)         */
 			
-		m=(k*3*overlay->pitches[0])>>1;       /*iterator for rgb                  */
-						      /*for this case (rgb) every pixel   */
-						      /*as 3 bytes (3*width=3*pitches/2)  */
-						      /*             >>1 = /2             */
-		for (i=0;i<((overlay->pitches[0])>>2);i++){ /*>>2 = (/4)*/
-					/*iterate every 4 bytes (32 bits)*/
-					/*Y-U-V-Y1 =>2 pixel (4 bytes)   */
+		//~ m=(k*3*overlay->pitches[0])>>1;       /*iterator for rgb                  */
+						      //~ /*for this case (rgb) every pixel   */
+						      //~ /*as 3 bytes (3*width=3*pitches/2)  */
+						      //~ /*             >>1 = /2             */
+		//~ for (i=0;i<((overlay->pitches[0])>>2);i++){ /*>>2 = (/4)*/
+					//~ /*iterate every 4 bytes (32 bits)*/
+					//~ /*Y-U-Y1-V =>2 pixel (4 bytes)   */
 				
-			n=i<<2;/*<<2 = (*4) multiply by 4 (?faster?)*/					
-			pix8[0] = p[n+l];   /* Y0  */
-			pix8[1] = p[n+1+l]; /* U01 */
-			pix8[2] = p[n+2+l]; /* V01 */
-			pix8[3] = p[n+3+l]; /* Y1  */
-			/*get RGB data*/
-			pix2=yuv2rgb(YUVMacroPix,0,pix2);
+			//~ n=i<<2;/*<<2 = (*4) multiply by 4 (?faster?)*/					
+			//~ pix8[0] = p[n+l];   /* Y0  */
+			//~ pix8[1] = p[n+1+l]; /* U01 */
+			//~ pix8[2] = p[n+2+l]; /* Y1 */
+			//~ pix8[3] = p[n+3+l]; /* V01  */
+			//~ /*get RGB data*/
+			//~ pix2=yuv2rgb(YUVMacroPix,0,pix2);
 			
-			/*In BitMaps lines are upside down and*/
-			/*pixel format is bgr                 */
+			//~ /*In BitMaps lines are upside down and*/
+			//~ /*pixel format is bgr                 */
 				
-			o=i*6;				
-			/*first pixel*/
-			pframe[o+m]=pix2->b;
-			pframe[o+1+m]=pix2->g;
-			pframe[o+2+m]=pix2->r;
-			/*second pixel*/
-			pframe[o+3+m]=pix2->b1;
-			pframe[o+4+m]=pix2->g1;
-			pframe[o+5+m]=pix2->r1;	
+			//~ o=i*6;				
+			//~ /*first pixel*/
+			//~ pframe[o+m]=pix2->b;
+			//~ pframe[o+1+m]=pix2->g;
+			//~ pframe[o+2+m]=pix2->r;
+			//~ /*second pixel*/
+			//~ pframe[o+3+m]=pix2->b1;
+			//~ pframe[o+4+m]=pix2->g1;
+			//~ pframe[o+5+m]=pix2->r1;	
+		//~ }
+		//~ k--;
+	//~ }
+//~ }
+
+void *
+yuyv2bgr (BYTE *pyuv, BYTE *pbgr){
+
+	int l=0;
+	int k=0;
+	BYTE *preverse;
+	int bytesUsed;
+	int SizeBGR=videoIn->height * videoIn->width * 3; /* 3 bytes per pixel*/
+	/* BMP byte order is bgr and the lines start from last to first*/
+	preverse=pbgr+SizeBGR;/*start at the end and decrement*/
+	//printf("preverse addr:%d | pbgr addr:%d | diff:%d\n",preverse,pbgr,preverse-pbgr);
+	for(l=0;l<videoIn->height;l++) { /*iterate every 1 line*/
+		preverse-=videoIn->width*3;/*put pointer at begin of unprocessed line*/
+		bytesUsed=l*videoIn->width*2;
+		for (k=0;k<((videoIn->width)*2);k=k+4)/*iterate every 4 bytes in the line*/
+		{                              
+		/* b = y0 + 1.772 (u-128) */
+		*preverse++=CLIP(pyuv[k+bytesUsed] + 1.772 *( pyuv[k+1+bytesUsed]-128)); 
+		/* g = y0 - 0.34414 (u-128) - 0.71414 (v-128)*/
+		*preverse++=CLIP(pyuv[k+bytesUsed] - 0.34414 * (pyuv[k+1+bytesUsed]-128) -0.71414*(pyuv[k+3+bytesUsed]-128));
+		/* r =y0 + 1.402 (v-128) */
+		*preverse++=CLIP(pyuv[k+bytesUsed] + 1.402 * (pyuv[k+3+bytesUsed]-128));                                                        
+		/* b1 = y1 + 1.772 (u-128) */
+		*preverse++=CLIP(pyuv[k+2+bytesUsed] + 1.772*(pyuv[k+1+bytesUsed]-128));
+		/* g1 = y1 - 0.34414 (u-128) - 0.71414 (v-128)*/
+		*preverse++=CLIP(pyuv[k+2+bytesUsed] - 0.34414 * (pyuv[k+1+bytesUsed]-128) -0.71414 * (pyuv[k+3+bytesUsed]-128)); 
+		/* r1 =y1 + 1.402 (v-128) */
+		*preverse++=CLIP(pyuv[k+2+bytesUsed] + 1.402 * (pyuv[k+3+bytesUsed]-128));
 		}
-		k--;
+		preverse-=videoIn->width*3;/*get it back at the begin of processed line*/
 	}
+	//printf("preverse addr:%d | pbgr addr:%d | diff:%d\n",preverse,pbgr,preverse-pbgr);
+	preverse=NULL;
+
 }
 
 
@@ -1104,8 +1140,7 @@ void *main_loop(void *data)
 				ret = 3;		
 		  		}
 			}
-			convertBMP(pim,pix2);
-	
+			yuyv2bgr(videoIn->framebuffer,pim);
 
 		    if(SaveBPM(videoIn->ImageFName, width, height, 24, pim)) {
 			      fprintf (stderr,"Error: Couldn't capture Image to %s \n",
@@ -1144,12 +1179,10 @@ void *main_loop(void *data)
 				ret = 4;
 			  }
 			}
-			convertBMP(pavi,pix2);
-		     
-		     if (AVI_write_frame (AviOut,
-			       pavi, framesize) < 0)
-	                printf ("write error on avi out \n");
-		     break;
+		    yuyv2bgr(videoIn->framebuffer,pavi); 
+		    if (AVI_write_frame (AviOut,pavi, framesize) < 0)
+	        	printf ("write error on avi out \n");
+		    break;
 
 		} 
 	   framecount++;	   

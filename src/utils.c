@@ -988,8 +988,6 @@ PREC *qout;
 		IMULT(aaidct[i], aaidct[j]);
 }
 
-#define CLIP(color) (unsigned char)(((color)>0xFF)?0xff:(((color)<0)?0:(color)))
-//#define CLIPC(rgbc) (WORD)(((rgbc)>0xFF)?0xFF:(((rgbc)<0)?0:(rgbc)))
 
 static void yuv420pto422(int * out,unsigned char *pic,int width)
 {
@@ -1190,53 +1188,53 @@ return 0;
 //~ }
 
 
-Pix *yuv2rgb(unsigned int YUVMacroPix, int format, Pix *pixe) 
-{
+//~ Pix *yuv2rgb(unsigned int YUVMacroPix, int format, Pix *pixe) 
+//~ {
   
 
-   int  r ,g ,b ,r1 ,g1 ,b1;
+   //~ int  r ,g ,b ,r1 ,g1 ,b1;
 
-   pixe->y = ((YUVMacroPix & 0x000000ff));
+   //~ pixe->y = ((YUVMacroPix & 0x000000ff));
 
-   pixe->u = ((YUVMacroPix & 0x0000ff00)>>8);
+   //~ pixe->u = ((YUVMacroPix & 0x0000ff00)>>8);
 
-   pixe->v = ((YUVMacroPix & 0xff000000)>>24);
+   //~ pixe->v = ((YUVMacroPix & 0xff000000)>>24);
 
-   pixe->y1 = ((YUVMacroPix & 0x00ff0000)>>16);	 
+   //~ pixe->y1 = ((YUVMacroPix & 0x00ff0000)>>16);	 
 
-	/*
+	//~ /*
 
-     the JFIF standart:
+     //~ the JFIF standart:
  
-    R = Y + 1.402 (Cr-128)
+    //~ R = Y + 1.402 (Cr-128)
 
-	G = Y - 0.34414 (Cb-128) - 0.71414 (Cr-128)
+	//~ G = Y - 0.34414 (Cb-128) - 0.71414 (Cr-128)
 
-	B = Y + 1.772 (Cb-128)
+	//~ B = Y + 1.772 (Cb-128)
 
-   */
+   //~ */
 
-   r = pixe->y + 1.402 * (pixe->v-128);
-   r1 = pixe->y1 + 1.402 * (pixe->v-128);
+   //~ r = pixe->y + 1.402 * (pixe->v-128);
+   //~ r1 = pixe->y1 + 1.402 * (pixe->v-128);
 
-   g = pixe->y - 0.34414 * (pixe->u-128) - 0.71414 * (pixe->v-128);
-   g1 = pixe->y1 - 0.34414 * (pixe->u-128) - 0.71414 * (pixe->v-128);
+   //~ g = pixe->y - 0.34414 * (pixe->u-128) - 0.71414 * (pixe->v-128);
+   //~ g1 = pixe->y1 - 0.34414 * (pixe->u-128) - 0.71414 * (pixe->v-128);
 
-   b = pixe->y + 1.772 * (pixe->u-128);
-   b1 = pixe->y1 + 1.772 * (pixe->u-128);
+   //~ b = pixe->y + 1.772 * (pixe->u-128);
+   //~ b1 = pixe->y1 + 1.772 * (pixe->u-128);
 
 
-   // Even with proper conversion, some values still need clipping.
+   //~ // Even with proper conversion, some values still need clipping.
 
-   pixe->r=CLIP(r);
-   pixe->g=CLIP(g);
-   pixe->b=CLIP(b);
-   pixe->r1=CLIP(r1);
-   pixe->g1=CLIP(g1);
-   pixe->b1=CLIP(b1);
+   //~ pixe->r=CLIP(r);
+   //~ pixe->g=CLIP(g);
+   //~ pixe->b=CLIP(b);
+   //~ pixe->r1=CLIP(r1);
+   //~ pixe->g1=CLIP(g1);
+   //~ pixe->b1=CLIP(b1);
    
-   return pixe;
-}
+   //~ return pixe;
+//~ }
 
 int 
 SaveJPG(const char *Filename,int imgsize,BYTE *ImagePix) {

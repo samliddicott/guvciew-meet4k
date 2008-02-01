@@ -109,6 +109,8 @@ typedef unsigned char SAMPLE;
 #define ERR_BAD_TABLES 14
 #define ERR_DEPTH_MISMATCH 15
 
+#define CLIP(color) (unsigned char)(((color)>0xFF)?0xff:(((color)<0)?0:(color)))
+
 
 typedef struct _sndDev {
  int id;
