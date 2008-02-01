@@ -23,7 +23,7 @@ typedef  unsigned int LONG;
 typedef  unsigned int UINT;
 typedef  unsigned short int WORD;
 
-#define VERSION "0.5.2"
+#define VERSION "0.5.3"
 
 /*portaudio defs*/
 #define SAMPLE_RATE  (0) /* 0 device default*/
@@ -86,7 +86,7 @@ typedef unsigned char SAMPLE;
 
 #define DEFAULT_IMAGE_FNAME "Image.jpg"
 #define DEFAULT_BMP_FNAME "Image.bmp"
-#define IMGTYPE (0) /*default type (varies if on MJPEG or YUYV input)*/
+#define IMGTYPE (0) /*default type (varies if on MJPEG(jpg) or YUYV(bmp) input)*/
 #define DEFAULT_AVI_FNAME	"capture.avi"
 #define DEFAULT_FPS	25
 #define DEFAULT_FPS_NUM 1
@@ -120,28 +120,28 @@ typedef struct _sndDev {
  //PaTime Llatency;
 } sndDev;
 
-/* 0.0 is device default*/
+/* 0 is device default*/
 static int stdSampleRates[] = { 0, 8000,  9600, 11025, 12000,
                                    16000, 22050, 24000,
                                    32000, 44100, 48000,
                                    88200, 96000,
                                    -1 }; /* Negative terminated list. */
 
-typedef struct _Pix {
-//unsigned int pixel1;
-//unsigned int pixel2;
-BYTE y;
-BYTE u;
-BYTE v;
-BYTE y1;
-BYTE r;
-BYTE g;
-BYTE b;
-BYTE r1;
-BYTE g1;
-BYTE b1;
+//~ typedef struct _Pix {
+//~ //unsigned int pixel1;
+//~ //unsigned int pixel2;
+//~ BYTE y;
+//~ BYTE u;
+//~ BYTE v;
+//~ BYTE y1;
+//~ BYTE r;
+//~ BYTE g;
+//~ BYTE b;
+//~ BYTE r1;
+//~ BYTE g1;
+//~ BYTE b1;
 	
-} Pix;
+//~ } Pix;
 
 
 typedef struct tagBITMAPFILEHEADER { 
@@ -189,7 +189,7 @@ SaveJPG(const char *Filename,int imgsize,BYTE *ImagePix);
 //~ int 
 //~ get_picture(unsigned char *buf,int size);
 
-Pix *yuv2rgb(unsigned int YUVMacroPix, int format, Pix *pixe);
+//~Pix *yuv2rgb(unsigned int YUVMacroPix, int format, Pix *pixe);
 
 
 int SaveBPM(const char *Filename, long width, long height, int BitCount, BYTE *ImagePix);

@@ -1085,13 +1085,13 @@ yuyv2bgr (BYTE *pyuv, BYTE *pbgr){
 void *main_loop(void *data)
 {
 	int ret=0;
-	Pix *pix2;
-	if ((pix2= malloc(sizeof(Pix)))==NULL) {
-		printf("couldn't allocate memory for: pix2\n");
-		ret=1;
+	//Pix *pix2;
+	//if ((pix2= malloc(sizeof(Pix)))==NULL) {
+	//	printf("couldn't allocate memory for: pix2\n");
+	//	ret=1;
 		//return(ret);
-		pthread_exit((void *) 1);
-	}
+	//	pthread_exit((void *) 1);
+	//}
 	//fprintf(stderr,"Thread started...\n");
 	/*
 		ImageSurf=SDL_CreateRGBSurface(SDL_SWSURFACE, overlay->w,
@@ -1198,8 +1198,8 @@ void *main_loop(void *data)
 	videoIn->capAVI = FALSE;   
   }	   
   printf("Thread terminated...\n");
-  if(pix2!=NULL) free (pix2);
-  pix2=NULL;
+  //~ if(pix2!=NULL) free (pix2);
+  //~ pix2=NULL;
   if(pim!=NULL) free(pim);
   pim=NULL;
   if(pavi!=NULL)	free(pavi);
