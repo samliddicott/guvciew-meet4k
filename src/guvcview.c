@@ -107,7 +107,7 @@ unsigned char frmrate;
 
 
 char *sndfile=NULL; /*temporary snd filename*/
-char *avifile=NULL; /*avi filename passed through argument options with -*/
+char *avifile=NULL; /*avi filename passed through argument options with -n */
 char *capt=NULL;
 int Sound_enable=1; /*Enable Sound by Default*/
 int Sound_SampRate=SAMPLE_RATE;
@@ -196,13 +196,9 @@ int readConf(const char *confpath) {
 		char line[80];
 
   		while (fgets(line, 80, fp) != NULL) {
-			//printf("%s-->\n",line);
 			j++;
 			if ((line[0]=='#') || (line[0]==' ') || (line[0]=='\n')) {
-					//printf("Skip line %i\n",j);
 			} else if ((i=sscanf(line,"%[^#=]=%[^#\n ]",variable,value))==2){
-					//printf("line nr %i found %i\n",j,i);
-					//printf ("%s : %s\n",variable,value);
 					/* set variables */
 					if (strcmp(variable,"resolution")==0) {
 						if ((i=sscanf(value,"%ix%i",&width,&height))==2)
@@ -1000,52 +996,6 @@ draw_controls (VidState *s)
 
 }
 
-//~ void *convertBMP(BYTE *pframe,Pix *pix2) {
-	//~ int ret=0;
-	//~ int i,j,k,l,m,n,o;
-	//~ DWORD YUVMacroPix;
-	//~ BYTE *pix8 = (BYTE *)&YUVMacroPix;	
-		
-	//~ k=overlay->h;
-	
-	//~ for(j=0;j<(overlay->h);j++){
-		//~ l=j*overlay->pitches[0];        /* overlay line number               */
-						//~ /* pitches is the overlay number off */
-						//~ /* bytes in a line (2*width)         */
-			
-		//~ m=(k*3*overlay->pitches[0])>>1;       /*iterator for rgb                  */
-						      //~ /*for this case (rgb) every pixel   */
-						      //~ /*as 3 bytes (3*width=3*pitches/2)  */
-						      //~ /*             >>1 = /2             */
-		//~ for (i=0;i<((overlay->pitches[0])>>2);i++){ /*>>2 = (/4)*/
-					//~ /*iterate every 4 bytes (32 bits)*/
-					//~ /*Y-U-Y1-V =>2 pixel (4 bytes)   */
-				
-			//~ n=i<<2;/*<<2 = (*4) multiply by 4 (?faster?)*/					
-			//~ pix8[0] = p[n+l];   /* Y0  */
-			//~ pix8[1] = p[n+1+l]; /* U01 */
-			//~ pix8[2] = p[n+2+l]; /* Y1 */
-			//~ pix8[3] = p[n+3+l]; /* V01  */
-			//~ /*get RGB data*/
-			//~ pix2=yuv2rgb(YUVMacroPix,0,pix2);
-			
-			//~ /*In BitMaps lines are upside down and*/
-			//~ /*pixel format is bgr                 */
-				
-			//~ o=i*6;				
-			//~ /*first pixel*/
-			//~ pframe[o+m]=pix2->b;
-			//~ pframe[o+1+m]=pix2->g;
-			//~ pframe[o+2+m]=pix2->r;
-			//~ /*second pixel*/
-			//~ pframe[o+3+m]=pix2->b1;
-			//~ pframe[o+4+m]=pix2->g1;
-			//~ pframe[o+5+m]=pix2->r1;	
-		//~ }
-		//~ k--;
-	//~ }
-//~ }
-
 void *
 yuyv2rgb (BYTE *pyuv, BYTE *prgb){
 	int l=0;
@@ -1107,18 +1057,6 @@ yuyv2bgr (BYTE *pyuv, BYTE *pbgr){
 void *main_loop(void *data)
 {
 	int ret=0;
-	//Pix *pix2;
-	//if ((pix2= malloc(sizeof(Pix)))==NULL) {
-	//	printf("couldn't allocate memory for: pix2\n");
-	//	ret=1;
-		//return(ret);
-	//	pthread_exit((void *) 1);
-	//}
-	//fprintf(stderr,"Thread started...\n");
-	/*
-		ImageSurf=SDL_CreateRGBSurface(SDL_SWSURFACE, overlay->w,
-		   overlay->h, 24, 0x00ff0000,0x0000ff00,0x000000ff,0);
-	*/
 	while (videoIn->signalquit) {
 	 currtime = SDL_GetTicks();
 	 if (currtime - lasttime > 0) {
@@ -1294,20 +1232,14 @@ int main(int argc, char *argv[])
        
     const char *home;
     const char *videodevice = NULL;
-    //const char *mode = NULL
     
     
     char *separateur;
     char *sizestring = NULL;
-    int enableRawStreamCapture = 0;
-    int enableRawFrameCapture = 0;
 	
 	home = getenv("HOME");
-	//confPath=malloc((strlen(home)+1)*sizeof(char));
-	//printf("size is...%i",strlen(home));
-    //strcpy(confPath,home);
+	
 	sprintf(confPath,"%s%s", home,"/.guvcviewrc");
-    //strcat(confPath,"/.guvcviewrc");
     
     readConf(confPath);
 
@@ -1364,18 +1296,6 @@ int main(int argc, char *argv[])
 	    }
 		printf(" size width: %d height: %d \n", width, height);
 	}
-	if (strcmp(argv[i], "-S") == 0) {
-	    /* Enable raw stream capture from the start */
-	    enableRawStreamCapture = 1;
-	}
-	if (strcmp(argv[i], "-c") == 0) {
-	    /* Enable raw frame capture for the first frame */
-	    enableRawFrameCapture = 1;
-	}
-	if (strcmp(argv[i], "-C") == 0) {
-	    /* Enable raw frame stream capture from the start*/
-	    enableRawFrameCapture = 2;
-	}
 	if (strcmp(argv[i], "-n") == 0) {
 	    if (i + 1 >= argc) {
 		printf("No parameter specified with -n, aborting.\n");	
@@ -1394,9 +1314,6 @@ int main(int argc, char *argv[])
 		("-f	video format  default jpg  others options are yuv jpg \n");
 	    printf("-s	widthxheight      use specified input size \n");
 	     printf("-n	avi_file_name   if avi_file_name set enable avi capture from start \n");
-	    printf("-c	enable raw frame capturing for the first frame\n");
-	    printf("-C	enable raw frame stream capturing from the start\n");
-	    printf("-S	enable raw stream capturing from the start\n");
 	    exit(0);
 	  }
     }
@@ -1511,21 +1428,8 @@ int main(int argc, char *argv[])
 	exit(1);
 	/* populate video capabilities structure array*/ 
 	check_videoIn(videoIn);
-	
 
-    
-	if (enableRawStreamCapture) {
-		videoIn->captureFile = fopen("stream.raw", "wb");
-		if(videoIn->captureFile == NULL) {
-			perror("Unable to open file for raw stream capturing");
-		} else {
-			printf("Starting raw stream capturing to stream.raw ...\n");
-		}
-    }
-    if (enableRawFrameCapture)
-		videoIn->rawFrameCapture = enableRawFrameCapture;
-
-//~  SDL_WM_SetCaption("GUVCVideo", NULL);
+   //~  SDL_WM_SetCaption("GUVCVideo", NULL);
 
     
 	/*-----------------------------GTK widgets---------------------------------*/
@@ -1713,9 +1617,9 @@ int main(int argc, char *argv[])
 
     gtk_widget_show (label_AVIComp);
 
-    /* sound interface ----------------------------------------*/
+    /* sound interface ------------------------------------------------------*/
 	
-	/*get sound device list and info-----------------------------------------------*/
+	/*get sound device list and info-----------------------------------------*/
 	
 	SndDevice = gtk_combo_box_new_text ();
 		

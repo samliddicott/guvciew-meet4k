@@ -1,22 +1,22 @@
-/*************************************************************************************************
-#	    guvcview              http://guvcview.berlios.de												#
-#     Paulo Assis <pj.assis@gmail.com>																#
-#																														#
-# This program is free software; you can redistribute it and/or modify         				#
-# it under the terms of the GNU General Public License as published by   				#
-# the Free Software Foundation; either version 2 of the License, or           				#
-# (at your option) any later version.                                          								#
-#                                                                              										#
-# This program is distributed in the hope that it will be useful,              					#
-# but WITHOUT ANY WARRANTY; without even the implied warranty of             		#
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the  		#
-# GNU General Public License for more details.                                 					#
-#                                                                              										#
-# You should have received a copy of the GNU General Public License           		#
-# along with this program; if not, write to the Free Software                  					#
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA		#
-#                                                                              										#
-*************************************************************************************************/
+/****************************************************************************
+#	    guvcview              http://guvcview.berlios.de					#	
+#     Paulo Assis <pj.assis@gmail.com>										#
+#																			#
+# This program is free software; you can redistribute it and/or modify      #
+# it under the terms of the GNU General Public License as published by   	#
+# the Free Software Foundation; either version 2 of the License, or         #
+# (at your option) any later version.                                       #
+#                                                                           #
+# This program is distributed in the hope that it will be useful,           #
+# but WITHOUT ANY WARRANTY; without even the implied warranty of            #
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the  		    #
+# GNU General Public License for more details.                              #
+#                                                                           #
+# You should have received a copy of the GNU General Public License         #
+# along with this program; if not, write to the Free Software               #
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA	#
+#                                                                           #
+*****************************************************************************/
 
 #include "avilib.h"
 #include <stdio.h>
@@ -1376,10 +1376,8 @@ int write_png(char *file_name, int width, int height,BYTE *prgb_data)
    png_structp png_ptr;
    png_infop info_ptr;
    png_text text_ptr[3];
-   //png_color_8p sig_bit;
-	png_bytep row_pointers[height];
-	//png_byte image[height][width*3];
-   //png_colorp palette;
+   
+   png_bytep row_pointers[height];
    /* open the file */
    fp = fopen(file_name, "wb");
    if (fp == NULL)
@@ -1389,7 +1387,7 @@ int write_png(char *file_name, int width, int height,BYTE *prgb_data)
     * functions.  If you want to use the default stderr and longjump method,
     * you can supply NULL for the last three parameters.  We also check that
     * the library version is compatible with the one used at compile time,
-    * in case we are using dynamically linked libraries.  REQUIRED.
+    * in case we are using dynamically linked libraries.
     */
    png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING,
       NULL, NULL, NULL);
@@ -1399,9 +1397,8 @@ int write_png(char *file_name, int width, int height,BYTE *prgb_data)
       fclose(fp);
       return (2);
    }
-	printf("create png_ptr \n");
-
-   /* Allocate/initialize the image information data.  REQUIRED */
+	
+   /* Allocate/initialize the image information data. */
    info_ptr = png_create_info_struct(png_ptr);
    if (info_ptr == NULL)
    {
@@ -1409,7 +1406,7 @@ int write_png(char *file_name, int width, int height,BYTE *prgb_data)
       png_destroy_write_struct(&png_ptr,  png_infopp_NULL);
       return (3);
    }
-	printf("create info_ptr \n");
+  
    /* Set error handling.  REQUIRED if you aren't supplying your own
     * error handling functions in the png_create_write_struct() call.
     */
@@ -1420,16 +1417,15 @@ int write_png(char *file_name, int width, int height,BYTE *prgb_data)
       png_destroy_write_struct(&png_ptr, &info_ptr);
       return (4);
    }
-	printf("create error handle \n");
-
+   
    /* set up the output control using standard C streams */
    png_init_io(png_ptr, fp);
-	printf("setup io \n");
+	
 	/* turn on or off filtering, and/or choose
        specific filters.  You can use either a single
        PNG_FILTER_VALUE_NAME or the bitwise OR of one
        or more PNG_FILTER_NAME masks. */
-   /* png_set_filter(png_ptr, 0,
+    /* png_set_filter(png_ptr, 0,
        PNG_FILTER_NONE  | PNG_FILTER_VALUE_NONE |
        PNG_FILTER_SUB   | PNG_FILTER_VALUE_SUB  |
        PNG_FILTER_UP    | PNG_FILTER_VALUE_UP   |
@@ -1451,16 +1447,11 @@ int write_png(char *file_name, int width, int height,BYTE *prgb_data)
 	png_set_IHDR(png_ptr, info_ptr, width, height,
        8, PNG_COLOR_TYPE_RGB, PNG_INTERLACE_NONE,
        PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
-	
-	printf("setup IHDR \n");
-	
   
-	 //png_set_sBIT(png_ptr, info_ptr, 24);
 	/* Optional gamma chunk is strongly suggested if you have any guess
     * as to the correct gamma of the image.
     */
    //png_set_gAMA(png_ptr, info_ptr, gamma);
-	//png_set_sRGB(png_ptr, info_ptr,  PNG_sRGB_INTENT_SATURATION);
 
    /* Optionally write comments into the image */
    text_ptr[0].key = "Title";
@@ -1478,23 +1469,24 @@ int write_png(char *file_name, int width, int height,BYTE *prgb_data)
    text_ptr[2].lang = NULL;
 #endif
    png_set_text(png_ptr, info_ptr, text_ptr, 3);
-	printf("setup text\n");
+
    /* Write the file header information.  REQUIRED */
    png_write_info(png_ptr, info_ptr);
-	printf("write info \n");
 	
 	
-	 /* flip BGR pixels to RGB */
-   	png_set_bgr(png_ptr);
-   /* Write the image data.  REQUIRED */
+	
+   /* flip BGR pixels to RGB */
+   png_set_bgr(png_ptr);
+	
+   /* Write the image data.*/
 	
    //~ if (height > PNG_UINT_32_MAX/png_sizeof(png_bytep))
      //~ png_error (png_ptr, "Image is too tall to process in memory");
-	
    for (l = 0; l < height; l++)
      row_pointers[l] = prgb_data + l*width*3;
   
 	png_write_image(png_ptr, row_pointers);
+	
 	/* You can write optional chunks like tEXt, zTXt, and tIME at the end
     * as well.  Shouldn't be necessary in 1.1.0 and up as all the public
     * chunks are supported and you can use png_set_unknown_chunks() to
@@ -1503,7 +1495,7 @@ int write_png(char *file_name, int width, int height,BYTE *prgb_data)
 
    /* It is REQUIRED to call this to finish writing the rest of the file */
    png_write_end(png_ptr, info_ptr);
-	printf("write end \n");
+
 	/* If you png_malloced a palette, free it here (don't free info_ptr->palette,
       as recommended in versions 1.0.5m and earlier of this example; if
       libpng mallocs info_ptr->palette, libpng will free it).  If you
