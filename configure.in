@@ -28,7 +28,7 @@ AM_GLIB_GNU_GETTEXT
 
 
 
-PKG_CHECK_MODULES(PACKAGE, [gtk+-2.0 >= 2.10.0 gdk-2.0 >= 2.10.0 sdl >= 1.2.10 portaudio-2.0])
+PKG_CHECK_MODULES(PACKAGE, [gtk+-2.0 >= 2.10.0 gdk-2.0 >= 2.10.0 sdl >= 1.2.10 portaudio-2.0 libpng])
 AC_SUBST(PACKAGE_CFLAGS)
 AC_SUBST(PACKAGE_LIBS)
 

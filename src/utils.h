@@ -193,3 +193,4 @@ SaveJPG(const char *Filename,int imgsize,BYTE *ImagePix);
 
 
 int SaveBPM(const char *Filename, long width, long height, int BitCount, BYTE *ImagePix);
+int write_png(char *file_name, int width, int height,BYTE *prgb_data);

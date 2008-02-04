@@ -107,6 +107,7 @@ unsigned char frmrate;
 
 
 char *sndfile=NULL; /*temporary snd filename*/
+char *avifile=NULL; /*avi filename passed through argument options with -*/
 char *capt=NULL;
 int Sound_enable=1; /*Enable Sound by Default*/
 int Sound_SampRate=SAMPLE_RATE;
@@ -159,7 +160,7 @@ int writeConf(const char *confpath) {
    		fprintf(fp,"windowsize=%ix%i\n",winwidth,winheight);
    		fprintf(fp,"# mode video format 'yuv' or 'jpg'(default)\n");
    		fprintf(fp,"mode=%s\n",mode);
-   		fprintf(fp,"# frames per sec. - hardware supported 15 25 32 - default( %i )\n",DEFAULT_FPS);
+   		fprintf(fp,"# frames per sec. - hardware supported - default( %i )\n",DEFAULT_FPS);
    		fprintf(fp,"fps=%d/%d\n",fps_num,fps);
    		fprintf(fp,"# bytes per pixel: default (0 - current)\n");
    		fprintf(fp,"bpp=%i\n",bpp);
@@ -628,27 +629,27 @@ ImageType_changed (GtkComboBox * ImageType,GtkEntry *ImageFNameEntry)
 {
 	gchar *filename;
 	gchar *basename;
-	if(videoIn->formatIn==V4L2_PIX_FMT_MJPEG){
-		videoIn->Imgtype=gtk_combo_box_get_active (ImageType);
-		switch(videoIn->Imgtype){
-			case 0:
-				filename=gtk_entry_get_text(ImageFNameEntry);
-				sscanf(filename,"%[^.]",basename);
-				sprintf(filename,"%s.jpg",basename);
-				break;
-			case 1:
-				filename=gtk_entry_get_text(ImageFNameEntry);
-				sscanf(filename,"%[^.]",basename);
-				sprintf(filename,"%s.bmp",basename);
-				break;
-			default:
-				filename=DEFAULT_IMAGE_FNAME;
-		}
-	} else { /*formatIn==V4L2_PIX_FMT_YUYV (only .bmp available)*/
-				videoIn->Imgtype=1;
-				filename=gtk_entry_get_text(ImageFNameEntry);
-				sscanf(filename,"%[^.]",basename);
-				sprintf(filename,"%s.bmp",basename);	
+	videoIn->Imgtype=gtk_combo_box_get_active (ImageType);
+	if(videoIn->formatIn==V4L2_PIX_FMT_YUYV) videoIn->Imgtype++; /*disable jpg*/
+	
+	switch(videoIn->Imgtype){
+		case 0:
+			filename=gtk_entry_get_text(ImageFNameEntry);
+			sscanf(filename,"%[^.]",basename);
+			sprintf(filename,"%s.jpg",basename);
+			break;
+		case 1:
+			filename=gtk_entry_get_text(ImageFNameEntry);
+			sscanf(filename,"%[^.]",basename);
+			sprintf(filename,"%s.bmp",basename);
+			break;
+		case 2:
+			filename=gtk_entry_get_text(ImageFNameEntry);
+			sscanf(filename,"%[^.]",basename);
+			sprintf(filename,"%s.png",basename);
+			break;
+		default:
+			filename=DEFAULT_IMAGE_FNAME;
 	}
 	
 	printf("set filename to:%s\n",filename);
@@ -855,7 +856,7 @@ draw_controls (VidState *s)
             g_object_set_data (G_OBJECT (ci->widget), "control_info", ci);
             gtk_widget_show (ci->widget);
             gtk_table_attach (GTK_TABLE (s->table), ci->widget, 1, 3, 3+i, 4+i,
-                    GTK_EXPAND | GTK_SHRINK | GTK_FILL, 1, 0, 0);
+                    GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 			
 
             if (input_get_control (videoIn, c, &val) == 0) {
@@ -1046,6 +1047,27 @@ draw_controls (VidState *s)
 //~ }
 
 void *
+yuyv2rgb (BYTE *pyuv, BYTE *prgb){
+	int l=0;
+	int SizeYUV=videoIn->height * videoIn->width * 2; /* 2 bytes per pixel*/
+	for(l=0;l<SizeYUV;l=l+4) { /*iterate every 4 bytes*/
+		/* b = y0 + 1.772 (u-128) */
+		*prgb++=CLIP(pyuv[l] + 1.772 *( pyuv[l+1]-128)); 
+		/* g = y0 - 0.34414 (u-128) - 0.71414 (v-128)*/
+		*prgb++=CLIP(pyuv[l] - 0.34414 * (pyuv[l+1]-128) -0.71414*(pyuv[l+3]-128));
+		/* r =y0 + 1.402 (v-128) */
+		*prgb++=CLIP(pyuv[l] + 1.402 * (pyuv[l+3]-128));                                                        
+		/* b1 = y1 + 1.772 (u-128) */
+		*prgb++=CLIP(pyuv[l+2] + 1.772*(pyuv[l+1]-128));
+		/* g1 = y1 - 0.34414 (u-128) - 0.71414 (v-128)*/
+		*prgb++=CLIP(pyuv[l+2] - 0.34414 * (pyuv[l+1]-128) -0.71414 * (pyuv[l+3]-128)); 
+		/* r1 =y1 + 1.402 (v-128) */
+		*prgb++=CLIP(pyuv[l+2] + 1.402 * (pyuv[l+3]-128));
+	}
+	
+}
+
+void *
 yuyv2bgr (BYTE *pyuv, BYTE *pbgr){
 
 	int l=0;
@@ -1150,6 +1172,17 @@ void *main_loop(void *data)
           		printf ("Capture BMP Image to %s \n",videoIn->ImageFName);
         	}
 			break;
+	     case 2:/*png*/
+			if(pim==NULL) {  
+				 /*24 bits -> 3bytes     32 bits ->4 bytes*/
+		  		if((pim= malloc((pscreen->w)*(pscreen->h)*3))==NULL){
+		 			printf("Couldn't allocate memory for: pim\n");
+	     			videoIn->signalquit=0;
+				ret = 3;		
+		  		}
+			}
+			 yuyv2rgb(videoIn->framebuffer,pim);
+			 write_png(videoIn->ImageFName, width, height,pim);
 		 }
 	     videoIn->capImage=FALSE;	
 	  }
@@ -1343,6 +1376,13 @@ int main(int argc, char *argv[])
 	    /* Enable raw frame stream capture from the start*/
 	    enableRawFrameCapture = 2;
 	}
+	if (strcmp(argv[i], "-n") == 0) {
+	    if (i + 1 >= argc) {
+		printf("No parameter specified with -n, aborting.\n");	
+	    } else {
+	    avifile = strdup(argv[i + 1]);
+		}
+	}
 
 	if (strcmp(argv[i], "-h") == 0) {
 	    printf("usage: guvcview [-h -d -g -f -s -c -C -S] \n");
@@ -1353,6 +1393,7 @@ int main(int argc, char *argv[])
 	    printf
 		("-f	video format  default jpg  others options are yuv jpg \n");
 	    printf("-s	widthxheight      use specified input size \n");
+	     printf("-n	avi_file_name   if avi_file_name set enable avi capture from start \n");
 	    printf("-c	enable raw frame capturing for the first frame\n");
 	    printf("-C	enable raw frame stream capturing from the start\n");
 	    printf("-S	enable raw stream capturing from the start\n");
@@ -1604,6 +1645,7 @@ int main(int argc, char *argv[])
 		videoIn->Imgtype=1;
 	}
 	gtk_combo_box_append_text(GTK_COMBO_BOX(ImageType),"BMP");
+	gtk_combo_box_append_text(GTK_COMBO_BOX(ImageType),"PNG");
 	gtk_combo_box_set_active(GTK_COMBO_BOX(ImageType),0);
 	gtk_table_attach(GTK_TABLE(table2), ImageType, 2, 3, 4, 5,
                     GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
@@ -1619,9 +1661,16 @@ int main(int argc, char *argv[])
 	
 	
 	/*AVI Capture*/
-	CapAVIButt = gtk_button_new_with_label("Capture");
 	AVIFNameEntry = gtk_entry_new();
-	gtk_entry_set_text(GTK_ENTRY(AVIFNameEntry),DEFAULT_AVI_FNAME);
+	if (avifile) {	/*avi capture enabled from start*/
+		CapAVIButt = gtk_button_new_with_label("Stop");
+		gtk_entry_set_text(GTK_ENTRY(AVIFNameEntry),avifile);
+	} else {
+		CapAVIButt = gtk_button_new_with_label("Capture");
+		videoIn->capAVI = FALSE;
+		gtk_entry_set_text(GTK_ENTRY(AVIFNameEntry),DEFAULT_AVI_FNAME);
+	}
+	
 	gtk_table_attach(GTK_TABLE(table2), CapAVIButt, 0, 1, 5, 6,
                     GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_table_attach(GTK_TABLE(table2), AVIFNameEntry, 1, 3, 5, 6,
@@ -1919,7 +1968,46 @@ int main(int argc, char *argv[])
 	SDL_WM_SetCaption("GUVCVideo", NULL);
 	lasttime = SDL_GetTicks();
 
+	if(avifile) { /*------- if avi capture from start --------------*/
+		AviOut = AVI_open_output_file(avifile);
+	   	/*4CC compression "YUY2" (YUV) or "DIB " (RGB24)  or  "MJPG"*/
+		char *compression="MJPG";
 
+		switch (AVIFormat) {
+	 		case 0:
+				compression="MJPG";
+				break;
+	 		case 1:
+				compression="YUY2";
+				break;
+	 		case 2:
+				compression="DIB ";
+				break;
+	 		default:
+				compression="MJPG";
+		}
+	   AVI_set_video(AviOut, videoIn->width, videoIn->height, videoIn->fps,compression);		
+	   /* audio will be set in aviClose - if enabled*/
+	   videoIn->AVIFName = avifile;
+	   AVIstarttime = ms_time();
+       printf("AVI start time:%d\n",AVIstarttime);		
+	   videoIn->capAVI = TRUE;
+		/*disabling sound and avi compression controls*/
+	   gtk_widget_set_sensitive (AVIComp, FALSE);
+	   gtk_widget_set_sensitive (SndEnable,FALSE); 
+ 	   gtk_widget_set_sensitive (SndSampleRate,FALSE);
+ 	   gtk_widget_set_sensitive (SndDevice,FALSE);
+ 	   gtk_widget_set_sensitive (SndNumChan,FALSE);
+	   /* Creating the sound capture loop thread if Sound Enable*/ 
+	   if(Sound_enable > 0) { 
+	      int rsnd = pthread_create(&sndthread, &sndattr, sound_capture, NULL); 
+          if (rsnd)
+          {
+             printf("ERROR; return code from snd pthread_create() is %d\n", rsnd);
+          }
+		}
+	}
+	
 	/* main container -----------------------------------------*/
 	gtk_container_add (GTK_CONTAINER (mainwin), boxh);
 	gtk_widget_show (boxh);
@@ -1984,6 +2072,7 @@ shutd (gint restart)
     free(videoIn);
 	free(capt);
 	free(sndfile);
+	if (avifile) free (avifile);
 	SDL_Quit();
 	printf("SDL Quit\n");
 	printf("cleaned allocations - 50%%\n");
