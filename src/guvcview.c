@@ -69,7 +69,9 @@ GtkWidget *SndEnable;
 GtkWidget *SndSampleRate;
 GtkWidget *SndDevice;
 GtkWidget *SndNumChan;
-
+/*must be called from main loop if capture timer enabled*/
+GtkWidget *CapAVIButt;
+GtkWidget *AVIFNameEntry;
 
 /*thread definitions*/
 pthread_t mythread;
@@ -77,6 +79,9 @@ pthread_attr_t attr;
 
 pthread_t sndthread;
 pthread_attr_t sndattr;
+
+pthread_t diskIOthread;
+pthread_t diskIOattr;
 
 /* parameters passed when restarting*/
 //~int ARG_C;
@@ -91,6 +96,7 @@ SDL_Overlay *overlay=NULL;
 SDL_Rect drect;
 SDL_Event sdlevent;
 
+Uint32 snd_begintime;/*begin time for audio capture*/
 Uint32 currtime;
 Uint32 lasttime;
 Uint32 AVIstarttime;
@@ -108,6 +114,7 @@ unsigned char frmrate;
 
 char *sndfile=NULL; /*temporary snd filename*/
 char *avifile=NULL; /*avi filename passed through argument options with -n */
+int Capture_time=0; /*avi capture time passed through argument options with -t */
 char *capt=NULL;
 int Sound_enable=1; /*Enable Sound by Default*/
 int Sound_SampRate=SAMPLE_RATE;
@@ -169,7 +176,8 @@ int writeConf(const char *confpath) {
    		fprintf(fp,"# video grab method: 0 -read 1 -mmap (default - 1)\n");
    		fprintf(fp,"grabmethod=%i\n",grabmethod);
 		//fprintf(fp,"frequency=%i\n",freq);
-   		
+		fprintf(fp,"# sound 0 - disable 1 - enable\n");
+		fprintf(fp,"sound=%i\n",Sound_enable);   		
    		printf("write %s OK\n",confpath);
    		fclose(fp);
 	} else {
@@ -221,10 +229,10 @@ int readConf(const char *confpath) {
 						} else if 	(strcmp(variable,"grabmethod")==0) {
 								if ((i=sscanf(value,"%i",&grabmethod))==1)
 									printf("grabmethod: %i\n",grabmethod);
-						}/* else if 	(strcmp(variable,"frequency")==0) {
-								if ((i=sscanf(value,"%i",&freq))==1)
-									printf("frequency: %i\n",freq);
-						}*/
+						} else if 	(strcmp(variable,"sound")==0) {
+								if ((i=sscanf(value,"%i",&Sound_enable))==1)
+									printf("sound: %i\n",Sound_enable);
+						}
 			}
 		}
 		fclose(fp);
@@ -267,7 +275,7 @@ void *sound_capture(void *data)
 		/*using default if channels <3 or stereo(2) otherwise*/
 		Sound_NumChan=(Sound_IndexDev[Sound_UseDev].chan<3)?Sound_IndexDev[Sound_UseDev].chan:2;
 	}
-	printf("dev:%d SampleRate:%d Chanels:%d\n",Sound_IndexDev[Sound_UseDev].id,Sound_SampRate,Sound_NumChan);
+	//printf("dev:%d SampleRate:%d Chanels:%d\n",Sound_IndexDev[Sound_UseDev].id,Sound_SampRate,Sound_NumChan);
 	
 	/* setting maximum buffer size*/
 	totalFrames = NUM_SECONDS * Sound_SampRate;
@@ -294,8 +302,8 @@ void *sound_capture(void *data)
               &inputParameters,
               NULL,                  /* &outputParameters, */
               Sound_SampRate,
-              FRAMES_PER_BUFFER,/*FRAMES_PER_BUFFER*/
-              paNoFlag,      /* clip and dhiter*/
+              totalFrames,/*FRAMES_PER_BUFFER can cause input overflow*/
+              paNoFlag,      /* PaNoFlag - clip and dhiter*/
               NULL, /* sound callback - using blocking API*/
               NULL ); /* callback userData -no callback no data */
     if( err != paNoError ) goto error;
@@ -303,11 +311,12 @@ void *sound_capture(void *data)
     err = Pa_StartStream( stream );
     if( err != paNoError ) goto error;
     /*------------------------- capture loop ----------------------------------*/
-	unsigned long framesready;
+	//snd_begintime=SDL_GetTicks();
+	snd_begintime = ms_time();
 	do {
 	   //Pa_Sleep(SND_WAIT_TIME);
        err = Pa_ReadStream( stream, recordedSamples, totalFrames );
-       //if( err != paNoError ) break; /*will break with input overflow*/
+       //if( err != paNoError ) break; /*can break with input overflow*/
 	   /* Write recorded data to a file. */  
           fwrite( recordedSamples, Sound_NumChan * sizeof(SAMPLE), totalFrames, fid );
     } while (videoIn->capAVI);   
@@ -343,6 +352,72 @@ delete_event (GtkWidget *widget, GdkEventConfigure *event)
 	return 0;
 }
 
+void *AVIAudioAdd(void *data) {
+	
+	SAMPLE *recordedSamples=NULL;
+    int i;  
+    int totalFrames;
+    int numSamples;
+    long numBytes;
+		
+	totalFrames = NUM_SECONDS * Sound_SampRate;
+    numSamples = totalFrames * Sound_NumChan;
+ 
+	numBytes = numSamples * sizeof(SAMPLE);
+
+    recordedSamples = (SAMPLE *) malloc( numBytes );
+
+    if( recordedSamples == NULL )
+    {
+       	printf("Could not allocate record array.\n");
+		/*must enable avi capture button*/
+    	gtk_widget_set_sensitive (CapAVIButt, TRUE);
+       	return (1);
+    }
+    for( i=0; i<numSamples; i++ ) recordedSamples[i] = 0;/*init to zero - silence*/	
+	AVI_set_audio(AviOut, Sound_NumChan, Sound_SampRate, sizeof(SAMPLE)*8,WAVE_FORMAT_PCM);
+	printf("sample size: %i bits\n",sizeof(SAMPLE)*8);
+	
+	/* Audio Capture allways starts first*/
+	Uint32 synctime= snd_begintime - AVIstarttime; /*time diff for audio-video*/
+	if(synctime) {
+		/*shift sound by synctime*/
+		Uint32 shiftFrames=(synctime*Sound_SampRate/1000);
+		/*make sur its even if stereo*/
+		//~ if (Sound_NumChan>1) /*it is a stereo imput*/
+			//~ if ((shiftFrames & 0x00000001)>0) shiftFrames++; /*its odd so make it even*/
+		int shiftSamples=shiftFrames*Sound_NumChan;
+		printf("shift sound forward by %d ms - %d frames\n",synctime,shiftSamples);
+		SAMPLE EmptySamp[shiftSamples];
+		for(i=0; i<shiftSamples; i++) EmptySamp[i]=0;/*init to zero - silence*/
+		AVI_write_audio(AviOut,&EmptySamp,shiftSamples*sizeof(SAMPLE)); 
+	}
+	FILE *fip;
+	fip=fopen(sndfile,"rb");
+	if( fip == NULL )
+    {
+    	printf("Could not open snd data file.\n");
+	} else {
+		while(fread( recordedSamples, Sound_NumChan * sizeof(SAMPLE), totalFrames, fip )!=0){  
+	    	AVI_write_audio(AviOut,(BYTE *) recordedSamples,numBytes);
+		}
+	}
+	fclose(fip);
+	/*remove audio file*/
+	unlink(sndfile);
+	if (recordedSamples!=NULL) free( recordedSamples );
+	recordedSamples=NULL;
+	
+	AVI_close (AviOut);
+    printf ("close avi\n");
+    AviOut = NULL;
+	framecount = 0;
+	/*must enable avi capture button*/
+    gtk_widget_set_sensitive (CapAVIButt, TRUE);
+	return (0);
+	
+}
+
 void
 aviClose (void)
 {
@@ -365,27 +440,8 @@ aviClose (void)
 	  }
 	  /******************* write audio to avi if Sound Enable*******************/
 	  if (Sound_enable > 0) {
-	  	SAMPLE *recordedSamples=NULL;
-      	int i;  
-      	int totalFrames;
-      	int numSamples;
-      	long numBytes;
-		
-	  	totalFrames = NUM_SECONDS * Sound_SampRate;
-      	numSamples = totalFrames * Sound_NumChan;
- 
-	    numBytes = numSamples * sizeof(SAMPLE);
-
-    	recordedSamples = (SAMPLE *) malloc( numBytes );
-
-      	if( recordedSamples == NULL )
-      	{
-        	printf("Could not allocate record array.\n");
-        	exit(1);
-      	}
-      	for( i=0; i<numSamples; i++ ) recordedSamples[i] = 0;
-	  
-	  	printf("waiting for thread to finish\n");
+		  
+		printf("waiting for thread to finish\n");
 	  	/* Free attribute and wait for the thread */
       	pthread_attr_destroy(&sndattr);
 	
@@ -395,35 +451,27 @@ aviClose (void)
          	printf("ERROR; return code from pthread_join() is %d\n", sndrc);
          	exit(-1);
       	}
-      	printf("Completed join with thread status= %d\n", tstatus);	
-	 
-	  	AVI_set_audio(AviOut, Sound_NumChan, Sound_SampRate, sizeof(SAMPLE)*8,WAVE_FORMAT_PCM);
-	  	printf("sample size: %i bits\n",sizeof(SAMPLE)*8);
-	  	FILE *fip;
-	  	fip=fopen(sndfile,"rb");
-	  	if( fip == NULL )
-      	{
-        	printf("Could not open snd data file.\n");
-      	} else {
-			while(fread( recordedSamples, Sound_NumChan * sizeof(SAMPLE), totalFrames, fip )!=0){  
-	     	   AVI_write_audio(AviOut,(BYTE *) recordedSamples,numBytes);
-		    }
-		}
-		fclose(fip);
-		/*remove audio file*/
-		unlink(sndfile);
-	    if (recordedSamples!=NULL) free( recordedSamples );
-		recordedSamples=NULL;
-	  }
-	
-	  	
+      	printf("Completed join with thread status= %d\n", tstatus);
+	  	/*run it in a new thread to make it non-blocking*/
+		/*must disable avi capture button*/
+    	gtk_widget_set_sensitive (CapAVIButt, FALSE);
+		/* Initialize and set snd thread detached attribute */
+		pthread_attr_init(&diskIOattr);
+    	pthread_attr_setdetachstate(&diskIOattr, PTHREAD_CREATE_JOINABLE);
+		int rio = pthread_create(&diskIOthread, &diskIOattr, AVIAudioAdd, NULL); 
+        if (rio)
+          {
+             printf("ERROR; return code from IO pthread_create() is %d\n", rio);
+          }  
+		//AVIAudioAdd(NULL);
+	  } else { /******* Sound Disable *********/
 		
-      AVI_close (AviOut);
-      printf ("close avi\n");
-      AviOut = NULL;
-	  framecount = 0;
+      	AVI_close (AviOut);
+      	printf ("close avi\n");
+      	AviOut = NULL;
+	  	framecount = 0;
+	  }
     }
-
 }
 
 static int
@@ -732,12 +780,12 @@ capture_avi (GtkButton * CapAVIButt, GtkWidget * AVIFNameEntry)
 	 }
 	} 
 	else {
-	 if (!(videoIn->signalquit)) {
+	 if (!(videoIn->signalquit)) {/*should not happen*/
 		/*thread exited while in AVI capture mode*/
         /* we have to close AVI                  */
      printf("close AVI since thread as exited\n");
 	 gtk_button_set_label(CapAVIButt,"Capture");
-	 //AVIstoptime = ms_time();
+	 AVIstoptime = ms_time();
 	 printf("AVI stop time:%d\n",AVIstoptime);	
 	 videoIn->capAVI = FALSE;
 	 aviClose();
@@ -762,7 +810,7 @@ capture_avi (GtkButton * CapAVIButt, GtkWidget * AVIFNameEntry)
 	   /* audio will be set in aviClose - if enabled*/
 	   videoIn->AVIFName = filename;
 	   AVIstarttime = ms_time();
-       printf("AVI start time:%d\n",AVIstarttime);		
+       //printf("AVI start time:%d\n",AVIstarttime);		
 	   videoIn->capAVI = TRUE;
 	   /*disabling sound and avi compression controls*/
 	   gtk_widget_set_sensitive (AVIComp, FALSE);
@@ -1058,11 +1106,23 @@ void *main_loop(void *data)
 {
 	int ret=0;
 	while (videoIn->signalquit) {
-	 currtime = SDL_GetTicks();
-	 if (currtime - lasttime > 0) {
-		frmrate = 1000/(currtime - lasttime);
+	 //currtime = SDL_GetTicks();
+	 currtime = ms_time();
+	 /*gets real frame rate*/
+	 //~ if (currtime - lasttime > 0) {
+		//~ frmrate = 1000/(currtime - lasttime);
+	 //~ }
+	 //~ lasttime = currtime;
+		
+	 /*sets timer if Capture_time enable*/ 
+	 if (Capture_time) {
+		 if((AVIstarttime+(Capture_time*1000))<currtime) {
+		 	/*stop avi capture*/
+			printf("timer alarme - stoping avi\n");
+			capture_avi(CapAVIButt,AVIFNameEntry);
+			Capture_time=0; /*disables capture timer*/
+		 }
 	 }
-	 lasttime = currtime;
 	
 	 /*-------------------------- Grab Frame ----------------------------------*/
 	 if (uvcGrab(videoIn) < 0) {
@@ -1157,9 +1217,8 @@ void *main_loop(void *data)
 
 		} 
 	   framecount++;	   
-		  
 	  } 
-	  SDL_Delay(SDL_WAIT_TIME);
+	  //SDL_Delay(SDL_WAIT_TIME);
 	
   }
   
@@ -1205,8 +1264,6 @@ int main(int argc, char *argv[])
 	GtkWidget *CapImageButt;
 	GtkWidget *ImageFNameEntry;
 	GtkWidget *ImageType;
-	GtkWidget *CapAVIButt;
-	GtkWidget *AVIFNameEntry;
 	GtkWidget *label_AVIComp;
 	GtkWidget *label_SndSampRate;
 	GtkWidget *label_SndDevice;
@@ -1298,9 +1355,19 @@ int main(int argc, char *argv[])
 	}
 	if (strcmp(argv[i], "-n") == 0) {
 	    if (i + 1 >= argc) {
-		printf("No parameter specified with -n, aborting.\n");	
+			printf("No parameter specified with -n. Ignoring option.\n");	
 	    } else {
-	    avifile = strdup(argv[i + 1]);
+	    	avifile = strdup(argv[i + 1]); 
+		}
+	}
+	if ((strcmp(argv[i], "-t") == 0) && (avifile)) {
+		if (i + 1 >= argc) {
+			printf("No parameter specified with -t.Ignoring option.\n");	
+	    } else {
+			char *timestr = strdup(argv[i + 1]);
+			Capture_time= strtoul(timestr, &separateur, 10);
+			//sscanf(timestr,"%i",Capture_time);
+			printf("capturing avi for %i seconds",Capture_time);
 		}
 	}
 
@@ -1313,8 +1380,9 @@ int main(int argc, char *argv[])
 	    printf
 		("-f	video format  default jpg  others options are yuv jpg \n");
 	    printf("-s	widthxheight      use specified input size \n");
-	     printf("-n	avi_file_name   if avi_file_name set enable avi capture from start \n");
-	    exit(0);
+	    printf("-n	avi_file_name   if avi_file_name set enable avi capture from start \n");
+	    printf("-t  capture_time  used with -n option, sets the capture time in seconds\n");
+		exit(0);
 	  }
     }
     
@@ -1716,7 +1784,8 @@ int main(int argc, char *argv[])
 	gtk_combo_box_set_active(GTK_COMBO_BOX(SndDevice),Sound_DefDev);
 	Sound_UseDev=Sound_DefDev;/* using default device*/
 	
-	gtk_widget_set_sensitive (SndDevice, TRUE);
+	if (Sound_enable) gtk_widget_set_sensitive (SndDevice, TRUE);
+	else  gtk_widget_set_sensitive (SndDevice, FALSE);
 	g_signal_connect (GTK_COMBO_BOX(SndDevice), "changed",
     	G_CALLBACK (SndDevice_changed), NULL);
 	
@@ -1771,7 +1840,8 @@ int main(int argc, char *argv[])
 	
  	
 	
-	gtk_widget_set_sensitive (SndSampleRate, TRUE);
+	if (Sound_enable) gtk_widget_set_sensitive (SndSampleRate, TRUE);
+	else  gtk_widget_set_sensitive (SndSampleRate, FALSE);
 	g_signal_connect (GTK_COMBO_BOX(SndSampleRate), "changed",
     	G_CALLBACK (SndSampleRate_changed), NULL);
 	
@@ -1804,7 +1874,8 @@ int main(int argc, char *argv[])
 	    /*set Default to NUM_CHANNELS*/
 	    	Sound_NumChan=NUM_CHANNELS;	
 	}
-	gtk_widget_set_sensitive (SndNumChan, TRUE);
+	if (Sound_enable) gtk_widget_set_sensitive (SndNumChan, TRUE);
+	else gtk_widget_set_sensitive (SndNumChan, FALSE);
 	g_signal_connect (GTK_COMBO_BOX(SndNumChan), "changed",
     	G_CALLBACK (SndNumChan_changed), NULL);
 	
@@ -1870,9 +1941,16 @@ int main(int argc, char *argv[])
 	drect.h = pscreen->h;
 
 	SDL_WM_SetCaption("GUVCVideo", NULL);
-	lasttime = SDL_GetTicks();
-
-	if(avifile) { /*------- if avi capture from start --------------*/
+	//lasttime = SDL_GetTicks();
+	
+	/* main container -----------------------------------------*/
+	gtk_container_add (GTK_CONTAINER (mainwin), boxh);
+	gtk_widget_show (boxh);
+	
+	gtk_widget_show (mainwin);
+	
+	/*------------------- avi capture from start -----------------------------*/
+	if(avifile) { 
 		AviOut = AVI_open_output_file(avifile);
 	   	/*4CC compression "YUY2" (YUV) or "DIB " (RGB24)  or  "MJPG"*/
 		char *compression="MJPG";
@@ -1892,11 +1970,9 @@ int main(int argc, char *argv[])
 		}
 	   AVI_set_video(AviOut, videoIn->width, videoIn->height, videoIn->fps,compression);		
 	   /* audio will be set in aviClose - if enabled*/
-	   videoIn->AVIFName = avifile;
-	   AVIstarttime = ms_time();
-       printf("AVI start time:%d\n",AVIstarttime);		
+	   videoIn->AVIFName = avifile;		
 	   videoIn->capAVI = TRUE;
-		/*disabling sound and avi compression controls*/
+	   /*disabling sound and avi compression controls*/
 	   gtk_widget_set_sensitive (AVIComp, FALSE);
 	   gtk_widget_set_sensitive (SndEnable,FALSE); 
  	   gtk_widget_set_sensitive (SndSampleRate,FALSE);
@@ -1910,16 +1986,10 @@ int main(int argc, char *argv[])
              printf("ERROR; return code from snd pthread_create() is %d\n", rsnd);
           }
 		}
+		AVIstarttime = ms_time();
 	}
 	
-	/* main container -----------------------------------------*/
-	gtk_container_add (GTK_CONTAINER (mainwin), boxh);
-	gtk_widget_show (boxh);
-	
-	gtk_widget_show (mainwin);
-	
-	/* Creating the main loop thread*/
-	//mythread = SDL_CreateThread( main_loop,NULL);
+	/* Creating the main loop (video) thread*/
 	int rc = pthread_create(&mythread, &attr, main_loop, NULL); 
  	if (rc) {
          	printf("ERROR; return code from pthread_create() is %d\n", rc);
@@ -1950,14 +2020,18 @@ shutd (gint restart)
 	if(videoIn->capAVI) {
 		printf("stoping AVI capture\n");
 	 	AVIstoptime = ms_time();
-	 	printf("AVI stop time:%d\n",AVIstoptime);	
+	 	//printf("AVI stop time:%d\n",AVIstoptime);	
 	 	videoIn->capAVI = FALSE;
 	 	aviClose();
+		
+		/*wait for io thread*/
+		pthread_attr_destroy(&diskIOattr);
+		int rio = pthread_join(diskIOthread, (void **)&tstatus);
+    	printf("Completed join with thread io status= %d\n", tstatus);
 	}
 	
-	/* Free attribute and wait for the thread */
+	/* Free attribute and wait for the main loop (video) thread */
     pthread_attr_destroy(&attr);
-	
 	int rc = pthread_join(mythread, (void **)&tstatus);
     if (rc)
       {
