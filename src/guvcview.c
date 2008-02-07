@@ -96,11 +96,11 @@ SDL_Overlay *overlay=NULL;
 SDL_Rect drect;
 SDL_Event sdlevent;
 
-Uint32 snd_begintime;/*begin time for audio capture*/
-Uint32 currtime;
-Uint32 lasttime;
-Uint32 AVIstarttime;
-Uint32 AVIstoptime;
+Uint32 snd_begintime=0;/*begin time for audio capture*/
+Uint32 currtime=0;
+Uint32 lasttime=0;
+Uint32 AVIstarttime=0;
+Uint32 AVIstoptime=0;
 Uint32 framecount=0;
 avi_t *AviOut;
 BYTE *p = NULL;
@@ -157,7 +157,7 @@ ms_time (void)
 
 static
 int writeConf(const char *confpath) {
-	int ret=1;
+	int ret=0;
 	FILE *fp;
 	if ((fp = fopen(confpath,"w"))!=NULL) {
    		fprintf(fp,"# guvcview configuration file\n\n");
@@ -177,13 +177,18 @@ int writeConf(const char *confpath) {
    		fprintf(fp,"grabmethod=%i\n",grabmethod);
 		//fprintf(fp,"frequency=%i\n",freq);
 		fprintf(fp,"# sound 0 - disable 1 - enable\n");
-		fprintf(fp,"sound=%i\n",Sound_enable);   		
+		fprintf(fp,"sound=%i\n",Sound_enable);
+		fprintf(fp,"# snd_device - sound device id as listed by portaudio\n");
+		fprintf(fp,"snd_device=%i\n",Sound_UseDev);
+		fprintf(fp,"# snd_samprate - sound sample rate\n");
+		fprintf(fp,"snd_samprate=%i\n",Sound_SampRateInd);
+		fprintf(fp,"# snd_numchan - sound number of channels 0- dev def 1 - mono 2 -stereo\n");
+		fprintf(fp,"snd_numchan=%i\n",Sound_NumChanInd);
    		printf("write %s OK\n",confpath);
    		fclose(fp);
 	} else {
 	printf("Could not write file %s \n Please check file permissions\n",confpath);
-	ret=0;
-	exit(0);
+	ret=1;
 	}
 	return ret;
 }
@@ -232,6 +237,15 @@ int readConf(const char *confpath) {
 						} else if 	(strcmp(variable,"sound")==0) {
 								if ((i=sscanf(value,"%i",&Sound_enable))==1)
 									printf("sound: %i\n",Sound_enable);
+						} else if 	(strcmp(variable,"snd_device")==0) {
+								if ((i=sscanf(value,"%i",&Sound_UseDev))==1)
+									printf("sound Device: %i\n",Sound_UseDev);
+						}else if 	(strcmp(variable,"snd_samprate")==0) {
+								if ((i=sscanf(value,"%i",&Sound_SampRateInd))==1)
+									printf("sound samp rate: %i\n",Sound_SampRateInd);
+						}else if 	(strcmp(variable,"snd_numchan")==0) {
+								if ((i=sscanf(value,"%i",&Sound_NumChanInd))==1)
+									printf("sound Channels: %i\n",Sound_NumChanInd);
 						}
 			}
 		}
@@ -374,11 +388,12 @@ void *AVIAudioAdd(void *data) {
     	gtk_widget_set_sensitive (CapAVIButt, TRUE);
        	return (1);
     }
-    for( i=0; i<numSamples; i++ ) recordedSamples[i] = 0;/*init to zero - silence*/	
+    for( i=0; i<numSamples; i++ ) recordedSamples[i] = 0;/*init to zero - silence*/
+	SDL_Delay(100); /*wait to make sure main loop as stoped writing to avi*/
 	AVI_set_audio(AviOut, Sound_NumChan, Sound_SampRate, sizeof(SAMPLE)*8,WAVE_FORMAT_PCM);
 	printf("sample size: %i bits\n",sizeof(SAMPLE)*8);
 	
-	/* Audio Capture allways starts first*/
+	/* Audio Capture allways starts last*/
 	Uint32 synctime= snd_begintime - AVIstarttime; /*time diff for audio-video*/
 	if(synctime) {
 		/*shift sound by synctime*/
@@ -412,6 +427,7 @@ void *AVIAudioAdd(void *data) {
     printf ("close avi\n");
     AviOut = NULL;
 	framecount = 0;
+	AVIstarttime = 0;
 	/*must enable avi capture button*/
     gtk_widget_set_sensitive (CapAVIButt, TRUE);
 	return (0);
@@ -470,6 +486,7 @@ aviClose (void)
       	printf ("close avi\n");
       	AviOut = NULL;
 	  	framecount = 0;
+		AVIstarttime=0;
 	  }
     }
 }
@@ -716,8 +733,9 @@ SndDevice_changed (GtkComboBox * SoundDevice, void *data)
 static void
 SndNumChan_changed (GtkComboBox * SoundChan, void *data)
 {
+	/*0-device default 1-mono 2-stereo*/
 	Sound_NumChanInd = gtk_combo_box_get_active (SoundChan);
-	Sound_NumChan=Sound_NumChanInd; /*0-device default 1-mono 2-stereo*/	
+	Sound_NumChan=Sound_NumChanInd;
 }
 
 static void
@@ -1106,24 +1124,8 @@ void *main_loop(void *data)
 {
 	int ret=0;
 	while (videoIn->signalquit) {
-	 //currtime = SDL_GetTicks();
-	 currtime = ms_time();
-	 /*gets real frame rate*/
-	 //~ if (currtime - lasttime > 0) {
-		//~ frmrate = 1000/(currtime - lasttime);
-	 //~ }
-	 //~ lasttime = currtime;
-		
-	 /*sets timer if Capture_time enable*/ 
-	 if (Capture_time) {
-		 if((AVIstarttime+(Capture_time*1000))<currtime) {
-		 	/*stop avi capture*/
-			printf("timer alarme - stoping avi\n");
-			capture_avi(CapAVIButt,AVIFNameEntry);
-			Capture_time=0; /*disables capture timer*/
-		 }
-	 }
 	
+	 if (!AVIstarttime && videoIn->capAVI) AVIstarttime=ms_time();
 	 /*-------------------------- Grab Frame ----------------------------------*/
 	 if (uvcGrab(videoIn) < 0) {
 	    printf("Error grabbing=> Frame Rate is %d\n",frmrate);
@@ -1148,7 +1150,7 @@ void *main_loop(void *data)
 	             fprintf (stderr,"Error: Couldn't capture Image to %s \n",
 			     videoIn->ImageFName);		
 			} else {
-				printf ("Capture jpg Image to %s \n",videoIn->ImageFName);
+				//printf ("Capture jpg Image to %s \n",videoIn->ImageFName);
 			}
 			break;
 		 case 1:/*bmp*/
@@ -1167,7 +1169,7 @@ void *main_loop(void *data)
 				  videoIn->ImageFName);
 	    	} 
 	    	else {	  
-          		printf ("Capture BMP Image to %s \n",videoIn->ImageFName);
+          		//printf ("Capture BMP Image to %s \n",videoIn->ImageFName);
         	}
 			break;
 	     case 2:/*png*/
@@ -1218,6 +1220,16 @@ void *main_loop(void *data)
 		} 
 	   framecount++;	   
 	  } 
+	  currtime = ms_time();
+	 /*sets timer if Capture_time enable*/ 
+	 if (Capture_time) {
+		 if((AVIstarttime+(Capture_time*1000))<currtime) {
+		 	/*stop avi capture*/
+			//printf("timer alarme - stoping avi\n");
+			capture_avi(CapAVIButt,AVIFNameEntry);
+			Capture_time=0; /*disables capture timer*/
+		 }
+	 }
 	  //SDL_Delay(SDL_WAIT_TIME);
 	
   }
@@ -1781,8 +1793,8 @@ int main(int argc, char *argv[])
 	gtk_table_attach(GTK_TABLE(table2), SndDevice, 1, 3, 8, 9,
                     GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (SndDevice);
-	gtk_combo_box_set_active(GTK_COMBO_BOX(SndDevice),Sound_DefDev);
-	Sound_UseDev=Sound_DefDev;/* using default device*/
+	if(Sound_UseDev==0) Sound_UseDev=Sound_DefDev;/* using default device*/
+	gtk_combo_box_set_active(GTK_COMBO_BOX(SndDevice),Sound_UseDev);
 	
 	if (Sound_enable) gtk_widget_set_sensitive (SndDevice, TRUE);
 	else  gtk_widget_set_sensitive (SndDevice, FALSE);
@@ -1818,27 +1830,15 @@ int main(int argc, char *argv[])
 		sprintf(dst,"%d",stdSampleRates[i]);
 		gtk_combo_box_append_text(GTK_COMBO_BOX(SndSampleRate),dst);
 	}
+	if (Sound_SampRateInd>(i-1)) Sound_SampRateInd=0; /*out of range*/
 	
 	gtk_table_attach(GTK_TABLE(table2), SndSampleRate, 1, 3, 9, 10,
                     GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (SndSampleRate);
 	
-	//gtk_combo_box_set_active(GTK_COMBO_BOX(SndSampleRate),Sound_IndexDev[Sound_DefDev]);
-	printf("device:%d default sample rate:%d\n",Sound_IndexDev[Sound_UseDev].id,
-		                              Sound_IndexDev[Sound_UseDev].samprate);
+	Sound_SampRate=stdSampleRates[Sound_SampRateInd];
+	gtk_combo_box_set_active(GTK_COMBO_BOX(SndSampleRate),Sound_SampRateInd); /*device default*/
 	
-	gtk_combo_box_set_active(GTK_COMBO_BOX(SndSampleRate),0); /*device default*/
-	//~ for( i=0; stdSampleRates[i] > 0; i++ )
-            //~ {
-				//~ if (Sound_IndexDev[Sound_UseDev].samprate==stdSampleRates[i]){ 
-					//~ gtk_combo_box_set_active(GTK_COMBO_BOX(SndSampleRate),i);
-					//~ Sound_SampRate=Sound_IndexDev[Sound_UseDev].samprate;
-					//~ printf("SampleRate initial:%d\n",Sound_SampRate);
-					//~ break;
-				//~ }
-			//~ }
-	
- 	
 	
 	if (Sound_enable) gtk_widget_set_sensitive (SndSampleRate, TRUE);
 	else  gtk_widget_set_sensitive (SndSampleRate, FALSE);
@@ -1861,15 +1861,17 @@ int main(int argc, char *argv[])
 	gtk_table_attach(GTK_TABLE(table2), SndNumChan, 1, 3, 10, 11,
                     GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (SndNumChan);
-	switch (Sound_NumChan) {
+	switch (Sound_NumChanInd) {
 	   case 0:/*device default*/
 			gtk_combo_box_set_active(GTK_COMBO_BOX(SndNumChan),0);
 	    break;
 	   case 1:/*mono*/	
 	    	gtk_combo_box_set_active(GTK_COMBO_BOX(SndNumChan),1);
+			Sound_NumChan=1;
 	    break;
 		case 2:/*stereo*/
 			gtk_combo_box_set_active(GTK_COMBO_BOX(SndNumChan),2);
+			Sound_NumChan=2;
 	   default:
 	    /*set Default to NUM_CHANNELS*/
 	    	Sound_NumChan=NUM_CHANNELS;	
@@ -1986,7 +1988,7 @@ int main(int argc, char *argv[])
              printf("ERROR; return code from snd pthread_create() is %d\n", rsnd);
           }
 		}
-		AVIstarttime = ms_time();
+		//AVIstarttime = ms_time(); /* set in main thread*/
 	}
 	
 	/* Creating the main loop (video) thread*/
