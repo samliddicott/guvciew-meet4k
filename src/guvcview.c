@@ -48,7 +48,7 @@
 #include "v4l2uvc.h"
 
 
-
+/*----------------------------- globals --------------------------------------*/
 static const char version[] = VERSION;
 struct vdIn *videoIn;
 char confPath[80];
@@ -146,6 +146,7 @@ int formind = 0; /*0-MJPG 1-YUYV*/
 static Uint32 SDL_VIDEO_Flags =
     SDL_ANYFORMAT | SDL_DOUBLEBUF | SDL_RESIZABLE;
 
+/*------------------------------ get time ------------------------------------*/
 #if 0
 double
 ms_time (void)
@@ -155,14 +156,14 @@ ms_time (void)
   return ((double) tod.tv_sec * 1000.0 + (double) tod.tv_usec / 1000.0);
 
 }
-#elif 1
+#elif 1 /*use this one*/
 Uint32
 ms_time (void)
 {
-  return ((Uint32) SDL_GetTicks());
+  return ((Uint32) SDL_GetTicks()); /* gets time (ms) since SDL init */
 }
 #endif
-
+/*----------------------- write conf (.guvcviewrc) file ----------------------*/
 static
 int writeConf(const char *confpath) {
 	int ret=0;
@@ -202,7 +203,7 @@ int writeConf(const char *confpath) {
 	}
 	return ret;
 }
-
+/*----------------------- read conf (.guvcviewrc) file -----------------------*/
 static
 int readConf(const char *confpath) {
 	int ret=1;
@@ -271,7 +272,7 @@ int readConf(const char *confpath) {
 }
 
 
-/********************** sound threaded loop ************************************/
+/*------------------------ sound threaded loop -------------------------------*/
 void *sound_capture(void *data)
 {
     PaStreamParameters inputParameters, outputParameters;
@@ -345,7 +346,7 @@ void *sound_capture(void *data)
        err = Pa_ReadStream( stream, recordedSamples, totalFrames );
        //if( err != paNoError ) break; /*can break with input overflow*/
 	   /* Write recorded data to a file. */  
-          fwrite( recordedSamples, Sound_NumChan * sizeof(SAMPLE), totalFrames, fid );
+       fwrite( recordedSamples, Sound_NumChan * sizeof(SAMPLE), totalFrames, fid );
     } while (videoIn->capAVI);   
 	
     fclose( fid );
@@ -360,7 +361,8 @@ void *sound_capture(void *data)
 
 error:
 	fclose(fid);
-	free( recordedSamples );
+	if(recordedSamples!=NULL) free( recordedSamples );
+	recordedSamples=NULL;
     Pa_Terminate();
     fprintf( stderr, "An error occured while using the portaudio stream\n" );
     fprintf( stderr, "Error number: %d\n", err );
@@ -371,6 +373,7 @@ error:
 
 
 /*------------------------------ Event handlers -------------------------------*/
+/* when window is closed*/
 gint
 delete_event (GtkWidget *widget, GdkEventConfigure *event)
 {
@@ -379,6 +382,9 @@ delete_event (GtkWidget *widget, GdkEventConfigure *event)
 	return 0;
 }
 
+/*-------------------------------- avi close functions -----------------------*/
+/* Adds audio temp file to AVI         */
+/* called from a thread (non-blocking) */
 void *AVIAudioAdd(void *data) {
 	
 	SAMPLE *recordedSamples=NULL;
@@ -406,17 +412,14 @@ void *AVIAudioAdd(void *data) {
 	AVI_set_audio(AviOut, Sound_NumChan, Sound_SampRate, sizeof(SAMPLE)*8,WAVE_FORMAT_PCM);
 	printf("sample size: %i bits\n",sizeof(SAMPLE)*8);
 	
-	/* Audio Capture allways starts last*/
-	printf("sound start:x.%x video start: x.%x\n",snd_begintime,AVIstarttime);
+	/* Audio Capture allways starts last (delay due to thread initialization)*/
+	printf("sound start:%#0.8X video start:%#0.8X\n",snd_begintime,AVIstarttime);
 	int synctime= snd_begintime - AVIstarttime; /*time diff for audio-video*/
-	if(synctime>0 && synctime<5000) {
+	if(synctime>0 && synctime<5000) { /*only sync up to 5 seconds*/
 		/*shift sound by synctime*/
 		Uint32 shiftFrames=abs(synctime*Sound_SampRate/1000);
-		/*make sur its even if stereo*/
-		//~ if (Sound_NumChan>1) /*it is a stereo imput*/
-			//~ if ((shiftFrames & 0x00000001)>0) shiftFrames++; /*its odd so make it even*/
 		Uint32 shiftSamples=shiftFrames*Sound_NumChan;
-		printf("shift sound forward by %d ms - %d frames\n",synctime,shiftSamples);
+		printf("shift sound forward by %d ms = %d frames\n",synctime,shiftSamples);
 		SAMPLE EmptySamp[shiftSamples];
 		for(i=0; i<shiftSamples; i++) EmptySamp[i]=0;/*init to zero - silence*/
 		AVI_write_audio(AviOut,&EmptySamp,shiftSamples*sizeof(SAMPLE)); 
@@ -454,6 +457,8 @@ void *AVIAudioAdd(void *data) {
 	
 }
 
+/* Called at avi capture stop       */
+/* from avi capture button callback */
 void
 aviClose (void)
 {
@@ -462,7 +467,6 @@ aviClose (void)
 	
   if (AviOut)
     {
-      //printf ("AVI close asked \n");
       tottime = AVIstoptime - AVIstarttime;
 	  //printf("AVI: %i frames in %d ms\n",framecount,tottime);
       
@@ -474,10 +478,8 @@ aviClose (void)
 		/*set the hardware frame rate*/   
 		AviOut->fps=videoIn->fps;
 	  }
-	  /******************* write audio to avi if Sound Enable*******************/
+	  /*---------------- write audio to avi if Sound Enable ------------------*/
 	  if (Sound_enable > 0) {
-		  
-		//printf("waiting for thread to finish\n");
 	  	/* Free attribute and wait for the thread */
       	pthread_attr_destroy(&sndattr);
 	
@@ -508,8 +510,7 @@ aviClose (void)
              	printf("ERROR; return code from IO pthread_create() is %d\n", rio);
           	}
 		}
-		//AVIAudioAdd(NULL);
-	  } else { /******* Sound Disable *********/
+	  } else { /*------------------- Sound Disable ---------------------------*/
 		
       	AVI_close (AviOut);
       	printf ("close avi\n");
@@ -520,6 +521,7 @@ aviClose (void)
     }
 }
 
+/* can't remember what it does*/
 static int
 num_chars (int n)
 {
@@ -539,7 +541,8 @@ num_chars (int n)
 
 
 
-/*-------------------------Controls--------------------------------------------*/
+/*----------------------------- Callbacks ------------------------------------*/
+/*slider labeler*/
 static void
 set_slider_label (GtkRange * range)
 {
@@ -551,6 +554,7 @@ set_slider_label (GtkRange * range)
     }
 }
 
+/*slider controls callback*/
 static void
 slider_changed (GtkRange * range, VidState * s)
 {
@@ -575,6 +579,7 @@ slider_changed (GtkRange * range, VidState * s)
 	
 }
 
+/*check box controls callback*/
 static void
 check_changed (GtkToggleButton * toggle, VidState * s)
 {
@@ -604,7 +609,7 @@ check_changed (GtkToggleButton * toggle, VidState * s)
 	
 }
 
-
+/*combobox controls callback*/
 static void
 combo_changed (GtkComboBox * combo, VidState * s)
 {
@@ -629,6 +634,7 @@ combo_changed (GtkComboBox * combo, VidState * s)
 	
 }
 
+/*resolution control callback*/
 static void
 resolution_changed (GtkComboBox * Resolution, void *data)
 {
@@ -668,22 +674,22 @@ resolution_changed (GtkComboBox * Resolution, void *data)
 	gtk_container_add (GTK_CONTAINER (GTK_DIALOG(restartdialog)->vbox), message);
 	gtk_widget_show_all(GTK_WIDGET(GTK_CONTAINER (GTK_DIALOG(restartdialog)->vbox)));
 	
-  gint result = gtk_dialog_run (GTK_DIALOG (restartdialog));
-  switch (result)
-    {
-      case GTK_RESPONSE_ACCEPT:
-         /*restart app*/
-		 shutd(1);
-         break;
-      default:
-         /* do nothing since Restart rejected*/		
-         break;
+  	gint result = gtk_dialog_run (GTK_DIALOG (restartdialog));
+  	switch (result) {
+    	case GTK_RESPONSE_ACCEPT:
+        	/*restart app*/
+		 	shutd(1);
+         	break;
+   		default:
+        	/* do nothing since Restart rejected*/		
+         	break;
     }
   
-  gtk_widget_destroy (restartdialog);
+	gtk_widget_destroy (restartdialog);
 		
 }
 
+/*frame rate control callback*/
 static void
 FrameRate_changed (GtkComboBox * FrameRate,GtkComboBox * Resolution)
 {
@@ -705,6 +711,7 @@ FrameRate_changed (GtkComboBox * FrameRate,GtkComboBox * Resolution)
 	
 }
 
+/*sound sample rate control callback*/
 static void
 SndSampleRate_changed (GtkComboBox * SampleRate, void *data)
 {
@@ -714,6 +721,7 @@ SndSampleRate_changed (GtkComboBox * SampleRate, void *data)
 	
 }
 
+/*image type control callback*/
 static void
 ImageType_changed (GtkComboBox * ImageType,GtkEntry *ImageFNameEntry) 
 {
@@ -749,6 +757,7 @@ ImageType_changed (GtkComboBox * ImageType,GtkEntry *ImageFNameEntry)
 	videoIn->ImageFName = filename;
 }
 
+/*sound device control callback*/
 static void
 SndDevice_changed (GtkComboBox * SoundDevice, void *data)
 {
@@ -759,6 +768,7 @@ SndDevice_changed (GtkComboBox * SoundDevice, void *data)
 	
 }
 
+/*sound channels control callback*/
 static void
 SndNumChan_changed (GtkComboBox * SoundChan, void *data)
 {
@@ -767,6 +777,7 @@ SndNumChan_changed (GtkComboBox * SoundChan, void *data)
 	Sound_NumChan=Sound_NumChanInd;
 }
 
+/*avi compression control callback*/
 static void
 AVIComp_changed (GtkComboBox * AVIComp, void *data)
 {
@@ -780,7 +791,24 @@ AVIComp_changed (GtkComboBox * AVIComp, void *data)
 
 }
 
+/* sound enable check box callback */
+static void
+SndEnable_changed (GtkToggleButton * toggle, VidState * s)
+{
+		Sound_enable = gtk_toggle_button_get_active (toggle) ? 1 : 0;
+	    if (!Sound_enable) {
+			gtk_widget_set_sensitive (SndSampleRate,FALSE);
+ 	   		gtk_widget_set_sensitive (SndDevice,FALSE);
+ 	   		gtk_widget_set_sensitive (SndNumChan,FALSE);	
+		} else { 
+ 	 		gtk_widget_set_sensitive (SndSampleRate,TRUE);
+ 	 		gtk_widget_set_sensitive (SndDevice,TRUE);
+ 	 		gtk_widget_set_sensitive (SndNumChan,TRUE);
+		}
+}
 
+/*----------------------------- Capture Image --------------------------------*/
+/*image capture button callback*/
 static void
 capture_image (GtkButton * CapImageButt, GtkWidget * ImageFNameEntry)
 {
@@ -791,6 +819,8 @@ capture_image (GtkButton * CapImageButt, GtkWidget * ImageFNameEntry)
 	videoIn->capImage = TRUE;
 }
 
+/*--------------------------- Capture AVI ------------------------------------*/
+/*avi capture button callback*/
 static void
 capture_avi (GtkButton * CapAVIButt, GtkWidget * AVIFNameEntry)
 {
@@ -810,8 +840,8 @@ capture_avi (GtkButton * CapAVIButt, GtkWidget * AVIFNameEntry)
 	 default:
 		compression="MJPG";
 	}	
-	if(videoIn->capAVI) {
-	 printf("stoping AVI capture\n");
+	if(videoIn->capAVI) {  /************* Stop AVI ************/
+	 //printf("stoping AVI capture\n");
 	 gtk_button_set_label(CapAVIButt,"Capture");
 	 AVIstoptime = ms_time();
 	 printf("AVI stop time:%d\n",AVIstoptime);	
@@ -827,7 +857,7 @@ capture_avi (GtkButton * CapAVIButt, GtkWidget * AVIFNameEntry)
 	 }
 	} 
 	else {
-	 if (!(videoIn->signalquit)) {/*should not happen*/
+	 if (!(videoIn->signalquit)) { /***should not happen ***/
 		/*thread exited while in AVI capture mode*/
         /* we have to close AVI                  */
      printf("close AVI since thread as exited\n");
@@ -846,7 +876,7 @@ capture_avi (GtkButton * CapAVIButt, GtkWidget * AVIFNameEntry)
 	 }
 	 
 	 } 
-	 else {
+	 else {/******************** Start AVI *********************/
 	   /* thread is running so start AVI capture*/	 
 	   printf("starting AVI capture to %s\n",filename);
 	   gtk_button_set_label(CapAVIButt,"Stop");  
@@ -858,7 +888,7 @@ capture_avi (GtkButton * CapAVIButt, GtkWidget * AVIFNameEntry)
 	   videoIn->AVIFName = filename;
 	   AVIstarttime = ms_time();
        //printf("AVI start time:%d\n",AVIstarttime);		
-	   videoIn->capAVI = TRUE;
+	   videoIn->capAVI = TRUE; /* start video capture */
 	   /*disabling sound and avi compression controls*/
 	   gtk_widget_set_sensitive (AVIComp, FALSE);
 	   gtk_widget_set_sensitive (SndEnable,FALSE); 
@@ -878,21 +908,16 @@ capture_avi (GtkButton * CapAVIButt, GtkWidget * AVIFNameEntry)
 	}	
 }
 
-static void
-SndEnable_changed (GtkToggleButton * toggle, VidState * s)
-{
-		Sound_enable = gtk_toggle_button_get_active (toggle) ? 1 : 0;
-	    if (!Sound_enable) {
-			gtk_widget_set_sensitive (SndSampleRate,FALSE);
- 	   		gtk_widget_set_sensitive (SndDevice,FALSE);
- 	   		gtk_widget_set_sensitive (SndNumChan,FALSE);	
-		} else { 
- 	 		gtk_widget_set_sensitive (SndSampleRate,TRUE);
- 	 		gtk_widget_set_sensitive (SndDevice,TRUE);
- 	 		gtk_widget_set_sensitive (SndNumChan,TRUE);
-		}
+/* called by capture from start timer [-t seconds] command line option*/
+int timer_callback(){
+	/*stop avi capture*/
+	//printf("timer alarme - stoping avi\n");
+	capture_avi(CapAVIButt,AVIFNameEntry);
+	Capture_time=0; 
+	return (FALSE);/*destroys the timer*/
 }
 
+/*--------------------------- draw camera controls ---------------------------*/
 static void
 draw_controls (VidState *s)
 {
@@ -1090,7 +1115,8 @@ draw_controls (VidState *s)
     }
 
 }
-
+/*------------------------------- Color space conversions --------------------*/
+/* regular yuv (YUYV) to rgb24*/
 void *
 yuyv2rgb (BYTE *pyuv, BYTE *prgb){
 	int l=0;
@@ -1112,6 +1138,8 @@ yuyv2rgb (BYTE *pyuv, BYTE *prgb){
 	
 }
 
+/* yuv (YUYV) to bgr with lines upsidedown */
+/* used for bitmap files (DIB24)           */
 void *
 yuyv2bgr (BYTE *pyuv, BYTE *pbgr){
 
@@ -1148,20 +1176,12 @@ yuyv2bgr (BYTE *pyuv, BYTE *pbgr){
 
 }
 
-int timer_callback(){
-	/*stop avi capture*/
-	//printf("timer alarme - stoping avi\n");
-	capture_avi(CapAVIButt,AVIFNameEntry);
-	Capture_time=0; 
-	return (FALSE);/*destroys the timer*/
-}
-
+/*-------------------------------- Main Video Loop ---------------------------*/ 
+/* run in a thread (SDL overlay)*/
 void *main_loop(void *data)
 {
 	int ret=0;
 	while (videoIn->signalquit) {
-	
-	 //if (!(AVIstarttime) && (videoIn->capAVI)) AVIstarttime=ms_time();
 	 /*-------------------------- Grab Frame ----------------------------------*/
 	 if (uvcGrab(videoIn) < 0) {
 	    printf("Error grabbing=> Frame Rate is %d\n",frmrate);
@@ -1288,7 +1308,7 @@ void *main_loop(void *data)
   pthread_exit((void *) 0);
 }
 
-/******************************** MAIN *****************************************/
+/*--------------------------------- MAIN -------------------------------------*/
 int main(int argc, char *argv[])
 {
 	int i;
@@ -1350,7 +1370,7 @@ int main(int argc, char *argv[])
 
     printf("guvcview version %s \n", version);
 	
-    
+    /*------------------------ reads command line options --------------------*/
     for (i = 1; i < argc; i++) {
 	
 	/* skip bad arguments */
@@ -1453,7 +1473,7 @@ int main(int argc, char *argv[])
 	
 	
 	
-	/*---------------------------- GTK init -----------------------------------*/
+	/*---------------------------- GTK init ----------------------------------*/
 	
 	gtk_init(&argc, &argv);
 	
@@ -1737,9 +1757,9 @@ int main(int argc, char *argv[])
 
     gtk_widget_show (label_AVIComp);
 
-    /* sound interface ------------------------------------------------------*/
+    /*----------------------- sound interface --------------------------------*/
 	
-	/*get sound device list and info-----------------------------------------*/
+	/* get sound device list and info */
 	
 	SndDevice = gtk_combo_box_new_text ();
 		
@@ -1830,6 +1850,7 @@ int main(int argc, char *argv[])
 	
 	}
 	
+	/*--------------------- sound controls -----------------------------------*/
 	gtk_table_attach(GTK_TABLE(table2), SndDevice, 1, 3, 8, 9,
                     GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (SndDevice);
@@ -1985,13 +2006,13 @@ int main(int argc, char *argv[])
 	SDL_WM_SetCaption("GUVCVideo", NULL);
 	//lasttime = SDL_GetTicks();
 	
-	/* main container -----------------------------------------*/
+	/* main container */
 	gtk_container_add (GTK_CONTAINER (mainwin), boxh);
 	gtk_widget_show (boxh);
 	
 	gtk_widget_show (mainwin);
 	
-	/*------------------- avi capture from start -----------------------------*/
+	/*--------------------- avi capture from start ---------------------------*/
 	if(avifile) { 
 		AviOut = AVI_open_output_file(avifile);
 	   	/*4CC compression "YUY2" (YUV) or "DIB " (RGB24)  or  "MJPG"*/
@@ -2036,7 +2057,7 @@ int main(int argc, char *argv[])
 		AVIstarttime = ms_time();
 	}
 	
-	/* Creating the main loop (video) thread*/
+	/*------------------ Creating the main loop (video) thread ---------------*/
 	int rc = pthread_create(&mythread, &attr, main_loop, NULL); 
  	if (rc) {
          	printf("ERROR; return code from pthread_create() is %d\n", rc);
@@ -2051,7 +2072,7 @@ int main(int argc, char *argv[])
 	return 0;
 }
 
-/************************ clean up and shut down ***************************/
+/*-------------------------- clean up and shut down --------------------------*/
 gint 
 shutd (gint restart) 
 {
@@ -2112,7 +2133,7 @@ shutd (gint restart)
 	char fullpath[50];
 	char *pwd;
 	
- 	if (restart==1) {
+ 	if (restart==1) { /* replace running process with new one */
 		 printf("restarting guvcview with command: %s\n",EXEC_CALL);
 		 exec_status = execlp(EXEC_CALL,EXEC_CALL,NULL);/*No parameters passed*/
  	}
