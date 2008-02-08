@@ -52,7 +52,7 @@
 static const char version[] = VERSION;
 struct vdIn *videoIn;
 char confPath[80];
-int AVIFormat=1; /*0-"MJPG"  1-"YUY2" 2-"DIB "(rgb32)*/
+int AVIFormat=0; /*0-"MJPG"  1-"YUY2" 2-"DIB "(rgb32)*/
 VidState * s;
 
 /* The main window*/
@@ -115,6 +115,7 @@ unsigned char frmrate;
 char *sndfile=NULL; /*temporary snd filename*/
 char *avifile=NULL; /*avi filename passed through argument options with -n */
 int Capture_time=0; /*avi capture time passed through argument options with -t */
+
 char *capt=NULL;
 int Sound_enable=1; /*Enable Sound by Default*/
 int Sound_SampRate=SAMPLE_RATE;
@@ -145,7 +146,7 @@ int formind = 0; /*0-MJPG 1-YUYV*/
 static Uint32 SDL_VIDEO_Flags =
     SDL_ANYFORMAT | SDL_DOUBLEBUF | SDL_RESIZABLE;
 
-
+#if 0
 double
 ms_time (void)
 {
@@ -154,6 +155,13 @@ ms_time (void)
   return ((double) tod.tv_sec * 1000.0 + (double) tod.tv_usec / 1000.0);
 
 }
+#elif 1
+Uint32
+ms_time (void)
+{
+  return ((Uint32) SDL_GetTicks());
+}
+#endif
 
 static
 int writeConf(const char *confpath) {
@@ -175,6 +183,8 @@ int writeConf(const char *confpath) {
    		fprintf(fp,"hwaccel=%i\n",hwaccel);
    		fprintf(fp,"# video grab method: 0 -read 1 -mmap (default - 1)\n");
    		fprintf(fp,"grabmethod=%i\n",grabmethod);
+		fprintf(fp,"# video compression format: 0-MJPG 1-YUY2 2-DIB (BMP 24)\n");
+   		fprintf(fp,"avi_format=%i\n",AVIFormat);
 		//fprintf(fp,"frequency=%i\n",freq);
 		fprintf(fp,"# sound 0 - disable 1 - enable\n");
 		fprintf(fp,"sound=%i\n",Sound_enable);
@@ -234,6 +244,9 @@ int readConf(const char *confpath) {
 						} else if 	(strcmp(variable,"grabmethod")==0) {
 								if ((i=sscanf(value,"%i",&grabmethod))==1)
 									printf("grabmethod: %i\n",grabmethod);
+						} else if 	(strcmp(variable,"avi_format")==0) {
+								if ((i=sscanf(value,"%i",&AVIFormat))==1)
+									printf("avi_format: %i\n",AVIFormat);
 						} else if 	(strcmp(variable,"sound")==0) {
 								if ((i=sscanf(value,"%i",&Sound_enable))==1)
 									printf("sound: %i\n",Sound_enable);
@@ -394,18 +407,25 @@ void *AVIAudioAdd(void *data) {
 	printf("sample size: %i bits\n",sizeof(SAMPLE)*8);
 	
 	/* Audio Capture allways starts last*/
-	Uint32 synctime= snd_begintime - AVIstarttime; /*time diff for audio-video*/
-	if(synctime) {
+	printf("sound start:x.%x video start: x.%x\n",snd_begintime,AVIstarttime);
+	int synctime= snd_begintime - AVIstarttime; /*time diff for audio-video*/
+	if(synctime>0 && synctime<5000) {
 		/*shift sound by synctime*/
-		Uint32 shiftFrames=(synctime*Sound_SampRate/1000);
+		Uint32 shiftFrames=abs(synctime*Sound_SampRate/1000);
 		/*make sur its even if stereo*/
 		//~ if (Sound_NumChan>1) /*it is a stereo imput*/
 			//~ if ((shiftFrames & 0x00000001)>0) shiftFrames++; /*its odd so make it even*/
-		int shiftSamples=shiftFrames*Sound_NumChan;
+		Uint32 shiftSamples=shiftFrames*Sound_NumChan;
 		printf("shift sound forward by %d ms - %d frames\n",synctime,shiftSamples);
 		SAMPLE EmptySamp[shiftSamples];
 		for(i=0; i<shiftSamples; i++) EmptySamp[i]=0;/*init to zero - silence*/
 		AVI_write_audio(AviOut,&EmptySamp,shiftSamples*sizeof(SAMPLE)); 
+	} else if (synctime<0){
+		/*shift sound by synctime*/
+		Uint32 shiftFrames=abs(synctime*Sound_SampRate/1000);
+		Uint32 shiftSamples=shiftFrames*Sound_NumChan;
+		printf("shift sound backward by %d ms - %d frames\n",synctime,shiftSamples);
+		/*eat up the number of shiftframes - never seems to happen*/
 	}
 	FILE *fip;
 	fip=fopen(sndfile,"rb");
@@ -437,14 +457,14 @@ void *AVIAudioAdd(void *data) {
 void
 aviClose (void)
 {
-  double tottime = -1;
+  double tottime = 0;
   int tstatus;
 	
   if (AviOut)
     {
-      printf ("AVI close asked \n");
+      //printf ("AVI close asked \n");
       tottime = AVIstoptime - AVIstarttime;
-	  printf("AVI: %i in %lf\n",framecount,tottime);
+	  //printf("AVI: %i frames in %d ms\n",framecount,tottime);
       
 	  if (tottime > 0) {
 	    /*try to find the real frame rate*/
@@ -457,28 +477,37 @@ aviClose (void)
 	  /******************* write audio to avi if Sound Enable*******************/
 	  if (Sound_enable > 0) {
 		  
-		printf("waiting for thread to finish\n");
+		//printf("waiting for thread to finish\n");
 	  	/* Free attribute and wait for the thread */
       	pthread_attr_destroy(&sndattr);
 	
 	  	int sndrc = pthread_join(sndthread, (void **)&tstatus);
-      	if (sndrc)
+      	
+		if (tstatus!=0)
       	{
-         	printf("ERROR; return code from pthread_join() is %d\n", sndrc);
-         	exit(-1);
-      	}
-      	printf("Completed join with thread status= %d\n", tstatus);
-	  	/*run it in a new thread to make it non-blocking*/
-		/*must disable avi capture button*/
-    	gtk_widget_set_sensitive (CapAVIButt, FALSE);
-		/* Initialize and set snd thread detached attribute */
-		pthread_attr_init(&diskIOattr);
-    	pthread_attr_setdetachstate(&diskIOattr, PTHREAD_CREATE_JOINABLE);
-		int rio = pthread_create(&diskIOthread, &diskIOattr, AVIAudioAdd, NULL); 
-        if (rio)
-          {
-             printf("ERROR; return code from IO pthread_create() is %d\n", rio);
-          }  
+         	printf("ERROR: status from sound thread join is %d\n", tstatus);
+         	/*remove audio file*/
+			unlink(sndfile);
+			/* don't add sound*/
+			AVI_close (AviOut);
+      		printf ("close avi\n");
+      		AviOut = NULL;
+	  		framecount = 0;
+			AVIstarttime=0;
+      	} else {
+      		printf("Capture sound thread join with status= %d\n", tstatus);
+	  		/*run it in a new thread to make it non-blocking*/
+			/*must disable avi capture button*/
+    		gtk_widget_set_sensitive (CapAVIButt, FALSE);
+			/* Initialize and set snd thread detached attribute */
+			pthread_attr_init(&diskIOattr);
+    		pthread_attr_setdetachstate(&diskIOattr, PTHREAD_CREATE_JOINABLE);
+			int rio = pthread_create(&diskIOthread, &diskIOattr, AVIAudioAdd, NULL); 
+        	if (rio)
+          	{
+             	printf("ERROR; return code from IO pthread_create() is %d\n", rio);
+          	}
+		}
 		//AVIAudioAdd(NULL);
 	  } else { /******* Sound Disable *********/
 		
@@ -1119,13 +1148,20 @@ yuyv2bgr (BYTE *pyuv, BYTE *pbgr){
 
 }
 
+int timer_callback(){
+	/*stop avi capture*/
+	//printf("timer alarme - stoping avi\n");
+	capture_avi(CapAVIButt,AVIFNameEntry);
+	Capture_time=0; 
+	return (FALSE);/*destroys the timer*/
+}
 
 void *main_loop(void *data)
 {
 	int ret=0;
 	while (videoIn->signalquit) {
 	
-	 if (!AVIstarttime && videoIn->capAVI) AVIstarttime=ms_time();
+	 //if (!(AVIstarttime) && (videoIn->capAVI)) AVIstarttime=ms_time();
 	 /*-------------------------- Grab Frame ----------------------------------*/
 	 if (uvcGrab(videoIn) < 0) {
 	    printf("Error grabbing=> Frame Rate is %d\n",frmrate);
@@ -1221,16 +1257,16 @@ void *main_loop(void *data)
 	   framecount++;	   
 	  } 
 	  currtime = ms_time();
-	 /*sets timer if Capture_time enable*/ 
-	 if (Capture_time) {
-		 if((AVIstarttime+(Capture_time*1000))<currtime) {
-		 	/*stop avi capture*/
-			//printf("timer alarme - stoping avi\n");
-			capture_avi(CapAVIButt,AVIFNameEntry);
-			Capture_time=0; /*disables capture timer*/
-		 }
-	 }
-	  //SDL_Delay(SDL_WAIT_TIME);
+	 //~ /*sets timer if Capture_time enable*/ 
+	 //~ if (Capture_time) {
+		 //~ if((AVIstarttime+(Capture_time*1000))<currtime) {
+		 	//~ /*stop avi capture*/
+			//~ //printf("timer alarme - stoping avi\n");
+			//~ capture_avi(CapAVIButt,AVIFNameEntry);
+			//~ Capture_time=0; /*disables capture timer*/
+		 //~ }
+	 //~ }
+	 //~ SDL_Delay(SDL_WAIT_TIME);
 	
   }
   
@@ -1372,7 +1408,7 @@ int main(int argc, char *argv[])
 	    	avifile = strdup(argv[i + 1]); 
 		}
 	}
-	if ((strcmp(argv[i], "-t") == 0) && (avifile)) {
+	if (strcmp(argv[i], "-t") == 0) {
 		if (i + 1 >= argc) {
 			printf("No parameter specified with -t.Ignoring option.\n");	
 	    } else {
@@ -1398,6 +1434,9 @@ int main(int argc, char *argv[])
 	  }
     }
     
+	/*if -n not set reset capture time*/
+	if(Capture_time>0 && avifile==NULL) Capture_time=0;
+	
     if (strncmp(mode, "yuv", 3) == 0) {
 		format = V4L2_PIX_FMT_YUYV;
 		formind = 1;
@@ -1673,9 +1712,8 @@ int main(int argc, char *argv[])
 	if (videoIn->formatIn== V4L2_PIX_FMT_MJPEG) {
 		/* disable MJP if V4L2_PIX_FMT_YUYV*/
 		gtk_combo_box_append_text(GTK_COMBO_BOX(AVIComp),"MJPG - compressed");
-		AVIFormat=0;/*set MJPG as default*/
 	} else {
-		AVIFormat=1; /*set YUY2 as default*/
+		if(!AVIFormat) AVIFormat=1; /*change to YUY2 as default if MJPG set*/
 	}
 	gtk_combo_box_append_text(GTK_COMBO_BOX(AVIComp),"YUY2 - uncomp YUV");
 	gtk_combo_box_append_text(GTK_COMBO_BOX(AVIComp),"RGB - uncomp BMP");
@@ -1683,7 +1721,9 @@ int main(int argc, char *argv[])
 	gtk_table_attach(GTK_TABLE(table2), AVIComp, 1, 3, 6, 7,
                     GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (AVIComp);
-	gtk_combo_box_set_active(GTK_COMBO_BOX(AVIComp),0);
+	if (videoIn->formatIn== V4L2_PIX_FMT_MJPEG)
+		gtk_combo_box_set_active(GTK_COMBO_BOX(AVIComp),AVIFormat);
+	else gtk_combo_box_set_active(GTK_COMBO_BOX(AVIComp),(AVIFormat-1));
  	
 	gtk_widget_set_sensitive (AVIComp, TRUE);
 	g_signal_connect (GTK_COMBO_BOX(AVIComp), "changed",
@@ -1988,7 +2028,12 @@ int main(int argc, char *argv[])
              printf("ERROR; return code from snd pthread_create() is %d\n", rsnd);
           }
 		}
-		//AVIstarttime = ms_time(); /* set in main thread*/
+		if (Capture_time) {
+			/*sets the timer function*/
+			g_timeout_add(Capture_time*1000,timer_callback,NULL);
+		}
+		
+		AVIstarttime = ms_time();
 	}
 	
 	/* Creating the main loop (video) thread*/

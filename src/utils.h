@@ -23,7 +23,7 @@ typedef  unsigned int LONG;
 typedef  unsigned int UINT;
 typedef  unsigned short int WORD;
 
-#define VERSION "0.5.3"
+#define VERSION "0.5.4"
 
 /*portaudio defs*/
 #define SAMPLE_RATE  (0) /* 0 device default*/
