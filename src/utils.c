@@ -18,7 +18,8 @@
 #                                                                           #
 *****************************************************************************/
 
-#include "avilib.h"
+#include "utils.h"
+#include "v4l2uvc.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -1078,6 +1079,7 @@ static void yuv422pto422(int * out,unsigned char *pic,int width)
 	}
     
 }
+
 static void yuv444pto422(int * out,unsigned char *pic,int width)
 {
     int j, k;
@@ -1116,6 +1118,7 @@ static void yuv444pto422(int * out,unsigned char *pic,int width)
 	}
     
 }
+
 static void yuv400pto422(int * out,unsigned char *pic,int width)
 {
     int j, k;
@@ -1147,6 +1150,7 @@ static void yuv400pto422(int * out,unsigned char *pic,int width)
 	}
     
 }
+
 int 
 is_huffman(unsigned char *buf)
 {
@@ -1162,80 +1166,84 @@ while (((ptbuf[0] << 8) | ptbuf[1]) != 0xffda){
 }
 return 0;
 }
-//~ int 
-//~ get_picture(unsigned char *buf,int size)
-//~ {
-//~ FILE *file;
-//~ unsigned char *ptdeb,*ptcur;
-//~ int sizein;
-//~ file = fopen("quickcam.jpg", "wb");
-//~ if (file != NULL) {
-	//~ if(!is_huffman(buf)){
-	//~ ptdeb = ptcur = buf;
-	//~ while (((ptcur[0] << 8) | ptcur[1]) != 0xffc0)
-	    	//~ ptcur++;
-	//~ sizein = ptcur-ptdeb;
-	//~ fwrite(buf,
-		//~ sizein, 1, file);
-	//~ fwrite(dht_data,
-		//~ DHT_SIZE, 1, file);
-	//~ fwrite(ptcur,size-sizein,1,file); 
-	//~ } else {
-	//~ fwrite(ptcur,size,1,file); 
-	//~ }     
-	//~ fclose(file);
-	//~ }
-//~ return 0;		
-//~ }
 
+int initGlobals (struct GLOBAL *global) {
+	
+	if((global->videodevice = (char *) calloc(1, 16 * sizeof(char)))==NULL){
+		printf("couldn't calloc memory for:global->videodevice\n");
+		goto error;
+	}
+	snprintf(global->videodevice, 15, "/dev/video0");
 
-//~ Pix *yuv2rgb(unsigned int YUVMacroPix, int format, Pix *pixe) 
-//~ {
-  
+	if((global->confPath = (char *) calloc(1, 80 * sizeof(char)))==NULL){
+		printf("couldn't calloc memory for:global->confPath\n");
+		goto error;
+	}
+	snprintf(global->confPath, 14, "~/.guvcviewrc");
 
-   //~ int  r ,g ,b ,r1 ,g1 ,b1;
+	if((global-> sndfile= (char *) calloc(1, 32 * sizeof(char)))==NULL){
+		printf("couldn't calloc memory for:global->sndfile\n");
+		goto error;
+	}
+	snprintf(global->sndfile,32,"%s",tempnam (NULL, "gsnd_"));/*generates a temporary file name*/
+	
+	global->avifile=NULL; /*avi filename passed through argument options with -n */
+	global->Capture_time=0; /*avi capture time passed through argument options with -t */
+	
+	global->AVIFormat=0; /*0-"MJPG"  1-"YUY2" 2-"DIB "(rgb32)*/ 
+	global->snd_begintime=0;/*begin time for audio capture*/
+	global->currtime=0;
+	global->lasttime=0;
+	global->AVIstarttime=0;
+	global->AVIstoptime=0;
+	global->framecount=0;
+	global->frmrate=5;
+	global->Sound_enable=1; /*Enable Sound by Default*/
+	global->Sound_SampRate=SAMPLE_RATE;
+	global->Sound_SampRateInd=0;
+	global->Sound_numInputDev=0;
+	//Sound_IndexDev[20]; /*up to 20 input devices (should be alocated dinamicly)*/
+	global->Sound_DefDev=0; 
+	global->Sound_UseDev=0;
+	global->Sound_NumChan=NUM_CHANNELS;
+	global->Sound_NumChanInd=0;
+	global->fps = DEFAULT_FPS;
+	global->fps_num = DEFAULT_FPS_NUM;
+	global->bpp = 0; //current bytes per pixel
+	global->hwaccel = 1; //use hardware acceleration
+	global->grabmethod = 1;//default mmap(1) or read(0)
+	global->width = DEFAULT_WIDTH;
+	global->height = DEFAULT_HEIGHT;
+	global->winwidth=WINSIZEX;
+	global->winheight=WINSIZEY;
+	if((global->mode = (char *) calloc(1, 5 * sizeof(char)))==NULL){
+		printf("couldn't calloc memory for:global->mode\n");
+		goto error;
+	}
+	snprintf(global->mode, 4, "jpg");
+	global->format = V4L2_PIX_FMT_MJPEG;
+	global->formind = 0; /*0-MJPG 1-YUYV*/
+	return (0);
+	
+error:
+	return(-1); /*no mem should exit*/
 
-   //~ pixe->y = ((YUVMacroPix & 0x000000ff));
+}
 
-   //~ pixe->u = ((YUVMacroPix & 0x0000ff00)>>8);
-
-   //~ pixe->v = ((YUVMacroPix & 0xff000000)>>24);
-
-   //~ pixe->y1 = ((YUVMacroPix & 0x00ff0000)>>16);	 
-
-	//~ /*
-
-     //~ the JFIF standart:
- 
-    //~ R = Y + 1.402 (Cr-128)
-
-	//~ G = Y - 0.34414 (Cb-128) - 0.71414 (Cr-128)
-
-	//~ B = Y + 1.772 (Cb-128)
-
-   //~ */
-
-   //~ r = pixe->y + 1.402 * (pixe->v-128);
-   //~ r1 = pixe->y1 + 1.402 * (pixe->v-128);
-
-   //~ g = pixe->y - 0.34414 * (pixe->u-128) - 0.71414 * (pixe->v-128);
-   //~ g1 = pixe->y1 - 0.34414 * (pixe->u-128) - 0.71414 * (pixe->v-128);
-
-   //~ b = pixe->y + 1.772 * (pixe->u-128);
-   //~ b1 = pixe->y1 + 1.772 * (pixe->u-128);
-
-
-   //~ // Even with proper conversion, some values still need clipping.
-
-   //~ pixe->r=CLIP(r);
-   //~ pixe->g=CLIP(g);
-   //~ pixe->b=CLIP(b);
-   //~ pixe->r1=CLIP(r1);
-   //~ pixe->g1=CLIP(g1);
-   //~ pixe->b1=CLIP(b1);
-   
-   //~ return pixe;
-//~ }
+int closeGlobals(struct GLOBAL *global){
+	free(global->videodevice);
+	free(global->confPath);
+	free(global->sndfile);
+	if (global->avifile) free (global->avifile);
+	free(global->mode);
+	global->videodevice=NULL;
+	global->confPath=NULL;
+	global->sndfile=NULL;
+	global->avifile=NULL;
+	global->mode=NULL;
+	free(global);
+	return (0);
+}
 
 int 
 SaveJPG(const char *Filename,int imgsize,BYTE *ImagePix) {

@@ -21,6 +21,7 @@
 #include <stdlib.h>
 
 #include "v4l2uvc.h"
+#include "utils.h"
 
 int check_videoIn(struct vdIn *vd)
 {
@@ -48,8 +49,6 @@ int
 init_videoIn(struct vdIn *vd, char *device, int width, int height,
 	     int format, int grabmethod, int fps, int fps_num)
 {
-    //~ int ret = -1;
-    //~ int i;
     if (vd == NULL || device == NULL)
 	return -1;
     if (width == 0 || height == 0)
@@ -58,7 +57,6 @@ init_videoIn(struct vdIn *vd, char *device, int width, int height,
 	grabmethod = 1;		//mmap by default;
     vd->videodevice = NULL;
     vd->status = NULL;
-    vd->pictName = NULL;
 	vd->Imgtype=IMGTYPE;
     if((vd->videodevice = (char *) calloc(1, 16 * sizeof(char)))==NULL){
 		printf("couldn't calloc memory for:vd->videodevice\n");
@@ -66,32 +64,19 @@ init_videoIn(struct vdIn *vd, char *device, int width, int height,
 	}
     if((vd->status = (char *) calloc(1, 100 * sizeof(char)))==NULL){
 		printf("couldn't calloc memory for:vd->status\n");
-		goto error2;
+		goto error1;
 	}
-    if((vd->pictName = (char *) calloc(1, 80 * sizeof(char)))==NULL){
-		printf("couldn't calloc memory for:vd->pictName\n");
-		goto error3;
-	}
-    snprintf(vd->videodevice, 12, "%s", device);
+    snprintf(vd->videodevice, 15, "%s", device);
     printf("video %s \n", vd->videodevice);
     vd->capAVI = FALSE;
     vd->AVIFName = DEFAULT_AVI_FNAME;
     vd->fps = fps;
 	vd->fps_num = fps_num;
-    vd->getPict = 0;
     vd->signalquit = 1;
     vd->width = width;
     vd->height = height;
     vd->formatIn = format;
     vd->grabmethod = grabmethod;
-    vd->fileCounter = 0;
-    vd->rawFrameCapture = 0;
-    vd->rfsBytesWritten = 0;
-    vd->rfsFramesWritten = 0;
-    vd->captureFile = NULL;
-    vd->bytesWritten = 0;
-    vd->framesWritten = 0;
-	vd->signalquit=1;
 	vd->capImage=FALSE;
 	vd->ImageFName=DEFAULT_IMAGE_FNAME;
 	vd->timecode.type = V4L2_TC_TYPE_25FPS;
@@ -99,7 +84,7 @@ init_videoIn(struct vdIn *vd, char *device, int width, int height,
 	
     if (init_v4l2(vd) < 0) {
 	printf(" Init v4L2 failed !! exit fatal \n");
-	goto error3;
+	goto error2;
     }
     /* alloc a temp buffer to reconstruct the pict (MJPEG)*/
     vd->framesizeIn = (vd->width * vd->height << 1);
@@ -109,7 +94,7 @@ init_videoIn(struct vdIn *vd, char *device, int width, int height,
 	    (unsigned char *) calloc(1, (size_t) vd->framesizeIn);
 	if (!vd->tmpbuffer) {
 	   printf("couldn't calloc memory for:vd->tmpbuffer\n");
-		goto error5;
+		goto error3;
 	}
 	vd->framebuffer =
 	    (unsigned char *) calloc(1,
@@ -122,23 +107,21 @@ init_videoIn(struct vdIn *vd, char *device, int width, int height,
 	break;
     default:
 	printf(" should never arrive exit fatal !!\n");
-	goto error5;
+	goto error4;
 	break;
     }
     if (!vd->framebuffer) {
 	printf("couldn't calloc memory for:vd->framebuffer\n");	
-	goto error6;
+	goto error5;
 	}
     return 0;
 	/*error: clean up allocs*/
-  error6:
-	free(vd->framebuffer);
   error5:
-    free(vd->tmpbuffer);
+	free(vd->framebuffer);
   error4:
-	close(vd->fd);
+    free(vd->tmpbuffer);
   error3:
-    free(vd->pictName);
+	close(vd->fd);
   error2:
     free(vd->status);
   error1:
@@ -324,61 +307,61 @@ int uvcGrab(struct vdIn *vd)
 	goto err;
     }
 
-	/* Capture a single raw frame */
-	if (vd->rawFrameCapture && vd->buf.bytesused > 0) {
-		FILE *frame = NULL;
-		char filename[13];
-		int ret;
+	//~ /* Capture a single raw frame */
+	//~ if (vd->rawFrameCapture && vd->buf.bytesused > 0) {
+		//~ FILE *frame = NULL;
+		//~ char filename[13];
+		//~ int ret;
 
-		/* Disable frame capturing unless we're in frame stream mode */
-		if(vd->rawFrameCapture == 1)
-			vd->rawFrameCapture = 0;
+		//~ /* Disable frame capturing unless we're in frame stream mode */
+		//~ if(vd->rawFrameCapture == 1)
+			//~ vd->rawFrameCapture = 0;
 
-		/* Create a file name and open the file */
-		sprintf(filename, "frame%03u.raw", vd->fileCounter++ % 1000);
-		frame = fopen(filename, "wb");
-		if(frame == NULL) {
-			perror("Unable to open file for raw frame capturing");
-			goto end_capture;
-		}
+		//~ /* Create a file name and open the file */
+		//~ sprintf(filename, "frame%03u.raw", vd->fileCounter++ % 1000);
+		//~ frame = fopen(filename, "wb");
+		//~ if(frame == NULL) {
+			//~ perror("Unable to open file for raw frame capturing");
+			//~ goto end_capture;
+		//~ }
 		
-		/* Write the raw data to the file */
-		ret = fwrite(vd->mem[vd->buf.index], vd->buf.bytesused, 1, frame);
-		if(ret < 1) {
-			perror("Unable to write to file");
-			goto end_capture;
-		}
-		printf("Saved raw frame to %s (%u bytes)\n", filename, vd->buf.bytesused);
-		if(vd->rawFrameCapture == 2) {
-			vd->rfsBytesWritten += vd->buf.bytesused;
-			vd->rfsFramesWritten++;
-		}
+		//~ /* Write the raw data to the file */
+		//~ ret = fwrite(vd->mem[vd->buf.index], vd->buf.bytesused, 1, frame);
+		//~ if(ret < 1) {
+			//~ perror("Unable to write to file");
+			//~ goto end_capture;
+		//~ }
+		//~ printf("Saved raw frame to %s (%u bytes)\n", filename, vd->buf.bytesused);
+		//~ if(vd->rawFrameCapture == 2) {
+			//~ vd->rfsBytesWritten += vd->buf.bytesused;
+			//~ vd->rfsFramesWritten++;
+		//~ }
 
 
-		/* Clean up */
-end_capture:
-		if(frame)
-			fclose(frame);
-	}
+		//~ /* Clean up */
+//~ end_capture:
+		//~ if(frame)
+			//~ fclose(frame);
+	//~ }
 
 	/* Capture raw stream data */
-	if (vd->captureFile && vd->buf.bytesused > 0) {
-		int ret;
-		ret = fwrite(vd->mem[vd->buf.index], vd->buf.bytesused, 1, vd->captureFile);
-		if (ret < 1) {
-			perror("Unable to write raw stream to file");
-			fprintf(stderr, "Stream capturing terminated.\n");
-			fclose(vd->captureFile);
-			vd->captureFile = NULL;
-			vd->framesWritten = 0;
-			vd->bytesWritten = 0;
-		} else {
-			vd->framesWritten++;
-			vd->bytesWritten += vd->buf.bytesused;
-			if (debug)
-				printf("Appended raw frame to stream file (%u bytes)\n", vd->buf.bytesused);
-		}
-	}
+	//~ if (vd->captureFile && vd->buf.bytesused > 0) {
+		//~ int ret;
+		//~ ret = fwrite(vd->mem[vd->buf.index], vd->buf.bytesused, 1, vd->captureFile);
+		//~ if (ret < 1) {
+			//~ perror("Unable to write raw stream to file");
+			//~ fprintf(stderr, "Stream capturing terminated.\n");
+			//~ fclose(vd->captureFile);
+			//~ vd->captureFile = NULL;
+			//~ vd->framesWritten = 0;
+			//~ vd->bytesWritten = 0;
+		//~ } else {
+			//~ vd->framesWritten++;
+			//~ vd->bytesWritten += vd->buf.bytesused;
+			//~ if (debug)
+				//~ printf("Appended raw frame to stream file (%u bytes)\n", vd->buf.bytesused);
+		//~ }
+	//~ }
 
     switch (vd->formatIn) {
     case V4L2_PIX_FMT_MJPEG:
@@ -431,10 +414,10 @@ void close_v4l2(struct vdIn *vd)
     vd->framebuffer = NULL;
     free(vd->videodevice);
     free(vd->status);
-    free(vd->pictName);
+    //free(vd->pictName);
     vd->videodevice = NULL;
     vd->status = NULL;
-    vd->pictName = NULL;
+    //vd->pictName = NULL;
 }
 
 

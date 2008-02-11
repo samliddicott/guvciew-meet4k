@@ -23,11 +23,11 @@ typedef  unsigned int LONG;
 typedef  unsigned int UINT;
 typedef  unsigned short int WORD;
 
-#define VERSION "0.5.4"
+#define VERSION ("0.5.4")
 
 /*portaudio defs*/
 #define SAMPLE_RATE  (0) /* 0 device default*/
-#define FRAMES_PER_BUFFER (4096)
+//#define FRAMES_PER_BUFFER (4096)
 #define NUM_SECONDS     (2) /*allways writes 2 second bloks*/
 /* sound can go for more 2 seconds than video, must clip in post processing*/
 
@@ -78,7 +78,6 @@ typedef unsigned char SAMPLE;
 #define AUTO_EXP 8
 #define MAN_EXP	1
 
-#define NB_BUFFER 4
 #define DHT_SIZE 432
 
 #define DEFAULT_WIDTH 320
@@ -128,21 +127,44 @@ static int stdSampleRates[] = { 0, 8000,  9600, 11025, 12000,
                                    88200, 96000,
                                    -1 }; /* Negative terminated list. */
 
-//~ typedef struct _Pix {
-//~ //unsigned int pixel1;
-//~ //unsigned int pixel2;
-//~ BYTE y;
-//~ BYTE u;
-//~ BYTE v;
-//~ BYTE y1;
-//~ BYTE r;
-//~ BYTE g;
-//~ BYTE b;
-//~ BYTE r1;
-//~ BYTE g1;
-//~ BYTE b1;
-	
-//~ } Pix;
+/*global variables used in guvcview*/
+struct GLOBAL {
+	char *videodevice;
+	char *confPath;
+	char *sndfile; /*temporary snd filename*/
+	char *avifile; /*avi filename passed through argument options with -n */
+	int Capture_time; /*avi capture time passed through argument options with -t */
+	int AVIFormat; /*0-"MJPG"  1-"YUY2" 2-"DIB "(rgb32)*/ 
+	DWORD snd_begintime;/*begin time for audio capture*/
+	DWORD currtime;
+	DWORD lasttime;
+	DWORD AVIstarttime;
+	DWORD AVIstoptime;
+	DWORD framecount;
+	unsigned char frmrate;
+	int Sound_enable; /*Enable Sound by Default*/
+	int Sound_SampRate;
+	int Sound_SampRateInd;
+	int Sound_numInputDev;
+	sndDev Sound_IndexDev[20]; /*up to 20 input devices (should be alocated dinamicly)*/
+	int Sound_DefDev; 
+	int Sound_UseDev;
+	int Sound_NumChan;
+	int Sound_NumChanInd;
+	int fps;
+	int fps_num;
+	int bpp; //current bytes per pixel
+	int hwaccel; //use hardware acceleration
+	int grabmethod;//default mmap(1) or read(0)
+	int width;
+	int height;
+	int winwidth;
+	int winheight;
+	char *mode; /*jpg (default) or yuv*/
+	int format;
+	int formind; /*0-MJPG 1-YUYV*/
+}   __attribute__ ((packed));
+
 
 
 typedef struct tagBITMAPFILEHEADER { 
@@ -184,6 +206,9 @@ typedef struct tagJPGFILEHEADER {
 	BYTE WTN;/*width Thumbnail 0*/
 	BYTE HTN;/*height Thumbnail 0*/	
 } __attribute__ ((packed)) JPGFILEHEADER, *PJPGFILEHEADER;
+
+int initGlobals(struct GLOBAL *global);
+int closeGlobals(struct GLOBAL *global);
 
 int 
 SaveJPG(const char *Filename,int imgsize,BYTE *ImagePix);

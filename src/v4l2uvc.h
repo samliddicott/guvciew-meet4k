@@ -28,9 +28,10 @@
 #include <sys/select.h>
 #include <linux/videodev.h>
 #include <gtk/gtk.h>
-#include "avilib.h"
+
 static int debug = 0;
 
+#define NB_BUFFER 4
 /*
  * Private V4L2 control identifiers from UVC driver.  - this seems to change acording to driver version
  * all other User-class control IDs are defined by V4L2 (videodev.h)
@@ -62,7 +63,7 @@ struct vdIn {
     int fd;
 	char *videodevice;
     char *status;
-    char *pictName;
+    //char *pictName;
     struct v4l2_capability cap;
     struct v4l2_format fmt;
     struct v4l2_buffer buf;
@@ -84,20 +85,20 @@ struct vdIn {
     const char *AVIFName;
     int fps;
 	int fps_num;
-    int getPict;
+    //~ int getPict;
     int capImage;
 	int	Imgtype;/*imgs 0-JPG 1-BMP*/
     const char *ImageFName;
-    int rawFrameCapture;
-    /* raw frame capture */
-    unsigned int fileCounter;
-    /* raw frame stream capture */
-    unsigned int rfsFramesWritten;
-    unsigned int rfsBytesWritten;
-    /* raw stream capture */
-    FILE *captureFile;
-    unsigned int framesWritten;
-    unsigned int bytesWritten;
+    //~ int rawFrameCapture;
+    //~ /* raw frame capture */
+    //~ unsigned int fileCounter;
+    //~ /* raw frame stream capture */
+    //~ unsigned int rfsFramesWritten;
+    //~ unsigned int rfsBytesWritten;
+    //~ /* raw stream capture */
+    //~ FILE *captureFile;
+    //~ unsigned int framesWritten;
+    //~ unsigned int bytesWritten;
 	struct v4l2_streamparm streamparm;
 };
 
