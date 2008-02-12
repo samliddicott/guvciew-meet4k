@@ -645,7 +645,7 @@ input_enum_controls (struct vdIn * device, int * num_controls)
     //~ }
     
     i = V4L2_CID_BASE; /* as defined by V4L2 */
-    while (i <= V4L2_CID_PRIVATE_LAST) {  /* as defined by the UVC driver */
+    while (i <= V4L2_CID_LAST) {  /* as defined by the UVC driver */
         queryctrl.id = i;
         if (ioctl (fd, VIDIOC_QUERYCTRL, &queryctrl) == 0 &&
                 !(queryctrl.flags & V4L2_CTRL_FLAG_DISABLED)) {
@@ -682,8 +682,14 @@ input_enum_controls (struct vdIn * device, int * num_controls)
           //  break;
         //}
         i++;
-       if (i == V4L2_CID_LASTP1)  /* jumps from last V4L2 defined control to first UVC driver defined control */
-       		i = V4L2_CID_PRIVATE_BASE;
+       if (i == V4L2_CID_LASTP1) {  
+/* jumps from last BASE Class control to first Camera Classe control */
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,25)
+		   i = V4L2_CID_PRIVATE_BASE; /* kernel < 2.6.25 */
+#else
+		   i = V4L2_CID_CAMERA_CLASS_BASE;/* kernel >= 2.6.25 */
+#endif
+ 	   }
     }
 
     *num_controls = n;

@@ -28,10 +28,19 @@
 #include <sys/select.h>
 #include <linux/videodev.h>
 #include <gtk/gtk.h>
+#include <linux/version.h>
 
 static int debug = 0;
 
 #define NB_BUFFER 4
+
+#ifndef __KERNEL__
+#ifndef __user
+#define __user
+#endif
+#endif
+
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,25)
 /*
  * Private V4L2 control identifiers from UVC driver.  - this seems to change acording to driver version
  * all other User-class control IDs are defined by V4L2 (videodev.h)
@@ -56,7 +65,15 @@ static int debug = 0;
 #define V4L2_CID_WHITE_BALANCE_TEMPERATURE_AUTO	(V4L2_CID_PRIVATE_BASE+12)
 #define V4L2_CID_WHITE_BALANCE_TEMPERATURE	(V4L2_CID_PRIVATE_BASE+13)
 
-#define V4L2_CID_PRIVATE_LAST			V4L2_CID_WHITE_BALANCE_TEMPERATURE
+#define V4L2_CID_LAST			V4L2_CID_WHITE_BALANCE_TEMPERATURE
+
+#else
+/* From kernel 2.6.25 V4L2 defines CAMERA CLASS controls      */
+/* deprecating the use of driver defined PRIVATE CLASS        */ 
+#define V4L2_CID_LAST			V4L2_CID_FOCUS_AUTO 
+#endif
+
+
 
 
 struct vdIn {
