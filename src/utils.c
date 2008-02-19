@@ -240,7 +240,7 @@ static int readtables(int till, int *isDHT)
 	    break;
 
 	case M_DRI:
-	printf("find DRI \n");
+	//printf("find DRI \n");
 	    l = getword();
 	    info.dri = getword();
 	    break;
@@ -1223,6 +1223,7 @@ int initGlobals (struct GLOBAL *global) {
 	snprintf(global->mode, 4, "jpg");
 	global->format = V4L2_PIX_FMT_MJPEG;
 	global->formind = 0; /*0-MJPG 1-YUYV*/
+	global->Frame_Flags = YUV_NOFILT;
 	return (0);
 	
 error:
@@ -1245,6 +1246,130 @@ int closeGlobals(struct GLOBAL *global){
 	return (0);
 }
 
+/*------------------------------- Color space conversions --------------------*/
+/* regular yuv (YUYV) to rgb24*/
+void *
+yuyv2rgb (BYTE *pyuv, BYTE *prgb, int width, int height){
+	int l=0;
+	int SizeYUV=height * width * 2; /* 2 bytes per pixel*/
+	for(l=0;l<SizeYUV;l=l+4) { /*iterate every 4 bytes*/
+		/* b = y0 + 1.772 (u-128) */
+		*prgb++=CLIP(pyuv[l] + 1.772 *( pyuv[l+1]-128)); 
+		/* g = y0 - 0.34414 (u-128) - 0.71414 (v-128)*/
+		*prgb++=CLIP(pyuv[l] - 0.34414 * (pyuv[l+1]-128) -0.71414*(pyuv[l+3]-128));
+		/* r =y0 + 1.402 (v-128) */
+		*prgb++=CLIP(pyuv[l] + 1.402 * (pyuv[l+3]-128));                                                        
+		/* b1 = y1 + 1.772 (u-128) */
+		*prgb++=CLIP(pyuv[l+2] + 1.772*(pyuv[l+1]-128));
+		/* g1 = y1 - 0.34414 (u-128) - 0.71414 (v-128)*/
+		*prgb++=CLIP(pyuv[l+2] - 0.34414 * (pyuv[l+1]-128) -0.71414 * (pyuv[l+3]-128)); 
+		/* r1 =y1 + 1.402 (v-128) */
+		*prgb++=CLIP(pyuv[l+2] + 1.402 * (pyuv[l+3]-128));
+	}
+	
+}
+
+/* yuv (YUYV) to bgr with lines upsidedown */
+/* used for bitmap files (DIB24)           */
+void *
+yuyv2bgr (BYTE *pyuv, BYTE *pbgr, int width, int height){
+
+	int l=0;
+	int k=0;
+	BYTE *preverse;
+	int bytesUsed;
+	int SizeBGR=height * width * 3; /* 3 bytes per pixel*/
+	/* BMP byte order is bgr and the lines start from last to first*/
+	preverse=pbgr+SizeBGR;/*start at the end and decrement*/
+	//printf("preverse addr:%d | pbgr addr:%d | diff:%d\n",preverse,pbgr,preverse-pbgr);
+	for(l=0;l<height;l++) { /*iterate every 1 line*/
+		preverse-=width*3;/*put pointer at begin of unprocessed line*/
+		bytesUsed=l*width*2;
+		for (k=0;k<((width)*2);k=k+4)/*iterate every 4 bytes in the line*/
+		{                              
+		/* b = y0 + 1.772 (u-128) */
+		*preverse++=CLIP(pyuv[k+bytesUsed] + 1.772 *( pyuv[k+1+bytesUsed]-128)); 
+		/* g = y0 - 0.34414 (u-128) - 0.71414 (v-128)*/
+		*preverse++=CLIP(pyuv[k+bytesUsed] - 0.34414 * (pyuv[k+1+bytesUsed]-128) -0.71414*(pyuv[k+3+bytesUsed]-128));
+		/* r =y0 + 1.402 (v-128) */
+		*preverse++=CLIP(pyuv[k+bytesUsed] + 1.402 * (pyuv[k+3+bytesUsed]-128));                                                        
+		/* b1 = y1 + 1.772 (u-128) */
+		*preverse++=CLIP(pyuv[k+2+bytesUsed] + 1.772*(pyuv[k+1+bytesUsed]-128));
+		/* g1 = y1 - 0.34414 (u-128) - 0.71414 (v-128)*/
+		*preverse++=CLIP(pyuv[k+2+bytesUsed] - 0.34414 * (pyuv[k+1+bytesUsed]-128) -0.71414 * (pyuv[k+3+bytesUsed]-128)); 
+		/* r1 =y1 + 1.402 (v-128) */
+		*preverse++=CLIP(pyuv[k+2+bytesUsed] + 1.402 * (pyuv[k+3+bytesUsed]-128));
+		}
+		preverse-=width*3;/*get it back at the begin of processed line*/
+	}
+	//printf("preverse addr:%d | pbgr addr:%d | diff:%d\n",preverse,pbgr,preverse-pbgr);
+	preverse=NULL;
+
+}
+/*-------------------------------- YUV Filters -------------------------------*/
+/* Flip YUYV frame horizontal*/
+void *
+yuyv_mirror (BYTE *frame, int width, int height){
+	
+	int h=0;
+	int w=0;
+	int sizeline = width*2; /* 2 bytes per pixel*/ 
+	BYTE *pframe;
+	pframe=frame;
+	BYTE line[sizeline-1];/*line buffer*/
+    	for (h=0; h < height; h++) { /*line iterator*/
+        	for(w=sizeline-1; w > 0; w = w - 4) { /* pixel iterator */
+            	line[w-1]=*pframe++;
+	    		line[w-2]=*pframe++;
+	    		line[w-3]=*pframe++;
+	    		line[w]=*pframe++;
+			// int last = h + (width - 1 - 2*w)*4;
+        		//memcpy(frame + h, frame + last, 4);
+		}
+        	memcpy(frame+(h*sizeline), line, sizeline); /*copy reversed line to frame buffer*/           
+    }
+	
+}
+
+
+void negative(BYTE* frame, int size)
+{
+	int i=0;
+    for(i=0; i < size; i++)
+        frame[i] = ~frame[i];     
+}
+
+void *
+yuyv_upturn(BYTE* frame, int width, int height)
+{   
+	int h=0;
+	int sizeline = width*2; /* 2 bytes per pixel*/ 
+	BYTE *pframe;
+	pframe=frame;
+	BYTE line1[sizeline-1];/*line1 buffer*/
+	BYTE line2[sizeline-1];/*line2 buffer*/
+    for (h=0; h < height/2; h++) { /*line iterator*/	
+       	memcpy(line1,frame+h*sizeline,sizeline);
+		memcpy(line2,frame+(height-1-h)*sizeline,sizeline);
+			
+		memcpy(frame+h*sizeline, line2, sizeline);
+		memcpy(frame+(height-1-h)*sizeline, line1, sizeline);
+	}      
+}
+
+
+void monochrome(unsigned char* frame, int size) {
+    int i=0;
+	int mean=0;
+	for(i=0; i < size; i = i + 3) {
+        mean = (frame[i] + frame[i+1] + frame[i+2])/3;
+        frame[i]=frame[i+1]=frame[i+2]=mean;        
+    
+    }
+}
+
+
+/*----------------------------------- Image Files ----------------------------*/ 
 int 
 SaveJPG(const char *Filename,int imgsize,BYTE *ImagePix) {
 int ret=0;

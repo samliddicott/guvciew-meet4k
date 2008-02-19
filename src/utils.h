@@ -23,7 +23,7 @@ typedef  unsigned int LONG;
 typedef  unsigned int UINT;
 typedef  unsigned short int WORD;
 
-#define VERSION ("0.5.4")
+#define VERSION ("0.5.5-0")
 
 /*portaudio defs*/
 #define SAMPLE_RATE  (0) /* 0 device default*/
@@ -110,6 +110,10 @@ typedef unsigned char SAMPLE;
 
 #define CLIP(color) (unsigned char)(((color)>0xFF)?0xff:(((color)<0)?0:(color)))
 
+/*FILTER FLAGS*/
+#define YUV_NOFILT 0x0000
+#define YUV_MIRROR 0x0001
+#define YUV_UPTURN 0x0002
 
 typedef struct _sndDev {
  int id;
@@ -163,6 +167,7 @@ struct GLOBAL {
 	char *mode; /*jpg (default) or yuv*/
 	int format;
 	int formind; /*0-MJPG 1-YUYV*/
+	int Frame_Flags;
 }   __attribute__ ((packed));
 
 
@@ -209,6 +214,23 @@ typedef struct tagJPGFILEHEADER {
 
 int initGlobals(struct GLOBAL *global);
 int closeGlobals(struct GLOBAL *global);
+
+/* regular yuv (YUYV) to rgb24*/
+void *
+yuyv2rgb (BYTE *pyuv, BYTE *prgb, int width, int height);
+
+/* yuv (YUYV) to bgr with lines upsidedown */
+/* used for bitmap files (DIB24)           */
+void *
+yuyv2bgr (BYTE *pyuv, BYTE *pbgr, int width, int height);
+
+/* Flip YUYV frame - horizontal*/
+void *
+yuyv_mirror (BYTE *frame, int width, int height);
+
+/* Flip YUYV frame - vertical*/
+void * 
+yuyv_upturn(BYTE* frame, int width, int height);
 
 int 
 SaveJPG(const char *Filename,int imgsize,BYTE *ImagePix);

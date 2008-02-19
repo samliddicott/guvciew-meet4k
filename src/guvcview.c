@@ -71,6 +71,8 @@ GtkWidget *SndEnable;
 GtkWidget *SndSampleRate;
 GtkWidget *SndDevice;
 GtkWidget *SndNumChan;
+GtkWidget *FiltMirrorEnable;
+GtkWidget *FiltUpturnEnable;
 /*must be called from main loop if capture timer enabled*/
 GtkWidget *CapAVIButt;
 GtkWidget *AVIFNameEntry;
@@ -875,6 +877,24 @@ SndEnable_changed (GtkToggleButton * toggle, VidState * s)
 		}
 }
 
+/* Mirror check box callback */
+static void
+FiltMirrorEnable_changed(GtkToggleButton * toggle, void *data)
+{
+	global->Frame_Flags = gtk_toggle_button_get_active (toggle) ? 
+		        (global->Frame_Flags | YUV_MIRROR) : 
+		            (global->Frame_Flags & ~YUV_MIRROR);
+}
+
+/* Upturn check box callback */
+static void
+FiltUpturnEnable_changed(GtkToggleButton * toggle, void *data)
+{
+	global->Frame_Flags = gtk_toggle_button_get_active (toggle) ? 
+		        (global->Frame_Flags | YUV_UPTURN) : 
+		            (global->Frame_Flags & ~YUV_UPTURN);
+}
+
 /*----------------------------- Capture Image --------------------------------*/
 /*image capture button callback*/
 static void
@@ -1187,66 +1207,7 @@ draw_controls (VidState *s)
     }
 
 }
-/*------------------------------- Color space conversions --------------------*/
-/* regular yuv (YUYV) to rgb24*/
-void *
-yuyv2rgb (BYTE *pyuv, BYTE *prgb){
-	int l=0;
-	int SizeYUV=videoIn->height * videoIn->width * 2; /* 2 bytes per pixel*/
-	for(l=0;l<SizeYUV;l=l+4) { /*iterate every 4 bytes*/
-		/* b = y0 + 1.772 (u-128) */
-		*prgb++=CLIP(pyuv[l] + 1.772 *( pyuv[l+1]-128)); 
-		/* g = y0 - 0.34414 (u-128) - 0.71414 (v-128)*/
-		*prgb++=CLIP(pyuv[l] - 0.34414 * (pyuv[l+1]-128) -0.71414*(pyuv[l+3]-128));
-		/* r =y0 + 1.402 (v-128) */
-		*prgb++=CLIP(pyuv[l] + 1.402 * (pyuv[l+3]-128));                                                        
-		/* b1 = y1 + 1.772 (u-128) */
-		*prgb++=CLIP(pyuv[l+2] + 1.772*(pyuv[l+1]-128));
-		/* g1 = y1 - 0.34414 (u-128) - 0.71414 (v-128)*/
-		*prgb++=CLIP(pyuv[l+2] - 0.34414 * (pyuv[l+1]-128) -0.71414 * (pyuv[l+3]-128)); 
-		/* r1 =y1 + 1.402 (v-128) */
-		*prgb++=CLIP(pyuv[l+2] + 1.402 * (pyuv[l+3]-128));
-	}
-	
-}
 
-/* yuv (YUYV) to bgr with lines upsidedown */
-/* used for bitmap files (DIB24)           */
-void *
-yuyv2bgr (BYTE *pyuv, BYTE *pbgr){
-
-	int l=0;
-	int k=0;
-	BYTE *preverse;
-	int bytesUsed;
-	int SizeBGR=videoIn->height * videoIn->width * 3; /* 3 bytes per pixel*/
-	/* BMP byte order is bgr and the lines start from last to first*/
-	preverse=pbgr+SizeBGR;/*start at the end and decrement*/
-	//printf("preverse addr:%d | pbgr addr:%d | diff:%d\n",preverse,pbgr,preverse-pbgr);
-	for(l=0;l<videoIn->height;l++) { /*iterate every 1 line*/
-		preverse-=videoIn->width*3;/*put pointer at begin of unprocessed line*/
-		bytesUsed=l*videoIn->width*2;
-		for (k=0;k<((videoIn->width)*2);k=k+4)/*iterate every 4 bytes in the line*/
-		{                              
-		/* b = y0 + 1.772 (u-128) */
-		*preverse++=CLIP(pyuv[k+bytesUsed] + 1.772 *( pyuv[k+1+bytesUsed]-128)); 
-		/* g = y0 - 0.34414 (u-128) - 0.71414 (v-128)*/
-		*preverse++=CLIP(pyuv[k+bytesUsed] - 0.34414 * (pyuv[k+1+bytesUsed]-128) -0.71414*(pyuv[k+3+bytesUsed]-128));
-		/* r =y0 + 1.402 (v-128) */
-		*preverse++=CLIP(pyuv[k+bytesUsed] + 1.402 * (pyuv[k+3+bytesUsed]-128));                                                        
-		/* b1 = y1 + 1.772 (u-128) */
-		*preverse++=CLIP(pyuv[k+2+bytesUsed] + 1.772*(pyuv[k+1+bytesUsed]-128));
-		/* g1 = y1 - 0.34414 (u-128) - 0.71414 (v-128)*/
-		*preverse++=CLIP(pyuv[k+2+bytesUsed] - 0.34414 * (pyuv[k+1+bytesUsed]-128) -0.71414 * (pyuv[k+3+bytesUsed]-128)); 
-		/* r1 =y1 + 1.402 (v-128) */
-		*preverse++=CLIP(pyuv[k+2+bytesUsed] + 1.402 * (pyuv[k+3+bytesUsed]-128));
-		}
-		preverse-=videoIn->width*3;/*get it back at the begin of processed line*/
-	}
-	//printf("preverse addr:%d | pbgr addr:%d | diff:%d\n",preverse,pbgr,preverse-pbgr);
-	preverse=NULL;
-
-}
 
 /*-------------------------------- Main Video Loop ---------------------------*/ 
 /* run in a thread (SDL overlay)*/
@@ -1261,6 +1222,21 @@ void *main_loop(void *data)
 		pthread_exit((void *) 2);
 	 }
 	
+	 /*------------------------- Mirror Frame ---------------------------------*/
+	 switch(global->Frame_Flags){
+		case (YUV_NOFILT):
+			 break;
+	 	case (YUV_MIRROR|YUV_UPTURN):
+	  		yuyv_mirror(videoIn->framebuffer,videoIn->width,videoIn->height);
+		 	yuyv_upturn(videoIn->framebuffer,videoIn->width,videoIn->height);
+		 	break;
+	    case (YUV_MIRROR):
+			yuyv_mirror(videoIn->framebuffer,videoIn->width,videoIn->height);
+		 	break;
+		case (YUV_UPTURN):
+			yuyv_upturn(videoIn->framebuffer,videoIn->width,videoIn->height);
+		 	break;
+	 }
 	 /*------------------------- Display Frame --------------------------------*/
 	 SDL_LockYUVOverlay(overlay);
 	 memcpy(p, videoIn->framebuffer,
@@ -1290,7 +1266,7 @@ void *main_loop(void *data)
 					pthread_exit((void *) 3);		
 		  		}
 			}
-			yuyv2bgr(videoIn->framebuffer,pim);
+			yuyv2bgr(videoIn->framebuffer,pim,videoIn->width,videoIn->height);
 
 		    if(SaveBPM(videoIn->ImageFName, videoIn->width, videoIn->height, 24, pim)) {
 			      fprintf (stderr,"Error: Couldn't capture Image to %s \n",
@@ -1309,7 +1285,7 @@ void *main_loop(void *data)
 					pthread_exit((void *) 3);		
 		  		}
 			}
-			 yuyv2rgb(videoIn->framebuffer,pim);
+			 yuyv2rgb(videoIn->framebuffer,pim,videoIn->width,videoIn->height);
 			 write_png(videoIn->ImageFName, videoIn->width, videoIn->height,pim);
 		 }
 	     videoIn->capImage=FALSE;	
@@ -1340,7 +1316,7 @@ void *main_loop(void *data)
 				pthread_exit((void *) 3);
 			  }
 			}
-		    yuyv2bgr(videoIn->framebuffer,pavi); 
+		    yuyv2bgr(videoIn->framebuffer,pavi,videoIn->width,videoIn->height); 
 		    if (AVI_write_frame (AviOut,pavi, framesize) < 0)
 	        	printf ("write error on avi out \n");
 		    break;
@@ -1948,7 +1924,25 @@ int main(int argc, char *argv[])
                     //~ GTK_FILL, 0, 0, 0);
 
     //~ gtk_widget_show (label_SndSampBits);
+	
+	/*----- Filter controls ----*/
+	FiltMirrorEnable=gtk_check_button_new_with_label (" Mirror");
+	gtk_table_attach(GTK_TABLE(table2), FiltMirrorEnable, 0, 1, 11, 12,
+                    GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	
+	gtk_toggle_button_set_active(GTK_CHECK_BUTTON(FiltMirrorEnable),(global->Frame_Flags & YUV_MIRROR)>0);
+	gtk_widget_show (FiltMirrorEnable);
+	g_signal_connect (GTK_CHECK_BUTTON(FiltMirrorEnable), "toggled",
+    	G_CALLBACK (FiltMirrorEnable_changed), NULL);
     
+	FiltUpturnEnable=gtk_check_button_new_with_label (" Upturn");
+	gtk_table_attach(GTK_TABLE(table2), FiltUpturnEnable, 1, 2, 11, 12,
+                    GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	
+	gtk_toggle_button_set_active(GTK_CHECK_BUTTON(FiltUpturnEnable),(global->Frame_Flags & YUV_UPTURN)>0);
+	gtk_widget_show (FiltUpturnEnable);
+	g_signal_connect (GTK_CHECK_BUTTON(FiltUpturnEnable), "toggled",
+    	G_CALLBACK (FiltUpturnEnable_changed), NULL);
 /*------------------------------ SDL init video ---------------------*/
 	pscreen =
 	SDL_SetVideoMode(videoIn->width, videoIn->height, global->bpp,
