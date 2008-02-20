@@ -1332,8 +1332,10 @@ yuyv_mirror (BYTE *frame, int width, int height){
 }
 
 
-void negative(BYTE* frame, int size)
+void *
+yuyv_negative(BYTE* frame, int width, int height)
 {
+	int size=width*height*2;
 	int i=0;
     for(i=0; i < size; i++)
         frame[i] = ~frame[i];     
@@ -1358,13 +1360,15 @@ yuyv_upturn(BYTE* frame, int width, int height)
 }
 
 
-void monochrome(unsigned char* frame, int size) {
-    int i=0;
-	int mean=0;
-	for(i=0; i < size; i = i + 3) {
-        mean = (frame[i] + frame[i+1] + frame[i+2])/3;
-        frame[i]=frame[i+1]=frame[i+2]=mean;        
-    
+void *
+yuyv_monochrome(BYTE* frame, int width, int height) 
+{
+    int size=width*height*2;
+	int i=0;
+	//int mean=0;
+	for(i=0; i < size; i = i + 4) { /* keep Y - luma */
+        frame[i+1]=0x77;/*U - median (half the max value)*/
+        frame[i+3]=0x77;/*V - median (half the max value)*/        
     }
 }
 

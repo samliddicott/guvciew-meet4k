@@ -73,6 +73,8 @@ GtkWidget *SndDevice;
 GtkWidget *SndNumChan;
 GtkWidget *FiltMirrorEnable;
 GtkWidget *FiltUpturnEnable;
+GtkWidget *FiltNegateEnable;
+GtkWidget *FiltMonoEnable;
 /*must be called from main loop if capture timer enabled*/
 GtkWidget *CapAVIButt;
 GtkWidget *AVIFNameEntry;
@@ -658,11 +660,11 @@ check_changed (GtkToggleButton * toggle, VidState * s)
     InputControl * c = s->control + ci->idx;
     int val;
     
-    if (c->id == V4L2_CID_EXPOSURE_AUTO) {
-    val = gtk_toggle_button_get_active (toggle) ? AUTO_EXP : MAN_EXP;
-	} 
-    else val = gtk_toggle_button_get_active (toggle) ? 1 : 0;
-    
+    //~ if (c->id == V4L2_CID_EXPOSURE_AUTO) {
+    //~ val = gtk_toggle_button_get_active (toggle) ? AUTO_EXP : MAN_EXP;
+	//~ } 
+    //~ else val = gtk_toggle_button_get_active (toggle) ? 1 : 0;
+    val = gtk_toggle_button_get_active (toggle) ? 1 : 0;
 	
     if (input_set_control (videoIn, c, val) == 0) {
         printf ("changed to %d\n", val);
@@ -686,15 +688,22 @@ combo_changed (GtkComboBox * combo, VidState * s)
     
     ControlInfo * ci = g_object_get_data (G_OBJECT (combo), "control_info");
     InputControl * c = s->control + ci->idx;
-    int val = gtk_combo_box_get_active (combo);
-    
-	
-    if (input_set_control (videoIn, c, val) == 0) {
-        printf ("changed to %d\n", val);
+    int index = gtk_combo_box_get_active (combo);
+    int val=0;
+		
+	if (c->id == V4L2_CID_EXPOSURE_AUTO) {
+		val=exp_vals[videoIn->available_exp[index]];	
+	} else {	
+		val=index;
+	}
+
+	if (input_set_control (videoIn, c, val) == 0) {
+    	printf ("changed to %d\n", val);
     }
     else {
-        printf ("changed to %d, but set failed\n", val);
+    	printf ("changed to %d, but set failed\n", val);
     }
+	
     if (input_get_control (videoIn, c, &val) == 0) {
         printf ("hardware value is %d\n", val);
     }
@@ -895,6 +904,24 @@ FiltUpturnEnable_changed(GtkToggleButton * toggle, void *data)
 		            (global->Frame_Flags & ~YUV_UPTURN);
 }
 
+/* Negate check box callback */
+static void
+FiltNegateEnable_changed(GtkToggleButton * toggle, void *data)
+{
+	global->Frame_Flags = gtk_toggle_button_get_active (toggle) ? 
+		        (global->Frame_Flags | YUV_NEGATE) : 
+		            (global->Frame_Flags & ~YUV_NEGATE);
+}
+
+/* Upturn check box callback */
+static void
+FiltMonoEnable_changed(GtkToggleButton * toggle, void *data)
+{
+	global->Frame_Flags = gtk_toggle_button_get_active (toggle) ? 
+		        (global->Frame_Flags | YUV_MONOCR) : 
+		            (global->Frame_Flags & ~YUV_MONOCR);
+}
+
 /*----------------------------- Capture Image --------------------------------*/
 /*image capture button callback*/
 static void
@@ -1059,31 +1086,93 @@ draw_controls (VidState *s)
         ci->labelval = NULL;
         
         if (c->id == V4L2_CID_EXPOSURE_AUTO) {
-            int val;
-            ci->widget = gtk_check_button_new_with_label (c->name);
-            g_object_set_data (G_OBJECT (ci->widget), "control_info", ci);
-            gtk_widget_show (ci->widget);
-            gtk_table_attach (GTK_TABLE (s->table), ci->widget, 1, 3, 3+i, 4+i,
-                    GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+            //~ int val;
+            //~ ci->widget = gtk_check_button_new_with_label (c->name);
+            //~ g_object_set_data (G_OBJECT (ci->widget), "control_info", ci);
+            //~ gtk_widget_show (ci->widget);
+            //~ gtk_table_attach (GTK_TABLE (s->table), ci->widget, 1, 3, 3+i, 4+i,
+                    //~ GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 			
 
-            if (input_get_control (videoIn, c, &val) == 0) {
-                gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (ci->widget),
-                        val==AUTO_EXP ? TRUE : FALSE);
+            //~ if (input_get_control (videoIn, c, &val) == 0) {
+                //~ gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (ci->widget),
+                        //~ val==AUTO_EXP ? TRUE : FALSE);
+            //~ }
+            //~ else {
+                //~ gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (ci->widget),
+                        //~ c->default_val==AUTO_EXP ? TRUE : FALSE);
+                //~ gtk_widget_set_sensitive (ci->widget, FALSE);
+            //~ }
+
+            //~ if (!c->enabled) {
+                //~ gtk_widget_set_sensitive (ci->widget, FALSE);
+            //~ }
+            
+            //~ g_signal_connect (G_OBJECT (ci->widget), "toggled",
+                    //~ G_CALLBACK (check_changed), s);
+			int j=0;
+			int val=0;
+			/* test available modes */
+			int def=0;
+			input_get_control (videoIn, c, &def);/*get stored value*/
+
+			for (j=0;j<4;j++) {
+				if (input_set_control (videoIn, c, exp_vals[j]) == 0) {
+    				videoIn->available_exp[val]=j;/*store index to values*/
+					val++;
+    			}
+			}
+			input_set_control (videoIn, c, def);/*set back to stored*/
+			
+			ci->widget = gtk_combo_box_new_text ();
+            for (j = 0; j <val; j++) {
+                gtk_combo_box_append_text (GTK_COMBO_BOX (ci->widget), 
+										   exp_typ[videoIn->available_exp[j]]);
+				if (def==exp_vals[videoIn->available_exp[j]]){
+					gtk_combo_box_set_active (GTK_COMBO_BOX (ci->widget), j);
+				}
             }
-            else {
-                gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (ci->widget),
-                        c->default_val==AUTO_EXP ? TRUE : FALSE);
-                gtk_widget_set_sensitive (ci->widget, FALSE);
-            }
+
+            gtk_table_attach (GTK_TABLE (s->table), ci->widget, 1, 2, 3+i, 4+i,
+                    GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+            g_object_set_data (G_OBJECT (ci->widget), "control_info", ci);
+            gtk_widget_show (ci->widget);
+
+            //~ if (input_get_control (videoIn, c, &val) == 0) {
+				switch(val){
+                	case (V4L2_EXPOSURE_MANUAL):
+						j=0;
+						break;
+					case (V4L2_EXPOSURE_AUTO):
+						j=1;
+						break;
+					case (V4L2_EXPOSURE_SHUTTER_PRIORITY):
+						j=2;
+						break;
+					case (V4L2_EXPOSURE_APERTURE_PRIORITY):
+						j=3;
+						break;
+					default :
+						j=1;
+				}
+				//~ for (j = 0; j <4; j++) {
+					//~ if (exp_vals[j]==val) break;
+				//~ }
+				//~ gtk_combo_box_set_active (GTK_COMBO_BOX (ci->widget), j);
+            //~ }
+            //~ else {
+                //~ gtk_combo_box_set_active (GTK_COMBO_BOX (ci->widget), c->default_val);
+                //~ gtk_widget_set_sensitive (ci->widget, FALSE);
+            //~ }
 
             if (!c->enabled) {
                 gtk_widget_set_sensitive (ci->widget, FALSE);
             }
             
-            g_signal_connect (G_OBJECT (ci->widget), "toggled",
-                    G_CALLBACK (check_changed), s);
-			
+            g_signal_connect (G_OBJECT (ci->widget), "changed",
+                    G_CALLBACK (combo_changed), s);
+
+            ci->label = gtk_label_new ("Exposure:");	
 	        
 	    } else if (c->type == INPUT_CONTROL_TYPE_INTEGER) {
             PangoFontDescription * desc;
@@ -1222,20 +1311,16 @@ void *main_loop(void *data)
 		pthread_exit((void *) 2);
 	 }
 	
-	 /*------------------------- Mirror Frame ---------------------------------*/
-	 switch(global->Frame_Flags){
-		case (YUV_NOFILT):
-			 break;
-	 	case (YUV_MIRROR|YUV_UPTURN):
-	  		yuyv_mirror(videoIn->framebuffer,videoIn->width,videoIn->height);
+	 /*------------------------- Filter Frame ---------------------------------*/
+	 if(global->Frame_Flags>0){
+		if((global->Frame_Flags & YUV_MIRROR)==YUV_MIRROR)
+	 		yuyv_mirror(videoIn->framebuffer,videoIn->width,videoIn->height);
+		if((global->Frame_Flags & YUV_UPTURN)==YUV_UPTURN)
 		 	yuyv_upturn(videoIn->framebuffer,videoIn->width,videoIn->height);
-		 	break;
-	    case (YUV_MIRROR):
-			yuyv_mirror(videoIn->framebuffer,videoIn->width,videoIn->height);
-		 	break;
-		case (YUV_UPTURN):
-			yuyv_upturn(videoIn->framebuffer,videoIn->width,videoIn->height);
-		 	break;
+		if((global->Frame_Flags & YUV_NEGATE)==YUV_NEGATE)
+		 	yuyv_negative (videoIn->framebuffer,videoIn->width,videoIn->height);
+		if((global->Frame_Flags & YUV_MONOCR)==YUV_MONOCR)
+			 yuyv_monochrome (videoIn->framebuffer,videoIn->width,videoIn->height);
 	 }
 	 /*------------------------- Display Frame --------------------------------*/
 	 SDL_LockYUVOverlay(overlay);
@@ -1926,23 +2011,42 @@ int main(int argc, char *argv[])
     //~ gtk_widget_show (label_SndSampBits);
 	
 	/*----- Filter controls ----*/
+	/* Mirror */
 	FiltMirrorEnable=gtk_check_button_new_with_label (" Mirror");
-	gtk_table_attach(GTK_TABLE(table2), FiltMirrorEnable, 0, 1, 11, 12,
+	gtk_table_attach(GTK_TABLE(table2), FiltMirrorEnable, 0, 1, 12, 13,
                     GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	
 	gtk_toggle_button_set_active(GTK_CHECK_BUTTON(FiltMirrorEnable),(global->Frame_Flags & YUV_MIRROR)>0);
 	gtk_widget_show (FiltMirrorEnable);
 	g_signal_connect (GTK_CHECK_BUTTON(FiltMirrorEnable), "toggled",
     	G_CALLBACK (FiltMirrorEnable_changed), NULL);
-    
+    /*Upturn*/
 	FiltUpturnEnable=gtk_check_button_new_with_label (" Upturn");
-	gtk_table_attach(GTK_TABLE(table2), FiltUpturnEnable, 1, 2, 11, 12,
+	gtk_table_attach(GTK_TABLE(table2), FiltUpturnEnable, 1, 2, 12, 13,
                     GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	
 	gtk_toggle_button_set_active(GTK_CHECK_BUTTON(FiltUpturnEnable),(global->Frame_Flags & YUV_UPTURN)>0);
 	gtk_widget_show (FiltUpturnEnable);
 	g_signal_connect (GTK_CHECK_BUTTON(FiltUpturnEnable), "toggled",
     	G_CALLBACK (FiltUpturnEnable_changed), NULL);
+	/*Negate*/
+	FiltNegateEnable=gtk_check_button_new_with_label (" Negate");
+	gtk_table_attach(GTK_TABLE(table2), FiltNegateEnable, 2, 3, 12, 13,
+                    GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	
+	gtk_toggle_button_set_active(GTK_CHECK_BUTTON(FiltNegateEnable),(global->Frame_Flags & YUV_NEGATE)>0);
+	gtk_widget_show (FiltNegateEnable);
+	g_signal_connect (GTK_CHECK_BUTTON(FiltNegateEnable), "toggled",
+    	G_CALLBACK (FiltNegateEnable_changed), NULL);
+	/*Mono*/
+	FiltMonoEnable=gtk_check_button_new_with_label (" Mono");
+	gtk_table_attach(GTK_TABLE(table2), FiltMonoEnable, 0, 1, 13, 14,
+                    GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	
+	gtk_toggle_button_set_active(GTK_CHECK_BUTTON(FiltMonoEnable),(global->Frame_Flags & YUV_MONOCR)>0);
+	gtk_widget_show (FiltMonoEnable);
+	g_signal_connect (GTK_CHECK_BUTTON(FiltMonoEnable), "toggled",
+    	G_CALLBACK (FiltMonoEnable_changed), NULL);
 /*------------------------------ SDL init video ---------------------*/
 	pscreen =
 	SDL_SetVideoMode(videoIn->width, videoIn->height, global->bpp,

@@ -82,6 +82,11 @@ init_videoIn(struct vdIn *vd, char *device, int width, int height,
 	vd->timecode.type = V4L2_TC_TYPE_25FPS;
 	vd->timecode.flags = V4L2_TC_FLAG_DROPFRAME;
 	
+	vd->available_exp[0]=-1;
+	vd->available_exp[1]=-1;
+	vd->available_exp[2]=-1;
+	vd->available_exp[3]=-1;
+	
     if (init_v4l2(vd) < 0) {
 	printf(" Init v4L2 failed !! exit fatal \n");
 	goto error2;
@@ -645,7 +650,7 @@ input_enum_controls (struct vdIn * device, int * num_controls)
     //~ }
     
     i = V4L2_CID_BASE; /* as defined by V4L2 */
-    while (i <= V4L2_CID_LAST) {  /* as defined by the UVC driver */
+    while (i <= V4L2_CID_PRIVATE_LAST) {  /* as defined by the UVC driver */
         queryctrl.id = i;
         if (ioctl (fd, VIDIOC_QUERYCTRL, &queryctrl) == 0 &&
                 !(queryctrl.flags & V4L2_CTRL_FLAG_DISABLED)) {
@@ -682,14 +687,8 @@ input_enum_controls (struct vdIn * device, int * num_controls)
           //  break;
         //}
         i++;
-       if (i == V4L2_CID_LASTP1) {  
-/* jumps from last BASE Class control to first Camera Classe control */
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,25)
-		   i = V4L2_CID_PRIVATE_BASE; /* kernel < 2.6.25 */
-#else
-		   i = V4L2_CID_CAMERA_CLASS_BASE;/* kernel >= 2.6.25 */
-#endif
- 	   }
+       if (i == V4L2_CID_LASTP1)  /* jumps from last V4L2 defined control to first UVC driver defined control */
+       		i = V4L2_CID_PRIVATE_BASE;
     }
 
     *num_controls = n;

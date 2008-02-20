@@ -114,6 +114,8 @@ typedef unsigned char SAMPLE;
 #define YUV_NOFILT 0x0000
 #define YUV_MIRROR 0x0001
 #define YUV_UPTURN 0x0002
+#define YUV_NEGATE 0x0004
+#define YUV_MONOCR 0x0008
 
 typedef struct _sndDev {
  int id;
@@ -231,6 +233,13 @@ yuyv_mirror (BYTE *frame, int width, int height);
 /* Flip YUYV frame - vertical*/
 void * 
 yuyv_upturn(BYTE* frame, int width, int height);
+
+void *
+yuyv_negative(BYTE* frame, int width, int height);
+
+void *
+yuyv_monochrome(BYTE* frame, int width, int height);
+
 
 int 
 SaveJPG(const char *Filename,int imgsize,BYTE *ImagePix);
