@@ -48,7 +48,7 @@
 #include "v4l2uvc.h"
 #include "avilib.h"
 
-
+#include "prototype.h"
 
 /*----------------------------- globals --------------------------------------*/
 struct GLOBAL *global=NULL;
