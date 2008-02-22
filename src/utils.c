@@ -31,6 +31,7 @@
 #include <limits.h>
 #include "huffman.h"
 #include <png.h>
+#include "config.h"
 
 #define ISHIFT 11
 
@@ -1224,6 +1225,11 @@ int initGlobals (struct GLOBAL *global) {
 	global->format = V4L2_PIX_FMT_MJPEG;
 	global->formind = 0; /*0-MJPG 1-YUYV*/
 	global->Frame_Flags = YUV_NOFILT;
+	global->jpeg=NULL;
+	global->jpeg_format=FOUR_TWO_TWO;
+   	global->jpeg_size = 0;
+	global->jpeg_quality = 80;
+	global->jpeg_bufsize = 256*1024; /* 256 kBytes */
 	return (0);
 	
 error:
@@ -1242,6 +1248,8 @@ int closeGlobals(struct GLOBAL *global){
 	global->sndfile=NULL;
 	global->avifile=NULL;
 	global->mode=NULL;
+	if(global->jpeg) free (global->jpeg);
+	global->jpeg=NULL;
 	free(global);
 	return (0);
 }
@@ -1458,6 +1466,21 @@ if((jpgtmp=malloc(jpgsize))!=NULL) {
 return ret;
 }
 
+
+int 
+SaveBuff(const char *Filename,int imgsize,BYTE *data) {
+	FILE *fp;
+	int ret = 0;
+	if ((fp = fopen(Filename,"wb"))!=NULL) {
+	
+		fwrite(data,imgsize,1,fp);/*jpeg - jfif*/
+		
+		fclose(fp);
+	} else {
+		ret = 1;
+	}
+	return (ret);
+}
 
 int 
 SaveBPM(const char *Filename, long width, long height, int BitCount, BYTE *ImagePix) {

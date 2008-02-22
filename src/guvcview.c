@@ -1334,8 +1334,16 @@ void *main_loop(void *data)
 	 if (videoIn->capImage){
 		 switch(videoIn->Imgtype) {
 		 case 0:/*jpg*/
-			if(SaveJPG(videoIn->ImageFName,videoIn->buf.bytesused,
-					                       videoIn->tmpbuffer)) {
+			if (!global->jpeg){ global->jpeg = (BYTE*)malloc(global->jpeg_bufsize);} 
+			BYTE *jpg_tmp = global->jpeg;
+			jpg_tmp = encode_image(videoIn->framebuffer, jpg_tmp, 
+								global->jpeg_quality, global->jpeg_format,1,
+								videoIn->width, videoIn->height);
+			global->jpeg_size= jpg_tmp - global->jpeg;
+			jpg_tmp=NULL;
+			 
+			if(SaveBuff(videoIn->ImageFName,global->jpeg_size,global->jpeg)) { 
+			//~if(SaveJPG(videoIn->ImageFName,videoIn->buf.bytesused,videoIn->tmpbuffer)) {
 	             fprintf (stderr,"Error: Couldn't capture Image to %s \n",
 			     videoIn->ImageFName);		
 			} else {
@@ -1382,9 +1390,18 @@ void *main_loop(void *data)
 	   switch (global->AVIFormat) {
 		   
 		case 0: /*MJPG*/
+			  if (!global->jpeg){ global->jpeg = (BYTE*)malloc(global->jpeg_bufsize);} 
+			   BYTE *jpg_tmp = global->jpeg;
+			   jpg_tmp = encode_image(videoIn->framebuffer, jpg_tmp, 
+								global->jpeg_quality, global->jpeg_format,0,
+								videoIn->width, videoIn->height);
+			   global->jpeg_size= jpg_tmp - global->jpeg;
+			   jpg_tmp=NULL;
+		   
 			   if (AVI_write_frame (AviOut,
-			       videoIn->tmpbuffer, videoIn->buf.bytesused) < 0)
-	                printf ("write error on avi out \n");
+			       global->jpeg, global->jpeg_size) < 0)
+			       //~ videoIn->tmpbuffer, videoIn->buf.bytesused) < 0)
+				printf ("write error on avi out \n");
 			 break;
 		case 1:
 	  	   framesize=(pscreen->w)*(pscreen->h)*2; /*YUY2 -> 2 bytes per pixel */

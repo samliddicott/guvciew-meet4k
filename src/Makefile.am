@@ -7,7 +7,7 @@ INCLUDES = \
 	-DPACKAGE_LOCALE_DIR=\""$(prefix)/$(DATADIRNAME)/locale"\" \
 	-DPACKAGE_SRC_DIR=\""$(srcdir)"\" \
 	-DPACKAGE_DATA_DIR=\""$(datadir)"\" \
-	$(PACKAGE_CFLAGS)
+	$(PACKAGE_CFLAGS)  $(JPEG_CFLAGS)
 
 AM_CFLAGS =\
 	 -Wall\
@@ -24,7 +24,20 @@ guvcview_SOURCES = \
 	utils.c                  \
 	utils.h                  \
 	v4l2uvc.c                  \
-	v4l2uvc.h 
+	v4l2uvc.h                  \
+	datatype.h	\
+	config.h	\
+	dct.c	\
+	encoder.c	\
+	huffdata.h	\
+	huffman.c	\
+	jdatatype.h	\
+	markdata.h	\
+	marker.c	\
+	prototype.h	\
+	quant.c	\
+	quantdata.h	\
+	readYUV.c	
 
 guvcview_LDFLAGS = 
 

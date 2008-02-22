@@ -170,6 +170,11 @@ struct GLOBAL {
 	int format;
 	int formind; /*0-MJPG 1-YUYV*/
 	int Frame_Flags;
+	BYTE *jpeg;
+	int jpeg_format;
+	int   jpeg_size;
+	int   jpeg_quality;
+	int   jpeg_bufsize; /* 256 kBytes */
 }   __attribute__ ((packed));
 
 
@@ -240,9 +245,11 @@ yuyv_negative(BYTE* frame, int width, int height);
 void *
 yuyv_monochrome(BYTE* frame, int width, int height);
 
-
 int 
 SaveJPG(const char *Filename,int imgsize,BYTE *ImagePix);
+
+int 
+SaveBuff(const char *Filename,int imgsize,BYTE *data);
 //~ int 
 //~ get_picture(unsigned char *buf,int size);
 
