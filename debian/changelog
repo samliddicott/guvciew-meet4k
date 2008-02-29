@@ -1,14 +1,8 @@
-guvcview (0.5.4) unstable; urgency=low
+guvcview (0.6.0) unstable; urgency=low
 
-  * Adds [-t seconds] and [-n filename.avi] command line options - timer used
-    with -n will capture filename.avi for specified number of seconds
-  * Stores avi and sound options to rc file. The options will be remembered in
-    the next session.
-  * Moved global variables to global structure. Allows bether cleanup. 
-  * Increased audio input buffer - will avoid droping frames in the begining
-    of capture in slower machines.
-  * Improved sync system for video-audio.
-  * Cleanup of some non-used variables. 
-
+   * Added image filters
+   * Added built-in jpeg encoder (allows jpeg and MJPG compression with
+     filters and in yuv mode)
+   * Changed Exposure settings to comboBox (compatibility with V4L2)
  -- Paulo Assis <pj.assis@gmail.com>  Wed, 09 Jan 2008 19:07:18 +0000
 
