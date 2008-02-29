@@ -1512,6 +1512,8 @@ int main(int argc, char *argv[])
 	GtkWidget *label_SndSampRate;
 	GtkWidget *label_SndDevice;
 	GtkWidget *label_SndNumChan;
+	GtkWidget *label_videoFilters;
+	GtkWidget *table3;
 	
 	if ((s = malloc (sizeof (VidState)))==NULL){
 		printf("couldn't allocate memory for: s\n");
@@ -2001,9 +2003,26 @@ int main(int argc, char *argv[])
 	printf("SampleRate:%d Channels:%d\n",global->Sound_SampRate,global->Sound_NumChan);
 	
 	/*----- Filter controls ----*/
+	
+	label_videoFilters = gtk_label_new("---- Video Filters ----");
+	gtk_misc_set_alignment (GTK_MISC (label_videoFilters), 0.5, 0.5);
+
+    gtk_table_attach (GTK_TABLE(table2), label_videoFilters, 0, 3, 11, 12,
+                    GTK_FILL, 0, 0, 0);
+
+    gtk_widget_show (label_videoFilters);
+	
+	table3 = gtk_table_new(1,4,FALSE);
+	gtk_table_set_row_spacings (GTK_TABLE (table3), 10);
+    gtk_table_set_col_spacings (GTK_TABLE (table3), 10);
+    gtk_container_set_border_width (GTK_CONTAINER (table3), 10);
+    gtk_widget_set_size_request (table3, -1, -1);
+	
+	
+	
 	/* Mirror */
 	FiltMirrorEnable=gtk_check_button_new_with_label (" Mirror");
-	gtk_table_attach(GTK_TABLE(table2), FiltMirrorEnable, 0, 1, 12, 13,
+	gtk_table_attach(GTK_TABLE(table3), FiltMirrorEnable, 0, 1, 0, 1,
                     GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	
 	gtk_toggle_button_set_active(GTK_CHECK_BUTTON(FiltMirrorEnable),(global->Frame_Flags & YUV_MIRROR)>0);
@@ -2012,7 +2031,7 @@ int main(int argc, char *argv[])
     	G_CALLBACK (FiltMirrorEnable_changed), NULL);
     /*Upturn*/
 	FiltUpturnEnable=gtk_check_button_new_with_label (" Upturn");
-	gtk_table_attach(GTK_TABLE(table2), FiltUpturnEnable, 1, 2, 12, 13,
+	gtk_table_attach(GTK_TABLE(table3), FiltUpturnEnable, 1, 2, 0, 1,
                     GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	
 	gtk_toggle_button_set_active(GTK_CHECK_BUTTON(FiltUpturnEnable),(global->Frame_Flags & YUV_UPTURN)>0);
@@ -2021,7 +2040,7 @@ int main(int argc, char *argv[])
     	G_CALLBACK (FiltUpturnEnable_changed), NULL);
 	/*Negate*/
 	FiltNegateEnable=gtk_check_button_new_with_label (" Negate");
-	gtk_table_attach(GTK_TABLE(table2), FiltNegateEnable, 2, 3, 12, 13,
+	gtk_table_attach(GTK_TABLE(table3), FiltNegateEnable, 2, 3, 0, 1,
                     GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	
 	gtk_toggle_button_set_active(GTK_CHECK_BUTTON(FiltNegateEnable),(global->Frame_Flags & YUV_NEGATE)>0);
@@ -2030,13 +2049,19 @@ int main(int argc, char *argv[])
     	G_CALLBACK (FiltNegateEnable_changed), NULL);
 	/*Mono*/
 	FiltMonoEnable=gtk_check_button_new_with_label (" Mono");
-	gtk_table_attach(GTK_TABLE(table2), FiltMonoEnable, 0, 1, 13, 14,
+	gtk_table_attach(GTK_TABLE(table3), FiltMonoEnable, 3, 4, 0, 1,
                     GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	
 	gtk_toggle_button_set_active(GTK_CHECK_BUTTON(FiltMonoEnable),(global->Frame_Flags & YUV_MONOCR)>0);
 	gtk_widget_show (FiltMonoEnable);
 	g_signal_connect (GTK_CHECK_BUTTON(FiltMonoEnable), "toggled",
     	G_CALLBACK (FiltMonoEnable_changed), NULL);
+	
+	gtk_table_attach (GTK_TABLE(table2), table3, 0, 3, 12, 13,
+                    GTK_FILL, 0, 0, 0);
+
+    gtk_widget_show (table3);
+	
 /*------------------------------ SDL init video ---------------------*/
 	pscreen =
 	SDL_SetVideoMode(videoIn->width, videoIn->height, global->bpp,
