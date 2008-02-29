@@ -26,17 +26,14 @@ guvcview_SOURCES = \
 	v4l2uvc.c                  \
 	v4l2uvc.h                  \
 	datatype.h	\
-	config.h	\
 	dct.c	\
 	encoder.c	\
 	huffdata.h	\
 	huffman.c	\
 	jdatatype.h	\
-	markdata.h	\
 	marker.c	\
 	prototype.h	\
 	quant.c	\
-	quantdata.h	\
 	readYUV.c	
 
 guvcview_LDFLAGS = 

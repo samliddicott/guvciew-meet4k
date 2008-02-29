@@ -1,10 +1,9 @@
-//#include "datatype.h"
-#include "config.h"
-#include "markdata.h"
+#include "huffman.h"
+#include "prototype.h"
 
 // Header for JPEG Encoder
 
-UINT8* write_markers (UINT8 *output_ptr, UINT32 image_format,int huff, UINT32 image_width, UINT32 image_height)
+UINT8* write_markers (struct JPEG_ENCODER_STRUCTURE * jpeg_encoder_structure, UINT8 *output_ptr,int huff, UINT32 image_width, UINT32 image_height)
 {
 	UINT16 i, header_length;
 	UINT8 number_of_components;
@@ -36,7 +35,7 @@ UINT8* write_markers (UINT8 *output_ptr, UINT32 image_format,int huff, UINT32 im
 	}
 	// version
 	*output_ptr++= 0x01;
-	*output_ptr++= 0x01;
+	*output_ptr++= 0x02;
 	// density 0- no units 1- pix per inch 2- pix per mm
 	*output_ptr++= 0x01;
 	// xdensity - 120
@@ -64,7 +63,7 @@ UINT8* write_markers (UINT8 *output_ptr, UINT32 image_format,int huff, UINT32 im
 
 	// Lqt table
 	for (i=0; i<64; i++)
-		*output_ptr++ = Lqt [i];
+		*output_ptr++ = jpeg_encoder_structure->Lqt [i];
 
 	// Quantization table marker
 	*output_ptr++ = 0xFF;
@@ -79,21 +78,21 @@ UINT8* write_markers (UINT8 *output_ptr, UINT32 image_format,int huff, UINT32 im
 
 	// Cqt table
 	for (i=0; i<64; i++)
-		*output_ptr++ = Cqt [i];
+		*output_ptr++ = jpeg_encoder_structure->Cqt [i];
 
 	if (huff) {
 		// huffman table(DHT)
-		for (i=0; i<210; i++)
-		{
-			*output_ptr++ = (UINT8) (markerdata [i] >> 8);
-			*output_ptr++ = (UINT8) markerdata [i];
-		}
+		
+		*output_ptr++=0xff;
+		*output_ptr++=0xc4;
+		*output_ptr++=0x01;
+		*output_ptr++=0xa2;
+		memmove(output_ptr,&JPEGHuffmanTable,JPG_HUFFMAN_TABLE_LENGTH);/*0x01a0*/
+		output_ptr+=JPG_HUFFMAN_TABLE_LENGTH;
+		
 	}
 
-	if (image_format == FOUR_ZERO_ZERO)
-		number_of_components = 1;
-	else
-		number_of_components = 3;
+	number_of_components = 3;
 
 	// Frame header(SOF)
 
@@ -108,7 +107,7 @@ UINT8* write_markers (UINT8 *output_ptr, UINT32 image_format,int huff, UINT32 im
 	*output_ptr++ = (UINT8) header_length;
 
 	// Precision (P)
-	*output_ptr++ = 0x08;
+	*output_ptr++ = 0x08;/*8 bits*/
 
 	// image height
 	*output_ptr++ = (UINT8) (image_height >> 8);
@@ -121,33 +120,20 @@ UINT8* write_markers (UINT8 *output_ptr, UINT32 image_format,int huff, UINT32 im
 	// Nf
 	*output_ptr++ = number_of_components;
 
-	if (image_format == FOUR_ZERO_ZERO)
-	{
-		*output_ptr++ = 0x01;
-		*output_ptr++ = 0x11;
-		*output_ptr++ = 0x00;
-	}
-	else
-	{
-		*output_ptr++ = 0x01;
+	/* type 422*/
+	*output_ptr++ = 0x01;
+	*output_ptr++ = 0x21;
+	
 
-		if (image_format == FOUR_TWO_ZERO)
-			*output_ptr++ = 0x22;
-		else if (image_format == FOUR_TWO_TWO)
-			*output_ptr++ = 0x21;
-		else
-			*output_ptr++ = 0x11;
+	*output_ptr++ = 0x00;
+	*output_ptr++ = 0x02;
+	*output_ptr++ = 0x11;
+	*output_ptr++ = 0x01;
 
-		*output_ptr++ = 0x00;
+	*output_ptr++ = 0x03;
+	*output_ptr++ = 0x11;
+	*output_ptr++ = 0x01;
 
-		*output_ptr++ = 0x02;
-		*output_ptr++ = 0x11;
-		*output_ptr++ = 0x01;
-
-		*output_ptr++ = 0x03;
-		*output_ptr++ = 0x11;
-		*output_ptr++ = 0x01;
-	}
 
 	// Scan header(SOF)
 
@@ -164,22 +150,16 @@ UINT8* write_markers (UINT8 *output_ptr, UINT32 image_format,int huff, UINT32 im
 	// Ns
 	*output_ptr++ = number_of_components;
 
-	if (image_format == FOUR_ZERO_ZERO)
-	{
-		*output_ptr++ = 0x01;
-		*output_ptr++ = 0x00;
-	}
-	else
-	{
-		*output_ptr++ = 0x01;
-		*output_ptr++ = 0x00;
+	/* type 422*/
+	*output_ptr++ = 0x01;
+	*output_ptr++ = 0x00;
 
-		*output_ptr++ = 0x02;
-		*output_ptr++ = 0x11;
+	*output_ptr++ = 0x02;
+	*output_ptr++ = 0x11;
 
-		*output_ptr++ = 0x03;
-		*output_ptr++ = 0x11;
-	}
+	*output_ptr++ = 0x03;
+	*output_ptr++ = 0x11;
+	
 
 	*output_ptr++ = 0x00;
 	*output_ptr++ = 0x3F;

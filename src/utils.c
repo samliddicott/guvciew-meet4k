@@ -31,7 +31,7 @@
 #include <limits.h>
 #include "huffman.h"
 #include <png.h>
-#include "config.h"
+#include "prototype.h"
 
 #define ISHIFT 11
 
@@ -853,7 +853,7 @@ inline static void idct(int *in, int *out, int *quant, long off, int max)
 
 	if ((t1 | t2 | t3 | t4 | t5 | t6 | t7) == 0) {
 
-	    tmpp[0 * 8] = t0;
+	    tmpp[0 * 8] = t0; /*t0 is DC*/
 	    tmpp[1 * 8] = t0;
 	    tmpp[2 * 8] = t0;
 	    tmpp[3 * 8] = t0;
@@ -867,7 +867,7 @@ inline static void idct(int *in, int *out, int *quant, long off, int max)
 	    continue;
 	}
 	//IDCT;
-	tmp0 = t0 + t1;
+	tmp0 = t0 + t1; /*adds AC*/
 	t1 = t0 - t1;
 	tmp2 = t2 - t3;
 	t3 = t2 + t3;
@@ -1174,6 +1174,7 @@ int initGlobals (struct GLOBAL *global) {
 		printf("couldn't calloc memory for:global->videodevice\n");
 		goto error;
 	}
+	
 	snprintf(global->videodevice, 15, "/dev/video0");
 
 	if((global->confPath = (char *) calloc(1, 80 * sizeof(char)))==NULL){
@@ -1226,9 +1227,7 @@ int initGlobals (struct GLOBAL *global) {
 	global->formind = 0; /*0-MJPG 1-YUYV*/
 	global->Frame_Flags = YUV_NOFILT;
 	global->jpeg=NULL;
-	global->jpeg_format=FOUR_TWO_TWO;
    	global->jpeg_size = 0;
-	global->jpeg_quality = 80;
 	global->jpeg_bufsize = 256*1024; /* 256 kBytes */
 	return (0);
 	
@@ -1254,6 +1253,11 @@ int closeGlobals(struct GLOBAL *global){
 	return (0);
 }
 
+
+void* cleanBuff(BYTE* Buff,int size){
+	int i=0;
+	for(i=0;i<size;i++) Buff[i]=0x00;
+}
 /*------------------------------- Color space conversions --------------------*/
 /* regular yuv (YUYV) to rgb24*/
 void *
@@ -1331,8 +1335,6 @@ yuyv_mirror (BYTE *frame, int width, int height){
 	    		line[w-2]=*pframe++;
 	    		line[w-3]=*pframe++;
 	    		line[w]=*pframe++;
-			// int last = h + (width - 1 - 2*w)*4;
-        		//memcpy(frame + h, frame + last, 4);
 		}
         	memcpy(frame+(h*sizeline), line, sizeline); /*copy reversed line to frame buffer*/           
     }
@@ -1373,7 +1375,7 @@ yuyv_monochrome(BYTE* frame, int width, int height)
 {
     int size=width*height*2;
 	int i=0;
-	//int mean=0;
+
 	for(i=0; i < size; i = i + 4) { /* keep Y - luma */
         frame[i+1]=0x77;/*U - median (half the max value)*/
         frame[i+3]=0x77;/*V - median (half the max value)*/        
@@ -1639,9 +1641,6 @@ int write_png(char *file_name, int width, int height,BYTE *prgb_data)
    png_set_bgr(png_ptr);
 	
    /* Write the image data.*/
-	
-   //~ if (height > PNG_UINT_32_MAX/png_sizeof(png_bytep))
-     //~ png_error (png_ptr, "Image is too tall to process in memory");
    for (l = 0; l < height; l++)
      row_pointers[l] = prgb_data + l*width*3;
   

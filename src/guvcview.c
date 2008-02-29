@@ -52,6 +52,7 @@
 
 /*----------------------------- globals --------------------------------------*/
 struct GLOBAL *global=NULL;
+struct JPEG_ENCODER_STRUCTURE *jpeg_struct=NULL;
 
 struct vdIn *videoIn=NULL;
 VidState * s;
@@ -450,7 +451,7 @@ error:
 
 
 /*------------------------------ Event handlers -------------------------------*/
-/* when window is closed*/
+/* when window is closed */
 gint
 delete_event (GtkWidget *widget, GdkEventConfigure *event)
 {
@@ -494,18 +495,18 @@ int AVIAudioAdd(void *data) {
     int synctime= global->snd_begintime - global->AVIstarttime; /*time diff for audio-video*/
     if(synctime>0 && synctime<5000) { /*only sync up to 5 seconds*/
         /*shift sound by synctime*/
-	Uint32 shiftFrames=abs(synctime*global->Sound_SampRate/1000);
-	Uint32 shiftSamples=shiftFrames*global->Sound_NumChan;
-	printf("shift sound forward by %d ms = %d frames\n",synctime,shiftSamples);
-	SAMPLE EmptySamp[shiftSamples];
-	for(i=0; i<shiftSamples; i++) EmptySamp[i]=0;/*init to zero - silence*/
-	AVI_write_audio(AviOut,&EmptySamp,shiftSamples*sizeof(SAMPLE)); 
+		Uint32 shiftFrames=abs(synctime*global->Sound_SampRate/1000);
+		Uint32 shiftSamples=shiftFrames*global->Sound_NumChan;
+		printf("shift sound forward by %d ms = %d frames\n",synctime,shiftSamples);
+		SAMPLE EmptySamp[shiftSamples];
+		for(i=0; i<shiftSamples; i++) EmptySamp[i]=0;/*init to zero - silence*/
+		AVI_write_audio(AviOut,&EmptySamp,shiftSamples*sizeof(SAMPLE)); 
     } else if (synctime<0){
-	/*shift sound by synctime*/
-	Uint32 shiftFrames=abs(synctime*global->Sound_SampRate/1000);
-	Uint32 shiftSamples=shiftFrames*global->Sound_NumChan;
-	printf("shift sound backward by %d ms - %d frames\n",synctime,shiftSamples);
-	/*eat up the number of shiftframes - never seems to happen*/
+		/*shift sound by synctime*/
+		Uint32 shiftFrames=abs(synctime*global->Sound_SampRate/1000);
+		Uint32 shiftSamples=shiftFrames*global->Sound_NumChan;
+		printf("shift sound backward by %d ms - %d frames\n",synctime,shiftSamples);
+		/*eat up the number of shiftframes - never seems to happen*/
     }
     FILE *fip;
     fip=fopen(global->sndfile,"rb");
@@ -807,7 +808,6 @@ ImageType_changed (GtkComboBox * ImageType,GtkEntry *ImageFNameEntry)
 	gchar *filename;
 	gchar *basename;
 	videoIn->Imgtype=gtk_combo_box_get_active (ImageType);
-	if(videoIn->formatIn==V4L2_PIX_FMT_YUYV) videoIn->Imgtype++; /*disable jpg*/
 	
 	switch(videoIn->Imgtype){
 		case 0:
@@ -862,12 +862,7 @@ AVIComp_changed (GtkComboBox * AVIComp, void *data)
 {
 	int index = gtk_combo_box_get_active (AVIComp);
       	
-	if (videoIn->formatIn== V4L2_PIX_FMT_MJPEG){
-		global->AVIFormat=index;
-	} else {
-		global->AVIFormat=index+1; /*disable MJPG (AVIFormat=0)*/
-	}
-
+	global->AVIFormat=index;
 }
 
 /* sound enable check box callback */
@@ -1322,32 +1317,44 @@ void *main_loop(void *data)
 		if((global->Frame_Flags & YUV_MONOCR)==YUV_MONOCR)
 			 yuyv_monochrome (videoIn->framebuffer,videoIn->width,videoIn->height);
 	 }
-	 /*------------------------- Display Frame --------------------------------*/
-	 SDL_LockYUVOverlay(overlay);
-	 memcpy(p, videoIn->framebuffer,
-	       videoIn->width * (videoIn->height) * 2);
-	 SDL_UnlockYUVOverlay(overlay);
-	 SDL_DisplayYUVOverlay(overlay, &drect);
 	
 	 /*-------------------------capture Image----------------------------------*/
 	 char fbasename[20];
 	 if (videoIn->capImage){
 		 switch(videoIn->Imgtype) {
 		 case 0:/*jpg*/
-			if (!global->jpeg){ global->jpeg = (BYTE*)malloc(global->jpeg_bufsize);} 
-			BYTE *jpg_tmp = global->jpeg;
-			jpg_tmp = encode_image(videoIn->framebuffer, jpg_tmp, 
-								global->jpeg_quality, global->jpeg_format,1,
-								videoIn->width, videoIn->height);
-			global->jpeg_size= jpg_tmp - global->jpeg;
-			jpg_tmp=NULL;
+			/* Save directly from MJPG frame */	 
+			if((global->Frame_Flags==0) && (videoIn->formatIn==V4L2_PIX_FMT_MJPEG)) {
+				if(SaveJPG(videoIn->ImageFName,videoIn->buf.bytesused,videoIn->tmpbuffer)) {
+	             	fprintf (stderr,"Error: Couldn't capture Image to %s \n",
+			     	videoIn->ImageFName);		
+				}	
+			} else { /* use built in encoder */
+				if (!global->jpeg){ 
+					if((global->jpeg = (BYTE*)malloc(global->jpeg_bufsize))==NULL) {
+						printf("couldn't allocate memory for: jpeg buffer\n");
+						exit(1);
+					}				
+				}
+				if(!jpeg_struct) {
+					if((jpeg_struct =(struct JPEG_ENCODER_STRUCTURE *) calloc(1, sizeof(struct JPEG_ENCODER_STRUCTURE)))==NULL){
+   						printf("couldn't allocate memory for: jpeg encoder struct\n");
+						exit(1); 
+    				} else {
+						/* Initialization of JPEG control structure */
+						initialization (jpeg_struct,videoIn->width,videoIn->height);
+	
+						/* Initialization of Quantization Tables  */
+						initialize_quantization_tables (jpeg_struct);
+					}
+				} 
+				global->jpeg_size = encode_image(videoIn->framebuffer, global->jpeg, 
+								jpeg_struct,1, videoIn->width, videoIn->height);
 			 
-			if(SaveBuff(videoIn->ImageFName,global->jpeg_size,global->jpeg)) { 
-			//~if(SaveJPG(videoIn->ImageFName,videoIn->buf.bytesused,videoIn->tmpbuffer)) {
-	             fprintf (stderr,"Error: Couldn't capture Image to %s \n",
-			     videoIn->ImageFName);		
-			} else {
-				//printf ("Capture jpg Image to %s \n",videoIn->ImageFName);
+				if(SaveBuff(videoIn->ImageFName,global->jpeg_size,global->jpeg)) { 
+	             	fprintf (stderr,"Error: Couldn't capture Image to %s \n",
+			     	videoIn->ImageFName);		
+				}
 			}
 			break;
 		 case 1:/*bmp*/
@@ -1390,19 +1397,37 @@ void *main_loop(void *data)
 	   switch (global->AVIFormat) {
 		   
 		case 0: /*MJPG*/
-			  if (!global->jpeg){ global->jpeg = (BYTE*)malloc(global->jpeg_bufsize);} 
-			   BYTE *jpg_tmp = global->jpeg;
-			   jpg_tmp = encode_image(videoIn->framebuffer, jpg_tmp, 
-								global->jpeg_quality, global->jpeg_format,0,
-								videoIn->width, videoIn->height);
-			   global->jpeg_size= jpg_tmp - global->jpeg;
-			   jpg_tmp=NULL;
-		   
-			   if (AVI_write_frame (AviOut,
-			       global->jpeg, global->jpeg_size) < 0)
-			       //~ videoIn->tmpbuffer, videoIn->buf.bytesused) < 0)
-				printf ("write error on avi out \n");
-			 break;
+			/* save MJPG frame */   
+			if((global->Frame_Flags==0) && (videoIn->formatIn==V4L2_PIX_FMT_MJPEG)) {
+				if (AVI_write_frame (AviOut,
+			                    videoIn->tmpbuffer, videoIn->buf.bytesused) < 0)
+					printf ("write error on avi out \n");
+			} else {  /* use built in encoder */ 
+				if (!global->jpeg){ 
+					if((global->jpeg = (BYTE*)malloc(global->jpeg_bufsize))==NULL) {
+						printf("couldn't allocate memory for: jpeg buffer\n");
+						exit(1);
+					}				
+				}
+				if(!jpeg_struct) {
+					if((jpeg_struct =(struct JPEG_ENCODER_STRUCTURE *) calloc(1, sizeof(struct JPEG_ENCODER_STRUCTURE)))==NULL){
+   						printf("couldn't allocate memory for: jpeg encoder struct\n");
+						exit(1); 
+    				} else {
+						/* Initialization of JPEG control structure */
+						initialization (jpeg_struct,videoIn->width,videoIn->height);
+	
+						/* Initialization of Quantization Tables  */
+						initialize_quantization_tables (jpeg_struct);
+					}
+				} 
+				global->jpeg_size = encode_image(videoIn->framebuffer, global->jpeg, 
+								jpeg_struct,1, videoIn->width, videoIn->height);
+			
+			   	if (AVI_write_frame (AviOut, global->jpeg, global->jpeg_size) < 0)
+			    	printf ("write error on avi out \n");
+			}
+			break;
 		case 1:
 	  	   framesize=(pscreen->w)*(pscreen->h)*2; /*YUY2 -> 2 bytes per pixel */
 	           if (AVI_write_frame (AviOut,
@@ -1426,6 +1451,12 @@ void *main_loop(void *data)
 		} 
 	   global->framecount++;	   
 	  } 
+	/*------------------------- Display Frame --------------------------------*/
+	 SDL_LockYUVOverlay(overlay);
+	 memcpy(p, videoIn->framebuffer,
+	       videoIn->width * (videoIn->height) * 2);
+	 SDL_UnlockYUVOverlay(overlay);
+	 SDL_DisplayYUVOverlay(overlay, &drect);
 	 //~ SDL_Delay(SDL_WAIT_TIME);
 	
   }
@@ -1451,14 +1482,12 @@ void *main_loop(void *data)
 int main(int argc, char *argv[])
 {
 	int i;
-	//sndfile= tempnam (NULL, "gsnd_");/*generates a temporary file name*/
 	
 	if((EXEC_CALL=malloc(strlen(argv[0])*sizeof(char)))==NULL) {
 		printf("couldn't allocate memory for: EXEC_CALL)\n");
 		exit(1);
 	}
 	strcpy(EXEC_CALL,argv[0]);/*stores argv[0] - program call string*/
-	//printf("EXEC_CALL=%s argv[0]=%s\n",EXEC_CALL,argv[0]);
 	
 	/*set global variables*/
 	if((global=(struct GLOBAL *) calloc(1, sizeof(struct GLOBAL)))==NULL){
@@ -1492,11 +1521,6 @@ int main(int argc, char *argv[])
 	/* Initialize and set thread detached attribute */
     pthread_attr_init(&attr);
     pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
-   
-    /*if((capt = (char *) calloc(1, 100 * sizeof(char)))==NULL){
-		printf("couldn't calloc memory for: capt\n");
-		exit(1);
-	}*/
        
     const char *home;
 	home = getenv("HOME");
@@ -1509,9 +1533,6 @@ int main(int argc, char *argv[])
 	
     /*------------------------ reads command line options --------------------*/
     readOpts(argc,argv);
-		
-	//if (global->videodevice == NULL || *global->videodevice == 0) {
-	//snprintf(global->videodevice,12,"/dev/video0");
 		
 	/*---------------------------- GTK init ----------------------------------*/
 	
@@ -1710,22 +1731,16 @@ int main(int argc, char *argv[])
 	CapImageButt = gtk_button_new_with_label("Capture");
 	ImageFNameEntry = gtk_entry_new();
 	
-	if (videoIn->formatIn== V4L2_PIX_FMT_MJPEG) {
-		gtk_entry_set_text(GTK_ENTRY(ImageFNameEntry),DEFAULT_IMAGE_FNAME);
-	} else { /*disable jpg*/
-		gtk_entry_set_text(GTK_ENTRY(ImageFNameEntry),DEFAULT_BMP_FNAME);
-	}
+	gtk_entry_set_text(GTK_ENTRY(ImageFNameEntry),DEFAULT_IMAGE_FNAME);
+	
 	gtk_table_attach(GTK_TABLE(table2), CapImageButt, 0, 1, 4, 5,
                     GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_table_attach(GTK_TABLE(table2), ImageFNameEntry, 1, 2, 4, 5,
                     GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	ImageType=gtk_combo_box_new_text ();
-	/*if YUYV on input disable jpg capture*/
-	if (videoIn->formatIn== V4L2_PIX_FMT_MJPEG) {
-		gtk_combo_box_append_text(GTK_COMBO_BOX(ImageType),"JPG");
-	} else {
-		videoIn->Imgtype=1;
-	}
+	
+	
+	gtk_combo_box_append_text(GTK_COMBO_BOX(ImageType),"JPG");
 	gtk_combo_box_append_text(GTK_COMBO_BOX(ImageType),"BMP");
 	gtk_combo_box_append_text(GTK_COMBO_BOX(ImageType),"PNG");
 	gtk_combo_box_set_active(GTK_COMBO_BOX(ImageType),0);
@@ -1768,21 +1783,16 @@ int main(int argc, char *argv[])
 	
 	/* AVI Compressor */
 	AVIComp = gtk_combo_box_new_text ();
-	if (videoIn->formatIn== V4L2_PIX_FMT_MJPEG) {
-		/* disable MJP if V4L2_PIX_FMT_YUYV*/
-		gtk_combo_box_append_text(GTK_COMBO_BOX(AVIComp),"MJPG - compressed");
-	} else {
-		if(!global->AVIFormat) global->AVIFormat=1; /*change to YUY2 as default if MJPG set*/
-	}
+	
+	gtk_combo_box_append_text(GTK_COMBO_BOX(AVIComp),"MJPG - compressed");
 	gtk_combo_box_append_text(GTK_COMBO_BOX(AVIComp),"YUY2 - uncomp YUV");
 	gtk_combo_box_append_text(GTK_COMBO_BOX(AVIComp),"RGB - uncomp BMP");
 	
 	gtk_table_attach(GTK_TABLE(table2), AVIComp, 1, 3, 6, 7,
                     GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (AVIComp);
-	if (videoIn->formatIn== V4L2_PIX_FMT_MJPEG)
-		gtk_combo_box_set_active(GTK_COMBO_BOX(AVIComp),global->AVIFormat);
-	else gtk_combo_box_set_active(GTK_COMBO_BOX(AVIComp),(global->AVIFormat-1));
+	
+	gtk_combo_box_set_active(GTK_COMBO_BOX(AVIComp),global->AVIFormat);
  	
 	gtk_widget_set_sensitive (AVIComp, TRUE);
 	g_signal_connect (GTK_COMBO_BOX(AVIComp), "changed",
@@ -1990,43 +2000,6 @@ int main(int argc, char *argv[])
     gtk_widget_show (label_SndNumChan);
 	printf("SampleRate:%d Channels:%d\n",global->Sound_SampRate,global->Sound_NumChan);
 	
-	//~ SndSampleBits= gtk_combo_box_new_text ();
-	//~ gtk_combo_box_append_text(GTK_COMBO_BOX(SndSampleBits),"16");
-	//~ gtk_combo_box_append_text(GTK_COMBO_BOX(SndSampleBits),"8");
-	
-	
-	//~ gtk_table_attach(GTK_TABLE(table2), SndSampleBits, 1, 3, 9, 10,
-                    //~ GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
-	//~ gtk_widget_show (SndSampleBits);
-	
-	//~ switch (Sound_SampBits) {
-	   //~ case 16:/*16 bits*/
-			//~ gtk_combo_box_set_active(GTK_COMBO_BOX(SndSampleRate),0);
-			//~ Sound_Format=paInt16;
-	    //~ break;
-	   //~ case 8:/*8 bits*/	
-	    	//~ gtk_combo_box_set_active(GTK_COMBO_BOX(SndSampleRate),1);
-			//~ Sound_Format=paInt8;
-	    //~ break;
-	   //~ default:
-	    //~ /*set Default to 16*/
-	    	//~ Sound_SampBits=16;
-			//~ Sound_Format=paInt16;
-		    //~ gtk_combo_box_set_active(GTK_COMBO_BOX(SndSampleBits),0);
- 	//~ }
-	
-	//~ gtk_widget_set_sensitive (SndSampleBits, TRUE);
-	//~ g_signal_connect (GTK_COMBO_BOX(SndSampleBits), "changed",
-    	//~ G_CALLBACK (SndSampleBits_changed), NULL);
-	
-	//~ label_SndSampRate = gtk_label_new("Sample Bits:");
-	//~ gtk_misc_set_alignment (GTK_MISC (label_SndSampBits), 1, 0.5);
-
-    //~ gtk_table_attach (GTK_TABLE(table2), label_SndSampBits, 0, 1, 9, 10,
-                    //~ GTK_FILL, 0, 0, 0);
-
-    //~ gtk_widget_show (label_SndSampBits);
-	
 	/*----- Filter controls ----*/
 	/* Mirror */
 	FiltMirrorEnable=gtk_check_button_new_with_label (" Mirror");
@@ -2080,7 +2053,6 @@ int main(int argc, char *argv[])
 	drect.h = pscreen->h;
 
 	SDL_WM_SetCaption("GUVCVideo", NULL);
-	//lasttime = SDL_GetTicks();
 	
 	/* main container */
 	gtk_container_add (GTK_CONTAINER (mainwin), boxh);
@@ -2147,8 +2119,6 @@ int main(int argc, char *argv[])
 	/* The last thing to get called */
 	gtk_main();
 
-	//input_free_controls (s->control, s->num_controls);
-
 	return 0;
 }
 
@@ -2171,11 +2141,6 @@ shutd (gint restart)
 	 	//printf("AVI stop time:%d\n",AVIstoptime);	
 	 	videoIn->capAVI = FALSE;
 	 	aviClose();
-		
-		/*wait for io thread*/
-	//	pthread_attr_destroy(&diskIOattr);
-	//	int rio = pthread_join(diskIOthread, (void **)&tstatus);
-    //	printf("Completed join with thread io status= %d\n", tstatus);
 	}
 	
 	/* Free attribute and wait for the main loop (video) thread */
@@ -2196,9 +2161,6 @@ shutd (gint restart)
 	close(videoIn->fd);
 	printf("closed strutures\n");
 	free(videoIn);
-	//free(capt);
-	//free(sndfile);
-	//if (global->avifile) free (global->avifile);
 	SDL_Quit();
 	printf("SDL Quit\n");
 	printf("cleaned allocations - 50%%\n");
@@ -2210,10 +2172,7 @@ shutd (gint restart)
 	printf("free controls - vidState\n");
 	free(s);
 	closeGlobals(global);
-	
-	//~ char locpath[30];
-	//~ char fullpath[50];
-	//~ char *pwd;
+	if (jpeg_struct != NULL) free(jpeg_struct);
 	
  	if (restart==1) { /* replace running process with new one */
 		 printf("restarting guvcview with command: %s\n",EXEC_CALL);

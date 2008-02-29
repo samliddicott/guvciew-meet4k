@@ -46,7 +46,9 @@ am__installdirs = "$(DESTDIR)$(bindir)"
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
 am_guvcview_OBJECTS = avilib.$(OBJEXT) guvcview.$(OBJEXT) \
-	utils.$(OBJEXT) v4l2uvc.$(OBJEXT)
+	utils.$(OBJEXT) v4l2uvc.$(OBJEXT) dct.$(OBJEXT) \
+	encoder.$(OBJEXT) huffman.$(OBJEXT) marker.$(OBJEXT) \
+	quant.$(OBJEXT) readYUV.$(OBJEXT)
 guvcview_OBJECTS = $(am_guvcview_OBJECTS)
 am__DEPENDENCIES_1 =
 guvcview_DEPENDENCIES = $(am__DEPENDENCIES_1)
@@ -182,7 +184,7 @@ INCLUDES = \
 	-DPACKAGE_LOCALE_DIR=\""$(prefix)/$(DATADIRNAME)/locale"\" \
 	-DPACKAGE_SRC_DIR=\""$(srcdir)"\" \
 	-DPACKAGE_DATA_DIR=\""$(datadir)"\" \
-	$(PACKAGE_CFLAGS)
+	$(PACKAGE_CFLAGS)  $(JPEG_CFLAGS)
 
 AM_CFLAGS = \
 	 -Wall\
@@ -197,7 +199,17 @@ guvcview_SOURCES = \
 	utils.c                  \
 	utils.h                  \
 	v4l2uvc.c                  \
-	v4l2uvc.h 
+	v4l2uvc.h                  \
+	datatype.h	\
+	dct.c	\
+	encoder.c	\
+	huffdata.h	\
+	huffman.c	\
+	jdatatype.h	\
+	marker.c	\
+	prototype.h	\
+	quant.c	\
+	readYUV.c	
 
 guvcview_LDFLAGS = 
 guvcview_LDADD = $(PACKAGE_LIBS)
@@ -269,7 +281,13 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/avilib.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dct.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/encoder.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/guvcview.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/huffman.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/marker.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/quant.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/readYUV.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/utils.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/v4l2uvc.Po@am__quote@
 

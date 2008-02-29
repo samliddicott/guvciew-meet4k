@@ -7,193 +7,138 @@
 #include <sys/types.h>
 #include "prototype.h"
 
-UINT8	Lqt [BLOCK_SIZE];
-UINT8	Cqt [BLOCK_SIZE];
-UINT16	ILqt [BLOCK_SIZE];
-UINT16	ICqt [BLOCK_SIZE];
 
-INT16	Y1 [BLOCK_SIZE];
-INT16	Y2 [BLOCK_SIZE];
-INT16	Y3 [BLOCK_SIZE];
-INT16	Y4 [BLOCK_SIZE];
-INT16	CB [BLOCK_SIZE];
-INT16	CR [BLOCK_SIZE];
-INT16	Temp [BLOCK_SIZE];
-UINT32 lcode = 0;
-UINT16 bitindex = 0;
-struct JPEG_ENCODER_STRUCTURE *jpeg_encoder_structure=NULL; 
-
-void (*read_format) (struct JPEG_ENCODER_STRUCTURE * jpeg_encoder_structure, UINT8 *input_ptr);
-
-void* initialization (struct JPEG_ENCODER_STRUCTURE * jpeg, UINT32 image_format, UINT32 image_width, UINT32 image_height)
+void* initialization (struct JPEG_ENCODER_STRUCTURE * jpeg, int image_width, 
+					                                        int image_height)
 {
 	UINT16 mcu_width, mcu_height, bytes_per_pixel;
 
-	if (image_format == FOUR_ZERO_ZERO || image_format == FOUR_FOUR_FOUR)
-	{
-		jpeg->mcu_width = mcu_width = 8;
-		jpeg->mcu_height = mcu_height = 8;
+	jpeg->mcu_width = mcu_width = 16;
+	jpeg->horizontal_mcus = (UINT16) (image_width >> 4);/* width/16 */
 
-		jpeg->horizontal_mcus = (UINT16) ((image_width + mcu_width - 1) >> 3);
-		jpeg->vertical_mcus = (UINT16) ((image_height + mcu_height - 1) >> 3);
+		
+	jpeg->mcu_height = mcu_height = 8;
+	jpeg->vertical_mcus = (UINT16) (image_height >> 3); /* height/8 */ 
 
-		if (image_format == FOUR_ZERO_ZERO)
-		{
-			bytes_per_pixel = 1;
-			read_format = read_400_format;
-		}
-		else
-		{
-			bytes_per_pixel = 3;
-			read_format = read_444_format;
-		}
-	}
-	else
-	{
-		jpeg->mcu_width = mcu_width = 16;
-		jpeg->horizontal_mcus = (UINT16) ((image_width + mcu_width - 1) >> 4);
-
-		if (image_format == FOUR_TWO_ZERO)
-		{
-			jpeg->mcu_height = mcu_height = 16;
-			jpeg->vertical_mcus = (UINT16) ((image_height + mcu_height - 1) >> 4);
-
-			bytes_per_pixel = 3;
-			read_format = read_420_format;
-		}
-		else
-		{
-			jpeg->mcu_height = mcu_height = 8;
-			jpeg->vertical_mcus = (UINT16) ((image_height + mcu_height - 1) >> 3);
-
-			bytes_per_pixel = 2;
-			read_format = read_422_format;
-		}
-	}
-
-	jpeg->rows_in_bottom_mcus = (UINT16) (image_height - (jpeg->vertical_mcus - 1) * mcu_height);
-	jpeg->cols_in_right_mcus = (UINT16) (image_width - (jpeg->horizontal_mcus - 1) * mcu_width);
-
+	//printf("V. mcu:%i   H. mcu:%i\n",jpeg->vertical_mcus,jpeg->horizontal_mcus);
+	
+	bytes_per_pixel = 2;
+		
 	jpeg->length_minus_mcu_width = (UINT16) ((image_width - mcu_width) * bytes_per_pixel);
-	jpeg->length_minus_width = (UINT16) ((image_width - jpeg->cols_in_right_mcus) * bytes_per_pixel);
+	jpeg->length_minus_width = (UINT16) (image_width * bytes_per_pixel);
 
+	
+	
 	jpeg->mcu_width_size = (UINT16) (mcu_width * bytes_per_pixel);
 
-	if (image_format != FOUR_TWO_ZERO)
-		jpeg->offset = (UINT16) ((image_width * (mcu_height - 1) - (mcu_width - jpeg->cols_in_right_mcus)) * bytes_per_pixel);
-	else
-		jpeg->offset = (UINT16) ((image_width * ((mcu_height >> 1) - 1) - (mcu_width - jpeg->cols_in_right_mcus)) * bytes_per_pixel);
-
+	jpeg->rows = jpeg->mcu_height;
+	jpeg->cols = jpeg->mcu_width;
+	jpeg->incr = jpeg->length_minus_mcu_width;
+	jpeg->offset = (UINT16) ((image_width * mcu_height) * bytes_per_pixel);
+	
 	jpeg->ldc1 = 0;
 	jpeg->ldc2 = 0;
 	jpeg->ldc3 = 0;
+	
+
+	jpeg->lcode = 0;
+	jpeg->bitindex = 0;
 
 	
 }
 
-
-UINT8* encode_image (UINT8 *input_ptr,UINT8 *output_ptr, UINT32 quality_factor, UINT32 image_format,int huff, UINT32 image_width, UINT32 image_height)
+void* jpeg_restart (struct JPEG_ENCODER_STRUCTURE * jpeg_encoder_structure)
 {
-	UINT16 i, j;
-
-	/*set global variables*/
-	if((jpeg_encoder_structure=(struct JPEG_ENCODER_STRUCTURE *) calloc(1, sizeof(struct JPEG_ENCODER_STRUCTURE)))==NULL){
-   		printf("couldn't allocate memory for: global\n");
-		exit(1); 
-    }
+	jpeg_encoder_structure->ldc1 = 0;
+	jpeg_encoder_structure->ldc2 = 0;
+	jpeg_encoder_structure->ldc3 = 0;
 	
 
-	if (image_format == RGB)
-	{
-		image_format = FOUR_FOUR_FOUR;
-		RGB_2_444 (input_ptr, output_ptr, image_width, image_height);
-	}
+	jpeg_encoder_structure->lcode = 0;
+	jpeg_encoder_structure->bitindex = 0;
+}
 
-	/* Initialization of JPEG control structure */
-	initialization (jpeg_encoder_structure,image_format,image_width,image_height);
 
-	/* Quantization Table Initialization */
-	initialize_quantization_tables (quality_factor);
-
+int encode_image (UINT8 *input_ptr,UINT8 *output_ptr, 
+				  struct JPEG_ENCODER_STRUCTURE * jpeg_encoder_structure,
+				              int huff, UINT32 image_width,UINT32 image_height)
+{
+	int size;
+	UINT16 i, j;
+	UINT8 *tmp_ptr=NULL;
+    UINT8 *tmp_iptr=NULL;
+	UINT8 *tmp_optr=NULL;
+	tmp_iptr=input_ptr;
+	tmp_optr=output_ptr;
+	
+	/* clean jpeg parameters*/
+	jpeg_restart(jpeg_encoder_structure);
+	
 	/* Writing Marker Data */
-	output_ptr = write_markers (output_ptr, image_format, huff, image_width, image_height);
+	tmp_optr = write_markers (jpeg_encoder_structure, tmp_optr, huff, 
+							                         image_width, image_height);
 
-	for (i=1; i<=jpeg_encoder_structure->vertical_mcus; i++)
+	for (i=0; i<jpeg_encoder_structure->vertical_mcus; i++) /* height /8 */
 	{
-		if (i < jpeg_encoder_structure->vertical_mcus)
-			jpeg_encoder_structure->rows = jpeg_encoder_structure->mcu_height;
-		else
-			jpeg_encoder_structure->rows = jpeg_encoder_structure->rows_in_bottom_mcus;
-
-		for (j=1; j<=jpeg_encoder_structure->horizontal_mcus; j++)
-		{
-			if (j < jpeg_encoder_structure->horizontal_mcus)
-			{
-				jpeg_encoder_structure->cols = jpeg_encoder_structure->mcu_width;
-				jpeg_encoder_structure->incr = jpeg_encoder_structure->length_minus_mcu_width;
-			}
-			else
-			{
-				jpeg_encoder_structure->cols = jpeg_encoder_structure->cols_in_right_mcus;
-				jpeg_encoder_structure->incr = jpeg_encoder_structure->length_minus_width;
-			}
-
-			read_format (jpeg_encoder_structure, input_ptr);
+		tmp_ptr=tmp_iptr;
+		for (j=0; j<jpeg_encoder_structure->horizontal_mcus; j++) /* width /16 */
+		{			
+			read_422_format (jpeg_encoder_structure, tmp_iptr); /*reads a block*/
 
 			/* Encode the data in MCU */
-			output_ptr = encodeMCU (jpeg_encoder_structure, image_format, output_ptr);
-
-			input_ptr += jpeg_encoder_structure->mcu_width_size;
+			tmp_optr = encodeMCU (jpeg_encoder_structure, tmp_optr);
+			
+			if(j<(jpeg_encoder_structure->horizontal_mcus -1)) {
+				tmp_iptr += jpeg_encoder_structure->mcu_width_size;
+			}
+			else {
+				tmp_iptr=tmp_ptr;	
+			}
 		}
-
-		input_ptr += jpeg_encoder_structure->offset;
+		tmp_iptr += jpeg_encoder_structure->offset;
+		
 	}
 
 	/* Close Routine */
-	close_bitstream (output_ptr);
-	free(jpeg_encoder_structure);
-	return output_ptr;
+	tmp_optr=close_bitstream (jpeg_encoder_structure, tmp_optr);
+	size=tmp_optr-output_ptr;
+	tmp_iptr=NULL;
+	tmp_optr=NULL;
+
+	return (size);
 }
 
-UINT8* encodeMCU (struct JPEG_ENCODER_STRUCTURE * jpeg_encoder_structure, UINT32 image_format, UINT8 *output_ptr)
+UINT8* encodeMCU (struct JPEG_ENCODER_STRUCTURE * jpeg_encoder_structure, 
+				                                              UINT8 *output_ptr)
 {
-	levelshift (Y1);
-	DCT (Y1);
-	quantization (Y1, ILqt);
+	levelshift (jpeg_encoder_structure->Y1);
+	DCT (jpeg_encoder_structure->Y1);
+	quantization (jpeg_encoder_structure, jpeg_encoder_structure->Y1, 
+				                                  jpeg_encoder_structure->ILqt);
+	
 	output_ptr = huffman (jpeg_encoder_structure, 1, output_ptr);
 
-	if (image_format == FOUR_TWO_ZERO || image_format == FOUR_TWO_TWO)
-	{
-		levelshift (Y2);
-		DCT (Y2);
-		quantization (Y2, ILqt);
-		output_ptr = huffman (jpeg_encoder_structure, 1, output_ptr);
+ 	levelshift (jpeg_encoder_structure->Y2);
+  	DCT (jpeg_encoder_structure->Y2);
 
-		if (image_format == FOUR_TWO_ZERO)
-		{
-			levelshift (Y3);
-			DCT (Y3);
-			quantization (Y3, ILqt);
-			output_ptr = huffman (jpeg_encoder_structure, 1, output_ptr);
+  	quantization (jpeg_encoder_structure, jpeg_encoder_structure->Y2, jpeg_encoder_structure->ILqt);
+	
+  	output_ptr = huffman (jpeg_encoder_structure, 1, output_ptr);
+ 
+	levelshift (jpeg_encoder_structure->CB);
+	DCT (jpeg_encoder_structure->CB);
+	
+	quantization (jpeg_encoder_structure, jpeg_encoder_structure->CB, jpeg_encoder_structure->ICqt);
+	
+	output_ptr = huffman (jpeg_encoder_structure, 2, output_ptr);
+	
 
-			levelshift (Y4);
-			DCT (Y4);
-			quantization (Y4, ILqt);
-			output_ptr = huffman (jpeg_encoder_structure, 1, output_ptr);
-		}
-	}
+	levelshift (jpeg_encoder_structure->CR);
+	DCT (jpeg_encoder_structure->CR);
+	
+	quantization (jpeg_encoder_structure, jpeg_encoder_structure->CR, jpeg_encoder_structure->ICqt);
+	
+	output_ptr = huffman (jpeg_encoder_structure, 3, output_ptr);
 
-	if (image_format != FOUR_ZERO_ZERO)
-	{
-		levelshift (CB);
-		DCT (CB);
-		quantization (CB, ICqt);
-		output_ptr = huffman (jpeg_encoder_structure, 2, output_ptr);
-
-		levelshift (CR);
-		DCT (CR);
-		quantization (CR, ICqt);
-		output_ptr = huffman (jpeg_encoder_structure, 3, output_ptr);
-	}
 	return output_ptr;
 }

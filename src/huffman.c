@@ -1,29 +1,27 @@
-//#include "datatype.h"
-//#include "config.h"
 #include "prototype.h"
 #include "huffdata.h"
 
 #define PUTBITS	\
 {	\
-	bits_in_next_word = (INT16) (bitindex + numbits - 32);	\
+	bits_in_next_word = (INT16) (jpeg_encoder_structure->bitindex + numbits - 32);	\
 	if (bits_in_next_word < 0)	\
 	{	\
-		lcode = (lcode << numbits) | data;	\
-		bitindex += numbits;	\
+		jpeg_encoder_structure->lcode = (jpeg_encoder_structure->lcode << numbits) | data;	\
+		jpeg_encoder_structure->bitindex += numbits;	\
 	}	\
 	else	\
 	{	\
-		lcode = (lcode << (32 - bitindex)) | (data >> bits_in_next_word);	\
-		if ((*output_ptr++ = (UINT8)(lcode >> 24)) == 0xff)	\
+		jpeg_encoder_structure->lcode = (jpeg_encoder_structure->lcode << (32 - jpeg_encoder_structure->bitindex)) | (data >> bits_in_next_word);	\
+		if ((*output_ptr++ = (UINT8)(jpeg_encoder_structure->lcode >> 24)) == 0xff)	\
 			*output_ptr++ = 0;	\
-		if ((*output_ptr++ = (UINT8)(lcode >> 16)) == 0xff)	\
+		if ((*output_ptr++ = (UINT8)(jpeg_encoder_structure->lcode >> 16)) == 0xff)	\
 			*output_ptr++ = 0;	\
-		if ((*output_ptr++ = (UINT8)(lcode >> 8)) == 0xff)	\
+		if ((*output_ptr++ = (UINT8)(jpeg_encoder_structure->lcode >> 8)) == 0xff)	\
 			*output_ptr++ = 0;	\
-		if ((*output_ptr++ = (UINT8) lcode) == 0xff)	\
+		if ((*output_ptr++ = (UINT8) jpeg_encoder_structure->lcode) == 0xff)	\
 			*output_ptr++ = 0;	\
-		lcode = data;	\
-		bitindex = bits_in_next_word;	\
+		jpeg_encoder_structure->lcode = data;	\
+		jpeg_encoder_structure->bitindex = bits_in_next_word;	\
 	}	\
 }
 
@@ -39,10 +37,11 @@ UINT8* huffman (struct JPEG_ENCODER_STRUCTURE * jpeg_encoder_structure, UINT16 c
 	UINT16 numbits;
 	UINT32 data;
 
-	Temp_Ptr = Temp;
-	Coeff = *Temp_Ptr++;
-
-	if (component == 1)
+	Temp_Ptr = jpeg_encoder_structure->Temp;
+	Coeff = *Temp_Ptr++;/* Coeff = DC */
+    
+	/* code DC - Temp[0] */
+	if (component == 1)/* luminance - Y */
 	{
 		DcCodeTable = luminance_dc_code_table;
 		DcSizeTable = luminance_dc_size_table;
@@ -52,29 +51,30 @@ UINT8* huffman (struct JPEG_ENCODER_STRUCTURE * jpeg_encoder_structure, UINT16 c
 		LastDc = jpeg_encoder_structure->ldc1;
 		jpeg_encoder_structure->ldc1 = Coeff;
 	}
-	else
+	else /* Chrominance - U V */
 	{
 		DcCodeTable = chrominance_dc_code_table;
 		DcSizeTable = chrominance_dc_size_table;
 		AcCodeTable = chrominance_ac_code_table;
 		AcSizeTable = chrominance_ac_size_table;
 
-		if (component == 2)
+		if (component == 2) /* Chrominance - U */
 		{
 			LastDc = jpeg_encoder_structure->ldc2;
 			jpeg_encoder_structure->ldc2 = Coeff;
 		}
-		else
+		else/* Chrominance - V */
 		{
 			LastDc = jpeg_encoder_structure->ldc3;
 			jpeg_encoder_structure->ldc3 = Coeff;
 		}
 	}
 
-	Coeff -= LastDc;
+	Coeff = Coeff - LastDc; /* DC - LastDC */
 
-	AbsCoeff = (Coeff < 0) ? -Coeff-- : Coeff;
+	AbsCoeff = (Coeff < 0) ? -(Coeff--) : Coeff;
 
+	/*calculate data size*/
 	while (AbsCoeff != 0)
 	{
 		AbsCoeff >>= 1;
@@ -89,62 +89,68 @@ UINT8* huffman (struct JPEG_ENCODER_STRUCTURE * jpeg_encoder_structure, UINT16 c
 	numbits = HuffSize + DataSize;
 
 	PUTBITS
-
+		
+    /* code AC */
 	for (i=63; i>0; i--)
 	{
+		
 		if ((Coeff = *Temp_Ptr++) != 0)
 		{
 			while (RunLength > 15)
 			{
 				RunLength -= 16;
-				data = AcCodeTable [161];
-				numbits = AcSizeTable [161];
+				data = AcCodeTable [161];   /* ZRL 0xF0 ( 16 - 0) */
+				numbits = AcSizeTable [161];/* ZRL                */
 				PUTBITS
 			}
 
-			AbsCoeff = (Coeff < 0) ? -Coeff-- : Coeff;
+			AbsCoeff = (Coeff < 0) ? -(Coeff--) : Coeff;
 
-			if (AbsCoeff >> 8 == 0)
+			if (AbsCoeff >> 8 == 0) /* Size <= 8 bits */
 				DataSize = bitsize [AbsCoeff];
-			else
+			else /* 16 => Size => 8 */
 				DataSize = bitsize [AbsCoeff >> 8] + 8;
 
 			index = RunLength * 10 + DataSize;
+			
+			
 			HuffCode = AcCodeTable [index];
 			HuffSize = AcSizeTable [index];
 
 			Coeff &= (1 << DataSize) - 1;
 			data = (HuffCode << DataSize) | Coeff;
 			numbits = HuffSize + DataSize;
-
+			
 			PUTBITS
 			RunLength = 0;
 		}
 		else
-			RunLength++;
+			RunLength++;/* Add while Zero */
 	}
 
 	if (RunLength != 0)
 	{
-		data = AcCodeTable [0];
-		numbits = AcSizeTable [0];
+		data = AcCodeTable [0];   /* EOB - 0x00 end of block */
+		numbits = AcSizeTable [0];/* EOB                     */ 
 		PUTBITS
 	}
 	return output_ptr;
 }
 
 /* For bit Stuffing and EOI marker */
-UINT8* close_bitstream (UINT8 *output_ptr)
+UINT8* close_bitstream (struct JPEG_ENCODER_STRUCTURE * jpeg_encoder_structure, UINT8 *output_ptr)
 {
 	UINT16 i, count;
 	UINT8 *ptr;
+	
+	
 
-	if (bitindex > 0)
+	if (jpeg_encoder_structure->bitindex > 0)
 	{
-		lcode <<= (32 - bitindex);
-		count = (bitindex + 7) >> 3;
+		jpeg_encoder_structure->lcode <<= (32 - jpeg_encoder_structure->bitindex);
+		count = (jpeg_encoder_structure->bitindex + 7) >> 3;
 
-		ptr = (UINT8 *) &lcode + 3;
+		ptr = (UINT8 *) &jpeg_encoder_structure->lcode + 3;
 
 		for (i=count; i>0; i--)
 		{
@@ -153,7 +159,7 @@ UINT8* close_bitstream (UINT8 *output_ptr)
 		}
 	}
 
-	// End of image marker
+	/* End of image marker (EOI) */
 	*output_ptr++ = 0xFF;
 	*output_ptr++ = 0xD9;
 	return output_ptr;

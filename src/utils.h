@@ -171,9 +171,9 @@ struct GLOBAL {
 	int formind; /*0-MJPG 1-YUYV*/
 	int Frame_Flags;
 	BYTE *jpeg;
-	int jpeg_format;
+	//int jpeg_format;
 	int   jpeg_size;
-	int   jpeg_quality;
+	//int   jpeg_quality;
 	int   jpeg_bufsize; /* 256 kBytes */
 }   __attribute__ ((packed));
 
@@ -221,7 +221,7 @@ typedef struct tagJPGFILEHEADER {
 
 int initGlobals(struct GLOBAL *global);
 int closeGlobals(struct GLOBAL *global);
-
+void* cleanBuff(BYTE* Buff,int size);
 /* regular yuv (YUYV) to rgb24*/
 void *
 yuyv2rgb (BYTE *pyuv, BYTE *prgb, int width, int height);
@@ -250,11 +250,7 @@ SaveJPG(const char *Filename,int imgsize,BYTE *ImagePix);
 
 int 
 SaveBuff(const char *Filename,int imgsize,BYTE *data);
-//~ int 
-//~ get_picture(unsigned char *buf,int size);
-
-//~Pix *yuv2rgb(unsigned int YUVMacroPix, int format, Pix *pixe);
-
 
 int SaveBPM(const char *Filename, long width, long height, int BitCount, BYTE *ImagePix);
+
 int write_png(char *file_name, int width, int height,BYTE *prgb_data);

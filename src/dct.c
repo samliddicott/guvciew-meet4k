@@ -1,5 +1,6 @@
 #include "datatype.h"
 
+
 /* Level shifting to get 8 bit SIGNED values for the data  */
 void* levelshift (INT16* const data)
 {
@@ -9,15 +10,20 @@ void* levelshift (INT16* const data)
 		data [i] -= 128;
 }
 
+
 /* DCT for One block(8x8) */
 void* DCT (INT16 *data)
 {
 	UINT16 i;
 	INT32 x0, x1, x2, x3, x4, x5, x6, x7, x8;
+	INT16 *tmp_ptr;
+	tmp_ptr=data;
+  /*	All values are shifted left by 10   */
+  /*    and rounded off to nearest integer  */
 
-/*	All values are shifted left by 10
-	and rounded off to nearest integer */
-
+	/* scale[0] = 1
+	 * scale[k] = cos(k*PI/16)*root(2)
+	 */
 	static const UINT16 c1=1420;	/* cos PI/16 * root(2)	*/
 	static const UINT16 c2=1338;	/* cos PI/8 * root(2)	*/
 	static const UINT16 c3=1204;	/* cos 3PI/16 * root(2)	*/
@@ -29,6 +35,8 @@ void* DCT (INT16 *data)
 	static const UINT16 s2=10;
 	static const UINT16 s3=13;
 
+
+	/* row pass */
 	for (i=8; i>0; i--)
 	{
 		x8 = data [0] + data [7];
@@ -63,8 +71,9 @@ void* DCT (INT16 *data)
 		data += 8;
 	}
 
-	data -= 64;
-
+	data = tmp_ptr;/* return to start of mcu */
+	
+	/* column pass */
 	for (i=8; i>0; i--)
 	{
 		x8 = data [0] + data [56];
@@ -98,4 +107,5 @@ void* DCT (INT16 *data)
 
 		data++;
 	}
+	data=tmp_ptr; /* return to start of mcu */
 }
