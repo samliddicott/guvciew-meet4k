@@ -1628,6 +1628,9 @@ int main(int argc, char *argv[])
 	/* populate video capabilities structure array*/ 
 	check_videoIn(videoIn);
 
+	/*reset jpeg buffer size*/
+	global->jpeg_bufsize=((videoIn->width)*(videoIn->height))>>1;
+	
    //~  SDL_WM_SetCaption("GUVCVideo", NULL);
 
     

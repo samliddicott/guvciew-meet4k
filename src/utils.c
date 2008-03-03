@@ -1228,7 +1228,8 @@ int initGlobals (struct GLOBAL *global) {
 	global->Frame_Flags = YUV_NOFILT;
 	global->jpeg=NULL;
    	global->jpeg_size = 0;
-	global->jpeg_bufsize = 256*1024; /* 256 kBytes */
+	/* reset with videoIn parameters */
+	global->jpeg_bufsize = 0; 
 	return (0);
 	
 error:

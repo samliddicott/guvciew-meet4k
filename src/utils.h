@@ -174,7 +174,7 @@ struct GLOBAL {
 	//int jpeg_format;
 	int   jpeg_size;
 	//int   jpeg_quality;
-	int   jpeg_bufsize; /* 256 kBytes */
+	unsigned int   jpeg_bufsize; /* width*height/2 */
 }   __attribute__ ((packed));
 
 
