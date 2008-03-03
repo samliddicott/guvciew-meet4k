@@ -158,7 +158,9 @@ int writeConf(const char *confpath) {
 		fprintf(fp,"snd_samprate=%i\n",global->Sound_SampRateInd);
 		fprintf(fp,"# snd_numchan - sound number of channels 0- dev def 1 - mono 2 -stereo\n");
 		fprintf(fp,"snd_numchan=%i\n",global->Sound_NumChanInd);
-   		printf("write %s OK\n",confpath);
+		fprintf(fp,"# video filters: 0 -none 1- flip 2- upturn 4- negate 8- mono (add the ones you want)\n");
+   		fprintf(fp,"frame_flags=%i\n",global->Frame_Flags);
+		printf("write %s OK\n",confpath);
    		fclose(fp);
 	} else {
 	printf("Could not write file %s \n Please check file permissions\n",confpath);
@@ -225,7 +227,10 @@ int readConf(const char *confpath) {
 	        } else if (strcmp(variable,"snd_numchan")==0) {
 		    if ((i=sscanf(value,"%i",&(global->Sound_NumChanInd)))==1)
 		        printf("sound Channels: %i\n",global->Sound_NumChanInd);
-	        }
+	        } else if (strcmp(variable,"frame_flags")==0) {
+			if ((i=sscanf(value,"%i",&(global->Frame_Flags)))==1)
+		        printf("sound Channels: %i\n",global->Frame_Flags);
+			}
 	    }    
         }
         fclose(fp);
@@ -1628,7 +1633,7 @@ int main(int argc, char *argv[])
 	/* populate video capabilities structure array*/ 
 	check_videoIn(videoIn);
 
-	/*reset jpeg buffer size*/
+	/* Set jpeg encoder buffer size */
 	global->jpeg_bufsize=((videoIn->width)*(videoIn->height))>>1;
 	
    //~  SDL_WM_SetCaption("GUVCVideo", NULL);
