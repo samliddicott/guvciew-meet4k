@@ -1,8 +1,7 @@
-guvcview (0.6.0) unstable; urgency=low
+guvcview (0.6.1) stable; urgency=low
 
-   * Added image filters
-   * Added built-in jpeg encoder (allows jpeg and MJPG compression with
-     filters and in yuv mode)
-   * Changed Exposure settings to comboBox (compatibility with V4L2)
+   * fixed memory allocation bug for jpeg encoder buffer
+   * added video filters to rc file
+
  -- Paulo Assis <pj.assis@gmail.com>  Wed, 09 Jan 2008 19:07:18 +0000
 
