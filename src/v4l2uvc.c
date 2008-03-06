@@ -69,7 +69,13 @@ init_videoIn(struct vdIn *vd, char *device, int width, int height,
     snprintf(vd->videodevice, 15, "%s", device);
     printf("video %s \n", vd->videodevice);
     vd->capAVI = FALSE;
-    vd->AVIFName = DEFAULT_AVI_FNAME;
+	
+	if((vd->AVIFName = (char *) calloc(1, 120 * sizeof(char)))==NULL){
+		printf("couldn't calloc memory for:vd->AVIFName\n");
+		goto error1;
+	}
+	snprintf(vd->AVIFName, 14, DEFAULT_AVI_FNAME);
+	
     vd->fps = fps;
 	vd->fps_num = fps_num;
     vd->signalquit = 1;
@@ -78,7 +84,13 @@ init_videoIn(struct vdIn *vd, char *device, int width, int height,
     vd->formatIn = format;
     vd->grabmethod = grabmethod;
 	vd->capImage=FALSE;
-	vd->ImageFName=DEFAULT_IMAGE_FNAME;
+	
+	if((vd->ImageFName = (char *) calloc(1, 80 * sizeof(char)))==NULL){
+		printf("couldn't calloc memory for:vd->ImgFName\n");
+		goto error1;
+	}
+	snprintf(vd->ImageFName, 14, DEFAULT_IMAGE_FNAME);
+	
 	vd->timecode.type = V4L2_TC_TYPE_25FPS;
 	vd->timecode.flags = V4L2_TC_FLAG_DROPFRAME;
 	
@@ -288,6 +300,7 @@ static int video_disable(struct vdIn *vd)
     ret = ioctl(vd->fd, VIDIOC_STREAMOFF, &type);
     if (ret < 0) {
 	printf("Unable to %s capture: %d.\n", "stop", errno);
+	if(errno == 9) vd->isstreaming = 0;/*capture as allready stoped*/
 	return ret;
     }
     vd->isstreaming = 0;
@@ -411,18 +424,26 @@ int uvcGrab(struct vdIn *vd)
 void close_v4l2(struct vdIn *vd)
 {
     if (vd->isstreaming)
-	video_disable(vd);
+		video_disable(vd);
     if (vd->tmpbuffer)
-	free(vd->tmpbuffer);
-    vd->tmpbuffer = NULL;
-    free(vd->framebuffer);
-    vd->framebuffer = NULL;
-    free(vd->videodevice);
-    free(vd->status);
-    //free(vd->pictName);
+		free(vd->tmpbuffer);
+    if (vd->framebuffer)
+		free(vd->framebuffer);
+    if (vd->videodevice)
+		free(vd->videodevice);
+	if (vd->status)
+    	free(vd->status);
+	if (vd->ImageFName)
+    	free(vd->ImageFName);
+	if (vd->AVIFName)
+		free(vd->AVIFName);
     vd->videodevice = NULL;
+	vd->tmpbuffer = NULL;
+	vd->framebuffer = NULL;
     vd->status = NULL;
-    //vd->pictName = NULL;
+	vd->ImageFName = NULL;
+	vd->AVIFName = NULL;
+    
 }
 
 
@@ -687,8 +708,11 @@ input_enum_controls (struct vdIn * device, int * num_controls)
           //  break;
         //}
         i++;
-       if (i == V4L2_CID_LASTP1)  /* jumps from last V4L2 defined control to first UVC driver defined control */
-       		i = V4L2_CID_PRIVATE_BASE;
+       if (i == V4L2_CID_LAST_NEW)  /* */
+       		i = V4L2_CID_CAMERA_CLASS_BASE;
+	   if (i == V4L2_CID_CAMERA_CLASS_LAST)
+			i = V4L2_CID_PRIVATE_BASE;
+	   
     }
 
     *num_controls = n;

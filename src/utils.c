@@ -1181,8 +1181,32 @@ int initGlobals (struct GLOBAL *global) {
 		printf("couldn't calloc memory for:global->confPath\n");
 		goto error;
 	}
-	snprintf(global->confPath, 14, "~/.guvcviewrc");
-
+	snprintf(global->confPath, 14, "./guvcviewrc");
+	
+	if((global->aviPath = (char *) calloc(1, 100 * sizeof(char)))==NULL){
+		printf("couldn't calloc memory for:global->aviPath\n");
+		goto error;
+	}
+	snprintf(global->aviPath, 2, "~");
+	
+	if((global->imgPath = (char *) calloc(1, 100 * sizeof(char)))==NULL){
+		printf("couldn't calloc memory for:global->imgPath\n");
+		goto error;
+	}
+	snprintf(global->imgPath, 2, "~");
+	
+	if((global->imageName = (char *) calloc(1, 20 * sizeof(char)))==NULL){
+		printf("couldn't calloc memory for:global->imageName\n");
+		goto error;
+	}
+	snprintf(global->imageName,10,DEFAULT_IMAGE_FNAME);
+	
+	if((global->aviName = (char *) calloc(1, 20 * sizeof(char)))==NULL){
+		printf("couldn't calloc memory for:global->aviName\n");
+		goto error;
+	}
+	snprintf(global->aviName,12,DEFAULT_AVI_FNAME);
+	
 	if((global-> sndfile= (char *) calloc(1, 32 * sizeof(char)))==NULL){
 		printf("couldn't calloc memory for:global->sndfile\n");
 		goto error;
@@ -1240,6 +1264,10 @@ error:
 int closeGlobals(struct GLOBAL *global){
 	free(global->videodevice);
 	free(global->confPath);
+	free(global->aviPath);
+	free(global->imgPath);
+	free(global->imageName);
+	free(global->aviName);
 	free(global->sndfile);
 	if (global->avifile) free (global->avifile);
 	free(global->mode);
@@ -1254,8 +1282,57 @@ int closeGlobals(struct GLOBAL *global){
 	return (0);
 }
 
+/* split fullpath in Path and filename*/
+void* splitPath(char *FullPath, char *FileDir, char *Filename) 
+{
+	int i;
+	int FPSize;
+	int FDSize;
+	int FSize;
+	char *tmpstr;
+	tmpstr=FullPath;
+	
+	FPSize=strlen(FullPath);
+	tmpstr+=FPSize;
+	for(i=0;i<FPSize;i++) {
+		if((*tmpstr--)=='/') {
+			FSize=i;
+			tmpstr+=2;/*must increment by 2 because of '/'*/
+			//Filename=realloc(Filename,(FSize+1)*sizeof(char));
+			if(FSize>19) {
+				printf("Error: File name too big, keeping last.\n");
+			} else {
+				Filename=strncpy(Filename,tmpstr,FSize);
+				Filename[FSize]='\0';
+			}
+			FDSize=FPSize-FSize;
+			//FileDir=realloc(FileDir,(FDSize+1)*sizeof(char));
+			if (FDSize>99) {
+				printf("Error: Path name too big, keeping last.\n");
+			} else {
+				FileDir=strncpy(FileDir,FullPath,FDSize);
+				FileDir[FDSize]='\0';
+			}
+			break;
+		}
+	}
+	
+	if(i>=FPSize) { /* no dir specified */
+		//Filename=realloc(Filename,(FPSize+1)*sizeof(char));
+		if (FPSize>19) {
+			printf("Error: File name too big, keeping last.\n");
+		} else {
+			Filename=strncpy(Filename,FullPath,FPSize);
+			Filename[FPSize]='\0';
+		}
+	}
+	printf("Dir:%s File:%s\n",FileDir,Filename);
+	
+}
 
-void* cleanBuff(BYTE* Buff,int size){
+
+void* cleanBuff(BYTE* Buff,int size)
+{
 	int i=0;
 	for(i=0;i<size;i++) Buff[i]=0x00;
 }

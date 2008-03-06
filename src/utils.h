@@ -137,6 +137,10 @@ static int stdSampleRates[] = { 0, 8000,  9600, 11025, 12000,
 struct GLOBAL {
 	char *videodevice;
 	char *confPath;
+	char *aviPath;
+	char *imageName;
+	char *aviName;
+	char *imgPath;
 	char *sndfile; /*temporary snd filename*/
 	char *avifile; /*avi filename passed through argument options with -n */
 	int Capture_time; /*avi capture time passed through argument options with -t */
@@ -222,6 +226,7 @@ typedef struct tagJPGFILEHEADER {
 int initGlobals(struct GLOBAL *global);
 int closeGlobals(struct GLOBAL *global);
 void* cleanBuff(BYTE* Buff,int size);
+void* splitPath(char *FullPath, char *FileDir, char *Filename);
 /* regular yuv (YUYV) to rgb24*/
 void *
 yuyv2rgb (BYTE *pyuv, BYTE *prgb, int width, int height);
