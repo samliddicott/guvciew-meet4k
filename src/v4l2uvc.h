@@ -113,6 +113,17 @@ enum v4l2_power_line_frequency {
 };
 
 
+#define MAX_LIST_FPS (10)
+#define MAX_LIST_VIDCAP (20)
+
+typedef struct _VidCap {
+	int width;
+	int height;
+	int framerate_num[MAX_LIST_FPS];/*numerator - should be 1 in almost all cases*/
+	int framerate_denom[MAX_LIST_FPS];/*denominator - gives fps*/
+	int numb_frates;
+} VidCap;
+
 struct vdIn {
     int fd;
 	char *videodevice;
@@ -155,6 +166,8 @@ struct vdIn {
     //~ unsigned int bytesWritten;
 	struct v4l2_streamparm streamparm;
 	int available_exp[4];
+	VidCap listVidCap[2][MAX_LIST_VIDCAP];/*2 supported formats 0-MJPG and 1-YUYV*/
+						 /* 20 settings for each format*/
 };
 
 
@@ -198,18 +211,8 @@ typedef struct _VidState {
     ControlInfo * control_info;
 } VidState;
 
-#define MAX_LIST_FPS (10)
-#define MAX_LIST_VIDCAP (20)
 
-typedef struct _VidCap {
-	int width;
-	int height;
-	int framerate_num[MAX_LIST_FPS];/*numerator - should be 1 in almost all cases*/
-	int framerate_denom[MAX_LIST_FPS];/*denominator - gives fps*/
-	int numb_frates;
-} VidCap;
-
-VidCap listVidCap[2][MAX_LIST_VIDCAP];/*2 supported formats 0-MJPG and 1-YUYV*/
+//VidCap listVidCap[2][MAX_LIST_VIDCAP];/*2 supported formats 0-MJPG and 1-YUYV*/
 						 /* 20 settings for each format*/
 
 int check_videoIn(struct vdIn *vd);

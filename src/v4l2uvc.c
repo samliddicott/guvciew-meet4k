@@ -99,6 +99,8 @@ init_videoIn(struct vdIn *vd, char *device, int width, int height,
 	vd->available_exp[2]=-1;
 	vd->available_exp[3]=-1;
 	
+
+	
     if (init_v4l2(vd) < 0) {
 	printf(" Init v4L2 failed !! exit fatal \n");
 	goto error2;
@@ -758,8 +760,8 @@ int enum_frame_intervals(struct vdIn *vd, __u32 pixfmt, __u32 width, __u32 heigh
 		if (fival.type == V4L2_FRMIVAL_TYPE_DISCRETE) {
 				printf("%u/%u, ",
 						fival.discrete.numerator, fival.discrete.denominator);
-				listVidCap[list_form][list_ind].framerate_num[list_fps]=fival.discrete.numerator;
-				listVidCap[list_form][list_ind].framerate_denom[list_fps]=fival.discrete.denominator;
+				vd->listVidCap[list_form][list_ind].framerate_num[list_fps]=fival.discrete.numerator;
+				vd->listVidCap[list_form][list_ind].framerate_denom[list_fps]=fival.discrete.denominator;
 				if(list_fps<(MAX_LIST_FPS-1)) list_fps++;
 		} else if (fival.type == V4L2_FRMIVAL_TYPE_CONTINUOUS) {
 				printf("{min { %u/%u } .. max { %u/%u } }, ",
@@ -776,7 +778,7 @@ int enum_frame_intervals(struct vdIn *vd, __u32 pixfmt, __u32 width, __u32 heigh
 		}
 		fival.index++;
 	}
-	listVidCap[list_form][list_ind].numb_frates=list_fps;
+	vd->listVidCap[list_form][list_ind].numb_frates=list_fps;
 	printf("\n");
 	if (ret != 0 && errno != EINVAL) {
 		printf("ERROR enumerating frame intervals: %d\n", errno);
@@ -803,15 +805,15 @@ int enum_frame_sizes(struct vdIn *vd, __u32 pixfmt)
 			switch(pixfmt) {
 				case V4L2_PIX_FMT_MJPEG:
 					list_form=0;
-					listVidCap[list_form][list_ind].width=fsize.discrete.width;
-					listVidCap[list_form][list_ind].height=fsize.discrete.height;
+					vd->listVidCap[list_form][list_ind].width=fsize.discrete.width;
+					vd->listVidCap[list_form][list_ind].height=fsize.discrete.height;
 		/*if this is the selected format set number of resolutions for combobox*/
 					if(vd->formatIn == pixfmt) vd->numb_resol=list_ind+1;
 					break;
 				case V4L2_PIX_FMT_YUYV:
 					list_form=1;
-					listVidCap[list_form][list_ind].width=fsize.discrete.width;
-					listVidCap[list_form][list_ind].height=fsize.discrete.height;
+					vd->listVidCap[list_form][list_ind].width=fsize.discrete.width;
+					vd->listVidCap[list_form][list_ind].height=fsize.discrete.height;
 		/*if this is the selected format set number of resolutions for combobox*/
 					if(vd->formatIn == pixfmt) vd->numb_resol=list_ind+1;
 					break;

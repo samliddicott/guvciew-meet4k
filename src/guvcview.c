@@ -732,20 +732,20 @@ resolution_changed (GtkComboBox * Resolution, void *data)
 	/* resolution we must restart the application                    */
 	
 	int index = gtk_combo_box_get_active(Resolution);
-	global->width=listVidCap[global->formind][index].width;
-	global->height=listVidCap[global->formind][index].height;
+	global->width=videoIn->listVidCap[global->formind][index].width;
+	global->height=videoIn->listVidCap[global->formind][index].height;
 	
 	/*check if frame rate is available at the new resolution*/
 	int i=0;
 	int deffps=0;
-	for(i=0;i<listVidCap[global->formind][index].numb_frates;i++) {
-		if ((listVidCap[global->formind][index].framerate_num[i]==global->fps_num) && 
-			   (listVidCap[global->formind][index].framerate_denom[i]==global->fps)) deffps=i;	
+	for(i=0;i<videoIn->listVidCap[global->formind][index].numb_frates;i++) {
+		if ((videoIn->listVidCap[global->formind][index].framerate_num[i]==global->fps_num) && 
+			   (videoIn->listVidCap[global->formind][index].framerate_denom[i]==global->fps)) deffps=i;	
 	}
 	/*frame rate is not available so set to minimum*/
 	if (deffps==0) {
-		global->fps_num=listVidCap[global->formind][index].framerate_num[0];
-		global->fps=listVidCap[global->formind][index].framerate_denom[0];		
+		global->fps_num=videoIn->listVidCap[global->formind][index].framerate_num[0];
+		global->fps=videoIn->listVidCap[global->formind][index].framerate_denom[0];		
 	}
 
 
@@ -786,8 +786,8 @@ FrameRate_changed (GtkComboBox * FrameRate,GtkComboBox * Resolution)
 	
 	int index = gtk_combo_box_get_active (FrameRate);
 		
-	global->fps=listVidCap[global->formind][resind].framerate_denom[index];
-	global->fps_num=listVidCap[global->formind][resind].framerate_num[index];
+	global->fps=videoIn->listVidCap[global->formind][resind].framerate_denom[index];
+	global->fps_num=videoIn->listVidCap[global->formind][resind].framerate_num[index];
  
 	input_set_framerate (videoIn, global->fps, global->fps_num);
 	
@@ -1782,20 +1782,20 @@ int main(int argc, char *argv[])
 	char temp_str[9];
 	int defres=0;
 	for(i=0;i<videoIn->numb_resol;i++) {
-		if (listVidCap[global->formind][i].width>0){
-			sprintf(temp_str,"%ix%i",listVidCap[global->formind][i].width,
-							 listVidCap[global->formind][i].height);
+		if (videoIn->listVidCap[global->formind][i].width>0){
+			sprintf(temp_str,"%ix%i",videoIn->listVidCap[global->formind][i].width,
+							 videoIn->listVidCap[global->formind][i].height);
 			gtk_combo_box_append_text(Resolution,temp_str);
-			if ((global->width==listVidCap[global->formind][i].width) && 
-								   (global->height==listVidCap[global->formind][i].height)){
+			if ((global->width==videoIn->listVidCap[global->formind][i].width) && 
+								   (global->height==videoIn->listVidCap[global->formind][i].height)){
 				defres=i;/*set selected*/
 			}
 		}
 	}
 	gtk_combo_box_set_active(Resolution,defres);
 	if (defres==0) {
-		global->width=listVidCap[global->formind][0].width;
-		global->height=listVidCap[global->formind][0].height;
+		global->width=videoIn->listVidCap[global->formind][0].width;
+		global->height=videoIn->listVidCap[global->formind][0].height;
 		videoIn->width=global->width;
 		videoIn->height=global->height;
 	}
@@ -1820,12 +1820,12 @@ int main(int argc, char *argv[])
 				  
 	FrameRate = gtk_combo_box_new_text ();
 	int deffps=0;
-	for(i=0;i<listVidCap[global->formind][defres].numb_frates;i++) {
-		sprintf(temp_str,"%i/%i fps",listVidCap[global->formind][defres].framerate_num[i],
-							 listVidCap[global->formind][defres].framerate_denom[i]);
+	for(i=0;i<videoIn->listVidCap[global->formind][defres].numb_frates;i++) {
+		sprintf(temp_str,"%i/%i fps",videoIn->listVidCap[global->formind][defres].framerate_num[i],
+							 videoIn->listVidCap[global->formind][defres].framerate_denom[i]);
 		gtk_combo_box_append_text(FrameRate,temp_str);
-		if ((videoIn->fps_num==listVidCap[global->formind][defres].framerate_num[i]) && 
-				  (videoIn->fps==listVidCap[global->formind][defres].framerate_denom[i])){
+		if ((videoIn->fps_num==videoIn->listVidCap[global->formind][defres].framerate_num[i]) && 
+				  (videoIn->fps==videoIn->listVidCap[global->formind][defres].framerate_denom[i])){
 				deffps=i;/*set selected*/
 		}
 	}
@@ -1837,8 +1837,8 @@ int main(int argc, char *argv[])
 	
 	gtk_combo_box_set_active(FrameRate,deffps);
 	if (deffps==0) {
-		global->fps=listVidCap[global->formind][defres].framerate_denom[0];
-		global->fps_num=listVidCap[global->formind][0].framerate_num[0];
+		global->fps=videoIn->listVidCap[global->formind][defres].framerate_denom[0];
+		global->fps_num=videoIn->listVidCap[global->formind][0].framerate_num[0];
 		videoIn->fps=global->fps;
 		videoIn->fps_num=global->fps_num;
 	}
