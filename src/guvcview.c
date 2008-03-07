@@ -1745,11 +1745,9 @@ int main(int argc, char *argv[])
 		exit(1); 
 	}
 	if (init_videoIn
-	(videoIn, (char *) global->videodevice, global->width, global->height, global->format,
-	 global->grabmethod, global->fps, global->fps_num) < 0)
-	exit(1);
-	/* populate video capabilities structure array*/ 
-	check_videoIn(videoIn);
+		(videoIn, (char *) global->videodevice, global->width,global->height, 
+	 	global->format, global->grabmethod, global->fps, global->fps_num) < 0)
+			exit(1);
 
 	/* Set jpeg encoder buffer size */
 	global->jpeg_bufsize=((videoIn->width)*(videoIn->height))>>1;
@@ -1787,18 +1785,19 @@ int main(int argc, char *argv[])
 							 videoIn->listVidCap[global->formind][i].height);
 			gtk_combo_box_append_text(Resolution,temp_str);
 			if ((global->width==videoIn->listVidCap[global->formind][i].width) && 
-								   (global->height==videoIn->listVidCap[global->formind][i].height)){
+				(global->height==videoIn->listVidCap[global->formind][i].height)){
 				defres=i;/*set selected*/
 			}
 		}
 	}
 	gtk_combo_box_set_active(Resolution,defres);
-	if (defres==0) {
-		global->width=videoIn->listVidCap[global->formind][0].width;
-		global->height=videoIn->listVidCap[global->formind][0].height;
-		videoIn->width=global->width;
-		videoIn->height=global->height;
-	}
+	//~ if (defres==0) {
+		//~ global->width=videoIn->listVidCap[global->formind][0].width;
+		//~ global->height=videoIn->listVidCap[global->formind][0].height;
+		//~ videoIn->width=global->width;
+		//~ videoIn->height=global->height;
+	//~ }
+	printf("Def. Res: %i    numb. fps:%i\n",defres,videoIn->listVidCap[global->formind][defres].numb_frates);
 	gtk_table_attach(GTK_TABLE(table2), Resolution, 1, 3, 3, 4,
 					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (Resolution);

@@ -99,8 +99,6 @@ init_videoIn(struct vdIn *vd, char *device, int width, int height,
 	vd->available_exp[2]=-1;
 	vd->available_exp[3]=-1;
 	
-
-	
     if (init_v4l2(vd) < 0) {
 	printf(" Init v4L2 failed !! exit fatal \n");
 	goto error2;
@@ -108,31 +106,36 @@ init_videoIn(struct vdIn *vd, char *device, int width, int height,
     /* alloc a temp buffer to reconstruct the pict (MJPEG)*/
     vd->framesizeIn = (vd->width * vd->height << 1);
     switch (vd->formatIn) {
-    case V4L2_PIX_FMT_MJPEG:
-	vd->tmpbuffer =
-	    (unsigned char *) calloc(1, (size_t) vd->framesizeIn);
-	if (!vd->tmpbuffer) {
-	   printf("couldn't calloc memory for:vd->tmpbuffer\n");
-		goto error3;
-	}
-	vd->framebuffer =
-	    (unsigned char *) calloc(1,
+    	case V4L2_PIX_FMT_MJPEG:
+			vd->tmpbuffer =
+	    		(unsigned char *) calloc(1, (size_t) vd->framesizeIn);
+			if (!vd->tmpbuffer) {
+	   			printf("couldn't calloc memory for:vd->tmpbuffer\n");
+				goto error3;
+			}
+			vd->framebuffer =
+	    	(unsigned char *) calloc(1,
 				     (size_t) vd->width * (vd->height +
 							   8) * 2);
-	break;
-    case V4L2_PIX_FMT_YUYV:/*YUYV doesn't need a temp buffer*/
-	vd->framebuffer =
-	    (unsigned char *) calloc(1, (size_t) vd->framesizeIn);
-	break;
-    default:
-	printf(" should never arrive exit fatal !!\n");
-	goto error4;
-	break;
+			break;
+    	case V4L2_PIX_FMT_YUYV:/*YUYV doesn't need a temp buffer*/
+			vd->framebuffer =
+	    		(unsigned char *) calloc(1, (size_t) vd->framesizeIn);
+			break;
+    	default:
+			printf(" should never arrive exit fatal !!\n");
+			goto error4;
+		break;
     }
     if (!vd->framebuffer) {
-	printf("couldn't calloc memory for:vd->framebuffer\n");	
-	goto error5;
+		printf("couldn't calloc memory for:vd->framebuffer\n");	
+		goto error5;
 	}
+	/* populate video capabilities structure array           */
+	/* should only be called after all vdIn struct elements  */
+	/* have been initialized                                 */
+	check_videoIn(vd);
+	
     return 0;
 	/*error: clean up allocs*/
   error5:
