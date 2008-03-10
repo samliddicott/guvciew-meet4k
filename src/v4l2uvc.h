@@ -138,6 +138,7 @@ struct vdIn {
     unsigned char *tmpbuffer;
     unsigned char *framebuffer;
     int isstreaming;
+	int setFPS;
     int grabmethod;
     int width;
     int height;
@@ -231,7 +232,7 @@ void close_v4l2(struct vdIn *vd);
 
 int input_get_control (struct vdIn * device, InputControl * control, int * val);
 int input_set_control (struct vdIn * device, InputControl * control, int val);
-int input_set_framerate (struct vdIn * device, int fps, int fps_num);
+int input_set_framerate (struct vdIn * device);
 int input_get_framerate (struct vdIn * device);
 InputControl *
 input_enum_controls (struct vdIn * device, int * num_controls);

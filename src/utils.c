@@ -1286,6 +1286,9 @@ int closeGlobals(struct GLOBAL *global){
 void* splitPath(char *FullPath, char *FileDir, char *Filename) 
 {
 	int i;
+	int j;
+	int k;
+	int l;
 	int FPSize;
 	int FDSize;
 	int FSize;
@@ -1304,6 +1307,16 @@ void* splitPath(char *FullPath, char *FileDir, char *Filename)
 			} else {
 				Filename=strncpy(Filename,tmpstr,FSize);
 				Filename[FSize]='\0';
+				/* cut spaces at begin of Filename String*/
+				j=0;
+				l=0;
+				while((Filename[j]==' ') && (j<100)) j++;
+				if (j>0) {
+					for(k=j;k<strlen(FileDir);k++) {
+						Filename[l++]=Filename[k];
+					}
+					Filename[l++]='\0';
+				}
 			}
 			FDSize=FPSize-FSize;
 			//FileDir=realloc(FileDir,(FDSize+1)*sizeof(char));
@@ -1312,6 +1325,17 @@ void* splitPath(char *FullPath, char *FileDir, char *Filename)
 			} else {
 				FileDir=strncpy(FileDir,FullPath,FDSize);
 				FileDir[FDSize]='\0';
+				/* cut spaces at begin of Dir String*/
+				j=0;
+				l=0;
+				while((FileDir[j]==' ') && (j<100)) j++;
+				if (j>0) {
+					for(k=j;k<strlen(FileDir);k++) {
+						FileDir[l++]=FileDir[k];
+					}
+					FileDir[l++]='\0';
+				}
+				
 			}
 			break;
 		}

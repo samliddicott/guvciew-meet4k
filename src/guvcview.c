@@ -786,17 +786,18 @@ FrameRate_changed (GtkComboBox * FrameRate,GtkComboBox * Resolution)
 	
 	int index = gtk_combo_box_get_active (FrameRate);
 		
-	global->fps=videoIn->listVidCap[global->formind][resind].framerate_denom[index];
-	global->fps_num=videoIn->listVidCap[global->formind][resind].framerate_num[index];
+	videoIn->fps=videoIn->listVidCap[global->formind][resind].framerate_denom[index];
+	videoIn->fps_num=videoIn->listVidCap[global->formind][resind].framerate_num[index];
  
-	input_set_framerate (videoIn, global->fps, global->fps_num);
+	videoIn->setFPS=1;
+	//input_set_framerate (videoIn, global->fps, global->fps_num);
 	
-	input_get_framerate(videoIn);
+	//input_get_framerate(videoIn);
 	global->fps=videoIn->fps;
 	global->fps_num=videoIn->fps_num;
-	printf("hardware fps is %d/%d ,%i/%i\n",global->fps,global->fps_num,
-				videoIn->streamparm.parm.capture.timeperframe.numerator,
-				videoIn->streamparm.parm.capture.timeperframe.denominator);
+	//~ printf("hardware fps is %d/%d ,%i/%i\n",global->fps,global->fps_num,
+				//~ videoIn->streamparm.parm.capture.timeperframe.numerator,
+				//~ videoIn->streamparm.parm.capture.timeperframe.denominator);
 	
 }
 
@@ -1642,10 +1643,11 @@ int main(int argc, char *argv[])
 	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
 	   
 	const char *home;
-	const char *pwd;
+	const char *pwd=NULL;
 	
 	home = getenv("HOME");
-	pwd = getenv("PWD");
+	//pwd = getenv("PWD");
+	pwd=getcwd(pwd,0);
 	
 	sprintf(global->confPath,"%s%s", home,"/.guvcviewrc");
 	sprintf(global->aviPath,"%s", pwd);
@@ -1815,7 +1817,9 @@ int main(int argc, char *argv[])
 	gtk_widget_show (labelResol);
 	
 	/* Frame Rate */
-	input_set_framerate (videoIn, global->fps, global->fps_num);
+	videoIn->fps_num=global->fps_num;
+	videoIn->fps=global->fps;
+	input_set_framerate (videoIn);
 				  
 	FrameRate = gtk_combo_box_new_text ();
 	int deffps=0;
