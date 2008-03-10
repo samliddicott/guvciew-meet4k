@@ -154,10 +154,15 @@ init_videoIn(struct vdIn *vd, char *device, int width, int height,
 
 
 /* map the buffers */
-static int query_buff(struct vdIn *vd) 
+static int query_buff(struct vdIn *vd, const int setUNMAP) 
 {
 	int i, ret;
     for (i = 0; i < NB_BUFFER; i++) {
+		
+		/* unmap old buffer */
+		if (setUNMAP)
+			if(munmap(vd->mem[i],vd->buf.length)<0) printf("couldn't unmap buff\n");
+		
 		memset(&vd->buf, 0, sizeof(struct v4l2_buffer));
 		vd->buf.index = i;
 		vd->buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
@@ -173,6 +178,7 @@ static int query_buff(struct vdIn *vd)
 		}
 		if (debug) printf("length: %u offset: %u\n", vd->buf.length,
 						                                   vd->buf.m.offset);
+		/* map new buffer */
 		vd->mem[i] = mmap(0 /* start anywhere */ ,
 			  vd->buf.length, PROT_READ, MAP_SHARED, vd->fd,
 			  vd->buf.m.offset);
@@ -290,7 +296,7 @@ static int init_v4l2(struct vdIn *vd)
 	goto fatal;
     }
     /* map the buffers */
-	if (query_buff(vd)) goto fatal;
+	if (query_buff(vd,0)) goto fatal;
 
     /* Queue the buffers. */
     if (queue_buff(vd)) goto fatal;
@@ -384,7 +390,7 @@ int uvcGrab(struct vdIn *vd)
 		video_disable(vd);
 		input_set_framerate (vd);
 		video_enable(vd);
-		query_buff(vd);
+		query_buff(vd,1);
 		queue_buff(vd);
 		vd->setFPS=0;	
 	} else {	
