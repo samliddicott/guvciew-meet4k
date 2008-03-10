@@ -409,7 +409,9 @@ int uvcGrab(struct vdIn *vd)
 
 void close_v4l2(struct vdIn *vd)
 {
-    if (vd->isstreaming)
+    int i;
+	
+	if (vd->isstreaming)
 		video_disable(vd);
     if (vd->tmpbuffer)
 		free(vd->tmpbuffer);
@@ -423,6 +425,11 @@ void close_v4l2(struct vdIn *vd)
     	free(vd->ImageFName);
 	if (vd->AVIFName)
 		free(vd->AVIFName);
+	
+	for (i = 0; i < NB_BUFFER; i++) {
+		if(munmap(vd->mem[i],vd->buf.length)<0) printf("couldn't unmap buff\n");
+	}
+	
     vd->videodevice = NULL;
 	vd->tmpbuffer = NULL;
 	vd->framebuffer = NULL;
