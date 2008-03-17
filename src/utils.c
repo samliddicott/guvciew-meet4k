@@ -1335,6 +1335,23 @@ void* splitPath(char *FullPath, char *FileDir, char *Filename)
 					}
 					FileDir[l++]='\0';
 				}
+				/* check for "~" and replace with home dir*/
+				//printf("FileDir[0]=%c\n",FileDir[0]);
+				if(FileDir[0]=='~') {
+					for(k=0;k<strlen(FileDir);k++) {
+						FileDir[k]=FileDir[k+1];
+					}
+					char path_str[100];
+					char *home=getenv("HOME");
+					sprintf(path_str,"%s%s",home,FileDir);
+					printf("path is %s\n",path_str);
+					FDSize=strlen(path_str);
+					if (FDSize<99) {
+						strncpy (FileDir,path_str,FDSize);
+						FileDir[FDSize]='\0';
+					}
+					else printf("Error: Path (~) name too big, keeping last.\n");
+				}
 				
 			}
 			break;
@@ -1351,7 +1368,7 @@ void* splitPath(char *FullPath, char *FileDir, char *Filename)
 		}
 	}
 	printf("Dir:%s File:%s\n",FileDir,Filename);
-	
+	tmpstr=NULL;/*clean up*/
 }
 
 
