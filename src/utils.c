@@ -1233,6 +1233,10 @@ int initGlobals (struct GLOBAL *global) {
 	global->Sound_UseDev=0;
 	global->Sound_NumChan=NUM_CHANNELS;
 	global->Sound_NumChanInd=0;
+	global->FpsCount=0;
+	global->frmCount=0;
+	sprintf(global->WVcaption,"GUVCVIdeo");
+	global->DispFps=0;
 	global->fps = DEFAULT_FPS;
 	global->fps_num = DEFAULT_FPS_NUM;
 	global->bpp = 0; //current bytes per pixel

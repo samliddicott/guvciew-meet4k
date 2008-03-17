@@ -161,6 +161,10 @@ struct GLOBAL {
 	int Sound_UseDev;
 	int Sound_NumChan;
 	int Sound_NumChanInd;
+	char WVcaption[20];
+	int DispFps;
+	int frmCount;
+	int FpsCount;
 	int fps;
 	int fps_num;
 	int bpp; //current bytes per pixel

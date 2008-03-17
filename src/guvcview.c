@@ -321,6 +321,9 @@ int readOpts(int argc,char *argv[]) {
 				printf("capturing avi for %i seconds",global->Capture_time);
 			}
 		}
+		if (strcmp(argv[i], "-p") == 0) {
+			global->FpsCount=1;
+		}
 		if (strcmp(argv[i], "-h") == 0) {
 			printf("usage: guvcview [-h -d -g -f -s -c -C -S] \n");
 			printf("-h	print this message \n");
@@ -332,6 +335,7 @@ int readOpts(int argc,char *argv[]) {
 			printf("-s	widthxheight      use specified input size \n");
 			printf("-n	avi_file_name   if avi_file_name set enable avi capture from start \n");
 			printf("-t  capture_time  used with -n option, sets the capture time in seconds\n");
+			printf("-p  enable fps counter in title bar\n");
 			exit(0);
 		}
 	}
@@ -1147,6 +1151,14 @@ int timer_callback(){
 	return (FALSE);/*destroys the timer*/
 }
 
+/* called by fps counter every 2 sec (-p command line option)*/
+int FpsCount_callback(){
+	
+	global->DispFps = global->frmCount >> 1; /* div by 2 */
+	return(TRUE); /*keeps the timer*/
+	//return (FALSE);/*destroys the timer*/
+}
+
 /*--------------------------- draw camera controls ---------------------------*/
 static void
 draw_controls (VidState *s)
@@ -1419,7 +1431,19 @@ void *main_loop(void *data)
 	 if (uvcGrab(videoIn) < 0) {
 		printf("Error grabbing image \n");
 		videoIn->signalquit=0;
+		sprintf(global->WVcaption,"GUVCVideo - CRASHED");
+		SDL_WM_SetCaption(global->WVcaption, NULL);
 		pthread_exit((void *) 2);
+	 } else {
+		if (global->FpsCount) {/* sets fps count in window title bar */
+			global->frmCount++;
+			if (global->DispFps>0) { /*set every 2 sec*/
+				sprintf(global->WVcaption,"GUVCVideo - %d fps",global->DispFps);
+				SDL_WM_SetCaption(global->WVcaption, NULL);
+				global->frmCount=0;/*resets*/
+				global->DispFps=0;
+			}				
+		}
 	 }
 	
 	 /*------------------------- Filter Frame ---------------------------------*/
@@ -2229,7 +2253,7 @@ int main(int argc, char *argv[])
 	drect.w = pscreen->w;
 	drect.h = pscreen->h;
 
-	SDL_WM_SetCaption("GUVCVideo", NULL);
+	SDL_WM_SetCaption(global->WVcaption, NULL);
 	
 	/* main container */
 	gtk_container_add (GTK_CONTAINER (mainwin), boxh);
@@ -2304,6 +2328,10 @@ int main(int argc, char *argv[])
 		global->AVIstarttime = ms_time();
 	}
 	
+	if (global->FpsCount) {
+			/*sets the Fps counter timer function every 2 sec*/
+			g_timeout_add(2*1000,FpsCount_callback,NULL);
+	}
 	/*------------------ Creating the main loop (video) thread ---------------*/
 	int rc = pthread_create(&mythread, &attr, main_loop, NULL); 
 	if (rc) {
