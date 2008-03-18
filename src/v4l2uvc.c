@@ -75,7 +75,8 @@ init_videoIn(struct vdIn *vd, char *device, int width, int height,
 		goto error1;
 	}
 	snprintf(vd->AVIFName, 14, DEFAULT_AVI_FNAME);
-	
+	vd->SupMjpg=0;
+	vd->SupYuv=0;
     vd->fps = fps;
 	vd->fps_num = fps_num;
     vd->signalquit = 1;
@@ -784,7 +785,6 @@ int enum_frame_sizes(struct vdIn *vd, __u32 pixfmt)
 	int ret;
 	int list_ind=0;
 	int list_form=0;
-	
 	struct v4l2_frmsizeenum fsize;
 
 	memset(&fsize, 0, sizeof(fsize));
@@ -796,6 +796,7 @@ int enum_frame_sizes(struct vdIn *vd, __u32 pixfmt)
 					fsize.discrete.width, fsize.discrete.height);
 			switch(pixfmt) {
 				case V4L2_PIX_FMT_MJPEG:
+					vd->SupMjpg++;
 					list_form=0;
 					vd->listVidCap[list_form][list_ind].width=fsize.discrete.width;
 					vd->listVidCap[list_form][list_ind].height=fsize.discrete.height;
@@ -803,6 +804,7 @@ int enum_frame_sizes(struct vdIn *vd, __u32 pixfmt)
 					if(vd->formatIn == pixfmt) vd->numb_resol=list_ind+1;
 					break;
 				case V4L2_PIX_FMT_YUYV:
+					vd->SupYuv++;
 					list_form=1;
 					vd->listVidCap[list_form][list_ind].width=fsize.discrete.width;
 					vd->listVidCap[list_form][list_ind].height=fsize.discrete.height;

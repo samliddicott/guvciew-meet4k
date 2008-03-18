@@ -746,13 +746,10 @@ resolution_changed (GtkComboBox * Resolution, void *data)
 		if ((videoIn->listVidCap[global->formind][index].framerate_num[i]==global->fps_num) && 
 			   (videoIn->listVidCap[global->formind][index].framerate_denom[i]==global->fps)) deffps=i;	
 	}
-	/*frame rate is not available so set to minimum*/
-	if (deffps==0) {
-		global->fps_num=videoIn->listVidCap[global->formind][index].framerate_num[0];
-		global->fps=videoIn->listVidCap[global->formind][index].framerate_denom[0];		
-	}
-
-
+	
+	global->fps_num=videoIn->listVidCap[global->formind][index].framerate_num[deffps];
+	global->fps=videoIn->listVidCap[global->formind][index].framerate_denom[deffps];		
+	
 	
 	restartdialog = gtk_dialog_new_with_buttons ("Program Restart",
 												  GTK_WINDOW(mainwin),
@@ -780,6 +777,90 @@ resolution_changed (GtkComboBox * Resolution, void *data)
   
 	gtk_widget_destroy (restartdialog);
 		
+}
+
+
+
+static void
+ImpType_changed(GtkComboBox * ImpType, void * Data) 
+{
+	int index = gtk_combo_box_get_active(ImpType);
+	//int resind = gtk_combo_box_get_active(Resolution);
+	
+	if ((videoIn->SupMjpg >0) && (videoIn->SupYuv >0)) {
+		global->formind = index;
+	} else {
+		/* if only one available the callback shouldn't get called*/
+		if (videoIn->SupMjpg >0) global->formind = 0;
+		else global->formind = 1;
+	}
+	
+	/*check if frame rate and resolution are available */
+	/*if not use minimum values                                */
+	int i=0;
+	int j=0;
+	int defres=0;
+	int deffps=0;
+	
+	if (global->formind > 0) { /* is Yuv*/
+		snprintf(global->mode, 4, "yuv");
+		for (i=0;i<videoIn->SupYuv;i++) {
+			if((videoIn->listVidCap[global->formind][i].height==global->height) &&
+				(videoIn->listVidCap[global->formind][i].width==global->width) ) {
+				/* resolution ok check fps*/
+				defres=i;
+				for (j=0;j<videoIn->listVidCap[global->formind][i].numb_frates;j++) {
+					if ((videoIn->listVidCap[global->formind][i].framerate_num[j]==global->fps_num) && 
+						(videoIn->listVidCap[global->formind][i].framerate_denom[j]==global->fps)) deffps=j;
+				}
+			}
+		}
+	} else {  /* is Mjpg */
+		snprintf(global->mode, 4, "jpg");
+		for (i=0;i<videoIn->SupMjpg;i++) {
+			if((videoIn->listVidCap[global->formind][i].height==global->height) &&
+				(videoIn->listVidCap[global->formind][i].width==global->width) ) {
+				/* resolution ok check fps*/
+				defres=i;
+				for (j=0;j<videoIn->listVidCap[global->formind][i].numb_frates;j++) {
+					if ((videoIn->listVidCap[global->formind][i].framerate_num[j]==global->fps_num) && 
+						(videoIn->listVidCap[global->formind][i].framerate_denom[j]==global->fps)) deffps=j;
+				}
+			}
+		}
+	}
+	
+	global->height=videoIn->listVidCap[global->formind][defres].height;
+	global->width=videoIn->listVidCap[global->formind][defres].width;
+	global->fps_num=videoIn->listVidCap[global->formind][defres].framerate_num[deffps];
+	global->fps=videoIn->listVidCap[global->formind][defres].framerate_denom[deffps];
+	
+	restartdialog = gtk_dialog_new_with_buttons ("Program Restart",
+												  GTK_WINDOW(mainwin),
+												  GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+												  "now",
+												  GTK_RESPONSE_ACCEPT,
+												  "Later",
+												  GTK_RESPONSE_REJECT,
+												  NULL);
+	
+	GtkWidget *message = gtk_label_new ("Changes will only take effect after guvcview restart.\n\n\nRestart now?\n");
+	gtk_container_add (GTK_CONTAINER (GTK_DIALOG(restartdialog)->vbox), message);
+	gtk_widget_show_all(GTK_WIDGET(GTK_CONTAINER (GTK_DIALOG(restartdialog)->vbox)));
+	
+	gint result = gtk_dialog_run (GTK_DIALOG (restartdialog));
+	switch (result) {
+		case GTK_RESPONSE_ACCEPT:
+			/*restart app*/
+			shutd(1);
+			break;
+		default:
+			/* do nothing since Restart rejected*/		
+			break;
+	}
+  
+	gtk_widget_destroy (restartdialog);
+
 }
 
 /*frame rate control callback*/
@@ -1643,6 +1724,8 @@ int main(int argc, char *argv[])
 	GtkWidget * boxh;
 	GtkWidget *Resolution;
 	GtkWidget *FrameRate;
+	GtkWidget *ImpType;
+	GtkWidget *label_ImpType;
 	GtkWidget *label_FPS;
 	GtkWidget *table2;
 	GtkWidget *labelResol;
@@ -1777,8 +1860,6 @@ int main(int argc, char *argv[])
 
 	/* Set jpeg encoder buffer size */
 	global->jpeg_bufsize=((videoIn->width)*(videoIn->height))>>1;
-	
-   //~  SDL_WM_SetCaption("GUVCVideo", NULL);
 
 	
 	/*-----------------------------GTK widgets---------------------------------*/
@@ -1882,26 +1963,55 @@ int main(int argc, char *argv[])
 
 	gtk_widget_show (label_FPS);
 	
+	/* Input method jpg  or yuv */
+	ImpType= gtk_combo_box_new_text ();
+	if (videoIn->SupMjpg>0) {/*Jpeg Input Available*/
+		gtk_combo_box_append_text(ImpType,"MJPG");
+	}
+	if (videoIn->SupYuv>0) {/*yuv Input Available*/
+		gtk_combo_box_append_text(ImpType,"YUV");
+	}
+	gtk_table_attach(GTK_TABLE(table2), ImpType, 1, 3, 4, 5,
+					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	
+	if ((videoIn->SupMjpg >0) && (videoIn->SupYuv >0)) {
+		gtk_combo_box_set_active(ImpType,global->formind);
+	} else {
+		gtk_combo_box_set_active(ImpType,0); /*only one available*/
+	}
+	gtk_widget_set_sensitive (ImpType, TRUE);
+	g_signal_connect (GTK_COMBO_BOX(ImpType), "changed",
+		G_CALLBACK (ImpType_changed), NULL);
+	gtk_widget_show (ImpType);
+	
+	label_ImpType = gtk_label_new("Camera Output:");
+	gtk_misc_set_alignment (GTK_MISC (label_ImpType), 1, 0.5);
+
+	gtk_table_attach (GTK_TABLE(table2), label_ImpType, 0, 1, 4, 5,
+					GTK_FILL, 0, 0, 0);
+
+	gtk_widget_show (label_ImpType);
+	
 	/* Image Capture*/
 	CapImageButt = gtk_button_new_with_label("Capture");
 	ImageFNameEntry = gtk_entry_new();
 	
 	gtk_entry_set_text(GTK_ENTRY(ImageFNameEntry),DEFAULT_IMAGE_FNAME);
 	
-	gtk_table_attach(GTK_TABLE(table2), CapImageButt, 0, 1, 4, 5,
+	gtk_table_attach(GTK_TABLE(table2), CapImageButt, 0, 1, 5, 6,
 					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	
-	gtk_table_attach(GTK_TABLE(table2), ImageFNameEntry, 1, 2, 4, 5,
+	gtk_table_attach(GTK_TABLE(table2), ImageFNameEntry, 1, 2, 5, 6,
 					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	ImgFileButt=gtk_button_new_from_stock(GTK_STOCK_OPEN);
-	gtk_table_attach(GTK_TABLE(table2), ImgFileButt, 2, 3, 4, 5,
+	gtk_table_attach(GTK_TABLE(table2), ImgFileButt, 2, 3, 5, 6,
 					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (ImgFileButt);
 	
 	label_ImageType=gtk_label_new("Image Type:");
 	gtk_misc_set_alignment (GTK_MISC (label_ImageType), 1, 0.5);
 
-	gtk_table_attach (GTK_TABLE(table2), label_ImageType, 0, 1, 5, 6,
+	gtk_table_attach (GTK_TABLE(table2), label_ImageType, 0, 1, 6, 7,
 					GTK_FILL, 0, 0, 0);
 
 	gtk_widget_show (label_ImageType);
@@ -1911,7 +2021,7 @@ int main(int argc, char *argv[])
 	gtk_combo_box_append_text(GTK_COMBO_BOX(ImageType),"BMP");
 	gtk_combo_box_append_text(GTK_COMBO_BOX(ImageType),"PNG");
 	gtk_combo_box_set_active(GTK_COMBO_BOX(ImageType),0);
-	gtk_table_attach(GTK_TABLE(table2), ImageType, 1, 2, 5, 6,
+	gtk_table_attach(GTK_TABLE(table2), ImageType, 1, 2, 6, 7,
 					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (ImageType);
 	
@@ -1938,13 +2048,13 @@ int main(int argc, char *argv[])
 		gtk_entry_set_text(GTK_ENTRY(AVIFNameEntry),DEFAULT_AVI_FNAME);
 	}
 	
-	gtk_table_attach(GTK_TABLE(table2), CapAVIButt, 0, 1, 6, 7,
+	gtk_table_attach(GTK_TABLE(table2), CapAVIButt, 0, 1, 7, 8,
 					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
-	gtk_table_attach(GTK_TABLE(table2), AVIFNameEntry, 1, 2, 6, 7,
+	gtk_table_attach(GTK_TABLE(table2), AVIFNameEntry, 1, 2, 7, 8,
 					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	
 	AviFileButt=gtk_button_new_from_stock(GTK_STOCK_OPEN);
-	gtk_table_attach(GTK_TABLE(table2), AviFileButt, 2, 3, 6, 7,
+	gtk_table_attach(GTK_TABLE(table2), AviFileButt, 2, 3, 7, 8,
 					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	
 	gtk_widget_show (AviFileButt);
@@ -1966,7 +2076,7 @@ int main(int argc, char *argv[])
 	gtk_combo_box_append_text(GTK_COMBO_BOX(AVIComp),"YUY2 - uncomp YUV");
 	gtk_combo_box_append_text(GTK_COMBO_BOX(AVIComp),"RGB - uncomp BMP");
 	
-	gtk_table_attach(GTK_TABLE(table2), AVIComp, 1, 2, 7, 8,
+	gtk_table_attach(GTK_TABLE(table2), AVIComp, 1, 2, 8, 9,
 					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (AVIComp);
 	
@@ -1979,7 +2089,7 @@ int main(int argc, char *argv[])
 	label_AVIComp = gtk_label_new("AVI Format:");
 	gtk_misc_set_alignment (GTK_MISC (label_AVIComp), 1, 0.5);
 
-	gtk_table_attach (GTK_TABLE(table2), label_AVIComp, 0, 1, 7, 8,
+	gtk_table_attach (GTK_TABLE(table2), label_AVIComp, 0, 1, 8, 9,
 					GTK_FILL, 0, 0, 0);
 
 	gtk_widget_show (label_AVIComp);
@@ -2078,7 +2188,7 @@ int main(int argc, char *argv[])
 	}
 	
 	/*--------------------- sound controls -----------------------------------*/
-	gtk_table_attach(GTK_TABLE(table2), SndDevice, 1, 3, 9, 10,
+	gtk_table_attach(GTK_TABLE(table2), SndDevice, 1, 3, 10, 11,
 					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (SndDevice);
 	if(global->Sound_UseDev==0) global->Sound_UseDev=global->Sound_DefDev;/* using default device*/
@@ -2092,7 +2202,7 @@ int main(int argc, char *argv[])
 	label_SndDevice = gtk_label_new("Imput Device:");
 	gtk_misc_set_alignment (GTK_MISC (label_SndDevice), 1, 0.5);
 
-	gtk_table_attach (GTK_TABLE(table2), label_SndDevice, 0, 1, 9, 10,
+	gtk_table_attach (GTK_TABLE(table2), label_SndDevice, 0, 1, 10, 11,
 					GTK_FILL, 0, 0, 0);
 
 	gtk_widget_show (label_SndDevice);
@@ -2102,7 +2212,7 @@ int main(int argc, char *argv[])
 	//~ printf("SOUND DISABLE: no imput devices detected\n");
 	
 	SndEnable=gtk_check_button_new_with_label (" Sound");
-	gtk_table_attach(GTK_TABLE(table2), SndEnable, 0, 1, 8, 9,
+	gtk_table_attach(GTK_TABLE(table2), SndEnable, 0, 1, 9, 10,
 					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	
 	gtk_toggle_button_set_active(GTK_CHECK_BUTTON(SndEnable),(global->Sound_enable > 0));
@@ -2120,7 +2230,7 @@ int main(int argc, char *argv[])
 	}
 	if (global->Sound_SampRateInd>(i-1)) global->Sound_SampRateInd=0; /*out of range*/
 	
-	gtk_table_attach(GTK_TABLE(table2), SndSampleRate, 1, 3, 10, 11,
+	gtk_table_attach(GTK_TABLE(table2), SndSampleRate, 1, 3, 11, 12,
 					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (SndSampleRate);
 	
@@ -2136,7 +2246,7 @@ int main(int argc, char *argv[])
 	label_SndSampRate = gtk_label_new("Sample Rate:");
 	gtk_misc_set_alignment (GTK_MISC (label_SndSampRate), 1, 0.5);
 
-	gtk_table_attach (GTK_TABLE(table2), label_SndSampRate, 0, 1, 10, 11,
+	gtk_table_attach (GTK_TABLE(table2), label_SndSampRate, 0, 1, 11, 12,
 					GTK_FILL, 0, 0, 0);
 
 	gtk_widget_show (label_SndSampRate);
@@ -2146,7 +2256,7 @@ int main(int argc, char *argv[])
 	gtk_combo_box_append_text(GTK_COMBO_BOX(SndNumChan),"1 - mono");
 	gtk_combo_box_append_text(GTK_COMBO_BOX(SndNumChan),"2 - stereo");
 	
-	gtk_table_attach(GTK_TABLE(table2), SndNumChan, 1, 3, 11, 12,
+	gtk_table_attach(GTK_TABLE(table2), SndNumChan, 1, 3, 12, 13,
 					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (SndNumChan);
 	switch (global->Sound_NumChanInd) {
@@ -2172,7 +2282,7 @@ int main(int argc, char *argv[])
 	label_SndNumChan = gtk_label_new("Chanels:");
 	gtk_misc_set_alignment (GTK_MISC (label_SndNumChan), 1, 0.5);
 
-	gtk_table_attach (GTK_TABLE(table2), label_SndNumChan, 0, 1, 11, 12,
+	gtk_table_attach (GTK_TABLE(table2), label_SndNumChan, 0, 1, 12, 13,
 					GTK_FILL, 0, 0, 0);
 
 	gtk_widget_show (label_SndNumChan);
@@ -2183,7 +2293,7 @@ int main(int argc, char *argv[])
 	label_videoFilters = gtk_label_new("---- Video Filters ----");
 	gtk_misc_set_alignment (GTK_MISC (label_videoFilters), 0.5, 0.5);
 
-	gtk_table_attach (GTK_TABLE(table2), label_videoFilters, 0, 3, 12, 13,
+	gtk_table_attach (GTK_TABLE(table2), label_videoFilters, 0, 3, 13, 14,
 					GTK_FILL, 0, 0, 0);
 
 	gtk_widget_show (label_videoFilters);
@@ -2233,7 +2343,7 @@ int main(int argc, char *argv[])
 	g_signal_connect (GTK_CHECK_BUTTON(FiltMonoEnable), "toggled",
 		G_CALLBACK (FiltMonoEnable_changed), NULL);
 	
-	gtk_table_attach (GTK_TABLE(table2), table3, 0, 3, 13, 14,
+	gtk_table_attach (GTK_TABLE(table2), table3, 0, 3, 14, 15,
 					GTK_FILL, 0, 0, 0);
 
 	gtk_widget_show (table3);
@@ -2395,6 +2505,7 @@ shutd (gint restart)
 	printf("free controls - vidState\n");
 	free(s);
 	closeGlobals(global);
+	printf("free globals\n");
 	if (jpeg_struct != NULL) free(jpeg_struct);
 	
 	if (restart==1) { /* replace running process with new one */
