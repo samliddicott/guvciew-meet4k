@@ -785,39 +785,34 @@ static void
 ImpType_changed(GtkComboBox * ImpType, void * Data) 
 {
 	int index = gtk_combo_box_get_active(ImpType);
-	//int resind = gtk_combo_box_get_active(Resolution);
 	
 	if ((videoIn->SupMjpg >0) && (videoIn->SupYuv >0)) {
 		global->formind = index;
 	} else {
-		/* if only one available the callback shouldn't get called*/
+		/* if only one format available the callback shouldn't get called*/
+		/* in any case ...                                               */
 		if (videoIn->SupMjpg >0) global->formind = 0;
 		else global->formind = 1;
 	}
 	
 	/*check if frame rate and resolution are available */
-	/*if not use minimum values                                */
+	/*if not use minimum values                        */
 	int i=0;
 	int j=0;
 	int defres=0;
 	int deffps=0;
+	int SupRes=0;
 	
 	if (global->formind > 0) { /* is Yuv*/
 		snprintf(global->mode, 4, "yuv");
-		for (i=0;i<videoIn->SupYuv;i++) {
-			if((videoIn->listVidCap[global->formind][i].height==global->height) &&
-				(videoIn->listVidCap[global->formind][i].width==global->width) ) {
-				/* resolution ok check fps*/
-				defres=i;
-				for (j=0;j<videoIn->listVidCap[global->formind][i].numb_frates;j++) {
-					if ((videoIn->listVidCap[global->formind][i].framerate_num[j]==global->fps_num) && 
-						(videoIn->listVidCap[global->formind][i].framerate_denom[j]==global->fps)) deffps=j;
-				}
-			}
-		}
+		SupRes=videoIn->SupYuv;
+		
 	} else {  /* is Mjpg */
 		snprintf(global->mode, 4, "jpg");
-		for (i=0;i<videoIn->SupMjpg;i++) {
+		SupRes=videoIn->SupMjpg;
+	}
+	
+	for (i=0;i<SupRes;i++) {
 			if((videoIn->listVidCap[global->formind][i].height==global->height) &&
 				(videoIn->listVidCap[global->formind][i].width==global->width) ) {
 				/* resolution ok check fps*/
@@ -828,7 +823,6 @@ ImpType_changed(GtkComboBox * ImpType, void * Data)
 				}
 			}
 		}
-	}
 	
 	global->height=videoIn->listVidCap[global->formind][defres].height;
 	global->width=videoIn->listVidCap[global->formind][defres].width;
@@ -875,14 +869,9 @@ FrameRate_changed (GtkComboBox * FrameRate,GtkComboBox * Resolution)
 	videoIn->fps_num=videoIn->listVidCap[global->formind][resind].framerate_num[index];
  
 	videoIn->setFPS=1;
-	//input_set_framerate (videoIn, global->fps, global->fps_num);
-	
-	//input_get_framerate(videoIn);
+
 	global->fps=videoIn->fps;
 	global->fps_num=videoIn->fps_num;
-	//~ printf("hardware fps is %d/%d ,%i/%i\n",global->fps,global->fps_num,
-				//~ videoIn->streamparm.parm.capture.timeperframe.numerator,
-				//~ videoIn->streamparm.parm.capture.timeperframe.denominator);
 	
 }
 
@@ -1290,30 +1279,7 @@ draw_controls (VidState *s)
 		ci->labelval = NULL;
 		
 		if (c->id == V4L2_CID_EXPOSURE_AUTO) {
-			//~ int val;
-			//~ ci->widget = gtk_check_button_new_with_label (c->name);
-			//~ g_object_set_data (G_OBJECT (ci->widget), "control_info", ci);
-			//~ gtk_widget_show (ci->widget);
-			//~ gtk_table_attach (GTK_TABLE (s->table), ci->widget, 1, 3, 3+i, 4+i,
-					//~ GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 			
-
-			//~ if (input_get_control (videoIn, c, &val) == 0) {
-				//~ gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (ci->widget),
-						//~ val==AUTO_EXP ? TRUE : FALSE);
-			//~ }
-			//~ else {
-				//~ gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (ci->widget),
-						//~ c->default_val==AUTO_EXP ? TRUE : FALSE);
-				//~ gtk_widget_set_sensitive (ci->widget, FALSE);
-			//~ }
-
-			//~ if (!c->enabled) {
-				//~ gtk_widget_set_sensitive (ci->widget, FALSE);
-			//~ }
-			
-			//~ g_signal_connect (G_OBJECT (ci->widget), "toggled",
-					//~ G_CALLBACK (check_changed), s);
 			int j=0;
 			int val=0;
 			/* test available modes */
@@ -1342,7 +1308,6 @@ draw_controls (VidState *s)
 			g_object_set_data (G_OBJECT (ci->widget), "control_info", ci);
 			gtk_widget_show (ci->widget);
 
-			//~ if (input_get_control (videoIn, c, &val) == 0) {
 				switch(val){
 					case (V4L2_EXPOSURE_MANUAL):
 						j=0;
@@ -1359,15 +1324,6 @@ draw_controls (VidState *s)
 					default :
 						j=1;
 				}
-				//~ for (j = 0; j <4; j++) {
-					//~ if (exp_vals[j]==val) break;
-				//~ }
-				//~ gtk_combo_box_set_active (GTK_COMBO_BOX (ci->widget), j);
-			//~ }
-			//~ else {
-				//~ gtk_combo_box_set_active (GTK_COMBO_BOX (ci->widget), c->default_val);
-				//~ gtk_widget_set_sensitive (ci->widget, FALSE);
-			//~ }
 
 			if (!c->enabled) {
 				gtk_widget_set_sensitive (ci->widget, FALSE);
