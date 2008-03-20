@@ -144,6 +144,8 @@ int writeConf(const char *confpath) {
 		fprintf(fp,"mode=%s\n",global->mode);
 		fprintf(fp,"# frames per sec. - hardware supported - default( %i )\n",DEFAULT_FPS);
 		fprintf(fp,"fps=%d/%d\n",global->fps_num,global->fps);
+		fprintf(fp,"#Display Fps counter: 1- Yes 0- No\n");
+		fprintf(fp,"fps_display=%i\n",global->FpsCount);
 		fprintf(fp,"# bytes per pixel: default (0 - current)\n");
 		fprintf(fp,"bpp=%i\n",global->bpp);
 		fprintf(fp,"# hardware accelaration: 0 1 (default - 1)\n");
@@ -152,7 +154,6 @@ int writeConf(const char *confpath) {
 		fprintf(fp,"grabmethod=%i\n",global->grabmethod);
 		fprintf(fp,"# video compression format: 0-MJPG 1-YUY2 2-DIB (BMP 24)\n");
 		fprintf(fp,"avi_format=%i\n",global->AVIFormat);
-		//fprintf(fp,"frequency=%i\n",freq);
 		fprintf(fp,"# sound 0 - disable 1 - enable\n");
 		fprintf(fp,"sound=%i\n",global->Sound_enable);
 		fprintf(fp,"# snd_device - sound device id as listed by portaudio\n");
@@ -163,6 +164,10 @@ int writeConf(const char *confpath) {
 		fprintf(fp,"snd_numchan=%i\n",global->Sound_NumChanInd);
 		fprintf(fp,"# video filters: 0 -none 1- flip 2- upturn 4- negate 8- mono (add the ones you want)\n");
 		fprintf(fp,"frame_flags=%i\n",global->Frame_Flags);
+		fprintf(fp,"# Image capture Full Path: Path (Max 100 characters) Filename (Max 20 characters)\n");
+		fprintf(fp,"image_path=%s/%s\n",global->imgPath,global->imageName);
+		fprintf(fp,"# Avi capture Full Path Path (Max 100 characters) Filename (Max 20 characters)\n");
+		fprintf(fp,"avi_path=%s/%s\n",global->aviPath,global->aviName);
 		printf("write %s OK\n",confpath);
 		fclose(fp);
 	} else {
@@ -175,8 +180,8 @@ int writeConf(const char *confpath) {
 static
 int readConf(const char *confpath) {
 	int ret=1;
-	char variable[20];
-	char value[20];
+	char variable[16];
+	char value[128];
 
 	int i=0;
 	int j=0;
@@ -184,9 +189,9 @@ int readConf(const char *confpath) {
 	FILE *fp;
 
 	if((fp = fopen(confpath,"r"))!=NULL) {
-		char line[80];
+		char line[144];
 
-	while (fgets(line, 80, fp) != NULL) {
+	while (fgets(line, 144, fp) != NULL) {
 		j++;
 		if ((line[0]=='#') || (line[0]==' ') || (line[0]=='\n')) {
 			/*skip*/
@@ -194,45 +199,79 @@ int readConf(const char *confpath) {
 			/* set variables */
 			if (strcmp(variable,"resolution")==0) {
 				if ((i=sscanf(value,"%ix%i",&(global->width),&(global->height)))==2)
-				printf("resolution: %i x %i\n",global->width,global->height); 			
+					printf("resolution: %i x %i\n",global->width,global->height); 			
 			} else if (strcmp(variable,"windowsize")==0) {
-			if ((i=sscanf(value,"%ix%i",&(global->winwidth),&(global->winheight)))==2)
-				printf("windowsize: %i x %i\n",global->winwidth,global->winheight);
+				if ((i=sscanf(value,"%ix%i",&(global->winwidth),&(global->winheight)))==2)
+					printf("windowsize: %i x %i\n",global->winwidth,global->winheight);
 			} else if (strcmp(variable,"mode")==0) {
-			global->mode[0]=value[0];
-			global->mode[1]=value[1];
-			global->mode[2]=value[2];
-			printf("mode: %s\n",global->mode);
+				global->mode[0]=value[0];
+				global->mode[1]=value[1];
+				global->mode[2]=value[2];
+				printf("mode: %s\n",global->mode);
 			} else if (strcmp(variable,"fps")==0) {
-			if ((i=sscanf(value,"%i/%i",&(global->fps_num),&(global->fps)))==1)
-				printf("fps: %i/%i\n",global->fps_num,global->fps);
+				if ((i=sscanf(value,"%i/%i",&(global->fps_num),&(global->fps)))==1)
+					printf("fps: %i/%i\n",global->fps_num,global->fps);
+			} else if (strcmp(variable,"fps_display")==0) { 
+				if ((i=sscanf(value,"%i",&(global->FpsCount)))==1)
+					printf("Display Fps: %i\n",global->FpsCount);
 			} else if (strcmp(variable,"bpp")==0) {
-			if ((i=sscanf(value,"%i",&(global->bpp)))==1)
-				printf("bpp: %i\n",global->bpp);
+				if ((i=sscanf(value,"%i",&(global->bpp)))==1)
+					printf("bpp: %i\n",global->bpp);
 			} else if (strcmp(variable,"hwaccel")==0) {
-			if ((i=sscanf(value,"%i",&(global->hwaccel)))==1)
-				printf("hwaccel: %i\n",global->hwaccel);
+				if ((i=sscanf(value,"%i",&(global->hwaccel)))==1)
+					printf("hwaccel: %i\n",global->hwaccel);
 			} else if (strcmp(variable,"grabmethod")==0) {
-			if ((i=sscanf(value,"%i",&(global->grabmethod)))==1)
-				printf("grabmethod: %i\n",global->grabmethod);
+				if ((i=sscanf(value,"%i",&(global->grabmethod)))==1)
+					printf("grabmethod: %i\n",global->grabmethod);
 			} else if (strcmp(variable,"avi_format")==0) {
-			if ((i=sscanf(value,"%i",&(global->AVIFormat)))==1)
-				printf("avi_format: %i\n",global->AVIFormat);
+				if ((i=sscanf(value,"%i",&(global->AVIFormat)))==1)
+					printf("avi_format: %i\n",global->AVIFormat);
 			} else if (strcmp(variable,"sound")==0) {
-			if ((i=sscanf(value,"%i",&(global->Sound_enable)))==1)
-				printf("sound: %i\n",global->Sound_enable);
+				if ((i=sscanf(value,"%i",&(global->Sound_enable)))==1)
+					printf("sound: %i\n",global->Sound_enable);
 			} else if (strcmp(variable,"snd_device")==0) {
-			if ((i=sscanf(value,"%i",&(global->Sound_UseDev)))==1)
-				printf("sound Device: %i\n",global->Sound_UseDev);
+				if ((i=sscanf(value,"%i",&(global->Sound_UseDev)))==1)
+					printf("sound Device: %i\n",global->Sound_UseDev);
 			} else if (strcmp(variable,"snd_samprate")==0) {
-			if ((i=sscanf(value,"%i",&(global->Sound_SampRateInd)))==1)
-						printf("sound samp rate: %i\n",global->Sound_SampRateInd);
+				if ((i=sscanf(value,"%i",&(global->Sound_SampRateInd)))==1)
+					printf("sound samp rate: %i\n",global->Sound_SampRateInd);
 			} else if (strcmp(variable,"snd_numchan")==0) {
-			if ((i=sscanf(value,"%i",&(global->Sound_NumChanInd)))==1)
-				printf("sound Channels: %i\n",global->Sound_NumChanInd);
+				if ((i=sscanf(value,"%i",&(global->Sound_NumChanInd)))==1)
+					printf("sound Channels: %i\n",global->Sound_NumChanInd);
 			} else if (strcmp(variable,"frame_flags")==0) {
-			if ((i=sscanf(value,"%i",&(global->Frame_Flags)))==1)
-				printf("sound Channels: %i\n",global->Frame_Flags);
+				if ((i=sscanf(value,"%i",&(global->Frame_Flags)))==1)
+					printf("sound Channels: %i\n",global->Frame_Flags);
+			} else if (strcmp(variable,"image_path")==0) {
+				splitPath(value,global->imgPath,global->imageName);
+				
+				/*get the file extension*/
+				char str_ext[3];
+				sscanf(global->imageName,"%*[^.].%3c",str_ext);
+				/* change image type */
+				int somExt = str_ext[0]+str_ext[1]+str_ext[2];
+				switch (somExt) {
+					/* there are 8 variations we will check for 3*/
+					case ('j'+'p'+'g'):
+					case ('J'+'P'+'G'):
+					case ('J'+'p'+'g'):
+						global->imgFormat=0;
+						break;
+					case ('b'+'m'+'p'):	
+					case ('B'+'M'+'P'):
+					case ('B'+'m'+'p'):
+						global->imgFormat=1;
+						break;
+					case ('p'+'n'+'g'):			
+					case ('P'+'N'+'G'):		
+					case ('P'+'n'+'g'):
+						global->imgFormat=2;
+						break;
+					default: /* use jpeg as default*/
+						global->imgFormat=0;
+				}
+				
+			} else if (strcmp(variable,"avi_path")==0) {
+				splitPath(value,global->aviPath,global->aviName);
 			}
 		}    
 		}
@@ -322,7 +361,13 @@ int readOpts(int argc,char *argv[]) {
 			}
 		}
 		if (strcmp(argv[i], "-p") == 0) {
-			global->FpsCount=1;
+			if ( i + 1 >= argc || *argv[i+1] =='-') {
+				printf("No parameter specified with -p, using default.\n");	
+			} else {
+				if (strcmp(argv[i+1], "enable") == 0) global->FpsCount=1;
+				else 
+					if (strcmp(argv[i+1], "disable") == 0) global->FpsCount=0;
+			}
 		}
 		if (strcmp(argv[i], "-h") == 0) {
 			printf("usage: guvcview [-h -d -g -f -s -c -C -S] \n");
@@ -335,7 +380,7 @@ int readOpts(int argc,char *argv[]) {
 			printf("-s	widthxheight      use specified input size \n");
 			printf("-n	avi_file_name   if avi_file_name set enable avi capture from start \n");
 			printf("-t  capture_time  used with -n option, sets the capture time in seconds\n");
-			printf("-p  enable fps counter in title bar\n");
+			printf("-p [enable|disable] fps counter in title bar\n");
 			exit(0);
 		}
 	}
@@ -891,13 +936,14 @@ ImageType_changed (GtkComboBox * ImageType,GtkEntry *ImageFNameEntry)
 {
 	char *filename;
 	char basename[16];
-	videoIn->Imgtype=gtk_combo_box_get_active (ImageType);	
+	global->imgFormat=gtk_combo_box_get_active (ImageType);
+	//videoIn->Imgtype=global->imgFormat;	
 	filename=gtk_entry_get_text(ImageFNameEntry);
 	
 	splitPath(filename, global->imgPath, global->imageName);
 	
 	sscanf(global->imageName,"%16[^.]",basename);
-	switch(videoIn->Imgtype){
+	switch(global->imgFormat){
 		case 0:
 			sprintf(global->imageName,"%s.jpg",basename);
 			break;
@@ -1059,21 +1105,22 @@ file_chooser (GtkButton * FileButt, const int isAVI)
 			case ('j'+'p'+'g'):
 			case ('J'+'P'+'G'):
 			case ('J'+'p'+'g'):
-				gtk_combo_box_set_active(GTK_COMBO_BOX(ImageType),0);
+				global->imgFormat=0;
 				break;
 			case ('b'+'m'+'p'):	
 			case ('B'+'M'+'P'):
 			case ('B'+'m'+'p'):
-				gtk_combo_box_set_active(GTK_COMBO_BOX(ImageType),1);
+				global->imgFormat=1;
 				break;
 			case ('p'+'n'+'g'):			
 			case ('P'+'N'+'G'):		
 			case ('P'+'n'+'g'):
-				gtk_combo_box_set_active(GTK_COMBO_BOX(ImageType),2);
+				global->imgFormat=2;
 				break;
 			default: /* use jpeg as default*/
 				gtk_combo_box_set_active(GTK_COMBO_BOX(ImageType),0);
 		}
+		gtk_combo_box_set_active(GTK_COMBO_BOX(ImageType),global->imgFormat);
 			
 	}
 	  
@@ -1213,20 +1260,41 @@ capture_avi (GtkButton * CapAVIButt, GtkWidget * AVIFNameEntry)
 }
 
 /* called by capture from start timer [-t seconds] command line option*/
-int timer_callback(){
+static int 
+timer_callback(){
 	/*stop avi capture*/
-	//printf("timer alarme - stoping avi\n");
 	capture_avi(CapAVIButt,AVIFNameEntry);
 	global->Capture_time=0; 
 	return (FALSE);/*destroys the timer*/
 }
 
-/* called by fps counter every 2 sec (-p command line option)*/
-int FpsCount_callback(){
-	
+
+/* called by fps counter every 2 sec */
+static int 
+FpsCount_callback(){
 	global->DispFps = global->frmCount >> 1; /* div by 2 */
-	return(TRUE); /*keeps the timer*/
-	//return (FALSE);/*destroys the timer*/
+	if (global->FpsCount>0) return(TRUE); /*keeps the timer*/
+	else {
+		snprintf(global->WVcaption,10,"GUVCVideo");
+		SDL_WM_SetCaption(global->WVcaption, NULL);
+		return (FALSE);/*destroys the timer*/
+	}
+}
+
+static void 
+*ShowFPS_changed(GtkToggleButton * toggle, void *data)
+{
+	global->FpsCount = gtk_toggle_button_get_active (toggle) ? 1 : 0;
+	
+	if(global->FpsCount > 0) {
+		/*sets the Fps counter timer function every 2 sec*/
+		global->timer_id = g_timeout_add(2*1000,FpsCount_callback,NULL);
+	} else {
+		if (global->timer_id > 0) g_source_remove(global->timer_id);
+		snprintf(global->WVcaption,10,"GUVCVideo");
+		SDL_WM_SetCaption(global->WVcaption, NULL);
+	}
+
 }
 
 /*--------------------------- draw camera controls ---------------------------*/
@@ -1355,13 +1423,15 @@ draw_controls (VidState *s)
 			gtk_widget_show (ci->widget);
 			
 			ci->labelval = gtk_label_new (NULL);
-			gtk_table_attach (GTK_TABLE (s->table), ci->labelval, 2, 3,
-					3+i, 4+i, GTK_FILL, 0, 0, 0);
 			
 			desc = pango_font_description_new ();
 			pango_font_description_set_family_static (desc, "monospace");
 			gtk_widget_modify_font (ci->labelval, desc);
-			gtk_misc_set_alignment (GTK_MISC (ci->labelval), 1, 0.5);
+			/*justify h:left and v:center*/
+			gtk_misc_set_alignment (GTK_MISC (ci->labelval), 0.0, 0.5);
+			
+			gtk_table_attach (GTK_TABLE (s->table), ci->labelval, 2, 3,
+					3+i, 4+i, GTK_EXPAND | GTK_FILL, 0, 0, 0);
 
 			if (input_get_control (videoIn, c, &val) == 0) {
 				gtk_range_set_value (GTK_RANGE (ci->widget), val);
@@ -1468,14 +1538,14 @@ void *main_loop(void *data)
 	 if (uvcGrab(videoIn) < 0) {
 		printf("Error grabbing image \n");
 		videoIn->signalquit=0;
-		sprintf(global->WVcaption,"GUVCVideo - CRASHED");
+		snprintf(global->WVcaption,20,"GUVCVideo - CRASHED");
 		SDL_WM_SetCaption(global->WVcaption, NULL);
 		pthread_exit((void *) 2);
 	 } else {
 		if (global->FpsCount) {/* sets fps count in window title bar */
 			global->frmCount++;
 			if (global->DispFps>0) { /*set every 2 sec*/
-				sprintf(global->WVcaption,"GUVCVideo - %d fps",global->DispFps);
+				snprintf(global->WVcaption,20,"GUVCVideo - %d fps",global->DispFps);
 				SDL_WM_SetCaption(global->WVcaption, NULL);
 				global->frmCount=0;/*resets*/
 				global->DispFps=0;
@@ -1498,7 +1568,7 @@ void *main_loop(void *data)
 	 /*-------------------------capture Image----------------------------------*/
 	 //char fbasename[20];
 	 if (videoIn->capImage){
-		 switch(videoIn->Imgtype) {
+		 switch(global->imgFormat) {
 		 case 0:/*jpg*/
 			/* Save directly from MJPG frame */	 
 			if((global->Frame_Flags==0) && (videoIn->formatIn==V4L2_PIX_FMT_MJPEG)) {
@@ -1680,6 +1750,7 @@ int main(int argc, char *argv[])
 	GtkWidget * boxh;
 	GtkWidget *Resolution;
 	GtkWidget *FrameRate;
+	GtkWidget *ShowFPS;
 	GtkWidget *ImpType;
 	GtkWidget *label_ImpType;
 	GtkWidget *label_FPS;
@@ -1821,8 +1892,8 @@ int main(int argc, char *argv[])
 	/*-----------------------------GTK widgets---------------------------------*/
 	s->table = gtk_table_new (1, 3, FALSE);
 	gtk_table_set_row_spacings (GTK_TABLE (s->table), 10);
-	gtk_table_set_col_spacings (GTK_TABLE (s->table), 10);
-	gtk_container_set_border_width (GTK_CONTAINER (s->table), 10);
+	gtk_table_set_col_spacings (GTK_TABLE (s->table), 4);
+	gtk_container_set_border_width (GTK_CONTAINER (s->table), 6);
 	gtk_widget_set_size_request (s->table, 440, -1);
 	
 	s->control = NULL;
@@ -1834,9 +1905,9 @@ int main(int argc, char *argv[])
 	
 	table2 = gtk_table_new(1,3,FALSE);
 	gtk_table_set_row_spacings (GTK_TABLE (table2), 10);
-	gtk_table_set_col_spacings (GTK_TABLE (table2), 10);
-	gtk_container_set_border_width (GTK_CONTAINER (table2), 10);
-	gtk_widget_set_size_request (table2, 350, -1);
+	gtk_table_set_col_spacings (GTK_TABLE (table2), 4);
+	gtk_container_set_border_width (GTK_CONTAINER (table2), 6);
+	gtk_widget_set_size_request (table2, 360, -1);
 	
 	/* Resolution*/
 	Resolution = gtk_combo_box_new_text ();
@@ -1861,7 +1932,7 @@ int main(int argc, char *argv[])
 		//~ videoIn->height=global->height;
 	//~ }
 	printf("Def. Res: %i    numb. fps:%i\n",defres,videoIn->listVidCap[global->formind][defres].numb_frates);
-	gtk_table_attach(GTK_TABLE(table2), Resolution, 1, 3, 3, 4,
+	gtk_table_attach(GTK_TABLE(table2), Resolution, 1, 2, 3, 4,
 					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (Resolution);
 	
@@ -1894,7 +1965,7 @@ int main(int argc, char *argv[])
 		}
 	}
 	
-	gtk_table_attach(GTK_TABLE(table2), FrameRate, 1, 3, 2, 3,
+	gtk_table_attach(GTK_TABLE(table2), FrameRate, 1, 2, 2, 3,
 					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (FrameRate);
 	
@@ -1919,6 +1990,16 @@ int main(int argc, char *argv[])
 
 	gtk_widget_show (label_FPS);
 	
+	ShowFPS=gtk_check_button_new_with_label (" Show");
+	gtk_table_attach(GTK_TABLE(table2), ShowFPS, 2, 3, 2, 3,
+					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	
+	gtk_toggle_button_set_active(GTK_CHECK_BUTTON(ShowFPS),(global->FpsCount > 0));
+	gtk_widget_show (ShowFPS);
+	g_signal_connect (GTK_CHECK_BUTTON(ShowFPS), "toggled",
+		G_CALLBACK (ShowFPS_changed), NULL);
+	
+	
 	/* Input method jpg  or yuv */
 	ImpType= gtk_combo_box_new_text ();
 	if (videoIn->SupMjpg>0) {/*Jpeg Input Available*/
@@ -1927,7 +2008,7 @@ int main(int argc, char *argv[])
 	if (videoIn->SupYuv>0) {/*yuv Input Available*/
 		gtk_combo_box_append_text(ImpType,"YUV");
 	}
-	gtk_table_attach(GTK_TABLE(table2), ImpType, 1, 3, 4, 5,
+	gtk_table_attach(GTK_TABLE(table2), ImpType, 1, 2, 4, 5,
 					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	
 	if ((videoIn->SupMjpg >0) && (videoIn->SupYuv >0)) {
@@ -1951,8 +2032,9 @@ int main(int argc, char *argv[])
 	/* Image Capture*/
 	CapImageButt = gtk_button_new_with_label("Capture");
 	ImageFNameEntry = gtk_entry_new();
+	//gtk_widget_set_size_request(ImageFNameEntry,10,-1);
 	
-	gtk_entry_set_text(GTK_ENTRY(ImageFNameEntry),DEFAULT_IMAGE_FNAME);
+	gtk_entry_set_text(GTK_ENTRY(ImageFNameEntry),global->imageName);
 	
 	gtk_table_attach(GTK_TABLE(table2), CapImageButt, 0, 1, 5, 6,
 					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
@@ -1976,7 +2058,7 @@ int main(int argc, char *argv[])
 	gtk_combo_box_append_text(GTK_COMBO_BOX(ImageType),"JPG");
 	gtk_combo_box_append_text(GTK_COMBO_BOX(ImageType),"BMP");
 	gtk_combo_box_append_text(GTK_COMBO_BOX(ImageType),"PNG");
-	gtk_combo_box_set_active(GTK_COMBO_BOX(ImageType),0);
+	gtk_combo_box_set_active(GTK_COMBO_BOX(ImageType),global->imgFormat);
 	gtk_table_attach(GTK_TABLE(table2), ImageType, 1, 2, 6, 7,
 					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (ImageType);
@@ -1995,13 +2077,15 @@ int main(int argc, char *argv[])
 	
 	/*AVI Capture*/
 	AVIFNameEntry = gtk_entry_new();
+	//gtk_widget_set_size_request(AVIFNameEntry,10,-1);
+	
 	if (global->avifile) {	/*avi capture enabled from start*/
 		CapAVIButt = gtk_button_new_with_label("Stop");
 		gtk_entry_set_text(GTK_ENTRY(AVIFNameEntry),global->avifile);
 	} else {
 		CapAVIButt = gtk_button_new_with_label("Capture");
 		videoIn->capAVI = FALSE;
-		gtk_entry_set_text(GTK_ENTRY(AVIFNameEntry),DEFAULT_AVI_FNAME);
+		gtk_entry_set_text(GTK_ENTRY(AVIFNameEntry),global->aviName);
 	}
 	
 	gtk_table_attach(GTK_TABLE(table2), CapAVIButt, 0, 1, 7, 8,
@@ -2338,25 +2422,7 @@ int main(int argc, char *argv[])
 				compression="MJPG";
 				break;
 			case 1:
-				compression="YUY2";//~ /* Capture a single raw frame */
-	//~ if (vd->rawFrameCapture && vd->buf.bytesused > 0) {
-		//~ FILE *frame = NULL;
-		//~ char filename[13];
-		//~ int ret;
-
-		//~ /* Disable frame capturing unless we're in frame stream mode */
-		//~ if(vd->rawFrameCapture == 1)
-			//~ vd->rawFrameCapture = 0;
-
-		//~ /* Create a file name and open the file */
-		//~ sprintf(filename, "frame%03u.raw", vd->fileCounter++ % 1000);
-		//~ frame = fopen(filename, "wb");
-		//~ if(frame == NULL) {
-			//~ perror("Unable to open file for raw frame capturing");
-			//~ goto end_capture;
-		//~ }
-		
-		//~ /* Wri
+				compression="YUY2";
 				break;
 			case 2:
 				compression="DIB ";
@@ -2394,9 +2460,9 @@ int main(int argc, char *argv[])
 		global->AVIstarttime = ms_time();
 	}
 	
-	if (global->FpsCount) {
-			/*sets the Fps counter timer function every 2 sec*/
-			g_timeout_add(2*1000,FpsCount_callback,NULL);
+	if (global->FpsCount>0) {
+		/*sets the Fps counter timer function every 2 sec*/
+		global->timer_id = g_timeout_add(2*1000,FpsCount_callback,NULL);
 	}
 	/*------------------ Creating the main loop (video) thread ---------------*/
 	int rc = pthread_create(&mythread, &attr, main_loop, NULL); 

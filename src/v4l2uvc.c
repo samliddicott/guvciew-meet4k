@@ -57,7 +57,6 @@ init_videoIn(struct vdIn *vd, char *device, int width, int height,
 	grabmethod = 1;		//mmap by default;
     vd->videodevice = NULL;
     vd->status = NULL;
-	vd->Imgtype=IMGTYPE;
     if((vd->videodevice = (char *) calloc(1, 16 * sizeof(char)))==NULL){
 		printf("couldn't calloc memory for:vd->videodevice\n");
 		goto error1;

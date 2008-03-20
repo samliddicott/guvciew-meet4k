@@ -84,8 +84,6 @@ typedef unsigned char SAMPLE;
 #define DEFAULT_HEIGHT 240
 
 #define DEFAULT_IMAGE_FNAME "Image.jpg"
-#define DEFAULT_BMP_FNAME "Image.bmp"
-#define IMGTYPE (0) /*default type (varies if on MJPEG(jpg) or YUYV(bmp) input)*/
 #define DEFAULT_AVI_FNAME	"capture.avi"
 #define DEFAULT_FPS	25
 #define DEFAULT_FPS_NUM 1
@@ -143,7 +141,9 @@ struct GLOBAL {
 	char *imgPath;
 	char *sndfile; /*temporary snd filename*/
 	char *avifile; /*avi filename passed through argument options with -n */
+	char *WVcaption; /*video preview title bar caption*/
 	int Capture_time; /*avi capture time passed through argument options with -t */
+	int imgFormat;
 	int AVIFormat; /*0-"MJPG"  1-"YUY2" 2-"DIB "(rgb32)*/ 
 	DWORD snd_begintime;/*begin time for audio capture*/
 	DWORD currtime;
@@ -161,10 +161,10 @@ struct GLOBAL {
 	int Sound_UseDev;
 	int Sound_NumChan;
 	int Sound_NumChanInd;
-	char WVcaption[20];
 	int DispFps;
 	int frmCount;
 	int FpsCount;
+	int timer_id;
 	int fps;
 	int fps_num;
 	int bpp; //current bytes per pixel
