@@ -28,19 +28,36 @@ int check_videoIn(struct vdIn *vd)
 int ret;
  if (vd == NULL)
 	return -1;
+	
+	
+	memset(&vd->cap, 0, sizeof(struct v4l2_capability));
+    ret = ioctl(vd->fd, VIDIOC_QUERYCAP, &vd->cap);
+    if (ret < 0) {
+		printf("Error opening device %s: unable to query device fd=%d.\n",
+	    vd->videodevice,vd->fd);
+		goto fatal;
+    }
 
     if ((vd->cap.capabilities & V4L2_CAP_VIDEO_CAPTURE) == 0) {
-	printf("Error opening device %s: video capture not supported.\n",
-	       vd->videodevice);
+		printf("Error opening device %s: video capture not supported.\n",
+	    vd->videodevice);
+		goto fatal;;
     }
-    if (!(vd->cap.capabilities & V4L2_CAP_STREAMING)) {
-	    printf("%s does not support streaming i/o\n", vd->videodevice);
-    }
-    if (!(vd->cap.capabilities & V4L2_CAP_READWRITE)) {
-	    printf("%s does not support read i/o\n", vd->videodevice);
+    if (vd->grabmethod) {
+		if (!(vd->cap.capabilities & V4L2_CAP_STREAMING)) {
+	    	printf("%s does not support streaming i/o\n", vd->videodevice);
+	    	goto fatal;
+		}
+    } else {
+		if (!(vd->cap.capabilities & V4L2_CAP_READWRITE)) {
+	    	printf("%s does not support read i/o\n", vd->videodevice);
+	    	goto fatal;
+		}
     }
     enum_frame_formats(vd);
     return 0;
+fatal:
+	return -1;
 }
 
 
@@ -132,10 +149,6 @@ init_videoIn(struct vdIn *vd, char *device, int width, int height,
 		printf("couldn't calloc memory for:vd->framebuffer\n");	
 		goto error5;
 	}
-	/* populate video capabilities structure array           */
-	/* should only be called after all vdIn struct elements  */
-	/* have been initialized                                 */
-	check_videoIn(vd);
 	
     return 0;
 	/*error: clean up allocs*/
@@ -230,31 +243,12 @@ static int init_v4l2(struct vdIn *vd)
 	    exit(1);
       }
     }
+	
+	/* populate video capabilities structure array           */
+	/* should only be called after all vdIn struct elements  */
+	/* have been initialized                                 */
+	check_videoIn(vd);
 
-    memset(&vd->cap, 0, sizeof(struct v4l2_capability));
-    ret = ioctl(vd->fd, VIDIOC_QUERYCAP, &vd->cap);
-    if (ret < 0) {
-	printf("Error opening device %s: unable to query device fd=%d.\n",
-	       vd->videodevice,vd->fd);
-	goto fatal;
-    }
-
-    if ((vd->cap.capabilities & V4L2_CAP_VIDEO_CAPTURE) == 0) {
-	printf("Error opening device %s: video capture not supported.\n",
-	       vd->videodevice);
-	goto fatal;;
-    }
-    if (vd->grabmethod) {
-	if (!(vd->cap.capabilities & V4L2_CAP_STREAMING)) {
-	    printf("%s does not support streaming i/o\n", vd->videodevice);
-	    goto fatal;
-	}
-    } else {
-	if (!(vd->cap.capabilities & V4L2_CAP_READWRITE)) {
-	    printf("%s does not support read i/o\n", vd->videodevice);
-	    goto fatal;
-	}
-    }
     /* set format in */
     memset(&vd->fmt, 0, sizeof(struct v4l2_format));
     vd->fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
@@ -264,15 +258,15 @@ static int init_v4l2(struct vdIn *vd)
     vd->fmt.fmt.pix.field = V4L2_FIELD_ANY;
     ret = ioctl(vd->fd, VIDIOC_S_FMT, &vd->fmt);
     if (ret < 0) {
-	printf("Unable to set format: %d.\n", errno);
-	goto fatal;
+		printf("Unable to set format: %d.\n", errno);
+		goto fatal;
     }
     if ((vd->fmt.fmt.pix.width != vd->width) ||
-	(vd->fmt.fmt.pix.height != vd->height)) {
-	printf(" format asked unavailable get width %d height %d \n",
-	       vd->fmt.fmt.pix.width, vd->fmt.fmt.pix.height);
-	vd->width = vd->fmt.fmt.pix.width;
-	vd->height = vd->fmt.fmt.pix.height;
+		(vd->fmt.fmt.pix.height != vd->height)) {
+		printf(" format asked unavailable get width %d height %d \n",
+	       	vd->fmt.fmt.pix.width, vd->fmt.fmt.pix.height);
+			vd->width = vd->fmt.fmt.pix.width;
+			vd->height = vd->fmt.fmt.pix.height;
 	/* look the format is not part of the deal ??? */
 	//vd->formatIn = vd->fmt.fmt.pix.pixelformat;
     }
@@ -282,7 +276,7 @@ static int init_v4l2(struct vdIn *vd)
 	vd->streamparm.parm.capture.timeperframe.denominator = vd->fps;
 	ret = ioctl(vd->fd,VIDIOC_S_PARM,&vd->streamparm);
 	if (ret < 0) {
-	printf("Unable to set timeperframe: %d.\n", errno);
+		printf("Unable to set timeperframe: %d.\n", errno);
 	}	
     /* request buffers */
     memset(&vd->rb, 0, sizeof(struct v4l2_requestbuffers));
@@ -292,8 +286,8 @@ static int init_v4l2(struct vdIn *vd)
 
     ret = ioctl(vd->fd, VIDIOC_REQBUFS, &vd->rb);
     if (ret < 0) {
-	printf("Unable to allocate buffers: %d.\n", errno);
-	goto fatal;
+		printf("Unable to allocate buffers: %d.\n", errno);
+		goto fatal;
     }
     /* map the buffers */
 	if (query_buff(vd,0)) goto fatal;

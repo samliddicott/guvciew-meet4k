@@ -1730,12 +1730,12 @@ void *main_loop(void *data)
 int main(int argc, char *argv[])
 {
 	int i;
-	
+	/*stores argv[0] - program call string - for restart*/	
 	if((EXEC_CALL=malloc(strlen(argv[0])*sizeof(char)))==NULL) {
 		printf("couldn't allocate memory for: EXEC_CALL)\n");
 		exit(1);
 	}
-	strcpy(EXEC_CALL,argv[0]);/*stores argv[0] - program call string*/
+	strcpy(EXEC_CALL,argv[0]);
 	
 	/*set global variables*/
 	if((global=(struct GLOBAL *) calloc(1, sizeof(struct GLOBAL)))==NULL){
@@ -1883,7 +1883,49 @@ int main(int argc, char *argv[])
 	if (init_videoIn
 		(videoIn, (char *) global->videodevice, global->width,global->height, 
 	 	global->format, global->grabmethod, global->fps, global->fps_num) < 0)
+	{
+		printf("trying minimum setup...\n");
+		if ((global->formind==0) && (videoIn->SupMjpg>0)) { /*use jpg mode*/
+			global->formind=0;
+			global->format=V4L2_PIX_FMT_MJPEG;
+			snprintf(global->mode, 4, "jpg");
+		} else {
+			if ((global->formind==1) && (videoIn->SupYuv>0)) { /*use yuv mode*/
+				global->formind=1;
+				global->format=V4L2_PIX_FMT_YUYV;
+				snprintf(global->mode, 4, "yuv");
+			} else { /*selected mode isn't available*/
+				/*check available modes*/
+				if(videoIn->SupMjpg>0){
+					global->formind=0;
+					global->format=V4L2_PIX_FMT_MJPEG;
+					snprintf(global->mode, 4, "jpg");
+				} else { 
+					if (videoIn->SupYuv>0) {
+						global->formind=1;
+						global->format=V4L2_PIX_FMT_YUYV;
+						snprintf(global->mode, 4, "yuv");
+					} else {
+						printf("ERROR: Can't set MJPG or YUV stream.\nExiting...\n");
+						exit(1);
+					}
+				}
+			}
+		}
+		global->width=videoIn->listVidCap[global->formind][0].width;
+		global->height=videoIn->listVidCap[global->formind][0].height;
+		global->fps_num=videoIn->listVidCap[global->formind][0].framerate_num[0];
+		global->fps=videoIn->listVidCap[global->formind][0].framerate_denom[0];
+		if (init_videoIn
+			(videoIn, (char *) global->videodevice, global->width,global->height, 
+	 		global->format, global->grabmethod, global->fps, global->fps_num) < 0)
+		{
+			printf("ERROR: Minimum Setup Failed.\n Exiting...\n");
 			exit(1);
+		}
+		
+	}
+			
 
 	/* Set jpeg encoder buffer size */
 	global->jpeg_bufsize=((videoIn->width)*(videoIn->height))>>1;

@@ -1507,8 +1507,8 @@ yuyv_monochrome(BYTE* frame, int width, int height)
 	int i=0;
 
 	for(i=0; i < size; i = i + 4) { /* keep Y - luma */
-        frame[i+1]=0x77;/*U - median (half the max value)*/
-        frame[i+3]=0x77;/*V - median (half the max value)*/        
+        frame[i+1]=0x80;/*U - median (half the max value)=128*/
+        frame[i+3]=0x80;/*V - median (half the max value)=128*/        
     }
 }
 
