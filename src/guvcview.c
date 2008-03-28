@@ -136,7 +136,9 @@ int writeConf(const char *confpath) {
 	FILE *fp;
 	if ((fp = fopen(confpath,"w"))!=NULL) {
 		fprintf(fp,"# guvcview configuration file\n\n");
-		fprintf(fp,"# video resolution - hardware supported (logitech) 320x240 640x480\n");
+		fprintf(fp,"# video device\n");
+		fprintf(fp,"video_device=%s\n",global->videodevice);
+		fprintf(fp,"# video resolution \n");
 		fprintf(fp,"resolution=%ix%i\n",global->width,global->height);
 		fprintf(fp,"# control window size: default %ix%i\n",WINSIZEX,WINSIZEY);
 		fprintf(fp,"windowsize=%ix%i\n",global->winwidth,global->winheight);
@@ -162,6 +164,11 @@ int writeConf(const char *confpath) {
 		fprintf(fp,"snd_samprate=%i\n",global->Sound_SampRateInd);
 		fprintf(fp,"# snd_numchan - sound number of channels 0- dev def 1 - mono 2 -stereo\n");
 		fprintf(fp,"snd_numchan=%i\n",global->Sound_NumChanInd);
+		fprintf(fp,"#snd_numsec - avi audio blocks size in sec: 1,2,3,.. \n");
+		fprintf(fp,"# more seconds = more granularity, more memory allocation but less disc I/O\n");
+		fprintf(fp,"snd_numsec=%i\n",global->Sound_NumSec);
+		fprintf(fp,"# snd_buf_fact - audio buffer size = audio block frames total size x snd_buf_fact\n");
+		fprintf(fp,"snd_buf_fact=%i\n",global->Sound_BuffFactor);
 		fprintf(fp,"# video filters: 0 -none 1- flip 2- upturn 4- negate 8- mono (add the ones you want)\n");
 		fprintf(fp,"frame_flags=%i\n",global->Frame_Flags);
 		fprintf(fp,"# Image capture Full Path: Path (Max 100 characters) Filename (Max 20 characters)\n");
@@ -197,16 +204,17 @@ int readConf(const char *confpath) {
 			/*skip*/
 		} else if ((i=sscanf(line,"%[^#=]=%[^#\n ]",variable,value))==2){
 			/* set variables */
-			if (strcmp(variable,"resolution")==0) {
+			if (strcmp(variable,"video_device")==0) {
+				snprintf(global->videodevice,15,"%s",value);
+				printf("video_device: %s\n",global->videodevice);
+			} else if (strcmp(variable,"resolution")==0) {
 				if ((i=sscanf(value,"%ix%i",&(global->width),&(global->height)))==2)
 					printf("resolution: %i x %i\n",global->width,global->height); 			
 			} else if (strcmp(variable,"windowsize")==0) {
 				if ((i=sscanf(value,"%ix%i",&(global->winwidth),&(global->winheight)))==2)
 					printf("windowsize: %i x %i\n",global->winwidth,global->winheight);
 			} else if (strcmp(variable,"mode")==0) {
-				global->mode[0]=value[0];
-				global->mode[1]=value[1];
-				global->mode[2]=value[2];
+				snprintf(global->mode,5,"%s",value);
 				printf("mode: %s\n",global->mode);
 			} else if (strcmp(variable,"fps")==0) {
 				if ((i=sscanf(value,"%i/%i",&(global->fps_num),&(global->fps)))==1)
@@ -238,9 +246,15 @@ int readConf(const char *confpath) {
 			} else if (strcmp(variable,"snd_numchan")==0) {
 				if ((i=sscanf(value,"%i",&(global->Sound_NumChanInd)))==1)
 					printf("sound Channels: %i\n",global->Sound_NumChanInd);
-			} else if (strcmp(variable,"frame_flags")==0) {
+			} else if (strcmp(variable,"snd_numsec")==0) {
+				if ((i=sscanf(value,"%i",&(global->Sound_NumSec)))==1)
+					printf("Sound Block Size: %i seconds\n",global->Sound_NumSec);
+			} else if (strcmp(variable,"snd_buf_fact")==0) {
+				if ((i=sscanf(value,"%i",&(global->Sound_BuffFactor)))==1)
+					printf("sound Buffer Factor: %i\n",global->Sound_BuffFactor); 
+			}  else if (strcmp(variable,"frame_flags")==0) {
 				if ((i=sscanf(value,"%i",&(global->Frame_Flags)))==1)
-					printf("sound Channels: %i\n",global->Frame_Flags);
+					printf("Video Filter Flags: %i\n",global->Frame_Flags);
 			} else if (strcmp(variable,"image_path")==0) {
 				splitPath(value,global->imgPath,global->imageName);
 				
@@ -437,7 +451,7 @@ void *sound_capture(void *data)
 	//printf("dev:%d SampleRate:%d Chanels:%d\n",Sound_IndexDev[Sound_UseDev].id,Sound_SampRate,Sound_NumChan);
 	
 	/* setting maximum buffer size*/
-	totalFrames = NUM_SECONDS * global->Sound_SampRate;
+	totalFrames = global->Sound_NumSec * global->Sound_SampRate;
 	numSamples = totalFrames * global->Sound_NumChan;
 	numBytes = numSamples * sizeof(SAMPLE);
 	recordedSamples = (SAMPLE *) malloc( numBytes );
@@ -463,7 +477,7 @@ void *sound_capture(void *data)
 			  &inputParameters,
 			  NULL,                  /* &outputParameters, */
 			  global->Sound_SampRate,
-			  (totalFrames*2),/* buffer as double capacity of total frames to read*/
+			  (numBytes*global->Sound_BuffFactor),/* buffer Size*/
 			  paNoFlag,      /* PaNoFlag - clip and dhiter*/
 			  NULL, /* sound callback - using blocking API*/
 			  NULL ); /* callback userData -no callback no data */
@@ -1259,6 +1273,12 @@ capture_avi (GtkButton * CapAVIButt, GtkWidget * AVIFNameEntry)
 	}	
 }
 
+static void
+quitButton_clicked (GtkButton * quitButton, void *data)
+{
+	shutd(0);//shutDown
+}
+
 /* called by capture from start timer [-t seconds] command line option*/
 static int 
 timer_callback(){
@@ -1747,7 +1767,9 @@ int main(int argc, char *argv[])
 						  
 	const SDL_VideoInfo *info;
 	char driver[128];
-	GtkWidget * boxh;
+	GtkWidget *boxv;
+	GtkWidget *buttons_table;
+	GtkWidget *boxh;
 	GtkWidget *Resolution;
 	GtkWidget *FrameRate;
 	GtkWidget *ShowFPS;
@@ -1766,6 +1788,7 @@ int main(int argc, char *argv[])
 	GtkWidget *label_SndNumChan;
 	GtkWidget *label_videoFilters;
 	GtkWidget *table3;
+	GtkWidget *quitButton;
 	
 	if ((s = malloc (sizeof (VidState)))==NULL){
 		printf("couldn't allocate memory for: s\n");
@@ -1936,20 +1959,41 @@ int main(int argc, char *argv[])
 	gtk_table_set_row_spacings (GTK_TABLE (s->table), 10);
 	gtk_table_set_col_spacings (GTK_TABLE (s->table), 4);
 	gtk_container_set_border_width (GTK_CONTAINER (s->table), 6);
-	gtk_widget_set_size_request (s->table, 440, -1);
+	//gtk_widget_set_size_request (s->table, (global->winwidth>>1), -1);
 	
 	s->control = NULL;
 	draw_controls(s);
 	
+	boxv = gtk_vbox_new (FALSE, 0);
+	
 	boxh = gtk_hbox_new (FALSE, 0);
-	gtk_box_pack_start (GTK_BOX (boxh), s->table, FALSE, FALSE, 0);
+	gtk_box_pack_start (GTK_BOX (boxv), boxh, FALSE, FALSE, 0);
+	gtk_box_pack_start (GTK_BOX (boxh), s->table, TRUE, TRUE, 0);
 	gtk_widget_show (s->table);
+	
+	gtk_widget_show (boxh);
+	gtk_widget_show (boxv);
+	
+	/*add quit button*/
+	buttons_table = gtk_table_new(1,6,TRUE);
+	
+	gtk_widget_show (buttons_table);
+	gtk_box_pack_start (GTK_BOX (boxv), buttons_table, TRUE, TRUE, 0);
+	
+	quitButton=gtk_button_new_from_stock(GTK_STOCK_CLOSE);
+	gtk_table_attach (GTK_TABLE(buttons_table), quitButton, 3, 4, 0, 1,
+					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_widget_show (quitButton);
+	g_signal_connect (GTK_BUTTON(quitButton), "clicked",
+		 G_CALLBACK (quitButton_clicked), NULL);
+	
 	
 	table2 = gtk_table_new(1,3,FALSE);
 	gtk_table_set_row_spacings (GTK_TABLE (table2), 10);
 	gtk_table_set_col_spacings (GTK_TABLE (table2), 4);
 	gtk_container_set_border_width (GTK_CONTAINER (table2), 6);
-	gtk_widget_set_size_request (table2, 360, -1);
+	//gtk_widget_set_size_request (table2, (global->winwidth>>1), -1);
+	gtk_box_pack_start (GTK_BOX (boxh), table2, FALSE, FALSE, 0);
 	
 	/* Resolution*/
 	Resolution = gtk_combo_box_new_text ();
@@ -2448,8 +2492,7 @@ int main(int argc, char *argv[])
 	SDL_WM_SetCaption(global->WVcaption, NULL);
 	
 	/* main container */
-	gtk_container_add (GTK_CONTAINER (mainwin), boxh);
-	gtk_widget_show (boxh);
+	gtk_container_add (GTK_CONTAINER (mainwin), boxv);
 	
 	gtk_widget_show (mainwin);
 	

@@ -1181,7 +1181,7 @@ int initGlobals (struct GLOBAL *global) {
 		printf("couldn't calloc memory for:global->confPath\n");
 		goto error;
 	}
-	snprintf(global->confPath, 14, "./guvcviewrc");
+	snprintf(global->confPath, 14, "~/.guvcviewrc");
 	
 	if((global->aviPath = (char *) calloc(1, 100 * sizeof(char)))==NULL){
 		printf("couldn't calloc memory for:global->aviPath\n");
@@ -1239,6 +1239,8 @@ int initGlobals (struct GLOBAL *global) {
 	global->Sound_UseDev=0;
 	global->Sound_NumChan=NUM_CHANNELS;
 	global->Sound_NumChanInd=0;
+	global->Sound_NumSec=NUM_SECONDS;
+	global->Sound_BuffFactor=BUFF_FACTOR;
 	global->FpsCount=0;
 	global->timer_id=0;
 	global->frmCount=0;

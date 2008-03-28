@@ -1,8 +1,10 @@
-guvcview (0.6.2) stable; urgency=low
+guvcview (0.7.0) stable; urgency=low
 
-   * Replace '~' by home dir in Path entry
-   * added fps counter command line option '-p'
-   * added input mode combo box (jpg - yuv)
+   * Fixed Cell padding (auto resize widgets)
+   * Fixed Mono filter
+   * Added quit button
+   * Added sound capture parameters to rc file
+   * Added device string to rc file 
 
  -- Paulo Assis <pj.assis@gmail.com>  Wed, 09 Jan 2008 19:07:18 +0000
 

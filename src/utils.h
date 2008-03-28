@@ -23,17 +23,24 @@ typedef  unsigned int LONG;
 typedef  unsigned int UINT;
 typedef  unsigned short int WORD;
 
-#define VERSION ("0.6.2")
+#define VERSION ("0.7.0")
 
-/*portaudio defs*/
+/*------------- portaudio defs ----------------*/
+/*---- can be override in rc file or GUI ------*/
+
 #define SAMPLE_RATE  (0) /* 0 device default*/
 //#define FRAMES_PER_BUFFER (4096)
-#define NUM_SECONDS     (2) /*allways writes 2 second bloks*/
-/* sound can go for more 2 seconds than video, must clip in post processing*/
+
+#define NUM_SECONDS     (1) /* captures 2 second bloks */
+/* sound can go for more 2 seconds than video          */
+
+#define BUFF_FACTOR		(2) /* audio buffer Multiply factor */
+/*Audio Buffer = audio block frames total size x Buff_factor   */
 
 #define NUM_CHANNELS    (0) /* 0-device default 1-mono 2-stereo */
-/* #define DITHER_FLAG     (paDitherOff)  */
-#define DITHER_FLAG     (0) /**/
+
+//#define DITHER_FLAG     (paDitherOff) 
+#define DITHER_FLAG     (0) 
 
 /* Select sample format to 16bit. */
 #if 0
@@ -161,6 +168,8 @@ struct GLOBAL {
 	int Sound_UseDev;
 	int Sound_NumChan;
 	int Sound_NumChanInd;
+	int Sound_NumSec;
+	int Sound_BuffFactor;
 	int DispFps;
 	int frmCount;
 	int FpsCount;
