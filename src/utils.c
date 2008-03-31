@@ -1181,7 +1181,7 @@ int initGlobals (struct GLOBAL *global) {
 		printf("couldn't calloc memory for:global->confPath\n");
 		goto error;
 	}
-	snprintf(global->confPath, 14, "~/.guvcviewrc");
+	snprintf(global->confPath, 79, "%s/.guvcviewrc",getenv("HOME"));
 	
 	if((global->aviPath = (char *) calloc(1, 100 * sizeof(char)))==NULL){
 		printf("couldn't calloc memory for:global->aviPath\n");
@@ -1193,7 +1193,7 @@ int initGlobals (struct GLOBAL *global) {
 		printf("couldn't calloc memory for:global->imgPath\n");
 		goto error;
 	}
-	snprintf(global->imgPath, 2, "~");
+	snprintf(global->imgPath, 99, "%s",getenv("HOME"));
 	
 	if((global->imageName = (char *) calloc(1, 20 * sizeof(char)))==NULL){
 		printf("couldn't calloc memory for:global->imageName\n");
@@ -1213,6 +1213,18 @@ int initGlobals (struct GLOBAL *global) {
 	}
 	snprintf(global->sndfile,32,"%s",tempnam (NULL, "gsnd_"));/*generates a temporary file name*/
 	
+	if((global->profile_dir = (char *) calloc(1, 100 * sizeof(char)))==NULL){
+		printf("couldn't calloc memory for:global->profile_dir\n");
+		goto error;
+	}
+	snprintf(global->profile_dir, 100, "%s",getenv("HOME"));
+	
+	if((global->profile_fname = (char *) calloc(1, 20 * sizeof(char)))==NULL){
+		printf("couldn't calloc memory for:global->profile_fname\n");
+		goto error;
+	}
+	snprintf(global->profile_fname, 20, "default.gpfl",getenv("HOME"));
+	
 	if((global->WVcaption= (char *) calloc(1, 32 * sizeof(char)))==NULL){
 		printf("couldn't calloc memory for:global->WVcaption\n");
 		goto error;
@@ -1221,6 +1233,7 @@ int initGlobals (struct GLOBAL *global) {
 	
 	global->avifile=NULL; /*avi filename passed through argument options with -n */
 	global->Capture_time=0; /*avi capture time passed through argument options with -t */
+	global->lprofile=0; /* flag for -l command line option*/
 	global->imgFormat=0; /* 0 -JPG 1-BMP 2-PNG*/
 	global->AVIFormat=0; /*0-"MJPG"  1-"YUY2" 2-"DIB "(rgb32)*/ 
 	global->snd_begintime=0;/*begin time for audio capture*/
@@ -1281,6 +1294,8 @@ int closeGlobals(struct GLOBAL *global){
 	free(global->imageName);
 	free(global->aviName);
 	free(global->sndfile);
+	free(global->profile_dir);
+	free(global->profile_fname);
 	if (global->WVcaption) free (global->WVcaption);
 	if (global->avifile) free (global->avifile);
 	free(global->mode);

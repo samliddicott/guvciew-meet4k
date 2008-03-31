@@ -175,6 +175,8 @@ int writeConf(const char *confpath) {
 		fprintf(fp,"image_path=%s/%s\n",global->imgPath,global->imageName);
 		fprintf(fp,"# Avi capture Full Path Path (Max 100 characters) Filename (Max 20 characters)\n");
 		fprintf(fp,"avi_path=%s/%s\n",global->aviPath,global->aviName);
+		fprintf(fp,"# control profiles Full Path Path (Max 10 characters) Filename (Max 20 characters)\n");
+		fprintf(fp,"profile_path=%s/%s\n",global->profile_dir,global->profile_fname);
 		printf("write %s OK\n",confpath);
 		fclose(fp);
 	} else {
@@ -191,7 +193,7 @@ int readConf(const char *confpath) {
 	char value[128];
 
 	int i=0;
-	int j=0;
+	//int j=0;
 
 	FILE *fp;
 
@@ -199,7 +201,7 @@ int readConf(const char *confpath) {
 		char line[144];
 
 	while (fgets(line, 144, fp) != NULL) {
-		j++;
+		//j++;
 		if ((line[0]=='#') || (line[0]==' ') || (line[0]=='\n')) {
 			/*skip*/
 		} else if ((i=sscanf(line,"%[^#=]=%[^#\n ]",variable,value))==2){
@@ -286,6 +288,9 @@ int readConf(const char *confpath) {
 				
 			} else if (strcmp(variable,"avi_path")==0) {
 				splitPath(value,global->aviPath,global->aviName);
+			} else if (strcmp(variable,"profile_path")==0) {
+				splitPath(value,global->profile_dir,global->profile_fname);
+				printf("profile(default):%s/%s\n",global->profile_dir,global->profile_fname);
 			}
 		}    
 		}
@@ -323,8 +328,13 @@ int readOpts(int argc,char *argv[]) {
 			global->grabmethod = 0;
 		}
 		if (strcmp(argv[i], "-w") == 0) {
-			/* disable hw acceleration */
-			global->hwaccel = 0;
+			if ( i + 1 >= argc || *argv[i+1] =='-') {
+				printf("No parameter specified with -w, using default.\n");	
+			} else {
+				if (strcmp(argv[i+1], "enable") == 0) global->hwaccel=1;
+				else 
+					if (strcmp(argv[i+1], "disable") == 0) global->hwaccel=0;
+			}
 		}
 		if (strcmp(argv[i], "-f") == 0) {
 			if ( i + 1 >= argc || *argv[i+1] =='-') {
@@ -383,18 +393,27 @@ int readOpts(int argc,char *argv[]) {
 					if (strcmp(argv[i+1], "disable") == 0) global->FpsCount=0;
 			}
 		}
+		if (strcmp(argv[i], "-l") == 0) {
+			if (i + 1 >= argc || *argv[i+1] =='-') {
+				printf("No parameter specified with -l. Ignoring option.\n");	
+			} else {
+				global->lprofile=1;
+				splitPath(argv[i + 1],global->profile_dir,global->profile_fname);
+			}
+		}
 		if (strcmp(argv[i], "-h") == 0) {
 			printf("usage: guvcview [-h -d -g -f -s -c -C -S] \n");
 			printf("-h	print this message \n");
 			printf("-d	/dev/videoX       use videoX device\n");
 			printf("-g	use read method for grab instead mmap \n");
-			printf("-w	disable SDL hardware accel. \n");
+			printf("-w	[enable|disable] SDL hardware accel. \n");
 			printf
 			("-f	video format  default jpg  others options are yuv jpg \n");
 			printf("-s	widthxheight      use specified input size \n");
 			printf("-n	avi_file_name   if avi_file_name set enable avi capture from start \n");
 			printf("-t  capture_time  used with -n option, sets the capture time in seconds\n");
 			printf("-p [enable|disable] fps counter in title bar\n");
+			printf("-l [filename] loads the given control profile\n");
 			exit(0);
 		}
 	}
@@ -710,18 +729,16 @@ slider_changed (GtkRange * range, VidState * s)
 	
 	if (input_set_control (videoIn, c, val) == 0) {
 		set_slider_label (range);
-		printf ("changed to %d\n", val);
 	}
 	else {
-		printf ("changed to %d, but set failed\n", val);
+		printf ("%s change to %d failed\n",c->name, val);
+		if (input_get_control (videoIn, c, &val) == 0) {
+			printf ("hardware value is %d\n", val);
+		}
+		else {
+			printf ("hardware get failed\n");
+		}
 	}
-	if (input_get_control (videoIn, c, &val) == 0) {
-		printf ("hardware value is %d\n", val);
-	}
-	else {
-		printf ("hardware get failed\n");
-	}
-	
 }
 
 /*check box controls callback*/
@@ -739,17 +756,14 @@ check_changed (GtkToggleButton * toggle, VidState * s)
 	//~ else val = gtk_toggle_button_get_active (toggle) ? 1 : 0;
 	val = gtk_toggle_button_get_active (toggle) ? 1 : 0;
 	
-	if (input_set_control (videoIn, c, val) == 0) {
-		printf ("changed to %d\n", val);
-	}
-	else {
-		printf ("changed to %d, but set failed\n", val);
-	}
-	if (input_get_control (videoIn, c, &val) == 0) {
-		printf ("hardware value is %d\n", val);
-	}
-	else {
-		printf ("hardware get failed\n");
+	if (input_set_control (videoIn, c, val) != 0) {
+		printf ("%s change to %d failed\n",c->name, val);
+		if (input_get_control (videoIn, c, &val) == 0) {
+			printf ("hardware value is %d\n", val);
+		}
+		else {
+			printf ("hardware get failed\n");
+		}
 	}
 	
 }
@@ -770,18 +784,14 @@ combo_changed (GtkComboBox * combo, VidState * s)
 		val=index;
 	}
 
-	if (input_set_control (videoIn, c, val) == 0) {
-		printf ("changed to %d\n", val);
-	}
-	else {
-		printf ("changed to %d, but set failed\n", val);
-	}
-	
-	if (input_get_control (videoIn, c, &val) == 0) {
-		printf ("hardware value is %d\n", val);
-	}
-	else {
-		printf ("hardware get failed\n");
+	if (input_set_control (videoIn, c, val) != 0) {
+		printf ("%s change to %d failed\n",c->name, val);
+		if (input_get_control (videoIn, c, &val) == 0) {
+			printf ("hardware value is %d\n", val);
+		}
+		else {
+			printf ("hardware get failed\n");
+		}
 	}
 	
 }
@@ -1273,11 +1283,6 @@ capture_avi (GtkButton * CapAVIButt, GtkWidget * AVIFNameEntry)
 	}	
 }
 
-static void
-quitButton_clicked (GtkButton * quitButton, void *data)
-{
-	shutd(0);//shutDown
-}
 
 /* called by capture from start timer [-t seconds] command line option*/
 static int 
@@ -1317,6 +1322,178 @@ static void
 
 }
 
+static int
+SaveControls(VidState *s)
+{
+	
+	FILE *fp;
+	int i=0;
+	int val=0;
+	int sfname=strlen(global->profile_dir)+strlen(global->profile_fname);
+	char filename[sfname+2];
+	
+	sprintf(filename,"%s/%s", global->profile_dir,global->profile_fname);
+	
+	fp=fopen(filename,"w");
+	if( fp == NULL )
+	{
+		printf("Could not open profile data file: %s.\n",filename);
+		return (-1);
+	} else {
+		if (s->control) {
+			fprintf(fp,"#guvcview control profile\n");
+			fprintf(fp,"version=%s\n",VERSION);
+			fprintf(fp,"#control[num]:id:type:name=val\n");
+			for (i = 0; i < s->num_controls; i++) {
+				//ControlInfo * ci = s->control_info + i;
+				InputControl * c = s->control + i;
+				if (input_get_control (videoIn, c, &val) != 0) {
+					val=c->default_val;
+				}
+				if(c->type == INPUT_CONTROL_TYPE_BOOLEAN) {
+					val = val & 0x0001;
+				}
+				fprintf(fp,"control[%d]:0x%x:%d:%s=%d\n",c->i,c->id,c->type,
+																c->name,val);
+			}
+		}
+	}
+	fclose(fp);
+	return (0);
+	
+}
+
+static int
+LoadControls(VidState *s)
+{
+	
+	FILE *fp;
+	int i=0;
+	unsigned int id=0;
+	int type=0;
+	int val=0;
+	char contr_inf[100];
+	int sfname=strlen(global->profile_dir)+strlen(global->profile_fname);
+	char filename[sfname+2];
+	ControlInfo *base_ci = s->control_info;
+	InputControl *base_c = s->control;
+	ControlInfo *ci;
+	InputControl *c;
+	
+	sprintf(filename,"%s/%s", global->profile_dir,global->profile_fname);
+	
+	if((fp = fopen(filename,"r"))!=NULL) {
+		char line[144];
+
+		while (fgets(line, 144, fp) != NULL) {
+			
+			if ((line[0]=='#') || (line[0]==' ') || (line[0]=='\n')) {
+				/*skip*/
+			} else if ((sscanf(line,"%99[^#=]=%i",contr_inf,&val))==2){
+				/*get control info*/
+				if(sscanf(contr_inf,"control[%i]:0x%x:%i:%*[^:=]",&i,&id,&type)==3) {
+					/*set control*/
+					printf("control[%i]:0x%x:%i=%d\n",i,id,type,val);
+					ci=base_ci+i;
+					c=base_c+i;
+					
+					if((c->id==id) && (c->type==type)) {
+						if(type == INPUT_CONTROL_TYPE_INTEGER) {					
+							input_set_control (videoIn, c, val);
+							gtk_range_set_value (GTK_RANGE (ci->widget), val);
+						} else if (type == INPUT_CONTROL_TYPE_BOOLEAN) {
+							val = val & 0x0001;
+							input_set_control (videoIn, c, val);
+							gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (ci->widget),
+						val ? TRUE : FALSE);
+						} else if (type == INPUT_CONTROL_TYPE_MENU) {
+							input_set_control (videoIn, c, val);
+							gtk_combo_box_set_active (GTK_COMBO_BOX (ci->widget),
+				         							     val);
+						}
+					}
+					else {
+						printf("wrong control id for %s\n",c->name);
+					}	
+				}
+			}
+		}
+	} else {
+		printf("Could not open profile data file: %s.\n",filename);
+		return (-1);
+	} 
+	
+
+	fclose(fp);
+	return (0);
+	
+}
+
+/*--------------------- buttons callbacks ------------------*/
+static void
+SProfileButton_clicked (GtkButton * SProfileButton,VidState *vst)
+{
+	char *filename;
+	
+	FileDialog = gtk_file_chooser_dialog_new ("Save File",
+					  mainwin,
+					  GTK_FILE_CHOOSER_ACTION_SAVE,
+					  GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+					  GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
+					  NULL);
+	gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (FileDialog), TRUE);
+	//printf("profile(default):%s/%s\n",global->profile_dir,global->profile_fname);
+	gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (FileDialog), 
+										                 global->profile_dir);
+	
+	gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (FileDialog), 
+										                 global->profile_fname);
+	
+	if (gtk_dialog_run (GTK_DIALOG (FileDialog)) == GTK_RESPONSE_ACCEPT)
+	{
+		/*Save Controls Data*/
+		filename= gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (FileDialog));
+		splitPath(filename,global->profile_dir,global->profile_fname);
+		SaveControls(vst);
+	}
+	gtk_widget_destroy (FileDialog);
+	
+}
+
+static void
+LProfileButton_clicked (GtkButton * LProfileButton, VidState *vst)
+{
+	char *filename;
+	
+	FileDialog = gtk_file_chooser_dialog_new ("Load File",
+					  mainwin,
+					  GTK_FILE_CHOOSER_ACTION_OPEN,
+					  GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+					  GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
+					  NULL);
+	
+	gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (FileDialog), 
+										                 global->profile_dir);
+	
+	
+	if (gtk_dialog_run (GTK_DIALOG (FileDialog)) == GTK_RESPONSE_ACCEPT)
+	{
+		/*Load Controls Data*/
+		filename= gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (FileDialog));
+		splitPath(filename,global->profile_dir,global->profile_fname);
+		LoadControls(vst);
+	}
+	gtk_widget_destroy (FileDialog);
+}
+
+static void
+quitButton_clicked (GtkButton * quitButton, void *data)
+{
+	shutd(0);//shutDown
+}
+
+
+
 /*--------------------------- draw camera controls ---------------------------*/
 static void
 draw_controls (VidState *s)
@@ -1346,8 +1523,8 @@ draw_controls (VidState *s)
 	//fprintf(stderr,"V4L2_CID_PRIVATE_LAST=0x%x\n",V4L2_CID_PRIVATE_LAST);
 	fprintf(stderr,"Controls:\n");
 	for (i = 0; i < s->num_controls; i++) {
-		fprintf(stderr,"control[%d]: 0x%x",i,s->control[i].id);
-		fprintf (stderr,"  %s, %d:%d:%d, default %d\n", s->control[i].name,
+		printf("control[%d]: 0x%x",i,s->control[i].id);
+		printf ("  %s, %d:%d:%d, default %d\n", s->control[i].name,
 					s->control[i].min, s->control[i].step, s->control[i].max,
 					s->control[i].default_val);
 	}
@@ -1457,6 +1634,8 @@ draw_controls (VidState *s)
 				gtk_range_set_value (GTK_RANGE (ci->widget), val);
 			}
 			else {
+				/*couldn't get control value -> set to default*/
+				input_set_control (videoIn, c, c->default_val);
 				gtk_range_set_value (GTK_RANGE (ci->widget), c->default_val);
 				gtk_widget_set_sensitive (ci->widget, FALSE);
 				gtk_widget_set_sensitive (ci->labelval, FALSE);
@@ -1488,6 +1667,8 @@ draw_controls (VidState *s)
 						val ? TRUE : FALSE);
 			}
 			else {
+				/*couldn't get control value -> set to default*/
+				input_set_control (videoIn, c, c->default_val);
 				gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (ci->widget),
 						c->default_val ? TRUE : FALSE);
 				gtk_widget_set_sensitive (ci->widget, FALSE);
@@ -1517,6 +1698,8 @@ draw_controls (VidState *s)
 				gtk_combo_box_set_active (GTK_COMBO_BOX (ci->widget), val);
 			}
 			else {
+				/*couldn't get control value -> set to default*/
+				input_set_control (videoIn, c, c->default_val);
 				gtk_combo_box_set_active (GTK_COMBO_BOX (ci->widget), c->default_val);
 				gtk_widget_set_sensitive (ci->widget, FALSE);
 			}
@@ -1740,7 +1923,7 @@ void *main_loop(void *data)
   pim=NULL;
   if(pavi!=NULL)	free(pavi);
   pavi=NULL;
-  printf("cleanig Thread allocations 100%%\n");
+  printf("cleaning Thread allocations: 100%%\n");
   fflush(NULL);//flush all output buffers
 	
   pthread_exit((void *) 0);
@@ -1769,6 +1952,7 @@ int main(int argc, char *argv[])
 	char driver[128];
 	GtkWidget *boxv;
 	GtkWidget *buttons_table;
+	GtkWidget *button_labels;
 	GtkWidget *boxh;
 	GtkWidget *Resolution;
 	GtkWidget *FrameRate;
@@ -1789,6 +1973,8 @@ int main(int argc, char *argv[])
 	GtkWidget *label_videoFilters;
 	GtkWidget *table3;
 	GtkWidget *quitButton;
+	GtkWidget *SProfileButton;
+	GtkWidget *LProfileButton;
 	
 	if ((s = malloc (sizeof (VidState)))==NULL){
 		printf("couldn't allocate memory for: s\n");
@@ -1955,6 +2141,7 @@ int main(int argc, char *argv[])
 
 	
 	/*-----------------------------GTK widgets---------------------------------*/
+	/*----- Left Table -----*/
 	s->table = gtk_table_new (1, 3, FALSE);
 	gtk_table_set_row_spacings (GTK_TABLE (s->table), 10);
 	gtk_table_set_col_spacings (GTK_TABLE (s->table), 4);
@@ -1963,37 +2150,67 @@ int main(int argc, char *argv[])
 	
 	s->control = NULL;
 	draw_controls(s);
+	if (global->lprofile > 0) LoadControls (s);
 	
 	boxv = gtk_vbox_new (FALSE, 0);
 	
 	boxh = gtk_hbox_new (FALSE, 0);
-	gtk_box_pack_start (GTK_BOX (boxv), boxh, FALSE, FALSE, 0);
+	
 	gtk_box_pack_start (GTK_BOX (boxh), s->table, TRUE, TRUE, 0);
 	gtk_widget_show (s->table);
-	
 	gtk_widget_show (boxh);
+	
+	gtk_box_pack_start (GTK_BOX (boxv), boxh, FALSE, FALSE, 0);
+	
 	gtk_widget_show (boxv);
 	
-	/*add quit button*/
-	buttons_table = gtk_table_new(1,6,TRUE);
+	/*----- Add  Buttons -----*/
+	buttons_table = gtk_table_new(1,7,TRUE);
+	gtk_table_set_row_spacings (GTK_TABLE (table2), 10);
+	gtk_table_set_col_spacings (GTK_TABLE (table2), 4);
+	gtk_container_set_border_width (GTK_CONTAINER (table2), 6);
 	
 	gtk_widget_show (buttons_table);
 	gtk_box_pack_start (GTK_BOX (boxv), buttons_table, TRUE, TRUE, 0);
 	
+	button_labels=gtk_label_new("Control Profiles:");
+	gtk_misc_set_alignment (GTK_MISC (button_labels), 0, 0.5);
+
+	gtk_table_attach (GTK_TABLE(buttons_table), button_labels, 0, 2, 0, 1,
+					 GTK_FILL, 0, 0, 0);
+
+	gtk_widget_show (button_labels);
+	
 	quitButton=gtk_button_new_from_stock(GTK_STOCK_CLOSE);
-	gtk_table_attach (GTK_TABLE(buttons_table), quitButton, 3, 4, 0, 1,
+	SProfileButton=gtk_button_new_from_stock(GTK_STOCK_SAVE);
+	LProfileButton=gtk_button_new_from_stock(GTK_STOCK_OPEN);
+		
+	gtk_table_attach (GTK_TABLE(buttons_table), quitButton, 3, 4, 1, 2,
 					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (quitButton);
 	g_signal_connect (GTK_BUTTON(quitButton), "clicked",
 		 G_CALLBACK (quitButton_clicked), NULL);
 	
+	gtk_table_attach (GTK_TABLE(buttons_table), SProfileButton, 0, 1, 1, 2,
+					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_widget_show (SProfileButton);
+	g_signal_connect (GTK_BUTTON(SProfileButton), "clicked",
+		 G_CALLBACK (SProfileButton_clicked), s);
 	
+	gtk_table_attach (GTK_TABLE(buttons_table), LProfileButton, 1, 2, 1, 2,
+					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_widget_show (LProfileButton);
+	g_signal_connect (GTK_BUTTON(LProfileButton), "clicked",
+		 G_CALLBACK (LProfileButton_clicked), s);
+	
+	/*---- Right Table ----*/
 	table2 = gtk_table_new(1,3,FALSE);
 	gtk_table_set_row_spacings (GTK_TABLE (table2), 10);
 	gtk_table_set_col_spacings (GTK_TABLE (table2), 4);
 	gtk_container_set_border_width (GTK_CONTAINER (table2), 6);
 	//gtk_widget_set_size_request (table2, (global->winwidth>>1), -1);
 	gtk_box_pack_start (GTK_BOX (boxh), table2, FALSE, FALSE, 0);
+	gtk_widget_show (table2);
 	
 	/* Resolution*/
 	Resolution = gtk_combo_box_new_text ();
@@ -2192,8 +2409,6 @@ int main(int argc, char *argv[])
 	g_signal_connect (GTK_BUTTON(CapAVIButt), "clicked",
 		 G_CALLBACK (capture_avi), AVIFNameEntry);
 	
-	gtk_box_pack_start ( GTK_BOX (boxh), table2, FALSE, FALSE, 0);
-	gtk_widget_show (table2);
 	
 	/* AVI Compressor */
 	AVIComp = gtk_combo_box_new_text ();
@@ -2621,7 +2836,7 @@ shutd (gint restart)
 	}
 	
 	free(EXEC_CALL);
-	printf("cleanig allocations - 100%%\n");
+	printf("cleaning allocations - 100%%\n");
 	return exec_status;
 }
 

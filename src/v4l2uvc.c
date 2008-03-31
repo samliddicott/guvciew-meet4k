@@ -536,7 +536,7 @@ input_get_control (struct vdIn * device, InputControl * control, int * val)
             //~ return -1;
     //~ }
     //~ else {
-        fd = device->fd;
+    fd = device->fd;
     //~ }
 
     c.id  = control->id;
@@ -563,7 +563,7 @@ input_set_control (struct vdIn * device, InputControl * control, int val)
             //~ return -1;
     //~ }
     //~ else {
-        fd = device->fd;
+    fd = device->fd;
     //~ }
 
     c.id  = control->id;
@@ -676,7 +676,12 @@ input_enum_controls (struct vdIn * device, int * num_controls)
             control[n].default_val = queryctrl.default_value;
             control[n].enabled = (queryctrl.flags & V4L2_CTRL_FLAG_GRABBED) ? 0 : 1;
             control[n].entries = NULL;
-            if (queryctrl.type == V4L2_CTRL_TYPE_MENU) {
+			if (queryctrl.type == V4L2_CTRL_TYPE_BOOLEAN){
+				control[n].min = 0;
+				control[n].max = 1;
+				control[n].step = 1;
+				control[n].default_val=(queryctrl.default_value & 0x0001); /*get the first bit*/
+			} else if (queryctrl.type == V4L2_CTRL_TYPE_MENU) {
                 struct v4l2_querymenu querymenu;
                 control[n].min = 0;
 
@@ -692,9 +697,6 @@ input_enum_controls (struct vdIn * device, int * num_controls)
             }
             n++;
         }
-        //else if (i >= V4L2_CID_PRIVATE_LAST) {
-          //  break;
-        //}
         i++;
        if (i == V4L2_CID_LAST_NEW)  /* */
        		i = V4L2_CID_CAMERA_CLASS_BASE;

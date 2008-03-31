@@ -148,8 +148,11 @@ struct GLOBAL {
 	char *imgPath;
 	char *sndfile; /*temporary snd filename*/
 	char *avifile; /*avi filename passed through argument options with -n */
+	char *profile_dir;/*current control profile dir */
+	char *profile_fname;/*current control profile file name*/
 	char *WVcaption; /*video preview title bar caption*/
 	int Capture_time; /*avi capture time passed through argument options with -t */
+	int lprofile; /* flag for command line -l option */ 
 	int imgFormat;
 	int AVIFormat; /*0-"MJPG"  1-"YUY2" 2-"DIB "(rgb32)*/ 
 	DWORD snd_begintime;/*begin time for audio capture*/
@@ -163,7 +166,7 @@ struct GLOBAL {
 	int Sound_SampRate;
 	int Sound_SampRateInd;
 	int Sound_numInputDev;
-	sndDev Sound_IndexDev[20]; /*up to 20 input devices (should be alocated dinamicly)*/
+	sndDev Sound_IndexDev[20]; /*up to 20 input devices (should be alocated dinamicly like controls)*/
 	int Sound_DefDev; 
 	int Sound_UseDev;
 	int Sound_NumChan;
