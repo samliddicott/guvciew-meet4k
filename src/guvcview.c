@@ -764,6 +764,15 @@ check_changed (GtkToggleButton * toggle, VidState * s)
 		else {
 			printf ("hardware get failed\n");
 		}
+	} else {
+		printf("changed %s to %d\n",c->name,val);
+		if (input_get_control (videoIn, c, &val) == 0) {
+			printf ("hardware value is %d\n", val);
+		}
+		else {
+			printf ("hardware get failed\n");
+		}
+		
 	}
 	
 }
@@ -1343,19 +1352,53 @@ SaveControls(VidState *s)
 		if (s->control) {
 			fprintf(fp,"#guvcview control profile\n");
 			fprintf(fp,"version=%s\n",VERSION);
-			fprintf(fp,"#control[num]:id:type:name=val\n");
+			fprintf(fp,"# control name +\n");
+			fprintf(fp,"#control[num]:id:type=val\n");
+			/*save controls by type order*/
+			/* 1- Boolean controls       */
+			/* 2- Menu controls          */
+			/* 3- Integer controls       */
+			fprintf(fp,"# 1-BOOLEAN CONTROLS\n");
 			for (i = 0; i < s->num_controls; i++) {
-				//ControlInfo * ci = s->control_info + i;
+				/*Boolean*/
 				InputControl * c = s->control + i;
-				if (input_get_control (videoIn, c, &val) != 0) {
-					val=c->default_val;
-				}
 				if(c->type == INPUT_CONTROL_TYPE_BOOLEAN) {
+					if (input_get_control (videoIn, c, &val) != 0) {
+						val=c->default_val;
+					}
 					val = val & 0x0001;
+					fprintf(fp,"# %s +\n",c->name);
+					fprintf(fp,"control[%d]:0x%x:%d=%d\n",c->i,c->id,c->type,
+																val);
 				}
-				fprintf(fp,"control[%d]:0x%x:%d:%s=%d\n",c->i,c->id,c->type,
-																c->name,val);
 			}
+			fprintf(fp,"# 2-MENU CONTROLS\n");
+			for (i = 0; i < s->num_controls; i++) {
+				/*Menu*/
+				InputControl * c = s->control + i;
+				if(c->type == INPUT_CONTROL_TYPE_MENU) {
+					if (input_get_control (videoIn, c, &val) != 0) {
+						val=c->default_val;
+					}
+					fprintf(fp,"# %s +\n",c->name);
+					fprintf(fp,"control[%d]:0x%x:%d=%d\n",c->i,c->id,c->type,
+																val);
+				}
+			}
+			fprintf(fp,"# 3-INTEGER CONTROLS\n");
+			for (i = 0; i < s->num_controls; i++) {
+				/*Integer*/
+				InputControl * c = s->control + i;
+				if(c->type == INPUT_CONTROL_TYPE_INTEGER) {
+					if (input_get_control (videoIn, c, &val) != 0) {
+						val=c->default_val;
+					}
+					fprintf(fp,"# %s +\n",c->name);
+					fprintf(fp,"control[%d]:0x%x:%d=%d\n",c->i,c->id,c->type,
+																val);
+				}
+			}
+			
 		}
 	}
 	fclose(fp);
@@ -1389,35 +1432,36 @@ LoadControls(VidState *s)
 			
 			if ((line[0]=='#') || (line[0]==' ') || (line[0]=='\n')) {
 				/*skip*/
-			} else if ((sscanf(line,"%99[^#=]=%i",contr_inf,&val))==2){
-				/*get control info*/
-				if(sscanf(contr_inf,"control[%i]:0x%x:%i:%*[^:=]",&i,&id,&type)==3) {
-					/*set control*/
-					printf("control[%i]:0x%x:%i=%d\n",i,id,type,val);
+			} else if ((sscanf(line,"control[%i]:0x%x:%i=%i",&i,&id,&type,&val))==4){
+				/*set control*/
+				if (i < s->num_controls) {
 					ci=base_ci+i;
 					c=base_c+i;
-					
+					printf("control[%i]:0x%x:%i=%d\n",i,id,type,val);
 					if((c->id==id) && (c->type==type)) {
 						if(type == INPUT_CONTROL_TYPE_INTEGER) {					
-							input_set_control (videoIn, c, val);
+							//input_set_control (videoIn, c, val);
 							gtk_range_set_value (GTK_RANGE (ci->widget), val);
 						} else if (type == INPUT_CONTROL_TYPE_BOOLEAN) {
 							val = val & 0x0001;
-							input_set_control (videoIn, c, val);
+							//input_set_control (videoIn, c, val);
 							gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (ci->widget),
-						val ? TRUE : FALSE);
+												val ? TRUE : FALSE);
 						} else if (type == INPUT_CONTROL_TYPE_MENU) {
-							input_set_control (videoIn, c, val);
+							//input_set_control (videoIn, c, val);
 							gtk_combo_box_set_active (GTK_COMBO_BOX (ci->widget),
-				         							     val);
+				        							     val);
 						}
 					}
 					else {
-						printf("wrong control id for %s\n",c->name);
-					}	
+						printf("wrong control id(0x%x:0x%x) or type(%i:%i) for %s\n",
+							   id,c->id,type,c->type,c->name);
+					}
+				} else {
+					printf("wrong control index: %d\n",i);
 				}
 			}
-		}
+		}	
 	} else {
 		printf("Could not open profile data file: %s.\n",filename);
 		return (-1);
@@ -2657,7 +2701,7 @@ int main(int argc, char *argv[])
 	g_signal_connect (GTK_CHECK_BUTTON(FiltMirrorEnable), "toggled",
 		G_CALLBACK (FiltMirrorEnable_changed), NULL);
 	/*Upturn*/
-	FiltUpturnEnable=gtk_check_button_new_with_label (" Upturn");
+	FiltUpturnEnable=gtk_check_button_new_with_label (" Invert");
 	gtk_table_attach(GTK_TABLE(table3), FiltUpturnEnable, 1, 2, 0, 1,
 					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	
@@ -2666,7 +2710,7 @@ int main(int argc, char *argv[])
 	g_signal_connect (GTK_CHECK_BUTTON(FiltUpturnEnable), "toggled",
 		G_CALLBACK (FiltUpturnEnable_changed), NULL);
 	/*Negate*/
-	FiltNegateEnable=gtk_check_button_new_with_label (" Negate");
+	FiltNegateEnable=gtk_check_button_new_with_label (" Negative");
 	gtk_table_attach(GTK_TABLE(table3), FiltNegateEnable, 2, 3, 0, 1,
 					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	
