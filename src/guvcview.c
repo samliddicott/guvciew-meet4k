@@ -138,6 +138,9 @@ int writeConf(const char *confpath) {
 		fprintf(fp,"# guvcview configuration file\n\n");
 		fprintf(fp,"# video device\n");
 		fprintf(fp,"video_device=%s\n",global->videodevice);
+		fprintf(fp,"# video loop sleep time in ms: 0,1,2,3,...\n");
+		fprintf(fp,"# increased sleep time -> less cpu load, more droped frames\n");
+		fprintf(fp,"vid_sleep=%i\n",global->vid_sleep);
 		fprintf(fp,"# video resolution \n");
 		fprintf(fp,"resolution=%ix%i\n",global->width,global->height);
 		fprintf(fp,"# control window size: default %ix%i\n",WINSIZEX,WINSIZEY);
@@ -172,11 +175,11 @@ int writeConf(const char *confpath) {
 		fprintf(fp,"# video filters: 0 -none 1- flip 2- upturn 4- negate 8- mono (add the ones you want)\n");
 		fprintf(fp,"frame_flags=%i\n",global->Frame_Flags);
 		fprintf(fp,"# Image capture Full Path: Path (Max 100 characters) Filename (Max 20 characters)\n");
-		fprintf(fp,"image_path=%s/%s\n",global->imgPath,global->imageName);
+		fprintf(fp,"image_path=%s/%s\n",global->imgFPath[1],global->imgFPath[0]);
 		fprintf(fp,"# Avi capture Full Path Path (Max 100 characters) Filename (Max 20 characters)\n");
-		fprintf(fp,"avi_path=%s/%s\n",global->aviPath,global->aviName);
+		fprintf(fp,"avi_path=%s/%s\n",global->aviFPath[1],global->aviFPath[0]);
 		fprintf(fp,"# control profiles Full Path Path (Max 10 characters) Filename (Max 20 characters)\n");
-		fprintf(fp,"profile_path=%s/%s\n",global->profile_dir,global->profile_fname);
+		fprintf(fp,"profile_path=%s/%s\n",global->profile_FPath[1],global->profile_FPath[0]);
 		printf("write %s OK\n",confpath);
 		fclose(fp);
 	} else {
@@ -209,6 +212,9 @@ int readConf(const char *confpath) {
 			if (strcmp(variable,"video_device")==0) {
 				snprintf(global->videodevice,15,"%s",value);
 				printf("video_device: %s\n",global->videodevice);
+			} else if (strcmp(variable,"vid_sleep")==0) {
+				if ((i=sscanf(value,"%i",&(global->vid_sleep)))==1)
+					printf("vid_sleep: %i\n",global->vid_sleep);
 			} else if (strcmp(variable,"resolution")==0) {
 				if ((i=sscanf(value,"%ix%i",&(global->width),&(global->height)))==2)
 					printf("resolution: %i x %i\n",global->width,global->height); 			
@@ -258,11 +264,11 @@ int readConf(const char *confpath) {
 				if ((i=sscanf(value,"%i",&(global->Frame_Flags)))==1)
 					printf("Video Filter Flags: %i\n",global->Frame_Flags);
 			} else if (strcmp(variable,"image_path")==0) {
-				splitPath(value,global->imgPath,global->imageName);
+				global->imgFPath = splitPath(value,global->imgFPath);
 				
 				/*get the file extension*/
 				char str_ext[3];
-				sscanf(global->imageName,"%*[^.].%3c",str_ext);
+				sscanf(global->imgFPath[0],"%*[^.].%3c",str_ext);
 				/* change image type */
 				int somExt = str_ext[0]+str_ext[1]+str_ext[2];
 				switch (somExt) {
@@ -287,10 +293,10 @@ int readConf(const char *confpath) {
 				}
 				
 			} else if (strcmp(variable,"avi_path")==0) {
-				splitPath(value,global->aviPath,global->aviName);
+				global->aviFPath=splitPath(value,global->aviFPath);
 			} else if (strcmp(variable,"profile_path")==0) {
-				splitPath(value,global->profile_dir,global->profile_fname);
-				printf("profile(default):%s/%s\n",global->profile_dir,global->profile_fname);
+				global->profile_FPath=splitPath(value,global->profile_FPath);
+				printf("profile(default):%s/%s\n",global->profile_FPath[1],global->profile_FPath[0]);
 			}
 		}    
 		}
@@ -371,7 +377,7 @@ int readOpts(int argc,char *argv[]) {
 				printf("No parameter specified with -n. Ignoring option.\n");	
 			} else {
 				global->avifile = strdup(argv[i + 1]);
-				splitPath(global->avifile,global->aviPath,global->aviName);
+				global->aviFPath=splitPath(global->avifile,global->aviFPath);
 			}
 		}
 		if (strcmp(argv[i], "-t") == 0) {
@@ -398,7 +404,7 @@ int readOpts(int argc,char *argv[]) {
 				printf("No parameter specified with -l. Ignoring option.\n");	
 			} else {
 				global->lprofile=1;
-				splitPath(argv[i + 1],global->profile_dir,global->profile_fname);
+				global->profile_FPath=splitPath(argv[i + 1],global->profile_FPath);
 			}
 		}
 		if (strcmp(argv[i], "-h") == 0) {
@@ -968,30 +974,30 @@ static void
 ImageType_changed (GtkComboBox * ImageType,GtkEntry *ImageFNameEntry) 
 {
 	char *filename;
-	char basename[16];
+	char basename[32];
 	global->imgFormat=gtk_combo_box_get_active (ImageType);
 	//videoIn->Imgtype=global->imgFormat;	
 	filename=gtk_entry_get_text(ImageFNameEntry);
 	
-	splitPath(filename, global->imgPath, global->imageName);
+	global->imgFPath=splitPath(filename, global->imgFPath);
 	
-	sscanf(global->imageName,"%16[^.]",basename);
+	sscanf(global->imgFPath[0],"%32[^.]",basename);
 	switch(global->imgFormat){
 		case 0:
-			sprintf(global->imageName,"%s.jpg",basename);
+			sprintf(global->imgFPath[0],"%s.jpg",basename);
 			break;
 		case 1:
-			sprintf(global->imageName,"%s.bmp",basename);
+			sprintf(global->imgFPath[0],"%s.bmp",basename);
 			break;
 		case 2:
-			sprintf(global->imageName,"%s.png",basename);
+			sprintf(global->imgFPath[0],"%s.png",basename);
 			break;
 		default:
-			global->imageName=DEFAULT_IMAGE_FNAME;
+			sprintf(global->imgFPath[0],"%s",DEFAULT_IMAGE_FNAME);
 	}
 	gtk_entry_set_text(ImageFNameEntry," ");
-	gtk_entry_set_text(ImageFNameEntry,global->imageName);
-	sprintf(videoIn->ImageFName,"%s/%s",global->imgPath,global->imageName);
+	gtk_entry_set_text(ImageFNameEntry,global->imgFPath[0]);
+	sprintf(videoIn->ImageFName,"%s/%s",global->imgFPath[1],global->imgFPath[0]);
 }
 
 /*sound device control callback*/
@@ -1094,43 +1100,43 @@ file_chooser (GtkButton * FileButt, const int isAVI)
 	
 	basename =  gtk_entry_get_text(AVIFNameEntry);
 	
-	splitPath(basename, global->aviPath, global->aviName);
+	global->aviFPath=splitPath(basename, global->aviFPath);
 	
 	gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (FileDialog),
-															  global->aviPath);
+															  global->aviFPath[1]);
 	gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (FileDialog), 
-															  global->aviName);
+															  global->aviFPath[0]);
 	  
 	if (gtk_dialog_run (GTK_DIALOG (FileDialog)) == GTK_RESPONSE_ACCEPT)
 	{
 		fullname = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (FileDialog));
-		splitPath(fullname, global->aviPath, global->aviName);
+		global->aviFPath=splitPath(fullname, global->aviFPath);
 		gtk_entry_set_text(AVIFNameEntry," ");
-		gtk_entry_set_text(AVIFNameEntry,global->aviName);
+		gtk_entry_set_text(AVIFNameEntry,global->aviFPath[0]);
 	}
 	  
   } else {/* Image File chooser*/
 	
 	basename =  gtk_entry_get_text(ImageFNameEntry);
 	
-	splitPath(basename, global->imgPath, global->imageName);
+	global->imgFPath=splitPath(basename, global->imgFPath);
 	
 	gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (FileDialog), 
-															  global->imgPath);
+															  global->imgFPath[1]);
 	gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (FileDialog), 
-															global->imageName);
+															global->imgFPath[0]);
 
 	  
 	if (gtk_dialog_run (GTK_DIALOG (FileDialog)) == GTK_RESPONSE_ACCEPT)
 	{
 		fullname = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (FileDialog));
-		splitPath(fullname, global->imgPath, global->imageName);
+		global->imgFPath=splitPath(fullname, global->imgFPath);
 		
 		gtk_entry_set_text(ImageFNameEntry," ");
-		gtk_entry_set_text(ImageFNameEntry,global->imageName);
+		gtk_entry_set_text(ImageFNameEntry,global->imgFPath[0]);
 		
 		/*get the file extension*/
-		sscanf(global->imageName,"%*[^.].%3c",str_ext);
+		sscanf(global->imgFPath[0],"%*[^.].%3c",str_ext);
 		/* change image type */
 		int somExt = str_ext[0]+str_ext[1]+str_ext[2];
 		switch (somExt) {
@@ -1168,12 +1174,12 @@ static void
 capture_image (GtkButton * CapImageButt, GtkWidget * ImageFNameEntry)
 {
 	char *fileEntr=gtk_entry_get_text(GTK_ENTRY(ImageFNameEntry));
-	splitPath(fileEntr, global->imgPath, global->imageName);
+	global->imgFPath=splitPath(fileEntr, global->imgFPath);
 	
-	int sfname=strlen(global->imgPath)+strlen(global->imageName);
+	int sfname=strlen(global->imgFPath[1])+strlen(global->imgFPath[0]);
 	char filename[sfname+2];
 	
-	sprintf(filename,"%s/%s", global->imgPath,global->imageName);
+	sprintf(filename,"%s/%s", global->imgFPath[1],global->imgFPath[0]);
 	//videoIn->ImageFName=realloc(videoIn->ImageFName,(sfname+2)*sizeof(char));
 	if ((sfname+2)>120) {
 		printf("Error: image file name too big, unchanged.\n");
@@ -1246,12 +1252,12 @@ capture_avi (GtkButton * CapAVIButt, GtkWidget * AVIFNameEntry)
 		} 
 		else {/******************** Start AVI *********************/
 			/* thread is running so start AVI capture*/
-			splitPath(fileEntr, global->aviPath, global->aviName);
+			global->aviFPath=splitPath(fileEntr, global->aviFPath);
 	
-			int sfname=strlen(global->aviPath)+strlen(global->aviName);
+			int sfname=strlen(global->aviFPath[1])+strlen(global->aviFPath[0]);
 			char filename[sfname+2];
 	
-			sprintf(filename,"%s/%s", global->aviPath,global->aviName);
+			sprintf(filename,"%s/%s", global->aviFPath[1],global->aviFPath[0]);
 			//videoIn->ImageFName=realloc(videoIn->aviFName,(sfname+2)*sizeof(char));
 			if ((sfname+2)>120) {
 				printf("Error: image file name too big, unchanged.\n");
@@ -1338,10 +1344,10 @@ SaveControls(VidState *s)
 	FILE *fp;
 	int i=0;
 	int val=0;
-	int sfname=strlen(global->profile_dir)+strlen(global->profile_fname);
+	int sfname=strlen(global->profile_FPath[1])+strlen(global->profile_FPath[0]);
 	char filename[sfname+2];
 	
-	sprintf(filename,"%s/%s", global->profile_dir,global->profile_fname);
+	sprintf(filename,"%s/%s", global->profile_FPath[1],global->profile_FPath[0]);
 	
 	fp=fopen(filename,"w");
 	if( fp == NULL )
@@ -1416,14 +1422,14 @@ LoadControls(VidState *s)
 	int type=0;
 	int val=0;
 	char contr_inf[100];
-	int sfname=strlen(global->profile_dir)+strlen(global->profile_fname);
+	int sfname=strlen(global->profile_FPath[1])+strlen(global->profile_FPath[0]);
 	char filename[sfname+2];
 	ControlInfo *base_ci = s->control_info;
 	InputControl *base_c = s->control;
 	ControlInfo *ci;
 	InputControl *c;
 	
-	sprintf(filename,"%s/%s", global->profile_dir,global->profile_fname);
+	sprintf(filename,"%s/%s", global->profile_FPath[1],global->profile_FPath[0]);
 	
 	if((fp = fopen(filename,"r"))!=NULL) {
 		char line[144];
@@ -1486,18 +1492,18 @@ SProfileButton_clicked (GtkButton * SProfileButton,VidState *vst)
 					  GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
 					  NULL);
 	gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (FileDialog), TRUE);
-	//printf("profile(default):%s/%s\n",global->profile_dir,global->profile_fname);
+	//printf("profile(default):%s/%s\n",global->profile_FPath[1],global->profile_FPath[0]);
 	gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (FileDialog), 
-										                 global->profile_dir);
+										                 global->profile_FPath[1]);
 	
 	gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (FileDialog), 
-										                 global->profile_fname);
+										                 global->profile_FPath[0]);
 	
 	if (gtk_dialog_run (GTK_DIALOG (FileDialog)) == GTK_RESPONSE_ACCEPT)
 	{
 		/*Save Controls Data*/
 		filename= gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (FileDialog));
-		splitPath(filename,global->profile_dir,global->profile_fname);
+		global->profile_FPath=splitPath(filename,global->profile_FPath);
 		SaveControls(vst);
 	}
 	gtk_widget_destroy (FileDialog);
@@ -1517,14 +1523,14 @@ LProfileButton_clicked (GtkButton * LProfileButton, VidState *vst)
 					  NULL);
 	
 	gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (FileDialog), 
-										                 global->profile_dir);
+										                 global->profile_FPath[1]);
 	
 	
 	if (gtk_dialog_run (GTK_DIALOG (FileDialog)) == GTK_RESPONSE_ACCEPT)
 	{
 		/*Load Controls Data*/
 		filename= gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (FileDialog));
-		splitPath(filename,global->profile_dir,global->profile_fname);
+		global->profile_FPath=splitPath(filename,global->profile_FPath);
 		LoadControls(vst);
 	}
 	gtk_widget_destroy (FileDialog);
@@ -1952,7 +1958,8 @@ void *main_loop(void *data)
 		   videoIn->width * (videoIn->height) * 2);
 	 SDL_UnlockYUVOverlay(overlay);
 	 SDL_DisplayYUVOverlay(overlay, &drect);
-	 //~ SDL_Delay(SDL_WAIT_TIME);
+	 if(global->vid_sleep)
+		SDL_Delay(global->vid_sleep);
 	
   }
   
@@ -2037,8 +2044,8 @@ int main(int argc, char *argv[])
 	pwd=getcwd(pwd,0);
 	
 	sprintf(global->confPath,"%s%s", home,"/.guvcviewrc");
-	sprintf(global->aviPath,"%s", pwd);
-	sprintf(global->imgPath,"%s", pwd);
+	sprintf(global->aviFPath[1],"%s", pwd);
+	sprintf(global->imgFPath[1],"%s", pwd);
 	
 	printf("conf Path is %s\n",global->confPath);
 	readConf(global->confPath);
@@ -2381,7 +2388,7 @@ int main(int argc, char *argv[])
 	ImageFNameEntry = gtk_entry_new();
 	//gtk_widget_set_size_request(ImageFNameEntry,10,-1);
 	
-	gtk_entry_set_text(GTK_ENTRY(ImageFNameEntry),global->imageName);
+	gtk_entry_set_text(GTK_ENTRY(ImageFNameEntry),global->imgFPath[0]);
 	
 	gtk_table_attach(GTK_TABLE(table2), CapImageButt, 0, 1, 5, 6,
 					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
@@ -2432,7 +2439,7 @@ int main(int argc, char *argv[])
 	} else {
 		CapAVIButt = gtk_button_new_with_label("Capture");
 		videoIn->capAVI = FALSE;
-		gtk_entry_set_text(GTK_ENTRY(AVIFNameEntry),global->aviName);
+		gtk_entry_set_text(GTK_ENTRY(AVIFNameEntry),global->aviFPath[0]);
 	}
 	
 	gtk_table_attach(GTK_TABLE(table2), CapAVIButt, 0, 1, 7, 8,
@@ -2776,7 +2783,7 @@ int main(int argc, char *argv[])
 		}
 	   AVI_set_video(AviOut, videoIn->width, videoIn->height, videoIn->fps,compression);		
 	   /* audio will be set in aviClose - if enabled*/
-	   sprintf(videoIn->AVIFName,"%s/%s",global->aviPath,global->aviName);		
+	   sprintf(videoIn->AVIFName,"%s/%s",global->aviFPath[1],global->aviFPath[0]);		
 	   videoIn->capAVI = TRUE;
 	   /*disabling sound and avi compression controls*/
 	   gtk_widget_set_sensitive (AVIComp, FALSE);

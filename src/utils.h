@@ -23,7 +23,8 @@ typedef  unsigned int LONG;
 typedef  unsigned int UINT;
 typedef  unsigned short int WORD;
 
-#define VERSION ("0.7.0")
+
+#define VERSION ("0.7.1")
 
 /*------------- portaudio defs ----------------*/
 /*---- can be override in rc file or GUI ------*/
@@ -130,7 +131,6 @@ typedef struct _sndDev {
  //PaTime Llatency;
 } sndDev;
 
-
 /* 0 is device default*/
 static int stdSampleRates[] = { 0, 8000,  9600, 11025, 12000,
                                    16000, 22050, 24000,
@@ -138,19 +138,19 @@ static int stdSampleRates[] = { 0, 8000,  9600, 11025, 12000,
                                    88200, 96000,
                                    -1 }; /* Negative terminated list. */
 
+typedef char* pchar;
+
 /*global variables used in guvcview*/
 struct GLOBAL {
 	char *videodevice;
 	char *confPath;
-	char *aviPath;
-	char *imageName;
-	char *aviName;
-	char *imgPath;
+	pchar* aviFPath;
+	pchar* imgFPath;
 	char *sndfile; /*temporary snd filename*/
 	char *avifile; /*avi filename passed through argument options with -n */
-	char *profile_dir;/*current control profile dir */
-	char *profile_fname;/*current control profile file name*/
+	pchar* profile_FPath;
 	char *WVcaption; /*video preview title bar caption*/
+	int vid_sleep;
 	int Capture_time; /*avi capture time passed through argument options with -t */
 	int lprofile; /* flag for command line -l option */ 
 	int imgFormat;
@@ -239,10 +239,11 @@ typedef struct tagJPGFILEHEADER {
 	BYTE HTN;/*height Thumbnail 0*/	
 } __attribute__ ((packed)) JPGFILEHEADER, *PJPGFILEHEADER;
 
+
 int initGlobals(struct GLOBAL *global);
 int closeGlobals(struct GLOBAL *global);
 void* cleanBuff(BYTE* Buff,int size);
-void* splitPath(char *FullPath, char *FileDir, char *Filename);
+pchar* splitPath(char *FullPath, char* splited[2]);
 /* regular yuv (YUYV) to rgb24*/
 void *
 yuyv2rgb (BYTE *pyuv, BYTE *prgb, int width, int height);

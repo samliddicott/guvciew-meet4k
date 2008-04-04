@@ -1183,29 +1183,42 @@ int initGlobals (struct GLOBAL *global) {
 	}
 	snprintf(global->confPath, 79, "%s/.guvcviewrc",getenv("HOME"));
 	
-	if((global->aviPath = (char *) calloc(1, 100 * sizeof(char)))==NULL){
-		printf("couldn't calloc memory for:global->aviPath\n");
+	if((global->aviFPath = (pchar *) calloc(1, 2 * sizeof(pchar)))==NULL){
+		printf("couldn't calloc memory for:global->aviFPath\n");
 		goto error;
 	}
-	snprintf(global->aviPath, 2, "~");
-	
-	if((global->imgPath = (char *) calloc(1, 100 * sizeof(char)))==NULL){
-		printf("couldn't calloc memory for:global->imgPath\n");
+	if((global->imgFPath = (pchar *) calloc(1, 2 * sizeof(pchar)))==NULL){
+		printf("couldn't calloc memory for:global->imgFPath\n");
 		goto error;
 	}
-	snprintf(global->imgPath, 99, "%s",getenv("HOME"));
+	if((global->profile_FPath = (pchar *) calloc(1, 2 * sizeof(pchar)))==NULL){
+		printf("couldn't calloc memory for:global->profile_FPath\n");
+		goto error;
+	}
 	
-	if((global->imageName = (char *) calloc(1, 20 * sizeof(char)))==NULL){
+	if((global->aviFPath[1] = (char *) calloc(1, 100 * sizeof(char)))==NULL){
+		printf("couldn't calloc memory for:global->aviFPath[1]\n");
+		goto error;
+	}
+	snprintf(global->aviFPath[1], 2, "~");
+	
+	if((global->imgFPath[1] = (char *) calloc(1, 100 * sizeof(char)))==NULL){
+		printf("couldn't calloc memory for:global->imgFPath[1]\n");
+		goto error;
+	}
+	snprintf(global->imgFPath[1], 99, "%s",getenv("HOME"));
+	
+	if((global->imgFPath[0] = (char *) calloc(1, 20 * sizeof(char)))==NULL){
 		printf("couldn't calloc memory for:global->imageName\n");
 		goto error;
 	}
-	snprintf(global->imageName,10,DEFAULT_IMAGE_FNAME);
+	snprintf(global->imgFPath[0],10,DEFAULT_IMAGE_FNAME);
 	
-	if((global->aviName = (char *) calloc(1, 20 * sizeof(char)))==NULL){
-		printf("couldn't calloc memory for:global->aviName\n");
+	if((global->aviFPath[0] = (char *) calloc(1, 20 * sizeof(char)))==NULL){
+		printf("couldn't calloc memory for:global->aviFPath[0]\n");
 		goto error;
 	}
-	snprintf(global->aviName,12,DEFAULT_AVI_FNAME);
+	snprintf(global->aviFPath[0],12,DEFAULT_AVI_FNAME);
 	
 	if((global->sndfile= (char *) calloc(1, 32 * sizeof(char)))==NULL){
 		printf("couldn't calloc memory for:global->sndfile\n");
@@ -1213,17 +1226,18 @@ int initGlobals (struct GLOBAL *global) {
 	}
 	snprintf(global->sndfile,32,"%s",tempnam (NULL, "gsnd_"));/*generates a temporary file name*/
 	
-	if((global->profile_dir = (char *) calloc(1, 100 * sizeof(char)))==NULL){
-		printf("couldn't calloc memory for:global->profile_dir\n");
+	if((global->profile_FPath[1] = (char *) calloc(1, 100 * sizeof(char)))==NULL){
+		printf("couldn't calloc memory for:global->profile_FPath[1]\n");
 		goto error;
 	}
-	snprintf(global->profile_dir, 100, "%s",getenv("HOME"));
+	snprintf(global->profile_FPath[1], 100, "%s",getenv("HOME"));
 	
-	if((global->profile_fname = (char *) calloc(1, 20 * sizeof(char)))==NULL){
-		printf("couldn't calloc memory for:global->profile_fname\n");
+	if((global->profile_FPath[0] = (char *) calloc(1, 20 * sizeof(char)))==NULL){
+		printf("couldn't calloc memory for:global->profile_FPath[0]\n");
 		goto error;
 	}
-	snprintf(global->profile_fname, 20, "default.gpfl",getenv("HOME"));
+	snprintf(global->profile_FPath[0], 20, "default.gpfl");
+	
 	
 	if((global->WVcaption= (char *) calloc(1, 32 * sizeof(char)))==NULL){
 		printf("couldn't calloc memory for:global->WVcaption\n");
@@ -1231,6 +1245,7 @@ int initGlobals (struct GLOBAL *global) {
 	}
 	snprintf(global->WVcaption,10,"GUVCVIdeo");
 	
+	global->vid_sleep=0;
 	global->avifile=NULL; /*avi filename passed through argument options with -n */
 	global->Capture_time=0; /*avi capture time passed through argument options with -t */
 	global->lprofile=0; /* flag for -l command line option*/
@@ -1289,13 +1304,16 @@ error:
 int closeGlobals(struct GLOBAL *global){
 	free(global->videodevice);
 	free(global->confPath);
-	free(global->aviPath);
-	free(global->imgPath);
-	free(global->imageName);
-	free(global->aviName);
+	free(global->aviFPath[1]);
+	free(global->imgFPath[1]);
+	free(global->imgFPath[0]);
+	free(global->aviFPath[0]);
 	free(global->sndfile);
-	free(global->profile_dir);
-	free(global->profile_fname);
+	free(global->profile_FPath[1]);
+	free(global->profile_FPath[0]);
+	free(global->aviFPath);
+	free(global->imgFPath);
+	free(global->profile_FPath);
 	if (global->WVcaption) free (global->WVcaption);
 	if (global->avifile) free (global->avifile);
 	free(global->mode);
@@ -1311,7 +1329,7 @@ int closeGlobals(struct GLOBAL *global){
 }
 
 /* split fullpath in Path and filename*/
-void* splitPath(char *FullPath, char *FileDir, char *Filename) 
+pchar* splitPath(char *FullPath, pchar* splited) 
 {
 	int i;
 	int j;
@@ -1329,74 +1347,80 @@ void* splitPath(char *FullPath, char *FileDir, char *Filename)
 		if((*tmpstr--)=='/') {
 			FSize=i;
 			tmpstr+=2;/*must increment by 2 because of '/'*/
-			//Filename=realloc(Filename,(FSize+1)*sizeof(char));
-			if(FSize>19) {
-				printf("Error: File name too big, keeping last.\n");
-			} else {
-				Filename=strncpy(Filename,tmpstr,FSize);
-				Filename[FSize]='\0';
-				/* cut spaces at begin of Filename String*/
-				j=0;
-				l=0;
-				while((Filename[j]==' ') && (j<100)) j++;
-				if (j>0) {
-					for(k=j;k<strlen(FileDir);k++) {
-						Filename[l++]=Filename[k];
-					}
-					Filename[l++]='\0';
+			if((FSize>19) && (FSize>strlen(splited[0]))) {
+				printf("realloc Filename to %d chars.\n",FSize);
+				splited[0]=realloc(splited[0],(FSize+1)*sizeof(char));
+			} 
+			//else {
+			splited[0]=strncpy(splited[0],tmpstr,FSize);
+			splited[0][FSize]='\0';
+			/* cut spaces at begin of Filename String*/
+			j=0;
+			l=0;
+			while((splited[0][j]==' ') && (j<100)) j++;/*count*/
+			if (j>0) {
+				for(k=j;k<strlen(splited[0]);k++) {
+					splited[0][l++]=splited[0][k];
 				}
+				splited[0][l++]='\0';
 			}
+			//}
 			FDSize=FPSize-FSize;
 			//FileDir=realloc(FileDir,(FDSize+1)*sizeof(char));
-			if (FDSize>99) {
-				printf("Error: Path name too big, keeping last.\n");
-			} else {
-				FileDir=strncpy(FileDir,FullPath,FDSize);
-				FileDir[FDSize]='\0';
-				/* cut spaces at begin of Dir String*/
-				j=0;
-				l=0;
-				while((FileDir[j]==' ') && (j<100)) j++;
-				if (j>0) {
-					for(k=j;k<strlen(FileDir);k++) {
-						FileDir[l++]=FileDir[k];
-					}
-					FileDir[l++]='\0';
+			if ((FDSize>99) && (FDSize>strlen(splited[1]))) {
+				printf("realloc FileDir to %d chars.\n",FDSize);
+				splited[1]=realloc(splited[1],(FDSize+1)*sizeof(char));
+			} 
+			//else {
+			splited[1]=strncpy(splited[1],FullPath,FDSize);
+			splited[1][FDSize]='\0';
+			/* cut spaces at begin of Dir String*/
+			j=0;
+			l=0;
+			while((splited[1][j]==' ') && (j<100)) j++;
+			if (j>0) {
+				for(k=j;k<strlen(splited[1]);k++) {
+					splited[1][l++]=splited[1][k];
 				}
-				/* check for "~" and replace with home dir*/
-				//printf("FileDir[0]=%c\n",FileDir[0]);
-				if(FileDir[0]=='~') {
-					for(k=0;k<strlen(FileDir);k++) {
-						FileDir[k]=FileDir[k+1];
-					}
-					char path_str[100];
-					char *home=getenv("HOME");
-					sprintf(path_str,"%s%s",home,FileDir);
-					printf("path is %s\n",path_str);
-					FDSize=strlen(path_str);
-					if (FDSize<99) {
-						strncpy (FileDir,path_str,FDSize);
-						FileDir[FDSize]='\0';
-					}
-					else printf("Error: Path (~) name too big, keeping last.\n");
-				}
-				
+				splited[1][l++]='\0';
 			}
+			/* check for "~" and replace with home dir*/
+			//printf("FileDir[0]=%c\n",FileDir[0]);
+			if(splited[1][0]=='~') {
+				for(k=0;k<strlen(splited[1]);k++) {
+					splited[1][k]=splited[1][k+1];
+				}
+				char path_str[100];
+				char *home=getenv("HOME");
+				sprintf(path_str,"%s%s",home,splited[1]);
+				printf("path is %s\n",path_str);
+				FDSize=strlen(path_str);
+				if (FDSize<99) {
+					strncpy (splited[1],path_str,FDSize);
+					splited[1][FDSize]='\0';
+				}
+				else printf("Error: Home Path(~) too big, keeping last.\n");
+			}
+				
+			//}
 			break;
 		}
 	}
 	
 	if(i>=FPSize) { /* no dir specified */
 		//Filename=realloc(Filename,(FPSize+1)*sizeof(char));
-		if (FPSize>19) {
-			printf("Error: File name too big, keeping last.\n");
-		} else {
-			Filename=strncpy(Filename,FullPath,FPSize);
-			Filename[FPSize]='\0';
-		}
+		if ((FPSize>19) && (FPSize>strlen(splited[0])))  {
+			printf("realloc Filename to %d chars.\n",FPSize);
+			splited[0]=realloc(splited[0],(FPSize+1)*sizeof(char));
+		} 
+		//else {
+		splited[0]=strncpy(splited[0],FullPath,FPSize);
+		splited[0][FPSize]='\0';
+		//}
 	}
-	printf("Dir:%s File:%s\n",FileDir,Filename);
+	printf("Dir:%s File:%s\n",splited[1],splited[0]);
 	tmpstr=NULL;/*clean up*/
+	return (splited);
 }
 
 

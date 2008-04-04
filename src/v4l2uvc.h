@@ -112,7 +112,137 @@ enum v4l2_power_line_frequency {
 	V4L2_CID_POWER_LINE_FREQUENCY_60HZ	= 2,
 };
 
+/*
+* Extended control API
+*/
+//~ struct v4l2_ext_control
+//~ {
+	//~ __u32 id;
+	//~ __u32 reserved2[2];
+	//~ union {
+		//~ __s32 value;
+		//~ __s64 value64;
+		//~ void *reserved;
+	//~ };
+//~ } __attribute__ ((packed));
+	
+//~ struct v4l2_ext_controls
+//~ {
+	//~ __u32 ctrl_class;
+	//~ __u32 count;
+	//~ __u32 error_idx;
+	//~ __u32 reserved[2];
+	//~ struct v4l2_ext_control *controls;
+//~ };
 
+
+#define UVC_DYN_CONTROLS
+/*
+ * Dynamic controls
+ */
+
+#ifdef UVC_DYN_CONTROLS
+/* Data types for UVC control data */
+enum uvc_control_data_type {
+        UVC_CTRL_DATA_TYPE_RAW = 0,
+        UVC_CTRL_DATA_TYPE_SIGNED,
+        UVC_CTRL_DATA_TYPE_UNSIGNED,
+        UVC_CTRL_DATA_TYPE_BOOLEAN,
+        UVC_CTRL_DATA_TYPE_ENUM,
+        UVC_CTRL_DATA_TYPE_BITMASK,
+};
+
+#define V4L2_CID_BASE_EXTCTR					0x0A046D01
+#define V4L2_CID_BASE_LOGITECH					V4L2_CID_BASE_EXTCTR
+#define V4L2_CID_PAN_RELATIVE_LOGITECH  		V4L2_CID_BASE_LOGITECH
+#define V4L2_CID_TILT_RELATIVE_LOGITECH 		V4L2_CID_BASE_LOGITECH+1
+#define V4L2_CID_PANTILT_RESET_LOGITECH 		V4L2_CID_BASE_LOGITECH+2
+#define V4L2_CID_FOCUS_LOGITECH         		V4L2_CID_BASE_LOGITECH+3
+#define V4L2_CID_LED1_MODE_LOGITECH     		V4L2_CID_BASE_LOGITECH+4
+#define V4L2_CID_LED1_FREQUENCY_LOGITECH 		V4L2_CID_BASE_LOGITECH+5
+#define V4L2_CID_DISABLE_PROCESSING_LOGITECH 	V4L2_CID_BASE_LOGITECH+0x70
+#define V4L2_CID_RAW_BITS_PER_PIXEL_LOGITECH 	V4L2_CID_BASE_LOGITECH+0x71
+#define V4L2_CID_LAST_EXTCTR					V4L2_CID_RAW_BITS_PER_PIXEL_LOGITECH
+
+#define UVC_GUID_LOGITECH_VIDEO_PIPE	{0x82, 0x06, 0x61, 0x63, 0x70, 0x50, 0xab, 0x49, 0xb8, 0xcc, 0xb3, 0x85, 0x5e, 0x8d, 0x22, 0x50}
+#define UVC_GUID_LOGITECH_MOTOR_CONTROL {0x82, 0x06, 0x61, 0x63, 0x70, 0x50, 0xab, 0x49, 0xb8, 0xcc, 0xb3, 0x85, 0x5e, 0x8d, 0x22, 0x56}
+#define UVC_GUID_LOGITECH_USER_HW_CONTROL {0x82, 0x06, 0x61, 0x63, 0x70, 0x50, 0xab, 0x49, 0xb8, 0xcc, 0xb3, 0x85, 0x5e, 0x8d, 0x22, 0x1f}
+
+#define XU_HW_CONTROL_LED1               1
+#define XU_MOTORCONTROL_PANTILT_RELATIVE 1
+#define XU_MOTORCONTROL_PANTILT_RESET    2
+#define XU_MOTORCONTROL_FOCUS            3
+#define XU_COLOR_PROCESSING_DISABLE		 5
+#define XU_RAW_DATA_BITS_PER_PIXEL		 8
+
+#define UVC_CONTROL_SET_CUR     (1 << 0)
+#define UVC_CONTROL_GET_CUR     (1 << 1)
+#define UVC_CONTROL_GET_MIN     (1 << 2)
+#define UVC_CONTROL_GET_MAX     (1 << 3)
+#define UVC_CONTROL_GET_RES     (1 << 4)
+#define UVC_CONTROL_GET_DEF     (1 << 5)
+/* Control should be saved at suspend and restored at resume. */
+#define UVC_CONTROL_RESTORE     (1 << 6)
+/* Control can be updated by the camera. */
+#define UVC_CONTROL_AUTO_UPDATE (1 << 7)
+
+#define UVC_CONTROL_GET_RANGE   (UVC_CONTROL_GET_CUR | UVC_CONTROL_GET_MIN | \
+                                 UVC_CONTROL_GET_MAX | UVC_CONTROL_GET_RES | \
+                                 UVC_CONTROL_GET_DEF)
+
+
+struct uvc_xu_control_info {
+	__u8 entity[16];
+	__u8 index;
+	__u8 selector;
+	__u16 size;
+	__u32 flags;
+};
+
+struct uvc_xu_control_mapping {
+	__u32 id;
+	__u8 name[32];
+	__u8 entity[16];
+	__u8 selector;
+  
+	__u8 size;
+	__u8 offset;
+	enum v4l2_ctrl_type v4l2_type;
+	enum uvc_control_data_type data_type;
+};
+
+struct uvc_xu_control {
+	__u8 unit;
+	__u8 selector;
+	__u16 size;
+	__u8 __user *data;
+};
+
+#define UVCIOC_CTRL_ADD		_IOW  ('U', 1, struct uvc_xu_control_info)
+#define UVCIOC_CTRL_MAP		_IOWR ('U', 2, struct uvc_xu_control_mapping)
+#define UVCIOC_CTRL_GET		_IOWR ('U', 3, struct uvc_xu_control)
+#define UVCIOC_CTRL_SET		_IOW  ('U', 4, struct uvc_xu_control)
+
+//~ static struct uvc_xu_control_info ci = {
+    //~ .entity = UVC_GUID_LOGITECH_MOTOR_CONTROL,
+    //~ .selector = XU_MOTORCONTROL_FOCUS,
+    //~ .index = 2,
+    //~ .size = 6,
+    //~ .flags = UVC_CONTROL_SET_CUR|UVC_CONTROL_GET_MIN|UVC_CONTROL_GET_MAX|UVC_CONTROL_GET_DEF
+//~ };
+  
+//~ static struct uvc_xu_control_mapping cm = {
+    //~ .id = V4L2_CID_FOCUS_LOGITECH,
+    //~ .name = "Focus",
+    //~ .entity = UVC_GUID_LOGITECH_MOTOR_CONTROL,
+    //~ .selector = XU_MOTORCONTROL_FOCUS,
+    //~ .size=8,
+    //~ .offset=0,
+    //~ .v4l2_type=V4L2_CTRL_TYPE_INTEGER,
+    //~ .data_type=UVC_CTRL_DATA_TYPE_UNSIGNED
+//~ };
+#endif  
+  
 #define MAX_LIST_FPS (10)
 #define MAX_LIST_VIDCAP (20)
 
@@ -248,4 +378,5 @@ int enum_frame_intervals(struct vdIn *vd, __u32 pixfmt, __u32 width, __u32 heigh
 						 int list_form, int list_ind);
 int enum_frame_sizes(struct vdIn *vd, __u32 pixfmt);
 int enum_frame_formats(struct vdIn *vd);
-
+int initDynCtrls(struct vdIn *vd);
+int uvcPanTilt(struct vdIn *vd, int pan, int tilt, int reset);

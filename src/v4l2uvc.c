@@ -23,6 +23,142 @@
 #include "v4l2uvc.h"
 #include "utils.h"
 
+/* some Logitech webcams have pan/tilt/focus controls */
+#define LENGTH_OF_XU_CTR (6)
+#define LENGTH_OF_XU_MAP (8)
+
+static struct uvc_xu_control_info xu_ctrls[] = {
+	{
+		.entity   = UVC_GUID_LOGITECH_MOTOR_CONTROL,
+		.selector = XU_MOTORCONTROL_PANTILT_RELATIVE,
+		.index    = 0,
+		.size     = 4,
+		.flags    = UVC_CONTROL_SET_CUR | UVC_CONTROL_GET_MIN | UVC_CONTROL_GET_MAX | UVC_CONTROL_GET_DEF
+	},
+	{
+		.entity   = UVC_GUID_LOGITECH_MOTOR_CONTROL,
+		.selector = XU_MOTORCONTROL_PANTILT_RESET,
+		.index    = 1,
+		.size     = 1,
+		.flags    = UVC_CONTROL_SET_CUR | UVC_CONTROL_GET_MIN | UVC_CONTROL_GET_MAX | UVC_CONTROL_GET_RES | UVC_CONTROL_GET_DEF
+	},
+	{
+		.entity   = UVC_GUID_LOGITECH_MOTOR_CONTROL,
+		.selector = XU_MOTORCONTROL_FOCUS,
+		.index    = 2,
+		.size     = 6,
+		.flags    = UVC_CONTROL_SET_CUR | UVC_CONTROL_GET_MIN | UVC_CONTROL_GET_MAX |UVC_CONTROL_GET_DEF
+	},
+	{
+		.entity   = UVC_GUID_LOGITECH_VIDEO_PIPE,
+		.selector = XU_COLOR_PROCESSING_DISABLE,
+		.index    = 4,
+		.size     = 1,
+		.flags    = UVC_CONTROL_SET_CUR | UVC_CONTROL_GET_CUR |UVC_CONTROL_GET_MIN | UVC_CONTROL_GET_MAX | UVC_CONTROL_GET_RES | UVC_CONTROL_GET_DEF
+	},
+	{
+		.entity   = UVC_GUID_LOGITECH_VIDEO_PIPE,
+		.selector = XU_RAW_DATA_BITS_PER_PIXEL,
+		.index    = 7,
+		.size     = 1,
+		.flags    = UVC_CONTROL_SET_CUR | UVC_CONTROL_GET_CUR |UVC_CONTROL_GET_MIN | UVC_CONTROL_GET_MAX | UVC_CONTROL_GET_RES | UVC_CONTROL_GET_DEF
+	},
+	{
+		.entity   = UVC_GUID_LOGITECH_USER_HW_CONTROL,
+		.selector = XU_HW_CONTROL_LED1,
+		.index    = 0,
+		.size     = 3,
+		.flags    = UVC_CONTROL_SET_CUR | UVC_CONTROL_GET_CUR |UVC_CONTROL_GET_MIN | UVC_CONTROL_GET_MAX | UVC_CONTROL_GET_RES | UVC_CONTROL_GET_DEF
+	},
+	
+};
+
+/* mapping for Pan/Tilt/Focus */
+static struct uvc_xu_control_mapping xu_mappings[] = {
+	{
+		.id        = V4L2_CID_PAN_RELATIVE_LOGITECH,
+		.name      = "Pan (relative)",
+		.entity    = UVC_GUID_LOGITECH_MOTOR_CONTROL,
+		.selector  = XU_MOTORCONTROL_PANTILT_RELATIVE,
+		.size      = 16,
+		.offset    = 0,
+		.v4l2_type = V4L2_CTRL_TYPE_INTEGER,
+		.data_type = UVC_CTRL_DATA_TYPE_SIGNED
+	},
+	{
+		.id        = V4L2_CID_TILT_RELATIVE_LOGITECH,
+		.name      = "Tilt (relative)",
+		.entity    = UVC_GUID_LOGITECH_MOTOR_CONTROL,
+		.selector  = XU_MOTORCONTROL_PANTILT_RELATIVE,
+		.size      = 16,
+		.offset    = 16,
+		.v4l2_type = V4L2_CTRL_TYPE_INTEGER,
+		.data_type = UVC_CTRL_DATA_TYPE_SIGNED
+	},
+	{
+		.id        = V4L2_CID_PANTILT_RESET_LOGITECH,
+		.name      = "Pan/Tilt (reset)",
+		.entity    = UVC_GUID_LOGITECH_MOTOR_CONTROL,
+		.selector  = XU_MOTORCONTROL_PANTILT_RESET,
+		.size      = 8,
+		.offset    = 0,
+		.v4l2_type = V4L2_CTRL_TYPE_INTEGER,
+		.data_type = UVC_CTRL_DATA_TYPE_UNSIGNED
+	},
+	{
+		.id        = V4L2_CID_FOCUS_LOGITECH,
+		.name      = "Focus (absolute)",
+		.entity    = UVC_GUID_LOGITECH_MOTOR_CONTROL,
+		.selector  = XU_MOTORCONTROL_FOCUS,
+		.size      = 8,
+		.offset    = 0,
+		.v4l2_type = V4L2_CTRL_TYPE_INTEGER,
+		.data_type = UVC_CTRL_DATA_TYPE_UNSIGNED
+	},
+	{
+		.id        = V4L2_CID_LED1_MODE_LOGITECH,
+		.name      = "LED1 Mode",
+		.entity    = UVC_GUID_LOGITECH_USER_HW_CONTROL,
+		.selector  = XU_HW_CONTROL_LED1,
+		.size      = 8,
+		.offset    = 0,
+		.v4l2_type = V4L2_CTRL_TYPE_INTEGER,
+		.data_type = UVC_CTRL_DATA_TYPE_UNSIGNED
+	},
+	{
+		.id        = V4L2_CID_LED1_FREQUENCY_LOGITECH,
+		.name      = "LED1 Mode",
+		.entity    = UVC_GUID_LOGITECH_USER_HW_CONTROL,
+		.selector  = XU_HW_CONTROL_LED1,
+		.size      = 8,
+		.offset    = 16,
+		.v4l2_type = V4L2_CTRL_TYPE_INTEGER,
+		.data_type = UVC_CTRL_DATA_TYPE_UNSIGNED
+	},
+	{
+		.id        = V4L2_CID_DISABLE_PROCESSING_LOGITECH,
+		.name      = "Disable video processing",
+		.entity    = UVC_GUID_LOGITECH_VIDEO_PIPE,
+		.selector  = XU_COLOR_PROCESSING_DISABLE,
+		.size      = 8,
+		.offset    = 0,
+		.v4l2_type = V4L2_CTRL_TYPE_BOOLEAN,
+		.data_type = UVC_CTRL_DATA_TYPE_BOOLEAN
+	},
+	{
+		.id        = V4L2_CID_RAW_BITS_PER_PIXEL_LOGITECH,
+		.name      = "Raw bits per pixel",
+		.entity    = UVC_GUID_LOGITECH_VIDEO_PIPE,
+		.selector  = XU_RAW_DATA_BITS_PER_PIXEL,
+		.size      = 8,
+		.offset    = 0,
+		.v4l2_type = V4L2_CTRL_TYPE_INTEGER,
+		.data_type = UVC_CTRL_DATA_TYPE_UNSIGNED
+	},
+	
+};
+
+
 int check_videoIn(struct vdIn *vd)
 {
 int ret;
@@ -657,9 +793,11 @@ input_enum_controls (struct vdIn * device, int * num_controls)
     //~ else {
         fd = device->fd;
     //~ }
+	
+	initDynCtrls(device);
     
     i = V4L2_CID_BASE; /* as defined by V4L2 */
-    while (i <= V4L2_CID_PRIVATE_LAST) {  /* as defined by the UVC driver */
+    while (i <= V4L2_CID_LAST_EXTCTR) { 
         queryctrl.id = i;
         if (ioctl (fd, VIDIOC_QUERYCTRL, &queryctrl) == 0 &&
                 !(queryctrl.flags & V4L2_CTRL_FLAG_DISABLED)) {
@@ -698,10 +836,12 @@ input_enum_controls (struct vdIn * device, int * num_controls)
             n++;
         }
         i++;
-       if (i == V4L2_CID_LAST_NEW)  /* */
+       	if (i == V4L2_CID_LAST_NEW)  /* */
        		i = V4L2_CID_CAMERA_CLASS_BASE;
-	   if (i == V4L2_CID_CAMERA_CLASS_LAST)
+	   	if (i == V4L2_CID_CAMERA_CLASS_LAST)
 			i = V4L2_CID_PRIVATE_BASE;
+		if (i == V4L2_CID_PRIVATE_LAST)
+			i = V4L2_CID_BASE_EXTCTR;
 	   
     }
 
@@ -866,5 +1006,71 @@ int enum_frame_formats(struct vdIn *vd)
 		return errno;
 	}
 
+	return 0;
+}
+
+int initDynCtrls(struct vdIn *vd) {
+
+	int i=0;
+	int err;
+	errno=0;
+	/* try to add all controls listed above */
+	for ( i=0; i<LENGTH_OF_XU_CTR; i++ ) {
+		printf("Adding control for %d\n",i);
+		if ((err=ioctl(vd->fd, UVCIOC_CTRL_ADD, &xu_ctrls[i])) < 0 ) {
+			if (errno!=EEXIST) {
+				printf("uvcioc ctrl add error: errno=%d (retval=%d)\n",errno,err);
+			} else {
+				printf("control %d already exists\n",i);
+			}
+		}
+	}
+
+	errno=0;
+	/* after adding the controls, add the mapping now */
+	for ( i=0; i<LENGTH_OF_XU_MAP; i++ ) {
+		printf("mapping controls for %s\n", xu_mappings[i].name);
+		if ((err=ioctl(vd->fd, UVCIOC_CTRL_MAP, &xu_mappings[i])) < 0) {
+			if (errno!=EEXIST) {
+			printf("uvcioc ctrl map error: errno=%d (retval=%d)\n",errno,err);
+			} else {
+				printf("mapping %d already exists\n", i);
+			}
+		}
+	}
+	return 0;
+}
+
+/*
+SRC: https://lists.berlios.de/pipermail/linux-uvc-devel/2007-July/001888.html
+- dev: the device file descriptor
+- pan: pan angle in 1/64th of degree
+- tilt: tilt angle in 1/64th of degree
+- reset: set to 1 to reset pan/tilt to the device origin, set to 0 otherwise
+*/
+int uvcPanTilt(struct vdIn *vd, int pan, int tilt, int reset) {
+	struct v4l2_ext_control xctrls[2];
+	struct v4l2_ext_controls ctrls;
+	
+	if (reset) {
+		xctrls[0].id = V4L2_CID_PANTILT_RESET_LOGITECH;
+		xctrls[0].value = 3;
+	
+		ctrls.count = 1;
+		ctrls.controls = xctrls;
+	} else {
+		xctrls[0].id = V4L2_CID_PAN_RELATIVE_LOGITECH;
+		xctrls[0].value = pan;
+		xctrls[1].id = V4L2_CID_TILT_RELATIVE_LOGITECH;
+		xctrls[1].value = tilt;
+	
+		ctrls.count = 2;
+		ctrls.controls = xctrls;
+	}
+	
+	if ( ioctl(vd->fd, VIDIOC_S_EXT_CTRLS, &ctrls) < 0 ) {
+		return -1;
+	}
+	
 	return 0;
 }
