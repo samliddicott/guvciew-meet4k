@@ -1958,7 +1958,9 @@ void *main_loop(void *data)
 		   videoIn->width * (videoIn->height) * 2);
 	 SDL_UnlockYUVOverlay(overlay);
 	 SDL_DisplayYUVOverlay(overlay, &drect);
-	 if(global->vid_sleep)
+	 
+	/*sleep for a while*/
+	if(global->vid_sleep)
 		SDL_Delay(global->vid_sleep);
 	
   }
