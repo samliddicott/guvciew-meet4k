@@ -8,7 +8,7 @@
 #include "prototype.h"
 
 
-void* initialization (struct JPEG_ENCODER_STRUCTURE * jpeg, int image_width, 
+void initialization (struct JPEG_ENCODER_STRUCTURE * jpeg, int image_width, 
 					                                        int image_height)
 {
 	UINT16 mcu_width, mcu_height, bytes_per_pixel;
@@ -47,7 +47,7 @@ void* initialization (struct JPEG_ENCODER_STRUCTURE * jpeg, int image_width,
 	
 }
 
-void* jpeg_restart (struct JPEG_ENCODER_STRUCTURE * jpeg_encoder_structure)
+void jpeg_restart (struct JPEG_ENCODER_STRUCTURE * jpeg_encoder_structure)
 {
 	jpeg_encoder_structure->ldc1 = 0;
 	jpeg_encoder_structure->ldc2 = 0;

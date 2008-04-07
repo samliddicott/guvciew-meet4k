@@ -29,8 +29,6 @@
 #include <linux/videodev.h>
 #include <gtk/gtk.h>
 
-static int debug = 0;
-
 #define NB_BUFFER 4
 /*
  * Private V4L2 control identifiers from UVC driver.  - this seems to change acording to driver version
@@ -98,13 +96,13 @@ enum  v4l2_exposure_auto_type {
 	V4L2_EXPOSURE_APERTURE_PRIORITY = 8
 };
 
-static int	exp_vals[]={
-				V4L2_EXPOSURE_MANUAL,
-				V4L2_EXPOSURE_AUTO,
-				V4L2_EXPOSURE_SHUTTER_PRIORITY, 
-				V4L2_EXPOSURE_APERTURE_PRIORITY
-				};
-static char *exp_typ[]={"MANUAL","AUTO","SHUTTER P.","APERTURE P."};
+static const int exp_vals[]={
+						V4L2_EXPOSURE_MANUAL,
+						V4L2_EXPOSURE_AUTO,
+						V4L2_EXPOSURE_SHUTTER_PRIORITY, 
+						V4L2_EXPOSURE_APERTURE_PRIORITY
+				 };
+
 
 enum v4l2_power_line_frequency {
 	V4L2_CID_POWER_LINE_FREQUENCY_DISABLED	= 0,
@@ -280,12 +278,12 @@ struct vdIn {
     int framesizeIn;
     int signalquit;
     int capAVI;
-    const char *AVIFName;
+    char *AVIFName;
     int fps;
 	int fps_num;
     //~ int getPict;
     int capImage;
-    const char *ImageFName;
+    char *ImageFName;
     //~ int rawFrameCapture;
     //~ /* raw frame capture */
     //~ unsigned int fileCounter;
@@ -372,7 +370,7 @@ input_enum_controls (struct vdIn * device, int * num_controls);
 void
 input_free_controls (InputControl * control, int num_controls);
 
-static int init_v4l2(struct vdIn *vd);
+int init_v4l2(struct vdIn *vd);
 
 int enum_frame_intervals(struct vdIn *vd, __u32 pixfmt, __u32 width, __u32 height,
 						 int list_form, int list_ind);

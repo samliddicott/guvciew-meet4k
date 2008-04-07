@@ -24,7 +24,7 @@ typedef  unsigned int UINT;
 typedef  unsigned short int WORD;
 
 
-#define VERSION ("0.7.1")
+#define VERSION ("0.7.2")
 
 /*------------- portaudio defs ----------------*/
 /*---- can be override in rc file or GUI ------*/
@@ -132,8 +132,8 @@ typedef struct _sndDev {
 } sndDev;
 
 /* 0 is device default*/
-static int stdSampleRates[] = { 0, 8000,  9600, 11025, 12000,
-                                   16000, 22050, 24000,
+static const int stdSampleRates[] = { 0, 8000,  9600, 11025, 12000,
+								   16000, 22050, 24000,
                                    32000, 44100, 48000,
                                    88200, 96000,
                                    -1 }; /* Negative terminated list. */
@@ -239,32 +239,34 @@ typedef struct tagJPGFILEHEADER {
 	BYTE HTN;/*height Thumbnail 0*/	
 } __attribute__ ((packed)) JPGFILEHEADER, *PJPGFILEHEADER;
 
+int jpeg_decode(unsigned char **pic, unsigned char *buf, int *width,
+		int *height);
 
 int initGlobals(struct GLOBAL *global);
 int closeGlobals(struct GLOBAL *global);
-void* cleanBuff(BYTE* Buff,int size);
+void cleanBuff(BYTE* Buff,int size);
 pchar* splitPath(char *FullPath, char* splited[2]);
 /* regular yuv (YUYV) to rgb24*/
-void *
+void 
 yuyv2rgb (BYTE *pyuv, BYTE *prgb, int width, int height);
 
 /* yuv (YUYV) to bgr with lines upsidedown */
 /* used for bitmap files (DIB24)           */
-void *
+void 
 yuyv2bgr (BYTE *pyuv, BYTE *pbgr, int width, int height);
 
 /* Flip YUYV frame - horizontal*/
-void *
+void 
 yuyv_mirror (BYTE *frame, int width, int height);
 
 /* Flip YUYV frame - vertical*/
-void * 
+void  
 yuyv_upturn(BYTE* frame, int width, int height);
 
-void *
+void 
 yuyv_negative(BYTE* frame, int width, int height);
 
-void *
+void 
 yuyv_monochrome(BYTE* frame, int width, int height);
 
 int 

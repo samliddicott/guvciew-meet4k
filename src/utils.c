@@ -50,6 +50,7 @@
 #define _F2 0
 #define _F3 1
 
+
 struct jpeg_decdata {
     int dcts[6 * 64 + 16];
     int out[64 * 6];
@@ -117,7 +118,7 @@ inline static void idct(int *in, int *out, int *quant, long off, int max);
 
 /*********************************/
 
-static void col221111 __P((int *, unsigned char *, int));
+//static void col221111 __P((int *, unsigned char *, int));
 
 static void yuv420pto422(int * out,unsigned char *pic,int width);
 static void yuv422pto422(int * out,unsigned char *pic,int width);
@@ -1224,7 +1225,8 @@ int initGlobals (struct GLOBAL *global) {
 		printf("couldn't calloc memory for:global->sndfile\n");
 		goto error;
 	}
-	snprintf(global->sndfile,32,"%s",tempnam (NULL, "gsnd_"));/*generates a temporary file name*/
+	//snprintf(global->sndfile,32,"%s",tempnam (NULL, "gsnd_"));/*generates a temporary file name*/
+	snprintf(global->sndfile,32,"/tmp/guvc_sound_XXXXXX");/*template for temp sound file name*/
 	
 	if((global->profile_FPath[1] = (char *) calloc(1, 100 * sizeof(char)))==NULL){
 		printf("couldn't calloc memory for:global->profile_FPath[1]\n");
@@ -1424,14 +1426,14 @@ pchar* splitPath(char *FullPath, pchar* splited)
 }
 
 
-void* cleanBuff(BYTE* Buff,int size)
+void cleanBuff(BYTE* Buff,int size)
 {
 	int i=0;
 	for(i=0;i<size;i++) Buff[i]=0x00;
 }
 /*------------------------------- Color space conversions --------------------*/
 /* regular yuv (YUYV) to rgb24*/
-void *
+void 
 yuyv2rgb (BYTE *pyuv, BYTE *prgb, int width, int height){
 	int l=0;
 	int SizeYUV=height * width * 2; /* 2 bytes per pixel*/
@@ -1454,7 +1456,7 @@ yuyv2rgb (BYTE *pyuv, BYTE *prgb, int width, int height){
 
 /* yuv (YUYV) to bgr with lines upsidedown */
 /* used for bitmap files (DIB24)           */
-void *
+void 
 yuyv2bgr (BYTE *pyuv, BYTE *pbgr, int width, int height){
 
 	int l=0;
@@ -1491,7 +1493,7 @@ yuyv2bgr (BYTE *pyuv, BYTE *pbgr, int width, int height){
 }
 /*-------------------------------- YUV Filters -------------------------------*/
 /* Flip YUYV frame horizontal*/
-void *
+void 
 yuyv_mirror (BYTE *frame, int width, int height){
 	
 	int h=0;
@@ -1513,7 +1515,7 @@ yuyv_mirror (BYTE *frame, int width, int height){
 }
 
 
-void *
+void 
 yuyv_negative(BYTE* frame, int width, int height)
 {
 	int size=width*height*2;
@@ -1522,7 +1524,7 @@ yuyv_negative(BYTE* frame, int width, int height)
         frame[i] = ~frame[i];     
 }
 
-void *
+void 
 yuyv_upturn(BYTE* frame, int width, int height)
 {   
 	int h=0;
@@ -1541,7 +1543,7 @@ yuyv_upturn(BYTE* frame, int width, int height)
 }
 
 
-void *
+void
 yuyv_monochrome(BYTE* frame, int width, int height) 
 {
     int size=width*height*2;

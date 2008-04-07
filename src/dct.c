@@ -2,7 +2,7 @@
 
 
 /* Level shifting to get 8 bit SIGNED values for the data  */
-void* levelshift (INT16* const data)
+void levelshift (INT16* const data)
 {
 	INT16 i;
 
@@ -12,7 +12,7 @@ void* levelshift (INT16* const data)
 
 
 /* DCT for One block(8x8) */
-void* DCT (INT16 *data)
+void DCT (INT16 *data)
 {
 	UINT16 i;
 	INT32 x0, x1, x2, x3, x4, x5, x6, x7, x8;

@@ -44,7 +44,7 @@ typedef struct
    long   pos;               /* position in file */
    long   n_idx;             /* number of index entries actually filled */
    long   max_idx;           /* number of index entries actually allocated */
-   unsigned char (*idx)[16]; /* index entries (AVI idx1 tag) */
+   BYTE (*idx)[16]; /* index entries (AVI idx1 tag) */
    video_index_entry * video_index;
    audio_index_entry * audio_index;
    long   last_pos;          /* Position of last frame written */
@@ -128,7 +128,7 @@ int  AVI_write_audio(avi_t *AVI, BYTE *data, long bytes);
 long AVI_bytes_remain(avi_t *AVI);
 int  AVI_close(avi_t *AVI);
 
-avi_t *AVI_open_input_file(char *filename, int getIndex);
+//avi_t *AVI_open_input_file(char *filename, int getIndex);
 
 long AVI_video_frames(avi_t *AVI);
 int  AVI_video_width(avi_t *AVI);
@@ -143,15 +143,15 @@ long AVI_audio_rate(avi_t *AVI);
 long AVI_audio_bytes(avi_t *AVI);
 
 long AVI_frame_size(avi_t *AVI, long frame);
-int  AVI_seek_start(avi_t *AVI);
-int  AVI_set_video_position(avi_t *AVI, long frame);
-long AVI_read_frame(avi_t *AVI, char *vidbuf);
-int  AVI_set_audio_position(avi_t *AVI, long byte);
-long AVI_read_audio(avi_t *AVI, char *audbuf, long bytes);
+//~int  AVI_seek_start(avi_t *AVI);
+//~int  AVI_set_video_position(avi_t *AVI, long frame);
+//~long AVI_read_frame(avi_t *AVI, char *vidbuf);
+//~int  AVI_set_audio_position(avi_t *AVI, long byte);
+//~long AVI_read_audio(avi_t *AVI, char *audbuf, long bytes);
 
-int  AVI_read_data(avi_t *AVI, char *vidbuf, long max_vidbuf,
-                               char *audbuf, long max_audbuf,
-                               long *len);
+//~int  AVI_read_data(avi_t *AVI, char *vidbuf, long max_vidbuf,
+//~                               char *audbuf, long max_audbuf,
+//~                               long *len);
 
 void AVI_print_error(char *str);
 char *AVI_strerror();

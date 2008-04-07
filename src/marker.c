@@ -1,6 +1,6 @@
 #include "huffman.h"
 #include "prototype.h"
-
+#include <string.h>
 // Header for JPEG Encoder
 
 UINT8* write_markers (struct JPEG_ENCODER_STRUCTURE * jpeg_encoder_structure, UINT8 *output_ptr,int huff, UINT32 image_width, UINT32 image_height)

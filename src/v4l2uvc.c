@@ -325,8 +325,8 @@ static int query_buff(struct vdIn *vd, const int setUNMAP)
 	    	printf("Unable to query buffer (%d).\n", errno);
 	    	return 1;
 		}
-		if (debug) printf("length: %u offset: %u\n", vd->buf.length,
-						                                   vd->buf.m.offset);
+		//printf("length: %u offset: %u\n", vd->buf.length,
+		//                                   vd->buf.m.offset);
 		/* map new buffer */
 		vd->mem[i] = mmap(0 /* start anywhere */ ,
 			  vd->buf.length, PROT_READ, MAP_SHARED, vd->fd,
@@ -335,8 +335,7 @@ static int query_buff(struct vdIn *vd, const int setUNMAP)
 	    	printf("Unable to map buffer (%d)\n", errno);
 	    	return 2;
 		}
-		if (debug)
-	    	printf("Buffer mapped at address %p.\n", vd->mem[i]);
+	    //printf("Buffer mapped at address %p.\n", vd->mem[i]);
 	}
 
 	return 0;
@@ -364,9 +363,9 @@ static int queue_buff(struct vdIn *vd)
 }
 
 
-static int init_v4l2(struct vdIn *vd)
+int init_v4l2(struct vdIn *vd)
 {
-    int i;
+    //int i;
     int ret = 0;
     
 	//~ if (vd->fd > 0) {
@@ -501,8 +500,7 @@ int uvcGrab(struct vdIn *vd)
 	    		printf("jpeg decode errors\n");
 	    		goto err;
 			}
-			if (debug)
-	    		printf("bytes in used %d \n", vd->buf.bytesused);
+	    	//	printf("bytes in used %d \n", vd->buf.bytesused);
 			break;
     	case V4L2_PIX_FMT_YUYV:
 			if (vd->buf.bytesused > vd->framesizeIn)

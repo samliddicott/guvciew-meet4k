@@ -1,10 +1,8 @@
-guvcview (0.7.0) stable; urgency=low
+guvcview (0.7.1) stable; urgency=low
 
-   * Fixed Cell padding (auto resize widgets)
-   * Fixed Mono filter
-   * Added quit button
-   * Added sound capture parameters to rc file
-   * Added device string to rc file 
+   * Fixed Backlight Compensation
+   * Added Dynamic Controls
+   * Added video loop sleep time to rc file 
 
  -- Paulo Assis <pj.assis@gmail.com>  Wed, 09 Jan 2008 19:07:18 +0000
 

@@ -36,7 +36,7 @@ UINT16 DSP_Division (UINT32 numer, UINT32 denom)
 
 /* Multiply Quantization table with quality factor to get LQT and CQT */
 /* Will use constant Quantization tables to make it faster            */
-void* initialize_quantization_tables (struct JPEG_ENCODER_STRUCTURE * jpeg_encoder_structure)
+void initialize_quantization_tables (struct JPEG_ENCODER_STRUCTURE * jpeg_encoder_structure)
 {
 	UINT16 i, index;
 	UINT32 value;
@@ -171,7 +171,7 @@ void* initialize_quantization_tables (struct JPEG_ENCODER_STRUCTURE * jpeg_encod
 }
 
 /* multiply DCT Coefficients with Quantization table and store in ZigZag location */
-void* quantization (struct JPEG_ENCODER_STRUCTURE * jpeg_encoder_structure, INT16* const data, UINT16* const quant_table_ptr)
+void quantization (struct JPEG_ENCODER_STRUCTURE * jpeg_encoder_structure, INT16* const data, UINT16* const quant_table_ptr)
 {
 	INT16 i;
 	INT32 value;

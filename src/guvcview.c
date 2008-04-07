@@ -91,7 +91,7 @@ pthread_t sndthread;
 pthread_attr_t sndattr;
 
 /* parameters passed when restarting*/
-const char *EXEC_CALL;
+char *EXEC_CALL;
 
 /*the main SDL surface*/
 SDL_Surface *pscreen = NULL;
@@ -106,29 +106,25 @@ BYTE *p = NULL;
 BYTE * pim= NULL;
 BYTE * pavi=NULL;
 
-//char *avifile=NULL; /*avi filename passed through argument options with -n */
-//int Capture_time=0; /*avi capture time passed through argument options with -t */
+/*exposure menu for old type controls */
+static const char *exp_typ[]={"MANUAL",
+	                          "AUTO",
+	                          "SHUTTER P.",
+	                          "APERTURE P."};
 
 static Uint32 SDL_VIDEO_Flags =
 	SDL_ANYFORMAT | SDL_DOUBLEBUF | SDL_RESIZABLE;
 
-/*------------------------------ get time ------------------------------------*/
-#if 0
-double
-ms_time (void)
-{
-  static struct timeval tod;
-  gettimeofday (&tod, NULL);
-  return ((double) tod.tv_sec * 1000.0 + (double) tod.tv_usec / 1000.0);
+/*defined at end of file*/
+static gint shutd (gint restart); /*remove build warning*/
 
-}
-#elif 1 /*use this one*/
+/*------------------------------ get time ------------------------------------*/
 Uint32
 ms_time (void)
 {
   return ((Uint32) SDL_GetTicks()); /* gets time (ms) since SDL init */
 }
-#endif
+
 /*----------------------- write conf (.guvcviewrc) file ----------------------*/
 static
 int writeConf(const char *confpath) {
@@ -196,7 +192,6 @@ int readConf(const char *confpath) {
 	char value[128];
 
 	int i=0;
-	//int j=0;
 
 	FILE *fp;
 
@@ -204,7 +199,6 @@ int readConf(const char *confpath) {
 		char line[144];
 
 	while (fgets(line, 144, fp) != NULL) {
-		//j++;
 		if ((line[0]=='#') || (line[0]==' ') || (line[0]=='\n')) {
 			/*skip*/
 		} else if ((i=sscanf(line,"%[^#=]=%[^#\n ]",variable,value))==2){
@@ -309,7 +303,8 @@ int readConf(const char *confpath) {
 }
 
 /*------------------------- read command line options ------------------------*/
-int readOpts(int argc,char *argv[]) {
+static void
+readOpts(int argc,char *argv[]) {
 	
 	int i=0;
 	char *separateur;
@@ -324,7 +319,6 @@ int readOpts(int argc,char *argv[]) {
 		if (strcmp(argv[i], "-d") == 0) {
 			if (i + 1 >= argc || *argv[i+1] =='-') {
 				printf("No parameter specified with -d, using default.\n");
-				//return (1);
 			} else {
 				snprintf(global->videodevice,15,"%s",argv[i + 1]);
 			}
@@ -354,7 +348,6 @@ int readOpts(int argc,char *argv[]) {
 		if (strcmp(argv[i], "-s") == 0) {
 			if (i + 1 >= argc || *argv[i+1] =='-') {
 			printf("No parameter specified with -s, using default.\n");
-			//return(2);
 			} else {
 
 				sizestring = strdup(argv[i + 1]);
@@ -362,7 +355,6 @@ int readOpts(int argc,char *argv[]) {
 				global->width = strtoul(sizestring, &separateur, 10);
 				if (*separateur != 'x') {
 					printf("Error in size use -s widthxheight \n");
-					//return(3);
 				} else {
 					++separateur;
 					global->height = strtoul(separateur, &separateur, 10);
@@ -445,7 +437,7 @@ int readOpts(int argc,char *argv[]) {
 void *sound_capture(void *data)
 {
 	
-	PaStreamParameters inputParameters, outputParameters;
+	PaStreamParameters inputParameters;
 	PaStream *stream;
 	PaError err;
 	//paCapData  snd_data;
@@ -455,16 +447,16 @@ void *sound_capture(void *data)
 	int numSamples;
 	int numBytes;
 	
-	FILE  *fid;
-	fid = fopen(global->sndfile, "wb+");
-	if( fid == NULL )
-	{
-	   printf("Could not open file.");
-	}
+	int fid;
+	/*generates temp file from template */
+	/* and opens for read and write     */
+	fid = mkstemp(global->sndfile);
 	
-	err = Pa_Initialize();
-	if( err != paNoError ) goto error;
-	/* Record for a few seconds. */
+	if( fid < 0 )
+	{
+	   printf("ERROR: Could not open/create temp file, %s\n",global->sndfile);
+	   pthread_exit((void *) -3);
+	} 
 	
 	if(global->Sound_SampRateInd==0)
 		global->Sound_SampRate=global->Sound_IndexDev[global->Sound_UseDev].samprate;/*using default*/
@@ -473,7 +465,6 @@ void *sound_capture(void *data)
 		/*using default if channels <3 or stereo(2) otherwise*/
 		global->Sound_NumChan=(global->Sound_IndexDev[global->Sound_UseDev].chan<3)?global->Sound_IndexDev[global->Sound_UseDev].chan:2;
 	}
-	//printf("dev:%d SampleRate:%d Chanels:%d\n",Sound_IndexDev[Sound_UseDev].id,Sound_SampRate,Sound_NumChan);
 	
 	/* setting maximum buffer size*/
 	totalFrames = global->Sound_NumSec * global->Sound_SampRate;
@@ -484,9 +475,13 @@ void *sound_capture(void *data)
 	if( recordedSamples == NULL )
 	{
 		printf("Could not allocate record array.\n");
-		return(1);
+		pthread_exit((void *) -2);
 	}
 	for( i=0; i<numSamples; i++ ) recordedSamples[i] = 0;
+	
+	err = Pa_Initialize();
+	if( err != paNoError ) goto error;
+	/* Record for a few seconds. */
 
 	inputParameters.device = global->Sound_IndexDev[global->Sound_UseDev].id; /* input device */
 	inputParameters.channelCount = global->Sound_NumChan;
@@ -495,8 +490,8 @@ void *sound_capture(void *data)
 	inputParameters.hostApiSpecificStreamInfo = NULL; 
 	
 	/*---------------------------- Record some audio. ----------------------------- */
-	/* Input buffer will be twice the size of frames to read                            */
-	/* This way even in slow machines it shouldn't overflow and drop frames */
+	/* Input buffer will be twice(default) the size of frames to read               */
+	/* This way even in slow machines it shouldn't overflow and drop frames         */
 	err = Pa_OpenStream(
 			  &stream,
 			  &inputParameters,
@@ -511,17 +506,17 @@ void *sound_capture(void *data)
 	err = Pa_StartStream( stream );
 	if( err != paNoError ) goto error; /*should close the stream if error ?*/
 	/*----------------------------- capture loop ----------------------------------*/
-	//snd_begintime=SDL_GetTicks();
 	global->snd_begintime = ms_time();
 	do {
 	   //Pa_Sleep(SND_WAIT_TIME);
 	   err = Pa_ReadStream( stream, recordedSamples, totalFrames );
 	   //if( err != paNoError ) break; /*can break with input overflow*/
+		
 	   /* Write recorded data to a file. */  
-	   fwrite( recordedSamples, global->Sound_NumChan * sizeof(SAMPLE), totalFrames, fid );
+		write(fid, recordedSamples, global->Sound_NumChan * sizeof(SAMPLE) * totalFrames);
 	} while (videoIn->capAVI);   
 	
-	fclose( fid );
+	close(fid);
 	
 	err = Pa_StopStream( stream );
 	if( err != paNoError ) goto error;
@@ -532,17 +527,17 @@ void *sound_capture(void *data)
 	if(recordedSamples) free( recordedSamples  );
 	recordedSamples=NULL;
 	Pa_Terminate();
-	return(0);
+	pthread_exit((void *) 0);
 
 error:
-	fclose(fid);
+	close(fid);
 	if(recordedSamples) free( recordedSamples );
 	recordedSamples=NULL;
 	Pa_Terminate();
 	fprintf( stderr, "An error occured while using the portaudio stream\n" );
 	fprintf( stderr, "Error number: %d\n", err );
 	fprintf( stderr, "Error message: %s\n", Pa_GetErrorText( err ) );
-	return(-1);
+	pthread_exit((void *) -1);
 	
 }
 
@@ -588,7 +583,6 @@ int AVIAudioAdd(void *data) {
 	printf("sample size: %i bits\n",sizeof(SAMPLE)*8);
 	
 	/* Audio Capture allways starts last (delay due to thread initialization)*/
-	printf("sound start:%#0.8X video start:%#0.8X\n",global->snd_begintime,global->AVIstarttime);
 	int synctime= global->snd_begintime - global->AVIstarttime; /*time diff for audio-video*/
 	if(synctime>0 && synctime<5000) { /*only sync up to 5 seconds*/
 		/*shift sound by synctime*/
@@ -597,7 +591,7 @@ int AVIAudioAdd(void *data) {
 		printf("shift sound forward by %d ms = %d frames\n",synctime,shiftSamples);
 		SAMPLE EmptySamp[shiftSamples];
 		for(i=0; i<shiftSamples; i++) EmptySamp[i]=0;/*init to zero - silence*/
-		AVI_write_audio(AviOut,&EmptySamp,shiftSamples*sizeof(SAMPLE)); 
+		AVI_write_audio(AviOut,(BYTE *) &EmptySamp,shiftSamples*sizeof(SAMPLE)); 
 	} else if (synctime<0){
 		/*shift sound by synctime*/
 		Uint32 shiftFrames=abs(synctime*global->Sound_SampRate/1000);
@@ -658,7 +652,7 @@ aviClose (void)
 		/* Free attribute and wait for the thread */
 		pthread_attr_destroy(&sndattr);
 	
-		int sndrc = pthread_join(sndthread, (void **)&tstatus);
+		pthread_join(sndthread, (void *)&tstatus);
 	   
 		if (tstatus!=0)
 		{
@@ -673,7 +667,6 @@ aviClose (void)
 			global->AVIstarttime=0;
 		} else {
 			printf("Capture sound thread join with status= %d\n", tstatus);
-			/*run it in a new thread to make it non-blocking*/
 			/*must disable avi capture button*/
 			gtk_widget_set_sensitive (CapAVIButt, FALSE);
 
@@ -973,13 +966,13 @@ SndSampleRate_changed (GtkComboBox * SampleRate, void *data)
 static void
 ImageType_changed (GtkComboBox * ImageType,GtkEntry *ImageFNameEntry) 
 {
-	char *filename;
+	const char *filename;
 	char basename[32];
 	global->imgFormat=gtk_combo_box_get_active (ImageType);
 	//videoIn->Imgtype=global->imgFormat;	
 	filename=gtk_entry_get_text(ImageFNameEntry);
 	
-	global->imgFPath=splitPath(filename, global->imgFPath);
+	global->imgFPath=splitPath((char *)filename, global->imgFPath);
 	
 	sscanf(global->imgFPath[0],"%32[^.]",basename);
 	switch(global->imgFormat){
@@ -1085,11 +1078,11 @@ static void
 file_chooser (GtkButton * FileButt, const int isAVI)
 {
   char str_ext[3];	
-  char *basename;
+  const char *basename;
   char *fullname;
 	
   FileDialog = gtk_file_chooser_dialog_new ("Save File",
-					  mainwin,
+					  GTK_WINDOW (mainwin),
 					  GTK_FILE_CHOOSER_ACTION_SAVE,
 					  GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
 					  GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
@@ -1098,9 +1091,9 @@ file_chooser (GtkButton * FileButt, const int isAVI)
 
   if(isAVI) { /* avi File chooser*/
 	
-	basename =  gtk_entry_get_text(AVIFNameEntry);
+	basename =  gtk_entry_get_text(GTK_ENTRY(AVIFNameEntry));
 	
-	global->aviFPath=splitPath(basename, global->aviFPath);
+	global->aviFPath=splitPath((char *)basename, global->aviFPath);
 	
 	gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (FileDialog),
 															  global->aviFPath[1]);
@@ -1111,15 +1104,15 @@ file_chooser (GtkButton * FileButt, const int isAVI)
 	{
 		fullname = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (FileDialog));
 		global->aviFPath=splitPath(fullname, global->aviFPath);
-		gtk_entry_set_text(AVIFNameEntry," ");
-		gtk_entry_set_text(AVIFNameEntry,global->aviFPath[0]);
+		gtk_entry_set_text(GTK_ENTRY(AVIFNameEntry)," ");
+		gtk_entry_set_text(GTK_ENTRY(AVIFNameEntry),global->aviFPath[0]);
 	}
 	  
   } else {/* Image File chooser*/
 	
-	basename =  gtk_entry_get_text(ImageFNameEntry);
+	basename =  gtk_entry_get_text(GTK_ENTRY(ImageFNameEntry));
 	
-	global->imgFPath=splitPath(basename, global->imgFPath);
+	global->imgFPath=splitPath((char *)basename, global->imgFPath);
 	
 	gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (FileDialog), 
 															  global->imgFPath[1]);
@@ -1132,8 +1125,8 @@ file_chooser (GtkButton * FileButt, const int isAVI)
 		fullname = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (FileDialog));
 		global->imgFPath=splitPath(fullname, global->imgFPath);
 		
-		gtk_entry_set_text(ImageFNameEntry," ");
-		gtk_entry_set_text(ImageFNameEntry,global->imgFPath[0]);
+		gtk_entry_set_text(GTK_ENTRY(ImageFNameEntry)," ");
+		gtk_entry_set_text(GTK_ENTRY(ImageFNameEntry),global->imgFPath[0]);
 		
 		/*get the file extension*/
 		sscanf(global->imgFPath[0],"%*[^.].%3c",str_ext);
@@ -1173,8 +1166,8 @@ file_chooser (GtkButton * FileButt, const int isAVI)
 static void
 capture_image (GtkButton * CapImageButt, GtkWidget * ImageFNameEntry)
 {
-	char *fileEntr=gtk_entry_get_text(GTK_ENTRY(ImageFNameEntry));
-	global->imgFPath=splitPath(fileEntr, global->imgFPath);
+	const char *fileEntr=gtk_entry_get_text(GTK_ENTRY(ImageFNameEntry));
+	global->imgFPath=splitPath((char *)fileEntr, global->imgFPath);
 	
 	int sfname=strlen(global->imgFPath[1])+strlen(global->imgFPath[0]);
 	char filename[sfname+2];
@@ -1196,7 +1189,7 @@ capture_image (GtkButton * CapImageButt, GtkWidget * ImageFNameEntry)
 static void
 capture_avi (GtkButton * CapAVIButt, GtkWidget * AVIFNameEntry)
 {
-	char *fileEntr = gtk_entry_get_text(GTK_ENTRY(AVIFNameEntry));
+	const char *fileEntr = gtk_entry_get_text(GTK_ENTRY(AVIFNameEntry));
 	
 	char *compression="MJPG";
 
@@ -1252,7 +1245,7 @@ capture_avi (GtkButton * CapAVIButt, GtkWidget * AVIFNameEntry)
 		} 
 		else {/******************** Start AVI *********************/
 			/* thread is running so start AVI capture*/
-			global->aviFPath=splitPath(fileEntr, global->aviFPath);
+			global->aviFPath=splitPath((char *)fileEntr, global->aviFPath);
 	
 			int sfname=strlen(global->aviFPath[1])+strlen(global->aviFPath[0]);
 			char filename[sfname+2];
@@ -1264,12 +1257,12 @@ capture_avi (GtkButton * CapAVIButt, GtkWidget * AVIFNameEntry)
 			} else {	
 				videoIn->AVIFName=strncpy(videoIn->AVIFName,filename,sfname+2);
 			}
-			//printf("avi file: %s\n",videoIn->AVIFName);
+			//printf("opening avi file: %s\n",videoIn->AVIFName);
 			 
 			gtk_button_set_label(CapAVIButt,"Stop");  
 			AviOut = AVI_open_output_file(videoIn->AVIFName);
 			/*4CC compression "YUY2" (YUV) or "DIB " (RGB24)  or  "MJPG"*/	
-	   
+	        
 			AVI_set_video(AviOut, videoIn->width, videoIn->height, videoIn->fps,compression);		
 			/* audio will be set in aviClose - if enabled*/
 			global->AVIstarttime = ms_time();
@@ -1303,7 +1296,7 @@ capture_avi (GtkButton * CapAVIButt, GtkWidget * AVIFNameEntry)
 static int 
 timer_callback(){
 	/*stop avi capture*/
-	capture_avi(CapAVIButt,AVIFNameEntry);
+	capture_avi(GTK_BUTTON(CapAVIButt),AVIFNameEntry);
 	global->Capture_time=0; 
 	return (FALSE);/*destroys the timer*/
 }
@@ -1322,7 +1315,7 @@ FpsCount_callback(){
 }
 
 static void 
-*ShowFPS_changed(GtkToggleButton * toggle, void *data)
+ShowFPS_changed(GtkToggleButton * toggle, void *data)
 {
 	global->FpsCount = gtk_toggle_button_get_active (toggle) ? 1 : 0;
 	
@@ -1421,7 +1414,7 @@ LoadControls(VidState *s)
 	unsigned int id=0;
 	int type=0;
 	int val=0;
-	char contr_inf[100];
+	//char contr_inf[100];
 	int sfname=strlen(global->profile_FPath[1])+strlen(global->profile_FPath[0]);
 	char filename[sfname+2];
 	ControlInfo *base_ci = s->control_info;
@@ -1486,7 +1479,7 @@ SProfileButton_clicked (GtkButton * SProfileButton,VidState *vst)
 	char *filename;
 	
 	FileDialog = gtk_file_chooser_dialog_new ("Save File",
-					  mainwin,
+					  GTK_WINDOW(mainwin),
 					  GTK_FILE_CHOOSER_ACTION_SAVE,
 					  GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
 					  GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
@@ -1516,7 +1509,7 @@ LProfileButton_clicked (GtkButton * LProfileButton, VidState *vst)
 	char *filename;
 	
 	FileDialog = gtk_file_chooser_dialog_new ("Load File",
-					  mainwin,
+					  GTK_WINDOW(mainwin),
 					  GTK_FILE_CHOOSER_ACTION_OPEN,
 					  GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
 					  GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
@@ -1900,6 +1893,7 @@ void *main_loop(void *data)
 		case 0: /*MJPG*/
 			/* save MJPG frame */   
 			if((global->Frame_Flags==0) && (videoIn->formatIn==V4L2_PIX_FMT_MJPEG)) {
+				//printf("avi write frame\n");
 				if (AVI_write_frame (AviOut,
 								videoIn->tmpbuffer, videoIn->buf.bytesused) < 0)
 					printf ("write error on avi out \n");
@@ -2038,8 +2032,8 @@ int main(int argc, char *argv[])
 	pthread_attr_init(&attr);
 	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
 	   
-	const char *home;
-	const char *pwd=NULL;
+	char *home;
+	char *pwd=NULL;
 	
 	home = getenv("HOME");
 	//pwd = getenv("PWD");
@@ -2219,9 +2213,9 @@ int main(int argc, char *argv[])
 	
 	/*----- Add  Buttons -----*/
 	buttons_table = gtk_table_new(1,7,TRUE);
-	gtk_table_set_row_spacings (GTK_TABLE (table2), 10);
-	gtk_table_set_col_spacings (GTK_TABLE (table2), 4);
-	gtk_container_set_border_width (GTK_CONTAINER (table2), 6);
+	gtk_table_set_row_spacings (GTK_TABLE (buttons_table), 10);
+	gtk_table_set_col_spacings (GTK_TABLE (buttons_table), 4);
+	gtk_container_set_border_width (GTK_CONTAINER (buttons_table), 6);
 	
 	gtk_widget_show (buttons_table);
 	gtk_box_pack_start (GTK_BOX (boxv), buttons_table, TRUE, TRUE, 0);
@@ -2273,14 +2267,14 @@ int main(int argc, char *argv[])
 		if (videoIn->listVidCap[global->formind][i].width>0){
 			sprintf(temp_str,"%ix%i",videoIn->listVidCap[global->formind][i].width,
 							 videoIn->listVidCap[global->formind][i].height);
-			gtk_combo_box_append_text(Resolution,temp_str);
+			gtk_combo_box_append_text(GTK_COMBO_BOX(Resolution),temp_str);
 			if ((global->width==videoIn->listVidCap[global->formind][i].width) && 
 				(global->height==videoIn->listVidCap[global->formind][i].height)){
 				defres=i;/*set selected*/
 			}
 		}
 	}
-	gtk_combo_box_set_active(Resolution,defres);
+	gtk_combo_box_set_active(GTK_COMBO_BOX(Resolution),defres);
 	//~ if (defres==0) {
 		//~ global->width=videoIn->listVidCap[global->formind][0].width;
 		//~ global->height=videoIn->listVidCap[global->formind][0].height;
@@ -2314,7 +2308,7 @@ int main(int argc, char *argv[])
 	for(i=0;i<videoIn->listVidCap[global->formind][defres].numb_frates;i++) {
 		sprintf(temp_str,"%i/%i fps",videoIn->listVidCap[global->formind][defres].framerate_num[i],
 							 videoIn->listVidCap[global->formind][defres].framerate_denom[i]);
-		gtk_combo_box_append_text(FrameRate,temp_str);
+		gtk_combo_box_append_text(GTK_COMBO_BOX(FrameRate),temp_str);
 		if ((videoIn->fps_num==videoIn->listVidCap[global->formind][defres].framerate_num[i]) && 
 				  (videoIn->fps==videoIn->listVidCap[global->formind][defres].framerate_denom[i])){
 				deffps=i;/*set selected*/
@@ -2326,7 +2320,7 @@ int main(int argc, char *argv[])
 	gtk_widget_show (FrameRate);
 	
 	
-	gtk_combo_box_set_active(FrameRate,deffps);
+	gtk_combo_box_set_active(GTK_COMBO_BOX(FrameRate),deffps);
 	if (deffps==0) {
 		global->fps=videoIn->listVidCap[global->formind][defres].framerate_denom[0];
 		global->fps_num=videoIn->listVidCap[global->formind][0].framerate_num[0];
@@ -2350,7 +2344,7 @@ int main(int argc, char *argv[])
 	gtk_table_attach(GTK_TABLE(table2), ShowFPS, 2, 3, 2, 3,
 					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	
-	gtk_toggle_button_set_active(GTK_CHECK_BUTTON(ShowFPS),(global->FpsCount > 0));
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ShowFPS),(global->FpsCount > 0));
 	gtk_widget_show (ShowFPS);
 	g_signal_connect (GTK_CHECK_BUTTON(ShowFPS), "toggled",
 		G_CALLBACK (ShowFPS_changed), NULL);
@@ -2359,18 +2353,18 @@ int main(int argc, char *argv[])
 	/* Input method jpg  or yuv */
 	ImpType= gtk_combo_box_new_text ();
 	if (videoIn->SupMjpg>0) {/*Jpeg Input Available*/
-		gtk_combo_box_append_text(ImpType,"MJPG");
+		gtk_combo_box_append_text(GTK_COMBO_BOX(ImpType),"MJPG");
 	}
 	if (videoIn->SupYuv>0) {/*yuv Input Available*/
-		gtk_combo_box_append_text(ImpType,"YUV");
+		gtk_combo_box_append_text(GTK_COMBO_BOX(ImpType),"YUV");
 	}
 	gtk_table_attach(GTK_TABLE(table2), ImpType, 1, 2, 4, 5,
 					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	
 	if ((videoIn->SupMjpg >0) && (videoIn->SupYuv >0)) {
-		gtk_combo_box_set_active(ImpType,global->formind);
+		gtk_combo_box_set_active(GTK_COMBO_BOX(ImpType),global->formind);
 	} else {
-		gtk_combo_box_set_active(ImpType,0); /*only one available*/
+		gtk_combo_box_set_active(GTK_COMBO_BOX(ImpType),0); /*only one available*/
 	}
 	gtk_widget_set_sensitive (ImpType, TRUE);
 	g_signal_connect (GTK_COMBO_BOX(ImpType), "changed",
@@ -2425,8 +2419,9 @@ int main(int argc, char *argv[])
 	gtk_widget_show (ImageType);
 	g_signal_connect (GTK_COMBO_BOX(ImageType), "changed",
 		G_CALLBACK (ImageType_changed), ImageFNameEntry);
+	
 	g_signal_connect (GTK_BUTTON(ImgFileButt), "clicked",
-		 G_CALLBACK (file_chooser), 0);
+		 G_CALLBACK (file_chooser), GINT_TO_POINTER (0));
 	g_signal_connect (GTK_BUTTON(CapImageButt), "clicked",
 		 G_CALLBACK (capture_image), ImageFNameEntry);
 	
@@ -2458,7 +2453,7 @@ int main(int argc, char *argv[])
 	gtk_widget_show (AVIFNameEntry);
 	
 	g_signal_connect (GTK_BUTTON(AviFileButt), "clicked",
-		 G_CALLBACK (file_chooser), 1);
+		 G_CALLBACK (file_chooser), GINT_TO_POINTER (1));
 	g_signal_connect (GTK_BUTTON(CapAVIButt), "clicked",
 		 G_CALLBACK (capture_avi), AVIFNameEntry);
 	
@@ -2496,7 +2491,7 @@ int main(int argc, char *argv[])
 		
 	int     it, numDevices, defaultDisplayed;
 	const   PaDeviceInfo *deviceInfo;
-	PaStreamParameters inputParameters, outputParameters;
+	//PaStreamParameters inputParameters, outputParameters;
 	PaError err;
 	
 	Pa_Initialize();
@@ -2609,7 +2604,7 @@ int main(int argc, char *argv[])
 	gtk_table_attach(GTK_TABLE(table2), SndEnable, 0, 1, 9, 10,
 					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	
-	gtk_toggle_button_set_active(GTK_CHECK_BUTTON(SndEnable),(global->Sound_enable > 0));
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(SndEnable),(global->Sound_enable > 0));
 	gtk_widget_show (SndEnable);
 	g_signal_connect (GTK_CHECK_BUTTON(SndEnable), "toggled",
 		G_CALLBACK (SndEnable_changed), NULL);
@@ -2705,7 +2700,7 @@ int main(int argc, char *argv[])
 	gtk_table_attach(GTK_TABLE(table3), FiltMirrorEnable, 0, 1, 0, 1,
 					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	
-	gtk_toggle_button_set_active(GTK_CHECK_BUTTON(FiltMirrorEnable),(global->Frame_Flags & YUV_MIRROR)>0);
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(FiltMirrorEnable),(global->Frame_Flags & YUV_MIRROR)>0);
 	gtk_widget_show (FiltMirrorEnable);
 	g_signal_connect (GTK_CHECK_BUTTON(FiltMirrorEnable), "toggled",
 		G_CALLBACK (FiltMirrorEnable_changed), NULL);
@@ -2714,7 +2709,7 @@ int main(int argc, char *argv[])
 	gtk_table_attach(GTK_TABLE(table3), FiltUpturnEnable, 1, 2, 0, 1,
 					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	
-	gtk_toggle_button_set_active(GTK_CHECK_BUTTON(FiltUpturnEnable),(global->Frame_Flags & YUV_UPTURN)>0);
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(FiltUpturnEnable),(global->Frame_Flags & YUV_UPTURN)>0);
 	gtk_widget_show (FiltUpturnEnable);
 	g_signal_connect (GTK_CHECK_BUTTON(FiltUpturnEnable), "toggled",
 		G_CALLBACK (FiltUpturnEnable_changed), NULL);
@@ -2723,7 +2718,7 @@ int main(int argc, char *argv[])
 	gtk_table_attach(GTK_TABLE(table3), FiltNegateEnable, 2, 3, 0, 1,
 					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	
-	gtk_toggle_button_set_active(GTK_CHECK_BUTTON(FiltNegateEnable),(global->Frame_Flags & YUV_NEGATE)>0);
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(FiltNegateEnable),(global->Frame_Flags & YUV_NEGATE)>0);
 	gtk_widget_show (FiltNegateEnable);
 	g_signal_connect (GTK_CHECK_BUTTON(FiltNegateEnable), "toggled",
 		G_CALLBACK (FiltNegateEnable_changed), NULL);
@@ -2732,7 +2727,7 @@ int main(int argc, char *argv[])
 	gtk_table_attach(GTK_TABLE(table3), FiltMonoEnable, 3, 4, 0, 1,
 					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	
-	gtk_toggle_button_set_active(GTK_CHECK_BUTTON(FiltMonoEnable),(global->Frame_Flags & YUV_MONOCR)>0);
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(FiltMonoEnable),(global->Frame_Flags & YUV_MONOCR)>0);
 	gtk_widget_show (FiltMonoEnable);
 	g_signal_connect (GTK_CHECK_BUTTON(FiltMonoEnable), "toggled",
 		G_CALLBACK (FiltMonoEnable_changed), NULL);
@@ -2835,8 +2830,9 @@ gint
 shutd (gint restart) 
 {
 	int exec_status=0;
-	int i;
+	//int i;
 	int tstatus;
+	//tstatus=NULL;
 	
 	printf("Shuting Down Thread\n");
 	videoIn->signalquit=0;
@@ -2853,7 +2849,7 @@ shutd (gint restart)
 	
 	/* Free attribute and wait for the main loop (video) thread */
 	pthread_attr_destroy(&attr);
-	int rc = pthread_join(mythread, (void **)&tstatus);
+	int rc = pthread_join(mythread, (void *)&tstatus);
 	if (rc)
 	  {
 		 printf("ERROR; return code from pthread_join() is %d\n", rc);

@@ -37,6 +37,6 @@ typedef struct JPEG_ENCODER_STRUCTURE
 	UINT16	ILqt [64];
 	UINT16	ICqt [64];
 
-};
+} _JPEG_ENCODER_STRUCTURE;
 
 #endif
