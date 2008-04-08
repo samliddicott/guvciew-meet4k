@@ -1273,6 +1273,10 @@ int initGlobals (struct GLOBAL *global) {
 	global->Sound_BuffFactor=BUFF_FACTOR;
 	global->FpsCount=0;
 	global->timer_id=0;
+	global->image_timer_id=0;
+	global->image_timer=0;
+	global->image_inc=0;
+	global->image_npics=999;/*default max number of captures*/
 	global->frmCount=0;
 	global->DispFps=0;
 	global->fps = DEFAULT_FPS;
@@ -1304,21 +1308,21 @@ error:
 }
 
 int closeGlobals(struct GLOBAL *global){
-	free(global->videodevice);
-	free(global->confPath);
-	free(global->aviFPath[1]);
-	free(global->imgFPath[1]);
-	free(global->imgFPath[0]);
-	free(global->aviFPath[0]);
-	free(global->sndfile);
-	free(global->profile_FPath[1]);
-	free(global->profile_FPath[0]);
-	free(global->aviFPath);
-	free(global->imgFPath);
-	free(global->profile_FPath);
+	if (global->videodevice) free(global->videodevice);
+	if (global->confPath) free(global->confPath);
+	if (global->aviFPath[1]) free(global->aviFPath[1]);
+	if (global->imgFPath[1]) free(global->imgFPath[1]);
+	if (global->imgFPath[0]) free(global->imgFPath[0]);
+	if (global->aviFPath[0]) free(global->aviFPath[0]);
+	if (global->sndfile) free(global->sndfile);
+	if (global->profile_FPath[1]) free(global->profile_FPath[1]);
+	if (global->profile_FPath[0]) free(global->profile_FPath[0]);
+	if (global->aviFPath) free(global->aviFPath);
+	if (global->imgFPath) free(global->imgFPath);
+	if (global->profile_FPath) free(global->profile_FPath);
 	if (global->WVcaption) free (global->WVcaption);
 	if (global->avifile) free (global->avifile);
-	free(global->mode);
+	if (global->mode) free(global->mode);
 	global->videodevice=NULL;
 	global->confPath=NULL;
 	global->sndfile=NULL;
@@ -1373,35 +1377,36 @@ pchar* splitPath(char *FullPath, pchar* splited)
 				printf("realloc FileDir to %d chars.\n",FDSize);
 				splited[1]=realloc(splited[1],(FDSize+1)*sizeof(char));
 			} 
-			//else {
-			splited[1]=strncpy(splited[1],FullPath,FDSize);
-			splited[1][FDSize]='\0';
-			/* cut spaces at begin of Dir String*/
-			j=0;
-			l=0;
-			while((splited[1][j]==' ') && (j<100)) j++;
-			if (j>0) {
-				for(k=j;k<strlen(splited[1]);k++) {
-					splited[1][l++]=splited[1][k];
+			if(FDSize>0) {
+				splited[1]=strncpy(splited[1],FullPath,FDSize);
+				splited[1][FDSize]='\0';
+				/* cut spaces at begin of Dir String*/
+				j=0;
+				l=0;
+				while((splited[1][j]==' ') && (j<100)) j++;
+				if (j>0) {
+					for(k=j;k<strlen(splited[1]);k++) {
+						splited[1][l++]=splited[1][k];
+					}
+					splited[1][l++]='\0';
 				}
-				splited[1][l++]='\0';
-			}
-			/* check for "~" and replace with home dir*/
-			//printf("FileDir[0]=%c\n",FileDir[0]);
-			if(splited[1][0]=='~') {
-				for(k=0;k<strlen(splited[1]);k++) {
-					splited[1][k]=splited[1][k+1];
+				/* check for "~" and replace with home dir*/
+				//printf("FileDir[0]=%c\n",FileDir[0]);
+				if(splited[1][0]=='~') {
+					for(k=0;k<strlen(splited[1]);k++) {
+						splited[1][k]=splited[1][k+1];
+					}
+					char path_str[100];
+					char *home=getenv("HOME");
+					sprintf(path_str,"%s%s",home,splited[1]);
+					printf("path is %s\n",path_str);
+					FDSize=strlen(path_str);
+					if (FDSize<99) {
+						strncpy (splited[1],path_str,FDSize);
+						splited[1][FDSize]='\0';
+					}
+					else printf("Error: Home Path(~) too big, keeping last.\n");
 				}
-				char path_str[100];
-				char *home=getenv("HOME");
-				sprintf(path_str,"%s%s",home,splited[1]);
-				printf("path is %s\n",path_str);
-				FDSize=strlen(path_str);
-				if (FDSize<99) {
-					strncpy (splited[1],path_str,FDSize);
-					splited[1][FDSize]='\0';
-				}
-				else printf("Error: Home Path(~) too big, keeping last.\n");
 			}
 				
 			//}

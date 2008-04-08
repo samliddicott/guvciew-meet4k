@@ -239,7 +239,7 @@ init_videoIn(struct vdIn *vd, char *device, int width, int height,
     vd->grabmethod = grabmethod;
 	vd->capImage=FALSE;
 	
-	if((vd->ImageFName = (char *) calloc(1, 80 * sizeof(char)))==NULL){
+	if((vd->ImageFName = (char *) calloc(1, 120 * sizeof(char)))==NULL){
 		printf("couldn't calloc memory for:vd->ImgFName\n");
 		goto error1;
 	}

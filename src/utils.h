@@ -24,7 +24,7 @@ typedef  unsigned int UINT;
 typedef  unsigned short int WORD;
 
 
-#define VERSION ("0.7.2")
+#define VERSION ("0.7.3")
 
 /*------------- portaudio defs ----------------*/
 /*---- can be override in rc file or GUI ------*/
@@ -176,7 +176,11 @@ struct GLOBAL {
 	int DispFps;
 	int frmCount;
 	int FpsCount;
-	int timer_id;
+	int timer_id;/*fps count timer*/
+	int image_timer_id;/*auto image capture timer*/
+	int image_timer;/*auto image capture time*/
+	int image_inc;/*image name increment*/
+	int image_npics;/*number of captures*/
 	int fps;
 	int fps_num;
 	int bpp; //current bytes per pixel

@@ -78,7 +78,9 @@ GtkWidget *FiltNegateEnable;
 GtkWidget *FiltMonoEnable;
 /*must be called from main loop if capture timer enabled*/
 GtkWidget *ImageFNameEntry;
+GtkWidget *ImgFileButt;
 GtkWidget *ImageType;
+GtkWidget *CapImageButt;
 GtkWidget *CapAVIButt;
 GtkWidget *AVIFNameEntry;
 GtkWidget *FileDialog;
@@ -197,7 +199,6 @@ int readConf(const char *confpath) {
 
 	if((fp = fopen(confpath,"r"))!=NULL) {
 		char line[144];
-
 	while (fgets(line, 144, fp) != NULL) {
 		if ((line[0]=='#') || (line[0]==' ') || (line[0]=='\n')) {
 			/*skip*/
@@ -364,6 +365,35 @@ readOpts(int argc,char *argv[]) {
 			}
 			printf(" size width: %d height: %d \n",global->width, global->height);
 		}
+		if (strcmp(argv[i], "-c") == 0) {
+			if (i + 1 >= argc || *argv[i+1] =='-') {
+				printf("No parameter specified with -c.Ignoring option.\n");	
+			} else {
+				char *timestr = strdup(argv[i + 1]);
+				global->image_timer= strtoul(timestr, &separateur, 10);
+				//sscanf(timestr,"%i",global->Capture_time);
+				printf("capturing images every %i seconds",global->image_timer);
+			}
+		}
+		if (strcmp(argv[i], "-m") == 0) {
+			if (i + 1 >= argc || *argv[i+1] =='-') {
+				printf("No parameter specified with -m.Ignoring option.\n");	
+			} else {
+				char *npicstr = strdup(argv[i + 1]);
+				global->image_npics= strtoul(npicstr, &separateur, 10);
+				//sscanf(timestr,"%i",global->Capture_time);
+				printf("capturing at max %d pics",global->image_npics);
+			}
+		}
+		if (strcmp(argv[i], "-i") == 0) {
+			if (i + 1 >= argc || *argv[i+1] =='-') {
+				printf("No parameter specified with -n. Ignoring option.\n");	
+			} else {
+				char *image_path = strdup(argv[i + 1]);
+				global->imgFPath=splitPath(image_path,global->imgFPath);
+			}
+		}
+		
 		if (strcmp(argv[i], "-n") == 0) {
 			if (i + 1 >= argc || *argv[i+1] =='-') {
 				printf("No parameter specified with -n. Ignoring option.\n");	
@@ -400,18 +430,23 @@ readOpts(int argc,char *argv[]) {
 			}
 		}
 		if (strcmp(argv[i], "-h") == 0) {
-			printf("usage: guvcview [-h -d -g -f -s -c -C -S] \n");
-			printf("-h	print this message \n");
-			printf("-d	/dev/videoX       use videoX device\n");
-			printf("-g	use read method for grab instead mmap \n");
-			printf("-w	[enable|disable] SDL hardware accel. \n");
+			printf("\n\nusage: guvcview [options] \n\n");
+			printf("options:\n");
+			printf("-h\t:print this message \n");
+			printf("-d	/dev/videoX \t:use videoX device\n");
+			printf("-g	\t:use read method for grab instead mmap \n");
+			printf("-w	[enable|disable] \t:SDL hardware accel. \n");
 			printf
-			("-f	video format  default jpg  others options are yuv jpg \n");
-			printf("-s	widthxheight      use specified input size \n");
-			printf("-n	avi_file_name   if avi_file_name set enable avi capture from start \n");
-			printf("-t  capture_time  used with -n option, sets the capture time in seconds\n");
-			printf("-p [enable|disable] fps counter in title bar\n");
-			printf("-l [filename] loads the given control profile\n");
+			("-f format	\t:video format  default jpg  others options are yuv jpg \n");
+			printf("-s	widthxheight \t:use specified input size \n");
+			printf("-i image_file_name \t:sets the default image name [available types: jpg png bmp]\n");
+			printf("-c time_in_seconds \t:time between image captures in seconds, enables auto image capture\n");
+			printf("-m num_pics \t:[optional] max number of image captures, [default is 999 if not set]\n");
+			printf("-n	avi_file_name \t:if avi_file_name set enable avi capture from start \n");
+			printf("-t  capture_time \t:used with -n option, sets the avi capture time in seconds\n");
+			printf("-p [enable|disable] \t:fps counter in title bar\n");
+			printf("-l [filename] \t:loads the given control profile\n");
+			closeGlobals(global);
 			exit(0);
 		}
 	}
@@ -1169,19 +1204,29 @@ capture_image (GtkButton * CapImageButt, GtkWidget * ImageFNameEntry)
 	const char *fileEntr=gtk_entry_get_text(GTK_ENTRY(ImageFNameEntry));
 	global->imgFPath=splitPath((char *)fileEntr, global->imgFPath);
 	
-	int sfname=strlen(global->imgFPath[1])+strlen(global->imgFPath[0]);
-	char filename[sfname+2];
+	int sfname=strlen(global->imgFPath[1])+strlen(global->imgFPath[0])+2;
+	char filename[sfname];
 	
 	sprintf(filename,"%s/%s", global->imgFPath[1],global->imgFPath[0]);
 	//videoIn->ImageFName=realloc(videoIn->ImageFName,(sfname+2)*sizeof(char));
-	if ((sfname+2)>120) {
-		printf("Error: image file name too big, unchanged.\n");
-	} else {
-		videoIn->ImageFName=strncpy(videoIn->ImageFName,filename,sfname+2);
+	if ((sfname>120) && sfname>strlen(videoIn->ImageFName)) {
+		printf("realloc image file name by %d bytes.\n",sfname+1);
+		videoIn->ImageFName=realloc(videoIn->ImageFName,sfname+1);
 	}
-	//printf("imag file: %s\n",videoIn->ImageFName);
+	videoIn->ImageFName=strncpy(videoIn->ImageFName,filename,sfname);
 	
-	videoIn->capImage = TRUE;
+	//printf("imag file: %s\n",videoIn->ImageFName);
+	if(global->image_timer > 0) { 
+		/*auto capture on -> stop it*/
+		if (global->image_timer_id > 0) g_source_remove(global->image_timer_id);
+		gtk_button_set_label(CapImageButt,"Capture");
+		global->image_timer=0;
+		gtk_widget_set_sensitive(ImgFileButt,TRUE);/*enable image butt File chooser*/
+		gtk_widget_set_sensitive(ImageType,TRUE);/*enable file type combo*/
+		gtk_widget_set_sensitive(ImageFNameEntry,TRUE);/*enable Image Entry*/
+	} else {
+		videoIn->capImage = TRUE;
+	}
 }
 
 /*--------------------------- Capture AVI ------------------------------------*/
@@ -1247,16 +1292,18 @@ capture_avi (GtkButton * CapAVIButt, GtkWidget * AVIFNameEntry)
 			/* thread is running so start AVI capture*/
 			global->aviFPath=splitPath((char *)fileEntr, global->aviFPath);
 	
-			int sfname=strlen(global->aviFPath[1])+strlen(global->aviFPath[0]);
-			char filename[sfname+2];
+			int sfname=strlen(global->aviFPath[1])+strlen(global->aviFPath[0])+2;
+			char filename[sfname];
 	
 			sprintf(filename,"%s/%s", global->aviFPath[1],global->aviFPath[0]);
 			//videoIn->ImageFName=realloc(videoIn->aviFName,(sfname+2)*sizeof(char));
-			if ((sfname+2)>120) {
-				printf("Error: image file name too big, unchanged.\n");
-			} else {	
-				videoIn->AVIFName=strncpy(videoIn->AVIFName,filename,sfname+2);
-			}
+			if ((sfname>120) && (sfname>strlen(videoIn->AVIFName))) {
+				printf("realloc avi file name by %d.\n",sfname+1);
+				videoIn->AVIFName=realloc(videoIn->AVIFName,sfname+1);
+			}	
+						
+			videoIn->AVIFName=strncpy(videoIn->AVIFName,filename,sfname);
+			
 			//printf("opening avi file: %s\n",videoIn->AVIFName);
 			 
 			gtk_button_set_label(CapAVIButt,"Stop");  
@@ -1312,6 +1359,44 @@ FpsCount_callback(){
 		SDL_WM_SetCaption(global->WVcaption, NULL);
 		return (FALSE);/*destroys the timer*/
 	}
+}
+/*called by timed capture [-c seconds] command line option*/
+static int
+Image_capture_timer(){
+	/*increment image name (max 1-99999)*/
+	int sfname=strlen(global->imgFPath[0]);
+	char basename[sfname];
+	char extension[3];
+	sscanf(global->imgFPath[0],"%[^.].%3c",basename,extension);
+	int namesize=strlen(global->imgFPath[1])+strlen(basename)+5;
+	
+	
+	if(namesize>110) {
+		videoIn->ImageFName=realloc(videoIn->ImageFName,namesize+11);
+	}
+	
+	//sprintf(global->imgFPath[0],"%s-%i.%s",basename,global->image_inc,extension);
+	//gtk_entry_set_text(GTK_ENTRY(ImageFNameEntry)," ");
+	//gtk_entry_set_text(GTK_ENTRY(ImageFNameEntry),global->imgFPath[0]);
+
+	
+	//if(namesize>15)
+	//	global->imgFPath[0]=realloc(global->imgFPath[0],namesize+10);
+	
+	sprintf(videoIn->ImageFName,"%s/%s-%i.%s",global->imgFPath[1],
+			                        basename,global->image_inc,extension );
+	global->image_inc++;
+	/*set image capture flag*/
+	videoIn->capImage = TRUE;
+	if(global->image_inc > global->image_npics) {/*destroy timer*/
+		gtk_button_set_label(GTK_BUTTON(CapImageButt),"Capture");
+		global->image_timer=0;
+		gtk_widget_set_sensitive(ImgFileButt,TRUE);/*enable image butt File chooser*/
+		gtk_widget_set_sensitive(ImageType,TRUE);/*enable file type combo*/
+		gtk_widget_set_sensitive(ImageFNameEntry,TRUE);/*enable Image Entry*/
+		return (FALSE);
+	}
+	else return (TRUE);/*keep the timer*/
 }
 
 static void 
@@ -1980,6 +2065,8 @@ void *main_loop(void *data)
 int main(int argc, char *argv[])
 {
 	int i;
+	printf("guvcview version %s \n", VERSION);
+	
 	/*stores argv[0] - program call string - for restart*/	
 	if((EXEC_CALL=malloc(strlen(argv[0])*sizeof(char)))==NULL) {
 		printf("couldn't allocate memory for: EXEC_CALL)\n");
@@ -1992,7 +2079,7 @@ int main(int argc, char *argv[])
 		printf("couldn't allocate memory for: global\n");
 		exit(1); 
 	}
-	printf("initing globals\n");
+	//printf("initing globals\n");
 	initGlobals(global);
 						  
 	const SDL_VideoInfo *info;
@@ -2009,8 +2096,6 @@ int main(int argc, char *argv[])
 	GtkWidget *label_FPS;
 	GtkWidget *table2;
 	GtkWidget *labelResol;
-	GtkWidget *CapImageButt;
-	GtkWidget *ImgFileButt;
 	GtkWidget *AviFileButt;
 	GtkWidget *label_ImageType;
 	GtkWidget *label_AVIComp;
@@ -2043,11 +2128,10 @@ int main(int argc, char *argv[])
 	sprintf(global->aviFPath[1],"%s", pwd);
 	sprintf(global->imgFPath[1],"%s", pwd);
 	
-	printf("conf Path is %s\n",global->confPath);
+	printf("guvcview configuration (%s):\n",global->confPath);
+	printf("=============================================================\n");
 	readConf(global->confPath);
-
-	printf("guvcview version %s \n", VERSION);
-	
+	printf("=============================================================\n");
 	/*------------------------ reads command line options --------------------*/
 	readOpts(argc,argv);
 		
@@ -2759,6 +2843,16 @@ int main(int argc, char *argv[])
 	
 	gtk_widget_show (mainwin);
 	
+	/*---------------------- image timed capture -----------------------------*/
+	if(global->image_timer){
+		global->image_timer_id=g_timeout_add(global->image_timer*1000,
+											 Image_capture_timer,NULL);
+		gtk_button_set_label(GTK_BUTTON(CapImageButt),"Stop auto");
+		gtk_widget_set_sensitive(ImgFileButt,FALSE);/*enable image butt File chooser*/
+		gtk_widget_set_sensitive(ImageType,FALSE);/*enable file type combo*/
+		gtk_widget_set_sensitive(ImageFNameEntry,FALSE);/*enable Image Entry*/
+
+	}
 	/*--------------------- avi capture from start ---------------------------*/
 	if(global->avifile) {
 		AviOut = AVI_open_output_file(global->avifile);
