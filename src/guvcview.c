@@ -490,6 +490,7 @@ void *sound_capture(void *data)
 	if( fid < 0 )
 	{
 	   printf("ERROR: Could not open/create temp file, %s\n",global->sndfile);
+	   snprintf(global->sndfile,32,"/tmp/guvc_sound_XXXXXX");/*return to template*/
 	   pthread_exit((void *) -3);
 	} 
 	
@@ -608,6 +609,7 @@ int AVIAudioAdd(void *data) {
 	if( recordedSamples == NULL )
 	{
 		printf("Could not allocate record array.\n");
+		snprintf(global->sndfile,32,"/tmp/guvc_sound_XXXXXX");/*return to template*/
 		/*must enable avi capture button*/
 		gtk_widget_set_sensitive (CapAVIButt, TRUE);
 		return (1);
@@ -647,6 +649,7 @@ int AVIAudioAdd(void *data) {
 	fclose(fip);
 	/*remove audio file*/
 	unlink(global->sndfile);
+	snprintf(global->sndfile,32,"/tmp/guvc_sound_XXXXXX");/*return to template*/
 	if (recordedSamples) free( recordedSamples );
 	recordedSamples=NULL;
 	
@@ -1296,7 +1299,6 @@ capture_avi (GtkButton * CapAVIButt, GtkWidget * AVIFNameEntry)
 			char filename[sfname];
 	
 			sprintf(filename,"%s/%s", global->aviFPath[1],global->aviFPath[0]);
-			//videoIn->ImageFName=realloc(videoIn->aviFName,(sfname+2)*sizeof(char));
 			if ((sfname>120) && (sfname>strlen(videoIn->AVIFName))) {
 				printf("realloc avi file name by %d.\n",sfname+1);
 				videoIn->AVIFName=realloc(videoIn->AVIFName,sfname+1);
