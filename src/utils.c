@@ -1247,6 +1247,12 @@ int initGlobals (struct GLOBAL *global) {
 	}
 	snprintf(global->WVcaption,10,"GUVCVIdeo");
 	
+	if((global->imageinc_str= (char *) calloc(1, 20 * sizeof(char)))==NULL){
+		printf("couldn't calloc memory for:global->imageinc_str\n");
+		goto error;
+	}
+	snprintf(global->imageinc_str,12,"File inc:0");
+	
 	global->vid_sleep=0;
 	global->avifile=NULL; /*avi filename passed through argument options with -n */
 	global->Capture_time=0; /*avi capture time passed through argument options with -t */
@@ -1321,6 +1327,7 @@ int closeGlobals(struct GLOBAL *global){
 	if (global->imgFPath) free(global->imgFPath);
 	if (global->profile_FPath) free(global->profile_FPath);
 	if (global->WVcaption) free (global->WVcaption);
+	if (global->imageinc_str) free(global->imageinc_str);
 	if (global->avifile) free (global->avifile);
 	if (global->mode) free(global->mode);
 	global->videodevice=NULL;

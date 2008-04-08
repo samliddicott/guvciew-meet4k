@@ -150,6 +150,7 @@ struct GLOBAL {
 	char *avifile; /*avi filename passed through argument options with -n */
 	pchar* profile_FPath;
 	char *WVcaption; /*video preview title bar caption*/
+	char *imageinc_str; /*label for File inc*/
 	int vid_sleep;
 	int Capture_time; /*avi capture time passed through argument options with -t */
 	int lprofile; /* flag for command line -l option */ 
