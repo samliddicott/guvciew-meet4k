@@ -1007,14 +1007,17 @@ static void
 ImageType_changed (GtkComboBox * ImageType,GtkEntry *ImageFNameEntry) 
 {
 	const char *filename;
-	char basename[32];
 	global->imgFormat=gtk_combo_box_get_active (ImageType);
 	//videoIn->Imgtype=global->imgFormat;	
 	filename=gtk_entry_get_text(ImageFNameEntry);
 	
-	global->imgFPath=splitPath((char *)filename, global->imgFPath);
+	if(strcmp(filename,global->imgFPath[0])!=0) {
+		global->imgFPath=splitPath((char *)filename, global->imgFPath);
+	}
 	
-	sscanf(global->imgFPath[0],"%32[^.]",basename);
+	int sname = strlen(global->imgFPath[0]);
+	char basename[sname];
+	sscanf(global->imgFPath[0],"%[^.]",basename);
 	switch(global->imgFormat){
 		case 0:
 			sprintf(global->imgFPath[0],"%s.jpg",basename);
@@ -1030,7 +1033,7 @@ ImageType_changed (GtkComboBox * ImageType,GtkEntry *ImageFNameEntry)
 	}
 	gtk_entry_set_text(ImageFNameEntry," ");
 	gtk_entry_set_text(ImageFNameEntry,global->imgFPath[0]);
-	sprintf(videoIn->ImageFName,"%s/%s",global->imgFPath[1],global->imgFPath[0]);
+	
 	if(global->image_inc>0) {
 		global->image_inc=1; /*if auto naming restart counter*/
 	}
@@ -1217,7 +1220,40 @@ static void
 capture_image (GtkButton * CapImageButt, GtkWidget * ImageFNameEntry)
 {
 	const char *fileEntr=gtk_entry_get_text(GTK_ENTRY(ImageFNameEntry));
-	global->imgFPath=splitPath((char *)fileEntr, global->imgFPath);
+	if(strcmp(fileEntr,global->imgFPath[0])!=0) {
+		/*reset if entry change from last capture*/
+		if(global->image_inc) global->image_inc=1;
+		global->imgFPath=splitPath((char *)fileEntr, global->imgFPath);
+		gtk_entry_set_text(GTK_ENTRY(ImageFNameEntry),"");
+		gtk_entry_set_text(GTK_ENTRY(ImageFNameEntry),global->imgFPath[0]);
+		
+		/*get the file extension*/
+		char str_ext[3];
+		sscanf(global->imgFPath[0],"%*[^.].%3c",str_ext);
+		/* change image type */
+		int somExt = str_ext[0]+str_ext[1]+str_ext[2];
+		switch (somExt) {
+			/* there are 8 variations we will check for 3*/
+			case ('j'+'p'+'g'):
+			case ('J'+'P'+'G'):
+			case ('J'+'p'+'g'):
+				global->imgFormat=0;
+				break;
+			case ('b'+'m'+'p'):	
+			case ('B'+'M'+'P'):
+			case ('B'+'m'+'p'):
+				global->imgFormat=1;
+				break;
+			case ('p'+'n'+'g'):			
+			case ('P'+'N'+'G'):		
+			case ('P'+'n'+'g'):
+				global->imgFormat=2;
+				break;
+			default: /* use jpeg as default*/
+				gtk_combo_box_set_active(GTK_COMBO_BOX(ImageType),0);
+		}
+		gtk_combo_box_set_active(GTK_COMBO_BOX(ImageType),global->imgFormat);
+	}
 	int fsize=strlen(global->imgFPath[0]);
 	int sfname=strlen(global->imgFPath[1])+fsize+10;
 	char filename[sfname]; /*10 - digits for auto increment*/
@@ -1265,6 +1301,13 @@ static void
 capture_avi (GtkButton * CapAVIButt, GtkWidget * AVIFNameEntry)
 {
 	const char *fileEntr = gtk_entry_get_text(GTK_ENTRY(AVIFNameEntry));
+	if(strcmp(fileEntr,global->aviFPath[0])!=0) {
+		/*reset if entry change from last capture*/
+		//if(global->avi_inc) global->avi_inc=1;
+		global->aviFPath=splitPath((char *)fileEntr, global->aviFPath);
+		gtk_entry_set_text(GTK_ENTRY(AVIFNameEntry),"");
+		gtk_entry_set_text(GTK_ENTRY(AVIFNameEntry),global->aviFPath[0]);
+	}
 	
 	char *compression="MJPG";
 
@@ -2111,19 +2154,20 @@ int main(int argc, char *argv[])
 	int i;
 	printf("guvcview version %s \n", VERSION);
 	
-	/*stores argv[0] - program call string - for restart*/	
-	if((EXEC_CALL=malloc(strlen(argv[0])*sizeof(char)))==NULL) {
+	/*stores argv[0] - program call string - for restart*/
+	int exec_size=strlen(argv[0])*sizeof(char)+1;
+	if((EXEC_CALL=malloc(exec_size))==NULL) {
 		printf("couldn't allocate memory for: EXEC_CALL)\n");
 		exit(1);
 	}
-	strcpy(EXEC_CALL,argv[0]);
+	snprintf(EXEC_CALL,exec_size,argv[0]);
 	
 	/*set global variables*/
 	if((global=(struct GLOBAL *) calloc(1, sizeof(struct GLOBAL)))==NULL){
 		printf("couldn't allocate memory for: global\n");
 		exit(1); 
 	}
-	//printf("initing globals\n");
+	printf("initing globals\n");
 	initGlobals(global);
 						  
 	const SDL_VideoInfo *info;

@@ -1,8 +1,7 @@
-guvcview (0.7.3) stable; urgency=low
+guvcview (0.7.4) stable; urgency=low
 
-   * Added file name increment for multiple captures 
-   * Added timed capture mode
-   * Fixed Pan/Tilt controls  
+   * Added File Auto name checkbox
+   * Added File increment label
 
  -- Paulo Assis <pj.assis@gmail.com>  Wed, 09 Jan 2008 19:07:18 +0000
 

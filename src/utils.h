@@ -24,7 +24,7 @@ typedef  unsigned int UINT;
 typedef  unsigned short int WORD;
 
 
-#define VERSION ("0.7.3")
+#define VERSION ("0.7.4")
 
 /*------------- portaudio defs ----------------*/
 /*---- can be override in rc file or GUI ------*/
