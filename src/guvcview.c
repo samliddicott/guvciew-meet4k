@@ -1474,6 +1474,7 @@ Image_capture_timer(){
 		gtk_widget_set_sensitive(ImgFileButt,TRUE);/*enable image butt File chooser*/
 		gtk_widget_set_sensitive(ImageType,TRUE);/*enable file type combo*/
 		gtk_widget_set_sensitive(ImageFNameEntry,TRUE);/*enable Image Entry*/
+		gtk_widget_set_sensitive(ImageInc,TRUE);/*enable Image Entry*/
 		return (FALSE);
 	}
 	else return (TRUE);/*keep the timer*/
