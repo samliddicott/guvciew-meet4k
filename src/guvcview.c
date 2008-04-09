@@ -176,6 +176,8 @@ int writeConf(const char *confpath) {
 		fprintf(fp,"frame_flags=%i\n",global->Frame_Flags);
 		fprintf(fp,"# Image capture Full Path: Path (Max 100 characters) Filename (Max 20 characters)\n");
 		fprintf(fp,"image_path=%s/%s\n",global->imgFPath[1],global->imgFPath[0]);
+		fprintf(fp,"# Auto Image naming (filename-n.ext)\n");
+		fprintf(fp,"image_inc=%d\n",global->image_inc);
 		fprintf(fp,"# Avi capture Full Path Path (Max 100 characters) Filename (Max 20 characters)\n");
 		fprintf(fp,"avi_path=%s/%s\n",global->aviFPath[1],global->aviFPath[0]);
 		fprintf(fp,"# control profiles Full Path Path (Max 10 characters) Filename (Max 20 characters)\n");
@@ -289,6 +291,9 @@ int readConf(const char *confpath) {
 						global->imgFormat=0;
 				}
 				
+			} else if (strcmp(variable,"image_inc")==0) {
+				if ((i=sscanf(value,"%d",&(global->image_inc)))==1)
+					printf("image inc: %d\n",global->image_inc);
 			} else if (strcmp(variable,"avi_path")==0) {
 				global->aviFPath=splitPath(value,global->aviFPath);
 			} else if (strcmp(variable,"profile_path")==0) {
@@ -373,7 +378,7 @@ readOpts(int argc,char *argv[]) {
 			} else {
 				char *timestr = strdup(argv[i + 1]);
 				global->image_timer= strtoul(timestr, &separateur, 10);
-				//sscanf(timestr,"%i",global->Capture_time);
+				global->image_inc=1;
 				printf("capturing images every %i seconds",global->image_timer);
 			}
 		}
@@ -435,17 +440,16 @@ readOpts(int argc,char *argv[]) {
 			printf("\n\nusage: guvcview [options] \n\n");
 			printf("options:\n");
 			printf("-h\t:print this message \n");
-			printf("-d	/dev/videoX \t:use videoX device\n");
-			printf("-g	\t:use read method for grab instead mmap \n");
-			printf("-w	[enable|disable] \t:SDL hardware accel. \n");
-			printf
-			("-f format	\t:video format  default jpg  others options are yuv jpg \n");
-			printf("-s	widthxheight \t:use specified input size \n");
+			printf("-d /dev/videoX \t:use videoX device\n");
+			printf("-g \t:use read method for grab instead mmap \n");
+			printf("-w [enable|disable] \t:SDL hardware accel. \n");
+			printf ("-f format \t:video format  default jpg  others options are yuv jpg \n");
+			printf("-s widthxheight \t:use specified input size \n");
 			printf("-i image_file_name \t:sets the default image name [available types: jpg png bmp]\n");
 			printf("-c time_in_seconds \t:time between image captures in seconds, enables auto image capture\n");
 			printf("-m num_pics \t:[optional] max number of image captures, [default is 999 if not set]\n");
-			printf("-n	avi_file_name \t:if avi_file_name set enable avi capture from start \n");
-			printf("-t  capture_time \t:used with -n option, sets the avi capture time in seconds\n");
+			printf("-n avi_file_name \t:if avi_file_name set enable avi capture from start \n");
+			printf("-t capture_time \t:used with -n option, sets the avi capture time in seconds\n");
 			printf("-p [enable|disable] \t:fps counter in title bar\n");
 			printf("-l [filename] \t:loads the given control profile\n");
 			closeGlobals(global);

@@ -1,21 +1,21 @@
-/*************************************************************************************************
-#	    guvcview              http://guvcview.berlios.de												#
-#     Paulo Assis <pj.assis@gmail.com>																#
-#																														#
-# This program is free software; you can redistribute it and/or modify         				#
-# it under the terms of the GNU General Public License as published by   				#
-# the Free Software Foundation; either version 2 of the License, or           				#
-# (at your option) any later version.                                          								#
-#                                                                              										#
-# This program is distributed in the hope that it will be useful,              					#
-# but WITHOUT ANY WARRANTY; without even the implied warranty of             		#
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the  		#
-# GNU General Public License for more details.                                 					#
-#                                                                              										#
-# You should have received a copy of the GNU General Public License           		#
-# along with this program; if not, write to the Free Software                  					#
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA		#
-#                                                                              										#
+/************************************************************************************************
+#	    guvcview              http://guvcview.berlios.de					#
+#     Paulo Assis <pj.assis@gmail.com>							        #
+#												#
+# This program is free software; you can redistribute it and/or modify         			#
+# it under the terms of the GNU General Public License as published by   			#
+# the Free Software Foundation; either version 2 of the License, or           			#
+# (at your option) any later version.                                          			#
+#                                                                              			#
+# This program is distributed in the hope that it will be useful,              			#
+# but WITHOUT ANY WARRANTY; without even the implied warranty of             		        #
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the  		                #
+# GNU General Public License for more details.                                 			#
+#                                                                              			#
+# You should have received a copy of the GNU General Public License           		        #
+# along with this program; if not, write to the Free Software                  		        #
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA		        #
+#                                                                              			#
 *************************************************************************************************/
 typedef unsigned char BYTE;
 typedef  unsigned int DWORD;
@@ -175,12 +175,12 @@ struct GLOBAL {
 	int Sound_NumSec;
 	int Sound_BuffFactor;
 	int DispFps;
-	int frmCount;
+	DWORD frmCount;
 	int FpsCount;
 	int timer_id;/*fps count timer*/
 	int image_timer_id;/*auto image capture timer*/
 	int image_timer;/*auto image capture time*/
-	int image_inc;/*image name increment*/
+	DWORD image_inc;/*image name increment*/
 	int image_npics;/*number of captures*/
 	int fps;
 	int fps_num;
@@ -235,9 +235,9 @@ typedef struct tagJPGFILEHEADER {
 	BYTE length[2];/*length of header without APP0 in bytes*/
 	BYTE JFIF[5];/*set to JFIF0 0x4A46494600*/
 	BYTE VERS[2];/*1-2 0x0102*/
-	BYTE density;/*0 - No units, aspect ratio only specified
-				   1 - Pixels per Inch on quickcam5000pro
-				   2 - Pixels per Centimetre                */
+	BYTE density;/* 0 - No units, aspect ratio only specified
+		        1 - Pixels per Inch on quickcam5000pro
+			2 - Pixels per Centimetre                */
 	BYTE xdensity[2];/*120 on quickcam5000pro*/
 	BYTE ydensity[2];/*120 on quickcam5000pro*/
 	BYTE WTN;/*width Thumbnail 0*/
