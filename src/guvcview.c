@@ -128,6 +128,66 @@ ms_time (void)
 {
   return ((Uint32) SDL_GetTicks()); /* gets time (ms) since SDL init */
 }
+/*--------------------------- check image file extension -----------------------------*/
+static 
+int check_image_type (char *filename) {
+	
+	char str_ext[3];
+	/*get the file extension*/
+	sscanf(filename,"%*[^.].%3c",str_ext);
+	/* change image type */
+	int somExt = str_ext[0]+str_ext[1]+str_ext[2];
+	switch (somExt) {
+		/* there are 8 variations we will check for 3*/
+		case ('j'+'p'+'g'):
+		case ('J'+'P'+'G'):
+		case ('J'+'p'+'g'):
+			global->imgFormat=0;
+			break;
+		case ('b'+'m'+'p'):	
+		case ('B'+'M'+'P'):
+		case ('B'+'m'+'p'):
+			global->imgFormat=1;
+			break;
+		case ('p'+'n'+'g'):			
+		case ('P'+'N'+'G'):		
+		case ('P'+'n'+'g'):
+			global->imgFormat=2;
+			break;
+		default: /* use jpeg as default*/
+			global->imgFormat=0;
+	}
+	//gtk_combo_box_set_active(GTK_COMBO_BOX(ImageType),global->imgFormat);
+
+	return (global->imgFormat);	
+}
+
+/*--------------------------- controls enable/disable ---------------------------*/
+
+/* sound controls*/
+void set_sensitive_snd_contrls (const int flag){
+	gtk_widget_set_sensitive (SndSampleRate, flag);
+	gtk_widget_set_sensitive (SndDevice, flag);
+	gtk_widget_set_sensitive (SndNumChan, flag);
+}
+
+/*avi controls*/
+void set_sensitive_avi_contrls (const int flag){
+	/*sound and avi compression controls*/
+	gtk_widget_set_sensitive (AVIComp, flag);
+	gtk_widget_set_sensitive (SndEnable, flag); 
+	if(global->Sound_enable > 0) {	 
+		set_sensitive_snd_contrls(flag);
+	}		
+}
+
+/*image controls*/
+void set_sensitive_img_contrls (const int flag){
+	gtk_widget_set_sensitive(ImgFileButt, flag);/*image butt File chooser*/
+	gtk_widget_set_sensitive(ImageType, flag);/*file type combo*/
+	gtk_widget_set_sensitive(ImageFNameEntry, flag);/*Image Entry*/
+	gtk_widget_set_sensitive(ImageInc, flag);/*image inc checkbox*/
+}
 
 /*----------------------- write conf (.guvcviewrc) file ----------------------*/
 static
@@ -264,33 +324,8 @@ int readConf(const char *confpath) {
 					printf("Video Filter Flags: %i\n",global->Frame_Flags);
 			} else if (strcmp(variable,"image_path")==0) {
 				global->imgFPath = splitPath(value,global->imgFPath);
-				
-				/*get the file extension*/
-				char str_ext[3];
-				sscanf(global->imgFPath[0],"%*[^.].%3c",str_ext);
-				/* change image type */
-				int somExt = str_ext[0]+str_ext[1]+str_ext[2];
-				switch (somExt) {
-					/* there are 8 variations we will check for 3*/
-					case ('j'+'p'+'g'):
-					case ('J'+'P'+'G'):
-					case ('J'+'p'+'g'):
-						global->imgFormat=0;
-						break;
-					case ('b'+'m'+'p'):	
-					case ('B'+'M'+'P'):
-					case ('B'+'m'+'p'):
-						global->imgFormat=1;
-						break;
-					case ('p'+'n'+'g'):			
-					case ('P'+'N'+'G'):		
-					case ('P'+'n'+'g'):
-						global->imgFormat=2;
-						break;
-					default: /* use jpeg as default*/
-						global->imgFormat=0;
-				}
-				
+				/*get the file type*/
+				global->imgFormat = check_image_type(global->imgFPath[0]);
 			} else if (strcmp(variable,"image_inc")==0) {
 				if ((i=sscanf(value,"%d",&(global->image_inc)))==1)
 					printf("image inc: %d\n",global->image_inc);
@@ -398,6 +433,8 @@ readOpts(int argc,char *argv[]) {
 			} else {
 				char *image_path = strdup(argv[i + 1]);
 				global->imgFPath=splitPath(image_path,global->imgFPath);
+				/*get the file type*/
+				global->imgFormat = check_image_type(global->imgFPath[0]);
 			}
 		}
 		
@@ -474,7 +511,8 @@ readOpts(int argc,char *argv[]) {
 		printf("Format is Default MJPEG\n");
 	}
 }
-/*--------------------------- sound threaded loop-----------------------------*/
+
+/*--------------------------- sound threaded loop ------------------------------*/
 void *sound_capture(void *data)
 {
 	
@@ -1078,16 +1116,12 @@ AVIComp_changed (GtkComboBox * AVIComp, void *data)
 static void
 SndEnable_changed (GtkToggleButton * toggle, VidState * s)
 {
-		global->Sound_enable = gtk_toggle_button_get_active (toggle) ? 1 : 0;
-		if (!global->Sound_enable) {
-			gtk_widget_set_sensitive (SndSampleRate,FALSE);
-			gtk_widget_set_sensitive (SndDevice,FALSE);
-			gtk_widget_set_sensitive (SndNumChan,FALSE);	
-		} else { 
-			gtk_widget_set_sensitive (SndSampleRate,TRUE);
-			gtk_widget_set_sensitive (SndDevice,TRUE);
-			gtk_widget_set_sensitive (SndNumChan,TRUE);
-		}
+	global->Sound_enable = gtk_toggle_button_get_active (toggle) ? 1 : 0;
+	if (!global->Sound_enable) {
+		set_sensitive_snd_contrls(FALSE);
+	} else { 
+		set_sensitive_snd_contrls(TRUE);
+	}
 }
 
 /* Mirror check box callback */
@@ -1128,8 +1162,7 @@ FiltMonoEnable_changed(GtkToggleButton * toggle, void *data)
 /*--------------------------- file chooser dialog ----------------------------*/
 static void
 file_chooser (GtkButton * FileButt, const int isAVI)
-{
-  char str_ext[3];	
+{	
   const char *basename;
   char *fullname;
 	
@@ -1167,11 +1200,10 @@ file_chooser (GtkButton * FileButt, const int isAVI)
 	global->imgFPath=splitPath((char *)basename, global->imgFPath);
 	
 	gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (FileDialog), 
-															  global->imgFPath[1]);
+							global->imgFPath[1]);
 	gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (FileDialog), 
-															global->imgFPath[0]);
+							global->imgFPath[0]);
 
-	  
 	if (gtk_dialog_run (GTK_DIALOG (FileDialog)) == GTK_RESPONSE_ACCEPT)
 	{
 		fullname = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (FileDialog));
@@ -1179,32 +1211,11 @@ file_chooser (GtkButton * FileButt, const int isAVI)
 		
 		gtk_entry_set_text(GTK_ENTRY(ImageFNameEntry)," ");
 		gtk_entry_set_text(GTK_ENTRY(ImageFNameEntry),global->imgFPath[0]);
-		
-		/*get the file extension*/
-		sscanf(global->imgFPath[0],"%*[^.].%3c",str_ext);
-		/* change image type */
-		int somExt = str_ext[0]+str_ext[1]+str_ext[2];
-		switch (somExt) {
-			/* there are 8 variations we will check for 3*/
-			case ('j'+'p'+'g'):
-			case ('J'+'P'+'G'):
-			case ('J'+'p'+'g'):
-				global->imgFormat=0;
-				break;
-			case ('b'+'m'+'p'):	
-			case ('B'+'M'+'P'):
-			case ('B'+'m'+'p'):
-				global->imgFormat=1;
-				break;
-			case ('p'+'n'+'g'):			
-			case ('P'+'N'+'G'):		
-			case ('P'+'n'+'g'):
-				global->imgFormat=2;
-				break;
-			default: /* use jpeg as default*/
-				gtk_combo_box_set_active(GTK_COMBO_BOX(ImageType),0);
-		}
+		/*get the file type*/
+		global->imgFormat = check_image_type(global->imgFPath[0]);
+		/*set the file type*/
 		gtk_combo_box_set_active(GTK_COMBO_BOX(ImageType),global->imgFormat);
+		
 		if(global->image_inc>0){ 
 			global->image_inc=1; /*if auto naming restart counter*/
 			snprintf(global->imageinc_str,19,"File inc:%d",global->image_inc);
@@ -1230,32 +1241,9 @@ capture_image (GtkButton * CapImageButt, GtkWidget * ImageFNameEntry)
 		global->imgFPath=splitPath((char *)fileEntr, global->imgFPath);
 		gtk_entry_set_text(GTK_ENTRY(ImageFNameEntry),"");
 		gtk_entry_set_text(GTK_ENTRY(ImageFNameEntry),global->imgFPath[0]);
-		
-		/*get the file extension*/
-		char str_ext[3];
-		sscanf(global->imgFPath[0],"%*[^.].%3c",str_ext);
-		/* change image type */
-		int somExt = str_ext[0]+str_ext[1]+str_ext[2];
-		switch (somExt) {
-			/* there are 8 variations we will check for 3*/
-			case ('j'+'p'+'g'):
-			case ('J'+'P'+'G'):
-			case ('J'+'p'+'g'):
-				global->imgFormat=0;
-				break;
-			case ('b'+'m'+'p'):	
-			case ('B'+'M'+'P'):
-			case ('B'+'m'+'p'):
-				global->imgFormat=1;
-				break;
-			case ('p'+'n'+'g'):			
-			case ('P'+'N'+'G'):		
-			case ('P'+'n'+'g'):
-				global->imgFormat=2;
-				break;
-			default: /* use jpeg as default*/
-				gtk_combo_box_set_active(GTK_COMBO_BOX(ImageType),0);
-		}
+		/*get the file type*/
+		global->imgFormat = check_image_type(global->imgFPath[0]);
+		/*set the file type*/
 		gtk_combo_box_set_active(GTK_COMBO_BOX(ImageType),global->imgFormat);
 	}
 	int fsize=strlen(global->imgFPath[0]);
@@ -1290,10 +1278,7 @@ capture_image (GtkButton * CapImageButt, GtkWidget * ImageFNameEntry)
 		if (global->image_timer_id > 0) g_source_remove(global->image_timer_id);
 		gtk_button_set_label(CapImageButt,"Capture");
 		global->image_timer=0;
-		gtk_widget_set_sensitive(ImgFileButt,TRUE);/*enable image butt File chooser*/
-		gtk_widget_set_sensitive(ImageType,TRUE);/*enable file type combo*/
-		gtk_widget_set_sensitive(ImageFNameEntry,TRUE);/*enable Image Entry*/
-		gtk_widget_set_sensitive(ImageInc,TRUE);/*enable image inc checkbox*/
+		set_sensitive_img_contrls(TRUE);/*enable image controls*/
 	} else {
 		videoIn->capImage = TRUE;
 	}
@@ -1336,13 +1321,7 @@ capture_avi (GtkButton * CapAVIButt, GtkWidget * AVIFNameEntry)
 		videoIn->capAVI = FALSE;
 		aviClose();
 		/*enabling sound and avi compression controls*/
-		gtk_widget_set_sensitive (AVIComp, TRUE);
-		gtk_widget_set_sensitive (SndEnable,TRUE);	
-		if(global->Sound_enable > 0) {	 
-			gtk_widget_set_sensitive (SndSampleRate,TRUE);
-			gtk_widget_set_sensitive (SndDevice,TRUE);
-			gtk_widget_set_sensitive (SndNumChan,TRUE);
-		}
+		set_sensitive_avi_contrls(TRUE);
 	} 
 	else {
 	
@@ -1356,13 +1335,7 @@ capture_avi (GtkButton * CapAVIButt, GtkWidget * AVIFNameEntry)
 			videoIn->capAVI = FALSE;
 			aviClose();
 			/*enabling sound and avi compression controls*/
-			gtk_widget_set_sensitive (AVIComp, TRUE);
-			gtk_widget_set_sensitive (SndEnable,TRUE); 
-			if(global->Sound_enable > 0) {	 
-				gtk_widget_set_sensitive (SndSampleRate,TRUE);
-				gtk_widget_set_sensitive (SndDevice,TRUE);
-				gtk_widget_set_sensitive (SndNumChan,TRUE);
-			}
+			set_sensitive_avi_contrls(TRUE);
 	 
 		} 
 		else {/******************** Start AVI *********************/
@@ -1392,11 +1365,7 @@ capture_avi (GtkButton * CapAVIButt, GtkWidget * AVIFNameEntry)
 			//printf("AVI start time:%d\n",AVIstarttime);		
 			videoIn->capAVI = TRUE; /* start video capture */
 			/*disabling sound and avi compression controls*/
-			gtk_widget_set_sensitive (AVIComp, FALSE);
-			gtk_widget_set_sensitive (SndEnable,FALSE); 
-			gtk_widget_set_sensitive (SndSampleRate,FALSE);
-			gtk_widget_set_sensitive (SndDevice,FALSE);
-			gtk_widget_set_sensitive (SndNumChan,FALSE);
+			set_sensitive_avi_contrls(FALSE);
 			/* Creating the sound capture loop thread if Sound Enable*/ 
 			if(global->Sound_enable > 0) { 
 				/* Initialize and set snd thread detached attribute */
@@ -1471,10 +1440,7 @@ Image_capture_timer(){
 	if(global->image_inc > global->image_npics) {/*destroy timer*/
 		gtk_button_set_label(GTK_BUTTON(CapImageButt),"Capture");
 		global->image_timer=0;
-		gtk_widget_set_sensitive(ImgFileButt,TRUE);/*enable image butt File chooser*/
-		gtk_widget_set_sensitive(ImageType,TRUE);/*enable file type combo*/
-		gtk_widget_set_sensitive(ImageFNameEntry,TRUE);/*enable Image Entry*/
-		gtk_widget_set_sensitive(ImageInc,TRUE);/*enable Image Entry*/
+		set_sensitive_img_contrls(TRUE);/*enable image controls*/
 		return (FALSE);
 	}
 	else return (TRUE);/*keep the timer*/
@@ -2960,10 +2926,7 @@ int main(int argc, char *argv[])
 		global->image_timer_id=g_timeout_add(global->image_timer*1000,
 											 Image_capture_timer,NULL);
 		gtk_button_set_label(GTK_BUTTON(CapImageButt),"Stop auto");
-		gtk_widget_set_sensitive(ImgFileButt,FALSE);/*disable image butt File chooser*/
-		gtk_widget_set_sensitive(ImageType,FALSE);/*disable file type combo*/
-		gtk_widget_set_sensitive(ImageFNameEntry,FALSE);/*disable Image Entry*/
-		gtk_widget_set_sensitive(ImageInc,FALSE);/*disable image inc checkbox*/
+		set_sensitive_img_contrls(FALSE);/*disable image controls*/
 	}
 	/*--------------------- avi capture from start ---------------------------*/
 	if(global->avifile) {
@@ -2989,11 +2952,7 @@ int main(int argc, char *argv[])
 	   sprintf(videoIn->AVIFName,"%s/%s",global->aviFPath[1],global->aviFPath[0]);		
 	   videoIn->capAVI = TRUE;
 	   /*disabling sound and avi compression controls*/
-	   gtk_widget_set_sensitive (AVIComp, FALSE);
-	   gtk_widget_set_sensitive (SndEnable,FALSE); 
-	   gtk_widget_set_sensitive (SndSampleRate,FALSE);
-	   gtk_widget_set_sensitive (SndDevice,FALSE);
-	   gtk_widget_set_sensitive (SndNumChan,FALSE);
+	   set_sensitive_avi_contrls (FALSE);
 	   /* Creating the sound capture loop thread if Sound Enable*/ 
 	   if(global->Sound_enable > 0) { 
 		  /* Initialize and set snd thread detached attribute */
@@ -3044,7 +3003,7 @@ shutd (gint restart)
 	videoIn->signalquit=0;
 	printf("waiting for thread to finish\n");
 	/*shuting down while in avi capture mode*/
-	/*must close avi						*/
+	/*must close avi			*/
 	if(videoIn->capAVI) {
 		printf("stoping AVI capture\n");
 		global->AVIstoptime = ms_time();
