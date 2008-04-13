@@ -1,7 +1,8 @@
-guvcview (0.7.4) stable; urgency=low
+guvcview (0.8.0) stable; urgency=low
 
-   * Added File Auto name checkbox
-   * Added File increment label
+   * Fixed Pan/Tilt and Focus Control
+   * Added Scrolled Pans to GUI
+   * Added image autonaming and auto capture.
 
  -- Paulo Assis <pj.assis@gmail.com>  Wed, 09 Jan 2008 19:07:18 +0000
 

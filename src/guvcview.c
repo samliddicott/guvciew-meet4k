@@ -1,6 +1,7 @@
 /*******************************************************************************#
-#	    guvcview              http://guvcview.berlios.de			#
-#     Paulo Assis <pj.assis@gmail.com>						#
+#	    guvcview              http://guvcview.berlios.de                    #
+#                                                                               #
+#           Paulo Assis <pj.assis@gmail.com>                                    #
 #										#
 # This program is free software; you can redistribute it and/or modify         	#
 # it under the terms of the GNU General Public License as published by   	#
@@ -57,11 +58,13 @@ struct JPEG_ENCODER_STRUCTURE *jpeg_struct=NULL;
 struct vdIn *videoIn=NULL;
 VidState * s;
 
-//const char *videodevice = NULL;
 /* The main window*/
 GtkWidget *mainwin;
 /* A restart Dialog */
 GtkWidget *restartdialog;
+/*Paned containers*/
+GtkWidget *boxv;
+GtkWidget *boxh;
 
 /* Must set this as global so they */
 /* can be set from any callback.   */
@@ -107,14 +110,14 @@ SDL_Event sdlevent;
 
 avi_t *AviOut;
 BYTE *p = NULL;
-BYTE * pim= NULL;
-BYTE * pavi=NULL;
+BYTE *pim= NULL;
+BYTE *pavi=NULL;
 
 /*exposure menu for old type controls */
 static const char *exp_typ[]={"MANUAL",
-	                          "AUTO",
-	                          "SHUTTER P.",
-	                          "APERTURE P."};
+	                      "AUTO",
+	                      "SHUTTER P.",
+	                      "APERTURE P."};
 
 static Uint32 SDL_VIDEO_Flags =
 	SDL_ANYFORMAT | SDL_DOUBLEBUF | SDL_RESIZABLE;
@@ -157,7 +160,6 @@ int check_image_type (char *filename) {
 		default: /* use jpeg as default*/
 			global->imgFormat=0;
 	}
-	//gtk_combo_box_set_active(GTK_COMBO_BOX(ImageType),global->imgFormat);
 
 	return (global->imgFormat);	
 }
@@ -205,6 +207,10 @@ int writeConf(const char *confpath) {
 		fprintf(fp,"resolution=%ix%i\n",global->width,global->height);
 		fprintf(fp,"# control window size: default %ix%i\n",WINSIZEX,WINSIZEY);
 		fprintf(fp,"windowsize=%ix%i\n",global->winwidth,global->winheight);
+		fprintf(fp,"#horizontal pane size\n");
+		fprintf(fp,"hpane=%i\n",global->boxhsize);
+		fprintf(fp,"#vertical pane size\n");
+		fprintf(fp,"vpane=%i\n",global->boxvsize);
 		fprintf(fp,"# mode video format 'yuv' or 'jpg'(default)\n");
 		fprintf(fp,"mode=%s\n",global->mode);
 		fprintf(fp,"# frames per sec. - hardware supported - default( %i )\n",DEFAULT_FPS);
@@ -232,6 +238,10 @@ int writeConf(const char *confpath) {
 		fprintf(fp,"snd_numsec=%i\n",global->Sound_NumSec);
 		fprintf(fp,"# snd_buf_fact - audio buffer size = audio block frames total size x snd_buf_fact\n");
 		fprintf(fp,"snd_buf_fact=%i\n",global->Sound_BuffFactor);
+		fprintf(fp,"#Pan Step in degrees, Default=2\n");
+		fprintf(fp,"Pan_Step=%i\n",global->PanStep);
+		fprintf(fp,"#Tilt Step in degrees, Default=2\n");
+		fprintf(fp,"Tilt_Step=%i\n",global->TiltStep);
 		fprintf(fp,"# video filters: 0 -none 1- flip 2- upturn 4- negate 8- mono (add the ones you want)\n");
 		fprintf(fp,"frame_flags=%i\n",global->Frame_Flags);
 		fprintf(fp,"# Image capture Full Path: Path (Max 100 characters) Filename (Max 20 characters)\n");
@@ -280,6 +290,12 @@ int readConf(const char *confpath) {
 			} else if (strcmp(variable,"windowsize")==0) {
 				if ((i=sscanf(value,"%ix%i",&(global->winwidth),&(global->winheight)))==2)
 					printf("windowsize: %i x %i\n",global->winwidth,global->winheight);
+			} else if (strcmp(variable,"hpane")==0) { 
+				if ((i=sscanf(value,"%i",&(global->boxhsize)))==1)
+					printf("horiz pane: %i\n",global->boxhsize);
+			} else if (strcmp(variable,"vpane")==0) { 
+				if ((i=sscanf(value,"%i",&(global->boxvsize)))==1)
+					printf("vert pane: %i\n",global->boxvsize);
 			} else if (strcmp(variable,"mode")==0) {
 				snprintf(global->mode,5,"%s",value);
 				printf("mode: %s\n",global->mode);
@@ -319,7 +335,13 @@ int readConf(const char *confpath) {
 			} else if (strcmp(variable,"snd_buf_fact")==0) {
 				if ((i=sscanf(value,"%i",&(global->Sound_BuffFactor)))==1)
 					printf("sound Buffer Factor: %i\n",global->Sound_BuffFactor); 
-			}  else if (strcmp(variable,"frame_flags")==0) {
+			} else if (strcmp(variable,"Pan_Step")==0){ 
+				if ((i=sscanf(value,"%i",&(global->PanStep)))==1)
+					printf("Pan Step: %i degrees\n",global->PanStep);
+			} else if (strcmp(variable,"Tilt_Step")==0){ 
+				if ((i=sscanf(value,"%i",&(global->TiltStep)))==1)
+					printf("Tilt Step: %i degrees\n",global->TiltStep);
+			} else if (strcmp(variable,"frame_flags")==0) {
 				if ((i=sscanf(value,"%i",&(global->Frame_Flags)))==1)
 					printf("Video Filter Flags: %i\n",global->Frame_Flags);
 			} else if (strcmp(variable,"image_path")==0) {
@@ -423,7 +445,6 @@ readOpts(int argc,char *argv[]) {
 			} else {
 				char *npicstr = strdup(argv[i + 1]);
 				global->image_npics= strtoul(npicstr, &separateur, 10);
-				//sscanf(timestr,"%i",global->Capture_time);
 				printf("capturing at max %d pics",global->image_npics);
 			}
 		}
@@ -452,7 +473,6 @@ readOpts(int argc,char *argv[]) {
 			} else {
 				char *timestr = strdup(argv[i + 1]);
 				global->Capture_time= strtoul(timestr, &separateur, 10);
-				//sscanf(timestr,"%i",global->Capture_time);
 				printf("capturing avi for %i seconds",global->Capture_time);
 			}
 		}
@@ -478,17 +498,21 @@ readOpts(int argc,char *argv[]) {
 			printf("options:\n");
 			printf("-h\t:print this message \n");
 			printf("-d /dev/videoX \t:use videoX device\n");
-			printf("-g \t:use read method for grab instead mmap \n");
+			printf("-g \t:use read method for grab instead mmap\n");
 			printf("-w [enable|disable] \t:SDL hardware accel. \n");
-			printf ("-f format \t:video format  default jpg  others options are yuv jpg \n");
+			printf("-f format \t:video format\n");
+			printf("   default jpg  others options are yuv jpg \n");
 			printf("-s widthxheight \t:use specified input size \n");
-			printf("-i image_file_name \t:sets the default image name [available types: jpg png bmp]\n");
-			printf("-c time_in_seconds \t:time between image captures in seconds, enables auto image capture\n");
-			printf("-m num_pics \t:[optional] max number of image captures, [default is 999 if not set]\n");
-			printf("-n avi_file_name \t:if avi_file_name set enable avi capture from start \n");
-			printf("-t capture_time \t:used with -n option, sets the avi capture time in seconds\n");
+			printf("-i image_file_name \t:sets the default image name\n"); 
+			printf("   available image formats: jpg png bmp\n");
+			printf("-c time_in_seconds \t:time between image captures (sec.)\n"); 
+			printf("   enables auto image capture\n");
+			printf("-m num_pics \t:max number of image captures\n");
+			printf("   defaults to 999 if not set\n");
+			printf("-n avi_file_name \t:if set, enable avi capture from start \n");
+			printf("-t capture_time \t:used with -n option, avi capture time (sec.)\n");
 			printf("-p [enable|disable] \t:fps counter in title bar\n");
-			printf("-l [filename] \t:loads the given control profile\n");
+			printf("-l filename \t:loads the given control profile\n");
 			closeGlobals(global);
 			exit(0);
 		}
@@ -623,7 +647,7 @@ error:
 
 
 /*------------------------------ Event handlers -------------------------------*/
-/* when window is closed */
+/* window close */
 gint
 delete_event (GtkWidget *widget, GdkEventConfigure *event)
 {
@@ -766,7 +790,7 @@ aviClose (void)
 	}
 }
 
-/* can't remember what it does*/
+/* counts chars needed for n*/
 static int
 num_chars (int n)
 {
@@ -831,10 +855,6 @@ check_changed (GtkToggleButton * toggle, VidState * s)
 	InputControl * c = s->control + ci->idx;
 	int val;
 	
-	//~ if (c->id == V4L2_CID_EXPOSURE_AUTO) {
-	//~ val = gtk_toggle_button_get_active (toggle) ? AUTO_EXP : MAN_EXP;
-	//~ } 
-	//~ else val = gtk_toggle_button_get_active (toggle) ? 1 : 0;
 	val = gtk_toggle_button_get_active (toggle) ? 1 : 0;
 	
 	if (input_set_control (videoIn, c, val) != 0) {
@@ -886,6 +906,46 @@ combo_changed (GtkComboBox * combo, VidState * s)
 	
 }
 
+static void
+PanLeft_clicked (GtkButton * PanLeft, VidState * s)
+{	
+	if(uvcPanTilt(videoIn, -INCPANTILT*(global->PanStep), 0, 0)<0) {
+		printf("Pan Left Error");
+	}
+}
+
+static void
+PanRight_clicked (GtkButton * PanRight, VidState * s)
+{	
+	if(uvcPanTilt(videoIn, INCPANTILT*(global->PanStep), 0, 0)<0) {
+		printf("Pan Right Error");
+	}
+}
+
+static void
+TiltUp_clicked (GtkButton * TiltUp, VidState * s)
+{	
+	if(uvcPanTilt(videoIn, 0, -INCPANTILT*(global->TiltStep), 0)<0) {
+		printf("Tilt UP Error");
+	}
+}
+
+static void
+TiltDown_clicked (GtkButton * TiltDown, VidState * s)
+{	
+	if(uvcPanTilt(videoIn, 0, INCPANTILT*(global->TiltStep), 0)<0) {
+		printf("Tilt Down Error");
+	}
+}
+
+static void
+PTReset_clicked (GtkButton * PTReset, VidState * s)
+{	
+	if(uvcPanTilt(videoIn, 0, 0, 1)<0) {
+		printf("Pan Tilt Reset Error");
+	}
+}
+
 /*resolution control callback*/
 static void
 resolution_changed (GtkComboBox * Resolution, void *data)
@@ -911,13 +971,13 @@ resolution_changed (GtkComboBox * Resolution, void *data)
 	
 	
 	restartdialog = gtk_dialog_new_with_buttons ("Program Restart",
-												  GTK_WINDOW(mainwin),
-												  GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
-												  "now",
-												  GTK_RESPONSE_ACCEPT,
-												  "Later",
-												  GTK_RESPONSE_REJECT,
-												  NULL);
+						    GTK_WINDOW(mainwin),
+						    GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+						    "now",
+						    GTK_RESPONSE_ACCEPT,
+						    "Later",
+						    GTK_RESPONSE_REJECT,
+						    NULL);
 	
 	GtkWidget *message = gtk_label_new ("Changes will only take effect after guvcview restart.\n\n\nRestart now?\n");
 	gtk_container_add (GTK_CONTAINER (GTK_DIALOG(restartdialog)->vbox), message);
@@ -978,7 +1038,8 @@ ImpType_changed(GtkComboBox * ImpType, void * Data)
 				defres=i;
 				for (j=0;j<videoIn->listVidCap[global->formind][i].numb_frates;j++) {
 					if ((videoIn->listVidCap[global->formind][i].framerate_num[j]==global->fps_num) && 
-						(videoIn->listVidCap[global->formind][i].framerate_denom[j]==global->fps)) deffps=j;
+					    (videoIn->listVidCap[global->formind][i].framerate_denom[j]==global->fps))
+						deffps=j;
 				}
 			}
 		}
@@ -989,13 +1050,13 @@ ImpType_changed(GtkComboBox * ImpType, void * Data)
 	global->fps=videoIn->listVidCap[global->formind][defres].framerate_denom[deffps];
 	
 	restartdialog = gtk_dialog_new_with_buttons ("Program Restart",
-												  GTK_WINDOW(mainwin),
-												  GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
-												  "now",
-												  GTK_RESPONSE_ACCEPT,
-												  "Later",
-												  GTK_RESPONSE_REJECT,
-												  NULL);
+						     GTK_WINDOW(mainwin),
+						     GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+						     "now",
+						     GTK_RESPONSE_ACCEPT,
+						     "Later",
+						     GTK_RESPONSE_REJECT,
+						     NULL);
 	
 	GtkWidget *message = gtk_label_new ("Changes will only take effect after guvcview restart.\n\n\nRestart now?\n");
 	gtk_container_add (GTK_CONTAINER (GTK_DIALOG(restartdialog)->vbox), message);
@@ -1049,8 +1110,7 @@ static void
 ImageType_changed (GtkComboBox * ImageType,GtkEntry *ImageFNameEntry) 
 {
 	const char *filename;
-	global->imgFormat=gtk_combo_box_get_active (ImageType);
-	//videoIn->Imgtype=global->imgFormat;	
+	global->imgFormat=gtk_combo_box_get_active (ImageType);	
 	filename=gtk_entry_get_text(ImageFNameEntry);
 	
 	if(strcmp(filename,global->imgFPath[0])!=0) {
@@ -1180,10 +1240,10 @@ file_chooser (GtkButton * FileButt, const int isAVI)
 	
 	global->aviFPath=splitPath((char *)basename, global->aviFPath);
 	
-	gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (FileDialog),
-															  global->aviFPath[1]);
-	gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (FileDialog), 
-															  global->aviFPath[0]);
+	gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (FileDialog), 
+								global->aviFPath[1]);
+	gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (FileDialog),
+								global->aviFPath[0]);
 	  
 	if (gtk_dialog_run (GTK_DIALOG (FileDialog)) == GTK_RESPONSE_ACCEPT)
 	{
@@ -1265,14 +1325,12 @@ capture_image (GtkButton * CapImageButt, GtkWidget * ImageFNameEntry)
 	} else {
 		sprintf(filename,"%s/%s", global->imgFPath[1],global->imgFPath[0]);
 	}
-	//videoIn->ImageFName=realloc(videoIn->ImageFName,(sfname+2)*sizeof(char));
 	if ((sfname>120) && sfname>strlen(videoIn->ImageFName)) {
 		printf("realloc image file name by %d bytes.\n",sfname+1);
 		videoIn->ImageFName=realloc(videoIn->ImageFName,sfname+1);
 	}
 	videoIn->ImageFName=strncpy(videoIn->ImageFName,filename,sfname);
 	
-	//printf("imag file: %s\n",videoIn->ImageFName);
 	if(global->image_timer > 0) { 
 		/*auto capture on -> stop it*/
 		if (global->image_timer_id > 0) g_source_remove(global->image_timer_id);
@@ -1314,7 +1372,6 @@ capture_avi (GtkButton * CapAVIButt, GtkWidget * AVIFNameEntry)
 			compression="MJPG";
 	}	
 	if(videoIn->capAVI) {  /************* Stop AVI ************/
-		//printf("stoping AVI capture\n");
 		gtk_button_set_label(CapAVIButt,"Capture");
 		global->AVIstoptime = ms_time();
 		printf("AVI stop time:%d\n",global->AVIstoptime);	
@@ -1420,14 +1477,6 @@ Image_capture_timer(){
 		videoIn->ImageFName=realloc(videoIn->ImageFName,namesize+11);
 	}
 	
-	//sprintf(global->imgFPath[0],"%s-%i.%s",basename,global->image_inc,extension);
-	//gtk_entry_set_text(GTK_ENTRY(ImageFNameEntry)," ");
-	//gtk_entry_set_text(GTK_ENTRY(ImageFNameEntry),global->imgFPath[0]);
-
-	
-	//if(namesize>15)
-	//	global->imgFPath[0]=realloc(global->imgFPath[0],namesize+10);
-	
 	sprintf(videoIn->ImageFName,"%s/%s-%i.%s",global->imgFPath[1],
 			                        basename,global->image_inc,extension );
 	snprintf(global->imageinc_str,19,"File inc:%d",global->image_inc);
@@ -1510,8 +1559,7 @@ SaveControls(VidState *s)
 					}
 					val = val & 0x0001;
 					fprintf(fp,"# %s +\n",c->name);
-					fprintf(fp,"control[%d]:0x%x:%d=%d\n",c->i,c->id,c->type,
-																val);
+					fprintf(fp,"control[%d]:0x%x:%d=%d\n",c->i,c->id,c->type, val);
 				}
 			}
 			fprintf(fp,"# 2-MENU CONTROLS\n");
@@ -1523,8 +1571,7 @@ SaveControls(VidState *s)
 						val=c->default_val;
 					}
 					fprintf(fp,"# %s +\n",c->name);
-					fprintf(fp,"control[%d]:0x%x:%d=%d\n",c->i,c->id,c->type,
-																val);
+					fprintf(fp,"control[%d]:0x%x:%d=%d\n",c->i,c->id,c->type, val);
 				}
 			}
 			fprintf(fp,"# 3-INTEGER CONTROLS\n");
@@ -1536,8 +1583,7 @@ SaveControls(VidState *s)
 						val=c->default_val;
 					}
 					fprintf(fp,"# %s +\n",c->name);
-					fprintf(fp,"control[%d]:0x%x:%d=%d\n",c->i,c->id,c->type,
-																val);
+					fprintf(fp,"control[%d]:0x%x:%d=%d\n",c->i,c->id,c->type, val);
 				}
 			}
 			
@@ -1629,11 +1675,11 @@ SProfileButton_clicked (GtkButton * SProfileButton,VidState *vst)
 					  NULL);
 	gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (FileDialog), TRUE);
 	//printf("profile(default):%s/%s\n",global->profile_FPath[1],global->profile_FPath[0]);
-	gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (FileDialog), 
-										                 global->profile_FPath[1]);
+	gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (FileDialog),
+                                                                global->profile_FPath[1]);
 	
-	gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (FileDialog), 
-										                 global->profile_FPath[0]);
+	gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (FileDialog),
+                                                                global->profile_FPath[0]);
 	
 	if (gtk_dialog_run (GTK_DIALOG (FileDialog)) == GTK_RESPONSE_ACCEPT)
 	{
@@ -1658,8 +1704,8 @@ LProfileButton_clicked (GtkButton * LProfileButton, VidState *vst)
 					  GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
 					  NULL);
 	
-	gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (FileDialog), 
-										                 global->profile_FPath[1]);
+	gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (FileDialog),
+                                                                  global->profile_FPath[1]);
 	
 	
 	if (gtk_dialog_run (GTK_DIALOG (FileDialog)) == GTK_RESPONSE_ACCEPT)
@@ -1748,7 +1794,7 @@ draw_controls (VidState *s)
 			ci->widget = gtk_combo_box_new_text ();
 			for (j = 0; j <val; j++) {
 				gtk_combo_box_append_text (GTK_COMBO_BOX (ci->widget), 
-										   exp_typ[videoIn->available_exp[j]]);
+								exp_typ[videoIn->available_exp[j]]);
 				if (def==exp_vals[videoIn->available_exp[j]]){
 					gtk_combo_box_set_active (GTK_COMBO_BOX (ci->widget), j);
 				}
@@ -1785,6 +1831,108 @@ draw_controls (VidState *s)
 
 			ci->label = gtk_label_new ("Exposure:");	
 			
+		} else if ((c->id == V4L2_CID_PAN_RELATIVE_LOGITECH) ||
+				   (c->id == V4L2_CID_PAN_RELATIVE_NEW) ||
+				   (c->id == V4L2_CID_PAN_RELATIVE)) {
+			videoIn->PanTilt=1;
+			PangoFontDescription * desc;
+			ci->widget = gtk_hbox_new (FALSE, 0);
+			GtkWidget *PanLeft = gtk_button_new_with_label("Left");
+			GtkWidget *PanRight = gtk_button_new_with_label("Right");
+			gtk_box_pack_start (GTK_BOX (ci->widget), PanLeft, TRUE, TRUE, 0);
+			gtk_box_pack_start (GTK_BOX (ci->widget), PanRight, TRUE, TRUE, 0);
+			gtk_widget_show (PanLeft);
+			gtk_widget_show (PanRight);
+			g_signal_connect (GTK_BUTTON (PanLeft), "clicked",
+					G_CALLBACK (PanLeft_clicked), s);
+			g_signal_connect (GTK_BUTTON (PanRight), "clicked",
+					G_CALLBACK (PanRight_clicked), s);
+			
+			gtk_table_attach (GTK_TABLE (s->table), ci->widget, 1, 2, 3+i, 4+i,
+					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+			g_object_set_data (G_OBJECT (ci->widget), "control_info", ci);
+			ci->maxchars = MAX (num_chars (c->min), num_chars (c->max));
+			gtk_widget_show (ci->widget);
+			
+			ci->labelval = gtk_label_new (NULL);
+			desc = pango_font_description_new ();
+			pango_font_description_set_family_static (desc, "monospace");
+			gtk_widget_modify_font (ci->labelval, desc);
+			/*justify h:left and v:center*/
+			gtk_misc_set_alignment (GTK_MISC (ci->labelval), 0.0, 0.5);
+			
+			gtk_table_attach (GTK_TABLE (s->table), ci->labelval, 2, 3,
+					3+i, 4+i, GTK_EXPAND | GTK_FILL, 0, 0, 0);
+
+			ci->label = gtk_label_new (g_strdup_printf ("%s:", c->name));
+			gtk_widget_show (ci->labelval);
+			
+		} else if ((c->id == V4L2_CID_TILT_RELATIVE_LOGITECH) ||
+				   (c->id == V4L2_CID_TILT_RELATIVE_NEW) ||
+				   (c->id == V4L2_CID_TILT_RELATIVE)) {
+			videoIn->PanTilt=1;
+			PangoFontDescription * desc;
+			ci->widget = gtk_hbox_new (FALSE, 0);
+			GtkWidget *TiltUp = gtk_button_new_with_label("Up");
+			GtkWidget *TiltDown = gtk_button_new_with_label("Down");
+			gtk_box_pack_start (GTK_BOX (ci->widget), TiltUp, TRUE, TRUE, 0);
+			gtk_box_pack_start (GTK_BOX (ci->widget), TiltDown, TRUE, TRUE, 0);
+			gtk_widget_show (TiltUp);
+			gtk_widget_show (TiltDown);
+			g_signal_connect (GTK_BUTTON (TiltUp), "clicked",
+					G_CALLBACK (TiltUp_clicked), s);
+			g_signal_connect (GTK_BUTTON (TiltDown), "clicked",
+					G_CALLBACK (TiltDown_clicked), s);
+			
+			gtk_table_attach (GTK_TABLE (s->table), ci->widget, 1, 2, 3+i, 4+i,
+					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+			g_object_set_data (G_OBJECT (ci->widget), "control_info", ci);
+			ci->maxchars = MAX (num_chars (c->min), num_chars (c->max));
+			gtk_widget_show (ci->widget);
+			
+			ci->labelval = gtk_label_new (NULL);
+			desc = pango_font_description_new ();
+			pango_font_description_set_family_static (desc, "monospace");
+			gtk_widget_modify_font (ci->labelval, desc);
+			/*justify h:left and v:center*/
+			gtk_misc_set_alignment (GTK_MISC (ci->labelval), 0.0, 0.5);
+			
+			gtk_table_attach (GTK_TABLE (s->table), ci->labelval, 2, 3,
+					3+i, 4+i, GTK_EXPAND | GTK_FILL, 0, 0, 0);
+
+			ci->label = gtk_label_new (g_strdup_printf ("%s:", c->name));
+			gtk_widget_show (ci->labelval);
+			
+		} else if ((c->id == V4L2_CID_PANTILT_RESET_LOGITECH) ||
+				   (c->id == V4L2_CID_PANTILT_RESET) ||
+				   (c->id == V4L2_CID_PAN_RESET_NEW) ||
+				   (c->id == V4L2_CID_TILT_RESET_NEW)) {
+			PangoFontDescription * desc;
+			ci->widget = gtk_hbox_new (FALSE, 0);
+			GtkWidget *PTReset = gtk_button_new_with_label("Reset");
+			gtk_box_pack_start (GTK_BOX (ci->widget), PTReset, TRUE, TRUE, 0);
+			gtk_widget_show (PTReset);
+			g_signal_connect (GTK_BUTTON (PTReset), "clicked",
+					G_CALLBACK (PTReset_clicked), s);
+			
+			gtk_table_attach (GTK_TABLE (s->table), ci->widget, 1, 2, 3+i, 4+i,
+					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+			g_object_set_data (G_OBJECT (ci->widget), "control_info", ci);
+			ci->maxchars = MAX (num_chars (c->min), num_chars (c->max));
+			gtk_widget_show (ci->widget);
+			
+			ci->labelval = gtk_label_new (NULL);
+			desc = pango_font_description_new ();
+			pango_font_description_set_family_static (desc, "monospace");
+			gtk_widget_modify_font (ci->labelval, desc);
+			/*justify h:left and v:center*/
+			gtk_misc_set_alignment (GTK_MISC (ci->labelval), 0.0, 0.5);
+			
+			gtk_table_attach (GTK_TABLE (s->table), ci->labelval, 2, 3,
+					3+i, 4+i, GTK_EXPAND | GTK_FILL, 0, 0, 0);
+
+			ci->label = gtk_label_new (g_strdup_printf ("%s:", c->name));
+			gtk_widget_show (ci->labelval);
 		} else if (c->type == INPUT_CONTROL_TYPE_INTEGER) {
 			PangoFontDescription * desc;
 			int val;
@@ -1823,8 +1971,8 @@ draw_controls (VidState *s)
 				/*couldn't get control value -> set to default*/
 				input_set_control (videoIn, c, c->default_val);
 				gtk_range_set_value (GTK_RANGE (ci->widget), c->default_val);
-				gtk_widget_set_sensitive (ci->widget, FALSE);
-				gtk_widget_set_sensitive (ci->labelval, FALSE);
+				gtk_widget_set_sensitive (ci->widget, TRUE);
+				gtk_widget_set_sensitive (ci->labelval, TRUE);
 			}
 
 			if (!c->enabled) {
@@ -1857,7 +2005,7 @@ draw_controls (VidState *s)
 				input_set_control (videoIn, c, c->default_val);
 				gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (ci->widget),
 						c->default_val ? TRUE : FALSE);
-				gtk_widget_set_sensitive (ci->widget, FALSE);
+				gtk_widget_set_sensitive (ci->widget, TRUE);
 			}
 
 			if (!c->enabled) {
@@ -1887,7 +2035,7 @@ draw_controls (VidState *s)
 				/*couldn't get control value -> set to default*/
 				input_set_control (videoIn, c, c->default_val);
 				gtk_combo_box_set_active (GTK_COMBO_BOX (ci->widget), c->default_val);
-				gtk_widget_set_sensitive (ci->widget, FALSE);
+				gtk_widget_set_sensitive (ci->widget, TRUE);
 			}
 
 			if (!c->enabled) {
@@ -1921,7 +2069,9 @@ draw_controls (VidState *s)
 /* run in a thread (SDL overlay)*/
 void *main_loop(void *data)
 {
-	//int ret=0;
+	SDL_Event event;
+	SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY,SDL_DEFAULT_REPEAT_INTERVAL);
+	
 	while (videoIn->signalquit) {
 	 /*-------------------------- Grab Frame ----------------------------------*/
 	 if (uvcGrab(videoIn) < 0) {
@@ -2099,9 +2249,41 @@ void *main_loop(void *data)
 	/*sleep for a while*/
 	if(global->vid_sleep)
 		SDL_Delay(global->vid_sleep);
+		
+	/*------------------------- Read Key events ------------------------------*/
+	if (videoIn->PanTilt) {
+		/* Poll for events */
+    	while( SDL_PollEvent(&event) ){
+			if(event.type==SDL_KEYDOWN) {   
+                switch( event.key.keysym.sym ){
+                    /* Keyboard event */
+                    /* Pass the event data onto PrintKeyInfo() */
+                    case SDLK_DOWN:
+						/*Tilt Down*/
+						uvcPanTilt (videoIn,0,INCPANTILT*(global->TiltStep),0);
+						break;
+                    case SDLK_UP:
+                        /*Tilt UP*/
+						uvcPanTilt (videoIn,0,-INCPANTILT*(global->TiltStep),0);
+                        break;
+					case SDLK_LEFT:
+						/*Pan Left*/
+						uvcPanTilt (videoIn,-INCPANTILT*(global->PanStep),0,0);
+						break;
+					case SDLK_RIGHT:
+						/*Pan Right*/
+						uvcPanTilt (videoIn,INCPANTILT*(global->PanStep),0,0);
+						break;
+                    default:
+                        break;
+                }
+			}
+
+        }
+	}
+
 	
   }
-  
    /*check if thread exited while AVI in capture mode*/
   if (videoIn->capAVI) {
 	global->AVIstoptime = ms_time();
@@ -2143,10 +2325,10 @@ int main(int argc, char *argv[])
 						  
 	const SDL_VideoInfo *info;
 	char driver[128];
-	GtkWidget *boxv;
+	GtkWidget *scroll1;
+	GtkWidget *scroll2;
 	GtkWidget *buttons_table;
 	GtkWidget *button_labels;
-	GtkWidget *boxh;
 	GtkWidget *Resolution;
 	GtkWidget *FrameRate;
 	GtkWidget *ShowFPS;
@@ -2333,35 +2515,41 @@ int main(int argc, char *argv[])
 	/*-----------------------------GTK widgets---------------------------------*/
 	/*----- Left Table -----*/
 	s->table = gtk_table_new (1, 3, FALSE);
-	gtk_table_set_row_spacings (GTK_TABLE (s->table), 10);
+	gtk_table_set_row_spacings (GTK_TABLE (s->table), 4);
 	gtk_table_set_col_spacings (GTK_TABLE (s->table), 4);
-	gtk_container_set_border_width (GTK_CONTAINER (s->table), 6);
-	//gtk_widget_set_size_request (s->table, (global->winwidth>>1), -1);
+	gtk_container_set_border_width (GTK_CONTAINER (s->table), 2);
 	
 	s->control = NULL;
 	draw_controls(s);
 	if (global->lprofile > 0) LoadControls (s);
 	
-	boxv = gtk_vbox_new (FALSE, 0);
+	boxv = gtk_vpaned_new ();
 	
-	boxh = gtk_hbox_new (FALSE, 0);
+	boxh= gtk_hpaned_new();
 	
-	gtk_box_pack_start (GTK_BOX (boxh), s->table, TRUE, TRUE, 0);
 	gtk_widget_show (s->table);
 	gtk_widget_show (boxh);
 	
-	gtk_box_pack_start (GTK_BOX (boxv), boxh, FALSE, FALSE, 0);
+	scroll1=gtk_scrolled_window_new(NULL,NULL);
+	gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scroll1),s->table);
+	gtk_scrolled_window_set_placement(GTK_SCROLLED_WINDOW(scroll1),
+                                                                GTK_CORNER_TOP_LEFT);
+	
+	gtk_widget_show(scroll1);
+	
+	gtk_paned_add1(GTK_PANED(boxh),scroll1);
+	gtk_paned_add1(GTK_PANED(boxv),boxh);
 	
 	gtk_widget_show (boxv);
 	
 	/*----- Add  Buttons -----*/
 	buttons_table = gtk_table_new(1,7,TRUE);
-	gtk_table_set_row_spacings (GTK_TABLE (buttons_table), 10);
+	gtk_table_set_row_spacings (GTK_TABLE (buttons_table), 4);
 	gtk_table_set_col_spacings (GTK_TABLE (buttons_table), 4);
-	gtk_container_set_border_width (GTK_CONTAINER (buttons_table), 6);
+	gtk_container_set_border_width (GTK_CONTAINER (buttons_table), 2);
 	
 	gtk_widget_show (buttons_table);
-	gtk_box_pack_start (GTK_BOX (boxv), buttons_table, TRUE, TRUE, 0);
+	gtk_paned_add2(GTK_PANED(boxv),buttons_table);
 	
 	button_labels=gtk_label_new("Control Profiles:");
 	gtk_misc_set_alignment (GTK_MISC (button_labels), 0, 0.5);
@@ -2395,12 +2583,27 @@ int main(int argc, char *argv[])
 	
 	/*---- Right Table ----*/
 	table2 = gtk_table_new(1,3,FALSE);
-	gtk_table_set_row_spacings (GTK_TABLE (table2), 10);
+	gtk_table_set_row_spacings (GTK_TABLE (table2), 4);
 	gtk_table_set_col_spacings (GTK_TABLE (table2), 4);
-	gtk_container_set_border_width (GTK_CONTAINER (table2), 6);
-	//gtk_widget_set_size_request (table2, (global->winwidth>>1), -1);
-	gtk_box_pack_start (GTK_BOX (boxh), table2, FALSE, FALSE, 0);
+	gtk_container_set_border_width (GTK_CONTAINER (table2), 2);
 	gtk_widget_show (table2);
+	
+	scroll2=gtk_scrolled_window_new(NULL,NULL);
+	gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scroll2),table2);
+	gtk_scrolled_window_set_placement(GTK_SCROLLED_WINDOW(scroll2),
+                                                              GTK_CORNER_TOP_LEFT);
+	gtk_widget_show(scroll2);
+	
+	gtk_paned_add2(GTK_PANED(boxh),scroll2);
+	
+	
+	/*sets the pan position*/
+	if(((global->boxhsize)*(global->boxvsize))==0) {
+		global->boxhsize=global->winwidth>>1;
+		global->boxvsize=global->winheight-90;
+	}
+	gtk_paned_set_position (GTK_PANED(boxh),global->boxhsize);
+	gtk_paned_set_position (GTK_PANED(boxv),global->boxvsize);
 	
 	/* Resolution*/
 	Resolution = gtk_combo_box_new_text ();
@@ -2418,12 +2621,6 @@ int main(int argc, char *argv[])
 		}
 	}
 	gtk_combo_box_set_active(GTK_COMBO_BOX(Resolution),defres);
-	//~ if (defres==0) {
-		//~ global->width=videoIn->listVidCap[global->formind][0].width;
-		//~ global->height=videoIn->listVidCap[global->formind][0].height;
-		//~ videoIn->width=global->width;
-		//~ videoIn->height=global->height;
-	//~ }
 	printf("Def. Res: %i    numb. fps:%i\n",defres,videoIn->listVidCap[global->formind][defres].numb_frates);
 	gtk_table_attach(GTK_TABLE(table2), Resolution, 1, 2, 3, 4,
 					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
@@ -2525,7 +2722,6 @@ int main(int argc, char *argv[])
 	/* Image Capture*/
 	CapImageButt = gtk_button_new_with_label("Capture");
 	ImageFNameEntry = gtk_entry_new();
-	//gtk_widget_set_size_request(ImageFNameEntry,10,-1);
 	
 	gtk_entry_set_text(GTK_ENTRY(ImageFNameEntry),global->imgFPath[0]);
 	
@@ -2590,7 +2786,6 @@ int main(int argc, char *argv[])
 	
 	/*AVI Capture*/
 	AVIFNameEntry = gtk_entry_new();
-	//gtk_widget_set_size_request(AVIFNameEntry,10,-1);
 	
 	if (global->avifile) {	/*avi capture enabled from start*/
 		CapAVIButt = gtk_button_new_with_label("Stop");
@@ -2618,7 +2813,7 @@ int main(int argc, char *argv[])
 		 G_CALLBACK (file_chooser), GINT_TO_POINTER (1));
 	g_signal_connect (GTK_BUTTON(CapAVIButt), "clicked",
 		 G_CALLBACK (capture_avi), AVIFNameEntry);
-	
+	/*table 10-11: inc avi file name */
 	
 	/* AVI Compressor */
 	AVIComp = gtk_combo_box_new_text ();
@@ -2627,7 +2822,7 @@ int main(int argc, char *argv[])
 	gtk_combo_box_append_text(GTK_COMBO_BOX(AVIComp),"YUY2 - uncomp YUV");
 	gtk_combo_box_append_text(GTK_COMBO_BOX(AVIComp),"RGB - uncomp BMP");
 	
-	gtk_table_attach(GTK_TABLE(table2), AVIComp, 1, 2, 9, 10,
+	gtk_table_attach(GTK_TABLE(table2), AVIComp, 1, 2, 10, 11,
 					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (AVIComp);
 	
@@ -2640,7 +2835,7 @@ int main(int argc, char *argv[])
 	label_AVIComp = gtk_label_new("AVI Format:");
 	gtk_misc_set_alignment (GTK_MISC (label_AVIComp), 1, 0.5);
 
-	gtk_table_attach (GTK_TABLE(table2), label_AVIComp, 0, 1, 9, 10,
+	gtk_table_attach (GTK_TABLE(table2), label_AVIComp, 0, 1, 10, 11,
 					GTK_FILL, 0, 0, 0);
 
 	gtk_widget_show (label_AVIComp);
@@ -2739,10 +2934,11 @@ int main(int argc, char *argv[])
 	}
 	
 	/*--------------------- sound controls -----------------------------------*/
-	gtk_table_attach(GTK_TABLE(table2), SndDevice, 1, 3, 11, 12,
+	gtk_table_attach(GTK_TABLE(table2), SndDevice, 0, 3, 12, 13,
 					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (SndDevice);
-	if(global->Sound_UseDev==0) global->Sound_UseDev=global->Sound_DefDev;/* using default device*/
+	/* using default device*/
+	if(global->Sound_UseDev==0) global->Sound_UseDev=global->Sound_DefDev;
 	gtk_combo_box_set_active(GTK_COMBO_BOX(SndDevice),global->Sound_UseDev);
 	
 	if (global->Sound_enable) gtk_widget_set_sensitive (SndDevice, TRUE);
@@ -2751,7 +2947,7 @@ int main(int argc, char *argv[])
 		G_CALLBACK (SndDevice_changed), NULL);
 	
 	label_SndDevice = gtk_label_new("Imput Device:");
-	gtk_misc_set_alignment (GTK_MISC (label_SndDevice), 1, 0.5);
+	gtk_misc_set_alignment (GTK_MISC (label_SndDevice), 0, 0.5);
 
 	gtk_table_attach (GTK_TABLE(table2), label_SndDevice, 0, 1, 11, 12,
 					GTK_FILL, 0, 0, 0);
@@ -2763,7 +2959,7 @@ int main(int argc, char *argv[])
 	//~ printf("SOUND DISABLE: no imput devices detected\n");
 	
 	SndEnable=gtk_check_button_new_with_label (" Sound");
-	gtk_table_attach(GTK_TABLE(table2), SndEnable, 0, 1, 10, 11,
+	gtk_table_attach(GTK_TABLE(table2), SndEnable, 1, 2, 11, 12,
 					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(SndEnable),(global->Sound_enable > 0));
@@ -2781,7 +2977,7 @@ int main(int argc, char *argv[])
 	}
 	if (global->Sound_SampRateInd>(i-1)) global->Sound_SampRateInd=0; /*out of range*/
 	
-	gtk_table_attach(GTK_TABLE(table2), SndSampleRate, 1, 3, 12, 13,
+	gtk_table_attach(GTK_TABLE(table2), SndSampleRate, 1, 2, 13, 14,
 					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (SndSampleRate);
 	
@@ -2797,7 +2993,7 @@ int main(int argc, char *argv[])
 	label_SndSampRate = gtk_label_new("Sample Rate:");
 	gtk_misc_set_alignment (GTK_MISC (label_SndSampRate), 1, 0.5);
 
-	gtk_table_attach (GTK_TABLE(table2), label_SndSampRate, 0, 1, 12, 13,
+	gtk_table_attach (GTK_TABLE(table2), label_SndSampRate, 0, 1, 13, 14,
 					GTK_FILL, 0, 0, 0);
 
 	gtk_widget_show (label_SndSampRate);
@@ -2807,7 +3003,7 @@ int main(int argc, char *argv[])
 	gtk_combo_box_append_text(GTK_COMBO_BOX(SndNumChan),"1 - mono");
 	gtk_combo_box_append_text(GTK_COMBO_BOX(SndNumChan),"2 - stereo");
 	
-	gtk_table_attach(GTK_TABLE(table2), SndNumChan, 1, 3, 13, 14,
+	gtk_table_attach(GTK_TABLE(table2), SndNumChan, 1, 2, 14, 15,
 					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (SndNumChan);
 	switch (global->Sound_NumChanInd) {
@@ -2833,7 +3029,7 @@ int main(int argc, char *argv[])
 	label_SndNumChan = gtk_label_new("Chanels:");
 	gtk_misc_set_alignment (GTK_MISC (label_SndNumChan), 1, 0.5);
 
-	gtk_table_attach (GTK_TABLE(table2), label_SndNumChan, 0, 1, 13, 14,
+	gtk_table_attach (GTK_TABLE(table2), label_SndNumChan, 0, 1, 14, 15,
 					GTK_FILL, 0, 0, 0);
 
 	gtk_widget_show (label_SndNumChan);
@@ -2844,15 +3040,15 @@ int main(int argc, char *argv[])
 	label_videoFilters = gtk_label_new("---- Video Filters ----");
 	gtk_misc_set_alignment (GTK_MISC (label_videoFilters), 0.5, 0.5);
 
-	gtk_table_attach (GTK_TABLE(table2), label_videoFilters, 0, 3, 14, 15,
-					GTK_FILL, 0, 0, 0);
+	gtk_table_attach (GTK_TABLE(table2), label_videoFilters, 0, 3, 15, 16,
+					GTK_EXPAND | GTK_SHRINK | GTK_FILL , 0, 0, 0);
 
 	gtk_widget_show (label_videoFilters);
 	
 	table3 = gtk_table_new(1,4,FALSE);
-	gtk_table_set_row_spacings (GTK_TABLE (table3), 10);
-	gtk_table_set_col_spacings (GTK_TABLE (table3), 10);
-	gtk_container_set_border_width (GTK_CONTAINER (table3), 10);
+	gtk_table_set_row_spacings (GTK_TABLE (table3), 4);
+	gtk_table_set_col_spacings (GTK_TABLE (table3), 4);
+	gtk_container_set_border_width (GTK_CONTAINER (table3), 4);
 	gtk_widget_set_size_request (table3, -1, -1);
 	
 	
@@ -2894,7 +3090,7 @@ int main(int argc, char *argv[])
 	g_signal_connect (GTK_CHECK_BUTTON(FiltMonoEnable), "toggled",
 		G_CALLBACK (FiltMonoEnable_changed), NULL);
 	
-	gtk_table_attach (GTK_TABLE(table2), table3, 0, 3, 15, 16,
+	gtk_table_attach (GTK_TABLE(table2), table3, 0, 3, 16, 17,
 					GTK_FILL, 0, 0, 0);
 
 	gtk_widget_show (table3);
@@ -2924,7 +3120,7 @@ int main(int argc, char *argv[])
 	/*---------------------- image timed capture -----------------------------*/
 	if(global->image_timer){
 		global->image_timer_id=g_timeout_add(global->image_timer*1000,
-											 Image_capture_timer,NULL);
+                                                          Image_capture_timer,NULL);
 		gtk_button_set_label(GTK_BUTTON(CapImageButt),"Stop auto");
 		set_sensitive_img_contrls(FALSE);/*disable image controls*/
 	}
@@ -3011,7 +3207,6 @@ shutd (gint restart)
 		videoIn->capAVI = FALSE;
 		aviClose();
 	}
-	
 	/* Free attribute and wait for the main loop (video) thread */
 	pthread_attr_destroy(&attr);
 	int rc = pthread_join(mythread, (void *)&tstatus);
@@ -3024,6 +3219,8 @@ shutd (gint restart)
 	
 	
 	gtk_window_get_size(GTK_WINDOW(mainwin),&(global->winwidth),&(global->winheight));//mainwin or widget
+	global->boxhsize=gtk_paned_get_position (GTK_PANED(boxh));
+	global->boxvsize=gtk_paned_get_position (GTK_PANED(boxv));
 	
 	
 	close_v4l2(videoIn);
@@ -3034,7 +3231,6 @@ shutd (gint restart)
 	printf("SDL Quit\n");
 	printf("cleaned allocations - 50%%\n");
 	gtk_main_quit();
-	
 	printf("GTK quit\n");
 	writeConf(global->confPath);
 	input_free_controls (s->control, s->num_controls);

@@ -1,22 +1,31 @@
-/************************************************************************************************
-#	    guvcview              http://guvcview.berlios.de					#
-#     Paulo Assis <pj.assis@gmail.com>							        #
-#												#
-# This program is free software; you can redistribute it and/or modify         			#
-# it under the terms of the GNU General Public License as published by   			#
-# the Free Software Foundation; either version 2 of the License, or           			#
-# (at your option) any later version.                                          			#
-#                                                                              			#
-# This program is distributed in the hope that it will be useful,              			#
-# but WITHOUT ANY WARRANTY; without even the implied warranty of             		        #
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the  		                #
-# GNU General Public License for more details.                                 			#
-#                                                                              			#
-# You should have received a copy of the GNU General Public License           		        #
-# along with this program; if not, write to the Free Software                  		        #
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA		        #
-#                                                                              			#
-*************************************************************************************************/
+/*******************************************************************************#
+#	    guvcview              http://guvcview.berlios.de                    #
+#                                                                               #
+#           Paulo Assis <pj.assis@gmail.com>                                    #
+#										#
+# This program is free software; you can redistribute it and/or modify         	#
+# it under the terms of the GNU General Public License as published by   	#
+# the Free Software Foundation; either version 2 of the License, or           	#
+# (at your option) any later version.                                          	#
+#                                                                              	#
+# This program is distributed in the hope that it will be useful,              	#
+# but WITHOUT ANY WARRANTY; without even the implied warranty of             	#
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the  		#
+# GNU General Public License for more details.                                 	#
+#                                                                              	#
+# You should have received a copy of the GNU General Public License           	#
+# along with this program; if not, write to the Free Software                  	#
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA	#
+#                                                                              	#
+********************************************************************************/
+
+/*******************************************************************************#
+#                                                                               #
+#  MJpeg decoding and frame capture taken from luvcview                         #
+#                                                                               # 
+#                                                                               #
+********************************************************************************/
+
 typedef unsigned char BYTE;
 typedef  unsigned int DWORD;
 typedef  unsigned int LONG;
@@ -24,7 +33,7 @@ typedef  unsigned int UINT;
 typedef  unsigned short int WORD;
 
 
-#define VERSION ("0.7.4")
+#define VERSION ("0.8.0")
 
 /*------------- portaudio defs ----------------*/
 /*---- can be override in rc file or GUI ------*/
@@ -80,16 +89,16 @@ typedef unsigned char SAMPLE;
 
 #define INCPANTILT 64 // 1°
 
-#define WINSIZEX 700
-#define WINSIZEY 420
+#define WINSIZEX 960
+#define WINSIZEY 600
 
 #define AUTO_EXP 8
 #define MAN_EXP	1
 
 #define DHT_SIZE 432
 
-#define DEFAULT_WIDTH 320
-#define DEFAULT_HEIGHT 240
+#define DEFAULT_WIDTH 640
+#define DEFAULT_HEIGHT 480
 
 #define DEFAULT_IMAGE_FNAME "Image.jpg"
 #define DEFAULT_AVI_FNAME	"capture.avi"
@@ -174,6 +183,8 @@ struct GLOBAL {
 	int Sound_NumChanInd;
 	int Sound_NumSec;
 	int Sound_BuffFactor;
+	int PanStep;/*step angle for Pan*/
+	int TiltStep;/*step angle for Tilt*/
 	int DispFps;
 	DWORD frmCount;
 	int FpsCount;
@@ -191,6 +202,8 @@ struct GLOBAL {
 	int height;
 	int winwidth;
 	int winheight;
+	int boxhsize;
+	int boxvsize;
 	char *mode; /*jpg (default) or yuv*/
 	int format;
 	int formind; /*0-MJPG 1-YUYV*/

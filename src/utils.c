@@ -1,22 +1,30 @@
-/****************************************************************************
-#	    guvcview              http://guvcview.berlios.de					#	
-#     Paulo Assis <pj.assis@gmail.com>										#
-#																			#
-# This program is free software; you can redistribute it and/or modify      #
+/*******************************************************************************#
+#	    guvcview              http://guvcview.berlios.de                    #
+#                                                                               #
+#           Paulo Assis <pj.assis@gmail.com>                                    #
+#										#
+# This program is free software; you can redistribute it and/or modify         	#
 # it under the terms of the GNU General Public License as published by   	#
-# the Free Software Foundation; either version 2 of the License, or         #
-# (at your option) any later version.                                       #
-#                                                                           #
-# This program is distributed in the hope that it will be useful,           #
-# but WITHOUT ANY WARRANTY; without even the implied warranty of            #
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the  		    #
-# GNU General Public License for more details.                              #
-#                                                                           #
-# You should have received a copy of the GNU General Public License         #
-# along with this program; if not, write to the Free Software               #
+# the Free Software Foundation; either version 2 of the License, or           	#
+# (at your option) any later version.                                          	#
+#                                                                              	#
+# This program is distributed in the hope that it will be useful,              	#
+# but WITHOUT ANY WARRANTY; without even the implied warranty of             	#
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the  		#
+# GNU General Public License for more details.                                 	#
+#                                                                              	#
+# You should have received a copy of the GNU General Public License           	#
+# along with this program; if not, write to the Free Software                  	#
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA	#
-#                                                                           #
-*****************************************************************************/
+#                                                                              	#
+********************************************************************************/
+
+/*******************************************************************************#
+#                                                                               #
+#  MJpeg decoding and frame capture taken from luvcview                         #
+#                                                                               # 
+#                                                                               #
+********************************************************************************/
 
 #include "utils.h"
 #include "v4l2uvc.h"
@@ -1284,6 +1292,8 @@ int initGlobals (struct GLOBAL *global) {
 	global->image_inc=0;
 	global->image_npics=999;/*default max number of captures*/
 	global->frmCount=0;
+	global->PanStep=2;/*2 degree step for Pan*/
+	global->TiltStep=2;/*2 degree step for Tilt*/
 	global->DispFps=0;
 	global->fps = DEFAULT_FPS;
 	global->fps_num = DEFAULT_FPS_NUM;
@@ -1294,6 +1304,8 @@ int initGlobals (struct GLOBAL *global) {
 	global->height = DEFAULT_HEIGHT;
 	global->winwidth=WINSIZEX;
 	global->winheight=WINSIZEY;
+	global->boxhsize=0;
+	global->boxvsize=0;
 	if((global->mode = (char *) calloc(1, 5 * sizeof(char)))==NULL){
 		printf("couldn't calloc memory for:global->mode\n");
 		goto error;

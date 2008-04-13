@@ -1,3 +1,35 @@
+/*******************************************************************************#
+#	    guvcview              http://guvcview.berlios.de                    #
+#                                                                               #
+#           Paulo Assis <pj.assis@gmail.com>                                    #
+#										#
+# This program is free software; you can redistribute it and/or modify         	#
+# it under the terms of the GNU General Public License as published by   	#
+# the Free Software Foundation; either version 2 of the License, or           	#
+# (at your option) any later version.                                          	#
+#                                                                              	#
+# This program is distributed in the hope that it will be useful,              	#
+# but WITHOUT ANY WARRANTY; without even the implied warranty of             	#
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the  		#
+# GNU General Public License for more details.                                 	#
+#                                                                              	#
+# You should have received a copy of the GNU General Public License           	#
+# along with this program; if not, write to the Free Software                  	#
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA	#
+#                                                                              	#
+********************************************************************************/
+/*******************************************************************************#
+#   Some utilities for writing and reading AVI files.                           # 
+#   These are not intended to serve for a full blown                            #
+#   AVI handling software (this would be much too complex)                      #
+#   The only intention is to write out MJPEG encoded                            #
+#   AVIs with sound and to be able to read them back again.                     #
+#   These utilities should work with other types of codecs too, however.        #
+#                                                                               #
+#   Copyright (C) 1999 Rainer Johanni <Rainer@Johanni.de>                       #
+********************************************************************************/
+
+
 #ifndef AVILIB_H
 #define AVILIB_H
 #include "utils.h"
@@ -128,30 +160,6 @@ int  AVI_write_audio(avi_t *AVI, BYTE *data, long bytes);
 long AVI_bytes_remain(avi_t *AVI);
 int  AVI_close(avi_t *AVI);
 
-//avi_t *AVI_open_input_file(char *filename, int getIndex);
-
-long AVI_video_frames(avi_t *AVI);
-int  AVI_video_width(avi_t *AVI);
-int  AVI_video_height(avi_t *AVI);
-double AVI_frame_rate(avi_t *AVI);
-char* AVI_video_compressor(avi_t *AVI);
-
-int  AVI_audio_channels(avi_t *AVI);
-int  AVI_audio_bits(avi_t *AVI);
-int  AVI_audio_format(avi_t *AVI);
-long AVI_audio_rate(avi_t *AVI);
-long AVI_audio_bytes(avi_t *AVI);
-
-long AVI_frame_size(avi_t *AVI, long frame);
-//~int  AVI_seek_start(avi_t *AVI);
-//~int  AVI_set_video_position(avi_t *AVI, long frame);
-//~long AVI_read_frame(avi_t *AVI, char *vidbuf);
-//~int  AVI_set_audio_position(avi_t *AVI, long byte);
-//~long AVI_read_audio(avi_t *AVI, char *audbuf, long bytes);
-
-//~int  AVI_read_data(avi_t *AVI, char *vidbuf, long max_vidbuf,
-//~                               char *audbuf, long max_audbuf,
-//~                               long *len);
 
 void AVI_print_error(char *str);
 char *AVI_strerror();

@@ -1,28 +1,34 @@
-/*
- *  Some utilities for writing and reading AVI files.
- *  These are not intended to serve for a full blown
- *  AVI handling software (this would be much too complex)
- *  The only intention is to write out MJPEG encoded
- *  AVIs with sound and to be able to read them back again.
- *  These utilities should work with other types of codecs too, however.
- *
- *  Copyright (C) 1999 Rainer Johanni <Rainer@Johanni.de>
- *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- */
-/* Paulo Assis (6-4-2008): removed reading functions, cleaned build wranings*/
+/*******************************************************************************#
+#	    guvcview              http://guvcview.berlios.de                    #
+#                                                                               #
+#           Paulo Assis <pj.assis@gmail.com>                                    #
+#										#
+# This program is free software; you can redistribute it and/or modify         	#
+# it under the terms of the GNU General Public License as published by   	#
+# the Free Software Foundation; either version 2 of the License, or           	#
+# (at your option) any later version.                                          	#
+#                                                                              	#
+# This program is distributed in the hope that it will be useful,              	#
+# but WITHOUT ANY WARRANTY; without even the implied warranty of             	#
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the  		#
+# GNU General Public License for more details.                                 	#
+#                                                                              	#
+# You should have received a copy of the GNU General Public License           	#
+# along with this program; if not, write to the Free Software                  	#
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA	#
+#                                                                              	#
+********************************************************************************/
+/*******************************************************************************#
+#   Some utilities for writing and reading AVI files.                           # 
+#   These are not intended to serve for a full blown                            #
+#   AVI handling software (this would be much too complex)                      #
+#   The only intention is to write out MJPEG encoded                            #
+#   AVIs with sound and to be able to read them back again.                     #
+#   These utilities should work with other types of codecs too, however.        #
+#                                                                               #
+#   Copyright (C) 1999 Rainer Johanni <Rainer@Johanni.de>                       #
+********************************************************************************/
+/*  Paulo Assis (6-4-2008): removed reading functions, cleaned build wranings  */
 
 #include <stdio.h>
 #include <fcntl.h>
@@ -632,58 +638,6 @@ int AVI_close(avi_t *AVI)
    AVI_errno = x; \
    return 0; \
 }
-
-long AVI_video_frames(avi_t *AVI)
-{
-   return AVI->video_frames;
-}
-int  AVI_video_width(avi_t *AVI)
-{
-   return AVI->width;
-}
-int  AVI_video_height(avi_t *AVI)
-{
-   return AVI->height;
-}
-double AVI_frame_rate(avi_t *AVI)
-{
-   return AVI->fps;
-}
-char* AVI_video_compressor(avi_t *AVI)
-{
-   return AVI->compressor;
-}
-
-int AVI_audio_channels(avi_t *AVI)
-{
-   return AVI->a_chans;
-}
-int AVI_audio_bits(avi_t *AVI)
-{
-   return AVI->a_bits;
-}
-int AVI_audio_format(avi_t *AVI)
-{
-   return AVI->a_fmt;
-}
-long AVI_audio_rate(avi_t *AVI)
-{
-   return AVI->a_rate;
-}
-long AVI_audio_bytes(avi_t *AVI)
-{
-   return AVI->audio_bytes;
-}
-
-long AVI_frame_size(avi_t *AVI, long frame)
-{
-   if(AVI->mode==AVI_MODE_WRITE) { AVI_errno = AVI_ERR_NOT_PERM; return -1; }
-   if(!AVI->video_index)         { AVI_errno = AVI_ERR_NO_IDX;   return -1; }
-
-   if(frame < 0 || frame >= AVI->video_frames) return 0;
-   return(AVI->video_index[frame].len);
-}
-
 
 /* AVI_print_error: Print most recent error (similar to perror) */
 

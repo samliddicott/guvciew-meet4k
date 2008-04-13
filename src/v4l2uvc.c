@@ -1,23 +1,30 @@
-/*************************************************************************************************
-#	    guvcview              http://guvcview.berlios.de												#
-#     Paulo Assis <pj.assis@gmail.com>																#
-#																														#
-# This program is free software; you can redistribute it and/or modify         				#
-# it under the terms of the GNU General Public License as published by   				#
-# the Free Software Foundation; either version 2 of the License, or           				#
-# (at your option) any later version.                                          								#
-#                                                                              										#
-# This program is distributed in the hope that it will be useful,              					#
-# but WITHOUT ANY WARRANTY; without even the implied warranty of             		#
+/*******************************************************************************#
+#	    guvcview              http://guvcview.berlios.de                    #
+#                                                                               #
+#           Paulo Assis <pj.assis@gmail.com>                                    #
+#										#
+# This program is free software; you can redistribute it and/or modify         	#
+# it under the terms of the GNU General Public License as published by   	#
+# the Free Software Foundation; either version 2 of the License, or           	#
+# (at your option) any later version.                                          	#
+#                                                                              	#
+# This program is distributed in the hope that it will be useful,              	#
+# but WITHOUT ANY WARRANTY; without even the implied warranty of             	#
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the  		#
-# GNU General Public License for more details.                                 					#
-#                                                                              										#
-# You should have received a copy of the GNU General Public License           		#
-# along with this program; if not, write to the Free Software                  					#
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA		#
-#                                                                              										#
-*************************************************************************************************/
+# GNU General Public License for more details.                                 	#
+#                                                                              	#
+# You should have received a copy of the GNU General Public License           	#
+# along with this program; if not, write to the Free Software                  	#
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA	#
+#                                                                              	#
+********************************************************************************/
 
+/*******************************************************************************#
+#                                                                               #
+#  MJpeg decoding and frame capture taken from luvcview                         #
+#                                                                               # 
+#                                                                               #
+********************************************************************************/
 #include <stdlib.h>
 
 #include "v4l2uvc.h"
@@ -127,7 +134,7 @@ static struct uvc_xu_control_mapping xu_mappings[] = {
 	},
 	{
 		.id        = V4L2_CID_LED1_FREQUENCY_LOGITECH,
-		.name      = "LED1 Mode",
+		.name      = "LED1 Frequency",
 		.entity    = UVC_GUID_LOGITECH_USER_HW_CONTROL,
 		.selector  = XU_HW_CONTROL_LED1,
 		.size      = 8,
@@ -232,6 +239,7 @@ init_videoIn(struct vdIn *vd, char *device, int width, int height,
     vd->fps = fps;
 	vd->fps_num = fps_num;
     vd->signalquit = 1;
+	vd->PanTilt=0;
 	vd->setFPS=0;
     vd->width = width;
     vd->height = height;
@@ -325,8 +333,6 @@ static int query_buff(struct vdIn *vd, const int setUNMAP)
 	    	printf("Unable to query buffer (%d).\n", errno);
 	    	return 1;
 		}
-		//printf("length: %u offset: %u\n", vd->buf.length,
-		//                                   vd->buf.m.offset);
 		/* map new buffer */
 		vd->mem[i] = mmap(0 /* start anywhere */ ,
 			  vd->buf.length, PROT_READ, MAP_SHARED, vd->fd,
@@ -335,7 +341,6 @@ static int query_buff(struct vdIn *vd, const int setUNMAP)
 	    	printf("Unable to map buffer (%d)\n", errno);
 	    	return 2;
 		}
-	    //printf("Buffer mapped at address %p.\n", vd->mem[i]);
 	}
 
 	return 0;
@@ -365,12 +370,7 @@ static int queue_buff(struct vdIn *vd)
 
 int init_v4l2(struct vdIn *vd)
 {
-    //int i;
     int ret = 0;
-    
-	//~ if (vd->fd > 0) {
-        //~ close(vd->fd);
-    //~ }
 	
 	if (vd->fd <=0 ){
 	  if ((vd->fd = open(vd->videodevice, O_RDWR )) == -1) {
@@ -402,8 +402,6 @@ int init_v4l2(struct vdIn *vd)
 	       	vd->fmt.fmt.pix.width, vd->fmt.fmt.pix.height);
 			vd->width = vd->fmt.fmt.pix.width;
 			vd->height = vd->fmt.fmt.pix.height;
-	/* look the format is not part of the deal ??? */
-	//vd->formatIn = vd->fmt.fmt.pix.pixelformat;
     }
 	
 	vd->streamparm.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
@@ -489,8 +487,8 @@ int uvcGrab(struct vdIn *vd)
 
     switch (vd->formatIn) {
     	case V4L2_PIX_FMT_MJPEG:
-        	if(vd->buf.bytesused <= HEADERFRAME1) {	/* Prevent crash on empty image */
-		    //if(debug)
+        	if(vd->buf.bytesused <= HEADERFRAME1) {
+				/* Prevent crash on empty image */
 	        	printf("Ignoring empty buffer ...\n");
 	    		return 0;
         	}
@@ -500,7 +498,6 @@ int uvcGrab(struct vdIn *vd)
 	    		printf("jpeg decode errors\n");
 	    		goto err;
 			}
-	    	//	printf("bytes in used %d \n", vd->buf.bytesused);
 			break;
     	case V4L2_PIX_FMT_YUYV:
 			if (vd->buf.bytesused > vd->framesizeIn)
@@ -567,119 +564,19 @@ void close_v4l2(struct vdIn *vd)
     
 }
 
-
-//~ int v4l2ResetControl(struct vdIn *vd, int control)
-//~ {
-    //~ struct v4l2_control control_s;
-    //~ struct v4l2_queryctrl queryctrl;
-    //~ int val_def;
-    //~ int err;
-    //~ if (isv4l2Control(vd, control, &queryctrl) < 0)
-	//~ return -1;
-    //~ val_def = queryctrl.default_value;
-    //~ control_s.id = control;
-    //~ control_s.value = val_def;
-    //~ if ((err = ioctl(vd->fd, VIDIOC_S_CTRL, &control_s)) < 0) {
-	//~ printf("ioctl reset control error\n");
-	//~ return -1;
-    //~ }
-
-    //~ return 0;
-//~ }
-//~ int v4l2ResetPanTilt(struct vdIn *vd,int pantilt)
-//~ {
-    //~ int control = V4L2_CID_PANTILT_RESET;
-    //~ struct v4l2_control control_s;
-    //~ struct v4l2_queryctrl queryctrl;
-    //~ unsigned char val;
-    //~ int err;
-    //~ if (isv4l2Control(vd, control, &queryctrl) < 0)
-	//~ return -1;
-    //~ val = (unsigned char) pantilt;
-    //~ control_s.id = control;
-    //~ control_s.value = val;
-    //~ if ((err = ioctl(vd->fd, VIDIOC_S_CTRL, &control_s)) < 0) {
-	//~ printf("ioctl reset Pan control error\n");
-	//~ return -1;
-    //~ }
-
-    //~ return 0;
-//~ }
-//~ union pantilt {
-	//~ struct {
-		//~ short pan;
-		//~ short tilt;
-	//~ } s16;
-	//~ int value;
-//~ } pantilt;
-	
-//~ int v4L2UpDownPan(struct vdIn *vd, short inc)
-//~ {   int control = V4L2_CID_PANTILT_RELATIVE;
-    //~ struct v4l2_control control_s;
-    //~ struct v4l2_queryctrl queryctrl;
-    //~ int err;
-    
-   //~ union pantilt pan;
-   
-       //~ control_s.id = control;
-     //~ if (isv4l2Control(vd, control, &queryctrl) < 0)
-        //~ return -1;
-
-  //~ pan.s16.pan = inc;
-  //~ pan.s16.tilt = 0;
- 
-	//~ control_s.value = pan.value ;
-    //~ if ((err = ioctl(vd->fd, VIDIOC_S_CTRL, &control_s)) < 0) {
-	//~ printf("ioctl pan updown control error\n");
-	//~ return -1;
-	//~ }
-	//~ return 0;
-//~ }
-
-//~ int v4L2UpDownTilt(struct vdIn *vd, short inc)
-//~ {   int control = V4L2_CID_PANTILT_RELATIVE;
-    //~ struct v4l2_control control_s;
-    //~ struct v4l2_queryctrl queryctrl;
-    //~ int err;
-     //~ union pantilt pan;  
-       //~ control_s.id = control;
-     //~ if (isv4l2Control(vd, control, &queryctrl) < 0)
-	//~ return -1;  
-
-    //~ pan.s16.pan= 0;
-    //~ pan.s16.tilt = inc;
-  
-	//~ control_s.value = pan.value;
-    //~ if ((err = ioctl(vd->fd, VIDIOC_S_CTRL, &control_s)) < 0) {
-	//~ printf("ioctl tiltupdown control error\n");
-	//~ return -1;
-	//~ }
-	//~ return 0;
-//~ }
-
-
 int
 input_get_control (struct vdIn * device, InputControl * control, int * val)
 {
     int fd, ret;
     struct v4l2_control c;
 
-    //~ if (device->fd < 0) {
-        //~ fd = open (device->videodevice, O_RDWR | O_NONBLOCK, 0);
-        //~ if (fd < 0)
-            //~ return -1;
-    //~ }
-    //~ else {
     fd = device->fd;
-    //~ }
+ 
 
     c.id  = control->id;
     ret = ioctl (fd, VIDIOC_G_CTRL, &c);
     if (ret == 0)
         *val = c.value;
-
-    //~ if (device->fd < 0)
-        //~ close(fd);
 
     return ret;
 }
@@ -691,39 +588,23 @@ input_set_control (struct vdIn * device, InputControl * control, int val)
     int fd, ret;
     struct v4l2_control c;
 
-    //~ if (device->fd < 0) {
-        //~ fd = open (device->videodevice, O_RDWR | O_NONBLOCK, 0);
-        //~ if (fd < 0)
-            //~ return -1;
-    //~ }
-    //~ else {
     fd = device->fd;
-    //~ }
+
 
     c.id  = control->id;
     c.value = val;
     ret = ioctl (fd, VIDIOC_S_CTRL, &c);
-
-    //~ if (device->fd < 0)
-        //~ close(fd);
 
     return ret;
 }
 
 int
 input_set_framerate (struct vdIn * device)
-{
-   
+{  
 	int fd, ret;
 
-    //~ if (device->fd < 0) {
-        //~ fd = open (device->videodevice, O_RDWR | O_NONBLOCK, 0);
-        //~ if (fd < 0)
-            //~ return -1;
-    //~ }
-    //~ else {
 	fd = device->fd;
-    //~ }
+    
 	device->streamparm.parm.capture.timeperframe.numerator = device->fps_num;
 	device->streamparm.parm.capture.timeperframe.denominator = device->fps;
 	 
@@ -731,13 +612,6 @@ input_set_framerate (struct vdIn * device)
 	if (ret < 0) {
 		printf("Unable to set timeperframe: %d.\n", errno);
 	} 
-	//~ else {
-		//~ device->fps = fps;
-		//~ device->fps_num = fps_num;
-	//~ }		
-
-    //~ if (device->fd < 0)
-        //~ close(fd);
 
 	return ret;
 }
@@ -748,29 +622,18 @@ input_get_framerate (struct vdIn * device)
    
     int fd, ret, fps, fps_num;
 
-    //~ if (device->fd < 0) {
-        //~ fd = open (device->videodevice, O_RDWR | O_NONBLOCK, 0);
-        //~ if (fd < 0)
-            //~ return -1;
-    //~ }
-    //~ else {
-        fd = device->fd;
-    //~ }
+    fd = device->fd;
     
 	ret = ioctl(fd,VIDIOC_G_PARM,&device->streamparm);
 	if (ret < 0) {
-	printf("Unable to get timeperframe: %d.\n", errno);
+		printf("Unable to get timeperframe: %d.\n", errno);
 	} else {
 		/*it seems numerator is allways 1*/
-	 fps = device->streamparm.parm.capture.timeperframe.denominator;
-	 fps_num = device->streamparm.parm.capture.timeperframe.numerator;
-	 device->fps=fps;
-	 device->fps_num=fps_num;
+		fps = device->streamparm.parm.capture.timeperframe.denominator;
+	 	fps_num = device->streamparm.parm.capture.timeperframe.numerator;
+	 	device->fps=fps;
+	 	device->fps_num=fps_num;
 	}		
-
-    //~ if (device->fd < 0)
-        //~ close(fd);
-
     return ret;
 }
 
@@ -782,15 +645,7 @@ input_enum_controls (struct vdIn * device, int * num_controls)
     int n = 0;
     struct v4l2_queryctrl queryctrl;
     int i;
-
-    //~ if (device->fd < 0) {
-        //~ fd = open (device->videodevice, O_RDWR | O_NONBLOCK, 0);
-        //~ if (fd < 0)
-            //~ return NULL;
-    //~ }
-    //~ else {
-        fd = device->fd;
-    //~ }
+    fd = device->fd;
 	
 	initDynCtrls(device);
     
@@ -799,13 +654,11 @@ input_enum_controls (struct vdIn * device, int * num_controls)
         queryctrl.id = i;
         if (ioctl (fd, VIDIOC_QUERYCTRL, &queryctrl) == 0 &&
                 !(queryctrl.flags & V4L2_CTRL_FLAG_DISABLED)) {
-            //printf ("%x %d %s %d\n", queryctrl.id, queryctrl.type, queryctrl.name, queryctrl.flags);
             control = realloc (control, (n+1)*sizeof (InputControl));
             control[n].i = n;
             control[n].id = queryctrl.id;
             control[n].type = queryctrl.type;
             control[n].name = strdup ((char *)queryctrl.name);
-            //printf ("%s\n", control[n].name);
             control[n].min = queryctrl.minimum;
             control[n].max = queryctrl.maximum;
             control[n].step = queryctrl.step;
@@ -816,7 +669,8 @@ input_enum_controls (struct vdIn * device, int * num_controls)
 				control[n].min = 0;
 				control[n].max = 1;
 				control[n].step = 1;
-				control[n].default_val=(queryctrl.default_value & 0x0001); /*get the first bit*/
+				/*get the first bit*/
+				control[n].default_val=(queryctrl.default_value & 0x0001);
 			} else if (queryctrl.type == V4L2_CTRL_TYPE_MENU) {
                 struct v4l2_querymenu querymenu;
                 control[n].min = 0;
@@ -834,7 +688,7 @@ input_enum_controls (struct vdIn * device, int * num_controls)
             n++;
         }
         i++;
-       	if (i == V4L2_CID_LAST_NEW)  /* */
+       	if (i == V4L2_CID_LAST_NEW)  /* jump between CIDs*/
        		i = V4L2_CID_CAMERA_CLASS_BASE;
 	   	if (i == V4L2_CID_CAMERA_CLASS_LAST)
 			i = V4L2_CID_PRIVATE_BASE;
@@ -845,8 +699,6 @@ input_enum_controls (struct vdIn * device, int * num_controls)
 
     *num_controls = n;
 		
-    //~ if (device->fd < 0)
-        //~ close(fd);
 
    return control;
 }

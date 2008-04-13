@@ -1,3 +1,31 @@
+/*******************************************************************************#
+#	    guvcview              http://guvcview.berlios.de                    #
+#                                                                               #
+#           Paulo Assis <pj.assis@gmail.com>                                    #
+#										#
+# This program is free software; you can redistribute it and/or modify         	#
+# it under the terms of the GNU General Public License as published by   	#
+# the Free Software Foundation; either version 2 of the License, or           	#
+# (at your option) any later version.                                          	#
+#                                                                              	#
+# This program is distributed in the hope that it will be useful,              	#
+# but WITHOUT ANY WARRANTY; without even the implied warranty of             	#
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the  		#
+# GNU General Public License for more details.                                 	#
+#                                                                              	#
+# You should have received a copy of the GNU General Public License           	#
+# along with this program; if not, write to the Free Software                  	#
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA	#
+#                                                                              	#
+********************************************************************************/
+
+/*******************************************************************************#
+#                                                                               #
+#  dct for Jpeg encoder                                                         #
+#                                                                               # 
+#  Adapted for linux, Paulo Assis, 2007 <pj.assis@gmail.com>                    #
+********************************************************************************/
+
 #include "datatype.h"
 
 
@@ -27,9 +55,9 @@ void DCT (INT16 *data)
 	static const UINT16 c1=1420;	/* cos PI/16 * root(2)	*/
 	static const UINT16 c2=1338;	/* cos PI/8 * root(2)	*/
 	static const UINT16 c3=1204;	/* cos 3PI/16 * root(2)	*/
-	static const UINT16 c5=805;		/* cos 5PI/16 * root(2)	*/
-	static const UINT16 c6=554;		/* cos 3PI/8 * root(2)	*/
-	static const UINT16 c7=283;		/* cos 7PI/16 * root(2)	*/
+	static const UINT16 c5=805;	/* cos 5PI/16 * root(2)	*/
+	static const UINT16 c6=554;	/* cos 3PI/8 * root(2)	*/
+	static const UINT16 c7=283;	/* cos 7PI/16 * root(2)	*/
 
 	static const UINT16 s1=3;
 	static const UINT16 s2=10;

@@ -1,23 +1,30 @@
-/*************************************************************************************************
-#	    guvcview              http://guvcview.berlios.de												#
-#     Paulo Assis <pj.assis@gmail.com>																#
-#																														#
-# This program is free software; you can redistribute it and/or modify         				#
-# it under the terms of the GNU General Public License as published by   				#
-# the Free Software Foundation; either version 2 of the License, or           				#
-# (at your option) any later version.                                          								#
-#                                                                              										#
-# This program is distributed in the hope that it will be useful,              					#
-# but WITHOUT ANY WARRANTY; without even the implied warranty of             		#
+/*******************************************************************************#
+#	    guvcview              http://guvcview.berlios.de                    #
+#                                                                               #
+#           Paulo Assis <pj.assis@gmail.com>                                    #
+#										#
+# This program is free software; you can redistribute it and/or modify         	#
+# it under the terms of the GNU General Public License as published by   	#
+# the Free Software Foundation; either version 2 of the License, or           	#
+# (at your option) any later version.                                          	#
+#                                                                              	#
+# This program is distributed in the hope that it will be useful,              	#
+# but WITHOUT ANY WARRANTY; without even the implied warranty of             	#
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the  		#
-# GNU General Public License for more details.                                 					#
-#                                                                              										#
-# You should have received a copy of the GNU General Public License           		#
-# along with this program; if not, write to the Free Software                  					#
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA		#
-#                                                                              										#
-*************************************************************************************************/
+# GNU General Public License for more details.                                 	#
+#                                                                              	#
+# You should have received a copy of the GNU General Public License           	#
+# along with this program; if not, write to the Free Software                  	#
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA	#
+#                                                                              	#
+********************************************************************************/
 
+/*******************************************************************************#
+#                                                                               #
+#  MJpeg decoding and frame capture taken from luvcview                         #
+#                                                                               # 
+#                                                                               #
+********************************************************************************/
 #include <stdio.h>
 #include <string.h>
 #include <fcntl.h>
@@ -110,29 +117,6 @@ enum v4l2_power_line_frequency {
 	V4L2_CID_POWER_LINE_FREQUENCY_60HZ	= 2,
 };
 
-/*
-* Extended control API
-*/
-//~ struct v4l2_ext_control
-//~ {
-	//~ __u32 id;
-	//~ __u32 reserved2[2];
-	//~ union {
-		//~ __s32 value;
-		//~ __s64 value64;
-		//~ void *reserved;
-	//~ };
-//~ } __attribute__ ((packed));
-	
-//~ struct v4l2_ext_controls
-//~ {
-	//~ __u32 ctrl_class;
-	//~ __u32 count;
-	//~ __u32 error_idx;
-	//~ __u32 reserved[2];
-	//~ struct v4l2_ext_control *controls;
-//~ };
-
 
 #define UVC_DYN_CONTROLS
 /*
@@ -221,24 +205,6 @@ struct uvc_xu_control {
 #define UVCIOC_CTRL_GET		_IOWR ('U', 3, struct uvc_xu_control)
 #define UVCIOC_CTRL_SET		_IOW  ('U', 4, struct uvc_xu_control)
 
-//~ static struct uvc_xu_control_info ci = {
-    //~ .entity = UVC_GUID_LOGITECH_MOTOR_CONTROL,
-    //~ .selector = XU_MOTORCONTROL_FOCUS,
-    //~ .index = 2,
-    //~ .size = 6,
-    //~ .flags = UVC_CONTROL_SET_CUR|UVC_CONTROL_GET_MIN|UVC_CONTROL_GET_MAX|UVC_CONTROL_GET_DEF
-//~ };
-  
-//~ static struct uvc_xu_control_mapping cm = {
-    //~ .id = V4L2_CID_FOCUS_LOGITECH,
-    //~ .name = "Focus",
-    //~ .entity = UVC_GUID_LOGITECH_MOTOR_CONTROL,
-    //~ .selector = XU_MOTORCONTROL_FOCUS,
-    //~ .size=8,
-    //~ .offset=0,
-    //~ .v4l2_type=V4L2_CTRL_TYPE_INTEGER,
-    //~ .data_type=UVC_CTRL_DATA_TYPE_UNSIGNED
-//~ };
 #endif  
   
 #define MAX_LIST_FPS (10)
@@ -253,51 +219,41 @@ typedef struct _VidCap {
 } VidCap;
 
 struct vdIn {
-    int fd;
+    	int fd;
 	char *videodevice;
-    char *status;
-    //char *pictName;
-    struct v4l2_capability cap;
-    struct v4l2_format fmt;
-    struct v4l2_buffer buf;
-    struct v4l2_requestbuffers rb;
-    struct v4l2_timecode timecode;
-    void *mem[NB_BUFFER];
-    unsigned char *tmpbuffer;
-    unsigned char *framebuffer;
-    int isstreaming;
-    int setFPS;
-    int grabmethod;
-    int width;
-    int height;
+    	char *status;
+    	struct v4l2_capability cap;
+    	struct v4l2_format fmt;
+    	struct v4l2_buffer buf;
+    	struct v4l2_requestbuffers rb;
+    	struct v4l2_timecode timecode;
+    	void *mem[NB_BUFFER];
+    	unsigned char *tmpbuffer;
+   	 unsigned char *framebuffer;
+   	 int isstreaming;
+    	int setFPS;
+	int PanTilt; /*1-if PanTilt Camera; 0-otherwise*/
+    	int grabmethod;
+    	int width;
+    	int height;
 	int numb_resol;
 	int SupYuv;
 	int SupMjpg;
-    int formatIn;
-    int formatOut;
-    int framesizeIn;
-    int signalquit;
-    int capAVI;
-    char *AVIFName;
-    int fps;
+    	int formatIn;
+    	int formatOut;
+    	int framesizeIn;
+    	int signalquit;
+    	int capAVI;
+    	char *AVIFName;
+    	int fps;
 	int fps_num;
-    //~ int getPict;
-    int capImage;
-    char *ImageFName;
-    //~ int rawFrameCapture;
-    //~ /* raw frame capture */
-    //~ unsigned int fileCounter;
-    //~ /* raw frame stream capture */
-    //~ unsigned int rfsFramesWritten;
-    //~ unsigned int rfsBytesWritten;
-    //~ /* raw stream capture */
-    //~ FILE *captureFile;
-    //~ unsigned int framesWritten;
-    //~ unsigned int bytesWritten;
+    	int capImage;
+    	char *ImageFName;
 	struct v4l2_streamparm streamparm;
 	int available_exp[4];
-	VidCap listVidCap[2][MAX_LIST_VIDCAP];/*2 supported formats 0-MJPG and 1-YUYV*/
-						 				  /* 20 settings for each format         */
+	/* 2 supported formats 0-MJPG and 1-YUYV */
+	/* 20 settings for each format           */
+	VidCap listVidCap[2][MAX_LIST_VIDCAP];
 };
 
 
@@ -342,22 +298,15 @@ typedef struct _VidState {
 } VidState;
 
 
-//VidCap listVidCap[2][MAX_LIST_VIDCAP];/*2 supported formats 0-MJPG and 1-YUYV*/
-						 /* 20 settings for each format*/
-
 int check_videoIn(struct vdIn *vd);
 
 int
 init_videoIn(struct vdIn *vd, char *device, int width, int height,
 	     int format, int grabmethod, int fps, int fps_num);
-//~ int change_format(struct vdIn *vd);
+
 int uvcGrab(struct vdIn *vd);
 void close_v4l2(struct vdIn *vd);
-	
-//~ int v4l2ResetControl(struct vdIn *vd, int control);
-//~ int v4l2ResetPanTilt(struct vdIn *vd,int pantilt);
-//~ int v4L2UpDownPan(struct vdIn *vd, short inc);
-//~ int v4L2UpDownTilt(struct vdIn *vd,short inc);
+
 
 int input_get_control (struct vdIn * device, InputControl * control, int * val);
 int input_set_control (struct vdIn * device, InputControl * control, int val);
