@@ -6,3 +6,94 @@ guvcview (0.8.0) stable; urgency=low
 
  -- Paulo Assis <pj.assis@gmail.com>  Wed, 09 Jan 2008 19:07:18 +0000
 
+guvcview (0.7.4) stable; urgency=low
+
+   * Added File Auto name checkbox
+   * Added File increment label
+
+ -- Paulo Assis <pj.assis@gmail.com>  Wed, 09 Jan 2008 19:07:18 +0000
+
+guvcview (0.7.3) stable; urgency=low
+
+   * Added file name increment for multiple captures
+   * Added timed capture mode
+   * Fixed Pan/Tilt controls
+
+ -- Paulo Assis <pj.assis@gmail.com>  Wed, 09 Jan 2008 19:07:18 +0000
+
+guvcview (0.7.1) stable; urgency=low
+
+   * Fixed Backlight Compensation
+   * Added Dynamic Controls
+   * Added video loop sleep time to rc file
+
+ -- Paulo Assis <pj.assis@gmail.com>  Wed, 09 Jan 2008 19:07:18 +0000
+
+guvcview (0.7.0) stable; urgency=low
+
+   * Fixed Cell padding (auto resize widgets)
+   * Fixed Mono filter
+   * Added quit button
+   * Added sound capture parameters to rc file
+   * Added device string to rc file
+
+ -- Paulo Assis <pj.assis@gmail.com>  Wed, 09 Jan 2008 19:07:18 +0000
+
+guvcview (0.6.2) stable; urgency=low
+
+   * Replace '~' by home dir in Path entry
+   * added fps counter command line option '-p'
+   * added input mode combo box (jpg - yuv)
+
+ -- Paulo Assis <pj.assis@gmail.com>  Wed, 09 Jan 2008 19:07:18 +0000
+
+guvcview (0.6.1) stable; urgency=low
+
+   * fixed memory allocation bug for jpeg encoder buffer
+   * added video filters to rc file
+
+ -- Paulo Assis <pj.assis@gmail.com>  Wed, 09 Jan 2008 19:07:18 +0000
+
+guvcview (0.6.0) unstable; urgency=low
+
+   * Added image filters
+   * Added built-in jpeg encoder (allows jpeg and MJPG compression with
+     filters and in yuv mode)
+   * Changed Exposure settings to comboBox (compatibility with V4L2)
+
+ -- Paulo Assis <pj.assis@gmail.com>  Wed, 09 Jan 2008 19:07:18 +0000
+
+guvcview (0.5.4) unstable; urgency=low
+
+  * Adds [-t seconds] and [-n filename.avi] command line options - timer used
+    with -n will capture filename.avi for specified number of seconds
+  * Stores avi and sound options to rc file. The options will be remembered in
+    the next session.
+  * Moved global variables to global structure. Allows bether cleanup.
+  * Increased audio input buffer - will avoid droping frames in the begining
+    of capture in slower machines.
+  * Improved sync system for video-audio.
+  * Cleanup of some non-used variables.
+
+ -- Paulo Assis <pj.assis@gmail.com>  Wed, 09 Jan 2008 19:07:18 +0000
+
+guvcview (0.5.2-1) unstable; urgency=low
+
+  * fixes a restart bug when guvcview is started from system path
+
+ -- Paulo Assis <pj.assis@gmail.com>  Wed, 09 Jan 2008 19:07:18 +0000
+
+guvcview (0.5.1-0) unstable; urgency=low
+
+  * disables sound and avi compression controls when in avi capture
+  * some bug fixing for sound capture.
+
+ -- Paulo Assis <pj.assis@gmail.com>  Wed, 09 Jan 2008 19:07:18 +0000
+
+guvcview (0.5.0-beta) unstable; urgency=low
+
+  * Adds basic sound support to AVI capture
+  * AVI video set by default to MJPG
+
+
+ -- Paulo Assis <pj.assis@gmail.com>  Wed, 09 Jan 2008 19:07:18 +0000
