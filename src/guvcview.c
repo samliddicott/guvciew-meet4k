@@ -1294,6 +1294,9 @@ file_chooser (GtkButton * FileButt, const int isAVI)
 static void
 capture_image (GtkButton * CapImageButt, GtkWidget * ImageFNameEntry)
 {
+	int fsize=20;
+	int sfname=120;
+	
 	const char *fileEntr=gtk_entry_get_text(GTK_ENTRY(ImageFNameEntry));
 	if(strcmp(fileEntr,global->imgFPath[0])!=0) {
 		/*reset if entry change from last capture*/
@@ -1306,31 +1309,32 @@ capture_image (GtkButton * CapImageButt, GtkWidget * ImageFNameEntry)
 		/*set the file type*/
 		gtk_combo_box_set_active(GTK_COMBO_BOX(ImageType),global->imgFormat);
 	}
-	int fsize=strlen(global->imgFPath[0]);
-	int sfname=strlen(global->imgFPath[1])+fsize+10;
+	fsize=strlen(global->imgFPath[0]);
+	sfname=strlen(global->imgFPath[1])+fsize+10;
 	char filename[sfname]; /*10 - digits for auto increment*/
-	
 	snprintf(global->imageinc_str,19,"File inc:%d",global->image_inc);
 	gtk_label_set_text(GTK_LABEL(ImageIncLabel), global->imageinc_str);
 	
 	if ((global->image_timer == 0) && (global->image_inc>0)) {
 		char basename[fsize];
-		char extension[3];
+		char extension[4];
 		sscanf(global->imgFPath[0],"%[^.].%3c",basename,extension);
-		
-		sprintf(filename,"%s/%s-%d.%s",global->imgFPath[1],basename,
+		extension[3]='\0';
+		snprintf(filename,sfname,"%s/%s-%d.%s",global->imgFPath[1],basename,
 				            global->image_inc,extension);
 		
 		global->image_inc++;
 	} else {
-		sprintf(filename,"%s/%s", global->imgFPath[1],global->imgFPath[0]);
+		//printf("fsize=%d bytes fname=%d bytes\n",fsize,sfname);
+		snprintf(filename,sfname,"%s/%s", global->imgFPath[1],global->imgFPath[0]);
 	}
-	if ((sfname>120) && sfname>strlen(videoIn->ImageFName)) {
-		printf("realloc image file name by %d bytes.\n",sfname+1);
-		videoIn->ImageFName=realloc(videoIn->ImageFName,sfname+1);
+	if ((sfname>120) && (sfname>strlen(videoIn->ImageFName))) {
+		printf("realloc image file name by %d bytes.\n",sfname);
+		videoIn->ImageFName=realloc(videoIn->ImageFName,sfname);
+		if (videoIn->ImageFName==NULL) exit(-1);
 	}
-	videoIn->ImageFName=strncpy(videoIn->ImageFName,filename,sfname);
-	
+	//videoIn->ImageFName=strncpy(videoIn->ImageFName,filename,sfname);
+	snprintf(videoIn->ImageFName,sfname,"%s",filename);
 	if(global->image_timer > 0) { 
 		/*auto capture on -> stop it*/
 		if (global->image_timer_id > 0) g_source_remove(global->image_timer_id);

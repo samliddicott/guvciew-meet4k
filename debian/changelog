@@ -1,3 +1,9 @@
+guvcview (0.8.1) stable; urgency=low
+
+   * Fixed Debian Testing (lenny) image file name icrement bug.
+
+ -- Paulo Assis <pj.assis@gmail.com>  Wed, 19 Apr 2008 22:25:18 +0000
+
 guvcview (0.8.0) stable; urgency=low
 
    * Fixed Pan/Tilt and Focus Control
