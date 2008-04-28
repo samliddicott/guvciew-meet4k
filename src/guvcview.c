@@ -673,7 +673,7 @@ int AVIAudioAdd(void *data) {
 	numBytes = numSamples * sizeof(SAMPLE);
 	
 	recordedSamples = (SAMPLE *) malloc( numBytes );
-	printf("DEBUG: recorded Samples, malloc(%i)\n",numBytes);
+	printf("DEBUG: recorded Samples, malloc(%ld)\n",numBytes);
 	
 	if( recordedSamples == NULL )
 	{
@@ -686,7 +686,7 @@ int AVIAudioAdd(void *data) {
 	for ( i=0; i<numSamples; i++ ) recordedSamples[i] = 0;/*init to zero - silence*/
 	SDL_Delay(100); /*wait to make sure main loop as stoped writing to avi*/
 	AVI_set_audio(AviOut, global->Sound_NumChan, global->Sound_SampRate, sizeof(SAMPLE)*8,WAVE_FORMAT_PCM);
-	printf("sample size: %i bits\n",sizeof(SAMPLE)*8);
+	printf("sample size: %lu bits\n",sizeof(SAMPLE)*8);
 	
 	/* Audio Capture allways starts last (delay due to thread initialization)*/
 	int synctime= global->snd_begintime - global->AVIstarttime; /*time diff for audio-video*/
@@ -2951,7 +2951,7 @@ int main(int argc, char *argv[])
 	g_signal_connect (GTK_COMBO_BOX(SndDevice), "changed",
 		G_CALLBACK (SndDevice_changed), NULL);
 	
-	label_SndDevice = gtk_label_new("Imput Device:");
+	label_SndDevice = gtk_label_new("Input Device:");
 	gtk_misc_set_alignment (GTK_MISC (label_SndDevice), 0, 0.5);
 
 	gtk_table_attach (GTK_TABLE(table2), label_SndDevice, 0, 1, 11, 12,
@@ -2961,7 +2961,7 @@ int main(int argc, char *argv[])
 	
 	
 	//~ if (Sound_numInputDev == 0) Sound_enable=0;
-	//~ printf("SOUND DISABLE: no imput devices detected\n");
+	//~ printf("SOUND DISABLE: no input devices detected\n");
 	
 	SndEnable=gtk_check_button_new_with_label (" Sound");
 	gtk_table_attach(GTK_TABLE(table2), SndEnable, 1, 2, 11, 12,
