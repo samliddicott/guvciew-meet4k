@@ -671,9 +671,10 @@ int AVIAudioAdd(void *data) {
 	numSamples = totalFrames * global->Sound_NumChan;
  
 	numBytes = numSamples * sizeof(SAMPLE);
-
+	
 	recordedSamples = (SAMPLE *) malloc( numBytes );
-
+	printf("DEBUG: recorded Samples, malloc(%i)\n",numBytes);
+	
 	if( recordedSamples == NULL )
 	{
 		printf("Could not allocate record array.\n");
