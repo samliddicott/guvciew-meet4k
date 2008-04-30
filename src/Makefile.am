@@ -36,7 +36,7 @@ guvcview_SOURCES = \
 	quant.c	\
 	readYUV.c	
 
-guvcview_LDFLAGS = 
+guvcview_LDFLAGS =
 
 guvcview_LDADD = $(PACKAGE_LIBS)
 

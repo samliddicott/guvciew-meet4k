@@ -100,18 +100,8 @@ pthread_attr_t sndattr;
 /* parameters passed when restarting*/
 char *EXEC_CALL;
 
-/*the main SDL surface*/
-SDL_Surface *pscreen = NULL;
-
-SDL_Surface *ImageSurf = NULL;
-SDL_Overlay *overlay=NULL;
-SDL_Rect drect;
-SDL_Event sdlevent;
 
 avi_t *AviOut;
-BYTE *p = NULL;
-BYTE *pim= NULL;
-BYTE *pavi=NULL;
 
 /*exposure menu for old type controls */
 static const char *exp_typ[]={"MANUAL",
@@ -686,7 +676,7 @@ int AVIAudioAdd(void *data) {
 	for ( i=0; i<numSamples; i++ ) recordedSamples[i] = 0;/*init to zero - silence*/
 	SDL_Delay(100); /*wait to make sure main loop as stoped writing to avi*/
 	AVI_set_audio(AviOut, global->Sound_NumChan, global->Sound_SampRate, sizeof(SAMPLE)*8,WAVE_FORMAT_PCM);
-	printf("sample size: %lu bits\n",sizeof(SAMPLE)*8);
+	printf("sample size: %u bits\n",sizeof(SAMPLE)*8);
 	
 	/* Audio Capture allways starts last (delay due to thread initialization)*/
 	int synctime= global->snd_begintime - global->AVIstarttime; /*time diff for audio-video*/
@@ -2074,8 +2064,35 @@ draw_controls (VidState *s)
 /* run in a thread (SDL overlay)*/
 void *main_loop(void *data)
 {
+	
+	/*the main SDL surface*/
+	SDL_Surface *pscreen = NULL;
+	SDL_Overlay *overlay=NULL;
+	SDL_Rect drect;
 	SDL_Event event;
 	SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY,SDL_DEFAULT_REPEAT_INTERVAL);
+	BYTE *p = NULL;
+	BYTE *pim= NULL;
+	BYTE *pavi=NULL;
+	
+	/*------------------------------ SDL init video ---------------------*/
+	pscreen =
+	SDL_SetVideoMode(videoIn->width, videoIn->height, global->bpp,
+			 SDL_VIDEO_Flags);
+	overlay =
+	SDL_CreateYUVOverlay(videoIn->width, videoIn->height,
+				 SDL_YUY2_OVERLAY, pscreen);
+	
+	p = (unsigned char *) overlay->pixels[0];
+	
+	drect.x = 0;
+	drect.y = 0;
+	drect.w = pscreen->w;
+	drect.h = pscreen->h;
+
+	SDL_WM_SetCaption(global->WVcaption, NULL);
+	
+	
 	
 	while (videoIn->signalquit) {
 	 /*-------------------------- Grab Frame ----------------------------------*/
@@ -3099,23 +3116,6 @@ int main(int argc, char *argv[])
 					GTK_FILL, 0, 0, 0);
 
 	gtk_widget_show (table3);
-	
-/*------------------------------ SDL init video ---------------------*/
-	pscreen =
-	SDL_SetVideoMode(videoIn->width, videoIn->height, global->bpp,
-			 SDL_VIDEO_Flags);
-	overlay =
-	SDL_CreateYUVOverlay(videoIn->width, videoIn->height,
-				 SDL_YUY2_OVERLAY, pscreen);
-	
-	p = (unsigned char *) overlay->pixels[0];
-	
-	drect.x = 0;
-	drect.y = 0;
-	drect.w = pscreen->w;
-	drect.h = pscreen->h;
-
-	SDL_WM_SetCaption(global->WVcaption, NULL);
 	
 	/* main container */
 	gtk_container_add (GTK_CONTAINER (mainwin), boxv);
