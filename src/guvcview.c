@@ -2070,6 +2070,75 @@ void *main_loop(void *data)
 	BYTE *p = NULL;
 	BYTE *pim= NULL;
 	BYTE *pavi=NULL;
+	const SDL_VideoInfo *info;
+	char driver[128];
+	
+	/*----------------------------- Test SDL capabilities ---------------------*/
+	if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER) < 0) {
+	fprintf(stderr, "Couldn't initialize SDL: %s\n", SDL_GetError());
+	exit(1);
+	}
+	
+	/* For this version, we will use hardware acceleration as default*/
+	if(global->hwaccel) {
+		if ( ! getenv("SDL_VIDEO_YUV_HWACCEL") ) {
+			putenv("SDL_VIDEO_YUV_HWACCEL=1");
+		}
+		if ( ! getenv("SDL_VIDEO_YUV_DIRECT") ) {
+			putenv("SDL_VIDEO_YUV_DIRECT=1"); 
+		}
+	 } else {
+		if ( ! getenv("SDL_VIDEO_YUV_HWACCEL") ) {
+			putenv("SDL_VIDEO_YUV_HWACCEL=0");
+		}
+		if ( ! getenv("SDL_VIDEO_YUV_DIRECT") ) {
+			putenv("SDL_VIDEO_YUV_DIRECT=0"); 
+		}
+	 }
+	 
+	if (SDL_VideoDriverName(driver, sizeof(driver))) {
+	printf("Video driver: %s\n", driver);
+	}
+	info = SDL_GetVideoInfo();
+
+	if (info->wm_available) {
+	printf("A window manager is available\n");
+	}
+	if (info->hw_available) {
+	printf("Hardware surfaces are available (%dK video memory)\n",
+		   info->video_mem);
+	SDL_VIDEO_Flags |= SDL_HWSURFACE;
+	}
+	if (info->blit_hw) {
+	printf("Copy blits between hardware surfaces are accelerated\n");
+	SDL_VIDEO_Flags |= SDL_ASYNCBLIT;
+	}
+	if (info->blit_hw_CC) {
+	printf
+		("Colorkey blits between hardware surfaces are accelerated\n");
+	}
+	if (info->blit_hw_A) {
+	printf("Alpha blits between hardware surfaces are accelerated\n");
+	}
+	if (info->blit_sw) {
+	printf
+		("Copy blits from software surfaces to hardware surfaces are accelerated\n");
+	}
+	if (info->blit_sw_CC) {
+	printf
+		("Colorkey blits from software surfaces to hardware surfaces are accelerated\n");
+	}
+	if (info->blit_sw_A) {
+	printf
+		("Alpha blits from software surfaces to hardware surfaces are accelerated\n");
+	}
+	if (info->blit_fill) {
+	printf("Color fills on hardware surfaces are accelerated\n");
+	}
+
+	if (!(SDL_VIDEO_Flags & SDL_HWSURFACE)){
+	SDL_VIDEO_Flags |= SDL_SWSURFACE;
+	}
 	
 	/*------------------------------ SDL init video ---------------------*/
 	pscreen =
@@ -2315,7 +2384,8 @@ void *main_loop(void *data)
   pavi=NULL;
   printf("cleaning Thread allocations: 100%%\n");
   fflush(NULL);//flush all output buffers
-	
+  SDL_Quit();
+  printf("SDL Quit\n");	
   pthread_exit((void *) 0);
 }
 
@@ -2340,9 +2410,7 @@ int main(int argc, char *argv[])
 	}
 	printf("initing globals\n");
 	initGlobals(global);
-						  
-	const SDL_VideoInfo *info;
-	char driver[128];
+						
 	GtkWidget *scroll1;
 	GtkWidget *scroll2;
 	GtkWidget *buttons_table;
@@ -2407,73 +2475,6 @@ int main(int argc, char *argv[])
 	/* Add event handlers */
 	gtk_signal_connect(GTK_OBJECT(mainwin), "delete_event", GTK_SIGNAL_FUNC(delete_event), 0);
 	
-	
-	/*----------------------------- Test SDL capabilities ---------------------*/
-	if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER) < 0) {
-	fprintf(stderr, "Couldn't initialize SDL: %s\n", SDL_GetError());
-	exit(1);
-	}
-	
-	/* For this version, we will use hardware acceleration as default*/
-	if(global->hwaccel) {
-		if ( ! getenv("SDL_VIDEO_YUV_HWACCEL") ) {
-			putenv("SDL_VIDEO_YUV_HWACCEL=1");
-		}
-		if ( ! getenv("SDL_VIDEO_YUV_DIRECT") ) {
-			putenv("SDL_VIDEO_YUV_DIRECT=1"); 
-		}
-	 } else {
-		if ( ! getenv("SDL_VIDEO_YUV_HWACCEL") ) {
-			putenv("SDL_VIDEO_YUV_HWACCEL=0");
-		}
-		if ( ! getenv("SDL_VIDEO_YUV_DIRECT") ) {
-			putenv("SDL_VIDEO_YUV_DIRECT=0"); 
-		}
-	 }
-	 
-	if (SDL_VideoDriverName(driver, sizeof(driver))) {
-	printf("Video driver: %s\n", driver);
-	}
-	info = SDL_GetVideoInfo();
-
-	if (info->wm_available) {
-	printf("A window manager is available\n");
-	}
-	if (info->hw_available) {
-	printf("Hardware surfaces are available (%dK video memory)\n",
-		   info->video_mem);
-	SDL_VIDEO_Flags |= SDL_HWSURFACE;
-	}
-	if (info->blit_hw) {
-	printf("Copy blits between hardware surfaces are accelerated\n");
-	SDL_VIDEO_Flags |= SDL_ASYNCBLIT;
-	}
-	if (info->blit_hw_CC) {
-	printf
-		("Colorkey blits between hardware surfaces are accelerated\n");
-	}
-	if (info->blit_hw_A) {
-	printf("Alpha blits between hardware surfaces are accelerated\n");
-	}
-	if (info->blit_sw) {
-	printf
-		("Copy blits from software surfaces to hardware surfaces are accelerated\n");
-	}
-	if (info->blit_sw_CC) {
-	printf
-		("Colorkey blits from software surfaces to hardware surfaces are accelerated\n");
-	}
-	if (info->blit_sw_A) {
-	printf
-		("Alpha blits from software surfaces to hardware surfaces are accelerated\n");
-	}
-	if (info->blit_fill) {
-	printf("Color fills on hardware surfaces are accelerated\n");
-	}
-
-	if (!(SDL_VIDEO_Flags & SDL_HWSURFACE)){
-	SDL_VIDEO_Flags |= SDL_SWSURFACE;
-	}
 	/*----------------------- init videoIn structure --------------------------*/	
 	if((videoIn = (struct vdIn *) calloc(1, sizeof(struct vdIn)))==NULL){
 		printf("couldn't allocate memory for: videoIn\n");
@@ -3228,8 +3229,8 @@ shutd (gint restart)
 	close(videoIn->fd);
 	printf("closed strutures\n");
 	free(videoIn);
-	SDL_Quit();
-	printf("SDL Quit\n");
+	//SDL_Quit();
+	//printf("SDL Quit\n");
 	printf("cleaned allocations - 50%%\n");
 	gtk_main_quit();
 	printf("GTK quit\n");
