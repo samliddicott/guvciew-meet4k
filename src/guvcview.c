@@ -100,7 +100,7 @@ pthread_attr_t sndattr;
 /* parameters passed when restarting*/
 char *EXEC_CALL;
 
-
+/*avi structure used by avilib*/
 avi_t *AviOut;
 
 /*exposure menu for old type controls */
@@ -663,18 +663,16 @@ int AVIAudioAdd(void *data) {
 	numBytes = numSamples * sizeof(SAMPLE);
 	
 	recordedSamples = (SAMPLE *) malloc( numBytes );
-	printf("DEBUG: recorded Samples, malloc(%ld)\n",numBytes);
+	//printf("DEBUG: recorded Samples, malloc(%ld)\n",numBytes);
 	
 	if( recordedSamples == NULL )
 	{
 		printf("Could not allocate record array.\n");
 		snprintf(global->sndfile,32,"/tmp/guvc_sound_XXXXXX");/*return to template*/
-		/*must enable avi capture button*/
-		gtk_widget_set_sensitive (CapAVIButt, TRUE);
 		return (1);
 	}
 	for ( i=0; i<numSamples; i++ ) recordedSamples[i] = 0;/*init to zero - silence*/
-	SDL_Delay(100); /*wait to make sure main loop as stoped writing to avi*/
+	SDL_Delay(100); /*wait 100ms to make sure main loop as stoped writing to avi*/
 	AVI_set_audio(AviOut, global->Sound_NumChan, global->Sound_SampRate, sizeof(SAMPLE)*8,WAVE_FORMAT_PCM);
 	printf("sample size: %u bits\n",sizeof(SAMPLE)*8);
 	
@@ -713,12 +711,9 @@ int AVIAudioAdd(void *data) {
 	recordedSamples=NULL;
 	
 	AVI_close (AviOut);
-	printf ("close avi\n");
 	AviOut = NULL;
 	global->framecount = 0;
 	global->AVIstarttime = 0;
-	/*must enable avi capture button*/
-	gtk_widget_set_sensitive (CapAVIButt, TRUE);
 	return (0);
 	
 }
@@ -765,19 +760,20 @@ aviClose (void)
 		} else {
 			printf("Capture sound thread join with status= %d\n", tstatus);
 			/*must disable avi capture button*/
-			gtk_widget_set_sensitive (CapAVIButt, FALSE);
-
-		if (AVIAudioAdd(NULL)>0) printf("ERROR: reading Audio file\n");
+			//gtk_widget_set_sensitive (CapAVIButt, FALSE);
+			if (AVIAudioAdd(NULL)>0) printf("ERROR: reading Audio file\n");
+			/*must enable avi capture button*/
+			//gtk_widget_set_sensitive (CapAVIButt, TRUE);
 
 		}
 	  } else { /*------------------- Sound Disable ---------------------------*/
 		
 		AVI_close (AviOut);
-		printf ("close avi\n");
 		AviOut = NULL;
 		global->framecount = 0;
 		global->AVIstarttime=0;
 	  }
+	  printf ("close avi\n");
 	}
 }
 
