@@ -1,3 +1,11 @@
+guvcview (0.8.2) stable; urgency=low
+
+   * Fixed SegFault after soundthread exit in 64 bit systems
+   * Moved all SDL related stuff to video thread
+   
+ -- Paulo Assis <pj.assis@gmail.com>  Fri, 02 May 2008 19:18:00 +0000
+
+
 guvcview (0.8.1) stable; urgency=low
 
    * Fixed Debian Testing (lenny) image file name icrement bug.

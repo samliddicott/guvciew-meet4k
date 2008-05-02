@@ -548,7 +548,7 @@ void *sound_capture(void *data)
 	
 	/*gets the stack size for the thread (DEBUG)*/
 	pthread_attr_getstacksize (&sndattr, &sndstacksize);
-	printf("Sound Thread: stack size = %li bytes \n", sndstacksize);
+	printf("Sound Thread: stack size = %d bytes \n", sndstacksize);
 	
 	int fid;
 	/*generates temp file from template */
@@ -691,7 +691,7 @@ int AVIAudioAdd(void) {
 	//nanosleep(sleeptime,tremain);
 	
 	AVI_set_audio(AviOut, global->Sound_NumChan, global->Sound_SampRate, sizeof(SAMPLE)*8,WAVE_FORMAT_PCM);
-	printf("sample size: %lu bits\n",sizeof(SAMPLE)*8);
+	printf("sample size: %d bits\n",sizeof(SAMPLE)*8);
 	
 	/* Audio Capture allways starts last (delay due to thread initialization)*/
 	int synctime= global->snd_begintime - global->AVIstarttime; /*time diff for audio-video*/
@@ -2080,7 +2080,7 @@ void *main_loop(void *data)
 	
 	/*gets the stack size for the thread (DEBUG)*/ 
 	pthread_attr_getstacksize (&attr, &videostacksize);
-	printf("Video Thread: stack size = %li bytes \n", videostacksize);
+	printf("Video Thread: stack size = %d bytes \n", videostacksize);
 	
 	static Uint32 SDL_VIDEO_Flags =
 		SDL_ANYFORMAT | SDL_DOUBLEBUF | SDL_RESIZABLE;
