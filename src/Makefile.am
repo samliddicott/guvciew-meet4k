@@ -11,7 +11,8 @@ INCLUDES = \
 
 AM_CFLAGS =\
 	 -Wall\
-	 -g
+	 -g\
+	 -D_REENTRANT
 
 bin_PROGRAMS = guvcview
 
