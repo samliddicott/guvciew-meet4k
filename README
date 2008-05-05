@@ -1,4 +1,0 @@
-IMPORTANT: The configure script uses pkg-config for checking all pakages and modules.
-This seems to be a problem with some distributions, like Fedora, because sdl doesn't get set in pkg-config.
-Instead it uses sdl-config script for setting sdl build options. 
-To avoid this problem just edit sdl.pc and set the options that work for you (see sdl-config) then copy it to pkg-config lib-dir (usually /usr/lib/pkgconfig/).

@@ -32,9 +32,12 @@ typedef  unsigned int LONG;
 typedef  unsigned int UINT;
 typedef  unsigned short int WORD;
 
+/*----------- guvcview version ----------------*/
+#define VERSION ("0.8.2")
 
-#define VERSION ("0.8.1")
-
+/*---------- Thread Stack Size (bytes) --------*/
+#define TSTACK (128*64*1024) /* Debian Default 128 pages of 64k = 8388608 bytes*/
+ 
 /*------------- portaudio defs ----------------*/
 /*---- can be override in rc file or GUI ------*/
 

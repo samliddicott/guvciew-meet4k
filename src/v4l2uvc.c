@@ -887,7 +887,7 @@ int initDynCtrls(struct vdIn *vd) {
 				printf("mapping %d already exists\n", i);
 			}
 		}
-	}
+	} 
 	return 0;
 }
 

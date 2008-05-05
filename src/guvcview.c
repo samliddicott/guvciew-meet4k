@@ -120,12 +120,6 @@ ms_time (void)
    static struct timeval tod;
    gettimeofday (&tod, NULL);
    return ((DWORD) tod.tv_sec * 1000.0 + (DWORD) tod.tv_usec / 1000.0);
-   
-   //return ((Uint32) SDL_GetTicks()); /* gets time (ms) since SDL init */
-   
-   //time_t ttime; /*time in seconds*/
-   //time(&ttime);
-   //return((Uint32) ttime);	
 }
 /*--------------------------- check image file extension -----------------------------*/
 static 
@@ -666,12 +660,6 @@ int AVIAudioAdd(void) {
 	int totalFrames;
 	int numSamples;
 	long numBytes;
-	//timespec *sleeptime;
-	//timespec *tremain;
-	
-	/*time to sleep*/
-	//sleeptime->tv_sec=0;
-	//sleeptime->tv_nsec=150000000; /*150 ms*/
 	
 	totalFrames = NUM_SECONDS * global->Sound_SampRate;
 	numSamples = totalFrames * global->Sound_NumChan;
@@ -687,8 +675,7 @@ int AVIAudioAdd(void) {
 	}
 	for ( i=0; i<numSamples; i++ ) recordedSamples[i] = 0;/*init to zero - silence*/
 	
-	/*wait to make sure main loop as stoped writing to avi*/
-	//nanosleep(sleeptime,tremain);
+	/*sould make sure main loop as stoped writing to avi*/
 	
 	AVI_set_audio(AviOut, global->Sound_NumChan, global->Sound_SampRate, sizeof(SAMPLE)*8,WAVE_FORMAT_PCM);
 	printf("sample size: %d bits\n",sizeof(SAMPLE)*8);
@@ -707,8 +694,8 @@ int AVIAudioAdd(void) {
 		/*shift sound by synctime*/
 		Uint32 shiftFrames=abs(synctime*global->Sound_SampRate/1000);
 		Uint32 shiftSamples=shiftFrames*global->Sound_NumChan;
-		printf("shift sound backward by %d ms - %d frames\n",synctime,shiftSamples);
-		/*eat up the number of shiftframes - never seems to happen*/
+		printf("Must shift sound backward by %d ms - %d frames\n",synctime,shiftSamples);
+		/*Must eat up the number of shiftframes - never seems to happen*/
 	}
 	FILE *fip;
 	fip=fopen(global->sndfile,"rb");
@@ -898,6 +885,7 @@ combo_changed (GtkComboBox * combo, VidState * s)
 	
 }
 
+/* Pan left (for motor cameras ex: Logitech Orbit/Sphere) */
 static void
 PanLeft_clicked (GtkButton * PanLeft, VidState * s)
 {	
@@ -905,7 +893,7 @@ PanLeft_clicked (GtkButton * PanLeft, VidState * s)
 		printf("Pan Left Error");
 	}
 }
-
+/* Pan Right (for motor cameras ex: Logitech Orbit/Sphere) */
 static void
 PanRight_clicked (GtkButton * PanRight, VidState * s)
 {	
@@ -913,7 +901,7 @@ PanRight_clicked (GtkButton * PanRight, VidState * s)
 		printf("Pan Right Error");
 	}
 }
-
+/* Tilt Up (for motor cameras ex: Logitech Orbit/Sphere)   */
 static void
 TiltUp_clicked (GtkButton * TiltUp, VidState * s)
 {	
@@ -921,7 +909,7 @@ TiltUp_clicked (GtkButton * TiltUp, VidState * s)
 		printf("Tilt UP Error");
 	}
 }
-
+/* Tilt Down (for motor cameras ex: Logitech Orbit/Sphere) */
 static void
 TiltDown_clicked (GtkButton * TiltDown, VidState * s)
 {	
@@ -929,7 +917,7 @@ TiltDown_clicked (GtkButton * TiltDown, VidState * s)
 		printf("Tilt Down Error");
 	}
 }
-
+/* Pan Tilt Reset (for motor cameras ex: Logitech Orbit/Sphere)*/
 static void
 PTReset_clicked (GtkButton * PTReset, VidState * s)
 {	
@@ -991,7 +979,7 @@ resolution_changed (GtkComboBox * Resolution, void *data)
 }
 
 
-
+/* Input Type control (YUV MJPG)*/
 static void
 ImpType_changed(GtkComboBox * ImpType, void * Data) 
 {
@@ -1375,62 +1363,48 @@ capture_avi (GtkButton * CapAVIButt, GtkWidget * AVIFNameEntry)
 		/*enabling sound and avi compression controls*/
 		set_sensitive_avi_contrls(TRUE);
 	} 
-	else {
+	else { /******************** Start AVI *********************/
+	       	global->aviFPath=splitPath((char *)fileEntr, global->aviFPath);
 	
-		if (!(videoIn->signalquit)) { /***should not happen ***/
-			/*thread exited while in AVI capture mode*/
-			/* we have to close AVI                  */
-			printf("close AVI since thread as exited\n");
-			gtk_button_set_label(CapAVIButt,"Capture");
-			global->AVIstoptime = ms_time();
-			printf("AVI stop time:%d\n",global->AVIstoptime);	
-			videoIn->capAVI = FALSE;
-			aviClose();
-			/*enabling sound and avi compression controls*/
-			set_sensitive_avi_contrls(TRUE);
-	 
-		} 
-		else {/******************** Start AVI *********************/
-			/* thread is running so start AVI capture*/
-			global->aviFPath=splitPath((char *)fileEntr, global->aviFPath);
-	
-			int sfname=strlen(global->aviFPath[1])+strlen(global->aviFPath[0])+2;
-			char filename[sfname];
-	
-			sprintf(filename,"%s/%s", global->aviFPath[1],global->aviFPath[0]);
-			if ((sfname>120) && (sfname>strlen(videoIn->AVIFName))) {
-				printf("realloc avi file name by %d.\n",sfname+1);
-				videoIn->AVIFName=realloc(videoIn->AVIFName,sfname+1);
-			}	
+		int sfname=strlen(global->aviFPath[1])+strlen(global->aviFPath[0])+2;
+		char filename[sfname];
+		
+	   	sprintf(filename,"%s/%s", global->aviFPath[1],global->aviFPath[0]);
+		if ((sfname>120) && (sfname>strlen(videoIn->AVIFName))) {
+			printf("realloc avi file name by %d.\n",sfname+1);
+			videoIn->AVIFName=realloc(videoIn->AVIFName,sfname+1);
+		}	
 						
-			videoIn->AVIFName=strncpy(videoIn->AVIFName,filename,sfname);
-			
-			//printf("opening avi file: %s\n",videoIn->AVIFName);
+		videoIn->AVIFName=strncpy(videoIn->AVIFName,filename,sfname);
+		
+		//printf("opening avi file: %s\n",videoIn->AVIFName);
 			 
-			gtk_button_set_label(CapAVIButt,"Stop");  
-			AviOut = AVI_open_output_file(videoIn->AVIFName);
-			/*4CC compression "YUY2" (YUV) or "DIB " (RGB24)  or  "MJPG"*/	
+		gtk_button_set_label(CapAVIButt,"Stop");  
+		AviOut = AVI_open_output_file(videoIn->AVIFName);
+		/*4CC compression "YUY2" (YUV) or "DIB " (RGB24)  or  "MJPG"*/	
 	        
-			AVI_set_video(AviOut, videoIn->width, videoIn->height, videoIn->fps,compression);		
-			/* audio will be set in aviClose - if enabled*/
-			global->AVIstarttime = ms_time();
-			//printf("AVI start time:%d\n",AVIstarttime);		
-			videoIn->capAVI = TRUE; /* start video capture */
-			/*disabling sound and avi compression controls*/
-			set_sensitive_avi_contrls(FALSE);
-			/* Creating the sound capture loop thread if Sound Enable*/ 
-			if(global->Sound_enable > 0) { 
-				/* Initialize and set snd thread detached attribute */
-				pthread_attr_init(&sndattr);
-				pthread_attr_setdetachstate(&sndattr, PTHREAD_CREATE_JOINABLE);
-		   
-				int rsnd = pthread_create(&sndthread, &sndattr, sound_capture, NULL); 
-				if (rsnd)
-				{
-					printf("ERROR; return code from snd pthread_create() is %d\n", rsnd);
-				}
+		AVI_set_video(AviOut, videoIn->width, videoIn->height, videoIn->fps,compression);		
+		/* audio will be set in aviClose - if enabled*/
+		global->AVIstarttime = ms_time();
+		//printf("AVI start time:%d\n",AVIstarttime);		
+		videoIn->capAVI = TRUE; /* start video capture */
+		/*disabling sound and avi compression controls*/
+		set_sensitive_avi_contrls(FALSE);
+		/* Creating the sound capture loop thread if Sound Enable*/ 
+		if(global->Sound_enable > 0) { 
+			/* Initialize and set snd thread detached attribute */
+			//int SndBuffsize = global->Sound_NumSec * global->Sound_SampRate * global->Sound_NumChan * global->Sound_BuffFactor * sizeof(SAMPLE);
+			size_t stacksize;
+			stacksize = sizeof(char) * TSTACK;
+		   	pthread_attr_init(&sndattr);
+		   	pthread_attr_setstacksize (&sndattr, stacksize);
+			pthread_attr_setdetachstate(&sndattr, PTHREAD_CREATE_JOINABLE);
+		  
+			int rsnd = pthread_create(&sndthread, &sndattr, sound_capture, NULL); 
+			if (rsnd)
+			{
+				printf("ERROR; return code from snd pthread_create() is %d\n", rsnd);
 			}
-		 
 		}
 	}	
 }
@@ -2445,6 +2419,9 @@ int main(int argc, char *argv[])
 	GtkWidget *SProfileButton;
 	GtkWidget *LProfileButton;
 	
+   	size_t stacksize;
+	stacksize = sizeof(char) * TSTACK;
+   
 	if ((s = malloc (sizeof (VidState)))==NULL){
 		printf("couldn't allocate memory for: s\n");
 		exit(1); 
@@ -2452,6 +2429,7 @@ int main(int argc, char *argv[])
 	
 	/* Initialize and set thread detached attribute */
 	pthread_attr_init(&attr);
+   	pthread_attr_setstacksize (&attr, stacksize);
 	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
 	   
 	char *home;
@@ -2914,7 +2892,7 @@ int main(int argc, char *argv[])
 				defaultDisplayed = 2;
 				global->Sound_DefDev=global->Sound_numInputDev;/*index in array of input devs*/
 			}
-		/* Output device doesn't matter for capture*/
+			/* Output device doesn't matter for capture*/
 			if( it == Pa_GetDefaultOutputDevice() )
 			{
 				printf( (defaultDisplayed ? "," : "[") );
@@ -3174,6 +3152,7 @@ int main(int argc, char *argv[])
 	   if(global->Sound_enable > 0) { 
 		  /* Initialize and set snd thread detached attribute */
 		  pthread_attr_init(&sndattr);
+	          pthread_attr_setstacksize (&sndattr, stacksize);
 		  pthread_attr_setdetachstate(&sndattr, PTHREAD_CREATE_JOINABLE);
 		   
 		  int rsnd = pthread_create(&sndthread, &sndattr, sound_capture, NULL); 
@@ -3242,8 +3221,6 @@ shutd (gint restart)
 	close(videoIn->fd);
 	printf("closed strutures\n");
 	free(videoIn);
-	//SDL_Quit();
-	//printf("SDL Quit\n");
 	printf("cleaned allocations - 50%%\n");
 	gtk_main_quit();
 	printf("GTK quit\n");
