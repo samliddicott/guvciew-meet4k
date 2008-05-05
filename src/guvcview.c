@@ -371,7 +371,7 @@ readOpts(int argc,char *argv[]) {
 		if (argv[i] == NULL || *argv[i] == 0 || *argv[i] != '-') {
 			continue;
 		}
-		if (strcmp(argv[i], "-d") == 0) || strcmp(argv[i], "--device") == 0) {
+		if ((strcmp(argv[i], "-d") == 0) || (strcmp(argv[i], "--device") == 0)) {
 			if (i + 1 >= argc || *argv[i+1] =='-') {
 				printf("No parameter specified for device, using default.\n");
 			} else {
@@ -391,7 +391,7 @@ readOpts(int argc,char *argv[]) {
 					if (strcmp(argv[i+1], "disable") == 0) global->hwaccel=0;
 			}
 		}
-		if (strcmp(argv[i], "-f") == 0) || strcmp(argv[i], "--format") == 0) {
+		if ((strcmp(argv[i], "-f") == 0) || (strcmp(argv[i], "--format") == 0)) {
 			if ( i + 1 >= argc || *argv[i+1] =='-') {
 				printf("No parameter specified for format, using default.\n");	
 			} else {
@@ -400,7 +400,7 @@ readOpts(int argc,char *argv[]) {
 				global->mode[2] = argv[i + 1][2];
 			}
 		}
-		if (strcmp(argv[i], "-s") == 0) || strcmp(argv[i], "--size") == 0) {
+		if ((strcmp(argv[i], "-s") == 0) || (strcmp(argv[i], "--size") == 0)) {
 			if (i + 1 >= argc || *argv[i+1] =='-') {
 			printf("No parameter specified for image size, using default.\n");
 			} else {
@@ -419,7 +419,7 @@ readOpts(int argc,char *argv[]) {
 			}
 			printf(" size width: %d height: %d \n",global->width, global->height);
 		}
-		if (strcmp(argv[i], "-c") == 0) || strcmp(argv[i], "--captime") == 0) {
+		if ((strcmp(argv[i], "-c") == 0) || (strcmp(argv[i], "--captime") == 0)) {
 			if (i + 1 >= argc || *argv[i+1] =='-') {
 				printf("No parameter specified for image capture time. Ignoring option.\n");	
 			} else {
@@ -429,7 +429,7 @@ readOpts(int argc,char *argv[]) {
 				printf("capturing images every %i seconds",global->image_timer);
 			}
 		}
-		if (strcmp(argv[i], "-m") == 0) || strcmp(argv[i], "--npics") == 0) {
+		if ((strcmp(argv[i], "-m") == 0) || (strcmp(argv[i], "--npics") == 0)) {
 			if (i + 1 >= argc || *argv[i+1] =='-') {
 				printf("No parameter specified for number of pics. Ignoring option.\n");	
 			} else {
@@ -438,7 +438,7 @@ readOpts(int argc,char *argv[]) {
 				printf("capturing at max %d pics",global->image_npics);
 			}
 		}
-		if (strcmp(argv[i], "-i") == 0) || strcmp(argv[i], "--image") == 0) {
+		if ((strcmp(argv[i], "-i") == 0) || (strcmp(argv[i], "--image") == 0)) {
 			if (i + 1 >= argc || *argv[i+1] =='-') {
 				printf("No parameter specified for image name. Ignoring option.\n");	
 			} else {
@@ -449,7 +449,7 @@ readOpts(int argc,char *argv[]) {
 			}
 		}
 		
-		if (strcmp(argv[i], "-n") == 0) || strcmp(argv[i], "--avi") == 0) {
+		if ((strcmp(argv[i], "-n") == 0) || (strcmp(argv[i], "--avi") == 0)) {
 			if (i + 1 >= argc || *argv[i+1] =='-') {
 				printf("No parameter specified for avi name. Ignoring option.\n");	
 			} else {
@@ -457,7 +457,7 @@ readOpts(int argc,char *argv[]) {
 				global->aviFPath=splitPath(global->avifile,global->aviFPath);
 			}
 		}
-		if (strcmp(argv[i], "-t") == 0) || strcmp(argv[i], "--avitime") == 0) {
+		if ((strcmp(argv[i], "-t") == 0) || (strcmp(argv[i], "--avitime") == 0)) {
 			if (i + 1 >= argc || *argv[i+1] =='-') {
 				printf("No parameter specified for avi time. Ignoring option.\n");	
 			} else {
@@ -475,7 +475,7 @@ readOpts(int argc,char *argv[]) {
 					if (strcmp(argv[i+1], "disable") == 0) global->FpsCount=0;
 			}
 		}
-		if (strcmp(argv[i], "-l") == 0) || strcmp(argv[i], "--profile") == 0) {
+		if ((strcmp(argv[i], "-l") == 0) || (strcmp(argv[i], "--profile") == 0)) {
 			if (i + 1 >= argc || *argv[i+1] =='-') {
 				printf("No parameter specified for profile name. Ignoring option.\n");	
 			} else {
@@ -483,7 +483,7 @@ readOpts(int argc,char *argv[]) {
 				global->profile_FPath=splitPath(argv[i + 1],global->profile_FPath);
 			}
 		}
-		if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0) {
+		if ((strcmp(argv[i], "-h") == 0) || (strcmp(argv[i], "--help") == 0)) {
 			printf("\n\nusage: guvcview [options] \n\n");
 			printf("options:\n");
 			printf("-h[--help]\t:print this message \n");
