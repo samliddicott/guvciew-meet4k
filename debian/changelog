@@ -1,3 +1,10 @@
+guvcview (0.9.0) stable; urgency=low
+
+   * GUI change: Add Tab Container
+   * Add spin button to integer controls (allows fine tunning)
+   
+ -- Paulo Assis <pj.assis@gmail.com>  Fri, 02 May 2008 19:18:00 +0000
+ 
 guvcview (0.8.2) stable; urgency=low
 
    * Fixed SegFault after soundthread exit in 64 bit systems (bug: #013688)

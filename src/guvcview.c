@@ -796,9 +796,10 @@ set_slider_label (GtkRange * range)
 {
 	ControlInfo * ci = g_object_get_data (G_OBJECT (range), "control_info");
 	if (ci->labelval) {
-		char str[12];
-		sprintf (str, "%*d", ci->maxchars, (int) gtk_range_get_value (range));
-		gtk_label_set_text (GTK_LABEL (ci->labelval), str);
+		//char str[12];
+		//sprintf (str, "%*d", ci->maxchars, (int) gtk_range_get_value (range));
+		//gtk_label_set_text (GTK_LABEL (ci->labelval), str);
+		gtk_spin_button_set_value(GTK_SPIN_BUTTON(ci->labelval),(int) gtk_range_get_value (range));
 	}
 }
 
@@ -818,6 +819,29 @@ slider_changed (GtkRange * range, VidState * s)
 		printf ("%s change to %d failed\n",c->name, val);
 		if (input_get_control (videoIn, c, &val) == 0) {
 			printf ("hardware value is %d\n", val);
+		}
+		else {
+			printf ("hardware get failed\n");
+		}
+	}
+}
+
+/*spin controls callback*/
+static void
+spin_changed (GtkSpinButton * spin, VidState * s)
+{
+	ControlInfo * ci = g_object_get_data (G_OBJECT (spin), "control_info");
+   	InputControl * c = s->control + ci->idx;
+   	int val = gtk_spin_button_get_value_as_int (spin);
+   
+   	if (input_set_control (videoIn, c, val) == 0) {
+		gtk_range_set_value (GTK_RANGE(ci->widget),val);
+	}
+   	else {
+		printf ("%s change to %d failed\n",c->name, val);
+		if (input_get_control (videoIn, c, &val) == 0) {
+			printf ("hardware value is %d\n", val);
+		   	gtk_spin_button_set_value(GTK_SPIN_BUTTON(ci->labelval),val);
 		}
 		else {
 			printf ("hardware get failed\n");
@@ -1903,7 +1927,6 @@ draw_controls (VidState *s)
 			ci->label = gtk_label_new (g_strdup_printf ("%s:", c->name));
 			gtk_widget_show (ci->labelval);
 		} else if (c->type == INPUT_CONTROL_TYPE_INTEGER) {
-			PangoFontDescription * desc;
 			int val;
 
 			if (c->step == 0)
@@ -1922,25 +1945,23 @@ draw_controls (VidState *s)
 			ci->maxchars = MAX (num_chars (c->min), num_chars (c->max));
 			gtk_widget_show (ci->widget);
 			
-			ci->labelval = gtk_label_new (NULL);
 			
-			desc = pango_font_description_new ();
-			pango_font_description_set_family_static (desc, "monospace");
-			gtk_widget_modify_font (ci->labelval, desc);
-			/*justify h:left and v:center*/
-			gtk_misc_set_alignment (GTK_MISC (ci->labelval), 0.0, 0.5);
+			ci->labelval = gtk_spin_button_new_with_range(c->min,c->max,c->step);
+		   	g_object_set_data (G_OBJECT (ci->labelval), "control_info", ci);
 			
 			gtk_table_attach (GTK_TABLE (s->table), ci->labelval, 2, 3,
 					3+i, 4+i, GTK_EXPAND | GTK_FILL, 0, 0, 0);
 
 			if (input_get_control (videoIn, c, &val) == 0) {
 				gtk_range_set_value (GTK_RANGE (ci->widget), val);
+			   	//gtk_spin_button_set_value (GTK_SPIN_BUTTON(ci->labelval), val);
 			}
 			else {
 				/*couldn't get control value -> set to default*/
 				input_set_control (videoIn, c, c->default_val);
 				gtk_range_set_value (GTK_RANGE (ci->widget), c->default_val);
-				gtk_widget_set_sensitive (ci->widget, TRUE);
+				//gtk_spin_button_set_value (GTK_SPIN_BUTTON(ci->labelval), c->default_val);
+			   	gtk_widget_set_sensitive (ci->widget, TRUE);
 				gtk_widget_set_sensitive (ci->labelval, TRUE);
 			}
 
@@ -1952,6 +1973,8 @@ draw_controls (VidState *s)
 			set_slider_label (GTK_RANGE (ci->widget));
 			g_signal_connect (G_OBJECT (ci->widget), "value-changed",
 					G_CALLBACK (slider_changed), s);
+		   	g_signal_connect (G_OBJECT (ci->labelval),"value-changed",
+					G_CALLBACK (spin_changed), s);
 
 			gtk_widget_show (ci->labelval);
 
@@ -2418,7 +2441,9 @@ int main(int argc, char *argv[])
 	GtkWidget *quitButton;
 	GtkWidget *SProfileButton;
 	GtkWidget *LProfileButton;
-	
+	GtkWidget *Tab1Label;
+   	GtkWidget *Tab2Label;
+   
    	size_t stacksize;
 	stacksize = sizeof(char) * TSTACK;
    
@@ -2533,8 +2558,9 @@ int main(int argc, char *argv[])
 	
 	boxv = gtk_vpaned_new ();
 	
-	boxh= gtk_hpaned_new();
-	
+	//boxh= gtk_hpaned_new();
+	boxh = gtk_notebook_new();	
+   
 	gtk_widget_show (s->table);
 	gtk_widget_show (boxh);
 	
@@ -2545,8 +2571,11 @@ int main(int argc, char *argv[])
 	
 	gtk_widget_show(scroll1);
 	
-	gtk_paned_add1(GTK_PANED(boxh),scroll1);
-	gtk_paned_add1(GTK_PANED(boxv),boxh);
+	//gtk_paned_add1(GTK_PANED(boxh),scroll1);
+   	Tab1Label = gtk_label_new("Image Controls");
+	gtk_notebook_append_page(GTK_NOTEBOOK(boxh),scroll1,Tab1Label);
+   
+   	gtk_paned_add1(GTK_PANED(boxv),boxh);
 	
 	gtk_widget_show (boxv);
 	
@@ -2602,15 +2631,16 @@ int main(int argc, char *argv[])
                                                               GTK_CORNER_TOP_LEFT);
 	gtk_widget_show(scroll2);
 	
-	gtk_paned_add2(GTK_PANED(boxh),scroll2);
-	
+	//gtk_paned_add2(GTK_PANED(boxh),scroll2);
+	Tab2Label = gtk_label_new("Video|Capture");
+	gtk_notebook_append_page(GTK_NOTEBOOK(boxh),scroll2,Tab2Label);
 	
 	/*sets the pan position*/
 	if(((global->boxhsize)*(global->boxvsize))==0) {
 		global->boxhsize=global->winwidth>>1;
 		global->boxvsize=global->winheight-90;
 	}
-	gtk_paned_set_position (GTK_PANED(boxh),global->boxhsize);
+	//gtk_paned_set_position (GTK_PANED(boxh),global->boxhsize);
 	gtk_paned_set_position (GTK_PANED(boxv),global->boxvsize);
 	
 	/* Resolution*/
@@ -3213,7 +3243,6 @@ shutd (gint restart)
 	
 	
 	gtk_window_get_size(GTK_WINDOW(mainwin),&(global->winwidth),&(global->winheight));//mainwin or widget
-	global->boxhsize=gtk_paned_get_position (GTK_PANED(boxh));
 	global->boxvsize=gtk_paned_get_position (GTK_PANED(boxv));
 	
 	
