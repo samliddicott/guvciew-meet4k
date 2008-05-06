@@ -94,7 +94,7 @@
 #define V4L2_CID_WHITE_BALANCE_TEMPERATURE_AUTO	(V4L2_CID_PRIVATE_BASE+12)
 #define V4L2_CID_WHITE_BALANCE_TEMPERATURE	(V4L2_CID_PRIVATE_BASE+13)
 
-#define V4L2_CID_PRIVATE_LAST			V4L2_CID_WHITE_BALANCE_TEMPERATURE
+#define V4L2_CID_PRIVATE_LAST			(V4L2_CID_WHITE_BALANCE_TEMPERATURE+1)
 
 enum  v4l2_exposure_auto_type {
 	V4L2_EXPOSURE_MANUAL = 1,
@@ -276,7 +276,8 @@ typedef struct _InputControl {
 typedef struct _ControlInfo {
     GtkWidget * widget;
     GtkWidget * label;
-    GtkWidget * labelval;
+    //GtkWidget * labelval;
+    GtkWidget *spinbutton; /*used in integer (slider) controls*/
     unsigned int idx;
     int maxchars;
 } ControlInfo;

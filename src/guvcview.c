@@ -790,16 +790,13 @@ num_chars (int n)
 
 
 /*----------------------------- Callbacks ------------------------------------*/
-/*slider labeler*/
+/*spin value*/
 static void
-set_slider_label (GtkRange * range)
+set_spin_value (GtkRange * range)
 {
 	ControlInfo * ci = g_object_get_data (G_OBJECT (range), "control_info");
-	if (ci->labelval) {
-		//char str[12];
-		//sprintf (str, "%*d", ci->maxchars, (int) gtk_range_get_value (range));
-		//gtk_label_set_text (GTK_LABEL (ci->labelval), str);
-		gtk_spin_button_set_value(GTK_SPIN_BUTTON(ci->labelval),(int) gtk_range_get_value (range));
+	if (ci->spinbutton) {
+		gtk_spin_button_set_value(GTK_SPIN_BUTTON(ci->spinbutton),(int) gtk_range_get_value (range));
 	}
 }
 
@@ -813,12 +810,13 @@ slider_changed (GtkRange * range, VidState * s)
 	int val = (int) gtk_range_get_value (range);
 	
 	if (input_set_control (videoIn, c, val) == 0) {
-		set_slider_label (range);
+		gtk_spin_button_set_value(GTK_SPIN_BUTTON(ci->spinbutton), val);
 	}
 	else {
 		printf ("%s change to %d failed\n",c->name, val);
 		if (input_get_control (videoIn, c, &val) == 0) {
 			printf ("hardware value is %d\n", val);
+			gtk_range_set_value (GTK_RANGE(ci->widget),val);
 		}
 		else {
 			printf ("hardware get failed\n");
@@ -841,7 +839,7 @@ spin_changed (GtkSpinButton * spin, VidState * s)
 		printf ("%s change to %d failed\n",c->name, val);
 		if (input_get_control (videoIn, c, &val) == 0) {
 			printf ("hardware value is %d\n", val);
-		   	gtk_spin_button_set_value(GTK_SPIN_BUTTON(ci->labelval),val);
+		   	gtk_spin_button_set_value(GTK_SPIN_BUTTON(ci->spinbutton),val);
 		}
 		else {
 			printf ("hardware get failed\n");
@@ -1733,8 +1731,8 @@ draw_controls (VidState *s)
 				gtk_widget_destroy (ci->widget);
 			if (ci->label)
 				gtk_widget_destroy (ci->label);
-			if (ci->labelval)
-				gtk_widget_destroy (ci->labelval);
+			if (ci->spinbutton)
+				gtk_widget_destroy (ci->spinbutton);
 		}
 		free (s->control_info);
 		s->control_info = NULL;
@@ -1766,7 +1764,7 @@ draw_controls (VidState *s)
 		ci->idx = i;
 		ci->widget = NULL;
 		ci->label = NULL;
-		ci->labelval = NULL;
+		ci->spinbutton = NULL;
 		
 		if (c->id == V4L2_CID_EXPOSURE_AUTO) {
 			
@@ -1828,7 +1826,6 @@ draw_controls (VidState *s)
 				   (c->id == V4L2_CID_PAN_RELATIVE_NEW) ||
 				   (c->id == V4L2_CID_PAN_RELATIVE)) {
 			videoIn->PanTilt=1;
-			PangoFontDescription * desc;
 			ci->widget = gtk_hbox_new (FALSE, 0);
 			GtkWidget *PanLeft = gtk_button_new_with_label("Left");
 			GtkWidget *PanRight = gtk_button_new_with_label("Right");
@@ -1846,25 +1843,13 @@ draw_controls (VidState *s)
 			g_object_set_data (G_OBJECT (ci->widget), "control_info", ci);
 			ci->maxchars = MAX (num_chars (c->min), num_chars (c->max));
 			gtk_widget_show (ci->widget);
-			
-			ci->labelval = gtk_label_new (NULL);
-			desc = pango_font_description_new ();
-			pango_font_description_set_family_static (desc, "monospace");
-			gtk_widget_modify_font (ci->labelval, desc);
-			/*justify h:left and v:center*/
-			gtk_misc_set_alignment (GTK_MISC (ci->labelval), 0.0, 0.5);
-			
-			gtk_table_attach (GTK_TABLE (s->table), ci->labelval, 2, 3,
-					3+i, 4+i, GTK_EXPAND | GTK_FILL, 0, 0, 0);
 
 			ci->label = gtk_label_new (g_strdup_printf ("%s:", c->name));
-			gtk_widget_show (ci->labelval);
 			
 		} else if ((c->id == V4L2_CID_TILT_RELATIVE_LOGITECH) ||
 				   (c->id == V4L2_CID_TILT_RELATIVE_NEW) ||
 				   (c->id == V4L2_CID_TILT_RELATIVE)) {
 			videoIn->PanTilt=1;
-			PangoFontDescription * desc;
 			ci->widget = gtk_hbox_new (FALSE, 0);
 			GtkWidget *TiltUp = gtk_button_new_with_label("Up");
 			GtkWidget *TiltDown = gtk_button_new_with_label("Down");
@@ -1882,25 +1867,13 @@ draw_controls (VidState *s)
 			g_object_set_data (G_OBJECT (ci->widget), "control_info", ci);
 			ci->maxchars = MAX (num_chars (c->min), num_chars (c->max));
 			gtk_widget_show (ci->widget);
-			
-			ci->labelval = gtk_label_new (NULL);
-			desc = pango_font_description_new ();
-			pango_font_description_set_family_static (desc, "monospace");
-			gtk_widget_modify_font (ci->labelval, desc);
-			/*justify h:left and v:center*/
-			gtk_misc_set_alignment (GTK_MISC (ci->labelval), 0.0, 0.5);
-			
-			gtk_table_attach (GTK_TABLE (s->table), ci->labelval, 2, 3,
-					3+i, 4+i, GTK_EXPAND | GTK_FILL, 0, 0, 0);
 
 			ci->label = gtk_label_new (g_strdup_printf ("%s:", c->name));
-			gtk_widget_show (ci->labelval);
 			
 		} else if ((c->id == V4L2_CID_PANTILT_RESET_LOGITECH) ||
 				   (c->id == V4L2_CID_PANTILT_RESET) ||
 				   (c->id == V4L2_CID_PAN_RESET_NEW) ||
 				   (c->id == V4L2_CID_TILT_RESET_NEW)) {
-			PangoFontDescription * desc;
 			ci->widget = gtk_hbox_new (FALSE, 0);
 			GtkWidget *PTReset = gtk_button_new_with_label("Reset");
 			gtk_box_pack_start (GTK_BOX (ci->widget), PTReset, TRUE, TRUE, 0);
@@ -1913,19 +1886,9 @@ draw_controls (VidState *s)
 			g_object_set_data (G_OBJECT (ci->widget), "control_info", ci);
 			ci->maxchars = MAX (num_chars (c->min), num_chars (c->max));
 			gtk_widget_show (ci->widget);
-			
-			ci->labelval = gtk_label_new (NULL);
-			desc = pango_font_description_new ();
-			pango_font_description_set_family_static (desc, "monospace");
-			gtk_widget_modify_font (ci->labelval, desc);
-			/*justify h:left and v:center*/
-			gtk_misc_set_alignment (GTK_MISC (ci->labelval), 0.0, 0.5);
-			
-			gtk_table_attach (GTK_TABLE (s->table), ci->labelval, 2, 3,
-					3+i, 4+i, GTK_EXPAND | GTK_FILL, 0, 0, 0);
 
 			ci->label = gtk_label_new (g_strdup_printf ("%s:", c->name));
-			gtk_widget_show (ci->labelval);
+			
 		} else if (c->type == INPUT_CONTROL_TYPE_INTEGER) {
 			int val;
 
@@ -1946,37 +1909,37 @@ draw_controls (VidState *s)
 			gtk_widget_show (ci->widget);
 			
 			
-			ci->labelval = gtk_spin_button_new_with_range(c->min,c->max,c->step);
-		   	g_object_set_data (G_OBJECT (ci->labelval), "control_info", ci);
+			ci->spinbutton = gtk_spin_button_new_with_range(c->min,c->max,c->step);
+		   	g_object_set_data (G_OBJECT (ci->spinbutton), "control_info", ci);
 			
-			gtk_table_attach (GTK_TABLE (s->table), ci->labelval, 2, 3,
+			gtk_table_attach (GTK_TABLE (s->table), ci->spinbutton, 2, 3,
 					3+i, 4+i, GTK_EXPAND | GTK_FILL, 0, 0, 0);
 
 			if (input_get_control (videoIn, c, &val) == 0) {
 				gtk_range_set_value (GTK_RANGE (ci->widget), val);
-			   	//gtk_spin_button_set_value (GTK_SPIN_BUTTON(ci->labelval), val);
+			   	//gtk_spin_button_set_value (GTK_SPIN_BUTTON(ci->spinbutton), val);
 			}
 			else {
 				/*couldn't get control value -> set to default*/
 				input_set_control (videoIn, c, c->default_val);
 				gtk_range_set_value (GTK_RANGE (ci->widget), c->default_val);
-				//gtk_spin_button_set_value (GTK_SPIN_BUTTON(ci->labelval), c->default_val);
+				//gtk_spin_button_set_value (GTK_SPIN_BUTTON(ci->spinbutton), c->default_val);
 			   	gtk_widget_set_sensitive (ci->widget, TRUE);
-				gtk_widget_set_sensitive (ci->labelval, TRUE);
+				gtk_widget_set_sensitive (ci->spinbutton, TRUE);
 			}
 
 			if (!c->enabled) {
 				gtk_widget_set_sensitive (ci->widget, FALSE);
-				gtk_widget_set_sensitive (ci->labelval, FALSE);
+				gtk_widget_set_sensitive (ci->spinbutton, FALSE);
 			}
 			
-			set_slider_label (GTK_RANGE (ci->widget));
+			set_spin_value (GTK_RANGE (ci->widget));
 			g_signal_connect (G_OBJECT (ci->widget), "value-changed",
 					G_CALLBACK (slider_changed), s);
-		   	g_signal_connect (G_OBJECT (ci->labelval),"value-changed",
+		   	g_signal_connect (G_OBJECT (ci->spinbutton),"value-changed",
 					G_CALLBACK (spin_changed), s);
 
-			gtk_widget_show (ci->labelval);
+			gtk_widget_show (ci->spinbutton);
 
 			ci->label = gtk_label_new (g_strdup_printf ("%s:", c->name));
 		}
