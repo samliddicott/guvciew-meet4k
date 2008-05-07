@@ -197,8 +197,6 @@ int writeConf(const char *confpath) {
 		fprintf(fp,"resolution=%ix%i\n",global->width,global->height);
 		fprintf(fp,"# control window size: default %ix%i\n",WINSIZEX,WINSIZEY);
 		fprintf(fp,"windowsize=%ix%i\n",global->winwidth,global->winheight);
-		fprintf(fp,"#horizontal pane size\n");
-		fprintf(fp,"hpane=%i\n",global->boxhsize);
 		fprintf(fp,"#vertical pane size\n");
 		fprintf(fp,"vpane=%i\n",global->boxvsize);
 		fprintf(fp,"# mode video format 'yuv' or 'jpg'(default)\n");
@@ -280,9 +278,6 @@ int readConf(const char *confpath) {
 			} else if (strcmp(variable,"windowsize")==0) {
 				if ((i=sscanf(value,"%ix%i",&(global->winwidth),&(global->winheight)))==2)
 					printf("windowsize: %i x %i\n",global->winwidth,global->winheight);
-			} else if (strcmp(variable,"hpane")==0) { 
-				if ((i=sscanf(value,"%i",&(global->boxhsize)))==1)
-					printf("horiz pane: %i\n",global->boxhsize);
 			} else if (strcmp(variable,"vpane")==0) { 
 				if ((i=sscanf(value,"%i",&(global->boxvsize)))==1)
 					printf("vert pane: %i\n",global->boxvsize);
@@ -790,15 +785,15 @@ num_chars (int n)
 
 
 /*----------------------------- Callbacks ------------------------------------*/
-/*spin value*/
-static void
-set_spin_value (GtkRange * range)
-{
-	ControlInfo * ci = g_object_get_data (G_OBJECT (range), "control_info");
-	if (ci->spinbutton) {
-		gtk_spin_button_set_value(GTK_SPIN_BUTTON(ci->spinbutton),(int) gtk_range_get_value (range));
-	}
-}
+//~ /*spin value*/
+//~ static void
+//~ set_spin_value (GtkRange * range)
+//~ {
+	//~ ControlInfo * ci = g_object_get_data (G_OBJECT (range), "control_info");
+	//~ if (ci->spinbutton) {
+		//~ gtk_spin_button_set_value(GTK_SPIN_BUTTON(ci->spinbutton),(int) gtk_range_get_value (range));
+	//~ }
+//~ }
 
 /*slider controls callback*/
 static void
@@ -1912,18 +1907,21 @@ draw_controls (VidState *s)
 			ci->spinbutton = gtk_spin_button_new_with_range(c->min,c->max,c->step);
 		   	g_object_set_data (G_OBJECT (ci->spinbutton), "control_info", ci);
 			
+		   	/*can't edit the spin value by hand*/
+		   	gtk_editable_set_editable(GTK_EDITABLE(ci->spinbutton),FALSE);
+		   	
 			gtk_table_attach (GTK_TABLE (s->table), ci->spinbutton, 2, 3,
-					3+i, 4+i, GTK_EXPAND | GTK_FILL, 0, 0, 0);
+					3+i, 4+i, GTK_SHRINK | GTK_FILL, 0, 0, 0);
 
 			if (input_get_control (videoIn, c, &val) == 0) {
 				gtk_range_set_value (GTK_RANGE (ci->widget), val);
-			   	//gtk_spin_button_set_value (GTK_SPIN_BUTTON(ci->spinbutton), val);
+			   	gtk_spin_button_set_value (GTK_SPIN_BUTTON(ci->spinbutton), val);
 			}
 			else {
 				/*couldn't get control value -> set to default*/
 				input_set_control (videoIn, c, c->default_val);
 				gtk_range_set_value (GTK_RANGE (ci->widget), c->default_val);
-				//gtk_spin_button_set_value (GTK_SPIN_BUTTON(ci->spinbutton), c->default_val);
+				gtk_spin_button_set_value (GTK_SPIN_BUTTON(ci->spinbutton), c->default_val);
 			   	gtk_widget_set_sensitive (ci->widget, TRUE);
 				gtk_widget_set_sensitive (ci->spinbutton, TRUE);
 			}
@@ -1933,7 +1931,7 @@ draw_controls (VidState *s)
 				gtk_widget_set_sensitive (ci->spinbutton, FALSE);
 			}
 			
-			set_spin_value (GTK_RANGE (ci->widget));
+			//set_spin_value (GTK_RANGE (ci->widget));
 			g_signal_connect (G_OBJECT (ci->widget), "value-changed",
 					G_CALLBACK (slider_changed), s);
 		   	g_signal_connect (G_OBJECT (ci->spinbutton),"value-changed",
@@ -2521,7 +2519,6 @@ int main(int argc, char *argv[])
 	
 	boxv = gtk_vpaned_new ();
 	
-	//boxh= gtk_hpaned_new();
 	boxh = gtk_notebook_new();	
    
 	gtk_widget_show (s->table);
@@ -2534,7 +2531,6 @@ int main(int argc, char *argv[])
 	
 	gtk_widget_show(scroll1);
 	
-	//gtk_paned_add1(GTK_PANED(boxh),scroll1);
    	Tab1Label = gtk_label_new("Image Controls");
 	gtk_notebook_append_page(GTK_NOTEBOOK(boxh),scroll1,Tab1Label);
    
@@ -2594,16 +2590,13 @@ int main(int argc, char *argv[])
                                                               GTK_CORNER_TOP_LEFT);
 	gtk_widget_show(scroll2);
 	
-	//gtk_paned_add2(GTK_PANED(boxh),scroll2);
 	Tab2Label = gtk_label_new("Video|Capture");
 	gtk_notebook_append_page(GTK_NOTEBOOK(boxh),scroll2,Tab2Label);
 	
 	/*sets the pan position*/
-	if(((global->boxhsize)*(global->boxvsize))==0) {
-		global->boxhsize=global->winwidth>>1;
+	if(global->boxvsize==0) {
 		global->boxvsize=global->winheight-90;
 	}
-	//gtk_paned_set_position (GTK_PANED(boxh),global->boxhsize);
 	gtk_paned_set_position (GTK_PANED(boxv),global->boxvsize);
 	
 	/* Resolution*/
@@ -2683,7 +2676,7 @@ int main(int argc, char *argv[])
 	
 	ShowFPS=gtk_check_button_new_with_label (" Show");
 	gtk_table_attach(GTK_TABLE(table2), ShowFPS, 2, 3, 2, 3,
-					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+					 GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ShowFPS),(global->FpsCount > 0));
 	gtk_widget_show (ShowFPS);
@@ -2727,13 +2720,13 @@ int main(int argc, char *argv[])
 	gtk_entry_set_text(GTK_ENTRY(ImageFNameEntry),global->imgFPath[0]);
 	
 	gtk_table_attach(GTK_TABLE(table2), CapImageButt, 0, 1, 5, 6,
-					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+					GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	
 	gtk_table_attach(GTK_TABLE(table2), ImageFNameEntry, 1, 2, 5, 6,
 					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	ImgFileButt=gtk_button_new_from_stock(GTK_STOCK_OPEN);
 	gtk_table_attach(GTK_TABLE(table2), ImgFileButt, 2, 3, 5, 6,
-					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+					 GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (ImgFileButt);
 	
 	ImageIncLabel=gtk_label_new(global->imageinc_str);
@@ -2798,13 +2791,13 @@ int main(int argc, char *argv[])
 	}
 	
 	gtk_table_attach(GTK_TABLE(table2), CapAVIButt, 0, 1, 8, 9,
-					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+					 GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_table_attach(GTK_TABLE(table2), AVIFNameEntry, 1, 2, 8, 9,
 					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	
 	AviFileButt=gtk_button_new_from_stock(GTK_STOCK_OPEN);
 	gtk_table_attach(GTK_TABLE(table2), AviFileButt, 2, 3, 8, 9,
-					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+					GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	
 	gtk_widget_show (AviFileButt);
 	gtk_widget_show (CapAVIButt);
@@ -2935,8 +2928,8 @@ int main(int argc, char *argv[])
 	}
 	
 	/*--------------------- sound controls -----------------------------------*/
-	gtk_table_attach(GTK_TABLE(table2), SndDevice, 0, 3, 12, 13,
-					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_table_attach(GTK_TABLE(table2), SndDevice, 1, 3, 12, 13,
+					 GTK_SHRINK | GTK_FILL , 0, 0, 0);
 	gtk_widget_show (SndDevice);
 	/* using default device*/
 	if(global->Sound_UseDev==0) global->Sound_UseDev=global->Sound_DefDev;
@@ -2948,9 +2941,9 @@ int main(int argc, char *argv[])
 		G_CALLBACK (SndDevice_changed), NULL);
 	
 	label_SndDevice = gtk_label_new("Input Device:");
-	gtk_misc_set_alignment (GTK_MISC (label_SndDevice), 0, 0.5);
+	gtk_misc_set_alignment (GTK_MISC (label_SndDevice), 1, 0.5);
 
-	gtk_table_attach (GTK_TABLE(table2), label_SndDevice, 0, 1, 11, 12,
+	gtk_table_attach (GTK_TABLE(table2), label_SndDevice, 0, 1, 12, 13,
 					GTK_FILL, 0, 0, 0);
 
 	gtk_widget_show (label_SndDevice);

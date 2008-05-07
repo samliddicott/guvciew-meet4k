@@ -92,7 +92,7 @@ typedef unsigned char SAMPLE;
 
 #define INCPANTILT 64 // 1°
 
-#define WINSIZEX 960
+#define WINSIZEX 616
 #define WINSIZEY 600
 
 #define AUTO_EXP 8
@@ -205,7 +205,6 @@ struct GLOBAL {
 	int height;
 	int winwidth;
 	int winheight;
-	int boxhsize;
 	int boxvsize;
 	char *mode; /*jpg (default) or yuv*/
 	int format;

@@ -1304,7 +1304,6 @@ int initGlobals (struct GLOBAL *global) {
 	global->height = DEFAULT_HEIGHT;
 	global->winwidth=WINSIZEX;
 	global->winheight=WINSIZEY;
-	global->boxhsize=0;
 	global->boxvsize=0;
 	if((global->mode = (char *) calloc(1, 5 * sizeof(char)))==NULL){
 		printf("couldn't calloc memory for:global->mode\n");
