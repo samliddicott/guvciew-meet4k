@@ -84,9 +84,11 @@ GtkWidget *ImageFNameEntry;
 GtkWidget *ImgFileButt;
 GtkWidget *ImageType;
 GtkWidget *CapImageButt;
+//GtkWidget *QCapImageButt;
 GtkWidget *ImageInc;
 GtkWidget *ImageIncLabel;
 GtkWidget *CapAVIButt;
+//GtkWidget *QCapAVIButt;
 GtkWidget *AVIFNameEntry;
 GtkWidget *FileDialog;
 
@@ -1289,7 +1291,7 @@ file_chooser (GtkButton * FileButt, const int isAVI)
 /*----------------------------- Capture Image --------------------------------*/
 /*image capture button callback*/
 static void
-capture_image (GtkButton * CapImageButt, GtkWidget * ImageFNameEntry)
+capture_image (GtkButton *ImageButt, void *data)
 {
 	int fsize=20;
 	int sfname=120;
@@ -1335,7 +1337,7 @@ capture_image (GtkButton * CapImageButt, GtkWidget * ImageFNameEntry)
 	if(global->image_timer > 0) { 
 		/*auto capture on -> stop it*/
 		if (global->image_timer_id > 0) g_source_remove(global->image_timer_id);
-		gtk_button_set_label(CapImageButt,"Capture");
+	    	gtk_button_set_label(GTK_BUTTON(CapImageButt),"Cap. Image");
 		global->image_timer=0;
 		set_sensitive_img_contrls(TRUE);/*enable image controls*/
 	} else {
@@ -1346,7 +1348,7 @@ capture_image (GtkButton * CapImageButt, GtkWidget * ImageFNameEntry)
 /*--------------------------- Capture AVI ------------------------------------*/
 /*avi capture button callback*/
 static void
-capture_avi (GtkButton * CapAVIButt, GtkWidget * AVIFNameEntry)
+capture_avi (GtkButton *AVIButt, void *data)
 {
 	const char *fileEntr = gtk_entry_get_text(GTK_ENTRY(AVIFNameEntry));
 	if(strcmp(fileEntr,global->aviFPath[0])!=0) {
@@ -1373,7 +1375,7 @@ capture_avi (GtkButton * CapAVIButt, GtkWidget * AVIFNameEntry)
 			compression="MJPG";
 	}	
 	if(videoIn->capAVI) {  /************* Stop AVI ************/
-		gtk_button_set_label(CapAVIButt,"Capture");
+		gtk_button_set_label(GTK_BUTTON(CapAVIButt),"Cap. AVI");
 		global->AVIstoptime = ms_time();	
 		videoIn->capAVI = FALSE;
 		aviClose();
@@ -1395,8 +1397,7 @@ capture_avi (GtkButton * CapAVIButt, GtkWidget * AVIFNameEntry)
 		videoIn->AVIFName=strncpy(videoIn->AVIFName,filename,sfname);
 		
 		//printf("opening avi file: %s\n",videoIn->AVIFName);
-			 
-		gtk_button_set_label(CapAVIButt,"Stop");  
+	    	gtk_button_set_label(GTK_BUTTON(CapAVIButt),"Stop AVI");
 		AviOut = AVI_open_output_file(videoIn->AVIFName);
 		/*4CC compression "YUY2" (YUV) or "DIB " (RGB24)  or  "MJPG"*/	
 	        
@@ -2382,7 +2383,8 @@ int main(int argc, char *argv[])
 	GtkWidget *scroll1;
 	GtkWidget *scroll2;
 	GtkWidget *buttons_table;
-	GtkWidget *button_labels;
+	GtkWidget *profile_labels;
+    	GtkWidget *capture_labels;
 	GtkWidget *Resolution;
 	GtkWidget *FrameRate;
 	GtkWidget *ShowFPS;
@@ -2404,6 +2406,8 @@ int main(int argc, char *argv[])
 	GtkWidget *LProfileButton;
 	GtkWidget *Tab1Label;
    	GtkWidget *Tab2Label;
+    	GtkWidget *label_ImgFile;
+    	GtkWidget *label_AVIFile;
    
    	size_t stacksize;
 	stacksize = sizeof(char) * TSTACK;
@@ -2547,31 +2551,62 @@ int main(int argc, char *argv[])
 	gtk_widget_show (buttons_table);
 	gtk_paned_add2(GTK_PANED(boxv),buttons_table);
 	
-	button_labels=gtk_label_new("Control Profiles:");
-	gtk_misc_set_alignment (GTK_MISC (button_labels), 0, 0.5);
+	profile_labels=gtk_label_new("Control Profiles:");
+	gtk_misc_set_alignment (GTK_MISC (profile_labels), 0, 0.5);
 
-	gtk_table_attach (GTK_TABLE(buttons_table), button_labels, 0, 2, 0, 1,
+	gtk_table_attach (GTK_TABLE(buttons_table), profile_labels, 3, 5, 0, 1,
+					 GTK_FILL, 0, 0, 0);
+    
+    	capture_labels=gtk_label_new("Capture:");
+	gtk_misc_set_alignment (GTK_MISC (capture_labels), 0, 0.5);
+    	gtk_table_attach (GTK_TABLE(buttons_table), capture_labels, 0, 2, 0, 1,
 					 GTK_FILL, 0, 0, 0);
 
-	gtk_widget_show (button_labels);
+	gtk_widget_show (capture_labels);
+    	gtk_widget_show (profile_labels);
 	
 	quitButton=gtk_button_new_from_stock(GTK_STOCK_CLOSE);
 	SProfileButton=gtk_button_new_from_stock(GTK_STOCK_SAVE);
 	LProfileButton=gtk_button_new_from_stock(GTK_STOCK_OPEN);
+    
+    	if(global->image_timer){ /*image auto capture*/
+    		CapImageButt=gtk_button_new_with_label ("Stop Auto");
+	} else {
+		CapImageButt=gtk_button_new_with_label ("Cap. Image ");
+	}
+    	
+    	if (global->avifile) {	/*avi capture enabled from start*/
+		CapAVIButt=gtk_button_new_with_label ("Stop AVI");
+	} else {
+		CapAVIButt=gtk_button_new_with_label ("Cap. AVI");
+	}
+    
+    	gtk_table_attach (GTK_TABLE(buttons_table), CapImageButt, 0, 1, 1, 2,
+					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+    	gtk_table_attach (GTK_TABLE(buttons_table), CapAVIButt, 1, 2, 1, 2,
+					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 		
-	gtk_table_attach (GTK_TABLE(buttons_table), quitButton, 3, 4, 1, 2,
+	gtk_table_attach (GTK_TABLE(buttons_table), quitButton, 6, 7, 1, 2,
 					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (quitButton);
+    	gtk_widget_show (CapImageButt);
+    	gtk_widget_show (CapAVIButt);
+    
+    	g_signal_connect (GTK_BUTTON(CapImageButt), "clicked",
+		 G_CALLBACK (capture_image), NULL);
+    	g_signal_connect (GTK_BUTTON(CapAVIButt), "clicked",
+		 G_CALLBACK (capture_avi), NULL);
+    
 	g_signal_connect (GTK_BUTTON(quitButton), "clicked",
 		 G_CALLBACK (quitButton_clicked), NULL);
 	
-	gtk_table_attach (GTK_TABLE(buttons_table), SProfileButton, 0, 1, 1, 2,
+	gtk_table_attach (GTK_TABLE(buttons_table), SProfileButton, 3, 4, 1, 2,
 					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (SProfileButton);
 	g_signal_connect (GTK_BUTTON(SProfileButton), "clicked",
 		 G_CALLBACK (SProfileButton_clicked), s);
 	
-	gtk_table_attach (GTK_TABLE(buttons_table), LProfileButton, 1, 2, 1, 2,
+	gtk_table_attach (GTK_TABLE(buttons_table), LProfileButton, 4, 5, 1, 2,
 					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (LProfileButton);
 	g_signal_connect (GTK_BUTTON(LProfileButton), "clicked",
@@ -2714,12 +2749,14 @@ int main(int argc, char *argv[])
 	gtk_widget_show (label_ImpType);
 	
 	/* Image Capture*/
-	CapImageButt = gtk_button_new_with_label("Capture");
-	ImageFNameEntry = gtk_entry_new();
+    	label_ImgFile= gtk_label_new("Image File:");
+	gtk_misc_set_alignment (GTK_MISC (label_ImgFile), 1, 0.5);
+    
+    	ImageFNameEntry = gtk_entry_new();
 	
 	gtk_entry_set_text(GTK_ENTRY(ImageFNameEntry),global->imgFPath[0]);
 	
-	gtk_table_attach(GTK_TABLE(table2), CapImageButt, 0, 1, 5, 6,
+	gtk_table_attach(GTK_TABLE(table2), label_ImgFile, 0, 1, 5, 6,
 					GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	
 	gtk_table_attach(GTK_TABLE(table2), ImageFNameEntry, 1, 2, 5, 6,
@@ -2766,7 +2803,7 @@ int main(int argc, char *argv[])
 					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (ImageType);
 	
-	gtk_widget_show (CapImageButt);
+	gtk_widget_show (label_ImgFile);
 	gtk_widget_show (ImageFNameEntry);
 	gtk_widget_show (ImageType);
 	g_signal_connect (GTK_COMBO_BOX(ImageType), "changed",
@@ -2774,23 +2811,21 @@ int main(int argc, char *argv[])
 	
 	g_signal_connect (GTK_BUTTON(ImgFileButt), "clicked",
 		 G_CALLBACK (file_chooser), GINT_TO_POINTER (0));
-	g_signal_connect (GTK_BUTTON(CapImageButt), "clicked",
-		 G_CALLBACK (capture_image), ImageFNameEntry);
 	
 	
 	/*AVI Capture*/
+    	label_AVIFile= gtk_label_new("AVI File:");
+    	gtk_misc_set_alignment (GTK_MISC (label_AVIFile), 1, 0.5);
 	AVIFNameEntry = gtk_entry_new();
 	
 	if (global->avifile) {	/*avi capture enabled from start*/
-		CapAVIButt = gtk_button_new_with_label("Stop");
 		gtk_entry_set_text(GTK_ENTRY(AVIFNameEntry),global->avifile);
 	} else {
-		CapAVIButt = gtk_button_new_with_label("Capture");
 		videoIn->capAVI = FALSE;
 		gtk_entry_set_text(GTK_ENTRY(AVIFNameEntry),global->aviFPath[0]);
 	}
 	
-	gtk_table_attach(GTK_TABLE(table2), CapAVIButt, 0, 1, 8, 9,
+	gtk_table_attach(GTK_TABLE(table2), label_AVIFile, 0, 1, 8, 9,
 					 GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_table_attach(GTK_TABLE(table2), AVIFNameEntry, 1, 2, 8, 9,
 					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
@@ -2800,13 +2835,12 @@ int main(int argc, char *argv[])
 					GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	
 	gtk_widget_show (AviFileButt);
-	gtk_widget_show (CapAVIButt);
+    	gtk_widget_show (label_AVIFile);
 	gtk_widget_show (AVIFNameEntry);
 	
 	g_signal_connect (GTK_BUTTON(AviFileButt), "clicked",
 		 G_CALLBACK (file_chooser), GINT_TO_POINTER (1));
-	g_signal_connect (GTK_BUTTON(CapAVIButt), "clicked",
-		 G_CALLBACK (capture_avi), AVIFNameEntry);
+	
 	/*table 10-11: inc avi file name */
 	
 	/* AVI Compressor */
@@ -3105,7 +3139,6 @@ int main(int argc, char *argv[])
 	if(global->image_timer){
 		global->image_timer_id=g_timeout_add(global->image_timer*1000,
                                                           Image_capture_timer,NULL);
-		gtk_button_set_label(GTK_BUTTON(CapImageButt),"Stop auto");
 		set_sensitive_img_contrls(FALSE);/*disable image controls*/
 	}
 	/*--------------------- avi capture from start ---------------------------*/
