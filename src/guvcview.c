@@ -2543,10 +2543,11 @@ int main(int argc, char *argv[])
 	gtk_widget_show (boxv);
 	
 	/*----- Add  Buttons -----*/
-	buttons_table = gtk_table_new(1,7,TRUE);
-	gtk_table_set_row_spacings (GTK_TABLE (buttons_table), 4);
+	buttons_table = gtk_table_new(1,6,TRUE); /*all buttons are the same size*/
+   
+	gtk_table_set_row_spacings (GTK_TABLE (buttons_table), 1);
 	gtk_table_set_col_spacings (GTK_TABLE (buttons_table), 4);
-	gtk_container_set_border_width (GTK_CONTAINER (buttons_table), 2);
+	gtk_container_set_border_width (GTK_CONTAINER (buttons_table), 1);
 	
 	gtk_widget_show (buttons_table);
 	gtk_paned_add2(GTK_PANED(boxv),buttons_table);
@@ -2555,12 +2556,12 @@ int main(int argc, char *argv[])
 	gtk_misc_set_alignment (GTK_MISC (profile_labels), 0, 0.5);
 
 	gtk_table_attach (GTK_TABLE(buttons_table), profile_labels, 3, 5, 0, 1,
-					 GTK_FILL, 0, 0, 0);
+					 GTK_SHRINK | GTK_FILL, 0, 0, 0);
     
     	capture_labels=gtk_label_new("Capture:");
 	gtk_misc_set_alignment (GTK_MISC (capture_labels), 0, 0.5);
     	gtk_table_attach (GTK_TABLE(buttons_table), capture_labels, 0, 2, 0, 1,
-					 GTK_FILL, 0, 0, 0);
+					 GTK_SHRINK | GTK_FILL, 0, 0, 0);
 
 	gtk_widget_show (capture_labels);
     	gtk_widget_show (profile_labels);
@@ -2582,12 +2583,12 @@ int main(int argc, char *argv[])
 	}
     
     	gtk_table_attach (GTK_TABLE(buttons_table), CapImageButt, 0, 1, 1, 2,
-					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+					 GTK_SHRINK | GTK_FILL, 0, 0, 0);
     	gtk_table_attach (GTK_TABLE(buttons_table), CapAVIButt, 1, 2, 1, 2,
-					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+					GTK_SHRINK | GTK_FILL, 0, 0, 0);
 		
-	gtk_table_attach (GTK_TABLE(buttons_table), quitButton, 6, 7, 1, 2,
-					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_table_attach (GTK_TABLE(buttons_table), quitButton, 5, 6, 1, 2,
+					GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (quitButton);
     	gtk_widget_show (CapImageButt);
     	gtk_widget_show (CapAVIButt);
@@ -2601,13 +2602,13 @@ int main(int argc, char *argv[])
 		 G_CALLBACK (quitButton_clicked), NULL);
 	
 	gtk_table_attach (GTK_TABLE(buttons_table), SProfileButton, 3, 4, 1, 2,
-					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+					GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (SProfileButton);
 	g_signal_connect (GTK_BUTTON(SProfileButton), "clicked",
 		 G_CALLBACK (SProfileButton_clicked), s);
 	
 	gtk_table_attach (GTK_TABLE(buttons_table), LProfileButton, 4, 5, 1, 2,
-					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+					GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (LProfileButton);
 	g_signal_connect (GTK_BUTTON(LProfileButton), "clicked",
 		 G_CALLBACK (LProfileButton_clicked), s);

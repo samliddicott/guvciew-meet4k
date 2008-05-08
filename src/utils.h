@@ -92,7 +92,7 @@ typedef unsigned char SAMPLE;
 
 #define INCPANTILT 64 // 1°
 
-#define WINSIZEX 616
+#define WINSIZEX 610
 #define WINSIZEY 600
 
 #define AUTO_EXP 8
