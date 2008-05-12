@@ -41,6 +41,11 @@
 #include <signal.h>
 #include <X11/Xlib.h>
 #include <SDL/SDL_syswm.h>
+/* support for internationalization - i18n */
+#include <glib/gi18n.h>
+#include "../config.h"
+
+
 
 #include <gtk/gtk.h>
 #include <gdk/gdkx.h>
@@ -50,6 +55,9 @@
 #include "avilib.h"
 
 #include "prototype.h"
+
+
+
 
 /*----------------------------- globals --------------------------------------*/
 struct GLOBAL *global=NULL;
@@ -969,16 +977,16 @@ resolution_changed (GtkComboBox * Resolution, void *data)
 	global->fps=videoIn->listVidCap[global->formind][index].framerate_denom[deffps];		
 	
 	
-	restartdialog = gtk_dialog_new_with_buttons ("Program Restart",
+	restartdialog = gtk_dialog_new_with_buttons (_("Program Restart"),
 						    GTK_WINDOW(mainwin),
 						    GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
-						    "now",
+						    _("now"),
 						    GTK_RESPONSE_ACCEPT,
-						    "Later",
+						    _("Later"),
 						    GTK_RESPONSE_REJECT,
 						    NULL);
 	
-	GtkWidget *message = gtk_label_new ("Changes will only take effect after guvcview restart.\n\n\nRestart now?\n");
+	GtkWidget *message = gtk_label_new (_("Changes will only take effect after guvcview restart.\n\n\nRestart now?\n"));
 	gtk_container_add (GTK_CONTAINER (GTK_DIALOG(restartdialog)->vbox), message);
 	gtk_widget_show_all(GTK_WIDGET(GTK_CONTAINER (GTK_DIALOG(restartdialog)->vbox)));
 	
@@ -1048,16 +1056,16 @@ ImpType_changed(GtkComboBox * ImpType, void * Data)
 	global->fps_num=videoIn->listVidCap[global->formind][defres].framerate_num[deffps];
 	global->fps=videoIn->listVidCap[global->formind][defres].framerate_denom[deffps];
 	
-	restartdialog = gtk_dialog_new_with_buttons ("Program Restart",
+	restartdialog = gtk_dialog_new_with_buttons (_("Program Restart"),
 						     GTK_WINDOW(mainwin),
 						     GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
-						     "now",
+						     _("now"),
 						     GTK_RESPONSE_ACCEPT,
-						     "Later",
+						     _("Later"),
 						     GTK_RESPONSE_REJECT,
 						     NULL);
 	
-	GtkWidget *message = gtk_label_new ("Changes will only take effect after guvcview restart.\n\n\nRestart now?\n");
+	GtkWidget *message = gtk_label_new (_("Changes will only take effect after guvcview restart.\n\n\nRestart now?\n"));
 	gtk_container_add (GTK_CONTAINER (GTK_DIALOG(restartdialog)->vbox), message);
 	gtk_widget_show_all(GTK_WIDGET(GTK_CONTAINER (GTK_DIALOG(restartdialog)->vbox)));
 	
@@ -1138,7 +1146,7 @@ ImageType_changed (GtkComboBox * ImageType,GtkEntry *ImageFNameEntry)
 	if(global->image_inc>0) {
 		global->image_inc=1; /*if auto naming restart counter*/
 	}
-	snprintf(global->imageinc_str,19,"File inc:%d",global->image_inc);
+	snprintf(global->imageinc_str,24,_("File num:%d"),global->image_inc);
 	gtk_label_set_text(GTK_LABEL(ImageIncLabel), global->imageinc_str);
 }
 
@@ -1225,7 +1233,7 @@ file_chooser (GtkButton * FileButt, const int isAVI)
   const char *basename;
   char *fullname;
 	
-  FileDialog = gtk_file_chooser_dialog_new ("Save File",
+  FileDialog = gtk_file_chooser_dialog_new (_("Save File"),
 					  GTK_WINDOW (mainwin),
 					  GTK_FILE_CHOOSER_ACTION_SAVE,
 					  GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
@@ -1277,7 +1285,7 @@ file_chooser (GtkButton * FileButt, const int isAVI)
 		
 		if(global->image_inc>0){ 
 			global->image_inc=1; /*if auto naming restart counter*/
-			snprintf(global->imageinc_str,19,"File inc:%d",global->image_inc);
+			snprintf(global->imageinc_str,24,_("File num:%d"),global->image_inc);
 			gtk_label_set_text(GTK_LABEL(ImageIncLabel), global->imageinc_str);
 		}
 			
@@ -1311,7 +1319,7 @@ capture_image (GtkButton *ImageButt, void *data)
 	fsize=strlen(global->imgFPath[0]);
 	sfname=strlen(global->imgFPath[1])+fsize+10;
 	char filename[sfname]; /*10 - digits for auto increment*/
-	snprintf(global->imageinc_str,19,"File inc:%d",global->image_inc);
+	snprintf(global->imageinc_str,24,_("File num:%d"),global->image_inc);
 	gtk_label_set_text(GTK_LABEL(ImageIncLabel), global->imageinc_str);
 	
 	if ((global->image_timer == 0) && (global->image_inc>0)) {
@@ -1337,7 +1345,7 @@ capture_image (GtkButton *ImageButt, void *data)
 	if(global->image_timer > 0) { 
 		/*auto capture on -> stop it*/
 		if (global->image_timer_id > 0) g_source_remove(global->image_timer_id);
-	    	gtk_button_set_label(GTK_BUTTON(CapImageButt),"Cap. Image");
+	    	gtk_button_set_label(GTK_BUTTON(CapImageButt),_("Cap. Image"));
 		global->image_timer=0;
 		set_sensitive_img_contrls(TRUE);/*enable image controls*/
 	} else {
@@ -1375,7 +1383,7 @@ capture_avi (GtkButton *AVIButt, void *data)
 			compression="MJPG";
 	}	
 	if(videoIn->capAVI) {  /************* Stop AVI ************/
-		gtk_button_set_label(GTK_BUTTON(CapAVIButt),"Cap. AVI");
+		gtk_button_set_label(GTK_BUTTON(CapAVIButt),_("Cap. AVI"));
 		global->AVIstoptime = ms_time();	
 		videoIn->capAVI = FALSE;
 		aviClose();
@@ -1397,7 +1405,7 @@ capture_avi (GtkButton *AVIButt, void *data)
 		videoIn->AVIFName=strncpy(videoIn->AVIFName,filename,sfname);
 		
 		//printf("opening avi file: %s\n",videoIn->AVIFName);
-	    	gtk_button_set_label(GTK_BUTTON(CapAVIButt),"Stop AVI");
+	    	gtk_button_set_label(GTK_BUTTON(CapAVIButt),_("Stop AVI"));
 		AviOut = AVI_open_output_file(videoIn->AVIFName);
 		/*4CC compression "YUY2" (YUV) or "DIB " (RGB24)  or  "MJPG"*/	
 	        
@@ -1466,7 +1474,7 @@ Image_capture_timer(){
 	
 	sprintf(videoIn->ImageFName,"%s/%s-%i.%s",global->imgFPath[1],
 			                        basename,global->image_inc,extension );
-	snprintf(global->imageinc_str,19,"File inc:%d",global->image_inc);
+	snprintf(global->imageinc_str,24,_("File num:%d"),global->image_inc);
 		
 	gtk_label_set_text(GTK_LABEL(ImageIncLabel), global->imageinc_str);
 	
@@ -1474,7 +1482,7 @@ Image_capture_timer(){
 	/*set image capture flag*/
 	videoIn->capImage = TRUE;
 	if(global->image_inc > global->image_npics) {/*destroy timer*/
-		gtk_button_set_label(GTK_BUTTON(CapImageButt),"Capture");
+		gtk_button_set_label(GTK_BUTTON(CapImageButt),_("Cap. Image"));
 		global->image_timer=0;
 		set_sensitive_img_contrls(TRUE);/*enable image controls*/
 		return (FALSE);
@@ -1503,7 +1511,7 @@ ImageInc_changed(GtkToggleButton * toggle, void *data)
 {
 	global->image_inc = gtk_toggle_button_get_active (toggle) ? 1 : 0;
 	
-	snprintf(global->imageinc_str,19,"File inc:%d",global->image_inc);
+	snprintf(global->imageinc_str,24,_("File num:%d"),global->image_inc);
 	
 	gtk_label_set_text(GTK_LABEL(ImageIncLabel), global->imageinc_str);
 
@@ -1654,7 +1662,7 @@ SProfileButton_clicked (GtkButton * SProfileButton,VidState *vst)
 {
 	char *filename;
 	
-	FileDialog = gtk_file_chooser_dialog_new ("Save File",
+	FileDialog = gtk_file_chooser_dialog_new (_("Save File"),
 					  GTK_WINDOW(mainwin),
 					  GTK_FILE_CHOOSER_ACTION_SAVE,
 					  GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
@@ -1684,7 +1692,7 @@ LProfileButton_clicked (GtkButton * LProfileButton, VidState *vst)
 {
 	char *filename;
 	
-	FileDialog = gtk_file_chooser_dialog_new ("Load File",
+	FileDialog = gtk_file_chooser_dialog_new (_("Load File"),
 					  GTK_WINDOW(mainwin),
 					  GTK_FILE_CHOOSER_ACTION_OPEN,
 					  GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
@@ -1816,15 +1824,15 @@ draw_controls (VidState *s)
 			g_signal_connect (G_OBJECT (ci->widget), "changed",
 					G_CALLBACK (combo_changed), s);
 
-			ci->label = gtk_label_new ("Exposure:");	
+			ci->label = gtk_label_new (_("Exposure:"));	
 			
 		} else if ((c->id == V4L2_CID_PAN_RELATIVE_LOGITECH) ||
 				   (c->id == V4L2_CID_PAN_RELATIVE_NEW) ||
 				   (c->id == V4L2_CID_PAN_RELATIVE)) {
 			videoIn->PanTilt=1;
 			ci->widget = gtk_hbox_new (FALSE, 0);
-			GtkWidget *PanLeft = gtk_button_new_with_label("Left");
-			GtkWidget *PanRight = gtk_button_new_with_label("Right");
+			GtkWidget *PanLeft = gtk_button_new_with_label(_("Left"));
+			GtkWidget *PanRight = gtk_button_new_with_label(_("Right"));
 			gtk_box_pack_start (GTK_BOX (ci->widget), PanLeft, TRUE, TRUE, 0);
 			gtk_box_pack_start (GTK_BOX (ci->widget), PanRight, TRUE, TRUE, 0);
 			gtk_widget_show (PanLeft);
@@ -1840,15 +1848,15 @@ draw_controls (VidState *s)
 			ci->maxchars = MAX (num_chars (c->min), num_chars (c->max));
 			gtk_widget_show (ci->widget);
 
-			ci->label = gtk_label_new (g_strdup_printf ("%s:", c->name));
+			ci->label = gtk_label_new (g_strdup_printf ("%s:", gettext(c->name)));
 			
 		} else if ((c->id == V4L2_CID_TILT_RELATIVE_LOGITECH) ||
 				   (c->id == V4L2_CID_TILT_RELATIVE_NEW) ||
 				   (c->id == V4L2_CID_TILT_RELATIVE)) {
 			videoIn->PanTilt=1;
 			ci->widget = gtk_hbox_new (FALSE, 0);
-			GtkWidget *TiltUp = gtk_button_new_with_label("Up");
-			GtkWidget *TiltDown = gtk_button_new_with_label("Down");
+			GtkWidget *TiltUp = gtk_button_new_with_label(_("Up"));
+			GtkWidget *TiltDown = gtk_button_new_with_label(_("Down"));
 			gtk_box_pack_start (GTK_BOX (ci->widget), TiltUp, TRUE, TRUE, 0);
 			gtk_box_pack_start (GTK_BOX (ci->widget), TiltDown, TRUE, TRUE, 0);
 			gtk_widget_show (TiltUp);
@@ -1864,14 +1872,14 @@ draw_controls (VidState *s)
 			ci->maxchars = MAX (num_chars (c->min), num_chars (c->max));
 			gtk_widget_show (ci->widget);
 
-			ci->label = gtk_label_new (g_strdup_printf ("%s:", c->name));
+			ci->label = gtk_label_new (g_strdup_printf ("%s:", gettext(c->name)));
 			
 		} else if ((c->id == V4L2_CID_PANTILT_RESET_LOGITECH) ||
 				   (c->id == V4L2_CID_PANTILT_RESET) ||
 				   (c->id == V4L2_CID_PAN_RESET_NEW) ||
 				   (c->id == V4L2_CID_TILT_RESET_NEW)) {
 			ci->widget = gtk_hbox_new (FALSE, 0);
-			GtkWidget *PTReset = gtk_button_new_with_label("Reset");
+			GtkWidget *PTReset = gtk_button_new_with_label(_("Reset"));
 			gtk_box_pack_start (GTK_BOX (ci->widget), PTReset, TRUE, TRUE, 0);
 			gtk_widget_show (PTReset);
 			g_signal_connect (GTK_BUTTON (PTReset), "clicked",
@@ -1883,7 +1891,7 @@ draw_controls (VidState *s)
 			ci->maxchars = MAX (num_chars (c->min), num_chars (c->max));
 			gtk_widget_show (ci->widget);
 
-			ci->label = gtk_label_new (g_strdup_printf ("%s:", c->name));
+			ci->label = gtk_label_new (g_strdup_printf ("%s:", gettext(c->name)));
 			
 		} else if (c->type == INPUT_CONTROL_TYPE_INTEGER) {
 			int val;
@@ -1940,11 +1948,11 @@ draw_controls (VidState *s)
 
 			gtk_widget_show (ci->spinbutton);
 
-			ci->label = gtk_label_new (g_strdup_printf ("%s:", c->name));
+			ci->label = gtk_label_new (g_strdup_printf ("%s:", gettext(c->name)));
 		}
 		else if (c->type == INPUT_CONTROL_TYPE_BOOLEAN) {
 			int val;
-			ci->widget = gtk_check_button_new_with_label (c->name);
+			ci->widget = gtk_check_button_new_with_label (gettext(c->name));
 			g_object_set_data (G_OBJECT (ci->widget), "control_info", ci);
 			gtk_widget_show (ci->widget);
 			gtk_table_attach (GTK_TABLE (s->table), ci->widget, 1, 3, 3+i, 4+i,
@@ -1999,10 +2007,10 @@ draw_controls (VidState *s)
 			g_signal_connect (G_OBJECT (ci->widget), "changed",
 					G_CALLBACK (combo_changed), s);
 
-			ci->label = gtk_label_new (g_strdup_printf ("%s:", c->name));
+			ci->label = gtk_label_new (g_strdup_printf ("%s:", gettext(c->name)));
 		}
 		else {
-			fprintf (stderr, "TODO: implement menu and button\n");
+			fprintf (stderr, "TODO: implement button\n");
 			continue;
 		}
 
@@ -2361,6 +2369,15 @@ void *main_loop(void *data)
 /*--------------------------------- MAIN -------------------------------------*/
 int main(int argc, char *argv[])
 {
+    
+#ifdef ENABLE_NLS
+	char* lc_all = setlocale (LC_ALL, "");
+	char* lc_dir = bindtextdomain (GETTEXT_PACKAGE, LOCALE_DIR);
+	char* codeset = bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
+	char* txtdom = textdomain (GETTEXT_PACKAGE);
+	printf("language catalog=> dir:%s lang:%s cat:%s.%s\n",lc_dir,lc_all,txtdom,codeset);
+#endif
+    
 	int i;
 	printf("guvcview version %s \n", VERSION);
 	
@@ -2447,7 +2464,7 @@ int main(int argc, char *argv[])
 
 	/* Create a main window */
 	mainwin = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_title (GTK_WINDOW (mainwin), "GUVCViewer Controls");
+	gtk_window_set_title (GTK_WINDOW (mainwin), _("GUVCViewer Controls"));
 	//gtk_widget_set_usize(mainwin, winwidth, winheight);
 	gtk_window_resize(GTK_WINDOW(mainwin),global->winwidth,global->winheight);
 	/* Add event handlers */
@@ -2535,7 +2552,7 @@ int main(int argc, char *argv[])
 	
 	gtk_widget_show(scroll1);
 	
-   	Tab1Label = gtk_label_new("Image Controls");
+   	Tab1Label = gtk_label_new(_("Image Controls"));
 	gtk_notebook_append_page(GTK_NOTEBOOK(boxh),scroll1,Tab1Label);
    
    	gtk_paned_add1(GTK_PANED(boxv),boxh);
@@ -2552,13 +2569,13 @@ int main(int argc, char *argv[])
 	gtk_widget_show (buttons_table);
 	gtk_paned_add2(GTK_PANED(boxv),buttons_table);
 	
-	profile_labels=gtk_label_new("Control Profiles:");
+	profile_labels=gtk_label_new(_("Control Profiles:"));
 	gtk_misc_set_alignment (GTK_MISC (profile_labels), 0, 0.5);
 
 	gtk_table_attach (GTK_TABLE(buttons_table), profile_labels, 3, 5, 0, 1,
 					 GTK_SHRINK | GTK_FILL, 0, 0, 0);
     
-    	capture_labels=gtk_label_new("Capture:");
+    	capture_labels=gtk_label_new(_("Capture:"));
 	gtk_misc_set_alignment (GTK_MISC (capture_labels), 0, 0.5);
     	gtk_table_attach (GTK_TABLE(buttons_table), capture_labels, 0, 2, 0, 1,
 					 GTK_SHRINK | GTK_FILL, 0, 0, 0);
@@ -2571,15 +2588,15 @@ int main(int argc, char *argv[])
 	LProfileButton=gtk_button_new_from_stock(GTK_STOCK_OPEN);
     
     	if(global->image_timer){ /*image auto capture*/
-    		CapImageButt=gtk_button_new_with_label ("Stop Auto");
+    		CapImageButt=gtk_button_new_with_label (_("Stop Auto"));
 	} else {
-		CapImageButt=gtk_button_new_with_label ("Cap. Image ");
+		CapImageButt=gtk_button_new_with_label (_("Cap. Image"));
 	}
     	
     	if (global->avifile) {	/*avi capture enabled from start*/
-		CapAVIButt=gtk_button_new_with_label ("Stop AVI");
+		CapAVIButt=gtk_button_new_with_label (_("Stop AVI"));
 	} else {
-		CapAVIButt=gtk_button_new_with_label ("Cap. AVI");
+		CapAVIButt=gtk_button_new_with_label (_("Cap. AVI"));
 	}
     
     	gtk_table_attach (GTK_TABLE(buttons_table), CapImageButt, 0, 1, 1, 2,
@@ -2626,7 +2643,7 @@ int main(int argc, char *argv[])
                                                               GTK_CORNER_TOP_LEFT);
 	gtk_widget_show(scroll2);
 	
-	Tab2Label = gtk_label_new("Video|Capture");
+	Tab2Label = gtk_label_new(_("Video|Capture"));
 	gtk_notebook_append_page(GTK_NOTEBOOK(boxh),scroll2,Tab2Label);
 	
 	/*sets the pan position*/
@@ -2660,7 +2677,7 @@ int main(int argc, char *argv[])
 	g_signal_connect (Resolution, "changed",
 			G_CALLBACK (resolution_changed), NULL);
 	
-	labelResol = gtk_label_new("Resolution:");
+	labelResol = gtk_label_new(_("Resolution:"));
 	gtk_misc_set_alignment (GTK_MISC (labelResol), 1, 0.5);
 
 	gtk_table_attach (GTK_TABLE(table2), labelResol, 0, 1, 3, 4,
@@ -2702,7 +2719,7 @@ int main(int argc, char *argv[])
 	g_signal_connect (GTK_COMBO_BOX(FrameRate), "changed",
 		G_CALLBACK (FrameRate_changed), Resolution);
 	
-	label_FPS = gtk_label_new("Frame Rate:");
+	label_FPS = gtk_label_new(_("Frame Rate:"));
 	gtk_misc_set_alignment (GTK_MISC (label_FPS), 1, 0.5);
 
 	gtk_table_attach (GTK_TABLE(table2), label_FPS, 0, 1, 2, 3,
@@ -2710,7 +2727,7 @@ int main(int argc, char *argv[])
 
 	gtk_widget_show (label_FPS);
 	
-	ShowFPS=gtk_check_button_new_with_label (" Show");
+	ShowFPS=gtk_check_button_new_with_label (_(" Show"));
 	gtk_table_attach(GTK_TABLE(table2), ShowFPS, 2, 3, 2, 3,
 					 GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	
@@ -2741,7 +2758,7 @@ int main(int argc, char *argv[])
 		G_CALLBACK (ImpType_changed), NULL);
 	gtk_widget_show (ImpType);
 	
-	label_ImpType = gtk_label_new("Camera Output:");
+	label_ImpType = gtk_label_new(_("Camera Output:"));
 	gtk_misc_set_alignment (GTK_MISC (label_ImpType), 1, 0.5);
 
 	gtk_table_attach (GTK_TABLE(table2), label_ImpType, 0, 1, 4, 5,
@@ -2750,7 +2767,7 @@ int main(int argc, char *argv[])
 	gtk_widget_show (label_ImpType);
 	
 	/* Image Capture*/
-    	label_ImgFile= gtk_label_new("Image File:");
+    	label_ImgFile= gtk_label_new(_("Image File:"));
 	gtk_misc_set_alignment (GTK_MISC (label_ImgFile), 1, 0.5);
     
     	ImageFNameEntry = gtk_entry_new();
@@ -2776,7 +2793,7 @@ int main(int argc, char *argv[])
 	gtk_widget_show (ImageIncLabel);
 	
 	/*incremental capture*/
-	ImageInc=gtk_check_button_new_with_label ("File,Auto");
+	ImageInc=gtk_check_button_new_with_label (_("File,Auto"));
 	gtk_table_attach(GTK_TABLE(table2), ImageInc, 2, 3, 6, 7,
 					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	
@@ -2787,7 +2804,7 @@ int main(int argc, char *argv[])
 	gtk_widget_show (ImageInc);
 	
 	
-	label_ImageType=gtk_label_new("Image Type:");
+	label_ImageType=gtk_label_new(_("Image Type:"));
 	gtk_misc_set_alignment (GTK_MISC (label_ImageType), 1, 0.5);
 
 	gtk_table_attach (GTK_TABLE(table2), label_ImageType, 0, 1, 7, 8,
@@ -2815,7 +2832,7 @@ int main(int argc, char *argv[])
 	
 	
 	/*AVI Capture*/
-    	label_AVIFile= gtk_label_new("AVI File:");
+    	label_AVIFile= gtk_label_new(_("AVI File:"));
     	gtk_misc_set_alignment (GTK_MISC (label_AVIFile), 1, 0.5);
 	AVIFNameEntry = gtk_entry_new();
 	
@@ -2847,9 +2864,9 @@ int main(int argc, char *argv[])
 	/* AVI Compressor */
 	AVIComp = gtk_combo_box_new_text ();
 	
-	gtk_combo_box_append_text(GTK_COMBO_BOX(AVIComp),"MJPG - compressed");
-	gtk_combo_box_append_text(GTK_COMBO_BOX(AVIComp),"YUY2 - uncomp YUV");
-	gtk_combo_box_append_text(GTK_COMBO_BOX(AVIComp),"RGB - uncomp BMP");
+	gtk_combo_box_append_text(GTK_COMBO_BOX(AVIComp),_("MJPG - compressed"));
+	gtk_combo_box_append_text(GTK_COMBO_BOX(AVIComp),_("YUY2 - uncomp YUV"));
+	gtk_combo_box_append_text(GTK_COMBO_BOX(AVIComp),_("RGB - uncomp BMP"));
 	
 	gtk_table_attach(GTK_TABLE(table2), AVIComp, 1, 2, 10, 11,
 					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
@@ -2861,7 +2878,7 @@ int main(int argc, char *argv[])
 	g_signal_connect (GTK_COMBO_BOX(AVIComp), "changed",
 		G_CALLBACK (AVIComp_changed), NULL);
 	
-	label_AVIComp = gtk_label_new("AVI Format:");
+	label_AVIComp = gtk_label_new(_("AVI Format:"));
 	gtk_misc_set_alignment (GTK_MISC (label_AVIComp), 1, 0.5);
 
 	gtk_table_attach (GTK_TABLE(table2), label_AVIComp, 0, 1, 10, 11,
@@ -2975,7 +2992,7 @@ int main(int argc, char *argv[])
 	g_signal_connect (GTK_COMBO_BOX(SndDevice), "changed",
 		G_CALLBACK (SndDevice_changed), NULL);
 	
-	label_SndDevice = gtk_label_new("Input Device:");
+	label_SndDevice = gtk_label_new(_("Input Device:"));
 	gtk_misc_set_alignment (GTK_MISC (label_SndDevice), 1, 0.5);
 
 	gtk_table_attach (GTK_TABLE(table2), label_SndDevice, 0, 1, 12, 13,
@@ -2987,7 +3004,7 @@ int main(int argc, char *argv[])
 	//~ if (Sound_numInputDev == 0) Sound_enable=0;
 	//~ printf("SOUND DISABLE: no input devices detected\n");
 	
-	SndEnable=gtk_check_button_new_with_label (" Sound");
+	SndEnable=gtk_check_button_new_with_label (_(" Sound"));
 	gtk_table_attach(GTK_TABLE(table2), SndEnable, 1, 2, 11, 12,
 					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	
@@ -2997,7 +3014,7 @@ int main(int argc, char *argv[])
 		G_CALLBACK (SndEnable_changed), NULL);
 	
 	SndSampleRate= gtk_combo_box_new_text ();
-	gtk_combo_box_append_text(GTK_COMBO_BOX(SndSampleRate),"Dev. Default");
+	gtk_combo_box_append_text(GTK_COMBO_BOX(SndSampleRate),_("Dev. Default"));
 	for( i=1; stdSampleRates[i] > 0; i++ )
 	{
 		char dst[8];
@@ -3019,7 +3036,7 @@ int main(int argc, char *argv[])
 	g_signal_connect (GTK_COMBO_BOX(SndSampleRate), "changed",
 		G_CALLBACK (SndSampleRate_changed), NULL);
 	
-	label_SndSampRate = gtk_label_new("Sample Rate:");
+	label_SndSampRate = gtk_label_new(_("Sample Rate:"));
 	gtk_misc_set_alignment (GTK_MISC (label_SndSampRate), 1, 0.5);
 
 	gtk_table_attach (GTK_TABLE(table2), label_SndSampRate, 0, 1, 13, 14,
@@ -3028,9 +3045,9 @@ int main(int argc, char *argv[])
 	gtk_widget_show (label_SndSampRate);
 	
 	SndNumChan= gtk_combo_box_new_text ();
-	gtk_combo_box_append_text(GTK_COMBO_BOX(SndNumChan),"Dev. Default");
-	gtk_combo_box_append_text(GTK_COMBO_BOX(SndNumChan),"1 - mono");
-	gtk_combo_box_append_text(GTK_COMBO_BOX(SndNumChan),"2 - stereo");
+	gtk_combo_box_append_text(GTK_COMBO_BOX(SndNumChan),_("Dev. Default"));
+	gtk_combo_box_append_text(GTK_COMBO_BOX(SndNumChan),_("1 - mono"));
+	gtk_combo_box_append_text(GTK_COMBO_BOX(SndNumChan),_("2 - stereo"));
 	
 	gtk_table_attach(GTK_TABLE(table2), SndNumChan, 1, 2, 14, 15,
 					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
@@ -3055,7 +3072,7 @@ int main(int argc, char *argv[])
 	g_signal_connect (GTK_COMBO_BOX(SndNumChan), "changed",
 		G_CALLBACK (SndNumChan_changed), NULL);
 	
-	label_SndNumChan = gtk_label_new("Chanels:");
+	label_SndNumChan = gtk_label_new(_("Chanels:"));
 	gtk_misc_set_alignment (GTK_MISC (label_SndNumChan), 1, 0.5);
 
 	gtk_table_attach (GTK_TABLE(table2), label_SndNumChan, 0, 1, 14, 15,
@@ -3066,7 +3083,7 @@ int main(int argc, char *argv[])
 	
 	/*----- Filter controls ----*/
 	
-	label_videoFilters = gtk_label_new("---- Video Filters ----");
+	label_videoFilters = gtk_label_new(_("---- Video Filters ----"));
 	gtk_misc_set_alignment (GTK_MISC (label_videoFilters), 0.5, 0.5);
 
 	gtk_table_attach (GTK_TABLE(table2), label_videoFilters, 0, 3, 15, 16,
@@ -3083,7 +3100,7 @@ int main(int argc, char *argv[])
 	
 	
 	/* Mirror */
-	FiltMirrorEnable=gtk_check_button_new_with_label (" Mirror");
+	FiltMirrorEnable=gtk_check_button_new_with_label (_(" Mirror"));
 	gtk_table_attach(GTK_TABLE(table3), FiltMirrorEnable, 0, 1, 0, 1,
 					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	
@@ -3092,7 +3109,7 @@ int main(int argc, char *argv[])
 	g_signal_connect (GTK_CHECK_BUTTON(FiltMirrorEnable), "toggled",
 		G_CALLBACK (FiltMirrorEnable_changed), NULL);
 	/*Upturn*/
-	FiltUpturnEnable=gtk_check_button_new_with_label (" Invert");
+	FiltUpturnEnable=gtk_check_button_new_with_label (_(" Invert"));
 	gtk_table_attach(GTK_TABLE(table3), FiltUpturnEnable, 1, 2, 0, 1,
 					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	
@@ -3101,7 +3118,7 @@ int main(int argc, char *argv[])
 	g_signal_connect (GTK_CHECK_BUTTON(FiltUpturnEnable), "toggled",
 		G_CALLBACK (FiltUpturnEnable_changed), NULL);
 	/*Negate*/
-	FiltNegateEnable=gtk_check_button_new_with_label (" Negative");
+	FiltNegateEnable=gtk_check_button_new_with_label (_(" Negative"));
 	gtk_table_attach(GTK_TABLE(table3), FiltNegateEnable, 2, 3, 0, 1,
 					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	
@@ -3110,7 +3127,7 @@ int main(int argc, char *argv[])
 	g_signal_connect (GTK_CHECK_BUTTON(FiltNegateEnable), "toggled",
 		G_CALLBACK (FiltNegateEnable_changed), NULL);
 	/*Mono*/
-	FiltMonoEnable=gtk_check_button_new_with_label (" Mono");
+	FiltMonoEnable=gtk_check_button_new_with_label (_(" Mono"));
 	gtk_table_attach(GTK_TABLE(table3), FiltMonoEnable, 3, 4, 0, 1,
 					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	

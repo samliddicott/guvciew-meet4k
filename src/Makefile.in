@@ -79,7 +79,7 @@ CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CYGPATH_W = @CYGPATH_W@
 DATADIRNAME = @DATADIRNAME@
-DEFS = @DEFS@
+DEFS = -DLOCALEDIR=\"$(localedir)\" @DEFS@
 DEPDIR = @DEPDIR@
 ECHO_C = @ECHO_C@
 ECHO_N = @ECHO_N@
@@ -100,6 +100,7 @@ INTLLIBS = @INTLLIBS@
 LDFLAGS = @LDFLAGS@
 LIBOBJS = @LIBOBJS@
 LIBS = @LIBS@
+LOCALE_DIR = @LOCALE_DIR@
 LTLIBOBJS = @LTLIBOBJS@
 MAINT = @MAINT@
 MAKEINFO = @MAKEINFO@
@@ -153,7 +154,7 @@ infodir = @infodir@
 install_sh = @install_sh@
 libdir = @libdir@
 libexecdir = @libexecdir@
-localedir = @localedir@
+localedir = $(datadir)/locale
 localstatedir = @localstatedir@
 mandir = @mandir@
 mkdir_p = @mkdir_p@
@@ -169,7 +170,6 @@ sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-gladedir = $(datadir)/guvcview/glade
 INCLUDES = \
 	-DPACKAGE_LOCALE_DIR=\""$(prefix)/$(DATADIRNAME)/locale"\" \
 	-DPACKAGE_SRC_DIR=\""$(srcdir)"\" \
@@ -202,9 +202,8 @@ guvcview_SOURCES = \
 	quant.c	\
 	readYUV.c	
 
-guvcview_LDFLAGS = 
+guvcview_LDFLAGS = $(LIBINTL)
 guvcview_LDADD = $(PACKAGE_LIBS)
-EXTRA_DIST = $(glade_DATA)
 all: all-am
 
 .SUFFIXES:

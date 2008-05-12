@@ -1,9 +1,8 @@
 dnl Process this file with autoconf to produce a configure script.
-dnl Created by Anjuta application wizard.
 
-
+dnl Package definitions
 AC_INIT(guvcview, 0.9.0)
-AM_INIT_AUTOMAKE(guvcview, 0.2)
+AM_INIT_AUTOMAKE(guvcview, 0.9.0)
 AM_CONFIG_HEADER(config.h)
 AM_MAINTAINER_MODE
 
@@ -13,26 +12,29 @@ AM_PROG_CC_STDC
 AC_HEADER_STDC
 
 
-
-
 dnl Set gettext package name
 GETTEXT_PACKAGE=guvcview
 AC_SUBST(GETTEXT_PACKAGE)
-AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE", [GETTEXT package name])
+AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE", [guvcview])
+
+dnl Set locale dir
+LOCALE_DIR=/usr/share/locale
+AC_SUBST(LOCALE_DIR)
+AC_DEFINE_UNQUOTED(LOCALE_DIR,"$LOCALE_DIR", [/usr/share/locale])
 
 dnl Add the languages which your application supports here.
-ALL_LINGUAS=""
-AM_GLIB_GNU_GETTEXT
+ALL_LINGUAS="pt pt_PT"
+AM_GLIB_GNU_GETTEXT([external])
+dnl AM_GNU_GETTEXT([external])
 
 
-
-
-
+dnl Check package modules
 PKG_CHECK_MODULES(PACKAGE, [gtk+-2.0 >= 2.10.0 gdk-2.0 >= 2.10.0 sdl >= 1.2.10 portaudio-2.0 libpng])
 AC_SUBST(PACKAGE_CFLAGS)
 AC_SUBST(PACKAGE_LIBS)
 
 
+dnl Write output
 AC_OUTPUT([
 Makefile
 src/Makefile

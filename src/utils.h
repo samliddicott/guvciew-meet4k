@@ -33,7 +33,7 @@ typedef  unsigned int UINT;
 typedef  unsigned short int WORD;
 
 /*----------- guvcview version ----------------*/
-#define VERSION ("0.9.0")
+//#define VERSION ("") /*defined in config.h*/
 
 /*---------- Thread Stack Size (bytes) --------*/
 #define TSTACK (128*64*1024) /* Debian Default 128 pages of 64k = 8388608 bytes*/

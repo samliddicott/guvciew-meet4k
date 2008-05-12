@@ -1,8 +1,5 @@
 ## Process this file with automake to produce Makefile.in
 
-## Created by Anjuta
-
-gladedir = $(datadir)/guvcview/glade
 INCLUDES = \
 	-DPACKAGE_LOCALE_DIR=\""$(prefix)/$(DATADIRNAME)/locale"\" \
 	-DPACKAGE_SRC_DIR=\""$(srcdir)"\" \
@@ -37,8 +34,12 @@ guvcview_SOURCES = \
 	quant.c	\
 	readYUV.c	
 
-guvcview_LDFLAGS =
+guvcview_LDFLAGS = $(LIBINTL)
 
 guvcview_LDADD = $(PACKAGE_LIBS)
 
-EXTRA_DIST = $(glade_DATA)
+localedir = $(datadir)/locale
+DEFS = -DLOCALEDIR=\"$(localedir)\" @DEFS@
+
+
+

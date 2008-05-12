@@ -40,6 +40,9 @@
 #include "huffman.h"
 #include <png.h>
 #include "prototype.h"
+/* support for internationalization - i18n */
+#include <glib/gi18n.h>    
+
 
 #define ISHIFT 11
 
@@ -1255,11 +1258,13 @@ int initGlobals (struct GLOBAL *global) {
 	}
 	snprintf(global->WVcaption,10,"GUVCVIdeo");
 	
-	if((global->imageinc_str= (char *) calloc(1, 20 * sizeof(char)))==NULL){
+   	global->image_inc=0;
+   
+	if((global->imageinc_str= (char *) calloc(1, 25 * sizeof(char)))==NULL){
 		printf("couldn't calloc memory for:global->imageinc_str\n");
 		goto error;
 	}
-	snprintf(global->imageinc_str,12,"File inc:0");
+	snprintf(global->imageinc_str,20,_("File num:%d"),global->image_inc);
 	
 	global->vid_sleep=0;
 	global->avifile=NULL; /*avi filename passed through argument options with -n */
@@ -1289,7 +1294,6 @@ int initGlobals (struct GLOBAL *global) {
 	global->timer_id=0;
 	global->image_timer_id=0;
 	global->image_timer=0;
-	global->image_inc=0;
 	global->image_npics=999;/*default max number of captures*/
 	global->frmCount=0;
 	global->PanStep=2;/*2 degree step for Pan*/

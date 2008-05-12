@@ -14,7 +14,7 @@
 
 GETTEXT_PACKAGE = guvcview
 PACKAGE = guvcview
-VERSION = 0.2
+VERSION = 0.9.0
 
 SHELL = /bin/sh
 
@@ -23,7 +23,7 @@ srcdir = .
 top_srcdir = ..
 
 
-prefix = /usr/local
+prefix = /usr
 exec_prefix = ${prefix}
 datarootdir = ${prefix}/share
 datadir = ${datarootdir}
@@ -37,7 +37,7 @@ INSTALL = /usr/bin/install -c
 INSTALL_DATA = ${INSTALL} -m 644
 MKINSTALLDIRS = $(top_srcdir)/./mkinstalldirs
 
-CC = gcc
+CC = i486-linux-gnu-gcc
 GENCAT = @GENCAT@
 GMSGFMT = /usr/bin/msgfmt
 MSGFMT = /usr/bin/msgfmt
@@ -46,7 +46,7 @@ XGETTEXT = /usr/bin/xgettext
 MSGMERGE = msgmerge
 
 DEFS = -DHAVE_CONFIG_H
-CFLAGS = -g -O2
+CFLAGS = -Wall -g -O2
 CPPFLAGS = 
 
 INCLUDES = -I.. -I$(top_srcdir)/intl
@@ -54,14 +54,14 @@ INCLUDES = -I.. -I$(top_srcdir)/intl
 COMPILE = $(CC) -c $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS) $(XCFLAGS)
 
 SOURCES = 
-POFILES = 
-GMOFILES = 
+POFILES =  pt.po pt_PT.po
+GMOFILES =  pt.gmo pt_PT.gmo
 DISTFILES = ChangeLog Makefile.in.in POTFILES.in $(GETTEXT_PACKAGE).pot \
 $(POFILES) $(GMOFILES) $(SOURCES)
 
 POTFILES = \
 
-CATALOGS = 
+CATALOGS =  pt.gmo pt_PT.gmo
 CATOBJEXT = .gmo
 INSTOBJEXT = .mo
 

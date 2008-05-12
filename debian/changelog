@@ -2,6 +2,8 @@ guvcview (0.9.0) stable; urgency=low
 
    * GUI change: Add Tab Container
    * Add spin button to integer controls (allows fine tunning)
+   * Add gettext support (i18n)
+   * Add laguage catalogs (pt pt_PT pt_BR fr)
    
  -- Paulo Assis <pj.assis@gmail.com>  Fri, 02 May 2008 19:18:00 +0000
  
