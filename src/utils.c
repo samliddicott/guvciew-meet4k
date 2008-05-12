@@ -1182,6 +1182,8 @@ return 0;
 
 int initGlobals (struct GLOBAL *global) {
 	
+    	global->debug=0;
+    
 	if((global->videodevice = (char *) calloc(1, 16 * sizeof(char)))==NULL){
 		printf("couldn't calloc memory for:global->videodevice\n");
 		goto error;
@@ -1308,6 +1310,7 @@ int initGlobals (struct GLOBAL *global) {
 	global->height = DEFAULT_HEIGHT;
 	global->winwidth=WINSIZEX;
 	global->winheight=WINSIZEY;
+    	global->spinbehave=0;
 	global->boxvsize=0;
 	if((global->mode = (char *) calloc(1, 5 * sizeof(char)))==NULL){
 		printf("couldn't calloc memory for:global->mode\n");
@@ -1376,10 +1379,10 @@ pchar* splitPath(char *FullPath, pchar* splited)
 			FSize=i;
 			tmpstr+=2;/*must increment by 2 because of '/'*/
 			if((FSize>19) && (FSize>strlen(splited[0]))) {
-				printf("realloc Filename to %d chars.\n",FSize);
+				// printf("realloc Filename to %d chars.\n",FSize);
 				splited[0]=realloc(splited[0],(FSize+1)*sizeof(char));
 			} 
-			//else {
+			
 			splited[0]=strncpy(splited[0],tmpstr,FSize);
 			splited[0][FSize]='\0';
 			/* cut spaces at begin of Filename String*/
@@ -1392,11 +1395,10 @@ pchar* splitPath(char *FullPath, pchar* splited)
 				}
 				splited[0][l++]='\0';
 			}
-			//}
+			
 			FDSize=FPSize-FSize;
-			//FileDir=realloc(FileDir,(FDSize+1)*sizeof(char));
 			if ((FDSize>99) && (FDSize>strlen(splited[1]))) {
-				printf("realloc FileDir to %d chars.\n",FDSize);
+				// printf("realloc FileDir to %d chars.\n",FDSize);
 				splited[1]=realloc(splited[1],(FDSize+1)*sizeof(char));
 			} 
 			if(FDSize>0) {
@@ -1421,7 +1423,7 @@ pchar* splitPath(char *FullPath, pchar* splited)
 					char path_str[100];
 					char *home=getenv("HOME");
 					sprintf(path_str,"%s%s",home,splited[1]);
-					printf("path is %s\n",path_str);
+					//printf("path is %s\n",path_str);
 					FDSize=strlen(path_str);
 					if (FDSize<99) {
 						strncpy (splited[1],path_str,FDSize);
@@ -1431,23 +1433,19 @@ pchar* splitPath(char *FullPath, pchar* splited)
 				}
 			}
 				
-			//}
 			break;
 		}
 	}
 	
 	if(i>=FPSize) { /* no dir specified */
-		//Filename=realloc(Filename,(FPSize+1)*sizeof(char));
 		if ((FPSize>19) && (FPSize>strlen(splited[0])))  {
-			printf("realloc Filename to %d chars.\n",FPSize);
+			// printf("realloc Filename to %d chars.\n",FPSize);
 			splited[0]=realloc(splited[0],(FPSize+1)*sizeof(char));
 		} 
-		//else {
 		splited[0]=strncpy(splited[0],FullPath,FPSize);
 		splited[0][FPSize]='\0';
-		//}
 	}
-	printf("Dir:%s File:%s\n",splited[1],splited[0]);
+	//printf("Dir:%s File:%s\n",splited[1],splited[0]);
 	tmpstr=NULL;/*clean up*/
 	return (splited);
 }

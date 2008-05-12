@@ -103,7 +103,7 @@ typedef unsigned char SAMPLE;
 #define DEFAULT_WIDTH 640
 #define DEFAULT_HEIGHT 480
 
-#define DEFAULT_IMAGE_FNAME "Image.jpg"
+#define DEFAULT_IMAGE_FNAME	"Image.jpg"
 #define DEFAULT_AVI_FNAME	"capture.avi"
 #define DEFAULT_FPS	25
 #define DEFAULT_FPS_NUM 1
@@ -145,15 +145,16 @@ typedef struct _sndDev {
 
 /* 0 is device default*/
 static const int stdSampleRates[] = { 0, 8000,  9600, 11025, 12000,
-								   16000, 22050, 24000,
-                                   32000, 44100, 48000,
-                                   88200, 96000,
-                                   -1 }; /* Negative terminated list. */
+					16000, 22050, 24000,
+					32000, 44100, 48000,
+					88200, 96000,
+					-1 }; /* Negative terminated list. */
 
 typedef char* pchar;
 
 /*global variables used in guvcview*/
 struct GLOBAL {
+    	int debug;
 	char *videodevice;
 	char *confPath;
 	pchar* aviFPath;
@@ -206,6 +207,7 @@ struct GLOBAL {
 	int winwidth;
 	int winheight;
 	int boxvsize;
+	int spinbehave; /*spin: 0-non editable 1-editable*/
 	char *mode; /*jpg (default) or yuv*/
 	int format;
 	int formind; /*0-MJPG 1-YUYV*/

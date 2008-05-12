@@ -209,6 +209,8 @@ int writeConf(const char *confpath) {
 		fprintf(fp,"windowsize=%ix%i\n",global->winwidth,global->winheight);
 		fprintf(fp,"#vertical pane size\n");
 		fprintf(fp,"vpane=%i\n",global->boxvsize);
+	    	fprintf(fp,"#spin button behavior: 0-non editable 1-editable\n");
+		fprintf(fp,"spinbehave=%i\n", global->spinbehave);
 		fprintf(fp,"# mode video format 'yuv' or 'jpg'(default)\n");
 		fprintf(fp,"mode=%s\n",global->mode);
 		fprintf(fp,"# frames per sec. - hardware supported - default( %i )\n",DEFAULT_FPS);
@@ -278,83 +280,88 @@ int readConf(const char *confpath) {
 			/* set variables */
 			if (strcmp(variable,"video_device")==0) {
 				snprintf(global->videodevice,15,"%s",value);
-				printf("video_device: %s\n",global->videodevice);
 			} else if (strcmp(variable,"vid_sleep")==0) {
-				if ((i=sscanf(value,"%i",&(global->vid_sleep)))==1)
-					printf("vid_sleep: %i\n",global->vid_sleep);
+				sscanf(value,"%i",&(global->vid_sleep));
 			} else if (strcmp(variable,"resolution")==0) {
-				if ((i=sscanf(value,"%ix%i",&(global->width),&(global->height)))==2)
-					printf("resolution: %i x %i\n",global->width,global->height); 			
+				sscanf(value,"%ix%i",&(global->width),&(global->height));			
 			} else if (strcmp(variable,"windowsize")==0) {
-				if ((i=sscanf(value,"%ix%i",&(global->winwidth),&(global->winheight)))==2)
-					printf("windowsize: %i x %i\n",global->winwidth,global->winheight);
+				sscanf(value,"%ix%i",&(global->winwidth),&(global->winheight));
 			} else if (strcmp(variable,"vpane")==0) { 
-				if ((i=sscanf(value,"%i",&(global->boxvsize)))==1)
-					printf("vert pane: %i\n",global->boxvsize);
+				sscanf(value,"%i",&(global->boxvsize));
+			} else if (strcmp(variable,"spinbehave")==0) { 
+				sscanf(value,"%i",&(global->spinbehave));
 			} else if (strcmp(variable,"mode")==0) {
 				snprintf(global->mode,5,"%s",value);
-				printf("mode: %s\n",global->mode);
 			} else if (strcmp(variable,"fps")==0) {
-				if ((i=sscanf(value,"%i/%i",&(global->fps_num),&(global->fps)))==1)
-					printf("fps: %i/%i\n",global->fps_num,global->fps);
+				sscanf(value,"%i/%i",&(global->fps_num),&(global->fps));
 			} else if (strcmp(variable,"fps_display")==0) { 
-				if ((i=sscanf(value,"%i",&(global->FpsCount)))==1)
-					printf("Display Fps: %i\n",global->FpsCount);
+				sscanf(value,"%i",&(global->FpsCount));
 			} else if (strcmp(variable,"bpp")==0) {
-				if ((i=sscanf(value,"%i",&(global->bpp)))==1)
-					printf("bpp: %i\n",global->bpp);
+				sscanf(value,"%i",&(global->bpp));
 			} else if (strcmp(variable,"hwaccel")==0) {
-				if ((i=sscanf(value,"%i",&(global->hwaccel)))==1)
-					printf("hwaccel: %i\n",global->hwaccel);
+				sscanf(value,"%i",&(global->hwaccel));
 			} else if (strcmp(variable,"grabmethod")==0) {
-				if ((i=sscanf(value,"%i",&(global->grabmethod)))==1)
-					printf("grabmethod: %i\n",global->grabmethod);
+				sscanf(value,"%i",&(global->grabmethod));
 			} else if (strcmp(variable,"avi_format")==0) {
-				if ((i=sscanf(value,"%i",&(global->AVIFormat)))==1)
-					printf("avi_format: %i\n",global->AVIFormat);
+				sscanf(value,"%i",&(global->AVIFormat));
 			} else if (strcmp(variable,"sound")==0) {
-				if ((i=sscanf(value,"%i",&(global->Sound_enable)))==1)
-					printf("sound: %i\n",global->Sound_enable);
+				sscanf(value,"%i",&(global->Sound_enable));
 			} else if (strcmp(variable,"snd_device")==0) {
-				if ((i=sscanf(value,"%i",&(global->Sound_UseDev)))==1)
-					printf("sound Device: %i\n",global->Sound_UseDev);
+				sscanf(value,"%i",&(global->Sound_UseDev));
 			} else if (strcmp(variable,"snd_samprate")==0) {
-				if ((i=sscanf(value,"%i",&(global->Sound_SampRateInd)))==1)
-					printf("sound samp rate: %i\n",global->Sound_SampRateInd);
+				sscanf(value,"%i",&(global->Sound_SampRateInd));
 			} else if (strcmp(variable,"snd_numchan")==0) {
-				if ((i=sscanf(value,"%i",&(global->Sound_NumChanInd)))==1)
-					printf("sound Channels: %i\n",global->Sound_NumChanInd);
+				sscanf(value,"%i",&(global->Sound_NumChanInd));
 			} else if (strcmp(variable,"snd_numsec")==0) {
-				if ((i=sscanf(value,"%i",&(global->Sound_NumSec)))==1)
-					printf("Sound Block Size: %i seconds\n",global->Sound_NumSec);
+				sscanf(value,"%i",&(global->Sound_NumSec));
 			} else if (strcmp(variable,"snd_buf_fact")==0) {
-				if ((i=sscanf(value,"%i",&(global->Sound_BuffFactor)))==1)
-					printf("sound Buffer Factor: %i\n",global->Sound_BuffFactor); 
+				sscanf(value,"%i",&(global->Sound_BuffFactor));
 			} else if (strcmp(variable,"Pan_Step")==0){ 
-				if ((i=sscanf(value,"%i",&(global->PanStep)))==1)
-					printf("Pan Step: %i degrees\n",global->PanStep);
+				sscanf(value,"%i",&(global->PanStep));
 			} else if (strcmp(variable,"Tilt_Step")==0){ 
-				if ((i=sscanf(value,"%i",&(global->TiltStep)))==1)
-					printf("Tilt Step: %i degrees\n",global->TiltStep);
+				sscanf(value,"%i",&(global->TiltStep));
 			} else if (strcmp(variable,"frame_flags")==0) {
-				if ((i=sscanf(value,"%i",&(global->Frame_Flags)))==1)
-					printf("Video Filter Flags: %i\n",global->Frame_Flags);
+				sscanf(value,"%i",&(global->Frame_Flags));
 			} else if (strcmp(variable,"image_path")==0) {
 				global->imgFPath = splitPath(value,global->imgFPath);
 				/*get the file type*/
 				global->imgFormat = check_image_type(global->imgFPath[0]);
 			} else if (strcmp(variable,"image_inc")==0) {
-				if ((i=sscanf(value,"%d",&(global->image_inc)))==1)
-					printf("image inc: %d\n",global->image_inc);
+				sscanf(value,"%d",&(global->image_inc));
 			} else if (strcmp(variable,"avi_path")==0) {
 				global->aviFPath=splitPath(value,global->aviFPath);
 			} else if (strcmp(variable,"profile_path")==0) {
 				global->profile_FPath=splitPath(value,global->profile_FPath);
-				printf("profile(default):%s/%s\n",global->profile_FPath[1],global->profile_FPath[0]);
 			}
 		}    
 		}
 		fclose(fp);
+	    	if (global->debug) {
+			printf("video_device: %s\n",global->videodevice);
+			printf("vid_sleep: %i\n",global->vid_sleep);
+			printf("resolution: %i x %i\n",global->width,global->height);
+			printf("windowsize: %i x %i\n",global->winwidth,global->winheight);
+			printf("vert pane: %i\n",global->boxvsize);
+			printf("spin behavior: %i\n",global->spinbehave);
+			printf("mode: %s\n",global->mode);
+			printf("fps: %i/%i\n",global->fps_num,global->fps);
+			printf("Display Fps: %i\n",global->FpsCount);
+			printf("bpp: %i\n",global->bpp);
+			printf("hwaccel: %i\n",global->hwaccel);
+			printf("grabmethod: %i\n",global->grabmethod);
+			printf("avi_format: %i\n",global->AVIFormat);
+			printf("sound: %i\n",global->Sound_enable);
+			printf("sound Device: %i\n",global->Sound_UseDev);
+			printf("sound samp rate: %i\n",global->Sound_SampRateInd);
+			printf("sound Channels: %i\n",global->Sound_NumChanInd);
+			printf("Sound Block Size: %i seconds\n",global->Sound_NumSec);
+			printf("sound Buffer Factor: %i\n",global->Sound_BuffFactor);
+			printf("Pan Step: %i degrees\n",global->PanStep);
+			printf("Tilt Step: %i degrees\n",global->TiltStep);
+			printf("Video Filter Flags: %i\n",global->Frame_Flags);
+			printf("image inc: %d\n",global->image_inc);
+			printf("profile(default):%s/%s\n",global->profile_FPath[1],global->profile_FPath[0]);
+		}
 	} else {
 		printf("Could not open %s for read,\n will try to create it\n",confpath);
 		ret=writeConf(confpath);
@@ -376,6 +383,10 @@ readOpts(int argc,char *argv[]) {
 		if (argv[i] == NULL || *argv[i] == 0 || *argv[i] != '-') {
 			continue;
 		}
+	    	if (strcmp(argv[i], "--verbose") == 0) {
+			global->debug=1; /*debug mode*/
+		}
+	    	
 		if ((strcmp(argv[i], "-d") == 0) || (strcmp(argv[i], "--device") == 0)) {
 			if (i + 1 >= argc || *argv[i+1] =='-') {
 				printf("No parameter specified for device, using default.\n");
@@ -489,9 +500,10 @@ readOpts(int argc,char *argv[]) {
 			}
 		}
 		if ((strcmp(argv[i], "-h") == 0) || (strcmp(argv[i], "--help") == 0)) {
-			printf("\n\nusage: guvcview [options] \n\n");
+			printf("usage: guvcview [options] \n\n");
 			printf("options:\n");
 			printf("-h[--help]\t:print this message \n");
+		    	printf("--verbose \tverbose mode, prints a lot of debug related info\n");
 			printf("-d[--device] /dev/videoX\t:use videoX device\n");
 			printf("-g\t:use read method for grab instead mmap\n");
 			printf("-w enable|disable\t:SDL hardware accel. \n");
@@ -519,16 +531,14 @@ readOpts(int argc,char *argv[]) {
 	if (strncmp(global->mode, "yuv", 3) == 0) {
 		global->format = V4L2_PIX_FMT_YUYV;
 		global->formind = 1;
-		printf("Format is yuyv\n");
 	} else if (strncmp(global->mode, "jpg", 3) == 0) {
 		global->format = V4L2_PIX_FMT_MJPEG;
 		global->formind = 0;
-		printf("Format is MJPEG\n");
 	} else {
 		global->format = V4L2_PIX_FMT_MJPEG;
 		global->formind = 0;
-		printf("Format is Default MJPEG\n");
 	}
+    	if (global->debug) printf("Format is %s(%d)\n",global->mode,global->formind);
 }
 
 /*--------------------------- sound threaded loop ------------------------------*/
@@ -547,7 +557,7 @@ void *sound_capture(void *data)
 	
 	/*gets the stack size for the thread (DEBUG)*/
 	pthread_attr_getstacksize (&sndattr, &sndstacksize);
-	printf("Sound Thread: stack size = %d bytes \n", sndstacksize);
+	if (global->debug) printf("Sound Thread: stack size = %d bytes \n", sndstacksize);
 	
 	int fid;
 	/*generates temp file from template */
@@ -683,7 +693,7 @@ int AVIAudioAdd(void) {
 	/*sould make sure main loop as stoped writing to avi*/
 	
 	AVI_set_audio(AviOut, global->Sound_NumChan, global->Sound_SampRate, sizeof(SAMPLE)*8,WAVE_FORMAT_PCM);
-	printf("sample size: %d bits\n",sizeof(SAMPLE)*8);
+	if (global->debug) printf("sample size: %d bits\n",sizeof(SAMPLE)*8);
 	
 	/* Audio Capture allways starts last (delay due to thread initialization)*/
 	int synctime= global->snd_begintime - global->AVIstarttime; /*time diff for audio-video*/
@@ -691,7 +701,7 @@ int AVIAudioAdd(void) {
 		/*shift sound by synctime*/
 		Uint32 shiftFrames=abs(synctime*global->Sound_SampRate/1000);
 		Uint32 shiftSamples=shiftFrames*global->Sound_NumChan;
-		printf("shift sound forward by %d ms = %d frames\n",synctime,shiftSamples);
+		if (global->debug) printf("shift sound forward by %d ms = %d frames\n",synctime,shiftSamples);
 		SAMPLE EmptySamp[shiftSamples];
 		for(i=0; i<shiftSamples; i++) EmptySamp[i]=0;/*init to zero - silence*/
 		AVI_write_audio(AviOut,(BYTE *) &EmptySamp,shiftSamples*sizeof(SAMPLE)); 
@@ -699,7 +709,7 @@ int AVIAudioAdd(void) {
 		/*shift sound by synctime*/
 		Uint32 shiftFrames=abs(synctime*global->Sound_SampRate/1000);
 		Uint32 shiftSamples=shiftFrames*global->Sound_NumChan;
-		printf("Must shift sound backward by %d ms - %d frames\n",synctime,shiftSamples);
+		if (global->debug) printf("Must shift sound backward by %d ms - %d frames\n",synctime,shiftSamples);
 		/*Must eat up the number of shiftframes - never seems to happen*/
 	}
 	FILE *fip;
@@ -731,7 +741,7 @@ aviClose (void)
   if (AviOut)
   {
 	  tottime = global->AVIstoptime - global->AVIstarttime;
-	  printf("stop= %d start=%d \n",global->AVIstoptime,global->AVIstarttime);
+	  if (global->debug) printf("stop= %d start=%d \n",global->AVIstoptime,global->AVIstarttime);
 	  if (tottime > 0) {
 		/*try to find the real frame rate*/
 		AviOut->fps = (double) (global->framecount * 1000) / tottime;
@@ -741,7 +751,7 @@ aviClose (void)
 		AviOut->fps=videoIn->fps;
 	  }
      
-     	   printf("AVI: %d frames in %d ms = %f fps\n",global->framecount,tottime,AviOut->fps);
+     	  if (global->debug) printf("AVI: %d frames in %d ms = %f fps\n",global->framecount,tottime,AviOut->fps);
 	  /*---------------- write audio to avi if Sound Enable ------------------*/
 	  if (global->Sound_enable > 0) {
 		/* Free attribute and wait for the thread */
@@ -754,13 +764,8 @@ aviClose (void)
 			printf("ERROR: status from sound thread join is %d\n", tstatus);
 			/* don't add sound*/
 		} else {
-			printf("Capture sound thread join with status= %d\n", tstatus);
-			/*must disable avi capture button*/
-			//gtk_widget_set_sensitive (CapAVIButt, FALSE);
+			if (global->debug) printf("Capture sound thread join with status= %d\n", tstatus);
 			if (AVIAudioAdd()>0) printf("ERROR: reading Audio file\n");
-			/*must enable avi capture button*/
-			//gtk_widget_set_sensitive (CapAVIButt, TRUE);
-
 		}
 	        /*remove audio file*/
 		unlink(global->sndfile);
@@ -770,7 +775,7 @@ aviClose (void)
 	  AviOut = NULL;
 	  global->framecount = 0;
 	  global->AVIstarttime = 0;
-	  printf ("close avi\n"); 	 
+	  if (global->debug) printf ("close avi\n"); 	 
   }
 }
 
@@ -795,16 +800,6 @@ num_chars (int n)
 
 
 /*----------------------------- Callbacks ------------------------------------*/
-//~ /*spin value*/
-//~ static void
-//~ set_spin_value (GtkRange * range)
-//~ {
-	//~ ControlInfo * ci = g_object_get_data (G_OBJECT (range), "control_info");
-	//~ if (ci->spinbutton) {
-		//~ gtk_spin_button_set_value(GTK_SPIN_BUTTON(ci->spinbutton),(int) gtk_range_get_value (range));
-	//~ }
-//~ }
-
 /*slider controls callback*/
 static void
 slider_changed (GtkRange * range, VidState * s)
@@ -818,9 +813,9 @@ slider_changed (GtkRange * range, VidState * s)
 		gtk_spin_button_set_value(GTK_SPIN_BUTTON(ci->spinbutton), val);
 	}
 	else {
-		printf ("%s change to %d failed\n",c->name, val);
+		if (global->debug) printf ("%s change to %d failed\n",c->name, val);
 		if (input_get_control (videoIn, c, &val) == 0) {
-			printf ("hardware value is %d\n", val);
+			if (global->debug) printf ("hardware value is %d\n", val);
 			gtk_range_set_value (GTK_RANGE(ci->widget),val);
 		}
 		else {
@@ -841,9 +836,9 @@ spin_changed (GtkSpinButton * spin, VidState * s)
 		gtk_range_set_value (GTK_RANGE(ci->widget),val);
 	}
    	else {
-		printf ("%s change to %d failed\n",c->name, val);
+		if (global->debug) printf ("%s change to %d failed\n",c->name, val);
 		if (input_get_control (videoIn, c, &val) == 0) {
-			printf ("hardware value is %d\n", val);
+			if (global->debug) printf ("hardware value is %d\n", val);
 		   	gtk_spin_button_set_value(GTK_SPIN_BUTTON(ci->spinbutton),val);
 		}
 		else {
@@ -872,9 +867,9 @@ check_changed (GtkToggleButton * toggle, VidState * s)
 			printf ("hardware get failed\n");
 		}
 	} else {
-		printf("changed %s to %d\n",c->name,val);
+		if (global->debug) printf("changed %s to %d\n",c->name,val);
 		if (input_get_control (videoIn, c, &val) == 0) {
-			printf ("hardware value is %d\n", val);
+			if (global->debug) printf ("hardware value is %d\n", val);
 		}
 		else {
 			printf ("hardware get failed\n");
@@ -1412,14 +1407,13 @@ capture_avi (GtkButton *AVIButt, void *data)
 		AVI_set_video(AviOut, videoIn->width, videoIn->height, videoIn->fps,compression);		
 		/* audio will be set in aviClose - if enabled*/
 		global->AVIstarttime = ms_time();
-		//printf("AVI start time:%d\n",AVIstarttime);		
+				
 		videoIn->capAVI = TRUE; /* start video capture */
 		/*disabling sound and avi compression controls*/
 		set_sensitive_avi_contrls(FALSE);
 		/* Creating the sound capture loop thread if Sound Enable*/ 
 		if(global->Sound_enable > 0) { 
 			/* Initialize and set snd thread detached attribute */
-			//int SndBuffsize = global->Sound_NumSec * global->Sound_SampRate * global->Sound_NumChan * global->Sound_BuffFactor * sizeof(SAMPLE);
 			size_t stacksize;
 			stacksize = sizeof(char) * TSTACK;
 		   	pthread_attr_init(&sndattr);
@@ -1745,15 +1739,15 @@ draw_controls (VidState *s)
 	}
 	
 	s->control = input_enum_controls (videoIn, &s->num_controls);
-	//fprintf(stderr,"V4L2_CID_BASE=0x%x\n",V4L2_CID_BASE);
-	//fprintf(stderr,"V4L2_CID_PRIVATE_BASE=0x%x\n",V4L2_CID_PRIVATE_BASE);
-	//fprintf(stderr,"V4L2_CID_PRIVATE_LAST=0x%x\n",V4L2_CID_PRIVATE_LAST);
-	fprintf(stderr,"Controls:\n");
-	for (i = 0; i < s->num_controls; i++) {
-		printf("control[%d]: 0x%x",i,s->control[i].id);
-		printf ("  %s, %d:%d:%d, default %d\n", s->control[i].name,
+
+	if (global->debug) {
+		printf("Controls:\n");
+		for (i = 0; i < s->num_controls; i++) {
+			printf("control[%d]: 0x%x",i,s->control[i].id);
+			printf ("  %s, %d:%d:%d, default %d\n", s->control[i].name,
 					s->control[i].min, s->control[i].step, s->control[i].max,
 					s->control[i].default_val);
+		}
 	}
 
    if((s->control_info = malloc (s->num_controls * sizeof (ControlInfo)))==NULL){
@@ -2010,7 +2004,7 @@ draw_controls (VidState *s)
 			ci->label = gtk_label_new (g_strdup_printf ("%s:", gettext(c->name)));
 		}
 		else {
-			fprintf (stderr, "TODO: implement button\n");
+			printf ("TODO: implement button\n");
 			continue;
 		}
 
@@ -2047,15 +2041,15 @@ void *main_loop(void *data)
 	
 	/*gets the stack size for the thread (DEBUG)*/ 
 	pthread_attr_getstacksize (&attr, &videostacksize);
-	printf("Video Thread: stack size = %d bytes \n", videostacksize);
+	if (global->debug) printf("Video Thread: stack size = %d bytes \n", videostacksize);
 	
 	static Uint32 SDL_VIDEO_Flags =
 		SDL_ANYFORMAT | SDL_DOUBLEBUF | SDL_RESIZABLE;
  
 	/*----------------------------- Test SDL capabilities ---------------------*/
 	if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER) < 0) {
-	fprintf(stderr, "Couldn't initialize SDL: %s\n", SDL_GetError());
-	exit(1);
+		printf("Couldn't initialize SDL: %s\n", SDL_GetError());
+		exit(1);
 	}
 	
 	/* For this version, we will use hardware acceleration as default*/
@@ -2076,47 +2070,45 @@ void *main_loop(void *data)
 	 }
 	 
 	if (SDL_VideoDriverName(driver, sizeof(driver))) {
-	printf("Video driver: %s\n", driver);
+		if (global->debug) printf("Video driver: %s\n", driver);
 	}
 	info = SDL_GetVideoInfo();
 
 	if (info->wm_available) {
-	printf("A window manager is available\n");
+		if (global->debug) printf("A window manager is available\n");
 	}
 	if (info->hw_available) {
-	printf("Hardware surfaces are available (%dK video memory)\n",
+		if (global->debug) printf("Hardware surfaces are available (%dK video memory)\n",
 		   info->video_mem);
-	SDL_VIDEO_Flags |= SDL_HWSURFACE;
+		SDL_VIDEO_Flags |= SDL_HWSURFACE;
 	}
 	if (info->blit_hw) {
-	printf("Copy blits between hardware surfaces are accelerated\n");
-	SDL_VIDEO_Flags |= SDL_ASYNCBLIT;
+		if (global->debug) printf("Copy blits between hardware surfaces are accelerated\n");
+		SDL_VIDEO_Flags |= SDL_ASYNCBLIT;
 	}
-	if (info->blit_hw_CC) {
-	printf
-		("Colorkey blits between hardware surfaces are accelerated\n");
-	}
-	if (info->blit_hw_A) {
-	printf("Alpha blits between hardware surfaces are accelerated\n");
-	}
-	if (info->blit_sw) {
-	printf
-		("Copy blits from software surfaces to hardware surfaces are accelerated\n");
-	}
-	if (info->blit_sw_CC) {
-	printf
-		("Colorkey blits from software surfaces to hardware surfaces are accelerated\n");
-	}
-	if (info->blit_sw_A) {
-	printf
-		("Alpha blits from software surfaces to hardware surfaces are accelerated\n");
-	}
-	if (info->blit_fill) {
-	printf("Color fills on hardware surfaces are accelerated\n");
+    	if (global->debug) {
+		if (info->blit_hw_CC) {
+			printf ("Colorkey blits between hardware surfaces are accelerated\n");
+		}
+		if (info->blit_hw_A) {
+			printf("Alpha blits between hardware surfaces are accelerated\n");
+		}
+		if (info->blit_sw) {
+			printf ("Copy blits from software surfaces to hardware surfaces are accelerated\n");
+		}
+		if (info->blit_sw_CC) {
+			printf ("Colorkey blits from software surfaces to hardware surfaces are accelerated\n");
+		}
+		if (info->blit_sw_A) {
+			printf("Alpha blits from software surfaces to hardware surfaces are accelerated\n");
+		}
+		if (info->blit_fill) {
+			printf("Color fills on hardware surfaces are accelerated\n");
+		}
 	}
 
 	if (!(SDL_VIDEO_Flags & SDL_HWSURFACE)){
-	SDL_VIDEO_Flags |= SDL_SWSURFACE;
+		SDL_VIDEO_Flags |= SDL_SWSURFACE;
 	} 
 	 
 	/*------------------------------ SDL init video ---------------------*/
@@ -2239,7 +2231,7 @@ void *main_loop(void *data)
 			 write_png(videoIn->ImageFName, videoIn->width, videoIn->height,pim);
 		 }
 		 videoIn->capImage=FALSE;
-		 printf("saved image to:%s\n",videoIn->ImageFName);
+		 if (global->debug) printf("saved image to:%s\n",videoIn->ImageFName);
 	  }
 	  
 	  /*---------------------------capture AVI---------------------------------*/
@@ -2317,67 +2309,59 @@ void *main_loop(void *data)
 	/*------------------------- Read Key events ------------------------------*/
 	if (videoIn->PanTilt) {
 		/* Poll for events */
-    	while( SDL_PollEvent(&event) ){
+    		while( SDL_PollEvent(&event) ){
 			if(event.type==SDL_KEYDOWN) {   
-                switch( event.key.keysym.sym ){
-                    /* Keyboard event */
-                    /* Pass the event data onto PrintKeyInfo() */
-                    case SDLK_DOWN:
-						/*Tilt Down*/
-						uvcPanTilt (videoIn,0,INCPANTILT*(global->TiltStep),0);
-						break;
-                    case SDLK_UP:
-                        /*Tilt UP*/
-						uvcPanTilt (videoIn,0,-INCPANTILT*(global->TiltStep),0);
-                        break;
-					case SDLK_LEFT:
-						/*Pan Left*/
-						uvcPanTilt (videoIn,-INCPANTILT*(global->PanStep),0,0);
-						break;
-					case SDLK_RIGHT:
-						/*Pan Right*/
-						uvcPanTilt (videoIn,INCPANTILT*(global->PanStep),0,0);
-						break;
-                    default:
-                        break;
-                }
+                		switch( event.key.keysym.sym ){
+                    		/* Keyboard event */
+                    		/* Pass the event data onto PrintKeyInfo() */
+                    		case SDLK_DOWN:
+					/*Tilt Down*/
+					uvcPanTilt (videoIn,0,INCPANTILT*(global->TiltStep),0);
+				break;
+                    		case SDLK_UP:
+                        		/*Tilt UP*/
+					uvcPanTilt (videoIn,0,-INCPANTILT*(global->TiltStep),0);
+                        		break;
+		    		case SDLK_LEFT:
+					/*Pan Left*/
+					uvcPanTilt (videoIn,-INCPANTILT*(global->PanStep),0,0);
+					break;
+		    		case SDLK_RIGHT:
+					/*Pan Right*/
+					uvcPanTilt (videoIn,INCPANTILT*(global->PanStep),0,0);
+					break;
+                    		default:
+                        		break;
+                		}
 			}
 
-        }
+        	}
 	}
 
 	
-  }
-   /*check if thread exited while AVI in capture mode*/
+  }/*loop end*/
+    
+  /*check if thread exited while AVI in capture mode*/
   if (videoIn->capAVI) {
 	global->AVIstoptime = ms_time();
 	videoIn->capAVI = FALSE;   
   }	   
-  printf("Thread terminated...\n");
+  if (global->debug) printf("Thread terminated...\n");
   
   if(pim!=NULL) free(pim);
   pim=NULL;
   if(pavi!=NULL)	free(pavi);
   pavi=NULL;
-  printf("cleaning Thread allocations: 100%%\n");
+  if (global->debug) printf("cleaning Thread allocations: 100%%\n");
   fflush(NULL);//flush all output buffers
   SDL_Quit();
-  printf("SDL Quit\n");	
+  if (global->debug) printf("SDL Quit\n");	
   pthread_exit((void *) 0);
 }
 
 /*--------------------------------- MAIN -------------------------------------*/
 int main(int argc, char *argv[])
-{
-    
-#ifdef ENABLE_NLS
-	char* lc_all = setlocale (LC_ALL, "");
-	char* lc_dir = bindtextdomain (GETTEXT_PACKAGE, LOCALE_DIR);
-	char* codeset = bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
-	char* txtdom = textdomain (GETTEXT_PACKAGE);
-	printf("language catalog=> dir:%s lang:%s cat:%s.%s\n",lc_dir,lc_all,txtdom,codeset);
-#endif
-    
+{  
 	int i;
 	printf("guvcview version %s \n", VERSION);
 	
@@ -2394,8 +2378,15 @@ int main(int argc, char *argv[])
 		printf("couldn't allocate memory for: global\n");
 		exit(1); 
 	}
-	printf("initing globals\n");
 	initGlobals(global);
+    
+#ifdef ENABLE_NLS
+	char* lc_all = setlocale (LC_ALL, "");
+	char* lc_dir = bindtextdomain (GETTEXT_PACKAGE, LOCALE_DIR);
+	char* codeset = bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
+	char* txtdom = textdomain (GETTEXT_PACKAGE);
+	if (global->debug) printf("language catalog=> dir:%s lang:%s cat:%s.%s\n",lc_dir,lc_all,txtdom,codeset);
+#endif
 						  
 	GtkWidget *scroll1;
 	GtkWidget *scroll2;
@@ -2449,11 +2440,9 @@ int main(int argc, char *argv[])
 	sprintf(global->confPath,"%s%s", home,"/.guvcviewrc");
 	sprintf(global->aviFPath[1],"%s", pwd);
 	sprintf(global->imgFPath[1],"%s", pwd);
-	
-	printf("guvcview configuration (%s):\n",global->confPath);
-	printf("=============================================================\n");
+	  
 	readConf(global->confPath);
-	printf("=============================================================\n");
+    
 	/*------------------------ reads command line options --------------------*/
 	readOpts(argc,argv);
 		
@@ -2911,7 +2900,7 @@ int main(int argc, char *argv[])
 		for( it=0; it<numDevices; it++ )
 		{
 			deviceInfo = Pa_GetDeviceInfo( it );
-			printf( "--------------------------------------- device #%d\n", it );
+			if (global->debug) printf( "--------------------------------------- device #%d\n", it );
 				
 			/* Mark global and API specific default devices */
 			defaultDisplayed = 0;
@@ -2919,40 +2908,44 @@ int main(int argc, char *argv[])
 			/* since ALSA lists after OSS							*/
 			if( it == Pa_GetDefaultInputDevice() )
 			{
-				printf( "[ Default Input" );
+				if (global->debug) printf( "[ Default Input" );
 				defaultDisplayed = 1;
 				global->Sound_DefDev=global->Sound_numInputDev;/*default index in array of input devs*/
 			}
 			else if( it == Pa_GetHostApiInfo( deviceInfo->hostApi )->defaultInputDevice )
 			{
 				const PaHostApiInfo *hostInfo = Pa_GetHostApiInfo( deviceInfo->hostApi );
-				printf( "[ Default %s Input", hostInfo->name );
+				if (global->debug) printf( "[ Default %s Input", hostInfo->name );
 				defaultDisplayed = 2;
 				global->Sound_DefDev=global->Sound_numInputDev;/*index in array of input devs*/
 			}
 			/* Output device doesn't matter for capture*/
 			if( it == Pa_GetDefaultOutputDevice() )
 			{
-				printf( (defaultDisplayed ? "," : "[") );
-				printf( " Default Output" );
+			 	if (global->debug) {
+					printf( (defaultDisplayed ? "," : "[") );
+					printf( " Default Output" );
+			    	}
 				defaultDisplayed = 3;
 			}
 			else if( it == Pa_GetHostApiInfo( deviceInfo->hostApi )->defaultOutputDevice )
 			{
 				const PaHostApiInfo *hostInfo = Pa_GetHostApiInfo( deviceInfo->hostApi );
-				printf( (defaultDisplayed ? "," : "[") );                
-				printf( " Default %s Output", hostInfo->name );/* OSS ALSA etc*/
+				if (global->debug) {
+			    		printf( (defaultDisplayed ? "," : "[") );                
+					printf( " Default %s Output", hostInfo->name );/* OSS ALSA etc*/
+				}
 				defaultDisplayed = 4;
 			}
 
 			if( defaultDisplayed!=0 )
-				printf( " ]\n" );
+				if (global->debug) printf( " ]\n" );
 
 			/* print device info fields */
-			printf( "Name                        = %s\n", deviceInfo->name );
-			printf( "Host API                    = %s\n",  Pa_GetHostApiInfo( deviceInfo->hostApi )->name );
+			if (global->debug)printf( "Name                        = %s\n", deviceInfo->name );
+			if (global->debug) printf( "Host API                    = %s\n",  Pa_GetHostApiInfo( deviceInfo->hostApi )->name );
 			
-			printf( "Max inputs = %d", deviceInfo->maxInputChannels  );
+			if (global->debug) printf( "Max inputs = %d", deviceInfo->maxInputChannels  );
 			/* if it as input channels it's a capture device*/
 			if (deviceInfo->maxInputChannels >0) { 
 				global->Sound_IndexDev[global->Sound_numInputDev].id=it; /*saves dev id*/
@@ -2963,19 +2956,19 @@ int main(int argc, char *argv[])
 				global->Sound_numInputDev++;
 				gtk_combo_box_append_text(GTK_COMBO_BOX(SndDevice),deviceInfo->name);		
 			}
-			
-			printf( ", Max outputs = %d\n", deviceInfo->maxOutputChannels  );
-
-			printf( "Default low input latency   = %8.3f\n", deviceInfo->defaultLowInputLatency  );
-			printf( "Default low output latency  = %8.3f\n", deviceInfo->defaultLowOutputLatency  );
-			printf( "Default high input latency  = %8.3f\n", deviceInfo->defaultHighInputLatency  );
-			printf( "Default high output latency = %8.3f\n", deviceInfo->defaultHighOutputLatency  );
-			printf( "Default sample rate         = %8.2f\n", deviceInfo->defaultSampleRate );
+			if (global->debug) {
+				printf( ", Max outputs = %d\n", deviceInfo->maxOutputChannels  );
+				printf( "Default low input latency   = %8.3f\n", deviceInfo->defaultLowInputLatency  );
+				printf( "Default low output latency  = %8.3f\n", deviceInfo->defaultLowOutputLatency  );
+				printf( "Default high input latency  = %8.3f\n", deviceInfo->defaultHighInputLatency  );
+				printf( "Default high output latency = %8.3f\n", deviceInfo->defaultHighOutputLatency  );
+				printf( "Default sample rate         = %8.2f\n", deviceInfo->defaultSampleRate );
+			}
 			
 		}
 		Pa_Terminate();
 		
-		printf("----------------------------------------------\n");
+		if (global->debug) printf("----------------------------------------------\n");
 	
 	}
 	
@@ -3079,7 +3072,7 @@ int main(int argc, char *argv[])
 					GTK_FILL, 0, 0, 0);
 
 	gtk_widget_show (label_SndNumChan);
-	printf("SampleRate:%d Channels:%d\n",global->Sound_SampRate,global->Sound_NumChan);
+	if (global->debug) printf("SampleRate:%d Channels:%d\n",global->Sound_SampRate,global->Sound_NumChan);
 	
 	/*----- Filter controls ----*/
 	
@@ -3226,13 +3219,13 @@ shutd (gint restart)
 	int tstatus;
 	//tstatus=NULL;
 	
-	printf("Shuting Down Thread\n");
+	if (global->debug) printf("Shuting Down Thread\n");
 	videoIn->signalquit=0;
-	printf("waiting for thread to finish\n");
+	if (global->debug) printf("waiting for thread to finish\n");
 	/*shuting down while in avi capture mode*/
 	/*must close avi			*/
 	if(videoIn->capAVI) {
-		printf("stoping AVI capture\n");
+		if (global->debug) printf("stoping AVI capture\n");
 		global->AVIstoptime = ms_time();
 		//printf("AVI stop time:%d\n",AVIstoptime);	
 		videoIn->capAVI = FALSE;
@@ -3246,7 +3239,7 @@ shutd (gint restart)
 		 printf("ERROR; return code from pthread_join() is %d\n", rc);
 		 exit(-1);
 	  }
-	printf("Completed join with thread status= %d\n", tstatus);
+	if (global->debug) printf("Completed join with thread status= %d\n", tstatus);
 	
 	
 	gtk_window_get_size(GTK_WINDOW(mainwin),&(global->winwidth),&(global->winheight));//mainwin or widget
@@ -3255,26 +3248,26 @@ shutd (gint restart)
 	
 	close_v4l2(videoIn);
 	close(videoIn->fd);
-	printf("closed strutures\n");
+	if (global->debug) printf("closed strutures\n");
 	free(videoIn);
-	printf("cleaned allocations - 50%%\n");
+	if (global->debug) printf("cleaning allocations - 50%%\n");
 	gtk_main_quit();
-	printf("GTK quit\n");
+	if (global->debug) printf("GTK quit\n");
 	writeConf(global->confPath);
 	input_free_controls (s->control, s->num_controls);
-	printf("free controls - vidState\n");
+	if (global->debug) printf("free controls - vidState\n");
 	free(s);
 	closeGlobals(global);
-	printf("free globals\n");
 	if (jpeg_struct != NULL) free(jpeg_struct);
-	
+	printf("cleaned allocations - 100%%\n");
+    
 	if (restart==1) { /* replace running process with new one */
-		 printf("restarting guvcview with command: %s\n",EXEC_CALL);
+		 printf("Restarting guvcview with command: %s\n",EXEC_CALL);
 		 exec_status = execlp(EXEC_CALL,EXEC_CALL,NULL);/*No parameters passed*/
 	}
 	
 	free(EXEC_CALL);
-	printf("cleaning allocations - 100%%\n");
+	printf("Terminated.\n");
 	return exec_status;
 }
 

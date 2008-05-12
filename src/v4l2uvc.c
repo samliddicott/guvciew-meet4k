@@ -719,7 +719,7 @@ input_free_controls (InputControl * control, int num_controls)
         }
     }
     free (control);
-	printf("cleaned allocations - 80%%\n");
+	printf("cleaned controls\n");
 }
 /******************************* enumerations *********************************/
 int enum_frame_intervals(struct vdIn *vd, __u32 pixfmt, __u32 width, __u32 height, 
@@ -871,7 +871,7 @@ int initDynCtrls(struct vdIn *vd) {
 			if (errno!=EEXIST) {
 				printf("uvcioc ctrl add error: errno=%d (retval=%d)\n",errno,err);
 			} else {
-				printf("control %d already exists\n",i);
+				//printf("control %d already exists\n",i);
 			}
 		}
 	}
@@ -882,9 +882,9 @@ int initDynCtrls(struct vdIn *vd) {
 		printf("mapping controls for %s\n", xu_mappings[i].name);
 		if ((err=ioctl(vd->fd, UVCIOC_CTRL_MAP, &xu_mappings[i])) < 0) {
 			if (errno!=EEXIST) {
-			printf("uvcioc ctrl map error: errno=%d (retval=%d)\n",errno,err);
+				printf("uvcioc ctrl map error: errno=%d (retval=%d)\n",errno,err);
 			} else {
-				printf("mapping %d already exists\n", i);
+				//printf("mapping %d already exists\n", i);
 			}
 		}
 	} 
