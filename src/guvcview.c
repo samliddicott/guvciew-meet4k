@@ -2364,6 +2364,13 @@ int main(int argc, char *argv[])
 {  
 	int i;
 	printf("guvcview version %s \n", VERSION);
+   
+#ifdef ENABLE_NLS
+	char* lc_all = setlocale (LC_ALL, "");
+	char* lc_dir = bindtextdomain (GETTEXT_PACKAGE, LOCALE_DIR);
+	bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
+	char* txtdom = textdomain (GETTEXT_PACKAGE);
+#endif
 	
 	/*stores argv[0] - program call string - for restart*/
 	int exec_size=strlen(argv[0])*sizeof(char)+1;
@@ -2378,16 +2385,10 @@ int main(int argc, char *argv[])
 		printf("couldn't allocate memory for: global\n");
 		exit(1); 
 	}
+   
 	initGlobals(global);
-    
-#ifdef ENABLE_NLS
-	char* lc_all = setlocale (LC_ALL, "");
-	char* lc_dir = bindtextdomain (GETTEXT_PACKAGE, LOCALE_DIR);
-	char* codeset = bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
-	char* txtdom = textdomain (GETTEXT_PACKAGE);
-	if (global->debug) printf("language catalog=> dir:%s lang:%s cat:%s.%s\n",lc_dir,lc_all,txtdom,codeset);
-#endif
-						  
+	
+   	/* widgets */
 	GtkWidget *scroll1;
 	GtkWidget *scroll2;
 	GtkWidget *buttons_table;
@@ -2445,7 +2446,11 @@ int main(int argc, char *argv[])
     
 	/*------------------------ reads command line options --------------------*/
 	readOpts(argc,argv);
-		
+   
+#ifdef ENABLE_NLS
+   	/* if --verbose mode set do debug*/
+	if (global->debug) printf("language catalog=> dir:%s lang:%s cat:%s.mo\n",lc_dir,lc_all,txtdom);
+#endif   
 	/*---------------------------- GTK init ----------------------------------*/
 	
 	gtk_init(&argc, &argv);
