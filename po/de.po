@@ -1,16 +1,18 @@
+# translation of de.po to Português
 # translation of guvcview to German
 # Copyright (C) 2008 Paulo Assis
 # This file is distributed under the same license as the guvcview package.
 #
 # guvcview <pj.assis@gmail.com>, 2008.
+# Paulo Assis <pj.assis@gmail.com>, 2008.
 msgid ""
 msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2008-05-10 15:16+0100\n"
-"PO-Revision-Date: 2008-05-11 19:06+0100\n"
-"Last-Translator: guvcview <pj.assis@gmail.com>\n"
-"Language-Team: German <de@li.org>\n"
+"PO-Revision-Date: 2008-05-13 17:47+0100\n"
+"Last-Translator: Paulo Assis <pj.assis@gmail.com>\n"
+"Language-Team: Português <pj.assis@gmail.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -271,7 +273,7 @@ msgstr "2 - stereo"
 
 #: ../src/guvcview.c:3078
 msgid "Channels:"
-msgstr "Kan�le:"
+msgstr "Kanäle:"
 
 #: ../src/guvcview.c:3089
 msgid "---- Video Filters ----"

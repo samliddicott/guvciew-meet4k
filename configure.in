@@ -23,7 +23,7 @@ AC_SUBST(LOCALE_DIR)
 AC_DEFINE_UNQUOTED(LOCALE_DIR,"$LOCALE_DIR", [/usr/share/locale])
 
 dnl Add the languages which your application supports here.
-ALL_LINGUAS="pt pt_PT pt_BR de"
+ALL_LINGUAS="pt pt_PT pt_BR de es"
 AM_GLIB_GNU_GETTEXT([external])
 dnl AM_GNU_GETTEXT([external])
 
