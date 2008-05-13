@@ -1,16 +1,16 @@
-# translation of guvcview to Portuguese
+# translation of guvcview to German
 # Copyright (C) 2008 Paulo Assis
 # This file is distributed under the same license as the guvcview package.
 #
 # guvcview <pj.assis@gmail.com>, 2008.
 msgid ""
 msgstr ""
-"Project-Id-Version: pt\n"
+"Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2008-05-10 15:16+0100\n"
 "PO-Revision-Date: 2008-05-11 19:06+0100\n"
 "Last-Translator: guvcview <pj.assis@gmail.com>\n"
-"Language-Team: Portuguese <pt@li.org>\n"
+"Language-Team: German <de@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -18,98 +18,98 @@ msgstr ""
 
 #: UVC Control names
 msgid "Brightness"
-msgstr "Brilho"
+msgstr "Helligkeit"
 
 msgid "Contrast"
-msgstr "Contraste"
+msgstr "Kontrast"
 
 msgid "Hue"
-msgstr "Matiz"
+msgstr "Farbe"
 
 msgid "Saturation"
-msgstr "Saturação"
+msgstr "Sättigung"
 
 msgid "Sharpness"
-msgstr "Agudeza"
+msgstr "Schärfe"
 
 msgid "Gamma"
 msgstr "Gamma"
 
 msgid "Backlight Compensation"
-msgstr "Compensação de Luz"
+msgstr "Hintergrundbeleuchtung-Ausgleich"
 
 msgid "Gain"
-msgstr "Ganho"
+msgstr "Gewinn"
 
 msgid "Power Line Frequency"
-msgstr "Frequência da Rede"
+msgstr "Stromleitung Frequenz"
 
 msgid "Hue, Auto"
-msgstr "Matiz, Auto"
+msgstr "Farbe, Selbst"
 
 msgid "Exposure, Auto"
-msgstr "Exposição, Auto"
+msgstr "Belichtung, Selbst"
 
 msgid "Exposure, Auto Priority"
-msgstr "Exposição, Prioridade Auto"
+msgstr "Belichtung, Selbstpriorität"
 
 msgid "Exposure (Absolute)"
-msgstr "Exposição (Absoluta)"
+msgstr "Belichtung (absolut)"
 
 msgid "White Balance Temperature, Auto"
-msgstr "Balanço de Brancos, auto"
+msgstr "Weiße Balancen-Temperatur, Selbst"
 
 msgid "White Balance Temperature"
-msgstr "Branco (Temp. de côr)"
+msgstr "Weiße Balancen-Temperatur"
 
 msgid "White Balance Component, Auto"
-msgstr "Componente de cor, Auto"
+msgstr "Weißer Balancen-Bestandteil, Selbst"
 
 msgid "White Balance Blue Component"
-msgstr "Componente Azul"
+msgstr "Weißer Balancen-Blau-Bestandteil"
 
 msgid "White Balance Red Component"
-msgstr "Componente Vermelho"
+msgstr "Weißer Balancen-Rot-Bestandteil"
 
 msgid "Focus (absolute)"
-msgstr "Focagem (absoluta)"
+msgstr "Fokus (absolut)"
 
 msgid "Focus, Auto"
-msgstr "Focagem, Auto"
+msgstr "Fokus, Selbst"
 
 #: Logitech extension Control names
 msgid "Pan (relative)"
-msgstr "Rodar Horizontal"
+msgstr "Wanne (relativ)"
 
 msgid "Tilt (relative)"
-msgstr "Rodar Vertical"
+msgstr "Neigung (relativ)"
 
 msgid "Pan/Tilt (reset)"
-msgstr "Rodar H/V (Inicio)"
+msgstr "Wanne/Neigung (Zurückstellen)"
 
 msgid "LED1 Mode"
-msgstr "Modo LED1"
+msgstr "Modus LED1"
 
 msgid "LED1 Frequency"
-msgstr "Frequência LED1"
+msgstr "Frequenz LED1"
 
 msgid "Disable video processing"
-msgstr "Desabilitar proc. video (Raw)"
+msgstr "Sperrungsvideoverarbeitung"
 
 msgid "Raw bits per pixel"
-msgstr "Bits por pixel (Raw)"
+msgstr "Rohe bits pro Pixel"
 
 #: ../src/guvcview.c:980 ../src/guvcview.c:1059
 msgid "Program Restart"
-msgstr "Reiniciar Programa"
+msgstr "Programm-Wiederanlauf"
 
 #: ../src/guvcview.c:983 ../src/guvcview.c:1062
 msgid "now"
-msgstr "Agora"
+msgstr "Jetzt "
 
 #: ../src/guvcview.c:985 ../src/guvcview.c:1064
 msgid "Later"
-msgstr "Depois"
+msgstr "Später "
 
 #: ../src/guvcview.c:989 ../src/guvcview.c:1068
 msgid ""
@@ -118,148 +118,148 @@ msgid ""
 "\n"
 "Restart now?\n"
 msgstr ""
-"As alterações só terão lugar depois de reiniciar o guvcview.\n"
+"Änderungen treten nur nachdem guvcview Wiederanlauf in Kraft.\n"
 "\n"
 "\n"
-"Reiniciar agora?\n"
+"Wiederanlauf jetzt?\n"
 
 #: ../src/guvcview.c:1149 ../src/guvcview.c:1288 ../src/guvcview.c:1322
 #: ../src/guvcview.c:1477 ../src/guvcview.c:1514
 #, c-format
 msgid "File num:%d"
-msgstr "Ficheiro num:%d"
+msgstr "Aktenzeichen:%d"
 
 #: ../src/guvcview.c:1236 ../src/guvcview.c:1665
 msgid "Save File"
-msgstr "Gravar Ficheiro"
+msgstr "Außer Akte"
 
 #: ../src/guvcview.c:1348 ../src/guvcview.c:1485 ../src/guvcview.c:2596
 msgid "Cap. Image"
-msgstr "Cap. Imagem"
+msgstr "Sicherung Bild"
 
 #: ../src/guvcview.c:1386 ../src/guvcview.c:2602
 msgid "Cap. AVI"
-msgstr "Cap. AVI"
+msgstr "Sicherung AVI"
 
 #: ../src/guvcview.c:1408 ../src/guvcview.c:2600
 msgid "Stop AVI"
-msgstr "Parar AVI"
+msgstr "Stop AVI"
 
 #: ../src/guvcview.c:1695
 msgid "Load File"
-msgstr "Abrir Ficheiro"
+msgstr "Lasts-Akte"
 
 #: ../src/guvcview.c:1827
 msgid "Exposure:"
-msgstr "Exposição:"
+msgstr "Belichtung:"
 
 #: ../src/guvcview.c:1834
 msgid "Left"
-msgstr "Esquerda"
+msgstr "Link"
 
 #: ../src/guvcview.c:1835
 msgid "Right"
-msgstr "Direita"
+msgstr "Recht"
 
 #: ../src/guvcview.c:1858
 msgid "Up"
-msgstr "Cima"
+msgstr "Herauf"
 
 #: ../src/guvcview.c:1859
 msgid "Down"
-msgstr "Baixo"
+msgstr "Unten"
 
 #: ../src/guvcview.c:1882
 msgid "Reset"
-msgstr "Inicio"
+msgstr "Zurückstellen"
 
 #: ../src/guvcview.c:2470
 msgid "GUVCViewer Controls"
-msgstr "GUVCVIEWER Controlos"
+msgstr "GUVCVIEWER Kontrollen"
 
 #: ../src/guvcview.c:2558
 msgid "Image Controls"
-msgstr "Controlos de imagem"
+msgstr "Bild-Kontrollen "
 
 #: ../src/guvcview.c:2575
 msgid "Control Profiles:"
-msgstr "Perfis de Controlos:"
+msgstr "Kontrollen Profil"
 
 #: ../src/guvcview.c:2581
 msgid "Capture:"
-msgstr "Captura:"
+msgstr "Sicherung:"
 
 #: ../src/guvcview.c:2594
-msgid "Stop Auto:"
-msgstr "Parar Auto:"
+msgid "Stop Auto"
+msgstr "Stop Auto"
 
 #: ../src/guvcview.c:2649
 msgid "Video|Capture"
-msgstr "Video|Captura"
+msgstr "Video|Sicherung"
 
 #: ../src/guvcview.c:2683
 msgid "Resolution:"
-msgstr "Resolução:"
+msgstr "Entschließung:"
 
 #: ../src/guvcview.c:2725
 msgid "Frame Rate:"
-msgstr "Taxa de frames:"
+msgstr "Rahmen-Rate:"
 
 #: ../src/guvcview.c:2733
 msgid " Show"
-msgstr "Mostrar"
+msgstr " Erscheinen"
 
 #: ../src/guvcview.c:2764
 msgid "Camera Output:"
-msgstr "Saída de Câmera:"
+msgstr "Kamera-Ausgang:"
 
 #: ../src/guvcview.c:2773
 msgid "Image File:"
-msgstr "Ficheiro Imagem:"
+msgstr "Bild-Akte:"
 
 #: ../src/guvcview.c:2799
 msgid "File,Auto"
-msgstr "Ficheiro,Auto"
+msgstr "Akte, Selbst"
 
 #: ../src/guvcview.c:2810
 msgid "Image Type:"
-msgstr "Tipo de Imagem:"
+msgstr "Bild-Format:"
 
 #: ../src/guvcview.c:2838
 msgid "AVI File:"
-msgstr "Ficheiro AVI:"
+msgstr "AVI Akte:"
 
 #: ../src/guvcview.c:2870
 msgid "MJPG - compressed"
-msgstr "MJPG - c/comp."
+msgstr "MJPG - komprimiert"
 
 #: ../src/guvcview.c:2871
 msgid "YUY2 - uncomp YUV"
-msgstr "YUY2 - s/comp YUV"
+msgstr "YUY2 - keine Kompression YUV"
 
 #: ../src/guvcview.c:2872
 msgid "RGB - uncomp BMP"
-msgstr "RGB - s/comp BMP"
+msgstr "RGB - keine Kompression BMP"
 
 #: ../src/guvcview.c:2884
 msgid "AVI Format:"
-msgstr "Formato AVI:"
+msgstr "AVI-Format"
 
 #: ../src/guvcview.c:2998
 msgid "Input Device:"
-msgstr "Dispositivo de som:"
+msgstr "Eingabegerät:"
 
 #: ../src/guvcview.c:3010
 msgid " Sound"
-msgstr " Som"
+msgstr " Ton"
 
 #: ../src/guvcview.c:3020 ../src/guvcview.c:3051
 msgid "Dev. Default"
-msgstr "Automático"
+msgstr "Automatisch"
 
 #: ../src/guvcview.c:3042
 msgid "Sample Rate:"
-msgstr "Taxa de Amostras:"
+msgstr "Beispielrate:"
 
 #: ../src/guvcview.c:3052
 msgid "1 - mono"
@@ -271,25 +271,25 @@ msgstr "2 - stereo"
 
 #: ../src/guvcview.c:3078
 msgid "Chanels:"
-msgstr "Canais:"
+msgstr "Chanels:"
 
 #: ../src/guvcview.c:3089
 msgid "---- Video Filters ----"
-msgstr "---- Filtros de Video ----"
+msgstr "---- Videofilter ----"
 
 #: ../src/guvcview.c:3106
 msgid " Mirror"
-msgstr " Espelho"
+msgstr " Spiegel"
 
 #: ../src/guvcview.c:3115
 msgid " Invert"
-msgstr " Invertido"
+msgstr " Umgewandelt"
 
 #: ../src/guvcview.c:3124
 msgid " Negative"
-msgstr " Negativo"
+msgstr "Negativ"
 
 #: ../src/guvcview.c:3133
 msgid " Mono"
-msgstr " Cinza"
+msgstr " Mono"
 

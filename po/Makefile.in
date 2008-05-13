@@ -23,7 +23,7 @@ srcdir = .
 top_srcdir = ..
 
 
-prefix = /usr
+prefix = /usr/local
 exec_prefix = ${prefix}
 datarootdir = ${prefix}/share
 datadir = ${datarootdir}
@@ -37,7 +37,7 @@ INSTALL = /usr/bin/install -c
 INSTALL_DATA = ${INSTALL} -m 644
 MKINSTALLDIRS = $(top_srcdir)/./mkinstalldirs
 
-CC = i486-linux-gnu-gcc
+CC = gcc
 GENCAT = @GENCAT@
 GMSGFMT = /usr/bin/msgfmt
 MSGFMT = /usr/bin/msgfmt
@@ -46,7 +46,7 @@ XGETTEXT = /usr/bin/xgettext
 MSGMERGE = msgmerge
 
 DEFS = -DHAVE_CONFIG_H
-CFLAGS = -Wall -g -O2
+CFLAGS = -g -O2
 CPPFLAGS = 
 
 INCLUDES = -I.. -I$(top_srcdir)/intl
@@ -54,14 +54,14 @@ INCLUDES = -I.. -I$(top_srcdir)/intl
 COMPILE = $(CC) -c $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS) $(XCFLAGS)
 
 SOURCES = 
-POFILES =  pt.po pt_PT.po pt_BR.po
-GMOFILES =  pt.gmo pt_PT.gmo pt_BR.gmo
+POFILES =  pt.po pt_PT.po pt_BR.po de.po
+GMOFILES =  pt.gmo pt_PT.gmo pt_BR.gmo de.gmo
 DISTFILES = ChangeLog Makefile.in.in POTFILES.in $(GETTEXT_PACKAGE).pot \
 $(POFILES) $(GMOFILES) $(SOURCES)
 
 POTFILES = \
 
-CATALOGS =  pt.gmo pt_PT.gmo pt_BR.gmo
+CATALOGS =  pt.gmo pt_PT.gmo pt_BR.gmo de.gmo
 CATOBJEXT = .gmo
 INSTOBJEXT = .mo
 

@@ -1,4 +1,4 @@
-# translation of guvcview to Portuguese (Brasil)
+# translation of guvcview to Portuguese (Brazil)
 # Copyright (C) 2008 Paulo Assis
 # This file is distributed under the same license as the guvcview package.
 #
@@ -24,13 +24,13 @@ msgid "Contrast"
 msgstr "Contraste"
 
 msgid "Hue"
-msgstr "Hue"
+msgstr "Matiz"
 
 msgid "Saturation"
 msgstr "Saturação"
 
 msgid "Sharpness"
-msgstr "Definição"
+msgstr "Agudeza"
 
 msgid "Gamma"
 msgstr "Gamma"
@@ -45,7 +45,7 @@ msgid "Power Line Frequency"
 msgstr "Frequência da Rede"
 
 msgid "Hue, Auto"
-msgstr "Hue, Auto"
+msgstr "Matiz, Auto"
 
 msgid "Exposure, Auto"
 msgstr "Exposição, Auto"
@@ -183,15 +183,15 @@ msgstr "Controlos de imagem"
 
 #: ../src/guvcview.c:2575
 msgid "Control Profiles:"
-msgstr "Perfis de Controlos"
+msgstr "Perfis de Controlos:"
 
 #: ../src/guvcview.c:2581
 msgid "Capture:"
-msgstr "Captura"
+msgstr "Captura:"
 
 #: ../src/guvcview.c:2594
-msgid "Stop Auto"
-msgstr "Parar Auto"
+msgid "Stop Auto:"
+msgstr "Parar Auto:"
 
 #: ../src/guvcview.c:2649
 msgid "Video|Capture"
@@ -199,11 +199,11 @@ msgstr "Video|Captura"
 
 #: ../src/guvcview.c:2683
 msgid "Resolution:"
-msgstr "Resolução"
+msgstr "Resolução:"
 
 #: ../src/guvcview.c:2725
 msgid "Frame Rate:"
-msgstr "Frame Rate"
+msgstr "Taxa de frames:"
 
 #: ../src/guvcview.c:2733
 msgid " Show"
@@ -211,11 +211,11 @@ msgstr "Mostrar"
 
 #: ../src/guvcview.c:2764
 msgid "Camera Output:"
-msgstr "Saida de Camera"
+msgstr "Saída de Câmera:"
 
 #: ../src/guvcview.c:2773
 msgid "Image File:"
-msgstr "Ficheiro Imagem"
+msgstr "Ficheiro Imagem:"
 
 #: ../src/guvcview.c:2799
 msgid "File,Auto"
@@ -223,11 +223,11 @@ msgstr "Ficheiro,Auto"
 
 #: ../src/guvcview.c:2810
 msgid "Image Type:"
-msgstr "Tipo de Imagem"
+msgstr "Tipo de Imagem:"
 
 #: ../src/guvcview.c:2838
 msgid "AVI File:"
-msgstr "Ficheiro AVI"
+msgstr "Ficheiro AVI:"
 
 #: ../src/guvcview.c:2870
 msgid "MJPG - compressed"
@@ -243,15 +243,15 @@ msgstr "RGB - s/comp BMP"
 
 #: ../src/guvcview.c:2884
 msgid "AVI Format:"
-msgstr "Formato AVI"
+msgstr "Formato AVI:"
 
 #: ../src/guvcview.c:2998
 msgid "Input Device:"
-msgstr "Entrada de som:"
+msgstr "Dispositivo de som:"
 
 #: ../src/guvcview.c:3010
 msgid " Sound"
-msgstr "Som"
+msgstr " Som"
 
 #: ../src/guvcview.c:3020 ../src/guvcview.c:3051
 msgid "Dev. Default"
@@ -259,7 +259,7 @@ msgstr "Automático"
 
 #: ../src/guvcview.c:3042
 msgid "Sample Rate:"
-msgstr "Sample Rate:"
+msgstr "Taxa de Amostras:"
 
 #: ../src/guvcview.c:3052
 msgid "1 - mono"
@@ -279,17 +279,17 @@ msgstr "---- Filtros de Video ----"
 
 #: ../src/guvcview.c:3106
 msgid " Mirror"
-msgstr "Espelho"
+msgstr " Espelho"
 
 #: ../src/guvcview.c:3115
 msgid " Invert"
-msgstr "Invertido"
+msgstr " Invertido"
 
 #: ../src/guvcview.c:3124
 msgid " Negative"
-msgstr "Negativo"
+msgstr " Negativo"
 
 #: ../src/guvcview.c:3133
 msgid " Mono"
-msgstr "Cinza"
+msgstr " Cinza"
 
