@@ -3070,7 +3070,7 @@ int main(int argc, char *argv[])
 	g_signal_connect (GTK_COMBO_BOX(SndNumChan), "changed",
 		G_CALLBACK (SndNumChan_changed), NULL);
 	
-	label_SndNumChan = gtk_label_new(_("Chanels:"));
+	label_SndNumChan = gtk_label_new(_("Channels:"));
 	gtk_misc_set_alignment (GTK_MISC (label_SndNumChan), 1, 0.5);
 
 	gtk_table_attach (GTK_TABLE(table2), label_SndNumChan, 0, 1, 14, 15,

@@ -266,7 +266,7 @@ msgid "2 - stereo"
 msgstr ""
 
 #: ../src/guvcview.c:3078
-msgid "Chanels:"
+msgid "Channels:"
 msgstr ""
 
 #: ../src/guvcview.c:3089

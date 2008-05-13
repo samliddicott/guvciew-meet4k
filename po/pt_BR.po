@@ -24,7 +24,7 @@ msgid "Contrast"
 msgstr "Contraste"
 
 msgid "Hue"
-msgstr "Matiz"
+msgstr "Tonalidade"
 
 msgid "Saturation"
 msgstr "Saturação"
@@ -45,7 +45,7 @@ msgid "Power Line Frequency"
 msgstr "Frequência da Rede"
 
 msgid "Hue, Auto"
-msgstr "Matiz, Auto"
+msgstr "Tonalidade, Auto"
 
 msgid "Exposure, Auto"
 msgstr "Exposição, Auto"
@@ -270,7 +270,7 @@ msgid "2 - stereo"
 msgstr "2 - stereo"
 
 #: ../src/guvcview.c:3078
-msgid "Chanels:"
+msgid "Channels:"
 msgstr "Canais:"
 
 #: ../src/guvcview.c:3089
