@@ -81,7 +81,7 @@ msgstr "Fokus, Selbst"
 
 #: Logitech extension Control names
 msgid "Pan (relative)"
-msgstr "Wanne (relativ)"
+msgstr "Drehen (relativ)"
 
 msgid "Tilt (relative)"
 msgstr "Neigung (relativ)"
