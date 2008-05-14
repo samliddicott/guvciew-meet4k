@@ -2417,6 +2417,8 @@ int main(int argc, char *argv[])
    	GtkWidget *Tab2Label;
     	GtkWidget *label_ImgFile;
     	GtkWidget *label_AVIFile;
+	GtkWidget *AVIButton_Img;
+	GtkWidget *ImgButton_Img;
    
    	size_t stacksize;
 	stacksize = sizeof(char) * TSTACK;
@@ -2593,6 +2595,24 @@ int main(int argc, char *argv[])
 		CapAVIButt=gtk_button_new_with_label (_("Cap. AVI"));
 	}
     
+	/*add images to Buttons*/
+	/*check for files*/
+	GString* datapath = g_string_new(DATA_DIR);
+	GString* pixpath = g_string_append (datapath,"/pixmaps/guvciew/movie.xpm");
+	printf("pxm1: %s\n",pixpath);
+	if (g_file_test(pixpath,G_FILE_TEST_EXISTS)) {
+		AVIButton_Img = gtk_image_new_from_file (pixpath);
+		gtk_button_set_image(CapAVIButt,AVIButton_Img);
+	} 
+	pixpath = g_string_overwrite(pixpath,strlen(datapath),"/pixmaps/guvciew/camera.xpm")
+	printf("pxm2: %s\n",pixpath);
+	if (g_file_test(pixpath,G_FILE_TEST_EXISTS)) {
+		ImgButton_Img = gtk_image_new_from_file (pixpath);
+		gtk_button_set_image(CapImageButt,ImgButton_Img);
+	}
+	g_string_free(pixpath);
+	g_string_free(datapath);
+	
     	gtk_table_attach (GTK_TABLE(buttons_table), CapImageButt, 0, 1, 1, 2,
 					 GTK_SHRINK | GTK_FILL, 0, 0, 0);
     	gtk_table_attach (GTK_TABLE(buttons_table), CapAVIButt, 1, 2, 1, 2,

@@ -1,7 +1,8 @@
 ## Process this file with automake to produce Makefile.in
 
-SUBDIRS = src po
+SUBDIRS = src po pixmaps
 
+ACLOCAL_AMFLAGS = -I m4
 
 guvcviewdocdir = ${prefix}/doc/guvcview
 guvcviewdoc_DATA = \
@@ -12,9 +13,22 @@ guvcviewdoc_DATA = \
 	INSTALL\
 	NEWS
 
-ACLOCAL_AMFLAGS = -I m4
+applicationdir = ${datadir}/applications
+application_DATA = guvcview.desktop
 
-EXTRA_DIST = config.rpath src $(guvcviewdoc_DATA)
+pixmapsdir = ${datadir}/pixmaps/guvcview
+pixmaps_DATA = \
+	       guvcview.png\
+	       camera.xpm\
+	       movie.xpm
+
+
+EXTRA_DIST = \
+	     config.rpath\
+	     src\
+	     $(guvcviewdoc_DATA)\
+	     $(application_DATA)\
+	     $(pixmaps_DATA)
 
 # Copy all the spec files. Of cource, only one is actually used.
 dist-hook:
