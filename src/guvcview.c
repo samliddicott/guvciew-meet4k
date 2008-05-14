@@ -2800,7 +2800,7 @@ int main(int argc, char *argv[])
 	gtk_widget_show (ImageInc);
 	
 	
-	label_ImageType=gtk_label_new(_("Image Type:"));
+	label_ImageType=gtk_label_new(_("Image Format:"));
 	gtk_misc_set_alignment (GTK_MISC (label_ImageType), 1, 0.5);
 
 	gtk_table_attach (GTK_TABLE(table2), label_ImageType, 0, 1, 7, 8,
