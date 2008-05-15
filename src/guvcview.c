@@ -2419,7 +2419,7 @@ int main(int argc, char *argv[])
     	GtkWidget *label_AVIFile;
 	GtkWidget *AVIButton_Img;
 	GtkWidget *ImgButton_Img;
-   
+    
    	size_t stacksize;
 	stacksize = sizeof(char) * TSTACK;
    
@@ -2556,7 +2556,7 @@ int main(int argc, char *argv[])
 	gtk_widget_show (boxv);
 	
 	/*----- Add  Buttons -----*/
-	buttons_table = gtk_table_new(1,6,FALSE); /*TRUE - all buttons are the same size*/
+	buttons_table = gtk_table_new(1,5,TRUE); /*TRUE - all buttons are the same size*/
 	
 	gtk_table_set_row_spacings (GTK_TABLE (buttons_table), 1);
 	gtk_table_set_col_spacings (GTK_TABLE (buttons_table), 4);
@@ -2568,7 +2568,7 @@ int main(int argc, char *argv[])
 	profile_labels=gtk_label_new(_("Control Profiles:"));
 	gtk_misc_set_alignment (GTK_MISC (profile_labels), 0, 0.5);
 
-	gtk_table_attach (GTK_TABLE(buttons_table), profile_labels, 3, 5, 0, 1,
+	gtk_table_attach (GTK_TABLE(buttons_table), profile_labels, 2, 4, 0, 1,
 					 GTK_SHRINK | GTK_FILL, 0, 0, 0);
     
     	capture_labels=gtk_label_new(_("Capture:"));
@@ -2617,7 +2617,7 @@ int main(int argc, char *argv[])
     	gtk_table_attach (GTK_TABLE(buttons_table), CapAVIButt, 1, 2, 1, 2,
 					GTK_SHRINK | GTK_FILL , 0, 0, 0);
 		
-	gtk_table_attach (GTK_TABLE(buttons_table), quitButton, 5, 6, 1, 2,
+	gtk_table_attach (GTK_TABLE(buttons_table), quitButton, 4, 5, 1, 2,
 					GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (quitButton);
     	gtk_widget_show (CapImageButt);
@@ -2631,13 +2631,13 @@ int main(int argc, char *argv[])
 	g_signal_connect (GTK_BUTTON(quitButton), "clicked",
 		 G_CALLBACK (quitButton_clicked), NULL);
 	
-	gtk_table_attach (GTK_TABLE(buttons_table), SProfileButton, 3, 4, 1, 2,
+	gtk_table_attach (GTK_TABLE(buttons_table), SProfileButton, 2, 3, 1, 2,
 					GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (SProfileButton);
 	g_signal_connect (GTK_BUTTON(SProfileButton), "clicked",
 		 G_CALLBACK (SProfileButton_clicked), s);
 	
-	gtk_table_attach (GTK_TABLE(buttons_table), LProfileButton, 4, 5, 1, 2,
+	gtk_table_attach (GTK_TABLE(buttons_table), LProfileButton, 3, 4, 1, 2,
 					GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (LProfileButton);
 	g_signal_connect (GTK_BUTTON(LProfileButton), "clicked",
