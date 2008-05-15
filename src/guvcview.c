@@ -2556,8 +2556,8 @@ int main(int argc, char *argv[])
 	gtk_widget_show (boxv);
 	
 	/*----- Add  Buttons -----*/
-	buttons_table = gtk_table_new(1,6,TRUE); /*all buttons are the same size*/
-   
+	buttons_table = gtk_table_new(1,6,FALSE); /*TRUE - all buttons are the same size*/
+	
 	gtk_table_set_row_spacings (GTK_TABLE (buttons_table), 1);
 	gtk_table_set_col_spacings (GTK_TABLE (buttons_table), 4);
 	gtk_container_set_border_width (GTK_CONTAINER (buttons_table), 1);
@@ -2613,9 +2613,9 @@ int main(int argc, char *argv[])
    	if(pix2path) free(pix2path);
    
     	gtk_table_attach (GTK_TABLE(buttons_table), CapImageButt, 0, 1, 1, 2,
-					 GTK_SHRINK | GTK_FILL, 0, 0, 0);
+					 GTK_SHRINK | GTK_FILL , 0, 0, 0);
     	gtk_table_attach (GTK_TABLE(buttons_table), CapAVIButt, 1, 2, 1, 2,
-					GTK_SHRINK | GTK_FILL, 0, 0, 0);
+					GTK_SHRINK | GTK_FILL , 0, 0, 0);
 		
 	gtk_table_attach (GTK_TABLE(buttons_table), quitButton, 5, 6, 1, 2,
 					GTK_SHRINK | GTK_FILL, 0, 0, 0);
