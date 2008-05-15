@@ -693,6 +693,7 @@ am__fastdepCC_FALSE
 CPP
 GREP
 EGREP
+DATA_DIR
 GETTEXT_PACKAGE
 LOCALE_DIR
 USE_NLS
@@ -5574,6 +5575,13 @@ _ACEOF
 fi
 
 
+DATA_DIR=/usr/share
+
+
+cat >>confdefs.h <<_ACEOF
+#define DATA_DIR "$DATA_DIR"
+_ACEOF
+
 
 GETTEXT_PACKAGE=guvcview
 
@@ -5583,7 +5591,7 @@ cat >>confdefs.h <<_ACEOF
 _ACEOF
 
 
-LOCALE_DIR=/usr/share/locale
+LOCALE_DIR=$DATA_DIR/locale
 
 
 cat >>confdefs.h <<_ACEOF
@@ -5591,7 +5599,7 @@ cat >>confdefs.h <<_ACEOF
 _ACEOF
 
 
-ALL_LINGUAS="pt pt_PT pt_BR de es"
+ALL_LINGUAS="pt pt_PT pt_BR de es fr"
 # On IRIX 5.3, sys/types and inttypes.h are conflicting.
 
 
@@ -7414,7 +7422,7 @@ fi
 
 
 
-ac_config_files="$ac_config_files Makefile src/Makefile po/Makefile.in"
+ac_config_files="$ac_config_files Makefile src/Makefile po/Makefile.in pixmaps/Makefile"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -8021,6 +8029,7 @@ do
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
     "src/Makefile") CONFIG_FILES="$CONFIG_FILES src/Makefile" ;;
     "po/Makefile.in") CONFIG_FILES="$CONFIG_FILES po/Makefile.in" ;;
+    "pixmaps/Makefile") CONFIG_FILES="$CONFIG_FILES pixmaps/Makefile" ;;
 
   *) { { echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5
 echo "$as_me: error: invalid argument: $ac_config_target" >&2;}
@@ -8164,6 +8173,7 @@ am__fastdepCC_FALSE!$am__fastdepCC_FALSE$ac_delim
 CPP!$CPP$ac_delim
 GREP!$GREP$ac_delim
 EGREP!$EGREP$ac_delim
+DATA_DIR!$DATA_DIR$ac_delim
 GETTEXT_PACKAGE!$GETTEXT_PACKAGE$ac_delim
 LOCALE_DIR!$LOCALE_DIR$ac_delim
 USE_NLS!$USE_NLS$ac_delim
@@ -8179,7 +8189,6 @@ INSTOBJEXT!$INSTOBJEXT$ac_delim
 INTLLIBS!$INTLLIBS$ac_delim
 PO_IN_DATADIR_TRUE!$PO_IN_DATADIR_TRUE$ac_delim
 PO_IN_DATADIR_FALSE!$PO_IN_DATADIR_FALSE$ac_delim
-POFILES!$POFILES$ac_delim
 _ACEOF
 
   if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 97; then
@@ -8221,6 +8230,7 @@ _ACEOF
 ac_delim='%!_!# '
 for ac_last_try in false false false false false :; do
   cat >conf$$subs.sed <<_ACEOF
+POFILES!$POFILES$ac_delim
 POSUB!$POSUB$ac_delim
 MKINSTALLDIRS!$MKINSTALLDIRS$ac_delim
 PKG_CONFIG!$PKG_CONFIG$ac_delim
@@ -8230,7 +8240,7 @@ LIBOBJS!$LIBOBJS$ac_delim
 LTLIBOBJS!$LTLIBOBJS$ac_delim
 _ACEOF
 
-  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 7; then
+  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 8; then
     break
   elif $ac_last_try; then
     { { echo "$as_me:$LINENO: error: could not make $CONFIG_STATUS" >&5

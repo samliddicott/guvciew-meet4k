@@ -1,0 +1,13 @@
+[Desktop Entry]
+Version=1.0
+Encoding=UTF-8
+Name=guvcview
+GenericName=GTK UVC video viewer
+Comment=A video viewer and capturer for the linux uvc driver
+TryExec=guvcview
+Exec=guvcview
+Icon=guvcview.png
+Terminal=false
+Type=Application
+Categories=Application;AudioVideo;
+Name[pt_PT]=guvcview

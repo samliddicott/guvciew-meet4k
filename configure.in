@@ -12,7 +12,7 @@ AM_PROG_CC_STDC
 AC_HEADER_STDC
 
 dnl Set datadir
-DATA_DIR="$(datadir)"
+DATA_DIR=/usr/share
 AC_SUBST(DATA_DIR)
 AC_DEFINE_UNQUOTED(DATA_DIR,"$DATA_DIR", [/usr/share/])
 
@@ -22,7 +22,7 @@ AC_SUBST(GETTEXT_PACKAGE)
 AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE", [guvcview])
 
 dnl Set locale dir
-LOCALE_DIR=/usr/share/locale
+LOCALE_DIR=$DATA_DIR/locale
 AC_SUBST(LOCALE_DIR)
 AC_DEFINE_UNQUOTED(LOCALE_DIR,"$LOCALE_DIR", [/usr/share/locale])
 
@@ -42,6 +42,6 @@ dnl Write output
 AC_OUTPUT([
 Makefile
 src/Makefile
-pixmaps/Makefile
 po/Makefile.in
+pixmaps/Makefile
 ])

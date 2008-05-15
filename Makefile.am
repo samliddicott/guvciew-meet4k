@@ -14,13 +14,14 @@ guvcviewdoc_DATA = \
 	NEWS
 
 applicationdir = ${datadir}/applications
-application_DATA = guvcview.desktop
+
+application_DATA = pixmaps/guvcview.desktop
 
 pixmapsdir = ${datadir}/pixmaps/guvcview
 pixmaps_DATA = \
-	       guvcview.png\
-	       camera.xpm\
-	       movie.xpm
+	       pixmaps/guvcview.png\
+	       pixmaps/camera.xpm\
+	       pixmaps/movie.xpm
 
 
 EXTRA_DIST = \
@@ -57,6 +58,18 @@ update-gmo: check-gettext
 force-update-gmo: check-gettext
 	touch po/*.po
 	cd po && $(MAKE) $(AM_MAKEFLAGS) update-gmo
+
+guvcview.desktop: 
+	cd pixmaps && $(MAKE) $(AM_MAKEFLAGS) guvcview.desktop
+
+guvcview.png: 
+	cd pixmaps && $(MAKE) $(AM_MAKEFLAGS) guvcview.png
+
+camera.xpm: 
+	cd pixmaps && $(MAKE) $(AM_MAKEFLAGS) camera.xpm
+
+movie.xpm: 
+	cd pixmaps && $(MAKE) $(AM_MAKEFLAGS) movie.xpm
 
 
 .PHONY: check-gettext update-po update-gmo force-update-gmo

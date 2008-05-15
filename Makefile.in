@@ -60,9 +60,12 @@ am__vpath_adj = case $$p in \
     *) f=$$p;; \
   esac;
 am__strip_dir = `echo $$p | sed -e 's|^.*/||'`;
-am__installdirs = "$(DESTDIR)$(guvcviewdocdir)"
+am__installdirs = "$(DESTDIR)$(applicationdir)" \
+	"$(DESTDIR)$(guvcviewdocdir)" "$(DESTDIR)$(pixmapsdir)"
+applicationDATA_INSTALL = $(INSTALL_DATA)
 guvcviewdocDATA_INSTALL = $(INSTALL_DATA)
-DATA = $(guvcviewdoc_DATA)
+pixmapsDATA_INSTALL = $(INSTALL_DATA)
+DATA = $(application_DATA) $(guvcviewdoc_DATA) $(pixmaps_DATA)
 RECURSIVE_CLEAN_TARGETS = mostlyclean-recursive clean-recursive	\
   distclean-recursive maintainer-clean-recursive
 ETAGS = etags
@@ -94,6 +97,7 @@ CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CYGPATH_W = @CYGPATH_W@
 DATADIRNAME = @DATADIRNAME@
+DATA_DIR = @DATA_DIR@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
 ECHO_C = @ECHO_C@
@@ -185,7 +189,8 @@ sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-SUBDIRS = src po
+SUBDIRS = src po pixmaps
+ACLOCAL_AMFLAGS = -I m4
 guvcviewdocdir = ${prefix}/doc/guvcview
 guvcviewdoc_DATA = \
 	README\
@@ -195,8 +200,21 @@ guvcviewdoc_DATA = \
 	INSTALL\
 	NEWS
 
-ACLOCAL_AMFLAGS = -I m4
-EXTRA_DIST = config.rpath src $(guvcviewdoc_DATA)
+applicationdir = ${datadir}/applications
+application_DATA = pixmaps/guvcview.desktop
+pixmapsdir = ${datadir}/pixmaps/guvcview
+pixmaps_DATA = \
+	       pixmaps/guvcview.png\
+	       pixmaps/camera.xpm\
+	       pixmaps/movie.xpm
+
+EXTRA_DIST = \
+	     config.rpath\
+	     src\
+	     $(guvcviewdoc_DATA)\
+	     $(application_DATA)\
+	     $(pixmaps_DATA)
+
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive
 
@@ -251,6 +269,23 @@ $(srcdir)/config.h.in: @MAINTAINER_MODE_TRUE@ $(am__configure_deps)
 
 distclean-hdr:
 	-rm -f config.h stamp-h1
+install-applicationDATA: $(application_DATA)
+	@$(NORMAL_INSTALL)
+	test -z "$(applicationdir)" || $(MKDIR_P) "$(DESTDIR)$(applicationdir)"
+	@list='$(application_DATA)'; for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  f=$(am__strip_dir) \
+	  echo " $(applicationDATA_INSTALL) '$$d$$p' '$(DESTDIR)$(applicationdir)/$$f'"; \
+	  $(applicationDATA_INSTALL) "$$d$$p" "$(DESTDIR)$(applicationdir)/$$f"; \
+	done
+
+uninstall-applicationDATA:
+	@$(NORMAL_UNINSTALL)
+	@list='$(application_DATA)'; for p in $$list; do \
+	  f=$(am__strip_dir) \
+	  echo " rm -f '$(DESTDIR)$(applicationdir)/$$f'"; \
+	  rm -f "$(DESTDIR)$(applicationdir)/$$f"; \
+	done
 install-guvcviewdocDATA: $(guvcviewdoc_DATA)
 	@$(NORMAL_INSTALL)
 	test -z "$(guvcviewdocdir)" || $(MKDIR_P) "$(DESTDIR)$(guvcviewdocdir)"
@@ -267,6 +302,23 @@ uninstall-guvcviewdocDATA:
 	  f=$(am__strip_dir) \
 	  echo " rm -f '$(DESTDIR)$(guvcviewdocdir)/$$f'"; \
 	  rm -f "$(DESTDIR)$(guvcviewdocdir)/$$f"; \
+	done
+install-pixmapsDATA: $(pixmaps_DATA)
+	@$(NORMAL_INSTALL)
+	test -z "$(pixmapsdir)" || $(MKDIR_P) "$(DESTDIR)$(pixmapsdir)"
+	@list='$(pixmaps_DATA)'; for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  f=$(am__strip_dir) \
+	  echo " $(pixmapsDATA_INSTALL) '$$d$$p' '$(DESTDIR)$(pixmapsdir)/$$f'"; \
+	  $(pixmapsDATA_INSTALL) "$$d$$p" "$(DESTDIR)$(pixmapsdir)/$$f"; \
+	done
+
+uninstall-pixmapsDATA:
+	@$(NORMAL_UNINSTALL)
+	@list='$(pixmaps_DATA)'; for p in $$list; do \
+	  f=$(am__strip_dir) \
+	  echo " rm -f '$(DESTDIR)$(pixmapsdir)/$$f'"; \
+	  rm -f "$(DESTDIR)$(pixmapsdir)/$$f"; \
 	done
 
 # This directory's subdirectories are mostly independent; you can cd
@@ -555,7 +607,7 @@ check: check-recursive
 all-am: Makefile $(DATA) config.h
 installdirs: installdirs-recursive
 installdirs-am:
-	for dir in "$(DESTDIR)$(guvcviewdocdir)"; do \
+	for dir in "$(DESTDIR)$(applicationdir)" "$(DESTDIR)$(guvcviewdocdir)" "$(DESTDIR)$(pixmapsdir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-recursive
@@ -601,7 +653,8 @@ info: info-recursive
 
 info-am:
 
-install-data-am: install-guvcviewdocDATA
+install-data-am: install-applicationDATA install-guvcviewdocDATA \
+	install-pixmapsDATA
 
 install-dvi: install-dvi-recursive
 
@@ -637,7 +690,8 @@ ps: ps-recursive
 
 ps-am:
 
-uninstall-am: uninstall-guvcviewdocDATA
+uninstall-am: uninstall-applicationDATA uninstall-guvcviewdocDATA \
+	uninstall-pixmapsDATA
 
 .MAKE: $(RECURSIVE_CLEAN_TARGETS) $(RECURSIVE_TARGETS) install-am \
 	install-strip
@@ -648,16 +702,18 @@ uninstall-am: uninstall-guvcviewdocDATA
 	dist-hook dist-lzma dist-shar dist-tarZ dist-zip distcheck \
 	distclean distclean-generic distclean-hdr distclean-tags \
 	distcleancheck distdir distuninstallcheck dvi dvi-am html \
-	html-am info info-am install install-am install-data \
-	install-data-am install-dvi install-dvi-am install-exec \
-	install-exec-am install-guvcviewdocDATA install-html \
-	install-html-am install-info install-info-am install-man \
-	install-pdf install-pdf-am install-ps install-ps-am \
+	html-am info info-am install install-am \
+	install-applicationDATA install-data install-data-am \
+	install-dvi install-dvi-am install-exec install-exec-am \
+	install-guvcviewdocDATA install-html install-html-am \
+	install-info install-info-am install-man install-pdf \
+	install-pdf-am install-pixmapsDATA install-ps install-ps-am \
 	install-strip installcheck installcheck-am installdirs \
 	installdirs-am maintainer-clean maintainer-clean-generic \
 	mostlyclean mostlyclean-generic pdf pdf-am ps ps-am tags \
 	tags-recursive uninstall uninstall-am \
-	uninstall-guvcviewdocDATA
+	uninstall-applicationDATA uninstall-guvcviewdocDATA \
+	uninstall-pixmapsDATA
 
 
 # Copy all the spec files. Of cource, only one is actually used.
@@ -687,6 +743,18 @@ update-gmo: check-gettext
 force-update-gmo: check-gettext
 	touch po/*.po
 	cd po && $(MAKE) $(AM_MAKEFLAGS) update-gmo
+
+guvcview.desktop: 
+	cd pixmaps && $(MAKE) $(AM_MAKEFLAGS) guvcview.desktop
+
+guvcview.png: 
+	cd pixmaps && $(MAKE) $(AM_MAKEFLAGS) guvcview.png
+
+camera.xpm: 
+	cd pixmaps && $(MAKE) $(AM_MAKEFLAGS) camera.xpm
+
+movie.xpm: 
+	cd pixmaps && $(MAKE) $(AM_MAKEFLAGS) movie.xpm
 
 .PHONY: check-gettext update-po update-gmo force-update-gmo
 # Tell versions [3.59,3.63) of GNU make to not export all variables.

@@ -2597,22 +2597,21 @@ int main(int argc, char *argv[])
     
 	/*add images to Buttons*/
 	/*check for files*/
-	GString* datapath = g_string_new(DATA_DIR);
-	GString* pixpath = g_string_append (datapath,"/pixmaps/guvciew/movie.xpm");
-	printf("pxm1: %s\n",pixpath);
-	if (g_file_test(pixpath,G_FILE_TEST_EXISTS)) {
-		AVIButton_Img = gtk_image_new_from_file (pixpath);
-		gtk_button_set_image(CapAVIButt,AVIButton_Img);
+    	gchar* pix1path = g_strconcat (DATA_DIR,"/pixmaps/guvcview/movie.xpm",NULL);
+	if (g_file_test(pix1path,G_FILE_TEST_EXISTS)) {
+		AVIButton_Img = gtk_image_new_from_file (pix1path);
+		gtk_button_set_image(GTK_BUTTON(CapAVIButt),AVIButton_Img);
+	   	//printf("pxm1: %s\n",pix1path);
 	} 
-	pixpath = g_string_overwrite(pixpath,strlen(datapath),"/pixmaps/guvciew/camera.xpm")
-	printf("pxm2: %s\n",pixpath);
-	if (g_file_test(pixpath,G_FILE_TEST_EXISTS)) {
-		ImgButton_Img = gtk_image_new_from_file (pixpath);
-		gtk_button_set_image(CapImageButt,ImgButton_Img);
+	gchar* pix2path = g_strconcat (DATA_DIR,"/pixmaps/guvcview/camera.xpm",NULL);
+	if (g_file_test(pix2path,G_FILE_TEST_EXISTS)) {
+		ImgButton_Img = gtk_image_new_from_file (pix2path);
+		gtk_button_set_image(GTK_BUTTON(CapImageButt),ImgButton_Img);
+	   	//printf("pxm2: %s\n",pix2path);
 	}
-	g_string_free(pixpath);
-	g_string_free(datapath);
-	
+	if(pix1path) free(pix1path);
+   	if(pix2path) free(pix2path);
+   
     	gtk_table_attach (GTK_TABLE(buttons_table), CapImageButt, 0, 1, 1, 2,
 					 GTK_SHRINK | GTK_FILL, 0, 0, 0);
     	gtk_table_attach (GTK_TABLE(buttons_table), CapAVIButt, 1, 2, 1, 2,
