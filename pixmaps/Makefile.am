@@ -2,14 +2,14 @@
 
 EXTRA_DIST = guvcview.png camera.xpm movie.xpm guvcview.desktop
 
-pixmapsdir = $(datadir)/pixmaps/guvcview
+pixmapsdir = ${DATA_DIR}/pixmaps/guvcview
 
 pixmaps_DATA = \
 		guvcview.png\
 		camera.xpm\
 		movie.xpm
 
-applicationdir = ${datadir}/applications
+applicationdir = ${DATA_DIR}/applications
 
 application_DATA = guvcview.desktop
 
