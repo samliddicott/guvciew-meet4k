@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: fr\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2008-05-10 15:16+0100\n"
-"PO-Revision-Date: 2008-05-16 11:02-0000\n"
+"PO-Revision-Date: 2008-05-16 15:14-0000\n"
 "Last-Translator: Paulo Assis <pj.assis@gmail.com>\n"
 "Language-Team: French <pj.assis@gmail.com>\n"
 "MIME-Version: 1.0\n"
@@ -98,7 +98,7 @@ msgid "Disable video processing"
 msgstr "Arrêt Traitement de vidéo"
 
 msgid "Raw bits per pixel"
-msgstr "Octect par pixel (Raw)"
+msgstr "bits par pixel (Raw)"
 
 #: ../src/guvcview.c:980
 #: ../src/guvcview.c:1059
@@ -135,12 +135,12 @@ msgstr ""
 #: ../src/guvcview.c:1514
 #, c-format
 msgid "File num:%d"
-msgstr "archives num:%d"
+msgstr "fichier num:%d"
 
 #: ../src/guvcview.c:1236
 #: ../src/guvcview.c:1665
 msgid "Save File"
-msgstr "Sauf Archives "
+msgstr "Sauf fichier"
 
 #: ../src/guvcview.c:1348
 #: ../src/guvcview.c:1485
@@ -160,7 +160,7 @@ msgstr "Arrêt AVI"
 
 #: ../src/guvcview.c:1695
 msgid "Load File"
-msgstr "Charge Archives"
+msgstr "Charge fichier"
 
 #: ../src/guvcview.c:1827
 msgid "Exposure:"
@@ -207,8 +207,8 @@ msgid "Stop Auto:"
 msgstr "Arrêt Auto:"
 
 #: ../src/guvcview.c:2649
-msgid "Video|Capture"
-msgstr "Video|Capture"
+msgid "Video & Files"
+msgstr "Video et Fichiers"
 
 #: ../src/guvcview.c:2683
 msgid "Resolution:"
@@ -228,11 +228,11 @@ msgstr "Sortie d'appareil-photo:"
 
 #: ../src/guvcview.c:2773
 msgid "Image File:"
-msgstr "Archives d'image:"
+msgstr "Fichier d'image:"
 
 #: ../src/guvcview.c:2799
 msgid "File,Auto"
-msgstr "Archives,Auto"
+msgstr "Fichier,Auto"
 
 #: ../src/guvcview.c:2810
 msgid "Image Format:"
@@ -240,7 +240,7 @@ msgstr "Format d'image:"
 
 #: ../src/guvcview.c:2838
 msgid "AVI File:"
-msgstr "Archives d'AVI:"
+msgstr "Fichier AVI:"
 
 #: ../src/guvcview.c:2870
 msgid "MJPG - compressed"

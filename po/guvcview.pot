@@ -190,7 +190,7 @@ msgid "Stop Auto"
 msgstr ""
 
 #: ../src/guvcview.c:2649
-msgid "Video|Capture"
+msgid "Video & Files"
 msgstr ""
 
 #: ../src/guvcview.c:2683

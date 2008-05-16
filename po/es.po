@@ -206,8 +206,8 @@ msgid "Stop Auto:"
 msgstr "Parar Auto:"
 
 #: ../src/guvcview.c:2649
-msgid "Video|Capture"
-msgstr "Video|Captura"
+msgid "Video & Files"
+msgstr "Video e Archivos"
 
 #: ../src/guvcview.c:2683
 msgid "Resolution:"

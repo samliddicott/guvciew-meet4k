@@ -2657,7 +2657,7 @@ int main(int argc, char *argv[])
                                                               GTK_CORNER_TOP_LEFT);
 	gtk_widget_show(scroll2);
 	
-	Tab2Label = gtk_label_new(_("Video|Capture"));
+	Tab2Label = gtk_label_new(_("Video & Files"));
 	gtk_notebook_append_page(GTK_NOTEBOOK(boxh),scroll2,Tab2Label);
 	
 	/*sets the pan position*/
