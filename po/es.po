@@ -8,8 +8,8 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2008-05-10 15:16+0100\n"
-"PO-Revision-Date: 2008-05-11 19:06+0100\n"
-"Last-Translator: guvcview <pj.assis@gmail.com>\n"
+"PO-Revision-Date: 2008-05-16 11:32-0000\n"
+"Last-Translator: Paulo Assis <pj.assis@gmail.com>\n"
 "Language-Team: Spanish <pj.assis@gmail.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -79,13 +79,13 @@ msgstr "Foco, Auto"
 
 #: Logitech extension Control names
 msgid "Pan (relative)"
-msgstr "Gire horizontal (relativo)"
+msgstr "Rotación (relativo)"
 
 msgid "Tilt (relative)"
 msgstr "Inclinación (relativa)"
 
 msgid "Pan/Tilt (reset)"
-msgstr "Gire/Inclinación (reajuste)"
+msgstr "Rotación/Inclinación (reajuste)"
 
 msgid "LED1 Mode"
 msgstr "Modo LED1"
@@ -99,19 +99,23 @@ msgstr "Pare el proceso del vídeo"
 msgid "Raw bits per pixel"
 msgstr "Bits por pixel (Raw)"
 
-#: ../src/guvcview.c:980 ../src/guvcview.c:1059
+#: ../src/guvcview.c:980
+#: ../src/guvcview.c:1059
 msgid "Program Restart"
 msgstr "Recomenzar del programa"
 
-#: ../src/guvcview.c:983 ../src/guvcview.c:1062
+#: ../src/guvcview.c:983
+#: ../src/guvcview.c:1062
 msgid "now"
 msgstr "Ahora"
 
-#: ../src/guvcview.c:985 ../src/guvcview.c:1064
+#: ../src/guvcview.c:985
+#: ../src/guvcview.c:1064
 msgid "Later"
 msgstr "Más adelante"
 
-#: ../src/guvcview.c:989 ../src/guvcview.c:1068
+#: ../src/guvcview.c:989
+#: ../src/guvcview.c:1068
 msgid ""
 "Changes will only take effect after guvcview restart.\n"
 "\n"
@@ -123,25 +127,33 @@ msgstr ""
 "\n"
 "¿Recomenzar ahora?\n"
 
-#: ../src/guvcview.c:1149 ../src/guvcview.c:1288 ../src/guvcview.c:1322
-#: ../src/guvcview.c:1477 ../src/guvcview.c:1514
+#: ../src/guvcview.c:1149
+#: ../src/guvcview.c:1288
+#: ../src/guvcview.c:1322
+#: ../src/guvcview.c:1477
+#: ../src/guvcview.c:1514
 #, c-format
 msgid "File num:%d"
 msgstr "Archivo num:%d"
 
-#: ../src/guvcview.c:1236 ../src/guvcview.c:1665
+#: ../src/guvcview.c:1236
+#: ../src/guvcview.c:1665
 msgid "Save File"
 msgstr "Salve Archivo"
 
-#: ../src/guvcview.c:1348 ../src/guvcview.c:1485 ../src/guvcview.c:2596
+#: ../src/guvcview.c:1348
+#: ../src/guvcview.c:1485
+#: ../src/guvcview.c:2596
 msgid "Cap. Image"
 msgstr "Cap. Imagen"
 
-#: ../src/guvcview.c:1386 ../src/guvcview.c:2602
+#: ../src/guvcview.c:1386
+#: ../src/guvcview.c:2602
 msgid "Cap. AVI"
 msgstr "Cap. AVI"
 
-#: ../src/guvcview.c:1408 ../src/guvcview.c:2600
+#: ../src/guvcview.c:1408
+#: ../src/guvcview.c:2600
 msgid "Stop AVI"
 msgstr "Parar AVI"
 
@@ -253,7 +265,8 @@ msgstr "Dispositivo de entrada:"
 msgid " Sound"
 msgstr " Sonido"
 
-#: ../src/guvcview.c:3020 ../src/guvcview.c:3051
+#: ../src/guvcview.c:3020
+#: ../src/guvcview.c:3051
 msgid "Dev. Default"
 msgstr "Automático"
 

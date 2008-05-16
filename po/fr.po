@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: fr\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2008-05-10 15:16+0100\n"
-"PO-Revision-Date: 2008-05-13 19:18+0100\n"
+"PO-Revision-Date: 2008-05-16 11:02-0000\n"
 "Last-Translator: Paulo Assis <pj.assis@gmail.com>\n"
 "Language-Team: French <pj.assis@gmail.com>\n"
 "MIME-Version: 1.0\n"
@@ -25,7 +25,7 @@ msgid "Contrast"
 msgstr "Contraste"
 
 msgid "Hue"
-msgstr "Hue"
+msgstr "tonalité"
 
 msgid "Saturation"
 msgstr "Saturation"
@@ -40,13 +40,13 @@ msgid "Backlight Compensation"
 msgstr "Compensation de contre-jour"
 
 msgid "Gain"
-msgstr "Gain"
+msgstr "Gagne"
 
 msgid "Power Line Frequency"
 msgstr "Fréquence de ligne électrique"
 
 msgid "Hue, Auto"
-msgstr "Hue, Auto"
+msgstr "tonalité, Auto"
 
 msgid "Exposure, Auto"
 msgstr "Exposition, automatique"
@@ -100,19 +100,23 @@ msgstr "Arrêt Traitement de vidéo"
 msgid "Raw bits per pixel"
 msgstr "Octect par pixel (Raw)"
 
-#: ../src/guvcview.c:980 ../src/guvcview.c:1059
+#: ../src/guvcview.c:980
+#: ../src/guvcview.c:1059
 msgid "Program Restart"
 msgstr "Relancement de programme"
 
-#: ../src/guvcview.c:983 ../src/guvcview.c:1062
+#: ../src/guvcview.c:983
+#: ../src/guvcview.c:1062
 msgid "now"
 msgstr "Maintenant"
 
-#: ../src/guvcview.c:985 ../src/guvcview.c:1064
+#: ../src/guvcview.c:985
+#: ../src/guvcview.c:1064
 msgid "Later"
 msgstr "Plus tard "
 
-#: ../src/guvcview.c:989 ../src/guvcview.c:1068
+#: ../src/guvcview.c:989
+#: ../src/guvcview.c:1068
 msgid ""
 "Changes will only take effect after guvcview restart.\n"
 "\n"
@@ -124,25 +128,33 @@ msgstr ""
 "\n"
 "Relancement maintenant? \n"
 
-#: ../src/guvcview.c:1149 ../src/guvcview.c:1288 ../src/guvcview.c:1322
-#: ../src/guvcview.c:1477 ../src/guvcview.c:1514
+#: ../src/guvcview.c:1149
+#: ../src/guvcview.c:1288
+#: ../src/guvcview.c:1322
+#: ../src/guvcview.c:1477
+#: ../src/guvcview.c:1514
 #, c-format
 msgid "File num:%d"
 msgstr "archives num:%d"
 
-#: ../src/guvcview.c:1236 ../src/guvcview.c:1665
+#: ../src/guvcview.c:1236
+#: ../src/guvcview.c:1665
 msgid "Save File"
 msgstr "Sauf Archives "
 
-#: ../src/guvcview.c:1348 ../src/guvcview.c:1485 ../src/guvcview.c:2596
+#: ../src/guvcview.c:1348
+#: ../src/guvcview.c:1485
+#: ../src/guvcview.c:2596
 msgid "Cap. Image"
 msgstr "Cap. de Image"
 
-#: ../src/guvcview.c:1386 ../src/guvcview.c:2602
+#: ../src/guvcview.c:1386
+#: ../src/guvcview.c:2602
 msgid "Cap. AVI"
 msgstr "Cap. de AVI"
 
-#: ../src/guvcview.c:1408 ../src/guvcview.c:2600
+#: ../src/guvcview.c:1408
+#: ../src/guvcview.c:2600
 msgid "Stop AVI"
 msgstr "Arrêt AVI"
 
@@ -254,7 +266,8 @@ msgstr "dispositif de bruit:"
 msgid " Sound"
 msgstr " bruit"
 
-#: ../src/guvcview.c:3020 ../src/guvcview.c:3051
+#: ../src/guvcview.c:3020
+#: ../src/guvcview.c:3051
 msgid "Dev. Default"
 msgstr "Automatic"
 
