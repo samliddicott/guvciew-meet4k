@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2008-05-10 15:16+0100\n"
-"PO-Revision-Date: 2008-05-16 14:10+0100\n"
+"PO-Revision-Date: 2008-05-16 19:28+0100\n"
 "Last-Translator: Paulo Assis <pj.assis@gmail.com>\n"
 "Language-Team: Português <pj.assis@gmail.com>\n"
 "MIME-Version: 1.0\n"
@@ -107,7 +107,7 @@ msgstr "bits pro Pixel (Raw)"
 #: ../src/guvcview.c:980
 #: ../src/guvcview.c:1059
 msgid "Program Restart"
-msgstr "Programm-Wiederanlauf"
+msgstr "Programm wiederanlaufen"
 
 #: ../src/guvcview.c:983
 #: ../src/guvcview.c:1062
@@ -127,10 +127,10 @@ msgid ""
 "\n"
 "Restart now?\n"
 msgstr ""
-"Änderungen treten nur nachdem guvcview Wiederanlauf in Kraft.\n"
+"Änderungen treten nur nachdem guvcview wiederanlaufen.\n"
 "\n"
 "\n"
-"Wiederanlauf jetzt?\n"
+"Jetzt wiederanlaufen?\n"
 
 #: ../src/guvcview.c:1149
 #: ../src/guvcview.c:1288
@@ -139,23 +139,23 @@ msgstr ""
 #: ../src/guvcview.c:1514
 #, c-format
 msgid "File num:%d"
-msgstr "Aktenzeichen:%d"
+msgstr "Dateinumber:%d"
 
 #: ../src/guvcview.c:1236
 #: ../src/guvcview.c:1665
 msgid "Save File"
-msgstr "Außer Akte"
+msgstr "speichern datei"
 
 #: ../src/guvcview.c:1348
 #: ../src/guvcview.c:1485
 #: ../src/guvcview.c:2596
 msgid "Cap. Image"
-msgstr "nehmen Bild"
+msgstr "Bild nehmen"
 
 #: ../src/guvcview.c:1386
 #: ../src/guvcview.c:2602
 msgid "Cap. AVI"
-msgstr "Anfang AVI"
+msgstr "AVI anfangen"
 
 #: ../src/guvcview.c:1408
 #: ../src/guvcview.c:2600
@@ -164,7 +164,7 @@ msgstr "Stop AVI"
 
 #: ../src/guvcview.c:1695
 msgid "Load File"
-msgstr "Lasts-Akte"
+msgstr "Öffnen"
 
 #: ../src/guvcview.c:1827
 msgid "Exposure:"
@@ -172,11 +172,11 @@ msgstr "Belichtung:"
 
 #: ../src/guvcview.c:1834
 msgid "Left"
-msgstr "Link"
+msgstr "Links"
 
 #: ../src/guvcview.c:1835
 msgid "Right"
-msgstr "Recht"
+msgstr "Rechts"
 
 #: ../src/guvcview.c:1858
 msgid "Up"
@@ -200,11 +200,11 @@ msgstr "Bild-Kontrollen "
 
 #: ../src/guvcview.c:2575
 msgid "Control Profiles:"
-msgstr "Kontrollen Profil"
+msgstr "Kontrollen Profil:"
 
 #: ../src/guvcview.c:2581
 msgid "Capture:"
-msgstr "Sicherung:"
+msgstr "Nehmen:"
 
 #: ../src/guvcview.c:2594
 msgid "Stop Auto"
@@ -212,15 +212,15 @@ msgstr "Stop Auto"
 
 #: ../src/guvcview.c:2649
 msgid "Video & Files"
-msgstr "Video & Akten"
+msgstr "Video & Datein"
 
 #: ../src/guvcview.c:2683
 msgid "Resolution:"
-msgstr "Entschließung:"
+msgstr "Bildgröße:"
 
 #: ../src/guvcview.c:2725
 msgid "Frame Rate:"
-msgstr "Rahmenrate:"
+msgstr "Bildrate:"
 
 #: ../src/guvcview.c:2733
 msgid " Show"
@@ -232,11 +232,11 @@ msgstr "Kamera-Ausgang:"
 
 #: ../src/guvcview.c:2773
 msgid "Image File:"
-msgstr "Bildakte:"
+msgstr "Bilddatei:"
 
 #: ../src/guvcview.c:2799
 msgid "File,Auto"
-msgstr "Akte, Selbst"
+msgstr "Datei, Selbst"
 
 #: ../src/guvcview.c:2810
 msgid "Image Format:"
@@ -244,7 +244,7 @@ msgstr "Bildformat:"
 
 #: ../src/guvcview.c:2838
 msgid "AVI File:"
-msgstr "AVI Akte:"
+msgstr "AVI datei:"
 
 #: ../src/guvcview.c:2870
 msgid "MJPG - compressed"
@@ -264,11 +264,11 @@ msgstr "AVI-Format"
 
 #: ../src/guvcview.c:2998
 msgid "Input Device:"
-msgstr "Eingabegerät:"
+msgstr "Eingangbegerät:"
 
 #: ../src/guvcview.c:3010
 msgid " Sound"
-msgstr " Ton"
+msgstr " Audio"
 
 #: ../src/guvcview.c:3020
 #: ../src/guvcview.c:3051
@@ -277,7 +277,7 @@ msgstr "Automatisch"
 
 #: ../src/guvcview.c:3042
 msgid "Sample Rate:"
-msgstr "Stichproberate:"
+msgstr "Frequenz:"
 
 #: ../src/guvcview.c:3052
 msgid "1 - mono"
