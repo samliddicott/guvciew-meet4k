@@ -2609,6 +2609,7 @@ int main(int argc, char *argv[])
 		gtk_button_set_image(GTK_BUTTON(CapImageButt),ImgButton_Img);
 	   	//printf("pxm2: %s\n",pix2path);
 	}
+    	/*must free path strings*/
 	if(pix1path) free(pix1path);
    	if(pix2path) free(pix2path);
    
