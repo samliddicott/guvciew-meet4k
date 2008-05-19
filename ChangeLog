@@ -1,16 +1,13 @@
-2008-05-08  gettextize  <bug-gnu-gettext@gnu.org>
-
-	* Makefile.am (ACLOCAL_AMFLAGS): New variable.
-	(EXTRA_DIST): Add config.rpath, m4/ChangeLog.
-
 guvcview (0.9.0) stable; urgency=low
 
-   * GUI change: Add Tab Container
-   * Add spin button to integer controls (allows for fine tunning)
-   * Add gettext support (i18n)
-   * Add laguage catalogs (pt pt_PT pt_BR fr)
+   * GUI change: Add Tab Container.
+   * Add spin button to integer controls (allows fine tunning).
+   * Add gettext support (i18n).
+   * Add laguage catalogs (pt pt_PT pt_BR fr de).
+   * Add button icons.
+   * Changed build scripts, make will now build guvcview.desktop and make install will install all data files.
    
- -- Paulo Assis <pj.assis@gmail.com>  Fri, 06 May 2008 10:25:00 +0000
+ -- Paulo Assis <pj.assis@gmail.com>  Mon, 18 May 2008 10:25:00 +0000
 
 
 guvcview (0.8.2) stable; urgency=low
