@@ -2419,6 +2419,10 @@ int main(int argc, char *argv[])
     	GtkWidget *label_AVIFile;
 	GtkWidget *AVIButton_Img;
 	GtkWidget *ImgButton_Img;
+   	GtkWidget *SButton_Img;
+   	GtkWidget *LButton_Img;
+   	GtkWidget *QButton_Img;
+   	GtkWidget *HButtonBox;
     
    	size_t stacksize;
 	stacksize = sizeof(char) * TSTACK;
@@ -2556,8 +2560,11 @@ int main(int argc, char *argv[])
 	gtk_widget_show (boxv);
 	
 	/*----- Add  Buttons -----*/
-	buttons_table = gtk_table_new(1,5,TRUE); /*TRUE - all buttons are the same size*/
-	
+	buttons_table = gtk_table_new(1,5,FALSE);
+	HButtonBox = gtk_hbutton_box_new();
+   	gtk_button_box_set_layout(GTK_BUTTON_BOX(HButtonBox),GTK_BUTTONBOX_SPREAD);	
+   	gtk_box_set_homogeneous(GTK_BOX(HButtonBox),TRUE);
+      
 	gtk_table_set_row_spacings (GTK_TABLE (buttons_table), 1);
 	gtk_table_set_col_spacings (GTK_TABLE (buttons_table), 4);
 	gtk_container_set_border_width (GTK_CONTAINER (buttons_table), 1);
@@ -2566,20 +2573,24 @@ int main(int argc, char *argv[])
 	gtk_paned_add2(GTK_PANED(boxv),buttons_table);
 	
 	profile_labels=gtk_label_new(_("Control Profiles:"));
-	gtk_misc_set_alignment (GTK_MISC (profile_labels), 0, 0.5);
+	gtk_misc_set_alignment (GTK_MISC (profile_labels), 0.5, 0.5);
 
 	gtk_table_attach (GTK_TABLE(buttons_table), profile_labels, 2, 4, 0, 1,
-					 GTK_SHRINK | GTK_FILL, 0, 0, 0);
+				GTK_SHRINK | GTK_FILL | GTK_EXPAND , 0, 0, 0);
     
     	capture_labels=gtk_label_new(_("Capture:"));
-	gtk_misc_set_alignment (GTK_MISC (capture_labels), 0, 0.5);
+	gtk_misc_set_alignment (GTK_MISC (capture_labels), 0.5, 0.5);
     	gtk_table_attach (GTK_TABLE(buttons_table), capture_labels, 0, 2, 0, 1,
-					 GTK_SHRINK | GTK_FILL, 0, 0, 0);
-
+				GTK_SHRINK | GTK_FILL | GTK_EXPAND, 0, 0, 0);
+   
+   	gtk_table_attach(GTK_TABLE(buttons_table), HButtonBox, 0, 5, 1, 2,
+				GTK_SHRINK | GTK_FILL | GTK_EXPAND, 0, 0, 0);
+	gtk_widget_show(HButtonBox);
+   
 	gtk_widget_show (capture_labels);
     	gtk_widget_show (profile_labels);
 	
-	quitButton=gtk_button_new_from_stock(GTK_STOCK_CLOSE);
+	quitButton=gtk_button_new_from_stock(GTK_STOCK_QUIT);
 	SProfileButton=gtk_button_new_from_stock(GTK_STOCK_SAVE);
 	LProfileButton=gtk_button_new_from_stock(GTK_STOCK_OPEN);
     
@@ -2601,29 +2612,52 @@ int main(int argc, char *argv[])
 	if (g_file_test(pix1path,G_FILE_TEST_EXISTS)) {
 		AVIButton_Img = gtk_image_new_from_file (pix1path);
 		gtk_button_set_image(GTK_BUTTON(CapAVIButt),AVIButton_Img);
-	   	//printf("pxm1: %s\n",pix1path);
+	   	gtk_button_set_image_position(GTK_BUTTON(CapAVIButt),GTK_POS_TOP);
 	} 
 	gchar* pix2path = g_strconcat (DATA_DIR,"/pixmaps/guvcview/camera.xpm",NULL);
 	if (g_file_test(pix2path,G_FILE_TEST_EXISTS)) {
 		ImgButton_Img = gtk_image_new_from_file (pix2path);
 		gtk_button_set_image(GTK_BUTTON(CapImageButt),ImgButton_Img);
-	   	//printf("pxm2: %s\n",pix2path);
+	   	gtk_button_set_image_position(GTK_BUTTON(CapImageButt),GTK_POS_TOP);
 	}
+   	gchar* pix3path = g_strconcat (DATA_DIR,"/pixmaps/guvcview/save.xpm",NULL);
+	if (g_file_test(pix3path,G_FILE_TEST_EXISTS)) {
+		SButton_Img = gtk_image_new_from_file (pix3path);
+		gtk_button_set_image(GTK_BUTTON(SProfileButton),SButton_Img);
+	   	gtk_button_set_image_position(GTK_BUTTON(SProfileButton),GTK_POS_TOP);
+	}
+   	gchar* pix4path = g_strconcat (DATA_DIR,"/pixmaps/guvcview/folder.xpm",NULL);
+	if (g_file_test(pix4path,G_FILE_TEST_EXISTS)) {
+		LButton_Img = gtk_image_new_from_file (pix4path);
+		gtk_button_set_image(GTK_BUTTON(LProfileButton),LButton_Img);
+	   	gtk_button_set_image_position(GTK_BUTTON(LProfileButton),GTK_POS_TOP);
+	}
+   	gchar* pix5path = g_strconcat (DATA_DIR,"/pixmaps/guvcview/close.xpm",NULL);
+	if (g_file_test(pix5path,G_FILE_TEST_EXISTS)) {
+		QButton_Img = gtk_image_new_from_file (pix5path);
+		gtk_button_set_image(GTK_BUTTON(quitButton),QButton_Img);
+	   	gtk_button_set_image_position(GTK_BUTTON(quitButton),GTK_POS_TOP);
+	}
+   
     	/*must free path strings*/
 	if(pix1path) free(pix1path);
    	if(pix2path) free(pix2path);
+   	if(pix3path) free(pix3path);
+   	if(pix4path) free(pix4path);
+   	if(pix5path) free(pix5path);
    
-    	gtk_table_attach (GTK_TABLE(buttons_table), CapImageButt, 0, 1, 1, 2,
-					 GTK_SHRINK | GTK_FILL , 0, 0, 0);
-    	gtk_table_attach (GTK_TABLE(buttons_table), CapAVIButt, 1, 2, 1, 2,
-					GTK_SHRINK | GTK_FILL , 0, 0, 0);
-		
-	gtk_table_attach (GTK_TABLE(buttons_table), quitButton, 4, 5, 1, 2,
-					GTK_SHRINK | GTK_FILL, 0, 0, 0);
-	gtk_widget_show (quitButton);
+   	gtk_box_pack_start(GTK_BOX(HButtonBox),CapImageButt,TRUE,TRUE,2);
+   	gtk_box_pack_start(GTK_BOX(HButtonBox),CapAVIButt,TRUE,TRUE,2);
+   	gtk_box_pack_start(GTK_BOX(HButtonBox),SProfileButton,TRUE,TRUE,2);
+   	gtk_box_pack_start(GTK_BOX(HButtonBox),LProfileButton,TRUE,TRUE,2);
+   	gtk_box_pack_start(GTK_BOX(HButtonBox),quitButton,TRUE,TRUE,2);
+   
     	gtk_widget_show (CapImageButt);
     	gtk_widget_show (CapAVIButt);
-    
+   	gtk_widget_show (LProfileButton);
+   	gtk_widget_show (SProfileButton);
+   	gtk_widget_show (quitButton);
+   
     	g_signal_connect (GTK_BUTTON(CapImageButt), "clicked",
 		 G_CALLBACK (capture_image), NULL);
     	g_signal_connect (GTK_BUTTON(CapAVIButt), "clicked",
@@ -2632,15 +2666,9 @@ int main(int argc, char *argv[])
 	g_signal_connect (GTK_BUTTON(quitButton), "clicked",
 		 G_CALLBACK (quitButton_clicked), NULL);
 	
-	gtk_table_attach (GTK_TABLE(buttons_table), SProfileButton, 2, 3, 1, 2,
-					GTK_SHRINK | GTK_FILL, 0, 0, 0);
-	gtk_widget_show (SProfileButton);
 	g_signal_connect (GTK_BUTTON(SProfileButton), "clicked",
 		 G_CALLBACK (SProfileButton_clicked), s);
 	
-	gtk_table_attach (GTK_TABLE(buttons_table), LProfileButton, 3, 4, 1, 2,
-					GTK_SHRINK | GTK_FILL, 0, 0, 0);
-	gtk_widget_show (LProfileButton);
 	g_signal_connect (GTK_BUTTON(LProfileButton), "clicked",
 		 G_CALLBACK (LProfileButton_clicked), s);
 	

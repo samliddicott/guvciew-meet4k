@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-05-10 15:16+0100\n"
+"POT-Creation-Date: 2008-05-18 20:27+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,102 +16,19 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: UVC Control names
-msgid "Brightness"
-msgstr ""
-
-msgid "Contrast"
-msgstr ""
-
-msgid "Hue"
-msgstr ""
-
-msgid "Saturation"
-msgstr ""
-
-msgid "Sharpness"
-msgstr ""
-
-msgid "Gamma"
-msgstr ""
-
-msgid "Backlight Compensation"
-msgstr ""
-
-msgid "Gain"
-msgstr ""
-
-msgid "Power Line Frequency"
-msgstr ""
-
-msgid "Hue, Auto"
-msgstr ""
-
-msgid "Exposure, Auto"
-msgstr ""
-
-msgid "Exposure, Auto Priority"
-msgstr ""
-
-msgid "Exposure (Absolute)"
-msgstr ""
-
-msgid "White Balance Temperature, Auto"
-msgstr ""
-
-msgid "White Balance Temperature"
-msgstr ""
-
-msgid "White Balance Component, Auto"
-msgstr ""
-
-msgid "White Balance Blue Component"
-msgstr ""
-
-msgid "White Balance Red Component"
-msgstr ""
-
-msgid "Focus (absolute)"
-msgstr ""
-
-msgid "Focus, Auto"
-msgstr ""
-
-#: Logitech extension Control names
-msgid "Pan (relative)"
-msgstr ""
-
-msgid "Tilt (relative)"
-msgstr ""
-
-msgid "Pan/Tilt (reset)"
-msgstr ""
-
-msgid "LED1 Mode"
-msgstr ""
-
-msgid "LED1 Frequency"
-msgstr ""
-
-msgid "Disable video processing"
-msgstr ""
-
-msgid "Raw bits per pixel"
-msgstr ""
-
-#: ../src/guvcview.c:980 ../src/guvcview.c:1059
+#: src/guvcview.c:975 src/guvcview.c:1054
 msgid "Program Restart"
 msgstr ""
 
-#: ../src/guvcview.c:983 ../src/guvcview.c:1062
+#: src/guvcview.c:978 src/guvcview.c:1057
 msgid "now"
 msgstr ""
 
-#: ../src/guvcview.c:985 ../src/guvcview.c:1064
+#: src/guvcview.c:980 src/guvcview.c:1059
 msgid "Later"
 msgstr ""
 
-#: ../src/guvcview.c:989 ../src/guvcview.c:1068
+#: src/guvcview.c:984 src/guvcview.c:1063
 msgid ""
 "Changes will only take effect after guvcview restart.\n"
 "\n"
@@ -119,172 +36,189 @@ msgid ""
 "Restart now?\n"
 msgstr ""
 
-#: ../src/guvcview.c:1149 ../src/guvcview.c:1288 ../src/guvcview.c:1322
-#: ../src/guvcview.c:1477 ../src/guvcview.c:1514
+#. if auto naming restart counter
+#. 10 - digits for auto increment
+#: src/guvcview.c:1144 src/guvcview.c:1283 src/guvcview.c:1317
+#: src/guvcview.c:1471 src/guvcview.c:1508
 #, c-format
 msgid "File num:%d"
 msgstr ""
 
-#: ../src/guvcview.c:1236 ../src/guvcview.c:1665
+#: src/guvcview.c:1231 src/guvcview.c:1659
 msgid "Save File"
 msgstr ""
 
-#: ../src/guvcview.c:1348 ../src/guvcview.c:1485 ../src/guvcview.c:2596
+#. destroy timer
+#: src/guvcview.c:1343 src/guvcview.c:1479 src/guvcview.c:2600
 msgid "Cap. Image"
 msgstr ""
 
-#: ../src/guvcview.c:1386 ../src/guvcview.c:2602
+#. ************ Stop AVI ***********
+#: src/guvcview.c:1381 src/guvcview.c:2606
 msgid "Cap. AVI"
 msgstr ""
 
-#: ../src/guvcview.c:1408 ../src/guvcview.c:2600
+#. printf("opening avi file: %s\n",videoIn->AVIFName);
+#. avi capture enabled from start
+#: src/guvcview.c:1403 src/guvcview.c:2604
 msgid "Stop AVI"
 msgstr ""
 
-#: ../src/guvcview.c:1695
+#: src/guvcview.c:1689
 msgid "Load File"
 msgstr ""
 
-#: ../src/guvcview.c:1827
+#: src/guvcview.c:1821
 msgid "Exposure:"
 msgstr ""
 
-#: ../src/guvcview.c:1834
+#: src/guvcview.c:1828
 msgid "Left"
 msgstr ""
 
-#: ../src/guvcview.c:1835
+#: src/guvcview.c:1829
 msgid "Right"
 msgstr ""
 
-#: ../src/guvcview.c:1858
+#: src/guvcview.c:1852
 msgid "Up"
 msgstr ""
 
-#: ../src/guvcview.c:1859
+#: src/guvcview.c:1853
 msgid "Down"
 msgstr ""
 
-#: ../src/guvcview.c:1882
+#: src/guvcview.c:1876
 msgid "Reset"
 msgstr ""
 
-#: ../src/guvcview.c:2470
+#: src/guvcview.c:2467
 msgid "GUVCViewer Controls"
 msgstr ""
 
-#: ../src/guvcview.c:2558
+#: src/guvcview.c:2555
 msgid "Image Controls"
 msgstr ""
 
-#: ../src/guvcview.c:2575
+#: src/guvcview.c:2575
 msgid "Control Profiles:"
 msgstr ""
 
-#: ../src/guvcview.c:2581
+#: src/guvcview.c:2581
 msgid "Capture:"
 msgstr ""
 
-#: ../src/guvcview.c:2594
+#. image auto capture
+#: src/guvcview.c:2598
 msgid "Stop Auto"
 msgstr ""
 
-#: ../src/guvcview.c:2649
+#: src/guvcview.c:2688
 msgid "Video & Files"
 msgstr ""
 
-#: ../src/guvcview.c:2683
+#: src/guvcview.c:2724
 msgid "Resolution:"
 msgstr ""
 
-#: ../src/guvcview.c:2725
+#: src/guvcview.c:2766
 msgid "Frame Rate:"
 msgstr ""
 
-#: ../src/guvcview.c:2733
+#: src/guvcview.c:2774
 msgid " Show"
 msgstr ""
 
-#: ../src/guvcview.c:2764
+#: src/guvcview.c:2805
 msgid "Camera Output:"
 msgstr ""
 
-#: ../src/guvcview.c:2773
+#. Image Capture
+#: src/guvcview.c:2814
 msgid "Image File:"
 msgstr ""
 
-#: ../src/guvcview.c:2799
+#. incremental capture
+#: src/guvcview.c:2840
 msgid "File,Auto"
 msgstr ""
 
-#: ../src/guvcview.c:2810
+#: src/guvcview.c:2851
 msgid "Image Format:"
 msgstr ""
 
-#: ../src/guvcview.c:2838
+#. AVI Capture
+#: src/guvcview.c:2879
 msgid "AVI File:"
 msgstr ""
 
-#: ../src/guvcview.c:2870
+#: src/guvcview.c:2911
 msgid "MJPG - compressed"
 msgstr ""
 
-#: ../src/guvcview.c:2871
+#: src/guvcview.c:2912
 msgid "YUY2 - uncomp YUV"
 msgstr ""
 
-#: ../src/guvcview.c:2872
+#: src/guvcview.c:2913
 msgid "RGB - uncomp BMP"
 msgstr ""
 
-#: ../src/guvcview.c:2884
+#: src/guvcview.c:2925
 msgid "AVI Format:"
 msgstr ""
 
-#: ../src/guvcview.c:2998
+#: src/guvcview.c:3043
 msgid "Input Device:"
 msgstr ""
 
-#: ../src/guvcview.c:3010
+#. ~ if (Sound_numInputDev == 0) Sound_enable=0;
+#. ~ printf("SOUND DISABLE: no input devices detected\n");
+#: src/guvcview.c:3055
 msgid " Sound"
 msgstr ""
 
-#: ../src/guvcview.c:3020 ../src/guvcview.c:3051
+#: src/guvcview.c:3065 src/guvcview.c:3096
 msgid "Dev. Default"
 msgstr ""
 
-#: ../src/guvcview.c:3042
+#: src/guvcview.c:3087
 msgid "Sample Rate:"
 msgstr ""
 
-#: ../src/guvcview.c:3052
+#: src/guvcview.c:3097
 msgid "1 - mono"
 msgstr ""
 
-#: ../src/guvcview.c:3053
+#: src/guvcview.c:3098
 msgid "2 - stereo"
 msgstr ""
 
-#: ../src/guvcview.c:3078
+#: src/guvcview.c:3123
 msgid "Channels:"
 msgstr ""
 
-#: ../src/guvcview.c:3089
+#. ----- Filter controls ----
+#: src/guvcview.c:3134
 msgid "---- Video Filters ----"
 msgstr ""
 
-#: ../src/guvcview.c:3106
+#. Mirror
+#: src/guvcview.c:3151
 msgid " Mirror"
 msgstr ""
 
-#: ../src/guvcview.c:3115
+#. Upturn
+#: src/guvcview.c:3160
 msgid " Invert"
 msgstr ""
 
-#: ../src/guvcview.c:3124
+#. Negate
+#: src/guvcview.c:3169
 msgid " Negative"
 msgstr ""
 
-#: ../src/guvcview.c:3133
+#. Mono
+#: src/guvcview.c:3178
 msgid " Mono"
 msgstr ""

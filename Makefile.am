@@ -18,10 +18,14 @@ applicationdir = ${DATA_DIR}/applications
 application_DATA = pixmaps/guvcview.desktop
 
 pixmapsdir = ${DATA_DIR}/pixmaps/guvcview
+
 pixmaps_DATA = \
-	       pixmaps/guvcview.png\
+	       pixmaps/guvcview.xpm\
 	       pixmaps/camera.xpm\
-	       pixmaps/movie.xpm
+	       pixmaps/movie.xpm\
+	       pixmaps/save.xpm\
+	       pixmaps/folder.xpm\
+	       pixmaps/close.xpm
 
 
 EXTRA_DIST = \
@@ -59,17 +63,12 @@ force-update-gmo: check-gettext
 	touch po/*.po
 	cd po && $(MAKE) $(AM_MAKEFLAGS) update-gmo
 
-guvcview.desktop: 
-	cd pixmaps && $(MAKE) $(AM_MAKEFLAGS) guvcview.desktop
+$(pixmaps_DATA):
+	cd pixmaps && $(MAKE) $(AM_MAKEFLAGS) .xpm
 
-guvcview.png: 
-	cd pixmaps && $(MAKE) $(AM_MAKEFLAGS) guvcview.png
-
-camera.xpm: 
-	cd pixmaps && $(MAKE) $(AM_MAKEFLAGS) camera.xpm
-
-movie.xpm: 
-	cd pixmaps && $(MAKE) $(AM_MAKEFLAGS) movie.xpm
+# builds desktop menu entry
+$(application_DATA): 
+	cd pixmaps && $(MAKE) $(AM_MAKEFLAGS) .desktop
 
 
 .PHONY: check-gettext update-po update-gmo force-update-gmo

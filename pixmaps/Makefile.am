@@ -1,45 +1,49 @@
-#
+#copies backup files if regular data files not found
 
-EXTRA_DIST = guvcview.png camera.xpm movie.xpm guvcview.desktop
+pixs = \
+	guvcview.xpm\
+	camera.xpm\
+	movie.xpm\
+	save.xpm\
+	folder.xpm\
+	close.xpm
 
-pixmapsdir = ${DATA_DIR}/pixmaps/guvcview
+clean:
+	test -z "guvcview.desktop" || rm -f guvcview.desktop
 
-pixmaps_DATA = \
-		guvcview.png\
-		camera.xpm\
-		movie.xpm
+distclean: clean
 
-applicationdir = ${DATA_DIR}/applications
+clean-all: clean
 
-application_DATA = guvcview.desktop
-
-guvcview.desktop:
-	if test -e guvcview.desktop; then \
+.desktop:
+	if test -e guvcview.desktop; then\
 		echo "guvcview.desktop exists";\
 	else\
-		-cp guvcview.desktop_  guvcview.desktop;\
+		echo "creating guvcview.desktop";\
+		rm -f guvcview.desktop_;\
+		touch guvcview.desktop_;\
+		echo "[Desktop Entry]" >> guvcview.desktop_;\
+		echo "Version=1.0" >> guvcview.desktop_;\
+		echo "Encoding=UTF-8" >> guvcview.desktop_;\
+		echo "Name=guvcview" >> guvcview.desktop_;\
+		echo "GenericName=GTK UVC video viewer" >> guvcview.desktop_;\
+		echo "Comment=A video viewer and capturer for the linux uvc driver" >> guvcview.desktop_;\
+		echo "TryExec=guvcview" >> guvcview.desktop_;\
+		echo "Exec=guvcview" >> guvcview.desktop_;\
+		echo "Icon=${DATA_DIR}/pixmaps/guvcview/guvcview.xpm" >> guvcview.desktop_;\
+		echo "Terminal=false" >> guvcview.desktop_;\
+		echo "Type=Application" >> guvcview.desktop_;\
+		echo "Categories=Application;AudioVideo;" >> guvcview.desktop_;\
+		cp guvcview.desktop_ guvcview.desktop;\
 	fi
+		 
+.xpm:
+	for file in ${pixs}; do \
+		if test -e $$file; then \
+			echo "$$file exists";\
+		else\
+			echo "ERROR: $$file not found!";\
+		fi;\
+	done
 
-
-guvcview.png: 
-	if test -e guvcview.png; then \
-		echo "guvcview.png exists";\
-	else\
-		-cp guvcview.png_  guvcview.png;\
-	fi
-
-camera.xpm: 
-	if test -e camera.xpm; then \
-		echo "camera.xpm exists";\
-	else\
-		-cp camera.xpm_  camera.xpm;\
-	fi
-
-movie.xpm: 
-	if test -e movie.xpm; then \
-		echo "movie.xpm exists";\
-	else\
-		-cp movie.xpm_  movie.xpm;\
-	fi
-
-.PHONY: guvcview.desktop guvcview.png camera.xpm movie.xpm
+.PHONY: .desktop .xpm
