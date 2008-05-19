@@ -29,6 +29,31 @@
     
 #include "v4l2uvc.h"
 #include "utils.h"
+/* support for internationalization - i18n */
+#include <glib/gi18n.h>
+
+/* needed only for language files (not used)*/
+/*UVC driver control strings*/
+#define	BRIGHT 		N_("Brightness")
+#define	CONTRAST 	N_("Contrast")
+#define	HUE 		N_("Hue")
+#define	SATURAT		N_("Saturation")
+#define	SHARP		N_("Sharpness")
+#define	GAMMA		N_("Gamma")
+#define	BLCOMP		N_("Backlight Compensation")
+#define	GAIN		N_("Gain")
+#define	PLFREQ		N_("Power Line Frequency")
+#define HUEAUTO		N_("Hue, Auto")
+#define	EXPAUTO		N_("Exposure, Auto")
+#define	EXPAUTOPRI	N_("Exposure, Auto Priority")
+#define	EXPABS		N_("Exposure (Absolute)")
+#define	WBTAUTO		N_("White Balance Temperature, Auto")
+#define	WBT		N_("White Balance Temperature")
+#define WBCAUTO		N_("White Balance Component, Auto")
+#define WBCB		N_("White Balance Blue Component")
+#define	WBCR		N_("White Balance Red Component")
+#define	FOCUSAUTO	N_("Focus, Auto")
+
 
 /* some Logitech webcams have pan/tilt/focus controls */
 #define LENGTH_OF_XU_CTR (6)
@@ -84,7 +109,7 @@ static struct uvc_xu_control_info xu_ctrls[] = {
 static struct uvc_xu_control_mapping xu_mappings[] = {
 	{
 		.id        = V4L2_CID_PAN_RELATIVE_LOGITECH,
-		.name      = "Pan (relative)",
+		.name      = N_("Pan (relative)"),
 		.entity    = UVC_GUID_LOGITECH_MOTOR_CONTROL,
 		.selector  = XU_MOTORCONTROL_PANTILT_RELATIVE,
 		.size      = 16,
@@ -94,7 +119,7 @@ static struct uvc_xu_control_mapping xu_mappings[] = {
 	},
 	{
 		.id        = V4L2_CID_TILT_RELATIVE_LOGITECH,
-		.name      = "Tilt (relative)",
+		.name      = N_("Tilt (relative)"),
 		.entity    = UVC_GUID_LOGITECH_MOTOR_CONTROL,
 		.selector  = XU_MOTORCONTROL_PANTILT_RELATIVE,
 		.size      = 16,
@@ -104,7 +129,7 @@ static struct uvc_xu_control_mapping xu_mappings[] = {
 	},
 	{
 		.id        = V4L2_CID_PANTILT_RESET_LOGITECH,
-		.name      = "Pan/Tilt (reset)",
+		.name      = N_("Pan/Tilt (reset)"),
 		.entity    = UVC_GUID_LOGITECH_MOTOR_CONTROL,
 		.selector  = XU_MOTORCONTROL_PANTILT_RESET,
 		.size      = 8,
@@ -114,7 +139,7 @@ static struct uvc_xu_control_mapping xu_mappings[] = {
 	},
 	{
 		.id        = V4L2_CID_FOCUS_LOGITECH,
-		.name      = "Focus (absolute)",
+		.name      = N_("Focus (absolute)"),
 		.entity    = UVC_GUID_LOGITECH_MOTOR_CONTROL,
 		.selector  = XU_MOTORCONTROL_FOCUS,
 		.size      = 8,
@@ -124,7 +149,7 @@ static struct uvc_xu_control_mapping xu_mappings[] = {
 	},
 	{
 		.id        = V4L2_CID_LED1_MODE_LOGITECH,
-		.name      = "LED1 Mode",
+		.name      = N_("LED1 Mode"),
 		.entity    = UVC_GUID_LOGITECH_USER_HW_CONTROL,
 		.selector  = XU_HW_CONTROL_LED1,
 		.size      = 8,
@@ -134,7 +159,7 @@ static struct uvc_xu_control_mapping xu_mappings[] = {
 	},
 	{
 		.id        = V4L2_CID_LED1_FREQUENCY_LOGITECH,
-		.name      = "LED1 Frequency",
+		.name      = N_("LED1 Frequency"),
 		.entity    = UVC_GUID_LOGITECH_USER_HW_CONTROL,
 		.selector  = XU_HW_CONTROL_LED1,
 		.size      = 8,
@@ -144,7 +169,7 @@ static struct uvc_xu_control_mapping xu_mappings[] = {
 	},
 	{
 		.id        = V4L2_CID_DISABLE_PROCESSING_LOGITECH,
-		.name      = "Disable video processing",
+		.name      = N_("Disable video processing"),
 		.entity    = UVC_GUID_LOGITECH_VIDEO_PIPE,
 		.selector  = XU_COLOR_PROCESSING_DISABLE,
 		.size      = 8,
@@ -154,7 +179,7 @@ static struct uvc_xu_control_mapping xu_mappings[] = {
 	},
 	{
 		.id        = V4L2_CID_RAW_BITS_PER_PIXEL_LOGITECH,
-		.name      = "Raw bits per pixel",
+		.name      = N_("Raw bits per pixel"),
 		.entity    = UVC_GUID_LOGITECH_VIDEO_PIPE,
 		.selector  = XU_RAW_DATA_BITS_PER_PIXEL,
 		.size      = 8,

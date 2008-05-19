@@ -56,9 +56,6 @@
 
 #include "prototype.h"
 
-
-
-
 /*----------------------------- globals --------------------------------------*/
 struct GLOBAL *global=NULL;
 struct JPEG_ENCODER_STRUCTURE *jpeg_struct=NULL;
@@ -118,7 +115,6 @@ static const char *exp_typ[]={"MANUAL",
 	                      "AUTO",
 	                      "SHUTTER P.",
 	                      "APERTURE P."};
-
 
 /*defined at end of file*/
 static gint shutd (gint restart); /*remove build warning*/
