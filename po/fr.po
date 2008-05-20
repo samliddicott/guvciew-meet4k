@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: fr\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2008-05-19 18:49+0100\n"
-"PO-Revision-Date: 2008-05-20 11:19-0000\n"
+"PO-Revision-Date: 2008-05-20 12:40-0000\n"
 "Last-Translator: Paulo Assis <pj.assis@gmail.com>\n"
 "Language-Team: Português <pj.assis@gmail.com>\n"
 "MIME-Version: 1.0\n"
@@ -58,7 +58,7 @@ msgstr "Fréq. de ligne électrique"
 
 #: src/v4l2uvc.c:46
 msgid "Hue, Auto"
-msgstr "tonalité, Auto"
+msgstr "tonalité, Automatique"
 
 #: src/v4l2uvc.c:47
 msgid "Exposure, Auto"
@@ -74,7 +74,7 @@ msgstr "Exposition (absolue)"
 
 #: src/v4l2uvc.c:50
 msgid "White Balance Temperature, Auto"
-msgstr "équilibre de blanche (Temp), Auto"
+msgstr "équilibre de blanche (Temp), Auto."
 
 #: src/v4l2uvc.c:51
 msgid "White Balance Temperature"
@@ -82,7 +82,7 @@ msgstr "Équilibre Blanche (Temp.)"
 
 #: src/v4l2uvc.c:52
 msgid "White Balance Component, Auto"
-msgstr "Équilibre Blanche (Composant), Auto"
+msgstr "Équilibre Blanche (Composant), Auto."
 
 #: src/v4l2uvc.c:53
 msgid "White Balance Blue Component"
@@ -94,7 +94,7 @@ msgstr "Composant Rouge"
 
 #: src/v4l2uvc.c:55
 msgid "Focus, Auto"
-msgstr "Foyer, Auto"
+msgstr "Mise en point, Auto."
 
 #: src/v4l2uvc.c:112
 msgid "Pan (relative)"
@@ -110,7 +110,7 @@ msgstr "Tournez/Inclin (remise)"
 
 #: src/v4l2uvc.c:142
 msgid "Focus (absolute)"
-msgstr "Foyer (absolu)"
+msgstr "Mise em point (absolu)"
 
 #. src/v4l2uvc.c:152
 msgid "LED1 Mode"
@@ -154,7 +154,7 @@ msgstr ""
 "Les changements entreront en vigueur seulement après que relancement de guvcview.\n"
 "\n"
 "\n"
-"Relancement maintenant? \n"
+"Relancez maintenant? \n"
 
 #. if auto naming restart counter
 #. 10 - digits for auto increment
@@ -238,9 +238,8 @@ msgstr "Capture:"
 
 #. image auto capture
 #: src/guvcview.c:2594
-#, fuzzy
 msgid "Stop Auto"
-msgstr "Arrêt Auto:"
+msgstr "Arrêt Auto."
 
 #: src/guvcview.c:2684
 msgid "Video & Files"
@@ -260,7 +259,7 @@ msgstr "Affichage"
 
 #: src/guvcview.c:2801
 msgid "Camera Output:"
-msgstr "Sortie d'appareil-photo:"
+msgstr "Sortie des dispositif video:"
 
 #. Image Capture
 #: src/guvcview.c:2810
@@ -310,7 +309,7 @@ msgstr " bruit"
 #: src/guvcview.c:3061
 #: src/guvcview.c:3092
 msgid "Dev. Default"
-msgstr "Automatic"
+msgstr "Automatique"
 
 #: src/guvcview.c:3083
 msgid "Sample Rate:"
