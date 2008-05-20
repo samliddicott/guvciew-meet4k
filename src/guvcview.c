@@ -2363,7 +2363,7 @@ int main(int argc, char *argv[])
    
 #ifdef ENABLE_NLS
 	char* lc_all = setlocale (LC_ALL, "");
-	char* lc_dir = bindtextdomain (GETTEXT_PACKAGE, LOCALE_DIR);
+	char* lc_dir = bindtextdomain (GETTEXT_PACKAGE, PACKAGE_LOCALE_DIR);
 	bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
 	char* txtdom = textdomain (GETTEXT_PACKAGE);
 #endif
@@ -2604,31 +2604,31 @@ int main(int argc, char *argv[])
     
 	/*add images to Buttons*/
 	/*check for files*/
-    	gchar* pix1path = g_strconcat (DATA_DIR,"/pixmaps/guvcview/movie.xpm",NULL);
+    	gchar* pix1path = g_strconcat (PACKAGE_DATA_DIR,"/pixmaps/guvcview/movie.xpm",NULL);
 	if (g_file_test(pix1path,G_FILE_TEST_EXISTS)) {
 		AVIButton_Img = gtk_image_new_from_file (pix1path);
 		gtk_button_set_image(GTK_BUTTON(CapAVIButt),AVIButton_Img);
 	   	gtk_button_set_image_position(GTK_BUTTON(CapAVIButt),GTK_POS_TOP);
 	} 
-	gchar* pix2path = g_strconcat (DATA_DIR,"/pixmaps/guvcview/camera.xpm",NULL);
+	gchar* pix2path = g_strconcat (PACKAGE_DATA_DIR,"/pixmaps/guvcview/camera.xpm",NULL);
 	if (g_file_test(pix2path,G_FILE_TEST_EXISTS)) {
 		ImgButton_Img = gtk_image_new_from_file (pix2path);
 		gtk_button_set_image(GTK_BUTTON(CapImageButt),ImgButton_Img);
 	   	gtk_button_set_image_position(GTK_BUTTON(CapImageButt),GTK_POS_TOP);
 	}
-   	gchar* pix3path = g_strconcat (DATA_DIR,"/pixmaps/guvcview/save.xpm",NULL);
+   	gchar* pix3path = g_strconcat (PACKAGE_DATA_DIR,"/pixmaps/guvcview/save.xpm",NULL);
 	if (g_file_test(pix3path,G_FILE_TEST_EXISTS)) {
 		SButton_Img = gtk_image_new_from_file (pix3path);
 		gtk_button_set_image(GTK_BUTTON(SProfileButton),SButton_Img);
 	   	gtk_button_set_image_position(GTK_BUTTON(SProfileButton),GTK_POS_TOP);
 	}
-   	gchar* pix4path = g_strconcat (DATA_DIR,"/pixmaps/guvcview/folder.xpm",NULL);
+   	gchar* pix4path = g_strconcat (PACKAGE_DATA_DIR,"/pixmaps/guvcview/folder.xpm",NULL);
 	if (g_file_test(pix4path,G_FILE_TEST_EXISTS)) {
 		LButton_Img = gtk_image_new_from_file (pix4path);
 		gtk_button_set_image(GTK_BUTTON(LProfileButton),LButton_Img);
 	   	gtk_button_set_image_position(GTK_BUTTON(LProfileButton),GTK_POS_TOP);
 	}
-   	gchar* pix5path = g_strconcat (DATA_DIR,"/pixmaps/guvcview/close.xpm",NULL);
+   	gchar* pix5path = g_strconcat (PACKAGE_DATA_DIR,"/pixmaps/guvcview/close.xpm",NULL);
 	if (g_file_test(pix5path,G_FILE_TEST_EXISTS)) {
 		QButton_Img = gtk_image_new_from_file (pix5path);
 		gtk_button_set_image(GTK_BUTTON(quitButton),QButton_Img);

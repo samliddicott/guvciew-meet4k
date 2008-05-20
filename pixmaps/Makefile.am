@@ -30,7 +30,7 @@ clean-all: clean
 		echo "Comment=A video viewer and capturer for the linux uvc driver" >> guvcview.desktop_;\
 		echo "TryExec=guvcview" >> guvcview.desktop_;\
 		echo "Exec=guvcview" >> guvcview.desktop_;\
-		echo "Icon=${DATA_DIR}/pixmaps/guvcview/guvcview.xpm" >> guvcview.desktop_;\
+		echo "Icon=$(datadir)/pixmaps/guvcview/guvcview.xpm" >> guvcview.desktop_;\
 		echo "Terminal=false" >> guvcview.desktop_;\
 		echo "Type=Application" >> guvcview.desktop_;\
 		echo "Categories=Application;AudioVideo;" >> guvcview.desktop_;\

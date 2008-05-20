@@ -1,8 +1,5 @@
 /* config.h.in.  Generated from configure.in by autoheader.  */
 
-/* /usr/share/ */
-#undef DATA_DIR
-
 /* always defined to indicate that i18n is enabled */
 #undef ENABLE_NLS
 
@@ -50,9 +47,6 @@
 
 /* Define to 1 if you have the <unistd.h> header file. */
 #undef HAVE_UNISTD_H
-
-/* /usr/share/locale */
-#undef LOCALE_DIR
 
 /* Name of package */
 #undef PACKAGE

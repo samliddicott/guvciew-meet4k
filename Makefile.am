@@ -13,11 +13,11 @@ guvcviewdoc_DATA = \
 	INSTALL\
 	NEWS
 
-applicationdir = ${DATA_DIR}/applications
+applicationdir = ${datadir}/applications
 
 application_DATA = pixmaps/guvcview.desktop
 
-pixmapsdir = ${DATA_DIR}/pixmaps/guvcview
+pixmapsdir = ${datadir}/pixmaps/guvcview
 
 pixmaps_DATA = \
 	       pixmaps/guvcview.xpm\

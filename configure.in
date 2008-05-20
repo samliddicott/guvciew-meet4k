@@ -1,7 +1,7 @@
 dnl Process this file with autoconf to produce a configure script.
 
 dnl Package definitions
-AC_INIT(guvcview, 0.9.0)
+AC_INIT(guvcview, 0.9.0,[<pj.assis@gmail.com>])
 AM_INIT_AUTOMAKE(guvcview, 0.9.0)
 AM_CONFIG_HEADER(config.h)
 AM_MAINTAINER_MODE
@@ -11,25 +11,14 @@ AC_PROG_CC
 AM_PROG_CC_STDC
 AC_HEADER_STDC
 
-dnl Set datadir
-DATA_DIR=/usr/share
-AC_SUBST(DATA_DIR)
-AC_DEFINE_UNQUOTED(DATA_DIR,"$DATA_DIR", [/usr/share/])
-
 dnl Set gettext package name
 GETTEXT_PACKAGE=guvcview
 AC_SUBST(GETTEXT_PACKAGE)
 AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE", [guvcview])
 
-dnl Set locale dir
-LOCALE_DIR=$DATA_DIR/locale
-AC_SUBST(LOCALE_DIR)
-AC_DEFINE_UNQUOTED(LOCALE_DIR,"$LOCALE_DIR", [/usr/share/locale])
-
 dnl Add the languages which your application supports here.
 ALL_LINGUAS="pt pt_PT pt_BR de es fr"
 AM_GLIB_GNU_GETTEXT([external])
-dnl AM_GNU_GETTEXT([external])
 
 
 dnl Check package modules
