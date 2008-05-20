@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2008-05-19 18:49+0100\n"
-"PO-Revision-Date: 2008-05-20 11:19-0000\n"
+"PO-Revision-Date: 2008-05-20 12:20-0000\n"
 "Last-Translator: Paulo Assis <pj.assis@gmail.com>\n"
 "Language-Team: Português <pj.assis@gmail.com>\n"
 "MIME-Version: 1.0\n"
@@ -49,7 +49,7 @@ msgstr "Gamma"
 
 #: src/v4l2uvc.c:43
 msgid "Backlight Compensation"
-msgstr "Hintergrundbeleuchtung-Ausgleich"
+msgstr "Hintergrundbeleuchtung-Korrektur"
 
 #: src/v4l2uvc.c:44
 msgid "Gain"
@@ -61,15 +61,15 @@ msgstr "Stromleitung Frequenz"
 
 #: src/v4l2uvc.c:46
 msgid "Hue, Auto"
-msgstr "Farbe, Selbst"
+msgstr "Farbe, Automatish"
 
 #: src/v4l2uvc.c:47
 msgid "Exposure, Auto"
-msgstr "Belichtung, Selbst"
+msgstr "Belichtung, Automatish"
 
 #: src/v4l2uvc.c:48
 msgid "Exposure, Auto Priority"
-msgstr "Belichtung, Selbstpriorität"
+msgstr "Belichtung, Automatish priorität"
 
 #: src/v4l2uvc.c:49
 msgid "Exposure (Absolute)"
@@ -77,27 +77,27 @@ msgstr "Belichtung (absolut)"
 
 #: src/v4l2uvc.c:50
 msgid "White Balance Temperature, Auto"
-msgstr "Weiße Balancen-Temperatur, Selbst"
+msgstr "Weiße Balancentemperatur, Automatish"
 
 #: src/v4l2uvc.c:51
 msgid "White Balance Temperature"
-msgstr "Weiße Balancen-Temperatur"
+msgstr "Weiße Balancentemperatur"
 
 #: src/v4l2uvc.c:52
 msgid "White Balance Component, Auto"
-msgstr "Weißer Balancen-Bestandteil, Selbst"
+msgstr "Weißer Balancenbestandteil, Automatish"
 
 #: src/v4l2uvc.c:53
 msgid "White Balance Blue Component"
-msgstr "Weißer Balancen-Blau-Bestandteil"
+msgstr "Weißer Balancenblaubestandteil"
 
 #: src/v4l2uvc.c:54
 msgid "White Balance Red Component"
-msgstr "Weißer Balancen-Rot-Bestandteil"
+msgstr "Weißer Balancenrotbestandteil"
 
 #: src/v4l2uvc.c:55
 msgid "Focus, Auto"
-msgstr "Fokus, Selbst"
+msgstr "Fokus, Automatish"
 
 #: src/v4l2uvc.c:112
 msgid "Pan (relative)"
@@ -154,10 +154,10 @@ msgid ""
 "\n"
 "Restart now?\n"
 msgstr ""
-"Änderungen treten nur nachdem guvcview wiederanlaufen.\n"
+"Änderungen erst nach guvcview wiederanlaufen.\n"
 "\n"
 "\n"
-"Jetzt wiederanlaufen?\n"
+"Wiederanlaufen jetzt ?\n"
 
 #. if auto naming restart counter
 #. 10 - digits for auto increment
@@ -180,13 +180,13 @@ msgstr "speichern datei"
 #: src/guvcview.c:1475
 #: src/guvcview.c:2596
 msgid "Cap. Image"
-msgstr "Bild nehmen"
+msgstr "Nehmenbild"
 
 #. ************ Stop AVI ***********
 #: src/guvcview.c:1377
 #: src/guvcview.c:2602
 msgid "Cap. AVI"
-msgstr "AVI anfangen"
+msgstr "anfangen AVI"
 
 #. printf("opening avi file: %s\n",videoIn->AVIFName);
 #. avi capture enabled from start
@@ -197,7 +197,7 @@ msgstr "Stop AVI"
 
 #: src/guvcview.c:1685
 msgid "Load File"
-msgstr "Öffnen"
+msgstr "Öffnen Datei"
 
 #: src/guvcview.c:1817
 msgid "Exposure:"
@@ -229,7 +229,7 @@ msgstr "GUVCViewer Kontrollen"
 
 #: src/guvcview.c:2551
 msgid "Image Controls"
-msgstr "Bild-Kontrollen "
+msgstr "Bildkontrollen "
 
 #: src/guvcview.c:2571
 msgid "Control Profiles:"
@@ -237,12 +237,12 @@ msgstr "Kontrollen Profil:"
 
 #: src/guvcview.c:2577
 msgid "Capture:"
-msgstr "Nehmen:"
+msgstr "Bild und AVI:"
 
 #. image auto capture
 #: src/guvcview.c:2594
 msgid "Stop Auto"
-msgstr "Stop Auto"
+msgstr "Stop Automatish"
 
 #: src/guvcview.c:2684
 msgid "Video & Files"
@@ -272,7 +272,7 @@ msgstr "Bilddatei:"
 #. incremental capture
 #: src/guvcview.c:2836
 msgid "File,Auto"
-msgstr "Datei, Selbst"
+msgstr "Datei, Automatish"
 
 #: src/guvcview.c:2847
 msgid "Image Format:"
@@ -301,7 +301,7 @@ msgstr "AVI-Format"
 
 #: src/guvcview.c:3039
 msgid "Input Device:"
-msgstr "Eingangbegerät:"
+msgstr "Audiovorrichtung:"
 
 #. ~ if (Sound_numInputDev == 0) Sound_enable=0;
 #. ~ printf("SOUND DISABLE: no input devices detected\n");
