@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2008-05-19 18:49+0100\n"
-"PO-Revision-Date: 2008-05-20 12:20-0000\n"
+"PO-Revision-Date: 2008-05-20 14:00-0000\n"
 "Last-Translator: Paulo Assis <pj.assis@gmail.com>\n"
 "Language-Team: Português <pj.assis@gmail.com>\n"
 "MIME-Version: 1.0\n"
@@ -180,7 +180,7 @@ msgstr "speichern datei"
 #: src/guvcview.c:1475
 #: src/guvcview.c:2596
 msgid "Cap. Image"
-msgstr "Nehmenbild"
+msgstr "Machenbild"
 
 #. ************ Stop AVI ***********
 #: src/guvcview.c:1377
@@ -193,7 +193,7 @@ msgstr "anfangen AVI"
 #: src/guvcview.c:1399
 #: src/guvcview.c:2600
 msgid "Stop AVI"
-msgstr "Stop AVI"
+msgstr "AVI Stop"
 
 #: src/guvcview.c:1685
 msgid "Load File"
@@ -237,7 +237,7 @@ msgstr "Kontrollen Profil:"
 
 #: src/guvcview.c:2577
 msgid "Capture:"
-msgstr "Bild und AVI:"
+msgstr "Bilder und AVI:"
 
 #. image auto capture
 #: src/guvcview.c:2594
