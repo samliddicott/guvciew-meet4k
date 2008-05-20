@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2008-05-19 18:49+0100\n"
-"PO-Revision-Date: 2008-05-16 19:28+0100\n"
+"PO-Revision-Date: 2008-05-20 11:19-0000\n"
 "Last-Translator: Paulo Assis <pj.assis@gmail.com>\n"
 "Language-Team: Português <pj.assis@gmail.com>\n"
 "MIME-Version: 1.0\n"
@@ -131,19 +131,23 @@ msgstr "Sperrungsvideoverarbeitung"
 msgid "Raw bits per pixel"
 msgstr "bits pro Pixel (Raw)"
 
-#: src/guvcview.c:971 src/guvcview.c:1050
+#: src/guvcview.c:971
+#: src/guvcview.c:1050
 msgid "Program Restart"
 msgstr "Programm wiederanlaufen"
 
-#: src/guvcview.c:974 src/guvcview.c:1053
+#: src/guvcview.c:974
+#: src/guvcview.c:1053
 msgid "now"
 msgstr "Jetzt "
 
-#: src/guvcview.c:976 src/guvcview.c:1055
+#: src/guvcview.c:976
+#: src/guvcview.c:1055
 msgid "Later"
 msgstr "Später "
 
-#: src/guvcview.c:980 src/guvcview.c:1059
+#: src/guvcview.c:980
+#: src/guvcview.c:1059
 msgid ""
 "Changes will only take effect after guvcview restart.\n"
 "\n"
@@ -157,29 +161,37 @@ msgstr ""
 
 #. if auto naming restart counter
 #. 10 - digits for auto increment
-#: src/guvcview.c:1140 src/guvcview.c:1279 src/guvcview.c:1313
-#: src/guvcview.c:1467 src/guvcview.c:1504
+#: src/guvcview.c:1140
+#: src/guvcview.c:1279
+#: src/guvcview.c:1313
+#: src/guvcview.c:1467
+#: src/guvcview.c:1504
 #, c-format
 msgid "File num:%d"
 msgstr "Dateinumber:%d"
 
-#: src/guvcview.c:1227 src/guvcview.c:1655
+#: src/guvcview.c:1227
+#: src/guvcview.c:1655
 msgid "Save File"
 msgstr "speichern datei"
 
 #. destroy timer
-#: src/guvcview.c:1339 src/guvcview.c:1475 src/guvcview.c:2596
+#: src/guvcview.c:1339
+#: src/guvcview.c:1475
+#: src/guvcview.c:2596
 msgid "Cap. Image"
 msgstr "Bild nehmen"
 
 #. ************ Stop AVI ***********
-#: src/guvcview.c:1377 src/guvcview.c:2602
+#: src/guvcview.c:1377
+#: src/guvcview.c:2602
 msgid "Cap. AVI"
 msgstr "AVI anfangen"
 
 #. printf("opening avi file: %s\n",videoIn->AVIFName);
 #. avi capture enabled from start
-#: src/guvcview.c:1399 src/guvcview.c:2600
+#: src/guvcview.c:1399
+#: src/guvcview.c:2600
 msgid "Stop AVI"
 msgstr "Stop AVI"
 
@@ -297,7 +309,8 @@ msgstr "Eingangbegerät:"
 msgid " Sound"
 msgstr " Audio"
 
-#: src/guvcview.c:3061 src/guvcview.c:3092
+#: src/guvcview.c:3061
+#: src/guvcview.c:3092
 msgid "Dev. Default"
 msgstr "Automatisch"
 
@@ -335,9 +348,10 @@ msgstr " Umgewandelt"
 #. Negate
 #: src/guvcview.c:3165
 msgid " Negative"
-msgstr "Negativ"
+msgstr " Negativ"
 
 #. Mono
 #: src/guvcview.c:3174
 msgid " Mono"
 msgstr " Mono"
+
