@@ -8,8 +8,8 @@ msgstr ""
 "Project-Id-Version: pt_PT\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2008-05-19 18:49+0100\n"
-"PO-Revision-Date: 2008-05-13 22:04+0100\n"
-"Last-Translator: guvcview <pj.assis@gmail.com>\n"
+"PO-Revision-Date: 2008-05-20 14:56-0000\n"
+"Last-Translator: Paulo Assis <pj.assis@gmail.com>\n"
 "Language-Team: Portuguese <pj.assis@gmail.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -28,7 +28,7 @@ msgstr "Contraste"
 
 #: src/v4l2uvc.c:39
 msgid "Hue"
-msgstr "Tonalidade"
+msgstr "Matiz"
 
 #: src/v4l2uvc.c:40
 msgid "Saturation"
@@ -56,7 +56,7 @@ msgstr "Frequência da Rede"
 
 #: src/v4l2uvc.c:46
 msgid "Hue, Auto"
-msgstr "Tonalidade, Auto"
+msgstr "Matiz, Auto"
 
 #: src/v4l2uvc.c:47
 msgid "Exposure, Auto"
@@ -120,25 +120,29 @@ msgstr "Frequência LED1"
 
 #: src/v4l2uvc.c:172
 msgid "Disable video processing"
-msgstr "Desabilitar proc. video (Raw)"
+msgstr "Parar proc. video (Raw)"
 
 #: src/v4l2uvc.c:182
 msgid "Raw bits per pixel"
 msgstr "Bits por pixel (Raw)"
 
-#: src/guvcview.c:971 src/guvcview.c:1050
+#: src/guvcview.c:971
+#: src/guvcview.c:1050
 msgid "Program Restart"
 msgstr "Reiniciar Programa"
 
-#: src/guvcview.c:974 src/guvcview.c:1053
+#: src/guvcview.c:974
+#: src/guvcview.c:1053
 msgid "now"
 msgstr "Agora"
 
-#: src/guvcview.c:976 src/guvcview.c:1055
+#: src/guvcview.c:976
+#: src/guvcview.c:1055
 msgid "Later"
 msgstr "Depois"
 
-#: src/guvcview.c:980 src/guvcview.c:1059
+#: src/guvcview.c:980
+#: src/guvcview.c:1059
 msgid ""
 "Changes will only take effect after guvcview restart.\n"
 "\n"
@@ -152,29 +156,37 @@ msgstr ""
 
 #. if auto naming restart counter
 #. 10 - digits for auto increment
-#: src/guvcview.c:1140 src/guvcview.c:1279 src/guvcview.c:1313
-#: src/guvcview.c:1467 src/guvcview.c:1504
+#: src/guvcview.c:1140
+#: src/guvcview.c:1279
+#: src/guvcview.c:1313
+#: src/guvcview.c:1467
+#: src/guvcview.c:1504
 #, c-format
 msgid "File num:%d"
 msgstr "Ficheiro num:%d"
 
-#: src/guvcview.c:1227 src/guvcview.c:1655
+#: src/guvcview.c:1227
+#: src/guvcview.c:1655
 msgid "Save File"
 msgstr "Gravar Ficheiro"
 
 #. destroy timer
-#: src/guvcview.c:1339 src/guvcview.c:1475 src/guvcview.c:2596
+#: src/guvcview.c:1339
+#: src/guvcview.c:1475
+#: src/guvcview.c:2596
 msgid "Cap. Image"
 msgstr "Cap. Imagem"
 
 #. ************ Stop AVI ***********
-#: src/guvcview.c:1377 src/guvcview.c:2602
+#: src/guvcview.c:1377
+#: src/guvcview.c:2602
 msgid "Cap. AVI"
 msgstr "Cap. AVI"
 
 #. printf("opening avi file: %s\n",videoIn->AVIFName);
 #. avi capture enabled from start
-#: src/guvcview.c:1399 src/guvcview.c:2600
+#: src/guvcview.c:1399
+#: src/guvcview.c:2600
 msgid "Stop AVI"
 msgstr "Parar AVI"
 
@@ -224,7 +236,6 @@ msgstr "Captura:"
 
 #. image auto capture
 #: src/guvcview.c:2594
-#, fuzzy
 msgid "Stop Auto"
 msgstr "Parar Auto:"
 
@@ -238,7 +249,7 @@ msgstr "Resolução:"
 
 #: src/guvcview.c:2762
 msgid "Frame Rate:"
-msgstr "Taxa de frames:"
+msgstr "Taxa de imagens:"
 
 #: src/guvcview.c:2770
 msgid " Show"
@@ -293,13 +304,14 @@ msgstr "Dispositivo de som:"
 msgid " Sound"
 msgstr " Som"
 
-#: src/guvcview.c:3061 src/guvcview.c:3092
+#: src/guvcview.c:3061
+#: src/guvcview.c:3092
 msgid "Dev. Default"
 msgstr "Automático"
 
 #: src/guvcview.c:3083
 msgid "Sample Rate:"
-msgstr "Taxa de Amostras:"
+msgstr "Frequência:"
 
 #: src/guvcview.c:3093
 msgid "1 - mono"
@@ -337,3 +349,4 @@ msgstr " Negativo"
 #: src/guvcview.c:3174
 msgid " Mono"
 msgstr " Cinza"
+
