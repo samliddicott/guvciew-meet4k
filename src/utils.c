@@ -1463,18 +1463,24 @@ yuyv2rgb (BYTE *pyuv, BYTE *prgb, int width, int height){
 	int l=0;
 	int SizeYUV=height * width * 2; /* 2 bytes per pixel*/
 	for(l=0;l<SizeYUV;l=l+4) { /*iterate every 4 bytes*/
-		/* b = y0 + 1.772 (u-128) */
-		*prgb++=CLIP(pyuv[l] + 1.772 *( pyuv[l+1]-128)); 
-		/* g = y0 - 0.34414 (u-128) - 0.71414 (v-128)*/
-		*prgb++=CLIP(pyuv[l] - 0.34414 * (pyuv[l+1]-128) -0.71414*(pyuv[l+3]-128));
-		/* r =y0 + 1.402 (v-128) */
-		*prgb++=CLIP(pyuv[l] + 1.402 * (pyuv[l+3]-128));                                                        
-		/* b1 = y1 + 1.772 (u-128) */
-		*prgb++=CLIP(pyuv[l+2] + 1.772*(pyuv[l+1]-128));
-		/* g1 = y1 - 0.34414 (u-128) - 0.71414 (v-128)*/
-		*prgb++=CLIP(pyuv[l+2] - 0.34414 * (pyuv[l+1]-128) -0.71414 * (pyuv[l+3]-128)); 
-		/* r1 =y1 + 1.402 (v-128) */
-		*prgb++=CLIP(pyuv[l+2] + 1.402 * (pyuv[l+3]-128));
+		/* standart: r = y0 + 1.402 (v-128) */
+		/* logitech: r = y0 + 1.370705 (v-128) */
+		*prgb++=CLIP(pyuv[l] + 1.370705 * (pyuv[l+3]-128));
+		/* standart: g = y0 - 0.34414 (u-128) - 0.71414 (v-128)*/
+		/* logitech: g = y0 - 0.337633 (u-128)- 0.698001 (v-128)*/
+		*prgb++=CLIP(pyuv[l] - 0.337633 * (pyuv[l+1]-128) -0.698001*(pyuv[l+3]-128));
+		/* standart: b = y0 + 1.772 (u-128) */
+		/* logitech: b = y0 + 1.732446 (u-128) */
+		*prgb++=CLIP(pyuv[l] + 1.732446 *( pyuv[l+1]-128));
+		/* standart: r1 =y1 + 1.402 (v-128) */
+		/* logitech: r1 = y1 + 1.370705 (v-128) */
+		*prgb++=CLIP(pyuv[l+2] + 1.370705 * (pyuv[l+3]-128));
+		/* standart: g1 = y1 - 0.34414 (u-128) - 0.71414 (v-128)*/
+		/* logitech: g1 = y1 - 0.337633 (u-128)- 0.698001 (v-128)*/
+		*prgb++=CLIP(pyuv[l+2] - 0.337633 * (pyuv[l+1]-128) -0.698001 * (pyuv[l+3]-128));
+		/* standart: b1 = y1 + 1.772 (u-128) */
+		/* logitech: b1 = y1 + 1.732446 (u-128) */
+		*prgb++=CLIP(pyuv[l+2] + 1.732446*(pyuv[l+1]-128));
 	}
 	
 }
@@ -1497,18 +1503,24 @@ yuyv2bgr (BYTE *pyuv, BYTE *pbgr, int width, int height){
 		bytesUsed=l*width*2;
 		for (k=0;k<((width)*2);k=k+4)/*iterate every 4 bytes in the line*/
 		{                              
-		/* b = y0 + 1.772 (u-128) */
-		*preverse++=CLIP(pyuv[k+bytesUsed] + 1.772 *( pyuv[k+1+bytesUsed]-128)); 
-		/* g = y0 - 0.34414 (u-128) - 0.71414 (v-128)*/
-		*preverse++=CLIP(pyuv[k+bytesUsed] - 0.34414 * (pyuv[k+1+bytesUsed]-128) -0.71414*(pyuv[k+3+bytesUsed]-128));
-		/* r =y0 + 1.402 (v-128) */
-		*preverse++=CLIP(pyuv[k+bytesUsed] + 1.402 * (pyuv[k+3+bytesUsed]-128));                                                        
-		/* b1 = y1 + 1.772 (u-128) */
-		*preverse++=CLIP(pyuv[k+2+bytesUsed] + 1.772*(pyuv[k+1+bytesUsed]-128));
-		/* g1 = y1 - 0.34414 (u-128) - 0.71414 (v-128)*/
-		*preverse++=CLIP(pyuv[k+2+bytesUsed] - 0.34414 * (pyuv[k+1+bytesUsed]-128) -0.71414 * (pyuv[k+3+bytesUsed]-128)); 
-		/* r1 =y1 + 1.402 (v-128) */
-		*preverse++=CLIP(pyuv[k+2+bytesUsed] + 1.402 * (pyuv[k+3+bytesUsed]-128));
+		/* standart: b = y0 + 1.772 (u-128) */
+		/* logitech: b = y0 + 1.732446 (u-128) */
+		*preverse++=CLIP(pyuv[k+bytesUsed] + 1.732446 *( pyuv[k+1+bytesUsed]-128)); 
+		/* standart: g = y0 - 0.34414 (u-128) - 0.71414 (v-128)*/
+		/* logitech: g = y0 - 0.337633 (u-128)- 0.698001 (v-128)*/
+		*preverse++=CLIP(pyuv[k+bytesUsed] - 0.337633 * (pyuv[k+1+bytesUsed]-128) -0.698001*(pyuv[k+3+bytesUsed]-128));
+		/* standart: r = y0 + 1.402 (v-128) */
+		/* logitech: r = y0 + 1.370705 (v-128) */
+		*preverse++=CLIP(pyuv[k+bytesUsed] + 1.370705 * (pyuv[k+3+bytesUsed]-128));                                                        
+		/* standart: b1 = y1 + 1.772 (u-128) */
+		/* logitech: b1 = y1 + 1.732446 (u-128) */
+		*preverse++=CLIP(pyuv[k+2+bytesUsed] + 1.732446*(pyuv[k+1+bytesUsed]-128));
+		/* standart: g1 = y1 - 0.34414 (u-128) - 0.71414 (v-128)*/
+		/* logitech: g1 = y1 - 0.337633 (u-128)- 0.698001 (v-128)*/
+		*preverse++=CLIP(pyuv[k+2+bytesUsed] - 0.337633 * (pyuv[k+1+bytesUsed]-128) -0.698001 * (pyuv[k+3+bytesUsed]-128)); 
+		/* standart: r1 =y1 + 1.402 (v-128) */
+		/* logitech: r1 = y1 + 1.370705 (v-128) */
+		*preverse++=CLIP(pyuv[k+2+bytesUsed] + 1.370705 * (pyuv[k+3+bytesUsed]-128));
 		}
 		preverse-=width*3;/*get it back at the begin of processed line*/
 	}
@@ -1836,7 +1848,7 @@ int write_png(char *file_name, int width, int height,BYTE *prgb_data)
 	
 	
    /* flip BGR pixels to RGB */
-   png_set_bgr(png_ptr);
+   //png_set_bgr(png_ptr); /*?no longuer required?*/
 	
    /* Write the image data.*/
    for (l = 0; l < height; l++)
