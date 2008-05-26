@@ -2692,11 +2692,11 @@ int main(int argc, char *argv[])
 	
 	/* Resolution*/
 	Resolution = gtk_combo_box_new_text ();
-	char temp_str[10];
+	char temp_str[20];
 	int defres=0;
 	for(i=0;i<videoIn->numb_resol;i++) {
 		if (videoIn->listVidCap[global->formind][i].width>0){
-			snprintf(temp_str,9,"%ix%i",videoIn->listVidCap[global->formind][i].width,
+			snprintf(temp_str,18,"%ix%i",videoIn->listVidCap[global->formind][i].width,
 							 videoIn->listVidCap[global->formind][i].height);
 			gtk_combo_box_append_text(GTK_COMBO_BOX(Resolution),temp_str);
 			if ((global->width==videoIn->listVidCap[global->formind][i].width) && 
@@ -2733,7 +2733,7 @@ int main(int argc, char *argv[])
 	FrameRate = gtk_combo_box_new_text ();
 	int deffps=0;
 	for (i=0;i<videoIn->listVidCap[global->formind][defres].numb_frates;i++) {
-		snprintf(temp_str,9,"%i/%i fps",videoIn->listVidCap[global->formind][defres].framerate_num[i],
+	    	snprintf(temp_str,18,"%i/%i fps",videoIn->listVidCap[global->formind][defres].framerate_num[i],
 							 videoIn->listVidCap[global->formind][defres].framerate_denom[i]);
 		gtk_combo_box_append_text(GTK_COMBO_BOX(FrameRate),temp_str);
 		if ((videoIn->fps_num==videoIn->listVidCap[global->formind][defres].framerate_num[i]) && 

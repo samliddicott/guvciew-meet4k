@@ -254,37 +254,37 @@ init_videoIn(struct vdIn *vd, char *device, int width, int height,
     printf("video %s \n", vd->videodevice);
     vd->capAVI = FALSE;
 	
-	if((vd->AVIFName = (char *) calloc(1, 120 * sizeof(char)))==NULL){
+    if((vd->AVIFName = (char *) calloc(1, 120 * sizeof(char)))==NULL){
 		printf("couldn't calloc memory for:vd->AVIFName\n");
 		goto error1;
 	}
-	snprintf(vd->AVIFName, 14, DEFAULT_AVI_FNAME);
-	vd->SupMjpg=0;
-	vd->SupYuv=0;
+    snprintf(vd->AVIFName, 14, DEFAULT_AVI_FNAME);
+    vd->SupMjpg=0;
+    vd->SupYuv=0;
     vd->fps = fps;
-	vd->fps_num = fps_num;
+    vd->fps_num = fps_num;
     vd->signalquit = 1;
-	vd->PanTilt=0;
-	vd->setFPS=0;
+    vd->PanTilt=0;
+    vd->setFPS=0;
     vd->width = width;
     vd->height = height;
     vd->formatIn = format;
     vd->grabmethod = grabmethod;
-	vd->capImage=FALSE;
+    vd->capImage=FALSE;
 	
-	if((vd->ImageFName = (char *) calloc(1, 120 * sizeof(char)))==NULL){
+    if((vd->ImageFName = (char *) calloc(1, 120 * sizeof(char)))==NULL){
 		printf("couldn't calloc memory for:vd->ImgFName\n");
 		goto error1;
 	}
-	snprintf(vd->ImageFName, 14, DEFAULT_IMAGE_FNAME);
+    snprintf(vd->ImageFName, 14, DEFAULT_IMAGE_FNAME);
 	
-	vd->timecode.type = V4L2_TC_TYPE_25FPS;
-	vd->timecode.flags = V4L2_TC_FLAG_DROPFRAME;
+    vd->timecode.type = V4L2_TC_TYPE_25FPS;
+    vd->timecode.flags = V4L2_TC_FLAG_DROPFRAME;
 	
-	vd->available_exp[0]=-1;
-	vd->available_exp[1]=-1;
-	vd->available_exp[2]=-1;
-	vd->available_exp[3]=-1;
+    vd->available_exp[0]=-1;
+    vd->available_exp[1]=-1;
+    vd->available_exp[2]=-1;
+    vd->available_exp[3]=-1;
 	
     if (init_v4l2(vd) < 0) {
 	printf(" Init v4L2 failed !! exit fatal \n");
@@ -294,24 +294,22 @@ init_videoIn(struct vdIn *vd, char *device, int width, int height,
     vd->framesizeIn = (vd->width * vd->height << 1);
     switch (vd->formatIn) {
     	case V4L2_PIX_FMT_MJPEG:
-			vd->tmpbuffer =
-	    		(unsigned char *) calloc(1, (size_t) vd->framesizeIn);
-			if (!vd->tmpbuffer) {
-	   			printf("couldn't calloc memory for:vd->tmpbuffer\n");
-				goto error3;
-			}
-			vd->framebuffer =
-	    	(unsigned char *) calloc(1,
-				     (size_t) vd->width * (vd->height +
-							   8) * 2);
-			break;
+		vd->tmpbuffer =
+	    	(unsigned char *) calloc(1, (size_t) vd->framesizeIn);
+		if (!vd->tmpbuffer) {
+	   		printf("couldn't calloc memory for:vd->tmpbuffer\n");
+			goto error3;
+		}
+		vd->framebuffer = (unsigned char *) calloc(1,
+			     (size_t) vd->width * (vd->height + 8) * 2);
+		break;
     	case V4L2_PIX_FMT_YUYV:/*YUYV doesn't need a temp buffer*/
-			vd->framebuffer =
-	    		(unsigned char *) calloc(1, (size_t) vd->framesizeIn);
-			break;
+		vd->framebuffer =
+	    	(unsigned char *) calloc(1, (size_t) vd->framesizeIn);
+		break;
     	default:
-			printf(" should never arrive exit fatal !!\n");
-			goto error4;
+		printf(" should never arrive exit fatal !!\n");
+		goto error4;
 		break;
     }
     if (!vd->framebuffer) {
@@ -355,7 +353,7 @@ static int query_buff(struct vdIn *vd, const int setUNMAP)
 		vd->buf.memory = V4L2_MEMORY_MMAP;
 		ret = ioctl(vd->fd, VIDIOC_QUERYBUF, &vd->buf);
 		if (ret < 0) {
-	    	printf("Unable to query buffer (%d).\n", errno);
+	    		printf("Unable to query buffer (%d).\n", errno);
 	    	return 1;
 		}
 		/* map new buffer */
@@ -761,8 +759,7 @@ int enum_frame_intervals(struct vdIn *vd, __u32 pixfmt, __u32 width, __u32 heigh
 	printf("\tTime interval between frame: ");
 	while ((ret = ioctl(vd->fd, VIDIOC_ENUM_FRAMEINTERVALS, &fival)) == 0) {
 		if (fival.type == V4L2_FRMIVAL_TYPE_DISCRETE) {
-				printf("%u/%u, ",
-						fival.discrete.numerator, fival.discrete.denominator);
+				printf("%u/%u, ", fival.discrete.numerator, fival.discrete.denominator);
 				vd->listVidCap[list_form][list_ind].framerate_num[list_fps]=fival.discrete.numerator;
 				vd->listVidCap[list_form][list_ind].framerate_denom[list_fps]=fival.discrete.denominator;
 				if(list_fps<(MAX_LIST_FPS-1)) list_fps++;
@@ -781,7 +778,15 @@ int enum_frame_intervals(struct vdIn *vd, __u32 pixfmt, __u32 width, __u32 heigh
 		}
 		fival.index++;
 	}
-	vd->listVidCap[list_form][list_ind].numb_frates=list_fps;
+    	/* WORKAROUND*/
+    	if (list_fps == 0) {
+	/*logitech 2M pixel cameras don't return fps for YUV 1600x1200 (set to min - 5 fps)*/
+		vd->listVidCap[list_form][list_ind].numb_frates=1;
+		vd->listVidCap[list_form][list_ind].framerate_num[list_fps]=1;
+		vd->listVidCap[list_form][list_ind].framerate_denom[list_fps]=5;
+	} else {
+		vd->listVidCap[list_form][list_ind].numb_frates=list_fps;
+	}
 	printf("\n");
 	if (ret != 0 && errno != EINVAL) {
 		printf("ERROR enumerating frame intervals: %d\n", errno);
