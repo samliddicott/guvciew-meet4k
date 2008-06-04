@@ -3327,7 +3327,6 @@ clean_struct (void) {
 		if (ci->spinbutton)
 			gtk_widget_destroy (ci->spinbutton);
 	}
-	printf("destroy widgets\n");
 	free (s->control_info);
 	s->control_info = NULL;
 	input_free_controls (s->control, s->num_controls);
