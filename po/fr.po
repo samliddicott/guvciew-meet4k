@@ -18,67 +18,56 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: KBabel 1.11.4\n"
 
-#: src/guvcview.c:997
-#: src/guvcview.c:1076
+#: src/guvcview.c:997 src/guvcview.c:1076
 msgid "Program Restart"
 msgstr "Relancement de programme"
 
-#: src/guvcview.c:1000
-#: src/guvcview.c:1079
+#: src/guvcview.c:1000 src/guvcview.c:1079
 msgid "now"
 msgstr "Maintenant"
 
-#: src/guvcview.c:1002
-#: src/guvcview.c:1081
+#: src/guvcview.c:1002 src/guvcview.c:1081
 msgid "Later"
 msgstr "Plus tard "
 
-#: src/guvcview.c:1006
-#: src/guvcview.c:1085
+#: src/guvcview.c:1006 src/guvcview.c:1085
 msgid ""
 "Changes will only take effect after guvcview restart.\n"
 "\n"
 "\n"
 "Restart now?\n"
 msgstr ""
-"Les changements entreront en vigueur seulement après que relancement de guvcview.\n"
+"Les changements entreront en vigueur seulement après que relancement de "
+"guvcview.\n"
 "\n"
 "\n"
 "Relancez maintenant? \n"
 
 #. if auto naming restart counter
 #. 10 - digits for auto increment
-#: src/guvcview.c:1166
-#: src/guvcview.c:1305
-#: src/guvcview.c:1339
-#: src/guvcview.c:1493
-#: src/guvcview.c:1530
+#: src/guvcview.c:1166 src/guvcview.c:1305 src/guvcview.c:1339
+#: src/guvcview.c:1493 src/guvcview.c:1530
 #, c-format
 msgid "File num:%d"
 msgstr "fichier num:%d"
 
-#: src/guvcview.c:1253
-#: src/guvcview.c:1681
+#: src/guvcview.c:1253 src/guvcview.c:1681
 msgid "Save File"
 msgstr "Enregistrer"
 
 #. destroy timer
-#: src/guvcview.c:1365
-#: src/guvcview.c:1501
-#: src/guvcview.c:2639
+#: src/guvcview.c:1365 src/guvcview.c:1501 src/guvcview.c:2639
 msgid "Cap. Image"
 msgstr "Cap. de Image"
 
 #. ************ Stop AVI ***********
-#: src/guvcview.c:1403
-#: src/guvcview.c:2645
+#: src/guvcview.c:1403 src/guvcview.c:2645
 msgid "Cap. AVI"
 msgstr "Cap. de AVI"
 
 #. printf("opening avi file: %s\n",videoIn->AVIFName);
 #. avi capture enabled from start
-#: src/guvcview.c:1425
-#: src/guvcview.c:2643
+#: src/guvcview.c:1425 src/guvcview.c:2643
 msgid "Stop AVI"
 msgstr "Arrêt AVI"
 
@@ -262,8 +251,7 @@ msgstr "dispositif de bruit:"
 msgid " Sound"
 msgstr " bruit"
 
-#: src/guvcview.c:3104
-#: src/guvcview.c:3135
+#: src/guvcview.c:3104 src/guvcview.c:3135
 msgid "Dev. Default"
 msgstr "Automatique"
 
@@ -431,4 +419,3 @@ msgstr "Arrêt Traitement de vidéo"
 #: src/v4l2uvc.c:182
 msgid "Raw bits per pixel"
 msgstr "bits par pixel (Raw)"
-

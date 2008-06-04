@@ -229,8 +229,8 @@ struct vdIn {
     	struct v4l2_timecode timecode;
     	void *mem[NB_BUFFER];
     	unsigned char *tmpbuffer;
-   	 unsigned char *framebuffer;
-   	 int isstreaming;
+   	unsigned char *framebuffer;
+   	int isstreaming;
     	int setFPS;
 	int PanTilt; /*1-if PanTilt Camera; 0-otherwise*/
     	int grabmethod;

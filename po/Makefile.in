@@ -14,7 +14,7 @@
 
 GETTEXT_PACKAGE = guvcview
 PACKAGE = guvcview
-VERSION = 0.9.0
+VERSION = 0.9.1
 
 SHELL = /bin/sh
 
@@ -23,7 +23,7 @@ srcdir = .
 top_srcdir = ..
 
 
-prefix = /usr/local
+prefix = /usr
 exec_prefix = ${prefix}
 datarootdir = ${prefix}/share
 datadir = ${datarootdir}

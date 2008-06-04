@@ -179,7 +179,7 @@ void ERR_DIALOG(const char *err_title, const char* err_msg) {
     gtk_widget_show(errdialog);
     gtk_dialog_run (GTK_DIALOG (errdialog));
     gtk_widget_destroy (errdialog);
-    clean_struct();
+    if (global) closeGlobals (global);
     free(EXEC_CALL);
     printf("Terminated.\n");;
     exit(1);
@@ -358,7 +358,7 @@ int readConf(const char *confpath) {
 		}    
 		}
 		fclose(fp);
-	    	if (global->debug) {
+	    	if (global->debug) { /*it will allways be FALSE unless DEBUG=1*/
 			printf("video_device: %s\n",global->videodevice);
 			printf("vid_sleep: %i\n",global->vid_sleep);
 			printf("resolution: %i x %i\n",global->width,global->height);
@@ -2507,6 +2507,7 @@ int main(int argc, char *argv[])
 	    	case -1:/*can't open device*/
 		  	ERR_DIALOG (N_("Guvcview error:\n\nUnable to open device"),
 				N_("Please make sure the camera is connected\nand that the linux-UVC driver is installed."));
+			printf("Shouldn't get to here\n");
 			break;
 		case -2:/*invalid format*/
 			printf("trying minimum setup...\n");
@@ -3326,9 +3327,11 @@ clean_struct (void) {
 		if (ci->spinbutton)
 			gtk_widget_destroy (ci->spinbutton);
 	}
+	printf("destroy widgets\n");
 	free (s->control_info);
 	s->control_info = NULL;
 	input_free_controls (s->control, s->num_controls);
+	printf("free controls\n");
 	s->control = NULL;
     }
     if (s) free(s);	   

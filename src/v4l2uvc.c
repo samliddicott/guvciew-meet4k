@@ -410,10 +410,10 @@ int init_v4l2(struct vdIn *vd)
       }
     }
 	
-	/* populate video capabilities structure array           */
-	/* should only be called after all vdIn struct elements  */
-	/* have been initialized                                 */
-	check_videoIn(vd);
+    /* populate video capabilities structure array           */
+    /* should only be called after all vdIn struct elements  */
+    /* have been initialized                                 */
+    check_videoIn(vd);
 
     /* set format in */
     memset(&vd->fmt, 0, sizeof(struct v4l2_format));
@@ -591,9 +591,7 @@ void close_v4l2(struct vdIn *vd)
     /*close device descriptor*/
     close(vd->fd);
     /*free struct allocation*/
-    free(vd);
-    
-    
+    free(vd); 
 }
 
 int

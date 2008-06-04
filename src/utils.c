@@ -1182,7 +1182,7 @@ return 0;
 
 int initGlobals (struct GLOBAL *global) {
 	
-    	global->debug=0;
+    	global->debug = DEBUG;
     
 	if((global->videodevice = (char *) calloc(1, 16 * sizeof(char)))==NULL){
 		printf("couldn't calloc memory for:global->videodevice\n");

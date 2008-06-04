@@ -16,23 +16,19 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: KBabel 1.11.4\n"
 
-#: src/guvcview.c:997
-#: src/guvcview.c:1076
+#: src/guvcview.c:997 src/guvcview.c:1076
 msgid "Program Restart"
 msgstr "Recomenzar aplicación"
 
-#: src/guvcview.c:1000
-#: src/guvcview.c:1079
+#: src/guvcview.c:1000 src/guvcview.c:1079
 msgid "now"
 msgstr "Ahora"
 
-#: src/guvcview.c:1002
-#: src/guvcview.c:1081
+#: src/guvcview.c:1002 src/guvcview.c:1081
 msgid "Later"
 msgstr "Más adelante"
 
-#: src/guvcview.c:1006
-#: src/guvcview.c:1085
+#: src/guvcview.c:1006 src/guvcview.c:1085
 msgid ""
 "Changes will only take effect after guvcview restart.\n"
 "\n"
@@ -46,37 +42,29 @@ msgstr ""
 
 #. if auto naming restart counter
 #. 10 - digits for auto increment
-#: src/guvcview.c:1166
-#: src/guvcview.c:1305
-#: src/guvcview.c:1339
-#: src/guvcview.c:1493
-#: src/guvcview.c:1530
+#: src/guvcview.c:1166 src/guvcview.c:1305 src/guvcview.c:1339
+#: src/guvcview.c:1493 src/guvcview.c:1530
 #, c-format
 msgid "File num:%d"
 msgstr "Archivo num:%d"
 
-#: src/guvcview.c:1253
-#: src/guvcview.c:1681
+#: src/guvcview.c:1253 src/guvcview.c:1681
 msgid "Save File"
 msgstr "Salvar Archivo"
 
 #. destroy timer
-#: src/guvcview.c:1365
-#: src/guvcview.c:1501
-#: src/guvcview.c:2639
+#: src/guvcview.c:1365 src/guvcview.c:1501 src/guvcview.c:2639
 msgid "Cap. Image"
 msgstr "Cap. Imagen"
 
 #. ************ Stop AVI ***********
-#: src/guvcview.c:1403
-#: src/guvcview.c:2645
+#: src/guvcview.c:1403 src/guvcview.c:2645
 msgid "Cap. AVI"
 msgstr "Cap. AVI"
 
 #. printf("opening avi file: %s\n",videoIn->AVIFName);
 #. avi capture enabled from start
-#: src/guvcview.c:1425
-#: src/guvcview.c:2643
+#: src/guvcview.c:1425 src/guvcview.c:2643
 msgid "Stop AVI"
 msgstr "Parar AVI"
 
@@ -259,8 +247,7 @@ msgstr "Dispositivo de entrada:"
 msgid " Sound"
 msgstr " Sonido"
 
-#: src/guvcview.c:3104
-#: src/guvcview.c:3135
+#: src/guvcview.c:3104 src/guvcview.c:3135
 msgid "Dev. Default"
 msgstr "Automático"
 
@@ -317,7 +304,8 @@ msgstr ""
 
 #: src/guvcview.c:3241
 msgid "Please report it to http://developer.berlios.de/bugs/?group_id=8179"
-msgstr "Por favor, divulgúelo a http://developer.berlios.de/bugs/?group_id=8179"
+msgstr ""
+"Por favor, divulgúelo a http://developer.berlios.de/bugs/?group_id=8179"
 
 #. needed only for language files (not used)
 #. UVC driver control strings
@@ -428,4 +416,3 @@ msgstr "Parar el proceso de vídeo"
 #: src/v4l2uvc.c:182
 msgid "Raw bits per pixel"
 msgstr "Bits por pixel (Raw)"
-
