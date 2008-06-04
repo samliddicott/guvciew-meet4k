@@ -9,14 +9,318 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fr\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-05-19 18:49+0100\n"
-"PO-Revision-Date: 2008-05-20 12:40-0000\n"
+"POT-Creation-Date: 2008-06-04 10:16+0100\n"
+"PO-Revision-Date: 2008-06-04 11:43-0000\n"
 "Last-Translator: Paulo Assis <pj.assis@gmail.com>\n"
 "Language-Team: Português <pj.assis@gmail.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: KBabel 1.11.4\n"
+
+#: src/guvcview.c:997
+#: src/guvcview.c:1076
+msgid "Program Restart"
+msgstr "Relancement de programme"
+
+#: src/guvcview.c:1000
+#: src/guvcview.c:1079
+msgid "now"
+msgstr "Maintenant"
+
+#: src/guvcview.c:1002
+#: src/guvcview.c:1081
+msgid "Later"
+msgstr "Plus tard "
+
+#: src/guvcview.c:1006
+#: src/guvcview.c:1085
+msgid ""
+"Changes will only take effect after guvcview restart.\n"
+"\n"
+"\n"
+"Restart now?\n"
+msgstr ""
+"Les changements entreront en vigueur seulement après que relancement de guvcview.\n"
+"\n"
+"\n"
+"Relancez maintenant? \n"
+
+#. if auto naming restart counter
+#. 10 - digits for auto increment
+#: src/guvcview.c:1166
+#: src/guvcview.c:1305
+#: src/guvcview.c:1339
+#: src/guvcview.c:1493
+#: src/guvcview.c:1530
+#, c-format
+msgid "File num:%d"
+msgstr "fichier num:%d"
+
+#: src/guvcview.c:1253
+#: src/guvcview.c:1681
+msgid "Save File"
+msgstr "Enregistrer"
+
+#. destroy timer
+#: src/guvcview.c:1365
+#: src/guvcview.c:1501
+#: src/guvcview.c:2639
+msgid "Cap. Image"
+msgstr "Cap. de Image"
+
+#. ************ Stop AVI ***********
+#: src/guvcview.c:1403
+#: src/guvcview.c:2645
+msgid "Cap. AVI"
+msgstr "Cap. de AVI"
+
+#. printf("opening avi file: %s\n",videoIn->AVIFName);
+#. avi capture enabled from start
+#: src/guvcview.c:1425
+#: src/guvcview.c:2643
+msgid "Stop AVI"
+msgstr "Arrêt AVI"
+
+#: src/guvcview.c:1711
+msgid "Load File"
+msgstr "Ouvrir fichier"
+
+#: src/guvcview.c:1843
+msgid "Exposure:"
+msgstr "Exposition:"
+
+#: src/guvcview.c:1850
+msgid "Left"
+msgstr "Gauche"
+
+#: src/guvcview.c:1851
+msgid "Right"
+msgstr "Droite"
+
+#: src/guvcview.c:1874
+msgid "Up"
+msgstr "haut"
+
+#: src/guvcview.c:1875
+msgid "Down"
+msgstr "bas"
+
+#: src/guvcview.c:1898
+msgid "Reset"
+msgstr "Remise "
+
+#: src/guvcview.c:2490
+msgid "GUVCViewer Controls"
+msgstr "GUVCViewer Réglages"
+
+#. can't open device
+#: src/guvcview.c:2508
+msgid ""
+"Guvcview error:\n"
+"\n"
+"Unable to open device"
+msgstr ""
+"Guvcview erreur:\n"
+"\n"
+"Incapable d'ouvrir le dispositif"
+
+#: src/guvcview.c:2509
+msgid ""
+"Please make sure the camera is connected\n"
+"and that the linux-UVC driver is installed."
+msgstr ""
+"Svp, assurez-vous que l'appareil-photo est relié\n"
+"\n"
+"et que le driver Linux-UVC est installé."
+
+#: src/guvcview.c:2535
+msgid ""
+"Guvcview error:\n"
+"\n"
+"Can't set MJPG or YUV stream for guvcview"
+msgstr ""
+"Guvcview erreur:\n"
+"\n"
+"Incapable de placer le video stream (MJPG ou YUV)"
+
+#: src/guvcview.c:2536
+msgid ""
+"Make sure you have a UVC compliant camera\n"
+"and that you have the linux UVC driver installed."
+msgstr ""
+"Vérifiez que vous avez un appareil-photo conforme UVC\n"
+"et que le driver Linux-UVC est installé."
+
+#: src/guvcview.c:2550
+msgid ""
+"Guvcview error:\n"
+"\n"
+"Unable to start with minimum setup"
+msgstr ""
+"Guvcview erreur:\n"
+"\n"
+"Incapable de commencer avec des définitions minimum"
+
+#: src/guvcview.c:2551
+msgid "Please reconnect your camera."
+msgstr "Svp, rebranchez votre appareil-photo."
+
+#: src/guvcview.c:2558
+msgid ""
+"Guvcview error:\n"
+"\n"
+"Unable to allocate Buffers"
+msgstr ""
+"Guvcview erreur:\n"
+"\n"
+"Incapable d'assigner des Buffers"
+
+#: src/guvcview.c:2559
+msgid "Please try restarting your system."
+msgstr "Svp, essai remettant en marche votre système."
+
+#: src/guvcview.c:2594
+msgid "Image Controls"
+msgstr "Réglages de image"
+
+#: src/guvcview.c:2614
+msgid "Control Profiles:"
+msgstr "Profils de Réglage:"
+
+#: src/guvcview.c:2620
+msgid "Capture:"
+msgstr "Capture:"
+
+#. image auto capture
+#: src/guvcview.c:2637
+msgid "Stop Auto"
+msgstr "Arrêt Auto."
+
+#: src/guvcview.c:2727
+msgid "Video & Files"
+msgstr "Video et Fichiers"
+
+#: src/guvcview.c:2763
+msgid "Resolution:"
+msgstr "Résolution:"
+
+#: src/guvcview.c:2805
+msgid "Frame Rate:"
+msgstr "FPS:"
+
+#: src/guvcview.c:2813
+msgid " Show"
+msgstr "Affichage"
+
+#: src/guvcview.c:2844
+msgid "Camera Output:"
+msgstr "Sortie des dispositif video:"
+
+#. Image Capture
+#: src/guvcview.c:2853
+msgid "Image File:"
+msgstr "Fichier d'image:"
+
+#. incremental capture
+#: src/guvcview.c:2879
+msgid "File,Auto"
+msgstr "Fichier,Auto"
+
+#: src/guvcview.c:2890
+msgid "Image Format:"
+msgstr "Format d'image:"
+
+#. AVI Capture
+#: src/guvcview.c:2918
+msgid "AVI File:"
+msgstr "Fichier AVI:"
+
+#: src/guvcview.c:2950
+msgid "MJPG - compressed"
+msgstr "MJPG - comprimé"
+
+#: src/guvcview.c:2951
+msgid "YUY2 - uncomp YUV"
+msgstr "YUY2 - non comp. YUV"
+
+#: src/guvcview.c:2952
+msgid "RGB - uncomp BMP"
+msgstr "RGB - non comp. BMP"
+
+#: src/guvcview.c:2964
+msgid "AVI Format:"
+msgstr "Format d'AVI:"
+
+#: src/guvcview.c:3082
+msgid "Input Device:"
+msgstr "dispositif de bruit:"
+
+#. ~ if (Sound_numInputDev == 0) Sound_enable=0;
+#. ~ printf("SOUND DISABLE: no input devices detected\n");
+#: src/guvcview.c:3094
+msgid " Sound"
+msgstr " bruit"
+
+#: src/guvcview.c:3104
+#: src/guvcview.c:3135
+msgid "Dev. Default"
+msgstr "Automatique"
+
+#: src/guvcview.c:3126
+msgid "Sample Rate:"
+msgstr "Fréquence:"
+
+#: src/guvcview.c:3136
+msgid "1 - mono"
+msgstr "1 - mono"
+
+#: src/guvcview.c:3137
+msgid "2 - stereo"
+msgstr "2 - stereo"
+
+#: src/guvcview.c:3162
+msgid "Channels:"
+msgstr "Canaux:"
+
+#. ----- Filter controls ----
+#: src/guvcview.c:3173
+msgid "---- Video Filters ----"
+msgstr "---- Filtres visuels ----"
+
+#. Mirror
+#: src/guvcview.c:3190
+msgid " Mirror"
+msgstr " Miroir"
+
+#. Upturn
+#: src/guvcview.c:3199
+msgid " Invert"
+msgstr " Inverti"
+
+#. Negate
+#: src/guvcview.c:3208
+msgid " Negative"
+msgstr " Négatif"
+
+#. Mono
+#: src/guvcview.c:3217
+msgid " Mono"
+msgstr " Gris"
+
+#: src/guvcview.c:3240
+msgid ""
+"Guvcview error:\n"
+"\n"
+"Unable to create Video Thread"
+msgstr ""
+"Guvcview erreur:\n"
+"\n"
+"Incapable de créer video thread."
+
+#: src/guvcview.c:3241
+msgid "Please report it to http://developer.berlios.de/bugs/?group_id=8179"
+msgstr "Svp, rapportez-le à http://developer.berlios.de/bugs/?group_id=8179"
 
 #. needed only for language files (not used)
 #. UVC driver control strings
@@ -112,7 +416,7 @@ msgstr "Tournez/Inclin (remise)"
 msgid "Focus (absolute)"
 msgstr "Mise em point (absolu)"
 
-#. src/v4l2uvc.c:152
+#: src/v4l2uvc.c:152
 msgid "LED1 Mode"
 msgstr "Mode LED1"
 
@@ -127,228 +431,4 @@ msgstr "Arrêt Traitement de vidéo"
 #: src/v4l2uvc.c:182
 msgid "Raw bits per pixel"
 msgstr "bits par pixel (Raw)"
-
-#: src/guvcview.c:971
-#: src/guvcview.c:1050
-msgid "Program Restart"
-msgstr "Relancement de programme"
-
-#: src/guvcview.c:974
-#: src/guvcview.c:1053
-msgid "now"
-msgstr "Maintenant"
-
-#: src/guvcview.c:976
-#: src/guvcview.c:1055
-msgid "Later"
-msgstr "Plus tard "
-
-#: src/guvcview.c:980
-#: src/guvcview.c:1059
-msgid ""
-"Changes will only take effect after guvcview restart.\n"
-"\n"
-"\n"
-"Restart now?\n"
-msgstr ""
-"Les changements entreront en vigueur seulement après que relancement de guvcview.\n"
-"\n"
-"\n"
-"Relancez maintenant? \n"
-
-#. if auto naming restart counter
-#. 10 - digits for auto increment
-#: src/guvcview.c:1140
-#: src/guvcview.c:1279
-#: src/guvcview.c:1313
-#: src/guvcview.c:1467
-#: src/guvcview.c:1504
-#, c-format
-msgid "File num:%d"
-msgstr "fichier num:%d"
-
-#: src/guvcview.c:1227
-#: src/guvcview.c:1655
-msgid "Save File"
-msgstr "Enregistrer"
-
-#. destroy timer
-#: src/guvcview.c:1339
-#: src/guvcview.c:1475
-#: src/guvcview.c:2596
-msgid "Cap. Image"
-msgstr "Cap. de Image"
-
-#. ************ Stop AVI ***********
-#: src/guvcview.c:1377
-#: src/guvcview.c:2602
-msgid "Cap. AVI"
-msgstr "Cap. de AVI"
-
-#. printf("opening avi file: %s\n",videoIn->AVIFName);
-#. avi capture enabled from start
-#: src/guvcview.c:1399
-#: src/guvcview.c:2600
-msgid "Stop AVI"
-msgstr "Arrêt AVI"
-
-#: src/guvcview.c:1685
-msgid "Load File"
-msgstr "Ouvrir fichier"
-
-#: src/guvcview.c:1817
-msgid "Exposure:"
-msgstr "Exposition:"
-
-#: src/guvcview.c:1824
-msgid "Left"
-msgstr "Gauche"
-
-#: src/guvcview.c:1825
-msgid "Right"
-msgstr "Droite"
-
-#: src/guvcview.c:1848
-msgid "Up"
-msgstr "haut"
-
-#: src/guvcview.c:1849
-msgid "Down"
-msgstr "bas"
-
-#: src/guvcview.c:1872
-msgid "Reset"
-msgstr "Remise "
-
-#: src/guvcview.c:2463
-msgid "GUVCViewer Controls"
-msgstr "GUVCViewer Réglages"
-
-#: src/guvcview.c:2551
-msgid "Image Controls"
-msgstr "Réglages de image"
-
-#: src/guvcview.c:2571
-msgid "Control Profiles:"
-msgstr "Profils de Réglage:"
-
-#: src/guvcview.c:2577
-msgid "Capture:"
-msgstr "Capture:"
-
-#. image auto capture
-#: src/guvcview.c:2594
-msgid "Stop Auto"
-msgstr "Arrêt Auto."
-
-#: src/guvcview.c:2684
-msgid "Video & Files"
-msgstr "Video et Fichiers"
-
-#: src/guvcview.c:2720
-msgid "Resolution:"
-msgstr "Résolution:"
-
-#: src/guvcview.c:2762
-msgid "Frame Rate:"
-msgstr "FPS:"
-
-#: src/guvcview.c:2770
-msgid " Show"
-msgstr "Affichage"
-
-#: src/guvcview.c:2801
-msgid "Camera Output:"
-msgstr "Sortie des dispositif video:"
-
-#. Image Capture
-#: src/guvcview.c:2810
-msgid "Image File:"
-msgstr "Fichier d'image:"
-
-#. incremental capture
-#: src/guvcview.c:2836
-msgid "File,Auto"
-msgstr "Fichier,Auto"
-
-#: src/guvcview.c:2847
-msgid "Image Format:"
-msgstr "Format d'image:"
-
-#. AVI Capture
-#: src/guvcview.c:2875
-msgid "AVI File:"
-msgstr "Fichier AVI:"
-
-#: src/guvcview.c:2907
-msgid "MJPG - compressed"
-msgstr "MJPG - comprimé"
-
-#: src/guvcview.c:2908
-msgid "YUY2 - uncomp YUV"
-msgstr "YUY2 - non comp. YUV"
-
-#: src/guvcview.c:2909
-msgid "RGB - uncomp BMP"
-msgstr "RGB - non comp. BMP"
-
-#: src/guvcview.c:2921
-msgid "AVI Format:"
-msgstr "Format d'AVI:"
-
-#: src/guvcview.c:3039
-msgid "Input Device:"
-msgstr "dispositif de bruit:"
-
-#. ~ if (Sound_numInputDev == 0) Sound_enable=0;
-#. ~ printf("SOUND DISABLE: no input devices detected\n");
-#: src/guvcview.c:3051
-msgid " Sound"
-msgstr " bruit"
-
-#: src/guvcview.c:3061
-#: src/guvcview.c:3092
-msgid "Dev. Default"
-msgstr "Automatique"
-
-#: src/guvcview.c:3083
-msgid "Sample Rate:"
-msgstr "Fréquence:"
-
-#: src/guvcview.c:3093
-msgid "1 - mono"
-msgstr "1 - mono"
-
-#: src/guvcview.c:3094
-msgid "2 - stereo"
-msgstr "2 - stereo"
-
-#: src/guvcview.c:3119
-msgid "Channels:"
-msgstr "Canaux:"
-
-#. ----- Filter controls ----
-#: src/guvcview.c:3130
-msgid "---- Video Filters ----"
-msgstr "---- Filtres visuels ----"
-
-#. Mirror
-#: src/guvcview.c:3147
-msgid " Mirror"
-msgstr " Miroir"
-
-#. Upturn
-#: src/guvcview.c:3156
-msgid " Invert"
-msgstr " Inverti"
-
-#. Negate
-#: src/guvcview.c:3165
-msgid " Negative"
-msgstr " Négatif"
-
-#. Mono
-#: src/guvcview.c:3174
-msgid " Mono"
-msgstr " Gris"
 

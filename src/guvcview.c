@@ -117,7 +117,9 @@ static const char *exp_typ[]={"MANUAL",
 	                      "APERTURE P."};
 
 /*defined at end of file*/
-static gint shutd (gint restart); /*remove build warning*/
+/*remove build warning  */ 
+static void clean_struct (void);
+static gint shutd (gint restart); 
 
 /*------------------------------ get time ------------------------------------*/
 DWORD
@@ -160,7 +162,31 @@ int check_image_type (char *filename) {
 	return (global->imgFormat);	
 }
 
-/*--------------------------- controls enable/disable ---------------------------*/
+/*---------------------------- error message dialog-----------------------------*/
+static
+void ERR_DIALOG(const char *err_title, const char* err_msg) {
+     
+    
+    GtkWidget *errdialog;
+    errdialog = gtk_message_dialog_new (GTK_WINDOW(mainwin),
+					GTK_DIALOG_DESTROY_WITH_PARENT,
+                               		GTK_MESSAGE_ERROR,
+                               		GTK_BUTTONS_CLOSE,
+                               		gettext (err_title));
+   
+    gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(errdialog),gettext (err_msg));
+    
+    gtk_widget_show(errdialog);
+    gtk_dialog_run (GTK_DIALOG (errdialog));
+    gtk_widget_destroy (errdialog);
+    clean_struct();
+    free(EXEC_CALL);
+    printf("Terminated.\n");;
+    exit(1);
+
+};
+
+/*--------------------------- controls enable/disable --------------------------*/
 
 /* sound controls*/
 void set_sensitive_snd_contrls (const int flag){
@@ -2359,6 +2385,7 @@ void *main_loop(void *data)
 int main(int argc, char *argv[])
 {  
 	int i;
+    	int ret=0;
 	printf("guvcview version %s \n", VERSION);
    
 #ifdef ENABLE_NLS
@@ -2466,56 +2493,72 @@ int main(int argc, char *argv[])
 	/* Add event handlers */
 	gtk_signal_connect(GTK_OBJECT(mainwin), "delete_event", GTK_SIGNAL_FUNC(delete_event), 0);
 	
-	
+	//gtk_widget_show (mainwin);
 	/*----------------------- init videoIn structure --------------------------*/	
 	if((videoIn = (struct vdIn *) calloc(1, sizeof(struct vdIn)))==NULL){
 		printf("couldn't allocate memory for: videoIn\n");
 		exit(1); 
 	}
-	if (init_videoIn
+	if ((ret=init_videoIn
 		(videoIn, (char *) global->videodevice, global->width,global->height, 
-	 	global->format, global->grabmethod, global->fps, global->fps_num) < 0)
+	 	global->format, global->grabmethod, global->fps, global->fps_num) )< 0)
 	{
-		printf("trying minimum setup...\n");
-		if ((global->formind==0) && (videoIn->SupMjpg>0)) { /*use jpg mode*/
-			global->formind=0;
-			global->format=V4L2_PIX_FMT_MJPEG;
-			snprintf(global->mode, 4, "jpg");
-		} else {
-			if ((global->formind==1) && (videoIn->SupYuv>0)) { /*use yuv mode*/
-				global->formind=1;
-				global->format=V4L2_PIX_FMT_YUYV;
-				snprintf(global->mode, 4, "yuv");
-			} else { /*selected mode isn't available*/
-				/*check available modes*/
-				if(videoIn->SupMjpg>0){
-					global->formind=0;
-					global->format=V4L2_PIX_FMT_MJPEG;
-					snprintf(global->mode, 4, "jpg");
-				} else { 
-					if (videoIn->SupYuv>0) {
-						global->formind=1;
-						global->format=V4L2_PIX_FMT_YUYV;
-						snprintf(global->mode, 4, "yuv");
-					} else {
-						printf("ERROR: Can't set MJPG or YUV stream.\nExiting...\n");
-						exit(1);
+	    switch (ret) {
+	    	case -1:/*can't open device*/
+		  	ERR_DIALOG (N_("Guvcview error:\n\nUnable to open device"),
+				N_("Please make sure the camera is connected\nand that the linux-UVC driver is installed."));
+			break;
+		case -2:/*invalid format*/
+			printf("trying minimum setup...\n");
+			if ((global->formind==0) && (videoIn->SupMjpg>0)) { /*use jpg mode*/
+				global->formind=0;
+				global->format=V4L2_PIX_FMT_MJPEG;
+				snprintf(global->mode, 4, "jpg");
+			} else {
+				if ((global->formind==1) && (videoIn->SupYuv>0)) { /*use yuv mode*/
+					global->formind=1;
+					global->format=V4L2_PIX_FMT_YUYV;
+					snprintf(global->mode, 4, "yuv");
+				} else { /*selected mode isn't available*/
+					/*check available modes*/
+					if(videoIn->SupMjpg>0){
+						global->formind=0;
+						global->format=V4L2_PIX_FMT_MJPEG;
+						snprintf(global->mode, 4, "jpg");
+					} else { 
+						if (videoIn->SupYuv>0) {
+							global->formind=1;
+							global->format=V4L2_PIX_FMT_YUYV;
+							snprintf(global->mode, 4, "yuv");
+						} else {
+							printf("ERROR: Can't set MJPG or YUV stream.\nExiting...\n");
+						   	ERR_DIALOG (N_("Guvcview error:\n\nCan't set MJPG or YUV stream for guvcview"),
+								N_("Make sure you have a UVC compliant camera\nand that you have the linux UVC driver installed."));
+						}
 					}
 				}
 			}
+			global->width=videoIn->listVidCap[global->formind][0].width;
+			global->height=videoIn->listVidCap[global->formind][0].height;
+			global->fps_num=videoIn->listVidCap[global->formind][0].framerate_num[0];
+			global->fps=videoIn->listVidCap[global->formind][0].framerate_denom[0];
+			if (init_videoIn
+				(videoIn, (char *) global->videodevice, global->width,global->height, 
+	 			global->format, global->grabmethod, global->fps, global->fps_num) < 0)
+			{
+				printf("ERROR: Minimum Setup Failed.\n Exiting...\n");
+			   	ERR_DIALOG (N_("Guvcview error:\n\nUnable to start with minimum setup"),
+					N_("Please reconnect your camera."));
+			}
+		    	break;
+		case -3:/*unable to allocate dequeue buffers or mem*/
+		case -4:
+		case -6:
+		default:
+		     	ERR_DIALOG (N_("Guvcview error:\n\nUnable to allocate Buffers"),
+				N_("Please try restarting your system."));
+			break;
 		}
-		global->width=videoIn->listVidCap[global->formind][0].width;
-		global->height=videoIn->listVidCap[global->formind][0].height;
-		global->fps_num=videoIn->listVidCap[global->formind][0].framerate_num[0];
-		global->fps=videoIn->listVidCap[global->formind][0].framerate_denom[0];
-		if (init_videoIn
-			(videoIn, (char *) global->videodevice, global->width,global->height, 
-	 		global->format, global->grabmethod, global->fps, global->fps_num) < 0)
-		{
-			printf("ERROR: Minimum Setup Failed.\n Exiting...\n");
-			exit(1);
-		}
-		
 	}
 			
 
@@ -3194,7 +3237,8 @@ int main(int argc, char *argv[])
 	int rc = pthread_create(&mythread, &attr, main_loop, NULL); 
 	if (rc) {
 			printf("ERROR; return code from pthread_create() is %d\n", rc);
-			exit(2);
+	   		ERR_DIALOG (N_("Guvcview error:\n\nUnable to create Video Thread"),
+				N_("Please report it to http://developer.berlios.de/bugs/?group_id=8179"));	       
 		}
 	
 	/*---------------------- image timed capture -----------------------------*/
@@ -3253,25 +3297,59 @@ int main(int argc, char *argv[])
 		/*sets the Fps counter timer function every 2 sec*/
 		global->timer_id = g_timeout_add(2*1000,FpsCount_callback,NULL);
 	}
-	
-	
 	/* The last thing to get called */
 	gtk_main();
 
 	return 0;
 }
 
+
 /*-------------------------- clean up and shut down --------------------------*/
+
+static
+void
+clean_struct (void) {
+
+    int i=0;
+   
+    if(videoIn) close_v4l2(videoIn);	
+
+    if (global->debug) printf("closed v4l2 strutures\n");
+    
+    if (s->control) {
+	for (i = 0; i < s->num_controls; i++) {
+		ControlInfo * ci = s->control_info + i;
+		if (ci->widget)
+			gtk_widget_destroy (ci->widget);
+		if (ci->label)
+			gtk_widget_destroy (ci->label);
+		if (ci->spinbutton)
+			gtk_widget_destroy (ci->spinbutton);
+	}
+	free (s->control_info);
+	s->control_info = NULL;
+	input_free_controls (s->control, s->num_controls);
+	s->control = NULL;
+    }
+    if (s) free(s);	   
+    if (global->debug) printf("free controls - vidState\n");
+   
+    if(global) closeGlobals(global);
+    if (jpeg_struct != NULL) free(jpeg_struct);
+    printf("cleaned allocations - 100%%\n");
+   
+}
+
+
 gint 
 shutd (gint restart) 
 {
 	int exec_status=0;
-	//int i;
-	int tstatus;
-	//tstatus=NULL;
 	
-	if (global->debug) printf("Shuting Down Thread\n");
-	videoIn->signalquit=0;
+	int tstatus;
+	
+    	if (global->debug) printf("Shuting Down Thread\n");
+	if(videoIn->signalquit > 0) videoIn->signalquit=0;
 	if (global->debug) printf("waiting for thread to finish\n");
 	/*shuting down while in avi capture mode*/
 	/*must close avi			*/
@@ -3292,26 +3370,17 @@ shutd (gint restart)
 	  }
 	if (global->debug) printf("Completed join with thread status= %d\n", tstatus);
 	
-	
 	gtk_window_get_size(GTK_WINDOW(mainwin),&(global->winwidth),&(global->winheight));//mainwin or widget
 	global->boxvsize=gtk_paned_get_position (GTK_PANED(boxv));
+    	
+   	if (global->debug) printf("GTK quit\n");
+    	gtk_main_quit();
 	
-	
-	close_v4l2(videoIn);
-	close(videoIn->fd);
-	if (global->debug) printf("closed strutures\n");
-	free(videoIn);
-	if (global->debug) printf("cleaning allocations - 50%%\n");
-	gtk_main_quit();
-	if (global->debug) printf("GTK quit\n");
-	writeConf(global->confPath);
-	input_free_controls (s->control, s->num_controls);
-	if (global->debug) printf("free controls - vidState\n");
-	free(s);
-	closeGlobals(global);
-	if (jpeg_struct != NULL) free(jpeg_struct);
-	printf("cleaned allocations - 100%%\n");
-    
+   	/*save configuration*/
+   	writeConf(global->confPath);
+   
+    	clean_struct();   
+   
 	if (restart==1) { /* replace running process with new one */
 		 printf("Restarting guvcview with command: %s\n",EXEC_CALL);
 		 exec_status = execlp(EXEC_CALL,EXEC_CALL,NULL);/*No parameters passed*/

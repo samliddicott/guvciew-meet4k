@@ -1,3 +1,11 @@
+guvcview (0.9.1) stable; urgency=low
+
+   * Added error message dialogs.
+   * Changed cleanup.
+   * Added translations for error messages.
+   
+ -- Paulo Assis <pj.assis@gmail.com>  Wed, 04 Jun 2008 12:04:00 +0000
+
 guvcview (0.9.0) stable; urgency=low
 
    * GUI change: Add Tab Container.

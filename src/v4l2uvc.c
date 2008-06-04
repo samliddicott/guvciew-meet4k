@@ -234,20 +234,23 @@ int
 init_videoIn(struct vdIn *vd, char *device, int width, int height,
 	     int format, int grabmethod, int fps, int fps_num)
 {
+    int ret=0;
     if (vd == NULL || device == NULL)
-	return -1;
+	return -4;
     if (width == 0 || height == 0)
-	return -1;
+	return -4;
     if (grabmethod < 0 || grabmethod > 1)
 	grabmethod = 1;		//mmap by default;
     vd->videodevice = NULL;
     vd->status = NULL;
     if((vd->videodevice = (char *) calloc(1, 16 * sizeof(char)))==NULL){
 		printf("couldn't calloc memory for:vd->videodevice\n");
+		ret=-6;
 		goto error1;
 	}
     if((vd->status = (char *) calloc(1, 100 * sizeof(char)))==NULL){
 		printf("couldn't calloc memory for:vd->status\n");
+		ret=-6;
 		goto error1;
 	}
     snprintf(vd->videodevice, 15, "%s", device);
@@ -256,6 +259,7 @@ init_videoIn(struct vdIn *vd, char *device, int width, int height,
 	
     if((vd->AVIFName = (char *) calloc(1, 120 * sizeof(char)))==NULL){
 		printf("couldn't calloc memory for:vd->AVIFName\n");
+		ret=-6;
 		goto error1;
 	}
     snprintf(vd->AVIFName, 14, DEFAULT_AVI_FNAME);
@@ -286,7 +290,7 @@ init_videoIn(struct vdIn *vd, char *device, int width, int height,
     vd->available_exp[2]=-1;
     vd->available_exp[3]=-1;
 	
-    if (init_v4l2(vd) < 0) {
+    if ((ret=init_v4l2(vd)) < 0) {
 	printf(" Init v4L2 failed !! exit fatal \n");
 	goto error2;
     }
@@ -298,6 +302,7 @@ init_videoIn(struct vdIn *vd, char *device, int width, int height,
 	    	(unsigned char *) calloc(1, (size_t) vd->framesizeIn);
 		if (!vd->tmpbuffer) {
 	   		printf("couldn't calloc memory for:vd->tmpbuffer\n");
+		    	ret=-6;
 			goto error3;
 		}
 		vd->framebuffer = (unsigned char *) calloc(1,
@@ -309,27 +314,29 @@ init_videoIn(struct vdIn *vd, char *device, int width, int height,
 		break;
     	default:
 		printf(" should never arrive exit fatal !!\n");
+	    	ret=-7;
 		goto error4;
 		break;
     }
     if (!vd->framebuffer) {
-		printf("couldn't calloc memory for:vd->framebuffer\n");	
+		printf("couldn't calloc memory for:vd->framebuffer\n");
+		ret=-6;
 		goto error5;
 	}
 	
     return 0;
 	/*error: clean up allocs*/
   error5:
-	free(vd->framebuffer);
+	if(vd->framebuffer) free(vd->framebuffer);
   error4:
-    free(vd->tmpbuffer);
+    	if(vd->tmpbuffer) free(vd->tmpbuffer);
   error3:
 	close(vd->fd);
   error2:
-    free(vd->status);
+    	if(vd->status) free(vd->status);
   error1:
-    free(vd->videodevice);
-    return -1;
+    	if(vd->videodevice) free(vd->videodevice);
+    return ret;
 }
 
 
@@ -398,7 +405,8 @@ int init_v4l2(struct vdIn *vd)
 	if (vd->fd <=0 ){
 	  if ((vd->fd = open(vd->videodevice, O_RDWR )) == -1) {
 	    perror("ERROR opening V4L interface \n");
-	    exit(1);
+	    ret = -1;
+	    goto fatal;
       }
     }
 	
@@ -417,6 +425,7 @@ int init_v4l2(struct vdIn *vd)
     ret = ioctl(vd->fd, VIDIOC_S_FMT, &vd->fmt);
     if (ret < 0) {
 		printf("Unable to set format: %d.\n", errno);
+		ret = -2;
 		goto fatal;
     }
     if ((vd->fmt.fmt.pix.width != vd->width) ||
@@ -443,6 +452,7 @@ int init_v4l2(struct vdIn *vd)
     ret = ioctl(vd->fd, VIDIOC_REQBUFS, &vd->rb);
     if (ret < 0) {
 		printf("Unable to allocate buffers: %d.\n", errno);
+		ret = -3;
 		goto fatal;
     }
     /* map the buffers */
@@ -453,7 +463,7 @@ int init_v4l2(struct vdIn *vd)
 	
     return 0;
   fatal:
-    return -1;
+    return ret;
 
 }
 
@@ -559,31 +569,30 @@ void close_v4l2(struct vdIn *vd)
 {
     int i;
 	
-	if (vd->isstreaming)
-		video_disable(vd);
-    if (vd->tmpbuffer)
-		free(vd->tmpbuffer);
-    if (vd->framebuffer)
-		free(vd->framebuffer);
-    if (vd->videodevice)
-		free(vd->videodevice);
-	if (vd->status)
-    	free(vd->status);
-	if (vd->ImageFName)
-    	free(vd->ImageFName);
-	if (vd->AVIFName)
-		free(vd->AVIFName);
-	
-	for (i = 0; i < NB_BUFFER; i++) {
+    if (vd->isstreaming) video_disable(vd);
+    if (vd->tmpbuffer) free(vd->tmpbuffer);
+    if (vd->framebuffer) free(vd->framebuffer);
+    if (vd->videodevice) free(vd->videodevice);
+    if (vd->status) free(vd->status);
+    if (vd->ImageFName) free(vd->ImageFName);
+    if (vd->AVIFName) free(vd->AVIFName);
+    /*unmap queue buffers*/	
+    for (i = 0; i < NB_BUFFER; i++) {
+	if(vd->mem[i])
 		if(munmap(vd->mem[i],vd->buf.length)<0) printf("couldn't unmap buff\n");
-	}
+    }
 	
     vd->videodevice = NULL;
-	vd->tmpbuffer = NULL;
-	vd->framebuffer = NULL;
+    vd->tmpbuffer = NULL;
+    vd->framebuffer = NULL;
     vd->status = NULL;
-	vd->ImageFName = NULL;
-	vd->AVIFName = NULL;
+    vd->ImageFName = NULL;
+    vd->AVIFName = NULL;
+    /*close device descriptor*/
+    close(vd->fd);
+    /*free struct allocation*/
+    free(vd);
+    
     
 }
 
@@ -742,7 +751,6 @@ input_free_controls (InputControl * control, int num_controls)
         }
     }
     free (control);
-	printf("cleaned controls\n");
 }
 /******************************* enumerations *********************************/
 int enum_frame_intervals(struct vdIn *vd, __u32 pixfmt, __u32 width, __u32 height, 
