@@ -111,10 +111,10 @@ avi_t *AviOut;
 
 
 /*exposure menu for old type controls */
-static const char *exp_typ[]={"MANUAL",
-	                      "AUTO",
-	                      "SHUTTER P.",
-	                      "APERTURE P."};
+static const char *exp_typ[]={"Manual Mode",
+	                      "Auto Mode",
+	                      "Shutter Priority Mode",
+	                      "Aperture Priority Mode"};
 
 /*defined at end of file*/
 /*remove build warning  */ 
@@ -884,6 +884,9 @@ check_changed (GtkToggleButton * toggle, VidState * s)
 		printf ("%s change to %d failed\n",c->name, val);
 		if (input_get_control (videoIn, c, &val) == 0) {
 			printf ("hardware value is %d\n", val);
+		   	if ((c->id ==V4L2_CID_DISABLE_PROCESSING_LOGITECH) && (val>0)) {
+				global->isbayer=1;
+			}
 		}
 		else {
 			printf ("hardware get failed\n");
@@ -1805,7 +1808,7 @@ draw_controls (VidState *s)
 			ci->widget = gtk_combo_box_new_text ();
 			for (j = 0; j <val; j++) {
 				gtk_combo_box_append_text (GTK_COMBO_BOX (ci->widget), 
-								exp_typ[videoIn->available_exp[j]]);
+								gettext(exp_typ[videoIn->available_exp[j]]));
 				if (def==exp_vals[videoIn->available_exp[j]]){
 					gtk_combo_box_set_active (GTK_COMBO_BOX (ci->widget), j);
 				}
@@ -1977,6 +1980,10 @@ draw_controls (VidState *s)
 			if (input_get_control (videoIn, c, &val) == 0) {
 				gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (ci->widget),
 						val ? TRUE : FALSE);
+			
+			   	if ((c->id ==V4L2_CID_DISABLE_PROCESSING_LOGITECH) && (val>0)) {
+			   		global->isbayer=1;
+			   	}
 			}
 			else {
 				/*couldn't get control value -> set to default*/
@@ -1998,7 +2005,7 @@ draw_controls (VidState *s)
 
 			ci->widget = gtk_combo_box_new_text ();
 			for (j = 0; j <= c->max; j++) {
-				gtk_combo_box_append_text (GTK_COMBO_BOX (ci->widget), c->entries[j]);
+				gtk_combo_box_append_text (GTK_COMBO_BOX (ci->widget), gettext(c->entries[j]));
 			}
 
 			gtk_table_attach (GTK_TABLE (s->table), ci->widget, 1, 2, 3+i, 4+i,
@@ -2152,7 +2159,7 @@ void *main_loop(void *data)
 	 
 	while (videoIn->signalquit) {
 	 /*-------------------------- Grab Frame ----------------------------------*/
-	 if (uvcGrab(videoIn) < 0) {
+	 if (uvcGrab(videoIn, global->isbayer) < 0) {
 		printf("Error grabbing image \n");
 		videoIn->signalquit=0;
 		snprintf(global->WVcaption,20,"GUVCVideo - CRASHED");

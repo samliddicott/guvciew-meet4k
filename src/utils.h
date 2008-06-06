@@ -212,7 +212,8 @@ struct GLOBAL {
 	int format;
 	int formind; /*0-MJPG 1-YUYV*/
 	int Frame_Flags;
-	BYTE *jpeg;
+	int isbayer;
+   	BYTE *jpeg;
 	//int jpeg_format;
 	int   jpeg_size;
 	//int   jpeg_quality;
@@ -276,6 +277,13 @@ yuyv2rgb (BYTE *pyuv, BYTE *prgb, int width, int height);
 /* used for bitmap files (DIB24)           */
 void 
 yuyv2bgr (BYTE *pyuv, BYTE *pbgr, int width, int height);
+
+
+void 
+bayer_to_rgb24(BYTE *pBay, BYTE *pRGB24, int width, int height);
+
+void
+rgb2yuyv(BYTE *prgb, BYTE *pyuv, int width, int height);
 
 /* Flip YUYV frame - horizontal*/
 void 

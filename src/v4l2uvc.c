@@ -53,6 +53,10 @@
 #define WBCB		N_("White Balance Blue Component")
 #define	WBCR		N_("White Balance Red Component")
 #define	FOCUSAUTO	N_("Focus, Auto")
+#define EXPMENU1	N_("Manual Mode")
+#define EXPMENU2	N_("Auto Mode")
+#define EXPMENU3	N_("Shutter Priority Mode")
+#define EXPMENU4	N_("Aperture Priority Mode")
 
 
 /* some Logitech webcams have pan/tilt/focus controls */
@@ -311,6 +315,8 @@ init_videoIn(struct vdIn *vd, char *device, int width, int height,
     	case V4L2_PIX_FMT_YUYV:/*YUYV doesn't need a temp buffer*/
 		vd->framebuffer =
 	    	(unsigned char *) calloc(1, (size_t) vd->framesizeIn);
+	        vd->tmpbuffer =
+	    	(unsigned char *) calloc(1, (size_t) vd->width * vd->height * 3);
 		break;
     	default:
 		printf(" should never arrive exit fatal !!\n");
@@ -499,7 +505,7 @@ static int video_disable(struct vdIn *vd)
 }
 
 
-int uvcGrab(struct vdIn *vd)
+int uvcGrab(struct vdIn *vd, int isbayer)
 {
 #define HEADERFRAME1 0xaf
     int ret;
@@ -533,12 +539,18 @@ int uvcGrab(struct vdIn *vd)
 			}
 			break;
     	case V4L2_PIX_FMT_YUYV:
-			if (vd->buf.bytesused > vd->framesizeIn)
-	    		memcpy(vd->framebuffer, vd->mem[vd->buf.index],
-					   (size_t) vd->framesizeIn);
-			else
-	    		memcpy(vd->framebuffer, vd->mem[vd->buf.index],
-		   		       (size_t) vd->buf.bytesused);
+			if(isbayer>0) {
+				bayer_to_rgb24 (vd->mem[vd->buf.index],vd->tmpbuffer,vd->width,vd->height);
+			   	rgb2yuyv (vd->tmpbuffer,vd->framebuffer,vd->width,vd->height);
+			} else {
+	     			if (vd->buf.bytesused > vd->framesizeIn)
+	    				memcpy(vd->framebuffer, vd->mem[vd->buf.index],
+					   	(size_t) vd->framesizeIn);
+				else
+	    				memcpy(vd->framebuffer, vd->mem[vd->buf.index],
+		   		       		(size_t) vd->buf.bytesused);
+			}
+	     
 			break;
     	default:
 			goto err;

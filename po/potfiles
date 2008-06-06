@@ -1,4 +1,3 @@
-# List of source files containing translatable strings.  	 	 
-  		 
-src/guvcview.c
-src/v4l2uvc.c
+	../  		  \
+	../src/guvcview.c \
+	../src/v4l2uvc.c

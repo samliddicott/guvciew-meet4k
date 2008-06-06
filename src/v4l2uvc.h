@@ -305,7 +305,7 @@ int
 init_videoIn(struct vdIn *vd, char *device, int width, int height,
 	     int format, int grabmethod, int fps, int fps_num);
 
-int uvcGrab(struct vdIn *vd);
+int uvcGrab(struct vdIn *vd, int isbayer);
 void close_v4l2(struct vdIn *vd);
 
 
