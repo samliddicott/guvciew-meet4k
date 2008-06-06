@@ -23,8 +23,6 @@ clean-all: clean
 		rm -f guvcview.desktop_;\
 		touch guvcview.desktop_;\
 		echo "[Desktop Entry]" >> guvcview.desktop_;\
-		echo "Version=1.0" >> guvcview.desktop_;\
-		echo "Encoding=UTF-8" >> guvcview.desktop_;\
 		echo "Name=guvcview" >> guvcview.desktop_;\
 		echo "GenericName=GTK UVC video viewer" >> guvcview.desktop_;\
 		echo "Comment=A video viewer and capturer for the linux uvc driver" >> guvcview.desktop_;\
@@ -33,7 +31,7 @@ clean-all: clean
 		echo "Icon=$(datadir)/pixmaps/guvcview/guvcview.xpm" >> guvcview.desktop_;\
 		echo "Terminal=false" >> guvcview.desktop_;\
 		echo "Type=Application" >> guvcview.desktop_;\
-		echo "Categories=Application;AudioVideo;" >> guvcview.desktop_;\
+		echo "Categories=AudioVideo;" >> guvcview.desktop_;\
 		cp guvcview.desktop_ guvcview.desktop;\
 	fi
 		 

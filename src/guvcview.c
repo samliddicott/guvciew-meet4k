@@ -1980,9 +1980,9 @@ draw_controls (VidState *s)
 			if (input_get_control (videoIn, c, &val) == 0) {
 				gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (ci->widget),
 						val ? TRUE : FALSE);
-			
 			   	if ((c->id ==V4L2_CID_DISABLE_PROCESSING_LOGITECH) && (val>0)) {
 			   		global->isbayer=1;
+				        printf("is bayer");
 			   	}
 			}
 			else {

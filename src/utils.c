@@ -1602,6 +1602,39 @@ static void bayer_bilinear_bg(BYTE *pBay, BYTE *pRGB24, int x, int y, int width)
 	B(x + 1, y + 1) = ((DWORD)Bay(x -1, y - 1) + (DWORD)Bay(x + 1, y + 1)) >> 1;
 }
 
+static void bayer_copy_gb(BYTE *pBay, BYTE *pRGB24, int x, int y, int width)
+{
+
+	B(x + 1, y + 1) = B(x + 0, y + 0) = B(x + 0, y + 1) = B(x + 1, y + 0) = Bay(x + 1, y + 0);
+	G(x + 0, y + 0) = Bay(x + 0, y + 0);
+	G(x + 1, y + 1) = Bay(x + 1, y + 1);
+	G(x + 0, y + 1) = G(x + 1, y + 0) = ((DWORD)Bay(x + 0, y + 0) + (DWORD)Bay(x + 1, y + 1)) >> 1;
+	R(x + 0, y + 0) = R(x + 1, y + 0) = R(x + 1, y + 1) = R(x + 0, y + 1) = Bay(x + 0, y + 1);
+}
+
+static void bayer_bilinear_gb(BYTE *pBay, BYTE *pRGB24, int x, int y, int width)
+{
+	B(x + 0, y + 0) = ((DWORD)Bay(x - 1, y + 0) + (DWORD)Bay(x + 1, y + 0)) >> 1;
+	G(x + 0, y + 0) = Bay(x + 0, y + 0);
+	R(x + 0, y + 0) = ((DWORD)Bay(x + 0, y + 1) + (DWORD)Bay(x + 0, y - 1)) >> 1;
+		
+	B(x + 0, y + 1) = ((DWORD)Bay(x + 1, y + 0) + (DWORD)Bay(x - 1, y + 0)
+			 + (DWORD)Bay(x + 1, y + 2) + (DWORD)Bay(x - 1, y + 2)) >> 2;
+	G(x + 0, y + 1) = ((DWORD)Bay(x + 0, y + 0) + (DWORD)Bay(x + 0, y + 2)
+			 + (DWORD)Bay(x - 1, y + 1) + (DWORD)Bay(x + 1, y + 1)) >> 2;
+	R(x + 0, y + 1) = Bay(x + 0, y + 1);
+			 
+	B(x + 1, y + 0) = Bay(x + 1, y + 0);
+	G(x + 1, y + 0) = ((DWORD)Bay(x + 0, y + 0) + (DWORD)Bay(x + 2, y + 0)
+			 + (DWORD)Bay(x + 1, y - 1) + (DWORD)Bay(x + 1, y + 1)) >> 2;
+	R(x + 1, y + 0) = ((DWORD)Bay(x + 0, y + 1) + (DWORD)Bay(x + 2, y + 1)
+			 + (DWORD)Bay(x + 0, y - 1) + (DWORD)Bay(x + 2, y - 1)) >> 2;
+
+	B(x + 1, y + 1) = ((DWORD)Bay(x + 1, y + 0) + (DWORD)Bay(x + 1, y + 2)) >> 1;
+	G(x + 1, y + 1) = Bay(x + 1, y + 1);
+	R(x + 1, y + 1) = ((DWORD)Bay(x + 0, y + 1) + (DWORD)Bay(x + 2, y + 1)) >> 1;
+}
+
 void 
 bayer_to_rgb24(BYTE *pBay, BYTE *pRGB24, int width, int height)
 {
@@ -1610,9 +1643,9 @@ bayer_to_rgb24(BYTE *pBay, BYTE *pRGB24, int width, int height)
 	for (i = 0; i < width; i += 2) {
 		for (j = 0; j < height; j += 2) {
 			if (i == 0 || j == 0 || i == width - 2 || j == height - 2)
-				bayer_copy_bg(pBay, pRGB24, i, j, width);
+				bayer_copy_gb(pBay, pRGB24, i, j, width);
 			else
-				bayer_bilinear_bg(pBay, pRGB24, i, j, width);
+				bayer_bilinear_gb(pBay, pRGB24, i, j, width);
 		}
 	}
 }
@@ -1623,16 +1656,26 @@ rgb2yuyv(BYTE *prgb, BYTE *pyuv, int width, int height) {
 
    int i=0;
    for(i=0;i<(width*height*3);i=i+6) {
-   	/*y*/
-   	*pyuv++= CLIP((9798 * prgb[i] + 19235 * prgb[i+1] + 3736 * prgb[i+2])>>15);
-        /*u*/
-        *pyuv++= (CLIP(((21208 * prgb[i] + 16941 * prgb[i+1] + 3277 * prgb[i+2])>>15) +128) +
-      		CLIP(((21208 * prgb[i+3] + 16941 * prgb[i+4] + 3277 * prgb[i+5])>>15) +128)) >>1;
-      	/*y1*/
-      	*pyuv++= CLIP((9798 * prgb[i+3] + 19235 * prgb[i+4] + 3736 * prgb[i+5])>>15);
-	/*v*/
-        *pyuv++= (CLIP(((-4784 * prgb[i] -9437 * prgb[i+1] + 4221 * prgb[i+2])>>15) +128) +
-      		CLIP(((-4784 * prgb[i+3] -9437 * prgb[i+4] + 4221 * prgb[i+5])>>15) +128))>>1;
+   	//~ /*y*/
+   	//~ *pyuv++= CLIP((9798 * prgb[i] + 19235 * prgb[i+1] + 3736 * prgb[i+2])>>15);
+        //~ /*u*/
+        //~ *pyuv++= (CLIP(((-4784 * prgb[i] -9437 * prgb[i+1] + 4221 * prgb[i+2])>>15) +128) +
+      		//~ CLIP(((-4784 * prgb[i+3] -9437 * prgb[i+4] + 4221 * prgb[i+5])>>15) +128))>>1;
+      	//~ /*y1*/
+      	//~ *pyuv++= CLIP((9798 * prgb[i+3] + 19235 * prgb[i+4] + 3736 * prgb[i+5])>>15);
+	//~ /*v*/
+        //~ *pyuv++= (CLIP(((21208 * prgb[i] + 16941 * prgb[i+1] + 3277 * prgb[i+2])>>15) +128) +
+      		//~ CLIP(((21208 * prgb[i+3] + 16941 * prgb[i+4] + 3277 * prgb[i+5])>>15) +128)) >>1;
+       	/* y */ 
+       	*pyuv++ =CLIP(0.299 * (prgb[i] - 128) + 0.587 * (prgb[i+1] - 128) + 0.114 * (prgb[i+2] - 128) + 128);
+ 	/* u */
+        *pyuv++ =CLIP(((- 0.147 * (prgb[i] - 128) - 0.289 * (prgb[i+1] - 128) + 0.436 * (prgb[i+2] - 128) + 128) +
+		      (- 0.147 * (prgb[i+3] - 128) - 0.289 * (prgb[i+4] - 128) + 0.436 * (prgb[i+5] - 128) + 128))/2);
+        /* y1 */ 
+       	*pyuv++ =CLIP(0.299 * (prgb[i+3] - 128) + 0.587 * (prgb[i+4] - 128) + 0.114 * (prgb[i+5] - 128) + 128); 
+        /* v*/
+	*pyuv++ =CLIP(((0.615 * (prgb[i] - 128) - 0.515 * (prgb[i+1] - 128) - 0.100 * (prgb[i+2] - 128) + 128) +
+		       (0.615 * (prgb[3] - 128) - 0.515 * (prgb[i+4] - 128) - 0.100 * (prgb[i+5] - 128) + 128))/2);
    }
 }
 
