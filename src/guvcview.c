@@ -1005,7 +1005,7 @@ TiltDown_clicked (GtkButton * TiltDown, VidState * s)
 }
 /* Pan Reset (for motor cameras ex: Logitech Orbit/Sphere)*/
 static void
-PTReset_clicked (GtkButton * PReset, VidState * s)
+PReset_clicked (GtkButton * PReset, VidState * s)
 {	
 	if(uvcPanTilt(videoIn, 0, 0, 1)<0) {
 		printf("Pan Reset Error");
@@ -1326,7 +1326,7 @@ file_chooser (GtkButton * FileButt, const int isAVI)
 								global->aviFPath[1]);
 	gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (FileDialog),
 								global->aviFPath[0]);
-	  
+      
 	if (gtk_dialog_run (GTK_DIALOG (FileDialog)) == GTK_RESPONSE_ACCEPT)
 	{
 		fullname = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (FileDialog));

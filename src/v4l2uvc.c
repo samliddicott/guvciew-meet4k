@@ -61,7 +61,7 @@
 
 /* some Logitech webcams have pan/tilt/focus controls */
 #define LENGTH_OF_XU_CTR (6)
-#define LENGTH_OF_XU_MAP (8)
+#define LENGTH_OF_XU_MAP (10)
 
 static struct uvc_xu_control_info xu_ctrls[] = {
 	{
@@ -973,6 +973,7 @@ int uvcPanTilt(struct vdIn *vd, int pan, int tilt, int reset) {
 			xctrls[0].id = V4L2_CID_PAN_RESET_NEW;
 			break;
 		     case 2:
+		    	printf("reset is 2\n");
 			xctrls[0].id = V4L2_CID_TILT_RESET_NEW;
 			break;
 		     case 3:
@@ -994,7 +995,8 @@ int uvcPanTilt(struct vdIn *vd, int pan, int tilt, int reset) {
 	}
 	
 	if ( ioctl(vd->fd, VIDIOC_S_EXT_CTRLS, &ctrls) < 0 ) {
-		return -1;
+		printf("pan/tilt error\n");
+	    	return -1;
 	}
 	
 	return 0;
