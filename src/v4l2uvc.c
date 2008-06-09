@@ -971,17 +971,19 @@ int uvcPanTilt(struct vdIn *vd, int pan, int tilt, int reset) {
 		switch(reset) {
 		     case 1:
 			xctrls[0].id = V4L2_CID_PAN_RESET_NEW;
+			xctrls[0].value = 1;
 			break;
 		     case 2:
 		    	printf("reset is 2\n");
 			xctrls[0].id = V4L2_CID_TILT_RESET_NEW;
+			xctrls[0].value = 1;
 			break;
 		     case 3:
+		    	xctrls[0].value = 3;
 			xctrls[0].id = V4L2_CID_PANTILT_RESET_LOGITECH;
 			break;
 		     
 		}
-		xctrls[0].value = reset;
 		ctrls.count = 1;
 		ctrls.controls = xctrls;
 	} else {
