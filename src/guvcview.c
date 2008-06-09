@@ -1003,11 +1003,27 @@ TiltDown_clicked (GtkButton * TiltDown, VidState * s)
 		printf("Tilt Down Error");
 	}
 }
+/* Pan Reset (for motor cameras ex: Logitech Orbit/Sphere)*/
+static void
+PTReset_clicked (GtkButton * PReset, VidState * s)
+{	
+	if(uvcPanTilt(videoIn, 0, 0, 1)<0) {
+		printf("Pan Reset Error");
+	}
+}
+/* Tilt Reset (for motor cameras ex: Logitech Orbit/Sphere)*/
+static void
+TReset_clicked (GtkButton * PTReset, VidState * s)
+{	
+	if(uvcPanTilt(videoIn, 0, 0, 2)<0) {
+		printf("Pan Reset Error");
+	}
+}
 /* Pan Tilt Reset (for motor cameras ex: Logitech Orbit/Sphere)*/
 static void
 PTReset_clicked (GtkButton * PTReset, VidState * s)
 {	
-	if(uvcPanTilt(videoIn, 0, 0, 1)<0) {
+	if(uvcPanTilt(videoIn, 0, 0, 3)<0) {
 		printf("Pan Tilt Reset Error");
 	}
 }
@@ -1884,8 +1900,7 @@ draw_controls (VidState *s)
 
 			ci->label = gtk_label_new (_("Exposure:"));	
 			
-		} else if ((c->id == V4L2_CID_PAN_RELATIVE_LOGITECH) ||
-				   (c->id == V4L2_CID_PAN_RELATIVE_NEW) ||
+		} else if ((c->id == V4L2_CID_PAN_RELATIVE_NEW) ||
 				   (c->id == V4L2_CID_PAN_RELATIVE)) {
 			videoIn->PanTilt=1;
 			ci->widget = gtk_hbox_new (FALSE, 0);
@@ -1908,8 +1923,7 @@ draw_controls (VidState *s)
 
 			ci->label = gtk_label_new (g_strdup_printf ("%s:", gettext(c->name)));
 			
-		} else if ((c->id == V4L2_CID_TILT_RELATIVE_LOGITECH) ||
-				   (c->id == V4L2_CID_TILT_RELATIVE_NEW) ||
+		} else if ((c->id == V4L2_CID_TILT_RELATIVE_NEW) ||
 				   (c->id == V4L2_CID_TILT_RELATIVE)) {
 			videoIn->PanTilt=1;
 			ci->widget = gtk_hbox_new (FALSE, 0);
@@ -1932,10 +1946,32 @@ draw_controls (VidState *s)
 
 			ci->label = gtk_label_new (g_strdup_printf ("%s:", gettext(c->name)));
 			
-		} else if ((c->id == V4L2_CID_PANTILT_RESET_LOGITECH) ||
-				   (c->id == V4L2_CID_PANTILT_RESET) ||
-				   (c->id == V4L2_CID_PAN_RESET_NEW) ||
-				   (c->id == V4L2_CID_TILT_RESET_NEW)) {
+		} else if (c->id == V4L2_CID_PAN_RESET_NEW) {
+			ci->widget = gtk_button_new_with_label(_("Reset"));
+			g_signal_connect (GTK_BUTTON (ci->widget), "clicked",
+					G_CALLBACK (PReset_clicked), s);
+			gtk_table_attach (GTK_TABLE (s->table), ci->widget, 1, 2, 3+i, 4+i,
+					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+			g_object_set_data (G_OBJECT (ci->widget), "control_info", ci);
+			ci->maxchars = MAX (num_chars (c->min), num_chars (c->max));
+			gtk_widget_show (ci->widget);
+
+			ci->label = gtk_label_new (g_strdup_printf ("%s:", gettext(c->name)));
+		
+		} else if (c->id == V4L2_CID_TILT_RESET_NEW) {
+			ci->widget = gtk_button_new_with_label(_("Reset"));
+			g_signal_connect (GTK_BUTTON (ci->widget), "clicked",
+					G_CALLBACK (TReset_clicked), s);
+			gtk_table_attach (GTK_TABLE (s->table), ci->widget, 1, 2, 3+i, 4+i,
+					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+			g_object_set_data (G_OBJECT (ci->widget), "control_info", ci);
+			ci->maxchars = MAX (num_chars (c->min), num_chars (c->max));
+			gtk_widget_show (ci->widget);
+
+			ci->label = gtk_label_new (g_strdup_printf ("%s:", gettext(c->name)));
+		
+		}else if ((c->id == V4L2_CID_PANTILT_RESET_LOGITECH) ||
+				   (c->id == V4L2_CID_PANTILT_RESET)) {
 			ci->widget = gtk_hbox_new (FALSE, 0);
 			GtkWidget *PTReset = gtk_button_new_with_label(_("Reset"));
 			gtk_box_pack_start (GTK_BOX (ci->widget), PTReset, TRUE, TRUE, 0);

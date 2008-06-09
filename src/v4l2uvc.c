@@ -112,7 +112,7 @@ static struct uvc_xu_control_info xu_ctrls[] = {
 /* mapping for Pan/Tilt/Focus */
 static struct uvc_xu_control_mapping xu_mappings[] = {
 	{
-		.id        = V4L2_CID_PAN_RELATIVE_LOGITECH,
+		.id        = V4L2_CID_PAN_RELATIVE_NEW,
 		.name      = N_("Pan (relative)"),
 		.entity    = UVC_GUID_LOGITECH_MOTOR_CONTROL,
 		.selector  = XU_MOTORCONTROL_PANTILT_RELATIVE,
@@ -122,7 +122,7 @@ static struct uvc_xu_control_mapping xu_mappings[] = {
 		.data_type = UVC_CTRL_DATA_TYPE_SIGNED
 	},
 	{
-		.id        = V4L2_CID_TILT_RELATIVE_LOGITECH,
+		.id        = V4L2_CID_TILT_RELATIVE_NEW,
 		.name      = N_("Tilt (relative)"),
 		.entity    = UVC_GUID_LOGITECH_MOTOR_CONTROL,
 		.selector  = XU_MOTORCONTROL_PANTILT_RELATIVE,
@@ -130,6 +130,26 @@ static struct uvc_xu_control_mapping xu_mappings[] = {
 		.offset    = 16,
 		.v4l2_type = V4L2_CTRL_TYPE_INTEGER,
 		.data_type = UVC_CTRL_DATA_TYPE_SIGNED
+	},
+	{
+		.id        = V4L2_CID_PAN_RESET_NEW,
+		.name      = N_("Pan (reset)"),
+		.entity    = UVC_GUID_LOGITECH_MOTOR_CONTROL,
+		.selector  = XU_MOTORCONTROL_PANTILT_RESET,
+		.size      = 1,
+		.offset    = 0,
+		.v4l2_type = V4L2_CTRL_TYPE_INTEGER,
+		.data_type = UVC_CTRL_DATA_TYPE_UNSIGNED
+	},
+	{
+		.id        = V4L2_CID_TILT_RESET_NEW,
+		.name      = N_("Tilt (reset)"),
+		.entity    = UVC_GUID_LOGITECH_MOTOR_CONTROL,
+		.selector  = XU_MOTORCONTROL_PANTILT_RESET,
+		.size      = 1,
+		.offset    = 1,
+		.v4l2_type = V4L2_CTRL_TYPE_INTEGER,
+		.data_type = UVC_CTRL_DATA_TYPE_UNSIGNED
 	},
 	{
 		.id        = V4L2_CID_PANTILT_RESET_LOGITECH,
@@ -686,7 +706,7 @@ input_enum_controls (struct vdIn * device, int * num_controls)
     int i;
     fd = device->fd;
 	
-	initDynCtrls(device);
+    initDynCtrls(device);
     
     i = V4L2_CID_BASE; /* as defined by V4L2 */
     while (i <= V4L2_CID_LAST_EXTCTR) { 
@@ -941,22 +961,32 @@ SRC: https://lists.berlios.de/pipermail/linux-uvc-devel/2007-July/001888.html
 - dev: the device file descriptor
 - pan: pan angle in 1/64th of degree
 - tilt: tilt angle in 1/64th of degree
-- reset: set to 1 to reset pan/tilt to the device origin, set to 0 otherwise
+- reset: set 1 to reset Pan, set 2 to reset tilt, set to 3 to reset pan/tilt to the device origin, set to 0 otherwise
 */
 int uvcPanTilt(struct vdIn *vd, int pan, int tilt, int reset) {
 	struct v4l2_ext_control xctrls[2];
 	struct v4l2_ext_controls ctrls;
 	
 	if (reset) {
-		xctrls[0].id = V4L2_CID_PANTILT_RESET_LOGITECH;
-		xctrls[0].value = 3;
-	
+		switch(reset) {
+		     case 1:
+			xctrls[0].id = V4L2_CID_PAN_RESET_NEW;
+			break;
+		     case 2:
+			xctrls[0].id = V4L2_CID_TILT_RESET_NEW;
+			break;
+		     case 3:
+			xctrls[0].id = V4L2_CID_PANTILT_RESET_LOGITECH;
+			break;
+		     
+		}
+		xctrls[0].value = reset;
 		ctrls.count = 1;
 		ctrls.controls = xctrls;
 	} else {
-		xctrls[0].id = V4L2_CID_PAN_RELATIVE_LOGITECH;
+		xctrls[0].id = V4L2_CID_PAN_RELATIVE_NEW;
 		xctrls[0].value = pan;
-		xctrls[1].id = V4L2_CID_TILT_RELATIVE_LOGITECH;
+		xctrls[1].id = V4L2_CID_TILT_RELATIVE_NEW;
 		xctrls[1].value = tilt;
 	
 		ctrls.count = 2;
