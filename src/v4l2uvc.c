@@ -298,23 +298,21 @@ init_videoIn(struct vdIn *vd, char *device, int width, int height,
 	printf(" Init v4L2 failed !! exit fatal \n");
 	goto error2;
     }
-    /* alloc a temp buffer to reconstruct the pict (MJPEG)*/
     vd->framesizeIn = (vd->width * vd->height << 1);
     switch (vd->formatIn) {
     	case V4L2_PIX_FMT_MJPEG:
+	        /* alloc a temp buffer to reconstruct the pict (MJPEG)*/
 		vd->tmpbuffer =
 	    	(unsigned char *) calloc(1, (size_t) vd->framesizeIn);
-		if (!vd->tmpbuffer) {
-	   		printf("couldn't calloc memory for:vd->tmpbuffer\n");
-		    	ret=-6;
-			goto error3;
-		}
 		vd->framebuffer = (unsigned char *) calloc(1,
 			     (size_t) vd->width * (vd->height + 8) * 2);
 		break;
-    	case V4L2_PIX_FMT_YUYV:/*YUYV doesn't need a temp buffer*/
+    	case V4L2_PIX_FMT_YUYV:
+	        /*YUYV doesn't need a temp buffer but we set it */
+	        /*for raw bayer mode (logitech cameras only)    */
 		vd->framebuffer =
 	    	(unsigned char *) calloc(1, (size_t) vd->framesizeIn);
+	        /*rgb buffer*/
 	        vd->tmpbuffer =
 	    	(unsigned char *) calloc(1, (size_t) vd->width * vd->height * 3);
 		break;
@@ -324,8 +322,8 @@ init_videoIn(struct vdIn *vd, char *device, int width, int height,
 		goto error4;
 		break;
     }
-    if (!vd->framebuffer) {
-		printf("couldn't calloc memory for:vd->framebuffer\n");
+    if ((!vd->framebuffer) || (!vd->tmpbuffer)) {
+		printf("couldn't calloc memory for video buffer\n");
 		ret=-6;
 		goto error5;
 	}
@@ -336,7 +334,6 @@ init_videoIn(struct vdIn *vd, char *device, int width, int height,
 	if(vd->framebuffer) free(vd->framebuffer);
   error4:
     	if(vd->tmpbuffer) free(vd->tmpbuffer);
-  error3:
 	close(vd->fd);
   error2:
     	if(vd->status) free(vd->status);
@@ -505,7 +502,7 @@ static int video_disable(struct vdIn *vd)
 }
 
 
-int uvcGrab(struct vdIn *vd, int isbayer)
+int uvcGrab(struct vdIn *vd, int isbayer, int pix_order)
 {
 #define HEADERFRAME1 0xaf
     int ret;
@@ -540,7 +537,7 @@ int uvcGrab(struct vdIn *vd, int isbayer)
 			break;
     	case V4L2_PIX_FMT_YUYV:
 			if(isbayer>0) {
-				bayer_to_rgb24 (vd->mem[vd->buf.index],vd->tmpbuffer,vd->width,vd->height);
+				bayer_to_rgb24 (vd->mem[vd->buf.index],vd->tmpbuffer,vd->width,vd->height, pix_order);
 			   	rgb2yuyv (vd->tmpbuffer,vd->framebuffer,vd->width,vd->height);
 			} else {
 	     			if (vd->buf.bytesused > vd->framesizeIn)

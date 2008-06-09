@@ -213,6 +213,7 @@ struct GLOBAL {
 	int formind; /*0-MJPG 1-YUYV*/
 	int Frame_Flags;
 	int isbayer;
+   	int pix_order;
    	BYTE *jpeg;
 	//int jpeg_format;
 	int   jpeg_size;
@@ -280,7 +281,7 @@ yuyv2bgr (BYTE *pyuv, BYTE *pbgr, int width, int height);
 
 
 void 
-bayer_to_rgb24(BYTE *pBay, BYTE *pRGB24, int width, int height);
+bayer_to_rgb24(BYTE *pBay, BYTE *pRGB24, int width, int height, int pix_order);
 
 void
 rgb2yuyv(BYTE *prgb, BYTE *pyuv, int width, int height);

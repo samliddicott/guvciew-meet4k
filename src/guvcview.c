@@ -884,9 +884,6 @@ check_changed (GtkToggleButton * toggle, VidState * s)
 		printf ("%s change to %d failed\n",c->name, val);
 		if (input_get_control (videoIn, c, &val) == 0) {
 			printf ("hardware value is %d\n", val);
-		   	if ((c->id ==V4L2_CID_DISABLE_PROCESSING_LOGITECH) && (val>0)) {
-				global->isbayer=1;
-			}
 		}
 		else {
 			printf ("hardware get failed\n");
@@ -903,6 +900,48 @@ check_changed (GtkToggleButton * toggle, VidState * s)
 	}
 	
 }
+
+static void
+bayer_changed (GtkToggleButton * toggle, VidState * s)
+{	
+   	ControlInfo * ci = g_object_get_data (G_OBJECT (toggle), "control_info");
+	InputControl * c = s->control + ci->idx;
+   	int val;
+	
+	val = gtk_toggle_button_get_active (toggle) ? 1 : 0;
+   	if (input_set_control (videoIn, c, val) != 0) {
+		printf ("%s change to %d failed\n",c->name, val);
+		if (input_get_control (videoIn, c, &val) == 0) {
+			printf ("hardware value is %d\n", val);
+		}
+		else {
+			printf ("hardware get failed\n");
+		}
+	} else {
+		if (global->debug) printf("changed %s to %d\n",c->name,val);
+		/*stop and restart stream*/
+		videoIn->setFPS=1;
+		/*read value*/
+		if (input_get_control (videoIn, c, &val) == 0) {
+			if (val>0) global->isbayer=1;
+			else global->isbayer=0;
+		}
+		else {
+			printf ("hardware get failed\n");
+		}
+		
+	}
+   
+}
+
+static void
+pix_ord_changed (GtkComboBox * combo, VidState * s)
+{
+   int index = gtk_combo_box_get_active (combo);
+   global->pix_order=index;
+   
+}
+
 
 /*combobox controls callback*/
 static void
@@ -1969,6 +2008,59 @@ draw_controls (VidState *s)
 
 			ci->label = gtk_label_new (g_strdup_printf ("%s:", gettext(c->name)));
 		}
+	   	else if(c->id ==V4L2_CID_DISABLE_PROCESSING_LOGITECH) {
+		      	int val;
+		      	ci->widget = gtk_vbox_new (FALSE, 0);
+		      	GtkWidget *check_bayer = gtk_check_button_new_with_label (gettext(c->name));
+		      	g_object_set_data (G_OBJECT (check_bayer), "control_info", ci);
+		      	GtkWidget *pix_ord = gtk_combo_box_new_text ();
+		      	gtk_combo_box_append_text(GTK_COMBO_BOX(pix_ord),"GBGB... | RGRG...");
+		        gtk_combo_box_append_text(GTK_COMBO_BOX(pix_ord),"GRGR... | BGBG...");
+		        gtk_combo_box_append_text(GTK_COMBO_BOX(pix_ord),"BGBG... | GRGR...");
+		        gtk_combo_box_append_text(GTK_COMBO_BOX(pix_ord),"RGRG... | GBGB...");
+		      	gtk_combo_box_set_active(GTK_COMBO_BOX(pix_ord),global->pix_order);
+		      	
+		        gtk_box_pack_start (GTK_BOX (ci->widget), check_bayer, TRUE, TRUE, 0);
+			gtk_box_pack_start (GTK_BOX (ci->widget), pix_ord, TRUE, TRUE, 0);
+			gtk_widget_show (check_bayer);
+			gtk_widget_show (pix_ord);
+			g_signal_connect (GTK_TOGGLE_BUTTON (check_bayer), "toggled",
+					G_CALLBACK (bayer_changed), s);
+			g_signal_connect (GTK_COMBO_BOX (pix_ord), "changed",
+					G_CALLBACK (pix_ord_changed), s);
+			
+			gtk_table_attach (GTK_TABLE (s->table), ci->widget, 1, 2, 3+i, 4+i,
+					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+			ci->maxchars = MAX (num_chars (c->min), num_chars (c->max));
+			gtk_widget_show (ci->widget);
+
+		      	ci->label = gtk_label_new (g_strdup_printf (_("raw pixel order:")));
+		      	
+		        if (input_get_control (videoIn, c, &val) == 0) {
+				gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (check_bayer),
+						val ? TRUE : FALSE);
+			   	if(val>0) {
+					global->isbayer=1;
+					printf("is bayer");
+				}
+			}
+			else {
+				/*couldn't get control value -> set to default*/
+				input_set_control (videoIn, c, c->default_val);
+				gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (check_bayer),
+						c->default_val ? TRUE : FALSE);
+				gtk_widget_set_sensitive (ci->widget, TRUE);
+			   	if(c->default_val>0) {
+					global->isbayer=1;
+					printf("is bayer");
+				}
+			}
+
+			if (!c->enabled) {
+				gtk_widget_set_sensitive (ci->widget, FALSE);
+			}
+		
+		}
 		else if (c->type == INPUT_CONTROL_TYPE_BOOLEAN) {
 			int val;
 			ci->widget = gtk_check_button_new_with_label (gettext(c->name));
@@ -1980,10 +2072,6 @@ draw_controls (VidState *s)
 			if (input_get_control (videoIn, c, &val) == 0) {
 				gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (ci->widget),
 						val ? TRUE : FALSE);
-			   	if ((c->id ==V4L2_CID_DISABLE_PROCESSING_LOGITECH) && (val>0)) {
-			   		global->isbayer=1;
-				        printf("is bayer");
-			   	}
 			}
 			else {
 				/*couldn't get control value -> set to default*/
@@ -2159,7 +2247,7 @@ void *main_loop(void *data)
 	 
 	while (videoIn->signalquit) {
 	 /*-------------------------- Grab Frame ----------------------------------*/
-	 if (uvcGrab(videoIn, global->isbayer) < 0) {
+	 if (uvcGrab(videoIn, global->isbayer, global->pix_order) < 0) {
 		printf("Error grabbing image \n");
 		videoIn->signalquit=0;
 		snprintf(global->WVcaption,20,"GUVCVideo - CRASHED");
@@ -3318,22 +3406,22 @@ static
 void
 clean_struct (void) {
 
-    int i=0;
+    //int i=0;
    
     if(videoIn) close_v4l2(videoIn);	
 
     if (global->debug) printf("closed v4l2 strutures\n");
     
     if (s->control) {
-	for (i = 0; i < s->num_controls; i++) {
-		ControlInfo * ci = s->control_info + i;
-		if (ci->widget)
-			gtk_widget_destroy (ci->widget);
-		if (ci->label)
-			gtk_widget_destroy (ci->label);
-		if (ci->spinbutton)
-			gtk_widget_destroy (ci->spinbutton);
-	}
+	//~ for (i = 0; i < s->num_controls; i++) {
+		//~ ControlInfo * ci = s->control_info + i;
+		//~ if (ci->widget)
+			//~ gtk_widget_destroy (ci->widget);
+		//~ if (ci->label)
+			//~ gtk_widget_destroy (ci->label);
+		//~ if (ci->spinbutton)
+			//~ gtk_widget_destroy (ci->spinbutton);
+	//~ }
 	free (s->control_info);
 	s->control_info = NULL;
 	input_free_controls (s->control, s->num_controls);
@@ -3378,7 +3466,9 @@ shutd (gint restart)
 		 exit(-1);
 	  }
 	if (global->debug) printf("Completed join with thread status= %d\n", tstatus);
-	
+	/* destroys fps timer*/
+   	if (global->timer_id > 0) g_source_remove(global->timer_id);
+   
 	gtk_window_get_size(GTK_WINDOW(mainwin),&(global->winwidth),&(global->winheight));//mainwin or widget
 	global->boxvsize=gtk_paned_get_position (GTK_PANED(boxv));
     	
