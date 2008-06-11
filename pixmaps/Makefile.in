@@ -313,12 +313,19 @@ uninstall-am:
 
 
 clean:
-	test -z "guvcview.desktop" || rm -f guvcview.desktop
+	test -z "guvcview.desktop" || rm -f guvcview.desktop;\
+	test -z "guvcview" || rm -f guvcview
 
 distclean: clean
 
 clean-all: clean
 
+.menu:
+	if test -e guvcview.menu; then\
+		cp guvcview.menu guvcview;\
+	else\
+		echo "can't find menu file";\
+	fi
 .desktop:
 	if test -e guvcview.desktop; then\
 		echo "guvcview.desktop exists";\
@@ -327,8 +334,6 @@ clean-all: clean
 		rm -f guvcview.desktop_;\
 		touch guvcview.desktop_;\
 		echo "[Desktop Entry]" >> guvcview.desktop_;\
-		echo "Version=1.0" >> guvcview.desktop_;\
-		echo "Encoding=UTF-8" >> guvcview.desktop_;\
 		echo "Name=guvcview" >> guvcview.desktop_;\
 		echo "GenericName=GTK UVC video viewer" >> guvcview.desktop_;\
 		echo "Comment=A video viewer and capturer for the linux uvc driver" >> guvcview.desktop_;\
@@ -337,7 +342,7 @@ clean-all: clean
 		echo "Icon=$(datadir)/pixmaps/guvcview/guvcview.xpm" >> guvcview.desktop_;\
 		echo "Terminal=false" >> guvcview.desktop_;\
 		echo "Type=Application" >> guvcview.desktop_;\
-		echo "Categories=Application;AudioVideo;" >> guvcview.desktop_;\
+		echo "Categories=AudioVideo;" >> guvcview.desktop_;\
 		cp guvcview.desktop_ guvcview.desktop;\
 	fi
 
@@ -350,7 +355,7 @@ clean-all: clean
 		fi;\
 	done
 
-.PHONY: .desktop .xpm
+.PHONY: .menu .desktop .xpm
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:

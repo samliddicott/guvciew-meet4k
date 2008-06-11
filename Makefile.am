@@ -20,21 +20,21 @@ pixmapsdir = ${datadir}/pixmaps/guvcview
 application_DATA = pixmaps/guvcview.desktop
 menu_DATA = pixmaps/guvcview
 pixmaps_DATA = \
-	       pixmaps/guvcview.xpm\
-	       pixmaps/camera.xpm\
-	       pixmaps/movie.xpm\
-	       pixmaps/save.xpm\
-	       pixmaps/folder.xpm\
-	       pixmaps/close.xpm
+		pixmaps/guvcview.xpm\
+		pixmaps/camera.xpm\
+		pixmaps/movie.xpm\
+		pixmaps/save.xpm\
+		pixmaps/folder.xpm\
+		pixmaps/close.xpm
 
 
 EXTRA_DIST = \
-	     config.rpath\
-	     src\
-	     $(guvcviewdoc_DATA)\
-	     $(application_DATA)\
-	     $(menu_DATA)\
-	     $(pixmaps_DATA)
+		config.rpath\
+		src\
+		$(guvcviewdoc_DATA)\
+		$(application_DATA)\
+		$(menu_DATA)\
+		$(pixmaps_DATA)
 
 # Copy all the spec files. Of cource, only one is actually used.
 dist-hook:
@@ -69,7 +69,7 @@ $(pixmaps_DATA):
 
 # builds menu file
 $(menu_DATA):
-        cd pixmaps && $(MAKE) $(AM_MAKEFLAGS) .menu
+	cd pixmaps && $(MAKE) $(AM_MAKEFLAGS) .menu
 	
 # builds desktop menu entry
 $(application_DATA): 
