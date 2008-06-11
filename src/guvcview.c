@@ -155,6 +155,11 @@ int check_image_type (char *filename) {
 		case ('P'+'n'+'g'):
 			global->imgFormat=2;
 			break;
+	      	case ('r'+'a'+'w'):
+	      	case ('R'+'A'+'W'):
+	      	case ('R'+'a'+'w'):
+	      		global->imgFormat=3;
+		 	break;
 		default: /* use jpeg as default*/
 			global->imgFormat=0;
 	}
@@ -907,7 +912,7 @@ bayer_changed (GtkToggleButton * toggle, VidState * s)
    	ControlInfo * ci = g_object_get_data (G_OBJECT (toggle), "control_info");
 	InputControl * c = s->control + ci->idx;
    	int val;
-	
+   
 	val = gtk_toggle_button_get_active (toggle) ? 1 : 0;
    	if (input_set_control (videoIn, c, val) != 0) {
 		printf ("%s change to %d failed\n",c->name, val);
@@ -923,8 +928,10 @@ bayer_changed (GtkToggleButton * toggle, VidState * s)
 		videoIn->setFPS=1;
 		/*read value*/
 		if (input_get_control (videoIn, c, &val) == 0) {
-			if (val>0) global->isbayer=1;
-			else global->isbayer=0;
+			if (val>0) {
+			   videoIn->isbayer=1;
+			}
+			else videoIn->isbayer=0;
 		}
 		else {
 			printf ("hardware get failed\n");
@@ -938,7 +945,7 @@ static void
 pix_ord_changed (GtkComboBox * combo, VidState * s)
 {
    int index = gtk_combo_box_get_active (combo);
-   global->pix_order=index;
+   videoIn->pix_order=index;
    
 }
 
@@ -1212,6 +1219,9 @@ ImageType_changed (GtkComboBox * ImageType,GtkEntry *ImageFNameEntry)
 		case 2:
 			sprintf(global->imgFPath[0],"%s.png",basename);
 			break;
+	      	case 3:
+	      		sprintf(global->imgFPath[0],"%s.raw",basename);
+			break;
 		default:
 			sprintf(global->imgFPath[0],"%s",DEFAULT_IMAGE_FNAME);
 	}
@@ -1424,7 +1434,11 @@ capture_image (GtkButton *ImageButt, void *data)
 		global->image_timer=0;
 		set_sensitive_img_contrls(TRUE);/*enable image controls*/
 	} else {
-		videoIn->capImage = TRUE;
+	   	if(global->imgFormat == 3) { /*raw frame*/
+			videoIn->cap_raw = 1;
+		} else {
+			videoIn->capImage = TRUE;
+		}
 	}
 }
 
@@ -1832,7 +1846,8 @@ draw_controls (VidState *s)
 
    if((s->control_info = malloc (s->num_controls * sizeof (ControlInfo)))==NULL){
 			printf("couldn't allocate memory for: s->control_info\n");
-			exit(1); 
+			ERR_DIALOG (N_("Guvcview error:\n\nUnable to allocate Buffers"),
+				N_("Please try restarting your system.")); 
    }
 
 	for (i = 0; i < s->num_controls; i++) {
@@ -2054,7 +2069,14 @@ draw_controls (VidState *s)
 		        gtk_combo_box_append_text(GTK_COMBO_BOX(pix_ord),"GRGR... | BGBG...");
 		        gtk_combo_box_append_text(GTK_COMBO_BOX(pix_ord),"BGBG... | GRGR...");
 		        gtk_combo_box_append_text(GTK_COMBO_BOX(pix_ord),"RGRG... | GBGB...");
-		      	gtk_combo_box_set_active(GTK_COMBO_BOX(pix_ord),global->pix_order);
+		      	
+		      	
+		      	/* auto set pix order for 2Mp logitech cameras */
+		      	if((videoIn->width == 160) || (videoIn->width == 176) || (videoIn->width == 352) || (videoIn->width == 960)) 
+			      videoIn->pix_order=3; /* rg */
+			else videoIn->pix_order=0; /* gb */
+		      
+		      	gtk_combo_box_set_active(GTK_COMBO_BOX(pix_ord),videoIn->pix_order);
 		      	
 		        gtk_box_pack_start (GTK_BOX (ci->widget), check_bayer, TRUE, TRUE, 0);
 			gtk_box_pack_start (GTK_BOX (ci->widget), pix_ord, TRUE, TRUE, 0);
@@ -2076,19 +2098,10 @@ draw_controls (VidState *s)
 				gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (check_bayer),
 						val ? TRUE : FALSE);
 			   	if(val>0) {
-					global->isbayer=1;
-					printf("is bayer");
-				}
-			}
-			else {
-				/*couldn't get control value -> set to default*/
-				input_set_control (videoIn, c, c->default_val);
-				gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (check_bayer),
-						c->default_val ? TRUE : FALSE);
-				gtk_widget_set_sensitive (ci->widget, TRUE);
-			   	if(c->default_val>0) {
-					global->isbayer=1;
-					printf("is bayer");
+			   		if (global->debug) {
+					      printf("bayer mode set\n");
+					}
+					videoIn->isbayer=1;
 				}
 			}
 
@@ -2283,7 +2296,7 @@ void *main_loop(void *data)
 	 
 	while (videoIn->signalquit) {
 	 /*-------------------------- Grab Frame ----------------------------------*/
-	 if (uvcGrab(videoIn, global->isbayer, global->pix_order) < 0) {
+	 if (uvcGrab(videoIn) < 0) {
 		printf("Error grabbing image \n");
 		videoIn->signalquit=0;
 		snprintf(global->WVcaption,20,"GUVCVideo - CRASHED");
@@ -3031,6 +3044,7 @@ int main(int argc, char *argv[])
 	gtk_combo_box_append_text(GTK_COMBO_BOX(ImageType),"JPG");
 	gtk_combo_box_append_text(GTK_COMBO_BOX(ImageType),"BMP");
 	gtk_combo_box_append_text(GTK_COMBO_BOX(ImageType),"PNG");
+   	gtk_combo_box_append_text(GTK_COMBO_BOX(ImageType),"RAW");
 	gtk_combo_box_set_active(GTK_COMBO_BOX(ImageType),global->imgFormat);
 	gtk_table_attach(GTK_TABLE(table2), ImageType, 1, 2, 7, 8,
 					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);

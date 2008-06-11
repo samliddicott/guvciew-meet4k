@@ -1324,8 +1324,6 @@ int initGlobals (struct GLOBAL *global) {
    	global->jpeg_size = 0;
 	/* reset with videoIn parameters */
 	global->jpeg_bufsize = 0;
-   	global->isbayer = 0; /*bayer mode off*/
-   	global->pix_order=0; /* pix order for bayer mode def: gbgbgb..|rgrgrg..*/
 	return (0);
 	
 error:

@@ -212,8 +212,6 @@ struct GLOBAL {
 	int format;
 	int formind; /*0-MJPG 1-YUYV*/
 	int Frame_Flags;
-	int isbayer;
-   	int pix_order;
    	BYTE *jpeg;
 	//int jpeg_format;
 	int   jpeg_size;

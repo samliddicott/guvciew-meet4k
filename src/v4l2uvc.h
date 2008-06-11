@@ -231,6 +231,8 @@ struct vdIn {
     	unsigned char *tmpbuffer;
    	unsigned char *framebuffer;
    	int isstreaming;
+   	int isbayer;
+   	int pix_order;
     	int setFPS;
 	int PanTilt; /*1-if PanTilt Camera; 0-otherwise*/
     	int grabmethod;
@@ -249,6 +251,7 @@ struct vdIn {
 	int fps_num;
     	int capImage;
     	char *ImageFName;
+   	int cap_raw;
 	struct v4l2_streamparm streamparm;
 	int available_exp[4];
 	/* 2 supported formats 0-MJPG and 1-YUYV */
@@ -305,7 +308,7 @@ int
 init_videoIn(struct vdIn *vd, char *device, int width, int height,
 	     int format, int grabmethod, int fps, int fps_num);
 
-int uvcGrab(struct vdIn *vd, int isbayer, int pix_order);
+int uvcGrab(struct vdIn *vd);
 void close_v4l2(struct vdIn *vd);
 
 

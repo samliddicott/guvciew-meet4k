@@ -270,12 +270,12 @@ init_videoIn(struct vdIn *vd, char *device, int width, int height,
     if((vd->videodevice = (char *) calloc(1, 16 * sizeof(char)))==NULL){
 		printf("couldn't calloc memory for:vd->videodevice\n");
 		ret=-6;
-		goto error1;
+		goto error;
 	}
     if((vd->status = (char *) calloc(1, 100 * sizeof(char)))==NULL){
 		printf("couldn't calloc memory for:vd->status\n");
 		ret=-6;
-		goto error1;
+		goto error;
 	}
     snprintf(vd->videodevice, 15, "%s", device);
     printf("video %s \n", vd->videodevice);
@@ -284,7 +284,7 @@ init_videoIn(struct vdIn *vd, char *device, int width, int height,
     if((vd->AVIFName = (char *) calloc(1, 120 * sizeof(char)))==NULL){
 		printf("couldn't calloc memory for:vd->AVIFName\n");
 		ret=-6;
-		goto error1;
+		goto error;
 	}
     snprintf(vd->AVIFName, 14, DEFAULT_AVI_FNAME);
     vd->SupMjpg=0;
@@ -293,16 +293,20 @@ init_videoIn(struct vdIn *vd, char *device, int width, int height,
     vd->fps_num = fps_num;
     vd->signalquit = 1;
     vd->PanTilt=0;
+    vd->isbayer = 0; /*bayer mode off*/
+    vd->pix_order=0; /* pix order for bayer mode def: gbgbgb..|rgrgrg..*/
     vd->setFPS=0;
     vd->width = width;
     vd->height = height;
     vd->formatIn = format;
     vd->grabmethod = grabmethod;
     vd->capImage=FALSE;
+    vd->cap_raw=0;
 	
     if((vd->ImageFName = (char *) calloc(1, 120 * sizeof(char)))==NULL){
 		printf("couldn't calloc memory for:vd->ImgFName\n");
-		goto error1;
+       		ret=-6;
+		goto error;
 	}
     snprintf(vd->ImageFName, 14, DEFAULT_IMAGE_FNAME);
 	
@@ -316,49 +320,51 @@ init_videoIn(struct vdIn *vd, char *device, int width, int height,
 	
     if ((ret=init_v4l2(vd)) < 0) {
 	printf(" Init v4L2 failed !! exit fatal \n");
-	goto error2;
+	goto error;
     }
     vd->framesizeIn = (vd->width * vd->height << 1);
     switch (vd->formatIn) {
     	case V4L2_PIX_FMT_MJPEG:
 	        /* alloc a temp buffer to reconstruct the pict (MJPEG)*/
-		vd->tmpbuffer =
-	    	(unsigned char *) calloc(1, (size_t) vd->framesizeIn);
+		vd->tmpbuffer = (unsigned char *) calloc(1, 
+			(size_t) vd->framesizeIn);
+	     	if (!vd->tmpbuffer) {
+			printf("couldn't calloc memory for tmp buffer\n");
+			ret=-6;
+			goto error;
+		}
 		vd->framebuffer = (unsigned char *) calloc(1,
-			     (size_t) vd->width * (vd->height + 8) * 2);
+			(size_t) vd->width * (vd->height + 8) * 2);
 		break;
     	case V4L2_PIX_FMT_YUYV:
-	        /*YUYV doesn't need a temp buffer but we set it */
-	        /*for raw bayer mode (logitech cameras only)    */
-		vd->framebuffer =
-	    	(unsigned char *) calloc(1, (size_t) vd->framesizeIn);
-	        /*rgb buffer*/
-	        vd->tmpbuffer =
-	    	(unsigned char *) calloc(1, (size_t) vd->width * vd->height * 3);
+	        /*YUYV doesn't need a temp buffer but we set if      */
+	     	/*video processing disable control  is set           */
+	     	/*            (logitech cameras only)                */
+		vd->framebuffer = (unsigned char *) calloc(1, 
+			(size_t) vd->framesizeIn);
 		break;
     	default:
 		printf(" should never arrive exit fatal !!\n");
 	    	ret=-7;
-		goto error4;
+		goto error;
 		break;
     }
-    if ((!vd->framebuffer) || (!vd->tmpbuffer)) {
+    if (!vd->framebuffer) {
 		printf("couldn't calloc memory for video buffer\n");
 		ret=-6;
-		goto error5;
+		goto error;
 	}
 	
     return 0;
 	/*error: clean up allocs*/
-  error5:
+  error:
 	if(vd->framebuffer) free(vd->framebuffer);
-  error4:
     	if(vd->tmpbuffer) free(vd->tmpbuffer);
 	close(vd->fd);
-  error2:
     	if(vd->status) free(vd->status);
-  error1:
     	if(vd->videodevice) free(vd->videodevice);
+	if(vd->AVIFName) free (vd->AVIFName);
+	if(vd->ImageFName) free (vd->ImageFName);
     return ret;
 }
 
@@ -522,7 +528,7 @@ static int video_disable(struct vdIn *vd)
 }
 
 
-int uvcGrab(struct vdIn *vd, int isbayer, int pix_order)
+int uvcGrab(struct vdIn *vd)
 {
 #define HEADERFRAME1 0xaf
     int ret;
@@ -538,26 +544,45 @@ int uvcGrab(struct vdIn *vd, int isbayer, int pix_order)
 		printf("Unable to dequeue buffer (%d) fd is %d.\n", errno, vd->fd);
 		goto err;
     }
-
+   
+    /*save raw frame */
+    if (vd->cap_raw>0) {
+	if (vd->buf.bytesused > vd->framesizeIn)
+		SaveBuff (vd->ImageFName,vd->buf.bytesused,vd->mem[vd->buf.index]);	
+	else
+		SaveBuff (vd->ImageFName,vd->framesizeIn,vd->mem[vd->buf.index]);
+    
+        vd->cap_raw=0;
+    }
 	
 
     switch (vd->formatIn) {
     	case V4L2_PIX_FMT_MJPEG:
-        	if(vd->buf.bytesused <= HEADERFRAME1) {
+        		if(vd->buf.bytesused <= HEADERFRAME1) {
 				/* Prevent crash on empty image */
-	        	printf("Ignoring empty buffer ...\n");
-	    		return 0;
-        	}
+	        		printf("Ignoring empty buffer ...\n");
+	    			return 0;
+        		}
 			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
-			if (jpeg_decode(&vd->framebuffer, vd->tmpbuffer, &vd->width,
+			
+	     		if (jpeg_decode(&vd->framebuffer, vd->tmpbuffer, &vd->width,
 	     	                                             &vd->height) < 0) {
 	    		printf("jpeg decode errors\n");
 	    		goto err;
 			}
 			break;
-    	case V4L2_PIX_FMT_YUYV:
-			if(isbayer>0) {
-				bayer_to_rgb24 (vd->mem[vd->buf.index],vd->tmpbuffer,vd->width,vd->height, pix_order);
+    	case V4L2_PIX_FMT_YUYV:		
+			if(vd->isbayer>0) {
+			   	if (!(vd->tmpbuffer)) {
+				      	/* rgb buffer for decoding bayer data*/
+					vd->tmpbuffer = (unsigned char *) calloc(1,
+							(size_t) vd->width * vd->height * 3);
+				      	if (vd->tmpbuffer == NULL) {
+						printf("Couldn't allocate mem for tmpbuffer: fatal");
+					 	goto err;
+					}
+				}
+				bayer_to_rgb24 (vd->mem[vd->buf.index],vd->tmpbuffer,vd->width,vd->height, vd->pix_order);
 			   	rgb2yuyv (vd->tmpbuffer,vd->framebuffer,vd->width,vd->height);
 			} else {
 	     			if (vd->buf.bytesused > vd->framesizeIn)
@@ -974,7 +999,6 @@ int uvcPanTilt(struct vdIn *vd, int pan, int tilt, int reset) {
 			xctrls[0].value = 1;
 			break;
 		     case 2:
-		    	printf("reset is 2\n");
 			xctrls[0].id = V4L2_CID_TILT_RESET_NEW;
 			xctrls[0].value = 1;
 			break;
