@@ -14,11 +14,11 @@ guvcviewdoc_DATA = \
 	NEWS
 
 applicationdir = ${datadir}/applications
-
-application_DATA = pixmaps/guvcview.desktop
-
+menudir = ${datadir}/menu
 pixmapsdir = ${datadir}/pixmaps/guvcview
 
+application_DATA = pixmaps/guvcview.desktop
+menu_DATA = pixmaps/guvcview
 pixmaps_DATA = \
 	       pixmaps/guvcview.xpm\
 	       pixmaps/camera.xpm\
@@ -33,6 +33,7 @@ EXTRA_DIST = \
 	     src\
 	     $(guvcviewdoc_DATA)\
 	     $(application_DATA)\
+	     $(menu_DATA)\
 	     $(pixmaps_DATA)
 
 # Copy all the spec files. Of cource, only one is actually used.
@@ -66,6 +67,10 @@ force-update-gmo: check-gettext
 $(pixmaps_DATA):
 	cd pixmaps && $(MAKE) $(AM_MAKEFLAGS) .xpm
 
+# builds menu file
+$(menu_DATA):
+        cd pixmaps && $(MAKE) $(AM_MAKEFLAGS) .menu
+	
 # builds desktop menu entry
 $(application_DATA): 
 	cd pixmaps && $(MAKE) $(AM_MAKEFLAGS) .desktop

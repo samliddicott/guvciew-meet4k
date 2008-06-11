@@ -1,6 +1,6 @@
 Source: guvcview
-Section: Audio&Video
-Priority: extra
+Section: Graphics
+Priority: optional
 Maintainer: Paulo Assis <pj.assis@gmail.com>
 Build-Depends: debhelper (>= 5), autotools-dev, libsdl1.2-dev, libgtk2.0-dev, portaudio19-dev
 Standards-Version: 3.7.2

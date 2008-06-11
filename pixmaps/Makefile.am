@@ -9,12 +9,19 @@ pixs = \
 	close.xpm
 
 clean:
-	test -z "guvcview.desktop" || rm -f guvcview.desktop
+	test -z "guvcview.desktop" || rm -f guvcview.desktop;\
+	test -z "guvcview" || rm -f guvcview
 
 distclean: clean
 
 clean-all: clean
 
+.menu:
+	if test -e guvcview.menu; then\
+		cp guvcview.menu guvcview;\
+	else\
+		echo "can't find menu file";\
+	fi
 .desktop:
 	if test -e guvcview.desktop; then\
 		echo "guvcview.desktop exists";\
@@ -44,4 +51,4 @@ clean-all: clean
 		fi;\
 	done
 
-.PHONY: .desktop .xpm
+.PHONY: .menu .desktop .xpm

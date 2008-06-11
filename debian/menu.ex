@@ -1,2 +1,1 @@
-?package(guvcview):needs="X11|text|vc|wm" section="Applications/Audio&Video"\
-  title="guvcview" command="/usr/bin/guvcview"
+?package(guvcview): needs="X11" section="Applications/AudioVideo" title="Guvcview" longtitle="GTK UVC Viewer - uvc video viewer and capturer" command="guvcview"
