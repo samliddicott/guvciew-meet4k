@@ -23,7 +23,7 @@ clean-all: clean
 		echo "Creating menu file";\
 		rm -f guvcview.menu;\
 		touch guvcview.menu;\
-		echo "?package(guvcview): needs=\"X11\" section=\"Applications/AudioVideo\" \\" >> guvcview.menu;\
+		echo "?package(guvcview): needs=\"X11\" section=\"Applications/Video\" \\" >> guvcview.menu;\
 		echo "title=\"Guvcview\" \\" >> guvcview.menu;\
 		echo "longtitle=\"GTK UVC Viewer - uvc video viewer and capturer\" \\" >> guvcview.menu;\
 		echo "command=\"guvcview\" \\" >> guvcview.menu;\
