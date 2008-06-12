@@ -27,8 +27,8 @@ clean-all: clean
 		echo "title=\"Guvcview\" \\" >> guvcview.menu;\
 		echo "longtitle=\"GTK UVC Viewer - uvc video viewer and capturer\" \\" >> guvcview.menu;\
 		echo "command=\"guvcview\" \\" >> guvcview.menu;\
-		echo "icon=\"$(datadir)/pixmaps/guvcview/guvcview.xpm\"" >> guvcview.menu;
-		cp guvcview.menu guvcview;
+		echo "icon=\"$(datadir)/pixmaps/guvcview/guvcview.xpm\"" >> guvcview.menu;\
+		cp guvcview.menu guvcview;\
 	fi
 .desktop:
 	if test -e guvcview.desktop; then\

@@ -321,10 +321,18 @@ distclean: clean
 clean-all: clean
 
 .menu:
-	if test -e guvcview.menu; then\
-		cp guvcview.menu guvcview;\
+	if test -e guvcview; then\
+		echo "guvcview menu file exists";\
 	else\
-		echo "can't find menu file";\
+		echo "Creating menu file";\
+		rm -f guvcview.menu;\
+		touch guvcview.menu;\
+		echo "?package(guvcview): needs=\"X11\" section=\"Applications/Video\" \\" >> guvcview.menu;\
+		echo "title=\"Guvcview\" \\" >> guvcview.menu;\
+		echo "longtitle=\"GTK UVC Viewer - uvc video viewer and capturer\" \\" >> guvcview.menu;\
+		echo "command=\"guvcview\" \\" >> guvcview.menu;\
+		echo "icon=\"$(datadir)/pixmaps/guvcview/guvcview.xpm\"" >> guvcview.menu;\
+		cp guvcview.menu guvcview;\
 	fi
 .desktop:
 	if test -e guvcview.desktop; then\
@@ -342,7 +350,8 @@ clean-all: clean
 		echo "Icon=$(datadir)/pixmaps/guvcview/guvcview.xpm" >> guvcview.desktop_;\
 		echo "Terminal=false" >> guvcview.desktop_;\
 		echo "Type=Application" >> guvcview.desktop_;\
-		echo "Categories=AudioVideo;" >> guvcview.desktop_;\
+		echo "Categories=Video;AudioVideo;" >> guvcview.desktop_;\
+		echo "StartupNotify=true" >> guvcview.desktop_;\
 		cp guvcview.desktop_ guvcview.desktop;\
 	fi
 
