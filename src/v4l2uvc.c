@@ -311,7 +311,7 @@ init_videoIn(struct vdIn *vd, char *device, int width, int height,
     snprintf(vd->ImageFName, 14, DEFAULT_IMAGE_FNAME);
 	
     vd->timecode.type = V4L2_TC_TYPE_25FPS;
-    vd->timecode.flags = V4L2_TC_FLAG_DROPFRAME;
+    vd->timecode.flags = V4L2_TC_FLAG_DROPFRAME | V4L2_TC_FLAG_NO_DROP;
 	
     vd->available_exp[0]=-1;
     vd->available_exp[1]=-1;

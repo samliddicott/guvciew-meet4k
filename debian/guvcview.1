@@ -19,55 +19,62 @@
 guvcview \- UVC video (and sound) capture tool
 .SH SYNOPSIS
 .B guvcview
-.RI [ options ]  ...
+.RI [\-v[\-\-version]] [\-h[\-\-help]] [\-\-verbose] [\-d[\-\-device] device_name] 
 .br
-.B bar
-.RI [ options ]  ...
+.RI [\-w {enable, disable}] [\-f[\-\-format] {jpg, yuv}] [\-s[\-\-size] widthxheight]
+.br
+.RI [\-i[\-\-image] image_file_name] [\-c[\-\-captime] time] [\-m[\-\-npics] num_pics]
+.br
+.RI [\-n[\-\-avi] avi_file_name] [\-t[\-\-avitime] capture_time] [\-p {enable, disable}]
+.br
+.RI [\-f[\-\-profile] filename]
 .SH DESCRIPTION
-This manual page documents briefly the
+This manual page documents briefly 
 .B guvcview
-and
-.B bar
-commands.
+options.
 .PP
 .\" TeX users may be more comfortable with the \fB<whatever>\fP and
 .\" \fI<whatever>\fP escape sequences to invode bold face and italics, 
 .\" respectively.
-\fBguvcview\fP is a program that enables video capture through the UVC driver 
+\fBguvcview\fP is a program that enables video capture through V4L2 for the UVC driver 
 .SH OPTIONS
-For a complete description, see the Info files.
 .TP
-.B \-h, 
-usage: guvcview [options]
-	options:
-	-h[--help]	:print this message
-	--verbose	:verbose mode, prints a lot of debug related info
-	-d[--device] /dev/videoX	:use videoX device
-	-g		:use read method for grab instead mmap
-	-w enable|disable		:SDL hardware accel.
-	-f[--format] format		:video format
-			default jpg  others options are yuv jpg
-	-s[--size] widthxheight		:use specified input size
-	-i[--image] image_file_name	:sets the default image name 
-			available image formats: jpg png bmp
-	-c[--captime] time_in_seconds	:time between image captures (sec.) 
-			enables auto image capture
-	-m[--npics] num_pics		:max number of image captures
-			defaults to 999 if not set
-	-n[--avi] avi_file_name		:if set, enable avi capture from start
-	-t[--avitime] capture_time	:used with -n option, avi capture time (sec.)
-	-p enable|disable		:fps counter in title bar
-	-l[--profile] filename		:loads the given control profile
+.IP -v [--version] 
+print guvcview version.
+.IP -h [--help] 
+print a help message
+.IP --verbose
+verbose mode, prints a lot of debug related info
+.IP "-d [--device] /dev/videoX"	
+use videoX device (default /dev/video0)
+.IP -g		
+use read method for grab instead mmap (not implemented yet)
+.IP "-w {enable, disable}"
+enable or disable SDL hardware accel.
+.IP "-f [--format] {jpg, yuv}"
+video format: jpg -MJPG, yuv -YUYV
+.IP "-s [--size] widthxheight"
+use specified input size (ex: 800x600)
+.IP "-i [--image] image_file_name"
+sets the default image name 
+available image formats: jpg png bmp raw
+.IP "-c [--captime] time_in_seconds"
+time between image captures (in sec.) 
+if set enables auto image capture
+.IP "-m [--npics] num_pics"
+max number of image captures (only with image auto capture)
+defaults to 999 if not set
+.IP "-n [--avi] avi_file_name"
+if set, enables avi capture from start to avi_file_name
+.IP "-t [--avitime] capture_time"
+used with capture from start, avi capture time (sec.)
+.IP "-p {enable, disable}
+enable or disable fps counter in title bar
+.IP "-l [--profile] filename"
+loads the given control profile
 .TP
-.B \-v, 
-Show version of program.
-.SH SEE ALSO
-.BR bar (1),
-.BR baz (1).
-.br
-The program will be documented fully by
-.IR the author ,
-available via the Info system.
+.SH FILES
+.IR ~/.guvcviewrc "- control file"
 .SH AUTHOR
 guvcview was written by <Paulo Assis - pj.assis@gmail.com>.
 .PP

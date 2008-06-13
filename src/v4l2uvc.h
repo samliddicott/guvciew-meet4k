@@ -37,6 +37,9 @@
 #include <gtk/gtk.h>
 
 #define NB_BUFFER 4
+
+/*timecode flag for unsetting UVC_QUEUE_DROP_INCOMPLETE*/
+#define V4L2_TC_FLAG_NO_DROP		0x1000
 /*
  * Private V4L2 control identifiers from UVC driver.  - this seems to change acording to driver version
  * all other User-class control IDs are defined by V4L2 (videodev.h)
