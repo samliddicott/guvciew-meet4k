@@ -2193,7 +2193,6 @@ void *main_loop(void *data)
 {
 	size_t videostacksize;
 	SDL_Event event;
-	SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY,SDL_DEFAULT_REPEAT_INTERVAL);
 	/*the main SDL surface*/
 	SDL_Surface *pscreen = NULL;
 	SDL_Overlay *overlay=NULL;
@@ -2276,6 +2275,9 @@ void *main_loop(void *data)
 	if (!(SDL_VIDEO_Flags & SDL_HWSURFACE)){
 		SDL_VIDEO_Flags |= SDL_SWSURFACE;
 	} 
+   
+   	/* enable key repeat */
+   	SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY,SDL_DEFAULT_REPEAT_INTERVAL);
 	 
 	/*------------------------------ SDL init video ---------------------*/
 	pscreen =
