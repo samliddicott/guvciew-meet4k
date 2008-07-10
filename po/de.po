@@ -1,4 +1,4 @@
-# translation of de.po to Português
+# translation of de.po to Portuguese
 # translation of guvcview to German
 # Copyright (C) 2008 Paulo Assis
 # This file is distributed under the same license as the guvcview package.
@@ -10,9 +10,9 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2008-06-18 21:42+0100\n"
-"PO-Revision-Date: 2008-06-06 11:18-0000\n"
-"Last-Translator: Paulo Assis <pj.assis@gmail.com>\n"
-"Language-Team: Português <pj.assis@gmail.com>\n"
+"PO-Revision-Date: 2008-07-08 20:10+0100\n"
+"Last-Translator: guvcview <pj.assis@gmail.com>\n"
+"Language-Team: Portuguese\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -405,14 +405,12 @@ msgid "Tilt (relative)"
 msgstr "Neigung (relativ)"
 
 #: src/v4l2uvc.c:136
-#, fuzzy
 msgid "Pan (reset)"
-msgstr "Umdrehung/Neigung (Zurückstellen)"
+msgstr "Umdrehung (Zurückstellen)"
 
 #: src/v4l2uvc.c:146
-#, fuzzy
 msgid "Tilt (reset)"
-msgstr "Umdrehung/Neigung (Zurückstellen)"
+msgstr "Neigung (Zurückstellen)"
 
 #: src/v4l2uvc.c:156
 msgid "Pan/Tilt (reset)"

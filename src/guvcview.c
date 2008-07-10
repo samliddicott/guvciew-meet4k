@@ -2199,7 +2199,7 @@ void *main_loop(void *data)
 	SDL_Rect drect;
 	const SDL_VideoInfo *info;
 	char driver[128];
-
+        
 	BYTE *p = NULL;
 	BYTE *pim= NULL;
 	BYTE *pavi=NULL;
@@ -2274,7 +2274,9 @@ void *main_loop(void *data)
 
 	if (!(SDL_VIDEO_Flags & SDL_HWSURFACE)){
 		SDL_VIDEO_Flags |= SDL_SWSURFACE;
-	} 
+	}
+        
+        SDL_WM_SetCaption(global->WVcaption, NULL); 
    
    	/* enable key repeat */
    	SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY,SDL_DEFAULT_REPEAT_INTERVAL);
@@ -2293,8 +2295,6 @@ void *main_loop(void *data)
 	drect.y = 0;
 	drect.w = pscreen->w;
 	drect.h = pscreen->h;
-
-	SDL_WM_SetCaption(global->WVcaption, NULL);
 	 
 	while (videoIn->signalquit) {
 	 /*-------------------------- Grab Frame ----------------------------------*/
@@ -2518,7 +2518,7 @@ void *main_loop(void *data)
   
   if(pim!=NULL) free(pim);
   pim=NULL;
-  if(pavi!=NULL)	free(pavi);
+  if(pavi!=NULL) free(pavi);
   pavi=NULL;
   if (global->debug) printf("cleaning Thread allocations: 100%%\n");
   fflush(NULL);//flush all output buffers
@@ -2792,8 +2792,13 @@ int main(int argc, char *argv[])
 		CapAVIButt=gtk_button_new_with_label (_("Cap. AVI"));
 	}
     
-	/*add images to Buttons*/
+	/*add images to Buttons and top window*/
 	/*check for files*/
+        gchar* icon1path = g_strconcat (PACKAGE_DATA_DIR,"/pixmaps/guvcview/guvcview.xpm",NULL);
+        if (g_file_test(icon1path,G_FILE_TEST_EXISTS)) {
+             gtk_window_set_icon_from_file(GTK_WINDOW (mainwin),icon1path,NULL);   
+        }
+
     	gchar* pix1path = g_strconcat (PACKAGE_DATA_DIR,"/pixmaps/guvcview/movie.xpm",NULL);
 	if (g_file_test(pix1path,G_FILE_TEST_EXISTS)) {
 		AVIButton_Img = gtk_image_new_from_file (pix1path);
@@ -2826,6 +2831,7 @@ int main(int argc, char *argv[])
 	}
    
     	/*must free path strings*/
+        if(icon1path) free(icon1path);
 	if(pix1path) free(pix1path);
    	if(pix2path) free(pix2path);
    	if(pix3path) free(pix3path);

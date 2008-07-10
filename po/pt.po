@@ -1,3 +1,4 @@
+# translation of pt_PT.po to Portuguese
 # translation of guvcview to Portuguese
 # Copyright (C) 2008 Paulo Assis
 # This file is distributed under the same license as the guvcview package.
@@ -8,9 +9,9 @@ msgstr ""
 "Project-Id-Version: pt_PT\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2008-06-18 21:42+0100\n"
-"PO-Revision-Date: 2008-06-06 11:10-0000\n"
-"Last-Translator: Paulo Assis <pj.assis@gmail.com>\n"
-"Language-Team: Portuguese <pj.assis@gmail.com>\n"
+"PO-Revision-Date: 2008-07-10 00:12+0100\n"
+"Last-Translator: guvcview <pj.assis@gmail.com>\n"
+"Language-Team: Portuguese\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -113,7 +114,7 @@ msgstr "Restaurar"
 #: src/guvcview.c:2095
 #, c-format
 msgid "raw pixel order:"
-msgstr ""
+msgstr "ordem de pixel (RAW):"
 
 #: src/guvcview.c:2636
 msgid "GUVCViewer Controls"
@@ -414,14 +415,12 @@ msgid "Tilt (relative)"
 msgstr "Inclinação (relativa)"
 
 #: src/v4l2uvc.c:136
-#, fuzzy
 msgid "Pan (reset)"
-msgstr "Rot./Incl. (restaurar)"
+msgstr "Rotação (restaurar)"
 
 #: src/v4l2uvc.c:146
-#, fuzzy
 msgid "Tilt (reset)"
-msgstr "Rot./Incl. (restaurar)"
+msgstr "Inclinação (restaurar)"
 
 #: src/v4l2uvc.c:156
 msgid "Pan/Tilt (reset)"
@@ -446,3 +445,4 @@ msgstr "Parar proc. video (Raw)"
 #: src/v4l2uvc.c:206
 msgid "Raw bits per pixel"
 msgstr "Bits por pixel (Raw)"
+
