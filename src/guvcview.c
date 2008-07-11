@@ -626,7 +626,7 @@ void *sound_capture(void *data)
 	inputParameters.device = global->Sound_IndexDev[global->Sound_UseDev].id; /* input device */
 	inputParameters.channelCount = global->Sound_NumChan;
 	inputParameters.sampleFormat = PA_SAMPLE_TYPE;
-	inputParameters.suggestedLatency = Pa_GetDeviceInfo( inputParameters.device )->defaultHighInputLatency;
+	inputParameters.suggestedLatency = Pa_GetDeviceInfo( inputParameters.device )->defaultLowInputLatency;
 	inputParameters.hostApiSpecificStreamInfo = NULL; 
 	
 	/*---------------------------- Record some audio. ----------------------------- */
