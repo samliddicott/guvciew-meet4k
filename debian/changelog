@@ -3,8 +3,12 @@ guvcview (0.9.1) stable; urgency=low
    * Added error message dialogs.
    * Changed cleanup.
    * Added translations for error messages.
+   * Fixed Pan/Tilt for Sphere/Orbit (should now work with latest libwebcam)
+   * Changed icon set
+   * Added guvcview icon to control window
+   * Improved Raw support (needs patch for uvc driver,  http://forums.quickcamteam.net/showthread.php?tid=323)
    
- -- Paulo Assis <pj.assis@gmail.com>  Wed, 04 Jun 2008 12:04:00 +0000
+ -- Paulo Assis <pj.assis@gmail.com>  Wed, 11 Jul 2008 12:04:00 +0000
 
 
 guvcview (0.9.0) stable; urgency=low
