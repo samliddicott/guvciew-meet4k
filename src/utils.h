@@ -44,7 +44,7 @@ typedef  unsigned short int WORD;
 #define SAMPLE_RATE  (0) /* 0 device default*/
 //#define FRAMES_PER_BUFFER (4096)
 
-#define NUM_SECONDS     (1) /* captures 2 second bloks */
+#define NUM_SECONDS     (2) /* captures 2 second bloks */
 /* sound can go for more 2 seconds than video          */
 
 #define BUFF_FACTOR		(2) /* audio buffer Multiply factor */
@@ -108,7 +108,7 @@ typedef unsigned char SAMPLE;
 #define DEFAULT_FPS	25
 #define DEFAULT_FPS_NUM 1
 #define SDL_WAIT_TIME 30 /*SDL - Thread loop sleep time */
-#define SND_WAIT_TIME 40 /*sound capture- Thread loop sleep time*/
+#define SND_WAIT_TIME 5 /*sound capture- Thread loop sleep time*/
 /*                      */
 #define ERR_NO_SOI 1
 #define ERR_NOT_8BIT 2
@@ -156,6 +156,7 @@ typedef char* pchar;
 struct GLOBAL {
     	int debug;
 	char *videodevice;
+	int stack_size;
 	char *confPath;
 	pchar* aviFPath;
 	pchar* imgFPath;
@@ -213,7 +214,6 @@ struct GLOBAL {
 	int formind; /*0-MJPG 1-YUYV*/
 	int Frame_Flags;
    	BYTE *jpeg;
-	//int jpeg_format;
 	int   jpeg_size;
 	//int   jpeg_quality;
 	unsigned int   jpeg_bufsize; /* width*height/2 */

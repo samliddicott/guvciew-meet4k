@@ -1260,7 +1260,9 @@ int initGlobals (struct GLOBAL *global) {
 	}
 	snprintf(global->WVcaption,10,"GUVCVIdeo");
 	
-   	global->image_inc=0;
+   	global->stack_size=TSTACK;
+	
+	global->image_inc=0;
    
 	if((global->imageinc_str= (char *) calloc(1, 25 * sizeof(char)))==NULL){
 		printf("couldn't calloc memory for:global->imageinc_str\n");

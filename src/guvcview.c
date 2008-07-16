@@ -227,6 +227,8 @@ int writeConf(const char *confpath) {
 		fprintf(fp,"# guvcview configuration file\n\n");
 		fprintf(fp,"# video device\n");
 		fprintf(fp,"video_device=%s\n",global->videodevice);
+		fprintf(fp,"# Thread stack size: default 128 pages of 64k = 8388608 bytes\n");
+		fprintf(fp,"stack_size=%d\n",global->stack_size);
 		fprintf(fp,"# video loop sleep time in ms: 0,1,2,3,...\n");
 		fprintf(fp,"# increased sleep time -> less cpu load, more droped frames\n");
 		fprintf(fp,"vid_sleep=%i\n",global->vid_sleep);
@@ -236,7 +238,7 @@ int writeConf(const char *confpath) {
 		fprintf(fp,"windowsize=%ix%i\n",global->winwidth,global->winheight);
 		fprintf(fp,"#vertical pane size\n");
 		fprintf(fp,"vpane=%i\n",global->boxvsize);
-	    	fprintf(fp,"#spin button behavior: 0-non editable 1-editable\n");
+	    fprintf(fp,"#spin button behavior: 0-non editable 1-editable\n");
 		fprintf(fp,"spinbehave=%i\n", global->spinbehave);
 		fprintf(fp,"# mode video format 'yuv' or 'jpg'(default)\n");
 		fprintf(fp,"mode=%s\n",global->mode);
@@ -307,6 +309,8 @@ int readConf(const char *confpath) {
 			/* set variables */
 			if (strcmp(variable,"video_device")==0) {
 				snprintf(global->videodevice,15,"%s",value);
+			} else if (strcmp(variable,"stack_size")==0) {
+				sscanf(value,"%i",&(global->stack_size));
 			} else if (strcmp(variable,"vid_sleep")==0) {
 				sscanf(value,"%i",&(global->vid_sleep));
 			} else if (strcmp(variable,"resolution")==0) {
@@ -568,6 +572,7 @@ readOpts(int argc,char *argv[]) {
     	if (global->debug) printf("Format is %s(%d)\n",global->mode,global->formind);
 }
 
+
 /*--------------------------- sound threaded loop ------------------------------*/
 void *sound_capture(void *data)
 {
@@ -641,23 +646,19 @@ void *sound_capture(void *data)
 			  paNoFlag,      /* PaNoFlag - clip and dhiter*/
 			  NULL, /* sound callback - using blocking API*/
 			  NULL ); /* callback userData -no callback no data */
-	if( err != paNoError ) goto error;
-  
+	if( err != paNoError ) goto error;  
 	err = Pa_StartStream( stream );
 	if( err != paNoError ) goto error; /*should close the stream if error ?*/
 	/*----------------------------- capture loop ----------------------------------*/
 	global->snd_begintime = ms_time();
+
 	do {
-	   //Pa_Sleep(SND_WAIT_TIME);
 	   err = Pa_ReadStream( stream, recordedSamples, totalFrames );
-	   //if( err != paNoError ) break; /*can break with input overflow*/
-		
+
 	   /* Write recorded data to a file. */  
 	   write(fid, recordedSamples, global->Sound_NumChan * sizeof(SAMPLE) * totalFrames);
 	} while (videoIn->capAVI);   
-	
-	close(fid);
-	
+
 	err = Pa_StopStream( stream );
 	if( err != paNoError ) goto error;
 	
@@ -667,13 +668,16 @@ void *sound_capture(void *data)
 	if(recordedSamples) free( recordedSamples  );
 	recordedSamples=NULL;
 	Pa_Terminate();
+	
+	close(fid);
+	
 	pthread_exit((void *) 0);
 
 error:
-	close(fid);
 	if(recordedSamples) free( recordedSamples );
 	recordedSamples=NULL;
 	Pa_Terminate();
+	close(fid);
 	fprintf( stderr, "An error occured while using the portaudio stream\n" );
 	fprintf( stderr, "Error number: %d\n", err );
 	fprintf( stderr, "Error message: %s\n", Pa_GetErrorText( err ) );
@@ -1509,7 +1513,7 @@ capture_avi (GtkButton *AVIButt, void *data)
 		if(global->Sound_enable > 0) { 
 			/* Initialize and set snd thread detached attribute */
 			size_t stacksize;
-			stacksize = sizeof(char) * TSTACK;
+			stacksize = sizeof(char) * global->stack_size;
 		   	pthread_attr_init(&sndattr);
 		   	pthread_attr_setstacksize (&sndattr, stacksize);
 			pthread_attr_setdetachstate(&sndattr, PTHREAD_CREATE_JOINABLE);
@@ -2562,7 +2566,7 @@ int main(int argc, char *argv[])
 	GtkWidget *scroll2;
 	GtkWidget *buttons_table;
 	GtkWidget *profile_labels;
-    	GtkWidget *capture_labels;
+    GtkWidget *capture_labels;
 	GtkWidget *Resolution;
 	GtkWidget *FrameRate;
 	GtkWidget *ShowFPS;
@@ -2584,27 +2588,22 @@ int main(int argc, char *argv[])
 	GtkWidget *LProfileButton;
 	GtkWidget *Tab1Label;
    	GtkWidget *Tab2Label;
-    	GtkWidget *label_ImgFile;
-    	GtkWidget *label_AVIFile;
+    GtkWidget *label_ImgFile;
+    GtkWidget *label_AVIFile;
 	GtkWidget *AVIButton_Img;
 	GtkWidget *ImgButton_Img;
    	GtkWidget *SButton_Img;
    	GtkWidget *LButton_Img;
    	GtkWidget *QButton_Img;
    	GtkWidget *HButtonBox;
-    
-   	size_t stacksize;
-	stacksize = sizeof(char) * TSTACK;
+	
+	size_t stacksize;
+	
    
 	if ((s = malloc (sizeof (VidState)))==NULL){
 		printf("couldn't allocate memory for: s\n");
 		exit(1); 
 	}
-	
-	/* Initialize and set thread detached attribute */
-	pthread_attr_init(&attr);
-   	pthread_attr_setstacksize (&attr, stacksize);
-	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
 	   
 	char *home;
 	char *pwd=NULL;
@@ -3388,6 +3387,12 @@ int main(int argc, char *argv[])
 	gtk_widget_show (mainwin);
    
    	/*------------------ Creating the main loop (video) thread ---------------*/
+	/* Initialize and set thread detached attribute */
+	stacksize = sizeof(char) * global->stack_size;
+	pthread_attr_init(&attr);
+   	pthread_attr_setstacksize (&attr, stacksize);
+	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
+	
 	int rc = pthread_create(&mythread, &attr, main_loop, NULL); 
 	if (rc) {
 			printf("ERROR; return code from pthread_create() is %d\n", rc);
