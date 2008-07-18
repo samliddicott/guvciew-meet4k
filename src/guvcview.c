@@ -642,7 +642,7 @@ void *sound_capture(void *data)
 			  &inputParameters,
 			  NULL,                  /* &outputParameters, */
 			  global->Sound_SampRate,
-			  (numBytes*global->Sound_BuffFactor),/* buffer Size*/
+			  (totalFrames*global->Sound_BuffFactor),/* buffer Size - totalFrames*/
 			  paNoFlag,      /* PaNoFlag - clip and dhiter*/
 			  NULL, /* sound callback - using blocking API*/
 			  NULL ); /* callback userData -no callback no data */
@@ -656,7 +656,7 @@ void *sound_capture(void *data)
 	   err = Pa_ReadStream( stream, recordedSamples, totalFrames );
 
 	   /* Write recorded data to a file. */  
-	   write(fid, recordedSamples, global->Sound_NumChan * sizeof(SAMPLE) * totalFrames);
+	   write(fid, recordedSamples, numBytes);
 	} while (videoIn->capAVI);   
 
 	err = Pa_StopStream( stream );
