@@ -1894,7 +1894,13 @@ if((jpgtmp=malloc(jpgsize))!=NULL) {
 	
 	Pjpg=jpgtmp;
 	Pimg=ImagePix;
-	memmove(&JpgFileh,Pimg,jpghsize);
+	/*Fill JFIF header*/
+	JpgFileh.SOI[0]=0xff;
+	JpgFileh.SOI[1]=0xd8;
+	JpgFileh.APP0[0]=0xff;
+	JpgFileh.APP0[1]=0x0E;
+	JpgFileh.length[0]=0x00;
+	JpgFileh.length[0]=0x10;
 	JpgFileh.JFIF[0]=0x4a;//JFIF0
 	JpgFileh.JFIF[1]=0x46;
 	JpgFileh.JFIF[2]=0x49;
@@ -1902,24 +1908,34 @@ if((jpgtmp=malloc(jpgsize))!=NULL) {
 	JpgFileh.JFIF[4]=0x00;
 	JpgFileh.VERS[0]=0x01;//version 1.2
 	JpgFileh.VERS[1]=0x02;
+	JpgFileh.density=0x00;
+	JpgFileh.xdensity[0]=0x00;
+	JpgFileh.xdensity[1]=0x78;
+	JpgFileh.ydensity[0]=0x00;
+	JpgFileh.ydensity[1]=0x78;
+	JpgFileh.WTN=0;
+	JpgFileh.HTN=0;
 	
+	/*adds header (JFIF)*/
 	memmove(Pjpg,&JpgFileh,jpghsize);
-	/*moves to the end of the header struct*/
+	/*moves to the end of the header struct (JFIF)*/
 	Pjpg+=jpghsize;
-	Pimg+=jpghsize;
-	/*adds the rest of the header if any*/
-	Hlength=4+JpgFileh.length[0]*255+JpgFileh.length[1]+69+69;
-	memmove(Pjpg,Pimg,(Hlength-jpghsize));
-	Pjpg+=(Hlength-jpghsize); 
-	Pimg+=(Hlength-jpghsize);
+	/*moves to quantization table marker (MJPG)*/
+	tp=Pimg;
+	while(((*tp!=0xff) && (*tp++!=0xdb)) && tp!=NULL ) {
+		tp+=2;
+	}
+	int headSize = tp - Pimg;
+	Pimg+=headSize;
 	/*adds Quantization tables and everything else until   * 
-	 * start of frame marker (FFC0)                        */
+	 * start of frame marker (FFC0) 	 */
 	tp=Pimg;
 	while(((*tp!=0xff) && (*tp++!=0xc0)) && tp!=NULL ) {
 		tp+=2;
 	}
 	int qtsize=tp-Pimg;
 	memmove(Pjpg,Pimg,qtsize);
+	/*moves to the end of quant. tables*/
 	Pjpg+=qtsize; 
 	Pimg+=qtsize;
 	/*insert huffman table with marker (FFC4) and length(x01a2)*/
@@ -1931,9 +1947,10 @@ if((jpgtmp=malloc(jpgsize))!=NULL) {
 	memmove(Pjpg,&HUFMARK,4);
 	Pjpg+=4;
 	memmove(Pjpg,&JPEGHuffmanTable,JPG_HUFFMAN_TABLE_LENGTH);/*0x01a0*/
+	/*moves to the end of huffman tables (JFIF)*/
 	Pjpg+=JPG_HUFFMAN_TABLE_LENGTH;
-	
-    memmove(Pjpg,Pimg,(imgsize-(Pimg-ImagePix)));
+	/*copys frame data(JFIF)*/
+	memmove(Pjpg,Pimg,(imgsize-(Pimg-ImagePix)));
 	
 	
 	
