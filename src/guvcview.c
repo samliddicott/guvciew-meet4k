@@ -2348,6 +2348,7 @@ void *main_loop(void *data)
 					if(SaveJPG(videoIn->ImageFName,videoIn->framesizeIn,videoIn->tmpbuffer)) {
 						fprintf (stderr,"Error: Couldn't capture Image to %s \n",
 							videoIn->ImageFName);
+					}
 				}
 			} else { /* use built in encoder */
 				if (!global->jpeg){ 
