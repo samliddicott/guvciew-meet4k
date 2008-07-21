@@ -2339,17 +2339,11 @@ void *main_loop(void *data)
 		 case 0:/*jpg*/
 			/* Save directly from MJPG frame */	 
 			if((global->Frame_Flags==0) && (videoIn->formatIn==V4L2_PIX_FMT_MJPEG)) {
-				if (vd->buf.bytesused > vd->framesizeIn) {
-					if(SaveJPG(videoIn->ImageFName,videoIn->buf.bytesused,videoIn->tmpbuffer)) {
-						fprintf (stderr,"Error: Couldn't capture Image to %s \n",
-							videoIn->ImageFName);		
-					}
-				} else {
-					if(SaveJPG(videoIn->ImageFName,videoIn->framesizeIn,videoIn->tmpbuffer)) {
-						fprintf (stderr,"Error: Couldn't capture Image to %s \n",
-							videoIn->ImageFName);
-					}
+				if(SaveJPG(videoIn->ImageFName,videoIn->buf.bytesused,videoIn->tmpbuffer)) {
+					fprintf (stderr,"Error: Couldn't capture Image to %s \n",
+						videoIn->ImageFName);		
 				}
+				
 			} else { /* use built in encoder */
 				if (!global->jpeg){ 
 					if((global->jpeg = (BYTE*)malloc(global->jpeg_bufsize))==NULL) {
