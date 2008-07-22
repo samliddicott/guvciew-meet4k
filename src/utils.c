@@ -1884,23 +1884,22 @@ int jpgsize=0;
 BYTE *jpgtmp=NULL;
 BYTE *Pimg=NULL;
 BYTE *Pjpg=NULL;
-BYTE *tp=NULL;
-int Hlength;	
+BYTE *tp=NULL;	
 JPGFILEHEADER JpgFileh;
 int jpghsize=sizeof(JpgFileh);
 FILE *fp;
-jpgsize=imgsize+sizeof(JPEGHuffmanTable)+4;/*huffman table +marker +size*/
-if((jpgtmp=malloc(jpgsize))!=NULL) {
+jpgsize=jpghsize+imgsize+sizeof(JPEGHuffmanTable)+4;/*header+huffman+marker+buffsize*/
+Pimg=ImagePix;
 	
+if((jpgtmp=malloc(jpgsize))!=NULL) {
 	Pjpg=jpgtmp;
-	Pimg=ImagePix;
 	/*Fill JFIF header*/
 	JpgFileh.SOI[0]=0xff;
 	JpgFileh.SOI[1]=0xd8;
 	JpgFileh.APP0[0]=0xff;
-	JpgFileh.APP0[1]=0x0E;
+	JpgFileh.APP0[1]=0xe0;
 	JpgFileh.length[0]=0x00;
-	JpgFileh.length[0]=0x10;
+	JpgFileh.length[1]=0x10;
 	JpgFileh.JFIF[0]=0x4a;//JFIF0
 	JpgFileh.JFIF[1]=0x46;
 	JpgFileh.JFIF[2]=0x49;
@@ -1920,22 +1919,19 @@ if((jpgtmp=malloc(jpgsize))!=NULL) {
 	memmove(Pjpg,&JpgFileh,jpghsize);
 	/*moves to the end of the header struct (JFIF)*/
 	Pjpg+=jpghsize;
-	/*moves to quantization table marker (MJPG)*/
-	tp=Pimg;
-	while(((*tp!=0xff) && (*tp++!=0xdb)) && tp!=NULL ) {
-		tp+=2;
-	}
-	int headSize = tp - Pimg;
+	int headSize = ImagePix[4]*256+ImagePix[5] + 4;/*length + SOI+APP0*/
+	/*moves to the end of header (MJPG)*/
 	Pimg+=headSize;
 	/*adds Quantization tables and everything else until   * 
 	 * start of frame marker (FFC0) 	 */
 	tp=Pimg;
-	while(((*tp!=0xff) && (*tp++!=0xc0)) && tp!=NULL ) {
-		tp+=2;
+	int qtsize=0;
+	while(!((tp[qtsize]== 0xff) && (tp[qtsize+1]== 0xc0))) {
+		qtsize++;
 	}
-	int qtsize=tp-Pimg;
+	//printf("quant size=%d tp[0]:%x tp[1]:%x\n",qtsize,tp[0],tp[1]);
 	memmove(Pjpg,Pimg,qtsize);
-	/*moves to the end of quant. tables*/
+	/*moves to the begining of frame marker*/
 	Pjpg+=qtsize; 
 	Pimg+=qtsize;
 	/*insert huffman table with marker (FFC4) and length(x01a2)*/
@@ -1951,13 +1947,14 @@ if((jpgtmp=malloc(jpgsize))!=NULL) {
 	Pjpg+=JPG_HUFFMAN_TABLE_LENGTH;
 	/*copys frame data(JFIF)*/
 	memmove(Pjpg,Pimg,(imgsize-(Pimg-ImagePix)));
+	Pjpg+=imgsize-(Pimg-ImagePix);
 	
-	
+	int totSize = Pjpg - jpgtmp;
 	
 	if ((fp = fopen(Filename,"wb"))!=NULL) {
 		  
 		 //fwrite(ImagePix,imgsize,1,fp);/*raw*/
-		fwrite(jpgtmp,jpgsize,1,fp);/*jpeg - jfif*/
+		fwrite(jpgtmp,totSize,1,fp);/*jpeg - jfif*/
 		
 		fclose(fp);
 	} else {
