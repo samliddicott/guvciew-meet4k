@@ -1555,10 +1555,11 @@ Image_capture_timer(){
 	/*increment image name (max 1-99999)*/
 	int sfname=strlen(global->imgFPath[0]);
 	char basename[sfname];
-	char extension[3];
+	char extension[4];
 	sscanf(global->imgFPath[0],"%[^.].%3c",basename,extension);
 	int namesize=strlen(global->imgFPath[1])+strlen(basename)+5;
 	
+	extension[3] = '\0';
 	
 	if(namesize>110) {
 		videoIn->ImageFName=realloc(videoIn->ImageFName,namesize+11);
@@ -2567,7 +2568,7 @@ int main(int argc, char *argv[])
 	GtkWidget *scroll2;
 	GtkWidget *buttons_table;
 	GtkWidget *profile_labels;
-    GtkWidget *capture_labels;
+	GtkWidget *capture_labels;
 	GtkWidget *Resolution;
 	GtkWidget *FrameRate;
 	GtkWidget *ShowFPS;
@@ -2588,9 +2589,9 @@ int main(int argc, char *argv[])
 	GtkWidget *SProfileButton;
 	GtkWidget *LProfileButton;
 	GtkWidget *Tab1Label;
-   	GtkWidget *Tab2Label;
-    GtkWidget *label_ImgFile;
-    GtkWidget *label_AVIFile;
+	GtkWidget *Tab2Label;
+	GtkWidget *label_ImgFile;
+	GtkWidget *label_AVIFile;
 	GtkWidget *AVIButton_Img;
 	GtkWidget *ImgButton_Img;
    	GtkWidget *SButton_Img;
