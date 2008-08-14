@@ -55,6 +55,7 @@
 #include "avilib.h"
 
 #include "prototype.h"
+#include "autofocus.h"
 
 /*----------------------------- globals --------------------------------------*/
 struct GLOBAL *global=NULL;
@@ -238,7 +239,7 @@ int writeConf(const char *confpath) {
 		fprintf(fp,"windowsize=%ix%i\n",global->winwidth,global->winheight);
 		fprintf(fp,"#vertical pane size\n");
 		fprintf(fp,"vpane=%i\n",global->boxvsize);
-	    fprintf(fp,"#spin button behavior: 0-non editable 1-editable\n");
+		fprintf(fp,"#spin button behavior: 0-non editable 1-editable\n");
 		fprintf(fp,"spinbehave=%i\n", global->spinbehave);
 		fprintf(fp,"# mode video format 'yuv' or 'jpg'(default)\n");
 		fprintf(fp,"mode=%s\n",global->mode);
@@ -246,6 +247,8 @@ int writeConf(const char *confpath) {
 		fprintf(fp,"fps=%d/%d\n",global->fps_num,global->fps);
 		fprintf(fp,"#Display Fps counter: 1- Yes 0- No\n");
 		fprintf(fp,"fps_display=%i\n",global->FpsCount);
+		fprintf(fp,"#auto focus (continuous): 1- Yes 0- No\n");
+		fprintf(fp,"auto_focus=%i\n",global->autofocus);
 		fprintf(fp,"# bytes per pixel: default (0 - current)\n");
 		fprintf(fp,"bpp=%i\n",global->bpp);
 		fprintf(fp,"# hardware accelaration: 0 1 (default - 1)\n");
@@ -327,6 +330,8 @@ int readConf(const char *confpath) {
 				sscanf(value,"%i/%i",&(global->fps_num),&(global->fps));
 			} else if (strcmp(variable,"fps_display")==0) { 
 				sscanf(value,"%i",&(global->FpsCount));
+			} else if (strcmp(variable,"auto_focus")==0) { 
+				sscanf(value,"%i",&(global->autofocus));
 			} else if (strcmp(variable,"bpp")==0) {
 				sscanf(value,"%i",&(global->bpp));
 			} else if (strcmp(variable,"hwaccel")==0) {
@@ -829,6 +834,34 @@ num_chars (int n)
 }
 
 
+/*--------------------------- focus control ----------------------------------*/
+int get_focus (){
+	int ret;
+	struct v4l2_control c;
+	int val=0;
+    
+	c.id  = V4L2_CID_FOCUS_LOGITECH;
+	ret = ioctl (videoIn->fd, VIDIOC_G_CTRL, &c);
+	if (ret == 0)
+		val = c.value;
+	else
+		val = -1;
+	
+	return val;
+
+}
+
+int set_focus (int val) {
+	int ret;
+	struct v4l2_control c;
+
+	c.id  = V4L2_CID_FOCUS_LOGITECH;
+	c.value = val;
+	ret = ioctl (videoIn->fd, VIDIOC_S_CTRL, &c);
+
+	return ret;
+}
+
 
 /*----------------------------- Callbacks ------------------------------------*/
 /*slider controls callback*/
@@ -879,6 +912,24 @@ spin_changed (GtkSpinButton * spin, VidState * s)
 }
 
 /*check box controls callback*/
+static void
+autofocus_changed (GtkToggleButton * toggle, VidState * s) {
+    
+	ControlInfo * ci = g_object_get_data (G_OBJECT (toggle), "control_info");
+	int val;
+	
+	val = gtk_toggle_button_get_active (toggle) ? 1 : 0;
+    
+    	/*if autofocus disable manual focus control*/
+    	gtk_widget_set_sensitive (ci->widget, !val);
+	gtk_widget_set_sensitive (ci->spinbutton, !val);
+    	
+    	/*reset flag*/
+    	global->focus_flag=0;
+    
+    	global->autofocus = val;
+}
+
 static void
 check_changed (GtkToggleButton * toggle, VidState * s)
 {
@@ -1854,6 +1905,7 @@ draw_controls (VidState *s)
 			ERR_DIALOG (N_("Guvcview error:\n\nUnable to allocate Buffers"),
 				N_("Please try restarting your system.")); 
    }
+    int row=0;
 
 	for (i = 0; i < s->num_controls; i++) {
 		ControlInfo * ci = s->control_info + i;
@@ -1889,27 +1941,10 @@ draw_controls (VidState *s)
 				}
 			}
 
-			gtk_table_attach (GTK_TABLE (s->table), ci->widget, 1, 2, 3+i, 4+i,
+			gtk_table_attach (GTK_TABLE (s->table), ci->widget, 1, 2, 3+row, 4+row,
 					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 			g_object_set_data (G_OBJECT (ci->widget), "control_info", ci);
 			gtk_widget_show (ci->widget);
-
-				switch(val){
-					case (V4L2_EXPOSURE_MANUAL):
-						j=0;
-						break;
-					case (V4L2_EXPOSURE_AUTO):
-						j=1;
-						break;
-					case (V4L2_EXPOSURE_SHUTTER_PRIORITY):
-						j=2;
-						break;
-					case (V4L2_EXPOSURE_APERTURE_PRIORITY):
-						j=3;
-						break;
-					default :
-						j=1;
-				}
 
 			if (!c->enabled) {
 				gtk_widget_set_sensitive (ci->widget, FALSE);
@@ -1935,7 +1970,7 @@ draw_controls (VidState *s)
 			g_signal_connect (GTK_BUTTON (PanRight), "clicked",
 					G_CALLBACK (PanRight_clicked), s);
 			
-			gtk_table_attach (GTK_TABLE (s->table), ci->widget, 1, 2, 3+i, 4+i,
+			gtk_table_attach (GTK_TABLE (s->table), ci->widget, 1, 2, 3+row, 4+row,
 					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 			g_object_set_data (G_OBJECT (ci->widget), "control_info", ci);
 			ci->maxchars = MAX (num_chars (c->min), num_chars (c->max));
@@ -1958,7 +1993,7 @@ draw_controls (VidState *s)
 			g_signal_connect (GTK_BUTTON (TiltDown), "clicked",
 					G_CALLBACK (TiltDown_clicked), s);
 			
-			gtk_table_attach (GTK_TABLE (s->table), ci->widget, 1, 2, 3+i, 4+i,
+			gtk_table_attach (GTK_TABLE (s->table), ci->widget, 1, 2, 3+row, 4+row,
 					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 			g_object_set_data (G_OBJECT (ci->widget), "control_info", ci);
 			ci->maxchars = MAX (num_chars (c->min), num_chars (c->max));
@@ -1970,7 +2005,7 @@ draw_controls (VidState *s)
 			ci->widget = gtk_button_new_with_label(_("Reset"));
 			g_signal_connect (GTK_BUTTON (ci->widget), "clicked",
 					G_CALLBACK (PReset_clicked), s);
-			gtk_table_attach (GTK_TABLE (s->table), ci->widget, 1, 2, 3+i, 4+i,
+			gtk_table_attach (GTK_TABLE (s->table), ci->widget, 1, 2, 3+row, 4+row,
 					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 			g_object_set_data (G_OBJECT (ci->widget), "control_info", ci);
 			ci->maxchars = MAX (num_chars (c->min), num_chars (c->max));
@@ -1982,7 +2017,7 @@ draw_controls (VidState *s)
 			ci->widget = gtk_button_new_with_label(_("Reset"));
 			g_signal_connect (GTK_BUTTON (ci->widget), "clicked",
 					G_CALLBACK (TReset_clicked), s);
-			gtk_table_attach (GTK_TABLE (s->table), ci->widget, 1, 2, 3+i, 4+i,
+			gtk_table_attach (GTK_TABLE (s->table), ci->widget, 1, 2, 3+row, 4+row,
 					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 			g_object_set_data (G_OBJECT (ci->widget), "control_info", ci);
 			ci->maxchars = MAX (num_chars (c->min), num_chars (c->max));
@@ -1999,7 +2034,7 @@ draw_controls (VidState *s)
 			g_signal_connect (GTK_BUTTON (PTReset), "clicked",
 					G_CALLBACK (PTReset_clicked), s);
 			
-			gtk_table_attach (GTK_TABLE (s->table), ci->widget, 1, 2, 3+i, 4+i,
+			gtk_table_attach (GTK_TABLE (s->table), ci->widget, 1, 2, 3+row, 4+row,
 					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 			g_object_set_data (G_OBJECT (ci->widget), "control_info", ci);
 			ci->maxchars = MAX (num_chars (c->min), num_chars (c->max));
@@ -2020,8 +2055,6 @@ draw_controls (VidState *s)
 			 * available when draw_value is TRUE. */
 			GTK_RANGE (ci->widget)->round_digits = 0;
 
-			gtk_table_attach (GTK_TABLE (s->table), ci->widget, 1, 2, 3+i, 4+i,
-					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 			g_object_set_data (G_OBJECT (ci->widget), "control_info", ci);
 			ci->maxchars = MAX (num_chars (c->min), num_chars (c->max));
 			gtk_widget_show (ci->widget);
@@ -2032,9 +2065,6 @@ draw_controls (VidState *s)
 			
 		   	/*can't edit the spin value by hand*/
 		   	gtk_editable_set_editable(GTK_EDITABLE(ci->spinbutton),FALSE);
-		   	
-			gtk_table_attach (GTK_TABLE (s->table), ci->spinbutton, 2, 3,
-					3+i, 4+i, GTK_SHRINK | GTK_FILL, 0, 0, 0);
 
 			if (input_get_control (videoIn, c, &val) == 0) {
 				gtk_range_set_value (GTK_RANGE (ci->widget), val);
@@ -2063,8 +2093,31 @@ draw_controls (VidState *s)
 			gtk_widget_show (ci->spinbutton);
 
 			ci->label = gtk_label_new (g_strdup_printf ("%s:", gettext(c->name)));
-		}
-	   	else if(c->id ==V4L2_CID_DISABLE_PROCESSING_LOGITECH) {
+		    	/* ---- Add auto-focus checkbox ----- */
+		    	if (c->id== V4L2_CID_FOCUS_LOGITECH) {
+				global->AFcontrol=1;
+				GtkWidget *AutoFocus = gtk_check_button_new_with_label (_("Auto Focus (continuous)"));
+				gtk_widget_show (AutoFocus);
+				gtk_table_attach (GTK_TABLE (s->table), AutoFocus, 1, 3, 3+row, 4+row,
+					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+
+				gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (AutoFocus),
+							      global->autofocus ? TRUE: FALSE);
+
+				g_object_set_data (G_OBJECT (AutoFocus), "control_info", ci);
+				
+				g_signal_connect (G_OBJECT (AutoFocus), "toggled",
+					G_CALLBACK (autofocus_changed), s);
+				row++; /*increment control row*/
+			
+			}
+		    	gtk_table_attach (GTK_TABLE (s->table), ci->widget, 1, 2, 3+row, 4+row,
+					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+		    
+		    	gtk_table_attach (GTK_TABLE (s->table), ci->spinbutton, 2, 3,
+					3+row, 4+row, GTK_SHRINK | GTK_FILL, 0, 0, 0);
+		    	
+		} else if(c->id ==V4L2_CID_DISABLE_PROCESSING_LOGITECH) {
 		      	int val;
 		      	ci->widget = gtk_vbox_new (FALSE, 0);
 		      	GtkWidget *check_bayer = gtk_check_button_new_with_label (gettext(c->name));
@@ -2092,7 +2145,7 @@ draw_controls (VidState *s)
 			g_signal_connect (GTK_COMBO_BOX (pix_ord), "changed",
 					G_CALLBACK (pix_ord_changed), s);
 			
-			gtk_table_attach (GTK_TABLE (s->table), ci->widget, 1, 2, 3+i, 4+i,
+			gtk_table_attach (GTK_TABLE (s->table), ci->widget, 1, 2, 3+row, 4+row,
 					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 			ci->maxchars = MAX (num_chars (c->min), num_chars (c->max));
 			gtk_widget_show (ci->widget);
@@ -2120,7 +2173,7 @@ draw_controls (VidState *s)
 			ci->widget = gtk_check_button_new_with_label (gettext(c->name));
 			g_object_set_data (G_OBJECT (ci->widget), "control_info", ci);
 			gtk_widget_show (ci->widget);
-			gtk_table_attach (GTK_TABLE (s->table), ci->widget, 1, 3, 3+i, 4+i,
+			gtk_table_attach (GTK_TABLE (s->table), ci->widget, 1, 3, 3+row, 4+row,
 					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 
 			if (input_get_control (videoIn, c, &val) == 0) {
@@ -2150,7 +2203,7 @@ draw_controls (VidState *s)
 				gtk_combo_box_append_text (GTK_COMBO_BOX (ci->widget), gettext(c->entries[j]));
 			}
 
-			gtk_table_attach (GTK_TABLE (s->table), ci->widget, 1, 2, 3+i, 4+i,
+			gtk_table_attach (GTK_TABLE (s->table), ci->widget, 1, 2, 3+row, 4+row,
 					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 			g_object_set_data (G_OBJECT (ci->widget), "control_info", ci);
 			gtk_widget_show (ci->widget);
@@ -2182,11 +2235,12 @@ draw_controls (VidState *s)
 		if (ci->label) {
 			gtk_misc_set_alignment (GTK_MISC (ci->label), 1, 0.5);
 
-			gtk_table_attach (GTK_TABLE (s->table), ci->label, 0, 1, 3+i, 4+i,
+			gtk_table_attach (GTK_TABLE (s->table), ci->label, 0, 1, 3+row, 4+row,
 					GTK_FILL, 0, 0, 0);
 
 			gtk_widget_show (ci->label);
 		}
+	    	row++; /*increment control row*/
 	}
 
 }
@@ -2208,6 +2262,10 @@ void *main_loop(void *data)
 	BYTE *p = NULL;
 	BYTE *pim= NULL;
 	BYTE *pavi=NULL;
+	
+	float sharpness=0;
+	float last_sharp=0;
+    	int focus=get_focus();
 	
 	/*gets the stack size for the thread (DEBUG)*/ 
 	pthread_attr_getstacksize (&attr, &videostacksize);
@@ -2318,6 +2376,19 @@ void *main_loop(void *data)
 				global->frmCount=0;/*resets*/
 				global->DispFps=0;
 			}				
+		}
+		
+		if (global->AFcontrol && global->autofocus) {
+		    if (global->focus_flag<12) {
+			sharpness=getSharpMeasure (videoIn->framebuffer, videoIn->width, videoIn->height, 6);
+		    	focus=getFocusVal (focus, sharpness, last_sharp, global->focus_step, &global->focus_flag, global->fps);
+			last_sharp=sharpness;
+			set_focus (focus);
+		    	//printf("sharp=%f foc=%d flag=%d\n",sharpness,focus, global->focus_flag);
+		    } else { /*on focus (wait for next focus cycle)*/
+			/*when 11 is reached it will be reset to 0 on getFocusVal*/
+		    	global->focus_flag--;
+		    }
 		}
 	 }
 	

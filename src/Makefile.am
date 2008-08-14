@@ -32,7 +32,9 @@ guvcview_SOURCES = \
 	marker.c	\
 	prototype.h	\
 	quant.c	\
-	readYUV.c	
+	readYUV.c	\
+	autofocus.h \
+	autofocus.c
 
 guvcview_LDFLAGS = $(LIBINTL)
 

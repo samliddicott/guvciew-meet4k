@@ -4,7 +4,7 @@ SUBDIRS = src po pixmaps
 
 ACLOCAL_AMFLAGS = -I m4
 
-guvcviewdocdir = ${prefix}/doc/guvcview
+guvcviewdocdir = ${datadir}/doc/guvcview
 guvcviewdoc_DATA = \
 	README\
 	COPYING\

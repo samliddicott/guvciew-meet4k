@@ -46,7 +46,7 @@ PROGRAMS = $(bin_PROGRAMS)
 am_guvcview_OBJECTS = avilib.$(OBJEXT) guvcview.$(OBJEXT) \
 	utils.$(OBJEXT) v4l2uvc.$(OBJEXT) dct.$(OBJEXT) \
 	encoder.$(OBJEXT) huffman.$(OBJEXT) marker.$(OBJEXT) \
-	quant.$(OBJEXT) readYUV.$(OBJEXT)
+	quant.$(OBJEXT) readYUV.$(OBJEXT) autofocus.$(OBJEXT)
 guvcview_OBJECTS = $(am_guvcview_OBJECTS)
 am__DEPENDENCIES_1 =
 guvcview_DEPENDENCIES = $(am__DEPENDENCIES_1)
@@ -199,7 +199,9 @@ guvcview_SOURCES = \
 	marker.c	\
 	prototype.h	\
 	quant.c	\
-	readYUV.c	
+	readYUV.c	\
+	autofocus.h \
+	autofocus.c
 
 guvcview_LDFLAGS = $(LIBINTL)
 guvcview_LDADD = $(PACKAGE_LIBS)
@@ -269,6 +271,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/autofocus.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/avilib.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dct.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/encoder.Po@am__quote@
