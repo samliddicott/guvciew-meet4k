@@ -1277,6 +1277,7 @@ int initGlobals (struct GLOBAL *global) {
 	global->lprofile=0; /* flag for -l command line option*/
 	global->imgFormat=0; /* 0 -JPG 1-BMP 2-PNG*/
 	global->AVIFormat=0; /*0-"MJPG"  1-"YUY2" 2-"DIB "(rgb32)*/ 
+	global->AVI_MAX_LEN=2000000000; /* ~2 Gb*/    
 	global->snd_begintime=0;/*begin time for audio capture*/
 	global->currtime=0;
 	global->lasttime=0;

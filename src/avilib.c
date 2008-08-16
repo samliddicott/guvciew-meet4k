@@ -51,7 +51,12 @@ long AVI_errno = 0;
 /* AVI_MAX_LEN: The maximum length of an AVI file, we stay a bit below
     the 2GB limit (Remember: 2*10^9 is smaller than 2 GB) */
 
-#define AVI_MAX_LEN 2000000000
+long AVI_MAX_LEN=2000000000;
+
+void AVI_set_MAX_LEN(long len) {
+    
+	AVI_MAX_LEN = len;
+}
 
 /* HEADERBYTES: The number of bytes to reserve for the header */
 

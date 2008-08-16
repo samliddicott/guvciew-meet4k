@@ -169,7 +169,8 @@ struct GLOBAL {
 	int Capture_time; /*avi capture time passed through argument options with -t */
 	int lprofile; /* flag for command line -l option */ 
 	int imgFormat;
-	int AVIFormat; /*0-"MJPG"  1-"YUY2" 2-"DIB "(rgb32)*/ 
+	int AVIFormat; /*0-"MJPG"  1-"YUY2" 2-"DIB "(rgb32)*/
+    	long AVI_MAX_LEN;
 	DWORD snd_begintime;/*begin time for audio capture*/
 	DWORD currtime;
 	DWORD lasttime;

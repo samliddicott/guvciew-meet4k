@@ -160,6 +160,7 @@ int  AVI_write_audio(avi_t *AVI, BYTE *data, long bytes);
 unsigned long AVI_bytes_remain(avi_t *AVI);
 int  AVI_close(avi_t *AVI);
 
+void AVI_set_MAX_LEN(long len);
 
 void AVI_print_error(char *str);
 char *AVI_strerror();
