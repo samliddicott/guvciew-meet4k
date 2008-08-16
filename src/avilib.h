@@ -36,8 +36,8 @@
 
 typedef struct
 {
-   long pos;
-   long len;
+  long pos;
+  long len;
 } video_index_entry;
 
 typedef struct
@@ -157,7 +157,7 @@ void AVI_set_audio(avi_t *AVI, int channels, long rate, int bits, int format);
 int  AVI_write_frame(avi_t *AVI, BYTE *data, long bytes);
 int  AVI_dup_frame(avi_t *AVI);
 int  AVI_write_audio(avi_t *AVI, BYTE *data, long bytes);
-long AVI_bytes_remain(avi_t *AVI);
+unsigned long AVI_bytes_remain(avi_t *AVI);
 int  AVI_close(avi_t *AVI);
 
 

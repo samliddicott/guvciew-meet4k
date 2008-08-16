@@ -1233,13 +1233,13 @@ int initGlobals (struct GLOBAL *global) {
 		goto error;
 	}
 	snprintf(global->aviFPath[0],12,DEFAULT_AVI_FNAME);
+   
+	//~ if((global->sndfile= (char *) calloc(1, 32 * sizeof(char)))==NULL){
+		//~ printf("couldn't calloc memory for:global->sndfile\n");
+		//~ goto error;
+	//~ }
 	
-	if((global->sndfile= (char *) calloc(1, 32 * sizeof(char)))==NULL){
-		printf("couldn't calloc memory for:global->sndfile\n");
-		goto error;
-	}
-	//snprintf(global->sndfile,32,"%s",tempnam (NULL, "gsnd_"));/*generates a temporary file name*/
-	snprintf(global->sndfile,32,"/tmp/guvc_sound_XXXXXX");/*template for temp sound file name*/
+	//~ snprintf(global->sndfile,32,"/tmp/guvc_sound_XXXXXX");/*template for temp sound file name*/
 	
 	if((global->profile_FPath[1] = (char *) calloc(1, 100 * sizeof(char)))==NULL){
 		printf("couldn't calloc memory for:global->profile_FPath[1]\n");
@@ -1272,6 +1272,7 @@ int initGlobals (struct GLOBAL *global) {
 	
 	global->vid_sleep=0;
 	global->avifile=NULL; /*avi filename passed through argument options with -n */
+	global->avi_sndBuff=NULL;
 	global->Capture_time=0; /*avi capture time passed through argument options with -t */
 	global->lprofile=0; /* flag for -l command line option*/
 	global->imgFormat=0; /* 0 -JPG 1-BMP 2-PNG*/
@@ -1287,6 +1288,7 @@ int initGlobals (struct GLOBAL *global) {
 	global->Sound_SampRate=SAMPLE_RATE;
 	global->Sound_SampRateInd=0;
 	global->Sound_numInputDev=0;
+    	global->audio_flag=0;
 	//Sound_IndexDev[20]; /*up to 20 input devices (should be alocated dinamicly)*/
 	global->Sound_DefDev=0; 
 	global->Sound_UseDev=0;
@@ -1295,6 +1297,7 @@ int initGlobals (struct GLOBAL *global) {
 	global->Sound_NumSec=NUM_SECONDS;
 	global->Sound_BuffFactor=BUFF_FACTOR;
 	global->FpsCount=0;
+    	global->audio_flag=0;
 	global->timer_id=0;
 	global->image_timer_id=0;
 	global->image_timer=0;
@@ -1344,7 +1347,8 @@ int closeGlobals(struct GLOBAL *global){
 	if (global->imgFPath[1]) free(global->imgFPath[1]);
 	if (global->imgFPath[0]) free(global->imgFPath[0]);
 	if (global->aviFPath[0]) free(global->aviFPath[0]);
-	if (global->sndfile) free(global->sndfile);
+	//if (global->sndfile) free(global->sndfile);
+    	if (global->avi_sndBuff) free(global->avi_sndBuff);
 	if (global->profile_FPath[1]) free(global->profile_FPath[1]);
 	if (global->profile_FPath[0]) free(global->profile_FPath[0]);
 	if (global->aviFPath) free(global->aviFPath);
@@ -1356,7 +1360,7 @@ int closeGlobals(struct GLOBAL *global){
 	if (global->mode) free(global->mode);
 	global->videodevice=NULL;
 	global->confPath=NULL;
-	global->sndfile=NULL;
+	//global->sndfile=NULL;
 	global->avifile=NULL;
 	global->mode=NULL;
 	if(global->jpeg) free (global->jpeg);

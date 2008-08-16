@@ -160,7 +160,7 @@ struct GLOBAL {
 	char *confPath;
 	pchar* aviFPath;
 	pchar* imgFPath;
-	char *sndfile; /*temporary snd filename*/
+	//~ char *sndfile; /*temporary snd filename*/
 	char *avifile; /*avi filename passed through argument options with -n */
 	pchar* profile_FPath;
 	char *WVcaption; /*video preview title bar caption*/
@@ -177,7 +177,7 @@ struct GLOBAL {
 	DWORD AVIstoptime;
 	DWORD framecount;
 	unsigned char frmrate;
-	int Sound_enable; /*Enable Sound by Default*/
+	short Sound_enable; /*Enable Sound by Default*/
 	int Sound_SampRate;
 	int Sound_SampRateInd;
 	int Sound_numInputDev;
@@ -187,12 +187,15 @@ struct GLOBAL {
 	int Sound_NumChan;
 	int Sound_NumChanInd;
 	int Sound_NumSec;
-	int Sound_BuffFactor;
+	short Sound_BuffFactor;
+    	SAMPLE *avi_sndBuff;
+	int snd_numBytes; 
+    	short audio_flag;/*audio flag used for avi writes*/
 	int PanStep;/*step angle for Pan*/
 	int TiltStep;/*step angle for Tilt*/
-	int DispFps;
+	float DispFps;
 	DWORD frmCount;
-	int FpsCount;
+	short FpsCount;
 	int timer_id;/*fps count timer*/
 	int image_timer_id;/*auto image capture timer*/
 	int image_timer;/*auto image capture time*/

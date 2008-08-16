@@ -400,7 +400,7 @@ static int avi_close_output_file(avi_t *AVI)
    /* Finish stream list, i.e. put number of bytes in the list to proper pos */
 
    long2str(AVI_header+strl_start-4,nhb-strl_start);
-
+   
    if (AVI->a_chans && AVI->audio_bytes)
    {
 
@@ -595,7 +595,7 @@ int AVI_write_audio(avi_t *AVI, BYTE *data, long bytes)
    return 0;
 }
 
-long AVI_bytes_remain(avi_t *AVI)
+unsigned long AVI_bytes_remain(avi_t *AVI)
 {
    if(AVI->mode==AVI_MODE_READ) return 0;
 

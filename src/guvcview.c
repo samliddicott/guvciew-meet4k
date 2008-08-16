@@ -329,7 +329,7 @@ int readConf(const char *confpath) {
 			} else if (strcmp(variable,"fps")==0) {
 				sscanf(value,"%i/%i",&(global->fps_num),&(global->fps));
 			} else if (strcmp(variable,"fps_display")==0) { 
-				sscanf(value,"%i",&(global->FpsCount));
+				sscanf(value,"%hi",&(global->FpsCount));
 			} else if (strcmp(variable,"auto_focus")==0) { 
 				sscanf(value,"%i",&(global->autofocus));
 			} else if (strcmp(variable,"bpp")==0) {
@@ -341,7 +341,7 @@ int readConf(const char *confpath) {
 			} else if (strcmp(variable,"avi_format")==0) {
 				sscanf(value,"%i",&(global->AVIFormat));
 			} else if (strcmp(variable,"sound")==0) {
-				sscanf(value,"%i",&(global->Sound_enable));
+				sscanf(value,"%hi",&(global->Sound_enable));
 			} else if (strcmp(variable,"snd_device")==0) {
 				sscanf(value,"%i",&(global->Sound_UseDev));
 			} else if (strcmp(variable,"snd_samprate")==0) {
@@ -351,7 +351,7 @@ int readConf(const char *confpath) {
 			} else if (strcmp(variable,"snd_numsec")==0) {
 				sscanf(value,"%i",&(global->Sound_NumSec));
 			} else if (strcmp(variable,"snd_buf_fact")==0) {
-				sscanf(value,"%i",&(global->Sound_BuffFactor));
+				sscanf(value,"%hi",&(global->Sound_BuffFactor));
 			} else if (strcmp(variable,"Pan_Step")==0){ 
 				sscanf(value,"%i",&(global->PanStep));
 			} else if (strcmp(variable,"Tilt_Step")==0){ 
@@ -590,23 +590,23 @@ void *sound_capture(void *data)
 	int i;
 	int totalFrames;
 	int numSamples;
-	int numBytes;
+	//int numBytes;
 	
 	/*gets the stack size for the thread (DEBUG)*/
 	pthread_attr_getstacksize (&sndattr, &sndstacksize);
 	if (global->debug) printf("Sound Thread: stack size = %d bytes \n", sndstacksize);
 	
-	int fid;
-	/*generates temp file from template */
-	/* and opens for read and write     */
-	fid = mkstemp(global->sndfile);
+	//~ int fid;
+	//~ /*generates temp file from template */
+	//~ /* and opens for read and write     */
+	//~ fid = mkstemp(global->sndfile);
 	
-	if( fid < 0 )
-	{
-	   printf("ERROR: Could not open/create temp file, %s\n",global->sndfile);
-	   snprintf(global->sndfile,32,"/tmp/guvc_sound_XXXXXX");/*return to template*/
-	   pthread_exit((void *) -3);
-	} 
+	//~ if( fid < 0 )
+	//~ {
+	   //~ printf("ERROR: Could not open/create temp file, %s\n",global->sndfile);
+	   //~ snprintf(global->sndfile,32,"/tmp/guvc_sound_XXXXXX");/*return to template*/
+	   //~ pthread_exit((void *) -3);
+	//~ } 
 	
 	if(global->Sound_SampRateInd==0)
 	   global->Sound_SampRate=global->Sound_IndexDev[global->Sound_UseDev].samprate;/*using default*/
@@ -615,13 +615,18 @@ void *sound_capture(void *data)
 	   /*using default if channels <3 or stereo(2) otherwise*/
 	   global->Sound_NumChan=(global->Sound_IndexDev[global->Sound_UseDev].chan<3)?global->Sound_IndexDev[global->Sound_UseDev].chan:2;
 	}
+    	
+    	/*set audio header for avi*/
+	AVI_set_audio(AviOut, global->Sound_NumChan, global->Sound_SampRate, sizeof(SAMPLE)*8,WAVE_FORMAT_PCM);
 	
-	/* setting maximum buffer size*/
+    	/* setting maximum buffer size*/
 	totalFrames = global->Sound_NumSec * global->Sound_SampRate;
 	numSamples = totalFrames * global->Sound_NumChan;
-	numBytes = numSamples * sizeof(SAMPLE);
-	recordedSamples = (SAMPLE *) malloc( numBytes );
-	
+	global->snd_numBytes = numSamples * sizeof(SAMPLE);
+    
+	recordedSamples = (SAMPLE *) malloc( global->snd_numBytes ); /*capture buffer*/
+	global->avi_sndBuff = (SAMPLE *) malloc( global->snd_numBytes );/*secondary shared buffer*/
+    
 	if( recordedSamples == NULL )
 	{
 		printf("Could not allocate record array.\n");
@@ -660,8 +665,17 @@ void *sound_capture(void *data)
 	do {
 	   err = Pa_ReadStream( stream, recordedSamples, totalFrames );
 
-	   /* Write recorded data to a file. */  
-	   write(fid, recordedSamples, numBytes);
+	   /*copy recorded samples to shared buffer*/
+	   if(global->audio_flag==0) { 
+	       memcpy(global->avi_sndBuff, recordedSamples ,global->snd_numBytes); 
+	       global->audio_flag =1;
+	   } else {
+	   	/*wait a bit and retry*/
+	       printf("sound not ready...\n");
+	   }
+	  
+	    /* Write recorded data to a file. */  
+	   //~ write(fid, recordedSamples, numBytes);
 	} while (videoIn->capAVI);   
 
 	err = Pa_StopStream( stream );
@@ -674,7 +688,7 @@ void *sound_capture(void *data)
 	recordedSamples=NULL;
 	Pa_Terminate();
 	
-	close(fid);
+	//~ close(fid);
 	
 	pthread_exit((void *) 0);
 
@@ -682,7 +696,7 @@ error:
 	if(recordedSamples) free( recordedSamples );
 	recordedSamples=NULL;
 	Pa_Terminate();
-	close(fid);
+	//~ close(fid);
 	fprintf( stderr, "An error occured while using the portaudio stream\n" );
 	fprintf( stderr, "Error number: %d\n", err );
 	fprintf( stderr, "Error message: %s\n", Pa_GetErrorText( err ) );
@@ -704,67 +718,67 @@ delete_event (GtkWidget *widget, GdkEventConfigure *event)
 /*-------------------------------- avi close functions -----------------------*/
 /* Adds audio temp file to AVI         */
 /*                                     */
-int AVIAudioAdd(void) {
+//~ int AVIAudioAdd(void) {
 	
-	SAMPLE *recordedSamples=NULL;
-	int i;  
-	int totalFrames;
-	int numSamples;
-	long numBytes;
+	//~ SAMPLE *recordedSamples=NULL;
+	//~ int i;  
+	//~ int totalFrames;
+	//~ int numSamples;
+	//~ long numBytes;
 	
-	totalFrames = NUM_SECONDS * global->Sound_SampRate;
-	numSamples = totalFrames * global->Sound_NumChan;
+	//~ totalFrames = NUM_SECONDS * global->Sound_SampRate;
+	//~ numSamples = totalFrames * global->Sound_NumChan;
  
-	numBytes = numSamples * sizeof(SAMPLE);
+	//~ numBytes = numSamples * sizeof(SAMPLE);
 
-	recordedSamples = (SAMPLE *) malloc( numBytes );
+	//~ recordedSamples = (SAMPLE *) malloc( numBytes );
 
-	if( recordedSamples == NULL )
-	{
-		printf("Could not allocate record array.\n");
-		return (1);
-	}
-	for ( i=0; i<numSamples; i++ ) recordedSamples[i] = 0;/*init to zero - silence*/
+	//~ if( recordedSamples == NULL )
+	//~ {
+		//~ printf("Could not allocate record array.\n");
+		//~ return (1);
+	//~ }
+	//~ for ( i=0; i<numSamples; i++ ) recordedSamples[i] = 0;/*init to zero - silence*/
 	
-	/*sould make sure main loop as stoped writing to avi*/
+	//~ /*sould make sure main loop as stoped writing to avi*/
 	
-	AVI_set_audio(AviOut, global->Sound_NumChan, global->Sound_SampRate, sizeof(SAMPLE)*8,WAVE_FORMAT_PCM);
-	if (global->debug) printf("sample size: %d bits\n",sizeof(SAMPLE)*8);
+	//~ AVI_set_audio(AviOut, global->Sound_NumChan, global->Sound_SampRate, sizeof(SAMPLE)*8,WAVE_FORMAT_PCM);
+	//~ if (global->debug) printf("sample size: %d bits\n",sizeof(SAMPLE)*8);
 	
-	/* Audio Capture allways starts last (delay due to thread initialization)*/
-	int synctime= global->snd_begintime - global->AVIstarttime; /*time diff for audio-video*/
-	if(synctime>0 && synctime<5000) { /*only sync up to 5 seconds*/
-		/*shift sound by synctime*/
-		Uint32 shiftFrames=abs(synctime*global->Sound_SampRate/1000);
-		Uint32 shiftSamples=shiftFrames*global->Sound_NumChan;
-		if (global->debug) printf("shift sound forward by %d ms = %d frames\n",synctime,shiftSamples);
-		SAMPLE EmptySamp[shiftSamples];
-		for(i=0; i<shiftSamples; i++) EmptySamp[i]=0;/*init to zero - silence*/
-		AVI_write_audio(AviOut,(BYTE *) &EmptySamp,shiftSamples*sizeof(SAMPLE)); 
-	} else if (synctime<0){
-		/*shift sound by synctime*/
-		Uint32 shiftFrames=abs(synctime*global->Sound_SampRate/1000);
-		Uint32 shiftSamples=shiftFrames*global->Sound_NumChan;
-		if (global->debug) printf("Must shift sound backward by %d ms - %d frames\n",synctime,shiftSamples);
-		/*Must eat up the number of shiftframes - never seems to happen*/
-	}
-	FILE *fip;
-	fip=fopen(global->sndfile,"rb");
-	if( fip == NULL )
-	{
-		printf("Could not open snd data file.\n");
-	} else {
-		while(fread( recordedSamples, global->Sound_NumChan * sizeof(SAMPLE), totalFrames, fip )!=0){  
-			AVI_write_audio(AviOut,(BYTE *) recordedSamples,numBytes);
-		}
-	}
-	fclose(fip);
-	if (recordedSamples) free( recordedSamples );
-	recordedSamples=NULL;
+	//~ /* Audio Capture allways starts last (delay due to thread initialization)*/
+	//~ int synctime= global->snd_begintime - global->AVIstarttime; /*time diff for audio-video*/
+	//~ if(synctime>0 && synctime<5000) { /*only sync up to 5 seconds*/
+		//~ /*shift sound by synctime*/
+		//~ Uint32 shiftFrames=abs(synctime*global->Sound_SampRate/1000);
+		//~ Uint32 shiftSamples=shiftFrames*global->Sound_NumChan;
+		//~ if (global->debug) printf("shift sound forward by %d ms = %d frames\n",synctime,shiftSamples);
+		//~ SAMPLE EmptySamp[shiftSamples];
+		//~ for(i=0; i<shiftSamples; i++) EmptySamp[i]=0;/*init to zero - silence*/
+		//~ AVI_write_audio(AviOut,(BYTE *) &EmptySamp,shiftSamples*sizeof(SAMPLE)); 
+	//~ } else if (synctime<0){
+		//~ /*shift sound by synctime*/
+		//~ Uint32 shiftFrames=abs(synctime*global->Sound_SampRate/1000);
+		//~ Uint32 shiftSamples=shiftFrames*global->Sound_NumChan;
+		//~ if (global->debug) printf("Must shift sound backward by %d ms - %d frames\n",synctime,shiftSamples);
+		//~ /*Must eat up the number of shiftframes - never seems to happen*/
+	//~ }
+	//~ FILE *fip;
+	//~ fip=fopen(global->sndfile,"rb");
+	//~ if( fip == NULL )
+	//~ {
+		//~ printf("Could not open snd data file.\n");
+	//~ } else {
+		//~ while(fread( recordedSamples, global->Sound_NumChan * sizeof(SAMPLE), totalFrames, fip )!=0){  
+			//~ AVI_write_audio(AviOut,(BYTE *) recordedSamples,numBytes);
+		//~ }
+	//~ }
+	//~ fclose(fip);
+	//~ if (recordedSamples) free( recordedSamples );
+	//~ recordedSamples=NULL;
 
-	return (0);
+	//~ return (0);
 	
-}
+//~ }
 
 /* Called at avi capture stop       */
 /* from avi capture button callback */
@@ -788,7 +802,7 @@ aviClose (void)
 	  }
      
      	  if (global->debug) printf("AVI: %d frames in %d ms = %f fps\n",global->framecount,tottime,AviOut->fps);
-	  /*---------------- write audio to avi if Sound Enable ------------------*/
+	  /*---------------- write last audio data to avi if Sound Enable ------------------*/
 	  if (global->Sound_enable > 0) {
 		/* Free attribute and wait for the thread */
 		pthread_attr_destroy(&sndattr);
@@ -801,11 +815,14 @@ aviClose (void)
 			/* don't add sound*/
 		} else {
 			if (global->debug) printf("Capture sound thread join with status= %d\n", tstatus);
-			if (AVIAudioAdd()>0) printf("ERROR: reading Audio file\n");
+			//if (AVIAudioAdd()>0) printf("ERROR: reading Audio file\n");
+		    	if (global->audio_flag>0) {
+				AVI_write_audio(AviOut,(BYTE *) global->avi_sndBuff,global->snd_numBytes);
+			}
 		}
-	        /*remove audio file*/
-		unlink(global->sndfile);
-		snprintf(global->sndfile,32,"/tmp/guvc_sound_XXXXXX");/*return to template*/
+	        //~ /*remove audio file*/
+		//~ unlink(global->sndfile);
+		//~ snprintf(global->sndfile,32,"/tmp/guvc_sound_XXXXXX");/*return to template*/
 	  } 
 	  AVI_close (AviOut);
 	  AviOut = NULL;
@@ -1556,10 +1573,11 @@ capture_avi (GtkButton *AVIButt, void *data)
 		AVI_set_video(AviOut, videoIn->width, videoIn->height, videoIn->fps,compression);		
 		/* audio will be set in aviClose - if enabled*/
 		global->AVIstarttime = ms_time();
-				
-		videoIn->capAVI = TRUE; /* start video capture */
+
+	    	videoIn->capAVI = TRUE; /* start video capture */
 		/*disabling sound and avi compression controls*/
 		set_sensitive_avi_contrls(FALSE);
+	    
 		/* Creating the sound capture loop thread if Sound Enable*/ 
 		if(global->Sound_enable > 0) { 
 			/* Initialize and set snd thread detached attribute */
@@ -2371,7 +2389,7 @@ void *main_loop(void *data)
 		if (global->FpsCount) {/* sets fps count in window title bar */
 			global->frmCount++;
 			if (global->DispFps>0) { /*set every 2 sec*/
-				snprintf(global->WVcaption,20,"GUVCVideo - %d fps",global->DispFps);
+				snprintf(global->WVcaption,20,"GUVCVideo - %f fps",global->DispFps);
 				SDL_WM_SetCaption(global->WVcaption, NULL);
 				global->frmCount=0;/*resets*/
 				global->DispFps=0;
@@ -2488,9 +2506,9 @@ void *main_loop(void *data)
 			/* save MJPG frame */   
 			if((global->Frame_Flags==0) && (videoIn->formatIn==V4L2_PIX_FMT_MJPEG)) {
 				//printf("avi write frame\n");
-				if (AVI_write_frame (AviOut,
-								videoIn->tmpbuffer, videoIn->buf.bytesused) < 0)
+				if (AVI_write_frame (AviOut, videoIn->tmpbuffer, videoIn->buf.bytesused) < 0)
 					printf ("write error on avi out \n");
+			    	
 			} else {  /* use built in encoder */ 
 				if (!global->jpeg){ 
 					if((global->jpeg = (BYTE*)malloc(global->jpeg_bufsize))==NULL) {
@@ -2538,7 +2556,26 @@ void *main_loop(void *data)
 			break;
 
 		} 
-	   global->framecount++;	   
+	   global->framecount++;
+	   /*add audio*/
+	   if ((global->Sound_enable) && (global->audio_flag>0)) {
+	       if (AviOut->audio_bytes==0) { /*first audio data - sync with video (audio thread allawys starts after video)*/
+	       		int synctime= global->snd_begintime - global->AVIstarttime; /*time diff for audio-video*/
+			if(synctime>0 && synctime<5000) { /*only sync up to 5 seconds*/
+			/*shift sound by synctime*/
+			Uint32 shiftFrames=abs(synctime*global->Sound_SampRate/1000);
+			Uint32 shiftSamples=shiftFrames*global->Sound_NumChan;
+			if (global->debug) printf("shift sound forward by %d ms = %d frames\n",synctime,shiftSamples);
+			SAMPLE EmptySamp[shiftSamples];
+			int i;
+			for(i=0; i<shiftSamples; i++) EmptySamp[i]=0;/*init to zero - silence*/
+				AVI_write_audio(AviOut,(BYTE *) &EmptySamp,shiftSamples*sizeof(SAMPLE));
+	       		}
+	       }
+	       AVI_write_audio(AviOut,(BYTE *) global->avi_sndBuff,global->snd_numBytes);
+	       global->audio_flag=0;
+	   }
+	      
 	  } 
 	/*------------------------- Display Frame --------------------------------*/
 	 SDL_LockYUVOverlay(overlay);
