@@ -108,7 +108,7 @@ pthread_attr_t sndattr;
 /* parameters passed when restarting*/
 char *EXEC_CALL;
 /*avi structure used by libavi*/
-avi_t *AviOut;
+avi_t *AviOut=NULL;
 
 
 /*exposure menu for old type controls */
@@ -741,6 +741,7 @@ aviClose (void)
 			//if (AVIAudioAdd()>0) printf("ERROR: reading Audio file\n");
 		    	if (global->audio_flag>0) {
 				AVI_write_audio(AviOut,(BYTE *) global->avi_sndBuff,global->snd_numBytes);
+				global->audio_flag=0;
 			}
 		}
 	        //~ /*remove audio file*/
@@ -2482,7 +2483,7 @@ void *main_loop(void *data)
 	   global->framecount++;
 	   /*add audio*/
 	   if ((global->Sound_enable) && (global->audio_flag>0)) {
-	       if (AviOut->audio_bytes==0) { /*first audio data - sync with video (audio thread allawys starts after video)*/
+	       if (!(AviOut->audio_bytes)) { /*first audio data - sync with video (audio thread allawys starts after video)*/
 	       		int synctime= global->snd_begintime - global->AVIstarttime; /*time diff for audio-video*/
 			if(synctime>0 && synctime<5000) { /*only sync up to 5 seconds*/
 			/*shift sound by synctime*/

@@ -568,7 +568,10 @@ int AVI_write_frame(avi_t *AVI, BYTE *data, long bytes)
    if(AVI->mode==AVI_MODE_READ) { AVI_errno = AVI_ERR_NOT_PERM; return -1; }
 
    pos = AVI->pos;
-   if( avi_write_data(AVI,data,bytes,0) ) return -1;
+   if( avi_write_data(AVI,data,bytes,0) ) {
+       if (AVI_errno == AVI_ERR_SIZELIM) AVI_close(AVI); /*file size limit reached - close AVI*/
+       return -1;
+   }
    AVI->last_pos = pos;
    AVI->last_len = bytes;
    AVI->video_frames++;
@@ -595,7 +598,10 @@ int AVI_write_audio(avi_t *AVI, BYTE *data, long bytes)
 {
    if(AVI->mode==AVI_MODE_READ) { AVI_errno = AVI_ERR_NOT_PERM; return -1; }
 
-   if( avi_write_data(AVI,data,bytes,1) ) return -1;
+   if( avi_write_data(AVI,data,bytes,1) ) {
+       if (AVI_errno == AVI_ERR_SIZELIM) AVI_close(AVI); /*file size limit reached - close AVI*/
+       return -1;
+   }
    AVI->audio_bytes += bytes;
    return 0;
 }
@@ -632,7 +638,7 @@ int AVI_close(avi_t *AVI)
    if(AVI->video_index) free(AVI->video_index);
    if(AVI->audio_index) free(AVI->audio_index);
    free(AVI);
-
+   AVI=NULL;	
    return ret;
 }
 
