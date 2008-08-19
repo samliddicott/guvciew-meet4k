@@ -70,7 +70,7 @@ static char id_str[MAX_INFO_STRLEN];
 /* AVI_MAX_LEN: The maximum length of an AVI file, we stay a bit below
     the 2GB limit (Remember: 2*10^9 is smaller than 2 GB) */
 
-ULONG AVI_MAX_LEN=2000000000;
+ULONG AVI_MAX_LEN = AVI_MAX_SIZE;
 
 void AVI_set_MAX_LEN(ULONG len) {
     

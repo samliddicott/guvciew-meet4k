@@ -257,7 +257,7 @@ int writeConf(const char *confpath) {
 		fprintf(fp,"grabmethod=%i\n",global->grabmethod);
 		fprintf(fp,"# video compression format: 0-MJPG 1-YUY2 2-DIB (BMP 24)\n");
 		fprintf(fp,"avi_format=%i\n",global->AVIFormat);
-		fprintf(fp,"# avi file max size (default 2 Gb)\n");
+		fprintf(fp,"# avi file max size (default %d bytes)\n",AVI_MAX_SIZE);
 		fprintf(fp,"avi_max_len=%li\n",global->AVI_MAX_LEN);
 		fprintf(fp,"# sound 0 - disable 1 - enable\n");
 		fprintf(fp,"sound=%i\n",global->Sound_enable);
@@ -1530,7 +1530,7 @@ timer_callback(){
 /* called by fps counter every 2 sec */
 static int 
 FpsCount_callback(){
-	global->DispFps = global->frmCount >> 1; /* div by 2 */
+	global->DispFps = (double) global->frmCount / 2;
 	if (global->FpsCount>0) return(TRUE); /*keeps the timer*/
 	else {
 		snprintf(global->WVcaption,10,"GUVCVideo");
@@ -2309,7 +2309,7 @@ void *main_loop(void *data)
 		if (global->FpsCount) {/* sets fps count in window title bar */
 			global->frmCount++;
 			if (global->DispFps>0) { /*set every 2 sec*/
-				snprintf(global->WVcaption,20,"GUVCVideo - %f fps",global->DispFps);
+				snprintf(global->WVcaption,24,"GUVCVideo - %3.2f fps",global->DispFps);
 				SDL_WM_SetCaption(global->WVcaption, NULL);
 				global->frmCount=0;/*resets*/
 				global->DispFps=0;

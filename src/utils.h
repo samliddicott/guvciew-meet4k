@@ -38,7 +38,10 @@ typedef  unsigned short int WORD;
 #define DEBUG (0)
 /*---------- Thread Stack Size (bytes) --------*/
 #define TSTACK (128*64*1024) /* Debian Default 128 pages of 64k = 8388608 bytes*/
- 
+
+/*----------- AVI max file size ---------------*/
+#define AVI_MAX_SIZE 2000000000
+
 /*------------- portaudio defs ----------------*/
 /*---- can be override in rc file or GUI ------*/
 
