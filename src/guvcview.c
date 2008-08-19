@@ -661,7 +661,7 @@ void *sound_capture(void *data)
 	       memcpy(global->avi_sndBuff, recordedSamples ,global->snd_numBytes); 
 	       global->audio_flag =1;
 	   } else {
-	   	/*wait a bit and retry*/
+	   	/*wait a bit and retry?*/
 	       printf("sound not ready...\n");
 	   }
 	
@@ -731,22 +731,18 @@ aviClose (void)
 		pthread_attr_destroy(&sndattr);
 	
 		pthread_join(sndthread, (void *)&tstatus);
-	   
+	   	
 		if (tstatus!=0)
 		{
 			printf("ERROR: status from sound thread join is %d\n", tstatus);
 			/* don't add sound*/
 		} else {
 			if (global->debug) printf("Capture sound thread join with status= %d\n", tstatus);
-			//if (AVIAudioAdd()>0) printf("ERROR: reading Audio file\n");
 		    	if (global->audio_flag>0) {
-				AVI_write_audio(AviOut,(BYTE *) global->avi_sndBuff,global->snd_numBytes);
+				AVI_append_audio(AviOut,(BYTE *) global->avi_sndBuff,global->snd_numBytes);
 				global->audio_flag=0;
 			}
 		}
-	        //~ /*remove audio file*/
-		//~ unlink(global->sndfile);
-		//~ snprintf(global->sndfile,32,"/tmp/guvc_sound_XXXXXX");/*return to template*/
 	  } 
 	  AVI_close (AviOut);
 	  AviOut = NULL;
@@ -2208,7 +2204,7 @@ void *main_loop(void *data)
 	float sharpness=0;
 	float last_sharp=0;
     	int focus=get_focus();
-	
+	int keyframe = 1;
 	/*gets the stack size for the thread (DEBUG)*/ 
 	pthread_attr_getstacksize (&attr, &videostacksize);
 	if (global->debug) printf("Video Thread: stack size = %d bytes \n", videostacksize);
@@ -2423,16 +2419,22 @@ void *main_loop(void *data)
 	  
 	  /*---------------------------capture AVI---------------------------------*/
 	  if (videoIn->capAVI && videoIn->signalquit){
-	   long framesize;		
+	   long framesize;  
 	   switch (global->AVIFormat) {
 		   
 		case 0: /*MJPG*/
 			/* save MJPG frame */   
 			if((global->Frame_Flags==0) && (videoIn->formatIn==V4L2_PIX_FMT_MJPEG)) {
 				//printf("avi write frame\n");
-				if (AVI_write_frame (AviOut, videoIn->tmpbuffer, videoIn->buf.bytesused) < 0)
-					printf ("write error on avi out \n");
-			    	
+				if (AVI_write_frame (AviOut, videoIn->tmpbuffer, videoIn->buf.bytesused, keyframe) < 0) {
+				 	if (AVI_getErrno () == AVI_ERR_SIZELIM) {
+						/*avi file limit reached - must end capture and close file*/
+					     	capture_avi(GTK_BUTTON(CapAVIButt), NULL); /*avi capture callback*/
+					     	printf("AVI file size limit reached - avi capture stoped\n");
+					} else {
+						printf ("write error on avi out \n");
+					}
+				}
 			} else {  /* use built in encoder */ 
 				if (!global->jpeg){ 
 					if((global->jpeg = (BYTE*)malloc(global->jpeg_bufsize))==NULL) {
@@ -2455,15 +2457,30 @@ void *main_loop(void *data)
 				global->jpeg_size = encode_image(videoIn->framebuffer, global->jpeg, 
 								jpeg_struct,1, videoIn->width, videoIn->height);
 			
-				if (AVI_write_frame (AviOut, global->jpeg, global->jpeg_size) < 0)
-					printf ("write error on avi out \n");
+				if (AVI_write_frame (AviOut, global->jpeg, global->jpeg_size, keyframe) < 0) {
+					if (AVI_getErrno () == AVI_ERR_SIZELIM) {
+						/*avi file limit reached - must end capture and close file*/
+					     	capture_avi(GTK_BUTTON(CapAVIButt), NULL); /*avi capture callback*/
+					     	printf("AVI file size limit reached - avi capture stoped\n");
+					} else {
+						printf ("write error on avi out \n");
+					}
+					
+				}
 			}
 			break;
 		case 1:
 		   framesize=(pscreen->w)*(pscreen->h)*2; /*YUY2 -> 2 bytes per pixel */
-			   if (AVI_write_frame (AviOut,
-				   p, framesize) < 0)
-					printf ("write error on avi out \n");
+		   if (AVI_write_frame (AviOut, p, framesize, keyframe) < 0) {
+		   	if (AVI_getErrno () == AVI_ERR_SIZELIM) {
+				/*avi file limit reached - must end capture and close file*/
+				capture_avi(GTK_BUTTON(CapAVIButt), NULL); /*avi capture callback*/
+				printf("AVI file size limit reached - avi capture stoped\n");
+			} else {
+				printf ("write error on avi out \n");
+			}
+					
+		   }
 		   break;
 		case 2:
 			framesize=(pscreen->w)*(pscreen->h)*3; /*DIB 24/32 -> 3/4 bytes per pixel*/ 
@@ -2475,12 +2492,21 @@ void *main_loop(void *data)
 			  }
 			}
 			yuyv2bgr(videoIn->framebuffer,pavi,videoIn->width,videoIn->height); 
-			if (AVI_write_frame (AviOut,pavi, framesize) < 0)
-				printf ("write error on avi out \n");
+			if (AVI_write_frame (AviOut,pavi, framesize, keyframe) < 0) {
+				if (AVI_getErrno () == AVI_ERR_SIZELIM) {
+					/*avi file limit reached - must end capture and close file*/
+					capture_avi(GTK_BUTTON(CapAVIButt), NULL); /*avi capture callback*/
+					printf("AVI file size limit reached - avi capture stoped\n");
+				} else {
+					printf ("write error on avi out \n");
+				}
+					
+			}
 			break;
 
 		} 
 	   global->framecount++;
+	   if (keyframe) keyframe=0; /*resets key frame*/   
 	   /*add audio*/
 	   if ((global->Sound_enable) && (global->audio_flag>0)) {
 	       if (!(AviOut->audio_bytes)) { /*first audio data - sync with video (audio thread allawys starts after video)*/
@@ -2496,9 +2522,19 @@ void *main_loop(void *data)
 				AVI_write_audio(AviOut,(BYTE *) &EmptySamp,shiftSamples*sizeof(SAMPLE));
 	       		}
 	       }
-	       AVI_write_audio(AviOut,(BYTE *) global->avi_sndBuff,global->snd_numBytes);
+	       if(AVI_write_audio(AviOut,(BYTE *) global->avi_sndBuff,global->snd_numBytes) < 0) {
+	       		if (AVI_getErrno () == AVI_ERR_SIZELIM) {
+				/*avi file limit reached - must end capture and close file*/
+				capture_avi(GTK_BUTTON(CapAVIButt), NULL); /*avi capture callback*/
+				printf("AVI file size limit reached - avi capture stoped\n");
+			} else {
+				printf ("write error on avi out \n");
+			}
+					
+	       }
 	       global->audio_flag=0;
-	   }
+	       keyframe = 1; /*marks next frmae as key frame*/
+	   }   
 	      
 	  } 
 	/*------------------------- Display Frame --------------------------------*/

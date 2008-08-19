@@ -36,6 +36,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#include "config.h"
 #include "avilib.h"
 
 /* The following variable indicates the kind of error */
@@ -48,12 +49,30 @@ long AVI_errno = 0;
  *                                                                 *
  *******************************************************************/
 
+#ifndef O_BINARY
+/* win32 wants a binary flag to open(); this sets it to null
+   on platforms that don't have it. */
+#define O_BINARY 0
+#endif
+
+#define INFO_LIST
+
+#define MAX_INFO_STRLEN 64
+static char id_str[MAX_INFO_STRLEN];
+
+#ifndef PACKAGE
+#define PACKAGE "guvcview"
+#endif
+#ifndef VERSION
+#define VERSION "0.9"
+#endif
+
 /* AVI_MAX_LEN: The maximum length of an AVI file, we stay a bit below
     the 2GB limit (Remember: 2*10^9 is smaller than 2 GB) */
 
-long AVI_MAX_LEN=2000000000;
+ULONG AVI_MAX_LEN=2000000000;
 
-void AVI_set_MAX_LEN(long len) {
+void AVI_set_MAX_LEN(ULONG len) {
     
 	AVI_MAX_LEN = len;
 }
@@ -174,7 +193,7 @@ avi_t* AVI_open_output_file(const char * filename)
    avi_t *AVI;
    int i;
    BYTE AVI_header[HEADERBYTES];
-
+   int mask = 0; 
    /* Allocate the avi_t struct and zero it */
 
    AVI = (avi_t *) malloc(sizeof(avi_t));
@@ -189,7 +208,7 @@ avi_t* AVI_open_output_file(const char * filename)
       we do not truncate the file when we open it.
       Instead it is truncated when the AVI file is closed */
 
-   AVI->fdes = open(filename,O_RDWR|O_CREAT,0600);
+   AVI->fdes = open(filename,O_RDWR|O_CREAT|O_BINARY,0644 &~mask);
    if (AVI->fdes < 0)
    {
       AVI_errno = AVI_ERR_OPEN;
@@ -268,22 +287,22 @@ static int avi_close_output_file(avi_t *AVI)
    int movi_len, hdrl_start, strl_start;
    BYTE AVI_header[HEADERBYTES];
    long nhb;
-   BYTE tag[4];
    /* Calculate length of movi list */
 
    movi_len = AVI->pos - HEADERBYTES + 4;
-
+    
+#ifdef INFO_LIST
+   long info_len;
+#endif
+    
    /* Try to ouput the index entries. This may fail e.g. if no space
       is left on device. We will report this as an error, but we still
       try to write the header correctly (so that the file still may be
       readable in the most cases */
 
    idxerror = 0;
-   tag[0] = 'i';
-   tag[1] = 'd';
-   tag[2] = 'x';
-   tag[3] = '1';
-   ret = avi_add_chunk(AVI,tag,(void *)AVI->idx,AVI->n_idx*16);
+ 
+   ret = avi_add_chunk(AVI,(BYTE *)"idx1",(void *)AVI->idx,AVI->n_idx*16);
    hasIndex = (ret==0);
    if(ret)
    {
@@ -459,6 +478,43 @@ static int avi_close_output_file(avi_t *AVI)
    /* Finish header list */
 
    long2str(AVI_header+hdrl_start-4,nhb-hdrl_start);
+    
+// add INFO list --- (0.6.0pre4)
+
+#ifdef INFO_LIST
+   OUT4CC ("LIST");
+   
+   //FIXME
+   info_len = MAX_INFO_STRLEN + 12;
+   OUTLONG(info_len);
+   OUT4CC ("INFO");
+
+//   OUT4CC ("INAM");
+//   OUTLONG(MAX_INFO_STRLEN);
+
+//   sprintf(id_str, "\t");
+//   memset(AVI_header+nhb, 0, MAX_INFO_STRLEN);
+//   memcpy(AVI_header+nhb, id_str, strlen(id_str));
+//   nhb += MAX_INFO_STRLEN;
+
+   OUT4CC ("ISFT");
+   OUTLONG(MAX_INFO_STRLEN);
+
+   sprintf(id_str, "%s-%s", PACKAGE, VERSION);
+   memset(AVI_header+nhb, 0, MAX_INFO_STRLEN);
+   memcpy(AVI_header+nhb, id_str, strlen(id_str));
+   nhb += MAX_INFO_STRLEN;
+
+//   OUT4CC ("ICMT");
+//   OUTLONG(MAX_INFO_STRLEN);
+
+//   calptr=time(NULL); 
+//   sprintf(id_str, "\t%s %s", ctime(&calptr), "");
+//   memset(AVI_header+nhb, 0, MAX_INFO_STRLEN);
+//   memcpy(AVI_header+nhb, id_str, 25);
+//   nhb += MAX_INFO_STRLEN;
+#endif
+    
 
    /* Calculate the needed amount of junk bytes, output junk */
 
@@ -489,8 +545,8 @@ static int avi_close_output_file(avi_t *AVI)
       actually written, report an error if someting goes wrong */
 
    if ( lseek(AVI->fdes,0,SEEK_SET)<0 ||
-        write(AVI->fdes,AVI_header,HEADERBYTES)!=HEADERBYTES ||
-        ftruncate(AVI->fdes,AVI->pos)<0 )
+        write(AVI->fdes,AVI_header,HEADERBYTES)!=HEADERBYTES || ftruncate(AVI->fdes,AVI->pos)<0 
+       )
    {
       AVI_errno = AVI_ERR_CLOSE;
       return -1;
@@ -510,10 +566,9 @@ static int avi_close_output_file(avi_t *AVI)
 
 */
 
-static int avi_write_data(avi_t *AVI, BYTE *data, long length, int audio)
+static int avi_write_data(avi_t *AVI, BYTE *data, long length, int audio, int keyframe)
 {
    int n;
-   BYTE tag[4];
    /* Check for maximum file length */
 
    if ( (AVI->pos + 8 + length + 8 + (AVI->n_idx+1)*16) > AVI_MAX_LEN )
@@ -523,53 +578,32 @@ static int avi_write_data(avi_t *AVI, BYTE *data, long length, int audio)
    }
 
    /* Add index entry */
-   if(audio) {
-	   tag[0] = '0';
-	   tag[1] = '1';
-	   tag[2] = 'w';
-	   tag[3] = 'b';
-   }
-   else {
-	   tag[0] = '0';
-	   tag[1] = '0';
-	   tag[2] = 'd';
-	   tag[3] = 'b';
-   }
-	
-   n = avi_add_index_entry(AVI,tag,0x00,AVI->pos,length);
+   if(audio)
+     n = avi_add_index_entry(AVI,(BYTE *)"01wb",0x00,AVI->pos,length);
+   else
+     n = avi_add_index_entry(AVI,(BYTE *) "00db",((keyframe)?0x10:0x0),AVI->pos,length);
 
    if(n) return -1;
 
    /* Output tag and data */
-   if(audio) {
-	   tag[0] = '0';
-	   tag[1] = '1';
-	   tag[2] = 'w';
-	   tag[3] = 'b';
-   }
-   else {
-	   tag[0] = '0';
-	   tag[1] = '0';
-	   tag[2] = 'd';
-	   tag[3] = 'b';
-   }
-	  
-   n = avi_add_chunk(AVI,tag,data,length);
+    if(audio)
+     n = avi_add_chunk(AVI,(BYTE *) "01wb",(BYTE *)data,length);
+   else
+     n = avi_add_chunk(AVI,(BYTE *)"00db",(BYTE *)data,length);
 
    if (n) return -1;
 
    return 0;
 }
 
-int AVI_write_frame(avi_t *AVI, BYTE *data, long bytes)
+int AVI_write_frame(avi_t *AVI, BYTE *data, long bytes, int keyframe)
 {
    long pos;
 
    if(AVI->mode==AVI_MODE_READ) { AVI_errno = AVI_ERR_NOT_PERM; return -1; }
 
    pos = AVI->pos;
-   if( avi_write_data(AVI,data,bytes,0) ) {
-       if (AVI_errno == AVI_ERR_SIZELIM) AVI_close(AVI); /*file size limit reached - close AVI*/
+   if( avi_write_data(AVI,data,bytes,0, keyframe) ) {
        return -1;
    }
    AVI->last_pos = pos;
@@ -580,15 +614,11 @@ int AVI_write_frame(avi_t *AVI, BYTE *data, long bytes)
 
 int AVI_dup_frame(avi_t *AVI)
 {
-   BYTE tag[4];
    if(AVI->mode==AVI_MODE_READ) { AVI_errno = AVI_ERR_NOT_PERM; return -1; }
 
    if(AVI->last_pos==0) return 0; /* No previous real frame */
-   tag[0] = '0';
-   tag[1] = '0';
-   tag[2] = 'd';
-   tag[3] = 'b';	
-   if(avi_add_index_entry(AVI,tag,0x10,AVI->last_pos,AVI->last_len)) return -1;
+   	
+   if(avi_add_index_entry(AVI,(BYTE *) "00db",0x10,AVI->last_pos,AVI->last_len)) return -1;
    AVI->video_frames++;
    AVI->must_use_index = 1;
    return 0;
@@ -598,15 +628,30 @@ int AVI_write_audio(avi_t *AVI, BYTE *data, long bytes)
 {
    if(AVI->mode==AVI_MODE_READ) { AVI_errno = AVI_ERR_NOT_PERM; return -1; }
 
-   if( avi_write_data(AVI,data,bytes,1) ) {
-       if (AVI_errno == AVI_ERR_SIZELIM) AVI_close(AVI); /*file size limit reached - close AVI*/
+   if( avi_write_data(AVI,data,bytes,1,0) ) {
        return -1;
    }
    AVI->audio_bytes += bytes;
    return 0;
 }
 
-unsigned long AVI_bytes_remain(avi_t *AVI)
+/*doesn't check for size limit - called when closing avi*/
+int AVI_append_audio(avi_t *AVI, BYTE *data, long bytes)
+{  
+   /* Add index entry */
+   if (avi_add_index_entry(AVI,(BYTE *) "01wb",0x00,AVI->pos, bytes)) 
+	return -1;
+   
+   /* Output tag and data */
+   
+   if(avi_add_chunk(AVI,(BYTE *) "01wb", (BYTE *)data, bytes))   
+   	return -1;
+  
+   AVI->audio_bytes += bytes; 
+   return 0;  
+}
+
+ULONG AVI_bytes_remain(avi_t *AVI)
 {
    if(AVI->mode==AVI_MODE_READ) return 0;
 
@@ -648,6 +693,11 @@ int AVI_close(avi_t *AVI)
    AVI_close(AVI); \
    AVI_errno = x; \
    return 0; \
+}
+
+int AVI_getErrno() 
+{
+    return AVI_errno;
 }
 
 /* AVI_print_error: Print most recent error (similar to perror) */

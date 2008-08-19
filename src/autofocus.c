@@ -207,7 +207,7 @@ int getFocusVal (int focus, float sharpness, float old_sharpness, int step, int*
 	}
     	
     	/*clip focus*/
-    	CLIP(focus);
+    	focus=(focus>255)?255:((focus<0)?0:focus);
 	
 	return focus;
 }

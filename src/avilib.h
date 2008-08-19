@@ -36,15 +36,15 @@
 
 typedef struct
 {
-  long pos;
-  long len;
+  ULONG pos;
+  ULONG len;
 } video_index_entry;
 
 typedef struct
 {
-   long pos;
-   long len;
-   long tot;
+   ULONG pos;
+   ULONG len;
+   ULONG tot;
 } audio_index_entry;
 
 typedef struct
@@ -73,16 +73,16 @@ typedef struct
    long   audio_posc;        /* Audio position: chunk */
    long   audio_posb;        /* Audio position: byte within chunk */
 
-   long   pos;               /* position in file */
+   ULONG   pos;               /* position in file */
    long   n_idx;             /* number of index entries actually filled */
    long   max_idx;           /* number of index entries actually allocated */
    BYTE (*idx)[16]; /* index entries (AVI idx1 tag) */
    video_index_entry * video_index;
    audio_index_entry * audio_index;
-   long   last_pos;          /* Position of last frame written */
-   long   last_len;          /* Length of last frame written */
+   ULONG   last_pos;          /* Position of last frame written */
+   ULONG   last_len;          /* Length of last frame written */
    int    must_use_index;    /* Flag if frames are duplicated */
-   long   movi_start;
+   ULONG   movi_start;
 } avi_t;
 
 #define AVI_MODE_WRITE  0
@@ -154,13 +154,16 @@ typedef struct
 avi_t* AVI_open_output_file(const char * filename);
 void AVI_set_video(avi_t *AVI, int width, int height, double fps, char *compressor);
 void AVI_set_audio(avi_t *AVI, int channels, long rate, int bits, int format);
-int  AVI_write_frame(avi_t *AVI, BYTE *data, long bytes);
+int  AVI_write_frame(avi_t *AVI, BYTE *data, long bytes, int keyframe);
 int  AVI_dup_frame(avi_t *AVI);
 int  AVI_write_audio(avi_t *AVI, BYTE *data, long bytes);
-unsigned long AVI_bytes_remain(avi_t *AVI);
+int  AVI_append_audio(avi_t *AVI, BYTE *data, long bytes);
+ULONG AVI_bytes_remain(avi_t *AVI);
 int  AVI_close(avi_t *AVI);
 
-void AVI_set_MAX_LEN(long len);
+void AVI_set_MAX_LEN(ULONG len);
+
+int AVI_getErrno();
 
 void AVI_print_error(char *str);
 char *AVI_strerror();

@@ -30,6 +30,7 @@ typedef unsigned char BYTE;
 typedef  unsigned int DWORD;
 typedef  unsigned int LONG;
 typedef  unsigned int UINT;
+typedef  unsigned long ULONG;
 typedef  unsigned short int WORD;
 
 /*----------- guvcview version ----------------*/
