@@ -75,7 +75,8 @@ static float getSharpMeasureMCU (INT16 *data, int t) {
 			
 		}	
 	}
-	res=(1-(sumSqrAC/(sumAC*sumAC)));
+     	if (sumAC == 0) res=0;
+    	else res=(1-(sumSqrAC/(sumAC*sumAC)));
 	return (res);
 }
 
@@ -83,8 +84,8 @@ float getSharpMeasure (BYTE* img, int width, int height, int t) {
 
 	float res=0;
 	double sumMCU=0;
-	int numMCUx = width/16;
-    	int numMCUy = height/16;
+	int numMCUx = width/16; /*covers half the width - width must be even*/
+    	int numMCUy = height/16; /*covers half the height- height must be even*/
 	INT16 dataMCU[64];
     	INT16* data;
     	INT16 dataY[width*height];
@@ -119,17 +120,17 @@ float getSharpMeasure (BYTE* img, int width, int height, int t) {
 
 int getFocusVal (int focus,int *old_focus, int* right, int* left,float *rightS, float *leftS, float sharpness, float* focus_sharpness, int step, int* flag, int fps) {
 
-    	float treshold = 0.001;
+    	float treshold = 0.005;
     	int middle=(*left+*right)/2;
     	
 	switch (*flag) {
 	    /*--------- first time - run sharpness algorithm -----------------*/
 	    case 0:
-		if (focus < middle ) {
+		if (focus < middle ) { /*start left*/
 		    focus = *left;
 		    *flag = 1;
 		} else {
-		    focus = *right;
+		    focus = *right; /*start right*/
 		    *flag = 2;
 		}
 		break;
@@ -220,7 +221,7 @@ int getFocusVal (int focus,int *old_focus, int* right, int* left,float *rightS, 
 			    *flag = 17;
 			}
 		} else {
-		    *focus_sharpness = (*rightS+*leftS)/2; //FIXME
+		    *focus_sharpness = *leftS; //FIXME
 		    focus = middle;
 		    *flag = 17;
 		}
@@ -236,7 +237,7 @@ int getFocusVal (int focus,int *old_focus, int* right, int* left,float *rightS, 
 			    *flag = 17;
 			}
 		} else {
-		    *focus_sharpness = (*rightS+*leftS)/2; //FIXME
+		    *focus_sharpness = *rightS; //FIXME
 		    focus = middle;
 		    *flag = 17;
 		}

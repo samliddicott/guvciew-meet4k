@@ -2327,7 +2327,7 @@ void *main_loop(void *data)
 			sharpness=getSharpMeasure (videoIn->framebuffer, videoIn->width, videoIn->height, 6);
 		    	focus=getFocusVal (focus, &old_focus, &fright, &fleft, &rightS, &leftS, sharpness, &focus_sharp, global->focus_step, &global->focus_flag, global->fps);
 			set_focus (focus);
-		    	printf("sharp=%f focus_sharp=%f rS=%f lS=%f foc=%d flag=%d\n",sharpness,focus_sharp,rightS, leftS, focus, global->focus_flag);
+		    	if (global->debug) printf("sharp=%f focus_sharp=%f rS=%f lS=%f foc=%d flag=%d\n",sharpness,focus_sharp,rightS, leftS, focus, global->focus_flag);
 		}
 	 }
 	
