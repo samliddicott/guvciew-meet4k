@@ -2202,9 +2202,15 @@ void *main_loop(void *data)
 	BYTE *pavi=NULL;
 	
 	float sharpness=0;
-	float last_sharp=0;
+	float focus_sharp=0;
+    	int fright=256;
+    	int fleft = 0;
+    	float rightS = 0.0;
+    	float leftS = 0.0;
+    	
     	int focus=get_focus();
-	int keyframe = 1;
+	int old_focus = focus;
+    	int keyframe = 1;
 	/*gets the stack size for the thread (DEBUG)*/ 
 	pthread_attr_getstacksize (&attr, &videostacksize);
 	if (global->debug) printf("Video Thread: stack size = %d bytes \n", videostacksize);
@@ -2315,18 +2321,13 @@ void *main_loop(void *data)
 				global->DispFps=0;
 			}				
 		}
+	     	/*---------------- autofocus control ------------------*/
 		
 		if (global->AFcontrol && global->autofocus) {
-		    if (global->focus_flag<12) {
 			sharpness=getSharpMeasure (videoIn->framebuffer, videoIn->width, videoIn->height, 6);
-		    	focus=getFocusVal (focus, sharpness, last_sharp, global->focus_step, &global->focus_flag, global->fps);
-			last_sharp=sharpness;
+		    	focus=getFocusVal (focus, &old_focus, &fright, &fleft, &rightS, &leftS, sharpness, &focus_sharp, global->focus_step, &global->focus_flag, global->fps);
 			set_focus (focus);
-		    	//printf("sharp=%f foc=%d flag=%d\n",sharpness,focus, global->focus_flag);
-		    } else { /*on focus (wait for next focus cycle)*/
-			/*when 11 is reached it will be reset to 0 on getFocusVal*/
-		    	global->focus_flag--;
-		    }
+		    	printf("sharp=%f focus_sharp=%f rS=%f lS=%f foc=%d flag=%d\n",sharpness,focus_sharp,rightS, leftS, focus, global->focus_flag);
 		}
 	 }
 	

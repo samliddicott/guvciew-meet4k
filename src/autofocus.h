@@ -29,4 +29,4 @@
 
 float getSharpMeasure (BYTE *img, int width, int height, int t);
 
-int getFocusVal (int focus, float sharpness, float old_sharpness, int step, int* flag, int fps);
+int getFocusVal (int focus, int *old_focus, int *right, int *left,float *rightS, float*leftS,  float sharpness, float* focus_sharpness, int step, int* flag, int fps);
