@@ -227,8 +227,6 @@ struct GLOBAL {
 	unsigned int   jpeg_bufsize; /* width*height/2 */
 	int autofocus;
 	int AFcontrol;
-	int focus_step;
-	int focus_flag;
 }   __attribute__ ((packed));
 
 

@@ -26,7 +26,26 @@
 # 							                        #
 ********************************************************************************/
 
+#define MAX_ARR_S 20
+#define SHARP_SAMP 5
 
-float getSharpMeasure (BYTE *img, int width, int height, int t);
+struct focusData {
+	int focus;
+    	int old_focus;
+    	int right;
+    	int left;
+    	int sharpness;
+    	int focus_sharpness;
+    	int FS[SHARP_SAMP];
+    	int FSi;
+    	int arr_sharp[MAX_ARR_S];
+    	int arr_foc[MAX_ARR_S];
+    	int ind;
+    	int flag;
+};
 
-int getFocusVal (int focus, int *old_focus, int *right, int *left,float *rightS, float*leftS,  float sharpness, float* focus_sharpness, int step, int* flag, int fps);
+void initFocusData (struct focusData *AFdata);
+
+int getSharpMeasure (BYTE *img, int width, int height, int t);
+
+int getFocusVal (struct focusData *AFdata);

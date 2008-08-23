@@ -1332,8 +1332,6 @@ int initGlobals (struct GLOBAL *global) {
 	global->jpeg_bufsize = 0;
 	global->autofocus = 0;
 	global->AFcontrol = 0;
-	global->focus_step = 20;
-	global->focus_flag = 0;
 	return (0);
 	
 error:

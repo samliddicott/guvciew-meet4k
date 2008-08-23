@@ -60,6 +60,7 @@
 /*----------------------------- globals --------------------------------------*/
 struct GLOBAL *global=NULL;
 struct JPEG_ENCODER_STRUCTURE *jpeg_struct=NULL;
+struct focusData *AFdata=NULL;
 
 struct vdIn *videoIn=NULL;
 VidState * s;
@@ -862,7 +863,7 @@ autofocus_changed (GtkToggleButton * toggle, VidState * s) {
 	gtk_widget_set_sensitive (ci->spinbutton, !val);
     	
     	/*reset flag*/
-    	global->focus_flag=0;
+    	AFdata->flag=0;
     
     	global->autofocus = val;
 }
@@ -2201,16 +2202,13 @@ void *main_loop(void *data)
 	BYTE *pim= NULL;
 	BYTE *pavi=NULL;
 	
-	float sharpness=0;
-	float focus_sharp=0;
-    	int fright=256;
-    	int fleft = 0;
-    	float rightS = 0.0;
-    	float leftS = 0.0;
-    	
-    	int focus=get_focus();
-	int old_focus = focus;
+	
     	int keyframe = 1;
+    	
+    	int last_focus=0; 
+    	AFdata = malloc(sizeof(struct focusData));
+    	initFocusData(AFdata);
+    
 	/*gets the stack size for the thread (DEBUG)*/ 
 	pthread_attr_getstacksize (&attr, &videostacksize);
 	if (global->debug) printf("Video Thread: stack size = %d bytes \n", videostacksize);
@@ -2324,11 +2322,16 @@ void *main_loop(void *data)
 	     	/*---------------- autofocus control ------------------*/
 		
 		if (global->AFcontrol && global->autofocus) {
-			sharpness=getSharpMeasure (videoIn->framebuffer, videoIn->width, videoIn->height, 6);
-		    	focus=getFocusVal (focus, &old_focus, &fright, &fleft, &rightS, &leftS, sharpness, &focus_sharp, global->focus_step, &global->focus_flag, global->fps);
-			set_focus (focus);
-		    	if (global->debug) printf("sharp=%f focus_sharp=%f rS=%f lS=%f foc=%d flag=%d\n",sharpness,focus_sharp,rightS, leftS, focus, global->focus_flag);
+			AFdata->sharpness=getSharpMeasure (videoIn->framebuffer, videoIn->width, videoIn->height, 6);
+		    	if (global->debug) printf("sharp=%d focus_sharp=%d foc=%d right=%d left=%d flag=%d\n",AFdata->sharpness,AFdata->focus_sharpness,AFdata->focus, AFdata->right, AFdata->left, AFdata->flag);
+		    	AFdata->focus=getFocusVal (AFdata);
+			if (AFdata->focus != last_focus) {
+			    if (set_focus (AFdata->focus) != 0) printf("ERROR: couldn't set focus to %d\n", AFdata->focus);
+			}
+		    	last_focus = AFdata->focus;
+		    
 		}
+	     	//printf("focus = %d  =>  sharp = %d\n",focus,sharpness);
 	 }
 	
 	 /*------------------------- Filter Frame ---------------------------------*/
@@ -2597,7 +2600,8 @@ void *main_loop(void *data)
   pavi=NULL;
   if (global->debug) printf("cleaning Thread allocations: 100%%\n");
   fflush(NULL);//flush all output buffers
-  SDL_Quit();
+  if (AFdata) free(AFdata);  
+  SDL_Quit();   
   if (global->debug) printf("SDL Quit\n");	
   pthread_exit((void *) 0);
 }
