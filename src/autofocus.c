@@ -43,6 +43,10 @@ void initFocusData (struct focusData *AFdata) {
 static void bubble_sort (struct focusData *AFdata, int size) {
 	int swapped = 0;
     	int temp=0;
+    	if (size>=20) {
+		printf("WARNING: focus array size=%d exceeds 20\n",size);
+		size = 10;
+	}
     	int i;
     	do {
     		swapped = 0;
@@ -161,6 +165,10 @@ int getFocusVal (struct focusData *AFdata) {
     
 	switch (AFdata->flag) {
 	    /*--------- first time - run sharpness algorithm -----------------*/
+	    if(AFdata->ind >= 20) {
+		printf ("WARNING ind=%d exceeds 20\n",AFdata->ind);
+		AFdata->ind = 10;
+	    }
 	    case 0: /*sample left to right*/
 	    	AFdata->arr_sharp[AFdata->ind] = AFdata->sharpness;
 		AFdata->arr_foc[AFdata->ind] = AFdata->focus;
@@ -198,6 +206,14 @@ int getFocusVal (struct focusData *AFdata) {
 		
 	    	break;
 	    case 2: /* set treshold in order to sharpness*/
+		if (AFdata->setFocus) {
+			AFdata->setFocus = 0;
+		    	AFdata->flag= 0;
+		    	AFdata->right = 255;
+		    	AFdata->left = 0;
+		    	AFdata->ind = 0;
+			AFdata->FSi = 0;
+		} else {
 	   	if (AFdata->focus_sharpness < 2500) {
 	    		if (abs(AFdata->sharpness - AFdata->focus_sharpness) > treshold_2500) {
 				AFdata->right=255;
@@ -358,6 +374,7 @@ int getFocusVal (struct focusData *AFdata) {
 				    	AFdata->FSi++;
 				}
 			}
+		}
 		}
 	    	break;	   
 		  

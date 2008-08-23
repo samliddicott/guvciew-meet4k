@@ -42,6 +42,7 @@ struct focusData {
     	int arr_foc[MAX_ARR_S];
     	int ind;
     	int flag;
+	int setFocus;
 };
 
 void initFocusData (struct focusData *AFdata);

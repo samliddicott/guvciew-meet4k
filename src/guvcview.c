@@ -863,7 +863,11 @@ autofocus_changed (GtkToggleButton * toggle, VidState * s) {
 	gtk_widget_set_sensitive (ci->spinbutton, !val);
     	
     	/*reset flag*/
-    	AFdata->flag=0;
+    	AFdata->flag = 0;
+	AFdata->ind = 0;
+	AFdata->focus = 0; /*reset focus*/
+    	AFdata->right = 255;
+    	AFdata->left = 0;
     
     	global->autofocus = val;
 }
@@ -969,6 +973,18 @@ combo_changed (GtkComboBox * combo, VidState * s)
 		}
 	}
 	
+}
+
+/* Pan left (for motor cameras ex: Logitech Orbit/Sphere) */
+static void
+setfocus_clicked (GtkButton * FocusButton, VidState * s)
+{	
+	AFdata->setFocus = 1;
+    	AFdata->ind = 0;
+    	AFdata->flag = 0;
+    	AFdata->right = 255;
+    	AFdata->left = 0;
+    	AFdata->focus = 0; /*reset focus*/
 }
 
 /* Pan left (for motor cameras ex: Logitech Orbit/Sphere) */
@@ -2032,21 +2048,31 @@ draw_controls (VidState *s)
 			gtk_widget_show (ci->spinbutton);
 
 			ci->label = gtk_label_new (g_strdup_printf ("%s:", gettext(c->name)));
-		    	/* ---- Add auto-focus checkbox ----- */
+		    	/* ---- Add auto-focus checkbox and focus button ----- */
 		    	if (c->id== V4L2_CID_FOCUS_LOGITECH) {
 				global->AFcontrol=1;
+				GtkWidget *Focus_box = gtk_hbox_new (FALSE, 0);
 				GtkWidget *AutoFocus = gtk_check_button_new_with_label (_("Auto Focus (continuous)"));
+				GtkWidget *FocusButton = gtk_button_new_with_label (_("set Focus"));
+				gtk_box_pack_start (GTK_BOX (Focus_box), AutoFocus, TRUE, TRUE, 0);
+				gtk_box_pack_start (GTK_BOX (Focus_box), FocusButton, TRUE, TRUE, 0);
+				gtk_widget_show (Focus_box);
 				gtk_widget_show (AutoFocus);
-				gtk_table_attach (GTK_TABLE (s->table), AutoFocus, 1, 3, 3+row, 4+row,
+				gtk_widget_show (FocusButton);
+				gtk_table_attach (GTK_TABLE (s->table), Focus_box, 1, 2, 3+row, 4+row,
 					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
-
+			
+				
 				gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (AutoFocus),
 							      global->autofocus ? TRUE: FALSE);
 
 				g_object_set_data (G_OBJECT (AutoFocus), "control_info", ci);
+				g_object_set_data (G_OBJECT (FocusButton), "control_info", ci);
 				
 				g_signal_connect (G_OBJECT (AutoFocus), "toggled",
 					G_CALLBACK (autofocus_changed), s);
+				g_signal_connect (G_OBJECT (FocusButton), "clicked",
+					G_CALLBACK (setfocus_clicked), s);
 				row++; /*increment control row*/
 			
 			}
@@ -2321,7 +2347,7 @@ void *main_loop(void *data)
 		}
 	     	/*---------------- autofocus control ------------------*/
 		
-		if (global->AFcontrol && global->autofocus) {
+		if (global->AFcontrol && (global->autofocus || AFdata->setFocus)) {
 			AFdata->sharpness=getSharpMeasure (videoIn->framebuffer, videoIn->width, videoIn->height, 6);
 		    	if (global->debug) printf("sharp=%d focus_sharp=%d foc=%d right=%d left=%d flag=%d\n",AFdata->sharpness,AFdata->focus_sharpness,AFdata->focus, AFdata->right, AFdata->left, AFdata->flag);
 		    	AFdata->focus=getFocusVal (AFdata);
