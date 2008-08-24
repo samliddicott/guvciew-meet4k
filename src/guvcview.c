@@ -2232,8 +2232,6 @@ void *main_loop(void *data)
     	int keyframe = 1;
     	
     	int last_focus=0; 
-    	AFdata = malloc(sizeof(struct focusData));
-    	initFocusData(AFdata);
     
 	/*gets the stack size for the thread (DEBUG)*/ 
 	pthread_attr_getstacksize (&attr, &videostacksize);
@@ -2349,7 +2347,7 @@ void *main_loop(void *data)
 		
 		if (global->AFcontrol && (global->autofocus || AFdata->setFocus)) {
 			AFdata->sharpness=getSharpMeasure (videoIn->framebuffer, videoIn->width, videoIn->height, 6);
-		    	if (global->debug) printf("sharp=%d focus_sharp=%d foc=%d right=%d left=%d flag=%d\n",AFdata->sharpness,AFdata->focus_sharpness,AFdata->focus, AFdata->right, AFdata->left, AFdata->flag);
+		    	if (global->debug) printf("sharp=%d focus_sharp=%d foc=%d right=%d left=%d ind=%d flag=%d\n",AFdata->sharpness,AFdata->focus_sharpness,AFdata->focus, AFdata->right, AFdata->left, AFdata->ind, AFdata->flag);
 		    	AFdata->focus=getFocusVal (AFdata);
 			if (AFdata->focus != last_focus) {
 			    if (set_focus (AFdata->focus) != 0) printf("ERROR: couldn't set focus to %d\n", AFdata->focus);
@@ -2625,8 +2623,7 @@ void *main_loop(void *data)
   if(pavi!=NULL) free(pavi);
   pavi=NULL;
   if (global->debug) printf("cleaning Thread allocations: 100%%\n");
-  fflush(NULL);//flush all output buffers
-  if (AFdata) free(AFdata);  
+  fflush(NULL);//flush all output buffers  
   SDL_Quit();   
   if (global->debug) printf("SDL Quit\n");	
   pthread_exit((void *) 0);
@@ -3486,7 +3483,13 @@ int main(int argc, char *argv[])
 	gtk_container_add (GTK_CONTAINER (mainwin), boxv);
 	
 	gtk_widget_show (mainwin);
-   
+   	
+    	/* if autofocus exists allocate data*/
+ 	if(global->AFcontrol) {   
+    		AFdata = malloc(sizeof(struct focusData));
+    		initFocusData(AFdata);
+	 }
+    
    	/*------------------ Creating the main loop (video) thread ---------------*/
 	/* Initialize and set thread detached attribute */
 	stacksize = sizeof(char) * global->stack_size;
@@ -3595,6 +3598,7 @@ clean_struct (void) {
     if (s) free(s);	   
     if (global->debug) printf("free controls - vidState\n");
    
+    if (AFdata) free(AFdata);
     if(global) closeGlobals(global);
     if (jpeg_struct != NULL) free(jpeg_struct);
     printf("cleaned allocations - 100%%\n");
