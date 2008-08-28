@@ -107,7 +107,7 @@ pthread_t sndthread;
 pthread_attr_t sndattr;
 
 /* parameters passed when restarting*/
-char *EXEC_CALL;
+char *EXEC_CALL=NULL;
 /*avi structure used by libavi*/
 avi_t *AviOut=NULL;
 
@@ -3662,7 +3662,7 @@ shutd (gint restart)
 		 exec_status = execlp(EXEC_CALL,EXEC_CALL,NULL);/*No parameters passed*/
 	}
 	
-	free(EXEC_CALL);
+	if (EXEC_CALL) free(EXEC_CALL);
 	printf("Terminated.\n");
 	return exec_status;
 }
