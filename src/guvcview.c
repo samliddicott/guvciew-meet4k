@@ -2357,18 +2357,21 @@ static void *main_loop(void *data)
 		}
 	     	/*---------------- autofocus control ------------------*/
 		
-		if (global->AFcontrol && (global->autofocus || AFdata->setFocus)) {
-			AFdata->sharpness=getSharpMeasure (videoIn->framebuffer, videoIn->width, videoIn->height, 6);
-		    	if (global->debug) printf("sharp=%d focus_sharp=%d foc=%d right=%d left=%d ind=%d flag=%d\n",AFdata->sharpness,AFdata->focus_sharpness,AFdata->focus, AFdata->right, AFdata->left, AFdata->ind, AFdata->flag);
-		    	AFdata->focus=getFocusVal (AFdata);
-			if (AFdata->focus != last_focus) {
-			    if (set_focus (AFdata->focus) != 0) printf("ERROR: couldn't set focus to %d\n", AFdata->focus);
-			    AFdata->focus_wait = (int) abs(AFdata->focus-last_focus)*1.4; /*1.4 ms focus time - every 1 step*/
-			    /*sleep for a while - make sure focus is ready*/
-			    if(AFdata->focus_wait > ((1000/videoIn->fps)*(2/3))) /* sleep if time for focus > 2/3 of frame time*/
-				SDL_Delay(AFdata->focus_wait);
+		if (global->AFcontrol && (global->autofocus || AFdata->setFocus)) { /*AFdata = NULL if no focus control*/
+			if (AFdata->focus_wait == 0) {
+		    		AFdata->sharpness=getSharpMeasure (videoIn->framebuffer, videoIn->width, videoIn->height, 6);
+		    		if (global->debug) printf("sharp=%d focus_sharp=%d foc=%d right=%d left=%d ind=%d flag=%d\n",AFdata->sharpness,AFdata->focus_sharpness,AFdata->focus, AFdata->right, AFdata->left, AFdata->ind, AFdata->flag);
+		    		AFdata->focus=getFocusVal (AFdata);
+				if ((AFdata->focus != last_focus)) {
+			    		if (set_focus (AFdata->focus) != 0) printf("ERROR: couldn't set focus to %d\n", AFdata->focus);
+			    		/*number of frames until focus is stable*/
+			    		AFdata->focus_wait = (int) abs(AFdata->focus-last_focus)*1.4/(1000/videoIn->fps); /*1.4 ms focus time - every 1 step*/
+				}
+		    		last_focus = AFdata->focus;
+			} else {
+				AFdata->focus_wait--;
+			    if (global->debug) printf("Wait Frame: %d",AFdata->focus_wait);
 			}
-		    	last_focus = AFdata->focus;
 		    
 		}
 	 }
