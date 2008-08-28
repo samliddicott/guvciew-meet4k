@@ -187,7 +187,7 @@ ERR_DIALOG(const char *err_title, const char* err_msg) {
     gtk_dialog_run (GTK_DIALOG (errdialog));
     gtk_widget_destroy (errdialog);
     if (global) closeGlobals (global);
-    free(EXEC_CALL);
+    if (EXEC_CALL) free(EXEC_CALL);
     printf("Terminated.\n");;
     exit(1);
 
@@ -602,7 +602,7 @@ sound_capture(void *data)
 	
 	/*gets the stack size for the thread (DEBUG)*/
 	pthread_attr_getstacksize (&sndattr, &sndstacksize);
-	if (global->debug) printf("Sound Thread: stack size = %d bytes \n", sndstacksize);
+	if (global->debug) printf("Sound Thread: stack size = %d bytes \n", (int) sndstacksize);
 	
 	if(global->Sound_SampRateInd==0)
 	   global->Sound_SampRate=global->Sound_IndexDev[global->Sound_UseDev].samprate;/*using default*/
@@ -2247,7 +2247,7 @@ static void *main_loop(void *data)
     
 	/*gets the stack size for the thread (DEBUG)*/ 
 	pthread_attr_getstacksize (&attr, &videostacksize);
-	if (global->debug) printf("Video Thread: stack size = %d bytes \n", videostacksize);
+	if (global->debug) printf("Video Thread: stack size = %d bytes \n", (int) videostacksize);
 	
 	static Uint32 SDL_VIDEO_Flags =
 		SDL_ANYFORMAT | SDL_DOUBLEBUF | SDL_RESIZABLE;
