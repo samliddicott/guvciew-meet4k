@@ -121,10 +121,10 @@ static const char *exp_typ[]={"Manual Mode",
 /*defined at end of file*/
 /*remove build warning  */ 
 static void clean_struct (void);
-static gint shutd (gint restart); 
+static void shutd (gint restart); 
 
 /*------------------------------ get time ------------------------------------*/
-DWORD
+static DWORD
 ms_time (void)
 {
    static struct timeval tod;
@@ -132,8 +132,8 @@ ms_time (void)
    return ((DWORD) tod.tv_sec * 1000.0 + (DWORD) tod.tv_usec / 1000.0);
 }
 /*--------------------------- check image file extension -----------------------------*/
-static 
-int check_image_type (char *filename) {
+static int 
+check_image_type (char *filename) {
 	
 	char str_ext[3];
 	/*get the file extension*/
@@ -170,8 +170,8 @@ int check_image_type (char *filename) {
 }
 
 /*---------------------------- error message dialog-----------------------------*/
-static
-void ERR_DIALOG(const char *err_title, const char* err_msg) {
+static void 
+ERR_DIALOG(const char *err_title, const char* err_msg) {
      
     
     GtkWidget *errdialog;
@@ -196,14 +196,16 @@ void ERR_DIALOG(const char *err_title, const char* err_msg) {
 /*--------------------------- controls enable/disable --------------------------*/
 
 /* sound controls*/
-void set_sensitive_snd_contrls (const int flag){
+static void 
+set_sensitive_snd_contrls (const int flag){
 	gtk_widget_set_sensitive (SndSampleRate, flag);
 	gtk_widget_set_sensitive (SndDevice, flag);
 	gtk_widget_set_sensitive (SndNumChan, flag);
 }
 
 /*avi controls*/
-void set_sensitive_avi_contrls (const int flag){
+static void 
+set_sensitive_avi_contrls (const int flag){
 	/*sound and avi compression controls*/
 	gtk_widget_set_sensitive (AVIComp, flag);
 	gtk_widget_set_sensitive (SndEnable, flag); 
@@ -213,7 +215,8 @@ void set_sensitive_avi_contrls (const int flag){
 }
 
 /*image controls*/
-void set_sensitive_img_contrls (const int flag){
+static void 
+set_sensitive_img_contrls (const int flag){
 	gtk_widget_set_sensitive(ImgFileButt, flag);/*image butt File chooser*/
 	gtk_widget_set_sensitive(ImageType, flag);/*file type combo*/
 	gtk_widget_set_sensitive(ImageFNameEntry, flag);/*Image Entry*/
@@ -221,8 +224,8 @@ void set_sensitive_img_contrls (const int flag){
 }
 
 /*----------------------- write conf (.guvcviewrc) file ----------------------*/
-static
-int writeConf(const char *confpath) {
+static int 
+writeConf(const char *confpath) {
 	int ret=0;
 	FILE *fp;
 	if ((fp = fopen(confpath,"w"))!=NULL) {
@@ -296,8 +299,8 @@ int writeConf(const char *confpath) {
 	return ret;
 }
 /*----------------------- read conf (.guvcviewrc) file -----------------------*/
-static
-int readConf(const char *confpath) {
+static int 
+readConf(const char *confpath) {
 	int ret=1;
 	char variable[16];
 	char value[128];
@@ -585,7 +588,8 @@ readOpts(int argc,char *argv[]) {
 
 
 /*--------------------------- sound threaded loop ------------------------------*/
-void *sound_capture(void *data)
+static void*
+sound_capture(void *data)
 {
 	size_t sndstacksize;
 	PaStreamParameters inputParameters;
@@ -694,7 +698,7 @@ error:
 
 /*------------------------------ Event handlers -------------------------------*/
 /* window close */
-gint
+static gint
 delete_event (GtkWidget *widget, GdkEventConfigure *event)
 {
 	shutd(0);//shutDown
@@ -706,7 +710,7 @@ delete_event (GtkWidget *widget, GdkEventConfigure *event)
 
 /* Called at avi capture stop       */
 /* from avi capture button callback */
-void
+static void
 aviClose (void)
 {
   DWORD tottime = 0;
@@ -773,7 +777,8 @@ num_chars (int n)
 
 
 /*--------------------------- focus control ----------------------------------*/
-int get_focus (){
+static int 
+get_focus (){
 	int ret;
 	struct v4l2_control c;
 	int val=0;
@@ -789,7 +794,8 @@ int get_focus (){
 
 }
 
-int set_focus (int val) {
+static int 
+set_focus (int val) {
 	int ret;
 	struct v4l2_control c;
 
@@ -2219,7 +2225,7 @@ draw_controls (VidState *s)
 
 /*-------------------------------- Main Video Loop ---------------------------*/ 
 /* run in a thread (SDL overlay)*/
-void *main_loop(void *data)
+static void *main_loop(void *data)
 {
 	size_t videostacksize;
 	SDL_Event event;
@@ -3578,8 +3584,7 @@ int main(int argc, char *argv[])
 
 /*-------------------------- clean up and shut down --------------------------*/
 
-static
-void
+static void
 clean_struct (void) {
 
     //int i=0;
@@ -3615,7 +3620,7 @@ clean_struct (void) {
 }
 
 
-gint 
+static void 
 shutd (gint restart) 
 {
 	int exec_status=0;
@@ -3664,6 +3669,5 @@ shutd (gint restart)
 	
 	if (EXEC_CALL) free(EXEC_CALL);
 	printf("Terminated.\n");
-	return exec_status;
 }
 
