@@ -733,7 +733,7 @@ input_enum_controls (struct vdIn * device, int * num_controls)
 	
     initDynCtrls(device);
     
-    i = V4L2_CID_BASE_OLD; /* as defined by V4L2 */
+    i = V4L2_CID_BASE; /* as defined by V4L2 */
     while (i <= V4L2_CID_LAST_EXTCTR) { 
         queryctrl.id = i;
         if (ioctl (fd, VIDIOC_QUERYCTRL, &queryctrl) == 0 &&
