@@ -29,6 +29,7 @@
 #include "prototype.h"
 #include "utils.h"
 #include "autofocus.h"
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
@@ -37,6 +38,9 @@
 void initFocusData (struct focusData *AFdata) {
 	memset(AFdata,0,sizeof(struct focusData));
     	AFdata->right=255;
+	AFdata->left=8; /*start with focus at 8*/
+	AFdata->focus=8;
+	AFdata->focus_wait=0;
     	/*all other values are 0 */
 }
 
@@ -160,7 +164,7 @@ int getFocusVal (struct focusData *AFdata) {
     	int treshold_7500 = 1000; /* high sharpness should be kept for as long as possible*/
     	int treshold_8500 = 1150;
     	int treshold_9999 = 1400;
-    	int step = 25;
+    	int step = 16;
     	int step2 = 2;
     
 	switch (AFdata->flag) {
@@ -210,14 +214,14 @@ int getFocusVal (struct focusData *AFdata) {
 			AFdata->setFocus = 0;
 		    	AFdata->flag= 0;
 		    	AFdata->right = 255;
-		    	AFdata->left = 0;
+		    	AFdata->left = 8;
 		    	AFdata->ind = 0;
 			AFdata->FSi = 0;
 		} else {
 	   	if (AFdata->focus_sharpness < 2500) {
 	    		if (abs(AFdata->sharpness - AFdata->focus_sharpness) > treshold_2500) {
 				AFdata->right=255;
-				AFdata->left=0;
+				AFdata->left=8;
 				AFdata->flag = 0;
 				AFdata->ind = 0;
 				AFdata->FSi = 0;
@@ -237,7 +241,7 @@ int getFocusVal (struct focusData *AFdata) {
 		} else if (AFdata->focus_sharpness < 3500) {
 			if (abs(AFdata->sharpness - AFdata->focus_sharpness) > treshold_3500) {
 			    	AFdata->right=255;
-				AFdata->left=0;
+				AFdata->left=8;
 				AFdata->flag = 0;
 				AFdata->ind = 0;
 			    	AFdata->FSi = 0;
@@ -257,7 +261,7 @@ int getFocusVal (struct focusData *AFdata) {
 		} else if (AFdata->focus_sharpness < 4500) {
 			if (abs(AFdata->sharpness - AFdata->focus_sharpness) > treshold_4500) {
 			    	AFdata->right=255;
-				AFdata->left=0;
+				AFdata->left=8;
 				AFdata->flag = 0;
 				AFdata->ind = 0;
 			    	AFdata->FSi = 0;
@@ -277,7 +281,7 @@ int getFocusVal (struct focusData *AFdata) {
 		} else if (AFdata->focus_sharpness < 5500) {
 			if (abs(AFdata->sharpness - AFdata->focus_sharpness) > treshold_5500) {
 			    	AFdata->right=255;
-				AFdata->left=0;
+				AFdata->left=8;
 				AFdata->flag = 0;
 				AFdata->ind = 0;
 			    	AFdata->FSi = 0;
@@ -297,7 +301,7 @@ int getFocusVal (struct focusData *AFdata) {
 		} else if (AFdata->focus_sharpness < 6500) {
 			if (abs(AFdata->sharpness - AFdata->focus_sharpness) > treshold_6500) {
 			    	AFdata->right=255;
-				AFdata->left=0;
+				AFdata->left=8;
 				AFdata->flag = 0;
 				AFdata->ind = 0;
 			    	AFdata->FSi = 0;
@@ -317,7 +321,7 @@ int getFocusVal (struct focusData *AFdata) {
 		} else if (AFdata->focus_sharpness < 7500) {
 			if (abs(AFdata->sharpness - AFdata->focus_sharpness) > treshold_7500) {
 			    	AFdata->right=255;
-				AFdata->left=0;
+				AFdata->left=8;
 				AFdata->flag = 0;
 				AFdata->ind = 0;
 			    	AFdata->FSi = 0;
@@ -337,7 +341,7 @@ int getFocusVal (struct focusData *AFdata) {
 		}  else if (AFdata->focus_sharpness < 8500) {
 			if (abs(AFdata->sharpness - AFdata->focus_sharpness) > treshold_8500) {
 			    	AFdata->right=255;
-				AFdata->left=0;
+				AFdata->left=8;
 				AFdata->flag = 0;
 				AFdata->ind = 0;
 			    	AFdata->FSi = 0;
@@ -357,7 +361,7 @@ int getFocusVal (struct focusData *AFdata) {
 		} else {
 			if (abs(AFdata->sharpness - AFdata->focus_sharpness) > treshold_9999) {
 			    	AFdata->right=255;
-				AFdata->left=0;
+				AFdata->left=8;
 				AFdata->flag = 0;
 				AFdata->ind = 0;
 			    	AFdata->FSi = 0;

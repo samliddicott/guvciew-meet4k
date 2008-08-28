@@ -43,6 +43,7 @@ struct focusData {
     	int ind;
     	int flag;
 	int setFocus;
+	int focus_wait;
 };
 
 void initFocusData (struct focusData *AFdata);

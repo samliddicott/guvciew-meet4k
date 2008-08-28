@@ -1,4 +1,4 @@
-/*******************************************************************************#
+﻿/*******************************************************************************#
 #	    guvcview              http://guvcview.berlios.de                    #
 #                                                                               #
 #           Paulo Assis <pj.assis@gmail.com>                                    #
@@ -865,11 +865,15 @@ autofocus_changed (GtkToggleButton * toggle, VidState * s) {
     	/*reset flag*/
     	AFdata->flag = 0;
 	AFdata->ind = 0;
-	AFdata->focus = 0; /*reset focus*/
+	AFdata->focus = 8; /*reset focus*/
     	AFdata->right = 255;
-    	AFdata->left = 0;
-    
-    	global->autofocus = val;
+    	AFdata->left = 8;
+	/*set focus to first value if autofocus enabled*/
+	if (val>0) {
+		if (set_focus (AFdata->focus) != 0) 
+			printf("ERROR: couldn't set focus to %d\n", AFdata->focus);
+    	}
+	global->autofocus = val;
 }
 
 static void
@@ -957,7 +961,7 @@ combo_changed (GtkComboBox * combo, VidState * s)
 	int index = gtk_combo_box_get_active (combo);
 	int val=0;
 		
-	if (c->id == V4L2_CID_EXPOSURE_AUTO) {
+	if (c->id == V4L2_CID_EXPOSURE_AUTO_OLD) {
 		val=exp_vals[videoIn->available_exp[index]];	
 	} else {	
 		val=index;
@@ -983,8 +987,10 @@ setfocus_clicked (GtkButton * FocusButton, VidState * s)
     	AFdata->ind = 0;
     	AFdata->flag = 0;
     	AFdata->right = 255;
-    	AFdata->left = 0;
-    	AFdata->focus = 0; /*reset focus*/
+    	AFdata->left = 8;
+    	AFdata->focus = 8; /*reset focus*/
+	if (set_focus (AFdata->focus) != 0) 
+		printf("ERROR: couldn't set focus to %d\n", AFdata->focus);
 }
 
 /* Pan left (for motor cameras ex: Logitech Orbit/Sphere) */
@@ -1871,7 +1877,7 @@ draw_controls (VidState *s)
 		ci->label = NULL;
 		ci->spinbutton = NULL;
 		
-		if (c->id == V4L2_CID_EXPOSURE_AUTO) {
+		if (c->id == V4L2_CID_EXPOSURE_AUTO_OLD) {
 			
 			int j=0;
 			int val=0;
@@ -1911,7 +1917,7 @@ draw_controls (VidState *s)
 			ci->label = gtk_label_new (_("Exposure:"));	
 			
 		} else if ((c->id == V4L2_CID_PAN_RELATIVE_NEW) ||
-				   (c->id == V4L2_CID_PAN_RELATIVE)) {
+				   (c->id == V4L2_CID_PAN_RELATIVE_OLD)) {
 			videoIn->PanTilt=1;
 			ci->widget = gtk_hbox_new (FALSE, 0);
 			GtkWidget *PanLeft = gtk_button_new_with_label(_("Left"));
@@ -1934,7 +1940,7 @@ draw_controls (VidState *s)
 			ci->label = gtk_label_new (g_strdup_printf ("%s:", gettext(c->name)));
 			
 		} else if ((c->id == V4L2_CID_TILT_RELATIVE_NEW) ||
-				   (c->id == V4L2_CID_TILT_RELATIVE)) {
+				   (c->id == V4L2_CID_TILT_RELATIVE_OLD)) {
 			videoIn->PanTilt=1;
 			ci->widget = gtk_hbox_new (FALSE, 0);
 			GtkWidget *TiltUp = gtk_button_new_with_label(_("Up"));
@@ -1981,7 +1987,7 @@ draw_controls (VidState *s)
 			ci->label = gtk_label_new (g_strdup_printf ("%s:", gettext(c->name)));
 		
 		}else if ((c->id == V4L2_CID_PANTILT_RESET_LOGITECH) ||
-				   (c->id == V4L2_CID_PANTILT_RESET)) {
+				   (c->id == V4L2_CID_PANTILT_RESET_OLD)) {
 			ci->widget = gtk_hbox_new (FALSE, 0);
 			GtkWidget *PTReset = gtk_button_new_with_label(_("Reset"));
 			gtk_box_pack_start (GTK_BOX (ci->widget), PTReset, TRUE, TRUE, 0);
@@ -2231,7 +2237,7 @@ void *main_loop(void *data)
 	
     	int keyframe = 1;
     	
-    	int last_focus=0; 
+    	int last_focus=128; /*make sure we wait for focus to settle on first check*/ 
     
 	/*gets the stack size for the thread (DEBUG)*/ 
 	pthread_attr_getstacksize (&attr, &videostacksize);
@@ -2351,11 +2357,14 @@ void *main_loop(void *data)
 		    	AFdata->focus=getFocusVal (AFdata);
 			if (AFdata->focus != last_focus) {
 			    if (set_focus (AFdata->focus) != 0) printf("ERROR: couldn't set focus to %d\n", AFdata->focus);
+			    AFdata->focus_wait = (int) abs(AFdata->focus-last_focus)*1.4; /*1.4 ms focus time - every 1 step*/
+			    /*sleep for a while - make sure focus is ready*/
+			    if(AFdata->focus_wait > ((1000/videoIn->fps)*(2/3))) /* sleep if time for focus > 2/3 of frame time*/
+				SDL_Delay(AFdata->focus_wait);
 			}
 		    	last_focus = AFdata->focus;
 		    
 		}
-	     	//printf("focus = %d  =>  sharp = %d\n",focus,sharpness);
 	 }
 	
 	 /*------------------------- Filter Frame ---------------------------------*/
