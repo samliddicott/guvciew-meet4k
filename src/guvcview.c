@@ -871,7 +871,7 @@ autofocus_changed (GtkToggleButton * toggle, VidState * s) {
     	/*reset flag*/
     	AFdata->flag = 0;
 	AFdata->ind = 0;
-	AFdata->focus = 8; /*reset focus*/
+	AFdata->focus = -1; /*reset focus*/
     	AFdata->right = 255;
     	AFdata->left = 8;
 	/*set focus to first value if autofocus enabled*/
@@ -994,7 +994,7 @@ setfocus_clicked (GtkButton * FocusButton, VidState * s)
     	AFdata->flag = 0;
     	AFdata->right = 255;
     	AFdata->left = 8;
-    	AFdata->focus = 8; /*reset focus*/
+    	AFdata->focus = -1; /*reset focus*/
 	if (set_focus (AFdata->focus) != 0) 
 		printf("ERROR: couldn't set focus to %d\n", AFdata->focus);
 }
@@ -2243,7 +2243,12 @@ static void *main_loop(void *data)
 	
     	int keyframe = 1;
     	
-    	int last_focus=128; /*make sure we wait for focus to settle on first check*/ 
+    	int last_focus = 0;
+    	if (global->AFcontrol) {
+    		last_focus = get_focus();
+    		if (last_focus < 0) last_focus=255; /*make sure we wait for focus to settle on first check*/
+		//printf("last_focus is %d and focus is %d\n",last_focus, AFdata->focus);
+	}
     
 	/*gets the stack size for the thread (DEBUG)*/ 
 	pthread_attr_getstacksize (&attr, &videostacksize);
@@ -2358,19 +2363,28 @@ static void *main_loop(void *data)
 	     	/*---------------- autofocus control ------------------*/
 		
 		if (global->AFcontrol && (global->autofocus || AFdata->setFocus)) { /*AFdata = NULL if no focus control*/
-			if (AFdata->focus_wait == 0) {
-		    		AFdata->sharpness=getSharpMeasure (videoIn->framebuffer, videoIn->width, videoIn->height, 6);
-		    		if (global->debug) printf("sharp=%d focus_sharp=%d foc=%d right=%d left=%d ind=%d flag=%d\n",AFdata->sharpness,AFdata->focus_sharpness,AFdata->focus, AFdata->right, AFdata->left, AFdata->ind, AFdata->flag);
-		    		AFdata->focus=getFocusVal (AFdata);
-				if ((AFdata->focus != last_focus)) {
-			    		if (set_focus (AFdata->focus) != 0) printf("ERROR: couldn't set focus to %d\n", AFdata->focus);
-			    		/*number of frames until focus is stable*/
-			    		AFdata->focus_wait = (int) abs(AFdata->focus-last_focus)*1.4/(1000/videoIn->fps); /*1.4 ms focus time - every 1 step*/
-				}
-		    		last_focus = AFdata->focus;
+			if (AFdata->focus < 0) {
+			    /*starting autofocus*/
+			    AFdata->focus = AFdata->left; /*start left*/
+			    if (set_focus (AFdata->focus) != 0) printf("ERROR: couldn't set focus to %d\n", AFdata->focus);
+			    /*number of frames until focus is stable*/
+			    AFdata->focus_wait = (int) abs(AFdata->focus-last_focus)*1.4/(1000/videoIn->fps)+1; /*1.4 ms focus time - every 1 step*/
+			    last_focus = AFdata->focus;
 			} else {
-				AFdata->focus_wait--;
-			    if (global->debug) printf("Wait Frame: %d",AFdata->focus_wait);
+		    		if (AFdata->focus_wait == 0) {
+		    			AFdata->sharpness=getSharpMeasure (videoIn->framebuffer, videoIn->width, videoIn->height, 7);
+		    			if (global->debug) printf("sharp=%d focus_sharp=%d foc=%d right=%d left=%d ind=%d flag=%d\n",AFdata->sharpness,AFdata->focus_sharpness,AFdata->focus, AFdata->right, AFdata->left, AFdata->ind, AFdata->flag);
+		    			AFdata->focus=getFocusVal (AFdata);
+					if ((AFdata->focus != last_focus)) {
+			    			if (set_focus (AFdata->focus) != 0) printf("ERROR: couldn't set focus to %d\n", AFdata->focus);
+			    			/*number of frames until focus is stable*/
+			    			AFdata->focus_wait = (int) abs(AFdata->focus-last_focus)*1.4/(1000/videoIn->fps)+1; /*1.4 ms focus time - every 1 step*/
+					}
+		    			last_focus = AFdata->focus;
+				} else {
+					AFdata->focus_wait--;
+			    		if (global->debug) printf("Wait Frame: %d\n",AFdata->focus_wait);
+				}
 			}
 		    
 		}

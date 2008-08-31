@@ -39,7 +39,7 @@ void initFocusData (struct focusData *AFdata) {
 	memset(AFdata,0,sizeof(struct focusData));
     	AFdata->right=255;
 	AFdata->left=8; /*start with focus at 8*/
-	AFdata->focus=8;
+	AFdata->focus=-1;
 	AFdata->focus_wait=0;
     	/*all other values are 0 */
 }
@@ -158,13 +158,13 @@ int getSharpMeasure (BYTE* img, int width, int height, int t) {
 int getFocusVal (struct focusData *AFdata) {
 	int treshold_2500 = 400; /* low sharpness should change as soon as possible*/
     	int treshold_3500 = 600;
-    	int treshold_4500 = 900;
-    	int treshold_5500 = 950;
+    	int treshold_4500 = 800;
+    	int treshold_5500 = 900;
     	int treshold_6500 = 950;
     	int treshold_7500 = 1000; /* high sharpness should be kept for as long as possible*/
     	int treshold_8500 = 1150;
     	int treshold_9999 = 1400;
-    	int step = 16;
+    	int step = 20;
     	int step2 = 2;
     
 	switch (AFdata->flag) {
