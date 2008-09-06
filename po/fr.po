@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fr\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-06-18 21:42+0100\n"
+"POT-Creation-Date: 2008-09-06 11:45+0100\n"
 "PO-Revision-Date: 2008-07-08 20:06+0100\n"
 "Last-Translator: guvcview <pj.assis@gmail.com>\n"
 "Language-Team: Portuguese\n"
@@ -21,19 +21,19 @@ msgstr ""
 "X-Poedit-Country: FRANCE\n"
 "X-Poedit-SourceCharset: utf-8\n"
 
-#: src/guvcview.c:1062 src/guvcview.c:1141
+#: src/guvcview.c:1083 src/guvcview.c:1162
 msgid "Program Restart"
 msgstr "Redémarrer l'application"
 
-#: src/guvcview.c:1065 src/guvcview.c:1144
+#: src/guvcview.c:1086 src/guvcview.c:1165
 msgid "now"
 msgstr "Maintenant"
 
-#: src/guvcview.c:1067 src/guvcview.c:1146
+#: src/guvcview.c:1088 src/guvcview.c:1167
 msgid "Later"
 msgstr "Plus tard "
 
-#: src/guvcview.c:1071 src/guvcview.c:1150
+#: src/guvcview.c:1092 src/guvcview.c:1171
 msgid ""
 "Changes will only take effect after guvcview restart.\n"
 "\n"
@@ -47,37 +47,37 @@ msgstr ""
 
 #. if auto naming restart counter
 #. 10 - digits for auto increment
-#: src/guvcview.c:1234 src/guvcview.c:1373 src/guvcview.c:1407
-#: src/guvcview.c:1565 src/guvcview.c:1602
+#: src/guvcview.c:1255 src/guvcview.c:1394 src/guvcview.c:1428
+#: src/guvcview.c:1588 src/guvcview.c:1625
 #, c-format
 msgid "File num:%d"
 msgstr "Fichier num:%d"
 
-#: src/guvcview.c:1321 src/guvcview.c:1753
+#: src/guvcview.c:1342 src/guvcview.c:1776
 msgid "Save File"
 msgstr "Enregistrer le Fichier"
 
 #. destroy timer
-#: src/guvcview.c:1433 src/guvcview.c:1573 src/guvcview.c:2786
+#: src/guvcview.c:1454 src/guvcview.c:1596 src/guvcview.c:2915
 msgid "Cap. Image"
 msgstr "Enr. Image"
 
 #. ************ Stop AVI ***********
-#: src/guvcview.c:1475 src/guvcview.c:2792
+#: src/guvcview.c:1496 src/guvcview.c:2921
 msgid "Cap. AVI"
 msgstr "Enr. Video"
 
 #. printf("opening avi file: %s\n",videoIn->AVIFName);
 #. avi capture enabled from start
-#: src/guvcview.c:1497 src/guvcview.c:2790
+#: src/guvcview.c:1518 src/guvcview.c:2919
 msgid "Stop AVI"
 msgstr "Arrêter AVI"
 
-#: src/guvcview.c:1783
+#: src/guvcview.c:1806
 msgid "Load File"
 msgstr "Charger Fichier"
 
-#: src/guvcview.c:1849 src/guvcview.c:2705
+#: src/guvcview.c:1872 src/guvcview.c:2834
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -87,45 +87,53 @@ msgstr ""
 "\n"
 "Incapable d'assigner des Buffers"
 
-#: src/guvcview.c:1850 src/guvcview.c:2706
+#: src/guvcview.c:1873 src/guvcview.c:2835
 msgid "Please try restarting your system."
 msgstr "Svp, essayez de redémarrer votre système."
 
-#: src/guvcview.c:1916
+#: src/guvcview.c:1923
 msgid "Exposure:"
 msgstr "Exposition:"
 
-#: src/guvcview.c:1922
+#: src/guvcview.c:1929
 msgid "Left"
 msgstr "Gauche"
 
-#: src/guvcview.c:1923
+#: src/guvcview.c:1930
 msgid "Right"
 msgstr "Droite"
 
-#: src/guvcview.c:1945
+#: src/guvcview.c:1952
 msgid "Up"
 msgstr "Haut"
 
-#: src/guvcview.c:1946
+#: src/guvcview.c:1953
 msgid "Down"
 msgstr "Bas"
 
-#: src/guvcview.c:1965 src/guvcview.c:1977 src/guvcview.c:1991
+#: src/guvcview.c:1972 src/guvcview.c:1984 src/guvcview.c:1998
 msgid "Reset"
 msgstr "Remise à Zero"
 
-#: src/guvcview.c:2095
+#: src/guvcview.c:2067
+msgid "Auto Focus (continuous)"
+msgstr "Mise au Point (continu)"
+
+#: src/guvcview.c:2068
+msgid "set Focus"
+msgstr "Mise au Point"
+
+#: src/guvcview.c:2130
 #, c-format
 msgid "raw pixel order:"
 msgstr ""
 
-#: src/guvcview.c:2636
+#: src/guvcview.c:2765
 msgid "GUVCViewer Controls"
 msgstr "Réglages GUVCViewer"
 
 #. can't open device
-#: src/guvcview.c:2654
+#: src/guvcview.c:2783
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -135,7 +143,7 @@ msgstr ""
 "\n"
 "Incapable d'accéder au périphérique"
 
-#: src/guvcview.c:2655
+#: src/guvcview.c:2784
 msgid ""
 "Please make sure the camera is connected\n"
 "and that the linux-UVC driver is installed."
@@ -144,7 +152,7 @@ msgstr ""
 "\n"
 "et que le pilote Linux-UVC est installé."
 
-#: src/guvcview.c:2682
+#: src/guvcview.c:2811
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -154,7 +162,7 @@ msgstr ""
 "\n"
 "Incapable de gérer le flux vidéo (MJPG ou YUV)"
 
-#: src/guvcview.c:2683
+#: src/guvcview.c:2812
 msgid ""
 "Make sure you have a UVC compliant camera\n"
 "and that you have the linux UVC driver installed."
@@ -162,7 +170,7 @@ msgstr ""
 "Vérifiez que vous avez un périphérique compatible UVC\n"
 "et que le pilote Linux-UVC est installé."
 
-#: src/guvcview.c:2697
+#: src/guvcview.c:2826
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -172,138 +180,138 @@ msgstr ""
 "\n"
 "Incapable de démarrer avec des réglages minimum"
 
-#: src/guvcview.c:2698
+#: src/guvcview.c:2827
 msgid "Please reconnect your camera."
 msgstr "Svp, rebranchez votre périphérique."
 
-#: src/guvcview.c:2741
+#: src/guvcview.c:2870
 msgid "Image Controls"
 msgstr "Réglages de L'image"
 
-#: src/guvcview.c:2761
+#: src/guvcview.c:2890
 msgid "Control Profiles:"
 msgstr "Réglages Personnalisés:"
 
-#: src/guvcview.c:2767
+#: src/guvcview.c:2896
 msgid "Capture:"
 msgstr "Enregistrement:"
 
 #. image auto capture
-#: src/guvcview.c:2784
+#: src/guvcview.c:2913
 msgid "Stop Auto"
 msgstr "Arrêt Auto"
 
-#: src/guvcview.c:2874
+#: src/guvcview.c:3009
 msgid "Video & Files"
 msgstr "Video et Fichiers"
 
-#: src/guvcview.c:2910
+#: src/guvcview.c:3045
 msgid "Resolution:"
 msgstr "Résolution:"
 
-#: src/guvcview.c:2952
+#: src/guvcview.c:3087
 msgid "Frame Rate:"
 msgstr "Fréquence d'image:"
 
-#: src/guvcview.c:2960
+#: src/guvcview.c:3095
 msgid " Show"
 msgstr "Afficher"
 
-#: src/guvcview.c:2991
+#: src/guvcview.c:3126
 msgid "Camera Output:"
 msgstr "Sortie Caméra:"
 
 #. Image Capture
-#: src/guvcview.c:3000
+#: src/guvcview.c:3135
 msgid "Image File:"
 msgstr "Ficher Image:"
 
 #. incremental capture
-#: src/guvcview.c:3026
+#: src/guvcview.c:3161
 msgid "File,Auto"
 msgstr "Fichier, Auto"
 
-#: src/guvcview.c:3037
+#: src/guvcview.c:3172
 msgid "Image Format:"
 msgstr "Format d'Image:"
 
 #. AVI Capture
-#: src/guvcview.c:3066
+#: src/guvcview.c:3201
 msgid "AVI File:"
 msgstr "Fichier Vidéo:"
 
-#: src/guvcview.c:3098
+#: src/guvcview.c:3233
 msgid "MJPG - compressed"
 msgstr "MJPG - compressé"
 
-#: src/guvcview.c:3099
+#: src/guvcview.c:3234
 msgid "YUY2 - uncomp YUV"
 msgstr "YUY2 - YUV non compressé"
 
-#: src/guvcview.c:3100
+#: src/guvcview.c:3235
 msgid "RGB - uncomp BMP"
 msgstr "RVB - BMP non compressé"
 
-#: src/guvcview.c:3112
+#: src/guvcview.c:3247
 msgid "AVI Format:"
 msgstr "Format AVI:"
 
-#: src/guvcview.c:3230
+#: src/guvcview.c:3365
 msgid "Input Device:"
 msgstr "Périphérique d'Entrée:"
 
 #. ~ if (Sound_numInputDev == 0) Sound_enable=0;
 #. ~ printf("SOUND DISABLE: no input devices detected\n");
-#: src/guvcview.c:3242
+#: src/guvcview.c:3377
 msgid " Sound"
 msgstr "Son"
 
-#: src/guvcview.c:3252 src/guvcview.c:3283
+#: src/guvcview.c:3387 src/guvcview.c:3418
 msgid "Dev. Default"
 msgstr "Valeur par Défaut"
 
-#: src/guvcview.c:3274
+#: src/guvcview.c:3409
 msgid "Sample Rate:"
 msgstr "Taux d'échantillonage:"
 
-#: src/guvcview.c:3284
+#: src/guvcview.c:3419
 msgid "1 - mono"
 msgstr "1 - mono"
 
-#: src/guvcview.c:3285
+#: src/guvcview.c:3420
 msgid "2 - stereo"
 msgstr "2 - stéréo"
 
-#: src/guvcview.c:3310
+#: src/guvcview.c:3445
 msgid "Channels:"
 msgstr "Canaux:"
 
 #. ----- Filter controls ----
-#: src/guvcview.c:3321
+#: src/guvcview.c:3456
 msgid "---- Video Filters ----"
 msgstr "---- Filtres Vidéo ----"
 
 #. Mirror
-#: src/guvcview.c:3338
+#: src/guvcview.c:3473
 msgid " Mirror"
 msgstr " Miroir"
 
 #. Upturn
-#: src/guvcview.c:3347
+#: src/guvcview.c:3482
 msgid " Invert"
 msgstr " Inverser"
 
 #. Negate
-#: src/guvcview.c:3356
+#: src/guvcview.c:3491
 msgid " Negative"
 msgstr " Négatif"
 
 #. Mono
-#: src/guvcview.c:3365
+#: src/guvcview.c:3500
 msgid " Mono"
 msgstr " Monochrome"
 
-#: src/guvcview.c:3388
+#: src/guvcview.c:3535
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -313,7 +321,7 @@ msgstr ""
 "\n"
 "Incapable de créer le flux vidéo."
 
-#: src/guvcview.c:3389
+#: src/guvcview.c:3536
 msgid "Please report it to http://developer.berlios.de/bugs/?group_id=8179"
 msgstr "Svp, rapportez-le à http://developer.berlios.de/bugs/?group_id=8179"
 
