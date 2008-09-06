@@ -3,10 +3,10 @@ guvcview (0.9.3) stable; urgency=low
    * Fixed buffer overflow in filename extension for autocapture.
    * Fixed Doc installation path
    * Added software autofocus control for quickcam cameras (beta)
-   * Changed avi audio method (audio chunks are now writed directly to avi file)
+   * Changed avi audio method (audio chunks are now written directly to avi file)
    * Added avi max file size limit to config file
    * Close avi safely and stop capture when max file size reached
-   * Fixed compilation with 2.6.26 kernell
+   * Fixed compilation with 2.6.26 kernels
 
  -- Paulo Assis <pj.assis@gmail.com>  Mon, 18 Aug 2008 23:25:00 +0000
 
