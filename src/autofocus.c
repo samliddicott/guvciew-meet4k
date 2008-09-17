@@ -69,12 +69,11 @@ static void bubble_sort (struct focusData *AFdata, int size) {
 	 } while (swapped);
 }
 
-/* extract lum (y) data from image focus window             */
+/* extract lum (y) data from image                          */
 /* img - image data pointer                                 */
-/* dataY - pointer for lum (y) data  dataY[winsize*winsize] */
+/* dataY - pointer for lum (y) data                         */
 /* width - width of img (in pixels)                         */
 /* height - height of img (in pixels)                       */
-/* winsize - size of focus window (square width=height)     */
 static INT16* extractY (BYTE* img, INT16* dataY, int width, int height) {
 	int i=0;
     	BYTE *pimg;
@@ -103,9 +102,11 @@ static float getSharpMeasureMCU (INT16 *data, int t) {
 	levelshift (data);
 	DCT (data);
 
-	/* get Sharpness (bayes-spectral-entropy)*/
-	for (i=0;i<t;i++) {
-		for(j=0;j<t;j++) {
+	/* get Sharpness (bayes-spectral-entropy)        */
+	/* consider an upper-left-triangle of components */
+	/* in the matrix such that  j+i <= t             */
+	for (i=0;i<=t;i++) {
+		for(j=0;j<=(t-i);j++) {
 		    	//if((i!=0) || (j!=0)) { /*skip DC*/ 
 				sumAC+=abs(data[i*8+j]);
 				sumSqrAC+=abs(data[i*8+j])*abs(data[i*8+j]);
