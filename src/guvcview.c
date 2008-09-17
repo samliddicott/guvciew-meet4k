@@ -2372,7 +2372,7 @@ static void *main_loop(void *data)
 			    last_focus = AFdata->focus;
 			} else {
 		    		if (AFdata->focus_wait == 0) {
-		    			AFdata->sharpness=getSharpMeasure (videoIn->framebuffer, videoIn->width, videoIn->height, 7);
+		    			AFdata->sharpness=getSharpMeasure (videoIn->framebuffer, videoIn->width, videoIn->height, 6);
 		    			if (global->debug) printf("sharp=%d focus_sharp=%d foc=%d right=%d left=%d ind=%d flag=%d\n",AFdata->sharpness,AFdata->focus_sharpness,AFdata->focus, AFdata->right, AFdata->left, AFdata->ind, AFdata->flag);
 		    			AFdata->focus=getFocusVal (AFdata);
 					if ((AFdata->focus != last_focus)) {
