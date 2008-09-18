@@ -246,6 +246,7 @@ struct vdIn {
     	int height;
 	int numb_resol;
 	int SupYuv;
+	int SupUyv;
 	int SupMjpg;
     	int formatIn;
     	int formatOut;
@@ -260,8 +261,8 @@ struct vdIn {
    	int cap_raw;
 	struct v4l2_streamparm streamparm;
 	int available_exp[4];
-	/* 2 supported formats 0-MJPG and 1-YUYV */
-	/* 20 settings for each format           */
+	/* 3 supported formats: 0-MJPG 1-YUYV or UYVY*/
+	/* 20 settings for each format              */
 	VidCap listVidCap[2][MAX_LIST_VIDCAP];
 };
 

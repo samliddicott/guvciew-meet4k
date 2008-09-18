@@ -337,6 +337,7 @@ init_videoIn(struct vdIn *vd, char *device, int width, int height,
 			(size_t) vd->width * (vd->height + 8) * 2);
 		break;
     	case V4L2_PIX_FMT_YUYV:
+	case V4L2_PIX_FMT_UYVY:
 	        /*YUYV doesn't need a temp buffer but we set if      */
 	     	/*video processing disable control  is set           */
 	     	/*            (logitech cameras only)                */
@@ -571,7 +572,8 @@ int uvcGrab(struct vdIn *vd)
 	    		goto err;
 			}
 			break;
-    	case V4L2_PIX_FMT_YUYV:		
+    	case V4L2_PIX_FMT_YUYV:
+	case V4L2_PIX_FMT_UYVY:
 			if(vd->isbayer>0) {
 			   	if (!(vd->tmpbuffer)) {
 				      	/* rgb buffer for decoding bayer data*/
@@ -583,6 +585,7 @@ int uvcGrab(struct vdIn *vd)
 					}
 				}
 				bayer_to_rgb24 (vd->mem[vd->buf.index],vd->tmpbuffer,vd->width,vd->height, vd->pix_order);
+				/*raw bayer is only available in logitech cameras so no uyvy mode, only yuyv*/
 			   	rgb2yuyv (vd->tmpbuffer,vd->framebuffer,vd->width,vd->height);
 			} else {
 	     			if (vd->buf.bytesused > vd->framesizeIn)
@@ -878,9 +881,17 @@ int enum_frame_sizes(struct vdIn *vd, __u32 pixfmt)
 		/*if this is the selected format set number of resolutions for combobox*/
 					if(vd->formatIn == pixfmt) vd->numb_resol=list_ind+1;
 					break;
+				case V4L2_PIX_FMT_UYVY:
+					vd->SupUyv++;
+					list_form=1;/*there should be only one yuv mode - yuyv or uyvy*/
+					vd->listVidCap[list_form][list_ind].width=fsize.discrete.width;
+					vd->listVidCap[list_form][list_ind].height=fsize.discrete.height;
+		/*if this is the selected format set number of resolutions for combobox*/
+					if(vd->formatIn == pixfmt) vd->numb_resol=list_ind+1;
+					break;
 				case V4L2_PIX_FMT_YUYV:
 					vd->SupYuv++;
-					list_form=1;
+					list_form=1;/*there should be only one yuv mode - yuyv or uyvy*/
 					vd->listVidCap[list_form][list_ind].width=fsize.discrete.width;
 					vd->listVidCap[list_form][list_ind].height=fsize.discrete.height;
 		/*if this is the selected format set number of resolutions for combobox*/

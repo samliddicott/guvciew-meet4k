@@ -2,6 +2,8 @@
 #	    guvcview              http://guvcview.berlios.de                    #
 #                                                                               #
 #           Paulo Assis <pj.assis@gmail.com>                                    #
+#           Nobuhiro Iwamatsu <iwamatsu@nigauri.org>                            #
+#                             Add UYVY color support(Macbook iSight)            #
 #										#
 # This program is free software; you can redistribute it and/or modify         	#
 # it under the terms of the GNU General Public License as published by   	#
@@ -245,7 +247,7 @@ writeConf(const char *confpath) {
 		fprintf(fp,"vpane=%i\n",global->boxvsize);
 		fprintf(fp,"#spin button behavior: 0-non editable 1-editable\n");
 		fprintf(fp,"spinbehave=%i\n", global->spinbehave);
-		fprintf(fp,"# mode video format 'yuv' or 'jpg'(default)\n");
+		fprintf(fp,"# mode video format 'uyv' 'yuv' or 'jpg'(default)\n");
 		fprintf(fp,"mode=%s\n",global->mode);
 		fprintf(fp,"# frames per sec. - hardware supported - default( %i )\n",DEFAULT_FPS);
 		fprintf(fp,"fps=%d/%d\n",global->fps_num,global->fps);
@@ -553,7 +555,7 @@ readOpts(int argc,char *argv[]) {
 			printf("-g\t:use read method for grab instead mmap\n");
 			printf("-w enable|disable\t:SDL hardware accel. \n");
 			printf("-f[--format] format\t:video format\n");
-			printf("   default jpg  others options are yuv jpg \n");
+			printf("   default jpg  others options are uyv yuv jpg \n");
 			printf("-s[--size] widthxheight\t:use specified input size \n");
 			printf("-i[--image] image_file_name\t:sets the default image name\n"); 
 			printf("   available image formats: jpg png bmp\n");
@@ -573,7 +575,10 @@ readOpts(int argc,char *argv[]) {
 	/*if -n not set reset capture time*/
 	if(global->Capture_time>0 && global->avifile==NULL) global->Capture_time=0;
 	
-	if (strncmp(global->mode, "yuv", 3) == 0) {
+	if (strncmp(global->mode, "uyv", 3) == 0) {
+		global->format = V4L2_PIX_FMT_UYVY;
+		global->formind = 1;
+	} else if (strncmp(global->mode, "yuv", 3) == 0) {
 		global->format = V4L2_PIX_FMT_YUYV;
 		global->formind = 1;
 	} else if (strncmp(global->mode, "jpg", 3) == 0) {
@@ -1109,13 +1114,13 @@ resolution_changed (GtkComboBox * Resolution, void *data)
 }
 
 
-/* Input Type control (YUV MJPG)*/
+/* Input Type control (UYV YUV MJPG)*/
 static void
 ImpType_changed(GtkComboBox * ImpType, void * Data) 
 {
 	int index = gtk_combo_box_get_active(ImpType);
 	
-	if ((videoIn->SupMjpg >0) && (videoIn->SupYuv >0)) {
+	if ((videoIn->SupMjpg >0) && ((videoIn->SupYuv >0) || (videoIn->SupUyv))) {
 		global->formind = index;
 	} else {
 		/* if only one format available the callback shouldn't get called*/
@@ -1132,10 +1137,14 @@ ImpType_changed(GtkComboBox * ImpType, void * Data)
 	int deffps=0;
 	int SupRes=0;
 	
-	if (global->formind > 0) { /* is Yuv*/
-		snprintf(global->mode, 4, "yuv");
-		SupRes=videoIn->SupYuv;
-		
+	if (global->formind > 0) { 
+		if (videoIn->SupYuv>0) {
+			snprintf(global->mode, 4, "yuv");
+			SupRes=videoIn->SupYuv;
+		} else {
+			snprintf(global->mode, 4, "uyv");
+			SupRes=videoIn->SupUyv;
+		}
 	} else {  /* is Mjpg */
 		snprintf(global->mode, 4, "jpg");
 		SupRes=videoIn->SupMjpg;
@@ -2331,10 +2340,20 @@ static void *main_loop(void *data)
 	pscreen =
 	SDL_SetVideoMode(videoIn->width, videoIn->height, global->bpp,
 			 SDL_VIDEO_Flags);
-	overlay =
-	SDL_CreateYUVOverlay(videoIn->width, videoIn->height,
+	switch (global->format) {
+	    case V4L2_PIX_FMT_YUYV:
+		overlay = SDL_CreateYUVOverlay(videoIn->width, videoIn->height
 				 SDL_YUY2_OVERLAY, pscreen);
-	
+		break;
+	    case V4L2_PIX_FMT_UYVY:
+		overlay = SDL_CreateYUVOverlay(videoIn->width, videoIn->height,
+				 SDL_UYVY_OVERLAY, pscreen);
+		break;
+	    default:
+		overlay = SDL_CreateYUVOverlay(videoIn->width, videoIn->height,
+				 SDL_YUY2_OVERLAY, pscreen);
+		break;
+	}	
 	p = (unsigned char *) overlay->pixels[0];
 	
 	drect.x = 0;
@@ -2392,14 +2411,36 @@ static void *main_loop(void *data)
 	
 	 /*------------------------- Filter Frame ---------------------------------*/
 	 if(global->Frame_Flags>0){
-		if((global->Frame_Flags & YUV_MIRROR)==YUV_MIRROR)
-			yuyv_mirror(videoIn->framebuffer,videoIn->width,videoIn->height);
+		if((global->Frame_Flags & YUV_MIRROR)==YUV_MIRROR) {
+			switch (global->format) {
+			    case V4L2_PIX_FMT_YUYV: 
+				yuyv_mirror(videoIn->framebuffer,videoIn->width,videoIn->height);
+				break;
+			    case V4L2_PIX_FMT_UYVY:
+				uyvy_mirror(videoIn->framebuffer,videoIn->width,videoIn->height);
+				break;
+			    default:
+				yuyv_mirror(videoIn->framebuffer,videoIn->width,videoIn->height);
+				break;
+			}
+		}
 		if((global->Frame_Flags & YUV_UPTURN)==YUV_UPTURN)
 			yuyv_upturn(videoIn->framebuffer,videoIn->width,videoIn->height);
 		if((global->Frame_Flags & YUV_NEGATE)==YUV_NEGATE)
 			yuyv_negative (videoIn->framebuffer,videoIn->width,videoIn->height);
-		if((global->Frame_Flags & YUV_MONOCR)==YUV_MONOCR)
-			 yuyv_monochrome (videoIn->framebuffer,videoIn->width,videoIn->height);
+		if((global->Frame_Flags & YUV_MONOCR)==YUV_MONOCR) {
+			switch (global->format) {
+			    case V4L2_PIX_FMT_YUYV: 
+				yuyv_monochrome (videoIn->framebuffer,videoIn->width,videoIn->height);
+				break;
+			    case V4L2_PIX_FMT_UYVY:
+				uyvy_monochrome (videoIn->framebuffer,videoIn->width,videoIn->height);
+				break;
+			    default:
+				yuyv_monochrome (videoIn->framebuffer,videoIn->width,videoIn->height);
+				break;
+			 }
+		}
 	 }
 	
 	 /*-------------------------capture Image----------------------------------*/
@@ -2433,9 +2474,13 @@ static void *main_loop(void *data)
 						initialize_quantization_tables (jpeg_struct);
 					}
 				} 
+				
+				int uyv=0;
+				if (global->format == V4L2_PIX_FMT_UYVY) uyv=1;
+				
 				global->jpeg_size = encode_image(videoIn->framebuffer, global->jpeg, 
-								jpeg_struct,1, videoIn->width, videoIn->height);
-			 
+								jpeg_struct,1, videoIn->width, videoIn->height,uyv);
+								
 				if(SaveBuff(videoIn->ImageFName,global->jpeg_size,global->jpeg)) { 
 					fprintf (stderr,"Error: Couldn't capture Image to %s \n",
 					videoIn->ImageFName);		
@@ -2451,8 +2496,13 @@ static void *main_loop(void *data)
 					pthread_exit((void *) 3);		
 				}
 			}
-			yuyv2bgr(videoIn->framebuffer,pim,videoIn->width,videoIn->height);
-
+			
+			if (global->format == V4L2_PIX_FMT_UYVY) {
+				uyvy2bgr(videoIn->framebuffer,pim,videoIn->width,videoIn->height);
+			} else {
+				yuyv2bgr(videoIn->framebuffer,pim,videoIn->width,videoIn->height);
+			}
+			
 			if(SaveBPM(videoIn->ImageFName, videoIn->width, videoIn->height, 24, pim)) {
 				  fprintf (stderr,"Error: Couldn't capture Image to %s \n",
 				  videoIn->ImageFName);
@@ -2470,8 +2520,13 @@ static void *main_loop(void *data)
 					pthread_exit((void *) 3);		
 				}
 			}
-			 yuyv2rgb(videoIn->framebuffer,pim,videoIn->width,videoIn->height);
-			 write_png(videoIn->ImageFName, videoIn->width, videoIn->height,pim);
+			
+			if (global->format == V4L2_PIX_FMT_UYVY) {
+				uyvy2rgb(videoIn->framebuffer,pim,videoIn->width,videoIn->height);
+			} else {
+				yuyv2rgb(videoIn->framebuffer,pim,videoIn->width,videoIn->height);
+			}
+			write_png(videoIn->ImageFName, videoIn->width, videoIn->height,pim);
 		 }
 		 videoIn->capImage=FALSE;
 		 if (global->debug) printf("saved image to:%s\n",videoIn->ImageFName);
@@ -2514,8 +2569,12 @@ static void *main_loop(void *data)
 						initialize_quantization_tables (jpeg_struct);
 					}
 				} 
+				
+				int uyv=0;
+				if (global->format == V4L2_PIX_FMT_UYVY) uyv=1;
+				
 				global->jpeg_size = encode_image(videoIn->framebuffer, global->jpeg, 
-								jpeg_struct,1, videoIn->width, videoIn->height);
+								jpeg_struct,1, videoIn->width, videoIn->height,uyv);
 			
 				if (AVI_write_frame (AviOut, global->jpeg, global->jpeg_size, keyframe) < 0) {
 					if (AVI_getErrno () == AVI_ERR_SIZELIM) {
@@ -2551,7 +2610,11 @@ static void *main_loop(void *data)
 				pthread_exit((void *) 3);
 			  }
 			}
-			yuyv2bgr(videoIn->framebuffer,pavi,videoIn->width,videoIn->height); 
+			if (global->format == V4L2_PIX_FMT_UYVY) {
+				uyvy2rgb(videoIn->framebuffer,pavi,videoIn->width,videoIn->height);
+			} else {
+				yuyv2rgb(videoIn->framebuffer,pavi,videoIn->width,videoIn->height);
+			}
 			if (AVI_write_frame (AviOut,pavi, framesize, keyframe) < 0) {
 				if (AVI_getErrno () == AVI_ERR_SIZELIM) {
 					/*avi file limit reached - must end capture and close file*/
@@ -2785,33 +2848,45 @@ int main(int argc, char *argv[])
 			printf("Shouldn't get to here\n");
 			break;
 		case -2:/*invalid format*/
-			printf("trying minimum setup...\n");
-			if ((global->formind==0) && (videoIn->SupMjpg>0)) { /*use jpg mode*/
+			printf("trying minimum setup for specified format...\n");
+			if (videoIn->SupMjpg>0) { /*use jpg mode*/
 				global->formind=0;
 				global->format=V4L2_PIX_FMT_MJPEG;
 				snprintf(global->mode, 4, "jpg");
 			} else {
-				if ((global->formind==1) && (videoIn->SupYuv>0)) { /*use yuv mode*/
+				if (global->debug) { 
+				    printf("formaind %d\n", global->formind);
+				    printf("SupYuv   %d\n", videoIn->SupYuv);
+				    printf("SupUyv   %d\n", videoIn->SupUyv);
+				}
+				if ((global->formind==1) && (videoIn->SupYuv>0)) { /*use yuyv mode*/
 					global->formind=1;
 					global->format=V4L2_PIX_FMT_YUYV;
 					snprintf(global->mode, 4, "yuv");
+				} else if ((global->formind==1) && (videoIn->SupUyv>0)) { /*use uyvy mode*/
+					global->formind=1;
+					global->format=V4L2_PIX_FMT_UYVY;
+					snprintf(global->mode, 4, "uyv");
 				} else { /*selected mode isn't available*/
 					/*check available modes*/
+					printf("checking available modes...\n");
 					if(videoIn->SupMjpg>0){
 						global->formind=0;
 						global->format=V4L2_PIX_FMT_MJPEG;
 						snprintf(global->mode, 4, "jpg");
-					} else { 
-						if (videoIn->SupYuv>0) {
-							global->formind=1;
-							global->format=V4L2_PIX_FMT_YUYV;
-							snprintf(global->mode, 4, "yuv");
-						} else {
-							printf("ERROR: Can't set MJPG or YUV stream.\nExiting...\n");
-						   	ERR_DIALOG (N_("Guvcview error:\n\nCan't set MJPG or YUV stream for guvcview"),
-								N_("Make sure you have a UVC compliant camera\nand that you have the linux UVC driver installed."));
-						}
-					}
+					} else if (videoIn->SupYuv>0) {
+						global->formind=1;
+						global->format=V4L2_PIX_FMT_YUYV;
+						snprintf(global->mode, 4, "yuv");
+					} else if (videoIn->SupUyv>0) {
+						global->formind=1;
+						global->format=V4L2_PIX_FMT_UYVY;
+						snprintf(global->mode, 4, "uyv");
+					} else {
+						printf("ERROR: Can't set MJPG or YUV stream.\nExiting...\n");
+						ERR_DIALOG (N_("Guvcview error:\n\nCan't set MJPG or YUV stream for guvcview"),
+							    N_("Make sure you have a UVC compliant camera\nand that you have the linux UVC driver installed."));
+					}	
 				}
 			}
 			global->width=videoIn->listVidCap[global->formind][0].width;
@@ -3107,8 +3182,12 @@ int main(int argc, char *argv[])
 	if (videoIn->SupMjpg>0) {/*Jpeg Input Available*/
 		gtk_combo_box_append_text(GTK_COMBO_BOX(ImpType),"MJPG");
 	}
-	if (videoIn->SupYuv>0) {/*yuv Input Available*/
-		gtk_combo_box_append_text(GTK_COMBO_BOX(ImpType),"YUV");
+	/* there should be only one of these available*/
+	if (videoIn->SupYuv==1) {/*yuyv Input Available*/
+		gtk_combo_box_append_text(GTK_COMBO_BOX(ImpType),"YUYV");
+	if (videoIn->SupYuv==2) {/*uyvy Input Available*/
+		gtk_combo_box_append_text(GTK_COMBO_BOX(ImpType),"UYVY");
+	
 	}
 	gtk_table_attach(GTK_TABLE(table2), ImpType, 1, 2, 4, 5,
 					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);

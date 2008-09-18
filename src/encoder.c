@@ -82,7 +82,7 @@ void jpeg_restart (struct JPEG_ENCODER_STRUCTURE * jpeg_encoder_structure)
 
 int encode_image (UINT8 *input_ptr,UINT8 *output_ptr, 
 	             struct JPEG_ENCODER_STRUCTURE * jpeg_encoder_structure,
-		            int huff, UINT32 image_width,UINT32 image_height)
+		            int huff, UINT32 image_width,UINT32 image_height, int uyv)
 {
 	int size;
 	UINT16 i, j;
@@ -103,8 +103,10 @@ int encode_image (UINT8 *input_ptr,UINT8 *output_ptr,
 	{
 		tmp_ptr=tmp_iptr;
 		for (j=0; j<jpeg_encoder_structure->horizontal_mcus; j++) /* width /16 */
-		{			
-			read_422_format (jpeg_encoder_structure, tmp_iptr); /*reads a block*/
+		{	
+			/*reads a block*/
+			if (!uyv) read_422_format (jpeg_encoder_structure, tmp_iptr); /*YUYV*/
+			else read_I422_format (jpeg_encoder_structure, tmp_iptr); /*UYVY*/
 
 			/* Encode the data in MCU */
 			tmp_optr = encodeMCU (jpeg_encoder_structure, tmp_optr);

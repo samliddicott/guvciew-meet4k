@@ -2,6 +2,8 @@
 #	    guvcview              http://guvcview.berlios.de                    #
 #                                                                               #
 #           Paulo Assis <pj.assis@gmail.com>                                    #
+#           Nobuhiro Iwamatsu <iwamatsu@nigauri.org>                            #
+#                             Add UYVY color support(Macbook iSight)            #
 #										#
 # This program is free software; you can redistribute it and/or modify         	#
 # it under the terms of the GNU General Public License as published by   	#
@@ -1538,6 +1540,50 @@ yuyv2bgr (BYTE *pyuv, BYTE *pbgr, int width, int height){
 
 }
 
+/* yuv (UYVY) to bgr with lines upsidedown */
+/* used for bitmap files (DIB24)           */
+void 
+uyvy2bgr (BYTE *pyuv, BYTE *pbgr, int width, int height){
+
+	int l=0;
+	int k=0;
+	BYTE *preverse;
+	int bytesUsed;
+	int SizeBGR=height * width * 3; /* 3 bytes per pixel*/
+	/* BMP byte order is bgr and the lines start from last to first*/
+	preverse=pbgr+SizeBGR;/*start at the end and decrement*/
+	//printf("preverse addr:%d | pbgr addr:%d | diff:%d\n",preverse,pbgr,preverse-pbgr);
+	for(l=0;l<height;l++) { /*iterate every 1 line*/
+		preverse-=width*3;/*put pointer at begin of unprocessed line*/
+		bytesUsed=l*width*2;
+		for (k=0;k<((width)*2);k=k+4)/*iterate every 4 bytes in the line*/
+		{                              
+		/* standart: b = y0 + 1.772 (u-128) */
+		/* logitech: b = y0 + 1.732446 (u-128) */
+		*preverse++=CLIP(pyuv[k+1+bytesUsed] + 1.772 *( pyuv[k+bytesUsed]-128)); 
+		/* standart: g = y0 - 0.34414 (u-128) - 0.71414 (v-128)*/
+		/* logitech: g = y0 - 0.337633 (u-128)- 0.698001 (v-128)*/
+		*preverse++=CLIP(pyuv[k+1+bytesUsed] - 0.34414 * (pyuv[k+bytesUsed]-128) -0.71414*(pyuv[k+2+bytesUsed]-128));
+		/* standart: r = y0 + 1.402 (v-128) */
+		/* logitech: r = y0 + 1.370705 (v-128) */
+		*preverse++=CLIP(pyuv[k+1+bytesUsed] + 1.402 * (pyuv[k+2+bytesUsed]-128));                                                        
+		/* standart: b1 = y1 + 1.772 (u-128) */
+		/* logitech: b1 = y1 + 1.732446 (u-128) */
+		*preverse++=CLIP(pyuv[k+3+bytesUsed] + 1.772*(pyuv[k+bytesUsed]-128));
+		/* standart: g1 = y1 - 0.34414 (u-128) - 0.71414 (v-128)*/
+		/* logitech: g1 = y1 - 0.337633 (u-128)- 0.698001 (v-128)*/
+		*preverse++=CLIP(pyuv[k+3+bytesUsed] - 0.34414 * (pyuv[k+bytesUsed]-128) -0.71414 * (pyuv[k+2+bytesUsed]-128)); 
+		/* standart: r1 =y1 + 1.402 (v-128) */
+		/* logitech: r1 = y1 + 1.370705 (v-128) */
+		*preverse++=CLIP(pyuv[k+3+bytesUsed] + 1.402 * (pyuv[k+2+bytesUsed]-128));
+		}
+		preverse-=width*3;/*get it back at the begin of processed line*/
+	}
+	//printf("preverse addr:%d | pbgr addr:%d | diff:%d\n",preverse,pbgr,preverse-pbgr);
+	preverse=NULL;
+
+}
+
 /* raw bayer functions*/
 #define R(x,y) pRGB24[0 + 3 * ((x) + width * (y))]
 #define G(x,y) pRGB24[1 + 3 * ((x) + width * (y))]
@@ -1817,7 +1863,6 @@ rgb2yuyv(BYTE *prgb, BYTE *pyuv, int width, int height) {
    }
 }
 
-
 /*-------------------------------- YUV Filters -------------------------------*/
 /* Flip YUYV frame horizontal*/
 void 
@@ -1841,6 +1886,27 @@ yuyv_mirror (BYTE *frame, int width, int height){
 	
 }
 
+/* Flip UYVY frame horizontal*/
+void 
+uyvy_mirror (BYTE *frame, int width, int height){
+	
+	int h=0;
+	int w=0;
+	int sizeline = width*2; /* 2 bytes per pixel*/ 
+	BYTE *pframe;
+	pframe=frame;
+	BYTE line[sizeline-1];/*line buffer*/
+    	for (h=0; h < height; h++) { /*line iterator*/
+        	for(w=sizeline-1; w > 0; w = w - 4) { /* pixel iterator */
+            	line[w-3]=*pframe++;
+	    		line[w]=*pframe++;
+	    		line[w-1]=*pframe++;
+	    		line[w-2]=*pframe++;
+		}
+        	memcpy(frame+(h*sizeline), line, sizeline); /*copy reversed line to frame buffer*/           
+    }
+	
+}
 
 void 
 yuyv_negative(BYTE* frame, int width, int height)
@@ -1882,6 +1948,17 @@ yuyv_monochrome(BYTE* frame, int width, int height)
     }
 }
 
+void
+uyvy_monochrome(BYTE* frame, int width, int height) 
+{
+    int size=width*height*2;
+	int i=0;
+
+	for(i=0; i < size; i = i + 4) { /* keep Y - luma */
+        frame[i]=0x80;/*U - median (half the max value)=128*/
+        frame[i+2]=0x80;/*V - median (half the max value)=128*/        
+    }
+}
 
 /*----------------------------------- Image Files ----------------------------*/ 
 int 

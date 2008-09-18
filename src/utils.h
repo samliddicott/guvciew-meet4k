@@ -287,6 +287,10 @@ yuyv2rgb (BYTE *pyuv, BYTE *prgb, int width, int height);
 void 
 yuyv2bgr (BYTE *pyuv, BYTE *pbgr, int width, int height);
 
+/* yuv (UYVY) to bgr with lines upsidedown */
+/* used for bitmap files (DIB24)           */
+void 
+uyvy2bgr (BYTE *pyuv, BYTE *pbgr, int width, int height);
 
 void 
 bayer_to_rgb24(BYTE *pBay, BYTE *pRGB24, int width, int height, int pix_order);
@@ -298,15 +302,25 @@ rgb2yuyv(BYTE *prgb, BYTE *pyuv, int width, int height);
 void 
 yuyv_mirror (BYTE *frame, int width, int height);
 
-/* Flip YUYV frame - vertical*/
+/* Flip UYVY frame - horizontal*/
+void 
+uyvy_mirror (BYTE *frame, int width, int height);
+
+/* Flip YUYV and UYVY frame - vertical*/
 void  
 yuyv_upturn(BYTE* frame, int width, int height);
 
+/* negate YUYV and UYVY frame */
 void 
 yuyv_negative(BYTE* frame, int width, int height);
 
+/* monochrome effect for YUYV frame */
 void 
 yuyv_monochrome(BYTE* frame, int width, int height);
+
+/* monochrome effect for UYVY frame */
+void 
+uyvy_monochrome(BYTE* frame, int width, int height);
 
 int 
 SaveJPG(const char *Filename,int imgsize,BYTE *ImagePix);

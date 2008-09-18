@@ -42,7 +42,7 @@ UINT8* write_markers (struct JPEG_ENCODER_STRUCTURE * jpeg_encoder_structure,
 
 int encode_image (UINT8 * input_ptr,UINT8 * output_ptr, 
 				  struct JPEG_ENCODER_STRUCTURE * jpeg_encoder_structure,
-				             int huff, UINT32 image_width, UINT32 image_height);
+				             int huff, UINT32 image_width, UINT32 image_height, int uyv);
 
 UINT8* read_422_format (struct JPEG_ENCODER_STRUCTURE * jpeg_encoder_structure, UINT8 *input_ptr);
 
