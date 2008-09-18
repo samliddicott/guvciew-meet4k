@@ -3183,10 +3183,10 @@ int main(int argc, char *argv[])
 		gtk_combo_box_append_text(GTK_COMBO_BOX(ImpType),"MJPG");
 	}
 	/* there should be only one of these available*/
-	if (videoIn->SupYuv==1) {/*yuyv Input Available*/
+	if (videoIn->SupYuv>0) {/*yuyv Input Available*/
 		gtk_combo_box_append_text(GTK_COMBO_BOX(ImpType),"YUYV");
 	}
-	if (videoIn->SupYuv==2) {/*uyvy Input Available*/
+	if (videoIn->SupUyv>0) {/*uyvy Input Available*/
 		gtk_combo_box_append_text(GTK_COMBO_BOX(ImpType),"UYVY");
 	
 	}
