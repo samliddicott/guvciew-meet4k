@@ -2342,7 +2342,7 @@ static void *main_loop(void *data)
 			 SDL_VIDEO_Flags);
 	switch (global->format) {
 	    case V4L2_PIX_FMT_YUYV:
-		overlay = SDL_CreateYUVOverlay(videoIn->width, videoIn->height
+		overlay = SDL_CreateYUVOverlay(videoIn->width, videoIn->height,
 				 SDL_YUY2_OVERLAY, pscreen);
 		break;
 	    case V4L2_PIX_FMT_UYVY:
@@ -3185,6 +3185,7 @@ int main(int argc, char *argv[])
 	/* there should be only one of these available*/
 	if (videoIn->SupYuv==1) {/*yuyv Input Available*/
 		gtk_combo_box_append_text(GTK_COMBO_BOX(ImpType),"YUYV");
+	}
 	if (videoIn->SupYuv==2) {/*uyvy Input Available*/
 		gtk_combo_box_append_text(GTK_COMBO_BOX(ImpType),"UYVY");
 	

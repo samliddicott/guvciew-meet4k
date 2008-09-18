@@ -282,6 +282,10 @@ pchar* splitPath(char *FullPath, char* splited[2]);
 void 
 yuyv2rgb (BYTE *pyuv, BYTE *prgb, int width, int height);
 
+/* regular yuv (UYVY) to rgb24*/
+void 
+uyvy2rgb (BYTE *pyuv, BYTE *prgb, int width, int height);
+
 /* yuv (YUYV) to bgr with lines upsidedown */
 /* used for bitmap files (DIB24)           */
 void 
