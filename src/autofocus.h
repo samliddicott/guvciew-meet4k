@@ -48,6 +48,8 @@ struct focusData {
 
 void initFocusData (struct focusData *AFdata);
 
+int getSharpness (BYTE* img, int width, int height, int t);
+
 int getSharpMeasure (BYTE *img, int width, int height, int t);
 
 int getFocusVal (struct focusData *AFdata);
