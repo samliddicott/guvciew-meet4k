@@ -3639,7 +3639,7 @@ int main(int argc, char *argv[])
 				compression="MJPG";
 				break;
 			case 1:
-				if(videoIn->formatIn == V4L2_PIX_FMT_UYVY) compression=""UYVY";
+				if(videoIn->formatIn == V4L2_PIX_FMT_UYVY) compression="UYVY";
 				else compression="YUY2";
 				break;
 			case 2:

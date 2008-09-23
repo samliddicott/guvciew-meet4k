@@ -186,7 +186,7 @@ int getSharpness (BYTE* img, int width, int height, int t) {
 static int checkFocus(struct focusData *AFdata) {
 	
     if (AFdata->step<=8) {
-	if (abs(AFdata->sharpLeft-AFdata->sharpness)/p<TH && 
+	if (abs(AFdata->sharpLeft-AFdata->sharpness)/AFdata->sharpness<TH && 
 	    abs(AFdata->sharpRight-AFdata->sharpness)/AFdata->sharpness<TH) {
 		return (FLAT);
 	} else if ((AFdata->sharpness-AFdata->sharpRight)/AFdata->sharpness>=TH && 
