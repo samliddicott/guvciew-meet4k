@@ -261,7 +261,7 @@ writeConf(const char *confpath) {
 		fprintf(fp,"hwaccel=%i\n",global->hwaccel);
 		fprintf(fp,"# video grab method: 0 -read 1 -mmap (default - 1)\n");
 		fprintf(fp,"grabmethod=%i\n",global->grabmethod);
-		fprintf(fp,"# video compression format: 0-MJPG 1-YUY2 2-DIB (BMP 24)\n");
+		fprintf(fp,"# video compression format: 0-MJPG 1-YUY2/UYVY 2-DIB (BMP 24)\n");
 		fprintf(fp,"avi_format=%i\n",global->AVIFormat);
 		fprintf(fp,"# avi file max size (default %d bytes)\n",AVI_MAX_SIZE);
 		fprintf(fp,"avi_max_len=%li\n",global->AVI_MAX_LEN);
@@ -1493,7 +1493,8 @@ capture_avi (GtkButton *AVIButt, void *data)
 			compression="MJPG";
 			break;
 		case 1:
-			compression="YUY2";
+			if(videoIn->formatIn == V4L2_PIX_FMT_UYVY) compression="UYVY";
+			else compression="YUY2";
 			break;
 		case 2:
 			compression="DIB ";
@@ -1526,8 +1527,8 @@ capture_avi (GtkButton *AVIButt, void *data)
 		//printf("opening avi file: %s\n",videoIn->AVIFName);
 	    	gtk_button_set_label(GTK_BUTTON(CapAVIButt),_("Stop AVI"));
 		AviOut = AVI_open_output_file(videoIn->AVIFName);
-		/*4CC compression "YUY2" (YUV) or "DIB " (RGB24)  or  "MJPG"*/	
-	        
+		
+		/*4CC compression "YUY2"/"UYVY" (YUV) or "DIB " (RGB24)  or  "MJPG"*/	
 		AVI_set_video(AviOut, videoIn->width, videoIn->height, videoIn->fps,compression);		
 		/* audio will be set in aviClose - if enabled*/
 		global->AVIstarttime = ms_time();
@@ -2591,7 +2592,7 @@ static void *main_loop(void *data)
 			}
 			break;
 		case 1:
-		   framesize=(pscreen->w)*(pscreen->h)*2; /*YUY2 -> 2 bytes per pixel */
+		   framesize=(pscreen->w)*(pscreen->h)*2; /*YUY2/UYVY -> 2 bytes per pixel */
 		   if (AVI_write_frame (AviOut, p, framesize, keyframe) < 0) {
 		   	if (AVI_getErrno () == AVI_ERR_SIZELIM) {
 				/*avi file limit reached - must end capture and close file*/
@@ -3313,7 +3314,10 @@ int main(int argc, char *argv[])
 	AVIComp = gtk_combo_box_new_text ();
 	
 	gtk_combo_box_append_text(GTK_COMBO_BOX(AVIComp),_("MJPG - compressed"));
-	gtk_combo_box_append_text(GTK_COMBO_BOX(AVIComp),_("YUY2 - uncomp YUV"));
+	if(videoIn->formatIn == V4L2_PIX_FMT_UYVY)
+		gtk_combo_box_append_text(GTK_COMBO_BOX(AVIComp),_("UYVY - uncomp YUV"));
+	else
+		gtk_combo_box_append_text(GTK_COMBO_BOX(AVIComp),_("YUY2 - uncomp YUV"));
 	gtk_combo_box_append_text(GTK_COMBO_BOX(AVIComp),_("RGB - uncomp BMP"));
 	
 	gtk_table_attach(GTK_TABLE(table2), AVIComp, 1, 2, 10, 11,
@@ -3627,7 +3631,7 @@ int main(int argc, char *argv[])
 	/*--------------------- avi capture from start ---------------------------*/
 	if(global->avifile) {
 		AviOut = AVI_open_output_file(global->avifile);
-		/*4CC compression "YUY2" (YUV) or "DIB " (RGB24)  or  "MJPG"*/
+		/*4CC compression "YUY2"/"UYVY" (YUV) or "DIB " (RGB24)  or  "MJPG"*/
 		char *compression="MJPG";
 
 		switch (global->AVIFormat) {
@@ -3635,7 +3639,8 @@ int main(int argc, char *argv[])
 				compression="MJPG";
 				break;
 			case 1:
-				compression="YUY2";
+				if(videoIn->formatIn == V4L2_PIX_FMT_UYVY) compression=""UYVY";
+				else compression="YUY2";
 				break;
 			case 2:
 				compression="DIB ";
