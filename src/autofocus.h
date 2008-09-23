@@ -2,6 +2,8 @@
 #	    guvcview              http://guvcview.berlios.de                    #
 #                                                                               #
 #           Paulo Assis <pj.assis@gmail.com>                                    #
+#           Dr. Alexander K. Seewald <alex@seewald.at>                          #
+#                                                                               #
 #										#
 # This program is free software; you can redistribute it and/or modify         	#
 # it under the terms of the GNU General Public License as published by   	#
@@ -27,17 +29,18 @@
 ********************************************************************************/
 
 #define MAX_ARR_S 20
-#define SHARP_SAMP 5
 
 struct focusData {
 	int focus;
+	int step;
     	int old_focus;
     	int right;
     	int left;
     	int sharpness;
     	int focus_sharpness;
-    	int FS[SHARP_SAMP];
-    	int FSi;
+	int sharpLeft;
+	int sharpRight;
+	int focusDir;
     	int arr_sharp[MAX_ARR_S];
     	int arr_foc[MAX_ARR_S];
     	int ind;

@@ -2,6 +2,7 @@
 #	    guvcview              http://guvcview.berlios.de                    #
 #                                                                               #
 #           Paulo Assis <pj.assis@gmail.com>                                    #
+#           Dr. Alexander K. Seewald <alex@seewald.at>                          #
 #										#
 # This program is free software; you can redistribute it and/or modify         	#
 # it under the terms of the GNU General Public License as published by   	#
@@ -33,6 +34,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+
+#define TH		(200)
+
+#define FLAT 		(0)
+#define LOCAL_MAX	(1)
+#define LEFT		(2)
+#define RIGHT		(3)
+#define INCSTEP		(4)
 
 static double sumAC[64];
 static int ACweight[64] = {
@@ -121,8 +130,8 @@ static void getSharpnessMCU (INT16 *data, double weight) {
 int getSharpness (BYTE* img, int width, int height, int t) {
 
 	float res=0;
-	int numMCUx = width/(8*2); /*covers 1/4 of width - width must be even*/
-    	int numMCUy = height/(8*2); /*covers 1/4 of height- height must be even*/
+	int numMCUx = width/(8*2); /*covers 1/2 of width - width should be even*/
+    	int numMCUy = height/(8*2); /*covers 1/2 of height- height should be even*/
 	INT16 dataMCU[64];
     	INT16* data;
     	INT16 dataY[width*height];
@@ -174,73 +183,44 @@ int getSharpness (BYTE* img, int width, int height, int t) {
 }
 
 
-/* measure sharpness in MCU                 */
-/* data - MCU data [8x8]                    */
-/* t - highest order coef.                  */
-static float getSharpMeasureMCU (INT16 *data, int t) {
-
-	int i=0;
-	int j=0;
-	float res=0.0;
-	double sumAC=0;
-	double sumSqrAC=0;
-
-	levelshift (data);
-	DCT (data);
-
-	/* get Sharpness (bayes-spectral-entropy)        */
-	/* consider an upper-left-triangle of components */
-	/* in the matrix such that  j+i <= t             */
-	for (i=0;i<=t;i++) {
-		for(j=0;j<=(t-i);j++) {
-		    	//if((i!=0) || (j!=0)) { /*skip DC*/ 
-				sumAC+=abs(data[i*8+j]);
-				sumSqrAC+=abs(data[i*8+j])*abs(data[i*8+j]);
-			//}
-		}	
-	}
-     	if (sumAC == 0) res=0;
-    	else res=(1-(sumSqrAC/(sumAC*sumAC)));
-	return (res);
-}
-
-int getSharpMeasure (BYTE* img, int width, int height, int t) {
-
-	float res=0;
-	double sumMCU=0;
-	int numMCUx = width/32; /*covers 1/4 of width - width must be even*/
-    	int numMCUy = height/32; /*covers 1/4 of height- height must be even*/
-	INT16 dataMCU[64];
-    	INT16* data;
-    	INT16 dataY[width*height];
-	INT16 *Y = dataY;
+static int checkFocus(struct focusData *AFdata) {
 	
-    	data=dataMCU;
-    
-	Y = extractY (img, Y, width, height);
-	
-    	int i=0;
-    	int j=0;
-    	int MCUx=0;
-    	int MCUy=0;
-	/*calculate MCU sharpness*/
-	for (MCUy=0;MCUy<numMCUy;MCUy++) {
-    		for (MCUx=0;MCUx<numMCUx;MCUx++) {
-			for (i=0;i<8;i++) {
-				for(j=0;j<8;j++) {
-				    	/*center*/
-					dataMCU[i*8+j]=Y[(((height-(numMCUy-(MCUy*2))*8)>>1)+i)*width+(((width-(numMCUx-(MCUx*2))*8)>>1)+j)];
-				}
-			}
-			sumMCU+=getSharpMeasureMCU(data,t);
+    if (AFdata->step<=8) {
+	if (abs(AFdata->sharpLeft-AFdata->sharpness)/p<TH && 
+	    abs(AFdata->sharpRight-AFdata->sharpness)/AFdata->sharpness<TH) {
+		return (FLAT);
+	} else if ((AFdata->sharpness-AFdata->sharpRight)/AFdata->sharpness>=TH && 
+	    (AFdata->sharpness-AFdata->sharpLeft)/AFdata->sharpness>=TH) {
+		// significantly down in both directions -> check another step
+		// outside for local maximum
+		AFdata->step=16;
+		return (INCSTEP);
+	} else {
+		// one is significant, the other is not...
+		int left=0; int right=0;
+		if (abs(AFdata->sharpLeft-AFdata->sharpness)/AFdata->sharpness>=TH) {
+			if (AFdata->sharpLeft>AFdata->sharpness) left++;  
+			else right++; 
 		}
+		if (abs(AFdata->sharpRight-AFdata->sharpness)/AFdata->sharpness>=TH) {
+			if (AFdata->sharpRight>AFdata->sharpness) right++; 
+			else left++;
+		}
+		if (left==right) return (FLAT);
+		else if (left>right) return (LEFT);
+		else return (RIGHT);
 	}
-    	
-	res = sumMCU/(numMCUx*numMCUy); /*average = mean*/
-	return (roundf(res*10000)); /*round to int (4 digit precision)*/
+	
+    } else {
+        if ((AFdata->sharpness-AFdata->sharpRight)/AFdata->sharpness>=TH && 
+           (AFdata->sharpness-AFdata->sharpLeft)/AFdata->sharpness>=TH) {
+		return (LOCAL_MAX);
+        } else {
+		return (FLAT);
+        }
+    }
+    
 }
-
-
 
 int getFocusVal (struct focusData *AFdata) {
     	int step = 20;
@@ -280,6 +260,8 @@ int getFocusVal (struct focusData *AFdata) {
 		       	/*get the best value*/
 			AFdata->focus = AFdata->arr_foc[0];
 			AFdata->focus_sharpness = AFdata->arr_sharp[0];
+			AFdata->step = 8; /*first step for focus tracking*/
+			AFdata->focusDir = FLAT; /*no direction for focus*/
 			AFdata->flag = 2;
 		} else { 
 		    	AFdata->focus=AFdata->arr_foc[AFdata->ind] + step2; /*next focus*/
@@ -295,198 +277,62 @@ int getFocusVal (struct focusData *AFdata) {
 		    	AFdata->right = 255;
 		    	AFdata->left = 8;
 		    	AFdata->ind = 0;
-			AFdata->FSi = 0;
 		} else {
-		    if ((abs(AFdata->sharpness - AFdata->focus_sharpness) > 200) &&
-			 (abs(AFdata->sharpness - AFdata->focus_sharpness) < 500)) {
-			AFdata->right=AFdata->focus + 10;
-			AFdata->left=AFdata->focus - 10;
-			AFdata->flag = 1;
-			AFdata->ind = 0;
-			AFdata->FSi = 0;
-			AFdata->focus = AFdata->left;
-		    } else if (abs(AFdata->sharpness - AFdata->focus_sharpness) > 500) {
-			AFdata->right=255;
-			AFdata->left=8;
-			AFdata->flag = 0;
-			AFdata->ind = 0;
-			AFdata->FSi = 0;
-			AFdata->focus = 8;
-		    } else {
-			if(AFdata->FSi < SHARP_SAMP) {
-				/* get the sharpness average from first values while in focus*/
-				AFdata->FS[AFdata->FSi] = AFdata->sharpness;
-				int i;
-				int temp = 0;
-				for (i=0;i<=AFdata->FSi;i++)
-					temp += AFdata->FS[i];
-				AFdata->focus_sharpness = temp / (AFdata->FSi + 1);
-				AFdata->FSi++;
-			}
-		    }
-	   	//~ if (AFdata->focus_sharpness < 2500) {
-	    		//~ if (abs(AFdata->sharpness - AFdata->focus_sharpness) > treshold_2500) {
-				//~ AFdata->right=255;
-				//~ AFdata->left=8;
-				//~ AFdata->flag = 0;
-				//~ AFdata->ind = 0;
-				//~ AFdata->FSi = 0;
-				//~ AFdata->focus = 0;
-			//~ } else {
-				//~ if(AFdata->FSi < SHARP_SAMP) {
-				    	//~ /* get the sharpness average from first values while in focus*/
-					//~ AFdata->FS[AFdata->FSi] = AFdata->sharpness;
-				    	//~ int i;
-				    	//~ int temp = 0;
-				    	//~ for (i=0;i<=AFdata->FSi;i++)
-				    		//~ temp += AFdata->FS[i];
-				    	//~ AFdata->focus_sharpness = temp / (AFdata->FSi + 1);
-				    	//~ AFdata->FSi++;
-				//~ }
-			//~ }
-		//~ } else if (AFdata->focus_sharpness < 3500) {
-			//~ if (abs(AFdata->sharpness - AFdata->focus_sharpness) > treshold_3500) {
-			    	//~ AFdata->right=255;
-				//~ AFdata->left=8;
-				//~ AFdata->flag = 0;
-				//~ AFdata->ind = 0;
-			    	//~ AFdata->FSi = 0;
-				//~ AFdata->focus = 0;
-			//~ } else {
-				//~ if(AFdata->FSi < SHARP_SAMP) {
-				    	//~ /* get the sharpness average from first values while in focus*/
-					//~ AFdata->FS[AFdata->FSi] = AFdata->sharpness;
-				    	//~ int i;
-				    	//~ int temp = 0;
-				    	//~ for (i=0;i<=AFdata->FSi;i++)
-				    		//~ temp += AFdata->FS[i];
-				    	//~ AFdata->focus_sharpness = temp / (AFdata->FSi + 1);
-				    	//~ AFdata->FSi++;
-				//~ }
-			//~ }
-		//~ } else if (AFdata->focus_sharpness < 4500) {
-			//~ if (abs(AFdata->sharpness - AFdata->focus_sharpness) > treshold_4500) {
-			    	//~ AFdata->right=255;
-				//~ AFdata->left=8;
-				//~ AFdata->flag = 0;
-				//~ AFdata->ind = 0;
-			    	//~ AFdata->FSi = 0;
-				//~ AFdata->focus = 0;
-			//~ } else {
-				//~ if(AFdata->FSi < SHARP_SAMP) {
-				    	//~ /* get the sharpness average from first values while in focus*/
-					//~ AFdata->FS[AFdata->FSi] = AFdata->sharpness;
-				    	//~ int i;
-				    	//~ int temp = 0;
-				    	//~ for (i=0;i<=AFdata->FSi;i++)
-				    		//~ temp += AFdata->FS[i];
-				    	//~ AFdata->focus_sharpness = temp / (AFdata->FSi + 1);
-				    	//~ AFdata->FSi++;
-				//~ }
-			//~ }
-		//~ } else if (AFdata->focus_sharpness < 5500) {
-			//~ if (abs(AFdata->sharpness - AFdata->focus_sharpness) > treshold_5500) {
-			    	//~ AFdata->right=255;
-				//~ AFdata->left=8;
-				//~ AFdata->flag = 0;
-				//~ AFdata->ind = 0;
-			    	//~ AFdata->FSi = 0;
-				//~ AFdata->focus = 0;
-			//~ } else {
-				//~ if(AFdata->FSi < SHARP_SAMP) {
-				    	//~ /* get the sharpness average from first values while in focus*/
-					//~ AFdata->FS[AFdata->FSi] = AFdata->sharpness;
-				    	//~ int i;
-				    	//~ int temp = 0;
-				    	//~ for (i=0;i<=AFdata->FSi;i++)
-				    		//~ temp += AFdata->FS[i];
-				    	//~ AFdata->focus_sharpness = temp / (AFdata->FSi + 1);
-				    	//~ AFdata->FSi++;
-				//~ }
-			//~ }
-		//~ } else if (AFdata->focus_sharpness < 6500) {
-			//~ if (abs(AFdata->sharpness - AFdata->focus_sharpness) > treshold_6500) {
-			    	//~ AFdata->right=255;
-				//~ AFdata->left=8;
-				//~ AFdata->flag = 0;
-				//~ AFdata->ind = 0;
-			    	//~ AFdata->FSi = 0;
-				//~ AFdata->focus = 0;
-			//~ } else {
-				//~ if(AFdata->FSi < SHARP_SAMP) {
-				    	//~ /* get the sharpness average from first values while in focus*/
-					//~ AFdata->FS[AFdata->FSi] = AFdata->sharpness;
-				    	//~ int i;
-				    	//~ int temp = 0;
-				    	//~ for (i=0;i<=AFdata->FSi;i++)
-				    		//~ temp += AFdata->FS[i];
-				    	//~ AFdata->focus_sharpness = temp / (AFdata->FSi + 1);
-				    	//~ AFdata->FSi++;
-				//~ }
-			//~ }
-		//~ } else if (AFdata->focus_sharpness < 7500) {
-			//~ if (abs(AFdata->sharpness - AFdata->focus_sharpness) > treshold_7500) {
-			    	//~ AFdata->right=255;
-				//~ AFdata->left=8;
-				//~ AFdata->flag = 0;
-				//~ AFdata->ind = 0;
-			    	//~ AFdata->FSi = 0;
-				//~ AFdata->focus = 0;
-			//~ } else {
-				//~ if(AFdata->FSi < SHARP_SAMP) {
-				    	//~ /* get the sharpness average from first values while in focus*/
-					//~ AFdata->FS[AFdata->FSi] = AFdata->sharpness;
-				    	//~ int i;
-				    	//~ int temp = 0;
-				    	//~ for (i=0;i<=AFdata->FSi;i++)
-				    		//~ temp += AFdata->FS[i];
-				    	//~ AFdata->focus_sharpness = temp / (AFdata->FSi + 1);
-				    	//~ AFdata->FSi++;
-				//~ }
-			//~ }
-		//~ }  else if (AFdata->focus_sharpness < 8500) {
-			//~ if (abs(AFdata->sharpness - AFdata->focus_sharpness) > treshold_8500) {
-			    	//~ AFdata->right=255;
-				//~ AFdata->left=8;
-				//~ AFdata->flag = 0;
-				//~ AFdata->ind = 0;
-			    	//~ AFdata->FSi = 0;
-				//~ AFdata->focus = 0;
-			//~ } else {
-				//~ if(AFdata->FSi < SHARP_SAMP) {
-				    	//~ /* get the sharpness average from first values while in focus*/
-					//~ AFdata->FS[AFdata->FSi] = AFdata->sharpness;
-				    	//~ int i;
-				    	//~ int temp = 0;
-				    	//~ for (i=0;i<=AFdata->FSi;i++)
-				    		//~ temp += AFdata->FS[i];
-				    	//~ AFdata->focus_sharpness = temp / (AFdata->FSi + 1);
-				    	//~ AFdata->FSi++;
-				//~ }
-			//~ }
-		//~ } else {
-			//~ if (abs(AFdata->sharpness - AFdata->focus_sharpness) > treshold_9999) {
-			    	//~ AFdata->right=255;
-				//~ AFdata->left=8;
-				//~ AFdata->flag = 0;
-				//~ AFdata->ind = 0;
-			    	//~ AFdata->FSi = 0;
-				//~ AFdata->focus = 0;
-			//~ } else {
-				//~ if(AFdata->FSi < SHARP_SAMP) {
-				    	//~ /* get the sharpness average from first values while in focus*/
-					//~ AFdata->FS[AFdata->FSi] = AFdata->sharpness;
-				    	//~ int i;
-				    	//~ int temp = 0;
-				    	//~ for (i=0;i<=AFdata->FSi;i++)
-				    		//~ temp += AFdata->FS[i];
-				    	//~ AFdata->focus_sharpness = temp / (AFdata->FSi + 1);
-				    	//~ AFdata->FSi++;
-				//~ }
-			//~ }
-		//~ }
+		    /*track focus*/
+		    AFdata->flag= 3;
+		    AFdata->sharpLeft=0;
+		    AFdata->sharpRight=0;
+		    AFdata->focus+=AFdata->step; /*check right*/
 		}
-	    	break;	   
+	    	break;
+	    case 3:
+		/*track focus*/
+		AFdata->flag= 4;
+		AFdata->sharpRight=AFdata->sharpness;
+		AFdata->focus-=(2*AFdata->step); /*check left*/
+		break;
+	    case 4:
+		/*track focus*/
+		AFdata->sharpLeft=AFdata->sharpness;
+		int ret=0;
+		ret=checkFocus(AFdata);
+		switch (ret) {
+			case LOCAL_MAX:
+			    AFdata->focus += AFdata->step; /*return to orig. focus*/
+			    AFdata->step = 8;
+			    AFdata->flag = 2;
+			    break;
+			case FLAT:
+			    if(AFdata->focusDir == FLAT) {
+				AFdata->focus += AFdata->step; /*return to orig. focus*/
+				AFdata->step = 8;
+				AFdata->flag = 2;
+			    } else if (AFdata->focusDir == RIGHT) {
+				AFdata->focus += 2*AFdata->step; /*go right*/
+				AFdata->step = 8;
+				AFdata->flag = 2;
+			    } else { /*go left*/
+				AFdata->step = 8;
+				AFdata->flag = 2;
+			    }
+			    break;
+			case RIGHT:
+			    AFdata->focus += 2*AFdata->step; /*go right*/
+			    AFdata->step = 8;
+			    AFdata->flag = 2;
+			    break;
+			case LEFT:
+			    /*keep focus on left*/
+			    AFdata->step = 8;
+			    AFdata->flag = 2;
+			    break;
+			case INCSTEP:
+			    AFdata->focus += AFdata->step; /*return to orig. focus*/
+			    AFdata->step = 16;
+			    AFdata->flag = 2;
+			    break;
+		}
+		break;
 		  
 	}	
     	
