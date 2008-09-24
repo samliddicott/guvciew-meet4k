@@ -35,7 +35,7 @@
 #include <string.h>
 #include <math.h>
 
-#define TH		(200)
+#define TH		(80) // treshold = 1/80 of focus sharpness value
 
 #define FLAT 		(0)
 #define LOCAL_MAX	(1)
@@ -186,11 +186,11 @@ int getSharpness (BYTE* img, int width, int height, int t) {
 static int checkFocus(struct focusData *AFdata) {
 	
     if (AFdata->step<=8) {
-	if (abs(AFdata->sharpLeft-AFdata->sharpness)/AFdata->sharpness<TH && 
-	    abs(AFdata->sharpRight-AFdata->sharpness)/AFdata->sharpness<TH) {
+	if (abs((AFdata->sharpLeft-AFdata->focus_sharpness)<(AFdata->focus_sharpness/TH)) && 
+	    (abs(AFdata->sharpRight-AFdata->focus_sharpness)<(AFdata->focus_sharpness/TH))) {
 		return (FLAT);
-	} else if ((AFdata->sharpness-AFdata->sharpRight)/AFdata->sharpness>=TH && 
-	    (AFdata->sharpness-AFdata->sharpLeft)/AFdata->sharpness>=TH) {
+	} else if (((AFdata->focus_sharpness-AFdata->sharpRight))>=(AFdata->focus_sharpness/TH) && 
+	    ((AFdata->focus_sharpness-AFdata->sharpLeft))>=(AFdata->focus_sharpness/TH)) {
 		// significantly down in both directions -> check another step
 		// outside for local maximum
 		AFdata->step=16;
@@ -198,12 +198,12 @@ static int checkFocus(struct focusData *AFdata) {
 	} else {
 		// one is significant, the other is not...
 		int left=0; int right=0;
-		if (abs(AFdata->sharpLeft-AFdata->sharpness)/AFdata->sharpness>=TH) {
-			if (AFdata->sharpLeft>AFdata->sharpness) left++;  
+		if (abs((AFdata->sharpLeft-AFdata->focus_sharpness))>=(AFdata->focus_sharpness/TH)) {
+			if (AFdata->sharpLeft>AFdata->focus_sharpness) left++;  
 			else right++; 
 		}
-		if (abs(AFdata->sharpRight-AFdata->sharpness)/AFdata->sharpness>=TH) {
-			if (AFdata->sharpRight>AFdata->sharpness) right++; 
+		if (abs((AFdata->sharpRight-AFdata->focus_sharpness))>=(AFdata->focus_sharpness/TH)) {
+			if (AFdata->sharpRight>AFdata->focus_sharpness) right++; 
 			else left++;
 		}
 		if (left==right) return (FLAT);
@@ -212,8 +212,8 @@ static int checkFocus(struct focusData *AFdata) {
 	}
 	
     } else {
-        if ((AFdata->sharpness-AFdata->sharpRight)/AFdata->sharpness>=TH && 
-           (AFdata->sharpness-AFdata->sharpLeft)/AFdata->sharpness>=TH) {
+        if (((AFdata->focus_sharpness-AFdata->sharpRight))>=(AFdata->focus_sharpness/TH) && 
+           ((AFdata->focus_sharpness-AFdata->sharpLeft))>=(AFdata->focus_sharpness/TH)) {
 		return (LOCAL_MAX);
         } else {
 		return (FLAT);
@@ -279,6 +279,7 @@ int getFocusVal (struct focusData *AFdata) {
 		    	AFdata->ind = 0;
 		} else {
 		    /*track focus*/
+		    AFdata->focus_sharpness=AFdata->sharpness;
 		    AFdata->flag= 3;
 		    AFdata->sharpLeft=0;
 		    AFdata->sharpRight=0;
@@ -296,6 +297,7 @@ int getFocusVal (struct focusData *AFdata) {
 		AFdata->sharpLeft=AFdata->sharpness;
 		int ret=0;
 		ret=checkFocus(AFdata);
+		//printf("check is %d\n",ret);
 		switch (ret) {
 			case LOCAL_MAX:
 			    AFdata->focus += AFdata->step; /*return to orig. focus*/
@@ -318,12 +320,10 @@ int getFocusVal (struct focusData *AFdata) {
 			    break;
 			case RIGHT:
 			    AFdata->focus += 2*AFdata->step; /*go right*/
-			    AFdata->step = 8;
 			    AFdata->flag = 2;
 			    break;
 			case LEFT:
 			    /*keep focus on left*/
-			    AFdata->step = 8;
 			    AFdata->flag = 2;
 			    break;
 			case INCSTEP:
