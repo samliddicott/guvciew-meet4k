@@ -30,9 +30,9 @@
 #include <string.h>
 #include <pthread.h>
 #include <SDL/SDL.h>
-#include <SDL/SDL_thread.h>
-#include <SDL/SDL_audio.h>
-#include <SDL/SDL_timer.h>
+//#include <SDL/SDL_thread.h>
+//#include <SDL/SDL_audio.h>
+//#include <SDL/SDL_timer.h>
 #include <linux/videodev.h>
 #include <sys/ioctl.h>
 #include <sys/mman.h>
@@ -60,9 +60,24 @@
 #include "autofocus.h"
 
 /*----------------------------- globals --------------------------------------*/
+struct paRecordData
+{
+    PaStreamParameters inputParameters;
+    PaStream *stream;
+    int sampleIndex;
+    int maxIndex;
+    int channels;
+    int numSamples;
+    int streaming;
+    int recording;
+    SAMPLE *recordedSamples;
+} *pdata;
+
+
 struct GLOBAL *global=NULL;
 struct JPEG_ENCODER_STRUCTURE *jpeg_struct=NULL;
 struct focusData *AFdata=NULL;
+struct paRecordData *data=NULL;
 
 struct vdIn *videoIn=NULL;
 VidState * s;
@@ -592,23 +607,79 @@ readOpts(int argc,char *argv[]) {
 }
 
 
-/*--------------------------- sound threaded loop ------------------------------*/
-static void*
-sound_capture(void *data)
+/*--------------------------- sound callback ------------------------------*/
+static int 
+recordCallback (const void *inputBuffer, void *outputBuffer,
+			   unsigned long framesPerBuffer,
+			   const PaStreamCallbackTimeInfo* timeInfo,
+			   PaStreamCallbackFlags statusFlags,
+			   void *userData )
 {
-	size_t sndstacksize;
-	PaStreamParameters inputParameters;
-	PaStream *stream;
-	PaError err;
-	SAMPLE *recordedSamples=NULL;
-	int i;
-	int totalFrames;
-	int numSamples;
-	
-	/*gets the stack size for the thread (DEBUG)*/
-	pthread_attr_getstacksize (&sndattr, &sndstacksize);
-	if (global->debug) printf("Sound Thread: stack size = %d bytes \n", (int) sndstacksize);
-	
+    struct paRecordData *data = (struct paRecordData*)userData;
+    const SAMPLE *rptr = (const SAMPLE*)inputBuffer;
+    int i;
+    int numSamples=framesPerBuffer*data->channels;
+    
+    /*data->streaming is also set by close_audio                  */
+    /*avoids writing to primary buffer (it may have been freed)   */
+    /*since there is a wait routine in close_audio this shouldn't */
+    /*really be needed, in any case ...                           */    
+    if (data->streaming) {
+	data->recording = 1;
+	if( inputBuffer == NULL )
+	{
+		for( i=0; i<numSamples; i++ )
+		{
+			data->recordedSamples[data->sampleIndex] = 0;/*silence*/
+			data->sampleIndex++;
+		}
+	}
+	else
+	{
+		for( i=0; i<numSamples; i++ )
+		{
+			data->recordedSamples[data->sampleIndex] = *rptr++;
+			data->sampleIndex++;
+		}
+	}
+    
+	data->numSamples += numSamples;
+	if (data->numSamples > (data->maxIndex-2*numSamples)) 
+	{
+		//primary buffer near limit (don't wait for overflow)
+		//or video capture stopped
+		//copy data to secondary buffer and restart primary buffer index
+		global->snd_numBytes = data->numSamples*sizeof(SAMPLE);
+		memcpy(global->avi_sndBuff, data->recordedSamples ,global->snd_numBytes);
+		data->sampleIndex=0;
+		data->numSamples = 0;
+		//flags that secondary buffer as data (can be saved to file)
+		global->audio_flag=1;
+	}
+	data->recording = 0;
+    }
+    
+    if(videoIn->capAVI) return (paContinue);
+    else {
+        /*recording stopped*/
+	if(!(global->audio_flag)) {
+		data->recording = 1;
+		/*need to copy audio to secondary buffer*/
+		global->snd_numBytes = data->numSamples*sizeof(SAMPLE);
+		memcpy(global->avi_sndBuff, data->recordedSamples ,global->snd_numBytes);
+		data->sampleIndex=0;
+		data->numSamples = 0;
+		//flags that secondary buffer as data (can be saved to file)
+		global->audio_flag=1;
+		data->recording = 0;
+	}
+	data->streaming=0;
+	return (paComplete);
+    }
+}
+
+static void
+set_sound (void) {
 	if(global->Sound_SampRateInd==0)
 	   global->Sound_SampRate=global->Sound_IndexDev[global->Sound_UseDev].samprate;/*using default*/
 	
@@ -616,88 +687,137 @@ sound_capture(void *data)
 	   /*using default if channels <3 or stereo(2) otherwise*/
 	   global->Sound_NumChan=(global->Sound_IndexDev[global->Sound_UseDev].chan<3)?global->Sound_IndexDev[global->Sound_UseDev].chan:2;
 	}
-    	
-    	/*set audio header for avi*/
-	AVI_set_audio(AviOut, global->Sound_NumChan, global->Sound_SampRate, sizeof(SAMPLE)*8,WAVE_FORMAT_PCM);
+}
+
+/*no need of extra thread can be set in video thread*/
+static int
+init_sound(struct paRecordData* data)
+{
+	PaError err;
+	int i;
+	int totalFrames;
+	int numSamples;
 	
     	/* setting maximum buffer size*/
 	totalFrames = global->Sound_NumSec * global->Sound_SampRate;
 	numSamples = totalFrames * global->Sound_NumChan;
 	global->snd_numBytes = numSamples * sizeof(SAMPLE);
     
-	recordedSamples = (SAMPLE *) malloc( global->snd_numBytes ); /*capture buffer*/
+	data->recordedSamples = (SAMPLE *) malloc( global->snd_numBytes ); /*capture buffer*/
+    	data->maxIndex = numSamples;
+    	data->sampleIndex=0;
+    	data->streaming=1;
+	data->recording = 0;
+    	data->channels=global->Sound_NumChan;
+    	
 	global->avi_sndBuff = (SAMPLE *) malloc( global->snd_numBytes );/*secondary shared buffer*/
     
-	if( recordedSamples == NULL )
+	if( data->recordedSamples == NULL )
 	{
 		printf("Could not allocate record array.\n");
 		pthread_exit((void *) -2);
 	}
-	for( i=0; i<numSamples; i++ ) recordedSamples[i] = 0;
+	for( i=0; i<numSamples; i++ ) data->recordedSamples[i] = 0;
 	
 	err = Pa_Initialize();
 	if( err != paNoError ) goto error;
 	/* Record for a few seconds. */
 
-	inputParameters.device = global->Sound_IndexDev[global->Sound_UseDev].id; /* input device */
-	inputParameters.channelCount = global->Sound_NumChan;
-	inputParameters.sampleFormat = PA_SAMPLE_TYPE;
-	inputParameters.suggestedLatency = Pa_GetDeviceInfo( inputParameters.device )->defaultLowInputLatency;
-	inputParameters.hostApiSpecificStreamInfo = NULL; 
+	data->inputParameters.device = global->Sound_IndexDev[global->Sound_UseDev].id; /* input device */
+	data->inputParameters.channelCount = global->Sound_NumChan;
+	data->inputParameters.sampleFormat = PA_SAMPLE_TYPE;
+	data->inputParameters.suggestedLatency = Pa_GetDeviceInfo( data->inputParameters.device )->defaultLowInputLatency;
+	data->inputParameters.hostApiSpecificStreamInfo = NULL; 
 	
 	/*---------------------------- Record some audio. ----------------------------- */
 	/* Input buffer will be twice(default) the size of frames to read               */
 	/* This way even in slow machines it shouldn't overflow and drop frames         */
 	err = Pa_OpenStream(
-			  &stream,
-			  &inputParameters,
+			  &data->stream,
+			  &data->inputParameters,
 			  NULL,                  /* &outputParameters, */
 			  global->Sound_SampRate,
-			  (totalFrames*global->Sound_BuffFactor),/* buffer Size - totalFrames*/
+			  paFramesPerBufferUnspecified,/* buffer Size - totalFrames*/
 			  paNoFlag,      /* PaNoFlag - clip and dhiter*/
-			  NULL, /* sound callback - using blocking API*/
-			  NULL ); /* callback userData -no callback no data */
-	if( err != paNoError ) goto error;  
-	err = Pa_StartStream( stream );
-	if( err != paNoError ) goto error; /*should close the stream if error ?*/
-	/*----------------------------- capture loop ----------------------------------*/
-	global->snd_begintime = ms_time();
-
-	do {
-	   err = Pa_ReadStream( stream, recordedSamples, totalFrames );
-
-	   /*copy recorded samples to shared buffer*/
-	   if(global->audio_flag==0) { 
-	       memcpy(global->avi_sndBuff, recordedSamples ,global->snd_numBytes); 
-	       global->audio_flag =1;
-	   } else {
-	   	/*wait a bit and retry?*/
-	       printf("sound not ready...\n");
-	   }
-	
-	} while (videoIn->capAVI);   
-
-	err = Pa_StopStream( stream );
+			  recordCallback, /* sound callback - using blocking API*/
+			  data ); /* callback userData -no callback no data */
 	if( err != paNoError ) goto error;
-	
-	err = Pa_CloseStream( stream ); /*closes the stream*/
-	if( err != paNoError ) goto error; 
-	
-	if(recordedSamples) free( recordedSamples  );
-	recordedSamples=NULL;
-	Pa_Terminate();
-	
-	pthread_exit((void *) 0);
-
+    
+	err = Pa_StartStream( data->stream );
+	if( err != paNoError ) goto error; /*should close the stream if error ?*/
+    
+    	/*sound start time - used to sync with video*/
+	global->snd_begintime = ms_time();
+    
+    	return (0);
 error:
-	if(recordedSamples) free( recordedSamples );
-	recordedSamples=NULL;
-	Pa_Terminate();
 	fprintf( stderr, "An error occured while using the portaudio stream\n" );
 	fprintf( stderr, "Error number: %d\n", err );
-	fprintf( stderr, "Error message: %s\n", Pa_GetErrorText( err ) );
-	pthread_exit((void *) -1);
+	fprintf( stderr, "Error message: %s\n", Pa_GetErrorText( err ) ); 
+	data->streaming=0;
+	if(data->recordedSamples) free( data->recordedSamples );
+	data->recordedSamples=NULL;
+	if(global->avi_sndBuff) free(global->avi_sndBuff);
+	global->avi_sndBuff=NULL;
+	Pa_Terminate();
+	return(-1);
+
+}	   
+
+static int
+close_sound (struct paRecordData *data) 
+{
+    	int stall=20;
+        int err =0;
+	/*wait for last audio chunks to be saved on video file*/
+    	while ((data->streaming || (global->audio_flag>0)) && (stall>0)) {
+		Pa_Sleep(100);
+		stall--; /*prevents stalls (waits at max 20*100 ms)*/
+	}
+    	if(!(stall>0)) printf("WARNING:sound capture stall (streaming=%d flag=%d)\n",
+	                                          data->streaming, global->audio_flag);
 	
+	data->streaming=0;    /*prevents writes on primary and secondary buffers*/
+	
+	err = Pa_StopStream( data->stream );
+	if( err != paNoError ) goto error;
+	
+	/*free primary buffer*/
+	if(!data->recording) {
+		if(data->recordedSamples) free( data->recordedSamples  );
+		data->recordedSamples=NULL;
+	} else {
+		fprintf( stderr, "Error: still recording audio couldn't free P. buffer\n" );
+		return(-1);
+	}
+	
+	err = Pa_CloseStream( data->stream ); /*closes the stream*/
+	if( err != paNoError ) goto error; 
+	
+	Pa_Terminate();
+	
+	global->audio_flag=0; /*prevents reads on secondary buffer */
+	
+	/*free secondary buffer*/
+	if(!data->recording) {
+		if (global->avi_sndBuff) free(global->avi_sndBuff);
+		global->avi_sndBuff = NULL;
+	} else {
+		fprintf( stderr, "Error: still recording audio couldn't free S. buffer\n" );
+		return(-1);
+	}
+	return (0);
+error:  
+	fprintf( stderr, "An error occured while closing the portaudio stream\n" );
+	fprintf( stderr, "Error number: %d\n", err );
+	fprintf( stderr, "Error message: %s\n", Pa_GetErrorText( err ) );
+	
+	Pa_Terminate();
+	if(data->recordedSamples) free( data->recordedSamples );
+	data->recordedSamples=NULL;
+	if (global->avi_sndBuff) free(global->avi_sndBuff);
+    	global->avi_sndBuff = NULL;
+	return(-1);
 }
 
 
@@ -719,7 +839,7 @@ static void
 aviClose (void)
 {
   DWORD tottime = 0;
-  int tstatus;
+  //int tstatus;
 	
   if (AviOut)
   {
@@ -735,24 +855,9 @@ aviClose (void)
 	  }
      
      	  if (global->debug) printf("AVI: %d frames in %d ms = %f fps\n",global->framecount,tottime,AviOut->fps);
-	  /*---------------- write last audio data to avi if Sound Enable ------------------*/
+	  /*------------------- close audio stream and clean up -------------------*/
 	  if (global->Sound_enable > 0) {
-		/* Free attribute and wait for the thread */
-		pthread_attr_destroy(&sndattr);
-	
-		pthread_join(sndthread, (void *)&tstatus);
-	   	
-		if (tstatus!=0)
-		{
-			printf("ERROR: status from sound thread join is %d\n", tstatus);
-			/* don't add sound*/
-		} else {
-			if (global->debug) printf("Capture sound thread join with status= %d\n", tstatus);
-		    	if (global->audio_flag>0) {
-				AVI_append_audio(AviOut,(BYTE *) global->avi_sndBuff,global->snd_numBytes);
-				global->audio_flag=0;
-			}
-		}
+		if (close_sound (pdata)) printf("Sound Close error\n");
 	  } 
 	  AVI_close (AviOut);
 	  AviOut = NULL;
@@ -1529,28 +1634,25 @@ capture_avi (GtkButton *AVIButt, void *data)
 		AviOut = AVI_open_output_file(videoIn->AVIFName);
 		
 		/*4CC compression "YUY2"/"UYVY" (YUV) or "DIB " (RGB24)  or  "MJPG"*/	
-		AVI_set_video(AviOut, videoIn->width, videoIn->height, videoIn->fps,compression);		
-		/* audio will be set in aviClose - if enabled*/
-		global->AVIstarttime = ms_time();
+		AVI_set_video(AviOut, videoIn->width, videoIn->height, videoIn->fps,compression);
 
-	    	videoIn->capAVI = TRUE; /* start video capture */
 		/*disabling sound and avi compression controls*/
 		set_sensitive_avi_contrls(FALSE);
-	    
-		/* Creating the sound capture loop thread if Sound Enable*/ 
-		if(global->Sound_enable > 0) { 
-			/* Initialize and set snd thread detached attribute */
-			size_t stacksize;
-			stacksize = sizeof(char) * global->stack_size;
-		   	pthread_attr_init(&sndattr);
-		   	pthread_attr_setstacksize (&sndattr, stacksize);
-			pthread_attr_setdetachstate(&sndattr, PTHREAD_CREATE_JOINABLE);
-		  
-			int rsnd = pthread_create(&sndthread, &sndattr, sound_capture, NULL); 
-			if (rsnd)
-			{
-				printf("ERROR; return code from snd pthread_create() is %d\n", rsnd);
-			}
+	  
+		if(global->Sound_enable > 0) {
+			/*get channels and sample rate*/
+			set_sound();
+			/*set audio header for avi*/
+			AVI_set_audio(AviOut, global->Sound_NumChan, global->Sound_SampRate, sizeof(SAMPLE)*8,WAVE_FORMAT_PCM);
+			/* start video capture - with sound*/
+			global->AVIstarttime = ms_time();
+			videoIn->capAVI = TRUE; /* start video capture */
+			/* Initialize sound (open stream)*/
+			if(init_sound (pdata)) printf("error opening portaudio\n");
+		} else {
+			/* start video capture - no sound*/
+			global->AVIstarttime = ms_time();
+			videoIn->capAVI = TRUE;
 		}
 	}	
 }
@@ -2537,7 +2639,9 @@ static void *main_loop(void *data)
 	  
 	  /*---------------------------capture AVI---------------------------------*/
 	  if (videoIn->capAVI && videoIn->signalquit){
-	   long framesize;  
+	   long framesize;
+	   /*reset video start time to first frame capture time */  
+	   if(global->framecount==0) global->AVIstarttime = ms_time();
 	   switch (global->AVIFormat) {
 		   
 		case 0: /*MJPG*/
@@ -2631,11 +2735,12 @@ static void *main_loop(void *data)
 			break;
 
 		} 
-	   global->framecount++;
-	   if (keyframe) keyframe=0; /*resets key frame*/   
-	   /*add audio*/
-	   if ((global->Sound_enable) && (global->audio_flag>0)) {
-	       if (!(AviOut->audio_bytes)) { /*first audio data - sync with video (audio thread allawys starts after video)*/
+		global->framecount++;
+		if (keyframe) keyframe=0; /*resets key frame*/   
+		/*----------------------- add audio -----------------------------*/
+		if ((global->Sound_enable) && (global->audio_flag>0)) {
+		    /*first audio data - sync with video (audio stream capture takes longer to start)*/
+		    if (!(AviOut->audio_bytes)) {
 	       		int synctime= global->snd_begintime - global->AVIstarttime; /*time diff for audio-video*/
 			if(synctime>0 && synctime<5000) { /*only sync up to 5 seconds*/
 			/*shift sound by synctime*/
@@ -2647,8 +2752,9 @@ static void *main_loop(void *data)
 			for(i=0; i<shiftSamples; i++) EmptySamp[i]=0;/*init to zero - silence*/
 				AVI_write_audio(AviOut,(BYTE *) &EmptySamp,shiftSamples*sizeof(SAMPLE));
 	       		}
-	       }
-	       if(AVI_write_audio(AviOut,(BYTE *) global->avi_sndBuff,global->snd_numBytes) < 0) {
+		    }
+		    /*write audio chunk*/
+		    if(AVI_write_audio(AviOut,(BYTE *) global->avi_sndBuff,global->snd_numBytes) < 0) {
 	       		if (AVI_getErrno () == AVI_ERR_SIZELIM) {
 				/*avi file limit reached - must end capture and close file*/
 				capture_avi(GTK_BUTTON(CapAVIButt), NULL); /*avi capture callback*/
@@ -2657,12 +2763,17 @@ static void *main_loop(void *data)
 				printf ("write error on avi out \n");
 			}
 					
-	       }
-	       global->audio_flag=0;
-	       keyframe = 1; /*marks next frmae as key frame*/
-	   }   
-	      
-	  } 
+	            }
+		    global->audio_flag=0;
+		    keyframe = 1; /*marks next frmae as key frame*/
+		}   
+	   
+	   /*video capture has stopped but there is still audio available*/	
+	   } else if (global->audio_flag>0) {
+		/*write last audio data to avi*/
+		AVI_append_audio(AviOut,(BYTE *) global->avi_sndBuff,global->snd_numBytes);
+		global->audio_flag=0;
+	   }
 	/*------------------------- Display Frame --------------------------------*/
 	 SDL_LockYUVOverlay(overlay);
 	 memcpy(p, videoIn->framebuffer,
@@ -2800,7 +2911,12 @@ int main(int argc, char *argv[])
 		printf("couldn't allocate memory for: s\n");
 		exit(1); 
 	}
-	   
+	
+    	if((pdata=(struct paRecordData *) calloc(1, sizeof(struct paRecordData)))==NULL){
+		printf("couldn't allocate memory for: paRecordData\n");
+		exit(1); 
+	}
+    	
 	char *home;
 	char *pwd=NULL;
 	
@@ -3651,23 +3767,26 @@ int main(int argc, char *argv[])
 	   AVI_set_video(AviOut, videoIn->width, videoIn->height, videoIn->fps,compression);		
 	   /* audio will be set in aviClose - if enabled*/
 	   sprintf(videoIn->AVIFName,"%s/%s",global->aviFPath[1],global->aviFPath[0]);		
-	   videoIn->capAVI = TRUE;
-	   global->AVIstarttime = ms_time();
+	   
 	   /*disabling sound and avi compression controls*/
 	   set_sensitive_avi_contrls (FALSE);
-	   /* Creating the sound capture loop thread if Sound Enable*/ 
-	   if(global->Sound_enable > 0) { 
-		  /* Initialize and set snd thread detached attribute */
-		  pthread_attr_init(&sndattr);
-	          pthread_attr_setstacksize (&sndattr, stacksize);
-		  pthread_attr_setdetachstate(&sndattr, PTHREAD_CREATE_JOINABLE);
-		   
-		  int rsnd = pthread_create(&sndthread, &sndattr, sound_capture, NULL); 
-		  if (rsnd)
-		  {
-			 printf("ERROR; return code from snd pthread_create() is %d\n", rsnd);
-		  }
-		}
+	   
+	   if(global->Sound_enable > 0) {
+		/*get channels and sample rate*/
+		set_sound();
+		/*set audio header for avi*/
+		AVI_set_audio(AviOut, global->Sound_NumChan, global->Sound_SampRate, sizeof(SAMPLE)*8,WAVE_FORMAT_PCM);
+		/* start video capture - with sound*/
+	       	global->AVIstarttime = ms_time();
+		videoIn->capAVI = TRUE; /* start video capture */
+		/* Initialize sound (open stream)*/
+		if(init_sound (pdata)) printf("error opening portaudio\n");
+	   } else {
+		/* start video capture - no sound*/
+		global->AVIstarttime = ms_time();
+		videoIn->capAVI = TRUE;
+	   }
+	   
 	   if (global->Capture_time) {
 		/*sets the timer function*/
 		g_timeout_add(global->Capture_time*1000,timer_callback,NULL);
@@ -3693,6 +3812,8 @@ clean_struct (void) {
 
     //int i=0;
    
+    if(pdata) free(pdata);
+    
     if(videoIn) close_v4l2(videoIn);	
 
     if (global->debug) printf("closed v4l2 strutures\n");

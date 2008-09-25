@@ -156,6 +156,7 @@ static const int stdSampleRates[] = { 0, 8000,  9600, 11025, 12000,
 
 typedef char* pchar;
 
+
 /*global variables used in guvcview*/
 struct GLOBAL {
     	int debug;

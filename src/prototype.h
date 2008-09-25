@@ -46,6 +46,8 @@ int encode_image (UINT8 * input_ptr,UINT8 * output_ptr,
 
 UINT8* read_422_format (struct JPEG_ENCODER_STRUCTURE * jpeg_encoder_structure, UINT8 *input_ptr);
 
+UINT8* read_I422_format (struct JPEG_ENCODER_STRUCTURE * jpeg_encoder_structure, UINT8 *input_ptr);
+
 UINT8* encodeMCU (struct JPEG_ENCODER_STRUCTURE * jpeg_encoder_structure, UINT8 *output_ptr);
 
 void levelshift (INT16* const data);

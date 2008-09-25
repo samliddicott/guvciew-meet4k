@@ -42,6 +42,7 @@
 #include "huffman.h"
 #include <png.h>
 #include "prototype.h"
+
 /* support for internationalization - i18n */
 #include <glib/gi18n.h>    
 
