@@ -2473,6 +2473,9 @@ static void *main_loop(void *data)
 		SDL_WM_SetCaption(global->WVcaption, NULL);
 		pthread_exit((void *) 2);
 	 } else {
+		/*reset video start time to first frame capture time */  
+		if((global->framecount==0) && videoIn->capAVI) global->AVIstarttime = ms_time();
+		
 		if (global->FpsCount) {/* sets fps count in window title bar */
 			global->frmCount++;
 			if (global->DispFps>0) { /*set every 2 sec*/
@@ -2640,8 +2643,6 @@ static void *main_loop(void *data)
 	  /*---------------------------capture AVI---------------------------------*/
 	  if (videoIn->capAVI && videoIn->signalquit){
 	   long framesize;
-	   /*reset video start time to first frame capture time */  
-	   if(global->framecount==0) global->AVIstarttime = ms_time();
 	   switch (global->AVIFormat) {
 		   
 		case 0: /*MJPG*/
