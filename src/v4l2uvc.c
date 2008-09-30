@@ -593,8 +593,8 @@ int uvcGrab(struct vdIn *vd)
         		// }
 			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
 			
-	     		if (yuv420_to_yuyv(&vd->framebuffer, vd->tmpbuffer, &vd->width,
-	     	                                             &vd->height) < 0) {
+	     		if (yuv420_to_yuyv(vd->framebuffer, vd->tmpbuffer, vd->width,
+	     	                                             vd->height) < 0) {
 	    		printf("error converting yuv420 to yuyv\n");
 	    		goto err;
 			}

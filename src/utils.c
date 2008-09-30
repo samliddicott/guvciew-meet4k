@@ -1192,7 +1192,7 @@ int yuv420_to_yuyv (BYTE *framebuffer, BYTE *tmpbuffer, int width, int height)
     
     py=tmpbuffer;
     pu=py+(width*height);
-    pv=pu+(width*heght/4);
+    pv=pu+(width*height/4);
     
     int h=0;
     int w=0;
