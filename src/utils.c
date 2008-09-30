@@ -1183,6 +1183,55 @@ while (((ptbuf[0] << 8) | ptbuf[1]) != 0xffda){
 return 0;
 }
 
+
+int yuv420_to_yuyv (BYTE *framebuffer, BYTE *tmpbuffer, int width, int height) 
+{
+    BYTE *py;
+    BYTE *pu;
+    BYTE *pv;
+    
+    py=tmpbuffer;
+    pu=py+(width*height);
+    pv=pu+(width*heght/4);
+    
+    int h=0;
+    int w=0;
+    
+    int wy=0;
+    int huv=0;
+    int wuv=0;
+    
+    for(h=0;h<height;h+=2) 
+    {
+	wy=0;
+	wuv=0;
+	for(w=0;w<width*2;w+=4) 
+	{
+		/*y00*/
+		framebuffer[h*width+w] = py[h*width+wy];
+		/*u0*/
+		framebuffer[h*width+(w+1)] = pu[huv*(width/2)+wuv];
+		/*y01*/
+		framebuffer[h*width+(w+2)] = py[h*width+(wy+1)];
+		/*u0*/
+		framebuffer[h*width+(w+3)] = pu[huv*(width/2)+wuv];
+		
+		/*y10*/
+		framebuffer[(h+1)*width+w] = py[(h+1)*width+wy];
+		/*u0*/
+		framebuffer[(h+1)*width+(w+1)] = pu[huv*(width/2)+wuv];
+		/*y11*/
+		framebuffer[(h+1)*width+(w+2)] = py[(h+1)*width+(wy+1)];
+		/*u0*/
+		framebuffer[(h+1)*width+(w+3)] = pu[huv*(width/2)+wuv];
+		wuv++;
+		wy+=2;
+	}
+	huv++;
+    }
+    return (0);
+}
+
 int initGlobals (struct GLOBAL *global) {
 	
     	global->debug = DEBUG;

@@ -289,6 +289,7 @@ init_videoIn(struct vdIn *vd, char *device, int width, int height,
     snprintf(vd->AVIFName, 14, DEFAULT_AVI_FNAME);
     vd->SupMjpg=0;
     vd->SupYuv=0;
+    vd->SupYup=0;
     vd->fps = fps;
     vd->fps_num = fps_num;
     vd->signalquit = 1;
@@ -335,6 +336,18 @@ init_videoIn(struct vdIn *vd, char *device, int width, int height,
 		}
 		vd->framebuffer = (unsigned char *) calloc(1,
 			(size_t) vd->width * (vd->height + 8) * 2);
+		break;
+	case V4L2_PIX_FMT_YUV420:
+		/* alloc a temp buffer for converting to YUYV*/
+		vd->tmpbuffer = (unsigned char *) calloc(1, 
+			(size_t) vd->framesizeIn); /* should be width * height * 3/2 */
+	     	if (!vd->tmpbuffer) {
+			printf("couldn't calloc memory for tmp buffer\n");
+			ret=-6;
+			goto error;
+		}
+		vd->framebuffer = (unsigned char *) calloc(1,
+			(size_t) vd->framesizeIn); /*planar yuv 4:2:0*/
 		break;
     	case V4L2_PIX_FMT_YUYV:
 	case V4L2_PIX_FMT_UYVY:
@@ -569,6 +582,20 @@ int uvcGrab(struct vdIn *vd)
 	     		if (jpeg_decode(&vd->framebuffer, vd->tmpbuffer, &vd->width,
 	     	                                             &vd->height) < 0) {
 	    		printf("jpeg decode errors\n");
+	    		goto err;
+			}
+			break;
+	case V4L2_PIX_FMT_YUV420:
+			// if(vd->buf.bytesused > vd->width * vd->height * 2) {
+				// /* Prevent crash on empty image */
+	        		// printf("Ignoring empty buffer ...\n");
+	    			// return 0;
+        		// }
+			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
+			
+	     		if (yuv420_to_yuyv(&vd->framebuffer, vd->tmpbuffer, &vd->width,
+	     	                                             &vd->height) < 0) {
+	    		printf("error converting yuv420 to yuyv\n");
 	    		goto err;
 			}
 			break;
@@ -881,9 +908,17 @@ int enum_frame_sizes(struct vdIn *vd, __u32 pixfmt)
 		/*if this is the selected format set number of resolutions for combobox*/
 					if(vd->formatIn == pixfmt) vd->numb_resol=list_ind+1;
 					break;
+				case V4L2_PIX_FMT_YUV420:
+					vd->SupYup++;
+					list_form=1;/*there should be only one yuv mode - yuyv, uyvy or yu12*/
+					vd->listVidCap[list_form][list_ind].width=fsize.discrete.width;
+					vd->listVidCap[list_form][list_ind].height=fsize.discrete.height;
+		/*if this is the selected format set number of resolutions for combobox*/
+					if(vd->formatIn == pixfmt) vd->numb_resol=list_ind+1;
+					break;
 				case V4L2_PIX_FMT_UYVY:
 					vd->SupUyv++;
-					list_form=1;/*there should be only one yuv mode - yuyv or uyvy*/
+					list_form=1;/*there should be only one yuv mode - yuyv, uyvy or yu12*/
 					vd->listVidCap[list_form][list_ind].width=fsize.discrete.width;
 					vd->listVidCap[list_form][list_ind].height=fsize.discrete.height;
 		/*if this is the selected format set number of resolutions for combobox*/
@@ -891,7 +926,7 @@ int enum_frame_sizes(struct vdIn *vd, __u32 pixfmt)
 					break;
 				case V4L2_PIX_FMT_YUYV:
 					vd->SupYuv++;
-					list_form=1;/*there should be only one yuv mode - yuyv or uyvy*/
+					list_form=1;/*there should be only one yuv mode - yuyv, uyvy or yu12*/
 					vd->listVidCap[list_form][list_ind].width=fsize.discrete.width;
 					vd->listVidCap[list_form][list_ind].height=fsize.discrete.height;
 		/*if this is the selected format set number of resolutions for combobox*/

@@ -48,7 +48,6 @@
 #include "../config.h"
 
 
-
 #include <gtk/gtk.h>
 #include <gdk/gdkx.h>
 #include <portaudio.h>
@@ -262,7 +261,7 @@ writeConf(const char *confpath) {
 		fprintf(fp,"vpane=%i\n",global->boxvsize);
 		fprintf(fp,"#spin button behavior: 0-non editable 1-editable\n");
 		fprintf(fp,"spinbehave=%i\n", global->spinbehave);
-		fprintf(fp,"# mode video format 'uyv' 'yuv' or 'jpg'(default)\n");
+		fprintf(fp,"# mode video format 'uyv' 'yuv' 'yup' or 'jpg'(default)\n");
 		fprintf(fp,"mode=%s\n",global->mode);
 		fprintf(fp,"# frames per sec. - hardware supported - default( %i )\n",DEFAULT_FPS);
 		fprintf(fp,"fps=%d/%d\n",global->fps_num,global->fps);
@@ -570,7 +569,7 @@ readOpts(int argc,char *argv[]) {
 			printf("-g\t:use read method for grab instead mmap\n");
 			printf("-w enable|disable\t:SDL hardware accel. \n");
 			printf("-f[--format] format\t:video format\n");
-			printf("   default jpg  others options are uyv yuv jpg \n");
+			printf("   default jpg  others options are uyv yuv yup jpg \n");
 			printf("-s[--size] widthxheight\t:use specified input size \n");
 			printf("-i[--image] image_file_name\t:sets the default image name\n"); 
 			printf("   available image formats: jpg png bmp\n");
@@ -595,6 +594,9 @@ readOpts(int argc,char *argv[]) {
 		global->formind = 1;
 	} else if (strncmp(global->mode, "yuv", 3) == 0) {
 		global->format = V4L2_PIX_FMT_YUYV;
+		global->formind = 1;
+	} else if (strncmp(global->mode, "yup", 3) == 0) {
+		global->format = V4L2_PIX_FMT_YUV420;
 		global->formind = 1;
 	} else if (strncmp(global->mode, "jpg", 3) == 0) {
 		global->format = V4L2_PIX_FMT_MJPEG;
@@ -1219,13 +1221,13 @@ resolution_changed (GtkComboBox * Resolution, void *data)
 }
 
 
-/* Input Type control (UYV YUV MJPG)*/
+/* Input Type control (UYV YUV YU12 MJPG)*/
 static void
 ImpType_changed(GtkComboBox * ImpType, void * Data) 
 {
 	int index = gtk_combo_box_get_active(ImpType);
 	
-	if ((videoIn->SupMjpg >0) && ((videoIn->SupYuv >0) || (videoIn->SupUyv))) {
+	if ((videoIn->SupMjpg >0) && ((videoIn->SupYuv >0) || (videoIn->SupUyv) || (videoIn->SupYup))) {
 		global->formind = index;
 	} else {
 		/* if only one format available the callback shouldn't get called*/
@@ -1246,6 +1248,9 @@ ImpType_changed(GtkComboBox * ImpType, void * Data)
 		if (videoIn->SupYuv>0) {
 			snprintf(global->mode, 4, "yuv");
 			SupRes=videoIn->SupYuv;
+		} else if (videoIn->SupYup>0) {
+			snprintf(global->mode, 4, "yup");
+			SupRes=videoIn->SupYup;
 		} else {
 			snprintf(global->mode, 4, "uyv");
 			SupRes=videoIn->SupUyv;
@@ -1599,7 +1604,7 @@ capture_avi (GtkButton *AVIButt, void *data)
 			break;
 		case 1:
 			if(videoIn->formatIn == V4L2_PIX_FMT_UYVY) compression="UYVY";
-			else compression="YUY2";
+			else compression="YUY2"; /*for YUYV and YU12(YUV420) */
 			break;
 		case 2:
 			compression="DIB ";
@@ -2444,6 +2449,7 @@ static void *main_loop(void *data)
 	SDL_SetVideoMode(videoIn->width, videoIn->height, global->bpp,
 			 SDL_VIDEO_Flags);
 	switch (global->format) {
+	    case V4L2_PIX_FMT_YUV420: /*converted to YUYV*/
 	    case V4L2_PIX_FMT_YUYV:
 		overlay = SDL_CreateYUVOverlay(videoIn->width, videoIn->height,
 				 SDL_YUY2_OVERLAY, pscreen);
@@ -2521,6 +2527,7 @@ static void *main_loop(void *data)
 	 if(global->Frame_Flags>0){
 		if((global->Frame_Flags & YUV_MIRROR)==YUV_MIRROR) {
 			switch (global->format) {
+			    case V4L2_PIX_FMT_YUV420: /*converted to YUYV*/
 			    case V4L2_PIX_FMT_YUYV: 
 				yuyv_mirror(videoIn->framebuffer,videoIn->width,videoIn->height);
 				break;
@@ -2538,6 +2545,7 @@ static void *main_loop(void *data)
 			yuyv_negative (videoIn->framebuffer,videoIn->width,videoIn->height);
 		if((global->Frame_Flags & YUV_MONOCR)==YUV_MONOCR) {
 			switch (global->format) {
+			    case V4L2_PIX_FMT_YUV420: /*converted to YUYV*/
 			    case V4L2_PIX_FMT_YUYV: 
 				yuyv_monochrome (videoIn->framebuffer,videoIn->width,videoIn->height);
 				break;
@@ -2978,36 +2986,26 @@ int main(int argc, char *argv[])
 				    printf("formaind %d\n", global->formind);
 				    printf("SupYuv   %d\n", videoIn->SupYuv);
 				    printf("SupUyv   %d\n", videoIn->SupUyv);
+				    printf("SupYup   %d\n", videoIn->SupYup);
 				}
-				if ((global->formind==1) && (videoIn->SupYuv>0)) { /*use yuyv mode*/
+				
+				if (videoIn->SupYuv>0) {
 					global->formind=1;
 					global->format=V4L2_PIX_FMT_YUYV;
 					snprintf(global->mode, 4, "yuv");
-				} else if ((global->formind==1) && (videoIn->SupUyv>0)) { /*use uyvy mode*/
+				} else if (videoIn->SupUyv>0) {
 					global->formind=1;
 					global->format=V4L2_PIX_FMT_UYVY;
 					snprintf(global->mode, 4, "uyv");
-				} else { /*selected mode isn't available*/
-					/*check available modes*/
-					printf("checking available modes...\n");
-					if(videoIn->SupMjpg>0){
-						global->formind=0;
-						global->format=V4L2_PIX_FMT_MJPEG;
-						snprintf(global->mode, 4, "jpg");
-					} else if (videoIn->SupYuv>0) {
-						global->formind=1;
-						global->format=V4L2_PIX_FMT_YUYV;
-						snprintf(global->mode, 4, "yuv");
-					} else if (videoIn->SupUyv>0) {
-						global->formind=1;
-						global->format=V4L2_PIX_FMT_UYVY;
-						snprintf(global->mode, 4, "uyv");
-					} else {
-						printf("ERROR: Can't set MJPG or YUV stream.\nExiting...\n");
-						ERR_DIALOG (N_("Guvcview error:\n\nCan't set MJPG or YUV stream for guvcview"),
-							    N_("Make sure you have a UVC compliant camera\nand that you have the linux UVC driver installed."));
-					}	
-				}
+				} else if (videoIn->SupYup>0) {
+					global->formind=1;
+					global->format=V4L2_PIX_FMT_YUV420;
+					snprintf(global->mode, 4, "yup");
+				} else {
+					printf("ERROR: Can't set MJPG or YUV stream.\nExiting...\n");
+					ERR_DIALOG (N_("Guvcview error:\n\nCan't set MJPG or YUV stream for guvcview"),
+						    N_("Make sure you have a UVC compliant camera\nand that you have the linux UVC driver installed."));
+				}	
 			}
 			global->width=videoIn->listVidCap[global->formind][0].width;
 			global->height=videoIn->listVidCap[global->formind][0].height;
@@ -3308,6 +3306,10 @@ int main(int argc, char *argv[])
 	}
 	if (videoIn->SupUyv>0) {/*uyvy Input Available*/
 		gtk_combo_box_append_text(GTK_COMBO_BOX(ImpType),"UYVY");
+	
+	}
+	if (videoIn->SupUyv>0) {/*yu12 Input Available*/
+		gtk_combo_box_append_text(GTK_COMBO_BOX(ImpType),"YU12");
 	
 	}
 	gtk_table_attach(GTK_TABLE(table2), ImpType, 1, 2, 4, 5,

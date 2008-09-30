@@ -1,11 +1,12 @@
 guvcview (0.9.4) stable; urgency=low
 
    * Added support for isight camera - UYVY (Nobuhiro Iwamatsu).
+   * Added support for YU12 ( YUV 4:2:0 planar) pixel format.
    * Changed audio capture from blocking API to callback API,
 	should improve audio performance.
    * Improved software autofocus (Dr. Alexander K. Seewald)
 
- -- Paulo Assis <pj.assis@gmail.com>  Mon, 25 Sep 2008 23:00:00 +0000
+ -- Paulo Assis <pj.assis@gmail.com>  Mon, 30 Sep 2008 14:30:00 +0000
 
 guvcview (0.9.3) stable; urgency=low
 

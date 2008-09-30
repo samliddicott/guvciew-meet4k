@@ -274,6 +274,9 @@ typedef struct tagJPGFILEHEADER {
 
 int jpeg_decode(unsigned char **pic, unsigned char *buf, int *width,
 		int *height);
+		
+int yuv420_to_yuyv (BYTE *framebuffer, BYTE *tmpbuffer, int width, 
+		int height);
 
 int initGlobals(struct GLOBAL *global);
 int closeGlobals(struct GLOBAL *global);
