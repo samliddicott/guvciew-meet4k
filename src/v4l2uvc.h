@@ -37,7 +37,7 @@
 #include <sys/ioctl.h>
 #include <sys/mman.h>
 #include <sys/select.h>
-#include <linux/videodev.h>
+#include <linux/videodev2.h>
 #include <gtk/gtk.h>
 
 #define NB_BUFFER 4
@@ -122,28 +122,20 @@ static const int exp_vals[]={
 				};
 
 
-//~ enum v4l2_uvc_power_line_frequency {
-	//~ V4L2_UVC_CID_POWER_LINE_FREQUENCY_DISABLED	= 0,
-	//~ V4L2_UVC_CID_POWER_LINE_FREQUENCY_50HZ	= 1,
-	//~ V4L2_UVC_CID_POWER_LINE_FREQUENCY_60HZ	= 2,
-//~ };
-
-
 #define UVC_DYN_CONTROLS
 /*
  * Dynamic controls
  */
 
+#define UVC_CTRL_DATA_TYPE_RAW		0
+#define UVC_CTRL_DATA_TYPE_SIGNED	1
+#define UVC_CTRL_DATA_TYPE_UNSIGNED	2
+#define UVC_CTRL_DATA_TYPE_BOOLEAN	3
+#define UVC_CTRL_DATA_TYPE_ENUM		4
+#define UVC_CTRL_DATA_TYPE_BITMASK	5
+
+
 #ifdef UVC_DYN_CONTROLS
-/* Data types for UVC control data */
-enum uvc_control_data_type {
-        UVC_CTRL_DATA_TYPE_RAW = 0,
-        UVC_CTRL_DATA_TYPE_SIGNED,
-        UVC_CTRL_DATA_TYPE_UNSIGNED,
-        UVC_CTRL_DATA_TYPE_BOOLEAN,
-        UVC_CTRL_DATA_TYPE_ENUM,
-        UVC_CTRL_DATA_TYPE_BITMASK,
-};
 
 #define V4L2_CID_BASE_EXTCTR					0x0A046D01
 #define V4L2_CID_BASE_LOGITECH					V4L2_CID_BASE_EXTCTR
@@ -201,14 +193,15 @@ struct uvc_xu_control_mapping {
 	__u8 size;
 	__u8 offset;
 	enum v4l2_ctrl_type v4l2_type;
-	enum uvc_control_data_type data_type;
+	__u32 data_type;
 };
 
 struct uvc_xu_control {
 	__u8 unit;
 	__u8 selector;
 	__u16 size;
-	__u8 __user *data;
+	//__u8 __user *data;
+	__u8 *data;
 };
 
 #define UVCIOC_CTRL_ADD		_IOW  ('U', 1, struct uvc_xu_control_info)
