@@ -26,7 +26,7 @@
 #  Adapted for linux, Paulo Assis, 2007 <pj.assis@gmail.com>                    #
 ********************************************************************************/
 
-#include "prototype.h"
+#include "jpgenc.h"
 
 UINT8 zigzag_table [] =
 {

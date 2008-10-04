@@ -26,7 +26,8 @@
 #  Adapted for linux, Paulo Assis, 2007 <pj.assis@gmail.com>                    #
 ********************************************************************************/
 
-#include "datatype.h"
+#include "dct.h"
+#include "defs.h"
 
 
 /* Level shifting to get 8 bit SIGNED values for the data  */

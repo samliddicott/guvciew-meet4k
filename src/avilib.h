@@ -32,22 +32,23 @@
 
 #ifndef AVILIB_H
 #define AVILIB_H
-#include "utils.h"
 
-typedef struct
+#include "defs.h"
+
+typedef struct _video_index_entry
 {
   ULONG pos;
   ULONG len;
 } video_index_entry;
 
-typedef struct
+typedef struct _audio_index_entry
 {
    ULONG pos;
    ULONG len;
    ULONG tot;
 } audio_index_entry;
 
-typedef struct
+struct avi_t
 {
    long   fdes;              /* File descriptor of AVI file */
    long   mode;              /* 0 for reading, 1 for writing */
@@ -83,7 +84,7 @@ typedef struct
    ULONG   last_len;          /* Length of last frame written */
    int    must_use_index;    /* Flag if frames are duplicated */
    ULONG   movi_start;
-} avi_t;
+} __attribute__ ((packed));
 
 #define AVI_MODE_WRITE  0
 #define AVI_MODE_READ   1
@@ -149,17 +150,52 @@ typedef struct
 #define IBM_FORMAT_MULAW                (0x0101)
 #define IBM_FORMAT_ALAW                 (0x0102)
 #define IBM_FORMAT_ADPCM                (0x0103)
+/*extra audio formats (codecs)*/
+#define DOLBY_FORMAT_AC3 		(0x2000)
+#define ANTEX_FORMAT_ADPCME		(0x0033)
+#define AUDIO_FORMAT_APTX		(0x0025)
+#define AUDIOFILE_FORMAT_AF10		(0x0026)
+#define AUDIOFILE_FORMAT_AF36		(0x0024) 
+#define BROOKTREE_FORMAT_BTVD		(0x0400)
+#define CANOPUS_FORMAT_ATRAC		(0x0063)
+#define CIRRUS_FORMAT_CIRRUS		(0x0060)
+#define CONTROL_FORMAT_CR10		(0x0037)
+#define CONTROL_FORMAT_VQLPC		(0x0034)
+#define CREATIVE_FORMAT_ADPCM		(0x0200)
+#define CREATIVE_FORMAT_FASTSPEECH10	(0x0203)
+#define CREATIVE_FORMAT_FASTSPEECH8	(0x0202)
+#define IMA_FORMAT_ADPCM		(0x0039)
+#define CONSISTENT_FORMAT_CS2		(0x0260)
+#define HP_FORMAT_CU			(0x0019)
+#define DEC_FORMAT_G723			(0x0123)
+#define DF_FORMAT_G726			(0x0085)
+#define DSP_FORMAT_ADPCM		(0x0036)
+#define DOLBY_FORMAT_AC2		(0x0030)
+#define DOLBY_FORMAT_AC3_SPDIF		(0x0092)
+#define ESS_FORMAT_ESPCM		(0x0061)
+#define IEEE_FORMAT_FLOAT		(0x0003)
+#define ISO_FORMAT_MP3			(0x0055)
+#define ISO_FORMAT_MPEG12		(0x0050)
+#define MS_FORMAT_MSAUDIO1_DIVX		(0x0160)
+#define MS_FORMAT_MSAUDIO2_DIVX		(0x0161)
+#define OGG_FORMAT_VORBIS1		(0x674f)
+#define OGG_FORMAT_VORBIS1P		(0x676f)
+#define OGG_FORMAT_VORBIS2		(0x6750)
+#define OGG_FORMAT_VORBIS2P		(0x6770)
+#define OGG_FORMAT_VORBIS3		(0x6751)
+#define OGG_FORMAT_VORBIS3P		(0x6771)
+#define MS_FORMAT_WMA9			(0x0163)
+#define MS_FORMAT_WMA9_PRO		(0x0162)
 
-
-avi_t* AVI_open_output_file(const char * filename);
-void AVI_set_video(avi_t *AVI, int width, int height, double fps, char *compressor);
-void AVI_set_audio(avi_t *AVI, int channels, long rate, int bits, int format);
-int  AVI_write_frame(avi_t *AVI, BYTE *data, long bytes, int keyframe);
-int  AVI_dup_frame(avi_t *AVI);
-int  AVI_write_audio(avi_t *AVI, BYTE *data, long bytes);
-int  AVI_append_audio(avi_t *AVI, BYTE *data, long bytes);
-ULONG AVI_bytes_remain(avi_t *AVI);
-int  AVI_close(avi_t *AVI);
+int AVI_open_output_file(struct avi_t *AVI, const char * filename);
+void AVI_set_video(struct avi_t *AVI, int width, int height, double fps, char *compressor);
+void AVI_set_audio(struct avi_t *AVI, int channels, long rate, int bits, int format);
+int  AVI_write_frame(struct avi_t *AVI, BYTE *data, long bytes, int keyframe);
+int  AVI_dup_frame(struct avi_t *AVI);
+int  AVI_write_audio(struct avi_t *AVI, BYTE *data, long bytes);
+int  AVI_append_audio(struct avi_t *AVI, BYTE *data, long bytes);
+ULONG AVI_bytes_remain(struct avi_t *AVI);
+int  AVI_close(struct avi_t *AVI);
 
 void AVI_set_MAX_LEN(ULONG len);
 

@@ -27,7 +27,7 @@
 ********************************************************************************/
 
 #include "huffman.h"
-#include "prototype.h"
+#include "jpgenc.h"
 #include <string.h>
 // Header for JPEG Encoder
 

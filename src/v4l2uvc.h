@@ -25,6 +25,10 @@
 #                                                                               # 
 #                                                                               #
 ********************************************************************************/
+
+#ifndef V4L2UVC_H
+#define V4L2UVC_H
+
 #include <stdio.h>
 #include <string.h>
 #include <fcntl.h>
@@ -39,6 +43,7 @@
 #define NB_BUFFER 4
 
 /*timecode flag for unsetting UVC_QUEUE_DROP_INCOMPLETE*/
+/*must patch UVC driver */
 #define V4L2_TC_FLAG_NO_DROP		0x1000
 /*
  * Private V4L2 control identifiers from UVC driver.  - this seems to change acording to driver version
@@ -309,33 +314,43 @@ typedef struct _VidState {
     ControlInfo * control_info;
 } VidState;
 
-
 int check_videoIn(struct vdIn *vd);
 
-int
+int 
 init_videoIn(struct vdIn *vd, char *device, int width, int height,
 	     int format, int grabmethod, int fps, int fps_num);
 
 int uvcGrab(struct vdIn *vd);
+
 void close_v4l2(struct vdIn *vd);
 
-
 int input_get_control (struct vdIn * device, InputControl * control, int * val);
+
 int input_set_control (struct vdIn * device, InputControl * control, int val);
+
 int input_set_framerate (struct vdIn * device);
+
 int input_get_framerate (struct vdIn * device);
-InputControl *
-input_enum_controls (struct vdIn * device, int * num_controls);
 
+InputControl * input_enum_controls (struct vdIn * device, int * num_controls);
 
-void
-input_free_controls (InputControl * control, int num_controls);
+void input_free_controls (InputControl * control, int num_controls);
 
 int init_v4l2(struct vdIn *vd);
 
 int enum_frame_intervals(struct vdIn *vd, __u32 pixfmt, __u32 width, __u32 height,
 						 int list_form, int list_ind);
 int enum_frame_sizes(struct vdIn *vd, __u32 pixfmt);
+
 int enum_frame_formats(struct vdIn *vd);
+
 int initDynCtrls(struct vdIn *vd);
+
 int uvcPanTilt(struct vdIn *vd, int pan, int tilt, int reset);
+
+int get_focus (struct vdIn *videoIn);
+
+int set_focus (struct vdIn *videoIn, int val);
+
+#endif
+

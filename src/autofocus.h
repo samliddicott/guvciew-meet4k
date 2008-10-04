@@ -28,6 +28,11 @@
 # 							                        #
 ********************************************************************************/
 
+#ifndef AUTOFOCUS_H
+#define AUTOFOCUS_H
+
+#include "defs.h"
+
 #define MAX_ARR_S 20
 
 struct focusData {
@@ -47,7 +52,7 @@ struct focusData {
     	int flag;
 	int setFocus;
 	int focus_wait;
-};
+} __attribute__ ((packed));
 
 void initFocusData (struct focusData *AFdata);
 
@@ -56,3 +61,6 @@ int getSharpness (BYTE* img, int width, int height, int t);
 int getSharpMeasure (BYTE *img, int width, int height, int t);
 
 int getFocusVal (struct focusData *AFdata);
+
+#endif
+

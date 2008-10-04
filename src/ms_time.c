@@ -19,16 +19,18 @@
 #                                                                              	#
 ********************************************************************************/
 
-#ifndef DATATYPE_H
-#define DATATYPE_H
 
-typedef char		INT8;
-typedef unsigned char	UINT8;
+#include <time.h>
+#include <sys/time.h>
+#include "ms_time.h"
 
-typedef short		INT16;
-typedef unsigned short	UINT16;
 
-typedef int		INT32;
-typedef unsigned int	UINT32;
+/*------------------------------ get time ------------------------------------*/
+DWORD ms_time (void)
+{
+   static struct timeval tod;
+   gettimeofday (&tod, NULL);
+   return ((DWORD) tod.tv_sec * 1000.0 + (DWORD) tod.tv_usec / 1000.0);
+};
 
-#endif
+

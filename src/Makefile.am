@@ -14,27 +14,43 @@ AM_CFLAGS =\
 bin_PROGRAMS = guvcview
 
 guvcview_SOURCES = \
-	acconfig.h\
+	autofocus.h \
+	autofocus.c \
 	avilib.c                  \
 	avilib.h                  \
-	guvcview.c                  \
-	huffman.h                  \
-	utils.c                  \
-	utils.h                  \
-	v4l2uvc.c                  \
-	v4l2uvc.h                  \
-	datatype.h	\
-	dct.c	\
-	encoder.c	\
-	huffdata.h	\
-	huffman.c	\
-	jdatatype.h	\
-	marker.c	\
-	prototype.h	\
-	quant.c	\
-	readYUV.c	\
-	autofocus.h \
-	autofocus.c
+	colorspaces.h \
+	colorspaces.c \
+	dct.h \
+	dct.c \
+	defs.h \
+	globals.h \
+	globals.c \
+	guvcview.h \
+	guvcview.c \
+	huffman.h \
+	huffman.c \
+	jdatatype.h \
+	jpgenc.h \
+	jpgenc.c \
+	marker.c \
+	ms_time.h \
+	ms_time.c \
+	options.h \
+	options.c \
+	picture.h \
+	picture.c \
+	quant.c \
+	readYUV.c \
+	sound.h \
+	sound.c \
+	string_utils.h \
+	string_utils.c \
+	utils.h \
+	utils.c \
+	v4l2uvc.h \
+	v4l2uvc.c \
+	video.h \
+	video.c
 
 guvcview_LDFLAGS = $(LIBINTL)
 

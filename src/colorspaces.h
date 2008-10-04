@@ -19,53 +19,61 @@
 #                                                                              	#
 ********************************************************************************/
 
-/*******************************************************************************#
-#                                                                               #
-#  jpeg encoder struct used in Jpeg encoder                                     #
-#                                                                               # 
-#  Adapted for linux, Paulo Assis, 2007 <pj.assis@gmail.com>                    #
-********************************************************************************/
-
-#ifndef JDATATYPE_H
-#define JDATATYPE_H
+#ifndef COLORSPACES_H
+#define COLORSPACES_H
 
 #include "defs.h"
 
-typedef struct JPEG_ENCODER_STRUCTURE 
-{
-	UINT16	mcu_width;
-	UINT16	mcu_height;
-	UINT16	horizontal_mcus;
-	UINT16	vertical_mcus;
+int 
+yuv420_to_yuyv (BYTE *framebuffer, BYTE *tmpbuffer, int width, int height);
 
-	UINT16	rows;
-	UINT16	cols;
+/* regular yuv (YUYV) to rgb24*/
+void 
+yuyv2rgb (BYTE *pyuv, BYTE *prgb, int width, int height);
 
-	UINT16	length_minus_mcu_width;
-	UINT16	length_minus_width;
-	UINT16	incr;
-	UINT16	mcu_width_size;
-	UINT16	offset;
+/* regular yuv (UYVY) to rgb24*/
+void 
+uyvy2rgb (BYTE *pyuv, BYTE *prgb, int width, int height);
 
-	INT16 ldc1;
-	INT16 ldc2;
-	INT16 ldc3;
-	
-	UINT32 lcode;
-	UINT16 bitindex;
-	/* MCUs */
-	INT16	Y1 [64];
-	INT16	Y2 [64];
-	INT16	Temp [64];
-	INT16	CB [64];
-	INT16	CR [64];
-	/* Quantization Tables */
-	UINT8	Lqt [64];
-	UINT8	Cqt [64];
-	UINT16	ILqt [64];
-	UINT16	ICqt [64];
+/* yuv (YUYV) to bgr with lines upsidedown */
+/* used for bitmap files (DIB24)           */
+void 
+yuyv2bgr (BYTE *pyuv, BYTE *pbgr, int width, int height);
 
-} _JPEG_ENCODER_STRUCTURE;
+/* yuv (UYVY) to bgr with lines upsidedown */
+/* used for bitmap files (DIB24)           */
+void 
+uyvy2bgr (BYTE *pyuv, BYTE *pbgr, int width, int height);
+
+void 
+bayer_to_rgb24(BYTE *pBay, BYTE *pRGB24, int width, int height, int pix_order);
+
+void
+rgb2yuyv(BYTE *prgb, BYTE *pyuv, int width, int height);
+
+/* Flip YUYV frame - horizontal*/
+void 
+yuyv_mirror (BYTE *frame, int width, int height);
+
+/* Flip UYVY frame - horizontal*/
+void 
+uyvy_mirror (BYTE *frame, int width, int height);
+
+/* Flip YUYV and UYVY frame - vertical*/
+void  
+yuyv_upturn(BYTE* frame, int width, int height);
+
+/* negate YUYV and UYVY frame */
+void 
+yuyv_negative(BYTE* frame, int width, int height);
+
+/* monochrome effect for YUYV frame */
+void 
+yuyv_monochrome(BYTE* frame, int width, int height);
+
+/* monochrome effect for UYVY frame */
+void 
+uyvy_monochrome(BYTE* frame, int width, int height);
 
 #endif
 

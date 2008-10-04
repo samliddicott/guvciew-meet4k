@@ -29,6 +29,8 @@
     
 #include "v4l2uvc.h"
 #include "utils.h"
+#include "picture.h"
+#include "colorspaces.h"
 /* support for internationalization - i18n */
 #include <glib/gi18n.h>
 
@@ -1072,4 +1074,34 @@ int uvcPanTilt(struct vdIn *vd, int pan, int tilt, int reset) {
 	}
 	
 	return 0;
+}
+
+/*--------------------------- focus control ----------------------------------*/
+int 
+get_focus (struct vdIn *videoIn){
+	int ret;
+	struct v4l2_control c;
+	int val=0;
+    
+	c.id  = V4L2_CID_FOCUS_LOGITECH;
+	ret = ioctl (videoIn->fd, VIDIOC_G_CTRL, &c);
+	if (ret == 0)
+		val = c.value;
+	else
+		val = -1;
+	
+	return val;
+
+}
+
+int 
+set_focus (struct vdIn *videoIn, int val) {
+	int ret;
+	struct v4l2_control c;
+
+	c.id  = V4L2_CID_FOCUS_LOGITECH;
+	c.value = val;
+	ret = ioctl (videoIn->fd, VIDIOC_S_CTRL, &c);
+
+	return ret;
 }

@@ -43,10 +43,13 @@ CONFIG_CLEAN_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
-am_guvcview_OBJECTS = avilib.$(OBJEXT) guvcview.$(OBJEXT) \
-	utils.$(OBJEXT) v4l2uvc.$(OBJEXT) dct.$(OBJEXT) \
-	encoder.$(OBJEXT) huffman.$(OBJEXT) marker.$(OBJEXT) \
-	quant.$(OBJEXT) readYUV.$(OBJEXT) autofocus.$(OBJEXT)
+am_guvcview_OBJECTS = autofocus.$(OBJEXT) avilib.$(OBJEXT) \
+	colorspaces.$(OBJEXT) dct.$(OBJEXT) globals.$(OBJEXT) \
+	guvcview.$(OBJEXT) huffman.$(OBJEXT) jpgenc.$(OBJEXT) \
+	marker.$(OBJEXT) ms_time.$(OBJEXT) options.$(OBJEXT) \
+	picture.$(OBJEXT) quant.$(OBJEXT) readYUV.$(OBJEXT) \
+	sound.$(OBJEXT) string_utils.$(OBJEXT) utils.$(OBJEXT) \
+	v4l2uvc.$(OBJEXT) video.$(OBJEXT)
 guvcview_OBJECTS = $(am_guvcview_OBJECTS)
 am__DEPENDENCIES_1 =
 guvcview_DEPENDENCIES = $(am__DEPENDENCIES_1)
@@ -181,27 +184,43 @@ AM_CFLAGS = \
 	 -D_REENTRANT
 
 guvcview_SOURCES = \
-	acconfig.h\
+	autofocus.h \
+	autofocus.c \
 	avilib.c                  \
 	avilib.h                  \
-	guvcview.c                  \
-	huffman.h                  \
-	utils.c                  \
-	utils.h                  \
-	v4l2uvc.c                  \
-	v4l2uvc.h                  \
-	datatype.h	\
-	dct.c	\
-	encoder.c	\
-	huffdata.h	\
-	huffman.c	\
-	jdatatype.h	\
-	marker.c	\
-	prototype.h	\
-	quant.c	\
-	readYUV.c	\
-	autofocus.h \
-	autofocus.c
+	colorspaces.h \
+	colorspaces.c \
+	dct.h \
+	dct.c \
+	defs.h \
+	globals.h \
+	globals.c \
+	guvcview.h \
+	guvcview.c \
+	huffman.h \
+	huffman.c \
+	jdatatype.h \
+	jpgenc.h \
+	jpgenc.c \
+	marker.c \
+	ms_time.h \
+	ms_time.c \
+	options.h \
+	options.c \
+	picture.h \
+	picture.c \
+	quant.c \
+	readYUV.c \
+	sound.h \
+	sound.c \
+	string_utils.h \
+	string_utils.c \
+	utils.h \
+	utils.c \
+	v4l2uvc.h \
+	v4l2uvc.c \
+	video.h \
+	video.c
 
 guvcview_LDFLAGS = $(LIBINTL)
 guvcview_LDADD = $(PACKAGE_LIBS)
@@ -273,15 +292,23 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/autofocus.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/avilib.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/colorspaces.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dct.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/encoder.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/globals.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/guvcview.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/huffman.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/jpgenc.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/marker.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ms_time.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/options.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/picture.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/quant.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/readYUV.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sound.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/string_utils.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/utils.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/v4l2uvc.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/video.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<

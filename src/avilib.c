@@ -110,7 +110,7 @@ static void long2str(unsigned char *dst, int n)
 /* Calculate audio sample size from number of bits and number of channels.
    This may have to be adjusted for eg. 12 bits and stereo */
 
-static int avi_sampsize(avi_t *AVI)
+static int avi_sampsize(struct avi_t *AVI)
 {
    int s;
    s = ((AVI->a_bits+7)/8)*AVI->a_chans;
@@ -121,7 +121,7 @@ static int avi_sampsize(avi_t *AVI)
 /* Add a chunk (=tag and data) to the AVI file,
    returns -1 on write error, 0 on success */
 
-static int avi_add_chunk(avi_t *AVI, BYTE *tag, BYTE *data, int length)
+static int avi_add_chunk(struct avi_t *AVI, BYTE *tag, BYTE *data, int length)
 {
    BYTE c[8];
 
@@ -151,7 +151,7 @@ static int avi_add_chunk(avi_t *AVI, BYTE *tag, BYTE *data, int length)
    return 0;
 }
 
-static int avi_add_index_entry(avi_t *AVI, BYTE *tag, long flags, long pos, long len)
+static int avi_add_index_entry(struct avi_t *AVI, BYTE *tag, long flags, long pos, long len)
 {
    void *ptr;
 
@@ -188,22 +188,15 @@ static int avi_add_index_entry(avi_t *AVI, BYTE *tag, long flags, long pos, long
    returns a pointer to avi_t on success, a zero pointer on error
 */
 
-avi_t* AVI_open_output_file(const char * filename)
+int AVI_open_output_file(struct avi_t *AVI, const char * filename)
 {
-   avi_t *AVI;
    int i;
    BYTE AVI_header[HEADERBYTES];
    int mask = 0; 
-   /* Allocate the avi_t struct and zero it */
-
-   AVI = (avi_t *) malloc(sizeof(avi_t));
-   if(AVI==0)
-   {
-      AVI_errno = AVI_ERR_NO_MEM;
-      return 0;
-   }
-   memset((void *)AVI,0,sizeof(avi_t));
-
+   
+   /*resets AVI struct*/ 
+   memset((void *)AVI,0,sizeof(struct avi_t));
+   
    /* Since Linux needs a long time when deleting big files,
       we do not truncate the file when we open it.
       Instead it is truncated when the AVI file is closed */
@@ -212,8 +205,8 @@ avi_t* AVI_open_output_file(const char * filename)
    if (AVI->fdes < 0)
    {
       AVI_errno = AVI_ERR_OPEN;
-      free(AVI);
-      return 0;
+      //free(AVI);
+      return -1;
    }
 
    /* Write out HEADERBYTES bytes, the header will go here
@@ -225,17 +218,17 @@ avi_t* AVI_open_output_file(const char * filename)
    {
       close(AVI->fdes);
       AVI_errno = AVI_ERR_WRITE;
-      free(AVI);
-      return 0;
+      //free(AVI);
+      return -2;
    }
 
    AVI->pos  = HEADERBYTES;
    AVI->mode = AVI_MODE_WRITE; /* open for writing */
 
-   return AVI;
+   return 0;
 }
 
-void AVI_set_video(avi_t *AVI, int width, int height, double fps, char *compressor)
+void AVI_set_video(struct avi_t *AVI, int width, int height, double fps, char *compressor)
 {
    /* may only be called if file is open for writing */
 
@@ -249,7 +242,7 @@ void AVI_set_video(avi_t *AVI, int width, int height, double fps, char *compress
 
 }
 
-void AVI_set_audio(avi_t *AVI, int channels, long rate, int bits, int format)
+void AVI_set_audio(struct avi_t *AVI, int channels, long rate, int bits, int format)
 {
    /* may only be called if file is open for writing */
 
@@ -280,7 +273,7 @@ void AVI_set_audio(avi_t *AVI, int channels, long rate, int bits, int format)
   returns 0 on success, -1 on write error.
 */
 
-static int avi_close_output_file(avi_t *AVI)
+static int avi_close_output_file(struct avi_t *AVI)
 {
 
    int ret, njunk, sampsize, hasIndex, ms_per_frame, idxerror, flag;
@@ -566,7 +559,7 @@ static int avi_close_output_file(avi_t *AVI)
 
 */
 
-static int avi_write_data(avi_t *AVI, BYTE *data, long length, int audio, int keyframe)
+static int avi_write_data(struct avi_t *AVI, BYTE *data, long length, int audio, int keyframe)
 {
    int n;
    /* Check for maximum file length */
@@ -596,7 +589,7 @@ static int avi_write_data(avi_t *AVI, BYTE *data, long length, int audio, int ke
    return 0;
 }
 
-int AVI_write_frame(avi_t *AVI, BYTE *data, long bytes, int keyframe)
+int AVI_write_frame(struct avi_t *AVI, BYTE *data, long bytes, int keyframe)
 {
    long pos;
 
@@ -612,7 +605,7 @@ int AVI_write_frame(avi_t *AVI, BYTE *data, long bytes, int keyframe)
    return 0;
 }
 
-int AVI_dup_frame(avi_t *AVI)
+int AVI_dup_frame(struct avi_t *AVI)
 {
    if(AVI->mode==AVI_MODE_READ) { AVI_errno = AVI_ERR_NOT_PERM; return -1; }
 
@@ -624,7 +617,7 @@ int AVI_dup_frame(avi_t *AVI)
    return 0;
 }
 
-int AVI_write_audio(avi_t *AVI, BYTE *data, long bytes)
+int AVI_write_audio(struct avi_t *AVI, BYTE *data, long bytes)
 {
    if(AVI->mode==AVI_MODE_READ) { AVI_errno = AVI_ERR_NOT_PERM; return -1; }
 
@@ -636,7 +629,7 @@ int AVI_write_audio(avi_t *AVI, BYTE *data, long bytes)
 }
 
 /*doesn't check for size limit - called when closing avi*/
-int AVI_append_audio(avi_t *AVI, BYTE *data, long bytes)
+int AVI_append_audio(struct avi_t *AVI, BYTE *data, long bytes)
 {  
    /* Add index entry */
    if (avi_add_index_entry(AVI,(BYTE *) "01wb",0x00,AVI->pos, bytes)) 
@@ -651,7 +644,7 @@ int AVI_append_audio(avi_t *AVI, BYTE *data, long bytes)
    return 0;  
 }
 
-ULONG AVI_bytes_remain(avi_t *AVI)
+ULONG AVI_bytes_remain(struct avi_t *AVI)
 {
    if(AVI->mode==AVI_MODE_READ) return 0;
 
@@ -664,7 +657,7 @@ ULONG AVI_bytes_remain(avi_t *AVI)
  *                                                                 *
  *******************************************************************/
 
-int AVI_close(avi_t *AVI)
+int AVI_close(struct avi_t *AVI)
 {
    int ret;
 
@@ -679,11 +672,11 @@ int AVI_close(avi_t *AVI)
    /* Even if there happened a error, we first clean up */
 
    close(AVI->fdes);
-   if(AVI->idx) free(AVI->idx);
-   if(AVI->video_index) free(AVI->video_index);
-   if(AVI->audio_index) free(AVI->audio_index);
-   free(AVI);
-   AVI=NULL;	
+   //if(AVI->idx) free(AVI->idx);
+   //if(AVI->video_index) free(AVI->video_index);
+   //if(AVI->audio_index) free(AVI->audio_index);
+   //free(AVI);
+   //AVI=NULL;	
    return ret;
 }
 

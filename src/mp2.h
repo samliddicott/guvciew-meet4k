@@ -1,7 +1,9 @@
-/*******************************************************************************#
+﻿/*******************************************************************************#
 #	    guvcview              http://guvcview.berlios.de                    #
 #                                                                               #
 #           Paulo Assis <pj.assis@gmail.com>                                    #
+#           Nobuhiro Iwamatsu <iwamatsu@nigauri.org>                            #
+#                             Add UYVY color support(Macbook iSight)            #
 #										#
 # This program is free software; you can redistribute it and/or modify         	#
 # it under the terms of the GNU General Public License as published by   	#
@@ -19,53 +21,21 @@
 #                                                                              	#
 ********************************************************************************/
 
-/*******************************************************************************#
-#                                                                               #
-#  jpeg encoder struct used in Jpeg encoder                                     #
-#                                                                               # 
-#  Adapted for linux, Paulo Assis, 2007 <pj.assis@gmail.com>                    #
-********************************************************************************/
+#ifndef MP2_H
+#define MP2_H
 
-#ifndef JDATATYPE_H
-#define JDATATYPE_H
-
+#include <twolame.h>
+#include "sound.h"
 #include "defs.h"
 
-typedef struct JPEG_ENCODER_STRUCTURE 
-{
-	UINT16	mcu_width;
-	UINT16	mcu_height;
-	UINT16	horizontal_mcus;
-	UINT16	vertical_mcus;
+/*compress pcm data to MP2 (twolame)*/
+int
+init_MP2_encoder(struct paRecordData* pdata);
 
-	UINT16	rows;
-	UINT16	cols;
+int
+MP2_encode(struct paRecordData* pdata, BYTE *mp2_buff, int buff_size);
 
-	UINT16	length_minus_mcu_width;
-	UINT16	length_minus_width;
-	UINT16	incr;
-	UINT16	mcu_width_size;
-	UINT16	offset;
+int close_MP2_encoder();
 
-	INT16 ldc1;
-	INT16 ldc2;
-	INT16 ldc3;
-	
-	UINT32 lcode;
-	UINT16 bitindex;
-	/* MCUs */
-	INT16	Y1 [64];
-	INT16	Y2 [64];
-	INT16	Temp [64];
-	INT16	CB [64];
-	INT16	CR [64];
-	/* Quantization Tables */
-	UINT8	Lqt [64];
-	UINT8	Cqt [64];
-	UINT16	ILqt [64];
-	UINT16	ICqt [64];
-
-} _JPEG_ENCODER_STRUCTURE;
 
 #endif
-

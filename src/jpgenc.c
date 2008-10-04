@@ -31,7 +31,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/types.h>
-#include "prototype.h"
+#include "jpgenc.h"
 
 
 void initialization (struct JPEG_ENCODER_STRUCTURE * jpeg, int image_width, 
