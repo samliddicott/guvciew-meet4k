@@ -70,16 +70,35 @@ init_MP2_encoder(struct paRecordData* pdata)
 }
 
 int
-MP2_encode(struct paRecordData* pdata) {
+MP2_encode(struct paRecordData* pdata, int ms_delay) {
 	int mp2fill_size=0;
-	if (pdata->streaming) {
+	if (ms_delay) 
+	{
+	    /*add delay (silence)*/
+	    UINT32 shiftFrames=abs(ms_delay*pdata->samprate/1000);
+	    UINT32 shiftSamples=shiftFrames*padata->channels;
+	
+	    SAMPLE EmptySamp[shiftSamples];
+	    int i;
+	    for(i=0; i<shiftSamples; i++) EmptySamp[i]=0;/*init to zero - silence*/
+	    
+	    // Encode silent samples
+	    mp2fill_size = twolame_encode_buffer_interleaved(encodeOptions, 
+				EmptySamp, shiftsamples, pdata->mp2Buff, pdata->mp2BuffSize);
+	
+	} 
+	else
+	{
+	    /*encode buffer*/
+	    if (pdata->streaming) {
 		int num_samples = pdata->snd_numBytes / (pdata->channels*sizeof(SAMPLE)); /*samples per channel*/
-		// Encode the audio!
+		// Encode the audio
 		mp2fill_size = twolame_encode_buffer_interleaved(encodeOptions, 
 				pdata->avi_sndBuff, num_samples, pdata->mp2Buff, pdata->mp2BuffSize);
-	} else {
+	    } else {
 		// flush 
 		mp2fill_size = twolame_encode_flush(encodeOptions, pdata->mp2Buff, pdata->mp2BuffSize);
+	    }
 	}
 	return (mp2fill_size);
 }
