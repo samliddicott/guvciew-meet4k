@@ -33,7 +33,7 @@ int
 init_MP2_encoder(struct paRecordData* pdata);
 
 int
-MP2_encode(struct paRecordData* pdata, BYTE *mp2_buff, int buff_size);
+MP2_encode(struct paRecordData* pdata);
 
 int close_MP2_encoder();
 

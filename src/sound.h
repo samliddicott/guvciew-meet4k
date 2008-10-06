@@ -43,6 +43,8 @@ struct paRecordData
     int capAVI;
     SAMPLE *recordedSamples;
     SAMPLE *avi_sndBuff;
+    BYTE *mp2Buff;
+    int mp2BuffSize;
 } __attribute__ ((packed));
 
 int 

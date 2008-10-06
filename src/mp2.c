@@ -51,7 +51,8 @@ init_MP2_encoder(struct paRecordData* pdata)
                 twolame_set_mode(encodeOptions, TWOLAME_JOINT_STEREO);
         }
   
-
+	pdata->mp2BuffSize = pdata->snd_numBytes*2;
+	pdata->mp2Buff = (BYTE *) malloc(pdata->mp2BuffSize); /*mp2 buffer*/
         /* Set the input and output sample rate to the same */
         twolame_set_in_samplerate(encodeOptions, pdata->samprate);
         twolame_set_out_samplerate(encodeOptions, pdata->samprate);
@@ -69,16 +70,16 @@ init_MP2_encoder(struct paRecordData* pdata)
 }
 
 int
-MP2_encode(struct paRecordData* pdata, BYTE *mp2_buff, int buff_size) {
+MP2_encode(struct paRecordData* pdata) {
 	int mp2fill_size=0;
 	if (pdata->streaming) {
 		int num_samples = pdata->snd_numBytes / (pdata->channels*sizeof(SAMPLE)); /*samples per channel*/
 		// Encode the audio!
 		mp2fill_size = twolame_encode_buffer_interleaved(encodeOptions, 
-				pdata->avi_sndBuff, num_samples, mp2buffer, buff_size);
+				pdata->avi_sndBuff, num_samples, pdata->mp2Buff, pdata->mp2BuffSize);
 	} else {
 		// flush 
-		mp2fill_size = twolame_encode_flush(encodeOptions, mp2buffer, global->mp2buffer_size);
+		mp2fill_size = twolame_encode_flush(encodeOptions, pdata->mp2Buff, pdata->mp2BuffSize);
 	}
 	return (mp2fill_size);
 }
