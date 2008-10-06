@@ -93,6 +93,7 @@ GtkWidget *SndEnable;
 GtkWidget *SndSampleRate;
 GtkWidget *SndDevice;
 GtkWidget *SndNumChan;
+GtkWidget *SndComp;
 GtkWidget *FiltMirrorEnable;
 GtkWidget *FiltUpturnEnable;
 GtkWidget *FiltNegateEnable;
@@ -985,7 +986,7 @@ capture_avi (GtkButton *AVIButt, void *data)
 				AVI_set_audio(AviOut, global->Sound_NumChan, 
 					      global->Sound_SampRate, 
 					      sizeof(SAMPLE)*8,
-					      WAVE_FORMAT_PCM);
+					      global->Sound_Format);
 			    
 				/* start video capture - with sound*/
 				global->AVIstarttime = ms_time();
@@ -1736,6 +1737,7 @@ int main(int argc, char *argv[])
 	GtkWidget *label_SndSampRate;
 	GtkWidget *label_SndDevice;
 	GtkWidget *label_SndNumChan;
+    	GtkWidget *label_SndComp;
 	GtkWidget *label_videoFilters;
 	GtkWidget *table3;
 	GtkWidget *quitButton;
@@ -2502,12 +2504,41 @@ int main(int argc, char *argv[])
 	gtk_widget_show (label_SndNumChan);
 	if (global->debug) printf("SampleRate:%d Channels:%d\n",global->Sound_SampRate,global->Sound_NumChan);
 	
+    	SndComp = gtk_combo_box_new_text ();
+	gtk_combo_box_append_text(GTK_COMBO_BOX(SndComp),_("PCM"));
+	gtk_combo_box_append_text(GTK_COMBO_BOX(SndComp),_("MP2"));
+	
+    	switch (global->Sound_Format) {
+	   case WAVE_FORMAT_PCM:/*PCM*/
+			gtk_combo_box_set_active(GTK_COMBO_BOX(SndComp),0);
+		break;
+	   case ISO_FORMAT_MPEG12:/*MP2*/	
+			gtk_combo_box_set_active(GTK_COMBO_BOX(SndComp),1);
+		break;
+	   default:
+		/*set Default to PCM*/
+			gtk_combo_box_set_active(GTK_COMBO_BOX(SndComp),0);
+		    	global->Sound_Format = WAVE_FORMAT_PCM;
+	}
+	if (global->Sound_enable) gtk_widget_set_sensitive (SndComp, TRUE);
+	
+	gtk_table_attach(GTK_TABLE(table2), SndComp, 1, 2, 15, 16,
+					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_widget_show (SndComp);
+    	
+    	label_SndComp = gtk_label_new(_("Audio Format:"));
+	gtk_misc_set_alignment (GTK_MISC (label_SndComp), 1, 0.5);
+
+	gtk_table_attach (GTK_TABLE(table2), label_SndComp, 0, 1, 15, 16,
+					GTK_FILL, 0, 0, 0);
+
+	gtk_widget_show (label_SndComp);
 	/*----- Filter controls ----*/
 	
 	label_videoFilters = gtk_label_new(_("---- Video Filters ----"));
 	gtk_misc_set_alignment (GTK_MISC (label_videoFilters), 0.5, 0.5);
 
-	gtk_table_attach (GTK_TABLE(table2), label_videoFilters, 0, 3, 15, 16,
+	gtk_table_attach (GTK_TABLE(table2), label_videoFilters, 0, 3, 16, 17,
 					GTK_EXPAND | GTK_SHRINK | GTK_FILL , 0, 0, 0);
 
 	gtk_widget_show (label_videoFilters);
@@ -2557,7 +2588,7 @@ int main(int argc, char *argv[])
 	g_signal_connect (GTK_CHECK_BUTTON(FiltMonoEnable), "toggled",
 		G_CALLBACK (FiltMonoEnable_changed), NULL);
 	
-	gtk_table_attach (GTK_TABLE(table2), table3, 0, 3, 16, 17,
+	gtk_table_attach (GTK_TABLE(table2), table3, 0, 3, 17, 18,
 					GTK_FILL, 0, 0, 0);
 
 	gtk_widget_show (table3);
@@ -2635,7 +2666,7 @@ int main(int argc, char *argv[])
 			/*get channels and sample rate*/
 			set_sound(global,pdata);
 			/*set audio header for avi*/
-			AVI_set_audio(AviOut, global->Sound_NumChan, global->Sound_SampRate, sizeof(SAMPLE)*8,WAVE_FORMAT_PCM);
+			AVI_set_audio(AviOut, global->Sound_NumChan, global->Sound_SampRate, sizeof(SAMPLE)*8, global->Sound_Format);
 			/* start video capture - with sound*/
 	       		global->AVIstarttime = ms_time();
 			videoIn->capAVI = TRUE; /* start video capture */

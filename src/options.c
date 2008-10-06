@@ -79,8 +79,6 @@ writeConf(struct GLOBAL *global) {
 		fprintf(fp,"#snd_numsec - avi audio blocks size in sec: 1,2,3,.. \n");
 		fprintf(fp,"# more seconds = more granularity, more memory allocation but less disc I/O\n");
 		fprintf(fp,"snd_numsec=%i\n",global->Sound_NumSec);
-		fprintf(fp,"# snd_buf_fact - audio buffer size = audio block frames total size x snd_buf_fact\n");
-		fprintf(fp,"snd_buf_fact=%i\n",global->Sound_BuffFactor);
 		fprintf(fp,"#Pan Step in degrees, Default=2\n");
 		fprintf(fp,"Pan_Step=%i\n",global->PanStep);
 		fprintf(fp,"#Tilt Step in degrees, Default=2\n");
@@ -165,8 +163,6 @@ readConf(struct GLOBAL *global) {
 				sscanf(value,"%i",&(global->Sound_NumChanInd));
 			} else if (strcmp(variable,"snd_numsec")==0) {
 				sscanf(value,"%i",&(global->Sound_NumSec));
-			} else if (strcmp(variable,"snd_buf_fact")==0) {
-				sscanf(value,"%hi",&(global->Sound_BuffFactor));
 			} else if (strcmp(variable,"Pan_Step")==0){ 
 				sscanf(value,"%i",&(global->PanStep));
 			} else if (strcmp(variable,"Tilt_Step")==0){ 
@@ -206,7 +202,6 @@ readConf(struct GLOBAL *global) {
 			printf("sound samp rate: %i\n",global->Sound_SampRateInd);
 			printf("sound Channels: %i\n",global->Sound_NumChanInd);
 			printf("Sound Block Size: %i seconds\n",global->Sound_NumSec);
-			printf("sound Buffer Factor: %i\n",global->Sound_BuffFactor);
 			printf("Pan Step: %i degrees\n",global->PanStep);
 			printf("Tilt Step: %i degrees\n",global->TiltStep);
 			printf("Video Filter Flags: %i\n",global->Frame_Flags);

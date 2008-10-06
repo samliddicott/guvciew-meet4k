@@ -62,7 +62,7 @@ struct avi_t
    char   video_tag[4];      /* Tag of video data */
    long   video_pos;         /* Number of next frame to be read
                                 (if index present) */
-
+    
    long   a_fmt;             /* Audio format, see #defines below */
    long   a_chans;           /* Audio channels, 0 for no audio */
    long   a_rate;            /* Rate in Hz */

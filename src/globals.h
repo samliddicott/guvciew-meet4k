@@ -68,10 +68,8 @@ struct GLOBAL {
 	int Sound_NumChan;
 	int Sound_NumChanInd;
 	int Sound_NumSec;
-	short Sound_BuffFactor;
-    	SAMPLE *avi_sndBuff;
-	int snd_numBytes; 
-    	short audio_flag;/*audio flag used for avi writes*/
+	int Sound_Format;
+     
 	int PanStep;/*step angle for Pan*/
 	int TiltStep;/*step angle for Tilt*/
 	float DispFps;

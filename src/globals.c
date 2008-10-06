@@ -20,6 +20,7 @@
 ********************************************************************************/
 
 #include "globals.h"
+#include "avilib.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -122,7 +123,6 @@ int initGlobals (struct GLOBAL *global) {
 	
 	global->vid_sleep=0;
 	global->avifile=NULL; /*avi filename passed through argument options with -n */
-	global->avi_sndBuff=NULL;
 	global->Capture_time=0; /*avi capture time passed through argument options with -t */
 	global->lprofile=0; /* flag for -l command line option*/
 	global->imgFormat=0; /* 0 -JPG 1-BMP 2-PNG*/
@@ -139,16 +139,15 @@ int initGlobals (struct GLOBAL *global) {
 	global->Sound_SampRate=SAMPLE_RATE;
 	global->Sound_SampRateInd=0;
 	global->Sound_numInputDev=0;
-    	global->audio_flag=0;
-	//Sound_IndexDev[20]; /*up to 20 input devices (should be alocated dinamicly)*/
+	global->Sound_Format=WAVE_FORMAT_PCM;
 	global->Sound_DefDev=0; 
 	global->Sound_UseDev=0;
 	global->Sound_NumChan=NUM_CHANNELS;
 	global->Sound_NumChanInd=0;
 	global->Sound_NumSec=NUM_SECONDS;
-	global->Sound_BuffFactor=BUFF_FACTOR;
+	
 	global->FpsCount=0;
-    	global->audio_flag=0;
+    	
 	global->timer_id=0;
 	global->image_timer_id=0;
 	global->image_timer=0;
@@ -196,7 +195,6 @@ int closeGlobals(struct GLOBAL *global){
 	if (global->imgFPath[1]) free(global->imgFPath[1]);
 	if (global->imgFPath[0]) free(global->imgFPath[0]);
 	if (global->aviFPath[0]) free(global->aviFPath[0]);
-    	if (global->avi_sndBuff) free(global->avi_sndBuff);
 	if (global->profile_FPath[1]) free(global->profile_FPath[1]);
 	if (global->profile_FPath[0]) free(global->profile_FPath[0]);
 	if (global->aviFPath) free(global->aviFPath);
