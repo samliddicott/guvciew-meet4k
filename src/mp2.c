@@ -26,6 +26,7 @@
 #include <string.h>
 #include <twolame.h>
 #include "sound.h"
+#include "globals.h"
 #include "defs.h"
 
 /*mp2 encoder options*/
@@ -36,7 +37,7 @@ twolame_options *encodeOptions;
 
 /*compress pcm data to MP2 (twolame)*/
 int
-init_MP2_encoder(struct paRecordData* pdata)
+init_MP2_encoder(struct paRecordData* pdata, int bitRate)
 {
 	//int mp2fill_size=0;
 	
@@ -57,8 +58,8 @@ init_MP2_encoder(struct paRecordData* pdata)
         twolame_set_in_samplerate(encodeOptions, pdata->samprate);
         twolame_set_out_samplerate(encodeOptions, pdata->samprate);
   
-        /* Set the bitrate to 160 kbps */
-        twolame_set_bitrate(encodeOptions, 160);
+        /* Set the bitrate (160 Kbps by default) */
+        twolame_set_bitrate(encodeOptions, bitRate);
 	
 	/* initialise twolame with this set of options */
 	if (twolame_init_params( encodeOptions ) != 0) {

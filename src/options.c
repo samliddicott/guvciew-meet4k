@@ -79,6 +79,11 @@ writeConf(struct GLOBAL *global) {
 		fprintf(fp,"#snd_numsec - avi audio blocks size in sec: 1,2,3,.. \n");
 		fprintf(fp,"# more seconds = more granularity, more memory allocation but less disc I/O\n");
 		fprintf(fp,"snd_numsec=%i\n",global->Sound_NumSec);
+		fprintf(fp,"# Sound Format (PCM=1 (0x0001) MP2=80 (0x0050)\n");
+		fprintf(fp,"snd_format=%i\n",global->Sound_Format);
+		fprintf(fp,"# Sound bit Rate used by mpeg audio default=160 Kbps\n");
+		fprintf(fp,"#other values: 48 56 64 80 96 112 128 160 192 224 384\n");
+		fprintf(fp,"snd_bitrate=%i\n",global->Sound_bitRate);
 		fprintf(fp,"#Pan Step in degrees, Default=2\n");
 		fprintf(fp,"Pan_Step=%i\n",global->PanStep);
 		fprintf(fp,"#Tilt Step in degrees, Default=2\n");
@@ -163,6 +168,10 @@ readConf(struct GLOBAL *global) {
 				sscanf(value,"%i",&(global->Sound_NumChanInd));
 			} else if (strcmp(variable,"snd_numsec")==0) {
 				sscanf(value,"%i",&(global->Sound_NumSec));
+			} else if (strcmp(variable,"snd_format")==0) {
+				sscanf(value,"%i",&(global->Sound_Format));
+			} else if (strcmp(variable,"snd_bitrate")==0) {
+				sscanf(value,"%i",&(global->Sound_bitRate));
 			} else if (strcmp(variable,"Pan_Step")==0){ 
 				sscanf(value,"%i",&(global->PanStep));
 			} else if (strcmp(variable,"Tilt_Step")==0){ 
@@ -202,6 +211,8 @@ readConf(struct GLOBAL *global) {
 			printf("sound samp rate: %i\n",global->Sound_SampRateInd);
 			printf("sound Channels: %i\n",global->Sound_NumChanInd);
 			printf("Sound Block Size: %i seconds\n",global->Sound_NumSec);
+			printf("Sound Format: %i \n",global->Sound_Format);
+			printf("Sound bit Rate: %i Kbps\n",global->Sound_bitRate);
 			printf("Pan Step: %i degrees\n",global->PanStep);
 			printf("Tilt Step: %i degrees\n",global->TiltStep);
 			printf("Video Filter Flags: %i\n",global->Frame_Flags);

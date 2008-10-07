@@ -247,7 +247,7 @@ void AVI_set_video(struct avi_t *AVI, int width, int height, double fps, char *c
 
 }
 
-void AVI_set_audio(struct avi_t *AVI, int channels, long rate, int bits, int format)
+void AVI_set_audio(struct avi_t *AVI, int channels, long rate, int brate, int bits, int format)
 {
    /* may only be called if file is open for writing */
 
@@ -255,6 +255,7 @@ void AVI_set_audio(struct avi_t *AVI, int channels, long rate, int bits, int for
 
    AVI->a_chans = channels;
    AVI->a_rate  = rate;
+   AVI->a_brate = brate; /*bit rate for mpeg audio (def. 160 Kbps)*/
    AVI->a_bits  = bits;
    AVI->a_fmt   = format;
 
@@ -281,7 +282,7 @@ void AVI_set_audio(struct avi_t *AVI, int channels, long rate, int bits, int for
 static int avi_close_output_file(struct avi_t *AVI)
 {
 
-   int ret, njunk, sampsize, hasIndex, ms_per_frame, idxerror, flag;
+   int ret, njunk, sampsize, Brate, hasIndex, ms_per_frame, idxerror, flag;
    int movi_len, hdrl_start, strl_start;
    BYTE AVI_header[HEADERBYTES];
    long nhb;
@@ -427,7 +428,7 @@ static int avi_close_output_file(struct avi_t *AVI)
    {
 
    sampsize = avi_sampsize(AVI);
-
+   Brate = (AVI->a_brate/8)*1000;
    /* Start the audio stream list ---------------------------------- */
 
    OUT4CC ("LIST");
@@ -447,7 +448,7 @@ static int avi_close_output_file(struct avi_t *AVI)
    OUTLONG(sampsize);      /* Scale */
    if (AVI->a_fmt == ISO_FORMAT_MPEG12)
    {
-	OUTLONG(20000); /* 20000 Bps/160 Kbps */
+	OUTLONG(Brate); /* default 20000 Bps/160 Kbps */
    } else {
 	OUTLONG(sampsize*AVI->a_rate); /* Rate: Rate/Scale == samples/second */
    }
@@ -470,7 +471,7 @@ static int avi_close_output_file(struct avi_t *AVI)
    if (AVI->a_fmt == ISO_FORMAT_MPEG12)
    {
 	OUTLONG(AVI->a_rate); /* freq. */
-	OUTLONG(20000); /* 20000 Bps/ 160 Kbps */
+	OUTLONG(Brate); /* default 20000 Bps/ 160 Kbps */
 	OUTSHRT(1);     /* BlockAlign */
    } else {
 	OUTLONG(AVI->a_rate);          /* SamplesPerSec */

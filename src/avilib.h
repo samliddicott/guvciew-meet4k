@@ -67,7 +67,7 @@ struct avi_t
    long   a_chans;           /* Audio channels, 0 for no audio */
    long   a_rate;            /* Rate in Hz */
    long   a_bits;            /* bits per audio sample */
-   long   a_block;
+   long   a_brate;           /* bit rate for mpeg audio */ 
    long   audio_strn;        /* Audio stream number */
    long   audio_bytes;       /* Total number of bytes of audio data */
    long   audio_chunks;      /* Chunks of audio data in the file */
@@ -190,7 +190,7 @@ struct avi_t
 
 int AVI_open_output_file(struct avi_t *AVI, const char * filename);
 void AVI_set_video(struct avi_t *AVI, int width, int height, double fps, char *compressor);
-void AVI_set_audio(struct avi_t *AVI, int channels, long rate, int bits, int format);
+void AVI_set_audio(struct avi_t *AVI, int channels, long rate, int brate, int bits, int format);
 int  AVI_write_frame(struct avi_t *AVI, BYTE *data, long bytes, int keyframe);
 int  AVI_dup_frame(struct avi_t *AVI);
 int  AVI_write_audio(struct avi_t *AVI, BYTE *data, long bytes);

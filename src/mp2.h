@@ -26,11 +26,12 @@
 
 #include <twolame.h>
 #include "sound.h"
+#include "globals.h"
 #include "defs.h"
 
 /*compress pcm data to MP2 (twolame)*/
 int
-init_MP2_encoder(struct paRecordData* pdata);
+init_MP2_encoder(struct paRecordData* pdata, int bitRate);
 
 int
 MP2_encode(struct paRecordData* pdata, int ms_delay);

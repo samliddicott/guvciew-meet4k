@@ -489,17 +489,16 @@ void *main_loop(void *data)
 		    int ret=0;
 		    if(global->Sound_Format == WAVE_FORMAT_PCM) 
 		    {
-		        if(AVI_write_audio(AviOut,(BYTE *) pdata->avi_sndBuff,pdata->snd_numBytes) < 0) ret=-1;
+		        ret=AVI_write_audio(AviOut,(BYTE *) pdata->avi_sndBuff,pdata->snd_numBytes);
 	       		   
 		    }
 		    else if(global->Sound_Format == ISO_FORMAT_MPEG12)
 	            {
 			    int size_mp2 = MP2_encode(pdata,0);
-			    if(AVI_write_audio(AviOut,pdata->mp2Buff,size_mp2)<0) ret=-1;
-			    if(AviOut->a_block<=0)AviOut->a_block = 2*size_mp2;
+			    ret=AVI_write_audio(AviOut,pdata->mp2Buff,size_mp2);
 		    }
 		
-		    if (ret) {	
+		    if (ret<0) {	
 	    		if (AVI_getErrno () == AVI_ERR_SIZELIM) 
 			{
 				/*avi file limit reached - must end capture and close file*/

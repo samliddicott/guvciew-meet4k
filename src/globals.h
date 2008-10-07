@@ -69,6 +69,7 @@ struct GLOBAL {
 	int Sound_NumChanInd;
 	int Sound_NumSec;
 	int Sound_Format;
+	int Sound_bitRate; /* bit rate for mpeg compression */
      
 	int PanStep;/*step angle for Pan*/
 	int TiltStep;/*step angle for Tilt*/

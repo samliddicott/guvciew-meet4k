@@ -1004,14 +1004,15 @@ capture_avi (GtkButton *AVIButt, void *data)
 				set_sound(global,pdata);
 				/*set audio header for avi*/
 				AVI_set_audio(AviOut, global->Sound_NumChan, 
-					      global->Sound_SampRate, 
+					      global->Sound_SampRate,
+					      global->Sound_bitRate,
 					      sizeof(SAMPLE)*8,
 					      global->Sound_Format);
 				/* Initialize sound (open stream)*/
 				if(init_sound (pdata)) printf("error opening portaudio\n");
 				if (global->Sound_Format == ISO_FORMAT_MPEG12) 
 				{
-				    init_MP2_encoder(pdata);    
+				    init_MP2_encoder(pdata, global->Sound_bitRate);    
 				}
 				/* start video capture - with sound*/
 				global->AVIstarttime = ms_time();
@@ -2693,12 +2694,16 @@ int main(int argc, char *argv[])
 			/*get channels and sample rate*/
 			set_sound(global,pdata);
 			/*set audio header for avi*/
-			AVI_set_audio(AviOut, global->Sound_NumChan, global->Sound_SampRate, sizeof(SAMPLE)*8, global->Sound_Format);
+			AVI_set_audio(AviOut, global->Sound_NumChan, 
+					global->Sound_SampRate,
+					global->Sound_bitRate, 
+					sizeof(SAMPLE)*8, 
+					global->Sound_Format);
 			/* Initialize sound (open stream)*/
 			if(init_sound (pdata)) printf("error opening portaudio\n");
 			if (global->Sound_Format == ISO_FORMAT_MPEG12) 
 			{
-			    init_MP2_encoder(pdata);    
+			    init_MP2_encoder(pdata, global->Sound_bitRate);
 			}   
 			/* start video capture - with sound*/
 	       		global->AVIstarttime = ms_time();
