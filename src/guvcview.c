@@ -62,6 +62,7 @@
 #include "options.h"
 #include "guvcview.h"
 #include "video.h"
+#include "mp2.h"
 
 /*----------------------------- globals --------------------------------------*/
 
@@ -162,6 +163,7 @@ set_sensitive_snd_contrls (const int flag){
 	gtk_widget_set_sensitive (SndSampleRate, flag);
 	gtk_widget_set_sensitive (SndDevice, flag);
 	gtk_widget_set_sensitive (SndNumChan, flag);
+	gtk_widget_set_sensitive (SndComp, flag);
 }
 
 /*avi controls*/
@@ -222,6 +224,7 @@ aviClose (void)
 	  /*------------------- close audio stream and clean up -------------------*/
 	  if (global->Sound_enable > 0) {
 		if (close_sound (pdata)) printf("Sound Close error\n");
+		if(global->Sound_Format == ISO_FORMAT_MPEG12) close_MP2_encoder();
 	  } 
 	  AVI_close (AviOut);
 	  global->framecount = 0;
@@ -724,6 +727,23 @@ SndNumChan_changed (GtkComboBox * SoundChan, void *data)
 	global->Sound_NumChan=global->Sound_NumChanInd;
 }
 
+/*sound Format callback*/
+static void
+SndComp_changed (GtkComboBox * SoundComp, void *data)
+{
+	/* 0-PCM (default) 1-MP2 */
+	switch (gtk_combo_box_get_active (SoundComp)) {
+	    case 0:
+		global->Sound_Format  = WAVE_FORMAT_PCM;
+		break;
+	    case 1:
+		global->Sound_Format = ISO_FORMAT_MPEG12;
+		break;
+	    default:
+		global->Sound_Format  = WAVE_FORMAT_PCM;
+	}
+}
+
 /*avi compression control callback*/
 static void
 AVIComp_changed (GtkComboBox * AVIComp, void *data)
@@ -987,13 +1007,17 @@ capture_avi (GtkButton *AVIButt, void *data)
 					      global->Sound_SampRate, 
 					      sizeof(SAMPLE)*8,
 					      global->Sound_Format);
-			    
+				/* Initialize sound (open stream)*/
+				if(init_sound (pdata)) printf("error opening portaudio\n");
+				if (global->Sound_Format == ISO_FORMAT_MPEG12) 
+				{
+				    init_MP2_encoder(pdata);    
+				}
 				/* start video capture - with sound*/
 				global->AVIstarttime = ms_time();
 				videoIn->capAVI = TRUE; /* start video capture */
 				pdata->capAVI = videoIn->capAVI;
-				/* Initialize sound (open stream)*/
-				if(init_sound (pdata)) printf("error opening portaudio\n");
+				
 			} else {
 				/* start video capture - no sound*/
 				global->AVIstarttime = ms_time();
@@ -2522,6 +2546,9 @@ int main(int argc, char *argv[])
 	}
 	if (global->Sound_enable) gtk_widget_set_sensitive (SndComp, TRUE);
 	
+	g_signal_connect (GTK_COMBO_BOX(SndComp), "changed",
+		G_CALLBACK (SndComp_changed), NULL);
+	
 	gtk_table_attach(GTK_TABLE(table2), SndComp, 1, 2, 15, 16,
 					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (SndComp);
@@ -2667,12 +2694,16 @@ int main(int argc, char *argv[])
 			set_sound(global,pdata);
 			/*set audio header for avi*/
 			AVI_set_audio(AviOut, global->Sound_NumChan, global->Sound_SampRate, sizeof(SAMPLE)*8, global->Sound_Format);
+			/* Initialize sound (open stream)*/
+			if(init_sound (pdata)) printf("error opening portaudio\n");
+			if (global->Sound_Format == ISO_FORMAT_MPEG12) 
+			{
+			    init_MP2_encoder(pdata);    
+			}   
 			/* start video capture - with sound*/
 	       		global->AVIstarttime = ms_time();
 			videoIn->capAVI = TRUE; /* start video capture */
 			pdata->capAVI = videoIn->capAVI;
-			/* Initialize sound (open stream)*/
-			if(init_sound (pdata)) printf("error opening portaudio\n");
 	  	 } else {
 			/* start video capture - no sound*/
 			global->AVIstarttime = ms_time();

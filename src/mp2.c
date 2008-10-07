@@ -1,4 +1,4 @@
-﻿/*******************************************************************************#
+/*******************************************************************************#
 #	    guvcview              http://guvcview.berlios.de                    #
 #                                                                               #
 #           Paulo Assis <pj.assis@gmail.com>                                    #
@@ -45,7 +45,7 @@ init_MP2_encoder(struct paRecordData* pdata)
 	
 	// mono/stereo and sampling-frequency
         twolame_set_num_channels(encodeOptions, pdata->channels);
-        if (data->channels == 1) {
+        if (pdata->channels == 1) {
                 twolame_set_mode(encodeOptions, TWOLAME_MONO);
         } else {
                 twolame_set_mode(encodeOptions, TWOLAME_JOINT_STEREO);
@@ -76,7 +76,7 @@ MP2_encode(struct paRecordData* pdata, int ms_delay) {
 	{
 	    /*add delay (silence)*/
 	    UINT32 shiftFrames=abs(ms_delay*pdata->samprate/1000);
-	    UINT32 shiftSamples=shiftFrames*padata->channels;
+	    UINT32 shiftSamples=shiftFrames*pdata->channels;
 	
 	    SAMPLE EmptySamp[shiftSamples];
 	    int i;
@@ -84,7 +84,7 @@ MP2_encode(struct paRecordData* pdata, int ms_delay) {
 	    
 	    // Encode silent samples
 	    mp2fill_size = twolame_encode_buffer_interleaved(encodeOptions, 
-				EmptySamp, shiftsamples, pdata->mp2Buff, pdata->mp2BuffSize);
+				EmptySamp, EmptySamp, pdata->mp2Buff, pdata->mp2BuffSize);
 	
 	} 
 	else

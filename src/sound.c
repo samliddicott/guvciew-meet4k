@@ -227,6 +227,8 @@ close_sound (struct paRecordData *data)
 	if(!data->recording) {
 		if (data->avi_sndBuff) free(data->avi_sndBuff);
 		data->avi_sndBuff = NULL;
+		if (data->mp2Buff) free(data->mp2Buff);
+		data->mp2Buff = NULL;
 	} else {
 		fprintf( stderr, "Error: still recording audio couldn't free S. buffer\n" );
 		return(-1);
@@ -242,5 +244,7 @@ error:
 	data->recordedSamples=NULL;
 	if (data->avi_sndBuff) free(data->avi_sndBuff);
     	data->avi_sndBuff = NULL;
+	if (data->mp2Buff) free(data->mp2Buff);
+	data->mp2Buff = NULL;
 	return(-1);
 }

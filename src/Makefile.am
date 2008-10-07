@@ -33,6 +33,8 @@ guvcview_SOURCES = \
 	jpgenc.h \
 	jpgenc.c \
 	marker.c \
+	mp2.h \
+	mp2.c \
 	ms_time.h \
 	ms_time.c \
 	options.h \

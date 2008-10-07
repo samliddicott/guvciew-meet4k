@@ -46,10 +46,10 @@ PROGRAMS = $(bin_PROGRAMS)
 am_guvcview_OBJECTS = autofocus.$(OBJEXT) avilib.$(OBJEXT) \
 	colorspaces.$(OBJEXT) dct.$(OBJEXT) globals.$(OBJEXT) \
 	guvcview.$(OBJEXT) huffman.$(OBJEXT) jpgenc.$(OBJEXT) \
-	marker.$(OBJEXT) ms_time.$(OBJEXT) options.$(OBJEXT) \
-	picture.$(OBJEXT) quant.$(OBJEXT) readYUV.$(OBJEXT) \
-	sound.$(OBJEXT) string_utils.$(OBJEXT) utils.$(OBJEXT) \
-	v4l2uvc.$(OBJEXT) video.$(OBJEXT)
+	marker.$(OBJEXT) mp2.$(OBJEXT) ms_time.$(OBJEXT) \
+	options.$(OBJEXT) picture.$(OBJEXT) quant.$(OBJEXT) \
+	readYUV.$(OBJEXT) sound.$(OBJEXT) string_utils.$(OBJEXT) \
+	utils.$(OBJEXT) v4l2uvc.$(OBJEXT) video.$(OBJEXT)
 guvcview_OBJECTS = $(am_guvcview_OBJECTS)
 am__DEPENDENCIES_1 =
 guvcview_DEPENDENCIES = $(am__DEPENDENCIES_1)
@@ -203,6 +203,8 @@ guvcview_SOURCES = \
 	jpgenc.h \
 	jpgenc.c \
 	marker.c \
+	mp2.h \
+	mp2.c \
 	ms_time.h \
 	ms_time.c \
 	options.h \
@@ -299,6 +301,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/huffman.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/jpgenc.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/marker.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mp2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ms_time.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/options.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/picture.Po@am__quote@

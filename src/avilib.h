@@ -67,6 +67,7 @@ struct avi_t
    long   a_chans;           /* Audio channels, 0 for no audio */
    long   a_rate;            /* Rate in Hz */
    long   a_bits;            /* bits per audio sample */
+   long   a_block;
    long   audio_strn;        /* Audio stream number */
    long   audio_bytes;       /* Total number of bytes of audio data */
    long   audio_chunks;      /* Chunks of audio data in the file */

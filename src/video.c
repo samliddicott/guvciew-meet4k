@@ -29,6 +29,7 @@
 #include <portaudio.h>
 #include <SDL/SDL.h>
 
+#include "defs.h"
 #include "video.h"
 #include "guvcview.h"
 #include "v4l2uvc.h"
@@ -41,6 +42,7 @@
 #include "picture.h"
 #include "ms_time.h"
 #include "string_utils.h"
+#include "mp2.h"
 
 /*-------------------------------- Main Video Loop ---------------------------*/ 
 /* run in a thread (SDL overlay)*/
@@ -466,27 +468,50 @@ void *main_loop(void *data)
 		    if (!(AviOut->audio_bytes)) {
 	       		int synctime= pdata->snd_begintime - global->AVIstarttime; /*time diff for audio-video*/
 			if(synctime>0 && synctime<5000) { /*only sync up to 5 seconds*/
-			/*shift sound by synctime*/
-			Uint32 shiftFrames=abs(synctime*global->Sound_SampRate/1000);
-			Uint32 shiftSamples=shiftFrames*global->Sound_NumChan;
-			if (global->debug) printf("shift sound forward by %d ms = %d frames\n",synctime,shiftSamples);
-			SAMPLE EmptySamp[shiftSamples];
-			int i;
-			for(i=0; i<shiftSamples; i++) EmptySamp[i]=0;/*init to zero - silence*/
+			    if(global->Sound_Format == WAVE_FORMAT_PCM) 
+			    {/*shift sound by synctime*/
+			        UINT32 shiftFrames = abs(synctime * global->Sound_SampRate / 1000);
+				UINT32 shiftSamples = shiftFrames * global->Sound_NumChan;
+				if (global->debug) printf("shift sound forward by %d ms = %d frames\n",synctime,shiftSamples);
+				SAMPLE EmptySamp[shiftSamples];
+				int i;
+				for(i=0; i<shiftSamples; i++) EmptySamp[i]=0;/*init to zero - silence*/
 				AVI_write_audio(AviOut,(BYTE *) &EmptySamp,shiftSamples*sizeof(SAMPLE));
-	       		}
+			    } 
+			    else if(global->Sound_Format == ISO_FORMAT_MPEG12) 
+			    {
+				    int size_mp2 = MP2_encode(pdata, synctime);
+				    AVI_write_audio(AviOut,pdata->mp2Buff,size_mp2);
+	       		    }
+			}
 		    }
 		    /*write audio chunk*/
-		    if(AVI_write_audio(AviOut,(BYTE *) pdata->avi_sndBuff,pdata->snd_numBytes) < 0) {
-	       		if (AVI_getErrno () == AVI_ERR_SIZELIM) {
+		    int ret=0;
+		    if(global->Sound_Format == WAVE_FORMAT_PCM) 
+		    {
+		        if(AVI_write_audio(AviOut,(BYTE *) pdata->avi_sndBuff,pdata->snd_numBytes) < 0) ret=-1;
+	       		   
+		    }
+		    else if(global->Sound_Format == ISO_FORMAT_MPEG12)
+	            {
+			    int size_mp2 = MP2_encode(pdata,0);
+			    if(AVI_write_audio(AviOut,pdata->mp2Buff,size_mp2)<0) ret=-1;
+			    if(AviOut->a_block<=0)AviOut->a_block = 2*size_mp2;
+		    }
+		
+		    if (ret) {	
+	    		if (AVI_getErrno () == AVI_ERR_SIZELIM) 
+			{
 				/*avi file limit reached - must end capture and close file*/
 				press_avicap(); /*avi capture callback*/
 				printf("AVI file size limit reached - avi capture stoped\n");
-			} else {
+			} 
+			else 
+			{
 				printf ("write error on avi out \n");
 			}
-					
-	            }
+		    }
+			
 		    pdata->audio_flag=0;
 		    keyframe = 1; /*marks next frmae as key frame*/
 		}   
@@ -494,7 +519,15 @@ void *main_loop(void *data)
 	   /*video capture has stopped but there is still audio available*/	
 	   } else if (pdata->audio_flag>0) {
 		/*write last audio data to avi*/
-		AVI_append_audio(AviOut,(BYTE *) pdata->avi_sndBuff,pdata->snd_numBytes);
+		if(global->Sound_Format == WAVE_FORMAT_PCM)
+		{
+		    AVI_append_audio(AviOut,(BYTE *) pdata->avi_sndBuff,pdata->snd_numBytes);
+		}
+	        else if (global->Sound_Format == ISO_FORMAT_MPEG12)
+		{
+		    int size_mp2 = MP2_encode(pdata,0);
+		    AVI_append_audio(AviOut,pdata->mp2Buff,size_mp2);
+		}
 		pdata->audio_flag=0;
 	   }
 	/*------------------------- Display Frame --------------------------------*/

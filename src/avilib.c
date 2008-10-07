@@ -113,8 +113,13 @@ static void long2str(unsigned char *dst, int n)
 static int avi_sampsize(struct avi_t *AVI)
 {
    int s;
-   s = ((AVI->a_bits+7)/8)*AVI->a_chans;
-   if(s==0) s=1; /* avoid possible zero divisions */
+   if (AVI->a_fmt == ISO_FORMAT_MPEG12) 
+   {
+	s = 1;
+   } else {
+	s = ((AVI->a_bits+7)/8)*AVI->a_chans;
+	if(s==0) s=1; /* avoid possible zero divisions */
+   }
    return s;
 }
 
@@ -440,7 +445,12 @@ static int avi_close_output_file(struct avi_t *AVI)
    OUTLONG(0);             /* Reserved, MS says: wPriority, wLanguage */
    OUTLONG(0);             /* InitialFrames */
    OUTLONG(sampsize);      /* Scale */
-   OUTLONG(sampsize*AVI->a_rate); /* Rate: Rate/Scale == samples/second */
+   if (AVI->a_fmt == ISO_FORMAT_MPEG12)
+   {
+	OUTLONG(20000); /* 20000 Bps/160 Kbps */
+   } else {
+	OUTLONG(sampsize*AVI->a_rate); /* Rate: Rate/Scale == samples/second */
+   }
    OUTLONG(0);             /* Start */
    OUTLONG(AVI->audio_bytes/sampsize);   /* Length */
    OUTLONG(0);             /* SuggestedBufferSize */
@@ -457,9 +467,16 @@ static int avi_close_output_file(struct avi_t *AVI)
    OUTLONG(16);                   /* # of bytes to follow */
    OUTSHRT(AVI->a_fmt);           /* Format */
    OUTSHRT(AVI->a_chans);         /* Number of channels */
-   OUTLONG(AVI->a_rate);          /* SamplesPerSec */
-   OUTLONG(sampsize*AVI->a_rate); /* AvgBytesPerSec */
-   OUTSHRT(sampsize);             /* BlockAlign */
+   if (AVI->a_fmt == ISO_FORMAT_MPEG12)
+   {
+	OUTLONG(AVI->a_rate); /* freq. */
+	OUTLONG(20000); /* 20000 Bps/ 160 Kbps */
+	OUTSHRT(1);     /* BlockAlign */
+   } else {
+	OUTLONG(AVI->a_rate);          /* SamplesPerSec */
+	OUTLONG(sampsize*AVI->a_rate); /* AvgBytesPerSec */
+	OUTSHRT(sampsize);             /* BlockAlign */   
+   }
    OUTSHRT(AVI->a_bits);          /* BitsPerSample */
 
    /* Finish stream list, i.e. put number of bytes in the list to proper pos */
@@ -574,7 +591,7 @@ static int avi_write_data(struct avi_t *AVI, BYTE *data, long length, int audio,
    if(audio)
      n = avi_add_index_entry(AVI,(BYTE *)"01wb",0x00,AVI->pos,length);
    else
-     n = avi_add_index_entry(AVI,(BYTE *) "00db",((keyframe)?0x10:0x0),AVI->pos,length);
+     n = avi_add_index_entry(AVI,(BYTE *) "00dc",((keyframe)?0x10:0x0),AVI->pos,length);
 
    if(n) return -1;
 
@@ -582,7 +599,7 @@ static int avi_write_data(struct avi_t *AVI, BYTE *data, long length, int audio,
     if(audio)
      n = avi_add_chunk(AVI,(BYTE *) "01wb",(BYTE *)data,length);
    else
-     n = avi_add_chunk(AVI,(BYTE *)"00db",(BYTE *)data,length);
+     n = avi_add_chunk(AVI,(BYTE *)"00dc",(BYTE *)data,length);
 
    if (n) return -1;
 
@@ -611,7 +628,7 @@ int AVI_dup_frame(struct avi_t *AVI)
 
    if(AVI->last_pos==0) return 0; /* No previous real frame */
    	
-   if(avi_add_index_entry(AVI,(BYTE *) "00db",0x10,AVI->last_pos,AVI->last_len)) return -1;
+   if(avi_add_index_entry(AVI,(BYTE *) "00dc",0x10,AVI->last_pos,AVI->last_len)) return -1;
    AVI->video_frames++;
    AVI->must_use_index = 1;
    return 0;
