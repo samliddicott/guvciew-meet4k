@@ -44,8 +44,9 @@ recordCallback (const void *inputBuffer, void *outputBuffer,
     /*avoids writing to primary buffer (it may have been freed)   */
     /*since there is a wait routine in close_audio this shouldn't */
     /*really be needed, in any case ...                           */    
+    data->recording=1;
     if (data->streaming) {
-	data->recording = 1;
+	//data->recording = 1;
 	if( inputBuffer == NULL )
 	{
 		for( i=0; i<numSamples; i++ )
@@ -76,14 +77,14 @@ recordCallback (const void *inputBuffer, void *outputBuffer,
 		//flags that secondary buffer as data (can be saved to file)
 		data->audio_flag=1;
 	}
-	data->recording = 0;
+	//data->recording = 0;
     }
     
     if(data->capAVI) return (paContinue);
     else {
         /*recording stopped*/
 	if(!(data->audio_flag)) {
-		data->recording = 1;
+		//data->recording = 1;
 		/*need to copy audio to secondary buffer*/
 		data->snd_numBytes = data->numSamples*sizeof(SAMPLE);
 		memcpy(data->avi_sndBuff, data->recordedSamples , data->snd_numBytes);
@@ -91,7 +92,6 @@ recordCallback (const void *inputBuffer, void *outputBuffer,
 		data->numSamples = 0;
 		//flags that secondary buffer as data (can be saved to file)
 		data->audio_flag=1;
-		data->recording = 0;
 	}
 	data->streaming=0;
 	return (paComplete);
@@ -122,11 +122,16 @@ init_sound(struct paRecordData* data)
 	PaError err;
 	int i;
 	int totalFrames;
+	int MP2Frames=0;
 	int numSamples;
 	
     	/* setting maximum buffer size*/
 	totalFrames = data->numsec * data->samprate;
 	numSamples = totalFrames * data->channels;
+	/*round to libtwolame Frames (1 Frame = 1152 samples)*/
+	MP2Frames=numSamples/1152;
+	numSamples=MP2Frames*1152;
+	
 	data->snd_numBytes = numSamples * sizeof(SAMPLE);
     
 	data->recordedSamples = (SAMPLE *) malloc( data->snd_numBytes ); /*capture buffer*/
@@ -154,23 +159,22 @@ init_sound(struct paRecordData* data)
 	data->inputParameters.hostApiSpecificStreamInfo = NULL; 
 	
 	/*---------------------------- Record some audio. ----------------------------- */
-	/* Input buffer will be twice(default) the size of frames to read               */
-	/* This way even in slow machines it shouldn't overflow and drop frames         */
+	
 	err = Pa_OpenStream(
 			  &data->stream,
 			  &data->inputParameters,
 			  NULL,                  /* &outputParameters, */
 			  data->samprate,
-			  paFramesPerBufferUnspecified,/* buffer Size - totalFrames*/
+			  paFramesPerBufferUnspecified,/* buffer Size - set by portaudio*/
 			  paNoFlag,      /* PaNoFlag - clip and dhiter*/
 			  recordCallback, /* sound callback - using blocking API*/
 			  data ); /* callback userData -no callback no data */
 	if( err != paNoError ) goto error;
-    
+	
 	err = Pa_StartStream( data->stream );
 	if( err != paNoError ) goto error; /*should close the stream if error ?*/
-    
-    	/*sound start time - used to sync with video*/
+	
+	/*sound start time - used to sync with video*/
 	data->snd_begintime = ms_time();
     
     	return (0);

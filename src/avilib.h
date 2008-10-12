@@ -34,57 +34,158 @@
 #define AVILIB_H
 
 #include "defs.h"
+#include <inttypes.h>
+#include <sys/types.h>
+
+#define AVI_MAX_TRACKS 8
+#define FRAME_RATE_SCALE 1000000
 
 typedef struct _video_index_entry
 {
-  ULONG pos;
-  ULONG len;
+   off_t key;
+   off_t pos;
+   off_t len;
 } video_index_entry;
 
 typedef struct _audio_index_entry
 {
-   ULONG pos;
-   ULONG len;
-   ULONG tot;
+   off_t pos;
+   off_t len;
+   off_t tot;
 } audio_index_entry;
+
+
+typedef struct track_s
+{
+
+    long   a_fmt;             /* Audio format, see #defines below */
+    long   a_chans;           /* Audio channels, 0 for no audio */
+    long   a_rate;            /* Rate in Hz */
+    long   a_bits;            /* bits per audio sample */
+    long   mpgrate;           /* mpg bitrate kbs*/
+    long   a_vbr;             /* 0 == no Variable BitRate */
+    long   padrate;	      /* byte rate used for zero padding */
+
+    long   audio_strn;        /* Audio stream number */
+    off_t  audio_bytes;       /* Total number of bytes of audio data */
+    long   audio_chunks;      /* Chunks of audio data in the file */
+
+    char   audio_tag[4];      /* Tag of audio data */
+    long   audio_posc;        /* Audio position: chunk */
+    long   audio_posb;        /* Audio position: byte within chunk */
+ 
+    off_t  a_codech_off;       /* absolut offset of audio codec information */ 
+    off_t  a_codecf_off;       /* absolut offset of audio codec information */ 
+
+    audio_index_entry *audio_index;
+
+} __attribute__ ((packed)) track_t;
+
+/*
+typedef struct
+{
+  DWORD  bi_size;
+  DWORD  bi_width;
+  DWORD  bi_height;
+  DWORD  bi_planes;
+  DWORD  bi_bit_count;
+  DWORD  bi_compression;
+  DWORD  bi_size_image;
+  DWORD  bi_x_pels_per_meter;
+  DWORD  bi_y_pels_per_meter;
+  DWORD  bi_clr_used;
+  DWORD  bi_clr_important;
+} __attribute__ ((packed)) alBITMAPINFOHEADER;
+
+typedef struct
+{
+  WORD  w_format_tag;
+  WORD  n_channels;
+  DWORD  n_samples_per_sec;
+  DWORD  n_avg_bytes_per_sec;
+  WORD  n_block_align;
+  WORD  w_bits_per_sample;
+  WORD  cb_size;
+} __attribute__ ((packed)) alWAVEFORMATEX;
+
+typedef struct
+{
+  DWORD fcc_type; 
+  DWORD fcc_handler; 
+  DWORD dw_flags; 
+  DWORD dw_caps; 
+  WORD w_priority;
+  WORD w_language;
+  DWORD dw_scale;
+  DWORD dw_rate;
+  DWORD dw_start;
+  DWORD dw_length;
+  DWORD dw_initial_frames;
+  DWORD dw_suggested_buffer_size;
+  DWORD dw_quality;
+  DWORD dw_sample_size;
+  DWORD dw_left;
+  DWORD dw_top;
+  DWORD dw_right;
+  DWORD dw_bottom;
+  DWORD dw_edit_count;
+  DWORD dw_format_change_count;
+  char     sz_name[64];
+} __attribute__ ((packed)) alAVISTREAMINFO;
+
+*/
 
 struct avi_t
 {
-   long   fdes;              /* File descriptor of AVI file */
-   long   mode;              /* 0 for reading, 1 for writing */
 
-   long   width;             /* Width  of a video frame */
-   long   height;            /* Height of a video frame */
-   double fps;               /* Frames per second */
-   char   compressor[8];     /* Type of compressor, 4 bytes + padding for 0 byte */
-   long   video_strn;        /* Video stream number */
-   long   video_frames;      /* Number of video frames */
-   char   video_tag[4];      /* Tag of video data */
-   long   video_pos;         /* Number of next frame to be read
-                                (if index present) */
+    long   fdes;              /* File descriptor of AVI file */
+    long   mode;              /* 0 for reading, 1 for writing */
+  
+    long   width;             /* Width  of a video frame */
+    long   height;            /* Height of a video frame */
+    double fps;               /* Frames per second */
+    char   compressor[8];     /* Type of compressor, 4 bytes + padding for 0 byte */
+    char   compressor2[8];     /* Type of compressor, 4 bytes + padding for 0 byte */
+    long   video_strn;        /* Video stream number */
+    long   video_frames;      /* Number of video frames */
+    char   video_tag[4];      /* Tag of video data */
+    long   video_pos;         /* Number of next frame to be read
+			       (if index present) */
     
-   long   a_fmt;             /* Audio format, see #defines below */
-   long   a_chans;           /* Audio channels, 0 for no audio */
-   long   a_rate;            /* Rate in Hz */
-   long   a_bits;            /* bits per audio sample */
-   long   a_brate;           /* bit rate for mpeg audio */ 
-   long   audio_strn;        /* Audio stream number */
-   long   audio_bytes;       /* Total number of bytes of audio data */
-   long   audio_chunks;      /* Chunks of audio data in the file */
-   char   audio_tag[4];      /* Tag of audio data */
-   long   audio_posc;        /* Audio position: chunk */
-   long   audio_posb;        /* Audio position: byte within chunk */
+    DWORD max_len;    /* maximum video chunk present */
+  
+    track_t track[AVI_MAX_TRACKS];  // up to AVI_MAX_TRACKS audio tracks supported
+  
+    off_t  pos;               /* position in file */
+    long   n_idx;             /* number of index entries actually filled */
+    long   max_idx;           /* number of index entries actually allocated */
+  
+    off_t  v_codech_off;      /* absolut offset of video codec (strh) info */ 
+    off_t  v_codecf_off;      /* absolut offset of video codec (strf) info */ 
+  
+    BYTE (*idx)[16]; /* index entries (AVI idx1 tag) */
 
-   ULONG   pos;               /* position in file */
-   long   n_idx;             /* number of index entries actually filled */
-   long   max_idx;           /* number of index entries actually allocated */
-   BYTE (*idx)[16]; /* index entries (AVI idx1 tag) */
-   video_index_entry * video_index;
-   audio_index_entry * audio_index;
-   ULONG   last_pos;          /* Position of last frame written */
-   ULONG   last_len;          /* Length of last frame written */
-   int    must_use_index;    /* Flag if frames are duplicated */
-   ULONG   movi_start;
+    video_index_entry *video_index;
+    
+    //int is_opendml;           /* set to 1 if this is an odml file with multiple index chunks */
+  
+    off_t  last_pos;          /* Position of last frame written */
+    DWORD last_len;   /* Length of last frame written */
+    int must_use_index;       /* Flag if frames are duplicated */
+    off_t  movi_start;
+    int total_frames;         /* total number of frames if dmlh is present */
+    
+    int anum;            // total number of audio tracks 
+    int aptr;            // current audio working track 
+   // int comment_fd;      // Read avi header comments from this fd
+   // char *index_file;    // read the avi index from this file
+  
+    //alBITMAPINFOHEADER *bitmap_info_header;
+    //alWAVEFORMATEX *wave_format_ex[AVI_MAX_TRACKS];
+
+    void*	extradata;
+    ULONG	extradata_size;
+
 } __attribute__ ((packed));
 
 #define AVI_MODE_WRITE  0
@@ -190,13 +291,18 @@ struct avi_t
 
 int AVI_open_output_file(struct avi_t *AVI, const char * filename);
 void AVI_set_video(struct avi_t *AVI, int width, int height, double fps, char *compressor);
-void AVI_set_audio(struct avi_t *AVI, int channels, long rate, int brate, int bits, int format);
+void AVI_set_audio(struct avi_t *AVI, int channels, long rate, int mpgrate, int bits, int format);
 int  AVI_write_frame(struct avi_t *AVI, BYTE *data, long bytes, int keyframe);
 int  AVI_dup_frame(struct avi_t *AVI);
 int  AVI_write_audio(struct avi_t *AVI, BYTE *data, long bytes);
 int  AVI_append_audio(struct avi_t *AVI, BYTE *data, long bytes);
 ULONG AVI_bytes_remain(struct avi_t *AVI);
 int  AVI_close(struct avi_t *AVI);
+
+int avi_update_header(struct avi_t *AVI);
+int AVI_set_audio_track(struct avi_t *AVI, int track);
+void AVI_set_audio_vbr(struct avi_t *AVI, long is_vbr);
+
 
 void AVI_set_MAX_LEN(ULONG len);
 

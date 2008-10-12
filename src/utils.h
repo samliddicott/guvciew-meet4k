@@ -36,11 +36,8 @@
 #define SAMPLE_RATE  (0) /* 0 device default*/
 //#define FRAMES_PER_BUFFER (4096)
 
-#define NUM_SECONDS     (2) /* captures 2 second bloks */
-/* sound can go for more 2 seconds than video          */
-
-#define BUFF_FACTOR		(2) /* audio buffer Multiply factor */
-/*Audio Buffer = audio block frames total size x Buff_factor   */
+#define NUM_SECONDS     (1) /* captures 1 second bloks */
+/* sound can go for more 1 seconds than video          */
 
 #define NUM_CHANNELS    (0) /* 0-device default 1-mono 2-stereo */
 

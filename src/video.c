@@ -365,7 +365,7 @@ void *main_loop(void *data)
 	  }
 	  
 	  /*---------------------------capture AVI---------------------------------*/
-	  if (videoIn->capAVI && videoIn->signalquit){
+	  if (videoIn->capAVI){
 	   long framesize;
 	   switch (global->AVIFormat) {
 		   
@@ -465,14 +465,15 @@ void *main_loop(void *data)
 		/*----------------------- add audio -----------------------------*/
 		if ((global->Sound_enable) && (pdata->audio_flag>0)) {
 		    /*first audio data - sync with video (audio stream capture takes longer to start)*/
-		    if (!(AviOut->audio_bytes)) {
+		    if (!(AviOut->track[0].audio_bytes)) { /*only 1 audio stream*/
 	       		int synctime= pdata->snd_begintime - global->AVIstarttime; /*time diff for audio-video*/
-			if(synctime>0 && synctime<5000) { /*only sync up to 5 seconds*/
+			if (global->debug) printf("shift sound by %d ms\n",synctime);
+			if(synctime>10 && synctime<5000) { /*only sync between 100ms and 5 seconds*/
 			    if(global->Sound_Format == WAVE_FORMAT_PCM) 
 			    {/*shift sound by synctime*/
 			        UINT32 shiftFrames = abs(synctime * global->Sound_SampRate / 1000);
 				UINT32 shiftSamples = shiftFrames * global->Sound_NumChan;
-				if (global->debug) printf("shift sound forward by %d ms = %d frames\n",synctime,shiftSamples);
+				if (global->debug) printf("shift sound forward by %d frames\n", shiftSamples);
 				SAMPLE EmptySamp[shiftSamples];
 				int i;
 				for(i=0; i<shiftSamples; i++) EmptySamp[i]=0;/*init to zero - silence*/
@@ -481,6 +482,7 @@ void *main_loop(void *data)
 			    else if(global->Sound_Format == ISO_FORMAT_MPEG12) 
 			    {
 				    int size_mp2 = MP2_encode(pdata, synctime);
+				    if (global->debug) printf("shift sound forward by %d bytes\n",size_mp2);
 				    AVI_write_audio(AviOut,pdata->mp2Buff,size_mp2);
 	       		    }
 			}
@@ -494,8 +496,8 @@ void *main_loop(void *data)
 		    }
 		    else if(global->Sound_Format == ISO_FORMAT_MPEG12)
 	            {
-			    int size_mp2 = MP2_encode(pdata,0);
-			    ret=AVI_write_audio(AviOut,pdata->mp2Buff,size_mp2);
+			int size_mp2 = MP2_encode(pdata,0);
+			ret=AVI_write_audio(AviOut,pdata->mp2Buff,size_mp2);
 		    }
 		
 		    if (ret<0) {	
@@ -520,12 +522,16 @@ void *main_loop(void *data)
 		/*write last audio data to avi*/
 		if(global->Sound_Format == WAVE_FORMAT_PCM)
 		{
-		    AVI_append_audio(AviOut,(BYTE *) pdata->avi_sndBuff,pdata->snd_numBytes);
+		    AVI_write_audio(AviOut,(BYTE *) pdata->avi_sndBuff,pdata->snd_numBytes);
 		}
 	        else if (global->Sound_Format == ISO_FORMAT_MPEG12)
 		{
 		    int size_mp2 = MP2_encode(pdata,0);
-		    AVI_append_audio(AviOut,pdata->mp2Buff,size_mp2);
+		    AVI_write_audio(AviOut,pdata->mp2Buff,size_mp2);
+		    /*flush mp2 buffer*/	
+		    pdata->recording=0;
+		    size_mp2 = MP2_encode(pdata,0);
+		    AVI_write_audio(AviOut,pdata->mp2Buff,size_mp2);
 		}
 		pdata->audio_flag=0;
 	   }

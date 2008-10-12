@@ -81,17 +81,18 @@ MP2_encode(struct paRecordData* pdata, int ms_delay) {
 	
 	    SAMPLE EmptySamp[shiftSamples];
 	    int i;
-	    for(i=0; i<shiftSamples; i++) EmptySamp[i]=0;/*init to zero - silence*/
+	    for(i=0; i<shiftSamples; i++) EmptySamp[i]=1;/*init to zero - silence*/
 	    
 	    // Encode silent samples
 	    mp2fill_size = twolame_encode_buffer_interleaved(encodeOptions, 
-				EmptySamp, EmptySamp, pdata->mp2Buff, pdata->mp2BuffSize);
+				EmptySamp, shiftSamples/(pdata->channels), 
+				pdata->mp2Buff, pdata->mp2BuffSize);
 	
 	} 
 	else
 	{
 	    /*encode buffer*/
-	    if (pdata->streaming) {
+	    if (pdata->recording) {
 		int num_samples = pdata->snd_numBytes / (pdata->channels*sizeof(SAMPLE)); /*samples per channel*/
 		// Encode the audio
 		mp2fill_size = twolame_encode_buffer_interleaved(encodeOptions, 

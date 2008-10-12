@@ -36,8 +36,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#include <time.h>
 #include "config.h"
 #include "avilib.h"
+#include "defs.h"
 
 /* The following variable indicates the kind of error */
 
@@ -98,10 +100,10 @@ static void long2str(unsigned char *dst, int n)
 /* Convert a string of 4 or 2 bytes to a number,
    also working on big endian machines */
 
-//~ static unsigned long str2ulong(BYTE *str)
-//~ {
-   //~ return ( str[0] | (str[1]<<8) | (str[2]<<16) | (str[3]<<24) );
-//~ }
+static unsigned long str2ulong(BYTE *str)
+{
+   return ( str[0] | (str[1]<<8) | (str[2]<<16) | (str[3]<<24) );
+}
 //~ static unsigned long str2ushort(BYTE *str)
 //~ {
    //~ return ( str[0] | (str[1]<<8) );
@@ -110,17 +112,32 @@ static void long2str(unsigned char *dst, int n)
 /* Calculate audio sample size from number of bits and number of channels.
    This may have to be adjusted for eg. 12 bits and stereo */
 
-static int avi_sampsize(struct avi_t *AVI)
+static int avi_sampsize(struct avi_t *AVI, int j)
 {
-   int s;
-   if (AVI->a_fmt == ISO_FORMAT_MPEG12) 
+   int s;	
+   if (AVI->track[j].a_fmt == ISO_FORMAT_MPEG12) 
    {
-	s = 1;
+	s = 4;
    } else {
-	s = ((AVI->a_bits+7)/8)*AVI->a_chans;
-	if(s==0) s=1; /* avoid possible zero divisions */
+	s = ((AVI->track[j].a_bits+7)/8)*AVI->track[j].a_chans;
+        if(s<4) s=4; /* avoid possible zero divisions */
    }
    return s;
+}
+
+static ssize_t avi_write (int fd, BYTE *buf, size_t len)
+{
+   ssize_t n = 0;
+   ssize_t r = 0;
+
+   while (r < len) {
+      n = write (fd, buf + r, len - r);	   
+      if (n < 0)
+         return n;
+      
+      r += n;
+   }
+   return r;
 }
 
 /* Add a chunk (=tag and data) to the AVI file,
@@ -129,7 +146,7 @@ static int avi_sampsize(struct avi_t *AVI)
 static int avi_add_chunk(struct avi_t *AVI, BYTE *tag, BYTE *data, int length)
 {
    BYTE c[8];
-
+   BYTE p=0;
    /* Copy tag and length int c, so that we need only 1 write system call
       for these two values */
 
@@ -139,10 +156,9 @@ static int avi_add_chunk(struct avi_t *AVI, BYTE *tag, BYTE *data, int length)
    /* Output tag, length and data, restore previous position
       if the write fails */
 
-   length = PAD_EVEN(length);
-
-   if( write(AVI->fdes,c,8) != 8 ||
-       write(AVI->fdes,data,length) != length )
+   if( avi_write(AVI->fdes,c,8) != 8 ||
+       avi_write(AVI->fdes,data,length) != length ||
+       avi_write(AVI->fdes,&p,length&1) != (length&1)) // if len is uneven, write a pad byte
    {
       lseek(AVI->fdes,AVI->pos,SEEK_SET);
       AVI_errno = AVI_ERR_WRITE;
@@ -150,9 +166,10 @@ static int avi_add_chunk(struct avi_t *AVI, BYTE *tag, BYTE *data, int length)
    }
 
    /* Update file position */
-
-   AVI->pos += 8 + length;
-
+   AVI->pos += 8 + PAD_EVEN(length);
+   
+   //fprintf(stderr, "pos=%lu %s\n", AVI->pos, tag);
+   
    return 0;
 }
 
@@ -183,8 +200,26 @@ static int avi_add_index_entry(struct avi_t *AVI, BYTE *tag, long flags, long po
 
    AVI->n_idx++;
 
+   if(len>AVI->max_len) AVI->max_len=len;
+	
    return 0;
 }
+
+//SLM
+#ifndef S_IRUSR
+#define S_IRWXU       00700       /* read, write, execute: owner */
+#define S_IRUSR       00400       /* read permission: owner */
+#define S_IWUSR       00200       /* write permission: owner */
+#define S_IXUSR       00100       /* execute permission: owner */
+#define S_IRWXG       00070       /* read, write, execute: group */
+#define S_IRGRP       00040       /* read permission: group */
+#define S_IWGRP       00020       /* write permission: group */
+#define S_IXGRP       00010       /* execute permission: group */
+#define S_IRWXO       00007       /* read, write, execute: other */
+#define S_IROTH       00004       /* read permission: other */
+#define S_IWOTH       00002       /* write permission: other */
+#define S_IXOTH       00001       /* execute permission: other */
+#endif
 
 /*
    AVI_open_output_file: Open an AVI File and write a bunch
@@ -197,7 +232,7 @@ int AVI_open_output_file(struct avi_t *AVI, const char * filename)
 {
    int i;
    BYTE AVI_header[HEADERBYTES];
-   int mask = 0; 
+   //int mask = 0; 
    
    /*resets AVI struct*/ 
    memset((void *)AVI,0,sizeof(struct avi_t));
@@ -205,8 +240,10 @@ int AVI_open_output_file(struct avi_t *AVI, const char * filename)
    /* Since Linux needs a long time when deleting big files,
       we do not truncate the file when we open it.
       Instead it is truncated when the AVI file is closed */
-
-   AVI->fdes = open(filename,O_RDWR|O_CREAT|O_BINARY,0644 &~mask);
+   AVI->fdes = open(filename, O_RDWR|O_CREAT,
+		              S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH);
+	
+   //AVI->fdes = open(filename,O_RDWR|O_CREAT|O_BINARY,0644 &~mask);
    if (AVI->fdes < 0)
    {
       AVI_errno = AVI_ERR_OPEN;
@@ -218,7 +255,7 @@ int AVI_open_output_file(struct avi_t *AVI, const char * filename)
       when we are finished with writing */
 
    for (i=0;i<HEADERBYTES;i++) AVI_header[i] = 0;
-   i = write(AVI->fdes,AVI_header,HEADERBYTES);
+   i = avi_write(AVI->fdes,AVI_header,HEADERBYTES);
    if (i != HEADERBYTES)
    {
       close(AVI->fdes);
@@ -230,6 +267,10 @@ int AVI_open_output_file(struct avi_t *AVI, const char * filename)
    AVI->pos  = HEADERBYTES;
    AVI->mode = AVI_MODE_WRITE; /* open for writing */
 
+   //init
+   AVI->anum = 0;
+   AVI->aptr = 0;
+	
    return 0;
 }
 
@@ -242,22 +283,41 @@ void AVI_set_video(struct avi_t *AVI, int width, int height, double fps, char *c
    AVI->width  = width;
    AVI->height = height;
    AVI->fps    = fps;
-   memcpy(AVI->compressor,compressor,4);
+   if(strncmp(compressor, "RGB", 3)==0 || strncmp(compressor, "DIB ", 3)==0) {
+     memset(AVI->compressor, 0, 4);
+   } else {
+     memcpy(AVI->compressor,compressor,4);
+   }     
+   
    AVI->compressor[4] = 0;
+
+   avi_update_header(AVI);
 
 }
 
-void AVI_set_audio(struct avi_t *AVI, int channels, long rate, int brate, int bits, int format)
+void AVI_set_audio(struct avi_t *AVI, int channels, long rate, int mpgrate, int bits, int format)
 {
    /* may only be called if file is open for writing */
 
    if(AVI->mode==AVI_MODE_READ) return;
 
-   AVI->a_chans = channels;
-   AVI->a_rate  = rate;
-   AVI->a_brate = brate; /*bit rate for mpeg audio (def. 160 Kbps)*/
-   AVI->a_bits  = bits;
-   AVI->a_fmt   = format;
+   //inc audio tracks
+   AVI->aptr=AVI->anum;
+   ++AVI->anum;
+
+   if(AVI->anum > AVI_MAX_TRACKS) {
+     fprintf(stderr, "error - only %d audio tracks supported\n", AVI_MAX_TRACKS);
+     exit(1);
+   }
+   
+   AVI->track[AVI->aptr].audio_bytes = 0;	
+   AVI->track[AVI->aptr].a_chans = channels;
+   AVI->track[AVI->aptr].a_rate  = rate;
+   AVI->track[AVI->aptr].a_bits  = bits;
+   AVI->track[AVI->aptr].a_fmt   = format;
+   AVI->track[AVI->aptr].mpgrate = mpgrate;
+
+   avi_update_header(AVI);
 
 }
 
@@ -274,6 +334,277 @@ void AVI_set_audio(struct avi_t *AVI, int channels, long rate, int brate, int bi
    } \
    nhb += 2
 
+#define OUTCHR(n) \
+   if(nhb<=HEADERBYTES-1) { \
+      AVI_header[nhb  ] = (n   )&0xff; \
+   } \
+   nhb += 1
+
+#define OUTMEM(d, s) \
+   { \
+     unsigned int s_ = (s); \
+     if(nhb <= HEADERBYTES-s_) \
+        memcpy(AVI_header+nhb, (d), s_); \
+     nhb += s_; \
+   }
+
+//ThOe write preliminary AVI file header: 0 frames, max vid/aud size
+int avi_update_header(struct avi_t *AVI)
+{
+   int njunk, sampsize, hasIndex, ms_per_frame, frate, flag;
+   int movi_len, hdrl_start, strl_start, j;
+   BYTE AVI_header[HEADERBYTES];
+   long nhb;
+   ULONG xd_size, xd_size_align2;
+
+   //assume max size
+   movi_len = AVI_MAX_LEN - HEADERBYTES + 4;
+
+   //assume index will be written
+   hasIndex=1;
+
+   if(AVI->fps < 0.001) {
+     frate=0;
+     ms_per_frame=0;
+   } else {
+     frate = (int) (FRAME_RATE_SCALE*AVI->fps + 0.5);
+     ms_per_frame=(int) (1000000/AVI->fps + 0.5);
+   }
+
+   /* Prepare the file header */
+
+   nhb = 0;
+
+   /* The RIFF header */
+
+   OUT4CC ("RIFF");
+   OUTLONG(movi_len);    // assume max size
+   OUT4CC ("AVI ");
+
+   /* Start the header list */
+
+   OUT4CC ("LIST");
+   OUTLONG(0);        /* Length of list in bytes, don't know yet */
+   hdrl_start = nhb;  /* Store start position */
+   OUT4CC ("hdrl");
+
+   /* The main AVI header */
+
+   /* The Flags in AVI File header */
+
+#define AVIF_HASINDEX           0x00000010      /* Index at end of file */
+#define AVIF_MUSTUSEINDEX       0x00000020
+#define AVIF_ISINTERLEAVED      0x00000100
+#define AVIF_TRUSTCKTYPE        0x00000800      /* Use CKType to find key frames */
+#define AVIF_WASCAPTUREFILE     0x00010000
+#define AVIF_COPYRIGHTED        0x00020000
+
+   OUT4CC ("avih");
+   OUTLONG(56);                 /* # of bytes to follow */
+   OUTLONG(ms_per_frame);       /* Microseconds per frame */
+   //ThOe ->0 
+   OUTLONG(10000000);           /* MaxBytesPerSec, I hope this will never be used */
+   //OUTLONG(0);
+   OUTLONG(0);                  /* PaddingGranularity (whatever that might be) */
+                                /* Other sources call it 'reserved' */
+   //flag = AVIF_ISINTERLEAVED;
+   flag = AVIF_WASCAPTUREFILE;
+   if(hasIndex) flag |= AVIF_HASINDEX;
+   if(hasIndex && AVI->must_use_index) flag |= AVIF_MUSTUSEINDEX;
+   OUTLONG(flag);               /* Flags */
+   OUTLONG(0);                  // no frames yet
+   OUTLONG(0);                  /* InitialFrames */
+
+   OUTLONG(AVI->anum+1);	/*streams audio + video*/
+
+   OUTLONG(0);                  /* SuggestedBufferSize */
+   OUTLONG(AVI->width);         /* Width */
+   OUTLONG(AVI->height);        /* Height */
+                                /* MS calls the following 'reserved': */
+   OUTLONG(0);                  /* TimeScale:  Unit used to measure time */
+   OUTLONG(0);                  /* DataRate:   Data rate of playback     */
+   OUTLONG(0);                  /* StartTime:  Starting time of AVI data */
+   OUTLONG(0);                  /* DataLength: Size of AVI data chunk    */
+
+
+   /* Start the video stream list ---------------------------------- */
+
+   OUT4CC ("LIST");
+   OUTLONG(0);        /* Length of list in bytes, don't know yet */
+   strl_start = nhb;  /* Store start position */
+   OUT4CC ("strl");
+
+   /* The video stream header */
+
+   OUT4CC ("strh");
+   OUTLONG(64);                 /* # of bytes to follow */
+   OUT4CC ("vids");             /* Type */
+   OUT4CC (AVI->compressor);    /* Handler */
+   OUTLONG(0);                  /* Flags */
+   OUTLONG(0);                  /* Reserved, MS says: wPriority, wLanguage */
+   OUTLONG(0);                  /* InitialFrames */
+   OUTLONG(FRAME_RATE_SCALE);              /* Scale */
+   OUTLONG(frate);              /* Rate: Rate/Scale == samples/second */
+   OUTLONG(0);                  /* Start */
+   OUTLONG(0);                  // no frames yet
+   OUTLONG(0);                  /* SuggestedBufferSize */
+   OUTLONG(-1);                 /* Quality */
+   OUTLONG(0);                  /* SampleSize */
+   OUTLONG(0);                  /* Frame */
+   OUTLONG(0);                  /* Frame */
+   OUTLONG(0);                  /* Frame */
+   OUTLONG(0);                  /* Frame */
+
+   /* The video stream format */
+
+   xd_size        = AVI->extradata_size;
+   xd_size_align2 = (AVI->extradata_size+1) & ~1;
+
+   OUT4CC ("strf");
+   OUTLONG(40 + xd_size_align2);/* # of bytes to follow */
+   OUTLONG(40 + xd_size);	/* Size */
+   OUTLONG(AVI->width);         /* Width */
+   OUTLONG(AVI->height);        /* Height */
+   OUTSHRT(1);                  /* Planes */
+   OUTSHRT(24);                 /*Count - bitsperpixel - 1,4,8 or 24  32*/
+   // if (strcmp(AVI->compressor,"DIB ")==0) {  
+	// OUTLONG(0);             /* Compression ->for DIB 24 = BI_RGB */
+   // }
+   // else {
+   	OUT4CC (AVI->compressor);    /* Compression */
+   // }
+   
+   // ThOe (*3)
+   OUTLONG(AVI->width*AVI->height);  /* SizeImage (in bytes?) */
+   //OUTLONG(AVI->width*AVI->height);  /* SizeImage */
+   OUTLONG(0);                  /* XPelsPerMeter */
+   OUTLONG(0);                  /* YPelsPerMeter */
+   OUTLONG(0);                  /* ClrUsed: Number of colors used */
+   OUTLONG(0);                  /* ClrImportant: Number of colors important */
+
+   // write extradata
+   if (xd_size > 0 && AVI->extradata) {
+      OUTMEM(AVI->extradata, xd_size);
+      if (xd_size != xd_size_align2) {
+         OUTCHR(0);
+      }
+   }
+
+   /* Finish stream list, i.e. put number of bytes in the list to proper pos */
+
+   long2str(AVI_header+strl_start-4,nhb-strl_start);
+
+   
+   /* Start the audio stream list ---------------------------------- */
+   /* only 1 audio stream => AVI->anum=1*/
+   for(j=0; j<AVI->anum; ++j) {
+       
+       sampsize = avi_sampsize(AVI, j);
+       //sampsize = avi_sampsize(AVI);
+       
+       OUT4CC ("LIST");
+       OUTLONG(0);        /* Length of list in bytes, don't know yet */
+       strl_start = nhb;  /* Store start position */
+       OUT4CC ("strl");
+       
+       /* The audio stream header */
+       
+       OUT4CC ("strh");
+       OUTLONG(64);            /* # of bytes to follow */
+       OUT4CC ("auds");
+       
+       // -----------
+       // ThOe
+       OUT4CC ("\0\0\0\0");             /* Format (Optionally) */
+       // -----------
+       
+       OUTLONG(0);             /* Flags */
+       OUTLONG(0);             /* Reserved, MS says: wPriority, wLanguage */
+       OUTLONG(0);             /* InitialFrames */
+       
+       // ThOe /4
+       OUTLONG(sampsize/4);      /* Scale */
+       OUTLONG(1000*AVI->track[j].mpgrate/8);
+       OUTLONG(0);             /* Start */
+       OUTLONG(4*AVI->track[j].audio_bytes/sampsize);   /* Length */
+       OUTLONG(0);             /* SuggestedBufferSize */
+       OUTLONG(-1);            /* Quality */
+       
+       // ThOe /4
+       OUTLONG(sampsize/4);    /* SampleSize */
+       
+       OUTLONG(0);             /* Frame */
+       OUTLONG(0);             /* Frame */
+       OUTLONG(0);             /* Frame */
+       OUTLONG(0);             /* Frame */
+       
+       /* The audio stream format */
+       
+       OUT4CC ("strf");
+       OUTLONG(16);                   /* # of bytes to follow */
+       OUTSHRT(AVI->track[j].a_fmt);           /* Format */
+       OUTSHRT(AVI->track[j].a_chans);         /* Number of channels */
+       OUTLONG(AVI->track[j].a_rate);          /* SamplesPerSec */
+       // ThOe
+       OUTLONG(1000*AVI->track[j].mpgrate/8);
+       //ThOe (/4)
+       
+       OUTSHRT(sampsize/4);           /* BlockAlign */
+       
+       
+       OUTSHRT(AVI->track[j].a_bits);          /* BitsPerSample */
+       
+       /* Finish stream list, i.e. put number of bytes in the list to proper pos */
+       
+       long2str(AVI_header+strl_start-4,nhb-strl_start);
+   }
+   
+   /* Finish header list */
+   
+   long2str(AVI_header+hdrl_start-4,nhb-hdrl_start);
+   
+   
+   /* Calculate the needed amount of junk bytes, output junk */
+   
+   njunk = HEADERBYTES - nhb - 8 - 12;
+   
+   /* Safety first: if njunk <= 0, somebody has played with
+      HEADERBYTES without knowing what (s)he did.
+      This is a fatal error */
+   
+   if(njunk<=0)
+     {
+       fprintf(stderr,"AVI_close_output_file: # of header bytes too small\n");
+       exit(1);
+     }
+   
+   OUT4CC ("JUNK");
+   OUTLONG(njunk);
+   memset(AVI_header+nhb,0,njunk);
+   
+   nhb += njunk;
+
+   /* Start the movi list */
+
+   OUT4CC ("LIST");
+   OUTLONG(movi_len); /* Length of list in bytes */
+   OUT4CC ("movi");
+
+   /* Output the header, truncate the file to the number of bytes
+      actually written, report an error if someting goes wrong */
+
+   
+    if ( lseek(AVI->fdes,0,SEEK_SET)<0 ||
+        avi_write(AVI->fdes,AVI_header,HEADERBYTES)!=HEADERBYTES ||
+	lseek(AVI->fdes,AVI->pos,SEEK_SET)<0)
+     {
+       AVI_errno = AVI_ERR_CLOSE;
+       return -1;
+     }
+
+   return 0;
+}
+
 /*
   Write the header of an AVI file and close it.
   returns 0 on success, -1 on write error.
@@ -282,16 +613,19 @@ void AVI_set_audio(struct avi_t *AVI, int channels, long rate, int brate, int bi
 static int avi_close_output_file(struct avi_t *AVI)
 {
 
-   int ret, njunk, sampsize, Brate, hasIndex, ms_per_frame, idxerror, flag;
-   int movi_len, hdrl_start, strl_start;
+   int ret, njunk, sampsize, hasIndex, ms_per_frame, frate, idxerror, flag;
+   ULONG movi_len;
+   int hdrl_start, strl_start, j;
    BYTE AVI_header[HEADERBYTES];
    long nhb;
+   ULONG xd_size, xd_size_align2;
    /* Calculate length of movi list */
 
    movi_len = AVI->pos - HEADERBYTES + 4;
     
 #ifdef INFO_LIST
    long info_len;
+   time_t rawtime;
 #endif
     
    /* Try to ouput the index entries. This may fail e.g. if no space
@@ -300,9 +634,11 @@ static int avi_close_output_file(struct avi_t *AVI)
       readable in the most cases */
 
    idxerror = 0;
- 
+   hasIndex = 1;
+		
    ret = avi_add_chunk(AVI,(BYTE *)"idx1",(void *)AVI->idx,AVI->n_idx*16);
    hasIndex = (ret==0);
+	
    if(ret)
    {
       idxerror = 1;
@@ -311,10 +647,16 @@ static int avi_close_output_file(struct avi_t *AVI)
 
    /* Calculate Microseconds per frame */
 
-   if(AVI->fps < 0.001)
+   if(AVI->fps < 0.001) 
+   {
+      frate=0;	   
       ms_per_frame = 0;
+   }
    else
-      ms_per_frame = 1000000./AVI->fps + 0.5;
+   {
+     frate = (int) (FRAME_RATE_SCALE*AVI->fps + 0.5);
+     ms_per_frame=(int) (1000000/AVI->fps + 0.5);
+   }
 
    /* Prepare the file header */
 
@@ -347,7 +689,9 @@ static int avi_close_output_file(struct avi_t *AVI)
    OUT4CC ("avih");
    OUTLONG(56);                 /* # of bytes to follow */
    OUTLONG(ms_per_frame);       /* Microseconds per frame */
-   OUTLONG(10000000);           /* MaxBytesPerSec, I hope this will never be used */
+   //ThOe ->0
+   //OUTLONG(10000000);           /* MaxBytesPerSec, I hope this will never be used */
+   OUTLONG(0);
    OUTLONG(0);                  /* PaddingGranularity (whatever that might be) */
                                 /* Other sources call it 'reserved' */
    flag = AVIF_WASCAPTUREFILE;
@@ -356,10 +700,8 @@ static int avi_close_output_file(struct avi_t *AVI)
    OUTLONG(flag);               /* Flags */
    OUTLONG(AVI->video_frames);  /* TotalFrames */
    OUTLONG(0);                  /* InitialFrames */
-   if (AVI->audio_bytes)
-      { OUTLONG(2); }           /* Streams */
-   else
-      { OUTLONG(1); }           /* Streams */
+   OUTLONG(AVI->anum+1);        /* streams audio + video */
+	
    OUTLONG(0);                  /* SuggestedBufferSize */
    OUTLONG(AVI->width);         /* Width */
    OUTLONG(AVI->height);        /* Height */
@@ -386,11 +728,11 @@ static int avi_close_output_file(struct avi_t *AVI)
    OUTLONG(0);                  /* Flags */
    OUTLONG(0);                  /* Reserved, MS says: wPriority, wLanguage */
    OUTLONG(0);                  /* InitialFrames */
-   OUTLONG(ms_per_frame);       /* Scale */
-   OUTLONG(1000000);            /* Rate: Rate/Scale == samples/second */
+   OUTLONG(FRAME_RATE_SCALE);       /* Scale */
+   OUTLONG(frate);            /* Rate: Rate/Scale == samples/second */
    OUTLONG(0);                  /* Start */
    OUTLONG(AVI->video_frames);  /* Length */
-   OUTLONG(0);                  /* SuggestedBufferSize */
+   OUTLONG(AVI->max_len);                  /* SuggestedBufferSize */
    OUTLONG(-1);                 /* Quality */
    OUTLONG(0);                  /* SampleSize */
    OUTLONG(0);                  /* Frame */
@@ -399,86 +741,167 @@ static int avi_close_output_file(struct avi_t *AVI)
    OUTLONG(0);                  /* Frame */
 
    /* The video stream format i- this is a BITMAPINFO structure*/
- 
+  
+   xd_size        = AVI->extradata_size;
+   //printf("extra size=%d\n",xd_size);
+   xd_size_align2 = (AVI->extradata_size+1) & ~1;
+	
    OUT4CC ("strf");
-   OUTLONG(40);                 /* # of bytes to follow (biSize) ?????*/
-   OUTLONG(40);                 /* biSize */
+   OUTLONG(40 + xd_size_align2);                 /* # of bytes to follow (biSize) ?????*/
+   OUTLONG(40 + xd_size);                 /* biSize */
    OUTLONG(AVI->width);         /* biWidth */
    OUTLONG(AVI->height);        /* biHeight */
    OUTSHRT(1);     /* Planes - allways 1 */ 
-   if (strcmp(AVI->compressor,"DIB ")==0) {  /* Compression ->for DIB 24 = BI_RGB */
-		OUTSHRT(24); /*Count - bitsperpixel - 1,4,8 or 24  32*/  		
-		OUTLONG(0);
-   	}
-   	else {
-		OUTSHRT(24); /*Count - bitsperpixel - 1,4,8 or 24  32*/
-   		OUT4CC (AVI->compressor);    
-   	}
+   OUTSHRT(24);                 /*Count - bitsperpixel - 1,4,8 or 24  32*/   
+   OUT4CC (AVI->compressor);    
+   	
+   // ThOe (*3)
    OUTLONG(AVI->width*AVI->height);  /* SizeImage (in bytes?) should be biSizeImage = ((((biWidth * biBitCount) + 31) & ~31) >> 3) * biHeight*/
    OUTLONG(0);                  /* XPelsPerMeter */
    OUTLONG(0);                  /* YPelsPerMeter */
    OUTLONG(0);                  /* ClrUsed: Number of colors used */
    OUTLONG(0);                  /* ClrImportant: Number of colors important */
 
+   // write extradata if present
+   if (xd_size > 0 && AVI->extradata) {
+      OUTMEM(AVI->extradata, xd_size);
+      if (xd_size != xd_size_align2) {
+         OUTCHR(0);
+      }
+   }	
+	
    /* Finish stream list, i.e. put number of bytes in the list to proper pos */
 
    long2str(AVI_header+strl_start-4,nhb-strl_start);
    
-   if (AVI->a_chans && AVI->audio_bytes)
-   {
-
-   sampsize = avi_sampsize(AVI);
-   Brate = (AVI->a_brate/8)*1000;
    /* Start the audio stream list ---------------------------------- */
 
-   OUT4CC ("LIST");
-   OUTLONG(0);        /* Length of list in bytes, don't know yet */
-   strl_start = nhb;  /* Store start position */
-   OUT4CC ("strl");
+   for(j=0; j<AVI->anum; ++j) {
 
-   /* The audio stream header */
+	 ULONG nBlockAlign = 0;
+	 ULONG avgbsec = 0;
+	 ULONG scalerate = 0;
+	   
+	 sampsize = avi_sampsize(AVI, j);
+	 sampsize = AVI->track[j].a_fmt==0x1?sampsize*4:sampsize;
 
-   OUT4CC ("strh");
-   OUTLONG(64);            /* # of bytes to follow */
-   OUT4CC ("auds");
-   OUT4CC ("\0\0\0\0");
-   OUTLONG(0);             /* Flags */
-   OUTLONG(0);             /* Reserved, MS says: wPriority, wLanguage */
-   OUTLONG(0);             /* InitialFrames */
-   OUTLONG(sampsize);      /* Scale */
-   if (AVI->a_fmt == ISO_FORMAT_MPEG12)
-   {
-	OUTLONG(Brate); /* default 20000 Bps/160 Kbps */
-   } else {
-	OUTLONG(sampsize*AVI->a_rate); /* Rate: Rate/Scale == samples/second */
-   }
-   OUTLONG(0);             /* Start */
-   OUTLONG(AVI->audio_bytes/sampsize);   /* Length */
-   OUTLONG(0);             /* SuggestedBufferSize */
-   OUTLONG(-1);            /* Quality */
-   OUTLONG(sampsize);      /* SampleSize */
-   OUTLONG(0);             /* Frame */
-   OUTLONG(0);             /* Frame */
-   OUTLONG(0);             /* Frame */
-   OUTLONG(0);             /* Frame */
+	 nBlockAlign = (AVI->track[j].a_rate<32000)?576:1152;
+	 /*
+	 printf("XXX sampsize (%d) block (%ld) rate (%ld) audio_bytes (%ld) mp3rate(%ld,%ld)\n", 
+		 sampsize, nBlockAlign, AVI->track[j].a_rate, 
+		 (long int)AVI->track[j].audio_bytes, 
+		 1000*AVI->track[j].mp3rate/8, AVI->track[j].mp3rate);
+		 */
+	   
+	 if (AVI->track[j].a_fmt==0x1) {
+	     sampsize = (AVI->track[j].a_chans<2)?sampsize/2:sampsize;
+	     avgbsec = AVI->track[j].a_rate*sampsize/4;
+	     scalerate = AVI->track[j].a_rate*sampsize/4;
+	 } else  {
+	     avgbsec = 1000*AVI->track[j].mpgrate/8;
+	     scalerate = 1000*AVI->track[j].mpgrate/8;
+	 }
 
-   /* The audio stream format */
+	OUT4CC ("LIST");
+	OUTLONG(0);        /* Length of list in bytes, don't know yet */
+	strl_start = nhb;  /* Store start position */
+	OUT4CC ("strl");
 
-   OUT4CC ("strf");
-   OUTLONG(16);                   /* # of bytes to follow */
-   OUTSHRT(AVI->a_fmt);           /* Format */
-   OUTSHRT(AVI->a_chans);         /* Number of channels */
-   if (AVI->a_fmt == ISO_FORMAT_MPEG12)
-   {
-	OUTLONG(AVI->a_rate); /* freq. */
-	OUTLONG(Brate); /* default 20000 Bps/ 160 Kbps */
-	OUTSHRT(1);     /* BlockAlign */
-   } else {
-	OUTLONG(AVI->a_rate);          /* SamplesPerSec */
-	OUTLONG(sampsize*AVI->a_rate); /* AvgBytesPerSec */
-	OUTSHRT(sampsize);             /* BlockAlign */   
-   }
-   OUTSHRT(AVI->a_bits);          /* BitsPerSample */
+	/* The audio stream header */
+	 
+	 OUT4CC ("strh");
+	 OUTLONG(64);            /* # of bytes to follow */
+	 OUT4CC ("auds");
+	 
+	 // -----------
+// ThOe
+	 OUT4CC ("\0\0\0\0");             /* Format (Optionally) */
+	   // -----------
+	   
+	 OUTLONG(0);             /* Flags */
+	 OUTLONG(0);             /* Reserved, MS says: wPriority, wLanguage */
+	 OUTLONG(0);             /* InitialFrames */
+	 
+	 // VBR 
+	 if (AVI->track[j].a_fmt == ISO_FORMAT_MPEG12 && AVI->track[j].a_vbr) {
+	     OUTLONG(nBlockAlign);                   /* Scale */
+	     OUTLONG(AVI->track[j].a_rate);          /* Rate */
+	     OUTLONG(0);                             /* Start */
+	     OUTLONG(AVI->track[j].audio_chunks);    /* Length */
+	     OUTLONG(0);                      /* SuggestedBufferSize */
+	     OUTLONG(0);                             /* Quality */
+	     OUTLONG(0);                             /* SampleSize */
+	     OUTLONG(0);                             /* Frame */
+	     OUTLONG(0);                             /* Frame */
+             OUTLONG(0);                             /* Frame */
+	     OUTLONG(0);                             /* Frame */
+	 } else {
+	     OUTLONG(sampsize/4);                    /* Scale */
+	     OUTLONG(scalerate);  /* Rate */
+	     OUTLONG(0);                             /* Start */
+	     OUTLONG(4*AVI->track[j].audio_bytes/sampsize);   /* Length */
+	     OUTLONG(0);                             /* SuggestedBufferSize */
+	     OUTLONG(0xffffffff);                             /* Quality */
+	     OUTLONG(sampsize/4);                    /* SampleSize */
+	     OUTLONG(0);                             /* Frame */
+	     OUTLONG(0);                             /* Frame */
+             OUTLONG(0);                             /* Frame */
+	     OUTLONG(0);                             /* Frame */		 
+	 }
+	 
+	 /* The audio stream format */
+
+	 OUT4CC ("strf");
+	 
+	 if (AVI->track[j].a_fmt == ISO_FORMAT_MPEG12 && AVI->track[j].a_vbr) {
+
+	     OUTLONG(30);                            /* # of bytes to follow */ // mplayer writes 28
+	     OUTSHRT(AVI->track[j].a_fmt);           /* Format */                  // 2
+	     OUTSHRT(AVI->track[j].a_chans);         /* Number of channels */      // 2
+	     OUTLONG(AVI->track[j].a_rate);          /* SamplesPerSec */           // 4
+	     //ThOe/tibit
+	     OUTLONG(1000*AVI->track[j].mpgrate/8);  /* maybe we should write an avg. */ // 4
+	     OUTSHRT(nBlockAlign);                   /* BlockAlign */              // 2
+	     OUTSHRT(AVI->track[j].a_bits);          /* BitsPerSample */           // 2
+
+	     OUTSHRT(12);                           /* cbSize */                   // 2
+	     OUTSHRT(1);                            /* wID */                      // 2
+	     OUTLONG(2);                            /* fdwFlags */                 // 4
+	     OUTSHRT(nBlockAlign);                  /* nBlockSize */               // 2
+	     OUTSHRT(1);                            /* nFramesPerBlock */          // 2
+	     OUTSHRT(0);                            /* nCodecDelay */              // 2
+	 
+	 } else if (AVI->track[j].a_fmt == ISO_FORMAT_MPEG12 && !AVI->track[j].a_vbr) {
+
+	     OUTLONG(30);                            /* # of bytes to follow (30)*/
+	     OUTSHRT(AVI->track[j].a_fmt);           /* Format */
+	     OUTSHRT(AVI->track[j].a_chans);         /* Number of channels */
+	     OUTLONG(AVI->track[j].a_rate);          /* SamplesPerSec */
+	     //ThOe/tibit
+	     OUTLONG(1000*AVI->track[j].mpgrate/8);
+	     OUTSHRT(sampsize/4);                    /* BlockAlign */
+	     OUTSHRT(AVI->track[j].a_bits);          /* BitsPerSample */
+
+	     OUTSHRT(12);                           /* cbSize */
+	     OUTSHRT(1);                            /* wID */
+	     OUTLONG(2);                            /* fdwFlags */
+	     OUTSHRT(nBlockAlign);                  /* nBlockSize */
+	     OUTSHRT(1);                            /* nFramesPerBlock */
+	     OUTSHRT(0);                            /* nCodecDelay */
+	 
+	 } else {
+
+	     OUTLONG(18);                   /* # of bytes to follow (18)*/
+	     OUTSHRT(AVI->track[j].a_fmt);           /* Format */
+	     OUTSHRT(AVI->track[j].a_chans);         /* Number of channels */
+	     OUTLONG(AVI->track[j].a_rate);          /* SamplesPerSec */
+	     //ThOe/tibit
+	     OUTLONG(avgbsec);  /* Avg bytes/sec */
+	     OUTSHRT(sampsize/4);                    /* BlockAlign */
+	     OUTSHRT(AVI->track[j].a_bits);          /* BitsPerSample */
+	     OUTSHRT(0);                           /* cbSize */  
+
+	 }
 
    /* Finish stream list, i.e. put number of bytes in the list to proper pos */
 
@@ -500,13 +923,13 @@ static int avi_close_output_file(struct avi_t *AVI)
    OUTLONG(info_len);
    OUT4CC ("INFO");
 
-//   OUT4CC ("INAM");
-//   OUTLONG(MAX_INFO_STRLEN);
+   OUT4CC ("INAM");
+   OUTLONG(MAX_INFO_STRLEN);
 
-//   sprintf(id_str, "\t");
-//   memset(AVI_header+nhb, 0, MAX_INFO_STRLEN);
-//   memcpy(AVI_header+nhb, id_str, strlen(id_str));
-//   nhb += MAX_INFO_STRLEN;
+   sprintf(id_str, "\t");
+   memset(AVI_header+nhb, 0, MAX_INFO_STRLEN);
+   memcpy(AVI_header+nhb, id_str, strlen(id_str));
+   nhb += MAX_INFO_STRLEN;
 
    OUT4CC ("ISFT");
    OUTLONG(MAX_INFO_STRLEN);
@@ -516,14 +939,14 @@ static int avi_close_output_file(struct avi_t *AVI)
    memcpy(AVI_header+nhb, id_str, strlen(id_str));
    nhb += MAX_INFO_STRLEN;
 
-//   OUT4CC ("ICMT");
-//   OUTLONG(MAX_INFO_STRLEN);
+   OUT4CC ("ICMT");
+   OUTLONG(MAX_INFO_STRLEN);
 
-//   calptr=time(NULL); 
-//   sprintf(id_str, "\t%s %s", ctime(&calptr), "");
-//   memset(AVI_header+nhb, 0, MAX_INFO_STRLEN);
-//   memcpy(AVI_header+nhb, id_str, 25);
-//   nhb += MAX_INFO_STRLEN;
+   time(&rawtime); 
+   sprintf(id_str, "\t%s %s", ctime(&rawtime), "");
+   memset(AVI_header+nhb, 0, MAX_INFO_STRLEN);
+   memcpy(AVI_header+nhb, id_str, 25);
+   nhb += MAX_INFO_STRLEN;
 #endif
     
 
@@ -556,13 +979,13 @@ static int avi_close_output_file(struct avi_t *AVI)
       actually written, report an error if someting goes wrong */
 
    if ( lseek(AVI->fdes,0,SEEK_SET)<0 ||
-        write(AVI->fdes,AVI_header,HEADERBYTES)!=HEADERBYTES || ftruncate(AVI->fdes,AVI->pos)<0 
-       )
+        avi_write(AVI->fdes,AVI_header,HEADERBYTES)!=HEADERBYTES ||
+        ftruncate(AVI->fdes,AVI->pos)<0 )   
    {
       AVI_errno = AVI_ERR_CLOSE;
       return -1;
    }
-
+	
    if(idxerror) return -1;
 
    return 0;
@@ -579,7 +1002,8 @@ static int avi_close_output_file(struct avi_t *AVI)
 
 static int avi_write_data(struct avi_t *AVI, BYTE *data, long length, int audio, int keyframe)
 {
-   int n;
+   int n=0;
+   char astr[5];
    /* Check for maximum file length */
 
    if ( (AVI->pos + 8 + length + 8 + (AVI->n_idx+1)*16) > AVI_MAX_LEN )
@@ -588,9 +1012,12 @@ static int avi_write_data(struct avi_t *AVI, BYTE *data, long length, int audio,
       return -1;
    }
 
+   //set tag for current audio track
+   snprintf((char *)astr, sizeof(astr), "0%1dwb", (int)(AVI->aptr+1));
+	
    /* Add index entry */
    if(audio)
-     n = avi_add_index_entry(AVI,(BYTE *)"01wb",0x00,AVI->pos,length);
+     n = avi_add_index_entry(AVI,(BYTE *) astr,0x00,AVI->pos,length);
    else
      n = avi_add_index_entry(AVI,(BYTE *) "00dc",((keyframe)?0x10:0x0),AVI->pos,length);
 
@@ -598,9 +1025,9 @@ static int avi_write_data(struct avi_t *AVI, BYTE *data, long length, int audio,
 
    /* Output tag and data */
     if(audio)
-     n = avi_add_chunk(AVI,(BYTE *) "01wb",(BYTE *)data,length);
+     n = avi_add_chunk(AVI,(BYTE *) astr,data,length);
    else
-     n = avi_add_chunk(AVI,(BYTE *)"00dc",(BYTE *)data,length);
+     n = avi_add_chunk(AVI,(BYTE *)"00dc",data,length);
 
    if (n) return -1;
 
@@ -609,7 +1036,7 @@ static int avi_write_data(struct avi_t *AVI, BYTE *data, long length, int audio,
 
 int AVI_write_frame(struct avi_t *AVI, BYTE *data, long bytes, int keyframe)
 {
-   long pos;
+   off_t pos;
 
    if(AVI->mode==AVI_MODE_READ) { AVI_errno = AVI_ERR_NOT_PERM; return -1; }
 
@@ -642,25 +1069,51 @@ int AVI_write_audio(struct avi_t *AVI, BYTE *data, long bytes)
    if( avi_write_data(AVI,data,bytes,1,0) ) {
        return -1;
    }
-   AVI->audio_bytes += bytes;
+   AVI->track[AVI->aptr].audio_bytes += bytes;
+   AVI->track[AVI->aptr].audio_chunks++;
    return 0;
 }
+
 
 /*doesn't check for size limit - called when closing avi*/
 int AVI_append_audio(struct avi_t *AVI, BYTE *data, long bytes)
 {  
-   /* Add index entry */
-   if (avi_add_index_entry(AVI,(BYTE *) "01wb",0x00,AVI->pos, bytes)) 
-	return -1;
-   
-   /* Output tag and data */
-   
-   if(avi_add_chunk(AVI,(BYTE *) "01wb", (BYTE *)data, bytes))   
-   	return -1;
+    // won't work for >2gb
+  long i, length, pos;
+  BYTE c[4];
+
+  if(AVI->mode==AVI_MODE_READ) { AVI_errno = AVI_ERR_NOT_PERM; return -1; }
   
-   AVI->audio_bytes += bytes; 
-   return 0;  
+  // update last index entry:
+  
+  --AVI->n_idx;
+  length = str2ulong(AVI->idx[AVI->n_idx]+12);
+  pos    = str2ulong(AVI->idx[AVI->n_idx]+8);
+
+  //update;
+  long2str(AVI->idx[AVI->n_idx]+12,length+bytes);   
+
+  ++AVI->n_idx;
+
+  AVI->track[AVI->aptr].audio_bytes += bytes;
+
+  //update chunk header
+  //xio_lseek(AVI->fdes, pos+4, SEEK_SET);
+  lseek(AVI->fdes, pos+4, SEEK_SET);	
+  long2str(c, length+bytes);     
+  avi_write(AVI->fdes, c, 4);
+
+  //xio_lseek(AVI->fdes, pos+8+length, SEEK_SET);
+  lseek(AVI->fdes, pos+8+length, SEEK_SET);
+  i=PAD_EVEN(length + bytes);
+
+  bytes = i - length;
+  avi_write(AVI->fdes, data, bytes);
+  AVI->pos = pos + 8 + i;
+
+  return 0;
 }
+
 
 ULONG AVI_bytes_remain(struct avi_t *AVI)
 {
@@ -668,6 +1121,29 @@ ULONG AVI_bytes_remain(struct avi_t *AVI)
 
    return ( AVI_MAX_LEN - (AVI->pos + 8 + 16*AVI->n_idx));
 }
+
+ULONG AVI_bytes_written(struct avi_t *AVI)
+{
+   if(AVI->mode==AVI_MODE_READ) return 0;
+
+   return (AVI->pos + 8 + 16*AVI->n_idx);
+}
+
+int AVI_set_audio_track(struct avi_t *AVI, int track)
+{
+  
+  if(track < 0 || track + 1 > AVI->anum) return(-1);
+
+  //this info is not written to file anyway
+  AVI->aptr=track;
+  return 0;
+}
+
+void AVI_set_audio_vbr(struct avi_t *AVI, long is_vbr)
+{
+    AVI->track[AVI->aptr].a_vbr = is_vbr;
+}
+
 
 /*******************************************************************
  *                                                                 *
@@ -677,11 +1153,11 @@ ULONG AVI_bytes_remain(struct avi_t *AVI)
 
 int AVI_close(struct avi_t *AVI)
 {
-   int ret;
+   int ret,j;
 
    /* If the file was open for writing, the header and index still have
       to be written */
-
+	
    if(AVI->mode == AVI_MODE_WRITE)
       ret = avi_close_output_file(AVI);
    else
@@ -690,9 +1166,20 @@ int AVI_close(struct avi_t *AVI)
    /* Even if there happened a error, we first clean up */
 
    close(AVI->fdes);
-   //if(AVI->idx) free(AVI->idx);
-   //if(AVI->video_index) free(AVI->video_index);
-   //if(AVI->audio_index) free(AVI->audio_index);
+   if(AVI->idx) free(AVI->idx);
+   if(AVI->video_index) free(AVI->video_index);
+   for (j=0; j<AVI->anum; j++) 
+   {
+       AVI->track[j].audio_bytes=0;	   
+       if(AVI->track[j].audio_index) free(AVI->track[j].audio_index);
+   }
+
+   // if (AVI->bitmap_info_header)
+    // free(AVI->bitmap_info_header);
+   //for (j = 0; j < AVI->anum; j++)
+    // if (AVI->wave_format_ex[j])
+      // free(AVI->wave_format_ex[j]);
+	
    //free(AVI);
    //AVI=NULL;	
    return ret;

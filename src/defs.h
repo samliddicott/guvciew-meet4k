@@ -20,20 +20,27 @@
 ********************************************************************************/
 #ifndef DEFS_H
 #define DEFS_H
+#include <inttypes.h>
+#include <sys/types.h>
 
-typedef unsigned char BYTE;
-typedef unsigned int DWORD;
+typedef uint64_t QWORD;
+typedef uint32_t DWORD;
+typedef uint16_t WORD;
+typedef uint8_t  BYTE;
 typedef unsigned int LONG;
 typedef unsigned int UINT;
-typedef unsigned long ULONG;
-typedef unsigned short int WORD;
+
+typedef unsigned long long ULLONG;
+typedef unsigned long      ULONG;
+
 typedef char* pchar;
-typedef char		INT8;
-typedef unsigned char	UINT8;
-typedef short		INT16;
-typedef unsigned short	UINT16;
-typedef int		INT32;
-typedef unsigned int	UINT32;
+
+typedef char		   INT8;
+typedef unsigned char	   UINT8;
+typedef short		   INT16;
+typedef unsigned short int UINT16;
+typedef int		   INT32;
+typedef unsigned int	   UINT32;
 
 /* 0 is device default*/
 static const int stdSampleRates[] = { 0, 8000,  9600, 11025, 12000,
@@ -69,7 +76,6 @@ static const int stdSampleRates[] = { 0, 8000,  9600, 11025, 12000,
 #define DEFAULT_FPS	25
 #define DEFAULT_FPS_NUM 1
 #define SDL_WAIT_TIME 30 /*SDL - Thread loop sleep time */
-#define SND_WAIT_TIME 5 /*sound capture- Thread loop sleep time*/
 
 /*clip value between 0 and 255*/
 #define CLIP(value) (unsigned char)(((value)>0xFF)?0xff:(((value)<0)?0:(value)))

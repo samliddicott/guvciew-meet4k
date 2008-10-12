@@ -223,6 +223,10 @@ aviClose (void)
      	  if (global->debug) printf("AVI: %d frames in %d ms = %f fps\n",global->framecount,tottime,AviOut->fps);
 	  /*------------------- close audio stream and clean up -------------------*/
 	  if (global->Sound_enable > 0) {
+		/*if there is audio data save it*/  
+		if(pdata->audio_flag){
+		    printf("droped %d bytes of audio data\n",pdata->snd_numBytes);   
+		}
 		if (close_sound (pdata)) printf("Sound Close error\n");
 		if(global->Sound_Format == ISO_FORMAT_MPEG12) close_MP2_encoder();
 	  } 
@@ -962,10 +966,11 @@ capture_avi (GtkButton *AVIButt, void *data)
 			compression="MJPG";
 	}	
 	if(videoIn->capAVI) {  /************* Stop AVI ************/
-		gtk_button_set_label(GTK_BUTTON(CapAVIButt),_("Cap. AVI"));
-		global->AVIstoptime = ms_time();	
+		gtk_button_set_label(GTK_BUTTON(CapAVIButt),_("Cap. AVI"));	
 		videoIn->capAVI = FALSE;
 		pdata->capAVI = videoIn->capAVI;
+		
+		global->AVIstoptime = ms_time();
 		aviClose();
 		/*enabling sound and avi compression controls*/
 		set_sensitive_avi_contrls(TRUE);
@@ -999,6 +1004,12 @@ capture_avi (GtkButton *AVIButt, void *data)
 			/*disabling sound and avi compression controls*/
 			set_sensitive_avi_contrls(FALSE);
 	  
+			/* start video capture*/
+			global->AVIstarttime = ms_time();
+			videoIn->capAVI = TRUE;
+			pdata->capAVI = videoIn->capAVI;
+			
+			/* start sound capture*/
 			if(global->Sound_enable > 0) {
 				/*get channels and sample rate*/
 				set_sound(global,pdata);
@@ -1014,17 +1025,8 @@ capture_avi (GtkButton *AVIButt, void *data)
 				{
 				    init_MP2_encoder(pdata, global->Sound_bitRate);    
 				}
-				/* start video capture - with sound*/
-				global->AVIstarttime = ms_time();
-				videoIn->capAVI = TRUE; /* start video capture */
-				pdata->capAVI = videoIn->capAVI;
 				
-			} else {
-				/* start video capture - no sound*/
-				global->AVIstarttime = ms_time();
-				videoIn->capAVI = TRUE;
-				pdata->capAVI = videoIn->capAVI;
-			}
+			} 
 	    	}
 	}	
 }
