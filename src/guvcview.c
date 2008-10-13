@@ -1091,15 +1091,15 @@ capture_avi (GtkButton *AVIButt, void *data)
 
 /* calls capture_avi callback emulating a click on capture AVI button*/
 void
-press_avicap(void)
+press_avicap(void *data)
 {
     capture_avi (GTK_BUTTON(CapAVIButt), NULL);
 }
 
 /*called when avi max file size reached*/
 /* stops avi capture, increments avi file name, restart avi capture*/
-void
-split_avi(void)
+void *
+split_avi(void *data)
 {
 	/*make sure avi is in incremental mode*/
 	if(!global->avi_inc) 
@@ -1109,9 +1109,11 @@ split_avi(void)
 	}
 	
 	/*stops avi capture*/
-	press_avicap();
+	press_avicap(NULL);
 	/*restarts avi capture with new file name*/
-	press_avicap();
+	press_avicap(NULL);
+	
+	return (NULL);
 	
 }
 
@@ -1810,7 +1812,7 @@ int main(int argc, char *argv[])
 	}
    
 	initGlobals(global);
-	printf("init globals\n");
+	
    	/* widgets */
 	GtkWidget *scroll1;
 	GtkWidget *scroll2;

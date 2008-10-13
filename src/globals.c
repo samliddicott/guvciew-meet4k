@@ -209,7 +209,8 @@ int closeGlobals(struct GLOBAL *global){
 	if (global->profile_FPath) free(global->profile_FPath);
 	if (global->WVcaption) free (global->WVcaption);
 	if (global->imageinc_str) free(global->imageinc_str);
-	if (global->avifile) free (global->avifile);
+	if (global->aviinc_str) free(global->aviinc_str);
+	if (global->avifile) free(global->avifile);
 	if (global->mode) free(global->mode);
 	global->videodevice=NULL;
 	global->confPath=NULL;

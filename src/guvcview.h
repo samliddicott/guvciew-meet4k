@@ -44,10 +44,11 @@ struct t_data {
 };
 
 /* calls capture_image callback emulating a click on capture AVI button*/
+/* call from a thread, so its non blocking*/
 void
-press_avicap(void);
+press_avicap(void *data);
 
-void
-split_avi(void);
+void *
+split_avi(void *data);
 
 #endif

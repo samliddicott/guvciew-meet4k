@@ -56,8 +56,12 @@ void *main_loop(void *data)
 	struct vdIn *videoIn = ptdata->videoIn;
 	struct avi_t *AviOut = ptdata->AviOut;
 
-	//size_t videostacksize;
-	//pthread_attr_t attr;
+	
+	pthread_t pth_press_butt;
+	pthread_attr_t pth_press_attr;
+	
+	pthread_attr_init(&pth_press_attr);
+	pthread_attr_setdetachstate(&pth_press_attr, PTHREAD_CREATE_DETACHED);
 	
 	SDL_Event event;
 	/*the main SDL surface*/
@@ -434,7 +438,13 @@ void *main_loop(void *data)
 	   {
 		   	if (AVI_getErrno () == AVI_ERR_SIZELIM) {
 				/*avi file limit reached - must end capture close file and start new one*/
-				split_avi(); /*avi capture callback*/
+				
+				int rc = pthread_create(&pth_press_butt, &pth_press_attr, split_avi, NULL); 
+				if (rc) {
+				    printf("ERROR; return code from pthread_create(press_butt) is %d\n", rc);	       
+				    split_avi(NULL); /*blocking call*/
+				}   
+				   
 				printf("AVI file size limit reached - restarted capture on new file\n");
 			} else {
 				printf ("write error on avi out \n");
@@ -488,7 +498,13 @@ void *main_loop(void *data)
 	    		if (AVI_getErrno () == AVI_ERR_SIZELIM) 
 			{
 				/*avi file limit reached - must end capture close file and start new one*/
-				split_avi(); /*avi capture callback*/
+				
+				int rc = pthread_create(&pth_press_butt, &pth_press_attr, split_avi,NULL); 
+				if (rc) {
+				    printf("ERROR; return code from pthread_create(press_butt) is %d\n", rc);	       
+				    split_avi(NULL); /*blocking call*/
+				}   
+				   
 				printf("AVI file size limit reached - restarted capture on new file\n");
 			} 
 			else 
@@ -581,7 +597,9 @@ void *main_loop(void *data)
 
 	
   }/*loop end*/
-    
+  
+  pthread_attr_destroy(&pth_press_attr);
+	
   /*check if thread exited while AVI in capture mode*/
   if (videoIn->capAVI) {
 	global->AVIstoptime = ms_time();
