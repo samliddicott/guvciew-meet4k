@@ -77,14 +77,12 @@ recordCallback (const void *inputBuffer, void *outputBuffer,
 		//flags that secondary buffer as data (can be saved to file)
 		data->audio_flag=1;
 	}
-	//data->recording = 0;
     }
     
     if(data->capAVI) return (paContinue);
     else {
         /*recording stopped*/
 	if(!(data->audio_flag)) {
-		//data->recording = 1;
 		/*need to copy audio to secondary buffer*/
 		data->snd_numBytes = data->numSamples*sizeof(SAMPLE);
 		memcpy(data->avi_sndBuff, data->recordedSamples , data->snd_numBytes);
@@ -92,7 +90,7 @@ recordCallback (const void *inputBuffer, void *outputBuffer,
 		data->numSamples = 0;
 		//flags that secondary buffer as data (can be saved to file)
 		data->audio_flag=1;
-	}
+	}	
 	data->streaming=0;
 	return (paComplete);
     }
@@ -205,6 +203,7 @@ close_sound (struct paRecordData *data)
 	}
     	if(!(stall>0)) printf("WARNING:sound capture stall (streaming=%d flag=%d)\n",
 	                                          data->streaming, data->audio_flag);
+	stall=20;
 	
 	data->streaming=0;    /*prevents writes on primary and secondary buffers*/
 	
@@ -216,6 +215,7 @@ close_sound (struct paRecordData *data)
 		if(data->recordedSamples) free( data->recordedSamples  );
 		data->recordedSamples=NULL;
 	} else {
+		
 		fprintf( stderr, "Error: still recording audio couldn't free P. buffer\n" );
 		return(-1);
 	}
@@ -228,15 +228,26 @@ close_sound (struct paRecordData *data)
 	data->audio_flag=0; /*prevents reads on secondary buffer */
 	
 	/*free secondary buffer*/
-	if(!data->recording) {
-		if (data->avi_sndBuff) free(data->avi_sndBuff);
-		data->avi_sndBuff = NULL;
-		if (data->mp2Buff) free(data->mp2Buff);
-		data->mp2Buff = NULL;
-	} else {
-		fprintf( stderr, "Error: still recording audio couldn't free S. buffer\n" );
-		return(-1);
+	if(data->recording) 
+	{
+	    while (data->recording && (stall>0)) {
+		   Pa_Sleep(100);
+		   stall--; /*prevents stalls (waits at max 20*100 ms)*/
+	    }
+	    if(!(stall>0)) {
+		   printf("WARNING:sound capture stall (recording=%d flag=%d)\n",
+	                                          data->recording, data->audio_flag);
+		
+		   fprintf( stderr, "Error: still recording audio couldn't free S. buffer\n" );
+		   goto error;
+	    }
 	}
+	
+	if (data->avi_sndBuff) free(data->avi_sndBuff);
+	data->avi_sndBuff = NULL;
+	if (data->mp2Buff) free(data->mp2Buff);
+	data->mp2Buff = NULL;
+	
 	return (0);
 error:  
 	fprintf( stderr, "An error occured while closing the portaudio stream\n" );

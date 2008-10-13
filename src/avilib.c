@@ -283,7 +283,7 @@ void AVI_set_video(struct avi_t *AVI, int width, int height, double fps, char *c
    AVI->width  = width;
    AVI->height = height;
    AVI->fps    = fps;
-   if(strncmp(compressor, "RGB", 3)==0 || strncmp(compressor, "DIB ", 3)==0) {
+   if(strncmp(compressor, "RGB", 3)==0) {
      memset(AVI->compressor, 0, 4);
    } else {
      memcpy(AVI->compressor,compressor,4);
@@ -403,8 +403,8 @@ int avi_update_header(struct avi_t *AVI)
    OUTLONG(56);                 /* # of bytes to follow */
    OUTLONG(ms_per_frame);       /* Microseconds per frame */
    //ThOe ->0 
-   OUTLONG(10000000);           /* MaxBytesPerSec, I hope this will never be used */
-   //OUTLONG(0);
+   //OUTLONG(10000000);           /* MaxBytesPerSec, I hope this will never be used */
+   OUTLONG(0);
    OUTLONG(0);                  /* PaddingGranularity (whatever that might be) */
                                 /* Other sources call it 'reserved' */
    //flag = AVIF_ISINTERLEAVED;
@@ -467,16 +467,13 @@ int avi_update_header(struct avi_t *AVI)
    OUTLONG(AVI->height);        /* Height */
    OUTSHRT(1);                  /* Planes */
    OUTSHRT(24);                 /*Count - bitsperpixel - 1,4,8 or 24  32*/
-   // if (strcmp(AVI->compressor,"DIB ")==0) {  
-	// OUTLONG(0);             /* Compression ->for DIB 24 = BI_RGB */
-   // }
-   // else {
-   	OUT4CC (AVI->compressor);    /* Compression */
-   // }
-   
+   if(strncmp(AVI->compressor,"DIB",3)==0) {OUTLONG (0); }    /* Compression */
+   else { OUT4CC (AVI->compressor); }	
+   //OUT4CC (AVI->compressor);
+	
    // ThOe (*3)
    OUTLONG(AVI->width*AVI->height);  /* SizeImage (in bytes?) */
-   //OUTLONG(AVI->width*AVI->height);  /* SizeImage */
+   //OUTLONG(AVI->width*AVI->height*3);  /* SizeImage */
    OUTLONG(0);                  /* XPelsPerMeter */
    OUTLONG(0);                  /* YPelsPerMeter */
    OUTLONG(0);                  /* ClrUsed: Number of colors used */
@@ -724,7 +721,7 @@ static int avi_close_output_file(struct avi_t *AVI)
    OUT4CC ("strh");
    OUTLONG(64);                 /* # of bytes to follow */
    OUT4CC ("vids");             /* Type */
-   OUT4CC (AVI->compressor);    /* Handler */
+   OUT4CC (AVI->compressor);    /* Handler */	   	
    OUTLONG(0);                  /* Flags */
    OUTLONG(0);                  /* Reserved, MS says: wPriority, wLanguage */
    OUTLONG(0);                  /* InitialFrames */
@@ -753,8 +750,9 @@ static int avi_close_output_file(struct avi_t *AVI)
    OUTLONG(AVI->height);        /* biHeight */
    OUTSHRT(1);     /* Planes - allways 1 */ 
    OUTSHRT(24);                 /*Count - bitsperpixel - 1,4,8 or 24  32*/   
-   OUT4CC (AVI->compressor);    
-   	
+   if(strncmp(AVI->compressor,"DIB",3)==0) {OUTLONG (0); }    /* Compression */
+   else { OUT4CC (AVI->compressor); }    
+   //OUT4CC (AVI->compressor);	
    // ThOe (*3)
    OUTLONG(AVI->width*AVI->height);  /* SizeImage (in bytes?) should be biSizeImage = ((((biWidth * biBitCount) + 31) & ~31) >> 3) * biHeight*/
    OUTLONG(0);                  /* XPelsPerMeter */

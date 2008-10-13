@@ -443,9 +443,9 @@ void *main_loop(void *data)
 			  }
 			}
 			if (global->format == V4L2_PIX_FMT_UYVY) {
-				uyvy2rgb(videoIn->framebuffer,pavi,videoIn->width,videoIn->height);
+				uyvy2bgr(videoIn->framebuffer,pavi,videoIn->width,videoIn->height);
 			} else {
-				yuyv2rgb(videoIn->framebuffer,pavi,videoIn->width,videoIn->height);
+				yuyv2bgr(videoIn->framebuffer,pavi,videoIn->width,videoIn->height);
 			}
 			if (AVI_write_frame (AviOut,pavi, framesize, keyframe) < 0) {
 				if (AVI_getErrno () == AVI_ERR_SIZELIM) {
@@ -534,6 +534,7 @@ void *main_loop(void *data)
 		    AVI_write_audio(AviOut,pdata->mp2Buff,size_mp2);
 		}
 		pdata->audio_flag=0;
+		pdata->recording=0;   
 	   }
 	/*------------------------- Display Frame --------------------------------*/
 	 SDL_LockYUVOverlay(overlay);
