@@ -304,7 +304,7 @@ int AVI_set_audio_track(struct avi_t *AVI, int track);
 void AVI_set_audio_vbr(struct avi_t *AVI, long is_vbr);
 
 
-void AVI_set_MAX_LEN(ULONG len);
+ULONG AVI_set_MAX_LEN(ULONG len);
 
 int AVI_getErrno();
 

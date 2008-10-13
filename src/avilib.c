@@ -70,13 +70,16 @@ static char id_str[MAX_INFO_STRLEN];
 #endif
 
 /* AVI_MAX_LEN: The maximum length of an AVI file, we stay a bit below
-    the 2GB limit (Remember: 2*10^9 is smaller than 2 GB) */
+    the 2GB limit (Remember: 2*10^9 is smaller than 2 GB - using 1900*1024*1024) */
 
 ULONG AVI_MAX_LEN = AVI_MAX_SIZE;
 
-void AVI_set_MAX_LEN(ULONG len) {
-    
-	AVI_MAX_LEN = len;
+ULONG AVI_set_MAX_LEN(ULONG len) {
+        /*clip to max size*/
+        if(len > AVI_MAX_SIZE) {len = AVI_MAX_SIZE; }
+	else { AVI_MAX_LEN = len; }
+	
+	return (AVI_MAX_LEN);
 }
 
 /* HEADERBYTES: The number of bytes to reserve for the header */
@@ -282,7 +285,8 @@ void AVI_set_video(struct avi_t *AVI, int width, int height, double fps, char *c
 
    AVI->width  = width;
    AVI->height = height;
-   AVI->fps    = fps;
+   AVI->fps    = fps; /* just in case avi doesn't close properly */
+                      /* it will be set at close                 */
    if(strncmp(compressor, "RGB", 3)==0) {
      memset(AVI->compressor, 0, 4);
    } else {
@@ -409,8 +413,10 @@ int avi_update_header(struct avi_t *AVI)
                                 /* Other sources call it 'reserved' */
    //flag = AVIF_ISINTERLEAVED;
    flag = AVIF_WASCAPTUREFILE;
-   if(hasIndex) flag |= AVIF_HASINDEX;
-   if(hasIndex && AVI->must_use_index) flag |= AVIF_MUSTUSEINDEX;
+   /*do not force index yet -only when closing*/
+   /*this should prevent bad avi files even if it is not closed properly*/
+   //if(hasIndex) flag |= AVIF_HASINDEX;
+   //if(hasIndex && AVI->must_use_index) flag |= AVIF_MUSTUSEINDEX;
    OUTLONG(flag);               /* Flags */
    OUTLONG(0);                  // no frames yet
    OUTLONG(0);                  /* InitialFrames */
@@ -1000,6 +1006,7 @@ static int avi_close_output_file(struct avi_t *AVI)
 
 static int avi_write_data(struct avi_t *AVI, BYTE *data, long length, int audio, int keyframe)
 {
+   int ret=0;
    int n=0;
    char astr[5];
    /* Check for maximum file length */
@@ -1007,7 +1014,11 @@ static int avi_write_data(struct avi_t *AVI, BYTE *data, long length, int audio,
    if ( (AVI->pos + 8 + length + 8 + (AVI->n_idx+1)*16) > AVI_MAX_LEN )
    {
       AVI_errno = AVI_ERR_SIZELIM;
-      return -1;
+      ret=1;
+      
+      /*if it is bigger than max size (1900Mb) + extra size (20 Mb) return imediatly*/
+      /*else still write the data but will return an error                          */ 
+      if ((AVI->pos + 8 + length + 8 + (AVI->n_idx+1)*16) > (AVI_MAX_LEN + AVI_EXTRA_SIZE)) return (-1);
    }
 
    //set tag for current audio track
@@ -1019,7 +1030,7 @@ static int avi_write_data(struct avi_t *AVI, BYTE *data, long length, int audio,
    else
      n = avi_add_index_entry(AVI,(BYTE *) "00dc",((keyframe)?0x10:0x0),AVI->pos,length);
 
-   if(n) return -1;
+   if(n) return(-1);
 
    /* Output tag and data */
     if(audio)
@@ -1027,25 +1038,28 @@ static int avi_write_data(struct avi_t *AVI, BYTE *data, long length, int audio,
    else
      n = avi_add_chunk(AVI,(BYTE *)"00dc",data,length);
 
-   if (n) return -1;
+   if (n) return(-1);
 
-   return 0;
+   return ret;
 }
 
 int AVI_write_frame(struct avi_t *AVI, BYTE *data, long bytes, int keyframe)
 {
+   int ret=0;
    off_t pos;
 
    if(AVI->mode==AVI_MODE_READ) { AVI_errno = AVI_ERR_NOT_PERM; return -1; }
 
    pos = AVI->pos;
-   if( avi_write_data(AVI,data,bytes,0, keyframe) ) {
-       return -1;
+   ret = avi_write_data(AVI,data,bytes,0, keyframe);
+   
+   if(!(ret < 0)) 
+   {
+       AVI->last_pos = pos;
+       AVI->last_len = bytes;
+       AVI->video_frames++;
    }
-   AVI->last_pos = pos;
-   AVI->last_len = bytes;
-   AVI->video_frames++;
-   return 0;
+   return ret;
 }
 
 int AVI_dup_frame(struct avi_t *AVI)
@@ -1062,14 +1076,16 @@ int AVI_dup_frame(struct avi_t *AVI)
 
 int AVI_write_audio(struct avi_t *AVI, BYTE *data, long bytes)
 {
+   int ret=0;
    if(AVI->mode==AVI_MODE_READ) { AVI_errno = AVI_ERR_NOT_PERM; return -1; }
 
-   if( avi_write_data(AVI,data,bytes,1,0) ) {
-       return -1;
+   ret = avi_write_data(AVI,data,bytes,1,0);
+   
+   if(!(ret<0)) {
+	AVI->track[AVI->aptr].audio_bytes += bytes;
+	AVI->track[AVI->aptr].audio_chunks++;
    }
-   AVI->track[AVI->aptr].audio_bytes += bytes;
-   AVI->track[AVI->aptr].audio_chunks++;
-   return 0;
+   return ret;
 }
 
 

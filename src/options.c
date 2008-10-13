@@ -66,7 +66,7 @@ writeConf(struct GLOBAL *global) {
 		fprintf(fp,"grabmethod=%i\n",global->grabmethod);
 		fprintf(fp,"# video compression format: 0-MJPG 1-YUY2/UYVY 2-DIB (BMP 24)\n");
 		fprintf(fp,"avi_format=%i\n",global->AVIFormat);
-		fprintf(fp,"# avi file max size (default %d bytes)\n",AVI_MAX_SIZE);
+		fprintf(fp,"# avi file max size (MAX: %d bytes)\n",AVI_MAX_SIZE);
 		fprintf(fp,"avi_max_len=%li\n",global->AVI_MAX_LEN);
 		fprintf(fp,"# sound 0 - disable 1 - enable\n");
 		fprintf(fp,"sound=%i\n",global->Sound_enable);
@@ -157,7 +157,7 @@ readConf(struct GLOBAL *global) {
 				sscanf(value,"%i",&(global->AVIFormat));
 			} else if (strcmp(variable,"avi_max_len")==0) {
 				sscanf(value,"%li",&(global->AVI_MAX_LEN));
-			    	AVI_set_MAX_LEN (global->AVI_MAX_LEN);
+			    	global->AVI_MAX_LEN = AVI_set_MAX_LEN (global->AVI_MAX_LEN);
 			} else if (strcmp(variable,"sound")==0) {
 				sscanf(value,"%hi",&(global->Sound_enable));
 			} else if (strcmp(variable,"snd_device")==0) {

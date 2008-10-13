@@ -56,7 +56,9 @@ static const int stdSampleRates[] = { 0, 8000,  9600, 11025, 12000,
 #define TSTACK (128*64*1024) /* Debian Default 128 pages of 64k = 8388608 bytes*/
 
 /*----------- AVI max file size ---------------*/
-#define AVI_MAX_SIZE 2000000000
+#define AVI_MAX_SIZE (1900*1024*1024)
+/* extra size beyond MAX SIZE at wich we can still write data*/ 
+#define AVI_EXTRA_SIZE (20*1024*1024)
 
 #define INCPANTILT 64 // 1°
 

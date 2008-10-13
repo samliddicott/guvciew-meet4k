@@ -121,6 +121,12 @@ int initGlobals (struct GLOBAL *global) {
 	}
 	snprintf(global->imageinc_str,20,_("File num:%d"),global->image_inc);
 	
+	if((global->aviinc_str= (char *) calloc(1, 25 * sizeof(char)))==NULL){
+		printf("couldn't calloc memory for:global->aviinc_str\n");
+		goto error;
+	}
+	snprintf(global->aviinc_str,20,_("File num:%d"),global->avi_inc);
+	
 	global->vid_sleep=0;
 	global->avifile=NULL; /*avi filename passed through argument options with -n */
 	global->Capture_time=0; /*avi capture time passed through argument options with -t */

@@ -367,22 +367,19 @@ void *main_loop(void *data)
 	  /*---------------------------capture AVI---------------------------------*/
 	  if (videoIn->capAVI){
 	   long framesize;
-	   switch (global->AVIFormat) {
+	   int ret=0;
+	   switch (global->AVIFormat) 
+	   {
 		   
 		case 0: /*MJPG*/
 			/* save MJPG frame */   
-			if((global->Frame_Flags==0) && (videoIn->formatIn==V4L2_PIX_FMT_MJPEG)) {
+			if((global->Frame_Flags==0) && (videoIn->formatIn==V4L2_PIX_FMT_MJPEG)) 
+			{
 				//printf("avi write frame\n");
-				if (AVI_write_frame (AviOut, videoIn->tmpbuffer, videoIn->buf.bytesused, keyframe) < 0) {
-				 	if (AVI_getErrno () == AVI_ERR_SIZELIM) {
-						/*avi file limit reached - must end capture and close file*/
-					     	press_avicap(); /*avi capture callback*/
-					     	printf("AVI file size limit reached - avi capture stoped\n");
-					} else {
-						printf ("write error on avi out \n");
-					}
-				}
-			} else {  /* use built in encoder */ 
+				ret = AVI_write_frame (AviOut, videoIn->tmpbuffer, videoIn->buf.bytesused, keyframe);
+			} 
+			else 
+			{  /* use built in encoder */ 
 				if (!global->jpeg){ 
 					if((global->jpeg = (BYTE*)malloc(global->jpeg_bufsize))==NULL) {
 						printf("couldn't allocate memory for: jpeg buffer\n");
@@ -408,67 +405,54 @@ void *main_loop(void *data)
 				global->jpeg_size = encode_image(videoIn->framebuffer, global->jpeg, 
 								jpeg_struct,1, videoIn->width, videoIn->height,uyv);
 			
-				if (AVI_write_frame (AviOut, global->jpeg, global->jpeg_size, keyframe) < 0) {
-					if (AVI_getErrno () == AVI_ERR_SIZELIM) {
-						/*avi file limit reached - must end capture and close file*/
-					     	press_avicap(); /*avi capture callback*/
-					     	printf("AVI file size limit reached - avi capture stoped\n");
-					} else {
-						printf ("write error on avi out \n");
-					}
-					
-				}
+				ret = AVI_write_frame (AviOut, global->jpeg, global->jpeg_size, keyframe);
 			}
 			break;
 		case 1:
-		   framesize=(pscreen->w)*(pscreen->h)*2; /*YUY2/UYVY -> 2 bytes per pixel */
-		   if (AVI_write_frame (AviOut, p, framesize, keyframe) < 0) {
-		   	if (AVI_getErrno () == AVI_ERR_SIZELIM) {
-				/*avi file limit reached - must end capture and close file*/
-				press_avicap(); /*avi capture callback*/
-				printf("AVI file size limit reached - avi capture stoped\n");
-			} else {
-				printf ("write error on avi out \n");
-			}
-					
-		   }
-		   break;
+			framesize=(pscreen->w)*(pscreen->h)*2; /*YUY2/UYVY -> 2 bytes per pixel */
+			ret = AVI_write_frame (AviOut, p, framesize, keyframe);
+			break;
 		case 2:
 			framesize=(pscreen->w)*(pscreen->h)*3; /*DIB 24/32 -> 3/4 bytes per pixel*/ 
 			if(pavi==NULL){
-			  if((pavi= malloc(framesize))==NULL){
-				printf("Couldn't allocate memory for: pim\n");
-				videoIn->signalquit=0;
-				pthread_exit((void *) 3);
-			  }
+				if((pavi= malloc(framesize))==NULL){
+					printf("Couldn't allocate memory for: pim\n");
+					videoIn->signalquit=0;
+					pthread_exit((void *) 3);
+				}
 			}
 			if (global->format == V4L2_PIX_FMT_UYVY) {
 				uyvy2bgr(videoIn->framebuffer,pavi,videoIn->width,videoIn->height);
 			} else {
 				yuyv2bgr(videoIn->framebuffer,pavi,videoIn->width,videoIn->height);
 			}
-			if (AVI_write_frame (AviOut,pavi, framesize, keyframe) < 0) {
-				if (AVI_getErrno () == AVI_ERR_SIZELIM) {
-					/*avi file limit reached - must end capture and close file*/
-					press_avicap(); /*avi capture callback*/
-					printf("AVI file size limit reached - avi capture stoped\n");
-				} else {
-					printf ("write error on avi out \n");
-				}
-					
-			}
+			ret = AVI_write_frame (AviOut,pavi, framesize, keyframe);
 			break;
-
-		} 
+	   }
+		
+	   if (ret) 
+	   {
+		   	if (AVI_getErrno () == AVI_ERR_SIZELIM) {
+				/*avi file limit reached - must end capture close file and start new one*/
+				split_avi(); /*avi capture callback*/
+				printf("AVI file size limit reached - restarted capture on new file\n");
+			} else {
+				printf ("write error on avi out \n");
+			}				
+	   }
+		   
 		global->framecount++;
 		if (keyframe) keyframe=0; /*resets key frame*/   
 		/*----------------------- add audio -----------------------------*/
-		if ((global->Sound_enable) && (pdata->audio_flag>0)) {
+		if ((global->Sound_enable) && (pdata->audio_flag>0)) 
+		{
 		    /*first audio data - sync with video (audio stream capture takes longer to start)*/
-		    if (!(AviOut->track[0].audio_bytes)) { /*only 1 audio stream*/
+		    if (!(AviOut->track[0].audio_bytes)) 
+		    { /*only 1 audio stream*/
 	       		int synctime= pdata->snd_begintime - global->AVIstarttime; /*time diff for audio-video*/
 			if (global->debug) printf("shift sound by %d ms\n",synctime);
-			if(synctime>10 && synctime<5000) { /*only sync between 100ms and 5 seconds*/
+			if(synctime>10 && synctime<5000) 
+			{ /*only sync between 100ms and 5 seconds*/
 			    if(global->Sound_Format == WAVE_FORMAT_PCM) 
 			    {/*shift sound by synctime*/
 			        UINT32 shiftFrames = abs(synctime * global->Sound_SampRate / 1000);
@@ -488,11 +472,10 @@ void *main_loop(void *data)
 			}
 		    }
 		    /*write audio chunk*/
-		    int ret=0;
+		    
 		    if(global->Sound_Format == WAVE_FORMAT_PCM) 
 		    {
-		        ret=AVI_write_audio(AviOut,(BYTE *) pdata->avi_sndBuff,pdata->snd_numBytes);
-	       		   
+		        ret=AVI_write_audio(AviOut,(BYTE *) pdata->avi_sndBuff,pdata->snd_numBytes);   
 		    }
 		    else if(global->Sound_Format == ISO_FORMAT_MPEG12)
 	            {
@@ -500,12 +483,13 @@ void *main_loop(void *data)
 			ret=AVI_write_audio(AviOut,pdata->mp2Buff,size_mp2);
 		    }
 		
-		    if (ret<0) {	
+		    if (ret) 
+		    {	
 	    		if (AVI_getErrno () == AVI_ERR_SIZELIM) 
 			{
-				/*avi file limit reached - must end capture and close file*/
-				press_avicap(); /*avi capture callback*/
-				printf("AVI file size limit reached - avi capture stoped\n");
+				/*avi file limit reached - must end capture close file and start new one*/
+				split_avi(); /*avi capture callback*/
+				printf("AVI file size limit reached - restarted capture on new file\n");
 			} 
 			else 
 			{
@@ -514,24 +498,40 @@ void *main_loop(void *data)
 		    }
 			
 		    pdata->audio_flag=0;
-		    keyframe = 1; /*marks next frmae as key frame*/
+		    keyframe = 1; /*marks next frame as key frame*/
 		}   
 	   
 	   /*video capture has stopped but there is still audio available*/	
-	   } else if (pdata->audio_flag>0) {
-		/*write last audio data to avi*/
-		if(global->Sound_Format == WAVE_FORMAT_PCM)
-		{
-		    AVI_write_audio(AviOut,(BYTE *) pdata->avi_sndBuff,pdata->snd_numBytes);
-		}
-	        else if (global->Sound_Format == ISO_FORMAT_MPEG12)
-		{
-		    int size_mp2 = MP2_encode(pdata,0);
-		    AVI_write_audio(AviOut,pdata->mp2Buff,size_mp2);
-		    /*flush mp2 buffer*/	
-		    pdata->recording=0;
-		    size_mp2 = MP2_encode(pdata,0);
-		    AVI_write_audio(AviOut,pdata->mp2Buff,size_mp2);
+	   } 
+	   else if (pdata->audio_flag || pdata->recording) 
+	   {
+		if(pdata->audio_flag) 
+	       	{
+	        	/*write last audio data to avi*/
+			/*even if max file size reached we still have 20M available*/
+			if(global->Sound_Format == WAVE_FORMAT_PCM)
+			{
+		    		AVI_write_audio(AviOut,(BYTE *) pdata->avi_sndBuff,pdata->snd_numBytes);
+			}
+	        	else if (global->Sound_Format == ISO_FORMAT_MPEG12)
+			{
+		    		int size_mp2 = MP2_encode(pdata,0);
+		    		AVI_write_audio(AviOut,pdata->mp2Buff,size_mp2);
+		    		/*flush mp2 buffer*/	
+		    		pdata->recording=0;
+		    		size_mp2 = MP2_encode(pdata,0);
+		    		AVI_write_audio(AviOut,pdata->mp2Buff,size_mp2);
+			}
+		} 
+	        else 
+	        {
+			if (global->Sound_Format == ISO_FORMAT_MPEG12) 
+		    	{
+		    		/*flush mp2 buffer*/	
+				pdata->recording=0;
+				int size_mp2 = MP2_encode(pdata,0);
+		    		AVI_write_audio(AviOut,pdata->mp2Buff,size_mp2);
+			}
 		}
 		pdata->audio_flag=0;
 		pdata->recording=0;   

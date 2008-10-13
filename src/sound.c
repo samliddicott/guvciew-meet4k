@@ -46,7 +46,6 @@ recordCallback (const void *inputBuffer, void *outputBuffer,
     /*really be needed, in any case ...                           */    
     data->recording=1;
     if (data->streaming) {
-	//data->recording = 1;
 	if( inputBuffer == NULL )
 	{
 		for( i=0; i<numSamples; i++ )
@@ -197,51 +196,31 @@ close_sound (struct paRecordData *data)
         int err =0;
 	
 	/*wait for last audio chunks to be saved on video file*/
-    	while ((data->streaming || (data->audio_flag>0)) && (stall>0)) {
+    	while ((data->streaming || (data->audio_flag>0) || (data->recording)) &&
+	       (stall>0)) 
+    {
 		Pa_Sleep(100);
 		stall--; /*prevents stalls (waits at max 20*100 ms)*/
 	}
-    	if(!(stall>0)) printf("WARNING:sound capture stall (streaming=%d flag=%d)\n",
-	                                          data->streaming, data->audio_flag);
-	stall=20;
+    	if(!(stall>0)) printf("WARNING:sound capture stall (streaming=%d flag=%d recording=%d)\n",
+	                            data->streaming, data->audio_flag, data->recording);
 	
-	data->streaming=0;    /*prevents writes on primary and secondary buffers*/
+	data->streaming=0;    /*prevents writes on primary buffers*/
 	
 	err = Pa_StopStream( data->stream );
 	if( err != paNoError ) goto error;
 	
 	/*free primary buffer*/
-	if(!data->recording) {
-		if(data->recordedSamples) free( data->recordedSamples  );
-		data->recordedSamples=NULL;
-	} else {
-		
-		fprintf( stderr, "Error: still recording audio couldn't free P. buffer\n" );
-		return(-1);
-	}
+	if(data->recordedSamples) free( data->recordedSamples  );
+	data->recordedSamples=NULL;
 	
 	err = Pa_CloseStream( data->stream ); /*closes the stream*/
 	if( err != paNoError ) goto error; 
 	
 	Pa_Terminate();
 	
-	data->audio_flag=0; /*prevents reads on secondary buffer */
-	
-	/*free secondary buffer*/
-	if(data->recording) 
-	{
-	    while (data->recording && (stall>0)) {
-		   Pa_Sleep(100);
-		   stall--; /*prevents stalls (waits at max 20*100 ms)*/
-	    }
-	    if(!(stall>0)) {
-		   printf("WARNING:sound capture stall (recording=%d flag=%d)\n",
-	                                          data->recording, data->audio_flag);
-		
-		   fprintf( stderr, "Error: still recording audio couldn't free S. buffer\n" );
-		   goto error;
-	    }
-	}
+	data->audio_flag = 0; /*prevents reads on secondary buffer */
+	data->recording  = 0;
 	
 	if (data->avi_sndBuff) free(data->avi_sndBuff);
 	data->avi_sndBuff = NULL;

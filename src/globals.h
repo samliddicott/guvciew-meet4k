@@ -45,17 +45,19 @@ struct GLOBAL {
 	pchar* profile_FPath;
 	char *WVcaption; /*video preview title bar caption*/
 	char *imageinc_str; /*label for File inc*/
+	char *aviinc_str; /*label for File inc*/
 	int vid_sleep;
 	int Capture_time; /*avi capture time passed through argument options with -t */
 	int lprofile; /* flag for command line -l option */ 
 	int imgFormat;
 	int AVIFormat; /*0-"MJPG"  1-"YUY2" 2-"DIB "(rgb32)*/
-    	long AVI_MAX_LEN;
+    	ULONG AVI_MAX_LEN;
 	DWORD snd_begintime;/*begin time for audio capture*/
 	DWORD currtime;
 	DWORD lasttime;
 	DWORD AVIstarttime;
 	DWORD AVIstoptime;
+	DWORD avi_inc;/*avi name increment*/
 	DWORD framecount;
 	unsigned char frmrate;
 	short Sound_enable; /*Enable Sound by Default*/

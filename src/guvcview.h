@@ -47,4 +47,7 @@ struct t_data {
 void
 press_avicap(void);
 
+void
+split_avi(void);
+
 #endif

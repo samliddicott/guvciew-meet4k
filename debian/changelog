@@ -6,8 +6,10 @@ guvcview (0.9.4) stable; urgency=low
 	should improve audio performance.
    * Improved software autofocus (Dr. Alexander K. Seewald)
    * Added MP2 audio compression (twolame)
+   * Added AVI auto file naming
+   * Added AVI multi file captures (captures bigger than max file size)
 
- -- Paulo Assis <pj.assis@gmail.com>  Tue, 07 Oct 2008 13:45:00 +0000
+ -- Paulo Assis <pj.assis@gmail.com>  Mon, 13 Oct 2008 18:48:00 +0000
 
 guvcview (0.9.3) stable; urgency=low
 
