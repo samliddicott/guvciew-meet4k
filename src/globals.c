@@ -84,13 +84,6 @@ int initGlobals (struct GLOBAL *global) {
 		goto error;
 	}
 	snprintf(global->aviFPath[0],12,DEFAULT_AVI_FNAME);
-   
-	//~ if((global->sndfile= (char *) calloc(1, 32 * sizeof(char)))==NULL){
-		//~ printf("couldn't calloc memory for:global->sndfile\n");
-		//~ goto error;
-	//~ }
-	
-	//~ snprintf(global->sndfile,32,"/tmp/guvc_sound_XXXXXX");/*template for temp sound file name*/
 	
 	if((global->profile_FPath[1] = (char *) calloc(1, 100 * sizeof(char)))==NULL){
 		printf("couldn't calloc memory for:global->profile_FPath[1]\n");

@@ -1078,10 +1078,18 @@ capture_avi (GtkButton *AVIButt, void *data)
 					      sizeof(SAMPLE)*8,
 					      global->Sound_Format);
 				/* Initialize sound (open stream)*/
-				if(init_sound (pdata)) printf("error opening portaudio\n");
-				if (global->Sound_Format == ISO_FORMAT_MPEG12) 
-				{
-				    init_MP2_encoder(pdata, global->Sound_bitRate);    
+				if(init_sound (pdata)) 
+			    	{
+				    printf("error opening portaudio\n");
+				    global->Sound_enable=0;
+				    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(SndEnable),0);
+				} 
+			    	else 
+			    	{
+				    if (global->Sound_Format == ISO_FORMAT_MPEG12) 
+				    {
+				    	init_MP2_encoder(pdata, global->Sound_bitRate);    
+				    }
 				}
 				
 			} 

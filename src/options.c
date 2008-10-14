@@ -24,6 +24,9 @@
 #include <string.h>
 #include <linux/videodev.h>
 #include <sys/file.h>
+/* support for internationalization - i18n */
+#include <glib/gi18n.h>
+
 #include "globals.h"
 #include "string_utils.h"
 #include "avilib.h"
@@ -68,6 +71,8 @@ writeConf(struct GLOBAL *global) {
 		fprintf(fp,"avi_format=%i\n",global->AVIFormat);
 		fprintf(fp,"# avi file max size (MAX: %d bytes)\n",AVI_MAX_SIZE);
 		fprintf(fp,"avi_max_len=%li\n",global->AVI_MAX_LEN);
+	    	fprintf(fp,"# Auto AVI naming (filename-n.avi)\n");
+		fprintf(fp,"avi_inc=%d\n",global->avi_inc);
 		fprintf(fp,"# sound 0 - disable 1 - enable\n");
 		fprintf(fp,"sound=%i\n",global->Sound_enable);
 		fprintf(fp,"# snd_device - sound device id as listed by portaudio\n");
@@ -158,6 +163,9 @@ readConf(struct GLOBAL *global) {
 			} else if (strcmp(variable,"avi_max_len")==0) {
 				sscanf(value,"%li",&(global->AVI_MAX_LEN));
 			    	global->AVI_MAX_LEN = AVI_set_MAX_LEN (global->AVI_MAX_LEN);
+			} else if (strcmp(variable,"avi_inc")==0) {
+				sscanf(value,"%d",&(global->avi_inc));
+			    	snprintf(global->aviinc_str,20,_("File num:%d"),global->avi_inc);
 			} else if (strcmp(variable,"sound")==0) {
 				sscanf(value,"%hi",&(global->Sound_enable));
 			} else if (strcmp(variable,"snd_device")==0) {
@@ -184,6 +192,7 @@ readConf(struct GLOBAL *global) {
 				global->imgFormat = check_image_type(global->imgFPath[0]);
 			} else if (strcmp(variable,"image_inc")==0) {
 				sscanf(value,"%d",&(global->image_inc));
+			    	snprintf(global->imageinc_str,20,_("File num:%d"),global->image_inc);
 			} else if (strcmp(variable,"avi_path")==0) {
 				global->aviFPath=splitPath(value,global->aviFPath);
 			} else if (strcmp(variable,"profile_path")==0) {

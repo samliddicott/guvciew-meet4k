@@ -194,19 +194,26 @@ close_sound (struct paRecordData *data)
 {
     	int stall=20;
         int err =0;
+	data->streaming=0;
+        /* XXX - a mutex_lock on the audio buffers will work better -----------*/
 	
-	/*wait for last audio chunks to be saved on video file*/
-    	while ((data->streaming || (data->audio_flag>0) || (data->recording)) &&
+    	/*wait for last audio chunks to be saved on video file      */
+    	while (((data->audio_flag>0) || (data->recording)) &&
 	       (stall>0)) 
-    {
+    	{
 		Pa_Sleep(100);
 		stall--; /*prevents stalls (waits at max 20*100 ms)*/
 	}
-    	if(!(stall>0)) printf("WARNING:sound capture stall (streaming=%d flag=%d recording=%d)\n",
-	                            data->streaming, data->audio_flag, data->recording);
-	
-	data->streaming=0;    /*prevents writes on primary buffers*/
-	
+    	if(!(stall>0)) 
+        {
+		printf("WARNING:sound capture stall (flag=%d recording=%d)\n",
+	                            data->audio_flag, data->recording);
+
+		data->audio_flag = 0; /*prevents reads on secondary buffers    */
+		data->recording  = 0;
+	    	Pa_Sleep(300); /* wait 300ms so any pending read may finish    */
+	}
+        /*---------------------------------------------------------------------*/
 	err = Pa_StopStream( data->stream );
 	if( err != paNoError ) goto error;
 	
@@ -219,8 +226,6 @@ close_sound (struct paRecordData *data)
 	
 	Pa_Terminate();
 	
-	data->audio_flag = 0; /*prevents reads on secondary buffer */
-	data->recording  = 0;
 	
 	if (data->avi_sndBuff) free(data->avi_sndBuff);
 	data->avi_sndBuff = NULL;
