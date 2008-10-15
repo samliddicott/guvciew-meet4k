@@ -144,9 +144,9 @@ ERR_DIALOG(const char *err_title, const char* err_msg) {
 					GTK_DIALOG_DESTROY_WITH_PARENT,
                                		GTK_MESSAGE_ERROR,
                                		GTK_BUTTONS_CLOSE,
-                               		gettext (err_title));
+                               		gettext("%s"),err_title);
    
-    gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(errdialog),gettext (err_msg));
+    gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(errdialog),gettext("%s"),err_msg);
     
     gtk_widget_show(errdialog);
     gtk_dialog_run (GTK_DIALOG (errdialog));
@@ -1811,7 +1811,7 @@ int main(int argc, char *argv[])
 		printf("couldn't allocate memory for: EXEC_CALL)\n");
 		exit(1);
 	}
-	snprintf(EXEC_CALL,exec_size,argv[0]);
+	snprintf(EXEC_CALL,exec_size,"%s",argv[0]);
 	
 	/*set global variables*/
 	if((global=(struct GLOBAL *) calloc(1, sizeof(struct GLOBAL)))==NULL){

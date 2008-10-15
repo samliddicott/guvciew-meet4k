@@ -36,7 +36,7 @@ init_MP2_encoder(struct paRecordData* pdata, int bitRate);
 int
 MP2_encode(struct paRecordData* pdata, int ms_delay);
 
-int close_MP2_encoder();
+void close_MP2_encoder();
 
 
 #endif

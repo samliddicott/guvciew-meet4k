@@ -105,7 +105,8 @@ MP2_encode(struct paRecordData* pdata, int ms_delay) {
 	return (mp2fill_size);
 }
 
-int close_MP2_encoder() {
-/*clean twolame encoder*/
-	twolame_close( &encodeOptions );
+void close_MP2_encoder() {
+    
+    /*clean twolame encoder*/
+    twolame_close( &encodeOptions );
 }
