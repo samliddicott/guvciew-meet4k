@@ -40,56 +40,62 @@ recordCallback (const void *inputBuffer, void *outputBuffer,
     int i;
     int numSamples=framesPerBuffer*data->channels;
     
-    /*data->streaming is also set by close_audio                  */
-    /*avoids writing to primary buffer (it may have been freed)   */
-    /*since there is a wait routine in close_audio this shouldn't */
-    /*really be needed, in any case ...                           */    
+    /*will be reset to 0 after all audio has been writen to AVI*/
     data->recording=1;
-    if (data->streaming) {
-	if( inputBuffer == NULL )
-	{
-		for( i=0; i<numSamples; i++ )
-		{
-			data->recordedSamples[data->sampleIndex] = 0;/*silence*/
-			data->sampleIndex++;
-		}
-	}
-	else
-	{
-		for( i=0; i<numSamples; i++ )
-		{
-			data->recordedSamples[data->sampleIndex] = *rptr++;
-			data->sampleIndex++;
-		}
-	}
+    /*set to zero on paComplete*/    
+    data->streaming=1;
     
-	data->numSamples += numSamples;
-	if (data->numSamples > (data->maxIndex-2*numSamples)) 
+    if( inputBuffer == NULL )
+    {
+	for( i=0; i<numSamples; i++ )
 	{
-		//primary buffer near limit (don't wait for overflow)
-		//or video capture stopped
-		//copy data to secondary buffer and restart primary buffer index
-		data->snd_numBytes = data->numSamples*sizeof(SAMPLE);
-		memcpy(data->avi_sndBuff, data->recordedSamples ,data->snd_numBytes);
-		data->sampleIndex=0;
-		data->numSamples = 0;
-		//flags that secondary buffer as data (can be saved to file)
-		data->audio_flag=1;
+		data->recordedSamples[data->sampleIndex] = 0;/*silence*/
+		data->sampleIndex++;
+	}
+    }
+    else
+    {
+	for( i=0; i<numSamples; i++ )
+	{
+		data->recordedSamples[data->sampleIndex] = *rptr++;
+		data->sampleIndex++;
 	}
     }
     
-    if(data->capAVI) return (paContinue);
+    data->numSamples += numSamples;
+    if (data->numSamples > (data->maxIndex-2*numSamples)) 
+    {
+	//primary buffer near limit (don't wait for overflow)
+	//or video capture stopped
+	//copy data to secondary buffer and restart primary buffer index
+	//the buffer is only writen every 1sec or so, plenty of time for a read to complete,
+	//anyway lock a mutex on the buffer just in case a read operation is still going on.
+	// This is not a good idea as it may cause data loss
+	//but since we sould never have to wait, it shouldn't be a problem.
+	pthread_mutex_lock( &data->mutex);
+	    data->snd_numBytes = data->numSamples*sizeof(SAMPLE);
+	    memcpy(data->avi_sndBuff, data->recordedSamples ,data->snd_numBytes);
+	pthread_mutex_unlock( &data->mutex );
+	data->sampleIndex=0;
+	data->numSamples = 0;
+	//flags that secondary buffer as data (can be saved to file)
+	data->audio_flag=1;
+	
+    }
+
+    
+    if(data->capAVI) return (paContinue); /*still capturing*/
     else {
         /*recording stopped*/
 	if(!(data->audio_flag)) {
-		/*need to copy audio to secondary buffer*/
+		/*need to copy remaining audio to secondary buffer*/
 		data->snd_numBytes = data->numSamples*sizeof(SAMPLE);
 		memcpy(data->avi_sndBuff, data->recordedSamples , data->snd_numBytes);
 		data->sampleIndex=0;
 		data->numSamples = 0;
 		//flags that secondary buffer as data (can be saved to file)
 		data->audio_flag=1;
-	}	
+	}
 	data->streaming=0;
 	return (paComplete);
     }
@@ -122,7 +128,10 @@ init_sound(struct paRecordData* data)
 	int MP2Frames=0;
 	int numSamples;
 	
-    	/* setting maximum buffer size*/
+	pthread_mutex_init(&data->mutex, NULL);
+	//data->cond = PTHREAD_COND_INITIALIZER;
+
+	/* setting maximum buffer size*/
 	totalFrames = data->numsec * data->samprate;
 	numSamples = totalFrames * data->channels;
 	/*round to libtwolame Frames (1 Frame = 1152 samples)*/
@@ -133,10 +142,12 @@ init_sound(struct paRecordData* data)
     
 	data->recordedSamples = (SAMPLE *) malloc( data->snd_numBytes ); /*capture buffer*/
     	data->maxIndex = numSamples;
-    	data->sampleIndex=0;
-    	data->streaming=1;
+    	data->sampleIndex = 0;
+	
+	data->audio_flag = 0;
 	data->recording = 0;
-    	
+    	data->streaming = 0;
+	
 	data->avi_sndBuff = (SAMPLE *) malloc( data->snd_numBytes );/*secondary shared buffer*/
     
 	if( data->recordedSamples == NULL )
@@ -180,11 +191,13 @@ error:
 	fprintf( stderr, "Error number: %d\n", err );
 	fprintf( stderr, "Error message: %s\n", Pa_GetErrorText( err ) ); 
 	data->streaming=0;
+	data->recording=0;
+	Pa_Terminate();
 	if(data->recordedSamples) free( data->recordedSamples );
 	data->recordedSamples=NULL;
 	if(data->avi_sndBuff) free(data->avi_sndBuff);
 	data->avi_sndBuff=NULL;
-	Pa_Terminate();
+	
 	return(-1);
 
 }	   
@@ -194,11 +207,15 @@ close_sound (struct paRecordData *data)
 {
     	int stall=20;
         int err =0;
-	data->streaming=0;
-        /* XXX - a mutex_lock on the audio buffers will work better -----------*/
+        /*stops and closes the audio stream*/
+	err = Pa_StopStream( data->stream );
+	if( err != paNoError ) goto error;
 	
-    	/*wait for last audio chunks to be saved on video file      */
-    	while (((data->audio_flag>0) || (data->recording)) &&
+	err = Pa_CloseStream( data->stream );
+	if( err != paNoError ) goto error; 
+	
+    	/*wait for last audio chunks to be saved on video file */
+    	while (( data->streaming || data->audio_flag || data->recording ) &&
 	       (stall>0)) 
     	{
 		Pa_Sleep(100);
@@ -206,44 +223,48 @@ close_sound (struct paRecordData *data)
 	}
     	if(!(stall>0)) 
         {
-		printf("WARNING:sound capture stall (flag=%d recording=%d)\n",
-	                            data->audio_flag, data->recording);
+		printf("WARNING:sound capture stall (streaming=%d flag=%d recording=%d)\n",
+	                   data->streaming, data->audio_flag, data->recording);
 
-		data->audio_flag = 0; /*prevents reads on secondary buffers    */
+		data->streaming = 0;
+		data->audio_flag = 0;
 		data->recording  = 0;
 	    	Pa_Sleep(300); /* wait 300ms so any pending read may finish    */
 	}
         /*---------------------------------------------------------------------*/
-	err = Pa_StopStream( data->stream );
-	if( err != paNoError ) goto error;
+	/*make sure no operations are performed on the buffers*/
+	pthread_mutex_lock( &data->mutex);
+	    /*free primary buffer*/
+	    if(data->recordedSamples) free( data->recordedSamples  );
+	    data->recordedSamples=NULL;
 	
-	/*free primary buffer*/
-	if(data->recordedSamples) free( data->recordedSamples  );
-	data->recordedSamples=NULL;
+	    Pa_Terminate();
 	
-	err = Pa_CloseStream( data->stream ); /*closes the stream*/
-	if( err != paNoError ) goto error; 
-	
-	Pa_Terminate();
-	
-	
-	if (data->avi_sndBuff) free(data->avi_sndBuff);
-	data->avi_sndBuff = NULL;
-	if (data->mp2Buff) free(data->mp2Buff);
-	data->mp2Buff = NULL;
+	    if (data->avi_sndBuff) free(data->avi_sndBuff);
+	    data->avi_sndBuff = NULL;
+	    if (data->mp2Buff) free(data->mp2Buff);
+	    data->mp2Buff = NULL;
+	pthread_mutex_unlock( &data->mutex );
+
+	pthread_mutex_destroy(&data->mutex);
 	
 	return (0);
 error:  
 	fprintf( stderr, "An error occured while closing the portaudio stream\n" );
 	fprintf( stderr, "Error number: %d\n", err );
 	fprintf( stderr, "Error message: %s\n", Pa_GetErrorText( err ) );
-	
-	Pa_Terminate();
-	if(data->recordedSamples) free( data->recordedSamples );
-	data->recordedSamples=NULL;
-	if (data->avi_sndBuff) free(data->avi_sndBuff);
-    	data->avi_sndBuff = NULL;
-	if (data->mp2Buff) free(data->mp2Buff);
-	data->mp2Buff = NULL;
+	data->recording=0;
+	data->audio_flag=0;
+	data->streaming=0;
+	pthread_mutex_lock( &data->mutex);
+	    if(data->recordedSamples) free( data->recordedSamples );
+	    data->recordedSamples=NULL;
+	    Pa_Terminate();
+	    if (data->avi_sndBuff) free(data->avi_sndBuff);
+    	    data->avi_sndBuff = NULL;
+	    if (data->mp2Buff) free(data->mp2Buff);
+	    data->mp2Buff = NULL;
+	pthread_mutex_unlock( &data->mutex );
+	pthread_mutex_destroy(&data->mutex);
 	return(-1);
 }

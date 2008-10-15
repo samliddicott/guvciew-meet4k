@@ -23,6 +23,7 @@
 #define SOUND_H
 
 #include <portaudio.h>
+#include <pthread.h>
 #include "globals.h"
 
 struct paRecordData
@@ -45,6 +46,9 @@ struct paRecordData
     SAMPLE *avi_sndBuff;
     BYTE *mp2Buff;
     int mp2BuffSize;
+    pthread_mutex_t mutex;
+    //pthread_cond_t cond;
+	
 } __attribute__ ((packed));
 
 int 

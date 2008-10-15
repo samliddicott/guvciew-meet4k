@@ -456,7 +456,8 @@ void *main_loop(void *data)
 		/*----------------------- add audio -----------------------------*/
 		if ((global->Sound_enable) && (pdata->audio_flag>0)) 
 		{
-		    /*first audio data - sync with video (audio stream capture takes longer to start)*/
+		    /*first audio data - sync with video (audio stream capture can take a bit longer to start)*/
+		    /* no need of locking the mutex yet, since we are not reading from the buffer*/
 		    if (!(AviOut->track[0].audio_bytes)) 
 		    { /*only 1 audio stream*/
 	       		int synctime= pdata->snd_begintime - global->AVIstarttime; /*time diff for audio-video*/
@@ -482,23 +483,30 @@ void *main_loop(void *data)
 			}
 		    }
 		    /*write audio chunk*/
-		    
+		    /*lock the mutex because we are reading from the audio buffer*/
 		    if(global->Sound_Format == WAVE_FORMAT_PCM) 
 		    {
-		        ret=AVI_write_audio(AviOut,(BYTE *) pdata->avi_sndBuff,pdata->snd_numBytes);   
+			pthread_mutex_lock( &pdata->mutex );
+				ret=AVI_write_audio(AviOut,(BYTE *) pdata->avi_sndBuff,pdata->snd_numBytes);
+			pthread_mutex_unlock( &pdata->mutex );
 		    }
 		    else if(global->Sound_Format == ISO_FORMAT_MPEG12)
 	            {
-			int size_mp2 = MP2_encode(pdata,0);
-			ret=AVI_write_audio(AviOut,pdata->mp2Buff,size_mp2);
+			pthread_mutex_lock( &pdata->mutex );
+				int size_mp2 = MP2_encode(pdata,0);
+				ret=AVI_write_audio(AviOut,pdata->mp2Buff,size_mp2);
+			pthread_mutex_unlock( &pdata->mutex );
 		    }
-		
+		    
+		    pdata->audio_flag=0;
+		    keyframe = 1; /*marks next frame as key frame*/
+		    
 		    if (ret) 
 		    {	
 	    		if (AVI_getErrno () == AVI_ERR_SIZELIM) 
 			{
 				/*avi file limit reached - must end capture close file and start new one*/
-				
+				/*from a thread - non blocking                                          */
 				int rc = pthread_create(&pth_press_butt, &pth_press_attr, split_avi,NULL); 
 				if (rc) {
 				    printf("ERROR; return code from pthread_create(press_butt) is %d\n", rc);	       
@@ -512,46 +520,44 @@ void *main_loop(void *data)
 				printf ("write error on avi out \n");
 			}
 		    }
-			
-		    pdata->audio_flag=0;
-		    keyframe = 1; /*marks next frame as key frame*/
 		}   
 	   
-	   /*video capture has stopped but there is still audio available*/	
-	   } 
-	   else if (pdata->audio_flag || pdata->recording) 
+	
+	   } /*video and audio capture have stopped but there is still audio available in the buffers*/
+	   else if (pdata->audio_flag && !(pdata->streaming)) 
 	   {
-		if(pdata->audio_flag) 
-	       	{
-	        	/*write last audio data to avi*/
-			/*even if max file size reached we still have 20M available*/
-			if(global->Sound_Format == WAVE_FORMAT_PCM)
-			{
-		    		AVI_write_audio(AviOut,(BYTE *) pdata->avi_sndBuff,pdata->snd_numBytes);
-			}
-	        	else if (global->Sound_Format == ISO_FORMAT_MPEG12)
-			{
-		    		int size_mp2 = MP2_encode(pdata,0);
-		    		AVI_write_audio(AviOut,pdata->mp2Buff,size_mp2);
-		    		/*flush mp2 buffer*/	
-		    		pdata->recording=0;
-		    		size_mp2 = MP2_encode(pdata,0);
-		    		AVI_write_audio(AviOut,pdata->mp2Buff,size_mp2);
-			}
-		} 
-	        else 
-	        {
-			if (global->Sound_Format == ISO_FORMAT_MPEG12) 
-		    	{
-		    		/*flush mp2 buffer*/	
-				pdata->recording=0;
-				int size_mp2 = MP2_encode(pdata,0);
-		    		AVI_write_audio(AviOut,pdata->mp2Buff,size_mp2);
+		/*write last audio data to avi*/
+		/*even if max file size reached we still have an extra 20M available*/
+		
+		/*perform a mutex lock on the buffers to make sure they are not released*/
+		/*while performing read operations- close_sound() may be running          */
+		pthread_mutex_lock( &pdata->mutex);
+		
+		if(global->Sound_Format == WAVE_FORMAT_PCM)
+		{
+			if(pdata->avi_sndBuff) {
+				AVI_write_audio(AviOut,(BYTE *) pdata->avi_sndBuff,pdata->snd_numBytes);
 			}
 		}
+	        else if (global->Sound_Format == ISO_FORMAT_MPEG12)
+		{
+			int size_mp2=0;
+			if(pdata->avi_sndBuff && pdata->mp2Buff) {
+				size_mp2 = MP2_encode(pdata,0);
+				AVI_write_audio(AviOut,pdata->mp2Buff,size_mp2);
+				/*flush mp2 buffer*/	
+				pdata->recording=0;
+				size_mp2 = MP2_encode(pdata,0);
+				AVI_write_audio(AviOut,pdata->mp2Buff,size_mp2);
+			}
+		}
+		
+		pthread_mutex_unlock( &pdata->mutex );
+		/* can safely close sound now, no more data to record*/
 		pdata->audio_flag=0;
-		pdata->recording=0;   
+		pdata->recording=0;
 	   }
+	   
 	/*------------------------- Display Frame --------------------------------*/
 	 SDL_LockYUVOverlay(overlay);
 	 memcpy(p, videoIn->framebuffer,
