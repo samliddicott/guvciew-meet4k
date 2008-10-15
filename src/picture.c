@@ -103,6 +103,11 @@ if((jpgtmp=malloc(jpgsize))!=NULL) {
 	
 	if ((fp = fopen(Filename,"wb"))!=NULL) {  
 		ret=fwrite(jpgtmp,totSize,1,fp);/*jpeg - jfif*/
+		if(ret< 1) {
+		    ret=1; //write error
+		} else {
+		    ret=0;
+		}
 		fclose(fp);
 	} else {
 		ret=1;
@@ -130,7 +135,11 @@ SaveBuff(const char *Filename,int imgsize,BYTE *data) {
 	if ((fp = fopen(Filename,"wb"))!=NULL) {
 	
 		ret=fwrite(data,imgsize,1,fp);/*jpeg - jfif*/
-		
+		if (ret<1) {
+		    ret=1;//write error
+		} else {
+		    ret=0;
+		}
 		fclose(fp);
 	} else {
 		ret = 1;
@@ -173,7 +182,12 @@ if ((fp = fopen(Filename,"wb"))!=NULL) {  // (wb) write in binary mode
 		ret=fwrite(&BmpFileh, sizeof(BITMAPFILEHEADER), 1, fp);
 		ret+=fwrite(&BmpInfoh, sizeof(BITMAPINFOHEADER),1,fp);
 		ret+=fwrite(ImagePix,imgsize,1,fp);
-		
+		if (ret<3) 
+		{
+			ret=1;//write error
+		} else {
+			ret=0;
+		}
 		fclose(fp);
 } else {
 	ret=1;
