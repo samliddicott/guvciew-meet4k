@@ -144,9 +144,10 @@ ERR_DIALOG(const char *err_title, const char* err_msg) {
 					GTK_DIALOG_DESTROY_WITH_PARENT,
                                		GTK_MESSAGE_ERROR,
                                		GTK_BUTTONS_CLOSE,
-                               		gettext("%s"),err_title);
+                               		"%s",gettext(err_title));
    
-    gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(errdialog),gettext("%s"),err_msg);
+    gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(errdialog),
+					     "%s",gettext(err_msg));
     
     gtk_widget_show(errdialog);
     gtk_dialog_run (GTK_DIALOG (errdialog));
