@@ -1870,8 +1870,12 @@ int main(int argc, char *argv[])
 		printf("couldn't allocate memory for: paRecordData\n");
 		exit(1); 
 	}
-    	/* Allocate the avi_t struct and zero it */
-
+	/*create mutex for sound buffers*/
+	pthread_mutex_init(&pdata->mutex, NULL);
+	//pdata->cond = PTHREAD_COND_INITIALIZER;
+	
+	
+    	/* Allocate the avi_t struct */
    	if((AviOut = (struct avi_t *) malloc(sizeof(struct avi_t)))==NULL){
       		printf("couldn't allocate memory for: avi_t\n");
       		exit(1);
@@ -2865,7 +2869,9 @@ static void
 clean_struct (void) {
 
     //int i=0;
-   
+    /*destroy mutex for sound buffers*/
+    pthread_mutex_destroy(&pdata->mutex);
+    
     if(pdata) free(pdata);
     pdata=NULL;
     

@@ -127,9 +127,6 @@ init_sound(struct paRecordData* data)
 	int totalFrames;
 	int MP2Frames=0;
 	int numSamples;
-	
-	pthread_mutex_init(&data->mutex, NULL);
-	//data->cond = PTHREAD_COND_INITIALIZER;
 
 	/* setting maximum buffer size*/
 	totalFrames = data->numsec * data->samprate;
@@ -245,8 +242,6 @@ close_sound (struct paRecordData *data)
 	    if (data->mp2Buff) free(data->mp2Buff);
 	    data->mp2Buff = NULL;
 	pthread_mutex_unlock( &data->mutex );
-
-	pthread_mutex_destroy(&data->mutex);
 	
 	return (0);
 error:  
@@ -265,6 +260,5 @@ error:
 	    if (data->mp2Buff) free(data->mp2Buff);
 	    data->mp2Buff = NULL;
 	pthread_mutex_unlock( &data->mutex );
-	pthread_mutex_destroy(&data->mutex);
 	return(-1);
 }
