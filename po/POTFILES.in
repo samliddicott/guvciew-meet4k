@@ -1,2 +1,5 @@
 src/guvcview.c 
 src/v4l2uvc.c
+src/video.c
+src/globals.c
+src/options.c
