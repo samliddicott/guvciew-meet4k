@@ -41,6 +41,8 @@ guvcview_SOURCES = \
 	options.c \
 	picture.h \
 	picture.c \
+	profile.h \
+	profile.c \
 	quant.c \
 	readYUV.c \
 	sound.h \

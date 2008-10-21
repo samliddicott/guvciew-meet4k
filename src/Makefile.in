@@ -47,9 +47,10 @@ am_guvcview_OBJECTS = autofocus.$(OBJEXT) avilib.$(OBJEXT) \
 	colorspaces.$(OBJEXT) dct.$(OBJEXT) globals.$(OBJEXT) \
 	guvcview.$(OBJEXT) huffman.$(OBJEXT) jpgenc.$(OBJEXT) \
 	marker.$(OBJEXT) mp2.$(OBJEXT) ms_time.$(OBJEXT) \
-	options.$(OBJEXT) picture.$(OBJEXT) quant.$(OBJEXT) \
-	readYUV.$(OBJEXT) sound.$(OBJEXT) string_utils.$(OBJEXT) \
-	utils.$(OBJEXT) v4l2uvc.$(OBJEXT) video.$(OBJEXT)
+	options.$(OBJEXT) picture.$(OBJEXT) profile.$(OBJEXT) \
+	quant.$(OBJEXT) readYUV.$(OBJEXT) sound.$(OBJEXT) \
+	string_utils.$(OBJEXT) utils.$(OBJEXT) v4l2uvc.$(OBJEXT) \
+	video.$(OBJEXT)
 guvcview_OBJECTS = $(am_guvcview_OBJECTS)
 am__DEPENDENCIES_1 =
 guvcview_DEPENDENCIES = $(am__DEPENDENCIES_1)
@@ -211,6 +212,8 @@ guvcview_SOURCES = \
 	options.c \
 	picture.h \
 	picture.c \
+	profile.h \
+	profile.c \
 	quant.c \
 	readYUV.c \
 	sound.h \
@@ -305,6 +308,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ms_time.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/options.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/picture.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/profile.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/quant.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/readYUV.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sound.Po@am__quote@
