@@ -291,13 +291,13 @@ typedef struct _ControlInfo {
     int maxchars;
 } ControlInfo;
 
-typedef struct _VidState {
+struct VidState {
     
     GtkWidget * table;
-    GtkWidget * device_combo;
-    GtkWidget * device_label;
-    GtkWidget * input_combo;
-    GtkWidget * input_label;
+    //GtkWidget * device_combo;
+    //GtkWidget * device_label;
+    //GtkWidget * input_combo;
+    //GtkWidget * input_label;
     
     int width_req;
     int height_req;
@@ -305,7 +305,7 @@ typedef struct _VidState {
     InputControl * control;
     int num_controls;
     ControlInfo * control_info;
-} VidState;
+};
 
 int check_videoIn(struct vdIn *vd);
 
@@ -327,7 +327,7 @@ int input_get_framerate (struct vdIn * device);
 
 InputControl * input_enum_controls (struct vdIn * device, int *num_controls);
 
-void input_free_controls (InputControl * control, int num_controls);
+void input_free_controls (struct VidState *s);
 
 int init_v4l2(struct vdIn *vd);
 

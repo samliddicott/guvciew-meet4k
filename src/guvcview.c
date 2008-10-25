@@ -77,7 +77,7 @@ struct vdIn *videoIn = NULL;
 struct avi_t *AviOut = NULL;
 
 /*controls data*/
-VidState * s;
+struct VidState *s = NULL;
 /*global widgets*/
 struct GWIDGET *gwidget = NULL;
 
@@ -90,11 +90,6 @@ char *EXEC_CALL=NULL;
 
 /*structure containing all shared data - passed in callbacks*/
 struct ALL_DATA all_data;
-
-/*defined at end of file*/
-/*remove build warning  */ 
-//static void clean_struct (void);
-//static void shutd (gint restart); 
 
 /*--------------------------- file chooser dialog ----------------------------*/
 static void
@@ -166,35 +161,6 @@ file_chooser (GtkButton * FileButt, const int isAVI)
 	
 }
 
-
-/* calls capture_avi callback emulating a click on capture AVI button*/
-void
-press_avicap(void *data)
-{
-    capture_avi (GTK_BUTTON(gwidget->CapAVIButt), &all_data);
-}
-
-/*called when avi max file size reached*/
-/* stops avi capture, increments avi file name, restart avi capture*/
-void *
-split_avi(void *data)
-{
-	/*make sure avi is in incremental mode*/
-	if(!global->avi_inc) 
-	{ 
-		AVIInc_changed(GTK_TOGGLE_BUTTON(gwidget->AVIInc), &all_data);
-		global->avi_inc=1; /*just in case*/
-	}
-	
-	/*stops avi capture*/
-	press_avicap(NULL);
-	/*restarts avi capture with new file name*/
-	press_avicap(NULL);
-	
-	return (NULL);
-	
-}
-
 /* called by capture from start timer [-t seconds] command line option*/
 static int
 timer_callback(){
@@ -204,18 +170,6 @@ timer_callback(){
 	return (FALSE);/*destroys the timer*/
 }
 
-
-/* called by fps counter every 2 sec */
-static int 
-FpsCount_callback(){
-	global->DispFps = (double) global->frmCount / 2;
-	if (global->FpsCount>0) return(TRUE); /*keeps the timer*/
-	else {
-		snprintf(global->WVcaption,10,"GUVCVideo");
-		SDL_WM_SetCaption(global->WVcaption, NULL);
-		return (FALSE);/*destroys the timer*/
-	}
-}
 /*called by timed capture [-c seconds] command line option*/
 static int
 Image_capture_timer(){
@@ -249,23 +203,6 @@ Image_capture_timer(){
 	}
 	else return (TRUE);/*keep the timer*/
 }
-
-static void 
-ShowFPS_changed(GtkToggleButton * toggle, void *data)
-{
-	global->FpsCount = gtk_toggle_button_get_active (toggle) ? 1 : 0;
-	
-	if(global->FpsCount > 0) {
-		/*sets the Fps counter timer function every 2 sec*/
-		global->timer_id = g_timeout_add(2*1000,FpsCount_callback,NULL);
-	} else {
-		if (global->timer_id > 0) g_source_remove(global->timer_id);
-		snprintf(global->WVcaption,10,"GUVCVideo");
-		SDL_WM_SetCaption(global->WVcaption, NULL);
-	}
-
-}
-
 
 /*--------------------------------- MAIN -------------------------------------*/
 int main(int argc, char *argv[])
@@ -345,7 +282,7 @@ int main(int argc, char *argv[])
 	size_t stacksize;
 	
    
-	if ((s = malloc (sizeof (VidState)))==NULL){
+	if ((s = (struct VidState *) calloc (1, sizeof(struct VidState)))==NULL){
 		printf("couldn't allocate memory for: s\n");
 		exit(1); 
 	}
@@ -732,7 +669,7 @@ int main(int argc, char *argv[])
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ShowFPS),(global->FpsCount > 0));
 	gtk_widget_show (ShowFPS);
 	g_signal_connect (GTK_CHECK_BUTTON(ShowFPS), "toggled",
-		G_CALLBACK (ShowFPS_changed), NULL);
+		G_CALLBACK (ShowFPS_changed), &all_data);
 	
 	
 	/* add resolution combo box*/
@@ -1353,7 +1290,7 @@ int main(int argc, char *argv[])
 	
 	if (global->FpsCount>0) {
 		/*sets the Fps counter timer function every 2 sec*/
-		global->timer_id = g_timeout_add(2*1000,FpsCount_callback,NULL);
+		global->timer_id = g_timeout_add(2*1000,FpsCount_callback,&all_data);
 	}
 	/* The last thing to get called */
 	gtk_main();

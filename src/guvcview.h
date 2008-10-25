@@ -78,18 +78,10 @@ struct ALL_DATA {
 	struct vdIn *videoIn;
 	struct avi_t *AviOut;
 	struct GWIDGET *gwidget;
-	VidState * s;
+	struct VidState *s;
 	char *EXEC_CALL;
 	pthread_t *pmythread;
 	pthread_attr_t *pattr;
 };
-
-/* calls capture_image callback emulating a click on capture AVI button*/
-/* call from a thread, so its non blocking*/
-void
-press_avicap(void *data);
-
-void *
-split_avi(void *data);
 
 #endif

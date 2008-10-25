@@ -192,4 +192,16 @@ SProfileButton_clicked (GtkButton * SProfileButton, struct ALL_DATA *all_data);
 void
 LProfileButton_clicked (GtkButton * LProfileButton, struct ALL_DATA *all_data);
 
+void
+press_avicap(struct ALL_DATA *all_data);
+
+void *
+split_avi(void *data);
+
+gboolean 
+FpsCount_callback(gpointer data);
+
+void 
+ShowFPS_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data);
+
 #endif

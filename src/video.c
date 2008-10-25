@@ -43,6 +43,7 @@
 #include "ms_time.h"
 #include "string_utils.h"
 #include "mp2.h"
+#include "callbacks.h"
 
 /*-------------------------------- Main Video Loop ---------------------------*/ 
 /* run in a thread (SDL overlay)*/
@@ -439,10 +440,10 @@ void *main_loop(void *data)
 		   	if (AVI_getErrno () == AVI_ERR_SIZELIM) {
 				/*avi file limit reached - must end capture close file and start new one*/
 				
-				int rc = pthread_create(&pth_press_butt, &pth_press_attr, split_avi, NULL); 
+				int rc = pthread_create(&pth_press_butt, &pth_press_attr, split_avi, all_data); 
 				if (rc) {
 				    printf("ERROR; return code from pthread_create(press_butt) is %d\n", rc);	       
-				    split_avi(NULL); /*blocking call*/
+				    split_avi(all_data); /*blocking call*/
 				}   
 				   
 				printf("AVI file size limit reached - restarted capture on new file\n");
@@ -507,10 +508,10 @@ void *main_loop(void *data)
 			{
 				/*avi file limit reached - must end capture close file and start new one*/
 				/*from a thread - non blocking                                          */
-				int rc = pthread_create(&pth_press_butt, &pth_press_attr, split_avi,NULL); 
+				int rc = pthread_create(&pth_press_butt, &pth_press_attr, split_avi,all_data); 
 				if (rc) {
 				    printf("ERROR; return code from pthread_create(press_butt) is %d\n", rc);	       
-				    split_avi(NULL); /*blocking call*/
+				    split_avi(all_data); /*blocking call*/
 				}   
 				   
 				printf("AVI file size limit reached - restarted capture on new file\n");

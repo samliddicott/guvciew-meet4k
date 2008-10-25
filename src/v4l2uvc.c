@@ -219,8 +219,8 @@ static struct uvc_xu_control_mapping xu_mappings[] = {
 
 int check_videoIn(struct vdIn *vd)
 {
-int ret;
- if (vd == NULL)
+    int ret=0;
+    if (vd == NULL)
 	return -1;
 	
 	
@@ -388,7 +388,8 @@ init_videoIn(struct vdIn *vd, char *device, int width, int height,
 /* map the buffers */
 static int query_buff(struct vdIn *vd, const int setUNMAP) 
 {
-	int i, ret;
+    int i=0;
+    int ret=0;
     for (i = 0; i < NB_BUFFER; i++) {
 		
 		/* unmap old buffer */
@@ -423,7 +424,8 @@ static int query_buff(struct vdIn *vd, const int setUNMAP)
 
 static int queue_buff(struct vdIn *vd)
 {
-	int i, ret;
+	int i=0;
+	int ret=0;
 	for (i = 0; i < NB_BUFFER; ++i) {
 		memset(&vd->buf, 0, sizeof(struct v4l2_buffer));
 		vd->buf.index = i;
@@ -517,7 +519,7 @@ int init_v4l2(struct vdIn *vd)
 static int video_enable(struct vdIn *vd)
 {
     int type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-    int ret;
+    int ret=0;
 
     ret = ioctl(vd->fd, VIDIOC_STREAMON, &type);
     if (ret < 0) {
@@ -531,7 +533,7 @@ static int video_enable(struct vdIn *vd)
 static int video_disable(struct vdIn *vd)
 {
     int type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-    int ret;
+    int ret=0;
 
     ret = ioctl(vd->fd, VIDIOC_STREAMOFF, &type);
     if (ret < 0) {
@@ -547,7 +549,7 @@ static int video_disable(struct vdIn *vd)
 int uvcGrab(struct vdIn *vd)
 {
 #define HEADERFRAME1 0xaf
-    int ret;
+    int ret=0;
 
     if (!vd->isstreaming)
 		if (video_enable(vd))
@@ -653,7 +655,7 @@ int uvcGrab(struct vdIn *vd)
 
 void close_v4l2(struct vdIn *vd)
 {
-    int i;
+    int i=0;
 	
     if (vd->isstreaming) video_disable(vd);
     if (vd->tmpbuffer) free(vd->tmpbuffer);
@@ -683,7 +685,8 @@ void close_v4l2(struct vdIn *vd)
 int
 input_get_control (struct vdIn * device, InputControl * control, int * val)
 {
-    int fd, ret;
+    int fd;
+    int ret=0;
     struct v4l2_control c;
 
     fd = device->fd;
@@ -701,7 +704,8 @@ int
 input_set_control (struct vdIn * device, InputControl * control, int val)
 {
    
-    int fd, ret;
+    int fd;
+    int ret=0;
     struct v4l2_control c;
 
     fd = device->fd;
@@ -717,7 +721,8 @@ input_set_control (struct vdIn * device, InputControl * control, int val)
 int
 input_set_framerate (struct vdIn * device)
 {  
-	int fd, ret;
+	int fd;
+	int ret=0;
 
 	fd = device->fd;
     
@@ -736,7 +741,10 @@ int
 input_get_framerate (struct vdIn * device)
 {
    
-    int fd, ret, fps, fps_num;
+    int fd;
+    int ret=0;
+    int fps=0;
+    int fps_num=0;
 
     fd = device->fd;
     
@@ -756,6 +764,7 @@ input_get_framerate (struct vdIn * device)
 InputControl *
 input_enum_controls (struct vdIn * device, int *num_controls)
 {
+    int ret=0;
     int fd;
     InputControl * control = NULL;	
     int n = 0;
@@ -766,7 +775,7 @@ input_enum_controls (struct vdIn * device, int *num_controls)
     i = V4L2_CID_BASE; /* as defined by V4L2 */
     while (i <= V4L2_CID_LAST_EXTCTR) { 
         queryctrl.id = i;
-        if (ioctl (fd, VIDIOC_QUERYCTRL, &queryctrl) == 0 &&
+        if ((ret=ioctl (fd, VIDIOC_QUERYCTRL, &queryctrl)) == 0 &&
                 !(queryctrl.flags & V4L2_CTRL_FLAG_DISABLED)) {
             control = realloc (control, (n+1)*sizeof (InputControl));
             control[n].i = n;
@@ -817,27 +826,38 @@ input_enum_controls (struct vdIn * device, int *num_controls)
 }
 
 void
-input_free_controls (InputControl * control, int num_controls)
+input_free_controls (struct VidState *s)
 {
-    int i;
-
-    for (i = 0; i < num_controls; i++) {
-        free (control[i].name);
-        if (control[i].type == INPUT_CONTROL_TYPE_MENU) {
+    int i=0;
+    	
+    for (i = 0; i < s->num_controls; i++) {
+	ControlInfo * ci = s->control_info + i;
+	if (ci->widget)
+		gtk_widget_destroy (ci->widget);
+	if (ci->label)
+		gtk_widget_destroy (ci->label);
+	if (ci->spinbutton)
+		gtk_widget_destroy (ci->spinbutton);
+	    
+        free (s->control[i].name);
+        if (s->control[i].type == INPUT_CONTROL_TYPE_MENU) {
             int j;
-            for (j = 0; j <= control[i].max; j++) {
-                free (control[i].entries[j]);
+            for (j = 0; j <= s->control[i].max; j++) {
+                free (s->control[i].entries[j]);
             }
-            free (control[i].entries);
+            free (s->control[i].entries);
         }
     }
-    free (control);
+    free (s->control_info);
+    s->control_info = NULL;
+    free (s->control);
+    s->control = NULL;
 }
 /******************************* enumerations *********************************/
 int enum_frame_intervals(struct vdIn *vd, __u32 pixfmt, __u32 width, __u32 height, 
 						         int list_form, int list_ind)
 {
-	int ret;
+	int ret=0;
 	struct v4l2_frmivalenum fival;
 	int list_fps=0;
 	memset(&fival, 0, sizeof(fival));
@@ -886,7 +906,7 @@ int enum_frame_intervals(struct vdIn *vd, __u32 pixfmt, __u32 width, __u32 heigh
 }
 int enum_frame_sizes(struct vdIn *vd, __u32 pixfmt)
 {
-	int ret;
+	int ret=0;
 	int list_ind=0;
 	int list_form=0;
 	struct v4l2_frmsizeenum fsize;
@@ -968,7 +988,7 @@ int enum_frame_sizes(struct vdIn *vd, __u32 pixfmt)
 
 int enum_frame_formats(struct vdIn *vd)
 {
-	int ret;
+	int ret=0;
 	struct v4l2_fmtdesc fmt;
 	
 
@@ -1076,7 +1096,7 @@ int uvcPanTilt(struct vdIn *vd, int pan, int tilt, int reset) {
 /*--------------------------- focus control ----------------------------------*/
 int 
 get_focus (struct vdIn *videoIn){
-	int ret;
+	int ret=0;
 	struct v4l2_control c;
 	int val=0;
     
@@ -1093,7 +1113,7 @@ get_focus (struct vdIn *videoIn){
 
 int 
 set_focus (struct vdIn *videoIn, int val) {
-	int ret;
+	int ret=0;
 	struct v4l2_control c;
 
 	c.id  = V4L2_CID_FOCUS_LOGITECH;

@@ -28,7 +28,7 @@ void
 ERR_DIALOG(const char *err_title, const char* err_msg, struct ALL_DATA *all_data) {
      
 	struct GWIDGET *gwidget = all_data->gwidget;
-	//VidState *s = all_data->s;
+	struct VidState *s = all_data->s;
 	char *EXEC_CALL = all_data->EXEC_CALL;
 	struct paRecordData *pdata = all_data->pdata;
 	struct GLOBAL *global = all_data->global;
@@ -58,6 +58,10 @@ ERR_DIALOG(const char *err_title, const char* err_msg, struct ALL_DATA *all_data
     AFdata = NULL;
     all_data->AFdata = NULL;
 
+    if (s) free(s);
+    s = NULL;
+    all_data->s = NULL;
+	
     if (global) closeGlobals (global);
     global = NULL;
     all_data->global = NULL;
@@ -184,7 +188,7 @@ aviClose (struct ALL_DATA *all_data)
 void
 slider_changed (GtkRange * range, struct ALL_DATA *all_data)
 {
-	VidState *s = all_data->s;
+	struct VidState *s = all_data->s;
 	struct GLOBAL *global = all_data->global;
 	struct vdIn *videoIn = all_data->videoIn;
 	
@@ -216,7 +220,7 @@ slider_changed (GtkRange * range, struct ALL_DATA *all_data)
 void
 spin_changed (GtkSpinButton * spin, struct ALL_DATA *all_data)
 {
-	VidState *s = all_data->s;
+	struct VidState *s = all_data->s;
 	struct GLOBAL *global = all_data->global;
 	struct vdIn *videoIn = all_data->videoIn;
 	
@@ -281,7 +285,7 @@ autofocus_changed (GtkToggleButton * toggle, struct ALL_DATA *all_data)
 void
 check_changed (GtkToggleButton * toggle, struct ALL_DATA *all_data)
 {
-	VidState *s = all_data->s;
+	struct VidState *s = all_data->s;
 	struct GLOBAL *global = all_data->global;
 	struct vdIn *videoIn = all_data->videoIn;
 	
@@ -318,7 +322,7 @@ check_changed (GtkToggleButton * toggle, struct ALL_DATA *all_data)
 void
 bayer_changed (GtkToggleButton * toggle, struct ALL_DATA *all_data)
 {
-	VidState *s = all_data->s;
+	struct VidState *s = all_data->s;
 	struct GLOBAL *global = all_data->global;
 	struct vdIn *videoIn = all_data->videoIn;
 	
@@ -372,7 +376,7 @@ pix_ord_changed (GtkComboBox * combo, struct ALL_DATA *all_data)
 void
 combo_changed (GtkComboBox * combo, struct ALL_DATA *all_data)
 {
-	VidState *s = all_data->s;
+	struct VidState *s = all_data->s;
 	struct vdIn *videoIn = all_data->videoIn;
 	
 	ControlInfo * ci = g_object_get_data (G_OBJECT (combo), "control_info");
@@ -1121,7 +1125,7 @@ void
 SProfileButton_clicked (GtkButton * SProfileButton, struct ALL_DATA *all_data)
 {
 	struct GWIDGET *gwidget = all_data->gwidget;
-	VidState *s = all_data->s;
+	struct VidState *s = all_data->s;
 	struct GLOBAL *global = all_data->global;
 	struct vdIn *videoIn = all_data->videoIn;
 	
@@ -1160,7 +1164,7 @@ void
 LProfileButton_clicked (GtkButton * LProfileButton, struct ALL_DATA *all_data)
 {
 	struct GWIDGET *gwidget = all_data->gwidget;
-	VidState *s = all_data->s;
+	struct VidState *s = all_data->s;
 	struct GLOBAL *global = all_data->global;
 	
 	char *filename;
@@ -1188,6 +1192,74 @@ LProfileButton_clicked (GtkButton * LProfileButton, struct ALL_DATA *all_data)
 	gwidget = NULL;
 	s = NULL;
 	global = NULL;
+}
+
+/* calls capture_avi callback emulating a click on capture AVI button*/
+void
+press_avicap(struct ALL_DATA *all_data)
+{
+    struct GWIDGET *gwidget = all_data->gwidget;
+    capture_avi (GTK_BUTTON(gwidget->CapAVIButt), all_data);
+    gwidget = NULL;
+}
+
+/*called when avi max file size reached*/
+/* stops avi capture, increments avi file name, restart avi capture*/
+void *
+split_avi(void *data)
+{
+	struct ALL_DATA *all_data = (struct ALL_DATA *) data;
+	struct GLOBAL *global = all_data->global;
+	struct GWIDGET *gwidget = all_data->gwidget;
+	
+	/*make sure avi is in incremental mode*/
+	if(!global->avi_inc) 
+	{ 
+		AVIInc_changed(GTK_TOGGLE_BUTTON(gwidget->AVIInc), all_data);
+		global->avi_inc=1; /*just in case*/
+	}
+	
+	/*stops avi capture*/
+	press_avicap(all_data);
+	/*restarts avi capture with new file name*/
+	press_avicap(all_data);
+	global=NULL;
+	gwidget = NULL;
+	return NULL;
+}
+
+/* called by fps counter every 2 sec */
+gboolean 
+FpsCount_callback(gpointer data)
+{
+	struct ALL_DATA * all_data = (struct ALL_DATA *) data;
+	struct GLOBAL *global = all_data->global;
+	
+	global->DispFps = (double) global->frmCount / 2;
+	if (global->FpsCount>0) return(TRUE); /*keeps the timer*/
+	else {
+		snprintf(global->WVcaption,10,"GUVCVideo");
+		SDL_WM_SetCaption(global->WVcaption, NULL);
+		return (FALSE);/*destroys the timer*/
+	}
+}
+
+void 
+ShowFPS_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data)
+{
+    struct GLOBAL *global = all_data->global;
+	
+    global->FpsCount = gtk_toggle_button_get_active (toggle) ? 1 : 0;
+	
+    if(global->FpsCount > 0) {
+	/*sets the Fps counter timer function every 2 sec*/
+	global->timer_id = g_timeout_add(2*1000,FpsCount_callback, all_data);
+    } else {
+	if (global->timer_id > 0) g_source_remove(global->timer_id);
+	snprintf(global->WVcaption,10,"GUVCVideo");
+	SDL_WM_SetCaption(global->WVcaption, NULL);
+    }
+    global = NULL;
 }
 
 void

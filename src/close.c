@@ -29,14 +29,13 @@ static void
 clean_struct (struct ALL_DATA *all_data) 
 {
     struct GWIDGET *gwidget = all_data->gwidget;
-    VidState *s = all_data->s;
+    struct VidState *s = all_data->s;
     struct paRecordData *pdata = all_data->pdata;
     struct GLOBAL *global = all_data->global;
     struct focusData *AFdata = all_data->AFdata;
     struct vdIn *videoIn = all_data->videoIn;
     struct avi_t *AviOut = all_data->AviOut;
 
-    int i=0;
     /*destroy mutex for sound buffers*/
     pthread_mutex_destroy(&pdata->mutex);
     
@@ -55,21 +54,10 @@ clean_struct (struct ALL_DATA *all_data)
     all_data->AviOut = NULL;
     
     if (s->control) {
-	for (i = 0; i < s->num_controls; i++) {
-		ControlInfo * ci = s->control_info + i;
-		if (ci->widget)
-			gtk_widget_destroy (ci->widget);
-		if (ci->label)
-			gtk_widget_destroy (ci->label);
-		if (ci->spinbutton)
-			gtk_widget_destroy (ci->spinbutton);
-	}
-	free (s->control_info);
-	s->control_info = NULL;
-	input_free_controls (s->control, s->num_controls);
+	input_free_controls (s);
 	printf("free controls\n");
-	s->control = NULL;
     }
+  
     if (s) free(s);
     s = NULL;
     all_data->s = NULL;

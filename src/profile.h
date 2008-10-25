@@ -26,9 +26,9 @@
 #include "globals.h"
 
 int
-SaveControls(VidState *s,struct GLOBAL *global, struct vdIn *videoIn);
+SaveControls(struct VidState *s,struct GLOBAL *global, struct vdIn *videoIn);
 
 int
-LoadControls(VidState *s, struct GLOBAL *global);
+LoadControls(struct VidState *s, struct GLOBAL *global);
 
 #endif

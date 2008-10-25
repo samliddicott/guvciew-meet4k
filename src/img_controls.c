@@ -33,25 +33,13 @@ static const char *exp_typ[]={"Manual Mode",
 void
 draw_controls (struct ALL_DATA *all_data)
 {
-	int i;
-	VidState *s = all_data->s;
+	int i=0;
+	struct VidState *s = all_data->s;
 	struct GLOBAL *global = all_data->global;
 	struct vdIn *videoIn = all_data->videoIn;
 	
 	if (s->control) {
-		for (i = 0; i < s->num_controls; i++) {
-			ControlInfo * ci = s->control_info + i;
-			if (ci->widget)
-				gtk_widget_destroy (ci->widget);
-			if (ci->label)
-				gtk_widget_destroy (ci->label);
-			if (ci->spinbutton)
-				gtk_widget_destroy (ci->spinbutton);
-		}
-		free (s->control_info);
-		s->control_info = NULL;
-		input_free_controls (s->control, s->num_controls);
-		s->control = NULL;
+		input_free_controls (s);
 	}
 	s->control = input_enum_controls (videoIn, &(s->num_controls));
 	if (global->debug) {
@@ -63,14 +51,13 @@ draw_controls (struct ALL_DATA *all_data)
 					s->control[i].default_val);
 		}
 	}
-
-   if((s->control_info = malloc (s->num_controls * sizeof (ControlInfo)))==NULL){
+	if((s->control_info = malloc (s->num_controls * sizeof (ControlInfo)))==NULL){
 			printf("couldn't allocate memory for: s->control_info\n");
 			ERR_DIALOG (N_("Guvcview error:\n\nUnable to allocate Buffers"),
 				N_("Please try restarting your system."), 
 				all_data); 
-   }
-    int row=0;
+	}
+	int row=0;
 
 	for (i = 0; i < s->num_controls; i++) {
 		ControlInfo * ci = s->control_info + i;
@@ -208,7 +195,7 @@ draw_controls (struct ALL_DATA *all_data)
 			ci->label = gtk_label_new (g_strdup_printf ("%s:", gettext(c->name)));
 			
 		} else if (c->type == INPUT_CONTROL_TYPE_INTEGER) {
-			int val;
+			int val=0;
 
 			if (c->step == 0)
 				c->step = 1;
@@ -293,7 +280,7 @@ draw_controls (struct ALL_DATA *all_data)
 					3+row, 4+row, GTK_SHRINK | GTK_FILL, 0, 0, 0);
 		    	
 		} else if(c->id ==V4L2_CID_DISABLE_PROCESSING_LOGITECH) {
-		      	int val;
+		      	int val=0;
 		      	ci->widget = gtk_vbox_new (FALSE, 0);
 		      	GtkWidget *check_bayer = gtk_check_button_new_with_label (gettext(c->name));
 		      	g_object_set_data (G_OBJECT (check_bayer), "control_info", ci);
@@ -344,7 +331,7 @@ draw_controls (struct ALL_DATA *all_data)
 		
 		}
 		else if (c->type == INPUT_CONTROL_TYPE_BOOLEAN) {
-			int val;
+			int val=0;
 			ci->widget = gtk_check_button_new_with_label (gettext(c->name));
 			g_object_set_data (G_OBJECT (ci->widget), "control_info", ci);
 			gtk_widget_show (ci->widget);
@@ -371,7 +358,8 @@ draw_controls (struct ALL_DATA *all_data)
 					G_CALLBACK (check_changed), all_data);
 		}
 		else if (c->type == INPUT_CONTROL_TYPE_MENU) {
-			int val, j;
+			int val=0;
+			int j=0;
 
 			ci->widget = gtk_combo_box_new_text ();
 			for (j = 0; j <= c->max; j++) {
