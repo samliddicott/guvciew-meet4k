@@ -409,7 +409,7 @@ int main(int argc, char *argv[])
 	/*set structure with all global allocations*/
 	all_data.pdata = pdata;
 	all_data.global = global;
-	all_data.AFdata = AFdata;
+	all_data.AFdata = AFdata; /*not allocated yet*/
 	all_data.videoIn = videoIn;
 	all_data.AviOut = AviOut;
 	all_data.gwidget = gwidget;
@@ -1259,8 +1259,11 @@ int main(int argc, char *argv[])
  	if(global->AFcontrol) {   
     		AFdata = malloc(sizeof(struct focusData));
     		initFocusData(AFdata);
-	 }
+	}
     
+	all_data.AFdata = AFdata;
+	
+	
    	/*------------------ Creating the main loop (video) thread ---------------*/
 	/* Initialize and set thread detached attribute */
 	stacksize = sizeof(char) * global->stack_size;

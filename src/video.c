@@ -188,7 +188,7 @@ void *main_loop(void *data)
 	drect.y = 0;
 	drect.w = pscreen->w;
 	drect.h = pscreen->h;
-	 
+	
 	while (videoIn->signalquit) {
 	 /*-------------------------- Grab Frame ----------------------------------*/
 	 if (uvcGrab(videoIn) < 0) {
@@ -210,9 +210,11 @@ void *main_loop(void *data)
 				global->DispFps=0;
 			}				
 		}
+	
 	     	/*---------------- autofocus control ------------------*/
 		
 		if (global->AFcontrol && (global->autofocus || AFdata->setFocus)) { /*AFdata = NULL if no focus control*/
+			if (global->debug) printf("inside AFcontrol\n");
 			if (AFdata->focus < 0) {
 			    /*starting autofocus*/
 			    AFdata->focus = AFdata->left; /*start left*/
@@ -241,7 +243,6 @@ void *main_loop(void *data)
 		    
 		}
 	 }
-	
 	 /*------------------------- Filter Frame ---------------------------------*/
 	 if(global->Frame_Flags>0){
 		if((global->Frame_Flags & YUV_MIRROR)==YUV_MIRROR) {
