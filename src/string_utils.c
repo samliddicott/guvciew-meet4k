@@ -24,6 +24,24 @@
 #include <string.h>
 #include "defs.h"
 
+
+/* counts chars needed for n*/
+int
+num_chars (int n)
+{
+	int i = 0;
+
+	if (n <= 0) {
+		i++;
+		n = -n;
+	}
+
+	while (n != 0) {
+		n /= 10;
+		i++;
+	}
+	return i;
+}
 /* check image file extension and return image type*/
 int 
 check_image_type (char *filename) {

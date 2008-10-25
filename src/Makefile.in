@@ -44,8 +44,9 @@ am__installdirs = "$(DESTDIR)$(bindir)"
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
 am_guvcview_OBJECTS = autofocus.$(OBJEXT) avilib.$(OBJEXT) \
-	colorspaces.$(OBJEXT) dct.$(OBJEXT) globals.$(OBJEXT) \
-	guvcview.$(OBJEXT) huffman.$(OBJEXT) jpgenc.$(OBJEXT) \
+	callbacks.$(OBJEXT) close.$(OBJEXT) colorspaces.$(OBJEXT) \
+	dct.$(OBJEXT) globals.$(OBJEXT) guvcview.$(OBJEXT) \
+	huffman.$(OBJEXT) img_controls.$(OBJEXT) jpgenc.$(OBJEXT) \
 	marker.$(OBJEXT) mp2.$(OBJEXT) ms_time.$(OBJEXT) \
 	options.$(OBJEXT) picture.$(OBJEXT) profile.$(OBJEXT) \
 	quant.$(OBJEXT) readYUV.$(OBJEXT) sound.$(OBJEXT) \
@@ -187,8 +188,12 @@ AM_CFLAGS = \
 guvcview_SOURCES = \
 	autofocus.h \
 	autofocus.c \
-	avilib.c                  \
-	avilib.h                  \
+	avilib.c \
+	avilib.h \
+	callbacks.h \
+	callbacks.c \
+	close.h \
+	close.c \
 	colorspaces.h \
 	colorspaces.c \
 	dct.h \
@@ -200,6 +205,8 @@ guvcview_SOURCES = \
 	guvcview.c \
 	huffman.h \
 	huffman.c \
+	img_controls.h \
+	img_controls.c \
 	jdatatype.h \
 	jpgenc.h \
 	jpgenc.c \
@@ -297,11 +304,14 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/autofocus.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/avilib.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/callbacks.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/close.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/colorspaces.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dct.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/globals.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/guvcview.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/huffman.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/img_controls.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/jpgenc.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/marker.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mp2.Po@am__quote@

@@ -202,7 +202,7 @@ error:
 int
 close_sound (struct paRecordData *data) 
 {
-    	int stall=20;
+    	int stall=30;
         int err =0;
         /*stops and closes the audio stream*/
 	err = Pa_StopStream( data->stream );
@@ -216,7 +216,7 @@ close_sound (struct paRecordData *data)
 	       (stall>0)) 
     	{
 		Pa_Sleep(100);
-		stall--; /*prevents stalls (waits at max 20*100 ms)*/
+		stall--; /*prevents stalls (waits at max 30*100 ms)*/
 	}
     	if(!(stall>0)) 
         {
@@ -226,7 +226,7 @@ close_sound (struct paRecordData *data)
 		data->streaming = 0;
 		data->audio_flag = 0;
 		data->recording  = 0;
-	    	Pa_Sleep(300); /* wait 300ms so any pending read may finish    */
+	    	Pa_Sleep(500); /* wait 500ms so any pending read may finish    */
 	}
         /*---------------------------------------------------------------------*/
 	/*make sure no operations are performed on the buffers*/

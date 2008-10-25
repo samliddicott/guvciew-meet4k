@@ -16,8 +16,12 @@ bin_PROGRAMS = guvcview
 guvcview_SOURCES = \
 	autofocus.h \
 	autofocus.c \
-	avilib.c                  \
-	avilib.h                  \
+	avilib.c \
+	avilib.h \
+	callbacks.h \
+	callbacks.c \
+	close.h \
+	close.c \
 	colorspaces.h \
 	colorspaces.c \
 	dct.h \
@@ -29,6 +33,8 @@ guvcview_SOURCES = \
 	guvcview.c \
 	huffman.h \
 	huffman.c \
+	img_controls.h \
+	img_controls.c \
 	jdatatype.h \
 	jpgenc.h \
 	jpgenc.c \

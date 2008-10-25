@@ -35,12 +35,53 @@
 #include "ms_time.h"
 #include "string_utils.h"
 
-struct t_data {
-    struct paRecordData *pdata;
-    struct GLOBAL *global;
-    struct focusData *AFdata;
-    struct vdIn *videoIn;
-    struct avi_t *AviOut;
+/* Must set this as global so they */
+/* can be set from any callback.   */
+
+struct GWIDGET {
+    /* The main window*/
+    GtkWidget *mainwin;
+    /* A restart Dialog */
+    GtkWidget *restartdialog;
+    /*Paned containers*/
+    GtkWidget *boxv;
+    GtkWidget *boxh;
+
+    GtkWidget *AVIComp;
+    GtkWidget *SndEnable; 
+    GtkWidget *SndSampleRate;
+    GtkWidget *SndDevice;
+    GtkWidget *SndNumChan;
+    GtkWidget *SndComp;
+    /*must be called from main loop if capture timer enabled*/
+    GtkWidget *ImageFNameEntry;
+    GtkWidget *ImgFileButt;
+    GtkWidget *ImageType;
+    GtkWidget *CapImageButt;
+    //GtkWidget *QCapImageButt;
+    GtkWidget *ImageInc;
+    GtkWidget *ImageIncLabel;
+    GtkWidget *CapAVIButt;
+    //GtkWidget *QCapAVIButt;
+    GtkWidget *AVIFNameEntry;
+    GtkWidget *AVIIncLabel;
+    GtkWidget *AVIInc;
+    GtkWidget *Resolution;
+
+    GtkWidget *FileDialog;
+};
+
+struct ALL_DATA {
+	struct paRecordData *pdata;
+	struct GLOBAL *global;
+	struct focusData *AFdata;
+	struct vdIn *videoIn;
+	struct avi_t *AviOut;
+	struct GWIDGET *gwidget;
+	VidState * s;
+	char *EXEC_CALL;
+	pthread_t *pmythread;
+	pthread_attr_t *pattr;
 };
 
 /* calls capture_image callback emulating a click on capture AVI button*/

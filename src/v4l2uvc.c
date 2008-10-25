@@ -754,17 +754,15 @@ input_get_framerate (struct vdIn * device)
 }
 
 InputControl *
-input_enum_controls (struct vdIn * device, int * num_controls)
+input_enum_controls (struct vdIn * device, int *num_controls)
 {
     int fd;
-    InputControl * control = NULL;
+    InputControl * control = NULL;	
     int n = 0;
-    struct v4l2_queryctrl queryctrl;
+    struct v4l2_queryctrl queryctrl;	
     int i;
-    fd = device->fd;
-	
+    fd = device->fd;	
     initDynCtrls(device);
-    
     i = V4L2_CID_BASE; /* as defined by V4L2 */
     while (i <= V4L2_CID_LAST_EXTCTR) { 
         queryctrl.id = i;
@@ -814,9 +812,8 @@ input_enum_controls (struct vdIn * device, int * num_controls)
     }
 
     *num_controls = n;
-		
-
-   return control;
+    
+    return control;
 }
 
 void

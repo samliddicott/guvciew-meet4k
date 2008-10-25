@@ -48,15 +48,14 @@
 /* run in a thread (SDL overlay)*/
 void *main_loop(void *data)
 {
-	struct t_data *ptdata = (struct t_data *) data;
+	struct ALL_DATA *all_data = (struct ALL_DATA *) data;
 	
-	struct paRecordData *pdata = ptdata->pdata;
-	struct GLOBAL *global = ptdata->global;
-	struct focusData *AFdata = ptdata->AFdata;
-	struct vdIn *videoIn = ptdata->videoIn;
-	struct avi_t *AviOut = ptdata->AviOut;
+	struct paRecordData *pdata = all_data->pdata;
+	struct GLOBAL *global = all_data->global;
+	struct focusData *AFdata = all_data->AFdata;
+	struct vdIn *videoIn = all_data->videoIn;
+	struct avi_t *AviOut = all_data->AviOut;
 
-	
 	pthread_t pth_press_butt;
 	pthread_attr_t pth_press_attr;
 	
@@ -614,6 +613,7 @@ void *main_loop(void *data)
   }	   
   if (global->debug) printf("Thread terminated...\n");
   
+  p = NULL;
   if (jpeg_struct != NULL) free(jpeg_struct);
   jpeg_struct=NULL;
   if(pim!=NULL) free(pim);
@@ -621,8 +621,14 @@ void *main_loop(void *data)
   if(pavi!=NULL) free(pavi);
   pavi=NULL;
   if (global->debug) printf("cleaning Thread allocations: 100%%\n");
-  fflush(NULL);//flush all output buffers  
+  fflush(NULL);//flush all output buffers 
+	
   SDL_Quit();   
-  if (global->debug) printf("SDL Quit\n");	
+  if (global->debug) printf("SDL Quit\n");
+	
+  global = NULL;
+  AFdata = NULL;
+  videoIn = NULL;
+  AviOut = NULL;
   pthread_exit((void *) 0);
 }

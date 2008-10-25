@@ -121,7 +121,7 @@ static const int exp_vals[]={
 				V4L2_UVC_EXPOSURE_APERTURE_PRIORITY
 				};
 
-
+	                      
 #define UVC_DYN_CONTROLS
 /*
  * Dynamic controls
@@ -325,7 +325,7 @@ int input_set_framerate (struct vdIn * device);
 
 int input_get_framerate (struct vdIn * device);
 
-InputControl * input_enum_controls (struct vdIn * device, int * num_controls);
+InputControl * input_enum_controls (struct vdIn * device, int *num_controls);
 
 void input_free_controls (InputControl * control, int num_controls);
 
