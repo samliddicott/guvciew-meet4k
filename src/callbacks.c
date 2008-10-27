@@ -1228,22 +1228,6 @@ split_avi(void *data)
 	return NULL;
 }
 
-/* called by fps counter every 2 sec */
-gboolean 
-FpsCount_callback(gpointer data)
-{
-	struct ALL_DATA * all_data = (struct ALL_DATA *) data;
-	struct GLOBAL *global = all_data->global;
-	
-	global->DispFps = (double) global->frmCount / 2;
-	if (global->FpsCount>0) return(TRUE); /*keeps the timer*/
-	else {
-		snprintf(global->WVcaption,10,"GUVCVideo");
-		SDL_WM_SetCaption(global->WVcaption, NULL);
-		return (FALSE);/*destroys the timer*/
-	}
-}
-
 void 
 ShowFPS_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data)
 {

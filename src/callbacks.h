@@ -65,6 +65,7 @@
 #include "mp2.h"
 #include "profile.h"
 #include "close.h"
+#include "timers.h"
 
 void 
 ERR_DIALOG(const char *err_title, const char* err_msg, struct ALL_DATA *all_data);
@@ -197,9 +198,6 @@ press_avicap(struct ALL_DATA *all_data);
 
 void *
 split_avi(void *data);
-
-gboolean 
-FpsCount_callback(gpointer data);
 
 void 
 ShowFPS_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data);

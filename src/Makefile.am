@@ -55,6 +55,8 @@ guvcview_SOURCES = \
 	sound.c \
 	string_utils.h \
 	string_utils.c \
+	timers.h \
+	timers.c \
 	utils.h \
 	utils.c \
 	v4l2uvc.h \

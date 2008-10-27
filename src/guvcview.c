@@ -67,6 +67,7 @@
 #include "callbacks.h"
 #include "close.h"
 #include "img_controls.h"
+#include "timers.h"
 
 /*----------------------------- globals --------------------------------------*/
 
@@ -159,49 +160,6 @@ file_chooser (GtkButton * FileButt, const int isAVI)
   }
   gtk_widget_destroy (gwidget->FileDialog);
 	
-}
-
-/* called by capture from start timer [-t seconds] command line option*/
-static int
-timer_callback(){
-	/*stop avi capture*/
-	capture_avi(GTK_BUTTON(gwidget->CapAVIButt), &all_data);
-	global->Capture_time=0; 
-	return (FALSE);/*destroys the timer*/
-}
-
-/*called by timed capture [-c seconds] command line option*/
-static int
-Image_capture_timer(){
-	/*increment image name (max 1-99999)*/
-	int sfname=strlen(global->imgFPath[0]);
-	char basename[sfname];
-	char extension[4];
-	sscanf(global->imgFPath[0],"%[^.].%3c",basename,extension);
-	int namesize=strlen(global->imgFPath[1])+strlen(basename)+5;
-	
-	extension[3] = '\0';
-	
-	if(namesize>110) {
-		videoIn->ImageFName=realloc(videoIn->ImageFName,namesize+11);
-	}
-	
-	sprintf(videoIn->ImageFName,"%s/%s-%i.%s",global->imgFPath[1],
-			                        basename,global->image_inc,extension );
-	snprintf(global->imageinc_str,24,_("File num:%d"),global->image_inc);
-		
-	gtk_label_set_text(GTK_LABEL(gwidget->ImageIncLabel), global->imageinc_str);
-	
-	global->image_inc++;
-	/*set image capture flag*/
-	videoIn->capImage = TRUE;
-	if(global->image_inc > global->image_npics) {/*destroy timer*/
-		gtk_button_set_label(GTK_BUTTON(gwidget->CapImageButt),_("Cap. Image"));
-		global->image_timer=0;
-		set_sensitive_img_contrls(TRUE, gwidget);/*enable image controls*/
-		return (FALSE);
-	}
-	else return (TRUE);/*keep the timer*/
 }
 
 /*--------------------------------- MAIN -------------------------------------*/
@@ -1219,7 +1177,7 @@ int main(int argc, char *argv[])
 	/*---------------------- image timed capture -----------------------------*/
 	if(global->image_timer){
 		global->image_timer_id=g_timeout_add(global->image_timer*1000,
-                                                          Image_capture_timer,NULL);
+                                                          Image_capture_timer,&all_data);
 		set_sensitive_img_contrls(FALSE, gwidget);/*disable image controls*/
 	}
 	/*--------------------- avi capture from start ---------------------------*/
@@ -1282,7 +1240,7 @@ int main(int argc, char *argv[])
 	   
 	   	if (global->Capture_time) {
 			/*sets the timer function*/
-			g_timeout_add(global->Capture_time*1000,timer_callback,NULL);
+			g_timeout_add(global->Capture_time*1000,timer_callback,&all_data);
           	 }
 	    }
 		
