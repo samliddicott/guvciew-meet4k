@@ -372,6 +372,19 @@ pix_ord_changed (GtkComboBox * combo, struct ALL_DATA *all_data)
 	videoIn=NULL;
 }
 
+void
+reversePan_changed (GtkToggleButton * toggle, struct ALL_DATA *all_data)
+{
+	struct GLOBAL *global = all_data->global;
+
+	int val;
+	
+	val = gtk_toggle_button_get_active (toggle) ? -1 : 1;
+	
+	if(global->PanStep >0) global->PanStep= val * global->PanStep;
+	else global->PanStep= -val * global->PanStep;
+}
+
 /*combobox controls callback*/
 void
 combo_changed (GtkComboBox * combo, struct ALL_DATA *all_data)

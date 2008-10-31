@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-10-16 22:26+0100\n"
+"POT-Creation-Date: 2008-10-31 22:44+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,294 +16,232 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/guvcview.c:536 src/guvcview.c:622
-msgid "Program Restart"
-msgstr ""
-
-#: src/guvcview.c:539 src/guvcview.c:625
-msgid "now"
-msgstr ""
-
-#: src/guvcview.c:541 src/guvcview.c:627
-msgid "Later"
-msgstr ""
-
-#: src/guvcview.c:545 src/guvcview.c:631
-msgid ""
-"Changes will only take effect after guvcview restart.\n"
-"\n"
-"\n"
-"Restart now?\n"
+#: src/guvcview.c:102 src/callbacks.c:1147
+msgid "Save File"
 msgstr ""
 
 #. if auto naming restart counter
 #. 10 - digits for auto increment
-#: src/guvcview.c:715 src/guvcview.c:871 src/guvcview.c:888 src/guvcview.c:899
-#: src/guvcview.c:928 src/guvcview.c:1027 src/guvcview.c:1168
-#: src/globals.c:115 src/globals.c:121 src/options.c:168 src/options.c:195
+#: src/guvcview.c:154 src/globals.c:115 src/globals.c:121 src/options.c:168
+#: src/options.c:195 src/callbacks.c:761 src/callbacks.c:906
+#: src/callbacks.c:923 src/callbacks.c:959 src/callbacks.c:1056
 #, c-format
 msgid "File num:%d"
 msgstr ""
 
-#: src/guvcview.c:819 src/guvcview.c:1346
-msgid "Save File"
-msgstr ""
-
-#. destroy timer
-#: src/guvcview.c:954 src/guvcview.c:1176 src/guvcview.c:2064
-msgid "Cap. Image"
-msgstr ""
-
-#. ************ Stop AVI ***********
-#: src/guvcview.c:1001 src/guvcview.c:2070
-msgid "Cap. AVI"
-msgstr ""
-
-#. printf("opening avi file: %s\n",videoIn->AVIFName);
-#. avi capture enabled from start
-#: src/guvcview.c:1057 src/guvcview.c:2068
-msgid "Stop AVI"
-msgstr ""
-
-#: src/guvcview.c:1376
-msgid "Load File"
-msgstr ""
-
-#: src/guvcview.c:1442 src/guvcview.c:1983
-msgid ""
-"Guvcview error:\n"
-"\n"
-"Unable to allocate Buffers"
-msgstr ""
-
-#: src/guvcview.c:1443 src/guvcview.c:1984
-msgid "Please try restarting your system."
-msgstr ""
-
-#: src/guvcview.c:1493
-msgid "Exposure:"
-msgstr ""
-
-#: src/guvcview.c:1499
-msgid "Left"
-msgstr ""
-
-#: src/guvcview.c:1500
-msgid "Right"
-msgstr ""
-
-#: src/guvcview.c:1522
-msgid "Up"
-msgstr ""
-
-#: src/guvcview.c:1523
-msgid "Down"
-msgstr ""
-
-#: src/guvcview.c:1542 src/guvcview.c:1554 src/guvcview.c:1568
-msgid "Reset"
-msgstr ""
-
-#: src/guvcview.c:1637
-msgid "Auto Focus (continuous)"
-msgstr ""
-
-#: src/guvcview.c:1638
-msgid "set Focus"
-msgstr ""
-
-#: src/guvcview.c:1700
-#, c-format
-msgid "raw pixel order:"
-msgstr ""
-
-#: src/guvcview.c:1912
+#: src/guvcview.c:291
 msgid "GUVCViewer Controls"
 msgstr ""
 
 #. can't open device
-#: src/guvcview.c:1930
+#: src/guvcview.c:322
 msgid ""
 "Guvcview error:\n"
 "\n"
 "Unable to open device"
 msgstr ""
 
-#: src/guvcview.c:1931
+#: src/guvcview.c:323
 msgid ""
 "Please make sure the camera is connected\n"
 "and that the linux-UVC driver is installed."
 msgstr ""
 
-#: src/guvcview.c:1962
+#: src/guvcview.c:355
 msgid ""
 "Guvcview error:\n"
 "\n"
 "Can't set MJPG or YUV stream for guvcview"
 msgstr ""
 
-#: src/guvcview.c:1963
+#: src/guvcview.c:356
 msgid ""
 "Make sure you have a UVC compliant camera\n"
 "and that you have the linux UVC driver installed."
 msgstr ""
 
-#: src/guvcview.c:1975
+#: src/guvcview.c:369
 msgid ""
 "Guvcview error:\n"
 "\n"
 "Unable to start with minimum setup"
 msgstr ""
 
-#: src/guvcview.c:1976
+#: src/guvcview.c:370
 msgid "Please reconnect your camera."
 msgstr ""
 
-#: src/guvcview.c:2019
+#: src/guvcview.c:378 src/img_controls.c:56
+msgid ""
+"Guvcview error:\n"
+"\n"
+"Unable to allocate Buffers"
+msgstr ""
+
+#: src/guvcview.c:379 src/img_controls.c:57
+msgid "Please try restarting your system."
+msgstr ""
+
+#: src/guvcview.c:414
 msgid "Image Controls"
 msgstr ""
 
-#: src/guvcview.c:2039
+#: src/guvcview.c:434
 msgid "Control Profiles:"
 msgstr ""
 
-#: src/guvcview.c:2045
+#: src/guvcview.c:440
 msgid "Capture:"
 msgstr ""
 
 #. image auto capture
-#: src/guvcview.c:2062
+#: src/guvcview.c:457
 msgid "Stop Auto"
 msgstr ""
 
-#: src/guvcview.c:2159
+#: src/guvcview.c:459 src/callbacks.c:985
+msgid "Cap. Image"
+msgstr ""
+
+#. avi capture enabled from start
+#. printf("opening avi file: %s\n",videoIn->AVIFName);
+#: src/guvcview.c:463 src/callbacks.c:1086
+msgid "Stop AVI"
+msgstr ""
+
+#. ************ Stop AVI ***********
+#: src/guvcview.c:465 src/callbacks.c:1042
+msgid "Cap. AVI"
+msgstr ""
+
+#: src/guvcview.c:554
 msgid "Video & Files"
 msgstr ""
 
-#: src/guvcview.c:2220
+#: src/guvcview.c:615
 msgid "Frame Rate:"
 msgstr ""
 
-#: src/guvcview.c:2228
+#: src/guvcview.c:623
 msgid " Show"
 msgstr ""
 
-#: src/guvcview.c:2252
+#: src/guvcview.c:647
 msgid "Resolution:"
 msgstr ""
 
-#: src/guvcview.c:2291
+#: src/guvcview.c:686
 msgid "Camera Output:"
 msgstr ""
 
-#: src/guvcview.c:2302
+#: src/guvcview.c:697
 msgid "Image File:"
 msgstr ""
 
-#: src/guvcview.c:2329 src/guvcview.c:2410
+#: src/guvcview.c:724 src/guvcview.c:805
 msgid "File,Auto"
 msgstr ""
 
-#: src/guvcview.c:2341
+#: src/guvcview.c:736
 msgid "Image Format:"
 msgstr ""
 
-#: src/guvcview.c:2371
+#: src/guvcview.c:766
 msgid "AVI File:"
 msgstr ""
 
-#: src/guvcview.c:2425
+#: src/guvcview.c:820
 msgid "MJPG - compressed"
 msgstr ""
 
-#: src/guvcview.c:2427
+#: src/guvcview.c:822
 msgid "UYVY - uncomp YUV"
 msgstr ""
 
-#: src/guvcview.c:2429
+#: src/guvcview.c:824
 msgid "YUY2 - uncomp YUV"
 msgstr ""
 
-#: src/guvcview.c:2430
+#: src/guvcview.c:825
 msgid "RGB - uncomp BMP"
 msgstr ""
 
-#: src/guvcview.c:2442
+#: src/guvcview.c:837
 msgid "AVI Format:"
 msgstr ""
 
-#: src/guvcview.c:2553
+#: src/guvcview.c:948
 msgid " Sound"
 msgstr ""
 
-#: src/guvcview.c:2576
+#: src/guvcview.c:971
 msgid "Input Device:"
 msgstr ""
 
-#: src/guvcview.c:2587 src/guvcview.c:2621
+#: src/guvcview.c:982 src/guvcview.c:1016
 msgid "Dev. Default"
 msgstr ""
 
-#: src/guvcview.c:2609
+#: src/guvcview.c:1004
 msgid "Sample Rate:"
 msgstr ""
 
-#: src/guvcview.c:2622
+#: src/guvcview.c:1017
 msgid "1 - mono"
 msgstr ""
 
-#: src/guvcview.c:2623
+#: src/guvcview.c:1018
 msgid "2 - stereo"
 msgstr ""
 
-#: src/guvcview.c:2648
+#: src/guvcview.c:1043
 msgid "Channels:"
 msgstr ""
 
-#: src/guvcview.c:2661
+#: src/guvcview.c:1056
 msgid "PCM"
 msgstr ""
 
-#: src/guvcview.c:2662
+#: src/guvcview.c:1057
 msgid "MP2"
 msgstr ""
 
-#: src/guvcview.c:2685
+#: src/guvcview.c:1080
 msgid "Audio Format:"
 msgstr ""
 
-#: src/guvcview.c:2694
+#: src/guvcview.c:1089
 msgid "---- Video Filters ----"
 msgstr ""
 
 #. Mirror
-#: src/guvcview.c:2712
+#: src/guvcview.c:1107
 msgid " Mirror"
 msgstr ""
 
 #. Upturn
-#: src/guvcview.c:2721
+#: src/guvcview.c:1116
 msgid " Invert"
 msgstr ""
 
 #. Negate
-#: src/guvcview.c:2730
+#: src/guvcview.c:1125
 msgid " Negative"
 msgstr ""
 
 #. Mono
-#: src/guvcview.c:2739
+#: src/guvcview.c:1134
 msgid " Mono"
 msgstr ""
 
-#: src/guvcview.c:2780
+#: src/guvcview.c:1172
 msgid ""
 "Guvcview error:\n"
 "\n"
 "Unable to create Video Thread"
 msgstr ""
 
-#: src/guvcview.c:2781
+#: src/guvcview.c:1173
 msgid "Please report it to http://developer.berlios.de/bugs/?group_id=8179"
 msgstr ""
 
@@ -439,4 +377,69 @@ msgstr ""
 
 #: src/v4l2uvc.c:208
 msgid "Raw bits per pixel"
+msgstr ""
+
+#: src/img_controls.c:108
+msgid "Exposure:"
+msgstr ""
+
+#: src/img_controls.c:115
+msgid "Invert (Pan)"
+msgstr ""
+
+#: src/img_controls.c:118
+msgid "Left"
+msgstr ""
+
+#: src/img_controls.c:119
+msgid "Right"
+msgstr ""
+
+#: src/img_controls.c:150
+msgid "Up"
+msgstr ""
+
+#: src/img_controls.c:151
+msgid "Down"
+msgstr ""
+
+#: src/img_controls.c:170 src/img_controls.c:182 src/img_controls.c:196
+msgid "Reset"
+msgstr ""
+
+#: src/img_controls.c:265
+msgid "Auto Focus (continuous)"
+msgstr ""
+
+#: src/img_controls.c:266
+msgid "set Focus"
+msgstr ""
+
+#: src/img_controls.c:328
+#, c-format
+msgid "raw pixel order:"
+msgstr ""
+
+#: src/callbacks.c:561 src/callbacks.c:653
+msgid "Program Restart"
+msgstr ""
+
+#: src/callbacks.c:564 src/callbacks.c:656
+msgid "now"
+msgstr ""
+
+#: src/callbacks.c:566 src/callbacks.c:658
+msgid "Later"
+msgstr ""
+
+#: src/callbacks.c:570 src/callbacks.c:662
+msgid ""
+"Changes will only take effect after guvcview restart.\n"
+"\n"
+"\n"
+"Restart now?\n"
+msgstr ""
+
+#: src/callbacks.c:1185
+msgid "Load File"
 msgstr ""

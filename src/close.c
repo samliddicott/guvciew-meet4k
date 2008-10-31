@@ -45,13 +45,11 @@ clean_struct (struct ALL_DATA *all_data)
     
     if(videoIn) close_v4l2(videoIn);
     videoIn=NULL;
-    all_data->videoIn = NULL;
 
     if (global->debug) printf("closed v4l2 strutures\n");
     
     if(AviOut)  free(AviOut);
     AviOut=NULL;
-    all_data->AviOut = NULL;
     
     if (s->control) {
 	input_free_controls (s);

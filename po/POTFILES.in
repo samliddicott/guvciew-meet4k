@@ -1,8 +1,0 @@
-src/guvcview.c 
-src/v4l2uvc.c
-src/video.c
-src/globals.c
-src/options.c
-src/img_controls.c
-src/callbacks.c
-src/close.c

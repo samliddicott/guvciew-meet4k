@@ -679,7 +679,8 @@ void close_v4l2(struct vdIn *vd)
     /*close device descriptor*/
     close(vd->fd);
     /*free struct allocation*/
-    free(vd); 
+    free(vd);
+    vd=NULL;
 }
 
 int

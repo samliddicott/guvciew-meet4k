@@ -212,5 +212,6 @@ int closeGlobals(struct GLOBAL *global){
 	if(global->jpeg) free (global->jpeg);
 	global->jpeg=NULL;
 	free(global);
+	global=NULL;
 	return (0);
 }

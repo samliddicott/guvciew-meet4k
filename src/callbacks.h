@@ -98,6 +98,9 @@ void
 check_changed (GtkToggleButton * toggle, struct ALL_DATA *all_data);
 
 void
+reversePan_changed (GtkToggleButton * toggle, struct ALL_DATA *all_data);
+
+void
 bayer_changed (GtkToggleButton * toggle, struct ALL_DATA *all_data);
 
 void

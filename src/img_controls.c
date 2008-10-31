@@ -110,13 +110,26 @@ draw_controls (struct ALL_DATA *all_data)
 		} else if ((c->id == V4L2_CID_PAN_RELATIVE_NEW) ||
 				   (c->id == V4L2_CID_PAN_RELATIVE_OLD)) {
 			videoIn->PanTilt=1;
-			ci->widget = gtk_hbox_new (FALSE, 0);
+			ci->widget = gtk_vbox_new (FALSE, 0);
+			GtkWidget *panHbox = gtk_hbox_new (FALSE, 0);
+			GtkWidget *reversePan = gtk_check_button_new_with_label (_("Invert (Pan)"));
+			gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (reversePan),
+				(global->PanStep < 0) ? TRUE : FALSE);
 			GtkWidget *PanLeft = gtk_button_new_with_label(_("Left"));
 			GtkWidget *PanRight = gtk_button_new_with_label(_("Right"));
-			gtk_box_pack_start (GTK_BOX (ci->widget), PanLeft, TRUE, TRUE, 0);
-			gtk_box_pack_start (GTK_BOX (ci->widget), PanRight, TRUE, TRUE, 0);
+			gtk_box_pack_start (GTK_BOX (panHbox), PanLeft, TRUE, TRUE, 0);
+			gtk_box_pack_start (GTK_BOX (panHbox), PanRight, TRUE, TRUE, 0);
+			
+			gtk_box_pack_start (GTK_BOX (ci->widget), reversePan, TRUE, TRUE, 0);
+			gtk_box_pack_start (GTK_BOX (ci->widget), panHbox, TRUE, TRUE, 0);
+			
+			gtk_widget_show (reversePan);
 			gtk_widget_show (PanLeft);
 			gtk_widget_show (PanRight);
+			gtk_widget_show(panHbox);
+					   
+			g_signal_connect (G_OBJECT (reversePan), "toggled",
+					G_CALLBACK (reversePan_changed), all_data);
 			g_signal_connect (GTK_BUTTON (PanLeft), "clicked",
 					G_CALLBACK (PanLeft_clicked), all_data);
 			g_signal_connect (GTK_BUTTON (PanRight), "clicked",
