@@ -29,7 +29,6 @@ ERR_DIALOG(const char *err_title, const char* err_msg, struct ALL_DATA *all_data
      
 	struct GWIDGET *gwidget = all_data->gwidget;
 	struct VidState *s = all_data->s;
-	char *EXEC_CALL = all_data->EXEC_CALL;
 	struct paRecordData *pdata = all_data->pdata;
 	struct GLOBAL *global = all_data->global;
 	struct focusData *AFdata = all_data->AFdata;
@@ -77,10 +76,6 @@ ERR_DIALOG(const char *err_title, const char* err_msg, struct ALL_DATA *all_data
     if (AviOut) free(AviOut);
     AviOut = NULL;
     all_data->AviOut = NULL;
-	
-    if (EXEC_CALL) free(EXEC_CALL);
-    EXEC_CALL = NULL;
-    all_data->EXEC_CALL = NULL;
 	
     printf("Terminated.\n");;
     exit(1);

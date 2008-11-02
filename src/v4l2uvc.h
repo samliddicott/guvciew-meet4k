@@ -231,6 +231,7 @@ struct vdIn {
     	struct v4l2_buffer buf;
     	struct v4l2_requestbuffers rb;
     	struct v4l2_timecode timecode;
+	struct v4l2_streamparm streamparm;
     	void *mem[NB_BUFFER];
     	unsigned char *tmpbuffer;
    	unsigned char *framebuffer;
@@ -258,7 +259,6 @@ struct vdIn {
     	int capImage;
     	char *ImageFName;
    	int cap_raw;
-	struct v4l2_streamparm streamparm;
 	int available_exp[4];
 	/* 3 supported formats: 0-MJPG 1-YUYV or UYVY*/
 	/* 20 settings for each format              */

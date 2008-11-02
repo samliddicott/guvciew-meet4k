@@ -689,10 +689,10 @@ input_get_control (struct vdIn * device, InputControl * control, int * val)
     int fd;
     int ret=0;
     struct v4l2_control c;
-
+    memset(&c,0,sizeof(struct v4l2_control));
+	
     fd = device->fd;
  
-
     c.id  = control->id;
     ret = ioctl (fd, VIDIOC_G_CTRL, &c);
     if (ret == 0)
@@ -769,7 +769,8 @@ input_enum_controls (struct vdIn * device, int *num_controls)
     int fd;
     InputControl * control = NULL;	
     int n = 0;
-    struct v4l2_queryctrl queryctrl;	
+    struct v4l2_queryctrl queryctrl;
+    memset(&queryctrl,0,sizeof(struct v4l2_queryctrl));
     int i;
     fd = device->fd;	
     initDynCtrls(device);
@@ -797,6 +798,7 @@ input_enum_controls (struct vdIn * device, int *num_controls)
 				control[n].default_val=(queryctrl.default_value & 0x0001);
 			} else if (queryctrl.type == V4L2_CTRL_TYPE_MENU) {
                 struct v4l2_querymenu querymenu;
+		memset(&querymenu,0,sizeof(struct v4l2_querymenu));
                 control[n].min = 0;
 
                 querymenu.id = queryctrl.id;

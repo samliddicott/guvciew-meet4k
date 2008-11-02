@@ -624,8 +624,10 @@ void *main_loop(void *data)
   pavi=NULL;
   if (global->debug) printf("cleaning Thread allocations: 100%%\n");
   fflush(NULL);//flush all output buffers 
-	
+
+  SDL_FreeYUVOverlay(overlay);	
   SDL_Quit();   
+	
   if (global->debug) printf("SDL Quit\n");
 	
   global = NULL;

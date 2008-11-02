@@ -86,7 +86,7 @@ shutd (gint restart, struct ALL_DATA *all_data)
 	int tstatus;
 	
 	struct GWIDGET *gwidget = all_data->gwidget;
-	char *EXEC_CALL = all_data->EXEC_CALL;
+	gchar *EXEC_CALL = all_data->EXEC_CALL;
 	pthread_t *pmythread = all_data->pmythread;
 	pthread_attr_t *pattr = all_data->pattr;
 	struct paRecordData *pdata = all_data->pdata;
@@ -120,9 +120,6 @@ shutd (gint restart, struct ALL_DATA *all_data)
    
 	gtk_window_get_size(GTK_WINDOW(gwidget->mainwin),&(global->winwidth),&(global->winheight));//mainwin or widget
 	global->boxvsize=gtk_paned_get_position (GTK_PANED(gwidget->boxv));
-    	
-   	if (global->debug) printf("GTK quit\n");
-    	gtk_main_quit();
 	
    	/*save configuration*/
    	writeConf(global);
@@ -133,14 +130,13 @@ shutd (gint restart, struct ALL_DATA *all_data)
 	global = NULL;
 	videoIn = NULL;
    
+    	gtk_main_quit();
+	
 	if (restart==1) { /* replace running process with new one */
 		 printf("Restarting guvcview with command: %s\n",EXEC_CALL);
 		 exec_status = execlp(EXEC_CALL,EXEC_CALL,NULL);/*No parameters passed*/
 	}
 	
-	if (EXEC_CALL) free(EXEC_CALL);
-	EXEC_CALL = NULL;
-	all_data->EXEC_CALL = NULL;
-	
 	printf("Terminated.\n");
+	
 }

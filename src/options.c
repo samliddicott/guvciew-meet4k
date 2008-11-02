@@ -241,7 +241,6 @@ readOpts(int argc,char *argv[], struct GLOBAL *global) {
 	
 	int i=0;
 	char *separateur;
-	char *sizestring = NULL;
 	
 	for (i = 1; i < argc; i++) {
 	
@@ -286,7 +285,7 @@ readOpts(int argc,char *argv[], struct GLOBAL *global) {
 			if (i + 1 >= argc || *argv[i+1] =='-') {
 			printf("No parameter specified for image size, using default.\n");
 			} else {
-
+				char *sizestring = NULL;
 				sizestring = strdup(argv[i + 1]);
 
 				global->width = strtoul(sizestring, &separateur, 10);
@@ -298,6 +297,7 @@ readOpts(int argc,char *argv[], struct GLOBAL *global) {
 					if (*separateur != 0)
 						printf("hmm.. dont like that!! trying this height \n");
 				}
+				free(sizestring);
 			}
 			printf(" size width: %d height: %d \n",global->width, global->height);
 		}
@@ -309,6 +309,7 @@ readOpts(int argc,char *argv[], struct GLOBAL *global) {
 				global->image_timer= strtoul(timestr, &separateur, 10);
 				global->image_inc=1;
 				printf("capturing images every %i seconds",global->image_timer);
+				free(timestr);
 			}
 		}
 		if ((strcmp(argv[i], "-m") == 0) || (strcmp(argv[i], "--npics") == 0)) {
@@ -318,6 +319,7 @@ readOpts(int argc,char *argv[], struct GLOBAL *global) {
 				char *npicstr = strdup(argv[i + 1]);
 				global->image_npics= strtoul(npicstr, &separateur, 10);
 				printf("capturing at max %d pics",global->image_npics);
+				free(npicstr);
 			}
 		}
 		if ((strcmp(argv[i], "-i") == 0) || (strcmp(argv[i], "--image") == 0)) {
@@ -328,6 +330,7 @@ readOpts(int argc,char *argv[], struct GLOBAL *global) {
 				global->imgFPath=splitPath(image_path,global->imgFPath);
 				/*get the file type*/
 				global->imgFormat = check_image_type(global->imgFPath[0]);
+				free(image_path);
 			}
 		}
 		
@@ -346,6 +349,7 @@ readOpts(int argc,char *argv[], struct GLOBAL *global) {
 				char *timestr = strdup(argv[i + 1]);
 				global->Capture_time= strtoul(timestr, &separateur, 10);
 				printf("capturing avi for %i seconds",global->Capture_time);
+				free(timestr);
 			}
 		}
 		if (strcmp(argv[i], "-p") == 0) {

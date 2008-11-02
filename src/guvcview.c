@@ -87,10 +87,7 @@ pthread_t mythread;
 pthread_attr_t attr;
 
 /* parameters passed when restarting*/
-char *EXEC_CALL=NULL;
-
-/*structure containing all shared data - passed in callbacks*/
-struct ALL_DATA all_data;
+gchar *EXEC_CALL;
 
 /*--------------------------- file chooser dialog ----------------------------*/
 static void
@@ -175,14 +172,18 @@ int main(int argc, char *argv[])
 	bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
 	char* txtdom = textdomain (GETTEXT_PACKAGE);
 #endif
+	/*structure containing all shared data - passed in callbacks*/
+	struct ALL_DATA all_data;
+	memset(&all_data,0,sizeof(struct ALL_DATA));
 	
 	/*stores argv[0] - program call string - for restart*/
-	int exec_size=strlen(argv[0])*sizeof(char)+1;
-	if((EXEC_CALL=malloc(exec_size))==NULL) {
-		printf("couldn't allocate memory for: EXEC_CALL)\n");
-		exit(1);
-	}
-	snprintf(EXEC_CALL,exec_size,"%s",argv[0]);
+	//int exec_size=strlen(argv[0])*sizeof(char)+1;
+	//if((EXEC_CALL=malloc(exec_size))==NULL) {
+	//	printf("couldn't allocate memory for: EXEC_CALL)\n");
+	//	exit(1);
+	//}
+	//snprintf(EXEC_CALL,exec_size,"%s",argv[0]);
+	EXEC_CALL = g_get_prgname();
 	
 	/*set global variables*/
 	if((global=(struct GLOBAL *) calloc(1, sizeof(struct GLOBAL)))==NULL){
@@ -244,11 +245,14 @@ int main(int argc, char *argv[])
 		printf("couldn't allocate memory for: s\n");
 		exit(1); 
 	}
+	memset(s,0,sizeof(struct VidState));
 	
     	if((pdata=(struct paRecordData *) calloc(1, sizeof(struct paRecordData)))==NULL){
 		printf("couldn't allocate memory for: paRecordData\n");
 		exit(1); 
 	}
+	memset(pdata,0,sizeof(struct paRecordData));
+	
 	/*create mutex for sound buffers*/
 	pthread_mutex_init(&pdata->mutex, NULL);
 	//pdata->cond = PTHREAD_COND_INITIALIZER;
@@ -261,17 +265,21 @@ int main(int argc, char *argv[])
    	}
     	
 	
-	char *home;
-	char *pwd=NULL;
+	const gchar *home;
+	gchar *pwd=NULL;
 	
-	home = getenv("HOME");
+	//home = getenv("HOME");
 	//pwd = getenv("PWD");
-	pwd=getcwd(pwd,0);
+	//pwd=getcwd(pwd,0);
+	home=g_get_home_dir();
+	pwd=g_get_current_dir();
 	
 	sprintf(global->confPath,"%s%s", home,"/.guvcviewrc");
 	sprintf(global->aviFPath[1],"%s", pwd);
 	sprintf(global->imgFPath[1],"%s", pwd);
-	  
+	
+	if(pwd) free(pwd);
+	
 	readConf(global);
     
 	/*------------------------ reads command line options --------------------*/
@@ -300,6 +308,7 @@ int main(int argc, char *argv[])
 		printf("couldn't allocate memory for: videoIn\n");
 		exit(1); 
 	}
+	memset(videoIn,0,sizeof(struct vdIn));
 	
 	/*set structure with all global allocations*/
 	all_data.pdata = pdata;

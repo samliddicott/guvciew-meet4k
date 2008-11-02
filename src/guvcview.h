@@ -79,7 +79,7 @@ struct ALL_DATA {
 	struct avi_t *AviOut;
 	struct GWIDGET *gwidget;
 	struct VidState *s;
-	char *EXEC_CALL;
+	gchar *EXEC_CALL;
 	pthread_t *pmythread;
 	pthread_attr_t *pattr;
 };

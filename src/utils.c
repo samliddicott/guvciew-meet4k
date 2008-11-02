@@ -295,17 +295,19 @@ int jpeg_decode(unsigned char **pic, unsigned char *buf, int *width,
 		int *height)
 {
     struct jpeg_decdata *decdata;
-    int i, j, m, tac, tdc;
-    int intwidth, intheight;
-    int mcusx, mcusy, mx, my;
-    int ypitch ,xpitch,bpp,pitch,x,y;
-    int mb;
+    int i=0, j=0, m=0, tac=0, tdc=0;
+    int intwidth=0, intheight=0;
+    int mcusx=0, mcusy=0, mx=0, my=0;
+    int ypitch=0 ,xpitch=0,bpp=0,pitch=0,x=0,y=0;
+    int mb=0;
     int max[6];
     ftopict convert;
     int err = 0;
     int isInitHuffman = 0;
     decdata = (struct jpeg_decdata *) malloc(sizeof(struct jpeg_decdata));
     
+    for(i=0;i<6;i++) max[i]=0;
+	
     if (!decdata) {
 	err = -1;
 	goto error;

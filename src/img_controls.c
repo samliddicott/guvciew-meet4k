@@ -41,6 +41,7 @@ draw_controls (struct ALL_DATA *all_data)
 	if (s->control) {
 		input_free_controls (s);
 	}
+	s->num_controls = 0;
 	s->control = input_enum_controls (videoIn, &(s->num_controls));
 	if (global->debug) {
 		printf("Controls:\n");
@@ -140,8 +141,10 @@ draw_controls (struct ALL_DATA *all_data)
 			g_object_set_data (G_OBJECT (ci->widget), "control_info", ci);
 			ci->maxchars = MAX (num_chars (c->min), num_chars (c->max));
 			gtk_widget_show (ci->widget);
-
-			ci->label = gtk_label_new (g_strdup_printf ("%s:", gettext(c->name)));
+			gchar *tmp;
+			tmp =  g_strdup_printf ("%s:", gettext(c->name));
+			ci->label = gtk_label_new (tmp);
+			free(tmp);
 			
 		} else if ((c->id == V4L2_CID_TILT_RELATIVE_NEW) ||
 				   (c->id == V4L2_CID_TILT_RELATIVE_OLD)) {
@@ -163,8 +166,10 @@ draw_controls (struct ALL_DATA *all_data)
 			g_object_set_data (G_OBJECT (ci->widget), "control_info", ci);
 			ci->maxchars = MAX (num_chars (c->min), num_chars (c->max));
 			gtk_widget_show (ci->widget);
-
-			ci->label = gtk_label_new (g_strdup_printf ("%s:", gettext(c->name)));
+			gchar *tmp;
+			tmp = g_strdup_printf ("%s:", gettext(c->name));
+			ci->label = gtk_label_new (tmp);
+			free(tmp);
 			
 		} else if (c->id == V4L2_CID_PAN_RESET_NEW) {
 			ci->widget = gtk_button_new_with_label(_("Reset"));
@@ -175,8 +180,10 @@ draw_controls (struct ALL_DATA *all_data)
 			g_object_set_data (G_OBJECT (ci->widget), "control_info", ci);
 			ci->maxchars = MAX (num_chars (c->min), num_chars (c->max));
 			gtk_widget_show (ci->widget);
-
-			ci->label = gtk_label_new (g_strdup_printf ("%s:", gettext(c->name)));
+			gchar *tmp;
+			tmp = g_strdup_printf ("%s:", gettext(c->name));
+			ci->label = gtk_label_new (tmp);
+			free(tmp);
 		
 		} else if (c->id == V4L2_CID_TILT_RESET_NEW) {
 			ci->widget = gtk_button_new_with_label(_("Reset"));
@@ -187,8 +194,10 @@ draw_controls (struct ALL_DATA *all_data)
 			g_object_set_data (G_OBJECT (ci->widget), "control_info", ci);
 			ci->maxchars = MAX (num_chars (c->min), num_chars (c->max));
 			gtk_widget_show (ci->widget);
-
-			ci->label = gtk_label_new (g_strdup_printf ("%s:", gettext(c->name)));
+			gchar *tmp;
+			tmp = g_strdup_printf ("%s:", gettext(c->name));
+			ci->label = gtk_label_new (tmp);
+			free(tmp);
 		
 		}else if ((c->id == V4L2_CID_PANTILT_RESET_LOGITECH) ||
 				   (c->id == V4L2_CID_PANTILT_RESET_OLD)) {
@@ -204,8 +213,10 @@ draw_controls (struct ALL_DATA *all_data)
 			g_object_set_data (G_OBJECT (ci->widget), "control_info", ci);
 			ci->maxchars = MAX (num_chars (c->min), num_chars (c->max));
 			gtk_widget_show (ci->widget);
-
-			ci->label = gtk_label_new (g_strdup_printf ("%s:", gettext(c->name)));
+			gchar *tmp;
+			tmp = g_strdup_printf ("%s:", gettext(c->name));
+			ci->label = gtk_label_new (tmp);
+			free(tmp);
 			
 		} else if (c->type == INPUT_CONTROL_TYPE_INTEGER) {
 			int val=0;
@@ -256,8 +267,10 @@ draw_controls (struct ALL_DATA *all_data)
 					G_CALLBACK (spin_changed), all_data);
 
 			gtk_widget_show (ci->spinbutton);
-
-			ci->label = gtk_label_new (g_strdup_printf ("%s:", gettext(c->name)));
+			gchar *tmp;
+			tmp = g_strdup_printf ("%s:", gettext(c->name));
+			ci->label = gtk_label_new (tmp);
+			free(tmp);
 		    	/* ---- Add auto-focus checkbox and focus button ----- */
 		    	if (c->id== V4L2_CID_FOCUS_LOGITECH) {
 				global->AFcontrol=1;
@@ -324,8 +337,10 @@ draw_controls (struct ALL_DATA *all_data)
 					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 			ci->maxchars = MAX (num_chars (c->min), num_chars (c->max));
 			gtk_widget_show (ci->widget);
-
-		      	ci->label = gtk_label_new (g_strdup_printf (_("raw pixel order:")));
+			gchar *tmp;
+			tmp = g_strdup_printf (_("raw pixel order:"));
+		      	ci->label = gtk_label_new (tmp);
+			free(tmp);
 		      	
 		        if (input_get_control (videoIn, c, &val) == 0) {
 				gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (check_bayer),
@@ -400,8 +415,10 @@ draw_controls (struct ALL_DATA *all_data)
 			
 			g_signal_connect (G_OBJECT (ci->widget), "changed",
 					G_CALLBACK (combo_changed), all_data);
-
-			ci->label = gtk_label_new (g_strdup_printf ("%s:", gettext(c->name)));
+			gchar *tmp;
+			tmp = g_strdup_printf ("%s:", gettext(c->name));
+			ci->label = gtk_label_new (tmp);
+			free(tmp);
 		}
 		else {
 			printf ("TODO: implement button\n");
