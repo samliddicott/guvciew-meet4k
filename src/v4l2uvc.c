@@ -377,6 +377,7 @@ init_videoIn(struct vdIn *vd, char *device, int width, int height,
 	if(vd->framebuffer) free(vd->framebuffer);
     	if(vd->tmpbuffer) free(vd->tmpbuffer);
 	close(vd->fd);
+	vd->fd=0;
     	if(vd->status) free(vd->status);
     	if(vd->videodevice) free(vd->videodevice);
 	if(vd->AVIFName) free (vd->AVIFName);
