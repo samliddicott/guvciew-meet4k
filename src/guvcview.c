@@ -183,7 +183,7 @@ int main(int argc, char *argv[])
 	//	exit(1);
 	//}
 	//snprintf(EXEC_CALL,exec_size,"%s",argv[0]);
-	EXEC_CALL = g_get_prgname();
+	
 	
 	/*set global variables*/
 	if((global=(struct GLOBAL *) calloc(1, sizeof(struct GLOBAL)))==NULL){
@@ -268,9 +268,6 @@ int main(int argc, char *argv[])
 	const gchar *home;
 	gchar *pwd=NULL;
 	
-	//home = getenv("HOME");
-	//pwd = getenv("PWD");
-	//pwd=getcwd(pwd,0);
 	home=g_get_home_dir();
 	pwd=g_get_current_dir();
 	
@@ -278,7 +275,7 @@ int main(int argc, char *argv[])
 	sprintf(global->aviFPath[1],"%s", pwd);
 	sprintf(global->imgFPath[1],"%s", pwd);
 	
-	if(pwd) free(pwd);
+	if(pwd) g_free(pwd);
 	
 	readConf(global);
     
@@ -293,7 +290,13 @@ int main(int argc, char *argv[])
 	
 	gtk_init(&argc, &argv);
 	
-
+	/*must be set after gdk_init - called by gtk_init*/
+	gchar* prgname = g_get_prgname();
+	if (prgname == NULL) EXEC_CALL = g_strdup(argv[0]);
+	else EXEC_CALL = g_strdup(prgname);
+	
+	//printf("EXEC_CALL=%s\n",EXEC_CALL);
+	
 	/* Create a main window */
 	gwidget->mainwin = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_title (GTK_WINDOW (gwidget->mainwin), _("GUVCViewer Controls"));

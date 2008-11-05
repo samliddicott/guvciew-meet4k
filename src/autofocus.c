@@ -35,6 +35,8 @@
 #include <string.h>
 #include <math.h>
 
+#define SORT (2) //1 - Quick sort   2 - Shell sort  other - bubble sort
+
 #define TH		(80) // treshold = 1/80 of focus sharpness value
 
 #define FLAT 		(0)
@@ -64,29 +66,118 @@ void initFocusData (struct focusData *AFdata) {
     	/*all other values are 0 */
 }
 
-static void bubble_sort (struct focusData *AFdata, int size) {
-	int swapped = 0;
-    	int temp=0;
-    	if (size>=20) {
-		printf("WARNING: focus array size=%d exceeds 20\n",size);
-		size = 10;
+#if (SORT == 1)
+/*quick sort (the fastest and more complex - recursive)*/
+static void q_sort(struct focusData *AFdata, int left, int right)
+{
+	int pivot, l_hold, r_hold, temp;
+
+	l_hold = left;
+	r_hold = right;
+	pivot = AFdata->arr_sharp[left];
+	temp = AFdata->arr_foc[left];
+	
+	while(left < right)
+	{
+		while((AFdata->arr_sharp[right] >= pivot) && (left < right))
+			right--;
+		if (left != right)
+		{
+			AFdata->arr_sharp[left] = AFdata->arr_sharp[right];
+			AFdata->arr_foc[left] = AFdata->arr_foc[right];
+			left++;
+		}
+		while((AFdata->arr_sharp[left] <= pivot) && (left < right))
+			left++;
+		if (left != right)
+		{
+			AFdata->arr_sharp[right] = AFdata->arr_sharp[left];
+			AFdata->arr_foc[right] = AFdata->arr_foc[left];
+			right--;
+		}
 	}
-    	int i;
-    	do {
-    		swapped = 0;
-    		size--;
-    		for (i=0;i<=size;i++) {
-      			if (AFdata->arr_sharp[i+1] > AFdata->arr_sharp[i]) {
-        			temp = AFdata->arr_sharp[i];
-				AFdata->arr_sharp[i]=AFdata->arr_sharp[i+1];
-				AFdata->arr_sharp[i+1]=temp;
-				temp=AFdata->arr_foc[i];
-				AFdata->arr_foc[i]=AFdata->arr_foc[i+1];
-				AFdata->arr_foc[i+1]=temp;
+	AFdata->arr_sharp[left] = pivot;
+	AFdata->arr_foc[left] = temp;
+	pivot = left;
+	left = l_hold;
+	right = r_hold;
+	if (left < pivot)
+	q_sort(AFdata, left, pivot-1);
+	if (right > pivot)
+	q_sort(AFdata, pivot+1, right);
+
+}
+#elif (SORT == 2)  
+/* shell sort (simpler and around 5 times faster than bubble sort)*/
+void s_sort(struct focusData *AFdata, int size)
+{
+	int i, j, increment, temp, tempf;
+
+	increment = size/2;
+	while (increment > 0)
+	{
+	for (i=increment; i <= size; i++)
+	{
+		j = i;
+		temp = AFdata->arr_sharp[i];
+		tempf = AFdata->arr_foc[i];
+		while ((j >= increment) && (AFdata->arr_sharp[j-increment] > temp))
+		{
+			AFdata->arr_sharp[j] = AFdata->arr_sharp[j - increment];
+			AFdata->arr_foc[j] = AFdata->arr_foc[j - increment];
+			j = j - increment;
+		}
+		AFdata->arr_sharp[j] = temp;
+		AFdata->arr_foc[j] = tempf;
+	}
+	if (increment == 2)
+		increment = 1;
+	else
+		increment =(int) (increment / 2.2);
+	}
+}
+
+#else
+/*buble sort (the simplest and most inefficient)*/
+static void b_sort (struct focusData *AFdata, int size) 
+{
+	int swapped = 0;
+	int temp=0;
+	int i;
+	do {
+		swapped = 0;
+		size--;
+		for (i=0;i<=size;i++) {
+			if (AFdata->arr_sharp[i+1] > AFdata->arr_sharp[i]) {
+				temp = AFdata->arr_sharp[i+1];
+				AFdata->arr_sharp[i+1]=AFdata->arr_sharp[i];
+				AFdata->arr_sharp[i]=temp;
+				temp=AFdata->arr_foc[i+1];
+				AFdata->arr_foc[i+1]=AFdata->arr_foc[i];
+				AFdata->arr_foc[i]=temp;
 				swapped = 1;
 			}
 		}
 	 } while (swapped);
+}
+#endif
+
+static int Sort(struct focusData *AFdata, int size)
+{
+	if (size>=20) {
+		printf("WARNING: focus array size=%d exceeds 20\n",size);
+		size = 10;
+	}
+#if (SORT == 1)
+	q_sort(AFdata, 0, size);
+#elif (SORT == 2)
+	s_sort(AFdata, size);
+#else
+	b_sort(AFdata, size);
+#endif
+	
+	/*better focus value*/ 
+	return(AFdata->arr_foc[size]);
 }
 
 /* extract lum (y) data from image    (YUYV)                */
@@ -225,7 +316,8 @@ static int checkFocus(struct focusData *AFdata) {
 int getFocusVal (struct focusData *AFdata) {
     	int step = 20;
     	int step2 = 2;
-    
+	int focus=0;
+	
 	switch (AFdata->flag) {
 	    /*--------- first time - run sharpness algorithm -----------------*/
 	    if(AFdata->ind >= 20) {
@@ -236,10 +328,10 @@ int getFocusVal (struct focusData *AFdata) {
 	    	AFdata->arr_sharp[AFdata->ind] = AFdata->sharpness;
 		AFdata->arr_foc[AFdata->ind] = AFdata->focus;
 		if (AFdata->focus > (AFdata->right - step)) { /*get left and right from arr_sharp*/	
-			bubble_sort(AFdata,AFdata->ind);
+			focus=Sort(AFdata,AFdata->ind);
 		       	/*get a window around the best value*/
-			AFdata->left = (AFdata->arr_foc[0]- step/2);
-			AFdata->right = (AFdata->arr_foc[0] + step/2);
+			AFdata->left = (focus- step/2);
+			AFdata->right = (focus + step/2);
 			if (AFdata->left < 0) AFdata->left=0;
 			if (AFdata->right > 255) AFdata->right=255;
 			AFdata->focus = AFdata->left;
@@ -256,10 +348,10 @@ int getFocusVal (struct focusData *AFdata) {
 	    	AFdata->arr_sharp[AFdata->ind] = AFdata->sharpness;
 		AFdata->arr_foc[AFdata->ind] = AFdata->focus;
 		if (AFdata->focus > (AFdata->right - step2)) { /*get left and right from arr_sharp*/	
-			bubble_sort(AFdata,AFdata->ind);
+			focus=Sort(AFdata,AFdata->ind);
 		       	/*get the best value*/
-			AFdata->focus = AFdata->arr_foc[0];
-			AFdata->focus_sharpness = AFdata->arr_sharp[0];
+			AFdata->focus = focus;
+			AFdata->focus_sharpness = AFdata->arr_sharp[AFdata->ind];
 			AFdata->step = 8; /*first step for focus tracking*/
 			AFdata->focusDir = FLAT; /*no direction for focus*/
 			AFdata->flag = 2;

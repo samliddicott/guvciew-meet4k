@@ -215,7 +215,6 @@ void *main_loop(void *data)
 	     	/*---------------- autofocus control ------------------*/
 		
 		if (global->AFcontrol && (global->autofocus || AFdata->setFocus)) { /*AFdata = NULL if no focus control*/
-			if (global->debug) printf("inside AFcontrol\n");
 			if (AFdata->focus < 0) {
 			    /*starting autofocus*/
 			    AFdata->focus = AFdata->left; /*start left*/

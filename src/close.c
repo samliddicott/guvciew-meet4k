@@ -137,6 +137,7 @@ shutd (gint restart, struct ALL_DATA *all_data)
 		 exec_status = execlp(EXEC_CALL,EXEC_CALL,NULL);/*No parameters passed*/
 	}
 	
+	g_free(EXEC_CALL);
 	printf("Terminated.\n");
 	
 }
