@@ -30,12 +30,14 @@
 #include "autofocus.h"
 #include "dct.h"
 #include "defs.h"
+#include "ms_time.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
 
-#define SORT (2) //1 - Quick sort   2 - Shell sort  other - bubble sort
+/*use insert sort - it's the fastest for small and almost sorted arrays (our case)*/
+#define SORT (3) //1 - Quick sort   2 - Shell sort  3- insert sort  other - bubble sort
 
 #define TH		(80) // treshold = 1/80 of focus sharpness value
 
@@ -44,6 +46,8 @@
 #define LEFT		(2)
 #define RIGHT		(3)
 #define INCSTEP		(4)
+
+#define SWAP(x, y) temp = (x); (x) = (y); (y) = temp
 
 static double sumAC[64];
 static int ACweight[64] = {
@@ -67,7 +71,7 @@ void initFocusData (struct focusData *AFdata) {
 }
 
 #if (SORT == 1)
-/*quick sort (the fastest and more complex - recursive)*/
+/*quick sort (the fastest and more complex - recursive, doesn't do well on almost sorted data)*/
 static void q_sort(struct focusData *AFdata, int left, int right)
 {
 	int pivot, l_hold, r_hold, temp;
@@ -101,60 +105,59 @@ static void q_sort(struct focusData *AFdata, int left, int right)
 	pivot = left;
 	left = l_hold;
 	right = r_hold;
-	if (left < pivot)
-	q_sort(AFdata, left, pivot-1);
-	if (right > pivot)
-	q_sort(AFdata, pivot+1, right);
-
+	if (left < pivot) q_sort(AFdata, left, pivot-1);
+	if (right > pivot) q_sort(AFdata, pivot+1, right);
 }
 #elif (SORT == 2)  
-/* shell sort (simpler and around 5 times faster than bubble sort)*/
+/* shell sort (based on insert sort, but with some optimization)*/
+/* for small arrays insert sort is still faster */
 void s_sort(struct focusData *AFdata, int size)
 {
-	int i, j, increment, temp, tempf;
-
-	increment = size/2;
-	while (increment > 0)
+	int i, j, temp, gap;
+	
+	for (gap = size / 2; gap > 0; gap /= 2)
 	{
-	for (i=increment; i <= size; i++)
-	{
-		j = i;
-		temp = AFdata->arr_sharp[i];
-		tempf = AFdata->arr_foc[i];
-		while ((j >= increment) && (AFdata->arr_sharp[j-increment] > temp))
+		for (i = gap; i <= size; i++)
 		{
-			AFdata->arr_sharp[j] = AFdata->arr_sharp[j - increment];
-			AFdata->arr_foc[j] = AFdata->arr_foc[j - increment];
-			j = j - increment;
+			for (j = i-gap; j >= 0 && (AFdata->arr_sharp[j] > AFdata->arr_sharp[j + gap]); j -= gap) 
+			{
+				SWAP(AFdata->arr_sharp[j], AFdata->arr_sharp[j + gap]);
+				SWAP(AFdata->arr_foc[j], AFdata->arr_foc[j + gap]);
+			}
 		}
-		AFdata->arr_sharp[j] = temp;
-		AFdata->arr_foc[j] = tempf;
 	}
-	if (increment == 2)
-		increment = 1;
-	else
-		increment =(int) (increment / 2.2);
+}
+
+#elif (SORT == 3)
+/*insert sort (fastest for small arrays, around 15 elements)*/
+static void i_sort (struct focusData *AFdata, int size)
+{
+	int i,j,temp;
+	
+	for (i = 1; i <= size; i++) 
+	{
+		for(j = i; j > 0 && (AFdata->arr_sharp[j-1] > AFdata->arr_sharp[j]); j--)
+		{
+			SWAP(AFdata->arr_sharp[j],AFdata->arr_sharp[j-1]);
+			SWAP(AFdata->arr_foc[j],AFdata->arr_foc[j-1]);
+		}
 	}
 }
 
 #else
-/*buble sort (the simplest and most inefficient)*/
+/*buble sort (the simplest and most inefficient) - in real test with focus data*/
+/*it did real good better than shell or quick sort (focus data is almost sorted)*/
 static void b_sort (struct focusData *AFdata, int size) 
 {
-	int swapped = 0;
-	int temp=0;
-	int i;
+	int i, temp, swapped;
+	
 	do {
 		swapped = 0;
 		size--;
 		for (i=0;i<=size;i++) {
-			if (AFdata->arr_sharp[i+1] > AFdata->arr_sharp[i]) {
-				temp = AFdata->arr_sharp[i+1];
-				AFdata->arr_sharp[i+1]=AFdata->arr_sharp[i];
-				AFdata->arr_sharp[i]=temp;
-				temp=AFdata->arr_foc[i+1];
-				AFdata->arr_foc[i+1]=AFdata->arr_foc[i];
-				AFdata->arr_foc[i]=temp;
+			if (AFdata->arr_sharp[i+1] < AFdata->arr_sharp[i]) {
+				SWAP(AFdata->arr_sharp[i],AFdata->arr_sharp[i+1]);
+				SWAP(AFdata->arr_foc[i],AFdata->arr_foc[i+1]);
 				swapped = 1;
 			}
 		}
@@ -168,15 +171,20 @@ static int Sort(struct focusData *AFdata, int size)
 		printf("WARNING: focus array size=%d exceeds 20\n",size);
 		size = 10;
 	}
+	//ULLONG tm1 = ns_time();
 #if (SORT == 1)
 	q_sort(AFdata, 0, size);
 #elif (SORT == 2)
 	s_sort(AFdata, size);
+#elif (SORT == 3)
+	i_sort(AFdata, size);
 #else
 	b_sort(AFdata, size);
 #endif
-	
-	/*better focus value*/ 
+	//ULLONG tm2 = ns_time();
+	//ULLONG totm=tm2-tm1;
+	//printf("Total time to sort:%lld ns\n", totm);
+	/*better focus value*/
 	return(AFdata->arr_foc[size]);
 }
 

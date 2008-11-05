@@ -22,8 +22,9 @@
 #define MS_TIME_H
 
 #include "defs.h"
-
+/*time in miliseconds*/
 DWORD ms_time (void);
-
+/*time in nanoseconds (real time for benchmark)*/
+ULLONG ns_time (void);
 #endif
 

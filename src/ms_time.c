@@ -33,4 +33,9 @@ DWORD ms_time (void)
    return ((DWORD) tod.tv_sec * 1000.0 + (DWORD) tod.tv_usec / 1000.0);
 };
 
-
+ULLONG ns_time (void)
+{
+   static struct timespec ts;
+   clock_gettime(CLOCK_REALTIME, &ts);
+   return ((ULLONG) ts.tv_sec * 1000000000.0 + (ULLONG) ts.tv_nsec);
+};
