@@ -69,7 +69,8 @@ ERR_DIALOG(const char *err_title, const char* err_msg, struct ALL_DATA *all_data
     pdata = NULL;
     all_data->pdata = NULL;    
 	
-    if(videoIn) free(videoIn);
+    if(videoIn->fd > 0) close_v4l2(videoIn);
+    else if(videoIn) free(videoIn);
     videoIn=NULL;
     all_data->videoIn = NULL;
 	
