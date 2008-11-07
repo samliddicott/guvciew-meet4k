@@ -1,3 +1,12 @@
+guvcview (0.9.5) stable; urgency=low
+
+   * Fixed several warnings in valgrind.
+   * Fixed a couple of memory leaks.
+   * Fixed a device open/close bug after first format init failure, causing 
+    second init with a valid format to fail. 
+   
+ -- Paulo Assis <pj.assis@gmail.com>  Fri, 7 Nov 2008 23:19:00 +0000
+
 guvcview (0.9.4) stable; urgency=low
 
    * Added support for isight camera - UYVY (Nobuhiro Iwamatsu).
