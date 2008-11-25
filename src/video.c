@@ -169,6 +169,7 @@ void *main_loop(void *data)
 	SDL_SetVideoMode(videoIn->width, videoIn->height, global->bpp,
 			 SDL_VIDEO_Flags);
 	switch (global->format) {
+	    case V4L2_PIX_FMT_SGBRG8: /*converted to YUYV*/
 	    case V4L2_PIX_FMT_YUV420: /*converted to YUYV*/
 	    case V4L2_PIX_FMT_YUYV:
 		overlay = SDL_CreateYUVOverlay(videoIn->width, videoIn->height,
@@ -247,6 +248,7 @@ void *main_loop(void *data)
 	 if(global->Frame_Flags>0){
 		if((global->Frame_Flags & YUV_MIRROR)==YUV_MIRROR) {
 			switch (global->format) {
+			    case V4L2_PIX_FMT_SGBRG8: /*converted to YUYV*/
 			    case V4L2_PIX_FMT_YUV420: /*converted to YUYV*/
 			    case V4L2_PIX_FMT_YUYV: 
 				yuyv_mirror(videoIn->framebuffer,videoIn->width,videoIn->height);
@@ -265,6 +267,7 @@ void *main_loop(void *data)
 			yuyv_negative (videoIn->framebuffer,videoIn->width,videoIn->height);
 		if((global->Frame_Flags & YUV_MONOCR)==YUV_MONOCR) {
 			switch (global->format) {
+			    case V4L2_PIX_FMT_SGBRG8: /*converted to YUYV*/
 			    case V4L2_PIX_FMT_YUV420: /*converted to YUYV*/
 			    case V4L2_PIX_FMT_YUYV: 
 				yuyv_monochrome (videoIn->framebuffer,videoIn->width,videoIn->height);

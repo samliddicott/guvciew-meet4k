@@ -329,8 +329,9 @@ int main(int argc, char *argv[])
 		(videoIn, (char *) global->videodevice, global->width,global->height, 
 	 	global->format, global->grabmethod, global->fps, global->fps_num) )< 0)
 	{
-	    switch (ret) {
-	    	case -1:/*can't open device*/
+	    switch (ret) 
+	    {
+		case -1:/*can't open device*/
 		  	ERR_DIALOG (N_("Guvcview error:\n\nUnable to open device"),
 				N_("Please make sure the camera is connected\nand that the linux-UVC driver is installed."),
 				&all_data);
@@ -348,6 +349,7 @@ int main(int argc, char *argv[])
 				    printf("SupYuv   %d\n", videoIn->SupYuv);
 				    printf("SupUyv   %d\n", videoIn->SupUyv);
 				    printf("SupYup   %d\n", videoIn->SupYup);
+				    printf("SupGbr   %d\n", videoIn->SupGbr);
 				}
 				
 				if (videoIn->SupYuv>0) {
@@ -362,6 +364,9 @@ int main(int argc, char *argv[])
 					global->formind=1;
 					global->format=V4L2_PIX_FMT_YUV420;
 					snprintf(global->mode, 4, "yup");
+				} else if (videoIn->SupGbr>0) {
+					global->formind=1;
+					global->format=V4L2_PIX_FMT_SGBRG8;
 				} else {
 					printf("ERROR: Can't set MJPG or YUV stream.\nExiting...\n");
 					ERR_DIALOG (N_("Guvcview error:\n\nCan't set MJPG or YUV stream for guvcview"),
@@ -373,6 +378,7 @@ int main(int argc, char *argv[])
 			global->height=videoIn->listVidCap[global->formind][0].height;
 			global->fps_num=videoIn->listVidCap[global->formind][0].framerate_num[0];
 			global->fps=videoIn->listVidCap[global->formind][0].framerate_denom[0];
+			/*try again with new format*/
 			if (init_videoIn
 				(videoIn, (char *) global->videodevice, global->width,global->height, 
 	 			global->format, global->grabmethod, global->fps, global->fps_num) < 0)
@@ -391,7 +397,11 @@ int main(int argc, char *argv[])
 				N_("Please try restarting your system."),
 				&all_data);
 			break;
-		}
+	    }
+	    global->width = videoIn->width;
+	    global->height = videoIn->height;
+	    global->fps = videoIn->fps;
+	    global->fps_num = videoIn->fps_num;
 	}
 			
 

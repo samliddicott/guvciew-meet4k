@@ -247,6 +247,7 @@ struct vdIn {
 	int SupYuv;
 	int SupUyv;
 	int SupYup;
+	int SupGbr;
 	int SupMjpg;
     	int formatIn;
     	int formatOut;
