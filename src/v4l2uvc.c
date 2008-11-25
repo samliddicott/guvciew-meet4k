@@ -607,17 +607,17 @@ int uvcGrab(struct vdIn *vd)
 	FD_SET(vd->fd, &rdset);
 	timeout.tv_sec = 1; /* 1 sec timeout */
 	timeout.tv_usec = 0;
-	n = select(i->fd+1, &rdset, NULL, NULL, &timeout);
+	n = select(vd->fd+1, &rdset, NULL, NULL, &timeout);
 
 	if (n == -1) 
 	{
-		perror(" COULD NOT GRAB IMAGE: %d", errno);
+		perror(" COULD NOT GRAB IMAGE ");
 	} 
 	else if (n == 0)
 	{
-		perror(" COULD NOT GRAB IMAGE: timeout");
+		perror(" COULD NOT GRAB IMAGE ( timeout )");
 	}
-	else if ((n > 0) && (FD_ISSET(i->fd, &rdset))) 
+	else if ((n > 0) && (FD_ISSET(vd->fd, &rdset))) 
 	{
 		memset(&vd->buf, 0, sizeof(struct v4l2_buffer));
 		vd->buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
@@ -899,7 +899,9 @@ input_enum_controls (struct vdIn * device, int *num_controls)
                 control[n].max = querymenu.index - 1;
             }
             n++;
-        }
+        } else {
+	    if (errno != EINVAL) printf("Failed to query control %d: %d\n",i, errno);
+	}
         i++;
        	if (i == V4L2_CID_LAST_NEW)  /* jump between CIDs*/
        		i = V4L2_CID_CAMERA_CLASS_BASE_NEW;
