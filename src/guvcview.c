@@ -327,7 +327,7 @@ int main(int argc, char *argv[])
 	
 	if ((ret=init_videoIn
 		(videoIn, (char *) global->videodevice, global->width,global->height, 
-	 	global->format, global->grabmethod, global->fps, global->fps_num) )< 0)
+		global->format, global->grabmethod, global->fps, global->fps_num) )< 0)
 	{
 	    switch (ret) 
 	    {
@@ -398,12 +398,16 @@ int main(int argc, char *argv[])
 				&all_data);
 			break;
 	    }
-	    global->width = videoIn->width;
-	    global->height = videoIn->height;
-	    global->fps = videoIn->fps;
-	    global->fps_num = videoIn->fps_num;
+	
 	}
-			
+	/*make sure global and videoIn are in sync            */
+	/*with gspca, videoIn can change during initialization*/
+	/*FIX - should remove some of these duplications      */
+	global->width = videoIn->width;
+	global->height = videoIn->height;
+	global->fps = videoIn->fps;
+	global->fps_num = videoIn->fps_num;
+	global->format = videoIn->formatIn;
 
 	/* Set jpeg encoder buffer size */
 	global->jpeg_bufsize=((videoIn->width)*(videoIn->height))>>1;

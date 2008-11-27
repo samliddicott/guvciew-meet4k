@@ -1102,7 +1102,7 @@ int enum_frame_sizes(struct vdIn *vd, __u32 pixfmt)
 			ret = enum_frame_intervals(vd, pixfmt,
 					fsize.discrete.width, fsize.discrete.height, list_form,list_ind);
 					
-			if(list_ind<(MAX_LIST_VIDCAP-1)) list_ind++;
+			if((list_ind<(MAX_LIST_VIDCAP-1)) && (list_form >=0)) list_ind++;
 			if (ret != 0) perror("  Unable to enumerate frame sizes");
 		} 
 		else if (fsize.type == V4L2_FRMSIZE_TYPE_CONTINUOUS) 
@@ -1192,7 +1192,6 @@ int enum_frame_sizes(struct vdIn *vd, __u32 pixfmt)
 			vd->numb_resol=list_ind+1; /*only one resolution available*/
 		}
 	}
-
 	return 0;
 }
 
