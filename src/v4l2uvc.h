@@ -53,54 +53,54 @@
 /*------------------------- new camera class controls ---------------------*/
 #define V4L2_CTRL_CLASS_USER_NEW		0x00980000
 #define V4L2_CID_BASE_NEW			(V4L2_CTRL_CLASS_USER_NEW | 0x900)
-#define V4L2_CID_POWER_LINE_FREQUENCY_NEW		(V4L2_CID_BASE_NEW+24)
-#define V4L2_CID_HUE_AUTO_NEW					(V4L2_CID_BASE_NEW+25) 
+#define V4L2_CID_POWER_LINE_FREQUENCY_NEW	(V4L2_CID_BASE_NEW+24)
+#define V4L2_CID_HUE_AUTO_NEW			(V4L2_CID_BASE_NEW+25) 
 #define V4L2_CID_WHITE_BALANCE_TEMPERATURE_NEW	(V4L2_CID_BASE_NEW+26) 
-#define V4L2_CID_SHARPNESS_NEW					(V4L2_CID_BASE_NEW+27) 
+#define V4L2_CID_SHARPNESS_NEW			(V4L2_CID_BASE_NEW+27) 
 #define V4L2_CID_BACKLIGHT_COMPENSATION_NEW 	(V4L2_CID_BASE_NEW+28)
-#define V4L2_CID_LAST_NEW						(V4L2_CID_BASE_NEW+29)
+#define V4L2_CID_LAST_NEW			(V4L2_CID_BASE_NEW+29)
 
 #define V4L2_CTRL_CLASS_CAMERA_NEW 0x009A0000	/* Camera class controls */
 #define V4L2_CID_CAMERA_CLASS_BASE_NEW 		(V4L2_CTRL_CLASS_CAMERA_NEW | 0x900)
 
-#define V4L2_CID_EXPOSURE_AUTO_NEW			(V4L2_CID_CAMERA_CLASS_BASE_NEW+1)
+#define V4L2_CID_EXPOSURE_AUTO_NEW		(V4L2_CID_CAMERA_CLASS_BASE_NEW+1)
 #define V4L2_CID_EXPOSURE_ABSOLUTE_NEW		(V4L2_CID_CAMERA_CLASS_BASE_NEW+2)
-#define V4L2_CID_EXPOSURE_AUTO_PRIORITY_NEW		(V4L2_CID_CAMERA_CLASS_BASE_NEW+3)
+#define V4L2_CID_EXPOSURE_AUTO_PRIORITY_NEW	(V4L2_CID_CAMERA_CLASS_BASE_NEW+3)
 
-#define V4L2_CID_PAN_RELATIVE_NEW			(V4L2_CID_CAMERA_CLASS_BASE_NEW+4)
-#define V4L2_CID_TILT_RELATIVE_NEW			(V4L2_CID_CAMERA_CLASS_BASE_NEW+5)
+#define V4L2_CID_PAN_RELATIVE_NEW		(V4L2_CID_CAMERA_CLASS_BASE_NEW+4)
+#define V4L2_CID_TILT_RELATIVE_NEW		(V4L2_CID_CAMERA_CLASS_BASE_NEW+5)
 #define V4L2_CID_PAN_RESET_NEW			(V4L2_CID_CAMERA_CLASS_BASE_NEW+6)
 #define V4L2_CID_TILT_RESET_NEW			(V4L2_CID_CAMERA_CLASS_BASE_NEW+7)
 
-#define V4L2_CID_PAN_ABSOLUTE_NEW			(V4L2_CID_CAMERA_CLASS_BASE_NEW+8)
-#define V4L2_CID_TILT_ABSOLUTE_NEW			(V4L2_CID_CAMERA_CLASS_BASE_NEW+9)
+#define V4L2_CID_PAN_ABSOLUTE_NEW		(V4L2_CID_CAMERA_CLASS_BASE_NEW+8)
+#define V4L2_CID_TILT_ABSOLUTE_NEW		(V4L2_CID_CAMERA_CLASS_BASE_NEW+9)
 
-#define V4L2_CID_FOCUS_ABSOLUTE_NEW			(V4L2_CID_CAMERA_CLASS_BASE_NEW+10)
-#define V4L2_CID_FOCUS_RELATIVE_NEW			(V4L2_CID_CAMERA_CLASS_BASE_NEW+11)
+#define V4L2_CID_FOCUS_ABSOLUTE_NEW		(V4L2_CID_CAMERA_CLASS_BASE_NEW+10)
+#define V4L2_CID_FOCUS_RELATIVE_NEW		(V4L2_CID_CAMERA_CLASS_BASE_NEW+11)
 #define V4L2_CID_FOCUS_AUTO_NEW			(V4L2_CID_CAMERA_CLASS_BASE_NEW+12)
 #define V4L2_CID_CAMERA_CLASS_LAST		(V4L2_CID_CAMERA_CLASS_BASE_NEW+13)
 
 /*--------------- old private class controls ------------------------------*/
 
 #define V4L2_CID_PRIVATE_BASE_OLD		0x08000000
-#define V4L2_CID_BACKLIGHT_COMPENSATION_OLD		(V4L2_CID_PRIVATE_BASE_OLD+0)
-#define V4L2_CID_POWER_LINE_FREQUENCY_OLD		(V4L2_CID_PRIVATE_BASE_OLD+1)
+#define V4L2_CID_BACKLIGHT_COMPENSATION_OLD	(V4L2_CID_PRIVATE_BASE_OLD+0)
+#define V4L2_CID_POWER_LINE_FREQUENCY_OLD	(V4L2_CID_PRIVATE_BASE_OLD+1)
 #define V4L2_CID_SHARPNESS_OLD			(V4L2_CID_PRIVATE_BASE_OLD+2)
 #define V4L2_CID_HUE_AUTO_OLD			(V4L2_CID_PRIVATE_BASE_OLD+3)
 
 #define V4L2_CID_FOCUS_AUTO_OLD			(V4L2_CID_PRIVATE_BASE_OLD+4)
-#define V4L2_CID_FOCUS_ABSOLUTE_OLD			(V4L2_CID_PRIVATE_BASE_OLD+5)
-#define V4L2_CID_FOCUS_RELATIVE_OLD			(V4L2_CID_PRIVATE_BASE_OLD+6)
+#define V4L2_CID_FOCUS_ABSOLUTE_OLD		(V4L2_CID_PRIVATE_BASE_OLD+5)
+#define V4L2_CID_FOCUS_RELATIVE_OLD		(V4L2_CID_PRIVATE_BASE_OLD+6)
 
-#define V4L2_CID_PAN_RELATIVE_OLD			(V4L2_CID_PRIVATE_BASE_OLD+7)
-#define V4L2_CID_TILT_RELATIVE_OLD			(V4L2_CID_PRIVATE_BASE_OLD+8)
-#define V4L2_CID_PANTILT_RESET_OLD			(V4L2_CID_PRIVATE_BASE_OLD+9)
+#define V4L2_CID_PAN_RELATIVE_OLD		(V4L2_CID_PRIVATE_BASE_OLD+7)
+#define V4L2_CID_TILT_RELATIVE_OLD		(V4L2_CID_PRIVATE_BASE_OLD+8)
+#define V4L2_CID_PANTILT_RESET_OLD		(V4L2_CID_PRIVATE_BASE_OLD+9)
 
-#define V4L2_CID_EXPOSURE_AUTO_OLD			(V4L2_CID_PRIVATE_BASE_OLD+10)
+#define V4L2_CID_EXPOSURE_AUTO_OLD		(V4L2_CID_PRIVATE_BASE_OLD+10)
 #define V4L2_CID_EXPOSURE_ABSOLUTE_OLD		(V4L2_CID_PRIVATE_BASE_OLD+11)
 
 #define V4L2_CID_WHITE_BALANCE_TEMPERATURE_AUTO_OLD	(V4L2_CID_PRIVATE_BASE_OLD+12)
-#define V4L2_CID_WHITE_BALANCE_TEMPERATURE_OLD	(V4L2_CID_PRIVATE_BASE_OLD+13)
+#define V4L2_CID_WHITE_BALANCE_TEMPERATURE_OLD		(V4L2_CID_PRIVATE_BASE_OLD+13)
 
 #define V4L2_CID_PRIVATE_LAST			(V4L2_CID_WHITE_BALANCE_TEMPERATURE_OLD+1)
 
@@ -137,39 +137,39 @@ static const int exp_vals[]={
 
 #ifdef UVC_DYN_CONTROLS
 
-#define V4L2_CID_BASE_EXTCTR					0x0A046D01
-#define V4L2_CID_BASE_LOGITECH					V4L2_CID_BASE_EXTCTR
+#define V4L2_CID_BASE_EXTCTR				0x0A046D01
+#define V4L2_CID_BASE_LOGITECH				V4L2_CID_BASE_EXTCTR
 //#define V4L2_CID_PAN_RELATIVE_LOGITECH  		V4L2_CID_BASE_LOGITECH
 //#define V4L2_CID_TILT_RELATIVE_LOGITECH 		V4L2_CID_BASE_LOGITECH+1
 #define V4L2_CID_PANTILT_RESET_LOGITECH 		V4L2_CID_BASE_LOGITECH+2
 #define V4L2_CID_FOCUS_LOGITECH         		V4L2_CID_BASE_LOGITECH+3
 #define V4L2_CID_LED1_MODE_LOGITECH     		V4L2_CID_BASE_LOGITECH+4
 #define V4L2_CID_LED1_FREQUENCY_LOGITECH 		V4L2_CID_BASE_LOGITECH+5
-#define V4L2_CID_DISABLE_PROCESSING_LOGITECH 	V4L2_CID_BASE_LOGITECH+0x70
-#define V4L2_CID_RAW_BITS_PER_PIXEL_LOGITECH 	V4L2_CID_BASE_LOGITECH+0x71
-#define V4L2_CID_LAST_EXTCTR					V4L2_CID_RAW_BITS_PER_PIXEL_LOGITECH
+#define V4L2_CID_DISABLE_PROCESSING_LOGITECH 		V4L2_CID_BASE_LOGITECH+0x70
+#define V4L2_CID_RAW_BITS_PER_PIXEL_LOGITECH 		V4L2_CID_BASE_LOGITECH+0x71
+#define V4L2_CID_LAST_EXTCTR				V4L2_CID_RAW_BITS_PER_PIXEL_LOGITECH
 
-#define UVC_GUID_LOGITECH_VIDEO_PIPE	{0x82, 0x06, 0x61, 0x63, 0x70, 0x50, 0xab, 0x49, 0xb8, 0xcc, 0xb3, 0x85, 0x5e, 0x8d, 0x22, 0x50}
-#define UVC_GUID_LOGITECH_MOTOR_CONTROL {0x82, 0x06, 0x61, 0x63, 0x70, 0x50, 0xab, 0x49, 0xb8, 0xcc, 0xb3, 0x85, 0x5e, 0x8d, 0x22, 0x56}
-#define UVC_GUID_LOGITECH_USER_HW_CONTROL {0x82, 0x06, 0x61, 0x63, 0x70, 0x50, 0xab, 0x49, 0xb8, 0xcc, 0xb3, 0x85, 0x5e, 0x8d, 0x22, 0x1f}
+#define UVC_GUID_LOGITECH_VIDEO_PIPE		{0x82, 0x06, 0x61, 0x63, 0x70, 0x50, 0xab, 0x49, 0xb8, 0xcc, 0xb3, 0x85, 0x5e, 0x8d, 0x22, 0x50}
+#define UVC_GUID_LOGITECH_MOTOR_CONTROL 	{0x82, 0x06, 0x61, 0x63, 0x70, 0x50, 0xab, 0x49, 0xb8, 0xcc, 0xb3, 0x85, 0x5e, 0x8d, 0x22, 0x56}
+#define UVC_GUID_LOGITECH_USER_HW_CONTROL 	{0x82, 0x06, 0x61, 0x63, 0x70, 0x50, 0xab, 0x49, 0xb8, 0xcc, 0xb3, 0x85, 0x5e, 0x8d, 0x22, 0x1f}
 
-#define XU_HW_CONTROL_LED1               1
-#define XU_MOTORCONTROL_PANTILT_RELATIVE 1
-#define XU_MOTORCONTROL_PANTILT_RESET    2
-#define XU_MOTORCONTROL_FOCUS            3
-#define XU_COLOR_PROCESSING_DISABLE		 5
-#define XU_RAW_DATA_BITS_PER_PIXEL		 8
+#define XU_HW_CONTROL_LED1			1
+#define XU_MOTORCONTROL_PANTILT_RELATIVE	1
+#define XU_MOTORCONTROL_PANTILT_RESET		2
+#define XU_MOTORCONTROL_FOCUS			3
+#define XU_COLOR_PROCESSING_DISABLE		5
+#define XU_RAW_DATA_BITS_PER_PIXEL		8
 
-#define UVC_CONTROL_SET_CUR     (1 << 0)
-#define UVC_CONTROL_GET_CUR     (1 << 1)
-#define UVC_CONTROL_GET_MIN     (1 << 2)
-#define UVC_CONTROL_GET_MAX     (1 << 3)
-#define UVC_CONTROL_GET_RES     (1 << 4)
-#define UVC_CONTROL_GET_DEF     (1 << 5)
+#define UVC_CONTROL_SET_CUR	(1 << 0)
+#define UVC_CONTROL_GET_CUR	(1 << 1)
+#define UVC_CONTROL_GET_MIN	(1 << 2)
+#define UVC_CONTROL_GET_MAX	(1 << 3)
+#define UVC_CONTROL_GET_RES	(1 << 4)
+#define UVC_CONTROL_GET_DEF	(1 << 5)
 /* Control should be saved at suspend and restored at resume. */
-#define UVC_CONTROL_RESTORE     (1 << 6)
+#define UVC_CONTROL_RESTORE	(1 << 6)
 /* Control can be updated by the camera. */
-#define UVC_CONTROL_AUTO_UPDATE (1 << 7)
+#define UVC_CONTROL_AUTO_UPDATE	(1 << 7)
 
 #define UVC_CONTROL_GET_RANGE   (UVC_CONTROL_GET_CUR | UVC_CONTROL_GET_MIN | \
                                  UVC_CONTROL_GET_MAX | UVC_CONTROL_GET_RES | \
@@ -223,45 +223,47 @@ typedef struct _VidCap {
 } VidCap;
 
 struct vdIn {
-    	int fd;
+	int fd;
 	char *videodevice;
-    	char *status;
-    	struct v4l2_capability cap;
-    	struct v4l2_format fmt;
-    	struct v4l2_buffer buf;
-    	struct v4l2_requestbuffers rb;
-    	struct v4l2_timecode timecode;
+	char *status;
+	struct v4l2_capability cap;
+	struct v4l2_format fmt;
+	struct v4l2_buffer buf;
+	struct v4l2_requestbuffers rb;
+	struct v4l2_timecode timecode;
 	struct v4l2_streamparm streamparm;
-    	void *mem[NB_BUFFER];
-    	unsigned char *tmpbuffer;
-   	unsigned char *framebuffer;
-   	int isstreaming;
-   	int isbayer;
-   	int pix_order;
-    	int setFPS;
+	void *mem[NB_BUFFER];
+	unsigned char *tmpbuffer;
+	unsigned char *framebuffer;
+	size_t tmpbuf_size;
+	size_t framebuf_size;
+	int isstreaming;
+	int isbayer;
+	int pix_order;
+	int setFPS;
 	int PanTilt; /*1-if PanTilt Camera; 0-otherwise*/
-    	int grabmethod;
-    	int width;
-    	int height;
+	int grabmethod;
+	int width;
+	int height;
 	int numb_resol;
 	int SupYuv;
 	int SupUyv;
 	int SupYup;
 	int SupGbr;
 	int SupMjpg;
-    	int formatIn;
-    	int formatOut;
-    	int framesizeIn;
-    	int signalquit;
-    	int capAVI;
-    	char *AVIFName;
-    	int fps;
+	int formatIn;
+	int formatOut;
+	int framesizeIn;
+	int signalquit;
+	int capAVI;
+	char *AVIFName;
+	int fps;
 	int fps_num;
-    	int capImage;
-    	char *ImageFName;
-   	int cap_raw;
+	int capImage;
+	char *ImageFName;
+	int cap_raw;
 	int available_exp[4];
-	/* 3 supported formats: 0-MJPG 1-YUYV or UYVY*/
+	/* supported formats: 0-MJPG | 1-YUYV, UYVY, YUV420, SGBRG8*/
 	/* 20 settings for each format              */
 	VidCap listVidCap[2][MAX_LIST_VIDCAP];
 };
@@ -312,7 +314,7 @@ int check_videoIn(struct vdIn *vd);
 
 int 
 init_videoIn(struct vdIn *vd, char *device, int width, int height,
-	     int format, int grabmethod, int fps, int fps_num);
+		int format, int grabmethod, int fps, int fps_num);
 
 int uvcGrab(struct vdIn *vd);
 
@@ -333,7 +335,8 @@ void input_free_controls (struct VidState *s);
 int init_v4l2(struct vdIn *vd);
 
 int enum_frame_intervals(struct vdIn *vd, __u32 pixfmt, __u32 width, __u32 height,
-						 int list_form, int list_ind);
+				int list_form, int list_ind);
+
 int enum_frame_sizes(struct vdIn *vd, __u32 pixfmt);
 
 int enum_frame_formats(struct vdIn *vd);

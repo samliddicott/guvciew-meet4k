@@ -266,6 +266,8 @@ init_videoIn(struct vdIn *vd, char *device, int width, int height,
 	     int format, int grabmethod, int fps, int fps_num)
 {
 	int ret=0;
+	int i=0;
+	
 	if (vd == NULL || device == NULL)
 		return -4;
 	if (width == 0 || height == 0)
@@ -314,6 +316,8 @@ init_videoIn(struct vdIn *vd, char *device, int width, int height,
 	vd->grabmethod = grabmethod;
 	vd->capImage=FALSE;
 	vd->cap_raw=0;
+	vd->tmpbuf_size=0;
+	vd->framebuf_size=0;
 	
 	if((vd->ImageFName = (char *) calloc(1, 120 * sizeof(char)))==NULL)
 	{
@@ -341,30 +345,31 @@ init_videoIn(struct vdIn *vd, char *device, int width, int height,
 	{
 		case V4L2_PIX_FMT_MJPEG:
 			/* alloc a temp buffer to reconstruct the pict (MJPEG)*/
-			vd->tmpbuffer = (unsigned char *) calloc(1, 
-				(size_t) vd->framesizeIn);
+			vd->tmpbuf_size= vd->framesizeIn;
+			vd->tmpbuffer = (unsigned char *) calloc(1, vd->tmpbuf_size);
 			if (!vd->tmpbuffer) 
 			{
 				perror("couldn't calloc memory for tmp buffer");
 				ret=-6;
 				goto error;
-			}
-			vd->framebuffer = (unsigned char *) calloc(1,
-				(size_t) vd->width * (vd->height + 8) * 2);
+			} 
+			vd->framebuf_size = vd->width * (vd->height + 8) * 2;
+			vd->framebuffer = (unsigned char *) calloc(1, vd->framebuf_size);
 			break;
 			
 		case V4L2_PIX_FMT_YUV420:
 			/* alloc a temp buffer for converting to YUYV*/
-			vd->tmpbuffer = (unsigned char *) calloc(1, 
-				(size_t) vd->framesizeIn); /* should be width * height * 3/2 */
+			vd->tmpbuf_size= vd->framesizeIn;/* should be width * height * 3/2 */
+			vd->tmpbuffer = (unsigned char *) calloc(1, vd->tmpbuf_size);
 			if (!vd->tmpbuffer) 
 			{
 				perror("couldn't calloc memory for tmp buffer");
 				ret=-6;
 				goto error;
-			}
-			vd->framebuffer = (unsigned char *) calloc(1,
-				(size_t) vd->framesizeIn); /*planar yuv 4:2:0*/
+			} 
+			vd->framebuf_size = vd->framesizeIn;
+			/*planar yuv 4:2:0*/
+			vd->framebuffer = (unsigned char *) calloc(1,vd->framebuf_size);
 			break;
 			
 		case V4L2_PIX_FMT_YUYV:
@@ -372,8 +377,8 @@ init_videoIn(struct vdIn *vd, char *device, int width, int height,
 			/*YUYV doesn't need a temp buffer but we set if      */
 			/*video processing disable control  is set           */
 			/*            (logitech cameras only)                */
-			vd->framebuffer = (unsigned char *) calloc(1, 
-				(size_t) vd->framesizeIn);
+			vd->framebuf_size = vd->framesizeIn;
+			vd->framebuffer = (unsigned char *) calloc(1, vd->framebuf_size);
 			break;
 			
 		case V4L2_PIX_FMT_SGBRG8:
@@ -384,28 +389,67 @@ init_videoIn(struct vdIn *vd, char *device, int width, int height,
 		
 			/* alloc a temp buffer for converting to YUYV*/
 			/* rgb buffer for decoding bayer data*/
-			vd->tmpbuffer = (unsigned char *) calloc(1,
-				(size_t) vd->width * vd->height * 3);
+			vd->tmpbuf_size = vd->width * vd->height * 3;
+			vd->tmpbuffer = (unsigned char *) calloc(1, vd->tmpbuf_size);
 			if (vd->tmpbuffer == NULL) 
 			{
 				perror("Couldn't allocate mem for tmpbuffer");
 				goto error;
 			}
-			vd->framebuffer = (unsigned char *) calloc(1,
-				(size_t) vd->framesizeIn); 
+			vd->framebuf_size = vd->framesizeIn;
+			vd->framebuffer = (unsigned char *) calloc(1, vd->framebuf_size); 
 			break;
 			
 		default:
-			fprintf(stderr,"(v4l2uvc.c) should never arrive - exit fatal !!\n");
+			fprintf(stderr,"(v4l2uvc.c) should never arrive (1)- exit fatal !!\n");
 			ret=-7;
 			goto error;
 			break;
 	}
-	if (!vd->framebuffer) 
+	
+	if ((vd->tmpbuffer != NULL) && (vd->tmpbuf_size>0))
 	{
-		fprintf(stderr,"couldn't calloc memory for video buffer\n");
+		memset(vd->tmpbuffer, 0x00, vd->tmpbuf_size);
+	}
+	
+	if ((!vd->framebuffer) || (vd->framebuf_size <=0)) 
+	{
+		fprintf(stderr,"couldn't calloc %d bytes of memory for frame buffer\n",
+			vd->framebuf_size);
 		ret=-6;
 		goto error;
+	} 
+	else
+	{
+		/*set framebuffer to black (y=0x00 u=0x80 v=0x80) by default*/
+		switch (vd->formatIn) {
+			case V4L2_PIX_FMT_MJPEG:
+			case V4L2_PIX_FMT_SGBRG8: /*converted to YUYV*/
+			case V4L2_PIX_FMT_YUV420: /*converted to YUYV*/
+			case V4L2_PIX_FMT_YUYV:
+				for (i=0; i<(vd->framebuf_size-4); i+=4)
+				{
+					vd->framebuffer[i]=0x00;  //Y
+					vd->framebuffer[i+1]=0x80;//U
+					vd->framebuffer[i+2]=0x00;//Y
+					vd->framebuffer[i+3]=0x80;//V
+				}
+			break;
+			case V4L2_PIX_FMT_UYVY:
+				for (i=0; i<(vd->framebuf_size-4); i+=4)
+				{
+					vd->framebuffer[i]=0x80;  //U
+					vd->framebuffer[i+1]=0x00;//Y
+					vd->framebuffer[i+2]=0x80;//V
+					vd->framebuffer[i+3]=0x00;//Y
+				}
+				break;
+			default:
+				fprintf(stderr,"(v4l2uvc.c) should never arrive (2)- exit fatal !!\n");
+				ret=-7;
+				goto error;
+			break;
+	}	
 	}
 	
 	return 0;
@@ -638,10 +682,12 @@ int uvcGrab(struct vdIn *vd)
 	if (ret < 0) 
 	{
 		perror(" Could not grab image (select error)");
+		return (1);
 	} 
 	else if (ret == 0)
 	{
 		perror(" Could not grab image (select timeout)");
+		return (2);
 	}
 	else if ((ret > 0) && (FD_ISSET(vd->fd, &rdset))) 
 	{
@@ -689,11 +735,6 @@ int uvcGrab(struct vdIn *vd)
 			break;
 			
 		case V4L2_PIX_FMT_YUV420:
-			// if(vd->buf.bytesused > vd->width * vd->height * 2) {
-			// /* Prevent crash on empty image */
-			// printf("Ignoring empty buffer ...\n");
-			// return 0;
-			// }
 			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
 			
 			if (yuv420_to_yuyv(vd->framebuffer, vd->tmpbuffer, vd->width,
@@ -735,7 +776,7 @@ int uvcGrab(struct vdIn *vd)
 			break;
 			
 		case V4L2_PIX_FMT_SGBRG8:
-			/*pixel order is 0 bg.. br..*/
+			/*pixel order is 0 gb.. rg..*/
 			bayer_to_rgb24 (vd->mem[vd->buf.index],vd->tmpbuffer,vd->width,vd->height, 0);
 			/*convert to yuyv*/
 			rgb2yuyv (vd->tmpbuffer,vd->framebuffer,vd->width,vd->height);
@@ -1108,19 +1149,19 @@ int enum_frame_sizes(struct vdIn *vd, __u32 pixfmt)
 		else if (fsize.type == V4L2_FRMSIZE_TYPE_CONTINUOUS) 
 		{
 			printf("{ continuous: min { width = %u, height = %u } .. "
-					"max { width = %u, height = %u } }\n",
-					fsize.stepwise.min_width, fsize.stepwise.min_height,
-					fsize.stepwise.max_width, fsize.stepwise.max_height);
+				"max { width = %u, height = %u } }\n",
+				fsize.stepwise.min_width, fsize.stepwise.min_height,
+				fsize.stepwise.max_width, fsize.stepwise.max_height);
 			printf("  will not enumerate frame intervals.\n");
 		} 
 		else if (fsize.type == V4L2_FRMSIZE_TYPE_STEPWISE) 
 		{
 			printf("{ stepwise: min { width = %u, height = %u } .. "
-					"max { width = %u, height = %u } / "
-					"stepsize { width = %u, height = %u } }\n",
-					fsize.stepwise.min_width, fsize.stepwise.min_height,
-					fsize.stepwise.max_width, fsize.stepwise.max_height,
-					fsize.stepwise.step_width, fsize.stepwise.step_height);
+				"max { width = %u, height = %u } / "
+				"stepsize { width = %u, height = %u } }\n",
+				fsize.stepwise.min_width, fsize.stepwise.min_height,
+				fsize.stepwise.max_width, fsize.stepwise.max_height,
+				fsize.stepwise.step_width, fsize.stepwise.step_height);
 			printf("  will not enumerate frame intervals.\n");
 		} 
 		else 
