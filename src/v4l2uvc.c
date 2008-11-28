@@ -89,7 +89,7 @@ static struct uvc_xu_control_info xu_ctrls[] = {
 		.selector = XU_MOTORCONTROL_FOCUS,
 		.index    = 2,
 		.size     = 6,
-		.flags    = UVC_CONTROL_SET_CUR | UVC_CONTROL_GET_MIN | UVC_CONTROL_GET_MAX |UVC_CONTROL_GET_DEF
+		.flags    = UVC_CONTROL_SET_CUR | UVC_CONTROL_GET_CUR | UVC_CONTROL_GET_MIN | UVC_CONTROL_GET_MAX |UVC_CONTROL_GET_DEF
 	},
 	{
 		.entity   = UVC_GUID_LOGITECH_VIDEO_PIPE,
