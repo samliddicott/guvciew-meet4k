@@ -352,7 +352,7 @@ int main(int argc, char *argv[])
 				{
 					if (global->debug) 
 					{ 
-						printf("formaind %d\n", global->formind);
+						printf("formind %d\n", global->formind);
 						printf("SupYuv   %d\n", videoIn->SupYuv);
 						printf("SupUyv   %d\n", videoIn->SupUyv);
 						printf("SupYup   %d\n", videoIn->SupYup);
@@ -381,6 +381,7 @@ int main(int argc, char *argv[])
 					{
 						global->formind=1;
 						global->format=V4L2_PIX_FMT_SGBRG8;
+						snprintf(global->mode, 4, "gbr");
 					}
 					else 
 					{
