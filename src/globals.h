@@ -1,22 +1,22 @@
 /*******************************************************************************#
-#	    guvcview              http://guvcview.berlios.de                    #
+#           guvcview              http://guvcview.berlios.de                    #
 #                                                                               #
 #           Paulo Assis <pj.assis@gmail.com>                                    #
-#										#
-# This program is free software; you can redistribute it and/or modify         	#
-# it under the terms of the GNU General Public License as published by   	#
-# the Free Software Foundation; either version 2 of the License, or           	#
-# (at your option) any later version.                                          	#
-#                                                                              	#
-# This program is distributed in the hope that it will be useful,              	#
-# but WITHOUT ANY WARRANTY; without even the implied warranty of             	#
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the  		#
-# GNU General Public License for more details.                                 	#
-#                                                                              	#
-# You should have received a copy of the GNU General Public License           	#
-# along with this program; if not, write to the Free Software                  	#
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA	#
-#                                                                              	#
+#                                                                               #
+# This program is free software; you can redistribute it and/or modify          #
+# it under the terms of the GNU General Public License as published by          #
+# the Free Software Foundation; either version 2 of the License, or             #
+# (at your option) any later version.                                           #
+#                                                                               #
+# This program is distributed in the hope that it will be useful,               #
+# but WITHOUT ANY WARRANTY; without even the implied warranty of                #
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                 #
+# GNU General Public License for more details.                                  #
+#                                                                               #
+# You should have received a copy of the GNU General Public License             #
+# along with this program; if not, write to the Free Software                   #
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA     #
+#                                                                               #
 ********************************************************************************/
 
 #ifndef GLOBALS_H
@@ -35,7 +35,7 @@ typedef struct _sndDev {
 
 /*global variables used in guvcview*/
 struct GLOBAL {
-    	int debug;
+	int debug;
 	char *videodevice;
 	int stack_size;
 	char *confPath;
@@ -51,7 +51,7 @@ struct GLOBAL {
 	int lprofile; /* flag for command line -l option */ 
 	int imgFormat;
 	int AVIFormat; /*0-"MJPG"  1-"YUY2" 2-"DIB "(rgb32)*/
-    	ULONG AVI_MAX_LEN;
+	ULONG AVI_MAX_LEN;
 	DWORD snd_begintime;/*begin time for audio capture*/
 	DWORD currtime;
 	DWORD lasttime;
@@ -98,7 +98,7 @@ struct GLOBAL {
 	int format;
 	int formind; /*0-MJPG 1-YUYV*/
 	int Frame_Flags;
-   	BYTE *jpeg;
+	BYTE *jpeg;
 	int   jpeg_size;
 	unsigned int   jpeg_bufsize; /* width*height/2 */
 	int autofocus;/*some autofocus flags*/

@@ -1,22 +1,22 @@
 /*******************************************************************************#
-#	    guvcview              http://guvcview.berlios.de                    #
+#           guvcview              http://guvcview.berlios.de                    #
 #                                                                               #
 #           Paulo Assis <pj.assis@gmail.com>                                    #
-#										#
-# This program is free software; you can redistribute it and/or modify         	#
-# it under the terms of the GNU General Public License as published by   	#
-# the Free Software Foundation; either version 2 of the License, or           	#
-# (at your option) any later version.                                          	#
-#                                                                              	#
-# This program is distributed in the hope that it will be useful,              	#
-# but WITHOUT ANY WARRANTY; without even the implied warranty of             	#
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the  		#
-# GNU General Public License for more details.                                 	#
-#                                                                              	#
-# You should have received a copy of the GNU General Public License           	#
-# along with this program; if not, write to the Free Software                  	#
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA	#
-#                                                                              	#
+#                                                                               #
+# This program is free software; you can redistribute it and/or modify          #
+# it under the terms of the GNU General Public License as published by          #
+# the Free Software Foundation; either version 2 of the License, or             #
+# (at your option) any later version.                                           #
+#                                                                               #
+# This program is distributed in the hope that it will be useful,               #
+# but WITHOUT ANY WARRANTY; without even the implied warranty of                #
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                 #
+# GNU General Public License for more details.                                  #
+#                                                                               #
+# You should have received a copy of the GNU General Public License             #
+# along with this program; if not, write to the Free Software                   #
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA     #
+#                                                                               #
 ********************************************************************************/
 
 /*******************************************************************************#
@@ -31,7 +31,9 @@
 #include <string.h>
 // Header for JPEG Encoder
 
-UINT8* write_markers (struct JPEG_ENCODER_STRUCTURE * jpeg_encoder_structure, UINT8 *output_ptr,int huff, UINT32 image_width, UINT32 image_height)
+UINT8* 
+write_markers (struct JPEG_ENCODER_STRUCTURE * jpeg_encoder_structure, UINT8 *output_ptr,
+	int huff, UINT32 image_width, UINT32 image_height)
 {
 	UINT16 i, header_length;
 	UINT8 number_of_components;
@@ -48,13 +50,16 @@ UINT8* write_markers (struct JPEG_ENCODER_STRUCTURE * jpeg_encoder_structure, UI
 	*output_ptr++= 0x10;//16 bytes
 	
 	//type
-	if(huff) {//JFIF0 0x4A46494600
+	if(huff) 
+	{	//JFIF0 0x4A46494600
 		*output_ptr++= 0x4A;
 		*output_ptr++= 0x46;
 		*output_ptr++= 0x49;
 		*output_ptr++= 0x46;
 		*output_ptr++= 0x00;
-	} else { // AVI10 0x4156493100
+	} 
+	else
+	{	// AVI10 0x4156493100
 		*output_ptr++= 0x41;
 		*output_ptr++= 0x56;
 		*output_ptr++= 0x49;
@@ -108,7 +113,8 @@ UINT8* write_markers (struct JPEG_ENCODER_STRUCTURE * jpeg_encoder_structure, UI
 	for (i=0; i<64; i++)
 		*output_ptr++ = jpeg_encoder_structure->Cqt [i];
 
-	if (huff) {
+	if (huff) 
+	{
 		// huffman table(DHT)
 		
 		*output_ptr++=0xff;

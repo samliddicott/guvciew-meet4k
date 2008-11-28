@@ -1,22 +1,22 @@
 /*******************************************************************************#
-#	    guvcview              http://guvcview.berlios.de                    #
+#           guvcview              http://guvcview.berlios.de                    #
 #                                                                               #
 #           Paulo Assis <pj.assis@gmail.com>                                    #
-#										#
-# This program is free software; you can redistribute it and/or modify         	#
-# it under the terms of the GNU General Public License as published by   	#
-# the Free Software Foundation; either version 2 of the License, or           	#
-# (at your option) any later version.                                          	#
-#                                                                              	#
-# This program is distributed in the hope that it will be useful,              	#
-# but WITHOUT ANY WARRANTY; without even the implied warranty of             	#
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the  		#
-# GNU General Public License for more details.                                 	#
-#                                                                              	#
-# You should have received a copy of the GNU General Public License           	#
-# along with this program; if not, write to the Free Software                  	#
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA	#
-#                                                                              	#
+#                                                                               #
+# This program is free software; you can redistribute it and/or modify          #
+# it under the terms of the GNU General Public License as published by          #
+# the Free Software Foundation; either version 2 of the License, or             #
+# (at your option) any later version.                                           #
+#                                                                               #
+# This program is distributed in the hope that it will be useful,               #
+# but WITHOUT ANY WARRANTY; without even the implied warranty of                #
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                 #
+# GNU General Public License for more details.                                  #
+#                                                                               #
+# You should have received a copy of the GNU General Public License             #
+# along with this program; if not, write to the Free Software                   #
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA     #
+#                                                                               #
 ********************************************************************************/
 
 /*******************************************************************************#
@@ -34,8 +34,8 @@
 #include "jpgenc.h"
 
 
-void initialization (struct JPEG_ENCODER_STRUCTURE * jpeg, int image_width, 
-					                   int image_height)
+void 
+initialization (struct JPEG_ENCODER_STRUCTURE * jpeg, int image_width, int image_height)
 {
 	UINT16 mcu_width, mcu_height, bytes_per_pixel;
 
@@ -64,16 +64,14 @@ void initialization (struct JPEG_ENCODER_STRUCTURE * jpeg, int image_width,
 
 	jpeg->lcode = 0;
 	jpeg->bitindex = 0;
-
-	
 }
 
-void jpeg_restart (struct JPEG_ENCODER_STRUCTURE * jpeg_encoder_structure)
+void 
+jpeg_restart (struct JPEG_ENCODER_STRUCTURE * jpeg_encoder_structure)
 {
 	jpeg_encoder_structure->ldc1 = 0;
 	jpeg_encoder_structure->ldc2 = 0;
 	jpeg_encoder_structure->ldc3 = 0;
-	
 
 	jpeg_encoder_structure->lcode = 0;
 	jpeg_encoder_structure->bitindex = 0;
@@ -81,8 +79,8 @@ void jpeg_restart (struct JPEG_ENCODER_STRUCTURE * jpeg_encoder_structure)
 
 
 int encode_image (UINT8 *input_ptr,UINT8 *output_ptr, 
-	             struct JPEG_ENCODER_STRUCTURE * jpeg_encoder_structure,
-		            int huff, UINT32 image_width,UINT32 image_height, int uyv)
+	struct JPEG_ENCODER_STRUCTURE * jpeg_encoder_structure,
+	int huff, UINT32 image_width,UINT32 image_height, int uyv)
 {
 	int size;
 	UINT16 i, j;
@@ -111,11 +109,13 @@ int encode_image (UINT8 *input_ptr,UINT8 *output_ptr,
 			/* Encode the data in MCU */
 			tmp_optr = encodeMCU (jpeg_encoder_structure, tmp_optr);
 			
-			if(j<(jpeg_encoder_structure->horizontal_mcus -1)) {
+			if(j<(jpeg_encoder_structure->horizontal_mcus -1)) 
+			{
 				tmp_iptr += jpeg_encoder_structure->mcu_width_size;
 			}
-			else {
-				tmp_iptr=tmp_ptr;	
+			else 
+			{
+				tmp_iptr=tmp_ptr;
 			}
 		}
 		tmp_iptr += jpeg_encoder_structure->offset;
@@ -131,38 +131,37 @@ int encode_image (UINT8 *input_ptr,UINT8 *output_ptr,
 	return (size);
 }
 
-UINT8* encodeMCU (struct JPEG_ENCODER_STRUCTURE * jpeg_encoder_structure, 
-                                                                    UINT8 *output_ptr)
+UINT8* 
+encodeMCU (struct JPEG_ENCODER_STRUCTURE * jpeg_encoder_structure, UINT8 *output_ptr)
 {
 	levelshift (jpeg_encoder_structure->Y1);
 	DCT (jpeg_encoder_structure->Y1);
 	quantization (jpeg_encoder_structure, jpeg_encoder_structure->Y1, 
-				                          jpeg_encoder_structure->ILqt);
+		jpeg_encoder_structure->ILqt);
 	
 	output_ptr = huffman (jpeg_encoder_structure, 1, output_ptr);
 
- 	levelshift (jpeg_encoder_structure->Y2);
-  	DCT (jpeg_encoder_structure->Y2);
+	levelshift (jpeg_encoder_structure->Y2);
+	DCT (jpeg_encoder_structure->Y2);
 
-  	quantization (jpeg_encoder_structure, jpeg_encoder_structure->Y2, 
-                                                          jpeg_encoder_structure->ILqt);
+	quantization (jpeg_encoder_structure, jpeg_encoder_structure->Y2, 
+		jpeg_encoder_structure->ILqt);
 	
-  	output_ptr = huffman (jpeg_encoder_structure, 1, output_ptr);
+	output_ptr = huffman (jpeg_encoder_structure, 1, output_ptr);
  
 	levelshift (jpeg_encoder_structure->CB);
 	DCT (jpeg_encoder_structure->CB);
 	
 	quantization (jpeg_encoder_structure, jpeg_encoder_structure->CB, 
-                                                          jpeg_encoder_structure->ICqt);
+		jpeg_encoder_structure->ICqt);
 	
 	output_ptr = huffman (jpeg_encoder_structure, 2, output_ptr);
-	
 
 	levelshift (jpeg_encoder_structure->CR);
 	DCT (jpeg_encoder_structure->CR);
 	
 	quantization (jpeg_encoder_structure, jpeg_encoder_structure->CR, 
-                                                          jpeg_encoder_structure->ICqt);
+		jpeg_encoder_structure->ICqt);
 	
 	output_ptr = huffman (jpeg_encoder_structure, 3, output_ptr);
 

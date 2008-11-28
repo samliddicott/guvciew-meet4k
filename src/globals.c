@@ -1,22 +1,22 @@
 /*******************************************************************************#
-#	    guvcview              http://guvcview.berlios.de                    #
+#           guvcview              http://guvcview.berlios.de                    #
 #                                                                               #
 #           Paulo Assis <pj.assis@gmail.com>                                    #
-#										#
-# This program is free software; you can redistribute it and/or modify         	#
-# it under the terms of the GNU General Public License as published by   	#
-# the Free Software Foundation; either version 2 of the License, or           	#
-# (at your option) any later version.                                          	#
-#                                                                              	#
-# This program is distributed in the hope that it will be useful,              	#
-# but WITHOUT ANY WARRANTY; without even the implied warranty of             	#
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the  		#
-# GNU General Public License for more details.                                 	#
-#                                                                              	#
-# You should have received a copy of the GNU General Public License           	#
-# along with this program; if not, write to the Free Software                  	#
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA	#
-#                                                                              	#
+#                                                                               #
+# This program is free software; you can redistribute it and/or modify          #
+# it under the terms of the GNU General Public License as published by          #
+# the Free Software Foundation; either version 2 of the License, or             #
+# (at your option) any later version.                                           #
+#                                                                               #
+# This program is distributed in the hope that it will be useful,               #
+# but WITHOUT ANY WARRANTY; without even the implied warranty of                #
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                 #
+# GNU General Public License for more details.                                  #
+#                                                                               #
+# You should have received a copy of the GNU General Public License             #
+# along with this program; if not, write to the Free Software                   #
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA     #
+#                                                                               #
 ********************************************************************************/
 
 #include "globals.h"
@@ -31,90 +31,104 @@
 #include <glib/gi18n.h>
 
 
-int initGlobals (struct GLOBAL *global) {
-	
-    	global->debug = DEBUG;
-    
-	if((global->videodevice = (char *) calloc(1, 16 * sizeof(char)))==NULL){
+int initGlobals (struct GLOBAL *global) 
+{
+	global->debug = DEBUG;
+
+	if((global->videodevice = (char *) calloc(1, 16 * sizeof(char)))==NULL)
+	{
 		printf("couldn't calloc memory for:global->videodevice\n");
 		goto error;
 	}
 	
 	snprintf(global->videodevice, 15, "/dev/video0");
 
-	if((global->confPath = (char *) calloc(1, 80 * sizeof(char)))==NULL){
+	if((global->confPath = (char *) calloc(1, 80 * sizeof(char)))==NULL)
+	{
 		printf("couldn't calloc memory for:global->confPath\n");
 		goto error;
 	}
 	snprintf(global->confPath, 79, "%s/.guvcviewrc",getenv("HOME"));
 	
-	if((global->aviFPath = (pchar *) calloc(1, 2 * sizeof(pchar)))==NULL){
+	if((global->aviFPath = (pchar *) calloc(1, 2 * sizeof(pchar)))==NULL)
+	{
 		printf("couldn't calloc memory for:global->aviFPath\n");
 		goto error;
 	}
-	if((global->imgFPath = (pchar *) calloc(1, 2 * sizeof(pchar)))==NULL){
+	if((global->imgFPath = (pchar *) calloc(1, 2 * sizeof(pchar)))==NULL)
+	{
 		printf("couldn't calloc memory for:global->imgFPath\n");
 		goto error;
 	}
-	if((global->profile_FPath = (pchar *) calloc(1, 2 * sizeof(pchar)))==NULL){
+	if((global->profile_FPath = (pchar *) calloc(1, 2 * sizeof(pchar)))==NULL)
+	{
 		printf("couldn't calloc memory for:global->profile_FPath\n");
 		goto error;
 	}
 	
-	if((global->aviFPath[1] = (char *) calloc(1, 100 * sizeof(char)))==NULL){
+	if((global->aviFPath[1] = (char *) calloc(1, 100 * sizeof(char)))==NULL)
+	{
 		printf("couldn't calloc memory for:global->aviFPath[1]\n");
 		goto error;
 	}
 	snprintf(global->aviFPath[1], 2, "~");
 	
-	if((global->imgFPath[1] = (char *) calloc(1, 100 * sizeof(char)))==NULL){
+	if((global->imgFPath[1] = (char *) calloc(1, 100 * sizeof(char)))==NULL)
+	{
 		printf("couldn't calloc memory for:global->imgFPath[1]\n");
 		goto error;
 	}
 	snprintf(global->imgFPath[1], 99, "%s",getenv("HOME"));
 	
-	if((global->imgFPath[0] = (char *) calloc(1, 20 * sizeof(char)))==NULL){
+	if((global->imgFPath[0] = (char *) calloc(1, 20 * sizeof(char)))==NULL)
+	{
 		printf("couldn't calloc memory for:global->imageName\n");
 		goto error;
 	}
 	snprintf(global->imgFPath[0],10,DEFAULT_IMAGE_FNAME);
 	
-	if((global->aviFPath[0] = (char *) calloc(1, 20 * sizeof(char)))==NULL){
+	if((global->aviFPath[0] = (char *) calloc(1, 20 * sizeof(char)))==NULL)
+	{
 		printf("couldn't calloc memory for:global->aviFPath[0]\n");
 		goto error;
 	}
 	snprintf(global->aviFPath[0],12,DEFAULT_AVI_FNAME);
 	
-	if((global->profile_FPath[1] = (char *) calloc(1, 100 * sizeof(char)))==NULL){
+	if((global->profile_FPath[1] = (char *) calloc(1, 100 * sizeof(char)))==NULL)
+	{
 		printf("couldn't calloc memory for:global->profile_FPath[1]\n");
 		goto error;
 	}
 	snprintf(global->profile_FPath[1], 100, "%s",getenv("HOME"));
 	
-	if((global->profile_FPath[0] = (char *) calloc(1, 20 * sizeof(char)))==NULL){
+	if((global->profile_FPath[0] = (char *) calloc(1, 20 * sizeof(char)))==NULL)
+	{
 		printf("couldn't calloc memory for:global->profile_FPath[0]\n");
 		goto error;
 	}
 	snprintf(global->profile_FPath[0], 20, "default.gpfl");
 	
 	
-	if((global->WVcaption= (char *) calloc(1, 32 * sizeof(char)))==NULL){
+	if((global->WVcaption= (char *) calloc(1, 32 * sizeof(char)))==NULL)
+	{
 		printf("couldn't calloc memory for:global->WVcaption\n");
 		goto error;
 	}
 	snprintf(global->WVcaption,10,"GUVCVIdeo");
 	
-   	global->stack_size=TSTACK;
+	global->stack_size=TSTACK;
 	
 	global->image_inc=0;
-   
-	if((global->imageinc_str= (char *) calloc(1, 25 * sizeof(char)))==NULL){
+
+	if((global->imageinc_str= (char *) calloc(1, 25 * sizeof(char)))==NULL)
+	{
 		printf("couldn't calloc memory for:global->imageinc_str\n");
 		goto error;
 	}
 	snprintf(global->imageinc_str,20,_("File num:%d"),global->image_inc);
 	
-	if((global->aviinc_str= (char *) calloc(1, 25 * sizeof(char)))==NULL){
+	if((global->aviinc_str= (char *) calloc(1, 25 * sizeof(char)))==NULL)
+	{
 		printf("couldn't calloc memory for:global->aviinc_str\n");
 		goto error;
 	}
@@ -147,7 +161,7 @@ int initGlobals (struct GLOBAL *global) {
 	global->Sound_bitRate=160; /*160 Kbps = 20000 Bps*/
 	
 	global->FpsCount=0;
-    	
+
 	global->timer_id=0;
 	global->image_timer_id=0;
 	global->image_timer=0;
@@ -165,9 +179,10 @@ int initGlobals (struct GLOBAL *global) {
 	global->height = DEFAULT_HEIGHT;
 	global->winwidth=WINSIZEX;
 	global->winheight=WINSIZEY;
-    	global->spinbehave=0;
+	global->spinbehave=0;
 	global->boxvsize=0;
-	if((global->mode = (char *) calloc(1, 5 * sizeof(char)))==NULL){
+	if((global->mode = (char *) calloc(1, 5 * sizeof(char)))==NULL)
+	{
 		printf("couldn't calloc memory for:global->mode\n");
 		goto error;
 	}
@@ -176,7 +191,7 @@ int initGlobals (struct GLOBAL *global) {
 	global->formind = 0; /*0-MJPG 1-YUYV*/
 	global->Frame_Flags = YUV_NOFILT;
 	global->jpeg=NULL;
-   	global->jpeg_size = 0;
+	global->jpeg_size = 0;
 	/* reset with videoIn parameters */
 	global->jpeg_bufsize = 0;
 	global->autofocus = 0;
@@ -188,7 +203,8 @@ error:
 
 }
 
-int closeGlobals(struct GLOBAL *global){
+int closeGlobals(struct GLOBAL *global)
+{
 	if (global->videodevice) free(global->videodevice);
 	if (global->confPath) free(global->confPath);
 	if (global->aviFPath[1]) free(global->aviFPath[1]);

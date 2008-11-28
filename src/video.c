@@ -221,13 +221,13 @@ void *main_loop(void *data)
 				if (AFdata->focus < 0) 
 				{
 					/*starting autofocus*/
-				AFdata->focus = AFdata->left; /*start left*/
-				if (set_focus (videoIn, AFdata->focus) != 0) 
-					printf("ERROR: couldn't set focus to %d\n", AFdata->focus);
-				/*number of frames until focus is stable*/
-				/*1.4 ms focus time - every 1 step*/
-				AFdata->focus_wait = (int) abs(AFdata->focus-last_focus)*1.4/(1000/videoIn->fps)+1;
-				last_focus = AFdata->focus;
+					AFdata->focus = AFdata->left; /*start left*/
+					if (set_focus (videoIn, AFdata->focus) != 0) 
+						printf("ERROR: couldn't set focus to %d\n", AFdata->focus);
+					/*number of frames until focus is stable*/
+					/*1.4 ms focus time - every 1 step*/
+					AFdata->focus_wait = (int) abs(AFdata->focus-last_focus)*1.4/(1000/videoIn->fps)+1;
+					last_focus = AFdata->focus;
 				} 
 				else 
 				{
