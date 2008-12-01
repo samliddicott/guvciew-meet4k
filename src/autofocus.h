@@ -34,7 +34,8 @@
 
 #define MAX_ARR_S 20
 
-struct focusData {
+struct focusData 
+{
 	int focus;
 	int step;
 	int old_focus;

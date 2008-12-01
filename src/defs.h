@@ -44,12 +44,15 @@ typedef int		   INT32;
 typedef unsigned int	   UINT32;
 
 /* 0 is device default*/
-static const int stdSampleRates[] = { 0, 8000,  9600, 11025, 12000,
-					16000, 22050, 24000,
-					32000, 44100, 48000,
-					88200, 96000,
-					-1 }; /* Negative terminated list. */
-					
+static const int stdSampleRates[] = 
+{ 
+	0, 8000,  9600, 11025, 12000,
+	16000, 22050, 24000,
+	32000, 44100, 48000,
+	88200, 96000,
+	-1   /* Negative terminated list. */
+};
+
 /*----------- guvcview version ----------------*/
 //#define VERSION ("") /*defined in config.h*/
 #define DEBUG (0)

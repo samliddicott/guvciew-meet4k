@@ -24,7 +24,8 @@
 
 #include "defs.h"
 
-typedef struct tagBITMAPFILEHEADER { 
+typedef struct tagBITMAPFILEHEADER 
+{ 
 	WORD    bfType; //Specifies the file type, must be BM
 	DWORD   bfSize; //Specifies the size, in bytes, of the bitmap file
 	WORD    bfReserved1; //Reserved; must be zero
@@ -35,7 +36,8 @@ typedef struct tagBITMAPFILEHEADER {
 }   __attribute__ ((packed)) BITMAPFILEHEADER, *PBITMAPFILEHEADER;
 
 
-typedef struct tagBITMAPINFOHEADER{
+typedef struct tagBITMAPINFOHEADER
+{
 	DWORD  biSize; 
 	LONG   biWidth; 
 	LONG   biHeight; 
@@ -49,7 +51,8 @@ typedef struct tagBITMAPINFOHEADER{
 	DWORD  biClrImportant; 
 }  __attribute__ ((packed)) BITMAPINFOHEADER, *PBITMAPINFOHEADER;
 
-typedef struct tagJPGFILEHEADER {
+typedef struct tagJPGFILEHEADER 
+{
 	BYTE SOI[2];/*SOI Marker 0xFFD8*/
 	BYTE APP0[2];/*APP0 MARKER 0xFF0E*/
 	BYTE length[2];/*length of header without APP0 in bytes*/

@@ -44,29 +44,44 @@
 //#define DITHER_FLAG     (paDitherOff) 
 #define DITHER_FLAG     (0) 
 
+#define AUDIO_16        (1)/*others AUDIO_32 AUDIO_8 AUDIO_U8*/
 /* Select sample format to 16bit. */
-#if 0
+
+#ifdef AUDIO_32
+
 #define PA_SAMPLE_TYPE  paFloat32
 typedef float SAMPLE;
 #define SAMPLE_SILENCE  (0.0f)
 #define PRINTF_S_FORMAT "%.8f"
-#elif 1
+
+#else
+#ifdef AUDIO_16
+
 #define PA_SAMPLE_TYPE  paInt16 /* Default */
 typedef short SAMPLE;
 #define SAMPLE_SILENCE  (0)
 #define PRINTF_S_FORMAT "%d"
-#elif 0
+
+#else
+#ifdef AUDIO_8
+
 #define PA_SAMPLE_TYPE  paInt8
 typedef char SAMPLE;
 #define SAMPLE_SILENCE  (0)
 #define PRINTF_S_FORMAT "%d"
-#else
+
+#else 
+#ifdef AUDIO_U8
+
 #define PA_SAMPLE_TYPE  paUInt8
 typedef unsigned char SAMPLE;
 #define SAMPLE_SILENCE  (128)
 #define PRINTF_S_FORMAT "%d"
-#endif
 
+#endif
+#endif
+#endif
+#endif
 /*video defs*/
 //#define BI_RGB 0;
 //#define BI_RLE4 1;

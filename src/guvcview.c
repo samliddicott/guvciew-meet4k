@@ -549,7 +549,7 @@ int main(int argc, char *argv[])
 		gtk_button_set_image(GTK_BUTTON(LProfileButton),LButton_Img);
 		gtk_button_set_image_position(GTK_BUTTON(LProfileButton),GTK_POS_TOP);
 	}
-   	gchar* pix5path = g_strconcat (PACKAGE_DATA_DIR,"/pixmaps/guvcview/close.xpm",NULL);
+	gchar* pix5path = g_strconcat (PACKAGE_DATA_DIR,"/pixmaps/guvcview/close.xpm",NULL);
 	if (g_file_test(pix5path,G_FILE_TEST_EXISTS)) 
 	{
 		QButton_Img = gtk_image_new_from_file (pix5path);
@@ -1244,7 +1244,7 @@ int main(int argc, char *argv[])
 	/* Initialize and set thread detached attribute */
 	stacksize = sizeof(char) * global->stack_size;
 	pthread_attr_init(&attr);
-   	pthread_attr_setstacksize (&attr, stacksize);
+	pthread_attr_setstacksize (&attr, stacksize);
 	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
 	
 	int rc = pthread_create(&mythread, &attr, main_loop, (void *) &all_data); 

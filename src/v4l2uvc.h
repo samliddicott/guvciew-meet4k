@@ -106,7 +106,8 @@
 
 
 
-enum  v4l2_uvc_exposure_auto_type {
+enum  v4l2_uvc_exposure_auto_type 
+{
 	V4L2_UVC_EXPOSURE_MANUAL = 1,
 	V4L2_UVC_EXPOSURE_AUTO = 2,
 	V4L2_UVC_EXPOSURE_SHUTTER_PRIORITY = 4,
@@ -114,12 +115,13 @@ enum  v4l2_uvc_exposure_auto_type {
 };
 
 
-static const int exp_vals[]={
-				V4L2_UVC_EXPOSURE_MANUAL,
-				V4L2_UVC_EXPOSURE_AUTO,
-				V4L2_UVC_EXPOSURE_SHUTTER_PRIORITY, 
-				V4L2_UVC_EXPOSURE_APERTURE_PRIORITY
-				};
+static const int exp_vals[]=
+{
+	V4L2_UVC_EXPOSURE_MANUAL,
+	V4L2_UVC_EXPOSURE_AUTO,
+	V4L2_UVC_EXPOSURE_SHUTTER_PRIORITY, 
+	V4L2_UVC_EXPOSURE_APERTURE_PRIORITY
+};
 
 	                      
 #define UVC_DYN_CONTROLS
@@ -176,7 +178,8 @@ static const int exp_vals[]={
                                  UVC_CONTROL_GET_DEF)
 
 
-struct uvc_xu_control_info {
+struct uvc_xu_control_info 
+{
 	__u8 entity[16];
 	__u8 index;
 	__u8 selector;
@@ -184,7 +187,8 @@ struct uvc_xu_control_info {
 	__u32 flags;
 };
 
-struct uvc_xu_control_mapping {
+struct uvc_xu_control_mapping 
+{
 	__u32 id;
 	__u8 name[32];
 	__u8 entity[16];
@@ -196,7 +200,8 @@ struct uvc_xu_control_mapping {
 	__u32 data_type;
 };
 
-struct uvc_xu_control {
+struct uvc_xu_control 
+{
 	__u8 unit;
 	__u8 selector;
 	__u16 size;
@@ -214,7 +219,8 @@ struct uvc_xu_control {
 #define MAX_LIST_FPS (10)
 #define MAX_LIST_VIDCAP (20)
 
-typedef struct _VidCap {
+typedef struct _VidCap 
+{
 	int width;
 	int height;
 	int framerate_num[MAX_LIST_FPS];/*numerator - should be 1 in almost all cases*/
@@ -222,7 +228,8 @@ typedef struct _VidCap {
 	int numb_frates;
 } VidCap;
 
-struct vdIn {
+struct vdIn 
+{
 	int fd;
 	char *videodevice;
 	char *status;
@@ -269,52 +276,55 @@ struct vdIn {
 };
 
 
-typedef enum {
-    INPUT_CONTROL_TYPE_INTEGER = 1,
-    INPUT_CONTROL_TYPE_BOOLEAN = 2,
-    INPUT_CONTROL_TYPE_MENU = 3,
-    INPUT_CONTROL_TYPE_BUTTON = 4,
+typedef enum 
+{
+	INPUT_CONTROL_TYPE_INTEGER = 1,
+	INPUT_CONTROL_TYPE_BOOLEAN = 2,
+	INPUT_CONTROL_TYPE_MENU = 3,
+	INPUT_CONTROL_TYPE_BUTTON = 4,
 } InputControlType;
 
-typedef struct _InputControl {
-    unsigned int i;
-    unsigned int id;
-    InputControlType type;
-    char * name;
-    int min, max, step, default_val, enabled;
-    char ** entries;
+typedef struct _InputControl 
+{
+	unsigned int i;
+	unsigned int id;
+	InputControlType type;
+	char * name;
+	int min, max, step, default_val, enabled;
+	char ** entries;
 } InputControl;
 
-typedef struct _ControlInfo {
-    GtkWidget * widget;
-    GtkWidget * label;
-    //GtkWidget * labelval;
-    GtkWidget *spinbutton; /*used in integer (slider) controls*/
-    unsigned int idx;
-    int maxchars;
+typedef struct _ControlInfo 
+{
+	GtkWidget * widget;
+	GtkWidget * label;
+	//GtkWidget * labelval;
+	GtkWidget *spinbutton; /*used in integer (slider) controls*/
+	unsigned int idx;
+	int maxchars;
 } ControlInfo;
 
-struct VidState {
-    
-    GtkWidget * table;
-    //GtkWidget * device_combo;
-    //GtkWidget * device_label;
-    //GtkWidget * input_combo;
-    //GtkWidget * input_label;
-    
-    int width_req;
-    int height_req;
+struct VidState 
+{
+	GtkWidget * table;
+	//GtkWidget * device_combo;
+	//GtkWidget * device_label;
+	//GtkWidget * input_combo;
+	//GtkWidget * input_label;
 
-    InputControl * control;
-    int num_controls;
-    ControlInfo * control_info;
+	int width_req;
+	int height_req;
+
+	InputControl * control;
+	int num_controls;
+	ControlInfo * control_info;
 };
 
 int check_videoIn(struct vdIn *vd);
 
 int 
 init_videoIn(struct vdIn *vd, char *device, int width, int height,
-		int format, int grabmethod, int fps, int fps_num);
+	int format, int grabmethod, int fps, int fps_num);
 
 int uvcGrab(struct vdIn *vd);
 
@@ -335,7 +345,7 @@ void input_free_controls (struct VidState *s);
 int init_v4l2(struct vdIn *vd);
 
 int enum_frame_intervals(struct vdIn *vd, __u32 pixfmt, __u32 width, __u32 height,
-				int list_form, int list_ind);
+	int list_form, int list_ind);
 
 int enum_frame_sizes(struct vdIn *vd, __u32 pixfmt);
 

@@ -42,42 +42,42 @@
 
 typedef struct _video_index_entry
 {
-   off_t key;
-   off_t pos;
-   off_t len;
+	off_t key;
+	off_t pos;
+	off_t len;
 } video_index_entry;
 
 typedef struct _audio_index_entry
 {
-   off_t pos;
-   off_t len;
-   off_t tot;
+	off_t pos;
+	off_t len;
+	off_t tot;
 } audio_index_entry;
 
 
 typedef struct track_s
 {
 
-    long   a_fmt;             /* Audio format, see #defines below */
-    long   a_chans;           /* Audio channels, 0 for no audio */
-    long   a_rate;            /* Rate in Hz */
-    long   a_bits;            /* bits per audio sample */
-    long   mpgrate;           /* mpg bitrate kbs*/
-    long   a_vbr;             /* 0 == no Variable BitRate */
-    long   padrate;	      /* byte rate used for zero padding */
+	long   a_fmt;             /* Audio format, see #defines below */
+	long   a_chans;           /* Audio channels, 0 for no audio */
+	long   a_rate;            /* Rate in Hz */
+	long   a_bits;            /* bits per audio sample */
+	long   mpgrate;           /* mpg bitrate kbs*/
+	long   a_vbr;             /* 0 == no Variable BitRate */
+	long   padrate;	      /* byte rate used for zero padding */
 
-    long   audio_strn;        /* Audio stream number */
-    off_t  audio_bytes;       /* Total number of bytes of audio data */
-    long   audio_chunks;      /* Chunks of audio data in the file */
+	long   audio_strn;        /* Audio stream number */
+	off_t  audio_bytes;       /* Total number of bytes of audio data */
+	long   audio_chunks;      /* Chunks of audio data in the file */
 
-    char   audio_tag[4];      /* Tag of audio data */
-    long   audio_posc;        /* Audio position: chunk */
-    long   audio_posb;        /* Audio position: byte within chunk */
+	char   audio_tag[4];      /* Tag of audio data */
+	long   audio_posc;        /* Audio position: chunk */
+	long   audio_posb;        /* Audio position: byte within chunk */
  
-    off_t  a_codech_off;       /* absolut offset of audio codec information */ 
-    off_t  a_codecf_off;       /* absolut offset of audio codec information */ 
+	off_t  a_codech_off;       /* absolut offset of audio codec information */ 
+	off_t  a_codecf_off;       /* absolut offset of audio codec information */ 
 
-    audio_index_entry *audio_index;
+	audio_index_entry *audio_index;
 
 } __attribute__ ((packed)) track_t;
 
@@ -137,54 +137,53 @@ typedef struct
 
 struct avi_t
 {
-
-    long   fdes;              /* File descriptor of AVI file */
-    long   mode;              /* 0 for reading, 1 for writing */
+	long   fdes;              /* File descriptor of AVI file */
+	long   mode;              /* 0 for reading, 1 for writing */
   
-    long   width;             /* Width  of a video frame */
-    long   height;            /* Height of a video frame */
-    double fps;               /* Frames per second */
-    char   compressor[8];     /* Type of compressor, 4 bytes + padding for 0 byte */
-    char   compressor2[8];     /* Type of compressor, 4 bytes + padding for 0 byte */
-    long   video_strn;        /* Video stream number */
-    long   video_frames;      /* Number of video frames */
-    char   video_tag[4];      /* Tag of video data */
-    long   video_pos;         /* Number of next frame to be read
-			       (if index present) */
+	long   width;             /* Width  of a video frame */
+	long   height;            /* Height of a video frame */
+	double fps;               /* Frames per second */
+	char   compressor[8];     /* Type of compressor, 4 bytes + padding for 0 byte */
+	char   compressor2[8];     /* Type of compressor, 4 bytes + padding for 0 byte */
+	long   video_strn;        /* Video stream number */
+	long   video_frames;      /* Number of video frames */
+	char   video_tag[4];      /* Tag of video data */
+	long   video_pos;         /* Number of next frame to be read
+	                             (if index present) */
     
-    DWORD max_len;    /* maximum video chunk present */
+	DWORD max_len;    /* maximum video chunk present */
   
-    track_t track[AVI_MAX_TRACKS];  // up to AVI_MAX_TRACKS audio tracks supported
+	track_t track[AVI_MAX_TRACKS];  // up to AVI_MAX_TRACKS audio tracks supported
   
-    off_t  pos;               /* position in file */
-    long   n_idx;             /* number of index entries actually filled */
-    long   max_idx;           /* number of index entries actually allocated */
+	off_t  pos;               /* position in file */
+	long   n_idx;             /* number of index entries actually filled */
+	long   max_idx;           /* number of index entries actually allocated */
   
-    off_t  v_codech_off;      /* absolut offset of video codec (strh) info */ 
-    off_t  v_codecf_off;      /* absolut offset of video codec (strf) info */ 
+	off_t  v_codech_off;      /* absolut offset of video codec (strh) info */ 
+	off_t  v_codecf_off;      /* absolut offset of video codec (strf) info */ 
   
-    BYTE (*idx)[16]; /* index entries (AVI idx1 tag) */
+	BYTE (*idx)[16]; /* index entries (AVI idx1 tag) */
 
-    video_index_entry *video_index;
+	video_index_entry *video_index;
     
-    //int is_opendml;           /* set to 1 if this is an odml file with multiple index chunks */
+	//int is_opendml;           /* set to 1 if this is an odml file with multiple index chunks */
   
-    off_t  last_pos;          /* Position of last frame written */
-    DWORD last_len;   /* Length of last frame written */
-    int must_use_index;       /* Flag if frames are duplicated */
-    off_t  movi_start;
-    int total_frames;         /* total number of frames if dmlh is present */
+	off_t  last_pos;          /* Position of last frame written */
+	DWORD last_len;   /* Length of last frame written */
+	int must_use_index;       /* Flag if frames are duplicated */
+	off_t  movi_start;
+	int total_frames;         /* total number of frames if dmlh is present */
     
-    int anum;            // total number of audio tracks 
-    int aptr;            // current audio working track 
-   // int comment_fd;      // Read avi header comments from this fd
-   // char *index_file;    // read the avi index from this file
+	int anum;            // total number of audio tracks 
+	int aptr;            // current audio working track 
+	// int comment_fd;      // Read avi header comments from this fd
+	// char *index_file;    // read the avi index from this file
   
-    //alBITMAPINFOHEADER *bitmap_info_header;
-    //alWAVEFORMATEX *wave_format_ex[AVI_MAX_TRACKS];
+	//alBITMAPINFOHEADER *bitmap_info_header;
+	//alWAVEFORMATEX *wave_format_ex[AVI_MAX_TRACKS];
 
-    void*	extradata;
-    ULONG	extradata_size;
+	void*	extradata;
+	ULONG	extradata_size;
 
 } __attribute__ ((packed));
 

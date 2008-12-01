@@ -25,16 +25,18 @@
 #include "defs.h"
 #include "utils.h"
 
-typedef struct _sndDev {
- int id;
- int chan;
- int samprate;
- //PaTime Hlatency;
- //PaTime Llatency;
+typedef struct _sndDev 
+{
+	int id;
+	int chan;
+	int samprate;
+	//PaTime Hlatency;
+	//PaTime Llatency;
 } sndDev;
 
 /*global variables used in guvcview*/
-struct GLOBAL {
+struct GLOBAL 
+{
 	int debug;
 	char *videodevice;
 	int stack_size;

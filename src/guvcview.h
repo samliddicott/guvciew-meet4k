@@ -38,7 +38,8 @@
 /* Must set this as global so they */
 /* can be set from any callback.   */
 
-struct GWIDGET {
+struct GWIDGET 
+{
 	/* The main window*/
 	GtkWidget *mainwin;
 	/* A restart Dialog */
@@ -71,7 +72,8 @@ struct GWIDGET {
 	GtkWidget *FileDialog;
 };
 
-struct ALL_DATA {
+struct ALL_DATA 
+{
 	struct paRecordData *pdata;
 	struct GLOBAL *global;
 	struct focusData *AFdata;
