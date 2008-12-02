@@ -54,13 +54,14 @@
 #define M_BADHUFF	-1
 #define M_EOF		0x80
 
-/*yuv to rgb formula (set to one to use to 1)*/
+/*yuv to rgb formula (set the one to use with 1)*/
 #define _F1 0
 #define _F2 0
 #define _F3 1
 
 
-struct jpeg_decdata {
+struct jpeg_decdata 
+{
 	int dcts[6 * 64 + 16];
 	int out[64 * 6];
 	int dquant[3][64];
@@ -68,9 +69,10 @@ struct jpeg_decdata {
 
 
 
-struct in {
-	unsigned char *p;
-	unsigned int bits;
+struct in 
+{
+	BYTE *p;
+	DWORD bits;
 	int left;
 	int marker;
 	int (*func) __P((void *));
@@ -81,12 +83,14 @@ struct in {
 struct dec_hufftbl;
 struct enc_hufftbl;
 
-union hufftblp {
+union hufftblp 
+{
 	struct dec_hufftbl *dhuff;
 	struct enc_hufftbl *ehuff;
 };
 
-struct scan {
+struct scan 
+{
 	int dc;			/* old dc value */
 
 	union hufftblp hudc;
@@ -102,26 +106,31 @@ struct scan {
 
 #define DECBITS 10		/* seems to be the optimum */
 
-struct dec_hufftbl {
+struct dec_hufftbl 
+{
 	int maxcode[17];
 	int valptr[16];
-	unsigned char vals[256];
-	unsigned int llvals[1 << DECBITS];
+	BYTE vals[256];
+	DWORD llvals[1 << DECBITS];
 };
-static int huffman_init(void);
-static void decode_mcus
-__P((struct in *, int *, int, struct scan *, int *));
-static int dec_readmarker __P((struct in *));
-static void dec_makehuff
-__P((struct dec_hufftbl *, int *, unsigned char *));
 
-static void setinput __P((struct in *, unsigned char *));
+static int huffman_init(void);
+
+static void decode_mcus
+	__P((struct in *, int *, int, struct scan *, int *));
+
+static int dec_readmarker __P((struct in *));
+
+static void dec_makehuff
+	__P((struct dec_hufftbl *, int *, BYTE *));
+
+static void setinput __P((struct in *, BYTE *));
 /*********************************/
 
 #undef PREC
 #define PREC int
 
-static void idctqtab __P((unsigned char *, PREC *));
+static void idctqtab __P((BYTE *, PREC *));
 
 inline static void idct(int *in, int *out, int *quant, long off, int max);
 
@@ -129,13 +138,14 @@ inline static void idct(int *in, int *out, int *quant, long off, int max);
 
 //static void col221111 __P((int *, unsigned char *, int));
 
-static void yuv420pto422(int * out,unsigned char *pic,int width);
-static void yuv422pto422(int * out,unsigned char *pic,int width);
-static void yuv444pto422(int * out,unsigned char *pic,int width);
-static void yuv400pto422(int * out,unsigned char *pic,int width);
-typedef void (*ftopict) ( int *out, unsigned char *pic, int width) ;
+static void yuv420pto422(int * out, BYTE *pic, int width);
+static void yuv422pto422(int * out, BYTE *pic, int width);
+static void yuv444pto422(int * out, BYTE *pic, int width);
+static void yuv400pto422(int * out, BYTE *pic, int width);
+typedef void (*ftopict) (int * out, BYTE *pic, int width) ;
 /*********************************/
 
+/***** Markers ******/
 #define M_SOI	0xd8
 #define M_APP0	0xe0
 #define M_DQT	0xdb
@@ -147,7 +157,7 @@ typedef void (*ftopict) ( int *out, unsigned char *pic, int width) ;
 #define M_EOI	0xd9
 #define M_COM	0xfe
 
-static unsigned char *datap;
+static BYTE *datap;
 
 static int getbyte(void)
 {
@@ -162,17 +172,19 @@ static int getword(void)
 	return c1 << 8 | c2;
 }
 
-struct comp {
+struct comp 
+{
 	int cid;
 	int hv;
 	int tq;
 };
 
 #define MAXCOMP 4
-struct jpginfo {
+struct jpginfo 
+{
 	int nc;			/* number of components */
 	int ns;			/* number of scans */
-	int dri;			/* restart interval */
+	int dri;		/* restart interval */
 	int nm;			/* mcus til next marker */
 	int rm;			/* next restart marker */
 };
@@ -207,13 +219,14 @@ static int readtables(int till, int *isDHT)
 		{
 			case 0xc2:
 				return 0;
-
+			/*read quantization tables (Lqt and Cqt)*/
 			case M_DQT:
 				//printf("find DQT \n");
 				lq = getword();
 				while (lq > 2) 
 				{
 					pq = getbyte();
+					/*Lqt=0x00   Cqt=0x01*/
 					tq = pq & 15;
 					if (tq > 3)
 					return -1;
@@ -225,14 +238,14 @@ static int readtables(int till, int *isDHT)
 					lq -= 64 + 1;
 				}
 				break;
-
+			/*read huffman table*/
 			case M_DHT:
 				//printf("find DHT \n");
 				l = getword();
 				while (l > 2) 
 				{
 					int hufflen[16], k;
-					unsigned char huffvals[256];
+					BYTE huffvals[256];
 
 					tc = getbyte();
 					th = tc & 15;
@@ -253,9 +266,10 @@ static int readtables(int till, int *isDHT)
 					}
 					dec_makehuff(dhuff + tt, hufflen, huffvals);
 				}
+				/* has huffman tables defined (JPEG)*/
 				*isDHT= 1;
 				break;
-
+			/*restart interval*/
 			case M_DRI:
 				//printf("find DRI \n");
 				l = getword();
@@ -296,7 +310,7 @@ static int dec_checkmarker(void)
 }
 
 
-int jpeg_decode(unsigned char **pic, unsigned char *buf, int *width, int *height)
+int jpeg_decode(BYTE **pic, BYTE *buf, int *width, int *height)
 {
 	struct jpeg_decdata *decdata;
 	int i=0, j=0, m=0, tac=0, tdc=0;
@@ -324,6 +338,7 @@ int jpeg_decode(unsigned char **pic, unsigned char *buf, int *width, int *height
 		goto error;
 	}
 	datap = buf;
+	/*check SOI (0xFFD8)*/
 	if (getbyte() != 0xff) 
 	{
 		err = ERR_NO_SOI;
@@ -334,40 +349,42 @@ int jpeg_decode(unsigned char **pic, unsigned char *buf, int *width, int *height
 		err = ERR_NO_SOI;
 		goto error;
 	}
+	/*read tables - if exist, up to start frame marker (0xFFC0)*/
 	if (readtables(M_SOF0, &isInitHuffman)) 
 	{
 		err = ERR_BAD_TABLES;
 		goto error;
 	}
-	getword();
-	i = getbyte();
+	getword();     /*header lenght*/
+	i = getbyte(); /*precision (8 bit)*/
 	if (i != 8) 
 	{
 		err = ERR_NOT_8BIT;
 		goto error;
 	}
-	intheight = getword();
-	intwidth = getword();
+	intheight = getword(); /*height*/
+	intwidth = getword();  /*width */
 
-	if ((intheight & 7) || (intwidth & 7)) 
+	if ((intheight & 7) || (intwidth & 7)) /*must be even*/
 	{
 		err = ERR_BAD_WIDTH_OR_HEIGHT;
 		goto error;
 	}
-	info.nc = getbyte();
+	info.nc = getbyte(); /*number of components*/
 	if (info.nc > MAXCOMP) 
 	{
 		err = ERR_TOO_MANY_COMPPS;
 		goto error;
 	}
+	/*for each component*/
 	for (i = 0; i < info.nc; i++) 
 	{
 		int h, v;
-		comps[i].cid = getbyte();
+		comps[i].cid = getbyte(); /*component id*/
 		comps[i].hv = getbyte();
-		v = comps[i].hv & 15;
-		h = comps[i].hv >> 4;
-		comps[i].tq = getbyte();
+		v = comps[i].hv & 15; /*vertical sampling   */
+		h = comps[i].hv >> 4; /*horizontal sampling */
+		comps[i].tq = getbyte(); /*quantization table used*/
 		if (h > 3 || v > 3) 
 		{
 			err = ERR_ILLEGAL_HV;
@@ -379,25 +396,27 @@ int jpeg_decode(unsigned char **pic, unsigned char *buf, int *width, int *height
 			goto error;
 		}
 	}
+	/*read tables - if exist, up to start of scan marker (0xFFDA)*/ 
 	if (readtables(M_SOS,&isInitHuffman)) 
 	{
 		err = ERR_BAD_TABLES;
 		goto error;
 	}
-	getword();
-	info.ns = getbyte();
+	getword(); /* header lenght */
+	info.ns = getbyte(); /* number of scans */
 	if (!info.ns)
 	{
 	printf("info ns %d/n",info.ns);
 		err = ERR_NOT_YCBCR_221111;
 		goto error;
 	}
+	/*for each scan*/
 	for (i = 0; i < info.ns; i++) 
 	{
-		dscans[i].cid = getbyte();
+		dscans[i].cid = getbyte(); /*component id*/
 		tdc = getbyte();
-		tac = tdc & 15;
-		tdc >>= 4;
+		tac = tdc & 15; /*ac table*/
+		tdc >>= 4;      /*dc table*/
 		if (tdc > 1 || tac > 1) 
 		{
 			err = ERR_QUANT_TABLE_SELECTOR;
@@ -417,15 +436,17 @@ int jpeg_decode(unsigned char **pic, unsigned char *buf, int *width, int *height
 		dscans[i].huac.dhuff = dec_huffac + tac;
 	}
 
-	i = getbyte();
-	j = getbyte();
-	m = getbyte();
+	i = getbyte(); /*0 */
+	j = getbyte(); /*63*/
+	m = getbyte(); /*0 */
 
 	if (i != 0 || j != 63 || m != 0) 
 	{
 		printf("hmm FW error,not seq DCT ??\n");
 	}
 	// printf("ext huffman table %d \n",isInitHuffman);
+	
+	/*build huffman tables*/
 	if(!isInitHuffman) 
 	{
 		if(huffman_init() < 0)

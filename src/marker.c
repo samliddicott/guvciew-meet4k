@@ -154,19 +154,18 @@ write_markers (struct JPEG_ENCODER_STRUCTURE * jpeg_encoder_structure, UINT8 *ou
 	// Nf
 	*output_ptr++ = number_of_components;
 
-	/* type 422*/
-	*output_ptr++ = 0x01;
-	*output_ptr++ = 0x21;
+	/* type 422 */
+	*output_ptr++ = 0x01; /*id (y)*/
+	*output_ptr++ = 0x21; /*horiz|vertical */
+	*output_ptr++ = 0x00; /*quantization table used*/
 	
+	*output_ptr++ = 0x02; /*id (u)*/
+	*output_ptr++ = 0x11; /*horiz|vertical*/
+	*output_ptr++ = 0x01; /*quantization table used*/
 
-	*output_ptr++ = 0x00;
-	*output_ptr++ = 0x02;
-	*output_ptr++ = 0x11;
-	*output_ptr++ = 0x01;
-
-	*output_ptr++ = 0x03;
-	*output_ptr++ = 0x11;
-	*output_ptr++ = 0x01;
+	*output_ptr++ = 0x03; /*id (v)*/
+	*output_ptr++ = 0x11; /*horiz|vertical*/
+	*output_ptr++ = 0x01; /*quantization table used*/
 
 
 	// Scan header(SOF)
@@ -174,30 +173,29 @@ write_markers (struct JPEG_ENCODER_STRUCTURE * jpeg_encoder_structure, UINT8 *ou
 	// Start of scan marker
 	*output_ptr++ = 0xFF;
 	*output_ptr++ = 0xDA;
-
+	
 	header_length = (UINT16) (6 + (number_of_components << 1));
 
 	// Scan header length
 	*output_ptr++ = (UINT8) (header_length >> 8);
 	*output_ptr++ = (UINT8) header_length;
 
-	// Ns
+	// Ns = number of scans
 	*output_ptr++ = number_of_components;
 
 	/* type 422*/
-	*output_ptr++ = 0x01;
-	*output_ptr++ = 0x00;
+	*output_ptr++ = 0x01; /*component id (y)*/
+	*output_ptr++ = 0x00; /*dc|ac tables*/
 
-	*output_ptr++ = 0x02;
-	*output_ptr++ = 0x11;
+	*output_ptr++ = 0x02; /*component id (u)*/
+	*output_ptr++ = 0x11; /*dc|ac tables*/
 
-	*output_ptr++ = 0x03;
-	*output_ptr++ = 0x11;
+	*output_ptr++ = 0x03; /*component id (v)*/
+	*output_ptr++ = 0x11; /*dc|ac tables*/
 	
-
-	*output_ptr++ = 0x00;
-	*output_ptr++ = 0x3F;
-	*output_ptr++ = 0x00;
+	*output_ptr++ = 0x00; /*0 */
+	*output_ptr++ = 0x3F; /*63*/
+	*output_ptr++ = 0x00; /*0 */
 	
 	return output_ptr;
 }
