@@ -1,3 +1,14 @@
+guvcview (0.9.6) stable; urgency=low
+
+   * Fixed Get Focus value for logitech motor focus cameras.
+   * Added select with timeout so guvcview won't stall at VIDIOC_DQBUFF.
+   * Added support for GBRG pix format.
+   * Added initial support for drivers that don't enumerate frame sizes (gspca).
+   * Change console options parsing method, we now use getopt.
+   * Improved v4l2 error handling by providing more usefull error messages.
+   
+ -- Paulo Assis <pj.assis@gmail.com>  Sat, 6 Dec 2008 18:44:00 +0000
+
 guvcview (0.9.5) stable; urgency=low
 
    * Fixed several warnings in valgrind.
