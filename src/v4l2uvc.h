@@ -49,6 +49,11 @@
  * Private V4L2 control identifiers from UVC driver.  - this seems to change acording to driver version
  * all other User-class control IDs are defined by V4L2 (videodev.h)
  */
+ 
+/*Debian Patch*/
+#ifndef V4L2_PIX_FMT_SGBRG8
+#define V4L2_PIX_FMT_SGBRG8  v4l2_fourcc('G', 'B', 'R', 'G') /*  8  GBGB.. RGRG.. */
+#endif
 
 /*------------------------- new camera class controls ---------------------*/
 #define V4L2_CTRL_CLASS_USER_NEW		0x00980000
