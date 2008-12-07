@@ -32,6 +32,7 @@
 #include "globals.h"
 #include "string_utils.h"
 #include "avilib.h"
+#include  "v4l2uvc.h"
 /*----------------------- write conf (.guvcviewrc) file ----------------------*/
 int 
 writeConf(struct GLOBAL *global) 
