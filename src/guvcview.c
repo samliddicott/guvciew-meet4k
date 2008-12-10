@@ -346,7 +346,7 @@ int main(int argc, char *argv[])
 				if (videoIn->SupMjpg>0) 
 				{
 					global->formind=0;
-					global->format=V4L2_PIX_FMT_MJPEG);
+					global->format=V4L2_PIX_FMT_MJPEG;
 					snprintf(global->mode, 5, "mjpg");
 				} 
 				else 
