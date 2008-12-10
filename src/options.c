@@ -375,7 +375,7 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 				break;
 
 			case 'f':
-				snprintf(global->mode,4,"%s",optarg);
+				snprintf(global->mode,5,"%s",optarg);
 				//global->mode[0] = optarg[0];
 				break;
 
@@ -463,7 +463,7 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 				//printf("-g\t:use read method for grab instead mmap\n");
 				printf("-w enable|disable\t:SDL hardware accel. \n");
 				printf("-f[--format] format\t:video format\n");
-				printf("   default jpg  others options are yuv uyv yup gbr jpg \n");
+				printf("   default jpg  others options are yuv uyv yup gbr mjpg jpeg\n");
 				printf("-s[--size] widthxheight\t:use specified input size \n");
 				printf("-i[--image] image_file_name\t:sets the default image name\n"); 
 				printf("   available image formats: jpg png bmp\n");
@@ -504,7 +504,12 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 		global->format = V4L2_PIX_FMT_SGBRG8;
 		global->formind = 1;
 	}
-	else if (strncmp(global->mode, "jpg", 3) == 0) 
+	else if (strncmp(global->mode, "jpeg", 4) == 0) 
+	{
+		global->format = V4L2_PIX_FMT_JPEG;
+		global->formind = 0;
+	}
+	else if (strncmp(global->mode, "mjpg", 4) == 0) 
 	{
 		global->format = V4L2_PIX_FMT_MJPEG;
 		global->formind = 0;

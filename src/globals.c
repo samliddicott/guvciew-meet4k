@@ -181,14 +181,14 @@ int initGlobals (struct GLOBAL *global)
 	global->winheight=WINSIZEY;
 	global->spinbehave=0;
 	global->boxvsize=0;
-	if((global->mode = (char *) calloc(1, 5 * sizeof(char)))==NULL)
+	if((global->mode = (char *) calloc(1, 6 * sizeof(char)))==NULL)
 	{
 		printf("couldn't calloc memory for:global->mode\n");
 		goto error;
 	}
-	snprintf(global->mode, 4, "jpg");
+	snprintf(global->mode, 5, "mjpg");
 	global->format = V4L2_PIX_FMT_MJPEG;
-	global->formind = 0; /*0-MJPG 1-YUYV*/
+	global->formind = 0; /*0-compressed (MJPG/JPEG) 1- uncompressed (YUYV,UYVY, GBRG)*/
 	global->Frame_Flags = YUV_NOFILT;
 	global->jpeg=NULL;
 	global->jpeg_size = 0;

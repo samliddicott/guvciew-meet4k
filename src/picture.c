@@ -135,7 +135,7 @@ SaveBuff(const char *Filename,int imgsize,BYTE *data)
 	int ret = 0;
 	if ((fp = fopen(Filename,"wb"))!=NULL) 
 	{
-		ret=fwrite(data,imgsize,1,fp);/*jpeg - jfif*/
+		ret=fwrite(data,imgsize,1,fp);
 		
 		if (ret<1) ret=1;//write error
 		else ret=0;

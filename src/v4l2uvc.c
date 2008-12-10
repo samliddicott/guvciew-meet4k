@@ -343,6 +343,7 @@ init_videoIn(struct vdIn *vd, char *device, int width, int height,
 	vd->framesizeIn = (vd->width * vd->height << 1);
 	switch (vd->formatIn) 
 	{
+		case V4L2_PIX_FMT_JPEG:
 		case V4L2_PIX_FMT_MJPEG:
 			/* alloc a temp buffer to reconstruct the pict (MJPEG)*/
 			vd->tmpbuf_size= vd->framesizeIn;
@@ -423,6 +424,7 @@ init_videoIn(struct vdIn *vd, char *device, int width, int height,
 	{
 		/*set framebuffer to black (y=0x00 u=0x80 v=0x80) by default*/
 		switch (vd->formatIn) {
+			case V4L2_PIX_FMT_JPEG:
 			case V4L2_PIX_FMT_MJPEG:
 			case V4L2_PIX_FMT_SGBRG8: /*converted to YUYV*/
 			case V4L2_PIX_FMT_YUV420: /*converted to YUYV*/
@@ -558,6 +560,7 @@ int init_v4l2(struct vdIn *vd)
 	check_videoIn(vd);
 	/*make sure we set a valid format*/
 	if (((vd->formatIn == V4L2_PIX_FMT_MJPEG) && (vd->SupMjpg <= 0 )) ||
+	   ((vd->formatIn == V4L2_PIX_FMT_JPEG) && (vd->SupJpeg <= 0 )) ||
 	   ((vd->formatIn == V4L2_PIX_FMT_YUYV) && (vd->SupYuv <= 0 )) ||
 	   ((vd->formatIn == V4L2_PIX_FMT_UYVY) && (vd->SupUyv <= 0 )) ||
 	   ((vd->formatIn == V4L2_PIX_FMT_YUV420) && (vd->SupYup <= 0 )) ||
@@ -590,7 +593,8 @@ int init_v4l2(struct vdIn *vd)
 		vd->fmt.fmt.pix.width, vd->fmt.fmt.pix.height);
 		vd->width = vd->fmt.fmt.pix.width;
 		vd->height = vd->fmt.fmt.pix.height;
-		if (vd->formatIn == V4L2_PIX_FMT_MJPEG) list_form = 0;
+		if ((vd->formatIn == V4L2_PIX_FMT_MJPEG) || 
+		    (vd->formatIn == V4L2_PIX_FMT_JPEG)) list_form = 0;
 		else list_form = 1;
 		vd->listVidCap[list_form][0].width=vd->width;
 		vd->listVidCap[list_form][0].height=vd->height;
@@ -717,6 +721,7 @@ int uvcGrab(struct vdIn *vd)
 
 	switch (vd->formatIn) 
 	{
+		case V4L2_PIX_FMT_JPEG:
 		case V4L2_PIX_FMT_MJPEG:
 			if(vd->buf.bytesused <= HEADERFRAME1) 
 			{
@@ -1107,6 +1112,10 @@ int enum_frame_sizes(struct vdIn *vd, __u32 pixfmt)
 					fsize.discrete.width, fsize.discrete.height);
 			switch (pixfmt) 
 			{
+				case V4L2_PIX_FMT_JPEG: /*asserting that there is only one compressed format*/
+					vd->SupJpeg++;
+					list_form=0;
+					break;
 				case V4L2_PIX_FMT_MJPEG:
 					vd->SupMjpg++;
 					list_form=0;
@@ -1185,6 +1194,10 @@ int enum_frame_sizes(struct vdIn *vd, __u32 pixfmt)
 		/*       negotiate with VIDIOC_TRY_FMT instead       */
 		switch(pixfmt) 
 		{
+			case V4L2_PIX_FMT_JPEG:
+				vd->SupJpeg++;
+				list_form=0;
+				break;
 			case V4L2_PIX_FMT_MJPEG:
 				vd->SupMjpg++;
 				list_form=0;

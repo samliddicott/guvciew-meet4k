@@ -55,6 +55,10 @@
 #define V4L2_PIX_FMT_SGBRG8  v4l2_fourcc('G', 'B', 'R', 'G') /*  8  GBGB.. RGRG.. */
 #endif
 
+#ifndef V4L2_PIX_FMT_JPEG
+#define V4L2_PIX_FMT_JPEG  v4l2_fourcc('J', 'P', 'E', 'G') /*  JPEG stream */
+#endif
+
 /*------------------------- new camera class controls ---------------------*/
 #define V4L2_CTRL_CLASS_USER_NEW		0x00980000
 #define V4L2_CID_BASE_NEW			(V4L2_CTRL_CLASS_USER_NEW | 0x900)
@@ -263,6 +267,7 @@ struct vdIn
 	int SupYup;
 	int SupGbr;
 	int SupMjpg;
+	int SupJpeg;
 	int formatIn;
 	int formatOut;
 	int framesizeIn;

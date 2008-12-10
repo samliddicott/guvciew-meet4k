@@ -42,6 +42,7 @@
 #include <X11/Xlib.h>
 #include <SDL/SDL_syswm.h>
 /* support for internationalization - i18n */
+#include <locale.h> //gentoo patch
 #include <glib/gi18n.h>
 #include "../config.h"
 
@@ -343,23 +344,30 @@ int main(int argc, char *argv[])
 			case -2:/*invalid format*/
 				printf("trying minimum setup for specified format...\n");
 				if (videoIn->SupMjpg>0) 
-				{	/*use jpg mode*/
+				{
 					global->formind=0;
-					global->format=V4L2_PIX_FMT_MJPEG;
-					snprintf(global->mode, 4, "jpg");
+					global->format=V4L2_PIX_FMT_MJPEG)
+					snprintf(global->mode, 5, "mjpg");
 				} 
 				else 
 				{
 					if (global->debug) 
 					{ 
 						printf("formind %d\n", global->formind);
+						printf("SupJpeg   %d\n", videoIn->SupJpeg);
 						printf("SupYuv   %d\n", videoIn->SupYuv);
 						printf("SupUyv   %d\n", videoIn->SupUyv);
 						printf("SupYup   %d\n", videoIn->SupYup);
 						printf("SupGbr   %d\n", videoIn->SupGbr);
 					}
-				
-					if (videoIn->SupYuv>0) 
+					
+					if (videoIn->SupJpeg>0)
+					{
+						global->formind=0;
+						global->format=V4L2_PIX_FMT_JPEG;
+						snprintf(global->mode, 5, "jpeg");
+					}
+					else if (videoIn->SupYuv>0) 
 					{
 						global->formind=1;
 						global->format=V4L2_PIX_FMT_YUYV;

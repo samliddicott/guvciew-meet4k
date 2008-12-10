@@ -164,6 +164,8 @@ void *main_loop(void *data)
 			 SDL_VIDEO_Flags);
 	switch (global->format) 
 	{
+		case V4L2_PIX_FMT_JPEG:
+		case V4L2_PIX_FMT_MJPEG:
 		case V4L2_PIX_FMT_SGBRG8: /*converted to YUYV*/
 		case V4L2_PIX_FMT_YUV420: /*converted to YUYV*/
 		case V4L2_PIX_FMT_YUYV:
@@ -267,6 +269,8 @@ void *main_loop(void *data)
 			{
 				switch (global->format) 
 				{
+					case V4L2_PIX_FMT_MJPEG:
+					case V4L2_PIX_FMT_JPEG:
 					case V4L2_PIX_FMT_SGBRG8: /*converted to YUYV*/
 					case V4L2_PIX_FMT_YUV420: /*converted to YUYV*/
 					case V4L2_PIX_FMT_YUYV: 
@@ -291,6 +295,8 @@ void *main_loop(void *data)
 			{
 				switch (global->format) 
 				{
+					case V4L2_PIX_FMT_MJPEG:
+					case V4L2_PIX_FMT_JPEG:
 					case V4L2_PIX_FMT_SGBRG8: /*converted to YUYV*/
 					case V4L2_PIX_FMT_YUV420: /*converted to YUYV*/
 					case V4L2_PIX_FMT_YUYV: 
@@ -313,7 +319,7 @@ void *main_loop(void *data)
 			switch(global->imgFormat) 
 			{
 				case 0:/*jpg*/
-					/* Save directly from MJPG frame */	 
+					/* Save directly from MJPG frame */
 					if((global->Frame_Flags==0) && (videoIn->formatIn==V4L2_PIX_FMT_MJPEG)) 
 					{
 						if(SaveJPG(videoIn->ImageFName,videoIn->buf.bytesused,videoIn->tmpbuffer)) 
@@ -322,6 +328,14 @@ void *main_loop(void *data)
 								videoIn->ImageFName);
 						}
 					} 
+					else if ((global->Frame_Flags==0) && (videoIn->formatIn==V4L2_PIX_FMT_JPEG))
+					{
+						if (SaveBuff(videoIn->ImageFName,videoIn->buf.bytesused,videoIn->tmpbuffer))
+						{
+							fprintf (stderr,"Error: Couldn't capture Image to %s \n",
+								videoIn->ImageFName);
+						}
+					}
 					else 
 					{ /* use built in encoder */
 						if (!global->jpeg)
