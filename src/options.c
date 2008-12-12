@@ -39,7 +39,7 @@ writeConf(struct GLOBAL *global)
 {
 	int ret=0;
 	FILE *fp;
-	
+
 	if ((fp = fopen(global->confPath,"w"))!=NULL) 
 	{
 		fprintf(fp,"# guvcview configuration file\n\n");
@@ -58,7 +58,7 @@ writeConf(struct GLOBAL *global)
 		fprintf(fp,"vpane=%i\n",global->boxvsize);
 		fprintf(fp,"#spin button behavior: 0-non editable 1-editable\n");
 		fprintf(fp,"spinbehave=%i\n", global->spinbehave);
-		fprintf(fp,"# mode video format 'yuv' 'uyv' 'yup' 'gbr' or 'jpg'(default)\n");
+		fprintf(fp,"# mode video format 'yuv' 'uyv' 'yup' 'gbr' 'jpeg' 'mjpg'(default)\n");
 		fprintf(fp,"mode=%s\n",global->mode);
 		fprintf(fp,"# frames per sec. - hardware supported - default( %i )\n",DEFAULT_FPS);
 		fprintf(fp,"fps=%d/%d\n",global->fps_num,global->fps);
@@ -173,6 +173,8 @@ readConf(struct GLOBAL *global)
 				} 
 				else if (strcmp(variable,"mode")==0) 
 				{
+					/*mode to format conversion is done in readOpts    */
+					/*so readOpts must allways be called after readConf*/
 					snprintf(global->mode,5,"%s",value);
 				} 
 				else if (strcmp(variable,"fps")==0) 
@@ -463,7 +465,7 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 				//printf("-g\t:use read method for grab instead mmap\n");
 				printf("-w enable|disable\t:SDL hardware accel. \n");
 				printf("-f[--format] format\t:video format\n");
-				printf("   default jpg  others options are yuv uyv yup gbr mjpg jpeg\n");
+				printf("   default mjpg  others options are yuv uyv yup gbr mjpg jpeg\n");
 				printf("-s[--size] widthxheight\t:use specified input size \n");
 				printf("-i[--image] image_file_name\t:sets the default image name\n"); 
 				printf("   available image formats: jpg png bmp\n");
@@ -484,40 +486,8 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 	/*if -n not set reset capture time*/
 	if(global->Capture_time>0 && global->avifile==NULL) global->Capture_time=0;
 	
-	if (strncmp(global->mode, "uyv", 3) == 0) 
-	{
-		global->format = V4L2_PIX_FMT_UYVY;
-		global->formind = 1;
-	} 
-	else if (strncmp(global->mode, "yuv", 3) == 0) 
-	{
-		global->format = V4L2_PIX_FMT_YUYV;
-		global->formind = 1;
-	}
-	else if (strncmp(global->mode, "yup", 3) == 0) 
-	{
-		global->format = V4L2_PIX_FMT_YUV420;
-		global->formind = 1;
-	}
-	else if (strncmp(global->mode, "gbr", 3) == 0) 
-	{
-		global->format = V4L2_PIX_FMT_SGBRG8;
-		global->formind = 1;
-	}
-	else if (strncmp(global->mode, "jpeg", 4) == 0) 
-	{
-		global->format = V4L2_PIX_FMT_JPEG;
-		global->formind = 0;
-	}
-	else if (strncmp(global->mode, "mjpg", 4) == 0) 
-	{
-		global->format = V4L2_PIX_FMT_MJPEG;
-		global->formind = 0;
-	}
-	else 
-	{
-		global->format = V4L2_PIX_FMT_MJPEG;
-		global->formind = 0;
-	}
-    	if (global->debug) printf("Format is %s(%d)\n",global->mode,global->formind);
+	/*get format from mode*/
+	global->format=get_PixFormat(global->mode);
+	
+	if (global->debug) printf("Format is %s(%d)\n",global->mode,global->formind);
 }

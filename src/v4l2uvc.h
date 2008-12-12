@@ -50,14 +50,37 @@
  * all other User-class control IDs are defined by V4L2 (videodev.h)
  */
  
-/*Debian Patch*/
-#ifndef V4L2_PIX_FMT_SGBRG8
-#define V4L2_PIX_FMT_SGBRG8  v4l2_fourcc('G', 'B', 'R', 'G') /*  8  GBGB.. RGRG.. */
+/* (Patch) define all supported formats - already done in videodev2.h*/
+#ifndef V4L2_PIX_FMT_MJPEG
+#define V4L2_PIX_FMT_MJPEG  v4l2_fourcc('M', 'J', 'P', 'G') /*  MJPEG stream     */
 #endif
 
 #ifndef V4L2_PIX_FMT_JPEG
-#define V4L2_PIX_FMT_JPEG  v4l2_fourcc('J', 'P', 'E', 'G') /*  JPEG stream */
+#define V4L2_PIX_FMT_JPEG  v4l2_fourcc('J', 'P', 'E', 'G')  /*  JPEG stream      */
 #endif
+
+#ifndef V4L2_PIX_FMT_YUYV
+#define V4L2_PIX_FMT_YUYV    v4l2_fourcc('Y','U','Y','V')   /* YUV 4:2:2        */
+#endif
+
+#ifndef V4L2_PIX_FMT_UYVY
+#define V4L2_PIX_FMT_UYVY    v4l2_fourcc('U','Y','V','Y')   /* YUV 4:2:2        */
+#endif
+
+#ifndef V4L2_PIX_FMT_YUV420
+#define V4L2_PIX_FMT_YUV420  v4l2_fourcc('Y','U','1','2')   /* YUV 4:2:0 Planar  */
+#endif
+
+#ifndef V4L2_PIX_FMT_SGBRG8
+#define V4L2_PIX_FMT_SGBRG8  v4l2_fourcc('G', 'B', 'R', 'G') /* GBGB.. RGRG..    */
+#endif
+
+typedef struct _SupFormats
+{
+	int format;
+	char mode[5];
+	int hardware;
+} SupFormats;
 
 /*------------------------- new camera class controls ---------------------*/
 #define V4L2_CTRL_CLASS_USER_NEW		0x00980000
@@ -224,18 +247,25 @@ struct uvc_xu_control
 #define UVCIOC_CTRL_SET		_IOW  ('U', 4, struct uvc_xu_control)
 
 #endif  
-  
-#define MAX_LIST_FPS (10)
-#define MAX_LIST_VIDCAP (20)
+
 
 typedef struct _VidCap 
 {
 	int width;
 	int height;
-	int framerate_num[MAX_LIST_FPS];/*numerator - should be 1 in almost all cases*/
-	int framerate_denom[MAX_LIST_FPS];/*denominator - gives fps*/
+	int *framerate_num;/*numerator - should be 1 in almost all cases*/
+	int *framerate_denom;/*denominator - gives fps*/
 	int numb_frates;
 } VidCap;
+
+
+typedef struct _VidFormats
+{
+	int format;
+	char fourcc[5];
+	int numb_res;
+	VidCap *listVidCap;
+} VidFormats;
 
 struct vdIn 
 {
@@ -261,13 +291,8 @@ struct vdIn
 	int grabmethod;
 	int width;
 	int height;
-	int numb_resol;
-	int SupYuv;
-	int SupUyv;
-	int SupYup;
-	int SupGbr;
-	int SupMjpg;
-	int SupJpeg;
+	//int numb_resol;
+	int numb_formats;
 	int formatIn;
 	int formatOut;
 	int framesizeIn;
@@ -280,9 +305,7 @@ struct vdIn
 	char *ImageFName;
 	int cap_raw;
 	int available_exp[4];
-	/* supported formats: 0-MJPG | 1-YUYV, UYVY, YUV420, SGBRG8*/
-	/* 20 settings for each format              */
-	VidCap listVidCap[2][MAX_LIST_VIDCAP];
+	VidFormats *listVidFormats;
 };
 
 
@@ -340,6 +363,12 @@ int uvcGrab(struct vdIn *vd);
 
 void close_v4l2(struct vdIn *vd);
 
+int get_PixMode(int pixfmt, char *mode);
+
+int get_PixFormat(char *mode);
+
+int get_FormatIndex(struct vdIn *vd, int format);
+
 int input_get_control (struct vdIn * device, InputControl * control, int * val);
 
 int input_set_control (struct vdIn * device, InputControl * control, int val);
@@ -355,9 +384,9 @@ void input_free_controls (struct VidState *s);
 int init_v4l2(struct vdIn *vd);
 
 int enum_frame_intervals(struct vdIn *vd, __u32 pixfmt, __u32 width, __u32 height,
-	int list_form, int list_ind);
+	int fmtind, int fsizeind);
 
-int enum_frame_sizes(struct vdIn *vd, __u32 pixfmt);
+int enum_frame_sizes(struct vdIn *vd, __u32 pixfmt, int fmtind);
 
 int enum_frame_formats(struct vdIn *vd);
 

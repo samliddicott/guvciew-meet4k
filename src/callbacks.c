@@ -583,21 +583,21 @@ resolution_changed (GtkComboBox * Resolution, struct ALL_DATA *all_data)
 	/* resolution we must restart the application                    */
 
 	int index = gtk_combo_box_get_active(Resolution);
-	global->width=videoIn->listVidCap[global->formind][index].width;
-	global->height=videoIn->listVidCap[global->formind][index].height;
+	global->width=videoIn->listVidFormats[global->formind].listVidCap[index].width;
+	global->height=videoIn->listVidFormats[global->formind].listVidCap[index].height;
 
 	/*check if frame rate is available at the new resolution*/
 	int i=0;
 	int deffps=0;
-	for(i=0;i<videoIn->listVidCap[global->formind][index].numb_frates;i++) 
+	for(i=0;i<videoIn->listVidFormats[global->formind].listVidCap[index].numb_frates;i++) 
 	{
-		if ((videoIn->listVidCap[global->formind][index].framerate_num[i]==global->fps_num) && 
-			(videoIn->listVidCap[global->formind][index].framerate_denom[i]==global->fps)) 
+		if ((videoIn->listVidFormats[global->formind].listVidCap[index].framerate_num[i]==global->fps_num) && 
+			(videoIn->listVidFormats[global->formind].listVidCap[index].framerate_denom[i]==global->fps)) 
 				deffps=i;
 	}
 	
-	global->fps_num=videoIn->listVidCap[global->formind][index].framerate_num[deffps];
-	global->fps=videoIn->listVidCap[global->formind][index].framerate_denom[deffps];
+	global->fps_num=videoIn->listVidFormats[global->formind].listVidCap[index].framerate_num[deffps];
+	global->fps=videoIn->listVidFormats[global->formind].listVidCap[index].framerate_denom[deffps];
 	
 	gwidget->restartdialog = gtk_dialog_new_with_buttons (_("Program Restart"),
 		GTK_WINDOW(gwidget->mainwin),
@@ -632,7 +632,7 @@ resolution_changed (GtkComboBox * Resolution, struct ALL_DATA *all_data)
 	videoIn = NULL;
 }
 
-/* Input Type control (UYV YUV YU12 MJPG)*/
+/* Input Format control */
 void
 ImpType_changed(GtkComboBox * ImpType, struct ALL_DATA *all_data) 
 {
@@ -642,70 +642,38 @@ ImpType_changed(GtkComboBox * ImpType, struct ALL_DATA *all_data)
 	
 	int index = gtk_combo_box_get_active(ImpType);
 	
-	if ((videoIn->SupMjpg >0) && ((videoIn->SupYuv >0) || (videoIn->SupUyv) || (videoIn->SupYup))) 
-	{
-		global->formind = index;
-	} 
-	else 
-	{
-		/* if only one format available the callback shouldn't get called*/
-		/* in any case ...                                               */
-		if (videoIn->SupMjpg >0) global->formind = 0;
-		else global->formind = 1;
-	}
 	
-	/*check if frame rate and resolution are available */
-	/*if not use minimum values                        */
+	global->formind = index;
+	
+	/*check if frame rate and resolution are available   */
+	/*if not use minimum values - defres=0 and deffps=0  */
 	int i=0;
 	int j=0;
 	int defres=0;
 	int deffps=0;
-	int SupRes=0;
 	
-	if (global->formind > 0) 
-	{ 
-		if (videoIn->SupYuv>0) 
-		{
-			snprintf(global->mode, 4, "yuv");
-			SupRes=videoIn->SupYuv;
-		} 
-		else if (videoIn->SupYup>0) 
-		{
-			snprintf(global->mode, 4, "yup");
-			SupRes=videoIn->SupYup;
-		}
-		else 
-		{
-			snprintf(global->mode, 4, "uyv");
-			SupRes=videoIn->SupUyv;
-		}
-	} 
-	else 
-	{  /* is Mjpg */
-		snprintf(global->mode, 4, "jpg");
-		SupRes=videoIn->SupMjpg;
-	}
 	
-	for (i=0;i<SupRes;i++) 
+	for (i=0;i<videoIn->listVidFormats[global->formind].numb_res;i++) 
 	{
-		if((videoIn->listVidCap[global->formind][i].height==global->height) &&
-			(videoIn->listVidCap[global->formind][i].width==global->width) ) 
+		if((videoIn->listVidFormats[global->formind].listVidCap[i].height==global->height) &&
+			(videoIn->listVidFormats[global->formind].listVidCap[i].width==global->width) ) 
 		{
 			/* resolution ok check fps*/
 			defres=i;
-			for (j=0;j<videoIn->listVidCap[global->formind][i].numb_frates;j++) 
+			for (j=0;j<videoIn->listVidFormats[global->formind].listVidCap[i].numb_frates;j++) 
 			{
-				if ((videoIn->listVidCap[global->formind][i].framerate_num[j]==global->fps_num) && 
-					(videoIn->listVidCap[global->formind][i].framerate_denom[j]==global->fps))
+				if ((videoIn->listVidFormats[global->formind].listVidCap[i].framerate_num[j]==global->fps_num) && 
+					(videoIn->listVidFormats[global->formind].listVidCap[i].framerate_denom[j]==global->fps))
 						deffps=j;
 			}
 		}
 	}
-	
-	global->height=videoIn->listVidCap[global->formind][defres].height;
-	global->width=videoIn->listVidCap[global->formind][defres].width;
-	global->fps_num=videoIn->listVidCap[global->formind][defres].framerate_num[deffps];
-	global->fps=videoIn->listVidCap[global->formind][defres].framerate_denom[deffps];
+	global->format = videoIn->listVidFormats[global->formind].format;
+	get_PixMode(global->format, global->mode);
+	global->height=videoIn->listVidFormats[global->formind].listVidCap[defres].height;
+	global->width=videoIn->listVidFormats[global->formind].listVidCap[defres].width;
+	global->fps_num=videoIn->listVidFormats[global->formind].listVidCap[defres].framerate_num[deffps];
+	global->fps=videoIn->listVidFormats[global->formind].listVidCap[defres].framerate_denom[deffps];
 	
 	gwidget->restartdialog = gtk_dialog_new_with_buttons (_("Program Restart"),
 		GTK_WINDOW(gwidget->mainwin),
@@ -752,8 +720,8 @@ FrameRate_changed (GtkComboBox * FrameRate, struct ALL_DATA *all_data)
 	
 	int index = gtk_combo_box_get_active (FrameRate);
 		
-	videoIn->fps=videoIn->listVidCap[global->formind][resind].framerate_denom[index];
-	videoIn->fps_num=videoIn->listVidCap[global->formind][resind].framerate_num[index];
+	videoIn->fps=videoIn->listVidFormats[global->formind].listVidCap[resind].framerate_denom[index];
+	videoIn->fps_num=videoIn->listVidFormats[global->formind].listVidCap[resind].framerate_num[index];
  
 	videoIn->setFPS=1;
 
@@ -807,8 +775,8 @@ ImageType_changed (GtkComboBox * ImageType, struct ALL_DATA *all_data)
 		case 2:
 			sprintf(global->imgFPath[0],"%s.png",basename);
 			break;
-	      	case 3:
-	      		sprintf(global->imgFPath[0],"%s.raw",basename);
+		case 3:
+			sprintf(global->imgFPath[0],"%s.raw",basename);
 			break;
 		default:
 			sprintf(global->imgFPath[0],"%s",DEFAULT_IMAGE_FNAME);
@@ -860,14 +828,14 @@ SndComp_changed (GtkComboBox * SoundComp, struct ALL_DATA *all_data)
 	/* 0-PCM (default) 1-MP2 */
 	switch (gtk_combo_box_get_active (SoundComp)) 
 	{
-	    case 0:
-		global->Sound_Format  = WAVE_FORMAT_PCM;
-		break;
-	    case 1:
-		global->Sound_Format = ISO_FORMAT_MPEG12;
-		break;
-	    default:
-		global->Sound_Format  = WAVE_FORMAT_PCM;
+		case 0:
+			global->Sound_Format  = WAVE_FORMAT_PCM;
+			break;
+		case 1:
+			global->Sound_Format = ISO_FORMAT_MPEG12;
+			break;
+		default:
+			global->Sound_Format  = WAVE_FORMAT_PCM;
 	}
 	
 	global = NULL;

@@ -30,9 +30,6 @@
 #include <string.h>
 #include <pthread.h>
 #include <SDL/SDL.h>
-//#include <SDL/SDL_thread.h>
-//#include <SDL/SDL_audio.h>
-//#include <SDL/SDL_timer.h>
 #include <linux/videodev.h>
 #include <sys/ioctl.h>
 #include <sys/mman.h>
@@ -342,67 +339,23 @@ int main(int argc, char *argv[])
 				break;
 				
 			case -2:/*invalid format*/
-				printf("trying minimum setup for specified format...\n");
-				if (videoIn->SupMjpg>0) 
+				printf("trying minimum setup ...\n");
+				if (videoIn->numb_formats > 0) /*check for supported formats*/
 				{
-					global->formind=0;
-					global->format=V4L2_PIX_FMT_MJPEG;
-					snprintf(global->mode, 5, "mjpg");
-				} 
+					global->formind = 0; /* get the first supported format */
+					global->width = videoIn->listVidFormats[global->formind].listVidCap[0].width;
+					global->width = videoIn->listVidFormats[global->formind].listVidCap[0].height;
+					global->fps_num = videoIn->listVidFormats[global->formind].listVidCap[0].framerate_num[0];
+					global->fps = videoIn->listVidFormats[global->formind].listVidCap[0].framerate_denom[0];
+				}
 				else 
 				{
-					if (global->debug) 
-					{ 
-						printf("formind %d\n", global->formind);
-						printf("SupJpeg   %d\n", videoIn->SupJpeg);
-						printf("SupYuv   %d\n", videoIn->SupYuv);
-						printf("SupUyv   %d\n", videoIn->SupUyv);
-						printf("SupYup   %d\n", videoIn->SupYup);
-						printf("SupGbr   %d\n", videoIn->SupGbr);
-					}
-					
-					if (videoIn->SupJpeg>0)
-					{
-						global->formind=0;
-						global->format=V4L2_PIX_FMT_JPEG;
-						snprintf(global->mode, 5, "jpeg");
-					}
-					else if (videoIn->SupYuv>0) 
-					{
-						global->formind=1;
-						global->format=V4L2_PIX_FMT_YUYV;
-						snprintf(global->mode, 4, "yuv");
-					}
-					else if (videoIn->SupUyv>0) 
-					{
-						global->formind=1;
-						global->format=V4L2_PIX_FMT_UYVY;
-						snprintf(global->mode, 4, "uyv");
-					}
-					else if (videoIn->SupYup>0) 
-					{
-						global->formind=1;
-						global->format=V4L2_PIX_FMT_YUV420;
-						snprintf(global->mode, 4, "yup");
-					} 
-					else if (videoIn->SupGbr>0) 
-					{
-						global->formind=1;
-						global->format=V4L2_PIX_FMT_SGBRG8;
-						snprintf(global->mode, 4, "gbr");
-					}
-					else 
-					{
-						printf("ERROR: Can't set MJPG or YUV stream.\nExiting...\n");
-						ERR_DIALOG (N_("Guvcview error:\n\nCan't set MJPG or YUV stream for guvcview"),
-							N_("Make sure you have a UVC compliant camera\nand that you have the linux UVC driver installed."),
-							&all_data);
-					}
+					printf("ERROR: Can't set video stream. No supported format found\nExiting...\n");
+					ERR_DIALOG (N_("Guvcview error:\n\nCan't set MJPG or YUV stream for guvcview"),
+						N_("Make sure you have a UVC compliant camera\nand that you have the linux UVC driver installed."),
+						&all_data);
 				}
-				global->width=videoIn->listVidCap[global->formind][0].width;
-				global->height=videoIn->listVidCap[global->formind][0].height;
-				global->fps_num=videoIn->listVidCap[global->formind][0].framerate_num[0];
-				global->fps=videoIn->listVidCap[global->formind][0].framerate_denom[0];
+				
 				/*try again with new format*/
 				if (init_videoIn
 					(videoIn, (char *) global->videodevice, global->width,global->height, 
@@ -425,18 +378,22 @@ int main(int argc, char *argv[])
 				break;
 		}
 	}
-	/*make sure global and videoIn are in sync            */
-	/*with gspca, videoIn can change during initialization*/
-	/*FIX - should remove some of these duplications      */
+	/*make sure global and videoIn are in sync after v4l2 initialization*/
 	global->width = videoIn->width;
 	global->height = videoIn->height;
 	global->fps = videoIn->fps;
 	global->fps_num = videoIn->fps_num;
 	global->format = videoIn->formatIn;
-
+	global->formind = get_FormatIndex(videoIn, global->format);
+	if(global->formind < 0) 
+	{
+		printf("ERROR: Can't set video stream. No supported format found\nExiting...\n");
+		ERR_DIALOG (N_("Guvcview error:\n\nCan't set MJPG or YUV stream for guvcview"),
+			N_("Make sure you have a UVC compliant camera\nand that you have the linux UVC driver installed."),
+			&all_data);
+	}
 	/* Set jpeg encoder buffer size */
 	global->jpeg_bufsize=((videoIn->width)*(videoIn->height))>>1;
-	
 	/*-----------------------------GTK widgets---------------------------------*/
 	/*----- Left Table -----*/
 	s->table = gtk_table_new (1, 3, FALSE);
@@ -446,6 +403,7 @@ int main(int argc, char *argv[])
 	
 	s->control = NULL;
 	draw_controls(&all_data);
+	
 	if (global->lprofile > 0) LoadControls (s,global);
 	
 	gwidget->boxv = gtk_vpaned_new ();
@@ -627,17 +585,21 @@ int main(int argc, char *argv[])
 	gwidget->Resolution = gtk_combo_box_new_text ();
 	char temp_str[20];
 	int defres=0;
-	for(i=0;i<videoIn->numb_resol;i++) 
+	if (global->debug) 
+		printf("resolutions of %dº format=%d \n",
+			global->formind+1,
+			videoIn->listVidFormats[global->formind].numb_res);
+	for(i=0;i<videoIn->listVidFormats[global->formind].numb_res;i++) 
 	{
-		if (videoIn->listVidCap[global->formind][i].width>0)
+		if (videoIn->listVidFormats[global->formind].listVidCap[i].width>0)
 		{
-			snprintf(temp_str,18,"%ix%i",videoIn->listVidCap[global->formind][i].width,
-							 videoIn->listVidCap[global->formind][i].height);
+			g_snprintf(temp_str,18,"%ix%i",videoIn->listVidFormats[global->formind].listVidCap[i].width,
+							 videoIn->listVidFormats[global->formind].listVidCap[i].height);
 			gtk_combo_box_append_text(GTK_COMBO_BOX(gwidget->Resolution),temp_str);
 			
-			if ((global->width==videoIn->listVidCap[global->formind][i].width) && 
-				(global->height==videoIn->listVidCap[global->formind][i].height))
-					defres=i;/*set selected*/
+			if ((global->width==videoIn->listVidFormats[global->formind].listVidCap[i].width) && 
+				(global->height==videoIn->listVidFormats[global->formind].listVidCap[i].height))
+					defres=i;/*set selected resolution index*/
 		}
 	}
 	
@@ -649,15 +611,19 @@ int main(int argc, char *argv[])
 				  
 	FrameRate = gtk_combo_box_new_text ();
 	int deffps=0;
-	for (i=0;i<videoIn->listVidCap[global->formind][defres].numb_frates;i++) 
+	if (global->debug) 
+		printf("frame rates of %dº resolution=%d \n",
+			defres+1,
+			videoIn->listVidFormats[global->formind].listVidCap[defres].numb_frates);
+	for (i=0;i<videoIn->listVidFormats[global->formind].listVidCap[defres].numb_frates;i++) 
 	{
-		snprintf(temp_str,18,"%i/%i fps",videoIn->listVidCap[global->formind][defres].framerate_num[i],
-			videoIn->listVidCap[global->formind][defres].framerate_denom[i]);
+		g_snprintf(temp_str,18,"%i/%i fps",videoIn->listVidFormats[global->formind].listVidCap[defres].framerate_num[i],
+			videoIn->listVidFormats[global->formind].listVidCap[defres].framerate_denom[i]);
 		gtk_combo_box_append_text(GTK_COMBO_BOX(FrameRate),temp_str);
 		
-		if ((videoIn->fps_num==videoIn->listVidCap[global->formind][defres].framerate_num[i]) && 
-				(videoIn->fps==videoIn->listVidCap[global->formind][defres].framerate_denom[i]))
-					deffps=i;/*set selected*/
+		if ((videoIn->fps_num==videoIn->listVidFormats[global->formind].listVidCap[defres].framerate_num[i]) && 
+			(videoIn->fps==videoIn->listVidFormats[global->formind].listVidCap[defres].framerate_denom[i]))
+				deffps=i;/*set selected*/
 	}
 	
 	gtk_table_attach(GTK_TABLE(table2), FrameRate, 1, 2, line, line+1,
@@ -668,8 +634,8 @@ int main(int argc, char *argv[])
 	gtk_combo_box_set_active(GTK_COMBO_BOX(FrameRate),deffps);
 	if (deffps==0) 
 	{
-		global->fps=videoIn->listVidCap[global->formind][defres].framerate_denom[0];
-		global->fps_num=videoIn->listVidCap[global->formind][0].framerate_num[0];
+		global->fps=videoIn->listVidFormats[global->formind].listVidCap[0].framerate_denom[0];
+		global->fps_num=videoIn->listVidFormats[global->formind].listVidCap[0].framerate_num[0];
 		videoIn->fps=global->fps;
 		videoIn->fps_num=global->fps_num;
 	}
@@ -701,7 +667,7 @@ int main(int argc, char *argv[])
 	gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->Resolution),defres);
 	
 	if(global->debug) 
-		printf("Def. Res: %i  numb. fps:%i\n",defres,videoIn->listVidCap[global->formind][defres].numb_frates);
+		printf("Def. Res: %i  numb. fps:%i\n",defres,videoIn->listVidFormats[global->formind].listVidCap[defres].numb_frates);
 	
 	gtk_table_attach(GTK_TABLE(table2), gwidget->Resolution, 1, 2, line, line+1,
 		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
@@ -719,41 +685,21 @@ int main(int argc, char *argv[])
 
 	gtk_widget_show (labelResol);
 	
-	/* Input method jpg  or yuv */
+	/* Input Format*/
 	line++;
 	ImpType= gtk_combo_box_new_text ();
-	if (videoIn->SupMjpg>0) 
-	{	/*Jpeg Input Available*/
-		gtk_combo_box_append_text(GTK_COMBO_BOX(ImpType),"MJPG");
-	}
-	/* there should be only one of these available*/
-	if (videoIn->SupYuv>0) 
-	{	/*yuyv Input Available*/
-		gtk_combo_box_append_text(GTK_COMBO_BOX(ImpType),"YUYV");
-	}
-	if (videoIn->SupUyv>0) 
-	{	/*uyvy Input Available*/
-		gtk_combo_box_append_text(GTK_COMBO_BOX(ImpType),"UYVY");
 	
+	int fmtind=0;
+	for (fmtind=0;fmtind<videoIn->numb_formats;fmtind++)
+	{
+		gtk_combo_box_append_text(GTK_COMBO_BOX(ImpType),videoIn->listVidFormats[fmtind].fourcc);
+		if(global->format == videoIn->listVidFormats[fmtind].format)
+			gtk_combo_box_set_active(GTK_COMBO_BOX(ImpType),fmtind); /*set active*/
 	}
-	if (videoIn->SupUyv>0) 
-	{	/*yu12 Input Available*/
-		gtk_combo_box_append_text(GTK_COMBO_BOX(ImpType),"YU12");
-	}
-	if (videoIn->SupGbr>0) 
-	{	/*raw gbrg Input Available*/
-		gtk_combo_box_append_text(GTK_COMBO_BOX(ImpType),"GBRG");
-	}
+	
 	gtk_table_attach(GTK_TABLE(table2), ImpType, 1, 2, line, line+1,
 		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	
-	if ((videoIn->SupMjpg >0) && (videoIn->SupYuv >0)) 
-	{
-		gtk_combo_box_set_active(GTK_COMBO_BOX(ImpType),global->formind);
-	} else 
-	{
-		gtk_combo_box_set_active(GTK_COMBO_BOX(ImpType),0); /*only one available*/
-	}
 	gtk_widget_set_sensitive (ImpType, TRUE);
 	g_signal_connect (GTK_COMBO_BOX(ImpType), "changed",
 		G_CALLBACK (ImpType_changed), &all_data);
