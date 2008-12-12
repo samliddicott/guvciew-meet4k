@@ -38,6 +38,7 @@
 #include <signal.h>
 #include <X11/Xlib.h>
 #include <SDL/SDL_syswm.h>
+#include <glib/gprintf.h>
 /* support for internationalization - i18n */
 #include <locale.h> //gentoo patch
 #include <glib/gi18n.h>
@@ -106,7 +107,7 @@ file_chooser (GtkButton * FileButt, const int isAVI)
 	{ /* avi File chooser*/
 	
 		basename =  gtk_entry_get_text(GTK_ENTRY(gwidget->AVIFNameEntry));
-	
+		
 		global->aviFPath=splitPath((char *)basename, global->aviFPath);
 	
 		gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (gwidget->FileDialog), 
@@ -148,7 +149,7 @@ file_chooser (GtkButton * FileButt, const int isAVI)
 			if(global->image_inc>0)
 			{ 
 				global->image_inc=1; /*if auto naming restart counter*/
-				snprintf(global->imageinc_str,24,_("File num:%d"),global->image_inc);
+				g_snprintf(global->imageinc_str,24,_("File num:%d"),global->image_inc);
 				gtk_label_set_text(GTK_LABEL(gwidget->ImageIncLabel), global->imageinc_str);
 			}
 		

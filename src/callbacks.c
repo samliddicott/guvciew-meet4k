@@ -22,7 +22,8 @@
 ********************************************************************************/
 
 #include "callbacks.h"
-
+#include <glib.h>
+#include <glib/gprintf.h>
 /*---------------------------- error message dialog-----------------------------*/
 void 
 ERR_DIALOG(const char *err_title, const char* err_msg, struct ALL_DATA *all_data) 
@@ -756,7 +757,7 @@ ImageType_changed (GtkComboBox * ImageType, struct ALL_DATA *all_data)
 	global->imgFormat=gtk_combo_box_get_active (ImageType);	
 	filename=gtk_entry_get_text(GTK_ENTRY(gwidget->ImageFNameEntry));
 	
-	if(strcmp(filename,global->imgFPath[0])!=0) 
+	if(g_strcmp0(filename,global->imgFPath[0])!=0) 
 	{
 		global->imgFPath=splitPath((char *)filename, global->imgFPath);
 	}
@@ -788,7 +789,7 @@ ImageType_changed (GtkComboBox * ImageType, struct ALL_DATA *all_data)
 	{
 		global->image_inc=1; /*if auto naming restart counter*/
 	}
-	snprintf(global->imageinc_str,24,_("File num:%d"),global->image_inc);
+	g_snprintf(global->imageinc_str,24,_("File num:%d"),global->image_inc);
 	gtk_label_set_text(GTK_LABEL(gwidget->ImageIncLabel), global->imageinc_str);
 	
 	gwidget = NULL;
@@ -933,7 +934,7 @@ ImageInc_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data)
 	
 	global->image_inc = gtk_toggle_button_get_active (toggle) ? 1 : 0;
 	
-	snprintf(global->imageinc_str,24,_("File num:%d"),global->image_inc);
+	g_snprintf(global->imageinc_str,24,_("File num:%d"),global->image_inc);
 	
 	gtk_label_set_text(GTK_LABEL(gwidget->ImageIncLabel), global->imageinc_str);
 	
@@ -950,7 +951,7 @@ AVIInc_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data)
 	
 	global->avi_inc = gtk_toggle_button_get_active (toggle) ? 1 : 0;
 	
-	snprintf(global->aviinc_str,24,_("File num:%d"),global->avi_inc);
+	g_snprintf(global->aviinc_str,24,_("File num:%d"),global->avi_inc);
 	
 	gtk_label_set_text(GTK_LABEL(gwidget->AVIIncLabel), global->aviinc_str);
 	
@@ -972,7 +973,7 @@ capture_image (GtkButton *ImageButt, struct ALL_DATA *all_data)
 	int sfname=120;
 	
 	const char *fileEntr=gtk_entry_get_text(GTK_ENTRY(gwidget->ImageFNameEntry));
-	if(strcmp(fileEntr,global->imgFPath[0])!=0) 
+	if(g_strcmp0(fileEntr,global->imgFPath[0])!=0) 
 	{
 		/*reset if entry change from last capture*/
 		if(global->image_inc) global->image_inc=1;
@@ -987,7 +988,7 @@ capture_image (GtkButton *ImageButt, struct ALL_DATA *all_data)
 	fsize=strlen(global->imgFPath[0]);
 	sfname=strlen(global->imgFPath[1])+fsize+10;
 	char filename[sfname]; /*10 - digits for auto increment*/
-	snprintf(global->imageinc_str,24,_("File num:%d"),global->image_inc);
+	g_snprintf(global->imageinc_str,24,_("File num:%d"),global->image_inc);
 	gtk_label_set_text(GTK_LABEL(gwidget->ImageIncLabel), global->imageinc_str);
 	
 	if ((global->image_timer == 0) && (global->image_inc>0)) 
@@ -995,8 +996,8 @@ capture_image (GtkButton *ImageButt, struct ALL_DATA *all_data)
 		char basename[fsize];
 		char extension[4];
 		sscanf(global->imgFPath[0],"%[^.].%3c",basename,extension);
-		extension[3]='\0';
-		snprintf(filename,sfname,"%s/%s-%d.%s",global->imgFPath[1],basename,
+		extension[3]='\0';/*terminate extension string*/
+		g_snprintf(filename,sfname,"%s/%s-%d.%s",global->imgFPath[1],basename,
 				            global->image_inc,extension);
 		
 		global->image_inc++;
@@ -1004,7 +1005,7 @@ capture_image (GtkButton *ImageButt, struct ALL_DATA *all_data)
 	else 
 	{
 		//printf("fsize=%d bytes fname=%d bytes\n",fsize,sfname);
-		snprintf(filename,sfname,"%s/%s", global->imgFPath[1],global->imgFPath[0]);
+		g_snprintf(filename,sfname,"%s/%s", global->imgFPath[1],global->imgFPath[0]);
 	}
 	if ((sfname>120) && (sfname>strlen(videoIn->ImageFName))) 
 	{
@@ -1013,7 +1014,7 @@ capture_image (GtkButton *ImageButt, struct ALL_DATA *all_data)
 		if (videoIn->ImageFName==NULL) exit(-1);
 	}
 	//videoIn->ImageFName=strncpy(videoIn->ImageFName,filename,sfname);
-	snprintf(videoIn->ImageFName,sfname,"%s",filename);
+	g_snprintf(videoIn->ImageFName,sfname,"%s",filename);
 	if(global->image_timer > 0) 
 	{ 
 		/*auto capture on -> stop it*/
@@ -1054,7 +1055,7 @@ capture_avi (GtkButton *AVIButt, struct ALL_DATA *all_data)
 	int sfname=120;
 	
 	const char *fileEntr = gtk_entry_get_text(GTK_ENTRY(gwidget->AVIFNameEntry));
-	if(strcmp(fileEntr,global->aviFPath[0])!=0) 
+	if(g_strcmp0(fileEntr,global->aviFPath[0])!=0) 
 	{
 		/*reset if entry change from last capture*/
 		if(global->avi_inc) global->avi_inc=1;
@@ -1099,7 +1100,7 @@ capture_avi (GtkButton *AVIButt, struct ALL_DATA *all_data)
 		fsize=strlen(global->aviFPath[0]);
 		sfname=strlen(global->aviFPath[1])+fsize+10;
 		char filename[sfname]; /*10 - digits for auto increment*/
-		snprintf(global->aviinc_str,24,_("File num:%d"),global->avi_inc);
+		g_snprintf(global->aviinc_str,24,_("File num:%d"),global->avi_inc);
 		gtk_label_set_text(GTK_LABEL(gwidget->AVIIncLabel), global->aviinc_str);
 	
 		if (global->avi_inc>0) 
@@ -1108,7 +1109,7 @@ capture_avi (GtkButton *AVIButt, struct ALL_DATA *all_data)
 			char extension[4];
 			sscanf(global->aviFPath[0],"%[^.].%3c",basename,extension);
 			extension[3]='\0';
-			snprintf(filename,sfname,"%s/%s-%d.%s",global->aviFPath[1],basename,
+			g_snprintf(filename,sfname,"%s/%s-%d.%s",global->aviFPath[1],basename,
 				global->avi_inc,extension);
 					
 			global->avi_inc++;
@@ -1116,7 +1117,7 @@ capture_avi (GtkButton *AVIButt, struct ALL_DATA *all_data)
 		else 
 		{
 			//printf("fsize=%d bytes fname=%d bytes\n",fsize,sfname);
-			snprintf(filename,sfname,"%s/%s", global->aviFPath[1],global->aviFPath[0]);
+			g_snprintf(filename,sfname,"%s/%s", global->aviFPath[1],global->aviFPath[0]);
 		}
 		if ((sfname>120) && (sfname>strlen(videoIn->AVIFName))) 
 		{
@@ -1125,7 +1126,7 @@ capture_avi (GtkButton *AVIButt, struct ALL_DATA *all_data)
 			if (videoIn->AVIFName==NULL) exit(-1);
 		}
 	
-		snprintf(videoIn->AVIFName,sfname,"%s",filename);
+		g_snprintf(videoIn->AVIFName,sfname,"%s",filename);
 	
 		if(AVI_open_output_file(AviOut, videoIn->AVIFName)<0) 
 		{
@@ -1309,7 +1310,7 @@ ShowFPS_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data)
 	else 
 	{
 		if (global->timer_id > 0) g_source_remove(global->timer_id);
-		snprintf(global->WVcaption,10,"GUVCVideo");
+		g_snprintf(global->WVcaption,10,"GUVCVideo");
 		SDL_WM_SetCaption(global->WVcaption, NULL);
 	}
 	global = NULL;

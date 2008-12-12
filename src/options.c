@@ -25,14 +25,22 @@
 #include <linux/videodev.h>
 #include <sys/file.h>
 #include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+
 #include <getopt.h>
+#include <glib.h>
+#include <glib/gprintf.h>
+#include <libgen.h>
 /* support for internationalization - i18n */
 #include <glib/gi18n.h>
 
+#include "defs.h"
 #include "globals.h"
 #include "string_utils.h"
 #include "avilib.h"
-#include  "v4l2uvc.h"
+#include "v4l2uvc.h"
 /*----------------------- write conf (.guvcviewrc) file ----------------------*/
 int 
 writeConf(struct GLOBAL *global) 
@@ -44,24 +52,24 @@ writeConf(struct GLOBAL *global)
 	{
 		fprintf(fp,"# guvcview configuration file\n\n");
 		fprintf(fp,"# video device\n");
-		fprintf(fp,"video_device=%s\n",global->videodevice);
+		fprintf(fp,"video_device='%s'\n",global->videodevice);
 		fprintf(fp,"# Thread stack size: default 128 pages of 64k = 8388608 bytes\n");
 		fprintf(fp,"stack_size=%d\n",global->stack_size);
 		fprintf(fp,"# video loop sleep time in ms: 0,1,2,3,...\n");
 		fprintf(fp,"# increased sleep time -> less cpu load, more droped frames\n");
 		fprintf(fp,"vid_sleep=%i\n",global->vid_sleep);
 		fprintf(fp,"# video resolution \n");
-		fprintf(fp,"resolution=%ix%i\n",global->width,global->height);
+		fprintf(fp,"resolution='%ix%i'\n",global->width,global->height);
 		fprintf(fp,"# control window size: default %ix%i\n",WINSIZEX,WINSIZEY);
-		fprintf(fp,"windowsize=%ix%i\n",global->winwidth,global->winheight);
+		fprintf(fp,"windowsize='%ix%i'\n",global->winwidth,global->winheight);
 		fprintf(fp,"#vertical pane size\n");
 		fprintf(fp,"vpane=%i\n",global->boxvsize);
 		fprintf(fp,"#spin button behavior: 0-non editable 1-editable\n");
 		fprintf(fp,"spinbehave=%i\n", global->spinbehave);
 		fprintf(fp,"# mode video format 'yuv' 'uyv' 'yup' 'gbr' 'jpeg' 'mjpg'(default)\n");
-		fprintf(fp,"mode=%s\n",global->mode);
+		fprintf(fp,"mode='%s'\n",global->mode);
 		fprintf(fp,"# frames per sec. - hardware supported - default( %i )\n",DEFAULT_FPS);
-		fprintf(fp,"fps=%d/%d\n",global->fps_num,global->fps);
+		fprintf(fp,"fps='%d/%d'\n",global->fps_num,global->fps);
 		fprintf(fp,"#Display Fps counter: 1- Yes 0- No\n");
 		fprintf(fp,"fps_display=%i\n",global->FpsCount);
 		fprintf(fp,"#auto focus (continuous): 1- Yes 0- No\n");
@@ -101,183 +109,271 @@ writeConf(struct GLOBAL *global)
 		fprintf(fp,"# video filters: 0 -none 1- flip 2- upturn 4- negate 8- mono (add the ones you want)\n");
 		fprintf(fp,"frame_flags=%i\n",global->Frame_Flags);
 		fprintf(fp,"# Image capture Full Path: Path (Max 100 characters) Filename (Max 20 characters)\n");
-		fprintf(fp,"image_path=%s/%s\n",global->imgFPath[1],global->imgFPath[0]);
+		fprintf(fp,"image_path='%s/%s'\n",global->imgFPath[1],global->imgFPath[0]);
 		fprintf(fp,"# Auto Image naming (filename-n.ext)\n");
 		fprintf(fp,"image_inc=%d\n",global->image_inc);
 		fprintf(fp,"# Avi capture Full Path Path (Max 100 characters) Filename (Max 20 characters)\n");
-		fprintf(fp,"avi_path=%s/%s\n",global->aviFPath[1],global->aviFPath[0]);
+		fprintf(fp,"avi_path='%s/%s'\n",global->aviFPath[1],global->aviFPath[0]);
 		fprintf(fp,"# control profiles Full Path Path (Max 10 characters) Filename (Max 20 characters)\n");
-		fprintf(fp,"profile_path=%s/%s\n",global->profile_FPath[1],global->profile_FPath[0]);
+		fprintf(fp,"profile_path='%s/%s'\n",global->profile_FPath[1],global->profile_FPath[0]);
 		printf("write %s OK\n",global->confPath);
 		fclose(fp);
 	} 
 	else 
 	{
 		printf("Could not write file %s \n Please check file permissions\n",global->confPath);
-		ret=1;
+		ret=-1;
 	}
 	return ret;
 }
 
 /*----------------------- read conf (.guvcviewrc) file -----------------------*/
-int 
-readConf(struct GLOBAL *global) 
+int
+readConf(struct GLOBAL *global)
 {
-	int ret=1;
-	char variable[16];
-	char value[128];
-
-	int i=0;
-
-	FILE *fp;
-	
-	if((fp = fopen(global->confPath,"r"))!=NULL) 
+	int ret=0;
+	GScanner  *scanner;
+	GTokenType ttype;
+	GScannerConfig config = 
 	{
-		char line[144];
-		while (fgets(line, 144, fp) != NULL) 
+		" \t\r\n",                     /* characters to skip */
+		G_CSET_a_2_z "_" G_CSET_A_2_Z, /* identifier start */
+		G_CSET_a_2_z "_." G_CSET_A_2_Z G_CSET_DIGITS,/* identifier cont. */
+		"#\n",                         /* single line comment */
+		FALSE,                         /* case_sensitive */
+		TRUE,                          /* skip multi-line comments */
+		TRUE,                          /* skip single line comments */
+		FALSE,                         /* scan multi-line comments */
+		TRUE,                          /* scan identifiers */
+		TRUE,                          /* scan 1-char identifiers */
+		FALSE,                         /* scan NULL identifiers */
+		FALSE,                         /* scan symbols */
+		FALSE,                         /* scan binary */
+		FALSE,                         /* scan octal */
+		TRUE,                          /* scan float */
+		TRUE,                          /* scan hex */
+		FALSE,                         /* scan hex dollar */
+		TRUE,                          /* scan single quote strings */
+		TRUE,                          /* scan double quite strings */
+		TRUE,                          /* numbers to int */
+		FALSE,                         /* int to float */
+		TRUE,                          /* identifier to string */
+		TRUE,                          /* char to token */
+		FALSE,                         /* symbol to token */
+		FALSE,                         /* scope 0 fallback */
+		FALSE                          /* store int64 */
+	};
+
+	int fd = open (global->confPath, O_RDONLY);
+	
+	if (fd < 0 )
+	{
+		printf("Could not open %s for read,\n will try to create it\n",global->confPath);
+		ret=writeConf(global);
+	}
+	else
+	{
+		scanner = g_scanner_new (NULL);
+		g_scanner_input_file (scanner, fd);
+		scanner->input_name = global->confPath;
+		
+		for (ttype = g_scanner_get_next_token (scanner);
+			ttype != G_TOKEN_EOF;
+			ttype = g_scanner_get_next_token (scanner)) 
 		{
-			if ((line[0]=='#') || (line[0]==' ') || (line[0]=='\n')) 
+			if (ttype == G_TOKEN_IDENTIFIER) 
 			{
-			/*skip*/
-			} 
-			else if ((i=sscanf(line,"%[^#=]=%[^#\n ]",variable,value))==2)
-			{
-				/* set variables */
-				if (strcmp(variable,"video_device")==0) 
+				printf("reading %s...\n",scanner->value.v_string);
+				char *name = g_strdup (scanner->value.v_string);
+				ttype = g_scanner_get_next_token (scanner);
+				if (ttype != G_TOKEN_EQUAL_SIGN) 
 				{
-					snprintf(global->videodevice,15,"%s",value);
-				} 
-				else if (strcmp(variable,"stack_size")==0) 
-				{
-					sscanf(value,"%i",&(global->stack_size));
-				} 
-				else if (strcmp(variable,"vid_sleep")==0) 
-				{
-					sscanf(value,"%i",&(global->vid_sleep));
-				} 
-				else if (strcmp(variable,"resolution")==0) 
-				{
-					sscanf(value,"%ix%i",&(global->width),&(global->height));
-				} 
-				else if (strcmp(variable,"windowsize")==0) 
-				{
-					sscanf(value,"%ix%i",&(global->winwidth),&(global->winheight));
-				} 
-				else if (strcmp(variable,"vpane")==0) 
-				{ 
-					sscanf(value,"%i",&(global->boxvsize));
-				} 
-				else if (strcmp(variable,"spinbehave")==0) 
-				{ 
-					sscanf(value,"%i",&(global->spinbehave));
-				} 
-				else if (strcmp(variable,"mode")==0) 
-				{
-					/*mode to format conversion is done in readOpts    */
-					/*so readOpts must allways be called after readConf*/
-					snprintf(global->mode,5,"%s",value);
-				} 
-				else if (strcmp(variable,"fps")==0) 
-				{
-					sscanf(value,"%i/%i",&(global->fps_num),&(global->fps));
-				} 
-				else if (strcmp(variable,"fps_display")==0) 
-				{ 
-					sscanf(value,"%hi",&(global->FpsCount));
+					g_scanner_unexp_token (scanner,
+						G_TOKEN_EQUAL_SIGN,
+						NULL,
+						NULL,
+						NULL,
+						NULL,
+						FALSE);
 				}
-				else if (strcmp(variable,"auto_focus")==0) 
-				{ 
-					sscanf(value,"%i",&(global->autofocus));
-				} 
-				else if (strcmp(variable,"bpp")==0) 
+				else
 				{
-					sscanf(value,"%i",&(global->bpp));
-				} 
-				else if (strcmp(variable,"hwaccel")==0) 
-				{
-					sscanf(value,"%i",&(global->hwaccel));
-				} 
-				else if (strcmp(variable,"grabmethod")==0) 
-				{
-					sscanf(value,"%i",&(global->grabmethod));
-				} 
-				else if (strcmp(variable,"avi_format")==0) 
-				{
-					sscanf(value,"%i",&(global->AVIFormat));
-				} 
-				else if (strcmp(variable,"avi_max_len")==0) 
-				{
-					sscanf(value,"%li",&(global->AVI_MAX_LEN));
-					global->AVI_MAX_LEN = AVI_set_MAX_LEN (global->AVI_MAX_LEN);
-				} 
-				else if (strcmp(variable,"avi_inc")==0) 
-				{
-					sscanf(value,"%d",&(global->avi_inc));
-					snprintf(global->aviinc_str,20,_("File num:%d"),global->avi_inc);
-				} 
-				else if (strcmp(variable,"sound")==0) 
-				{
-					sscanf(value,"%hi",&(global->Sound_enable));
-				} 
-				else if (strcmp(variable,"snd_device")==0) 
-				{
-					sscanf(value,"%i",&(global->Sound_UseDev));
-				} 
-				else if (strcmp(variable,"snd_samprate")==0) 
-				{
-					sscanf(value,"%i",&(global->Sound_SampRateInd));
-				} 
-				else if (strcmp(variable,"snd_numchan")==0) 
-				{
-					sscanf(value,"%i",&(global->Sound_NumChanInd));
-				} 
-				else if (strcmp(variable,"snd_numsec")==0) 
-				{
-					sscanf(value,"%i",&(global->Sound_NumSec));
-				} 
-				else if (strcmp(variable,"snd_format")==0) 
-				{
-					sscanf(value,"%i",&(global->Sound_Format));
-				} 
-				else if (strcmp(variable,"snd_bitrate")==0) 
-				{
-					sscanf(value,"%i",&(global->Sound_bitRate));
+					ttype = g_scanner_get_next_token (scanner);
+					
+					if (ttype == G_TOKEN_STRING)
+					{
+						if (g_strcmp0(name,"video_device")==0) 
+						{
+							g_snprintf(global->videodevice,15,"%s",scanner->value.v_string);
+						}
+						else if (g_strcmp0(name,"resolution")==0) 
+						{
+							sscanf(scanner->value.v_string,"%ix%i",
+								&(global->width), &(global->height));
+						}
+						else if (g_strcmp0(name,"windowsize")==0) 
+						{
+							sscanf(scanner->value.v_string,"%ix%i",
+								&(global->winwidth), &(global->winheight));
+						}
+						else if (g_strcmp0(name,"mode")==0)
+						{
+							/*mode to format conversion is done in readOpts    */
+							/*so readOpts must allways be called after readConf*/
+							g_snprintf(global->mode,5,"%s",scanner->value.v_string);
+						}
+						else if (g_strcmp0(name,"fps")==0)
+						{
+							sscanf(scanner->value.v_string,"%i/%i",
+								&(global->fps_num), &(global->fps));
+						}
+						else if (g_strcmp0(name,"image_path")==0)
+						{
+							global->imgFPath = splitPath(scanner->value.v_string,global->imgFPath);
+							/*get the file type*/
+							global->imgFormat = check_image_type(global->imgFPath[0]);
+						}
+						else if (g_strcmp0(name,"avi_path")==0) 
+						{
+							global->aviFPath=splitPath(scanner->value.v_string,global->aviFPath);
+						}
+						else if (g_strcmp0(name,"profile_path")==0) 
+						{
+							global->profile_FPath=splitPath(scanner->value.v_string,
+								global->profile_FPath);
+						} 
+						else
+						{
+							printf("unexpected string value (%s) for %s\n", 
+								scanner->value.v_string, name);
+						}
+					}
+					else if (ttype==G_TOKEN_INT)
+					{
+						if (g_strcmp0(name,"stack_size")==0)
+						{
+							global->stack_size = scanner->value.v_int;
+						}
+						else if (g_strcmp0(name,"vid_sleep")==0)
+						{
+							global->vid_sleep = scanner->value.v_int;
+						}
+						else if (g_strcmp0(name,"vpane")==0) 
+						{
+							global->boxvsize = scanner->value.v_int;
+						}
+						else if (g_strcmp0(name,"spinbehave")==0) 
+						{
+							global->spinbehave = scanner->value.v_int;
+						}
+						else if (strcmp(name,"fps_display")==0) 
+						{
+							global->FpsCount = (short) scanner->value.v_int;
+						}
+						else if (g_strcmp0(name,"auto_focus")==0) 
+						{
+							global->autofocus = scanner->value.v_int;
+						}
+						else if (g_strcmp0(name,"bpp")==0) 
+						{
+							global->bpp = scanner->value.v_int;
+						}
+						else if (g_strcmp0(name,"hwaccel")==0) 
+						{
+							global->hwaccel = scanner->value.v_int;
+						}
+						else if (g_strcmp0(name,"grabmethod")==0) 
+						{
+							global->grabmethod = scanner->value.v_int;
+						}
+						else if (g_strcmp0(name,"avi_format")==0) 
+						{
+							global->AVIFormat = scanner->value.v_int;
+						}
+						else if (g_strcmp0(name,"avi_max_len")==0) 
+						{
+							global->AVI_MAX_LEN = (ULONG) scanner->value.v_int;
+							global->AVI_MAX_LEN = AVI_set_MAX_LEN (global->AVI_MAX_LEN);
+						}
+						else if (g_strcmp0(name,"avi_inc")==0) 
+						{
+							global->avi_inc = (DWORD) scanner->value.v_int;
+							g_snprintf(global->aviinc_str,20,_("File num:%d"),global->avi_inc);
+						}
+						else if (g_strcmp0(name,"sound")==0) 
+						{
+							global->Sound_enable = (short) scanner->value.v_int;
+						}
+						else if (g_strcmp0(name,"snd_device")==0) 
+						{
+							global->Sound_UseDev = scanner->value.v_int;
+						}
+						else if (g_strcmp0(name,"snd_samprate")==0) 
+						{
+							global->Sound_SampRateInd = scanner->value.v_int;
+						}
+						else if (g_strcmp0(name,"snd_numchan")==0) 
+						{
+							global->Sound_NumChanInd = scanner->value.v_int;
+						}
+						else if (g_strcmp0(name,"snd_numsec")==0) 
+						{
+							global->Sound_NumSec = scanner->value.v_int;
+						}
+						else if (g_strcmp0(name,"snd_format")==0) 
+						{
+							global->Sound_Format = scanner->value.v_int;
+						}
+						else if (g_strcmp0(name,"snd_bitrate")==0) 
+						{
+							global->Sound_bitRate = scanner->value.v_int;
+						}
+						else if (g_strcmp0(name,"Pan_Step")==0)
+						{
+							global->PanStep = scanner->value.v_int;
+						}
+						else if (g_strcmp0(name,"Tilt_Step")==0)
+						{
+							global->TiltStep = scanner->value.v_int;
+						}
+						else if (g_strcmp0(name,"frame_flags")==0) 
+						{
+							global->Frame_Flags = scanner->value.v_int;
+						}
+						else if (g_strcmp0(name,"image_inc")==0) 
+						{
+							global->image_inc = (DWORD) scanner->value.v_int;
+							g_snprintf(global->imageinc_str,20,_("File num:%d"),global->image_inc);
+						}
+						else
+						{
+							printf("unexpected integer value (%i) for %s\n", 
+								scanner->value.v_int, name);
+						}
+					}
+					else if (ttype==G_TOKEN_FLOAT)
+					{
+						printf("unexpected float value (%f) for %s\n", scanner->value.v_float, name);
+					}
+					else
+					{
+						g_scanner_unexp_token (scanner,
+							ttype,
+							NULL,
+							NULL,
+							NULL,
+							NULL,
+							FALSE);
+					}
 				}
-				else if (strcmp(variable,"Pan_Step")==0)
-				{ 
-					sscanf(value,"%i",&(global->PanStep));
-				}
-				else if (strcmp(variable,"Tilt_Step")==0)
-				{ 
-					sscanf(value,"%i",&(global->TiltStep));
-				}
-				else if (strcmp(variable,"frame_flags")==0) 
-				{
-					sscanf(value,"%i",&(global->Frame_Flags));
-				}
-				else if (strcmp(variable,"image_path")==0) 
-				{
-					global->imgFPath = splitPath(value,global->imgFPath);
-					/*get the file type*/
-					global->imgFormat = check_image_type(global->imgFPath[0]);
-				}
-				else if (strcmp(variable,"image_inc")==0) 
-				{
-					sscanf(value,"%d",&(global->image_inc));
-					snprintf(global->imageinc_str,20,_("File num:%d"),global->image_inc);
-				}
-				else if (strcmp(variable,"avi_path")==0) 
-				{
-					global->aviFPath=splitPath(value,global->aviFPath);
-				}
-				else if (strcmp(variable,"profile_path")==0) 
-				{
-					global->profile_FPath=splitPath(value,global->profile_FPath);
-				}
+				if (name != NULL) free(name);
 			}
 		}
-		fclose(fp);
-	    	if (global->debug) 
+		
+		g_scanner_destroy (scanner);
+		close (fd);
+		
+		if (!global->debug) 
 		{ /*it will allways be FALSE unless DEBUG=1*/
 			printf("video_device: %s\n",global->videodevice);
 			printf("vid_sleep: %i\n",global->vid_sleep);
@@ -305,13 +401,9 @@ readConf(struct GLOBAL *global)
 			printf("image inc: %d\n",global->image_inc);
 			printf("profile(default):%s/%s\n",global->profile_FPath[1],global->profile_FPath[0]);
 		}
-	} 
-	else 
-	{
-		printf("Could not open %s for read,\n will try to create it\n",global->confPath);
-		ret=writeConf(global);
 	}
-	return ret;
+	
+	return (ret);
 }
 
 /*------------------------- read command line options ------------------------*/
@@ -368,21 +460,21 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 			break;
 
 			case 'd':
-				snprintf(global->videodevice,15,"%s",optarg);
+				g_snprintf(global->videodevice,15,"%s",optarg);
 				break;
 
 			case 'w':
-				if (strcmp(optarg, "enable") == 0) global->hwaccel=1;
-				else if (strcmp(optarg, "disable") == 0) global->hwaccel=0;
+				if (g_strcmp0(optarg, "enable") == 0) global->hwaccel=1;
+				else if (g_strcmp0(optarg, "disable") == 0) global->hwaccel=0;
 				break;
 
 			case 'f':
-				snprintf(global->mode,5,"%s",optarg);
+				g_snprintf(global->mode,5,"%s",optarg);
 				//global->mode[0] = optarg[0];
 				break;
 
 			case 's':
-				tmpstr = strdup(optarg);
+				tmpstr = g_strdup(optarg);
 	
 				global->width = strtoul(tmpstr, &separateur, 10);
 				if (*separateur != 'x') 
@@ -391,7 +483,7 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 				} 
 				else 
 				{
-					global->avifile = strdup(optarg);
+					global->avifile = g_strdup(optarg); /*allocate avifile - must be freed*/
 					global->aviFPath=splitPath(global->avifile,global->aviFPath);
 					++separateur;
 					global->height = strtoul(separateur, &separateur, 10);
@@ -403,7 +495,7 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 				break;
 		
 			case 'i':
-				tmpstr = strdup(optarg);
+				tmpstr = g_strdup(optarg);
 				global->imgFPath=splitPath(tmpstr,global->imgFPath);
 				/*get the file type*/
 				global->imgFormat = check_image_type(global->imgFPath[0]);
@@ -412,7 +504,7 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 				break;
 		
 			case 'c':
-				tmpstr = strdup(optarg);
+				tmpstr = g_strdup(optarg);
 				global->image_timer= strtoul(tmpstr, &separateur, 10);
 				global->image_inc=1;
 				printf("capturing images every %i seconds",global->image_timer);
@@ -421,7 +513,7 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 				break;
 		
 			case 'm':
-				tmpstr = strdup(optarg);
+				tmpstr = g_strdup(optarg);
 				global->image_npics= strtoul(tmpstr, &separateur, 10);
 				printf("capturing at max %d pics",global->image_npics);
 				free(tmpstr);
@@ -429,12 +521,12 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 				break;
 	
 			case 'n':
-				global->avifile = strdup(optarg);
+				global->avifile = g_strdup(optarg);
 				global->aviFPath=splitPath(global->avifile,global->aviFPath);
 				break;
 		
 			case 't':
-				tmpstr = strdup(optarg);
+				tmpstr = g_strdup(optarg);
 				global->Capture_time= strtoul(tmpstr, &separateur, 10);
 				printf("capturing avi for %i seconds",global->Capture_time);
 				free(tmpstr);
@@ -442,8 +534,8 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 				break;
 		
 			case 'p':
-				if (strcmp(optarg, "enable") == 0) global->FpsCount=1;
-				else if (strcmp(optarg, "disable") == 0) global->FpsCount=0;
+				if (g_strcmp0(optarg, "enable") == 0) global->FpsCount=1;
+				else if (g_strcmp0(optarg, "disable") == 0) global->FpsCount=0;
 				break;
 		
 			case 'l':
@@ -489,5 +581,5 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 	/*get format from mode*/
 	global->format=get_PixFormat(global->mode);
 	
-	if (global->debug) printf("Format is %s(%d)\n",global->mode,global->formind);
+	if (global->debug) printf("Format is %s\n",global->mode);
 }

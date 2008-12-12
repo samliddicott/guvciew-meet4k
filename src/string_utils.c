@@ -22,6 +22,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <glib.h>
+#include <glib/gprintf.h>
+#include <libgen.h>
+
 #include "defs.h"
 
 
@@ -91,104 +95,40 @@ check_image_type (char *filename)
 /* split fullpath in Path (splited[1]) and filename (splited[0])*/
 pchar* splitPath(char *FullPath, char* splited[2]) 
 {
-	int i;
-	int j;
-	int k;
-	int l;
-	int FPSize;
-	int FDSize;
-	int FSize;
-	char *tmpstr;
-	tmpstr=FullPath;
+	printf("in split path\n");
+	char *basename = g_path_get_basename(FullPath);
+	char *dirname  = g_path_get_dirname(FullPath);
 	
-	FPSize=strlen(FullPath);
-	tmpstr+=FPSize;
-	for(i=0;i<FPSize;i++) 
+	int cpysize = 0;
+	int size = strlen(basename)+1; 
+	
+	if (size > (strlen(splited[0])+1))
 	{
-		if((*tmpstr--)=='/') 
-		{
-			FSize=i;
-			tmpstr+=2;/*must increment by 2 because of '/'*/
-			if((FSize>19) && (FSize>strlen(splited[0]))) 
-			{
-				// printf("realloc Filename to %d chars.\n",FSize);
-				splited[0]=realloc(splited[0],(FSize+1)*sizeof(char));
-			} 
-			
-			splited[0]=strncpy(splited[0],tmpstr,FSize);
-			splited[0][FSize]='\0';
-			/* cut spaces at begin of Filename String*/
-			j=0;
-			l=0;
-			while((splited[0][j]==' ') && (j<100)) j++;/*count*/
-			if (j>0) 
-			{
-				for(k=j;k<strlen(splited[0]);k++) 
-				{
-					splited[0][l++]=splited[0][k];
-				}
-				splited[0][l++]='\0';
-			}
-			
-			FDSize=FPSize-FSize;
-			if ((FDSize>99) && (FDSize>strlen(splited[1]))) 
-			{
-				// printf("realloc FileDir to %d chars.\n",FDSize);
-				splited[1]=realloc(splited[1],(FDSize+1)*sizeof(char));
-			} 
-			if(FDSize>0) 
-			{
-				splited[1]=strncpy(splited[1],FullPath,FDSize);
-				splited[1][FDSize]='\0';
-				/* cut spaces at begin of Dir String*/
-				j=0;
-				l=0;
-				while((splited[1][j]==' ') && (j<100)) j++;
-				if (j>0) 
-				{
-					for(k=j;k<strlen(splited[1]);k++) 
-					{
-						splited[1][l++]=splited[1][k];
-					}
-					splited[1][l++]='\0';
-				}
-				/* check for "~" and replace with home dir*/
-				//printf("FileDir[0]=%c\n",FileDir[0]);
-				if(splited[1][0]=='~') 
-				{
-					for(k=0;k<strlen(splited[1]);k++) 
-					{
-						splited[1][k]=splited[1][k+1];
-					}
-					char path_str[100];
-					char *home=getenv("HOME");
-					sprintf(path_str,"%s%s",home,splited[1]);
-					//printf("path is %s\n",path_str);
-					FDSize=strlen(path_str);
-					if (FDSize<99) 
-					{
-						strncpy (splited[1],path_str,FDSize);
-						splited[1][FDSize]='\0';
-					}
-					else printf("Error: Home Path(~) too big, keeping last.\n");
-				}
-			}
-			
-			break;
-		}
+		/* strlen doesn't count '/0' so add 1 char*/
+		printf("realloc basename to %d chars.\n",size);
+		splited[0]=realloc(splited[0],(size)*sizeof(char));
 	}
 	
-	if(i>=FPSize) 
-	{ /* no dir specified */
-		if ((FPSize>19) && (FPSize>strlen(splited[0]))) 
-		{
-			// printf("realloc Filename to %d chars.\n",FPSize);
-			splited[0]=realloc(splited[0],(FPSize+1)*sizeof(char));
-		} 
-		splited[0]=strncpy(splited[0],FullPath,FPSize);
-		splited[0][FPSize]='\0';
+	cpysize = g_strlcpy(splited[0],basename,size*sizeof(char));
+	if ( (cpysize+1) < (size*sizeof(char)) ) 
+		printf("filename copy size error:(%i != %i)\n",cpysize+1,size*sizeof(char));
+	
+	size = strlen(dirname)+1; 
+	
+	if (size > (strlen(splited[1])+1))
+	{
+		/* strlen doesn't count '/0' so add 1 char*/
+		printf("realloc dirname to %d chars.\n",size);
+		splited[1]=realloc(splited[1],(size)*sizeof(char));
 	}
-	//printf("Dir:%s File:%s\n",splited[1],splited[0]);
-	tmpstr=NULL;/*clean up*/
+	
+	cpysize = g_strlcpy(splited[1],dirname,size*sizeof(char));
+	if ( (cpysize + 1) < (size*sizeof(char)) ) 
+		printf("dirname copy size error:(%i != %i)\n",cpysize+1,size*sizeof(char));
+	
+	if(basename != NULL) free(basename);
+	if(dirname != NULL) free(dirname);
+	
+	printf("exiting split path\n");
 	return (splited);
 }

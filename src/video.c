@@ -28,6 +28,8 @@
 #include <pthread.h>
 #include <portaudio.h>
 #include <SDL/SDL.h>
+#include <glib.h>
+#include <glib/gprintf.h>
 
 #include "defs.h"
 #include "video.h"
@@ -195,7 +197,7 @@ void *main_loop(void *data)
 		{
 			printf("Error grabbing image \n");
 			videoIn->signalquit=0;
-			snprintf(global->WVcaption,20,"GUVCVideo - CRASHED");
+			g_snprintf(global->WVcaption,20,"GUVCVideo - CRASHED");
 			SDL_WM_SetCaption(global->WVcaption, NULL);
 			pthread_exit((void *) 2);
 		} 
@@ -209,7 +211,7 @@ void *main_loop(void *data)
 				global->frmCount++;
 				if (global->DispFps>0) 
 				{ /*set every 2 sec*/
-					snprintf(global->WVcaption,24,"GUVCVideo - %3.2f fps",global->DispFps);
+					g_snprintf(global->WVcaption,24,"GUVCVideo - %3.2f fps",global->DispFps);
 					SDL_WM_SetCaption(global->WVcaption, NULL);
 					global->frmCount=0;/*resets*/
 					global->DispFps=0;

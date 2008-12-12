@@ -31,6 +31,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <glib.h>
+#include <glib/gprintf.h>
 
 #include "v4l2uvc.h"
 #include "utils.h"
@@ -387,7 +388,7 @@ init_videoIn(struct vdIn *vd, char *device, int width, int height,
 		ret=-6;
 		goto error;
 	}
-	snprintf(vd->videodevice, 15, "%s", device);
+	g_snprintf(vd->videodevice, 15, "%s", device);
 	printf("video %s \n", vd->videodevice);
 	
 	vd->capAVI = FALSE;
@@ -398,7 +399,7 @@ init_videoIn(struct vdIn *vd, char *device, int width, int height,
 		ret=-6;
 		goto error;
 	}
-	snprintf(vd->AVIFName, 14, DEFAULT_AVI_FNAME);
+	g_snprintf(vd->AVIFName, 14, DEFAULT_AVI_FNAME);
 	vd->fps = fps;
 	vd->fps_num = fps_num;
 	vd->signalquit = 1;
@@ -422,7 +423,7 @@ init_videoIn(struct vdIn *vd, char *device, int width, int height,
 		ret=-6;
 		goto error;
 	}
-	snprintf(vd->ImageFName, 14, DEFAULT_IMAGE_FNAME);
+	g_snprintf(vd->ImageFName, 14, DEFAULT_IMAGE_FNAME);
 	
 	vd->timecode.type = V4L2_TC_TYPE_25FPS;
 	vd->timecode.flags = V4L2_TC_FLAG_DROPFRAME | V4L2_TC_FLAG_NO_DROP;

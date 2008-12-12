@@ -27,6 +27,8 @@
 #include <linux/types.h>
 #include <linux/videodev.h>
 #include <string.h>
+#include <glib.h>
+#include <glib/gprintf.h>
 /* support for internationalization - i18n */
 #include <glib/gi18n.h>
 
@@ -35,104 +37,104 @@ int initGlobals (struct GLOBAL *global)
 {
 	global->debug = DEBUG;
 
-	if((global->videodevice = (char *) calloc(1, 16 * sizeof(char)))==NULL)
+	if((global->videodevice = (char *) calloc(16, sizeof(char)))==NULL)
 	{
 		printf("couldn't calloc memory for:global->videodevice\n");
 		goto error;
 	}
 	
-	snprintf(global->videodevice, 15, "/dev/video0");
+	g_snprintf(global->videodevice, 15, "/dev/video0");
 
-	if((global->confPath = (char *) calloc(1, 80 * sizeof(char)))==NULL)
+	if((global->confPath = (char *) calloc(80, sizeof(char)))==NULL)
 	{
 		printf("couldn't calloc memory for:global->confPath\n");
 		goto error;
 	}
-	snprintf(global->confPath, 79, "%s/.guvcviewrc",getenv("HOME"));
+	g_snprintf(global->confPath, 79, "%s/.guvcviewrc",getenv("HOME"));
 	
-	if((global->aviFPath = (pchar *) calloc(1, 2 * sizeof(pchar)))==NULL)
+	if((global->aviFPath = (pchar *) calloc(2, sizeof(pchar)))==NULL)
 	{
 		printf("couldn't calloc memory for:global->aviFPath\n");
 		goto error;
 	}
-	if((global->imgFPath = (pchar *) calloc(1, 2 * sizeof(pchar)))==NULL)
+	if((global->imgFPath = (pchar *) calloc(2, sizeof(pchar)))==NULL)
 	{
 		printf("couldn't calloc memory for:global->imgFPath\n");
 		goto error;
 	}
-	if((global->profile_FPath = (pchar *) calloc(1, 2 * sizeof(pchar)))==NULL)
+	if((global->profile_FPath = (pchar *) calloc(2, sizeof(pchar)))==NULL)
 	{
 		printf("couldn't calloc memory for:global->profile_FPath\n");
 		goto error;
 	}
 	
-	if((global->aviFPath[1] = (char *) calloc(1, 100 * sizeof(char)))==NULL)
+	if((global->aviFPath[1] = (char *) calloc(100, sizeof(char)))==NULL)
 	{
 		printf("couldn't calloc memory for:global->aviFPath[1]\n");
 		goto error;
 	}
-	snprintf(global->aviFPath[1], 2, "~");
+	g_snprintf(global->aviFPath[1], 2, "~");
 	
-	if((global->imgFPath[1] = (char *) calloc(1, 100 * sizeof(char)))==NULL)
+	if((global->imgFPath[1] = (char *) calloc(100, sizeof(char)))==NULL)
 	{
 		printf("couldn't calloc memory for:global->imgFPath[1]\n");
 		goto error;
 	}
-	snprintf(global->imgFPath[1], 99, "%s",getenv("HOME"));
+	g_snprintf(global->imgFPath[1], 99, "%s",getenv("HOME"));
 	
-	if((global->imgFPath[0] = (char *) calloc(1, 20 * sizeof(char)))==NULL)
+	if((global->imgFPath[0] = (char *) calloc(20, sizeof(char)))==NULL)
 	{
 		printf("couldn't calloc memory for:global->imageName\n");
 		goto error;
 	}
-	snprintf(global->imgFPath[0],10,DEFAULT_IMAGE_FNAME);
+	g_snprintf(global->imgFPath[0],10,DEFAULT_IMAGE_FNAME);
 	
-	if((global->aviFPath[0] = (char *) calloc(1, 20 * sizeof(char)))==NULL)
+	if((global->aviFPath[0] = (char *) calloc(20, sizeof(char)))==NULL)
 	{
 		printf("couldn't calloc memory for:global->aviFPath[0]\n");
 		goto error;
 	}
-	snprintf(global->aviFPath[0],12,DEFAULT_AVI_FNAME);
+	g_snprintf(global->aviFPath[0],12,DEFAULT_AVI_FNAME);
 	
-	if((global->profile_FPath[1] = (char *) calloc(1, 100 * sizeof(char)))==NULL)
+	if((global->profile_FPath[1] = (char *) calloc(100, sizeof(char)))==NULL)
 	{
 		printf("couldn't calloc memory for:global->profile_FPath[1]\n");
 		goto error;
 	}
-	snprintf(global->profile_FPath[1], 100, "%s",getenv("HOME"));
+	g_snprintf(global->profile_FPath[1], 100, "%s",getenv("HOME"));
 	
-	if((global->profile_FPath[0] = (char *) calloc(1, 20 * sizeof(char)))==NULL)
+	if((global->profile_FPath[0] = (char *) calloc(20, sizeof(char)))==NULL)
 	{
 		printf("couldn't calloc memory for:global->profile_FPath[0]\n");
 		goto error;
 	}
-	snprintf(global->profile_FPath[0], 20, "default.gpfl");
+	g_snprintf(global->profile_FPath[0], 20, "default.gpfl");
 	
 	
-	if((global->WVcaption= (char *) calloc(1, 32 * sizeof(char)))==NULL)
+	if((global->WVcaption= (char *) calloc(32, sizeof(char)))==NULL)
 	{
 		printf("couldn't calloc memory for:global->WVcaption\n");
 		goto error;
 	}
-	snprintf(global->WVcaption,10,"GUVCVIdeo");
+	g_snprintf(global->WVcaption,10,"GUVCVIdeo");
 	
 	global->stack_size=TSTACK;
 	
 	global->image_inc=0;
 
-	if((global->imageinc_str= (char *) calloc(1, 25 * sizeof(char)))==NULL)
+	if((global->imageinc_str= (char *) calloc(25, sizeof(char)))==NULL)
 	{
 		printf("couldn't calloc memory for:global->imageinc_str\n");
 		goto error;
 	}
-	snprintf(global->imageinc_str,20,_("File num:%d"),global->image_inc);
+	g_snprintf(global->imageinc_str,20,_("File num:%d"),global->image_inc);
 	
-	if((global->aviinc_str= (char *) calloc(1, 25 * sizeof(char)))==NULL)
+	if((global->aviinc_str= (char *) calloc(25, sizeof(char)))==NULL)
 	{
 		printf("couldn't calloc memory for:global->aviinc_str\n");
 		goto error;
 	}
-	snprintf(global->aviinc_str,20,_("File num:%d"),global->avi_inc);
+	g_snprintf(global->aviinc_str,20,_("File num:%d"),global->avi_inc);
 	
 	global->vid_sleep=0;
 	global->avifile=NULL; /*avi filename passed through argument options with -n */
@@ -181,12 +183,12 @@ int initGlobals (struct GLOBAL *global)
 	global->winheight=WINSIZEY;
 	global->spinbehave=0;
 	global->boxvsize=0;
-	if((global->mode = (char *) calloc(1, 6 * sizeof(char)))==NULL)
+	if((global->mode = (char *) calloc(6, sizeof(char)))==NULL)
 	{
 		printf("couldn't calloc memory for:global->mode\n");
 		goto error;
 	}
-	snprintf(global->mode, 5, "mjpg");
+	g_snprintf(global->mode, 5, "mjpg");
 	global->format = V4L2_PIX_FMT_MJPEG;
 	global->formind = 0; /*0-compressed (MJPG/JPEG) 1- uncompressed (YUYV,UYVY, GBRG)*/
 	global->Frame_Flags = YUV_NOFILT;
