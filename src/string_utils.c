@@ -112,18 +112,22 @@ pchar* splitPath(char *FullPath, char* splited[2])
 	if ( (cpysize+1) < (size*sizeof(char)) ) 
 		printf("filename copy size error:(%i != %i)\n",cpysize+1,size*sizeof(char));
 	
-	size = strlen(dirname)+1; 
-	
-	if (size > (strlen(splited[1])+1))
+	/*only change stored dirname if one is set*/
+	if(g_strcmp0(".",dirname)!=0)
 	{
-		/* strlen doesn't count '/0' so add 1 char*/
-		//printf("realloc dirname to %d chars.\n",size);
-		splited[1]=realloc(splited[1],(size)*sizeof(char));
-	}
+		size = strlen(dirname)+1; 
 	
-	cpysize = g_strlcpy(splited[1],dirname,size*sizeof(char));
-	if ( (cpysize + 1) < (size*sizeof(char)) ) 
-		printf("dirname copy size error:(%i != %i)\n",cpysize+1,size*sizeof(char));
+		if (size > (strlen(splited[1])+1))
+		{
+			/* strlen doesn't count '/0' so add 1 char*/
+			//printf("realloc dirname to %d chars.\n",size);
+			splited[1]=realloc(splited[1],(size)*sizeof(char));
+		}
+	
+		cpysize = g_strlcpy(splited[1],dirname,size*sizeof(char));
+		if ( (cpysize + 1) < (size*sizeof(char)) ) 
+			printf("dirname copy size error:(%i != %i)\n",cpysize+1,size*sizeof(char));
+	}
 	
 	if(basename != NULL) free(basename);
 	if(dirname != NULL) free(dirname);

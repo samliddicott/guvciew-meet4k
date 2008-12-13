@@ -205,13 +205,7 @@ readConf(struct GLOBAL *global)
 					{
 						int line = g_scanner_cur_line (scanner);
 						signal = -1;
-						
-						ttype = g_scanner_peek_next_token (scanner);
-						if(scanner->next_line>line)
-						{
-							/*start new loop*/
-							break;
-						}
+						ttype = g_scanner_get_next_token (scanner);
 					}
 					
 					if (ttype == G_TOKEN_STRING)

@@ -1404,27 +1404,27 @@ int uvcPanTilt(struct vdIn *vd, int pan, int tilt, int reset)
 	{
 		switch (reset) 
 		{
-		     case 1:
-			xctrls[0].id = V4L2_CID_PAN_RESET_NEW;
-			xctrls[0].value = 1;
-			break;
+			case 1:
+				xctrls[0].id = V4L2_CID_PAN_RESET_NEW;
+				xctrls[0].value = 1;
+				break;
 			
-		     case 2:
-			xctrls[0].id = V4L2_CID_TILT_RESET_NEW;
-			xctrls[0].value = 1;
-			break;
+			case 2:
+				xctrls[0].id = V4L2_CID_TILT_RESET_NEW;
+				xctrls[0].value = 1;
+				break;
 			
-		     case 3:
-		    	xctrls[0].value = 3;
-			xctrls[0].id = V4L2_CID_PANTILT_RESET_LOGITECH;
-			break;
-		     
+			case 3:
+				xctrls[0].value = 3;
+				xctrls[0].id = V4L2_CID_PANTILT_RESET_LOGITECH;
+				break;
 		}
 		ctrls.count = 1;
 		ctrls.controls = xctrls;
 	} 
 	else 
 	{
+		//printf("pan: %i tilt:%i\n", pan,tilt);
 		xctrls[0].id = V4L2_CID_PAN_RELATIVE_NEW;
 		xctrls[0].value = pan;
 		xctrls[1].id = V4L2_CID_TILT_RELATIVE_NEW;
@@ -1437,7 +1437,7 @@ int uvcPanTilt(struct vdIn *vd, int pan, int tilt, int reset)
 	if ( ioctl(vd->fd, VIDIOC_S_EXT_CTRLS, &ctrls) < 0 ) 
 	{
 		perror("VIDIOC_S_EXT_CTRLS - Pan/Tilt error\n");
-	    	return -1;
+			return -1;
 	}
 	
 	return 0;

@@ -265,19 +265,7 @@ int main(int argc, char *argv[])
 		printf("couldn't allocate memory for: avi_t\n");
 		exit(1);
 	}
-	
-	const gchar *home;
-	gchar *pwd=NULL;
-	
-	home=g_get_home_dir();
-	pwd=g_get_current_dir();
-	
-	sprintf(global->confPath,"%s%s", home,"/.guvcviewrc");
-	sprintf(global->aviFPath[1],"%s", pwd);
-	sprintf(global->imgFPath[1],"%s", pwd);
-	
-	if(pwd) g_free(pwd);
-	
+
 	readConf(global);
 
 	/*------------------------ reads command line options --------------------*/
@@ -485,7 +473,7 @@ int main(int argc, char *argv[])
 	gchar* icon1path = g_strconcat (PACKAGE_DATA_DIR,"/pixmaps/guvcview/guvcview.xpm",NULL);
 	if (g_file_test(icon1path,G_FILE_TEST_EXISTS)) 
 	{
-		gtk_window_set_icon_from_file(GTK_WINDOW (gwidget->mainwin),icon1path,NULL);   
+		gtk_window_set_icon_from_file(GTK_WINDOW (gwidget->mainwin),icon1path,NULL);
 	}
 
 	gchar* pix1path = g_strconcat (PACKAGE_DATA_DIR,"/pixmaps/guvcview/movie.xpm",NULL);
