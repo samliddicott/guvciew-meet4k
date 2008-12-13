@@ -95,7 +95,6 @@ check_image_type (char *filename)
 /* split fullpath in Path (splited[1]) and filename (splited[0])*/
 pchar* splitPath(char *FullPath, char* splited[2]) 
 {
-	printf("in split path\n");
 	char *basename = g_path_get_basename(FullPath);
 	char *dirname  = g_path_get_dirname(FullPath);
 	
@@ -105,7 +104,7 @@ pchar* splitPath(char *FullPath, char* splited[2])
 	if (size > (strlen(splited[0])+1))
 	{
 		/* strlen doesn't count '/0' so add 1 char*/
-		printf("realloc basename to %d chars.\n",size);
+		//printf("realloc basename to %d chars.\n",size);
 		splited[0]=realloc(splited[0],(size)*sizeof(char));
 	}
 	
@@ -118,7 +117,7 @@ pchar* splitPath(char *FullPath, char* splited[2])
 	if (size > (strlen(splited[1])+1))
 	{
 		/* strlen doesn't count '/0' so add 1 char*/
-		printf("realloc dirname to %d chars.\n",size);
+		//printf("realloc dirname to %d chars.\n",size);
 		splited[1]=realloc(splited[1],(size)*sizeof(char));
 	}
 	
@@ -129,6 +128,5 @@ pchar* splitPath(char *FullPath, char* splited[2])
 	if(basename != NULL) free(basename);
 	if(dirname != NULL) free(dirname);
 	
-	printf("exiting split path\n");
 	return (splited);
 }

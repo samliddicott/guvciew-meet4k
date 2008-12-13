@@ -84,7 +84,7 @@ writeConf(struct GLOBAL *global)
 		fprintf(fp,"avi_format=%i\n",global->AVIFormat);
 		fprintf(fp,"# avi file max size (MAX: %d bytes)\n",AVI_MAX_SIZE);
 		fprintf(fp,"avi_max_len=%li\n",global->AVI_MAX_LEN);
-	    	fprintf(fp,"# Auto AVI naming (filename-n.avi)\n");
+		fprintf(fp,"# Auto AVI naming (filename-n.avi)\n");
 		fprintf(fp,"avi_inc=%d\n",global->avi_inc);
 		fprintf(fp,"# sound 0 - disable 1 - enable\n");
 		fprintf(fp,"sound=%i\n",global->Sound_enable);
@@ -132,6 +132,7 @@ int
 readConf(struct GLOBAL *global)
 {
 	int ret=0;
+	int signal=1; /*1=>+ or -1=>-*/
 	GScanner  *scanner;
 	GTokenType ttype;
 	GScannerConfig config = 
@@ -159,7 +160,7 @@ readConf(struct GLOBAL *global)
 		FALSE,                         /* int to float */
 		TRUE,                          /* identifier to string */
 		TRUE,                          /* char to token */
-		FALSE,                         /* symbol to token */
+		FALSE,                          /* symbol to token */
 		FALSE,                         /* scope 0 fallback */
 		FALSE                          /* store int64 */
 	};
@@ -173,7 +174,7 @@ readConf(struct GLOBAL *global)
 	}
 	else
 	{
-		scanner = g_scanner_new (NULL);
+		scanner = g_scanner_new (&config);
 		g_scanner_input_file (scanner, fd);
 		scanner->input_name = global->confPath;
 		
@@ -181,9 +182,9 @@ readConf(struct GLOBAL *global)
 			ttype != G_TOKEN_EOF;
 			ttype = g_scanner_get_next_token (scanner)) 
 		{
-			if (ttype == G_TOKEN_IDENTIFIER) 
+			if (ttype == G_TOKEN_STRING) 
 			{
-				printf("reading %s...\n",scanner->value.v_string);
+				//printf("reading %s...\n",scanner->value.v_string);
 				char *name = g_strdup (scanner->value.v_string);
 				ttype = g_scanner_get_next_token (scanner);
 				if (ttype != G_TOKEN_EQUAL_SIGN) 
@@ -241,7 +242,7 @@ readConf(struct GLOBAL *global)
 						{
 							global->profile_FPath=splitPath(scanner->value.v_string,
 								global->profile_FPath);
-						} 
+						}
 						else
 						{
 							printf("unexpected string value (%s) for %s\n", 
@@ -347,23 +348,49 @@ readConf(struct GLOBAL *global)
 						}
 						else
 						{
-							printf("unexpected integer value (%i) for %s\n", 
+							printf("unexpected integer value (%lu) for %s\n", 
 								scanner->value.v_int, name);
+							printf("Strings must be quoted\n");
 						}
 					}
 					else if (ttype==G_TOKEN_FLOAT)
 					{
 						printf("unexpected float value (%f) for %s\n", scanner->value.v_float, name);
 					}
+					else if (ttype==G_TOKEN_CHAR)
+					{
+						printf("unexpected char value (%c) for %s\n", scanner->value.v_char, name);
+					}
 					else
 					{
-						g_scanner_unexp_token (scanner,
-							ttype,
-							NULL,
-							NULL,
-							NULL,
-							NULL,
-							FALSE);
+						if (g_strcmp0(name,"Pan_Step")==0)
+						{
+							if(ttype == '-')
+								signal=-1;
+							else
+								signal=1;
+							ttype = g_scanner_get_next_token (scanner);
+							if (ttype==G_TOKEN_INT)
+								global->PanStep = signal * scanner->value.v_int;
+							else
+								g_scanner_unexp_token (scanner,
+									G_TOKEN_NONE,
+									NULL,
+									NULL,
+									NULL,
+									"expected a integer value",
+									FALSE);
+						}
+						else
+						{
+							g_scanner_unexp_token (scanner,
+								G_TOKEN_NONE,
+								NULL,
+								NULL,
+								NULL,
+								"string values must be quoted",
+								FALSE);
+						}
 					}
 				}
 				if (name != NULL) free(name);
@@ -373,7 +400,7 @@ readConf(struct GLOBAL *global)
 		g_scanner_destroy (scanner);
 		close (fd);
 		
-		if (!global->debug) 
+		if (global->debug) 
 		{ /*it will allways be FALSE unless DEBUG=1*/
 			printf("video_device: %s\n",global->videodevice);
 			printf("vid_sleep: %i\n",global->vid_sleep);
