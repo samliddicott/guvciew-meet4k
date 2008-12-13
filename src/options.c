@@ -51,7 +51,7 @@ writeConf(struct GLOBAL *global)
 	if ((fp = fopen(global->confPath,"w"))!=NULL) 
 	{
 		fprintf(fp,"# guvcview configuration file\n\n");
-		fprintf(fp,"# video device\n");
+		fprintf(fp,"# video device: default '/dev/video0'\n");
 		fprintf(fp,"video_device='%s'\n",global->videodevice);
 		fprintf(fp,"# Thread stack size: default 128 pages of 64k = 8388608 bytes\n");
 		fprintf(fp,"stack_size=%d\n",global->stack_size);
@@ -108,13 +108,13 @@ writeConf(struct GLOBAL *global)
 		fprintf(fp,"Tilt_Step=%i\n",global->TiltStep);
 		fprintf(fp,"# video filters: 0 -none 1- flip 2- upturn 4- negate 8- mono (add the ones you want)\n");
 		fprintf(fp,"frame_flags=%i\n",global->Frame_Flags);
-		fprintf(fp,"# Image capture Full Path: Path (Max 100 characters) Filename (Max 20 characters)\n");
+		fprintf(fp,"# Image capture Full Path\n");
 		fprintf(fp,"image_path='%s/%s'\n",global->imgFPath[1],global->imgFPath[0]);
 		fprintf(fp,"# Auto Image naming (filename-n.ext)\n");
 		fprintf(fp,"image_inc=%d\n",global->image_inc);
-		fprintf(fp,"# Avi capture Full Path Path (Max 100 characters) Filename (Max 20 characters)\n");
+		fprintf(fp,"# Avi capture Full Path\n");
 		fprintf(fp,"avi_path='%s/%s'\n",global->aviFPath[1],global->aviFPath[0]);
-		fprintf(fp,"# control profiles Full Path Path (Max 10 characters) Filename (Max 20 characters)\n");
+		fprintf(fp,"# control profiles Full Path\n");
 		fprintf(fp,"profile_path='%s/%s'\n",global->profile_FPath[1],global->profile_FPath[0]);
 		printf("write %s OK\n",global->confPath);
 		fclose(fp);
@@ -200,9 +200,23 @@ readConf(struct GLOBAL *global)
 				else
 				{
 					ttype = g_scanner_get_next_token (scanner);
+					/*check for signed integers*/
+					if(ttype == '-')
+					{
+						int line = g_scanner_cur_line (scanner);
+						signal = -1;
+						
+						ttype = g_scanner_peek_next_token (scanner);
+						if(scanner->next_line>line)
+						{
+							/*start new loop*/
+							break;
+						}
+					}
 					
 					if (ttype == G_TOKEN_STRING)
 					{
+						signal=1; /*reset signal*/
 						if (g_strcmp0(name,"video_device")==0) 
 						{
 							g_snprintf(global->videodevice,15,"%s",scanner->value.v_string);
@@ -266,6 +280,41 @@ readConf(struct GLOBAL *global)
 						else if (g_strcmp0(name,"spinbehave")==0) 
 						{
 							global->spinbehave = scanner->value.v_int;
+						}
+						else if (g_strcmp0(name,"fps")==0)
+						{
+							/*parse non-quoted fps values*/
+							int line = g_scanner_cur_line(scanner);
+							
+							global->fps_num = scanner->value.v_int;
+							ttype = g_scanner_peek_next_token (scanner);
+							if(ttype=='/')
+							{
+								/*get '/'*/
+								ttype = g_scanner_get_next_token (scanner);
+								ttype = g_scanner_peek_next_token (scanner);
+								if(ttype==G_TOKEN_INT)
+								{
+									ttype = g_scanner_get_next_token (scanner);
+									global->fps = scanner->value.v_int;
+								} 
+								else if (scanner->next_line>line)
+								{
+									/*start new loop*/
+									break;
+								}
+								else
+								{
+									ttype = g_scanner_get_next_token (scanner);
+									g_scanner_unexp_token (scanner,
+										G_TOKEN_NONE,
+										NULL,
+										NULL,
+										NULL,
+										"bad value for fps",
+										FALSE);
+								}
+							}
 						}
 						else if (strcmp(name,"fps_display")==0) 
 						{
@@ -331,11 +380,13 @@ readConf(struct GLOBAL *global)
 						}
 						else if (g_strcmp0(name,"Pan_Step")==0)
 						{
-							global->PanStep = scanner->value.v_int;
+							global->PanStep = signal * scanner->value.v_int;
+							signal = 1; /*reset signal*/
 						}
 						else if (g_strcmp0(name,"Tilt_Step")==0)
 						{
-							global->TiltStep = scanner->value.v_int;
+							global->TiltStep = signal * scanner->value.v_int;
+							signal = 1; /*reset signal*/
 						}
 						else if (g_strcmp0(name,"frame_flags")==0) 
 						{
@@ -363,34 +414,31 @@ readConf(struct GLOBAL *global)
 					}
 					else
 					{
-						if (g_strcmp0(name,"Pan_Step")==0)
+						g_scanner_unexp_token (scanner,
+							G_TOKEN_NONE,
+							NULL,
+							NULL,
+							NULL,
+							"string values must be quoted - skiping",
+							FALSE);
+						int line = g_scanner_cur_line (scanner);
+						int stp=0;
+					
+						do
 						{
-							if(ttype == '-')
-								signal=-1;
+							ttype = g_scanner_peek_next_token (scanner);
+							if(scanner->next_line > line)
+							{
+								//printf("next line reached\n");
+								stp=1;
+								break;
+							}
 							else
-								signal=1;
-							ttype = g_scanner_get_next_token (scanner);
-							if (ttype==G_TOKEN_INT)
-								global->PanStep = signal * scanner->value.v_int;
-							else
-								g_scanner_unexp_token (scanner,
-									G_TOKEN_NONE,
-									NULL,
-									NULL,
-									NULL,
-									"expected a integer value",
-									FALSE);
+							{
+								ttype = g_scanner_get_next_token (scanner);
+							}
 						}
-						else
-						{
-							g_scanner_unexp_token (scanner,
-								G_TOKEN_NONE,
-								NULL,
-								NULL,
-								NULL,
-								"string values must be quoted",
-								FALSE);
-						}
+						while (!stp);
 					}
 				}
 				if (name != NULL) free(name);
