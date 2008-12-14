@@ -34,4 +34,12 @@ check_image_type (char *filename);
 pchar* 
 splitPath(char *FullPath, char* splited[2]);
 
+/*join splited path into fullpath*/
+char *
+joinPath(char *fullPath, pchar * splited);
+
+/*increment file name with inc*/
+char *
+incFilename(char *fullPath, pchar *splited, int inc);
+
 #endif

@@ -344,7 +344,7 @@ void *main_loop(void *data)
 						{ 
 							if((global->jpeg = (BYTE*)malloc(global->jpeg_bufsize))==NULL) 
 							{
-								printf("couldn't allocate memory for: jpeg buffer\n");
+								fprintf(stderr,"couldn't allocate memory for: jpeg buffer\n");
 								exit(1);
 							}
 						}
@@ -353,7 +353,7 @@ void *main_loop(void *data)
 							if((jpeg_struct =(struct JPEG_ENCODER_STRUCTURE *) calloc(1, 
 								sizeof(struct JPEG_ENCODER_STRUCTURE)))==NULL)
 							{
-								printf("couldn't allocate memory for: jpeg encoder struct\n");
+								fprintf(stderr,"couldn't allocate memory for: jpeg encoder struct\n");
 								exit(1); 
 							} 
 							else 
@@ -384,7 +384,7 @@ void *main_loop(void *data)
 						/*24 bits -> 3bytes     32 bits ->4 bytes*/
 						if((pim= malloc((pscreen->w)*(pscreen->h)*3))==NULL)
 						{
-							printf("Couldn't allocate memory for: pim\n");
+							fprintf(stderr,"Couldn't allocate memory for: pim\n");
 							videoIn->signalquit=0;
 							pthread_exit((void *) 3);
 						}
@@ -412,7 +412,7 @@ void *main_loop(void *data)
 						/*24 bits -> 3bytes     32 bits ->4 bytes*/
 						if((pim= malloc((pscreen->w)*(pscreen->h)*3))==NULL)
 						{
-							printf("Couldn't allocate memory for: pim\n");
+							fprintf(stderr,"Couldn't allocate memory for: pim\n");
 							videoIn->signalquit=0;
 							pthread_exit((void *) 3);
 						}
@@ -454,7 +454,7 @@ void *main_loop(void *data)
 						{ 
 							if((global->jpeg = (BYTE*)malloc(global->jpeg_bufsize))==NULL) 
 							{
-								printf("couldn't allocate memory for: jpeg buffer\n");
+								fprintf(stderr,"couldn't allocate memory for: jpeg buffer\n");
 								exit(1);
 							}
 						}
@@ -463,7 +463,7 @@ void *main_loop(void *data)
 							if((jpeg_struct =(struct JPEG_ENCODER_STRUCTURE *) calloc(1, 
 								sizeof(struct JPEG_ENCODER_STRUCTURE)))==NULL)
 							{
-								printf("couldn't allocate memory for: jpeg encoder struct\n");
+								fprintf(stderr,"couldn't allocate memory for: jpeg encoder struct\n");
 								exit(1); 
 							} 
 							else 
@@ -497,7 +497,7 @@ void *main_loop(void *data)
 					{
 						if((pavi= malloc(framesize))==NULL)
 						{
-							printf("Couldn't allocate memory for: pim\n");
+							fprintf(stderr,"Couldn't allocate memory for: pim\n");
 							videoIn->signalquit=0;
 							pthread_exit((void *) 3);
 						}
@@ -519,13 +519,12 @@ void *main_loop(void *data)
 				if (AVI_getErrno () == AVI_ERR_SIZELIM) 
 				{
 					/*avi file limit reached - must end capture close file and start new one*/
-				
 					int rc = pthread_create(&pth_press_butt, &pth_press_attr, split_avi, all_data); 
 					if (rc) 
 					{
-						printf("ERROR; return code from pthread_create(press_butt) is %d\n", rc);
+						fprintf(stderr,"ERROR; return code from pthread_create(press_butt) is %d\n", rc);
 						split_avi(all_data); /*blocking call*/
-					}   
+					}
 					printf("AVI file size limit reached - restarted capture on new file\n");
 				} 
 				else 
@@ -594,11 +593,12 @@ void *main_loop(void *data)
 					{
 						/*avi file limit reached - must end capture close file and start new one*/
 						/*from a thread - non blocking                                          */
+						/* since were emiting signals maybe the thread is not really necessary  */
 						int rc = pthread_create(&pth_press_butt, &pth_press_attr, split_avi,all_data); 
 						if (rc) 
 						{
 							printf("ERROR; return code from pthread_create(press_butt) is %d\n", rc);
-							split_avi(all_data); /*blocking call*/
+							split_avi(all_data); /*? blocking call ?*/
 						}
 						printf("AVI file size limit reached - restarted capture on new file\n");
 					} 

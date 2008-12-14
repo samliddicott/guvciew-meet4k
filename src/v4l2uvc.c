@@ -393,13 +393,8 @@ init_videoIn(struct vdIn *vd, char *device, int width, int height,
 	
 	vd->capAVI = FALSE;
 	
-	if((vd->AVIFName = (char *) calloc(1, 120 * sizeof(char)))==NULL)
-	{
-		perror("couldn't calloc memory for vd->AVIFName");
-		ret=-6;
-		goto error;
-	}
-	g_snprintf(vd->AVIFName, 14, DEFAULT_AVI_FNAME);
+	vd->AVIFName = g_strdup(DEFAULT_AVI_FNAME);
+	
 	vd->fps = fps;
 	vd->fps_num = fps_num;
 	vd->signalquit = 1;
@@ -417,13 +412,7 @@ init_videoIn(struct vdIn *vd, char *device, int width, int height,
 	vd->framebuf_size=0;
 	vd->numb_formats=0;
 	
-	if((vd->ImageFName = (char *) calloc(1, 120 * sizeof(char)))==NULL)
-	{
-		perror("couldn't calloc memory for vd->ImgFName");
-		ret=-6;
-		goto error;
-	}
-	g_snprintf(vd->ImageFName, 14, DEFAULT_IMAGE_FNAME);
+	vd->ImageFName = g_strdup(DEFAULT_IMAGE_FNAME);
 	
 	vd->timecode.type = V4L2_TC_TYPE_25FPS;
 	vd->timecode.flags = V4L2_TC_FLAG_DROPFRAME | V4L2_TC_FLAG_NO_DROP;

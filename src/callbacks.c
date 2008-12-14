@@ -22,6 +22,7 @@
 ********************************************************************************/
 
 #include "callbacks.h"
+
 #include <glib.h>
 #include <glib/gprintf.h>
 /*---------------------------- error message dialog-----------------------------*/
@@ -969,9 +970,6 @@ capture_image (GtkButton *ImageButt, struct ALL_DATA *all_data)
 	struct GLOBAL *global = all_data->global;
 	struct vdIn *videoIn = all_data->videoIn;
 	
-	int fsize=20;
-	int sfname=120;
-	
 	const char *fileEntr=gtk_entry_get_text(GTK_ENTRY(gwidget->ImageFNameEntry));
 	if(g_strcmp0(fileEntr,global->imgFPath[0])!=0) 
 	{
@@ -985,41 +983,29 @@ capture_image (GtkButton *ImageButt, struct ALL_DATA *all_data)
 		/*set the file type*/
 		gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->ImageType),global->imgFormat);
 	}
-	fsize=strlen(global->imgFPath[0]);
-	sfname=strlen(global->imgFPath[1])+fsize+10;
-	char filename[sfname]; /*10 - digits for auto increment*/
+
 	g_snprintf(global->imageinc_str,24,_("File num:%d"),global->image_inc);
 	gtk_label_set_text(GTK_LABEL(gwidget->ImageIncLabel), global->imageinc_str);
 	
 	if ((global->image_timer == 0) && (global->image_inc>0)) 
 	{
-		char basename[fsize];
-		char extension[4];
-		sscanf(global->imgFPath[0],"%[^.].%3c",basename,extension);
-		extension[3]='\0';/*terminate extension string*/
-		g_snprintf(filename,sfname,"%s/%s-%d.%s",global->imgFPath[1],basename,
-				            global->image_inc,extension);
+		videoIn->ImageFName = incFilename(videoIn->ImageFName, 
+			global->imgFPath,
+			global->image_inc);
 		
 		global->image_inc++;
 	} 
 	else 
 	{
 		//printf("fsize=%d bytes fname=%d bytes\n",fsize,sfname);
-		g_snprintf(filename,sfname,"%s/%s", global->imgFPath[1],global->imgFPath[0]);
+		videoIn->ImageFName = joinPath(videoIn->ImageFName, global->imgFPath);
 	}
-	if ((sfname>120) && (sfname>strlen(videoIn->ImageFName))) 
-	{
-		printf("realloc image file name by %d bytes.\n",sfname);
-		videoIn->ImageFName=realloc(videoIn->ImageFName,sfname);
-		if (videoIn->ImageFName==NULL) exit(-1);
-	}
-	//videoIn->ImageFName=strncpy(videoIn->ImageFName,filename,sfname);
-	g_snprintf(videoIn->ImageFName,sfname,"%s",filename);
+	
 	if(global->image_timer > 0) 
 	{ 
 		/*auto capture on -> stop it*/
 		if (global->image_timer_id > 0) g_source_remove(global->image_timer_id);
-	    	gtk_button_set_label(GTK_BUTTON(gwidget->CapImageButt),_("Cap. Image"));
+		gtk_button_set_label(GTK_BUTTON(gwidget->CapImageButt),_("Cap. Image"));
 		global->image_timer=0;
 		set_sensitive_img_contrls(TRUE, gwidget);/*enable image controls*/
 	} 
@@ -1050,9 +1036,6 @@ capture_avi (GtkButton *AVIButt, struct ALL_DATA *all_data)
 	struct GLOBAL *global = all_data->global;
 	struct vdIn *videoIn = all_data->videoIn;
 	struct avi_t *AviOut = all_data->AviOut;
-	
-	int fsize=20;
-	int sfname=120;
 	
 	const char *fileEntr = gtk_entry_get_text(GTK_ENTRY(gwidget->AVIFNameEntry));
 	if(g_strcmp0(fileEntr,global->aviFPath[0])!=0) 
@@ -1097,37 +1080,22 @@ capture_avi (GtkButton *AVIButt, struct ALL_DATA *all_data)
 	else 
 	{	/******************** Start AVI *********************/
 		global->aviFPath=splitPath((char *)fileEntr, global->aviFPath);
-		fsize=strlen(global->aviFPath[0]);
-		sfname=strlen(global->aviFPath[1])+fsize+10;
-		char filename[sfname]; /*10 - digits for auto increment*/
 		g_snprintf(global->aviinc_str,24,_("File num:%d"),global->avi_inc);
 		gtk_label_set_text(GTK_LABEL(gwidget->AVIIncLabel), global->aviinc_str);
 	
 		if (global->avi_inc>0) 
 		{
-			char basename[fsize];
-			char extension[4];
-			sscanf(global->aviFPath[0],"%[^.].%3c",basename,extension);
-			extension[3]='\0';
-			g_snprintf(filename,sfname,"%s/%s-%d.%s",global->aviFPath[1],basename,
-				global->avi_inc,extension);
+			videoIn->AVIFName = incFilename(videoIn->AVIFName,
+				global->aviFPath,
+				global->avi_inc);
 					
 			global->avi_inc++;
 		} 
 		else 
 		{
-			//printf("fsize=%d bytes fname=%d bytes\n",fsize,sfname);
-			g_snprintf(filename,sfname,"%s/%s", global->aviFPath[1],global->aviFPath[0]);
+			videoIn->AVIFName = joinPath(videoIn->AVIFName, global->aviFPath);
 		}
-		if ((sfname>120) && (sfname>strlen(videoIn->AVIFName))) 
-		{
-			printf("realloc image file name by %d bytes.\n",sfname);
-			videoIn->AVIFName=realloc(videoIn->AVIFName,sfname);
-			if (videoIn->AVIFName==NULL) exit(-1);
-		}
-	
-		g_snprintf(videoIn->AVIFName,sfname,"%s",filename);
-	
+
 		if(AVI_open_output_file(AviOut, videoIn->AVIFName)<0) 
 		{
 			printf("Error: Couldn't create Avi.\n");
@@ -1261,15 +1229,6 @@ LProfileButton_clicked (GtkButton * LProfileButton, struct ALL_DATA *all_data)
 	global = NULL;
 }
 
-/* calls capture_avi callback emulating a click on capture AVI button*/
-void
-press_avicap(struct ALL_DATA *all_data)
-{
-	struct GWIDGET *gwidget = all_data->gwidget;
-	capture_avi (GTK_BUTTON(gwidget->CapAVIButt), all_data);
-	gwidget = NULL;
-}
-
 /*called when avi max file size reached*/
 /* stops avi capture, increments avi file name, restart avi capture*/
 void *
@@ -1277,6 +1236,7 @@ split_avi(void *data)
 {
 	struct ALL_DATA *all_data = (struct ALL_DATA *) data;
 	struct GLOBAL *global = all_data->global;
+	struct vdIn *videoIn = all_data->videoIn;
 	struct GWIDGET *gwidget = all_data->gwidget;
 	
 	/*make sure avi is in incremental mode*/
@@ -1287,9 +1247,15 @@ split_avi(void *data)
 	}
 	
 	/*stops avi capture*/
-	press_avicap(all_data);
+	gtk_button_clicked(GTK_BUTTON(gwidget->CapAVIButt));
+	int n=0;
+	while((videoIn->capAVI) && (n < 5)) //loops 5 times at most
+	{
+		n++;
+		sleep(1); /*sleeps for 1 second*/
+	}
 	/*restarts avi capture with new file name*/
-	press_avicap(all_data);
+	gtk_button_clicked(GTK_BUTTON(gwidget->CapAVIButt));
 	global=NULL;
 	gwidget = NULL;
 	return NULL;

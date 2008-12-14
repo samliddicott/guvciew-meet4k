@@ -46,7 +46,7 @@
 #include "../config.h"
 
 #include <gtk/gtk.h>
-#include <gdk/gdkx.h>
+#include <gdk/gdk.h>
 #include <portaudio.h>
 
 #include "v4l2uvc.h"
@@ -195,9 +195,6 @@ SProfileButton_clicked (GtkButton * SProfileButton, struct ALL_DATA *all_data);
 
 void
 LProfileButton_clicked (GtkButton * LProfileButton, struct ALL_DATA *all_data);
-
-void
-press_avicap(struct ALL_DATA *all_data);
 
 void *
 split_avi(void *data);

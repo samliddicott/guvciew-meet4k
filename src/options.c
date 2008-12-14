@@ -32,7 +32,7 @@
 #include <getopt.h>
 #include <glib.h>
 #include <glib/gprintf.h>
-#include <libgen.h>
+//#include <libgen.h>
 /* support for internationalization - i18n */
 #include <glib/gi18n.h>
 
@@ -203,7 +203,6 @@ readConf(struct GLOBAL *global)
 					/*check for signed integers*/
 					if(ttype == '-')
 					{
-						int line = g_scanner_cur_line (scanner);
 						signal = -1;
 						ttype = g_scanner_get_next_token (scanner);
 					}

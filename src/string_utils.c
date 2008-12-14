@@ -24,7 +24,7 @@
 #include <string.h>
 #include <glib.h>
 #include <glib/gprintf.h>
-#include <libgen.h>
+//#include <libgen.h>
 
 #include "defs.h"
 
@@ -133,4 +133,42 @@ pchar* splitPath(char *FullPath, char* splited[2])
 	if(dirname != NULL) free(dirname);
 	
 	return (splited);
+}
+
+char *joinPath(char *fullPath, pchar *splited)
+{
+	/*clean existing string allocation*/
+	if(fullPath != NULL) free(fullPath);
+	
+	/*allocate newly formed string*/
+	fullPath = g_strjoin ("/", splited[1], splited[0], NULL);
+	
+	return (fullPath);
+}
+
+char *incFilename(char *fullPath, pchar *splited, int inc)
+{
+	int fsize=strlen(splited[0]);
+	char basename[fsize];
+	char extension[4];
+	gchar *buffer;
+	if((buffer = calloc (11, sizeof(char)))==NULL)
+	{
+		printf("Fatal: error allocating mem for inc buffer\n");
+		exit(-1);
+	}
+	
+	/*10 digit limit for inc*/
+	buffer = g_ascii_dtostr(buffer, 10, inc);
+	
+	sscanf(splited[0],"%[^.].%3c",basename,extension);
+	extension[3]='\0';/*terminate extension string*/
+	
+	if(fullPath != NULL) free (fullPath);
+	fullPath=NULL;
+	fullPath = g_strjoin("", splited[1], "/", basename,
+			"-", buffer, ".", extension, NULL);
+	free(buffer);
+
+	return(fullPath);
 }

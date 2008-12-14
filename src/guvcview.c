@@ -37,7 +37,7 @@
 #include <fcntl.h>
 #include <signal.h>
 #include <X11/Xlib.h>
-#include <SDL/SDL_syswm.h>
+//#include <SDL/SDL_syswm.h>
 #include <glib/gprintf.h>
 /* support for internationalization - i18n */
 #include <locale.h> //gentoo patch
@@ -1209,9 +1209,12 @@ int main(int argc, char *argv[])
 	/*--------------------- avi capture from start ---------------------------*/
 	if(global->avifile) 
 	{
-		if(AVI_open_output_file(AviOut, global->avifile)<0) 
+		videoIn->AVIFName = joinPath(videoIn->AVIFName, global->aviFPath);
+		
+		if(AVI_open_output_file(AviOut, videoIn->AVIFName)<0) 
 		{
-			printf("Error: Couldn't create Avi.\n");
+			fprintf(stderr,"Error: Couldn't create Avi: %s\n",
+				videoIn->AVIFName);
 			videoIn->capAVI = FALSE;
 			pdata->capAVI = videoIn->capAVI;
 		}
@@ -1240,7 +1243,6 @@ int main(int argc, char *argv[])
 			}
 			AVI_set_video(AviOut, videoIn->width, videoIn->height, videoIn->fps,compression);
 			/* audio will be set in aviClose - if enabled*/
-			sprintf(videoIn->AVIFName,"%s/%s",global->aviFPath[1],global->aviFPath[0]);
 
 			/*disabling sound and avi compression controls*/
 			set_sensitive_avi_contrls (FALSE, global->Sound_enable, gwidget);
