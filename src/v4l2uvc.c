@@ -1083,7 +1083,7 @@ input_free_controls (struct VidState *s)
 			gtk_widget_destroy (ci->label);
 		if (ci->spinbutton)
 			gtk_widget_destroy (ci->spinbutton);
-		free (s->control[i].name);
+		g_free (s->control[i].name);
 		if (s->control[i].type == INPUT_CONTROL_TYPE_MENU) 
 		{
 			int j;
