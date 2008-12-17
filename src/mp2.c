@@ -22,6 +22,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <glib.h>
 #include <twolame.h>
 #include "sound.h"
 #include "globals.h"
@@ -37,8 +38,6 @@ twolame_options *encodeOptions;
 int
 init_MP2_encoder(struct paRecordData* pdata, int bitRate)
 {
-	//int mp2fill_size=0;
-	
 	/* grab a set of default encode options */
 	encodeOptions = twolame_init();
 	
@@ -54,7 +53,7 @@ init_MP2_encoder(struct paRecordData* pdata, int bitRate)
 	}
 
 	pdata->mp2BuffSize = pdata->snd_numBytes*2;
-	pdata->mp2Buff = (BYTE *) malloc(pdata->mp2BuffSize); /*mp2 buffer*/
+	pdata->mp2Buff = g_new0(BYTE, pdata->mp2BuffSize); /*mp2 buffer*/
 	/* Set the input and output sample rate to the same */
 	twolame_set_in_samplerate(encodeOptions, pdata->samprate);
 	twolame_set_out_samplerate(encodeOptions, pdata->samprate);

@@ -322,8 +322,8 @@ int jpeg_decode(BYTE **pic, BYTE *buf, int *width, int *height)
 	ftopict convert;
 	int err = 0;
 	int isInitHuffman = 0;
-	decdata = (struct jpeg_decdata *) malloc(sizeof(struct jpeg_decdata));
-
+	decdata = g_new0(struct jpeg_decdata, 1);
+	
 	for(i=0;i<6;i++) 
 		max[i]=0;
 	
@@ -473,8 +473,10 @@ int jpeg_decode(BYTE **pic, BYTE *buf, int *width, int *height)
 		*width = intwidth;
 		*height = intheight;
 		// BytesperPixel 2 yuyv , 3 rgb24 
-		*pic = (unsigned char *) realloc((unsigned char *) *pic,
-			(size_t) intwidth * (intheight + 8) * 2);
+		//*pic = (unsigned char *) realloc((unsigned char *) *pic,
+		//	(size_t) intwidth * (intheight + 8) * 2);
+		*pic = g_renew(unsigned char, *pic,
+			intwidth * (intheight + 8) * 2);
 	}
 
 	switch (dscans[0].hv) 
@@ -599,12 +601,10 @@ int jpeg_decode(BYTE **pic, BYTE *buf, int *width, int *height)
 		err = ERR_NO_EOI;
 		goto error;
 	}
-	if (decdata)
-		free(decdata);
+	g_free(decdata);
 	return 0;
 error:
-	if (decdata)
-	free(decdata);
+	g_free(decdata);
 	return err;
 }
 

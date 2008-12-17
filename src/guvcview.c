@@ -175,30 +175,13 @@ int main(int argc, char *argv[])
 	struct ALL_DATA all_data;
 	memset(&all_data,0,sizeof(struct ALL_DATA));
 	
-	/*stores argv[0] - program call string - for restart*/
-	//int exec_size=strlen(argv[0])*sizeof(char)+1;
-	//if((EXEC_CALL=malloc(exec_size))==NULL) {
-	//	printf("couldn't allocate memory for: EXEC_CALL)\n");
-	//	exit(1);
-	//}
-	//snprintf(EXEC_CALL,exec_size,"%s",argv[0]);
-	
-	
 	/*set global variables*/
-	if((global=(struct GLOBAL *) calloc(1, sizeof(struct GLOBAL)))==NULL)
-	{
-		printf("couldn't allocate memory for: global\n");
-		exit(1); 
-	}
+	global = g_new0(struct GLOBAL, 1);
 
 	initGlobals(global);
 	
-	if((gwidget=(struct GWIDGET *) calloc(1, sizeof(struct GWIDGET)))==NULL) 
-	{
-		printf("couldn't allocate memory for: gwidget\n");
-		exit(1); 
-	}
-	
+	gwidget = g_new0(struct GWIDGET, 1);
+
 	/* widgets */
 	GtkWidget *scroll1;
 	GtkWidget *scroll2;
@@ -241,30 +224,16 @@ int main(int argc, char *argv[])
 	
 	size_t stacksize;
 
-	if ((s = (struct VidState *) calloc (1, sizeof(struct VidState)))==NULL)
-	{
-		printf("couldn't allocate memory for: s\n");
-		exit(1); 
-	}
-	memset(s,0,sizeof(struct VidState));
+	s = g_new0(struct VidState, 1);
 	
-	if((pdata=(struct paRecordData *) calloc(1, sizeof(struct paRecordData)))==NULL)
-	{
-		printf("couldn't allocate memory for: paRecordData\n");
-		exit(1); 
-	}
-	memset(pdata,0,sizeof(struct paRecordData));
+	pdata = g_new0(struct paRecordData, 1);
 	
 	/*create mutex for sound buffers*/
 	pthread_mutex_init(&pdata->mutex, NULL);
 	//pdata->cond = PTHREAD_COND_INITIALIZER;
 	
 	/* Allocate the avi_t struct */
-	if((AviOut = (struct avi_t *) malloc(sizeof(struct avi_t)))==NULL)
-	{
-		printf("couldn't allocate memory for: avi_t\n");
-		exit(1);
-	}
+	AviOut = g_new0(struct avi_t, 1);
 
 	readConf(global);
 
@@ -294,14 +263,8 @@ int main(int argc, char *argv[])
 	/* Add event handlers */
 	gtk_signal_connect(GTK_OBJECT(gwidget->mainwin), "delete_event", GTK_SIGNAL_FUNC(delete_event), &all_data);
 	
-	//gtk_widget_show (mainwin);
-	/*----------------------- init videoIn structure --------------------------*/	
-	if((videoIn = (struct vdIn *) calloc(1, sizeof(struct vdIn)))==NULL)
-	{
-		printf("couldn't allocate memory for: videoIn\n");
-		exit(1); 
-	}
-	memset(videoIn,0,sizeof(struct vdIn));
+	/*----------------------- init videoIn structure --------------------------*/
+	videoIn = g_new0(struct vdIn, 1);
 	
 	/*set structure with all global allocations*/
 	all_data.pdata = pdata;
@@ -513,12 +476,12 @@ int main(int argc, char *argv[])
 	}
 
 	/*must free path strings*/
-	if(icon1path) free(icon1path);
-	if(pix1path) free(pix1path);
-	if(pix2path) free(pix2path);
-	if(pix3path) free(pix3path);
-	if(pix4path) free(pix4path);
-	if(pix5path) free(pix5path);
+	g_free(icon1path);
+	g_free(pix1path);
+	g_free(pix2path);
+	g_free(pix3path);
+	g_free(pix4path);
+	g_free(pix5path);
 
 	gtk_box_pack_start(GTK_BOX(HButtonBox),gwidget->CapImageButt,TRUE,TRUE,2);
 	gtk_box_pack_start(GTK_BOX(HButtonBox),gwidget->CapAVIButt,TRUE,TRUE,2);
@@ -958,9 +921,6 @@ int main(int argc, char *argv[])
 	}
 	
 	/*--------------------- sound controls -----------------------------------*/
-	//~ if (Sound_numInputDev == 0) Sound_enable=0;
-	//~ printf("SOUND DISABLE: no input devices detected\n");
-	
 	/*enable sound*/
 	line++;
 	gwidget->SndEnable=gtk_check_button_new_with_label (_(" Sound"));
@@ -1177,7 +1137,7 @@ int main(int argc, char *argv[])
 	/* if autofocus exists allocate data*/
 	if(global->AFcontrol) 
 	{
-		AFdata = malloc(sizeof(struct focusData));
+		AFdata = g_new0(struct focusData, 1);
 		initFocusData(AFdata);
 	}
 

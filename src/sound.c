@@ -22,6 +22,7 @@
 #include "sound.h"
 #include "ms_time.h"
 #include "globals.h"
+#include <glib.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -125,7 +126,7 @@ int
 init_sound(struct paRecordData* data)
 {
 	PaError err;
-	int i;
+	//int i;
 	int totalFrames;
 	int MP2Frames=0;
 	int numSamples;
@@ -137,9 +138,11 @@ init_sound(struct paRecordData* data)
 	MP2Frames=numSamples/1152;
 	numSamples=MP2Frames*1152;
 	
+	data->mp2Buff = NULL;
+	
 	data->snd_numBytes = numSamples * sizeof(SAMPLE);
-
-	data->recordedSamples = (SAMPLE *) malloc( data->snd_numBytes ); /*capture buffer*/
+	
+	data->recordedSamples = g_new0(SAMPLE, numSamples);
 	data->maxIndex = numSamples;
 	data->sampleIndex = 0;
 	
@@ -147,15 +150,11 @@ init_sound(struct paRecordData* data)
 	data->recording = 0;
 	data->streaming = 0;
 	
-	data->avi_sndBuff = (SAMPLE *) malloc( data->snd_numBytes );/*secondary shared buffer*/
-
-	if( data->recordedSamples == NULL )
-	{
-		printf("Could not allocate record array.\n");
-		return (-2);
-	}
-	for( i=0; i<numSamples; i++ ) 
-		data->recordedSamples[i] = 0;
+	/*secondary shared buffer*/
+	data->avi_sndBuff = g_new0(SAMPLE, numSamples);
+	
+	//for( i=0; i<numSamples; i++ ) 
+	//	data->recordedSamples[i] = 0;
 	
 	err = Pa_Initialize();
 	if( err != paNoError ) goto error;
@@ -194,9 +193,9 @@ error:
 	data->streaming=0;
 	data->recording=0;
 	Pa_Terminate();
-	if(data->recordedSamples) free( data->recordedSamples );
+	g_free( data->recordedSamples );
 	data->recordedSamples=NULL;
-	if(data->avi_sndBuff) free(data->avi_sndBuff);
+	g_free(data->avi_sndBuff);
 	data->avi_sndBuff=NULL;
 	
 	return(-1);
@@ -236,14 +235,14 @@ close_sound (struct paRecordData *data)
 	/*make sure no operations are performed on the buffers*/
 	pthread_mutex_lock( &data->mutex);
 	/*free primary buffer*/
-	if(data->recordedSamples) free( data->recordedSamples  );
+	g_free( data->recordedSamples  );
 	data->recordedSamples=NULL;
 	
 	Pa_Terminate();
 	
-	if (data->avi_sndBuff) free(data->avi_sndBuff);
+	g_free(data->avi_sndBuff);
 	data->avi_sndBuff = NULL;
-	if (data->mp2Buff) free(data->mp2Buff);
+	g_free(data->mp2Buff);
 	data->mp2Buff = NULL;
 	pthread_mutex_unlock( &data->mutex );
 	
@@ -256,12 +255,12 @@ error:
 	data->audio_flag=0;
 	data->streaming=0;
 	pthread_mutex_lock( &data->mutex);
-	if(data->recordedSamples) free( data->recordedSamples );
+	g_free( data->recordedSamples );
 	data->recordedSamples=NULL;
 	Pa_Terminate();
-	if (data->avi_sndBuff) free(data->avi_sndBuff);
+	g_free(data->avi_sndBuff);
 	data->avi_sndBuff = NULL;
-	if (data->mp2Buff) free(data->mp2Buff);
+	g_free(data->mp2Buff);
 	data->mp2Buff = NULL;
 	pthread_mutex_unlock( &data->mutex );
 	return(-1);

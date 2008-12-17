@@ -363,7 +363,7 @@ fatal:
 
 int
 init_videoIn(struct vdIn *vd, char *device, int width, int height,
-	     int format, int grabmethod, int fps, int fps_num)
+	int format, int grabmethod, int fps, int fps_num)
 {
 	int ret=0;
 	int i=0;
@@ -375,23 +375,16 @@ init_videoIn(struct vdIn *vd, char *device, int width, int height,
 	if (grabmethod < 0 || grabmethod > 1)
 		grabmethod = 1;		//mmap by default;
 	vd->videodevice = NULL;
-	vd->status = NULL;
-	if((vd->videodevice = (char *) calloc(1, 16 * sizeof(char)))==NULL)
-	{
-		perror("couldn't calloc memory for vd->videodevice");
-		ret=-6;
-		goto error;
-	}
-	if((vd->status = (char *) calloc(1, 100 * sizeof(char)))==NULL)
-	{
-		perror("couldn't calloc memory for vd->status");
-		ret=-6;
-		goto error;
-	}
-	g_snprintf(vd->videodevice, 15, "%s", device);
-	printf("video %s \n", vd->videodevice);
 	
+	
+	vd->videodevice = g_strdup(device);
+	
+	printf("video device: %s \n", vd->videodevice);
+	
+	/*flag to video thread*/
 	vd->capAVI = FALSE;
+	/*flag from video thread*/
+	vd->AVICapStop=TRUE;
 	
 	vd->AVIFName = g_strdup(DEFAULT_AVI_FNAME);
 	
@@ -422,6 +415,9 @@ init_videoIn(struct vdIn *vd, char *device, int width, int height,
 	vd->available_exp[2]=-1;
 	vd->available_exp[3]=-1;
 	
+	vd->tmpbuffer = NULL;
+	vd->framebuffer = NULL;
+	
 	if ((ret=init_v4l2(vd)) < 0) 
 	{
 		fprintf(stderr," Init v4L2 failed !! \n");
@@ -434,30 +430,20 @@ init_videoIn(struct vdIn *vd, char *device, int width, int height,
 		case V4L2_PIX_FMT_MJPEG:
 			/* alloc a temp buffer to reconstruct the pict (MJPEG)*/
 			vd->tmpbuf_size= vd->framesizeIn;
-			vd->tmpbuffer = (unsigned char *) calloc(1, vd->tmpbuf_size);
-			if (!vd->tmpbuffer) 
-			{
-				perror("couldn't calloc memory for tmp buffer");
-				ret=-6;
-				goto error;
-			} 
+			vd->tmpbuffer = g_new0(unsigned char, vd->tmpbuf_size);
+			
 			vd->framebuf_size = vd->width * (vd->height + 8) * 2;
-			vd->framebuffer = (unsigned char *) calloc(1, vd->framebuf_size);
+			vd->framebuffer = g_new0(unsigned char, vd->framebuf_size); 
 			break;
 			
 		case V4L2_PIX_FMT_YUV420:
 			/* alloc a temp buffer for converting to YUYV*/
 			vd->tmpbuf_size= vd->framesizeIn;/* should be width * height * 3/2 */
-			vd->tmpbuffer = (unsigned char *) calloc(1, vd->tmpbuf_size);
-			if (!vd->tmpbuffer) 
-			{
-				perror("couldn't calloc memory for tmp buffer");
-				ret=-6;
-				goto error;
-			} 
+			vd->tmpbuffer = g_new0(unsigned char, vd->tmpbuf_size);
+			
 			vd->framebuf_size = vd->framesizeIn;
 			/*planar yuv 4:2:0*/
-			vd->framebuffer = (unsigned char *) calloc(1,vd->framebuf_size);
+			vd->framebuffer = g_new0(unsigned char, vd->framebuf_size);
 			break;
 			
 		case V4L2_PIX_FMT_YUYV:
@@ -466,7 +452,7 @@ init_videoIn(struct vdIn *vd, char *device, int width, int height,
 			/*video processing disable control  is set           */
 			/*            (logitech cameras only)                */
 			vd->framebuf_size = vd->framesizeIn;
-			vd->framebuffer = (unsigned char *) calloc(1, vd->framebuf_size);
+			vd->framebuffer = g_new0(unsigned char, vd->framebuf_size);
 			break;
 			
 		case V4L2_PIX_FMT_SGBRG8:
@@ -478,14 +464,10 @@ init_videoIn(struct vdIn *vd, char *device, int width, int height,
 			/* alloc a temp buffer for converting to YUYV*/
 			/* rgb buffer for decoding bayer data*/
 			vd->tmpbuf_size = vd->width * vd->height * 3;
-			vd->tmpbuffer = (unsigned char *) calloc(1, vd->tmpbuf_size);
-			if (vd->tmpbuffer == NULL) 
-			{
-				perror("Couldn't allocate mem for tmpbuffer");
-				goto error;
-			}
+			vd->tmpbuffer = g_new0(unsigned char, vd->tmpbuf_size);
+			
 			vd->framebuf_size = vd->framesizeIn;
-			vd->framebuffer = (unsigned char *) calloc(1, vd->framebuf_size); 
+			vd->framebuffer = g_new0(unsigned char, vd->framebuf_size);
 			break;
 			
 		default:
@@ -493,11 +475,6 @@ init_videoIn(struct vdIn *vd, char *device, int width, int height,
 			ret=-7;
 			goto error;
 			break;
-	}
-	
-	if ((vd->tmpbuffer != NULL) && (vd->tmpbuf_size>0))
-	{
-		memset(vd->tmpbuffer, 0x00, vd->tmpbuf_size);
 	}
 	
 	if ((!vd->framebuffer) || (vd->framebuf_size <=0)) 
@@ -544,14 +521,13 @@ init_videoIn(struct vdIn *vd, char *device, int width, int height,
 	return 0;
 	/*error: clean up allocs*/
 error:
-	if(vd->framebuffer) free(vd->framebuffer);
-	if(vd->tmpbuffer) free(vd->tmpbuffer);
+	g_free(vd->framebuffer);
+	g_free(vd->tmpbuffer);
 	close(vd->fd);
 	vd->fd=0;
-	if(vd->status) free(vd->status);
-	if(vd->videodevice) free(vd->videodevice);
-	if(vd->AVIFName) free (vd->AVIFName);
-	if(vd->ImageFName) free (vd->ImageFName);
+	g_free(vd->videodevice);
+	g_free(vd->AVIFName);
+	g_free(vd->ImageFName);
 	return ret;
 }
 
@@ -674,8 +650,6 @@ int init_v4l2(struct vdIn *vd)
 		vd->fmt.fmt.pix.width, vd->fmt.fmt.pix.height);
 		vd->width = vd->fmt.fmt.pix.width;
 		vd->height = vd->fmt.fmt.pix.height;
-		//vd->listVidFormats[0].listVidCap[0].width=vd->width;
-		//vd->listVidFormats[0].listVidCap[0].height=vd->height;
 	}
 	
 	vd->streamparm.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
@@ -835,13 +809,8 @@ int uvcGrab(struct vdIn *vd)
 				if (!(vd->tmpbuffer)) 
 				{
 					/* rgb buffer for decoding bayer data*/
-					vd->tmpbuffer = (unsigned char *) calloc(1,
-							(size_t) vd->width * vd->height * 3);
-					if (vd->tmpbuffer == NULL) 
-					{
-						perror("Bayer - Couldn't allocate mem for tmpbuffer (fatal)");
-						goto err;
-					}
+					vd->tmpbuffer = g_new0(unsigned char, 
+						vd->width * vd->height * 3);
 				}
 				bayer_to_rgb24 (vd->mem[vd->buf.index],vd->tmpbuffer,vd->width,vd->height, vd->pix_order);
 				/*raw bayer is only available in logitech cameras so no uyvy mode, only yuyv*/
@@ -902,13 +871,13 @@ static void freeFormats(struct vdIn *vd)
 	{
 		for(j=0;j<vd->listVidFormats[i].numb_res;j++)
 		{
-			free(vd->listVidFormats[i].listVidCap[j].framerate_num);
-			free(vd->listVidFormats[i].listVidCap[j].framerate_denom);
+			g_free(vd->listVidFormats[i].listVidCap[j].framerate_num);
+			g_free(vd->listVidFormats[i].listVidCap[j].framerate_denom);
 		
 		}
-		free(vd->listVidFormats[i].listVidCap);
+		g_free(vd->listVidFormats[i].listVidCap);
 	}
-	free(vd->listVidFormats);
+	g_free(vd->listVidFormats);
 }
 
 void close_v4l2(struct vdIn *vd)
@@ -916,12 +885,11 @@ void close_v4l2(struct vdIn *vd)
 	int i=0;
 	
 	if (vd->isstreaming) video_disable(vd);
-	if (vd->tmpbuffer) free(vd->tmpbuffer);
-	if (vd->framebuffer) free(vd->framebuffer);
-	if (vd->videodevice) free(vd->videodevice);
-	if (vd->status) free(vd->status);
-	if (vd->ImageFName) free(vd->ImageFName);
-	if (vd->AVIFName) free(vd->AVIFName);
+	g_free(vd->tmpbuffer);
+	g_free(vd->framebuffer);
+	g_free(vd->videodevice);
+	g_free(vd->ImageFName);
+	g_free(vd->AVIFName);
 	/*free format allocations*/
 	freeFormats(vd);
 	/*unmap queue buffers*/	
@@ -937,13 +905,12 @@ void close_v4l2(struct vdIn *vd)
 	vd->videodevice = NULL;
 	vd->tmpbuffer = NULL;
 	vd->framebuffer = NULL;
-	vd->status = NULL;
 	vd->ImageFName = NULL;
 	vd->AVIFName = NULL;
 	/*close device descriptor*/
 	close(vd->fd);
 	/*free struct allocation*/
-	free(vd);
+	g_free(vd);
 	vd=NULL;
 }
 
@@ -968,13 +935,11 @@ input_get_control (struct vdIn * device, InputControl * control, int * val)
 int
 input_set_control (struct vdIn * device, InputControl * control, int val)
 {
-   
 	int fd;
 	int ret=0;
 	struct v4l2_control c;
 
 	fd = device->fd;
-
 
 	c.id  = control->id;
 	c.value = val;
@@ -996,7 +961,8 @@ input_set_framerate (struct vdIn * device)
 	device->streamparm.parm.capture.timeperframe.denominator = device->fps;
 	 
 	ret = ioctl(fd,VIDIOC_S_PARM,&device->streamparm);
-	if (ret < 0) {
+	if (ret < 0) 
+	{
 		fprintf(stderr,"Unable to set %d fps\n",device->fps);
 		perror("VIDIOC_S_PARM error");
 	} 
@@ -1015,14 +981,17 @@ input_get_framerate (struct vdIn * device)
 	fd = device->fd;
 
 	ret = ioctl(fd,VIDIOC_G_PARM,&device->streamparm);
-	if (ret < 0) {
+	if (ret < 0) 
+	{
 		perror("VIDIOC_G_PARM - Unable to get timeperframe");
-	} else {
+	} 
+	else 
+	{
 		/*it seems numerator is allways 1*/
 		fps = device->streamparm.parm.capture.timeperframe.denominator;
-	 	fps_num = device->streamparm.parm.capture.timeperframe.numerator;
-	 	device->fps=fps;
-	 	device->fps_num=fps_num;
+		fps_num = device->streamparm.parm.capture.timeperframe.numerator;
+		device->fps=fps;
+		device->fps_num=fps_num;
 	}
 	return ret;
 }
@@ -1047,7 +1016,7 @@ input_enum_controls (struct vdIn * device, int *num_controls)
 		if ((ret=ioctl (fd, VIDIOC_QUERYCTRL, &queryctrl)) == 0 &&
 			!(queryctrl.flags & V4L2_CTRL_FLAG_DISABLED)) 
 		{
-			control = realloc (control, (n+1)*sizeof (InputControl));
+			control = g_renew(InputControl, control, n+1);
 			control[n].i = n;
 			control[n].id = queryctrl.id;
 			control[n].type = queryctrl.type;
@@ -1076,9 +1045,8 @@ input_enum_controls (struct vdIn * device, int *num_controls)
 				querymenu.index = 0;
 				while (ioctl (fd, VIDIOC_QUERYMENU, &querymenu) == 0) 
 				{
-					control[n].entries = realloc (control[n].entries,
-						(querymenu.index+1)*sizeof (char *));
-					control[n].entries[querymenu.index] = strdup ((char *)querymenu.name);
+					control[n].entries = g_renew(pchar, control[n].entries, querymenu.index+1);
+					control[n].entries[querymenu.index] = g_strdup ((char *) querymenu.name);
 					querymenu.index++;
 				}
 				control[n].max = querymenu.index - 1;
@@ -1121,14 +1089,14 @@ input_free_controls (struct VidState *s)
 			int j;
 			for (j = 0; j <= s->control[i].max; j++) 
 			{
-				free (s->control[i].entries[j]);
+				g_free (s->control[i].entries[j]);
 			}
-			free (s->control[i].entries);
+			g_free (s->control[i].entries);
 		}
 	}
-	free (s->control_info);
+	g_free (s->control_info);
 	s->control_info = NULL;
-	free (s->control);
+	g_free (s->control);
 	s->control = NULL;
 }
 /******************************* enumerations *********************************/
@@ -1156,10 +1124,10 @@ int enum_frame_intervals(struct vdIn *vd, __u32 pixfmt, __u32 width, __u32 heigh
 			printf("%u/%u, ", fival.discrete.numerator, fival.discrete.denominator);
 				
 			list_fps++;
-			vd->listVidFormats[fmtind-1].listVidCap[fsizeind-1].framerate_num = realloc (
-				vd->listVidFormats[fmtind-1].listVidCap[fsizeind-1].framerate_num,(list_fps)*sizeof(int));
-			vd->listVidFormats[fmtind-1].listVidCap[fsizeind-1].framerate_denom = realloc (
-				vd->listVidFormats[fmtind-1].listVidCap[fsizeind-1].framerate_denom,(list_fps)*sizeof(int));
+			vd->listVidFormats[fmtind-1].listVidCap[fsizeind-1].framerate_num = g_renew(
+				int, vd->listVidFormats[fmtind-1].listVidCap[fsizeind-1].framerate_num, list_fps);
+			vd->listVidFormats[fmtind-1].listVidCap[fsizeind-1].framerate_denom = g_renew(
+				int, vd->listVidFormats[fmtind-1].listVidCap[fsizeind-1].framerate_denom, list_fps);
 			
 			vd->listVidFormats[fmtind-1].listVidCap[fsizeind-1].framerate_num[list_fps-1] = fival.discrete.numerator;
 			vd->listVidFormats[fmtind-1].listVidCap[fsizeind-1].framerate_denom[list_fps-1] = fival.discrete.denominator;
@@ -1212,8 +1180,10 @@ int enum_frame_sizes(struct vdIn *vd, __u32 pixfmt, int fmtind)
 				fsize.discrete.width, fsize.discrete.height);
 			
 			fsizeind++;
-			vd->listVidFormats[fmtind-1].listVidCap = realloc (vd->listVidFormats[fmtind-1].listVidCap,
-				(fsizeind)*sizeof(VidCap));
+			vd->listVidFormats[fmtind-1].listVidCap = g_renew(VidCap, 
+				vd->listVidFormats[fmtind-1].listVidCap,
+				fsizeind);
+			
 			vd->listVidFormats[fmtind-1].listVidCap[fsizeind-1].width = fsize.discrete.width;
 			vd->listVidFormats[fmtind-1].listVidCap[fsizeind-1].height = fsize.discrete.height;
 			
@@ -1274,12 +1244,15 @@ int enum_frame_sizes(struct vdIn *vd, __u32 pixfmt, int fmtind)
 		
 		if(vd->listVidFormats[fmtind-1].listVidCap == NULL) 
 		{
-			vd->listVidFormats[fmtind-1].listVidCap = realloc (vd->listVidFormats[fmtind-1].listVidCap,
-				(fsizeind)*sizeof(VidCap));
-			vd->listVidFormats[fmtind-1].listVidCap[0].framerate_num = realloc (
-				vd->listVidFormats[fmtind-1].listVidCap[0].framerate_num,sizeof(int));
-			vd->listVidFormats[fmtind-1].listVidCap[0].framerate_denom = realloc (
-				vd->listVidFormats[fmtind-1].listVidCap[0].framerate_denom,sizeof(int));
+			vd->listVidFormats[fmtind-1].listVidCap = g_renew( VidCap,
+				vd->listVidFormats[fmtind-1].listVidCap,
+				fsizeind);
+			vd->listVidFormats[fmtind-1].listVidCap[0].framerate_num = g_renew( int,
+				vd->listVidFormats[fmtind-1].listVidCap[0].framerate_num,
+				1);
+			vd->listVidFormats[fmtind-1].listVidCap[0].framerate_denom = g_renew( int,
+				vd->listVidFormats[fmtind-1].listVidCap[0].framerate_denom,
+				1);
 		} 
 		else
 		{
@@ -1317,7 +1290,7 @@ int enum_frame_formats(struct vdIn *vd)
 		{
 			fmtind++;
 			listSupFormats[ret].hardware = fmtind; /*supported by hardware*/
-			vd->listVidFormats = realloc (vd->listVidFormats, (fmtind)*sizeof(VidFormats));
+			vd->listVidFormats = g_renew(VidFormats, vd->listVidFormats, fmtind);
 			vd->listVidFormats[fmtind-1].format=fmt.pixelformat;
 			g_snprintf(vd->listVidFormats[fmtind-1].fourcc,5,"%c%c%c%c",
 				fmt.pixelformat & 0xFF, (fmt.pixelformat >> 8) & 0xFF,

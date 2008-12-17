@@ -38,32 +38,16 @@ int initGlobals (struct GLOBAL *global)
 	global->debug = DEBUG;
 	
 	gchar *home = g_strdup(g_get_home_dir());
-	
-	if((global->videodevice = (char *) calloc(16, sizeof(char)))==NULL)
-	{
-		printf("couldn't calloc memory for:global->videodevice\n");
-		goto error;
-	}
-	
-	g_snprintf(global->videodevice, 15, "/dev/video0");
+
+	global->videodevice = g_strdup("/dev/video0");
 	
 	global->confPath = g_strjoin("/", home, ".guvcviewrc", NULL);
 	
-	if((global->aviFPath = (pchar *) calloc(2, sizeof(pchar)))==NULL)
-	{
-		printf("couldn't calloc memory for:global->aviFPath\n");
-		goto error;
-	}
-	if((global->imgFPath = (pchar *) calloc(2, sizeof(pchar)))==NULL)
-	{
-		printf("couldn't calloc memory for:global->imgFPath\n");
-		goto error;
-	}
-	if((global->profile_FPath = (pchar *) calloc(2, sizeof(pchar)))==NULL)
-	{
-		printf("couldn't calloc memory for:global->profile_FPath\n");
-		goto error;
-	}
+	global->aviFPath = g_new(pchar, 2);
+	
+	global->imgFPath = g_new(pchar, 2);
+	
+	global->profile_FPath = g_new(pchar, 2);
 	
 	global->aviFPath[1] = g_strdup(home);
 	
@@ -77,30 +61,18 @@ int initGlobals (struct GLOBAL *global)
 	
 	global->profile_FPath[0] = g_strdup("default.gpfl");
 	
+	global->WVcaption = g_new(char, 32);
 	
-	if((global->WVcaption= (char *) calloc(32, sizeof(char)))==NULL)
-	{
-		printf("couldn't calloc memory for:global->WVcaption\n");
-		goto error;
-	}
 	g_snprintf(global->WVcaption,10,"GUVCVIdeo");
 	
 	global->stack_size=TSTACK;
 	
 	global->image_inc=0;
 
-	if((global->imageinc_str= (char *) calloc(25, sizeof(char)))==NULL)
-	{
-		printf("couldn't calloc memory for:global->imageinc_str\n");
-		goto error;
-	}
+	global->imageinc_str = g_new(char, 25);
 	g_snprintf(global->imageinc_str,20,_("File num:%d"),global->image_inc);
 	
-	if((global->aviinc_str= (char *) calloc(25, sizeof(char)))==NULL)
-	{
-		printf("couldn't calloc memory for:global->aviinc_str\n");
-		goto error;
-	}
+	global->aviinc_str = g_new(char, 25);
 	g_snprintf(global->aviinc_str,20,_("File num:%d"),global->avi_inc);
 	
 	global->vid_sleep=0;
@@ -150,12 +122,10 @@ int initGlobals (struct GLOBAL *global)
 	global->winheight=WINSIZEY;
 	global->spinbehave=0;
 	global->boxvsize=0;
-	if((global->mode = (char *) calloc(6, sizeof(char)))==NULL)
-	{
-		printf("couldn't calloc memory for:global->mode\n");
-		goto error;
-	}
+	
+	global->mode = g_new(char, 6);
 	g_snprintf(global->mode, 5, "mjpg");
+	
 	global->format = V4L2_PIX_FMT_MJPEG;
 	global->formind = 0;
 	global->Frame_Flags = YUV_NOFILT;
@@ -166,39 +136,35 @@ int initGlobals (struct GLOBAL *global)
 	global->autofocus = 0;
 	global->AFcontrol = 0;
 	
-	if (home!= NULL) free(home);
+	g_free(home);
 	return (0);
-	
-error:
-	return(-1); /*no mem should exit*/
-
 }
 
 int closeGlobals(struct GLOBAL *global)
 {
-	if (global->videodevice) free(global->videodevice);
-	if (global->confPath) free(global->confPath);
-	if (global->aviFPath[1]) free(global->aviFPath[1]);
-	if (global->imgFPath[1]) free(global->imgFPath[1]);
-	if (global->imgFPath[0]) free(global->imgFPath[0]);
-	if (global->aviFPath[0]) free(global->aviFPath[0]);
-	if (global->profile_FPath[1]) free(global->profile_FPath[1]);
-	if (global->profile_FPath[0]) free(global->profile_FPath[0]);
-	if (global->aviFPath) free(global->aviFPath);
-	if (global->imgFPath) free(global->imgFPath);
-	if (global->profile_FPath) free(global->profile_FPath);
-	if (global->WVcaption) free (global->WVcaption);
-	if (global->imageinc_str) free(global->imageinc_str);
-	if (global->aviinc_str) free(global->aviinc_str);
-	if (global->avifile) free(global->avifile);
-	if (global->mode) free(global->mode);
+	g_free(global->videodevice);
+	g_free(global->confPath);
+	g_free(global->aviFPath[1]);
+	g_free(global->imgFPath[1]);
+	g_free(global->imgFPath[0]);
+	g_free(global->aviFPath[0]);
+	g_free(global->profile_FPath[1]);
+	g_free(global->profile_FPath[0]);
+	g_free(global->aviFPath);
+	g_free(global->imgFPath);
+	g_free(global->profile_FPath);
+	g_free (global->WVcaption);
+	g_free(global->imageinc_str);
+	g_free(global->aviinc_str);
+	g_free(global->avifile);
+	g_free(global->mode);
 	global->videodevice=NULL;
 	global->confPath=NULL;
 	global->avifile=NULL;
 	global->mode=NULL;
-	if(global->jpeg) free (global->jpeg);
+	g_free(global->jpeg);
 	global->jpeg=NULL;
-	free(global);
+	g_free(global);
 	global=NULL;
 	return (0);
 }

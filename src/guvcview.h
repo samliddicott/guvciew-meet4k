@@ -70,7 +70,7 @@ struct GWIDGET
 	GtkWidget *Resolution;
 
 	GtkWidget *FileDialog;
-};
+}   __attribute__ ((packed));
 
 struct ALL_DATA 
 {
@@ -84,6 +84,6 @@ struct ALL_DATA
 	gchar *EXEC_CALL;
 	pthread_t *pmythread;
 	pthread_attr_t *pattr;
-};
+}   __attribute__ ((packed));
 
 #endif

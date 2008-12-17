@@ -105,12 +105,14 @@ pchar* splitPath(char *FullPath, char* splited[2])
 	{
 		/* strlen doesn't count '/0' so add 1 char*/
 		//printf("realloc basename to %d chars.\n",size);
-		splited[0]=realloc(splited[0],(size)*sizeof(char));
+		splited[0]=g_renew(char, splited[0], size);
 	}
 	
-	cpysize = g_strlcpy(splited[0],basename,size*sizeof(char));
+	cpysize = g_strlcpy(splited[0], basename, size*sizeof(char));
 	if ( (cpysize+1) < (size*sizeof(char)) ) 
-		printf("filename copy size error:(%i != %i)\n",cpysize+1,size*sizeof(char));
+		printf("filename copy size error:(%i != %i)\n",
+			cpysize+1,
+			size*sizeof(char));
 	
 	/*only change stored dirname if one is set*/
 	if(g_strcmp0(".",dirname)!=0)
@@ -121,16 +123,18 @@ pchar* splitPath(char *FullPath, char* splited[2])
 		{
 			/* strlen doesn't count '/0' so add 1 char*/
 			//printf("realloc dirname to %d chars.\n",size);
-			splited[1]=realloc(splited[1],(size)*sizeof(char));
+			splited[1]=g_renew(char, splited[1], size);
 		}
 	
-		cpysize = g_strlcpy(splited[1],dirname,size*sizeof(char));
+		cpysize = g_strlcpy(splited[1], dirname, size*sizeof(char));
 		if ( (cpysize + 1) < (size*sizeof(char)) ) 
-			printf("dirname copy size error:(%i != %i)\n",cpysize+1,size*sizeof(char));
+			printf("dirname copy size error:(%i != %i)\n",
+				cpysize+1,
+				size*sizeof(char));
 	}
 	
-	if(basename != NULL) free(basename);
-	if(dirname != NULL) free(dirname);
+	g_free(basename);
+	g_free(dirname);
 	
 	return (splited);
 }
@@ -138,7 +142,7 @@ pchar* splitPath(char *FullPath, char* splited[2])
 char *joinPath(char *fullPath, pchar *splited)
 {
 	/*clean existing string allocation*/
-	if(fullPath != NULL) free(fullPath);
+	g_free(fullPath);
 	
 	/*allocate newly formed string*/
 	fullPath = g_strjoin ("/", splited[1], splited[0], NULL);
@@ -151,24 +155,43 @@ char *incFilename(char *fullPath, pchar *splited, int inc)
 	int fsize=strlen(splited[0]);
 	char basename[fsize];
 	char extension[4];
-	gchar *buffer;
-	if((buffer = calloc (11, sizeof(char)))==NULL)
-	{
-		printf("Fatal: error allocating mem for inc buffer\n");
-		exit(-1);
-	}
+	int inc_n_char = num_chars(inc);
+	gchar *buffer = g_new0(gchar, inc_n_char+1);/*include '\0' terminator*/
+	buffer = g_ascii_dtostr(buffer, inc_n_char+1, inc);
 	
-	/*10 digit limit for inc*/
-	buffer = g_ascii_dtostr(buffer, 10, inc);
-	
-	sscanf(splited[0],"%[^.].%3c",basename,extension);
+	sscanf(splited[0],"%[^.].%3c", basename, extension);
 	extension[3]='\0';/*terminate extension string*/
 	
-	if(fullPath != NULL) free (fullPath);
+	g_free (fullPath);
 	fullPath=NULL;
 	fullPath = g_strjoin("", splited[1], "/", basename,
 			"-", buffer, ".", extension, NULL);
-	free(buffer);
+	g_free(buffer);
 
 	return(fullPath);
+}
+
+char *setImgExt(char *filename, int format)
+{
+	int sname = strlen(filename)+1; /*include '\0' terminator*/
+	char basename[sname];
+	sscanf(filename,"%[^.]",basename);
+	switch(format)
+	{
+		case 0:
+			g_snprintf(filename, sname, "%s.jpg", basename);
+			break;
+		case 1:
+			g_snprintf(filename, sname, "%s.bmp", basename);
+			break;
+		case 2:
+			g_snprintf(filename, sname, "%s.png", basename);
+			break;
+		case 3:
+			g_snprintf(filename, sname, "%s.raw", basename);
+			break;
+		default:
+			printf("Image format not supported\n");
+	}
+	return (filename);
 }

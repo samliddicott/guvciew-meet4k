@@ -39,7 +39,7 @@ clean_struct (struct ALL_DATA *all_data)
 	/*destroy mutex for sound buffers*/
 	pthread_mutex_destroy(&pdata->mutex);
 
-	if(pdata) free(pdata);
+	g_free(pdata);
 	pdata=NULL;
 	all_data->pdata=NULL;
 
@@ -48,7 +48,7 @@ clean_struct (struct ALL_DATA *all_data)
 
 	if (global->debug) printf("closed v4l2 strutures\n");
 
-	if(AviOut)  free(AviOut);
+	g_free(AviOut);
 	AviOut=NULL;
 
 	if (s->control) 
@@ -57,17 +57,17 @@ clean_struct (struct ALL_DATA *all_data)
 		printf("free controls\n");
 	}
 
-	if (s) free(s);
+	g_free(s);
 	s = NULL;
 	all_data->s = NULL;
 
-	if (gwidget) free(gwidget);
+	g_free(gwidget);
 	gwidget = NULL;
 	all_data->gwidget = NULL;
 
 	if (global->debug) printf("free controls - vidState\n");
 
-	if (AFdata) free(AFdata);
+	g_free(AFdata);
 	AFdata = NULL;
 	all_data->AFdata = NULL;
 
@@ -93,16 +93,29 @@ shutd (gint restart, struct ALL_DATA *all_data)
 	struct GLOBAL *global = all_data->global;
 	struct vdIn *videoIn = all_data->videoIn;
 	
-    	if (global->debug) printf("Shuting Down Thread\n");
+	if (global->debug) printf("Shuting Down Thread\n");
 	if(videoIn->signalquit > 0) videoIn->signalquit=0;
 	if (global->debug) printf("waiting for thread to finish\n");
 	/*shuting down while in avi capture mode*/
 	/*must close avi                        */
 	if(videoIn->capAVI) 
 	{
+		struct timespec *rqtp = g_new0(struct timespec, 1);
+		struct timespec *rmtp = g_new0(struct timespec, 1);
+		int n=0;
+		rqtp->tv_sec=0;
+		rqtp->tv_nsec=2*1000; /*2 ms*/
+		while(!(videoIn->AVICapStop) && n<500) /*wait at max 500*2 ms (1 s)*/
+		{
+			n++; /*500 iterations at max*/
+			nanosleep(rqtp,rmtp);/*sleep for 2 ms*/
+		};
+		g_free(rqtp);
+		g_free(rmtp);
+		
 		if (global->debug) printf("stoping AVI capture\n");
 		global->AVIstoptime = ms_time();
-		//printf("AVI stop time:%d\n",AVIstoptime);
+		
 		videoIn->capAVI = FALSE;
 		pdata->capAVI = videoIn->capAVI;
 		aviClose(all_data);
@@ -111,10 +124,10 @@ shutd (gint restart, struct ALL_DATA *all_data)
 	pthread_attr_destroy(pattr);
 	int rc = pthread_join(*pmythread, (void *)&tstatus);
 	if (rc)
-	  {
-		 printf("ERROR; return code from pthread_join() is %d\n", rc);
-		 exit(-1);
-	  }
+	{
+		printf("ERROR; return code from pthread_join() is %d\n", rc);
+		exit(-1);
+	}
 	if (global->debug) printf("Completed join with thread status= %d\n", tstatus);
 	/* destroys fps timer*/
 	if (global->timer_id > 0) g_source_remove(global->timer_id);

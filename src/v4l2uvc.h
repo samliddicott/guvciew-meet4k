@@ -271,7 +271,7 @@ struct vdIn
 {
 	int fd;
 	char *videodevice;
-	char *status;
+	//char *status;
 	struct v4l2_capability cap;
 	struct v4l2_format fmt;
 	struct v4l2_buffer buf;
@@ -298,6 +298,7 @@ struct vdIn
 	int framesizeIn;
 	int signalquit;
 	int capAVI;
+	int AVICapStop;
 	char *AVIFName;
 	int fps;
 	int fps_num;

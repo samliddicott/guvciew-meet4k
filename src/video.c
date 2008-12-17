@@ -342,28 +342,17 @@ void *main_loop(void *data)
 					{ /* use built in encoder */
 						if (!global->jpeg)
 						{ 
-							if((global->jpeg = (BYTE*)malloc(global->jpeg_bufsize))==NULL) 
-							{
-								fprintf(stderr,"couldn't allocate memory for: jpeg buffer\n");
-								exit(1);
-							}
+							global->jpeg = g_new0(BYTE, global->jpeg_bufsize);
 						}
 						if(!jpeg_struct) 
 						{
-							if((jpeg_struct =(struct JPEG_ENCODER_STRUCTURE *) calloc(1, 
-								sizeof(struct JPEG_ENCODER_STRUCTURE)))==NULL)
-							{
-								fprintf(stderr,"couldn't allocate memory for: jpeg encoder struct\n");
-								exit(1); 
-							} 
-							else 
-							{
-								/* Initialization of JPEG control structure */
-								initialization (jpeg_struct,videoIn->width,videoIn->height);
+							jpeg_struct = g_new0(struct JPEG_ENCODER_STRUCTURE, 1);
+							
+							/* Initialization of JPEG control structure */
+							initialization (jpeg_struct,videoIn->width,videoIn->height);
 	
-								/* Initialization of Quantization Tables  */
-								initialize_quantization_tables (jpeg_struct);
-							}
+							/* Initialization of Quantization Tables  */
+							initialize_quantization_tables (jpeg_struct);
 						} 
 						int uyv=0;
 						if (global->format == V4L2_PIX_FMT_UYVY) uyv=1;
@@ -382,12 +371,7 @@ void *main_loop(void *data)
 					if(pim==NULL) 
 					{  
 						/*24 bits -> 3bytes     32 bits ->4 bytes*/
-						if((pim= malloc((pscreen->w)*(pscreen->h)*3))==NULL)
-						{
-							fprintf(stderr,"Couldn't allocate memory for: pim\n");
-							videoIn->signalquit=0;
-							pthread_exit((void *) 3);
-						}
+						pim = g_new0(BYTE, (pscreen->w)*(pscreen->h)*3);
 					}
 			
 					if (global->format == V4L2_PIX_FMT_UYVY) 
@@ -410,12 +394,7 @@ void *main_loop(void *data)
 					if(pim==NULL) 
 					{  
 						/*24 bits -> 3bytes     32 bits ->4 bytes*/
-						if((pim= malloc((pscreen->w)*(pscreen->h)*3))==NULL)
-						{
-							fprintf(stderr,"Couldn't allocate memory for: pim\n");
-							videoIn->signalquit=0;
-							pthread_exit((void *) 3);
-						}
+						pim = g_new0(BYTE, (pscreen->w)*(pscreen->h)*3);
 					}
 			
 					if (global->format == V4L2_PIX_FMT_UYVY) 
@@ -435,11 +414,11 @@ void *main_loop(void *data)
 		/*---------------------------capture AVI---------------------------------*/
 		if (videoIn->capAVI)
 		{
+			videoIn->AVICapStop=FALSE;
 			long framesize;
 			int ret=0;
 			switch (global->AVIFormat) 
 			{
-		   
 				case 0: /*MJPG*/
 					/* save MJPG frame */   
 					if((global->Frame_Flags==0) && (videoIn->formatIn==V4L2_PIX_FMT_MJPEG)) 
@@ -449,31 +428,20 @@ void *main_loop(void *data)
 							videoIn->buf.bytesused, keyframe);
 					} 
 					else 
-					{  /* use built in encoder */ 
+					{
+						/* use built in encoder */ 
 						if (!global->jpeg)
 						{ 
-							if((global->jpeg = (BYTE*)malloc(global->jpeg_bufsize))==NULL) 
-							{
-								fprintf(stderr,"couldn't allocate memory for: jpeg buffer\n");
-								exit(1);
-							}
+							global->jpeg = g_new0(BYTE, global->jpeg_bufsize);
 						}
 						if(!jpeg_struct) 
 						{
-							if((jpeg_struct =(struct JPEG_ENCODER_STRUCTURE *) calloc(1, 
-								sizeof(struct JPEG_ENCODER_STRUCTURE)))==NULL)
-							{
-								fprintf(stderr,"couldn't allocate memory for: jpeg encoder struct\n");
-								exit(1); 
-							} 
-							else 
-							{
-								/* Initialization of JPEG control structure */
-								initialization (jpeg_struct,videoIn->width,videoIn->height);
+							jpeg_struct = g_new0(struct JPEG_ENCODER_STRUCTURE, 1);
+							/* Initialization of JPEG control structure */
+							initialization (jpeg_struct,videoIn->width,videoIn->height);
 	
-								/* Initialization of Quantization Tables  */
-								initialize_quantization_tables (jpeg_struct);
-							}
+							/* Initialization of Quantization Tables  */
+							initialize_quantization_tables (jpeg_struct);
 						} 
 				
 						int uyv=0;
@@ -495,12 +463,7 @@ void *main_loop(void *data)
 					framesize=(pscreen->w)*(pscreen->h)*3; /*DIB 24/32 -> 3/4 bytes per pixel*/ 
 					if(pavi==NULL)
 					{
-						if((pavi= malloc(framesize))==NULL)
-						{
-							fprintf(stderr,"Couldn't allocate memory for: pim\n");
-							videoIn->signalquit=0;
-							pthread_exit((void *) 3);
-						}
+						pavi = g_new0(BYTE, framesize);
 					}
 					if (global->format == V4L2_PIX_FMT_UYVY) 
 					{
@@ -642,7 +605,10 @@ void *main_loop(void *data)
 			/* can safely close sound now, no more data to record*/
 			pdata->audio_flag=0;
 			pdata->recording=0;
-		}
+			
+			videoIn->AVICapStop=TRUE;
+		} 
+		else videoIn->AVICapStop=TRUE;
 	
 		/*------------------------- Display Frame --------------------------------*/
 		SDL_LockYUVOverlay(overlay);
@@ -708,11 +674,11 @@ void *main_loop(void *data)
 	if (global->debug) printf("Thread terminated...\n");
 
 	p = NULL;
-	if (jpeg_struct != NULL) free(jpeg_struct);
+	g_free(jpeg_struct);
 	jpeg_struct=NULL;
-	if(pim!=NULL) free(pim);
+	g_free(pim);
 	pim=NULL;
-	if(pavi!=NULL) free(pavi);
+	g_free(pavi);
 	pavi=NULL;
 	if (global->debug) printf("cleaning Thread allocations: 100%%\n");
 	fflush(NULL);//flush all output buffers 

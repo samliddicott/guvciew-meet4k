@@ -22,6 +22,7 @@
 ********************************************************************************/
 
 #include "img_controls.h"
+#include <glib.h>
 
 /*exposure menu for old type controls */
 static const char *exp_typ[]={
@@ -57,13 +58,8 @@ draw_controls (struct ALL_DATA *all_data)
 				s->control[i].default_val);
 		}
 	}
-	if((s->control_info = malloc (s->num_controls * sizeof (ControlInfo)))==NULL)
-	{
-		printf("couldn't allocate memory for: s->control_info\n");
-		ERR_DIALOG (N_("Guvcview error:\n\nUnable to allocate Buffers"),
-			N_("Please try restarting your system."), 
-			all_data); 
-	}
+	s->control_info = g_new(ControlInfo, s->num_controls);
+
 	int row=0;
 
 	for (i = 0; i < s->num_controls; i++) 
@@ -158,7 +154,7 @@ draw_controls (struct ALL_DATA *all_data)
 			gchar *tmp;
 			tmp =  g_strdup_printf ("%s:", gettext(c->name));
 			ci->label = gtk_label_new (tmp);
-			free(tmp);
+			g_free(tmp);
 			
 		}
 		else if ((c->id == V4L2_CID_TILT_RELATIVE_NEW) ||
@@ -185,7 +181,7 @@ draw_controls (struct ALL_DATA *all_data)
 			gchar *tmp;
 			tmp = g_strdup_printf ("%s:", gettext(c->name));
 			ci->label = gtk_label_new (tmp);
-			free(tmp);
+			g_free(tmp);
 			
 		} 
 		else if (c->id == V4L2_CID_PAN_RESET_NEW) 
@@ -201,7 +197,7 @@ draw_controls (struct ALL_DATA *all_data)
 			gchar *tmp;
 			tmp = g_strdup_printf ("%s:", gettext(c->name));
 			ci->label = gtk_label_new (tmp);
-			free(tmp);
+			g_free(tmp);
 		
 		}
 		else if (c->id == V4L2_CID_TILT_RESET_NEW) 
@@ -217,7 +213,7 @@ draw_controls (struct ALL_DATA *all_data)
 			gchar *tmp;
 			tmp = g_strdup_printf ("%s:", gettext(c->name));
 			ci->label = gtk_label_new (tmp);
-			free(tmp);
+			g_free(tmp);
 		
 		}
 		else if ((c->id == V4L2_CID_PANTILT_RESET_LOGITECH) ||
@@ -238,7 +234,7 @@ draw_controls (struct ALL_DATA *all_data)
 			gchar *tmp;
 			tmp = g_strdup_printf ("%s:", gettext(c->name));
 			ci->label = gtk_label_new (tmp);
-			free(tmp);
+			g_free(tmp);
 		
 		} 
 		else if (c->type == INPUT_CONTROL_TYPE_INTEGER) 
@@ -296,7 +292,7 @@ draw_controls (struct ALL_DATA *all_data)
 			gchar *tmp;
 			tmp = g_strdup_printf ("%s:", gettext(c->name));
 			ci->label = gtk_label_new (tmp);
-			free(tmp);
+			g_free(tmp);
 			/* ---- Add auto-focus checkbox and focus button ----- */
 			if (c->id== V4L2_CID_FOCUS_LOGITECH) 
 			{
@@ -367,7 +363,7 @@ draw_controls (struct ALL_DATA *all_data)
 			gchar *tmp;
 			tmp = g_strdup_printf (_("raw pixel order:"));
 			ci->label = gtk_label_new (tmp);
-			free(tmp);
+			g_free(tmp);
 			
 			if (input_get_control (videoIn, c, &val) == 0) 
 			{
@@ -458,7 +454,7 @@ draw_controls (struct ALL_DATA *all_data)
 			gchar *tmp;
 			tmp = g_strdup_printf ("%s:", gettext(c->name));
 			ci->label = gtk_label_new (tmp);
-			free(tmp);
+			g_free(tmp);
 		}
 		else 
 		{

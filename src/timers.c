@@ -44,22 +44,11 @@ Image_capture_timer(gpointer data)
 	struct GWIDGET *gwidget = all_data->gwidget;
 	struct vdIn *videoIn = all_data->videoIn; 
 	
-	/*increment image name (max 1-99999)*/
-	int sfname=strlen(global->imgFPath[0]);
-	char basename[sfname];
-	char extension[4];
-	sscanf(global->imgFPath[0],"%[^.].%3c",basename,extension);
-	int namesize=strlen(global->imgFPath[1])+strlen(basename)+5;
+	/*increment image name */
+	videoIn->ImageFName = incFilename(videoIn->ImageFName, 
+			global->imgFPath,
+			global->image_inc);
 	
-	extension[3] = '\0';
-	
-	if(namesize>110) 
-	{
-		videoIn->ImageFName=realloc(videoIn->ImageFName,namesize+11);
-	}
-	
-	sprintf(videoIn->ImageFName,"%s/%s-%i.%s",global->imgFPath[1],
-			                        basename,global->image_inc,extension );
 	snprintf(global->imageinc_str,24,_("File num:%d"),global->image_inc);
 		
 	gtk_label_set_text(GTK_LABEL(gwidget->ImageIncLabel), global->imageinc_str);

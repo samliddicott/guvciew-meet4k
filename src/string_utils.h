@@ -42,4 +42,7 @@ joinPath(char *fullPath, pchar * splited);
 char *
 incFilename(char *fullPath, pchar *splited, int inc);
 
+char *
+setImgExt(char *filename, int format);
+
 #endif

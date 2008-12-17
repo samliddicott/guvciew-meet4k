@@ -119,14 +119,14 @@ LoadControls(struct VidState *s, struct GLOBAL *global)
 	int type=0;
 	int val=0;
 	//char contr_inf[100];
-	int sfname=strlen(global->profile_FPath[1])+strlen(global->profile_FPath[0]);
-	char filename[sfname+2];
+	int sfname=strlen(global->profile_FPath[1])+strlen(global->profile_FPath[0]) +3;
+	char filename[sfname];
 	ControlInfo *base_ci = s->control_info;
 	InputControl *base_c = s->control;
 	ControlInfo *ci;
 	InputControl *c;
 	
-	sprintf(filename,"%s/%s", global->profile_FPath[1],global->profile_FPath[0]);
+	g_snprintf(filename, sfname, "%s/%s", global->profile_FPath[1],global->profile_FPath[0]);
 	
 	if((fp = fopen(filename,"r"))!=NULL) 
 	{
@@ -164,14 +164,13 @@ LoadControls(struct VidState *s, struct GLOBAL *global)
 						else if (type == INPUT_CONTROL_TYPE_MENU) 
 						{
 							//input_set_control (videoIn, c, val);
-							gtk_combo_box_set_active (GTK_COMBO_BOX (ci->widget),
-				        							     val);
+							gtk_combo_box_set_active (GTK_COMBO_BOX (ci->widget), val);
 						}
 					}
 					else 
 					{
 						printf("wrong control id(0x%x:0x%x) or type(%i:%i) for %s\n",
-							   id,c->id,type,c->type,c->name);
+							id,c->id,type,c->type,c->name);
 					}
 				} 
 				else 

@@ -27,7 +27,7 @@
 #include <glib/gprintf.h>
 /*---------------------------- error message dialog-----------------------------*/
 void 
-ERR_DIALOG(const char *err_title, const char* err_msg, struct ALL_DATA *all_data) 
+ERR_DIALOG(const char *err_title, const char* err_msg, struct ALL_DATA *all_data)
 {
 	struct GWIDGET *gwidget = all_data->gwidget;
 	struct VidState *s = all_data->s;
@@ -51,15 +51,15 @@ ERR_DIALOG(const char *err_title, const char* err_msg, struct ALL_DATA *all_data
 	gtk_dialog_run (GTK_DIALOG (errdialog));
 	gtk_widget_destroy (errdialog);
 
-	if (gwidget) free(gwidget);
+	g_free(gwidget);
 	gwidget = NULL;
 	all_data->gwidget = NULL;
 
-	if (AFdata) free(AFdata);
+	g_free(AFdata);
 	AFdata = NULL;
 	all_data->AFdata = NULL;
 
-	if (s) free(s);
+	g_free(s);
 	s = NULL;
 	all_data->s = NULL;
 
@@ -67,16 +67,16 @@ ERR_DIALOG(const char *err_title, const char* err_msg, struct ALL_DATA *all_data
 	global = NULL;
 	all_data->global = NULL;
 
-	if (pdata) free(pdata);
+	g_free(pdata);
 	pdata = NULL;
 	all_data->pdata = NULL;    
 
 	if(videoIn->fd > 0) close_v4l2(videoIn);
-	else if (videoIn) free(videoIn);
+	else g_free(videoIn);
 	videoIn=NULL;
 	all_data->videoIn = NULL;
 
-	if (AviOut) free(AviOut);
+	g_free(AviOut);
 	AviOut = NULL;
 	all_data->AviOut = NULL;
 
@@ -763,26 +763,8 @@ ImageType_changed (GtkComboBox * ImageType, struct ALL_DATA *all_data)
 		global->imgFPath=splitPath((char *)filename, global->imgFPath);
 	}
 	
-	int sname = strlen(global->imgFPath[0]);
-	char basename[sname];
-	sscanf(global->imgFPath[0],"%[^.]",basename);
-	switch(global->imgFormat)
-	{
-		case 0:
-			sprintf(global->imgFPath[0],"%s.jpg",basename);
-			break;
-		case 1:
-			sprintf(global->imgFPath[0],"%s.bmp",basename);
-			break;
-		case 2:
-			sprintf(global->imgFPath[0],"%s.png",basename);
-			break;
-		case 3:
-			sprintf(global->imgFPath[0],"%s.raw",basename);
-			break;
-		default:
-			sprintf(global->imgFPath[0],"%s",DEFAULT_IMAGE_FNAME);
-	}
+	global->imgFPath[0] = setImgExt(global->imgFPath[0], global->imgFormat);
+	
 	gtk_entry_set_text(GTK_ENTRY(gwidget->ImageFNameEntry)," ");
 	gtk_entry_set_text(GTK_ENTRY(gwidget->ImageFNameEntry),global->imgFPath[0]);
 	
@@ -1068,9 +1050,21 @@ capture_avi (GtkButton *AVIButt, struct ALL_DATA *all_data)
 	
 	if(videoIn->capAVI) 
 	{	/****************** Stop AVI ************************/
+		struct timespec *rqtp = g_new0(struct timespec, 1);
+		struct timespec *rmtp = g_new0(struct timespec, 1);
+		int n=0;
+		rqtp->tv_sec=0;
+		rqtp->tv_nsec=2*1000; /*2 ms*/
 		gtk_button_set_label(AVIButt,_("Cap. AVI"));
 		videoIn->capAVI = FALSE;
 		pdata->capAVI = videoIn->capAVI;
+		while(!(videoIn->AVICapStop) && n<500) /*wait at max 500*2 ms (1 s)*/
+		{
+			n++; /*500 iterations at max*/
+			nanosleep(rqtp,rmtp);/*sleep for 2 ms*/
+		};
+		g_free(rqtp);
+		g_free(rmtp);
 		
 		global->AVIstoptime = ms_time();
 		aviClose(all_data);
@@ -1164,8 +1158,6 @@ SProfileButton_clicked (GtkButton * SProfileButton, struct ALL_DATA *all_data)
 	struct GLOBAL *global = all_data->global;
 	struct vdIn *videoIn = all_data->videoIn;
 	
-	char *filename;
-	
 	gwidget->FileDialog = gtk_file_chooser_dialog_new (_("Save File"),
 		GTK_WINDOW(gwidget->mainwin),
 		GTK_FILE_CHOOSER_ACTION_SAVE,
@@ -1183,7 +1175,7 @@ SProfileButton_clicked (GtkButton * SProfileButton, struct ALL_DATA *all_data)
 	if (gtk_dialog_run (GTK_DIALOG (gwidget->FileDialog)) == GTK_RESPONSE_ACCEPT)
 	{
 		/*Save Controls Data*/
-		filename= gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (gwidget->FileDialog));
+		char *filename= gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (gwidget->FileDialog));
 		global->profile_FPath=splitPath(filename,global->profile_FPath);
 		SaveControls(s, global, videoIn);
 	}
@@ -1202,8 +1194,6 @@ LProfileButton_clicked (GtkButton * LProfileButton, struct ALL_DATA *all_data)
 	struct VidState *s = all_data->s;
 	struct GLOBAL *global = all_data->global;
 	
-	char *filename;
-	
 	gwidget->FileDialog = gtk_file_chooser_dialog_new (_("Load File"),
 		GTK_WINDOW(gwidget->mainwin),
 		GTK_FILE_CHOOSER_ACTION_OPEN,
@@ -1218,7 +1208,7 @@ LProfileButton_clicked (GtkButton * LProfileButton, struct ALL_DATA *all_data)
 	if (gtk_dialog_run (GTK_DIALOG (gwidget->FileDialog)) == GTK_RESPONSE_ACCEPT)
 	{
 		/*Load Controls Data*/
-		filename= gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (gwidget->FileDialog));
+		char *filename= gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (gwidget->FileDialog));
 		global->profile_FPath=splitPath(filename,global->profile_FPath);
 		LoadControls(s,global);
 	}

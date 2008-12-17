@@ -41,6 +41,7 @@
 #include "string_utils.h"
 #include "avilib.h"
 #include "v4l2uvc.h"
+#include "../config.h"
 /*----------------------- write conf (.guvcviewrc) file ----------------------*/
 int 
 writeConf(struct GLOBAL *global) 
@@ -434,7 +435,7 @@ readConf(struct GLOBAL *global)
 						while (!stp);
 					}
 				}
-				if (name != NULL) free(name);
+				g_free(name);
 			}
 		}
 		
@@ -476,7 +477,106 @@ readConf(struct GLOBAL *global)
 
 /*------------------------- read command line options ------------------------*/
 void
-readOpts(int argc,char *argv[], struct GLOBAL *global) 
+readOpts(int argc,char *argv[], struct GLOBAL *global)
+{
+	gchar *device=NULL;
+	gchar *format=NULL;
+	gchar *size = NULL;
+	gchar *image = NULL;
+	gchar *avi=NULL;
+	gchar *profile=NULL;
+	gchar *separateur=NULL;
+	
+	GOptionEntry entries[] =
+	{
+		{ "verbose", 'v', 0, G_OPTION_ARG_NONE, &global->debug, N_("Displays debug information"), NULL },
+		{ "device", 'd', 0, G_OPTION_ARG_STRING, &device, N_("Video Device to use [default: /dev/video0]"), "VIDEO_DEVICE" },
+		{ "hwd_acel", 'w', 0, G_OPTION_ARG_INT, &global->hwaccel, N_("Hardware accelaration (enable(1) | disable(0))"), "1 | 0" },
+		{ "format", 'f', 0, G_OPTION_ARG_STRING, &format, N_("Pixel format(mjpg, jpeg, yuv, uyv, yup, gbr)"), "FORMAT" },
+		{ "size", 's', 0, G_OPTION_ARG_STRING, &size, N_("Frame size, default: 640x480"), "WIDTHxHEIGHT"},
+		{ "image", 'i', 0, G_OPTION_ARG_STRING, &image, N_("Image File name"), "FILENAME"},
+		{ "cap_time", 'c', 0, G_OPTION_ARG_INT, &global->image_timer, N_("Image capture interval in seconds"), "TIME"},
+		{ "npics", 'm', 0, G_OPTION_ARG_INT, &global->image_npics, N_("Number of Pictures to capture"), "NUMPIC"},
+		{ "avi", 'n', 0, G_OPTION_ARG_STRING, &avi, N_("AVI File name (capture from start)"), "FILENAME"},
+		{ "avi_time", 't', 0, G_OPTION_ARG_INT, &global->Capture_time,N_("AVI capture time (in seconds)"), "TIME"},
+		{ "show_fps", 'p', 0, G_OPTION_ARG_INT, &global->FpsCount, N_("Show FPS value (enable(1) | disable (0))"), "1 | 0"},
+		{ "profile", 'l', 0, G_OPTION_ARG_STRING, &profile, N_("Load Profile at start"), "FILENAME"},
+		{ NULL }
+	};
+
+	GError *error = NULL;
+	GOptionContext *context;
+	context = g_option_context_new (N_("- local options"));
+	g_option_context_add_main_entries (context, entries, GETTEXT_PACKAGE);
+	g_option_context_add_group (context, gtk_get_option_group (TRUE));
+	if (!g_option_context_parse (context, &argc, &argv, &error))
+	{
+		g_print ("option parsing failed: %s\n", error->message);
+		exit (1);
+	}
+	
+	if(device)
+	{
+		g_free(global->videodevice);
+		global->videodevice=NULL;
+		global->videodevice = g_strdup(device);
+	}
+	if(format)
+	{
+		g_snprintf(global->mode,5,"%s",format);
+	}
+	if(size)
+	{
+		global->width = (int) g_ascii_strtoull(size, &separateur, 10);
+		if (*separateur != 'x') 
+		{
+			printf("Error in size usage: -s[--size] WIDTHxHEIGHT \n");
+		} 
+		else 
+		{
+			++separateur;
+			global->height = (int) g_ascii_strtoull(separateur, &separateur, 10);
+			if (*separateur != 0)
+				printf("hmm.. dont like that!! trying this height \n");
+		}
+	}
+	if(image)
+	{
+		global->imgFPath=splitPath(image,global->imgFPath);
+		/*get the file type*/
+		global->imgFormat = check_image_type(global->imgFPath[0]);
+	}
+	if(global->image_timer > 0 )
+	{
+		global->image_inc=1;
+		printf("capturing images every %i seconds",global->image_timer);
+	}
+	if(avi)
+	{
+		global->avifile = g_strdup(avi);
+		global->aviFPath=splitPath(global->avifile,global->aviFPath);
+		printf("capturing avi: %s , from start",global->avifile);
+	}
+	if(profile)
+	{
+		global->lprofile=1;
+		global->profile_FPath=splitPath(profile,global->profile_FPath);
+	}
+	
+	
+	g_free(device);
+	g_free(format);
+	g_free(size);
+	g_free(image);
+	g_free(avi);
+	g_free(profile);
+	g_option_context_free (context);
+}
+
+
+
+void
+readOpts1(int argc,char *argv[], struct GLOBAL *global) 
 {
 	
 	int c = 0;
@@ -544,21 +644,19 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 			case 's':
 				tmpstr = g_strdup(optarg);
 	
-				global->width = strtoul(tmpstr, &separateur, 10);
+				global->width = (int) g_ascii_strtoull(tmpstr, &separateur, 10);
 				if (*separateur != 'x') 
 				{
 					printf("Error in size usage: -s[--size] widthxheight \n");
 				} 
 				else 
 				{
-					global->avifile = g_strdup(optarg); /*allocate avifile - must be freed*/
-					global->aviFPath=splitPath(global->avifile,global->aviFPath);
 					++separateur;
-					global->height = strtoul(separateur, &separateur, 10);
+					global->height = (int) g_ascii_strtoull(separateur, &separateur, 10);
 					if (*separateur != 0)
 						printf("hmm.. dont like that!! trying this height \n");
 				}
-				free(tmpstr);
+				g_free(tmpstr);
 				tmpstr=NULL;
 				break;
 		
@@ -567,24 +665,24 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 				global->imgFPath=splitPath(tmpstr,global->imgFPath);
 				/*get the file type*/
 				global->imgFormat = check_image_type(global->imgFPath[0]);
-				free(tmpstr);
+				g_free(tmpstr);
 				tmpstr=NULL;
 				break;
 		
 			case 'c':
 				tmpstr = g_strdup(optarg);
-				global->image_timer= strtoul(tmpstr, &separateur, 10);
+				global->image_timer= (int) g_ascii_strtoull(tmpstr, &separateur, 10);
 				global->image_inc=1;
 				printf("capturing images every %i seconds",global->image_timer);
-				free(tmpstr);
+				g_free(tmpstr);
 				tmpstr=NULL;
 				break;
 		
 			case 'm':
 				tmpstr = g_strdup(optarg);
-				global->image_npics= strtoul(tmpstr, &separateur, 10);
+				global->image_npics= (int) g_ascii_strtoull(tmpstr, &separateur, 10);
 				printf("capturing at max %d pics",global->image_npics);
-				free(tmpstr);
+				g_free(tmpstr);
 				tmpstr=NULL;
 				break;
 	
@@ -595,9 +693,9 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 		
 			case 't':
 				tmpstr = g_strdup(optarg);
-				global->Capture_time= strtoul(tmpstr, &separateur, 10);
+				global->Capture_time= (int) g_ascii_strtoull(tmpstr, &separateur, 10);
 				printf("capturing avi for %i seconds",global->Capture_time);
-				free(tmpstr);
+				g_free(tmpstr);
 				tmpstr=NULL;
 				break;
 		
