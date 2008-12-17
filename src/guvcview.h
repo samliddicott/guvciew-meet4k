@@ -82,8 +82,7 @@ struct ALL_DATA
 	struct GWIDGET *gwidget;
 	struct VidState *s;
 	gchar *EXEC_CALL;
-	pthread_t *pmythread;
-	pthread_attr_t *pattr;
+	GThread *video_thread;
 }   __attribute__ ((packed));
 
 #endif

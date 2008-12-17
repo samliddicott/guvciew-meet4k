@@ -37,7 +37,7 @@ clean_struct (struct ALL_DATA *all_data)
 	struct avi_t *AviOut = all_data->AviOut;
 
 	/*destroy mutex for sound buffers*/
-	pthread_mutex_destroy(&pdata->mutex);
+	g_mutex_free( pdata->mutex );
 
 	g_free(pdata);
 	pdata=NULL;
@@ -83,12 +83,9 @@ shutd (gint restart, struct ALL_DATA *all_data)
 {
 	int exec_status=0;
 	
-	int tstatus;
-	
 	struct GWIDGET *gwidget = all_data->gwidget;
 	gchar *EXEC_CALL = all_data->EXEC_CALL;
-	pthread_t *pmythread = all_data->pmythread;
-	pthread_attr_t *pattr = all_data->pattr;
+	GThread *video_thread = all_data->video_thread;
 	struct paRecordData *pdata = all_data->pdata;
 	struct GLOBAL *global = all_data->global;
 	struct vdIn *videoIn = all_data->videoIn;
@@ -120,15 +117,14 @@ shutd (gint restart, struct ALL_DATA *all_data)
 		pdata->capAVI = videoIn->capAVI;
 		aviClose(all_data);
 	}
-	/* Free attribute and wait for the main loop (video) thread */
-	pthread_attr_destroy(pattr);
-	int rc = pthread_join(*pmythread, (void *)&tstatus);
-	if (rc)
-	{
-		printf("ERROR; return code from pthread_join() is %d\n", rc);
-		exit(-1);
-	}
-	if (global->debug) printf("Completed join with thread status= %d\n", tstatus);
+	/* wait for the main loop (video) thread */
+
+	g_thread_join( video_thread );
+	//if (rc)
+	//{
+	//	printf("ERROR; return code from pthread_join() is %d\n", rc);
+	//	exit(-1);
+	//}
 	/* destroys fps timer*/
 	if (global->timer_id > 0) g_source_remove(global->timer_id);
 

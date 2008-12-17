@@ -486,6 +486,7 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 	gchar *avi=NULL;
 	gchar *profile=NULL;
 	gchar *separateur=NULL;
+	gint help=0;
 	
 	GOptionEntry entries[] =
 	{
@@ -512,6 +513,7 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 	if (!g_option_context_parse (context, &argc, &argv, &error))
 	{
 		g_print ("option parsing failed: %s\n", error->message);
+		g_error_free ( error );
 		exit (1);
 	}
 	
@@ -562,7 +564,6 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 		global->lprofile=1;
 		global->profile_FPath=splitPath(profile,global->profile_FPath);
 	}
-	
 	
 	g_free(device);
 	g_free(format);

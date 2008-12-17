@@ -73,10 +73,10 @@ recordCallback (const void *inputBuffer, void *outputBuffer,
 		//anyway lock a mutex on the buffer just in case a read operation is still going on.
 		// This is not a good idea as it may cause data loss
 		//but since we sould never have to wait, it shouldn't be a problem.
-		pthread_mutex_lock( &data->mutex);
+		g_mutex_lock( data->mutex);
 		data->snd_numBytes = data->numSamples*sizeof(SAMPLE);
 		memcpy(data->avi_sndBuff, data->recordedSamples ,data->snd_numBytes);
-		pthread_mutex_unlock( &data->mutex );
+		g_mutex_unlock( data->mutex );
 		data->sampleIndex=0;
 		data->numSamples = 0;
 		//flags that secondary buffer as data (can be saved to file)
@@ -233,7 +233,7 @@ close_sound (struct paRecordData *data)
 	}
 	/*---------------------------------------------------------------------*/
 	/*make sure no operations are performed on the buffers*/
-	pthread_mutex_lock( &data->mutex);
+	g_mutex_lock( data->mutex);
 	/*free primary buffer*/
 	g_free( data->recordedSamples  );
 	data->recordedSamples=NULL;
@@ -244,7 +244,7 @@ close_sound (struct paRecordData *data)
 	data->avi_sndBuff = NULL;
 	g_free(data->mp2Buff);
 	data->mp2Buff = NULL;
-	pthread_mutex_unlock( &data->mutex );
+	g_mutex_unlock( data->mutex );
 	
 	return (0);
 error:  
@@ -254,7 +254,7 @@ error:
 	data->recording=0;
 	data->audio_flag=0;
 	data->streaming=0;
-	pthread_mutex_lock( &data->mutex);
+	g_mutex_lock( data->mutex);
 	g_free( data->recordedSamples );
 	data->recordedSamples=NULL;
 	Pa_Terminate();
@@ -262,6 +262,6 @@ error:
 	data->avi_sndBuff = NULL;
 	g_free(data->mp2Buff);
 	data->mp2Buff = NULL;
-	pthread_mutex_unlock( &data->mutex );
+	g_mutex_unlock( data->mutex );
 	return(-1);
 }

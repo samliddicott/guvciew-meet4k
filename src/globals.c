@@ -37,7 +37,7 @@ int initGlobals (struct GLOBAL *global)
 {
 	global->debug = DEBUG;
 	
-	gchar *home = g_strdup(g_get_home_dir());
+	const gchar *home = g_get_home_dir();
 
 	global->videodevice = g_strdup("/dev/video0");
 	
@@ -136,7 +136,6 @@ int initGlobals (struct GLOBAL *global)
 	global->autofocus = 0;
 	global->AFcontrol = 0;
 	
-	g_free(home);
 	return (0);
 }
 

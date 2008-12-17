@@ -28,7 +28,7 @@
 #include <sys/stat.h>
 #include <sys/file.h>
 #include <string.h>
-#include <pthread.h>
+//#include <pthread.h>
 #include <SDL/SDL.h>
 #include <linux/videodev.h>
 #include <sys/ioctl.h>
@@ -37,7 +37,7 @@
 #include <fcntl.h>
 #include <signal.h>
 #include <X11/Xlib.h>
-//#include <SDL/SDL_syswm.h>
+#include <glib.h>
 #include <glib/gprintf.h>
 /* support for internationalization - i18n */
 #include <locale.h> //gentoo patch
@@ -82,8 +82,7 @@ struct VidState *s = NULL;
 struct GWIDGET *gwidget = NULL;
 
 /*thread definitions*/
-pthread_t mythread;
-pthread_attr_t attr;
+GThread *video_thread = NULL;
 
 /* parameters passed when restarting*/
 gchar *EXEC_CALL;
@@ -92,9 +91,6 @@ gchar *EXEC_CALL;
 static void
 file_chooser (GtkButton * FileButt, const int isAVI)
 {
-	const char *basename;
-	char *fullname;
-	
 	gwidget->FileDialog = gtk_file_chooser_dialog_new (_("Save File"),
 		GTK_WINDOW (gwidget->mainwin),
 		GTK_FILE_CHOOSER_ACTION_SAVE,
@@ -106,9 +102,9 @@ file_chooser (GtkButton * FileButt, const int isAVI)
 	if(isAVI) 
 	{ /* avi File chooser*/
 	
-		basename =  gtk_entry_get_text(GTK_ENTRY(gwidget->AVIFNameEntry));
+		const gchar *basename =  gtk_entry_get_text(GTK_ENTRY(gwidget->AVIFNameEntry));
 		
-		global->aviFPath=splitPath((char *)basename, global->aviFPath);
+		global->aviFPath=splitPath((gchar *) basename, global->aviFPath);
 	
 		gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (gwidget->FileDialog), 
 			global->aviFPath[1]);
@@ -117,18 +113,18 @@ file_chooser (GtkButton * FileButt, const int isAVI)
 
 		if (gtk_dialog_run (GTK_DIALOG (gwidget->FileDialog)) == GTK_RESPONSE_ACCEPT)
 		{
-			fullname = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (gwidget->FileDialog));
+			gchar *fullname = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (gwidget->FileDialog));
 			global->aviFPath=splitPath(fullname, global->aviFPath);
 			gtk_entry_set_text(GTK_ENTRY(gwidget->AVIFNameEntry)," ");
 			gtk_entry_set_text(GTK_ENTRY(gwidget->AVIFNameEntry),global->aviFPath[0]);
+			g_free(fullname);
 		}
 	}
 	else 
 	{	/* Image File chooser*/
-	
-		basename =  gtk_entry_get_text(GTK_ENTRY(gwidget->ImageFNameEntry));
+		const gchar *basename =  gtk_entry_get_text(GTK_ENTRY(gwidget->ImageFNameEntry));
 
-		global->imgFPath=splitPath((char *)basename, global->imgFPath);
+		global->imgFPath=splitPath((gchar *)basename, global->imgFPath);
 		gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (gwidget->FileDialog), 
 			global->imgFPath[1]);
 		gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (gwidget->FileDialog), 
@@ -136,16 +132,16 @@ file_chooser (GtkButton * FileButt, const int isAVI)
 
 		if (gtk_dialog_run (GTK_DIALOG (gwidget->FileDialog)) == GTK_RESPONSE_ACCEPT)
 		{
-			fullname = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (gwidget->FileDialog));
+			gchar *fullname = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (gwidget->FileDialog));
 			global->imgFPath=splitPath(fullname, global->imgFPath);
-
+			g_free(fullname);
 			gtk_entry_set_text(GTK_ENTRY(gwidget->ImageFNameEntry)," ");
 			gtk_entry_set_text(GTK_ENTRY(gwidget->ImageFNameEntry),global->imgFPath[0]);
 			/*get the file type*/
 			global->imgFormat = check_image_type(global->imgFPath[0]);
 			/*set the file type*/
 			gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->ImageType),global->imgFormat);
-		
+		  
 			if(global->image_inc>0)
 			{ 
 				global->image_inc=1; /*if auto naming restart counter*/
@@ -164,7 +160,19 @@ int main(int argc, char *argv[])
 	int i, line;
 	int ret=0;
 	printf("guvcview version %s \n", VERSION);
-   
+	
+	/* initialize glib threads - make glib thread safe*/ 
+	if( !g_thread_supported() )
+	{
+		g_thread_init(NULL);
+		printf("g_thread supported\n");
+	}
+	else
+	{
+		printf("Fatal:g_thread NOT supported\n");
+		exit(1);
+	}
+	
 #ifdef ENABLE_NLS
 	char* lc_all = setlocale (LC_ALL, "");
 	char* lc_dir = bindtextdomain (GETTEXT_PACKAGE, PACKAGE_LOCALE_DIR);
@@ -175,10 +183,16 @@ int main(int argc, char *argv[])
 	struct ALL_DATA all_data;
 	memset(&all_data,0,sizeof(struct ALL_DATA));
 	
-	/*set global variables*/
+	/*allocate global variables*/
 	global = g_new0(struct GLOBAL, 1);
-
 	initGlobals(global);
+	
+	/*------------------------- reads configuration file ---------------------*/
+	readConf(global);
+	/*------------------------ reads command line options --------------------*/
+	readOpts(argc,argv,global);
+	
+	/*---------------------------------- Allocations -------------------------*/
 	
 	gwidget = g_new0(struct GWIDGET, 1);
 
@@ -221,24 +235,16 @@ int main(int argc, char *argv[])
 	GtkWidget *FiltUpturnEnable;
 	GtkWidget *FiltNegateEnable;
 	GtkWidget *FiltMonoEnable;
-	
-	size_t stacksize;
 
 	s = g_new0(struct VidState, 1);
 	
 	pdata = g_new0(struct paRecordData, 1);
 	
 	/*create mutex for sound buffers*/
-	pthread_mutex_init(&pdata->mutex, NULL);
-	//pdata->cond = PTHREAD_COND_INITIALIZER;
+	pdata->mutex = g_mutex_new();
 	
 	/* Allocate the avi_t struct */
 	AviOut = g_new0(struct avi_t, 1);
-
-	readConf(global);
-
-	/*------------------------ reads command line options --------------------*/
-	readOpts(argc,argv,global);
    
 #ifdef ENABLE_NLS
 	/* if --verbose mode set do debug*/
@@ -275,8 +281,7 @@ int main(int argc, char *argv[])
 	all_data.gwidget = gwidget;
 	all_data.s = s;
 	all_data.EXEC_CALL = EXEC_CALL;
-	all_data.pattr = &attr;
-	all_data.pmythread = &mythread;
+	//all_data.video_thread = video_thread; /*declare after thread creation*/
 	
 	if ((ret=init_videoIn
 		(videoIn, (char *) global->videodevice, global->width,global->height, 
@@ -1144,20 +1149,25 @@ int main(int argc, char *argv[])
 	all_data.AFdata = AFdata;
 	
 	/*------------------ Creating the main loop (video) thread ---------------*/
-	/* Initialize and set thread detached attribute */
-	stacksize = sizeof(char) * global->stack_size;
-	pthread_attr_init(&attr);
-	pthread_attr_setstacksize (&attr, stacksize);
-	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
-	
-	int rc = pthread_create(&mythread, &attr, main_loop, (void *) &all_data); 
-	if (rc) 
+	GError *err1 = NULL;
+
+	if( (video_thread = g_thread_create_full((GThreadFunc) main_loop, 
+		(void *) &all_data,       //data - argument supplied to thread
+		global->stack_size,       //stack size
+		TRUE,                     //joinable
+		FALSE,                    //bound
+		G_THREAD_PRIORITY_NORMAL, //priority - no priority for threads in GNU-Linux
+		&err1)                    //error
+	) == NULL)
 	{
-		printf("ERROR; return code from pthread_create() is %d\n", rc);
+		printf("Thread create failed: %s!!\n", err1->message );
+		g_error_free ( err1 ) ;
+
 		ERR_DIALOG (N_("Guvcview error:\n\nUnable to create Video Thread"),
 			N_("Please report it to http://developer.berlios.de/bugs/?group_id=8179"),
 			&all_data);      
 	}
+	all_data.video_thread = video_thread;
 	
 	/*---------------------- image timed capture -----------------------------*/
 	if(global->image_timer)

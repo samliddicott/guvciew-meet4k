@@ -25,7 +25,7 @@
 #include <stdlib.h>
 #include <linux/videodev.h>
 #include <string.h>
-#include <pthread.h>
+//#include <pthread.h>
 #include <portaudio.h>
 #include <SDL/SDL.h>
 #include <glib.h>
@@ -59,11 +59,7 @@ void *main_loop(void *data)
 	struct vdIn *videoIn = all_data->videoIn;
 	struct avi_t *AviOut = all_data->AviOut;
 
-	pthread_t pth_press_butt;
-	pthread_attr_t pth_press_attr;
-	
-	pthread_attr_init(&pth_press_attr);
-	pthread_attr_setdetachstate(&pth_press_attr, PTHREAD_CREATE_DETACHED);
+	GThread *press_butt_thread;
 	
 	SDL_Event event;
 	/*the main SDL surface*/
@@ -90,10 +86,6 @@ void *main_loop(void *data)
 		if (last_focus < 0) last_focus=255;
 		//printf("last_focus is %d and focus is %d\n",last_focus, AFdata->focus);
 	}
-
-	/*gets the stack size for the thread (DEBUG)*/ 
-	//pthread_attr_getstacksize (&attr, &videostacksize);
-	//if (global->debug) printf("Video Thread: stack size = %d bytes \n", (int) videostacksize);
 	
 	static Uint32 SDL_VIDEO_Flags =
 		SDL_ANYFORMAT | SDL_DOUBLEBUF | SDL_RESIZABLE;
@@ -199,7 +191,7 @@ void *main_loop(void *data)
 			videoIn->signalquit=0;
 			g_snprintf(global->WVcaption,20,"GUVCVideo - CRASHED");
 			SDL_WM_SetCaption(global->WVcaption, NULL);
-			pthread_exit((void *) 2);
+			g_thread_exit((void *) 2);
 		} 
 		else 
 		{
@@ -481,11 +473,17 @@ void *main_loop(void *data)
 			{
 				if (AVI_getErrno () == AVI_ERR_SIZELIM) 
 				{
+					GError *err1 = NULL;
+					
 					/*avi file limit reached - must end capture close file and start new one*/
-					int rc = pthread_create(&pth_press_butt, &pth_press_attr, split_avi, all_data); 
-					if (rc) 
+					if( (press_butt_thread =g_thread_create((GThreadFunc) split_avi, 
+						all_data, //data
+						FALSE,    //joinable - no need waiting for thread to finish
+						&err1)    //error
+					) == NULL)  
 					{
-						fprintf(stderr,"ERROR; return code from pthread_create(press_butt) is %d\n", rc);
+						printf("Thread create failed: %s!!\n", err1->message );
+						g_error_free ( err1 ) ;
 						split_avi(all_data); /*blocking call*/
 					}
 					printf("AVI file size limit reached - restarted capture on new file\n");
@@ -535,16 +533,16 @@ void *main_loop(void *data)
 				/*lock the mutex because we are reading from the audio buffer*/
 				if(global->Sound_Format == WAVE_FORMAT_PCM) 
 				{
-					pthread_mutex_lock( &pdata->mutex );
+					g_mutex_lock( pdata->mutex );
 					ret=AVI_write_audio(AviOut,(BYTE *) pdata->avi_sndBuff,pdata->snd_numBytes);
-					pthread_mutex_unlock( &pdata->mutex );
+					g_mutex_unlock( pdata->mutex );
 				}
 				else if(global->Sound_Format == ISO_FORMAT_MPEG12)
 				{
-					pthread_mutex_lock( &pdata->mutex );
+					g_mutex_lock( pdata->mutex );
 					int size_mp2 = MP2_encode(pdata,0);
 					ret=AVI_write_audio(AviOut,pdata->mp2Buff,size_mp2);
-					pthread_mutex_unlock( &pdata->mutex );
+					g_mutex_unlock( pdata->mutex );
 				}
 		
 				pdata->audio_flag=0;
@@ -554,14 +552,18 @@ void *main_loop(void *data)
 				{	
 					if (AVI_getErrno () == AVI_ERR_SIZELIM) 
 					{
+						GError *err1 = NULL;
+					
 						/*avi file limit reached - must end capture close file and start new one*/
-						/*from a thread - non blocking                                          */
-						/* since were emiting signals maybe the thread is not really necessary  */
-						int rc = pthread_create(&pth_press_butt, &pth_press_attr, split_avi,all_data); 
-						if (rc) 
+						if( (press_butt_thread =g_thread_create((GThreadFunc) split_avi, 
+							all_data, //data
+							FALSE,    //joinable - no need waiting for thread to finish
+							&err1)    //error
+						) == NULL)  
 						{
-							printf("ERROR; return code from pthread_create(press_butt) is %d\n", rc);
-							split_avi(all_data); /*? blocking call ?*/
+							printf("Thread create failed: %s!!\n", err1->message );
+							g_error_free ( err1 ) ;
+							split_avi(all_data); /*blocking call*/
 						}
 						printf("AVI file size limit reached - restarted capture on new file\n");
 					} 
@@ -579,7 +581,7 @@ void *main_loop(void *data)
 		
 			/*perform a mutex lock on the buffers to make sure they are not released*/
 			/*while performing read operations- close_sound() may be running          */
-			pthread_mutex_lock( &pdata->mutex);
+			g_mutex_lock( pdata->mutex);
 		
 			if(global->Sound_Format == WAVE_FORMAT_PCM)
 			{
@@ -601,7 +603,7 @@ void *main_loop(void *data)
 					AVI_write_audio(AviOut,pdata->mp2Buff,size_mp2);
 				}
 			}
-			pthread_mutex_unlock( &pdata->mutex );
+			g_mutex_unlock( pdata->mutex );
 			/* can safely close sound now, no more data to record*/
 			pdata->audio_flag=0;
 			pdata->recording=0;
@@ -661,8 +663,6 @@ void *main_loop(void *data)
 		}
 
 	}/*loop end*/
-
-	pthread_attr_destroy(&pth_press_attr);
 	
 	/*check if thread exited while AVI in capture mode*/
 	if (videoIn->capAVI) 
@@ -692,5 +692,5 @@ void *main_loop(void *data)
 	AFdata = NULL;
 	videoIn = NULL;
 	AviOut = NULL;
-	pthread_exit((void *) 0);
+	return ((void *) 0);
 }
