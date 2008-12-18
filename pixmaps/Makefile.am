@@ -18,9 +18,9 @@ clean-all: clean
 
 .menu:
 	if test -e guvcview; then\
-		echo "guvcview menu file exists";\
+		echo "guvcview debian menu file exists";\
 	else\
-		echo "Creating menu file";\
+		echo "Creating debian menu file";\
 		rm -f guvcview.menu;\
 		touch guvcview.menu;\
 		echo "?package(guvcview): needs=\"X11\" section=\"Applications/Video\" \\" >> guvcview.menu;\
@@ -38,6 +38,7 @@ clean-all: clean
 		rm -f guvcview.desktop_;\
 		touch guvcview.desktop_;\
 		echo "[Desktop Entry]" >> guvcview.desktop_;\
+		echo "Version=1.0" >> guvcview.desktop_;\
 		echo "Name=guvcview" >> guvcview.desktop_;\
 		echo "GenericName=GTK UVC video viewer" >> guvcview.desktop_;\
 		echo "Comment=A video viewer and capturer for the linux uvc driver" >> guvcview.desktop_;\
