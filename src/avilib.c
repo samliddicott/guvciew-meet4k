@@ -228,109 +228,6 @@ static int avi_add_index_entry(struct avi_t *AVI, BYTE *tag, long flags, long po
 #define S_IXOTH       00001       /* execute permission: other */
 #endif
 
-/*
-   AVI_open_output_file: Open an AVI File and write a bunch
-                         of zero bytes as space for the header.
-
-   returns a pointer to avi_t on success, a zero pointer on error
-*/
-
-int AVI_open_output_file(struct avi_t *AVI, const char * filename)
-{
-	int i;
-	BYTE AVI_header[HEADERBYTES];
-	//int mask = 0; 
-   
-	/*resets AVI struct*/ 
-	memset((void *)AVI,0,sizeof(struct avi_t));
-   
-	/* Since Linux needs a long time when deleting big files,
-	we do not truncate the file when we open it.
-	Instead it is truncated when the AVI file is closed */
-	AVI->fdes = open(filename, O_RDWR|O_CREAT,
-		S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH);
-	
-	//AVI->fdes = open(filename,O_RDWR|O_CREAT|O_BINARY,0644 &~mask);
-	if (AVI->fdes < 0)
-	{
-		AVI_errno = AVI_ERR_OPEN;
-		//free(AVI);
-		return -1;
-	}
-
-	/* Write out HEADERBYTES bytes, the header will go here
-	when we are finished with writing */
-
-	for (i=0;i<HEADERBYTES;i++) AVI_header[i] = 0;
-	i = avi_write(AVI->fdes,AVI_header,HEADERBYTES);
-	if (i != HEADERBYTES)
-	{
-		close(AVI->fdes);
-		AVI_errno = AVI_ERR_WRITE;
-		//free(AVI);
-		return -2;
-	}
-
-	AVI->pos  = HEADERBYTES;
-	AVI->mode = AVI_MODE_WRITE; /* open for writing */
-
-	//init
-	AVI->anum = 0;
-	AVI->aptr = 0;
-	
-	return 0;
-}
-
-void AVI_set_video(struct avi_t *AVI, int width, int height, double fps, char *compressor)
-{
-	/* may only be called if file is open for writing */
-
-	if(AVI->mode==AVI_MODE_READ) return;
-
-	AVI->width  = width;
-	AVI->height = height;
-	AVI->fps    = fps; /* just in case avi doesn't close properly */
-			   /* it will be set at close                 */
-	if(strncmp(compressor, "RGB", 3)==0) 
-	{
-		memset(AVI->compressor, 0, 4);
-	} 
-	else 
-	{
-		memcpy(AVI->compressor,compressor,4);
-	}
-   
-	AVI->compressor[4] = 0;
-	avi_update_header(AVI);
-
-}
-
-void AVI_set_audio(struct avi_t *AVI, int channels, long rate, int mpgrate, int bits, int format)
-{
-	/* may only be called if file is open for writing */
-
-	if(AVI->mode==AVI_MODE_READ) return;
-
-	//inc audio tracks
-	AVI->aptr=AVI->anum;
-	++AVI->anum;
-
-	if(AVI->anum > AVI_MAX_TRACKS) 
-	{
-		fprintf(stderr, "error - only %d audio tracks supported\n", AVI_MAX_TRACKS);
-		exit(1);
-	}
-   
-	AVI->track[AVI->aptr].audio_bytes = 0;
-	AVI->track[AVI->aptr].a_chans = channels;
-	AVI->track[AVI->aptr].a_rate  = rate;
-	AVI->track[AVI->aptr].a_bits  = bits;
-	AVI->track[AVI->aptr].a_fmt   = format;
-	AVI->track[AVI->aptr].mpgrate = mpgrate;
-
-	avi_update_header(AVI);
-
-}
 
 #define OUT4CC(s) \
    if(nhb<=HEADERBYTES-4) memcpy(AVI_header+nhb,s,4); nhb += 4
@@ -360,7 +257,7 @@ void AVI_set_audio(struct avi_t *AVI, int channels, long rate, int mpgrate, int 
    }
 
 //ThOe write preliminary AVI file header: 0 frames, max vid/aud size
-int avi_update_header(struct avi_t *AVI)
+static int avi_update_header(struct avi_t *AVI)
 {
 	int njunk, sampsize, hasIndex, ms_per_frame, frate, flag;
 	int movi_len, hdrl_start, strl_start, j;
@@ -619,6 +516,121 @@ int avi_update_header(struct avi_t *AVI)
 	}
 
 	return 0;
+}
+
+/*
+   first function to get called
+   
+   AVI_open_output_file: Open an AVI File and write a bunch
+                         of zero bytes as space for the header.
+                         Creates a mutex.
+
+   returns a pointer to avi_t on success, a zero pointer on error
+*/
+
+int AVI_open_output_file(struct avi_t *AVI, const char * filename)
+{
+	int i;
+	BYTE AVI_header[HEADERBYTES];
+	//int mask = 0; 
+   
+	/*resets AVI struct*/ 
+	memset((void *)AVI,0,sizeof(struct avi_t));
+	/*create a new mutex*/
+	AVI->mutex = g_mutex_new();
+	AVI->closed = 0; /*opened - recordind*/
+	
+	/* Since Linux needs a long time when deleting big files,
+	we do not truncate the file when we open it.
+	Instead it is truncated when the AVI file is closed */
+	AVI->fdes = open(filename, O_RDWR|O_CREAT,
+		S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH);
+	
+	//AVI->fdes = open(filename,O_RDWR|O_CREAT|O_BINARY,0644 &~mask);
+	if (AVI->fdes < 0)
+	{
+		AVI_errno = AVI_ERR_OPEN;
+		g_mutex_free(AVI->mutex);
+		//free(AVI);
+		return -1;
+	}
+
+	/* Write out HEADERBYTES bytes, the header will go here
+	when we are finished with writing */
+
+	for (i=0;i<HEADERBYTES;i++) AVI_header[i] = 0;
+	i = avi_write(AVI->fdes,AVI_header,HEADERBYTES);
+	if (i != HEADERBYTES)
+	{
+		close(AVI->fdes);
+		AVI_errno = AVI_ERR_WRITE;
+		g_mutex_free(AVI->mutex);
+		//free(AVI);
+		return -2;
+	}
+
+	AVI->pos  = HEADERBYTES;
+	AVI->mode = AVI_MODE_WRITE; /* open for writing */
+
+	//init
+	AVI->anum = 0;
+	AVI->aptr = 0;
+	
+	return 0;
+}
+
+void AVI_set_video(struct avi_t *AVI, int width, int height, double fps, char *compressor)
+{
+	/* may only be called if file is open for writing */
+
+	if(AVI->mode==AVI_MODE_READ) return;
+
+	g_mutex_lock(AVI->mutex);
+		AVI->width  = width;
+		AVI->height = height;
+		AVI->fps    = fps; /* just in case avi doesn't close properly */
+			   /* it will be set at close                 */
+		if(strncmp(compressor, "RGB", 3)==0) 
+		{
+			memset(AVI->compressor, 0, 4);
+		} 
+		else 
+		{
+			memcpy(AVI->compressor,compressor,4);
+		}
+   
+		AVI->compressor[4] = 0;
+		avi_update_header(AVI);
+	g_mutex_unlock(AVI->mutex);
+
+}
+
+void AVI_set_audio(struct avi_t *AVI, int channels, long rate, int mpgrate, int bits, int format)
+{
+	/* may only be called if file is open for writing */
+
+	if(AVI->mode==AVI_MODE_READ) return;
+
+	g_mutex_lock(AVI->mutex);
+		//inc audio tracks
+		AVI->aptr=AVI->anum;
+		++AVI->anum;
+
+		if(AVI->anum > AVI_MAX_TRACKS) 
+		{
+			fprintf(stderr, "error - only %d audio tracks supported\n", AVI_MAX_TRACKS);
+			exit(1);
+		}
+   
+		AVI->track[AVI->aptr].audio_bytes = 0;
+		AVI->track[AVI->aptr].a_chans = channels;
+		AVI->track[AVI->aptr].a_rate  = rate;
+		AVI->track[AVI->aptr].a_bits  = bits;
+		AVI->track[AVI->aptr].a_fmt   = format;
+		AVI->track[AVI->aptr].mpgrate = mpgrate;
+
+		avi_update_header(AVI);
+	g_mutex_unlock(AVI->mutex);
 }
 
 /*
@@ -1016,7 +1028,7 @@ static int avi_close_output_file(struct avi_t *AVI)
 	return 0;
 }
 /*
-   AVI_write_data:
+   avi_write_data:
    Add video or audio data to the file;
 
    Return values:
@@ -1071,15 +1083,17 @@ int AVI_write_frame(struct avi_t *AVI, BYTE *data, long bytes, int keyframe)
 
 	if(AVI->mode==AVI_MODE_READ) { AVI_errno = AVI_ERR_NOT_PERM; return -1; }
 
-	pos = AVI->pos;
-	ret = avi_write_data(AVI,data,bytes,0, keyframe);
+	g_mutex_lock( AVI->mutex);
+		pos = AVI->pos;
+		ret = avi_write_data(AVI,data,bytes,0, keyframe);
    
-	if(!(ret < 0)) 
-	{
-		AVI->last_pos = pos;
-		AVI->last_len = bytes;
-		AVI->video_frames++;
-	}
+		if(!(ret < 0)) 
+		{
+			AVI->last_pos = pos;
+			AVI->last_len = bytes;
+			AVI->video_frames++;
+		}
+	g_mutex_unlock( AVI->mutex);
 	return ret;
 }
 
@@ -1089,9 +1103,11 @@ int AVI_dup_frame(struct avi_t *AVI)
 
 	if(AVI->last_pos==0) return 0; /* No previous real frame */
 
-	if(avi_add_index_entry(AVI,(BYTE *) "00dc",0x10,AVI->last_pos,AVI->last_len)) return -1;
-	AVI->video_frames++;
-	AVI->must_use_index = 1;
+	g_mutex_lock( AVI->mutex);
+		if(avi_add_index_entry(AVI,(BYTE *) "00dc",0x10,AVI->last_pos,AVI->last_len)) return -1;
+		AVI->video_frames++;
+		AVI->must_use_index = 1;
+	g_mutex_unlock( AVI->mutex);
 	return 0;
 }
 
@@ -1100,13 +1116,15 @@ int AVI_write_audio(struct avi_t *AVI, BYTE *data, long bytes)
 	int ret=0;
 	if(AVI->mode==AVI_MODE_READ) { AVI_errno = AVI_ERR_NOT_PERM; return -1; }
 
-	ret = avi_write_data(AVI,data,bytes,1,0);
+	g_mutex_lock( AVI->mutex);
+		ret = avi_write_data(AVI,data,bytes,1,0);
    
-	if(!(ret<0)) 
-	{
-		AVI->track[AVI->aptr].audio_bytes += bytes;
-		AVI->track[AVI->aptr].audio_chunks++;
-	}
+		if(!(ret<0)) 
+		{
+			AVI->track[AVI->aptr].audio_bytes += bytes;
+			AVI->track[AVI->aptr].audio_chunks++;
+		}
+	g_mutex_unlock( AVI->mutex);
 	return ret;
 }
 
@@ -1121,32 +1139,33 @@ int AVI_append_audio(struct avi_t *AVI, BYTE *data, long bytes)
 	if(AVI->mode==AVI_MODE_READ) { AVI_errno = AVI_ERR_NOT_PERM; return -1; }
   
 	// update last index entry:
-  
-	--AVI->n_idx;
-	length = str2ulong(AVI->idx[AVI->n_idx]+12);
-	pos    = str2ulong(AVI->idx[AVI->n_idx]+8);
+	g_mutex_lock( AVI->mutex);
+		--AVI->n_idx;
+		length = str2ulong(AVI->idx[AVI->n_idx]+12);
+		pos    = str2ulong(AVI->idx[AVI->n_idx]+8);
 
-	//update;
-	long2str(AVI->idx[AVI->n_idx]+12,length+bytes);
+		//update;
+		long2str(AVI->idx[AVI->n_idx]+12,length+bytes);
 
-	++AVI->n_idx;
+		++AVI->n_idx;
 
-	AVI->track[AVI->aptr].audio_bytes += bytes;
+		AVI->track[AVI->aptr].audio_bytes += bytes;
 
-	//update chunk header
-	//xio_lseek(AVI->fdes, pos+4, SEEK_SET);
-	lseek(AVI->fdes, pos+4, SEEK_SET);	
-	long2str(c, length+bytes);     
-	avi_write(AVI->fdes, c, 4);
+		//update chunk header
+		//xio_lseek(AVI->fdes, pos+4, SEEK_SET);
+		lseek(AVI->fdes, pos+4, SEEK_SET);	
+		long2str(c, length+bytes);     
+		avi_write(AVI->fdes, c, 4);
 
-	//xio_lseek(AVI->fdes, pos+8+length, SEEK_SET);
-	lseek(AVI->fdes, pos+8+length, SEEK_SET);
-	i=PAD_EVEN(length + bytes);
+		//xio_lseek(AVI->fdes, pos+8+length, SEEK_SET);
+		lseek(AVI->fdes, pos+8+length, SEEK_SET);
+		i=PAD_EVEN(length + bytes);
 
-	bytes = i - length;
-	avi_write(AVI->fdes, data, bytes);
-	AVI->pos = pos + 8 + i;
-
+		bytes = i - length;
+		avi_write(AVI->fdes, data, bytes);
+		AVI->pos = pos + 8 + i;
+	g_mutex_unlock( AVI->mutex);
+	
 	return 0;
 }
 
@@ -1193,30 +1212,25 @@ int AVI_close(struct avi_t *AVI)
 	/* If the file was open for writing, the header and index still have
 	to be written */
 	
-	if(AVI->mode == AVI_MODE_WRITE)
-		ret = avi_close_output_file(AVI);
-	else
-		ret = 0;
+	g_mutex_lock( AVI->mutex);
+		AVI->closed = 1; /*closed - not recording*/
+		if(AVI->mode == AVI_MODE_WRITE)
+			ret = avi_close_output_file(AVI);
+		else
+			ret = 0;
 
-	/* Even if there happened a error, we first clean up */
-
-	close(AVI->fdes);
-	if(AVI->idx) free(AVI->idx);
-	if(AVI->video_index) free(AVI->video_index);
-	for (j=0; j<AVI->anum; j++) 
-	{
-		AVI->track[j].audio_bytes=0;	   
-		if(AVI->track[j].audio_index) free(AVI->track[j].audio_index);
-	}
-
-	// if (AVI->bitmap_info_header)
-	// free(AVI->bitmap_info_header);
-	//for (j = 0; j < AVI->anum; j++)
-	// if (AVI->wave_format_ex[j])
-	// free(AVI->wave_format_ex[j]);
-	
-	//free(AVI);
-	//AVI=NULL;
+		/* Even if there happened a error, we first clean up */
+		close(AVI->fdes);
+		if(AVI->idx) free(AVI->idx);
+		if(AVI->video_index) free(AVI->video_index);
+		for (j=0; j<AVI->anum; j++) 
+		{
+			AVI->track[j].audio_bytes=0;  
+			if(AVI->track[j].audio_index) free(AVI->track[j].audio_index);
+		}
+	g_mutex_unlock( AVI->mutex);
+	/*free the mutex*/
+	g_mutex_free(AVI->mutex);
 	return ret;
 }
 

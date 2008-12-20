@@ -41,8 +41,6 @@ recordCallback (const void *inputBuffer, void *outputBuffer,
 	int i;
 	int numSamples=framesPerBuffer*data->channels;
 
-	/*will be reset to 0 after all audio has been writen to AVI*/
-	data->recording=1;
 	/*set to zero on paComplete*/    
 	data->streaming=1;
 
@@ -74,8 +72,8 @@ recordCallback (const void *inputBuffer, void *outputBuffer,
 		// This is not a good idea as it may cause data loss
 		//but since we sould never have to wait, it shouldn't be a problem.
 		g_mutex_lock( data->mutex);
-		data->snd_numBytes = data->numSamples*sizeof(SAMPLE);
-		memcpy(data->avi_sndBuff, data->recordedSamples ,data->snd_numBytes);
+			data->snd_numBytes = data->numSamples*sizeof(SAMPLE);
+			memcpy(data->avi_sndBuff, data->recordedSamples ,data->snd_numBytes);
 		g_mutex_unlock( data->mutex );
 		data->sampleIndex=0;
 		data->numSamples = 0;
@@ -147,7 +145,7 @@ init_sound(struct paRecordData* data)
 	data->sampleIndex = 0;
 	
 	data->audio_flag = 0;
-	data->recording = 0;
+	data->flush = 0;
 	data->streaming = 0;
 	
 	/*secondary shared buffer*/
@@ -191,7 +189,7 @@ error:
 	fprintf( stderr, "Error number: %d\n", err );
 	fprintf( stderr, "Error message: %s\n", Pa_GetErrorText( err ) ); 
 	data->streaming=0;
-	data->recording=0;
+	data->flush=0;
 	Pa_Terminate();
 	g_free( data->recordedSamples );
 	data->recordedSamples=NULL;
@@ -204,7 +202,6 @@ error:
 int
 close_sound (struct paRecordData *data) 
 {
-	int stall=30;
 	int err =0;
 	/*stops and closes the audio stream*/
 	err = Pa_StopStream( data->stream );
@@ -214,36 +211,37 @@ close_sound (struct paRecordData *data)
 	if( err != paNoError ) goto error; 
 	
 	/*wait for last audio chunks to be saved on video file */
-	while (( data->streaming || data->audio_flag || data->recording ) &&
-		(stall>0)) 
+	int stall = wait_ms( &data->streaming, FALSE, 10, 30 );
+	if(!(stall)) 
 	{
-		Pa_Sleep(100);
-		stall--; /*prevents stalls (waits at max 30*100 ms)*/
-	}
-	
-	if(!(stall>0)) 
-	{
-		printf("WARNING:sound capture stall (streaming=%d flag=%d recording=%d)\n",
-			data->streaming, data->audio_flag, data->recording);
+		printf("WARNING:sound capture stall (still streaming(%d) \n",
+			data->streaming);
 
 		data->streaming = 0;
-		data->audio_flag = 0;
-		data->recording  = 0;
-		Pa_Sleep(500); /* wait 500ms so any pending read may finish    */
 	}
+	stall = wait_ms( &data->audio_flag, FALSE, 10, 40 );
+	if(!(stall)) 
+	{
+		printf("WARNING:sound capture stall (data left on buffer(%d) \n",
+			data->audio_flag);
+		data->audio_flag = 0;
+		Pa_Sleep(200); /* wait another 200ms so any pending read may finish*/
+	}
+	
+	data->flush = 0;
 	/*---------------------------------------------------------------------*/
 	/*make sure no operations are performed on the buffers*/
 	g_mutex_lock( data->mutex);
-	/*free primary buffer*/
-	g_free( data->recordedSamples  );
-	data->recordedSamples=NULL;
+		/*free primary buffer*/
+		g_free( data->recordedSamples  );
+		data->recordedSamples=NULL;
 	
-	Pa_Terminate();
+		Pa_Terminate();
 	
-	g_free(data->avi_sndBuff);
-	data->avi_sndBuff = NULL;
-	g_free(data->mp2Buff);
-	data->mp2Buff = NULL;
+		g_free(data->avi_sndBuff);
+		data->avi_sndBuff = NULL;
+		g_free(data->mp2Buff);
+		data->mp2Buff = NULL;
 	g_mutex_unlock( data->mutex );
 	
 	return (0);
@@ -251,17 +249,17 @@ error:
 	fprintf( stderr, "An error occured while closing the portaudio stream\n" );
 	fprintf( stderr, "Error number: %d\n", err );
 	fprintf( stderr, "Error message: %s\n", Pa_GetErrorText( err ) );
-	data->recording=0;
+	data->flush=0;
 	data->audio_flag=0;
 	data->streaming=0;
 	g_mutex_lock( data->mutex);
-	g_free( data->recordedSamples );
-	data->recordedSamples=NULL;
-	Pa_Terminate();
-	g_free(data->avi_sndBuff);
-	data->avi_sndBuff = NULL;
-	g_free(data->mp2Buff);
-	data->mp2Buff = NULL;
+		g_free( data->recordedSamples );
+		data->recordedSamples=NULL;
+		Pa_Terminate();
+		g_free(data->avi_sndBuff);
+		data->avi_sndBuff = NULL;
+		g_free(data->mp2Buff);
+		data->mp2Buff = NULL;
 	g_mutex_unlock( data->mutex );
 	return(-1);
 }

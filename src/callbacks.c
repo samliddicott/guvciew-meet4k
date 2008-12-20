@@ -147,8 +147,10 @@ aviClose (struct ALL_DATA *all_data)
 
 	struct vdIn *videoIn = all_data->videoIn;
 	struct avi_t *AviOut = all_data->AviOut;
+	
+	
 
-	if (AviOut)
+	if (!(AviOut->closed))
 	{
 		tottime = global->AVIstoptime - global->AVIstarttime;
 		if (global->debug) printf("stop= %d start=%d \n",global->AVIstoptime,global->AVIstarttime);
@@ -167,11 +169,36 @@ aviClose (struct ALL_DATA *all_data)
 		/*------------------- close audio stream and clean up -------------------*/
 		if (global->Sound_enable > 0) 
 		{
-			/*if there is audio data drop it*/  
+			/*write any available audio data*/  
 			if(pdata->audio_flag)
 			{
-			printf("droped %d bytes of audio data\n",pdata->snd_numBytes);   
+				fprintf(stderr,"writing %d bytes of audio data\n",pdata->snd_numBytes);
+				g_mutex_lock( pdata->mutex);
+					if(global->Sound_Format == WAVE_FORMAT_PCM)
+					{
+						if(pdata->avi_sndBuff) 
+						{
+							AVI_write_audio(AviOut,(BYTE *) pdata->avi_sndBuff,pdata->snd_numBytes);
+						}
+					}
+					else if (global->Sound_Format == ISO_FORMAT_MPEG12)
+					{
+						int size_mp2=0;
+						if(pdata->avi_sndBuff && pdata->mp2Buff) 
+						{
+							size_mp2 = MP2_encode(pdata,0);
+							AVI_write_audio(AviOut,pdata->mp2Buff,size_mp2);
+							pdata->flush = 1; /*flush mp2 encoder*/
+							size_mp2 = MP2_encode(pdata,0);
+							AVI_write_audio(AviOut,pdata->mp2Buff,size_mp2);
+							pdata->flush = 0;
+						}
+					}
+				g_mutex_unlock( pdata->mutex );
+				
 			}
+			pdata->audio_flag = 0; /*all audio should have been writen by now*/
+			
 			if (close_sound (pdata)) printf("Sound Close error\n");
 			if(global->Sound_Format == ISO_FORMAT_MPEG12) close_MP2_encoder();
 		} 
@@ -1050,22 +1077,22 @@ capture_avi (GtkButton *AVIButt, struct ALL_DATA *all_data)
 	
 	if(videoIn->capAVI) 
 	{	/****************** Stop AVI ************************/
-		struct timespec *rqtp = g_new0(struct timespec, 1);
-		struct timespec *rmtp = g_new0(struct timespec, 1);
-		int n=0;
-		rqtp->tv_sec=0;
-		rqtp->tv_nsec=2*1000; /*2 ms*/
 		gtk_button_set_label(AVIButt,_("Cap. AVI"));
-		videoIn->capAVI = FALSE;
+		videoIn->capAVI = FALSE; /*flag video thread to stop recording frames*/
 		pdata->capAVI = videoIn->capAVI;
-		while(!(videoIn->AVICapStop) && n<500) /*wait at max 500*2 ms (1 s)*/
-		{
-			n++; /*500 iterations at max*/
-			nanosleep(rqtp,rmtp);/*sleep for 2 ms*/
-		};
-		g_free(rqtp);
-		g_free(rmtp);
 		
+		ULLONG beg=ns_time();
+		/*wait for flag from video thread that recording has stopped    */
+		/*wait on videoIn->AVICapStop by sleeping for 200 loops of 10 ms*/
+		/*(test AVICapStop == TRUE on every loop)*/
+		int stall = wait_ms(&(videoIn->AVICapStop), TRUE, 10, 200);
+		ULLONG stp=ns_time();
+		if( !(stall > 0) )
+		{
+			fprintf(stderr, "video capture stall on exit(%d) - timeout\n",
+				videoIn->AVICapStop);
+			printf("waited %llu ns\n",stp-beg);
+		}
 		global->AVIstoptime = ms_time();
 		aviClose(all_data);
 		/*enabling sound and avi compression controls*/

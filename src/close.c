@@ -93,30 +93,7 @@ shutd (gint restart, struct ALL_DATA *all_data)
 	if (global->debug) printf("Shuting Down Thread\n");
 	if(videoIn->signalquit > 0) videoIn->signalquit=0;
 	if (global->debug) printf("waiting for thread to finish\n");
-	/*shuting down while in avi capture mode*/
-	/*must close avi                        */
-	if(videoIn->capAVI) 
-	{
-		struct timespec *rqtp = g_new0(struct timespec, 1);
-		struct timespec *rmtp = g_new0(struct timespec, 1);
-		int n=0;
-		rqtp->tv_sec=0;
-		rqtp->tv_nsec=2*1000; /*2 ms*/
-		while(!(videoIn->AVICapStop) && n<500) /*wait at max 500*2 ms (1 s)*/
-		{
-			n++; /*500 iterations at max*/
-			nanosleep(rqtp,rmtp);/*sleep for 2 ms*/
-		};
-		g_free(rqtp);
-		g_free(rmtp);
-		
-		if (global->debug) printf("stoping AVI capture\n");
-		global->AVIstoptime = ms_time();
-		
-		videoIn->capAVI = FALSE;
-		pdata->capAVI = videoIn->capAVI;
-		aviClose(all_data);
-	}
+	
 	/* wait for the main loop (video) thread */
 
 	g_thread_join( video_thread );

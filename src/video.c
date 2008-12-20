@@ -153,9 +153,11 @@ void *main_loop(void *data)
 	SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY,SDL_DEFAULT_REPEAT_INTERVAL);
 	 
 	/*------------------------------ SDL init video ---------------------*/
-	pscreen =
-	SDL_SetVideoMode(videoIn->width, videoIn->height, global->bpp,
-			 SDL_VIDEO_Flags);
+	pscreen = SDL_SetVideoMode( videoIn->width, 
+		videoIn->height, 
+		global->bpp,
+		SDL_VIDEO_Flags);
+		 
 	switch (global->format) 
 	{
 		case V4L2_PIX_FMT_JPEG:
@@ -187,17 +189,17 @@ void *main_loop(void *data)
 		/*-------------------------- Grab Frame ----------------------------------*/
 		if (uvcGrab(videoIn) < 0) 
 		{
-			printf("Error grabbing image \n");
+			fprintf(stderr,"Error grabbing image \n");
 			videoIn->signalquit=0;
 			g_snprintf(global->WVcaption,20,"GUVCVideo - CRASHED");
 			SDL_WM_SetCaption(global->WVcaption, NULL);
-			g_thread_exit((void *) 2);
+			g_thread_exit((void *) -2);
 		} 
 		else 
 		{
 			/*reset video start time to first frame capture time */  
 			if((global->framecount==0) && videoIn->capAVI) global->AVIstarttime = ms_time();
-		
+
 			if (global->FpsCount) 
 			{/* sets fps count in window title bar */
 				global->frmCount++;
@@ -207,7 +209,7 @@ void *main_loop(void *data)
 					SDL_WM_SetCaption(global->WVcaption, NULL);
 					global->frmCount=0;/*resets*/
 					global->DispFps=0;
-				}				
+				}
 			}
 	
 			/*---------------- autofocus control ------------------*/
@@ -307,7 +309,6 @@ void *main_loop(void *data)
 		}
 	
 		/*-------------------------capture Image----------------------------------*/
-		//char fbasename[20];
 		if (videoIn->capImage)
 		{
 			switch(global->imgFormat) 
@@ -354,7 +355,7 @@ void *main_loop(void *data)
 						if(SaveBuff(videoIn->ImageFName,global->jpeg_size,global->jpeg)) 
 						{ 
 							fprintf (stderr,"Error: Couldn't capture Image to %s \n",
-							videoIn->ImageFName);		
+							videoIn->ImageFName);
 						}
 					}
 					break;
@@ -406,6 +407,7 @@ void *main_loop(void *data)
 		/*---------------------------capture AVI---------------------------------*/
 		if (videoIn->capAVI)
 		{
+			/*all video controls are now disabled so related values cannot be changed*/
 			videoIn->AVICapStop=FALSE;
 			long framesize;
 			int ret=0;
@@ -482,8 +484,9 @@ void *main_loop(void *data)
 						&err1)    //error
 					) == NULL)  
 					{
-						printf("Thread create failed: %s!!\n", err1->message );
+						fprintf(stderr, "Thread create failed: %s!!\n", err1->message );
 						g_error_free ( err1 ) ;
+						printf("using blocking method\n");
 						split_avi(all_data); /*blocking call*/
 					}
 					printf("AVI file size limit reached - restarted capture on new file\n");
@@ -499,9 +502,9 @@ void *main_loop(void *data)
 			/*----------------------- add audio -----------------------------*/
 			if ((global->Sound_enable) && (pdata->audio_flag>0)) 
 			{
-				/*first audio data - sync with video (audio stream capture can take          */ 
-				/*a bit longer to start)                                                     */
-				/* no need of locking the mutex yet, since we are not reading from the buffer*/
+				/*first audio data - sync with video (audio stream capture can take               */
+				/*a bit longer to start)                                                          */
+				/*no need of locking the audio mutex yet, since we are not reading from the buffer*/
 				if (!(AviOut->track[0].audio_bytes)) 
 				{ /*only 1 audio stream*/
 					/*time diff for audio-video*/
@@ -529,19 +532,20 @@ void *main_loop(void *data)
 						}
 					}
 				}
-				/*write audio chunk*/
+				
+				/*write audio chunk                                          */
 				/*lock the mutex because we are reading from the audio buffer*/
 				if(global->Sound_Format == WAVE_FORMAT_PCM) 
 				{
 					g_mutex_lock( pdata->mutex );
-					ret=AVI_write_audio(AviOut,(BYTE *) pdata->avi_sndBuff,pdata->snd_numBytes);
+						ret=AVI_write_audio(AviOut,(BYTE *) pdata->avi_sndBuff,pdata->snd_numBytes);
 					g_mutex_unlock( pdata->mutex );
 				}
 				else if(global->Sound_Format == ISO_FORMAT_MPEG12)
 				{
 					g_mutex_lock( pdata->mutex );
-					int size_mp2 = MP2_encode(pdata,0);
-					ret=AVI_write_audio(AviOut,pdata->mp2Buff,size_mp2);
+						int size_mp2 = MP2_encode(pdata,0);
+						ret=AVI_write_audio(AviOut,pdata->mp2Buff,size_mp2);
 					g_mutex_unlock( pdata->mutex );
 				}
 		
@@ -574,7 +578,7 @@ void *main_loop(void *data)
 				}
 			}
 		} /*video and audio capture have stopped but there is still audio available in the buffers*/
-		else if (pdata->audio_flag && !(pdata->streaming)) 
+		else if (pdata->audio_flag && !(pdata->streaming) && !(AviOut->closed)) 
 		{
 			/*write last audio data to avi*/
 			/*even if max file size reached we still have an extra 20M available*/
@@ -582,31 +586,30 @@ void *main_loop(void *data)
 			/*perform a mutex lock on the buffers to make sure they are not released*/
 			/*while performing read operations- close_sound() may be running          */
 			g_mutex_lock( pdata->mutex);
-		
-			if(global->Sound_Format == WAVE_FORMAT_PCM)
-			{
-				if(pdata->avi_sndBuff) 
+				if(global->Sound_Format == WAVE_FORMAT_PCM)
 				{
-					AVI_write_audio(AviOut,(BYTE *) pdata->avi_sndBuff,pdata->snd_numBytes);
+					if(pdata->avi_sndBuff) 
+					{
+						AVI_write_audio(AviOut,(BYTE *) pdata->avi_sndBuff,pdata->snd_numBytes);
+					}
 				}
-			}
-			else if (global->Sound_Format == ISO_FORMAT_MPEG12)
-			{
-				int size_mp2=0;
-				if(pdata->avi_sndBuff && pdata->mp2Buff) 
+				else if (global->Sound_Format == ISO_FORMAT_MPEG12)
 				{
-					size_mp2 = MP2_encode(pdata,0);
-					AVI_write_audio(AviOut,pdata->mp2Buff,size_mp2);
-					/*flush mp2 buffer*/
-					pdata->recording=0;
-					size_mp2 = MP2_encode(pdata,0);
-					AVI_write_audio(AviOut,pdata->mp2Buff,size_mp2);
+					int size_mp2=0;
+					if(pdata->avi_sndBuff && pdata->mp2Buff) 
+					{
+						size_mp2 = MP2_encode(pdata,0);
+						AVI_write_audio(AviOut,pdata->mp2Buff,size_mp2);
+						/*flush mp2 buffer*/
+						pdata->flush = 1;
+						size_mp2 = MP2_encode(pdata,0);
+						AVI_write_audio(AviOut,pdata->mp2Buff,size_mp2);
+						pdata->flush = 0;
+					}
 				}
-			}
 			g_mutex_unlock( pdata->mutex );
 			/* can safely close sound now, no more data to record*/
 			pdata->audio_flag=0;
-			pdata->recording=0;
 			
 			videoIn->AVICapStop=TRUE;
 		} 
@@ -667,9 +670,16 @@ void *main_loop(void *data)
 	/*check if thread exited while AVI in capture mode*/
 	if (videoIn->capAVI) 
 	{
+		/*stop capture*/
 		global->AVIstoptime = ms_time();
+		videoIn->AVICapStop=TRUE;
 		videoIn->capAVI = FALSE;
-		pdata->capAVI = videoIn->capAVI;   
+		pdata->capAVI = videoIn->capAVI;
+		
+		if (global->debug) printf("stoping AVI capture\n");
+		global->AVIstoptime = ms_time();
+
+		aviClose(all_data);   
 	}
 	if (global->debug) printf("Thread terminated...\n");
 

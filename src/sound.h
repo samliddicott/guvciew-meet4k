@@ -35,7 +35,7 @@ struct paRecordData
 	int channels;
 	int numSamples;
 	int streaming;
-	int recording;
+	int flush;
 	int audio_flag;
 	int samprate;
 	int numsec;

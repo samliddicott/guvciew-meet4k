@@ -94,7 +94,7 @@ MP2_encode(struct paRecordData* pdata, int ms_delay)
 	else
 	{
 		/*encode buffer*/
-		if (pdata->recording) 
+		if (!(pdata->flush)) 
 		{
 			int num_samples = pdata->snd_numBytes / (pdata->channels*sizeof(SAMPLE)); /*samples per channel*/
 			// Encode the audio

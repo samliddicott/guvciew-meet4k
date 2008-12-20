@@ -22,7 +22,9 @@
 
 #include <time.h>
 #include <sys/time.h>
+#include <glib.h>
 #include "ms_time.h"
+
 
 
 /*------------------------------ get time ------------------------------------*/
@@ -38,4 +40,26 @@ ULLONG ns_time (void)
 	static struct timespec ts;
 	clock_gettime(CLOCK_REALTIME, &ts);
 	return ((ULLONG) ts.tv_sec * 1000000000.0 + (ULLONG) ts.tv_nsec);
+}
+
+
+/*wait on cond by sleeping for n_loops of sleep_ms ms (test var==val every loop)*/
+/*return remaining number of loops (if 0 then a stall ocurred)              */
+int wait_ms(int *var, int val, int sleep_ms, int n_loops)
+{
+	struct timespec *rqtp = g_new0(struct timespec, 1);
+	struct timespec *rmtp = g_new0(struct timespec, 1);
+	int n=n_loops;
+	
+	rqtp->tv_sec=0;
+	rqtp->tv_nsec=sleep_ms*1000000; /*convert to ms*/ 
+	
+	while( (*var!=val) && ( n > 0 ) ) /*wait at max (n_loops*sleep_ms) ms */
+	{
+		n--;
+		nanosleep( rqtp, rmtp );/*sleep for sleep_ms ms*/
+	};
+	g_free(rqtp);
+	g_free(rmtp);
+	return (n);
 }

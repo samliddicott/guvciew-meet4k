@@ -36,6 +36,7 @@
 #include "defs.h"
 #include <inttypes.h>
 #include <sys/types.h>
+#include <glib.h>
 
 #define AVI_MAX_TRACKS 8
 #define FRAME_RATE_SCALE 1000000
@@ -139,6 +140,8 @@ struct avi_t
 {
 	long   fdes;              /* File descriptor of AVI file */
 	long   mode;              /* 0 for reading, 1 for writing */
+	GMutex *mutex;             /* avi mutex - since we write to avi from 2 threads*/
+	                          /* let's make it thead safe                        */
   
 	long   width;             /* Width  of a video frame */
 	long   height;            /* Height of a video frame */
@@ -184,6 +187,7 @@ struct avi_t
 
 	void*	extradata;
 	ULONG	extradata_size;
+	int closed; /* 0 - AVI is opened(recordind) 1 -AVI is closed (not recording)*/ 
 
 } __attribute__ ((packed));
 
@@ -298,7 +302,7 @@ int  AVI_append_audio(struct avi_t *AVI, BYTE *data, long bytes);
 ULONG AVI_bytes_remain(struct avi_t *AVI);
 int  AVI_close(struct avi_t *AVI);
 
-int avi_update_header(struct avi_t *AVI);
+//int avi_update_header(struct avi_t *AVI);
 int AVI_set_audio_track(struct avi_t *AVI, int track);
 void AVI_set_audio_vbr(struct avi_t *AVI, long is_vbr);
 
