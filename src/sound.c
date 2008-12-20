@@ -74,11 +74,11 @@ recordCallback (const void *inputBuffer, void *outputBuffer,
 		g_mutex_lock( data->mutex);
 			data->snd_numBytes = data->numSamples*sizeof(SAMPLE);
 			memcpy(data->avi_sndBuff, data->recordedSamples ,data->snd_numBytes);
+			//flags that secondary buffer as data (can be saved to file)
+			data->audio_flag=1;
 		g_mutex_unlock( data->mutex );
 		data->sampleIndex=0;
 		data->numSamples = 0;
-		//flags that secondary buffer as data (can be saved to file)
-		data->audio_flag=1;
 	}
 
 	if(data->capAVI) return (paContinue); /*still capturing*/
@@ -88,12 +88,14 @@ recordCallback (const void *inputBuffer, void *outputBuffer,
 		if(!(data->audio_flag)) 
 		{
 			/*need to copy remaining audio to secondary buffer*/
-			data->snd_numBytes = data->numSamples*sizeof(SAMPLE);
-			memcpy(data->avi_sndBuff, data->recordedSamples , data->snd_numBytes);
+			g_mutex_lock( data->mutex);
+				data->snd_numBytes = data->numSamples*sizeof(SAMPLE);
+				memcpy(data->avi_sndBuff, data->recordedSamples , data->snd_numBytes);
+				//flags that secondary buffer as data (can be saved to file)
+				data->audio_flag=1;
+			g_mutex_unlock( data->mutex);
 			data->sampleIndex=0;
 			data->numSamples = 0;
-			//flags that secondary buffer as data (can be saved to file)
-			data->audio_flag=1;
 		}
 		data->streaming=0;
 		return (paComplete);
@@ -104,7 +106,7 @@ void
 set_sound (struct GLOBAL *global, struct paRecordData* data) 
 {
 	if(global->Sound_SampRateInd==0)
-	   global->Sound_SampRate=global->Sound_IndexDev[global->Sound_UseDev].samprate;/*using default*/
+		global->Sound_SampRate=global->Sound_IndexDev[global->Sound_UseDev].samprate;/*using default*/
 	
 	if(global->Sound_NumChanInd==0) 
 	{

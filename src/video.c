@@ -578,41 +578,6 @@ void *main_loop(void *data)
 				}
 			}
 		} /*video and audio capture have stopped but there is still audio available in the buffers*/
-		else if (pdata->audio_flag && !(pdata->streaming) && !(AviOut->closed)) 
-		{
-			/*write last audio data to avi*/
-			/*even if max file size reached we still have an extra 20M available*/
-		
-			/*perform a mutex lock on the buffers to make sure they are not released*/
-			/*while performing read operations- close_sound() may be running          */
-			g_mutex_lock( pdata->mutex);
-				if(global->Sound_Format == WAVE_FORMAT_PCM)
-				{
-					if(pdata->avi_sndBuff) 
-					{
-						AVI_write_audio(AviOut,(BYTE *) pdata->avi_sndBuff,pdata->snd_numBytes);
-					}
-				}
-				else if (global->Sound_Format == ISO_FORMAT_MPEG12)
-				{
-					int size_mp2=0;
-					if(pdata->avi_sndBuff && pdata->mp2Buff) 
-					{
-						size_mp2 = MP2_encode(pdata,0);
-						AVI_write_audio(AviOut,pdata->mp2Buff,size_mp2);
-						/*flush mp2 buffer*/
-						pdata->flush = 1;
-						size_mp2 = MP2_encode(pdata,0);
-						AVI_write_audio(AviOut,pdata->mp2Buff,size_mp2);
-						pdata->flush = 0;
-					}
-				}
-			g_mutex_unlock( pdata->mutex );
-			/* can safely close sound now, no more data to record*/
-			pdata->audio_flag=0;
-			
-			videoIn->AVICapStop=TRUE;
-		} 
 		else videoIn->AVICapStop=TRUE;
 	
 		/*------------------------- Display Frame --------------------------------*/
@@ -678,7 +643,18 @@ void *main_loop(void *data)
 		
 		if (global->debug) printf("stoping AVI capture\n");
 		global->AVIstoptime = ms_time();
+		if (global->Sound_enable > 0) 
+		{
+			/*wait for audio to finish*/
+			int stall = wait_ms( &pdata->streaming, FALSE, 10, 30 );
+			if(!(stall)) 
+			{
+				printf("WARNING:sound capture stall (still streaming(%d) \n",
+					pdata->streaming);
 
+				pdata->streaming = 0;
+			}
+		}
 		aviClose(all_data);   
 	}
 	if (global->debug) printf("Thread terminated...\n");

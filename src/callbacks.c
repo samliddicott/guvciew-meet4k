@@ -195,7 +195,6 @@ aviClose (struct ALL_DATA *all_data)
 						}
 					}
 				g_mutex_unlock( pdata->mutex );
-				
 			}
 			pdata->audio_flag = 0; /*all audio should have been writen by now*/
 			
