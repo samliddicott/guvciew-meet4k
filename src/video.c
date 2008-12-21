@@ -640,21 +640,7 @@ void *main_loop(void *data)
 		videoIn->AVICapStop=TRUE;
 		videoIn->capAVI = FALSE;
 		pdata->capAVI = videoIn->capAVI;
-		
 		if (global->debug) printf("stoping AVI capture\n");
-		global->AVIstoptime = ms_time();
-		if (global->Sound_enable > 0) 
-		{
-			/*wait for audio to finish*/
-			int stall = wait_ms( &pdata->streaming, FALSE, 10, 30 );
-			if(!(stall)) 
-			{
-				printf("WARNING:sound capture stall (still streaming(%d) \n",
-					pdata->streaming);
-
-				pdata->streaming = 0;
-			}
-		}
 		aviClose(all_data);   
 	}
 	if (global->debug) printf("Thread terminated...\n");

@@ -28,13 +28,27 @@
 
 
 /*------------------------------ get time ------------------------------------*/
+/*in miliseconds*/
 DWORD ms_time (void)
 {
-	static struct timeval tod;
-	gettimeofday (&tod, NULL);
-	return ((DWORD) tod.tv_sec * 1000.0 + (DWORD) tod.tv_usec / 1000.0);
+	GTimeVal *tod;
+	tod = g_new0(GTimeVal, 1);
+	g_get_current_time(tod);
+	DWORD mst = (DWORD) tod->tv_sec * 1000 + (DWORD) tod->tv_usec / 1000;
+	g_free(tod);
+	return (mst);
 }
-
+/*in microseconds*/
+ULLONG us_time(void)
+{
+	GTimeVal *tod;
+	tod = g_new0(GTimeVal, 1);
+	g_get_current_time(tod);
+	ULLONG ust = (DWORD) tod->tv_sec * G_USEC_PER_SEC + (DWORD) tod->tv_usec;
+	g_free(tod);
+	return (ust);
+}
+/*in nanoseconds*/
 ULLONG ns_time (void)
 {
 	static struct timespec ts;
@@ -47,19 +61,12 @@ ULLONG ns_time (void)
 /*return remaining number of loops (if 0 then a stall ocurred)              */
 int wait_ms(int *var, int val, int sleep_ms, int n_loops)
 {
-	struct timespec *rqtp = g_new0(struct timespec, 1);
-	struct timespec *rmtp = g_new0(struct timespec, 1);
 	int n=n_loops;
-	
-	rqtp->tv_sec=0;
-	rqtp->tv_nsec=sleep_ms*1000000; /*convert to ms*/ 
-	
+	gulong sleep_us = sleep_ms *1000; /*convert to microseconds*/
 	while( (*var!=val) && ( n > 0 ) ) /*wait at max (n_loops*sleep_ms) ms */
 	{
 		n--;
-		nanosleep( rqtp, rmtp );/*sleep for sleep_ms ms*/
+		g_usleep( sleep_us );/*sleep for sleep_ms ms*/
 	};
-	g_free(rqtp);
-	g_free(rmtp);
 	return (n);
 }

@@ -212,24 +212,18 @@ close_sound (struct paRecordData *data)
 	err = Pa_CloseStream( data->stream );
 	if( err != paNoError ) goto error; 
 	
-	/*wait for last audio chunks to be saved on video file */
+	/*make sure we stoped streaming */
 	int stall = wait_ms( &data->streaming, FALSE, 10, 30 );
 	if(!(stall)) 
 	{
 		printf("WARNING:sound capture stall (still streaming(%d) \n",
 			data->streaming);
-
 		data->streaming = 0;
 	}
-	stall = wait_ms( &data->audio_flag, FALSE, 10, 40 );
-	if(!(stall)) 
-	{
-		printf("WARNING:sound capture stall (data left on buffer(%d) \n",
-			data->audio_flag);
-		data->audio_flag = 0;
-		Pa_Sleep(200); /* wait another 200ms so any pending read may finish*/
-	}
-	
+	if(data->audio_flag) 
+		fprintf(stderr, "Droped %i bytes of audio data\n", 
+			data->snd_numBytes);
+	data->audio_flag=0;
 	data->flush = 0;
 	/*---------------------------------------------------------------------*/
 	/*make sure no operations are performed on the buffers*/

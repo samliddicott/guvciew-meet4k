@@ -169,6 +169,14 @@ aviClose (struct ALL_DATA *all_data)
 		/*------------------- close audio stream and clean up -------------------*/
 		if (global->Sound_enable > 0) 
 		{
+			/*wait for audio to finish*/
+			int stall = wait_ms( &pdata->streaming, FALSE, 10, 30 );
+			if(!(stall)) 
+			{
+				printf("WARNING:sound capture stall (still streaming(%d) \n",
+					pdata->streaming);
+				pdata->streaming = 0;
+			}
 			/*write any available audio data*/  
 			if(pdata->audio_flag)
 			{
@@ -1079,18 +1087,14 @@ capture_avi (GtkButton *AVIButt, struct ALL_DATA *all_data)
 		gtk_button_set_label(AVIButt,_("Cap. AVI"));
 		videoIn->capAVI = FALSE; /*flag video thread to stop recording frames*/
 		pdata->capAVI = videoIn->capAVI;
-		
-		ULLONG beg=ns_time();
 		/*wait for flag from video thread that recording has stopped    */
 		/*wait on videoIn->AVICapStop by sleeping for 200 loops of 10 ms*/
 		/*(test AVICapStop == TRUE on every loop)*/
 		int stall = wait_ms(&(videoIn->AVICapStop), TRUE, 10, 200);
-		ULLONG stp=ns_time();
 		if( !(stall > 0) )
 		{
 			fprintf(stderr, "video capture stall on exit(%d) - timeout\n",
 				videoIn->AVICapStop);
-			printf("waited %llu ns\n",stp-beg);
 		}
 		global->AVIstoptime = ms_time();
 		aviClose(all_data);

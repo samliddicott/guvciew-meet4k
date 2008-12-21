@@ -22,6 +22,7 @@
 #include "picture.h"
 #include "huffman.h"
 #include "jpgenc.h"
+#include <glib.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <png.h>
@@ -42,7 +43,7 @@ SaveJPG(const char *Filename,int imgsize,BYTE *ImagePix)
 	jpgsize=jpghsize+imgsize+sizeof(JPEGHuffmanTable)+4;/*header+huffman+marker+buffsize*/
 	Pimg=ImagePix;
 	
-	if((jpgtmp=malloc(jpgsize))!=NULL) 
+	if((jpgtmp=g_malloc0(jpgsize))!=NULL) 
 	{
 		Pjpg=jpgtmp;
 		/*Fill JFIF header*/
@@ -113,7 +114,7 @@ SaveJPG(const char *Filename,int imgsize,BYTE *ImagePix)
 		} 
 		else ret=1;
 
-		free(jpgtmp);
+		g_free(jpgtmp);
 		jpgtmp=NULL;
 		Pimg=NULL;
 		Pjpg=NULL;
