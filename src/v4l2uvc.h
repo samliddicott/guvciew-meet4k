@@ -67,6 +67,10 @@
 #define V4L2_PIX_FMT_UYVY    v4l2_fourcc('U','Y','V','Y')   /* YUV 4:2:2        */
 #endif
 
+#ifndef V4L2_PIX_FMT_YYUV
+#define V4L2_PIX_FMT_YYUV    v4l2_fourcc('Y','Y','U','V')   /* YUV 4:2:2        */
+#endif
+
 #ifndef V4L2_PIX_FMT_YUV420
 #define V4L2_PIX_FMT_YUV420  v4l2_fourcc('Y','U','1','2')   /* YUV 4:2:0 Planar  */
 #endif

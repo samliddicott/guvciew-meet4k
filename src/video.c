@@ -164,6 +164,7 @@ void *main_loop(void *data)
 		case V4L2_PIX_FMT_MJPEG:
 		case V4L2_PIX_FMT_SGBRG8: /*converted to YUYV*/
 		case V4L2_PIX_FMT_YUV420: /*converted to YUYV*/
+		case V4L2_PIX_FMT_YYUV:   /*converted to YUYV*/
 		case V4L2_PIX_FMT_YUYV:
 			overlay = SDL_CreateYUVOverlay(videoIn->width, videoIn->height,
 				 SDL_YUY2_OVERLAY, pscreen);
@@ -269,6 +270,7 @@ void *main_loop(void *data)
 					case V4L2_PIX_FMT_JPEG:
 					case V4L2_PIX_FMT_SGBRG8: /*converted to YUYV*/
 					case V4L2_PIX_FMT_YUV420: /*converted to YUYV*/
+					case V4L2_PIX_FMT_YYUV:
 					case V4L2_PIX_FMT_YUYV: 
 						yuyv_mirror(videoIn->framebuffer,videoIn->width,videoIn->height);
 						break;
@@ -295,6 +297,7 @@ void *main_loop(void *data)
 					case V4L2_PIX_FMT_JPEG:
 					case V4L2_PIX_FMT_SGBRG8: /*converted to YUYV*/
 					case V4L2_PIX_FMT_YUV420: /*converted to YUYV*/
+					case V4L2_PIX_FMT_YYUV:
 					case V4L2_PIX_FMT_YUYV: 
 						yuyv_monochrome (videoIn->framebuffer,videoIn->width,videoIn->height);
 						break;

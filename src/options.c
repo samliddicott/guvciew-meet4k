@@ -67,7 +67,7 @@ writeConf(struct GLOBAL *global)
 		fprintf(fp,"vpane=%i\n",global->boxvsize);
 		fprintf(fp,"#spin button behavior: 0-non editable 1-editable\n");
 		fprintf(fp,"spinbehave=%i\n", global->spinbehave);
-		fprintf(fp,"# mode video format 'yuv' 'uyv' 'yup' 'gbr' 'jpeg' 'mjpg'(default)\n");
+		fprintf(fp,"# mode video format 'yuv' 'uyv' 'yyu' 'yup' 'gbr' 'jpeg' 'mjpg'(default)\n");
 		fprintf(fp,"mode='%s'\n",global->mode);
 		fprintf(fp,"# frames per sec. - hardware supported - default( %i )\n",DEFAULT_FPS);
 		fprintf(fp,"fps='%d/%d'\n",global->fps_num,global->fps);
@@ -486,21 +486,29 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 	gchar *avi=NULL;
 	gchar *profile=NULL;
 	gchar *separateur=NULL;
-	gint help=0;
+	gboolean help = FALSE;
+	gboolean help_gtk = FALSE;
+	gboolean help_all = FALSE;
+	gchar *help_str = NULL;
+	gchar *help_gtk_str = NULL;
+	gchar *help_all_str = NULL;
 	
 	GOptionEntry entries[] =
 	{
+		{ "help-all", 'h', G_OPTION_FLAG_HIDDEN, G_OPTION_ARG_NONE, &help_all, "Display all help options", NULL},
+		{ "help-gtk", 'g', G_OPTION_FLAG_HIDDEN, G_OPTION_ARG_NONE, &help_gtk, "DISPLAY GTK+ help", NULL},
+		{ "help", '?', G_OPTION_FLAG_HIDDEN, G_OPTION_ARG_NONE, &help, "Display help", NULL},
 		{ "verbose", 'v', 0, G_OPTION_ARG_NONE, &global->debug, N_("Displays debug information"), NULL },
 		{ "device", 'd', 0, G_OPTION_ARG_STRING, &device, N_("Video Device to use [default: /dev/video0]"), "VIDEO_DEVICE" },
-		{ "hwd_acel", 'w', 0, G_OPTION_ARG_INT, &global->hwaccel, N_("Hardware accelaration (enable(1) | disable(0))"), "1 | 0" },
-		{ "format", 'f', 0, G_OPTION_ARG_STRING, &format, N_("Pixel format(mjpg, jpeg, yuv, uyv, yup, gbr)"), "FORMAT" },
+		{ "hwd_acel", 'w', 0, G_OPTION_ARG_INT, &global->hwaccel, N_("Hardware accelaration (enable(1) | disable(0))"), "[1 | 0]" },
+		{ "format", 'f', 0, G_OPTION_ARG_STRING, &format, N_("Pixel format(mjpg, jpeg, yuv, uyv, yyu, yup, gbr)"), "FORMAT" },
 		{ "size", 's', 0, G_OPTION_ARG_STRING, &size, N_("Frame size, default: 640x480"), "WIDTHxHEIGHT"},
 		{ "image", 'i', 0, G_OPTION_ARG_STRING, &image, N_("Image File name"), "FILENAME"},
 		{ "cap_time", 'c', 0, G_OPTION_ARG_INT, &global->image_timer, N_("Image capture interval in seconds"), "TIME"},
 		{ "npics", 'm', 0, G_OPTION_ARG_INT, &global->image_npics, N_("Number of Pictures to capture"), "NUMPIC"},
 		{ "avi", 'n', 0, G_OPTION_ARG_STRING, &avi, N_("AVI File name (capture from start)"), "FILENAME"},
 		{ "avi_time", 't', 0, G_OPTION_ARG_INT, &global->Capture_time,N_("AVI capture time (in seconds)"), "TIME"},
-		{ "show_fps", 'p', 0, G_OPTION_ARG_INT, &global->FpsCount, N_("Show FPS value (enable(1) | disable (0))"), "1 | 0"},
+		{ "show_fps", 'p', 0, G_OPTION_ARG_INT, &global->FpsCount, N_("Show FPS value (enable(1) | disable (0))"), "[1 | 0]"},
 		{ "profile", 'l', 0, G_OPTION_ARG_STRING, &profile, N_("Load Profile at start"), "FILENAME"},
 		{ NULL }
 	};
@@ -510,6 +518,12 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 	context = g_option_context_new (N_("- local options"));
 	g_option_context_add_main_entries (context, entries, GETTEXT_PACKAGE);
 	g_option_context_add_group (context, gtk_get_option_group (TRUE));
+	g_set_prgname ("guvcview");
+	help_str = g_option_context_get_help (context, TRUE, NULL);
+	help_gtk_str = g_option_context_get_help (context, FALSE, gtk_get_option_group (TRUE));
+	help_all_str = g_option_context_get_help (context, FALSE, NULL);
+	/*disable automatic help parsing - must clean global before exit*/
+	g_option_context_set_help_enabled (context, FALSE);
 	if (!g_option_context_parse (context, &argc, &argv, &error))
 	{
 		g_print ("option parsing failed: %s\n", error->message);
@@ -517,6 +531,38 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 		exit (1);
 	}
 	
+	/*Display help message and exit*/
+	if(help_all)
+	{
+		closeGlobals(global);
+		global=NULL;
+		g_printf("%s",help_all_str);
+		g_free(help_all_str);
+		g_free(help_str);
+		g_free(help_gtk_str);
+		exit(0);
+	}
+	else if(help)
+	{
+		closeGlobals(global);
+		global=NULL;
+		g_printf("%s",help_str);
+		g_free(help_str);
+		g_free(help_gtk_str);
+		g_free(help_all_str);
+		exit(0);
+	} else if(help_gtk)
+	{
+		closeGlobals(global);
+		global=NULL;
+		g_printf("%s",help_gtk_str);
+		g_free(help_str);
+		g_free(help_gtk_str);
+		g_free(help_all_str);
+		exit(0);
+	}
+	
+	/*regular options*/
 	if(device)
 	{
 		g_free(global->videodevice);
@@ -564,7 +610,10 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 		global->lprofile=1;
 		global->profile_FPath=splitPath(profile,global->profile_FPath);
 	}
-	
+
+	g_free(help_str);
+	g_free(help_gtk_str);
+	g_free(help_all_str);
 	g_free(device);
 	g_free(format);
 	g_free(size);

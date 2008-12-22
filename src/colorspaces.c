@@ -179,6 +179,35 @@ uyvy2bgr (BYTE *pyuv, BYTE *pbgr, int width, int height)
 	preverse=NULL;
 }
 
+void yyuv_to_yuyv (BYTE *framebuffer, BYTE *tmpbuffer, int width, int height)
+{
+	BYTE *ptmp=NULL;
+	BYTE *pfmb=NULL;
+	ptmp = tmpbuffer;
+	pfmb = framebuffer;
+	
+	int h=0;
+	int w=0;
+	
+	for(h=0;h<height;h++) 
+	{
+		for(w=0;w<width;w+=4) 
+		{
+			/* Y0 */
+			pfmb[0] = ptmp[0];
+			/* U */
+			pfmb[1] = ptmp[2];
+			/* Y1 */
+			pfmb[2] = ptmp[1];
+			/* V */
+			pfmb[3] = ptmp[3];
+			
+			ptmp += 4;
+			pfmb += 4;
+		}
+	}
+}
+
 int yuv420_to_yuyv (BYTE *framebuffer, BYTE *tmpbuffer, int width, int height) 
 {
 	BYTE *py;

@@ -250,6 +250,11 @@ static SupFormats listSupFormats[] =
 		.hardware = 0
 	},
 	{
+		.format   = V4L2_PIX_FMT_YYUV,
+		.mode     = "yyu",
+		.hardware = 0
+	},
+	{
 		.format   = V4L2_PIX_FMT_YUV420,
 		.mode     = "yup",
 		.hardware = 0
@@ -436,13 +441,13 @@ init_videoIn(struct vdIn *vd, char *device, int width, int height,
 			vd->framebuffer = g_new0(unsigned char, vd->framebuf_size); 
 			break;
 			
+		case V4L2_PIX_FMT_YYUV:
 		case V4L2_PIX_FMT_YUV420:
 			/* alloc a temp buffer for converting to YUYV*/
-			vd->tmpbuf_size= vd->framesizeIn;/* should be width * height * 3/2 */
+			vd->tmpbuf_size= vd->framesizeIn;
 			vd->tmpbuffer = g_new0(unsigned char, vd->tmpbuf_size);
 			
 			vd->framebuf_size = vd->framesizeIn;
-			/*planar yuv 4:2:0*/
 			vd->framebuffer = g_new0(unsigned char, vd->framebuf_size);
 			break;
 			
@@ -492,6 +497,7 @@ init_videoIn(struct vdIn *vd, char *device, int width, int height,
 			case V4L2_PIX_FMT_MJPEG:
 			case V4L2_PIX_FMT_SGBRG8: /*converted to YUYV*/
 			case V4L2_PIX_FMT_YUV420: /*converted to YUYV*/
+			case V4L2_PIX_FMT_YYUV:   /*converted to YUYV*/ 
 			case V4L2_PIX_FMT_YUYV:
 				for (i=0; i<(vd->framebuf_size-4); i+=4)
 				{
@@ -789,6 +795,11 @@ int uvcGrab(struct vdIn *vd)
 				fprintf(stderr,"jpeg decode errors\n");
 				goto err;
 			}
+			break;
+		
+		case V4L2_PIX_FMT_YYUV:
+			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
+			yyuv_to_yuyv(vd->framebuffer, vd->tmpbuffer, vd->width, vd->height);
 			break;
 			
 		case V4L2_PIX_FMT_YUV420:

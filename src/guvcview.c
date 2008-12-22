@@ -165,7 +165,7 @@ int main(int argc, char *argv[])
 	if( !g_thread_supported() )
 	{
 		g_thread_init(NULL);
-		printf("g_thread supported\n");
+		//printf("g_thread supported\n");
 	}
 	else
 	{

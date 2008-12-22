@@ -27,6 +27,9 @@
 int 
 yuv420_to_yuyv (BYTE *framebuffer, BYTE *tmpbuffer, int width, int height);
 
+void 
+yyuv_to_yuyv (BYTE *framebuffer, BYTE *tmpbuffer, int width, int height);
+
 /* regular yuv (YUYV) to rgb24*/
 void 
 yuyv2rgb (BYTE *pyuv, BYTE *prgb, int width, int height);
