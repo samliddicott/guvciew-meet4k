@@ -159,7 +159,8 @@ int main(int argc, char *argv[])
 {
 	int i, line;
 	int ret=0;
-	printf("guvcview version %s \n", VERSION);
+	/*print package name and version*/ 
+	printf("%s\n", PACKAGE_STRING);
 	
 	/* initialize glib threads - make glib thread safe*/ 
 	if( !g_thread_supported() )

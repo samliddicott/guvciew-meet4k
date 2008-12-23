@@ -518,7 +518,7 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 	context = g_option_context_new (N_("- local options"));
 	g_option_context_add_main_entries (context, entries, GETTEXT_PACKAGE);
 	g_option_context_add_group (context, gtk_get_option_group (TRUE));
-	g_set_prgname ("guvcview");
+	g_set_prgname (PACKAGE);
 	help_str = g_option_context_get_help (context, TRUE, NULL);
 	help_gtk_str = g_option_context_get_help (context, FALSE, gtk_get_option_group (TRUE));
 	help_all_str = g_option_context_get_help (context, FALSE, NULL);

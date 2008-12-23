@@ -1,3 +1,15 @@
+guvcview (0.9.7) stable; urgency=low
+
+   * Added JPEG pixel format support.
+   * Added YYUV pixel format support.
+   * Change configuration parsing method, using GScanner (glib).
+   * Change console options parsing method, using GOption (glib).
+   * Change string handling, using glib functions.
+   * Change memory managment, using glib functions.
+   * Change from pthreads to gthreads (glib).
+   
+ -- Paulo Assis <pj.assis@gmail.com>  Tue, 23 Dec 2008 09:32:00 +0000
+
 guvcview (0.9.6) stable; urgency=low
 
    * Fixed Get Focus value for logitech motor focus cameras.
