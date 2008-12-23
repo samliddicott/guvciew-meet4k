@@ -24,6 +24,10 @@
 #include <string.h>
 #include <linux/videodev2.h>
 #include <gtk/gtk.h>
+#include <glib.h>
+#include <glib/gstdio.h>
+#include <glib/gprintf.h>
+
 #include "defs.h"
 #include "profile.h"
 #include "../config.h"
@@ -34,30 +38,28 @@ SaveControls(struct VidState *s, struct GLOBAL *global, struct vdIn *videoIn)
 	FILE *fp;
 	int i=0;
 	int val=0;
-	int sfname=strlen(global->profile_FPath[1])+strlen(global->profile_FPath[0]);
-	char filename[sfname+2];
+	char *filename;
+	filename = g_strjoin("/", global->profile_FPath[1], global->profile_FPath[0], NULL);
 	
-	sprintf(filename,"%s/%s", global->profile_FPath[1],global->profile_FPath[0]);
-	
-	fp=fopen(filename,"w");
+	fp = g_fopen(filename, "w");
 	if( fp == NULL )
 	{
-		printf("Could not open profile data file: %s.\n",filename);
+		g_printerr("Could not open profile data file: %s.\n",filename);
 		return (-1);
 	} 
 	else 
 	{
 		if (s->control) 
 		{
-			fprintf(fp,"#guvcview control profile\n");
-			fprintf(fp,"version=%s\n",VERSION);
-			fprintf(fp,"# control name +\n");
-			fprintf(fp,"#control[num]:id:type=val\n");
+			g_fprintf(fp,"#guvcview control profile\n");
+			g_fprintf(fp,"version=%s\n",VERSION);
+			g_fprintf(fp,"# control name +\n");
+			g_fprintf(fp,"#control[num]:id:type=val\n");
 			/*save controls by type order*/
 			/* 1- Boolean controls       */
 			/* 2- Menu controls          */
 			/* 3- Integer controls       */
-			fprintf(fp,"# 1-BOOLEAN CONTROLS\n");
+			g_fprintf(fp,"# 1-BOOLEAN CONTROLS\n");
 			for (i = 0; i < s->num_controls; i++)
 			{
 				/*Boolean*/
@@ -69,11 +71,11 @@ SaveControls(struct VidState *s, struct GLOBAL *global, struct vdIn *videoIn)
 						val=c->default_val;
 					}
 					val = val & 0x0001;
-					fprintf(fp,"# %s +\n",c->name);
-					fprintf(fp,"control[%d]:0x%x:%d=%d\n",c->i,c->id,c->type, val);
+					g_fprintf(fp,"# %s +\n",c->name);
+					g_fprintf(fp,"control[%d]:0x%x:%d=%d\n",c->i,c->id,c->type, val);
 				}
 			}
-			fprintf(fp,"# 2-MENU CONTROLS\n");
+			g_fprintf(fp,"# 2-MENU CONTROLS\n");
 			for (i = 0; i < s->num_controls; i++) 
 			{
 				/*Menu*/
@@ -84,11 +86,11 @@ SaveControls(struct VidState *s, struct GLOBAL *global, struct vdIn *videoIn)
 					{
 						val=c->default_val;
 					}
-					fprintf(fp,"# %s +\n",c->name);
-					fprintf(fp,"control[%d]:0x%x:%d=%d\n",c->i,c->id,c->type, val);
+					g_fprintf(fp,"# %s +\n",c->name);
+					g_fprintf(fp,"control[%d]:0x%x:%d=%d\n",c->i,c->id,c->type, val);
 				}
 			}
-			fprintf(fp,"# 3-INTEGER CONTROLS\n");
+			g_fprintf(fp,"# 3-INTEGER CONTROLS\n");
 			for (i = 0; i < s->num_controls; i++) 
 			{
 				/*Integer*/
@@ -99,14 +101,15 @@ SaveControls(struct VidState *s, struct GLOBAL *global, struct vdIn *videoIn)
 					{
 						val=c->default_val;
 					}
-					fprintf(fp,"# %s +\n",c->name);
-					fprintf(fp,"control[%d]:0x%x:%d=%d\n",c->i,c->id,c->type, val);
+					g_fprintf(fp,"# %s +\n",c->name);
+					g_fprintf(fp,"control[%d]:0x%x:%d=%d\n",c->i,c->id,c->type, val);
 				}
 			}
 			
 		}
 	}
 	fclose(fp);
+	g_free(filename);
 	return (0);
 }
 
@@ -118,21 +121,20 @@ LoadControls(struct VidState *s, struct GLOBAL *global)
 	unsigned int id=0;
 	int type=0;
 	int val=0;
-	//char contr_inf[100];
-	int sfname=strlen(global->profile_FPath[1])+strlen(global->profile_FPath[0]) +3;
-	char filename[sfname];
+	
 	ControlInfo *base_ci = s->control_info;
 	InputControl *base_c = s->control;
 	ControlInfo *ci;
 	InputControl *c;
 	
-	g_snprintf(filename, sfname, "%s/%s", global->profile_FPath[1],global->profile_FPath[0]);
+	char *filename;
+	filename = g_strjoin("/", global->profile_FPath[1], global->profile_FPath[0], NULL);
 	
-	if((fp = fopen(filename,"r"))!=NULL) 
+	if((fp = g_fopen(filename,"r"))!=NULL) 
 	{
 		char line[144];
 
-		while (fgets(line, 144, fp) != NULL) 
+		while (fgets(line, sizeof(line), fp) != NULL) 
 		{
 			
 			if ((line[0]=='#') || (line[0]==' ') || (line[0]=='\n')) 
@@ -146,7 +148,7 @@ LoadControls(struct VidState *s, struct GLOBAL *global)
 				{
 					ci=base_ci+i;
 					c=base_c+i;
-					printf("control[%i]:0x%x:%i=%d\n",i,id,type,val);
+					g_printf("control[%i]:0x%x:%i=%d\n",i,id,type,val);
 					if((c->id==id) && (c->type==type)) 
 					{
 						if(type == INPUT_CONTROL_TYPE_INTEGER) 
@@ -169,23 +171,24 @@ LoadControls(struct VidState *s, struct GLOBAL *global)
 					}
 					else 
 					{
-						printf("wrong control id(0x%x:0x%x) or type(%i:%i) for %s\n",
+						g_printerr("wrong control id(0x%x:0x%x) or type(%i:%i) for %s\n",
 							id,c->id,type,c->type,c->name);
 					}
 				} 
 				else 
 				{
-					printf("wrong control index: %d\n",i);
+					g_printerr("wrong control index: %d\n",i);
 				}
 			}
 		}	
 	} 
 	else 
 	{
-		printf("Could not open profile data file: %s.\n",filename);
+		g_printerr("Could not open profile data file: %s.\n",filename);
 		return (-1);
 	} 
 
 	fclose(fp);
+	g_free(filename);
 	return (0);
 }

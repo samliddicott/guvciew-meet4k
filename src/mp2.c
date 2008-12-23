@@ -64,7 +64,7 @@ init_MP2_encoder(struct paRecordData* pdata, int bitRate)
 	/* initialise twolame with this set of options */
 	if (twolame_init_params( encodeOptions ) != 0) 
 	{
-		fprintf(stderr, "Error: configuring libtwolame encoder failed.\n");
+		g_printerr("Error: configuring libtwolame encoder failed.\n");
 		return(-1);
 	}
 	

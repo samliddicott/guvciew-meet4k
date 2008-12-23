@@ -104,13 +104,12 @@ pchar* splitPath(char *FullPath, char* splited[2])
 	if (size > (strlen(splited[0])+1))
 	{
 		/* strlen doesn't count '/0' so add 1 char*/
-		//printf("realloc basename to %d chars.\n",size);
 		splited[0]=g_renew(char, splited[0], size);
 	}
 	
 	cpysize = g_strlcpy(splited[0], basename, size*sizeof(char));
 	if ( (cpysize+1) < (size*sizeof(char)) ) 
-		printf("filename copy size error:(%i != %i)\n",
+		g_printerr("filename copy size error:(%i != %i)\n",
 			cpysize+1,
 			size*sizeof(char));
 	
@@ -122,13 +121,12 @@ pchar* splitPath(char *FullPath, char* splited[2])
 		if (size > (strlen(splited[1])+1))
 		{
 			/* strlen doesn't count '/0' so add 1 char*/
-			//printf("realloc dirname to %d chars.\n",size);
 			splited[1]=g_renew(char, splited[1], size);
 		}
 	
 		cpysize = g_strlcpy(splited[1], dirname, size*sizeof(char));
 		if ( (cpysize + 1) < (size*sizeof(char)) ) 
-			printf("dirname copy size error:(%i != %i)\n",
+			g_printerr("dirname copy size error:(%i != %i)\n",
 				cpysize+1,
 				size*sizeof(char));
 	}
@@ -191,7 +189,7 @@ char *setImgExt(char *filename, int format)
 			g_snprintf(filename, sname, "%s.raw", basename);
 			break;
 		default:
-			printf("Image format not supported\n");
+			g_printerr("Image format not supported\n");
 	}
 	return (filename);
 }

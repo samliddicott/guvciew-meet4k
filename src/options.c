@@ -31,6 +31,7 @@
 
 #include <getopt.h>
 #include <glib.h>
+#include <glib/gstdio.h>
 #include <glib/gprintf.h>
 //#include <libgen.h>
 /* support for internationalization - i18n */
@@ -49,80 +50,80 @@ writeConf(struct GLOBAL *global)
 	int ret=0;
 	FILE *fp;
 
-	if ((fp = fopen(global->confPath,"w"))!=NULL) 
+	if ((fp = g_fopen(global->confPath,"w"))!=NULL) 
 	{
-		fprintf(fp,"# guvcview configuration file\n\n");
-		fprintf(fp,"# video device: default '/dev/video0'\n");
-		fprintf(fp,"video_device='%s'\n",global->videodevice);
-		fprintf(fp,"# Thread stack size: default 128 pages of 64k = 8388608 bytes\n");
-		fprintf(fp,"stack_size=%d\n",global->stack_size);
-		fprintf(fp,"# video loop sleep time in ms: 0,1,2,3,...\n");
-		fprintf(fp,"# increased sleep time -> less cpu load, more droped frames\n");
-		fprintf(fp,"vid_sleep=%i\n",global->vid_sleep);
-		fprintf(fp,"# video resolution \n");
-		fprintf(fp,"resolution='%ix%i'\n",global->width,global->height);
-		fprintf(fp,"# control window size: default %ix%i\n",WINSIZEX,WINSIZEY);
-		fprintf(fp,"windowsize='%ix%i'\n",global->winwidth,global->winheight);
-		fprintf(fp,"#vertical pane size\n");
-		fprintf(fp,"vpane=%i\n",global->boxvsize);
-		fprintf(fp,"#spin button behavior: 0-non editable 1-editable\n");
-		fprintf(fp,"spinbehave=%i\n", global->spinbehave);
-		fprintf(fp,"# mode video format 'yuv' 'uyv' 'yyu' 'yup' 'gbr' 'jpeg' 'mjpg'(default)\n");
-		fprintf(fp,"mode='%s'\n",global->mode);
-		fprintf(fp,"# frames per sec. - hardware supported - default( %i )\n",DEFAULT_FPS);
-		fprintf(fp,"fps='%d/%d'\n",global->fps_num,global->fps);
-		fprintf(fp,"#Display Fps counter: 1- Yes 0- No\n");
-		fprintf(fp,"fps_display=%i\n",global->FpsCount);
-		fprintf(fp,"#auto focus (continuous): 1- Yes 0- No\n");
-		fprintf(fp,"auto_focus=%i\n",global->autofocus);
-		fprintf(fp,"# bytes per pixel: default (0 - current)\n");
-		fprintf(fp,"bpp=%i\n",global->bpp);
-		fprintf(fp,"# hardware accelaration: 0 1 (default - 1)\n");
-		fprintf(fp,"hwaccel=%i\n",global->hwaccel);
-		fprintf(fp,"# video grab method: 0 -read 1 -mmap (default - 1)\n");
-		fprintf(fp,"grabmethod=%i\n",global->grabmethod);
-		fprintf(fp,"# video compression format: 0-MJPG 1-YUY2/UYVY 2-DIB (BMP 24)\n");
-		fprintf(fp,"avi_format=%i\n",global->AVIFormat);
-		fprintf(fp,"# avi file max size (MAX: %d bytes)\n",AVI_MAX_SIZE);
-		fprintf(fp,"avi_max_len=%li\n",global->AVI_MAX_LEN);
-		fprintf(fp,"# Auto AVI naming (filename-n.avi)\n");
-		fprintf(fp,"avi_inc=%d\n",global->avi_inc);
-		fprintf(fp,"# sound 0 - disable 1 - enable\n");
-		fprintf(fp,"sound=%i\n",global->Sound_enable);
-		fprintf(fp,"# snd_device - sound device id as listed by portaudio\n");
-		fprintf(fp,"snd_device=%i\n",global->Sound_UseDev);
-		fprintf(fp,"# snd_samprate - sound sample rate\n");
-		fprintf(fp,"snd_samprate=%i\n",global->Sound_SampRateInd);
-		fprintf(fp,"# snd_numchan - sound number of channels 0- dev def 1 - mono 2 -stereo\n");
-		fprintf(fp,"snd_numchan=%i\n",global->Sound_NumChanInd);
-		fprintf(fp,"#snd_numsec - avi audio blocks size in sec: 1,2,3,.. \n");
-		fprintf(fp,"# more seconds = more granularity, more memory allocation but less disc I/O\n");
-		fprintf(fp,"snd_numsec=%i\n",global->Sound_NumSec);
-		fprintf(fp,"# Sound Format (PCM=1 (0x0001) MP2=80 (0x0050)\n");
-		fprintf(fp,"snd_format=%i\n",global->Sound_Format);
-		fprintf(fp,"# Sound bit Rate used by mpeg audio default=160 Kbps\n");
-		fprintf(fp,"#other values: 48 56 64 80 96 112 128 160 192 224 384\n");
-		fprintf(fp,"snd_bitrate=%i\n",global->Sound_bitRate);
-		fprintf(fp,"#Pan Step in degrees, Default=2\n");
-		fprintf(fp,"Pan_Step=%i\n",global->PanStep);
-		fprintf(fp,"#Tilt Step in degrees, Default=2\n");
-		fprintf(fp,"Tilt_Step=%i\n",global->TiltStep);
-		fprintf(fp,"# video filters: 0 -none 1- flip 2- upturn 4- negate 8- mono (add the ones you want)\n");
-		fprintf(fp,"frame_flags=%i\n",global->Frame_Flags);
-		fprintf(fp,"# Image capture Full Path\n");
-		fprintf(fp,"image_path='%s/%s'\n",global->imgFPath[1],global->imgFPath[0]);
-		fprintf(fp,"# Auto Image naming (filename-n.ext)\n");
-		fprintf(fp,"image_inc=%d\n",global->image_inc);
-		fprintf(fp,"# Avi capture Full Path\n");
-		fprintf(fp,"avi_path='%s/%s'\n",global->aviFPath[1],global->aviFPath[0]);
-		fprintf(fp,"# control profiles Full Path\n");
-		fprintf(fp,"profile_path='%s/%s'\n",global->profile_FPath[1],global->profile_FPath[0]);
+		g_fprintf(fp,"# guvcview configuration file\n\n");
+		g_fprintf(fp,"# video device: default '/dev/video0'\n");
+		g_fprintf(fp,"video_device='%s'\n",global->videodevice);
+		g_fprintf(fp,"# Thread stack size: default 128 pages of 64k = 8388608 bytes\n");
+		g_fprintf(fp,"stack_size=%d\n",global->stack_size);
+		g_fprintf(fp,"# video loop sleep time in ms: 0,1,2,3,...\n");
+		g_fprintf(fp,"# increased sleep time -> less cpu load, more droped frames\n");
+		g_fprintf(fp,"vid_sleep=%i\n",global->vid_sleep);
+		g_fprintf(fp,"# video resolution \n");
+		g_fprintf(fp,"resolution='%ix%i'\n",global->width,global->height);
+		g_fprintf(fp,"# control window size: default %ix%i\n",WINSIZEX,WINSIZEY);
+		g_fprintf(fp,"windowsize='%ix%i'\n",global->winwidth,global->winheight);
+		g_fprintf(fp,"#vertical pane size\n");
+		g_fprintf(fp,"vpane=%i\n",global->boxvsize);
+		g_fprintf(fp,"#spin button behavior: 0-non editable 1-editable\n");
+		g_fprintf(fp,"spinbehave=%i\n", global->spinbehave);
+		g_fprintf(fp,"# mode video format 'yuv' 'uyv' 'yyu' 'yup' 'gbr' 'jpeg' 'mjpg'(default)\n");
+		g_fprintf(fp,"mode='%s'\n",global->mode);
+		g_fprintf(fp,"# frames per sec. - hardware supported - default( %i )\n",DEFAULT_FPS);
+		g_fprintf(fp,"fps='%d/%d'\n",global->fps_num,global->fps);
+		g_fprintf(fp,"#Display Fps counter: 1- Yes 0- No\n");
+		g_fprintf(fp,"fps_display=%i\n",global->FpsCount);
+		g_fprintf(fp,"#auto focus (continuous): 1- Yes 0- No\n");
+		g_fprintf(fp,"auto_focus=%i\n",global->autofocus);
+		g_fprintf(fp,"# bytes per pixel: default (0 - current)\n");
+		g_fprintf(fp,"bpp=%i\n",global->bpp);
+		g_fprintf(fp,"# hardware accelaration: 0 1 (default - 1)\n");
+		g_fprintf(fp,"hwaccel=%i\n",global->hwaccel);
+		g_fprintf(fp,"# video grab method: 0 -read 1 -mmap (default - 1)\n");
+		g_fprintf(fp,"grabmethod=%i\n",global->grabmethod);
+		g_fprintf(fp,"# video compression format: 0-MJPG 1-YUY2/UYVY 2-DIB (BMP 24)\n");
+		g_fprintf(fp,"avi_format=%i\n",global->AVIFormat);
+		g_fprintf(fp,"# avi file max size (MAX: %d bytes)\n",AVI_MAX_SIZE);
+		g_fprintf(fp,"avi_max_len=%li\n",global->AVI_MAX_LEN);
+		g_fprintf(fp,"# Auto AVI naming (filename-n.avi)\n");
+		g_fprintf(fp,"avi_inc=%d\n",global->avi_inc);
+		g_fprintf(fp,"# sound 0 - disable 1 - enable\n");
+		g_fprintf(fp,"sound=%i\n",global->Sound_enable);
+		g_fprintf(fp,"# snd_device - sound device id as listed by portaudio\n");
+		g_fprintf(fp,"snd_device=%i\n",global->Sound_UseDev);
+		g_fprintf(fp,"# snd_samprate - sound sample rate\n");
+		g_fprintf(fp,"snd_samprate=%i\n",global->Sound_SampRateInd);
+		g_fprintf(fp,"# snd_numchan - sound number of channels 0- dev def 1 - mono 2 -stereo\n");
+		g_fprintf(fp,"snd_numchan=%i\n",global->Sound_NumChanInd);
+		g_fprintf(fp,"#snd_numsec - avi audio blocks size in sec: 1,2,3,.. \n");
+		g_fprintf(fp,"# more seconds = more granularity, more memory allocation but less disc I/O\n");
+		g_fprintf(fp,"snd_numsec=%i\n",global->Sound_NumSec);
+		g_fprintf(fp,"# Sound Format (PCM=1 (0x0001) MP2=80 (0x0050)\n");
+		g_fprintf(fp,"snd_format=%i\n",global->Sound_Format);
+		g_fprintf(fp,"# Sound bit Rate used by mpeg audio default=160 Kbps\n");
+		g_fprintf(fp,"#other values: 48 56 64 80 96 112 128 160 192 224 384\n");
+		g_fprintf(fp,"snd_bitrate=%i\n",global->Sound_bitRate);
+		g_fprintf(fp,"#Pan Step in degrees, Default=2\n");
+		g_fprintf(fp,"Pan_Step=%i\n",global->PanStep);
+		g_fprintf(fp,"#Tilt Step in degrees, Default=2\n");
+		g_fprintf(fp,"Tilt_Step=%i\n",global->TiltStep);
+		g_fprintf(fp,"# video filters: 0 -none 1- flip 2- upturn 4- negate 8- mono (add the ones you want)\n");
+		g_fprintf(fp,"frame_flags=%i\n",global->Frame_Flags);
+		g_fprintf(fp,"# Image capture Full Path\n");
+		g_fprintf(fp,"image_path='%s/%s'\n",global->imgFPath[1],global->imgFPath[0]);
+		g_fprintf(fp,"# Auto Image naming (filename-n.ext)\n");
+		g_fprintf(fp,"image_inc=%d\n",global->image_inc);
+		g_fprintf(fp,"# Avi capture Full Path\n");
+		g_fprintf(fp,"avi_path='%s/%s'\n",global->aviFPath[1],global->aviFPath[0]);
+		g_fprintf(fp,"# control profiles Full Path\n");
+		g_fprintf(fp,"profile_path='%s/%s'\n",global->profile_FPath[1],global->profile_FPath[0]);
 		printf("write %s OK\n",global->confPath);
 		fclose(fp);
 	} 
 	else 
 	{
-		printf("Could not write file %s \n Please check file permissions\n",global->confPath);
+		g_printerr("Could not write file %s \n Please check file permissions\n",global->confPath);
 		ret=-1;
 	}
 	return ret;
@@ -166,7 +167,7 @@ readConf(struct GLOBAL *global)
 		FALSE                          /* store int64 */
 	};
 
-	int fd = open (global->confPath, O_RDONLY);
+	int fd = g_open (global->confPath, O_RDONLY, 0);
 	
 	if (fd < 0 )
 	{
@@ -444,31 +445,31 @@ readConf(struct GLOBAL *global)
 		
 		if (global->debug) 
 		{ /*it will allways be FALSE unless DEBUG=1*/
-			printf("video_device: %s\n",global->videodevice);
-			printf("vid_sleep: %i\n",global->vid_sleep);
-			printf("resolution: %i x %i\n",global->width,global->height);
-			printf("windowsize: %i x %i\n",global->winwidth,global->winheight);
-			printf("vert pane: %i\n",global->boxvsize);
-			printf("spin behavior: %i\n",global->spinbehave);
-			printf("mode: %s\n",global->mode);
-			printf("fps: %i/%i\n",global->fps_num,global->fps);
-			printf("Display Fps: %i\n",global->FpsCount);
-			printf("bpp: %i\n",global->bpp);
-			printf("hwaccel: %i\n",global->hwaccel);
-			printf("grabmethod: %i\n",global->grabmethod);
-			printf("avi_format: %i\n",global->AVIFormat);
-			printf("sound: %i\n",global->Sound_enable);
-			printf("sound Device: %i\n",global->Sound_UseDev);
-			printf("sound samp rate: %i\n",global->Sound_SampRateInd);
-			printf("sound Channels: %i\n",global->Sound_NumChanInd);
-			printf("Sound Block Size: %i seconds\n",global->Sound_NumSec);
-			printf("Sound Format: %i \n",global->Sound_Format);
-			printf("Sound bit Rate: %i Kbps\n",global->Sound_bitRate);
-			printf("Pan Step: %i degrees\n",global->PanStep);
-			printf("Tilt Step: %i degrees\n",global->TiltStep);
-			printf("Video Filter Flags: %i\n",global->Frame_Flags);
-			printf("image inc: %d\n",global->image_inc);
-			printf("profile(default):%s/%s\n",global->profile_FPath[1],global->profile_FPath[0]);
+			g_printf("video_device: %s\n",global->videodevice);
+			g_printf("vid_sleep: %i\n",global->vid_sleep);
+			g_printf("resolution: %i x %i\n",global->width,global->height);
+			g_printf("windowsize: %i x %i\n",global->winwidth,global->winheight);
+			g_printf("vert pane: %i\n",global->boxvsize);
+			g_printf("spin behavior: %i\n",global->spinbehave);
+			g_printf("mode: %s\n",global->mode);
+			g_printf("fps: %i/%i\n",global->fps_num,global->fps);
+			g_printf("Display Fps: %i\n",global->FpsCount);
+			g_printf("bpp: %i\n",global->bpp);
+			g_printf("hwaccel: %i\n",global->hwaccel);
+			g_printf("grabmethod: %i\n",global->grabmethod);
+			g_printf("avi_format: %i\n",global->AVIFormat);
+			g_printf("sound: %i\n",global->Sound_enable);
+			g_printf("sound Device: %i\n",global->Sound_UseDev);
+			g_printf("sound samp rate: %i\n",global->Sound_SampRateInd);
+			g_printf("sound Channels: %i\n",global->Sound_NumChanInd);
+			g_printf("Sound Block Size: %i seconds\n",global->Sound_NumSec);
+			g_printf("Sound Format: %i \n",global->Sound_Format);
+			g_printf("Sound bit Rate: %i Kbps\n",global->Sound_bitRate);
+			g_printf("Pan Step: %i degrees\n",global->PanStep);
+			g_printf("Tilt Step: %i degrees\n",global->TiltStep);
+			g_printf("Video Filter Flags: %i\n",global->Frame_Flags);
+			g_printf("image inc: %d\n",global->image_inc);
+			g_printf("profile(default):%s/%s\n",global->profile_FPath[1],global->profile_FPath[0]);
 		}
 	}
 	
@@ -578,14 +579,14 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 		global->width = (int) g_ascii_strtoull(size, &separateur, 10);
 		if (*separateur != 'x') 
 		{
-			printf("Error in size usage: -s[--size] WIDTHxHEIGHT \n");
+			g_printerr("Error in size usage: -s[--size] WIDTHxHEIGHT \n");
 		} 
 		else 
 		{
 			++separateur;
 			global->height = (int) g_ascii_strtoull(separateur, &separateur, 10);
 			if (*separateur != 0)
-				printf("hmm.. dont like that!! trying this height \n");
+				g_printerr("hmm.. dont like that!! trying this height \n");
 		}
 	}
 	if(image)
@@ -597,13 +598,13 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 	if(global->image_timer > 0 )
 	{
 		global->image_inc=1;
-		printf("capturing images every %i seconds",global->image_timer);
+		g_printf("capturing images every %i seconds",global->image_timer);
 	}
 	if(avi)
 	{
 		global->avifile = g_strdup(avi);
 		global->aviFPath=splitPath(global->avifile,global->aviFPath);
-		printf("capturing avi: %s , from start",global->avifile);
+		g_printf("capturing avi: %s , from start",global->avifile);
 	}
 	if(profile)
 	{
@@ -621,181 +622,4 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 	g_free(avi);
 	g_free(profile);
 	g_option_context_free (context);
-}
-
-
-
-void
-readOpts1(int argc,char *argv[], struct GLOBAL *global) 
-{
-	
-	int c = 0;
-	static int debug_flag = 0;
-	char *tmpstr = NULL;
-	char *separateur;
-
-	static struct option long_options[] = {
-		/* These options set a flag. */
-		{"verbose",	no_argument,	&debug_flag,	1},
-		{"brief",	no_argument,	&debug_flag,	0},
-		/* These options don't set a flag.
-		We distinguish them by their indices. */
-		{"help",	no_argument,		0,	'h'},
-		{"device",	required_argument,	0,	'd'},
-		{"hwd_acel",	required_argument,	0,	'w'},
-		{"format",	required_argument,	0,	'f'},
-		{"size",	required_argument,	0,	's'},
-		{"image",	required_argument,	0,	'i'},
-		{"cap_time",	required_argument,	0,	'c'},
-		{"npics",	required_argument,	0,	'm'},
-		{"avi",		required_argument,	0,	'n'},
-		{"avi_time",	required_argument,	0,	't'},
-		{"show_fps",	required_argument,	0,	'p'},
-		{"profile",	required_argument,	0,	'l'},
-		{0, 0, 0, 0}
-	};
-	/* getopt_long stores the option index here. */
-	int option_index = 0;
-
-	while (c >= 0)
-	{
-		c = getopt_long (argc, argv, "hd:w:f:s:i:c:m:n:t:p:l:",
-			long_options, &option_index);
-
-		/* Detect the end of the options. */
-		if (c == -1)
-		break;
-
-		switch (c)
-		{
-			case 0:
-				/* If this option set a flag, do nothing else now. */
-				if (long_options[option_index].flag != 0)
-					break;
-				printf ("option %s", long_options[option_index].name);
-				if (optarg) printf (" with arg %s", optarg);
-				printf ("\n");
-			break;
-
-			case 'd':
-				g_snprintf(global->videodevice,15,"%s",optarg);
-				break;
-
-			case 'w':
-				if (g_strcmp0(optarg, "enable") == 0) global->hwaccel=1;
-				else if (g_strcmp0(optarg, "disable") == 0) global->hwaccel=0;
-				break;
-
-			case 'f':
-				g_snprintf(global->mode,5,"%s",optarg);
-				//global->mode[0] = optarg[0];
-				break;
-
-			case 's':
-				tmpstr = g_strdup(optarg);
-	
-				global->width = (int) g_ascii_strtoull(tmpstr, &separateur, 10);
-				if (*separateur != 'x') 
-				{
-					printf("Error in size usage: -s[--size] widthxheight \n");
-				} 
-				else 
-				{
-					++separateur;
-					global->height = (int) g_ascii_strtoull(separateur, &separateur, 10);
-					if (*separateur != 0)
-						printf("hmm.. dont like that!! trying this height \n");
-				}
-				g_free(tmpstr);
-				tmpstr=NULL;
-				break;
-		
-			case 'i':
-				tmpstr = g_strdup(optarg);
-				global->imgFPath=splitPath(tmpstr,global->imgFPath);
-				/*get the file type*/
-				global->imgFormat = check_image_type(global->imgFPath[0]);
-				g_free(tmpstr);
-				tmpstr=NULL;
-				break;
-		
-			case 'c':
-				tmpstr = g_strdup(optarg);
-				global->image_timer= (int) g_ascii_strtoull(tmpstr, &separateur, 10);
-				global->image_inc=1;
-				printf("capturing images every %i seconds",global->image_timer);
-				g_free(tmpstr);
-				tmpstr=NULL;
-				break;
-		
-			case 'm':
-				tmpstr = g_strdup(optarg);
-				global->image_npics= (int) g_ascii_strtoull(tmpstr, &separateur, 10);
-				printf("capturing at max %d pics",global->image_npics);
-				g_free(tmpstr);
-				tmpstr=NULL;
-				break;
-	
-			case 'n':
-				global->avifile = g_strdup(optarg);
-				global->aviFPath=splitPath(global->avifile,global->aviFPath);
-				break;
-		
-			case 't':
-				tmpstr = g_strdup(optarg);
-				global->Capture_time= (int) g_ascii_strtoull(tmpstr, &separateur, 10);
-				printf("capturing avi for %i seconds",global->Capture_time);
-				g_free(tmpstr);
-				tmpstr=NULL;
-				break;
-		
-			case 'p':
-				if (g_strcmp0(optarg, "enable") == 0) global->FpsCount=1;
-				else if (g_strcmp0(optarg, "disable") == 0) global->FpsCount=0;
-				break;
-		
-			case 'l':
-				global->lprofile=1;
-				global->profile_FPath=splitPath(optarg,global->profile_FPath);
-				break;
-		
-			case '?':
-				/* getopt_long already printed an error message. */
-				break;
-
-			case 'h':
-			default:
-				printf("usage: guvcview [options] \n\n");
-				printf("options:\n");
-				printf("-h[--help]\t:print this message \n");
-				printf("--verbose \tverbose mode, prints a lot of debug related info\n");
-				printf("-d[--device] /dev/videoX\t:use videoX device\n");
-				//printf("-g\t:use read method for grab instead mmap\n");
-				printf("-w enable|disable\t:SDL hardware accel. \n");
-				printf("-f[--format] format\t:video format\n");
-				printf("   default mjpg  others options are yuv uyv yup gbr mjpg jpeg\n");
-				printf("-s[--size] widthxheight\t:use specified input size \n");
-				printf("-i[--image] image_file_name\t:sets the default image name\n"); 
-				printf("   available image formats: jpg png bmp\n");
-				printf("-c[--captime] time_in_seconds\t:time between image captures (sec.)\n"); 
-				printf("   enables auto image capture\n");
-				printf("-m[--npics] num_pics\t:max number of image captures\n");
-				printf("   defaults to 999 if not set\n");
-				printf("-n[--avi] avi_file_name\t:if set, enable avi capture from start \n");
-				printf("-t[--avitime] capture_time\t:used with -n option, avi capture time (sec.)\n");
-				printf("-p enable|disable\t:fps counter in title bar\n");
-				printf("-l[--profile] filename\t:loads the given control profile\n");
-				closeGlobals(global);
-				exit (0);
-		}
-	}
-	global->debug=debug_flag;
-	
-	/*if -n not set reset capture time*/
-	if(global->Capture_time>0 && global->avifile==NULL) global->Capture_time=0;
-	
-	/*get format from mode*/
-	global->format=get_PixFormat(global->mode);
-	
-	if (global->debug) printf("Format is %s\n",global->mode);
 }

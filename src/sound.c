@@ -187,9 +187,9 @@ init_sound(struct paRecordData* data)
 
 	return (0);
 error:
-	fprintf( stderr, "An error occured while using the portaudio stream\n" );
-	fprintf( stderr, "Error number: %d\n", err );
-	fprintf( stderr, "Error message: %s\n", Pa_GetErrorText( err ) ); 
+	g_printerr("An error occured while using the portaudio stream\n" );
+	g_printerr("Error number: %d\n", err );
+	g_printerr("Error message: %s\n", Pa_GetErrorText( err ) ); 
 	data->streaming=0;
 	data->flush=0;
 	Pa_Terminate();
@@ -216,12 +216,12 @@ close_sound (struct paRecordData *data)
 	int stall = wait_ms( &data->streaming, FALSE, 10, 30 );
 	if(!(stall)) 
 	{
-		printf("WARNING:sound capture stall (still streaming(%d) \n",
+		g_printerr("WARNING:sound capture stall (still streaming(%d) \n",
 			data->streaming);
 		data->streaming = 0;
 	}
 	if(data->audio_flag) 
-		fprintf(stderr, "Droped %i bytes of audio data\n", 
+		g_printerr("Droped %i bytes of audio data\n", 
 			data->snd_numBytes);
 	data->audio_flag=0;
 	data->flush = 0;
@@ -242,9 +242,9 @@ close_sound (struct paRecordData *data)
 	
 	return (0);
 error:  
-	fprintf( stderr, "An error occured while closing the portaudio stream\n" );
-	fprintf( stderr, "Error number: %d\n", err );
-	fprintf( stderr, "Error message: %s\n", Pa_GetErrorText( err ) );
+	g_printerr("An error occured while closing the portaudio stream\n" );
+	g_printerr("Error number: %d\n", err );
+	g_printerr("Error message: %s\n", Pa_GetErrorText( err ) );
 	data->flush=0;
 	data->audio_flag=0;
 	data->streaming=0;

@@ -80,7 +80,7 @@ ERR_DIALOG(const char *err_title, const char* err_msg, struct ALL_DATA *all_data
 	AviOut = NULL;
 	all_data->AviOut = NULL;
 
-	printf("Terminated.\n");;
+	g_printf("Terminated.\n");;
 	exit(1);
 };
 
@@ -153,7 +153,7 @@ aviClose (struct ALL_DATA *all_data)
 	if (!(AviOut->closed))
 	{
 		tottime = global->AVIstoptime - global->AVIstarttime;
-		if (global->debug) printf("stop= %d start=%d \n",global->AVIstoptime,global->AVIstarttime);
+		if (global->debug) g_printf("stop= %d start=%d \n",global->AVIstoptime,global->AVIstarttime);
 		if (tottime > 0) 
 		{
 			/*try to find the real frame rate*/
@@ -165,7 +165,7 @@ aviClose (struct ALL_DATA *all_data)
 			AviOut->fps=videoIn->fps;
 		}
 
-		if (global->debug) printf("AVI: %d frames in %d ms = %f fps\n",global->framecount,tottime,AviOut->fps);
+		if (global->debug) g_printf("AVI: %d frames in %d ms = %f fps\n",global->framecount,tottime,AviOut->fps);
 		/*------------------- close audio stream and clean up -------------------*/
 		if (global->Sound_enable > 0) 
 		{
@@ -173,14 +173,14 @@ aviClose (struct ALL_DATA *all_data)
 			int stall = wait_ms( &pdata->streaming, FALSE, 10, 30 );
 			if(!(stall)) 
 			{
-				printf("WARNING:sound capture stall (still streaming(%d) \n",
+				g_printf("WARNING:sound capture stall (still streaming(%d) \n",
 					pdata->streaming);
 				pdata->streaming = 0;
 			}
 			/*write any available audio data*/  
 			if(pdata->audio_flag)
 			{
-				fprintf(stderr,"writing %d bytes of audio data\n",pdata->snd_numBytes);
+				g_printerr("writing %d bytes of audio data\n",pdata->snd_numBytes);
 				g_mutex_lock( pdata->mutex);
 					if(global->Sound_Format == WAVE_FORMAT_PCM)
 					{
@@ -206,13 +206,13 @@ aviClose (struct ALL_DATA *all_data)
 			}
 			pdata->audio_flag = 0; /*all audio should have been writen by now*/
 			
-			if (close_sound (pdata)) printf("Sound Close error\n");
+			if (close_sound (pdata)) g_printerr("Sound Close error\n");
 			if(global->Sound_Format == ISO_FORMAT_MPEG12) close_MP2_encoder();
 		} 
 		AVI_close (AviOut);
 		global->framecount = 0;
 		global->AVIstarttime = 0;
-		if (global->debug) printf ("close avi\n");
+		if (global->debug) g_printf ("close avi\n");
 	}
 
 	pdata = NULL;
@@ -240,15 +240,15 @@ slider_changed (GtkRange * range, struct ALL_DATA *all_data)
 	}
 	else 
 	{
-		if (global->debug) printf ("%s change to %d failed\n",c->name, val);
+		if (global->debug) g_printerr ("%s change to %d failed\n",c->name, val);
 		if (input_get_control (videoIn, c, &val) == 0) 
 		{
-			if (global->debug) printf ("hardware value is %d\n", val);
+			if (global->debug) g_printerr ("hardware value is %d\n", val);
 			gtk_range_set_value (GTK_RANGE(ci->widget),val);
 		}
 		else 
 		{
-			printf ("hardware get failed\n");
+			g_printerr ("hardware get failed\n");
 		}
 	}
 	
@@ -275,15 +275,15 @@ spin_changed (GtkSpinButton * spin, struct ALL_DATA *all_data)
 	}
 	else 
 	{
-		if (global->debug) printf ("%s change to %d failed\n",c->name, val);
+		if (global->debug) g_printerr ("%s change to %d failed\n",c->name, val);
 		if (input_get_control (videoIn, c, &val) == 0) 
 		{
-			if (global->debug) printf ("hardware value is %d\n", val);
+			if (global->debug) g_printerr ("hardware value is %d\n", val);
 			gtk_spin_button_set_value(GTK_SPIN_BUTTON(ci->spinbutton),val);
 		}
 		else 
 		{
-			printf ("hardware get failed\n");
+			g_printerr ("hardware get failed\n");
 		}
 	}
 	s = NULL;
@@ -318,7 +318,7 @@ autofocus_changed (GtkToggleButton * toggle, struct ALL_DATA *all_data)
 	if (val>0) 
 	{
 		if (set_focus (videoIn, AFdata->focus) != 0) 
-			printf("ERROR: couldn't set focus to %d\n", AFdata->focus);
+			g_printerr("ERROR: couldn't set focus to %d\n", AFdata->focus);
 	}
 	global->autofocus = val;
 
@@ -343,26 +343,26 @@ check_changed (GtkToggleButton * toggle, struct ALL_DATA *all_data)
 
 	if (input_set_control (videoIn, c, val) != 0)
 	{
-		printf ("%s change to %d failed\n",c->name, val);
+		g_printerr ("%s change to %d failed\n",c->name, val);
 		if (input_get_control (videoIn, c, &val) == 0) 
 		{
-			printf ("hardware value is %d\n", val);
+			g_printerr ("hardware value is %d\n", val);
 		}
 		else 
 		{
-			printf ("hardware get failed\n");
+			g_printerr ("hardware get failed\n");
 		}
 	} 
 	else 
 	{
-		if (global->debug) printf("changed %s to %d\n",c->name,val);
+		if (global->debug) g_printf("changed %s to %d\n",c->name,val);
 		if (input_get_control (videoIn, c, &val) == 0) 
 		{
-			if (global->debug) printf ("hardware value is %d\n", val);
+			if (global->debug) g_printf ("hardware value is %d\n", val);
 		}
 		else 
 		{
-			printf ("hardware get failed\n");
+			g_printerr ("hardware get failed\n");
 		}
 		
 	}
@@ -386,19 +386,19 @@ bayer_changed (GtkToggleButton * toggle, struct ALL_DATA *all_data)
 	val = gtk_toggle_button_get_active (toggle) ? 1 : 0;
 	if (input_set_control (videoIn, c, val) != 0) 
 	{
-		printf ("%s change to %d failed\n",c->name, val);
+		g_printerr ("%s change to %d failed\n",c->name, val);
 		if (input_get_control (videoIn, c, &val) == 0) 
 		{
-			printf ("hardware value is %d\n", val);
+			g_printerr ("hardware value is %d\n", val);
 		}
 		else 
 		{
-			printf ("hardware get failed\n");
+			g_printerr ("hardware get failed\n");
 		}
 	}
 	else
 	{
-		if (global->debug) printf("changed %s to %d\n",c->name,val);
+		if (global->debug) g_printf("changed %s to %d\n",c->name,val);
 		/*stop and restart stream*/
 		videoIn->setFPS=1;
 		/*read value*/
@@ -409,7 +409,7 @@ bayer_changed (GtkToggleButton * toggle, struct ALL_DATA *all_data)
 		}
 		else 
 		{
-			printf ("hardware get failed\n");
+			g_printerr ("hardware get failed\n");
 		}
 	}
 
@@ -465,14 +465,14 @@ combo_changed (GtkComboBox * combo, struct ALL_DATA *all_data)
 
 	if (input_set_control (videoIn, c, val) != 0) 
 	{
-		printf ("%s change to %d failed\n",c->name, val);
+		g_printerr ("%s change to %d failed\n",c->name, val);
 		if (input_get_control (videoIn, c, &val) == 0) 
 		{
-			printf ("hardware value is %d\n", val);
+			g_printerr ("hardware value is %d\n", val);
 		}
 		else 
 		{
-			printf ("hardware get failed\n");
+			g_printerr ("hardware get failed\n");
 		}
 	}
 
@@ -494,7 +494,7 @@ setfocus_clicked (GtkButton * FocusButton, struct ALL_DATA *all_data)
 	AFdata->left = 8;
 	AFdata->focus = -1; /*reset focus*/
 	if (set_focus (videoIn, AFdata->focus) != 0) 
-		printf("ERROR: couldn't set focus to %d\n", AFdata->focus);
+		g_printerr("ERROR: couldn't set focus to %d\n", AFdata->focus);
 
 	AFdata = NULL;
 	videoIn = NULL;
@@ -509,7 +509,7 @@ PanLeft_clicked (GtkButton * PanLeft, struct ALL_DATA *all_data)
 
 	if(uvcPanTilt(videoIn, -INCPANTILT*(global->PanStep), 0, 0)<0) 
 	{
-		printf("Pan Left Error");
+		g_printerr("Pan Left Error");
 	}
 
 	global = NULL;
@@ -525,7 +525,7 @@ PanRight_clicked (GtkButton * PanRight, struct ALL_DATA *all_data)
 
 	if(uvcPanTilt(videoIn, INCPANTILT*(global->PanStep), 0, 0)<0) 
 	{
-		printf("Pan Right Error");
+		g_printerr("Pan Right Error");
 	}
 
 	global = NULL;
@@ -541,7 +541,7 @@ TiltUp_clicked (GtkButton * TiltUp, struct ALL_DATA *all_data)
 	
 	if(uvcPanTilt(videoIn, 0, -INCPANTILT*(global->TiltStep), 0)<0) 
 	{
-		printf("Tilt UP Error");
+		g_printerr("Tilt UP Error");
 	}
 
 	global = NULL;
@@ -557,7 +557,7 @@ TiltDown_clicked (GtkButton * TiltDown, struct ALL_DATA *all_data)
 	
 	if(uvcPanTilt(videoIn, 0, INCPANTILT*(global->TiltStep), 0)<0) 
 	{
-		printf("Tilt Down Error");
+		g_printerr("Tilt Down Error");
 	}
 
 	global = NULL;
@@ -572,7 +572,7 @@ PReset_clicked (GtkButton * PReset, struct ALL_DATA *all_data)
 	
 	if(uvcPanTilt(videoIn, 0, 0, 1)<0) 
 	{
-		printf("Pan Reset Error");
+		g_printerr("Pan Reset Error");
 	}
 	
 	videoIn = NULL;
@@ -586,7 +586,7 @@ TReset_clicked (GtkButton * PTReset, struct ALL_DATA *all_data)
 	
 	if(uvcPanTilt(videoIn, 0, 0, 2)<0) 
 	{
-		printf("Pan Reset Error");
+		g_printerr("Pan Reset Error");
 	}
 
 	videoIn = NULL;
@@ -600,7 +600,7 @@ PTReset_clicked (GtkButton * PTReset, struct ALL_DATA *all_data)
 	
 	if(uvcPanTilt(videoIn, 0, 0, 3)<0) 
 	{
-		printf("Pan Tilt Reset Error");
+		g_printerr("Pan Tilt Reset Error");
 	}
 
 	videoIn = NULL;
@@ -820,7 +820,7 @@ SndDevice_changed (GtkComboBox * SoundDevice, struct ALL_DATA *all_data)
 	struct GLOBAL *global = all_data->global;
 	
 	global->Sound_UseDev=gtk_combo_box_get_active (SoundDevice);
-	printf("using device id:%d\n",global->Sound_IndexDev[global->Sound_UseDev].id);
+	g_printf("using device id:%d\n",global->Sound_IndexDev[global->Sound_UseDev].id);
 	global = NULL;
 }
 
@@ -1093,7 +1093,7 @@ capture_avi (GtkButton *AVIButt, struct ALL_DATA *all_data)
 		int stall = wait_ms(&(videoIn->AVICapStop), TRUE, 10, 200);
 		if( !(stall > 0) )
 		{
-			fprintf(stderr, "video capture stall on exit(%d) - timeout\n",
+			g_printerr("video capture stall on exit(%d) - timeout\n",
 				videoIn->AVICapStop);
 		}
 		global->AVIstoptime = ms_time();
@@ -1122,7 +1122,7 @@ capture_avi (GtkButton *AVIButt, struct ALL_DATA *all_data)
 
 		if(AVI_open_output_file(AviOut, videoIn->AVIFName)<0) 
 		{
-			printf("Error: Couldn't create Avi.\n");
+			g_printerr("Error: Couldn't create Avi.\n");
 			videoIn->capAVI = FALSE;
 			pdata->capAVI = videoIn->capAVI;
 		} 
@@ -1157,7 +1157,7 @@ capture_avi (GtkButton *AVIButt, struct ALL_DATA *all_data)
 				/* Initialize sound (open stream)*/
 				if(init_sound (pdata)) 
 				{
-					printf("error opening portaudio\n");
+					g_printerr("error opening portaudio\n");
 					global->Sound_enable=0;
 					gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gwidget->SndEnable),0);
 				} 

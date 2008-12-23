@@ -49,7 +49,7 @@ Image_capture_timer(gpointer data)
 			global->imgFPath,
 			global->image_inc);
 	
-	snprintf(global->imageinc_str,24,_("File num:%d"),global->image_inc);
+	g_snprintf(global->imageinc_str,24,_("File num:%d"),global->image_inc);
 		
 	gtk_label_set_text(GTK_LABEL(gwidget->ImageIncLabel), global->imageinc_str);
 	
@@ -79,7 +79,7 @@ FpsCount_callback(gpointer data)
 		return(TRUE); /*keeps the timer*/
 	else 
 	{
-		snprintf(global->WVcaption,10,"GUVCVideo");
+		g_snprintf(global->WVcaption,10,"GUVCVideo");
 		SDL_WM_SetCaption(global->WVcaption, NULL);
 		return (FALSE);/*destroys the timer*/
 	}

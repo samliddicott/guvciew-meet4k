@@ -22,6 +22,9 @@
 ********************************************************************************/
 
 #include "close.h"
+#include <glib.h>
+#include <glib/gprintf.h>
+
 
 /*-------------------------- clean up and shut down --------------------------*/
 
@@ -46,7 +49,7 @@ clean_struct (struct ALL_DATA *all_data)
 	if(videoIn) close_v4l2(videoIn);
 	videoIn=NULL;
 
-	if (global->debug) printf("closed v4l2 strutures\n");
+	if (global->debug) g_printf("closed v4l2 strutures\n");
 
 	g_free(AviOut);
 	AviOut=NULL;
@@ -54,7 +57,7 @@ clean_struct (struct ALL_DATA *all_data)
 	if (s->control) 
 	{
 		input_free_controls (s);
-		printf("free controls\n");
+		g_printf("free controls\n");
 	}
 
 	g_free(s);
@@ -65,7 +68,7 @@ clean_struct (struct ALL_DATA *all_data)
 	gwidget = NULL;
 	all_data->gwidget = NULL;
 
-	if (global->debug) printf("free controls - vidState\n");
+	if (global->debug) g_printf("free controls - vidState\n");
 
 	g_free(AFdata);
 	AFdata = NULL;
@@ -75,7 +78,7 @@ clean_struct (struct ALL_DATA *all_data)
 	global=NULL;
 	all_data->global=NULL;
 
-	printf("cleaned allocations - 100%%\n");
+	g_printf("cleaned allocations - 100%%\n");
 }
 
 void 
@@ -90,18 +93,14 @@ shutd (gint restart, struct ALL_DATA *all_data)
 	struct GLOBAL *global = all_data->global;
 	struct vdIn *videoIn = all_data->videoIn;
 	
-	if (global->debug) printf("Shuting Down Thread\n");
+	if (global->debug) g_printf("Shuting Down Thread\n");
 	if(videoIn->signalquit > 0) videoIn->signalquit=0;
-	if (global->debug) printf("waiting for thread to finish\n");
+	if (global->debug) g_printf("waiting for thread to finish\n");
 	
 	/* wait for the main loop (video) thread */
 
 	g_thread_join( video_thread );
-	//if (rc)
-	//{
-	//	printf("ERROR; return code from pthread_join() is %d\n", rc);
-	//	exit(-1);
-	//}
+
 	/* destroys fps timer*/
 	if (global->timer_id > 0) g_source_remove(global->timer_id);
 
@@ -120,10 +119,10 @@ shutd (gint restart, struct ALL_DATA *all_data)
 
 	if (restart==1) 
 	{	/* replace running process with new one */
-		 printf("Restarting guvcview with command: %s\n",EXEC_CALL);
+		 g_printf("Restarting guvcview with command: %s\n",EXEC_CALL);
 		 exec_status = execlp(EXEC_CALL,EXEC_CALL,NULL);/*No parameters passed*/
 	}
 
 	g_free(EXEC_CALL);
-	printf("Terminated.\n");
+	g_printf("Terminated.\n");
 }

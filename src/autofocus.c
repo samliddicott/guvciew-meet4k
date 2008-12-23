@@ -34,6 +34,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <glib.h>
 #include <math.h>
 
 /*use insert sort - it's the fastest for small and almost sorted arrays (our case)*/
@@ -173,7 +174,7 @@ static int Sort(struct focusData *AFdata, int size)
 {
 	if (size>=20) 
 	{
-		printf("WARNING: focus array size=%d exceeds 20\n",size);
+		g_printerr("WARNING: focus array size=%d exceeds 20\n",size);
 		size = 10;
 	}
 	//ULLONG tm1 = ns_time();
@@ -186,9 +187,6 @@ static int Sort(struct focusData *AFdata, int size)
 #else
 	b_sort(AFdata, size);
 #endif
-	//ULLONG tm2 = ns_time();
-	//ULLONG totm=tm2-tm1;
-	//printf("Total time to sort:%lld ns\n", totm);
 	/*better focus value*/
 	return(AFdata->arr_foc[size]);
 }
@@ -359,7 +357,7 @@ int getFocusVal (struct focusData *AFdata)
 		/*--------- first time - run sharpness algorithm -----------------*/
 		if(AFdata->ind >= 20) 
 		{
-			printf ("WARNING ind=%d exceeds 20\n",AFdata->ind);
+			g_printerr ("WARNING ind=%d exceeds 20\n",AFdata->ind);
 			AFdata->ind = 10;
 		}
 		
@@ -435,7 +433,6 @@ int getFocusVal (struct focusData *AFdata)
 			AFdata->sharpLeft=AFdata->sharpness;
 			int ret=0;
 			ret=checkFocus(AFdata);
-			//printf("check is %d\n",ret);
 			switch (ret) 
 			{
 				case LOCAL_MAX:

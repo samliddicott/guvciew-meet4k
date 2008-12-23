@@ -37,6 +37,8 @@
 #include <time.h>
 #include <limits.h>
 #include <string.h>
+#include <glib.h>
+#include <glib/gprintf.h>
 
 /* support for internationalization - i18n */
 #include <glib/gi18n.h>    
@@ -221,7 +223,6 @@ static int readtables(int till, int *isDHT)
 				return 0;
 			/*read quantization tables (Lqt and Cqt)*/
 			case M_DQT:
-				//printf("find DQT \n");
 				lq = getword();
 				while (lq > 2) 
 				{
@@ -240,7 +241,6 @@ static int readtables(int till, int *isDHT)
 				break;
 			/*read huffman table*/
 			case M_DHT:
-				//printf("find DHT \n");
 				l = getword();
 				while (l > 2) 
 				{
@@ -271,7 +271,6 @@ static int readtables(int till, int *isDHT)
 				break;
 			/*restart interval*/
 			case M_DRI:
-				//printf("find DRI \n");
 				l = getword();
 				info.dri = getword();
 				break;
@@ -406,7 +405,7 @@ int jpeg_decode(BYTE **pic, BYTE *buf, int *width, int *height)
 	info.ns = getbyte(); /* number of scans */
 	if (!info.ns)
 	{
-	printf("info ns %d/n",info.ns);
+	g_printf("info ns %d/n",info.ns);
 		err = ERR_NOT_YCBCR_221111;
 		goto error;
 	}
@@ -442,9 +441,8 @@ int jpeg_decode(BYTE **pic, BYTE *buf, int *width, int *height)
 
 	if (i != 0 || j != 63 || m != 0) 
 	{
-		printf("hmm FW error,not seq DCT ??\n");
+		g_printerr("hmm FW error,not seq DCT ??\n");
 	}
-	// printf("ext huffman table %d \n",isInitHuffman);
 	
 	/*build huffman tables*/
 	if(!isInitHuffman) 
@@ -492,7 +490,6 @@ int jpeg_decode(BYTE **pic, BYTE *buf, int *width, int *height)
 			convert = yuv420pto422;	
 			break;
 		case 0x21: //422
-			// printf("find 422 %dx%d\n",*width,*height);
 			mb=4;
 			mcusx = *width >> 4;
 			mcusy = *height >> 3;

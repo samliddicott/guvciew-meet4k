@@ -84,7 +84,6 @@ void *main_loop(void *data)
 		last_focus = get_focus(videoIn);
 		/*make sure we wait for focus to settle on first check*/
 		if (last_focus < 0) last_focus=255;
-		//printf("last_focus is %d and focus is %d\n",last_focus, AFdata->focus);
 	}
 	
 	static Uint32 SDL_VIDEO_Flags =
@@ -93,7 +92,7 @@ void *main_loop(void *data)
 	/*----------------------------- Test SDL capabilities ---------------------*/
 	if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER) < 0) 
 	{
-		printf("Couldn't initialize SDL: %s\n", SDL_GetError());
+		g_printerr("Couldn't initialize SDL: %s\n", SDL_GetError());
 		exit(1);
 	}
 	
@@ -111,35 +110,35 @@ void *main_loop(void *data)
 	 
 	if (SDL_VideoDriverName(driver, sizeof(driver)) && global->debug) 
 	{
-		printf("Video driver: %s\n", driver);
+		g_printf("Video driver: %s\n", driver);
 	}
 	
 	info = SDL_GetVideoInfo();
 
-	if (info->wm_available && global->debug) printf("A window manager is available\n");
+	if (info->wm_available && global->debug) g_printf("A window manager is available\n");
 
 	if (info->hw_available) 
 	{
 		if (global->debug) 
-			printf("Hardware surfaces are available (%dK video memory)\n", info->video_mem);
+			g_printf("Hardware surfaces are available (%dK video memory)\n", info->video_mem);
 
 		SDL_VIDEO_Flags |= SDL_HWSURFACE;
 	}
 	if (info->blit_hw) 
 	{
-		if (global->debug) printf("Copy blits between hardware surfaces are accelerated\n");
+		if (global->debug) g_printf("Copy blits between hardware surfaces are accelerated\n");
 
 		SDL_VIDEO_Flags |= SDL_ASYNCBLIT;
 	}
 	
 	if (global->debug) 
 	{
-		if (info->blit_hw_CC) printf ("Colorkey blits between hardware surfaces are accelerated\n");
-		if (info->blit_hw_A) printf("Alpha blits between hardware surfaces are accelerated\n");
-		if (info->blit_sw) printf ("Copy blits from software surfaces to hardware surfaces are accelerated\n");
-		if (info->blit_sw_CC) printf ("Colorkey blits from software surfaces to hardware surfaces are accelerated\n");
-		if (info->blit_sw_A) printf("Alpha blits from software surfaces to hardware surfaces are accelerated\n");
-		if (info->blit_fill) printf("Color fills on hardware surfaces are accelerated\n");
+		if (info->blit_hw_CC) g_printf ("Colorkey blits between hardware surfaces are accelerated\n");
+		if (info->blit_hw_A) g_printf("Alpha blits between hardware surfaces are accelerated\n");
+		if (info->blit_sw) g_printf ("Copy blits from software surfaces to hardware surfaces are accelerated\n");
+		if (info->blit_sw_CC) g_printf ("Colorkey blits from software surfaces to hardware surfaces are accelerated\n");
+		if (info->blit_sw_A) g_printf("Alpha blits from software surfaces to hardware surfaces are accelerated\n");
+		if (info->blit_fill) g_printf("Color fills on hardware surfaces are accelerated\n");
 	}
 
 	if (!(SDL_VIDEO_Flags & SDL_HWSURFACE))
@@ -190,7 +189,7 @@ void *main_loop(void *data)
 		/*-------------------------- Grab Frame ----------------------------------*/
 		if (uvcGrab(videoIn) < 0) 
 		{
-			fprintf(stderr,"Error grabbing image \n");
+			g_printerr("Error grabbing image \n");
 			videoIn->signalquit=0;
 			g_snprintf(global->WVcaption,20,"GUVCVideo - CRASHED");
 			SDL_WM_SetCaption(global->WVcaption, NULL);
@@ -222,7 +221,7 @@ void *main_loop(void *data)
 					/*starting autofocus*/
 					AFdata->focus = AFdata->left; /*start left*/
 					if (set_focus (videoIn, AFdata->focus) != 0) 
-						printf("ERROR: couldn't set focus to %d\n", AFdata->focus);
+						g_printerr("ERROR: couldn't set focus to %d\n", AFdata->focus);
 					/*number of frames until focus is stable*/
 					/*1.4 ms focus time - every 1 step*/
 					AFdata->focus_wait = (int) abs(AFdata->focus-last_focus)*1.4/(1000/videoIn->fps)+1;
@@ -235,7 +234,7 @@ void *main_loop(void *data)
 						AFdata->sharpness=getSharpness (videoIn->framebuffer, videoIn->width, 
 							videoIn->height, 5);
 						if (global->debug) 
-							printf("sharp=%d focus_sharp=%d foc=%d right=%d left=%d ind=%d flag=%d\n",
+							g_printf("sharp=%d focus_sharp=%d foc=%d right=%d left=%d ind=%d flag=%d\n",
 								AFdata->sharpness,AFdata->focus_sharpness,
 								AFdata->focus, AFdata->right, AFdata->left, 
 								AFdata->ind, AFdata->flag);
@@ -243,7 +242,7 @@ void *main_loop(void *data)
 						if ((AFdata->focus != last_focus)) 
 						{
 							if (set_focus (videoIn, AFdata->focus) != 0) 
-								printf("ERROR: couldn't set focus to %d\n", 
+								g_printerr("ERROR: couldn't set focus to %d\n", 
 									AFdata->focus);
 							/*number of frames until focus is stable*/
 							/*1.4 ms focus time - every 1 step*/
@@ -254,7 +253,7 @@ void *main_loop(void *data)
 					else 
 					{
 						AFdata->focus_wait--;
-						if (global->debug) printf("Wait Frame: %d\n",AFdata->focus_wait);
+						if (global->debug) g_printf("Wait Frame: %d\n",AFdata->focus_wait);
 					}
 				}
 			}
@@ -322,7 +321,7 @@ void *main_loop(void *data)
 					{
 						if(SaveJPG(videoIn->ImageFName,videoIn->buf.bytesused,videoIn->tmpbuffer)) 
 						{
-							fprintf (stderr,"Error: Couldn't capture Image to %s \n",
+							g_printerr ("Error: Couldn't capture Image to %s \n",
 								videoIn->ImageFName);
 						}
 					} 
@@ -330,7 +329,7 @@ void *main_loop(void *data)
 					{
 						if (SaveBuff(videoIn->ImageFName,videoIn->buf.bytesused,videoIn->tmpbuffer))
 						{
-							fprintf (stderr,"Error: Couldn't capture Image to %s \n",
+							g_printerr ("Error: Couldn't capture Image to %s \n",
 								videoIn->ImageFName);
 						}
 					}
@@ -357,7 +356,7 @@ void *main_loop(void *data)
 							
 						if(SaveBuff(videoIn->ImageFName,global->jpeg_size,global->jpeg)) 
 						{ 
-							fprintf (stderr,"Error: Couldn't capture Image to %s \n",
+							g_printerr ("Error: Couldn't capture Image to %s \n",
 							videoIn->ImageFName);
 						}
 					}
@@ -381,7 +380,7 @@ void *main_loop(void *data)
 			
 					if(SaveBPM(videoIn->ImageFName, videoIn->width, videoIn->height, 24, pim)) 
 					{
-						fprintf (stderr,"Error: Couldn't capture Image to %s \n",
+						g_printerr ("Error: Couldn't capture Image to %s \n",
 						videoIn->ImageFName);
 					} 
 					break;
@@ -405,7 +404,7 @@ void *main_loop(void *data)
 					write_png(videoIn->ImageFName, videoIn->width, videoIn->height,pim);
 			}
 			videoIn->capImage=FALSE;
-			if (global->debug) printf("saved image to:%s\n",videoIn->ImageFName);
+			if (global->debug) g_printf("saved image to:%s\n",videoIn->ImageFName);
 		}
 		/*---------------------------capture AVI---------------------------------*/
 		if (videoIn->capAVI)
@@ -420,7 +419,6 @@ void *main_loop(void *data)
 					/* save MJPG frame */   
 					if((global->Frame_Flags==0) && (videoIn->formatIn==V4L2_PIX_FMT_MJPEG)) 
 					{
-						//printf("avi write frame\n");
 						ret = AVI_write_frame (AviOut, videoIn->tmpbuffer, 
 							videoIn->buf.bytesused, keyframe);
 					} 
@@ -487,16 +485,16 @@ void *main_loop(void *data)
 						&err1)    //error
 					) == NULL)  
 					{
-						fprintf(stderr, "Thread create failed: %s!!\n", err1->message );
+						g_printerr("Thread create failed: %s!!\n", err1->message );
 						g_error_free ( err1 ) ;
 						printf("using blocking method\n");
 						split_avi(all_data); /*blocking call*/
 					}
-					printf("AVI file size limit reached - restarted capture on new file\n");
+					g_printf("AVI file size limit reached - restarted capture on new file\n");
 				} 
 				else 
 				{
-					printf ("write error on avi out \n");
+					g_printerr ("write error on avi out \n");
 				}
 			}
 		   
@@ -512,14 +510,14 @@ void *main_loop(void *data)
 				{ /*only 1 audio stream*/
 					/*time diff for audio-video*/
 					int synctime= pdata->snd_begintime - global->AVIstarttime; 
-					if (global->debug) printf("shift sound by %d ms\n",synctime);
+					if (global->debug) g_printf("shift sound by %d ms\n",synctime);
 					if(synctime>10 && synctime<5000) 
 					{ /*only sync between 100ms and 5 seconds*/
 						if(global->Sound_Format == WAVE_FORMAT_PCM) 
 						{/*shift sound by synctime*/
 							UINT32 shiftFrames = abs(synctime * global->Sound_SampRate / 1000);
 							UINT32 shiftSamples = shiftFrames * global->Sound_NumChan;
-							if (global->debug) printf("shift sound forward by %d frames\n", 
+							if (global->debug) g_printf("shift sound forward by %d frames\n", 
 								shiftSamples);
 							SAMPLE EmptySamp[shiftSamples];
 							int i;
@@ -530,7 +528,7 @@ void *main_loop(void *data)
 						else if(global->Sound_Format == ISO_FORMAT_MPEG12) 
 						{
 							int size_mp2 = MP2_encode(pdata, synctime);
-							if (global->debug) printf("shift sound forward by %d bytes\n",size_mp2);
+							if (global->debug) g_printf("shift sound forward by %d bytes\n",size_mp2);
 							AVI_write_audio(AviOut,pdata->mp2Buff,size_mp2);
 						}
 					}
@@ -568,15 +566,15 @@ void *main_loop(void *data)
 							&err1)    //error
 						) == NULL)  
 						{
-							printf("Thread create failed: %s!!\n", err1->message );
+							g_printerr("Thread create failed: %s!!\n", err1->message );
 							g_error_free ( err1 ) ;
 							split_avi(all_data); /*blocking call*/
 						}
-						printf("AVI file size limit reached - restarted capture on new file\n");
+						g_printf("AVI file size limit reached - restarted capture on new file\n");
 					} 
 					else 
 					{
-						printf ("write error on avi out \n");
+						g_printerr ("write error on avi out \n");
 					}
 				}
 			}
@@ -643,10 +641,10 @@ void *main_loop(void *data)
 		videoIn->AVICapStop=TRUE;
 		videoIn->capAVI = FALSE;
 		pdata->capAVI = videoIn->capAVI;
-		if (global->debug) printf("stoping AVI capture\n");
+		if (global->debug) g_printf("stoping AVI capture\n");
 		aviClose(all_data);   
 	}
-	if (global->debug) printf("Thread terminated...\n");
+	if (global->debug) g_printf("Thread terminated...\n");
 
 	p = NULL;
 	g_free(jpeg_struct);
@@ -655,13 +653,13 @@ void *main_loop(void *data)
 	pim=NULL;
 	g_free(pavi);
 	pavi=NULL;
-	if (global->debug) printf("cleaning Thread allocations: 100%%\n");
+	if (global->debug) g_printf("cleaning Thread allocations: 100%%\n");
 	fflush(NULL);//flush all output buffers 
 
 	SDL_FreeYUVOverlay(overlay);
 	SDL_Quit();   
 
-	if (global->debug) printf("SDL Quit\n");
+	if (global->debug) g_printf("SDL Quit\n");
 
 	global = NULL;
 	AFdata = NULL;

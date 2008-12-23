@@ -341,19 +341,19 @@ int check_videoIn(struct vdIn *vd)
 	}
 
 	if ((vd->cap.capabilities & V4L2_CAP_VIDEO_CAPTURE) == 0) {
-		fprintf(stderr,"Error opening device %s: video capture not supported.\n",
+		g_printerr("Error opening device %s: video capture not supported.\n",
 				vd->videodevice);
 		goto fatal;;
 	}
 	if (vd->grabmethod) {
 		if (!(vd->cap.capabilities & V4L2_CAP_STREAMING)) {
-			fprintf(stderr,"%s does not support streaming i/o\n", 
+			g_printerr("%s does not support streaming i/o\n", 
 				vd->videodevice);
 			goto fatal;
 		}
 	} else {
 		if (!(vd->cap.capabilities & V4L2_CAP_READWRITE)) {
-			fprintf(stderr,"%s does not support read i/o\n", 
+			g_printerr("%s does not support read i/o\n", 
 				vd->videodevice);
 			goto fatal;
 		}
@@ -384,7 +384,7 @@ init_videoIn(struct vdIn *vd, char *device, int width, int height,
 	
 	vd->videodevice = g_strdup(device);
 	
-	printf("video device: %s \n", vd->videodevice);
+	g_printf("video device: %s \n", vd->videodevice);
 	
 	/*flag to video thread*/
 	vd->capAVI = FALSE;
@@ -425,7 +425,7 @@ init_videoIn(struct vdIn *vd, char *device, int width, int height,
 	
 	if ((ret=init_v4l2(vd)) < 0) 
 	{
-		fprintf(stderr," Init v4L2 failed !! \n");
+		g_printerr("Init v4L2 failed !! \n");
 		goto error;
 	}
 	vd->framesizeIn = (vd->width * vd->height << 1);
@@ -476,7 +476,7 @@ init_videoIn(struct vdIn *vd, char *device, int width, int height,
 			break;
 			
 		default:
-			fprintf(stderr,"(v4l2uvc.c) should never arrive (1)- exit fatal !!\n");
+			g_printerr("(v4l2uvc.c) should never arrive (1)- exit fatal !!\n");
 			ret=-7;
 			goto error;
 			break;
@@ -484,7 +484,7 @@ init_videoIn(struct vdIn *vd, char *device, int width, int height,
 	
 	if ((!vd->framebuffer) || (vd->framebuf_size <=0)) 
 	{
-		fprintf(stderr,"couldn't calloc %d bytes of memory for frame buffer\n",
+		g_printerr("couldn't calloc %d bytes of memory for frame buffer\n",
 			vd->framebuf_size);
 		ret=-6;
 		goto error;
@@ -517,7 +517,7 @@ init_videoIn(struct vdIn *vd, char *device, int width, int height,
 				}
 				break;
 			default:
-				fprintf(stderr,"(v4l2uvc.c) should never arrive (2)- exit fatal !!\n");
+				g_printerr("(v4l2uvc.c) should never arrive (2)- exit fatal !!\n");
 				ret=-7;
 				goto error;
 			break;
@@ -565,7 +565,7 @@ static int query_buff(struct vdIn *vd, const int setUNMAP)
 			return 1;
 		}
 		if (vd->buf.length <= 0) 
-			fprintf(stderr,"WARNING VIDIOC_QUERYBUF - buffer length is %d\n",
+			g_printerr("WARNING VIDIOC_QUERYBUF - buffer length is %d\n",
 					       vd->buf.length);
 		/* map new buffer */
 		vd->mem[i] = mmap(0 /* start anywhere */ ,
@@ -630,7 +630,7 @@ int init_v4l2(struct vdIn *vd)
 	if ((ret=check_SupPixFormat(vd->formatIn)) < 0)
 	{
 		/*not available - Fail so we can check other formats (don't bother trying it)*/
-		fprintf(stderr,"Format unavailable: %d.\n",vd->formatIn);
+		g_printerr("Format unavailable: %d.\n",vd->formatIn);
 		ret = -2;
 		goto fatal;
 	}
@@ -652,7 +652,7 @@ int init_v4l2(struct vdIn *vd)
 	if ((vd->fmt.fmt.pix.width != vd->width) ||
 		(vd->fmt.fmt.pix.height != vd->height)) 
 	{
-		printf("Requested Format unavailable: get width %d height %d \n",
+		g_printerr("Requested Format unavailable: get width %d height %d \n",
 		vd->fmt.fmt.pix.width, vd->fmt.fmt.pix.height);
 		vd->width = vd->fmt.fmt.pix.width;
 		vd->height = vd->fmt.fmt.pix.height;
@@ -664,7 +664,7 @@ int init_v4l2(struct vdIn *vd)
 	ret = ioctl(vd->fd,VIDIOC_S_PARM,&vd->streamparm);
 	if (ret < 0) 
 	{
-		fprintf(stderr,"Unable to set %d fps\n",vd->fps);
+		g_printerr("Unable to set %d fps\n",vd->fps);
 		perror("VIDIOC_S_PARM error");
 	}	
 	/* request buffers */
@@ -784,7 +784,7 @@ int uvcGrab(struct vdIn *vd)
 			if(vd->buf.bytesused <= HEADERFRAME1) 
 			{
 				/* Prevent crash on empty image */
-				printf("Ignoring empty buffer ...\n");
+				g_printf("Ignoring empty buffer ...\n");
 				return 0;
 			}
 			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
@@ -792,7 +792,7 @@ int uvcGrab(struct vdIn *vd)
 			if (jpeg_decode(&vd->framebuffer, vd->tmpbuffer, &vd->width,
 				&vd->height) < 0) 
 			{
-				fprintf(stderr,"jpeg decode errors\n");
+				g_printerr("jpeg decode errors\n");
 				goto err;
 			}
 			break;
@@ -808,7 +808,7 @@ int uvcGrab(struct vdIn *vd)
 			if (yuv420_to_yuyv(vd->framebuffer, vd->tmpbuffer, vd->width,
 				vd->height) < 0) 
 			{
-				fprintf(stderr,"error converting yuv420 to yuyv\n");
+				g_printerr("error converting yuv420 to yuyv\n");
 				goto err;
 			}
 			break;
@@ -974,7 +974,7 @@ input_set_framerate (struct vdIn * device)
 	ret = ioctl(fd,VIDIOC_S_PARM,&device->streamparm);
 	if (ret < 0) 
 	{
-		fprintf(stderr,"Unable to set %d fps\n",device->fps);
+		g_printerr("Unable to set %d fps\n",device->fps);
 		perror("VIDIOC_S_PARM error");
 	} 
 
@@ -1066,7 +1066,7 @@ input_enum_controls (struct vdIn * device, int *num_controls)
 		} 
 		else 
 		{
-			if (errno != EINVAL) fprintf(stderr,"Failed to query control id=%d: %s\n"
+			if (errno != EINVAL) g_printerr("Failed to query control id=%d: %s\n"
 					, i, strerror(errno));
 		}
 		i++;
@@ -1126,13 +1126,13 @@ int enum_frame_intervals(struct vdIn *vd, __u32 pixfmt, __u32 width, __u32 heigh
 	vd->listVidFormats[fmtind-1].listVidCap[fsizeind-1].framerate_num=NULL;
 	vd->listVidFormats[fmtind-1].listVidCap[fsizeind-1].framerate_denom=NULL;
 	
-	printf("\tTime interval between frame: ");
+	g_printf("\tTime interval between frame: ");
 	while ((ret = ioctl(vd->fd, VIDIOC_ENUM_FRAMEINTERVALS, &fival)) == 0) 
 	{
 		fival.index++;
 		if (fival.type == V4L2_FRMIVAL_TYPE_DISCRETE) 
 		{
-			printf("%u/%u, ", fival.discrete.numerator, fival.discrete.denominator);
+			g_printf("%u/%u, ", fival.discrete.numerator, fival.discrete.denominator);
 				
 			list_fps++;
 			vd->listVidFormats[fmtind-1].listVidCap[fsizeind-1].framerate_num = g_renew(
@@ -1145,14 +1145,14 @@ int enum_frame_intervals(struct vdIn *vd, __u32 pixfmt, __u32 width, __u32 heigh
 		} 
 		else if (fival.type == V4L2_FRMIVAL_TYPE_CONTINUOUS) 
 		{
-			printf("{min { %u/%u } .. max { %u/%u } }, ",
+			g_printf("{min { %u/%u } .. max { %u/%u } }, ",
 				fival.stepwise.min.numerator, fival.stepwise.min.numerator,
 				fival.stepwise.max.denominator, fival.stepwise.max.denominator);
 			break;
 		} 
 		else if (fival.type == V4L2_FRMIVAL_TYPE_STEPWISE) 
 		{
-			printf("{min { %u/%u } .. max { %u/%u } / "
+			g_printf("{min { %u/%u } .. max { %u/%u } / "
 				"stepsize { %u/%u } }, ",
 				fival.stepwise.min.numerator, fival.stepwise.min.denominator,
 				fival.stepwise.max.numerator, fival.stepwise.max.denominator,
@@ -1163,7 +1163,7 @@ int enum_frame_intervals(struct vdIn *vd, __u32 pixfmt, __u32 width, __u32 heigh
 	
 	vd->listVidFormats[fmtind-1].listVidCap[fsizeind-1].numb_frates = list_fps;
 	
-	printf("\n");
+	g_printf("\n");
 	if (ret != 0 && errno != EINVAL) 
 	{
 		perror("VIDIOC_ENUM_FRAMEINTERVALS - Error enumerating frame intervals");
@@ -1187,7 +1187,7 @@ int enum_frame_sizes(struct vdIn *vd, __u32 pixfmt, int fmtind)
 		fsize.index++;
 		if (fsize.type == V4L2_FRMSIZE_TYPE_DISCRETE) 
 		{
-			printf("{ discrete: width = %u, height = %u }\n",
+			g_printf("{ discrete: width = %u, height = %u }\n",
 				fsize.discrete.width, fsize.discrete.height);
 			
 			fsizeind++;
@@ -1206,26 +1206,26 @@ int enum_frame_sizes(struct vdIn *vd, __u32 pixfmt, int fmtind)
 		} 
 		else if (fsize.type == V4L2_FRMSIZE_TYPE_CONTINUOUS) 
 		{
-			printf("{ continuous: min { width = %u, height = %u } .. "
+			g_printf("{ continuous: min { width = %u, height = %u } .. "
 				"max { width = %u, height = %u } }\n",
 				fsize.stepwise.min_width, fsize.stepwise.min_height,
 				fsize.stepwise.max_width, fsize.stepwise.max_height);
-			printf("  will not enumerate frame intervals.\n");
+			g_printf("  will not enumerate frame intervals.\n");
 		} 
 		else if (fsize.type == V4L2_FRMSIZE_TYPE_STEPWISE) 
 		{
-			printf("{ stepwise: min { width = %u, height = %u } .. "
+			g_printf("{ stepwise: min { width = %u, height = %u } .. "
 				"max { width = %u, height = %u } / "
 				"stepsize { width = %u, height = %u } }\n",
 				fsize.stepwise.min_width, fsize.stepwise.min_height,
 				fsize.stepwise.max_width, fsize.stepwise.max_height,
 				fsize.stepwise.step_width, fsize.stepwise.step_height);
-			printf("  will not enumerate frame intervals.\n");
+			g_printf("  will not enumerate frame intervals.\n");
 		} 
 		else 
 		{
-			fprintf(stderr,"  fsize.type not supported: %d\n", fsize.type);
-			fprintf(stderr,"     (Discrete: %d   Continuous: %d  Stepwise: %d)\n",
+			g_printerr("  fsize.type not supported: %d\n", fsize.type);
+			g_printerr("     (Discrete: %d   Continuous: %d  Stepwise: %d)\n",
 				V4L2_FRMSIZE_TYPE_DISCRETE,
 				V4L2_FRMSIZE_TYPE_CONTINUOUS,
 				V4L2_FRMSIZE_TYPE_STEPWISE);
@@ -1251,7 +1251,7 @@ int enum_frame_sizes(struct vdIn *vd, __u32 pixfmt, int fmtind)
 		/*use the returned values*/
 		vd->width = vd->fmt.fmt.pix.width;
 		vd->height = vd->fmt.fmt.pix.height;
-		printf("{ ?GSPCA? : width = %u, height = %u }\n", vd->width, vd->height);
+		g_printf("{ ?GSPCA? : width = %u, height = %u }\n", vd->width, vd->height);
 		
 		if(vd->listVidFormats[fmtind-1].listVidCap == NULL) 
 		{
@@ -1267,7 +1267,7 @@ int enum_frame_sizes(struct vdIn *vd, __u32 pixfmt, int fmtind)
 		} 
 		else
 		{
-			printf("assert failed: listVidCap not Null\n");
+			g_printerr("assert failed: listVidCap not Null\n");
 			return (-2);
 		}
 		vd->listVidFormats[fmtind-1].listVidCap[0].width = vd->width;
@@ -1292,7 +1292,7 @@ int enum_frame_formats(struct vdIn *vd)
 	while ((ret = ioctl(vd->fd, VIDIOC_ENUM_FMT, &fmt)) == 0) 
 	{
 		fmt.index++;
-		printf("{ pixelformat = '%c%c%c%c', description = '%s' }\n",
+		g_printf("{ pixelformat = '%c%c%c%c', description = '%s' }\n",
 				fmt.pixelformat & 0xFF, (fmt.pixelformat >> 8) & 0xFF,
 				(fmt.pixelformat >> 16) & 0xFF, (fmt.pixelformat >> 24) & 0xFF,
 				fmt.description);
@@ -1312,7 +1312,7 @@ int enum_frame_formats(struct vdIn *vd)
 		}
 		else
 		{
-			printf("   { not supported - request format support at http://guvcview.berlios.de }\n");
+			g_printerr("   { not supported - request format support at http://guvcview.berlios.de }\n");
 		}
 	}
 	if (errno != EINVAL) {
@@ -1341,7 +1341,7 @@ int initDynCtrls(struct vdIn *vd)
 	/* try to add all controls listed above */
 	for ( i=0; i<LENGTH_OF_XU_CTR; i++ ) 
 	{
-		printf("Adding control for %s\n", xu_mappings[i].name);
+		g_printf("Adding control for %s\n", xu_mappings[i].name);
 		if ((err=ioctl(vd->fd, UVCIOC_CTRL_ADD, &xu_ctrls[i])) < 0 ) 
 		{
 			if (errno != EEXIST) perror("UVCIOC_CTRL_ADD - Error");
@@ -1351,7 +1351,7 @@ int initDynCtrls(struct vdIn *vd)
 	/* after adding the controls, add the mapping now */
 	for ( i=0; i<LENGTH_OF_XU_MAP; i++ ) 
 	{
-		printf("mapping control for %s\n", xu_mappings[i].name);
+		g_printf("mapping control for %s\n", xu_mappings[i].name);
 		if ((err=ioctl(vd->fd, UVCIOC_CTRL_MAP, &xu_mappings[i])) < 0) 
 		{
 			if (errno!=EEXIST) perror("UVCIOC_CTRL_MAP - Error");
@@ -1397,7 +1397,6 @@ int uvcPanTilt(struct vdIn *vd, int pan, int tilt, int reset)
 	} 
 	else 
 	{
-		//printf("pan: %i tilt:%i\n", pan,tilt);
 		xctrls[0].id = V4L2_CID_PAN_RELATIVE_NEW;
 		xctrls[0].value = pan;
 		xctrls[1].id = V4L2_CID_TILT_RELATIVE_NEW;

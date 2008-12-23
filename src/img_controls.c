@@ -23,6 +23,7 @@
 
 #include "img_controls.h"
 #include <glib.h>
+#include <glib/gprintf.h>
 
 /*exposure menu for old type controls */
 static const char *exp_typ[]={
@@ -49,11 +50,11 @@ draw_controls (struct ALL_DATA *all_data)
 	s->control = input_enum_controls (videoIn, &(s->num_controls));
 	if (global->debug) 
 	{
-		printf("Controls:\n");
+		g_printf("Controls:\n");
 		for (i = 0; i < s->num_controls; i++) 
 		{
-			printf("control[%d]: 0x%x",i,s->control[i].id);
-			printf ("  %s, %d:%d:%d, default %d\n", s->control[i].name,
+			g_printf("control[%d]: 0x%x",i,s->control[i].id);
+			g_printf ("  %s, %d:%d:%d, default %d\n", s->control[i].name,
 				s->control[i].min, s->control[i].step, s->control[i].max,
 				s->control[i].default_val);
 		}
@@ -373,7 +374,7 @@ draw_controls (struct ALL_DATA *all_data)
 				{
 					if (global->debug) 
 					{
-						printf("bayer mode set\n");
+						g_printf("bayer mode set\n");
 					}
 					videoIn->isbayer=1;
 				}
@@ -458,7 +459,7 @@ draw_controls (struct ALL_DATA *all_data)
 		}
 		else 
 		{
-			printf ("TODO: implement button\n");
+			g_printf ("TODO: implement button\n");
 			continue;
 		}
 

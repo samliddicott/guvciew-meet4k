@@ -99,7 +99,6 @@ yuyv2bgr (BYTE *pyuv, BYTE *pbgr, int width, int height)
 	int SizeBGR=height * width * 3; /* 3 bytes per pixel*/
 	/* BMP byte order is bgr and the lines start from last to first*/
 	preverse=pbgr+SizeBGR;/*start at the end and decrement*/
-	//printf("preverse addr:%d | pbgr addr:%d | diff:%d\n",preverse,pbgr,preverse-pbgr);
 	for(l=0;l<height;l++) 
 	{	/*iterate every 1 line*/
 		preverse-=width*3;/*put pointer at begin of unprocessed line*/
@@ -129,7 +128,6 @@ yuyv2bgr (BYTE *pyuv, BYTE *pbgr, int width, int height)
 		}
 		preverse-=width*3;/*get it back at the begin of processed line*/
 	}
-	//printf("preverse addr:%d | pbgr addr:%d | diff:%d\n",preverse,pbgr,preverse-pbgr);
 	preverse=NULL;
 }
 
@@ -145,7 +143,6 @@ uyvy2bgr (BYTE *pyuv, BYTE *pbgr, int width, int height)
 	int SizeBGR=height * width * 3; /* 3 bytes per pixel*/
 	/* BMP byte order is bgr and the lines start from last to first*/
 	preverse=pbgr+SizeBGR;/*start at the end and decrement*/
-	//printf("preverse addr:%d | pbgr addr:%d | diff:%d\n",preverse,pbgr,preverse-pbgr);
 	for(l=0;l<height;l++) 
 	{	/*iterate every 1 line*/
 		preverse-=width*3;/*put pointer at begin of unprocessed line*/
@@ -175,7 +172,6 @@ uyvy2bgr (BYTE *pyuv, BYTE *pbgr, int width, int height)
 		}
 		preverse-=width*3;/*get it back at the begin of processed line*/
 	}
-	//printf("preverse addr:%d | pbgr addr:%d | diff:%d\n",preverse,pbgr,preverse-pbgr);
 	preverse=NULL;
 }
 

@@ -160,7 +160,7 @@ int main(int argc, char *argv[])
 	int i, line;
 	int ret=0;
 	/*print package name and version*/ 
-	printf("%s\n", PACKAGE_STRING);
+	g_printf("%s\n", PACKAGE_STRING);
 	
 	/* initialize glib threads - make glib thread safe*/ 
 	if( !g_thread_supported() )
@@ -170,7 +170,7 @@ int main(int argc, char *argv[])
 	}
 	else
 	{
-		printf("Fatal:g_thread NOT supported\n");
+		g_printerr("Fatal:g_thread NOT supported\n");
 		exit(1);
 	}
 	
@@ -249,7 +249,7 @@ int main(int argc, char *argv[])
    
 #ifdef ENABLE_NLS
 	/* if --verbose mode set do debug*/
-	if (global->debug) printf("language catalog=> dir:%s lang:%s cat:%s.mo\n",lc_dir,lc_all,txtdom);
+	if (global->debug) g_printf("language catalog=> dir:%s lang:%s cat:%s.mo\n",lc_dir,lc_all,txtdom);
 #endif   
 	/*---------------------------- GTK init ----------------------------------*/
 	
@@ -297,7 +297,7 @@ int main(int argc, char *argv[])
 				break;
 				
 			case -2:/*invalid format*/
-				printf("trying minimum setup ...\n");
+				g_printf("trying minimum setup ...\n");
 				if (videoIn->numb_formats > 0) /*check for supported formats*/
 				{
 					global->formind = 0; /* get the first supported format */
@@ -308,7 +308,7 @@ int main(int argc, char *argv[])
 				}
 				else 
 				{
-					printf("ERROR: Can't set video stream. No supported format found\nExiting...\n");
+					g_printerr("ERROR: Can't set video stream. No supported format found\nExiting...\n");
 					ERR_DIALOG (N_("Guvcview error:\n\nCan't set MJPG or YUV stream for guvcview"),
 						N_("Make sure you have a UVC compliant camera\nand that you have the linux UVC driver installed."),
 						&all_data);
@@ -319,7 +319,7 @@ int main(int argc, char *argv[])
 					(videoIn, (char *) global->videodevice, global->width,global->height, 
 					global->format, global->grabmethod, global->fps, global->fps_num) < 0)
 				{
-					printf("ERROR: Minimum Setup Failed.\n Exiting...\n");
+					g_printerr("ERROR: Minimum Setup Failed.\n Exiting...\n");
 					ERR_DIALOG (N_("Guvcview error:\n\nUnable to start with minimum setup"),
 						N_("Please reconnect your camera."), 
 						&all_data);
@@ -345,7 +345,7 @@ int main(int argc, char *argv[])
 	global->formind = get_FormatIndex(videoIn, global->format);
 	if(global->formind < 0) 
 	{
-		printf("ERROR: Can't set video stream. No supported format found\nExiting...\n");
+		g_printerr("ERROR: Can't set video stream. No supported format found\nExiting...\n");
 		ERR_DIALOG (N_("Guvcview error:\n\nCan't set MJPG or YUV stream for guvcview"),
 			N_("Make sure you have a UVC compliant camera\nand that you have the linux UVC driver installed."),
 			&all_data);
@@ -544,7 +544,7 @@ int main(int argc, char *argv[])
 	char temp_str[20];
 	int defres=0;
 	if (global->debug) 
-		printf("resolutions of %dº format=%d \n",
+		g_printf("resolutions of %dº format=%d \n",
 			global->formind+1,
 			videoIn->listVidFormats[global->formind].numb_res);
 	for(i=0;i<videoIn->listVidFormats[global->formind].numb_res;i++) 
@@ -570,7 +570,7 @@ int main(int argc, char *argv[])
 	FrameRate = gtk_combo_box_new_text ();
 	int deffps=0;
 	if (global->debug) 
-		printf("frame rates of %dº resolution=%d \n",
+		g_printf("frame rates of %dº resolution=%d \n",
 			defres+1,
 			videoIn->listVidFormats[global->formind].listVidCap[defres].numb_frates);
 	for (i=0;i<videoIn->listVidFormats[global->formind].listVidCap[defres].numb_frates;i++) 
@@ -625,7 +625,7 @@ int main(int argc, char *argv[])
 	gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->Resolution),defres);
 	
 	if(global->debug) 
-		printf("Def. Res: %i  numb. fps:%i\n",defres,videoIn->listVidFormats[global->formind].listVidCap[defres].numb_frates);
+		g_printf("Def. Res: %i  numb. fps:%i\n",defres,videoIn->listVidFormats[global->formind].listVidCap[defres].numb_frates);
 	
 	gtk_table_attach(GTK_TABLE(table2), gwidget->Resolution, 1, 2, line, line+1,
 		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
@@ -840,7 +840,7 @@ int main(int argc, char *argv[])
 	numDevices = Pa_GetDeviceCount();
 	if( numDevices < 0 )
 	{
-		printf( "SOUND DISABLE: Pa_CountDevices returned 0x%x\n", numDevices );
+		g_printf( "SOUND DISABLE: Pa_CountDevices returned 0x%x\n", numDevices );
 		err = numDevices;
 		Pa_Terminate();
 		global->Sound_enable=0;
@@ -850,21 +850,21 @@ int main(int argc, char *argv[])
 		for( it=0; it<numDevices; it++ )
 		{
 			deviceInfo = Pa_GetDeviceInfo( it );
-			if (global->debug) printf( "--------------------------------------- device #%d\n", it );
+			if (global->debug) g_printf( "--------------------------------------- device #%d\n", it );
 			/* Mark global and API specific default devices */
 			defaultDisplayed = 0;
 			/* Default Input will save the ALSA default device index*/
 			/* since ALSA lists after OSS                           */
 			if( it == Pa_GetDefaultInputDevice() )
 			{
-				if (global->debug) printf( "[ Default Input" );
+				if (global->debug) g_printf( "[ Default Input" );
 				defaultDisplayed = 1;
 				global->Sound_DefDev=global->Sound_numInputDev;/*default index in array of input devs*/
 			}
 			else if( it == Pa_GetHostApiInfo( deviceInfo->hostApi )->defaultInputDevice )
 			{
 				const PaHostApiInfo *hostInfo = Pa_GetHostApiInfo( deviceInfo->hostApi );
-				if (global->debug) printf( "[ Default %s Input", hostInfo->name );
+				if (global->debug) g_printf( "[ Default %s Input", hostInfo->name );
 				defaultDisplayed = 2;
 				global->Sound_DefDev=global->Sound_numInputDev;/*index in array of input devs*/
 			}
@@ -873,8 +873,8 @@ int main(int argc, char *argv[])
 			{
 			 	if (global->debug) 
 				{
-					printf( (defaultDisplayed ? "," : "[") );
-					printf( " Default Output" );
+					g_printf( (defaultDisplayed ? "," : "[") );
+					g_printf( " Default Output" );
 				}
 				defaultDisplayed = 3;
 			}
@@ -883,21 +883,21 @@ int main(int argc, char *argv[])
 				const PaHostApiInfo *hostInfo = Pa_GetHostApiInfo( deviceInfo->hostApi );
 				if (global->debug)
 				{
-					printf( (defaultDisplayed ? "," : "[") );                
-					printf( " Default %s Output", hostInfo->name );/* OSS ALSA etc*/
+					g_printf( (defaultDisplayed ? "," : "[") );                
+					g_printf( " Default %s Output", hostInfo->name );/* OSS ALSA etc*/
 				}
 				defaultDisplayed = 4;
 			}
 
 			if( defaultDisplayed!=0 )
-				if (global->debug) printf( " ]\n" );
+				if (global->debug) g_printf( " ]\n" );
 
 			/* print device info fields */
 			if (global->debug) 
 			{
-				printf( "Name                     = %s\n", deviceInfo->name );
-				printf( "Host API                 = %s\n",  Pa_GetHostApiInfo( deviceInfo->hostApi )->name );
-				printf( "Max inputs = %d", deviceInfo->maxInputChannels  );
+				g_printf( "Name                     = %s\n", deviceInfo->name );
+				g_printf( "Host API                 = %s\n",  Pa_GetHostApiInfo( deviceInfo->hostApi )->name );
+				g_printf( "Max inputs = %d", deviceInfo->maxInputChannels  );
 			}
 			/* if it as input channels it's a capture device*/
 			if (deviceInfo->maxInputChannels >0) 
@@ -912,18 +912,18 @@ int main(int argc, char *argv[])
 			}
 			if (global->debug) 
 			{
-				printf( ", Max outputs = %d\n", deviceInfo->maxOutputChannels  );
-				printf( "Def. low input latency   = %8.3f\n", deviceInfo->defaultLowInputLatency  );
-				printf( "Def. low output latency  = %8.3f\n", deviceInfo->defaultLowOutputLatency  );
-				printf( "Def. high input latency  = %8.3f\n", deviceInfo->defaultHighInputLatency  );
-				printf( "Def. high output latency = %8.3f\n", deviceInfo->defaultHighOutputLatency  );
-				printf( "Def. sample rate         = %8.2f\n", deviceInfo->defaultSampleRate );
+				g_printf( ", Max outputs = %d\n", deviceInfo->maxOutputChannels  );
+				g_printf( "Def. low input latency   = %8.3f\n", deviceInfo->defaultLowInputLatency  );
+				g_printf( "Def. low output latency  = %8.3f\n", deviceInfo->defaultLowOutputLatency  );
+				g_printf( "Def. high input latency  = %8.3f\n", deviceInfo->defaultHighInputLatency  );
+				g_printf( "Def. high output latency = %8.3f\n", deviceInfo->defaultHighOutputLatency  );
+				g_printf( "Def. sample rate         = %8.2f\n", deviceInfo->defaultSampleRate );
 			}
 			
 		}
 		Pa_Terminate();
 		
-		if (global->debug) printf("----------------------------------------------\n");
+		if (global->debug) g_printf("----------------------------------------------\n");
 	}
 	
 	/*--------------------- sound controls -----------------------------------*/
@@ -1036,7 +1036,7 @@ int main(int argc, char *argv[])
 		GTK_FILL, 0, 0, 0);
 
 	gtk_widget_show (label_SndNumChan);
-	if (global->debug) printf("SampleRate:%d Channels:%d\n",global->Sound_SampRate,global->Sound_NumChan);
+	if (global->debug) g_printf("SampleRate:%d Channels:%d\n",global->Sound_SampRate,global->Sound_NumChan);
 	
 	/*sound format*/
 	line++;
@@ -1161,7 +1161,7 @@ int main(int argc, char *argv[])
 		&err1)                    //error
 	) == NULL)
 	{
-		printf("Thread create failed: %s!!\n", err1->message );
+		g_printerr("Thread create failed: %s!!\n", err1->message );
 		g_error_free ( err1 ) ;
 
 		ERR_DIALOG (N_("Guvcview error:\n\nUnable to create Video Thread"),
@@ -1184,7 +1184,7 @@ int main(int argc, char *argv[])
 		
 		if(AVI_open_output_file(AviOut, videoIn->AVIFName)<0) 
 		{
-			fprintf(stderr,"Error: Couldn't create Avi: %s\n",
+			g_printerr("Error: Couldn't create Avi: %s\n",
 				videoIn->AVIFName);
 			videoIn->capAVI = FALSE;
 			pdata->capAVI = videoIn->capAVI;
@@ -1229,7 +1229,7 @@ int main(int argc, char *argv[])
 					sizeof(SAMPLE)*8, 
 					global->Sound_Format);
 				/* Initialize sound (open stream)*/
-				if(init_sound (pdata)) printf("error opening portaudio\n");
+				if(init_sound (pdata)) g_printerr("error opening portaudio\n");
 				if (global->Sound_Format == ISO_FORMAT_MPEG12) 
 				{
 					init_MP2_encoder(pdata, global->Sound_bitRate);

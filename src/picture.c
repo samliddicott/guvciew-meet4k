@@ -83,7 +83,6 @@ SaveJPG(const char *Filename,int imgsize,BYTE *ImagePix)
 		{
 			qtsize++;
 		}
-		//printf("quant size=%d tp[0]:%x tp[1]:%x\n",qtsize,tp[0],tp[1]);
 		memmove(Pjpg,Pimg,qtsize);
 		/*moves to the begining of frame marker*/
 		Pjpg+=qtsize; 
@@ -122,7 +121,7 @@ SaveJPG(const char *Filename,int imgsize,BYTE *ImagePix)
 	}
 	else 
 	{
-		printf("could not allocate memmory for jpg file\n");
+		g_printerr("could not allocate memmory for jpg file\n");
 		ret=1;
 	}
 	return ret;
@@ -193,7 +192,7 @@ SaveBPM(const char *Filename, long width, long height, int BitCount, BYTE *Image
 	else 
 	{
 		ret=1;
-		printf("ERROR: Could not open file %s for write \n",Filename);
+		g_printerr("ERROR: Could not open file %s for write \n",Filename);
 	}
 	return ret;
 }
