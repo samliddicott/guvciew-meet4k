@@ -37,6 +37,8 @@
 #include <string.h>
 #include <errno.h>
 #include <time.h>
+#include <glib.h>
+#include <glib/gstdio.h>
 #include "config.h"
 #include "avilib.h"
 #include "defs.h"
@@ -543,7 +545,7 @@ int AVI_open_output_file(struct avi_t *AVI, const char * filename)
 	/* Since Linux needs a long time when deleting big files,
 	we do not truncate the file when we open it.
 	Instead it is truncated when the AVI file is closed */
-	AVI->fdes = open(filename, O_RDWR|O_CREAT,
+	AVI->fdes = g_open(filename, O_RDWR|O_CREAT,
 		S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH);
 	
 	//AVI->fdes = open(filename,O_RDWR|O_CREAT|O_BINARY,0644 &~mask);
