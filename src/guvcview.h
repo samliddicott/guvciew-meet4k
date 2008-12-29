@@ -81,7 +81,7 @@ struct ALL_DATA
 	struct avi_t *AviOut;
 	struct GWIDGET *gwidget;
 	struct VidState *s;
-	gchar *EXEC_CALL;
+	//gchar *EXEC_CALL;
 	GThread *video_thread;
 }   __attribute__ ((packed));
 

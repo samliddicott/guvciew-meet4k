@@ -85,9 +85,9 @@ void
 shutd (gint restart, struct ALL_DATA *all_data) 
 {
 	int exec_status=0;
-	
+	gchar videodevice[16];
 	struct GWIDGET *gwidget = all_data->gwidget;
-	gchar *EXEC_CALL = all_data->EXEC_CALL;
+	//gchar *EXEC_CALL = all_data->EXEC_CALL;
 	GThread *video_thread = all_data->video_thread;
 	struct paRecordData *pdata = all_data->pdata;
 	struct GLOBAL *global = all_data->global;
@@ -109,20 +109,26 @@ shutd (gint restart, struct ALL_DATA *all_data)
 	
 	/*save configuration*/
 	writeConf(global);
-
+	
+	g_snprintf(videodevice, 15, "%s", global->videodevice);
+	
 	clean_struct(all_data);
 	gwidget = NULL;
 	pdata = NULL;
 	global = NULL;
 	videoIn = NULL;
+	//g_free(EXEC_CALL);
+	
 	gtk_main_quit();
 
 	if (restart==1) 
 	{	/* replace running process with new one */
-		 g_printf("Restarting guvcview with command: %s\n",EXEC_CALL);
-		 exec_status = execlp(EXEC_CALL,EXEC_CALL,NULL);/*No parameters passed*/
+		g_printf("Restarting: guvcview -d %s\n", videodevice);
+		exec_status = execlp(g_get_prgname(),
+			g_get_prgname(),
+			"-d", 
+			videodevice,
+			NULL);
 	}
-
-	g_free(EXEC_CALL);
 	g_printf("Terminated.\n");
 }

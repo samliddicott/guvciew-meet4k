@@ -38,10 +38,8 @@ int initGlobals (struct GLOBAL *global)
 	global->debug = DEBUG;
 	
 	const gchar *home = g_get_home_dir();
-	
-	global->videodevice = g_new(char, 15);
 
-	g_snprintf(global->videodevice, 14, "/dev/video0");
+	global->videodevice = g_strdup("/dev/video0");
 	
 	global->confPath = g_strjoin("/", home, ".guvcviewrc", NULL);
 	

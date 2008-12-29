@@ -136,6 +136,9 @@ PTReset_clicked (GtkButton * PTReset, struct ALL_DATA *all_data);
 void
 quitButton_clicked (GtkButton * quitButton, struct ALL_DATA *all_data);
 
+void 
+Devices_changed (GtkComboBox * Devices, struct ALL_DATA *all_data);
+
 void
 resolution_changed (GtkComboBox * Resolution, struct ALL_DATA *all_data);
 

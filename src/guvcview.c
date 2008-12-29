@@ -85,7 +85,7 @@ struct GWIDGET *gwidget = NULL;
 GThread *video_thread = NULL;
 
 /* parameters passed when restarting*/
-gchar *EXEC_CALL;
+//gchar *EXEC_CALL;
 
 /*--------------------------- file chooser dialog ----------------------------*/
 static void
@@ -258,9 +258,9 @@ int main(int argc, char *argv[])
 	gtk_init(&argc, &argv);
 	
 	/*must be set after gdk_init - called by gtk_init*/
-	gchar* prgname = g_get_prgname();
-	if (prgname == NULL) EXEC_CALL = g_strdup(argv[0]);
-	else EXEC_CALL = g_strdup(prgname);
+	//gchar* prgname = g_get_prgname();
+	//if (prgname == NULL) EXEC_CALL = g_strdup(argv[0]);
+	//else EXEC_CALL = g_strdup(prgname);
 	
 	//printf("EXEC_CALL=%s\n",EXEC_CALL);
 	
@@ -283,7 +283,7 @@ int main(int argc, char *argv[])
 	all_data.AviOut = AviOut;
 	all_data.gwidget = gwidget;
 	all_data.s = s;
-	all_data.EXEC_CALL = EXEC_CALL;
+	//all_data.EXEC_CALL = EXEC_CALL;
 	//all_data.video_thread = video_thread; /*declare after thread creation*/
 	
 	/*get format from selected mode*/
@@ -544,6 +544,7 @@ int main(int argc, char *argv[])
 		global->boxvsize=global->winheight-90;
 	}
 	gtk_paned_set_position (GTK_PANED(gwidget->boxv),global->boxvsize);
+	
 	/*Devices*/
 	label_Device = gtk_label_new(_("Device:"));
 	gtk_misc_set_alignment (GTK_MISC (label_Device), 1, 0.5);
@@ -565,6 +566,8 @@ int main(int argc, char *argv[])
 	gtk_table_attach(GTK_TABLE(table2), gwidget->Devices, 1, 2, line, line+1,
 		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (gwidget->Devices);
+	g_signal_connect (GTK_COMBO_BOX(gwidget->Devices), "changed",
+		G_CALLBACK (Devices_changed), &all_data);
 	
 	/* Resolution*/
 	gwidget->Resolution = gtk_combo_box_new_text ();

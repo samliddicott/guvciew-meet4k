@@ -606,6 +606,68 @@ PTReset_clicked (GtkButton * PTReset, struct ALL_DATA *all_data)
 	videoIn = NULL;
 }
 
+void 
+Devices_changed (GtkComboBox * Devices, struct ALL_DATA *all_data)
+{
+	struct GWIDGET *gwidget = all_data->gwidget;
+	struct GLOBAL *global = all_data->global;
+	struct vdIn *videoIn = all_data->videoIn;
+	
+	GError *error=NULL;
+	
+	int index = gtk_combo_box_get_active(Devices);
+	if(index == videoIn->current_device) 
+		return;
+	g_free(global->videodevice);
+	printf("index=%i\n",index);
+	global->videodevice = g_strdup(videoIn->listVidDevices[index].device);
+	gchar *command = g_strjoin("",
+		g_get_prgname(),
+		" --device=",
+		global->videodevice,
+		NULL);
+	
+	gwidget->restartdialog = gtk_dialog_new_with_buttons (_("start new"),
+		GTK_WINDOW(gwidget->mainwin),
+		GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+		_("restart"),
+		GTK_RESPONSE_ACCEPT,
+		_("new"),
+		GTK_RESPONSE_REJECT,
+		_("cancel"),
+		GTK_RESPONSE_CANCEL,
+		NULL);
+	
+	GtkWidget *message = gtk_label_new (_("launch new process or restart?.\n\n"));
+	gtk_container_add (GTK_CONTAINER (GTK_DIALOG(gwidget->restartdialog)->vbox), message);
+	gtk_widget_show_all(GTK_WIDGET(GTK_CONTAINER (GTK_DIALOG(gwidget->restartdialog)->vbox)));
+	
+	gint result = gtk_dialog_run (GTK_DIALOG (gwidget->restartdialog));
+	switch (result) 
+	{
+		case GTK_RESPONSE_ACCEPT:
+			/*restart app*/
+			shutd(1, all_data);
+			break;
+		case GTK_RESPONSE_REJECT:
+			/*spawn new process*/
+			if(!(g_spawn_command_line_async(command, &error)))
+			{
+				g_printerr ("spawn failed: %s\n", error->message);
+				g_error_free ( error );
+			}
+			/*reset to current device*/
+			gtk_combo_box_set_active(GTK_COMBO_BOX(Devices), videoIn->current_device);
+			break;
+		default:
+			/* do nothing since dialog was canceled*/
+			break;
+	}
+
+	gtk_widget_destroy (gwidget->restartdialog);
+	g_free(command);
+}
+
 /*resolution control callback*/
 void
 resolution_changed (GtkComboBox * Resolution, struct ALL_DATA *all_data)

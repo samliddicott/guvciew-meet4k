@@ -390,7 +390,10 @@ static int enum_devices(struct vdIn *vd)
 				vd->listVidDevices[vd->num_devices-1].location = g_strdup((gchar *) v4l2_cap.bus_info);
 				vd->listVidDevices[vd->num_devices-1].valid = 1;
 				if(g_strcmp0(vd->videodevice,vd->listVidDevices[vd->num_devices-1].device)==0) 
+				{
 					vd->listVidDevices[vd->num_devices-1].current = 1;
+					vd->current_device = vd->num_devices-1;
+				}
 				else
 					vd->listVidDevices[vd->num_devices-1].current = 0;
 			}

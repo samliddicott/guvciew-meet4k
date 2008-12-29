@@ -321,6 +321,7 @@ struct vdIn
 	VidFormats *listVidFormats;
 	VidDevice *listVidDevices;
 	int num_devices;
+	int  current_device;
 };
 
 
