@@ -53,8 +53,8 @@ writeConf(struct GLOBAL *global)
 	if ((fp = g_fopen(global->confPath,"w"))!=NULL) 
 	{
 		g_fprintf(fp,"# guvcview configuration file\n\n");
-		g_fprintf(fp,"# video device: default '/dev/video0'\n");
-		g_fprintf(fp,"video_device='%s'\n",global->videodevice);
+		//g_fprintf(fp,"# video device: default '/dev/video0'\n");
+		//g_fprintf(fp,"video_device='%s'\n",global->videodevice);
 		g_fprintf(fp,"# Thread stack size: default 128 pages of 64k = 8388608 bytes\n");
 		g_fprintf(fp,"stack_size=%d\n",global->stack_size);
 		g_fprintf(fp,"# video loop sleep time in ms: 0,1,2,3,...\n");
@@ -607,11 +607,11 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 				dirname,
 				basename,
 				NULL);
+			
 			if(g_strcmp0("video0",basename) !=0 )
 			{
 				g_free(global->confPath);
 				global->confPath=NULL;
-				global->videodevice=NULL;
 				global->confPath = g_strjoin("", 
 					g_get_home_dir(), 
 					"/.guvcviewrc-",

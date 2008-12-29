@@ -467,11 +467,11 @@ init_videoIn(struct vdIn *vd, char *device, int width, int height,
 {
 	int ret=0;
 	int i=0;
-	
+	g_printf("device is %s\n", device);
 	if (vd == NULL || device == NULL)
 		return -4;
 	if (width == 0 || height == 0)
-		return -4;
+		return -5;
 	if (grabmethod < 0 || grabmethod > 1)
 		grabmethod = 1;		//mmap by default;
 	vd->videodevice = NULL;

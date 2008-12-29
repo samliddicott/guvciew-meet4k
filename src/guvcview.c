@@ -293,6 +293,7 @@ int main(int argc, char *argv[])
 		(videoIn, (char *) global->videodevice, global->width,global->height, 
 		global->format, global->grabmethod, global->fps, global->fps_num) )< 0)
 	{
+		g_printerr("Init video returned %i\n",ret);
 		switch (ret) 
 		{
 			case -1:/*can't open device*/
