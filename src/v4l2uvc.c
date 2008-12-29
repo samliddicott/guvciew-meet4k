@@ -326,6 +326,98 @@ int get_PixFormat(char *mode)
 	return (listSupFormats[0].format); /*default is- MJPG*/
 }
 
+static int enum_devices(struct vdIn *vd)
+{
+	int ret=0;
+	int fd=0;
+	if (vd == NULL)
+		return -1;
+	struct v4l2_capability v4l2_cap;
+	GDir *v4l2_dir=NULL;
+	GError *error=NULL;
+	v4l2_dir = g_dir_open("/sys/class/video4linux",0,&error);
+	if(v4l2_dir == NULL)
+	{
+		g_printerr ("opening '/sys/class/video4linux' failed: %s\n", 
+			 error->message);
+		g_error_free ( error );
+		return -1;
+	}
+	const gchar *v4l2_device;
+	vd->num_devices = 0;
+	while((v4l2_device = g_dir_read_name(v4l2_dir)) != NULL)
+	{
+		if(g_strrstr(v4l2_device, "video") != v4l2_device)
+			continue;
+		vd->num_devices++;
+		vd->listVidDevices = g_renew(VidDevice, 
+			vd->listVidDevices, 
+			vd->num_devices);
+		vd->listVidDevices[vd->num_devices-1].device = g_strjoin("/","/dev",v4l2_device,NULL);
+		
+		if ((fd = open(vd->listVidDevices[vd->num_devices-1].device, O_RDWR )) == -1) 
+		{
+			g_printerr("ERROR opening V4L interface for %s\n",
+				vd->listVidDevices[vd->num_devices-1].device);
+			close(fd);
+			vd->listVidDevices[vd->num_devices-1].name = g_strdup(v4l2_device);
+			vd->listVidDevices[vd->num_devices-1].driver = NULL;
+			vd->listVidDevices[vd->num_devices-1].location = NULL;
+			vd->listVidDevices[vd->num_devices-1].valid = 0;
+			vd->listVidDevices[vd->num_devices-1].current = 0;
+			continue;
+		} 
+		else
+		{
+			ret = ioctl(fd, VIDIOC_QUERYCAP, &v4l2_cap);
+			if (ret < 0) 
+			{
+				perror("VIDIOC_QUERYCAP error");
+				g_printerr("   couldn't query device %s\n",
+					vd->listVidDevices[vd->num_devices-1].device);
+				close(fd);
+				vd->listVidDevices[vd->num_devices-1].name = g_strdup(v4l2_device);
+				vd->listVidDevices[vd->num_devices-1].driver = NULL;
+				vd->listVidDevices[vd->num_devices-1].location = NULL;
+				vd->listVidDevices[vd->num_devices-1].valid = 0;
+				vd->listVidDevices[vd->num_devices-1].current = 0;
+				continue;
+			}
+			else
+			{
+				vd->listVidDevices[vd->num_devices-1].name = g_strdup((gchar *) v4l2_cap.card);
+				vd->listVidDevices[vd->num_devices-1].driver = g_strdup((gchar *) v4l2_cap.driver);
+				vd->listVidDevices[vd->num_devices-1].location = g_strdup((gchar *) v4l2_cap.bus_info);
+				vd->listVidDevices[vd->num_devices-1].valid = 1;
+				if(g_strcmp0(vd->videodevice,vd->listVidDevices[vd->num_devices-1].device)==0) 
+					vd->listVidDevices[vd->num_devices-1].current = 1;
+				else
+					vd->listVidDevices[vd->num_devices-1].current = 0;
+			}
+			
+		}
+		
+		close(fd);
+	}
+	
+	g_dir_close(v4l2_dir);
+	return(vd->num_devices);
+}
+
+static void freeDevices(struct vdIn *vd)
+{
+	int i=0;
+	
+	for(i=0;i<(vd->num_devices);i++)
+	{
+		g_free(vd->listVidDevices[i].device);
+		g_free(vd->listVidDevices[i].name);
+		g_free(vd->listVidDevices[i].driver);
+		g_free(vd->listVidDevices[i].location);
+	}
+	g_free(vd->listVidDevices);
+}
+
 int check_videoIn(struct vdIn *vd)
 {
 	int ret=0;
@@ -335,7 +427,8 @@ int check_videoIn(struct vdIn *vd)
 	
 	memset(&vd->cap, 0, sizeof(struct v4l2_capability));
 	ret = ioctl(vd->fd, VIDIOC_QUERYCAP, &vd->cap);
-	if (ret < 0) {
+	if (ret < 0) 
+	{
 		perror("VIDIOC_QUERYCAP error");
 		goto fatal;
 	}
@@ -358,6 +451,8 @@ int check_videoIn(struct vdIn *vd)
 			goto fatal;
 		}
 	}
+	g_printf("checking %s (driver: %s location: %s)\n",vd->cap.card, vd->cap.driver,
+		vd->cap.bus_info);
 	enum_frame_formats(vd);
 	return 0;
 fatal:
@@ -422,6 +517,9 @@ init_videoIn(struct vdIn *vd, char *device, int width, int height,
 	
 	vd->tmpbuffer = NULL;
 	vd->framebuffer = NULL;
+	
+	if(enum_devices(vd)<1)
+		g_printerr("unable to detect video devices on your system\n");
 	
 	if ((ret=init_v4l2(vd)) < 0) 
 	{
@@ -918,6 +1016,7 @@ void close_v4l2(struct vdIn *vd)
 	vd->framebuffer = NULL;
 	vd->ImageFName = NULL;
 	vd->AVIFName = NULL;
+	freeDevices(vd);
 	/*close device descriptor*/
 	close(vd->fd);
 	/*free struct allocation*/

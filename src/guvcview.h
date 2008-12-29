@@ -68,7 +68,7 @@ struct GWIDGET
 	GtkWidget *AVIIncLabel;
 	GtkWidget *AVIInc;
 	GtkWidget *Resolution;
-
+	GtkWidget *Devices;
 	GtkWidget *FileDialog;
 }   __attribute__ ((packed));
 

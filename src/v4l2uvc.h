@@ -251,7 +251,15 @@ struct uvc_xu_control
 #define UVCIOC_CTRL_SET		_IOW  ('U', 4, struct uvc_xu_control)
 
 #endif  
-
+typedef struct _VidDevice
+{
+	char *device;
+	char *name;
+	char *driver;
+	char *location;
+	int valid;
+	int current;
+} VidDevice;
 
 typedef struct _VidCap 
 {
@@ -311,6 +319,8 @@ struct vdIn
 	int cap_raw;
 	int available_exp[4];
 	VidFormats *listVidFormats;
+	VidDevice *listVidDevices;
+	int num_devices;
 };
 
 

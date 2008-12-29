@@ -211,6 +211,7 @@ int main(int argc, char *argv[])
 	GtkWidget *table2;
 	GtkWidget *labelResol;
 	GtkWidget *AviFileButt;
+	GtkWidget *label_Device;
 	GtkWidget *label_ImageType;
 	GtkWidget *label_AVIComp;
 	GtkWidget *label_SndSampRate;
@@ -538,6 +539,27 @@ int main(int argc, char *argv[])
 		global->boxvsize=global->winheight-90;
 	}
 	gtk_paned_set_position (GTK_PANED(gwidget->boxv),global->boxvsize);
+	/*Devices*/
+	label_Device = gtk_label_new(_("Device:"));
+	gtk_misc_set_alignment (GTK_MISC (label_Device), 1, 0.5);
+
+	gtk_table_attach (GTK_TABLE(table2), label_Device, 0, 1, line, line+1,
+		GTK_FILL, 0, 0, 0);
+
+	gtk_widget_show (label_Device);
+	
+	
+	gwidget->Devices = gtk_combo_box_new_text ();
+	for(i=0;i<(videoIn->num_devices);i++)
+	{
+		gtk_combo_box_append_text(GTK_COMBO_BOX(gwidget->Devices),
+			videoIn->listVidDevices[i].name);
+		if(videoIn->listVidDevices[i].current)
+			gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->Devices),i);
+	}
+	gtk_table_attach(GTK_TABLE(table2), gwidget->Devices, 1, 2, line, line+1,
+		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_widget_show (gwidget->Devices);
 	
 	/* Resolution*/
 	gwidget->Resolution = gtk_combo_box_new_text ();
