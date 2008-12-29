@@ -129,7 +129,7 @@ writeConf(struct GLOBAL *global)
 	return ret;
 }
 
-/*----------------------- read conf (.guvcviewrc) file -----------------------*/
+/*----------------------- read conf (.guvcviewrc(-videoX)) file -----------------------*/
 int
 readConf(struct GLOBAL *global)
 {
@@ -212,14 +212,18 @@ readConf(struct GLOBAL *global)
 					if (ttype == G_TOKEN_STRING)
 					{
 						signal=1; /*reset signal*/
-						if (g_strcmp0(name,"video_device")==0) 
+						//if (g_strcmp0(name,"video_device")==0) 
+						//{
+						//	g_snprintf(global->videodevice,15,"%s",scanner->value.v_string);
+						//}
+						
+						/*must check for defaults since ReadOpts runs before ReadConf*/
+						if (g_strcmp0(name,"resolution")==0) 
 						{
-							g_snprintf(global->videodevice,15,"%s",scanner->value.v_string);
-						}
-						else if (g_strcmp0(name,"resolution")==0) 
-						{
-							sscanf(scanner->value.v_string,"%ix%i",
-								&(global->width), &(global->height));
+							if(global->flg_res < 1)
+								sscanf(scanner->value.v_string,"%ix%i",
+									&(global->width), 
+									&(global->height));
 						}
 						else if (g_strcmp0(name,"windowsize")==0) 
 						{
@@ -228,9 +232,8 @@ readConf(struct GLOBAL *global)
 						}
 						else if (g_strcmp0(name,"mode")==0)
 						{
-							/*mode to format conversion is done in readOpts    */
-							/*so readOpts must allways be called after readConf*/
-							g_snprintf(global->mode,5,"%s",scanner->value.v_string);
+							if(global->flg_mode < 1)
+								g_snprintf(global->mode,5,"%s",scanner->value.v_string);
 						}
 						else if (g_strcmp0(name,"fps")==0)
 						{
@@ -239,18 +242,23 @@ readConf(struct GLOBAL *global)
 						}
 						else if (g_strcmp0(name,"image_path")==0)
 						{
-							global->imgFPath = splitPath(scanner->value.v_string,global->imgFPath);
-							/*get the file type*/
-							global->imgFormat = check_image_type(global->imgFPath[0]);
+							if(global->flg_imgFPath < 1)
+							{
+								global->imgFPath = splitPath(scanner->value.v_string,global->imgFPath);
+								/*get the file type*/
+								global->imgFormat = check_image_type(global->imgFPath[0]);
+							}
 						}
 						else if (g_strcmp0(name,"avi_path")==0) 
 						{
-							global->aviFPath=splitPath(scanner->value.v_string,global->aviFPath);
+							if(global->avifile == NULL)
+								global->aviFPath=splitPath(scanner->value.v_string,global->aviFPath);
 						}
 						else if (g_strcmp0(name,"profile_path")==0) 
 						{
-							global->profile_FPath=splitPath(scanner->value.v_string,
-								global->profile_FPath);
+							if(global->lprofile < 1)
+								global->profile_FPath=splitPath(scanner->value.v_string,
+									global->profile_FPath);
 						}
 						else
 						{
@@ -313,7 +321,8 @@ readConf(struct GLOBAL *global)
 						}
 						else if (strcmp(name,"fps_display")==0) 
 						{
-							global->FpsCount = (short) scanner->value.v_int;
+							if(global->flg_FpsCount < 1)
+								global->FpsCount = (short) scanner->value.v_int;
 						}
 						else if (g_strcmp0(name,"auto_focus")==0) 
 						{
@@ -325,7 +334,8 @@ readConf(struct GLOBAL *global)
 						}
 						else if (g_strcmp0(name,"hwaccel")==0) 
 						{
-							global->hwaccel = scanner->value.v_int;
+							if(global->flg_hwaccel < 1)
+								global->hwaccel = scanner->value.v_int;
 						}
 						else if (g_strcmp0(name,"grabmethod")==0) 
 						{
@@ -389,8 +399,11 @@ readConf(struct GLOBAL *global)
 						}
 						else if (g_strcmp0(name,"image_inc")==0) 
 						{
-							global->image_inc = (DWORD) scanner->value.v_int;
-							g_snprintf(global->imageinc_str,20,_("File num:%d"),global->image_inc);
+							if(global->image_timer <= 0)
+							{
+								global->image_inc = (DWORD) scanner->value.v_int;
+								g_snprintf(global->imageinc_str,20,_("File num:%d"),global->image_inc);
+							}
 						}
 						else
 						{
@@ -493,6 +506,8 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 	gchar *help_str = NULL;
 	gchar *help_gtk_str = NULL;
 	gchar *help_all_str = NULL;
+	int hwaccel=-1;
+	int FpsCount=-1;
 	
 	GOptionEntry entries[] =
 	{
@@ -501,7 +516,7 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 		{ "help", '?', G_OPTION_FLAG_HIDDEN, G_OPTION_ARG_NONE, &help, "Display help", NULL},
 		{ "verbose", 'v', 0, G_OPTION_ARG_NONE, &global->debug, N_("Displays debug information"), NULL },
 		{ "device", 'd', 0, G_OPTION_ARG_STRING, &device, N_("Video Device to use [default: /dev/video0]"), "VIDEO_DEVICE" },
-		{ "hwd_acel", 'w', 0, G_OPTION_ARG_INT, &global->hwaccel, N_("Hardware accelaration (enable(1) | disable(0))"), "[1 | 0]" },
+		{ "hwd_acel", 'w', 0, G_OPTION_ARG_INT, &hwaccel, N_("Hardware accelaration (enable(1) | disable(0))"), "[1 | 0]" },
 		{ "format", 'f', 0, G_OPTION_ARG_STRING, &format, N_("Pixel format(mjpg, jpeg, yuv, uyv, yyu, yup, gbr)"), "FORMAT" },
 		{ "size", 's', 0, G_OPTION_ARG_STRING, &size, N_("Frame size, default: 640x480"), "WIDTHxHEIGHT"},
 		{ "image", 'i', 0, G_OPTION_ARG_STRING, &image, N_("Image File name"), "FILENAME"},
@@ -509,7 +524,7 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 		{ "npics", 'm', 0, G_OPTION_ARG_INT, &global->image_npics, N_("Number of Pictures to capture"), "NUMPIC"},
 		{ "avi", 'n', 0, G_OPTION_ARG_STRING, &avi, N_("AVI File name (capture from start)"), "FILENAME"},
 		{ "avi_time", 't', 0, G_OPTION_ARG_INT, &global->Capture_time,N_("AVI capture time (in seconds)"), "TIME"},
-		{ "show_fps", 'p', 0, G_OPTION_ARG_INT, &global->FpsCount, N_("Show FPS value (enable(1) | disable (0))"), "[1 | 0]"},
+		{ "show_fps", 'p', 0, G_OPTION_ARG_INT, &FpsCount, N_("Show FPS value (enable(1) | disable (0))"), "[1 | 0]"},
 		{ "profile", 'l', 0, G_OPTION_ARG_STRING, &profile, N_("Load Profile at start"), "FILENAME"},
 		{ NULL }
 	};
@@ -541,6 +556,7 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 		g_free(help_all_str);
 		g_free(help_str);
 		g_free(help_gtk_str);
+		g_option_context_free (context);
 		exit(0);
 	}
 	else if(help)
@@ -551,6 +567,7 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 		g_free(help_str);
 		g_free(help_gtk_str);
 		g_free(help_all_str);
+		g_option_context_free (context);
 		exit(0);
 	} else if(help_gtk)
 	{
@@ -560,19 +577,55 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 		g_free(help_str);
 		g_free(help_gtk_str);
 		g_free(help_all_str);
+		g_option_context_free (context);
 		exit(0);
 	}
 	
 	/*regular options*/
 	if(device)
 	{
-		g_free(global->videodevice);
-		global->videodevice=NULL;
-		global->videodevice = g_strdup(device);
+		gchar *basename = NULL;
+		gchar *dirname = NULL;
+		basename = g_path_get_basename(device);
+		if(g_strrstr(basename,"video") != basename)
+		{
+			g_printerr("%s not a valid video device name\n",
+				basename);
+		}
+		else
+		{
+			g_free(global->videodevice);
+			global->videodevice=NULL;
+			dirname = g_path_get_dirname(device);
+			if(g_strcmp0(".",dirname)==0)
+			{
+				g_free(dirname);
+				dirname=g_strdup("/dev");
+			}
+		
+			global->videodevice = g_strjoin("/",
+				dirname,
+				basename,
+				NULL);
+			if(g_strcmp0("video0",basename) !=0 )
+			{
+				g_free(global->confPath);
+				global->confPath=NULL;
+				global->videodevice=NULL;
+				global->confPath = g_strjoin("", 
+					g_get_home_dir(), 
+					"/.guvcviewrc-",
+					basename,
+					NULL);
+			}
+		}
+		g_free(dirname);
+		g_free(basename);
 	}
 	if(format)
 	{
 		g_snprintf(global->mode,5,"%s",format);
+		global->flg_mode = 1;
 	}
 	if(size)
 	{
@@ -588,12 +641,15 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 			if (*separateur != 0)
 				g_printerr("hmm.. dont like that!! trying this height \n");
 		}
+		
+		global->flg_res = 1;
 	}
 	if(image)
 	{
 		global->imgFPath=splitPath(image,global->imgFPath);
 		/*get the file type*/
 		global->imgFormat = check_image_type(global->imgFPath[0]);
+		global->flg_imgFPath = 1;
 	}
 	if(global->image_timer > 0 )
 	{
@@ -611,6 +667,17 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 		global->lprofile=1;
 		global->profile_FPath=splitPath(profile,global->profile_FPath);
 	}
+	if(hwaccel != -1 )
+	{
+		global->hwaccel = hwaccel;
+		global->flg_hwaccel = 1;
+	}
+	if(FpsCount != -1)
+	{
+		global->FpsCount = FpsCount;
+		global->flg_FpsCount = 1;
+	}
+	
 
 	g_free(help_str);
 	g_free(help_gtk_str);

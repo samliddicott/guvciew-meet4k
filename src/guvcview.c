@@ -188,10 +188,11 @@ int main(int argc, char *argv[])
 	global = g_new0(struct GLOBAL, 1);
 	initGlobals(global);
 	
-	/*------------------------- reads configuration file ---------------------*/
-	readConf(global);
 	/*------------------------ reads command line options --------------------*/
 	readOpts(argc,argv,global);
+	
+	/*------------------------- reads configuration file ---------------------*/
+	readConf(global);
 	
 	/*---------------------------------- Allocations -------------------------*/
 	
@@ -284,6 +285,9 @@ int main(int argc, char *argv[])
 	all_data.s = s;
 	all_data.EXEC_CALL = EXEC_CALL;
 	//all_data.video_thread = video_thread; /*declare after thread creation*/
+	
+	/*get format from selected mode*/
+	global->format = get_PixFormat(global->mode);
 	
 	if ((ret=init_videoIn
 		(videoIn, (char *) global->videodevice, global->width,global->height, 

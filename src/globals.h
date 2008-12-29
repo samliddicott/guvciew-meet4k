@@ -43,6 +43,7 @@ struct GLOBAL
 	char *confPath;
 	pchar* aviFPath;
 	pchar* imgFPath;
+	int  flg_imgFPath; /*flag imgFPath if set in args*/
 	char *avifile; /*avi filename passed through argument options with -n */
 	pchar* profile_FPath;
 	char *WVcaption; /*video preview title bar caption*/
@@ -80,23 +81,28 @@ struct GLOBAL
 	float DispFps;
 	DWORD frmCount;
 	short FpsCount;
+	short flg_FpsCount;
 	int timer_id;/*fps count timer*/
 	int image_timer_id;/*auto image capture timer*/
 	int image_timer;/*auto image capture time*/
 	DWORD image_inc;/*image name increment*/
 	int image_npics;/*number of captures*/
+	int flg_npics; /*flag npics if set in args*/
 	int fps;
 	int fps_num;
 	int bpp; //current bytes per pixel
 	int hwaccel; //use hardware acceleration
+	int flg_hwaccel; /*flag hwaccel if set in args*/
 	int grabmethod;//default mmap(1) or read(0)
 	int width;
 	int height;
+	int flg_res; /*flag resol if set in args*/
 	int winwidth;
 	int winheight;
 	int boxvsize;
 	int spinbehave; /*spin: 0-non editable 1-editable*/
 	char *mode; /*jpg (default) or yuv*/
+	int flg_mode; /*flag mode if set in args*/
 	int format;
 	int formind; /*0-MJPG 1-YUYV*/
 	int Frame_Flags;

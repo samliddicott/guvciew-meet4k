@@ -451,7 +451,7 @@ int check_videoIn(struct vdIn *vd)
 			goto fatal;
 		}
 	}
-	g_printf("checking %s (driver: %s location: %s)\n",vd->cap.card, vd->cap.driver,
+	g_printf("Init. %s (driver: %s location: %s)\n",vd->cap.card, vd->cap.driver,
 		vd->cap.bus_info);
 	enum_frame_formats(vd);
 	return 0;
