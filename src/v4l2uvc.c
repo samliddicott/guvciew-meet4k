@@ -470,7 +470,7 @@ init_videoIn(struct vdIn *vd, char *device, int width, int height,
 {
 	int ret=0;
 	int i=0;
-	g_printf("device is %s\n", device);
+	
 	if (vd == NULL || device == NULL)
 		return -4;
 	if (width == 0 || height == 0)

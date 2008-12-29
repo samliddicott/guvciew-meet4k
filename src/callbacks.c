@@ -619,7 +619,6 @@ Devices_changed (GtkComboBox * Devices, struct ALL_DATA *all_data)
 	if(index == videoIn->current_device) 
 		return;
 	g_free(global->videodevice);
-	printf("index=%i\n",index);
 	global->videodevice = g_strdup(videoIn->listVidDevices[index].device);
 	gchar *command = g_strjoin("",
 		g_get_prgname(),
