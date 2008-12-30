@@ -655,13 +655,13 @@ Devices_changed (GtkComboBox * Devices, struct ALL_DATA *all_data)
 				g_printerr ("spawn failed: %s\n", error->message);
 				g_error_free ( error );
 			}
-			/*reset to current device*/
-			gtk_combo_box_set_active(GTK_COMBO_BOX(Devices), videoIn->current_device);
 			break;
 		default:
 			/* do nothing since dialog was canceled*/
 			break;
 	}
+	/*reset to current device*/
+	gtk_combo_box_set_active(GTK_COMBO_BOX(Devices), videoIn->current_device);
 
 	gtk_widget_destroy (gwidget->restartdialog);
 	g_free(command);

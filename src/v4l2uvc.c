@@ -1438,6 +1438,9 @@ int get_FormatIndex(struct vdIn *vd, int format)
 
 int initDynCtrls(struct vdIn *vd) 
 {
+	/*only for uvc driver (uvcvideo)*/
+	if(g_strcmp0(vd->listVidDevices[vd->current_device].driver,"uvcvideo") != 0)
+		return 0;
 	int i=0;
 	int err=0;
 	/* try to add all controls listed above */
