@@ -7,8 +7,9 @@ guvcview (0.9.7) stable; urgency=low
    * Change string handling, using glib functions.
    * Change memory managment, using glib functions.
    * Change from pthreads to gthreads (glib).
+   * Added multiple device support.
    
- -- Paulo Assis <pj.assis@gmail.com>  Tue, 23 Dec 2008 09:32:00 +0000
+ -- Paulo Assis <pj.assis@gmail.com>  Tue, 31 Dec 2008 12:16:00 +0000
 
 guvcview (0.9.6) stable; urgency=low
 

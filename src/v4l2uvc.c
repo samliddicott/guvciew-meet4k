@@ -405,7 +405,10 @@ static int enum_devices(struct vdIn *vd)
 		vd->listVidDevices[vd->num_devices-1].vendor = NULL;
 		vd->listVidDevices[vd->num_devices-1].product = NULL;
 		vd->listVidDevices[vd->num_devices-1].version = NULL;
-		/*get vid and pid from inputX/id */
+		/*get vid, pid and version from:                         */
+		/* /sys/class/video4linux/videoN/device/input/inputX/id/ */
+		
+		/* get input number - inputX */
 		gchar *dev_dir= g_strjoin("/",
 			"/sys/class/video4linux",
 			v4l2_device,
@@ -421,11 +424,12 @@ static int enum_devices(struct vdIn *vd)
 		}
 		else
 		{
+			/* get data */
 			const gchar *inpXdir;
 			if((inpXdir = g_dir_read_name(id_dir)) != NULL)
 			{
-				char line[5];
-				/*vid*/
+				char code[5];
+				/* vid */
 				gchar *vid_str=g_strjoin("/",
 					dev_dir,
 					inpXdir,
@@ -434,12 +438,12 @@ static int enum_devices(struct vdIn *vd)
 				FILE *vid_fp = g_fopen(vid_str,"r");
 				if(vid_fp != NULL)
 				{
-					if(fgets(line, sizeof(line), vid_fp) != NULL)
-						vd->listVidDevices[vd->num_devices-1].vendor = g_ascii_strdown(line,-1);
+					if(fgets(code, sizeof(code), vid_fp) != NULL)
+						vd->listVidDevices[vd->num_devices-1].vendor = g_ascii_strdown(code,-1);
 					fclose (vid_fp);
 				}
 				g_free(vid_str);
-				/*pid*/
+				/* pid */
 				gchar *pid_str=g_strjoin("/",
 					dev_dir,
 					inpXdir,
@@ -449,12 +453,12 @@ static int enum_devices(struct vdIn *vd)
 				FILE *pid_fp = g_fopen(pid_str,"r");
 				if(pid_fp != NULL)
 				{
-					if(fgets(line, sizeof(line), pid_fp) != NULL)
-						vd->listVidDevices[vd->num_devices-1].product = g_ascii_strdown(line,-1);
+					if(fgets(code, sizeof(code), pid_fp) != NULL)
+						vd->listVidDevices[vd->num_devices-1].product = g_ascii_strdown(code,-1);
 					fclose (pid_fp);
 				}
 				g_free(pid_str);
-				/*version*/
+				/* version */
 				gchar *ver_str=g_strjoin("/",
 					dev_dir,
 					inpXdir,
@@ -464,8 +468,8 @@ static int enum_devices(struct vdIn *vd)
 				FILE *ver_fp = g_fopen(ver_str,"r");
 				if(pid_fp != NULL)
 				{
-					if(fgets(line, sizeof(line), ver_fp) != NULL)
-						vd->listVidDevices[vd->num_devices-1].version = g_ascii_strdown(line,-1);
+					if(fgets(code, sizeof(code), ver_fp) != NULL)
+						vd->listVidDevices[vd->num_devices-1].version = g_ascii_strdown(code,-1);
 					fclose (ver_fp);
 				}
 				g_free(ver_str);
@@ -529,8 +533,7 @@ int check_videoIn(struct vdIn *vd)
 			goto fatal;
 		}
 	}
-	g_printf("Init. %s (driver: %s location: %s)\n",vd->cap.card, vd->cap.driver,
-		vd->cap.bus_info);
+	g_printf("Init. %s (location: %s)\n", vd->cap.card, vd->cap.bus_info);
 	enum_frame_formats(vd);
 	return 0;
 fatal:
@@ -1514,10 +1517,11 @@ int get_FormatIndex(struct vdIn *vd, int format)
 int initDynCtrls(struct vdIn *vd) 
 {
 	/*only for uvc driver (uvcvideo)*/
-	g_printf("vid:%s \npid:%s\nrelease:%s \n",
+	g_printf("vid:%s \npid:%s\nrelease:%s\ndriver:%s\n",
 		vd->listVidDevices[vd->current_device].vendor,
 		vd->listVidDevices[vd->current_device].product,
-		vd->listVidDevices[vd->current_device].version);
+		vd->listVidDevices[vd->current_device].version,
+		vd->listVidDevices[vd->current_device].driver);
 	if(g_strcmp0(vd->listVidDevices[vd->current_device].driver,"uvcvideo") != 0)
 		return 0;
 	/*only for logitech cameras*/
