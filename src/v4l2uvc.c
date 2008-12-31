@@ -67,7 +67,6 @@
 #define EXPMENU3	N_("Shutter Priority Mode")
 #define EXPMENU4	N_("Aperture Priority Mode")
 
-
 /* some Logitech webcams have pan/tilt/focus controls */
 #define LENGTH_OF_XU_CTR (6)
 #define LENGTH_OF_XU_MAP (10)
@@ -144,7 +143,7 @@ static struct uvc_xu_control_mapping xu_mappings[] =
 	},
 	{
 		.id        = V4L2_CID_PAN_RESET_NEW,
-		.name      = N_("Pan (reset)"),
+		.name      = N_("Pan Reset"),
 		.entity    = UVC_GUID_LOGITECH_MOTOR_CONTROL,
 		.selector  = XU_MOTORCONTROL_PANTILT_RESET,
 		.size      = 1,
@@ -154,7 +153,7 @@ static struct uvc_xu_control_mapping xu_mappings[] =
 	},
 	{
 		.id        = V4L2_CID_TILT_RESET_NEW,
-		.name      = N_("Tilt (reset)"),
+		.name      = N_("Tilt Reset"),
 		.entity    = UVC_GUID_LOGITECH_MOTOR_CONTROL,
 		.selector  = XU_MOTORCONTROL_PANTILT_RESET,
 		.size      = 1,
@@ -164,7 +163,7 @@ static struct uvc_xu_control_mapping xu_mappings[] =
 	},
 	{
 		.id        = V4L2_CID_PANTILT_RESET_LOGITECH,
-		.name      = N_("Pan/Tilt (reset)"),
+		.name      = N_("Pan/tilt Reset"),
 		.entity    = UVC_GUID_LOGITECH_MOTOR_CONTROL,
 		.selector  = XU_MOTORCONTROL_PANTILT_RESET,
 		.size      = 8,

@@ -108,7 +108,7 @@ shutd (gint restart, struct ALL_DATA *all_data)
 	global->boxvsize=gtk_paned_get_position (GTK_PANED(gwidget->boxv));
 	
 	/*save configuration*/
-	writeConf(global);
+	writeConf(global, videoIn->videodevice);
 	
 	g_snprintf(videodevice, 15, "%s", global->videodevice);
 	

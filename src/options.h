@@ -26,7 +26,7 @@
 
 /*----------------------- write conf (.guvcviewrc) file ----------------------*/
 int 
-writeConf(struct GLOBAL *global);
+writeConf(struct GLOBAL *global, char *videodevice);
 
 /*----------------------- read conf (.guvcviewrc) file -----------------------*/
 int 

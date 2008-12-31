@@ -45,16 +45,14 @@
 #include "../config.h"
 /*----------------------- write conf (.guvcviewrc) file ----------------------*/
 int 
-writeConf(struct GLOBAL *global) 
+writeConf(struct GLOBAL *global, char *videodevice) 
 {
 	int ret=0;
 	FILE *fp;
 
 	if ((fp = g_fopen(global->confPath,"w"))!=NULL) 
 	{
-		g_fprintf(fp,"# guvcview configuration file\n\n");
-		//g_fprintf(fp,"# video device: default '/dev/video0'\n");
-		//g_fprintf(fp,"video_device='%s'\n",global->videodevice);
+		g_fprintf(fp,"# guvcview configuration file for %s\n\n",videodevice);
 		g_fprintf(fp,"# Thread stack size: default 128 pages of 64k = 8388608 bytes\n");
 		g_fprintf(fp,"stack_size=%d\n",global->stack_size);
 		g_fprintf(fp,"# video loop sleep time in ms: 0,1,2,3,...\n");
@@ -172,7 +170,7 @@ readConf(struct GLOBAL *global)
 	if (fd < 0 )
 	{
 		printf("Could not open %s for read,\n will try to create it\n",global->confPath);
-		ret=writeConf(global);
+		ret=writeConf(global, global->videodevice);
 	}
 	else
 	{
@@ -517,7 +515,7 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 		{ "verbose", 'v', 0, G_OPTION_ARG_NONE, &global->debug, N_("Displays debug information"), NULL },
 		{ "device", 'd', 0, G_OPTION_ARG_STRING, &device, N_("Video Device to use [default: /dev/video0]"), "VIDEO_DEVICE" },
 		{ "hwd_acel", 'w', 0, G_OPTION_ARG_INT, &hwaccel, N_("Hardware accelaration (enable(1) | disable(0))"), "[1 | 0]" },
-		{ "format", 'f', 0, G_OPTION_ARG_STRING, &format, N_("Pixel format(mjpg, jpeg, yuv, uyv, yyu, yup, gbr)"), "FORMAT" },
+		{ "format", 'f', 0, G_OPTION_ARG_STRING, &format, N_("Pixel format(mjpg|jpeg|yuv|uyv|yyu|yup|gbr)"), "FORMAT" },
 		{ "size", 's', 0, G_OPTION_ARG_STRING, &size, N_("Frame size, default: 640x480"), "WIDTHxHEIGHT"},
 		{ "image", 'i', 0, G_OPTION_ARG_STRING, &image, N_("Image File name"), "FILENAME"},
 		{ "cap_time", 'c', 0, G_OPTION_ARG_INT, &global->image_timer, N_("Image capture interval in seconds"), "TIME"},
