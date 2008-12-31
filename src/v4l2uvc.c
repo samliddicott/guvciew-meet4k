@@ -32,6 +32,7 @@
 #include <string.h>
 #include <glib.h>
 #include <glib/gprintf.h>
+#include <glib/gstdio.h>
 
 #include "v4l2uvc.h"
 #include "utils.h"
@@ -334,6 +335,7 @@ static int enum_devices(struct vdIn *vd)
 		return -1;
 	struct v4l2_capability v4l2_cap;
 	GDir *v4l2_dir=NULL;
+	GDir *id_dir=NULL;
 	GError *error=NULL;
 	v4l2_dir = g_dir_open("/sys/class/video4linux",0,&error);
 	if(v4l2_dir == NULL)
@@ -347,7 +349,7 @@ static int enum_devices(struct vdIn *vd)
 	vd->num_devices = 0;
 	while((v4l2_device = g_dir_read_name(v4l2_dir)) != NULL)
 	{
-		if(g_strrstr(v4l2_device, "video") != v4l2_device)
+		if(!(g_str_has_prefix(v4l2_device, "video")))
 			continue;
 		vd->num_devices++;
 		vd->listVidDevices = g_renew(VidDevice, 
@@ -397,10 +399,80 @@ static int enum_devices(struct vdIn *vd)
 				else
 					vd->listVidDevices[vd->num_devices-1].current = 0;
 			}
-			
 		}
 		
 		close(fd);
+		vd->listVidDevices[vd->num_devices-1].vendor = NULL;
+		vd->listVidDevices[vd->num_devices-1].product = NULL;
+		vd->listVidDevices[vd->num_devices-1].version = NULL;
+		/*get vid and pid from inputX/id */
+		gchar *dev_dir= g_strjoin("/",
+			"/sys/class/video4linux",
+			v4l2_device,
+			"device/input",
+			NULL);
+		id_dir = g_dir_open(dev_dir,0,&error);
+		if(id_dir == NULL)
+		{
+			g_printerr ("opening '%s' failed: %s\n",
+			dev_dir,
+			error->message);
+			g_error_free ( error );
+		}
+		else
+		{
+			const gchar *inpXdir;
+			if((inpXdir = g_dir_read_name(id_dir)) != NULL)
+			{
+				char line[5];
+				/*vid*/
+				gchar *vid_str=g_strjoin("/",
+					dev_dir,
+					inpXdir,
+					"id/vendor",
+					NULL);
+				FILE *vid_fp = g_fopen(vid_str,"r");
+				if(vid_fp != NULL)
+				{
+					if(fgets(line, sizeof(line), vid_fp) != NULL)
+						vd->listVidDevices[vd->num_devices-1].vendor = g_ascii_strdown(line,-1);
+					fclose (vid_fp);
+				}
+				g_free(vid_str);
+				/*pid*/
+				gchar *pid_str=g_strjoin("/",
+					dev_dir,
+					inpXdir,
+					"id/product",
+					NULL);
+				
+				FILE *pid_fp = g_fopen(pid_str,"r");
+				if(pid_fp != NULL)
+				{
+					if(fgets(line, sizeof(line), pid_fp) != NULL)
+						vd->listVidDevices[vd->num_devices-1].product = g_ascii_strdown(line,-1);
+					fclose (pid_fp);
+				}
+				g_free(pid_str);
+				/*version*/
+				gchar *ver_str=g_strjoin("/",
+					dev_dir,
+					inpXdir,
+					"id/version",
+					NULL);
+				
+				FILE *ver_fp = g_fopen(ver_str,"r");
+				if(pid_fp != NULL)
+				{
+					if(fgets(line, sizeof(line), ver_fp) != NULL)
+						vd->listVidDevices[vd->num_devices-1].version = g_ascii_strdown(line,-1);
+					fclose (ver_fp);
+				}
+				g_free(ver_str);
+			}
+		}
+		g_free(dev_dir);
+		g_dir_close(id_dir);
 	}
 	
 	g_dir_close(v4l2_dir);
@@ -417,6 +489,9 @@ static void freeDevices(struct vdIn *vd)
 		g_free(vd->listVidDevices[i].name);
 		g_free(vd->listVidDevices[i].driver);
 		g_free(vd->listVidDevices[i].location);
+		g_free(vd->listVidDevices[i].vendor);
+		g_free(vd->listVidDevices[i].product);
+		g_free(vd->listVidDevices[i].version);
 	}
 	g_free(vd->listVidDevices);
 }
@@ -1439,8 +1514,17 @@ int get_FormatIndex(struct vdIn *vd, int format)
 int initDynCtrls(struct vdIn *vd) 
 {
 	/*only for uvc driver (uvcvideo)*/
+	g_printf("vid:%s \npid:%s\nrelease:%s \n",
+		vd->listVidDevices[vd->current_device].vendor,
+		vd->listVidDevices[vd->current_device].product,
+		vd->listVidDevices[vd->current_device].version);
 	if(g_strcmp0(vd->listVidDevices[vd->current_device].driver,"uvcvideo") != 0)
 		return 0;
+	/*only for logitech cameras*/
+	if(vd->listVidDevices[vd->current_device].vendor != NULL)
+		if (g_strcmp0(vd->listVidDevices[vd->current_device].vendor,"046d") != 0)
+			return 0;
+		
 	int i=0;
 	int err=0;
 	/* try to add all controls listed above */

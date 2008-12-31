@@ -257,6 +257,9 @@ typedef struct _VidDevice
 	char *name;
 	char *driver;
 	char *location;
+	char *vendor;
+	char *product;
+	char *version;
 	int valid;
 	int current;
 } VidDevice;
