@@ -455,7 +455,7 @@ readConf(struct GLOBAL *global)
 		close (fd);
 		
 		if (global->debug) 
-		{ /*it will allways be FALSE unless DEBUG=1*/
+		{
 			g_printf("video_device: %s\n",global->videodevice);
 			g_printf("vid_sleep: %i\n",global->vid_sleep);
 			g_printf("resolution: %i x %i\n",global->width,global->height);
@@ -504,16 +504,18 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 	gchar *help_str = NULL;
 	gchar *help_gtk_str = NULL;
 	gchar *help_all_str = NULL;
+	gchar *config = NULL;
 	int hwaccel=-1;
 	int FpsCount=-1;
 	
 	GOptionEntry entries[] =
 	{
 		{ "help-all", 'h', G_OPTION_FLAG_HIDDEN, G_OPTION_ARG_NONE, &help_all, "Display all help options", NULL},
-		{ "help-gtk", 'g', G_OPTION_FLAG_HIDDEN, G_OPTION_ARG_NONE, &help_gtk, "DISPLAY GTK+ help", NULL},
+		{ "help-gtk", '!', G_OPTION_FLAG_HIDDEN, G_OPTION_ARG_NONE, &help_gtk, "DISPLAY GTK+ help", NULL},
 		{ "help", '?', G_OPTION_FLAG_HIDDEN, G_OPTION_ARG_NONE, &help, "Display help", NULL},
 		{ "verbose", 'v', 0, G_OPTION_ARG_NONE, &global->debug, N_("Displays debug information"), NULL },
 		{ "device", 'd', 0, G_OPTION_ARG_STRING, &device, N_("Video Device to use [default: /dev/video0]"), "VIDEO_DEVICE" },
+		{ "config", 'g', 0, G_OPTION_ARG_STRING, &config, N_("Configuration file"), "FILENAME" },
 		{ "hwd_acel", 'w', 0, G_OPTION_ARG_INT, &hwaccel, N_("Hardware accelaration (enable(1) | disable(0))"), "[1 | 0]" },
 		{ "format", 'f', 0, G_OPTION_ARG_STRING, &format, N_("Pixel format(mjpg|jpeg|yuv|uyv|yyu|yup|gbr)"), "FORMAT" },
 		{ "size", 's', 0, G_OPTION_ARG_STRING, &size, N_("Frame size, default: 640x480"), "WIDTHxHEIGHT"},
@@ -605,20 +607,29 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 				dirname,
 				basename,
 				NULL);
-			
-			if(g_strcmp0("video0",basename) !=0 )
+			if(global->flg_config < 1)
 			{
-				g_free(global->confPath);
-				global->confPath=NULL;
-				global->confPath = g_strjoin("", 
-					g_get_home_dir(), 
-					"/.guvcviewrc-",
-					basename,
-					NULL);
+				if(g_strcmp0("video0",basename) !=0 )
+				{
+					g_free(global->confPath);
+					global->confPath=NULL;
+					global->confPath = g_strjoin("", 
+						g_get_home_dir(), 
+						"/.guvcviewrc-",
+						basename,
+						NULL);
+				}
 			}
 		}
 		g_free(dirname);
 		g_free(basename);
+	}
+	if(config)
+	{
+		g_free(global->confPath);
+		global->confPath=NULL;
+		global->confPath = g_strdup(config);
+		global->flg_config = 1;
 	}
 	if(format)
 	{
@@ -681,6 +692,7 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 	g_free(help_gtk_str);
 	g_free(help_all_str);
 	g_free(device);
+	g_free(config);
 	g_free(format);
 	g_free(size);
 	g_free(image);

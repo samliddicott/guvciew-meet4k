@@ -41,9 +41,10 @@ struct GLOBAL
 	char *videodevice;
 	int stack_size;
 	char *confPath;
+	short flg_config; /*flag confPath if set in args*/
 	pchar* aviFPath;
 	pchar* imgFPath;
-	int  flg_imgFPath; /*flag imgFPath if set in args*/
+	short  flg_imgFPath; /*flag imgFPath if set in args*/
 	char *avifile; /*avi filename passed through argument options with -n */
 	pchar* profile_FPath;
 	char *WVcaption; /*video preview title bar caption*/
@@ -51,7 +52,7 @@ struct GLOBAL
 	char *aviinc_str; /*label for File inc*/
 	int vid_sleep;
 	int Capture_time; /*avi capture time passed through argument options with -t */
-	int lprofile; /* flag for command line -l option */ 
+	short lprofile; /* flag for command line -l option */ 
 	int imgFormat;
 	int AVIFormat; /*0-"MJPG"  1-"YUY2" 2-"DIB "(rgb32)*/
 	ULONG AVI_MAX_LEN;
@@ -87,22 +88,22 @@ struct GLOBAL
 	int image_timer;/*auto image capture time*/
 	DWORD image_inc;/*image name increment*/
 	int image_npics;/*number of captures*/
-	int flg_npics; /*flag npics if set in args*/
+	short flg_npics; /*flag npics if set in args*/
 	int fps;
 	int fps_num;
 	int bpp; //current bytes per pixel
 	int hwaccel; //use hardware acceleration
-	int flg_hwaccel; /*flag hwaccel if set in args*/
+	short flg_hwaccel; /*flag hwaccel if set in args*/
 	int grabmethod;//default mmap(1) or read(0)
 	int width;
 	int height;
-	int flg_res; /*flag resol if set in args*/
+	short flg_res; /*flag resol if set in args*/
 	int winwidth;
 	int winheight;
 	int boxvsize;
 	int spinbehave; /*spin: 0-non editable 1-editable*/
 	char *mode; /*jpg (default) or yuv*/
-	int flg_mode; /*flag mode if set in args*/
+	short flg_mode; /*flag mode if set in args*/
 	int format;
 	int formind; /*0-MJPG 1-YUYV*/
 	int Frame_Flags;

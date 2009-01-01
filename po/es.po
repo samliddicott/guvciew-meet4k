@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-12-31 13:17+0000\n"
-"PO-Revision-Date: 2008-12-31 13:18+0100\n"
+"POT-Creation-Date: 2009-01-01 14:07+0000\n"
+"PO-Revision-Date: 2009-01-01 14:10+0100\n"
 "Last-Translator: Paulo Assis <pj.assis@gmail.com>\n"
 "Language-Team: Portuguese <pt@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -418,55 +418,59 @@ msgstr "Parar el proceso de vídeo"
 msgid "Raw bits per pixel"
 msgstr "Bits por pixel (Raw)"
 
-#: src/options.c:515
+#: src/options.c:516
 msgid "Displays debug information"
 msgstr "Exhibir information de depuracion"
 
-#: src/options.c:516
+#: src/options.c:517
 msgid "Video Device to use [default: /dev/video0]"
 msgstr "Dispositivo de video [defect: /dev/video0]"
 
-#: src/options.c:517
+#: src/options.c:518
+msgid "Configuration file"
+msgstr "Archivo de configuración"
+
+#: src/options.c:519
 msgid "Hardware accelaration (enable(1) | disable(0))"
 msgstr "Accel. del hardware (habilitar(1)|deshabil.(0))"
 
-#: src/options.c:518
+#: src/options.c:520
 msgid "Pixel format(mjpg|jpeg|yuv|uyv|yyu|yup|gbr)"
 msgstr "Formato entrada(mjpg|jpeg|yuv|uyv|yyu|yup|gbr)"
 
-#: src/options.c:519
+#: src/options.c:521
 msgid "Frame size, default: 640x480"
 msgstr "Resolución (defect: 640x480)"
 
-#: src/options.c:520
+#: src/options.c:522
 msgid "Image File name"
 msgstr "Archivo de Imagen"
 
-#: src/options.c:521
+#: src/options.c:523
 msgid "Image capture interval in seconds"
 msgstr "Intervalo de captura Imagen en segundos"
 
-#: src/options.c:522
+#: src/options.c:524
 msgid "Number of Pictures to capture"
 msgstr "Número de imagens a capturar"
 
-#: src/options.c:523
+#: src/options.c:525
 msgid "AVI File name (capture from start)"
 msgstr "Archivo video (captura del arranque)"
 
-#: src/options.c:524
+#: src/options.c:526
 msgid "AVI capture time (in seconds)"
 msgstr "Tiempo de la captura video (segundos) "
 
-#: src/options.c:525
+#: src/options.c:527
 msgid "Show FPS value (enable(1) | disable (0))"
 msgstr "Exhibir FPS (habilitar(1) | deshabilitar(0))"
 
-#: src/options.c:526
+#: src/options.c:528
 msgid "Load Profile at start"
 msgstr "Carregar Perfil"
 
-#: src/options.c:532
+#: src/options.c:534
 msgid "- local options"
 msgstr "- opciones locales"
 
