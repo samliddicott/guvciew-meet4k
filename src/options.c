@@ -66,7 +66,7 @@ writeConf(struct GLOBAL *global, char *videodevice)
 		g_fprintf(fp,"vpane=%i\n",global->boxvsize);
 		g_fprintf(fp,"#spin button behavior: 0-non editable 1-editable\n");
 		g_fprintf(fp,"spinbehave=%i\n", global->spinbehave);
-		g_fprintf(fp,"# mode video format 'yuv' 'uyv' 'yyu' 'yup' 'gbr' 'jpeg' 'mjpg'(default)\n");
+		g_fprintf(fp,"# mode video format 'yuvy' 'uyvy' 'yyuv' 'yu12' 'gbrg' 'jpeg' 'mjpg'(default)\n");
 		g_fprintf(fp,"mode='%s'\n",global->mode);
 		g_fprintf(fp,"# frames per sec. - hardware supported - default( %i )\n",DEFAULT_FPS);
 		g_fprintf(fp,"fps='%d/%d'\n",global->fps_num,global->fps);
@@ -231,7 +231,13 @@ readConf(struct GLOBAL *global)
 						else if (g_strcmp0(name,"mode")==0)
 						{
 							if(global->flg_mode < 1)
-								g_snprintf(global->mode,5,"%s",scanner->value.v_string);
+							{
+								/*use fourcc but keep it compatible with luvcview*/
+								if(g_strcmp0(scanner->value.v_string,"yuv") == 0)
+									g_snprintf(global->mode,5,"yuyv");
+								else
+									g_snprintf(global->mode,5,"%s",scanner->value.v_string);
+							}
 						}
 						else if (g_strcmp0(name,"fps")==0)
 						{
@@ -517,7 +523,7 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 		{ "device", 'd', 0, G_OPTION_ARG_STRING, &device, N_("Video Device to use [default: /dev/video0]"), "VIDEO_DEVICE" },
 		{ "config", 'g', 0, G_OPTION_ARG_STRING, &config, N_("Configuration file"), "FILENAME" },
 		{ "hwd_acel", 'w', 0, G_OPTION_ARG_INT, &hwaccel, N_("Hardware accelaration (enable(1) | disable(0))"), "[1 | 0]" },
-		{ "format", 'f', 0, G_OPTION_ARG_STRING, &format, N_("Pixel format(mjpg|jpeg|yuv|uyv|yyu|yup|gbr)"), "FORMAT" },
+		{ "format", 'f', 0, G_OPTION_ARG_STRING, &format, N_("Pixel format(mjpg|jpeg|yuyv|uyvy|yyuv|yu12|gbrg)"), "FORMAT" },
 		{ "size", 's', 0, G_OPTION_ARG_STRING, &size, N_("Frame size, default: 640x480"), "WIDTHxHEIGHT"},
 		{ "image", 'i', 0, G_OPTION_ARG_STRING, &image, N_("Image File name"), "FILENAME"},
 		{ "cap_time", 'c', 0, G_OPTION_ARG_INT, &global->image_timer, N_("Image capture interval in seconds"), "TIME"},
@@ -587,7 +593,7 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 		gchar *basename = NULL;
 		gchar *dirname = NULL;
 		basename = g_path_get_basename(device);
-		if(g_strrstr(basename,"video") != basename)
+		if(!(g_str_has_prefix(basename,"video")))
 		{
 			g_printerr("%s not a valid video device name\n",
 				basename);
@@ -633,7 +639,12 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 	}
 	if(format)
 	{
-		g_snprintf(global->mode,5,"%s",format);
+		/*use fourcc but keep compatability with luvcview*/
+		if(g_strcmp0("yuv",format)==0)
+			g_snprintf(global->mode,5,"yuyv");
+		else
+			g_snprintf(global->mode,5,"%s",format);
+		
 		global->flg_mode = 1;
 	}
 	if(size)

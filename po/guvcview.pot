@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-01-01 14:07+0000\n"
+"POT-Creation-Date: 2009-01-06 22:54+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -21,8 +21,8 @@ msgid "Save File"
 msgstr ""
 
 #. if auto naming restart counter
-#: src/guvcview.c:148 src/globals.c:73 src/globals.c:76 src/options.c:354
-#: src/options.c:403 src/callbacks.c:870 src/callbacks.c:1015
+#: src/guvcview.c:148 src/globals.c:73 src/globals.c:76 src/options.c:360
+#: src/options.c:409 src/callbacks.c:870 src/callbacks.c:1015
 #: src/callbacks.c:1032 src/callbacks.c:1064 src/callbacks.c:1168
 #, c-format
 msgid "File num:%d"
@@ -383,59 +383,59 @@ msgstr ""
 msgid "Raw bits per pixel"
 msgstr ""
 
-#: src/options.c:516
+#: src/options.c:522
 msgid "Displays debug information"
 msgstr ""
 
-#: src/options.c:517
+#: src/options.c:523
 msgid "Video Device to use [default: /dev/video0]"
 msgstr ""
 
-#: src/options.c:518
+#: src/options.c:524
 msgid "Configuration file"
 msgstr ""
 
-#: src/options.c:519
+#: src/options.c:525
 msgid "Hardware accelaration (enable(1) | disable(0))"
 msgstr ""
 
-#: src/options.c:520
-msgid "Pixel format(mjpg|jpeg|yuv|uyv|yyu|yup|gbr)"
-msgstr ""
-
-#: src/options.c:521
-msgid "Frame size, default: 640x480"
-msgstr ""
-
-#: src/options.c:522
-msgid "Image File name"
-msgstr ""
-
-#: src/options.c:523
-msgid "Image capture interval in seconds"
-msgstr ""
-
-#: src/options.c:524
-msgid "Number of Pictures to capture"
-msgstr ""
-
-#: src/options.c:525
-msgid "AVI File name (capture from start)"
-msgstr ""
-
 #: src/options.c:526
-msgid "AVI capture time (in seconds)"
+msgid "Pixel format(mjpg|jpeg|yuyv|uyvy|yyuv|yu12|gbrg)"
 msgstr ""
 
 #: src/options.c:527
-msgid "Show FPS value (enable(1) | disable (0))"
+msgid "Frame size, default: 640x480"
 msgstr ""
 
 #: src/options.c:528
-msgid "Load Profile at start"
+msgid "Image File name"
+msgstr ""
+
+#: src/options.c:529
+msgid "Image capture interval in seconds"
+msgstr ""
+
+#: src/options.c:530
+msgid "Number of Pictures to capture"
+msgstr ""
+
+#: src/options.c:531
+msgid "AVI File name (capture from start)"
+msgstr ""
+
+#: src/options.c:532
+msgid "AVI capture time (in seconds)"
+msgstr ""
+
+#: src/options.c:533
+msgid "Show FPS value (enable(1) | disable (0))"
 msgstr ""
 
 #: src/options.c:534
+msgid "Load Profile at start"
+msgstr ""
+
+#: src/options.c:540
 msgid "- local options"
 msgstr ""
 

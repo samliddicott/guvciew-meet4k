@@ -241,27 +241,27 @@ static SupFormats listSupFormats[] =
 	},
 	{
 		.format   = V4L2_PIX_FMT_YUYV,
-		.mode     = "yuv",
+		.mode     = "yuyv",
 		.hardware = 0
 	},
 	{
 		.format   = V4L2_PIX_FMT_UYVY,
-		.mode     = "uyv",
+		.mode     = "uyvy",
 		.hardware = 0
 	},
 	{
 		.format   = V4L2_PIX_FMT_YYUV,
-		.mode     = "yyu",
+		.mode     = "yyuv",
 		.hardware = 0
 	},
 	{
 		.format   = V4L2_PIX_FMT_YUV420,
-		.mode     = "yup",
+		.mode     = "yu12",
 		.hardware = 0
 	},
 	{
 		.format   = V4L2_PIX_FMT_SGBRG8,
-		.mode     = "gbr",
+		.mode     = "gbrg",
 		.hardware = 0
 	},
 };
