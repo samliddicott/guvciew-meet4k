@@ -1,3 +1,8 @@
+2009-01-08  Paulo Assis <pj.assis@gmail.com>
+
+	* add initial turkish translation
+	* add initial danish translation
+
 2008-05-08  gettextize  <bug-gnu-gettext@gnu.org>
 
 	* Makefile.in.in: Upgrade to gettext-0.17.

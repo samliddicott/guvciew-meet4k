@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: pt_PT\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-01-06 22:54+0000\n"
-"PO-Revision-Date: 2009-01-06 22:59+0100\n"
+"PO-Revision-Date: 2009-01-08 10:35-0000\n"
 "Last-Translator: Paulo Assis <pj.assis@gmail.com>\n"
 "Language-Team: Portuguese\n"
 "MIME-Version: 1.0\n"
@@ -296,7 +296,7 @@ msgstr "Contraste"
 
 #: src/v4l2uvc.c:48
 msgid "Hue"
-msgstr "Matiz"
+msgstr "Tonalidade"
 
 #: src/v4l2uvc.c:49
 msgid "Saturation"
@@ -304,7 +304,7 @@ msgstr "Saturação"
 
 #: src/v4l2uvc.c:50
 msgid "Sharpness"
-msgstr "Agudeza"
+msgstr "Enfatização"
 
 #: src/v4l2uvc.c:51
 msgid "Gamma"
@@ -324,7 +324,7 @@ msgstr "Frequência da Rede"
 
 #: src/v4l2uvc.c:55
 msgid "Hue, Auto"
-msgstr "Matiz, Auto"
+msgstr "Tonalidade, Auto"
 
 #: src/v4l2uvc.c:56
 msgid "Exposure, Auto"

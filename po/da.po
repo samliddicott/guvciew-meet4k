@@ -1,28 +1,25 @@
-# translation of de.po to Portuguese
-# translation of guvcview to German
-# Copyright (C) 2008 Paulo Assis
+# Danish translation for guvcview
+# Copyright (c) 2009 Rosetta Contributors and Canonical Ltd 2009
 # This file is distributed under the same license as the guvcview package.
-# guvcview <pj.assis@gmail.com>, 2008.
-# Paulo Assis <pj.assis@gmail.com>, 2008.
-#
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2009.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: de\n"
-"Report-Msgid-Bugs-To: \n"
+"Project-Id-Version: guvcview\n"
+"Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2009-01-06 22:54+0000\n"
-"PO-Revision-Date: 2009-01-08 11:50+0000\n"
-"Last-Translator: Paulo Assis <pj.assis@gmail.com>\n"
-"Language-Team: Portuguese <pt@li.org>\n"
+"PO-Revision-Date: 2009-01-01 16:27+0000\n"
+"Last-Translator: nanker <Unknown>\n"
+"Language-Team: Danish <da@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-01-08 11:52+0000\n"
+"X-Launchpad-Export-Date: 2009-01-08 11:56+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: src/guvcview.c:94 src/callbacks.c:1252
 msgid "Save File"
-msgstr "Datei speichern"
+msgstr "Gem fil"
 
 #. if auto naming restart counter
 #: src/guvcview.c:148 src/globals.c:73 src/globals.c:76 src/options.c:360
@@ -30,11 +27,11 @@ msgstr "Datei speichern"
 #: src/callbacks.c:1032 src/callbacks.c:1064 src/callbacks.c:1168
 #, c-format
 msgid "File num:%d"
-msgstr "Dateinummer:%d"
+msgstr "Fil nummer:%d"
 
 #: src/guvcview.c:269
 msgid "GUVCViewer Controls"
-msgstr "GUVCViewer Kontrollen"
+msgstr "GUVCViewer kontroller"
 
 #. can't open device
 #: src/guvcview.c:300
@@ -43,17 +40,17 @@ msgid ""
 "\n"
 "Unable to open device"
 msgstr ""
-"Guvcview Fehler:\n"
+"Guvcview fejl:\n"
 "\n"
-"Das Gerät konnte nicht geöffnet werden"
+"Kunne ikke åbne udstyr"
 
 #: src/guvcview.c:301
 msgid ""
 "Please make sure the camera is connected\n"
 "and that the linux-UVC driver is installed."
 msgstr ""
-"Bitte stellen Sie sicher, dass die Kamera angeschlossen wird\n"
-"und dass Linux-UVC driver angebracht ist."
+"Vær venligst sikker på at kamera er tilsluttet\n"
+"og at linux-UCV driveren er installeret."
 
 #: src/guvcview.c:318 src/guvcview.c:355
 msgid ""
@@ -61,17 +58,17 @@ msgid ""
 "\n"
 "Can't set MJPG or YUV stream for guvcview"
 msgstr ""
-"Guvcview Fehler:\n"
+"Guvcview fejl:\n"
 "\n"
-"Konnte weder MJPG noch YUV initialisieren"
+"Kan ikke sætte MJPG eller YUV stream til guvcview"
 
 #: src/guvcview.c:319 src/guvcview.c:356
 msgid ""
 "Make sure you have a UVC compliant camera\n"
 "and that you have the linux UVC driver installed."
 msgstr ""
-"Stellen Sie bitte sicher, dass Sie sowohl eine UVC kompatible Kamera "
-"besitzen als auch den Linux UVC Treiber geladen haben."
+"Vær sikker på at du har et UVC compatibelt kamera\n"
+"og at du har installeret en linux UVC driver."
 
 #: src/guvcview.c:329
 msgid ""
@@ -79,13 +76,13 @@ msgid ""
 "\n"
 "Unable to start with minimum setup"
 msgstr ""
-"Guvcview Fehler:\n"
+"Guvcview fejl:\n"
 "\n"
-"Konnte nicht im minimalen Modus starten"
+"Kunne ikke starte på minimum setup"
 
 #: src/guvcview.c:330
 msgid "Please reconnect your camera."
-msgstr "Bitte schließen Sie Ihre Kamera erneut an."
+msgstr "Vær venlig at gentilslutte dit kamera."
 
 #: src/guvcview.c:339
 msgid ""
@@ -93,134 +90,131 @@ msgid ""
 "\n"
 "Unable to allocate Buffers"
 msgstr ""
-"Guvcview Fehler:\n"
-"\n"
-"Konnte keine Puffer anlegen"
 
 #: src/guvcview.c:340
 msgid "Please try restarting your system."
-msgstr "Bitte System neu starten."
+msgstr "Prøv venligst at genstarte dit system."
 
 #: src/guvcview.c:385
 msgid "Image Controls"
-msgstr "Bildkontrollen"
+msgstr "Billed kontroller"
 
 #: src/guvcview.c:405
 msgid "Control Profiles:"
-msgstr "Kontrollen:"
+msgstr "Kontrol profiler:"
 
 #: src/guvcview.c:411
 msgid "Capture:"
-msgstr "Aufnahme:"
+msgstr ""
 
 #. image auto capture
 #: src/guvcview.c:430
 msgid "Stop Auto"
-msgstr "Automatisch anhalten"
+msgstr "Stop auto"
 
 #: src/guvcview.c:434 src/callbacks.c:1085
 msgid "Cap. Image"
-msgstr "Bild aufnehmen"
+msgstr ""
 
 #. avi capture enabled from start
 #. printf("opening avi file: %s\n",videoIn->AVIFName);
 #: src/guvcview.c:439 src/callbacks.c:1193
 msgid "Stop AVI"
-msgstr "Video stoppen"
+msgstr "Stop AVI"
 
 #. ***************** Stop AVI ***********************
 #: src/guvcview.c:443 src/callbacks.c:1148
 msgid "Cap. AVI"
-msgstr "Video aufnehmen"
+msgstr ""
 
 #: src/guvcview.c:538
 msgid "Video & Files"
-msgstr "Video & Dateien"
+msgstr "Video & filer"
 
 #. Devices
 #: src/guvcview.c:549
 msgid "Device:"
-msgstr "Eingabegerät:"
+msgstr ""
 
 #: src/guvcview.c:635
 msgid "Frame Rate:"
-msgstr "Bildrate:"
+msgstr "Billedrate:"
 
 #: src/guvcview.c:643
 msgid " Show"
-msgstr " Anzeigen"
+msgstr " Vis"
 
 #: src/guvcview.c:668
 msgid "Resolution:"
-msgstr "Auflösung:"
+msgstr "Opløsning:"
 
 #: src/guvcview.c:696
 msgid "Camera Output:"
-msgstr "Kamera-BIld:"
+msgstr "Kamera output:"
 
 #: src/guvcview.c:706
 msgid "Image File:"
-msgstr "Bilddatei:"
+msgstr "Billed fil:"
 
 #: src/guvcview.c:733 src/guvcview.c:816
 msgid "File,Auto"
-msgstr "Datei,Automatisch"
+msgstr "Fil, auto"
 
 #: src/guvcview.c:745
 msgid "Image Format:"
-msgstr "Bildformat:"
+msgstr "Billed format:"
 
 #: src/guvcview.c:775
 msgid "AVI File:"
-msgstr "AVI-Datei:"
+msgstr "AVI fil:"
 
 #: src/guvcview.c:831
 msgid "MJPG - compressed"
-msgstr "MJPG - komprimiert"
+msgstr "MJPG - komprimeret"
 
 #: src/guvcview.c:834
 msgid "UYVY - uncomp YUV"
-msgstr "UYVY - keine Komp. YUV"
+msgstr "UYVY - ukomprimeret YUV"
 
 #: src/guvcview.c:836
 msgid "YUY2 - uncomp YUV"
-msgstr "YUY2 - keine Komp. YUV"
+msgstr "YUY2 - ukomprimeret YUV"
 
 #: src/guvcview.c:838
 msgid "RGB - uncomp BMP"
-msgstr "RGB - keine Komp. BMP"
+msgstr "RGB - ukomprimeret BMP"
 
 #: src/guvcview.c:850
 msgid "AVI Format:"
-msgstr "AVI-Format:"
+msgstr "AVI format:"
 
 #: src/guvcview.c:962
 msgid " Sound"
-msgstr " Audio"
+msgstr " Lyd"
 
 #: src/guvcview.c:985
 msgid "Input Device:"
-msgstr "Eingabegerät:"
+msgstr "Input udstyr:"
 
 #: src/guvcview.c:996 src/guvcview.c:1029
 msgid "Dev. Default"
-msgstr "Standard"
+msgstr ""
 
 #: src/guvcview.c:1018
 msgid "Sample Rate:"
-msgstr "Frequenz:"
+msgstr ""
 
 #: src/guvcview.c:1030
 msgid "1 - mono"
-msgstr "1 - Mono"
+msgstr "1 - mono"
 
 #: src/guvcview.c:1031
 msgid "2 - stereo"
-msgstr "2 - Stereo"
+msgstr "2 - stereo"
 
 #: src/guvcview.c:1062
 msgid "Channels:"
-msgstr "Kanäle:"
+msgstr "Kanaler:"
 
 #: src/guvcview.c:1074
 msgid "PCM"
@@ -232,21 +226,21 @@ msgstr "MP2"
 
 #: src/guvcview.c:1102
 msgid "Audio Format:"
-msgstr "Audio-Format:"
+msgstr "Lyd format:"
 
 #: src/guvcview.c:1111
 msgid "---- Video Filters ----"
-msgstr "---- Videofilter ----"
+msgstr "---- Video filtre ----"
 
 #. Mirror
 #: src/guvcview.c:1127
 msgid " Mirror"
-msgstr " Gespiegelt"
+msgstr " Spejl"
 
 #. Upturn
 #: src/guvcview.c:1136
 msgid " Invert"
-msgstr " Gedreht"
+msgstr " Vend"
 
 #. Negate
 #: src/guvcview.c:1145
@@ -256,7 +250,7 @@ msgstr " Negativ"
 #. Mono
 #: src/guvcview.c:1154
 msgid " Mono"
-msgstr " Monochrom"
+msgstr " Mono"
 
 #: src/guvcview.c:1197
 msgid ""
@@ -264,20 +258,20 @@ msgid ""
 "\n"
 "Unable to create Video Thread"
 msgstr ""
-"Guvcview Fehler:\n"
+"Guvcview fejl:\n"
 "\n"
-"Der Video-Thread konnte nicht erzeugt werden"
+"Kunne ikke skabe video tråd"
 
 #: src/guvcview.c:1198
 msgid "Please report it to http://developer.berlios.de/bugs/?group_id=8179"
 msgstr ""
-"Bitte melden Sie dies an http://developer.berlios.de/bugs/?group_id=8179"
+"Rapporter det venligst til http://developer.berlios.de/bugs/?group_id=8179"
 
 #. needed only for language files (not used)
 #. UVC driver control strings
 #: src/v4l2uvc.c:46
 msgid "Brightness"
-msgstr "Helligkeit"
+msgstr "Lysstyrke"
 
 #: src/v4l2uvc.c:47
 msgid "Contrast"
@@ -285,15 +279,15 @@ msgstr "Kontrast"
 
 #: src/v4l2uvc.c:48
 msgid "Hue"
-msgstr "Farbe"
+msgstr "Farvetone"
 
 #: src/v4l2uvc.c:49
 msgid "Saturation"
-msgstr "Sättigung"
+msgstr "Farvemætning"
 
 #: src/v4l2uvc.c:50
 msgid "Sharpness"
-msgstr "Schärfe"
+msgstr "Skarphed"
 
 #: src/v4l2uvc.c:51
 msgid "Gamma"
@@ -301,91 +295,91 @@ msgstr "Gamma"
 
 #: src/v4l2uvc.c:52
 msgid "Backlight Compensation"
-msgstr "Korrektur der Hintergrundbeleuchtung"
+msgstr "Baglys kompensation"
 
 #: src/v4l2uvc.c:53
 msgid "Gain"
-msgstr "Gewinn"
+msgstr "Forhøjelse"
 
 #: src/v4l2uvc.c:54
 msgid "Power Line Frequency"
-msgstr "Netzfrequenz"
+msgstr ""
 
 #: src/v4l2uvc.c:55
 msgid "Hue, Auto"
-msgstr "Farbe, Automatisch"
+msgstr ""
 
 #: src/v4l2uvc.c:56
 msgid "Exposure, Auto"
-msgstr "Belichtung, Automatisch"
+msgstr ""
 
 #: src/v4l2uvc.c:57
 msgid "Exposure, Auto Priority"
-msgstr "Belichtung, automatische Priorität"
+msgstr ""
 
 #: src/v4l2uvc.c:58
 msgid "Exposure (Absolute)"
-msgstr "Belichtung (Absolut)"
+msgstr ""
 
 #: src/v4l2uvc.c:59
 msgid "White Balance Temperature, Auto"
-msgstr "Automatischer Weißabgleich (Temperatur)"
+msgstr "Hvid balance temperatur, auto"
 
 #: src/v4l2uvc.c:60
 msgid "White Balance Temperature"
-msgstr "Weißabgleich (Temperatur)"
+msgstr "Hvid balance temperatur"
 
 #: src/v4l2uvc.c:61
 msgid "White Balance Component, Auto"
-msgstr "Automatischer Weißabgleich (Komponente)"
+msgstr "Hvid balance komponent, auto"
 
 #: src/v4l2uvc.c:62
 msgid "White Balance Blue Component"
-msgstr "Weißabgleich (Blau)"
+msgstr "Hvid balance blå komponent"
 
 #: src/v4l2uvc.c:63
 msgid "White Balance Red Component"
-msgstr "Weißabgleich (Rot)"
+msgstr "Hvid balance rød komponent"
 
 #: src/v4l2uvc.c:64
 msgid "Focus, Auto"
-msgstr "Fokus, Automatisch"
+msgstr "Fokus, auto"
 
 #: src/v4l2uvc.c:65
 msgid "Manual Mode"
-msgstr "Händischer Modus"
+msgstr "Manuel tilstand"
 
 #: src/v4l2uvc.c:66
 msgid "Auto Mode"
-msgstr "Automatischer Modus"
+msgstr "Auto tilstand"
 
 #: src/v4l2uvc.c:67
 msgid "Shutter Priority Mode"
-msgstr "Blendenautomatik-Modus"
+msgstr ""
 
 #: src/v4l2uvc.c:68
 msgid "Aperture Priority Mode"
-msgstr "Blendenpriorität-Modus"
+msgstr ""
 
 #: src/v4l2uvc.c:126
 msgid "Pan (relative)"
-msgstr "Umdrehung (relativ)"
+msgstr ""
 
 #: src/v4l2uvc.c:136
 msgid "Tilt (relative)"
-msgstr "Neigung (relativ)"
+msgstr ""
 
 #: src/v4l2uvc.c:146
 msgid "Pan Reset"
-msgstr "Umdrehung (Zurückstellen)"
+msgstr ""
 
 #: src/v4l2uvc.c:156
 msgid "Tilt Reset"
-msgstr "Neigung (Zurückstellen)"
+msgstr ""
 
 #: src/v4l2uvc.c:166
 msgid "Pan/tilt Reset"
-msgstr "Umdrehung/Neigung (Zurückstellen)"
+msgstr ""
 
 #: src/v4l2uvc.c:176
 msgid "Focus (absolute)"
@@ -393,152 +387,150 @@ msgstr "Fokus (absolut)"
 
 #: src/v4l2uvc.c:186
 msgid "LED1 Mode"
-msgstr "Modus LED1"
+msgstr "LED1 tilstand"
 
 #: src/v4l2uvc.c:196
 msgid "LED1 Frequency"
-msgstr "Frequenz LED1"
+msgstr "LED1 frekvens"
 
 #: src/v4l2uvc.c:206
 msgid "Disable video processing"
-msgstr "Deaktiviere Videoverarbeitung"
+msgstr "Slå video processer fra"
 
 #: src/v4l2uvc.c:216
 msgid "Raw bits per pixel"
-msgstr "Rohe Bits pro Pixel"
+msgstr "Rå bits pr. pixel"
 
 #: src/options.c:522
 msgid "Displays debug information"
-msgstr "Extra Informationen anzeigen"
+msgstr "Vis debug information"
 
 #: src/options.c:523
 msgid "Video Device to use [default: /dev/video0]"
-msgstr "Videovorrichtung (/dev/video0)"
+msgstr "Video udstyr at benyttet [default: /dev/video0]"
 
 #: src/options.c:524
 msgid "Configuration file"
-msgstr "Konfigurationsdatei"
+msgstr ""
 
 #: src/options.c:525
 msgid "Hardware accelaration (enable(1) | disable(0))"
-msgstr "Hardware accel. (aktivieren(1) | inaktivieren(0))"
+msgstr ""
 
 #: src/options.c:526
 msgid "Pixel format(mjpg|jpeg|yuyv|uyvy|yyuv|yu12|gbrg)"
-msgstr "Videoformat(mjpg|jpeg|yuyv|uyvy|yyuv|yu12|gbrg)"
+msgstr ""
 
 #: src/options.c:527
 msgid "Frame size, default: 640x480"
-msgstr "Auflösung (def. 640x480)"
+msgstr "Ramme størrelse, standard: 640x480"
 
 #: src/options.c:528
 msgid "Image File name"
-msgstr "Bilddatei"
+msgstr "Billedfil navn"
 
 #: src/options.c:529
 msgid "Image capture interval in seconds"
-msgstr "Bild aufnehmenabgelaufen (sekunden)"
+msgstr ""
 
 #: src/options.c:530
 msgid "Number of Pictures to capture"
-msgstr "Bildquantität"
+msgstr ""
 
 #: src/options.c:531
 msgid "AVI File name (capture from start)"
-msgstr "Datei video (anfangaufnehmen)"
+msgstr ""
 
 #: src/options.c:532
 msgid "AVI capture time (in seconds)"
-msgstr "Videodauer  (sekunden)"
+msgstr ""
 
 #: src/options.c:533
 msgid "Show FPS value (enable(1) | disable (0))"
-msgstr "FPS anzeigen (aktivieren(1)|inaktivieren(0))"
+msgstr ""
 
 #: src/options.c:534
 msgid "Load Profile at start"
-msgstr "kontrollen - Datei öffnen"
+msgstr "Indlæs profil ved start"
 
 #: src/options.c:540
 msgid "- local options"
-msgstr "- lokale Wahlen"
+msgstr "- lokale valgmuligheder"
 
 #: src/img_controls.c:118
 msgid "Exposure:"
-msgstr "Belichtung:"
+msgstr "Eksponering:"
 
 #: src/img_controls.c:127
 msgid "Invert (Pan)"
-msgstr "Gedreht (Umdrehung)"
+msgstr ""
 
 #: src/img_controls.c:130
 msgid "Left"
-msgstr "Links"
+msgstr "Venstre"
 
 #: src/img_controls.c:131
 msgid "Right"
-msgstr "Rechts"
+msgstr "Højre"
 
 #: src/img_controls.c:166
 msgid "Up"
-msgstr "Hoch"
+msgstr "Op"
 
 #: src/img_controls.c:167
 msgid "Down"
-msgstr "Runter"
+msgstr "Ned"
 
 #: src/img_controls.c:190 src/img_controls.c:206 src/img_controls.c:224
 msgid "Reset"
-msgstr "Zurückstellen"
+msgstr "Nulstil"
 
 #: src/img_controls.c:302
 msgid "Auto Focus (continuous)"
-msgstr "Automatisch Fokus (con.)"
+msgstr "Auto fokus (fortsat)"
 
 #: src/img_controls.c:303
 msgid "set Focus"
-msgstr "Fokus"
+msgstr "sæt fokus"
 
 #: src/img_controls.c:365
 #, c-format
 msgid "raw pixel order:"
-msgstr "Rohe Pixel Anordnung:"
+msgstr ""
 
 #: src/callbacks.c:629
 msgid "start new"
-msgstr "beginnen neue"
+msgstr ""
 
 #: src/callbacks.c:632
 msgid "restart"
-msgstr "Neustart"
+msgstr ""
 
 #: src/callbacks.c:634
 msgid "new"
-msgstr "Neue"
+msgstr ""
 
 #: src/callbacks.c:636
 msgid "cancel"
-msgstr "Abbrechen"
+msgstr ""
 
 #: src/callbacks.c:640
 msgid ""
 "launch new process or restart?.\n"
 "\n"
 msgstr ""
-"Neuer prozess oder programm neustarten?\n"
-"\n"
 
 #: src/callbacks.c:699 src/callbacks.c:775
 msgid "Program Restart"
-msgstr "Programm Neustarten"
+msgstr "Genstart program"
 
 #: src/callbacks.c:702 src/callbacks.c:778
 msgid "now"
-msgstr "Jetzt"
+msgstr "nu"
 
 #: src/callbacks.c:704 src/callbacks.c:780
 msgid "Later"
-msgstr "Später"
+msgstr "Senere"
 
 #: src/callbacks.c:708 src/callbacks.c:784
 msgid ""
@@ -547,11 +539,11 @@ msgid ""
 "\n"
 "Restart now?\n"
 msgstr ""
-"Änderungen werden nach einem Neustart von guvcview erlebbar..\n"
+"Ændringer vil først have effekt efter genstart af  guvcview.\n"
 "\n"
 "\n"
-"Jetzt neu starten?\n"
+"Genstart nu?\n"
 
 #: src/callbacks.c:1288
 msgid "Load File"
-msgstr "Datei öffnen"
+msgstr "Indlæs fil"
