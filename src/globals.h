@@ -22,6 +22,7 @@
 #ifndef GLOBALS_H
 #define GLOBALS_H
 
+#include <glib.h>
 #include "defs.h"
 #include "utils.h"
 
@@ -37,6 +38,7 @@ typedef struct _sndDev
 /*global variables used in guvcview*/
 struct GLOBAL 
 {
+	GMutex *mutex;
 	int debug;
 	char *videodevice;
 	int stack_size;

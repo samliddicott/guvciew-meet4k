@@ -957,10 +957,11 @@ void
 FiltMirrorEnable_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data)
 {
 	struct GLOBAL *global = all_data->global;
-
-	global->Frame_Flags = gtk_toggle_button_get_active (toggle) ? 
-		(global->Frame_Flags | YUV_MIRROR) : 
-		(global->Frame_Flags & ~YUV_MIRROR);
+	g_mutex_lock(global->mutex);
+		global->Frame_Flags = gtk_toggle_button_get_active (toggle) ? 
+			(global->Frame_Flags | YUV_MIRROR) : 
+			(global->Frame_Flags & ~YUV_MIRROR);
+	g_mutex_unlock(global->mutex);
 	
 	global = NULL;
 }
@@ -970,11 +971,11 @@ void
 FiltUpturnEnable_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data)
 {
 	struct GLOBAL *global = all_data->global;
-	
-	global->Frame_Flags = gtk_toggle_button_get_active (toggle) ? 
-		(global->Frame_Flags | YUV_UPTURN) : 
-		(global->Frame_Flags & ~YUV_UPTURN);
-	
+	g_mutex_lock(global->mutex);
+		global->Frame_Flags = gtk_toggle_button_get_active (toggle) ? 
+			(global->Frame_Flags | YUV_UPTURN) : 
+			(global->Frame_Flags & ~YUV_UPTURN);
+	g_mutex_unlock(global->mutex);
 	global = NULL;
 }
 
@@ -983,11 +984,11 @@ void
 FiltNegateEnable_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data)
 {
 	struct GLOBAL *global = all_data->global;
-	
-	global->Frame_Flags = gtk_toggle_button_get_active (toggle) ? 
-		(global->Frame_Flags | YUV_NEGATE) : 
-		(global->Frame_Flags & ~YUV_NEGATE);
-	
+	g_mutex_lock(global->mutex);
+		global->Frame_Flags = gtk_toggle_button_get_active (toggle) ? 
+			(global->Frame_Flags | YUV_NEGATE) : 
+			(global->Frame_Flags & ~YUV_NEGATE);
+	g_mutex_unlock(global->mutex);
 	global = NULL;
 }
 
@@ -996,12 +997,25 @@ void
 FiltMonoEnable_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data)
 {
 	struct GLOBAL *global = all_data->global;
-	
-	global->Frame_Flags = gtk_toggle_button_get_active (toggle) ? 
-		(global->Frame_Flags | YUV_MONOCR) : 
-		(global->Frame_Flags & ~YUV_MONOCR);
-	
+	g_mutex_lock(global->mutex);
+		global->Frame_Flags = gtk_toggle_button_get_active (toggle) ? 
+			(global->Frame_Flags | YUV_MONOCR) : 
+			(global->Frame_Flags & ~YUV_MONOCR);
+	g_mutex_unlock(global->mutex);
 	global = NULL;
+}
+
+/* Audio Distort effect */
+void
+EffDistEnable_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data)
+{
+	struct paRecordData *pdata = all_data->pdata;
+	g_mutex_lock(pdata->mutex);
+		pdata->snd_Flags = gtk_toggle_button_get_active (toggle) ? 
+			(pdata->snd_Flags | SND_ECHO) : 
+			(pdata->snd_Flags & ~SND_ECHO);
+	g_mutex_unlock(pdata->mutex);
+	pdata = NULL;
 }
 
 void 

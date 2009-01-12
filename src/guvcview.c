@@ -201,6 +201,7 @@ int main(int argc, char *argv[])
 	/* widgets */
 	GtkWidget *scroll1;
 	GtkWidget *scroll2;
+	GtkWidget *scroll3;
 	GtkWidget *buttons_table;
 	GtkWidget *profile_labels;
 	GtkWidget *capture_labels;
@@ -210,6 +211,7 @@ int main(int argc, char *argv[])
 	GtkWidget *label_ImpType;
 	GtkWidget *label_FPS;
 	GtkWidget *table2;
+	GtkWidget *table3;
 	GtkWidget *labelResol;
 	GtkWidget *AviFileButt;
 	GtkWidget *label_Device;
@@ -220,12 +222,15 @@ int main(int argc, char *argv[])
 	GtkWidget *label_SndNumChan;
 	GtkWidget *label_SndComp;
 	GtkWidget *label_videoFilters;
-	GtkWidget *table3;
+	GtkWidget *label_audioFilters;
+	GtkWidget *table_filt;
+	GtkWidget *table_snd_eff;
 	GtkWidget *quitButton;
 	GtkWidget *SProfileButton;
 	GtkWidget *LProfileButton;
 	GtkWidget *Tab1Label;
 	GtkWidget *Tab2Label;
+	GtkWidget *Tab3Label;
 	GtkWidget *label_ImgFile;
 	GtkWidget *label_AVIFile;
 	GtkWidget *AVIButton_Img;
@@ -238,6 +243,7 @@ int main(int argc, char *argv[])
 	GtkWidget *FiltUpturnEnable;
 	GtkWidget *FiltNegateEnable;
 	GtkWidget *FiltMonoEnable;
+	GtkWidget *EffDistEnable;
 
 	s = g_new0(struct VidState, 1);
 	
@@ -359,13 +365,14 @@ int main(int argc, char *argv[])
 	/* Set jpeg encoder buffer size */
 	global->jpeg_bufsize=((videoIn->width)*(videoIn->height))>>1;
 	/*-----------------------------GTK widgets---------------------------------*/
-	/*----- Left Table -----*/
+	/*----------------------- Image controls Tab ------------------------------*/
 	s->table = gtk_table_new (1, 3, FALSE);
 	gtk_table_set_row_spacings (GTK_TABLE (s->table), 4);
 	gtk_table_set_col_spacings (GTK_TABLE (s->table), 4);
 	gtk_container_set_border_width (GTK_CONTAINER (s->table), 2);
 	
 	s->control = NULL;
+	/*-- draw the controls --*/
 	draw_controls(&all_data);
 	
 	if (global->lprofile > 0) LoadControls (s,global);
@@ -389,7 +396,7 @@ int main(int argc, char *argv[])
 	
 	gtk_widget_show (gwidget->boxv);
 	
-	/*----- Add  Buttons -----*/
+	/*---------------------- Add  Buttons ---------------------------------*/
 	buttons_table = gtk_table_new(1,5,FALSE);
 	HButtonBox = gtk_hbutton_box_new();
 	gtk_button_box_set_layout(GTK_BUTTON_BOX(HButtonBox),GTK_BUTTONBOX_SPREAD);	
@@ -521,7 +528,7 @@ int main(int argc, char *argv[])
 	g_signal_connect (GTK_BUTTON(LProfileButton), "clicked",
 		G_CALLBACK (LProfileButton_clicked), &all_data);
 	
-	/*---- Right Table ----*/
+	/*------------------------- Video Tab ---------------------------------*/
 	line=0;
 	table2 = gtk_table_new(1,3,FALSE);
 	gtk_table_set_row_spacings (GTK_TABLE (table2), 4);
@@ -854,8 +861,84 @@ int main(int argc, char *argv[])
 		GTK_FILL, 0, 0, 0);
 
 	gtk_widget_show (label_AVIComp);
+	
+	/*----- Filter controls ----*/
+	line++;
+	label_videoFilters = gtk_label_new(_("---- Video Filters ----"));
+	gtk_misc_set_alignment (GTK_MISC (label_videoFilters), 0.5, 0.5);
 
-	/*----------------------- sound interface --------------------------------*/
+	gtk_table_attach (GTK_TABLE(table2), label_videoFilters, 0, 3, line, line+1,
+		GTK_EXPAND | GTK_SHRINK | GTK_FILL , 0, 0, 0);
+
+	gtk_widget_show (label_videoFilters);
+	
+	line++;
+	table_filt = gtk_table_new(1,4,FALSE);
+	gtk_table_set_row_spacings (GTK_TABLE (table_filt), 4);
+	gtk_table_set_col_spacings (GTK_TABLE (table_filt), 4);
+	gtk_container_set_border_width (GTK_CONTAINER (table_filt), 4);
+	gtk_widget_set_size_request (table_filt, -1, -1);
+	
+	/* Mirror */
+	FiltMirrorEnable=gtk_check_button_new_with_label (_(" Mirror"));
+	gtk_table_attach(GTK_TABLE(table_filt), FiltMirrorEnable, 0, 1, 0, 1,
+		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(FiltMirrorEnable),(global->Frame_Flags & YUV_MIRROR)>0);
+	gtk_widget_show (FiltMirrorEnable);
+	g_signal_connect (GTK_CHECK_BUTTON(FiltMirrorEnable), "toggled",
+		G_CALLBACK (FiltMirrorEnable_changed), &all_data);
+	/*Upturn*/
+	FiltUpturnEnable=gtk_check_button_new_with_label (_(" Invert"));
+	gtk_table_attach(GTK_TABLE(table_filt), FiltUpturnEnable, 1, 2, 0, 1,
+		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(FiltUpturnEnable),(global->Frame_Flags & YUV_UPTURN)>0);
+	gtk_widget_show (FiltUpturnEnable);
+	g_signal_connect (GTK_CHECK_BUTTON(FiltUpturnEnable), "toggled",
+		G_CALLBACK (FiltUpturnEnable_changed), &all_data);
+	/*Negate*/
+	FiltNegateEnable=gtk_check_button_new_with_label (_(" Negative"));
+	gtk_table_attach(GTK_TABLE(table_filt), FiltNegateEnable, 2, 3, 0, 1,
+		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(FiltNegateEnable),(global->Frame_Flags & YUV_NEGATE)>0);
+	gtk_widget_show (FiltNegateEnable);
+	g_signal_connect (GTK_CHECK_BUTTON(FiltNegateEnable), "toggled",
+		G_CALLBACK (FiltNegateEnable_changed), &all_data);
+	/*Mono*/
+	FiltMonoEnable=gtk_check_button_new_with_label (_(" Mono"));
+	gtk_table_attach(GTK_TABLE(table_filt), FiltMonoEnable, 3, 4, 0, 1,
+		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(FiltMonoEnable),(global->Frame_Flags & YUV_MONOCR)>0);
+	gtk_widget_show (FiltMonoEnable);
+	g_signal_connect (GTK_CHECK_BUTTON(FiltMonoEnable), "toggled",
+		G_CALLBACK (FiltMonoEnable_changed), &all_data);
+	
+	gtk_table_attach (GTK_TABLE(table2), table_filt, 0, 3, line, line+1,
+		GTK_FILL, 0, 0, 0);
+
+	gtk_widget_show (table_filt);
+
+	/*-------------------------- sound Tab --------------------------------*/
+	line=0;
+	table3 = gtk_table_new(1,3,FALSE);
+	gtk_table_set_row_spacings (GTK_TABLE (table3), 4);
+	gtk_table_set_col_spacings (GTK_TABLE (table3), 4);
+	gtk_container_set_border_width (GTK_CONTAINER (table3), 2);
+	gtk_widget_show (table3);
+	
+	scroll3=gtk_scrolled_window_new(NULL,NULL);
+	gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scroll3),table3);
+	gtk_scrolled_window_set_placement(GTK_SCROLLED_WINDOW(scroll3),
+		GTK_CORNER_TOP_LEFT);
+	gtk_widget_show(scroll3);
+	
+	Tab3Label = gtk_label_new(_("Audio"));
+	gtk_notebook_append_page(GTK_NOTEBOOK(gwidget->boxh),scroll3,Tab3Label);
+	
+	
 	/* get sound device list and info */
 	
 	gwidget->SndDevice = gtk_combo_box_new_text ();
@@ -956,21 +1039,22 @@ int main(int argc, char *argv[])
 		if (global->debug) g_printf("----------------------------------------------\n");
 	}
 	
-	/*--------------------- sound controls -----------------------------------*/
+	/*--------------------- sound controls --------------------------------*/
 	/*enable sound*/
 	line++;
 	gwidget->SndEnable=gtk_check_button_new_with_label (_(" Sound"));
-	gtk_table_attach(GTK_TABLE(table2), gwidget->SndEnable, 1, 2, line, line+1,
+	gtk_table_attach(GTK_TABLE(table3), gwidget->SndEnable, 1, 2, line, line+1,
 		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gwidget->SndEnable),(global->Sound_enable > 0));
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gwidget->SndEnable),
+		(global->Sound_enable > 0));
 	gtk_widget_show (gwidget->SndEnable);
 	g_signal_connect (GTK_CHECK_BUTTON(gwidget->SndEnable), "toggled",
 		G_CALLBACK (SndEnable_changed), &all_data);
 		
 	/*sound device*/
 	line++;	
-	gtk_table_attach(GTK_TABLE(table2), gwidget->SndDevice, 1, 3, line, line+1,
+	gtk_table_attach(GTK_TABLE(table3), gwidget->SndDevice, 1, 3, line, line+1,
 		GTK_SHRINK | GTK_FILL , 0, 0, 0);
 	gtk_widget_show (gwidget->SndDevice);
 	/* using default device*/
@@ -985,7 +1069,7 @@ int main(int argc, char *argv[])
 	label_SndDevice = gtk_label_new(_("Input Device:"));
 	gtk_misc_set_alignment (GTK_MISC (label_SndDevice), 1, 0.5);
 
-	gtk_table_attach (GTK_TABLE(table2), label_SndDevice, 0, 1, line, line+1,
+	gtk_table_attach (GTK_TABLE(table3), label_SndDevice, 0, 1, line, line+1,
 		GTK_FILL, 0, 0, 0);
 
 	gtk_widget_show (label_SndDevice);
@@ -1002,7 +1086,7 @@ int main(int argc, char *argv[])
 	}
 	if (global->Sound_SampRateInd>(i-1)) global->Sound_SampRateInd=0; /*out of range*/
 	
-	gtk_table_attach(GTK_TABLE(table2), gwidget->SndSampleRate, 1, 2, line, line+1,
+	gtk_table_attach(GTK_TABLE(table3), gwidget->SndSampleRate, 1, 2, line, line+1,
 		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (gwidget->SndSampleRate);
 	
@@ -1018,7 +1102,7 @@ int main(int argc, char *argv[])
 	label_SndSampRate = gtk_label_new(_("Sample Rate:"));
 	gtk_misc_set_alignment (GTK_MISC (label_SndSampRate), 1, 0.5);
 
-	gtk_table_attach (GTK_TABLE(table2), label_SndSampRate, 0, 1, line, line+1,
+	gtk_table_attach (GTK_TABLE(table3), label_SndSampRate, 0, 1, line, line+1,
 		GTK_FILL, 0, 0, 0);
 
 	gtk_widget_show (label_SndSampRate);
@@ -1030,7 +1114,7 @@ int main(int argc, char *argv[])
 	gtk_combo_box_append_text(GTK_COMBO_BOX(gwidget->SndNumChan),_("1 - mono"));
 	gtk_combo_box_append_text(GTK_COMBO_BOX(gwidget->SndNumChan),_("2 - stereo"));
 	
-	gtk_table_attach(GTK_TABLE(table2), gwidget->SndNumChan, 1, 2, line, line+1,
+	gtk_table_attach(GTK_TABLE(table3), gwidget->SndNumChan, 1, 2, line, line+1,
 		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (gwidget->SndNumChan);
 	switch (global->Sound_NumChanInd) 
@@ -1062,7 +1146,7 @@ int main(int argc, char *argv[])
 	label_SndNumChan = gtk_label_new(_("Channels:"));
 	gtk_misc_set_alignment (GTK_MISC (label_SndNumChan), 1, 0.5);
 
-	gtk_table_attach (GTK_TABLE(table2), label_SndNumChan, 0, 1, line, line+1,
+	gtk_table_attach (GTK_TABLE(table3), label_SndNumChan, 0, 1, line, line+1,
 		GTK_FILL, 0, 0, 0);
 
 	gtk_widget_show (label_SndNumChan);
@@ -1094,7 +1178,7 @@ int main(int argc, char *argv[])
 	g_signal_connect (GTK_COMBO_BOX(gwidget->SndComp), "changed",
 		G_CALLBACK (SndComp_changed), &all_data);
 	
-	gtk_table_attach(GTK_TABLE(table2), gwidget->SndComp, 1, 2, line, line+1,
+	gtk_table_attach(GTK_TABLE(table3), gwidget->SndComp, 1, 2, line, line+1,
 		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	
 	gtk_widget_show (gwidget->SndComp);
@@ -1102,68 +1186,42 @@ int main(int argc, char *argv[])
 	label_SndComp = gtk_label_new(_("Audio Format:"));
 	gtk_misc_set_alignment (GTK_MISC (label_SndComp), 1, 0.5);
 
-	gtk_table_attach (GTK_TABLE(table2), label_SndComp, 0, 1, line, line+1,
+	gtk_table_attach (GTK_TABLE(table3), label_SndComp, 0, 1, line, line+1,
 		GTK_FILL, 0, 0, 0);
 
 	gtk_widget_show (label_SndComp);
-	/*----- Filter controls ----*/
+	
+	/*----- Audio effects ----*/
 	line++;
-	label_videoFilters = gtk_label_new(_("---- Video Filters ----"));
+	label_audioFilters = gtk_label_new(_("---- Audio Effects ----"));
 	gtk_misc_set_alignment (GTK_MISC (label_videoFilters), 0.5, 0.5);
 
-	gtk_table_attach (GTK_TABLE(table2), label_videoFilters, 0, 3, line, line+1,
+	gtk_table_attach (GTK_TABLE(table3), label_audioFilters, 0, 3, line, line+1,
 		GTK_EXPAND | GTK_SHRINK | GTK_FILL , 0, 0, 0);
 
-	gtk_widget_show (label_videoFilters);
+	gtk_widget_show (label_audioFilters);
 	
 	line++;
-	table3 = gtk_table_new(1,4,FALSE);
-	gtk_table_set_row_spacings (GTK_TABLE (table3), 4);
-	gtk_table_set_col_spacings (GTK_TABLE (table3), 4);
-	gtk_container_set_border_width (GTK_CONTAINER (table3), 4);
-	gtk_widget_set_size_request (table3, -1, -1);
+	table_snd_eff = gtk_table_new(1,4,FALSE);
+	gtk_table_set_row_spacings (GTK_TABLE (table_snd_eff), 4);
+	gtk_table_set_col_spacings (GTK_TABLE (table_snd_eff), 4);
+	gtk_container_set_border_width (GTK_CONTAINER (table_snd_eff), 4);
+	gtk_widget_set_size_request (table_snd_eff, -1, -1);
 	
-	/* Mirror */
-	FiltMirrorEnable=gtk_check_button_new_with_label (_(" Mirror"));
-	gtk_table_attach(GTK_TABLE(table3), FiltMirrorEnable, 0, 1, 0, 1,
+	gtk_table_attach (GTK_TABLE(table3), table_snd_eff, 0, 3, line, line+1,
+		GTK_EXPAND | GTK_SHRINK | GTK_FILL , 0, 0, 0);
+	gtk_widget_show (table_snd_eff);
+	
+	/* distort */
+	EffDistEnable=gtk_check_button_new_with_label (_(" Echo"));
+	gtk_table_attach(GTK_TABLE(table_snd_eff), EffDistEnable, 0, 1, 0, 1,
 		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
-	
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(FiltMirrorEnable),(global->Frame_Flags & YUV_MIRROR)>0);
-	gtk_widget_show (FiltMirrorEnable);
-	g_signal_connect (GTK_CHECK_BUTTON(FiltMirrorEnable), "toggled",
-		G_CALLBACK (FiltMirrorEnable_changed), &all_data);
-	/*Upturn*/
-	FiltUpturnEnable=gtk_check_button_new_with_label (_(" Invert"));
-	gtk_table_attach(GTK_TABLE(table3), FiltUpturnEnable, 1, 2, 0, 1,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
-	
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(FiltUpturnEnable),(global->Frame_Flags & YUV_UPTURN)>0);
-	gtk_widget_show (FiltUpturnEnable);
-	g_signal_connect (GTK_CHECK_BUTTON(FiltUpturnEnable), "toggled",
-		G_CALLBACK (FiltUpturnEnable_changed), &all_data);
-	/*Negate*/
-	FiltNegateEnable=gtk_check_button_new_with_label (_(" Negative"));
-	gtk_table_attach(GTK_TABLE(table3), FiltNegateEnable, 2, 3, 0, 1,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
-	
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(FiltNegateEnable),(global->Frame_Flags & YUV_NEGATE)>0);
-	gtk_widget_show (FiltNegateEnable);
-	g_signal_connect (GTK_CHECK_BUTTON(FiltNegateEnable), "toggled",
-		G_CALLBACK (FiltNegateEnable_changed), &all_data);
-	/*Mono*/
-	FiltMonoEnable=gtk_check_button_new_with_label (_(" Mono"));
-	gtk_table_attach(GTK_TABLE(table3), FiltMonoEnable, 3, 4, 0, 1,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
-	
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(FiltMonoEnable),(global->Frame_Flags & YUV_MONOCR)>0);
-	gtk_widget_show (FiltMonoEnable);
-	g_signal_connect (GTK_CHECK_BUTTON(FiltMonoEnable), "toggled",
-		G_CALLBACK (FiltMonoEnable_changed), &all_data);
-	
-	gtk_table_attach (GTK_TABLE(table2), table3, 0, 3, line, line+1,
-		GTK_FILL, 0, 0, 0);
 
-	gtk_widget_show (table3);
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(EffDistEnable),(pdata->snd_Flags & SND_ECHO)>0);
+	gtk_widget_show (EffDistEnable);
+	g_signal_connect (GTK_CHECK_BUTTON(EffDistEnable), "toggled",
+		G_CALLBACK (EffDistEnable_changed), &all_data);
+
 	
 	/* main container */
 	gtk_container_add (GTK_CONTAINER (gwidget->mainwin), gwidget->boxv);

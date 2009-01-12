@@ -259,6 +259,7 @@ void *main_loop(void *data)
 			}
 		}
 		/*------------------------- Filter Frame ---------------------------------*/
+		g_mutex_lock(global->mutex);
 		if(global->Frame_Flags>0)
 		{
 			if((global->Frame_Flags & YUV_MIRROR)==YUV_MIRROR) 
@@ -309,7 +310,7 @@ void *main_loop(void *data)
 				}
 			}
 		}
-	
+		g_mutex_unlock(global->mutex);
 		/*-------------------------capture Image----------------------------------*/
 		if (videoIn->capImage)
 		{

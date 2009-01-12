@@ -35,6 +35,8 @@
 
 int initGlobals (struct GLOBAL *global) 
 {
+	global->mutex = g_mutex_new();
+
 	global->debug = DEBUG;
 	
 	const gchar *home = g_get_home_dir();
@@ -157,6 +159,8 @@ int closeGlobals(struct GLOBAL *global)
 	g_free(global->aviinc_str);
 	g_free(global->avifile);
 	g_free(global->mode);
+	g_mutex_free( global->mutex );
+	
 	global->videodevice=NULL;
 	global->confPath=NULL;
 	global->avifile=NULL;

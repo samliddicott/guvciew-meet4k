@@ -44,8 +44,11 @@ struct paRecordData
 	int capAVI;
 	SAMPLE *recordedSamples;
 	SAMPLE *avi_sndBuff;
+	SAMPLE *delayBuff1;
+	SAMPLE *delayBuff2;
 	BYTE *mp2Buff;
 	int mp2BuffSize;
+	int snd_Flags;
 	GMutex *mutex;
 	//pthread_cond_t cond;
 	
@@ -66,6 +69,11 @@ init_sound(struct paRecordData* data);
 
 int
 close_sound (struct paRecordData *data);
+
+SAMPLE CubicAmp(SAMPLE in);
+
+#define FUZZ(x)  \
+CubicAmp(CubicAmp(CubicAmp(CubicAmp(x))))
 
 #endif
 

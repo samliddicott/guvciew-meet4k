@@ -181,6 +181,9 @@ FiltNegateEnable_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data);
 void
 FiltMonoEnable_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data);
 
+void
+EffDistEnable_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data);
+
 void 
 ImageInc_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data);
 
