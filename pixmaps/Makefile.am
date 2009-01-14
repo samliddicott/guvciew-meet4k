@@ -1,12 +1,17 @@
 #copies backup files if regular data files not found
 
 pixs = \
-	guvcview.xpm\
-	camera.xpm\
-	movie.xpm\
-	save.xpm\
-	folder.xpm\
-	close.xpm
+	guvcview.png\
+	camera.png\
+	movie.png\
+	save.png\
+	image_controls.png\
+	video_controls.png\
+	audio_controles.png\
+	images_folder.png\
+	videos_folder.png\
+	controles_folder.png\
+	close.png
 
 clean:
 	test -z "guvcview.desktop" || rm -f guvcview.desktop;\
@@ -27,7 +32,7 @@ clean-all: clean
 		echo "title=\"Guvcview\" \\" >> guvcview.menu;\
 		echo "longtitle=\"GTK UVC Viewer - uvc video viewer and capturer\" \\" >> guvcview.menu;\
 		echo "command=\"guvcview\" \\" >> guvcview.menu;\
-		echo "icon=\"$(datadir)/pixmaps/guvcview/guvcview.xpm\"" >> guvcview.menu;\
+		echo "icon=\"$(datadir)/pixmaps/guvcview/guvcview.png\"" >> guvcview.menu;\
 		cp guvcview.menu guvcview;\
 	fi
 .desktop:
@@ -44,7 +49,7 @@ clean-all: clean
 		echo "Comment=A video viewer and capturer for the linux uvc driver" >> guvcview.desktop_;\
 		echo "TryExec=guvcview" >> guvcview.desktop_;\
 		echo "Exec=guvcview" >> guvcview.desktop_;\
-		echo "Icon=$(datadir)/pixmaps/guvcview/guvcview.xpm" >> guvcview.desktop_;\
+		echo "Icon=$(datadir)/pixmaps/guvcview/guvcview.png" >> guvcview.desktop_;\
 		echo "Terminal=false" >> guvcview.desktop_;\
 		echo "Type=Application" >> guvcview.desktop_;\
 		echo "Categories=Video;AudioVideo;" >> guvcview.desktop_;\
@@ -52,7 +57,7 @@ clean-all: clean
 		cp guvcview.desktop_ guvcview.desktop;\
 	fi
 		 
-.xpm:
+.png:
 	for file in ${pixs}; do \
 		if test -e $$file; then \
 			echo "$$file exists";\
@@ -61,4 +66,4 @@ clean-all: clean
 		fi;\
 	done
 
-.PHONY: .menu .desktop .xpm
+.PHONY: .menu .desktop .png
