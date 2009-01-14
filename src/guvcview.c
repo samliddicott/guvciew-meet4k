@@ -404,11 +404,11 @@ int main(int argc, char *argv[])
 	gchar* Tab1IconPath = g_strconcat (PACKAGE_DATA_DIR,"/pixmaps/guvcview/image_controls.png",NULL);
 	/*don't test for file - use default empty image if load fails*/
 	/*get icon image*/
-	Tab1Img = gtk_image_new_from_file(Tab1IconPath);
+	Tab1Icon = gtk_image_new_from_file(Tab1IconPath);
 	g_free(Tab1IconPath);
-	gtk_image_set_pixel_size (GTK_IMAGE(Tab1Img), GTK_ICON_SIZE_MENU);
-	gtk_widget_show (Tab1Img);
-	gtk_box_pack_start (GTK_BOX(Tab1), Tab1Img, FALSE, FALSE,1);
+	gtk_image_set_pixel_size (GTK_IMAGE(Tab1Icon), GTK_ICON_SIZE_MENU);
+	gtk_widget_show (Tab1Icon);
+	gtk_box_pack_start (GTK_BOX(Tab1), Tab1Icon, FALSE, FALSE,1);
 	gtk_box_pack_start (GTK_BOX(Tab1), Tab1Label, FALSE, FALSE,1);
 	
 	gtk_widget_show (Tab1);
@@ -485,7 +485,7 @@ int main(int argc, char *argv[])
 	if (g_file_test(pix1path,G_FILE_TEST_EXISTS)) 
 	{
 		AVIButton_Img = gtk_image_new_from_file (pix1path);
-		gtk_image_set_pixel_size (AVIButton_Img, GTK_ICON_SIZE_LARGE_TOOLBAR);
+		gtk_image_set_pixel_size (GTK_IMAGE(AVIButton_Img), GTK_ICON_SIZE_LARGE_TOOLBAR);
 		
 		gtk_button_set_image(GTK_BUTTON(gwidget->CapAVIButt),AVIButton_Img);
 		gtk_button_set_image_position(GTK_BUTTON(gwidget->CapAVIButt),GTK_POS_TOP);
@@ -494,7 +494,7 @@ int main(int argc, char *argv[])
 	if (g_file_test(pix2path,G_FILE_TEST_EXISTS)) 
 	{
 		ImgButton_Img = gtk_image_new_from_file (pix2path);
-		gtk_image_set_pixel_size (ImgButton_Img, GTK_ICON_SIZE_LARGE_TOOLBAR);
+		gtk_image_set_pixel_size (GTK_IMAGE(ImgButton_Img), GTK_ICON_SIZE_LARGE_TOOLBAR);
 		
 		gtk_button_set_image(GTK_BUTTON(gwidget->CapImageButt),ImgButton_Img);
 		gtk_button_set_image_position(GTK_BUTTON(gwidget->CapImageButt),GTK_POS_TOP);
@@ -503,7 +503,7 @@ int main(int argc, char *argv[])
 	if (g_file_test(pix3path,G_FILE_TEST_EXISTS)) 
 	{
 		SButton_Img = gtk_image_new_from_file (pix3path);
-		gtk_image_set_pixel_size (SButton_Img, GTK_ICON_SIZE_LARGE_TOOLBAR);
+		gtk_image_set_pixel_size (GTK_IMAGE(SButton_Img), GTK_ICON_SIZE_LARGE_TOOLBAR);
 		
 		gtk_button_set_image(GTK_BUTTON(SProfileButton),SButton_Img);
 		gtk_button_set_image_position(GTK_BUTTON(SProfileButton),GTK_POS_TOP);
@@ -512,7 +512,7 @@ int main(int argc, char *argv[])
 	if (g_file_test(pix4path,G_FILE_TEST_EXISTS)) 
 	{
 		LButton_Img = gtk_image_new_from_file (pix4path);
-		gtk_image_set_pixel_size (LButton_Img, GTK_ICON_SIZE_LARGE_TOOLBAR);
+		gtk_image_set_pixel_size (GTK_IMAGE(LButton_Img), GTK_ICON_SIZE_LARGE_TOOLBAR);
 		
 		gtk_button_set_image(GTK_BUTTON(LProfileButton),LButton_Img);
 		gtk_button_set_image_position(GTK_BUTTON(LProfileButton),GTK_POS_TOP);
@@ -521,7 +521,7 @@ int main(int argc, char *argv[])
 	if (g_file_test(pix5path,G_FILE_TEST_EXISTS)) 
 	{
 		QButton_Img = gtk_image_new_from_file (pix5path);
-		gtk_image_set_pixel_size (QButton_Img, GTK_ICON_SIZE_LARGE_TOOLBAR);
+		gtk_image_set_pixel_size (GTK_IMAGE(QButton_Img), GTK_ICON_SIZE_LARGE_TOOLBAR);
 		
 		gtk_button_set_image(GTK_BUTTON(quitButton),QButton_Img);
 		gtk_button_set_image_position(GTK_BUTTON(quitButton),GTK_POS_TOP);
@@ -582,11 +582,11 @@ int main(int argc, char *argv[])
 	gchar* Tab2IconPath = g_strconcat (PACKAGE_DATA_DIR,"/pixmaps/guvcview/video_controls.png",NULL);
 	/*don't test for file - use default empty image if load fails*/
 	/*get icon image*/
-	Tab2Img = gtk_image_new_from_file(Tab2IconPath);
+	Tab2Icon = gtk_image_new_from_file(Tab2IconPath);
 	g_free(Tab2IconPath);
-	gtk_image_set_pixel_size (GTK_IMAGE(Tab2Img), GTK_ICON_SIZE_MENU);
-	gtk_widget_show (Tab2Img);
-	gtk_box_pack_start (GTK_BOX(Tab2), Tab2Img, FALSE, FALSE,1);
+	gtk_image_set_pixel_size (GTK_IMAGE(Tab2Icon), GTK_ICON_SIZE_MENU);
+	gtk_widget_show (Tab2Icon);
+	gtk_box_pack_start (GTK_BOX(Tab2), Tab2Icon, FALSE, FALSE,1);
 	gtk_box_pack_start (GTK_BOX(Tab2), Tab2Label, FALSE, FALSE,1);
 	
 	gtk_widget_show (Tab2);
@@ -777,7 +777,7 @@ int main(int argc, char *argv[])
 	ImgFolder_img = gtk_image_new_from_file(OImgIconPath);
 	g_free(OImgIconPath);
 	gtk_image_set_pixel_size (GTK_IMAGE(ImgFolder_img), GTK_ICON_SIZE_BUTTON);
-	gtk_button_set_image (gwidget->ImgFileButt, ImgFolder_img);
+	gtk_button_set_image (GTK_BUTTON(gwidget->ImgFileButt), ImgFolder_img);
 	
 	gtk_table_attach(GTK_TABLE(table2), gwidget->ImgFileButt, 2, 3, line, line+1,
 		GTK_SHRINK | GTK_FILL, 0, 0, 0);
@@ -851,7 +851,7 @@ int main(int argc, char *argv[])
 	VidFolder_img = gtk_image_new_from_file(OVidIconPath);
 	g_free(OVidIconPath);
 	gtk_image_set_pixel_size (GTK_IMAGE(VidFolder_img), GTK_ICON_SIZE_BUTTON);
-	gtk_button_set_image (gwidget->AviFileButt, VidFolder_img);
+	gtk_button_set_image (GTK_BUTTON(gwidget->AviFileButt), VidFolder_img);
 	
 	gtk_table_attach(GTK_TABLE(table2), gwidget->AviFileButt, 2, 3, line, line+1,
 		GTK_SHRINK | GTK_FILL, 0, 0, 0);
@@ -1006,11 +1006,11 @@ int main(int argc, char *argv[])
 	gchar* Tab3IconPath = g_strconcat (PACKAGE_DATA_DIR,"/pixmaps/guvcview/audio_controls.png",NULL);
 	/*don't test for file - use default empty image if load fails*/
 	/*get icon image*/
-	Tab3Img = gtk_image_new_from_file(Tab3IconPath);
+	Tab3Icon = gtk_image_new_from_file(Tab3IconPath);
 	g_free(Tab3IconPath);
-	gtk_image_set_pixel_size (GTK_IMAGE(Tab3Img), GTK_ICON_SIZE_MENU);
-	gtk_widget_show (Tab3Img);
-	gtk_box_pack_start (GTK_BOX(Tab3), Tab3Img, FALSE, FALSE,1);
+	gtk_image_set_pixel_size (GTK_IMAGE(Tab3Icon), GTK_ICON_SIZE_MENU);
+	gtk_widget_show (Tab3Icon);
+	gtk_box_pack_start (GTK_BOX(Tab3), Tab3Icon, FALSE, FALSE,1);
 	gtk_box_pack_start (GTK_BOX(Tab3), Tab3Label, FALSE, FALSE,1);
 	
 	gtk_widget_show (Tab3);
