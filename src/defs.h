@@ -66,8 +66,8 @@ static const int stdSampleRates[] =
 
 #define INCPANTILT 64 // 1°
 
-#define WINSIZEX 575
-#define WINSIZEY 610
+#define WINSIZEX 480
+#define WINSIZEY 700
 
 #define AUTO_EXP 8
 #define MAN_EXP	1

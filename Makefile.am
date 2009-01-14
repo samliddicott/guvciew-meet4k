@@ -20,12 +20,17 @@ pixmapsdir = ${datadir}/pixmaps/guvcview
 application_DATA = pixmaps/guvcview.desktop
 menu_DATA = pixmaps/guvcview
 pixmaps_DATA = \
-		pixmaps/guvcview.xpm\
-		pixmaps/camera.xpm\
-		pixmaps/movie.xpm\
-		pixmaps/save.xpm\
-		pixmaps/folder.xpm\
-		pixmaps/close.xpm
+		pixmaps/guvcview.png\
+		pixmaps/camera.png\
+		pixmaps/movie.png\
+		pixmaps/save.png\
+		pixmaps/image_controls.png\
+		pixmaps/video_controls.png\
+		pixmaps/audio_controls.png\
+		pixmaps/images_folder.png\
+		pixmaps/videos_folder.png\
+		pixmaps/controls_folder.png\
+		pixmaps/close.png
 
 
 EXTRA_DIST = \
@@ -65,7 +70,7 @@ force-update-gmo: check-gettext
 	cd po && $(MAKE) $(AM_MAKEFLAGS) update-gmo
 
 $(pixmaps_DATA):
-	cd pixmaps && $(MAKE) $(AM_MAKEFLAGS) .xpm
+	cd pixmaps && $(MAKE) $(AM_MAKEFLAGS) .png
 
 # builds menu file
 $(menu_DATA):
