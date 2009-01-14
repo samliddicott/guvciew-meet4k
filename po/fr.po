@@ -10,40 +10,32 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fr\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-01-06 22:54+0000\n"
-"PO-Revision-Date: 2009-01-06 22:58+0100\n"
+"POT-Creation-Date: 2009-01-14 00:29+0000\n"
+"PO-Revision-Date: 2009-01-14 00:37+0100\n"
 "Last-Translator: Paulo Assis <pj.assis@gmail.com>\n"
 "Language-Team: Portuguese <pt@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/guvcview.c:94
-#: src/callbacks.c:1252
+#: src/guvcview.c:94 src/callbacks.c:1266
 msgid "Save File"
 msgstr "Enregistrer le Fichier"
 
 #. if auto naming restart counter
-#: src/guvcview.c:148
-#: src/globals.c:73
-#: src/globals.c:76
-#: src/options.c:360
-#: src/options.c:409
-#: src/callbacks.c:870
-#: src/callbacks.c:1015
-#: src/callbacks.c:1032
-#: src/callbacks.c:1064
-#: src/callbacks.c:1168
+#: src/guvcview.c:148 src/globals.c:75 src/globals.c:78 src/options.c:360
+#: src/options.c:409 src/callbacks.c:870 src/callbacks.c:1029
+#: src/callbacks.c:1046 src/callbacks.c:1078 src/callbacks.c:1182
 #, c-format
 msgid "File num:%d"
 msgstr "Fichier num:%d"
 
-#: src/guvcview.c:269
+#: src/guvcview.c:275
 msgid "GUVCViewer Controls"
 msgstr "Réglages GUVCViewer"
 
 #. can't open device
-#: src/guvcview.c:300
+#: src/guvcview.c:306
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -53,7 +45,7 @@ msgstr ""
 "\n"
 "Incapable d'accéder au périphérique"
 
-#: src/guvcview.c:301
+#: src/guvcview.c:307
 msgid ""
 "Please make sure the camera is connected\n"
 "and that the linux-UVC driver is installed."
@@ -62,8 +54,7 @@ msgstr ""
 "\n"
 "et que le pilote Linux-UVC est installé."
 
-#: src/guvcview.c:318
-#: src/guvcview.c:355
+#: src/guvcview.c:324 src/guvcview.c:361
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -73,8 +64,7 @@ msgstr ""
 "\n"
 "Incapable de gérer le flux vidéo (MJPG ou YUV)"
 
-#: src/guvcview.c:319
-#: src/guvcview.c:356
+#: src/guvcview.c:325 src/guvcview.c:362
 msgid ""
 "Make sure you have a UVC compliant camera\n"
 "and that you have the linux UVC driver installed."
@@ -82,7 +72,7 @@ msgstr ""
 "Vérifiez que vous avez un périphérique compatible UVC\n"
 "et que le pilote Linux-UVC est installé."
 
-#: src/guvcview.c:329
+#: src/guvcview.c:335
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -92,11 +82,11 @@ msgstr ""
 "\n"
 "Incapable de démarrer avec des réglages minimum"
 
-#: src/guvcview.c:330
+#: src/guvcview.c:336
 msgid "Please reconnect your camera."
 msgstr "Svp, rebranchez votre périphérique."
 
-#: src/guvcview.c:339
+#: src/guvcview.c:345
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -106,173 +96,181 @@ msgstr ""
 "\n"
 "Incapable d'assigner des Buffers"
 
-#: src/guvcview.c:340
+#: src/guvcview.c:346
 msgid "Please try restarting your system."
 msgstr "Svp, essayez de redémarrer votre système."
 
-#: src/guvcview.c:385
+#: src/guvcview.c:392
 msgid "Image Controls"
 msgstr "Réglages de L'image"
 
-#: src/guvcview.c:405
+#: src/guvcview.c:412
 msgid "Control Profiles:"
 msgstr "Réglages Personnalisés:"
 
-#: src/guvcview.c:411
+#: src/guvcview.c:418
 msgid "Capture:"
 msgstr "Enregistrement:"
 
 #. image auto capture
-#: src/guvcview.c:430
+#: src/guvcview.c:437
 msgid "Stop Auto"
 msgstr "Arrêt Auto"
 
-#: src/guvcview.c:434
-#: src/callbacks.c:1085
+#: src/guvcview.c:441 src/callbacks.c:1099
 msgid "Cap. Image"
 msgstr "Enr. Image"
 
 #. avi capture enabled from start
 #. printf("opening avi file: %s\n",videoIn->AVIFName);
-#: src/guvcview.c:439
-#: src/callbacks.c:1193
+#: src/guvcview.c:446 src/callbacks.c:1207
 msgid "Stop AVI"
 msgstr "Arrêter AVI"
 
 #. ***************** Stop AVI ***********************
-#: src/guvcview.c:443
-#: src/callbacks.c:1148
+#: src/guvcview.c:450 src/callbacks.c:1162
 msgid "Cap. AVI"
 msgstr "Enr. Video"
 
-#: src/guvcview.c:538
+#: src/guvcview.c:545
 msgid "Video & Files"
 msgstr "Video et Fichiers"
 
 #. Devices
-#: src/guvcview.c:549
+#: src/guvcview.c:556
 msgid "Device:"
 msgstr "Périphérique d'Entrée:"
 
-#: src/guvcview.c:635
+#: src/guvcview.c:642
 msgid "Frame Rate:"
 msgstr "Fréquence d'image:"
 
-#: src/guvcview.c:643
+#: src/guvcview.c:650
 msgid " Show"
 msgstr "Afficher"
 
-#: src/guvcview.c:668
+#: src/guvcview.c:675
 msgid "Resolution:"
 msgstr "Résolution:"
 
-#: src/guvcview.c:696
+#: src/guvcview.c:703
 msgid "Camera Output:"
 msgstr "Sortie Caméra:"
 
-#: src/guvcview.c:706
+#: src/guvcview.c:713
 msgid "Image File:"
 msgstr "Ficher Image:"
 
-#: src/guvcview.c:733
-#: src/guvcview.c:816
+#: src/guvcview.c:740 src/guvcview.c:823
 msgid "File,Auto"
 msgstr "Fichier, Auto"
 
-#: src/guvcview.c:745
+#: src/guvcview.c:752
 msgid "Image Format:"
 msgstr "Format d'Image:"
 
-#: src/guvcview.c:775
+#: src/guvcview.c:782
 msgid "AVI File:"
 msgstr "Fichier Vidéo:"
 
-#: src/guvcview.c:831
+#: src/guvcview.c:838
 msgid "MJPG - compressed"
 msgstr "MJPG - compressé"
 
-#: src/guvcview.c:834
+#: src/guvcview.c:841
 msgid "UYVY - uncomp YUV"
 msgstr "UYVY - YUV non compressé"
 
-#: src/guvcview.c:836
+#: src/guvcview.c:843
 msgid "YUY2 - uncomp YUV"
 msgstr "YUY2 - YUV non compressé"
 
-#: src/guvcview.c:838
+#: src/guvcview.c:845
 msgid "RGB - uncomp BMP"
 msgstr "RVB - BMP non compressé"
 
-#: src/guvcview.c:850
+#: src/guvcview.c:857
 msgid "AVI Format:"
 msgstr "Format AVI:"
 
-#: src/guvcview.c:962
-msgid " Sound"
-msgstr "Son"
-
-#: src/guvcview.c:985
-msgid "Input Device:"
-msgstr "Périphérique d'Entrée:"
-
-#: src/guvcview.c:996
-#: src/guvcview.c:1029
-msgid "Dev. Default"
-msgstr "Valeur par Défaut"
-
-#: src/guvcview.c:1018
-msgid "Sample Rate:"
-msgstr "Taux d'échantillonage:"
-
-#: src/guvcview.c:1030
-msgid "1 - mono"
-msgstr "1 - mono"
-
-#: src/guvcview.c:1031
-msgid "2 - stereo"
-msgstr "2 - stéréo"
-
-#: src/guvcview.c:1062
-msgid "Channels:"
-msgstr "Canaux:"
-
-#: src/guvcview.c:1074
-msgid "PCM"
-msgstr "PCM"
-
-#: src/guvcview.c:1075
-msgid "MP2"
-msgstr "MP2"
-
-#: src/guvcview.c:1102
-msgid "Audio Format:"
-msgstr "Format Audio:"
-
-#: src/guvcview.c:1111
+#: src/guvcview.c:867
 msgid "---- Video Filters ----"
 msgstr "---- Filtres Vidéo ----"
 
 #. Mirror
-#: src/guvcview.c:1127
+#: src/guvcview.c:883
 msgid " Mirror"
 msgstr " Miroir"
 
 #. Upturn
-#: src/guvcview.c:1136
+#: src/guvcview.c:892
 msgid " Invert"
 msgstr " Inverser"
 
 #. Negate
-#: src/guvcview.c:1145
+#: src/guvcview.c:901
 msgid " Negative"
 msgstr " Négatif"
 
 #. Mono
-#: src/guvcview.c:1154
+#: src/guvcview.c:910
 msgid " Mono"
 msgstr " Monochrome"
 
-#: src/guvcview.c:1197
+#: src/guvcview.c:938
+msgid "Audio"
+msgstr "Audio"
+
+#: src/guvcview.c:1045
+msgid " Sound"
+msgstr "Son"
+
+#: src/guvcview.c:1069
+msgid "Input Device:"
+msgstr "Périphérique d'Entrée:"
+
+#: src/guvcview.c:1080 src/guvcview.c:1113
+msgid "Dev. Default"
+msgstr "Valeur par Défaut"
+
+#: src/guvcview.c:1102
+msgid "Sample Rate:"
+msgstr "Taux d'échantillonage:"
+
+#: src/guvcview.c:1114
+msgid "1 - mono"
+msgstr "1 - mono"
+
+#: src/guvcview.c:1115
+msgid "2 - stereo"
+msgstr "2 - stéréo"
+
+#: src/guvcview.c:1146
+msgid "Channels:"
+msgstr "Canaux:"
+
+#: src/guvcview.c:1158
+msgid "PCM"
+msgstr "PCM"
+
+#: src/guvcview.c:1159
+msgid "MP2"
+msgstr "MP2"
+
+#: src/guvcview.c:1186
+msgid "Audio Format:"
+msgstr "Format Audio:"
+
+#: src/guvcview.c:1196
+msgid "---- Audio Effects ----"
+msgstr "---- Effets Audio ----"
+
+#. distort
+#: src/guvcview.c:1216
+msgid " Echo"
+msgstr "Echo"
+
+#: src/guvcview.c:1255
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -282,7 +280,7 @@ msgstr ""
 "\n"
 "Incapable de créer le flux vidéo."
 
-#: src/guvcview.c:1198
+#: src/guvcview.c:1256
 msgid "Please report it to http://developer.berlios.de/bugs/?group_id=8179"
 msgstr "Svp, rapportez-le à http://developer.berlios.de/bugs/?group_id=8179"
 
@@ -434,7 +432,7 @@ msgstr "Fichier de configuration"
 
 #: src/options.c:525
 msgid "Hardware accelaration (enable(1) | disable(0))"
-msgstr "Accel. por matériel (activer(1) | desactiver(0))"
+msgstr "Accel. matérielle (activer(1) | desactiver(0))"
 
 #: src/options.c:526
 msgid "Pixel format(mjpg|jpeg|yuyv|uyvy|yyuv|yu12|gbrg)"
@@ -450,7 +448,7 @@ msgstr "Ficher Image"
 
 #: src/options.c:529
 msgid "Image capture interval in seconds"
-msgstr "Interval de enr. de image (secondes)"
+msgstr "Interval d'enr. des images (secondes)"
 
 #: src/options.c:530
 msgid "Number of Pictures to capture"
@@ -462,11 +460,11 @@ msgstr "Fichier video (enr. de début)"
 
 #: src/options.c:532
 msgid "AVI capture time (in seconds)"
-msgstr "Temps de enr. video (secondes)"
+msgstr "Durée de l'enr. video (secondes)"
 
 #: src/options.c:533
 msgid "Show FPS value (enable(1) | disable (0))"
-msgstr "Afficher FPS (activer(1) | desactiver(0))"
+msgstr "Afficher img/sec (activer(1) | desactiver(0))"
 
 #: src/options.c:534
 msgid "Load Profile at start"
@@ -500,9 +498,7 @@ msgstr "Haut"
 msgid "Down"
 msgstr "Bas"
 
-#: src/img_controls.c:190
-#: src/img_controls.c:206
-#: src/img_controls.c:224
+#: src/img_controls.c:190 src/img_controls.c:206 src/img_controls.c:224
 msgid "Reset"
 msgstr "Remise à Zero"
 
@@ -533,33 +529,29 @@ msgstr "nouveau"
 
 #: src/callbacks.c:636
 msgid "cancel"
-msgstr "décommander "
+msgstr "Annuler"
 
 #: src/callbacks.c:640
 msgid ""
 "launch new process or restart?.\n"
 "\n"
 msgstr ""
-"nouveau processus ou relancement?\n"
+"nouveau processus ou redémarrage?\n"
 "\n"
 
-#: src/callbacks.c:699
-#: src/callbacks.c:775
+#: src/callbacks.c:699 src/callbacks.c:775
 msgid "Program Restart"
 msgstr "Redémarrer l'application"
 
-#: src/callbacks.c:702
-#: src/callbacks.c:778
+#: src/callbacks.c:702 src/callbacks.c:778
 msgid "now"
 msgstr "Maintenant"
 
-#: src/callbacks.c:704
-#: src/callbacks.c:780
+#: src/callbacks.c:704 src/callbacks.c:780
 msgid "Later"
 msgstr "Plus tard "
 
-#: src/callbacks.c:708
-#: src/callbacks.c:784
+#: src/callbacks.c:708 src/callbacks.c:784
 msgid ""
 "Changes will only take effect after guvcview restart.\n"
 "\n"
@@ -571,7 +563,6 @@ msgstr ""
 "\n"
 "Redémarrer maintenant? \n"
 
-#: src/callbacks.c:1288
+#: src/callbacks.c:1302
 msgid "Load File"
 msgstr "Charger Fichier"
-
