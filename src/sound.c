@@ -74,19 +74,9 @@ recordCallback (const void *inputBuffer, void *outputBuffer,
 		g_mutex_lock( data->mutex );
 			data->snd_numBytes = data->numSamples*sizeof(SAMPLE);
 			/*fill delay buffers*/
-			memcpy(data->delayBuff2, data->delayBuff1, data->maxIndex*sizeof(SAMPLE));
 			memcpy(data->delayBuff1, data->avi_sndBuff, data->maxIndex*sizeof(SAMPLE));
 			/*get actual data*/
 			memcpy(data->avi_sndBuff, data->recordedSamples ,data->snd_numBytes);
-			/*run effects on data*/
-			if((data->snd_Flags & SND_ECHO)==SND_ECHO) 
-			{
-				int samp=0;
-				for(samp=0;samp<data->maxIndex;samp++)
-					data->avi_sndBuff[samp]= (data->avi_sndBuff[samp])*0.7 +
-					((data->delayBuff1[samp])/4 +
-					(data->delayBuff2[samp])/8);
-			}
 			//flags that secondary buffer as data (can be saved to file)
 			data->audio_flag=1;
 		g_mutex_unlock( data->mutex );
@@ -104,18 +94,13 @@ recordCallback (const void *inputBuffer, void *outputBuffer,
 			g_mutex_lock( data->mutex);
 				data->snd_numBytes = data->numSamples*sizeof(SAMPLE);
 				/* fill delay buffers*/
-				memcpy(data->delayBuff2, data->delayBuff1, data->maxIndex*sizeof(SAMPLE));
 				memcpy(data->delayBuff1, data->avi_sndBuff, data->maxIndex*sizeof(SAMPLE));
 				/*get actual data*/
 				memcpy(data->avi_sndBuff, data->recordedSamples ,data->snd_numBytes);
 				/*run effects on data*/
 				if((data->snd_Flags & SND_ECHO)==SND_ECHO) 
 				{
-					int samp=0;
-					for(samp=0;samp<data->maxIndex;samp++)
-						data->avi_sndBuff[samp]= (data->avi_sndBuff[samp])*0.7 +
-						((data->delayBuff1[samp])/4 +
-						(data->delayBuff2[samp])/8);
+					Echo(data,2);
 				}
 				//flags that secondary buffer as data (can be saved to file)
 				data->audio_flag=1;
@@ -164,6 +149,7 @@ init_sound(struct paRecordData* data)
 	MP2Frames=numSamples/1152;
 	numSamples=MP2Frames*1152;
 	
+	data->input_type = PA_SAMPLE_TYPE;
 	data->mp2Buff = NULL;
 	
 	data->snd_numBytes = numSamples * sizeof(SAMPLE);
@@ -180,7 +166,7 @@ init_sound(struct paRecordData* data)
 	data->avi_sndBuff = g_new0(SAMPLE, numSamples);
 	/*delay buffers - for audio effects like echo*/
 	data->delayBuff1 = g_new0(SAMPLE, numSamples);
-	data->delayBuff2 = g_new0(SAMPLE, numSamples);
+	//data->delayBuff2 = g_new0(SAMPLE, numSamples);
 	
 	//for( i=0; i<numSamples; i++ ) 
 	//	data->recordedSamples[i] = 0;
@@ -226,7 +212,7 @@ error:
 	data->recordedSamples=NULL;
 	g_free(data->avi_sndBuff);
 	g_free(data->delayBuff1);
-	g_free(data->delayBuff2);
+	//g_free(data->delayBuff2);
 	data->avi_sndBuff=NULL;
 	
 	return(-1);
@@ -268,9 +254,9 @@ close_sound (struct paRecordData *data)
 		g_free(data->avi_sndBuff);
 		data->avi_sndBuff = NULL;
 		g_free(data->delayBuff1);
-		g_free(data->delayBuff2);
+		//g_free(data->delayBuff2);
 		data->delayBuff1=NULL;
-		data->delayBuff2=NULL;
+		//data->delayBuff2=NULL;
 		g_free(data->mp2Buff);
 		data->mp2Buff = NULL;
 	g_mutex_unlock( data->mutex );
@@ -290,11 +276,19 @@ error:
 		g_free(data->avi_sndBuff);
 		data->avi_sndBuff = NULL;
 		g_free(data->delayBuff1);
-		g_free(data->delayBuff2);
+		//g_free(data->delayBuff2);
 		data->delayBuff1=NULL;
-		data->delayBuff2=NULL;
+		//data->delayBuff2=NULL;
 		g_free(data->mp2Buff);
 		data->mp2Buff = NULL;
 	g_mutex_unlock( data->mutex );
 	return(-1);
+}
+
+/*--------------------------- Effects ------------------------------------------*/
+void Echo(struct paRecordData* data, int decay)
+{
+	int samp=0;
+	for(samp=0;samp<data->maxIndex;samp++)
+		data->avi_sndBuff[samp] += (data->delayBuff1[samp])/decay;
 }

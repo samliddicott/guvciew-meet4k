@@ -1160,7 +1160,7 @@ int main(int argc, char *argv[])
 	
 	switch (global->Sound_Format) 
 	{
-		case WAVE_FORMAT_PCM:/*PCM*/
+		case PA_FOURCC:/*PCM - INT16 or FLOAT32*/
 			gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->SndComp),0);
 			break;
 			
@@ -1171,7 +1171,7 @@ int main(int argc, char *argv[])
 		default:
 			/*set Default to PCM*/
 			gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->SndComp),0);
-			global->Sound_Format = WAVE_FORMAT_PCM;
+			global->Sound_Format = PA_FOURCC;
 	}
 	if (global->Sound_enable) gtk_widget_set_sensitive (gwidget->SndComp, TRUE);
 	

@@ -508,23 +508,23 @@ void *main_loop(void *data)
 				/*a bit longer to start)                                                          */
 				/*no need of locking the audio mutex yet, since we are not reading from the buffer*/
 				if (!(AviOut->track[0].audio_bytes)) 
-				{ /*only 1 audio stream*/
+				{ 
+					/*only 1 audio stream*/
 					/*time diff for audio-video*/
 					int synctime= pdata->snd_begintime - global->AVIstarttime; 
 					if (global->debug) g_printf("shift sound by %d ms\n",synctime);
 					if(synctime>10 && synctime<5000) 
 					{ /*only sync between 100ms and 5 seconds*/
-						if(global->Sound_Format == WAVE_FORMAT_PCM) 
+						if(global->Sound_Format == PA_FOURCC) 
 						{/*shift sound by synctime*/
 							UINT32 shiftFrames = abs(synctime * global->Sound_SampRate / 1000);
 							UINT32 shiftSamples = shiftFrames * global->Sound_NumChan;
-							if (global->debug) g_printf("shift sound forward by %d frames\n", 
+							if (global->debug) g_printf("shift sound forward by %d samples\n", 
 								shiftSamples);
-							SAMPLE EmptySamp[shiftSamples];
-							int i;
-							/*init to zero - silence*/
-							for(i=0; i<shiftSamples; i++) EmptySamp[i]=0;
-							AVI_write_audio(AviOut,(BYTE *) &EmptySamp,shiftSamples*sizeof(SAMPLE));
+							SAMPLE *EmptySamp;
+							EmptySamp=g_new0(SAMPLE, shiftSamples);
+							AVI_write_audio(AviOut,(BYTE *) EmptySamp,shiftSamples*sizeof(SAMPLE));
+							g_free(EmptySamp);
 						} 
 						else if(global->Sound_Format == ISO_FORMAT_MPEG12) 
 						{
@@ -534,23 +534,25 @@ void *main_loop(void *data)
 						}
 					}
 				}
+				g_mutex_lock( pdata->mutex );
+					/*run effects on data*/
+					if((pdata->snd_Flags & SND_ECHO)==SND_ECHO) 
+					{
+						Echo(pdata,2);
+					}
 				
-				/*write audio chunk                                          */
-				/*lock the mutex because we are reading from the audio buffer*/
-				if(global->Sound_Format == WAVE_FORMAT_PCM) 
-				{
-					g_mutex_lock( pdata->mutex );
+					/*write audio chunk                                          */
+					if(global->Sound_Format == PA_FOURCC) 
+					{
 						ret=AVI_write_audio(AviOut,(BYTE *) pdata->avi_sndBuff,pdata->snd_numBytes);
-					g_mutex_unlock( pdata->mutex );
-				}
-				else if(global->Sound_Format == ISO_FORMAT_MPEG12)
-				{
-					g_mutex_lock( pdata->mutex );
+					}
+					else if(global->Sound_Format == ISO_FORMAT_MPEG12)
+					{
 						int size_mp2 = MP2_encode(pdata,0);
 						ret=AVI_write_audio(AviOut,pdata->mp2Buff,size_mp2);
-					g_mutex_unlock( pdata->mutex );
-				}
-		
+					}
+				g_mutex_unlock( pdata->mutex );
+				
 				pdata->audio_flag=0;
 				keyframe = 1; /*marks next frame as key frame*/
 		
@@ -579,7 +581,7 @@ void *main_loop(void *data)
 					}
 				}
 			}
-		} /*video and audio capture have stopped but there is still audio available in the buffers*/
+		} /*video and audio capture have stopped */
 		else videoIn->AVICapStop=TRUE;
 	
 		/*------------------------- Display Frame --------------------------------*/

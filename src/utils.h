@@ -44,12 +44,13 @@
 //#define DITHER_FLAG     (paDitherOff) 
 #define DITHER_FLAG     (0) 
 
-#define AUDIO_16        (1)/*others AUDIO_32 AUDIO_8 AUDIO_U8*/
+#define AUDIO_16        (1)/*AUDIO_32 AUDIO_16 AUDIO_8 AUDIO_U8*/
 /* Select sample format to 16bit. */
 
 #ifdef AUDIO_32
 
 #define PA_SAMPLE_TYPE  paFloat32
+#define PA_FOURCC       WAVE_FORMAT_IEEE_FLOAT
 typedef float SAMPLE;
 #define SAMPLE_SILENCE  (0.0f)
 #define PRINTF_S_FORMAT "%.8f"
@@ -57,7 +58,8 @@ typedef float SAMPLE;
 #else
 #ifdef AUDIO_16
 
-#define PA_SAMPLE_TYPE  paInt16 /* Default */
+#define PA_SAMPLE_TYPE  paInt16
+#define PA_FOURCC       WAVE_FORMAT_PCM
 typedef short SAMPLE;
 #define SAMPLE_SILENCE  (0)
 #define PRINTF_S_FORMAT "%d"

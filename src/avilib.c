@@ -817,7 +817,7 @@ static int avi_close_output_file(struct avi_t *AVI)
 		ULONG scalerate = 0;
 	   
 		sampsize = avi_sampsize(AVI, j);
-		sampsize = AVI->track[j].a_fmt==0x1?sampsize*4:sampsize;
+		sampsize = AVI->track[j].a_fmt==(WAVE_FORMAT_PCM || WAVE_FORMAT_IEEE_FLOAT)?sampsize*4:sampsize;
 
 		nBlockAlign = (AVI->track[j].a_rate<32000)?576:1152;
 		/*
@@ -827,7 +827,8 @@ static int avi_close_output_file(struct avi_t *AVI)
 		 1000*AVI->track[j].mp3rate/8, AVI->track[j].mp3rate);
 		 */
 	   
-		if (AVI->track[j].a_fmt==0x1) {
+		if ((AVI->track[j].a_fmt==WAVE_FORMAT_PCM) || (AVI->track[j].a_fmt==WAVE_FORMAT_IEEE_FLOAT))
+		{
 			sampsize = (AVI->track[j].a_chans<2)?sampsize/2:sampsize;
 			avgbsec = AVI->track[j].a_rate*sampsize/4;
 			scalerate = AVI->track[j].a_rate*sampsize/4;

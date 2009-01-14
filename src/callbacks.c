@@ -182,7 +182,7 @@ aviClose (struct ALL_DATA *all_data)
 			{
 				g_printerr("writing %d bytes of audio data\n",pdata->snd_numBytes);
 				g_mutex_lock( pdata->mutex);
-					if(global->Sound_Format == WAVE_FORMAT_PCM)
+					if(global->Sound_Format == PA_FOURCC)
 					{
 						if(pdata->avi_sndBuff) 
 						{
@@ -908,13 +908,13 @@ SndComp_changed (GtkComboBox * SoundComp, struct ALL_DATA *all_data)
 	switch (gtk_combo_box_get_active (SoundComp)) 
 	{
 		case 0:
-			global->Sound_Format  = WAVE_FORMAT_PCM;
+			global->Sound_Format  = PA_FOURCC;
 			break;
 		case 1:
 			global->Sound_Format = ISO_FORMAT_MPEG12;
 			break;
 		default:
-			global->Sound_Format  = WAVE_FORMAT_PCM;
+			global->Sound_Format  = PA_FOURCC;
 	}
 	
 	global = NULL;

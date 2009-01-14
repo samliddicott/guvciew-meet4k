@@ -28,6 +28,7 @@
 
 struct paRecordData
 {
+	int input_type;
 	PaStreamParameters inputParameters;
 	PaStream *stream;
 	int sampleIndex;
@@ -45,7 +46,7 @@ struct paRecordData
 	SAMPLE *recordedSamples;
 	SAMPLE *avi_sndBuff;
 	SAMPLE *delayBuff1;
-	SAMPLE *delayBuff2;
+	//SAMPLE *delayBuff2;
 	BYTE *mp2Buff;
 	int mp2BuffSize;
 	int snd_Flags;
@@ -70,10 +71,8 @@ init_sound(struct paRecordData* data);
 int
 close_sound (struct paRecordData *data);
 
-SAMPLE CubicAmp(SAMPLE in);
-
-#define FUZZ(x)  \
-CubicAmp(CubicAmp(CubicAmp(CubicAmp(x))))
+void
+Echo(struct paRecordData *data, int decay);
 
 #endif
 
