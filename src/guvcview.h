@@ -57,6 +57,7 @@ struct GWIDGET
 	/*must be called from main loop if capture timer enabled*/
 	GtkWidget *ImageFNameEntry;
 	GtkWidget *ImgFileButt;
+	GtkWidget *AviFileButt;
 	GtkWidget *ImageType;
 	GtkWidget *CapImageButt;
 	//GtkWidget *QCapImageButt;
