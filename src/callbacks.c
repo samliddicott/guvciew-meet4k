@@ -1005,9 +1005,9 @@ FiltMonoEnable_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data)
 	global = NULL;
 }
 
-/* Audio Distort effect */
+/* Audio Echo effect */
 void
-EffDistEnable_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data)
+EffEchoEnable_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data)
 {
 	struct paRecordData *pdata = all_data->pdata;
 	g_mutex_lock(pdata->mutex);
@@ -1017,6 +1017,19 @@ EffDistEnable_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data)
 	g_mutex_unlock(pdata->mutex);
 	pdata = NULL;
 }
+/* Audio Fuzz effect */
+void
+EffFuzzEnable_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data)
+{
+	struct paRecordData *pdata = all_data->pdata;
+	g_mutex_lock(pdata->mutex);
+		pdata->snd_Flags = gtk_toggle_button_get_active (toggle) ? 
+			(pdata->snd_Flags | SND_FUZZ) : 
+			(pdata->snd_Flags & ~SND_FUZZ);
+	g_mutex_unlock(pdata->mutex);
+	pdata = NULL;
+}
+
 
 void 
 ImageInc_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data)

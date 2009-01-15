@@ -44,32 +44,45 @@
 //#define DITHER_FLAG     (paDitherOff) 
 #define DITHER_FLAG     (0) 
 
-#define AUDIO_16        (1)/*AUDIO_32 AUDIO_16 AUDIO_8 AUDIO_U8*/
-/* Select sample format to 16bit. */
+#define AUDIO_I16        (1)/*AUDIO_F32 AUDIO_I32 AUDIO_I16 AUDIO_I8 AUDIO_U8*/
+/*select sample format*/
 
-#ifdef AUDIO_32
+#ifdef AUDIO_F32
 
 #define PA_SAMPLE_TYPE  paFloat32
 #define PA_FOURCC       WAVE_FORMAT_IEEE_FLOAT
 typedef float SAMPLE;
 #define SAMPLE_SILENCE  (0.0f)
+#define MAX_SAMPLE (1.0f)
 #define PRINTF_S_FORMAT "%.8f"
 
 #else
-#ifdef AUDIO_16
+#ifdef AUDIO_I32
+
+#define PA_SAMPLE_TYPE  paInt32
+#define PA_FOURCC       WAVE_FORMAT_PCM
+typedef int SAMPLE;
+#define SAMPLE_SILENCE  (0)
+#define MAX_SAMPLE (0x7FFFFFFF)
+#define PRINTF_S_FORMAT "%d"
+
+#else
+#ifdef AUDIO_I16
 
 #define PA_SAMPLE_TYPE  paInt16
 #define PA_FOURCC       WAVE_FORMAT_PCM
 typedef short SAMPLE;
 #define SAMPLE_SILENCE  (0)
+#define MAX_SAMPLE (0x7FFF)
 #define PRINTF_S_FORMAT "%d"
 
 #else
-#ifdef AUDIO_8
+#ifdef AUDIO_I8
 
 #define PA_SAMPLE_TYPE  paInt8
 typedef char SAMPLE;
 #define SAMPLE_SILENCE  (0)
+#define MAX_SAMPLE (0x7F)
 #define PRINTF_S_FORMAT "%d"
 
 #else 
@@ -78,8 +91,10 @@ typedef char SAMPLE;
 #define PA_SAMPLE_TYPE  paUInt8
 typedef unsigned char SAMPLE;
 #define SAMPLE_SILENCE  (128)
+#define MAX_SAMPLE (0xFF)
 #define PRINTF_S_FORMAT "%d"
 
+#endif
 #endif
 #endif
 #endif

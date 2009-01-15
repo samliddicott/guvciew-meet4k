@@ -189,8 +189,8 @@ init_sound(struct paRecordData* data)
 		data->samprate,
 		paFramesPerBufferUnspecified,/* buffer Size - set by portaudio*/
 		paNoFlag,      /* PaNoFlag - clip and dhiter*/
-		recordCallback, /* sound callback - using blocking API*/
-		data ); /* callback userData -no callback no data */
+		recordCallback, /* sound callback */
+		data ); /* callback userData */
 	
 	if( err != paNoError ) goto error;
 	
@@ -291,4 +291,31 @@ void Echo(struct paRecordData* data, int decay)
 	int samp=0;
 	for(samp=0;samp<data->maxIndex;samp++)
 		data->avi_sndBuff[samp] += (data->delayBuff1[samp])/decay;
+}
+
+/* Non-linear amplifier with soft distortion curve. */
+static SAMPLE CubicAmplifier( SAMPLE input )
+{
+	SAMPLE output;
+	float temp;
+	if( input < SAMPLE_SILENCE ) 
+	{
+		temp = (input/MAX_SAMPLE) + 1.0f;
+		output = (SAMPLE) ((temp * temp * temp)*MAX_SAMPLE - 1.0f);
+	}
+	else 
+	{
+		temp = input/MAX_SAMPLE - 1.0f;
+		output = (SAMPLE) ((temp * temp *temp)*MAX_SAMPLE + 1.0f);
+	}
+	return output;
+}
+
+#define FUZZ(x) CubicAmplifier(CubicAmplifier(CubicAmplifier(CubicAmplifier(x))))
+
+void Fuzz (struct paRecordData* data)
+{
+	int samp=0;
+	for(samp=0;samp<data->maxIndex;samp++)
+		data->avi_sndBuff[samp] = FUZZ(data->avi_sndBuff[samp]);
 }

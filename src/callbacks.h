@@ -182,7 +182,10 @@ void
 FiltMonoEnable_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data);
 
 void
-EffDistEnable_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data);
+EffEchoEnable_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data);
+
+void
+EffFuzzEnable_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data);
 
 void 
 ImageInc_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data);

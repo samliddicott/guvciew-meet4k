@@ -249,7 +249,8 @@ int main(int argc, char *argv[])
 	GtkWidget *FiltUpturnEnable;
 	GtkWidget *FiltNegateEnable;
 	GtkWidget *FiltMonoEnable;
-	GtkWidget *EffDistEnable;
+	GtkWidget *EffEchoEnable;
+	GtkWidget *EffFuzzEnable;
 	GtkWidget *VidFolder_img;
 	GtkWidget *ImgFolder_img;
 
@@ -1290,16 +1291,26 @@ int main(int argc, char *argv[])
 		GTK_EXPAND | GTK_SHRINK | GTK_FILL , 0, 0, 0);
 	gtk_widget_show (table_snd_eff);
 	
-	/* distort */
-	EffDistEnable=gtk_check_button_new_with_label (_(" Echo"));
-	gtk_table_attach(GTK_TABLE(table_snd_eff), EffDistEnable, 0, 1, 0, 1,
+	/* Echo */
+	EffEchoEnable=gtk_check_button_new_with_label (_(" Echo"));
+	gtk_table_attach(GTK_TABLE(table_snd_eff), EffEchoEnable, 0, 1, 0, 1,
 		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(EffDistEnable),(pdata->snd_Flags & SND_ECHO)>0);
-	gtk_widget_show (EffDistEnable);
-	g_signal_connect (GTK_CHECK_BUTTON(EffDistEnable), "toggled",
-		G_CALLBACK (EffDistEnable_changed), &all_data);
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(EffEchoEnable),(pdata->snd_Flags & SND_ECHO)>0);
+	gtk_widget_show (EffEchoEnable);
+	g_signal_connect (GTK_CHECK_BUTTON(EffEchoEnable), "toggled",
+		G_CALLBACK (EffEchoEnable_changed), &all_data);
 
+	/* FUZZ */
+	EffFuzzEnable=gtk_check_button_new_with_label (_(" Fuzz"));
+	gtk_table_attach(GTK_TABLE(table_snd_eff), EffFuzzEnable, 1, 2, 0, 1,
+		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(EffFuzzEnable),(pdata->snd_Flags & SND_FUZZ)>0);
+	gtk_widget_show (EffFuzzEnable);
+	g_signal_connect (GTK_CHECK_BUTTON(EffFuzzEnable), "toggled",
+		G_CALLBACK (EffFuzzEnable_changed), &all_data);
+	
 	
 	/* main container */
 	gtk_container_add (GTK_CONTAINER (gwidget->mainwin), gwidget->boxv);

@@ -74,5 +74,8 @@ close_sound (struct paRecordData *data);
 void
 Echo(struct paRecordData *data, int decay);
 
+void 
+Fuzz (struct paRecordData* data);
+
 #endif
 

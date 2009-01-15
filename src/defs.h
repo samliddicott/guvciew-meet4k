@@ -87,15 +87,16 @@ static const int stdSampleRates[] =
 #define CLIP(value) (unsigned char)(((value)>0xFF)?0xff:(((value)<0)?0:(value)))
 
 /*FILTER FLAGS*/
-#define YUV_NOFILT 0x0000
-#define YUV_MIRROR 0x0001
-#define YUV_UPTURN 0x0002
-#define YUV_NEGATE 0x0004
-#define YUV_MONOCR 0x0008
+#define YUV_NOFILT (0)
+#define YUV_MIRROR (1<<0)
+#define YUV_UPTURN (1<<1)
+#define YUV_NEGATE (1<<2)
+#define YUV_MONOCR (1<<3)
 
 /*Audio Effects*/
-#define SND_NOEF 0x0000
-#define SND_ECHO 0x0001
+#define SND_NOEF (0)
+#define SND_ECHO (1<<0)
+#define SND_FUZZ (1<<1)
 
 #endif
 

@@ -540,6 +540,10 @@ void *main_loop(void *data)
 					{
 						Echo(pdata,2);
 					}
+					if((pdata->snd_Flags & SND_FUZZ)==SND_FUZZ) 
+					{
+						Fuzz(pdata);
+					}
 				
 					/*write audio chunk                                          */
 					if(global->Sound_Format == PA_FOURCC) 
