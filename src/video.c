@@ -538,7 +538,7 @@ void *main_loop(void *data)
 					/*run effects on data*/
 					if((pdata->snd_Flags & SND_ECHO)==SND_ECHO) 
 					{
-						Echo(pdata,2);
+						Echo(pdata, 300, 2);
 					}
 					if((pdata->snd_Flags & SND_FUZZ)==SND_FUZZ) 
 					{

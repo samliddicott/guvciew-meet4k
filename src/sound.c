@@ -72,12 +72,10 @@ recordCallback (const void *inputBuffer, void *outputBuffer,
 		// This is not a good idea as it may cause data loss
 		//but since we sould never have to wait, it shouldn't be a problem.
 		g_mutex_lock( data->mutex );
+			data->snd_numSamples = data->numSamples;
 			data->snd_numBytes = data->numSamples*sizeof(SAMPLE);
-			/*fill delay buffers*/
-			memcpy(data->delayBuff1, data->avi_sndBuff, data->maxIndex*sizeof(SAMPLE));
-			/*get actual data*/
 			memcpy(data->avi_sndBuff, data->recordedSamples ,data->snd_numBytes);
-			//flags that secondary buffer as data (can be saved to file)
+			/*flags that secondary buffer as data (can be saved to file)*/
 			data->audio_flag=1;
 		g_mutex_unlock( data->mutex );
 		data->sampleIndex=0;
@@ -92,17 +90,10 @@ recordCallback (const void *inputBuffer, void *outputBuffer,
 		{
 			/*need to copy remaining audio to secondary buffer*/
 			g_mutex_lock( data->mutex);
+				data->snd_numSamples = data->numSamples;
 				data->snd_numBytes = data->numSamples*sizeof(SAMPLE);
-				/* fill delay buffers*/
-				memcpy(data->delayBuff1, data->avi_sndBuff, data->maxIndex*sizeof(SAMPLE));
-				/*get actual data*/
 				memcpy(data->avi_sndBuff, data->recordedSamples ,data->snd_numBytes);
-				/*run effects on data*/
-				if((data->snd_Flags & SND_ECHO)==SND_ECHO) 
-				{
-					Echo(data,2);
-				}
-				//flags that secondary buffer as data (can be saved to file)
+				/*flags that secondary buffer as data (can be saved to file)*/
 				data->audio_flag=1;
 			g_mutex_unlock( data->mutex);
 			data->sampleIndex=0;
@@ -164,12 +155,13 @@ init_sound(struct paRecordData* data)
 	
 	/*secondary shared buffer*/
 	data->avi_sndBuff = g_new0(SAMPLE, numSamples);
-	/*delay buffers - for audio effects like echo*/
-	data->delayBuff1 = g_new0(SAMPLE, numSamples);
-	//data->delayBuff2 = g_new0(SAMPLE, numSamples);
-	
-	//for( i=0; i<numSamples; i++ ) 
-	//	data->recordedSamples[i] = 0;
+	/*delay buffers - for audio effects */
+	data->delayBuff = NULL;
+	data->delayIndex = 0;
+	data->CombBuff = NULL;
+	data->CombIndex = 0;
+	data->AllPassBuff = NULL;
+	data->AllPassIndex = 0;
 	
 	err = Pa_Initialize();
 	if( err != paNoError ) goto error;
@@ -211,8 +203,12 @@ error:
 	g_free( data->recordedSamples );
 	data->recordedSamples=NULL;
 	g_free(data->avi_sndBuff);
-	g_free(data->delayBuff1);
-	//g_free(data->delayBuff2);
+	g_free(data->delayBuff);
+	g_free(data->CombBuff);
+	g_free(data->AllPassBuff);
+	data->delayBuff = NULL;
+	data->CombBuff = NULL;
+	data->AllPassBuff = NULL;
 	data->avi_sndBuff=NULL;
 	
 	return(-1);
@@ -253,12 +249,14 @@ close_sound (struct paRecordData *data)
 	
 		g_free(data->avi_sndBuff);
 		data->avi_sndBuff = NULL;
-		g_free(data->delayBuff1);
-		//g_free(data->delayBuff2);
-		data->delayBuff1=NULL;
-		//data->delayBuff2=NULL;
+		g_free(data->delayBuff);
+		g_free(data->CombBuff);
+		data->delayBuff = NULL;
+		data->CombBuff = NULL;
 		g_free(data->mp2Buff);
 		data->mp2Buff = NULL;
+		g_free(data->AllPassBuff);
+		data->AllPassBuff = NULL;
 	g_mutex_unlock( data->mutex );
 	
 	return (0);
@@ -275,10 +273,12 @@ error:
 		Pa_Terminate();
 		g_free(data->avi_sndBuff);
 		data->avi_sndBuff = NULL;
-		g_free(data->delayBuff1);
-		//g_free(data->delayBuff2);
-		data->delayBuff1=NULL;
-		//data->delayBuff2=NULL;
+		g_free(data->delayBuff);
+		g_free(data->CombBuff);
+		g_free(data->AllPassBuff);
+		data->delayBuff = NULL;
+		data->CombBuff = NULL;
+		data->AllPassBuff = NULL;
 		g_free(data->mp2Buff);
 		data->mp2Buff = NULL;
 	g_mutex_unlock( data->mutex );
@@ -286,11 +286,25 @@ error:
 }
 
 /*--------------------------- Effects ------------------------------------------*/
-void Echo(struct paRecordData* data, int decay)
+/* Echo effect */
+void Echo(struct paRecordData* data, int delay_ms, int decay)
 {
 	int samp=0;
+	SAMPLE out;
+	
+	int buff_size = (int) delay_ms * data->channels * data->samprate/1000;
+	
+	if(data->delayBuff == NULL) 
+		data->delayBuff = g_new0(SAMPLE, buff_size);
+	
 	for(samp=0;samp<data->maxIndex;samp++)
-		data->avi_sndBuff[samp] += (data->delayBuff1[samp])/decay;
+	{
+		out = (0.7 * data->avi_sndBuff[samp]) + (0.3 * data->delayBuff[data->delayIndex]);
+		data->delayBuff[data->delayIndex] = data->avi_sndBuff[samp] + (data->delayBuff[data->delayIndex]/decay);
+		data->avi_sndBuff[samp] = out;
+		
+		if(++(data->delayIndex) >= buff_size) data->delayIndex=0;
+	}
 }
 
 /* Non-linear amplifier with soft distortion curve. */
@@ -312,10 +326,53 @@ static SAMPLE CubicAmplifier( SAMPLE input )
 }
 
 #define FUZZ(x) CubicAmplifier(CubicAmplifier(CubicAmplifier(CubicAmplifier(x))))
-
+/* Fuzz distortion */
 void Fuzz (struct paRecordData* data)
 {
 	int samp=0;
 	for(samp=0;samp<data->maxIndex;samp++)
 		data->avi_sndBuff[samp] = FUZZ(data->avi_sndBuff[samp]);
 }
+
+/* Comb filter for reverb */
+void CombFilter (struct paRecordData* data, int delay_ms, float gain)
+{
+	int samp=0;
+	SAMPLE out;
+	/*buff_size in samples*/
+	int buff_size = (int) delay_ms * data->channels * (data->samprate/1000);
+	
+	if (data->CombBuff == NULL) 
+		data->CombBuff = g_new0(SAMPLE, buff_size);
+	
+	for(samp=0; samp<data->maxIndex; samp++)
+	{
+		out = data->CombBuff[data->CombIndex];
+		data->CombBuff[data->CombIndex] = out*gain + data->avi_sndBuff[samp];
+		data->avi_sndBuff[samp] = out;
+		
+		if(++(data->CombIndex) >= buff_size) data->CombIndex=0;
+	}
+}
+
+/* all pass filter for reverb */
+void all_pass (struct paRecordData* data, int delay_ms, float gain)
+{
+	int samp=0;
+	int buff_size = (int) delay_ms * data->channels * (data->samprate/1000);
+	SAMPLE temp;
+	
+	if (data->AllPassBuff == NULL) 
+		data->AllPassBuff = g_new0(SAMPLE, buff_size);
+		
+	for(samp=0; samp<data->maxIndex; samp++)
+	{
+		temp = data->AllPassBuff[data->AllPassIndex];
+		data->AllPassBuff[data->AllPassIndex] = (temp * gain) + data->avi_sndBuff[samp];
+		data->avi_sndBuff[samp] = temp - (gain * data->AllPassBuff[data->AllPassIndex]);
+		
+		if(++(data->AllPassIndex) >= buff_size) data->AllPassIndex=0;
+	}
+}
+
+

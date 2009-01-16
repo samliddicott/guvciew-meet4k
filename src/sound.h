@@ -28,29 +28,34 @@
 
 struct paRecordData
 {
-	int input_type;
+	int input_type; // audio SAMPLE type
 	PaStreamParameters inputParameters;
 	PaStream *stream;
-	int sampleIndex;
-	int maxIndex;
-	int channels;
-	int numSamples;
-	int streaming;
-	int flush;
-	int audio_flag;
-	int samprate;
-	int numsec;
-	int snd_numBytes;
-	int snd_begintime;
-	int capAVI;
-	SAMPLE *recordedSamples;
-	SAMPLE *avi_sndBuff;
-	SAMPLE *delayBuff1;
-	//SAMPLE *delayBuff2;
-	BYTE *mp2Buff;
-	int mp2BuffSize;
-	int snd_Flags;
-	GMutex *mutex;
+	int sampleIndex; // callback buffer index
+	int maxIndex; // maximum callback buffer index
+	int channels; // channels
+	int numSamples; //captured samples in callback
+	int streaming; // audio streaming flag
+	int flush; // flush mp2 buffer flag
+	int audio_flag; // ou buffer data ready flag
+	int samprate; // samp rate
+	int numsec; // aprox. number of seconds for out buffer size
+	int snd_numBytes; //bytes copied to out buffer*/
+	int snd_numSamples; //samples copied to out buffer*/
+	int snd_begintime; //audio recording start time*/
+	int capAVI; // avi capture flag
+	SAMPLE *recordedSamples; // callback buffer
+	SAMPLE *avi_sndBuff; // out buffer
+	SAMPLE *delayBuff; // delay buffer - echo
+	int delayIndex; // delay buffer index
+	SAMPLE *CombBuff; // comb filter buffer 
+	int CombIndex; //comb filter buffer index
+	SAMPLE *AllPassBuff; // all pass filter buffer
+	int AllPassIndex; // all pass filter buffer index
+	BYTE *mp2Buff; //mp2 encode buffer
+	int mp2BuffSize; // mp2 buffer size
+	int snd_Flags; // effects flag
+	GMutex *mutex; // audio mutex
 	//pthread_cond_t cond;
 	
 } __attribute__ ((packed));
@@ -72,7 +77,7 @@ int
 close_sound (struct paRecordData *data);
 
 void
-Echo(struct paRecordData *data, int decay);
+Echo(struct paRecordData *data, int delay_ms, int decay);
 
 void 
 Fuzz (struct paRecordData* data);
