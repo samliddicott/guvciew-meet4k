@@ -211,4 +211,7 @@ split_avi(void *data);
 void 
 ShowFPS_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data);
 
+void
+EffRevEnable_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data);
+
 #endif

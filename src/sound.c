@@ -375,4 +375,11 @@ void all_pass (struct paRecordData* data, int delay_ms, float gain)
 	}
 }
 
+void Reverb (struct paRecordData* data)
+{
+	CombFilter(data, 300, 0.5);
+	all_pass(data, 300, 0.6);
+	all_pass(data, 300, 0.6);
+}
+
 

@@ -82,5 +82,8 @@ Echo(struct paRecordData *data, int delay_ms, int decay);
 void 
 Fuzz (struct paRecordData* data);
 
+void 
+Reverb (struct paRecordData* data);
+
 #endif
 

@@ -544,6 +544,10 @@ void *main_loop(void *data)
 					{
 						Fuzz(pdata);
 					}
+					if((pdata->snd_Flags & SND_REVERB)==SND_REVERB) 
+					{
+						Reverb(pdata);
+					}
 				
 					/*write audio chunk                                          */
 					if(global->Sound_Format == PA_FOURCC) 
