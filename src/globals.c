@@ -21,6 +21,7 @@
 
 #include "globals.h"
 #include "avilib.h"
+#include "sound.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -95,7 +96,7 @@ int initGlobals (struct GLOBAL *global)
 	global->Sound_SampRate=SAMPLE_RATE;
 	global->Sound_SampRateInd=0;
 	global->Sound_numInputDev=0;
-	global->Sound_Format=PA_FOURCC;
+	global->Sound_Format=ISO_FORMAT_MPEG12; /*set MP2 by default*/
 	global->Sound_DefDev=0; 
 	global->Sound_UseDev=0;
 	global->Sound_NumChan=NUM_CHANNELS;

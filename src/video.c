@@ -521,9 +521,15 @@ void *main_loop(void *data)
 							UINT32 shiftSamples = shiftFrames * global->Sound_NumChan;
 							if (global->debug) g_printf("shift sound forward by %d samples\n", 
 								shiftSamples);
+#ifdef AUDIO_F32
+							short *EmptySamp;
+							EmptySamp=g_new0(short, shiftSamples);
+							AVI_write_audio(AviOut,(BYTE *) EmptySamp,shiftSamples*sizeof(short));
+#else
 							SAMPLE *EmptySamp;
 							EmptySamp=g_new0(SAMPLE, shiftSamples);
 							AVI_write_audio(AviOut,(BYTE *) EmptySamp,shiftSamples*sizeof(SAMPLE));
+#endif
 							g_free(EmptySamp);
 						} 
 						else if(global->Sound_Format == ISO_FORMAT_MPEG12) 
@@ -538,7 +544,7 @@ void *main_loop(void *data)
 					/*run effects on data*/
 					if((pdata->snd_Flags & SND_ECHO)==SND_ECHO) 
 					{
-						Echo(pdata, 300, 2);
+						Echo(pdata, 300, 0.5);
 					}
 					if((pdata->snd_Flags & SND_FUZZ)==SND_FUZZ) 
 					{
@@ -546,13 +552,18 @@ void *main_loop(void *data)
 					}
 					if((pdata->snd_Flags & SND_REVERB)==SND_REVERB) 
 					{
-						Reverb(pdata);
+						Reverb(pdata, 250);
 					}
 				
 					/*write audio chunk                                          */
 					if(global->Sound_Format == PA_FOURCC) 
 					{
+#ifdef AUDIO_F32
+						Float2Int16(pdata);
+						ret=AVI_write_audio(AviOut,(BYTE *) pdata->avi_sndBuff1,pdata->snd_numSamples*2);
+#else
 						ret=AVI_write_audio(AviOut,(BYTE *) pdata->avi_sndBuff,pdata->snd_numBytes);
+#endif
 					}
 					else if(global->Sound_Format == ISO_FORMAT_MPEG12)
 					{

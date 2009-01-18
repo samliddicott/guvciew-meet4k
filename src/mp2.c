@@ -84,20 +84,15 @@ MP2_encode(struct paRecordData* pdata, int ms_delay)
 		SAMPLE *EmptySamp;
 		EmptySamp = g_new0(SAMPLE, shiftSamples);
 		// Encode silent samples
-		switch(pdata->input_type)
-		{
-			case paFloat32:
-				mp2fill_size = twolame_encode_buffer_float32_interleaved(encodeOptions, 
-					(float *) EmptySamp, shiftSamples/(pdata->channels), 
-					pdata->mp2Buff, pdata->mp2BuffSize);
-				break;
-			case paInt16:
-			default:
-				mp2fill_size = twolame_encode_buffer_interleaved(encodeOptions, 
-					(short *) EmptySamp, shiftSamples/(pdata->channels), 
-					pdata->mp2Buff, pdata->mp2BuffSize);
-				break;
-		}
+#ifdef AUDIO_F32
+		mp2fill_size = twolame_encode_buffer_float32_interleaved(encodeOptions, 
+			(float *) EmptySamp, shiftSamples/(pdata->channels), 
+			pdata->mp2Buff, pdata->mp2BuffSize);
+#else
+		mp2fill_size = twolame_encode_buffer_interleaved(encodeOptions, 
+				(short *) EmptySamp, shiftSamples/(pdata->channels), 
+				pdata->mp2Buff, pdata->mp2BuffSize);
+#endif
 		g_free(EmptySamp);
 	} 
 	else
@@ -107,18 +102,13 @@ MP2_encode(struct paRecordData* pdata, int ms_delay)
 		{
 			int num_samples = pdata->snd_numBytes / (pdata->channels*sizeof(SAMPLE)); /*samples per channel*/
 			// Encode the audio
-			switch(pdata->input_type)
-			{
-				case paFloat32:
-					mp2fill_size = twolame_encode_buffer_float32_interleaved(encodeOptions, 
-						(float *) pdata->avi_sndBuff, num_samples, pdata->mp2Buff, pdata->mp2BuffSize);
-					break;
-				case paInt16:
-				default:
-					mp2fill_size = twolame_encode_buffer_interleaved(encodeOptions, 
-						(short *) pdata->avi_sndBuff, num_samples, pdata->mp2Buff, pdata->mp2BuffSize);
-					break;
-			}
+#ifdef AUDIO_F32
+			mp2fill_size = twolame_encode_buffer_float32_interleaved(encodeOptions, 
+				(float *) pdata->avi_sndBuff, num_samples, pdata->mp2Buff, pdata->mp2BuffSize);
+#else
+			mp2fill_size = twolame_encode_buffer_interleaved(encodeOptions, 
+				(short *) pdata->avi_sndBuff, num_samples, pdata->mp2Buff, pdata->mp2BuffSize);
+#endif
 		}
 		else 
 		{

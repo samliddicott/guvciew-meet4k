@@ -1249,9 +1249,9 @@ int main(int argc, char *argv[])
 			break;
 			
 		default:
-			/*set Default to PCM*/
-			gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->SndComp),0);
-			global->Sound_Format = PA_FOURCC;
+			/*set Default to MP2*/
+			gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->SndComp),1);
+			global->Sound_Format = ISO_FORMAT_MPEG12;
 	}
 	if (global->Sound_enable) gtk_widget_set_sensitive (gwidget->SndComp, TRUE);
 	

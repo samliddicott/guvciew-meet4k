@@ -23,6 +23,7 @@
 #include "ms_time.h"
 #include "globals.h"
 #include <glib.h>
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -155,6 +156,8 @@ init_sound(struct paRecordData* data)
 	
 	/*secondary shared buffer*/
 	data->avi_sndBuff = g_new0(SAMPLE, numSamples);
+	/*buffer for avi PCM*/
+	data->avi_sndBuff1=NULL;
 	/*delay buffers - for audio effects */
 	data->delayBuff = NULL;
 	data->delayIndex = 0;
@@ -203,12 +206,14 @@ error:
 	g_free( data->recordedSamples );
 	data->recordedSamples=NULL;
 	g_free(data->avi_sndBuff);
+	g_free(data->avi_sndBuff1);
 	g_free(data->delayBuff);
 	g_free(data->CombBuff);
 	g_free(data->AllPassBuff);
 	data->delayBuff = NULL;
 	data->CombBuff = NULL;
 	data->AllPassBuff = NULL;
+	data->avi_sndBuff1=NULL;
 	data->avi_sndBuff=NULL;
 	
 	return(-1);
@@ -257,6 +262,8 @@ close_sound (struct paRecordData *data)
 		data->mp2Buff = NULL;
 		g_free(data->AllPassBuff);
 		data->AllPassBuff = NULL;
+		g_free(data->avi_sndBuff1);
+		data->avi_sndBuff1 = NULL;
 	g_mutex_unlock( data->mutex );
 	
 	return (0);
@@ -281,13 +288,17 @@ error:
 		data->AllPassBuff = NULL;
 		g_free(data->mp2Buff);
 		data->mp2Buff = NULL;
+		g_free(data->avi_sndBuff1);
+		data->avi_sndBuff1 = NULL;
 	g_mutex_unlock( data->mutex );
 	return(-1);
 }
 
 /*--------------------------- Effects ------------------------------------------*/
 /* Echo effect */
-void Echo(struct paRecordData* data, int delay_ms, int decay)
+/*delay_ms: echo delay in ms*/
+/*decay: feedback gain (<1) */
+void Echo(struct paRecordData* data, int delay_ms, float decay)
 {
 	int samp=0;
 	SAMPLE out;
@@ -297,10 +308,10 @@ void Echo(struct paRecordData* data, int delay_ms, int decay)
 	if(data->delayBuff == NULL) 
 		data->delayBuff = g_new0(SAMPLE, buff_size);
 	
-	for(samp=0;samp<data->maxIndex;samp++)
+	for(samp=0;samp<data->snd_numSamples;samp++)
 	{
 		out = (0.7 * data->avi_sndBuff[samp]) + (0.3 * data->delayBuff[data->delayIndex]);
-		data->delayBuff[data->delayIndex] = data->avi_sndBuff[samp] + (data->delayBuff[data->delayIndex]/decay);
+		data->delayBuff[data->delayIndex] = data->avi_sndBuff[samp] + (data->delayBuff[data->delayIndex] * decay);
 		data->avi_sndBuff[samp] = out;
 		
 		if(++(data->delayIndex) >= buff_size) data->delayIndex=0;
@@ -310,32 +321,45 @@ void Echo(struct paRecordData* data, int delay_ms, int decay)
 /* Non-linear amplifier with soft distortion curve. */
 static SAMPLE CubicAmplifier( SAMPLE input )
 {
-	SAMPLE output;
+	SAMPLE out;
 	float temp;
 	if( input < SAMPLE_SILENCE ) 
 	{
-		temp = (input/MAX_SAMPLE) + 1.0f;
-		output = (SAMPLE) ((temp * temp * temp)*MAX_SAMPLE - 1.0f);
+#ifdef AUDIO_F32
+		temp = input +1.0f;
+		out = (temp * temp * temp) - 1.0f;
+#else
+		temp = (float) (input/MAX_SAMPLE) + 1.0f;
+		out = (SAMPLE) ((temp * temp * temp)*MAX_SAMPLE - 1.0f);
+#endif
 	}
 	else 
 	{
-		temp = input/MAX_SAMPLE - 1.0f;
-		output = (SAMPLE) ((temp * temp *temp)*MAX_SAMPLE + 1.0f);
+#ifdef AUDIO_F32
+		temp = input - 1.0f;
+		out = (temp * temp *temp) + 1.0f;
+#else
+		temp = (float) (input/MAX_SAMPLE) - 1.0f;
+		out = (SAMPLE) ((temp * temp *temp)*MAX_SAMPLE + 1.0f);
+#endif
 	}
-	return output;
+	return out;
 }
 
-#define FUZZ(x) CubicAmplifier(CubicAmplifier(CubicAmplifier(CubicAmplifier(x))))
+#define FUZZ(x) CubicAmplifier(CubicAmplifier(CubicAmplifier(x)))
 /* Fuzz distortion */
 void Fuzz (struct paRecordData* data)
 {
 	int samp=0;
-	for(samp=0;samp<data->maxIndex;samp++)
+	for(samp=0;samp<data->snd_numSamples;samp++)
 		data->avi_sndBuff[samp] = FUZZ(data->avi_sndBuff[samp]);
 }
 
 /* Comb filter for reverb */
-void CombFilter (struct paRecordData* data, int delay_ms, float gain)
+/*delay_ms: delay in ms   if called twice second delay must be <= first delay   */
+/* feedback_gain: <1                                                            */
+/*gain: input gain (gain+feedbackgain should be 1)                              */
+static void CombFilter (struct paRecordData* data, int delay_ms, float feedback_gain, float gain)
 {
 	int samp=0;
 	SAMPLE out;
@@ -345,10 +369,10 @@ void CombFilter (struct paRecordData* data, int delay_ms, float gain)
 	if (data->CombBuff == NULL) 
 		data->CombBuff = g_new0(SAMPLE, buff_size);
 	
-	for(samp=0; samp<data->maxIndex; samp++)
+	for(samp=0; samp<data->snd_numSamples; samp++)
 	{
 		out = data->CombBuff[data->CombIndex];
-		data->CombBuff[data->CombIndex] = out*gain + data->avi_sndBuff[samp];
+		data->CombBuff[data->CombIndex] = out*feedback_gain + gain*data->avi_sndBuff[samp];
 		data->avi_sndBuff[samp] = out;
 		
 		if(++(data->CombIndex) >= buff_size) data->CombIndex=0;
@@ -356,7 +380,10 @@ void CombFilter (struct paRecordData* data, int delay_ms, float gain)
 }
 
 /* all pass filter for reverb */
-void all_pass (struct paRecordData* data, int delay_ms, float gain)
+/*delay_ms: delay in ms   if called twice second delay must be <= first delay   */
+/* feedback_gain: <1                                                            */
+/*gain: input gain (gain+feedbackgain should be 1)                              */
+static void all_pass (struct paRecordData* data, int delay_ms, float feedback_gain, float gain)
 {
 	int samp=0;
 	int buff_size = (int) delay_ms * data->channels * (data->samprate/1000);
@@ -365,21 +392,40 @@ void all_pass (struct paRecordData* data, int delay_ms, float gain)
 	if (data->AllPassBuff == NULL) 
 		data->AllPassBuff = g_new0(SAMPLE, buff_size);
 		
-	for(samp=0; samp<data->maxIndex; samp++)
+	for(samp=0; samp<data->snd_numSamples; samp++)
 	{
 		temp = data->AllPassBuff[data->AllPassIndex];
-		data->AllPassBuff[data->AllPassIndex] = (temp * gain) + data->avi_sndBuff[samp];
-		data->avi_sndBuff[samp] = temp - (gain * data->AllPassBuff[data->AllPassIndex]);
+		data->AllPassBuff[data->AllPassIndex] = (temp * feedback_gain) + 
+			(gain * data->avi_sndBuff[samp]);
+		data->avi_sndBuff[samp] = temp - (feedback_gain * data->AllPassBuff[data->AllPassIndex]);
 		
 		if(++(data->AllPassIndex) >= buff_size) data->AllPassIndex=0;
 	}
 }
 
-void Reverb (struct paRecordData* data)
+void Reverb (struct paRecordData* data, int delay_ms)
 {
-	CombFilter(data, 300, 0.5);
-	all_pass(data, 300, 0.6);
-	all_pass(data, 300, 0.6);
+	int samp = 0;
+	/*3 parallel comb filters*/
+	CombFilter(data, delay_ms, 0.4f, 0.6f);
+	for(samp=0;samp<data->snd_numSamples;samp++)
+		data->avi_sndBuff[samp] = 3*data->avi_sndBuff[samp];
+	all_pass(data, delay_ms, 0.4f, 0.6f);
+	//all_pass(data, delay_ms, 0.4f, 0.8f);
+}
+
+
+void Float2Int16 (struct paRecordData* data)
+{
+	if (data->CombBuff == NULL) 
+		data->avi_sndBuff1 = g_new0(short, data->maxIndex);
+	
+	int samp = 0;
+	for(samp=0; samp<data->snd_numSamples; samp++)
+	{
+		data->avi_sndBuff1[samp] = (short) (data->avi_sndBuff[samp] * 32768 + 385);
+		//data->avi_sndBuff1[samp] = (short) lrintf(data->avi_sndBuff[samp] * 0x7FFF);
+	}
 }
 
 

@@ -36,11 +36,11 @@ typedef unsigned long      ULONG;
 
 typedef char* pchar;
 
-typedef char		   INT8;
+typedef signed char	   INT8;
 typedef unsigned char	   UINT8;
-typedef short		   INT16;
+typedef signed short	   INT16;
 typedef unsigned short int UINT16;
-typedef int		   INT32;
+typedef signed int	   INT32;
 typedef unsigned int	   UINT32;
 
 /* 0 is device default*/

@@ -26,6 +26,54 @@
 #include <glib.h>
 #include "globals.h"
 
+/*------------- portaudio defs ----------------*/
+/*---- can be override in rc file or GUI ------*/
+
+#define SAMPLE_RATE  (0) /* 0 device default*/
+//#define FRAMES_PER_BUFFER (4096)
+
+#define NUM_SECONDS     (1) /* captures 1 second bloks */
+/* sound can go for more 1 seconds than video          */
+
+#define NUM_CHANNELS    (0) /* 0-device default 1-mono 2-stereo */
+
+#define AUDIO_F32        (1)/*AUDIO_F32 AUDIO_I32 AUDIO_I16*/
+/*select sample format*/
+
+#ifdef AUDIO_F32
+
+#define PA_SAMPLE_TYPE  paFloat32
+//#define PA_FOURCC       WAVE_FORMAT_IEEE_FLOAT
+#define PA_FOURCC       WAVE_FORMAT_PCM //use PCM 16 bits
+typedef float SAMPLE;
+#define SAMPLE_SILENCE  (0.0f)
+#define MAX_SAMPLE (1.0f)
+#define PRINTF_S_FORMAT "%.8f"
+
+#else
+#ifdef AUDIO_I32
+
+#define PA_SAMPLE_TYPE  paInt32
+#define PA_FOURCC       WAVE_FORMAT_PCM
+typedef INT32 SAMPLE;
+#define SAMPLE_SILENCE  (0)
+#define MAX_SAMPLE (2147483647)
+#define PRINTF_S_FORMAT "%d"
+
+#else
+#ifdef AUDIO_I16
+
+#define PA_SAMPLE_TYPE  paInt16
+#define PA_FOURCC       WAVE_FORMAT_PCM
+typedef INT16 SAMPLE;
+#define SAMPLE_SILENCE  (0)
+#define MAX_SAMPLE (32767)
+#define PRINTF_S_FORMAT "%d"
+
+#endif
+#endif
+#endif
+
 struct paRecordData
 {
 	int input_type; // audio SAMPLE type
@@ -52,6 +100,7 @@ struct paRecordData
 	int CombIndex; //comb filter buffer index
 	SAMPLE *AllPassBuff; // all pass filter buffer
 	int AllPassIndex; // all pass filter buffer index
+	short *avi_sndBuff1; //buffer for pcm coding with int32
 	BYTE *mp2Buff; //mp2 encode buffer
 	int mp2BuffSize; // mp2 buffer size
 	int snd_Flags; // effects flag
@@ -76,14 +125,16 @@ init_sound(struct paRecordData* data);
 int
 close_sound (struct paRecordData *data);
 
+void Float2Int16 (struct paRecordData* data);
+
 void
-Echo(struct paRecordData *data, int delay_ms, int decay);
+Echo(struct paRecordData *data, int delay_ms, float decay);
 
 void 
 Fuzz (struct paRecordData* data);
 
 void 
-Reverb (struct paRecordData* data);
+Reverb (struct paRecordData* data, int delay_ms);
 
 #endif
 
