@@ -98,6 +98,7 @@ static const int stdSampleRates[] =
 #define SND_ECHO (1<<0)
 #define SND_FUZZ (1<<1)
 #define SND_REVERB (1<<2)
+#define SND_WAHWAH (1<<3)
 
 #endif
 

@@ -74,6 +74,25 @@ typedef INT16 SAMPLE;
 #endif
 #endif
 
+
+/*data for WahWah effect*/
+typedef struct _WAHData
+{
+	float lfoskip;
+	unsigned long skipcount;
+	float xn1;
+	float xn2;
+	float yn1;
+	float yn2;
+	float b0;
+	float b1;
+	float b2;
+	float a0;
+	float a1;
+	float a2;
+	float phase;
+} WAHData;
+
 struct paRecordData
 {
 	int input_type; // audio SAMPLE type
@@ -94,20 +113,39 @@ struct paRecordData
 	int capAVI; // avi capture flag
 	SAMPLE *recordedSamples; // callback buffer
 	SAMPLE *avi_sndBuff; // out buffer
-	SAMPLE *delayBuff; // delay buffer - echo
+
+	SAMPLE *delayBuff1; // delay buffer 1 - echo
+	SAMPLE *delayBuff2; // delay buffer 2 (use only if stereo input)- echo
 	int delayIndex; // delay buffer index
-	SAMPLE *CombBuff; // comb filter buffer 
-	int CombIndex; //comb filter buffer index
-	SAMPLE *AllPassBuff; // all pass filter buffer
+
+	SAMPLE *CombBuff10; // four parallel  comb filters - first channel
+	SAMPLE *CombBuff11; // four parallel comb filters - second channel
+	SAMPLE *CombBuff20; // four parallel  comb filters - first channel
+	SAMPLE *CombBuff21; // four parallel comb filters - second channel
+	SAMPLE *CombBuff30; // four parallel  comb filters - first channel
+	SAMPLE *CombBuff31; // four parallel comb filters - second channel
+	SAMPLE *CombBuff40; // four parallel  comb filters - first channel
+	SAMPLE *CombBuff41; // four parallel comb filters - second channel
+
+	int CombIndex1; //comb filter 1 index
+	int CombIndex2; //comb filter 2 index
+	int CombIndex3; //comb filter 3 index
+	int CombIndex4; //comb filter 4 index
+
+	SAMPLE *AllPassBuff1; // all pass filter channel 1 buffer
+	SAMPLE *AllPassBuff2; // all pass filter channel 2 buffer (only if stereo input)
 	int AllPassIndex; // all pass filter buffer index
+
 	short *avi_sndBuff1; //buffer for pcm coding with int32
 	BYTE *mp2Buff; //mp2 encode buffer
 	int mp2BuffSize; // mp2 buffer size
+	WAHData* wahData;
 	int snd_Flags; // effects flag
 	GMutex *mutex; // audio mutex
 	//pthread_cond_t cond;
 	
 } __attribute__ ((packed));
+
 
 int 
 recordCallback (const void *inputBuffer, void *outputBuffer,
@@ -135,6 +173,19 @@ Fuzz (struct paRecordData* data);
 
 void 
 Reverb (struct paRecordData* data, int delay_ms);
+
+/* Parameters:
+	freq - LFO frequency (1.5)
+	startphase - LFO startphase in RADIANS - usefull for stereo WahWah (0)
+	depth - Wah depth (0.7)
+	freqofs - Wah frequency offset (0.3)
+	res - Resonance (2.5)
+
+	!!!!!!!!!!!!! IMPORTANT!!!!!!!!! :
+	depth and freqofs should be from 0(min) to 1(max) !
+	res should be greater than 0 !  */
+void 
+WahWah (struct paRecordData* data, float freq, float startphase, float depth, float freqofs, float res);
 
 #endif
 

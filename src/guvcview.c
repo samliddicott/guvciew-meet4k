@@ -252,6 +252,7 @@ int main(int argc, char *argv[])
 	GtkWidget *EffEchoEnable;
 	GtkWidget *EffFuzzEnable;
 	GtkWidget* EffRevEnable;
+	GtkWidget* EffWahEnable;
 	GtkWidget *VidFolder_img;
 	GtkWidget *ImgFolder_img;
 
@@ -1321,6 +1322,16 @@ int main(int argc, char *argv[])
 	gtk_widget_show (EffRevEnable);
 	g_signal_connect (GTK_CHECK_BUTTON(EffRevEnable), "toggled",
 		G_CALLBACK (EffRevEnable_changed), &all_data);
+	
+	/* WahWah */
+	EffWahEnable=gtk_check_button_new_with_label (_(" WahWah"));
+	gtk_table_attach(GTK_TABLE(table_snd_eff), EffWahEnable, 3, 4, 0, 1,
+		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(EffWahEnable),(pdata->snd_Flags & SND_WAHWAH)>0);
+	gtk_widget_show (EffWahEnable);
+	g_signal_connect (GTK_CHECK_BUTTON(EffWahEnable), "toggled",
+		G_CALLBACK (EffWahEnable_changed), &all_data);
 	
 	/* main container */
 	gtk_container_add (GTK_CONTAINER (gwidget->mainwin), gwidget->boxv);

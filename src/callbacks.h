@@ -187,6 +187,12 @@ EffEchoEnable_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data);
 void
 EffFuzzEnable_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data);
 
+void
+EffRevEnable_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data);
+
+void
+EffWahEnable_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data);
+
 void 
 ImageInc_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data);
 
@@ -210,8 +216,5 @@ split_avi(void *data);
 
 void 
 ShowFPS_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data);
-
-void
-EffRevEnable_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data);
 
 #endif

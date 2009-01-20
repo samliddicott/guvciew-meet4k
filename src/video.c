@@ -552,9 +552,13 @@ void *main_loop(void *data)
 					}
 					if((pdata->snd_Flags & SND_REVERB)==SND_REVERB) 
 					{
-						Reverb(pdata, 250);
+						Reverb(pdata, 50);
 					}
-				
+					if((pdata->snd_Flags & SND_WAHWAH)==SND_WAHWAH) 
+					{
+						WahWah (pdata, 1.5, 0, 0.7, 0.3, 2.5);
+					}
+					
 					/*write audio chunk                                          */
 					if(global->Sound_Format == PA_FOURCC) 
 					{

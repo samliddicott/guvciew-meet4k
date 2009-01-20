@@ -1048,6 +1048,19 @@ EffRevEnable_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data)
 	pdata = NULL;
 }
 
+/*Audio WahWah effect*/
+void
+EffWahEnable_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data)
+{
+	struct paRecordData *pdata = all_data->pdata;
+	g_mutex_lock(pdata->mutex);
+		pdata->snd_Flags = gtk_toggle_button_get_active (toggle) ? 
+			(pdata->snd_Flags | SND_WAHWAH) : 
+			(pdata->snd_Flags & ~SND_WAHWAH);
+	g_mutex_unlock(pdata->mutex);
+	pdata = NULL;
+}
+
 void 
 ImageInc_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data)
 {
