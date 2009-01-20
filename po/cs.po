@@ -1,0 +1,554 @@
+# Czech translation for guvcview
+# Copyright (c) 2009 Rosetta Contributors and Canonical Ltd 2009
+# This file is distributed under the same license as the guvcview package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2009.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: guvcview\n"
+"Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
+"POT-Creation-Date: 2009-01-06 22:54+0000\n"
+"PO-Revision-Date: 2009-01-18 08:31+0000\n"
+"Last-Translator: Jakub Žáček <dawon.cz@gmail.com>\n"
+"Language-Team: Czech <cs@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Launchpad-Export-Date: 2009-01-20 09:28+0000\n"
+"X-Generator: Launchpad (build Unknown)\n"
+
+#: src/guvcview.c:94 src/callbacks.c:1252
+msgid "Save File"
+msgstr "Uložit soubor"
+
+#. if auto naming restart counter
+#: src/guvcview.c:148 src/globals.c:73 src/globals.c:76 src/options.c:360
+#: src/options.c:409 src/callbacks.c:870 src/callbacks.c:1015
+#: src/callbacks.c:1032 src/callbacks.c:1064 src/callbacks.c:1168
+#, c-format
+msgid "File num:%d"
+msgstr "Číslo souboru:%d"
+
+#: src/guvcview.c:269
+msgid "GUVCViewer Controls"
+msgstr "Ovládání GUVCViewer"
+
+#. can't open device
+#: src/guvcview.c:300
+msgid ""
+"Guvcview error:\n"
+"\n"
+"Unable to open device"
+msgstr ""
+"ChybaGuvcview:\n"
+"\n"
+"Nelze otevřít zařízení"
+
+#: src/guvcview.c:301
+msgid ""
+"Please make sure the camera is connected\n"
+"and that the linux-UVC driver is installed."
+msgstr ""
+"Prosím usjistěte se, že kamera je připojena\n"
+"a je nainstalován driver linux-UVC."
+
+#: src/guvcview.c:318 src/guvcview.c:355
+msgid ""
+"Guvcview error:\n"
+"\n"
+"Can't set MJPG or YUV stream for guvcview"
+msgstr ""
+"ChybaGuvcview:\n"
+"\n"
+"Nelze nastavit MJPG nebo YUV proud pro guvcview"
+
+#: src/guvcview.c:319 src/guvcview.c:356
+msgid ""
+"Make sure you have a UVC compliant camera\n"
+"and that you have the linux UVC driver installed."
+msgstr ""
+"Ujistěte se, zda máte vhodnou UVC kameru,\n"
+"a že máte nantstalovaný lnux UVC driver."
+
+#: src/guvcview.c:329
+msgid ""
+"Guvcview error:\n"
+"\n"
+"Unable to start with minimum setup"
+msgstr ""
+"Chyba Guvcview:\n"
+"\n"
+"Nelze spustit minimální konfguraci"
+
+#: src/guvcview.c:330
+msgid "Please reconnect your camera."
+msgstr "Prosím připojte znovu kameru."
+
+#: src/guvcview.c:339
+msgid ""
+"Guvcview error:\n"
+"\n"
+"Unable to allocate Buffers"
+msgstr ""
+"Chyba Guvcview:\n"
+"\n"
+"Nelze alokovat Buffery"
+
+#: src/guvcview.c:340
+msgid "Please try restarting your system."
+msgstr "Prosím zkuste restartovat váš systém."
+
+#: src/guvcview.c:385
+msgid "Image Controls"
+msgstr "Ovládání obrazů"
+
+#: src/guvcview.c:405
+msgid "Control Profiles:"
+msgstr "Ovládací profily:"
+
+#: src/guvcview.c:411
+msgid "Capture:"
+msgstr "Zaznamenat:"
+
+#. image auto capture
+#: src/guvcview.c:430
+msgid "Stop Auto"
+msgstr "Zastavit automat"
+
+#: src/guvcview.c:434 src/callbacks.c:1085
+msgid "Cap. Image"
+msgstr "Zazn. Obraz"
+
+#. avi capture enabled from start
+#. printf("opening avi file: %s\n",videoIn->AVIFName);
+#: src/guvcview.c:439 src/callbacks.c:1193
+msgid "Stop AVI"
+msgstr "Zastavit AVI"
+
+#. ***************** Stop AVI ***********************
+#: src/guvcview.c:443 src/callbacks.c:1148
+msgid "Cap. AVI"
+msgstr "Zazn. AVI"
+
+#: src/guvcview.c:538
+msgid "Video & Files"
+msgstr "Video & Soubory"
+
+#. Devices
+#: src/guvcview.c:549
+msgid "Device:"
+msgstr "Zařízení:"
+
+#: src/guvcview.c:635
+msgid "Frame Rate:"
+msgstr ""
+
+#: src/guvcview.c:643
+msgid " Show"
+msgstr " Zobrazit"
+
+#: src/guvcview.c:668
+msgid "Resolution:"
+msgstr "Rozlišení:"
+
+#: src/guvcview.c:696
+msgid "Camera Output:"
+msgstr "Výstup kamery:"
+
+#: src/guvcview.c:706
+msgid "Image File:"
+msgstr "Soubor obrazu:"
+
+#: src/guvcview.c:733 src/guvcview.c:816
+msgid "File,Auto"
+msgstr "Soubor, Auto"
+
+#: src/guvcview.c:745
+msgid "Image Format:"
+msgstr "Formát obrazu:"
+
+#: src/guvcview.c:775
+msgid "AVI File:"
+msgstr "Soubor AVI:"
+
+#: src/guvcview.c:831
+msgid "MJPG - compressed"
+msgstr "MJPG - komprimovaný"
+
+#: src/guvcview.c:834
+msgid "UYVY - uncomp YUV"
+msgstr "UYVY - uncomp YUV"
+
+#: src/guvcview.c:836
+msgid "YUY2 - uncomp YUV"
+msgstr "YUY2 - uncomp YUV"
+
+#: src/guvcview.c:838
+msgid "RGB - uncomp BMP"
+msgstr "RGB - uncomp BMP"
+
+#: src/guvcview.c:850
+msgid "AVI Format:"
+msgstr "Formát AVI:"
+
+#: src/guvcview.c:962
+msgid " Sound"
+msgstr " Zvuk"
+
+#: src/guvcview.c:985
+msgid "Input Device:"
+msgstr "Vstupní zařízení:"
+
+#: src/guvcview.c:996 src/guvcview.c:1029
+msgid "Dev. Default"
+msgstr "Výchozí zařízení"
+
+#: src/guvcview.c:1018
+msgid "Sample Rate:"
+msgstr ""
+
+#: src/guvcview.c:1030
+msgid "1 - mono"
+msgstr "1 - mono"
+
+#: src/guvcview.c:1031
+msgid "2 - stereo"
+msgstr "2 - stereo"
+
+#: src/guvcview.c:1062
+msgid "Channels:"
+msgstr "Kanály:"
+
+#: src/guvcview.c:1074
+msgid "PCM"
+msgstr "PCM"
+
+#: src/guvcview.c:1075
+msgid "MP2"
+msgstr "MP2"
+
+#: src/guvcview.c:1102
+msgid "Audio Format:"
+msgstr "Formát zvuku:"
+
+#: src/guvcview.c:1111
+msgid "---- Video Filters ----"
+msgstr "---- Filtry videa ----"
+
+#. Mirror
+#: src/guvcview.c:1127
+msgid " Mirror"
+msgstr " Zrcadlo"
+
+#. Upturn
+#: src/guvcview.c:1136
+msgid " Invert"
+msgstr " Invertovat"
+
+#. Negate
+#: src/guvcview.c:1145
+msgid " Negative"
+msgstr " Negativ"
+
+#. Mono
+#: src/guvcview.c:1154
+msgid " Mono"
+msgstr " Mono"
+
+#: src/guvcview.c:1197
+msgid ""
+"Guvcview error:\n"
+"\n"
+"Unable to create Video Thread"
+msgstr ""
+"Chyba Guvcview:\n"
+"\n"
+"Nelze založit vlákno videa"
+
+#: src/guvcview.c:1198
+msgid "Please report it to http://developer.berlios.de/bugs/?group_id=8179"
+msgstr ""
+"Prosím nahlašte to na http://developer.berlios.de/bugs/?group_id=8179"
+
+#. needed only for language files (not used)
+#. UVC driver control strings
+#: src/v4l2uvc.c:46
+msgid "Brightness"
+msgstr "Jas"
+
+#: src/v4l2uvc.c:47
+msgid "Contrast"
+msgstr "Kontrast"
+
+#: src/v4l2uvc.c:48
+msgid "Hue"
+msgstr "Odstín"
+
+#: src/v4l2uvc.c:49
+msgid "Saturation"
+msgstr "Sytost"
+
+#: src/v4l2uvc.c:50
+msgid "Sharpness"
+msgstr "Ostrost"
+
+#: src/v4l2uvc.c:51
+msgid "Gamma"
+msgstr "Gamma"
+
+#: src/v4l2uvc.c:52
+msgid "Backlight Compensation"
+msgstr "Komponzace podsvětlení"
+
+#: src/v4l2uvc.c:53
+msgid "Gain"
+msgstr "Zisk"
+
+#: src/v4l2uvc.c:54
+msgid "Power Line Frequency"
+msgstr ""
+
+#: src/v4l2uvc.c:55
+msgid "Hue, Auto"
+msgstr "Odstín, Auto"
+
+#: src/v4l2uvc.c:56
+msgid "Exposure, Auto"
+msgstr "Expozive, Auto"
+
+#: src/v4l2uvc.c:57
+msgid "Exposure, Auto Priority"
+msgstr "Expozice Auto. prorita"
+
+#: src/v4l2uvc.c:58
+msgid "Exposure (Absolute)"
+msgstr "Expozice (Absolutní)"
+
+#: src/v4l2uvc.c:59
+msgid "White Balance Temperature, Auto"
+msgstr "Vyvážení bílé, Auto"
+
+#: src/v4l2uvc.c:60
+msgid "White Balance Temperature"
+msgstr "Vyvážení bílé"
+
+#: src/v4l2uvc.c:61
+msgid "White Balance Component, Auto"
+msgstr "Komponenta vyvážení bílé, Auto"
+
+#: src/v4l2uvc.c:62
+msgid "White Balance Blue Component"
+msgstr ""
+
+#: src/v4l2uvc.c:63
+msgid "White Balance Red Component"
+msgstr ""
+
+#: src/v4l2uvc.c:64
+msgid "Focus, Auto"
+msgstr "Ostření, Auto"
+
+#: src/v4l2uvc.c:65
+msgid "Manual Mode"
+msgstr "Ruční mód"
+
+#: src/v4l2uvc.c:66
+msgid "Auto Mode"
+msgstr "Auto. mód"
+
+#: src/v4l2uvc.c:67
+msgid "Shutter Priority Mode"
+msgstr "Mód priority clony"
+
+#: src/v4l2uvc.c:68
+msgid "Aperture Priority Mode"
+msgstr ""
+
+#: src/v4l2uvc.c:126
+msgid "Pan (relative)"
+msgstr "Záběr (relativní)"
+
+#: src/v4l2uvc.c:136
+msgid "Tilt (relative)"
+msgstr ""
+
+#: src/v4l2uvc.c:146
+msgid "Pan Reset"
+msgstr "Reset záběru"
+
+#: src/v4l2uvc.c:156
+msgid "Tilt Reset"
+msgstr ""
+
+#: src/v4l2uvc.c:166
+msgid "Pan/tilt Reset"
+msgstr ""
+
+#: src/v4l2uvc.c:176
+msgid "Focus (absolute)"
+msgstr "Ostření (absolutní)"
+
+#: src/v4l2uvc.c:186
+msgid "LED1 Mode"
+msgstr "Mód LED1"
+
+#: src/v4l2uvc.c:196
+msgid "LED1 Frequency"
+msgstr "Frekvence LED1"
+
+#: src/v4l2uvc.c:206
+msgid "Disable video processing"
+msgstr "Zakázat zpracování videa"
+
+#: src/v4l2uvc.c:216
+msgid "Raw bits per pixel"
+msgstr "Raw bity / pxel"
+
+#: src/options.c:522
+msgid "Displays debug information"
+msgstr "Zobrazí ladící informace"
+
+#: src/options.c:523
+msgid "Video Device to use [default: /dev/video0]"
+msgstr "Video zařízení [výchozí /dev/video0]"
+
+#: src/options.c:524
+msgid "Configuration file"
+msgstr "Konfigurační soubor"
+
+#: src/options.c:525
+msgid "Hardware accelaration (enable(1) | disable(0))"
+msgstr "Hardwarová akcelerace (povolit(1) | zakázat(0))"
+
+#: src/options.c:526
+msgid "Pixel format(mjpg|jpeg|yuyv|uyvy|yyuv|yu12|gbrg)"
+msgstr "Formát pixelu (mjpg|jpeg|yuyv|uyvy|yyuv|yu12|gbrg)"
+
+#: src/options.c:527
+msgid "Frame size, default: 640x480"
+msgstr "Velikost rámce, výchozí: 640x480"
+
+#: src/options.c:528
+msgid "Image File name"
+msgstr "Název souboru orazu"
+
+#: src/options.c:529
+msgid "Image capture interval in seconds"
+msgstr "Interval snímání v sekundách"
+
+#: src/options.c:530
+msgid "Number of Pictures to capture"
+msgstr "Počet obrázků k zaznamenání"
+
+#: src/options.c:531
+msgid "AVI File name (capture from start)"
+msgstr "Jméno AVI souboru (záznam od začátku)"
+
+#: src/options.c:532
+msgid "AVI capture time (in seconds)"
+msgstr "Čas AVI záznamu (v sekundách)"
+
+#: src/options.c:533
+msgid "Show FPS value (enable(1) | disable (0))"
+msgstr "Zobrazit hodnotu FPS (povolit(1) | zakázat(0))"
+
+#: src/options.c:534
+msgid "Load Profile at start"
+msgstr "Načíst profil při spuštění"
+
+#: src/options.c:540
+msgid "- local options"
+msgstr "- místní nastavení"
+
+#: src/img_controls.c:118
+msgid "Exposure:"
+msgstr "Expozice:"
+
+#: src/img_controls.c:127
+msgid "Invert (Pan)"
+msgstr "Invertovat (Pan)"
+
+#: src/img_controls.c:130
+msgid "Left"
+msgstr "Vlevo"
+
+#: src/img_controls.c:131
+msgid "Right"
+msgstr "Vpravo"
+
+#: src/img_controls.c:166
+msgid "Up"
+msgstr "Nahoru"
+
+#: src/img_controls.c:167
+msgid "Down"
+msgstr "Dolů"
+
+#: src/img_controls.c:190 src/img_controls.c:206 src/img_controls.c:224
+msgid "Reset"
+msgstr "Obnovit"
+
+#: src/img_controls.c:302
+msgid "Auto Focus (continuous)"
+msgstr "Automatické ostření (pozvolné)"
+
+#: src/img_controls.c:303
+msgid "set Focus"
+msgstr "nastavit Ostření"
+
+#: src/img_controls.c:365
+#, c-format
+msgid "raw pixel order:"
+msgstr ""
+
+#: src/callbacks.c:629
+msgid "start new"
+msgstr "spustit nový"
+
+#: src/callbacks.c:632
+msgid "restart"
+msgstr "restart"
+
+#: src/callbacks.c:634
+msgid "new"
+msgstr "nový"
+
+#: src/callbacks.c:636
+msgid "cancel"
+msgstr "zrušit"
+
+#: src/callbacks.c:640
+msgid ""
+"launch new process or restart?.\n"
+"\n"
+msgstr ""
+"Spustit nový proces nebo restartovat?.\n"
+"\n"
+
+#: src/callbacks.c:699 src/callbacks.c:775
+msgid "Program Restart"
+msgstr "Restart programu"
+
+#: src/callbacks.c:702 src/callbacks.c:778
+msgid "now"
+msgstr "nyní"
+
+#: src/callbacks.c:704 src/callbacks.c:780
+msgid "Later"
+msgstr "Později"
+
+#: src/callbacks.c:708 src/callbacks.c:784
+msgid ""
+"Changes will only take effect after guvcview restart.\n"
+"\n"
+"\n"
+"Restart now?\n"
+msgstr ""
+"Změsy se projeví až po restartu guvcview.\n"
+"\n"
+"\n"
+"Restartovat nyní?\n"
+
+#: src/callbacks.c:1288
+msgid "Load File"
+msgstr "Nahrát soubor"
