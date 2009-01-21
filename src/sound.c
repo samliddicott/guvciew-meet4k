@@ -162,30 +162,15 @@ init_sound(struct paRecordData* data)
 	data->avi_sndBuff = g_new0(SAMPLE, numSamples);
 	/*buffer for avi PCM*/
 	data->avi_sndBuff1=NULL;
-	/*delay buffers - for audio effects */
-	data->delayBuff1 = NULL;
-	data->delayBuff2 = NULL;
-	data->delayIndex = 0;
+	/*Echo effect data */
+	data->ECHO = NULL;
+	/* 4 parallel comb filters data*/
+	data->COMB4 = NULL;
+	/*all pass 1 filter data*/
+	data->AP1 = NULL;
 	
-	data->CombBuff10 = NULL;
-	data->CombBuff11 = NULL;
-	data->CombBuff20 = NULL;
-	data->CombBuff21 = NULL;
-	data->CombBuff30 = NULL;
-	data->CombBuff31 = NULL;
-	data->CombBuff40 = NULL;
-	data->CombBuff41 = NULL;
-	
-	data->CombIndex1 = 0;
-	data->CombIndex2 = 0;
-	data->CombIndex3 = 0;
-	data->CombIndex4 = 0;
-	
-	data->AllPassBuff1 = NULL;
-	data->AllPassBuff2 = NULL;
-	
-	data->AllPassIndex = 0;
 	data->wahData = NULL;
+	data->HPF = NULL;
 	
 	err = Pa_Initialize();
 	if( err != paNoError ) goto error;
@@ -227,45 +212,45 @@ error:
 	g_free( data->recordedSamples );
 	data->recordedSamples=NULL;
 	g_free(data->avi_sndBuff);
-	g_free(data->avi_sndBuff1);
-	
-	g_free(data->delayBuff1);
-	g_free(data->delayBuff2);
-	
-	g_free(data->CombBuff10);
-	g_free(data->CombBuff11);
-	g_free(data->CombBuff20);
-	g_free(data->CombBuff21);
-	g_free(data->CombBuff30);
-	g_free(data->CombBuff31);
-	g_free(data->CombBuff40);
-	g_free(data->CombBuff41);
-	
-	g_free(data->AllPassBuff1);
-	g_free(data->AllPassBuff2);
-	
-	g_free(data->wahData);
-	data->delayBuff1 = NULL;
-	data->delayBuff2 = NULL;
-	
-	data->CombBuff10 = NULL;
-	data->CombBuff11 = NULL;
-	data->CombBuff20 = NULL;
-	data->CombBuff21 = NULL;
-	data->CombBuff30 = NULL;
-	data->CombBuff31 = NULL;
-	data->CombBuff40 = NULL;
-	data->CombBuff41 = NULL;
-	
-	data->AllPassBuff1 = NULL;
-	data->AllPassBuff2 = NULL;
-	
-	data->avi_sndBuff1=NULL;
 	data->avi_sndBuff=NULL;
-	data->wahData = NULL;
-	
+
 	return(-1);
 } 
+
+static void
+close_DELAY(delay_data *DELAY, int channels)
+{
+	if(DELAY != NULL)
+	{
+		g_free(DELAY->delayBuff1);
+		if(channels > 1)
+			g_free(DELAY->delayBuff2);
+		g_free(DELAY);
+		DELAY = NULL;
+	}
+}
+
+static void 
+close_COMB4(Comb4_data *COMB4, int channels)
+{
+	if(COMB4 != NULL)
+	{
+		g_free(COMB4->CombBuff10);
+		g_free(COMB4->CombBuff20);
+		g_free(COMB4->CombBuff30);
+		g_free(COMB4->CombBuff40);
+		
+		if(channels > 1)
+		{
+			g_free(COMB4->CombBuff11);
+			g_free(COMB4->CombBuff21);
+			g_free(COMB4->CombBuff31);
+			g_free(COMB4->CombBuff41);
+		}
+		g_free(COMB4);
+		COMB4 = NULL;
+	}
+}
 
 int
 close_sound (struct paRecordData *data) 
@@ -302,41 +287,21 @@ close_sound (struct paRecordData *data)
 	
 		g_free(data->avi_sndBuff);
 		data->avi_sndBuff = NULL;
-		g_free(data->delayBuff1);
-		g_free(data->delayBuff2);
 		
-		g_free(data->CombBuff10);
-		g_free(data->CombBuff11);
-		g_free(data->CombBuff20);
-		g_free(data->CombBuff21);
-		g_free(data->CombBuff30);
-		g_free(data->CombBuff31);
-		g_free(data->CombBuff40);
-		g_free(data->CombBuff41);
-		
-		data->delayBuff1 = NULL;
-		data->delayBuff2 = NULL;
-		
-		data->CombBuff10 = NULL;
-		data->CombBuff11 = NULL;
-		data->CombBuff20 = NULL;
-		data->CombBuff21 = NULL;
-		data->CombBuff30 = NULL;
-		data->CombBuff31 = NULL;
-		data->CombBuff40 = NULL;
-		data->CombBuff41 = NULL;
-
+		close_DELAY(data->ECHO, data->channels);
+		close_DELAY(data->AP1, data->channels);
+		close_COMB4(data->COMB4, data->channels);
+	
 		g_free(data->mp2Buff);
 		data->mp2Buff = NULL;
-		g_free(data->AllPassBuff1);
-		data->AllPassBuff1 = NULL;
-		g_free(data->AllPassBuff2);
-		data->AllPassBuff2 = NULL;
 	
 		g_free(data->avi_sndBuff1);
 		data->avi_sndBuff1 = NULL;
 		g_free(data->wahData);
 		data->wahData = NULL;
+    
+		g_free(data->HPF);
+		data->HPF = NULL;
 	g_mutex_unlock( data->mutex );
 	
 	return (0);
@@ -353,35 +318,10 @@ error:
 		Pa_Terminate();
 		g_free(data->avi_sndBuff);
 		data->avi_sndBuff = NULL;
-		g_free(data->delayBuff1);
-		g_free(data->delayBuff2);
-	
-		g_free(data->CombBuff10);
-		g_free(data->CombBuff11);
-		g_free(data->CombBuff20);
-		g_free(data->CombBuff21);
-		g_free(data->CombBuff30);
-		g_free(data->CombBuff31);
-		g_free(data->CombBuff40);
-		g_free(data->CombBuff41);
 		
-		g_free(data->AllPassBuff1);
-		g_free(data->AllPassBuff2);
-	
-		data->delayBuff1 = NULL;
-		data->delayBuff2 = NULL;
-	
-		data->CombBuff10 = NULL;
-		data->CombBuff11 = NULL;
-		data->CombBuff20 = NULL;
-		data->CombBuff21 = NULL;
-		data->CombBuff30 = NULL;
-		data->CombBuff31 = NULL;
-		data->CombBuff40 = NULL;
-		data->CombBuff41 = NULL;
-	
-		data->AllPassBuff1 = NULL;
-		data->AllPassBuff2 = NULL;
+		close_DELAY(data->ECHO, data->channels);
+		close_DELAY(data->AP1, data->channels);
+		close_COMB4(data->COMB4, data->channels);
 	
 		g_free(data->mp2Buff);
 		data->mp2Buff = NULL;
@@ -389,6 +329,9 @@ error:
 		data->avi_sndBuff1 = NULL;
 		g_free(data->wahData);
 		data->wahData=NULL;
+		g_free(data->HPF);
+		data->HPF = NULL;
+    
 	g_mutex_unlock( data->mutex );
 	return(-1);
 }
@@ -415,31 +358,120 @@ void Echo(struct paRecordData* data, int delay_ms, float decay)
 	int samp=0;
 	SAMPLE out;
 	
-	int buff_size = (int) delay_ms * data->samprate/1000;
-	
-	if(data->delayBuff1 == NULL) 
-		data->delayBuff1 = g_new0(SAMPLE, buff_size);
-	/*if stereo add another buffer (max is 2 channels)*/
-	if ((data->channels > 1) && (data->delayBuff2 == NULL))
-		data->delayBuff2 = g_new0(SAMPLE, buff_size);
+	if(data->ECHO == NULL)
+	{
+		data->ECHO = g_new0(delay_data, 1);
+		data->ECHO->buff_size = (int) delay_ms * data->samprate * 0.001;
+		data->ECHO->delayBuff1 = g_new0(SAMPLE, data->ECHO->buff_size);
+		if(data->channels > 1)
+			data->ECHO->delayBuff2 = g_new0(SAMPLE, data->ECHO->buff_size);
+	}
 	
 	for(samp = 0; samp < data->snd_numSamples; samp = samp + data->channels)
 	{
-		out = (0.7 * data->avi_sndBuff[samp]) + (0.3 * data->delayBuff1[data->delayIndex]);
-		data->delayBuff1[data->delayIndex] = data->avi_sndBuff[samp] + (data->delayBuff1[data->delayIndex] * decay);
+		out = (0.7 * data->avi_sndBuff[samp]) + 
+			(0.3 * data->ECHO->delayBuff1[data->ECHO->delayIndex]);
+		data->ECHO->delayBuff1[data->ECHO->delayIndex] = data->avi_sndBuff[samp] + 
+			(data->ECHO->delayBuff1[data->ECHO->delayIndex] * decay);
 		data->avi_sndBuff[samp] = out;
 		/*if stereo process second channel in separate*/
 		if (data->channels > 1)
 		{
-			out = (0.7 * data->avi_sndBuff[samp+1]) + (0.3 * data->delayBuff2[data->delayIndex]);
-			data->delayBuff2[data->delayIndex] = data->avi_sndBuff[samp] + (data->delayBuff2[data->delayIndex] * decay);
+			out = (0.7 * data->avi_sndBuff[samp+1]) + 
+				(0.3 * data->ECHO->delayBuff2[data->ECHO->delayIndex]);
+			data->ECHO->delayBuff2[data->ECHO->delayIndex] = data->avi_sndBuff[samp] + 
+				(data->ECHO->delayBuff2[data->ECHO->delayIndex] * decay);
 			data->avi_sndBuff[samp+1] = out;
 		}
 		
-		if(++(data->delayIndex) >= buff_size) data->delayIndex=0;
+		if(++(data->ECHO->delayIndex) >= data->ECHO->buff_size) data->ECHO->delayIndex=0;
 	}
 }
 
+/*
+ HP Filter: out(n) = a1 * in + a2 * in(n-1) + a3 * in(n-2) - b1*out(n-1) - b2*out(n-2)
+  f - cuttof freq., from ~0 Hz to SampleRate/2 - though many synths seem to filter only  up to SampleRate/4
+  r  = rez amount, from sqrt(2) to ~ 0.1
+ 
+      c = tan(pi * f / sample_rate);
+      a1 = 1.0 / ( 1.0 + r * c + c * c);
+      a2 = -2*a1;
+      a3 = a1;
+      b1 = 2.0 * ( c*c - 1.0) * a1;
+      b2 = ( 1.0 - r * c + c * c) * a1;
+ 
+ */
+static void HPF(struct paRecordData* data, int cutoff_freq, float res)
+{
+	int samp = 0;
+	SAMPLE out;
+
+	if(data->HPF == NULL)
+	{
+		data->HPF = g_new0(Filt_data, 1);
+		data->HPF->c = tan(M_PI * cutoff_freq / data->samprate);
+		data->HPF->a1 = 1.0 / (1.0 + (res * data->HPF->c) + (data->HPF->c * data->HPF->c));
+		data->HPF->a2 = -2.0 * data->HPF->a1;
+		data->HPF->a3 = data->HPF->a1;
+		data->HPF->b1 = 2.0 * ((data->HPF->c * data->HPF->c) - 1.0) * data->HPF->a1;
+		data->HPF->b2 = (1.0 - (res * data->HPF->c) + (data->HPF->c * data->HPF->c)) * data->HPF->a1;
+	}
+    
+	for (samp = 0; samp < data->snd_numSamples; samp = samp + data->channels)
+	{
+		
+		out = data->HPF->a1 * data->avi_sndBuff[samp] + data->HPF->a2 * data->HPF->buff_in1[0] +
+			data->HPF->a3 * data->HPF->buff_in1[1] - data->HPF->b1 * data->HPF->buff_out1[0] -
+			data->HPF->b2 * data->HPF->buff_out1[1];
+		data->HPF->buff_in1[1] = data->HPF->buff_in1[0]; //in(n-2) = in(n-1)
+		data->HPF->buff_in1[0] = data->avi_sndBuff[samp]; // in(n-1) = in
+		data->HPF->buff_out1[1] = data->HPF->buff_out1[0]; //out(n-2) = out(n-1)
+		data->HPF->buff_out1[0] = out; //out(n-1) = out
+		
+		data->avi_sndBuff[samp] = out;
+		/*process second channel*/
+		if(data->channels > 1)
+		{
+			out = data->HPF->a1 * data->avi_sndBuff[samp+1] + data->HPF->a2 * data->HPF->buff_in2[0] +
+				data->HPF->a3 * data->HPF->buff_in2[1] - data->HPF->b1 * data->HPF->buff_out2[0] -
+				data->HPF->b2 * data->HPF->buff_out2[1];
+			data->HPF->buff_in2[1] = data->HPF->buff_in2[0]; //in(n-2) = in(n-1)
+			data->HPF->buff_in2[0] = data->avi_sndBuff[samp+1]; // in(n-1) = in
+			data->HPF->buff_out2[1] = data->HPF->buff_out2[0]; //out(n-2) = out(n-1)
+			data->HPF->buff_out2[0] = out; //out(n-1) = out
+			
+			data->avi_sndBuff[samp+1] = out;
+		}
+	}
+}
+/*
+ LP Filter: out(n) = a1 * in + a2 * in(n-1) + a3 * in(n-2) - b1*out(n-1) - b2*out(n-2)
+  f - cuttof freq., from ~0 Hz to SampleRate/2 - though many synths seem to filter only  up to SampleRate/4
+  r  = rez amount, from sqrt(2) to ~ 0.1
+ 
+      c = 1.0 / tan(pi * f / sample_rate);
+
+      a1 = 1.0 / ( 1.0 + r * c + c * c);
+      a2 = 2* a1;
+      a3 = a1;
+      b1 = 2.0 * ( 1.0 - c*c) * a1;
+      b2 = ( 1.0 - r * c + c * c) * a1;
+
+ */
+/*
+static void 
+LPF(struct paRecordData* data, float cutoff_freq, float res)
+{
+
+	
+}
+
+static SAMPLE 
+waveshape_distort1( SAMPLE in ) 
+{
+	return (SAMPLE) (1.5f * in - 0.5f * in *in * in);
+}
+*/
 /* Non-linear amplifier with soft distortion curve. */
 static SAMPLE CubicAmplifier( SAMPLE input )
 {
@@ -448,33 +480,35 @@ static SAMPLE CubicAmplifier( SAMPLE input )
 	if( input < SAMPLE_SILENCE ) 
 	{
 #ifdef AUDIO_F32
-		temp = input +1.0f;
+		temp = input + 1.0f;
 		out = (temp * temp * temp) - 1.0f;
 #else
 		temp = (float) (input/MAX_SAMPLE) + 1.0f;
-		out = (SAMPLE) ((temp * temp * temp)*MAX_SAMPLE - 1.0f);
+		out = (SAMPLE) ((temp * temp * temp) * MAX_SAMPLE - 1.0f);
 #endif
 	}
 	else 
 	{
 #ifdef AUDIO_F32
 		temp = input - 1.0f;
-		out = (temp * temp *temp) + 1.0f;
+		out = (temp * temp * temp) + 1.0f;
 #else
 		temp = (float) (input/MAX_SAMPLE) - 1.0f;
-		out = (SAMPLE) ((temp * temp *temp)*MAX_SAMPLE + 1.0f);
+		out = (SAMPLE) ((temp * temp * temp) * MAX_SAMPLE + 1.0f);
 #endif
 	}
 	return out;
 }
 
-#define FUZZ(x) CubicAmplifier(CubicAmplifier(CubicAmplifier(x)))
+
+#define FUZZ(x) CubicAmplifier(CubicAmplifier(CubicAmplifier(CubicAmplifier(x))))
 /* Fuzz distortion */
 void Fuzz (struct paRecordData* data)
 {
 	int samp=0;
-	for(samp=0;samp<data->snd_numSamples;samp++)
+	for(samp = 0; samp < data->snd_numSamples; samp++)
 		data->avi_sndBuff[samp] = FUZZ(data->avi_sndBuff[samp]);
+	HPF(data, 2000, 0.9);
 }
 
 /* four paralell Comb filters for reverb */
@@ -494,65 +528,79 @@ static void CombFilter4 (struct paRecordData* data,
 	int samp=0;
 	SAMPLE out1, out2, out3, out4;
 	/*buff_size in samples*/
-	int buff_size1 = (int) delay1_ms * (data->samprate/1000);
-	int buff_size2 = (int) delay2_ms * (data->samprate/1000);
-	int buff_size3 = (int) delay3_ms * (data->samprate/1000);
-	int buff_size4 = (int) delay4_ms * (data->samprate/1000);
 	
-	if (data->CombBuff10 == NULL) 
-		data->CombBuff10 = g_new0(SAMPLE, buff_size1);
-	if((data->channels > 1) && data->CombBuff11 == NULL)
-		data->CombBuff11 = g_new0(SAMPLE, buff_size1);
-	
-	if (data->CombBuff20 == NULL) 
-		data->CombBuff20 = g_new0(SAMPLE, buff_size2);
-	if((data->channels > 1) && data->CombBuff21 == NULL)
-		data->CombBuff21 = g_new0(SAMPLE, buff_size2);
-	
-	if (data->CombBuff30 == NULL) 
-		data->CombBuff30 = g_new0(SAMPLE, buff_size3);
-	if((data->channels > 1) && data->CombBuff31 == NULL)
-		data->CombBuff31 = g_new0(SAMPLE, buff_size3);
-	
-	if (data->CombBuff40 == NULL) 
-		data->CombBuff40 = g_new0(SAMPLE, buff_size4);
-	if((data->channels > 1) && data->CombBuff41 == NULL)
-		data->CombBuff41 = g_new0(SAMPLE, buff_size4);
+	if (data->COMB4 == NULL) 
+	{
+		data->COMB4 = g_new0(Comb4_data, 1);
+		/*buff_size in samples*/
+		data->COMB4->buff_size1 = (int) delay1_ms * (data->samprate * 0.001);
+		data->COMB4->buff_size2 = (int) delay2_ms * (data->samprate * 0.001);
+		data->COMB4->buff_size3 = (int) delay3_ms * (data->samprate * 0.001);
+		data->COMB4->buff_size4 = (int) delay4_ms * (data->samprate * 0.001);
+		
+		data->COMB4->CombBuff10 = g_new0(SAMPLE, data->COMB4->buff_size1);
+		data->COMB4->CombBuff20 = g_new0(SAMPLE, data->COMB4->buff_size2);
+		data->COMB4->CombBuff30 = g_new0(SAMPLE, data->COMB4->buff_size3);
+		data->COMB4->CombBuff40 = g_new0(SAMPLE, data->COMB4->buff_size4);
+		if(data->channels > 1)
+		{
+			data->COMB4->CombBuff11 = g_new0(SAMPLE, data->COMB4->buff_size1);
+			data->COMB4->CombBuff21 = g_new0(SAMPLE, data->COMB4->buff_size2);
+			data->COMB4->CombBuff31 = g_new0(SAMPLE, data->COMB4->buff_size3);
+			data->COMB4->CombBuff41 = g_new0(SAMPLE, data->COMB4->buff_size4);
+		}
+	}
 	
 	for(samp = 0; samp < data->snd_numSamples; samp = samp + data->channels)
 	{
-		out1 = in_gain * data->avi_sndBuff[samp] + gain1 * data->CombBuff10[data->CombIndex1];
-		out2 = in_gain * data->avi_sndBuff[samp] + gain2 * data->CombBuff20[data->CombIndex2];
-		out3 = in_gain * data->avi_sndBuff[samp] + gain3 * data->CombBuff30[data->CombIndex3];
-		out4 = in_gain * data->avi_sndBuff[samp] + gain4 * data->CombBuff40[data->CombIndex4];
+		out1 = in_gain * data->avi_sndBuff[samp] + 
+			gain1 * data->COMB4->CombBuff10[data->COMB4->CombIndex1];
+		out2 = in_gain * data->avi_sndBuff[samp] + 
+			gain2 * data->COMB4->CombBuff20[data->COMB4->CombIndex2];
+		out3 = in_gain * data->avi_sndBuff[samp] + 
+			gain3 * data->COMB4->CombBuff30[data->COMB4->CombIndex3];
+		out4 = in_gain * data->avi_sndBuff[samp] + 
+			gain4 * data->COMB4->CombBuff40[data->COMB4->CombIndex4];
 		
-		data->CombBuff10[data->CombIndex1] = data->avi_sndBuff[samp] + gain1 * data->CombBuff10[data->CombIndex1];
-		data->CombBuff20[data->CombIndex2] = data->avi_sndBuff[samp] + gain2 * data->CombBuff20[data->CombIndex2];
-		data->CombBuff30[data->CombIndex3] = data->avi_sndBuff[samp] + gain3 * data->CombBuff30[data->CombIndex3];
-		data->CombBuff40[data->CombIndex4] = data->avi_sndBuff[samp] + gain4 * data->CombBuff40[data->CombIndex4];
+		data->COMB4->CombBuff10[data->COMB4->CombIndex1] = data->avi_sndBuff[samp] + 
+			gain1 * data->COMB4->CombBuff10[data->COMB4->CombIndex1];
+		data->COMB4->CombBuff20[data->COMB4->CombIndex2] = data->avi_sndBuff[samp] + 
+			gain2 * data->COMB4->CombBuff20[data->COMB4->CombIndex2];
+		data->COMB4->CombBuff30[data->COMB4->CombIndex3] = data->avi_sndBuff[samp] + 
+			gain3 * data->COMB4->CombBuff30[data->COMB4->CombIndex3];
+		data->COMB4->CombBuff40[data->COMB4->CombIndex4] = data->avi_sndBuff[samp] + 
+			gain4 * data->COMB4->CombBuff40[data->COMB4->CombIndex4];
 				
-		data->avi_sndBuff[samp] = out1 + out2 + out3+ out4;
+		data->avi_sndBuff[samp] = out1 + out2 + out3 + out4;
 		
 		/*if stereo process second channel */
 		if(data->channels > 1)
 		{
-			out1 = in_gain * data->avi_sndBuff[samp+1] + gain1 * data->CombBuff11[data->CombIndex1];
-			out2 = in_gain * data->avi_sndBuff[samp+1] + gain2 * data->CombBuff21[data->CombIndex2];
-			out3 = in_gain * data->avi_sndBuff[samp+1] + gain3 * data->CombBuff31[data->CombIndex3];
-			out4 = in_gain * data->avi_sndBuff[samp+1] + gain4 * data->CombBuff41[data->CombIndex4];
+			out1 = in_gain * data->avi_sndBuff[samp+1] + 
+				gain1 * data->COMB4->CombBuff11[data->COMB4->CombIndex1];
+			out2 = in_gain * data->avi_sndBuff[samp+1] + 
+				gain2 * data->COMB4->CombBuff21[data->COMB4->CombIndex2];
+			out3 = in_gain * data->avi_sndBuff[samp+1] + 
+				gain3 * data->COMB4->CombBuff31[data->COMB4->CombIndex3];
+			out4 = in_gain * data->avi_sndBuff[samp+1] + 
+				gain4 * data->COMB4->CombBuff41[data->COMB4->CombIndex4];
 		
-			data->CombBuff11[data->CombIndex1] = data->avi_sndBuff[samp+1] + gain1 * data->CombBuff11[data->CombIndex1];
-			data->CombBuff21[data->CombIndex2] = data->avi_sndBuff[samp+1] + gain2 * data->CombBuff21[data->CombIndex2];
-			data->CombBuff31[data->CombIndex3] = data->avi_sndBuff[samp+1] + gain3 * data->CombBuff31[data->CombIndex3];
-			data->CombBuff41[data->CombIndex4] = data->avi_sndBuff[samp+1] + gain4 * data->CombBuff41[data->CombIndex4];
+			data->COMB4->CombBuff11[data->COMB4->CombIndex1] = data->avi_sndBuff[samp+1] + 
+				gain1 * data->COMB4->CombBuff11[data->COMB4->CombIndex1];
+			data->COMB4->CombBuff21[data->COMB4->CombIndex2] = data->avi_sndBuff[samp+1] + 
+				gain2 * data->COMB4->CombBuff21[data->COMB4->CombIndex2];
+			data->COMB4->CombBuff31[data->COMB4->CombIndex3] = data->avi_sndBuff[samp+1] + 
+				gain3 * data->COMB4->CombBuff31[data->COMB4->CombIndex3];
+			data->COMB4->CombBuff41[data->COMB4->CombIndex4] = data->avi_sndBuff[samp+1] + 
+				gain4 * data->COMB4->CombBuff41[data->COMB4->CombIndex4];
 			
-			data->avi_sndBuff[samp+1] = out1 + out2 + out3+ out4;
+			data->avi_sndBuff[samp+1] = out1 + out2 + out3 + out4;
 		}
 		
-		if(++(data->CombIndex1) >= buff_size1) data->CombIndex1=0;
-		if(++(data->CombIndex2) >= buff_size2) data->CombIndex2=0;
-		if(++(data->CombIndex3) >= buff_size3) data->CombIndex3=0;
-		if(++(data->CombIndex4) >= buff_size4) data->CombIndex4=0;
+		if(++(data->COMB4->CombIndex1) >= data->COMB4->buff_size1) data->COMB4->CombIndex1=0;
+		if(++(data->COMB4->CombIndex2) >= data->COMB4->buff_size2) data->COMB4->CombIndex2=0;
+		if(++(data->COMB4->CombIndex3) >= data->COMB4->buff_size3) data->COMB4->CombIndex3=0;
+		if(++(data->COMB4->CombIndex4) >= data->COMB4->buff_size4) data->COMB4->CombIndex4=0;
 	}
 }
 
@@ -564,14 +612,15 @@ static void CombFilter4 (struct paRecordData* data,
 static void all_pass1 (struct paRecordData* data, int delay_ms, float gain)
 {
 	int samp=0;
-	int buff_size = (int) delay_ms  * (data->samprate/1000);
 	
-	//SAMPLE temp;
-	
-	if (data->AllPassBuff1 == NULL) 
-		data->AllPassBuff1 = g_new0(SAMPLE, buff_size);
-	if ((data->channels > 1) && (data->AllPassBuff2== NULL)) 
-		data->AllPassBuff2 = g_new0(SAMPLE, buff_size);
+	if(data->AP1 == NULL)
+	{
+		data->AP1 = g_new0(delay_data, 1);
+		data->AP1->buff_size = (int) delay_ms  * (data->samprate * 0.001);
+		data->AP1->delayBuff1 = g_new0(SAMPLE, data->AP1->buff_size);
+		if(data->channels > 1)
+			data->AP1->delayBuff2 = g_new0(SAMPLE, data->AP1->buff_size);
+	}
 	
 	for(samp = 0; samp < data->snd_numSamples; samp = samp + data->channels)
 	{
@@ -580,15 +629,19 @@ static void all_pass1 (struct paRecordData* data, int delay_ms, float gain)
 		data->AllPassBuff[data->AllPassIndex] = (temp * gain) + data->avi_sndBuff[samp];
 		data->avi_sndBuff[samp] = temp - (gain * data->AllPassBuff[data->AllPassIndex]);
 	*/
-		data->AllPassBuff1[data->AllPassIndex] = data->avi_sndBuff[samp] + (gain * data->AllPassBuff1[data->AllPassIndex]);
-		data->avi_sndBuff[samp] = ((data->AllPassBuff1[data->AllPassIndex] * (1 - gain*gain)) - data->avi_sndBuff[samp])/gain;
+		data->AP1->delayBuff1[data->AP1->delayIndex] = data->avi_sndBuff[samp] + 
+			(gain * data->AP1->delayBuff1[data->AP1->delayIndex]);
+		data->avi_sndBuff[samp] = ((data->AP1->delayBuff1[data->AP1->delayIndex] * (1 - gain*gain)) - 
+			data->avi_sndBuff[samp])/gain;
 		if(data->channels > 1)
 		{
-			data->AllPassBuff2[data->AllPassIndex] = data->avi_sndBuff[samp+1] + (gain * data->AllPassBuff2[data->AllPassIndex]);
-			data->avi_sndBuff[samp+1] = ((data->AllPassBuff2[data->AllPassIndex] * (1 - gain*gain)) - data->avi_sndBuff[samp+1])/gain;
+			data->AP1->delayBuff2[data->AP1->delayIndex] = data->avi_sndBuff[samp+1] + 
+				(gain * data->AP1->delayBuff2[data->AP1->delayIndex]);
+			data->avi_sndBuff[samp+1] = ((data->AP1->delayBuff2[data->AP1->delayIndex] * (1 - gain*gain)) - 
+				data->avi_sndBuff[samp+1])/gain;
 		}
 		
-		if(++(data->AllPassIndex) >= buff_size) data->AllPassIndex=0;
+		if(++(data->AP1->delayIndex) >= data->AP1->buff_size) data->AP1->delayIndex=0;
 	} 
 	
 }
@@ -667,10 +720,3 @@ void WahWah (struct paRecordData* data, float freq, float startphase, float dept
 		data->avi_sndBuff[samp] = (float) out;
 	}
 }
-
-/*
-static float waveshape_distort( float in ) 
-{
-	return 1.5f * in - 0.5f * in *in * in;
-}
-*/
