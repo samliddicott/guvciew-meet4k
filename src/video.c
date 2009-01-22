@@ -25,7 +25,6 @@
 #include <stdlib.h>
 #include <linux/videodev.h>
 #include <string.h>
-//#include <pthread.h>
 #include <portaudio.h>
 #include <SDL/SDL.h>
 #include <glib.h>
@@ -521,15 +520,9 @@ void *main_loop(void *data)
 							UINT32 shiftSamples = shiftFrames * global->Sound_NumChan;
 							if (global->debug) g_printf("shift sound forward by %d samples\n", 
 								shiftSamples);
-#ifdef AUDIO_F32
 							short *EmptySamp;
 							EmptySamp=g_new0(short, shiftSamples);
 							AVI_write_audio(AviOut,(BYTE *) EmptySamp,shiftSamples*sizeof(short));
-#else
-							SAMPLE *EmptySamp;
-							EmptySamp=g_new0(SAMPLE, shiftSamples);
-							AVI_write_audio(AviOut,(BYTE *) EmptySamp,shiftSamples*sizeof(SAMPLE));
-#endif
 							g_free(EmptySamp);
 						} 
 						else if(global->Sound_Format == ISO_FORMAT_MPEG12) 
@@ -542,32 +535,51 @@ void *main_loop(void *data)
 				}
 				g_mutex_lock( pdata->mutex );
 					/*run effects on data*/
+					/*echo*/
 					if((pdata->snd_Flags & SND_ECHO)==SND_ECHO) 
 					{
 						Echo(pdata, 300, 0.5);
 					}
+					else
+					{
+						close_DELAY(pdata->ECHO);
+						pdata->ECHO = NULL;
+					}
+					/*fuzz*/
 					if((pdata->snd_Flags & SND_FUZZ)==SND_FUZZ) 
 					{
 						Fuzz(pdata);
 					}
+					else
+					{
+						close_FILT(pdata->HPF);
+						pdata->HPF = NULL;
+					}
+					/*reverb*/
 					if((pdata->snd_Flags & SND_REVERB)==SND_REVERB) 
 					{
 						Reverb(pdata, 50);
 					}
+					else
+					{
+						close_REVERB(pdata);
+					}
+					/*wahwah*/
 					if((pdata->snd_Flags & SND_WAHWAH)==SND_WAHWAH) 
 					{
 						WahWah (pdata, 1.5, 0, 0.7, 0.3, 2.5);
+					}
+					else
+					{
+						close_WAHWAH(pdata->wahData);
+						pdata->wahData = NULL;
 					}
 					
 					/*write audio chunk                                          */
 					if(global->Sound_Format == PA_FOURCC) 
 					{
-#ifdef AUDIO_F32
-						Float2Int16(pdata);
+						Float2Int16(pdata); /*convert from float sample to 16 bit PCM*/
 						ret=AVI_write_audio(AviOut,(BYTE *) pdata->avi_sndBuff1,pdata->snd_numSamples*2);
-#else
-						ret=AVI_write_audio(AviOut,(BYTE *) pdata->avi_sndBuff,pdata->snd_numBytes);
-#endif
 					}
 					else if(global->Sound_Format == ISO_FORMAT_MPEG12)
 					{

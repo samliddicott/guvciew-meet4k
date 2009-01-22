@@ -186,12 +186,8 @@ aviClose (struct ALL_DATA *all_data)
 					{
 						if(pdata->avi_sndBuff) 
 						{
-#ifdef AUDIO_F32
 							Float2Int16(pdata);
 							AVI_write_audio(AviOut,(BYTE *) pdata->avi_sndBuff1,pdata->snd_numSamples*2);
-#else
-							AVI_write_audio(AviOut,(BYTE *) pdata->avi_sndBuff,pdata->snd_numBytes);
-#endif
 						}
 					}
 					else if (global->Sound_Format == ISO_FORMAT_MPEG12)
@@ -1267,19 +1263,11 @@ capture_avi (GtkButton *AVIButt, struct ALL_DATA *all_data)
 				/*get channels and sample rate*/
 				set_sound(global,pdata);
 				/*set audio header for avi*/
-#ifdef AUDIO_F32
 				AVI_set_audio(AviOut, global->Sound_NumChan, 
 					global->Sound_SampRate,
 					global->Sound_bitRate,
 					16, /*only used for PCM*/
 					global->Sound_Format);
-#else
-				AVI_set_audio(AviOut, global->Sound_NumChan, 
-					global->Sound_SampRate,
-					global->Sound_bitRate,
-					sizeof(SAMPLE)*8,/*only used for PCM*/
-					global->Sound_Format);
-#endif
 				/* Initialize sound (open stream)*/
 				if(init_sound (pdata)) 
 				{

@@ -36,12 +36,12 @@ typedef unsigned long      ULONG;
 
 typedef char* pchar;
 
-typedef signed char	   INT8;
-typedef unsigned char	   UINT8;
-typedef signed short	   INT16;
-typedef unsigned short int UINT16;
-typedef signed int	   INT32;
-typedef unsigned int	   UINT32;
+typedef int8_t     INT8;
+typedef uint8_t    UINT8;
+typedef int16_t    INT16;
+typedef uint16_t   UINT16;
+typedef int32_t    INT32;
+typedef uint32_t   UINT32;
 
 /* 0 is device default*/
 static const int stdSampleRates[] = 

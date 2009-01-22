@@ -37,45 +37,14 @@
 
 #define NUM_CHANNELS    (0) /* 0-device default 1-mono 2-stereo */
 
-#define AUDIO_F32        (1)/*AUDIO_F32 AUDIO_I32 AUDIO_I16*/
-/*select sample format*/
-
-#ifdef AUDIO_F32
-
 #define PA_SAMPLE_TYPE  paFloat32
-//#define PA_FOURCC       WAVE_FORMAT_IEEE_FLOAT
-#define PA_FOURCC       WAVE_FORMAT_PCM //use PCM 16 bits
+#define PA_FOURCC       WAVE_FORMAT_PCM //use PCM 16 bits converted from float
 typedef float SAMPLE;
 #define SAMPLE_SILENCE  (0.0f)
 #define MAX_SAMPLE (1.0f)
 #define PRINTF_S_FORMAT "%.8f"
 
-#else
-#ifdef AUDIO_I32
-
-#define PA_SAMPLE_TYPE  paInt32
-#define PA_FOURCC       WAVE_FORMAT_PCM
-typedef INT32 SAMPLE;
-#define SAMPLE_SILENCE  (0)
-#define MAX_SAMPLE (2147483647)
-#define PRINTF_S_FORMAT "%d"
-
-#else
-#ifdef AUDIO_I16
-
-#define PA_SAMPLE_TYPE  paInt16
-#define PA_FOURCC       WAVE_FORMAT_PCM
-typedef INT16 SAMPLE;
-#define SAMPLE_SILENCE  (0)
-#define MAX_SAMPLE (32767)
-#define PRINTF_S_FORMAT "%d"
-
-#endif
-#endif
-#endif
-
-
-/*data for LPF*/
+/*data for Butterworth filter (LP or HP)*/
 typedef struct _Filt_data
 {
 	SAMPLE buff_in1[2];
@@ -116,7 +85,7 @@ typedef struct _Comb4_data
 typedef struct _delay_data
 {
 	int buff_size;
-	SAMPLE *delayBuff1; // delay buffer 1 
+	SAMPLE *delayBuff1; // delay buffer 1 - first channel
 	SAMPLE *delayBuff2; // delay buffer 2 - second channel (stereo)
 	int delayIndex; // delay buffer index
 } delay_data;
@@ -165,7 +134,7 @@ struct paRecordData
 	Comb4_data *COMB4;
 	Filt_data *HPF;
 
-	short *avi_sndBuff1; //buffer for pcm coding with int32
+	gint16 *avi_sndBuff1; //buffer for pcm coding with int16
 	BYTE *mp2Buff; //mp2 encode buffer
 	int mp2BuffSize; // mp2 buffer size
 	WAHData* wahData;
@@ -192,7 +161,20 @@ init_sound(struct paRecordData* data);
 int
 close_sound (struct paRecordData *data);
 
-void Float2Int16 (struct paRecordData* data);
+void
+close_DELAY(delay_data *DELAY);
+
+void
+close_FILT(Filt_data *FILT);
+
+void
+close_WAHWAH(WAHData *wahData);
+
+void
+close_REVERB(struct paRecordData *data);
+
+void 
+Float2Int16 (struct paRecordData* data);
 
 void
 Echo(struct paRecordData *data, int delay_ms, float decay);
