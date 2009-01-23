@@ -193,6 +193,9 @@ EffRevEnable_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data);
 void
 EffWahEnable_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data);
 
+void
+EffDuckyEnable_changed (GtkToggleButton * toggle, struct ALL_DATA *all_data);
+
 void 
 ImageInc_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data);
 

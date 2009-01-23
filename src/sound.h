@@ -108,6 +108,21 @@ typedef struct _WAHData
 	float phase;
 } WAHData;
 
+typedef struct _TSD_data
+{
+	float tempo;
+} TSD_data;
+
+typedef struct _RATE_data
+{
+	SAMPLE *rBuff1;
+	SAMPLE *rBuff2;
+	SAMPLE *wBuff1;
+	SAMPLE *wBuff2;
+	int wSize;
+	int numsamples;
+} RATE_data;
+
 struct paRecordData
 {
 	int input_type; // audio SAMPLE type
@@ -133,6 +148,8 @@ struct paRecordData
 	delay_data *AP1;
 	Comb4_data *COMB4;
 	Filt_data *HPF;
+	Filt_data *LPF1;
+	RATE_data *RT1;
 
 	gint16 *avi_sndBuff1; //buffer for pcm coding with int16
 	BYTE *mp2Buff; //mp2 encode buffer
@@ -174,6 +191,9 @@ void
 close_REVERB(struct paRecordData *data);
 
 void 
+close_pitch (struct paRecordData* data);
+
+void 
 Float2Int16 (struct paRecordData* data);
 
 void
@@ -197,6 +217,9 @@ Reverb (struct paRecordData* data, int delay_ms);
 	res should be greater than 0 !  */
 void 
 WahWah (struct paRecordData* data, float freq, float startphase, float depth, float freqofs, float res);
+
+void 
+change_pitch (struct paRecordData* data, int rate);
 
 #endif
 

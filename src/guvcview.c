@@ -253,6 +253,7 @@ int main(int argc, char *argv[])
 	GtkWidget *EffFuzzEnable;
 	GtkWidget* EffRevEnable;
 	GtkWidget* EffWahEnable;
+	GtkWidget* EffDuckyEnable;
 	GtkWidget *VidFolder_img;
 	GtkWidget *ImgFolder_img;
 
@@ -1332,6 +1333,16 @@ int main(int argc, char *argv[])
 	gtk_widget_show (EffWahEnable);
 	g_signal_connect (GTK_CHECK_BUTTON(EffWahEnable), "toggled",
 		G_CALLBACK (EffWahEnable_changed), &all_data);
+	
+	/* Ducky */
+	EffDuckyEnable=gtk_check_button_new_with_label (_(" Ducky"));
+	gtk_table_attach(GTK_TABLE(table_snd_eff), EffDuckyEnable, 0, 1, 1, 2,
+		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(EffDuckyEnable),(pdata->snd_Flags & SND_DUCKY)>0);
+	gtk_widget_show (EffDuckyEnable);
+	g_signal_connect (GTK_CHECK_BUTTON(EffDuckyEnable), "toggled",
+		G_CALLBACK (EffDuckyEnable_changed), &all_data);
 	
 	/* main container */
 	gtk_container_add (GTK_CONTAINER (gwidget->mainwin), gwidget->boxv);

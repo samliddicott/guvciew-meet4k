@@ -574,6 +574,15 @@ void *main_loop(void *data)
 						close_WAHWAH(pdata->wahData);
 						pdata->wahData = NULL;
 					}
+					/*Ducky*/
+					if((pdata->snd_Flags & SND_DUCKY)==SND_DUCKY) 
+					{
+						change_pitch(pdata, 2);
+					}
+					else
+					{
+						close_pitch (pdata);
+					}
 					
 					/*write audio chunk                                          */
 					if(global->Sound_Format == PA_FOURCC) 

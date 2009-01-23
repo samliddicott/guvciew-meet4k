@@ -86,6 +86,11 @@ static const int stdSampleRates[] =
 /*clip value between 0 and 255*/
 #define CLIP(value) (unsigned char)(((value)>0xFF)?0xff:(((value)<0)?0:(value)))
 
+/*MAX macro - gets the bigger value*/
+#ifndef MAX
+#define MAX(a,b) (((a) < (b)) ? (b) : (a))
+#endif
+
 /*FILTER FLAGS*/
 #define YUV_NOFILT (0)
 #define YUV_MIRROR (1<<0)
@@ -94,11 +99,12 @@ static const int stdSampleRates[] =
 #define YUV_MONOCR (1<<3)
 
 /*Audio Effects*/
-#define SND_NOEF (0)
-#define SND_ECHO (1<<0)
-#define SND_FUZZ (1<<1)
+#define SND_NOEF   (0)
+#define SND_ECHO   (1<<0)
+#define SND_FUZZ   (1<<1)
 #define SND_REVERB (1<<2)
 #define SND_WAHWAH (1<<3)
+#define SND_DUCKY  (1<<4)
 
 #endif
 

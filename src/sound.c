@@ -173,6 +173,10 @@ init_sound(struct paRecordData* data)
 	data->wahData = NULL;
 	/*high pass filter data*/
 	data->HPF = NULL;
+	/*rate transposer*/
+	data->RT1 = NULL;
+	/*low pass filter*/
+	data->LPF1 = NULL;
 	
 	err = Pa_Initialize();
 	if( err != paNoError ) goto error;
@@ -319,6 +323,7 @@ close_sound (struct paRecordData *data)
 		data->wahData = NULL;
 		close_FILT(data->HPF);
 		data->HPF = NULL;
+		close_pitch(data);
 	
 		g_free(data->mp2Buff);
 		data->mp2Buff = NULL;
@@ -349,12 +354,30 @@ error:
 		close_FILT(data->HPF);
 		data->HPF = NULL;
 	
+		close_pitch(data);
+		
 		g_free(data->mp2Buff);
 		data->mp2Buff = NULL;
 		g_free(data->avi_sndBuff1);
 		data->avi_sndBuff1 = NULL;
 	g_mutex_unlock( data->mutex );
 	return(-1);
+}
+
+/*clip float samples [-1.0 ; 1.0]*/
+static float clip_float (float in)
+{
+	in = (in < -1.0) ? -1.0 : (in > 1.0) ? 1.0 : in;
+	
+	return in;
+}
+
+/* saturate float samples to int16 limits*/
+static gint16 clip_int16 (float in)
+{
+	in = (in < -32768) ? -32768 : (in > 32767) ? 32767 : in;
+	
+	return ((gint16) in);
 }
 
 void Float2Int16 (struct paRecordData* data)
@@ -368,10 +391,7 @@ void Float2Int16 (struct paRecordData* data)
 	{
 		res = data->avi_sndBuff[samp] * 32768 + 385;
 		/*clip*/
-		if(res > 32767) res = 32767;
-		else if(res < -32767) res = -32767;
-		
-		data->avi_sndBuff1[samp] = (gint16) res;
+		data->avi_sndBuff1[samp] = clip_int16(res);
 	}
 }
 
@@ -400,7 +420,7 @@ void Echo(struct paRecordData* data, int delay_ms, float decay)
 			(0.3 * data->ECHO->delayBuff1[data->ECHO->delayIndex]);
 		data->ECHO->delayBuff1[data->ECHO->delayIndex] = data->avi_sndBuff[samp] + 
 			(data->ECHO->delayBuff1[data->ECHO->delayIndex] * decay);
-		data->avi_sndBuff[samp] = out;
+		data->avi_sndBuff[samp] = clip_float(out);
 		/*if stereo process second channel in separate*/
 		if (data->channels > 1)
 		{
@@ -408,7 +428,7 @@ void Echo(struct paRecordData* data, int delay_ms, float decay)
 				(0.3 * data->ECHO->delayBuff2[data->ECHO->delayIndex]);
 			data->ECHO->delayBuff2[data->ECHO->delayIndex] = data->avi_sndBuff[samp] + 
 				(data->ECHO->delayBuff2[data->ECHO->delayIndex] * decay);
-			data->avi_sndBuff[samp+1] = out;
+			data->avi_sndBuff[samp+1] = clip_float(out);
 		}
 		
 		if(++(data->ECHO->delayIndex) >= data->ECHO->buff_size) data->ECHO->delayIndex=0;
@@ -434,7 +454,7 @@ static void Butt(Filt_data *FILT, SAMPLE *Buff, int NumSamples, int channels)
 		FILT->buff_out1[1] = FILT->buff_out1[0]; //out(n-2) = out(n-1)
 		FILT->buff_out1[0] = out; //out(n-1) = out
 	
-		Buff[index] = out;
+		Buff[index] = clip_float(out);
 		/*process second channel*/
 		if(channels > 1)
 		{
@@ -446,7 +466,7 @@ static void Butt(Filt_data *FILT, SAMPLE *Buff, int NumSamples, int channels)
 			FILT->buff_out2[1] = FILT->buff_out2[0]; //out(n-2) = out(n-1)
 			FILT->buff_out2[0] = out; //out(n-1) = out
 		
-			Buff[index+1] = out;
+			Buff[index+1] = clip_float(out);
 		}
 	}
 }
@@ -469,8 +489,9 @@ HPF(struct paRecordData* data, int cutoff_freq, float res)
 {
 	if(data->HPF == NULL)
 	{
+		float inv_samprate = 1.0 / data->samprate;
 		data->HPF = g_new0(Filt_data, 1);
-		data->HPF->c = tan(M_PI * cutoff_freq / data->samprate);
+		data->HPF->c = tan(M_PI * cutoff_freq * inv_samprate);
 		data->HPF->a1 = 1.0 / (1.0 + (res * data->HPF->c) + (data->HPF->c * data->HPF->c));
 		data->HPF->a2 = -2.0 * data->HPF->a1;
 		data->HPF->a3 = data->HPF->a1;
@@ -494,24 +515,23 @@ HPF(struct paRecordData* data, int cutoff_freq, float res)
       b2 = ( 1.0 - r * c + c * c) * a1;
 
  */
-/*
 static void 
 LPF(struct paRecordData* data, float cutoff_freq, float res)
 {
-	if(data->LPF == NULL)
+	if(data->LPF1 == NULL)
 	{
-		data->LPF = g_new0(Filt_data, 1);
-		data->LPF->c = 1.0 / tan(M_PI * cutoff_freq / data->samprate);
-		data->LPF->a1 = 1.0 / (1.0 + (res * data->LPF->c) + (data->LPF->c * data->LPF->c));
-		data->LPF->a2 = 2.0 * data->LPF->a1;
-		data->LPF->a3 = data->LPF->a1;
-		data->LPF->b1 = 2.0 * (1.0 - (data->LPF->c * data->LPF->c)) * data->LPF->a1;
-		data->LPF->b2 = (1.0 - (res * data->LPF->c) + (data->LPF->c * data->LPF->c)) * data->LPF->a1;
+		data->LPF1 = g_new0(Filt_data, 1);
+		data->LPF1->c = 1.0 / tan(M_PI * cutoff_freq / data->samprate);
+		data->LPF1->a1 = 1.0 / (1.0 + (res * data->LPF1->c) + (data->LPF1->c * data->LPF1->c));
+		data->LPF1->a2 = 2.0 * data->LPF1->a1;
+		data->LPF1->a3 = data->LPF1->a1;
+		data->LPF1->b1 = 2.0 * (1.0 - (data->LPF1->c * data->LPF1->c)) * data->LPF1->a1;
+		data->LPF1->b2 = (1.0 - (res * data->LPF1->c) + (data->LPF1->c * data->LPF1->c)) * data->LPF1->a1;
 	}
 
-	Butt(data->LPF, data->avi_sndBuff, data->snd_numSamples, data->channels);
+	Butt(data->LPF1, data->avi_sndBuff, data->snd_numSamples, data->channels);
 }
-*/
+
 /*
 Wave distort
 parameters: in - input from [-1..1]
@@ -557,7 +577,7 @@ static SAMPLE CubicAmplifier( SAMPLE input )
 		temp = input - 1.0f;
 		out = (temp * temp * temp) + 1.0f;
 	}
-	return out;
+	return clip_float(out);
 }
 
 
@@ -634,7 +654,7 @@ CombFilter4 (struct paRecordData* data,
 		data->COMB4->CombBuff40[data->COMB4->CombIndex4] = data->avi_sndBuff[samp] + 
 			gain4 * data->COMB4->CombBuff40[data->COMB4->CombIndex4];
 				
-		data->avi_sndBuff[samp] = out1 + out2 + out3 + out4;
+		data->avi_sndBuff[samp] = clip_float(out1 + out2 + out3 + out4);
 		
 		/*if stereo process second channel */
 		if(data->channels > 1)
@@ -657,7 +677,7 @@ CombFilter4 (struct paRecordData* data,
 			data->COMB4->CombBuff41[data->COMB4->CombIndex4] = data->avi_sndBuff[samp+1] + 
 				gain4 * data->COMB4->CombBuff41[data->COMB4->CombIndex4];
 			
-			data->avi_sndBuff[samp+1] = out1 + out2 + out3 + out4;
+			data->avi_sndBuff[samp+1] = clip_float(out1 + out2 + out3 + out4);
 		}
 		
 		if(++(data->COMB4->CombIndex1) >= data->COMB4->buff_size1) data->COMB4->CombIndex1=0;
@@ -668,15 +688,37 @@ CombFilter4 (struct paRecordData* data,
 }
 
 
-/* all pass filter for reverb */
+/* all pass filter                                      */
 /*delay_ms: delay in ms                                 */
-/* feedback_gain: <1                                    */
-/*gain: input gain (gain+feedbackgain should be 1)      */
+/*gain: filter gain                                     */
+static void 
+all_pass (delay_data *AP, SAMPLE *Buff, int NumSamples, int channels, float gain)
+{
+	int samp = 0;
+	float inv_gain = 1.0 / gain;
+
+	for(samp = 0; samp < NumSamples; samp += channels)
+	{
+		AP->delayBuff1[AP->delayIndex] = Buff[samp] + 
+			(gain * AP->delayBuff1[AP->delayIndex]);
+		Buff[samp] = ((AP->delayBuff1[AP->delayIndex] * (1 - gain*gain)) - 
+			Buff[samp]) * inv_gain;
+		if(channels > 1)
+		{
+			AP->delayBuff2[AP->delayIndex] = Buff[samp+1] + 
+				(gain * AP->delayBuff2[AP->delayIndex]);
+			Buff[samp+1] = ((AP->delayBuff2[AP->delayIndex] * (1 - gain*gain)) - 
+				Buff[samp+1]) * inv_gain;
+		}
+		
+		if(++(AP->delayIndex) >= AP->buff_size) AP->delayIndex=0;
+	} 
+}
+
+/*all pass for reverb*/
 static void 
 all_pass1 (struct paRecordData* data, int delay_ms, float gain)
 {
-	int samp=0;
-	
 	if(data->AP1 == NULL)
 	{
 		data->AP1 = g_new0(delay_data, 1);
@@ -687,23 +729,7 @@ all_pass1 (struct paRecordData* data, int delay_ms, float gain)
 			data->AP1->delayBuff2 = g_new0(SAMPLE, data->AP1->buff_size);
 	}
 	
-	for(samp = 0; samp < data->snd_numSamples; samp = samp + data->channels)
-	{
-		data->AP1->delayBuff1[data->AP1->delayIndex] = data->avi_sndBuff[samp] + 
-			(gain * data->AP1->delayBuff1[data->AP1->delayIndex]);
-		data->avi_sndBuff[samp] = ((data->AP1->delayBuff1[data->AP1->delayIndex] * (1 - gain*gain)) - 
-			data->avi_sndBuff[samp])/gain;
-		if(data->channels > 1)
-		{
-			data->AP1->delayBuff2[data->AP1->delayIndex] = data->avi_sndBuff[samp+1] + 
-				(gain * data->AP1->delayBuff2[data->AP1->delayIndex]);
-			data->avi_sndBuff[samp+1] = ((data->AP1->delayBuff2[data->AP1->delayIndex] * (1 - gain*gain)) - 
-				data->avi_sndBuff[samp+1])/gain;
-		}
-		
-		if(++(data->AP1->delayIndex) >= data->AP1->buff_size) data->AP1->delayIndex=0;
-	} 
-	
+	all_pass (data->AP1, data->avi_sndBuff, data->snd_numSamples, data->channels, gain);
 }
 
 void Reverb (struct paRecordData* data, int delay_ms)
@@ -743,22 +769,22 @@ void WahWah (struct paRecordData* data, float freq, float startphase, float dept
 	}
 
 	int samp = 0;
-	for(samp=0; samp<data->snd_numSamples; samp++)
+	for(samp = 0; samp < data->snd_numSamples; samp++)
 	{
 		in = data->avi_sndBuff[samp];
 		
 		if ((data->wahData->skipcount++) % lfoskipsamples == 0) 
 		{
-			frequency = (1 + cos(data->wahData->skipcount * data->wahData->lfoskip + data->wahData->phase)) / 2;
+			frequency = (1 + cos(data->wahData->skipcount * data->wahData->lfoskip + data->wahData->phase)) * 0.5;
 			frequency = frequency * depth * (1 - freqofs) + freqofs;
 			frequency = exp((frequency - 1) * 6);
 			omega = M_PI * frequency;
 			sn = sin(omega);
 			cs = cos(omega);
 			alpha = sn / (2 * res);
-			data->wahData->b0 = (1 - cs) / 2;
+			data->wahData->b0 = (1 - cs) * 0.5;
 			data->wahData->b1 = 1 - cs;
-			data->wahData->b2 = (1 - cs) / 2;
+			data->wahData->b2 = (1 - cs) * 0.5;
 			data->wahData->a0 = 1 + alpha;
 			data->wahData->a1 = -2 * cs;
 			data->wahData->a2 = 1 - alpha;
@@ -771,12 +797,116 @@ void WahWah (struct paRecordData* data, float freq, float startphase, float dept
 		data->wahData->yn2 = data->wahData->yn1;
 		data->wahData->yn1 = out;
 
-		// Prevents clipping
-		if (out < -1.0)
-			out = (SAMPLE) -1.0;
-		else if (out > 1.0)
-			out = (SAMPLE) 1.0;
-
-		data->avi_sndBuff[samp] = (SAMPLE) out;
+		data->avi_sndBuff[samp] = clip_float(out);
 	}
 }
+
+/*reduce number of samples with linear interpolation*/
+//rate - rate of samples to remove [1,...[ 
+// rate = 1-> XXX (splits channels) 2 -> X0X0X  3 -> X00X00X 4 -> X000X000X
+static void
+change_rate_less(RATE_data *RT, SAMPLE *Buff, int rate, int NumSamples, int channels)
+{
+	int samp = 0;
+	int n = 0, i = 0;
+	//float mid1 = 0.0;
+	//float mid2 = 0.0;
+	//float inv_rate = 1.0 / rate;
+	
+	for (samp = 0; samp < NumSamples; samp += channels)
+	{
+		
+		
+		if (n==0)
+		{
+			RT->rBuff1[i] = Buff[samp];
+			if(channels > 1)
+				RT->rBuff2[i] = Buff[samp + 1];
+			
+			i++;
+		}
+		if(++n >= rate) n=0;
+	}
+	RT->numsamples = i;
+}
+
+/*increase audio tempo by adding audio windows of wtime_ms in given rate                           */
+/*rate: 2 -> [w1..w2][w1..w2][w2..w3][w2..w3]  3-> [w1..w2][w1..w2][w1..w2][w2..w3][w2..w3][w2..w3]*/ 
+static void
+change_tempo_more(struct paRecordData* data, int rate, int wtime_ms)
+{
+	int samp = 0;
+	int i = 0;
+	int r = 0;
+	int index = 0;
+	
+	if(data->RT1->wBuff1 == NULL) 
+	{
+		data->RT1->wSize  = wtime_ms * data->samprate * 0.001;
+		data->RT1->wBuff1 = g_new0(SAMPLE, data->RT1->wSize);
+		if (data->channels >1)
+			data->RT1->wBuff2 = g_new0(SAMPLE, data->RT1->wSize);
+	}
+	
+	//printf("samples  = %i\n", data->RT1->numsamples);
+	for(samp = 0; samp < data->RT1->numsamples; samp++)
+	{
+		data->RT1->wBuff1[i] = data->RT1->rBuff1[samp];
+		if(data->channels > 1)
+			data->RT1->wBuff2[i] = data->RT1->rBuff2[samp];
+		
+		if((++i) > data->RT1->wSize)
+		{
+			for (r = 0; r < rate; r++)
+			{
+				for(i = 0; i < data->RT1->wSize; i++)
+				{
+					data->avi_sndBuff[index] = data->RT1->wBuff1[i];
+					if (data->channels > 1)
+						data->avi_sndBuff[index +1] = data->RT1->wBuff2[i];
+					index += data->channels;
+				}
+			}
+			i = 0;
+		}
+	}
+}
+
+void 
+close_pitch (struct paRecordData* data)
+{
+	if(data->RT1 != NULL)
+	{
+		g_free(data->RT1->rBuff1);
+		g_free(data->RT1->rBuff2);
+		g_free(data->RT1->wBuff1);
+		g_free(data->RT1->wBuff2);
+		g_free(data->RT1);
+		data->RT1 = NULL;
+		close_FILT(data->LPF1);
+		data->LPF1 = NULL;
+	}
+}
+
+void 
+change_pitch (struct paRecordData* data, int rate)
+{
+	if(data->RT1 == NULL)
+	{
+		data->RT1 = g_new0(RATE_data, 1);
+		
+		data->RT1->wBuff1 = NULL;
+		data->RT1->wBuff2 = NULL;
+		data->RT1->rBuff1 = g_new0(SAMPLE, (data->snd_numSamples/data->channels));
+		data->RT1->rBuff2 = NULL;
+		if(data->channels > 1)
+			data->RT1->rBuff2 = g_new0(SAMPLE, (data->snd_numSamples/data->channels));
+		
+	}
+	
+	//printf("all samples: %i\n",data->snd_numSamples);
+	change_rate_less(data->RT1, data->avi_sndBuff, rate, data->snd_numSamples, data->channels);
+	change_tempo_more(data, rate, 20);
+	LPF(data, (data->samprate * 0.25), 0.9);
+}
+
