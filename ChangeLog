@@ -1,3 +1,12 @@
+guvcview (0.9.8) intrepid; urgency=low
+
+   * Added audio tab
+   * Added new icon theme
+   * Added audio effects
+   * Added Turkish, Danish and Czech catalogs
+   
+ -- Paulo Assis <pj.assis@gmail.com>  Sat, 24 Jan 2009 23:43:00 +0000
+
 guvcview (0.9.7) stable; urgency=low
 
    * Added JPEG pixel format support.
