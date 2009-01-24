@@ -61,14 +61,15 @@ am__vpath_adj = case $$p in \
   esac;
 am__strip_dir = `echo $$p | sed -e 's|^.*/||'`;
 am__installdirs = "$(DESTDIR)$(applicationdir)" \
-	"$(DESTDIR)$(guvcviewdocdir)" "$(DESTDIR)$(menudir)" \
-	"$(DESTDIR)$(pixmapsdir)"
+	"$(DESTDIR)$(guvcviewdocdir)" "$(DESTDIR)$(guvcviewmandir)" \
+	"$(DESTDIR)$(menudir)" "$(DESTDIR)$(pixmapsdir)"
 applicationDATA_INSTALL = $(INSTALL_DATA)
 guvcviewdocDATA_INSTALL = $(INSTALL_DATA)
+guvcviewmanDATA_INSTALL = $(INSTALL_DATA)
 menuDATA_INSTALL = $(INSTALL_DATA)
 pixmapsDATA_INSTALL = $(INSTALL_DATA)
-DATA = $(application_DATA) $(guvcviewdoc_DATA) $(menu_DATA) \
-	$(pixmaps_DATA)
+DATA = $(application_DATA) $(guvcviewdoc_DATA) $(guvcviewman_DATA) \
+	$(menu_DATA) $(pixmaps_DATA)
 RECURSIVE_CLEAN_TARGETS = mostlyclean-recursive clean-recursive	\
   distclean-recursive maintainer-clean-recursive
 ETAGS = etags
@@ -192,6 +193,8 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 SUBDIRS = src po pixmaps
 ACLOCAL_AMFLAGS = -I m4
+guvcviewmandir = ${datadir}/man/man1
+guvcviewman_DATA = pixmaps/guvcview.1.gz
 guvcviewdocdir = ${datadir}/doc/guvcview
 guvcviewdoc_DATA = \
 	README\
@@ -314,6 +317,23 @@ uninstall-guvcviewdocDATA:
 	  f=$(am__strip_dir) \
 	  echo " rm -f '$(DESTDIR)$(guvcviewdocdir)/$$f'"; \
 	  rm -f "$(DESTDIR)$(guvcviewdocdir)/$$f"; \
+	done
+install-guvcviewmanDATA: $(guvcviewman_DATA)
+	@$(NORMAL_INSTALL)
+	test -z "$(guvcviewmandir)" || $(MKDIR_P) "$(DESTDIR)$(guvcviewmandir)"
+	@list='$(guvcviewman_DATA)'; for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  f=$(am__strip_dir) \
+	  echo " $(guvcviewmanDATA_INSTALL) '$$d$$p' '$(DESTDIR)$(guvcviewmandir)/$$f'"; \
+	  $(guvcviewmanDATA_INSTALL) "$$d$$p" "$(DESTDIR)$(guvcviewmandir)/$$f"; \
+	done
+
+uninstall-guvcviewmanDATA:
+	@$(NORMAL_UNINSTALL)
+	@list='$(guvcviewman_DATA)'; for p in $$list; do \
+	  f=$(am__strip_dir) \
+	  echo " rm -f '$(DESTDIR)$(guvcviewmandir)/$$f'"; \
+	  rm -f "$(DESTDIR)$(guvcviewmandir)/$$f"; \
 	done
 install-menuDATA: $(menu_DATA)
 	@$(NORMAL_INSTALL)
@@ -636,7 +656,7 @@ check: check-recursive
 all-am: Makefile $(DATA) config.h
 installdirs: installdirs-recursive
 installdirs-am:
-	for dir in "$(DESTDIR)$(applicationdir)" "$(DESTDIR)$(guvcviewdocdir)" "$(DESTDIR)$(menudir)" "$(DESTDIR)$(pixmapsdir)"; do \
+	for dir in "$(DESTDIR)$(applicationdir)" "$(DESTDIR)$(guvcviewdocdir)" "$(DESTDIR)$(guvcviewmandir)" "$(DESTDIR)$(menudir)" "$(DESTDIR)$(pixmapsdir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-recursive
@@ -683,7 +703,7 @@ info: info-recursive
 info-am:
 
 install-data-am: install-applicationDATA install-guvcviewdocDATA \
-	install-menuDATA install-pixmapsDATA
+	install-guvcviewmanDATA install-menuDATA install-pixmapsDATA
 
 install-dvi: install-dvi-recursive
 
@@ -720,7 +740,8 @@ ps: ps-recursive
 ps-am:
 
 uninstall-am: uninstall-applicationDATA uninstall-guvcviewdocDATA \
-	uninstall-menuDATA uninstall-pixmapsDATA
+	uninstall-guvcviewmanDATA uninstall-menuDATA \
+	uninstall-pixmapsDATA
 
 .MAKE: $(RECURSIVE_CLEAN_TARGETS) $(RECURSIVE_TARGETS) install-am \
 	install-strip
@@ -734,14 +755,15 @@ uninstall-am: uninstall-applicationDATA uninstall-guvcviewdocDATA \
 	html-am info info-am install install-am \
 	install-applicationDATA install-data install-data-am \
 	install-dvi install-dvi-am install-exec install-exec-am \
-	install-guvcviewdocDATA install-html install-html-am \
-	install-info install-info-am install-man install-menuDATA \
-	install-pdf install-pdf-am install-pixmapsDATA install-ps \
-	install-ps-am install-strip installcheck installcheck-am \
-	installdirs installdirs-am maintainer-clean \
-	maintainer-clean-generic mostlyclean mostlyclean-generic pdf \
-	pdf-am ps ps-am tags tags-recursive uninstall uninstall-am \
-	uninstall-applicationDATA uninstall-guvcviewdocDATA \
+	install-guvcviewdocDATA install-guvcviewmanDATA install-html \
+	install-html-am install-info install-info-am install-man \
+	install-menuDATA install-pdf install-pdf-am \
+	install-pixmapsDATA install-ps install-ps-am install-strip \
+	installcheck installcheck-am installdirs installdirs-am \
+	maintainer-clean maintainer-clean-generic mostlyclean \
+	mostlyclean-generic pdf pdf-am ps ps-am tags tags-recursive \
+	uninstall uninstall-am uninstall-applicationDATA \
+	uninstall-guvcviewdocDATA uninstall-guvcviewmanDATA \
 	uninstall-menuDATA uninstall-pixmapsDATA
 
 
@@ -772,6 +794,9 @@ update-gmo: check-gettext
 force-update-gmo: check-gettext
 	touch po/*.po
 	cd po && $(MAKE) $(AM_MAKEFLAGS) update-gmo
+
+$(guvcviewman_DATA):
+	cd pixmaps && $(MAKE) $(AM_MAKEFLAGS) .manpage
 
 $(pixmaps_DATA):
 	cd pixmaps && $(MAKE) $(AM_MAKEFLAGS) .png

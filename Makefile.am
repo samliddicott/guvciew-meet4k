@@ -4,6 +4,9 @@ SUBDIRS = src po pixmaps
 
 ACLOCAL_AMFLAGS = -I m4
 
+guvcviewmandir = ${datadir}/man/man1
+guvcviewman_DATA = pixmaps/guvcview.1.gz
+
 guvcviewdocdir = ${datadir}/doc/guvcview
 guvcviewdoc_DATA = \
 	README\
@@ -31,7 +34,6 @@ pixmaps_DATA = \
 		pixmaps/videos_folder.png\
 		pixmaps/controls_folder.png\
 		pixmaps/close.png
-
 
 EXTRA_DIST = \
 		config.rpath\
@@ -68,6 +70,9 @@ update-gmo: check-gettext
 force-update-gmo: check-gettext
 	touch po/*.po
 	cd po && $(MAKE) $(AM_MAKEFLAGS) update-gmo
+
+$(guvcviewman_DATA):
+	cd pixmaps && $(MAKE) $(AM_MAKEFLAGS) .manpage
 
 $(pixmaps_DATA):
 	cd pixmaps && $(MAKE) $(AM_MAKEFLAGS) .png

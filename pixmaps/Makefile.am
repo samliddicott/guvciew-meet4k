@@ -15,11 +15,22 @@ pixs = \
 
 clean:
 	test -z "guvcview.desktop" || rm -f guvcview.desktop;\
-	test -z "guvcview" || rm -f guvcview
+	test -z "guvcview" || rm -f guvcview;\
+	test -z "guvciew.1.gz" || rm -f guvcview.1.gz
 
 distclean: clean
 
 clean-all: clean
+
+.manpage:
+	if test -e guvcview.1; then\
+		echo "compressing man page";\
+		cp guvcview.1 guvcview.1_;\
+		gzip guvcview.1;\
+		cp guvcview.1_ guvcview.1;\
+	else\
+		echo "could not find man page";\
+	fi
 
 .menu:
 	if test -e guvcview; then\
@@ -66,4 +77,4 @@ clean-all: clean
 		fi;\
 	done
 
-.PHONY: .menu .desktop .png
+.PHONY: .menu .desktop .png .manpage
