@@ -6,6 +6,8 @@ guvcview \- GTK+ base UVC Viewer
 .SH DESCRIPTION
 \fguvcview\fP is a simple GTK+ interface for capturing and viewing video from
 devices supported by the Linux UVC driver.
+It fully supports video4linux2 so it should work with any driver that supports
+this API, including the gspca driver.
 
 .SH USAGE
 .TP
@@ -21,7 +23,7 @@ Aplication options:
   -d, --device=VIDEO_DEVICE     Video Device [default: /dev/video0]
   -g, --config=FILENAME         Configuration File
   -w, --hwd_acel=[1 | 0]        Hardware accelaration (enable(1) | disable(0))
-  -f, --format=FORMAT           Video input format(mjpg|jpeg|yuyv|uyvy|yyuv|yu12|gbrg)
+  -f, --format=FORMAT           Video input format (mjpg|jpeg|yuyv|uyvy|yyuv|yu12|gbrg)
   -s, --size=WIDTHxHEIGHT       Resolution, default: 640x480
   -i, --image=FILENAME          Image File
   -c, --cap_time=TIME           Time elapsed between image captures

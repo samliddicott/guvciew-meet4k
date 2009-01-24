@@ -343,11 +343,13 @@ clean-all: clean
 		echo "Creating debian menu file";\
 		rm -f guvcview.menu;\
 		touch guvcview.menu;\
-		echo "?package(guvcview): needs=\"X11\" section=\"Applications/Video\" \\" >> guvcview.menu;\
-		echo "title=\"Guvcview\" \\" >> guvcview.menu;\
-		echo "longtitle=\"GTK UVC Viewer - uvc video viewer and capturer\" \\" >> guvcview.menu;\
-		echo "command=\"guvcview\" \\" >> guvcview.menu;\
-		echo "icon=\"$(datadir)/pixmaps/guvcview/guvcview.png\"" >> guvcview.menu;\
+		echo "package(guvcview):\\" >> guvcview.menu;\
+		echo "	needs=\"X11\"\\" >> guvcview.menu;\
+		echo "	section=\"Applications/Video\"\\" >> guvcview.menu;\
+		echo "	title=\"guvcview\"\\" >> guvcview.menu;\
+		echo "	longtitle=\"GTK UVC Viewer - uvc video viewer and capturer\"\\" >> guvcview.menu;\
+		echo "	command=\"guvcview\"\\" >> guvcview.menu;\
+		echo "	icon=\"$(datadir)/pixmaps/guvcview/guvcview.png\"" >> guvcview.menu;\
 		cp guvcview.menu guvcview;\
 	fi
 .desktop:
