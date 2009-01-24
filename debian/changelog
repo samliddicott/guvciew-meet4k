@@ -1,4 +1,4 @@
-guvcview (0.9.7) stable; urgency=low
+guvcview (0.9.7) unstable; urgency=low
 
    * Added JPEG pixel format support.
    * Added YYUV pixel format support.

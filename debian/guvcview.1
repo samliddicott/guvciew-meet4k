@@ -1,82 +1,37 @@
-.\"                                      Hey, EMACS: -*- nroff -*-
-.\" First parameter, NAME, should be all caps
-.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
-.\" other parameters are allowed: see man(7), man(1)
-.TH GUVCVIEW SECTION "Janeiro  9, 2008"
-.\" Please adjust this date whenever revising the manpage.
-.\"
-.\" Some roff macros, for reference:
-.\" .nh        disable hyphenation
-.\" .hy        enable hyphenation
-.\" .ad l      left justify
-.\" .ad b      justify to both left and right margins
-.\" .nf        disable filling
-.\" .fi        enable filling
-.\" .br        insert line break
-.\" .sp <n>    insert n+1 empty lines
-.\" for manpage-specific macros, see man(7)
+.TH GUVCVIEW "1" "Sep 2008"
 .SH NAME
-guvcview \- UVC video (and sound) capture tool
+guvcview \- GTK+ base UVC Viewer 
 .SH SYNOPSIS
 .B guvcview
-.RI [\-v[\-\-version]] [\-h[\-\-help]] [\-\-verbose] [\-d[\-\-device] device_name] 
-.br
-.RI [\-w {enable, disable}] [\-f[\-\-format] {jpg, yuv}] [\-s[\-\-size] widthxheight]
-.br
-.RI [\-i[\-\-image] image_file_name] [\-c[\-\-captime] time] [\-m[\-\-npics] num_pics]
-.br
-.RI [\-n[\-\-avi] avi_file_name] [\-t[\-\-avitime] capture_time] [\-p {enable, disable}]
-.br
-.RI [\-f[\-\-profile] filename]
 .SH DESCRIPTION
-This manual page documents briefly 
-.B guvcview
-options.
-.PP
-.\" TeX users may be more comfortable with the \fB<whatever>\fP and
-.\" \fI<whatever>\fP escape sequences to invode bold face and italics, 
-.\" respectively.
-\fBguvcview\fP is a program that enables video capture through V4L2 for the UVC driver 
-.SH OPTIONS
+\fguvcview\fP is a simple GTK+ interface for capturing and viewing video from
+devices supported by the Linux UVC driver.
+
+.SH USAGE
 .TP
-.IP -v [--version] 
-print guvcview version.
-.IP -h [--help] 
-print a help message
-.IP --verbose
-verbose mode, prints a lot of debug related info
-.IP "-d [--device] /dev/videoX"	
-use videoX device (default /dev/video0)
-.IP -g		
-use read method for grab instead mmap (not implemented yet)
-.IP "-w {enable, disable}"
-enable or disable SDL hardware accel.
-.IP "-f [--format] {jpg, yuv}"
-video format: jpg -MJPG, yuv -YUYV
-.IP "-s [--size] widthxheight"
-use specified input size (ex: 800x600)
-.IP "-i [--image] image_file_name"
-sets the default image name 
-available image formats: jpg png bmp raw
-.IP "-c [--captime] time_in_seconds"
-time between image captures (in sec.) 
-if set enables auto image capture
-.IP "-m [--npics] num_pics"
-max number of image captures (only with image auto capture)
-defaults to 999 if not set
-.IP "-n [--avi] avi_file_name"
-if set, enables avi capture from start to avi_file_name
-.IP "-t [--avitime] capture_time"
-used with capture from start, avi capture time (sec.)
-.IP "-p {enable, disable}
-enable or disable fps counter in title bar
-.IP "-l [--profile] filename"
-loads the given control profile
-.TP
-.SH FILES
-.IR ~/.guvcviewrc "- control file"
+guvcview [options...] 
+
+.SH OPTION
+  -?, --help                    Print help options
+  --help-all                    Print all help options
+  --help-gtk                    Print GTK+ options
+
+Aplication options:
+  -v, --verbose                 Prints a lot of debug information
+  -d, --device=VIDEO_DEVICE     Video Device [default: /dev/video0]
+  -g, --config=FILENAME         Configuration File
+  -w, --hwd_acel=[1 | 0]        Hardware accelaration (enable(1) | disable(0))
+  -f, --format=FORMAT           Video input format(mjpg|jpeg|yuyv|uyvy|yyuv|yu12|gbrg)
+  -s, --size=WIDTHxHEIGHT       Resolution, default: 640x480
+  -i, --image=FILENAME          Image File
+  -c, --cap_time=TIME           Time elapsed between image captures
+  -m, --npics=NUMPIC            Number of images to capture
+  -n, --avi=FILENAME            Video File (capture from start)
+  -t, --avi_time=TIME           Video duration (in seconds)
+  -p, --show_fps=[1 | 0]        Print FPS on video Window (enable(1) | disable(0))
+  -l, --profile=FILENAME        Load profile
+
+
 .SH AUTHOR
-guvcview was written by <Paulo Assis - pj.assis@gmail.com>.
-.PP
 This manual page was written by Paulo Assis <pj.assis@gmail.com>,
-(but may be used by others).
+for the Debian GNU/Linux system (but may be used by others).
