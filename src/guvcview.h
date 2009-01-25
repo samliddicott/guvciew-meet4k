@@ -71,7 +71,7 @@ struct GWIDGET
 	GtkWidget *Resolution;
 	GtkWidget *Devices;
 	GtkWidget *FileDialog;
-}   __attribute__ ((packed));
+};
 
 struct ALL_DATA 
 {
@@ -84,6 +84,6 @@ struct ALL_DATA
 	struct VidState *s;
 	//gchar *EXEC_CALL;
 	GThread *video_thread;
-}   __attribute__ ((packed));
+};
 
 #endif

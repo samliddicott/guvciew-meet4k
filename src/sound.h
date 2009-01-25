@@ -159,7 +159,7 @@ struct paRecordData
 	GMutex *mutex; // audio mutex
 	//pthread_cond_t cond;
 	
-} __attribute__ ((packed));
+};
 
 
 int 

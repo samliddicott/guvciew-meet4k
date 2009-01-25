@@ -80,7 +80,7 @@ typedef struct track_s
 
 	audio_index_entry *audio_index;
 
-} __attribute__ ((packed)) track_t;
+} track_t;
 
 /*
 typedef struct
@@ -189,7 +189,7 @@ struct avi_t
 	ULONG	extradata_size;
 	int closed; /* 0 - AVI is opened(recordind) 1 -AVI is closed (not recording)*/ 
 
-} __attribute__ ((packed));
+};
 
 #define AVI_MODE_WRITE  0
 #define AVI_MODE_READ   1
