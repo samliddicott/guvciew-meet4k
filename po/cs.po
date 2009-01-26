@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: guvcview\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-01-20 13:29+0000\n"
+"POT-Creation-Date: 2009-01-26 14:37+0000\n"
 "PO-Revision-Date: 2009-01-18 08:31+0000\n"
 "Last-Translator: Jakub Žáček <dawon.cz@gmail.com>\n"
 "Language-Team: Czech <cs@li.org>\n"
@@ -17,24 +17,24 @@ msgstr ""
 "X-Launchpad-Export-Date: 2009-01-20 09:28+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
-#: src/guvcview.c:94 src/callbacks.c:1317
+#: src/guvcview.c:94 src/callbacks.c:1331
 msgid "Save File"
 msgstr "Uložit soubor"
 
 #. if auto naming restart counter
 #: src/guvcview.c:148 src/globals.c:76 src/globals.c:79 src/options.c:360
-#: src/options.c:409 src/callbacks.c:875 src/callbacks.c:1072
-#: src/callbacks.c:1089 src/callbacks.c:1121 src/callbacks.c:1225
+#: src/options.c:409 src/callbacks.c:871 src/callbacks.c:1094
+#: src/callbacks.c:1111 src/callbacks.c:1143 src/callbacks.c:1247
 #, c-format
 msgid "File num:%d"
 msgstr "Číslo souboru:%d"
 
-#: src/guvcview.c:286
+#: src/guvcview.c:288
 msgid "GUVCViewer Controls"
 msgstr "Ovládání GUVCViewer"
 
 #. can't open device
-#: src/guvcview.c:317
+#: src/guvcview.c:319
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -44,7 +44,7 @@ msgstr ""
 "\n"
 "Nelze otevřít zařízení"
 
-#: src/guvcview.c:318
+#: src/guvcview.c:320
 msgid ""
 "Please make sure the camera is connected\n"
 "and that the linux-UVC driver is installed."
@@ -52,7 +52,7 @@ msgstr ""
 "Prosím usjistěte se, že kamera je připojena\n"
 "a je nainstalován driver linux-UVC."
 
-#: src/guvcview.c:335 src/guvcview.c:372
+#: src/guvcview.c:337 src/guvcview.c:374
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -62,7 +62,7 @@ msgstr ""
 "\n"
 "Nelze nastavit MJPG nebo YUV proud pro guvcview"
 
-#: src/guvcview.c:336 src/guvcview.c:373
+#: src/guvcview.c:338 src/guvcview.c:375
 msgid ""
 "Make sure you have a UVC compliant camera\n"
 "and that you have the linux UVC driver installed."
@@ -70,7 +70,7 @@ msgstr ""
 "Ujistěte se, zda máte vhodnou UVC kameru,\n"
 "a že máte nantstalovaný lnux UVC driver."
 
-#: src/guvcview.c:346
+#: src/guvcview.c:348
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -80,11 +80,11 @@ msgstr ""
 "\n"
 "Nelze spustit minimální konfguraci"
 
-#: src/guvcview.c:347
+#: src/guvcview.c:349
 msgid "Please reconnect your camera."
 msgstr "Prosím připojte znovu kameru."
 
-#: src/guvcview.c:356
+#: src/guvcview.c:358
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -94,198 +94,208 @@ msgstr ""
 "\n"
 "Nelze alokovat Buffery"
 
-#: src/guvcview.c:357
+#: src/guvcview.c:359
 msgid "Please try restarting your system."
 msgstr "Prosím zkuste restartovat váš systém."
 
-#: src/guvcview.c:404
+#: src/guvcview.c:406
 msgid "Image Controls"
 msgstr "Ovládání obrazů"
 
-#: src/guvcview.c:438
+#: src/guvcview.c:440
 msgid "Control Profiles:"
 msgstr "Ovládací profily:"
 
-#: src/guvcview.c:444
+#: src/guvcview.c:446
 msgid "Capture:"
 msgstr "Zaznamenat:"
 
 #. image auto capture
-#: src/guvcview.c:463
+#: src/guvcview.c:465
 msgid "Stop Auto"
 msgstr "Zastavit automat"
 
-#: src/guvcview.c:467 src/callbacks.c:1142
+#: src/guvcview.c:469 src/callbacks.c:1164
 msgid "Cap. Image"
 msgstr "Zazn. Obraz"
 
 #. avi capture enabled from start
 #. printf("opening avi file: %s\n",videoIn->AVIFName);
-#: src/guvcview.c:472 src/callbacks.c:1250
+#: src/guvcview.c:474 src/callbacks.c:1272
 msgid "Stop AVI"
 msgstr "Zastavit AVI"
 
 #. ***************** Stop AVI ***********************
-#: src/guvcview.c:476 src/callbacks.c:1205
+#: src/guvcview.c:478 src/callbacks.c:1227
 msgid "Cap. AVI"
 msgstr "Zazn. AVI"
 
-#: src/guvcview.c:582
+#: src/guvcview.c:584
 msgid "Video & Files"
 msgstr "Video & Soubory"
 
 #. Devices
-#: src/guvcview.c:606
+#: src/guvcview.c:608
 msgid "Device:"
 msgstr "Zařízení:"
 
-#: src/guvcview.c:692
+#: src/guvcview.c:693
 msgid "Frame Rate:"
 msgstr ""
 
-#: src/guvcview.c:700
+#: src/guvcview.c:701
 msgid " Show"
 msgstr " Zobrazit"
 
-#: src/guvcview.c:725
+#: src/guvcview.c:726
 msgid "Resolution:"
 msgstr "Rozlišení:"
 
-#: src/guvcview.c:753
+#: src/guvcview.c:754
 msgid "Camera Output:"
 msgstr "Výstup kamery:"
 
-#: src/guvcview.c:763
+#: src/guvcview.c:764
 msgid "Image File:"
 msgstr "Soubor obrazu:"
 
-#: src/guvcview.c:799 src/guvcview.c:890
+#: src/guvcview.c:800 src/guvcview.c:891
 msgid "File,Auto"
 msgstr "Soubor, Auto"
 
-#: src/guvcview.c:811
+#: src/guvcview.c:812
 msgid "Image Format:"
 msgstr "Formát obrazu:"
 
-#: src/guvcview.c:841
+#: src/guvcview.c:842
 msgid "AVI File:"
 msgstr "Soubor AVI:"
 
-#: src/guvcview.c:905
+#: src/guvcview.c:906
 msgid "MJPG - compressed"
 msgstr "MJPG - komprimovaný"
 
-#: src/guvcview.c:908
+#: src/guvcview.c:909
 msgid "UYVY - uncomp YUV"
 msgstr "UYVY - uncomp YUV"
 
-#: src/guvcview.c:910
+#: src/guvcview.c:911
 msgid "YUY2 - uncomp YUV"
 msgstr "YUY2 - uncomp YUV"
 
-#: src/guvcview.c:912
+#: src/guvcview.c:913
 msgid "RGB - uncomp BMP"
 msgstr "RGB - uncomp BMP"
 
-#: src/guvcview.c:924
+#: src/guvcview.c:925
 msgid "AVI Format:"
 msgstr "Formát AVI:"
 
-#: src/guvcview.c:934
+#: src/guvcview.c:935
 msgid "---- Video Filters ----"
 msgstr "---- Filtry videa ----"
 
 #. Mirror
-#: src/guvcview.c:950
+#: src/guvcview.c:951
 msgid " Mirror"
 msgstr " Zrcadlo"
 
 #. Upturn
-#: src/guvcview.c:959
+#: src/guvcview.c:960
 msgid " Invert"
 msgstr " Invertovat"
 
 #. Negate
-#: src/guvcview.c:968
+#: src/guvcview.c:969
 msgid " Negative"
 msgstr " Negativ"
 
 #. Mono
-#: src/guvcview.c:977
+#: src/guvcview.c:978
 msgid " Mono"
 msgstr " Mono"
 
-#: src/guvcview.c:1006
+#. Pieces
+#: src/guvcview.c:988
+msgid " Pieces"
+msgstr ""
+
+#: src/guvcview.c:1017
 msgid "Audio"
 msgstr ""
 
-#: src/guvcview.c:1126
+#: src/guvcview.c:1137
 msgid " Sound"
 msgstr " Zvuk"
 
-#: src/guvcview.c:1150
+#: src/guvcview.c:1161
 msgid "Input Device:"
 msgstr "Vstupní zařízení:"
 
-#: src/guvcview.c:1161 src/guvcview.c:1194
+#: src/guvcview.c:1172 src/guvcview.c:1205
 msgid "Dev. Default"
 msgstr "Výchozí zařízení"
 
-#: src/guvcview.c:1183
+#: src/guvcview.c:1194
 msgid "Sample Rate:"
 msgstr ""
 
-#: src/guvcview.c:1195
+#: src/guvcview.c:1206
 msgid "1 - mono"
 msgstr "1 - mono"
 
-#: src/guvcview.c:1196
+#: src/guvcview.c:1207
 msgid "2 - stereo"
 msgstr "2 - stereo"
 
-#: src/guvcview.c:1227
+#: src/guvcview.c:1238
 msgid "Channels:"
 msgstr "Kanály:"
 
-#: src/guvcview.c:1239
+#: src/guvcview.c:1250
 msgid "PCM"
 msgstr "PCM"
 
-#: src/guvcview.c:1240
+#: src/guvcview.c:1251
 msgid "MP2"
 msgstr "MP2"
 
-#: src/guvcview.c:1267
+#: src/guvcview.c:1278
 msgid "Audio Format:"
 msgstr "Formát zvuku:"
 
-#: src/guvcview.c:1277
+#: src/guvcview.c:1288
 #, fuzzy
 msgid "---- Audio Effects ----"
 msgstr "---- Filtry videa ----"
 
 #. Echo
-#: src/guvcview.c:1297
+#: src/guvcview.c:1308
 #, fuzzy
 msgid " Echo"
 msgstr " Zobrazit"
 
 #. FUZZ
-#: src/guvcview.c:1307
+#: src/guvcview.c:1318
 msgid " Fuzz"
 msgstr ""
 
 #. Reverb
-#: src/guvcview.c:1317
+#: src/guvcview.c:1328
 msgid " Reverb"
 msgstr ""
 
 #. WahWah
-#: src/guvcview.c:1327
+#: src/guvcview.c:1338
 msgid " WahWah"
 msgstr ""
 
-#: src/guvcview.c:1365
+#. Ducky
+#: src/guvcview.c:1348
+msgid " Ducky"
+msgstr ""
+
+#: src/guvcview.c:1386
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -295,7 +305,7 @@ msgstr ""
 "\n"
 "Nelze založit vlákno videa"
 
-#: src/guvcview.c:1366
+#: src/guvcview.c:1387
 msgid "Please report it to http://developer.berlios.de/bugs/?group_id=8179"
 msgstr "Prosím nahlašte to na http://developer.berlios.de/bugs/?group_id=8179"
 
@@ -530,23 +540,23 @@ msgstr "nastavit Ostření"
 msgid "raw pixel order:"
 msgstr ""
 
-#: src/callbacks.c:634
+#: src/callbacks.c:630
 msgid "start new"
 msgstr "spustit nový"
 
-#: src/callbacks.c:637
+#: src/callbacks.c:633
 msgid "restart"
 msgstr "restart"
 
-#: src/callbacks.c:639
+#: src/callbacks.c:635
 msgid "new"
 msgstr "nový"
 
-#: src/callbacks.c:641
+#: src/callbacks.c:637
 msgid "cancel"
 msgstr "zrušit"
 
-#: src/callbacks.c:645
+#: src/callbacks.c:641
 msgid ""
 "launch new process or restart?.\n"
 "\n"
@@ -554,19 +564,19 @@ msgstr ""
 "Spustit nový proces nebo restartovat?.\n"
 "\n"
 
-#: src/callbacks.c:704 src/callbacks.c:780
+#: src/callbacks.c:700 src/callbacks.c:776
 msgid "Program Restart"
 msgstr "Restart programu"
 
-#: src/callbacks.c:707 src/callbacks.c:783
+#: src/callbacks.c:703 src/callbacks.c:779
 msgid "now"
 msgstr "nyní"
 
-#: src/callbacks.c:709 src/callbacks.c:785
+#: src/callbacks.c:705 src/callbacks.c:781
 msgid "Later"
 msgstr "Později"
 
-#: src/callbacks.c:713 src/callbacks.c:789
+#: src/callbacks.c:709 src/callbacks.c:785
 msgid ""
 "Changes will only take effect after guvcview restart.\n"
 "\n"
@@ -578,6 +588,6 @@ msgstr ""
 "\n"
 "Restartovat nyní?\n"
 
-#: src/callbacks.c:1353
+#: src/callbacks.c:1367
 msgid "Load File"
 msgstr "Nahrát soubor"
