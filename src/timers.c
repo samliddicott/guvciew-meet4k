@@ -30,7 +30,7 @@ timer_callback(gpointer data)
 	struct GWIDGET *gwidget = all_data->gwidget;
 	
 	/*stop avi capture*/
-	capture_avi(GTK_BUTTON(gwidget->CapAVIButt), all_data);
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(gwidget->CapAVIButt), FALSE);
 	global->Capture_time=0; 
 	return (FALSE);/*destroys the timer*/
 }

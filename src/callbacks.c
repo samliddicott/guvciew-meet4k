@@ -120,6 +120,7 @@ set_sensitive_avi_contrls (const int flag, const int sndEnable, struct GWIDGET *
 	{
 		set_sensitive_snd_contrls(flag, gwidget);
 	}
+	gwidget->avi_widget_state = flag;
 }
 
 /*image controls*/
@@ -1185,7 +1186,7 @@ capture_image (GtkButton *ImageButt, struct ALL_DATA *all_data)
 /*--------------------------- Capture AVI ------------------------------------*/
 /*avi capture button callback*/
 void
-capture_avi (GtkButton *AVIButt, struct ALL_DATA *all_data)
+capture_avi (GtkToggleButton *AVIButt, struct ALL_DATA *all_data)
 {
 	struct GWIDGET *gwidget = all_data->gwidget;
 	struct paRecordData *pdata = all_data->pdata;
@@ -1222,9 +1223,10 @@ capture_avi (GtkButton *AVIButt, struct ALL_DATA *all_data)
 			compression="MJPG";
 	}
 	
-	if(videoIn->capAVI) 
+	gboolean state = gtk_toggle_button_get_active (AVIButt);
+	//if(global->debug) g_printf("Cap AVI toggled: %d\n", state);
+	if(videoIn->capAVI && !(state)) 
 	{	/****************** Stop AVI ************************/
-		gtk_button_set_label(AVIButt,_("Cap. AVI"));
 		videoIn->capAVI = FALSE; /*flag video thread to stop recording frames*/
 		pdata->capAVI = videoIn->capAVI;
 		/*wait for flag from video thread that recording has stopped    */
@@ -1240,8 +1242,12 @@ capture_avi (GtkButton *AVIButt, struct ALL_DATA *all_data)
 		aviClose(all_data);
 		/*enabling sound and avi compression controls*/
 		set_sensitive_avi_contrls(TRUE, global->Sound_enable, gwidget);
+		gtk_button_set_label(GTK_BUTTON(gwidget->CapAVIButt),_("Cap. AVI"));
+		gtk_widget_queue_draw (gwidget->CapAVIButt);
+		while (gtk_events_pending ()) gtk_main_iteration (); 
+		
 	} 
-	else 
+	else if(!(videoIn->capAVI) && state)
 	{	/******************** Start AVI *********************/
 		global->aviFPath=splitPath((char *)fileEntr, global->aviFPath);
 		g_snprintf(global->aviinc_str,24,_("File num:%d"),global->avi_inc);
@@ -1268,15 +1274,15 @@ capture_avi (GtkButton *AVIButt, struct ALL_DATA *all_data)
 		} 
 		else 
 		{
-			//printf("opening avi file: %s\n",videoIn->AVIFName);
-			gtk_button_set_label(AVIButt,_("Stop AVI"));
-	
-			/*4CC compression "YUY2"/"UYVY" (YUV) or "DIB " (RGB24)  or  "MJPG"*/
-			AVI_set_video(AviOut, videoIn->width, videoIn->height, 
-				videoIn->fps,compression);
-
 			/*disabling sound and avi compression controls*/
 			set_sensitive_avi_contrls(FALSE, global->Sound_enable, gwidget);
+			
+			//printf("opening avi file: %s\n",videoIn->AVIFName);
+	
+			/*refresh icon*/
+			//gtk_button_set_image(GTK_BUTTON(gwidget->CapAVIButt), gwidget->AVIButton_Img);
+			AVI_set_video(AviOut, videoIn->width, videoIn->height, 
+				videoIn->fps,compression);
 	  
 			/* start video capture*/
 			global->AVIstarttime = ms_time();
@@ -1310,6 +1316,9 @@ capture_avi (GtkButton *AVIButt, struct ALL_DATA *all_data)
 				}
 			}
 		}
+		gtk_button_set_label(GTK_BUTTON(gwidget->CapAVIButt),_("Stop AVI"));
+		gtk_widget_queue_draw (gwidget->CapAVIButt);
+		while (gtk_events_pending ()) gtk_main_iteration (); 
 	}
 	
 	gwidget = NULL;
@@ -1396,7 +1405,7 @@ split_avi(void *data)
 {
 	struct ALL_DATA *all_data = (struct ALL_DATA *) data;
 	struct GLOBAL *global = all_data->global;
-	struct vdIn *videoIn = all_data->videoIn;
+	//struct vdIn *videoIn = all_data->videoIn;
 	struct GWIDGET *gwidget = all_data->gwidget;
 	
 	/*make sure avi is in incremental mode*/
@@ -1407,12 +1416,19 @@ split_avi(void *data)
 	}
 	
 	/*stops avi capture*/
-	gtk_button_clicked(GTK_BUTTON(gwidget->CapAVIButt));
-	/*wait for 30 cycles of 100 ms for videoIn->capAVI == FALSE*/
-	int n = wait_ms(&(videoIn->capAVI), FALSE, 100, 30);
-	if(global->debug) g_printf("AVI: sleeped for ~ %d miliseconds before new capture\n",(30-n)*100);
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(gwidget->CapAVIButt), FALSE);
+	/*sleep at least 200 ms*/
+	g_usleep( 200000);
+	/*wait for 300 cycles of 10 ms for avi capture button to activate*/
+	int n = wait_ms(&(gwidget->avi_widget_state), TRUE, 10, 300);
+	if(global->debug) g_printf("AVI: sleeped for ~ %d miliseconds before new capture\n", (300 - n) * 10 + 200);
 	/*restarts avi capture with new file name*/
-	gtk_button_clicked(GTK_BUTTON(gwidget->CapAVIButt));
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(gwidget->CapAVIButt), TRUE);
+	/*sleep at least 80 ms*/
+	g_usleep( 200000);
+	
+	/*thread as finished*/
+	global->ButtPressThread = FALSE;
 	global=NULL;
 	gwidget = NULL;
 	return NULL;

@@ -64,6 +64,7 @@ struct GWIDGET
 	GtkWidget *ImageInc;
 	GtkWidget *ImageIncLabel;
 	GtkWidget *CapAVIButt;
+	GtkWidget *AVIButton_Img;
 	//GtkWidget *QCapAVIButt;
 	GtkWidget *AVIFNameEntry;
 	GtkWidget *AVIIncLabel;
@@ -71,6 +72,8 @@ struct GWIDGET
 	GtkWidget *Resolution;
 	GtkWidget *Devices;
 	GtkWidget *FileDialog;
+
+	gboolean avi_widget_state;
 };
 
 struct ALL_DATA 

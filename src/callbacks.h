@@ -209,7 +209,7 @@ void
 capture_image (GtkButton *ImageButt, struct ALL_DATA *all_data);
 
 void
-capture_avi (GtkButton *AVIButt, struct ALL_DATA *all_data);
+capture_avi (GtkToggleButton *AVIButt, struct ALL_DATA *all_data);
 
 void
 SProfileButton_clicked (GtkButton * SProfileButton, struct ALL_DATA *all_data);

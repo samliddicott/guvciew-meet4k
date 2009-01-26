@@ -138,6 +138,7 @@ int initGlobals (struct GLOBAL *global)
 	global->jpeg_bufsize = 0;
 	global->autofocus = 0;
 	global->AFcontrol = 0;
+	global->ButtPressThread = FALSE;
 	
 	return (0);
 }

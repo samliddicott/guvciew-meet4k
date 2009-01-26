@@ -197,6 +197,7 @@ int main(int argc, char *argv[])
 	/*---------------------------------- Allocations -------------------------*/
 	
 	gwidget = g_new0(struct GWIDGET, 1);
+	gwidget->avi_widget_state = TRUE;
 
 	/* widgets */
 	GtkWidget *scroll1;
@@ -239,7 +240,7 @@ int main(int argc, char *argv[])
 	GtkWidget *Tab3Icon;
 	GtkWidget *label_ImgFile;
 	GtkWidget *label_AVIFile;
-	GtkWidget *AVIButton_Img;
+	//GtkWidget *AVIButton_Img;
 	GtkWidget *ImgButton_Img;
 	GtkWidget *SButton_Img;
 	GtkWidget *LButton_Img;
@@ -475,7 +476,7 @@ int main(int argc, char *argv[])
 	} 
 	else 
 	{
-		gwidget->CapAVIButt=gtk_button_new_with_label (_("Cap. AVI"));
+		gwidget->CapAVIButt=gtk_toggle_button_new_with_label (_("Cap. AVI"));
 	}
 
 	/*add images to Buttons and top window*/
@@ -489,10 +490,10 @@ int main(int argc, char *argv[])
 	gchar* pix1path = g_strconcat (PACKAGE_DATA_DIR,"/pixmaps/guvcview/movie.png",NULL);
 	if (g_file_test(pix1path,G_FILE_TEST_EXISTS)) 
 	{
-		AVIButton_Img = gtk_image_new_from_file (pix1path);
+		gwidget->AVIButton_Img = gtk_image_new_from_file (pix1path);
 		//gtk_image_set_pixel_size (GTK_IMAGE(AVIButton_Img), 64);
 		
-		gtk_button_set_image(GTK_BUTTON(gwidget->CapAVIButt),AVIButton_Img);
+		gtk_button_set_image(GTK_BUTTON(gwidget->CapAVIButt),gwidget->AVIButton_Img);
 		gtk_button_set_image_position(GTK_BUTTON(gwidget->CapAVIButt),GTK_POS_TOP);
 	}
 	gchar* pix2path = g_strconcat (PACKAGE_DATA_DIR,"/pixmaps/guvcview/camera.png",NULL);
@@ -546,6 +547,8 @@ int main(int argc, char *argv[])
 	gtk_box_pack_start(GTK_BOX(HButtonBox),LProfileButton,TRUE,TRUE,2);
 	gtk_box_pack_start(GTK_BOX(HButtonBox),quitButton,TRUE,TRUE,2);
 
+	gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (gwidget->CapAVIButt), FALSE);
+
 	gtk_widget_show (gwidget->CapImageButt);
 	gtk_widget_show (gwidget->CapAVIButt);
 	gtk_widget_show (LProfileButton);
@@ -554,7 +557,7 @@ int main(int argc, char *argv[])
 
 	g_signal_connect (GTK_BUTTON(gwidget->CapImageButt), "clicked",
 		G_CALLBACK (capture_image), &all_data);
-	g_signal_connect (GTK_BUTTON(gwidget->CapAVIButt), "clicked",
+	g_signal_connect (GTK_TOGGLE_BUTTON(gwidget->CapAVIButt), "toggled",
 		G_CALLBACK (capture_avi), &all_data);
 
 	g_signal_connect (GTK_BUTTON(quitButton), "clicked",
