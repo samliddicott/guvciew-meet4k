@@ -166,6 +166,7 @@ int main(int argc, char *argv[])
 	if( !g_thread_supported() )
 	{
 		g_thread_init(NULL);
+		gdk_threads_init ();
 		//printf("g_thread supported\n");
 	}
 	else
@@ -472,11 +473,14 @@ int main(int argc, char *argv[])
 
 	if (global->avifile) 
 	{	/*avi capture enabled from start*/
-		gwidget->CapAVIButt=gtk_button_new_with_label (_("Stop AVI"));
+		gwidget->CapAVIButt=gtk_toggle_button_new_with_label (_("Stop AVI"));
+		
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gwidget->CapAVIButt), TRUE);
 	} 
 	else 
 	{
 		gwidget->CapAVIButt=gtk_toggle_button_new_with_label (_("Cap. AVI"));
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gwidget->CapAVIButt), FALSE);
 	}
 
 	/*add images to Buttons and top window*/
@@ -764,7 +768,7 @@ int main(int argc, char *argv[])
 	
 	/* Image Capture*/
 	line++;
-    	label_ImgFile= gtk_label_new(_("Image File:"));
+	label_ImgFile= gtk_label_new(_("Image File:"));
 	gtk_misc_set_alignment (GTK_MISC (label_ImgFile), 1, 0.5);
     
 	gwidget->ImageFNameEntry = gtk_entry_new();
@@ -824,7 +828,7 @@ int main(int argc, char *argv[])
 	gtk_combo_box_append_text(GTK_COMBO_BOX(gwidget->ImageType),"JPG");
 	gtk_combo_box_append_text(GTK_COMBO_BOX(gwidget->ImageType),"BMP");
 	gtk_combo_box_append_text(GTK_COMBO_BOX(gwidget->ImageType),"PNG");
-   	gtk_combo_box_append_text(GTK_COMBO_BOX(gwidget->ImageType),"RAW");
+	gtk_combo_box_append_text(GTK_COMBO_BOX(gwidget->ImageType),"RAW");
 	gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->ImageType),global->imgFormat);
 	gtk_table_attach(GTK_TABLE(table2), gwidget->ImageType, 1, 2, line, line+1,
 		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
@@ -843,7 +847,7 @@ int main(int argc, char *argv[])
 	/*AVI Capture*/
 	line++;
 	label_AVIFile= gtk_label_new(_("AVI File:"));
-    	gtk_misc_set_alignment (GTK_MISC (label_AVIFile), 1, 0.5);
+	gtk_misc_set_alignment (GTK_MISC (label_AVIFile), 1, 0.5);
 	gwidget->AVIFNameEntry = gtk_entry_new();
 	
 	gtk_table_attach(GTK_TABLE(table2), label_AVIFile, 0, 1, line, line+1,
@@ -864,7 +868,7 @@ int main(int argc, char *argv[])
 		GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	
 	gtk_widget_show (gwidget->AviFileButt);
-    	gtk_widget_show (label_AVIFile);
+	gtk_widget_show (label_AVIFile);
 	gtk_widget_show (gwidget->AVIFNameEntry);
 	
 	g_signal_connect (GTK_BUTTON(gwidget->AviFileButt), "clicked",

@@ -20,6 +20,8 @@
 ********************************************************************************/
 
 #include "timers.h"
+#include <glib.h>
+#include <glib/gprintf.h>
 
 /* called by capture from start timer [-t seconds] command line option*/
 gboolean
@@ -30,6 +32,7 @@ timer_callback(gpointer data)
 	struct GWIDGET *gwidget = all_data->gwidget;
 	
 	/*stop avi capture*/
+	if(global->debug) g_printf("setting avi toggle to FALSE\n");
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(gwidget->CapAVIButt), FALSE);
 	global->Capture_time=0; 
 	return (FALSE);/*destroys the timer*/
