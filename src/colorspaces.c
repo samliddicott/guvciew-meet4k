@@ -20,9 +20,11 @@
 ********************************************************************************/
 
 #include "colorspaces.h"
+#include "v4l2uvc.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <glib.h>
 
 /*------------------------------- Color space conversions --------------------*/
 /* regular yuv (YUYV) to rgb24*/
@@ -664,5 +666,79 @@ uyvy_monochrome(BYTE* frame, int width, int height)
 		frame[i]=0x80;/*U - median (half the max value)=128*/
 		frame[i+2]=0x80;/*V - median (half the max value)=128*/        
 	}
+}
+
+/*break image in little square pieces*/
+/*piece_size: multiple of 2 (we need at least 2 pixels to get the entire pixel information)*/
+void
+pieces(BYTE* frame, int width, int height, int piece_size, int format)
+{
+	int numx = width / piece_size;
+	int numy = height / piece_size;
+	BYTE *piece = g_new0 (BYTE, (piece_size * piece_size * 2));
+	int i = 0, j = 0, row = 0, line = 0, column = 0, linep = 0, px = 0, py = 0;
+	GRand* rand_= g_rand_new_with_seed(2);
+	int rot = 0;
+
+	for(j = 0; j < numy; j++)
+	{
+		row = j * piece_size;
+		for(i = 0; i < numx; i++)
+		{
+			column = i * piece_size * 2;
+			//get piece
+			for(py = 0; py < piece_size; py++)
+			{
+				linep = py * piece_size * 2;
+				line = (py + row) * width * 2;
+				for(px=0 ; px < piece_size * 2; px++)
+				{
+					piece[px + linep] = frame[(px + column) + line];
+				}
+			}
+			/*rotate piece and copy it to frame*/
+			//rotation is random
+			rot = g_rand_int_range(rand_, 0, 8);
+			switch(rot)
+			{
+				case 0: // do nothing
+					break;
+				case 5:
+				case 1: //mirror
+					if (format == V4L2_PIX_FMT_UYVY)
+						uyvy_mirror(piece, piece_size, piece_size);
+					else
+						yuyv_mirror(piece, piece_size, piece_size);
+					break;
+				case 6:
+				case 2: //upturn
+					yuyv_upturn(piece, piece_size, piece_size);
+					break;
+				case 4:
+				case 3://mirror upturn
+					yuyv_upturn(piece, piece_size, piece_size);
+					if (format == V4L2_PIX_FMT_UYVY)
+						uyvy_mirror(piece, piece_size, piece_size);
+					else
+						yuyv_mirror(piece, piece_size, piece_size);
+					break;
+				default: //do nothing
+					break;
+			}
+			//write piece
+			for(py = 0; py < piece_size; py++)
+			{
+				linep = py * piece_size * 2;
+				line = (py + row) * width * 2;
+				for(px=0 ; px < piece_size * 2; px++)
+				{
+					frame[(px + column) + line] = piece[px + linep];
+				}
+			}
+		}
+	}
+	
+	g_free(piece);
+	g_rand_free(rand_);
 }
 

@@ -249,6 +249,7 @@ int main(int argc, char *argv[])
 	GtkWidget *FiltUpturnEnable;
 	GtkWidget *FiltNegateEnable;
 	GtkWidget *FiltMonoEnable;
+	GtkWidget *FiltPiecesEnable;
 	GtkWidget *EffEchoEnable;
 	GtkWidget *EffFuzzEnable;
 	GtkWidget* EffRevEnable;
@@ -480,7 +481,7 @@ int main(int argc, char *argv[])
 	/*add images to Buttons and top window*/
 	/*check for files*/
 	gchar* icon1path = g_strconcat (PACKAGE_DATA_DIR,"/pixmaps/guvcview/guvcview.png",NULL);
-	if (g_file_test(icon1path,G_FILE_TEST_EXISTS)) 
+	if (g_file_test(icon1path,G_FILE_TEST_EXISTS))
 	{
 		gtk_window_set_icon_from_file(GTK_WINDOW (gwidget->mainwin),icon1path,NULL);
 	}
@@ -685,7 +686,6 @@ int main(int argc, char *argv[])
 		videoIn->fps=global->fps;
 		videoIn->fps_num=global->fps_num;
 	}
-	
 	gtk_widget_set_sensitive (FrameRate, TRUE);
 	g_signal_connect (GTK_COMBO_BOX(FrameRate), "changed",
 		G_CALLBACK (FrameRate_changed), &all_data);
@@ -983,6 +983,16 @@ int main(int argc, char *argv[])
 	gtk_widget_show (FiltMonoEnable);
 	g_signal_connect (GTK_CHECK_BUTTON(FiltMonoEnable), "toggled",
 		G_CALLBACK (FiltMonoEnable_changed), &all_data);
+    
+	/*Pieces*/
+	FiltPiecesEnable=gtk_check_button_new_with_label (_(" Pieces"));
+	gtk_table_attach(GTK_TABLE(table_filt), FiltPiecesEnable, 0, 1, 1, 2,
+		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(FiltPiecesEnable),(global->Frame_Flags & YUV_PIECES)>0);
+	gtk_widget_show (FiltPiecesEnable);
+	g_signal_connect (GTK_CHECK_BUTTON(FiltPiecesEnable), "toggled",
+		G_CALLBACK (FiltPiecesEnable_changed), &all_data);
 	
 	gtk_table_attach (GTK_TABLE(table2), table_filt, 0, 3, line, line+1,
 		GTK_FILL, 0, 0, 0);

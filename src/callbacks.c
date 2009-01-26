@@ -980,6 +980,19 @@ FiltUpturnEnable_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data)
 	global = NULL;
 }
 
+/* Pieces check box callback */
+void
+FiltPiecesEnable_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data)
+{
+	struct GLOBAL *global = all_data->global;
+	g_mutex_lock(global->mutex);
+		global->Frame_Flags = gtk_toggle_button_get_active (toggle) ? 
+			(global->Frame_Flags | YUV_PIECES) : 
+			(global->Frame_Flags & ~YUV_PIECES);
+	g_mutex_unlock(global->mutex);
+	global = NULL;
+}
+
 /* Negate check box callback */
 void
 FiltNegateEnable_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data)

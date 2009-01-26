@@ -182,6 +182,9 @@ void
 FiltMonoEnable_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data);
 
 void
+FiltPiecesEnable_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data);
+
+void
 EffEchoEnable_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data);
 
 void

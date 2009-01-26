@@ -78,5 +78,9 @@ yuyv_monochrome(BYTE* frame, int width, int height);
 void 
 uyvy_monochrome(BYTE* frame, int width, int height);
 
+/*pieces effect*/
+void
+pieces(BYTE* frame, int width, int height, int piece_size, int format);
+
 #endif
 

@@ -97,6 +97,7 @@ static const int stdSampleRates[] =
 #define YUV_UPTURN (1<<1)
 #define YUV_NEGATE (1<<2)
 #define YUV_MONOCR (1<<3)
+#define YUV_PIECES (1<<4)
 
 /*Audio Effects*/
 #define SND_NOEF   (0)

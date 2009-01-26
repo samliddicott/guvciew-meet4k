@@ -308,6 +308,10 @@ void *main_loop(void *data)
 						break;
 				}
 			}
+		   
+			if((global->Frame_Flags & YUV_PIECES)==YUV_PIECES)
+				pieces (videoIn->framebuffer, videoIn->width, videoIn->height, 16, global->format);
+			
 		}
 		g_mutex_unlock(global->mutex);
 		/*-------------------------capture Image----------------------------------*/
@@ -714,3 +718,6 @@ void *main_loop(void *data)
 	AviOut = NULL;
 	return ((void *) 0);
 }
+
+
+
