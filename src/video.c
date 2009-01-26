@@ -58,7 +58,7 @@ void *main_loop(void *data)
 	struct vdIn *videoIn = all_data->videoIn;
 	struct avi_t *AviOut = all_data->AviOut;
 
-	GThread *press_butt_thread;
+	//GThread *press_butt_thread;
 	
 	SDL_Event event;
 	/*the main SDL surface*/
@@ -480,20 +480,21 @@ void *main_loop(void *data)
 			{
 				if (AVI_getErrno () == AVI_ERR_SIZELIM) 
 				{
-					GError *err1 = NULL;
+					//GError *err1 = NULL;
 					
 					/*avi file limit reached - must end capture close file and start new one*/
-					if( (press_butt_thread =g_thread_create((GThreadFunc) split_avi, 
-						all_data, //data
-						FALSE,    //joinable - no need waiting for thread to finish
-						&err1)    //error
-					) == NULL)  
-					{
-						g_printerr("Thread create failed: %s!!\n", err1->message );
-						g_error_free ( err1 ) ;
-						printf("using blocking method\n");
-						split_avi(all_data); /*blocking call*/
-					}
+					//if( (press_butt_thread =g_thread_create((GThreadFunc) split_avi, 
+					//	all_data, //data
+					//	FALSE,    //joinable - no need waiting for thread to finish
+					//	&err1)    //error
+					//) == NULL)  
+					//{
+					//	g_printerr("Thread create failed: %s!!\n", err1->message );
+					//	g_error_free ( err1 ) ;
+					//	printf("using blocking method\n");
+					//	split_avi(all_data); /*blocking call*/
+					//}
+					split_avi(all_data);/*blocking call*/
 					g_printf("AVI file size limit reached - restarted capture on new file\n");
 				} 
 				else 
@@ -608,25 +609,27 @@ void *main_loop(void *data)
 				{	
 					if (AVI_getErrno () == AVI_ERR_SIZELIM) 
 					{
-						GError *err1 = NULL;
+						//GError *err1 = NULL;
 					
 						/*avi file limit reached - must end capture close file and start new one*/
-						if( (press_butt_thread =g_thread_create((GThreadFunc) split_avi, 
-							all_data, //data
-							FALSE,    //joinable - no need waiting for thread to finish
-							&err1)    //error
-						) == NULL)  
-						{
-							g_printerr("Thread create failed: %s!!\n", err1->message );
-							g_error_free ( err1 ) ;
-							split_avi(all_data); /*blocking call*/
-						}
+						//if( (press_butt_thread =g_thread_create((GThreadFunc) split_avi, 
+						//	all_data, //data
+						//	FALSE,    //joinable - no need waiting for thread to finish
+						//	&err1)    //error
+						//) == NULL)  
+						//{
+						//	g_printerr("Thread create failed: %s!!\n", err1->message );
+						//	g_error_free ( err1 ) ;
+						//	split_avi(all_data); /*blocking call*/
+						//}
+						split_avi(all_data); /*blocking call*/
 						g_printf("AVI file size limit reached - restarted capture on new file\n");
 					} 
 					else 
 					{
 						g_printerr ("write error on avi out \n");
 					}
+					
 				}
 			}
 		} /*video and audio capture have stopped */
