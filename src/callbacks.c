@@ -1408,12 +1408,13 @@ split_avi(void *data)
 	
 	/*stops avi capture*/
 	gtk_button_clicked(GTK_BUTTON(gwidget->CapAVIButt));
-	int n=0;
-	while((videoIn->capAVI) && (n < 5)) //loops 5 times at most
+	int n=6;
+	while((videoIn->capAVI) && (n > 0)) //loops 5 times at most
 	{
-		n++;
+		n--;
 		sleep(1); /*sleeps for 1 second*/
 	}
+	if(global->debug) g_printf("AVI: sleeped for ~ %d seconds before new capture\n",6-n);
 	/*restarts avi capture with new file name*/
 	gtk_button_clicked(GTK_BUTTON(gwidget->CapAVIButt));
 	global=NULL;
