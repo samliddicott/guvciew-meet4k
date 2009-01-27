@@ -170,34 +170,10 @@ void
 SndEnable_changed (GtkToggleButton * toggle, struct ALL_DATA *all_data);
 
 void
-FiltMirrorEnable_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data);
+FiltEnable_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data);
 
 void
-FiltUpturnEnable_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data);
-
-void
-FiltNegateEnable_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data);
-
-void
-FiltMonoEnable_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data);
-
-void
-FiltPiecesEnable_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data);
-
-void
-EffEchoEnable_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data);
-
-void
-EffFuzzEnable_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data);
-
-void
-EffRevEnable_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data);
-
-void
-EffWahEnable_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data);
-
-void
-EffDuckyEnable_changed (GtkToggleButton * toggle, struct ALL_DATA *all_data);
+EffEnable_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data);
 
 void 
 ImageInc_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data);

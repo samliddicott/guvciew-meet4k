@@ -955,51 +955,61 @@ int main(int argc, char *argv[])
 	gtk_widget_set_size_request (table_filt, -1, -1);
 	
 	/* Mirror */
+	int MirrorFlag = YUV_MIRROR;
 	FiltMirrorEnable=gtk_check_button_new_with_label (_(" Mirror"));
+	g_object_set_data (G_OBJECT (FiltMirrorEnable), "filt_info", &MirrorFlag);
 	gtk_table_attach(GTK_TABLE(table_filt), FiltMirrorEnable, 0, 1, 0, 1,
 		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(FiltMirrorEnable),(global->Frame_Flags & YUV_MIRROR)>0);
 	gtk_widget_show (FiltMirrorEnable);
 	g_signal_connect (GTK_CHECK_BUTTON(FiltMirrorEnable), "toggled",
-		G_CALLBACK (FiltMirrorEnable_changed), &all_data);
+		G_CALLBACK (FiltEnable_changed), &all_data);
 	/*Upturn*/
+	int UpturnFlag = YUV_UPTURN;
 	FiltUpturnEnable=gtk_check_button_new_with_label (_(" Invert"));
+	g_object_set_data (G_OBJECT (FiltUpturnEnable), "filt_info", &UpturnFlag);
 	gtk_table_attach(GTK_TABLE(table_filt), FiltUpturnEnable, 1, 2, 0, 1,
 		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(FiltUpturnEnable),(global->Frame_Flags & YUV_UPTURN)>0);
 	gtk_widget_show (FiltUpturnEnable);
 	g_signal_connect (GTK_CHECK_BUTTON(FiltUpturnEnable), "toggled",
-		G_CALLBACK (FiltUpturnEnable_changed), &all_data);
+		G_CALLBACK (FiltEnable_changed), &all_data);
 	/*Negate*/
+	int NegateFlag = YUV_NEGATE;
 	FiltNegateEnable=gtk_check_button_new_with_label (_(" Negative"));
+	g_object_set_data (G_OBJECT (FiltNegateEnable), "filt_info", &NegateFlag);
 	gtk_table_attach(GTK_TABLE(table_filt), FiltNegateEnable, 2, 3, 0, 1,
 		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(FiltNegateEnable),(global->Frame_Flags & YUV_NEGATE)>0);
 	gtk_widget_show (FiltNegateEnable);
 	g_signal_connect (GTK_CHECK_BUTTON(FiltNegateEnable), "toggled",
-		G_CALLBACK (FiltNegateEnable_changed), &all_data);
+		G_CALLBACK (FiltEnable_changed), &all_data);
 	/*Mono*/
+	int MonoFlag = YUV_MONOCR;
 	FiltMonoEnable=gtk_check_button_new_with_label (_(" Mono"));
+	g_object_set_data (G_OBJECT (FiltMonoEnable), "filt_info", &MonoFlag);
 	gtk_table_attach(GTK_TABLE(table_filt), FiltMonoEnable, 3, 4, 0, 1,
 		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(FiltMonoEnable),(global->Frame_Flags & YUV_MONOCR)>0);
 	gtk_widget_show (FiltMonoEnable);
 	g_signal_connect (GTK_CHECK_BUTTON(FiltMonoEnable), "toggled",
-		G_CALLBACK (FiltMonoEnable_changed), &all_data);
+		G_CALLBACK (FiltEnable_changed), &all_data);
     
 	/*Pieces*/
+	int PiecesFlag = YUV_PIECES;
 	FiltPiecesEnable=gtk_check_button_new_with_label (_(" Pieces"));
+	g_object_set_data (G_OBJECT (FiltPiecesEnable), "filt_info", &PiecesFlag);
 	gtk_table_attach(GTK_TABLE(table_filt), FiltPiecesEnable, 0, 1, 1, 2,
 		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(FiltPiecesEnable),(global->Frame_Flags & YUV_PIECES)>0);
 	gtk_widget_show (FiltPiecesEnable);
 	g_signal_connect (GTK_CHECK_BUTTON(FiltPiecesEnable), "toggled",
-		G_CALLBACK (FiltPiecesEnable_changed), &all_data);
+		G_CALLBACK (FiltEnable_changed), &all_data);
 	
 	gtk_table_attach (GTK_TABLE(table2), table_filt, 0, 3, line, line+1,
 		GTK_FILL, 0, 0, 0);
@@ -1312,54 +1322,64 @@ int main(int argc, char *argv[])
 	gtk_widget_show (table_snd_eff);
 	
 	/* Echo */
+	int EchoEffect = SND_ECHO;
 	EffEchoEnable=gtk_check_button_new_with_label (_(" Echo"));
+	g_object_set_data (G_OBJECT (EffEchoEnable), "effect_info", &EchoEffect);
 	gtk_table_attach(GTK_TABLE(table_snd_eff), EffEchoEnable, 0, 1, 0, 1,
 		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(EffEchoEnable),(pdata->snd_Flags & SND_ECHO)>0);
 	gtk_widget_show (EffEchoEnable);
 	g_signal_connect (GTK_CHECK_BUTTON(EffEchoEnable), "toggled",
-		G_CALLBACK (EffEchoEnable_changed), &all_data);
+		G_CALLBACK (EffEnable_changed), &all_data);
 
 	/* FUZZ */
+	int FuzzEffect = SND_FUZZ;
 	EffFuzzEnable=gtk_check_button_new_with_label (_(" Fuzz"));
+	g_object_set_data (G_OBJECT (EffFuzzEnable), "effect_info", &FuzzEffect);
 	gtk_table_attach(GTK_TABLE(table_snd_eff), EffFuzzEnable, 1, 2, 0, 1,
 		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(EffFuzzEnable),(pdata->snd_Flags & SND_FUZZ)>0);
 	gtk_widget_show (EffFuzzEnable);
 	g_signal_connect (GTK_CHECK_BUTTON(EffFuzzEnable), "toggled",
-		G_CALLBACK (EffFuzzEnable_changed), &all_data);
+		G_CALLBACK (EffEnable_changed), &all_data);
 	
 	/* Reverb */
+	int ReverbEffect = SND_REVERB;
 	EffRevEnable=gtk_check_button_new_with_label (_(" Reverb"));
+	g_object_set_data (G_OBJECT (EffRevEnable), "effect_info", &ReverbEffect);
 	gtk_table_attach(GTK_TABLE(table_snd_eff), EffRevEnable, 2, 3, 0, 1,
 		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(EffRevEnable),(pdata->snd_Flags & SND_REVERB)>0);
 	gtk_widget_show (EffRevEnable);
 	g_signal_connect (GTK_CHECK_BUTTON(EffRevEnable), "toggled",
-		G_CALLBACK (EffRevEnable_changed), &all_data);
+		G_CALLBACK (EffEnable_changed), &all_data);
 	
 	/* WahWah */
+	int WahEffect = SND_WAHWAH;
 	EffWahEnable=gtk_check_button_new_with_label (_(" WahWah"));
+	g_object_set_data (G_OBJECT (EffWahEnable), "effect_info", &WahEffect);
 	gtk_table_attach(GTK_TABLE(table_snd_eff), EffWahEnable, 3, 4, 0, 1,
 		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(EffWahEnable),(pdata->snd_Flags & SND_WAHWAH)>0);
 	gtk_widget_show (EffWahEnable);
 	g_signal_connect (GTK_CHECK_BUTTON(EffWahEnable), "toggled",
-		G_CALLBACK (EffWahEnable_changed), &all_data);
+		G_CALLBACK (EffEnable_changed), &all_data);
 	
 	/* Ducky */
+	int DuckyEffect = SND_DUCKY;
 	EffDuckyEnable=gtk_check_button_new_with_label (_(" Ducky"));
+	g_object_set_data (G_OBJECT (EffDuckyEnable), "effect_info", &DuckyEffect);
 	gtk_table_attach(GTK_TABLE(table_snd_eff), EffDuckyEnable, 0, 1, 1, 2,
 		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(EffDuckyEnable),(pdata->snd_Flags & SND_DUCKY)>0);
 	gtk_widget_show (EffDuckyEnable);
 	g_signal_connect (GTK_CHECK_BUTTON(EffDuckyEnable), "toggled",
-		G_CALLBACK (EffDuckyEnable_changed), &all_data);
+		G_CALLBACK (EffEnable_changed), &all_data);
 	
 	/* main container */
 	gtk_container_add (GTK_CONTAINER (gwidget->mainwin), gwidget->boxv);

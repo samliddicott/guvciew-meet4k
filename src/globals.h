@@ -109,6 +109,7 @@ struct GLOBAL
 	int format;
 	int formind; /*0-MJPG 1-YUYV*/
 	int Frame_Flags;
+	int setFrameFlag;
 	BYTE *jpeg;
 	int   jpeg_size;
 	unsigned int   jpeg_bufsize; /* width*height/2 */

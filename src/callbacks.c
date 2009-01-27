@@ -495,7 +495,7 @@ setfocus_clicked (GtkButton * FocusButton, struct ALL_DATA *all_data)
 	AFdata->right = 255;
 	AFdata->left = 8;
 	AFdata->focus = -1; /*reset focus*/
-	if (set_focus (videoIn, AFdata->focus) != 0) 
+	if (set_focus (videoIn, AFdata->focus) != 0)
 		g_printerr("ERROR: couldn't set focus to %d\n", AFdata->focus);
 
 	AFdata = NULL;
@@ -954,132 +954,31 @@ SndEnable_changed (GtkToggleButton * toggle, struct ALL_DATA *all_data)
 	global = NULL;
 }
 
-/* Mirror check box callback */
+/* Video Filters check box callback */
 void
-FiltMirrorEnable_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data)
+FiltEnable_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data)
 {
 	struct GLOBAL *global = all_data->global;
+	int *filter = g_object_get_data (G_OBJECT (toggle), "filt_info");
 	g_mutex_lock(global->mutex);
 		global->Frame_Flags = gtk_toggle_button_get_active (toggle) ? 
-			(global->Frame_Flags | YUV_MIRROR) : 
-			(global->Frame_Flags & ~YUV_MIRROR);
+			(global->Frame_Flags | *filter) : 
+			(global->Frame_Flags & ~(*filter));
 	g_mutex_unlock(global->mutex);
 	
 	global = NULL;
 }
 
-/* Upturn check box callback */
+/* Audio effect checkbox callback*/
 void
-FiltUpturnEnable_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data)
-{
-	struct GLOBAL *global = all_data->global;
-	g_mutex_lock(global->mutex);
-		global->Frame_Flags = gtk_toggle_button_get_active (toggle) ? 
-			(global->Frame_Flags | YUV_UPTURN) : 
-			(global->Frame_Flags & ~YUV_UPTURN);
-	g_mutex_unlock(global->mutex);
-	global = NULL;
-}
-
-/* Pieces check box callback */
-void
-FiltPiecesEnable_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data)
-{
-	struct GLOBAL *global = all_data->global;
-	g_mutex_lock(global->mutex);
-		global->Frame_Flags = gtk_toggle_button_get_active (toggle) ? 
-			(global->Frame_Flags | YUV_PIECES) : 
-			(global->Frame_Flags & ~YUV_PIECES);
-	g_mutex_unlock(global->mutex);
-	global = NULL;
-}
-
-/* Negate check box callback */
-void
-FiltNegateEnable_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data)
-{
-	struct GLOBAL *global = all_data->global;
-	g_mutex_lock(global->mutex);
-		global->Frame_Flags = gtk_toggle_button_get_active (toggle) ? 
-			(global->Frame_Flags | YUV_NEGATE) : 
-			(global->Frame_Flags & ~YUV_NEGATE);
-	g_mutex_unlock(global->mutex);
-	global = NULL;
-}
-
-/* Upturn check box callback */
-void
-FiltMonoEnable_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data)
-{
-	struct GLOBAL *global = all_data->global;
-	g_mutex_lock(global->mutex);
-		global->Frame_Flags = gtk_toggle_button_get_active (toggle) ? 
-			(global->Frame_Flags | YUV_MONOCR) : 
-			(global->Frame_Flags & ~YUV_MONOCR);
-	g_mutex_unlock(global->mutex);
-	global = NULL;
-}
-
-/* Audio Echo effect */
-void
-EffEchoEnable_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data)
+EffEnable_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data)
 {
 	struct paRecordData *pdata = all_data->pdata;
+	int *effect = g_object_get_data (G_OBJECT (toggle), "effect_info");
 	g_mutex_lock(pdata->mutex);
 		pdata->snd_Flags = gtk_toggle_button_get_active (toggle) ? 
-			(pdata->snd_Flags | SND_ECHO) : 
-			(pdata->snd_Flags & ~SND_ECHO);
-	g_mutex_unlock(pdata->mutex);
-	pdata = NULL;
-}
-/* Audio Fuzz effect */
-void
-EffFuzzEnable_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data)
-{
-	struct paRecordData *pdata = all_data->pdata;
-	g_mutex_lock(pdata->mutex);
-		pdata->snd_Flags = gtk_toggle_button_get_active (toggle) ? 
-			(pdata->snd_Flags | SND_FUZZ) : 
-			(pdata->snd_Flags & ~SND_FUZZ);
-	g_mutex_unlock(pdata->mutex);
-	pdata = NULL;
-}
-
-/* Audio Reverb effect */
-void
-EffRevEnable_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data)
-{
-	struct paRecordData *pdata = all_data->pdata;
-	g_mutex_lock(pdata->mutex);
-		pdata->snd_Flags = gtk_toggle_button_get_active (toggle) ? 
-			(pdata->snd_Flags | SND_REVERB) : 
-			(pdata->snd_Flags & ~SND_REVERB);
-	g_mutex_unlock(pdata->mutex);
-	pdata = NULL;
-}
-
-/*Audio WahWah effect*/
-void
-EffWahEnable_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data)
-{
-	struct paRecordData *pdata = all_data->pdata;
-	g_mutex_lock(pdata->mutex);
-		pdata->snd_Flags = gtk_toggle_button_get_active (toggle) ? 
-			(pdata->snd_Flags | SND_WAHWAH) : 
-			(pdata->snd_Flags & ~SND_WAHWAH);
-	g_mutex_unlock(pdata->mutex);
-	pdata = NULL;
-}
-
-/*Audio Ducky effect*/
-void
-EffDuckyEnable_changed (GtkToggleButton * toggle, struct ALL_DATA *all_data)
-{
-	struct paRecordData *pdata = all_data->pdata;
-	g_mutex_lock(pdata->mutex);
-		pdata->snd_Flags = gtk_toggle_button_get_active (toggle) ? 
-			(pdata->snd_Flags | SND_DUCKY) : 
-			(pdata->snd_Flags & ~SND_DUCKY);
+			(pdata->snd_Flags | *effect) : 
+			(pdata->snd_Flags & ~(*effect));
 	g_mutex_unlock(pdata->mutex);
 	pdata = NULL;
 }
