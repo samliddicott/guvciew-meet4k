@@ -114,7 +114,7 @@ struct GLOBAL
 	unsigned int   jpeg_bufsize; /* width*height/2 */
 	int autofocus;/*some autofocus flags*/
 	int AFcontrol;
-	gboolean ButtPressThread;
+	gboolean AVIButtPress;
 };
 
 /*----------------------------- prototypes ------------------------------------*/

@@ -1224,9 +1224,9 @@ capture_avi (GtkToggleButton *AVIButt, struct ALL_DATA *all_data)
 	}
 	
 	gboolean state = gtk_toggle_button_get_active (AVIButt);
+	if(global->debug) g_printf("Cap AVI toggled: %d\n", state);
 	
-	//if(global->debug) g_printf("Cap AVI toggled: %d\n", state);
-	if(videoIn->capAVI && !(state)) 
+	if(videoIn->capAVI/* && !(state)*/) 
 	{	/****************** Stop AVI ************************/
 		videoIn->capAVI = FALSE; /*flag video thread to stop recording frames*/
 		pdata->capAVI = videoIn->capAVI;
@@ -1243,9 +1243,10 @@ capture_avi (GtkToggleButton *AVIButt, struct ALL_DATA *all_data)
 		aviClose(all_data);
 		/*enabling sound and avi compression controls*/
 		set_sensitive_avi_contrls(TRUE, global->Sound_enable, gwidget);
-		gtk_button_set_label(GTK_BUTTON(gwidget->CapAVIButt),_("Cap. AVI"));
+		if(!(state))
+			gtk_button_set_label(GTK_BUTTON(gwidget->CapAVIButt),_("Cap. AVI"));
 	} 
-	else if(!(videoIn->capAVI) && state)
+	else if(!(videoIn->capAVI) /*&& state*/)
 	{	/******************** Start AVI *********************/
 		global->aviFPath=splitPath((char *)fileEntr, global->aviFPath);
 		g_snprintf(global->aviinc_str,24,_("File num:%d"),global->avi_inc);
@@ -1314,7 +1315,8 @@ capture_avi (GtkToggleButton *AVIButt, struct ALL_DATA *all_data)
 				}
 			}
 		}
-		gtk_button_set_label(GTK_BUTTON(gwidget->CapAVIButt),_("Stop AVI"));
+		if(state)
+			gtk_button_set_label(GTK_BUTTON(gwidget->CapAVIButt),_("Stop AVI"));
 	}
 	
 	gwidget = NULL;
@@ -1401,7 +1403,7 @@ split_avi(void *data)
 {
 	struct ALL_DATA *all_data = (struct ALL_DATA *) data;
 	struct GLOBAL *global = all_data->global;
-	//struct vdIn *videoIn = all_data->videoIn;
+	struct vdIn *videoIn = all_data->videoIn;
 	struct GWIDGET *gwidget = all_data->gwidget;
 	
 	/*make sure avi is in incremental mode*/
@@ -1412,15 +1414,20 @@ split_avi(void *data)
 	}
 	
 	/*stops avi capture*/
-	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(gwidget->CapAVIButt), FALSE);
-	/*sleep at least 500 ms*/
-	g_usleep( 500000);
-	
-	/*restarts avi capture with new file name*/
-	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(gwidget->CapAVIButt), TRUE);
+	gtk_toggle_button_toggled (GTK_TOGGLE_BUTTON(gwidget->CapAVIButt));
+	//gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(gwidget->CapAVIButt), FALSE);
+	int stall = wait_ms(&(videoIn->AVICapStop), TRUE, 10, 200);
+	if( !(stall > 0) )
+	{
+		g_printerr("video capture stall on exit(%d) - timeout\n",
+			videoIn->AVICapStop);
+	}
+	/*starts avi capture*/
+	gtk_toggle_button_toggled (GTK_TOGGLE_BUTTON(gwidget->CapAVIButt));
+
+	global->AVIButtPress = FALSE;
 
 	/*thread as finished*/
-	global->ButtPressThread = FALSE;
 	global=NULL;
 	gwidget = NULL;
 	return NULL;

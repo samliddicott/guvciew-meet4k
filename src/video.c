@@ -57,6 +57,7 @@ void *main_loop(void *data)
 	struct focusData *AFdata = all_data->AFdata;
 	struct vdIn *videoIn = all_data->videoIn;
 	struct avi_t *AviOut = all_data->AviOut;
+	//struct GWIDGET *gwidget = all_data->gwidget;
 
 	GThread *press_butt_thread;
 	
@@ -480,9 +481,9 @@ void *main_loop(void *data)
 			{
 				if (AVI_getErrno () == AVI_ERR_SIZELIM)
 				{
-					if (!(global->ButtPressThread)) 
+					if (!(global->AVIButtPress))
 					{
-						global->ButtPressThread = TRUE;
+						
 						GError *err1 = NULL;
 					
 						/*avi file limit reached - must end capture close file and start new one*/
@@ -544,7 +545,7 @@ void *main_loop(void *data)
 					}
 				}
 				g_mutex_lock( pdata->mutex );
-					/*run effects on data*/
+					/*run efif (!(global->AVIButtPress))fects on data*/
 					/*echo*/
 					if((pdata->snd_Flags & SND_ECHO)==SND_ECHO) 
 					{
@@ -614,9 +615,9 @@ void *main_loop(void *data)
 				{	
 					if (AVI_getErrno () == AVI_ERR_SIZELIM) 
 					{
-						if (!(global->ButtPressThread)) 
+						if (!(global->AVIButtPress))
 						{
-							global->ButtPressThread = TRUE;
+							global->AVIButtPress = TRUE;
 							GError *err1 = NULL;
 					
 							/*avi file limit reached - must end capture close file and start new one*/
