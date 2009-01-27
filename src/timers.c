@@ -22,8 +22,10 @@
 #include "timers.h"
 #include <glib.h>
 #include <glib/gprintf.h>
+#include <gtk/gtk.h>
+#include <gdk/gdk.h>
 
-/* called by capture from start timer [-t seconds] command line option*/
+/* called by avi capture from start timer */
 gboolean
 timer_callback(gpointer data)
 {
@@ -33,8 +35,13 @@ timer_callback(gpointer data)
 	
 	/*stop avi capture*/
 	if(global->debug) g_printf("setting avi toggle to FALSE\n");
+	gdk_threads_enter();
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(gwidget->CapAVIButt), FALSE);
-	global->Capture_time=0; 
+	gdk_flush();
+	gdk_threads_leave();
+	//g_mutex_lock(global->mutex);
+		global->Capture_time=0; 
+	//g_mutex_unlock(global->mutex);
 	return (FALSE);/*destroys the timer*/
 }
 
@@ -48,22 +55,37 @@ Image_capture_timer(gpointer data)
 	struct vdIn *videoIn = all_data->videoIn; 
 	
 	/*increment image name */
-	videoIn->ImageFName = incFilename(videoIn->ImageFName, 
+	//g_mutex_lock(videoIn->mutex);
+		videoIn->ImageFName = incFilename(videoIn->ImageFName, 
 			global->imgFPath,
 			global->image_inc);
+	//g_mutex_unlock(videoIn->mutex);
+
+	//g_mutex_lock(global->mutex);
+		g_snprintf(global->imageinc_str,24,_("File num:%d"),global->image_inc);
 	
-	g_snprintf(global->imageinc_str,24,_("File num:%d"),global->image_inc);
-		
-	gtk_label_set_text(GTK_LABEL(gwidget->ImageIncLabel), global->imageinc_str);
+		gdk_threads_enter();
+		gtk_label_set_text(GTK_LABEL(gwidget->ImageIncLabel), global->imageinc_str);
+		gdk_flush();
+		gdk_threads_leave();
 	
-	global->image_inc++;
+		global->image_inc++;
+	//g_mutex_unlock(global->mutex);
 	/*set image capture flag*/
-	videoIn->capImage = TRUE;
+	//g_mutex_lock(videoIn->mutex);
+		videoIn->capImage = TRUE;
+	//g_mutex_unlock(videoIn->mutex);
+
 	if(global->image_inc > global->image_npics) 
 	{	/*destroy timer*/
+		gdk_threads_enter();
 		gtk_button_set_label(GTK_BUTTON(gwidget->CapImageButt),_("Cap. Image"));
-		global->image_timer=0;
+		//g_mutex_lock(global->mutex);
+			global->image_timer=0;
+		//g_mutex_unlock(global->mutex);
 		set_sensitive_img_contrls(TRUE, gwidget);/*enable image controls*/
+		gdk_flush();
+		gdk_threads_leave();
 		return (FALSE);
 	}
 	else return (TRUE);/*keep the timer*/
@@ -76,14 +98,18 @@ FpsCount_callback(gpointer data)
 	struct ALL_DATA * all_data = (struct ALL_DATA *) data;
 	struct GLOBAL *global = all_data->global;
 	
-	global->DispFps = (double) global->frmCount / 2;
+	//g_mutex_lock(global->mutex);
+		global->DispFps = (double) global->frmCount / 2;
+	//g_mutex_unlock(global->mutex);
 	
 	if (global->FpsCount>0) 
 		return(TRUE); /*keeps the timer*/
 	else 
 	{
-		g_snprintf(global->WVcaption,10,"GUVCVideo");
-		SDL_WM_SetCaption(global->WVcaption, NULL);
+		//g_mutex_lock(global->mutex);
+			g_snprintf(global->WVcaption,10,"GUVCVideo");
+			SDL_WM_SetCaption(global->WVcaption, NULL);
+		//g_mutex_unlock(global->mutex);
 		return (FALSE);/*destroys the timer*/
 	}
 }

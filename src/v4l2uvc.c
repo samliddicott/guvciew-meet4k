@@ -548,6 +548,7 @@ init_videoIn(struct vdIn *vd, char *device, int width, int height,
 	int ret=0;
 	int i=0;
 	
+	vd->mutex = g_mutex_new();
 	if (vd == NULL || device == NULL)
 		return -4;
 	if (width == 0 || height == 0)
@@ -712,6 +713,7 @@ error:
 	g_free(vd->videodevice);
 	g_free(vd->AVIFName);
 	g_free(vd->ImageFName);
+	g_mutex_free( vd->mutex );
 	return ret;
 }
 
@@ -1099,6 +1101,7 @@ void close_v4l2(struct vdIn *vd)
 	freeDevices(vd);
 	/*close device descriptor*/
 	close(vd->fd);
+	g_mutex_free( vd->mutex );
 	/*free struct allocation*/
 	g_free(vd);
 	vd=NULL;

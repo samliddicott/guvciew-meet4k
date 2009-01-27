@@ -38,6 +38,7 @@
 #include <sys/mman.h>
 #include <sys/select.h>
 #include <linux/videodev2.h>
+#include <glib.h>
 #include <gtk/gtk.h>
 
 #define NB_BUFFER 4
@@ -284,6 +285,7 @@ typedef struct _VidFormats
 
 struct vdIn 
 {
+	GMutex *mutex;
 	int fd;
 	char *videodevice;
 	//char *status;
