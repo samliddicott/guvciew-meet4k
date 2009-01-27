@@ -1487,7 +1487,9 @@ int main(int argc, char *argv[])
 		global->timer_id = g_timeout_add(2*1000,FpsCount_callback,&all_data);
 	}
 	/* The last thing to get called */
+	gdk_threads_enter();
 	gtk_main();
+	gdk_threads_leave();
 
 	return 0;
 }

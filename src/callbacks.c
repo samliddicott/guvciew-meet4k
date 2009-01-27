@@ -1223,7 +1223,7 @@ capture_avi (GtkToggleButton *AVIButt, struct ALL_DATA *all_data)
 			compression="MJPG";
 	}
 	
-	gboolean state = gtk_toggle_button_get_active (AVIButt);
+	gboolean state = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(gwidget->CapAVIButt));
 	if(global->debug) g_printf("Cap AVI toggled: %d\n", state);
 	
 	if(videoIn->capAVI/* && !(state)*/) 
@@ -1406,6 +1406,7 @@ split_avi(void *data)
 	struct vdIn *videoIn = all_data->videoIn;
 	struct GWIDGET *gwidget = all_data->gwidget;
 	
+	gdk_threads_enter();
 	/*make sure avi is in incremental mode*/
 	if(!global->avi_inc) 
 	{ 
@@ -1414,8 +1415,10 @@ split_avi(void *data)
 	}
 	
 	/*stops avi capture*/
-	gtk_toggle_button_toggled (GTK_TOGGLE_BUTTON(gwidget->CapAVIButt));
-	//gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(gwidget->CapAVIButt), FALSE);
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(gwidget->CapAVIButt), FALSE);
+	//gtk_toggle_button_toggled (GTK_TOGGLE_BUTTON(gwidget->CapAVIButt));
+	gdk_flush ();
+	gdk_threads_leave();
 	int stall = wait_ms(&(videoIn->AVICapStop), TRUE, 10, 200);
 	if( !(stall > 0) )
 	{
@@ -1423,10 +1426,12 @@ split_avi(void *data)
 			videoIn->AVICapStop);
 	}
 	/*starts avi capture*/
-	gtk_toggle_button_toggled (GTK_TOGGLE_BUTTON(gwidget->CapAVIButt));
-
+	gdk_threads_enter();
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(gwidget->CapAVIButt), TRUE);
+	//gtk_toggle_button_toggled (GTK_TOGGLE_BUTTON(gwidget->CapAVIButt));
 	global->AVIButtPress = FALSE;
-
+	gdk_flush ();
+	gdk_threads_leave();
 	/*thread as finished*/
 	global=NULL;
 	gwidget = NULL;
