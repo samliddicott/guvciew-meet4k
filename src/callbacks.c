@@ -174,7 +174,7 @@ aviClose (struct ALL_DATA *all_data)
 			int stall = wait_ms( &pdata->streaming, FALSE, 10, 30 );
 			if(!(stall)) 
 			{
-				g_printf("WARNING:sound capture stall (still streaming(%d) \n",
+				g_printerr("WARNING:sound capture stall (still streaming(%d) \n",
 					pdata->streaming);
 				pdata->streaming = 0;
 			}
@@ -502,109 +502,23 @@ setfocus_clicked (GtkButton * FocusButton, struct ALL_DATA *all_data)
 	videoIn = NULL;
 }
 
-/* Pan left (for motor cameras ex: Logitech Orbit/Sphere) */
+// Pan/Tilt (for motor cameras ex: Logitech Orbit/Sphere)
 void
-PanLeft_clicked (GtkButton * PanLeft, struct ALL_DATA *all_data)
+PanTilt_clicked (GtkButton * PanTilt, struct ALL_DATA *all_data)
 {
 	struct GLOBAL *global = all_data->global;
 	struct vdIn *videoIn = all_data->videoIn;
-
-	if(uvcPanTilt(videoIn, -INCPANTILT*(global->PanStep), 0, 0)<0) 
+	PanTiltInfo *pantilt = g_object_get_data (G_OBJECT (PanTilt), "pantilt_info");
+	
+	if(uvcPanTilt(videoIn, pantilt->pan * (global->PanStep), pantilt->tilt * (global->TiltStep), pantilt->reset)<0) 
 	{
-		g_printerr("Pan Left Error");
+		g_printerr("Pan/Tilt Error: Pan = %d; Tilt = %d; reset = %d\n",
+			pantilt->pan * (global->PanStep),
+			pantilt->tilt * (global->TiltStep),
+			pantilt->reset);
 	}
 
 	global = NULL;
-	videoIn = NULL;
-}
-
-/* Pan Right (for motor cameras ex: Logitech Orbit/Sphere) */
-void
-PanRight_clicked (GtkButton * PanRight, struct ALL_DATA *all_data)
-{
-	struct GLOBAL *global = all_data->global;
-	struct vdIn *videoIn = all_data->videoIn;
-
-	if(uvcPanTilt(videoIn, INCPANTILT*(global->PanStep), 0, 0)<0) 
-	{
-		g_printerr("Pan Right Error");
-	}
-
-	global = NULL;
-	videoIn = NULL;
-}
-
-/* Tilt Up (for motor cameras ex: Logitech Orbit/Sphere)   */
-void
-TiltUp_clicked (GtkButton * TiltUp, struct ALL_DATA *all_data)
-{	
-	struct GLOBAL *global = all_data->global;
-	struct vdIn *videoIn = all_data->videoIn;
-	
-	if(uvcPanTilt(videoIn, 0, -INCPANTILT*(global->TiltStep), 0)<0) 
-	{
-		g_printerr("Tilt UP Error");
-	}
-
-	global = NULL;
-	videoIn = NULL;
-}
-
-/* Tilt Down (for motor cameras ex: Logitech Orbit/Sphere) */
-void
-TiltDown_clicked (GtkButton * TiltDown, struct ALL_DATA *all_data)
-{	
-	struct GLOBAL *global = all_data->global;
-	struct vdIn *videoIn = all_data->videoIn;
-	
-	if(uvcPanTilt(videoIn, 0, INCPANTILT*(global->TiltStep), 0)<0) 
-	{
-		g_printerr("Tilt Down Error");
-	}
-
-	global = NULL;
-	videoIn = NULL;
-}
-
-/* Pan Reset (for motor cameras ex: Logitech Orbit/Sphere)*/
-void
-PReset_clicked (GtkButton * PReset, struct ALL_DATA *all_data)
-{	
-	struct vdIn *videoIn = all_data->videoIn;
-	
-	if(uvcPanTilt(videoIn, 0, 0, 1)<0) 
-	{
-		g_printerr("Pan Reset Error");
-	}
-	
-	videoIn = NULL;
-}
-
-/* Tilt Reset (for motor cameras ex: Logitech Orbit/Sphere)*/
-void
-TReset_clicked (GtkButton * PTReset, struct ALL_DATA *all_data)
-{	
-	struct vdIn *videoIn = all_data->videoIn;
-	
-	if(uvcPanTilt(videoIn, 0, 0, 2)<0) 
-	{
-		g_printerr("Pan Reset Error");
-	}
-
-	videoIn = NULL;
-}
-
-/* Pan Tilt Reset (for motor cameras ex: Logitech Orbit/Sphere)*/
-void
-PTReset_clicked (GtkButton * PTReset, struct ALL_DATA *all_data)
-{
-	struct vdIn *videoIn = all_data->videoIn;
-	
-	if(uvcPanTilt(videoIn, 0, 0, 3)<0) 
-	{
-		g_printerr("Pan Tilt Reset Error");
-	}
-
 	videoIn = NULL;
 }
 
@@ -1226,73 +1140,59 @@ capture_avi (GtkToggleButton *AVIButt, struct ALL_DATA *all_data)
 }
 
 /*--------------------- buttons callbacks ------------------*/
+
 void
-SProfileButton_clicked (GtkButton * SProfileButton, struct ALL_DATA *all_data)
+ProfileButton_clicked (GtkButton * ProfileButton, struct ALL_DATA *all_data)
 {
 	struct GWIDGET *gwidget = all_data->gwidget;
 	struct VidState *s = all_data->s;
 	struct GLOBAL *global = all_data->global;
 	struct vdIn *videoIn = all_data->videoIn;
 	
-	gwidget->FileDialog = gtk_file_chooser_dialog_new (_("Save File"),
-		GTK_WINDOW(gwidget->mainwin),
-		GTK_FILE_CHOOSER_ACTION_SAVE,
-		GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-		GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
-		NULL);
-	gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (gwidget->FileDialog), TRUE);
-	//printf("profile(default):%s/%s\n",global->profile_FPath[1],global->profile_FPath[0]);
+	gboolean *save = g_object_get_data (G_OBJECT (ProfileButton), "profile_save");
+	if(global->debug) g_printf("Profile dialog (%d)\n",*save);
+	if (*save)
+	{
+		gwidget->FileDialog = gtk_file_chooser_dialog_new (_("Save File"),
+			GTK_WINDOW(gwidget->mainwin),
+			GTK_FILE_CHOOSER_ACTION_SAVE,
+			GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+			GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
+			NULL);
+		gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (gwidget->FileDialog), TRUE);
+	
+		gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (gwidget->FileDialog),
+			global->profile_FPath[0]);
+	}
+	else
+	{
+		gwidget->FileDialog = gtk_file_chooser_dialog_new (_("Load File"),
+			GTK_WINDOW(gwidget->mainwin),
+			GTK_FILE_CHOOSER_ACTION_OPEN,
+			GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+			GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
+			NULL);
+	}
+	
 	gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (gwidget->FileDialog),
 		global->profile_FPath[1]);
-	
-	gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (gwidget->FileDialog),
-		global->profile_FPath[0]);
-	
+		
 	if (gtk_dialog_run (GTK_DIALOG (gwidget->FileDialog)) == GTK_RESPONSE_ACCEPT)
 	{
 		/*Save Controls Data*/
 		char *filename= gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (gwidget->FileDialog));
 		global->profile_FPath=splitPath(filename,global->profile_FPath);
-		SaveControls(s, global, videoIn);
+		
+		if(*save)
+			SaveControls(s, global, videoIn);
+		else
+			LoadControls(s,global);
 	}
 	gtk_widget_destroy (gwidget->FileDialog);
-	
 	gwidget = NULL;
 	s = NULL;
 	global = NULL;
 	videoIn = NULL;
-}
-
-void
-LProfileButton_clicked (GtkButton * LProfileButton, struct ALL_DATA *all_data)
-{
-	struct GWIDGET *gwidget = all_data->gwidget;
-	struct VidState *s = all_data->s;
-	struct GLOBAL *global = all_data->global;
-	
-	gwidget->FileDialog = gtk_file_chooser_dialog_new (_("Load File"),
-		GTK_WINDOW(gwidget->mainwin),
-		GTK_FILE_CHOOSER_ACTION_OPEN,
-		GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-		GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
-		NULL);
-	
-	gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (gwidget->FileDialog),
-		global->profile_FPath[1]);
-	
-	
-	if (gtk_dialog_run (GTK_DIALOG (gwidget->FileDialog)) == GTK_RESPONSE_ACCEPT)
-	{
-		/*Load Controls Data*/
-		char *filename= gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (gwidget->FileDialog));
-		global->profile_FPath=splitPath(filename,global->profile_FPath);
-		LoadControls(s,global);
-	}
-	gtk_widget_destroy (gwidget->FileDialog);
-	
-	gwidget = NULL;
-	s = NULL;
-	global = NULL;
 }
 
 /*called when avi max file size reached*/

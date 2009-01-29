@@ -599,6 +599,8 @@ init_videoIn(struct vdIn *vd, char *device, int width, int height,
 	vd->tmpbuffer = NULL;
 	vd->framebuffer = NULL;
 	
+	vd->Pantilt_info = NULL;
+
 	if(enum_devices(vd)<1)
 		g_printerr("unable to detect video devices on your system\n");
 	
@@ -1081,6 +1083,7 @@ void close_v4l2(struct vdIn *vd)
 	g_free(vd->videodevice);
 	g_free(vd->ImageFName);
 	g_free(vd->AVIFName);
+	g_free(vd->Pantilt_info);
 	/*free format allocations*/
 	freeFormats(vd);
 	/*unmap queue buffers*/	
@@ -1098,6 +1101,7 @@ void close_v4l2(struct vdIn *vd)
 	vd->framebuffer = NULL;
 	vd->ImageFName = NULL;
 	vd->AVIFName = NULL;
+	vd->Pantilt_info = NULL;
 	freeDevices(vd);
 	/*close device descriptor*/
 	close(vd->fd);

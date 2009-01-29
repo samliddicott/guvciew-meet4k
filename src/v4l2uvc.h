@@ -283,6 +283,13 @@ typedef struct _VidFormats
 	VidCap *listVidCap;
 } VidFormats;
 
+typedef struct _PanTiltInfo
+{
+	gint pan;
+	gint tilt;
+	gint reset;
+} PanTiltInfo;
+
 struct vdIn 
 {
 	GMutex *mutex;
@@ -305,6 +312,7 @@ struct vdIn
 	int pix_order;
 	int setFPS;
 	int PanTilt; /*1-if PanTilt Camera; 0-otherwise*/
+	PanTiltInfo *Pantilt_info;
 	int grabmethod;
 	int width;
 	int height;
@@ -361,10 +369,6 @@ typedef struct _ControlInfo
 struct VidState 
 {
 	GtkWidget * table;
-	//GtkWidget * device_combo;
-	//GtkWidget * device_label;
-	//GtkWidget * input_combo;
-	//GtkWidget * input_label;
 
 	int width_req;
 	int height_req;

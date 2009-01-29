@@ -51,7 +51,7 @@ draw_controls (struct ALL_DATA *all_data)
 	if (global->debug) 
 	{
 		g_printf("Controls:\n");
-		for (i = 0; i < s->num_controls; i++) 
+		for (i = 0; i < s->num_controls; i++)
 		{
 			g_printf("control[%d]: 0x%x",i,s->control[i].id);
 			g_printf ("  %s, %d:%d:%d, default %d\n", s->control[i].name,
@@ -59,7 +59,7 @@ draw_controls (struct ALL_DATA *all_data)
 				s->control[i].default_val);
 		}
 	}
-	s->control_info = g_new(ControlInfo, s->num_controls);
+	s->control_info = g_new0(ControlInfo, s->num_controls);
 
 	int row=0;
 
@@ -121,14 +121,30 @@ draw_controls (struct ALL_DATA *all_data)
 		else if ((c->id == V4L2_CID_PAN_RELATIVE_NEW) ||
 			(c->id == V4L2_CID_PAN_RELATIVE_OLD)) 
 		{
-			videoIn->PanTilt=1;
+			videoIn->PanTilt++;
+		
 			ci->widget = gtk_vbox_new (FALSE, 0);
 			GtkWidget *panHbox = gtk_hbox_new (FALSE, 0);
 			GtkWidget *reversePan = gtk_check_button_new_with_label (_("Invert (Pan)"));
 			gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (reversePan),
 				(global->PanStep < 0) ? TRUE : FALSE);
+
+			// allocate pantilt_info 
+			if (videoIn->Pantilt_info == NULL)
+				videoIn->Pantilt_info = g_new0(PanTiltInfo, 7);
+
 			GtkWidget *PanLeft = gtk_button_new_with_label(_("Left"));
+		    
+			videoIn->Pantilt_info[0].pan = -INCPANTILT; //pan left
+			
+			g_object_set_data (G_OBJECT (PanLeft), "pantilt_info", &(videoIn->Pantilt_info[0]));
+		
 			GtkWidget *PanRight = gtk_button_new_with_label(_("Right"));
+		    
+			videoIn->Pantilt_info[1].pan = INCPANTILT; //pan right
+			
+			g_object_set_data (G_OBJECT (PanRight), "pantilt_info", &(videoIn->Pantilt_info[1]));
+		    
 			gtk_box_pack_start (GTK_BOX (panHbox), PanLeft, TRUE, TRUE, 0);
 			gtk_box_pack_start (GTK_BOX (panHbox), PanRight, TRUE, TRUE, 0);
 			
@@ -139,13 +155,13 @@ draw_controls (struct ALL_DATA *all_data)
 			gtk_widget_show (PanLeft);
 			gtk_widget_show (PanRight);
 			gtk_widget_show(panHbox);
-					   
+			
 			g_signal_connect (G_OBJECT (reversePan), "toggled",
 				G_CALLBACK (reversePan_changed), all_data);
 			g_signal_connect (GTK_BUTTON (PanLeft), "clicked",
-				G_CALLBACK (PanLeft_clicked), all_data);
+				G_CALLBACK (PanTilt_clicked), all_data);
 			g_signal_connect (GTK_BUTTON (PanRight), "clicked",
-				G_CALLBACK (PanRight_clicked), all_data);
+				G_CALLBACK (PanTilt_clicked), all_data);
 			
 			gtk_table_attach (GTK_TABLE (s->table), ci->widget, 1, 2, 3+row, 4+row,
 				GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
@@ -161,7 +177,11 @@ draw_controls (struct ALL_DATA *all_data)
 		else if ((c->id == V4L2_CID_TILT_RELATIVE_NEW) ||
 			(c->id == V4L2_CID_TILT_RELATIVE_OLD))
 		{
-			videoIn->PanTilt=1;
+			videoIn->PanTilt++; 
+			// allocate pantilt_info 
+			if (videoIn->Pantilt_info == NULL)
+				videoIn->Pantilt_info = g_new0(PanTiltInfo, 7);
+			
 			ci->widget = gtk_hbox_new (FALSE, 0);
 			GtkWidget *TiltUp = gtk_button_new_with_label(_("Up"));
 			GtkWidget *TiltDown = gtk_button_new_with_label(_("Down"));
@@ -169,14 +189,24 @@ draw_controls (struct ALL_DATA *all_data)
 			gtk_box_pack_start (GTK_BOX (ci->widget), TiltDown, TRUE, TRUE, 0);
 			gtk_widget_show (TiltUp);
 			gtk_widget_show (TiltDown);
+			
+			
+			videoIn->Pantilt_info[2].tilt = -INCPANTILT; //tilt up
+			
+			g_object_set_data (G_OBJECT (TiltUp), "pantilt_info", &(videoIn->Pantilt_info[2]));
+			
+			videoIn->Pantilt_info[3].tilt = INCPANTILT; //tilt Down
+		    
+			g_object_set_data (G_OBJECT (TiltDown), "pantilt_info", &(videoIn->Pantilt_info[3]));
+			
 			g_signal_connect (GTK_BUTTON (TiltUp), "clicked",
-				G_CALLBACK (TiltUp_clicked), all_data);
+				G_CALLBACK (PanTilt_clicked), all_data);
 			g_signal_connect (GTK_BUTTON (TiltDown), "clicked",
-				G_CALLBACK (TiltDown_clicked), all_data);
+				G_CALLBACK (PanTilt_clicked), all_data);
 			
 			gtk_table_attach (GTK_TABLE (s->table), ci->widget, 1, 2, 3+row, 4+row,
 				GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
-			g_object_set_data (G_OBJECT (ci->widget), "control_info", ci);
+			//g_object_set_data (G_OBJECT (ci->widget), "control_info", ci);
 			ci->maxchars = MAX (num_chars (c->min), num_chars (c->max));
 			gtk_widget_show (ci->widget);
 			gchar *tmp;
@@ -187,12 +217,22 @@ draw_controls (struct ALL_DATA *all_data)
 		} 
 		else if (c->id == V4L2_CID_PAN_RESET_NEW) 
 		{
+			videoIn->PanTilt++; //Pan reset
+		   
+			// allocate pantilt_info 
+			if (videoIn->Pantilt_info == NULL)
+				videoIn->Pantilt_info = g_new0(PanTiltInfo, 7);
+		    
 			ci->widget = gtk_button_new_with_label(_("Reset"));
+		
+			videoIn->Pantilt_info[4].reset = 1; //pan reset
+			g_object_set_data (G_OBJECT (ci->widget), "pantilt_info", &(videoIn->Pantilt_info[4]));
+			
 			g_signal_connect (GTK_BUTTON (ci->widget), "clicked",
-				G_CALLBACK (PReset_clicked), all_data);
+				G_CALLBACK (PanTilt_clicked), all_data);
 			gtk_table_attach (GTK_TABLE (s->table), ci->widget, 1, 2, 3+row, 4+row,
 				GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
-			g_object_set_data (G_OBJECT (ci->widget), "control_info", ci);
+			//g_object_set_data (G_OBJECT (ci->widget), "control_info", ci);
 			ci->maxchars = MAX (num_chars (c->min), num_chars (c->max));
 			gtk_widget_show (ci->widget);
 			gchar *tmp;
@@ -203,12 +243,22 @@ draw_controls (struct ALL_DATA *all_data)
 		}
 		else if (c->id == V4L2_CID_TILT_RESET_NEW) 
 		{
+			videoIn->PanTilt++; //Pan reset
+		    
+			// allocate pantilt_info 
+			if (videoIn->Pantilt_info == NULL)
+				videoIn->Pantilt_info = g_new0(PanTiltInfo, 7);
+			
 			ci->widget = gtk_button_new_with_label(_("Reset"));
+		
+			videoIn->Pantilt_info[5].reset = 2; //tilt reset
+			g_object_set_data (G_OBJECT (ci->widget), "pantilt_info", &(videoIn->Pantilt_info[5]));
+			
 			g_signal_connect (GTK_BUTTON (ci->widget), "clicked",
-				G_CALLBACK (TReset_clicked), all_data);
+				G_CALLBACK (PanTilt_clicked), all_data);
 			gtk_table_attach (GTK_TABLE (s->table), ci->widget, 1, 2, 3+row, 4+row,
 				GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
-			g_object_set_data (G_OBJECT (ci->widget), "control_info", ci);
+			//g_object_set_data (G_OBJECT (ci->widget), "control_info", ci);
 			ci->maxchars = MAX (num_chars (c->min), num_chars (c->max));
 			gtk_widget_show (ci->widget);
 			gchar *tmp;
@@ -220,16 +270,26 @@ draw_controls (struct ALL_DATA *all_data)
 		else if ((c->id == V4L2_CID_PANTILT_RESET_LOGITECH) ||
 			(c->id == V4L2_CID_PANTILT_RESET_OLD)) 
 		{
+			videoIn->PanTilt++;
+		    
 			ci->widget = gtk_hbox_new (FALSE, 0);
 			GtkWidget *PTReset = gtk_button_new_with_label(_("Reset"));
 			gtk_box_pack_start (GTK_BOX (ci->widget), PTReset, TRUE, TRUE, 0);
 			gtk_widget_show (PTReset);
+			
+			// allocate pantilt_info 
+			if (videoIn->Pantilt_info == NULL)
+				videoIn->Pantilt_info = g_new0(PanTiltInfo, 7);
+			
+			videoIn->Pantilt_info[6].reset = 3; //pan reset
+			g_object_set_data (G_OBJECT (PTReset), "pantilt_info", &(videoIn->Pantilt_info[6]));
+			
 			g_signal_connect (GTK_BUTTON (PTReset), "clicked",
-				G_CALLBACK (PTReset_clicked), all_data);
+				G_CALLBACK (PanTilt_clicked), all_data);
 		
 			gtk_table_attach (GTK_TABLE (s->table), ci->widget, 1, 2, 3+row, 4+row,
 				GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
-			g_object_set_data (G_OBJECT (ci->widget), "control_info", ci);
+			//g_object_set_data (G_OBJECT (ci->widget), "control_info", ci);
 			ci->maxchars = MAX (num_chars (c->min), num_chars (c->max));
 			gtk_widget_show (ci->widget);
 			gchar *tmp;

@@ -113,25 +113,7 @@ void
 setfocus_clicked (GtkButton * FocusButton, struct ALL_DATA *all_data);
 
 void
-PanLeft_clicked (GtkButton * PanLeft, struct ALL_DATA *all_data);
-
-void
-PanRight_clicked (GtkButton * PanRight, struct ALL_DATA *all_data);
-
-void
-TiltUp_clicked (GtkButton * TiltUp, struct ALL_DATA *all_data);
-
-void
-TiltDown_clicked (GtkButton * TiltDown, struct ALL_DATA *all_data);
-
-void
-PReset_clicked (GtkButton * PReset, struct ALL_DATA *all_data);
-
-void
-TReset_clicked (GtkButton * PTReset, struct ALL_DATA *all_data);
-
-void
-PTReset_clicked (GtkButton * PTReset, struct ALL_DATA *all_data);
+PanTilt_clicked (GtkButton * PanTilt, struct ALL_DATA *all_data);
 
 void
 quitButton_clicked (GtkButton * quitButton, struct ALL_DATA *all_data);
@@ -188,10 +170,7 @@ void
 capture_avi (GtkToggleButton *AVIButt, struct ALL_DATA *all_data);
 
 void
-SProfileButton_clicked (GtkButton * SProfileButton, struct ALL_DATA *all_data);
-
-void
-LProfileButton_clicked (GtkButton * LProfileButton, struct ALL_DATA *all_data);
+ProfileButton_clicked (GtkButton * SProfileButton, struct ALL_DATA *all_data);
 
 void *
 split_avi(void *data);
