@@ -161,7 +161,6 @@ struct paRecordData
 	
 };
 
-
 int 
 recordCallback (const void *inputBuffer, void *outputBuffer,
 	unsigned long framesPerBuffer,

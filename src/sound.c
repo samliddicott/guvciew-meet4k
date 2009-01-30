@@ -23,6 +23,7 @@
 #include "ms_time.h"
 #include "globals.h"
 #include <glib.h>
+#include <glib/gprintf.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>

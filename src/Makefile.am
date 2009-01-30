@@ -53,6 +53,8 @@ guvcview_SOURCES = \
 	readYUV.c \
 	sound.h \
 	sound.c \
+	snd_devices.h \
+	snd_devices.c \
 	string_utils.h \
 	string_utils.c \
 	timers.h \
