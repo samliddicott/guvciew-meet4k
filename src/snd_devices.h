@@ -21,9 +21,11 @@
 
 #ifndef SNDDEV_H
 #define SNDDEV_H
+#include <gtk/gtk.h>
+#include "globals.h"
 #include "guvcview.h"
 
-void 
-list_snd_devices(struct ALL_DATA *all_data);
+GtkWidget * 
+list_snd_devices(struct GLOBAL *global);
 
 #endif

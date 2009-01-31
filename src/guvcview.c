@@ -1053,10 +1053,7 @@ int main(int argc, char *argv[])
 	
 	
 	/* get sound device list and info */
-	
-	gwidget->SndDevice = gtk_combo_box_new_text ();
-	
-	list_snd_devices (&all_data);
+	gwidget->SndDevice = list_snd_devices (global);
 	
 	/*--------------------- sound controls --------------------------------*/
 	/*enable sound*/

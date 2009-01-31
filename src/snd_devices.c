@@ -23,16 +23,16 @@
 #include <portaudio.h>
 #include "snd_devices.h"
 
-void 
-list_snd_devices(struct ALL_DATA *all_data)
+GtkWidget * 
+list_snd_devices(struct GLOBAL *global)
 {
-	struct GWIDGET *gwidget = all_data->gwidget;
-	struct GLOBAL *global = all_data->global;
-	
 	int   it, numDevices, defaultDisplayed;
 	const PaDeviceInfo *deviceInfo;
 	//PaStreamParameters inputParameters, outputParameters;
 	PaError err;
+	
+	/*sound device combo box*/
+	GtkWidget *SndDevice = gtk_combo_box_new_text ();
 	
 	Pa_Initialize();
 	
@@ -107,7 +107,7 @@ list_snd_devices(struct ALL_DATA *all_data)
 				//Sound_IndexDev[Sound_numInputDev].Hlatency=deviceInfo->defaultHighInputLatency;
 				//Sound_IndexDev[Sound_numInputDev].Llatency=deviceInfo->defaultLowInputLatency;
 				global->Sound_numInputDev++;
-				gtk_combo_box_append_text(GTK_COMBO_BOX(gwidget->SndDevice),deviceInfo->name);
+				gtk_combo_box_append_text(GTK_COMBO_BOX(SndDevice),deviceInfo->name);
 			}
 			if (global->debug) 
 			{
@@ -124,4 +124,6 @@ list_snd_devices(struct ALL_DATA *all_data)
 		
 		if (global->debug) g_printf("----------------------------------------------\n");
 	}
+	
+	return (SndDevice);
 }
