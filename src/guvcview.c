@@ -626,12 +626,22 @@ int main(int argc, char *argv[])
 	
 	
 	gwidget->Devices = gtk_combo_box_new_text ();
-	for(i=0;i<(videoIn->num_devices);i++)
+	if (videoIn->num_devices < 1)
 	{
+		/*use current*/
 		gtk_combo_box_append_text(GTK_COMBO_BOX(gwidget->Devices),
-			videoIn->listVidDevices[i].name);
-		if(videoIn->listVidDevices[i].current)
-			gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->Devices),i);
+			videoIn->videodevice);
+		gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->Devices),0);
+	}
+	else
+	{
+		for(i=0;i<(videoIn->num_devices);i++)
+		{
+			gtk_combo_box_append_text(GTK_COMBO_BOX(gwidget->Devices),
+				videoIn->listVidDevices[i].name);
+			if(videoIn->listVidDevices[i].current)
+				gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->Devices),i);
+		}
 	}
 	gtk_table_attach(GTK_TABLE(table2), gwidget->Devices, 1, 2, line, line+1,
 		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);

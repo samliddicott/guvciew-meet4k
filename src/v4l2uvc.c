@@ -351,22 +351,14 @@ static int enum_devices(struct vdIn *vd)
 	{
 		if(!(g_str_has_prefix(v4l2_device, "video")))
 			continue;
-		vd->num_devices++;
-		vd->listVidDevices = g_renew(VidDevice, 
-			vd->listVidDevices, 
-			vd->num_devices);
-		vd->listVidDevices[vd->num_devices-1].device = g_strjoin("/","/dev",v4l2_device,NULL);
+		gchar *device = NULL;
+		device = g_strjoin("/","/dev",v4l2_device,NULL);
 		
-		if ((fd = open(vd->listVidDevices[vd->num_devices-1].device, O_RDWR )) == -1) 
+		if ((fd = open(device, O_RDWR )) == -1) 
 		{
 			g_printerr("ERROR opening V4L interface for %s\n",
-				vd->listVidDevices[vd->num_devices-1].device);
+				device);
 			close(fd);
-			vd->listVidDevices[vd->num_devices-1].name = g_strdup(v4l2_device);
-			vd->listVidDevices[vd->num_devices-1].driver = NULL;
-			vd->listVidDevices[vd->num_devices-1].location = NULL;
-			vd->listVidDevices[vd->num_devices-1].valid = 0;
-			vd->listVidDevices[vd->num_devices-1].current = 0;
 			continue;
 		} 
 		else
@@ -376,17 +368,18 @@ static int enum_devices(struct vdIn *vd)
 			{
 				perror("VIDIOC_QUERYCAP error");
 				g_printerr("   couldn't query device %s\n",
-					vd->listVidDevices[vd->num_devices-1].device);
+					device);
 				close(fd);
-				vd->listVidDevices[vd->num_devices-1].name = g_strdup(v4l2_device);
-				vd->listVidDevices[vd->num_devices-1].driver = NULL;
-				vd->listVidDevices[vd->num_devices-1].location = NULL;
-				vd->listVidDevices[vd->num_devices-1].valid = 0;
-				vd->listVidDevices[vd->num_devices-1].current = 0;
 				continue;
 			}
 			else
 			{
+				vd->num_devices++;
+				g_printf("%s - device %d\n", device, vd->num_devices);
+				vd->listVidDevices = g_renew(VidDevice, 
+					vd->listVidDevices, 
+					vd->num_devices);
+				vd->listVidDevices[vd->num_devices-1].device = g_strdup(device);
 				vd->listVidDevices[vd->num_devices-1].name = g_strdup((gchar *) v4l2_cap.card);
 				vd->listVidDevices[vd->num_devices-1].driver = g_strdup((gchar *) v4l2_cap.driver);
 				vd->listVidDevices[vd->num_devices-1].location = g_strdup((gchar *) v4l2_cap.bus_info);
@@ -400,6 +393,7 @@ static int enum_devices(struct vdIn *vd)
 					vd->listVidDevices[vd->num_devices-1].current = 0;
 			}
 		}
+		g_free(device);
 		
 		close(fd);
 		vd->listVidDevices[vd->num_devices-1].vendor = NULL;
@@ -602,9 +596,9 @@ init_videoIn(struct vdIn *vd, char *device, int width, int height,
 	vd->framebuffer = NULL;
 	
 	vd->Pantilt_info = NULL;
-
-	if(enum_devices(vd)<1)
-		g_printerr("unable to detect video devices on your system\n");
+	int n_dev = 0;
+	if((n_dev = enum_devices(vd))<1)
+		g_printerr("unable to detect video devices on your system (%d)\n", n_dev);
 	
 	if ((ret=init_v4l2(vd)) < 0) 
 	{
@@ -1525,17 +1519,20 @@ int get_FormatIndex(struct vdIn *vd, int format)
 int initDynCtrls(struct vdIn *vd) 
 {
 	/*only for uvc driver (uvcvideo)*/
-	g_printf("vid:%s \npid:%s\nrelease:%s\ndriver:%s\n",
-		vd->listVidDevices[vd->current_device].vendor,
-		vd->listVidDevices[vd->current_device].product,
-		vd->listVidDevices[vd->current_device].version,
-		vd->listVidDevices[vd->current_device].driver);
-	if(g_strcmp0(vd->listVidDevices[vd->current_device].driver,"uvcvideo") != 0)
-		return 0;
-	/*only for logitech cameras*/
-	if(vd->listVidDevices[vd->current_device].vendor != NULL)
-		if (g_strcmp0(vd->listVidDevices[vd->current_device].vendor,"046d") != 0)
+	if(vd->num_devices > 0)
+	{
+		g_printf("vid:%s \npid:%s\nrelease:%s\ndriver:%s\n",
+			vd->listVidDevices[vd->current_device].vendor,
+			vd->listVidDevices[vd->current_device].product,
+			vd->listVidDevices[vd->current_device].version,
+			vd->listVidDevices[vd->current_device].driver);
+		if(g_strcmp0(vd->listVidDevices[vd->current_device].driver,"uvcvideo") != 0)
 			return 0;
+		/*only for logitech cameras*/
+		if(vd->listVidDevices[vd->current_device].vendor != NULL)
+			if (g_strcmp0(vd->listVidDevices[vd->current_device].vendor,"046d") != 0)
+				return 0;
+	}
 		
 	int i=0;
 	int err=0;

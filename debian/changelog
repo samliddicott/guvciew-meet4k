@@ -1,4 +1,4 @@
-guvcview (0.9.8) intrepid; urgency=low
+guvcview (0.9.8-ubuntu1) intrepid; urgency=low
 
    * Added audio tab
    * Added new icon theme
