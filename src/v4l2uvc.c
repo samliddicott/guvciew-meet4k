@@ -342,6 +342,7 @@ static int enum_devices(struct vdIn *vd)
 		g_printerr ("opening '/sys/class/video4linux' failed: %s\n", 
 			 error->message);
 		g_error_free ( error );
+		error=NULL;
 		return -1;
 	}
 	const gchar *v4l2_device;
@@ -420,6 +421,7 @@ static int enum_devices(struct vdIn *vd)
 			dev_dir,
 			error->message);
 			g_error_free ( error );
+			error=NULL;
 		}
 		else
 		{
@@ -475,10 +477,10 @@ static int enum_devices(struct vdIn *vd)
 			}
 		}
 		g_free(dev_dir);
-		g_dir_close(id_dir);
+		if(id_dir != NULL) g_dir_close(id_dir);
 	}
 	
-	g_dir_close(v4l2_dir);
+	if(v4l2_dir != NULL) g_dir_close(v4l2_dir);
 	return(vd->num_devices);
 }
 
