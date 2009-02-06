@@ -97,7 +97,7 @@ list_snd_devices(struct GLOBAL *global)
 				g_printf( "Host API                 = %s\n",  Pa_GetHostApiInfo( deviceInfo->hostApi )->name );
 				g_printf( "Max inputs = %d", deviceInfo->maxInputChannels  );
 			}
-			// INPUT devices (if it as input channels it's a capture device)
+			// INPUT devices (if it has input channels it's a capture device)
 			if (deviceInfo->maxInputChannels >0) 
 			{ 
 				global->Sound_numInputDev++;
