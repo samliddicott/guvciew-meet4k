@@ -30,7 +30,6 @@ list_snd_devices(struct GLOBAL *global)
 	const PaDeviceInfo *deviceInfo;
 	//PaStreamParameters inputParameters, outputParameters;
 	PaError err;
-	
 	/*sound device combo box*/
 	GtkWidget *SndDevice = gtk_combo_box_new_text ();
 	
@@ -50,10 +49,10 @@ list_snd_devices(struct GLOBAL *global)
 		{
 			deviceInfo = Pa_GetDeviceInfo( it );
 			if (global->debug) g_printf( "--------------------------------------- device #%d\n", it );
-			/* Mark global and API specific default devices */
+			// Mark global and API specific default devices
 			defaultDisplayed = 0;
-			/* Default Input will save the ALSA default device index*/
-			/* since ALSA lists after OSS                           */
+			// DEFAULT INPUT will save the ALSA default device index
+			// since ALSA lists after OSS                           
 			if( it == Pa_GetDefaultInputDevice() )
 			{
 				if (global->debug) g_printf( "[ Default Input" );
@@ -67,7 +66,7 @@ list_snd_devices(struct GLOBAL *global)
 				defaultDisplayed = 2;
 				global->Sound_DefDev=global->Sound_numInputDev;/*index in array of input devs*/
 			}
-			/* Output device doesn't matter for capture*/
+			// OUTPUT device doesn't matter for capture
 			if( it == Pa_GetDefaultOutputDevice() )
 			{
 			 	if (global->debug) 
@@ -98,15 +97,18 @@ list_snd_devices(struct GLOBAL *global)
 				g_printf( "Host API                 = %s\n",  Pa_GetHostApiInfo( deviceInfo->hostApi )->name );
 				g_printf( "Max inputs = %d", deviceInfo->maxInputChannels  );
 			}
-			/* if it as input channels it's a capture device*/
+			// INPUT devices (if it as input channels it's a capture device)
 			if (deviceInfo->maxInputChannels >0) 
 			{ 
-				global->Sound_IndexDev[global->Sound_numInputDev].id=it; /*saves dev id*/
-				global->Sound_IndexDev[global->Sound_numInputDev].chan=deviceInfo->maxInputChannels;
-				global->Sound_IndexDev[global->Sound_numInputDev].samprate=deviceInfo->defaultSampleRate;
+				global->Sound_numInputDev++;
+				//allocate new Sound Device Info
+				global->Sound_IndexDev = g_renew(sndDev, global->Sound_IndexDev, global->Sound_numInputDev);
+				//fill structure with sound data
+				global->Sound_IndexDev[global->Sound_numInputDev-1].id=it; /*saves dev id*/
+				global->Sound_IndexDev[global->Sound_numInputDev-1].chan=deviceInfo->maxInputChannels;
+				global->Sound_IndexDev[global->Sound_numInputDev-1].samprate=deviceInfo->defaultSampleRate;
 				//Sound_IndexDev[Sound_numInputDev].Hlatency=deviceInfo->defaultHighInputLatency;
 				//Sound_IndexDev[Sound_numInputDev].Llatency=deviceInfo->defaultLowInputLatency;
-				global->Sound_numInputDev++;
 				gtk_combo_box_append_text(GTK_COMBO_BOX(SndDevice),deviceInfo->name);
 			}
 			if (global->debug) 

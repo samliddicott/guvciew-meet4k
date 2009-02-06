@@ -93,6 +93,7 @@ int initGlobals (struct GLOBAL *global)
 	global->framecount=0;
 	global->frmrate=5;
 	global->Sound_enable=1; /*Enable Sound by Default*/
+	global->Sound_IndexDev=NULL;
 	global->Sound_SampRate=SAMPLE_RATE;
 	global->Sound_SampRateInd=0;
 	global->Sound_numInputDev=0;
@@ -162,6 +163,7 @@ int closeGlobals(struct GLOBAL *global)
 	g_free(global->aviinc_str);
 	g_free(global->avifile);
 	g_free(global->mode);
+	g_free(global->Sound_IndexDev);
 	g_mutex_free( global->mutex );
 	
 	global->videodevice=NULL;

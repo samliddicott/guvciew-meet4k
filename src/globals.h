@@ -71,7 +71,8 @@ struct GLOBAL
 	int Sound_SampRateInd;
 	int Sound_numInputDev;
 	//FIXME (should be alocated dinamicly like controls)
-	sndDev Sound_IndexDev[20]; /*up to 20 input devices */
+	//sndDev Sound_IndexDev[20]; /*up to 20 input devices */
+	sndDev *Sound_IndexDev;
 	int Sound_DefDev; 
 	int Sound_UseDev;
 	int Sound_NumChan;
