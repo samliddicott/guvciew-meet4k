@@ -355,7 +355,7 @@ draw_controls (struct ALL_DATA *all_data)
 			ci->label = gtk_label_new (tmp);
 			g_free(tmp);
 			/* ---- Add auto-focus checkbox and focus button ----- */
-			if (c->id== V4L2_CID_FOCUS_LOGITECH) 
+			if ((c->id== V4L2_CID_FOCUS_LOGITECH) && !(global->control_only)) 
 			{
 				global->AFcontrol=1;
 				GtkWidget *Focus_box = gtk_hbox_new (FALSE, 0);

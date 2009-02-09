@@ -40,6 +40,7 @@
 #include <linux/videodev2.h>
 #include <glib.h>
 #include <gtk/gtk.h>
+#include "globals.h"
 
 #define NB_BUFFER 4
 
@@ -381,8 +382,7 @@ struct VidState
 int check_videoIn(struct vdIn *vd);
 
 int 
-init_videoIn(struct vdIn *vd, char *device, int width, int height,
-	int format, int grabmethod, int fps, int fps_num);
+init_videoIn(struct vdIn *vd, struct GLOBAL *global);
 
 int uvcGrab(struct vdIn *vd);
 

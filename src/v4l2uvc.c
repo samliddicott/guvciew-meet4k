@@ -538,11 +538,17 @@ fatal:
 
 
 int
-init_videoIn(struct vdIn *vd, char *device, int width, int height,
-	int format, int grabmethod, int fps, int fps_num)
+init_videoIn(struct vdIn *vd, struct GLOBAL *global)
 {
 	int ret=0;
 	int i=0;
+	char *device = global->videodevice;
+	int width = global->width;
+	int height = global->height;
+	int format = global->format;
+	int grabmethod = global->grabmethod;
+	int fps = global->fps;
+	int fps_num = global->fps_num;
 	
 	vd->mutex = g_mutex_new();
 	if (vd == NULL || device == NULL)
@@ -600,107 +606,131 @@ init_videoIn(struct vdIn *vd, char *device, int width, int height,
 	if((n_dev = enum_devices(vd))<1)
 		g_printerr("unable to detect video devices on your system (%d)\n", n_dev);
 	
-	if ((ret=init_v4l2(vd)) < 0) 
+	/*open device*/
+	if (vd->fd <=0 )
 	{
-		g_printerr("Init v4L2 failed !! \n");
-		goto error;
-	}
-	vd->framesizeIn = (vd->width * vd->height << 1);
-	switch (vd->formatIn) 
-	{
-		case V4L2_PIX_FMT_JPEG:
-		case V4L2_PIX_FMT_MJPEG:
-			/* alloc a temp buffer to reconstruct the pict (MJPEG)*/
-			vd->tmpbuf_size= vd->framesizeIn;
-			vd->tmpbuffer = g_new0(unsigned char, vd->tmpbuf_size);
-			
-			vd->framebuf_size = vd->width * (vd->height + 8) * 2;
-			vd->framebuffer = g_new0(unsigned char, vd->framebuf_size); 
-			break;
-			
-		case V4L2_PIX_FMT_YYUV:
-		case V4L2_PIX_FMT_YUV420:
-			/* alloc a temp buffer for converting to YUYV*/
-			vd->tmpbuf_size= vd->framesizeIn;
-			vd->tmpbuffer = g_new0(unsigned char, vd->tmpbuf_size);
-			
-			vd->framebuf_size = vd->framesizeIn;
-			vd->framebuffer = g_new0(unsigned char, vd->framebuf_size);
-			break;
-			
-		case V4L2_PIX_FMT_YUYV:
-		case V4L2_PIX_FMT_UYVY:
-			/*YUYV doesn't need a temp buffer but we set if      */
-			/*video processing disable control  is set           */
-			/*            (logitech cameras only)                */
-			vd->framebuf_size = vd->framesizeIn;
-			vd->framebuffer = g_new0(unsigned char, vd->framebuf_size);
-			break;
-			
-		case V4L2_PIX_FMT_SGBRG8:
-			/*Raw 8 bit GBGB... RGRG...*/
-			/*when grabbing */
-			/*use: bayer_to_rgb24(bayer_data, RGB24_data, width, height, 0)*/
-			/*use: rgb2yuyv(RGB24_data, vd->framebuffer, width, height)*/
-		
-			/* alloc a temp buffer for converting to YUYV*/
-			/* rgb buffer for decoding bayer data*/
-			vd->tmpbuf_size = vd->width * vd->height * 3;
-			vd->tmpbuffer = g_new0(unsigned char, vd->tmpbuf_size);
-			
-			vd->framebuf_size = vd->framesizeIn;
-			vd->framebuffer = g_new0(unsigned char, vd->framebuf_size);
-			break;
-			
-		default:
-			g_printerr("(v4l2uvc.c) should never arrive (1)- exit fatal !!\n");
-			ret=-7;
+		if ((vd->fd = open(vd->videodevice, O_RDWR )) == -1) 
+		{
+			perror("ERROR opening V4L interface");
+			ret = -1;
 			goto error;
-			break;
+		}
 	}
+    
+	/*reset v4l2_format */
+	memset(&vd->fmt, 0, sizeof(struct v4l2_format));
+	/* populate video capabilities structure array           */
+	/* should only be called after all vdIn struct elements  */
+	/* have been initialized                                 */
+	check_videoIn(vd);
 	
-	if ((!vd->framebuffer) || (vd->framebuf_size <=0)) 
+	if(global->control_only)
 	{
-		g_printerr("couldn't calloc %d bytes of memory for frame buffer\n",
-			vd->framebuf_size);
-		ret=-6;
-		goto error;
-	} 
+		
+	}
 	else
 	{
-		/*set framebuffer to black (y=0x00 u=0x80 v=0x80) by default*/
-		switch (vd->formatIn) {
+		if ((ret=init_v4l2(vd)) < 0) 
+		{
+			g_printerr("Init v4L2 failed !! \n");
+			goto error;
+		}
+		vd->framesizeIn = (vd->width * vd->height << 1);
+		switch (vd->formatIn) 
+		{
 			case V4L2_PIX_FMT_JPEG:
 			case V4L2_PIX_FMT_MJPEG:
-			case V4L2_PIX_FMT_SGBRG8: /*converted to YUYV*/
-			case V4L2_PIX_FMT_YUV420: /*converted to YUYV*/
-			case V4L2_PIX_FMT_YYUV:   /*converted to YUYV*/ 
-			case V4L2_PIX_FMT_YUYV:
-				for (i=0; i<(vd->framebuf_size-4); i+=4)
-				{
-					vd->framebuffer[i]=0x00;  //Y
-					vd->framebuffer[i+1]=0x80;//U
-					vd->framebuffer[i+2]=0x00;//Y
-					vd->framebuffer[i+3]=0x80;//V
-				}
-			break;
-			case V4L2_PIX_FMT_UYVY:
-				for (i=0; i<(vd->framebuf_size-4); i+=4)
-				{
-					vd->framebuffer[i]=0x80;  //U
-					vd->framebuffer[i+1]=0x00;//Y
-					vd->framebuffer[i+2]=0x80;//V
-					vd->framebuffer[i+3]=0x00;//Y
-				}
+				/* alloc a temp buffer to reconstruct the pict (MJPEG)*/
+				vd->tmpbuf_size= vd->framesizeIn;
+				vd->tmpbuffer = g_new0(unsigned char, vd->tmpbuf_size);
+			
+				vd->framebuf_size = vd->width * (vd->height + 8) * 2;
+				vd->framebuffer = g_new0(unsigned char, vd->framebuf_size); 
 				break;
+			
+			case V4L2_PIX_FMT_YYUV:
+			case V4L2_PIX_FMT_YUV420:
+				/* alloc a temp buffer for converting to YUYV*/
+				vd->tmpbuf_size= vd->framesizeIn;
+				vd->tmpbuffer = g_new0(unsigned char, vd->tmpbuf_size);
+			
+				vd->framebuf_size = vd->framesizeIn;
+				vd->framebuffer = g_new0(unsigned char, vd->framebuf_size);
+				break;
+			
+			case V4L2_PIX_FMT_YUYV:
+			case V4L2_PIX_FMT_UYVY:
+				/*YUYV doesn't need a temp buffer but we set if      */
+				/*video processing disable control  is set           */
+				/*            (logitech cameras only)                */
+				vd->framebuf_size = vd->framesizeIn;
+				vd->framebuffer = g_new0(unsigned char, vd->framebuf_size);
+				break;
+			
+			case V4L2_PIX_FMT_SGBRG8:
+				/*Raw 8 bit GBGB... RGRG...*/
+				/*when grabbing */
+				/*use: bayer_to_rgb24(bayer_data, RGB24_data, width, height, 0)*/
+				/*use: rgb2yuyv(RGB24_data, vd->framebuffer, width, height)*/
+		
+				/* alloc a temp buffer for converting to YUYV*/
+				/* rgb buffer for decoding bayer data*/
+				vd->tmpbuf_size = vd->width * vd->height * 3;
+				vd->tmpbuffer = g_new0(unsigned char, vd->tmpbuf_size);
+			
+				vd->framebuf_size = vd->framesizeIn;
+				vd->framebuffer = g_new0(unsigned char, vd->framebuf_size);
+				break;
+			
 			default:
-				g_printerr("(v4l2uvc.c) should never arrive (2)- exit fatal !!\n");
+				g_printerr("(v4l2uvc.c) should never arrive (1)- exit fatal !!\n");
 				ret=-7;
 				goto error;
-			break;
-	}	
-	}
+				break;
+		}
 	
+		if ((!vd->framebuffer) || (vd->framebuf_size <=0)) 
+		{
+			g_printerr("couldn't calloc %d bytes of memory for frame buffer\n",
+				vd->framebuf_size);
+			ret=-6;
+			goto error;
+		} 
+		else
+		{
+			/*set framebuffer to black (y=0x00 u=0x80 v=0x80) by default*/
+			switch (vd->formatIn) {
+				case V4L2_PIX_FMT_JPEG:
+				case V4L2_PIX_FMT_MJPEG:
+				case V4L2_PIX_FMT_SGBRG8: /*converted to YUYV*/
+				case V4L2_PIX_FMT_YUV420: /*converted to YUYV*/
+				case V4L2_PIX_FMT_YYUV:   /*converted to YUYV*/ 
+				case V4L2_PIX_FMT_YUYV:
+					for (i=0; i<(vd->framebuf_size-4); i+=4)
+					{
+						vd->framebuffer[i]=0x00;  //Y
+						vd->framebuffer[i+1]=0x80;//U
+						vd->framebuffer[i+2]=0x00;//Y
+						vd->framebuffer[i+3]=0x80;//V
+					}
+				break;
+				case V4L2_PIX_FMT_UYVY:
+					for (i=0; i<(vd->framebuf_size-4); i+=4)
+					{
+						vd->framebuffer[i]=0x80;  //U
+						vd->framebuffer[i+1]=0x00;//Y
+						vd->framebuffer[i+2]=0x80;//V
+						vd->framebuffer[i+3]=0x00;//Y
+					}
+					break;
+				default:
+					g_printerr("(v4l2uvc.c) should never arrive (2)- exit fatal !!\n");
+					ret=-7;
+					goto error;
+				break;
+		}	
+		}
+	}
 	return 0;
 	/*error: clean up allocs*/
 error:
@@ -787,22 +817,6 @@ static int queue_buff(struct vdIn *vd)
 int init_v4l2(struct vdIn *vd)
 {
 	int ret = 0;
-	if (vd->fd <=0 )
-	{
-		if ((vd->fd = open(vd->videodevice, O_RDWR )) == -1) 
-		{
-			perror("ERROR opening V4L interface");
-			ret = -1;
-			goto fatal;
-		}
-	}
-    
-	/*reset v4l2_format */
-	memset(&vd->fmt, 0, sizeof(struct v4l2_format));
-	/* populate video capabilities structure array           */
-	/* should only be called after all vdIn struct elements  */
-	/* have been initialized                                 */
-	check_videoIn(vd);
 	
 	/*make sure we set a valid format*/
 	if ((ret=check_SupPixFormat(vd->formatIn)) < 0)

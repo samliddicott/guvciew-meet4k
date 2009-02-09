@@ -6,6 +6,7 @@ guvcview (0.9.8-ubuntu1) intrepid; urgency=low
    * Added Turkish, Danish and Czech catalogs
    * Fixed Debian/armel corruption bug.(fix by Rask Ingemann Lambertsen)
    * Fixed gdk display bug after avi capture auto split (when max length reached), make gdk thread safe.
+   * fixed empty device list segfault bug
    
  -- Paulo Assis <pj.assis@gmail.com>  Sat, 28 Jan 2009 09:43:00 +0000
 

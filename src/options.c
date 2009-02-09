@@ -521,6 +521,7 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 		{ "help", '?', G_OPTION_FLAG_HIDDEN, G_OPTION_ARG_NONE, &help, "Display help", NULL},
 		{ "verbose", 'v', 0, G_OPTION_ARG_NONE, &global->debug, N_("Displays debug information"), NULL },
 		{ "device", 'd', 0, G_OPTION_ARG_STRING, &device, N_("Video Device to use [default: /dev/video0]"), "VIDEO_DEVICE" },
+		{ "control_only", 'o', 0, G_OPTION_ARG_NONE, &global->control_only, "Don't stream video (controls only)", NULL},
 		{ "config", 'g', 0, G_OPTION_ARG_STRING, &config, N_("Configuration file"), "FILENAME" },
 		{ "hwd_acel", 'w', 0, G_OPTION_ARG_INT, &hwaccel, N_("Hardware accelaration (enable(1) | disable(0))"), "[1 | 0]" },
 		{ "format", 'f', 0, G_OPTION_ARG_STRING, &format, N_("Pixel format(mjpg|jpeg|yuyv|uyvy|yyuv|yu12|gbrg)"), "FORMAT" },

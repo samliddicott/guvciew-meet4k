@@ -98,8 +98,7 @@ shutd (gint restart, struct ALL_DATA *all_data)
 	if (global->debug) g_printf("waiting for thread to finish\n");
 	
 	/* wait for the main loop (video) thread */
-
-	g_thread_join( video_thread );
+	if(!(global->control_only)) g_thread_join( video_thread );
 
 	/* destroys fps timer*/
 	if (global->timer_id > 0) g_source_remove(global->timer_id);

@@ -41,12 +41,13 @@ struct GLOBAL
 	GMutex *mutex;
 	int debug;
 	char *videodevice;
+	gboolean control_only;/*if set don't stream video*/
+	gboolean flg_imgFPath; /*flag imgFPath if set in args*/
 	int stack_size;
 	char *confPath;
 	short flg_config; /*flag confPath if set in args*/
 	pchar* aviFPath;
 	pchar* imgFPath;
-	short  flg_imgFPath; /*flag imgFPath if set in args*/
 	char *avifile; /*avi filename passed through argument options with -n */
 	pchar* profile_FPath;
 	char *WVcaption; /*video preview title bar caption*/
@@ -70,9 +71,7 @@ struct GLOBAL
 	int Sound_SampRate;
 	int Sound_SampRateInd;
 	int Sound_numInputDev;
-	//FIXME (should be alocated dinamicly like controls)
-	//sndDev Sound_IndexDev[20]; /*up to 20 input devices */
-	sndDev *Sound_IndexDev;
+	sndDev *Sound_IndexDev; /*list of sound input devices*/
 	int Sound_DefDev; 
 	int Sound_UseDev;
 	int Sound_NumChan;
