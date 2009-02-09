@@ -52,7 +52,7 @@ struct focusData
 	int flag;
 	int setFocus;
 	int focus_wait;
-} __attribute__ ((packed));
+};
 
 void initFocusData (struct focusData *AFdata);
 

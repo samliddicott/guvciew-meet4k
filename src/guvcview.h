@@ -27,13 +27,8 @@
 #include "v4l2uvc.h"
 #include "avilib.h"
 #include "globals.h"
-#include "colorspaces.h"
 #include "sound.h"
-#include "jpgenc.h"
 #include "autofocus.h"
-#include "picture.h"
-#include "ms_time.h"
-#include "string_utils.h"
 
 /* Must set this as global so they */
 /* can be set from any callback.   */

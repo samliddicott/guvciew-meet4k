@@ -19,12 +19,11 @@
 #                                                                               #
 ********************************************************************************/
 
-#include "colorspaces.h"
-#include "v4l2uvc.h"
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <glib.h>
+#include "colorspaces.h"
+#include "v4l2uvc.h"
 
 /*------------------------------- Color space conversions --------------------*/
 /* regular yuv (YUYV) to rgb24*/

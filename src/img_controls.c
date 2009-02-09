@@ -21,9 +21,19 @@
 #                                                                               #
 ********************************************************************************/
 
-#include "img_controls.h"
+/* support for internationalization - i18n */
 #include <glib.h>
 #include <glib/gprintf.h>
+#include <glib/gi18n.h>
+
+#include <gtk/gtk.h>
+
+#include "img_controls.h"
+#include "v4l2uvc.h"
+#include "globals.h"
+#include "string_utils.h"
+#include "autofocus.h"
+#include "callbacks.h"
 
 /*exposure menu for old type controls */
 static const char *exp_typ[]={
@@ -73,7 +83,7 @@ draw_controls (struct ALL_DATA *all_data)
 		ci->label = NULL;
 		ci->spinbutton = NULL;
 		
-		if (c->id == V4L2_CID_EXPOSURE_AUTO_OLD) 
+		if (c->id == V4L2_CID_EXPOSURE_AUTO_OLD) //backward compatible (older v4l2 interface)
 		{
 			int j=0;
 			int val=0;
@@ -85,7 +95,7 @@ draw_controls (struct ALL_DATA *all_data)
 			{
 				if (input_set_control (videoIn, c, exp_vals[j]) == 0) 
 				{
-					videoIn->available_exp[val]=j;/*store index to values*/
+					videoIn->available_exp[val]=j;/*store valid index values*/
 					val++;
 				}
 			}
@@ -281,7 +291,7 @@ draw_controls (struct ALL_DATA *all_data)
 			if (videoIn->Pantilt_info == NULL)
 				videoIn->Pantilt_info = g_new0(PanTiltInfo, 7);
 			
-			videoIn->Pantilt_info[6].reset = 3; //pan reset
+			videoIn->Pantilt_info[6].reset = 3; //pan & tilt reset
 			g_object_set_data (G_OBJECT (PTReset), "pantilt_info", &(videoIn->Pantilt_info[6]));
 			
 			g_signal_connect (GTK_BUTTON (PTReset), "clicked",
@@ -289,7 +299,7 @@ draw_controls (struct ALL_DATA *all_data)
 		
 			gtk_table_attach (GTK_TABLE (s->table), ci->widget, 1, 2, 3+row, 4+row,
 				GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
-			//g_object_set_data (G_OBJECT (ci->widget), "control_info", ci);
+
 			ci->maxchars = MAX (num_chars (c->min), num_chars (c->max));
 			gtk_widget_show (ci->widget);
 			gchar *tmp;
@@ -519,7 +529,7 @@ draw_controls (struct ALL_DATA *all_data)
 		}
 		else 
 		{
-			g_printf ("TODO: implement button\n");
+			g_printf ("TODO: implement button controls\n");
 			continue;
 		}
 

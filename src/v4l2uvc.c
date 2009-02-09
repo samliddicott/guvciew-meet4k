@@ -604,7 +604,7 @@ init_videoIn(struct vdIn *vd, struct GLOBAL *global)
 	vd->Pantilt_info = NULL;
 	int n_dev = 0;
 	if((n_dev = enum_devices(vd))<1)
-		g_printerr("unable to detect video devices on your system (%d)\n", n_dev);
+		g_printerr("unable to detect video devices on your system (%i)\n", n_dev);
 	
 	/*open device*/
 	if (vd->fd <=0 )

@@ -331,7 +331,7 @@ struct vdIn
 	int capImage;
 	char *ImageFName;
 	int cap_raw;
-	int available_exp[4];
+	int available_exp[4]; //backward compatible (old v4l2 exposure menu interface)
 	VidFormats *listVidFormats;
 	VidDevice *listVidDevices;
 	int num_devices;

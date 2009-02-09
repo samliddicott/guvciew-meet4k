@@ -23,43 +23,7 @@
 #ifndef IMG_CONTROLS_H
 #define IMG_CONTROLS_H
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/file.h>
-#include <string.h>
-#include <pthread.h>
-#include <SDL/SDL.h>
-#include <linux/videodev.h>
-#include <sys/ioctl.h>
-#include <sys/mman.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <signal.h>
-#include <X11/Xlib.h>
-#include <SDL/SDL_syswm.h>
-/* support for internationalization - i18n */
-#include <glib/gi18n.h>
-#include "../config.h"
-
-#include <gtk/gtk.h>
-#include <gdk/gdkx.h>
-#include <portaudio.h>
-
-#include "v4l2uvc.h"
-#include "avilib.h"
-#include "globals.h"
-#include "colorspaces.h"
-#include "sound.h"
-#include "jpgenc.h"
-#include "autofocus.h"
-#include "picture.h"
-#include "ms_time.h"
-#include "string_utils.h"
 #include "guvcview.h"
-#include "callbacks.h"
 
 void
 draw_controls (struct ALL_DATA *all_data);

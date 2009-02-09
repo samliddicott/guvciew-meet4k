@@ -19,20 +19,13 @@
 #                                                                               #
 ********************************************************************************/
 
-#include "globals.h"
-#include "avilib.h"
-#include "sound.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <linux/types.h>
-#include <linux/videodev.h>
-#include <string.h>
-#include <glib.h>
 #include <glib/gprintf.h>
 /* support for internationalization - i18n */
 #include <glib/gi18n.h>
-
+#include "globals.h"
+#include "avilib.h"
+#include "sound.h"
+#include "v4l2uvc.h"
 
 int initGlobals (struct GLOBAL *global) 
 {

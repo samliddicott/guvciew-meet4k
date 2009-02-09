@@ -21,10 +21,27 @@
 #                                                                               #
 ********************************************************************************/
 
-#include "callbacks.h"
-
+#include <SDL/SDL.h>
+/* support for internationalization - i18n */
+#include <glib/gi18n.h>
 #include <glib.h>
 #include <glib/gprintf.h>
+
+#include <portaudio.h>
+
+#include "v4l2uvc.h"
+#include "avilib.h"
+#include "globals.h"
+#include "sound.h"
+#include "ms_time.h"
+#include "string_utils.h"
+#include "video.h"
+#include "mp2.h"
+#include "profile.h"
+#include "close.h"
+#include "timers.h"
+#include "callbacks.h"
+
 /*---------------------------- error message dialog-----------------------------*/
 void 
 ERR_DIALOG(const char *err_title, const char* err_msg, struct ALL_DATA *all_data)

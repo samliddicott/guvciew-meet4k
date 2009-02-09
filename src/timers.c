@@ -19,11 +19,12 @@
 #                                                                               #
 ********************************************************************************/
 
-#include "timers.h"
 #include <glib.h>
 #include <glib/gprintf.h>
 #include <gtk/gtk.h>
 #include <gdk/gdk.h>
+#include "string_utils.h"
+#include "timers.h"
 
 /* called by avi capture from start timer */
 gboolean

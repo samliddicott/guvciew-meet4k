@@ -19,12 +19,9 @@
 #                                                                               #
 ********************************************************************************/
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
 #include <glib.h>
 #include <twolame.h>
-#include "sound.h"
+#include "mp2.h"
 #include "globals.h"
 #include "defs.h"
 

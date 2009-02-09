@@ -22,10 +22,7 @@
 #ifndef MP2_H
 #define MP2_H
 
-#include <twolame.h>
 #include "sound.h"
-#include "globals.h"
-#include "defs.h"
 
 /*compress pcm data to MP2 (twolame)*/
 int

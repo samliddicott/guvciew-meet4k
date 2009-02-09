@@ -148,7 +148,7 @@ static void i_sort (struct focusData *AFdata, int size)
 
 #else
 /*buble sort (the simplest and most inefficient) - in real test with focus data*/
-/*it did real good better than shell or quick sort (focus data is almost sorted)*/
+/*it did better than shell or quick sort (focus data is almost sorted)*/
 static void b_sort (struct focusData *AFdata, int size) 
 {
 	int i, temp, swapped;
