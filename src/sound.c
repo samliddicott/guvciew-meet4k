@@ -19,16 +19,11 @@
 #                                                                               #
 ********************************************************************************/
 
-#include "sound.h"
-#include "ms_time.h"
-#include "globals.h"
-#include <glib.h>
 #include <glib/gprintf.h>
 #include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
-#include <portaudio.h>
+#include "sound.h"
+#include "ms_time.h"
 
 #ifndef M_PI
 #define M_PI		3.14159265358979323846

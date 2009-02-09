@@ -21,10 +21,6 @@
 #                                                                               #
 ********************************************************************************/
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <linux/videodev.h>
-#include <string.h>
 #include <portaudio.h>
 #include <SDL/SDL.h>
 #include <glib.h>
@@ -35,7 +31,6 @@
 #include "guvcview.h"
 #include "v4l2uvc.h"
 #include "avilib.h"
-#include "globals.h"
 #include "colorspaces.h"
 #include "sound.h"
 #include "jpgenc.h"

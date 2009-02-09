@@ -25,21 +25,26 @@
 #                                                                               # 
 #                                                                               #
 ********************************************************************************/
+
 #include <stdlib.h>
 #include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <fcntl.h>
 #include <string.h>
-#include <glib.h>
+#include <sys/ioctl.h>
+#include <sys/mman.h>
+#include <sys/select.h>
+#include <errno.h>
 #include <glib/gprintf.h>
 #include <glib/gstdio.h>
+/* support for internationalization - i18n */
+#include <glib/gi18n.h>
 
 #include "v4l2uvc.h"
 #include "utils.h"
 #include "picture.h"
 #include "colorspaces.h"
-/* support for internationalization - i18n */
-#include <glib/gi18n.h>
 
 /* needed only for language files (not used)*/
 /*UVC driver control strings*/

@@ -26,15 +26,12 @@
 #include <glib.h>
 #include <glib/gprintf.h>
 /* support for internationalization - i18n */
-//#include <locale.h> //gentoo patch
 #include <glib/gi18n.h>
 #include <gtk/gtk.h>
 #include <portaudio.h>
 
 #include "../config.h"
-#include "v4l2uvc.h"
 #include "avilib.h"
-#include "globals.h"
 #include "colorspaces.h"
 #include "sound.h"
 #include "snd_devices.h"

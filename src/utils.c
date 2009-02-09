@@ -28,21 +28,13 @@
 #                                                                               #
 ********************************************************************************/
 
+#include <glib.h>
+#include <glib/gprintf.h>
+/* support for internationalization - i18n */
+#include <glib/gi18n.h>
 #include "utils.h"
 #include "v4l2uvc.h"
 #include "huffman.h"
-#include <stdlib.h>
-#include <fcntl.h>
-#include <wait.h>
-#include <time.h>
-#include <limits.h>
-#include <string.h>
-#include <glib.h>
-#include <glib/gprintf.h>
-
-/* support for internationalization - i18n */
-#include <glib/gi18n.h>    
-
 
 #define ISHIFT 11
 

@@ -20,20 +20,11 @@
 ********************************************************************************/
 
 #include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <linux/videodev.h>
-#include <sys/file.h>
 #include <unistd.h>
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <fcntl.h>
-
-#include <getopt.h>
 #include <glib.h>
 #include <glib/gstdio.h>
 #include <glib/gprintf.h>
-//#include <libgen.h>
 /* support for internationalization - i18n */
 #include <glib/gi18n.h>
 

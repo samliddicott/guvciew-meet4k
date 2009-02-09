@@ -19,10 +19,6 @@
 #                                                                               #
 ********************************************************************************/
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <linux/videodev2.h>
 #include <gtk/gtk.h>
 #include <glib.h>
 #include <glib/gstdio.h>

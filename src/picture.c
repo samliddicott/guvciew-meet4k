@@ -23,8 +23,6 @@
 #include "huffman.h"
 #include "jpgenc.h"
 #include <glib.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include <png.h>
 
 /*----------------------------------- Image Files ----------------------------*/ 

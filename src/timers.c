@@ -19,12 +19,16 @@
 #                                                                               #
 ********************************************************************************/
 
-#include <glib.h>
+#include <SDL/SDL.h>
+/* support for internationalization - i18n */
+#include <glib/gi18n.h>
 #include <glib/gprintf.h>
 #include <gtk/gtk.h>
-#include <gdk/gdk.h>
 #include "string_utils.h"
-#include "timers.h"
+#include "v4l2uvc.h"
+#include "globals.h"
+#include "guvcview.h"
+#include "callbacks.h"
 
 /* called by avi capture from start timer */
 gboolean

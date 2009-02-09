@@ -26,7 +26,6 @@
 
 #include "v4l2uvc.h"
 #include "avilib.h"
-#include "globals.h"
 #include "sound.h"
 #include "autofocus.h"
 

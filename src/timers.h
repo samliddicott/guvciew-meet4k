@@ -22,25 +22,7 @@
 #ifndef TIMERS_H
 #define TIMERS_H
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
-#include <SDL/SDL.h>
-#include <signal.h>
-#include <X11/Xlib.h>
-#include <SDL/SDL_syswm.h>
-/* support for internationalization - i18n */
-#include <glib/gi18n.h>
-#include "../config.h"
-
-#include <gtk/gtk.h>
-#include <gdk/gdkx.h>
-
-#include "v4l2uvc.h"
-#include "globals.h"
-#include "guvcview.h"
-#include "callbacks.h"
+#include <glib.h>
 
 gboolean
 timer_callback(gpointer data);

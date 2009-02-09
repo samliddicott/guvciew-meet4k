@@ -21,6 +21,7 @@
 #                                                                               #
 ********************************************************************************/
 
+#include <unistd.h>
 #include <SDL/SDL.h>
 /* support for internationalization - i18n */
 #include <glib/gi18n.h>

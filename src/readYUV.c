@@ -26,11 +26,8 @@
 #  Adapted for linux, Paulo Assis, 2007 <pj.assis@gmail.com>                    #
 ********************************************************************************/
 
-#include "jpgenc.h"
-#include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
-#include <sys/types.h>
+#include "jpgenc.h"
 
 /*YUYV*/
 UINT8* read_422_format (struct JPEG_ENCODER_STRUCTURE * jpeg_encoder_structure, UINT8 *input_ptr)
