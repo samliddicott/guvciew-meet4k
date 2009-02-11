@@ -51,7 +51,9 @@ am_guvcview_OBJECTS = autofocus.$(OBJEXT) avilib.$(OBJEXT) \
 	options.$(OBJEXT) picture.$(OBJEXT) profile.$(OBJEXT) \
 	quant.$(OBJEXT) readYUV.$(OBJEXT) sound.$(OBJEXT) \
 	snd_devices.$(OBJEXT) string_utils.$(OBJEXT) timers.$(OBJEXT) \
-	utils.$(OBJEXT) v4l2uvc.$(OBJEXT) video.$(OBJEXT)
+	utils.$(OBJEXT) v4l2_controls.$(OBJEXT) v4l2_devices.$(OBJEXT) \
+	v4l2_dyna_ctrls.$(OBJEXT) v4l2_formats.$(OBJEXT) \
+	v4l2uvc.$(OBJEXT) video.$(OBJEXT)
 guvcview_OBJECTS = $(am_guvcview_OBJECTS)
 am__DEPENDENCIES_1 =
 guvcview_DEPENDENCIES = $(am__DEPENDENCIES_1)
@@ -233,6 +235,14 @@ guvcview_SOURCES = \
 	timers.c \
 	utils.h \
 	utils.c \
+	v4l2_controls.h \
+	v4l2_controls.c \
+	v4l2_devices.h \
+	v4l2_devices.c \
+	v4l2_dyna_ctrls.h \
+	v4l2_dyna_ctrls.c \
+	v4l2_formats.h \
+	v4l2_formats.c \
 	v4l2uvc.h \
 	v4l2uvc.c \
 	video.h \
@@ -330,6 +340,10 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/string_utils.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/timers.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/utils.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/v4l2_controls.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/v4l2_devices.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/v4l2_dyna_ctrls.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/v4l2_formats.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/v4l2uvc.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/video.Po@am__quote@
 

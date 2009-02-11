@@ -62,7 +62,7 @@ SaveControls(struct VidState *s, struct GLOBAL *global, struct vdIn *videoIn)
 				InputControl * c = s->control + i;
 				if(c->type == INPUT_CONTROL_TYPE_BOOLEAN) 
 				{
-					if (input_get_control (videoIn, c, &val) != 0) 
+					if (input_get_control (videoIn->fd, c, &val) != 0) 
 					{
 						val=c->default_val;
 					}
@@ -78,7 +78,7 @@ SaveControls(struct VidState *s, struct GLOBAL *global, struct vdIn *videoIn)
 				InputControl * c = s->control + i;
 				if(c->type == INPUT_CONTROL_TYPE_MENU) 
 				{
-					if (input_get_control (videoIn, c, &val) != 0)
+					if (input_get_control (videoIn->fd, c, &val) != 0)
 					{
 						val=c->default_val;
 					}
@@ -93,7 +93,7 @@ SaveControls(struct VidState *s, struct GLOBAL *global, struct vdIn *videoIn)
 				InputControl * c = s->control + i;
 				if(c->type == INPUT_CONTROL_TYPE_INTEGER) 
 				{
-					if (input_get_control (videoIn, c, &val) != 0) 
+					if (input_get_control (videoIn->fd, c, &val) != 0) 
 					{
 						val=c->default_val;
 					}

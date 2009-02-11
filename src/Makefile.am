@@ -61,6 +61,14 @@ guvcview_SOURCES = \
 	timers.c \
 	utils.h \
 	utils.c \
+	v4l2_controls.h \
+	v4l2_controls.c \
+	v4l2_devices.h \
+	v4l2_devices.c \
+	v4l2_dyna_ctrls.h \
+	v4l2_dyna_ctrls.c \
+	v4l2_formats.h \
+	v4l2_formats.c \
 	v4l2uvc.h \
 	v4l2uvc.c \
 	video.h \

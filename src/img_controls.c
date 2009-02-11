@@ -30,6 +30,7 @@
 
 #include "img_controls.h"
 #include "v4l2uvc.h"
+#include "v4l2_dyna_ctrls.h"
 #include "globals.h"
 #include "string_utils.h"
 #include "autofocus.h"
@@ -52,12 +53,29 @@ draw_controls (struct ALL_DATA *all_data)
 	struct GLOBAL *global = all_data->global;
 	struct vdIn *videoIn = all_data->videoIn;
 	
+	//add dynamic controls
+	//only uvc logitech cameras
+	//needs admin rights
+	/*only for uvc driver (uvcvideo)*/
+	if(videoIn->num_devices > 0)
+	{
+		g_printf("vid:%s \npid:%s\nrelease:%s\ndriver:%s\n",
+			videoIn->listVidDevices[videoIn->current_device].vendor,
+			videoIn->listVidDevices[videoIn->current_device].product,
+			videoIn->listVidDevices[videoIn->current_device].version,
+			videoIn->listVidDevices[videoIn->current_device].driver);
+		if(g_strcmp0(videoIn->listVidDevices[videoIn->current_device].driver,"uvcvideo") == 0)
+			if(videoIn->listVidDevices[videoIn->current_device].vendor != NULL)
+				if (g_strcmp0(videoIn->listVidDevices[videoIn->current_device].vendor,"046d") == 0)
+					initDynCtrls(videoIn->fd);
+	}
+	
 	if (s->control) 
 	{
 		input_free_controls (s);
 	}
 	s->num_controls = 0;
-	s->control = input_enum_controls (videoIn, &(s->num_controls));
+	s->control = input_enum_controls (videoIn->fd, &(s->num_controls));
 	if (global->debug) 
 	{
 		g_printf("Controls:\n");
@@ -89,17 +107,17 @@ draw_controls (struct ALL_DATA *all_data)
 			int val=0;
 			/* test available modes */
 			int def=0;
-			input_get_control (videoIn, c, &def);/*get stored value*/
+			input_get_control (videoIn->fd, c, &def);/*get stored value*/
 
 			for (j=0;j<4;j++) 
 			{
-				if (input_set_control (videoIn, c, exp_vals[j]) == 0) 
+				if (input_set_control (videoIn->fd, c, exp_vals[j]) == 0) 
 				{
 					videoIn->available_exp[val]=j;/*store valid index values*/
 					val++;
 				}
 			}
-			input_set_control (videoIn, c, def);/*set back to stored*/
+			input_set_control (videoIn->fd, c, def);/*set back to stored*/
 			
 			ci->widget = gtk_combo_box_new_text ();
 			for (j = 0; j <val; j++) 
@@ -332,7 +350,7 @@ draw_controls (struct ALL_DATA *all_data)
 			/*can't edit the spin value by hand*/
 			gtk_editable_set_editable(GTK_EDITABLE(ci->spinbutton),FALSE);
 
-			if (input_get_control (videoIn, c, &val) == 0) 
+			if (input_get_control (videoIn->fd, c, &val) == 0) 
 			{
 				gtk_range_set_value (GTK_RANGE (ci->widget), val);
 				gtk_spin_button_set_value (GTK_SPIN_BUTTON(ci->spinbutton), val);
@@ -340,7 +358,7 @@ draw_controls (struct ALL_DATA *all_data)
 			else 
 			{
 				/*couldn't get control value -> set to default*/
-				input_set_control (videoIn, c, c->default_val);
+				input_set_control (videoIn->fd, c, c->default_val);
 				gtk_range_set_value (GTK_RANGE (ci->widget), c->default_val);
 				gtk_spin_button_set_value (GTK_SPIN_BUTTON(ci->spinbutton), c->default_val);
 				gtk_widget_set_sensitive (ci->widget, TRUE);
@@ -436,7 +454,7 @@ draw_controls (struct ALL_DATA *all_data)
 			ci->label = gtk_label_new (tmp);
 			g_free(tmp);
 			
-			if (input_get_control (videoIn, c, &val) == 0) 
+			if (input_get_control (videoIn->fd, c, &val) == 0) 
 			{
 				gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (check_bayer),
 					val ? TRUE : FALSE);
@@ -465,7 +483,7 @@ draw_controls (struct ALL_DATA *all_data)
 			gtk_table_attach (GTK_TABLE (s->table), ci->widget, 1, 3, 3+row, 4+row,
 					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 
-			if (input_get_control (videoIn, c, &val) == 0) 
+			if (input_get_control (videoIn->fd, c, &val) == 0) 
 			{
 				gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (ci->widget),
 					val ? TRUE : FALSE);
@@ -473,7 +491,7 @@ draw_controls (struct ALL_DATA *all_data)
 			else 
 			{
 				/*couldn't get control value -> set to default*/
-				input_set_control (videoIn, c, c->default_val);
+				input_set_control (videoIn->fd, c, c->default_val);
 				gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (ci->widget),
 					c->default_val ? TRUE : FALSE);
 				gtk_widget_set_sensitive (ci->widget, TRUE);
@@ -503,14 +521,14 @@ draw_controls (struct ALL_DATA *all_data)
 			g_object_set_data (G_OBJECT (ci->widget), "control_info", ci);
 			gtk_widget_show (ci->widget);
 
-			if (input_get_control (videoIn, c, &val) == 0) 
+			if (input_get_control (videoIn->fd, c, &val) == 0) 
 			{
 				gtk_combo_box_set_active (GTK_COMBO_BOX (ci->widget), val);
 			}
 			else 
 			{
 				/*couldn't get control value -> set to default*/
-				input_set_control (videoIn, c, c->default_val);
+				input_set_control (videoIn->fd, c, c->default_val);
 				gtk_combo_box_set_active (GTK_COMBO_BOX (ci->widget), c->default_val);
 				gtk_widget_set_sensitive (ci->widget, TRUE);
 			}

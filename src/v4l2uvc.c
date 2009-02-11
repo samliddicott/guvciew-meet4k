@@ -21,9 +21,8 @@
 
 /*******************************************************************************#
 #                                                                               #
-#  MJpeg decoding and frame capture taken from luvcview                         #
+#  V4L2 interface                                                               #
 #                                                                               # 
-#                                                                               #
 ********************************************************************************/
 
 #include <stdlib.h>
@@ -42,6 +41,7 @@
 #include <glib/gi18n.h>
 
 #include "v4l2uvc.h"
+#include "v4l2_dyna_ctrls.h"
 #include "utils.h"
 #include "picture.h"
 #include "colorspaces.h"
@@ -71,434 +71,6 @@
 #define EXPMENU2	N_("Auto Mode")
 #define EXPMENU3	N_("Shutter Priority Mode")
 #define EXPMENU4	N_("Aperture Priority Mode")
-
-/* some Logitech webcams have pan/tilt/focus controls */
-#define LENGTH_OF_XU_CTR (6)
-#define LENGTH_OF_XU_MAP (10)
-
-static struct uvc_xu_control_info xu_ctrls[] = 
-{
-	{
-		.entity   = UVC_GUID_LOGITECH_MOTOR_CONTROL,
-		.selector = XU_MOTORCONTROL_PANTILT_RELATIVE,
-		.index    = 0,
-		.size     = 4,
-		.flags    = UVC_CONTROL_SET_CUR | UVC_CONTROL_GET_MIN | UVC_CONTROL_GET_MAX | UVC_CONTROL_GET_DEF
-	},
-	{
-		.entity   = UVC_GUID_LOGITECH_MOTOR_CONTROL,
-		.selector = XU_MOTORCONTROL_PANTILT_RESET,
-		.index    = 1,
-		.size     = 1,
-		.flags    = UVC_CONTROL_SET_CUR | UVC_CONTROL_GET_MIN | UVC_CONTROL_GET_MAX | UVC_CONTROL_GET_RES | UVC_CONTROL_GET_DEF
-	},
-	{
-		.entity   = UVC_GUID_LOGITECH_MOTOR_CONTROL,
-		.selector = XU_MOTORCONTROL_FOCUS,
-		.index    = 2,
-		.size     = 6,
-		.flags    = UVC_CONTROL_SET_CUR | UVC_CONTROL_GET_CUR | UVC_CONTROL_GET_MIN | UVC_CONTROL_GET_MAX |UVC_CONTROL_GET_DEF
-	},
-	{
-		.entity   = UVC_GUID_LOGITECH_VIDEO_PIPE,
-		.selector = XU_COLOR_PROCESSING_DISABLE,
-		.index    = 4,
-		.size     = 1,
-		.flags    = UVC_CONTROL_SET_CUR | UVC_CONTROL_GET_CUR |UVC_CONTROL_GET_MIN | UVC_CONTROL_GET_MAX | UVC_CONTROL_GET_RES | UVC_CONTROL_GET_DEF
-	},
-	{
-		.entity   = UVC_GUID_LOGITECH_VIDEO_PIPE,
-		.selector = XU_RAW_DATA_BITS_PER_PIXEL,
-		.index    = 7,
-		.size     = 1,
-		.flags    = UVC_CONTROL_SET_CUR | UVC_CONTROL_GET_CUR |UVC_CONTROL_GET_MIN | UVC_CONTROL_GET_MAX | UVC_CONTROL_GET_RES | UVC_CONTROL_GET_DEF
-	},
-	{
-		.entity   = UVC_GUID_LOGITECH_USER_HW_CONTROL,
-		.selector = XU_HW_CONTROL_LED1,
-		.index    = 0,
-		.size     = 3,
-		.flags    = UVC_CONTROL_SET_CUR | UVC_CONTROL_GET_CUR |UVC_CONTROL_GET_MIN | UVC_CONTROL_GET_MAX | UVC_CONTROL_GET_RES | UVC_CONTROL_GET_DEF
-	},
-	
-};
-
-/* mapping for Pan/Tilt/Focus */
-static struct uvc_xu_control_mapping xu_mappings[] = 
-{
-	{
-		.id        = V4L2_CID_PAN_RELATIVE_NEW,
-		.name      = N_("Pan (relative)"),
-		.entity    = UVC_GUID_LOGITECH_MOTOR_CONTROL,
-		.selector  = XU_MOTORCONTROL_PANTILT_RELATIVE,
-		.size      = 16,
-		.offset    = 0,
-		.v4l2_type = V4L2_CTRL_TYPE_INTEGER,
-		.data_type = UVC_CTRL_DATA_TYPE_SIGNED
-	},
-	{
-		.id        = V4L2_CID_TILT_RELATIVE_NEW,
-		.name      = N_("Tilt (relative)"),
-		.entity    = UVC_GUID_LOGITECH_MOTOR_CONTROL,
-		.selector  = XU_MOTORCONTROL_PANTILT_RELATIVE,
-		.size      = 16,
-		.offset    = 16,
-		.v4l2_type = V4L2_CTRL_TYPE_INTEGER,
-		.data_type = UVC_CTRL_DATA_TYPE_SIGNED
-	},
-	{
-		.id        = V4L2_CID_PAN_RESET_NEW,
-		.name      = N_("Pan Reset"),
-		.entity    = UVC_GUID_LOGITECH_MOTOR_CONTROL,
-		.selector  = XU_MOTORCONTROL_PANTILT_RESET,
-		.size      = 1,
-		.offset    = 0,
-		.v4l2_type = V4L2_CTRL_TYPE_INTEGER,
-		.data_type = UVC_CTRL_DATA_TYPE_UNSIGNED
-	},
-	{
-		.id        = V4L2_CID_TILT_RESET_NEW,
-		.name      = N_("Tilt Reset"),
-		.entity    = UVC_GUID_LOGITECH_MOTOR_CONTROL,
-		.selector  = XU_MOTORCONTROL_PANTILT_RESET,
-		.size      = 1,
-		.offset    = 1,
-		.v4l2_type = V4L2_CTRL_TYPE_INTEGER,
-		.data_type = UVC_CTRL_DATA_TYPE_UNSIGNED
-	},
-	{
-		.id        = V4L2_CID_PANTILT_RESET_LOGITECH,
-		.name      = N_("Pan/tilt Reset"),
-		.entity    = UVC_GUID_LOGITECH_MOTOR_CONTROL,
-		.selector  = XU_MOTORCONTROL_PANTILT_RESET,
-		.size      = 8,
-		.offset    = 0,
-		.v4l2_type = V4L2_CTRL_TYPE_INTEGER,
-		.data_type = UVC_CTRL_DATA_TYPE_UNSIGNED
-	},
-	{
-		.id        = V4L2_CID_FOCUS_LOGITECH,
-		.name      = N_("Focus (absolute)"),
-		.entity    = UVC_GUID_LOGITECH_MOTOR_CONTROL,
-		.selector  = XU_MOTORCONTROL_FOCUS,
-		.size      = 8,
-		.offset    = 0,
-		.v4l2_type = V4L2_CTRL_TYPE_INTEGER,
-		.data_type = UVC_CTRL_DATA_TYPE_UNSIGNED
-	},
-	{
-		.id        = V4L2_CID_LED1_MODE_LOGITECH,
-		.name      = N_("LED1 Mode"),
-		.entity    = UVC_GUID_LOGITECH_USER_HW_CONTROL,
-		.selector  = XU_HW_CONTROL_LED1,
-		.size      = 8,
-		.offset    = 0,
-		.v4l2_type = V4L2_CTRL_TYPE_INTEGER,
-		.data_type = UVC_CTRL_DATA_TYPE_UNSIGNED
-	},
-	{
-		.id        = V4L2_CID_LED1_FREQUENCY_LOGITECH,
-		.name      = N_("LED1 Frequency"),
-		.entity    = UVC_GUID_LOGITECH_USER_HW_CONTROL,
-		.selector  = XU_HW_CONTROL_LED1,
-		.size      = 8,
-		.offset    = 16,
-		.v4l2_type = V4L2_CTRL_TYPE_INTEGER,
-		.data_type = UVC_CTRL_DATA_TYPE_UNSIGNED
-	},
-	{
-		.id        = V4L2_CID_DISABLE_PROCESSING_LOGITECH,
-		.name      = N_("Disable video processing"),
-		.entity    = UVC_GUID_LOGITECH_VIDEO_PIPE,
-		.selector  = XU_COLOR_PROCESSING_DISABLE,
-		.size      = 8,
-		.offset    = 0,
-		.v4l2_type = V4L2_CTRL_TYPE_BOOLEAN,
-		.data_type = UVC_CTRL_DATA_TYPE_BOOLEAN
-	},
-	{
-		.id        = V4L2_CID_RAW_BITS_PER_PIXEL_LOGITECH,
-		.name      = N_("Raw bits per pixel"),
-		.entity    = UVC_GUID_LOGITECH_VIDEO_PIPE,
-		.selector  = XU_RAW_DATA_BITS_PER_PIXEL,
-		.size      = 8,
-		.offset    = 0,
-		.v4l2_type = V4L2_CTRL_TYPE_INTEGER,
-		.data_type = UVC_CTRL_DATA_TYPE_UNSIGNED
-	},
-	
-};
-
-
-#define SUP_PIX_FMT 6 /*number of supported formats*/
-
-static SupFormats listSupFormats[] =
-{
-	{
-		.format   = V4L2_PIX_FMT_MJPEG,
-		.mode     = "mjpg",
-		.hardware = 0
-	},
-	{
-		.format   = V4L2_PIX_FMT_JPEG,
-		.mode     ="jpeg",
-		.hardware = 0
-	},
-	{
-		.format   = V4L2_PIX_FMT_YUYV,
-		.mode     = "yuyv",
-		.hardware = 0
-	},
-	{
-		.format   = V4L2_PIX_FMT_UYVY,
-		.mode     = "uyvy",
-		.hardware = 0
-	},
-	{
-		.format   = V4L2_PIX_FMT_YYUV,
-		.mode     = "yyuv",
-		.hardware = 0
-	},
-	{
-		.format   = V4L2_PIX_FMT_YUV420,
-		.mode     = "yu12",
-		.hardware = 0
-	},
-	{
-		.format   = V4L2_PIX_FMT_SGBRG8,
-		.mode     = "gbrg",
-		.hardware = 0
-	},
-};
-
-/*check if format is supported by guvcview*/
-static int check_PixFormat(int pixfmt)
-{
-	int i=0;
-	for (i=0; i<SUP_PIX_FMT; i++)
-	{
-		if (pixfmt == listSupFormats[i].format)
-		{
-			return (i); /*return index from supported formats list*/
-		}
-		else i++;
-	}
-	return (-1);
-} 
-
-/*check if format is supported by hardware*/
-static int check_SupPixFormat(int pixfmt)
-{
-	int i=0;
-	for (i=0; i<SUP_PIX_FMT; i++)
-	{
-		if (pixfmt == listSupFormats[i].format)
-		{
-			if(listSupFormats[i].hardware > 0) return (i); /*supported by hardware*/
-		}
-		else i++;
-	}
-	return (-1);
-
-}
-
-int get_PixMode(int pixfmt, char *mode)
-{
-	int i=0;
-	for (i=0; i<SUP_PIX_FMT; i++)
-	{
-		if (pixfmt == listSupFormats[i].format)
-		{
-			g_snprintf(mode, 5, "%s", listSupFormats[i].mode);
-			return (1);
-		}
-		else i++;
-	}
-	return (-1);
-}
-
-int get_PixFormat(char *mode)
-{
-	int i=0;
-	for (i=0; i<SUP_PIX_FMT; i++)
-	{
-		if (g_strcmp0(mode, listSupFormats[i].mode)==0)
-		{
-			return (listSupFormats[i].format);
-		}
-		else i++;
-	}
-	return (listSupFormats[0].format); /*default is- MJPG*/
-}
-
-static int enum_devices(struct vdIn *vd)
-{
-	int ret=0;
-	int fd=0;
-	if (vd == NULL)
-		return -1;
-	struct v4l2_capability v4l2_cap;
-	GDir *v4l2_dir=NULL;
-	GDir *id_dir=NULL;
-	GError *error=NULL;
-	v4l2_dir = g_dir_open("/sys/class/video4linux",0,&error);
-	if(v4l2_dir == NULL)
-	{
-		g_printerr ("opening '/sys/class/video4linux' failed: %s\n", 
-			 error->message);
-		g_error_free ( error );
-		error=NULL;
-		return -1;
-	}
-	const gchar *v4l2_device;
-	vd->num_devices = 0;
-	while((v4l2_device = g_dir_read_name(v4l2_dir)) != NULL)
-	{
-		if(!(g_str_has_prefix(v4l2_device, "video")))
-			continue;
-		gchar *device = NULL;
-		device = g_strjoin("/","/dev",v4l2_device,NULL);
-		
-		if ((fd = open(device, O_RDWR )) == -1) 
-		{
-			g_printerr("ERROR opening V4L interface for %s\n",
-				device);
-			close(fd);
-			continue;
-		} 
-		else
-		{
-			ret = ioctl(fd, VIDIOC_QUERYCAP, &v4l2_cap);
-			if (ret < 0) 
-			{
-				perror("VIDIOC_QUERYCAP error");
-				g_printerr("   couldn't query device %s\n",
-					device);
-				close(fd);
-				continue;
-			}
-			else
-			{
-				vd->num_devices++;
-				g_printf("%s - device %d\n", device, vd->num_devices);
-				vd->listVidDevices = g_renew(VidDevice, 
-					vd->listVidDevices, 
-					vd->num_devices);
-				vd->listVidDevices[vd->num_devices-1].device = g_strdup(device);
-				vd->listVidDevices[vd->num_devices-1].name = g_strdup((gchar *) v4l2_cap.card);
-				vd->listVidDevices[vd->num_devices-1].driver = g_strdup((gchar *) v4l2_cap.driver);
-				vd->listVidDevices[vd->num_devices-1].location = g_strdup((gchar *) v4l2_cap.bus_info);
-				vd->listVidDevices[vd->num_devices-1].valid = 1;
-				if(g_strcmp0(vd->videodevice,vd->listVidDevices[vd->num_devices-1].device)==0) 
-				{
-					vd->listVidDevices[vd->num_devices-1].current = 1;
-					vd->current_device = vd->num_devices-1;
-				}
-				else
-					vd->listVidDevices[vd->num_devices-1].current = 0;
-			}
-		}
-		g_free(device);
-		
-		close(fd);
-		vd->listVidDevices[vd->num_devices-1].vendor = NULL;
-		vd->listVidDevices[vd->num_devices-1].product = NULL;
-		vd->listVidDevices[vd->num_devices-1].version = NULL;
-		/*get vid, pid and version from:                         */
-		/* /sys/class/video4linux/videoN/device/input/inputX/id/ */
-		
-		/* get input number - inputX */
-		gchar *dev_dir= g_strjoin("/",
-			"/sys/class/video4linux",
-			v4l2_device,
-			"device/input",
-			NULL);
-		id_dir = g_dir_open(dev_dir,0,&error);
-		if(id_dir == NULL)
-		{
-			g_printerr ("opening '%s' failed: %s\n",
-			dev_dir,
-			error->message);
-			g_error_free ( error );
-			error=NULL;
-		}
-		else
-		{
-			/* get data */
-			const gchar *inpXdir;
-			if((inpXdir = g_dir_read_name(id_dir)) != NULL)
-			{
-				char code[5];
-				/* vid */
-				gchar *vid_str=g_strjoin("/",
-					dev_dir,
-					inpXdir,
-					"id/vendor",
-					NULL);
-				FILE *vid_fp = g_fopen(vid_str,"r");
-				if(vid_fp != NULL)
-				{
-					if(fgets(code, sizeof(code), vid_fp) != NULL)
-						vd->listVidDevices[vd->num_devices-1].vendor = g_ascii_strdown(code,-1);
-					fclose (vid_fp);
-				}
-				g_free(vid_str);
-				/* pid */
-				gchar *pid_str=g_strjoin("/",
-					dev_dir,
-					inpXdir,
-					"id/product",
-					NULL);
-				
-				FILE *pid_fp = g_fopen(pid_str,"r");
-				if(pid_fp != NULL)
-				{
-					if(fgets(code, sizeof(code), pid_fp) != NULL)
-						vd->listVidDevices[vd->num_devices-1].product = g_ascii_strdown(code,-1);
-					fclose (pid_fp);
-				}
-				g_free(pid_str);
-				/* version */
-				gchar *ver_str=g_strjoin("/",
-					dev_dir,
-					inpXdir,
-					"id/version",
-					NULL);
-				
-				FILE *ver_fp = g_fopen(ver_str,"r");
-				if(pid_fp != NULL)
-				{
-					if(fgets(code, sizeof(code), ver_fp) != NULL)
-						vd->listVidDevices[vd->num_devices-1].version = g_ascii_strdown(code,-1);
-					fclose (ver_fp);
-				}
-				g_free(ver_str);
-			}
-		}
-		g_free(dev_dir);
-		if(id_dir != NULL) g_dir_close(id_dir);
-	}
-	
-	if(v4l2_dir != NULL) g_dir_close(v4l2_dir);
-	return(vd->num_devices);
-}
-
-static void freeDevices(struct vdIn *vd)
-{
-	int i=0;
-	
-	for(i=0;i<(vd->num_devices);i++)
-	{
-		g_free(vd->listVidDevices[i].device);
-		g_free(vd->listVidDevices[i].name);
-		g_free(vd->listVidDevices[i].driver);
-		g_free(vd->listVidDevices[i].location);
-		g_free(vd->listVidDevices[i].vendor);
-		g_free(vd->listVidDevices[i].product);
-		g_free(vd->listVidDevices[i].version);
-	}
-	g_free(vd->listVidDevices);
-}
 
 int check_videoIn(struct vdIn *vd)
 {
@@ -534,13 +106,12 @@ int check_videoIn(struct vdIn *vd)
 		}
 	}
 	g_printf("Init. %s (location: %s)\n", vd->cap.card, vd->cap.bus_info);
-	enum_frame_formats(vd);
+	
+	vd->listVidFormats = enum_frame_formats( &(vd->numb_formats), &(vd->width), &(vd->height), vd->fd);
 	return 0;
 fatal:
 	return -1;
 }
-
-
 
 int
 init_videoIn(struct vdIn *vd, struct GLOBAL *global)
@@ -563,10 +134,7 @@ init_videoIn(struct vdIn *vd, struct GLOBAL *global)
 	if (grabmethod < 0 || grabmethod > 1)
 		grabmethod = 1;		//mmap by default;
 	vd->videodevice = NULL;
-	
-	
 	vd->videodevice = g_strdup(device);
-	
 	g_printf("video device: %s \n", vd->videodevice);
 	
 	/*flag to video thread*/
@@ -605,11 +173,12 @@ init_videoIn(struct vdIn *vd, struct GLOBAL *global)
 	
 	vd->tmpbuffer = NULL;
 	vd->framebuffer = NULL;
-	
 	vd->Pantilt_info = NULL;
-	int n_dev = 0;
-	if((n_dev = enum_devices(vd))<1)
-		g_printerr("unable to detect video devices on your system (%i)\n", n_dev);
+
+	vd->listVidDevices = enum_devices( vd->videodevice, &(vd->num_devices), &(vd->current_device));
+	
+	if(!(vd->listVidDevices))
+		g_printerr("unable to detect video devices on your system (%i)\n", vd->num_devices);
 	
 	/*open device*/
 	if (vd->fd <=0 )
@@ -750,7 +319,6 @@ error:
 	return ret;
 }
 
-
 /* map the buffers */
 static int query_buff(struct vdIn *vd, const int setUNMAP) 
 {
@@ -817,7 +385,6 @@ static int queue_buff(struct vdIn *vd)
 	}
 	return 0;
 }
-
 
 int init_v4l2(struct vdIn *vd)
 {
@@ -888,8 +455,6 @@ fatal:
 	return ret;
 
 }
-
-
 
 static int video_enable(struct vdIn *vd)
 {
@@ -1071,22 +636,6 @@ err:
 	return -1;
 }
 
-static void freeFormats(struct vdIn *vd)
-{
-	int i=0;
-	int j=0;
-	for(i=0;i<vd->numb_formats;i++)
-	{
-		for(j=0;j<vd->listVidFormats[i].numb_res;j++)
-		{
-			g_free(vd->listVidFormats[i].listVidCap[j].framerate_num);
-			g_free(vd->listVidFormats[i].listVidCap[j].framerate_denom);
-		
-		}
-		g_free(vd->listVidFormats[i].listVidCap);
-	}
-	g_free(vd->listVidFormats);
-}
 
 void close_v4l2(struct vdIn *vd)
 {
@@ -1100,7 +649,7 @@ void close_v4l2(struct vdIn *vd)
 	g_free(vd->AVIFName);
 	g_free(vd->Pantilt_info);
 	/*free format allocations*/
-	freeFormats(vd);
+	freeFormats(vd->listVidFormats, vd->numb_formats);
 	/*unmap queue buffers*/	
 	for (i = 0; i < NB_BUFFER; i++) 
 	{
@@ -1117,48 +666,13 @@ void close_v4l2(struct vdIn *vd)
 	vd->ImageFName = NULL;
 	vd->AVIFName = NULL;
 	vd->Pantilt_info = NULL;
-	freeDevices(vd);
+	freeDevices(vd->listVidDevices, vd->num_devices);
 	/*close device descriptor*/
 	close(vd->fd);
 	g_mutex_free( vd->mutex );
 	/*free struct allocation*/
 	g_free(vd);
 	vd=NULL;
-}
-
-int
-input_get_control (struct vdIn * device, InputControl * control, int * val)
-{
-	int fd;
-	int ret=0;
-	struct v4l2_control c;
-	memset(&c,0,sizeof(struct v4l2_control));
-	
-	fd = device->fd;
- 
-	c.id  = control->id;
-	ret = ioctl (fd, VIDIOC_G_CTRL, &c);
-	if (ret == 0) *val = c.value;
-	else perror("VIDIOC_G_CTRL - Unable to get control");
-	
-	return ret;
-}
-
-int
-input_set_control (struct vdIn * device, InputControl * control, int val)
-{
-	int fd;
-	int ret=0;
-	struct v4l2_control c;
-
-	fd = device->fd;
-
-	c.id  = control->id;
-	c.value = val;
-	ret = ioctl (fd, VIDIOC_S_CTRL, &c);
-	if (ret < 0) perror("VIDIOC_S_CTRL - Unable to set control");
-
-	return ret;
 }
 
 int
@@ -1208,322 +722,6 @@ input_get_framerate (struct vdIn * device)
 	return ret;
 }
 
-InputControl *
-input_enum_controls (struct vdIn * device, int *num_controls)
-{
-	int ret=0;
-	int fd;
-	InputControl * control = NULL;
-	int n = 0;
-	struct v4l2_queryctrl queryctrl;
-	memset(&queryctrl,0,sizeof(struct v4l2_queryctrl));
-	int i=0;
-	fd = device->fd;
-
-	initDynCtrls(device);
-	i = V4L2_CID_BASE; /* as defined by V4L2 */
-	while (i <= V4L2_CID_LAST_EXTCTR) 
-	{ 
-		queryctrl.id = i;
-		if ((ret=ioctl (fd, VIDIOC_QUERYCTRL, &queryctrl)) == 0 &&
-			!(queryctrl.flags & V4L2_CTRL_FLAG_DISABLED)) 
-		{
-			control = g_renew(InputControl, control, n+1);
-			control[n].i = n;
-			control[n].id = queryctrl.id;
-			control[n].type = queryctrl.type;
-			control[n].name = strdup ((char *)queryctrl.name);
-			control[n].min = queryctrl.minimum;
-			control[n].max = queryctrl.maximum;
-			control[n].step = queryctrl.step;
-			control[n].default_val = queryctrl.default_value;
-			control[n].enabled = (queryctrl.flags & V4L2_CTRL_FLAG_GRABBED) ? 0 : 1;
-			control[n].entries = NULL;
-			if (queryctrl.type == V4L2_CTRL_TYPE_BOOLEAN)
-			{
-				control[n].min = 0;
-				control[n].max = 1;
-				control[n].step = 1;
-				/*get the first bit*/
-				control[n].default_val=(queryctrl.default_value & 0x0001);
-			} 
-			else if (queryctrl.type == V4L2_CTRL_TYPE_MENU) 
-			{
-				struct v4l2_querymenu querymenu;
-				memset(&querymenu,0,sizeof(struct v4l2_querymenu));
-				control[n].min = 0;
-
-				querymenu.id = queryctrl.id;
-				querymenu.index = 0;
-				while (ioctl (fd, VIDIOC_QUERYMENU, &querymenu) == 0) 
-				{
-					control[n].entries = g_renew(pchar, control[n].entries, querymenu.index+1);
-					control[n].entries[querymenu.index] = g_strdup ((char *) querymenu.name);
-					querymenu.index++;
-				}
-				control[n].max = querymenu.index - 1;
-			}
-			n++;
-		} 
-		else 
-		{
-			if (errno != EINVAL) g_printerr("Failed to query control id=%d: %s\n"
-					, i, strerror(errno));
-		}
-		i++;
-		if (i == V4L2_CID_LAST_NEW)  /* jump between CIDs*/
-			i = V4L2_CID_CAMERA_CLASS_BASE_NEW;
-		if (i == V4L2_CID_CAMERA_CLASS_LAST)
-			i = V4L2_CID_PRIVATE_BASE_OLD;
-		if (i == V4L2_CID_PRIVATE_LAST)
-			i = V4L2_CID_BASE_EXTCTR;
-	}
-	*num_controls = n;
-	return control;
-}
-
-void
-input_free_controls (struct VidState *s)
-{
-	int i=0;
-	for (i = 0; i < s->num_controls; i++) 
-	{
-		ControlInfo * ci = s->control_info + i;
-		if (ci->widget)
-			gtk_widget_destroy (ci->widget);
-		if (ci->label)
-			gtk_widget_destroy (ci->label);
-		if (ci->spinbutton)
-			gtk_widget_destroy (ci->spinbutton);
-		g_free (s->control[i].name);
-		if (s->control[i].type == INPUT_CONTROL_TYPE_MENU) 
-		{
-			int j;
-			for (j = 0; j <= s->control[i].max; j++) 
-			{
-				g_free (s->control[i].entries[j]);
-			}
-			g_free (s->control[i].entries);
-		}
-	}
-	g_free (s->control_info);
-	s->control_info = NULL;
-	g_free (s->control);
-	s->control = NULL;
-}
-/******************************* enumerations *********************************/
-/*list_form < 0   => format not supported */
-int enum_frame_intervals(struct vdIn *vd, __u32 pixfmt, __u32 width, __u32 height, 
-			int fmtind, int fsizeind)
-{
-	int ret=0;
-	struct v4l2_frmivalenum fival;
-	int list_fps=0;
-	memset(&fival, 0, sizeof(fival));
-	fival.index = 0;
-	fival.pixel_format = pixfmt;
-	fival.width = width;
-	fival.height = height;
-	vd->listVidFormats[fmtind-1].listVidCap[fsizeind-1].framerate_num=NULL;
-	vd->listVidFormats[fmtind-1].listVidCap[fsizeind-1].framerate_denom=NULL;
-	
-	g_printf("\tTime interval between frame: ");
-	while ((ret = ioctl(vd->fd, VIDIOC_ENUM_FRAMEINTERVALS, &fival)) == 0) 
-	{
-		fival.index++;
-		if (fival.type == V4L2_FRMIVAL_TYPE_DISCRETE) 
-		{
-			g_printf("%u/%u, ", fival.discrete.numerator, fival.discrete.denominator);
-				
-			list_fps++;
-			vd->listVidFormats[fmtind-1].listVidCap[fsizeind-1].framerate_num = g_renew(
-				int, vd->listVidFormats[fmtind-1].listVidCap[fsizeind-1].framerate_num, list_fps);
-			vd->listVidFormats[fmtind-1].listVidCap[fsizeind-1].framerate_denom = g_renew(
-				int, vd->listVidFormats[fmtind-1].listVidCap[fsizeind-1].framerate_denom, list_fps);
-			
-			vd->listVidFormats[fmtind-1].listVidCap[fsizeind-1].framerate_num[list_fps-1] = fival.discrete.numerator;
-			vd->listVidFormats[fmtind-1].listVidCap[fsizeind-1].framerate_denom[list_fps-1] = fival.discrete.denominator;
-		} 
-		else if (fival.type == V4L2_FRMIVAL_TYPE_CONTINUOUS) 
-		{
-			g_printf("{min { %u/%u } .. max { %u/%u } }, ",
-				fival.stepwise.min.numerator, fival.stepwise.min.numerator,
-				fival.stepwise.max.denominator, fival.stepwise.max.denominator);
-			break;
-		} 
-		else if (fival.type == V4L2_FRMIVAL_TYPE_STEPWISE) 
-		{
-			g_printf("{min { %u/%u } .. max { %u/%u } / "
-				"stepsize { %u/%u } }, ",
-				fival.stepwise.min.numerator, fival.stepwise.min.denominator,
-				fival.stepwise.max.numerator, fival.stepwise.max.denominator,
-				fival.stepwise.step.numerator, fival.stepwise.step.denominator);
-			break;
-		}
-	}
-	
-	vd->listVidFormats[fmtind-1].listVidCap[fsizeind-1].numb_frates = list_fps;
-	
-	g_printf("\n");
-	if (ret != 0 && errno != EINVAL) 
-	{
-		perror("VIDIOC_ENUM_FRAMEINTERVALS - Error enumerating frame intervals");
-		return errno;
-	}
-	return 0;
-}
-
-int enum_frame_sizes(struct vdIn *vd, __u32 pixfmt, int fmtind)
-{
-	int ret=0;
-	int fsizeind=0; /*index for supported sizes*/
-	vd->listVidFormats[fmtind-1].listVidCap = NULL;
-	struct v4l2_frmsizeenum fsize;
-
-	memset(&fsize, 0, sizeof(fsize));
-	fsize.index = 0;
-	fsize.pixel_format = pixfmt;
-	while ((ret = ioctl(vd->fd, VIDIOC_ENUM_FRAMESIZES, &fsize)) == 0) 
-	{
-		fsize.index++;
-		if (fsize.type == V4L2_FRMSIZE_TYPE_DISCRETE) 
-		{
-			g_printf("{ discrete: width = %u, height = %u }\n",
-				fsize.discrete.width, fsize.discrete.height);
-			
-			fsizeind++;
-			vd->listVidFormats[fmtind-1].listVidCap = g_renew(VidCap, 
-				vd->listVidFormats[fmtind-1].listVidCap,
-				fsizeind);
-			
-			vd->listVidFormats[fmtind-1].listVidCap[fsizeind-1].width = fsize.discrete.width;
-			vd->listVidFormats[fmtind-1].listVidCap[fsizeind-1].height = fsize.discrete.height;
-			
-			ret = enum_frame_intervals(vd, pixfmt,
-				fsize.discrete.width, fsize.discrete.height,
-				fmtind,fsizeind);
-			
-			if (ret != 0) perror("  Unable to enumerate frame sizes");
-		} 
-		else if (fsize.type == V4L2_FRMSIZE_TYPE_CONTINUOUS) 
-		{
-			g_printf("{ continuous: min { width = %u, height = %u } .. "
-				"max { width = %u, height = %u } }\n",
-				fsize.stepwise.min_width, fsize.stepwise.min_height,
-				fsize.stepwise.max_width, fsize.stepwise.max_height);
-			g_printf("  will not enumerate frame intervals.\n");
-		} 
-		else if (fsize.type == V4L2_FRMSIZE_TYPE_STEPWISE) 
-		{
-			g_printf("{ stepwise: min { width = %u, height = %u } .. "
-				"max { width = %u, height = %u } / "
-				"stepsize { width = %u, height = %u } }\n",
-				fsize.stepwise.min_width, fsize.stepwise.min_height,
-				fsize.stepwise.max_width, fsize.stepwise.max_height,
-				fsize.stepwise.step_width, fsize.stepwise.step_height);
-			g_printf("  will not enumerate frame intervals.\n");
-		} 
-		else 
-		{
-			g_printerr("  fsize.type not supported: %d\n", fsize.type);
-			g_printerr("     (Discrete: %d   Continuous: %d  Stepwise: %d)\n",
-				V4L2_FRMSIZE_TYPE_DISCRETE,
-				V4L2_FRMSIZE_TYPE_CONTINUOUS,
-				V4L2_FRMSIZE_TYPE_STEPWISE);
-		}
-	}
-	if (ret != 0 && errno != EINVAL) 
-	{
-		perror("VIDIOC_ENUM_FRAMESIZES - Error enumerating frame sizes");
-		return errno;
-	} 
-	else if ((ret != 0) && (fsizeind == 0)) 
-	{
-		/* ------ gspca doesn't enumerate frame sizes ------ */
-		/*       negotiate with VIDIOC_TRY_FMT instead       */
-		
-		fsizeind++;
-		vd->fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-		vd->fmt.fmt.pix.width = vd->width;
-		vd->fmt.fmt.pix.height = vd->height;
-		vd->fmt.fmt.pix.pixelformat = pixfmt;
-		vd->fmt.fmt.pix.field = V4L2_FIELD_ANY;
-		ret = ioctl(vd->fd, VIDIOC_TRY_FMT, &vd->fmt);
-		/*use the returned values*/
-		vd->width = vd->fmt.fmt.pix.width;
-		vd->height = vd->fmt.fmt.pix.height;
-		g_printf("{ ?GSPCA? : width = %u, height = %u }\n", vd->width, vd->height);
-		
-		if(vd->listVidFormats[fmtind-1].listVidCap == NULL) 
-		{
-			vd->listVidFormats[fmtind-1].listVidCap = g_renew( VidCap,
-				vd->listVidFormats[fmtind-1].listVidCap,
-				fsizeind);
-			vd->listVidFormats[fmtind-1].listVidCap[0].framerate_num = g_renew( int,
-				vd->listVidFormats[fmtind-1].listVidCap[0].framerate_num,
-				1);
-			vd->listVidFormats[fmtind-1].listVidCap[0].framerate_denom = g_renew( int,
-				vd->listVidFormats[fmtind-1].listVidCap[0].framerate_denom,
-				1);
-		} 
-		else
-		{
-			g_printerr("assert failed: listVidCap not Null\n");
-			return (-2);
-		}
-		vd->listVidFormats[fmtind-1].listVidCap[0].width = vd->width;
-		vd->listVidFormats[fmtind-1].listVidCap[0].height = vd->height;
-		vd->listVidFormats[fmtind-1].listVidCap[0].framerate_num[0] = vd->fps_num;
-		vd->listVidFormats[fmtind-1].listVidCap[0].framerate_denom[0] = vd->fps;
-	}
-	
-	vd->listVidFormats[fmtind-1].numb_res=fsizeind;
-	return 0;
-}
-
-int enum_frame_formats(struct vdIn *vd)
-{
-	int ret=0;
-	int fmtind=0;
-	struct v4l2_fmtdesc fmt;
-	vd->listVidFormats = NULL;
-	memset(&fmt, 0, sizeof(fmt));
-	fmt.index = 0;
-	fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-	while ((ret = ioctl(vd->fd, VIDIOC_ENUM_FMT, &fmt)) == 0) 
-	{
-		fmt.index++;
-		g_printf("{ pixelformat = '%c%c%c%c', description = '%s' }\n",
-				fmt.pixelformat & 0xFF, (fmt.pixelformat >> 8) & 0xFF,
-				(fmt.pixelformat >> 16) & 0xFF, (fmt.pixelformat >> 24) & 0xFF,
-				fmt.description);
-		/*check if format is supported by guvcview and allocate it*/
-		if((ret=check_PixFormat(fmt.pixelformat)) >= 0) 
-		{
-			fmtind++;
-			listSupFormats[ret].hardware = fmtind; /*supported by hardware*/
-			vd->listVidFormats = g_renew(VidFormats, vd->listVidFormats, fmtind);
-			vd->listVidFormats[fmtind-1].format=fmt.pixelformat;
-			g_snprintf(vd->listVidFormats[fmtind-1].fourcc,5,"%c%c%c%c",
-				fmt.pixelformat & 0xFF, (fmt.pixelformat >> 8) & 0xFF,
-				(fmt.pixelformat >> 16) & 0xFF, (fmt.pixelformat >> 24) & 0xFF);
-			ret = enum_frame_sizes(vd, fmt.pixelformat, fmtind);
-			if (ret != 0)
-				perror("  Unable to enumerate frame sizes.\n");
-		}
-		else
-		{
-			g_printerr("   { not supported - request format support at http://guvcview.berlios.de }\n");
-		}
-	}
-	if (errno != EINVAL) {
-		perror("VIDIOC_ENUM_FMT - Error enumerating frame formats");
-		return errno;
-	}
-	vd->numb_formats=fmtind;
-	return 0;
-}
-
 int get_FormatIndex(struct vdIn *vd, int format)
 {
 	int i=0;
@@ -1533,136 +731,4 @@ int get_FormatIndex(struct vdIn *vd, int format)
 			return (i);
 	}
 	return (-1);
-}
-
-int initDynCtrls(struct vdIn *vd) 
-{
-	/*only for uvc driver (uvcvideo)*/
-	if(vd->num_devices > 0)
-	{
-		g_printf("vid:%s \npid:%s\nrelease:%s\ndriver:%s\n",
-			vd->listVidDevices[vd->current_device].vendor,
-			vd->listVidDevices[vd->current_device].product,
-			vd->listVidDevices[vd->current_device].version,
-			vd->listVidDevices[vd->current_device].driver);
-		if(g_strcmp0(vd->listVidDevices[vd->current_device].driver,"uvcvideo") != 0)
-			return 0;
-		/*only for logitech cameras*/
-		if(vd->listVidDevices[vd->current_device].vendor != NULL)
-			if (g_strcmp0(vd->listVidDevices[vd->current_device].vendor,"046d") != 0)
-				return 0;
-	}
-		
-	int i=0;
-	int err=0;
-	/* try to add all controls listed above */
-	for ( i=0; i<LENGTH_OF_XU_CTR; i++ ) 
-	{
-		g_printf("Adding control for %s\n", xu_mappings[i].name);
-		if ((err=ioctl(vd->fd, UVCIOC_CTRL_ADD, &xu_ctrls[i])) < 0 ) 
-		{
-			if (errno != EEXIST) perror("UVCIOC_CTRL_ADD - Error");
-			//else perror("Control exists");
-		}
-	}
-	/* after adding the controls, add the mapping now */
-	for ( i=0; i<LENGTH_OF_XU_MAP; i++ ) 
-	{
-		g_printf("mapping control for %s\n", xu_mappings[i].name);
-		if ((err=ioctl(vd->fd, UVCIOC_CTRL_MAP, &xu_mappings[i])) < 0) 
-		{
-			if (errno!=EEXIST) perror("UVCIOC_CTRL_MAP - Error");
-			//else perror("Mapping exists");
-		}
-	} 
-	return 0;
-}
-
-/*
-SRC: https://lists.berlios.de/pipermail/linux-uvc-devel/2007-July/001888.html
-- dev: the device file descriptor
-- pan: pan angle in 1/64th of degree
-- tilt: tilt angle in 1/64th of degree
-- reset: set 1 to reset Pan, set 2 to reset tilt, set to 3 to reset pan/tilt to the device origin, set to 0 otherwise
-*/
-int uvcPanTilt(struct vdIn *vd, int pan, int tilt, int reset) 
-{
-	struct v4l2_ext_control xctrls[2];
-	struct v4l2_ext_controls ctrls;
-	
-	if (reset) 
-	{
-		switch (reset) 
-		{
-			case 1:
-				xctrls[0].id = V4L2_CID_PAN_RESET_NEW;
-				xctrls[0].value = 1;
-				break;
-			
-			case 2:
-				xctrls[0].id = V4L2_CID_TILT_RESET_NEW;
-				xctrls[0].value = 1;
-				break;
-			
-			case 3:
-				xctrls[0].value = 3;
-				xctrls[0].id = V4L2_CID_PANTILT_RESET_LOGITECH;
-				break;
-		}
-		ctrls.count = 1;
-		ctrls.controls = xctrls;
-	} 
-	else 
-	{
-		xctrls[0].id = V4L2_CID_PAN_RELATIVE_NEW;
-		xctrls[0].value = pan;
-		xctrls[1].id = V4L2_CID_TILT_RELATIVE_NEW;
-		xctrls[1].value = tilt;
-	
-		ctrls.count = 2;
-		ctrls.controls = xctrls;
-	}
-	
-	if ( ioctl(vd->fd, VIDIOC_S_EXT_CTRLS, &ctrls) < 0 ) 
-	{
-		perror("VIDIOC_S_EXT_CTRLS - Pan/Tilt error\n");
-			return -1;
-	}
-	
-	return 0;
-}
-
-/*--------------------------- focus control ----------------------------------*/
-int 
-get_focus (struct vdIn *videoIn)
-{
-	int ret=0;
-	struct v4l2_control c;
-	int val=0;
-
-	c.id  = V4L2_CID_FOCUS_LOGITECH;
-	ret = ioctl (videoIn->fd, VIDIOC_G_CTRL, &c);
-	if (ret < 0) 
-	{
-		perror("VIDIOC_G_CTRL - get focus error");
-		val = -1;
-	}
-	else val = c.value;
-	
-	return val;
-
-}
-
-int 
-set_focus (struct vdIn *videoIn, int val) 
-{
-	int ret=0;
-	struct v4l2_control c;
-
-	c.id  = V4L2_CID_FOCUS_LOGITECH;
-	c.value = val;
-	ret = ioctl (videoIn->fd, VIDIOC_S_CTRL, &c);
-	if (ret < 0) perror("VIDIOC_S_CTRL - set focus error");
-
-	return ret;
 }
