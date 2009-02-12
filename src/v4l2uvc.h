@@ -37,9 +37,22 @@
 
 #define NB_BUFFER 4
 
-/*timecode flag for unsetting UVC_QUEUE_DROP_INCOMPLETE*/
-/*must patch UVC driver */
-#define V4L2_TC_FLAG_NO_DROP		0x1000
+#define VDIN_SELETIMEOUT_ERR       2
+#define VDIN_SELEFAIL_ERR          1
+#define VDIN_OK                    0
+#define VDIN_DEVICE_ERR           -1
+#define VDIN_FORMAT_ERR           -2
+#define VDIN_REQBUFS_ERR          -3
+#define VDIN_ALLOC_ERR            -4
+#define VDIN_RESOL_ERR            -5
+#define VDIN_FBALLOC_ERR          -6
+#define VDIN_UNKNOWN_ERR          -7
+#define VDIN_DEQBUFS_ERR          -8
+#define VDIN_DECODE_ERR           -9
+#define VDIN_QUERYCAP_ERR        -10
+#define VDIN_QUERYBUF_ERR        -11
+#define VDIN_QBUF_ERR            -12
+#define VDIN_MMAP_ERR            -13
 
 enum  v4l2_uvc_exposure_auto_type 
 {
@@ -59,73 +72,90 @@ static const int exp_vals[]=
 
 typedef struct _PanTiltInfo
 {
-	gint pan;
-	gint tilt;
-	gint reset;
+	gint pan;    // pan value
+	gint tilt;   // tilt value
+	gint reset;  // reset value
 } PanTiltInfo;
 
 struct vdIn 
 {
-	GMutex *mutex;
-	int fd;
-	char *videodevice;
-	//char *status;
-	struct v4l2_capability cap;
-	struct v4l2_format fmt;
-	struct v4l2_buffer buf;
-	struct v4l2_requestbuffers rb;
-	struct v4l2_timecode timecode;
-	struct v4l2_streamparm streamparm;
-	void *mem[NB_BUFFER];
-	unsigned char *tmpbuffer;
-	unsigned char *framebuffer;
-	size_t tmpbuf_size;
-	size_t framebuf_size;
-	int isstreaming;
-	int isbayer;
-	int pix_order;
-	int setFPS;
-	int PanTilt; /*1-if PanTilt Camera; 0-otherwise*/
-	PanTiltInfo *Pantilt_info;
-	int grabmethod;
-	int width;
-	int height;
-	//int numb_resol;
-	int numb_formats;
-	int formatIn;
-	int formatOut;
-	int framesizeIn;
-	int signalquit;
-	int capAVI;
-	int AVICapStop;
-	char *AVIFName;
-	int fps;
-	int fps_num;
-	int capImage;
-	char *ImageFName;
-	int cap_raw;
-	int available_exp[4]; //backward compatible (old v4l2 exposure menu interface)
-	VidFormats *listVidFormats;
-	VidDevice *listVidDevices;
-	int num_devices;
-	int  current_device;
+	GMutex *mutex;                      // VdIn struct mutex
+	int fd;                             // device file descriptor
+	char *videodevice;                  // video device string (default "/dev/video0"
+	struct v4l2_capability cap;         // v4l2 capability struct
+	struct v4l2_format fmt;             // v4l2 formar struct
+	struct v4l2_buffer buf;             // v4l2 buffer struct
+	struct v4l2_requestbuffers rb;      // v4l2 request buffers struct
+	struct v4l2_timecode timecode;      // v4l2 timecode struct
+	struct v4l2_streamparm streamparm;  // v4l2 stream parameters struct
+	void *mem[NB_BUFFER];               // memory buffers for mmap driver frames 
+	unsigned char *tmpbuffer;           // temp buffer for decoding compressed data
+	unsigned char *framebuffer;         // frame buffer (YUYV or UYVY), for rendering in SDL overlay
+	int isstreaming;                    // video stream flag (1- ON  0- OFF)
+	int isbayer;                        // raw bayer flag
+	int pix_order;                      // raw bayer pixel order (rg/gb, bg/gr, ...)
+	int setFPS;                         // show new FPS value flag
+	int grabmethod;                     // only mmap available UVC doesn't support read
+	int width;                          // frame width
+	int height;                         // frame height
+	int formatIn;                       // Input format
+	int framesizeIn;                    // Input frame size (buffer size)
+	int signalquit;                     // video loop exit flag
+	int capAVI;                         // AVI capture flag (raised while capturing)
+	int AVICapStop;                     // AVI capture stop flag (raised when AVI capture has stopped)
+	char *AVIFName;                     // AVI File name (with full path)
+	int fps;                            // fps value (denominator)
+	int fps_num;                        // fps numerator ( should be 1 almost all cases)
+	int capImage;                       // Image capture flag (raised for capturing a frame)
+	char *ImageFName;                   // Image File name (with full path)
+	int cap_raw;                        // raw frame capture flag
+	int available_exp[4];               //backward compatible (old v4l2 exposure menu interface)
+	int PanTilt;                        //1-if PanTilt Camera 0-otherwise
+	PanTiltInfo *Pantilt_info;          // Pan/Tilt struture array with values for PanTilt callback
+	LFormats *listFormats;              // structure with frame formats list
+	LDevices *listDevices;              // structure with devices list
 };
 
-int check_videoIn(struct vdIn *vd);
-
+/* Init VdIn struct with default and/or global values
+ * args:
+ * vd: pointer to a VdIn struct ( must be allready allocated )
+ * global: pointer to a GLOBAL struct ( must be allready initiated )
+ *
+ * returns: error code ( 0 - VDIN_OK)
+*/
 int init_videoIn(struct vdIn *vd, struct GLOBAL *global);
 
+/* Grabs video frame and decodes it if necessary
+ * args:
+ * vd: pointer to a VdIn struct ( must be allready initiated)
+ *
+ * returns: error code ( 0 - VDIN_OK)
+*/
 int uvcGrab(struct vdIn *vd);
 
+/* cleans VdIn struct and allocations
+ * args:
+ * pointer to initiated vdIn struct
+ *
+ * returns: void
+*/
 void close_v4l2(struct vdIn *vd);
 
-int get_FormatIndex(struct vdIn *vd, int format);
-
+/* sets video device frame rate
+ * args:
+ * vd: pointer to a VdIn struct ( must be allready initiated)
+ *
+ * returns: VIDIOC_S_PARM ioctl result value
+*/
 int input_set_framerate (struct vdIn * device);
 
+/* gets video device defined frame rate (not real - consider it a maximum value)
+ * args:
+ * vd: pointer to a VdIn struct ( must be allready initiated)
+ *
+ * returns: VIDIOC_G_PARM ioctl result value
+*/
 int input_get_framerate (struct vdIn * device);
-
-int init_v4l2(struct vdIn *vd);
 
 #endif
 

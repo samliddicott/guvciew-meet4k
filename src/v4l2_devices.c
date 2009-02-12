@@ -34,15 +34,15 @@
  * by checking /sys/class/video4linux
  * args: 
  * videodevice: current device string (default "/dev/video0")
- * num_dev: pointer to int with number of system devices
- * current_dev: pointer to int with index from device list with current device 
  * 
- * returns: pointer to VidDevice an allocated device list or NULL on failure   */ 
-VidDevice *enum_devices(gchar *videodevice, int *num_dev, int *current_dev)
+ * returns: pointer to LDevices struct containing the video devices list */
+LDevices *enum_devices( gchar *videodevice )
 {
 	int ret=0;
 	int fd=0;
-	VidDevice *listVidDevices = NULL;
+	LDevices *listDevices = NULL;
+	listDevices = g_new0( LDevices, 1);
+	listDevices->listVidDevices = NULL;
 	struct v4l2_capability v4l2_cap;
 	GDir *v4l2_dir=NULL;
 	GDir *id_dir=NULL;
@@ -57,7 +57,7 @@ VidDevice *enum_devices(gchar *videodevice, int *num_dev, int *current_dev)
 		return NULL;
 	}
 	const gchar *v4l2_device;
-	int num_devices = 0;
+	int num_dev = 0;
 	
 	while((v4l2_device = g_dir_read_name(v4l2_dir)) != NULL)
 	{
@@ -86,31 +86,31 @@ VidDevice *enum_devices(gchar *videodevice, int *num_dev, int *current_dev)
 			}
 			else
 			{
-				num_devices++;
-				g_printf("%s - device %d\n", device, num_devices);
-				listVidDevices = g_renew(VidDevice, 
-					listVidDevices, 
-					num_devices);
-				listVidDevices[num_devices-1].device = g_strdup(device);
-				listVidDevices[num_devices-1].name = g_strdup((gchar *) v4l2_cap.card);
-				listVidDevices[num_devices-1].driver = g_strdup((gchar *) v4l2_cap.driver);
-				listVidDevices[num_devices-1].location = g_strdup((gchar *) v4l2_cap.bus_info);
-				listVidDevices[num_devices-1].valid = 1;
-				if(g_strcmp0(videodevice,listVidDevices[num_devices-1].device)==0) 
+				num_dev++;
+				g_printf("%s - device %d\n", device, num_dev);
+				listDevices->listVidDevices = g_renew(VidDevice, 
+					listDevices->listVidDevices, 
+					num_dev);
+				listDevices->listVidDevices[num_dev-1].device = g_strdup(device);
+				listDevices->listVidDevices[num_dev-1].name = g_strdup((gchar *) v4l2_cap.card);
+				listDevices->listVidDevices[num_dev-1].driver = g_strdup((gchar *) v4l2_cap.driver);
+				listDevices->listVidDevices[num_dev-1].location = g_strdup((gchar *) v4l2_cap.bus_info);
+				listDevices->listVidDevices[num_dev-1].valid = 1;
+				if(g_strcmp0(videodevice,listDevices->listVidDevices[num_dev-1].device)==0) 
 				{
-					listVidDevices[num_devices-1].current = 1;
-					*current_dev = num_devices-1;
+					listDevices->listVidDevices[num_dev-1].current = 1;
+					listDevices->current_device = num_dev-1;
 				}
 				else
-					listVidDevices[num_devices-1].current = 0;
+					listDevices->listVidDevices[num_dev-1].current = 0;
 			}
 		}
 		g_free(device);
 		
 		close(fd);
-		listVidDevices[num_devices-1].vendor = NULL;
-		listVidDevices[num_devices-1].product = NULL;
-		listVidDevices[num_devices-1].version = NULL;
+		listDevices->listVidDevices[num_dev-1].vendor = NULL;
+		listDevices->listVidDevices[num_dev-1].product = NULL;
+		listDevices->listVidDevices[num_dev-1].version = NULL;
 		/*get vid, pid and version from:                         */
 		/* /sys/class/video4linux/videoN/device/input/inputX/id/ */
 		
@@ -146,7 +146,7 @@ VidDevice *enum_devices(gchar *videodevice, int *num_dev, int *current_dev)
 				if(vid_fp != NULL)
 				{
 					if(fgets(code, sizeof(code), vid_fp) != NULL)
-						listVidDevices[num_devices-1].vendor = g_ascii_strdown(code,-1);
+						listDevices->listVidDevices[num_dev-1].vendor = g_ascii_strdown(code,-1);
 					fclose (vid_fp);
 				}
 				g_free(vid_str);
@@ -161,7 +161,7 @@ VidDevice *enum_devices(gchar *videodevice, int *num_dev, int *current_dev)
 				if(pid_fp != NULL)
 				{
 					if(fgets(code, sizeof(code), pid_fp) != NULL)
-						listVidDevices[num_devices-1].product = g_ascii_strdown(code,-1);
+						listDevices->listVidDevices[num_dev-1].product = g_ascii_strdown(code,-1);
 					fclose (pid_fp);
 				}
 				g_free(pid_str);
@@ -176,7 +176,7 @@ VidDevice *enum_devices(gchar *videodevice, int *num_dev, int *current_dev)
 				if(pid_fp != NULL)
 				{
 					if(fgets(code, sizeof(code), ver_fp) != NULL)
-						listVidDevices[num_devices-1].version = g_ascii_strdown(code,-1);
+						listDevices->listVidDevices[num_dev-1].version = g_ascii_strdown(code,-1);
 					fclose (ver_fp);
 				}
 				g_free(ver_str);
@@ -188,8 +188,8 @@ VidDevice *enum_devices(gchar *videodevice, int *num_dev, int *current_dev)
 	
 	if(v4l2_dir != NULL) g_dir_close(v4l2_dir);
 	
-	*num_dev = num_devices;
-	return(listVidDevices);
+	listDevices->num_devices = num_dev;
+	return(listDevices);
 }
 
 /*clean video devices list
@@ -197,19 +197,20 @@ VidDevice *enum_devices(gchar *videodevice, int *num_dev, int *current_dev)
  * numb_devices: number of existing supported video devices
  *
  * returns: void                                                       */
-void freeDevices(VidDevice *listVidDevices, int num_devices)
+void freeDevices(LDevices *listDevices)
 {
 	int i=0;
 	
-	for(i=0;i<(num_devices);i++)
+	for(i=0;i<(listDevices->num_devices);i++)
 	{
-		g_free(listVidDevices[i].device);
-		g_free(listVidDevices[i].name);
-		g_free(listVidDevices[i].driver);
-		g_free(listVidDevices[i].location);
-		g_free(listVidDevices[i].vendor);
-		g_free(listVidDevices[i].product);
-		g_free(listVidDevices[i].version);
+		g_free(listDevices->listVidDevices[i].device);
+		g_free(listDevices->listVidDevices[i].name);
+		g_free(listDevices->listVidDevices[i].driver);
+		g_free(listDevices->listVidDevices[i].location);
+		g_free(listDevices->listVidDevices[i].vendor);
+		g_free(listDevices->listVidDevices[i].product);
+		g_free(listDevices->listVidDevices[i].version);
 	}
-	g_free(listVidDevices);
+	g_free(listDevices->listVidDevices);
+	g_free(listDevices);
 }

@@ -57,16 +57,16 @@ draw_controls (struct ALL_DATA *all_data)
 	//only uvc logitech cameras
 	//needs admin rights
 	/*only for uvc driver (uvcvideo)*/
-	if(videoIn->num_devices > 0)
+	if(videoIn->listDevices->num_devices > 0)
 	{
 		g_printf("vid:%s \npid:%s\nrelease:%s\ndriver:%s\n",
-			videoIn->listVidDevices[videoIn->current_device].vendor,
-			videoIn->listVidDevices[videoIn->current_device].product,
-			videoIn->listVidDevices[videoIn->current_device].version,
-			videoIn->listVidDevices[videoIn->current_device].driver);
-		if(g_strcmp0(videoIn->listVidDevices[videoIn->current_device].driver,"uvcvideo") == 0)
-			if(videoIn->listVidDevices[videoIn->current_device].vendor != NULL)
-				if (g_strcmp0(videoIn->listVidDevices[videoIn->current_device].vendor,"046d") == 0)
+			videoIn->listDevices->listVidDevices[videoIn->listDevices->current_device].vendor,
+			videoIn->listDevices->listVidDevices[videoIn->listDevices->current_device].product,
+			videoIn->listDevices->listVidDevices[videoIn->listDevices->current_device].version,
+			videoIn->listDevices->listVidDevices[videoIn->listDevices->current_device].driver);
+		if(g_strcmp0(videoIn->listDevices->listVidDevices[videoIn->listDevices->current_device].driver,"uvcvideo") == 0)
+			if(videoIn->listDevices->listVidDevices[videoIn->listDevices->current_device].vendor != NULL)
+				if (g_strcmp0(videoIn->listDevices->listVidDevices[videoIn->listDevices->current_device].vendor,"046d") == 0)
 					initDynCtrls(videoIn->fd);
 	}
 	

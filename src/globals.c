@@ -124,7 +124,7 @@ int initGlobals (struct GLOBAL *global)
 	g_snprintf(global->mode, 5, "mjpg");
 	
 	global->format = V4L2_PIX_FMT_MJPEG;
-	global->formind = 0;
+	//global->formind = 0;
 	global->Frame_Flags = YUV_NOFILT;
 	global->setFrameFlag = YUV_NOFILT;
 	global->jpeg=NULL;

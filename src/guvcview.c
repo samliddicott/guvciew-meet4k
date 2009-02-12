@@ -292,26 +292,28 @@ int main(int argc, char *argv[])
 	/*get format from selected mode*/
 	global->format = get_PixFormat(global->mode);
 	
-	if ((ret=init_videoIn (videoIn, global) )< 0)
+	if ( ( ret=init_videoIn (videoIn, global) ) < 0)
 	{
 		g_printerr("Init video returned %i\n",ret);
 		switch (ret) 
 		{
-			case -1:/*can't open device*/
+			case VDIN_DEVICE_ERR://can't open device
 				ERR_DIALOG (N_("Guvcview error:\n\nUnable to open device"),
 					N_("Please make sure the camera is connected\nand that the linux-UVC driver is installed."),
 					&all_data);
 				break;
 				
-			case -2:/*invalid format*/
+			case VDIN_UNKNOWN_ERR: //unknown error (treat as invalid format)
+			case VDIN_FORMAT_ERR://invalid format
+			case VDIN_RESOL_ERR: //invalid resolution
 				g_printf("trying minimum setup ...\n");
-				if (videoIn->numb_formats > 0) /*check for supported formats*/
+				if (videoIn->listFormats->numb_formats > 0) //check for supported formats
 				{
-					global->formind = 0; /* get the first supported format */
-					global->width = videoIn->listVidFormats[global->formind].listVidCap[0].width;
-					global->width = videoIn->listVidFormats[global->formind].listVidCap[0].height;
-					global->fps_num = videoIn->listVidFormats[global->formind].listVidCap[0].framerate_num[0];
-					global->fps = videoIn->listVidFormats[global->formind].listVidCap[0].framerate_denom[0];
+					videoIn->listFormats->current_format = 0; //get the first supported format 
+					global->width = videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[0].width;
+					global->width = videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[0].height;
+					global->fps_num = videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[0].framerate_num[0];
+					global->fps = videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[0].framerate_denom[0];
 				}
 				else 
 				{
@@ -321,7 +323,7 @@ int main(int argc, char *argv[])
 						&all_data);
 				}
 				
-				/*try again with new format*/
+				//try again with new format
 				if (init_videoIn (videoIn, global) < 0)
 				{
 					g_printerr("ERROR: Minimum Setup Failed.\n Exiting...\n");
@@ -330,10 +332,10 @@ int main(int argc, char *argv[])
 						&all_data);
 				}
 				break;
-				
-			case -3:/*unable to allocate dequeue buffers or mem*/
-			case -4:
-			case -6:
+			
+			case VDIN_REQBUFS_ERR:/*unable to allocate dequeue buffers or mem*/
+			case VDIN_ALLOC_ERR:
+			case VDIN_FBALLOC_ERR:
 			default:
 				ERR_DIALOG (N_("Guvcview error:\n\nUnable to allocate Buffers"),
 					N_("Please try restarting your system."),
@@ -347,8 +349,8 @@ int main(int argc, char *argv[])
 	global->fps = videoIn->fps;
 	global->fps_num = videoIn->fps_num;
 	global->format = videoIn->formatIn;
-	global->formind = get_FormatIndex(videoIn, global->format);
-	if(global->formind < 0) 
+	videoIn->listFormats->current_format = get_FormatIndex(videoIn->listFormats, global->format);
+	if(videoIn->listFormats->current_format < 0) 
 	{
 		g_printerr("ERROR: Can't set video stream. No supported format found\nExiting...\n");
 		ERR_DIALOG (N_("Guvcview error:\n\nCan't set MJPG or YUV stream for guvcview"),
@@ -609,7 +611,7 @@ int main(int argc, char *argv[])
 	
 	
 		gwidget->Devices = gtk_combo_box_new_text ();
-		if (videoIn->num_devices < 1)
+		if (videoIn->listDevices->num_devices < 1)
 		{
 			/*use current*/
 			gtk_combo_box_append_text(GTK_COMBO_BOX(gwidget->Devices),
@@ -618,11 +620,11 @@ int main(int argc, char *argv[])
 		}
 		else
 		{
-			for(i=0;i<(videoIn->num_devices);i++)
+			for(i=0;i<(videoIn->listDevices->num_devices);i++)
 			{
 				gtk_combo_box_append_text(GTK_COMBO_BOX(gwidget->Devices),
-					videoIn->listVidDevices[i].name);
-				if(videoIn->listVidDevices[i].current)
+					videoIn->listDevices->listVidDevices[i].name);
+				if(videoIn->listDevices->listVidDevices[i].current)
 					gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->Devices),i);
 			}
 		}
@@ -638,18 +640,18 @@ int main(int argc, char *argv[])
 		int defres=0;
 		if (global->debug) 
 			g_printf("resolutions of %dº format=%d \n",
-				global->formind+1,
-				videoIn->listVidFormats[global->formind].numb_res);
-		for(i=0;i<videoIn->listVidFormats[global->formind].numb_res;i++) 
+				videoIn->listFormats->current_format+1,
+				videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].numb_res);
+		for(i=0;i<videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].numb_res;i++) 
 		{
-			if (videoIn->listVidFormats[global->formind].listVidCap[i].width>0)
+			if (videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[i].width>0)
 			{
-				g_snprintf(temp_str,18,"%ix%i",videoIn->listVidFormats[global->formind].listVidCap[i].width,
-								 videoIn->listVidFormats[global->formind].listVidCap[i].height);
+				g_snprintf(temp_str,18,"%ix%i",videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[i].width,
+								 videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[i].height);
 				gtk_combo_box_append_text(GTK_COMBO_BOX(gwidget->Resolution),temp_str);
 			
-				if ((global->width==videoIn->listVidFormats[global->formind].listVidCap[i].width) && 
-					(global->height==videoIn->listVidFormats[global->formind].listVidCap[i].height))
+				if ((global->width==videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[i].width) && 
+					(global->height==videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[i].height))
 						defres=i;/*set selected resolution index*/
 			}
 		}
@@ -665,15 +667,15 @@ int main(int argc, char *argv[])
 		if (global->debug) 
 			g_printf("frame rates of %dº resolution=%d \n",
 				defres+1,
-				videoIn->listVidFormats[global->formind].listVidCap[defres].numb_frates);
-		for (i=0;i<videoIn->listVidFormats[global->formind].listVidCap[defres].numb_frates;i++) 
+				videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[defres].numb_frates);
+		for (i=0;i<videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[defres].numb_frates;i++) 
 		{
-			g_snprintf(temp_str,18,"%i/%i fps",videoIn->listVidFormats[global->formind].listVidCap[defres].framerate_num[i],
-				videoIn->listVidFormats[global->formind].listVidCap[defres].framerate_denom[i]);
+			g_snprintf(temp_str,18,"%i/%i fps",videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[defres].framerate_num[i],
+				videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[defres].framerate_denom[i]);
 			gtk_combo_box_append_text(GTK_COMBO_BOX(FrameRate),temp_str);
 		
-			if ((videoIn->fps_num==videoIn->listVidFormats[global->formind].listVidCap[defres].framerate_num[i]) && 
-				(videoIn->fps==videoIn->listVidFormats[global->formind].listVidCap[defres].framerate_denom[i]))
+			if ((videoIn->fps_num==videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[defres].framerate_num[i]) && 
+				(videoIn->fps==videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[defres].framerate_denom[i]))
 					deffps=i;/*set selected*/
 		}
 	
@@ -685,8 +687,8 @@ int main(int argc, char *argv[])
 		gtk_combo_box_set_active(GTK_COMBO_BOX(FrameRate),deffps);
 		if (deffps==0) 
 		{
-			global->fps=videoIn->listVidFormats[global->formind].listVidCap[0].framerate_denom[0];
-			global->fps_num=videoIn->listVidFormats[global->formind].listVidCap[0].framerate_num[0];
+			global->fps=videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[0].framerate_denom[0];
+			global->fps_num=videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[0].framerate_num[0];
 			videoIn->fps=global->fps;
 			videoIn->fps_num=global->fps_num;
 		}
@@ -717,7 +719,7 @@ int main(int argc, char *argv[])
 		gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->Resolution),defres);
 	
 		if(global->debug) 
-			g_printf("Def. Res: %i  numb. fps:%i\n",defres,videoIn->listVidFormats[global->formind].listVidCap[defres].numb_frates);
+			g_printf("Def. Res: %i  numb. fps:%i\n",defres,videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[defres].numb_frates);
 	
 		gtk_table_attach(GTK_TABLE(table2), gwidget->Resolution, 1, 2, line, line+1,
 			GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
@@ -740,10 +742,10 @@ int main(int argc, char *argv[])
 		ImpType= gtk_combo_box_new_text ();
 	
 		int fmtind=0;
-		for (fmtind=0;fmtind<videoIn->numb_formats;fmtind++)
+		for (fmtind=0; fmtind < videoIn->listFormats->numb_formats; fmtind++)
 		{
-			gtk_combo_box_append_text(GTK_COMBO_BOX(ImpType),videoIn->listVidFormats[fmtind].fourcc);
-			if(global->format == videoIn->listVidFormats[fmtind].format)
+			gtk_combo_box_append_text(GTK_COMBO_BOX(ImpType),videoIn->listFormats->listVidFormats[fmtind].fourcc);
+			if(global->format == videoIn->listFormats->listVidFormats[fmtind].format)
 				gtk_combo_box_set_active(GTK_COMBO_BOX(ImpType),fmtind); /*set active*/
 		}
 	

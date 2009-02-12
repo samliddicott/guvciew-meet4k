@@ -18,7 +18,6 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA     #
 #                                                                               #
 ********************************************************************************/
-
 #ifndef V4L2_CONTROLS_H
 #define V4L2_CONTROLS_H
 
@@ -105,7 +104,6 @@ typedef struct _ControlInfo
 {
 	GtkWidget * widget;
 	GtkWidget * label;
-	//GtkWidget * labelval;
 	GtkWidget *spinbutton; /*used in integer (slider) controls*/
 	unsigned int idx;
 	int maxchars;

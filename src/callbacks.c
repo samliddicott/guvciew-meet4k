@@ -549,10 +549,10 @@ Devices_changed (GtkComboBox * Devices, struct ALL_DATA *all_data)
 	GError *error=NULL;
 	
 	int index = gtk_combo_box_get_active(Devices);
-	if(index == videoIn->current_device) 
+	if(index == videoIn->listDevices->current_device) 
 		return;
 	g_free(global->videodevice);
-	global->videodevice = g_strdup(videoIn->listVidDevices[index].device);
+	global->videodevice = g_strdup(videoIn->listDevices->listVidDevices[index].device);
 	gchar *command = g_strjoin("",
 		g_get_prgname(),
 		" --device=",
@@ -594,7 +594,7 @@ Devices_changed (GtkComboBox * Devices, struct ALL_DATA *all_data)
 			break;
 	}
 	/*reset to current device*/
-	gtk_combo_box_set_active(GTK_COMBO_BOX(Devices), videoIn->current_device);
+	gtk_combo_box_set_active(GTK_COMBO_BOX(Devices), videoIn->listDevices->current_device);
 
 	gtk_widget_destroy (gwidget->restartdialog);
 	g_free(command);
@@ -613,21 +613,21 @@ resolution_changed (GtkComboBox * Resolution, struct ALL_DATA *all_data)
 	/* resolution we must restart the application                    */
 
 	int index = gtk_combo_box_get_active(Resolution);
-	global->width=videoIn->listVidFormats[global->formind].listVidCap[index].width;
-	global->height=videoIn->listVidFormats[global->formind].listVidCap[index].height;
+	global->width=videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[index].width;
+	global->height=videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[index].height;
 
 	/*check if frame rate is available at the new resolution*/
 	int i=0;
 	int deffps=0;
-	for(i=0;i<videoIn->listVidFormats[global->formind].listVidCap[index].numb_frates;i++) 
+	for(i=0;i<videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[index].numb_frates;i++) 
 	{
-		if ((videoIn->listVidFormats[global->formind].listVidCap[index].framerate_num[i]==global->fps_num) && 
-			(videoIn->listVidFormats[global->formind].listVidCap[index].framerate_denom[i]==global->fps)) 
+		if ((videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[index].framerate_num[i]==global->fps_num) && 
+			(videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[index].framerate_denom[i]==global->fps)) 
 				deffps=i;
 	}
 	
-	global->fps_num=videoIn->listVidFormats[global->formind].listVidCap[index].framerate_num[deffps];
-	global->fps=videoIn->listVidFormats[global->formind].listVidCap[index].framerate_denom[deffps];
+	global->fps_num=videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[index].framerate_num[deffps];
+	global->fps=videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[index].framerate_denom[deffps];
 	
 	gwidget->restartdialog = gtk_dialog_new_with_buttons (_("Program Restart"),
 		GTK_WINDOW(gwidget->mainwin),
@@ -673,7 +673,7 @@ ImpType_changed(GtkComboBox * ImpType, struct ALL_DATA *all_data)
 	int index = gtk_combo_box_get_active(ImpType);
 	
 	
-	global->formind = index;
+	videoIn->listFormats->current_format = index;
 	
 	/*check if frame rate and resolution are available   */
 	/*if not use minimum values - defres=0 and deffps=0  */
@@ -683,27 +683,27 @@ ImpType_changed(GtkComboBox * ImpType, struct ALL_DATA *all_data)
 	int deffps=0;
 	
 	
-	for (i=0;i<videoIn->listVidFormats[global->formind].numb_res;i++) 
+	for (i=0;i<videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].numb_res;i++) 
 	{
-		if((videoIn->listVidFormats[global->formind].listVidCap[i].height==global->height) &&
-			(videoIn->listVidFormats[global->formind].listVidCap[i].width==global->width) ) 
+		if((videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[i].height==global->height) &&
+			(videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[i].width==global->width) ) 
 		{
 			/* resolution ok check fps*/
 			defres=i;
-			for (j=0;j<videoIn->listVidFormats[global->formind].listVidCap[i].numb_frates;j++) 
+			for (j=0;j<videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[i].numb_frates;j++) 
 			{
-				if ((videoIn->listVidFormats[global->formind].listVidCap[i].framerate_num[j]==global->fps_num) && 
-					(videoIn->listVidFormats[global->formind].listVidCap[i].framerate_denom[j]==global->fps))
+				if ((videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[i].framerate_num[j]==global->fps_num) && 
+					(videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[i].framerate_denom[j]==global->fps))
 						deffps=j;
 			}
 		}
 	}
-	global->format = videoIn->listVidFormats[global->formind].format;
+	global->format = videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].format;
 	get_PixMode(global->format, global->mode);
-	global->height=videoIn->listVidFormats[global->formind].listVidCap[defres].height;
-	global->width=videoIn->listVidFormats[global->formind].listVidCap[defres].width;
-	global->fps_num=videoIn->listVidFormats[global->formind].listVidCap[defres].framerate_num[deffps];
-	global->fps=videoIn->listVidFormats[global->formind].listVidCap[defres].framerate_denom[deffps];
+	global->height=videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[defres].height;
+	global->width=videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[defres].width;
+	global->fps_num=videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[defres].framerate_num[deffps];
+	global->fps=videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[defres].framerate_denom[deffps];
 	
 	gwidget->restartdialog = gtk_dialog_new_with_buttons (_("Program Restart"),
 		GTK_WINDOW(gwidget->mainwin),
@@ -750,8 +750,8 @@ FrameRate_changed (GtkComboBox * FrameRate, struct ALL_DATA *all_data)
 	
 	int index = gtk_combo_box_get_active (FrameRate);
 		
-	videoIn->fps=videoIn->listVidFormats[global->formind].listVidCap[resind].framerate_denom[index];
-	videoIn->fps_num=videoIn->listVidFormats[global->formind].listVidCap[resind].framerate_num[index];
+	videoIn->fps=videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[resind].framerate_denom[index];
+	videoIn->fps_num=videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[resind].framerate_num[index];
  
 	videoIn->setFPS=1;
 

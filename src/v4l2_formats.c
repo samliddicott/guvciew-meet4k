@@ -29,9 +29,10 @@
 #include <errno.h>
 #include "v4l2_formats.h"
 
-#define SUP_PIX_FMT 6 /*number of supported formats*/
+#define SUP_PIX_FMT 6                //total number of software(guvcview) 
+                                     //supported formats (list size)
 
-static SupFormats listSupFormats[] =
+static SupFormats listSupFormats[] = //list of software supported formats
 {
 	{
 		.format   = V4L2_PIX_FMT_MJPEG,
@@ -169,26 +170,44 @@ int get_PixFormat(char *mode)
 	return (listSupFormats[0].format); /*default is- MJPG*/
 }
 
-/*clean video formats list
- * args: listVidFormats: array of VidFormats (list of video formats)
- * numb_formats: number of existing supported frame formats
+/* get Format index from available format list
+ * args:
+ * listFormats: available video format list
+ * format: v4l2 pix format
  *
- * returns: void                                                       */
-void freeFormats(VidFormats *listVidFormats, int numb_formats)
+ * returns format list index */
+int get_FormatIndex(LFormats *listFormats, int format)
+{
+	int i=0;
+	for(i=0;i<listFormats->numb_formats;i++)
+	{
+		if(format == listFormats->listVidFormats[i].format) 
+			return (i);
+	}
+	return (-1);
+}
+
+/* clean video formats list
+ * args: 
+ * listFormats: struct containing list of available video formats
+ *
+ * returns: void  */
+void freeFormats(LFormats *listFormats)
 {
 	int i=0;
 	int j=0;
-	for(i=0;i<numb_formats;i++)
+	for(i=0;i<listFormats->numb_formats;i++)
 	{
-		for(j=0;j<listVidFormats[i].numb_res;j++)
+		for(j=0;j<listFormats->listVidFormats[i].numb_res;j++)
 		{
-			g_free(listVidFormats[i].listVidCap[j].framerate_num);
-			g_free(listVidFormats[i].listVidCap[j].framerate_denom);
+			g_free(listFormats->listVidFormats[i].listVidCap[j].framerate_num);
+			g_free(listFormats->listVidFormats[i].listVidCap[j].framerate_denom);
 		
 		}
-		g_free(listVidFormats[i].listVidCap);
+		g_free(listFormats->listVidFormats[i].listVidCap);
 	}
-	g_free(listVidFormats);
+	g_free(listFormats->listVidFormats);
+	g_free(listFormats);
 }
 
 /* enumerate frame intervals (fps)
@@ -387,13 +406,12 @@ static int enum_frame_sizes(VidFormats *listVidFormats, __u32 pixfmt, int fmtind
 
 /* enumerate frames (formats, sizes and fps)
  * args:
- * numb_formats: pointer to integer containing number of existing supported frame formats
  * width: current selected width
  * height: current selected height
  * fd: device file descriptor
  *
- * returns: pointer to VidFormats an allocated list of frame formats or NULL on failure */
-VidFormats *enum_frame_formats(int *numb_formats, int *width, int *height, int fd)
+ * returns: pointer to LFormats struct containing list of available frame formats */
+LFormats *enum_frame_formats(int *width, int *height, int fd)
 {
 	int ret=0;
 	int fmtind=0;
@@ -401,7 +419,9 @@ VidFormats *enum_frame_formats(int *numb_formats, int *width, int *height, int f
 	memset(&fmt, 0, sizeof(fmt));
 	fmt.index = 0;
 	fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-	VidFormats *listVidFormats = NULL;
+	LFormats *listFormats = NULL;
+	listFormats = g_new0 ( LFormats, 1);
+	listFormats->listVidFormats = NULL;
 
 	while ((ret = ioctl(fd, VIDIOC_ENUM_FMT, &fmt)) == 0) 
 	{
@@ -414,13 +434,13 @@ VidFormats *enum_frame_formats(int *numb_formats, int *width, int *height, int f
 		if((ret=set_SupPixFormat(fmt.pixelformat)) >= 0) 
 		{
 			fmtind++;
-			listVidFormats = g_renew(VidFormats, listVidFormats, fmtind);
-			listVidFormats[fmtind-1].format=fmt.pixelformat;
-			g_snprintf(listVidFormats[fmtind-1].fourcc,5,"%c%c%c%c",
+			listFormats->listVidFormats = g_renew(VidFormats, listFormats->listVidFormats, fmtind);
+			listFormats->listVidFormats[fmtind-1].format=fmt.pixelformat;
+			g_snprintf(listFormats->listVidFormats[fmtind-1].fourcc,5,"%c%c%c%c",
 				fmt.pixelformat & 0xFF, (fmt.pixelformat >> 8) & 0xFF,
 				(fmt.pixelformat >> 16) & 0xFF, (fmt.pixelformat >> 24) & 0xFF);
 			//enumerate frame sizes
-			ret = enum_frame_sizes(listVidFormats, fmt.pixelformat, fmtind, width, height, fd);
+			ret = enum_frame_sizes(listFormats->listVidFormats, fmt.pixelformat, fmtind, width, height, fd);
 			if (ret != 0)
 				perror("  Unable to enumerate frame sizes.\n");
 		}
@@ -432,6 +452,6 @@ VidFormats *enum_frame_formats(int *numb_formats, int *width, int *height, int f
 	if (errno != EINVAL) {
 		perror("VIDIOC_ENUM_FMT - Error enumerating frame formats");
 	}
-	*numb_formats=fmtind;
-	return (listVidFormats);
+	listFormats->numb_formats=fmtind;
+	return (listFormats);
 }

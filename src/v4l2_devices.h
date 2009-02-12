@@ -18,6 +18,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA     #
 #                                                                               #
 ********************************************************************************/
+
 #ifndef V4L2_DEVICES_H
 #define V4L2_DEVICES_H
 
@@ -34,21 +35,26 @@ typedef struct _VidDevice
 	int current;
 } VidDevice;
 
+typedef struct _LDevices
+{
+	VidDevice *listVidDevices;
+	int num_devices;
+	int current_device;
+} LDevices;
+
 /* enumerates system video devices
  * by checking /sys/class/video4linux
  * args: 
  * videodevice: current device string (default "/dev/video0")
- * num_dev: pointer to int with number of system devices
- * current_dev: pointer to int with index from device list with current device 
  * 
- * returns: pointer to VidDevice an allocated device list or NULL on failure   */
-VidDevice *enum_devices( gchar *videodevice, int *num_dev, int *current_dev);
+ * returns: pointer to LDevices struct containing the video devices list */
+LDevices *enum_devices( gchar *videodevice );
 
 /*clean video devices list
- * args: listVidDevices: array of VidDevice (list of video devices)
- * numb_devices: number of existing supported video devices
+ * args:
+ * listDevices: pointer to LDevices struct containing the video devices list
  *
  * returns: void                                                       */
-void freeDevices(VidDevice *listVidDevices, int num_devices);
+void freeDevices(LDevices *listDevices);
 
 #endif

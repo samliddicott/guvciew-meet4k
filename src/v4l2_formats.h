@@ -54,27 +54,34 @@
 
 typedef struct _SupFormats
 {
-	int format;
-	char mode[5];
-	int hardware;
+	int format;          //v4l2 software(guvcview) supported format
+	char mode[5];        //mode (fourcc - lower case)
+	int hardware;        //hardware supported (1 or 0)
 } SupFormats;
 
 typedef struct _VidCap 
 {
-	int width;
-	int height;
-	int *framerate_num;/*numerator - should be 1 in almost all cases*/
-	int *framerate_denom;/*denominator - gives fps*/
-	int numb_frates;
+	int width;            //width 
+	int height;           //height
+	int *framerate_num;   //list of numerator values - should be 1 in almost all cases
+	int *framerate_denom; //list of denominator values - gives fps
+	int numb_frates;      //number of frame rates (numerator and denominator lists size)
 } VidCap;
 
 typedef struct _VidFormats
 {
-	int format;
-	char fourcc[5];
-	int numb_res;
-	VidCap *listVidCap;
+	int format;          //v4l2 pixel format
+	char fourcc[5];      //corresponding fourcc (mode)
+	int numb_res;        //available number of resolutions for format (VidCap list size)
+	VidCap *listVidCap;  //list of VidCap for format
 } VidFormats;
+
+typedef struct _LFormats
+{
+	VidFormats *listVidFormats; //list of VidFormats
+	int numb_formats;           //total number of VidFormats (VidFormats list size)
+	int current_format;         //index of current format in listVidFormats
+} LFormats;
 
 /* check if format is supported by guvcview
  * args:
@@ -114,20 +121,26 @@ int get_PixFormat(char *mode);
 
 /* enumerate frames (formats, sizes and fps)
  * args:
- * numb_formats: pointer to integer containing number of existing supported frame formats
  * width: current selected width
  * height: current selected height
  * fd: device file descriptor
  *
- * returns: pointer to VidFormats an allocated list of frame formats or NULL on failure */
-VidFormats *enum_frame_formats(int *numb_formats, int *width, int *height, int fd);
+ * returns: pointer to LFormats struct containing list of available frame formats */
+LFormats *enum_frame_formats( int *width, int *height, int fd);
 
-/*clean video formats list
- * args: 
- * listVidFormats: array of VidFormats (list of video formats)
- * numb_formats: number of existing supported frame formats
+/* get Format index from available format list
+ * args:
+ * listFormats: available video format list
+ * format: v4l2 pix format
  *
- * returns: void                                                       */
-void freeFormats(VidFormats *listVidFormats, int numb_formats);
+ * returns format list index */
+int get_FormatIndex( LFormats *listFormats, int format);
+
+/* clean video formats list
+ * args: 
+ * listFormats: struct containing list of available video formats
+ *
+ * returns: void  */
+void freeFormats(LFormats *listFormats);
 
 #endif

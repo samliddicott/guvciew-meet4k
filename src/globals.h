@@ -108,7 +108,7 @@ struct GLOBAL
 	char *mode; /*jpg (default) or yuv*/
 	short flg_mode; /*flag mode if set in args*/
 	int format;
-	int formind; /*0-MJPG 1-YUYV*/
+	//int formind;
 	int Frame_Flags;
 	int setFrameFlag;
 	BYTE *jpeg;

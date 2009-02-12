@@ -59,6 +59,7 @@ input_enum_controls (int fd, int *num_controls)
 			control[n].i = n;
 			control[n].id = queryctrl.id;
 			control[n].type = queryctrl.type;
+			//allocate control name (must free it on exit)
 			control[n].name = strdup ((char *)queryctrl.name);
 			control[n].min = queryctrl.minimum;
 			control[n].max = queryctrl.maximum;
@@ -84,7 +85,9 @@ input_enum_controls (int fd, int *num_controls)
 				querymenu.index = 0;
 				while (ioctl (fd, VIDIOC_QUERYMENU, &querymenu) == 0) 
 				{
+					//allocate entries list
 					control[n].entries = g_renew(pchar, control[n].entries, querymenu.index+1);
+					//allocate entrie name
 					control[n].entries[querymenu.index] = g_strdup ((char *) querymenu.name);
 					querymenu.index++;
 				}
@@ -120,6 +123,7 @@ input_free_controls (struct VidState *s)
 	int i=0;
 	for (i = 0; i < s->num_controls; i++) 
 	{
+		//clean control widgets
 		ControlInfo * ci = s->control_info + i;
 		if (ci->widget)
 			gtk_widget_destroy (ci->widget);
@@ -127,17 +131,21 @@ input_free_controls (struct VidState *s)
 			gtk_widget_destroy (ci->label);
 		if (ci->spinbutton)
 			gtk_widget_destroy (ci->spinbutton);
+		//clean control name
 		g_free (s->control[i].name);
 		if (s->control[i].type == INPUT_CONTROL_TYPE_MENU) 
 		{
 			int j;
 			for (j = 0; j <= s->control[i].max; j++) 
 			{
+				//clean entrie name
 				g_free (s->control[i].entries[j]);
 			}
+			//clean entries list 
 			g_free (s->control[i].entries);
 		}
 	}
+	//clean control lists
 	g_free (s->control_info);
 	s->control_info = NULL;
 	g_free (s->control);
