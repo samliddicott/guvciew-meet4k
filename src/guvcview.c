@@ -310,6 +310,9 @@ int main(int argc, char *argv[])
 				if (videoIn->listFormats->numb_formats > 0) //check for supported formats
 				{
 					videoIn->listFormats->current_format = 0; //get the first supported format 
+					global->format = videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].format;
+					if(get_PixMode(global->format, global->mode) < 0)
+						g_printerr("IMPOSSIBLE: format has no supported mode !?\n");
 					global->width = videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[0].width;
 					global->width = videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[0].height;
 					global->fps_num = videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[0].framerate_num[0];

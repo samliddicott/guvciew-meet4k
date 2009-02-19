@@ -727,7 +727,7 @@ ImpType_changed(GtkComboBox * ImpType, struct ALL_DATA *all_data)
 			break;
 			
 		default:
-			/* do nothing since Restart rejected*/		
+			/* do nothing since Restart rejected*/
 			break;
 	}
   
