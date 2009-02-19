@@ -766,13 +766,6 @@ uninstall-am: uninstall-applicationDATA uninstall-guvcviewdocDATA \
 	uninstall-guvcviewdocDATA uninstall-guvcviewmanDATA \
 	uninstall-menuDATA uninstall-pixmapsDATA
 
-# Copy all the spec files. Of cource, only one is actually used.
-dist-hook:
-	for specfile in *.spec; do \
-		if test -f $$specfile; then \
-			cp -p $$specfile $(distdir); \
-		fi \
-	done
 
 check-gettext:
 	@if test x$(USE_NLS) != "xyes" ; then echo "Missing gettext. Rerun configure and check for" \
@@ -807,6 +800,14 @@ $(menu_DATA):
 # builds desktop menu entry
 $(application_DATA): 
 	cd pixmaps && $(MAKE) $(AM_MAKEFLAGS) .desktop
+
+# Copy all the spec files. Of cource, only one is actually used.
+dist-hook:
+	for specfile in *.spec; do \
+		if test -f $$specfile; then \
+			cp -p $$specfile $(distdir); \
+		fi \
+	done
 
 .PHONY: check-gettext update-po update-gmo force-update-gmo
 # Tell versions [3.59,3.63) of GNU make to not export all variables.

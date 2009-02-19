@@ -1,4 +1,4 @@
-﻿## Process this file with automake to produce Makefile.in
+## Process this file with automake to produce Makefile.in
 
 SUBDIRS = src po pixmaps
 
@@ -43,14 +43,6 @@ EXTRA_DIST = \
 		$(menu_DATA)\
 		$(pixmaps_DATA)
 
-# Copy all the spec files. Of cource, only one is actually used.
-dist-hook:
-	for specfile in *.spec; do \
-		if test -f $$specfile; then \
-			cp -p $$specfile $(distdir); \
-		fi \
-	done
-
 check-gettext:
 	@if test x$(USE_NLS) != "xyes" ; then echo "Missing gettext. Rerun configure and check for" \
 	"'checking whether to use NLS... yes'!" ; exit 1 ; fi
@@ -85,6 +77,12 @@ $(menu_DATA):
 $(application_DATA): 
 	cd pixmaps && $(MAKE) $(AM_MAKEFLAGS) .desktop
 
+# Copy all the spec files. Of cource, only one is actually used.
+dist-hook:
+	for specfile in *.spec; do \
+		if test -f $$specfile; then \
+			cp -p $$specfile $(distdir); \
+		fi \
+	done
 
 .PHONY: check-gettext update-po update-gmo force-update-gmo
-
