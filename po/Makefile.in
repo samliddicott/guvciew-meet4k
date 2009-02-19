@@ -14,7 +14,7 @@
 
 GETTEXT_PACKAGE = guvcview
 PACKAGE = guvcview
-VERSION = 0.9.8
+VERSION = 0.9.9
 
 SHELL = /bin/sh
 

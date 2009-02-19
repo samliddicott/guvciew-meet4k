@@ -1,3 +1,9 @@
+guvcview (0.9.9) intrepid; urgency=low
+
+   * Fixed Format detection bug
+   * Added control only functionality (--control_only), allows image control in different apps (e.g ekiga, mplayer)
+   * Splitted V4l2 interface in smaller files
+
 guvcview (0.9.8-ubuntu1) intrepid; urgency=low
 
    * Added audio tab
