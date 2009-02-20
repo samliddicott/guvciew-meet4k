@@ -874,10 +874,12 @@ SndEnable_changed (GtkToggleButton * toggle, struct ALL_DATA *all_data)
 	global->Sound_enable = gtk_toggle_button_get_active (toggle) ? 1 : 0;
 	if (!global->Sound_enable) 
 	{
+		if(global->debug) g_printf("disabling sound.\n");
 		set_sensitive_snd_contrls(FALSE, gwidget);
 	}
 	else 
 	{ 
+		if(global->debug) g_printf("enabling sound.\n");
 		set_sensitive_snd_contrls(TRUE, gwidget);
 	}
 	
@@ -890,11 +892,11 @@ void
 FiltEnable_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data)
 {
 	struct GLOBAL *global = all_data->global;
-	int *filter = g_object_get_data (G_OBJECT (toggle), "filt_info");
+	int filter = GPOINTER_TO_INT(g_object_get_data (G_OBJECT (toggle), "filt_info"));
 	g_mutex_lock(global->mutex);
 		global->Frame_Flags = gtk_toggle_button_get_active (toggle) ? 
-			(global->Frame_Flags | *filter) : 
-			(global->Frame_Flags & ~(*filter));
+			(global->Frame_Flags | filter) : 
+			(global->Frame_Flags & ~(filter));
 	g_mutex_unlock(global->mutex);
 	
 	global = NULL;
@@ -905,11 +907,11 @@ void
 EffEnable_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data)
 {
 	struct paRecordData *pdata = all_data->pdata;
-	int *effect = g_object_get_data (G_OBJECT (toggle), "effect_info");
+	int effect = GPOINTER_TO_INT(g_object_get_data (G_OBJECT (toggle), "effect_info"));
 	g_mutex_lock(pdata->mutex);
 		pdata->snd_Flags = gtk_toggle_button_get_active (toggle) ? 
-			(pdata->snd_Flags | *effect) : 
-			(pdata->snd_Flags & ~(*effect));
+			(pdata->snd_Flags | effect) : 
+			(pdata->snd_Flags & ~(effect));
 	g_mutex_unlock(pdata->mutex);
 	pdata = NULL;
 }

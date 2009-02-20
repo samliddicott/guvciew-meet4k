@@ -124,8 +124,10 @@ int initGlobals (struct GLOBAL *global)
 	g_snprintf(global->mode, 5, "mjpg");
 	
 	global->format = V4L2_PIX_FMT_MJPEG;
+
 	global->Frame_Flags = YUV_NOFILT;
 	global->setFrameFlag = YUV_NOFILT;
+	
 	global->jpeg=NULL;
 	global->jpeg_size = 0;
 	/* reset with videoIn parameters */

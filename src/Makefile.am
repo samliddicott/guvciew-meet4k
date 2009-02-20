@@ -14,6 +14,8 @@ AM_CFLAGS =\
 bin_PROGRAMS = guvcview
 
 guvcview_SOURCES = \
+	audio_tab.h \
+	audio_tab.c \
 	autofocus.h \
 	autofocus.c \
 	avilib.c \
@@ -72,7 +74,9 @@ guvcview_SOURCES = \
 	v4l2uvc.h \
 	v4l2uvc.c \
 	video.h \
-	video.c
+	video.c \
+	video_tab.h \
+	video_tab.c
 
 guvcview_LDFLAGS = $(LIBINTL)
 
