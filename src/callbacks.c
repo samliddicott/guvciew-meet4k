@@ -525,14 +525,16 @@ PanTilt_clicked (GtkButton * PanTilt, struct ALL_DATA *all_data)
 {
 	struct GLOBAL *global = all_data->global;
 	struct vdIn *videoIn = all_data->videoIn;
-	PanTiltInfo *pantilt = g_object_get_data (G_OBJECT (PanTilt), "pantilt_info");
+	int pan = GPOINTER_TO_INT(g_object_get_data (G_OBJECT (PanTilt), "pan_info"));
+	int tilt = GPOINTER_TO_INT(g_object_get_data (G_OBJECT (PanTilt), "tilt_info"));
+	int reset = GPOINTER_TO_INT(g_object_get_data (G_OBJECT (PanTilt), "reset_info"));
 	
-	if(uvcPanTilt(videoIn->fd, pantilt->pan * (global->PanStep), pantilt->tilt * (global->TiltStep), pantilt->reset)<0) 
+	if(uvcPanTilt(videoIn->fd, pan * (global->PanStep), tilt * (global->TiltStep), reset)<0) 
 	{
 		g_printerr("Pan/Tilt Error: Pan = %d; Tilt = %d; reset = %d\n",
-			pantilt->pan * (global->PanStep),
-			pantilt->tilt * (global->TiltStep),
-			pantilt->reset);
+			pan * (global->PanStep),
+			tilt * (global->TiltStep),
+			reset);
 	}
 
 	global = NULL;

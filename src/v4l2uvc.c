@@ -335,7 +335,6 @@ int init_videoIn(struct vdIn *vd, struct GLOBAL *global)
 	
 	vd->tmpbuffer = NULL;
 	vd->framebuffer = NULL;
-	vd->Pantilt_info = NULL;
 
 	vd->listDevices = enum_devices( vd->videodevice );
 	
@@ -697,7 +696,6 @@ void close_v4l2(struct vdIn *vd)
 	g_free(vd->videodevice);
 	g_free(vd->ImageFName);
 	g_free(vd->AVIFName);
-	g_free(vd->Pantilt_info);
 	// free format allocations
 	freeFormats(vd->listFormats);
 	// unmap queue buffers
@@ -715,7 +713,6 @@ void close_v4l2(struct vdIn *vd)
 	vd->framebuffer = NULL;
 	vd->ImageFName = NULL;
 	vd->AVIFName = NULL;
-	vd->Pantilt_info = NULL;
 	freeDevices(vd->listDevices);
 	// close device descriptor
 	close(vd->fd);

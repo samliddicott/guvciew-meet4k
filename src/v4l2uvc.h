@@ -70,13 +70,6 @@ static const int exp_vals[]=
 	V4L2_UVC_EXPOSURE_APERTURE_PRIORITY
 };
 
-typedef struct _PanTiltInfo
-{
-	gint pan;    // pan value
-	gint tilt;   // tilt value
-	gint reset;  // reset value
-} PanTiltInfo;
-
 struct vdIn 
 {
 	GMutex *mutex;                      // VdIn struct mutex
@@ -111,7 +104,6 @@ struct vdIn
 	int cap_raw;                        // raw frame capture flag
 	int available_exp[4];               //backward compatible (old v4l2 exposure menu interface)
 	int PanTilt;                        //1-if PanTilt Camera 0-otherwise
-	PanTiltInfo *Pantilt_info;          // Pan/Tilt struture array with values for PanTilt callback
 	LFormats *listFormats;              // structure with frame formats list
 	LDevices *listDevices;              // structure with devices list
 };
