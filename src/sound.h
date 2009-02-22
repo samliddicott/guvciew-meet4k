@@ -44,7 +44,8 @@ typedef float SAMPLE;
 #define MAX_SAMPLE (1.0f)
 #define PRINTF_S_FORMAT "%.8f"
 
-/*data for Butterworth filter (LP or HP)*/
+//----------- structs for effects (audio_effects.c)------------
+//data for Butterworth filter (LP or HP)
 typedef struct _Filt_data
 {
 	SAMPLE buff_in1[2];
@@ -59,7 +60,7 @@ typedef struct _Filt_data
 	float b2;
 } Filt_data;
 
-/*data for Comb4 filter*/
+//data for Comb4 filter
 typedef struct _Comb4_data
 {
 	int buff_size1;
@@ -82,6 +83,7 @@ typedef struct _Comb4_data
 	int CombIndex4; //comb filter 4 index
 } Comb4_data;
 
+// data for delay
 typedef struct _delay_data
 {
 	int buff_size;
@@ -90,7 +92,7 @@ typedef struct _delay_data
 	int delayIndex; // delay buffer index
 } delay_data;
 
-/*data for WahWah effect*/
+// data for WahWah effect
 typedef struct _WAHData
 {
 	float lfoskip;
@@ -123,6 +125,7 @@ typedef struct _RATE_data
 	int numsamples;
 } RATE_data;
 
+// main audio interface struct
 struct paRecordData
 {
 	int input_type; // audio SAMPLE type
@@ -174,9 +177,6 @@ set_sound (struct GLOBAL *global, struct paRecordData* data);
 int
 init_sound(struct paRecordData* data);
 
-int
-close_sound (struct paRecordData *data);
-
 void
 close_DELAY(delay_data *DELAY);
 
@@ -192,33 +192,12 @@ close_REVERB(struct paRecordData *data);
 void 
 close_pitch (struct paRecordData* data);
 
+int
+close_sound (struct paRecordData *data);
+
 void 
 Float2Int16 (struct paRecordData* data);
 
-void
-Echo(struct paRecordData *data, int delay_ms, float decay);
-
-void 
-Fuzz (struct paRecordData* data);
-
-void 
-Reverb (struct paRecordData* data, int delay_ms);
-
-/* Parameters:
-	freq - LFO frequency (1.5)
-	startphase - LFO startphase in RADIANS - usefull for stereo WahWah (0)
-	depth - Wah depth (0.7)
-	freqofs - Wah frequency offset (0.3)
-	res - Resonance (2.5)
-
-	!!!!!!!!!!!!! IMPORTANT!!!!!!!!! :
-	depth and freqofs should be from 0(min) to 1(max) !
-	res should be greater than 0 !  */
-void 
-WahWah (struct paRecordData* data, float freq, float startphase, float depth, float freqofs, float res);
-
-void 
-change_pitch (struct paRecordData* data, int rate);
 
 #endif
 

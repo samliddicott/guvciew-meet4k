@@ -20,7 +20,11 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA     #
 #                                                                               #
 ********************************************************************************/
+#ifndef AUDIO_TAB_H
+#define AUDIO_TAB_H
 
 #include "guvcview.h"
 //------------------------- Audio Tab ---------------------------------
 void audio_tab(struct ALL_DATA *all_data);
+
+#endif

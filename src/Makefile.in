@@ -43,17 +43,18 @@ CONFIG_CLEAN_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
-am_guvcview_OBJECTS = audio_tab.$(OBJEXT) autofocus.$(OBJEXT) \
-	avilib.$(OBJEXT) callbacks.$(OBJEXT) close.$(OBJEXT) \
-	colorspaces.$(OBJEXT) dct.$(OBJEXT) globals.$(OBJEXT) \
-	guvcview.$(OBJEXT) huffman.$(OBJEXT) img_controls.$(OBJEXT) \
-	jpgenc.$(OBJEXT) marker.$(OBJEXT) mp2.$(OBJEXT) \
-	ms_time.$(OBJEXT) options.$(OBJEXT) picture.$(OBJEXT) \
-	profile.$(OBJEXT) quant.$(OBJEXT) readYUV.$(OBJEXT) \
-	sound.$(OBJEXT) snd_devices.$(OBJEXT) string_utils.$(OBJEXT) \
-	timers.$(OBJEXT) utils.$(OBJEXT) v4l2_controls.$(OBJEXT) \
-	v4l2_devices.$(OBJEXT) v4l2_dyna_ctrls.$(OBJEXT) \
-	v4l2_formats.$(OBJEXT) v4l2uvc.$(OBJEXT) video.$(OBJEXT) \
+am_guvcview_OBJECTS = audio_effects.$(OBJEXT) audio_tab.$(OBJEXT) \
+	autofocus.$(OBJEXT) avilib.$(OBJEXT) callbacks.$(OBJEXT) \
+	close.$(OBJEXT) colorspaces.$(OBJEXT) dct.$(OBJEXT) \
+	globals.$(OBJEXT) guvcview.$(OBJEXT) huffman.$(OBJEXT) \
+	img_controls.$(OBJEXT) jpgenc.$(OBJEXT) marker.$(OBJEXT) \
+	mp2.$(OBJEXT) ms_time.$(OBJEXT) options.$(OBJEXT) \
+	picture.$(OBJEXT) profile.$(OBJEXT) quant.$(OBJEXT) \
+	readYUV.$(OBJEXT) sound.$(OBJEXT) snd_devices.$(OBJEXT) \
+	string_utils.$(OBJEXT) timers.$(OBJEXT) utils.$(OBJEXT) \
+	v4l2_controls.$(OBJEXT) v4l2_devices.$(OBJEXT) \
+	v4l2_dyna_ctrls.$(OBJEXT) v4l2_formats.$(OBJEXT) \
+	v4l2uvc.$(OBJEXT) video.$(OBJEXT) video_filters.$(OBJEXT) \
 	video_tab.$(OBJEXT)
 guvcview_OBJECTS = $(am_guvcview_OBJECTS)
 am__DEPENDENCIES_1 =
@@ -189,6 +190,8 @@ AM_CFLAGS = \
 	 -D_REENTRANT
 
 guvcview_SOURCES = \
+	audio_effects.h \
+	audio_effects.c \
 	audio_tab.h \
 	audio_tab.c \
 	autofocus.h \
@@ -250,6 +253,8 @@ guvcview_SOURCES = \
 	v4l2uvc.c \
 	video.h \
 	video.c \
+	video_filters.h \
+	video_filters.c \
 	video_tab.h \
 	video_tab.c
 
@@ -321,6 +326,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/audio_effects.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/audio_tab.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/autofocus.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/avilib.Po@am__quote@
@@ -352,6 +358,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/v4l2_formats.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/v4l2uvc.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/video.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/video_filters.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/video_tab.Po@am__quote@
 
 .c.o:

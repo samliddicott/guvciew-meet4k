@@ -19,40 +19,34 @@
 #                                                                               #
 ********************************************************************************/
 
-#ifndef COLORSPACES_H
-#define COLORSPACES_H
+#ifndef AUDIO_EFFECTS_H
+#define AUDIO_EFFECTS_H
 
-#include "defs.h"
-
-int 
-yuv420_to_yuyv (BYTE *framebuffer, BYTE *tmpbuffer, int width, int height);
-
-void 
-yyuv_to_yuyv (BYTE *framebuffer, BYTE *tmpbuffer, int width, int height);
-
-/* regular yuv (YUYV) to rgb24*/
-void 
-yuyv2rgb (BYTE *pyuv, BYTE *prgb, int width, int height);
-
-/* regular yuv (UYVY) to rgb24*/
-void 
-uyvy2rgb (BYTE *pyuv, BYTE *prgb, int width, int height);
-
-/* yuv (YUYV) to bgr with lines upsidedown */
-/* used for bitmap files (DIB24)           */
-void 
-yuyv2bgr (BYTE *pyuv, BYTE *pbgr, int width, int height);
-
-/* yuv (UYVY) to bgr with lines upsidedown */
-/* used for bitmap files (DIB24)           */
-void 
-uyvy2bgr (BYTE *pyuv, BYTE *pbgr, int width, int height);
-
-void 
-bayer_to_rgb24(BYTE *pBay, BYTE *pRGB24, int width, int height, int pix_order);
+#include "sound.h"
 
 void
-rgb2yuyv(BYTE *prgb, BYTE *pyuv, int width, int height);
+Echo(struct paRecordData *data, int delay_ms, float decay);
+
+void 
+Fuzz (struct paRecordData* data);
+
+void 
+Reverb (struct paRecordData* data, int delay_ms);
+
+/* Parameters:
+	freq - LFO frequency (1.5)
+	startphase - LFO startphase in RADIANS - usefull for stereo WahWah (0)
+	depth - Wah depth (0.7)
+	freqofs - Wah frequency offset (0.3)
+	res - Resonance (2.5)
+
+	!!!!!!!!!!!!! IMPORTANT!!!!!!!!! :
+	depth and freqofs should be from 0(min) to 1(max) !
+	res should be greater than 0 !  */
+void 
+WahWah (struct paRecordData* data, float freq, float startphase, float depth, float freqofs, float res);
+
+void 
+change_pitch (struct paRecordData* data, int rate);
 
 #endif
-

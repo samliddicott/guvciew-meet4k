@@ -14,6 +14,8 @@ AM_CFLAGS =\
 bin_PROGRAMS = guvcview
 
 guvcview_SOURCES = \
+	audio_effects.h \
+	audio_effects.c \
 	audio_tab.h \
 	audio_tab.c \
 	autofocus.h \
@@ -75,6 +77,8 @@ guvcview_SOURCES = \
 	v4l2uvc.c \
 	video.h \
 	video.c \
+	video_filters.h \
+	video_filters.c \
 	video_tab.h \
 	video_tab.c
 

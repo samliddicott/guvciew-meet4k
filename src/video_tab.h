@@ -21,6 +21,11 @@
 #                                                                               #
 ********************************************************************************/
 
+#ifndef VIDEO_TAB_H
+#define VIDEO_TAB_H
+
 #include "guvcview.h"
 //------------------------- Video Tab ---------------------------------
 void video_tab(struct ALL_DATA *all_data);
+
+#endif
