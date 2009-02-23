@@ -84,8 +84,8 @@ int initGlobals (struct GLOBAL *global)
 	global->AVIstarttime=0;
 	global->AVIstoptime=0;
 	global->framecount=0;
-	global->frmrate=5;
-	global->Sound_enable=1; /*Enable Sound by Default*/
+	
+	global->Sound_enable=TRUE; /*Enable Sound by Default*/
 	global->Sound_IndexDev=NULL;
 	global->Sound_SampRate=SAMPLE_RATE;
 	global->Sound_SampRateInd=0;
@@ -126,14 +126,13 @@ int initGlobals (struct GLOBAL *global)
 	global->format = V4L2_PIX_FMT_MJPEG;
 
 	global->Frame_Flags = YUV_NOFILT;
-	global->setFrameFlag = YUV_NOFILT;
 	
 	global->jpeg=NULL;
 	global->jpeg_size = 0;
 	/* reset with videoIn parameters */
 	global->jpeg_bufsize = 0;
-	global->autofocus = 0;
-	global->AFcontrol = 0;
+	global->autofocus = FALSE;
+	global->AFcontrol = FALSE;
 	global->AVIButtPress = FALSE;
 	
 	return (0);

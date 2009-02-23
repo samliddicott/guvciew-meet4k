@@ -53,7 +53,6 @@ struct GLOBAL
 	sndDev *Sound_IndexDev;//list of sound input devices
 	BYTE *jpeg;            // jpeg buffer
 
-	BYTE frmrate;          //frame rate
 	ULONG AVI_MAX_LEN;     //avi max length
 	DWORD snd_begintime;   //begin time for audio capture
 	DWORD currtime;
@@ -61,8 +60,8 @@ struct GLOBAL
 	DWORD AVIstarttime;    //avi start time
 	DWORD AVIstoptime;     //avi stop time
 	DWORD avi_inc;         //avi name increment
-	DWORD framecount;
-	DWORD frmCount;
+	DWORD framecount;      //avi frame count
+	DWORD frmCount;        //frame count for fps display calc
 	DWORD image_inc;       //image name increment
 	DWORD jpeg_bufsize;    // width*height/2 
 
@@ -71,7 +70,6 @@ struct GLOBAL
 	int Capture_time;      //avi capture time passed through argument options with -t 
 	int imgFormat;         //image format: 0-"jpg", 1-"png", 2-"bmp"
 	int AVIFormat;         //0-"MJPG"  1-"YUY2" 2-"DIB "(rgb32)
-	int Sound_enable;      //Enable Sound by Default
 	int Sound_SampRate;    //audio sample rate
 	int Sound_SampRateInd; //audio sample rate combo index
 	int Sound_numInputDev; //number of audio input devices
@@ -102,13 +100,13 @@ struct GLOBAL
 	int spinbehave;        //spin: 0-non editable 1-editable
 	int format;            //v4l2 pixel format
 	int Frame_Flags;       //frame filter flags
-	int setFrameFlag;
 	int jpeg_size;         //jpeg buffer size
-	int autofocus;         //some autofocus flags
-	int AFcontrol;         //Autofocus control flag
 
 	float DispFps;         //fps value
 	
+	gboolean Sound_enable; //Enable/disable Sound (Def. enable)
+	gboolean AFcontrol;    //Autofocus control flag (exists or not)
+	gboolean autofocus;    //autofocus flag (enable/disable)
 	gboolean flg_config;   //flag confPath if set in args
 	gboolean lprofile;     //flag for command line -l option
 	gboolean flg_npics;    //flag npics if set in args
