@@ -44,87 +44,6 @@ typedef float SAMPLE;
 #define MAX_SAMPLE (1.0f)
 #define PRINTF_S_FORMAT "%.8f"
 
-//----------- structs for effects (audio_effects.c)------------
-//data for Butterworth filter (LP or HP)
-typedef struct _Filt_data
-{
-	SAMPLE buff_in1[2];
-	SAMPLE buff_in2[2];
-	SAMPLE buff_out1[2];
-	SAMPLE buff_out2[2];
-	float c;
-	float a1;
-	float a2;
-	float a3;
-	float b1;
-	float b2;
-} Filt_data;
-
-//data for Comb4 filter
-typedef struct _Comb4_data
-{
-	int buff_size1;
-	int buff_size2;
-	int buff_size3;
-	int buff_size4;
-
-	SAMPLE *CombBuff10; // four parallel  comb filters - first channel
-	SAMPLE *CombBuff11; // four parallel comb filters - second channel
-	SAMPLE *CombBuff20; // four parallel  comb filters - first channel
-	SAMPLE *CombBuff21; // four parallel comb filters - second channel
-	SAMPLE *CombBuff30; // four parallel  comb filters - first channel
-	SAMPLE *CombBuff31; // four parallel comb filters - second channel
-	SAMPLE *CombBuff40; // four parallel  comb filters - first channel
-	SAMPLE *CombBuff41; // four parallel comb filters - second channel
-
-	int CombIndex1; //comb filter 1 index
-	int CombIndex2; //comb filter 2 index
-	int CombIndex3; //comb filter 3 index
-	int CombIndex4; //comb filter 4 index
-} Comb4_data;
-
-// data for delay
-typedef struct _delay_data
-{
-	int buff_size;
-	SAMPLE *delayBuff1; // delay buffer 1 - first channel
-	SAMPLE *delayBuff2; // delay buffer 2 - second channel (stereo)
-	int delayIndex; // delay buffer index
-} delay_data;
-
-// data for WahWah effect
-typedef struct _WAHData
-{
-	float lfoskip;
-	unsigned long skipcount;
-	float xn1;
-	float xn2;
-	float yn1;
-	float yn2;
-	float b0;
-	float b1;
-	float b2;
-	float a0;
-	float a1;
-	float a2;
-	float phase;
-} WAHData;
-
-typedef struct _TSD_data
-{
-	float tempo;
-} TSD_data;
-
-typedef struct _RATE_data
-{
-	SAMPLE *rBuff1;
-	SAMPLE *rBuff2;
-	SAMPLE *wBuff1;
-	SAMPLE *wBuff2;
-	int wSize;
-	int numsamples;
-} RATE_data;
-
 // main audio interface struct
 struct paRecordData
 {
@@ -147,17 +66,9 @@ struct paRecordData
 	SAMPLE *recordedSamples; // callback buffer
 	SAMPLE *avi_sndBuff; // out buffer
 
-	delay_data *ECHO;
-	delay_data *AP1;
-	Comb4_data *COMB4;
-	Filt_data *HPF;
-	Filt_data *LPF1;
-	RATE_data *RT1;
-
 	gint16 *avi_sndBuff1; //buffer for pcm coding with int16
 	BYTE *mp2Buff; //mp2 encode buffer
 	int mp2BuffSize; // mp2 buffer size
-	WAHData* wahData;
 	int snd_Flags; // effects flag
 	GMutex *mutex; // audio mutex
 	//pthread_cond_t cond;
@@ -176,21 +87,6 @@ set_sound (struct GLOBAL *global, struct paRecordData* data);
 
 int
 init_sound(struct paRecordData* data);
-
-void
-close_DELAY(delay_data *DELAY);
-
-void
-close_FILT(Filt_data *FILT);
-
-void
-close_WAHWAH(WAHData *wahData);
-
-void
-close_REVERB(struct paRecordData *data);
-
-void 
-close_pitch (struct paRecordData* data);
 
 int
 close_sound (struct paRecordData *data);

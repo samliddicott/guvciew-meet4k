@@ -66,6 +66,7 @@ void *main_loop(void *data)
 	char driver[128];
 	
 	struct JPEG_ENCODER_STRUCTURE *jpeg_struct=NULL;
+	struct audio_effects *aud_eff = init_audio_effects ();
 	
 	BYTE *p = NULL;
 	BYTE *pim= NULL;
@@ -545,50 +546,50 @@ void *main_loop(void *data)
 					/*echo*/
 					if((pdata->snd_Flags & SND_ECHO)==SND_ECHO) 
 					{
-						Echo(pdata, 300, 0.5);
+						Echo(pdata, aud_eff, 300, 0.5);
 					}
 					else
 					{
-						close_DELAY(pdata->ECHO);
-						pdata->ECHO = NULL;
+						close_DELAY(aud_eff->ECHO);
+						aud_eff->ECHO = NULL;
 					}
 					/*fuzz*/
 					if((pdata->snd_Flags & SND_FUZZ)==SND_FUZZ) 
 					{
-						Fuzz(pdata);
+						Fuzz(pdata, aud_eff);
 					}
 					else
 					{
-						close_FILT(pdata->HPF);
-						pdata->HPF = NULL;
+						close_FILT(aud_eff->HPF);
+						aud_eff->HPF = NULL;
 					}
 					/*reverb*/
 					if((pdata->snd_Flags & SND_REVERB)==SND_REVERB) 
 					{
-						Reverb(pdata, 50);
+						Reverb(pdata, aud_eff, 50);
 					}
 					else
 					{
-						close_REVERB(pdata);
+						close_REVERB(aud_eff);
 					}
 					/*wahwah*/
 					if((pdata->snd_Flags & SND_WAHWAH)==SND_WAHWAH) 
 					{
-						WahWah (pdata, 1.5, 0, 0.7, 0.3, 2.5);
+						WahWah (pdata, aud_eff, 1.5, 0, 0.7, 0.3, 2.5);
 					}
 					else
 					{
-						close_WAHWAH(pdata->wahData);
-						pdata->wahData = NULL;
+						close_WAHWAH(aud_eff->wahData);
+						aud_eff->wahData = NULL;
 					}
 					/*Ducky*/
 					if((pdata->snd_Flags & SND_DUCKY)==SND_DUCKY) 
 					{
-						change_pitch(pdata, 2);
+						change_pitch(pdata, aud_eff, 2);
 					}
 					else
 					{
-						close_pitch (pdata);
+						close_pitch (aud_eff);
 					}
 					
 					/*write audio chunk                                          */
@@ -707,7 +708,6 @@ void *main_loop(void *data)
 		aviClose(all_data);   
 	}
 	if (global->debug) g_printf("Thread terminated...\n");
-
 	p = NULL;
 	g_free(jpeg_struct);
 	jpeg_struct=NULL;
@@ -717,7 +717,8 @@ void *main_loop(void *data)
 	pavi=NULL;
 	if (global->debug) g_printf("cleaning Thread allocations: 100%%\n");
 	fflush(NULL);//flush all output buffers 
-
+	
+	close_audio_effects (aud_eff);
 	SDL_FreeYUVOverlay(overlay);
 	SDL_Quit();   
 

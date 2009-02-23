@@ -154,20 +154,6 @@ init_sound(struct paRecordData* data)
 	data->avi_sndBuff = g_new0(SAMPLE, numSamples);
 	/*buffer for avi PCM 16 bits*/
 	data->avi_sndBuff1=NULL;
-	/*Echo effect data */
-	data->ECHO = NULL;
-	/* 4 parallel comb filters data*/
-	data->COMB4 = NULL;
-	/*all pass 1 filter data*/
-	data->AP1 = NULL;
-	/*WahWah effect data*/ 
-	data->wahData = NULL;
-	/*high pass filter data*/
-	data->HPF = NULL;
-	/*rate transposer*/
-	data->RT1 = NULL;
-	/*low pass filter*/
-	data->LPF1 = NULL;
 	
 	err = Pa_Initialize();
 	if( err != paNoError ) goto error;
@@ -214,63 +200,6 @@ error:
 	return(-1);
 } 
 
-void
-close_DELAY(delay_data *DELAY)
-{
-	if(DELAY != NULL)
-	{
-		g_free(DELAY->delayBuff1);
-		g_free(DELAY->delayBuff2);
-		g_free(DELAY);
-	}
-}
-
-static void 
-close_COMB4(Comb4_data *COMB4)
-{
-	if(COMB4 != NULL)
-	{
-		g_free(COMB4->CombBuff10);
-		g_free(COMB4->CombBuff20);
-		g_free(COMB4->CombBuff30);
-		g_free(COMB4->CombBuff40);
-		
-		g_free(COMB4->CombBuff11);
-		g_free(COMB4->CombBuff21);
-		g_free(COMB4->CombBuff31);
-		g_free(COMB4->CombBuff41);
-		
-		g_free(COMB4);
-	}
-}
-
-void
-close_FILT(Filt_data *FILT)
-{
-	if(FILT != NULL)
-	{
-		g_free(FILT);
-	}
-}
-
-void
-close_WAHWAH(WAHData *wahData)
-{
-	if(wahData != NULL)
-	{
-		g_free(wahData);
-	}
-}
-
-void
-close_REVERB(struct paRecordData *data)
-{
-	close_DELAY(data->AP1);
-	data->AP1 = NULL;
-	close_COMB4(data->COMB4);
-	data->COMB4 = NULL;
-}
-
 int
 close_sound (struct paRecordData *data) 
 {
@@ -306,15 +235,6 @@ close_sound (struct paRecordData *data)
 	
 		g_free(data->avi_sndBuff);
 		data->avi_sndBuff = NULL;
-		
-		close_DELAY(data->ECHO);
-		data->ECHO = NULL;
-		close_REVERB(data);
-		close_WAHWAH(data->wahData);
-		data->wahData = NULL;
-		close_FILT(data->HPF);
-		data->HPF = NULL;
-		close_pitch(data);
 	
 		g_free(data->mp2Buff);
 		data->mp2Buff = NULL;
@@ -336,16 +256,6 @@ error:
 		Pa_Terminate();
 		g_free(data->avi_sndBuff);
 		data->avi_sndBuff = NULL;
-	
-		close_DELAY(data->ECHO);
-		data->ECHO = NULL;
-		close_REVERB(data);
-		close_WAHWAH(data->wahData);
-		data->wahData = NULL;
-		close_FILT(data->HPF);
-		data->HPF = NULL;
-	
-		close_pitch(data);
 		
 		g_free(data->mp2Buff);
 		data->mp2Buff = NULL;
