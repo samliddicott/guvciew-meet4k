@@ -74,6 +74,7 @@ GThread *video_thread = NULL;
 int main(int argc, char *argv[])
 {
 	int ret=0;
+	int n=0; //button box labels column
 	/*print package name and version*/ 
 	g_printf("%s\n", PACKAGE_STRING);
 	
@@ -301,24 +302,27 @@ int main(int argc, char *argv[])
 	gtk_widget_show (buttons_table);
 	gtk_paned_add2(GTK_PANED(gwidget->boxv),buttons_table);
 	
+	if(!(global->control_only)) /*control_only exclusion (video and Audio) */
+	{
+		capture_labels=gtk_label_new(_("Capture:"));
+		gtk_misc_set_alignment (GTK_MISC (capture_labels), 0.5, 0.5);
+		gtk_table_attach (GTK_TABLE(buttons_table), capture_labels, n, n+2, 0, 1,
+			GTK_SHRINK | GTK_FILL | GTK_EXPAND, 0, 0, 0);
+		gtk_widget_show (capture_labels);
+		n+=2; //increment column for labels
+	}//end of control only exclusion
+	
 	profile_labels=gtk_label_new(_("Control Profiles:"));
 	gtk_misc_set_alignment (GTK_MISC (profile_labels), 0.5, 0.5);
 
-	gtk_table_attach (GTK_TABLE(buttons_table), profile_labels, 2, 4, 0, 1,
+	gtk_table_attach (GTK_TABLE(buttons_table), profile_labels, n, n+2, 0, 1,
 		GTK_SHRINK | GTK_FILL | GTK_EXPAND , 0, 0, 0);
-
-	capture_labels=gtk_label_new(_("Capture:"));
-	gtk_misc_set_alignment (GTK_MISC (capture_labels), 0.5, 0.5);
-	gtk_table_attach (GTK_TABLE(buttons_table), capture_labels, 0, 2, 0, 1,
-		GTK_SHRINK | GTK_FILL | GTK_EXPAND, 0, 0, 0);
-
+	gtk_widget_show (profile_labels);
+	
 	gtk_table_attach(GTK_TABLE(buttons_table), HButtonBox, 0, 5, 1, 2,
 		GTK_SHRINK | GTK_FILL | GTK_EXPAND, 0, 0, 0);
 		
 	gtk_widget_show(HButtonBox);
-
-	gtk_widget_show (capture_labels);
-	gtk_widget_show (profile_labels);
 	
 	quitButton=gtk_button_new_from_stock(GTK_STOCK_QUIT);
 	SProfileButton=gtk_button_new_from_stock(GTK_STOCK_SAVE);
