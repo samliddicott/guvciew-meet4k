@@ -35,78 +35,9 @@
 #include "utils.h"
 #include "v4l2uvc.h"
 #include "huffman.h"
-
-#define ISHIFT 11
-
-#define IFIX(a) ((int)((a) * (1 << ISHIFT) + .5))
-
-#ifndef __P
-# define __P(x) x
-#endif
-
-/* special markers */
-#define M_BADHUFF	-1
-#define M_EOF		0x80
-
-/*yuv to rgb formula (set the one to use with 1)*/
-#define _F1 0
-#define _F2 0
-#define _F3 1
-
-
-struct jpeg_decdata 
-{
-	int dcts[6 * 64 + 16];
-	int out[64 * 6];
-	int dquant[3][64];
-};
-
-
-
-struct in 
-{
-	BYTE *p;
-	DWORD bits;
-	int left;
-	int marker;
-	int (*func) __P((void *));
-	void *data;
-};
+#include "colorspaces.h"
 
 /*********************************/
-struct dec_hufftbl;
-struct enc_hufftbl;
-
-union hufftblp 
-{
-	struct dec_hufftbl *dhuff;
-	struct enc_hufftbl *ehuff;
-};
-
-struct scan 
-{
-	int dc;			/* old dc value */
-
-	union hufftblp hudc;
-	union hufftblp huac;
-	int next;		/* when to switch to next scan */
-
-	int cid;		/* component id */
-	int hv;			/* horiz/vert, copied from comp */
-	int tq;			/* quant tbl, copied from comp */
-};
-
-/*********************************/
-
-#define DECBITS 10		/* seems to be the optimum */
-
-struct dec_hufftbl 
-{
-	int maxcode[17];
-	int valptr[16];
-	BYTE vals[256];
-	DWORD llvals[1 << DECBITS];
-};
 
 static int huffman_init(void);
 
@@ -129,28 +60,11 @@ static void idctqtab __P((BYTE *, PREC *));
 inline static void idct(int *in, int *out, int *quant, long off, int max);
 
 /*********************************/
-
 //static void col221111 __P((int *, unsigned char *, int));
 
-static void yuv420pto422(int * out, BYTE *pic, int width);
-static void yuv422pto422(int * out, BYTE *pic, int width);
-static void yuv444pto422(int * out, BYTE *pic, int width);
-static void yuv400pto422(int * out, BYTE *pic, int width);
 typedef void (*ftopict) (int * out, BYTE *pic, int width) ;
+
 /*********************************/
-
-/***** Markers ******/
-#define M_SOI	0xd8
-#define M_APP0	0xe0
-#define M_DQT	0xdb
-#define M_SOF0	0xc0
-#define M_DHT   0xc4
-#define M_DRI	0xdd
-#define M_SOS	0xda
-#define M_RST0	0xd0
-#define M_EOI	0xd9
-#define M_COM	0xfe
-
 static BYTE *datap;
 
 static int getbyte(void)
@@ -197,6 +111,11 @@ static struct dec_hufftbl dhuff[4];
 
 static struct in in;
 
+/*read jpeg tables (huffman and quantization)
+* args: 
+*      till: Marker (frame - SOF0   scan - SOS)
+*      isDHT: flag indicating the presence of huffman tables (if 0 must use default ones - MJPG frame)
+*/
 static int readtables(int till, int *isDHT)
 {
 	int m, l, i, j, lq, pq, tq;
@@ -300,7 +219,13 @@ static int dec_checkmarker(void)
 	return 0;
 }
 
-
+/*jpeg decode
+* args: 
+*      pic:  pointer to picture data ( decoded image - yuyv format)
+*      buf:  pointer to input data ( compressed jpeg )
+*      with: picture width 
+*      height: picture height
+*/
 int jpeg_decode(BYTE **pic, BYTE *buf, int *width, int *height)
 {
 	struct jpeg_decdata *decdata;
@@ -454,7 +379,7 @@ int jpeg_decode(BYTE **pic, BYTE *buf, int *width, int *height)
 		err = ERR_NOT_YCBCR_221111;
 		goto error;
 	}
-	*/    
+	*/
 	/* if internal width and external are not the same or heigth too 
 	and pic not allocated realloc the good size and mark the change 
 	need 1 macroblock line more ?? */
@@ -463,8 +388,6 @@ int jpeg_decode(BYTE **pic, BYTE *buf, int *width, int *height)
 		*width = intwidth;
 		*height = intheight;
 		// BytesperPixel 2 yuyv , 3 rgb24 
-		//*pic = (unsigned char *) realloc((unsigned char *) *pic,
-		//	(size_t) intwidth * (intheight + 8) * 2);
 		*pic = g_renew(unsigned char, *pic,
 			intwidth * (intheight + 8) * 2);
 	}
@@ -479,7 +402,7 @@ int jpeg_decode(BYTE **pic, BYTE *buf, int *width, int *height)
 			xpitch = 16 * bpp;
 			pitch = *width * bpp; // YUYV out
 			ypitch = 16 * pitch;
-			convert = yuv420pto422;	
+			convert = yuv420pto422; //choose the right conversion function
 			break;
 		case 0x21: //422
 			mb=4;
@@ -489,7 +412,7 @@ int jpeg_decode(BYTE **pic, BYTE *buf, int *width, int *height)
 			xpitch = 16 * bpp;
 			pitch = *width * bpp; // YUYV out
 			ypitch = 8 * pitch;
-			convert = yuv422pto422;	
+			convert = yuv422pto422; //choose the right conversion function
 			break;
 		case 0x11: //444
 			mcusx = *width >> 3;
@@ -501,12 +424,12 @@ int jpeg_decode(BYTE **pic, BYTE *buf, int *width, int *height)
 			if (info.ns==1) 
 			{
 				mb = 1;
-				convert = yuv400pto422;
+				convert = yuv400pto422; //choose the right conversion function
 			}
 			else 
 			{
 				mb=3;
-				convert = yuv444pto422;	
+				convert = yuv444pto422; //choose the right conversion function
 			}
 			break;
 		default:
@@ -580,7 +503,7 @@ int jpeg_decode(BYTE **pic, BYTE *buf, int *width, int *height)
 						IFIX(128.5), max[0]);
 					break;
 			} // switch enc411
-			convert(decdata->out,*pic+y+x,pitch);
+			convert(decdata->out,*pic+y+x,pitch); //convert to 422
 		}
 	}
 
@@ -776,7 +699,7 @@ static void decode_mcus(in, dct, n, sc, maxp)
 	int *maxp;
 {
 	struct dec_hufftbl *hu;
-	int i, r, t;
+	int i = 0, r = 0, t = 0;
 	LEBI_DCL;
 
 	memset(dct, 0, n * 64 * sizeof(*dct));
@@ -866,7 +789,6 @@ static void dec_makehuff(hu, hufflen, huffvals)
 /**************             idct                  ***************/
 /****************************************************************/
 
-
 #define IMULT(a, b) (((a) * (b)) >> ISHIFT)
 #define ITOINT(a) ((a) >> ISHIFT)
 
@@ -874,6 +796,7 @@ static void dec_makehuff(hu, hufflen, huffvals)
 #define C22 ((PREC)IFIX(2 * 0.923879532))
 #define IC4 ((PREC)IFIX(1 / 0.707106781))
 
+//zigzag order used by idct
 static unsigned char zig2[64] = {
     0, 2, 3, 9, 10, 20, 21, 35,
     14, 16, 25, 31, 39, 46, 50, 57,
@@ -885,6 +808,14 @@ static unsigned char zig2[64] = {
     6, 13, 17, 24, 32, 38, 47, 49
 };
 
+/*inverse dct for jpeg decoding
+* args: 
+*      in:  pointer to input data ( mcu - after huffman decoding)
+*      out: pointer to data with output of idct (to be filled)
+*      quant: pointer to quantization data tables
+*      off: offset value (128.5 or 0.5)
+*      max: maximum input mcu index?
+*/
 inline static void idct(int *in, int *out, int *quant, long off, int max)
 {
 	long t0, t1, t2, t3, t4, t5, t6, t7;	// t ;
@@ -894,16 +825,16 @@ inline static void idct(int *in, int *out, int *quant, long off, int max)
 	unsigned char *zig2p;
 
 	t0 = off;
-	if (max == 1) 
+	if (max == 1) //single color mcu
 	{
-		t0 += in[0] * quant[0];
-		for (i = 0; i < 64; i++)
+		t0 += in[0] * quant[0];     //only DC available
+		for (i = 0; i < 64; i++)    // fill mcu with DC value
 			out[i] = ITOINT(t0);
 		return;
 	}
 	zig2p = zig2;
 	tmpp = tmp;
-	for (i = 0; i < 8; i++) 
+	for (i = 0; i < 8; i++) //apply quantization table in zigzag order
 	{
 		j = *zig2p++;
 		t0 += in[j] * (long) quant[j];
@@ -925,7 +856,7 @@ inline static void idct(int *in, int *out, int *quant, long off, int max)
 
 		if ((t1 | t2 | t3 | t4 | t5 | t6 | t7) == 0) 
 		{
-			tmpp[0 * 8] = t0; /*t0 is DC*/
+			tmpp[0 * 8] = t0; //DC
 			tmpp[1 * 8] = t0;
 			tmpp[2 * 8] = t0;
 			tmpp[3 * 8] = t0;
@@ -939,7 +870,7 @@ inline static void idct(int *in, int *out, int *quant, long off, int max)
 			continue;
 		}
 		//IDCT;
-		tmp0 = t0 + t1; /*adds AC*/
+		tmp0 = t0 + t1;
 		t1 = t0 - t1;
 		tmp2 = t2 - t3;
 		t3 = t2 + t3;
@@ -962,14 +893,14 @@ inline static void idct(int *in, int *out, int *quant, long off, int max)
 		t5 = tmp5 - t6;
 		t4 = tmp4 - t5;
 
-		tmpp[0 * 8] = tmp3 + t7;	//t0;
-		tmpp[1 * 8] = tmp1 + t6;	//t1;
-		tmpp[2 * 8] = tmp2 + t5;	//t2;
-		tmpp[3 * 8] = t3 + t4;	//t3;
-		tmpp[4 * 8] = t3 - t4;	//t4;
-		tmpp[5 * 8] = tmp2 - t5;	//t5;
-		tmpp[6 * 8] = tmp1 - t6;	//t6;
-		tmpp[7 * 8] = tmp3 - t7;	//t7;
+		tmpp[0 * 8] = tmp3 + t7;        //t0;
+		tmpp[1 * 8] = tmp1 + t6;        //t1;
+		tmpp[2 * 8] = tmp2 + t5;        //t2;
+		tmpp[3 * 8] = t3 + t4;          //t3;
+		tmpp[4 * 8] = t3 - t4;          //t4;
+		tmpp[5 * 8] = tmp2 - t5;        //t5;
+		tmpp[6 * 8] = tmp1 - t6;        //t6;
+		tmpp[7 * 8] = tmp3 - t7;        //t7;
 		tmpp++;
 		t0 = 0;
 	}
@@ -1031,7 +962,6 @@ inline static void idct(int *in, int *out, int *quant, long off, int max)
 		out[j + 7] = ITOINT(tmp3 - t7);
 		j += 8;
 	}
-
 }
 
 static unsigned char zig[64] = {
@@ -1045,6 +975,7 @@ static unsigned char zig[64] = {
     35, 36, 48, 49, 57, 58, 62, 63
 };
 
+//coef used in idct
 static PREC aaidct[8] = {
     IFIX(0.3535533906), IFIX(0.4903926402),
     IFIX(0.4619397663), IFIX(0.4157348062),
@@ -1063,194 +994,5 @@ static void idctqtab(qin, qout)
 		for (j = 0; j < 8; j++)
 			qout[zig[i * 8 + j]] = qin[zig[i * 8 + j]] *
 				IMULT(aaidct[i], aaidct[j]);
-}
-
-
-static void yuv420pto422(int * out,unsigned char *pic,int width)
-{
-	int j, k;
-	unsigned char *pic0, *pic1;
-	int *outy, *outu, *outv;
-	int outy1 = 0;
-	int outy2 = 8;
-
-	pic0 = pic;
-	pic1 = pic + width;
-	outy = out;
-	outu = out + 64 * 4;
-	outv = out + 64 * 5;    
-	for (j = 0; j < 8; j++) 
-	{
-		for (k = 0; k < 8; k++)
-		{
-			if( k == 4) 
-			{ 
-				outy1 += 56;
-				outy2 += 56;
-			}
-			*pic0++ = CLIP(outy[outy1]);
-			*pic0++ = CLIP(128 + *outu);
-			*pic0++ = CLIP(outy[outy1+1]);
-			*pic0++ = CLIP(128 + *outv);
-			*pic1++ = CLIP(outy[outy2]);
-			*pic1++ = CLIP(128 + *outu);
-			*pic1++ = CLIP(outy[outy2+1]);
-			*pic1++ = CLIP(128 + *outv);
-			outy1 +=2; outy2 += 2; outu++; outv++;
-		}
-		if(j==3)
-		{
-			outy = out + 128;
-		} 
-		else 
-		{
-			outy += 16;
-		}
-		outy1 = 0;
-		outy2 = 8;
-		pic0 += 2 * (width -16);
-		pic1 += 2 * (width -16);
-	}
-}
-
-static void yuv422pto422(int * out,unsigned char *pic,int width)
-{
-	int j, k;
-	unsigned char *pic0, *pic1;
-	int *outy, *outu, *outv;
-	int outy1 = 0;
-	int outy2 = 8;
-	int outu1 = 0;
-	int outv1 = 0;
- 
-
-	pic0 = pic;
-	pic1 = pic + width;
-	outy = out;
-	outu = out + 64 * 4;
-	outv = out + 64 * 5;    
-	for (j = 0; j < 4; j++) 
-	{
-		for (k = 0; k < 8; k++) 
-		{
-			if( k == 4)
-			{ 
-				outy1 += 56;
-				outy2 += 56;
-			}
-			*pic0++ = CLIP(outy[outy1]);
-			*pic0++ = CLIP(128 + outu[outu1]);
-			*pic0++ = CLIP(outy[outy1+1]);
-			*pic0++ = CLIP(128 + outv[outv1]);
-			*pic1++ = CLIP(outy[outy2]);
-			*pic1++ = CLIP(128 + outu[outu1+8]);
-			*pic1++ = CLIP(outy[outy2+1]);
-			*pic1++ = CLIP(128 + outv[outv1+8]);
-			outv1 += 1; outu1 += 1;
-			outy1 +=2; outy2 +=2;
-		}
-		outy += 16;outu +=8; outv +=8;
-		outv1 = 0; outu1=0;
-		outy1 = 0;
-		outy2 = 8;
-		pic0 += 2 * (width -16);
-		pic1 += 2 * (width -16);
-	}
-}
-
-static void yuv444pto422(int * out,unsigned char *pic,int width)
-{
-	int j, k;
-	unsigned char *pic0, *pic1;
-	int *outy, *outu, *outv;
-	int outy1 = 0;
-	int outy2 = 8;
-	int outu1 = 0;
-	int outv1 = 0;
-
-	pic0 = pic;
-	pic1 = pic + width;
-	outy = out;
-	outu = out + 64 * 4; // Ooops where did i invert ??
-	outv = out + 64 * 5;    
-	for (j = 0; j < 4; j++) 
-	{
-		for (k = 0; k < 4; k++) 
-		{
-			*pic0++ =CLIP( outy[outy1]);
-			*pic0++ =CLIP( 128 + outu[outu1]);
-			*pic0++ =CLIP( outy[outy1+1]);
-			*pic0++ =CLIP( 128 + outv[outv1]);
-			*pic1++ =CLIP( outy[outy2]);
-			*pic1++ =CLIP( 128 + outu[outu1+8]);
-			*pic1++ =CLIP( outy[outy2+1]);
-			*pic1++ =CLIP( 128 + outv[outv1+8]);
-			outv1 += 2; outu1 += 2;
-			outy1 +=2; outy2 +=2;
-		}
-		outy += 16;outu +=16; outv +=16;
-		outv1 = 0; outu1=0;
-		outy1 = 0;
-		outy2 = 8;
-		pic0 += 2 * (width -8);
-		pic1 += 2 * (width -8);
-	}
-}
-
-static void yuv400pto422(int * out,unsigned char *pic,int width)
-{
-	int j, k;
-	unsigned char *pic0, *pic1;
-	int *outy ;
-	int outy1 = 0;
-	int outy2 = 8;
-	pic0 = pic;
-	pic1 = pic + width;
-	outy = out;
-
-	for (j = 0; j < 4; j++) 
-	{
-		for (k = 0; k < 4; k++) 
-		{
-			*pic0++ = CLIP(outy[outy1]);
-			*pic0++ = 128 ;
-			*pic0++ = CLIP(outy[outy1+1]);
-			*pic0++ = 128 ;
-			*pic1++ = CLIP(outy[outy2]);
-			*pic1++ = 128 ;
-			*pic1++ = CLIP(outy[outy2+1]);
-			*pic1++ = 128 ;
-			outy1 +=2; outy2 +=2;  
-		}
-		outy += 16;
-		outy1 = 0;
-		outy2 = 8;
-		pic0 += 2 * (width -8);
-		pic1 += 2 * (width -8);
-	}
-}
-
-int 
-is_huffman(unsigned char *buf)
-{
-	unsigned char *ptbuf;
-	int i = 0;
-	ptbuf = buf;
-	while (((ptbuf[0] << 8) | ptbuf[1]) != 0xffda)
-	{
-		if(i++ > 2048) 
-			return 0;
-		if(((ptbuf[0] << 8) | ptbuf[1]) == 0xffc4)
-			return 1;
-		ptbuf++;
-	}
-	return 0;
-}
-
-
-void cleanBuff(BYTE* Buff,int size)
-{
-	int i=0;
-	for(i=0;i<size;i++) Buff[i]=0x00;
 }
 

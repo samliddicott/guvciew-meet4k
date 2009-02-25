@@ -54,5 +54,41 @@ bayer_to_rgb24(BYTE *pBay, BYTE *pRGB24, int width, int height, int pix_order);
 void
 rgb2yuyv(BYTE *prgb, BYTE *pyuv, int width, int height);
 
+/*use in utils.c for jpeg decoding  420 planar to 422
+* args: 
+*      out: pointer to data output of idct (macroblocks yyyy u v)
+*      pic: pointer to picture buffer (yuyv)
+*      width: picture width
+*/
+void 
+yuv420pto422(int * out,unsigned char *pic,int width);
+
+/*use in utils.c for jpeg decoding 422 planar to 422
+* args: 
+*      out: pointer to data output of idct (macroblocks yyyy u v)
+*      pic: pointer to picture buffer (yuyv)
+*      width: picture width
+*/
+void 
+yuv422pto422(int * out,unsigned char *pic,int width);
+
+/*use in utils.c for jpeg decoding 444 planar to 422
+* args: 
+*      out: pointer to data output of idct (macroblocks yyyy u v)
+*      pic: pointer to picture buffer (yuyv)
+*      width: picture width
+*/
+void 
+yuv444pto422(int * out,unsigned char *pic,int width);
+
+/*use in utils.c for jpeg decoding 400 planar to 422
+* args: 
+*      out: pointer to data output of idct (macroblocks yyyy )
+*      pic: pointer to picture buffer (yuyv)
+*      width: picture width
+*/
+void 
+yuv400pto422(int * out,unsigned char *pic,int width);
+
 #endif
 

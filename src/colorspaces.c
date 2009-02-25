@@ -470,8 +470,6 @@ static void bayer_bilinear_gr(BYTE *pBay, BYTE *pRGB24, int x, int y, int width)
 	B(x + 1, y + 1) = ((DWORD)Bay(x + 0, y + 1) + (DWORD)Bay(x + 2, y + 1)) >> 1;
 }
 
-
-
 void 
 bayer_to_rgb24(BYTE *pBay, BYTE *pRGB24, int width, int height, int pix_order)
 {
@@ -562,6 +560,197 @@ rgb2yuyv(BYTE *prgb, BYTE *pyuv, int width, int height)
 		/* v*/
 		*pyuv++ =CLIP(((0.615 * (prgb[i] - 128) - 0.515 * (prgb[i+1] - 128) - 0.100 * (prgb[i+2] - 128) + 128) +
 			(0.615 * (prgb[3] - 128) - 0.515 * (prgb[i+4] - 128) - 0.100 * (prgb[i+5] - 128) + 128))/2);
+	}
+}
+
+/*use in utils.c for jpeg decoding  420 planar to 422
+* args: 
+*      out: pointer to data output of idct (macroblocks yyyy u v)
+*      pic: pointer to picture buffer (yuyv)
+*      width: picture width
+*/
+void yuv420pto422(int * out,unsigned char *pic,int width)
+{
+	int j, k;
+	unsigned char *pic0, *pic1;
+	int *outy, *outu, *outv;
+	int outy1 = 0;
+	int outy2 = 8;
+
+	//yyyyuv
+	pic0 = pic;
+	pic1 = pic + width;
+	outy = out;
+	outu = out + 64 * 4;
+	outv = out + 64 * 5;    
+	for (j = 0; j < 8; j++) 
+	{
+		for (k = 0; k < 8; k++)
+		{
+			if( k == 4) 
+			{ 
+				outy1 += 56;
+				outy2 += 56;
+			}
+			*pic0++ = CLIP(outy[outy1]);   //y1 line 1
+			*pic0++ = CLIP(128 + *outu);   //u  line 1-2
+			*pic0++ = CLIP(outy[outy1+1]); //y2 line 1
+			*pic0++ = CLIP(128 + *outv);   //v  line 1-2
+			*pic1++ = CLIP(outy[outy2]);   //y1 line 2
+			*pic1++ = CLIP(128 + *outu);   //u  line 1-2
+			*pic1++ = CLIP(outy[outy2+1]); //y2 line 2
+			*pic1++ = CLIP(128 + *outv);   //v  line 1-2
+			outy1 +=2; outy2 += 2; outu++; outv++;
+		}
+		if(j==3)
+		{
+			outy = out + 128;
+		} 
+		else 
+		{
+			outy += 16;
+		}
+		outy1 = 0;
+		outy2 = 8;
+		pic0 += 2 * (width -16);
+		pic1 += 2 * (width -16);
+	}
+}
+
+/*use in utils.c for jpeg decoding 422 planar to 422
+* args: 
+*      out: pointer to data output of idct (macroblocks yyyy u v)
+*      pic: pointer to picture buffer (yuyv)
+*      width: picture width
+*/
+void yuv422pto422(int * out,unsigned char *pic,int width)
+{
+	int j, k;
+	unsigned char *pic0, *pic1;
+	int *outy, *outu, *outv;
+	int outy1 = 0;
+	int outy2 = 8;
+	int outu1 = 0;
+	int outv1 = 0;
+ 
+	//yyyyuv
+	pic0 = pic;
+	pic1 = pic + width;
+	outy = out;
+	outu = out + 64 * 4;
+	outv = out + 64 * 5;    
+	for (j = 0; j < 4; j++) 
+	{
+		for (k = 0; k < 8; k++) 
+		{
+			if( k == 4)
+			{ 
+				outy1 += 56;
+				outy2 += 56;
+			}
+			*pic0++ = CLIP(outy[outy1]);        //y1 line 1
+			*pic0++ = CLIP(128 + outu[outu1]);  //u  line 1
+			*pic0++ = CLIP(outy[outy1+1]);      //y2 line 1
+			*pic0++ = CLIP(128 + outv[outv1]);  //v  line 1
+			*pic1++ = CLIP(outy[outy2]);        //y1 line 2
+			*pic1++ = CLIP(128 + outu[outu1+8]);//u  line 2
+			*pic1++ = CLIP(outy[outy2+1]);      //y2 line 2
+			*pic1++ = CLIP(128 + outv[outv1+8]);//v  line 2
+			outv1 += 1; outu1 += 1;
+			outy1 +=2; outy2 +=2;
+		}
+		outy += 16;outu +=8; outv +=8;
+		outv1 = 0; outu1=0;
+		outy1 = 0;
+		outy2 = 8;
+		pic0 += 2 * (width -16);
+		pic1 += 2 * (width -16);
+	}
+}
+
+/*use in utils.c for jpeg decoding 444 planar to 422
+* args: 
+*      out: pointer to data output of idct (macroblocks yyyy u v)
+*      pic: pointer to picture buffer (yuyv)
+*      width: picture width
+*/
+void yuv444pto422(int * out,unsigned char *pic,int width)
+{
+	int j, k;
+	unsigned char *pic0, *pic1;
+	int *outy, *outu, *outv;
+	int outy1 = 0;
+	int outy2 = 8;
+	int outu1 = 0;
+	int outv1 = 0;
+
+	//yyyyuv
+	pic0 = pic;
+	pic1 = pic + width;
+	outy = out;
+	outu = out + 64 * 4; // Ooops where did i invert ??
+	outv = out + 64 * 5;    
+	for (j = 0; j < 4; j++) 
+	{
+		for (k = 0; k < 4; k++) 
+		{
+			*pic0++ =CLIP( outy[outy1]);        //y1 line 1
+			*pic0++ =CLIP( 128 + outu[outu1]);  //u  line 1
+			*pic0++ =CLIP( outy[outy1+1]);      //y2 line 1
+			*pic0++ =CLIP( 128 + outv[outv1]);  //v  line 1
+			*pic1++ =CLIP( outy[outy2]);        //y1 line 2
+			*pic1++ =CLIP( 128 + outu[outu1+8]);//u  line 2
+			*pic1++ =CLIP( outy[outy2+1]);      //y2 line 2
+			*pic1++ =CLIP( 128 + outv[outv1+8]);//v  line 2
+			outv1 += 2; outu1 += 2;
+			outy1 +=2; outy2 +=2;
+		}
+		outy += 16;outu +=16; outv +=16;
+		outv1 = 0; outu1=0;
+		outy1 = 0;
+		outy2 = 8;
+		pic0 += 2 * (width -8);
+		pic1 += 2 * (width -8);
+	}
+}
+
+/*use in utils.c for jpeg decoding 400 planar to 422
+* args: 
+*      out: pointer to data output of idct (macroblocks yyyy )
+*      pic: pointer to picture buffer (yuyv)
+*      width: picture width
+*/
+void yuv400pto422(int * out,unsigned char *pic,int width)
+{
+	int j, k;
+	unsigned char *pic0, *pic1;
+	int *outy ;
+	int outy1 = 0;
+	int outy2 = 8;
+	pic0 = pic;
+	pic1 = pic + width;
+	outy = out;
+
+	//yyyy
+	for (j = 0; j < 4; j++) 
+	{
+		for (k = 0; k < 4; k++) 
+		{
+			*pic0++ = CLIP(outy[outy1]);  //y1 line 1
+			*pic0++ = 128 ;               //u
+			*pic0++ = CLIP(outy[outy1+1]);//y2 line 1
+			*pic0++ = 128 ;               //v
+			*pic1++ = CLIP(outy[outy2]);  //y1 line 2
+			*pic1++ = 128 ;               //u
+			*pic1++ = CLIP(outy[outy2+1]);//y2 line 2
+			*pic1++ = 128 ;               //v
+			outy1 +=2; outy2 +=2;  
+		}
+		outy += 16;
+		outy1 = 0;
+		outy2 = 8;
+		pic0 += 2 * (width -8);
+		pic1 += 2 * (width -8);
 	}
 }
 
