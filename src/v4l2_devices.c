@@ -116,13 +116,9 @@ LDevices *enum_devices( gchar *videodevice )
 		//we only need this info for Dynamic controls - uvc driver):
 		if(g_strcmp0(listDevices->listVidDevices[num_dev-1].driver,"uvcvideo") == 0)
 		{
-			//g_printf("device %s", listDevices->listVidDevices[num_dev-1].name);
 			sscanf(listDevices->listVidDevices[num_dev-1].name,"UVC Camera (%04x:%04x)",
 				&(listDevices->listVidDevices[num_dev-1].vendor),
 				&(listDevices->listVidDevices[num_dev-1].product));
-			//g_printf("returned vid:%04x and pid:%04x\n",
-			//	listDevices->listVidDevices[num_dev-1].vendor,
-			//	listDevices->listVidDevices[num_dev-1].product);
 		}
 	}
 	

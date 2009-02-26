@@ -30,7 +30,6 @@ typedef struct _VidDevice
 	char *location;
 	guint vendor;
 	guint product;
-	//guint64 version;
 	int valid;
 	int current;
 } VidDevice;
