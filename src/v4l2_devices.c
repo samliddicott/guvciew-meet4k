@@ -27,6 +27,7 @@
 #include <stdlib.h>
 #include <sys/ioctl.h>
 #include <linux/videodev2.h>
+#include <usb.h>
 
 #include "v4l2_devices.h"
 
@@ -45,8 +46,8 @@ LDevices *enum_devices( gchar *videodevice )
 	listDevices->listVidDevices = NULL;
 	struct v4l2_capability v4l2_cap;
 	GDir *v4l2_dir=NULL;
-	GDir *id_dir=NULL;
 	GError *error=NULL;
+	
 	v4l2_dir = g_dir_open("/sys/class/video4linux",0,&error);
 	if(v4l2_dir == NULL)
 	{
@@ -108,82 +109,21 @@ LDevices *enum_devices( gchar *videodevice )
 		g_free(device);
 		
 		close(fd);
-		listDevices->listVidDevices[num_dev-1].vendor = NULL;
-		listDevices->listVidDevices[num_dev-1].product = NULL;
-		listDevices->listVidDevices[num_dev-1].version = NULL;
-		/*get vid, pid and version from:                         */
-		/* /sys/class/video4linux/videoN/device/input/inputX/id/ */
+		listDevices->listVidDevices[num_dev-1].vendor = 0;
+		listDevices->listVidDevices[num_dev-1].product = 0;
 		
-		/* get input number - inputX */
-		gchar *dev_dir= g_strjoin("/",
-			"/sys/class/video4linux",
-			v4l2_device,
-			"device/input",
-			NULL);
-		id_dir = g_dir_open(dev_dir,0,&error);
-		if(id_dir == NULL)
+		//get vid, pid and version from uvc device name 
+		//we only need this info for Dynamic controls - uvc driver):
+		if(g_strcmp0(listDevices->listVidDevices[num_dev-1].driver,"uvcvideo") == 0)
 		{
-			g_printerr ("opening '%s' failed: %s\n",
-			dev_dir,
-			error->message);
-			g_error_free ( error );
-			error=NULL;
+			//g_printf("device %s", listDevices->listVidDevices[num_dev-1].name);
+			sscanf(listDevices->listVidDevices[num_dev-1].name,"UVC Camera (%04x:%04x)",
+				&(listDevices->listVidDevices[num_dev-1].vendor),
+				&(listDevices->listVidDevices[num_dev-1].product));
+			//g_printf("returned vid:%04x and pid:%04x\n",
+			//	listDevices->listVidDevices[num_dev-1].vendor,
+			//	listDevices->listVidDevices[num_dev-1].product);
 		}
-		else
-		{
-			/* get data */
-			const gchar *inpXdir;
-			if((inpXdir = g_dir_read_name(id_dir)) != NULL)
-			{
-				char code[5];
-				/* vid */
-				gchar *vid_str=g_strjoin("/",
-					dev_dir,
-					inpXdir,
-					"id/vendor",
-					NULL);
-				FILE *vid_fp = g_fopen(vid_str,"r");
-				if(vid_fp != NULL)
-				{
-					if(fgets(code, sizeof(code), vid_fp) != NULL)
-						listDevices->listVidDevices[num_dev-1].vendor = g_ascii_strdown(code,-1);
-					fclose (vid_fp);
-				}
-				g_free(vid_str);
-				/* pid */
-				gchar *pid_str=g_strjoin("/",
-					dev_dir,
-					inpXdir,
-					"id/product",
-					NULL);
-				
-				FILE *pid_fp = g_fopen(pid_str,"r");
-				if(pid_fp != NULL)
-				{
-					if(fgets(code, sizeof(code), pid_fp) != NULL)
-						listDevices->listVidDevices[num_dev-1].product = g_ascii_strdown(code,-1);
-					fclose (pid_fp);
-				}
-				g_free(pid_str);
-				/* version */
-				gchar *ver_str=g_strjoin("/",
-					dev_dir,
-					inpXdir,
-					"id/version",
-					NULL);
-				
-				FILE *ver_fp = g_fopen(ver_str,"r");
-				if(pid_fp != NULL)
-				{
-					if(fgets(code, sizeof(code), ver_fp) != NULL)
-						listDevices->listVidDevices[num_dev-1].version = g_ascii_strdown(code,-1);
-					fclose (ver_fp);
-				}
-				g_free(ver_str);
-			}
-		}
-		g_free(dev_dir);
-		if(id_dir != NULL) g_dir_close(id_dir);
 	}
 	
 	if(v4l2_dir != NULL) g_dir_close(v4l2_dir);
@@ -196,7 +136,8 @@ LDevices *enum_devices( gchar *videodevice )
  * args: listVidDevices: array of VidDevice (list of video devices)
  * numb_devices: number of existing supported video devices
  *
- * returns: void                                                       */
+ * returns: void
+ */
 void freeDevices(LDevices *listDevices)
 {
 	int i=0;
@@ -207,9 +148,6 @@ void freeDevices(LDevices *listDevices)
 		g_free(listDevices->listVidDevices[i].name);
 		g_free(listDevices->listVidDevices[i].driver);
 		g_free(listDevices->listVidDevices[i].location);
-		g_free(listDevices->listVidDevices[i].vendor);
-		g_free(listDevices->listVidDevices[i].product);
-		g_free(listDevices->listVidDevices[i].version);
 	}
 	g_free(listDevices->listVidDevices);
 	g_free(listDevices);

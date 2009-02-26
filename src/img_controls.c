@@ -59,16 +59,16 @@ draw_controls (struct ALL_DATA *all_data)
 	/*only for uvc driver (uvcvideo)*/
 	if(videoIn->listDevices->num_devices > 0)
 	{
-		g_printf("vid:%s \npid:%s\nrelease:%s\ndriver:%s\n",
+		g_printf("vid:%04x \npid:%04x \ndriver:%s\n",
 			videoIn->listDevices->listVidDevices[videoIn->listDevices->current_device].vendor,
 			videoIn->listDevices->listVidDevices[videoIn->listDevices->current_device].product,
-			videoIn->listDevices->listVidDevices[videoIn->listDevices->current_device].version,
+			//videoIn->listDevices->listVidDevices[videoIn->listDevices->current_device].version,
 			videoIn->listDevices->listVidDevices[videoIn->listDevices->current_device].driver);
 		if(g_strcmp0(videoIn->listDevices->listVidDevices[videoIn->listDevices->current_device].driver,"uvcvideo") == 0)
 		{
-			if(videoIn->listDevices->listVidDevices[videoIn->listDevices->current_device].vendor != NULL)
+			if(videoIn->listDevices->listVidDevices[videoIn->listDevices->current_device].vendor != 0)
 			{
-				if (g_strcmp0(videoIn->listDevices->listVidDevices[videoIn->listDevices->current_device].vendor,"046d") == 0)
+				if (videoIn->listDevices->listVidDevices[videoIn->listDevices->current_device].vendor == 0x046d)
 					initDynCtrls(videoIn->fd);
 			}
 			else initDynCtrls(videoIn->fd);

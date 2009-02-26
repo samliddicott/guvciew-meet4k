@@ -28,9 +28,9 @@ typedef struct _VidDevice
 	char *name;
 	char *driver;
 	char *location;
-	char *vendor;
-	char *product;
-	char *version;
+	guint vendor;
+	guint product;
+	//guint64 version;
 	int valid;
 	int current;
 } VidDevice;
