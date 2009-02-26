@@ -65,9 +65,14 @@ draw_controls (struct ALL_DATA *all_data)
 			videoIn->listDevices->listVidDevices[videoIn->listDevices->current_device].version,
 			videoIn->listDevices->listVidDevices[videoIn->listDevices->current_device].driver);
 		if(g_strcmp0(videoIn->listDevices->listVidDevices[videoIn->listDevices->current_device].driver,"uvcvideo") == 0)
+		{
 			if(videoIn->listDevices->listVidDevices[videoIn->listDevices->current_device].vendor != NULL)
+			{
 				if (g_strcmp0(videoIn->listDevices->listVidDevices[videoIn->listDevices->current_device].vendor,"046d") == 0)
 					initDynCtrls(videoIn->fd);
+			}
+			else initDynCtrls(videoIn->fd);
+		}
 	}
 	
 	if (s->control) 
