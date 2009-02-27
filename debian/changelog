@@ -1,3 +1,13 @@
+guvcview (1.0.0) intrepid; urgency=low
+
+   * Fixed vid:pid for UVC driver dynamic controls (parsing v4l2_cap card value)
+   * Fixed yu12 conversion bug (needs testing)
+   * added yv12 frame format (needs testing)
+   * Fixed null devices list bug (segfault)
+   * Added version option to console args (--version)
+
+ -- Paulo Assis <pj.assis@gmail.com>  Thu, 27 Feb 2009 18:25:00 +0000
+
 guvcview (0.9.9) intrepid; urgency=low
 
    * Fixed Format detection bug

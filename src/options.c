@@ -498,6 +498,7 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 	gboolean help = FALSE;
 	gboolean help_gtk = FALSE;
 	gboolean help_all = FALSE;
+	gboolean vers = FALSE;
 	gchar *help_str = NULL;
 	gchar *help_gtk_str = NULL;
 	gchar *help_all_str = NULL;
@@ -510,9 +511,10 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 		{ "help-all", 'h', G_OPTION_FLAG_HIDDEN, G_OPTION_ARG_NONE, &help_all, "Display all help options", NULL},
 		{ "help-gtk", '!', G_OPTION_FLAG_HIDDEN, G_OPTION_ARG_NONE, &help_gtk, "DISPLAY GTK+ help", NULL},
 		{ "help", '?', G_OPTION_FLAG_HIDDEN, G_OPTION_ARG_NONE, &help, "Display help", NULL},
+		{ "version", 0, 0, G_OPTION_ARG_NONE, &vers, N_("Prints version"), NULL},
 		{ "verbose", 'v', 0, G_OPTION_ARG_NONE, &global->debug, N_("Displays debug information"), NULL },
 		{ "device", 'd', 0, G_OPTION_ARG_STRING, &device, N_("Video Device to use [default: /dev/video0]"), "VIDEO_DEVICE" },
-		{ "control_only", 'o', 0, G_OPTION_ARG_NONE, &global->control_only, "Don't stream video (controls only)", NULL},
+		{ "control_only", 'o', 0, G_OPTION_ARG_NONE, &global->control_only, N_("Don't stream video (controls only)"), NULL},
 		{ "config", 'g', 0, G_OPTION_ARG_STRING, &config, N_("Configuration file"), "FILENAME" },
 		{ "hwd_acel", 'w', 0, G_OPTION_ARG_INT, &hwaccel, N_("Hardware accelaration (enable(1) | disable(0))"), "[1 | 0]" },
 		{ "format", 'f', 0, G_OPTION_ARG_STRING, &format, N_("Pixel format(mjpg|jpeg|yuyv|uyvy|yyuv|yu12|yv12|gbrg)"), "FORMAT" },
@@ -542,9 +544,28 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 	{
 		g_printerr ("option parsing failed: %s\n", error->message);
 		g_error_free ( error );
+		closeGlobals(global);
+		global=NULL;
+		g_printf("%s",help_all_str);
+		g_free(help_all_str);
+		g_free(help_str);
+		g_free(help_gtk_str);
+		g_option_context_free (context);
 		exit (1);
 	}
 	
+	if(vers)
+	{
+		//print version and exit
+		//version already printed in guvcview.c
+		closeGlobals(global);
+		global=NULL;
+		g_free(help_all_str);
+		g_free(help_str);
+		g_free(help_gtk_str);
+		g_option_context_free (context);
+		exit(0);
+	}
 	/*Display help message and exit*/
 	if(help_all)
 	{

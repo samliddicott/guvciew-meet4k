@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-02-27 18:15+0000\n"
+"POT-Creation-Date: 2009-02-27 18:38+0000\n"
 "PO-Revision-Date: 2009-01-08 11:50+0000\n"
 "Last-Translator: Paulo Assis <pj.assis@gmail.com>\n"
 "Language-Team: Portuguese <pt@li.org>\n"
@@ -237,63 +237,67 @@ msgstr "Blendenpriorität-Modus"
 msgid "File num:%d"
 msgstr "Dateinummer:%d"
 
-#: src/options.c:513
+#: src/options.c:514
+msgid "Prints version"
+msgstr ""
+
+#: src/options.c:515
 msgid "Displays debug information"
 msgstr "Extra Informationen anzeigen"
 
-#: src/options.c:514
+#: src/options.c:516
 msgid "Video Device to use [default: /dev/video0]"
 msgstr "Videovorrichtung (/dev/video0)"
 
-#: src/options.c:515
+#: src/options.c:517
 msgid "Don't stream video (controls only)"
 msgstr ""
 
-#: src/options.c:516
+#: src/options.c:518
 msgid "Configuration file"
 msgstr "Konfigurationsdatei"
 
-#: src/options.c:517
+#: src/options.c:519
 msgid "Hardware accelaration (enable(1) | disable(0))"
 msgstr "Hardware accel. (aktivieren(1) | inaktivieren(0))"
 
-#: src/options.c:518
+#: src/options.c:520
 msgid "Pixel format(mjpg|jpeg|yuyv|uyvy|yyuv|yu12|yv12|gbrg)"
 msgstr "Videoformat(mjpg|jpeg|yuyv|uyvy|yyuv|yu12|yv12|gbrg)"
 
-#: src/options.c:519
+#: src/options.c:521
 msgid "Frame size, default: 640x480"
 msgstr "Auflösung (def. 640x480)"
 
-#: src/options.c:520
+#: src/options.c:522
 msgid "Image File name"
 msgstr "Bilddatei"
 
-#: src/options.c:521
+#: src/options.c:523
 msgid "Image capture interval in seconds"
 msgstr "Bild aufnehmenabgelaufen (sekunden)"
 
-#: src/options.c:522
+#: src/options.c:524
 msgid "Number of Pictures to capture"
 msgstr "Bildquantität"
 
-#: src/options.c:523
+#: src/options.c:525
 msgid "AVI File name (capture from start)"
 msgstr "Datei video (anfangaufnehmen)"
 
-#: src/options.c:524
+#: src/options.c:526
 msgid "AVI capture time (in seconds)"
 msgstr "Videodauer  (sekunden)"
 
-#: src/options.c:525
+#: src/options.c:527
 msgid "Show FPS value (enable(1) | disable (0))"
 msgstr "FPS anzeigen (aktivieren(1)|inaktivieren(0))"
 
-#: src/options.c:526
+#: src/options.c:528
 msgid "Load Profile at start"
 msgstr "kontrollen - Datei öffnen"
 
-#: src/options.c:532
+#: src/options.c:534
 msgid "- local options"
 msgstr "- lokale Wahlen"
 

@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: pt_BR\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-02-27 18:15+0000\n"
-"PO-Revision-Date: 2009-02-27 18:18+0100\n"
+"POT-Creation-Date: 2009-02-27 18:38+0000\n"
+"PO-Revision-Date: 2009-02-27 18:39+0100\n"
 "Last-Translator: Paulo Assis <pj.assis@gmail.com>\n"
 "Language-Team: Portuguese <pt@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -244,63 +244,67 @@ msgstr "Modo prioridade da abertura"
 msgid "File num:%d"
 msgstr "Ficheiro num:%d"
 
-#: src/options.c:513
+#: src/options.c:514
+msgid "Prints version"
+msgstr "Mostra versão"
+
+#: src/options.c:515
 msgid "Displays debug information"
 msgstr "Apresenta Informação para Depuração"
 
-#: src/options.c:514
+#: src/options.c:516
 msgid "Video Device to use [default: /dev/video0]"
 msgstr "Dispositivo de vídeo [defeito: /dev/video0]"
 
-#: src/options.c:515
+#: src/options.c:517
 msgid "Don't stream video (controls only)"
 msgstr "Desabilitar o fluxo de vídeo (apenas controlos)"
 
-#: src/options.c:516
+#: src/options.c:518
 msgid "Configuration file"
 msgstr "Ficheiro de configuração"
 
-#: src/options.c:517
+#: src/options.c:519
 msgid "Hardware accelaration (enable(1) | disable(0))"
 msgstr "Aceleração vídeo por hardware (sim(1) | não(0))"
 
-#: src/options.c:518
+#: src/options.c:520
 msgid "Pixel format(mjpg|jpeg|yuyv|uyvy|yyuv|yu12|yv12|gbrg)"
 msgstr "Formato entrada(mjpg|jpeg|yuyv|uyvy|yyuv|yu12|yv12|gbrg)"
 
-#: src/options.c:519
+#: src/options.c:521
 msgid "Frame size, default: 640x480"
 msgstr "Resolução, defeito: 640x480"
 
-#: src/options.c:520
+#: src/options.c:522
 msgid "Image File name"
 msgstr "Ficheiro de Imagem:"
 
-#: src/options.c:521
+#: src/options.c:523
 msgid "Image capture interval in seconds"
 msgstr "Intervalo de captura de imagens em segundos"
 
-#: src/options.c:522
+#: src/options.c:524
 msgid "Number of Pictures to capture"
 msgstr "Numero de imagens a capturar"
 
-#: src/options.c:523
+#: src/options.c:525
 msgid "AVI File name (capture from start)"
 msgstr "Ficheiro de vídeo (captura no arranque)"
 
-#: src/options.c:524
+#: src/options.c:526
 msgid "AVI capture time (in seconds)"
 msgstr "Tempo de captura vídeo (em segundos)"
 
-#: src/options.c:525
+#: src/options.c:527
 msgid "Show FPS value (enable(1) | disable (0))"
 msgstr "Apresentar FPS (sim(1) | não(0))"
 
-#: src/options.c:526
+#: src/options.c:528
 msgid "Load Profile at start"
 msgstr "Carrega perfil no arranque"
 
-#: src/options.c:532
+#: src/options.c:534
 msgid "- local options"
 msgstr " - opções locais"
 

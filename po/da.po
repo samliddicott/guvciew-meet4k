@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: guvcview\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-02-27 18:15+0000\n"
+"POT-Creation-Date: 2009-02-27 18:38+0000\n"
 "PO-Revision-Date: 2009-01-01 16:27+0000\n"
 "Last-Translator: nanker <Unknown>\n"
 "Language-Team: Danish <da@li.org>\n"
@@ -231,63 +231,67 @@ msgstr ""
 msgid "File num:%d"
 msgstr "Fil nummer:%d"
 
-#: src/options.c:513
+#: src/options.c:514
+msgid "Prints version"
+msgstr ""
+
+#: src/options.c:515
 msgid "Displays debug information"
 msgstr "Vis debug information"
 
-#: src/options.c:514
+#: src/options.c:516
 msgid "Video Device to use [default: /dev/video0]"
 msgstr "Video udstyr at benyttet [default: /dev/video0]"
 
-#: src/options.c:515
+#: src/options.c:517
 msgid "Don't stream video (controls only)"
 msgstr ""
 
-#: src/options.c:516
+#: src/options.c:518
 msgid "Configuration file"
 msgstr ""
 
-#: src/options.c:517
+#: src/options.c:519
 msgid "Hardware accelaration (enable(1) | disable(0))"
 msgstr ""
 
-#: src/options.c:518
+#: src/options.c:520
 msgid "Pixel format(mjpg|jpeg|yuyv|uyvy|yyuv|yu12|yv12|gbrg)"
 msgstr ""
 
-#: src/options.c:519
+#: src/options.c:521
 msgid "Frame size, default: 640x480"
 msgstr "Ramme størrelse, standard: 640x480"
 
-#: src/options.c:520
+#: src/options.c:522
 msgid "Image File name"
 msgstr "Billedfil navn"
 
-#: src/options.c:521
+#: src/options.c:523
 msgid "Image capture interval in seconds"
 msgstr ""
 
-#: src/options.c:522
+#: src/options.c:524
 msgid "Number of Pictures to capture"
 msgstr ""
 
-#: src/options.c:523
+#: src/options.c:525
 msgid "AVI File name (capture from start)"
 msgstr ""
 
-#: src/options.c:524
+#: src/options.c:526
 msgid "AVI capture time (in seconds)"
 msgstr ""
 
-#: src/options.c:525
+#: src/options.c:527
 msgid "Show FPS value (enable(1) | disable (0))"
 msgstr ""
 
-#: src/options.c:526
+#: src/options.c:528
 msgid "Load Profile at start"
 msgstr "Indlæs profil ved start"
 
-#: src/options.c:532
+#: src/options.c:534
 msgid "- local options"
 msgstr "- lokale valgmuligheder"
 

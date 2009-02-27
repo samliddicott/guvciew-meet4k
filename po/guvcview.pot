@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-02-27 18:15+0000\n"
+"POT-Creation-Date: 2009-02-27 18:38+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -213,63 +213,67 @@ msgstr ""
 msgid "File num:%d"
 msgstr ""
 
-#: src/options.c:513
-msgid "Displays debug information"
-msgstr ""
-
 #: src/options.c:514
-msgid "Video Device to use [default: /dev/video0]"
+msgid "Prints version"
 msgstr ""
 
 #: src/options.c:515
-msgid "Don't stream video (controls only)"
+msgid "Displays debug information"
 msgstr ""
 
 #: src/options.c:516
-msgid "Configuration file"
+msgid "Video Device to use [default: /dev/video0]"
 msgstr ""
 
 #: src/options.c:517
-msgid "Hardware accelaration (enable(1) | disable(0))"
+msgid "Don't stream video (controls only)"
 msgstr ""
 
 #: src/options.c:518
-msgid "Pixel format(mjpg|jpeg|yuyv|uyvy|yyuv|yu12|yv12|gbrg)"
+msgid "Configuration file"
 msgstr ""
 
 #: src/options.c:519
-msgid "Frame size, default: 640x480"
+msgid "Hardware accelaration (enable(1) | disable(0))"
 msgstr ""
 
 #: src/options.c:520
-msgid "Image File name"
+msgid "Pixel format(mjpg|jpeg|yuyv|uyvy|yyuv|yu12|yv12|gbrg)"
 msgstr ""
 
 #: src/options.c:521
-msgid "Image capture interval in seconds"
+msgid "Frame size, default: 640x480"
 msgstr ""
 
 #: src/options.c:522
-msgid "Number of Pictures to capture"
+msgid "Image File name"
 msgstr ""
 
 #: src/options.c:523
-msgid "AVI File name (capture from start)"
+msgid "Image capture interval in seconds"
 msgstr ""
 
 #: src/options.c:524
-msgid "AVI capture time (in seconds)"
+msgid "Number of Pictures to capture"
 msgstr ""
 
 #: src/options.c:525
-msgid "Show FPS value (enable(1) | disable (0))"
+msgid "AVI File name (capture from start)"
 msgstr ""
 
 #: src/options.c:526
+msgid "AVI capture time (in seconds)"
+msgstr ""
+
+#: src/options.c:527
+msgid "Show FPS value (enable(1) | disable (0))"
+msgstr ""
+
+#: src/options.c:528
 msgid "Load Profile at start"
 msgstr ""
 
-#: src/options.c:532
+#: src/options.c:534
 msgid "- local options"
 msgstr ""
 
