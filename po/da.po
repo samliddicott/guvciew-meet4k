@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: guvcview\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-02-27 18:10+0000\n"
+"POT-Creation-Date: 2009-02-27 18:15+0000\n"
 "PO-Revision-Date: 2009-01-01 16:27+0000\n"
 "Last-Translator: nanker <Unknown>\n"
 "Language-Team: Danish <da@li.org>\n"
@@ -238,6 +238,10 @@ msgstr "Vis debug information"
 #: src/options.c:514
 msgid "Video Device to use [default: /dev/video0]"
 msgstr "Video udstyr at benyttet [default: /dev/video0]"
+
+#: src/options.c:515
+msgid "Don't stream video (controls only)"
+msgstr ""
 
 #: src/options.c:516
 msgid "Configuration file"
