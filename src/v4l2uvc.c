@@ -338,8 +338,13 @@ int init_videoIn(struct vdIn *vd, struct GLOBAL *global)
 
 	vd->listDevices = enum_devices( vd->videodevice );
 	
-	if(!(vd->listDevices->listVidDevices))
-		g_printerr("unable to detect video devices on your system (%i)\n", vd->listDevices->num_devices);
+	if (vd->listDevices != NULL)
+	{
+		if(!(vd->listDevices->listVidDevices))
+			g_printerr("unable to detect video devices on your system (%i)\n", vd->listDevices->num_devices);
+	}
+	else
+		g_printerr("Unable to detect devices on your system\n");
 	
 	if (vd->fd <=0 ) //open device
 	{
@@ -382,6 +387,7 @@ int init_videoIn(struct vdIn *vd, struct GLOBAL *global)
 			
 			case V4L2_PIX_FMT_YYUV:
 			case V4L2_PIX_FMT_YUV420:
+			case V4L2_PIX_FMT_YVU420:
 				// alloc a temp buffer for converting to YUYV
 				tmpbuf_size= vd->framesizeIn;
 				vd->tmpbuffer = g_new0(unsigned char, tmpbuf_size);
@@ -436,6 +442,7 @@ int init_videoIn(struct vdIn *vd, struct GLOBAL *global)
 				case V4L2_PIX_FMT_MJPEG:
 				case V4L2_PIX_FMT_SGBRG8: // converted to YUYV
 				case V4L2_PIX_FMT_YUV420: // converted to YUYV
+				case V4L2_PIX_FMT_YVU420: // converted to YUYV
 				case V4L2_PIX_FMT_YYUV:   // converted to YUYV
 				case V4L2_PIX_FMT_YUYV:
 					for (i=0; i<(framebuf_size-4); i+=4)
@@ -615,7 +622,19 @@ int uvcGrab(struct vdIn *vd)
 				goto err;
 			}
 			break;
+		
+		case V4L2_PIX_FMT_YVU420:
+			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
 			
+			if (yvu420_to_yuyv(vd->framebuffer, vd->tmpbuffer, vd->width,
+				vd->height) < 0) 
+			{
+				g_printerr("error converting yvu420 to yuyv\n");
+				ret = VDIN_DECODE_ERR;
+				goto err;
+			}
+			break;
+		
 		case V4L2_PIX_FMT_YUYV:
 		case V4L2_PIX_FMT_UYVY:
 			if(vd->isbayer>0) 

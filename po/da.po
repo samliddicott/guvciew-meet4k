@@ -458,7 +458,7 @@ msgid "Hardware accelaration (enable(1) | disable(0))"
 msgstr ""
 
 #: src/options.c:526
-msgid "Pixel format(mjpg|jpeg|yuyv|uyvy|yyuv|yu12|gbrg)"
+msgid "Pixel format(mjpg|jpeg|yuyv|uyvy|yyuv|yu12|yv12|gbrg)"
 msgstr ""
 
 #: src/options.c:527

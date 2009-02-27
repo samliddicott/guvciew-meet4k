@@ -205,6 +205,13 @@ void yyuv_to_yuyv (BYTE *framebuffer, BYTE *tmpbuffer, int width, int height)
 	}
 }
 
+/*convert yuv 420 planar (yu12) to yuv 422
+* args: 
+*      framebuffer: pointer to frame buffer (yuyv)
+*      tmpbuffer: pointer to temp buffer containing yuv420 planar data frame
+*      width: picture width
+*      height: picture height
+*/
 int yuv420_to_yuyv (BYTE *framebuffer, BYTE *tmpbuffer, int width, int height) 
 {
 	BYTE *py;
@@ -234,8 +241,8 @@ int yuv420_to_yuyv (BYTE *framebuffer, BYTE *tmpbuffer, int width, int height)
 			framebuffer[h*width+(w+1)] = pu[huv*(width/2)+wuv];
 			/*y01*/
 			framebuffer[h*width+(w+2)] = py[h*width+(wy+1)];
-			/*u0*/
-			framebuffer[h*width+(w+3)] = pu[huv*(width/2)+wuv];
+			/*v0*/
+			framebuffer[h*width+(w+3)] = pv[huv*(width/2)+wuv];
 			
 			/*y10*/
 			framebuffer[(h+1)*width+w] = py[(h+1)*width+wy];
@@ -243,8 +250,8 @@ int yuv420_to_yuyv (BYTE *framebuffer, BYTE *tmpbuffer, int width, int height)
 			framebuffer[(h+1)*width+(w+1)] = pu[huv*(width/2)+wuv];
 			/*y11*/
 			framebuffer[(h+1)*width+(w+2)] = py[(h+1)*width+(wy+1)];
-			/*u0*/
-			framebuffer[(h+1)*width+(w+3)] = pu[huv*(width/2)+wuv];
+			/*v0*/
+			framebuffer[(h+1)*width+(w+3)] = pv[huv*(width/2)+wuv];
 			wuv++;
 			wy+=2;
 		}
@@ -253,6 +260,60 @@ int yuv420_to_yuyv (BYTE *framebuffer, BYTE *tmpbuffer, int width, int height)
 	return (0);
 }
 
+/*convert yvu 420 planar (yv12) to yuv 422
+* args: 
+*      framebuffer: pointer to frame buffer (yuyv)
+*      tmpbuffer: pointer to temp buffer containing yuv420 planar data frame
+*      width: picture width
+*      height: picture height
+*/
+int yvu420_to_yuyv (BYTE *framebuffer, BYTE *tmpbuffer, int width, int height) 
+{
+	BYTE *py;
+	BYTE *pv;
+	BYTE *pu;
+	
+	py=tmpbuffer;
+	pv=py+(width*height);
+	pu=pv+(width*height/4);
+	
+	int h=0;
+	int w=0;
+	
+	int wy=0;
+	int huv=0;
+	int wuv=0;
+	
+	for(h=0;h<height;h+=2) 
+	{
+		wy=0;
+		wuv=0;
+		for(w=0;w<width*2;w+=4) 
+		{
+			/*y00*/
+			framebuffer[h*width+w] = py[h*width+wy];
+			/*u0*/
+			framebuffer[h*width+(w+1)] = pu[huv*(width/2)+wuv];
+			/*y01*/
+			framebuffer[h*width+(w+2)] = py[h*width+(wy+1)];
+			/*v0*/
+			framebuffer[h*width+(w+3)] = pv[huv*(width/2)+wuv];
+			
+			/*y10*/
+			framebuffer[(h+1)*width+w] = py[(h+1)*width+wy];
+			/*u0*/
+			framebuffer[(h+1)*width+(w+1)] = pu[huv*(width/2)+wuv];
+			/*y11*/
+			framebuffer[(h+1)*width+(w+2)] = py[(h+1)*width+(wy+1)];
+			/*v0*/
+			framebuffer[(h+1)*width+(w+3)] = pv[huv*(width/2)+wuv];
+			wuv++;
+			wy+=2;
+		}
+		huv++;
+	}
+	return (0);
+}
 
 /* raw bayer functions*/
 #define R(x,y) pRGB24[0 + 3 * ((x) + width * (y))]
@@ -470,6 +531,14 @@ static void bayer_bilinear_gr(BYTE *pBay, BYTE *pRGB24, int x, int y, int width)
 	B(x + 1, y + 1) = ((DWORD)Bay(x + 0, y + 1) + (DWORD)Bay(x + 2, y + 1)) >> 1;
 }
 
+/*convert bayer raw data to rgb24
+* args: 
+*      pBay: pointer to buffer containing Raw bayer data data
+*      pRGB24: pointer to buffer containing rgb24 data
+*      width: picture width
+*      height: picture height
+*      pix_order: bayer pixel order (0=gb/rg   1=gr/bg  2=bg/gr  3=rg/bg)
+*/
 void 
 bayer_to_rgb24(BYTE *pBay, BYTE *pRGB24, int width, int height, int pix_order)
 {

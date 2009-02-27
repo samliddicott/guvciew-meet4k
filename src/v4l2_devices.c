@@ -27,7 +27,6 @@
 #include <stdlib.h>
 #include <sys/ioctl.h>
 #include <linux/videodev2.h>
-#include <usb.h>
 
 #include "v4l2_devices.h"
 

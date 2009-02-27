@@ -65,6 +65,11 @@ static SupFormats listSupFormats[] = //list of software supported formats
 		.hardware = 0
 	},
 	{
+		.format   = V4L2_PIX_FMT_YVU420,
+		.mode     = "yv12",
+		.hardware = 0
+	},
+	{
 		.format   = V4L2_PIX_FMT_SGBRG8,
 		.mode     = "gbrg",
 		.hardware = 0

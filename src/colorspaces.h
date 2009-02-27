@@ -24,33 +24,95 @@
 
 #include "defs.h"
 
+/*convert yuv 420 planar (yu12) to yuv 422
+* args: 
+*      framebuffer: pointer to frame buffer (yuyv)
+*      tmpbuffer: pointer to temp buffer containing yuv420 planar data frame
+*      width: picture width
+*      height: picture height
+*/
 int 
 yuv420_to_yuyv (BYTE *framebuffer, BYTE *tmpbuffer, int width, int height);
 
+/*convert yvu 420 planar (yv12) to yuv 422 (yuyv)
+* args: 
+*      framebuffer: pointer to frame buffer (yuyv)
+*      tmpbuffer: pointer to temp buffer containing yvu420 planar data frame
+*      width: picture width
+*      height: picture height
+*/
+int yvu420_to_yuyv (BYTE *framebuffer, BYTE *tmpbuffer, int width, int height);
+
+/*convert yyuv to yuyv
+* args: 
+*      framebuffer: pointer to frame buffer (yuyv)
+*      tmpbuffer: pointer to temp buffer containing a yyuv data frame
+*      width: picture width
+*      height: picture height
+*/
 void 
 yyuv_to_yuyv (BYTE *framebuffer, BYTE *tmpbuffer, int width, int height);
 
-/* regular yuv (YUYV) to rgb24*/
+/*convert yuyv to rgb24
+* args: 
+*      pyuv: pointer to buffer containing yuv data (yuyv)
+*      prgb: pointer to buffer containing rgb24 data
+*      width: picture width
+*      height: picture height
+*/
 void 
 yuyv2rgb (BYTE *pyuv, BYTE *prgb, int width, int height);
 
-/* regular yuv (UYVY) to rgb24*/
+/*convert uyvy to rgb24
+* args: 
+*      pyuv: pointer to buffer containing yuv data (uyvy)
+*      prgb: pointer to buffer containing rgb24 data
+*      width: picture width
+*      height: picture height
+*/
 void 
 uyvy2rgb (BYTE *pyuv, BYTE *prgb, int width, int height);
 
-/* yuv (YUYV) to bgr with lines upsidedown */
-/* used for bitmap files (DIB24)           */
+/*convert yuyv to bgr with lines upsidedown
+* used for bitmap files (DIB24)
+* args: 
+*      pyuv: pointer to buffer containing yuv data (yuyv)
+*      prgb: pointer to buffer containing rgb24 data
+*      width: picture width
+*      height: picture height
+*/
 void 
 yuyv2bgr (BYTE *pyuv, BYTE *pbgr, int width, int height);
 
-/* yuv (UYVY) to bgr with lines upsidedown */
-/* used for bitmap files (DIB24)           */
+/*convert uyvy to bgr with lines upsidedown
+* used for bitmap files (DIB24)
+* args: 
+*      pyuv: pointer to buffer containing yuv data (uyvy)
+*      prgb: pointer to buffer containing rgb24 data
+*      width: picture width
+*      height: picture height
+*/
 void 
 uyvy2bgr (BYTE *pyuv, BYTE *pbgr, int width, int height);
 
+/*convert bayer raw data to rgb24
+* args: 
+*      pBay: pointer to buffer containing Raw bayer data data
+*      pRGB24: pointer to buffer containing rgb24 data
+*      width: picture width
+*      height: picture height
+*      pix_order: bayer pixel order (0=gb/rg   1=gr/bg  2=bg/gr  3=rg/bg)
+*/
 void 
 bayer_to_rgb24(BYTE *pBay, BYTE *pRGB24, int width, int height, int pix_order);
 
+/*convert rgb24 to yuyv
+* args: 
+*      prgb: pointer to buffer containing rgb24 data
+*      pyuv: pointer to buffer containing yuv data (yuyv)
+*      width: picture width
+*      height: picture height
+*/
 void
 rgb2yuyv(BYTE *prgb, BYTE *pyuv, int width, int height);
 
