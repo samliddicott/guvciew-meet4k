@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: guvcview\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-02-27 18:38+0000\n"
+"POT-Creation-Date: 2009-02-28 23:20+0000\n"
 "PO-Revision-Date: 2009-01-18 08:31+0000\n"
 "Last-Translator: Jakub Žáček <dawon.cz@gmail.com>\n"
 "Language-Team: Czech <cs@li.org>\n"
@@ -226,12 +226,225 @@ msgstr "Mód priority clony"
 msgid "Aperture Priority Mode"
 msgstr ""
 
-#: src/globals.c:69 src/globals.c:72 src/options.c:351 src/options.c:400
-#: src/callbacks.c:805 src/callbacks.c:929 src/callbacks.c:946
-#: src/callbacks.c:978 src/callbacks.c:1086
+#: src/video_tab.c:40 src/callbacks.c:1177
+msgid "Save File"
+msgstr "Uložit soubor"
+
+#. if auto naming restart counter
+#: src/video_tab.c:94 src/globals.c:69 src/globals.c:72 src/options.c:351
+#: src/options.c:400 src/callbacks.c:805 src/callbacks.c:929
+#: src/callbacks.c:946 src/callbacks.c:978 src/callbacks.c:1086
 #, c-format
 msgid "File num:%d"
 msgstr "Číslo souboru:%d"
+
+#: src/video_tab.c:154
+msgid "Video & Files"
+msgstr "Video & Soubory"
+
+#. Devices
+#: src/video_tab.c:170
+msgid "Device:"
+msgstr "Zařízení:"
+
+#: src/video_tab.c:265
+msgid "Frame Rate:"
+msgstr ""
+
+#: src/video_tab.c:273
+msgid " Show"
+msgstr " Zobrazit"
+
+#: src/video_tab.c:297
+msgid "Resolution:"
+msgstr "Rozlišení:"
+
+#: src/video_tab.c:323
+msgid "Camera Output:"
+msgstr "Výstup kamery:"
+
+#: src/video_tab.c:333
+msgid "Image File:"
+msgstr "Soubor obrazu:"
+
+#: src/video_tab.c:364 src/video_tab.c:449
+msgid "File,Auto"
+msgstr "Soubor, Auto"
+
+#: src/video_tab.c:375
+msgid "Image Format:"
+msgstr "Formát obrazu:"
+
+#: src/video_tab.c:403
+msgid "AVI File:"
+msgstr "Soubor AVI:"
+
+#: src/video_tab.c:463
+msgid "MJPG - compressed"
+msgstr "MJPG - komprimovaný"
+
+#: src/video_tab.c:465
+msgid "UYVY - uncomp YUV"
+msgstr "UYVY - uncomp YUV"
+
+#: src/video_tab.c:467
+msgid "YUY2 - uncomp YUV"
+msgstr "YUY2 - uncomp YUV"
+
+#: src/video_tab.c:469
+msgid "RGB - uncomp BMP"
+msgstr "RGB - uncomp BMP"
+
+#: src/video_tab.c:481
+msgid "AVI Format:"
+msgstr "Formát AVI:"
+
+#: src/video_tab.c:490
+msgid "---- Video Filters ----"
+msgstr "---- Filtry videa ----"
+
+#. Mirror
+#: src/video_tab.c:505
+msgid " Mirror"
+msgstr " Zrcadlo"
+
+#. Upturn
+#: src/video_tab.c:515
+msgid " Invert"
+msgstr " Invertovat"
+
+#. Negate
+#: src/video_tab.c:525
+msgid " Negative"
+msgstr " Negativ"
+
+#. Mono
+#: src/video_tab.c:535
+msgid " Mono"
+msgstr " Mono"
+
+#. Pieces
+#: src/video_tab.c:546
+msgid " Pieces"
+msgstr ""
+
+#: src/audio_tab.c:74
+msgid "Audio"
+msgstr ""
+
+#: src/audio_tab.c:95
+msgid " Sound"
+msgstr " Zvuk"
+
+#: src/audio_tab.c:119
+msgid "Input Device:"
+msgstr "Vstupní zařízení:"
+
+#: src/audio_tab.c:130 src/audio_tab.c:162
+msgid "Dev. Default"
+msgstr "Výchozí zařízení"
+
+#: src/audio_tab.c:151
+msgid "Sample Rate:"
+msgstr ""
+
+#: src/audio_tab.c:163
+msgid "1 - mono"
+msgstr "1 - mono"
+
+#: src/audio_tab.c:164
+msgid "2 - stereo"
+msgstr "2 - stereo"
+
+#: src/audio_tab.c:198
+msgid "Channels:"
+msgstr "Kanály:"
+
+#: src/audio_tab.c:209
+msgid "PCM"
+msgstr "PCM"
+
+#: src/audio_tab.c:210
+msgid "MP2"
+msgstr "MP2"
+
+#: src/audio_tab.c:238
+msgid "Audio Format:"
+msgstr "Formát zvuku:"
+
+#: src/audio_tab.c:247
+#, fuzzy
+msgid "---- Audio Effects ----"
+msgstr "---- Filtry videa ----"
+
+#. Echo
+#: src/audio_tab.c:266
+#, fuzzy
+msgid " Echo"
+msgstr " Zobrazit"
+
+#. FUZZ
+#: src/audio_tab.c:276
+msgid " Fuzz"
+msgstr ""
+
+#. Reverb
+#: src/audio_tab.c:287
+msgid " Reverb"
+msgstr ""
+
+#. WahWah
+#: src/audio_tab.c:298
+msgid " WahWah"
+msgstr ""
+
+#. Ducky
+#: src/audio_tab.c:309
+msgid " Ducky"
+msgstr ""
+
+#: src/v4l2_dyna_ctrls.c:89
+msgid "Pan (relative)"
+msgstr "Záběr (relativní)"
+
+#: src/v4l2_dyna_ctrls.c:99
+#, fuzzy
+msgid "Tilt (relative)"
+msgstr "Záběr (relativní)"
+
+#: src/v4l2_dyna_ctrls.c:109
+msgid "Pan Reset"
+msgstr "Reset záběru"
+
+#: src/v4l2_dyna_ctrls.c:119
+#, fuzzy
+msgid "Tilt Reset"
+msgstr "Obnovit"
+
+#: src/v4l2_dyna_ctrls.c:129
+#, fuzzy
+msgid "Pan/tilt Reset"
+msgstr "Reset záběru"
+
+#: src/v4l2_dyna_ctrls.c:139
+msgid "Focus (absolute)"
+msgstr "Ostření (absolutní)"
+
+#: src/v4l2_dyna_ctrls.c:149
+msgid "LED1 Mode"
+msgstr "Mód LED1"
+
+#: src/v4l2_dyna_ctrls.c:159
+msgid "LED1 Frequency"
+msgstr "Frekvence LED1"
+
+#: src/v4l2_dyna_ctrls.c:169
+msgid "Disable video processing"
+msgstr "Zakázat zpracování videa"
+
+#: src/v4l2_dyna_ctrls.c:179
+msgid "Raw bits per pixel"
+msgstr "Raw bity / pxel"
 
 #: src/options.c:514
 msgid "Prints version"
@@ -387,123 +600,6 @@ msgstr ""
 "\n"
 "Restartovat nyní?\n"
 
-#: src/callbacks.c:1177
-msgid "Save File"
-msgstr "Uložit soubor"
-
 #: src/callbacks.c:1190
 msgid "Load File"
 msgstr "Nahrát soubor"
-
-#~ msgid "Video & Files"
-#~ msgstr "Video & Soubory"
-
-#~ msgid "Device:"
-#~ msgstr "Zařízení:"
-
-#~ msgid " Show"
-#~ msgstr " Zobrazit"
-
-#~ msgid "Resolution:"
-#~ msgstr "Rozlišení:"
-
-#~ msgid "Camera Output:"
-#~ msgstr "Výstup kamery:"
-
-#~ msgid "Image File:"
-#~ msgstr "Soubor obrazu:"
-
-#~ msgid "File,Auto"
-#~ msgstr "Soubor, Auto"
-
-#~ msgid "Image Format:"
-#~ msgstr "Formát obrazu:"
-
-#~ msgid "AVI File:"
-#~ msgstr "Soubor AVI:"
-
-#~ msgid "MJPG - compressed"
-#~ msgstr "MJPG - komprimovaný"
-
-#~ msgid "UYVY - uncomp YUV"
-#~ msgstr "UYVY - uncomp YUV"
-
-#~ msgid "YUY2 - uncomp YUV"
-#~ msgstr "YUY2 - uncomp YUV"
-
-#~ msgid "RGB - uncomp BMP"
-#~ msgstr "RGB - uncomp BMP"
-
-#~ msgid "AVI Format:"
-#~ msgstr "Formát AVI:"
-
-#~ msgid "---- Video Filters ----"
-#~ msgstr "---- Filtry videa ----"
-
-#~ msgid " Mirror"
-#~ msgstr " Zrcadlo"
-
-#~ msgid " Invert"
-#~ msgstr " Invertovat"
-
-#~ msgid " Negative"
-#~ msgstr " Negativ"
-
-#~ msgid " Mono"
-#~ msgstr " Mono"
-
-#~ msgid " Sound"
-#~ msgstr " Zvuk"
-
-#~ msgid "Input Device:"
-#~ msgstr "Vstupní zařízení:"
-
-#~ msgid "Dev. Default"
-#~ msgstr "Výchozí zařízení"
-
-#~ msgid "1 - mono"
-#~ msgstr "1 - mono"
-
-#~ msgid "2 - stereo"
-#~ msgstr "2 - stereo"
-
-#~ msgid "Channels:"
-#~ msgstr "Kanály:"
-
-#~ msgid "PCM"
-#~ msgstr "PCM"
-
-#~ msgid "MP2"
-#~ msgstr "MP2"
-
-#~ msgid "Audio Format:"
-#~ msgstr "Formát zvuku:"
-
-#, fuzzy
-#~ msgid "---- Audio Effects ----"
-#~ msgstr "---- Filtry videa ----"
-
-#, fuzzy
-#~ msgid " Echo"
-#~ msgstr " Zobrazit"
-
-#~ msgid "Pan (relative)"
-#~ msgstr "Záběr (relativní)"
-
-#~ msgid "Pan Reset"
-#~ msgstr "Reset záběru"
-
-#~ msgid "Focus (absolute)"
-#~ msgstr "Ostření (absolutní)"
-
-#~ msgid "LED1 Mode"
-#~ msgstr "Mód LED1"
-
-#~ msgid "LED1 Frequency"
-#~ msgstr "Frekvence LED1"
-
-#~ msgid "Disable video processing"
-#~ msgstr "Zakázat zpracování videa"
-
-#~ msgid "Raw bits per pixel"
-#~ msgstr "Raw bity / pxel"

@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: pt_BR\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-02-27 18:38+0000\n"
+"POT-Creation-Date: 2009-02-28 23:20+0000\n"
 "PO-Revision-Date: 2009-02-27 18:39+0100\n"
 "Last-Translator: Paulo Assis <pj.assis@gmail.com>\n"
 "Language-Team: Portuguese <pt@li.org>\n"
@@ -40,8 +40,7 @@ msgstr ""
 "Por favor verifique a conexão\n"
 "e se o driver linux-UVC se encontra instalado."
 
-#: src/guvcview.c:205
-#: src/guvcview.c:240
+#: src/guvcview.c:205 src/guvcview.c:240
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -51,8 +50,7 @@ msgstr ""
 "\n"
 "Não foi possivel abrir formato video (MJPG ou YUV)"
 
-#: src/guvcview.c:206
-#: src/guvcview.c:241
+#: src/guvcview.c:206 src/guvcview.c:241
 msgid ""
 "Make sure you have a UVC compliant camera\n"
 "and that you have the linux UVC driver installed."
@@ -107,19 +105,16 @@ msgstr "Perfis de Controlo:"
 msgid "Stop Auto"
 msgstr "Parar Auto:"
 
-#: src/guvcview.c:346
-#: src/callbacks.c:999
+#: src/guvcview.c:346 src/callbacks.c:999
 msgid "Cap. Image"
 msgstr "Cap. Imagem"
 
 #. avi capture enabled from start
-#: src/guvcview.c:351
-#: src/callbacks.c:1153
+#: src/guvcview.c:351 src/callbacks.c:1153
 msgid "Stop AVI"
 msgstr "Parar AVI"
 
-#: src/guvcview.c:357
-#: src/callbacks.c:1081
+#: src/guvcview.c:357 src/callbacks.c:1081
 msgid "Cap. AVI"
 msgstr "Cap. AVI"
 
@@ -231,18 +226,220 @@ msgstr "Modo prioridade do obturador"
 msgid "Aperture Priority Mode"
 msgstr "Modo prioridade da abertura"
 
-#: src/globals.c:69
-#: src/globals.c:72
-#: src/options.c:351
-#: src/options.c:400
-#: src/callbacks.c:805
-#: src/callbacks.c:929
-#: src/callbacks.c:946
-#: src/callbacks.c:978
-#: src/callbacks.c:1086
+#: src/video_tab.c:40 src/callbacks.c:1177
+msgid "Save File"
+msgstr "Salvar Ficheiro"
+
+#. if auto naming restart counter
+#: src/video_tab.c:94 src/globals.c:69 src/globals.c:72 src/options.c:351
+#: src/options.c:400 src/callbacks.c:805 src/callbacks.c:929
+#: src/callbacks.c:946 src/callbacks.c:978 src/callbacks.c:1086
 #, c-format
 msgid "File num:%d"
 msgstr "Ficheiro num:%d"
+
+#: src/video_tab.c:154
+msgid "Video & Files"
+msgstr "Video e Ficheiros"
+
+#. Devices
+#: src/video_tab.c:170
+msgid "Device:"
+msgstr "Dispositivo de video:"
+
+#: src/video_tab.c:265
+msgid "Frame Rate:"
+msgstr "Taxa de imagens:"
+
+#: src/video_tab.c:273
+msgid " Show"
+msgstr "Mostrar"
+
+#: src/video_tab.c:297
+msgid "Resolution:"
+msgstr "Resolução:"
+
+#: src/video_tab.c:323
+msgid "Camera Output:"
+msgstr "Saída de Câmera:"
+
+#: src/video_tab.c:333
+msgid "Image File:"
+msgstr "Ficheiro de Imagem:"
+
+#: src/video_tab.c:364 src/video_tab.c:449
+msgid "File,Auto"
+msgstr "Ficheiro,Auto"
+
+#: src/video_tab.c:375
+msgid "Image Format:"
+msgstr "Formato de Imagem:"
+
+#: src/video_tab.c:403
+msgid "AVI File:"
+msgstr "Ficheiro AVI:"
+
+#: src/video_tab.c:463
+msgid "MJPG - compressed"
+msgstr "MJPG - c/comp."
+
+#: src/video_tab.c:465
+msgid "UYVY - uncomp YUV"
+msgstr "UYVY - s/comp YUV"
+
+#: src/video_tab.c:467
+msgid "YUY2 - uncomp YUV"
+msgstr "YUY2 - s/comp YUV"
+
+#: src/video_tab.c:469
+msgid "RGB - uncomp BMP"
+msgstr "RGB - s/comp BMP"
+
+#: src/video_tab.c:481
+msgid "AVI Format:"
+msgstr "Formato AVI:"
+
+#: src/video_tab.c:490
+msgid "---- Video Filters ----"
+msgstr "---- Filtros de Video ----"
+
+#. Mirror
+#: src/video_tab.c:505
+msgid " Mirror"
+msgstr " Espelho"
+
+#. Upturn
+#: src/video_tab.c:515
+msgid " Invert"
+msgstr " Invertido"
+
+#. Negate
+#: src/video_tab.c:525
+msgid " Negative"
+msgstr " Negativo"
+
+#. Mono
+#: src/video_tab.c:535
+msgid " Mono"
+msgstr " Cinza"
+
+#. Pieces
+#: src/video_tab.c:546
+msgid " Pieces"
+msgstr "Pedaços"
+
+#: src/audio_tab.c:74
+msgid "Audio"
+msgstr "Audio"
+
+#: src/audio_tab.c:95
+msgid " Sound"
+msgstr " Som"
+
+#: src/audio_tab.c:119
+msgid "Input Device:"
+msgstr "Dispositivo de som:"
+
+#: src/audio_tab.c:130 src/audio_tab.c:162
+msgid "Dev. Default"
+msgstr "Automático"
+
+#: src/audio_tab.c:151
+msgid "Sample Rate:"
+msgstr "Frequência:"
+
+#: src/audio_tab.c:163
+msgid "1 - mono"
+msgstr "1 - mono"
+
+#: src/audio_tab.c:164
+msgid "2 - stereo"
+msgstr "2 - stereo"
+
+#: src/audio_tab.c:198
+msgid "Channels:"
+msgstr "Canais:"
+
+#: src/audio_tab.c:209
+msgid "PCM"
+msgstr "PCM"
+
+#: src/audio_tab.c:210
+msgid "MP2"
+msgstr "MP2"
+
+#: src/audio_tab.c:238
+msgid "Audio Format:"
+msgstr "Formato Audio:"
+
+#: src/audio_tab.c:247
+msgid "---- Audio Effects ----"
+msgstr "---- Efeitos de Audio ----"
+
+#. Echo
+#: src/audio_tab.c:266
+msgid " Echo"
+msgstr "Eco"
+
+#. FUZZ
+#: src/audio_tab.c:276
+msgid " Fuzz"
+msgstr "Ruído"
+
+#. Reverb
+#: src/audio_tab.c:287
+msgid " Reverb"
+msgstr "Reverb"
+
+#. WahWah
+#: src/audio_tab.c:298
+msgid " WahWah"
+msgstr "WahWah"
+
+#. Ducky
+#: src/audio_tab.c:309
+msgid " Ducky"
+msgstr "Patinho"
+
+#: src/v4l2_dyna_ctrls.c:89
+msgid "Pan (relative)"
+msgstr "Rotação (relativa)"
+
+#: src/v4l2_dyna_ctrls.c:99
+msgid "Tilt (relative)"
+msgstr "Inclinação (relativa)"
+
+#: src/v4l2_dyna_ctrls.c:109
+msgid "Pan Reset"
+msgstr "Rotação (restaurar)"
+
+#: src/v4l2_dyna_ctrls.c:119
+msgid "Tilt Reset"
+msgstr "Inclinação (restaurar)"
+
+#: src/v4l2_dyna_ctrls.c:129
+msgid "Pan/tilt Reset"
+msgstr "Rot./Incl. (restaurar)"
+
+#: src/v4l2_dyna_ctrls.c:139
+msgid "Focus (absolute)"
+msgstr "Focagem (absoluta)"
+
+#: src/v4l2_dyna_ctrls.c:149
+msgid "LED1 Mode"
+msgstr "Modo LED1"
+
+#: src/v4l2_dyna_ctrls.c:159
+msgid "LED1 Frequency"
+msgstr "Frequência LED1"
+
+#: src/v4l2_dyna_ctrls.c:169
+msgid "Disable video processing"
+msgstr "Parar proc. video (Raw)"
+
+#: src/v4l2_dyna_ctrls.c:179
+msgid "Raw bits per pixel"
+msgstr "Bits por pixel (Raw)"
 
 #: src/options.c:514
 msgid "Prints version"
@@ -333,9 +530,7 @@ msgid "Down"
 msgstr "Descer"
 
 #. Pan reset
-#: src/img_controls.c:247
-#: src/img_controls.c:269
-#: src/img_controls.c:293
+#: src/img_controls.c:247 src/img_controls.c:269 src/img_controls.c:293
 msgid "Reset"
 msgstr "Restaurar"
 
@@ -376,23 +571,19 @@ msgstr ""
 "lançar novo processo ou recomeçar?.\n"
 "\n"
 
-#: src/callbacks.c:634
-#: src/callbacks.c:710
+#: src/callbacks.c:634 src/callbacks.c:710
 msgid "Program Restart"
 msgstr "Reiniciar Programa"
 
-#: src/callbacks.c:637
-#: src/callbacks.c:713
+#: src/callbacks.c:637 src/callbacks.c:713
 msgid "now"
 msgstr "Agora"
 
-#: src/callbacks.c:639
-#: src/callbacks.c:715
+#: src/callbacks.c:639 src/callbacks.c:715
 msgid "Later"
 msgstr "Depois"
 
-#: src/callbacks.c:643
-#: src/callbacks.c:719
+#: src/callbacks.c:643 src/callbacks.c:719
 msgid ""
 "Changes will only take effect after guvcview restart.\n"
 "\n"
@@ -404,108 +595,6 @@ msgstr ""
 "\n"
 "Reiniciar agora?\n"
 
-#: src/callbacks.c:1177
-msgid "Save File"
-msgstr "Salvar Ficheiro"
-
 #: src/callbacks.c:1190
 msgid "Load File"
 msgstr "Abrir Ficheiro"
-
-#~ msgid "Video & Files"
-#~ msgstr "Video e Ficheiros"
-#~ msgid "Device:"
-#~ msgstr "Dispositivo de video:"
-#~ msgid "Frame Rate:"
-#~ msgstr "Taxa de imagens:"
-#~ msgid " Show"
-#~ msgstr "Mostrar"
-#~ msgid "Resolution:"
-#~ msgstr "Resolução:"
-#~ msgid "Camera Output:"
-#~ msgstr "Saída de Câmera:"
-#~ msgid "Image File:"
-#~ msgstr "Ficheiro de Imagem:"
-#~ msgid "File,Auto"
-#~ msgstr "Ficheiro,Auto"
-#~ msgid "Image Format:"
-#~ msgstr "Formato de Imagem:"
-#~ msgid "AVI File:"
-#~ msgstr "Ficheiro AVI:"
-#~ msgid "MJPG - compressed"
-#~ msgstr "MJPG - c/comp."
-#~ msgid "UYVY - uncomp YUV"
-#~ msgstr "UYVY - s/comp YUV"
-#~ msgid "YUY2 - uncomp YUV"
-#~ msgstr "YUY2 - s/comp YUV"
-#~ msgid "RGB - uncomp BMP"
-#~ msgstr "RGB - s/comp BMP"
-#~ msgid "AVI Format:"
-#~ msgstr "Formato AVI:"
-#~ msgid "---- Video Filters ----"
-#~ msgstr "---- Filtros de Video ----"
-#~ msgid " Mirror"
-#~ msgstr " Espelho"
-#~ msgid " Invert"
-#~ msgstr " Invertido"
-#~ msgid " Negative"
-#~ msgstr " Negativo"
-#~ msgid " Mono"
-#~ msgstr " Cinza"
-#~ msgid " Pieces"
-#~ msgstr "Pedaços"
-#~ msgid "Audio"
-#~ msgstr "Audio"
-#~ msgid " Sound"
-#~ msgstr " Som"
-#~ msgid "Input Device:"
-#~ msgstr "Dispositivo de som:"
-#~ msgid "Dev. Default"
-#~ msgstr "Automático"
-#~ msgid "Sample Rate:"
-#~ msgstr "Frequência:"
-#~ msgid "1 - mono"
-#~ msgstr "1 - mono"
-#~ msgid "2 - stereo"
-#~ msgstr "2 - stereo"
-#~ msgid "Channels:"
-#~ msgstr "Canais:"
-#~ msgid "PCM"
-#~ msgstr "PCM"
-#~ msgid "MP2"
-#~ msgstr "MP2"
-#~ msgid "Audio Format:"
-#~ msgstr "Formato Audio:"
-#~ msgid "---- Audio Effects ----"
-#~ msgstr "---- Efeitos de Audio ----"
-#~ msgid " Echo"
-#~ msgstr "Eco"
-#~ msgid " Fuzz"
-#~ msgstr "Ruído"
-#~ msgid " Reverb"
-#~ msgstr "Reverb"
-#~ msgid " WahWah"
-#~ msgstr "WahWah"
-#~ msgid " Ducky"
-#~ msgstr "Patinho"
-#~ msgid "Pan (relative)"
-#~ msgstr "Rotação (relativa)"
-#~ msgid "Tilt (relative)"
-#~ msgstr "Inclinação (relativa)"
-#~ msgid "Pan Reset"
-#~ msgstr "Rotação (restaurar)"
-#~ msgid "Tilt Reset"
-#~ msgstr "Inclinação (restaurar)"
-#~ msgid "Pan/tilt Reset"
-#~ msgstr "Rot./Incl. (restaurar)"
-#~ msgid "Focus (absolute)"
-#~ msgstr "Focagem (absoluta)"
-#~ msgid "LED1 Mode"
-#~ msgstr "Modo LED1"
-#~ msgid "LED1 Frequency"
-#~ msgstr "Frequência LED1"
-#~ msgid "Disable video processing"
-#~ msgstr "Parar proc. video (Raw)"
-#~ msgid "Raw bits per pixel"
-#~ msgstr "Bits por pixel (Raw)"
-

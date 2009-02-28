@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: guvcview\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-02-27 18:38+0000\n"
+"POT-Creation-Date: 2009-02-28 23:20+0000\n"
 "PO-Revision-Date: 2009-01-01 16:27+0000\n"
 "Last-Translator: nanker <Unknown>\n"
 "Language-Team: Danish <da@li.org>\n"
@@ -224,12 +224,227 @@ msgstr ""
 msgid "Aperture Priority Mode"
 msgstr ""
 
-#: src/globals.c:69 src/globals.c:72 src/options.c:351 src/options.c:400
-#: src/callbacks.c:805 src/callbacks.c:929 src/callbacks.c:946
-#: src/callbacks.c:978 src/callbacks.c:1086
+#: src/video_tab.c:40 src/callbacks.c:1177
+msgid "Save File"
+msgstr "Gem fil"
+
+#. if auto naming restart counter
+#: src/video_tab.c:94 src/globals.c:69 src/globals.c:72 src/options.c:351
+#: src/options.c:400 src/callbacks.c:805 src/callbacks.c:929
+#: src/callbacks.c:946 src/callbacks.c:978 src/callbacks.c:1086
 #, c-format
 msgid "File num:%d"
 msgstr "Fil nummer:%d"
+
+#: src/video_tab.c:154
+msgid "Video & Files"
+msgstr "Video & filer"
+
+#. Devices
+#: src/video_tab.c:170
+#, fuzzy
+msgid "Device:"
+msgstr "Input udstyr:"
+
+#: src/video_tab.c:265
+msgid "Frame Rate:"
+msgstr "Billedrate:"
+
+#: src/video_tab.c:273
+msgid " Show"
+msgstr " Vis"
+
+#: src/video_tab.c:297
+msgid "Resolution:"
+msgstr "Opløsning:"
+
+#: src/video_tab.c:323
+msgid "Camera Output:"
+msgstr "Kamera output:"
+
+#: src/video_tab.c:333
+msgid "Image File:"
+msgstr "Billed fil:"
+
+#: src/video_tab.c:364 src/video_tab.c:449
+msgid "File,Auto"
+msgstr "Fil, auto"
+
+#: src/video_tab.c:375
+msgid "Image Format:"
+msgstr "Billed format:"
+
+#: src/video_tab.c:403
+msgid "AVI File:"
+msgstr "AVI fil:"
+
+#: src/video_tab.c:463
+msgid "MJPG - compressed"
+msgstr "MJPG - komprimeret"
+
+#: src/video_tab.c:465
+msgid "UYVY - uncomp YUV"
+msgstr "UYVY - ukomprimeret YUV"
+
+#: src/video_tab.c:467
+msgid "YUY2 - uncomp YUV"
+msgstr "YUY2 - ukomprimeret YUV"
+
+#: src/video_tab.c:469
+msgid "RGB - uncomp BMP"
+msgstr "RGB - ukomprimeret BMP"
+
+#: src/video_tab.c:481
+msgid "AVI Format:"
+msgstr "AVI format:"
+
+#: src/video_tab.c:490
+msgid "---- Video Filters ----"
+msgstr "---- Video filtre ----"
+
+#. Mirror
+#: src/video_tab.c:505
+msgid " Mirror"
+msgstr " Spejl"
+
+#. Upturn
+#: src/video_tab.c:515
+msgid " Invert"
+msgstr " Vend"
+
+#. Negate
+#: src/video_tab.c:525
+msgid " Negative"
+msgstr " Negativ"
+
+#. Mono
+#: src/video_tab.c:535
+msgid " Mono"
+msgstr " Mono"
+
+#. Pieces
+#: src/video_tab.c:546
+msgid " Pieces"
+msgstr ""
+
+#: src/audio_tab.c:74
+msgid "Audio"
+msgstr ""
+
+#: src/audio_tab.c:95
+msgid " Sound"
+msgstr " Lyd"
+
+#: src/audio_tab.c:119
+msgid "Input Device:"
+msgstr "Input udstyr:"
+
+#: src/audio_tab.c:130 src/audio_tab.c:162
+msgid "Dev. Default"
+msgstr ""
+
+#: src/audio_tab.c:151
+#, fuzzy
+msgid "Sample Rate:"
+msgstr "Billedrate:"
+
+#: src/audio_tab.c:163
+msgid "1 - mono"
+msgstr "1 - mono"
+
+#: src/audio_tab.c:164
+msgid "2 - stereo"
+msgstr "2 - stereo"
+
+#: src/audio_tab.c:198
+msgid "Channels:"
+msgstr "Kanaler:"
+
+#: src/audio_tab.c:209
+msgid "PCM"
+msgstr "PCM"
+
+#: src/audio_tab.c:210
+msgid "MP2"
+msgstr "MP2"
+
+#: src/audio_tab.c:238
+msgid "Audio Format:"
+msgstr "Lyd format:"
+
+#: src/audio_tab.c:247
+#, fuzzy
+msgid "---- Audio Effects ----"
+msgstr "---- Video filtre ----"
+
+#. Echo
+#: src/audio_tab.c:266
+#, fuzzy
+msgid " Echo"
+msgstr " Vis"
+
+#. FUZZ
+#: src/audio_tab.c:276
+msgid " Fuzz"
+msgstr ""
+
+#. Reverb
+#: src/audio_tab.c:287
+msgid " Reverb"
+msgstr ""
+
+#. WahWah
+#: src/audio_tab.c:298
+msgid " WahWah"
+msgstr ""
+
+#. Ducky
+#: src/audio_tab.c:309
+msgid " Ducky"
+msgstr ""
+
+#: src/v4l2_dyna_ctrls.c:89
+#, fuzzy
+msgid "Pan (relative)"
+msgstr " Negativ"
+
+#: src/v4l2_dyna_ctrls.c:99
+msgid "Tilt (relative)"
+msgstr ""
+
+#: src/v4l2_dyna_ctrls.c:109
+#, fuzzy
+msgid "Pan Reset"
+msgstr "Nulstil"
+
+#: src/v4l2_dyna_ctrls.c:119
+#, fuzzy
+msgid "Tilt Reset"
+msgstr "Nulstil"
+
+#: src/v4l2_dyna_ctrls.c:129
+msgid "Pan/tilt Reset"
+msgstr ""
+
+#: src/v4l2_dyna_ctrls.c:139
+msgid "Focus (absolute)"
+msgstr "Fokus (absolut)"
+
+#: src/v4l2_dyna_ctrls.c:149
+msgid "LED1 Mode"
+msgstr "LED1 tilstand"
+
+#: src/v4l2_dyna_ctrls.c:159
+msgid "LED1 Frequency"
+msgstr "LED1 frekvens"
+
+#: src/v4l2_dyna_ctrls.c:169
+msgid "Disable video processing"
+msgstr "Slå video processer fra"
+
+#: src/v4l2_dyna_ctrls.c:179
+msgid "Raw bits per pixel"
+msgstr "Rå bits pr. pixel"
 
 #: src/options.c:514
 msgid "Prints version"
@@ -383,114 +598,6 @@ msgstr ""
 "\n"
 "Genstart nu?\n"
 
-#: src/callbacks.c:1177
-msgid "Save File"
-msgstr "Gem fil"
-
 #: src/callbacks.c:1190
 msgid "Load File"
 msgstr "Indlæs fil"
-
-#~ msgid "Video & Files"
-#~ msgstr "Video & filer"
-
-#~ msgid "Frame Rate:"
-#~ msgstr "Billedrate:"
-
-#~ msgid " Show"
-#~ msgstr " Vis"
-
-#~ msgid "Resolution:"
-#~ msgstr "Opløsning:"
-
-#~ msgid "Camera Output:"
-#~ msgstr "Kamera output:"
-
-#~ msgid "Image File:"
-#~ msgstr "Billed fil:"
-
-#~ msgid "File,Auto"
-#~ msgstr "Fil, auto"
-
-#~ msgid "Image Format:"
-#~ msgstr "Billed format:"
-
-#~ msgid "AVI File:"
-#~ msgstr "AVI fil:"
-
-#~ msgid "MJPG - compressed"
-#~ msgstr "MJPG - komprimeret"
-
-#~ msgid "UYVY - uncomp YUV"
-#~ msgstr "UYVY - ukomprimeret YUV"
-
-#~ msgid "YUY2 - uncomp YUV"
-#~ msgstr "YUY2 - ukomprimeret YUV"
-
-#~ msgid "RGB - uncomp BMP"
-#~ msgstr "RGB - ukomprimeret BMP"
-
-#~ msgid "AVI Format:"
-#~ msgstr "AVI format:"
-
-#~ msgid "---- Video Filters ----"
-#~ msgstr "---- Video filtre ----"
-
-#~ msgid " Mirror"
-#~ msgstr " Spejl"
-
-#~ msgid " Invert"
-#~ msgstr " Vend"
-
-#~ msgid " Negative"
-#~ msgstr " Negativ"
-
-#~ msgid " Mono"
-#~ msgstr " Mono"
-
-#~ msgid " Sound"
-#~ msgstr " Lyd"
-
-#~ msgid "Input Device:"
-#~ msgstr "Input udstyr:"
-
-#~ msgid "1 - mono"
-#~ msgstr "1 - mono"
-
-#~ msgid "2 - stereo"
-#~ msgstr "2 - stereo"
-
-#~ msgid "Channels:"
-#~ msgstr "Kanaler:"
-
-#~ msgid "PCM"
-#~ msgstr "PCM"
-
-#~ msgid "MP2"
-#~ msgstr "MP2"
-
-#~ msgid "Audio Format:"
-#~ msgstr "Lyd format:"
-
-#, fuzzy
-#~ msgid "---- Audio Effects ----"
-#~ msgstr "---- Video filtre ----"
-
-#, fuzzy
-#~ msgid " Echo"
-#~ msgstr " Vis"
-
-#~ msgid "Focus (absolute)"
-#~ msgstr "Fokus (absolut)"
-
-#~ msgid "LED1 Mode"
-#~ msgstr "LED1 tilstand"
-
-#~ msgid "LED1 Frequency"
-#~ msgstr "LED1 frekvens"
-
-#~ msgid "Disable video processing"
-#~ msgstr "Slå video processer fra"
-
-#~ msgid "Raw bits per pixel"
-#~ msgstr "Rå bits pr. pixel"

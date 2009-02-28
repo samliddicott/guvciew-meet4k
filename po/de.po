@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-02-27 18:38+0000\n"
+"POT-Creation-Date: 2009-02-28 23:20+0000\n"
 "PO-Revision-Date: 2009-01-08 11:50+0000\n"
 "Last-Translator: Paulo Assis <pj.assis@gmail.com>\n"
 "Language-Team: Portuguese <pt@li.org>\n"
@@ -230,12 +230,222 @@ msgstr "Blendenautomatik-Modus"
 msgid "Aperture Priority Mode"
 msgstr "Blendenpriorität-Modus"
 
-#: src/globals.c:69 src/globals.c:72 src/options.c:351 src/options.c:400
-#: src/callbacks.c:805 src/callbacks.c:929 src/callbacks.c:946
-#: src/callbacks.c:978 src/callbacks.c:1086
+#: src/video_tab.c:40 src/callbacks.c:1177
+msgid "Save File"
+msgstr "Datei speichern"
+
+#. if auto naming restart counter
+#: src/video_tab.c:94 src/globals.c:69 src/globals.c:72 src/options.c:351
+#: src/options.c:400 src/callbacks.c:805 src/callbacks.c:929
+#: src/callbacks.c:946 src/callbacks.c:978 src/callbacks.c:1086
 #, c-format
 msgid "File num:%d"
 msgstr "Dateinummer:%d"
+
+#: src/video_tab.c:154
+msgid "Video & Files"
+msgstr "Video & Dateien"
+
+#. Devices
+#: src/video_tab.c:170
+msgid "Device:"
+msgstr "Eingabegerät:"
+
+#: src/video_tab.c:265
+msgid "Frame Rate:"
+msgstr "Bildrate:"
+
+#: src/video_tab.c:273
+msgid " Show"
+msgstr " Anzeigen"
+
+#: src/video_tab.c:297
+msgid "Resolution:"
+msgstr "Auflösung:"
+
+#: src/video_tab.c:323
+msgid "Camera Output:"
+msgstr "Kamera-BIld:"
+
+#: src/video_tab.c:333
+msgid "Image File:"
+msgstr "Bilddatei:"
+
+#: src/video_tab.c:364 src/video_tab.c:449
+msgid "File,Auto"
+msgstr "Datei,Automatisch"
+
+#: src/video_tab.c:375
+msgid "Image Format:"
+msgstr "Bildformat:"
+
+#: src/video_tab.c:403
+msgid "AVI File:"
+msgstr "AVI-Datei:"
+
+#: src/video_tab.c:463
+msgid "MJPG - compressed"
+msgstr "MJPG - komprimiert"
+
+#: src/video_tab.c:465
+msgid "UYVY - uncomp YUV"
+msgstr "UYVY - keine Komp. YUV"
+
+#: src/video_tab.c:467
+msgid "YUY2 - uncomp YUV"
+msgstr "YUY2 - keine Komp. YUV"
+
+#: src/video_tab.c:469
+msgid "RGB - uncomp BMP"
+msgstr "RGB - keine Komp. BMP"
+
+#: src/video_tab.c:481
+msgid "AVI Format:"
+msgstr "AVI-Format:"
+
+#: src/video_tab.c:490
+msgid "---- Video Filters ----"
+msgstr "---- Videofilter ----"
+
+#. Mirror
+#: src/video_tab.c:505
+msgid " Mirror"
+msgstr " Gespiegelt"
+
+#. Upturn
+#: src/video_tab.c:515
+msgid " Invert"
+msgstr " Gedreht"
+
+#. Negate
+#: src/video_tab.c:525
+msgid " Negative"
+msgstr " Negativ"
+
+#. Mono
+#: src/video_tab.c:535
+msgid " Mono"
+msgstr " Monochrom"
+
+#. Pieces
+#: src/video_tab.c:546
+msgid " Pieces"
+msgstr ""
+
+#: src/audio_tab.c:74
+msgid "Audio"
+msgstr ""
+
+#: src/audio_tab.c:95
+msgid " Sound"
+msgstr " Audio"
+
+#: src/audio_tab.c:119
+msgid "Input Device:"
+msgstr "Eingabegerät:"
+
+#: src/audio_tab.c:130 src/audio_tab.c:162
+msgid "Dev. Default"
+msgstr "Standard"
+
+#: src/audio_tab.c:151
+msgid "Sample Rate:"
+msgstr "Frequenz:"
+
+#: src/audio_tab.c:163
+msgid "1 - mono"
+msgstr "1 - Mono"
+
+#: src/audio_tab.c:164
+msgid "2 - stereo"
+msgstr "2 - Stereo"
+
+#: src/audio_tab.c:198
+msgid "Channels:"
+msgstr "Kanäle:"
+
+#: src/audio_tab.c:209
+msgid "PCM"
+msgstr "PCM"
+
+#: src/audio_tab.c:210
+msgid "MP2"
+msgstr "MP2"
+
+#: src/audio_tab.c:238
+msgid "Audio Format:"
+msgstr "Audio-Format:"
+
+#: src/audio_tab.c:247
+#, fuzzy
+msgid "---- Audio Effects ----"
+msgstr "---- Videofilter ----"
+
+#. Echo
+#: src/audio_tab.c:266
+#, fuzzy
+msgid " Echo"
+msgstr " Anzeigen"
+
+#. FUZZ
+#: src/audio_tab.c:276
+msgid " Fuzz"
+msgstr ""
+
+#. Reverb
+#: src/audio_tab.c:287
+msgid " Reverb"
+msgstr ""
+
+#. WahWah
+#: src/audio_tab.c:298
+msgid " WahWah"
+msgstr ""
+
+#. Ducky
+#: src/audio_tab.c:309
+msgid " Ducky"
+msgstr ""
+
+#: src/v4l2_dyna_ctrls.c:89
+msgid "Pan (relative)"
+msgstr "Umdrehung (relativ)"
+
+#: src/v4l2_dyna_ctrls.c:99
+msgid "Tilt (relative)"
+msgstr "Neigung (relativ)"
+
+#: src/v4l2_dyna_ctrls.c:109
+msgid "Pan Reset"
+msgstr "Umdrehung (Zurückstellen)"
+
+#: src/v4l2_dyna_ctrls.c:119
+msgid "Tilt Reset"
+msgstr "Neigung (Zurückstellen)"
+
+#: src/v4l2_dyna_ctrls.c:129
+msgid "Pan/tilt Reset"
+msgstr "Umdrehung/Neigung (Zurückstellen)"
+
+#: src/v4l2_dyna_ctrls.c:139
+msgid "Focus (absolute)"
+msgstr "Fokus (absolut)"
+
+#: src/v4l2_dyna_ctrls.c:149
+msgid "LED1 Mode"
+msgstr "Modus LED1"
+
+#: src/v4l2_dyna_ctrls.c:159
+msgid "LED1 Frequency"
+msgstr "Frequenz LED1"
+
+#: src/v4l2_dyna_ctrls.c:169
+msgid "Disable video processing"
+msgstr "Deaktiviere Videoverarbeitung"
+
+#: src/v4l2_dyna_ctrls.c:179
+msgid "Raw bits per pixel"
+msgstr "Rohe Bits pro Pixel"
 
 #: src/options.c:514
 msgid "Prints version"
@@ -391,138 +601,6 @@ msgstr ""
 "\n"
 "Jetzt neu starten?\n"
 
-#: src/callbacks.c:1177
-msgid "Save File"
-msgstr "Datei speichern"
-
 #: src/callbacks.c:1190
 msgid "Load File"
 msgstr "Datei öffnen"
-
-#~ msgid "Video & Files"
-#~ msgstr "Video & Dateien"
-
-#~ msgid "Device:"
-#~ msgstr "Eingabegerät:"
-
-#~ msgid "Frame Rate:"
-#~ msgstr "Bildrate:"
-
-#~ msgid " Show"
-#~ msgstr " Anzeigen"
-
-#~ msgid "Resolution:"
-#~ msgstr "Auflösung:"
-
-#~ msgid "Camera Output:"
-#~ msgstr "Kamera-BIld:"
-
-#~ msgid "Image File:"
-#~ msgstr "Bilddatei:"
-
-#~ msgid "File,Auto"
-#~ msgstr "Datei,Automatisch"
-
-#~ msgid "Image Format:"
-#~ msgstr "Bildformat:"
-
-#~ msgid "AVI File:"
-#~ msgstr "AVI-Datei:"
-
-#~ msgid "MJPG - compressed"
-#~ msgstr "MJPG - komprimiert"
-
-#~ msgid "UYVY - uncomp YUV"
-#~ msgstr "UYVY - keine Komp. YUV"
-
-#~ msgid "YUY2 - uncomp YUV"
-#~ msgstr "YUY2 - keine Komp. YUV"
-
-#~ msgid "RGB - uncomp BMP"
-#~ msgstr "RGB - keine Komp. BMP"
-
-#~ msgid "AVI Format:"
-#~ msgstr "AVI-Format:"
-
-#~ msgid "---- Video Filters ----"
-#~ msgstr "---- Videofilter ----"
-
-#~ msgid " Mirror"
-#~ msgstr " Gespiegelt"
-
-#~ msgid " Invert"
-#~ msgstr " Gedreht"
-
-#~ msgid " Negative"
-#~ msgstr " Negativ"
-
-#~ msgid " Mono"
-#~ msgstr " Monochrom"
-
-#~ msgid " Sound"
-#~ msgstr " Audio"
-
-#~ msgid "Input Device:"
-#~ msgstr "Eingabegerät:"
-
-#~ msgid "Dev. Default"
-#~ msgstr "Standard"
-
-#~ msgid "Sample Rate:"
-#~ msgstr "Frequenz:"
-
-#~ msgid "1 - mono"
-#~ msgstr "1 - Mono"
-
-#~ msgid "2 - stereo"
-#~ msgstr "2 - Stereo"
-
-#~ msgid "Channels:"
-#~ msgstr "Kanäle:"
-
-#~ msgid "PCM"
-#~ msgstr "PCM"
-
-#~ msgid "MP2"
-#~ msgstr "MP2"
-
-#~ msgid "Audio Format:"
-#~ msgstr "Audio-Format:"
-
-#, fuzzy
-#~ msgid "---- Audio Effects ----"
-#~ msgstr "---- Videofilter ----"
-
-#, fuzzy
-#~ msgid " Echo"
-#~ msgstr " Anzeigen"
-
-#~ msgid "Pan (relative)"
-#~ msgstr "Umdrehung (relativ)"
-
-#~ msgid "Tilt (relative)"
-#~ msgstr "Neigung (relativ)"
-
-#~ msgid "Pan Reset"
-#~ msgstr "Umdrehung (Zurückstellen)"
-
-#~ msgid "Tilt Reset"
-#~ msgstr "Neigung (Zurückstellen)"
-
-#~ msgid "Pan/tilt Reset"
-#~ msgstr "Umdrehung/Neigung (Zurückstellen)"
-
-#~ msgid "Focus (absolute)"
-#~ msgstr "Fokus (absolut)"
-
-#~ msgid "LED1 Mode"
-#~ msgstr "Modus LED1"
-
-#~ msgid "LED1 Frequency"
-#~ msgstr "Frequenz LED1"
-
-#~ msgid "Disable video processing"
-#~ msgstr "Deaktiviere Videoverarbeitung"
-
-#~ msgid "Raw bits per pixel"
-#~ msgstr "Rohe Bits pro Pixel"
