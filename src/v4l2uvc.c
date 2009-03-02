@@ -385,6 +385,7 @@ int init_videoIn(struct vdIn *vd, struct GLOBAL *global)
 				vd->framebuffer = g_new0(unsigned char, framebuf_size); 
 				break;
 			
+			case V4L2_PIX_FMT_YVYU:
 			case V4L2_PIX_FMT_YYUV:
 			case V4L2_PIX_FMT_YUV420:
 			case V4L2_PIX_FMT_YVU420:
@@ -444,6 +445,7 @@ int init_videoIn(struct vdIn *vd, struct GLOBAL *global)
 				case V4L2_PIX_FMT_YUV420: // converted to YUYV
 				case V4L2_PIX_FMT_YVU420: // converted to YUYV
 				case V4L2_PIX_FMT_YYUV:   // converted to YUYV
+				case V4L2_PIX_FMT_YVYU:   //converted to YUYV
 				case V4L2_PIX_FMT_YUYV:
 					for (i=0; i<(framebuf_size-4); i+=4)
 					{
@@ -606,6 +608,11 @@ int uvcGrab(struct vdIn *vd)
 			}
 			break;
 		
+		case V4L2_PIX_FMT_YVYU:
+			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
+			yvyu_to_yuyv(vd->framebuffer, vd->tmpbuffer, vd->width, vd->height);
+			break;
+			
 		case V4L2_PIX_FMT_YYUV:
 			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
 			yyuv_to_yuyv(vd->framebuffer, vd->tmpbuffer, vd->width, vd->height);

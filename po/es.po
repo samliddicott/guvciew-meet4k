@@ -467,8 +467,8 @@ msgid "Hardware accelaration (enable(1) | disable(0))"
 msgstr "Accel. del hardware (habilitar(1)|deshabil.(0))"
 
 #: src/options.c:520
-msgid "Pixel format(mjpg|jpeg|yuyv|uyvy|yyuv|yu12|yv12|gbrg)"
-msgstr "Formato(mjpg|jpeg|yuyv|uyvy|yyuv|yu12|yv12|gbrg)"
+msgid "Pixel format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|gbrg)"
+msgstr "Formato(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|gbrg)"
 
 #: src/options.c:521
 msgid "Frame size, default: 640x480"

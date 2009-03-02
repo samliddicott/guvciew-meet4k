@@ -36,6 +36,10 @@
 #define V4L2_PIX_FMT_YUYV    v4l2_fourcc('Y','U','Y','V')   /* YUV 4:2:2        */
 #endif
 
+#ifndef V4L2_PIX_FMT_YVYU
+#define V4L2_PIX_FMT_YVYU    v4l2_fourcc('Y','V','Y','U')   /* YUV 4:2:2        */
+#endif
+
 #ifndef V4L2_PIX_FMT_UYVY
 #define V4L2_PIX_FMT_UYVY    v4l2_fourcc('U','Y','V','Y')   /* YUV 4:2:2        */
 #endif
@@ -47,6 +51,11 @@
 #ifndef V4L2_PIX_FMT_YUV420
 #define V4L2_PIX_FMT_YUV420  v4l2_fourcc('Y','U','1','2')   /* YUV 4:2:0 Planar  */
 #endif
+
+#ifndef V4L2_PIX_FMT_YVU420
+#define V4L2_PIX_FMT_YVU420  v4l2_fourcc('Y','V','1','2')   /* YUV 4:2:0 Planar  */
+#endif
+
 
 #ifndef V4L2_PIX_FMT_SGBRG8
 #define V4L2_PIX_FMT_SGBRG8  v4l2_fourcc('G', 'B', 'R', 'G') /* GBGB.. RGRG..    */

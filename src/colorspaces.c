@@ -176,6 +176,13 @@ uyvy2bgr (BYTE *pyuv, BYTE *pbgr, int width, int height)
 	preverse=NULL;
 }
 
+/*convert yyuv (packed) to yuyv (packed)
+* args: 
+*      framebuffer: pointer to frame buffer (yuyv)
+*      tmpbuffer: pointer to temp buffer containing yyuv packed data frame
+*      width: picture width
+*      height: picture height
+*/
 void yyuv_to_yuyv (BYTE *framebuffer, BYTE *tmpbuffer, int width, int height)
 {
 	BYTE *ptmp=NULL;
@@ -198,6 +205,42 @@ void yyuv_to_yuyv (BYTE *framebuffer, BYTE *tmpbuffer, int width, int height)
 			pfmb[2] = ptmp[1];
 			/* V */
 			pfmb[3] = ptmp[3];
+			
+			ptmp += 4;
+			pfmb += 4;
+		}
+	}
+}
+
+/*convert yvyu (packed) to yuyv (packed)
+* args: 
+*      framebuffer: pointer to frame buffer (yuyv)
+*      tmpbuffer: pointer to temp buffer containing yvyu packed data frame
+*      width: picture width
+*      height: picture height
+*/
+void yvyu_to_yuyv (BYTE *framebuffer, BYTE *tmpbuffer, int width, int height)
+{
+	BYTE *ptmp=NULL;
+	BYTE *pfmb=NULL;
+	ptmp = tmpbuffer;
+	pfmb = framebuffer;
+	
+	int h=0;
+	int w=0;
+	
+	for(h=0;h<height;h++) 
+	{
+		for(w=0;w<width;w+=4) 
+		{
+			/* Y0 */
+			pfmb[0] = ptmp[0];
+			/* U */
+			pfmb[1] = ptmp[3];
+			/* Y1 */
+			pfmb[2] = ptmp[2];
+			/* V */
+			pfmb[3] = ptmp[1];
 			
 			ptmp += 4;
 			pfmb += 4;
