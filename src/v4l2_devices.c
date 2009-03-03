@@ -117,8 +117,9 @@ LDevices *enum_devices( gchar *videodevice )
 		
 		if(device_lnk == NULL)
 		{
-			g_printerr ("opening '/sys/class/video4linux' failed: %s\n", 
-				 error->message);
+			g_printerr ("reading link '/sys/class/video4linux/%s/device' failed: %s\n",
+				v4l2_device,
+				error->message);
 			g_error_free ( error );
 			error=NULL;
 			//get vid, pid and version from uvc device name 
