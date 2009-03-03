@@ -111,14 +111,72 @@ LDevices *enum_devices( gchar *videodevice )
 		listDevices->listVidDevices[num_dev-1].vendor = 0;
 		listDevices->listVidDevices[num_dev-1].product = 0;
 		
-		//get vid, pid and version from uvc device name 
-		//we only need this info for Dynamic controls - uvc driver):
-		if(g_strcmp0(listDevices->listVidDevices[num_dev-1].driver,"uvcvideo") == 0)
+		gchar *vid_dev_lnk = g_strjoin("/","/sys/class/video4linux",v4l2_device,"device",NULL);
+		gchar *device_lnk = g_file_read_link (vid_dev_lnk,&error);
+		g_free(vid_dev_lnk);
+		
+		if(device_lnk == NULL)
 		{
-			sscanf(listDevices->listVidDevices[num_dev-1].name,"UVC Camera (%04x:%04x)",
-				&(listDevices->listVidDevices[num_dev-1].vendor),
-				&(listDevices->listVidDevices[num_dev-1].product));
+			g_printerr ("opening '/sys/class/video4linux' failed: %s\n", 
+				 error->message);
+			g_error_free ( error );
+			error=NULL;
+			//get vid, pid and version from uvc device name 
+			//we only need this info for Dynamic controls - uvc driver):
+			if(g_strcmp0(listDevices->listVidDevices[num_dev-1].driver,"uvcvideo") == 0)
+			{
+				sscanf(listDevices->listVidDevices[num_dev-1].name,"UVC Camera (%04x:%04x)",
+					&(listDevices->listVidDevices[num_dev-1].vendor),
+					&(listDevices->listVidDevices[num_dev-1].product));
+			}
 		}
+		else
+		{
+			gchar *d_dir = g_strjoin("/","/sys/class/video4linux", v4l2_device, device_lnk, NULL);
+			gchar *id_dir = g_path_get_dirname(d_dir);
+			g_free(d_dir);
+			
+			gchar *idVendor = g_strjoin("/", id_dir, "idVendor" ,NULL);
+			gchar *idProduct = g_strjoin("/", id_dir, "idProduct" ,NULL);
+			
+			//g_printf("idVendor: %s\n", idVendor);
+			//g_printf("idProduct: %s\n", idProduct);
+			FILE *vid_fp = g_fopen(idVendor,"r");
+			if(vid_fp != NULL)
+			{
+				gchar code[5];
+				if(fgets(code, sizeof(code), vid_fp) != NULL)
+				{
+					listDevices->listVidDevices[num_dev-1].vendor = g_ascii_strtoull(code, NULL, 16);
+				}
+				fclose (vid_fp);
+			}
+			else
+			{
+				g_printerr("couldn't open idVendor: %s\n", idVendor);
+			}
+			
+			vid_fp = g_fopen(idProduct,"r");
+			if(vid_fp != NULL)
+			{
+				gchar code[5];
+				if(fgets(code, sizeof(code), vid_fp) != NULL)
+				{
+					listDevices->listVidDevices[num_dev-1].product = g_ascii_strtoull(code, NULL, 16);
+				}
+				fclose (vid_fp);
+			}
+			else
+			{
+				g_printerr("couldn't open idProduct: %s\n", idProduct);
+			}
+			
+			g_free(id_dir);
+			g_free(idVendor);
+			g_free(idProduct);
+		}
+		
+		g_free(device_lnk);
 	}
 	
 	if(v4l2_dir != NULL) g_dir_close(v4l2_dir);
