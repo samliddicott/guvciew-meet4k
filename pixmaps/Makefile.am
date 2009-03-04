@@ -39,7 +39,7 @@ clean-all: clean
 		echo "Creating debian menu file";\
 		rm -f guvcview.menu;\
 		touch guvcview.menu;\
-		echo "package(guvcview):\\" >> guvcview.menu;\
+		echo "?package(guvcview):\\" >> guvcview.menu;\
 		echo "	needs=\"X11\"\\" >> guvcview.menu;\
 		echo "	section=\"Applications/Video\"\\" >> guvcview.menu;\
 		echo "	title=\"guvcview\"\\" >> guvcview.menu;\
