@@ -32,7 +32,7 @@
 #define SUP_PIX_FMT 9                //total number of software(guvcview) 
                                      //supported formats (list size)
 
-static SupFormats listSupFormats[] = //list of software supported formats
+static SupFormats listSupFormats[SUP_PIX_FMT] = //list of software supported formats
 {
 	{
 		.format   = V4L2_PIX_FMT_MJPEG,
@@ -78,7 +78,7 @@ static SupFormats listSupFormats[] = //list of software supported formats
 		.format   = V4L2_PIX_FMT_SGBRG8,
 		.mode     = "gbrg",
 		.hardware = 0
-	},
+	}
 };
 
 /* check if format is supported by guvcview
@@ -95,7 +95,6 @@ int check_PixFormat(int pixfmt)
 		{
 			return (i); /*return index from supported formats list*/
 		}
-		else i++;
 	}
 	return (-1);
 } 
@@ -115,7 +114,6 @@ int set_SupPixFormat(int pixfmt)
 			listSupFormats[i].hardware = 1; /*supported by hardware*/
 			return (i);
 		}
-		else i++;
 	}
 	return(-1); /*not supported*/
 }
@@ -134,7 +132,6 @@ int check_SupPixFormat(int pixfmt)
 		{
 			if(listSupFormats[i].hardware > 0) return (i); /*supported by hardware*/
 		}
-		else i++;
 	}
 	return (-1);
 
@@ -156,7 +153,6 @@ int get_PixMode(int pixfmt, char *mode)
 			g_snprintf(mode, 5, "%s", listSupFormats[i].mode);
 			return (1);
 		}
-		else i++;
 	}
 	return (-1);
 }
@@ -171,11 +167,11 @@ int get_PixFormat(char *mode)
 	int i=0;
 	for (i=0; i<SUP_PIX_FMT; i++)
 	{
+		//g_printf("mode: %s - check %s\n", mode, listSupFormats[i].mode);
 		if (g_strcmp0(mode, listSupFormats[i].mode)==0)
 		{
 			return (listSupFormats[i].format);
 		}
-		else i++;
 	}
 	return (listSupFormats[0].format); /*default is- MJPG*/
 }

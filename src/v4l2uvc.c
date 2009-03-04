@@ -213,6 +213,7 @@ static int init_v4l2(struct vdIn *vd)
 	int ret = 0;
 	
 	// make sure we set a valid format
+	g_printf("checking format: %i\n", vd->formatIn);
 	if ((ret=check_SupPixFormat(vd->formatIn)) < 0)
 	{
 		// not available - Fail so we can check other formats (don't bother trying it)

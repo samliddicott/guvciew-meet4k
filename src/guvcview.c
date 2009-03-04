@@ -172,6 +172,7 @@ int main(int argc, char *argv[])
 
 	/*get format from selected mode*/
 	global->format = get_PixFormat(global->mode);
+	if(global->debug) g_printf("%s: setting format to %i\n", global->mode, global->format);
 	
 	if ( ( ret=init_videoIn (videoIn, global) ) < 0)
 	{
