@@ -29,7 +29,7 @@
 #include <errno.h>
 #include "v4l2_formats.h"
 
-#define SUP_PIX_FMT 6                //total number of software(guvcview) 
+#define SUP_PIX_FMT 9                //total number of software(guvcview) 
                                      //supported formats (list size)
 
 static SupFormats listSupFormats[] = //list of software supported formats

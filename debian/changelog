@@ -1,6 +1,6 @@
-guvcview (1.0.0) intrepid; urgency=low
+guvcview (1.0.0-ubuntu2) intrepid; urgency=low
 
-   * Fixed vid:pid for UVC driver dynamic controls (parsing v4l2_cap card value)
+   * Fixed vid:pid for UVC driver dynamic controls 
    * Fixed yu12 conversion bug (needs testing)
    * added yv12 frame format (needs testing)
    * added yvyu frame format (needs testing)
