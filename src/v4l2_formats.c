@@ -456,7 +456,8 @@ LFormats *enum_frame_formats(int *width, int *height, int fd)
 		}
 		else
 		{
-			g_printerr("   { not supported - request format support at http://guvcview.berlios.de }\n");
+			g_printerr("   { not supported - request format(%i) support at http://guvcview.berlios.de }\n",
+						fmt.pixelformat);
 		}
 	}
 	if (errno != EINVAL) {
