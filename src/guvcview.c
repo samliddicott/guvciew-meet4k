@@ -96,6 +96,7 @@ int main(int argc, char *argv[])
 	char* lc_dir = bindtextdomain (GETTEXT_PACKAGE, PACKAGE_LOCALE_DIR);
 	bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
 	char* txtdom = textdomain (GETTEXT_PACKAGE);
+	const char* language = g_get_language_names(); //get ordered list of defined languages
 #endif
 	/*structure containing all shared data - passed in callbacks*/
 	struct ALL_DATA all_data;
@@ -134,33 +135,34 @@ int main(int argc, char *argv[])
 	GtkWidget *HButtonBox;
 
 	s = g_new0(struct VidState, 1);
-	
+
 	pdata = g_new0(struct paRecordData, 1);
-	
+
 	/*create mutex for sound buffers*/
 	pdata->mutex = g_mutex_new();
-	
+
 	/* Allocate the avi_t struct */
 	AviOut = g_new0(struct avi_t, 1);
-   
+
 #ifdef ENABLE_NLS
 	/* if --verbose mode set do debug*/
-	if (global->debug) g_printf("language catalog=> dir:%s lang:%s cat:%s.mo\n",lc_dir,lc_all,txtdom);
-#endif   
+	if (global->debug) g_printf("language catalog=> dir:%s type:%s lang:%s cat:%s.mo\n",
+		lc_dir, lc_all, language, txtdom);
+#endif
 	/*---------------------------- GTK init ----------------------------------*/
-	
+
 	gtk_init(&argc, &argv);
-	
+
 	/* Create a main window */
 	gwidget->mainwin = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_title (GTK_WINDOW (gwidget->mainwin), _("GUVCViewer Controls"));
 	gtk_window_resize(GTK_WINDOW(gwidget->mainwin),global->winwidth,global->winheight);
 	/* Add event handlers */
 	gtk_signal_connect(GTK_OBJECT(gwidget->mainwin), "delete_event", GTK_SIGNAL_FUNC(delete_event), &all_data);
-	
+
 	/*----------------------- init videoIn structure --------------------------*/
 	videoIn = g_new0(struct vdIn, 1);
-	
+
 	/*set structure with all global allocations*/
 	all_data.pdata = pdata;
 	all_data.global = global;
@@ -173,7 +175,7 @@ int main(int argc, char *argv[])
 	/*get format from selected mode*/
 	global->format = get_PixFormat(global->mode);
 	if(global->debug) g_printf("%s: setting format to %i\n", global->mode, global->format);
-	
+
 	if ( ( ret=init_videoIn (videoIn, global) ) < 0)
 	{
 		g_printerr("Init video returned %i\n",ret);
