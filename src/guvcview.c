@@ -96,7 +96,7 @@ int main(int argc, char *argv[])
 	char* lc_dir = bindtextdomain (GETTEXT_PACKAGE, PACKAGE_LOCALE_DIR);
 	bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
 	char* txtdom = textdomain (GETTEXT_PACKAGE);
-	const char* language = g_get_language_names(); //get ordered list of defined languages
+	const gchar * const * langs = g_get_language_names (); //get ordered list of defined languages
 #endif
 	/*structure containing all shared data - passed in callbacks*/
 	struct ALL_DATA all_data;
@@ -147,7 +147,7 @@ int main(int argc, char *argv[])
 #ifdef ENABLE_NLS
 	/* if --verbose mode set do debug*/
 	if (global->debug) g_printf("language catalog=> dir:%s type:%s lang:%s cat:%s.mo\n",
-		lc_dir, lc_all, language, txtdom);
+		lc_dir, lc_all, langs[0], txtdom);
 #endif
 	/*---------------------------- GTK init ----------------------------------*/
 
