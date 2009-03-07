@@ -366,7 +366,7 @@ static int enum_frame_sizes(VidFormats *listVidFormats, __u32 pixfmt, int fmtind
 		return errno;
 	} 
 	else if ((ret != 0) && (fsizeind == 0)) 
-	{
+	{		
 		/* ------ gspca doesn't enumerate frame sizes ------ */
 		/*       negotiate with VIDIOC_TRY_FMT instead       */
 		
@@ -382,15 +382,17 @@ static int enum_frame_sizes(VidFormats *listVidFormats, __u32 pixfmt, int fmtind
 		*width = fmt.fmt.pix.width;
 		*height = fmt.fmt.pix.height;
 		g_printf("{ ?GSPCA? : width = %u, height = %u }\n", *width, *height);
-		
+		g_printf("fmtind:%i fsizeind: %i\n",fmtind,fsizeind);
 		if(listVidFormats[fmtind-1].listVidCap == NULL) 
 		{
 			listVidFormats[fmtind-1].listVidCap = g_renew( VidCap,
 				listVidFormats[fmtind-1].listVidCap,
 				fsizeind);
+			listVidFormats[fmtind-1].listVidCap[0].framerate_num = NULL;
 			listVidFormats[fmtind-1].listVidCap[0].framerate_num = g_renew( int,
 				listVidFormats[fmtind-1].listVidCap[0].framerate_num,
 				1);
+			listVidFormats[fmtind-1].listVidCap[0].framerate_denom = NULL;
 			listVidFormats[fmtind-1].listVidCap[0].framerate_denom = g_renew( int,
 				listVidFormats[fmtind-1].listVidCap[0].framerate_denom,
 				1);
@@ -400,13 +402,11 @@ static int enum_frame_sizes(VidFormats *listVidFormats, __u32 pixfmt, int fmtind
 			g_printerr("assert failed: listVidCap not Null\n");
 			return (-2);
 		}
-		g_printf("setting VidCap........");
 		listVidFormats[fmtind-1].listVidCap[0].width = *width;
 		listVidFormats[fmtind-1].listVidCap[0].height = *height;
 		listVidFormats[fmtind-1].listVidCap[0].framerate_num[0] = 1;
 		listVidFormats[fmtind-1].listVidCap[0].framerate_denom[0] = 25;
 		listVidFormats[fmtind-1].listVidCap[0].numb_frates = 1;
-		g_printf("done\n");
 	}
 	
 	listVidFormats[fmtind-1].numb_res=fsizeind;
