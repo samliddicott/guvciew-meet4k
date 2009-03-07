@@ -400,10 +400,13 @@ static int enum_frame_sizes(VidFormats *listVidFormats, __u32 pixfmt, int fmtind
 			g_printerr("assert failed: listVidCap not Null\n");
 			return (-2);
 		}
+		g_printf("setting VidCap........");
 		listVidFormats[fmtind-1].listVidCap[0].width = *width;
 		listVidFormats[fmtind-1].listVidCap[0].height = *height;
 		listVidFormats[fmtind-1].listVidCap[0].framerate_num[0] = 1;
 		listVidFormats[fmtind-1].listVidCap[0].framerate_denom[0] = 25;
+		listVidFormats[fmtind-1].listVidCap[0].numb_frates = 1;
+		g_printf("done\n");
 	}
 	
 	listVidFormats[fmtind-1].numb_res=fsizeind;
