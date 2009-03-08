@@ -310,7 +310,7 @@ static int checkFocus(struct focusData *AFdata)
 		{
 			// significantly down in both directions -> check another step
 			// outside for local maximum
-			AFdata->step=16;
+			//AFdata->step=16;
 			return (INCSTEP);
 		}
 		else 
