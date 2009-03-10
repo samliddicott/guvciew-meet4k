@@ -21,6 +21,8 @@
 
 #include <glib/gprintf.h>
 #include <glib/gstdio.h>
+#include <glib/gutils.h>
+#include <glib/gtestutils.h>
 #include <fcntl.h>
 #include <string.h>
 #include <sys/ioctl.h>
