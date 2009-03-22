@@ -44,6 +44,8 @@ guvcview_SOURCES = \
 	jdatatype.h \
 	jpgenc.h \
 	jpgenc.c \
+	lavc_common.h \
+	lavc_common.c \
 	marker.c \
 	mp2.h \
 	mp2.c \

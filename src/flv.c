@@ -27,10 +27,10 @@
 
 #include "flv.h"
 
-struct flvData* init_flv (int width, int height, int fps)
+struct lavcData* init_flv (int width, int height, int fps)
 {
 	//allocate
-	struct flvData* data = g_new0(struct flvData, 1);
+	struct lavcData* data = g_new0(struct lavcData, 1);
 	// must be called before using avcodec lib
 	avcodec_init();
 
@@ -86,88 +86,4 @@ struct flvData* init_flv (int width, int height, int fps)
 	data->outbuf = g_new0(BYTE, data->outbuf_size);
 	
 	return(data);
-}
-
-static void yuv422to420p(BYTE* pic, struct flvData* data, int isUYVY)
-{
-	int i,j;
-	int k = 0;
-	int width = data->codec_context->width;
-	int height = data->codec_context->height;
-	int linesize=width*2;
-	int size = width * height;
-	
-	BYTE *y;
-	BYTE *y1;
-	BYTE *u;
-	BYTE* v;
-	y = data->tmpbuf;
-	y1 = data->tmpbuf + width;
-	u = data->tmpbuf + size;
-	v = u + size/4;
-	if (!isUYVY) //YUYV
-	{
-		for(j=0;j<(height-1);j+=2)
-		{
-			for(i=0;i<(linesize-3);i+=4)
-			{
-				*y++ = pic[i+j*linesize];
-				*y++ = pic[i+2+j*linesize];
-				*y1++ = pic[i+(j+1)*linesize];
-				*y1++ = pic[i+2+(j+1)*linesize];
-				*u++ = (pic[i+1+j*linesize] + pic[i+1+(j+1)*linesize])/2;
-				*v++ = (pic[i+3+j*linesize] + pic[i+3+(j+1)*linesize])/2;
-			}
-			y += width;
-			y1 += width;//2 lines
-		}
-	}
-	else //UYVY
-	{
-		for(j=0;j<(height-1);j+=2)
-		{
-			for(i=0;i<(linesize-3);i+=4)
-			{
-				*y++ = pic[i+1+j*linesize];
-				*y++ = pic[i+3+j*linesize];
-				*y1++ = pic[i+1+(j+1)*linesize];
-				*y1++ = pic[i+3+(j+1)*linesize];
-				*u++ = (pic[i+j*linesize] + pic[i+(j+1)*linesize])/2;
-				*v++ = (pic[i+2+j*linesize] + pic[i+2+(j+1)*linesize])/2;
-			}
-			y += width;
-			y1 += width;//2 lines
-		}
-	}
-	data->picture->data[0] = data->tmpbuf;                    //Y
-	data->picture->data[1] = data->tmpbuf + size;             //U
-	data->picture->data[2] = data->picture->data[1] + size/4; //V
-	data->picture->linesize[0] = data->codec_context->width;
-	data->picture->linesize[1] = data->codec_context->width / 2;
-	data->picture->linesize[2] = data->codec_context->width / 2;
-}
-
-
-
-int encode_flv_frame (BYTE *picture_buf, struct flvData* data, int isUYVY)
-{
-	int out_size = 0;
-	//convert to 4:2:0
-	yuv422to420p(picture_buf, data, isUYVY);
-	/* encode the image */
-	out_size = avcodec_encode_video(data->codec_context, data->outbuf, data->outbuf_size, data->picture);
-	return (out_size);
-}
-
-void clean_flv (struct flvData* data)
-{
-	if(data)
-	{
-		avcodec_close(data->codec_context); //free(codec_context)
-		g_free(data->tmpbuf);
-		g_free(data->outbuf);
-		g_free(data->picture);
-		g_free(data);
-		data = NULL;
-	}
 }

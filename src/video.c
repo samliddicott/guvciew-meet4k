@@ -68,8 +68,7 @@ void *main_loop(void *data)
 	char driver[128];
 	
 	struct JPEG_ENCODER_STRUCTURE *jpeg_struct=NULL;
-	struct mpegData *mpeg_data = NULL;
-	struct flvData *flv_data = NULL;
+	struct lavcData *lavc_data = NULL;
 	struct audio_effects *aud_eff = init_audio_effects ();
 	
 	BYTE *p = NULL;
@@ -484,32 +483,32 @@ void *main_loop(void *data)
 					break;
 				
 				case 3:
-					if(!mpeg_data) 
+					if(!lavc_data) 
 					{
-						mpeg_data = init_mpeg(videoIn->width, videoIn->height, global->fps);
+						lavc_data = init_mpeg(videoIn->width, videoIn->height, global->fps);
 					}
-					if(mpeg_data)
+					if(lavc_data)
 					{
 						if (global->format != V4L2_PIX_FMT_UYVY)
-							framesize= encode_mpeg_frame (videoIn->framebuffer, mpeg_data, 0);
+							framesize= encode_lavc_frame (videoIn->framebuffer, lavc_data, 0);
 						else
-							framesize= encode_mpeg_frame (videoIn->framebuffer, mpeg_data, 1);
-						ret = AVI_write_frame (AviOut, mpeg_data->outbuf, framesize, keyframe);
+							framesize= encode_lavc_frame (videoIn->framebuffer, lavc_data, 1);
+						ret = AVI_write_frame (AviOut, lavc_data->outbuf, framesize, keyframe);
 					}
 					break;
 					
 				case 4:
-					if(!flv_data) 
+					if(!lavc_data) 
 					{
-						flv_data = init_flv(videoIn->width, videoIn->height, global->fps);
+						lavc_data = init_flv(videoIn->width, videoIn->height, global->fps);
 					}
-					if(flv_data)
+					if(lavc_data)
 					{
 						if (global->format != V4L2_PIX_FMT_UYVY)
-							framesize= encode_flv_frame (videoIn->framebuffer, flv_data, 0);
+							framesize= encode_lavc_frame (videoIn->framebuffer, lavc_data, 0);
 						else
-							framesize= encode_flv_frame (videoIn->framebuffer, flv_data, 1);
-						ret = AVI_write_frame (AviOut, flv_data->outbuf, framesize, keyframe);
+							framesize= encode_lavc_frame (videoIn->framebuffer, lavc_data, 1);
+						ret = AVI_write_frame (AviOut, lavc_data->outbuf, framesize, keyframe);
 					}
 					break;
 			}
@@ -684,16 +683,12 @@ void *main_loop(void *data)
 		} /*video and audio capture have stopped */
 		else
 		{
-			if(mpeg_data != NULL)
+			if(lavc_data != NULL)
 			{
-				clean_mpeg(mpeg_data);
-				mpeg_data = NULL;
+				clean_lavc(lavc_data);
+				lavc_data = NULL;
 			}
-			if(flv_data != NULL)
-			{
-				clean_flv(flv_data);
-				flv_data = NULL;
-			}
+	
 			videoIn->AVICapStop=TRUE;
 		}
 	

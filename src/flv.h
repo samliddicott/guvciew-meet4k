@@ -23,27 +23,9 @@
 #define FLV_H
 
 #include "defs.h"
-#include <avcodec.h>
-//#include <avformat.h>
+#include "lavc_common.h"
 
-struct flvData
-{
-	AVCodec *codec;
-	AVCodecContext *codec_context;
-	AVFrame *picture;
-
-	BYTE* tmpbuf;
-	int outbuf_size;
-	BYTE* outbuf;
-
-};
-
-struct flvData* init_flv (int width, int height, int fps);
-
-int encode_flv_frame (BYTE *picture_buf, struct flvData* data, int isUYVY);
-
-void clean_flv (struct flvData* data);
-
+struct lavcData* init_flv (int width, int height, int fps);
 
 
 #endif

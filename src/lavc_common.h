@@ -19,12 +19,26 @@
 #                                                                               #
 ********************************************************************************/
 
-#ifndef MPEG_H
-#define MPEG_H
+#ifndef LAVC_COMMON_H
+#define LAVC_COMMON_H
 
-#include "lavc_common.h"
+#include "defs.h"
+#include <avcodec.h>
 
-struct lavcData* init_mpeg (int width, int height, int fps);
+struct lavcData
+{
+	AVCodec *codec;
+	AVCodecContext *codec_context;
+	AVFrame *picture;
 
+	BYTE* tmpbuf;
+	int outbuf_size;
+	BYTE* outbuf;
+
+};
+
+int encode_lavc_frame (BYTE *picture_buf, struct lavcData* data, int isUYVY);
+
+void clean_lavc (struct lavcData* data);
 
 #endif

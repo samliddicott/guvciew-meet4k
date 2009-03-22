@@ -48,14 +48,15 @@ am_guvcview_OBJECTS = audio_effects.$(OBJEXT) audio_tab.$(OBJEXT) \
 	close.$(OBJEXT) colorspaces.$(OBJEXT) dct.$(OBJEXT) \
 	flv.$(OBJEXT) globals.$(OBJEXT) guvcview.$(OBJEXT) \
 	huffman.$(OBJEXT) img_controls.$(OBJEXT) jpgenc.$(OBJEXT) \
-	marker.$(OBJEXT) mp2.$(OBJEXT) mpeg.$(OBJEXT) \
-	ms_time.$(OBJEXT) options.$(OBJEXT) picture.$(OBJEXT) \
-	profile.$(OBJEXT) quant.$(OBJEXT) readYUV.$(OBJEXT) \
-	sound.$(OBJEXT) snd_devices.$(OBJEXT) string_utils.$(OBJEXT) \
-	timers.$(OBJEXT) utils.$(OBJEXT) v4l2_controls.$(OBJEXT) \
-	v4l2_devices.$(OBJEXT) v4l2_dyna_ctrls.$(OBJEXT) \
-	v4l2_formats.$(OBJEXT) v4l2uvc.$(OBJEXT) video.$(OBJEXT) \
-	video_filters.$(OBJEXT) video_tab.$(OBJEXT)
+	lavc_common.$(OBJEXT) marker.$(OBJEXT) mp2.$(OBJEXT) \
+	mpeg.$(OBJEXT) ms_time.$(OBJEXT) options.$(OBJEXT) \
+	picture.$(OBJEXT) profile.$(OBJEXT) quant.$(OBJEXT) \
+	readYUV.$(OBJEXT) sound.$(OBJEXT) snd_devices.$(OBJEXT) \
+	string_utils.$(OBJEXT) timers.$(OBJEXT) utils.$(OBJEXT) \
+	v4l2_controls.$(OBJEXT) v4l2_devices.$(OBJEXT) \
+	v4l2_dyna_ctrls.$(OBJEXT) v4l2_formats.$(OBJEXT) \
+	v4l2uvc.$(OBJEXT) video.$(OBJEXT) video_filters.$(OBJEXT) \
+	video_tab.$(OBJEXT)
 guvcview_OBJECTS = $(am_guvcview_OBJECTS)
 am__DEPENDENCIES_1 =
 guvcview_DEPENDENCIES = $(am__DEPENDENCIES_1)
@@ -220,6 +221,8 @@ guvcview_SOURCES = \
 	jdatatype.h \
 	jpgenc.h \
 	jpgenc.c \
+	lavc_common.h \
+	lavc_common.c \
 	marker.c \
 	mp2.h \
 	mp2.c \
@@ -344,6 +347,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/huffman.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/img_controls.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/jpgenc.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lavc_common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/marker.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mp2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mpeg.Po@am__quote@
