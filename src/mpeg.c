@@ -43,11 +43,11 @@ struct lavcData* init_mpeg (int width, int height, int fps)
 	
 	data->codec_context = avcodec_alloc_context();
 	
-	/* find the mpeg4 video encoder */
+	/* find the mpeg video encoder */
 	data->codec = avcodec_find_encoder(CODEC_ID_MPEG1VIDEO);
 	if (!data->codec) 
 	{
-		fprintf(stderr, "mpeg4 codec not found\n");
+		fprintf(stderr, "mpeg codec not found\n");
 		return(NULL);
 	}
 	
@@ -55,26 +55,23 @@ struct lavcData* init_mpeg (int width, int height, int fps)
 	data->picture= avcodec_alloc_frame();
 	//data->codec_context = &stream->codec;
 	/* put sample parameters */
-	data->codec_context->bit_rate = 400000;//not use for const quantizer
-	
+	data->codec_context->bit_rate = 8800000;
 	/* resolution must be a multiple of two */
 	data->codec_context->width = width; 
 	data->codec_context->height = height;
 	/* frames per second */
-	data->codec_context->gop_size = 10; /* emit one intra frame every ten frames */
+	data->codec_context->gop_size = 15;
 	data->codec_context->max_b_frames = 1;
-	data->codec_context->me_method = 6; //X1
+	data->codec_context->me_method = 2; //full
 	data->codec_context->mpeg_quant = 0; //h.263
-	data->codec_context->qmin = 6;
+	data->codec_context->qmin = 2;
 	data->codec_context->qmax = 6;
 	data->codec_context->max_qdiff = 1;
-	data->codec_context->qblur = 0.01;
-	data->codec_context->strict_std_compliance = 1;
+	//data->codec_context->qblur = 0.01;
+	//data->codec_context->strict_std_compliance = 1;
 	data->codec_context->codec_id = CODEC_ID_MPEG1VIDEO;
 	data->codec_context->pix_fmt = PIX_FMT_YUV420P;
 	data->codec_context->time_base = (AVRational){1,fps};
-	//data->codec_context->time_base.num = 1;
-	//data->codec_context->time_base.den = fps;
 	
 	/* open it */
 	if (avcodec_open(data->codec_context, data->codec) < 0) 

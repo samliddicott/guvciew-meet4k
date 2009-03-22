@@ -39,11 +39,10 @@ struct lavcData* init_flv (int width, int height, int fps)
 	avcodec_register_all();
 	
 	data->codec_context = NULL;
-	//data->codec = NULL;
 	
 	data->codec_context = avcodec_alloc_context();
 	
-	/* find the mpeg4 video encoder */
+	/* find the flv1 video encoder */
 	data->codec = avcodec_find_encoder(CODEC_ID_FLV1);
 	if (!data->codec) 
 	{
@@ -55,20 +54,13 @@ struct lavcData* init_flv (int width, int height, int fps)
 	data->picture= avcodec_alloc_frame();
 	//data->codec_context = &stream->codec;
 	/* put sample parameters */
-	data->codec_context->bit_rate = 1500;
+	data->codec_context->bit_rate = 3000000;
 	
 	/* resolution must be a multiple of two */
 	data->codec_context->width = width; 
 	data->codec_context->height = height;
 	/* frames per second */
-	data->codec_context->gop_size = 100; /* emit one intra frame every ten frames */
-	data->codec_context->me_method = 1; //none
-	data->codec_context->mpeg_quant = 0; //h.263
-	data->codec_context->qmin = 6;
-	data->codec_context->qmax = 6;
-	data->codec_context->max_qdiff = 1;
-	data->codec_context->qblur = 0.01;
-	data->codec_context->strict_std_compliance = 1;
+	data->codec_context->gop_size = 100;
 	data->codec_context->codec_id = CODEC_ID_FLV1;
 	data->codec_context->pix_fmt = PIX_FMT_YUV420P;
 	data->codec_context->time_base = (AVRational){1,fps};
