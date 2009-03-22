@@ -1,6 +1,7 @@
 guvcview (1.0.3-ubuntu1) intrepid; urgency=low
 
    * Added MPEG encoding to avi capture 
+   * Added FLV1 encoding to avi capture
 
  -- Paulo Assis <pj.assis@gmail.com>  Sun, 22 Mar 2009 13:29:00 +0000
 

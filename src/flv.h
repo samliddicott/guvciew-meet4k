@@ -19,14 +19,14 @@
 #                                                                               #
 ********************************************************************************/
 
-#ifndef MPEG_H
-#define MPEG_H
+#ifndef FLV_H
+#define FLV_H
 
 #include "defs.h"
 #include <avcodec.h>
 //#include <avformat.h>
 
-struct mpegData
+struct flvData
 {
 	AVCodec *codec;
 	AVCodecContext *codec_context;
@@ -38,11 +38,11 @@ struct mpegData
 
 };
 
-struct mpegData* init_mpeg (int width, int height, int fps);
+struct flvData* init_flv (int width, int height, int fps);
 
-int encode_mpeg_frame (BYTE *picture_buf, struct mpegData* data, int isUYVY);
+int encode_flv_frame (BYTE *picture_buf, struct flvData* data, int isUYVY);
 
-void clean_mpeg (struct mpegData* data);
+void clean_flv (struct flvData* data);
 
 
 

@@ -543,6 +543,10 @@ int main(int argc, char *argv[])
 					case 3:
 						compression = g_strdup("MPEG");
 						break;
+						
+					case 4:
+						compression = g_strdup("FLV1");
+						break;
 					
 					default:
 						compression = g_strdup("MJPG");

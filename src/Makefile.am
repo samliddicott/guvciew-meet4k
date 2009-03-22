@@ -31,6 +31,8 @@ guvcview_SOURCES = \
 	dct.h \
 	dct.c \
 	defs.h \
+	flv.h \
+	flv.c \
 	globals.h \
 	globals.c \
 	guvcview.h \

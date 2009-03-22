@@ -25,12 +25,12 @@
 #include <math.h>
 #include <glib.h>
 
-#include "mpeg.h"
+#include "flv.h"
 
-struct mpegData* init_mpeg (int width, int height, int fps)
+struct flvData* init_flv (int width, int height, int fps)
 {
 	//allocate
-	struct mpegData* data = g_new0(struct mpegData, 1);
+	struct flvData* data = g_new0(struct flvData, 1);
 	// must be called before using avcodec lib
 	avcodec_init();
 
@@ -44,10 +44,10 @@ struct mpegData* init_mpeg (int width, int height, int fps)
 	data->codec_context = avcodec_alloc_context();
 	
 	/* find the mpeg4 video encoder */
-	data->codec = avcodec_find_encoder(CODEC_ID_MPEG1VIDEO);
+	data->codec = avcodec_find_encoder(CODEC_ID_FLV1);
 	if (!data->codec) 
 	{
-		fprintf(stderr, "mpeg4 codec not found\n");
+		fprintf(stderr, "FLV1 codec not found\n");
 		return(NULL);
 	}
 	
@@ -55,26 +55,23 @@ struct mpegData* init_mpeg (int width, int height, int fps)
 	data->picture= avcodec_alloc_frame();
 	//data->codec_context = &stream->codec;
 	/* put sample parameters */
-	data->codec_context->bit_rate = 400000;//not use for const quantizer
+	data->codec_context->bit_rate = 1500;
 	
 	/* resolution must be a multiple of two */
 	data->codec_context->width = width; 
 	data->codec_context->height = height;
 	/* frames per second */
-	data->codec_context->gop_size = 10; /* emit one intra frame every ten frames */
-	data->codec_context->max_b_frames = 1;
-	data->codec_context->me_method = 6; //X1
+	data->codec_context->gop_size = 100; /* emit one intra frame every ten frames */
+	data->codec_context->me_method = 1; //none
 	data->codec_context->mpeg_quant = 0; //h.263
 	data->codec_context->qmin = 6;
 	data->codec_context->qmax = 6;
 	data->codec_context->max_qdiff = 1;
 	data->codec_context->qblur = 0.01;
 	data->codec_context->strict_std_compliance = 1;
-	data->codec_context->codec_id = CODEC_ID_MPEG1VIDEO;
+	data->codec_context->codec_id = CODEC_ID_FLV1;
 	data->codec_context->pix_fmt = PIX_FMT_YUV420P;
 	data->codec_context->time_base = (AVRational){1,fps};
-	//data->codec_context->time_base.num = 1;
-	//data->codec_context->time_base.den = fps;
 	
 	/* open it */
 	if (avcodec_open(data->codec_context, data->codec) < 0) 
@@ -91,7 +88,7 @@ struct mpegData* init_mpeg (int width, int height, int fps)
 	return(data);
 }
 
-static void yuv422to420p(BYTE* pic, struct mpegData* data, int isUYVY)
+static void yuv422to420p(BYTE* pic, struct flvData* data, int isUYVY)
 {
 	int i,j;
 	int k = 0;
@@ -152,7 +149,7 @@ static void yuv422to420p(BYTE* pic, struct mpegData* data, int isUYVY)
 
 
 
-int encode_mpeg_frame (BYTE *picture_buf, struct mpegData* data, int isUYVY)
+int encode_flv_frame (BYTE *picture_buf, struct flvData* data, int isUYVY)
 {
 	int out_size = 0;
 	//convert to 4:2:0
@@ -162,7 +159,7 @@ int encode_mpeg_frame (BYTE *picture_buf, struct mpegData* data, int isUYVY)
 	return (out_size);
 }
 
-void clean_mpeg (struct mpegData* data)
+void clean_flv (struct flvData* data)
 {
 	if(data)
 	{
@@ -174,6 +171,3 @@ void clean_mpeg (struct mpegData* data)
 		data = NULL;
 	}
 }
-
-
-
