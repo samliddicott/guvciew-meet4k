@@ -1053,6 +1053,9 @@ capture_avi (GtkToggleButton *AVIButt, struct ALL_DATA *all_data)
 		case 2:
 			compression="DIB ";
 			break;
+		case 3:
+			compression="MPEG";
+			break;
 		default:
 			compression="MJPG";
 	}

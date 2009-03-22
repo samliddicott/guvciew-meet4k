@@ -48,11 +48,11 @@ am_guvcview_OBJECTS = audio_effects.$(OBJEXT) audio_tab.$(OBJEXT) \
 	close.$(OBJEXT) colorspaces.$(OBJEXT) dct.$(OBJEXT) \
 	globals.$(OBJEXT) guvcview.$(OBJEXT) huffman.$(OBJEXT) \
 	img_controls.$(OBJEXT) jpgenc.$(OBJEXT) marker.$(OBJEXT) \
-	mp2.$(OBJEXT) ms_time.$(OBJEXT) options.$(OBJEXT) \
-	picture.$(OBJEXT) profile.$(OBJEXT) quant.$(OBJEXT) \
-	readYUV.$(OBJEXT) sound.$(OBJEXT) snd_devices.$(OBJEXT) \
-	string_utils.$(OBJEXT) timers.$(OBJEXT) utils.$(OBJEXT) \
-	v4l2_controls.$(OBJEXT) v4l2_devices.$(OBJEXT) \
+	mp2.$(OBJEXT) mpeg.$(OBJEXT) ms_time.$(OBJEXT) \
+	options.$(OBJEXT) picture.$(OBJEXT) profile.$(OBJEXT) \
+	quant.$(OBJEXT) readYUV.$(OBJEXT) sound.$(OBJEXT) \
+	snd_devices.$(OBJEXT) string_utils.$(OBJEXT) timers.$(OBJEXT) \
+	utils.$(OBJEXT) v4l2_controls.$(OBJEXT) v4l2_devices.$(OBJEXT) \
 	v4l2_dyna_ctrls.$(OBJEXT) v4l2_formats.$(OBJEXT) \
 	v4l2uvc.$(OBJEXT) video.$(OBJEXT) video_filters.$(OBJEXT) \
 	video_tab.$(OBJEXT)
@@ -221,6 +221,8 @@ guvcview_SOURCES = \
 	marker.c \
 	mp2.h \
 	mp2.c \
+	mpeg.h \
+	mpeg.c \
 	ms_time.h \
 	ms_time.c \
 	options.h \
@@ -341,6 +343,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/jpgenc.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/marker.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mp2.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mpeg.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ms_time.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/options.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/picture.Po@am__quote@

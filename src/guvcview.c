@@ -540,6 +540,10 @@ int main(int argc, char *argv[])
 						compression = g_strdup("DIB ");
 						break;
 					
+					case 3:
+						compression = g_strdup("MPEG");
+						break;
+					
 					default:
 						compression = g_strdup("MJPG");
 				}

@@ -467,6 +467,7 @@ void video_tab(struct ALL_DATA *all_data)
 		gtk_combo_box_append_text(GTK_COMBO_BOX(gwidget->AVIComp),_("YUY2 - uncomp YUV"));
 	
 	gtk_combo_box_append_text(GTK_COMBO_BOX(gwidget->AVIComp),_("RGB - uncomp BMP"));
+	gtk_combo_box_append_text(GTK_COMBO_BOX(gwidget->AVIComp),_("MPEG"));
 	
 	gtk_table_attach(GTK_TABLE(table2), gwidget->AVIComp, 1, 2, line, line+1,
 		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);

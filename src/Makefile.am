@@ -45,6 +45,8 @@ guvcview_SOURCES = \
 	marker.c \
 	mp2.h \
 	mp2.c \
+	mpeg.h \
+	mpeg.c \
 	ms_time.h \
 	ms_time.c \
 	options.h \

@@ -40,6 +40,7 @@
 #include "ms_time.h"
 #include "string_utils.h"
 #include "mp2.h"
+#include "mpeg.h"
 #include "callbacks.h"
 
 /*-------------------------------- Main Video Loop ---------------------------*/ 
@@ -66,6 +67,7 @@ void *main_loop(void *data)
 	char driver[128];
 	
 	struct JPEG_ENCODER_STRUCTURE *jpeg_struct=NULL;
+	struct mpegData *mpeg_data = NULL;
 	struct audio_effects *aud_eff = init_audio_effects ();
 	
 	BYTE *p = NULL;
@@ -478,6 +480,21 @@ void *main_loop(void *data)
 					}
 					ret = AVI_write_frame (AviOut,pavi, framesize, keyframe);
 					break;
+				
+				case 3:
+					if(!mpeg_data) 
+					{
+						mpeg_data = init_mpeg(videoIn->width, videoIn->height, global->fps);
+					}
+					if(mpeg_data)
+					{
+						if (global->format != V4L2_PIX_FMT_UYVY)
+							framesize= encode_mpeg_frame (videoIn->framebuffer, mpeg_data, 0);
+						else
+							framesize= encode_mpeg_frame (videoIn->framebuffer, mpeg_data, 1);
+						ret = AVI_write_frame (AviOut, mpeg_data->outbuf, framesize, keyframe);
+					}
+					break;
 			}
 		
 			if (ret) 
@@ -648,7 +665,15 @@ void *main_loop(void *data)
 				}
 			}
 		} /*video and audio capture have stopped */
-		else videoIn->AVICapStop=TRUE;
+		else
+		{
+			if(mpeg_data != NULL)
+			{
+				clean_mpeg(mpeg_data);
+				mpeg_data = NULL;
+			}
+			videoIn->AVICapStop=TRUE;
+		}
 	
 		/*------------------------- Display Frame --------------------------------*/
 		SDL_LockYUVOverlay(overlay);
