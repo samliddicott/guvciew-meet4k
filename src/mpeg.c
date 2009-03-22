@@ -57,7 +57,7 @@ struct mpegData* init_mpeg (int width, int height, int fps)
 	data->picture= avcodec_alloc_frame();
 	//data->codec_context = &stream->codec;
 	/* put sample parameters */
-	data->codec_context->bit_rate = 400000;
+	data->codec_context->bit_rate = 400000;//not use for const quantizer
 	
 	/* resolution must be a multiple of two */
 	data->codec_context->width = width; 
@@ -65,8 +65,8 @@ struct mpegData* init_mpeg (int width, int height, int fps)
 	/* frames per second */
 	data->codec_context->gop_size = 10; /* emit one intra frame every ten frames */
 	data->codec_context->max_b_frames = 1;
-	data->codec_context->me_method = 1;
-	data->codec_context->mpeg_quant = 0;
+	data->codec_context->me_method = 6; //X1
+	data->codec_context->mpeg_quant = 0; //h.263
 	data->codec_context->qmin = 6;
 	data->codec_context->qmax = 6;
 	data->codec_context->max_qdiff = 1;
