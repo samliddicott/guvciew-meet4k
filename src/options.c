@@ -71,7 +71,7 @@ writeConf(struct GLOBAL *global, char *videodevice)
 		g_fprintf(fp,"hwaccel=%i\n",global->hwaccel);
 		g_fprintf(fp,"# video grab method: 0 -read 1 -mmap (default - 1)\n");
 		g_fprintf(fp,"grabmethod=%i\n",global->grabmethod);
-		g_fprintf(fp,"# video compression format: 0-MJPG 1-YUY2/UYVY 2-DIB (BMP 24) 3-MPEG\n");
+		g_fprintf(fp,"# video compression format: 0-MJPG 1-YUY2/UYVY 2-DIB (BMP 24) 3-MPEG 4-FLV1\n");
 		g_fprintf(fp,"avi_format=%i\n",global->AVIFormat);
 		g_fprintf(fp,"# avi file max size (MAX: %d bytes)\n",AVI_MAX_SIZE);
 		g_fprintf(fp,"avi_max_len=%li\n",global->AVI_MAX_LEN);
