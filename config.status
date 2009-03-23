@@ -587,15 +587,15 @@ s,@MSGFMT@,|#_!!_#|/usr/bin/msgfmt,g
 s,@MSGFMT_OPTS@,|#_!!_#|-c,g
 s,@GMSGFMT@,|#_!!_#|/usr/bin/msgfmt,g
 s,@XGETTEXT@,|#_!!_#|/usr/bin/xgettext,g
-s,@CATALOGS@,|#_!!_#| pt.gmo pt_PT.gmo pt_BR.gmo de.gmo es.gmo fr.gmo da.gmo tr.gmo cs.gmo,g
+s,@CATALOGS@,|#_!!_#| pt.gmo pt_PT.gmo pt_BR.gmo de.gmo es.gmo fr.gmo da.gmo tr.gmo cs.gmo ja.gmo,g
 s,@CATOBJEXT@,|#_!!_#|.gmo,g
 s,@DATADIRNAME@,|#_!!_#|share,g
-s,@GMOFILES@,|#_!!_#| pt.gmo pt_PT.gmo pt_BR.gmo de.gmo es.gmo fr.gmo da.gmo tr.gmo cs.gmo,g
+s,@GMOFILES@,|#_!!_#| pt.gmo pt_PT.gmo pt_BR.gmo de.gmo es.gmo fr.gmo da.gmo tr.gmo cs.gmo ja.gmo,g
 s,@INSTOBJEXT@,|#_!!_#|.mo,g
 s,@INTLLIBS@,|#_!!_#|,g
 s,@PO_IN_DATADIR_TRUE@,|#_!!_#|,g
 s,@PO_IN_DATADIR_FALSE@,|#_!!_#|,g
-s,@POFILES@,|#_!!_#| pt.po pt_PT.po pt_BR.po de.po es.po fr.po da.po tr.po cs.po,g
+s,@POFILES@,|#_!!_#| pt.po pt_PT.po pt_BR.po de.po es.po fr.po da.po tr.po cs.po ja.po,g
 s,@POSUB@,|#_!!_#|po,g
 CEOF
 cat >"$tmp/subs-2.sed" <<\CEOF

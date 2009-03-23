@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: guvcview\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-02-28 23:20+0000\n"
+"POT-Creation-Date: 2009-03-23 20:35+0000\n"
 "PO-Revision-Date: 2009-01-01 16:27+0000\n"
 "Last-Translator: nanker <Unknown>\n"
 "Language-Team: Danish <da@li.org>\n"
@@ -17,12 +17,12 @@ msgstr ""
 "X-Launchpad-Export-Date: 2009-01-08 11:56+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
-#: src/guvcview.c:156
+#: src/guvcview.c:158
 msgid "GUVCViewer Controls"
 msgstr "GUVCViewer kontroller"
 
 #. can't open device
-#: src/guvcview.c:182
+#: src/guvcview.c:185
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -32,7 +32,7 @@ msgstr ""
 "\n"
 "Kunne ikke åbne udstyr"
 
-#: src/guvcview.c:183
+#: src/guvcview.c:186
 msgid ""
 "Please make sure the camera is connected\n"
 "and that the linux-UVC driver is installed."
@@ -40,7 +40,7 @@ msgstr ""
 "Vær venligst sikker på at kamera er tilsluttet\n"
 "og at linux-UCV driveren er installeret."
 
-#: src/guvcview.c:205 src/guvcview.c:240
+#: src/guvcview.c:208 src/guvcview.c:243
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -50,7 +50,7 @@ msgstr ""
 "\n"
 "Kan ikke sætte MJPG eller YUV stream til guvcview"
 
-#: src/guvcview.c:206 src/guvcview.c:241
+#: src/guvcview.c:209 src/guvcview.c:244
 msgid ""
 "Make sure you have a UVC compliant camera\n"
 "and that you have the linux UVC driver installed."
@@ -58,7 +58,7 @@ msgstr ""
 "Vær sikker på at du har et UVC compatibelt kamera\n"
 "og at du har installeret en linux UVC driver."
 
-#: src/guvcview.c:214
+#: src/guvcview.c:217
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -68,54 +68,54 @@ msgstr ""
 "\n"
 "Kunne ikke starte på minimum setup"
 
-#: src/guvcview.c:215
+#: src/guvcview.c:218
 msgid "Please reconnect your camera."
 msgstr "Vær venlig at gentilslutte dit kamera."
 
-#: src/guvcview.c:224
+#: src/guvcview.c:227
 msgid ""
 "Guvcview error:\n"
 "\n"
 "Unable to allocate Buffers"
 msgstr ""
 
-#: src/guvcview.c:225
+#: src/guvcview.c:228
 msgid "Please try restarting your system."
 msgstr "Prøv venligst at genstarte dit system."
 
-#: src/guvcview.c:272
+#: src/guvcview.c:275
 msgid "Image Controls"
 msgstr "Billed kontroller"
 
-#: src/guvcview.c:307
+#: src/guvcview.c:310
 msgid "Capture:"
 msgstr ""
 
 #. increment column for labels
 #. end of control only exclusion
-#: src/guvcview.c:315
+#: src/guvcview.c:318
 msgid "Control Profiles:"
 msgstr "Kontrol profiler:"
 
 #. image auto capture
-#: src/guvcview.c:342
+#: src/guvcview.c:345
 msgid "Stop Auto"
 msgstr "Stop auto"
 
-#: src/guvcview.c:346 src/callbacks.c:999
+#: src/guvcview.c:349 src/callbacks.c:999
 msgid "Cap. Image"
 msgstr ""
 
 #. avi capture enabled from start
-#: src/guvcview.c:351 src/callbacks.c:1153
+#: src/guvcview.c:354 src/callbacks.c:1159
 msgid "Stop AVI"
 msgstr "Stop AVI"
 
-#: src/guvcview.c:357 src/callbacks.c:1081
+#: src/guvcview.c:360 src/callbacks.c:1087
 msgid "Cap. AVI"
 msgstr ""
 
-#: src/guvcview.c:495
+#: src/guvcview.c:498
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -125,7 +125,7 @@ msgstr ""
 "\n"
 "Kunne ikke skabe video tråd"
 
-#: src/guvcview.c:496
+#: src/guvcview.c:499
 msgid "Please report it to http://developer.berlios.de/bugs/?group_id=8179"
 msgstr ""
 "Rapporter det venligst til http://developer.berlios.de/bugs/?group_id=8179"
@@ -224,14 +224,14 @@ msgstr ""
 msgid "Aperture Priority Mode"
 msgstr ""
 
-#: src/video_tab.c:40 src/callbacks.c:1177
+#: src/video_tab.c:40 src/callbacks.c:1183
 msgid "Save File"
 msgstr "Gem fil"
 
 #. if auto naming restart counter
 #: src/video_tab.c:94 src/globals.c:69 src/globals.c:72 src/options.c:351
 #: src/options.c:400 src/callbacks.c:805 src/callbacks.c:929
-#: src/callbacks.c:946 src/callbacks.c:978 src/callbacks.c:1086
+#: src/callbacks.c:946 src/callbacks.c:978 src/callbacks.c:1092
 #, c-format
 msgid "File num:%d"
 msgstr "Fil nummer:%d"
@@ -294,36 +294,44 @@ msgstr "YUY2 - ukomprimeret YUV"
 msgid "RGB - uncomp BMP"
 msgstr "RGB - ukomprimeret BMP"
 
-#: src/video_tab.c:481
+#: src/video_tab.c:470
+msgid "MPEG"
+msgstr ""
+
+#: src/video_tab.c:471
+msgid "FLV1"
+msgstr ""
+
+#: src/video_tab.c:483
 msgid "AVI Format:"
 msgstr "AVI format:"
 
-#: src/video_tab.c:490
+#: src/video_tab.c:492
 msgid "---- Video Filters ----"
 msgstr "---- Video filtre ----"
 
 #. Mirror
-#: src/video_tab.c:505
+#: src/video_tab.c:507
 msgid " Mirror"
 msgstr " Spejl"
 
 #. Upturn
-#: src/video_tab.c:515
+#: src/video_tab.c:517
 msgid " Invert"
 msgstr " Vend"
 
 #. Negate
-#: src/video_tab.c:525
+#: src/video_tab.c:527
 msgid " Negative"
 msgstr " Negativ"
 
 #. Mono
-#: src/video_tab.c:535
+#: src/video_tab.c:537
 msgid " Mono"
 msgstr " Mono"
 
 #. Pieces
-#: src/video_tab.c:546
+#: src/video_tab.c:548
 msgid " Pieces"
 msgstr ""
 
@@ -598,6 +606,6 @@ msgstr ""
 "\n"
 "Genstart nu?\n"
 
-#: src/callbacks.c:1190
+#: src/callbacks.c:1196
 msgid "Load File"
 msgstr "Indlæs fil"

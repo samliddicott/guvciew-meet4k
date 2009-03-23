@@ -10,20 +10,20 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fr\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-02-28 23:20+0000\n"
-"PO-Revision-Date: 2009-01-26 14:53+0100\n"
+"POT-Creation-Date: 2009-03-23 20:35+0000\n"
+"PO-Revision-Date: 2009-03-23 20:41+0100\n"
 "Last-Translator: Paulo Assis <pj.assis@gmail.com>\n"
 "Language-Team: Portuguese <pt@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/guvcview.c:156
+#: src/guvcview.c:158
 msgid "GUVCViewer Controls"
 msgstr "Réglages GUVCViewer"
 
 #. can't open device
-#: src/guvcview.c:182
+#: src/guvcview.c:185
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -33,7 +33,7 @@ msgstr ""
 "\n"
 "Incapable d'accéder au périphérique"
 
-#: src/guvcview.c:183
+#: src/guvcview.c:186
 msgid ""
 "Please make sure the camera is connected\n"
 "and that the linux-UVC driver is installed."
@@ -42,7 +42,7 @@ msgstr ""
 "\n"
 "et que le pilote Linux-UVC est installé."
 
-#: src/guvcview.c:205 src/guvcview.c:240
+#: src/guvcview.c:208 src/guvcview.c:243
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -52,7 +52,7 @@ msgstr ""
 "\n"
 "Incapable de gérer le flux vidéo (MJPG ou YUV)"
 
-#: src/guvcview.c:206 src/guvcview.c:241
+#: src/guvcview.c:209 src/guvcview.c:244
 msgid ""
 "Make sure you have a UVC compliant camera\n"
 "and that you have the linux UVC driver installed."
@@ -60,7 +60,7 @@ msgstr ""
 "Vérifiez que vous avez un périphérique compatible UVC\n"
 "et que le pilote Linux-UVC est installé."
 
-#: src/guvcview.c:214
+#: src/guvcview.c:217
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -70,11 +70,11 @@ msgstr ""
 "\n"
 "Incapable de démarrer avec des réglages minimum"
 
-#: src/guvcview.c:215
+#: src/guvcview.c:218
 msgid "Please reconnect your camera."
 msgstr "Svp, rebranchez votre périphérique."
 
-#: src/guvcview.c:224
+#: src/guvcview.c:227
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -84,43 +84,43 @@ msgstr ""
 "\n"
 "Incapable d'assigner des Buffers"
 
-#: src/guvcview.c:225
+#: src/guvcview.c:228
 msgid "Please try restarting your system."
 msgstr "Svp, essayez de redémarrer votre système."
 
-#: src/guvcview.c:272
+#: src/guvcview.c:275
 msgid "Image Controls"
 msgstr "Réglages de L'image"
 
-#: src/guvcview.c:307
+#: src/guvcview.c:310
 msgid "Capture:"
 msgstr "Enregistrement:"
 
 #. increment column for labels
 #. end of control only exclusion
-#: src/guvcview.c:315
+#: src/guvcview.c:318
 msgid "Control Profiles:"
 msgstr "Réglages Personnalisés:"
 
 #. image auto capture
-#: src/guvcview.c:342
+#: src/guvcview.c:345
 msgid "Stop Auto"
 msgstr "Arrêt Auto"
 
-#: src/guvcview.c:346 src/callbacks.c:999
+#: src/guvcview.c:349 src/callbacks.c:999
 msgid "Cap. Image"
 msgstr "Enr. Image"
 
 #. avi capture enabled from start
-#: src/guvcview.c:351 src/callbacks.c:1153
+#: src/guvcview.c:354 src/callbacks.c:1159
 msgid "Stop AVI"
 msgstr "Arrêter AVI"
 
-#: src/guvcview.c:357 src/callbacks.c:1081
+#: src/guvcview.c:360 src/callbacks.c:1087
 msgid "Cap. AVI"
 msgstr "Enr. Video"
 
-#: src/guvcview.c:495
+#: src/guvcview.c:498
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -130,7 +130,7 @@ msgstr ""
 "\n"
 "Incapable de créer le flux vidéo."
 
-#: src/guvcview.c:496
+#: src/guvcview.c:499
 msgid "Please report it to http://developer.berlios.de/bugs/?group_id=8179"
 msgstr "Svp, rapportez-le à http://developer.berlios.de/bugs/?group_id=8179"
 
@@ -228,14 +228,14 @@ msgstr "Mode Priorité Vitesse"
 msgid "Aperture Priority Mode"
 msgstr "Mode Priorité Ouverture"
 
-#: src/video_tab.c:40 src/callbacks.c:1177
+#: src/video_tab.c:40 src/callbacks.c:1183
 msgid "Save File"
 msgstr "Enregistrer le Fichier"
 
 #. if auto naming restart counter
 #: src/video_tab.c:94 src/globals.c:69 src/globals.c:72 src/options.c:351
 #: src/options.c:400 src/callbacks.c:805 src/callbacks.c:929
-#: src/callbacks.c:946 src/callbacks.c:978 src/callbacks.c:1086
+#: src/callbacks.c:946 src/callbacks.c:978 src/callbacks.c:1092
 #, c-format
 msgid "File num:%d"
 msgstr "Fichier num:%d"
@@ -297,36 +297,44 @@ msgstr "YUY2 - YUV non compressé"
 msgid "RGB - uncomp BMP"
 msgstr "RVB - BMP non compressé"
 
-#: src/video_tab.c:481
+#: src/video_tab.c:470
+msgid "MPEG"
+msgstr "MPEG"
+
+#: src/video_tab.c:471
+msgid "FLV1"
+msgstr "FLV1"
+
+#: src/video_tab.c:483
 msgid "AVI Format:"
 msgstr "Format AVI:"
 
-#: src/video_tab.c:490
+#: src/video_tab.c:492
 msgid "---- Video Filters ----"
 msgstr "---- Filtres Vidéo ----"
 
 #. Mirror
-#: src/video_tab.c:505
+#: src/video_tab.c:507
 msgid " Mirror"
 msgstr " Miroir"
 
 #. Upturn
-#: src/video_tab.c:515
+#: src/video_tab.c:517
 msgid " Invert"
 msgstr " Inverser"
 
 #. Negate
-#: src/video_tab.c:525
+#: src/video_tab.c:527
 msgid " Negative"
 msgstr " Négatif"
 
 #. Mono
-#: src/video_tab.c:535
+#: src/video_tab.c:537
 msgid " Mono"
 msgstr " Monochrome"
 
 #. Pieces
-#: src/video_tab.c:546
+#: src/video_tab.c:548
 msgid " Pieces"
 msgstr "Morceaux"
 
@@ -597,6 +605,6 @@ msgstr ""
 "\n"
 "Redémarrer maintenant? \n"
 
-#: src/callbacks.c:1190
+#: src/callbacks.c:1196
 msgid "Load File"
 msgstr "Charger Fichier"
