@@ -42,7 +42,7 @@ struct lavcData* init_flv (int width, int height, int fps)
 	
 	data->codec_context = avcodec_alloc_context();
 	
-	/* find the flv1 video encoder */
+	// find the flv1 video encoder
 	data->codec = avcodec_find_encoder(CODEC_ID_FLV1);
 	if (!data->codec) 
 	{
@@ -52,14 +52,13 @@ struct lavcData* init_flv (int width, int height, int fps)
 	
 	//alloc picture
 	data->picture= avcodec_alloc_frame();
-	//data->codec_context = &stream->codec;
-	/* put sample parameters */
+	
 	data->codec_context->bit_rate = 3000000;
 	
-	/* resolution must be a multiple of two */
+	// resolution must be a multiple of two
 	data->codec_context->width = width; 
 	data->codec_context->height = height;
-	/* frames per second */
+	
 	data->codec_context->gop_size = 100;
 	data->codec_context->codec_id = CODEC_ID_FLV1;
 	data->codec_context->pix_fmt = PIX_FMT_YUV420P;
@@ -71,7 +70,7 @@ struct lavcData* init_flv (int width, int height, int fps)
 		fprintf(stderr, "could not open codec\n");
 		return(NULL);
 	}
-	//alloc tmpbuff
+	//alloc tmpbuff (yuv420p)
 	data->tmpbuf = g_new0(BYTE, (width*height*3)/2);
 	//alloc outbuf
 	data->outbuf_size = 200000;

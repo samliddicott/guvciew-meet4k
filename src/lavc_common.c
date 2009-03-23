@@ -48,8 +48,8 @@ static void yuv422to420p(BYTE* pic, struct lavcData* data, int isUYVY)
 				*y++ = pic[i+2+j*linesize];
 				*y1++ = pic[i+(j+1)*linesize];
 				*y1++ = pic[i+2+(j+1)*linesize];
-				*u++ = (pic[i+1+j*linesize] + pic[i+1+(j+1)*linesize])/2;
-				*v++ = (pic[i+3+j*linesize] + pic[i+3+(j+1)*linesize])/2;
+				*u++ = (pic[i+1+j*linesize] + pic[i+1+(j+1)*linesize])>>1; // div by 2
+				*v++ = (pic[i+3+j*linesize] + pic[i+3+(j+1)*linesize])>>1;
 			}
 			y += width;
 			y1 += width;//2 lines
@@ -65,8 +65,8 @@ static void yuv422to420p(BYTE* pic, struct lavcData* data, int isUYVY)
 				*y++ = pic[i+3+j*linesize];
 				*y1++ = pic[i+1+(j+1)*linesize];
 				*y1++ = pic[i+3+(j+1)*linesize];
-				*u++ = (pic[i+j*linesize] + pic[i+(j+1)*linesize])/2;
-				*v++ = (pic[i+2+j*linesize] + pic[i+2+(j+1)*linesize])/2;
+				*u++ = (pic[i+j*linesize] + pic[i+(j+1)*linesize])>>1;     // div by 2
+				*v++ = (pic[i+2+j*linesize] + pic[i+2+(j+1)*linesize])>>1; // div by 2
 			}
 			y += width;
 			y1 += width;//2 lines

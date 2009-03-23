@@ -316,9 +316,11 @@ int yvu420_to_yuyv (BYTE *framebuffer, BYTE *tmpbuffer, int width, int height)
 	BYTE *pv;
 	BYTE *pu;
 	
+	int linesize = width * 2;
+	int uvlinesize = width / 2;
 	py=tmpbuffer;
 	pv=py+(width*height);
-	pu=pv+(width*height/4);
+	pu=pv+((width*height)/4);
 	
 	int h=0;
 	int w=0;
@@ -331,25 +333,25 @@ int yvu420_to_yuyv (BYTE *framebuffer, BYTE *tmpbuffer, int width, int height)
 	{
 		wy=0;
 		wuv=0;
-		for(w=0;w<width*2;w+=4) 
+		for(w=0;w<linesize;w+=4) 
 		{
 			/*y00*/
-			framebuffer[h*width*2+w] = py[h*width+wy];
+			framebuffer[h*linesize+w] = py[h*width+wy];
 			/*u0*/
-			framebuffer[h*width*2+(w+1)] = pu[huv*(width/2)+wuv];
+			framebuffer[h*linesize+(w+1)] = pu[huv*uvlinesize+wuv];
 			/*y01*/
-			framebuffer[h*width*2+(w+2)] = py[h*width+(wy+1)];
+			framebuffer[h*linesize+(w+2)] = py[h*width+(wy+1)];
 			/*v0*/
-			framebuffer[h*width*2+(w+3)] = pv[huv*(width/2)+wuv];
+			framebuffer[h*linesize+(w+3)] = pv[huv*uvlinesize+wuv];
 			
 			/*y10*/
-			framebuffer[(h+1)*width*2+w] = py[(h+1)*width+wy];
+			framebuffer[(h+1)*linesize+w] = py[(h+1)*width+wy];
 			/*u0*/
-			framebuffer[(h+1)*width*2+(w+1)] = pu[huv*(width/2)+wuv];
+			framebuffer[(h+1)*linesize+(w+1)] = pu[huv*uvlinesize+wuv];
 			/*y11*/
-			framebuffer[(h+1)*width*2+(w+2)] = py[(h+1)*width+(wy+1)];
+			framebuffer[(h+1)*linesize+(w+2)] = py[(h+1)*width+(wy+1)];
 			/*v0*/
-			framebuffer[(h+1)*width*2+(w+3)] = pv[huv*(width/2)+wuv];
+			framebuffer[(h+1)*linesize+(w+3)] = pv[huv*uvlinesize+wuv];
 			wuv++;
 			wy+=2;
 		}
