@@ -7553,7 +7553,11 @@ fi
 
 
 if test "$has_ffmpeg_dir" = yes; then
-CFLAGS="$CFLAGS -I/usr/include/ffmpeg"
+
+cat >>confdefs.h <<\_ACEOF
+#define HAS_FFMPEG_AVCODEC_H 1
+_ACEOF
+
 fi
 
 if test "${ac_cv_header_libavcodec_avcodec_h+set}" = set; then
@@ -7693,7 +7697,11 @@ fi
 
 
 if test "$has_libavcodec_dir" = yes; then
-CFLAGS="$CFLAGS -I/usr/include/libavcodec"
+
+cat >>confdefs.h <<\_ACEOF
+#define HAS_LIBAVCODEC_AVCODEC_H 1
+_ACEOF
+
 fi
 
 

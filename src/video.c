@@ -58,7 +58,7 @@ void *main_loop(void *data)
 	//struct GWIDGET *gwidget = all_data->gwidget;
 
 	GThread *press_butt_thread;
-	
+
 	SDL_Event event;
 	/*the main SDL surface*/
 	SDL_Surface *pscreen = NULL;

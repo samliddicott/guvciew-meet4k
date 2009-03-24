@@ -29,7 +29,7 @@ static void yuv422to420p(BYTE* pic, struct lavcData* data, int isUYVY)
 	int height = data->codec_context->height;
 	int linesize=width*2;
 	int size = width * height;
-	printf("XPTO is %d\n", XPTO);
+
 	BYTE *y;
 	BYTE *y1;
 	BYTE *u;

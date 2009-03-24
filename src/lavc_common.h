@@ -22,6 +22,7 @@
 #ifndef LAVC_COMMON_H
 #define LAVC_COMMON_H
 
+#include "../config.h"
 #include "defs.h"
 #ifdef HAS_LIBAVCODEC_AVCODEC_H
   #include <libavcodec/avcodec.h>

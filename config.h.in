@@ -6,6 +6,12 @@
 /* guvcview */
 #undef GETTEXT_PACKAGE
 
+/* Define if avcodec.h installed to ffmpeg dir */
+#undef HAS_FFMPEG_AVCODEC_H
+
+/* Define if avcodec.h installed to libavcodec dir */
+#undef HAS_LIBAVCODEC_AVCODEC_H
+
 /* Define to 1 if you have the `bind_textdomain_codeset' function. */
 #undef HAVE_BIND_TEXTDOMAIN_CODESET
 
