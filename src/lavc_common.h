@@ -25,6 +25,8 @@
 #include "defs.h"
 #include <avcodec.h>
 
+
+
 struct lavcData
 {
 	AVCodec *codec;

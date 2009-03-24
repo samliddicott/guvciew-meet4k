@@ -563,7 +563,7 @@ s,@MAINTAINER_MODE_TRUE@,|#_!!_#|,g
 s,@MAINTAINER_MODE_FALSE@,|#_!!_#|#,g
 s,@MAINT@,|#_!!_#|,g
 s,@CC@,|#_!!_#|gcc,g
-s,@CFLAGS@,|#_!!_#|-g -O2,g
+s,@CFLAGS@,|#_!!_#|-g -O2 -I/usr/include/ffmpeg,g
 s,@LDFLAGS@,|#_!!_#|,g
 s,@CPPFLAGS@,|#_!!_#|,g
 s,@ac_ct_CC@,|#_!!_#|gcc,g

@@ -26,6 +26,18 @@ PKG_CHECK_MODULES(PACKAGE, [gtk+-2.0 >= 2.10.0 glib-2.0 >= 2.10.0 gthread-2.0 gd
 AC_SUBST(PACKAGE_CFLAGS)
 AC_SUBST(PACKAGE_LIBS)
 
+AC_CHECK_HEADER([ffmpeg/avcodec.h], [has_ffmpeg_dir="yes"])
+
+if test "$has_ffmpeg_dir" = yes; then
+CFLAGS="$CFLAGS -I/usr/include/ffmpeg"
+fi
+
+AC_CHECK_HEADER([libavcodec/avcodec.h], [$has_libavcodec_dir="yes"])
+
+if test "$has_libavcodec_dir" = yes; then
+CFLAGS="$CFLAGS -I/usr/include/libavcodec"
+fi
+
 
 dnl Write output
 AC_OUTPUT([
