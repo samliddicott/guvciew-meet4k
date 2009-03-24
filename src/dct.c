@@ -39,7 +39,6 @@ void levelshift (INT16* const data)
 		data [i] -= 128;
 }
 
-
 /* DCT for One block(8x8) */
 void DCT (INT16 *data)
 {

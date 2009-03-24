@@ -23,7 +23,15 @@
 #define LAVC_COMMON_H
 
 #include "defs.h"
-#include <avcodec.h>
+#ifdef HAS_LIBAVCODEC_AVCODEC_H
+  #include <libavcodec/avcodec.h>
+#else
+  #ifdef HAS_FFMPEG_AVCODEC_H
+    #include <ffmpeg/avcodec.h>
+  #else
+    #include <avcodec.h>
+  #endif
+#endif
 
 
 
