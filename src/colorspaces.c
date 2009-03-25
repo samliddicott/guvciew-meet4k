@@ -708,8 +708,6 @@ static void bayer_to_rgbbgr24(BYTE *bayer,
 void 
 bayer_to_rgb24(BYTE *pBay, BYTE *pRGB24, int width, int height, int pix_order)
 {
-	int i, j;
-	
 	switch (pix_order) 
 	{
 		//conversion functions are build for bgr, by switching b and r lines we get rgb
