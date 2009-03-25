@@ -407,10 +407,13 @@ int init_videoIn(struct vdIn *vd, struct GLOBAL *global)
 				vd->framebuffer = g_new0(unsigned char, framebuf_size);
 				break;
 			
-			case V4L2_PIX_FMT_SGBRG8:
-				// Raw 8 bit GBGB... RGRG...
+			case V4L2_PIX_FMT_SGBRG8: //0
+			case V4L2_PIX_FMT_SGRBG8: //1
+			case V4L2_PIX_FMT_SBGGR8: //2
+			case V4L2_PIX_FMT_SRGGB8: //3
+				// Raw 8 bit bayer 
 				// when grabbing use:
-				//    bayer_to_rgb24(bayer_data, RGB24_data, width, height, 0)
+				//    bayer_to_rgb24(bayer_data, RGB24_data, width, height, 0..3)
 				//    rgb2yuyv(RGB24_data, vd->framebuffer, width, height)
 		
 				// alloc a temp buffer for converting to YUYV
@@ -443,6 +446,9 @@ int init_videoIn(struct vdIn *vd, struct GLOBAL *global)
 				case V4L2_PIX_FMT_JPEG:
 				case V4L2_PIX_FMT_MJPEG:
 				case V4L2_PIX_FMT_SGBRG8: // converted to YUYV
+				case V4L2_PIX_FMT_SGRBG8: // converted to YUYV
+				case V4L2_PIX_FMT_SBGGR8: // converted to YUYV
+				case V4L2_PIX_FMT_SRGGB8: // converted to YUYV
 				case V4L2_PIX_FMT_YUV420: // converted to YUYV
 				case V4L2_PIX_FMT_YVU420: // converted to YUYV
 				case V4L2_PIX_FMT_YYUV:   // converted to YUYV
@@ -545,7 +551,7 @@ int uvcGrab(struct vdIn *vd)
 	//make sure streaming is on
 	if (!vd->isstreaming)
 		if (video_enable(vd)) goto err;
-			
+	
 	FD_ZERO(&rdset);
 	FD_SET(vd->fd, &rdset);
 	timeout.tv_sec = 1; // 1 sec timeout 
@@ -667,14 +673,25 @@ int uvcGrab(struct vdIn *vd)
 						(size_t) vd->buf.bytesused);
 			}
 			break;
-			
-		case V4L2_PIX_FMT_SGBRG8:
-			//pixel order is 0 gb.. rg..
+		
+		
+		case V4L2_PIX_FMT_SGBRG8: //0
 			bayer_to_rgb24 (vd->mem[vd->buf.index],vd->tmpbuffer,vd->width,vd->height, 0);
-			//convert to yuyv
 			rgb2yuyv (vd->tmpbuffer,vd->framebuffer,vd->width,vd->height);
 			break;
-			
+		case V4L2_PIX_FMT_SGRBG8: //1
+			bayer_to_rgb24 (vd->mem[vd->buf.index],vd->tmpbuffer,vd->width,vd->height, 1);
+			rgb2yuyv (vd->tmpbuffer,vd->framebuffer,vd->width,vd->height);
+			break;
+		case V4L2_PIX_FMT_SBGGR8: //2
+			bayer_to_rgb24 (vd->mem[vd->buf.index],vd->tmpbuffer,vd->width,vd->height, 2);
+			rgb2yuyv (vd->tmpbuffer,vd->framebuffer,vd->width,vd->height);
+			break;
+		case V4L2_PIX_FMT_SRGGB8: //3
+			bayer_to_rgb24 (vd->mem[vd->buf.index],vd->tmpbuffer,vd->width,vd->height, 3);
+			rgb2yuyv (vd->tmpbuffer,vd->framebuffer,vd->width,vd->height);
+			break;
+		
 		default:
 			g_printerr("error grabbing (v4l2uvc.c) unknown format: %i\n", vd->formatIn);
 			ret = VDIN_UNKNOWN_ERR;

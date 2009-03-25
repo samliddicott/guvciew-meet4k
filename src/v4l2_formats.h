@@ -61,6 +61,18 @@
 #define V4L2_PIX_FMT_SGBRG8  v4l2_fourcc('G', 'B', 'R', 'G') /* GBGB.. RGRG..    */
 #endif
 
+#ifndef V4L2_PIX_FMT_SGRBG8
+#define V4L2_PIX_FMT_SGRBG8  v4l2_fourcc('G', 'R', 'B', 'G') /* GRGR.. BGBG..    */
+#endif
+
+#ifndef V4L2_PIX_FMT_SBGGR8
+#define V4L2_PIX_FMT_SBGGR8  v4l2_fourcc('B', 'G', 'G', 'R') /* BGBG.. GRGR..    */
+#endif
+
+#ifndef V4L2_PIX_FMT_SRGGB8
+#define V4L2_PIX_FMT_SRGGB8  v4l2_fourcc('R', 'G', 'G', 'B') /* RGRG.. GBGB..    */
+#endif
+
 typedef struct _SupFormats
 {
 	int format;          //v4l2 software(guvcview) supported format

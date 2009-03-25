@@ -162,6 +162,9 @@ void *main_loop(void *data)
 		case V4L2_PIX_FMT_JPEG:
 		case V4L2_PIX_FMT_MJPEG:
 		case V4L2_PIX_FMT_SGBRG8: //converted to YUYV
+		case V4L2_PIX_FMT_SGRBG8: 
+		case V4L2_PIX_FMT_SBGGR8: 
+		case V4L2_PIX_FMT_SRGGB8: 
 		case V4L2_PIX_FMT_YUV420: //converted to YUYV
 		case V4L2_PIX_FMT_YVU420: //converted to YUYV
 		case V4L2_PIX_FMT_YYUV:   //converted to YUYV
@@ -271,6 +274,9 @@ void *main_loop(void *data)
 					case V4L2_PIX_FMT_MJPEG:
 					case V4L2_PIX_FMT_JPEG:
 					case V4L2_PIX_FMT_SGBRG8: //converted to YUYV
+					case V4L2_PIX_FMT_SGRBG8: 
+					case V4L2_PIX_FMT_SBGGR8: 
+					case V4L2_PIX_FMT_SRGGB8:
 					case V4L2_PIX_FMT_YUV420: //converted to YUYV
 					case V4L2_PIX_FMT_YVU420: //converted to YUYV
 					case V4L2_PIX_FMT_YYUV:   //converted to YUYV
@@ -300,6 +306,9 @@ void *main_loop(void *data)
 					case V4L2_PIX_FMT_MJPEG:
 					case V4L2_PIX_FMT_JPEG:
 					case V4L2_PIX_FMT_SGBRG8: //converted to YUYV
+					case V4L2_PIX_FMT_SGRBG8: 
+					case V4L2_PIX_FMT_SBGGR8: 
+					case V4L2_PIX_FMT_SRGGB8: 
 					case V4L2_PIX_FMT_YUV420: //converted to YUYV
 					case V4L2_PIX_FMT_YVU420: //converted to YUYV 
 					case V4L2_PIX_FMT_YYUV:   //converted to YUYV

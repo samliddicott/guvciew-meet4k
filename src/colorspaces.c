@@ -360,220 +360,341 @@ int yvu420_to_yuyv (BYTE *framebuffer, BYTE *tmpbuffer, int width, int height)
 	return (0);
 }
 
-/* raw bayer functions*/
-#define R(x,y) pRGB24[0 + 3 * ((x) + width * (y))]
-#define G(x,y) pRGB24[1 + 3 * ((x) + width * (y))]
-#define B(x,y) pRGB24[2 + 3 * ((x) + width * (y))]
-
-#define Bay(x,y) pBay[(x) + width * (y)]
-
-static void bayer_copy_bg(BYTE *pBay, BYTE *pRGB24, int x, int y, int width)
+// raw bayer functions 
+// from libv4l bayer.c, (C) 2008 Hans de Goede <j.w.r.degoede@hhs.nl>
+//Note: original bayer_to_bgr24 code from :
+//  1394-Based Digital Camera Control Library
+// 
+//  Bayer pattern decoding functions
+// 
+//  Written by Damien Douxchamps and Frederic Devernay
+static void convert_border_bayer_line_to_bgr24( BYTE* bayer, BYTE* adjacent_bayer,
+	BYTE *bgr, int width, gboolean start_with_green, gboolean blue_line)
 {
+	int t0, t1;
 
-	B(x + 1, y + 1) = B(x + 0, y + 0) = B(x + 0, y + 1) = B(x + 1, y + 0) = Bay(x + 0, y + 0);
-	G(x + 0, y + 0) = G(x+1,x+1) = ((DWORD)Bay(x + 1, y + 0) + (DWORD)Bay(x+0,y+1))>>1;
-	G(x + 1, y + 0) = Bay(x + 1, y + 0);
-	G(x + 0, y + 1) = Bay(x + 0, y + 1);
-	R(x + 0, y + 0) = R(x + 1, y + 0) = R(x + 1, y + 1) = R(x + 0, y + 1) = Bay(x + 1, y + 1);
-}
-
-static void bayer_bilinear_bg(BYTE *pBay, BYTE *pRGB24, int x, int y, int width)
-{
-	B(x + 0, y + 0) = Bay(x + 0, y + 0);
-
-	if (abs((DWORD)Bay(x + 0, y - 1) - (DWORD)Bay(x + 0, y +1)) > 
-	       abs((DWORD)Bay(x - 1, y + 0) - (DWORD)Bay(x + 1, y + 0))) 
+	if (start_with_green) 
 	{
-		G(x + 0, y + 0)= ((DWORD)Bay(x + 0, y - 1) + (DWORD)Bay(x + 0, y +1)) >> 1;
+	/* First pixel */
+		if (blue_line) 
+		{
+			*bgr++ = bayer[1];
+			*bgr++ = bayer[0];
+			*bgr++ = adjacent_bayer[0];
+		} 
+		else 
+		{
+			*bgr++ = adjacent_bayer[0];
+			*bgr++ = bayer[0];
+			*bgr++ = bayer[1];
+		}
+		/* Second pixel */
+		t0 = (bayer[0] + bayer[2] + adjacent_bayer[1] + 1) / 3;
+		t1 = (adjacent_bayer[0] + adjacent_bayer[2] + 1) >> 1;
+		if (blue_line) 
+		{
+			*bgr++ = bayer[1];
+			*bgr++ = t0;
+			*bgr++ = t1;
+		} 
+		else 
+		{
+			*bgr++ = t1;
+			*bgr++ = t0;
+			*bgr++ = bayer[1];
+		}
+		bayer++;
+		adjacent_bayer++;
+		width -= 2;
 	} 
 	else 
 	{
-		G(x + 0, y + 0)= ((DWORD)Bay(x - 1, y + 0) + (DWORD)Bay(x + 1, y + 0)) >> 1;
+		/* First pixel */
+		t0 = (bayer[1] + adjacent_bayer[0] + 1) >> 1;
+		if (blue_line) 
+		{
+			*bgr++ = bayer[0];
+			*bgr++ = t0;
+			*bgr++ = adjacent_bayer[1];
+		} 
+		else 
+		{
+			*bgr++ = adjacent_bayer[1];
+			*bgr++ = t0;
+			*bgr++ = bayer[0];
+		}
+		width--;
 	}
-	//~ G(x + 0, y + 0) = ((DWORD)Bay(x + 0, y - 1) + (DWORD)Bay(x + 0, y +1) +
-			   //~ (DWORD)Bay(x - 1, y + 0) + (DWORD)Bay(x + 1, y + 0)) >> 2;
-	R(x + 0, y + 0) = ((DWORD)Bay(x - 1, y - 1) + (DWORD)Bay(x + 1, y - 1)+
-		(DWORD)Bay(x - 1, y + 1) + (DWORD)Bay(x + 1, y + 1)) >> 2;
-	
-	B(x + 0, y + 1) = ((DWORD)Bay(x + 0, y + 0) + (DWORD)Bay(x + 0, y + 2)) >> 1;
-	G(x + 0, y + 1) = Bay(x + 0, y + 1);
-	R(x + 0, y + 1) = ((DWORD) Bay(x - 1, y + 1) +(DWORD)Bay(x + 1, y + 1)) >> 1;
-			 
-	B(x + 1, y + 0) = ((DWORD)Bay(x +0, y +0) + (DWORD)Bay(x + 2, y +0)) >> 1;
-	G(x + 1, y + 0) = Bay(x + 1, y + 0);
-	R(x + 1, y + 0) = ((DWORD)Bay(x + 1, y - 1) + (DWORD)Bay(x + 1, y + 1)) >> 1;
 
-	B(x + 1, y + 1) = ((DWORD)Bay(x + 0, y + 0) + (DWORD)Bay(x + 0, y + 2) +
-		(DWORD)Bay(x + 2, y + 0) + (DWORD)Bay(x + 2, y + 2)) >>2;
-
-	if(abs((DWORD)Bay(x + 1, y + 0) - (DWORD)Bay(x + 1, y + 2)) > 
-		abs((DWORD)Bay(x + 0, y + 1) - (DWORD)Bay(x + 2, y + 1))) 
+	if (blue_line) 
 	{
-		G(x + 1, y + 1) = ((DWORD)Bay(x + 1, y + 0) + (DWORD)Bay(x + 1, y + 2)) >> 1;
+		for ( ; width > 2; width -= 2) 
+		{
+			t0 = (bayer[0] + bayer[2] + 1) >> 1;
+			*bgr++ = t0;
+			*bgr++ = bayer[1];
+			*bgr++ = adjacent_bayer[1];
+			bayer++;
+			adjacent_bayer++;
+
+			t0 = (bayer[0] + bayer[2] + adjacent_bayer[1] + 1) / 3;
+			t1 = (adjacent_bayer[0] + adjacent_bayer[2] + 1) >> 1;
+			*bgr++ = bayer[1];
+			*bgr++ = t0;
+			*bgr++ = t1;
+			bayer++;
+			adjacent_bayer++;
+		}
 	} 
 	else 
 	{
-		G(x + 1, y + 1) = ((DWORD)Bay(x + 0, y + 1) + (DWORD)Bay(x + 2, y + 1)) >> 1;
+		for ( ; width > 2; width -= 2) 
+		{
+			t0 = (bayer[0] + bayer[2] + 1) >> 1;
+			*bgr++ = adjacent_bayer[1];
+			*bgr++ = bayer[1];
+			*bgr++ = t0;
+			bayer++;
+			adjacent_bayer++;
+
+			t0 = (bayer[0] + bayer[2] + adjacent_bayer[1] + 1) / 3;
+			t1 = (adjacent_bayer[0] + adjacent_bayer[2] + 1) >> 1;
+			*bgr++ = t1;
+			*bgr++ = t0;
+			*bgr++ = bayer[1];
+			bayer++;
+			adjacent_bayer++;
+		}
 	}
-	//~ G(x + 1, y + 1) = ((DWORD)Bay(x + 1, y + 0) + (DWORD)Bay(x + 1, y + 2) +
-			   //~ (DWORD)Bay(x + 0, y + 1) + (DWORD)Bay(x + 2, y + 1)) >> 2;
-	R(x + 1, y + 1) = Bay(x + 1, y + 1);
-}
 
-static void bayer_copy_rg(BYTE *pBay, BYTE *pRGB24, int x, int y, int width)
-{
-
-	R(x + 1, y + 1) = R(x + 0, y + 0) = R(x + 0, y + 1) = R(x + 1, y + 0) = Bay(x + 0, y + 0);
-	G(x + 0, y + 0) = G(x+1,x+1) = ((DWORD)Bay(x + 1, y + 0) + (DWORD)Bay(x+0,y+1))>>1;
-	G(x + 1, y + 0) = Bay(x + 1, y + 0);
-	G(x + 0, y + 1) = Bay(x + 0, y + 1);
-	B(x + 0, y + 0) = B(x + 1, y + 0) = B(x + 1, y + 1) = B(x + 0, y + 1) = Bay(x + 1, y + 1);
-}
-
-static void bayer_bilinear_rg(BYTE *pBay, BYTE *pRGB24, int x, int y, int width)
-{
-	R(x + 0, y + 0) = Bay(x + 0, y + 0);
-
-	if (abs((DWORD)Bay(x + 0, y - 1) - (DWORD)Bay(x + 0, y +1)) > 
-		abs((DWORD)Bay(x - 1, y + 0) - (DWORD)Bay(x + 1, y + 0))) 
+	if (width == 2) 
 	{
-		G(x + 0, y + 0)= ((DWORD)Bay(x + 0, y - 1) + (DWORD)Bay(x + 0, y +1)) >> 1;
+		/* Second to last pixel */
+		t0 = (bayer[0] + bayer[2] + 1) >> 1;
+		if (blue_line) 
+		{
+			*bgr++ = t0;
+			*bgr++ = bayer[1];
+			*bgr++ = adjacent_bayer[1];
+		} 
+		else 
+		{
+			*bgr++ = adjacent_bayer[1];
+			*bgr++ = bayer[1];
+			*bgr++ = t0;
+		}
+		/* Last pixel */
+		t0 = (bayer[1] + adjacent_bayer[2] + 1) >> 1;
+		if (blue_line) 
+		{
+			*bgr++ = bayer[2];
+			*bgr++ = t0;
+			*bgr++ = adjacent_bayer[1];
+		}
+		else 
+		{
+			*bgr++ = adjacent_bayer[1];
+			*bgr++ = t0;
+			*bgr++ = bayer[2];
+		}
 	} 
 	else 
 	{
-		G(x + 0, y + 0)= ((DWORD)Bay(x - 1, y + 0) + (DWORD)Bay(x + 1, y + 0)) >> 1;
+		/* Last pixel */
+		if (blue_line) 
+		{
+			*bgr++ = bayer[0];
+			*bgr++ = bayer[1];
+			*bgr++ = adjacent_bayer[1];
+		} 
+		else 
+		{
+			*bgr++ = adjacent_bayer[1];
+			*bgr++ = bayer[1];
+			*bgr++ = bayer[0];
+		}
 	}
-	//~ G(x + 0, y + 0) = ((DWORD)Bay(x + 0, y - 1) + (DWORD)Bay(x + 0, y +1) +
-			   //~ (DWORD)Bay(x - 1, y + 0) + (DWORD)Bay(x + 1, y + 0)) >> 2;
-	B(x + 0, y + 0) = ((DWORD)Bay(x - 1, y - 1) + (DWORD)Bay(x + 1, y - 1)+
-		(DWORD)Bay(x - 1, y + 1) + (DWORD)Bay(x + 1, y + 1)) >> 2;
-	
-	R(x + 0, y + 1) = ((DWORD)Bay(x + 0, y + 0) + (DWORD)Bay(x + 0, y + 2)) >> 1;
-	G(x + 0, y + 1) = Bay(x + 0, y + 1);
-	B(x + 0, y + 1) = ((DWORD) Bay(x - 1, y + 1) +(DWORD)Bay(x + 1, y + 1)) >> 1;
-	
-	R(x + 1, y + 0) = ((DWORD)Bay(x +0, y +0) + (DWORD)Bay(x + 2, y +0)) >> 1;
-	G(x + 1, y + 0) = Bay(x + 1, y + 0);
-	B(x + 1, y + 0) = ((DWORD)Bay(x + 1, y - 1) + (DWORD)Bay(x + 1, y + 1)) >> 1;
-
-	R(x + 1, y + 1) = ((DWORD)Bay(x + 0, y + 0) + (DWORD)Bay(x + 0, y + 2) +
-		(DWORD)Bay(x + 2, y + 0)+ (DWORD)Bay(x + 2, y + 2)) >> 2;
-	if(abs((DWORD)Bay(x + 1, y + 0) - (DWORD)Bay(x + 1, y + 2)) > 
-		abs((DWORD)Bay(x + 0, y + 1) - (DWORD)Bay(x + 2, y + 1))) 
-	{
-		G(x + 1, y + 1) = ((DWORD)Bay(x + 1, y + 0) + (DWORD)Bay(x + 1, y + 2)) >> 1;
-	} 
-	else 
-	{
-		G(x + 1, y + 1) = ((DWORD)Bay(x + 0, y + 1) + (DWORD)Bay(x + 2, y + 1)) >> 1;
-	}
-	//~ G(x + 1, y + 1) = ((DWORD)Bay(x + 1, y + 0) + (DWORD)Bay(x + 1, y + 2) +
-			   //~ (DWORD)Bay(x + 0, y + 1) + (DWORD)Bay(x + 2, y + 1)) >> 2;
-	B(x + 1, y + 1) = Bay(x + 1, y + 1);
 }
 
-static void bayer_copy_gb(BYTE *pBay, BYTE *pRGB24, int x, int y, int width)
+/* From libdc1394, which on turn was based on OpenCV's Bayer decoding */
+static void bayer_to_rgbbgr24(BYTE *bayer,
+	BYTE *bgr, int width, int height,
+	gboolean start_with_green, gboolean blue_line)
 {
+	/* render the first line */
+	convert_border_bayer_line_to_bgr24(bayer, bayer + width, bgr, width,
+		start_with_green, blue_line);
+	bgr += width * 3;
 
-	R(x + 1, y + 1) = R(x + 0, y + 0) = R(x + 0, y + 1) = R(x + 1, y + 0) = Bay(x + 0, y + 1);
-	G(x + 0, y + 0) = Bay(x + 0, y + 0);
-	G(x + 1, y + 1) = Bay(x + 1, y + 1);
-	G(x + 0, y + 1) = G(x + 1, y + 0) = ((DWORD)Bay(x + 0, y + 0) + (DWORD)Bay(x + 1, y + 1)) >> 1;
-	B(x + 0, y + 0) = B(x + 1, y + 0) = B(x + 1, y + 1) = B(x + 0, y + 1) = Bay(x + 1, y + 0);
-}
+	/* reduce height by 2 because of the special case top/bottom line */
+	for (height -= 2; height; height--) 
+	{
+		int t0, t1;
+		/* (width - 2) because of the border */
+		BYTE *bayerEnd = bayer + (width - 2);
 
-static void bayer_bilinear_gb(BYTE *pBay, BYTE *pRGB24, int x, int y, int width)
-{
-	B(x + 0, y + 0) = ((DWORD)Bay(x - 1, y + 0) + (DWORD)Bay(x + 1, y + 0)) >> 1;
-	G(x + 0, y + 0) = Bay(x + 0, y + 0);
-	R(x + 0, y + 0) = ((DWORD)Bay(x + 0, y + 1) + (DWORD)Bay(x + 0, y - 1)) >> 1;
-	
-	B(x + 0, y + 1) = ((DWORD)Bay(x + 1, y + 0) + (DWORD)Bay(x - 1, y + 0)
-		+ (DWORD)Bay(x + 1, y + 2) + (DWORD)Bay(x - 1, y + 2)) >> 2;
-	if (abs((DWORD)Bay(x + 0, y + 0) - (DWORD)Bay(x + 0, y + 2)) >
-		abs((DWORD)Bay(x - 1, y + 1) + (DWORD)Bay(x + 1, y + 1))) 
-	{
-		G(x + 0, y + 1) = ((DWORD)Bay(x + 0, y + 0) + (DWORD)Bay(x + 0, y + 2)) >> 1;
-	} 
-	else 
-	{
-		G(x + 0, y + 1) = ((DWORD)Bay(x - 1, y + 1) + (DWORD)Bay(x + 1, y + 1)) >> 1;
+		if (start_with_green) 
+		{
+			/* OpenCV has a bug in the next line, which was
+			t0 = (bayer[0] + bayer[width * 2] + 1) >> 1; */
+			t0 = (bayer[1] + bayer[width * 2 + 1] + 1) >> 1;
+			/* Write first pixel */
+			t1 = (bayer[0] + bayer[width * 2] + bayer[width + 1] + 1) / 3;
+			if (blue_line) 
+			{
+				*bgr++ = t0;
+				*bgr++ = t1;
+				*bgr++ = bayer[width];
+			} 
+			else 
+			{
+				*bgr++ = bayer[width];
+				*bgr++ = t1;
+				*bgr++ = t0;
+			}
+
+			/* Write second pixel */
+			t1 = (bayer[width] + bayer[width + 2] + 1) >> 1;
+			if (blue_line) 
+			{
+				*bgr++ = t0;
+				*bgr++ = bayer[width + 1];
+				*bgr++ = t1;
+			} 
+			else 
+			{
+				*bgr++ = t1;
+				*bgr++ = bayer[width + 1];
+				*bgr++ = t0;
+			}
+			bayer++;
+		} 
+		else 
+		{
+			/* Write first pixel */
+			t0 = (bayer[0] + bayer[width * 2] + 1) >> 1;
+			if (blue_line) 
+			{
+				*bgr++ = t0;
+				*bgr++ = bayer[width];
+				*bgr++ = bayer[width + 1];
+			} 
+			else 
+			{
+				*bgr++ = bayer[width + 1];
+				*bgr++ = bayer[width];
+				*bgr++ = t0;
+			}
+		}
+
+		if (blue_line) 
+		{
+			for (; bayer <= bayerEnd - 2; bayer += 2) 
+			{
+				t0 = (bayer[0] + bayer[2] + bayer[width * 2] +
+					bayer[width * 2 + 2] + 2) >> 2;
+				t1 = (bayer[1] + bayer[width] +
+					bayer[width + 2] + bayer[width * 2 + 1] +
+					2) >> 2;
+				*bgr++ = t0;
+				*bgr++ = t1;
+				*bgr++ = bayer[width + 1];
+
+				t0 = (bayer[2] + bayer[width * 2 + 2] + 1) >> 1;
+				t1 = (bayer[width + 1] + bayer[width + 3] +
+					1) >> 1;
+				*bgr++ = t0;
+				*bgr++ = bayer[width + 2];
+				*bgr++ = t1;
+			}
+		} 
+		else 
+		{
+			for (; bayer <= bayerEnd - 2; bayer += 2) 
+			{
+				t0 = (bayer[0] + bayer[2] + bayer[width * 2] +
+					bayer[width * 2 + 2] + 2) >> 2;
+				t1 = (bayer[1] + bayer[width] +
+					bayer[width + 2] + bayer[width * 2 + 1] +
+					2) >> 2;
+				*bgr++ = bayer[width + 1];
+				*bgr++ = t1;
+				*bgr++ = t0;
+
+				t0 = (bayer[2] + bayer[width * 2 + 2] + 1) >> 1;
+				t1 = (bayer[width + 1] + bayer[width + 3] +
+					1) >> 1;
+				*bgr++ = t1;
+				*bgr++ = bayer[width + 2];
+				*bgr++ = t0;
+			}
+		}
+
+		if (bayer < bayerEnd) 
+		{
+			/* write second to last pixel */
+			t0 = (bayer[0] + bayer[2] + bayer[width * 2] +
+				bayer[width * 2 + 2] + 2) >> 2;
+			t1 = (bayer[1] + bayer[width] +
+				bayer[width + 2] + bayer[width * 2 + 1] +
+				2) >> 2;
+			if (blue_line) 
+			{
+				*bgr++ = t0;
+				*bgr++ = t1;
+				*bgr++ = bayer[width + 1];
+			} 
+			else 
+			{
+				*bgr++ = bayer[width + 1];
+				*bgr++ = t1;
+				*bgr++ = t0;
+			}
+			/* write last pixel */
+			t0 = (bayer[2] + bayer[width * 2 + 2] + 1) >> 1;
+			if (blue_line) 
+			{
+				*bgr++ = t0;
+				*bgr++ = bayer[width + 2];
+				*bgr++ = bayer[width + 1];
+			} 
+			else 
+			{
+				*bgr++ = bayer[width + 1];
+				*bgr++ = bayer[width + 2];
+				*bgr++ = t0;
+			}
+			bayer++;
+		} 
+		else
+		{
+			/* write last pixel */
+			t0 = (bayer[0] + bayer[width * 2] + 1) >> 1;
+			t1 = (bayer[1] + bayer[width * 2 + 1] + bayer[width] + 1) / 3;
+			if (blue_line) 
+			{
+				*bgr++ = t0;
+				*bgr++ = t1;
+				*bgr++ = bayer[width + 1];
+			} 
+			else 
+			{
+				*bgr++ = bayer[width + 1];
+				*bgr++ = t1;
+				*bgr++ = t0;
+			}
+		}
+
+		/* skip 2 border pixels */
+		bayer += 2;
+
+		blue_line = !blue_line;
+		start_with_green = !start_with_green;
 	}
-	//~ G(x + 0, y + 1) = ((DWORD)Bay(x + 0, y + 0) + (DWORD)Bay(x + 0, y + 2)
-		//~ + (DWORD)Bay(x - 1, y + 1) + (DWORD)Bay(x + 1, y + 1)) >> 2;
-	R(x + 0, y + 1) = Bay(x + 0, y + 1);
-	
-	B(x + 1, y + 0) = Bay(x + 1, y + 0);
-	if (abs((DWORD)Bay(x + 0, y + 0) - (DWORD)Bay(x + 2, y + 0)) >
-		abs((DWORD)Bay(x + 1, y - 1) + (DWORD)Bay(x + 1, y + 1))) 
-	{
-		G(x + 1, y + 0) = ((DWORD)Bay(x + 0, y + 0) + (DWORD)Bay(x + 2, y + 0)) >> 1;
-	}
-	else 
-	{
-		G(x + 1, y + 0) = ((DWORD)Bay(x + 1, y - 1) + (DWORD)Bay(x + 1, y + 1)) >> 1;
-	}
-	//~ G(x + 1, y + 0) = ((DWORD)Bay(x + 0, y + 0) + (DWORD)Bay(x + 2, y + 0)
-			 //~ + (DWORD)Bay(x + 1, y - 1) + (DWORD)Bay(x + 1, y + 1)) >> 2;
-	R(x + 1, y + 0) = ((DWORD)Bay(x + 0, y + 1) + (DWORD)Bay(x + 2, y + 1)
-		+ (DWORD)Bay(x + 0, y - 1) + (DWORD)Bay(x + 2, y - 1)) >> 2;
 
-	B(x + 1, y + 1) = ((DWORD)Bay(x + 1, y + 0) + (DWORD)Bay(x + 1, y + 2)) >> 1;
-	G(x + 1, y + 1) = Bay(x + 1, y + 1);
-	R(x + 1, y + 1) = ((DWORD)Bay(x + 0, y + 1) + (DWORD)Bay(x + 2, y + 1)) >> 1;
-}
-
-static void bayer_copy_gr(BYTE *pBay, BYTE *pRGB24, int x, int y, int width)
-{
-
-	R(x + 1, y + 1) = B(x + 0, y + 0) = B(x + 0, y + 1) = B(x + 1, y + 0) = Bay(x + 1, y + 0);
-	G(x + 0, y + 0) = Bay(x + 0, y + 0);
-	G(x + 1, y + 1) = Bay(x + 1, y + 1);
-	G(x + 0, y + 1) = G(x + 1, y + 0) = ((DWORD)Bay(x + 0, y + 0) + (DWORD)Bay(x + 1, y + 1)) >> 1;
-	B(x + 0, y + 0) = R(x + 1, y + 0) = R(x + 1, y + 1) = R(x + 0, y + 1) = Bay(x + 0, y + 1);
-}
-
-static void bayer_bilinear_gr(BYTE *pBay, BYTE *pRGB24, int x, int y, int width)
-{
-	R(x + 0, y + 0) = ((DWORD)Bay(x - 1, y + 0) + (DWORD)Bay(x + 1, y + 0)) >> 1;
-	G(x + 0, y + 0) = Bay(x + 0, y + 0);
-	B(x + 0, y + 0) = ((DWORD)Bay(x + 0, y + 1) + (DWORD)Bay(x + 0, y - 1)) >> 1;
-	
-	R(x + 0, y + 1) = ((DWORD)Bay(x + 1, y + 0) + (DWORD)Bay(x - 1, y + 0)
-		+ (DWORD)Bay(x + 1, y + 2) + (DWORD)Bay(x - 1, y + 2)) >> 2;
-	
-	if (abs((DWORD)Bay(x + 0, y + 0) - (DWORD)Bay(x + 0, y + 2)) >
-		abs((DWORD)Bay(x - 1, y + 1) + (DWORD)Bay(x + 1, y + 1))) 
-	{
-		G(x + 0, y + 1) = ((DWORD)Bay(x + 0, y + 0) + (DWORD)Bay(x + 0, y + 2)) >> 1;
-	} 
-	else 
-	{
-		G(x + 0, y + 1) = ((DWORD)Bay(x - 1, y + 1) + (DWORD)Bay(x + 1, y + 1)) >> 1;
-	}
-	//~ G(x + 0, y + 1) = ((DWORD)Bay(x + 0, y + 0) + (DWORD)Bay(x + 0, y + 2)
-			 //~ + (DWORD)Bay(x - 1, y + 1) + (DWORD)Bay(x + 1, y + 1)) >> 2;
-	B(x + 0, y + 1) = Bay(x + 0, y + 1);
-	
-	R(x + 1, y + 0) = Bay(x + 1, y + 0);
-
-	if (abs((DWORD)Bay(x + 0, y + 0) - (DWORD)Bay(x + 2, y + 0)) >
-		abs((DWORD)Bay(x + 1, y - 1) + (DWORD)Bay(x + 1, y + 1))) 
-	{
-		G(x + 1, y + 0) = ((DWORD)Bay(x + 0, y + 0) + (DWORD)Bay(x + 2, y + 0)) >> 1;
-	} 
-	else 
-	{
-		G(x + 1, y + 0) = ((DWORD)Bay(x + 1, y - 1) + (DWORD)Bay(x + 1, y + 1)) >> 1;
-	}
-	//~ G(x + 1, y + 0) = ((DWORD)Bay(x + 0, y + 0) + (DWORD)Bay(x + 2, y + 0)
-			 //~ + (DWORD)Bay(x + 1, y - 1) + (DWORD)Bay(x + 1, y + 1)) >> 2;
-	B(x + 1, y + 0) = ((DWORD)Bay(x + 0, y + 1) + (DWORD)Bay(x + 2, y + 1)
-		+ (DWORD)Bay(x + 0, y - 1) + (DWORD)Bay(x + 2, y - 1)) >> 2;
-
-	R(x + 1, y + 1) = ((DWORD)Bay(x + 1, y + 0) + (DWORD)Bay(x + 1, y + 2)) >> 1;
-	G(x + 1, y + 1) = Bay(x + 1, y + 1);
-	B(x + 1, y + 1) = ((DWORD)Bay(x + 0, y + 1) + (DWORD)Bay(x + 2, y + 1)) >> 1;
+	/* render the last line */
+	convert_border_bayer_line_to_bgr24(bayer + width, bayer, bgr, width,
+		!start_with_green, !blue_line);
 }
 
 /*convert bayer raw data to rgb24
@@ -588,70 +709,28 @@ void
 bayer_to_rgb24(BYTE *pBay, BYTE *pRGB24, int width, int height, int pix_order)
 {
 	int i, j;
+	
 	switch (pix_order) 
 	{
-		case 0: /* gbgbgb... | rgrgrg... */
-			for (i = 0; i < width; i += 2) 
-			{
-				for (j = 0; j < height; j += 2) 
-				{
-					if (i == 0 || j == 0 || i == (width - 2) || j == (height - 2))
-						bayer_copy_gb(pBay, pRGB24, i, j, width);
-					else
-						bayer_bilinear_gb(pBay, pRGB24, i, j, width);
-				}
-			}
+		//conversion functions are build for bgr, by switching b and r lines we get rgb
+		case 0: /* gbgbgb... | rgrgrg... (V4L2_PIX_FMT_SGBRG8)*/
+			bayer_to_rgbbgr24(pBay, pRGB24, width, height, TRUE, FALSE);
 			break;
 		
-		case 1: /* grgrgr... | bgbgbg... */
-			for (i = 0; i < width; i += 2) 
-			{
-				for (j = 0; j < height; j += 2) 
-				{
-					if (i == 0 || j == 0 || i == (width - 2) || j == (height - 2))
-						bayer_copy_gr(pBay, pRGB24, i, j, width);
-					else
-						bayer_bilinear_gr(pBay, pRGB24, i, j, width);
-				}
-			}
+		case 1: /* grgrgr... | bgbgbg... (V4L2_PIX_FMT_SGRBG8)*/
+			bayer_to_rgbbgr24(pBay, pRGB24, width, height, TRUE, TRUE);
 			break;
 		
-		case 2: /* bgbgbg... | grgrgr */
-			for (i = 0; i < width; i += 2) 
-			{
-				for (j = 0; j < height; j += 2) 
-				{
-					if (i == 0 || j == 0 || i == (width - 2) || j == (height - 2))
-						bayer_copy_bg(pBay, pRGB24, i, j, width);
-					else
-						bayer_bilinear_bg(pBay, pRGB24, i, j, width);
-				}
-			}
+		case 2: /* bgbgbg... | grgrgr... (V4L2_PIX_FMT_SBGGR8)*/
+			bayer_to_rgbbgr24(pBay, pRGB24, width, height, FALSE, FALSE);
 			break;
 		
-		case 3: /* rgrgrg... ! gbgbgb... */
-			for (i = 0; i < width; i += 2) 
-			{
-				for (j = 0; j < height; j += 2) 
-				{
-					if (i == 0 || j == 0 || i == (width - 2) || j == (height - 2))
-						bayer_copy_rg(pBay, pRGB24, i, j, width);
-					else
-						bayer_bilinear_rg(pBay, pRGB24, i, j, width);
-				}
-			}
+		case 3: /* rgrgrg... ! gbgbgb... (V4L2_PIX_FMT_SRGGB8)*/
+			bayer_to_rgbbgr24(pBay, pRGB24, width, height, FALSE, TRUE);
 			break;
-		default: /* default is gb*/
-			for (i = 0; i < width; i += 2) 
-			{
-				for (j = 0; j < height; j += 2) 
-				{
-					if (i == 0 || j == 0 || i == width - 2 || j == height - 2)
-						bayer_copy_gb(pBay, pRGB24, i, j, width);
-					else
-						bayer_bilinear_gb(pBay, pRGB24, i, j, width);
-				}
-			}
+			
+		default: /* default is 0*/
+			bayer_to_rgbbgr24(pBay, pRGB24, width, height, TRUE, FALSE);
 			break;
 	}
 }
