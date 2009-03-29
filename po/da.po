@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: guvcview\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-03-29 10:36+0100\n"
+"POT-Creation-Date: 2009-03-29 22:10+0100\n"
 "PO-Revision-Date: 2009-01-01 16:27+0000\n"
 "Last-Translator: nanker <Unknown>\n"
 "Language-Team: Danish <da@li.org>\n"
@@ -439,22 +439,18 @@ msgid "YUY2 - uncomp YUV"
 msgstr "YUY2 - ukomprimeret YUV"
 
 #: src/vcodecs.c:42
-msgid "UYVY - uncomp YUV"
-msgstr "UYVY - ukomprimeret YUV"
-
-#: src/vcodecs.c:47
 msgid "RGB - uncomp BMP"
 msgstr "RGB - ukomprimeret BMP"
 
-#: src/vcodecs.c:52
+#: src/vcodecs.c:47
 msgid "MPEG video 1"
 msgstr ""
 
-#: src/vcodecs.c:57
+#: src/vcodecs.c:52
 msgid "FLV1 - flash video 1"
 msgstr ""
 
-#: src/vcodecs.c:62
+#: src/vcodecs.c:57
 msgid "WMV1 - win. med. video 7"
 msgstr ""
 
@@ -614,3 +610,6 @@ msgstr ""
 #: src/callbacks.c:1174
 msgid "Load File"
 msgstr "Indlæs fil"
+
+#~ msgid "UYVY - uncomp YUV"
+#~ msgstr "UYVY - ukomprimeret YUV"

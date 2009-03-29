@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: pt_PT\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-03-29 10:36+0100\n"
+"POT-Creation-Date: 2009-03-29 22:10+0100\n"
 "PO-Revision-Date: 2009-03-23 20:35+0100\n"
 "Last-Translator: Paulo Assis <pj.assis@gmail.com>\n"
 "Language-Team: Portuguese\n"
@@ -434,22 +434,18 @@ msgid "YUY2 - uncomp YUV"
 msgstr "YUY2 - s/comp YUV"
 
 #: src/vcodecs.c:42
-msgid "UYVY - uncomp YUV"
-msgstr "UYVY - s/comp YUV"
-
-#: src/vcodecs.c:47
 msgid "RGB - uncomp BMP"
 msgstr "RGB - s/comp BMP"
 
-#: src/vcodecs.c:52
+#: src/vcodecs.c:47
 msgid "MPEG video 1"
 msgstr ""
 
-#: src/vcodecs.c:57
+#: src/vcodecs.c:52
 msgid "FLV1 - flash video 1"
 msgstr ""
 
-#: src/vcodecs.c:62
+#: src/vcodecs.c:57
 msgid "WMV1 - win. med. video 7"
 msgstr ""
 
@@ -612,6 +608,9 @@ msgstr ""
 #: src/callbacks.c:1174
 msgid "Load File"
 msgstr "Abrir Ficheiro"
+
+#~ msgid "UYVY - uncomp YUV"
+#~ msgstr "UYVY - s/comp YUV"
 
 #~ msgid "MPEG"
 #~ msgstr "MPEG"

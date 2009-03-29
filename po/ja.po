@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GUVCView 1.0.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-03-29 10:36+0100\n"
+"POT-Creation-Date: 2009-03-29 22:10+0100\n"
 "PO-Revision-Date: 2009-03-23 20:47+0100\n"
 "Last-Translator: Paulo Assis <pj.assis@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -435,22 +435,18 @@ msgid "YUY2 - uncomp YUV"
 msgstr "YUY2 - 非圧縮 YUV"
 
 #: src/vcodecs.c:42
-msgid "UYVY - uncomp YUV"
-msgstr "UYVY - 非圧縮 YUV"
-
-#: src/vcodecs.c:47
 msgid "RGB - uncomp BMP"
 msgstr "RGB - 非圧縮 BMP"
 
-#: src/vcodecs.c:52
+#: src/vcodecs.c:47
 msgid "MPEG video 1"
 msgstr ""
 
-#: src/vcodecs.c:57
+#: src/vcodecs.c:52
 msgid "FLV1 - flash video 1"
 msgstr ""
 
-#: src/vcodecs.c:62
+#: src/vcodecs.c:57
 msgid "WMV1 - win. med. video 7"
 msgstr ""
 
@@ -614,3 +610,6 @@ msgstr ""
 #: src/callbacks.c:1174
 msgid "Load File"
 msgstr "ファイルを読込む"
+
+#~ msgid "UYVY - uncomp YUV"
+#~ msgstr "UYVY - 非圧縮 YUV"
