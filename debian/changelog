@@ -3,8 +3,10 @@ guvcview (1.0.4-ubuntu1) intrepid; urgency=low
    * Added WMV1 encoding to avi capture 
    * fixed libavcodec configuration
    * changed support for uyvy (now we convert it to yuyv and use only one render format)
+   * changed raw bayer conversion funtions
+   * added full bayer support ( all bayer pixel formats)
    
- -- Paulo Assis <pj.assis@gmail.com>  Sun, 29 Mar 2009 22:01:00 +0000
+ -- Paulo Assis <pj.assis@gmail.com>  Sun, 29 Mar 2009 22:32:00 +0000
 
 guvcview (1.0.2-ubuntu1) intrepid; urgency=low
 
