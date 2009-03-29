@@ -34,7 +34,7 @@ AC_DEFINE(HAS_FFMPEG_AVCODEC_H,1,[Define if avcodec.h installed to ffmpeg dir])
 fi
 
 dnl Check new install dir for avcodec.h
-AC_CHECK_HEADER([libavcodec/avcodec.h], [$has_libavcodec_dir="yes"])
+AC_CHECK_HEADER([libavcodec/avcodec.h], [has_libavcodec_dir="yes"])
 
 if test "$has_libavcodec_dir" = yes; then
 AC_DEFINE(HAS_LIBAVCODEC_AVCODEC_H,1,[Define if avcodec.h installed to libavcodec dir])

@@ -7691,7 +7691,7 @@ echo "${ECHO_T}$ac_cv_header_libavcodec_avcodec_h" >&6; }
 
 fi
 if test $ac_cv_header_libavcodec_avcodec_h = yes; then
-  $has_libavcodec_dir="yes"
+  has_libavcodec_dir="yes"
 fi
 
 
