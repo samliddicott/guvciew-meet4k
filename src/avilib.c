@@ -581,7 +581,7 @@ int AVI_open_output_file(struct avi_t *AVI, const char * filename)
 	return 0;
 }
 
-void AVI_set_video(struct avi_t *AVI, int width, int height, double fps, char *compressor)
+void AVI_set_video(struct avi_t *AVI, int width, int height, double fps, const char *compressor)
 {
 	/* may only be called if file is open for writing */
 

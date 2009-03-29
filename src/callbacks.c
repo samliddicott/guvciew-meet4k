@@ -41,7 +41,7 @@
 #include "close.h"
 #include "timers.h"
 #include "callbacks.h"
-
+#include "vcodecs.h"
 /*---------------------------- error message dialog-----------------------------*/
 void 
 ERR_DIALOG(const char *err_title, const char* err_msg, struct ALL_DATA *all_data)
@@ -1039,29 +1039,7 @@ capture_avi (GtkToggleButton *AVIButt, struct ALL_DATA *all_data)
 	}
 	
 	
-	char *compression="MJPG";
-
-	switch (global->AVIFormat) 
-	{
-		case 0:
-			compression="MJPG";
-			break;
-		case 1:
-			if(videoIn->formatIn == V4L2_PIX_FMT_UYVY) compression="UYVY";
-			else compression="YUY2"; /*for YUYV and YU12(YUV420) */
-			break;
-		case 2:
-			compression="DIB ";
-			break;
-		case 3:
-			compression="MPEG";
-			break;
-		case 4:
-			compression="FLV1";
-			break;
-		default:
-			compression="MJPG";
-	}
+	const char *compression= get_vid4cc(global->AVIFormat, videoIn->formatIn);
 	
 	gboolean state = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(gwidget->CapAVIButt));
 	if(global->debug) g_printf("Cap AVI toggled: %d\n", state);

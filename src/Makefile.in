@@ -55,8 +55,8 @@ am_guvcview_OBJECTS = audio_effects.$(OBJEXT) audio_tab.$(OBJEXT) \
 	string_utils.$(OBJEXT) timers.$(OBJEXT) utils.$(OBJEXT) \
 	v4l2_controls.$(OBJEXT) v4l2_devices.$(OBJEXT) \
 	v4l2_dyna_ctrls.$(OBJEXT) v4l2_formats.$(OBJEXT) \
-	v4l2uvc.$(OBJEXT) video.$(OBJEXT) video_filters.$(OBJEXT) \
-	video_tab.$(OBJEXT)
+	v4l2uvc.$(OBJEXT) vcodecs.$(OBJEXT) video.$(OBJEXT) \
+	video_filters.$(OBJEXT) video_tab.$(OBJEXT) wmv.$(OBJEXT)
 guvcview_OBJECTS = $(am_guvcview_OBJECTS)
 am__DEPENDENCIES_1 =
 guvcview_DEPENDENCIES = $(am__DEPENDENCIES_1)
@@ -258,12 +258,16 @@ guvcview_SOURCES = \
 	v4l2_formats.c \
 	v4l2uvc.h \
 	v4l2uvc.c \
+	vcodecs.h \
+	vcodecs.c \
 	video.h \
 	video.c \
 	video_filters.h \
 	video_filters.c \
 	video_tab.h \
-	video_tab.c
+	video_tab.c \
+	wmv.h \
+	wmv.c
 
 guvcview_LDFLAGS = $(LIBINTL)
 guvcview_LDADD = $(PACKAGE_LIBS)
@@ -367,9 +371,11 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/v4l2_dyna_ctrls.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/v4l2_formats.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/v4l2uvc.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcodecs.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/video.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/video_filters.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/video_tab.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wmv.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<

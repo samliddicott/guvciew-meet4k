@@ -29,6 +29,7 @@
 #include "callbacks.h"
 #include "v4l2uvc.h"
 #include "string_utils.h"
+#include "vcodecs.h"
 
 /*--------------------------- file chooser dialog ----------------------------*/
 static void
@@ -460,15 +461,9 @@ void video_tab(struct ALL_DATA *all_data)
 	line++;
 	gwidget->AVIComp = gtk_combo_box_new_text ();
 	
-	gtk_combo_box_append_text(GTK_COMBO_BOX(gwidget->AVIComp),_("MJPG - compressed"));
-	if(videoIn->formatIn == V4L2_PIX_FMT_UYVY)
-		gtk_combo_box_append_text(GTK_COMBO_BOX(gwidget->AVIComp),_("UYVY - uncomp YUV"));
-	else
-		gtk_combo_box_append_text(GTK_COMBO_BOX(gwidget->AVIComp),_("YUY2 - uncomp YUV"));
-	
-	gtk_combo_box_append_text(GTK_COMBO_BOX(gwidget->AVIComp),_("RGB - uncomp BMP"));
-	gtk_combo_box_append_text(GTK_COMBO_BOX(gwidget->AVIComp),_("MPEG"));
-	gtk_combo_box_append_text(GTK_COMBO_BOX(gwidget->AVIComp),_("FLV1"));
+	int vcodec_ind =0;
+	for (vcodec_ind =0; vcodec_ind<MAX_VCODECS; vcodec_ind++)
+		gtk_combo_box_append_text(GTK_COMBO_BOX(gwidget->AVIComp),gettext(get_desc4cc(vcodec_ind, videoIn->formatIn)));
 	
 	gtk_table_attach(GTK_TABLE(table2), gwidget->AVIComp, 1, 2, line, line+1,
 		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);

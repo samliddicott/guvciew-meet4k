@@ -81,12 +81,16 @@ guvcview_SOURCES = \
 	v4l2_formats.c \
 	v4l2uvc.h \
 	v4l2uvc.c \
+	vcodecs.h \
+	vcodecs.c \
 	video.h \
 	video.c \
 	video_filters.h \
 	video_filters.c \
 	video_tab.h \
-	video_tab.c
+	video_tab.c \
+	wmv.h \
+	wmv.c
 
 guvcview_LDFLAGS = $(LIBINTL)
 

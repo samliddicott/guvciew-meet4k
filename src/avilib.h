@@ -294,7 +294,7 @@ struct avi_t
 #define MS_FORMAT_WMA9_PRO		(0x0162)
 
 int AVI_open_output_file(struct avi_t *AVI, const char * filename);
-void AVI_set_video(struct avi_t *AVI, int width, int height, double fps, char *compressor);
+void AVI_set_video(struct avi_t *AVI, int width, int height, double fps, const char *compressor);
 void AVI_set_audio(struct avi_t *AVI, int channels, long rate, int mpgrate, int bits, int format);
 int  AVI_write_frame(struct avi_t *AVI, BYTE *data, long bytes, int keyframe);
 int  AVI_dup_frame(struct avi_t *AVI);

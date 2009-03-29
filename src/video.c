@@ -42,6 +42,8 @@
 #include "mp2.h"
 #include "mpeg.h"
 #include "flv.h"
+#include "wmv.h"
+#include "vcodecs.h"
 #include "callbacks.h"
 
 /*-------------------------------- Main Video Loop ---------------------------*/ 
@@ -435,7 +437,7 @@ void *main_loop(void *data)
 			int ret=0;
 			switch (global->AVIFormat) 
 			{
-				case 0: /*MJPG*/
+				case CODEC_MJPEG: /*MJPG*/
 					/* save MJPG frame */   
 					if((global->Frame_Flags==0) && (videoIn->formatIn==V4L2_PIX_FMT_MJPEG)) 
 					{
@@ -469,12 +471,12 @@ void *main_loop(void *data)
 					}
 					break;
 					
-				case 1:
+				case CODEC_YUV:
 					framesize=(pscreen->w)*(pscreen->h)*2; /*YUY2/UYVY -> 2 bytes per pixel */
 					ret = AVI_write_frame (AviOut, p, framesize, keyframe);
 					break;
 					
-				case 2:
+				case CODEC_DIB:
 					framesize=(pscreen->w)*(pscreen->h)*3; /*DIB 24/32 -> 3/4 bytes per pixel*/ 
 					if(pavi==NULL)
 					{
@@ -491,10 +493,10 @@ void *main_loop(void *data)
 					ret = AVI_write_frame (AviOut,pavi, framesize, keyframe);
 					break;
 				
-				case 3:
+				case CODEC_MPEG:
 					if(!lavc_data) 
 					{
-						lavc_data = init_mpeg(videoIn->width, videoIn->height, global->fps);
+						lavc_data = init_mpeg(videoIn->width, videoIn->height, videoIn->fps);
 					}
 					if(lavc_data)
 					{
@@ -506,10 +508,25 @@ void *main_loop(void *data)
 					}
 					break;
 					
-				case 4:
+				case CODEC_FLV1:
 					if(!lavc_data) 
 					{
-						lavc_data = init_flv(videoIn->width, videoIn->height, global->fps);
+						lavc_data = init_flv(videoIn->width, videoIn->height, videoIn->fps);
+					}
+					if(lavc_data)
+					{
+						if (global->format != V4L2_PIX_FMT_UYVY)
+							framesize= encode_lavc_frame (videoIn->framebuffer, lavc_data, 0);
+						else
+							framesize= encode_lavc_frame (videoIn->framebuffer, lavc_data, 1);
+						ret = AVI_write_frame (AviOut, lavc_data->outbuf, framesize, keyframe);
+					}
+					break;
+				
+				case CODEC_WMV2:
+					if(!lavc_data) 
+					{
+						lavc_data = init_wmv(videoIn->width, videoIn->height, videoIn->fps);
 					}
 					if(lavc_data)
 					{

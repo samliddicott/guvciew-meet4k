@@ -42,6 +42,7 @@
 #include "string_utils.h"
 #include "options.h"
 #include "video.h"
+#include "vcodecs.h"
 #include "mp2.h"
 #include "profile.h"
 #include "callbacks.h"
@@ -522,38 +523,12 @@ int main(int argc, char *argv[])
 			}
 			else 
 			{
-				/*4CC compression "YUY2"/"UYVY" (YUV) or "DIB " (RGB24)  or  "MJPG"*/
-				char *compression = NULL;
+				/*4CC compression */
+				const char *compression= get_vid4cc(global->AVIFormat, videoIn->formatIn);
 
-				switch (global->AVIFormat) 
-				{
-					case 0:
-						compression = g_strdup("MJPG");
-						break;
-					
-					case 1:
-						if(videoIn->formatIn == V4L2_PIX_FMT_UYVY) compression = g_strdup("UYVY");
-						else compression = g_strdup("YUY2");
-						break;
-					
-					case 2:
-						compression = g_strdup("DIB ");
-						break;
-					
-					case 3:
-						compression = g_strdup("MPEG");
-						break;
-						
-					case 4:
-						compression = g_strdup("FLV1");
-						break;
-					
-					default:
-						compression = g_strdup("MJPG");
-				}
 				AVI_set_video(AviOut, videoIn->width, videoIn->height, videoIn->fps,compression);
 				/* audio will be set in aviClose - if enabled*/
-				g_free(compression);
+				//g_free(compression);
 				/*disabling sound and avi compression controls*/
 				set_sensitive_avi_contrls (FALSE, global->Sound_enable, gwidget);
 
