@@ -54,35 +54,6 @@ yuyv_mirror (BYTE *frame, int width, int height)
 	}
 }
 
-/* Flip UYVY frame - horizontal
- * args:
- *      frame = pointer to frame buffer (uyvy format)
- *      width = frame width
- *      height= frame height
- * returns: void
- */
-void 
-uyvy_mirror (BYTE *frame, int width, int height)
-{
-	int h=0;
-	int w=0;
-	int sizeline = width*2; /* 2 bytes per pixel*/ 
-	BYTE *pframe;
-	pframe=frame;
-	BYTE line[sizeline-1];/*line buffer*/
-	for (h=0; h < height; h++) 
-	{	/*line iterator*/
-		for(w=sizeline-1; w > 0; w = w - 4) 
-		{	/* pixel iterator */
-			line[w-3]=*pframe++;
-			line[w]=*pframe++;
-			line[w-1]=*pframe++;
-			line[w-2]=*pframe++;
-		}
-		memcpy(frame+(h*sizeline), line, sizeline); /*copy reversed line to frame buffer*/           
-	}
-}
-
 /* Invert YUV frame
  * args:
  *      frame = pointer to frame buffer (yuyv or uyvy format)
@@ -145,25 +116,6 @@ yuyv_monochrome(BYTE* frame, int width, int height)
 	}
 }
 
-/* monochromatic effect for UYVY frame
- * args:
- *      frame = pointer to frame buffer (uyvy format)
- *      width = frame width
- *      height= frame height
- * returns: void
- */
-void
-uyvy_monochrome(BYTE* frame, int width, int height) 
-{
-	int size=width*height*2;
-	int i=0;
-
-	for(i=0; i < size; i = i + 4) 
-	{	/* keep Y - luma */
-		frame[i]=0x80;/*U - median (half the max value)=128*/
-		frame[i+2]=0x80;/*V - median (half the max value)=128*/        
-	}
-}
 
 /*break image in little square pieces
  * args:
@@ -174,7 +126,7 @@ uyvy_monochrome(BYTE* frame, int width, int height)
  *    format = v4l2 pixel format
  */
 void
-pieces(BYTE* frame, int width, int height, int piece_size, int format)
+pieces(BYTE* frame, int width, int height, int piece_size )
 {
 	int numx = width / piece_size;
 	int numy = height / piece_size;
@@ -208,10 +160,7 @@ pieces(BYTE* frame, int width, int height, int piece_size, int format)
 					break;
 				case 5:
 				case 1: //mirror
-					if (format == V4L2_PIX_FMT_UYVY)
-						uyvy_mirror(piece, piece_size, piece_size);
-					else
-						yuyv_mirror(piece, piece_size, piece_size);
+					yuyv_mirror(piece, piece_size, piece_size);
 					break;
 				case 6:
 				case 2: //upturn
@@ -220,10 +169,7 @@ pieces(BYTE* frame, int width, int height, int piece_size, int format)
 				case 4:
 				case 3://mirror upturn
 					yuyv_upturn(piece, piece_size, piece_size);
-					if (format == V4L2_PIX_FMT_UYVY)
-						uyvy_mirror(piece, piece_size, piece_size);
-					else
-						yuyv_mirror(piece, piece_size, piece_size);
+					yuyv_mirror(piece, piece_size, piece_size);
 					break;
 				default: //do nothing
 					break;

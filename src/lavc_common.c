@@ -22,7 +22,7 @@
 #include <glib.h>
 #include "lavc_common.h"
 
-static void yuv422to420p(BYTE* pic, struct lavcData* data, int isUYVY)
+static void yuv422to420p(BYTE* pic, struct lavcData* data )
 {
 	int i,j;
 	int width = data->codec_context->width;
@@ -38,40 +38,22 @@ static void yuv422to420p(BYTE* pic, struct lavcData* data, int isUYVY)
 	y1 = data->tmpbuf + width;
 	u = data->tmpbuf + size;
 	v = u + size/4;
-	if (!isUYVY) //YUYV
+	
+	for(j=0;j<(height-1);j+=2)
 	{
-		for(j=0;j<(height-1);j+=2)
+		for(i=0;i<(linesize-3);i+=4)
 		{
-			for(i=0;i<(linesize-3);i+=4)
-			{
-				*y++ = pic[i+j*linesize];
-				*y++ = pic[i+2+j*linesize];
-				*y1++ = pic[i+(j+1)*linesize];
-				*y1++ = pic[i+2+(j+1)*linesize];
-				*u++ = (pic[i+1+j*linesize] + pic[i+1+(j+1)*linesize])>>1; // div by 2
-				*v++ = (pic[i+3+j*linesize] + pic[i+3+(j+1)*linesize])>>1;
-			}
-			y += width;
-			y1 += width;//2 lines
+			*y++ = pic[i+1+j*linesize];
+			*y++ = pic[i+3+j*linesize];
+			*y1++ = pic[i+1+(j+1)*linesize];
+			*y1++ = pic[i+3+(j+1)*linesize];
+			*u++ = (pic[i+j*linesize] + pic[i+(j+1)*linesize])>>1;     // div by 2
+			*v++ = (pic[i+2+j*linesize] + pic[i+2+(j+1)*linesize])>>1; // div by 2
 		}
+		y += width;
+		y1 += width;//2 lines
 	}
-	else //UYVY
-	{
-		for(j=0;j<(height-1);j+=2)
-		{
-			for(i=0;i<(linesize-3);i+=4)
-			{
-				*y++ = pic[i+1+j*linesize];
-				*y++ = pic[i+3+j*linesize];
-				*y1++ = pic[i+1+(j+1)*linesize];
-				*y1++ = pic[i+3+(j+1)*linesize];
-				*u++ = (pic[i+j*linesize] + pic[i+(j+1)*linesize])>>1;     // div by 2
-				*v++ = (pic[i+2+j*linesize] + pic[i+2+(j+1)*linesize])>>1; // div by 2
-			}
-			y += width;
-			y1 += width;//2 lines
-		}
-	}
+	
 	data->picture->data[0] = data->tmpbuf;                    //Y
 	data->picture->data[1] = data->tmpbuf + size;             //U
 	data->picture->data[2] = data->picture->data[1] + size/4; //V
@@ -80,11 +62,11 @@ static void yuv422to420p(BYTE* pic, struct lavcData* data, int isUYVY)
 	data->picture->linesize[2] = data->codec_context->width / 2;
 }
 
-int encode_lavc_frame (BYTE *picture_buf, struct lavcData* data, int isUYVY)
+int encode_lavc_frame (BYTE *picture_buf, struct lavcData* data)
 {
 	int out_size = 0;
 	//convert to 4:2:0
-	yuv422to420p(picture_buf, data, isUYVY);
+	yuv422to420p(picture_buf, data );
 	/* encode the image */
 	out_size = avcodec_encode_video(data->codec_context, data->outbuf, data->outbuf_size, data->picture);
 	return (out_size);

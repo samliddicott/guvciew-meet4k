@@ -373,7 +373,7 @@ int init_videoIn(struct vdIn *vd, struct GLOBAL *global)
 			g_printerr("Init v4L2 failed !! \n");
 			goto error;
 		}
-		vd->framesizeIn = (vd->width * vd->height << 1);
+		vd->framesizeIn = (vd->width * vd->height << 1); //2 bytes per pixel
 		switch (vd->formatIn) 
 		{
 			case V4L2_PIX_FMT_JPEG:
@@ -386,6 +386,7 @@ int init_videoIn(struct vdIn *vd, struct GLOBAL *global)
 				vd->framebuffer = g_new0(unsigned char, framebuf_size); 
 				break;
 			
+			case V4L2_PIX_FMT_UYVY:
 			case V4L2_PIX_FMT_YVYU:
 			case V4L2_PIX_FMT_YYUV:
 			case V4L2_PIX_FMT_YUV420:
@@ -399,7 +400,6 @@ int init_videoIn(struct vdIn *vd, struct GLOBAL *global)
 				break;
 			
 			case V4L2_PIX_FMT_YUYV:
-			case V4L2_PIX_FMT_UYVY:
 				//  YUYV doesn't need a temp buffer but we will set it if/when
 				//  video processing disable control is checked (bayer processing).
 				//            (logitech cameras only) 
@@ -452,7 +452,8 @@ int init_videoIn(struct vdIn *vd, struct GLOBAL *global)
 				case V4L2_PIX_FMT_YUV420: // converted to YUYV
 				case V4L2_PIX_FMT_YVU420: // converted to YUYV
 				case V4L2_PIX_FMT_YYUV:   // converted to YUYV
-				case V4L2_PIX_FMT_YVYU:   //converted to YUYV
+				case V4L2_PIX_FMT_YVYU:   // converted to YUYV
+				case V4L2_PIX_FMT_UYVY:   // converted to YUYV
 				case V4L2_PIX_FMT_YUYV:
 					for (i=0; i<(framebuf_size-4); i+=4)
 					{
@@ -461,21 +462,13 @@ int init_videoIn(struct vdIn *vd, struct GLOBAL *global)
 						vd->framebuffer[i+2]=0x00;//Y
 						vd->framebuffer[i+3]=0x80;//V
 					}
-				break;
-				case V4L2_PIX_FMT_UYVY:
-					for (i=0; i<(framebuf_size-4); i+=4)
-					{
-						vd->framebuffer[i]=0x80;  //U
-						vd->framebuffer[i+1]=0x00;//Y
-						vd->framebuffer[i+2]=0x80;//V
-						vd->framebuffer[i+3]=0x00;//Y
-					}
 					break;
+					
 				default:
 					g_printerr("(v4l2uvc.c) should never arrive (2)- exit fatal !!\n");
 					ret = VDIN_UNKNOWN_ERR;
 					goto error;
-				break;
+					break;
 		}	
 		}
 	}
@@ -615,6 +608,11 @@ int uvcGrab(struct vdIn *vd)
 			}
 			break;
 		
+		case V4L2_PIX_FMT_UYVY:
+			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
+			uyvy_to_yuyv(vd->framebuffer, vd->tmpbuffer, vd->width, vd->height);
+			break;
+			
 		case V4L2_PIX_FMT_YVYU:
 			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
 			yvyu_to_yuyv(vd->framebuffer, vd->tmpbuffer, vd->width, vd->height);
@@ -650,7 +648,6 @@ int uvcGrab(struct vdIn *vd)
 			break;
 		
 		case V4L2_PIX_FMT_YUYV:
-		case V4L2_PIX_FMT_UYVY:
 			if(vd->isbayer>0) 
 			{
 				if (!(vd->tmpbuffer)) 
@@ -660,7 +657,7 @@ int uvcGrab(struct vdIn *vd)
 						vd->width * vd->height * 3);
 				}
 				bayer_to_rgb24 (vd->mem[vd->buf.index],vd->tmpbuffer,vd->width,vd->height, vd->pix_order);
-				// raw bayer is only available in logitech cameras so no uyvy mode, only yuyv
+				// raw bayer is only available in logitech cameras in yuyv mode
 				rgb2yuyv (vd->tmpbuffer,vd->framebuffer,vd->width,vd->height);
 			} 
 			else 

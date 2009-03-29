@@ -53,6 +53,15 @@ int yvu420_to_yuyv (BYTE *framebuffer, BYTE *tmpbuffer, int width, int height);
 void 
 yyuv_to_yuyv (BYTE *framebuffer, BYTE *tmpbuffer, int width, int height);
 
+/*convert uyvy (packed) to yuyv (packed)
+* args: 
+*      framebuffer: pointer to frame buffer (yuyv)
+*      tmpbuffer: pointer to temp buffer containing uyvy packed data frame
+*      width: picture width
+*      height: picture height
+*/
+void uyvy_to_yuyv (BYTE *framebuffer, BYTE *tmpbuffer, int width, int height);
+
 /*convert yvyu (packed) to yuyv (packed)
 * args: 
 *      framebuffer: pointer to frame buffer (yuyv)
@@ -72,15 +81,6 @@ void yvyu_to_yuyv (BYTE *framebuffer, BYTE *tmpbuffer, int width, int height);
 void 
 yuyv2rgb (BYTE *pyuv, BYTE *prgb, int width, int height);
 
-/*convert uyvy to rgb24
-* args: 
-*      pyuv: pointer to buffer containing yuv data (uyvy)
-*      prgb: pointer to buffer containing rgb24 data
-*      width: picture width
-*      height: picture height
-*/
-void 
-uyvy2rgb (BYTE *pyuv, BYTE *prgb, int width, int height);
 
 /*convert yuyv to bgr with lines upsidedown
 * used for bitmap files (DIB24)
@@ -93,16 +93,6 @@ uyvy2rgb (BYTE *pyuv, BYTE *prgb, int width, int height);
 void 
 yuyv2bgr (BYTE *pyuv, BYTE *pbgr, int width, int height);
 
-/*convert uyvy to bgr with lines upsidedown
-* used for bitmap files (DIB24)
-* args: 
-*      pyuv: pointer to buffer containing yuv data (uyvy)
-*      prgb: pointer to buffer containing rgb24 data
-*      width: picture width
-*      height: picture height
-*/
-void 
-uyvy2bgr (BYTE *pyuv, BYTE *pbgr, int width, int height);
 
 /*convert bayer raw data to rgb24
 * args: 

@@ -56,37 +56,6 @@ yuyv2rgb (BYTE *pyuv, BYTE *prgb, int width, int height)
 	
 }
 
-
-/* regular yuv (UYVY) to rgb24*/
-void 
-uyvy2rgb (BYTE *pyuv, BYTE *prgb, int width, int height)
-{
-	int l=0;
-	int SizeYUV=height * width * 2; /* 2 bytes per pixel*/
-	for(l=0;l<SizeYUV;l=l+4) 
-	{	/*iterate every 4 bytes*/
-		/* standart: r = y0 + 1.402 (v-128) */
-		/* logitech: r = y0 + 1.370705 (v-128) */
-		*prgb++=CLIP(pyuv[l+1] + 1.402 * (pyuv[l+2]-128));
-		/* standart: g = y0 - 0.34414 (u-128) - 0.71414 (v-128)*/
-		/* logitech: g = y0 - 0.337633 (u-128)- 0.698001 (v-128)*/
-		*prgb++=CLIP(pyuv[l+1] - 0.34414 * (pyuv[l]-128) -0.71414*(pyuv[l+2]-128));
-		/* standart: b = y0 + 1.772 (u-128) */
-		/* logitech: b = y0 + 1.732446 (u-128) */
-		*prgb++=CLIP(pyuv[l+1] + 1.772 *( pyuv[l]-128));
-		/* standart: r1 =y1 + 1.402 (v-128) */
-		/* logitech: r1 = y1 + 1.370705 (v-128) */
-		*prgb++=CLIP(pyuv[l+3] + 1.402 * (pyuv[l+2]-128));
-		/* standart: g1 = y1 - 0.34414 (u-128) - 0.71414 (v-128)*/
-		/* logitech: g1 = y1 - 0.337633 (u-128)- 0.698001 (v-128)*/
-		*prgb++=CLIP(pyuv[l+3] - 0.34414 * (pyuv[l]-128) -0.71414 * (pyuv[l+2]-128));
-		/* standart: b1 = y1 + 1.772 (u-128) */
-		/* logitech: b1 = y1 + 1.732446 (u-128) */
-		*prgb++=CLIP(pyuv[l+3] + 1.772*(pyuv[l]-128));
-	}
-	
-}
-
 /* yuv (YUYV) to bgr with lines upsidedown */
 /* used for bitmap files (DIB24)           */
 void 
@@ -132,50 +101,6 @@ yuyv2bgr (BYTE *pyuv, BYTE *pbgr, int width, int height)
 	preverse=NULL;
 }
 
-/* yuv (UYVY) to bgr with lines upsidedown */
-/* used for bitmap files (DIB24)           */
-void 
-uyvy2bgr (BYTE *pyuv, BYTE *pbgr, int width, int height)
-{
-	int l=0;
-	int k=0;
-	BYTE *preverse;
-	int bytesUsed;
-	int SizeBGR=height * width * 3; /* 3 bytes per pixel*/
-	/* BMP byte order is bgr and the lines start from last to first*/
-	preverse=pbgr+SizeBGR;/*start at the end and decrement*/
-	for(l=0;l<height;l++) 
-	{	/*iterate every 1 line*/
-		preverse-=width*3;/*put pointer at begin of unprocessed line*/
-		bytesUsed=l*width*2;
-		for (k=0;k<((width)*2);k=k+4)/*iterate every 4 bytes in the line*/
-		{
-			/* standart: b = y0 + 1.772 (u-128) */
-			/* logitech: b = y0 + 1.732446 (u-128) */
-			*preverse++=CLIP(pyuv[k+1+bytesUsed] + 1.772 *( pyuv[k+bytesUsed]-128)); 
-			/* standart: g = y0 - 0.34414 (u-128) - 0.71414 (v-128)*/
-			/* logitech: g = y0 - 0.337633 (u-128)- 0.698001 (v-128)*/
-			*preverse++=CLIP(pyuv[k+1+bytesUsed] - 0.34414 * (pyuv[k+bytesUsed]-128) 
-				-0.71414*(pyuv[k+2+bytesUsed]-128));
-			/* standart: r = y0 + 1.402 (v-128) */
-			/* logitech: r = y0 + 1.370705 (v-128) */
-			*preverse++=CLIP(pyuv[k+1+bytesUsed] + 1.402 * (pyuv[k+2+bytesUsed]-128));                                                        
-			/* standart: b1 = y1 + 1.772 (u-128) */
-			/* logitech: b1 = y1 + 1.732446 (u-128) */
-			*preverse++=CLIP(pyuv[k+3+bytesUsed] + 1.772*(pyuv[k+bytesUsed]-128));
-			/* standart: g1 = y1 - 0.34414 (u-128) - 0.71414 (v-128)*/
-			/* logitech: g1 = y1 - 0.337633 (u-128)- 0.698001 (v-128)*/
-			*preverse++=CLIP(pyuv[k+3+bytesUsed] - 0.34414 * (pyuv[k+bytesUsed]-128) 
-				-0.71414 * (pyuv[k+2+bytesUsed]-128)); 
-			/* standart: r1 =y1 + 1.402 (v-128) */
-			/* logitech: r1 = y1 + 1.370705 (v-128) */
-			*preverse++=CLIP(pyuv[k+3+bytesUsed] + 1.402 * (pyuv[k+2+bytesUsed]-128));
-		}
-		preverse-=width*3;/*get it back at the begin of processed line*/
-	}
-	preverse=NULL;
-}
-
 /*convert yyuv (packed) to yuyv (packed)
 * args: 
 *      framebuffer: pointer to frame buffer (yuyv)
@@ -211,6 +136,44 @@ void yyuv_to_yuyv (BYTE *framebuffer, BYTE *tmpbuffer, int width, int height)
 		}
 	}
 }
+
+
+/*convert uyvy (packed) to yuyv (packed)
+* args: 
+*      framebuffer: pointer to frame buffer (yuyv)
+*      tmpbuffer: pointer to temp buffer containing uyvy packed data frame
+*      width: picture width
+*      height: picture height
+*/
+void uyvy_to_yuyv (BYTE *framebuffer, BYTE *tmpbuffer, int width, int height)
+{
+	BYTE *ptmp=NULL;
+	BYTE *pfmb=NULL;
+	ptmp = tmpbuffer;
+	pfmb = framebuffer;
+	
+	int h=0;
+	int w=0;
+	
+	for(h=0;h<height;h++) 
+	{
+		for(w=0;w<width;w+=4) 
+		{
+			/* Y0 */
+			pfmb[0] = ptmp[1];
+			/* U */
+			pfmb[1] = ptmp[0];
+			/* Y1 */
+			pfmb[2] = ptmp[3];
+			/* V */
+			pfmb[3] = ptmp[2];
+			
+			ptmp += 4;
+			pfmb += 4;
+		}
+	}
+}
+
 
 /*convert yvyu (packed) to yuyv (packed)
 * args: 

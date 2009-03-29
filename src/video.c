@@ -159,31 +159,9 @@ void *main_loop(void *data)
 		global->bpp,
 		SDL_VIDEO_Flags);
 		 
-	switch (global->format) 
-	{
-		case V4L2_PIX_FMT_JPEG:
-		case V4L2_PIX_FMT_MJPEG:
-		case V4L2_PIX_FMT_SGBRG8: //converted to YUYV
-		case V4L2_PIX_FMT_SGRBG8: 
-		case V4L2_PIX_FMT_SBGGR8: 
-		case V4L2_PIX_FMT_SRGGB8: 
-		case V4L2_PIX_FMT_YUV420: //converted to YUYV
-		case V4L2_PIX_FMT_YVU420: //converted to YUYV
-		case V4L2_PIX_FMT_YYUV:   //converted to YUYV
-		case V4L2_PIX_FMT_YVYU:   //converted to YUYV
-		case V4L2_PIX_FMT_YUYV:
-			overlay = SDL_CreateYUVOverlay(videoIn->width, videoIn->height,
-				 SDL_YUY2_OVERLAY, pscreen);
-			break;
-		case V4L2_PIX_FMT_UYVY:
-			overlay = SDL_CreateYUVOverlay(videoIn->width, videoIn->height,
-				 SDL_UYVY_OVERLAY, pscreen);
-			break;
-		default:
-			overlay = SDL_CreateYUVOverlay(videoIn->width, videoIn->height,
-				 SDL_YUY2_OVERLAY, pscreen);
-			break;
-	}
+	overlay = SDL_CreateYUVOverlay(videoIn->width, videoIn->height,
+		SDL_YUY2_OVERLAY, pscreen);
+	
 	p = (unsigned char *) overlay->pixels[0];
 	
 	drect.x = 0;
@@ -270,30 +248,7 @@ void *main_loop(void *data)
 		if(global->Frame_Flags>0)
 		{
 			if((global->Frame_Flags & YUV_MIRROR)==YUV_MIRROR) 
-			{
-				switch (global->format) 
-				{
-					case V4L2_PIX_FMT_MJPEG:
-					case V4L2_PIX_FMT_JPEG:
-					case V4L2_PIX_FMT_SGBRG8: //converted to YUYV
-					case V4L2_PIX_FMT_SGRBG8: 
-					case V4L2_PIX_FMT_SBGGR8: 
-					case V4L2_PIX_FMT_SRGGB8:
-					case V4L2_PIX_FMT_YUV420: //converted to YUYV
-					case V4L2_PIX_FMT_YVU420: //converted to YUYV
-					case V4L2_PIX_FMT_YYUV:   //converted to YUYV
-					case V4L2_PIX_FMT_YVYU:   //converted to YUYV
-					case V4L2_PIX_FMT_YUYV: 
-						yuyv_mirror(videoIn->framebuffer,videoIn->width,videoIn->height);
-						break;
-					case V4L2_PIX_FMT_UYVY:
-						uyvy_mirror(videoIn->framebuffer,videoIn->width,videoIn->height);
-						break;
-					default:
-						yuyv_mirror(videoIn->framebuffer,videoIn->width,videoIn->height);
-						break;
-				}
-			}
+				yuyv_mirror(videoIn->framebuffer,videoIn->width,videoIn->height);
 			
 			if((global->Frame_Flags & YUV_UPTURN)==YUV_UPTURN)
 				yuyv_upturn(videoIn->framebuffer,videoIn->width,videoIn->height);
@@ -302,33 +257,10 @@ void *main_loop(void *data)
 				yuyv_negative (videoIn->framebuffer,videoIn->width,videoIn->height);
 				
 			if((global->Frame_Flags & YUV_MONOCR)==YUV_MONOCR) 
-			{
-				switch (global->format) 
-				{
-					case V4L2_PIX_FMT_MJPEG:
-					case V4L2_PIX_FMT_JPEG:
-					case V4L2_PIX_FMT_SGBRG8: //converted to YUYV
-					case V4L2_PIX_FMT_SGRBG8: 
-					case V4L2_PIX_FMT_SBGGR8: 
-					case V4L2_PIX_FMT_SRGGB8: 
-					case V4L2_PIX_FMT_YUV420: //converted to YUYV
-					case V4L2_PIX_FMT_YVU420: //converted to YUYV 
-					case V4L2_PIX_FMT_YYUV:   //converted to YUYV
-					case V4L2_PIX_FMT_YVYU:   //converted to YUYV
-					case V4L2_PIX_FMT_YUYV: 
-						yuyv_monochrome (videoIn->framebuffer,videoIn->width,videoIn->height);
-						break;
-					case V4L2_PIX_FMT_UYVY:
-						uyvy_monochrome (videoIn->framebuffer,videoIn->width,videoIn->height);
-						break;
-					default:
-						yuyv_monochrome (videoIn->framebuffer,videoIn->width,videoIn->height);
-						break;
-				}
-			}
+				yuyv_monochrome (videoIn->framebuffer,videoIn->width,videoIn->height);
 		   
 			if((global->Frame_Flags & YUV_PIECES)==YUV_PIECES)
-				pieces (videoIn->framebuffer, videoIn->width, videoIn->height, 16, global->format);
+				pieces (videoIn->framebuffer, videoIn->width, videoIn->height, 16 );
 			
 		}
 		g_mutex_unlock(global->mutex);
@@ -371,10 +303,9 @@ void *main_loop(void *data)
 							/* Initialization of Quantization Tables  */
 							initialize_quantization_tables (jpeg_struct);
 						} 
-						int uyv=0;
-						if (global->format == V4L2_PIX_FMT_UYVY) uyv=1;
+
 						global->jpeg_size = encode_image(videoIn->framebuffer, global->jpeg, 
-							jpeg_struct,1, videoIn->width, videoIn->height,uyv);
+							jpeg_struct,1, videoIn->width, videoIn->height);
 							
 						if(SaveBuff(videoIn->ImageFName,global->jpeg_size,global->jpeg)) 
 						{ 
@@ -391,14 +322,8 @@ void *main_loop(void *data)
 						pim = g_new0(BYTE, (pscreen->w)*(pscreen->h)*3);
 					}
 			
-					if (global->format == V4L2_PIX_FMT_UYVY) 
-					{
-						uyvy2bgr(videoIn->framebuffer,pim,videoIn->width,videoIn->height);
-					} 
-					else 
-					{
-						yuyv2bgr(videoIn->framebuffer,pim,videoIn->width,videoIn->height);
-					}
+					yuyv2bgr(videoIn->framebuffer,pim,videoIn->width,videoIn->height);
+					
 			
 					if(SaveBPM(videoIn->ImageFName, videoIn->width, videoIn->height, 24, pim)) 
 					{
@@ -414,14 +339,7 @@ void *main_loop(void *data)
 						pim = g_new0(BYTE, (pscreen->w)*(pscreen->h)*3);
 					}
 			
-					if (global->format == V4L2_PIX_FMT_UYVY) 
-					{
-						uyvy2rgb(videoIn->framebuffer,pim,videoIn->width,videoIn->height);
-					} 
-					else 
-					{
-						yuyv2rgb(videoIn->framebuffer,pim,videoIn->width,videoIn->height);
-					}
+					yuyv2rgb(videoIn->framebuffer,pim,videoIn->width,videoIn->height);
 					
 					write_png(videoIn->ImageFName, videoIn->width, videoIn->height,pim);
 			}
@@ -461,18 +379,15 @@ void *main_loop(void *data)
 							initialize_quantization_tables (jpeg_struct);
 						} 
 				
-						int uyv=0;
-						if (global->format == V4L2_PIX_FMT_UYVY) uyv=1;
-				
 						global->jpeg_size = encode_image(videoIn->framebuffer, global->jpeg, 
-								jpeg_struct,1, videoIn->width, videoIn->height,uyv);
+							jpeg_struct,1, videoIn->width, videoIn->height);
 			
 						ret = AVI_write_frame (AviOut, global->jpeg, global->jpeg_size, keyframe);
 					}
 					break;
 					
 				case CODEC_YUV:
-					framesize=(pscreen->w)*(pscreen->h)*2; /*YUY2/UYVY -> 2 bytes per pixel */
+					framesize=(pscreen->w)*(pscreen->h)*2; /*YUY2-> 2 bytes per pixel */
 					ret = AVI_write_frame (AviOut, p, framesize, keyframe);
 					break;
 					
@@ -482,14 +397,8 @@ void *main_loop(void *data)
 					{
 						pavi = g_new0(BYTE, framesize);
 					}
-					if (global->format == V4L2_PIX_FMT_UYVY) 
-					{
-						uyvy2bgr(videoIn->framebuffer,pavi,videoIn->width,videoIn->height);
-					} 
-					else 
-					{
-						yuyv2bgr(videoIn->framebuffer,pavi,videoIn->width,videoIn->height);
-					}
+					yuyv2bgr(videoIn->framebuffer,pavi,videoIn->width,videoIn->height);
+					
 					ret = AVI_write_frame (AviOut,pavi, framesize, keyframe);
 					break;
 				
@@ -500,10 +409,7 @@ void *main_loop(void *data)
 					}
 					if(lavc_data)
 					{
-						if (global->format != V4L2_PIX_FMT_UYVY)
-							framesize= encode_lavc_frame (videoIn->framebuffer, lavc_data, 0);
-						else
-							framesize= encode_lavc_frame (videoIn->framebuffer, lavc_data, 1);
+						framesize= encode_lavc_frame (videoIn->framebuffer, lavc_data );
 						ret = AVI_write_frame (AviOut, lavc_data->outbuf, framesize, keyframe);
 					}
 					break;
@@ -515,10 +421,7 @@ void *main_loop(void *data)
 					}
 					if(lavc_data)
 					{
-						if (global->format != V4L2_PIX_FMT_UYVY)
-							framesize= encode_lavc_frame (videoIn->framebuffer, lavc_data, 0);
-						else
-							framesize= encode_lavc_frame (videoIn->framebuffer, lavc_data, 1);
+						framesize= encode_lavc_frame (videoIn->framebuffer, lavc_data );
 						ret = AVI_write_frame (AviOut, lavc_data->outbuf, framesize, keyframe);
 					}
 					break;
@@ -530,10 +433,7 @@ void *main_loop(void *data)
 					}
 					if(lavc_data)
 					{
-						if (global->format != V4L2_PIX_FMT_UYVY)
-							framesize= encode_lavc_frame (videoIn->framebuffer, lavc_data, 0);
-						else
-							framesize= encode_lavc_frame (videoIn->framebuffer, lavc_data, 1);
+						framesize= encode_lavc_frame (videoIn->framebuffer, lavc_data );
 						ret = AVI_write_frame (AviOut, lavc_data->outbuf, framesize, keyframe);
 					}
 					break;

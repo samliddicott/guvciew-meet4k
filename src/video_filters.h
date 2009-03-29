@@ -34,16 +34,6 @@
 void 
 yuyv_mirror (BYTE *frame, int width, int height);
 
-/* Flip UYVY frame - horizontal
- * args:
- *      frame = pointer to frame buffer (uyvy format)
- *      width = frame width
- *      height= frame height
- * returns: void
- */
-void 
-uyvy_mirror (BYTE *frame, int width, int height);
-
 /* Flip YUV frame - vertical
  * args:
  *      frame = pointer to frame buffer (yuyv or uyvy format)
@@ -74,16 +64,6 @@ yuyv_negative(BYTE* frame, int width, int height);
 void 
 yuyv_monochrome(BYTE* frame, int width, int height);
 
-/* monochromatic effect for UYVY frame
- * args:
- *      frame = pointer to frame buffer (uyvy format)
- *      width = frame width
- *      height= frame height
- * returns: void
- */
-void 
-uyvy_monochrome(BYTE* frame, int width, int height);
-
 /*break image in little square pieces
  * args:
  *    frame  = pointer to frame buffer (yuyv or uyvy format)
@@ -93,6 +73,6 @@ uyvy_monochrome(BYTE* frame, int width, int height);
  *    format = v4l2 pixel format
  */
 void
-pieces(BYTE* frame, int width, int height, int piece_size, int format);
+pieces(BYTE* frame, int width, int height, int piece_size );
 
 #endif

@@ -83,7 +83,7 @@ struct vdIn
 	struct v4l2_streamparm streamparm;  // v4l2 stream parameters struct
 	void *mem[NB_BUFFER];               // memory buffers for mmap driver frames 
 	unsigned char *tmpbuffer;           // temp buffer for decoding compressed data
-	unsigned char *framebuffer;         // frame buffer (YUYV or UYVY), for rendering in SDL overlay
+	unsigned char *framebuffer;         // frame buffer (YUYV), for rendering in SDL overlay
 	int isstreaming;                    // video stream flag (1- ON  0- OFF)
 	int isbayer;                        // raw bayer flag
 	int pix_order;                      // raw bayer pixel order (rg/gb, bg/gr, ...)

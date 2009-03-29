@@ -25,7 +25,7 @@
 #include <glib.h>
 
 
-#define MAX_VCODECS 6 //list-1 (only one yuv format)
+#define MAX_VCODECS 6 
 
 #define CODEC_MJPEG 0
 #define CODEC_YUV   1
@@ -42,8 +42,8 @@ typedef struct _vcodecs_data
 } vcodecs_data;
 
 
-const char *get_vid4cc(int codec_ind, int pix_format);
+const char *get_vid4cc(int codec_ind);
 
-const char *get_desc4cc(int codec_ind, int pix_format);
+const char *get_desc4cc(int codec_ind);
 
 #endif

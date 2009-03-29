@@ -524,7 +524,7 @@ int main(int argc, char *argv[])
 			else 
 			{
 				/*4CC compression */
-				const char *compression= get_vid4cc(global->AVIFormat, videoIn->formatIn);
+				const char *compression= get_vid4cc(global->AVIFormat);
 
 				AVI_set_video(AviOut, videoIn->width, videoIn->height, videoIn->fps,compression);
 				/* audio will be set in aviClose - if enabled*/

@@ -1039,7 +1039,7 @@ capture_avi (GtkToggleButton *AVIButt, struct ALL_DATA *all_data)
 	}
 	
 	
-	const char *compression= get_vid4cc(global->AVIFormat, videoIn->formatIn);
+	const char *compression= get_vid4cc(global->AVIFormat);
 	
 	gboolean state = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(gwidget->CapAVIButt));
 	if(global->debug) g_printf("Cap AVI toggled: %d\n", state);

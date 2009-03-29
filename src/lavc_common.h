@@ -48,7 +48,7 @@ struct lavcData
 
 };
 
-int encode_lavc_frame (BYTE *picture_buf, struct lavcData* data, int isUYVY);
+int encode_lavc_frame (BYTE *picture_buf, struct lavcData* data);
 
 void clean_lavc (struct lavcData* data);
 

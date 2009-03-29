@@ -463,7 +463,7 @@ void video_tab(struct ALL_DATA *all_data)
 	
 	int vcodec_ind =0;
 	for (vcodec_ind =0; vcodec_ind<MAX_VCODECS; vcodec_ind++)
-		gtk_combo_box_append_text(GTK_COMBO_BOX(gwidget->AVIComp),gettext(get_desc4cc(vcodec_ind, videoIn->formatIn)));
+		gtk_combo_box_append_text(GTK_COMBO_BOX(gwidget->AVIComp),gettext(get_desc4cc(vcodec_ind)));
 	
 	gtk_table_attach(GTK_TABLE(table2), gwidget->AVIComp, 1, 2, line, line+1,
 		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);

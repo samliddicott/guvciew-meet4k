@@ -34,12 +34,7 @@ static vcodecs_data listSupVCodecs[] = //list of software supported formats
 	{
 		.avcodec     = FALSE,
 		.compressor  = "YUY2",
-		.description = N_("YUY2 - uncomp YUV") //use only this
-	},
-	{
-		.avcodec     = FALSE,
-		.compressor  = "UYVY",
-		.description = N_("UYVY - uncomp YUV") //or this
+		.description = N_("YUY2 - uncomp YUV")
 	},
 	{
 		.avcodec     = FALSE,
@@ -47,46 +42,28 @@ static vcodecs_data listSupVCodecs[] = //list of software supported formats
 		.description = N_("RGB - uncomp BMP")
 	},
 	{
-		.avcodec     = FALSE,
+		.avcodec     = TRUE,
 		.compressor  = "MPEG",
 		.description = N_("MPEG video 1")
 	},
 	{
-		.avcodec     = FALSE,
+		.avcodec     = TRUE,
 		.compressor  = "FLV1",
 		.description = N_("FLV1 - flash video 1")
 	},
 	{
-		.avcodec     = FALSE,
+		.avcodec     = TRUE,
 		.compressor  = "WMV1",
 		.description = N_("WMV1 - win. med. video 7")
 	}
 };
 
-const char *get_vid4cc(int codec_ind, int pix_format)
+const char *get_vid4cc(int codec_ind)
 {
-	if (codec_ind > 1)
-	{
-		codec_ind++;
-	}
-	else if (codec_ind == 1)
-	{
-		if (pix_format == V4L2_PIX_FMT_UYVY) codec_ind = 2;
-	}
-	
 	return (listSupVCodecs[codec_ind].compressor);
 }
 
-const char *get_desc4cc(int codec_ind, int pix_format)
+const char *get_desc4cc(int codec_ind)
 {
-	if (codec_ind > 1)
-	{
-		codec_ind++;
-	}
-	else if (codec_ind == 1)
-	{
-		if (pix_format == V4L2_PIX_FMT_UYVY) codec_ind = 2;
-	}
-	
 	return (listSupVCodecs[codec_ind].description);
 }
