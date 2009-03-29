@@ -1,10 +1,10 @@
-guvcview (1.0.3-ubuntu1) intrepid; urgency=low
+guvcview (1.0.4-ubuntu1) intrepid; urgency=low
 
-   * Added MPEG encoding to avi capture 
-   * Added FLV1 encoding to avi capture
-   * Added japanese translation
-
- -- Paulo Assis <pj.assis@gmail.com>  Mon, 23 Mar 2009 23:01:00 +0000
+   * Added WMV1 encoding to avi capture 
+   * fixed libavcodec configuration
+   * changed support for uyvy (now we convert it to yuyv and use only one render format)
+   
+ -- Paulo Assis <pj.assis@gmail.com>  Sun, 29 Mar 2009 22:01:00 +0000
 
 guvcview (1.0.2-ubuntu1) intrepid; urgency=low
 
