@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-03-23 20:35+0000\n"
+"POT-Creation-Date: 2009-03-29 10:36+0100\n"
 "PO-Revision-Date: 2009-03-23 20:40+0100\n"
 "Last-Translator: Paulo Assis <pj.assis@gmail.com>\n"
 "Language-Team: Portuguese <pt@li.org>\n"
@@ -17,12 +17,12 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/guvcview.c:158
+#: src/guvcview.c:159
 msgid "GUVCViewer Controls"
 msgstr "GUVCViewer Controles"
 
 #. can't open device
-#: src/guvcview.c:185
+#: src/guvcview.c:186
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -32,7 +32,7 @@ msgstr ""
 "\n"
 "Incapaz de abrir el dispositivo"
 
-#: src/guvcview.c:186
+#: src/guvcview.c:187
 msgid ""
 "Please make sure the camera is connected\n"
 "and that the linux-UVC driver is installed."
@@ -40,7 +40,7 @@ msgstr ""
 "Por favor, verifique de que la cámara esté conectada\n"
 "y que el driver linux-UVC está instalado."
 
-#: src/guvcview.c:208 src/guvcview.c:243
+#: src/guvcview.c:209 src/guvcview.c:244
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -50,7 +50,7 @@ msgstr ""
 "\n"
 "Incapaz de establecer video stream (MJPG o YUV)"
 
-#: src/guvcview.c:209 src/guvcview.c:244
+#: src/guvcview.c:210 src/guvcview.c:245
 msgid ""
 "Make sure you have a UVC compliant camera\n"
 "and that you have the linux UVC driver installed."
@@ -58,7 +58,7 @@ msgstr ""
 "Por favor, verifique de que usted tiene una cámara UVC\n"
 "y que el driver linux-UVC está instalado."
 
-#: src/guvcview.c:217
+#: src/guvcview.c:218
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -68,11 +68,11 @@ msgstr ""
 "\n"
 "Incapaz de comenzar con la disposición mínima"
 
-#: src/guvcview.c:218
+#: src/guvcview.c:219
 msgid "Please reconnect your camera."
 msgstr "Por favor, vuelva a conectar su cámara."
 
-#: src/guvcview.c:227
+#: src/guvcview.c:228
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -82,43 +82,43 @@ msgstr ""
 "\n"
 "Incapaz de asignar Buffers"
 
-#: src/guvcview.c:228
+#: src/guvcview.c:229
 msgid "Please try restarting your system."
 msgstr "Deberá intentar recomenzar su sistema."
 
-#: src/guvcview.c:275
+#: src/guvcview.c:276
 msgid "Image Controls"
 msgstr "Controles de la imagen"
 
-#: src/guvcview.c:310
+#: src/guvcview.c:311
 msgid "Capture:"
 msgstr "Captura:"
 
 #. increment column for labels
 #. end of control only exclusion
-#: src/guvcview.c:318
+#: src/guvcview.c:319
 msgid "Control Profiles:"
 msgstr "Perfiles de Controles:"
 
 #. image auto capture
-#: src/guvcview.c:345
+#: src/guvcview.c:346
 msgid "Stop Auto"
 msgstr "Parar Auto:"
 
-#: src/guvcview.c:349 src/callbacks.c:999
+#: src/guvcview.c:350 src/callbacks.c:999
 msgid "Cap. Image"
 msgstr "Cap. Imagen"
 
 #. avi capture enabled from start
-#: src/guvcview.c:354 src/callbacks.c:1159
+#: src/guvcview.c:355 src/callbacks.c:1137
 msgid "Stop AVI"
 msgstr "Parar AVI"
 
-#: src/guvcview.c:360 src/callbacks.c:1087
+#: src/guvcview.c:361 src/callbacks.c:1065
 msgid "Cap. AVI"
 msgstr "Cap. AVI"
 
-#: src/guvcview.c:498
+#: src/guvcview.c:499
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -128,7 +128,7 @@ msgstr ""
 "\n"
 "Incapaz de crear thread de video"
 
-#: src/guvcview.c:499
+#: src/guvcview.c:500
 msgid "Please report it to http://developer.berlios.de/bugs/?group_id=8179"
 msgstr ""
 "Por favor, divulgúelo a http://developer.berlios.de/bugs/?group_id=8179"
@@ -227,113 +227,89 @@ msgstr "Modo prioridad del obturador"
 msgid "Aperture Priority Mode"
 msgstr "Modo prioridad de la abertura"
 
-#: src/video_tab.c:40 src/callbacks.c:1183
+#: src/video_tab.c:41 src/callbacks.c:1161
 msgid "Save File"
 msgstr "Salvar Archivo"
 
 #. if auto naming restart counter
-#: src/video_tab.c:94 src/globals.c:69 src/globals.c:72 src/options.c:351
+#: src/video_tab.c:95 src/globals.c:69 src/globals.c:72 src/options.c:351
 #: src/options.c:400 src/callbacks.c:805 src/callbacks.c:929
-#: src/callbacks.c:946 src/callbacks.c:978 src/callbacks.c:1092
+#: src/callbacks.c:946 src/callbacks.c:978 src/callbacks.c:1070
 #, c-format
 msgid "File num:%d"
 msgstr "Archivo num:%d"
 
-#: src/video_tab.c:154
+#: src/video_tab.c:155
 msgid "Video & Files"
 msgstr "Video e Archivos"
 
 #. Devices
-#: src/video_tab.c:170
+#: src/video_tab.c:171
 msgid "Device:"
 msgstr "Dispositivo de entrada:"
 
-#: src/video_tab.c:265
+#: src/video_tab.c:266
 msgid "Frame Rate:"
 msgstr "FPS:"
 
-#: src/video_tab.c:273
+#: src/video_tab.c:274
 msgid " Show"
 msgstr " Mostrar"
 
-#: src/video_tab.c:297
+#: src/video_tab.c:298
 msgid "Resolution:"
 msgstr "Resolución:"
 
-#: src/video_tab.c:323
+#: src/video_tab.c:324
 msgid "Camera Output:"
 msgstr "Salida de la cámara:"
 
-#: src/video_tab.c:333
+#: src/video_tab.c:334
 msgid "Image File:"
 msgstr "Archivo de Imagen:"
 
-#: src/video_tab.c:364 src/video_tab.c:449
+#: src/video_tab.c:365 src/video_tab.c:450
 msgid "File,Auto"
 msgstr "Archivo,Auto"
 
-#: src/video_tab.c:375
+#: src/video_tab.c:376
 msgid "Image Format:"
 msgstr "Formato de Imagen:"
 
-#: src/video_tab.c:403
+#: src/video_tab.c:404
 msgid "AVI File:"
 msgstr "Archivo AVI:"
 
-#: src/video_tab.c:463
-msgid "MJPG - compressed"
-msgstr "MJPG - comprimido"
-
-#: src/video_tab.c:465
-msgid "UYVY - uncomp YUV"
-msgstr "UYVY - s/comp YUV"
-
-#: src/video_tab.c:467
-msgid "YUY2 - uncomp YUV"
-msgstr "YUY2 - s/comp YUV"
-
-#: src/video_tab.c:469
-msgid "RGB - uncomp BMP"
-msgstr "RGB - s/comp BMP"
-
-#: src/video_tab.c:470
-msgid "MPEG"
-msgstr "MPEG"
-
-#: src/video_tab.c:471
-msgid "FLV1"
-msgstr "FLV1"
-
-#: src/video_tab.c:483
+#: src/video_tab.c:478
 msgid "AVI Format:"
 msgstr "Formato de AVI:"
 
-#: src/video_tab.c:492
+#: src/video_tab.c:487
 msgid "---- Video Filters ----"
 msgstr "---- Filtros Video ----"
 
 #. Mirror
-#: src/video_tab.c:507
+#: src/video_tab.c:502
 msgid " Mirror"
 msgstr " Espejo"
 
 #. Upturn
-#: src/video_tab.c:517
+#: src/video_tab.c:512
 msgid " Invert"
 msgstr " Invertido"
 
 #. Negate
-#: src/video_tab.c:527
+#: src/video_tab.c:522
 msgid " Negative"
 msgstr " Negativo"
 
 #. Mono
-#: src/video_tab.c:537
+#: src/video_tab.c:532
 msgid " Mono"
 msgstr " Gris"
 
 #. Pieces
-#: src/video_tab.c:548
+#: src/video_tab.c:543
 msgid " Pieces"
 msgstr "Pedazos"
 
@@ -450,6 +426,34 @@ msgstr "Parar el proceso de vídeo"
 msgid "Raw bits per pixel"
 msgstr "Bits por pixel (Raw)"
 
+#: src/vcodecs.c:32
+msgid "MJPG - compressed"
+msgstr "MJPG - comprimido"
+
+#: src/vcodecs.c:37
+msgid "YUY2 - uncomp YUV"
+msgstr "YUY2 - s/comp YUV"
+
+#: src/vcodecs.c:42
+msgid "UYVY - uncomp YUV"
+msgstr "UYVY - s/comp YUV"
+
+#: src/vcodecs.c:47
+msgid "RGB - uncomp BMP"
+msgstr "RGB - s/comp BMP"
+
+#: src/vcodecs.c:52
+msgid "MPEG video 1"
+msgstr ""
+
+#: src/vcodecs.c:57
+msgid "FLV1 - flash video 1"
+msgstr ""
+
+#: src/vcodecs.c:62
+msgid "WMV1 - win. med. video 7"
+msgstr ""
+
 #: src/options.c:514
 msgid "Prints version"
 msgstr ""
@@ -475,7 +479,8 @@ msgid "Hardware accelaration (enable(1) | disable(0))"
 msgstr "Accel. del hardware (habilitar(1)|deshabil.(0))"
 
 #: src/options.c:520
-msgid "Pixel format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|gbrg|grbg|bggr|rggb)"
+msgid ""
+"Pixel format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|gbrg|grbg|bggr|rggb)"
 msgstr "Formato(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|gbrg|grbg|bggr|rggb)"
 
 #: src/options.c:521
@@ -604,6 +609,12 @@ msgstr ""
 "\n"
 "¿Recomenzar ahora?\n"
 
-#: src/callbacks.c:1196
+#: src/callbacks.c:1174
 msgid "Load File"
 msgstr "Cargar Archivo"
+
+#~ msgid "MPEG"
+#~ msgstr "MPEG"
+
+#~ msgid "FLV1"
+#~ msgstr "FLV1"

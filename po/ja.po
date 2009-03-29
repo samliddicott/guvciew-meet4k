@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GUVCView 1.0.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-03-23 20:35+0000\n"
+"POT-Creation-Date: 2009-03-29 10:36+0100\n"
 "PO-Revision-Date: 2009-03-23 20:47+0100\n"
 "Last-Translator: Paulo Assis <pj.assis@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,12 +17,12 @@ msgstr ""
 "X-Poedit-Language: Japanese\n"
 "X-Poedit-Country: JAPAN\n"
 
-#: src/guvcview.c:158
+#: src/guvcview.c:159
 msgid "GUVCViewer Controls"
 msgstr "GUVCViewer コントロール"
 
 #. can't open device
-#: src/guvcview.c:185
+#: src/guvcview.c:186
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -32,7 +32,7 @@ msgstr ""
 "\n"
 "デバイスをオープンすることができません"
 
-#: src/guvcview.c:186
+#: src/guvcview.c:187
 msgid ""
 "Please make sure the camera is connected\n"
 "and that the linux-UVC driver is installed."
@@ -40,7 +40,7 @@ msgstr ""
 "カメラがつながっていること、そして linux-UVC ドライバ\n"
 "がインストールされていることを確認してください。"
 
-#: src/guvcview.c:208 src/guvcview.c:243
+#: src/guvcview.c:209 src/guvcview.c:244
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -50,7 +50,7 @@ msgstr ""
 "\n"
 "MJPG または YUV ストリームを guvcview に設定することができません"
 
-#: src/guvcview.c:209 src/guvcview.c:244
+#: src/guvcview.c:210 src/guvcview.c:245
 msgid ""
 "Make sure you have a UVC compliant camera\n"
 "and that you have the linux UVC driver installed."
@@ -58,7 +58,7 @@ msgstr ""
 "UVC 対応カメラを持っているか、linux UVC ドライバ\n"
 "がインストールされていることを確認してください。"
 
-#: src/guvcview.c:217
+#: src/guvcview.c:218
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -68,11 +68,11 @@ msgstr ""
 "\n"
 "最小限のセットアップから始めることができません"
 
-#: src/guvcview.c:218
+#: src/guvcview.c:219
 msgid "Please reconnect your camera."
 msgstr "カメラを再接続してください。"
 
-#: src/guvcview.c:227
+#: src/guvcview.c:228
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -82,43 +82,43 @@ msgstr ""
 "\n"
 "バッファを確保できません"
 
-#: src/guvcview.c:228
+#: src/guvcview.c:229
 msgid "Please try restarting your system."
 msgstr "システムを再起動してみてください。"
 
-#: src/guvcview.c:275
+#: src/guvcview.c:276
 msgid "Image Controls"
 msgstr "イメージコントロール"
 
-#: src/guvcview.c:310
+#: src/guvcview.c:311
 msgid "Capture:"
 msgstr "キャプチャ:"
 
 #. increment column for labels
 #. end of control only exclusion
-#: src/guvcview.c:318
+#: src/guvcview.c:319
 msgid "Control Profiles:"
 msgstr "コントロールプロファイル:"
 
 #. image auto capture
-#: src/guvcview.c:345
+#: src/guvcview.c:346
 msgid "Stop Auto"
 msgstr "自動停止"
 
-#: src/guvcview.c:349 src/callbacks.c:999
+#: src/guvcview.c:350 src/callbacks.c:999
 msgid "Cap. Image"
 msgstr "キャプチャ.画像"
 
 #. avi capture enabled from start
-#: src/guvcview.c:354 src/callbacks.c:1159
+#: src/guvcview.c:355 src/callbacks.c:1137
 msgid "Stop AVI"
 msgstr "停止 AVI"
 
-#: src/guvcview.c:360 src/callbacks.c:1087
+#: src/guvcview.c:361 src/callbacks.c:1065
 msgid "Cap. AVI"
 msgstr "キャプチャ.AVI"
 
-#: src/guvcview.c:498
+#: src/guvcview.c:499
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -128,7 +128,7 @@ msgstr ""
 "\n"
 "ビデオスレッドを作成することができません"
 
-#: src/guvcview.c:499
+#: src/guvcview.c:500
 msgid "Please report it to http://developer.berlios.de/bugs/?group_id=8179"
 msgstr ""
 "http://developer.berlios.de/bugs/?group_id=8179 にレポートしてください。"
@@ -227,113 +227,89 @@ msgstr "シャッター優先モード"
 msgid "Aperture Priority Mode"
 msgstr "絞り優先モード"
 
-#: src/video_tab.c:40 src/callbacks.c:1183
+#: src/video_tab.c:41 src/callbacks.c:1161
 msgid "Save File"
 msgstr "ファイルを保存する"
 
 #. if auto naming restart counter
-#: src/video_tab.c:94 src/globals.c:69 src/globals.c:72 src/options.c:351
+#: src/video_tab.c:95 src/globals.c:69 src/globals.c:72 src/options.c:351
 #: src/options.c:400 src/callbacks.c:805 src/callbacks.c:929
-#: src/callbacks.c:946 src/callbacks.c:978 src/callbacks.c:1092
+#: src/callbacks.c:946 src/callbacks.c:978 src/callbacks.c:1070
 #, c-format
 msgid "File num:%d"
 msgstr "ファイル番号:%d"
 
-#: src/video_tab.c:154
+#: src/video_tab.c:155
 msgid "Video & Files"
 msgstr "ビデオ & ファイル"
 
 #. Devices
-#: src/video_tab.c:170
+#: src/video_tab.c:171
 msgid "Device:"
 msgstr "デバイス:"
 
-#: src/video_tab.c:265
+#: src/video_tab.c:266
 msgid "Frame Rate:"
 msgstr "フレームレート:"
 
-#: src/video_tab.c:273
+#: src/video_tab.c:274
 msgid " Show"
 msgstr " 表示"
 
-#: src/video_tab.c:297
+#: src/video_tab.c:298
 msgid "Resolution:"
 msgstr "解像度:"
 
-#: src/video_tab.c:323
+#: src/video_tab.c:324
 msgid "Camera Output:"
 msgstr "カメラ出力:"
 
-#: src/video_tab.c:333
+#: src/video_tab.c:334
 msgid "Image File:"
 msgstr "画像ファイル:"
 
-#: src/video_tab.c:364 src/video_tab.c:449
+#: src/video_tab.c:365 src/video_tab.c:450
 msgid "File,Auto"
 msgstr "ファイル,自動"
 
-#: src/video_tab.c:375
+#: src/video_tab.c:376
 msgid "Image Format:"
 msgstr "画像フォーマット:"
 
-#: src/video_tab.c:403
+#: src/video_tab.c:404
 msgid "AVI File:"
 msgstr "AVI ファイル:"
 
-#: src/video_tab.c:463
-msgid "MJPG - compressed"
-msgstr "MJPG - 圧縮"
-
-#: src/video_tab.c:465
-msgid "UYVY - uncomp YUV"
-msgstr "UYVY - 非圧縮 YUV"
-
-#: src/video_tab.c:467
-msgid "YUY2 - uncomp YUV"
-msgstr "YUY2 - 非圧縮 YUV"
-
-#: src/video_tab.c:469
-msgid "RGB - uncomp BMP"
-msgstr "RGB - 非圧縮 BMP"
-
-#: src/video_tab.c:470
-msgid "MPEG"
-msgstr ""
-
-#: src/video_tab.c:471
-msgid "FLV1"
-msgstr ""
-
-#: src/video_tab.c:483
+#: src/video_tab.c:478
 msgid "AVI Format:"
 msgstr "AVI フォーマット:"
 
-#: src/video_tab.c:492
+#: src/video_tab.c:487
 msgid "---- Video Filters ----"
 msgstr "---- ビデオフィルタ ----"
 
 #. Mirror
-#: src/video_tab.c:507
+#: src/video_tab.c:502
 msgid " Mirror"
 msgstr " 鏡"
 
 #. Upturn
-#: src/video_tab.c:517
+#: src/video_tab.c:512
 msgid " Invert"
 msgstr " 反転"
 
 #. Negate
-#: src/video_tab.c:527
+#: src/video_tab.c:522
 msgid " Negative"
 msgstr " ネガ"
 
 #. Mono
-#: src/video_tab.c:537
+#: src/video_tab.c:532
 msgid " Mono"
 msgstr " モノクロ"
 
 #. Pieces
-#: src/video_tab.c:548
+#: src/video_tab.c:543
 msgid " Pieces"
 msgstr " 断片"
 
@@ -450,6 +426,34 @@ msgstr "ビデオ処理 を無効にする"
 msgid "Raw bits per pixel"
 msgstr "1画素あたりの生のビット"
 
+#: src/vcodecs.c:32
+msgid "MJPG - compressed"
+msgstr "MJPG - 圧縮"
+
+#: src/vcodecs.c:37
+msgid "YUY2 - uncomp YUV"
+msgstr "YUY2 - 非圧縮 YUV"
+
+#: src/vcodecs.c:42
+msgid "UYVY - uncomp YUV"
+msgstr "UYVY - 非圧縮 YUV"
+
+#: src/vcodecs.c:47
+msgid "RGB - uncomp BMP"
+msgstr "RGB - 非圧縮 BMP"
+
+#: src/vcodecs.c:52
+msgid "MPEG video 1"
+msgstr ""
+
+#: src/vcodecs.c:57
+msgid "FLV1 - flash video 1"
+msgstr ""
+
+#: src/vcodecs.c:62
+msgid "WMV1 - win. med. video 7"
+msgstr ""
+
 #: src/options.c:514
 msgid "Prints version"
 msgstr "バージョンを表示する"
@@ -475,8 +479,11 @@ msgid "Hardware accelaration (enable(1) | disable(0))"
 msgstr "ハードウェアアクセラレーション (有効(1) | 無効(0))"
 
 #: src/options.c:520
-msgid "Pixel format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|gbrg|grbg|bggr|rggb)"
-msgstr "ピクセルフォーマット (mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|gbrg|grbg|bggr|rggb)"
+msgid ""
+"Pixel format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|gbrg|grbg|bggr|rggb)"
+msgstr ""
+"ピクセルフォーマット (mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|gbrg|grbg|bggr|"
+"rggb)"
 
 #: src/options.c:521
 msgid "Frame size, default: 640x480"
@@ -604,6 +611,6 @@ msgstr ""
 "\n"
 "今再起動しますか?\n"
 
-#: src/callbacks.c:1196
+#: src/callbacks.c:1174
 msgid "Load File"
 msgstr "ファイルを読込む"
