@@ -23,16 +23,10 @@
 #define VCODECS_H
 
 #include <glib.h>
-
+#include "jpgenc.h"
+#include "lavc_common.h"
 
 #define MAX_VCODECS 6 
-
-#define CODEC_MJPEG 0
-#define CODEC_YUV   1
-#define CODEC_DIB   2
-#define CODEC_MPEG  3
-#define CODEC_FLV1  4
-#define CODEC_WMV2  5
 
 typedef struct _vcodecs_data
 {
@@ -45,5 +39,11 @@ typedef struct _vcodecs_data
 const char *get_vid4cc(int codec_ind);
 
 const char *get_desc4cc(int codec_ind);
+
+int compress_frame(void *data, 
+	struct JPEG_ENCODER_STRUCTURE *jpeg_struct, 
+	struct lavcData *lavc_data,
+	BYTE *pavi,
+	int keyframe);
 
 #endif

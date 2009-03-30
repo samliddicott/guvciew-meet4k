@@ -434,8 +434,8 @@ int init_videoIn(struct vdIn *vd, struct GLOBAL *global)
 	
 		if ((!vd->framebuffer) || (framebuf_size <=0)) 
 		{
-			g_printerr("couldn't calloc %d bytes of memory for frame buffer\n",
-				framebuf_size);
+			g_printerr("couldn't calloc %lu bytes of memory for frame buffer\n",
+				(unsigned long) framebuf_size);
 			ret = VDIN_FBALLOC_ERR;
 			goto error;
 		} 

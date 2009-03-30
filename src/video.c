@@ -40,9 +40,6 @@
 #include "ms_time.h"
 #include "string_utils.h"
 #include "mp2.h"
-#include "mpeg.h"
-#include "flv.h"
-#include "wmv.h"
 #include "vcodecs.h"
 #include "callbacks.h"
 
@@ -351,93 +348,7 @@ void *main_loop(void *data)
 		{
 			/*all video controls are now disabled so related values cannot be changed*/
 			videoIn->AVICapStop=FALSE;
-			long framesize;
-			int ret=0;
-			switch (global->AVIFormat) 
-			{
-				case CODEC_MJPEG: /*MJPG*/
-					/* save MJPG frame */   
-					if((global->Frame_Flags==0) && (videoIn->formatIn==V4L2_PIX_FMT_MJPEG)) 
-					{
-						ret = AVI_write_frame (AviOut, videoIn->tmpbuffer, 
-							videoIn->buf.bytesused, keyframe);
-					} 
-					else 
-					{
-						/* use built in encoder */ 
-						if (!global->jpeg)
-						{ 
-							global->jpeg = g_new0(BYTE, global->jpeg_bufsize);
-						}
-						if(!jpeg_struct) 
-						{
-							jpeg_struct = g_new0(struct JPEG_ENCODER_STRUCTURE, 1);
-							/* Initialization of JPEG control structure */
-							initialization (jpeg_struct,videoIn->width,videoIn->height);
-	
-							/* Initialization of Quantization Tables  */
-							initialize_quantization_tables (jpeg_struct);
-						} 
-				
-						global->jpeg_size = encode_image(videoIn->framebuffer, global->jpeg, 
-							jpeg_struct,1, videoIn->width, videoIn->height);
-			
-						ret = AVI_write_frame (AviOut, global->jpeg, global->jpeg_size, keyframe);
-					}
-					break;
-					
-				case CODEC_YUV:
-					framesize=(pscreen->w)*(pscreen->h)*2; /*YUY2-> 2 bytes per pixel */
-					ret = AVI_write_frame (AviOut, p, framesize, keyframe);
-					break;
-					
-				case CODEC_DIB:
-					framesize=(pscreen->w)*(pscreen->h)*3; /*DIB 24/32 -> 3/4 bytes per pixel*/ 
-					if(pavi==NULL)
-					{
-						pavi = g_new0(BYTE, framesize);
-					}
-					yuyv2bgr(videoIn->framebuffer,pavi,videoIn->width,videoIn->height);
-					
-					ret = AVI_write_frame (AviOut,pavi, framesize, keyframe);
-					break;
-				
-				case CODEC_MPEG:
-					if(!lavc_data) 
-					{
-						lavc_data = init_mpeg(videoIn->width, videoIn->height, videoIn->fps);
-					}
-					if(lavc_data)
-					{
-						framesize= encode_lavc_frame (videoIn->framebuffer, lavc_data );
-						ret = AVI_write_frame (AviOut, lavc_data->outbuf, framesize, keyframe);
-					}
-					break;
-					
-				case CODEC_FLV1:
-					if(!lavc_data) 
-					{
-						lavc_data = init_flv(videoIn->width, videoIn->height, videoIn->fps);
-					}
-					if(lavc_data)
-					{
-						framesize= encode_lavc_frame (videoIn->framebuffer, lavc_data );
-						ret = AVI_write_frame (AviOut, lavc_data->outbuf, framesize, keyframe);
-					}
-					break;
-				
-				case CODEC_WMV2:
-					if(!lavc_data) 
-					{
-						lavc_data = init_wmv(videoIn->width, videoIn->height, videoIn->fps);
-					}
-					if(lavc_data)
-					{
-						framesize= encode_lavc_frame (videoIn->framebuffer, lavc_data );
-						ret = AVI_write_frame (AviOut, lavc_data->outbuf, framesize, keyframe);
-					}
-					break;
-			}
+			int ret = compress_frame(data, jpeg_struct, lavc_data, pavi, keyframe);
 		
 			if (ret) 
 			{
@@ -680,6 +591,11 @@ void *main_loop(void *data)
 		pdata->capAVI = videoIn->capAVI;
 		if (global->debug) g_printf("stoping AVI capture\n");
 		aviClose(all_data);   
+	}
+	if(lavc_data != NULL)
+	{
+		clean_lavc(lavc_data);
+		lavc_data = NULL;
 	}
 	if (global->debug) g_printf("Thread terminated...\n");
 	p = NULL;

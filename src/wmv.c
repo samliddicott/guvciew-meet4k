@@ -53,12 +53,14 @@ struct lavcData* init_wmv (int width, int height, int fps)
 	//alloc picture
 	data->picture= avcodec_alloc_frame();
 	
-	data->codec_context->bit_rate = 3000000;
+	data->codec_context->bit_rate = 190000;
 	
 	// resolution must be a multiple of two
 	data->codec_context->width = width; 
 	data->codec_context->height = height;
-	
+	data->codec_context->qmin = 2; // best detail allowed - worst compression
+	data->codec_context->qmax = 31; // worst detail allowed - best compression
+	data->codec_context->max_qdiff = 1;
 	data->codec_context->gop_size = 250;
 	data->codec_context->codec_id = CODEC_ID_WMV1;
 	data->codec_context->pix_fmt = PIX_FMT_YUV420P;

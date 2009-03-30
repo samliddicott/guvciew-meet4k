@@ -20,9 +20,21 @@
 ********************************************************************************/
 
 #include "vcodecs.h"
+#include "guvcview.h"
+#include "colorspaces.h"
+#include "mpeg.h"
+#include "flv.h"
+#include "wmv.h"
 /* support for internationalization - i18n */
 #include <glib/gi18n.h>
 #include <linux/videodev2.h>
+
+#define CODEC_MJPEG 0
+#define CODEC_YUV   1
+#define CODEC_DIB   2
+#define CODEC_MPEG  3
+#define CODEC_FLV1  4
+#define CODEC_WMV2  5
 
 static vcodecs_data listSupVCodecs[] = //list of software supported formats
 {
@@ -66,4 +78,106 @@ const char *get_vid4cc(int codec_ind)
 const char *get_desc4cc(int codec_ind)
 {
 	return (listSupVCodecs[codec_ind].description);
+}
+
+int compress_frame(void *data, 
+	struct JPEG_ENCODER_STRUCTURE *jpeg_struct, 
+	struct lavcData *lavc_data,
+	BYTE *pavi,
+	int keyframe)
+{
+	struct ALL_DATA *all_data = (struct ALL_DATA *) data;
+	
+	struct GLOBAL *global = all_data->global;
+	struct vdIn *videoIn = all_data->videoIn;
+	struct avi_t *AviOut = all_data->AviOut;
+	
+	long framesize=0;
+	int ret=0;
+	switch (global->AVIFormat) 
+	{
+		case CODEC_MJPEG: /*MJPG*/
+			/* save MJPG frame */   
+			if((global->Frame_Flags==0) && (videoIn->formatIn==V4L2_PIX_FMT_MJPEG)) 
+			{
+				ret = AVI_write_frame (AviOut, videoIn->tmpbuffer, 
+					videoIn->buf.bytesused, keyframe);
+			} 
+			else 
+			{
+				/* use built in encoder */ 
+				if (!global->jpeg)
+				{ 
+					global->jpeg = g_new0(BYTE, global->jpeg_bufsize);
+				}
+				if(!jpeg_struct) 
+				{
+					jpeg_struct = g_new0(struct JPEG_ENCODER_STRUCTURE, 1);
+					/* Initialization of JPEG control structure */
+					initialization (jpeg_struct,videoIn->width,videoIn->height);
+
+					/* Initialization of Quantization Tables  */
+					initialize_quantization_tables (jpeg_struct);
+				} 
+				
+				global->jpeg_size = encode_image(videoIn->framebuffer, global->jpeg, 
+					jpeg_struct,1, videoIn->width, videoIn->height);
+			
+				ret = AVI_write_frame (AviOut, global->jpeg, global->jpeg_size, keyframe);
+			}
+			break;
+
+		case CODEC_YUV:
+			framesize=(videoIn->width)*(videoIn->height)*2; /*YUY2-> 2 bytes per pixel */
+			ret = AVI_write_frame (AviOut, videoIn->framebuffer, framesize, keyframe);
+			break;
+					
+		case CODEC_DIB:
+			framesize=(videoIn->width)*(videoIn->height)*3; /*DIB 24/32 -> 3/4 bytes per pixel*/ 
+			if(pavi==NULL)
+			{
+				pavi = g_new0(BYTE, framesize);
+			}
+			yuyv2bgr(videoIn->framebuffer, pavi, videoIn->width, videoIn->height);
+					
+			ret = AVI_write_frame (AviOut, pavi, framesize, keyframe);
+			break;
+				
+		case CODEC_MPEG:
+			if(!lavc_data) 
+			{
+				lavc_data = init_mpeg(videoIn->width, videoIn->height, videoIn->fps);
+			}
+			if(lavc_data)
+			{
+				framesize= encode_lavc_frame (videoIn->framebuffer, lavc_data );
+				ret = AVI_write_frame (AviOut, lavc_data->outbuf, framesize, keyframe);
+			}
+			break;
+
+		case CODEC_FLV1:
+			if(!lavc_data) 
+			{
+				lavc_data = init_flv(videoIn->width, videoIn->height, videoIn->fps);
+			}
+			if(lavc_data)
+			{
+				framesize= encode_lavc_frame (videoIn->framebuffer, lavc_data );
+				ret = AVI_write_frame (AviOut, lavc_data->outbuf, framesize, keyframe);
+			}
+			break;
+
+		case CODEC_WMV2:
+			if(!lavc_data) 
+			{
+				lavc_data = init_wmv(videoIn->width, videoIn->height, videoIn->fps);
+			}
+			if(lavc_data)
+			{
+				framesize= encode_lavc_frame (videoIn->framebuffer, lavc_data );
+				ret = AVI_write_frame (AviOut, lavc_data->outbuf, framesize, keyframe);
+			}
+			break;
+	}
+	return (ret);
 }

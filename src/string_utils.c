@@ -105,9 +105,9 @@ pchar* splitPath(char *FullPath, char* splited[2])
 	
 	cpysize = g_strlcpy(splited[0], basename, size*sizeof(char));
 	if ( (cpysize+1) < (size*sizeof(char)) ) 
-		g_printerr("filename copy size error:(%i != %i)\n",
+		g_printerr("filename copy size error:(%i != %lu)\n",
 			cpysize+1,
-			size*sizeof(char));
+			(unsigned long) size*sizeof(char));
 	
 	/*only change stored dirname if one is set*/
 	if(g_strcmp0(".",dirname)!=0)
@@ -122,9 +122,9 @@ pchar* splitPath(char *FullPath, char* splited[2])
 	
 		cpysize = g_strlcpy(splited[1], dirname, size*sizeof(char));
 		if ( (cpysize + 1) < (size*sizeof(char)) ) 
-			g_printerr("dirname copy size error:(%i != %i)\n",
+			g_printerr("dirname copy size error:(%i != %lu)\n",
 				cpysize+1,
-				size*sizeof(char));
+				(unsigned long) size*sizeof(char));
 	}
 	
 	g_free(basename);
