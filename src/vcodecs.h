@@ -41,9 +41,9 @@ const char *get_vid4cc(int codec_ind);
 const char *get_desc4cc(int codec_ind);
 
 int compress_frame(void *data, 
-	struct JPEG_ENCODER_STRUCTURE *jpeg_struct, 
-	struct lavcData *lavc_data,
-	BYTE *pavi,
+	void *jpeg_data, 
+	void *lav_data,
+	void *pavi_buff,
 	int keyframe);
 
 #endif

@@ -22,6 +22,7 @@
 #ifndef MPEG_H
 #define MPEG_H
 
+#include "defs.h"
 #include "lavc_common.h"
 
 struct lavcData* init_mpeg (int width, int height, int fps);

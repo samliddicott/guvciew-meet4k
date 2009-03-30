@@ -348,8 +348,8 @@ void *main_loop(void *data)
 		{
 			/*all video controls are now disabled so related values cannot be changed*/
 			videoIn->AVICapStop=FALSE;
-			int ret = compress_frame(data, jpeg_struct, lavc_data, pavi, keyframe);
-		
+			int ret = compress_frame(data, (void *) &(jpeg_struct), (void *) &(lavc_data), (void *) &(pavi), keyframe);
+
 			if (ret) 
 			{
 				if (AVI_getErrno () == AVI_ERR_SIZELIM)
