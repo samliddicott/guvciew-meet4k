@@ -31,12 +31,6 @@ struct lavcData* init_flv (int width, int height, int fps)
 {
 	//allocate
 	struct lavcData* data = g_new0(struct lavcData, 1);
-	// must be called before using avcodec lib
-	avcodec_init();
-
-	// register all the codecs (you can also register only the codec
-	//you wish to have smaller code
-	avcodec_register_all();
 	
 	data->codec_context = NULL;
 	
@@ -58,8 +52,19 @@ struct lavcData* init_flv (int width, int height, int fps)
 	// resolution must be a multiple of two
 	data->codec_context->width = width; 
 	data->codec_context->height = height;
-	
+	data->codec_context->me_method = ME_EPZS; 
+	data->codec_context->mpeg_quant = 0; //h.263
+	data->codec_context->qmin = 2; // best detail allowed - worst compression
+	data->codec_context->qmax = 31; // worst detail allowed - best compression
+	data->codec_context->max_qdiff = 3;
+	data->codec_context->max_b_frames = 0;
 	data->codec_context->gop_size = 100;
+	data->codec_context->luma_elim_threshold = -2;
+	data->codec_context->chroma_elim_threshold = -5;
+	data->codec_context->lumi_masking = 0.05;
+	data->codec_context->dark_masking = 0.01;
+	data->codec_context->qcompress = 0.5;
+	data->codec_context->qblur = 0.5;
 	data->codec_context->codec_id = CODEC_ID_FLV1;
 	data->codec_context->pix_fmt = PIX_FMT_YUV420P;
 	data->codec_context->time_base = (AVRational){1,fps};
@@ -73,7 +78,7 @@ struct lavcData* init_flv (int width, int height, int fps)
 	//alloc tmpbuff (yuv420p)
 	data->tmpbuf = g_new0(BYTE, (width*height*3)/2);
 	//alloc outbuf
-	data->outbuf_size = 200000;
+	data->outbuf_size = 240000;
 	data->outbuf = g_new0(BYTE, data->outbuf_size);
 	
 	return(data);

@@ -50,6 +50,6 @@ struct lavcData
 
 int encode_lavc_frame (BYTE *picture_buf, struct lavcData* data);
 
-void clean_lavc (struct lavcData* data);
+void clean_lavc (struct lavcData** data);
 
 #endif

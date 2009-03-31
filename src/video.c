@@ -166,6 +166,14 @@ void *main_loop(void *data)
 	drect.w = pscreen->w;
 	drect.h = pscreen->h;
 	
+	// must be called before using avcodec lib
+	avcodec_init();
+
+	// register all the codecs (you can also register only the codec
+	//you wish to have smaller code
+	avcodec_register_all();
+	
+	
 	while (videoIn->signalquit) 
 	{
 		/*-------------------------- Grab Frame ----------------------------------*/
@@ -522,8 +530,8 @@ void *main_loop(void *data)
 		{
 			if(lavc_data != NULL)
 			{
-				clean_lavc(lavc_data);
-				lavc_data = NULL;
+				clean_lavc(&(lavc_data));
+				//lavc_data = NULL;
 			}
 	
 			videoIn->AVICapStop=TRUE;
