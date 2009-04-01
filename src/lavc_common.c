@@ -79,7 +79,6 @@ void clean_lavc (struct lavcData** data)
 		avcodec_flush_buffers((*data)->codec_context);
 		//close codec 
 		avcodec_close((*data)->codec_context);
-		av_free_static();
 		//free codec context
 		g_free((*data)->codec_context);
 		(*data)->codec_context = NULL;
@@ -90,3 +89,4 @@ void clean_lavc (struct lavcData** data)
 		*data = NULL;
 	}
 }
+

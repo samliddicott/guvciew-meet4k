@@ -13,14 +13,7 @@ pixs = \
 	controls_folder.png\
 	close.png
 
-clean:
-	test -z "guvcview.desktop" || rm -f guvcview.desktop;\
-	test -z "guvcview" || rm -f guvcview;\
-	test -z "guvciew.1.gz" || rm -f guvcview.1.gz
-
-distclean: clean
-
-clean-all: clean
+CONFIG_CLEAN_FILES = guvcview.desktop guvcview guvcview.1.gz
 
 .manpage:
 	if test -e guvcview.1; then\
