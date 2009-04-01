@@ -52,6 +52,18 @@ struct lavcData* init_wmv (int width, int height, int fps)
 	// resolution must be a multiple of two
 	data->codec_context->width = width; 
 	data->codec_context->height = height;
+	
+	data->codec_context->flags = CODEC_FLAG_4MV;
+	/* 
+	* mb_decision
+	*0 (FF_MB_DECISION_SIMPLE) Use mbcmp (default).
+	*1 (FF_MB_DECISION_BITS)   Select the MB mode which needs the fewest bits (=vhq).
+	*2 (FF_MB_DECISION_RD)     Select the MB mode which has the best rate distortion.
+	*/
+	data->codec_context->mb_decision = FF_MB_DECISION_RD;
+	/*use trellis quantization*/
+	data->codec_context->trellis = 1;
+	
 	data->codec_context->qmin = 2; // best detail allowed - worst compression
 	data->codec_context->qmax = 8; // worst detail allowed - best compression
 	data->codec_context->max_qdiff = 2;

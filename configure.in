@@ -26,20 +26,26 @@ PKG_CHECK_MODULES(PACKAGE, [gtk+-2.0 >= 2.10.0 glib-2.0 >= 2.10.0 gthread-2.0 gd
 AC_SUBST(PACKAGE_CFLAGS)
 AC_SUBST(PACKAGE_LIBS)
 
-dnl Check old install dir for avcodec.h
+dnl Check old install path for avcodec.h
 AC_CHECK_HEADER([ffmpeg/avcodec.h], [has_ffmpeg_dir="yes"])
 
 if test "$has_ffmpeg_dir" = yes; then
 AC_DEFINE(HAS_FFMPEG_AVCODEC_H,1,[Define if avcodec.h installed to ffmpeg dir]) 
 fi
 
-dnl Check new install dir for avcodec.h
+dnl Check new install path for avcodec.h
 AC_CHECK_HEADER([libavcodec/avcodec.h], [has_libavcodec_dir="yes"])
 
 if test "$has_libavcodec_dir" = yes; then
 AC_DEFINE(HAS_LIBAVCODEC_AVCODEC_H,1,[Define if avcodec.h installed to libavcodec dir])
 fi
 
+dnl Check for yet another install path for avcodec.h
+AC_CHECK_HEADER([ffmpeg/libavcodec/avcodec.h], [has_ffmpeg_libavcodec_dir="yes"])
+
+if test "$has_ffmpeg_libavcodec_dir" = yes; then
+AC_DEFINE(HAS_FFMPEG_LIBAVCODEC_AVCODEC_H,1,[Define if avcodec.h installed to ffmpeg/libavcodec dir])
+fi
 
 dnl Write output
 AC_OUTPUT([
