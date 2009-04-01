@@ -246,8 +246,6 @@ install-strip:
 	    echo "INSTALL_PROGRAM_ENV=STRIPPROG='$(STRIP)'"` install
 mostlyclean-generic:
 
-clean-generic:
-
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
 
@@ -320,6 +318,9 @@ uninstall-am:
 	maintainer-clean maintainer-clean-generic mostlyclean \
 	mostlyclean-generic pdf pdf-am ps ps-am uninstall uninstall-am
 
+
+clean-generic:
+	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
 
 .manpage:
 	if test -e guvcview.1; then\

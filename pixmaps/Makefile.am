@@ -15,6 +15,9 @@ pixs = \
 
 CONFIG_CLEAN_FILES = guvcview.desktop guvcview guvcview.1.gz
 
+clean-generic:
+	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
+
 .manpage:
 	if test -e guvcview.1; then\
 		echo "compressing man page";\
