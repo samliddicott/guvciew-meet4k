@@ -33,7 +33,7 @@
     #ifdef HAS_FFMPEG_LIBAVCODEC_AVCODEC_H
       #include <ffmpeg/libavcodec/avcodec.h>
     #else
-      #include <avcodec.h>
+      #include <libavcodec/avcodec.h>
     #endif
   #endif
 #endif
