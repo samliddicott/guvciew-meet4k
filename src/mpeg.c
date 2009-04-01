@@ -52,7 +52,6 @@ struct lavcData* init_mpeg (int width, int height, int fps)
 	data->codec_context->width = width; 
 	data->codec_context->height = height;
 	
-	data->codec_context->flags = CODEC_FLAG_4MV;
 	/* 
 	* mb_decision
 	*0 (FF_MB_DECISION_SIMPLE) Use mbcmp (default).
@@ -63,6 +62,7 @@ struct lavcData* init_mpeg (int width, int height, int fps)
 	/*use trellis quantization*/
 	data->codec_context->trellis = 1;
 	
+	//motion estimation method epzs
 	data->codec_context->me_method = ME_EPZS; 
 	data->codec_context->mpeg_quant = 0; //h.263
 	data->codec_context->qmin = 2; // best detail allowed - worst compression
@@ -70,6 +70,7 @@ struct lavcData* init_mpeg (int width, int height, int fps)
 	data->codec_context->max_qdiff = 2;
 	data->codec_context->max_b_frames = 0;
 	data->codec_context->gop_size = 12;
+	
 	data->codec_context->qcompress = 0.5;
 	data->codec_context->qblur = 0.5;
 	data->codec_context->strict_std_compliance = FF_COMPLIANCE_NORMAL;

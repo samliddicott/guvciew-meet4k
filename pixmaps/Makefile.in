@@ -39,7 +39,6 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = $(top_builddir)/config.h
-CONFIG_CLEAN_FILES =
 SOURCES =
 DIST_SOURCES =
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -161,6 +160,7 @@ pixs = \
 	controls_folder.png\
 	close.png
 
+CONFIG_CLEAN_FILES = guvcview.desktop guvcview guvcview.1.gz
 all: all-am
 
 .SUFFIXES:
@@ -254,8 +254,12 @@ distclean-generic:
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
 	@echo "it deletes files that may require special tools to rebuild."
+clean: clean-am
+
 clean-am: clean-generic mostlyclean-am
 
+distclean: distclean-am
+	-rm -f Makefile
 distclean-am: clean-am distclean-generic
 
 dvi: dvi-am
@@ -316,15 +320,6 @@ uninstall-am:
 	maintainer-clean maintainer-clean-generic mostlyclean \
 	mostlyclean-generic pdf pdf-am ps ps-am uninstall uninstall-am
 
-
-clean:
-	test -z "guvcview.desktop" || rm -f guvcview.desktop;\
-	test -z "guvcview" || rm -f guvcview;\
-	test -z "guvciew.1.gz" || rm -f guvcview.1.gz
-
-distclean: clean
-
-clean-all: clean
 
 .manpage:
 	if test -e guvcview.1; then\

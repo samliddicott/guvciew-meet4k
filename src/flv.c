@@ -53,7 +53,8 @@ struct lavcData* init_flv (int width, int height, int fps)
 	data->codec_context->width = width; 
 	data->codec_context->height = height;
 	
-	data->codec_context->flags = CODEC_FLAG_4MV;
+	//allow 4 motion vectors per macroblock
+	data->codec_context->flags |= CODEC_FLAG_4MV;
 	/* 
 	* mb_decision
 	*0 (FF_MB_DECISION_SIMPLE) Use mbcmp (default).
@@ -64,7 +65,9 @@ struct lavcData* init_flv (int width, int height, int fps)
 	/*use trellis quantization*/
 	data->codec_context->trellis = 1;
 	
+	//motion estimation method epzs
 	data->codec_context->me_method = ME_EPZS; 
+	
 	data->codec_context->mpeg_quant = 0; //h.263
 	data->codec_context->qmin = 2; // best detail allowed - worst compression
 	data->codec_context->qmax = 31; // worst detail allowed - best compression

@@ -53,7 +53,6 @@ struct lavcData* init_wmv (int width, int height, int fps)
 	data->codec_context->width = width; 
 	data->codec_context->height = height;
 	
-	data->codec_context->flags = CODEC_FLAG_4MV;
 	/* 
 	* mb_decision
 	*0 (FF_MB_DECISION_SIMPLE) Use mbcmp (default).
@@ -67,8 +66,9 @@ struct lavcData* init_wmv (int width, int height, int fps)
 	data->codec_context->qmin = 2; // best detail allowed - worst compression
 	data->codec_context->qmax = 8; // worst detail allowed - best compression
 	data->codec_context->max_qdiff = 2;
-	data->codec_context->gop_size = 100;
 	data->codec_context->max_b_frames = 0;
+	data->codec_context->gop_size = 100;
+	
 	data->codec_context->qcompress = 0.5;
 	data->codec_context->qblur = 0.5;
 	data->codec_context->codec_id = CODEC_ID_WMV1;
