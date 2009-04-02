@@ -80,6 +80,22 @@ const char *get_desc4cc(int codec_ind)
 	return (listSupVCodecs[codec_ind].description);
 }
 
+static int encode_lavc (struct lavcData *lavc_data, struct ALL_DATA *all_data, int keyframe)
+{
+	struct vdIn *videoIn = all_data->videoIn;
+	struct avi_t *AviOut = all_data->AviOut;
+	int framesize = 0;
+	int ic  = 0;
+	int ret = 0;
+	
+	if(lavc_data)
+	{
+		framesize= encode_lavc_frame (videoIn->framebuffer, lavc_data );
+		ret = AVI_write_frame (AviOut, lavc_data->outbuf, framesize, keyframe);
+	}
+	return (ret);
+}
+		   
 int compress_frame(void *data, 
 	void *jpeg_data, 
 	void *lav_data,
@@ -98,6 +114,7 @@ int compress_frame(void *data,
 	
 	long framesize=0;
 	int ret=0;
+	
 	switch (global->AVIFormat) 
 	{
 		case CODEC_MJPEG: /*MJPG*/
@@ -152,11 +169,7 @@ int compress_frame(void *data,
 			{
 				*lavc_data = init_mpeg(videoIn->width, videoIn->height, videoIn->fps);
 			}
-			if(*lavc_data)
-			{
-				framesize= encode_lavc_frame (videoIn->framebuffer, *lavc_data );
-				ret = AVI_write_frame (AviOut, (*lavc_data)->outbuf, framesize, keyframe);
-			}
+			ret = encode_lavc (*lavc_data, all_data, keyframe);
 			break;
 
 		case CODEC_FLV1:
@@ -164,11 +177,7 @@ int compress_frame(void *data,
 			{
 				*lavc_data = init_flv(videoIn->width, videoIn->height, videoIn->fps);
 			}
-			if(*lavc_data)
-			{
-				framesize= encode_lavc_frame (videoIn->framebuffer, *lavc_data );
-				ret = AVI_write_frame (AviOut, (*lavc_data)->outbuf, framesize, keyframe);
-			}
+			ret = encode_lavc (*lavc_data, all_data, keyframe);
 			break;
 
 		case CODEC_WMV1:
@@ -176,11 +185,7 @@ int compress_frame(void *data,
 			{
 				*lavc_data = init_wmv(videoIn->width, videoIn->height, videoIn->fps);
 			}
-			if(*lavc_data)
-			{
-				framesize= encode_lavc_frame (videoIn->framebuffer, *lavc_data );
-				ret = AVI_write_frame (AviOut, (*lavc_data)->outbuf, framesize, keyframe);
-			}
+			ret = encode_lavc (*lavc_data, all_data, keyframe);
 			break;
 	}
 	return (ret);

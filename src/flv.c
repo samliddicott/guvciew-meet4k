@@ -68,6 +68,14 @@ struct lavcData* init_flv (int width, int height, int fps)
 	//motion estimation method epzs
 	data->codec_context->me_method = ME_EPZS; 
 	
+	data->codec_context->dia_size = 2;
+	data->codec_context->pre_dia_size = 2;
+	data->codec_context->pre_me = 2;
+	data->codec_context->me_pre_cmp = 0;
+	data->codec_context->me_cmp = 3;
+	data->codec_context->me_sub_cmp = 3;
+	data->codec_context->last_predictor_count = 2;
+	
 	data->codec_context->mpeg_quant = 0; //h.263
 	data->codec_context->qmin = 2; // best detail allowed - worst compression
 	data->codec_context->qmax = 31; // worst detail allowed - best compression

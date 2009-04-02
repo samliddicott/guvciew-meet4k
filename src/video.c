@@ -530,8 +530,10 @@ void *main_loop(void *data)
 		{
 			if(lavc_data != NULL)
 			{
-				clean_lavc(&(lavc_data));
-				//lavc_data = NULL;
+				int nf = clean_lavc(&(lavc_data));
+				if(global->debug) g_printf(" total frames: %d  -- encoded: %d\n", global->framecount, nf);
+				//if (global->framecount > nf)
+				//	global->framecount = nf;
 			}
 	
 			videoIn->AVICapStop=TRUE;

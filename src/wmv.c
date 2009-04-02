@@ -63,6 +63,14 @@ struct lavcData* init_wmv (int width, int height, int fps)
 	/*use trellis quantization*/
 	data->codec_context->trellis = 1;
 	
+	data->codec_context->dia_size = 2;
+	data->codec_context->pre_dia_size = 2;
+	data->codec_context->pre_me = 2;
+	data->codec_context->me_pre_cmp = 0;
+	data->codec_context->me_cmp = 3;
+	data->codec_context->me_sub_cmp = 3;
+	data->codec_context->last_predictor_count = 2;
+	
 	data->codec_context->qmin = 2; // best detail allowed - worst compression
 	data->codec_context->qmax = 8; // worst detail allowed - best compression
 	data->codec_context->max_qdiff = 2;

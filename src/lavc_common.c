@@ -72,11 +72,13 @@ int encode_lavc_frame (BYTE *picture_buf, struct lavcData* data)
 	return (out_size);
 }
 
-void clean_lavc (void* arg)
+int clean_lavc (void* arg)
 {
 	struct lavcData** data= (struct lavcData**) arg;
+	int enc_frames =0;
 	if(*data)
 	{
+		enc_frames = (*data)->codec_context->real_pict_num;
 		avcodec_flush_buffers((*data)->codec_context);
 		//close codec 
 		avcodec_close((*data)->codec_context);
@@ -89,5 +91,6 @@ void clean_lavc (void* arg)
 		g_free(*data);
 		*data = NULL;
 	}
+	return (enc_frames);
 }
 
