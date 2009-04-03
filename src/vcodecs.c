@@ -219,7 +219,6 @@ static int encode_lavc (struct lavcData *lavc_data, struct ALL_DATA *all_data, i
 	struct vdIn *videoIn = all_data->videoIn;
 	struct avi_t *AviOut = all_data->AviOut;
 	int framesize = 0;
-	int ic  = 0;
 	int ret = 0;
 	
 	if(lavc_data)

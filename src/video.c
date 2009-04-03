@@ -68,7 +68,7 @@ void *main_loop(void *data)
 	
 	struct JPEG_ENCODER_STRUCTURE *jpeg_struct=NULL;
 	struct lavcData *lavc_data = NULL;
-	vcodecs_data *lavc_defaults = NULL;
+
 	struct audio_effects *aud_eff = init_audio_effects ();
 	
 	BYTE *p = NULL;
