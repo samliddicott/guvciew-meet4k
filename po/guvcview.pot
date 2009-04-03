@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-03-29 22:10+0100\n"
+"POT-Creation-Date: 2009-04-03 20:02+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,99 +16,99 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/guvcview.c:159
+#: src/guvcview.c:161
 msgid "GUVCViewer Controls"
 msgstr ""
 
 #. can't open device
-#: src/guvcview.c:186
+#: src/guvcview.c:188
 msgid ""
 "Guvcview error:\n"
 "\n"
 "Unable to open device"
 msgstr ""
 
-#: src/guvcview.c:187
+#: src/guvcview.c:189
 msgid ""
 "Please make sure the camera is connected\n"
 "and that the linux-UVC driver is installed."
 msgstr ""
 
-#: src/guvcview.c:209 src/guvcview.c:244
+#: src/guvcview.c:211 src/guvcview.c:246
 msgid ""
 "Guvcview error:\n"
 "\n"
 "Can't set MJPG or YUV stream for guvcview"
 msgstr ""
 
-#: src/guvcview.c:210 src/guvcview.c:245
+#: src/guvcview.c:212 src/guvcview.c:247
 msgid ""
 "Make sure you have a UVC compliant camera\n"
 "and that you have the linux UVC driver installed."
 msgstr ""
 
-#: src/guvcview.c:218
+#: src/guvcview.c:220
 msgid ""
 "Guvcview error:\n"
 "\n"
 "Unable to start with minimum setup"
 msgstr ""
 
-#: src/guvcview.c:219
+#: src/guvcview.c:221
 msgid "Please reconnect your camera."
 msgstr ""
 
-#: src/guvcview.c:228
+#: src/guvcview.c:230
 msgid ""
 "Guvcview error:\n"
 "\n"
 "Unable to allocate Buffers"
 msgstr ""
 
-#: src/guvcview.c:229
+#: src/guvcview.c:231
 msgid "Please try restarting your system."
 msgstr ""
 
-#: src/guvcview.c:276
+#: src/guvcview.c:278
 msgid "Image Controls"
 msgstr ""
 
-#: src/guvcview.c:311
+#: src/guvcview.c:313
 msgid "Capture:"
 msgstr ""
 
 #. increment column for labels
 #. end of control only exclusion
-#: src/guvcview.c:319
+#: src/guvcview.c:321
 msgid "Control Profiles:"
 msgstr ""
 
 #. image auto capture
-#: src/guvcview.c:346
+#: src/guvcview.c:348
 msgid "Stop Auto"
 msgstr ""
 
-#: src/guvcview.c:350 src/callbacks.c:999
+#: src/guvcview.c:352 src/callbacks.c:1003
 msgid "Cap. Image"
 msgstr ""
 
 #. avi capture enabled from start
-#: src/guvcview.c:355 src/callbacks.c:1137
+#: src/guvcview.c:357 src/callbacks.c:1141
 msgid "Stop AVI"
 msgstr ""
 
-#: src/guvcview.c:361 src/callbacks.c:1065
+#: src/guvcview.c:363 src/callbacks.c:1069
 msgid "Cap. AVI"
 msgstr ""
 
-#: src/guvcview.c:499
+#: src/guvcview.c:501
 msgid ""
 "Guvcview error:\n"
 "\n"
 "Unable to create Video Thread"
 msgstr ""
 
-#: src/guvcview.c:500
+#: src/guvcview.c:502
 msgid "Please report it to http://developer.berlios.de/bugs/?group_id=8179"
 msgstr ""
 
@@ -206,89 +206,162 @@ msgstr ""
 msgid "Aperture Priority Mode"
 msgstr ""
 
-#: src/video_tab.c:41 src/callbacks.c:1161
+#: src/video_tab.c:41 src/callbacks.c:1165
 msgid "Save File"
 msgstr ""
 
 #. if auto naming restart counter
 #: src/video_tab.c:95 src/globals.c:69 src/globals.c:72 src/options.c:351
-#: src/options.c:400 src/callbacks.c:805 src/callbacks.c:929
-#: src/callbacks.c:946 src/callbacks.c:978 src/callbacks.c:1070
+#: src/options.c:400 src/callbacks.c:806 src/callbacks.c:933
+#: src/callbacks.c:950 src/callbacks.c:982 src/callbacks.c:1074
 #, c-format
 msgid "File num:%d"
 msgstr ""
 
-#: src/video_tab.c:155
+#: src/video_tab.c:115
+msgid "codec values"
+msgstr ""
+
+#: src/video_tab.c:126
+msgid "bit rate:   "
+msgstr ""
+
+#: src/video_tab.c:141
+msgid "qmax:   "
+msgstr ""
+
+#: src/video_tab.c:156
+msgid "qmin:   "
+msgstr ""
+
+#: src/video_tab.c:171
+msgid "max. qdiff:   "
+msgstr ""
+
+#: src/video_tab.c:186
+msgid "dia size:   "
+msgstr ""
+
+#: src/video_tab.c:201
+msgid "pre dia size:   "
+msgstr ""
+
+#: src/video_tab.c:216
+msgid "pre me:   "
+msgstr ""
+
+#: src/video_tab.c:231
+msgid "pre cmp:   "
+msgstr ""
+
+#: src/video_tab.c:246
+msgid "cmp:   "
+msgstr ""
+
+#: src/video_tab.c:261
+msgid "sub cmp:   "
+msgstr ""
+
+#: src/video_tab.c:276
+msgid "last predictor count:   "
+msgstr ""
+
+#: src/video_tab.c:291
+msgid "gop size:   "
+msgstr ""
+
+#: src/video_tab.c:306
+msgid "qcompress:   "
+msgstr ""
+
+#: src/video_tab.c:321
+msgid "qblur:   "
+msgstr ""
+
+#: src/video_tab.c:336
+msgid "me method:   "
+msgstr ""
+
+#: src/video_tab.c:351
+msgid "mb decision:   "
+msgstr ""
+
+#: src/video_tab.c:451
 msgid "Video & Files"
 msgstr ""
 
 #. Devices
-#: src/video_tab.c:171
+#: src/video_tab.c:467
 msgid "Device:"
 msgstr ""
 
-#: src/video_tab.c:266
+#: src/video_tab.c:562
 msgid "Frame Rate:"
 msgstr ""
 
-#: src/video_tab.c:274
+#: src/video_tab.c:570
 msgid " Show"
 msgstr ""
 
-#: src/video_tab.c:298
+#: src/video_tab.c:594
 msgid "Resolution:"
 msgstr ""
 
-#: src/video_tab.c:324
+#: src/video_tab.c:620
 msgid "Camera Output:"
 msgstr ""
 
-#: src/video_tab.c:334
+#: src/video_tab.c:630
 msgid "Image File:"
 msgstr ""
 
-#: src/video_tab.c:365 src/video_tab.c:450
+#: src/video_tab.c:661 src/video_tab.c:746
 msgid "File,Auto"
 msgstr ""
 
-#: src/video_tab.c:376
+#: src/video_tab.c:672
 msgid "Image Format:"
 msgstr ""
 
-#: src/video_tab.c:404
+#: src/video_tab.c:700
 msgid "AVI File:"
 msgstr ""
 
-#: src/video_tab.c:478
+#: src/video_tab.c:774
 msgid "AVI Format:"
 msgstr ""
 
-#: src/video_tab.c:487
+#. lavc codec properties button
+#: src/video_tab.c:782
+msgid "properties"
+msgstr ""
+
+#: src/video_tab.c:792
 msgid "---- Video Filters ----"
 msgstr ""
 
 #. Mirror
-#: src/video_tab.c:502
+#: src/video_tab.c:807
 msgid " Mirror"
 msgstr ""
 
 #. Upturn
-#: src/video_tab.c:512
+#: src/video_tab.c:817
 msgid " Invert"
 msgstr ""
 
 #. Negate
-#: src/video_tab.c:522
+#: src/video_tab.c:827
 msgid " Negative"
 msgstr ""
 
 #. Mono
-#: src/video_tab.c:532
+#: src/video_tab.c:837
 msgid " Mono"
 msgstr ""
 
 #. Pieces
-#: src/video_tab.c:543
+#: src/video_tab.c:848
 msgid " Pieces"
 msgstr ""
 
@@ -405,27 +478,27 @@ msgstr ""
 msgid "Raw bits per pixel"
 msgstr ""
 
-#: src/vcodecs.c:32
+#: src/vcodecs.c:42
 msgid "MJPG - compressed"
 msgstr ""
 
-#: src/vcodecs.c:37
+#: src/vcodecs.c:68
 msgid "YUY2 - uncomp YUV"
 msgstr ""
 
-#: src/vcodecs.c:42
+#: src/vcodecs.c:94
 msgid "RGB - uncomp BMP"
 msgstr ""
 
-#: src/vcodecs.c:47
+#: src/vcodecs.c:120
 msgid "MPEG video 1"
 msgstr ""
 
-#: src/vcodecs.c:52
+#: src/vcodecs.c:146
 msgid "FLV1 - flash video 1"
 msgstr ""
 
-#: src/vcodecs.c:57
+#: src/vcodecs.c:172
 msgid "WMV1 - win. med. video 7"
 msgstr ""
 
@@ -536,41 +609,41 @@ msgstr ""
 msgid "raw pixel order:"
 msgstr ""
 
-#: src/callbacks.c:564
+#: src/callbacks.c:565
 msgid "start new"
 msgstr ""
 
-#: src/callbacks.c:567
+#: src/callbacks.c:568
 msgid "restart"
 msgstr ""
 
-#: src/callbacks.c:569
+#: src/callbacks.c:570
 msgid "new"
 msgstr ""
 
-#: src/callbacks.c:571
+#: src/callbacks.c:572
 msgid "cancel"
 msgstr ""
 
-#: src/callbacks.c:575
+#: src/callbacks.c:576
 msgid ""
 "launch new process or restart?.\n"
 "\n"
 msgstr ""
 
-#: src/callbacks.c:634 src/callbacks.c:710
+#: src/callbacks.c:635 src/callbacks.c:711
 msgid "Program Restart"
 msgstr ""
 
-#: src/callbacks.c:637 src/callbacks.c:713
+#: src/callbacks.c:638 src/callbacks.c:714
 msgid "now"
 msgstr ""
 
-#: src/callbacks.c:639 src/callbacks.c:715
+#: src/callbacks.c:640 src/callbacks.c:716
 msgid "Later"
 msgstr ""
 
-#: src/callbacks.c:643 src/callbacks.c:719
+#: src/callbacks.c:644 src/callbacks.c:720
 msgid ""
 "Changes will only take effect after guvcview restart.\n"
 "\n"
@@ -578,6 +651,6 @@ msgid ""
 "Restart now?\n"
 msgstr ""
 
-#: src/callbacks.c:1174
+#: src/callbacks.c:1178
 msgid "Load File"
 msgstr ""
