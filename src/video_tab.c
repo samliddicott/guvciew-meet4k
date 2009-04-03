@@ -112,7 +112,7 @@ lavc_properties(GtkButton * CodecButt, struct ALL_DATA *all_data)
 	
 	if (!(codec_defaults->avcodec)) return;
 	
-	GtkWidget *codec_dialog = gtk_dialog_new_with_buttons (_("lavc Codec Values"),
+	GtkWidget *codec_dialog = gtk_dialog_new_with_buttons (_("codec values"),
 		GTK_WINDOW(gwidget->mainwin),
 		GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
 		GTK_STOCK_OK,
@@ -123,10 +123,10 @@ lavc_properties(GtkButton * CodecButt, struct ALL_DATA *all_data)
 	
 	GtkWidget *table = gtk_table_new(1,2,FALSE);
 	
-	GtkWidget *lbl_bit_rate = gtk_label_new(_("bit rate:"));
+	GtkWidget *lbl_bit_rate = gtk_label_new(_("bit rate:   "));
 	gtk_misc_set_alignment (GTK_MISC (lbl_bit_rate), 1, 0.5);
 	gtk_table_attach (GTK_TABLE(table), lbl_bit_rate, 0, 1, line, line+1,
-		GTK_FILL, 0, 0, 0);
+		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (lbl_bit_rate);
 	
 	GtkWidget *bit_rate = gtk_spin_button_new_with_range(160000,4000000,20000);
@@ -134,14 +134,14 @@ lavc_properties(GtkButton * CodecButt, struct ALL_DATA *all_data)
 	gtk_spin_button_set_value (GTK_SPIN_BUTTON(bit_rate), codec_defaults->bit_rate);
 	
 	gtk_table_attach (GTK_TABLE(table), bit_rate, 1, 2, line, line+1,
-		GTK_FILL, 0, 0, 0);
+		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (bit_rate);
 	line++;
 	
-	GtkWidget *lbl_qmax = gtk_label_new(_("qmax:"));
+	GtkWidget *lbl_qmax = gtk_label_new(_("qmax:   "));
 	gtk_misc_set_alignment (GTK_MISC (lbl_qmax), 1, 0.5);
 	gtk_table_attach (GTK_TABLE(table), lbl_qmax, 0, 1, line, line+1,
-		GTK_FILL, 0, 0, 0);
+		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (lbl_qmax);
 	
 	GtkWidget *qmax = gtk_spin_button_new_with_range(1,31,1);
@@ -149,14 +149,14 @@ lavc_properties(GtkButton * CodecButt, struct ALL_DATA *all_data)
 	gtk_spin_button_set_value (GTK_SPIN_BUTTON(qmax), codec_defaults->qmax);
 	
 	gtk_table_attach (GTK_TABLE(table), qmax, 1, 2, line, line+1,
-		GTK_FILL, 0, 0, 0);
+		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (qmax);
 	line++;
 	
-	GtkWidget *lbl_qmin = gtk_label_new(_("qmin:"));
+	GtkWidget *lbl_qmin = gtk_label_new(_("qmin:   "));
 	gtk_misc_set_alignment (GTK_MISC (lbl_qmin), 1, 0.5);
 	gtk_table_attach (GTK_TABLE(table), lbl_qmin, 0, 1, line, line+1,
-		GTK_FILL, 0, 0, 0);
+		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (lbl_qmin);
 	
 	GtkWidget *qmin = gtk_spin_button_new_with_range(1,31,1);
@@ -164,14 +164,14 @@ lavc_properties(GtkButton * CodecButt, struct ALL_DATA *all_data)
 	gtk_spin_button_set_value (GTK_SPIN_BUTTON(qmin), codec_defaults->qmin);
 	
 	gtk_table_attach (GTK_TABLE(table), qmin, 1, 2, line, line+1,
-		GTK_FILL, 0, 0, 0);
+		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (qmin);
 	line++;
 	
-	GtkWidget *lbl_max_qdiff = gtk_label_new(_("max. qdiff:"));
+	GtkWidget *lbl_max_qdiff = gtk_label_new(_("max. qdiff:   "));
 	gtk_misc_set_alignment (GTK_MISC (lbl_max_qdiff), 1, 0.5);
 	gtk_table_attach (GTK_TABLE(table), lbl_max_qdiff, 0, 1, line, line+1,
-		GTK_FILL, 0, 0, 0);
+		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (lbl_max_qdiff);
 	
 	GtkWidget *max_qdiff = gtk_spin_button_new_with_range(1,4,1);
@@ -179,14 +179,14 @@ lavc_properties(GtkButton * CodecButt, struct ALL_DATA *all_data)
 	gtk_spin_button_set_value (GTK_SPIN_BUTTON(max_qdiff), codec_defaults->max_qdiff);
 	
 	gtk_table_attach (GTK_TABLE(table), max_qdiff, 1, 2, line, line+1,
-		GTK_FILL, 0, 0, 0);
+		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (max_qdiff);
 	line++;
 	
-	GtkWidget *lbl_dia = gtk_label_new(_("dia size:"));
+	GtkWidget *lbl_dia = gtk_label_new(_("dia size:   "));
 	gtk_misc_set_alignment (GTK_MISC (lbl_dia), 1, 0.5);
 	gtk_table_attach (GTK_TABLE(table), lbl_dia, 0, 1, line, line+1,
-		GTK_FILL, 0, 0, 0);
+		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (lbl_dia);
 	
 	GtkWidget *dia = gtk_spin_button_new_with_range(-1,4,1);
@@ -194,14 +194,14 @@ lavc_properties(GtkButton * CodecButt, struct ALL_DATA *all_data)
 	gtk_spin_button_set_value (GTK_SPIN_BUTTON(dia), codec_defaults->dia);
 	
 	gtk_table_attach (GTK_TABLE(table), dia, 1, 2, line, line+1,
-		GTK_FILL, 0, 0, 0);
+		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (dia);
 	line++;
 	
-	GtkWidget *lbl_pre_dia = gtk_label_new(_("pre dia size:"));
+	GtkWidget *lbl_pre_dia = gtk_label_new(_("pre dia size:   "));
 	gtk_misc_set_alignment (GTK_MISC (lbl_pre_dia), 1, 0.5);
 	gtk_table_attach (GTK_TABLE(table), lbl_pre_dia, 0, 1, line, line+1,
-		GTK_FILL, 0, 0, 0);
+		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (lbl_pre_dia);
 	
 	GtkWidget *pre_dia = gtk_spin_button_new_with_range(1,4,1);
@@ -209,14 +209,14 @@ lavc_properties(GtkButton * CodecButt, struct ALL_DATA *all_data)
 	gtk_spin_button_set_value (GTK_SPIN_BUTTON(pre_dia), codec_defaults->pre_dia);
 	
 	gtk_table_attach (GTK_TABLE(table), pre_dia, 1, 2, line, line+1,
-		GTK_FILL, 0, 0, 0);
+		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (pre_dia);
 	line++;
 	
-	GtkWidget *lbl_pre_me = gtk_label_new(_("pre me:"));
+	GtkWidget *lbl_pre_me = gtk_label_new(_("pre me:   "));
 	gtk_misc_set_alignment (GTK_MISC (lbl_pre_me), 1, 0.5);
 	gtk_table_attach (GTK_TABLE(table), lbl_pre_me, 0, 1, line, line+1,
-		GTK_FILL, 0, 0, 0);
+		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (lbl_pre_me);
 	
 	GtkWidget *pre_me = gtk_spin_button_new_with_range(0,2,1);
@@ -224,14 +224,14 @@ lavc_properties(GtkButton * CodecButt, struct ALL_DATA *all_data)
 	gtk_spin_button_set_value (GTK_SPIN_BUTTON(pre_me), codec_defaults->pre_me);
 	
 	gtk_table_attach (GTK_TABLE(table), pre_me, 1, 2, line, line+1,
-		GTK_FILL, 0, 0, 0);
+		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (pre_me);
 	line++;
 	
-	GtkWidget *lbl_me_pre_cmp = gtk_label_new(_("pre cmp:"));
+	GtkWidget *lbl_me_pre_cmp = gtk_label_new(_("pre cmp:   "));
 	gtk_misc_set_alignment (GTK_MISC (lbl_me_pre_cmp), 1, 0.5);
 	gtk_table_attach (GTK_TABLE(table), lbl_me_pre_cmp, 0, 1, line, line+1,
-		GTK_FILL, 0, 0, 0);
+		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (lbl_me_pre_cmp);
 	
 	GtkWidget *me_pre_cmp = gtk_spin_button_new_with_range(0,6,1);
@@ -239,14 +239,14 @@ lavc_properties(GtkButton * CodecButt, struct ALL_DATA *all_data)
 	gtk_spin_button_set_value (GTK_SPIN_BUTTON(me_pre_cmp), codec_defaults->me_pre_cmp);
 	
 	gtk_table_attach (GTK_TABLE(table), me_pre_cmp, 1, 2, line, line+1,
-		GTK_FILL, 0, 0, 0);
+		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (me_pre_cmp);
 	line++;
 	
-	GtkWidget *lbl_me_cmp = gtk_label_new(_("cmp:"));
+	GtkWidget *lbl_me_cmp = gtk_label_new(_("cmp:   "));
 	gtk_misc_set_alignment (GTK_MISC (lbl_me_cmp), 1, 0.5);
 	gtk_table_attach (GTK_TABLE(table), lbl_me_cmp, 0, 1, line, line+1,
-		GTK_FILL, 0, 0, 0);
+		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (lbl_me_cmp);
 	
 	GtkWidget *me_cmp = gtk_spin_button_new_with_range(0,6,1);
@@ -254,14 +254,14 @@ lavc_properties(GtkButton * CodecButt, struct ALL_DATA *all_data)
 	gtk_spin_button_set_value (GTK_SPIN_BUTTON(me_cmp), codec_defaults->me_cmp);
 	
 	gtk_table_attach (GTK_TABLE(table), me_cmp, 1, 2, line, line+1,
-		GTK_FILL, 0, 0, 0);
+		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (me_cmp);
 	line++;
 	
-	GtkWidget *lbl_me_sub_cmp = gtk_label_new(_("sub cmp:"));
+	GtkWidget *lbl_me_sub_cmp = gtk_label_new(_("sub cmp:   "));
 	gtk_misc_set_alignment (GTK_MISC (lbl_me_sub_cmp), 1, 0.5);
 	gtk_table_attach (GTK_TABLE(table), lbl_me_sub_cmp, 0, 1, line, line+1,
-		GTK_FILL, 0, 0, 0);
+		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (lbl_me_sub_cmp);
 	
 	GtkWidget *me_sub_cmp = gtk_spin_button_new_with_range(0,6,1);
@@ -269,14 +269,14 @@ lavc_properties(GtkButton * CodecButt, struct ALL_DATA *all_data)
 	gtk_spin_button_set_value (GTK_SPIN_BUTTON(me_sub_cmp), codec_defaults->me_sub_cmp);
 	
 	gtk_table_attach (GTK_TABLE(table), me_sub_cmp, 1, 2, line, line+1,
-		GTK_FILL, 0, 0, 0);
+		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (me_sub_cmp);
 	line++;
 	
-	GtkWidget *lbl_last_pred = gtk_label_new(_("last predictor count:"));
+	GtkWidget *lbl_last_pred = gtk_label_new(_("last predictor count:   "));
 	gtk_misc_set_alignment (GTK_MISC (lbl_last_pred), 1, 0.5);
 	gtk_table_attach (GTK_TABLE(table), lbl_last_pred, 0, 1, line, line+1,
-		GTK_FILL, 0, 0, 0);
+		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (lbl_last_pred);
 	
 	GtkWidget *last_pred = gtk_spin_button_new_with_range(1,3,1);
@@ -284,14 +284,14 @@ lavc_properties(GtkButton * CodecButt, struct ALL_DATA *all_data)
 	gtk_spin_button_set_value (GTK_SPIN_BUTTON(last_pred), codec_defaults->last_pred);
 	
 	gtk_table_attach (GTK_TABLE(table), last_pred, 1, 2, line, line+1,
-		GTK_FILL, 0, 0, 0);
+		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (last_pred);
 	line++;
 	
-	GtkWidget *lbl_gop_size = gtk_label_new(_("gop size:"));
+	GtkWidget *lbl_gop_size = gtk_label_new(_("gop size:   "));
 	gtk_misc_set_alignment (GTK_MISC (lbl_gop_size), 1, 0.5);
 	gtk_table_attach (GTK_TABLE(table), lbl_gop_size, 0, 1, line, line+1,
-		GTK_FILL, 0, 0, 0);
+		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (lbl_gop_size);
 	
 	GtkWidget *gop_size = gtk_spin_button_new_with_range(1,250,1);
@@ -299,14 +299,14 @@ lavc_properties(GtkButton * CodecButt, struct ALL_DATA *all_data)
 	gtk_spin_button_set_value (GTK_SPIN_BUTTON(gop_size), codec_defaults->gop_size);
 	
 	gtk_table_attach (GTK_TABLE(table), gop_size, 1, 2, line, line+1,
-		GTK_FILL, 0, 0, 0);
+		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (gop_size);
 	line++;
 	
-	GtkWidget *lbl_qcompress = gtk_label_new(_("qcompress:"));
+	GtkWidget *lbl_qcompress = gtk_label_new(_("qcompress:   "));
 	gtk_misc_set_alignment (GTK_MISC (lbl_qcompress), 1, 0.5);
 	gtk_table_attach (GTK_TABLE(table), lbl_qcompress, 0, 1, line, line+1,
-		GTK_FILL, 0, 0, 0);
+		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (lbl_qcompress);
 	
 	GtkWidget *qcompress = gtk_spin_button_new_with_range(0,1,0.1);
@@ -314,14 +314,14 @@ lavc_properties(GtkButton * CodecButt, struct ALL_DATA *all_data)
 	gtk_spin_button_set_value (GTK_SPIN_BUTTON(qcompress), codec_defaults->qcompress);
 	
 	gtk_table_attach (GTK_TABLE(table), qcompress, 1, 2, line, line+1,
-		GTK_FILL, 0, 0, 0);
+		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (qcompress);
 	line++;
 	
-	GtkWidget *lbl_qblur = gtk_label_new(_("qblur:"));
+	GtkWidget *lbl_qblur = gtk_label_new(_("qblur:   "));
 	gtk_misc_set_alignment (GTK_MISC (lbl_qblur), 1, 0.5);
 	gtk_table_attach (GTK_TABLE(table), lbl_qblur, 0, 1, line, line+1,
-		GTK_FILL, 0, 0, 0);
+		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (lbl_qblur);
 	
 	GtkWidget *qblur = gtk_spin_button_new_with_range(0,1,0.1);
@@ -329,14 +329,14 @@ lavc_properties(GtkButton * CodecButt, struct ALL_DATA *all_data)
 	gtk_spin_button_set_value (GTK_SPIN_BUTTON(qblur), codec_defaults->qblur);
 	
 	gtk_table_attach (GTK_TABLE(table), qblur, 1, 2, line, line+1,
-		GTK_FILL, 0, 0, 0);
+		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (qblur);
 	line++;
 
-	GtkWidget *lbl_me_method = gtk_label_new(_("me method:"));
+	GtkWidget *lbl_me_method = gtk_label_new(_("me method:   "));
 	gtk_misc_set_alignment (GTK_MISC (lbl_me_method), 1, 0.5);
 	gtk_table_attach (GTK_TABLE(table), lbl_me_method, 0, 1, line, line+1,
-		GTK_FILL, 0, 0, 0);
+		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (lbl_me_method);
 	
 	GtkWidget *me_method = gtk_spin_button_new_with_range(1,10,1);
@@ -344,14 +344,14 @@ lavc_properties(GtkButton * CodecButt, struct ALL_DATA *all_data)
 	gtk_spin_button_set_value (GTK_SPIN_BUTTON(me_method), codec_defaults->me_method);
 	
 	gtk_table_attach (GTK_TABLE(table), me_method, 1, 2, line, line+1,
-		GTK_FILL, 0, 0, 0);
+		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (me_method);
 	line++;
 	
-	GtkWidget *lbl_mb_decision = gtk_label_new(_("mb decision:"));
+	GtkWidget *lbl_mb_decision = gtk_label_new(_("mb decision:   "));
 	gtk_misc_set_alignment (GTK_MISC (lbl_mb_decision), 1, 0.5);
 	gtk_table_attach (GTK_TABLE(table), lbl_mb_decision, 0, 1, line, line+1,
-		GTK_FILL, 0, 0, 0);
+		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (lbl_mb_decision);
 	
 	GtkWidget *mb_decision = gtk_spin_button_new_with_range(0,2,1);
@@ -359,7 +359,7 @@ lavc_properties(GtkButton * CodecButt, struct ALL_DATA *all_data)
 	gtk_spin_button_set_value (GTK_SPIN_BUTTON(mb_decision), codec_defaults->mb_decision);
 	
 	gtk_table_attach (GTK_TABLE(table), mb_decision, 1, 2, line, line+1,
-		GTK_FILL, 0, 0, 0);
+		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (mb_decision);
 	line++;
 	
