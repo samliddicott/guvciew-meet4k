@@ -1,3 +1,11 @@
+guvcview (1.0.5-ubuntu1) intrepid; urgency=low
+
+   * Added libavcodec properties button 
+   * Improved default options for libavcodec
+   * Improved support for libavcodec
+   
+ -- Paulo Assis <pj.assis@gmail.com>  Sat, 4 Apr 2009 14:00:00 +0000
+
 guvcview (1.0.4-ubuntu1) intrepid; urgency=low
 
    * Added WMV1 encoding to avi capture 

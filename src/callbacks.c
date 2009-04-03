@@ -42,6 +42,7 @@
 #include "timers.h"
 #include "callbacks.h"
 #include "vcodecs.h"
+#include "lavc_common.h"
 /*---------------------------- error message dialog-----------------------------*/
 void 
 ERR_DIALOG(const char *err_title, const char* err_msg, struct ALL_DATA *all_data)
@@ -860,9 +861,12 @@ void
 AVIComp_changed (GtkComboBox * AVIComp, struct ALL_DATA *all_data)
 {
 	struct GLOBAL *global = all_data->global;
+	struct GWIDGET *gwidget = all_data->gwidget;
 	
 	int index = gtk_combo_box_get_active (AVIComp);
 	global->AVIFormat=index;
+	gtk_widget_set_sensitive (gwidget->lavc_button, isLavcCodec(global->AVIFormat));
+	
 	global = NULL;
 }
 

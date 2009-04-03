@@ -4,6 +4,8 @@
 #           Paulo Assis <pj.assis@gmail.com>                                    #
 #           Nobuhiro Iwamatsu <iwamatsu@nigauri.org>                            #
 #                             Add UYVY color support(Macbook iSight)            #
+#           Dr. Alexander K. Seewald <alex@seewald.at>                          #
+#                             Add autofocus algorithm                           #
 #                                                                               #
 # This program is free software; you can redistribute it and/or modify          #
 # it under the terms of the GNU General Public License as published by          #

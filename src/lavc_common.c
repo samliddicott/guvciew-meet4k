@@ -20,7 +20,10 @@
 ********************************************************************************/
 
 #include <glib.h>
+#include <glib/gprintf.h>
+#include <glib/gstdio.h>
 #include "lavc_common.h"
+#include "vcodecs.h"
 
 static void yuv422to420p(BYTE* pic, struct lavcData* data )
 {
@@ -92,5 +95,84 @@ int clean_lavc (void* arg)
 		*data = NULL;
 	}
 	return (enc_frames);
+}
+
+struct lavcData* init_lavc(int width, int height, int fps, int codec_ind)
+{
+	//allocate
+	struct lavcData* data = g_new0(struct lavcData, 1);
+	
+	data->codec_context = NULL;
+	
+	data->codec_context = avcodec_alloc_context();
+	
+	vcodecs_data *defaults = get_codec_defaults(codec_ind);
+	
+	// find the mpeg video encoder
+	data->codec = avcodec_find_encoder(defaults->codec_id);
+	if (!data->codec) 
+	{
+		fprintf(stderr, "mpeg codec not found\n");
+		return(NULL);
+	}
+	
+	//alloc picture
+	data->picture= avcodec_alloc_frame();
+	// define bit rate (lower = more compression but lower quality)
+	data->codec_context->bit_rate = defaults->bit_rate;
+	// resolution must be a multiple of two
+	data->codec_context->width = width; 
+	data->codec_context->height = height;
+	
+	data->codec_context->flags |= defaults->flags;
+	
+	/* 
+	* mb_decision
+	*0 (FF_MB_DECISION_SIMPLE) Use mbcmp (default).
+	*1 (FF_MB_DECISION_BITS)   Select the MB mode which needs the fewest bits (=vhq).
+	*2 (FF_MB_DECISION_RD)     Select the MB mode which has the best rate distortion.
+	*/
+	data->codec_context->mb_decision = defaults->mb_decision;
+	/*use trellis quantization*/
+	data->codec_context->trellis = defaults->trellis;
+	
+	//motion estimation method epzs
+	data->codec_context->me_method = defaults->me_method; 
+	
+	data->codec_context->dia_size = defaults->dia;
+	data->codec_context->pre_dia_size = defaults->pre_dia;
+	data->codec_context->pre_me = defaults->pre_me;
+	data->codec_context->me_pre_cmp = defaults->me_pre_cmp;
+	data->codec_context->me_cmp = defaults->me_cmp;
+	data->codec_context->me_sub_cmp = defaults->me_sub_cmp;
+	data->codec_context->last_predictor_count = defaults->last_pred;
+	
+	data->codec_context->mpeg_quant = defaults->mpeg_quant; //h.263
+	data->codec_context->qmin = defaults->qmin;             // best detail allowed - worst compression
+	data->codec_context->qmax = defaults->qmax;             // worst detail allowed - best compression
+	data->codec_context->max_qdiff = defaults->max_qdiff;
+	data->codec_context->max_b_frames = defaults->max_b_frames;
+	data->codec_context->gop_size = defaults->gop_size;
+	
+	data->codec_context->qcompress = defaults->qcompress;
+	data->codec_context->qblur = defaults->qblur;
+	data->codec_context->strict_std_compliance = FF_COMPLIANCE_NORMAL;
+	data->codec_context->codec_id = defaults->codec_id;
+	data->codec_context->pix_fmt = PIX_FMT_YUV420P; //only yuv420p available for mpeg
+	data->codec_context->time_base = (AVRational){1,fps};
+	
+	// open codec
+	if (avcodec_open(data->codec_context, data->codec) < 0) 
+	{
+		fprintf(stderr, "could not open codec\n");
+		return(NULL);
+	}
+	//alloc tmpbuff (yuv420p)
+	data->tmpbuf = g_new0(BYTE, (width*height*3)/2);
+	//alloc outbuf
+	data->outbuf_size = 240000;
+	data->outbuf = g_new0(BYTE, data->outbuf_size);
+	
+	return(data);
 }
 

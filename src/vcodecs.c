@@ -22,9 +22,7 @@
 #include "vcodecs.h"
 #include "guvcview.h"
 #include "colorspaces.h"
-#include "mpeg.h"
-#include "flv.h"
-#include "wmv.h"
+#include "lavc_common.h"
 /* support for internationalization - i18n */
 #include <glib/gi18n.h>
 #include <linux/videodev2.h>
@@ -39,34 +37,160 @@
 static vcodecs_data listSupVCodecs[] = //list of software supported formats
 {
 	{
-		.avcodec     = FALSE,
-		.compressor  = "MJPG",
-		.description = N_("MJPG - compressed")
+		.avcodec      = FALSE,
+		.compressor   = "MJPG",
+		.description  = N_("MJPG - compressed"),
+		.bit_rate     = 0,
+		.qmax         = 0,
+		.qmin         = 0,
+		.max_qdiff    = 0,
+		.dia          = 0,
+		.pre_dia      = 0,
+		.pre_me       = 0,
+		.me_pre_cmp   = 0,
+		.me_cmp       = 0,
+		.me_sub_cmp   = 0,
+		.last_pred    = 0,
+		.gop_size     = 0,
+		.qcompress    = 0,
+		.qblur        = 0,
+		.codec_id     = 0,
+		.mb_decision  = 0,
+		.trellis      = 0,
+		.me_method    = 0,
+		.mpeg_quant   = 0,
+		.max_b_frames = 0,
+		.flags        = 0
 	},
 	{
 		.avcodec     = FALSE,
 		.compressor  = "YUY2",
-		.description = N_("YUY2 - uncomp YUV")
+		.description = N_("YUY2 - uncomp YUV"),
+		.bit_rate     = 0,
+		.qmax         = 0,
+		.qmin         = 0,
+		.max_qdiff    = 0,
+		.dia          = 0,
+		.pre_dia      = 0,
+		.pre_me       = 0,
+		.me_pre_cmp   = 0,
+		.me_cmp       = 0,
+		.me_sub_cmp   = 0,
+		.last_pred    = 0,
+		.gop_size     = 0,
+		.qcompress    = 0,
+		.qblur        = 0,
+		.codec_id     = 0,
+		.mb_decision  = 0,
+		.trellis      = 0,
+		.me_method    = 0,
+		.mpeg_quant   = 0,
+		.max_b_frames = 0,
+		.flags        = 0
 	},
 	{
 		.avcodec     = FALSE,
 		.compressor  = "DIB ",
-		.description = N_("RGB - uncomp BMP")
+		.description = N_("RGB - uncomp BMP"),
+		.bit_rate     = 0,
+		.qmax         = 0,
+		.qmin         = 0,
+		.max_qdiff    = 0,
+		.dia          = 0,
+		.pre_dia      = 0,
+		.pre_me       = 0,
+		.me_pre_cmp   = 0,
+		.me_cmp       = 0,
+		.me_sub_cmp   = 0,
+		.last_pred    = 0,
+		.gop_size     = 0,
+		.qcompress    = 0,
+		.qblur        = 0,
+		.codec_id     = 0,
+		.mb_decision  = 0,
+		.trellis      = 0,
+		.me_method    = 0,
+		.mpeg_quant   = 0,
+		.max_b_frames = 0,
+		.flags        = 0
 	},
 	{
-		.avcodec     = TRUE,
-		.compressor  = "MPEG",
-		.description = N_("MPEG video 1")
+		.avcodec      = TRUE,
+		.compressor   = "MPEG",
+		.description  = N_("MPEG video 1"),
+		.bit_rate     = 3000000,
+		.qmax         = 8,
+		.qmin         = 2,
+		.max_qdiff    = 2,
+		.dia          = 2,
+		.pre_dia      = 2,
+		.pre_me       = 2,
+		.me_pre_cmp   = 0,
+		.me_cmp       = 3,
+		.me_sub_cmp   = 3,
+		.last_pred    = 2,
+		.gop_size     = 12,
+		.qcompress    = 0.5,
+		.qblur        = 0.5,
+		.codec_id     = CODEC_ID_MPEG1VIDEO,
+		.mb_decision  = FF_MB_DECISION_RD,
+		.trellis      = 1,
+		.me_method    = ME_EPZS,
+		.mpeg_quant   = 0,
+		.max_b_frames = 0,
+		.flags        = 0
 	},
 	{
-		.avcodec     = TRUE,
-		.compressor  = "FLV1",
-		.description = N_("FLV1 - flash video 1")
+		.avcodec      = TRUE,
+		.compressor   = "FLV1",
+		.description  = N_("FLV1 - flash video 1"),
+		.bit_rate     = 3000000,
+		.qmax         = 31,
+		.qmin         = 2,
+		.max_qdiff    = 3,
+		.dia          = 2,
+		.pre_dia      = 2,
+		.pre_me       = 2,
+		.me_pre_cmp   = 0,
+		.me_cmp       = 3,
+		.me_sub_cmp   = 3,
+		.last_pred    = 2,
+		.gop_size     = 100,
+		.qcompress    = 0.5,
+		.qblur        = 0.5,
+		.codec_id     = CODEC_ID_FLV1,
+		.mb_decision  = FF_MB_DECISION_RD,
+		.trellis      = 1,
+		.me_method    = ME_EPZS,
+		.mpeg_quant   = 0,
+		.max_b_frames = 0,
+		.flags        = CODEC_FLAG_4MV
 	},
 	{
-		.avcodec     = TRUE,
-		.compressor  = "WMV1",
-		.description = N_("WMV1 - win. med. video 7")
+		.avcodec      = TRUE,
+		.compressor   = "WMV1",
+		.description  = N_("WMV1 - win. med. video 7"),
+		.bit_rate     = 3000000,
+		.qmax         = 8,
+		.qmin         = 2,
+		.max_qdiff    = 2,
+		.dia          = 2,
+		.pre_dia      = 2,
+		.pre_me       = 2,
+		.me_pre_cmp   = 0,
+		.me_cmp       = 3,
+		.me_sub_cmp   = 3,
+		.last_pred    = 2,
+		.gop_size     = 100,
+		.qcompress    = 0.5,
+		.qblur        = 0.5,
+		.codec_id     = CODEC_ID_WMV1,
+		.mb_decision  = FF_MB_DECISION_RD,
+		.trellis      = 1,
+		.me_method    = ME_EPZS,
+		.mpeg_quant   = 0,
+		.max_b_frames = 0,
+		.flags        = 0
 	}
 };
 
@@ -78,6 +202,16 @@ const char *get_vid4cc(int codec_ind)
 const char *get_desc4cc(int codec_ind)
 {
 	return (listSupVCodecs[codec_ind].description);
+}
+
+gboolean isLavcCodec(int codec_ind)
+{
+	return (listSupVCodecs[codec_ind].avcodec);
+}
+
+vcodecs_data *get_codec_defaults(int codec_ind)
+{
+	return (&(listSupVCodecs[codec_ind]));
 }
 
 static int encode_lavc (struct lavcData *lavc_data, struct ALL_DATA *all_data, int keyframe)
@@ -165,25 +299,11 @@ int compress_frame(void *data,
 			break;
 				
 		case CODEC_MPEG:
-			if(!(*lavc_data)) 
-			{
-				*lavc_data = init_mpeg(videoIn->width, videoIn->height, videoIn->fps);
-			}
-			ret = encode_lavc (*lavc_data, all_data, keyframe);
-			break;
-
 		case CODEC_FLV1:
-			if(!(*lavc_data)) 
-			{
-				*lavc_data = init_flv(videoIn->width, videoIn->height, videoIn->fps);
-			}
-			ret = encode_lavc (*lavc_data, all_data, keyframe);
-			break;
-
 		case CODEC_WMV1:
 			if(!(*lavc_data)) 
 			{
-				*lavc_data = init_wmv(videoIn->width, videoIn->height, videoIn->fps);
+				*lavc_data = init_lavc(videoIn->width, videoIn->height, videoIn->fps, global->AVIFormat);
 			}
 			ret = encode_lavc (*lavc_data, all_data, keyframe);
 			break;

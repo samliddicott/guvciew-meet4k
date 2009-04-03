@@ -31,8 +31,6 @@ guvcview_SOURCES = \
 	dct.h \
 	dct.c \
 	defs.h \
-	flv.h \
-	flv.c \
 	globals.h \
 	globals.c \
 	guvcview.h \
@@ -49,8 +47,6 @@ guvcview_SOURCES = \
 	marker.c \
 	mp2.h \
 	mp2.c \
-	mpeg.h \
-	mpeg.c \
 	ms_time.h \
 	ms_time.c \
 	options.h \
@@ -88,9 +84,7 @@ guvcview_SOURCES = \
 	video_filters.h \
 	video_filters.c \
 	video_tab.h \
-	video_tab.c \
-	wmv.h \
-	wmv.c
+	video_tab.c 
 
 guvcview_LDFLAGS = $(LIBINTL)
 

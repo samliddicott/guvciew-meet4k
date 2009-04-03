@@ -46,17 +46,16 @@ PROGRAMS = $(bin_PROGRAMS)
 am_guvcview_OBJECTS = audio_effects.$(OBJEXT) audio_tab.$(OBJEXT) \
 	autofocus.$(OBJEXT) avilib.$(OBJEXT) callbacks.$(OBJEXT) \
 	close.$(OBJEXT) colorspaces.$(OBJEXT) dct.$(OBJEXT) \
-	flv.$(OBJEXT) globals.$(OBJEXT) guvcview.$(OBJEXT) \
-	huffman.$(OBJEXT) img_controls.$(OBJEXT) jpgenc.$(OBJEXT) \
-	lavc_common.$(OBJEXT) marker.$(OBJEXT) mp2.$(OBJEXT) \
-	mpeg.$(OBJEXT) ms_time.$(OBJEXT) options.$(OBJEXT) \
-	picture.$(OBJEXT) profile.$(OBJEXT) quant.$(OBJEXT) \
-	readYUV.$(OBJEXT) sound.$(OBJEXT) snd_devices.$(OBJEXT) \
-	string_utils.$(OBJEXT) timers.$(OBJEXT) utils.$(OBJEXT) \
-	v4l2_controls.$(OBJEXT) v4l2_devices.$(OBJEXT) \
+	globals.$(OBJEXT) guvcview.$(OBJEXT) huffman.$(OBJEXT) \
+	img_controls.$(OBJEXT) jpgenc.$(OBJEXT) lavc_common.$(OBJEXT) \
+	marker.$(OBJEXT) mp2.$(OBJEXT) ms_time.$(OBJEXT) \
+	options.$(OBJEXT) picture.$(OBJEXT) profile.$(OBJEXT) \
+	quant.$(OBJEXT) readYUV.$(OBJEXT) sound.$(OBJEXT) \
+	snd_devices.$(OBJEXT) string_utils.$(OBJEXT) timers.$(OBJEXT) \
+	utils.$(OBJEXT) v4l2_controls.$(OBJEXT) v4l2_devices.$(OBJEXT) \
 	v4l2_dyna_ctrls.$(OBJEXT) v4l2_formats.$(OBJEXT) \
 	v4l2uvc.$(OBJEXT) vcodecs.$(OBJEXT) video.$(OBJEXT) \
-	video_filters.$(OBJEXT) video_tab.$(OBJEXT) wmv.$(OBJEXT)
+	video_filters.$(OBJEXT) video_tab.$(OBJEXT)
 guvcview_OBJECTS = $(am_guvcview_OBJECTS)
 am__DEPENDENCIES_1 =
 guvcview_DEPENDENCIES = $(am__DEPENDENCIES_1)
@@ -208,8 +207,6 @@ guvcview_SOURCES = \
 	dct.h \
 	dct.c \
 	defs.h \
-	flv.h \
-	flv.c \
 	globals.h \
 	globals.c \
 	guvcview.h \
@@ -226,8 +223,6 @@ guvcview_SOURCES = \
 	marker.c \
 	mp2.h \
 	mp2.c \
-	mpeg.h \
-	mpeg.c \
 	ms_time.h \
 	ms_time.c \
 	options.h \
@@ -265,9 +260,7 @@ guvcview_SOURCES = \
 	video_filters.h \
 	video_filters.c \
 	video_tab.h \
-	video_tab.c \
-	wmv.h \
-	wmv.c
+	video_tab.c 
 
 guvcview_LDFLAGS = $(LIBINTL)
 guvcview_LDADD = $(PACKAGE_LIBS)
@@ -345,7 +338,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/close.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/colorspaces.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dct.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/flv.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/globals.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/guvcview.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/huffman.Po@am__quote@
@@ -354,7 +346,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lavc_common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/marker.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mp2.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mpeg.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ms_time.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/options.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/picture.Po@am__quote@
@@ -375,7 +366,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/video.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/video_filters.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/video_tab.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wmv.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<

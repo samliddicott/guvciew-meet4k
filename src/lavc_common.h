@@ -24,14 +24,15 @@
 
 #include "../config.h"
 #include "defs.h"
-#ifdef HAS_LIBAVCODEC_AVCODEC_H
-  #include <libavcodec/avcodec.h>
+
+#ifdef HAS_AVCODEC_H
+  #include <avcodec.h>
 #else
-  #ifdef HAS_FFMPEG_AVCODEC_H
-    #include <ffmpeg/avcodec.h>
+  #ifdef HAS_LIBAVCODEC_AVCODEC_H
+    #include <libavcodec/avcodec.h>
   #else
-    #ifdef HAS_FFMPEG_LIBAVCODEC_AVCODEC_H
-      #include <ffmpeg/libavcodec/avcodec.h>
+    #ifdef HAS_FFMPEG_AVCODEC_H
+      #include <ffmpeg/avcodec.h>
     #else
       #include <libavcodec/avcodec.h>
     #endif
@@ -49,7 +50,6 @@ struct lavcData
 	BYTE* tmpbuf;
 	int outbuf_size;
 	BYTE* outbuf;
-
 };
 
 int encode_lavc_frame (BYTE *picture_buf, struct lavcData* data);
@@ -57,5 +57,7 @@ int encode_lavc_frame (BYTE *picture_buf, struct lavcData* data);
 // arg = pointer to lavcData struct =>
 // *arg = struct lavcData**
 int clean_lavc (void *arg);
+
+struct lavcData* init_lavc(int width, int height, int fps, int codec_ind);
 
 #endif

@@ -66,7 +66,8 @@ struct GWIDGET
 	GtkWidget *Resolution;
 	GtkWidget *Devices;
 	GtkWidget *FileDialog;
-
+	GtkWidget *lavc_button;
+	
 	gboolean avi_widget_state;
 };
 

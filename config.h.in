@@ -6,11 +6,11 @@
 /* guvcview */
 #undef GETTEXT_PACKAGE
 
+/* Define if avcodec.h can be acessed directly */
+#undef HAS_AVCODEC_H
+
 /* Define if avcodec.h installed to ffmpeg dir */
 #undef HAS_FFMPEG_AVCODEC_H
-
-/* Define if avcodec.h installed to ffmpeg/libavcodec dir */
-#undef HAS_FFMPEG_LIBAVCODEC_AVCODEC_H
 
 /* Define if avcodec.h installed to libavcodec dir */
 #undef HAS_LIBAVCODEC_AVCODEC_H

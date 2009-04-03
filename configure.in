@@ -1,8 +1,8 @@
 dnl Process this file with autoconf to produce a configure script.
 
 dnl Package definitions
-AC_INIT(guvcview, 1.0.4,[<pj.assis@gmail.com>])
-AM_INIT_AUTOMAKE(guvcview, 1.0.4)
+AC_INIT(guvcview, 1.0.5,[<pj.assis@gmail.com>])
+AM_INIT_AUTOMAKE(guvcview, 1.0.5)
 AM_CONFIG_HEADER(config.h)
 AM_MAINTAINER_MODE
 
@@ -26,26 +26,27 @@ PKG_CHECK_MODULES(PACKAGE, [gtk+-2.0 >= 2.10.0 glib-2.0 >= 2.10.0 gthread-2.0 gd
 AC_SUBST(PACKAGE_CFLAGS)
 AC_SUBST(PACKAGE_LIBS)
 
-dnl Check old install path for avcodec.h
+dnl Check for avcodec.h directly
+dnl if all tests fail must add avcodec.h path to C_INCLUDE_PATH before running configure
+AC_CHECK_HEADER([avcodec.h], [has_avcodec_h="yes"])
+
+dnl Check old install path for avcodec.h (ffmpeg/avcodec.h)
 AC_CHECK_HEADER([ffmpeg/avcodec.h], [has_ffmpeg_dir="yes"])
 
+dnl Check new install path for avcodec.h (libavcodec/avcodec.h)
+dnl if all the checks fail we include "libavcodec/avcodec.h"
+AC_CHECK_HEADER([libavcodec/avcodec.h], [has_libavcodec_dir="yes"])
+
+if test "$has_avcodec_h" = yes; then
+AC_DEFINE(HAS_AVCODEC_H,1,[Define if avcodec.h can be acessed directly]) 
+fi
 if test "$has_ffmpeg_dir" = yes; then
 AC_DEFINE(HAS_FFMPEG_AVCODEC_H,1,[Define if avcodec.h installed to ffmpeg dir]) 
 fi
-
-dnl Check new install path for avcodec.h
-AC_CHECK_HEADER([libavcodec/avcodec.h], [has_libavcodec_dir="yes"])
-
 if test "$has_libavcodec_dir" = yes; then
 AC_DEFINE(HAS_LIBAVCODEC_AVCODEC_H,1,[Define if avcodec.h installed to libavcodec dir])
 fi
 
-dnl Check for yet another install path for avcodec.h
-AC_CHECK_HEADER([ffmpeg/libavcodec/avcodec.h], [has_ffmpeg_libavcodec_dir="yes"])
-
-if test "$has_ffmpeg_libavcodec_dir" = yes; then
-AC_DEFINE(HAS_FFMPEG_LIBAVCODEC_AVCODEC_H,1,[Define if avcodec.h installed to ffmpeg/libavcodec dir])
-fi
 
 dnl Write output
 AC_OUTPUT([
