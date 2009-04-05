@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: guvcview\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-03 20:02+0100\n"
+"POT-Creation-Date: 2009-04-05 23:28+0100\n"
 "PO-Revision-Date: 2009-01-01 16:27+0000\n"
 "Last-Translator: nanker <Unknown>\n"
 "Language-Team: Danish <da@li.org>\n"
@@ -106,16 +106,17 @@ msgstr "Stop auto"
 msgid "Cap. Image"
 msgstr ""
 
-#. avi capture enabled from start
-#: src/guvcview.c:357 src/callbacks.c:1141
-msgid "Stop AVI"
+#. vid capture enabled from start
+#: src/guvcview.c:357 src/callbacks.c:1138
+#, fuzzy
+msgid "Stop Video"
 msgstr "Stop AVI"
 
 #: src/guvcview.c:363 src/callbacks.c:1069
-msgid "Cap. AVI"
+msgid "Cap. Video"
 msgstr ""
 
-#: src/guvcview.c:501
+#: src/guvcview.c:500
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -125,7 +126,7 @@ msgstr ""
 "\n"
 "Kunne ikke skabe video tråd"
 
-#: src/guvcview.c:502
+#: src/guvcview.c:501
 msgid "Please report it to http://developer.berlios.de/bugs/?group_id=8179"
 msgstr ""
 "Rapporter det venligst til http://developer.berlios.de/bugs/?group_id=8179"
@@ -224,7 +225,7 @@ msgstr ""
 msgid "Aperture Priority Mode"
 msgstr ""
 
-#: src/video_tab.c:41 src/callbacks.c:1165
+#: src/video_tab.c:41 src/callbacks.c:1162
 msgid "Save File"
 msgstr "Gem fil"
 
@@ -343,12 +344,13 @@ msgid "Image Format:"
 msgstr "Billed format:"
 
 #: src/video_tab.c:700
-msgid "AVI File:"
-msgstr "AVI fil:"
+#, fuzzy
+msgid "Video File:"
+msgstr "Video & filer"
 
 #: src/video_tab.c:774
-msgid "AVI Format:"
-msgstr "AVI format:"
+msgid "Video Codec:"
+msgstr ""
 
 #. lavc codec properties button
 #: src/video_tab.c:782
@@ -573,11 +575,11 @@ msgid "Number of Pictures to capture"
 msgstr ""
 
 #: src/options.c:525
-msgid "AVI File name (capture from start)"
+msgid "Video File name (capture from start)"
 msgstr ""
 
 #: src/options.c:526
-msgid "AVI capture time (in seconds)"
+msgid "Video capture time (in seconds)"
 msgstr ""
 
 #: src/options.c:527
@@ -680,9 +682,15 @@ msgstr ""
 "\n"
 "Genstart nu?\n"
 
-#: src/callbacks.c:1178
+#: src/callbacks.c:1175
 msgid "Load File"
 msgstr "Indlæs fil"
+
+#~ msgid "AVI File:"
+#~ msgstr "AVI fil:"
+
+#~ msgid "AVI Format:"
+#~ msgstr "AVI format:"
 
 #~ msgid "UYVY - uncomp YUV"
 #~ msgstr "UYVY - ukomprimeret YUV"

@@ -96,7 +96,7 @@ MP2_encode(struct paRecordData* pdata, int ms_delay)
 			int num_samples = pdata->snd_numBytes / (pdata->channels*sizeof(SAMPLE)); /*samples per channel*/
 			// Encode the audio
 			mp2fill_size = twolame_encode_buffer_float32_interleaved(encodeOptions, 
-				(float *) pdata->avi_sndBuff, num_samples, pdata->mp2Buff, pdata->mp2BuffSize);
+				(float *) pdata->vid_sndBuff, num_samples, pdata->mp2Buff, pdata->mp2BuffSize);
 		}
 		else 
 		{

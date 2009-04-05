@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fr\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-03 20:02+0100\n"
-"PO-Revision-Date: 2009-03-23 20:41+0100\n"
+"POT-Creation-Date: 2009-04-05 23:28+0100\n"
+"PO-Revision-Date: 2009-04-05 23:33+0100\n"
 "Last-Translator: Paulo Assis <pj.assis@gmail.com>\n"
 "Language-Team: Portuguese <pt@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -42,7 +42,8 @@ msgstr ""
 "\n"
 "et que le pilote Linux-UVC est installé."
 
-#: src/guvcview.c:211 src/guvcview.c:246
+#: src/guvcview.c:211
+#: src/guvcview.c:246
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -52,7 +53,8 @@ msgstr ""
 "\n"
 "Incapable de gérer le flux vidéo (MJPG ou YUV)"
 
-#: src/guvcview.c:212 src/guvcview.c:247
+#: src/guvcview.c:212
+#: src/guvcview.c:247
 msgid ""
 "Make sure you have a UVC compliant camera\n"
 "and that you have the linux UVC driver installed."
@@ -107,20 +109,23 @@ msgstr "Réglages Personnalisés:"
 msgid "Stop Auto"
 msgstr "Arrêt Auto"
 
-#: src/guvcview.c:352 src/callbacks.c:1003
+#: src/guvcview.c:352
+#: src/callbacks.c:1003
 msgid "Cap. Image"
 msgstr "Enr. Image"
 
-#. avi capture enabled from start
-#: src/guvcview.c:357 src/callbacks.c:1141
-msgid "Stop AVI"
-msgstr "Arrêter AVI"
+#. vid capture enabled from start
+#: src/guvcview.c:357
+#: src/callbacks.c:1138
+msgid "Stop Video"
+msgstr "Arrêter Video"
 
-#: src/guvcview.c:363 src/callbacks.c:1069
-msgid "Cap. AVI"
+#: src/guvcview.c:363
+#: src/callbacks.c:1069
+msgid "Cap. Video"
 msgstr "Enr. Video"
 
-#: src/guvcview.c:501
+#: src/guvcview.c:500
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -130,7 +135,7 @@ msgstr ""
 "\n"
 "Incapable de créer le flux vidéo."
 
-#: src/guvcview.c:502
+#: src/guvcview.c:501
 msgid "Please report it to http://developer.berlios.de/bugs/?group_id=8179"
 msgstr "Svp, rapportez-le à http://developer.berlios.de/bugs/?group_id=8179"
 
@@ -228,14 +233,22 @@ msgstr "Mode Priorité Vitesse"
 msgid "Aperture Priority Mode"
 msgstr "Mode Priorité Ouverture"
 
-#: src/video_tab.c:41 src/callbacks.c:1165
+#: src/video_tab.c:41
+#: src/callbacks.c:1162
 msgid "Save File"
 msgstr "Enregistrer le Fichier"
 
 #. if auto naming restart counter
-#: src/video_tab.c:95 src/globals.c:69 src/globals.c:72 src/options.c:351
-#: src/options.c:400 src/callbacks.c:806 src/callbacks.c:933
-#: src/callbacks.c:950 src/callbacks.c:982 src/callbacks.c:1074
+#: src/video_tab.c:95
+#: src/globals.c:69
+#: src/globals.c:72
+#: src/options.c:351
+#: src/options.c:400
+#: src/callbacks.c:806
+#: src/callbacks.c:933
+#: src/callbacks.c:950
+#: src/callbacks.c:982
+#: src/callbacks.c:1074
 #, c-format
 msgid "File num:%d"
 msgstr "Fichier num:%d"
@@ -337,7 +350,8 @@ msgstr "Sortie Caméra:"
 msgid "Image File:"
 msgstr "Ficher Image:"
 
-#: src/video_tab.c:661 src/video_tab.c:746
+#: src/video_tab.c:661
+#: src/video_tab.c:746
 msgid "File,Auto"
 msgstr "Fichier, Auto"
 
@@ -346,12 +360,12 @@ msgid "Image Format:"
 msgstr "Format d'Image:"
 
 #: src/video_tab.c:700
-msgid "AVI File:"
-msgstr "Fichier Vidéo:"
+msgid "Video File:"
+msgstr "Fichier Video:"
 
 #: src/video_tab.c:774
-msgid "AVI Format:"
-msgstr "Format AVI:"
+msgid "Video Codec:"
+msgstr ""
 
 #. lavc codec properties button
 #: src/video_tab.c:782
@@ -399,7 +413,8 @@ msgstr "Son"
 msgid "Input Device:"
 msgstr "Périphérique d'Entrée:"
 
-#: src/audio_tab.c:130 src/audio_tab.c:162
+#: src/audio_tab.c:130
+#: src/audio_tab.c:162
 msgid "Dev. Default"
 msgstr "Valeur par Défaut"
 
@@ -549,10 +564,8 @@ msgid "Hardware accelaration (enable(1) | disable(0))"
 msgstr "Accel. matérielle (activer(1) | desactiver(0))"
 
 #: src/options.c:520
-msgid ""
-"Pixel format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|gbrg|grbg|bggr|rggb)"
-msgstr ""
-"Format d'entrée(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|gbrg|grbg|bggr|rggb)"
+msgid "Pixel format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|gbrg|grbg|bggr|rggb)"
+msgstr "Format d'entrée(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|gbrg|grbg|bggr|rggb)"
 
 #: src/options.c:521
 msgid "Frame size, default: 640x480"
@@ -571,11 +584,11 @@ msgid "Number of Pictures to capture"
 msgstr "Nombre d'images à enregistrer "
 
 #: src/options.c:525
-msgid "AVI File name (capture from start)"
+msgid "Video File name (capture from start)"
 msgstr "Fichier video (enr. de début)"
 
 #: src/options.c:526
-msgid "AVI capture time (in seconds)"
+msgid "Video capture time (in seconds)"
 msgstr "Durée de l'enr. video (secondes)"
 
 #: src/options.c:527
@@ -615,7 +628,9 @@ msgid "Down"
 msgstr "Bas"
 
 #. Pan reset
-#: src/img_controls.c:247 src/img_controls.c:269 src/img_controls.c:293
+#: src/img_controls.c:247
+#: src/img_controls.c:269
+#: src/img_controls.c:293
 msgid "Reset"
 msgstr "Remise à Zero"
 
@@ -656,19 +671,23 @@ msgstr ""
 "nouveau processus ou redémarrage?\n"
 "\n"
 
-#: src/callbacks.c:635 src/callbacks.c:711
+#: src/callbacks.c:635
+#: src/callbacks.c:711
 msgid "Program Restart"
 msgstr "Redémarrer l'application"
 
-#: src/callbacks.c:638 src/callbacks.c:714
+#: src/callbacks.c:638
+#: src/callbacks.c:714
 msgid "now"
 msgstr "Maintenant"
 
-#: src/callbacks.c:640 src/callbacks.c:716
+#: src/callbacks.c:640
+#: src/callbacks.c:716
 msgid "Later"
 msgstr "Plus tard "
 
-#: src/callbacks.c:644 src/callbacks.c:720
+#: src/callbacks.c:644
+#: src/callbacks.c:720
 msgid ""
 "Changes will only take effect after guvcview restart.\n"
 "\n"
@@ -680,15 +699,18 @@ msgstr ""
 "\n"
 "Redémarrer maintenant? \n"
 
-#: src/callbacks.c:1178
+#: src/callbacks.c:1175
 msgid "Load File"
 msgstr "Charger Fichier"
 
+#~ msgid "AVI File:"
+#~ msgstr "Fichier Vidéo:"
+#~ msgid "AVI Format:"
+#~ msgstr "Format AVI:"
 #~ msgid "UYVY - uncomp YUV"
 #~ msgstr "UYVY - YUV non compressé"
-
 #~ msgid "MPEG"
 #~ msgstr "MPEG"
-
 #~ msgid "FLV1"
 #~ msgstr "FLV1"
+

@@ -30,7 +30,7 @@
 #include "guvcview.h"
 #include "callbacks.h"
 
-/* called by avi capture from start timer */
+/* called by video capture from start timer */
 gboolean
 timer_callback(gpointer data)
 {
@@ -38,10 +38,10 @@ timer_callback(gpointer data)
 	struct GLOBAL *global = all_data->global;
 	struct GWIDGET *gwidget = all_data->gwidget;
 	
-	/*stop avi capture*/
-	if(global->debug) g_printf("setting avi toggle to FALSE\n");
+	/*stop video capture*/
+	if(global->debug) g_printf("setting video toggle to FALSE\n");
 	gdk_threads_enter();
-	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(gwidget->CapAVIButt), FALSE);
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(gwidget->CapVidButt), FALSE);
 	gdk_flush();
 	gdk_threads_leave();
 	//g_mutex_lock(global->mutex);

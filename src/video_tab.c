@@ -46,24 +46,24 @@ file_chooser (GtkButton * FileButt, struct ALL_DATA *all_data)
 		NULL);
 	gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (gwidget->FileDialog), TRUE);
 
-	int flag_avi = GPOINTER_TO_INT(g_object_get_data (G_OBJECT (FileButt), "file_butt"));
-	if(flag_avi) 
-	{ /* avi File chooser*/
-		const gchar *basename =  gtk_entry_get_text(GTK_ENTRY(gwidget->AVIFNameEntry));
+	int flag_vid = GPOINTER_TO_INT(g_object_get_data (G_OBJECT (FileButt), "file_butt"));
+	if(flag_vid) 
+	{ /* video File chooser*/
+		const gchar *basename =  gtk_entry_get_text(GTK_ENTRY(gwidget->VidFNameEntry));
 		
-		global->aviFPath=splitPath((gchar *) basename, global->aviFPath);
+		global->vidFPath=splitPath((gchar *) basename, global->vidFPath);
 	
 		gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (gwidget->FileDialog), 
-			global->aviFPath[1]);
+			global->vidFPath[1]);
 		gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (gwidget->FileDialog),
-			global->aviFPath[0]);
+			global->vidFPath[0]);
 
 		if (gtk_dialog_run (GTK_DIALOG (gwidget->FileDialog)) == GTK_RESPONSE_ACCEPT)
 		{
 			gchar *fullname = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (gwidget->FileDialog));
-			global->aviFPath=splitPath(fullname, global->aviFPath);
-			gtk_entry_set_text(GTK_ENTRY(gwidget->AVIFNameEntry)," ");
-			gtk_entry_set_text(GTK_ENTRY(gwidget->AVIFNameEntry),global->aviFPath[0]);
+			global->vidFPath=splitPath(fullname, global->vidFPath);
+			gtk_entry_set_text(GTK_ENTRY(gwidget->VidFNameEntry)," ");
+			gtk_entry_set_text(GTK_ENTRY(gwidget->VidFNameEntry),global->vidFPath[0]);
 			g_free(fullname);
 		}
 	}
@@ -108,7 +108,7 @@ lavc_properties(GtkButton * CodecButt, struct ALL_DATA *all_data)
 	struct GWIDGET *gwidget = all_data->gwidget;
 	
 	int line = 0;
-	vcodecs_data *codec_defaults = get_codec_defaults(global->AVIFormat);
+	vcodecs_data *codec_defaults = get_codec_defaults(global->VidCodec);
 	
 	if (!(codec_defaults->avcodec)) return;
 	
@@ -419,9 +419,9 @@ void video_tab(struct ALL_DATA *all_data)
 	GtkWidget *label_ImgFile;
 	GtkWidget *ImgFolder_img;
 	GtkWidget *label_ImageType;
-	GtkWidget *label_AVIFile;
+	GtkWidget *label_VidFile;
 	GtkWidget *VidFolder_img;
-	GtkWidget *label_AVIComp;
+	GtkWidget *label_VidCodec;
 	GtkWidget *label_videoFilters;
 	GtkWidget *table_filt;
 	GtkWidget *FiltMirrorEnable;
@@ -695,88 +695,88 @@ void video_tab(struct ALL_DATA *all_data)
 	g_signal_connect (GTK_BUTTON(gwidget->ImgFileButt), "clicked",
 		 G_CALLBACK (file_chooser), all_data);
 
-	//AVI Capture
+	//Video Capture
 	line++;
-	label_AVIFile= gtk_label_new(_("AVI File:"));
-	gtk_misc_set_alignment (GTK_MISC (label_AVIFile), 1, 0.5);
-	gwidget->AVIFNameEntry = gtk_entry_new();
-	gtk_table_attach(GTK_TABLE(table2), label_AVIFile, 0, 1, line, line+1,
+	label_VidFile= gtk_label_new(_("Video File:"));
+	gtk_misc_set_alignment (GTK_MISC (label_VidFile), 1, 0.5);
+	gwidget->VidFNameEntry = gtk_entry_new();
+	gtk_table_attach(GTK_TABLE(table2), label_VidFile, 0, 1, line, line+1,
 		GTK_SHRINK | GTK_FILL, 0, 0, 0);
-	gtk_table_attach(GTK_TABLE(table2), gwidget->AVIFNameEntry, 1, 2, line, line+1,
+	gtk_table_attach(GTK_TABLE(table2), gwidget->VidFNameEntry, 1, 2, line, line+1,
 		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	
-	gwidget->AviFileButt=gtk_button_new_from_stock(GTK_STOCK_OPEN);
+	gwidget->VidFileButt=gtk_button_new_from_stock(GTK_STOCK_OPEN);
 	gchar* OVidIconPath = g_strconcat (PACKAGE_DATA_DIR,"/pixmaps/guvcview/videos_folder.png",NULL);
 	//don't t1est for file - use default empty image if load fails
 	//get icon image
 	VidFolder_img = gtk_image_new_from_file(OVidIconPath);
 	g_free(OVidIconPath);
 	
-	gtk_button_set_image (GTK_BUTTON(gwidget->AviFileButt), VidFolder_img);
-	gtk_table_attach(GTK_TABLE(table2), gwidget->AviFileButt, 2, 3, line, line+1,
+	gtk_button_set_image (GTK_BUTTON(gwidget->VidFileButt), VidFolder_img);
+	gtk_table_attach(GTK_TABLE(table2), gwidget->VidFileButt, 2, 3, line, line+1,
 		GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	
-	gtk_widget_show (gwidget->AviFileButt);
-	gtk_widget_show (label_AVIFile);
-	gtk_widget_show (gwidget->AVIFNameEntry);
-	g_object_set_data (G_OBJECT (gwidget->AviFileButt), "file_butt", GINT_TO_POINTER(1));
-	g_signal_connect (GTK_BUTTON(gwidget->AviFileButt), "clicked",
+	gtk_widget_show (gwidget->VidFileButt);
+	gtk_widget_show (label_VidFile);
+	gtk_widget_show (gwidget->VidFNameEntry);
+	g_object_set_data (G_OBJECT (gwidget->VidFileButt), "file_butt", GINT_TO_POINTER(1));
+	g_signal_connect (GTK_BUTTON(gwidget->VidFileButt), "clicked",
 		G_CALLBACK (file_chooser), all_data);
 	
-	if (global->avifile) 
+	if (global->vidfile) 
 	{	
-		//avi capture enabled from start
-		gtk_entry_set_text(GTK_ENTRY(gwidget->AVIFNameEntry),global->avifile);
+		//video capture enabled from start
+		gtk_entry_set_text(GTK_ENTRY(gwidget->VidFNameEntry),global->vidfile);
 	} 
 	else 
 	{
-		videoIn->capAVI = FALSE;
-		pdata->capAVI = videoIn->capAVI;
-		gtk_entry_set_text(GTK_ENTRY(gwidget->AVIFNameEntry),global->aviFPath[0]);
+		videoIn->capVid = FALSE;
+		pdata->capVid = videoIn->capVid;
+		gtk_entry_set_text(GTK_ENTRY(gwidget->VidFNameEntry),global->vidFPath[0]);
 	}
 	
 	//incremental capture
 	line++;
-	gwidget->AVIIncLabel=gtk_label_new(global->aviinc_str);
-	gtk_misc_set_alignment (GTK_MISC (gwidget->AVIIncLabel), 0, 0.5);
-	gtk_table_attach (GTK_TABLE(table2), gwidget->AVIIncLabel, 1, 2, line, line+1,
+	gwidget->VidIncLabel=gtk_label_new(global->vidinc_str);
+	gtk_misc_set_alignment (GTK_MISC (gwidget->VidIncLabel), 0, 0.5);
+	gtk_table_attach (GTK_TABLE(table2), gwidget->VidIncLabel, 1, 2, line, line+1,
 		GTK_FILL, 0, 0, 0);
-	gtk_widget_show (gwidget->AVIIncLabel);
+	gtk_widget_show (gwidget->VidIncLabel);
 	
-	gwidget->AVIInc=gtk_check_button_new_with_label (_("File,Auto"));
-	gtk_table_attach(GTK_TABLE(table2), gwidget->AVIInc, 2, 3, line, line+1,
+	gwidget->VidInc=gtk_check_button_new_with_label (_("File,Auto"));
+	gtk_table_attach(GTK_TABLE(table2), gwidget->VidInc, 2, 3, line, line+1,
 		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gwidget->AVIInc),(global->avi_inc > 0));
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gwidget->VidInc),(global->vid_inc > 0));
 	
-	g_signal_connect (GTK_CHECK_BUTTON(gwidget->AVIInc), "toggled",
-		G_CALLBACK (AVIInc_changed), all_data);
-	gtk_widget_show (gwidget->AVIInc);
+	g_signal_connect (GTK_CHECK_BUTTON(gwidget->VidInc), "toggled",
+		G_CALLBACK (VidInc_changed), all_data);
+	gtk_widget_show (gwidget->VidInc);
 	
-	// AVI Compressor
+	// Video Codec
 	line++;
-	gwidget->AVIComp = gtk_combo_box_new_text ();
+	gwidget->VidCodec = gtk_combo_box_new_text ();
 	
 	int vcodec_ind =0;
 	for (vcodec_ind =0; vcodec_ind<MAX_VCODECS; vcodec_ind++)
-		gtk_combo_box_append_text(GTK_COMBO_BOX(gwidget->AVIComp),gettext(get_desc4cc(vcodec_ind)));
+		gtk_combo_box_append_text(GTK_COMBO_BOX(gwidget->VidCodec),gettext(get_desc4cc(vcodec_ind)));
 	
-	gtk_table_attach(GTK_TABLE(table2), gwidget->AVIComp, 1, 2, line, line+1,
+	gtk_table_attach(GTK_TABLE(table2), gwidget->VidCodec, 1, 2, line, line+1,
 		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
-	gtk_widget_show (gwidget->AVIComp);
+	gtk_widget_show (gwidget->VidCodec);
 	
-	gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->AVIComp),global->AVIFormat);
+	gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->VidCodec),global->VidCodec);
 	
-	gtk_widget_set_sensitive (gwidget->AVIComp, TRUE);
-	g_signal_connect (GTK_COMBO_BOX(gwidget->AVIComp), "changed",
-		G_CALLBACK (AVIComp_changed), all_data);
+	gtk_widget_set_sensitive (gwidget->VidCodec, TRUE);
+	g_signal_connect (GTK_COMBO_BOX(gwidget->VidCodec), "changed",
+		G_CALLBACK (VidCodec_changed), all_data);
 	
-	label_AVIComp = gtk_label_new(_("AVI Format:"));
-	gtk_misc_set_alignment (GTK_MISC (label_AVIComp), 1, 0.5);
+	label_VidCodec = gtk_label_new(_("Video Codec:"));
+	gtk_misc_set_alignment (GTK_MISC (label_VidCodec), 1, 0.5);
 
-	gtk_table_attach (GTK_TABLE(table2), label_AVIComp, 0, 1, line, line+1,
+	gtk_table_attach (GTK_TABLE(table2), label_VidCodec, 0, 1, line, line+1,
 		GTK_FILL, 0, 0, 0);
-	gtk_widget_show (label_AVIComp);
+	gtk_widget_show (label_VidCodec);
 	
 	//lavc codec properties button
 	gwidget->lavc_button = gtk_button_new_with_label (_("properties"));
@@ -785,7 +785,7 @@ void video_tab(struct ALL_DATA *all_data)
 	gtk_widget_show (gwidget->lavc_button);
 	g_signal_connect (GTK_BUTTON(gwidget->lavc_button), "clicked",
 		G_CALLBACK (lavc_properties), all_data);
-	gtk_widget_set_sensitive (gwidget->lavc_button, isLavcCodec(global->AVIFormat));
+	gtk_widget_set_sensitive (gwidget->lavc_button, isLavcCodec(global->VidCodec));
 	
 	// Filter controls 
 	line++;

@@ -303,11 +303,11 @@ int init_videoIn(struct vdIn *vd, struct GLOBAL *global)
 	g_printf("video device: %s \n", vd->videodevice);
 	
 	//flad to video thread
-	vd->capAVI = FALSE;
+	vd->capVid = FALSE;
 	//flag from video thread
-	vd->AVICapStop=TRUE;
+	vd->VidCapStop=TRUE;
 	
-	vd->AVIFName = g_strdup(DEFAULT_AVI_FNAME);
+	vd->VidFName = g_strdup(DEFAULT_AVI_FNAME);
 	
 	vd->fps = fps;
 	vd->fps_num = fps_num;
@@ -480,7 +480,7 @@ error:
 	close(vd->fd);
 	vd->fd=0;
 	g_free(vd->videodevice);
-	g_free(vd->AVIFName);
+	g_free(vd->VidFName);
 	g_free(vd->ImageFName);
 	g_mutex_free( vd->mutex );
 	return ret;
@@ -736,7 +736,7 @@ void close_v4l2(struct vdIn *vd)
 	g_free(vd->framebuffer);
 	g_free(vd->videodevice);
 	g_free(vd->ImageFName);
-	g_free(vd->AVIFName);
+	g_free(vd->VidFName);
 	// free format allocations
 	freeFormats(vd->listFormats);
 	// unmap queue buffers
@@ -753,7 +753,7 @@ void close_v4l2(struct vdIn *vd)
 	vd->tmpbuffer = NULL;
 	vd->framebuffer = NULL;
 	vd->ImageFName = NULL;
-	vd->AVIFName = NULL;
+	vd->VidFName = NULL;
 	freeDevices(vd->listDevices);
 	// close device descriptor
 	close(vd->fd);

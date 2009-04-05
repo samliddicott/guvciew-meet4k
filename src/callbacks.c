@@ -126,19 +126,19 @@ set_sensitive_snd_contrls (const int flag, struct GWIDGET *gwidget)
 	gtk_widget_set_sensitive (gwidget->SndComp, flag);
 }
 
-/*avi controls*/
+/*video controls*/
 void 
-set_sensitive_avi_contrls (const int flag, const int sndEnable, struct GWIDGET *gwidget)
+set_sensitive_vid_contrls (const int flag, const int sndEnable, struct GWIDGET *gwidget)
 {
-	/*sound and avi compression controls*/
-	gtk_widget_set_sensitive (gwidget->AVIComp, flag);
+	/*sound and video compression controls*/
+	gtk_widget_set_sensitive (gwidget->VidCodec, flag);
 	gtk_widget_set_sensitive (gwidget->SndEnable, flag); 
-	gtk_widget_set_sensitive (gwidget->AVIInc, flag);
+	gtk_widget_set_sensitive (gwidget->VidInc, flag);
 	if(sndEnable > 0) 
 	{
 		set_sensitive_snd_contrls(flag, gwidget);
 	}
-	gwidget->avi_widget_state = flag;
+	gwidget->vid_widget_state = flag;
 }
 
 /*image controls*/
@@ -151,12 +151,12 @@ set_sensitive_img_contrls (const int flag, struct GWIDGET *gwidget)
 	gtk_widget_set_sensitive(gwidget->ImageInc, flag);/*image inc checkbox*/
 }
 
-/*-------------------------------- avi close functions -----------------------*/
+/*-------------------------------- video close functions -----------------------*/
 
-/* Called at avi capture stop       */
-/* from avi capture button callback */
+/* Called at video capture stop       */
+/* from video capture button callback */
 void
-aviClose (struct ALL_DATA *all_data)
+vidClose (struct ALL_DATA *all_data)
 {
 	DWORD tottime = 0;
 	//int tstatus;
@@ -171,8 +171,8 @@ aviClose (struct ALL_DATA *all_data)
 
 	if (!(AviOut->closed))
 	{
-		tottime = global->AVIstoptime - global->AVIstarttime;
-		if (global->debug) g_printf("stop= %d start=%d \n",global->AVIstoptime,global->AVIstarttime);
+		tottime = global->Vidstoptime - global->Vidstarttime;
+		if (global->debug) g_printf("stop= %d start=%d \n",global->Vidstoptime,global->Vidstarttime);
 		if (tottime > 0) 
 		{
 			/*try to find the real frame rate*/
@@ -184,7 +184,7 @@ aviClose (struct ALL_DATA *all_data)
 			AviOut->fps=videoIn->fps;
 		}
 
-		if (global->debug) g_printf("AVI: %d frames in %d ms = %f fps\n",global->framecount,tottime,AviOut->fps);
+		if (global->debug) g_printf("VIDEO: %d frames in %d ms = %f fps\n",global->framecount,tottime,AviOut->fps);
 		/*------------------- close audio stream and clean up -------------------*/
 		if (global->Sound_enable > 0) 
 		{
@@ -203,16 +203,16 @@ aviClose (struct ALL_DATA *all_data)
 				g_mutex_lock( pdata->mutex);
 					if(global->Sound_Format == PA_FOURCC)
 					{
-						if(pdata->avi_sndBuff) 
+						if(pdata->vid_sndBuff) 
 						{
 							Float2Int16(pdata);
-							AVI_write_audio(AviOut,(BYTE *) pdata->avi_sndBuff1,pdata->snd_numSamples*2);
+							AVI_write_audio(AviOut,(BYTE *) pdata->vid_sndBuff1,pdata->snd_numSamples*2);
 						}
 					}
 					else if (global->Sound_Format == ISO_FORMAT_MPEG12)
 					{
 						int size_mp2=0;
-						if(pdata->avi_sndBuff && pdata->mp2Buff) 
+						if(pdata->vid_sndBuff && pdata->mp2Buff) 
 						{
 							size_mp2 = MP2_encode(pdata,0);
 							AVI_write_audio(AviOut,pdata->mp2Buff,size_mp2);
@@ -231,7 +231,7 @@ aviClose (struct ALL_DATA *all_data)
 		} 
 		AVI_close (AviOut);
 		global->framecount = 0;
-		global->AVIstarttime = 0;
+		global->Vidstarttime = 0;
 		if (global->debug) g_printf ("close avi\n");
 	}
 
@@ -856,16 +856,16 @@ SndComp_changed (GtkComboBox * SoundComp, struct ALL_DATA *all_data)
 	global = NULL;
 }
 
-/*avi compression control callback*/
+/*video compression control callback*/
 void
-AVIComp_changed (GtkComboBox * AVIComp, struct ALL_DATA *all_data)
+VidCodec_changed (GtkComboBox * VidCodec, struct ALL_DATA *all_data)
 {
 	struct GLOBAL *global = all_data->global;
 	struct GWIDGET *gwidget = all_data->gwidget;
 	
-	int index = gtk_combo_box_get_active (AVIComp);
-	global->AVIFormat=index;
-	gtk_widget_set_sensitive (gwidget->lavc_button, isLavcCodec(global->AVIFormat));
+	int index = gtk_combo_box_get_active (VidCodec);
+	global->VidCodec=index;
+	gtk_widget_set_sensitive (gwidget->lavc_button, isLavcCodec(global->VidCodec));
 	
 	global = NULL;
 }
@@ -939,17 +939,17 @@ ImageInc_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data)
 }
 
 void
-AVIInc_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data)
+VidInc_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data)
 {
 	struct GWIDGET *gwidget = all_data->gwidget;
 	struct GLOBAL *global = all_data->global;
 
 	
-	global->avi_inc = gtk_toggle_button_get_active (toggle) ? 1 : 0;
+	global->vid_inc = gtk_toggle_button_get_active (toggle) ? 1 : 0;
 	
-	g_snprintf(global->aviinc_str,24,_("File num:%d"),global->avi_inc);
+	g_snprintf(global->vidinc_str,24,_("File num:%d"),global->vid_inc);
 	
-	gtk_label_set_text(GTK_LABEL(gwidget->AVIIncLabel), global->aviinc_str);
+	gtk_label_set_text(GTK_LABEL(gwidget->VidIncLabel), global->vidinc_str);
 	
 	gwidget = NULL;
 	global = NULL;
@@ -1021,10 +1021,10 @@ capture_image (GtkButton *ImageButt, struct ALL_DATA *all_data)
 	videoIn = NULL;
 }
 
-/*--------------------------- Capture AVI ------------------------------------*/
-/*avi capture button callback*/
+/*--------------------------- Capture Video ------------------------------------*/
+/*video capture button callback*/
 void
-capture_avi (GtkToggleButton *AVIButt, struct ALL_DATA *all_data)
+capture_vid (GtkToggleButton *VidButt, struct ALL_DATA *all_data)
 {
 	struct GWIDGET *gwidget = all_data->gwidget;
 	struct paRecordData *pdata = all_data->pdata;
@@ -1032,83 +1032,80 @@ capture_avi (GtkToggleButton *AVIButt, struct ALL_DATA *all_data)
 	struct vdIn *videoIn = all_data->videoIn;
 	struct avi_t *AviOut = all_data->AviOut;
 	
-	const char *fileEntr = gtk_entry_get_text(GTK_ENTRY(gwidget->AVIFNameEntry));
-	if(g_strcmp0(fileEntr,global->aviFPath[0])!=0) 
+	const char *fileEntr = gtk_entry_get_text(GTK_ENTRY(gwidget->VidFNameEntry));
+	if(g_strcmp0(fileEntr,global->vidFPath[0])!=0) 
 	{
 		/*reset if entry change from last capture*/
-		if(global->avi_inc) global->avi_inc=1;
-		global->aviFPath=splitPath((char *)fileEntr, global->aviFPath);
-		gtk_entry_set_text(GTK_ENTRY(gwidget->AVIFNameEntry),"");
-		gtk_entry_set_text(GTK_ENTRY(gwidget->AVIFNameEntry),global->aviFPath[0]);
+		if(global->vid_inc) global->vid_inc=1;
+		global->vidFPath=splitPath((char *)fileEntr, global->vidFPath);
+		gtk_entry_set_text(GTK_ENTRY(gwidget->VidFNameEntry),"");
+		gtk_entry_set_text(GTK_ENTRY(gwidget->VidFNameEntry),global->vidFPath[0]);
 	}
 	
 	
-	const char *compression= get_vid4cc(global->AVIFormat);
+	const char *compression= get_vid4cc(global->VidCodec);
 	
-	gboolean state = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(gwidget->CapAVIButt));
-	if(global->debug) g_printf("Cap AVI toggled: %d\n", state);
+	gboolean state = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(gwidget->CapVidButt));
+	if(global->debug) g_printf("Cap Video toggled: %d\n", state);
 	
-	if(videoIn->capAVI/* && !(state)*/) 
-	{	/****************** Stop AVI ************************/
-		videoIn->capAVI = FALSE; /*flag video thread to stop recording frames*/
-		pdata->capAVI = videoIn->capAVI;
+	if(videoIn->capVid/* && !(state)*/) 
+	{	/****************** Stop Video ************************/
+		videoIn->capVid = FALSE; /*flag video thread to stop recording frames*/
+		pdata->capVid = videoIn->capVid;
 		/*wait for flag from video thread that recording has stopped    */
-		/*wait on videoIn->AVICapStop by sleeping for 200 loops of 10 ms*/
-		/*(test AVICapStop == TRUE on every loop)*/
-		int stall = wait_ms(&(videoIn->AVICapStop), TRUE, 10, 200);
+		/*wait on videoIn->VidCapStop by sleeping for 200 loops of 10 ms*/
+		/*(test VidCapStop == TRUE on every loop)*/
+		int stall = wait_ms(&(videoIn->VidCapStop), TRUE, 10, 200);
 		if( !(stall > 0) )
 		{
 			g_printerr("video capture stall on exit(%d) - timeout\n",
-				videoIn->AVICapStop);
+				videoIn->VidCapStop);
 		}
-		global->AVIstoptime = ms_time();
-		aviClose(all_data);
-		/*enabling sound and avi compression controls*/
-		set_sensitive_avi_contrls(TRUE, global->Sound_enable, gwidget);
+		global->Vidstoptime = ms_time();
+		vidClose(all_data);
+		/*enabling sound and video compression controls*/
+		set_sensitive_vid_contrls(TRUE, global->Sound_enable, gwidget);
 		if(!(state))
-			gtk_button_set_label(GTK_BUTTON(gwidget->CapAVIButt),_("Cap. AVI"));
+			gtk_button_set_label(GTK_BUTTON(gwidget->CapVidButt),_("Cap. Video"));
 	} 
-	else if(!(videoIn->capAVI) /*&& state*/)
-	{	/******************** Start AVI *********************/
-		global->aviFPath=splitPath((char *)fileEntr, global->aviFPath);
-		g_snprintf(global->aviinc_str,24,_("File num:%d"),global->avi_inc);
-		gtk_label_set_text(GTK_LABEL(gwidget->AVIIncLabel), global->aviinc_str);
+	else if(!(videoIn->capVid) /*&& state*/)
+	{	/******************** Start Video *********************/
+		global->vidFPath=splitPath((char *)fileEntr, global->vidFPath);
+		g_snprintf(global->vidinc_str,24,_("File num:%d"),global->vid_inc);
+		gtk_label_set_text(GTK_LABEL(gwidget->VidIncLabel), global->vidinc_str);
 	
-		if (global->avi_inc>0) 
+		if (global->vid_inc>0) 
 		{
-			videoIn->AVIFName = incFilename(videoIn->AVIFName,
-				global->aviFPath,
-				global->avi_inc);
+			videoIn->VidFName = incFilename(videoIn->VidFName,
+				global->vidFPath,
+				global->vid_inc);
 					
-			global->avi_inc++;
+			global->vid_inc++;
 		} 
 		else 
 		{
-			videoIn->AVIFName = joinPath(videoIn->AVIFName, global->aviFPath);
+			videoIn->VidFName = joinPath(videoIn->VidFName, global->vidFPath);
 		}
 
-		if(AVI_open_output_file(AviOut, videoIn->AVIFName)<0) 
+		if(AVI_open_output_file(AviOut, videoIn->VidFName)<0) 
 		{
-			g_printerr("Error: Couldn't create Avi.\n");
-			videoIn->capAVI = FALSE;
-			pdata->capAVI = videoIn->capAVI;
+			g_printerr("Error: Couldn't create Video.\n");
+			videoIn->capVid = FALSE;
+			pdata->capVid = videoIn->capVid;
 		} 
 		else 
 		{
-			/*disabling sound and avi compression controls*/
-			set_sensitive_avi_contrls(FALSE, global->Sound_enable, gwidget);
-			
-			//printf("opening avi file: %s\n",videoIn->AVIFName);
+			/*disabling sound and video compression controls*/
+			set_sensitive_vid_contrls(FALSE, global->Sound_enable, gwidget);
 	
 			/*refresh icon*/
-			//gtk_button_set_image(GTK_BUTTON(gwidget->CapAVIButt), gwidget->AVIButton_Img);
 			AVI_set_video(AviOut, videoIn->width, videoIn->height, 
 				videoIn->fps,compression);
 	  
 			/* start video capture*/
-			global->AVIstarttime = ms_time();
-			videoIn->capAVI = TRUE;
-			pdata->capAVI = videoIn->capAVI;
+			global->Vidstarttime = ms_time();
+			videoIn->capVid = TRUE;
+			pdata->capVid = videoIn->capVid;
 			
 			/* start sound capture*/
 			if(global->Sound_enable > 0) 
@@ -1138,7 +1135,7 @@ capture_avi (GtkToggleButton *AVIButt, struct ALL_DATA *all_data)
 			}
 		}
 		if(state)
-			gtk_button_set_label(GTK_BUTTON(gwidget->CapAVIButt),_("Stop AVI"));
+			gtk_button_set_label(GTK_BUTTON(gwidget->CapVidButt),_("Stop Video"));
 	}
 	
 	gwidget = NULL;
@@ -1216,28 +1213,28 @@ split_avi(void *data)
 	
 	gdk_threads_enter();
 	/*make sure avi is in incremental mode*/
-	if(!global->avi_inc) 
+	if(!global->vid_inc) 
 	{ 
-		AVIInc_changed(GTK_TOGGLE_BUTTON(gwidget->AVIInc), all_data);
-		global->avi_inc=1; /*just in case*/
+		VidInc_changed(GTK_TOGGLE_BUTTON(gwidget->VidInc), all_data);
+		global->vid_inc=1; /*just in case*/
 	}
 	
 	/*stops avi capture*/
-	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(gwidget->CapAVIButt), FALSE);
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(gwidget->CapVidButt), FALSE);
 	//gtk_toggle_button_toggled (GTK_TOGGLE_BUTTON(gwidget->CapAVIButt));
 	gdk_flush ();
 	gdk_threads_leave();
-	int stall = wait_ms(&(videoIn->AVICapStop), TRUE, 10, 200);
+	int stall = wait_ms(&(videoIn->VidCapStop), TRUE, 10, 200);
 	if( !(stall > 0) )
 	{
 		g_printerr("video capture stall on exit(%d) - timeout\n",
-			videoIn->AVICapStop);
+			videoIn->VidCapStop);
 	}
 	/*starts avi capture*/
 	gdk_threads_enter();
-	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(gwidget->CapAVIButt), TRUE);
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(gwidget->CapVidButt), TRUE);
 	//gtk_toggle_button_toggled (GTK_TOGGLE_BUTTON(gwidget->CapAVIButt));
-	global->AVIButtPress = FALSE;
+	global->VidButtPress = FALSE;
 	gdk_flush ();
 	gdk_threads_leave();
 	/*thread as finished*/

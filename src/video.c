@@ -73,7 +73,7 @@ void *main_loop(void *data)
 	
 	BYTE *p = NULL;
 	BYTE *pim= NULL;
-	BYTE *pavi=NULL;
+	BYTE *pvid=NULL;
 	
 	
 	int keyframe = 1;
@@ -189,7 +189,7 @@ void *main_loop(void *data)
 		else 
 		{
 			/*reset video start time to first frame capture time */  
-			if((global->framecount==0) && videoIn->capAVI) global->AVIstarttime = ms_time();
+			if((global->framecount==0) && videoIn->capVid) global->Vidstarttime = ms_time();
 
 			if (global->FpsCount) 
 			{/* sets fps count in window title bar */
@@ -352,18 +352,18 @@ void *main_loop(void *data)
 			videoIn->capImage=FALSE;
 			if (global->debug) g_printf("saved image to:%s\n",videoIn->ImageFName);
 		}
-		/*---------------------------capture AVI---------------------------------*/
-		if (videoIn->capAVI)
+		/*---------------------------capture Video---------------------------------*/
+		if (videoIn->capVid)
 		{
 			/*all video controls are now disabled so related values cannot be changed*/
-			videoIn->AVICapStop=FALSE;
-			int ret = compress_frame(data, (void *) &(jpeg_struct), (void *) &(lavc_data), (void *) &(pavi), keyframe);
+			videoIn->VidCapStop=FALSE;
+			int ret = compress_frame(data, (void *) &(jpeg_struct), (void *) &(lavc_data), (void *) &(pvid), keyframe);
 
 			if (ret) 
 			{
 				if (AVI_getErrno () == AVI_ERR_SIZELIM)
 				{
-					if (!(global->AVIButtPress))
+					if (!(global->VidButtPress))
 					{
 						
 						GError *err1 = NULL;
@@ -403,7 +403,7 @@ void *main_loop(void *data)
 				{ 
 					/*only 1 audio stream*/
 					/*time diff for audio-video*/
-					int synctime= pdata->snd_begintime - global->AVIstarttime; 
+					int synctime= pdata->snd_begintime - global->Vidstarttime; 
 					if (global->debug) g_printf("shift sound by %d ms\n",synctime);
 					if(synctime>10 && synctime<5000) 
 					{ /*only sync between 100ms and 5 seconds*/
@@ -427,7 +427,7 @@ void *main_loop(void *data)
 					}
 				}
 				g_mutex_lock( pdata->mutex );
-					/*run efif (!(global->AVIButtPress))fects on data*/
+					/*run effects on data*/
 					/*echo*/
 					if((pdata->snd_Flags & SND_ECHO)==SND_ECHO) 
 					{
@@ -481,7 +481,7 @@ void *main_loop(void *data)
 					if(global->Sound_Format == PA_FOURCC) 
 					{
 						Float2Int16(pdata); /*convert from float sample to 16 bit PCM*/
-						ret=AVI_write_audio(AviOut,(BYTE *) pdata->avi_sndBuff1,pdata->snd_numSamples*2);
+						ret=AVI_write_audio(AviOut,(BYTE *) pdata->vid_sndBuff1,pdata->snd_numSamples*2);
 					}
 					else if(global->Sound_Format == ISO_FORMAT_MPEG12)
 					{
@@ -497,9 +497,9 @@ void *main_loop(void *data)
 				{	
 					if (AVI_getErrno () == AVI_ERR_SIZELIM) 
 					{
-						if (!(global->AVIButtPress))
+						if (!(global->VidButtPress))
 						{
-							global->AVIButtPress = TRUE;
+							global->VidButtPress = TRUE;
 							GError *err1 = NULL;
 					
 							/*avi file limit reached - must end capture close file and start new one*/
@@ -537,7 +537,7 @@ void *main_loop(void *data)
 				//	global->framecount = nf;
 			}
 	
-			videoIn->AVICapStop=TRUE;
+			videoIn->VidCapStop=TRUE;
 		}
 	
 		/*------------------------- Display Frame --------------------------------*/
@@ -592,16 +592,16 @@ void *main_loop(void *data)
 
 	}/*loop end*/
 	
-	/*check if thread exited while AVI in capture mode*/
-	if (videoIn->capAVI) 
+	/*check if thread exited while in Video capture mode*/
+	if (videoIn->capVid) 
 	{
 		/*stop capture*/
-		global->AVIstoptime = ms_time();
-		videoIn->AVICapStop=TRUE;
-		videoIn->capAVI = FALSE;
-		pdata->capAVI = videoIn->capAVI;
-		if (global->debug) g_printf("stoping AVI capture\n");
-		aviClose(all_data);   
+		global->Vidstoptime = ms_time();
+		videoIn->VidCapStop=TRUE;
+		videoIn->capVid = FALSE;
+		pdata->capVid = videoIn->capVid;
+		if (global->debug) g_printf("stoping Video capture\n");
+		vidClose(all_data);   
 	}
 	if(lavc_data != NULL)
 	{
@@ -614,8 +614,8 @@ void *main_loop(void *data)
 	jpeg_struct=NULL;
 	g_free(pim);
 	pim=NULL;
-	g_free(pavi);
-	pavi=NULL;
+	g_free(pvid);
+	pvid=NULL;
 	if (global->debug) g_printf("cleaning Thread allocations: 100%%\n");
 	fflush(NULL);//flush all output buffers 
 	

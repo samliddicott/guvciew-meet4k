@@ -42,7 +42,7 @@ struct GWIDGET
 	GtkWidget *boxv;
 	GtkWidget *boxh;
 
-	GtkWidget *AVIComp;
+	GtkWidget *VidCodec;
 	GtkWidget *SndEnable; 
 	GtkWidget *SndSampleRate;
 	GtkWidget *SndDevice;
@@ -51,24 +51,22 @@ struct GWIDGET
 	/*must be called from main loop if capture timer enabled*/
 	GtkWidget *ImageFNameEntry;
 	GtkWidget *ImgFileButt;
-	GtkWidget *AviFileButt;
+	GtkWidget *VidFileButt;
 	GtkWidget *ImageType;
 	GtkWidget *CapImageButt;
-	//GtkWidget *QCapImageButt;
 	GtkWidget *ImageInc;
 	GtkWidget *ImageIncLabel;
-	GtkWidget *CapAVIButt;
-	GtkWidget *AVIButton_Img;
-	//GtkWidget *QCapAVIButt;
-	GtkWidget *AVIFNameEntry;
-	GtkWidget *AVIIncLabel;
-	GtkWidget *AVIInc;
+	GtkWidget *CapVidButt;
+	GtkWidget *VidButton_Img;
+	GtkWidget *VidFNameEntry;
+	GtkWidget *VidIncLabel;
+	GtkWidget *VidInc;
 	GtkWidget *Resolution;
 	GtkWidget *Devices;
 	GtkWidget *FileDialog;
 	GtkWidget *lavc_button;
 	
-	gboolean avi_widget_state;
+	gboolean vid_widget_state;
 };
 
 struct ALL_DATA 
@@ -80,7 +78,6 @@ struct ALL_DATA
 	struct avi_t *AviOut;
 	struct GWIDGET *gwidget;
 	struct VidState *s;
-	//gchar *EXEC_CALL;
 	GThread *video_thread;
 };
 

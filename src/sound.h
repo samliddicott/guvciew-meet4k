@@ -62,11 +62,11 @@ struct paRecordData
 	int snd_numBytes; //bytes copied to out buffer*/
 	int snd_numSamples; //samples copied to out buffer*/
 	int snd_begintime; //audio recording start time*/
-	int capAVI; // avi capture flag
+	int capVid; // video capture flag
 	SAMPLE *recordedSamples; // callback buffer
-	SAMPLE *avi_sndBuff; // out buffer
+	SAMPLE *vid_sndBuff; // out buffer
 
-	gint16 *avi_sndBuff1; //buffer for pcm coding with int16
+	gint16 *vid_sndBuff1; //buffer for pcm coding with int16
 	BYTE *mp2Buff; //mp2 encode buffer
 	int mp2BuffSize; // mp2 buffer size
 	int snd_Flags; // effects flag

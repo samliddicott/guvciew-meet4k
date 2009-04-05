@@ -39,19 +39,19 @@ int initGlobals (struct GLOBAL *global)
 	
 	global->confPath = g_strjoin("/", home, ".guvcviewrc", NULL);
 	
-	global->aviFPath = g_new(pchar, 2);
+	global->vidFPath = g_new(pchar, 2);
 	
 	global->imgFPath = g_new(pchar, 2);
 	
 	global->profile_FPath = g_new(pchar, 2);
 	
-	global->aviFPath[1] = g_strdup(home);
+	global->vidFPath[1] = g_strdup(home);
 	
 	global->imgFPath[1] = g_strdup(home);
 	
 	global->profile_FPath[1] = g_strdup(home);
 	
-	global->aviFPath[0] = g_strdup(DEFAULT_AVI_FNAME);
+	global->vidFPath[0] = g_strdup(DEFAULT_AVI_FNAME);
 	
 	global->imgFPath[0] = g_strdup(DEFAULT_IMAGE_FNAME);
 	
@@ -68,21 +68,21 @@ int initGlobals (struct GLOBAL *global)
 	global->imageinc_str = g_new(char, 25);
 	g_snprintf(global->imageinc_str,20,_("File num:%d"),global->image_inc);
 	
-	global->aviinc_str = g_new(char, 25);
-	g_snprintf(global->aviinc_str,20,_("File num:%d"),global->avi_inc);
+	global->vidinc_str = g_new(char, 25);
+	g_snprintf(global->vidinc_str,20,_("File num:%d"),global->vid_inc);
 	
 	global->vid_sleep=0;
-	global->avifile=NULL; /*avi filename passed through argument options with -n */
-	global->Capture_time=0; /*avi capture time passed through argument options with -t */
+	global->vidfile=NULL; /*vid filename passed through argument options with -n */
+	global->Capture_time=0; /*vid capture time passed through argument options with -t */
 	global->lprofile=0; /* flag for -l command line option*/
 	global->imgFormat=0; /* 0 -JPG 1-BMP 2-PNG*/
-	global->AVIFormat=0; /*0-"MJPG"  1-"YUY2" 2-"DIB "(rgb32)*/ 
+	global->VidCodec=0; /*0-"MJPG"  1-"YUY2" 2-"DIB "(rgb32) 3-...*/ 
 	global->AVI_MAX_LEN=AVI_MAX_SIZE; /* ~2 Gb*/    
 	global->snd_begintime=0;/*begin time for audio capture*/
 	global->currtime=0;
 	global->lasttime=0;
-	global->AVIstarttime=0;
-	global->AVIstoptime=0;
+	global->Vidstarttime=0;
+	global->Vidstoptime=0;
 	global->framecount=0;
 	
 	global->Sound_enable=TRUE; /*Enable Sound by Default*/
@@ -133,7 +133,7 @@ int initGlobals (struct GLOBAL *global)
 	global->jpeg_bufsize = 0;
 	global->autofocus = FALSE;
 	global->AFcontrol = FALSE;
-	global->AVIButtPress = FALSE;
+	global->VidButtPress = FALSE;
 	
 	return (0);
 }
@@ -142,26 +142,26 @@ int closeGlobals(struct GLOBAL *global)
 {
 	g_free(global->videodevice);
 	g_free(global->confPath);
-	g_free(global->aviFPath[1]);
+	g_free(global->vidFPath[1]);
 	g_free(global->imgFPath[1]);
 	g_free(global->imgFPath[0]);
-	g_free(global->aviFPath[0]);
+	g_free(global->vidFPath[0]);
 	g_free(global->profile_FPath[1]);
 	g_free(global->profile_FPath[0]);
-	g_free(global->aviFPath);
+	g_free(global->vidFPath);
 	g_free(global->imgFPath);
 	g_free(global->profile_FPath);
 	g_free (global->WVcaption);
 	g_free(global->imageinc_str);
-	g_free(global->aviinc_str);
-	g_free(global->avifile);
+	g_free(global->vidinc_str);
+	g_free(global->vidfile);
 	g_free(global->mode);
 	g_free(global->Sound_IndexDev);
 	g_mutex_free( global->mutex );
 	
 	global->videodevice=NULL;
 	global->confPath=NULL;
-	global->avifile=NULL;
+	global->vidfile=NULL;
 	global->mode=NULL;
 	g_free(global->jpeg);
 	global->jpeg=NULL;

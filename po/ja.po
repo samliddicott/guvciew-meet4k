@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GUVCView 1.0.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-03 20:02+0100\n"
+"POT-Creation-Date: 2009-04-05 23:28+0100\n"
 "PO-Revision-Date: 2009-03-23 20:47+0100\n"
 "Last-Translator: Paulo Assis <pj.assis@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -109,16 +109,18 @@ msgstr "自動停止"
 msgid "Cap. Image"
 msgstr "キャプチャ.画像"
 
-#. avi capture enabled from start
-#: src/guvcview.c:357 src/callbacks.c:1141
-msgid "Stop AVI"
+#. vid capture enabled from start
+#: src/guvcview.c:357 src/callbacks.c:1138
+#, fuzzy
+msgid "Stop Video"
 msgstr "停止 AVI"
 
 #: src/guvcview.c:363 src/callbacks.c:1069
-msgid "Cap. AVI"
+#, fuzzy
+msgid "Cap. Video"
 msgstr "キャプチャ.AVI"
 
-#: src/guvcview.c:501
+#: src/guvcview.c:500
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -128,7 +130,7 @@ msgstr ""
 "\n"
 "ビデオスレッドを作成することができません"
 
-#: src/guvcview.c:502
+#: src/guvcview.c:501
 msgid "Please report it to http://developer.berlios.de/bugs/?group_id=8179"
 msgstr ""
 "http://developer.berlios.de/bugs/?group_id=8179 にレポートしてください。"
@@ -227,7 +229,7 @@ msgstr "シャッター優先モード"
 msgid "Aperture Priority Mode"
 msgstr "絞り優先モード"
 
-#: src/video_tab.c:41 src/callbacks.c:1165
+#: src/video_tab.c:41 src/callbacks.c:1162
 msgid "Save File"
 msgstr "ファイルを保存する"
 
@@ -345,12 +347,13 @@ msgid "Image Format:"
 msgstr "画像フォーマット:"
 
 #: src/video_tab.c:700
-msgid "AVI File:"
-msgstr "AVI ファイル:"
+#, fuzzy
+msgid "Video File:"
+msgstr "ビデオ & ファイル"
 
 #: src/video_tab.c:774
-msgid "AVI Format:"
-msgstr "AVI フォーマット:"
+msgid "Video Codec:"
+msgstr ""
 
 #. lavc codec properties button
 #: src/video_tab.c:782
@@ -571,11 +574,13 @@ msgid "Number of Pictures to capture"
 msgstr "キャプチャする画像数"
 
 #: src/options.c:525
-msgid "AVI File name (capture from start)"
+#, fuzzy
+msgid "Video File name (capture from start)"
 msgstr "AVI ファイル名 (開始からのキャプチャ)"
 
 #: src/options.c:526
-msgid "AVI capture time (in seconds)"
+#, fuzzy
+msgid "Video capture time (in seconds)"
 msgstr "AVI 撮影時間 (秒)"
 
 #: src/options.c:527
@@ -680,9 +685,15 @@ msgstr ""
 "\n"
 "今再起動しますか?\n"
 
-#: src/callbacks.c:1178
+#: src/callbacks.c:1175
 msgid "Load File"
 msgstr "ファイルを読込む"
+
+#~ msgid "AVI File:"
+#~ msgstr "AVI ファイル:"
+
+#~ msgid "AVI Format:"
+#~ msgstr "AVI フォーマット:"
 
 #~ msgid "UYVY - uncomp YUV"
 #~ msgstr "UYVY - 非圧縮 YUV"

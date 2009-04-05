@@ -72,11 +72,11 @@ writeConf(struct GLOBAL *global, char *videodevice)
 		g_fprintf(fp,"# video grab method: 0 -read 1 -mmap (default - 1)\n");
 		g_fprintf(fp,"grabmethod=%i\n",global->grabmethod);
 		g_fprintf(fp,"# video compression format: 0-MJPG 1-YUY2/UYVY 2-DIB (BMP 24) 3-MPEG 4-FLV1\n");
-		g_fprintf(fp,"avi_format=%i\n",global->AVIFormat);
+		g_fprintf(fp,"avi_format=%i\n",global->VidCodec);
 		g_fprintf(fp,"# avi file max size (MAX: %d bytes)\n",AVI_MAX_SIZE);
 		g_fprintf(fp,"avi_max_len=%li\n",global->AVI_MAX_LEN);
-		g_fprintf(fp,"# Auto AVI naming (filename-n.avi)\n");
-		g_fprintf(fp,"avi_inc=%d\n",global->avi_inc);
+		g_fprintf(fp,"# Auto Video naming (ex: filename-n.avi)\n");
+		g_fprintf(fp,"avi_inc=%d\n",global->vid_inc);
 		g_fprintf(fp,"# sound 0 - disable 1 - enable\n");
 		g_fprintf(fp,"sound=%i\n",global->Sound_enable);
 		g_fprintf(fp,"# snd_device - sound device id as listed by portaudio\n");
@@ -85,7 +85,7 @@ writeConf(struct GLOBAL *global, char *videodevice)
 		g_fprintf(fp,"snd_samprate=%i\n",global->Sound_SampRateInd);
 		g_fprintf(fp,"# snd_numchan - sound number of channels 0- dev def 1 - mono 2 -stereo\n");
 		g_fprintf(fp,"snd_numchan=%i\n",global->Sound_NumChanInd);
-		g_fprintf(fp,"#snd_numsec - avi audio blocks size in sec: 1,2,3,.. \n");
+		g_fprintf(fp,"#snd_numsec - video audio blocks size in sec: 1,2,3,.. \n");
 		g_fprintf(fp,"# more seconds = more granularity, more memory allocation but less disc I/O\n");
 		g_fprintf(fp,"snd_numsec=%i\n",global->Sound_NumSec);
 		g_fprintf(fp,"# Sound Format (PCM=1 (0x0001) MP2=80 (0x0050)\n");
@@ -103,8 +103,8 @@ writeConf(struct GLOBAL *global, char *videodevice)
 		g_fprintf(fp,"image_path='%s/%s'\n",global->imgFPath[1],global->imgFPath[0]);
 		g_fprintf(fp,"# Auto Image naming (filename-n.ext)\n");
 		g_fprintf(fp,"image_inc=%d\n",global->image_inc);
-		g_fprintf(fp,"# Avi capture Full Path\n");
-		g_fprintf(fp,"avi_path='%s/%s'\n",global->aviFPath[1],global->aviFPath[0]);
+		g_fprintf(fp,"# Video capture Full Path\n");
+		g_fprintf(fp,"avi_path='%s/%s'\n",global->vidFPath[1],global->vidFPath[0]);
 		g_fprintf(fp,"# control profiles Full Path\n");
 		g_fprintf(fp,"profile_path='%s/%s'\n",global->profile_FPath[1],global->profile_FPath[0]);
 		printf("write %s OK\n",global->confPath);
@@ -246,8 +246,8 @@ readConf(struct GLOBAL *global)
 						}
 						else if (g_strcmp0(name,"avi_path")==0) 
 						{
-							if(global->avifile == NULL)
-								global->aviFPath=splitPath(scanner->value.v_string,global->aviFPath);
+							if(global->vidfile == NULL)
+								global->vidFPath=splitPath(scanner->value.v_string,global->vidFPath);
 						}
 						else if (g_strcmp0(name,"profile_path")==0) 
 						{
@@ -338,7 +338,7 @@ readConf(struct GLOBAL *global)
 						}
 						else if (g_strcmp0(name,"avi_format")==0) 
 						{
-							global->AVIFormat = scanner->value.v_int;
+							global->VidCodec = scanner->value.v_int;
 						}
 						else if (g_strcmp0(name,"avi_max_len")==0) 
 						{
@@ -347,8 +347,8 @@ readConf(struct GLOBAL *global)
 						}
 						else if (g_strcmp0(name,"avi_inc")==0) 
 						{
-							global->avi_inc = (DWORD) scanner->value.v_int;
-							g_snprintf(global->aviinc_str,20,_("File num:%d"),global->avi_inc);
+							global->vid_inc = (DWORD) scanner->value.v_int;
+							g_snprintf(global->vidinc_str,20,_("File num:%d"),global->vid_inc);
 						}
 						else if (g_strcmp0(name,"sound")==0) 
 						{
@@ -465,7 +465,7 @@ readConf(struct GLOBAL *global)
 			g_printf("bpp: %i\n",global->bpp);
 			g_printf("hwaccel: %i\n",global->hwaccel);
 			g_printf("grabmethod: %i\n",global->grabmethod);
-			g_printf("avi_format: %i\n",global->AVIFormat);
+			g_printf("avi_format: %i\n",global->VidCodec);
 			g_printf("sound: %i\n",global->Sound_enable);
 			g_printf("sound Device: %i\n",global->Sound_UseDev);
 			g_printf("sound samp rate: %i\n",global->Sound_SampRateInd);
@@ -492,7 +492,7 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 	gchar *format=NULL;
 	gchar *size = NULL;
 	gchar *image = NULL;
-	gchar *avi=NULL;
+	gchar *video=NULL;
 	gchar *profile=NULL;
 	gchar *separateur=NULL;
 	gboolean help = FALSE;
@@ -522,8 +522,8 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 		{ "image", 'i', 0, G_OPTION_ARG_STRING, &image, N_("Image File name"), "FILENAME"},
 		{ "cap_time", 'c', 0, G_OPTION_ARG_INT, &global->image_timer, N_("Image capture interval in seconds"), "TIME"},
 		{ "npics", 'm', 0, G_OPTION_ARG_INT, &global->image_npics, N_("Number of Pictures to capture"), "NUMPIC"},
-		{ "avi", 'n', 0, G_OPTION_ARG_STRING, &avi, N_("AVI File name (capture from start)"), "FILENAME"},
-		{ "avi_time", 't', 0, G_OPTION_ARG_INT, &global->Capture_time,N_("AVI capture time (in seconds)"), "TIME"},
+		{ "video", 'n', 0, G_OPTION_ARG_STRING, &video, N_("Video File name (capture from start)"), "FILENAME"},
+		{ "vid_time", 't', 0, G_OPTION_ARG_INT, &global->Capture_time,N_("Video capture time (in seconds)"), "TIME"},
 		{ "show_fps", 'p', 0, G_OPTION_ARG_INT, &FpsCount, N_("Show FPS value (enable(1) | disable (0))"), "[1 | 0]"},
 		{ "profile", 'l', 0, G_OPTION_ARG_STRING, &profile, N_("Load Profile at start"), "FILENAME"},
 		{ NULL }
@@ -689,11 +689,11 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 		global->image_inc=1;
 		g_printf("capturing images every %i seconds",global->image_timer);
 	}
-	if(avi)
+	if(video)
 	{
-		global->avifile = g_strdup(avi);
-		global->aviFPath=splitPath(global->avifile,global->aviFPath);
-		g_printf("capturing avi: %s , from start",global->avifile);
+		global->vidfile = g_strdup(video);
+		global->vidFPath=splitPath(global->vidfile,global->vidFPath);
+		g_printf("capturing video: %s , from start",global->vidfile);
 	}
 	if(profile)
 	{
@@ -720,7 +720,7 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 	g_free(format);
 	g_free(size);
 	g_free(image);
-	g_free(avi);
+	g_free(video);
 	g_free(profile);
 	g_option_context_free (context);
 }

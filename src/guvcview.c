@@ -118,7 +118,7 @@ int main(int argc, char *argv[])
 	/*---------------------------------- Allocations -------------------------*/
 	
 	gwidget = g_new0(struct GWIDGET, 1);
-	gwidget->avi_widget_state = TRUE;
+	gwidget->vid_widget_state = TRUE;
 
 	/* widgets */
 	GtkWidget *scroll1;
@@ -352,16 +352,16 @@ int main(int argc, char *argv[])
 			gwidget->CapImageButt=gtk_button_new_with_label (_("Cap. Image"));
 		}
 
-		if (global->avifile) 
-		{	/*avi capture enabled from start*/
-			gwidget->CapAVIButt=gtk_toggle_button_new_with_label (_("Stop AVI"));
+		if (global->vidfile) 
+		{	/*vid capture enabled from start*/
+			gwidget->CapVidButt=gtk_toggle_button_new_with_label (_("Stop Video"));
 		
-			gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gwidget->CapAVIButt), TRUE);
+			gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gwidget->CapVidButt), TRUE);
 		} 
 		else 
 		{
-			gwidget->CapAVIButt=gtk_toggle_button_new_with_label (_("Cap. AVI"));
-			gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gwidget->CapAVIButt), FALSE);
+			gwidget->CapVidButt=gtk_toggle_button_new_with_label (_("Cap. Video"));
+			gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gwidget->CapVidButt), FALSE);
 		}
 
 		/*add images to Buttons and top window*/
@@ -370,11 +370,10 @@ int main(int argc, char *argv[])
 		gchar* pix1path = g_strconcat (PACKAGE_DATA_DIR,"/pixmaps/guvcview/movie.png",NULL);
 		if (g_file_test(pix1path,G_FILE_TEST_EXISTS)) 
 		{
-			gwidget->AVIButton_Img = gtk_image_new_from_file (pix1path);
-			//gtk_image_set_pixel_size (GTK_IMAGE(AVIButton_Img), 64);
+			gwidget->VidButton_Img = gtk_image_new_from_file (pix1path);
 		
-			gtk_button_set_image(GTK_BUTTON(gwidget->CapAVIButt),gwidget->AVIButton_Img);
-			gtk_button_set_image_position(GTK_BUTTON(gwidget->CapAVIButt),GTK_POS_TOP);
+			gtk_button_set_image(GTK_BUTTON(gwidget->CapVidButt),gwidget->VidButton_Img);
+			gtk_button_set_image_position(GTK_BUTTON(gwidget->CapVidButt),GTK_POS_TOP);
 		}
 		gchar* pix2path = g_strconcat (PACKAGE_DATA_DIR,"/pixmaps/guvcview/camera.png",NULL);
 		if (g_file_test(pix2path,G_FILE_TEST_EXISTS)) 
@@ -388,15 +387,15 @@ int main(int argc, char *argv[])
 		g_free(pix1path);
 		g_free(pix2path);
 		gtk_box_pack_start(GTK_BOX(HButtonBox),gwidget->CapImageButt,TRUE,TRUE,2);
-		gtk_box_pack_start(GTK_BOX(HButtonBox),gwidget->CapAVIButt,TRUE,TRUE,2);
-		gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (gwidget->CapAVIButt), FALSE);
+		gtk_box_pack_start(GTK_BOX(HButtonBox),gwidget->CapVidButt,TRUE,TRUE,2);
+		gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (gwidget->CapVidButt), FALSE);
 		gtk_widget_show (gwidget->CapImageButt);
-		gtk_widget_show (gwidget->CapAVIButt);
+		gtk_widget_show (gwidget->CapVidButt);
 		
 		g_signal_connect (GTK_BUTTON(gwidget->CapImageButt), "clicked",
 			G_CALLBACK (capture_image), &all_data);
-		g_signal_connect (GTK_TOGGLE_BUTTON(gwidget->CapAVIButt), "toggled",
-			G_CALLBACK (capture_avi), &all_data);
+		g_signal_connect (GTK_TOGGLE_BUTTON(gwidget->CapVidButt), "toggled",
+			G_CALLBACK (capture_vid), &all_data);
 	}/*end of control_only exclusion*/
 	
 	gchar* pix3path = g_strconcat (PACKAGE_DATA_DIR,"/pixmaps/guvcview/save.png",NULL);
@@ -511,28 +510,28 @@ int main(int argc, char *argv[])
 				Image_capture_timer,&all_data);
 			set_sensitive_img_contrls(FALSE, gwidget);/*disable image controls*/
 		}
-		/*--------------------- avi capture from start ---------------------------*/
-		if(global->avifile) 
+		/*--------------------- video capture from start ---------------------------*/
+		if(global->vidfile) 
 		{
-			videoIn->AVIFName = joinPath(videoIn->AVIFName, global->aviFPath);
+			videoIn->VidFName = joinPath(videoIn->VidFName, global->vidFPath);
 		
-			if(AVI_open_output_file(AviOut, videoIn->AVIFName)<0) 
+			if(AVI_open_output_file(AviOut, videoIn->VidFName)<0) 
 			{
-				g_printerr("Error: Couldn't create Avi: %s\n",
-					videoIn->AVIFName);
-				videoIn->capAVI = FALSE;
-				pdata->capAVI = videoIn->capAVI;
+				g_printerr("Error: Couldn't create Video file: %s\n",
+					videoIn->VidFName);
+				videoIn->capVid = FALSE;
+				pdata->capVid = videoIn->capVid;
 			}
 			else 
 			{
 				/*4CC compression */
-				const char *compression= get_vid4cc(global->AVIFormat);
+				const char *compression= get_vid4cc(global->VidCodec);
 
 				AVI_set_video(AviOut, videoIn->width, videoIn->height, videoIn->fps,compression);
-				/* audio will be set in aviClose - if enabled*/
+				/* audio will be set in vidClose - if enabled*/
 				//g_free(compression);
-				/*disabling sound and avi compression controls*/
-				set_sensitive_avi_contrls (FALSE, global->Sound_enable, gwidget);
+				/*disabling sound and video compression controls*/
+				set_sensitive_vid_contrls (FALSE, global->Sound_enable, gwidget);
 
 				if(global->Sound_enable > 0) 
 				{
@@ -551,16 +550,16 @@ int main(int argc, char *argv[])
 						init_MP2_encoder(pdata, global->Sound_bitRate);
 					}
 					/* start video capture - with sound*/
-					global->AVIstarttime = ms_time();
-					videoIn->capAVI = TRUE; /* start video capture */
-					pdata->capAVI = videoIn->capAVI;
+					global->Vidstarttime = ms_time();
+					videoIn->capVid = TRUE; /* start video capture */
+					pdata->capVid = videoIn->capVid;
 				} 
 				else
 				{
 					/* start video capture - no sound*/
-					global->AVIstarttime = ms_time();
-					videoIn->capAVI = TRUE;
-					pdata->capAVI = videoIn->capAVI;
+					global->Vidstarttime = ms_time();
+					videoIn->capVid = TRUE;
+					pdata->capVid = videoIn->capVid;
 				}
 	
 				if (global->Capture_time) 

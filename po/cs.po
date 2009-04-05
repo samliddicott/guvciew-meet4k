@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: guvcview\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-03 20:02+0100\n"
+"POT-Creation-Date: 2009-04-05 23:28+0100\n"
 "PO-Revision-Date: 2009-01-18 08:31+0000\n"
 "Last-Translator: Jakub Žáček <dawon.cz@gmail.com>\n"
 "Language-Team: Czech <cs@li.org>\n"
@@ -109,16 +109,18 @@ msgstr "Zastavit automat"
 msgid "Cap. Image"
 msgstr "Zazn. Obraz"
 
-#. avi capture enabled from start
-#: src/guvcview.c:357 src/callbacks.c:1141
-msgid "Stop AVI"
+#. vid capture enabled from start
+#: src/guvcview.c:357 src/callbacks.c:1138
+#, fuzzy
+msgid "Stop Video"
 msgstr "Zastavit AVI"
 
 #: src/guvcview.c:363 src/callbacks.c:1069
-msgid "Cap. AVI"
+#, fuzzy
+msgid "Cap. Video"
 msgstr "Zazn. AVI"
 
-#: src/guvcview.c:501
+#: src/guvcview.c:500
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -128,7 +130,7 @@ msgstr ""
 "\n"
 "Nelze založit vlákno videa"
 
-#: src/guvcview.c:502
+#: src/guvcview.c:501
 msgid "Please report it to http://developer.berlios.de/bugs/?group_id=8179"
 msgstr "Prosím nahlašte to na http://developer.berlios.de/bugs/?group_id=8179"
 
@@ -226,7 +228,7 @@ msgstr "Mód priority clony"
 msgid "Aperture Priority Mode"
 msgstr ""
 
-#: src/video_tab.c:41 src/callbacks.c:1165
+#: src/video_tab.c:41 src/callbacks.c:1162
 msgid "Save File"
 msgstr "Uložit soubor"
 
@@ -344,12 +346,13 @@ msgid "Image Format:"
 msgstr "Formát obrazu:"
 
 #: src/video_tab.c:700
-msgid "AVI File:"
-msgstr "Soubor AVI:"
+#, fuzzy
+msgid "Video File:"
+msgstr "Video & Soubory"
 
 #: src/video_tab.c:774
-msgid "AVI Format:"
-msgstr "Formát AVI:"
+msgid "Video Codec:"
+msgstr ""
 
 #. lavc codec properties button
 #: src/video_tab.c:782
@@ -574,11 +577,13 @@ msgid "Number of Pictures to capture"
 msgstr "Počet obrázků k zaznamenání"
 
 #: src/options.c:525
-msgid "AVI File name (capture from start)"
+#, fuzzy
+msgid "Video File name (capture from start)"
 msgstr "Jméno AVI souboru (záznam od začátku)"
 
 #: src/options.c:526
-msgid "AVI capture time (in seconds)"
+#, fuzzy
+msgid "Video capture time (in seconds)"
 msgstr "Čas AVI záznamu (v sekundách)"
 
 #: src/options.c:527
@@ -683,9 +688,15 @@ msgstr ""
 "\n"
 "Restartovat nyní?\n"
 
-#: src/callbacks.c:1178
+#: src/callbacks.c:1175
 msgid "Load File"
 msgstr "Nahrát soubor"
+
+#~ msgid "AVI File:"
+#~ msgstr "Soubor AVI:"
+
+#~ msgid "AVI Format:"
+#~ msgstr "Formát AVI:"
 
 #~ msgid "UYVY - uncomp YUV"
 #~ msgstr "UYVY - uncomp YUV"

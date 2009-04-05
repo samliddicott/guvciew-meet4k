@@ -94,9 +94,9 @@ struct vdIn
 	int formatIn;                       // Input format
 	int framesizeIn;                    // Input frame size (buffer size)
 	int signalquit;                     // video loop exit flag
-	int capAVI;                         // AVI capture flag (raised while capturing)
-	int AVICapStop;                     // AVI capture stop flag (raised when AVI capture has stopped)
-	char *AVIFName;                     // AVI File name (with full path)
+	int capVid;                         // Video capture flag (raised while capturing)
+	int VidCapStop;                     // Video capture stop flag (raised when video capture has stopped)
+	char *VidFName;                     // Video File name (with full path)
 	int fps;                            // fps value (denominator)
 	int fps_num;                        // fps numerator ( should be 1 almost all cases)
 	int capImage;                       // Image capture flag (raised for capturing a frame)

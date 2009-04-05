@@ -41,12 +41,12 @@ struct GLOBAL
 	GMutex *mutex;         //global structure mutex
 	char *videodevice;     // video device (def. /dev/video0)
 	char *confPath;        //configuration file path
-	char *avifile;         //avi filename passed through argument options with -n
+	char *vidfile;         //video filename passed through argument options with -n
 	char *WVcaption;       //video preview title bar caption
 	char *imageinc_str;    //label for File inc
-	char *aviinc_str;      //label for File inc
+	char *vidinc_str;      //label for File inc
 	char *mode;            //mjpg (default)
-	pchar* aviFPath;       //avi path [0] - filename  [1] - dir
+	pchar* vidFPath;       //video path [0] - filename  [1] - dir
 	pchar* imgFPath;       //image path [0] - filename  [1] - dir
 	pchar* profile_FPath;  //profile path [0] - filename  [1] - dir
 
@@ -57,19 +57,19 @@ struct GLOBAL
 	DWORD snd_begintime;   //begin time for audio capture
 	DWORD currtime;
 	DWORD lasttime;
-	DWORD AVIstarttime;    //avi start time
-	DWORD AVIstoptime;     //avi stop time
-	DWORD avi_inc;         //avi name increment
-	DWORD framecount;      //avi frame count
+	DWORD Vidstarttime;    //video start time
+	DWORD Vidstoptime;     //video stop time
+	DWORD vid_inc;         //video name increment
+	DWORD framecount;      //video frame count
 	DWORD frmCount;        //frame count for fps display calc
 	DWORD image_inc;       //image name increment
 	DWORD jpeg_bufsize;    // width*height/2 
 
 	int stack_size;        //thread stack size
 	int vid_sleep;         //video thread sleep time (0 by default)
-	int Capture_time;      //avi capture time passed through argument options with -t 
+	int Capture_time;      //video capture time passed through argument options with -t 
 	int imgFormat;         //image format: 0-"jpg", 1-"png", 2-"bmp"
-	int AVIFormat;         //0-"MJPG"  1-"YUY2" 2-"DIB "(rgb32)
+	int VidCodec;          //0-"MJPG"  1-"YUY2" 2-"DIB "(rgb32)
 	int Sound_SampRate;    //audio sample rate
 	int Sound_SampRateInd; //audio sample rate combo index
 	int Sound_numInputDev; //number of audio input devices
@@ -77,7 +77,7 @@ struct GLOBAL
 	int Sound_UseDev;      //audio used device index
 	int Sound_NumChan;     //audio number of channels
 	int Sound_NumChanInd;  //audio number of channels combo index
-	int Sound_NumSec;      //number of audio seconds to save into avi on iteration (def. 1)
+	int Sound_NumSec;      //number of audio seconds to save into video on iteration (def. 1)
 	int Sound_Format;      //audio format (mpeg2 or 16 bit PCM)
 	int Sound_bitRate;     //bit rate for mpeg audio compression
 	int PanStep;           //step angle for Pan
@@ -116,7 +116,7 @@ struct GLOBAL
 	gboolean flg_imgFPath; //flag imgFPath if set in args
 	gboolean flg_FpsCount; //flag FpsCount if set in args
 	gboolean debug;        //debug mode flag (--verbose)
-	gboolean AVIButtPress;
+	gboolean VidButtPress;
 	gboolean control_only; //if set don't stream video (enables image control in other apps e.g. ekiga, skype, mplayer)
 };
 

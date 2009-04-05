@@ -70,7 +70,7 @@ recordCallback (const void *inputBuffer, void *outputBuffer,
 		g_mutex_lock( data->mutex );
 			data->snd_numSamples = data->numSamples;
 			data->snd_numBytes = data->numSamples*sizeof(SAMPLE);
-			memcpy(data->avi_sndBuff, data->recordedSamples ,data->snd_numBytes);
+			memcpy(data->vid_sndBuff, data->recordedSamples ,data->snd_numBytes);
 			/*flags that secondary buffer as data (can be saved to file)*/
 			data->audio_flag=1;
 		g_mutex_unlock( data->mutex );
@@ -78,7 +78,7 @@ recordCallback (const void *inputBuffer, void *outputBuffer,
 		data->numSamples = 0;
 	}
 
-	if(data->capAVI) return (paContinue); /*still capturing*/
+	if(data->capVid) return (paContinue); /*still capturing*/
 	else 
 	{
 		/*recording stopped*/
@@ -88,7 +88,7 @@ recordCallback (const void *inputBuffer, void *outputBuffer,
 			g_mutex_lock( data->mutex);
 				data->snd_numSamples = data->numSamples;
 				data->snd_numBytes = data->numSamples*sizeof(SAMPLE);
-				memcpy(data->avi_sndBuff, data->recordedSamples ,data->snd_numBytes);
+				memcpy(data->vid_sndBuff, data->recordedSamples ,data->snd_numBytes);
 				/*flags that secondary buffer as data (can be saved to file)*/
 				data->audio_flag=1;
 			g_mutex_unlock( data->mutex);
@@ -151,9 +151,9 @@ init_sound(struct paRecordData* data)
 	data->streaming = 0;
 	
 	/*secondary shared buffer*/
-	data->avi_sndBuff = g_new0(SAMPLE, numSamples);
-	/*buffer for avi PCM 16 bits*/
-	data->avi_sndBuff1=NULL;
+	data->vid_sndBuff = g_new0(SAMPLE, numSamples);
+	/*buffer for video PCM 16 bits*/
+	data->vid_sndBuff1=NULL;
 	
 	err = Pa_Initialize();
 	if( err != paNoError ) goto error;
@@ -194,8 +194,8 @@ error:
 	Pa_Terminate();
 	g_free( data->recordedSamples );
 	data->recordedSamples=NULL;
-	g_free(data->avi_sndBuff);
-	data->avi_sndBuff=NULL;
+	g_free(data->vid_sndBuff);
+	data->vid_sndBuff=NULL;
 
 	return(-1);
 } 
@@ -233,13 +233,13 @@ close_sound (struct paRecordData *data)
 	
 		Pa_Terminate();
 	
-		g_free(data->avi_sndBuff);
-		data->avi_sndBuff = NULL;
+		g_free(data->vid_sndBuff);
+		data->vid_sndBuff = NULL;
 	
 		g_free(data->mp2Buff);
 		data->mp2Buff = NULL;
-		g_free(data->avi_sndBuff1);
-		data->avi_sndBuff1 = NULL;
+		g_free(data->vid_sndBuff1);
+		data->vid_sndBuff1 = NULL;
 	g_mutex_unlock( data->mutex );
 	
 	return (0);
@@ -254,13 +254,13 @@ error:
 		g_free( data->recordedSamples );
 		data->recordedSamples=NULL;
 		Pa_Terminate();
-		g_free(data->avi_sndBuff);
-		data->avi_sndBuff = NULL;
+		g_free(data->vid_sndBuff);
+		data->vid_sndBuff = NULL;
 		
 		g_free(data->mp2Buff);
 		data->mp2Buff = NULL;
-		g_free(data->avi_sndBuff1);
-		data->avi_sndBuff1 = NULL;
+		g_free(data->vid_sndBuff1);
+		data->vid_sndBuff1 = NULL;
 	g_mutex_unlock( data->mutex );
 	return(-1);
 }
@@ -275,16 +275,16 @@ static gint16 clip_int16 (float in)
 
 void Float2Int16 (struct paRecordData* data)
 {
-	if (data->avi_sndBuff1 == NULL) 
-		data->avi_sndBuff1 = g_new0(gint16, data->maxIndex);
+	if (data->vid_sndBuff1 == NULL) 
+		data->vid_sndBuff1 = g_new0(gint16, data->maxIndex);
 	
 	float res = 0.0;
 	int samp = 0;
 	for(samp=0; samp < data->snd_numSamples; samp++)
 	{
-		res = data->avi_sndBuff[samp] * 32768 + 385;
+		res = data->vid_sndBuff[samp] * 32768 + 385;
 		/*clip*/
-		data->avi_sndBuff1[samp] = clip_int16(res);
+		data->vid_sndBuff1[samp] = clip_int16(res);
 	}
 }
 

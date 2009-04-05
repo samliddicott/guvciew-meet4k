@@ -37,13 +37,13 @@ void
 set_sensitive_snd_contrls (const int flag, struct GWIDGET *gwidget);
 
 void 
-set_sensitive_avi_contrls (const int flag, const int sndEnable, struct GWIDGET *gwidget);
+set_sensitive_vid_contrls (const int flag, const int sndEnable, struct GWIDGET *gwidget);
 
 void 
 set_sensitive_img_contrls (const int flag, struct GWIDGET *gwidget);
 
 void
-aviClose (struct ALL_DATA *all_data);
+vidClose (struct ALL_DATA *all_data);
 
 void
 slider_changed (GtkRange * range, struct ALL_DATA *all_data);
@@ -106,7 +106,7 @@ void
 SndComp_changed (GtkComboBox * SoundComp, struct ALL_DATA *all_data);
 
 void
-AVIComp_changed (GtkComboBox * AVIComp, struct ALL_DATA *all_data);
+VidCodec_changed (GtkComboBox * VidCodec, struct ALL_DATA *all_data);
 
 void
 SndEnable_changed (GtkToggleButton * toggle, struct ALL_DATA *all_data);
@@ -121,13 +121,13 @@ void
 ImageInc_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data);
 
 void
-AVIInc_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data);
+VidInc_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data);
 
 void
 capture_image (GtkButton *ImageButt, struct ALL_DATA *all_data);
 
 void
-capture_avi (GtkToggleButton *AVIButt, struct ALL_DATA *all_data);
+capture_vid (GtkToggleButton *VidButt, struct ALL_DATA *all_data);
 
 void
 ProfileButton_clicked (GtkButton * SProfileButton, struct ALL_DATA *all_data);

@@ -232,12 +232,12 @@ static int encode_lavc (struct lavcData *lavc_data, struct ALL_DATA *all_data, i
 int compress_frame(void *data, 
 	void *jpeg_data, 
 	void *lav_data,
-	void *pavi_buff,
+	void *pvid_buff,
 	int keyframe)
 {
 	struct JPEG_ENCODER_STRUCTURE **jpeg_struct = (struct JPEG_ENCODER_STRUCTURE **) jpeg_data;
 	struct lavcData **lavc_data = (struct lavcData **) lav_data;
-	BYTE **pavi = (BYTE **) pavi_buff;
+	BYTE **pvid = (BYTE **) pvid_buff;
 		
 	struct ALL_DATA *all_data = (struct ALL_DATA *) data;
 	
@@ -248,7 +248,7 @@ int compress_frame(void *data,
 	long framesize=0;
 	int ret=0;
 	
-	switch (global->AVIFormat) 
+	switch (global->VidCodec) 
 	{
 		case CODEC_MJPEG: /*MJPG*/
 			/* save MJPG frame */   
@@ -288,13 +288,13 @@ int compress_frame(void *data,
 					
 		case CODEC_DIB:
 			framesize=(videoIn->width)*(videoIn->height)*3; /*DIB 24/32 -> 3/4 bytes per pixel*/ 
-			if(*pavi==NULL)
+			if(*pvid==NULL)
 			{
-				*pavi = g_new0(BYTE, framesize);
+				*pvid = g_new0(BYTE, framesize);
 			}
-			yuyv2bgr(videoIn->framebuffer, *pavi, videoIn->width, videoIn->height);
+			yuyv2bgr(videoIn->framebuffer, *pvid, videoIn->width, videoIn->height);
 					
-			ret = AVI_write_frame (AviOut, *pavi, framesize, keyframe);
+			ret = AVI_write_frame (AviOut, *pvid, framesize, keyframe);
 			break;
 				
 		case CODEC_MPEG:
@@ -302,7 +302,7 @@ int compress_frame(void *data,
 		case CODEC_WMV1:
 			if(!(*lavc_data)) 
 			{
-				*lavc_data = init_lavc(videoIn->width, videoIn->height, videoIn->fps, global->AVIFormat);
+				*lavc_data = init_lavc(videoIn->width, videoIn->height, videoIn->fps, global->VidCodec);
 			}
 			ret = encode_lavc (*lavc_data, all_data, keyframe);
 			break;
