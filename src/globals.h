@@ -69,7 +69,8 @@ struct GLOBAL
 	int vid_sleep;         //video thread sleep time (0 by default)
 	int Capture_time;      //video capture time passed through argument options with -t 
 	int imgFormat;         //image format: 0-"jpg", 1-"png", 2-"bmp"
-	int VidCodec;          //0-"MJPG"  1-"YUY2" 2-"DIB "(rgb32)
+	int VidCodec;          //0-"MJPG"  1-"YUY2" 2-"DIB "(rgb32) 3-....
+	int VidFormat;         //0-AVI 1-MPEG 2-FLV 3- MKV ....
 	int Sound_SampRate;    //audio sample rate
 	int Sound_SampRateInd; //audio sample rate combo index
 	int Sound_numInputDev; //number of audio input devices

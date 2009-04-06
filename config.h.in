@@ -9,11 +9,20 @@
 /* Define if avcodec.h can be acessed directly */
 #undef HAS_AVCODEC_H
 
+/* Define if avformat.h can be acessed directly */
+#undef HAS_AVFORMAT_H
+
 /* Define if avcodec.h installed to ffmpeg dir */
 #undef HAS_FFMPEG_AVCODEC_H
 
+/* Define if avformat.h installed to ffmpeg dir */
+#undef HAS_FFMPEG_AVFORMAT_H
+
 /* Define if avcodec.h installed to libavcodec dir */
 #undef HAS_LIBAVCODEC_AVCODEC_H
+
+/* Define if avformat.h installed to libavformat dir */
+#undef HAS_LIBAVFORMAT_AVFORMAT_H
 
 /* Define to 1 if you have the `bind_textdomain_codeset' function. */
 #undef HAVE_BIND_TEXTDOMAIN_CODESET

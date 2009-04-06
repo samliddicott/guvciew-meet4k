@@ -7312,12 +7312,12 @@ if test -n "$PKG_CONFIG"; then
         pkg_cv_PACKAGE_CFLAGS="$PACKAGE_CFLAGS"
     else
         if test -n "$PKG_CONFIG" && \
-    { (echo "$as_me:$LINENO: \$PKG_CONFIG --exists --print-errors \"gtk+-2.0 >= 2.10.0 glib-2.0 >= 2.10.0 gthread-2.0 gdk-2.0 >= 2.10.0 sdl >= 1.2.10 portaudio-2.0 libpng twolame libavcodec\"") >&5
-  ($PKG_CONFIG --exists --print-errors "gtk+-2.0 >= 2.10.0 glib-2.0 >= 2.10.0 gthread-2.0 gdk-2.0 >= 2.10.0 sdl >= 1.2.10 portaudio-2.0 libpng twolame libavcodec") 2>&5
+    { (echo "$as_me:$LINENO: \$PKG_CONFIG --exists --print-errors \"gtk+-2.0 >= 2.10.0 glib-2.0 >= 2.10.0 gthread-2.0 gdk-2.0 >= 2.10.0 sdl >= 1.2.10 portaudio-2.0 libpng twolame libavcodec libavformat\"") >&5
+  ($PKG_CONFIG --exists --print-errors "gtk+-2.0 >= 2.10.0 glib-2.0 >= 2.10.0 gthread-2.0 gdk-2.0 >= 2.10.0 sdl >= 1.2.10 portaudio-2.0 libpng twolame libavcodec libavformat") 2>&5
   ac_status=$?
   echo "$as_me:$LINENO: \$? = $ac_status" >&5
   (exit $ac_status); }; then
-  pkg_cv_PACKAGE_CFLAGS=`$PKG_CONFIG --cflags "gtk+-2.0 >= 2.10.0 glib-2.0 >= 2.10.0 gthread-2.0 gdk-2.0 >= 2.10.0 sdl >= 1.2.10 portaudio-2.0 libpng twolame libavcodec" 2>/dev/null`
+  pkg_cv_PACKAGE_CFLAGS=`$PKG_CONFIG --cflags "gtk+-2.0 >= 2.10.0 glib-2.0 >= 2.10.0 gthread-2.0 gdk-2.0 >= 2.10.0 sdl >= 1.2.10 portaudio-2.0 libpng twolame libavcodec libavformat" 2>/dev/null`
 else
   pkg_failed=yes
 fi
@@ -7330,12 +7330,12 @@ if test -n "$PKG_CONFIG"; then
         pkg_cv_PACKAGE_LIBS="$PACKAGE_LIBS"
     else
         if test -n "$PKG_CONFIG" && \
-    { (echo "$as_me:$LINENO: \$PKG_CONFIG --exists --print-errors \"gtk+-2.0 >= 2.10.0 glib-2.0 >= 2.10.0 gthread-2.0 gdk-2.0 >= 2.10.0 sdl >= 1.2.10 portaudio-2.0 libpng twolame libavcodec\"") >&5
-  ($PKG_CONFIG --exists --print-errors "gtk+-2.0 >= 2.10.0 glib-2.0 >= 2.10.0 gthread-2.0 gdk-2.0 >= 2.10.0 sdl >= 1.2.10 portaudio-2.0 libpng twolame libavcodec") 2>&5
+    { (echo "$as_me:$LINENO: \$PKG_CONFIG --exists --print-errors \"gtk+-2.0 >= 2.10.0 glib-2.0 >= 2.10.0 gthread-2.0 gdk-2.0 >= 2.10.0 sdl >= 1.2.10 portaudio-2.0 libpng twolame libavcodec libavformat\"") >&5
+  ($PKG_CONFIG --exists --print-errors "gtk+-2.0 >= 2.10.0 glib-2.0 >= 2.10.0 gthread-2.0 gdk-2.0 >= 2.10.0 sdl >= 1.2.10 portaudio-2.0 libpng twolame libavcodec libavformat") 2>&5
   ac_status=$?
   echo "$as_me:$LINENO: \$? = $ac_status" >&5
   (exit $ac_status); }; then
-  pkg_cv_PACKAGE_LIBS=`$PKG_CONFIG --libs "gtk+-2.0 >= 2.10.0 glib-2.0 >= 2.10.0 gthread-2.0 gdk-2.0 >= 2.10.0 sdl >= 1.2.10 portaudio-2.0 libpng twolame libavcodec" 2>/dev/null`
+  pkg_cv_PACKAGE_LIBS=`$PKG_CONFIG --libs "gtk+-2.0 >= 2.10.0 glib-2.0 >= 2.10.0 gthread-2.0 gdk-2.0 >= 2.10.0 sdl >= 1.2.10 portaudio-2.0 libpng twolame libavcodec libavformat" 2>/dev/null`
 else
   pkg_failed=yes
 fi
@@ -7354,14 +7354,14 @@ else
         _pkg_short_errors_supported=no
 fi
         if test $_pkg_short_errors_supported = yes; then
-	        PACKAGE_PKG_ERRORS=`$PKG_CONFIG --short-errors --errors-to-stdout --print-errors "gtk+-2.0 >= 2.10.0 glib-2.0 >= 2.10.0 gthread-2.0 gdk-2.0 >= 2.10.0 sdl >= 1.2.10 portaudio-2.0 libpng twolame libavcodec"`
+	        PACKAGE_PKG_ERRORS=`$PKG_CONFIG --short-errors --errors-to-stdout --print-errors "gtk+-2.0 >= 2.10.0 glib-2.0 >= 2.10.0 gthread-2.0 gdk-2.0 >= 2.10.0 sdl >= 1.2.10 portaudio-2.0 libpng twolame libavcodec libavformat"`
         else
-	        PACKAGE_PKG_ERRORS=`$PKG_CONFIG --errors-to-stdout --print-errors "gtk+-2.0 >= 2.10.0 glib-2.0 >= 2.10.0 gthread-2.0 gdk-2.0 >= 2.10.0 sdl >= 1.2.10 portaudio-2.0 libpng twolame libavcodec"`
+	        PACKAGE_PKG_ERRORS=`$PKG_CONFIG --errors-to-stdout --print-errors "gtk+-2.0 >= 2.10.0 glib-2.0 >= 2.10.0 gthread-2.0 gdk-2.0 >= 2.10.0 sdl >= 1.2.10 portaudio-2.0 libpng twolame libavcodec libavformat"`
         fi
 	# Put the nasty error message in config.log where it belongs
 	echo "$PACKAGE_PKG_ERRORS" >&5
 
-	{ { echo "$as_me:$LINENO: error: Package requirements (gtk+-2.0 >= 2.10.0 glib-2.0 >= 2.10.0 gthread-2.0 gdk-2.0 >= 2.10.0 sdl >= 1.2.10 portaudio-2.0 libpng twolame libavcodec) were not met:
+	{ { echo "$as_me:$LINENO: error: Package requirements (gtk+-2.0 >= 2.10.0 glib-2.0 >= 2.10.0 gthread-2.0 gdk-2.0 >= 2.10.0 sdl >= 1.2.10 portaudio-2.0 libpng twolame libavcodec libavformat) were not met:
 
 $PACKAGE_PKG_ERRORS
 
@@ -7372,7 +7372,7 @@ Alternatively, you may set the environment variables PACKAGE_CFLAGS
 and PACKAGE_LIBS to avoid the need to call pkg-config.
 See the pkg-config man page for more details.
 " >&5
-echo "$as_me: error: Package requirements (gtk+-2.0 >= 2.10.0 glib-2.0 >= 2.10.0 gthread-2.0 gdk-2.0 >= 2.10.0 sdl >= 1.2.10 portaudio-2.0 libpng twolame libavcodec) were not met:
+echo "$as_me: error: Package requirements (gtk+-2.0 >= 2.10.0 glib-2.0 >= 2.10.0 gthread-2.0 gdk-2.0 >= 2.10.0 sdl >= 1.2.10 portaudio-2.0 libpng twolame libavcodec libavformat) were not met:
 
 $PACKAGE_PKG_ERRORS
 
@@ -7842,6 +7842,436 @@ if test "$has_libavcodec_dir" = yes; then
 
 cat >>confdefs.h <<\_ACEOF
 #define HAS_LIBAVCODEC_AVCODEC_H 1
+_ACEOF
+
+fi
+
+if test "${ac_cv_header_avformat_h+set}" = set; then
+  { echo "$as_me:$LINENO: checking for avformat.h" >&5
+echo $ECHO_N "checking for avformat.h... $ECHO_C" >&6; }
+if test "${ac_cv_header_avformat_h+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+fi
+{ echo "$as_me:$LINENO: result: $ac_cv_header_avformat_h" >&5
+echo "${ECHO_T}$ac_cv_header_avformat_h" >&6; }
+else
+  # Is the header compilable?
+{ echo "$as_me:$LINENO: checking avformat.h usability" >&5
+echo $ECHO_N "checking avformat.h usability... $ECHO_C" >&6; }
+cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+$ac_includes_default
+#include <avformat.h>
+_ACEOF
+rm -f conftest.$ac_objext
+if { (ac_try="$ac_compile"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
+  (eval "$ac_compile") 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && {
+	 test -z "$ac_c_werror_flag" ||
+	 test ! -s conftest.err
+       } && test -s conftest.$ac_objext; then
+  ac_header_compiler=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+	ac_header_compiler=no
+fi
+
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+{ echo "$as_me:$LINENO: result: $ac_header_compiler" >&5
+echo "${ECHO_T}$ac_header_compiler" >&6; }
+
+# Is the header present?
+{ echo "$as_me:$LINENO: checking avformat.h presence" >&5
+echo $ECHO_N "checking avformat.h presence... $ECHO_C" >&6; }
+cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+#include <avformat.h>
+_ACEOF
+if { (ac_try="$ac_cpp conftest.$ac_ext"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
+  (eval "$ac_cpp conftest.$ac_ext") 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } >/dev/null && {
+	 test -z "$ac_c_preproc_warn_flag$ac_c_werror_flag" ||
+	 test ! -s conftest.err
+       }; then
+  ac_header_preproc=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+  ac_header_preproc=no
+fi
+
+rm -f conftest.err conftest.$ac_ext
+{ echo "$as_me:$LINENO: result: $ac_header_preproc" >&5
+echo "${ECHO_T}$ac_header_preproc" >&6; }
+
+# So?  What about this header?
+case $ac_header_compiler:$ac_header_preproc:$ac_c_preproc_warn_flag in
+  yes:no: )
+    { echo "$as_me:$LINENO: WARNING: avformat.h: accepted by the compiler, rejected by the preprocessor!" >&5
+echo "$as_me: WARNING: avformat.h: accepted by the compiler, rejected by the preprocessor!" >&2;}
+    { echo "$as_me:$LINENO: WARNING: avformat.h: proceeding with the compiler's result" >&5
+echo "$as_me: WARNING: avformat.h: proceeding with the compiler's result" >&2;}
+    ac_header_preproc=yes
+    ;;
+  no:yes:* )
+    { echo "$as_me:$LINENO: WARNING: avformat.h: present but cannot be compiled" >&5
+echo "$as_me: WARNING: avformat.h: present but cannot be compiled" >&2;}
+    { echo "$as_me:$LINENO: WARNING: avformat.h:     check for missing prerequisite headers?" >&5
+echo "$as_me: WARNING: avformat.h:     check for missing prerequisite headers?" >&2;}
+    { echo "$as_me:$LINENO: WARNING: avformat.h: see the Autoconf documentation" >&5
+echo "$as_me: WARNING: avformat.h: see the Autoconf documentation" >&2;}
+    { echo "$as_me:$LINENO: WARNING: avformat.h:     section \"Present But Cannot Be Compiled\"" >&5
+echo "$as_me: WARNING: avformat.h:     section \"Present But Cannot Be Compiled\"" >&2;}
+    { echo "$as_me:$LINENO: WARNING: avformat.h: proceeding with the preprocessor's result" >&5
+echo "$as_me: WARNING: avformat.h: proceeding with the preprocessor's result" >&2;}
+    { echo "$as_me:$LINENO: WARNING: avformat.h: in the future, the compiler will take precedence" >&5
+echo "$as_me: WARNING: avformat.h: in the future, the compiler will take precedence" >&2;}
+    ( cat <<\_ASBOX
+## ----------------------------------- ##
+## Report this to <pj.assis@gmail.com> ##
+## ----------------------------------- ##
+_ASBOX
+     ) | sed "s/^/$as_me: WARNING:     /" >&2
+    ;;
+esac
+{ echo "$as_me:$LINENO: checking for avformat.h" >&5
+echo $ECHO_N "checking for avformat.h... $ECHO_C" >&6; }
+if test "${ac_cv_header_avformat_h+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  ac_cv_header_avformat_h=$ac_header_preproc
+fi
+{ echo "$as_me:$LINENO: result: $ac_cv_header_avformat_h" >&5
+echo "${ECHO_T}$ac_cv_header_avformat_h" >&6; }
+
+fi
+if test $ac_cv_header_avformat_h = yes; then
+  has_avformat_h="yes"
+fi
+
+
+
+if test "${ac_cv_header_ffmpeg_avformat_h+set}" = set; then
+  { echo "$as_me:$LINENO: checking for ffmpeg/avformat.h" >&5
+echo $ECHO_N "checking for ffmpeg/avformat.h... $ECHO_C" >&6; }
+if test "${ac_cv_header_ffmpeg_avformat_h+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+fi
+{ echo "$as_me:$LINENO: result: $ac_cv_header_ffmpeg_avformat_h" >&5
+echo "${ECHO_T}$ac_cv_header_ffmpeg_avformat_h" >&6; }
+else
+  # Is the header compilable?
+{ echo "$as_me:$LINENO: checking ffmpeg/avformat.h usability" >&5
+echo $ECHO_N "checking ffmpeg/avformat.h usability... $ECHO_C" >&6; }
+cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+$ac_includes_default
+#include <ffmpeg/avformat.h>
+_ACEOF
+rm -f conftest.$ac_objext
+if { (ac_try="$ac_compile"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
+  (eval "$ac_compile") 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && {
+	 test -z "$ac_c_werror_flag" ||
+	 test ! -s conftest.err
+       } && test -s conftest.$ac_objext; then
+  ac_header_compiler=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+	ac_header_compiler=no
+fi
+
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+{ echo "$as_me:$LINENO: result: $ac_header_compiler" >&5
+echo "${ECHO_T}$ac_header_compiler" >&6; }
+
+# Is the header present?
+{ echo "$as_me:$LINENO: checking ffmpeg/avformat.h presence" >&5
+echo $ECHO_N "checking ffmpeg/avformat.h presence... $ECHO_C" >&6; }
+cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+#include <ffmpeg/avformat.h>
+_ACEOF
+if { (ac_try="$ac_cpp conftest.$ac_ext"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
+  (eval "$ac_cpp conftest.$ac_ext") 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } >/dev/null && {
+	 test -z "$ac_c_preproc_warn_flag$ac_c_werror_flag" ||
+	 test ! -s conftest.err
+       }; then
+  ac_header_preproc=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+  ac_header_preproc=no
+fi
+
+rm -f conftest.err conftest.$ac_ext
+{ echo "$as_me:$LINENO: result: $ac_header_preproc" >&5
+echo "${ECHO_T}$ac_header_preproc" >&6; }
+
+# So?  What about this header?
+case $ac_header_compiler:$ac_header_preproc:$ac_c_preproc_warn_flag in
+  yes:no: )
+    { echo "$as_me:$LINENO: WARNING: ffmpeg/avformat.h: accepted by the compiler, rejected by the preprocessor!" >&5
+echo "$as_me: WARNING: ffmpeg/avformat.h: accepted by the compiler, rejected by the preprocessor!" >&2;}
+    { echo "$as_me:$LINENO: WARNING: ffmpeg/avformat.h: proceeding with the compiler's result" >&5
+echo "$as_me: WARNING: ffmpeg/avformat.h: proceeding with the compiler's result" >&2;}
+    ac_header_preproc=yes
+    ;;
+  no:yes:* )
+    { echo "$as_me:$LINENO: WARNING: ffmpeg/avformat.h: present but cannot be compiled" >&5
+echo "$as_me: WARNING: ffmpeg/avformat.h: present but cannot be compiled" >&2;}
+    { echo "$as_me:$LINENO: WARNING: ffmpeg/avformat.h:     check for missing prerequisite headers?" >&5
+echo "$as_me: WARNING: ffmpeg/avformat.h:     check for missing prerequisite headers?" >&2;}
+    { echo "$as_me:$LINENO: WARNING: ffmpeg/avformat.h: see the Autoconf documentation" >&5
+echo "$as_me: WARNING: ffmpeg/avformat.h: see the Autoconf documentation" >&2;}
+    { echo "$as_me:$LINENO: WARNING: ffmpeg/avformat.h:     section \"Present But Cannot Be Compiled\"" >&5
+echo "$as_me: WARNING: ffmpeg/avformat.h:     section \"Present But Cannot Be Compiled\"" >&2;}
+    { echo "$as_me:$LINENO: WARNING: ffmpeg/avformat.h: proceeding with the preprocessor's result" >&5
+echo "$as_me: WARNING: ffmpeg/avformat.h: proceeding with the preprocessor's result" >&2;}
+    { echo "$as_me:$LINENO: WARNING: ffmpeg/avformat.h: in the future, the compiler will take precedence" >&5
+echo "$as_me: WARNING: ffmpeg/avformat.h: in the future, the compiler will take precedence" >&2;}
+    ( cat <<\_ASBOX
+## ----------------------------------- ##
+## Report this to <pj.assis@gmail.com> ##
+## ----------------------------------- ##
+_ASBOX
+     ) | sed "s/^/$as_me: WARNING:     /" >&2
+    ;;
+esac
+{ echo "$as_me:$LINENO: checking for ffmpeg/avformat.h" >&5
+echo $ECHO_N "checking for ffmpeg/avformat.h... $ECHO_C" >&6; }
+if test "${ac_cv_header_ffmpeg_avformat_h+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  ac_cv_header_ffmpeg_avformat_h=$ac_header_preproc
+fi
+{ echo "$as_me:$LINENO: result: $ac_cv_header_ffmpeg_avformat_h" >&5
+echo "${ECHO_T}$ac_cv_header_ffmpeg_avformat_h" >&6; }
+
+fi
+if test $ac_cv_header_ffmpeg_avformat_h = yes; then
+  has_ffmpeg_avformat_dir="yes"
+fi
+
+
+
+if test "${ac_cv_header_libavformat_avformat_h+set}" = set; then
+  { echo "$as_me:$LINENO: checking for libavformat/avformat.h" >&5
+echo $ECHO_N "checking for libavformat/avformat.h... $ECHO_C" >&6; }
+if test "${ac_cv_header_libavformat_avformat_h+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+fi
+{ echo "$as_me:$LINENO: result: $ac_cv_header_libavformat_avformat_h" >&5
+echo "${ECHO_T}$ac_cv_header_libavformat_avformat_h" >&6; }
+else
+  # Is the header compilable?
+{ echo "$as_me:$LINENO: checking libavformat/avformat.h usability" >&5
+echo $ECHO_N "checking libavformat/avformat.h usability... $ECHO_C" >&6; }
+cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+$ac_includes_default
+#include <libavformat/avformat.h>
+_ACEOF
+rm -f conftest.$ac_objext
+if { (ac_try="$ac_compile"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
+  (eval "$ac_compile") 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && {
+	 test -z "$ac_c_werror_flag" ||
+	 test ! -s conftest.err
+       } && test -s conftest.$ac_objext; then
+  ac_header_compiler=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+	ac_header_compiler=no
+fi
+
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+{ echo "$as_me:$LINENO: result: $ac_header_compiler" >&5
+echo "${ECHO_T}$ac_header_compiler" >&6; }
+
+# Is the header present?
+{ echo "$as_me:$LINENO: checking libavformat/avformat.h presence" >&5
+echo $ECHO_N "checking libavformat/avformat.h presence... $ECHO_C" >&6; }
+cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+#include <libavformat/avformat.h>
+_ACEOF
+if { (ac_try="$ac_cpp conftest.$ac_ext"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
+  (eval "$ac_cpp conftest.$ac_ext") 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } >/dev/null && {
+	 test -z "$ac_c_preproc_warn_flag$ac_c_werror_flag" ||
+	 test ! -s conftest.err
+       }; then
+  ac_header_preproc=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+  ac_header_preproc=no
+fi
+
+rm -f conftest.err conftest.$ac_ext
+{ echo "$as_me:$LINENO: result: $ac_header_preproc" >&5
+echo "${ECHO_T}$ac_header_preproc" >&6; }
+
+# So?  What about this header?
+case $ac_header_compiler:$ac_header_preproc:$ac_c_preproc_warn_flag in
+  yes:no: )
+    { echo "$as_me:$LINENO: WARNING: libavformat/avformat.h: accepted by the compiler, rejected by the preprocessor!" >&5
+echo "$as_me: WARNING: libavformat/avformat.h: accepted by the compiler, rejected by the preprocessor!" >&2;}
+    { echo "$as_me:$LINENO: WARNING: libavformat/avformat.h: proceeding with the compiler's result" >&5
+echo "$as_me: WARNING: libavformat/avformat.h: proceeding with the compiler's result" >&2;}
+    ac_header_preproc=yes
+    ;;
+  no:yes:* )
+    { echo "$as_me:$LINENO: WARNING: libavformat/avformat.h: present but cannot be compiled" >&5
+echo "$as_me: WARNING: libavformat/avformat.h: present but cannot be compiled" >&2;}
+    { echo "$as_me:$LINENO: WARNING: libavformat/avformat.h:     check for missing prerequisite headers?" >&5
+echo "$as_me: WARNING: libavformat/avformat.h:     check for missing prerequisite headers?" >&2;}
+    { echo "$as_me:$LINENO: WARNING: libavformat/avformat.h: see the Autoconf documentation" >&5
+echo "$as_me: WARNING: libavformat/avformat.h: see the Autoconf documentation" >&2;}
+    { echo "$as_me:$LINENO: WARNING: libavformat/avformat.h:     section \"Present But Cannot Be Compiled\"" >&5
+echo "$as_me: WARNING: libavformat/avformat.h:     section \"Present But Cannot Be Compiled\"" >&2;}
+    { echo "$as_me:$LINENO: WARNING: libavformat/avformat.h: proceeding with the preprocessor's result" >&5
+echo "$as_me: WARNING: libavformat/avformat.h: proceeding with the preprocessor's result" >&2;}
+    { echo "$as_me:$LINENO: WARNING: libavformat/avformat.h: in the future, the compiler will take precedence" >&5
+echo "$as_me: WARNING: libavformat/avformat.h: in the future, the compiler will take precedence" >&2;}
+    ( cat <<\_ASBOX
+## ----------------------------------- ##
+## Report this to <pj.assis@gmail.com> ##
+## ----------------------------------- ##
+_ASBOX
+     ) | sed "s/^/$as_me: WARNING:     /" >&2
+    ;;
+esac
+{ echo "$as_me:$LINENO: checking for libavformat/avformat.h" >&5
+echo $ECHO_N "checking for libavformat/avformat.h... $ECHO_C" >&6; }
+if test "${ac_cv_header_libavformat_avformat_h+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  ac_cv_header_libavformat_avformat_h=$ac_header_preproc
+fi
+{ echo "$as_me:$LINENO: result: $ac_cv_header_libavformat_avformat_h" >&5
+echo "${ECHO_T}$ac_cv_header_libavformat_avformat_h" >&6; }
+
+fi
+if test $ac_cv_header_libavformat_avformat_h = yes; then
+  has_libavformat_dir="yes"
+fi
+
+
+
+if test "$has_avformat_h" = yes; then
+
+cat >>confdefs.h <<\_ACEOF
+#define HAS_AVFORMAT_H 1
+_ACEOF
+
+fi
+if test "$has_ffmpeg_avformat_dir" = yes; then
+
+cat >>confdefs.h <<\_ACEOF
+#define HAS_FFMPEG_AVFORMAT_H 1
+_ACEOF
+
+fi
+if test "$has_libavformat_dir" = yes; then
+
+cat >>confdefs.h <<\_ACEOF
+#define HAS_LIBAVFORMAT_AVFORMAT_H 1
 _ACEOF
 
 fi

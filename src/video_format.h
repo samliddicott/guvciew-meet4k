@@ -2,8 +2,6 @@
 #           guvcview              http://guvcview.berlios.de                    #
 #                                                                               #
 #           Paulo Assis <pj.assis@gmail.com>                                    #
-#           Nobuhiro Iwamatsu <iwamatsu@nigauri.org>                            #
-#                             Add UYVY color support(Macbook iSight)            #
 #                                                                               #
 # This program is free software; you can redistribute it and/or modify          #
 # it under the terms of the GNU General Public License as published by          #
@@ -21,64 +19,31 @@
 #                                                                               #
 ********************************************************************************/
 
-#ifndef GUVCVIEW_H
-#define GUVCVIEW_H
+#ifndef VIDEO_FORMAT_H
+#define VIDEO_FORMAT_H
 
-#include "v4l2uvc.h"
-#include "sound.h"
-#include "autofocus.h"
-#include "video_format.h"
+#include "../config.h"
+#include "defs.h"
+#include "avilib.h"
 
-/* Must set this as global so they */
-/* can be set from any callback.   */
+#ifdef HAS_AVFORMAT_H
+  #include <avformat.h>
+#else
+  #ifdef HAS_LIBAVFORMAT_AVFORMAT_H
+    #include <libavformat/avformat.h>
+  #else
+    #ifdef HAS_FFMPEG_AVFORMAT_H
+      #include <ffmpeg/avformat.h>
+    #else
+      #include <libavformat/avformat.h>
+    #endif
+  #endif
+#endif
 
-struct GWIDGET 
+struct VideoFormatData
 {
-	/* The main window*/
-	GtkWidget *mainwin;
-	/* A restart Dialog */
-	GtkWidget *restartdialog;
-	/*Paned containers*/
-	GtkWidget *boxv;
-	GtkWidget *boxh;
-
-	GtkWidget *VidCodec;
-	GtkWidget *SndEnable; 
-	GtkWidget *SndSampleRate;
-	GtkWidget *SndDevice;
-	GtkWidget *SndNumChan;
-	GtkWidget *SndComp;
-	/*must be called from main loop if capture timer enabled*/
-	GtkWidget *ImageFNameEntry;
-	GtkWidget *ImgFileButt;
-	GtkWidget *VidFileButt;
-	GtkWidget *ImageType;
-	GtkWidget *CapImageButt;
-	GtkWidget *ImageInc;
-	GtkWidget *ImageIncLabel;
-	GtkWidget *CapVidButt;
-	GtkWidget *VidButton_Img;
-	GtkWidget *VidFNameEntry;
-	GtkWidget *VidIncLabel;
-	GtkWidget *VidInc;
-	GtkWidget *Resolution;
-	GtkWidget *Devices;
-	GtkWidget *FileDialog;
-	GtkWidget *lavc_button;
-	
-	gboolean vid_widget_state;
-};
-
-struct ALL_DATA 
-{
-	struct paRecordData *pdata;
-	struct GLOBAL *global;
-	struct focusData *AFdata;
-	struct vdIn *videoIn;
-	struct VideoFormatData *videoF;
-	struct GWIDGET *gwidget;
-	struct VidState *s;
-	GThread *video_thread;
+	AVFormatContext *format_context;
+	struct avi_t *AviOut;
 };
 
 #endif

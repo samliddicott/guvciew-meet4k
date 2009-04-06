@@ -45,6 +45,7 @@
 #include "options.h"
 #include "video.h"
 #include "vcodecs.h"
+#include "create_video.h"
 #include "mp2.h"
 #include "profile.h"
 #include "callbacks.h"
@@ -60,7 +61,7 @@ struct paRecordData *pdata = NULL;
 struct GLOBAL *global = NULL;
 struct focusData *AFdata = NULL;
 struct vdIn *videoIn = NULL;
-struct avi_t *AviOut = NULL;
+struct VideoFormatData *videoF = NULL;
 
 /*controls data*/
 struct VidState *s = NULL;
@@ -144,8 +145,8 @@ int main(int argc, char *argv[])
 	/*create mutex for sound buffers*/
 	pdata->mutex = g_mutex_new();
 
-	/* Allocate the avi_t struct */
-	AviOut = g_new0(struct avi_t, 1);
+	/* Allocate the video Format struct */
+	videoF = g_new0(struct VideoFormatData, 1);
 
 #ifdef ENABLE_NLS
 	/* if --verbose mode set do debug*/
@@ -171,7 +172,7 @@ int main(int argc, char *argv[])
 	all_data.global = global;
 	all_data.AFdata = AFdata; /*not allocated yet*/
 	all_data.videoIn = videoIn;
-	all_data.AviOut = AviOut;
+	all_data.videoF = videoF;
 	all_data.gwidget = gwidget;
 	all_data.s = s;
 
@@ -514,60 +515,13 @@ int main(int argc, char *argv[])
 		if(global->vidfile) 
 		{
 			videoIn->VidFName = joinPath(videoIn->VidFName, global->vidFPath);
-		
-			if(AVI_open_output_file(AviOut, videoIn->VidFName)<0) 
+			initVideoFile(&all_data);
+			if (global->Capture_time) 
 			{
-				g_printerr("Error: Couldn't create Video file: %s\n",
-					videoIn->VidFName);
-				videoIn->capVid = FALSE;
-				pdata->capVid = videoIn->capVid;
+				/*sets the timer function*/
+				g_timeout_add(global->Capture_time*1000,timer_callback,&all_data);
 			}
-			else 
-			{
-				/*4CC compression */
-				const char *compression= get_vid4cc(global->VidCodec);
-
-				AVI_set_video(AviOut, videoIn->width, videoIn->height, videoIn->fps,compression);
-				/* audio will be set in vidClose - if enabled*/
-				//g_free(compression);
-				/*disabling sound and video compression controls*/
-				set_sensitive_vid_contrls (FALSE, global->Sound_enable, gwidget);
-
-				if(global->Sound_enable > 0) 
-				{
-					/*get channels and sample rate*/
-					set_sound(global,pdata);
-					/*set audio header for avi*/
-					AVI_set_audio(AviOut, global->Sound_NumChan, 
-						global->Sound_SampRate,
-						global->Sound_bitRate, 
-						sizeof(SAMPLE)*8, 
-						global->Sound_Format);
-					/* Initialize sound (open stream)*/
-					if(init_sound (pdata)) g_printerr("error opening portaudio\n");
-					if (global->Sound_Format == ISO_FORMAT_MPEG12) 
-					{
-						init_MP2_encoder(pdata, global->Sound_bitRate);
-					}
-					/* start video capture - with sound*/
-					global->Vidstarttime = ms_time();
-					videoIn->capVid = TRUE; /* start video capture */
-					pdata->capVid = videoIn->capVid;
-				} 
-				else
-				{
-					/* start video capture - no sound*/
-					global->Vidstarttime = ms_time();
-					videoIn->capVid = TRUE;
-					pdata->capVid = videoIn->capVid;
-				}
-	
-				if (global->Capture_time) 
-				{
-					/*sets the timer function*/
-					g_timeout_add(global->Capture_time*1000,timer_callback,&all_data);
-				}
-			}
+			
 		}
 	
 		if (global->FpsCount>0)

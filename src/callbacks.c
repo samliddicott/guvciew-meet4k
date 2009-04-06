@@ -43,6 +43,7 @@
 #include "callbacks.h"
 #include "vcodecs.h"
 #include "lavc_common.h"
+#include "create_video.h"
 /*---------------------------- error message dialog-----------------------------*/
 void 
 ERR_DIALOG(const char *err_title, const char* err_msg, struct ALL_DATA *all_data)
@@ -53,7 +54,7 @@ ERR_DIALOG(const char *err_title, const char* err_msg, struct ALL_DATA *all_data
 	struct GLOBAL *global = all_data->global;
 	struct focusData *AFdata = all_data->AFdata;
 	struct vdIn *videoIn = all_data->videoIn;
-	struct avi_t *AviOut = all_data->AviOut;
+	struct VideoFormatData *videoF = all_data->videoF;
 
 	GtkWidget *errdialog;
 	errdialog = gtk_message_dialog_new (GTK_WINDOW(gwidget->mainwin),
@@ -94,9 +95,9 @@ ERR_DIALOG(const char *err_title, const char* err_msg, struct ALL_DATA *all_data
 	videoIn=NULL;
 	all_data->videoIn = NULL;
 
-	g_free(AviOut);
-	AviOut = NULL;
-	all_data->AviOut = NULL;
+	g_free(videoF);
+	videoF = NULL;
+	all_data->videoF = NULL;
 
 	g_printf("Terminated.\n");;
 	exit(1);
@@ -114,33 +115,6 @@ delete_event (GtkWidget *widget, GdkEventConfigure *event, void *data)
 	return 0;
 }
 
-/*--------------------------- controls enable/disable --------------------------*/
-
-/* sound controls*/
-void 
-set_sensitive_snd_contrls (const int flag, struct GWIDGET *gwidget)
-{
-	gtk_widget_set_sensitive (gwidget->SndSampleRate, flag);
-	gtk_widget_set_sensitive (gwidget->SndDevice, flag);
-	gtk_widget_set_sensitive (gwidget->SndNumChan, flag);
-	gtk_widget_set_sensitive (gwidget->SndComp, flag);
-}
-
-/*video controls*/
-void 
-set_sensitive_vid_contrls (const int flag, const int sndEnable, struct GWIDGET *gwidget)
-{
-	/*sound and video compression controls*/
-	gtk_widget_set_sensitive (gwidget->VidCodec, flag);
-	gtk_widget_set_sensitive (gwidget->SndEnable, flag); 
-	gtk_widget_set_sensitive (gwidget->VidInc, flag);
-	if(sndEnable > 0) 
-	{
-		set_sensitive_snd_contrls(flag, gwidget);
-	}
-	gwidget->vid_widget_state = flag;
-}
-
 /*image controls*/
 void 
 set_sensitive_img_contrls (const int flag, struct GWIDGET *gwidget)
@@ -149,96 +123,6 @@ set_sensitive_img_contrls (const int flag, struct GWIDGET *gwidget)
 	gtk_widget_set_sensitive(gwidget->ImageType, flag);/*file type combo*/
 	gtk_widget_set_sensitive(gwidget->ImageFNameEntry, flag);/*Image Entry*/
 	gtk_widget_set_sensitive(gwidget->ImageInc, flag);/*image inc checkbox*/
-}
-
-/*-------------------------------- video close functions -----------------------*/
-
-/* Called at video capture stop       */
-/* from video capture button callback */
-void
-vidClose (struct ALL_DATA *all_data)
-{
-	DWORD tottime = 0;
-	//int tstatus;
-
-	struct paRecordData *pdata = all_data->pdata;
-	struct GLOBAL *global = all_data->global;
-
-	struct vdIn *videoIn = all_data->videoIn;
-	struct avi_t *AviOut = all_data->AviOut;
-	
-	
-
-	if (!(AviOut->closed))
-	{
-		tottime = global->Vidstoptime - global->Vidstarttime;
-		if (global->debug) g_printf("stop= %d start=%d \n",global->Vidstoptime,global->Vidstarttime);
-		if (tottime > 0) 
-		{
-			/*try to find the real frame rate*/
-			AviOut->fps = (double) (global->framecount * 1000) / tottime;
-		}
-		else 
-		{
-			/*set the hardware frame rate*/   
-			AviOut->fps=videoIn->fps;
-		}
-
-		if (global->debug) g_printf("VIDEO: %d frames in %d ms = %f fps\n",global->framecount,tottime,AviOut->fps);
-		/*------------------- close audio stream and clean up -------------------*/
-		if (global->Sound_enable > 0) 
-		{
-			/*wait for audio to finish*/
-			int stall = wait_ms( &pdata->streaming, FALSE, 10, 30 );
-			if(!(stall)) 
-			{
-				g_printerr("WARNING:sound capture stall (still streaming(%d) \n",
-					pdata->streaming);
-				pdata->streaming = 0;
-			}
-			/*write any available audio data*/  
-			if(pdata->audio_flag)
-			{
-				g_printerr("writing %d bytes of audio data\n",pdata->snd_numBytes);
-				g_mutex_lock( pdata->mutex);
-					if(global->Sound_Format == PA_FOURCC)
-					{
-						if(pdata->vid_sndBuff) 
-						{
-							Float2Int16(pdata);
-							AVI_write_audio(AviOut,(BYTE *) pdata->vid_sndBuff1,pdata->snd_numSamples*2);
-						}
-					}
-					else if (global->Sound_Format == ISO_FORMAT_MPEG12)
-					{
-						int size_mp2=0;
-						if(pdata->vid_sndBuff && pdata->mp2Buff) 
-						{
-							size_mp2 = MP2_encode(pdata,0);
-							AVI_write_audio(AviOut,pdata->mp2Buff,size_mp2);
-							pdata->flush = 1; /*flush mp2 encoder*/
-							size_mp2 = MP2_encode(pdata,0);
-							AVI_write_audio(AviOut,pdata->mp2Buff,size_mp2);
-							pdata->flush = 0;
-						}
-					}
-				g_mutex_unlock( pdata->mutex );
-			}
-			pdata->audio_flag = 0; /*all audio should have been writen by now*/
-			
-			if (close_sound (pdata)) g_printerr("Sound Close error\n");
-			if(global->Sound_Format == ISO_FORMAT_MPEG12) close_MP2_encoder();
-		} 
-		AVI_close (AviOut);
-		global->framecount = 0;
-		global->Vidstarttime = 0;
-		if (global->debug) g_printf ("close avi\n");
-	}
-
-	pdata = NULL;
-	global = NULL;
-	videoIn = NULL;
-	AviOut = NULL;
 }
 
 /*----------------------------- Callbacks ------------------------------------*/
@@ -1030,7 +914,6 @@ capture_vid (GtkToggleButton *VidButt, struct ALL_DATA *all_data)
 	struct paRecordData *pdata = all_data->pdata;
 	struct GLOBAL *global = all_data->global;
 	struct vdIn *videoIn = all_data->videoIn;
-	struct avi_t *AviOut = all_data->AviOut;
 	
 	const char *fileEntr = gtk_entry_get_text(GTK_ENTRY(gwidget->VidFNameEntry));
 	if(g_strcmp0(fileEntr,global->vidFPath[0])!=0) 
@@ -1042,29 +925,12 @@ capture_vid (GtkToggleButton *VidButt, struct ALL_DATA *all_data)
 		gtk_entry_set_text(GTK_ENTRY(gwidget->VidFNameEntry),global->vidFPath[0]);
 	}
 	
-	
-	const char *compression= get_vid4cc(global->VidCodec);
-	
 	gboolean state = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(gwidget->CapVidButt));
 	if(global->debug) g_printf("Cap Video toggled: %d\n", state);
 	
 	if(videoIn->capVid/* && !(state)*/) 
 	{	/****************** Stop Video ************************/
-		videoIn->capVid = FALSE; /*flag video thread to stop recording frames*/
-		pdata->capVid = videoIn->capVid;
-		/*wait for flag from video thread that recording has stopped    */
-		/*wait on videoIn->VidCapStop by sleeping for 200 loops of 10 ms*/
-		/*(test VidCapStop == TRUE on every loop)*/
-		int stall = wait_ms(&(videoIn->VidCapStop), TRUE, 10, 200);
-		if( !(stall > 0) )
-		{
-			g_printerr("video capture stall on exit(%d) - timeout\n",
-				videoIn->VidCapStop);
-		}
-		global->Vidstoptime = ms_time();
-		vidClose(all_data);
-		/*enabling sound and video compression controls*/
-		set_sensitive_vid_contrls(TRUE, global->Sound_enable, gwidget);
+		closeVideoFile(all_data);
 		if(!(state))
 			gtk_button_set_label(GTK_BUTTON(gwidget->CapVidButt),_("Cap. Video"));
 	} 
@@ -1086,54 +952,7 @@ capture_vid (GtkToggleButton *VidButt, struct ALL_DATA *all_data)
 		{
 			videoIn->VidFName = joinPath(videoIn->VidFName, global->vidFPath);
 		}
-
-		if(AVI_open_output_file(AviOut, videoIn->VidFName)<0) 
-		{
-			g_printerr("Error: Couldn't create Video.\n");
-			videoIn->capVid = FALSE;
-			pdata->capVid = videoIn->capVid;
-		} 
-		else 
-		{
-			/*disabling sound and video compression controls*/
-			set_sensitive_vid_contrls(FALSE, global->Sound_enable, gwidget);
-	
-			/*refresh icon*/
-			AVI_set_video(AviOut, videoIn->width, videoIn->height, 
-				videoIn->fps,compression);
-	  
-			/* start video capture*/
-			global->Vidstarttime = ms_time();
-			videoIn->capVid = TRUE;
-			pdata->capVid = videoIn->capVid;
-			
-			/* start sound capture*/
-			if(global->Sound_enable > 0) 
-			{
-				/*get channels and sample rate*/
-				set_sound(global,pdata);
-				/*set audio header for avi*/
-				AVI_set_audio(AviOut, global->Sound_NumChan, 
-					global->Sound_SampRate,
-					global->Sound_bitRate,
-					16, /*only used for PCM*/
-					global->Sound_Format);
-				/* Initialize sound (open stream)*/
-				if(init_sound (pdata)) 
-				{
-					g_printerr("error opening portaudio\n");
-					global->Sound_enable=0;
-					gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gwidget->SndEnable),0);
-				} 
-				else 
-				{
-					if (global->Sound_Format == ISO_FORMAT_MPEG12) 
-					{
-						init_MP2_encoder(pdata, global->Sound_bitRate);    
-					}
-				}
-			}
-		}
+		initVideoFile(all_data);
 		if(state)
 			gtk_button_set_label(GTK_BUTTON(gwidget->CapVidButt),_("Stop Video"));
 	}
@@ -1142,7 +961,6 @@ capture_vid (GtkToggleButton *VidButt, struct ALL_DATA *all_data)
 	pdata = NULL;
 	global = NULL;
 	videoIn = NULL;
-	AviOut = NULL;
 }
 
 /*--------------------- buttons callbacks ------------------*/

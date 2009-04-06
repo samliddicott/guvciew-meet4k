@@ -28,6 +28,8 @@ guvcview_SOURCES = \
 	close.c \
 	colorspaces.h \
 	colorspaces.c \
+	create_video.h \
+	create_video.c \
 	dct.h \
 	dct.c \
 	defs.h \
@@ -83,6 +85,8 @@ guvcview_SOURCES = \
 	video.c \
 	video_filters.h \
 	video_filters.c \
+	video_format.h \
+	video_format.c \
 	video_tab.h \
 	video_tab.c 
 

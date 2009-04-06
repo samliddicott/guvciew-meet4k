@@ -54,7 +54,7 @@ clean_struct (struct ALL_DATA *all_data)
 	struct GLOBAL *global = all_data->global;
 	struct focusData *AFdata = all_data->AFdata;
 	struct vdIn *videoIn = all_data->videoIn;
-	struct avi_t *AviOut = all_data->AviOut;
+	struct VideoFormatData *videoF = all_data->videoF;
 
 	/*destroy mutex for sound buffers*/
 	g_mutex_free( pdata->mutex );
@@ -68,8 +68,8 @@ clean_struct (struct ALL_DATA *all_data)
 
 	if (global->debug) g_printf("closed v4l2 strutures\n");
 
-	g_free(AviOut);
-	AviOut=NULL;
+	g_free(videoF);
+	videoF=NULL;
 
 	if (s->control) 
 	{

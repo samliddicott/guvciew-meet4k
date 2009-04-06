@@ -23,6 +23,7 @@
 #include "guvcview.h"
 #include "colorspaces.h"
 #include "lavc_common.h"
+#include "create_video.h"
 /* support for internationalization - i18n */
 #include <glib/gi18n.h>
 #include <linux/videodev2.h>
@@ -217,14 +218,14 @@ vcodecs_data *get_codec_defaults(int codec_ind)
 static int encode_lavc (struct lavcData *lavc_data, struct ALL_DATA *all_data, int keyframe)
 {
 	struct vdIn *videoIn = all_data->videoIn;
-	struct avi_t *AviOut = all_data->AviOut;
+	
 	int framesize = 0;
 	int ret = 0;
 	
 	if(lavc_data)
 	{
 		framesize= encode_lavc_frame (videoIn->framebuffer, lavc_data );
-		ret = AVI_write_frame (AviOut, lavc_data->outbuf, framesize, keyframe);
+		ret = write_video_data (all_data, lavc_data->outbuf, framesize, keyframe);
 	}
 	return (ret);
 }
@@ -243,7 +244,6 @@ int compress_frame(void *data,
 	
 	struct GLOBAL *global = all_data->global;
 	struct vdIn *videoIn = all_data->videoIn;
-	struct avi_t *AviOut = all_data->AviOut;
 	
 	long framesize=0;
 	int ret=0;
@@ -254,7 +254,7 @@ int compress_frame(void *data,
 			/* save MJPG frame */   
 			if((global->Frame_Flags==0) && (videoIn->formatIn==V4L2_PIX_FMT_MJPEG)) 
 			{
-				ret = AVI_write_frame (AviOut, videoIn->tmpbuffer, 
+				ret = write_video_data (all_data, videoIn->tmpbuffer, 
 					videoIn->buf.bytesused, keyframe);
 			} 
 			else 
@@ -277,13 +277,13 @@ int compress_frame(void *data,
 				global->jpeg_size = encode_image(videoIn->framebuffer, global->jpeg, 
 					*jpeg_struct,1, videoIn->width, videoIn->height);
 			
-				ret = AVI_write_frame (AviOut, global->jpeg, global->jpeg_size, keyframe);
+				ret = write_video_data (all_data, global->jpeg, global->jpeg_size, keyframe);
 			}
 			break;
 
 		case CODEC_YUV:
 			framesize=(videoIn->width)*(videoIn->height)*2; /*YUY2-> 2 bytes per pixel */
-			ret = AVI_write_frame (AviOut, videoIn->framebuffer, framesize, keyframe);
+			ret = write_video_data (all_data, videoIn->framebuffer, framesize, keyframe);
 			break;
 					
 		case CODEC_DIB:
@@ -294,7 +294,7 @@ int compress_frame(void *data,
 			}
 			yuyv2bgr(videoIn->framebuffer, *pvid, videoIn->width, videoIn->height);
 					
-			ret = AVI_write_frame (AviOut, *pvid, framesize, keyframe);
+			ret = write_video_data (all_data, *pvid, framesize, keyframe);
 			break;
 				
 		case CODEC_MPEG:

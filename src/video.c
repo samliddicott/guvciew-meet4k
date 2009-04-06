@@ -42,7 +42,7 @@
 #include "mp2.h"
 #include "vcodecs.h"
 #include "callbacks.h"
-
+#include "create_video.h"
 /*-------------------------------- Main Video Loop ---------------------------*/ 
 /* run in a thread (SDL overlay)*/
 void *main_loop(void *data)
@@ -53,10 +53,6 @@ void *main_loop(void *data)
 	struct GLOBAL *global = all_data->global;
 	struct focusData *AFdata = all_data->AFdata;
 	struct vdIn *videoIn = all_data->videoIn;
-	struct avi_t *AviOut = all_data->AviOut;
-	//struct GWIDGET *gwidget = all_data->gwidget;
-
-	GThread *press_butt_thread;
 
 	SDL_Event event;
 	/*the main SDL surface*/
@@ -355,77 +351,12 @@ void *main_loop(void *data)
 		/*---------------------------capture Video---------------------------------*/
 		if (videoIn->capVid)
 		{
-			/*all video controls are now disabled so related values cannot be changed*/
-			videoIn->VidCapStop=FALSE;
-			int ret = compress_frame(data, (void *) &(jpeg_struct), (void *) &(lavc_data), (void *) &(pvid), keyframe);
-
-			if (ret) 
-			{
-				if (AVI_getErrno () == AVI_ERR_SIZELIM)
-				{
-					if (!(global->VidButtPress))
-					{
-						
-						GError *err1 = NULL;
-					
-						/*avi file limit reached - must end capture close file and start new one*/
-						if( (press_butt_thread =g_thread_create((GThreadFunc) split_avi, 
-							all_data, //data
-							FALSE,    //joinable - no need waiting for thread to finish
-							&err1)    //error
-						) == NULL)  
-						{
-							g_printerr("Thread create failed: %s!!\n", err1->message );
-							g_error_free ( err1 ) ;
-							printf("using blocking method\n");
-							split_avi(all_data); /*blocking call*/
-						}
-					
-						//split_avi(all_data);/*blocking call*/
-						g_printf("AVI file size limit reached - restarted capture on new file\n");
-					}
-				} 
-				else 
-				{
-					g_printerr ("write error on avi out \n");
-				}
-			}
-		   
-			global->framecount++;
-			if (keyframe) keyframe=0; /*resets key frame*/   
+			write_video_frame(all_data, (void *) &(jpeg_struct), (void *) &(lavc_data), (void *) &(pvid), &keyframe);
 			/*----------------------- add audio -----------------------------*/
 			if ((global->Sound_enable) && (pdata->audio_flag>0)) 
 			{
-				/*first audio data - sync with video (audio stream capture can take               */
-				/*a bit longer to start)                                                          */
-				/*no need of locking the audio mutex yet, since we are not reading from the buffer*/
-				if (!(AviOut->track[0].audio_bytes)) 
-				{ 
-					/*only 1 audio stream*/
-					/*time diff for audio-video*/
-					int synctime= pdata->snd_begintime - global->Vidstarttime; 
-					if (global->debug) g_printf("shift sound by %d ms\n",synctime);
-					if(synctime>10 && synctime<5000) 
-					{ /*only sync between 100ms and 5 seconds*/
-						if(global->Sound_Format == PA_FOURCC) 
-						{/*shift sound by synctime*/
-							UINT32 shiftFrames = abs(synctime * global->Sound_SampRate / 1000);
-							UINT32 shiftSamples = shiftFrames * global->Sound_NumChan;
-							if (global->debug) g_printf("shift sound forward by %d samples\n", 
-								shiftSamples);
-							short *EmptySamp;
-							EmptySamp=g_new0(short, shiftSamples);
-							AVI_write_audio(AviOut,(BYTE *) EmptySamp,shiftSamples*sizeof(short));
-							g_free(EmptySamp);
-						} 
-						else if(global->Sound_Format == ISO_FORMAT_MPEG12) 
-						{
-							int size_mp2 = MP2_encode(pdata, synctime);
-							if (global->debug) g_printf("shift sound forward by %d bytes\n",size_mp2);
-							AVI_write_audio(AviOut,pdata->mp2Buff,size_mp2);
-						}
-					}
-				}
+				sync_audio_frame(all_data);
+				
 				g_mutex_lock( pdata->mutex );
 					/*run effects on data*/
 					/*echo*/
@@ -476,55 +407,9 @@ void *main_loop(void *data)
 					{
 						close_pitch (aud_eff);
 					}
-					
-					/*write audio chunk                                          */
-					if(global->Sound_Format == PA_FOURCC) 
-					{
-						Float2Int16(pdata); /*convert from float sample to 16 bit PCM*/
-						ret=AVI_write_audio(AviOut,(BYTE *) pdata->vid_sndBuff1,pdata->snd_numSamples*2);
-					}
-					else if(global->Sound_Format == ISO_FORMAT_MPEG12)
-					{
-						int size_mp2 = MP2_encode(pdata,0);
-						ret=AVI_write_audio(AviOut,pdata->mp2Buff,size_mp2);
-					}
 				g_mutex_unlock( pdata->mutex );
 				
-				pdata->audio_flag=0;
-				keyframe = 1; /*marks next frame as key frame*/
-		
-				if (ret) 
-				{	
-					if (AVI_getErrno () == AVI_ERR_SIZELIM) 
-					{
-						if (!(global->VidButtPress))
-						{
-							global->VidButtPress = TRUE;
-							GError *err1 = NULL;
-					
-							/*avi file limit reached - must end capture close file and start new one*/
-							if( (press_butt_thread =g_thread_create((GThreadFunc) split_avi, 
-								all_data, //data
-								FALSE,    //joinable - no need waiting for thread to finish
-								&err1)    //error
-							) == NULL)  
-							{
-								g_printerr("Thread create failed: %s!!\n", err1->message );
-								g_error_free ( err1 ) ;
-								printf("using blocking method\n");
-								split_avi(all_data); /*blocking call*/
-							}
-					
-							//split_avi(all_data);/*blocking call*/
-							g_printf("AVI file size limit reached - restarted capture on new file\n");
-						}
-					} 
-					else 
-					{
-						g_printerr ("write error on avi out \n");
-					}
-					
-				}
+				write_audio_frame(all_data, &keyframe);
 			}
 		} /*video and audio capture have stopped */
 		else
@@ -601,7 +486,7 @@ void *main_loop(void *data)
 		videoIn->capVid = FALSE;
 		pdata->capVid = videoIn->capVid;
 		if (global->debug) g_printf("stoping Video capture\n");
-		vidClose(all_data);   
+		closeVideoFile(all_data);   
 	}
 	if(lavc_data != NULL)
 	{
@@ -628,7 +513,6 @@ void *main_loop(void *data)
 	global = NULL;
 	AFdata = NULL;
 	videoIn = NULL;
-	AviOut = NULL;
 	return ((void *) 0);
 }
 
