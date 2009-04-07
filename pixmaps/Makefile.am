@@ -13,7 +13,7 @@ pixs = \
 	controls_folder.png\
 	close.png
 
-CONFIG_CLEAN_FILES = guvcview.desktop guvcview guvcview.1.gz
+CONFIG_CLEAN_FILES = guvcview *.desktop* guvcview.1_ guvcview.menu
 
 clean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
