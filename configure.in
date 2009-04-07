@@ -68,6 +68,9 @@ if test "$has_libavformat_dir" = yes; then
 AC_DEFINE(HAS_LIBAVFORMAT_AVFORMAT_H,1,[Define if avformat.h installed to libavformat dir])
 fi
 
+dnl Check if the processor stores words with the most significant byte first 
+dnl (like Motorola and SPARC, unlike Intel and VAX).
+AC_C_BIGENDIAN 
 
 dnl Write output
 AC_OUTPUT([
