@@ -148,6 +148,13 @@ int main(int argc, char *argv[])
 	/* Allocate the video Format struct */
 	videoF = g_new0(struct VideoFormatData, 1);
 
+	// must be called before using avcodec lib
+	avcodec_init();
+
+	// register all the codecs (you can also register only the codec
+	//you wish to have smaller code
+	avcodec_register_all();
+	
 #ifdef ENABLE_NLS
 	/* if --verbose mode set do debug*/
 	if (global->debug) g_printf("language catalog=> dir:%s type:%s lang:%s cat:%s.mo\n",

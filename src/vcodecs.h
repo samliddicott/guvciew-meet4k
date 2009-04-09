@@ -26,11 +26,12 @@
 #include "jpgenc.h"
 #include "lavc_common.h"
 
-#define MAX_VCODECS 6 
+#define MAX_VCODECS 9 
 
 typedef struct _vcodecs_data
 {
 	gboolean avcodec;         //is a avcodec codec
+	gboolean valid;           //the encoding codec exists in ffmpeg
 	const char *compressor;   //fourcc - upper case
 	const char *description;  //codec description
 	int bit_rate;             //lavc default bit rate
@@ -61,14 +62,19 @@ const char *get_vid4cc(int codec_ind);
 
 const char *get_desc4cc(int codec_ind);
 
+int get_vcodec_id(int codec_ind);
+
 gboolean isLavcCodec(int codec_ind);
+
+void setVcodecVal ();
+
+gboolean isVcodecValid(int codec_ind);
 
 vcodecs_data *get_codec_defaults(int codec_ind);
 
 int compress_frame(void *data, 
 	void *jpeg_data, 
 	void *lav_data,
-	void *pvid_buff,
-	int keyframe);
+	void *pvid_buff);
 
 #endif

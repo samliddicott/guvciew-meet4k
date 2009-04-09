@@ -30,20 +30,19 @@
 void 
 set_sensitive_snd_contrls (const int flag, struct GWIDGET *gwidget);
 
-void initVideoFile(struct ALL_DATA *data);
+int initVideoFile(struct ALL_DATA *data);
 
 void closeVideoFile(struct ALL_DATA *all_data);
 
-int write_video_data(struct ALL_DATA *all_data, BYTE *buff, int size, int keyframe);
+int write_video_data(struct ALL_DATA *all_data, BYTE *buff, int size);
 
 int write_video_frame (struct ALL_DATA *all_data, 
 	void *jpeg_struct, 
 	void *lavc_data,
-	void *pvid,
-	int  *keyframe);
+	void *pvid);
 
 int sync_audio_frame(struct ALL_DATA *all_data);
 
-int write_audio_frame (struct ALL_DATA *all_data, int *keyframe);
+int write_audio_frame (struct ALL_DATA *all_data);
 
 #endif

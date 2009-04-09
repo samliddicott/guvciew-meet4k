@@ -22,7 +22,7 @@ AM_GLIB_GNU_GETTEXT([external])
 
 
 dnl Check package modules
-PKG_CHECK_MODULES(PACKAGE, [gtk+-2.0 >= 2.10.0 glib-2.0 >= 2.10.0 gthread-2.0 gdk-2.0 >= 2.10.0 sdl >= 1.2.10 portaudio-2.0 libpng twolame libavcodec libavformat])
+PKG_CHECK_MODULES(PACKAGE, [gtk+-2.0 >= 2.10.0 glib-2.0 >= 2.10.0 gthread-2.0 gdk-2.0 >= 2.10.0 sdl >= 1.2.10 portaudio-2.0 libpng twolame libavcodec])
 AC_SUBST(PACKAGE_CFLAGS)
 AC_SUBST(PACKAGE_LIBS)
 
@@ -45,27 +45,6 @@ AC_DEFINE(HAS_FFMPEG_AVCODEC_H,1,[Define if avcodec.h installed to ffmpeg dir])
 fi
 if test "$has_libavcodec_dir" = yes; then
 AC_DEFINE(HAS_LIBAVCODEC_AVCODEC_H,1,[Define if avcodec.h installed to libavcodec dir])
-fi
-
-dnl Check for avformat.h directly
-dnl if all tests fail must add avformat.h path to C_INCLUDE_PATH before running configure
-AC_CHECK_HEADER([avformat.h], [has_avformat_h="yes"])
-
-dnl Check old install path for avformat.h (ffmpeg/avformat.h)
-AC_CHECK_HEADER([ffmpeg/avformat.h], [has_ffmpeg_avformat_dir="yes"])
-
-dnl Check new install path for avformat.h (libavformat/avformat.h)
-dnl if all the checks fail we include "libavformat/avformat.h"
-AC_CHECK_HEADER([libavformat/avformat.h], [has_libavformat_dir="yes"])
-
-if test "$has_avformat_h" = yes; then
-AC_DEFINE(HAS_AVFORMAT_H,1,[Define if avformat.h can be acessed directly]) 
-fi
-if test "$has_ffmpeg_avformat_dir" = yes; then
-AC_DEFINE(HAS_FFMPEG_AVFORMAT_H,1,[Define if avformat.h installed to ffmpeg dir]) 
-fi
-if test "$has_libavformat_dir" = yes; then
-AC_DEFINE(HAS_LIBAVFORMAT_AVFORMAT_H,1,[Define if avformat.h installed to libavformat dir])
 fi
 
 dnl Check if the processor stores words with the most significant byte first 

@@ -112,7 +112,7 @@ struct lavcData* init_lavc(int width, int height, int fps, int codec_ind)
 	data->codec = avcodec_find_encoder(defaults->codec_id);
 	if (!data->codec) 
 	{
-		fprintf(stderr, "mpeg codec not found\n");
+		fprintf(stderr, "ffmpeg codec not found\n");
 		return(NULL);
 	}
 	

@@ -70,6 +70,9 @@ void
 combo_changed (GtkComboBox * combo, struct ALL_DATA *all_data);
 
 void
+VidFormat_changed (GtkComboBox * VidFormat, struct ALL_DATA *all_data);
+
+void
 setfocus_clicked (GtkButton * FocusButton, struct ALL_DATA *all_data);
 
 void

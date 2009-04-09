@@ -39,8 +39,6 @@
   #endif
 #endif
 
-
-
 struct lavcData
 {
 	AVCodec *codec;

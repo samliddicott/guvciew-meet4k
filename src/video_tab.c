@@ -30,7 +30,7 @@
 #include "v4l2uvc.h"
 #include "string_utils.h"
 #include "vcodecs.h"
-
+#include "video_format.h"
 /*--------------------------- file chooser dialog ----------------------------*/
 static void
 file_chooser (GtkButton * FileButt, struct ALL_DATA *all_data)
@@ -420,6 +420,7 @@ void video_tab(struct ALL_DATA *all_data)
 	GtkWidget *ImgFolder_img;
 	GtkWidget *label_ImageType;
 	GtkWidget *label_VidFile;
+	GtkWidget *label_VidFormat;
 	GtkWidget *VidFolder_img;
 	GtkWidget *label_VidCodec;
 	GtkWidget *label_videoFilters;
@@ -757,10 +758,15 @@ void video_tab(struct ALL_DATA *all_data)
 	line++;
 	gwidget->VidCodec = gtk_combo_box_new_text ();
 	
+	//sets to valid only existing codecs
+	setVcodecVal ();
 	int vcodec_ind =0;
 	for (vcodec_ind =0; vcodec_ind<MAX_VCODECS; vcodec_ind++)
-		gtk_combo_box_append_text(GTK_COMBO_BOX(gwidget->VidCodec),gettext(get_desc4cc(vcodec_ind)));
-	
+	{
+		if (isVcodecValid(vcodec_ind))
+			gtk_combo_box_append_text(GTK_COMBO_BOX(gwidget->VidCodec),gettext(get_desc4cc(vcodec_ind)));
+		
+	}
 	gtk_table_attach(GTK_TABLE(table2), gwidget->VidCodec, 1, 2, line, line+1,
 		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (gwidget->VidCodec);
@@ -786,6 +792,32 @@ void video_tab(struct ALL_DATA *all_data)
 	g_signal_connect (GTK_BUTTON(gwidget->lavc_button), "clicked",
 		G_CALLBACK (lavc_properties), all_data);
 	gtk_widget_set_sensitive (gwidget->lavc_button, isLavcCodec(global->VidCodec));
+	
+	
+	//video container
+	line++;
+	gwidget->VidFormat = gtk_combo_box_new_text ();
+	
+	int vformat_ind =0;
+	for (vformat_ind =0; vformat_ind<MAX_VFORMATS; vformat_ind++)
+		gtk_combo_box_append_text(GTK_COMBO_BOX(gwidget->VidFormat),gettext(get_vformat_desc(vformat_ind)));
+	
+	gtk_table_attach(GTK_TABLE(table2), gwidget->VidFormat, 1, 2, line, line+1,
+		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_widget_show (gwidget->VidFormat);
+	
+	gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->VidFormat),global->VidFormat);
+	
+	gtk_widget_set_sensitive (gwidget->VidFormat, TRUE);
+	g_signal_connect (GTK_COMBO_BOX(gwidget->VidFormat), "changed",
+		G_CALLBACK (VidFormat_changed), all_data);
+	
+	label_VidFormat = gtk_label_new(_("Video Format:"));
+	gtk_misc_set_alignment (GTK_MISC (label_VidFormat), 1, 0.5);
+
+	gtk_table_attach (GTK_TABLE(table2), label_VidFormat, 0, 1, line, line+1,
+		GTK_FILL, 0, 0, 0);
+	gtk_widget_show (label_VidFormat);
 	
 	// Filter controls 
 	line++;

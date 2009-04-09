@@ -23,6 +23,7 @@
 #include <glib/gprintf.h>
 #include <stdlib.h>
 
+#include "../config.h"
 #include "defs.h"
 #include "create_video.h"
 #include "v4l2uvc.h"
@@ -34,11 +35,7 @@
 #include "string_utils.h"
 #include "callbacks.h"
 #include "vcodecs.h"
-
-#define AVI_FORMAT   0
-#define MPEG_FORMAT  1
-#define FLV_FORMAT   2
-#define MKV_FORMAT   3
+#include "video_format.h"
 
 
 /*--------------------------- controls enable/disable --------------------------*/
@@ -68,7 +65,7 @@ set_sensitive_vid_contrls (const int flag, const int sndEnable, struct GWIDGET *
 	gwidget->vid_widget_state = flag;
 }
 
-void initVideoFile(struct ALL_DATA *all_data)
+int initVideoFile(struct ALL_DATA *all_data)
 {
 	struct GWIDGET *gwidget = all_data->gwidget;
 	struct paRecordData *pdata = all_data->pdata;
@@ -77,7 +74,9 @@ void initVideoFile(struct ALL_DATA *all_data)
 	struct VideoFormatData *videoF = all_data->videoF;
 	
 	const char *compression= get_vid4cc(global->VidCodec);
-	
+	videoF->vcodec = get_vcodec_id(global->VidCodec);
+	videoF->acodec = CODEC_ID_NONE;
+	int ret = 0;
 	switch (global->VidFormat)
 	{
 		case AVI_FORMAT:
@@ -87,12 +86,14 @@ void initVideoFile(struct ALL_DATA *all_data)
 				videoF->AviOut = NULL;
 			}
 			videoF->AviOut = g_new0(struct avi_t, 1);
-		
+			videoF->keyframe = 1;
+			
 			if(AVI_open_output_file(videoF->AviOut, videoIn->VidFName)<0) 
 			{
 				g_printerr("Error: Couldn't create Video.\n");
 				videoIn->capVid = FALSE;
 				pdata->capVid = videoIn->capVid;
+				ret = -1;
 			} 
 			else 
 			{
@@ -137,12 +138,12 @@ void initVideoFile(struct ALL_DATA *all_data)
 			}
 			break;
 			
-		case MPEG_FORMAT:
-		case FLV_FORMAT:
-		case MKV_FORMAT:
-			//init libavformat
+		default:
+			
 			break;
 	}
+	
+	return (ret);
 }
 
 
@@ -238,6 +239,10 @@ void closeVideoFile(struct ALL_DATA *all_data)
 	struct vdIn *videoIn = all_data->videoIn;
 	struct paRecordData *pdata = all_data->pdata;
 	struct GWIDGET *gwidget = all_data->gwidget;
+	//struct VideoFormatData *videoF = all_data->videoF;
+	
+	//DWORD tottime = 0;
+	//double fps = 0;
 	
 	videoIn->capVid = FALSE; /*flag video thread to stop recording frames*/
 	pdata->capVid = videoIn->capVid;
@@ -250,16 +255,14 @@ void closeVideoFile(struct ALL_DATA *all_data)
 		g_printerr("video capture stall on exit(%d) - timeout\n",
 			videoIn->VidCapStop);
 	}
-		global->Vidstoptime = ms_time();
+	global->Vidstoptime = ms_time();
 	switch (global->VidFormat)
 	{
 		case AVI_FORMAT:
 			aviClose(all_data);
 			break;
-		case MPEG_FORMAT:
-		case FLV_FORMAT:
-		case MKV_FORMAT:
-			//close libavformat
+		default:
+			
 			break;
 	}
 	
@@ -267,7 +270,7 @@ void closeVideoFile(struct ALL_DATA *all_data)
 	set_sensitive_vid_contrls(TRUE, global->Sound_enable, gwidget);
 }
 
-int write_video_data(struct ALL_DATA *all_data, BYTE *buff, int size, int keyframe)
+int write_video_data(struct ALL_DATA *all_data, BYTE *buff, int size)
 {
 	struct VideoFormatData *videoF = all_data->videoF;
 	struct GLOBAL *global = all_data->global;
@@ -277,13 +280,11 @@ int write_video_data(struct ALL_DATA *all_data, BYTE *buff, int size, int keyfra
 	switch (global->VidFormat)
 	{
 		case AVI_FORMAT:
-			ret = AVI_write_frame (videoF->AviOut, buff, size, keyframe);
+			ret = AVI_write_frame (videoF->AviOut, buff, size, videoF->keyframe);
 			break;
 		
-		case MPEG_FORMAT:
-		case FLV_FORMAT:
-		case MKV_FORMAT:
-			//write video packet using libavformat
+		default:
+			
 			break;
 	}
 	
@@ -293,15 +294,14 @@ int write_video_data(struct ALL_DATA *all_data, BYTE *buff, int size, int keyfra
 int write_video_frame (struct ALL_DATA *all_data, 
 	void *jpeg_struct, 
 	void *lavc_data,
-	void *pvid,
-	int  *keyframe)
+	void *pvid)
 {
 
 	//struct GWIDGET *gwidget = all_data->gwidget;
 	//struct paRecordData *pdata = all_data->pdata;
 	struct GLOBAL *global = all_data->global;
 	struct vdIn *videoIn = all_data->videoIn;
-
+	struct VideoFormatData *videoF = all_data->videoF;
 	
 	int ret=0;
 	GThread *press_butt_thread;
@@ -311,7 +311,7 @@ int write_video_frame (struct ALL_DATA *all_data,
 		case AVI_FORMAT:
 			/*all video controls are now disabled so related values cannot be changed*/
 			videoIn->VidCapStop=FALSE;
-			ret = compress_frame(all_data, jpeg_struct, lavc_data, pvid, *keyframe);
+			ret = compress_frame(all_data, jpeg_struct, lavc_data, pvid);
 
 			if (ret) 
 			{
@@ -346,22 +346,22 @@ int write_video_frame (struct ALL_DATA *all_data,
 			}
 		   
 			global->framecount++;
-			if (*keyframe) *keyframe=0; /*resets key frame*/
+			if (videoF->keyframe) videoF->keyframe=0; /*resets key frame*/
 			
 			break;
 		
-		//this is the same -- do we need it?
-		case MPEG_FORMAT:
-		case FLV_FORMAT:
-		case MKV_FORMAT:
+		
+		default:
 			//write video frame using libavformat
-			ret = compress_frame(all_data, jpeg_struct, lavc_data, pvid, *keyframe);
+			global->framecount++;
+			
+			ret = compress_frame(all_data, jpeg_struct, lavc_data, pvid);
 			break;
 	}
 	return (0);
 }
 
-int write_audio_frame (struct ALL_DATA *all_data, int *keyframe)
+int write_audio_frame (struct ALL_DATA *all_data)
 {
 	struct paRecordData *pdata = all_data->pdata;
 	struct GLOBAL *global = all_data->global;
@@ -388,7 +388,7 @@ int write_audio_frame (struct ALL_DATA *all_data, int *keyframe)
 			g_mutex_unlock( pdata->mutex );
 				
 			pdata->audio_flag=0;
-			*keyframe = 1; /*marks next frame as key frame*/
+			//videoF->keyframe = 1; /*marks next frame as key frame*/
 		
 			if (ret) 
 			{	
@@ -423,10 +423,8 @@ int write_audio_frame (struct ALL_DATA *all_data, int *keyframe)
 			}
 			break;
 		
-		case MPEG_FORMAT:
-		case FLV_FORMAT:
-		case MKV_FORMAT:
-			//write audio packet using libavformat
+		default:
+			
 			break;
 	}
 	return (0);
@@ -451,7 +449,7 @@ int sync_audio_frame(struct ALL_DATA *all_data)
 				int synctime= pdata->snd_begintime - global->Vidstarttime; 
 				if (global->debug) g_printf("shift sound by %d ms\n",synctime);
 				if(synctime>10 && synctime<5000) 
-				{ 	/*only sync between 100ms and 5 seconds*/
+				{ 	/*only sync between 10ms and 5 seconds*/
 					if(global->Sound_Format == PA_FOURCC) 
 					{	/*shift sound by synctime*/
 						UINT32 shiftFrames = abs(synctime * global->Sound_SampRate / 1000);
@@ -473,10 +471,13 @@ int sync_audio_frame(struct ALL_DATA *all_data)
 			}
 			break;
 		
-		case MPEG_FORMAT:
-		case FLV_FORMAT:
-		case MKV_FORMAT:
-			//sync audio in libavformat
+		default:
+			//sync audio 
+			if(!(videoF->first_audio)) 
+			{
+				
+				videoF->first_audio = 1;
+			}
 			break;
 	}
 	

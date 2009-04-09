@@ -44,6 +44,7 @@
 #include "vcodecs.h"
 #include "lavc_common.h"
 #include "create_video.h"
+#include "video_format.h"
 /*---------------------------- error message dialog-----------------------------*/
 void 
 ERR_DIALOG(const char *err_title, const char* err_msg, struct ALL_DATA *all_data)
@@ -382,6 +383,38 @@ combo_changed (GtkComboBox * combo, struct ALL_DATA *all_data)
 
 	s = NULL;
 	videoIn = NULL;
+}
+
+/*video format control callback*/
+void
+VidFormat_changed (GtkComboBox * VidFormat, struct ALL_DATA *all_data) 
+{
+	struct GWIDGET *gwidget = all_data->gwidget;
+	struct GLOBAL *global = all_data->global;
+	
+	const char *filename;
+	global->VidFormat=gtk_combo_box_get_active (VidFormat);	
+	filename=gtk_entry_get_text(GTK_ENTRY(gwidget->VidFNameEntry));
+	
+	if(g_strcmp0(filename,global->vidFPath[0])!=0) 
+	{
+		global->vidFPath=splitPath((char *)filename, global->vidFPath);
+	}
+	
+	global->vidFPath[0] = setVidExt(global->vidFPath[0], global->VidFormat);
+	
+	gtk_entry_set_text(GTK_ENTRY(gwidget->VidFNameEntry)," ");
+	gtk_entry_set_text(GTK_ENTRY(gwidget->VidFNameEntry),global->vidFPath[0]);
+	
+	if(global->vid_inc>0) 
+	{
+		global->vid_inc=1; /*if auto naming restart counter*/
+	}
+	g_snprintf(global->vidinc_str,24,_("File num:%d"),global->vid_inc);
+	gtk_label_set_text(GTK_LABEL(gwidget->VidIncLabel), global->vidinc_str);
+	
+	gwidget = NULL;
+	global = NULL;
 }
 
 /* set focus (for focus motor cameras ex: Logitech Orbit/Sphere and 9000 pro) */
@@ -928,7 +961,7 @@ capture_vid (GtkToggleButton *VidButt, struct ALL_DATA *all_data)
 	gboolean state = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(gwidget->CapVidButt));
 	if(global->debug) g_printf("Cap Video toggled: %d\n", state);
 	
-	if(videoIn->capVid/* && !(state)*/) 
+	if(videoIn->capVid || !state) 
 	{	/****************** Stop Video ************************/
 		closeVideoFile(all_data);
 		if(!(state))
@@ -952,7 +985,13 @@ capture_vid (GtkToggleButton *VidButt, struct ALL_DATA *all_data)
 		{
 			videoIn->VidFName = joinPath(videoIn->VidFName, global->vidFPath);
 		}
-		initVideoFile(all_data);
+		
+		if(initVideoFile(all_data)<0)
+		{
+			g_printf("Cap Video failed\n");
+			gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(gwidget->CapVidButt), FALSE);
+			state = FALSE;
+		}
 		if(state)
 			gtk_button_set_label(GTK_BUTTON(gwidget->CapVidButt),_("Stop Video"));
 	}

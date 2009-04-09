@@ -26,24 +26,44 @@
 #include "defs.h"
 #include "avilib.h"
 
-#ifdef HAS_AVFORMAT_H
-  #include <avformat.h>
-#else
-  #ifdef HAS_LIBAVFORMAT_AVFORMAT_H
-    #include <libavformat/avformat.h>
-  #else
-    #ifdef HAS_FFMPEG_AVFORMAT_H
-      #include <ffmpeg/avformat.h>
-    #else
-      #include <libavformat/avformat.h>
-    #endif
-  #endif
-#endif
+#define AVI_FORMAT   0
+
+#define MAX_VFORMATS 1
+
+typedef struct _vformats_data
+{
+	gboolean avformat;        //is a avformat format
+	const char *name;         //format name
+	const char *description;  //format description
+	const char *extension;    //format extension
+	const char *format_str;
+	int flags;                //lavf flags
+} vformats_data;
+
 
 struct VideoFormatData
 {
-	AVFormatContext *format_context;
 	struct avi_t *AviOut;
+	INT64 vpts;               //video stream presentation time stamp
+	INT64 apts;               //audio stream presentation time stamp
+	int vcodec;
+	int acodec;
+	int keyframe;             //for avi only (not really necessary)
+	int first_audio;          //set after saving first audio block
 };
+
+const char *get_vformat_extension(int codec_ind);
+
+const char *get_vformat_desc(int codec_ind);
+
+char *setVidExt(char *filename, int format_ind);
+
+int init_FormatContext(void *data);
+
+int clean_FormatContext (void* arg);
+
+int write_video_packet (BYTE *picture_buf, int size, struct VideoFormatData* data);
+
+int write_audio_packet (BYTE *audio_buf, int size, struct VideoFormatData* data);
 
 #endif

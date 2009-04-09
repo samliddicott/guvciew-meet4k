@@ -70,9 +70,6 @@ void *main_loop(void *data)
 	BYTE *p = NULL;
 	BYTE *pim= NULL;
 	BYTE *pvid=NULL;
-	
-	
-	int keyframe = 1;
 
 	int last_focus = 0;
 	if (global->AFcontrol) 
@@ -162,13 +159,6 @@ void *main_loop(void *data)
 	drect.y = 0;
 	drect.w = pscreen->w;
 	drect.h = pscreen->h;
-	
-	// must be called before using avcodec lib
-	avcodec_init();
-
-	// register all the codecs (you can also register only the codec
-	//you wish to have smaller code
-	avcodec_register_all();
 	
 	
 	while (videoIn->signalquit) 
@@ -351,7 +341,7 @@ void *main_loop(void *data)
 		/*---------------------------capture Video---------------------------------*/
 		if (videoIn->capVid)
 		{
-			write_video_frame(all_data, (void *) &(jpeg_struct), (void *) &(lavc_data), (void *) &(pvid), &keyframe);
+			write_video_frame(all_data, (void *) &(jpeg_struct), (void *) &(lavc_data), (void *) &(pvid));
 			/*----------------------- add audio -----------------------------*/
 			if ((global->Sound_enable) && (pdata->audio_flag>0)) 
 			{
@@ -409,7 +399,7 @@ void *main_loop(void *data)
 					}
 				g_mutex_unlock( pdata->mutex );
 				
-				write_audio_frame(all_data, &keyframe);
+				write_audio_frame(all_data);
 			}
 		} /*video and audio capture have stopped */
 		else

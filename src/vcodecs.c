@@ -19,6 +19,7 @@
 #                                                                               #
 ********************************************************************************/
 
+#include <glib/gprintf.h>
 #include "vcodecs.h"
 #include "guvcview.h"
 #include "colorspaces.h"
@@ -31,14 +32,12 @@
 #define CODEC_MJPEG 0
 #define CODEC_YUV   1
 #define CODEC_DIB   2
-#define CODEC_MPEG  3
-#define CODEC_FLV1  4
-#define CODEC_WMV1  5
 
 static vcodecs_data listSupVCodecs[] = //list of software supported formats
 {
 	{
 		.avcodec      = FALSE,
+		.valid        = TRUE,
 		.compressor   = "MJPG",
 		.description  = N_("MJPG - compressed"),
 		.bit_rate     = 0,
@@ -55,7 +54,7 @@ static vcodecs_data listSupVCodecs[] = //list of software supported formats
 		.gop_size     = 0,
 		.qcompress    = 0,
 		.qblur        = 0,
-		.codec_id     = 0,
+		.codec_id     = CODEC_ID_MJPEG,
 		.mb_decision  = 0,
 		.trellis      = 0,
 		.me_method    = 0,
@@ -65,6 +64,7 @@ static vcodecs_data listSupVCodecs[] = //list of software supported formats
 	},
 	{
 		.avcodec     = FALSE,
+		.valid        = TRUE,
 		.compressor  = "YUY2",
 		.description = N_("YUY2 - uncomp YUV"),
 		.bit_rate     = 0,
@@ -81,7 +81,7 @@ static vcodecs_data listSupVCodecs[] = //list of software supported formats
 		.gop_size     = 0,
 		.qcompress    = 0,
 		.qblur        = 0,
-		.codec_id     = 0,
+		.codec_id     = CODEC_ID_NONE,
 		.mb_decision  = 0,
 		.trellis      = 0,
 		.me_method    = 0,
@@ -91,6 +91,7 @@ static vcodecs_data listSupVCodecs[] = //list of software supported formats
 	},
 	{
 		.avcodec     = FALSE,
+		.valid        = TRUE,
 		.compressor  = "DIB ",
 		.description = N_("RGB - uncomp BMP"),
 		.bit_rate     = 0,
@@ -107,7 +108,7 @@ static vcodecs_data listSupVCodecs[] = //list of software supported formats
 		.gop_size     = 0,
 		.qcompress    = 0,
 		.qblur        = 0,
-		.codec_id     = 0,
+		.codec_id     = CODEC_ID_NONE,
 		.mb_decision  = 0,
 		.trellis      = 0,
 		.me_method    = 0,
@@ -117,6 +118,7 @@ static vcodecs_data listSupVCodecs[] = //list of software supported formats
 	},
 	{
 		.avcodec      = TRUE,
+		.valid        = TRUE,
 		.compressor   = "MPEG",
 		.description  = N_("MPEG video 1"),
 		.bit_rate     = 3000000,
@@ -143,6 +145,7 @@ static vcodecs_data listSupVCodecs[] = //list of software supported formats
 	},
 	{
 		.avcodec      = TRUE,
+		.valid        = TRUE,
 		.compressor   = "FLV1",
 		.description  = N_("FLV1 - flash video 1"),
 		.bit_rate     = 3000000,
@@ -169,6 +172,7 @@ static vcodecs_data listSupVCodecs[] = //list of software supported formats
 	},
 	{
 		.avcodec      = TRUE,
+		.valid        = TRUE,
 		.compressor   = "WMV1",
 		.description  = N_("WMV1 - win. med. video 7"),
 		.bit_rate     = 3000000,
@@ -192,32 +196,156 @@ static vcodecs_data listSupVCodecs[] = //list of software supported formats
 		.mpeg_quant   = 0,
 		.max_b_frames = 0,
 		.flags        = 0
+	},
+	{       //only available in libavcodec-unstriped
+		.avcodec      = TRUE,
+		.valid        = TRUE,
+		.compressor   = "MPG2",
+		.description  = N_("MPG2 - MPG2 format"),
+		.bit_rate     = 3000000,
+		.qmax         = 31,
+		.qmin         = 2,
+		.max_qdiff    = 3,
+		.dia          = 2,
+		.pre_dia      = 2,
+		.pre_me       = 2,
+		.me_pre_cmp   = 0,
+		.me_cmp       = 3,
+		.me_sub_cmp   = 3,
+		.last_pred    = 2,
+		.gop_size     = 12,
+		.qcompress    = 0.5,
+		.qblur        = 0.5,
+		.codec_id     = CODEC_ID_MPEG2VIDEO,
+		.mb_decision  = FF_MB_DECISION_RD,
+		.trellis      = 1,
+		.me_method    = ME_EPZS,
+		.mpeg_quant   = 0,
+		.max_b_frames = 0,
+		.flags        = 0
+	},
+	{       //only available in libavcodec-unstriped
+		.avcodec      = TRUE,
+		.valid        = TRUE,
+		.compressor   = "MP43",
+		.description  = N_("MS MP4 V3"),
+		.bit_rate     = 3000000,
+		.qmax         = 31,
+		.qmin         = 2,
+		.max_qdiff    = 3,
+		.dia          = 2,
+		.pre_dia      = 2,
+		.pre_me       = 2,
+		.me_pre_cmp   = 0,
+		.me_cmp       = 3,
+		.me_sub_cmp   = 3,
+		.last_pred    = 2,
+		.gop_size     = 100,
+		.qcompress    = 0.5,
+		.qblur        = 0.5,
+		.codec_id     = CODEC_ID_MSMPEG4V3,
+		.mb_decision  = FF_MB_DECISION_RD,
+		.trellis      = 1,
+		.me_method    = ME_EPZS,
+		.mpeg_quant   = 0,
+		.max_b_frames = 0,
+		.flags        = 0
+	},
+	{       //only available in libavcodec-unstriped
+		.avcodec      = TRUE,
+		.valid        = TRUE,
+		.compressor   = "DIVX",
+		.description  = N_("DIVX - MPEG4 format"),
+		.bit_rate     = 1500000,
+		.qmax         = 31,
+		.qmin         = 2,
+		.max_qdiff    = 3,
+		.dia          = 2,
+		.pre_dia      = 2,
+		.pre_me       = 2,
+		.me_pre_cmp   = 0,
+		.me_cmp       = 3,
+		.me_sub_cmp   = 3,
+		.last_pred    = 2,
+		.gop_size     = 100,
+		.qcompress    = 0.5,
+		.qblur        = 0.5,
+		.codec_id     = CODEC_ID_MPEG4,
+		.mb_decision  = FF_MB_DECISION_RD,
+		.trellis      = 1,
+		.me_method    = ME_EPZS,
+		.mpeg_quant   = 1,
+		.max_b_frames = 0,
+		.flags        = 0
 	}
 };
 
+static int get_real_index (int codec_ind)
+{
+	int i = 0;
+	int ind = -1;
+	for (i=0;i<MAX_VCODECS; i++)
+	{
+		if(isVcodecValid(i))
+			ind++;
+		if(ind == codec_ind)
+			return i;
+	}
+	return (codec_ind); //should never arrive
+}
+
 const char *get_vid4cc(int codec_ind)
 {
-	return (listSupVCodecs[codec_ind].compressor);
+	return (listSupVCodecs[get_real_index (codec_ind)].compressor);
 }
 
 const char *get_desc4cc(int codec_ind)
 {
-	return (listSupVCodecs[codec_ind].description);
+	return (listSupVCodecs[get_real_index (codec_ind)].description);
+}
+
+int get_vcodec_id(int codec_ind)
+{
+	return (listSupVCodecs[get_real_index (codec_ind)].codec_id);
 }
 
 gboolean isLavcCodec(int codec_ind)
 {
-	return (listSupVCodecs[codec_ind].avcodec);
+	return (listSupVCodecs[get_real_index (codec_ind)].avcodec);
+}
+
+void setVcodecVal ()
+{
+	AVCodec *codec;
+	int ind = 0;
+	for (ind=0;ind<MAX_VCODECS;ind++)
+	{
+		if (isLavcCodec(ind))
+		{
+			codec = avcodec_find_encoder(get_vcodec_id(ind));
+			if (!codec) 
+			{
+				g_printf("no codec detected for %s\n", listSupVCodecs[ind].compressor);
+				listSupVCodecs[ind].valid = FALSE;
+			}
+		}
+	}
+}
+
+gboolean isVcodecValid(int codec_ind)
+{
+	return (listSupVCodecs[codec_ind].valid);
 }
 
 vcodecs_data *get_codec_defaults(int codec_ind)
 {
-	return (&(listSupVCodecs[codec_ind]));
+	return (&(listSupVCodecs[get_real_index (codec_ind)]));
 }
 
-static int encode_lavc (struct lavcData *lavc_data, struct ALL_DATA *all_data, int keyframe)
+static int encode_lavc (struct lavcData *lavc_data, struct ALL_DATA *all_data)
 {
 	struct vdIn *videoIn = all_data->videoIn;
+	struct VideoFormatData *videoF = all_data->videoF;
 	
 	int framesize = 0;
 	int ret = 0;
@@ -225,7 +353,13 @@ static int encode_lavc (struct lavcData *lavc_data, struct ALL_DATA *all_data, i
 	if(lavc_data)
 	{
 		framesize= encode_lavc_frame (videoIn->framebuffer, lavc_data );
-		ret = write_video_data (all_data, lavc_data->outbuf, framesize, keyframe);
+		
+		if(lavc_data->codec_context->coded_frame->pts != AV_NOPTS_VALUE)
+			videoF->vpts = lavc_data->codec_context->coded_frame->pts;
+		if(lavc_data->codec_context->coded_frame->key_frame)
+			videoF->keyframe = 1;
+			
+		ret = write_video_data (all_data, lavc_data->outbuf, framesize);
 	}
 	return (ret);
 }
@@ -233,8 +367,7 @@ static int encode_lavc (struct lavcData *lavc_data, struct ALL_DATA *all_data, i
 int compress_frame(void *data, 
 	void *jpeg_data, 
 	void *lav_data,
-	void *pvid_buff,
-	int keyframe)
+	void *pvid_buff)
 {
 	struct JPEG_ENCODER_STRUCTURE **jpeg_struct = (struct JPEG_ENCODER_STRUCTURE **) jpeg_data;
 	struct lavcData **lavc_data = (struct lavcData **) lav_data;
@@ -254,8 +387,7 @@ int compress_frame(void *data,
 			/* save MJPG frame */   
 			if((global->Frame_Flags==0) && (videoIn->formatIn==V4L2_PIX_FMT_MJPEG)) 
 			{
-				ret = write_video_data (all_data, videoIn->tmpbuffer, 
-					videoIn->buf.bytesused, keyframe);
+				ret = write_video_data (all_data, videoIn->tmpbuffer, videoIn->buf.bytesused);
 			} 
 			else 
 			{
@@ -277,13 +409,13 @@ int compress_frame(void *data,
 				global->jpeg_size = encode_image(videoIn->framebuffer, global->jpeg, 
 					*jpeg_struct,1, videoIn->width, videoIn->height);
 			
-				ret = write_video_data (all_data, global->jpeg, global->jpeg_size, keyframe);
+				ret = write_video_data (all_data, global->jpeg, global->jpeg_size);
 			}
 			break;
 
 		case CODEC_YUV:
 			framesize=(videoIn->width)*(videoIn->height)*2; /*YUY2-> 2 bytes per pixel */
-			ret = write_video_data (all_data, videoIn->framebuffer, framesize, keyframe);
+			ret = write_video_data (all_data, videoIn->framebuffer, framesize);
 			break;
 					
 		case CODEC_DIB:
@@ -294,17 +426,15 @@ int compress_frame(void *data,
 			}
 			yuyv2bgr(videoIn->framebuffer, *pvid, videoIn->width, videoIn->height);
 					
-			ret = write_video_data (all_data, *pvid, framesize, keyframe);
+			ret = write_video_data (all_data, *pvid, framesize);
 			break;
 				
-		case CODEC_MPEG:
-		case CODEC_FLV1:
-		case CODEC_WMV1:
+		default:
 			if(!(*lavc_data)) 
 			{
 				*lavc_data = init_lavc(videoIn->width, videoIn->height, videoIn->fps, global->VidCodec);
 			}
-			ret = encode_lavc (*lavc_data, all_data, keyframe);
+			ret = encode_lavc (*lavc_data, all_data);
 			break;
 	}
 	return (ret);
