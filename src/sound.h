@@ -60,6 +60,7 @@ struct paRecordData
 	int flush; // flush mp2 buffer flag
 	int audio_flag; // ou buffer data ready flag
 	int samprate; // samp rate
+	int tresh;    //samples treshold for output buffer in audio callback
 	int numsec; // aprox. number of seconds for out buffer size
 	int snd_numBytes; //bytes copied to out buffer*/
 	int snd_numSamples; //samples copied to out buffer*/

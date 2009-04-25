@@ -169,7 +169,7 @@ static int	  mk_writeSize(mk_Context *c, unsigned size) {
   }
   return mk_appendContextData(c, c_size, 5);
 }
-
+/*
 static int	  mk_writeSizeRaw(mk_Context *c, unsigned size) {
   unsigned char	  c_size[5] = { 0x08, size >> 24, size >> 16, size >> 8, size };
 
@@ -205,7 +205,7 @@ static int	  mk_flushContextID(mk_Context *c) {
 
   return 0;
 }
-
+*/
 static int	  mk_flushContextData(mk_Context *c) {
   if (c->d_cur == 0)
     return 0;
@@ -297,20 +297,8 @@ static int	  mk_writeUInt(mk_Context *c, unsigned id, int64_t ui) {
   return 0;
 }
 
-static int	  mk_writeUIntRaw(mk_Context *c, int64_t ui) {
-  unsigned char	  c_ui[8] = { ui >> 56, ui >> 48, ui >> 40, ui >> 32, ui >> 24, ui >> 16, ui >> 8, ui };
-  unsigned	  i = 0;
-
-  while (i < 7 && c_ui[i] == 0)
-    ++i;
-  CHECK(mk_writeSize(c, 8 - i));
-  CHECK(mk_appendContextData(c, c_ui+i, 8 - i));
-  return 0;
-}
-
 static int	  mk_writeSegPos(mk_Context *c, int64_t ui) {
   unsigned char	  c_ui[8] = { ui >> 56, ui >> 48, ui >> 40, ui >> 32, ui >> 24, ui >> 16, ui >> 8, ui };
-  unsigned	  i = 0;
 	
   CHECK(mk_appendContextData(c, c_ui, 8 ));
   return 0;
@@ -681,7 +669,7 @@ static int mk_flushFrame(mk_Writer *w) {
 
 
 static int mk_flushAudioFrame(mk_Writer *w) {
-  int64_t	delta, ref = 0;
+  int64_t	delta = 0;
   unsigned	fsize, bgsize;
   unsigned char	c_delta_flags[3];
   //unsigned char flags = 0x04; //lacing
@@ -888,20 +876,20 @@ int	  mk_close(mk_Writer *w) {
     fseek(w->fp, 0, SEEK_END);
     //store last position
     int64_t CuesPos = ftell (w->fp) - 36;
-    printf("cues at %lu\n",CuesPos);
+    printf("cues at %llu\n",CuesPos);
     write_cues(w);
     //move to end of file
     fseek(w->fp, 0, SEEK_END);
     int64_t SeekHeadPos = ftell (w->fp) - 36;
-    printf("SeekHead at %lu\n",SeekHeadPos);
+    printf("SeekHead at %llu\n",SeekHeadPos);
     //write seekHead
     write_SeekHead(w);
     //move to end of file
     fseek(w->fp, 0, SEEK_END);
     int64_t lLastPos = ftell (w->fp);
     int64_t seg_size = lLastPos - (w->segment_size_ptr);
-    printf("segment size is: %lu bytes\n", seg_size);
-    seg_size |= 0x0100000000000000;
+    //printf("segment size is: %llu bytes\n", seg_size);
+    seg_size |= 0x0100000000000000ll;
     //move to segment entry
     fseek(w->fp, w->segment_size_ptr, SEEK_SET);
     if (mk_writeSegPos (w->root, seg_size ) < 0 || mk_flushContextData(w->root) < 0)
@@ -919,6 +907,8 @@ int	  mk_close(mk_Writer *w) {
   free(w->cluster_pos);
   fclose(w->fp);
   free(w);
+  w = NULL;
+  printf("closed matroska file\n");
   return ret;
 }
 

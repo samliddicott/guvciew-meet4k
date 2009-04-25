@@ -61,7 +61,7 @@ recordCallback (const void *inputBuffer, void *outputBuffer,
 
 	data->numSamples += numSamples;
 	//if (data->numSamples > (data->maxIndex-(2*numSamples)))
-	if(data->numSamples > (data->MPEG_Frame_size * 7))
+	if(data->numSamples > data->tresh)
 	{
 		//primary buffer near limit (don't wait for overflow)
 		//or video capture stopped
@@ -70,6 +70,7 @@ recordCallback (const void *inputBuffer, void *outputBuffer,
 		//anyway lock a mutex on the buffer just in case a read operation is still going on.
 		// This is not a good idea as it may cause data loss
 		//but since we sould never have to wait, it shouldn't be a problem.
+		//printf("capvid: %d\n",data->capVid);
 		g_mutex_lock( data->mutex );
 			data->snd_numSamples = data->numSamples;
 			data->snd_numBytes = data->numSamples*sizeof(SAMPLE);
@@ -86,7 +87,7 @@ recordCallback (const void *inputBuffer, void *outputBuffer,
 	else 
 	{
 		/*recording stopped*/
-		if(!(data->audio_flag)) 
+		if(!(data->audio_flag) && data->streaming) 
 		{
 			/*need to copy remaining audio to secondary buffer*/
 			g_mutex_lock( data->mutex);
@@ -157,6 +158,11 @@ init_sound(struct paRecordData* data)
 	data->audio_flag = 0;
 	data->flush = 0;
 	data->streaming = 0;
+
+	if(data->samprate < 32000)
+		data->tresh = data->MPEG_Frame_size * 3;
+	else 
+		data->tresh = data->MPEG_Frame_size * 7;
 	
 	/*secondary shared buffer*/
 	data->vid_sndBuff = g_new0(SAMPLE, numSamples);
@@ -179,7 +185,8 @@ init_sound(struct paRecordData* data)
 		&data->inputParameters,
 		NULL,                  /* &outputParameters, */
 		data->samprate,
-		data->MPEG_Frame_size /*paFramesPerBufferUnspecified*/,       /* buffer Size - set by portaudio*/
+		data->MPEG_Frame_size,            // buffer size = Mpeg frame size (1152 samples)
+		//paFramesPerBufferUnspecified,       // buffer Size - set by portaudio
 		paNoFlag,      /* PaNoFlag - clip and dhiter*/
 		recordCallback, /* sound callback */
 		data ); /* callback userData */
@@ -212,10 +219,10 @@ int
 close_sound (struct paRecordData *data) 
 {
 	int err =0;
+	g_printf("stoping audio stream...\n");
 	/*stops and closes the audio stream*/
-	err = Pa_StopStream( data->stream );
-	if( err != paNoError ) goto error;
-	
+	//err = Pa_StopStream( data->stream ); // causes a lock in ubuntu 9.04
+	//if( err != paNoError ) goto error;
 	err = Pa_CloseStream( data->stream );
 	if( err != paNoError ) goto error; 
 	
@@ -223,7 +230,7 @@ close_sound (struct paRecordData *data)
 	int stall = wait_ms( &data->streaming, FALSE, 10, 30 );
 	if(!(stall)) 
 	{
-		g_printerr("WARNING:sound capture stall (still streaming(%d) \n",
+		g_printerr("WARNING:sound capture stall (still streaming(%d)) \n",
 			data->streaming);
 		data->streaming = 0;
 	}
@@ -232,13 +239,14 @@ close_sound (struct paRecordData *data)
 			data->snd_numBytes);
 	data->audio_flag=0;
 	data->flush = 0;
+
 	/*---------------------------------------------------------------------*/
 	/*make sure no operations are performed on the buffers*/
 	g_mutex_lock( data->mutex);
 		/*free primary buffer*/
 		g_free( data->recordedSamples  );
 		data->recordedSamples=NULL;
-	
+		printf("closing portaudio\n");
 		Pa_Terminate();
 	
 		g_free(data->vid_sndBuff);

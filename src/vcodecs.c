@@ -350,7 +350,7 @@ const char *get_mkvCodec(int codec_ind)
 
 void *get_mkvCodecPriv(int codec_ind)
 {
-	return (listSupVCodecs[get_real_index (codec_ind)].mkv_codecPriv);
+	return ((void *) listSupVCodecs[get_real_index (codec_ind)].mkv_codecPriv);
 }
 
 int set_mkvCodecPriv(int codec_ind, int width, int height)

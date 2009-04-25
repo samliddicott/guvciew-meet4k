@@ -141,7 +141,7 @@ int clean_FormatContext (void* data)
 		int stall = wait_ms( &pdata->streaming, FALSE, 10, 30 );
 		if(!(stall)) 
 		{
-			g_printerr("WARNING:sound capture stall (still streaming(%d) \n",
+			g_printerr("video_format.c(144):sound capture stall (still streaming(%d) \n",
 				pdata->streaming);
 			pdata->streaming = 0;
 		}
@@ -170,10 +170,10 @@ int clean_FormatContext (void* data)
 			g_mutex_unlock( pdata->mutex );
 		}
 		pdata->audio_flag = 0; /*all audio should have been writen by now*/
-		
+		if(global->debug) g_printf("closing sound...\n");
 		if (close_sound (pdata)) g_printerr("Sound Close error\n");
 		if(global->Sound_Format == ISO_FORMAT_MPEG12) close_MP2_encoder();
-		g_printf("closed sound\n");
+		if(global->debug) g_printf("sound closed\n");
 	} 
 	
 	
@@ -181,7 +181,7 @@ int clean_FormatContext (void* data)
 	videoF->mkv_w = NULL;
 	videoF->apts = 0;
 	videoF->old_apts = 0;
-	
+	if(global->debug) g_printf("finished cleaning up\n");
 	return (ret);
 }
 
@@ -193,10 +193,11 @@ int init_FormatContext(void *data)
 	struct VideoFormatData *videoF = all_data->videoF;
 	struct paRecordData *pdata = all_data->pdata;
 	
-	const char *AcodecID;
+	char *AcodecID = NULL;
 	int bitspersample = 0;
 	float samprate = -1;
 	int channels = 1;
+	int64_t duration = 0;
 	
 	if(videoF->mkv_w !=NULL )
 	{
@@ -224,6 +225,7 @@ int init_FormatContext(void *data)
 		{
 			samprate = (float) pdata->samprate;
 			channels = pdata->channels;
+			duration = (int64_t) 1000000000/(samprate/(pdata->tresh));
 		}
 	}
 	
@@ -238,7 +240,7 @@ int init_FormatContext(void *data)
                      AcodecID,
                      get_mkvCodecPriv(global->VidCodec), size,
                      (int64_t) (global->fps_num * 1000000000/global->fps), //nano seconds
-                     (int64_t) 1000000000/(samprate/1152), //FIXME: 1152 samples is a MP2 Frame
+                     duration, //FIXME: 1152 samples is a MP2 Frame
                      1000000,
                      videoIn->width, videoIn->height,
                      videoIn->width, videoIn->height,
