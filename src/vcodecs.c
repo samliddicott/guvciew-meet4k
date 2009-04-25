@@ -22,6 +22,7 @@
 #include <glib/gprintf.h>
 #include "vcodecs.h"
 #include "guvcview.h"
+#include "picture.h"
 #include "colorspaces.h"
 #include "lavc_common.h"
 #include "create_video.h"
@@ -33,12 +34,30 @@
 #define CODEC_YUV   1
 #define CODEC_DIB   2
 
+static BITMAPINFOHEADER mkv_codecPriv =
+{
+	.biSize = 0x00000028, //40 bytes 
+	.biWidth = 640, //default values (must be set before use)
+	.biHeight = 480, 
+	.biPlanes = 1, 
+	.biBitCount = 1, 
+	.biCompression = V4L2_PIX_FMT_MJPEG, 
+	.biSizeImage = 640*480*2, //2 bytes per pixel 
+	.biXPelsPerMeter = 0, 
+	.biYPelsPerMeter = 0, 
+	.biClrUsed = 0, 
+	.biClrImportant = 0
+};
+
 static vcodecs_data listSupVCodecs[] = //list of software supported formats
 {
 	{
 		.avcodec      = FALSE,
 		.valid        = TRUE,
 		.compressor   = "MJPG",
+		.mkv_4cc      = v4l2_fourcc('M','J','P','G'),
+		.mkv_codec    = "V_MS/VFW/FOURCC",
+		.mkv_codecPriv= &mkv_codecPriv,
 		.description  = N_("MJPG - compressed"),
 		.bit_rate     = 0,
 		.qmax         = 0,
@@ -63,9 +82,12 @@ static vcodecs_data listSupVCodecs[] = //list of software supported formats
 		.flags        = 0
 	},
 	{
-		.avcodec     = FALSE,
+		.avcodec      = FALSE,
 		.valid        = TRUE,
-		.compressor  = "YUY2",
+		.compressor   = "YUY2",
+		.mkv_4cc      = v4l2_fourcc('Y','U','Y','2'),
+		.mkv_codec    = "V_MS/VFW/FOURCC",
+		.mkv_codecPriv= &mkv_codecPriv,
 		.description = N_("YUY2 - uncomp YUV"),
 		.bit_rate     = 0,
 		.qmax         = 0,
@@ -90,9 +112,12 @@ static vcodecs_data listSupVCodecs[] = //list of software supported formats
 		.flags        = 0
 	},
 	{
-		.avcodec     = FALSE,
+		.avcodec      = FALSE,
 		.valid        = TRUE,
-		.compressor  = "DIB ",
+		.compressor   = "DIB ",
+		.mkv_4cc      = v4l2_fourcc('D','I','B',' '),
+		.mkv_codec    = "V_MS/VFW/FOURCC",
+		.mkv_codecPriv= &mkv_codecPriv,
 		.description = N_("RGB - uncomp BMP"),
 		.bit_rate     = 0,
 		.qmax         = 0,
@@ -120,6 +145,8 @@ static vcodecs_data listSupVCodecs[] = //list of software supported formats
 		.avcodec      = TRUE,
 		.valid        = TRUE,
 		.compressor   = "MPEG",
+		.mkv_codec    = "V_MPEG1",
+		.mkv_codecPriv= NULL,
 		.description  = N_("MPEG video 1"),
 		.bit_rate     = 3000000,
 		.qmax         = 8,
@@ -147,6 +174,9 @@ static vcodecs_data listSupVCodecs[] = //list of software supported formats
 		.avcodec      = TRUE,
 		.valid        = TRUE,
 		.compressor   = "FLV1",
+		.mkv_4cc      = v4l2_fourcc('F','L','V','1'),
+		.mkv_codec    = "V_MS/VFW/FOURCC",
+		.mkv_codecPriv= &mkv_codecPriv,
 		.description  = N_("FLV1 - flash video 1"),
 		.bit_rate     = 3000000,
 		.qmax         = 31,
@@ -174,6 +204,9 @@ static vcodecs_data listSupVCodecs[] = //list of software supported formats
 		.avcodec      = TRUE,
 		.valid        = TRUE,
 		.compressor   = "WMV1",
+		.mkv_4cc      = v4l2_fourcc('W','M','V','1'),
+		.mkv_codec    = "V_MS/VFW/FOURCC",
+		.mkv_codecPriv= &mkv_codecPriv,
 		.description  = N_("WMV1 - win. med. video 7"),
 		.bit_rate     = 3000000,
 		.qmax         = 8,
@@ -201,6 +234,8 @@ static vcodecs_data listSupVCodecs[] = //list of software supported formats
 		.avcodec      = TRUE,
 		.valid        = TRUE,
 		.compressor   = "MPG2",
+		.mkv_codec    = "V_MPEG2",
+		.mkv_codecPriv= NULL,
 		.description  = N_("MPG2 - MPG2 format"),
 		.bit_rate     = 3000000,
 		.qmax         = 31,
@@ -228,6 +263,8 @@ static vcodecs_data listSupVCodecs[] = //list of software supported formats
 		.avcodec      = TRUE,
 		.valid        = TRUE,
 		.compressor   = "MP43",
+		.mkv_codec    = "V_MPEG4/MS/V3",
+		.mkv_codecPriv= NULL,
 		.description  = N_("MS MP4 V3"),
 		.bit_rate     = 3000000,
 		.qmax         = 31,
@@ -254,8 +291,10 @@ static vcodecs_data listSupVCodecs[] = //list of software supported formats
 	{       //only available in libavcodec-unstriped
 		.avcodec      = TRUE,
 		.valid        = TRUE,
-		.compressor   = "DIVX",
-		.description  = N_("DIVX - MPEG4 format"),
+		.compressor   = "MP4V",
+		.mkv_codec    = "V_MPEG4/ISO/ASP",
+		.mkv_codecPriv= NULL,
+		.description  = N_("MPEG4 - MPEG4 format"),
 		.bit_rate     = 1500000,
 		.qmax         = 31,
 		.qmin         = 2,
@@ -302,6 +341,31 @@ const char *get_vid4cc(int codec_ind)
 const char *get_desc4cc(int codec_ind)
 {
 	return (listSupVCodecs[get_real_index (codec_ind)].description);
+}
+
+const char *get_mkvCodec(int codec_ind)
+{
+	return (listSupVCodecs[get_real_index (codec_ind)].mkv_codec);
+}
+
+void *get_mkvCodecPriv(int codec_ind)
+{
+	return (listSupVCodecs[get_real_index (codec_ind)].mkv_codecPriv);
+}
+
+int set_mkvCodecPriv(int codec_ind, int width, int height)
+{
+	int size = 0;
+	if(listSupVCodecs[get_real_index (codec_ind)].mkv_codecPriv != NULL)
+	{
+		mkv_codecPriv.biWidth = width;
+		mkv_codecPriv.biHeight = height; 
+		mkv_codecPriv.biCompression = listSupVCodecs[get_real_index (codec_ind)].mkv_4cc; 
+		mkv_codecPriv.biSizeImage = width*height*2;
+		size = 40; //40 bytes
+	}
+	
+	return (size);
 }
 
 int get_vcodec_id(int codec_ind)

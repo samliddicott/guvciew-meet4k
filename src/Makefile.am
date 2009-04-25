@@ -46,6 +46,8 @@ guvcview_SOURCES = \
 	jpgenc.c \
 	lavc_common.h \
 	lavc_common.c \
+	matroska.h \
+	matroska.c \
 	marker.c \
 	mp2.h \
 	mp2.c \

@@ -68,7 +68,7 @@ static char id_str[MAX_INFO_STRLEN];
 #define PACKAGE "guvcview"
 #endif
 #ifndef VERSION
-#define VERSION "0.9"
+#define VERSION "1.0"
 #endif
 
 /* AVI_MAX_LEN: The maximum length of an AVI file, we stay a bit below

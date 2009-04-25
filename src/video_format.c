@@ -26,9 +26,12 @@
 #include <linux/videodev2.h>
 
 #include "guvcview.h"
+#include "ms_time.h"
+#include "mp2.h"
 #include "colorspaces.h"
 #include "lavc_common.h"
 #include "video_format.h"
+#include "vcodecs.h"
 #include "defs.h"
 
 
@@ -40,6 +43,14 @@ static vformats_data listSupVFormats[] = //list of software supported formats
 		.description  = N_("AVI - avi format"),
 		.extension    = "avi",
 		.format_str   = "avi",
+		.flags        = 0
+	},
+	{
+		.avformat     = FALSE,
+		.name         = "MATROSKA",
+		.description  = N_("MKV - Matroska format"),
+		.extension    = "mkv",
+		.format_str   = "mkv",
 		.flags        = 0
 	}
 };
@@ -77,23 +88,162 @@ char *setVidExt(char *filename, int format_ind)
 	return (filename);
 }
 
-int write_video_packet (BYTE *picture_buf, int size, struct VideoFormatData* data)
+int write_video_packet (BYTE *picture_buf, int size, int fps, struct VideoFormatData* videoF)
 {
-	return (1);
-}
+	int64_t t_stamp = (int64_t) videoF->vpts; 
+	
+	videoF->b_writing_frame = 0;
+	mk_setFrameFlags( videoF->mkv_w, t_stamp, videoF->keyframe );
+	
+	if (!videoF->b_writing_frame) //sort of mutex?
+	{
+		if( mk_startFrame(videoF->mkv_w) < 0 )
+			return -1;
+		videoF->b_writing_frame = 1;
+	}
+	if( mk_addFrameData(videoF->mkv_w, picture_buf , size) < 0 )
+		return -1;
 
-int write_audio_packet (BYTE *audio_buf, int size, struct VideoFormatData* data)
-{
-	return (1);
-
-}
-
-int clean_FormatContext (void* arg)
-{
 	return (0);
+}
+
+int write_audio_packet (BYTE *audio_buf, int size, int samprate, struct VideoFormatData* videoF)
+{
+	int64_t t_stamp = (int64_t) videoF->apts ;
+	
+	videoF->b_writing_frame = 0;
+	mk_setAudioFrameFlags( videoF->mkv_w, t_stamp, videoF->keyframe );
+	
+	if (!videoF->b_writing_frame) //sort of mutex?
+	{
+		if( mk_startAudioFrame(videoF->mkv_w) < 0 )
+			return -1;
+		videoF->b_writing_frame = 1;
+	}
+	if( mk_addAudioFrameData(videoF->mkv_w, audio_buf , size) < 0 )
+		return -1;
+
+	return (0);
+
+}
+
+int clean_FormatContext (void* data)
+{
+	struct ALL_DATA *all_data = (struct ALL_DATA *) data;
+	struct GLOBAL *global = all_data->global;
+	struct paRecordData *pdata = all_data->pdata;
+	struct VideoFormatData *videoF = all_data->videoF;
+	int ret = 0;
+	/*------------------- close audio stream and clean up -------------------*/
+	if (global->Sound_enable > 0) 
+	{
+		/*wait for audio to finish*/
+		int stall = wait_ms( &pdata->streaming, FALSE, 10, 30 );
+		if(!(stall)) 
+		{
+			g_printerr("WARNING:sound capture stall (still streaming(%d) \n",
+				pdata->streaming);
+			pdata->streaming = 0;
+		}
+		/*write any available audio data*/  
+		if(pdata->audio_flag)
+		{
+			g_printerr("writing %d bytes of audio data\n",pdata->snd_numBytes);
+			g_mutex_lock( pdata->mutex);
+				if(global->Sound_Format == PA_FOURCC)
+				{
+					if(pdata->vid_sndBuff) 
+					{
+						Float2Int16(pdata);
+						write_audio_packet ((BYTE *) pdata->vid_sndBuff1, pdata->snd_numSamples*2, pdata->samprate, videoF);
+					}
+				}
+				else if (global->Sound_Format == ISO_FORMAT_MPEG12)
+				{
+					int size_mp2=0;
+					if(pdata->vid_sndBuff && pdata->mp2Buff) 
+					{
+						size_mp2 = MP2_encode(pdata,0);
+						write_audio_packet (pdata->mp2Buff, size_mp2, pdata->samprate, videoF);
+					}
+				}
+			g_mutex_unlock( pdata->mutex );
+		}
+		pdata->audio_flag = 0; /*all audio should have been writen by now*/
+		
+		if (close_sound (pdata)) g_printerr("Sound Close error\n");
+		if(global->Sound_Format == ISO_FORMAT_MPEG12) close_MP2_encoder();
+		g_printf("closed sound\n");
+	} 
+	
+	
+	ret = mk_close(videoF->mkv_w);
+	videoF->mkv_w = NULL;
+	videoF->apts = 0;
+	videoF->old_apts = 0;
+	
+	return (ret);
 }
 
 int init_FormatContext(void *data)
 {
+	struct ALL_DATA *all_data = (struct ALL_DATA *) data;
+	struct GLOBAL *global = all_data->global;
+	struct vdIn *videoIn = all_data->videoIn;
+	struct VideoFormatData *videoF = all_data->videoF;
+	struct paRecordData *pdata = all_data->pdata;
+	
+	const char *AcodecID;
+	int bitspersample = 0;
+	float samprate = -1;
+	int channels = 1;
+	
+	if(videoF->mkv_w !=NULL )
+	{
+		g_printf("matroska: older mux ref not closed, cleaning now...\n");
+		mk_close(videoF->mkv_w);
+		videoF->mkv_w = NULL;
+	}
+	
+	videoF->mkv_w = mk_createWriter( videoIn->VidFName );
+
+	if(global->Sound_enable > 0)
+	{
+		switch (global->Sound_Format)
+		{
+			case PA_FOURCC: //pcm codec
+				AcodecID = "A_PCM/INT/LIT";
+				bitspersample = 16;
+				break;
+			case ISO_FORMAT_MPEG12:
+				AcodecID = "A_MPEG/L2";
+				break;
+		}
+		if (pdata) 
+		if(pdata->samprate > 0)
+		{
+			samprate = (float) pdata->samprate;
+			channels = pdata->channels;
+		}
+	}
+	
+	videoF->apts = 0;
+	videoF->old_apts = 0;
+    
+	set_mkvCodecPriv(global->VidCodec, videoIn->width, videoIn->height);
+	int size = set_mkvCodecPriv(global->VidCodec, videoIn->width, videoIn->height);
+	printf("writing header\n");
+	mk_writeHeader( videoF->mkv_w, "Guvcview",
+                     get_mkvCodec(global->VidCodec),
+                     AcodecID,
+                     get_mkvCodecPriv(global->VidCodec), size,
+                     (int64_t) (global->fps_num * 1000000000/global->fps), //nano seconds
+                     (int64_t) 1000000000/(samprate/1152), //FIXME: 1152 samples is a MP2 Frame
+                     1000000,
+                     videoIn->width, videoIn->height,
+                     videoIn->width, videoIn->height,
+                     samprate, channels, bitspersample );
+
+	videoF->b_header_written = 1;
 	return(0);
 }

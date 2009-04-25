@@ -35,7 +35,9 @@ recordCallback (const void *inputBuffer, void *outputBuffer,
 	struct paRecordData *data = (struct paRecordData*)userData;
 	const SAMPLE *rptr = (const SAMPLE*)inputBuffer;
 	int i;
-	int numSamples=framesPerBuffer*data->channels;
+	
+	data->framesPerBuffer = framesPerBuffer;
+	int numSamples= data->framesPerBuffer * data->channels;
 
 	/*set to zero on paComplete*/    
 	data->streaming=1;
@@ -58,7 +60,8 @@ recordCallback (const void *inputBuffer, void *outputBuffer,
 	}
 
 	data->numSamples += numSamples;
-	if (data->numSamples > (data->maxIndex-2*numSamples)) 
+	//if (data->numSamples > (data->maxIndex-(2*numSamples)))
+	if(data->numSamples > (data->MPEG_Frame_size * 7))
 	{
 		//primary buffer near limit (don't wait for overflow)
 		//or video capture stopped
@@ -71,6 +74,7 @@ recordCallback (const void *inputBuffer, void *outputBuffer,
 			data->snd_numSamples = data->numSamples;
 			data->snd_numBytes = data->numSamples*sizeof(SAMPLE);
 			memcpy(data->vid_sndBuff, data->recordedSamples ,data->snd_numBytes);
+			data->a_ts = ns_time();
 			/*flags that secondary buffer as data (can be saved to file)*/
 			data->audio_flag=1;
 		g_mutex_unlock( data->mutex );
@@ -89,6 +93,7 @@ recordCallback (const void *inputBuffer, void *outputBuffer,
 				data->snd_numSamples = data->numSamples;
 				data->snd_numBytes = data->numSamples*sizeof(SAMPLE);
 				memcpy(data->vid_sndBuff, data->recordedSamples ,data->snd_numBytes);
+				data->a_ts = ns_time();
 				/*flags that secondary buffer as data (can be saved to file)*/
 				data->audio_flag=1;
 			g_mutex_unlock( data->mutex);
@@ -116,6 +121,7 @@ set_sound (struct GLOBAL *global, struct paRecordData* data)
 	data->samprate = global->Sound_SampRate;
 	data->channels = global->Sound_NumChan;
 	data->numsec = global->Sound_NumSec;
+	data->MPEG_Frame_size = 1152; /*Layer 2 Mpeg Audio: 1 frame is 1152 samples*/
 	/*set audio device to use*/
 	data->inputParameters.device = global->Sound_IndexDev[global->Sound_UseDev].id; /* input device */
 }
@@ -129,13 +135,15 @@ init_sound(struct paRecordData* data)
 	int totalFrames;
 	int MP2Frames=0;
 	int numSamples;
-
+	
 	/* setting maximum buffer size*/
 	totalFrames = data->numsec * data->samprate;
 	numSamples = totalFrames * data->channels;
+	if(numSamples < 9 * data->MPEG_Frame_size) 
+		numSamples = 9 * data->MPEG_Frame_size;
 	/*round to libtwolame Frames (1 Frame = 1152 samples)*/
-	MP2Frames=numSamples/1152;
-	numSamples=MP2Frames*1152;
+	MP2Frames=numSamples / data->MPEG_Frame_size;
+	numSamples=MP2Frames * data->MPEG_Frame_size;
 	
 	data->input_type = PA_SAMPLE_TYPE;
 	data->mp2Buff = NULL;
@@ -171,7 +179,7 @@ init_sound(struct paRecordData* data)
 		&data->inputParameters,
 		NULL,                  /* &outputParameters, */
 		data->samprate,
-		paFramesPerBufferUnspecified,/* buffer Size - set by portaudio*/
+		data->MPEG_Frame_size /*paFramesPerBufferUnspecified*/,       /* buffer Size - set by portaudio*/
 		paNoFlag,      /* PaNoFlag - clip and dhiter*/
 		recordCallback, /* sound callback */
 		data ); /* callback userData */
@@ -182,7 +190,7 @@ init_sound(struct paRecordData* data)
 	if( err != paNoError ) goto error; /*should close the stream if error ?*/
 	
 	/*sound start time - used to sync with video*/
-	data->snd_begintime = ms_time();
+	data->snd_begintime = ns_time();
 
 	return (0);
 error:

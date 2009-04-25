@@ -25,10 +25,12 @@
 #include "../config.h"
 #include "defs.h"
 #include "avilib.h"
+#include "matroska.h"
 
 #define AVI_FORMAT   0
+#define MKV_FORMAT   1
 
-#define MAX_VFORMATS 1
+#define MAX_VFORMATS 2
 
 typedef struct _vformats_data
 {
@@ -44,12 +46,15 @@ typedef struct _vformats_data
 struct VideoFormatData
 {
 	struct avi_t *AviOut;
+	mk_Writer *mkv_w;
+	int b_writing_frame;      //set when writing frame
+	int b_header_written;     //set after mkv header written
 	INT64 vpts;               //video stream presentation time stamp
+	INT64 old_apts;           //previous audio time stamp
 	INT64 apts;               //audio stream presentation time stamp
 	int vcodec;
 	int acodec;
 	int keyframe;             //for avi only (not really necessary)
-	int first_audio;          //set after saving first audio block
 };
 
 const char *get_vformat_extension(int codec_ind);
@@ -62,8 +67,8 @@ int init_FormatContext(void *data);
 
 int clean_FormatContext (void* arg);
 
-int write_video_packet (BYTE *picture_buf, int size, struct VideoFormatData* data);
+int write_video_packet (BYTE *picture_buf, int size, int fps, struct VideoFormatData* data);
 
-int write_audio_packet (BYTE *audio_buf, int size, struct VideoFormatData* data);
+int write_audio_packet (BYTE *audio_buf, int size, int samprate, struct VideoFormatData* data);
 
 #endif

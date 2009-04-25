@@ -71,8 +71,10 @@ writeConf(struct GLOBAL *global, char *videodevice)
 		g_fprintf(fp,"hwaccel=%i\n",global->hwaccel);
 		g_fprintf(fp,"# video grab method: 0 -read 1 -mmap (default - 1)\n");
 		g_fprintf(fp,"grabmethod=%i\n",global->grabmethod);
-		g_fprintf(fp,"# video compression format: 0-MJPG 1-YUY2/UYVY 2-DIB (BMP 24) 3-MPEG 4-FLV1\n");
+		g_fprintf(fp,"# video compression format: 0-MJPG 1-YUY2/UYVY 2-DIB (BMP 24) 3-MPEG1 4-FLV1 5-MPEG2 6-MS MPEG4 V3(DIV3) 7-MPEG4 (DIV5)\n");
 		g_fprintf(fp,"avi_format=%i\n",global->VidCodec);
+		g_fprintf(fp,"# video muxer: 0-avi 1-matroska\n");
+		g_fprintf(fp,"vid_mux=%i\n",global->VidFormat);
 		g_fprintf(fp,"# avi file max size (MAX: %d bytes)\n",AVI_MAX_SIZE);
 		g_fprintf(fp,"avi_max_len=%li\n",global->AVI_MAX_LEN);
 		g_fprintf(fp,"# Auto Video naming (ex: filename-n.avi)\n");
@@ -339,6 +341,10 @@ readConf(struct GLOBAL *global)
 						else if (g_strcmp0(name,"avi_format")==0) 
 						{
 							global->VidCodec = scanner->value.v_int;
+						}
+						else if (g_strcmp0(name,"vid_mux")==0) 
+						{
+							global->VidFormat = scanner->value.v_int;
 						}
 						else if (g_strcmp0(name,"avi_max_len")==0) 
 						{

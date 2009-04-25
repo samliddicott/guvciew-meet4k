@@ -104,7 +104,7 @@ int initVideoFile(struct ALL_DATA *all_data)
 					videoIn->fps,compression);
 		  
 				/* start video capture*/
-				global->Vidstarttime = ms_time();
+				//global->Vidstarttime = ms_time();
 				videoIn->capVid = TRUE;
 				pdata->capVid = videoIn->capVid;
 			
@@ -138,6 +138,41 @@ int initVideoFile(struct ALL_DATA *all_data)
 			}
 			break;
 			
+		case MKV_FORMAT:
+			/* start sound capture*/
+			if(global->Sound_enable > 0) 
+			{
+				/*get channels and sample rate*/
+				set_sound(global,pdata);
+				/* Initialize sound (open stream)*/
+				if(init_sound (pdata)) 
+				{
+					g_printerr("error opening portaudio\n");
+					global->Sound_enable=0;
+					gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gwidget->SndEnable),0);
+				} 
+				else 
+				{
+					if (global->Sound_Format == ISO_FORMAT_MPEG12) 
+					{
+						init_MP2_encoder(pdata, global->Sound_bitRate);    
+					}
+				}
+			}
+			init_FormatContext((void *) all_data);
+			/*disabling sound and video compression controls*/
+			set_sensitive_vid_contrls(FALSE, global->Sound_enable, gwidget);
+			
+			videoF->keyframe = 1;
+			videoF->old_apts = 0;
+			videoF->apts = 0;
+			videoF->vpts = 0;
+			
+			/* start video capture*/
+			//global->Vidstarttime = ms_time();
+			videoIn->capVid = TRUE;
+			pdata->capVid = videoIn->capVid;
+			break;
 		default:
 			
 			break;
@@ -151,7 +186,7 @@ int initVideoFile(struct ALL_DATA *all_data)
 static void
 aviClose (struct ALL_DATA *all_data)
 {
-	DWORD tottime = 0;
+	float tottime = 0;
 	//int tstatus;
 
 	struct GLOBAL *global = all_data->global;
@@ -161,7 +196,8 @@ aviClose (struct ALL_DATA *all_data)
 
 	if (!(videoF->AviOut->closed))
 	{
-		tottime = global->Vidstoptime - global->Vidstarttime;
+		tottime = (float) ((int64_t) (global->Vidstoptime - global->Vidstarttime) / 1000000); // convert to miliseconds
+		
 		if (global->debug) g_printf("stop= %d start=%d \n",global->Vidstoptime,global->Vidstarttime);
 		if (tottime > 0) 
 		{
@@ -174,7 +210,7 @@ aviClose (struct ALL_DATA *all_data)
 			videoF->AviOut->fps=videoIn->fps;
 		}
 
-		if (global->debug) g_printf("VIDEO: %d frames in %d ms = %f fps\n",global->framecount,tottime,videoF->AviOut->fps);
+		if (global->debug) g_printf("VIDEO: %d frames in %f ms = %f fps\n",global->framecount,tottime,videoF->AviOut->fps);
 		/*------------------- close audio stream and clean up -------------------*/
 		if (global->Sound_enable > 0) 
 		{
@@ -255,12 +291,17 @@ void closeVideoFile(struct ALL_DATA *all_data)
 		g_printerr("video capture stall on exit(%d) - timeout\n",
 			videoIn->VidCapStop);
 	}
-	global->Vidstoptime = ms_time();
+	global->Vidstoptime = ns_time();
 	switch (global->VidFormat)
 	{
 		case AVI_FORMAT:
 			aviClose(all_data);
 			break;
+			
+		case MKV_FORMAT:
+			clean_FormatContext ((void*) all_data);
+			break;
+			
 		default:
 			
 			break;
@@ -268,6 +309,9 @@ void closeVideoFile(struct ALL_DATA *all_data)
 	
 	/*enabling sound and video compression controls*/
 	set_sensitive_vid_contrls(TRUE, global->Sound_enable, gwidget);
+	global->Vidstoptime = 0;
+	global->Vidstarttime = 0;
+	global->framecount = 0;
 }
 
 int write_video_data(struct ALL_DATA *all_data, BYTE *buff, int size)
@@ -283,6 +327,11 @@ int write_video_data(struct ALL_DATA *all_data, BYTE *buff, int size)
 			ret = AVI_write_frame (videoF->AviOut, buff, size, videoF->keyframe);
 			break;
 		
+		case MKV_FORMAT:
+			videoF->vpts = global->v_ts;
+			ret = write_video_packet (buff, size, global->fps, videoF);
+			break;
+			
 		default:
 			
 			break;
@@ -351,11 +400,13 @@ int write_video_frame (struct ALL_DATA *all_data,
 			break;
 		
 		
-		default:
-			//write video frame using libavformat
+		case MKV_FORMAT:
 			global->framecount++;
 			
 			ret = compress_frame(all_data, jpeg_struct, lavc_data, pvid);
+			break;
+		
+		default:
 			break;
 	}
 	return (0);
@@ -422,7 +473,28 @@ int write_audio_frame (struct ALL_DATA *all_data)
 					
 			}
 			break;
-		
+		case MKV_FORMAT:
+			g_mutex_lock( pdata->mutex );
+				//set pts
+				videoF->apts = videoF->old_apts;
+				videoF->old_apts = pdata->a_ts - global->Vidstarttime;
+				//write audio chunk
+				if(global->Sound_Format == PA_FOURCC) 
+				{
+					Float2Int16(pdata); /*convert from float sample to 16 bit PCM*/
+					ret = write_audio_packet ((BYTE *) pdata->vid_sndBuff1, pdata->snd_numSamples*2, pdata->samprate, videoF);
+				}
+				else if(global->Sound_Format == ISO_FORMAT_MPEG12)
+				{
+					int size_mp2 = MP2_encode(pdata,0);
+					ret = write_audio_packet (pdata->mp2Buff, size_mp2, pdata->samprate, videoF);
+					//g_printf("wrote audio block\n");
+				}
+			g_mutex_unlock( pdata->mutex );
+				
+			pdata->audio_flag=0;
+			break;
+			
 		default:
 			
 			break;
@@ -446,8 +518,8 @@ int sync_audio_frame(struct ALL_DATA *all_data)
 			{ 
 				/*only 1 audio stream*/
 				/*time diff for audio-video*/
-				int synctime= pdata->snd_begintime - global->Vidstarttime; 
-				if (global->debug) g_printf("shift sound by %d ms\n",synctime);
+				int synctime= (int) (pdata->snd_begintime - global->Vidstarttime)/1000000; //convert to miliseconds 
+				if (global->debug) g_printf("shift sound by %d ms\n", synctime);
 				if(synctime>10 && synctime<5000) 
 				{ 	/*only sync between 10ms and 5 seconds*/
 					if(global->Sound_Format == PA_FOURCC) 
@@ -471,13 +543,28 @@ int sync_audio_frame(struct ALL_DATA *all_data)
 			}
 			break;
 		
-		default:
+		case MKV_FORMAT:
 			//sync audio 
-			if(!(videoF->first_audio)) 
+		/*
+			if(!(videoF->old_apts)) 
 			{
-				
-				videoF->first_audio = 1;
+				int synctime= pdata->snd_begintime - global->Vidstarttime; 
+				if (global->debug) g_printf("shift sound by %d ms\n",synctime);
+				if(synctime>10 && synctime<5000) 
+				{ 	//only sync between 10ms and 5 seconds
+					//shift sound by synctime
+					UINT32 shiftFrames = abs(synctime * global->Sound_SampRate / 1000);
+					UINT32 shiftSamples = shiftFrames * global->Sound_NumChan;
+					if (global->debug) g_printf("shift sound forward by %d samples\n", shiftSamples);
+					videoF->old_apts = shiftSamples;
+				} 
+				else
+					videoF->old_apts = 1;
 			}
+		 */
+			break;
+		
+		default:
 			break;
 	}
 	

@@ -33,6 +33,9 @@ typedef struct _vcodecs_data
 	gboolean avcodec;         //is a avcodec codec
 	gboolean valid;           //the encoding codec exists in ffmpeg
 	const char *compressor;   //fourcc - upper case
+	int mkv_4cc;              //fourcc WORD value
+	const char *mkv_codec;    //mkv codecID
+	const void *mkv_codecPriv;//mkv codec private data
 	const char *description;  //codec description
 	int bit_rate;             //lavc default bit rate
 	int qmax;                 //lavc qmax
@@ -61,6 +64,12 @@ typedef struct _vcodecs_data
 const char *get_vid4cc(int codec_ind);
 
 const char *get_desc4cc(int codec_ind);
+
+const char *get_mkvCodec(int codec_ind);
+
+void *get_mkvCodecPriv(int codec_ind);
+
+int set_mkvCodecPriv(int codec_ind, int width, int height);
 
 int get_vcodec_id(int codec_ind);
 

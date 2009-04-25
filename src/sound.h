@@ -50,6 +50,8 @@ struct paRecordData
 	int input_type; // audio SAMPLE type
 	PaStreamParameters inputParameters;
 	PaStream *stream;
+	unsigned long framesPerBuffer; //frames per buffer passed in audio callback
+	int MPEG_Frame_size; //number of samples per mpeg frame (1152 for MP2)
 	int sampleIndex; // callback buffer index
 	int maxIndex; // maximum callback buffer index
 	int channels; // channels
@@ -61,11 +63,11 @@ struct paRecordData
 	int numsec; // aprox. number of seconds for out buffer size
 	int snd_numBytes; //bytes copied to out buffer*/
 	int snd_numSamples; //samples copied to out buffer*/
-	int snd_begintime; //audio recording start time*/
+	int64_t snd_begintime; //audio recording start time*/
 	int capVid; // video capture flag
 	SAMPLE *recordedSamples; // callback buffer
 	SAMPLE *vid_sndBuff; // out buffer
-
+	INT64 a_ts; //audio frame time stamp
 	gint16 *vid_sndBuff1; //buffer for pcm coding with int16
 	BYTE *mp2Buff; //mp2 encode buffer
 	int mp2BuffSize; // mp2 buffer size

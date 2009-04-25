@@ -57,8 +57,10 @@ struct GLOBAL
 	DWORD snd_begintime;   //begin time for audio capture
 	DWORD currtime;
 	DWORD lasttime;
-	DWORD Vidstarttime;    //video start time
-	DWORD Vidstoptime;     //video stop time
+	QWORD Vidstarttime;    //video start time
+	QWORD Vidstoptime;     //video stop time
+	QWORD v_ts;            //video time stamp
+	QWORD a_ts;            //audio time stamp
 	DWORD vid_inc;         //video name increment
 	DWORD framecount;      //video frame count
 	DWORD frmCount;        //frame count for fps display calc

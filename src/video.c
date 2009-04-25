@@ -175,7 +175,16 @@ void *main_loop(void *data)
 		else 
 		{
 			/*reset video start time to first frame capture time */  
-			if((global->framecount==0) && videoIn->capVid) global->Vidstarttime = ms_time();
+			if(global->framecount < 2) 
+			{
+				global->Vidstarttime = ns_time(); //miliseconds
+				global->v_ts = 0;
+			}
+			else
+			{
+				global->v_ts = ns_time() - global->Vidstarttime; //nanoseconds
+				//printf("start: %lu, timestamp: %llu\n",(unsigned long) global->Vidstarttime, global->v_ts);
+			}
 
 			if (global->FpsCount) 
 			{/* sets fps count in window title bar */
@@ -348,6 +357,8 @@ void *main_loop(void *data)
 				sync_audio_frame(all_data);
 				
 				g_mutex_lock( pdata->mutex );
+					//if(global->debug) g_printf("audio: %lu frames per buffer and %d total samples\n",
+					//	pdata->framesPerBuffer, pdata->numSamples);
 					/*run effects on data*/
 					/*echo*/
 					if((pdata->snd_Flags & SND_ECHO)==SND_ECHO) 
