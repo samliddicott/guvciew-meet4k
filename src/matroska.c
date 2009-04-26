@@ -596,13 +596,19 @@ static int mk_flushFrame(mk_Writer *w) {
   delta = w->frame_tc / w->timescale - w->cluster_tc_scaled;
 
   //allways close cluster with audio frame unless no audio
-  if (delta > 32000ll || delta < -32000ll)
+  if (delta > 31000ll || delta < -31000ll)
   {
 	if(w->video_only)
 	{
 		CHECK(mk_closeCluster(w));
 	}
 	else
+	    if (delta > 32767ll || delta < -32768ll || w->close_cluster)
+	    {   //not closed yet?? is audio streaming?
+		CHECK(mk_closeCluster(w));
+		w->close_cluster = 0;
+	    }
+	    else
 		w->close_cluster = 1;
   }
 
