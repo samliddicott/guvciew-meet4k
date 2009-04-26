@@ -140,8 +140,14 @@ init_sound(struct paRecordData* data)
 	/* setting maximum buffer size*/
 	totalFrames = data->numsec * data->samprate;
 	numSamples = totalFrames * data->channels;
-	if(numSamples < 9 * data->MPEG_Frame_size) 
-		numSamples = 9 * data->MPEG_Frame_size;
+
+	if(data->samprate < 32000)
+		data->tresh = (data->MPEG_Frame_size * 3) * data->channels;
+	else 
+		data->tresh = (data->MPEG_Frame_size * 7) * data->channels;
+	
+	if(numSamples < (data->tresh + (4 * data->MPEG_Frame_size))) 
+		numSamples = data->tresh + (4 * data->MPEG_Frame_size);
 	/*round to libtwolame Frames (1 Frame = 1152 samples)*/
 	MP2Frames=numSamples / data->MPEG_Frame_size;
 	numSamples=MP2Frames * data->MPEG_Frame_size;
@@ -158,11 +164,6 @@ init_sound(struct paRecordData* data)
 	data->audio_flag = 0;
 	data->flush = 0;
 	data->streaming = 0;
-
-	if(data->samprate < 32000)
-		data->tresh = data->MPEG_Frame_size * 3;
-	else 
-		data->tresh = data->MPEG_Frame_size * 7;
 	
 	/*secondary shared buffer*/
 	data->vid_sndBuff = g_new0(SAMPLE, numSamples);

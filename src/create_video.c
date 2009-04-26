@@ -58,6 +58,7 @@ set_sensitive_vid_contrls (const int flag, const int sndEnable, struct GWIDGET *
 	gtk_widget_set_sensitive (gwidget->VidCodec, flag);
 	gtk_widget_set_sensitive (gwidget->SndEnable, flag); 
 	gtk_widget_set_sensitive (gwidget->VidInc, flag);
+	gtk_widget_set_sensitive (gwidget->VidFormat, flag);/*video format combobox*/
 	if(sndEnable > 0) 
 	{
 		set_sensitive_snd_contrls(flag, gwidget);
@@ -299,7 +300,8 @@ void closeVideoFile(struct ALL_DATA *all_data)
 			break;
 			
 		case MKV_FORMAT:
-			clean_FormatContext ((void*) all_data);
+			if(clean_FormatContext ((void*) all_data))
+				g_printerr("matroska close returned a error\n");
 			break;
 			
 		default:

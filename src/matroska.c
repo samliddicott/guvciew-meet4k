@@ -659,7 +659,15 @@ static int mk_flushFrame(mk_Writer *w) {
 		CHECK(mk_closeCluster(w));
 	}
 	else
-		w->close_cluster = 1;
+	{
+		if(w->cluster->d_cur > 2*CLSIZE)
+		{
+			//not closed yet?? is audio streaming?
+			CHECK(mk_closeCluster(w));
+		}
+		else
+			w->close_cluster = 1;
+	}
   }
   return 0;
 }

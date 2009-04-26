@@ -477,7 +477,13 @@ void *main_loop(void *data)
 		}
 
 	}/*loop end*/
-	
+
+	if(lavc_data != NULL)
+	{
+		int nf = clean_lavc(&lavc_data);
+		if(global->debug) g_printf(" total frames: %d  -- encoded: %d\n", global->framecount, nf);
+		lavc_data = NULL;
+	}
 	/*check if thread exited while in Video capture mode*/
 	if (videoIn->capVid) 
 	{
@@ -487,13 +493,9 @@ void *main_loop(void *data)
 		videoIn->capVid = FALSE;
 		pdata->capVid = videoIn->capVid;
 		if (global->debug) g_printf("stoping Video capture\n");
-		closeVideoFile(all_data);   
+		closeVideoFile(all_data);
 	}
-	if(lavc_data != NULL)
-	{
-		clean_lavc(lavc_data);
-		lavc_data = NULL;
-	}
+	
 	if (global->debug) g_printf("Thread terminated...\n");
 	p = NULL;
 	g_free(jpeg_struct);
