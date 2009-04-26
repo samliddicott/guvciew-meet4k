@@ -1,22 +1,26 @@
-/*****************************************************************************
- * matroska.c:
- *****************************************************************************
- * Copyright (C) 2005 Mike Matsnev
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02111, USA.
- *****************************************************************************/
+/*******************************************************************************#
+#           guvcview              http://guvcview.berlios.de                    #
+#                                                                               #
+#           Paulo Assis <pj.assis@gmail.com>                                    #
+#                                                                               #
+# This is a heavily modified version of the matroska interface from x264        #
+#           Copyright (C) 2005 Mike Matsnev                                     #
+#                                                                               #
+# This program is free software; you can redistribute it and/or modify          #
+# it under the terms of the GNU General Public License as published by          #
+# the Free Software Foundation; either version 2 of the License, or             #
+# (at your option) any later version.                                           #
+#                                                                               #
+# This program is distributed in the hope that it will be useful,               #
+# but WITHOUT ANY WARRANTY; without even the implied warranty of                #
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                 #
+# GNU General Public License for more details.                                  #
+#                                                                               #
+# You should have received a copy of the GNU General Public License             #
+# along with this program; if not, write to the Free Software                   #
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA     #
+#                                                                               #
+********************************************************************************/
 
 #include <stdlib.h>
 #include <string.h>
@@ -436,7 +440,8 @@ int	  mk_writeHeader(mk_Writer *w, const char *writingApp,
   w->segment_size_ptr = 0x1c; //FIXME: should not be hardcoded
   //needs full segment size here (including clusters) but we only know the head size for now.
   mk_appendContextData(c, empty, 6); //add extra six (0) bytes (reserve space for segment size later)
-  
+
+  w->seekhead_pos = 36; //FIXME:  SeekHead Position (should not be hardcoded)
   if ((ti = mk_createContext(w, c, MATROSKA_ID_SEEKHEAD)) == NULL) // SeekHead
     return -1;
   if ((ti2 = mk_createContext(w, ti, MATROSKA_ID_SEEKENTRY)) == NULL) // Seek
@@ -450,26 +455,12 @@ int	  mk_writeHeader(mk_Writer *w, const char *writingApp,
   CHECK(mk_writeUInt(ti2, MATROSKA_ID_SEEKID, MATROSKA_ID_TRACKS)); //seekID
   CHECK(mk_writeUInt(ti2, MATROSKA_ID_SEEKPOSITION, 4184)); //FIXME:  SeekPosition (should not be hardcoded)
   CHECK(mk_closeContext(ti2, 0));
-
-  w->seekhead_pos = 71; //FIXME:  SeekHead Position (should not be hardcoded)
-  if ((ti2 = mk_createContext(w, ti, MATROSKA_ID_SEEKENTRY)) == NULL) // Seek
-    return -1;
-  CHECK(mk_writeUInt(ti2, MATROSKA_ID_SEEKID, MATROSKA_ID_SEEKHEAD)); //seekID
-  CHECK(mk_writeUInt(ti2, MATROSKA_ID_SEEKPOSITION, 0)); 
-  mk_appendContextData(ti2, empty, 6); //add extra six (0) bytes (reserve space for seekhead position later)
-  CHECK(mk_closeContext(ti2, 0));
-    
-  if ((ti2 = mk_createContext(w, ti, MATROSKA_ID_SEEKENTRY)) == NULL) // Seek
-    return -1;
-  CHECK(mk_writeUInt(ti2, MATROSKA_ID_SEEKID, MATROSKA_ID_CUES)); //seekID
-  CHECK(mk_writeUInt(ti2, MATROSKA_ID_SEEKPOSITION, 0)); 
-  w->cues_pos = 103; //FIXME:  Cues Position (should not be hardcoded)
-  mk_appendContextData(ti2, empty, 6); //add extra six (0) bytes (reserve space for cue position later)
-  CHECK(mk_closeContext(ti2, 0));
-    
+	
   CHECK(mk_closeContext(ti, 0));
-    
-  CHECK(mk_writeVoid(c, 4021));
+
+  //allways start Segment info at pos 4135
+  //this will be overwritten by seek entries for cues and the final seekhead
+  CHECK(mk_writeVoid(c, 4135-(71+3)));
         
   if ((ti = mk_createContext(w, c, MATROSKA_ID_INFO)) == NULL) // SegmentInfo
     return -1;
@@ -778,18 +769,35 @@ static int write_SeekHead(mk_Writer *w) {
 }
 
 static int write_SegSeek(mk_Writer *w, int64_t cues_pos, int64_t seekHeadPos) {
-  mk_Context *se;
+  mk_Context *sh, *se;
+
+  if ((sh = mk_createContext(w, w->root, MATROSKA_ID_SEEKHEAD)) == NULL) // SeekHead
+    return -1;
+  if ((se = mk_createContext(w, sh, MATROSKA_ID_SEEKENTRY)) == NULL) // Seek
+    return -1;
+  CHECK(mk_writeUInt (se, MATROSKA_ID_SEEKID, MATROSKA_ID_INFO)); //seekID
+  CHECK(mk_writeUInt(se, MATROSKA_ID_SEEKPOSITION, 4099)); //FIXME: SeekPosition (should not be hardcoded)
+  CHECK(mk_closeContext(se, 0));
+
+  if ((se = mk_createContext(w, sh, MATROSKA_ID_SEEKENTRY)) == NULL) // Seek
+    return -1;
+  CHECK(mk_writeUInt(se, MATROSKA_ID_SEEKID, MATROSKA_ID_TRACKS)); //seekID
+  CHECK(mk_writeUInt(se, MATROSKA_ID_SEEKPOSITION, 4184)); //FIXME:  SeekPosition (should not be hardcoded)
+  CHECK(mk_closeContext(se, 0));
+	
   //printf("cues@%d seekHead@%d\n", cues_pos, seekHeadPos);
-  if ((se = mk_createContext(w, w->root, MATROSKA_ID_SEEKENTRY)) == NULL) // Seek
+  if ((se = mk_createContext(w, sh, MATROSKA_ID_SEEKENTRY)) == NULL) // Seek
     return -1;
   CHECK(mk_writeUInt(se, MATROSKA_ID_SEEKID, MATROSKA_ID_SEEKHEAD)); //seekID
   CHECK(mk_writeUInt(se, MATROSKA_ID_SEEKPOSITION, seekHeadPos)); 
   CHECK(mk_closeContext(se, 0));
-  if ((se = mk_createContext(w, w->root, MATROSKA_ID_SEEKENTRY)) == NULL) // Seek
+  if ((se = mk_createContext(w, sh, MATROSKA_ID_SEEKENTRY)) == NULL) // Seek
     return -1;
   CHECK(mk_writeUInt(se, MATROSKA_ID_SEEKID, MATROSKA_ID_CUES)); //seekID
   CHECK(mk_writeUInt(se, MATROSKA_ID_SEEKPOSITION, cues_pos)); 
   CHECK(mk_closeContext(se, 0));
+  CHECK(mk_closeContext(sh, 0));
+	
   if(mk_flushContextData(w->root) < 0) 
 	return -1;
 	
