@@ -20,8 +20,10 @@
 ********************************************************************************/
 
 #include <stdlib.h>
+#include <glib/gprintf.h>
 #include <glib.h>
 #include <twolame.h>
+
 #include "mp2.h"
 #include "globals.h"
 #include "defs.h"
@@ -72,6 +74,7 @@ init_MP2_encoder(struct paRecordData* pdata, int bitRate)
 int
 MP2_encode(struct paRecordData* pdata, int ms_delay) 
 {
+
 	int mp2fill_size=0;
 	if (ms_delay) 
 	{
@@ -82,7 +85,6 @@ MP2_encode(struct paRecordData* pdata, int ms_delay)
 		SAMPLE *EmptySamp;
 		EmptySamp = g_new0(SAMPLE, shiftSamples);
 		// Encode silent samples
-
 		mp2fill_size = twolame_encode_buffer_float32_interleaved(encodeOptions, 
 			(float *) EmptySamp, shiftSamples/(pdata->channels), 
 			pdata->mp2Buff, pdata->mp2BuffSize);

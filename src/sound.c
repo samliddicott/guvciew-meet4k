@@ -145,13 +145,13 @@ init_sound(struct paRecordData* data)
 		data->tresh = (data->MPEG_Frame_size * 3) * data->channels;
 	else 
 		data->tresh = (data->MPEG_Frame_size * 7) * data->channels;
-	
-	if(numSamples < (data->tresh + (4 * data->MPEG_Frame_size))) 
-		numSamples = data->tresh + (4 * data->MPEG_Frame_size);
 	/*round to libtwolame Frames (1 Frame = 1152 samples)*/
 	MP2Frames=numSamples / data->MPEG_Frame_size;
 	numSamples=MP2Frames * data->MPEG_Frame_size;
-	
+
+	if(numSamples < (data->tresh + (4 * data->MPEG_Frame_size))) 
+		numSamples = data->tresh + (4 * data->MPEG_Frame_size);
+
 	data->input_type = PA_SAMPLE_TYPE;
 	data->mp2Buff = NULL;
 	
@@ -169,33 +169,44 @@ init_sound(struct paRecordData* data)
 	data->vid_sndBuff = g_new0(SAMPLE, numSamples);
 	/*buffer for video PCM 16 bits*/
 	data->vid_sndBuff1=NULL;
+	switch(data->api)
+	{
+#ifdef PULSEAUDIO
+		case PULSE:
+			if(pulse_init_audio(data))
+				goto error;
+			break;
+#endif
+		case PORT:
+		default:
+			err = Pa_Initialize();
+			if( err != paNoError ) goto error;
 	
-	err = Pa_Initialize();
-	if( err != paNoError ) goto error;
+			/* Record for a few seconds. */
+			data->inputParameters.channelCount = data->channels;
+			data->inputParameters.sampleFormat = PA_SAMPLE_TYPE;
+			data->inputParameters.suggestedLatency = Pa_GetDeviceInfo( data->inputParameters.device )->defaultLowInputLatency;
+			data->inputParameters.hostApiSpecificStreamInfo = NULL; 
 	
-	/* Record for a few seconds. */
-	data->inputParameters.channelCount = data->channels;
-	data->inputParameters.sampleFormat = PA_SAMPLE_TYPE;
-	data->inputParameters.suggestedLatency = Pa_GetDeviceInfo( data->inputParameters.device )->defaultLowInputLatency;
-	data->inputParameters.hostApiSpecificStreamInfo = NULL; 
+			/*---------------------------- Record some audio. ----------------------------- */
 	
-	/*---------------------------- Record some audio. ----------------------------- */
+			err = Pa_OpenStream(
+				&data->stream,
+				&data->inputParameters,
+				NULL,                  /* &outputParameters, */
+				data->samprate,
+				data->MPEG_Frame_size,            // buffer size = Mpeg frame size (1152 samples)
+				//paFramesPerBufferUnspecified,       // buffer Size - set by portaudio
+				paNoFlag,      /* PaNoFlag - clip and dhiter*/
+				recordCallback, /* sound callback */
+				data ); /* callback userData */
 	
-	err = Pa_OpenStream(
-		&data->stream,
-		&data->inputParameters,
-		NULL,                  /* &outputParameters, */
-		data->samprate,
-		data->MPEG_Frame_size,            // buffer size = Mpeg frame size (1152 samples)
-		//paFramesPerBufferUnspecified,       // buffer Size - set by portaudio
-		paNoFlag,      /* PaNoFlag - clip and dhiter*/
-		recordCallback, /* sound callback */
-		data ); /* callback userData */
+			if( err != paNoError ) goto error;
 	
-	if( err != paNoError ) goto error;
-	
-	err = Pa_StartStream( data->stream );
-	if( err != paNoError ) goto error; /*should close the stream if error ?*/
+			err = Pa_StartStream( data->stream );
+			if( err != paNoError ) goto error; /*should close the stream if error ?*/
+			break;
+	}
 	
 	/*sound start time - used to sync with video*/
 	data->snd_begintime = ns_time();
@@ -207,7 +218,7 @@ error:
 	g_printerr("Error message: %s\n", Pa_GetErrorText( err ) ); 
 	data->streaming=0;
 	data->flush=0;
-	Pa_Terminate();
+	if(data->api < 1) Pa_Terminate();
 	g_free( data->recordedSamples );
 	data->recordedSamples=NULL;
 	g_free(data->vid_sndBuff);
@@ -220,24 +231,27 @@ int
 close_sound (struct paRecordData *data) 
 {
 	int err =0;
-	g_printf("stoping audio stream...\n");
+	data->capVid = 0;
 	/*stops and closes the audio stream*/
 	//err = Pa_StopStream( data->stream ); // causes a lock in ubuntu 9.04
 	//if( err != paNoError ) goto error;
-	err = Pa_CloseStream( data->stream );
-	if( err != paNoError ) goto error; 
+	if(data->api < 1)
+	{
+		g_printf("stoping audio stream...\n");
+		err = Pa_CloseStream( data->stream );
+		if( err != paNoError ) goto error; 
+	}
 	
 	/*make sure we stoped streaming */
-	int stall = wait_ms( &data->streaming, FALSE, 10, 30 );
+	int stall = wait_ms( &data->streaming, FALSE, 10, 50 );
 	if(!(stall)) 
 	{
 		g_printerr("WARNING:sound capture stall (still streaming(%d)) \n",
 			data->streaming);
-		data->streaming = 0;
+			data->streaming = 0;
 	}
 	if(data->audio_flag) 
-		g_printerr("Droped %i bytes of audio data\n", 
-			data->snd_numBytes);
+		g_printerr("Droped %i bytes of audio data\n", data->snd_numBytes);
 	data->audio_flag=0;
 	data->flush = 0;
 
@@ -247,8 +261,11 @@ close_sound (struct paRecordData *data)
 		/*free primary buffer*/
 		g_free( data->recordedSamples  );
 		data->recordedSamples=NULL;
-		printf("closing portaudio\n");
-		Pa_Terminate();
+		if(data->api < 1)
+		{
+			printf("closing portaudio\n");
+			Pa_Terminate();
+		}
 	
 		g_free(data->vid_sndBuff);
 		data->vid_sndBuff = NULL;
@@ -270,7 +287,7 @@ error:
 	g_mutex_lock( data->mutex);
 		g_free( data->recordedSamples );
 		data->recordedSamples=NULL;
-		Pa_Terminate();
+		if(data->api < 1) Pa_Terminate();
 		g_free(data->vid_sndBuff);
 		data->vid_sndBuff = NULL;
 		

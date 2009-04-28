@@ -24,6 +24,14 @@
 #include <inttypes.h>
 #include <sys/types.h>
 
+#define CLEAR_LINE "\x1B[K"
+
+#ifdef WORDS_BIGENDIAN
+  #define BIGENDIAN 1
+#else
+  #define BIGENDIAN 0
+#endif
+
 typedef uint64_t QWORD;
 typedef uint32_t DWORD;
 typedef uint16_t WORD;

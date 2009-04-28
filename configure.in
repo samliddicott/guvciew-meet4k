@@ -1,8 +1,8 @@
 dnl Process this file with autoconf to produce a configure script.
 
 dnl Package definitions
-AC_INIT(guvcview, 1.0.5,[<pj.assis@gmail.com>])
-AM_INIT_AUTOMAKE(guvcview, 1.0.5)
+AC_INIT(guvcview, 1.1.0,[<pj.assis@gmail.com>])
+AM_INIT_AUTOMAKE(guvcview, 1.1.0)
 AM_CONFIG_HEADER(config.h)
 AM_MAINTAINER_MODE
 
@@ -20,11 +20,21 @@ dnl Add the languages which your application supports here.
 ALL_LINGUAS="pt pt_BR de es fr da tr cs ja"
 AM_GLIB_GNU_GETTEXT([external])
 
-
-dnl Check package modules
+dnl check for dependencies
 PKG_CHECK_MODULES(PACKAGE, [gtk+-2.0 >= 2.10.0 glib-2.0 >= 2.10.0 gthread-2.0 gdk-2.0 >= 2.10.0 sdl >= 1.2.10 portaudio-2.0 libpng twolame libavcodec])
 AC_SUBST(PACKAGE_CFLAGS)
 AC_SUBST(PACKAGE_LIBS)
+
+dnl Check for pulseaudio
+PKG_CHECK_MODULES(PULSE, [libpulse-simple],
+  [AC_DEFINE(PULSEAUDIO,1,[Define if pulse headers presence detected])], 
+  [ echo '--------------------------------------------------'
+    echo 'Pulse Audio development package not detected'
+    echo 'Compiling Guvcview without Pulse Support.'
+    echo '--------------------------------------------------'])
+
+AC_SUBST(PULSE_CFLAGS)
+AC_SUBST(PULSE_LIBS)
 
 dnl Check for avcodec.h directly
 dnl if all tests fail must add avcodec.h path to C_INCLUDE_PATH before running configure
@@ -38,13 +48,13 @@ dnl if all the checks fail we include "libavcodec/avcodec.h"
 AC_CHECK_HEADER([libavcodec/avcodec.h], [has_libavcodec_dir="yes"])
 
 if test "$has_avcodec_h" = yes; then
-AC_DEFINE(HAS_AVCODEC_H,1,[Define if avcodec.h can be acessed directly]) 
+  AC_DEFINE(HAS_AVCODEC_H,1,[Define if avcodec.h can be acessed directly]) 
 fi
 if test "$has_ffmpeg_dir" = yes; then
-AC_DEFINE(HAS_FFMPEG_AVCODEC_H,1,[Define if avcodec.h installed to ffmpeg dir]) 
+  AC_DEFINE(HAS_FFMPEG_AVCODEC_H,1,[Define if avcodec.h installed to ffmpeg dir]) 
 fi
 if test "$has_libavcodec_dir" = yes; then
-AC_DEFINE(HAS_LIBAVCODEC_AVCODEC_H,1,[Define if avcodec.h installed to libavcodec dir])
+  AC_DEFINE(HAS_LIBAVCODEC_AVCODEC_H,1,[Define if avcodec.h installed to libavcodec dir])
 fi
 
 dnl Check if the processor stores words with the most significant byte first 

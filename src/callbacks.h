@@ -100,6 +100,9 @@ void
 ImageType_changed (GtkComboBox * ImageType, struct ALL_DATA *all_data);
 
 void
+SndAPI_changed (GtkComboBox * SoundAPI, struct ALL_DATA *all_data);
+
+void
 SndDevice_changed (GtkComboBox * SoundDevice, struct ALL_DATA *all_data);
 
 void

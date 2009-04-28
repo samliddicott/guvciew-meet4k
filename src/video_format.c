@@ -225,7 +225,10 @@ int init_FormatContext(void *data)
 		{
 			samprate = (float) pdata->samprate;
 			channels = pdata->channels;
-			duration = (int64_t) 1000000000/((samprate * pdata->channels)/(pdata->tresh + (pdata->channels * pdata->MPEG_Frame_size)));
+			if(pdata->api == PORT)
+				duration = (int64_t) 1000000000/((samprate * pdata->channels)/(pdata->tresh + (pdata->channels * pdata->MPEG_Frame_size)));
+			else
+				duration = (int64_t) 1000000000/((samprate * pdata->channels)/pdata->tresh);
 		}
 	}
 	

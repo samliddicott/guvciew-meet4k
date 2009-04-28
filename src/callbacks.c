@@ -727,6 +727,19 @@ ImageType_changed (GtkComboBox * ImageType, struct ALL_DATA *all_data)
 	global = NULL;
 }
 
+/*Audio API control callback*/
+void
+SndAPI_changed (GtkComboBox * SoundAPI, struct ALL_DATA *all_data)
+{
+	struct GLOBAL *global = all_data->global;
+	struct paRecordData *pdata = all_data->pdata;
+	
+	global->Sound_API=gtk_combo_box_get_active (SoundAPI);
+	pdata->api = global->Sound_API;
+	g_printf("using API %d\n",global->Sound_API);
+	global = NULL;
+}
+
 /*sound device control callback*/
 void
 SndDevice_changed (GtkComboBox * SoundDevice, struct ALL_DATA *all_data)

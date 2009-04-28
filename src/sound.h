@@ -25,6 +25,13 @@
 #include <portaudio.h>
 #include <glib.h>
 #include "globals.h"
+#include "../config.h"
+
+#ifdef PULSEAUDIO
+  #include <pulse/simple.h>
+  #include <pulse/error.h>
+  #include <pulse/gccmacro.h>
+#endif
 
 /*------------- portaudio defs ----------------*/
 /*---- can be override in rc file or GUI ------*/
@@ -44,9 +51,14 @@ typedef float SAMPLE;
 #define MAX_SAMPLE (1.0f)
 #define PRINTF_S_FORMAT "%.8f"
 
+//API index
+#define PORT  0
+#define PULSE 1
+
 // main audio interface struct
 struct paRecordData
 {
+	int api; //0-Portaudio 1-pulse audio
 	int input_type; // audio SAMPLE type
 	PaStreamParameters inputParameters;
 	PaStream *stream;
@@ -76,6 +88,11 @@ struct paRecordData
 	GMutex *mutex; // audio mutex
 	//pthread_cond_t cond;
 	
+	//PULSE SUPPORT
+#ifdef PULSEAUDIO
+	pa_simple *pulse_simple;
+	GThread *pulse_read_th;
+#endif
 };
 
 int 
@@ -97,6 +114,16 @@ close_sound (struct paRecordData *data);
 void 
 Float2Int16 (struct paRecordData* data);
 
+#ifdef PULSEAUDIO
+void
+pulse_set_audio (struct GLOBAL *global, struct paRecordData* data);
+
+int
+pulse_init_audio(struct paRecordData* data);
+
+int
+pulse_close_sound (struct paRecordData *data);
+#endif
 
 #endif
 

@@ -29,6 +29,7 @@
 #include "callbacks.h"
 #include "v4l2uvc.h"
 #include "snd_devices.h"
+#include "../config.h"
 
 void audio_tab(struct ALL_DATA *all_data)
 {
@@ -86,9 +87,6 @@ void audio_tab(struct ALL_DATA *all_data)
 	
 	//ADD SCROLL to NOTEBOOK (TAB)
 	gtk_notebook_append_page(GTK_NOTEBOOK(gwidget->boxh),scroll3,Tab3);
-	
-	// get sound device list and info
-	gwidget->SndDevice = list_snd_devices (global);
 	//--------------------- sound controls ------------------------------
 	//enable sound
 	line++;
@@ -102,8 +100,46 @@ void audio_tab(struct ALL_DATA *all_data)
 	g_signal_connect (GTK_CHECK_BUTTON(gwidget->SndEnable), "toggled",
 		G_CALLBACK (SndEnable_changed), all_data);
 	
+	
+	//sound API
+#ifdef PULSEAUDIO
+	line++;
+	
+	GtkWidget *label_SndAPI = gtk_label_new(_("Audio API:"));
+	gtk_misc_set_alignment (GTK_MISC (label_SndAPI), 1, 0.5);
+
+	gtk_table_attach (GTK_TABLE(table3), label_SndAPI, 0, 1, line, line+1,
+		GTK_FILL, 0, 0, 0);
+	gtk_widget_show (label_SndAPI);
+	
+	GtkWidget *SndAPI = gtk_combo_box_new_text ();;
+	gtk_table_attach(GTK_TABLE(table3), SndAPI, 1, 3, line, line+1,
+		GTK_SHRINK | GTK_FILL , 0, 0, 0);
+	gtk_combo_box_append_text(GTK_COMBO_BOX(SndAPI),_("PORTAUDIO"));
+	gtk_combo_box_append_text(GTK_COMBO_BOX(SndAPI),_("PULSEAUDIO"));
+	gtk_widget_show (SndAPI);
+	//default API - portaudio
+	gtk_combo_box_set_active(GTK_COMBO_BOX(SndAPI),global->Sound_API);
+	
+	gtk_widget_set_sensitive (SndAPI, TRUE);
+	g_signal_connect (GTK_COMBO_BOX(SndAPI), "changed",
+		G_CALLBACK (SndAPI_changed), all_data);
+	
+#endif
+	
 	//sound device
-	line++;	
+	line++;
+	
+	label_SndDevice = gtk_label_new(_("Input Device:"));
+	gtk_misc_set_alignment (GTK_MISC (label_SndDevice), 1, 0.5);
+
+	gtk_table_attach (GTK_TABLE(table3), label_SndDevice, 0, 1, line, line+1,
+		GTK_FILL, 0, 0, 0);
+	gtk_widget_show (label_SndDevice);
+	
+	// get sound device list and info
+	gwidget->SndDevice = list_snd_devices (global);
+	
 	gtk_table_attach(GTK_TABLE(table3), gwidget->SndDevice, 1, 3, line, line+1,
 		GTK_SHRINK | GTK_FILL , 0, 0, 0);
 	gtk_widget_show (gwidget->SndDevice);

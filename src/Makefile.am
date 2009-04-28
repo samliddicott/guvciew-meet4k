@@ -1,10 +1,13 @@
 ## Process this file with automake to produce Makefile.in
 
+EXTRA_CFLAGS = @PULSE_CFLAGS@
+EXTRA_LIBS = @PULSE_LIBS@
+
 INCLUDES = \
 	-DPACKAGE_LOCALE_DIR=\""$(prefix)/$(DATADIRNAME)/locale"\" \
 	-DPACKAGE_SRC_DIR=\""$(srcdir)"\" \
 	-DPACKAGE_DATA_DIR=\""$(datadir)"\" \
-	$(PACKAGE_CFLAGS)  $(JPEG_CFLAGS)
+	$(PACKAGE_CFLAGS) $(EXTRA_CFLAGS)
 
 AM_CFLAGS =\
 	 -Wall\
@@ -59,6 +62,7 @@ guvcview_SOURCES = \
 	picture.c \
 	profile.h \
 	profile.c \
+	pulse_audio.c \
 	quant.c \
 	readYUV.c \
 	sound.h \
@@ -94,7 +98,7 @@ guvcview_SOURCES = \
 
 guvcview_LDFLAGS = $(LIBINTL)
 
-guvcview_LDADD = $(PACKAGE_LIBS)
+guvcview_LDADD = $(PACKAGE_LIBS) $(EXTRA_LIBS)
 
 localedir = $(datadir)/locale
 DEFS = -DLOCALEDIR=\"$(localedir)\" @DEFS@

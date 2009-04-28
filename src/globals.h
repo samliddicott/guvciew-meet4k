@@ -73,6 +73,7 @@ struct GLOBAL
 	int imgFormat;         //image format: 0-"jpg", 1-"png", 2-"bmp"
 	int VidCodec;          //0-"MJPG"  1-"YUY2" 2-"DIB "(rgb32) 3-....
 	int VidFormat;         //0-AVI 1-MPEG 2-FLV 3- MKV ....
+	int Sound_API;         //audio API: 0-PORTAUDIO 1-PULSEAUDIO
 	int Sound_SampRate;    //audio sample rate
 	int Sound_SampRateInd; //audio sample rate combo index
 	int Sound_numInputDev; //number of audio input devices
