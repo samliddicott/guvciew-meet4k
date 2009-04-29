@@ -43,6 +43,8 @@ struct GWIDGET
 	GtkWidget *boxh;
 
 	GtkWidget *VidCodec;
+	GtkWidget *label_SndAPI;
+	GtkWidget *SndAPI;
 	GtkWidget *SndEnable; 
 	GtkWidget *SndSampleRate;
 	GtkWidget *SndDevice;

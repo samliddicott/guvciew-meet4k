@@ -105,26 +105,26 @@ void audio_tab(struct ALL_DATA *all_data)
 #ifdef PULSEAUDIO
 	line++;
 	
-	GtkWidget *label_SndAPI = gtk_label_new(_("Audio API:"));
-	gtk_misc_set_alignment (GTK_MISC (label_SndAPI), 1, 0.5);
+	gwidget->label_SndAPI = gtk_label_new(_("Audio API:"));
+	gtk_misc_set_alignment (GTK_MISC (gwidget->label_SndAPI), 1, 0.5);
 
-	gtk_table_attach (GTK_TABLE(table3), label_SndAPI, 0, 1, line, line+1,
+	gtk_table_attach (GTK_TABLE(table3), gwidget->label_SndAPI, 0, 1, line, line+1,
 		GTK_FILL, 0, 0, 0);
-	gtk_widget_show (label_SndAPI);
+	gtk_widget_show (gwidget->label_SndAPI);
 	
-	GtkWidget *SndAPI = gtk_combo_box_new_text ();;
-	gtk_table_attach(GTK_TABLE(table3), SndAPI, 1, 3, line, line+1,
+	gwidget->SndAPI = gtk_combo_box_new_text ();;
+	gtk_table_attach(GTK_TABLE(table3), gwidget->SndAPI, 1, 3, line, line+1,
 		GTK_SHRINK | GTK_FILL , 0, 0, 0);
-	gtk_combo_box_append_text(GTK_COMBO_BOX(SndAPI),_("PORTAUDIO"));
-	gtk_combo_box_append_text(GTK_COMBO_BOX(SndAPI),_("PULSEAUDIO"));
-	gtk_widget_show (SndAPI);
+	gtk_combo_box_append_text(GTK_COMBO_BOX(gwidget->SndAPI),_("PORTAUDIO"));
+	gtk_combo_box_append_text(GTK_COMBO_BOX(gwidget->SndAPI),_("PULSEAUDIO"));
+	gtk_widget_show (gwidget->SndAPI);
 	//default API - portaudio
-	gtk_combo_box_set_active(GTK_COMBO_BOX(SndAPI),global->Sound_API);
+	gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->SndAPI),global->Sound_API);
 	
 	if(global->Sound_API > 0) global->Sound_UseDev=0; //force default device
 	
-	gtk_widget_set_sensitive (SndAPI, TRUE);
-	g_signal_connect (GTK_COMBO_BOX(SndAPI), "changed",
+	gtk_widget_set_sensitive (gwidget->SndAPI, TRUE);
+	g_signal_connect (GTK_COMBO_BOX(gwidget->SndAPI), "changed",
 		G_CALLBACK (SndAPI_changed), all_data);
 	
 #endif
