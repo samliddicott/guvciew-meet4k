@@ -736,7 +736,14 @@ SndAPI_changed (GtkComboBox * SoundAPI, struct ALL_DATA *all_data)
 	
 	global->Sound_API=gtk_combo_box_get_active (SoundAPI);
 	pdata->api = global->Sound_API;
-	g_printf("using API %d\n",global->Sound_API);
+	if(!global->Sound_API) gtk_widget_set_sensitive (gwidget->SndDevice, TRUE) //enable sound device combobox
+	else
+	{
+		global->Sound_UseDev = global->Sound_DefDev;; //force default device
+		gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->SndDevice),global->Sound_UseDev);
+		gtk_widget_set_sensitive (gwidget->SndDevice, FALSE); //disable sound device combobox
+	}
+	g_printf("using audio API n:%d\n",global->Sound_API);
 	global = NULL;
 }
 

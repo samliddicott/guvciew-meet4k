@@ -81,7 +81,9 @@ writeConf(struct GLOBAL *global, char *videodevice)
 		g_fprintf(fp,"avi_inc=%d\n",global->vid_inc);
 		g_fprintf(fp,"# sound 0 - disable 1 - enable\n");
 		g_fprintf(fp,"sound=%i\n",global->Sound_enable);
-		g_fprintf(fp,"# snd_device - sound device id as listed by portaudio\n");
+		g_fprintf(fp,"# sound API: 0- Portaudio  1- Pulseaudio\n");
+		g_fprintf(fp,"snd_api=%i\n", global->Sound_API);
+		g_fprintf(fp,"# snd_device - sound device id as listed by portaudio (pulse uses default device)\n");
 		g_fprintf(fp,"snd_device=%i\n",global->Sound_UseDev);
 		g_fprintf(fp,"# snd_samprate - sound sample rate\n");
 		g_fprintf(fp,"snd_samprate=%i\n",global->Sound_SampRateInd);
@@ -359,6 +361,10 @@ readConf(struct GLOBAL *global)
 						else if (g_strcmp0(name,"sound")==0) 
 						{
 							global->Sound_enable = (short) scanner->value.v_int;
+						}
+						else if (g_strcmp0(name,"snd_api")==0) 
+						{
+							global->Sound_API = scanner->value.v_int;
 						}
 						else if (g_strcmp0(name,"snd_device")==0) 
 						{
