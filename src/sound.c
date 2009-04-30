@@ -164,6 +164,7 @@ init_sound(struct paRecordData* data)
 	data->audio_flag = 0;
 	data->flush = 0;
 	data->streaming = 0;
+	data->stream = NULL;
 	
 	/*secondary shared buffer*/
 	data->vid_sndBuff = g_new0(SAMPLE, numSamples);
@@ -197,7 +198,8 @@ init_sound(struct paRecordData* data)
 				data->samprate,
 				data->MPEG_Frame_size,            // buffer size = Mpeg frame size (1152 samples)
 				//paFramesPerBufferUnspecified,       // buffer Size - set by portaudio
-				paNoFlag,      /* PaNoFlag - clip and dhiter*/
+				paClipOff | paDitherOff, 
+				//paNoFlag,      /* PaNoFlag - clip and dhiter*/
 				recordCallback, /* sound callback */
 				data ); /* callback userData */
 	
@@ -213,12 +215,16 @@ init_sound(struct paRecordData* data)
 
 	return (0);
 error:
-	g_printerr("An error occured while using the portaudio stream\n" );
+	g_printerr("An error occured while starting portaudio\n" );
 	g_printerr("Error number: %d\n", err );
 	g_printerr("Error message: %s\n", Pa_GetErrorText( err ) ); 
 	data->streaming=0;
 	data->flush=0;
-	if(data->api < 1) Pa_Terminate();
+	if(data->api < 1)
+	{
+		if(data->stream) Pa_AbortStream( data->stream );
+		Pa_Terminate();
+	}
 	g_free( data->recordedSamples );
 	data->recordedSamples=NULL;
 	g_free(data->vid_sndBuff);
@@ -233,15 +239,19 @@ close_sound (struct paRecordData *data)
 	int err =0;
 	data->capVid = 0;
 	/*stops and closes the audio stream*/
-	//err = Pa_StopStream( data->stream ); // causes a lock in ubuntu 9.04
-	//if( err != paNoError ) goto error;
+	if(data->stream)
+	{
+		//err = Pa_StopStream( data->stream ); // bocks if not streaming
+		err = Pa_AbortStream( data->stream ); // closes but won't wait for data to process
+		if( err != paNoError ) goto error;
+	}
 	if(data->api < 1)
 	{
 		g_printf("stoping audio stream...\n");
 		err = Pa_CloseStream( data->stream );
 		if( err != paNoError ) goto error; 
 	}
-	
+	data->stream = NULL;
 	/*make sure we stoped streaming */
 	int stall = wait_ms( &data->streaming, FALSE, 10, 50 );
 	if(!(stall)) 
@@ -264,7 +274,10 @@ close_sound (struct paRecordData *data)
 		if(data->api < 1)
 		{
 			printf("closing portaudio\n");
-			Pa_Terminate();
+			err = Pa_Terminate();
+			if( err != paNoError )
+				printf(  "PortAudio error: %s\n", Pa_GetErrorText( err ) );
+
 		}
 	
 		g_free(data->vid_sndBuff);
@@ -287,7 +300,11 @@ error:
 	g_mutex_lock( data->mutex);
 		g_free( data->recordedSamples );
 		data->recordedSamples=NULL;
-		if(data->api < 1) Pa_Terminate();
+		if(data->api < 1) 
+		{
+			Pa_CloseStream( data->stream );
+			Pa_Terminate();
+		}
 		g_free(data->vid_sndBuff);
 		data->vid_sndBuff = NULL;
 		
