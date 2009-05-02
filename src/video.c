@@ -350,6 +350,7 @@ void *main_loop(void *data)
 		/*---------------------------capture Video---------------------------------*/
 		if (videoIn->capVid)
 		{
+			videoIn->VidCapStop = FALSE;
 			write_video_frame(all_data, (void *) &(jpeg_struct), (void *) &(lavc_data), (void *) &(pvid));
 			/*----------------------- add audio -----------------------------*/
 			if ((global->Sound_enable) && (pdata->audio_flag>0)) 

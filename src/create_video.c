@@ -365,7 +365,6 @@ int write_video_frame (struct ALL_DATA *all_data,
 	{
 		case AVI_FORMAT:
 			/*all video controls are now disabled so related values cannot be changed*/
-			videoIn->VidCapStop=FALSE;
 			ret = compress_frame(all_data, jpeg_struct, lavc_data, pvid);
 
 			if (ret) 
