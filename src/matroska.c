@@ -96,8 +96,9 @@ static mk_Context *mk_createContext(mk_Writer *w, mk_Context *parent, unsigned i
     c = w->freelist;
     w->freelist = w->freelist->next;
   } else {
-    c = malloc(sizeof(*c));
-    memset(c, 0, sizeof(*c));
+    c = g_new0(mk_Context, 1);
+    //c = malloc(sizeof(*c));
+    //memset(c, 0, sizeof(*c));
   }
 
   if (c == NULL)
@@ -125,7 +126,8 @@ static int	  mk_appendContextData(mk_Context *c, const void *data, unsigned size
     while (ns > dn)
       dn <<= 1;
 
-    dp = realloc(c->data, dn);
+    //dp = realloc(c->data, dn);
+    dp = g_renew(BYTE, c->data, dn);
     if (dp == NULL)
       return -1;
 
@@ -219,7 +221,6 @@ static int	  mk_flushContextData(mk_Context *c) {
   else
     if (fwrite(c->data, c->d_cur, 1, c->owner->fp) != 1)
       return -1;
-
   c->d_cur = 0;
 
   return 0;
@@ -250,14 +251,14 @@ static void	  mk_destroyContexts(mk_Writer *w) {
 
   for (cur = w->freelist; cur; cur = next) {
     next = cur->next;
-    free(cur->data);
-    free(cur);
+    g_free(cur->data);
+    g_free(cur);
   }
 
   for (cur = w->actlist; cur; cur = next) {
     next = cur->next;
-    free(cur->data);
-    free(cur);
+    g_free(cur->data);
+    g_free(cur);
   }
 
   w->freelist = w->actlist = w->root = NULL;
@@ -374,22 +375,23 @@ static unsigned	  mk_ebmlSIntSize(int64_t si) {
 }
 
 mk_Writer *mk_createWriter(const char *filename) {
-  mk_Writer *w = malloc(sizeof(*w));
+  mk_Writer *w = g_new0(mk_Writer, 1);
+  //mk_Writer *w = malloc(sizeof(*w));
   if (w == NULL)
     return NULL;
 
-  memset(w, 0, sizeof(*w));
+  //memset(w, 0, sizeof(*w));
 
   w->root = mk_createContext(w, NULL, 0);
   if (w->root == NULL) {
-    free(w);
+    g_free(w);
     return NULL;
   }
 
   w->fp = fopen(filename, "wb");
   if (w->fp == NULL) {
     mk_destroyContexts(w);
-    free(w);
+    g_free(w);
     return NULL;
   }
 
@@ -565,7 +567,8 @@ int	  mk_writeHeader(mk_Writer *w, const char *writingApp,
   CHECK(mk_closeContext(c, 0));
   CHECK(mk_flushContextData(w->root));
   w->cluster_index = 1;
-  w->cluster_pos = realloc(w->cluster_pos, w->cluster_index*sizeof(int64_t));
+  //w->cluster_pos = realloc(w->cluster_pos, w->cluster_index*sizeof(int64_t));
+  w->cluster_pos = g_renew(int64_t, w->cluster_pos, w->cluster_index);
   w->cluster_pos[0] = ftell(w->fp) -36;
   w->wrote_header = 1;
 
@@ -579,7 +582,8 @@ static int mk_closeCluster(mk_Writer *w) {
   w->cluster = NULL;
   CHECK(mk_flushContextData(w->root));
   w->cluster_index++;
-  w->cluster_pos = realloc(w->cluster_pos, w->cluster_index*sizeof(int64_t));
+  //w->cluster_pos = realloc(w->cluster_pos, w->cluster_index*sizeof(int64_t));
+  w->cluster_pos = g_renew(int64_t, w->cluster_pos, w->cluster_index);
   w->cluster_pos[w->cluster_index-1] = ftell(w->fp) - 36;
   return 0;
 }
@@ -745,7 +749,7 @@ static int write_cues(mk_Writer *w) {
   CHECK(mk_writeUInt(tpe, MATROSKA_ID_CUECLUSTERPOSITION, w->cluster_pos[0]));
   CHECK(mk_writeUInt(tpe, MATROSKA_ID_CUEBLOCKNUMBER, 1));
   CHECK(mk_closeContext(tpe, 0));
-  if(!(w->video_only))
+  if(!(w->video_only) && (w->audio_block > 0))
   {
     tpe = mk_createContext(w, cpe, MATROSKA_ID_CUETRACKPOSITION); // track position
     if (tpe == NULL)
@@ -926,9 +930,9 @@ int	  mk_close(mk_Writer *w) {
       ret = -1;
   }
   mk_destroyContexts(w);
-  free(w->cluster_pos);
+  g_free(w->cluster_pos);
   fclose(w->fp);
-  free(w);
+  g_free(w);
   w = NULL;
   printf("closed matroska file\n");
   return ret;
