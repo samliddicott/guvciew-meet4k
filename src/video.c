@@ -354,9 +354,8 @@ void *main_loop(void *data)
 			/*----------------------- add audio -----------------------------*/
 			if ((global->Sound_enable) && (pdata->audio_flag>0)) 
 			{
-				sync_audio_frame(all_data);
-				
 				g_mutex_lock( pdata->mutex );
+					sync_audio_frame(all_data);
 					//if(global->debug) g_printf("audio: %lu frames per buffer and %d total samples\n",
 					//	pdata->framesPerBuffer, pdata->numSamples);
 					/*run effects on data*/

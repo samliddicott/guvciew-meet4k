@@ -109,6 +109,10 @@ recordCallback (const void *inputBuffer, void *outputBuffer,
 void
 set_sound (struct GLOBAL *global, struct paRecordData* data) 
 {
+	int totalFrames;
+	int MP2Frames=0;
+	int numSamples;
+	
 	if(global->Sound_SampRateInd==0)
 		global->Sound_SampRate=global->Sound_IndexDev[global->Sound_UseDev].samprate;/*using default*/
 	
@@ -123,19 +127,6 @@ set_sound (struct GLOBAL *global, struct paRecordData* data)
 	data->channels = global->Sound_NumChan;
 	data->numsec = global->Sound_NumSec;
 	data->MPEG_Frame_size = 1152; /*Layer 2 Mpeg Audio: 1 frame is 1152 samples*/
-	/*set audio device to use*/
-	data->inputParameters.device = global->Sound_IndexDev[global->Sound_UseDev].id; /* input device */
-}
-
-/*no need of extra thread can be set in video thread*/
-int
-init_sound(struct paRecordData* data)
-{
-	PaError err;
-	//int i;
-	int totalFrames;
-	int MP2Frames=0;
-	int numSamples;
 	
 	/* setting maximum buffer size*/
 	totalFrames = data->numsec * data->samprate;
@@ -170,6 +161,15 @@ init_sound(struct paRecordData* data)
 	data->vid_sndBuff = g_new0(SAMPLE, numSamples);
 	/*buffer for video PCM 16 bits*/
 	data->vid_sndBuff1=NULL;
+	/*set audio device to use*/
+	data->inputParameters.device = global->Sound_IndexDev[global->Sound_UseDev].id; /* input device */
+}
+
+int
+init_sound(struct paRecordData* data)
+{
+	PaError err = paNoError;
+
 	switch(data->api)
 	{
 #ifdef PULSEAUDIO

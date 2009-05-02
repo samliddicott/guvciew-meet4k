@@ -985,7 +985,6 @@ capture_vid (GtkToggleButton *VidButt, struct ALL_DATA *all_data)
 	if(videoIn->capVid || !state) 
 	{	/****************** Stop Video ************************/
 		closeVideoFile(all_data);
-		g_printf("video closed\n");
 		if(!(state))
 			gtk_button_set_label(GTK_BUTTON(gwidget->CapVidButt),_("Cap. Video"));
 	} 
@@ -1022,7 +1021,6 @@ capture_vid (GtkToggleButton *VidButt, struct ALL_DATA *all_data)
 	pdata = NULL;
 	global = NULL;
 	videoIn = NULL;
-	g_printf("finished video callback\n");
 }
 
 /*--------------------- buttons callbacks ------------------*/

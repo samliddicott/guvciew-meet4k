@@ -145,11 +145,11 @@ int clean_FormatContext (void* data)
 				pdata->streaming);
 			pdata->streaming = 0;
 		}
-		/*write any available audio data*/  
-		if(pdata->audio_flag)
-		{
-			g_printerr("writing %d bytes of audio data\n",pdata->snd_numBytes);
-			g_mutex_lock( pdata->mutex);
+		/*write any available audio data*/
+		g_mutex_lock( pdata->mutex);
+			if(pdata->audio_flag)
+			{
+				g_printerr("writing %d bytes of audio data\n",pdata->snd_numBytes);
 				if(global->Sound_Format == PA_FOURCC)
 				{
 					if(pdata->vid_sndBuff) 
@@ -167,9 +167,9 @@ int clean_FormatContext (void* data)
 						write_audio_packet (pdata->mp2Buff, size_mp2, pdata->samprate, videoF);
 					}
 				}
-			g_mutex_unlock( pdata->mutex );
-		}
-		pdata->audio_flag = 0; /*all audio should have been writen by now*/
+			}
+			pdata->audio_flag = 0; /*all audio should have been writen by now*/
+		g_mutex_unlock( pdata->mutex );
 		if(global->debug) g_printf("closing sound...\n");
 		if (close_sound (pdata)) g_printerr("Sound Close error\n");
 		if(global->Sound_Format == ISO_FORMAT_MPEG12) close_MP2_encoder();

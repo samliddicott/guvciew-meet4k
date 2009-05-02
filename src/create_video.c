@@ -143,8 +143,13 @@ int initVideoFile(struct ALL_DATA *all_data)
 			/* start sound capture*/
 			if(global->Sound_enable > 0) 
 			{
-				/*get channels and sample rate*/
+				/*set channels, sample rate and allocate buffers*/
 				set_sound(global,pdata);
+			}
+			init_FormatContext((void *) all_data);
+			/* start sound capture*/
+			if(global->Sound_enable > 0) 
+			{
 				/* Initialize sound (open stream)*/
 				if(init_sound (pdata)) 
 				{
@@ -160,7 +165,6 @@ int initVideoFile(struct ALL_DATA *all_data)
 					}
 				}
 			}
-			init_FormatContext((void *) all_data);
 			/*disabling sound and video compression controls*/
 			set_sensitive_vid_contrls(FALSE, global->Sound_enable, gwidget);
 			
@@ -309,7 +313,6 @@ void closeVideoFile(struct ALL_DATA *all_data)
 			break;
 	}
 
-	g_printf("enabling video controls\n");
 	/*enabling sound and video compression controls*/
 	set_sensitive_vid_contrls(TRUE, global->Sound_enable, gwidget);
 	global->Vidstoptime = 0;
