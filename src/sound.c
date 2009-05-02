@@ -180,13 +180,25 @@ init_sound(struct paRecordData* data)
 #endif
 		case PORT:
 		default:
-			err = Pa_Initialize();
-			if( err != paNoError ) goto error;
-	
+			//err = Pa_Initialize();
+			//if( err != paNoError ) goto error;
+			if(data->stream)
+			{
+				if( !(Pa_IsStreamStopped( data->stream )))
+				{
+					Pa_AbortStream( data->stream );
+					Pa_CloseStream( data->stream );
+					data->stream = NULL;
+				}
+			}
+				
 			/* Record for a few seconds. */
 			data->inputParameters.channelCount = data->channels;
 			data->inputParameters.sampleFormat = PA_SAMPLE_TYPE;
-			data->inputParameters.suggestedLatency = Pa_GetDeviceInfo( data->inputParameters.device )->defaultLowInputLatency;
+			if (Pa_GetDeviceInfo( data->inputParameters.device ))
+				data->inputParameters.suggestedLatency = Pa_GetDeviceInfo( data->inputParameters.device )->defaultHighInputLatency;
+			else
+				data->inputParameters.suggestedLatency = DEFAULT_LATENCY_DURATION/1000.0;
 			data->inputParameters.hostApiSpecificStreamInfo = NULL; 
 	
 			/*---------------------------- Record some audio. ----------------------------- */
@@ -198,8 +210,8 @@ init_sound(struct paRecordData* data)
 				data->samprate,
 				data->MPEG_Frame_size,            // buffer size = Mpeg frame size (1152 samples)
 				//paFramesPerBufferUnspecified,       // buffer Size - set by portaudio
-				paClipOff | paDitherOff, 
-				//paNoFlag,      /* PaNoFlag - clip and dhiter*/
+				//paClipOff | paDitherOff, 
+				paNoFlag,      /* PaNoFlag - clip and dhiter*/
 				recordCallback, /* sound callback */
 				data ); /* callback userData */
 	
@@ -223,7 +235,6 @@ error:
 	if(data->api < 1)
 	{
 		if(data->stream) Pa_AbortStream( data->stream );
-		Pa_Terminate();
 	}
 	g_free( data->recordedSamples );
 	data->recordedSamples=NULL;
@@ -238,20 +249,6 @@ close_sound (struct paRecordData *data)
 {
 	int err =0;
 	data->capVid = 0;
-	/*stops and closes the audio stream*/
-	if(data->stream)
-	{
-		//err = Pa_StopStream( data->stream ); // bocks if not streaming
-		err = Pa_AbortStream( data->stream ); // closes but won't wait for data to process
-		if( err != paNoError ) goto error;
-	}
-	if(data->api < 1)
-	{
-		g_printf("stoping audio stream...\n");
-		err = Pa_CloseStream( data->stream );
-		if( err != paNoError ) goto error; 
-	}
-	data->stream = NULL;
 	/*make sure we stoped streaming */
 	int stall = wait_ms( &data->streaming, FALSE, 10, 50 );
 	if(!(stall)) 
@@ -260,6 +257,28 @@ close_sound (struct paRecordData *data)
 			data->streaming);
 			data->streaming = 0;
 	}
+	/*stops and closes the audio stream*/
+	if(data->stream)
+	{
+		if(Pa_IsStreamActive( data->stream ) > 0)
+		{
+			g_printf("Aborting audio stream\n");
+			err = Pa_AbortStream( data->stream );
+		}
+		else
+		{
+			g_printf("Stoping audio stream\n");
+			err = Pa_StopStream( data->stream );
+		}
+		if( err != paNoError ) goto error;
+	}
+	if(data->api < 1)
+	{
+		g_printf("Closing audio stream...\n");
+		err = Pa_CloseStream( data->stream );
+		if( err != paNoError ) goto error; 
+	}
+	data->stream = NULL;
 	if(data->audio_flag) 
 		g_printerr("Droped %i bytes of audio data\n", data->snd_numBytes);
 	data->audio_flag=0;
@@ -271,15 +290,6 @@ close_sound (struct paRecordData *data)
 		/*free primary buffer*/
 		g_free( data->recordedSamples  );
 		data->recordedSamples=NULL;
-		if(data->api < 1)
-		{
-			printf("closing portaudio\n");
-			err = Pa_Terminate();
-			if( err != paNoError )
-				printf(  "PortAudio error: %s\n", Pa_GetErrorText( err ) );
-
-		}
-	
 		g_free(data->vid_sndBuff);
 		data->vid_sndBuff = NULL;
 	
@@ -303,8 +313,8 @@ error:
 		if(data->api < 1) 
 		{
 			Pa_CloseStream( data->stream );
-			Pa_Terminate();
 		}
+		data->stream = NULL;
 		g_free(data->vid_sndBuff);
 		data->vid_sndBuff = NULL;
 		

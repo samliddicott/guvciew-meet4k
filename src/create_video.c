@@ -308,7 +308,8 @@ void closeVideoFile(struct ALL_DATA *all_data)
 			
 			break;
 	}
-	
+
+	g_printf("enabling video controls\n");
 	/*enabling sound and video compression controls*/
 	set_sensitive_vid_contrls(TRUE, global->Sound_enable, gwidget);
 	global->Vidstoptime = 0;

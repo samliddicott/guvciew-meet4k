@@ -32,7 +32,8 @@ list_snd_devices(struct GLOBAL *global)
 	PaError err;
 	/*sound device combo box*/
 	GtkWidget *SndDevice = gtk_combo_box_new_text ();
-	
+
+	if(global->debug) g_printf("starting portaudio...\n");
 	Pa_Initialize();
 	
 	numDevices = Pa_GetDeviceCount();
@@ -40,7 +41,6 @@ list_snd_devices(struct GLOBAL *global)
 	{
 		g_printf( "SOUND DISABLE: Pa_CountDevices returned 0x%x\n", numDevices );
 		err = numDevices;
-		Pa_Terminate();
 		global->Sound_enable=0;
 	} 
 	else 
@@ -122,7 +122,7 @@ list_snd_devices(struct GLOBAL *global)
 			}
 			
 		}
-		Pa_Terminate();
+		//Pa_Terminate();
 		
 		if (global->debug) g_printf("----------------------------------------------\n");
 	}

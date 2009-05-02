@@ -127,6 +127,8 @@ shutd (gint restart, struct ALL_DATA *all_data)
 	writeConf(global, videoIn->videodevice);
 	
 	g_snprintf(videodevice, 15, "%s", global->videodevice);
+	if(global->debug) g_printf("Closing portaudio ...");
+	Pa_Terminate();
 	
 	clean_struct(all_data);
 	gwidget = NULL;

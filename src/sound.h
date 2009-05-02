@@ -36,6 +36,9 @@
 /*------------- portaudio defs ----------------*/
 /*---- can be override in rc file or GUI ------*/
 
+#define DEFAULT_LATENCY_DURATION 100.0
+#define DEFAULT_LATENCY_CORRECTION -130.0
+
 #define SAMPLE_RATE  (0) /* 0 device default*/
 //#define FRAMES_PER_BUFFER (4096)
 
