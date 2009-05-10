@@ -1,3 +1,12 @@
+guvcview (1.1.0-ubuntu1) jaunty; urgency=low
+
+   * Added Matroska file format support (mkv)
+   * Fixed Ubuntu 9.10 audio capture
+   * Added initial pulseaudio support (testing only - needs pulse-devel for enabling)
+   * Added libavcodec-unstripped to recommend (enables mpeg2 and mpeg4 video codecs)
+   
+ -- Paulo Assis <pj.assis@gmail.com>  Sun, 10 May 2009 14:26:00 +0000
+
 guvcview (1.0.5-ubuntu1) intrepid; urgency=low
 
    * Added libavcodec properties button 
