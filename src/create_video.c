@@ -355,7 +355,7 @@ int write_video_frame (struct ALL_DATA *all_data,
 	//struct GWIDGET *gwidget = all_data->gwidget;
 	//struct paRecordData *pdata = all_data->pdata;
 	struct GLOBAL *global = all_data->global;
-	struct vdIn *videoIn = all_data->videoIn;
+	//struct vdIn *videoIn = all_data->videoIn;
 	struct VideoFormatData *videoF = all_data->videoF;
 	
 	int ret=0;

@@ -3,7 +3,7 @@
 #                                                                               #
 #           Paulo Assis <pj.assis@gmail.com>                                    #
 #           Nobuhiro Iwamatsu <iwamatsu@nigauri.org>                            #
-#                             Add UYVY color support(Macbook iSight)            #
+#                                                                               #
 #                                                                               #
 # This program is free software; you can redistribute it and/or modify          #
 # it under the terms of the GNU General Public License as published by          #
@@ -528,26 +528,37 @@ resolution_changed (GtkComboBox * Resolution, struct ALL_DATA *all_data)
 	struct GLOBAL *global = all_data->global;
 	struct vdIn *videoIn = all_data->videoIn;
 
+	VidCap *listVidCap = NULL;
+	int current_format = videoIn->listFormats->current_format;
+	int cmb_index = gtk_combo_box_get_active(Resolution);
+
 	/* The new resolution is writen to conf file at exit             */
-	/* then is read back at start. This means that for changing */
+	/* then is read back at start. This means that for changing      */
 	/* resolution we must restart the application                    */
 
-	int index = gtk_combo_box_get_active(Resolution);
-	global->width=videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[index].width;
-	global->height=videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[index].height;
+	listVidCap = &videoIn->listFormats->listVidFormats[current_format].listVidCap[cmb_index];
+	global->width = listVidCap->width;
+	global->height = listVidCap->height;
 
 	/*check if frame rate is available at the new resolution*/
 	int i=0;
 	int deffps=0;
-	for(i=0;i<videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[index].numb_frates;i++) 
+	 
+	for(i = 0 ; i < listVidCap->numb_frates; i++)
 	{
-		if ((videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[index].framerate_num[i]==global->fps_num) && 
-			(videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[index].framerate_denom[i]==global->fps)) 
-				deffps=i;
+		if ((listVidCap->framerate_num[i] == global->fps_num) && 
+			(listVidCap->framerate_denom[i] == global->fps)) 
+		{
+				deffps = i;
+				break;
+		}
 	}
 	
-	global->fps_num=videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[index].framerate_num[deffps];
-	global->fps=videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[index].framerate_denom[deffps];
+	if (listVidCap->framerate_num)	
+		global->fps_num = listVidCap->framerate_num[deffps];
+
+	if (listVidCap->framerate_denom)
+		global->fps = listVidCap->framerate_denom[deffps];
 	
 	gwidget->restartdialog = gtk_dialog_new_with_buttons (_("Program Restart"),
 		GTK_WINDOW(gwidget->mainwin),

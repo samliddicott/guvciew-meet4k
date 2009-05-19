@@ -2,6 +2,7 @@
 #           guvcview              http://guvcview.berlios.de                    #
 #                                                                               #
 #           Paulo Assis <pj.assis@gmail.com>                                    #
+#           Nobuhiro Iwamatsu <iwamatsu@nigauri.org>                            # 
 #                                                                               #
 # This program is free software; you can redistribute it and/or modify          #
 # it under the terms of the GNU General Public License as published by          #
@@ -223,9 +224,12 @@ void freeFormats(LFormats *listFormats)
 	{
 		for(j=0;j<listFormats->listVidFormats[i].numb_res;j++)
 		{
-			g_free(listFormats->listVidFormats[i].listVidCap[j].framerate_num);
-			g_free(listFormats->listVidFormats[i].listVidCap[j].framerate_denom);
-		
+			//g_free should handle NULL but we check it anyway
+			if(listFormats->listVidFormats[i].listVidCap[j].framerate_num != NULL)
+				g_free(listFormats->listVidFormats[i].listVidCap[j].framerate_num);
+			
+			if(listFormats->listVidFormats[i].listVidCap[j].framerate_denom != NULL)
+				g_free(listFormats->listVidFormats[i].listVidCap[j].framerate_denom);		
 		}
 		g_free(listFormats->listVidFormats[i].listVidCap);
 	}

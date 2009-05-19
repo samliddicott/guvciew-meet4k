@@ -3,9 +3,8 @@
 #                                                                               #
 #           Paulo Assis <pj.assis@gmail.com>                                    #
 #           Nobuhiro Iwamatsu <iwamatsu@nigauri.org>                            #
-#                             Add UYVY color support(Macbook iSight)            #
 #           Dr. Alexander K. Seewald <alex@seewald.at>                          #
-#                             Add autofocus algorithm                           #
+#                             Autofocus algorithm                               #
 #                                                                               #
 # This program is free software; you can redistribute it and/or modify          #
 # it under the terms of the GNU General Public License as published by          #
@@ -205,14 +204,18 @@ int main(int argc, char *argv[])
 				g_printf("trying minimum setup ...\n");
 				if (videoIn->listFormats->numb_formats > 0) //check for supported formats
 				{
+					VidFormats *listVidFormats;
 					videoIn->listFormats->current_format = 0; //get the first supported format 
 					global->format = videoIn->listFormats->listVidFormats[0].format;
 					if(get_PixMode(global->format, global->mode) < 0)
 						g_printerr("IMPOSSIBLE: format has no supported mode !?\n");
-					global->width = videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[0].width;
-					global->width = videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[0].height;
-					global->fps_num = videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[0].framerate_num[0];
-					global->fps = videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[0].framerate_denom[0];
+					listVidFormats = &videoIn->listFormats->listVidFormats[0];
+					global->width = listVidFormats->listVidCap[0].width;
+					global->width = listVidFormats->listVidCap[0].height;
+					if (listVidFormats->listVidCap[0].framerate_num != NULL)
+						global->fps_num = listVidFormats->listVidCap[0].framerate_num[0];
+					if (listVidFormats->listVidCap[0].framerate_denom != NULL)
+						global->fps = listVidFormats->listVidCap[0].framerate_denom[0];
 				}
 				else 
 				{

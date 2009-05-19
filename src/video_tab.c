@@ -3,7 +3,7 @@
 #                                                                               #
 #           Paulo Assis <pj.assis@gmail.com>                                    #
 #           Nobuhiro Iwamatsu <iwamatsu@nigauri.org>                            #
-#                             Add UYVY color support(Macbook iSight)            #
+#                                                                               #
 #                                                                               #
 # This program is free software; you can redistribute it and/or modify          #
 # it under the terms of the GNU General Public License as published by          #
@@ -433,7 +433,8 @@ void video_tab(struct ALL_DATA *all_data)
 	
 	int line = 0;
 	int i = 0;
-	
+	VidFormats *listVidFormats;
+
 	//TABLE
 	table2 = gtk_table_new(1,3,FALSE);
 	gtk_table_set_row_spacings (GTK_TABLE (table2), 4);
@@ -502,20 +503,27 @@ void video_tab(struct ALL_DATA *all_data)
 	gwidget->Resolution = gtk_combo_box_new_text ();
 	char temp_str[20];
 	int defres=0;
+
+	{
+		int current_format = videoIn->listFormats->current_format;
+		listVidFormats = &videoIn->listFormats->listVidFormats[current_format];
+	}
+
+	
 	if (global->debug) 
 		g_printf("resolutions of %dº format=%d \n",
 			videoIn->listFormats->current_format+1,
-			videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].numb_res);
-	for(i=0;i<videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].numb_res;i++) 
+			listVidFormats->numb_res);
+	for(i = 0 ; i < listVidFormats->numb_res ; i++)  
 	{
-		if (videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[i].width>0)
+		if (listVidFormats->listVidCap[i].width>0)
 		{
-			g_snprintf(temp_str,18,"%ix%i",videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[i].width,
-							 videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[i].height);
+			g_snprintf(temp_str,18,"%ix%i", listVidFormats->listVidCap[i].width,
+							 listVidFormats->listVidCap[i].height);
 			gtk_combo_box_append_text(GTK_COMBO_BOX(gwidget->Resolution),temp_str);
 			
-			if ((global->width==videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[i].width) && 
-				(global->height==videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[i].height))
+			if ((global->width == listVidFormats->listVidCap[i].width) && 
+				(global->height == listVidFormats->listVidCap[i].height))
 					defres=i;//set selected resolution index
 		}
 	}
@@ -531,15 +539,15 @@ void video_tab(struct ALL_DATA *all_data)
 	if (global->debug) 
 		g_printf("frame rates of %dº resolution=%d \n",
 			defres+1,
-			videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[defres].numb_frates);
-	for (i=0;i<videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[defres].numb_frates;i++) 
+			listVidFormats->listVidCap[defres].numb_frates);
+	for ( i = 0 ; i < listVidFormats->listVidCap[defres].numb_frates ; i++) 
 	{
-		g_snprintf(temp_str,18,"%i/%i fps",videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[defres].framerate_num[i],
-			videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[defres].framerate_denom[i]);
+		g_snprintf(temp_str,18,"%i/%i fps", listVidFormats->listVidCap[defres].framerate_num[i],
+			listVidFormats->listVidCap[defres].framerate_denom[i]);
 		gtk_combo_box_append_text(GTK_COMBO_BOX(FrameRate),temp_str);
 		
-		if ((videoIn->fps_num==videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[defres].framerate_num[i]) && 
-			(videoIn->fps==videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[defres].framerate_denom[i]))
+		if (( videoIn->fps_num == listVidFormats->listVidCap[defres].framerate_num[i]) && 
+			(videoIn->fps == listVidFormats->listVidCap[defres].framerate_denom[i]))
 				deffps=i;//set selected
 	}
 	
@@ -551,8 +559,12 @@ void video_tab(struct ALL_DATA *all_data)
 	gtk_combo_box_set_active(GTK_COMBO_BOX(FrameRate),deffps);
 	if (deffps==0) 
 	{
-		global->fps=videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[0].framerate_denom[0];
-		global->fps_num=videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[0].framerate_num[0];
+		if (listVidFormats->listVidCap[0].framerate_denom)
+			global->fps = listVidFormats->listVidCap[0].framerate_denom[0];
+
+		if (listVidFormats->listVidCap[0].framerate_num)
+			global->fps_num = listVidFormats->listVidCap[0].framerate_num[0];
+
 		videoIn->fps=global->fps;
 		videoIn->fps_num=global->fps_num;
 	}
