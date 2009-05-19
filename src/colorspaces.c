@@ -2,6 +2,7 @@
 #           guvcview              http://guvcview.berlios.de                    #
 #                                                                               #
 #           Paulo Assis <pj.assis@gmail.com>                                    #
+#           Nobuhiro Iwamatsu <iwamatsu@nigauri.org>                            # 
 #                                                                               #
 # This program is free software; you can redistribute it and/or modify          #
 # it under the terms of the GNU General Public License as published by          #
@@ -147,17 +148,14 @@ void yyuv_to_yuyv (BYTE *framebuffer, BYTE *tmpbuffer, int width, int height)
 */
 void uyvy_to_yuyv (BYTE *framebuffer, BYTE *tmpbuffer, int width, int height)
 {
-	BYTE *ptmp=NULL;
-	BYTE *pfmb=NULL;
-	ptmp = tmpbuffer;
-	pfmb = framebuffer;
-	
+	BYTE *ptmp = tmpbuffer;
+	BYTE *pfmb = framebuffer;
 	int h=0;
 	int w=0;
 	
 	for(h=0;h<height;h++) 
 	{
-		for(w=0;w<width;w+=4) 
+		for(w=0;w<width*2;w+=4) 
 		{
 			/* Y0 */
 			pfmb[0] = ptmp[1];
