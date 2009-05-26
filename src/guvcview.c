@@ -155,6 +155,10 @@ int main(int argc, char *argv[])
 	//you wish to have smaller code
 	avcodec_register_all();
 	
+	/*---------------------------- Start PortAudio API -----------------------*/
+	if(global->debug) g_printf("starting portaudio...\n");
+	Pa_Initialize();
+	
 #ifdef ENABLE_NLS
 	/* if --verbose mode set do debug*/
 	if (global->debug) g_printf("language catalog=> dir:%s type:%s lang:%s cat:%s.mo\n",
@@ -547,7 +551,8 @@ int main(int argc, char *argv[])
 	gdk_threads_enter();
 	gtk_main();
 	gdk_threads_leave();
-
+	
+	g_printf("Exit: OK\n");
 	return 0;
 }
 

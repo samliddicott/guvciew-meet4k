@@ -28,13 +28,10 @@ list_snd_devices(struct GLOBAL *global)
 {
 	int   it, numDevices, defaultDisplayed;
 	const PaDeviceInfo *deviceInfo;
-	//PaStreamParameters inputParameters, outputParameters;
+
 	PaError err;
 	/*sound device combo box*/
 	GtkWidget *SndDevice = gtk_combo_box_new_text ();
-
-	if(global->debug) g_printf("starting portaudio...\n");
-	Pa_Initialize();
 	
 	numDevices = Pa_GetDeviceCount();
 	if( numDevices < 0 )
@@ -122,7 +119,6 @@ list_snd_devices(struct GLOBAL *global)
 			}
 			
 		}
-		//Pa_Terminate();
 		
 		if (global->debug) g_printf("----------------------------------------------\n");
 	}

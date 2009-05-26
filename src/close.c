@@ -102,6 +102,7 @@ void
 shutd (gint restart, struct ALL_DATA *all_data) 
 {
 	int exec_status=0;
+
 	gchar videodevice[16];
 	struct GWIDGET *gwidget = all_data->gwidget;
 	//gchar *EXEC_CALL = all_data->EXEC_CALL;
@@ -127,17 +128,22 @@ shutd (gint restart, struct ALL_DATA *all_data)
 	writeConf(global, videoIn->videodevice);
 	
 	g_snprintf(videodevice, 15, "%s", global->videodevice);
-	if(global->debug) g_printf("Closing portaudio ...");
-	Pa_Terminate();
 	
 	clean_struct(all_data);
 	gwidget = NULL;
 	pdata = NULL;
 	global = NULL;
 	videoIn = NULL;
-	//g_free(EXEC_CALL);
-	
+
+	//end gtk main loop
 	gtk_main_quit();
+
+	//closing portaudio
+	g_printf("Closing portaudio ...");
+	if (Pa_Terminate() != paNoError) 
+		g_printf("Error\n");
+	else
+		g_printf("OK\n");
 
 	if (restart==1) 
 	{	/* replace running process with new one */
@@ -147,6 +153,7 @@ shutd (gint restart, struct ALL_DATA *all_data)
 			"-d", 
 			videodevice,
 			NULL);
+		if(exec_status < 0) perror("ERROR restarting guvcview");
 	}
-	g_printf("Terminated.\n");
+	//if we didn't restart return to main after gtk_main()
 }
