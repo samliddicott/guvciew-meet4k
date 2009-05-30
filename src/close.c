@@ -56,20 +56,24 @@ clean_struct (struct ALL_DATA *all_data)
 	struct vdIn *videoIn = all_data->videoIn;
 	struct VideoFormatData *videoF = all_data->videoF;
 
-	/*destroy mutex for sound buffers*/
-	g_mutex_free( pdata->mutex );
+	if(!(global->control_only))
+	{
+		/*destroy mutex for sound buffers*/
+		g_mutex_free( pdata->mutex );
 
-	g_free(pdata);
-	pdata=NULL;
-	all_data->pdata=NULL;
-
+		g_free(pdata);
+		pdata=NULL;
+		all_data->pdata=NULL;
+		g_free(videoF);
+		videoF=NULL;
+	}
+	
 	if(videoIn) close_v4l2(videoIn);
 	videoIn=NULL;
 
 	if (global->debug) g_printf("closed v4l2 strutures\n");
 
-	g_free(videoF);
-	videoF=NULL;
+	
 
 	if (s->control) 
 	{
@@ -102,7 +106,6 @@ void
 shutd (gint restart, struct ALL_DATA *all_data) 
 {
 	int exec_status=0;
-
 	gchar videodevice[16];
 	struct GWIDGET *gwidget = all_data->gwidget;
 	//gchar *EXEC_CALL = all_data->EXEC_CALL;
@@ -110,13 +113,18 @@ shutd (gint restart, struct ALL_DATA *all_data)
 	struct paRecordData *pdata = all_data->pdata;
 	struct GLOBAL *global = all_data->global;
 	struct vdIn *videoIn = all_data->videoIn;
-	
+
+	gboolean control_only = global->control_only;
+
 	if (global->debug) g_printf("Shuting Down Thread\n");
 	if(videoIn->signalquit > 0) videoIn->signalquit=0;
 	if (global->debug) g_printf("waiting for thread to finish\n");
 	
 	/* wait for the main loop (video) thread */
-	if(!(global->control_only)) g_thread_join( video_thread );
+	if(!(control_only))
+	{ 
+		g_thread_join( video_thread );
+	}
 
 	/* destroys fps timer*/
 	if (global->timer_id > 0) g_source_remove(global->timer_id);
@@ -139,11 +147,14 @@ shutd (gint restart, struct ALL_DATA *all_data)
 	gtk_main_quit();
 
 	//closing portaudio
-	g_printf("Closing portaudio ...");
-	if (Pa_Terminate() != paNoError) 
-		g_printf("Error\n");
-	else
-		g_printf("OK\n");
+	if(!control_only)
+	{
+		g_printf("Closing portaudio ...");
+		if (Pa_Terminate() != paNoError) 
+			g_printf("Error\n");
+		else
+			g_printf("OK\n");
+	}
 
 	if (restart==1) 
 	{	/* replace running process with new one */

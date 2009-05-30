@@ -140,25 +140,28 @@ int main(int argc, char *argv[])
 
 	s = g_new0(struct VidState, 1);
 
-	pdata = g_new0(struct paRecordData, 1);
+	if(!(global->control_only)) /*control_only exclusion (video and Audio) */
+	{
+		pdata = g_new0(struct paRecordData, 1);
 
-	/*create mutex for sound buffers*/
-	pdata->mutex = g_mutex_new();
+		/*create mutex for sound buffers*/
+		pdata->mutex = g_mutex_new();
 
-	/* Allocate the video Format struct */
-	videoF = g_new0(struct VideoFormatData, 1);
+		/* Allocate the video Format struct */
+		videoF = g_new0(struct VideoFormatData, 1);
 
-	// must be called before using avcodec lib
-	avcodec_init();
+		// must be called before using avcodec lib
+		avcodec_init();
 
-	// register all the codecs (you can also register only the codec
-	//you wish to have smaller code
-	avcodec_register_all();
-	
-	/*---------------------------- Start PortAudio API -----------------------*/
-	if(global->debug) g_printf("starting portaudio...\n");
-	Pa_Initialize();
-	
+		// register all the codecs (you can also register only the codec
+		//you wish to have smaller code
+		avcodec_register_all();
+
+		/*---------------------------- Start PortAudio API -----------------------*/
+		if(global->debug) g_printf("starting portaudio...\n");
+		Pa_Initialize(); 
+	}
+
 #ifdef ENABLE_NLS
 	/* if --verbose mode set do debug*/
 	if (global->debug) g_printf("language catalog=> dir:%s type:%s lang:%s cat:%s.mo\n",
