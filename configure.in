@@ -31,11 +31,12 @@ AC_ARG_ENABLE(pulse, AS_HELP_STRING([--disable-pulse],
 	[enable_pulse=yes])
 
 if test x$enable_pulse = xyes; then
-	PKG_CHECK_MODULES(PULSE, libpulse-simple >= 0.9.15, HAVE_PULSE=yes, HAVE_PULSE=no)
+	PKG_CHECK_MODULES(PULSE, libpulse-simple >= 0.9.15, has_pulse=yes, has_pulse=no)
 	AC_SUBST(PULSE_CFLAGS)
 	AC_SUBST(PULSE_LIBS)
-else
-	HAVE_PULSE=no
+	if test "$has_pulse" = yes; then
+	  AC_DEFINE(PULSEAUDIO,1,[set to 1 if pulseaudio installed])
+	fi
 fi
 
 dnl Check for avcodec.h directly
