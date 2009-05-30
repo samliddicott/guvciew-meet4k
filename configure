@@ -747,6 +747,7 @@ ac_user_opts='
 enable_option_checking
 enable_maintainer_mode
 enable_dependency_tracking
+enable_pulse
 '
       ac_precious_vars='build_alias
 host_alias
@@ -1392,6 +1393,7 @@ Optional Features:
 			  (and sometimes confusing) to the casual installer
   --disable-dependency-tracking  speeds up one-time build
   --enable-dependency-tracking   do not reject slow dependency extractors
+  --disable-pulse         disable pulseaudio support (default: enabled)
 
 Some influential environment variables:
   CC          C compiler command
@@ -7610,6 +7612,15 @@ fi
 
 
 
+# Check whether --enable-pulse was given.
+if test "${enable_pulse+set}" = set; then
+  enableval=$enable_pulse;
+else
+  enable_pulse=yes
+fi
+
+
+if test x$enable_pulse = xyes; then
 
 pkg_failed=no
 { $as_echo "$as_me:$LINENO: checking for PULSE" >&5
@@ -7620,12 +7631,12 @@ if test -n "$PKG_CONFIG"; then
         pkg_cv_PULSE_CFLAGS="$PULSE_CFLAGS"
     else
         if test -n "$PKG_CONFIG" && \
-    { ($as_echo "$as_me:$LINENO: \$PKG_CONFIG --exists --print-errors \"libpulse-simple\"") >&5
-  ($PKG_CONFIG --exists --print-errors "libpulse-simple") 2>&5
+    { ($as_echo "$as_me:$LINENO: \$PKG_CONFIG --exists --print-errors \"libpulse-simple >= 0.9.15\"") >&5
+  ($PKG_CONFIG --exists --print-errors "libpulse-simple >= 0.9.15") 2>&5
   ac_status=$?
   $as_echo "$as_me:$LINENO: \$? = $ac_status" >&5
   (exit $ac_status); }; then
-  pkg_cv_PULSE_CFLAGS=`$PKG_CONFIG --cflags "libpulse-simple" 2>/dev/null`
+  pkg_cv_PULSE_CFLAGS=`$PKG_CONFIG --cflags "libpulse-simple >= 0.9.15" 2>/dev/null`
 else
   pkg_failed=yes
 fi
@@ -7638,12 +7649,12 @@ if test -n "$PKG_CONFIG"; then
         pkg_cv_PULSE_LIBS="$PULSE_LIBS"
     else
         if test -n "$PKG_CONFIG" && \
-    { ($as_echo "$as_me:$LINENO: \$PKG_CONFIG --exists --print-errors \"libpulse-simple\"") >&5
-  ($PKG_CONFIG --exists --print-errors "libpulse-simple") 2>&5
+    { ($as_echo "$as_me:$LINENO: \$PKG_CONFIG --exists --print-errors \"libpulse-simple >= 0.9.15\"") >&5
+  ($PKG_CONFIG --exists --print-errors "libpulse-simple >= 0.9.15") 2>&5
   ac_status=$?
   $as_echo "$as_me:$LINENO: \$? = $ac_status" >&5
   (exit $ac_status); }; then
-  pkg_cv_PULSE_LIBS=`$PKG_CONFIG --libs "libpulse-simple" 2>/dev/null`
+  pkg_cv_PULSE_LIBS=`$PKG_CONFIG --libs "libpulse-simple >= 0.9.15" 2>/dev/null`
 else
   pkg_failed=yes
 fi
@@ -7662,38 +7673,30 @@ else
         _pkg_short_errors_supported=no
 fi
         if test $_pkg_short_errors_supported = yes; then
-	        PULSE_PKG_ERRORS=`$PKG_CONFIG --short-errors --errors-to-stdout --print-errors "libpulse-simple"`
+	        PULSE_PKG_ERRORS=`$PKG_CONFIG --short-errors --errors-to-stdout --print-errors "libpulse-simple >= 0.9.15"`
         else
-	        PULSE_PKG_ERRORS=`$PKG_CONFIG --errors-to-stdout --print-errors "libpulse-simple"`
+	        PULSE_PKG_ERRORS=`$PKG_CONFIG --errors-to-stdout --print-errors "libpulse-simple >= 0.9.15"`
         fi
 	# Put the nasty error message in config.log where it belongs
 	echo "$PULSE_PKG_ERRORS" >&5
 
 	{ $as_echo "$as_me:$LINENO: result: no" >&5
 $as_echo "no" >&6; }
-                 echo '--------------------------------------------------'
-    echo 'Pulse Audio development package not detected'
-    echo 'Compiling Guvcview without Pulse Support.'
-    echo '--------------------------------------------------'
+                HAVE_PULSE=no
 elif test $pkg_failed = untried; then
-	 echo '--------------------------------------------------'
-    echo 'Pulse Audio development package not detected'
-    echo 'Compiling Guvcview without Pulse Support.'
-    echo '--------------------------------------------------'
+	HAVE_PULSE=no
 else
 	PULSE_CFLAGS=$pkg_cv_PULSE_CFLAGS
 	PULSE_LIBS=$pkg_cv_PULSE_LIBS
         { $as_echo "$as_me:$LINENO: result: yes" >&5
 $as_echo "yes" >&6; }
-
-cat >>confdefs.h <<\_ACEOF
-#define PULSEAUDIO 1
-_ACEOF
-
+	HAVE_PULSE=yes
 fi
 
 
-
+else
+	HAVE_PULSE=no
+fi
 
 if test "${ac_cv_header_avcodec_h+set}" = set; then
   { $as_echo "$as_me:$LINENO: checking for avcodec.h" >&5

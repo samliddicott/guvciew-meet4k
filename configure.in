@@ -26,15 +26,17 @@ AC_SUBST(PACKAGE_CFLAGS)
 AC_SUBST(PACKAGE_LIBS)
 
 dnl Check for pulseaudio
-PKG_CHECK_MODULES(PULSE, [libpulse-simple],
-  [AC_DEFINE(PULSEAUDIO,1,[Define if pulse headers presence detected])], 
-  [ echo '--------------------------------------------------'
-    echo 'Pulse Audio development package not detected'
-    echo 'Compiling Guvcview without Pulse Support.'
-    echo '--------------------------------------------------'])
+AC_ARG_ENABLE(pulse, AS_HELP_STRING([--disable-pulse],
+		[disable pulseaudio support (default: enabled)]),,
+	[enable_pulse=yes])
 
-AC_SUBST(PULSE_CFLAGS)
-AC_SUBST(PULSE_LIBS)
+if test x$enable_pulse = xyes; then
+	PKG_CHECK_MODULES(PULSE, libpulse-simple >= 0.9.15, HAVE_PULSE=yes, HAVE_PULSE=no)
+	AC_SUBST(PULSE_CFLAGS)
+	AC_SUBST(PULSE_LIBS)
+else
+	HAVE_PULSE=no
+fi
 
 dnl Check for avcodec.h directly
 dnl if all tests fail must add avcodec.h path to C_INCLUDE_PATH before running configure
