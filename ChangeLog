@@ -1,3 +1,14 @@
+guvcview (1.1.1)
+
+   * Fixed Ubuntu 9.10 exit segfault
+   * Added disable-pulse option to configure
+   * Added russian translation by Roustam Ghizdatov
+   * Added patches 2763, 2764 and 2765 by iwamatsu
+   * Fixed some video format conversions
+   * Fixed memory allocations when in control_only mode
+
+ -- Paulo Assis <pj.assis@gmail.com>  Sun, 31 May 2009 10:16:00 +0000
+
 guvcview (1.1.0)
 
    * Added Matroska file format support (mkv)
