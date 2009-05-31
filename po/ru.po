@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: guvcview\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-05-30 10:15+0100\n"
-"PO-Revision-Date: 2009-05-31 10:02+0100\n"
+"PO-Revision-Date: 2009-05-31 20:44+0100\n"
 "Last-Translator: Paulo Assis <pj.assis@gmail.com>\n"
 "Language-Team: Russian <>\n"
 "MIME-Version: 1.0\n"
@@ -89,7 +89,9 @@ msgstr "Следует попробовать перезапустить сис�
 
 #: src/guvcview.c:294
 msgid "Image Controls"
-msgstr "Регулировка изображения"
+msgstr ""
+"Регулировка\n"
+"изображения"
 
 #: src/guvcview.c:329
 msgid "Capture:"
@@ -99,7 +101,7 @@ msgstr "Захват:"
 #. end of control only exclusion
 #: src/guvcview.c:337
 msgid "Control Profiles:"
-msgstr "Профили регулировки:"
+msgstr "Профиль регулировки:"
 
 #. image auto capture
 #: src/guvcview.c:364
@@ -109,18 +111,18 @@ msgstr "Останов автозахвата"
 #: src/guvcview.c:368
 #: src/callbacks.c:952
 msgid "Cap. Image"
-msgstr "Захват изображения"
+msgstr "Снимок"
 
 #. vid capture enabled from start
 #: src/guvcview.c:373
 #: src/callbacks.c:1028
 msgid "Stop Video"
-msgstr "Останов захвата видео"
+msgstr "Стоп"
 
 #: src/guvcview.c:379
 #: src/callbacks.c:1000
 msgid "Cap. Video"
-msgstr "Захват видео"
+msgstr "Видео"
 
 #: src/guvcview.c:516
 msgid ""
@@ -233,7 +235,7 @@ msgstr "Режим приоритета диафрагмы"
 #: src/video_tab.c:41
 #: src/callbacks.c:1051
 msgid "Save File"
-msgstr "Сохранить файл"
+msgstr "Сохранение файла"
 
 #. if auto naming restart counter
 #: src/video_tab.c:95
@@ -249,15 +251,15 @@ msgstr "Сохранить файл"
 #: src/callbacks.c:1005
 #, c-format
 msgid "File num:%d"
-msgstr "Число для файла:%d"
+msgstr "№ п/п:%d"
 
 #: src/video_tab.c:115
 msgid "codec values"
-msgstr "параметры кодека"
+msgstr "Параметры кодека"
 
 #: src/video_tab.c:126
 msgid "bit rate:   "
-msgstr "битрейт:   "
+msgstr "Битрейт:   "
 
 #: src/video_tab.c:141
 msgid "qmax:   "
@@ -346,16 +348,16 @@ msgstr "Вывод камеры:"
 
 #: src/video_tab.c:643
 msgid "Image File:"
-msgstr "Файл изображения:"
+msgstr "Файл снимка:"
 
 #: src/video_tab.c:674
 #: src/video_tab.c:759
 msgid "File,Auto"
-msgstr "Файл, авто"
+msgstr "автомат."
 
 #: src/video_tab.c:685
 msgid "Image Format:"
-msgstr "Формат изображения:"
+msgstr "Формат снимка:"
 
 #: src/video_tab.c:713
 msgid "Video File:"
@@ -368,7 +370,7 @@ msgstr "Видео-кодек:"
 #. lavc codec properties button
 #: src/video_tab.c:800
 msgid "properties"
-msgstr "свойства"
+msgstr "Свойства"
 
 #: src/video_tab.c:827
 msgid "Video Format:"
@@ -381,12 +383,12 @@ msgstr "---- Видео-фильтры ----"
 #. Mirror
 #: src/video_tab.c:851
 msgid " Mirror"
-msgstr " Зеркало"
+msgstr " Гор. отражение"
 
 #. Upturn
 #: src/video_tab.c:861
 msgid " Invert"
-msgstr " Инверсия"
+msgstr " Верт. отражение"
 
 #. Negate
 #: src/video_tab.c:871
@@ -396,12 +398,12 @@ msgstr " Негатив"
 #. Mono
 #: src/video_tab.c:881
 msgid " Mono"
-msgstr " Моно"
+msgstr " Чёрно-белое"
 
 #. Pieces
 #: src/video_tab.c:892
 msgid " Pieces"
-msgstr " Обломки"
+msgstr " Мозаика"
 
 #: src/audio_tab.c:75
 msgid "Audio"
@@ -431,7 +433,7 @@ msgstr "Устройство ввода:"
 #: src/audio_tab.c:169
 #: src/audio_tab.c:201
 msgid "Dev. Default"
-msgstr "Устр. по умолчанию"
+msgstr "по умолчанию"
 
 #: src/audio_tab.c:190
 msgid "Sample Rate:"
@@ -447,7 +449,7 @@ msgstr "2 - стерео"
 
 #: src/audio_tab.c:237
 msgid "Channels:"
-msgstr "Каналы:"
+msgstr "Каналов:"
 
 #: src/audio_tab.c:248
 msgid "PCM"
@@ -532,15 +534,15 @@ msgstr "Кол-во бит на пиксел"
 
 #: src/vcodecs.c:61
 msgid "MJPG - compressed"
-msgstr "MJPG - сжатое"
+msgstr "MJPG - сжатый"
 
 #: src/vcodecs.c:91
 msgid "YUY2 - uncomp YUV"
-msgstr "YUY2 - несж. YUV"
+msgstr "YUY2 - несжатый YUV"
 
 #: src/vcodecs.c:121
 msgid "RGB - uncomp BMP"
-msgstr "RGB - несж. BMP"
+msgstr "RGB - несжатый BMP"
 
 #: src/vcodecs.c:150
 msgid "MPEG video 1"
@@ -552,7 +554,7 @@ msgstr "FLV1 - флэш-видео 1"
 
 #: src/vcodecs.c:210
 msgid "WMV1 - win. med. video 7"
-msgstr "WMV1 - видео Win. Media 7"
+msgstr "WMV1 - видео Windows Media 7"
 
 #: src/vcodecs.c:239
 msgid "MPG2 - MPG2 format"
