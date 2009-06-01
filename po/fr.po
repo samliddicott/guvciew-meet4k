@@ -324,7 +324,7 @@ msgstr "Fréquence d'image:"
 
 #: src/video_tab.c:583
 msgid " Show"
-msgstr "Afficher"
+msgstr " Afficher"
 
 #: src/video_tab.c:607
 msgid "Resolution:"
@@ -352,7 +352,7 @@ msgstr "Fichier Video:"
 
 #: src/video_tab.c:792
 msgid "Video Codec:"
-msgstr ""
+msgstr "Codec Video:"
 
 #. lavc codec properties button
 #: src/video_tab.c:800
@@ -360,9 +360,8 @@ msgid "properties"
 msgstr ""
 
 #: src/video_tab.c:827
-#, fuzzy
 msgid "Video Format:"
-msgstr "Format Audio:"
+msgstr "Format Video:"
 
 #: src/video_tab.c:836
 msgid "---- Video Filters ----"
@@ -399,20 +398,19 @@ msgstr "Audio"
 
 #: src/audio_tab.c:93
 msgid " Sound"
-msgstr "Son"
+msgstr " Son"
 
 #: src/audio_tab.c:108
-#, fuzzy
 msgid "Audio API:"
-msgstr "Audio"
+msgstr "Audio API:"
 
 #: src/audio_tab.c:118
 msgid "PORTAUDIO"
-msgstr ""
+msgstr "PORTAUDIO"
 
 #: src/audio_tab.c:119
 msgid "PULSEAUDIO"
-msgstr ""
+msgstr "PULSEAUDIO"
 
 #: src/audio_tab.c:135 src/audio_tab.c:158
 msgid "Input Device:"
@@ -472,12 +470,12 @@ msgstr "Reverb"
 #. WahWah
 #: src/audio_tab.c:337
 msgid " WahWah"
-msgstr "WahWah"
+msgstr " WahWah"
 
 #. Ducky
 #: src/audio_tab.c:348
 msgid " Ducky"
-msgstr "Canard"
+msgstr " Canard"
 
 #: src/v4l2_dyna_ctrls.c:89
 msgid "Pan (relative)"
@@ -533,27 +531,27 @@ msgstr "RVB - BMP non compressé"
 
 #: src/vcodecs.c:150
 msgid "MPEG video 1"
-msgstr ""
+msgstr "MPEG video 1"
 
 #: src/vcodecs.c:180
 msgid "FLV1 - flash video 1"
-msgstr ""
+msgstr "FLV1 - flash video 1"
 
 #: src/vcodecs.c:210
 msgid "WMV1 - win. med. video 7"
-msgstr ""
+msgstr "WMV1 - wind. med. video 7"
 
 #: src/vcodecs.c:239
 msgid "MPG2 - MPG2 format"
-msgstr ""
+msgstr "MPG2 - Mpeg video 2"
 
 #: src/vcodecs.c:268
 msgid "MS MP4 V3"
-msgstr ""
+msgstr "MP4 - MS Mpeg 4 V3"
 
 #: src/vcodecs.c:297
 msgid "MPEG4 - MPEG4 format"
-msgstr ""
+msgstr "MPEG4 - Mpeg 4"
 
 #: src/options.c:526
 msgid "Prints version"

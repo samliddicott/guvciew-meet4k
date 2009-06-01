@@ -108,9 +108,8 @@ msgstr ""
 
 #. vid capture enabled from start
 #: src/guvcview.c:373 src/callbacks.c:1028
-#, fuzzy
 msgid "Stop Video"
-msgstr "Stop AVI"
+msgstr "Stop Video"
 
 #: src/guvcview.c:379 src/callbacks.c:1000
 msgid "Cap. Video"
@@ -312,7 +311,6 @@ msgstr "Video & filer"
 
 #. Devices
 #: src/video_tab.c:469
-#, fuzzy
 msgid "Device:"
 msgstr "Input udstyr:"
 
@@ -345,9 +343,8 @@ msgid "Image Format:"
 msgstr "Billed format:"
 
 #: src/video_tab.c:713
-#, fuzzy
 msgid "Video File:"
-msgstr "Video & filer"
+msgstr "Video filer:"
 
 #: src/video_tab.c:792
 msgid "Video Codec:"
@@ -457,9 +454,8 @@ msgstr "---- Video filtre ----"
 
 #. Echo
 #: src/audio_tab.c:305
-#, fuzzy
 msgid " Echo"
-msgstr " Vis"
+msgstr ""
 
 #. FUZZ
 #: src/audio_tab.c:315
@@ -482,23 +478,20 @@ msgid " Ducky"
 msgstr ""
 
 #: src/v4l2_dyna_ctrls.c:89
-#, fuzzy
 msgid "Pan (relative)"
-msgstr " Negativ"
+msgstr ""
 
 #: src/v4l2_dyna_ctrls.c:99
 msgid "Tilt (relative)"
 msgstr ""
 
 #: src/v4l2_dyna_ctrls.c:109
-#, fuzzy
 msgid "Pan Reset"
-msgstr "Nulstil"
+msgstr ""
 
 #: src/v4l2_dyna_ctrls.c:119
-#, fuzzy
 msgid "Tilt Reset"
-msgstr "Nulstil"
+msgstr ""
 
 #: src/v4l2_dyna_ctrls.c:129
 msgid "Pan/tilt Reset"

@@ -111,14 +111,12 @@ msgstr "Zazn. Obraz"
 
 #. vid capture enabled from start
 #: src/guvcview.c:373 src/callbacks.c:1028
-#, fuzzy
 msgid "Stop Video"
-msgstr "Zastavit AVI"
+msgstr "Zastavit Video"
 
 #: src/guvcview.c:379 src/callbacks.c:1000
-#, fuzzy
 msgid "Cap. Video"
-msgstr "Zazn. AVI"
+msgstr "Zazn. Video"
 
 #: src/guvcview.c:516
 msgid ""
@@ -349,7 +347,7 @@ msgstr "Formát obrazu:"
 #: src/video_tab.c:713
 #, fuzzy
 msgid "Video File:"
-msgstr "Video & Soubory"
+msgstr "Video Soubory:"
 
 #: src/video_tab.c:792
 msgid "Video Codec:"
@@ -403,9 +401,8 @@ msgid " Sound"
 msgstr " Zvuk"
 
 #: src/audio_tab.c:108
-#, fuzzy
 msgid "Audio API:"
-msgstr "Formát zvuku:"
+msgstr ""
 
 #: src/audio_tab.c:118
 msgid "PORTAUDIO"
@@ -452,13 +449,11 @@ msgid "Audio Format:"
 msgstr "Formát zvuku:"
 
 #: src/audio_tab.c:286
-#, fuzzy
 msgid "---- Audio Effects ----"
-msgstr "---- Filtry videa ----"
+msgstr ""
 
 #. Echo
 #: src/audio_tab.c:305
-#, fuzzy
 msgid " Echo"
 msgstr " Zobrazit"
 
@@ -487,7 +482,6 @@ msgid "Pan (relative)"
 msgstr "Záběr (relativní)"
 
 #: src/v4l2_dyna_ctrls.c:99
-#, fuzzy
 msgid "Tilt (relative)"
 msgstr "Záběr (relativní)"
 
@@ -496,12 +490,10 @@ msgid "Pan Reset"
 msgstr "Reset záběru"
 
 #: src/v4l2_dyna_ctrls.c:119
-#, fuzzy
 msgid "Tilt Reset"
 msgstr "Obnovit"
 
 #: src/v4l2_dyna_ctrls.c:129
-#, fuzzy
 msgid "Pan/tilt Reset"
 msgstr "Reset záběru"
 
@@ -608,14 +600,12 @@ msgid "Number of Pictures to capture"
 msgstr "Počet obrázků k zaznamenání"
 
 #: src/options.c:537
-#, fuzzy
 msgid "Video File name (capture from start)"
-msgstr "Jméno AVI souboru (záznam od začátku)"
+msgstr "Jméno Video souboru (záznam od začátku)"
 
 #: src/options.c:538
-#, fuzzy
 msgid "Video capture time (in seconds)"
-msgstr "Čas AVI záznamu (v sekundách)"
+msgstr "Čas Video záznamu (v sekundách)"
 
 #: src/options.c:539
 msgid "Show FPS value (enable(1) | disable (0))"

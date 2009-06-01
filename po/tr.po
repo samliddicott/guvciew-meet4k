@@ -329,7 +329,7 @@ msgstr "Resim Dosyası:"
 #: src/video_tab.c:713
 #, fuzzy
 msgid "Video File:"
-msgstr "Video & Dosyalar"
+msgstr "Video Dosyalar:"
 
 #: src/video_tab.c:792
 msgid "Video Codec:"
@@ -341,9 +341,8 @@ msgid "properties"
 msgstr ""
 
 #: src/video_tab.c:827
-#, fuzzy
 msgid "Video Format:"
-msgstr "AVI dosya:"
+msgstr "Video dosya:"
 
 #: src/video_tab.c:836
 msgid "---- Video Filters ----"
@@ -433,11 +432,10 @@ msgstr ""
 #: src/audio_tab.c:286
 #, fuzzy
 msgid "---- Audio Effects ----"
-msgstr "---- Video Filtreleri----"
+msgstr "---- Audio Filtreleri----"
 
 #. Echo
 #: src/audio_tab.c:305
-#, fuzzy
 msgid " Echo"
 msgstr " Göster"
 

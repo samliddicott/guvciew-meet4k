@@ -10,12 +10,14 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-05-30 10:15+0100\n"
-"PO-Revision-Date: 2009-04-05 23:34+0100\n"
-"Last-Translator: Paulo Assis <pj.assis@gmail.com>\n"
+"PO-Revision-Date: 2009-04-04 12:16+0000\n"
+"Last-Translator: DiegoJ <diegojromerolopez@gmail.com>\n"
 "Language-Team: Portuguese <pt@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Launchpad-Export-Date: 2009-06-01 12:52+0000\n"
+"X-Generator: Launchpad (build Unknown)\n"
 
 #: src/guvcview.c:173
 msgid "GUVCViewer Controls"
@@ -359,9 +361,8 @@ msgid "properties"
 msgstr ""
 
 #: src/video_tab.c:827
-#, fuzzy
 msgid "Video Format:"
-msgstr "Formato de Audio:"
+msgstr "Formato de Video:"
 
 #: src/video_tab.c:836
 msgid "---- Video Filters ----"
@@ -390,7 +391,7 @@ msgstr " Gris"
 #. Pieces
 #: src/video_tab.c:892
 msgid " Pieces"
-msgstr "Pedazos"
+msgstr " Pedazos"
 
 #: src/audio_tab.c:75
 msgid "Audio"
@@ -401,9 +402,8 @@ msgid " Sound"
 msgstr " Sonido"
 
 #: src/audio_tab.c:108
-#, fuzzy
 msgid "Audio API:"
-msgstr "Audio"
+msgstr "Audio API"
 
 #: src/audio_tab.c:118
 msgid "PORTAUDIO"
@@ -456,27 +456,27 @@ msgstr "---- Efectos de Audio ----"
 #. Echo
 #: src/audio_tab.c:305
 msgid " Echo"
-msgstr "Eco"
+msgstr " Eco"
 
 #. FUZZ
 #: src/audio_tab.c:315
 msgid " Fuzz"
-msgstr "Ruido"
+msgstr " Ruido"
 
 #. Reverb
 #: src/audio_tab.c:326
 msgid " Reverb"
-msgstr "Reverb"
+msgstr " Reverb"
 
 #. WahWah
 #: src/audio_tab.c:337
 msgid " WahWah"
-msgstr "WahWah"
+msgstr " WahWah"
 
 #. Ducky
 #: src/audio_tab.c:348
 msgid " Ducky"
-msgstr "Pato"
+msgstr " Pato"
 
 #: src/v4l2_dyna_ctrls.c:89
 msgid "Pan (relative)"
@@ -556,7 +556,7 @@ msgstr ""
 
 #: src/options.c:526
 msgid "Prints version"
-msgstr ""
+msgstr "Imprimir versión"
 
 #: src/options.c:527
 msgid "Displays debug information"
@@ -568,7 +568,7 @@ msgstr "Dispositivo de video [defect: /dev/video0]"
 
 #: src/options.c:529
 msgid "Don't stream video (controls only)"
-msgstr ""
+msgstr "No hacer streaming de vídeo (sólo controles)"
 
 #: src/options.c:530
 msgid "Configuration file"
@@ -605,7 +605,7 @@ msgstr "Archivo video (captura del arranque)"
 
 #: src/options.c:538
 msgid "Video capture time (in seconds)"
-msgstr "Tiempo de la captura video (segundos) "
+msgstr "Tiempo de la captura video (segundos)"
 
 #: src/options.c:539
 msgid "Show FPS value (enable(1) | disable (0))"
@@ -716,9 +716,6 @@ msgstr "Cargar Archivo"
 #~ msgid "AVI File:"
 #~ msgstr "Archivo AVI:"
 
-#~ msgid "AVI Format:"
-#~ msgstr "Formato de AVI:"
-
 #~ msgid "UYVY - uncomp YUV"
 #~ msgstr "UYVY - s/comp YUV"
 
@@ -727,3 +724,6 @@ msgstr "Cargar Archivo"
 
 #~ msgid "FLV1"
 #~ msgstr "FLV1"
+
+#~ msgid "AVI Format:"
+#~ msgstr "Formato de AVI:"

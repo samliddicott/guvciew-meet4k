@@ -114,12 +114,10 @@ msgstr "Bild aufnehmen"
 
 #. vid capture enabled from start
 #: src/guvcview.c:373 src/callbacks.c:1028
-#, fuzzy
 msgid "Stop Video"
 msgstr "Video stoppen"
 
 #: src/guvcview.c:379 src/callbacks.c:1000
-#, fuzzy
 msgid "Cap. Video"
 msgstr "Video aufnehmen"
 
@@ -351,9 +349,8 @@ msgid "Image Format:"
 msgstr "Bildformat:"
 
 #: src/video_tab.c:713
-#, fuzzy
 msgid "Video File:"
-msgstr "Video & Dateien"
+msgstr "Video Datei:"
 
 #: src/video_tab.c:792
 msgid "Video Codec:"
@@ -365,9 +362,8 @@ msgid "properties"
 msgstr ""
 
 #: src/video_tab.c:827
-#, fuzzy
 msgid "Video Format:"
-msgstr "Audio-Format:"
+msgstr "Video-Format:"
 
 #: src/video_tab.c:836
 msgid "---- Video Filters ----"
@@ -407,9 +403,8 @@ msgid " Sound"
 msgstr " Audio"
 
 #: src/audio_tab.c:108
-#, fuzzy
 msgid "Audio API:"
-msgstr "Audio-Format:"
+msgstr "Audio API:"
 
 #: src/audio_tab.c:118
 msgid "PORTAUDIO"
@@ -607,12 +602,10 @@ msgid "Number of Pictures to capture"
 msgstr "Bildquantität"
 
 #: src/options.c:537
-#, fuzzy
 msgid "Video File name (capture from start)"
 msgstr "Datei video (anfangaufnehmen)"
 
 #: src/options.c:538
-#, fuzzy
 msgid "Video capture time (in seconds)"
 msgstr "Videodauer  (sekunden)"
 

@@ -113,12 +113,12 @@ msgstr "キャプチャ.画像"
 #: src/guvcview.c:373 src/callbacks.c:1028
 #, fuzzy
 msgid "Stop Video"
-msgstr "停止 AVI"
+msgstr "停止 Video"
 
 #: src/guvcview.c:379 src/callbacks.c:1000
 #, fuzzy
 msgid "Cap. Video"
-msgstr "キャプチャ.AVI"
+msgstr "キャプチャ.Video"
 
 #: src/guvcview.c:516
 msgid ""
@@ -607,12 +607,12 @@ msgstr "キャプチャする画像数"
 #: src/options.c:537
 #, fuzzy
 msgid "Video File name (capture from start)"
-msgstr "AVI ファイル名 (開始からのキャプチャ)"
+msgstr "Video ファイル名 (開始からのキャプチャ)"
 
 #: src/options.c:538
 #, fuzzy
 msgid "Video capture time (in seconds)"
-msgstr "AVI 撮影時間 (秒)"
+msgstr "Video 撮影時間 (秒)"
 
 #: src/options.c:539
 msgid "Show FPS value (enable(1) | disable (0))"
