@@ -52,6 +52,9 @@ void
 spin_changed (GtkSpinButton * spin, struct ALL_DATA *all_data);
 
 void
+set_jpeg_comp_clicked (GtkButton * jpeg_comp, struct ALL_DATA *all_data);
+
+void
 autofocus_changed (GtkToggleButton * toggle, struct ALL_DATA *all_data);
 
 void

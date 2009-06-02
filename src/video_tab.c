@@ -430,6 +430,8 @@ void video_tab(struct ALL_DATA *all_data)
 	GtkWidget *FiltNegateEnable;
 	GtkWidget *FiltMonoEnable;
 	GtkWidget *FiltPiecesEnable;
+	GtkWidget *set_jpeg_comp;
+	GtkWidget *label_jpeg_comp;
 	
 	int line = 0;
 	int i = 0;
@@ -637,7 +639,38 @@ void video_tab(struct ALL_DATA *all_data)
 		GTK_FILL, 0, 0, 0);
 
 	gtk_widget_show (label_ImpType);
+
+	if((global->format == V4L2_PIX_FMT_MJPEG || global->format == V4L2_PIX_FMT_JPEG) && videoIn->jpgcomp.quality > 0)
+	{
+		line++;
+		gwidget->jpeg_comp = gtk_spin_button_new_with_range(0,100,1);
+		/*can't edit the spin value by hand*/
+		gtk_editable_set_editable(GTK_EDITABLE(gwidget->jpeg_comp),FALSE);
+		gtk_spin_button_set_value (GTK_SPIN_BUTTON(gwidget->jpeg_comp), videoIn->jpgcomp.quality);
+		gtk_table_attach(GTK_TABLE(table2), gwidget->jpeg_comp, 1, 2, line, line+1,
+			GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	
+		gtk_widget_set_sensitive (gwidget->jpeg_comp, TRUE);
+		//g_signal_connect (G_OBJECT (jpeg_comp),"value-changed",
+		//		G_CALLBACK (jpeg_comp_changed), all_data);
+		gtk_widget_show (gwidget->jpeg_comp);
+
+		set_jpeg_comp = gtk_button_new_with_label(_("Apply"));
+		gtk_table_attach(GTK_TABLE(table2), set_jpeg_comp, 2, 3, line, line+1,
+			GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+		g_signal_connect (GTK_BUTTON (set_jpeg_comp), "clicked",
+				G_CALLBACK (set_jpeg_comp_clicked), all_data);
+		gtk_widget_set_sensitive (set_jpeg_comp, TRUE);
+		gtk_widget_show (set_jpeg_comp);
+		
+		label_jpeg_comp = gtk_label_new(_("jpeg compression:"));
+		gtk_misc_set_alignment (GTK_MISC (label_jpeg_comp), 1, 0.5);
+
+		gtk_table_attach (GTK_TABLE(table2), label_jpeg_comp, 0, 1, line, line+1,
+			GTK_FILL, 0, 0, 0);
+
+		gtk_widget_show (label_jpeg_comp);
+	}
 	// Image Capture
 	line++;
 	label_ImgFile = gtk_label_new(_("Image File:"));

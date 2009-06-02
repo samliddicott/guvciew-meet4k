@@ -196,6 +196,19 @@ spin_changed (GtkSpinButton * spin, struct ALL_DATA *all_data)
 	videoIn = NULL;
 }
 
+void
+set_jpeg_comp_clicked (GtkButton * jpeg_comp, struct ALL_DATA *all_data)
+{
+	struct GWIDGET *gwidget = all_data->gwidget;
+	struct vdIn *videoIn = all_data->videoIn;
+
+	videoIn->jpgcomp.quality = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON(gwidget->jpeg_comp));
+
+	videoIn->setJPEGCOMP = 1; 
+	
+	videoIn = NULL;
+}
+
 /*check box controls callback*/
 void
 autofocus_changed (GtkToggleButton * toggle, struct ALL_DATA *all_data) 

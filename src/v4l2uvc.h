@@ -81,6 +81,7 @@ struct vdIn
 	struct v4l2_requestbuffers rb;      // v4l2 request buffers struct
 	struct v4l2_timecode timecode;      // v4l2 timecode struct
 	struct v4l2_streamparm streamparm;  // v4l2 stream parameters struct
+	struct v4l2_jpegcompression jpgcomp;// v4l2 jpeg compression settings
 	void *mem[NB_BUFFER];               // memory buffers for mmap driver frames 
 	unsigned char *tmpbuffer;           // temp buffer for decoding compressed data
 	unsigned char *framebuffer;         // frame buffer (YUYV), for rendering in SDL overlay
@@ -88,6 +89,7 @@ struct vdIn
 	int isbayer;                        // raw bayer flag
 	int pix_order;                      // raw bayer pixel order (rg/gb, bg/gr, ...)
 	int setFPS;                         // show new FPS value flag
+	int setJPEGCOMP;                    //set jpeg compression flag
 	int grabmethod;                     // only mmap available UVC doesn't support read
 	int width;                          // frame width
 	int height;                         // frame height
@@ -148,6 +150,10 @@ int input_set_framerate (struct vdIn * device);
  * returns: VIDIOC_G_PARM ioctl result value
 */
 int input_get_framerate (struct vdIn * device);
+
+int get_jpegcomp(struct vdIn *vd);
+
+int set_jpegcomp(struct vdIn *vd);
 
 #endif
 
