@@ -1,4 +1,4 @@
-.TH GUVCVIEW "1" "Sep 2008"
+.TH GUVCVIEW "2" "Jun 2009"
 .SH NAME
 guvcview \- GTK+ base UVC Viewer 
 .SH SYNOPSIS
@@ -14,25 +14,28 @@ this API, including the gspca driver.
 guvcview [options...] 
 
 .SH OPTION
-  -?, --help                    Print help options
-  --help-all                    Print all help options
-  --help-gtk                    Print GTK+ options
+  \-?, \-\-help                    Print help options
+  \-\-help\-all                    Print all help options
+  \-\-help\-gtk                    Print GTK+ options
+  \-\-version                      Print version number
 
 Aplication options:
-  -v, --verbose                 Prints a lot of debug information
-  -d, --device=VIDEO_DEVICE     Video Device [default: /dev/video0]
-  -g, --config=FILENAME         Configuration File
-  -w, --hwd_acel=[1 | 0]        Hardware accelaration (enable(1) | disable(0))
-  -f, --format=FORMAT           Video input format: 
-                                (mjpg|jpeg|yuyv|uyvy|yyuv|yu12|yv12|gbrg)
-  -s, --size=WIDTHxHEIGHT       Resolution, default: 640x480
-  -i, --image=FILENAME          Image File
-  -c, --cap_time=TIME           Time elapsed between image captures
-  -m, --npics=NUMPIC            Number of images to capture
-  -n, --avi=FILENAME            Video File (capture from start)
-  -t, --avi_time=TIME           Video duration (in seconds)
-  -p, --show_fps=[1 | 0]        Print FPS on video Window (enable(1) | disable(0))
-  -l, --profile=FILENAME        Load profile
+  \-v, \-\-verbose                 Prints a lot of debug information
+  \-d, \-\-device=VIDEO_DEVICE     Video Device [default: /dev/video0]
+  \-o, \-\-control_only            Don't stream video (image controls only)
+  \-g, \-\-config=FILENAME         Configuration File
+  \-w, \-\-hwd_acel=[1 | 0]        Hardware accelaration (enable(1) | disable(0))
+  \-f, \-\-format=FORMAT           Video input format:
+                               mjpg | jpeg | yuyv | uyvy | yyuv | yu12 |
+                               yv12 | gbrg | grbg | bggr | rggb
+  \-s, \-\-size=WIDTHxHEIGHT       Resolution, default: 640x480
+  \-i, \-\-image=FILENAME          Image File
+  \-c, \-\-cap_time=TIME           Time elapsed between image captures
+  \-m, \-\-npics=NUMPIC            Number of images to capture
+  \-n, \-\-avi=FILENAME            Video File (capture from start)
+  \-t, \-\-avi_time=TIME           Video duration (in seconds)
+  \-p, \-\-show_fps=[1 | 0]        Print FPS on video Window (enable(1) | disable(0))
+  \-l, \-\-profile=FILENAME        Load profile
 
 
 .SH AUTHOR

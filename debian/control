@@ -12,3 +12,6 @@ Depends: ${shlibs:Depends}, ${misc:Depends}
 Recommends: libavcodec-unstripped-52
 Description: GTK UVC Viewer 
  Video capture tool for video4linux2 compliant cameras, with special emphasis on the linux uvc driver.
+ It provides Image (jpg, png, bmp) and Video (mjpeg, flv1, wmv1, mpg2, mpg4,...) capture with sound
+ in several formats( currently: avi and matroska).
+ I also supports a control only option (--control_only) that is compatible with any other v4l2 app.

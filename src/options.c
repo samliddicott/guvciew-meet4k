@@ -526,7 +526,7 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 		{ "version", 0, 0, G_OPTION_ARG_NONE, &vers, N_("Prints version"), NULL},
 		{ "verbose", 'v', 0, G_OPTION_ARG_NONE, &global->debug, N_("Displays debug information"), NULL },
 		{ "device", 'd', 0, G_OPTION_ARG_STRING, &device, N_("Video Device to use [default: /dev/video0]"), "VIDEO_DEVICE" },
-		{ "control_only", 'o', 0, G_OPTION_ARG_NONE, &global->control_only, N_("Don't stream video (controls only)"), NULL},
+		{ "control_only", 'o', 0, G_OPTION_ARG_NONE, &global->control_only, N_("Don't stream video (image controls only)"), NULL},
 		{ "config", 'g', 0, G_OPTION_ARG_STRING, &config, N_("Configuration file"), "FILENAME" },
 		{ "hwd_acel", 'w', 0, G_OPTION_ARG_INT, &hwaccel, N_("Hardware accelaration (enable(1) | disable(0))"), "[1 | 0]" },
 		{ "format", 'f', 0, G_OPTION_ARG_STRING, &format, N_("Pixel format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|gbrg|grbg|bggr|rggb)"), "FORMAT" },
@@ -684,7 +684,7 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 			++separateur;
 			global->height = (int) g_ascii_strtoull(separateur, &separateur, 10);
 			if (*separateur != 0)
-				g_printerr("hmm.. dont like that!! trying this height \n");
+				g_printerr("hmm.. don't like that!! trying this height \n");
 		}
 		
 		global->flg_res = 1;

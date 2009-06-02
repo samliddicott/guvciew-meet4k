@@ -1259,7 +1259,7 @@ char *(avi_errors[]) =
   /*  2 */ "avilib - Error opening AVI file",
   /*  3 */ "avilib - Error reading from AVI file",
   /*  4 */ "avilib - Error writing to AVI file",
-  /*  5 */ "avilib - Error writing index (file may still be useable)",
+  /*  5 */ "avilib - Error writing index (file may still be usable)",
   /*  6 */ "avilib - Error closing AVI file",
   /*  7 */ "avilib - Operation (read/write) not permitted",
   /*  8 */ "avilib - Out of memory (malloc failed)",
