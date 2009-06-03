@@ -756,7 +756,7 @@ int uvcGrab(struct vdIn *vd)
 	{
 		video_disable(vd);
 		set_jpegcomp(vd);
-		//get_jpegcomp(vd);
+		get_jpegcomp(vd);
 		video_enable(vd);
 		query_buff(vd,1);
 		queue_buff(vd);

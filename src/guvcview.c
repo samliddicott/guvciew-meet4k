@@ -79,6 +79,7 @@ int main(int argc, char *argv[])
 {
 	int ret=0;
 	int n=0; //button box labels column
+	gboolean control_only = FALSE;
 	/*print package name and version*/ 
 	g_printf("%s\n", PACKAGE_STRING);
 	
@@ -116,6 +117,7 @@ int main(int argc, char *argv[])
 	/*------------------------- reads configuration file ---------------------*/
 	readConf(global);
 	
+	control_only = global->control_only; //sets local control_only flag
 	/*---------------------------------- Allocations -------------------------*/
 	
 	gwidget = g_new0(struct GWIDGET, 1);
@@ -140,7 +142,7 @@ int main(int argc, char *argv[])
 
 	s = g_new0(struct VidState, 1);
 
-	if(!(global->control_only)) /*control_only exclusion (video and Audio) */
+	if(!control_only) /*control_only exclusion (video and Audio) */
 	{
 		pdata = g_new0(struct paRecordData, 1);
 
@@ -327,7 +329,7 @@ int main(int argc, char *argv[])
 	gtk_widget_show (buttons_table);
 	gtk_paned_add2(GTK_PANED(gwidget->boxv),buttons_table);
 	
-	if(!(global->control_only)) /*control_only exclusion (video and Audio) */
+	if(!control_only) /*control_only exclusion (video and Audio) */
 	{
 		capture_labels=gtk_label_new(_("Capture:"));
 		gtk_misc_set_alignment (GTK_MISC (capture_labels), 0.5, 0.5);
@@ -360,7 +362,7 @@ int main(int argc, char *argv[])
 	}
 	g_free(icon1path);
 	
-	if(!(global->control_only))/*control_only exclusion Image and video buttons*/
+	if(!control_only)/*control_only exclusion Image and video buttons*/
 	{
 		if(global->image_timer)
 		{	/*image auto capture*/
@@ -477,7 +479,7 @@ int main(int argc, char *argv[])
 	}
 	gtk_paned_set_position (GTK_PANED(gwidget->boxv),global->boxvsize);
 	
-	if(!(global->control_only)) /*control_only exclusion (video and Audio) */
+	if(!control_only) /*control_only exclusion (video and Audio) */
 	{
 		/*------------------------- Video Tab ---------------------------------*/
 		video_tab (&all_data);
@@ -490,7 +492,7 @@ int main(int argc, char *argv[])
 	
 	gtk_widget_show (gwidget->mainwin);
 	
-	if (!(global->control_only)) /*control_only exclusion*/
+	if (!control_only) /*control_only exclusion*/
 	{
 		/* if autofocus exists allocate data*/
 		if(global->AFcontrol) 
@@ -555,7 +557,17 @@ int main(int argc, char *argv[])
 	gtk_main();
 	gdk_threads_leave();
 	
-	g_printf("Exit: OK\n");
+	//closing portaudio
+	if(!control_only)
+	{
+		g_printf("Closing portaudio ...");
+		if (Pa_Terminate() != paNoError) 
+			g_printf("Error\n");
+		else
+			g_printf("OK\n");
+	}
+	
+	//g_printf("Exit: OK\n");
 	return 0;
 }
 

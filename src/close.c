@@ -146,18 +146,18 @@ shutd (gint restart, struct ALL_DATA *all_data)
 	//end gtk main loop
 	gtk_main_quit();
 
-	//closing portaudio
-	if(!control_only)
-	{
-		g_printf("Closing portaudio ...");
-		if (Pa_Terminate() != paNoError) 
-			g_printf("Error\n");
-		else
-			g_printf("OK\n");
-	}
-
 	if (restart==1) 
-	{	/* replace running process with new one */
+	{	
+		//closing portaudio
+		if(!control_only)
+		{
+			g_printf("Closing portaudio ...");
+			if (Pa_Terminate() != paNoError) 
+				g_printf("Error\n");
+			else
+				g_printf("OK\n");
+		}
+		/* replace running process with new one */
 		g_printf("Restarting: guvcview -d %s\n", videodevice);
 		exec_status = execlp(g_get_prgname(),
 			g_get_prgname(),
@@ -166,5 +166,6 @@ shutd (gint restart, struct ALL_DATA *all_data)
 			NULL);
 		if(exec_status < 0) perror("ERROR restarting guvcview");
 	}
-	//if we didn't restart return to main after gtk_main()
+	//if we didn't restart return to main after gtk_main() and close portaudio there
+	//this reduces chances for segfault caused by Pa_Terminate() [probable race condition] 
 }

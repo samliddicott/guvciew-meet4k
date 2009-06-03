@@ -640,6 +640,7 @@ void video_tab(struct ALL_DATA *all_data)
 
 	gtk_widget_show (label_ImpType);
 
+	//jpeg compression quality for MJPEG and JPEG input formats
 	if((global->format == V4L2_PIX_FMT_MJPEG || global->format == V4L2_PIX_FMT_JPEG) && videoIn->jpgcomp.quality > 0)
 	{
 		line++;
@@ -651,8 +652,6 @@ void video_tab(struct ALL_DATA *all_data)
 			GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	
 		gtk_widget_set_sensitive (gwidget->jpeg_comp, TRUE);
-		//g_signal_connect (G_OBJECT (jpeg_comp),"value-changed",
-		//		G_CALLBACK (jpeg_comp_changed), all_data);
 		gtk_widget_show (gwidget->jpeg_comp);
 
 		set_jpeg_comp = gtk_button_new_with_label(_("Apply"));
