@@ -21,7 +21,7 @@ ALL_LINGUAS="pt pt_BR de es fr da tr cs ja ru"
 AM_GLIB_GNU_GETTEXT([external])
 
 dnl check for dependencies
-PKG_CHECK_MODULES(PACKAGE, [gtk+-2.0 >= 2.10.0 glib-2.0 >= 2.10.0 gthread-2.0 gdk-2.0 >= 2.10.0 sdl >= 1.2.10 portaudio-2.0 libpng twolame libavcodec])
+PKG_CHECK_MODULES(PACKAGE, [gtk+-2.0 >= 2.14.0 glib-2.0 >= 2.10.0 gthread-2.0 gdk-2.0 >= 2.10.0 sdl >= 1.2.10 portaudio-2.0 libpng twolame libavcodec])
 AC_SUBST(PACKAGE_CFLAGS)
 AC_SUBST(PACKAGE_LIBS)
 
