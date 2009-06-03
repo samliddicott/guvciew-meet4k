@@ -196,6 +196,7 @@ spin_changed (GtkSpinButton * spin, struct ALL_DATA *all_data)
 	videoIn = NULL;
 }
 
+/*set video frame jpeg quality/compression*/
 void
 set_jpeg_comp_clicked (GtkButton * jpeg_comp, struct ALL_DATA *all_data)
 {

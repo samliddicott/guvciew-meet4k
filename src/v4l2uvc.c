@@ -202,6 +202,61 @@ static int queue_buff(struct vdIn *vd)
 	return VDIN_OK;
 }
 
+/* gets video stream jpeg compression parameters
+ * args:
+ * vd: pointer to a VdIn struct ( must be allready initiated)
+ *
+ * returns: VIDIOC_G_JPEGCOMP ioctl result value
+*/
+static int get_jpegcomp(struct vdIn *vd)
+{
+	int ret = ioctl(vd->fd, VIDIOC_G_JPEGCOMP, &vd->jpgcomp);
+	if(!ret)
+	{
+		g_printf("VIDIOC_G_COMP:\n");
+		g_printf("    quality:      %i\n", vd->jpgcomp.quality);
+		g_printf("    APPn:         %i\n", vd->jpgcomp.APPn);
+		g_printf("    APP_len:      %i\n", vd->jpgcomp.APP_len);
+		g_printf("    APP_data:     %s\n", vd->jpgcomp.APP_data);
+		g_printf("    COM_len:      %i\n", vd->jpgcomp.COM_len);
+		g_printf("    COM_data:     %s\n", vd->jpgcomp.COM_data);
+		g_printf("    jpeg_markers: 0x%x\n", vd->jpgcomp.jpeg_markers);
+	}
+	else
+	{
+		perror("VIDIOC_G_COMP:");
+		if(errno == EINVAL)
+		{
+			vd->jpgcomp.quality = -1; //not supported
+			g_printf("   compression control not supported\n");
+		}
+	}
+
+	return (ret);
+}
+
+/* sets video stream jpeg compression parameters
+ * args:
+ * vd: pointer to a VdIn struct ( must be allready initiated)
+ *
+ * returns: VIDIOC_S_JPEGCOMP ioctl result value
+*/
+static int set_jpegcomp(struct vdIn *vd)
+{
+	int ret = ioctl(vd->fd, VIDIOC_S_JPEGCOMP, &vd->jpgcomp);
+	if(ret != 0)
+	{
+		perror("VIDIOC_S_COMP:");
+		if(errno == EINVAL)
+		{
+			vd->jpgcomp.quality = -1; //not supported
+			g_printf("   compression control not supported\n");
+		}
+	}
+
+	return (ret);
+}
+
 /* Try/Set device video stream format
  * args:
  * vd: pointer to a VdIn struct ( must be allready allocated )
@@ -534,49 +589,6 @@ static int video_disable(struct vdIn *vd)
 	return 0;
 }
 
-int get_jpegcomp(struct vdIn *vd)
-{
-	int ret = ioctl(vd->fd, VIDIOC_G_JPEGCOMP, &vd->jpgcomp);
-	if(!ret)
-	{
-		g_printf("VIDIOC_G_COMP:\n");
-		g_printf("    quality:      %i\n", vd->jpgcomp.quality);
-		g_printf("    APPn:         %i\n", vd->jpgcomp.APPn);
-		g_printf("    APP_len:      %i\n", vd->jpgcomp.APP_len);
-		g_printf("    APP_data:     %s\n", vd->jpgcomp.APP_data);
-		g_printf("    COM_len:      %i\n", vd->jpgcomp.COM_len);
-		g_printf("    COM_data:     %s\n", vd->jpgcomp.COM_data);
-		g_printf("    jpeg_markers: 0x%x\n", vd->jpgcomp.jpeg_markers);
-	}
-	else
-	{
-		perror("VIDIOC_G_COMP:");
-		if(errno == EINVAL)
-		{
-			vd->jpgcomp.quality = -1; //not supported
-			g_printf("   compression control not supported\n");
-		}
-	}
-
-	return (ret);
-}
-
-int set_jpegcomp(struct vdIn *vd)
-{
-	int ret = ioctl(vd->fd, VIDIOC_S_JPEGCOMP, &vd->jpgcomp);
-	if(ret != 0)
-	{
-		perror("VIDIOC_S_COMP:");
-		if(errno == EINVAL)
-		{
-			vd->jpgcomp.quality = -1; //not supported
-			g_printf("   compression control not supported\n");
-		}
-	}
-
-	return (ret);
-}
-
 /* Grabs video frame and decodes it if necessary
  * args:
  * vd: pointer to a VdIn struct ( must be allready initiated)
@@ -743,7 +755,7 @@ int uvcGrab(struct vdIn *vd)
 			goto err;
 			break;
 	}
-	if(vd->setFPS) 
+	if(vd->setFPS) //change fps
 	{
 		video_disable(vd);
 		input_set_framerate (vd);
@@ -752,7 +764,7 @@ int uvcGrab(struct vdIn *vd)
 		queue_buff(vd);
 		vd->setFPS=0;
 	}
-	else if(vd->setJPEGCOMP)
+	else if(vd->setJPEGCOMP) //change jpeg quality/compression in video frame
 	{
 		video_disable(vd);
 		set_jpegcomp(vd);

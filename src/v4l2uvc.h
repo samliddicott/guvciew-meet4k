@@ -151,9 +151,5 @@ int input_set_framerate (struct vdIn * device);
 */
 int input_get_framerate (struct vdIn * device);
 
-int get_jpegcomp(struct vdIn *vd);
-
-int set_jpegcomp(struct vdIn *vd);
-
 #endif
 
