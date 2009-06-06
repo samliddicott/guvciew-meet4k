@@ -662,7 +662,7 @@ void video_tab(struct ALL_DATA *all_data)
 		gtk_widget_set_sensitive (set_jpeg_comp, TRUE);
 		gtk_widget_show (set_jpeg_comp);
 		
-		label_jpeg_comp = gtk_label_new(_("jpeg quality:"));
+		label_jpeg_comp = gtk_label_new(_("Quality:"));
 		gtk_misc_set_alignment (GTK_MISC (label_jpeg_comp), 1, 0.5);
 
 		gtk_table_attach (GTK_TABLE(table2), label_jpeg_comp, 0, 1, line, line+1,

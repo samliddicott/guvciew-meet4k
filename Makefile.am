@@ -17,11 +17,9 @@ guvcviewdoc_DATA = \
 	NEWS
 
 applicationdir = ${datadir}/applications
-menudir = ${datadir}/menu
 pixmapsdir = ${datadir}/pixmaps/guvcview
 
 application_DATA = pixmaps/guvcview.desktop
-menu_DATA = pixmaps/guvcview
 pixmaps_DATA = \
 		pixmaps/guvcview.png\
 		pixmaps/camera.png\
@@ -34,6 +32,11 @@ pixmaps_DATA = \
 		pixmaps/videos_folder.png\
 		pixmaps/controls_folder.png\
 		pixmaps/close.png
+
+if DEBIAN_MENU
+menudir = ${datadir}/menu
+menu_DATA = pixmaps/guvcview
+endif
 
 EXTRA_DIST = \
 		config.rpath\
@@ -69,10 +72,11 @@ $(guvcviewman_DATA):
 $(pixmaps_DATA):
 	cd pixmaps && $(MAKE) $(AM_MAKEFLAGS) .png
 
-# builds menu file
+if DEBIAN_MENU
 $(menu_DATA):
 	cd pixmaps && $(MAKE) $(AM_MAKEFLAGS) .menu
-	
+endif
+
 # builds desktop menu entry
 $(application_DATA): 
 	cd pixmaps && $(MAKE) $(AM_MAKEFLAGS) .desktop

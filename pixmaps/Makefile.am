@@ -28,22 +28,25 @@ clean-generic:
 		echo "could not find man page";\
 	fi
 
+if DEBIAN_MENU
 .menu:
-	if test -e guvcview; then\
-		echo "guvcview debian menu file exists";\
-	else\
-		echo "Creating debian menu file";\
-		rm -f guvcview.menu;\
-		touch guvcview.menu;\
-		echo "?package(guvcview):\\" >> guvcview.menu;\
-		echo "	needs=\"X11\"\\" >> guvcview.menu;\
-		echo "	section=\"Applications/Video\"\\" >> guvcview.menu;\
-		echo "	title=\"guvcview\"\\" >> guvcview.menu;\
-		echo "	longtitle=\"GTK UVC Viewer - uvc video viewer and capturer\"\\" >> guvcview.menu;\
-		echo "	command=\"guvcview\"\\" >> guvcview.menu;\
-		echo "	icon=\"$(datadir)/pixmaps/guvcview/guvcview.png\"" >> guvcview.menu;\
-		cp guvcview.menu guvcview;\
-	fi
+		if test -e guvcview; then\
+			echo "guvcview debian menu file exists";\
+		else\
+			echo "Creating debian menu file";\
+			rm -f guvcview.menu;\
+			touch guvcview.menu;\
+			echo "?package(guvcview):\\" >> guvcview.menu;\
+			echo "	needs=\"X11\"\\" >> guvcview.menu;\
+			echo "	section=\"Applications/Video\"\\" >> guvcview.menu;\
+			echo "	title=\"guvcview\"\\" >> guvcview.menu;\
+			echo "	longtitle=\"GTK UVC Viewer - uvc video viewer and capturer\"\\" >> guvcview.menu;\
+			echo "	command=\"guvcview\"\\" >> guvcview.menu;\
+			echo "	icon=\"$(datadir)/pixmaps/guvcview/guvcview.png\"" >> guvcview.menu;\
+			cp guvcview.menu guvcview;\
+		fi
+endif
+
 .desktop:
 	if test -e guvcview.desktop; then\
 		echo "guvcview.desktop exists";\

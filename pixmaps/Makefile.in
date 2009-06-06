@@ -335,22 +335,23 @@ clean-generic:
 		echo "could not find man page";\
 	fi
 
-.menu:
-	if test -e guvcview; then\
-		echo "guvcview debian menu file exists";\
-	else\
-		echo "Creating debian menu file";\
-		rm -f guvcview.menu;\
-		touch guvcview.menu;\
-		echo "?package(guvcview):\\" >> guvcview.menu;\
-		echo "	needs=\"X11\"\\" >> guvcview.menu;\
-		echo "	section=\"Applications/Video\"\\" >> guvcview.menu;\
-		echo "	title=\"guvcview\"\\" >> guvcview.menu;\
-		echo "	longtitle=\"GTK UVC Viewer - uvc video viewer and capturer\"\\" >> guvcview.menu;\
-		echo "	command=\"guvcview\"\\" >> guvcview.menu;\
-		echo "	icon=\"$(datadir)/pixmaps/guvcview/guvcview.png\"" >> guvcview.menu;\
-		cp guvcview.menu guvcview;\
-	fi
+@DEBIAN_MENU_TRUE@.menu:
+@DEBIAN_MENU_TRUE@		if test -e guvcview; then\
+@DEBIAN_MENU_TRUE@			echo "guvcview debian menu file exists";\
+@DEBIAN_MENU_TRUE@		else\
+@DEBIAN_MENU_TRUE@			echo "Creating debian menu file";\
+@DEBIAN_MENU_TRUE@			rm -f guvcview.menu;\
+@DEBIAN_MENU_TRUE@			touch guvcview.menu;\
+@DEBIAN_MENU_TRUE@			echo "?package(guvcview):\\" >> guvcview.menu;\
+@DEBIAN_MENU_TRUE@			echo "	needs=\"X11\"\\" >> guvcview.menu;\
+@DEBIAN_MENU_TRUE@			echo "	section=\"Applications/Video\"\\" >> guvcview.menu;\
+@DEBIAN_MENU_TRUE@			echo "	title=\"guvcview\"\\" >> guvcview.menu;\
+@DEBIAN_MENU_TRUE@			echo "	longtitle=\"GTK UVC Viewer - uvc video viewer and capturer\"\\" >> guvcview.menu;\
+@DEBIAN_MENU_TRUE@			echo "	command=\"guvcview\"\\" >> guvcview.menu;\
+@DEBIAN_MENU_TRUE@			echo "	icon=\"$(datadir)/pixmaps/guvcview/guvcview.png\"" >> guvcview.menu;\
+@DEBIAN_MENU_TRUE@			cp guvcview.menu guvcview;\
+@DEBIAN_MENU_TRUE@		fi
+
 .desktop:
 	if test -e guvcview.desktop; then\
 		echo "guvcview.desktop exists";\

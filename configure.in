@@ -25,6 +25,14 @@ PKG_CHECK_MODULES(PACKAGE, [gtk+-2.0 >= 2.14.0 glib-2.0 >= 2.10.0 gthread-2.0 gd
 AC_SUBST(PACKAGE_CFLAGS)
 AC_SUBST(PACKAGE_LIBS)
 
+dnl set/unset debian menu
+AC_ARG_ENABLE(debian-menu, AS_HELP_STRING([--disable-debian-menu],
+		[disable debian menu (default: enabled)]),,
+	[enable_debian-menu=yes])
+
+AM_CONDITIONAL(DEBIAN_MENU, test x$enable_debian-menu = xyes)
+
+
 dnl Check for pulseaudio
 AC_ARG_ENABLE(pulse, AS_HELP_STRING([--disable-pulse],
 		[disable pulseaudio support (default: enabled)]),,
