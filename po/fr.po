@@ -4,8 +4,8 @@
 # This file is distributed under the same license as the guvcview package.
 # guvcview <pj.assis@gmail.com>, 2008.
 # Paulo Assis <pj.assis@gmail.com>, 2008.
-#
-#
+# 
+# 
 msgid ""
 msgstr ""
 "Project-Id-Version: fr\n"

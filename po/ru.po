@@ -14,7 +14,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Lokalize 0.3\n"
-"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%"
+"10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
 #: src/guvcview.c:173
 msgid "GUVCViewer Controls"
@@ -39,8 +40,7 @@ msgstr ""
 "Необходимо удостовериться, что камера подключена\n"
 "и что драйвер Linux-UVC установлен."
 
-#: src/guvcview.c:227
-#: src/guvcview.c:262
+#: src/guvcview.c:227 src/guvcview.c:262
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -50,8 +50,7 @@ msgstr ""
 "\n"
 "Не удалось назначить поток в формате MJPG или YUV для guvcview"
 
-#: src/guvcview.c:228
-#: src/guvcview.c:263
+#: src/guvcview.c:228 src/guvcview.c:263
 msgid ""
 "Make sure you have a UVC compliant camera\n"
 "and that you have the linux UVC driver installed."
@@ -108,19 +107,16 @@ msgstr "Профиль регулировки:"
 msgid "Stop Auto"
 msgstr "Останов автозахвата"
 
-#: src/guvcview.c:368
-#: src/callbacks.c:952
+#: src/guvcview.c:368 src/callbacks.c:952
 msgid "Cap. Image"
 msgstr "Снимок"
 
 #. vid capture enabled from start
-#: src/guvcview.c:373
-#: src/callbacks.c:1028
+#: src/guvcview.c:373 src/callbacks.c:1028
 msgid "Stop Video"
 msgstr "Стоп"
 
-#: src/guvcview.c:379
-#: src/callbacks.c:1000
+#: src/guvcview.c:379 src/callbacks.c:1000
 msgid "Cap. Video"
 msgstr "Видео"
 
@@ -136,7 +132,9 @@ msgstr ""
 
 #: src/guvcview.c:517
 msgid "Please report it to http://developer.berlios.de/bugs/?group_id=8179"
-msgstr "Следует сообщить об этом сюда: http://developer.berlios.de/bugs/?group_id=8179"
+msgstr ""
+"Следует сообщить об этом сюда: http://developer.berlios.de/bugs/?"
+"group_id=8179"
 
 #. needed only for language files (not used)
 #. UVC driver control strings
@@ -232,22 +230,14 @@ msgstr "Режим приоритета затвора"
 msgid "Aperture Priority Mode"
 msgstr "Режим приоритета диафрагмы"
 
-#: src/video_tab.c:41
-#: src/callbacks.c:1051
+#: src/video_tab.c:41 src/callbacks.c:1051
 msgid "Save File"
 msgstr "Сохранение файла"
 
 #. if auto naming restart counter
-#: src/video_tab.c:95
-#: src/globals.c:69
-#: src/globals.c:72
-#: src/options.c:359
-#: src/options.c:412
-#: src/callbacks.c:413
-#: src/callbacks.c:734
-#: src/callbacks.c:882
-#: src/callbacks.c:899
-#: src/callbacks.c:931
+#: src/video_tab.c:95 src/globals.c:69 src/globals.c:72 src/options.c:359
+#: src/options.c:412 src/callbacks.c:413 src/callbacks.c:734
+#: src/callbacks.c:882 src/callbacks.c:899 src/callbacks.c:931
 #: src/callbacks.c:1005
 #, c-format
 msgid "File num:%d"
@@ -350,8 +340,7 @@ msgstr "Вывод камеры:"
 msgid "Image File:"
 msgstr "Файл снимка:"
 
-#: src/video_tab.c:674
-#: src/video_tab.c:759
+#: src/video_tab.c:674 src/video_tab.c:759
 msgid "File,Auto"
 msgstr "автомат."
 
@@ -425,13 +414,11 @@ msgstr "PORTAUDIO"
 msgid "PULSEAUDIO"
 msgstr "PULSEAUDIO"
 
-#: src/audio_tab.c:135
-#: src/audio_tab.c:158
+#: src/audio_tab.c:135 src/audio_tab.c:158
 msgid "Input Device:"
 msgstr "Устройство ввода:"
 
-#: src/audio_tab.c:169
-#: src/audio_tab.c:201
+#: src/audio_tab.c:169 src/audio_tab.c:201
 msgid "Dev. Default"
 msgstr "по умолчанию"
 
@@ -593,8 +580,10 @@ msgid "Hardware accelaration (enable(1) | disable(0))"
 msgstr "Аппаратное ускорение (вкл.(1) | выкл.(0))"
 
 #: src/options.c:532
-msgid "Pixel format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|gbrg|grbg|bggr|rggb)"
-msgstr "Формат пиксела (mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|gbrg|grbg|bggr|rggb)"
+msgid ""
+"Pixel format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|gbrg|grbg|bggr|rggb)"
+msgstr ""
+"Формат пиксела (mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|gbrg|grbg|bggr|rggb)"
 
 #: src/options.c:533
 msgid "Frame size, default: 640x480"
@@ -657,9 +646,7 @@ msgid "Down"
 msgstr "Вниз"
 
 #. Pan reset
-#: src/img_controls.c:247
-#: src/img_controls.c:269
-#: src/img_controls.c:293
+#: src/img_controls.c:247 src/img_controls.c:269 src/img_controls.c:293
 msgid "Reset"
 msgstr "Возврат"
 
@@ -700,23 +687,19 @@ msgstr ""
 "Запустить новый процесс или перезапустить?\n"
 "\n"
 
-#: src/callbacks.c:563
-#: src/callbacks.c:639
+#: src/callbacks.c:563 src/callbacks.c:639
 msgid "Program Restart"
 msgstr "Перезапуск программы"
 
-#: src/callbacks.c:566
-#: src/callbacks.c:642
+#: src/callbacks.c:566 src/callbacks.c:642
 msgid "now"
 msgstr "Сейчас"
 
-#: src/callbacks.c:568
-#: src/callbacks.c:644
+#: src/callbacks.c:568 src/callbacks.c:644
 msgid "Later"
 msgstr "Позже"
 
-#: src/callbacks.c:572
-#: src/callbacks.c:648
+#: src/callbacks.c:572 src/callbacks.c:648
 msgid ""
 "Changes will only take effect after guvcview restart.\n"
 "\n"
@@ -731,4 +714,3 @@ msgstr ""
 #: src/callbacks.c:1064
 msgid "Load File"
 msgstr "Загрузка файла"
-
