@@ -7618,13 +7618,13 @@ fi
 
 # Check whether --enable-debian-menu was given.
 if test "${enable_debian_menu+set}" = set; then
-  enableval=$enable_debian_menu;
+  enableval=$enable_debian_menu; enable_debian_menu=no
 else
-  enable_debian-menu=yes
+  enable_debian_menu=yes
 fi
 
 
- if test x$enable_debian-menu = xyes; then
+ if test "$enable_debian_menu" = yes; then
   DEBIAN_MENU_TRUE=
   DEBIAN_MENU_FALSE='#'
 else
