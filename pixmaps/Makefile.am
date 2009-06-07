@@ -47,6 +47,7 @@ if DEBIAN_MENU
 		fi
 endif
 
+if DESKTOP
 .desktop:
 	if test -e guvcview.desktop; then\
 		echo "guvcview.desktop exists";\
@@ -68,7 +69,8 @@ endif
 		echo "StartupNotify=true" >> guvcview.desktop_;\
 		cp guvcview.desktop_ guvcview.desktop;\
 	fi
-		 
+endif
+
 .png:
 	for file in ${pixs}; do \
 		if test -e $$file; then \

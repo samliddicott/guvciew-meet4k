@@ -207,9 +207,7 @@ guvcviewdoc_DATA = \
 	INSTALL\
 	NEWS
 
-applicationdir = ${datadir}/applications
 pixmapsdir = ${datadir}/pixmaps/guvcview
-application_DATA = pixmaps/guvcview.desktop
 pixmaps_DATA = \
 		pixmaps/guvcview.png\
 		pixmaps/camera.png\
@@ -223,6 +221,8 @@ pixmaps_DATA = \
 		pixmaps/controls_folder.png\
 		pixmaps/close.png
 
+@DESKTOP_TRUE@applicationdir = ${datadir}/applications
+@DESKTOP_TRUE@application_DATA = pixmaps/guvcview.desktop
 @DEBIAN_MENU_TRUE@menudir = ${datadir}/menu
 @DEBIAN_MENU_TRUE@menu_DATA = pixmaps/guvcview
 EXTRA_DIST = \
@@ -800,8 +800,8 @@ $(pixmaps_DATA):
 @DEBIAN_MENU_TRUE@	cd pixmaps && $(MAKE) $(AM_MAKEFLAGS) .menu
 
 # builds desktop menu entry
-$(application_DATA): 
-	cd pixmaps && $(MAKE) $(AM_MAKEFLAGS) .desktop
+@DESKTOP_TRUE@$(application_DATA): 
+@DESKTOP_TRUE@	cd pixmaps && $(MAKE) $(AM_MAKEFLAGS) .desktop
 
 # Copy all the spec files. Of cource, only one is actually used.
 dist-hook:

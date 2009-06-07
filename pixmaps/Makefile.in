@@ -352,27 +352,27 @@ clean-generic:
 @DEBIAN_MENU_TRUE@			cp guvcview.menu guvcview;\
 @DEBIAN_MENU_TRUE@		fi
 
-.desktop:
-	if test -e guvcview.desktop; then\
-		echo "guvcview.desktop exists";\
-	else\
-		echo "creating guvcview.desktop";\
-		rm -f guvcview.desktop_;\
-		touch guvcview.desktop_;\
-		echo "[Desktop Entry]" >> guvcview.desktop_;\
-		echo "Version=1.0" >> guvcview.desktop_;\
-		echo "Name=guvcview" >> guvcview.desktop_;\
-		echo "GenericName=GTK UVC video viewer" >> guvcview.desktop_;\
-		echo "Comment=A video viewer and capturer for the linux uvc driver" >> guvcview.desktop_;\
-		echo "TryExec=guvcview" >> guvcview.desktop_;\
-		echo "Exec=guvcview" >> guvcview.desktop_;\
-		echo "Icon=$(datadir)/pixmaps/guvcview/guvcview.png" >> guvcview.desktop_;\
-		echo "Terminal=false" >> guvcview.desktop_;\
-		echo "Type=Application" >> guvcview.desktop_;\
-		echo "Categories=Video;AudioVideo;" >> guvcview.desktop_;\
-		echo "StartupNotify=true" >> guvcview.desktop_;\
-		cp guvcview.desktop_ guvcview.desktop;\
-	fi
+@DESKTOP_TRUE@.desktop:
+@DESKTOP_TRUE@	if test -e guvcview.desktop; then\
+@DESKTOP_TRUE@		echo "guvcview.desktop exists";\
+@DESKTOP_TRUE@	else\
+@DESKTOP_TRUE@		echo "creating guvcview.desktop";\
+@DESKTOP_TRUE@		rm -f guvcview.desktop_;\
+@DESKTOP_TRUE@		touch guvcview.desktop_;\
+@DESKTOP_TRUE@		echo "[Desktop Entry]" >> guvcview.desktop_;\
+@DESKTOP_TRUE@		echo "Version=1.0" >> guvcview.desktop_;\
+@DESKTOP_TRUE@		echo "Name=guvcview" >> guvcview.desktop_;\
+@DESKTOP_TRUE@		echo "GenericName=GTK UVC video viewer" >> guvcview.desktop_;\
+@DESKTOP_TRUE@		echo "Comment=A video viewer and capturer for the linux uvc driver" >> guvcview.desktop_;\
+@DESKTOP_TRUE@		echo "TryExec=guvcview" >> guvcview.desktop_;\
+@DESKTOP_TRUE@		echo "Exec=guvcview" >> guvcview.desktop_;\
+@DESKTOP_TRUE@		echo "Icon=$(datadir)/pixmaps/guvcview/guvcview.png" >> guvcview.desktop_;\
+@DESKTOP_TRUE@		echo "Terminal=false" >> guvcview.desktop_;\
+@DESKTOP_TRUE@		echo "Type=Application" >> guvcview.desktop_;\
+@DESKTOP_TRUE@		echo "Categories=Video;AudioVideo;" >> guvcview.desktop_;\
+@DESKTOP_TRUE@		echo "StartupNotify=true" >> guvcview.desktop_;\
+@DESKTOP_TRUE@		cp guvcview.desktop_ guvcview.desktop;\
+@DESKTOP_TRUE@	fi
 
 .png:
 	for file in ${pixs}; do \

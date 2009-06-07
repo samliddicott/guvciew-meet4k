@@ -640,6 +640,8 @@ ac_subst_vars='LTLIBOBJS
 LIBOBJS
 PULSE_LIBS
 PULSE_CFLAGS
+DESKTOP_FALSE
+DESKTOP_TRUE
 DEBIAN_MENU_FALSE
 DEBIAN_MENU_TRUE
 PACKAGE_LIBS
@@ -750,6 +752,7 @@ enable_option_checking
 enable_maintainer_mode
 enable_dependency_tracking
 enable_debian_menu
+enable_desktop
 enable_pulse
 '
       ac_precious_vars='build_alias
@@ -1397,6 +1400,7 @@ Optional Features:
   --disable-dependency-tracking  speeds up one-time build
   --enable-dependency-tracking   do not reject slow dependency extractors
   --disable-debian-menu   disable debian menu (default: enabled)
+  --disable-desktop       disable desktop file (default: enabled)
   --disable-pulse         disable pulseaudio support (default: enabled)
 
 Some influential environment variables:
@@ -7633,6 +7637,22 @@ else
 fi
 
 
+# Check whether --enable-desktop was given.
+if test "${enable_desktop+set}" = set; then
+  enableval=$enable_desktop; enable_desktop=no
+else
+  enable_desktop=yes
+fi
+
+
+ if test "$enable_desktop" = yes; then
+  DESKTOP_TRUE=
+  DESKTOP_FALSE='#'
+else
+  DESKTOP_TRUE='#'
+  DESKTOP_FALSE=
+fi
+
 
 # Check whether --enable-pulse was given.
 if test "${enable_pulse+set}" = set; then
@@ -8706,6 +8726,13 @@ if test -z "${DEBIAN_MENU_TRUE}" && test -z "${DEBIAN_MENU_FALSE}"; then
   { { $as_echo "$as_me:$LINENO: error: conditional \"DEBIAN_MENU\" was never defined.
 Usually this means the macro was only invoked conditionally." >&5
 $as_echo "$as_me: error: conditional \"DEBIAN_MENU\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+if test -z "${DESKTOP_TRUE}" && test -z "${DESKTOP_FALSE}"; then
+  { { $as_echo "$as_me:$LINENO: error: conditional \"DESKTOP\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+$as_echo "$as_me: error: conditional \"DESKTOP\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
