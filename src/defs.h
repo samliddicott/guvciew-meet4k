@@ -32,6 +32,9 @@
   #define BIGENDIAN 0
 #endif
 
+#define IO_MMAP 1
+#define IO_READ 2
+
 typedef uint64_t QWORD;
 typedef uint32_t DWORD;
 typedef uint16_t WORD;

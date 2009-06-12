@@ -49,6 +49,8 @@ writeConf(struct GLOBAL *global, char *videodevice)
 		g_fprintf(fp,"# video loop sleep time in ms: 0,1,2,3,...\n");
 		g_fprintf(fp,"# increased sleep time -> less cpu load, more droped frames\n");
 		g_fprintf(fp,"vid_sleep=%i\n",global->vid_sleep);
+		g_fprintf(fp,"# capture method: 1- mmap 2- read\n");
+		g_fprintf(fp,"cap_meth=%i\n",global->cap_meth);
 		g_fprintf(fp,"# video resolution \n");
 		g_fprintf(fp,"resolution='%ix%i'\n",global->width,global->height);
 		g_fprintf(fp,"# control window size: default %ix%i\n",WINSIZEX,WINSIZEY);
@@ -69,8 +71,6 @@ writeConf(struct GLOBAL *global, char *videodevice)
 		g_fprintf(fp,"bpp=%i\n",global->bpp);
 		g_fprintf(fp,"# hardware accelaration: 0 1 (default - 1)\n");
 		g_fprintf(fp,"hwaccel=%i\n",global->hwaccel);
-		g_fprintf(fp,"# video grab method: 0 -read 1 -mmap (default - 1)\n");
-		g_fprintf(fp,"grabmethod=%i\n",global->grabmethod);
 		g_fprintf(fp,"# video compression format: 0-MJPG 1-YUY2/UYVY 2-DIB (BMP 24) 3-MPEG1 4-FLV1 5-MPEG2 6-MS MPEG4 V3(DIV3) 7-MPEG4 (DIV5)\n");
 		g_fprintf(fp,"avi_format=%i\n",global->VidCodec);
 		g_fprintf(fp,"# video muxer: 0-avi 1-matroska\n");
@@ -275,6 +275,11 @@ readConf(struct GLOBAL *global)
 						{
 							global->vid_sleep = scanner->value.v_int;
 						}
+						else if (g_strcmp0(name,"cap_meth")==0)
+						{
+							if(!(global->flg_cap_meth))
+								global->cap_meth = scanner->value.v_int;
+						}
 						else if (g_strcmp0(name,"vpane")==0) 
 						{
 							global->boxvsize = scanner->value.v_int;
@@ -335,10 +340,6 @@ readConf(struct GLOBAL *global)
 						{
 							if(global->flg_hwaccel < 1)
 								global->hwaccel = scanner->value.v_int;
-						}
-						else if (g_strcmp0(name,"grabmethod")==0) 
-						{
-							global->grabmethod = scanner->value.v_int;
 						}
 						else if (g_strcmp0(name,"avi_format")==0) 
 						{
@@ -467,6 +468,7 @@ readConf(struct GLOBAL *global)
 		{
 			g_printf("video_device: %s\n",global->videodevice);
 			g_printf("vid_sleep: %i\n",global->vid_sleep);
+			g_printf("cap_meth: %i\n",global->cap_meth);
 			g_printf("resolution: %i x %i\n",global->width,global->height);
 			g_printf("windowsize: %i x %i\n",global->winwidth,global->winheight);
 			g_printf("vert pane: %i\n",global->boxvsize);
@@ -476,7 +478,6 @@ readConf(struct GLOBAL *global)
 			g_printf("Display Fps: %i\n",global->FpsCount);
 			g_printf("bpp: %i\n",global->bpp);
 			g_printf("hwaccel: %i\n",global->hwaccel);
-			g_printf("grabmethod: %i\n",global->grabmethod);
 			g_printf("avi_format: %i\n",global->VidCodec);
 			g_printf("sound: %i\n",global->Sound_enable);
 			g_printf("sound Device: %i\n",global->Sound_UseDev);
@@ -517,6 +518,7 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 	gchar *config = NULL;
 	int hwaccel=-1;
 	int FpsCount=-1;
+	int cap_meth=-1;
 	
 	GOptionEntry entries[] =
 	{
@@ -527,6 +529,7 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 		{ "verbose", 'v', 0, G_OPTION_ARG_NONE, &global->debug, N_("Displays debug information"), NULL },
 		{ "device", 'd', 0, G_OPTION_ARG_STRING, &device, N_("Video Device to use [default: /dev/video0]"), "VIDEO_DEVICE" },
 		{ "control_only", 'o', 0, G_OPTION_ARG_NONE, &global->control_only, N_("Don't stream video (image controls only)"), NULL},
+		{ "capture_method", 'r', 0, G_OPTION_ARG_INT, &cap_meth, N_("Capture method (1-mmap (default)  2-read)"), "[1 | 2]"},
 		{ "config", 'g', 0, G_OPTION_ARG_STRING, &config, N_("Configuration file"), "FILENAME" },
 		{ "hwd_acel", 'w', 0, G_OPTION_ARG_INT, &hwaccel, N_("Hardware accelaration (enable(1) | disable(0))"), "[1 | 0]" },
 		{ "format", 'f', 0, G_OPTION_ARG_STRING, &format, N_("Pixel format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|gbrg|grbg|bggr|rggb)"), "FORMAT" },
@@ -722,8 +725,13 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 		global->FpsCount = FpsCount;
 		global->flg_FpsCount = 1;
 	}
+	if(cap_meth != -1)
+	{
+		global->flg_cap_meth = TRUE;
+		global->cap_meth = cap_meth;
+	}
 	
-
+	//g_printf("option capture meth is %i\n", global->cap_meth);
 	g_free(help_str);
 	g_free(help_gtk_str);
 	g_free(help_all_str);

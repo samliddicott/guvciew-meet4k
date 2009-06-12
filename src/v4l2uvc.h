@@ -53,6 +53,7 @@
 #define VDIN_QUERYBUF_ERR        -11
 #define VDIN_QBUF_ERR            -12
 #define VDIN_MMAP_ERR            -13
+#define VDIN_READ_ERR            -14
 
 enum  v4l2_uvc_exposure_auto_type 
 {
@@ -74,7 +75,8 @@ struct vdIn
 {
 	GMutex *mutex;                      // VdIn struct mutex
 	int fd;                             // device file descriptor
-	char *videodevice;                  // video device string (default "/dev/video0"
+	char *videodevice;                  // video device string (default "/dev/video0)"
+	int cap_meth;                       // capture method : IO_MMAP (1)  IO_READ (0)
 	struct v4l2_capability cap;         // v4l2 capability struct
 	struct v4l2_format fmt;             // v4l2 formar struct
 	struct v4l2_buffer buf;             // v4l2 buffer struct

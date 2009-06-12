@@ -69,6 +69,7 @@ struct GLOBAL
 
 	int stack_size;        //thread stack size
 	int vid_sleep;         //video thread sleep time (0 by default)
+	int cap_meth;          //capture method: 1-mmap 2-read
 	int Capture_time;      //video capture time passed through argument options with -t 
 	int imgFormat;         //image format: 0-"jpg", 1-"png", 2-"bmp"
 	int VidCodec;          //0-"MJPG"  1-"YUY2" 2-"DIB "(rgb32) 3-....
@@ -95,7 +96,6 @@ struct GLOBAL
 	int fps_num;           //fps numerator (usually 1)
 	int bpp;               //current bytes per pixel
 	int hwaccel;           //use hardware acceleration
-	int grabmethod;        //default mmap(1) or read(0)[not implemented]
 	int width;             //frame width
 	int height;            //frame height
 	int winwidth;          //control windoe width
@@ -119,6 +119,7 @@ struct GLOBAL
 	gboolean flg_mode;     //flag mode if set in args
 	gboolean flg_imgFPath; //flag imgFPath if set in args
 	gboolean flg_FpsCount; //flag FpsCount if set in args
+	gboolean flg_cap_meth; //flag if cap_meth is set in args
 	gboolean debug;        //debug mode flag (--verbose)
 	gboolean VidButtPress;
 	gboolean control_only; //if set don't stream video (enables image control in other apps e.g. ekiga, skype, mplayer)

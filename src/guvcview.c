@@ -243,6 +243,12 @@ int main(int argc, char *argv[])
 						&all_data);
 				}
 				break;
+
+			case VDIN_READ_ERR:
+				ERR_DIALOG (N_("Guvcview error:\n\nRead method error"),
+					N_("Please try mmap instead."),
+					&all_data);
+				break;
 			
 			case VDIN_REQBUFS_ERR:/*unable to allocate dequeue buffers or mem*/
 			case VDIN_ALLOC_ERR:

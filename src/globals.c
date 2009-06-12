@@ -112,7 +112,8 @@ int initGlobals (struct GLOBAL *global)
 	global->fps_num = DEFAULT_FPS_NUM;
 	global->bpp = 0; //current bytes per pixel
 	global->hwaccel = 1; //use hardware acceleration
-	global->grabmethod = 1;//default mmap(1) or read(0)
+	global->cap_meth = IO_MMAP;//default mmap(1) or read(0)
+	global->flg_cap_meth = FALSE;
 	global->width = DEFAULT_WIDTH;
 	global->height = DEFAULT_HEIGHT;
 	global->winwidth=WINSIZEX;

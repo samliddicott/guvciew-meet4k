@@ -97,22 +97,22 @@ static int check_videoIn(struct vdIn *vd)
 				vd->videodevice);
 		return VDIN_QUERYCAP_ERR;
 	}
-	if (vd->grabmethod) 
+	if (!(vd->cap.capabilities & V4L2_CAP_STREAMING)) 
 	{
-		if (!(vd->cap.capabilities & V4L2_CAP_STREAMING)) 
-		{
-			g_printerr("%s does not support streaming i/o\n", 
-				vd->videodevice);
-			return VDIN_QUERYCAP_ERR;
-		}
-	} 
-	else 
+		g_printerr("%s does not support streaming i/o\n", 
+			vd->videodevice);
+		return VDIN_QUERYCAP_ERR;
+	}
+	
+	if(vd->cap_meth == IO_READ) 
 	{
+	
+		vd->mem[vd->buf.index] = NULL;
 		if (!(vd->cap.capabilities & V4L2_CAP_READWRITE)) 
 		{
 			g_printerr("%s does not support read i/o\n", 
 				vd->videodevice);
-			return VDIN_QUERYCAP_ERR;
+			return VDIN_READ_ERR;
 		}
 	}
 	g_printf("Init. %s (location: %s)\n", vd->cap.card, vd->cap.bus_info);
@@ -135,39 +135,45 @@ static int query_buff(struct vdIn *vd, const int setUNMAP)
 {
 	int i=0;
 	int ret=0;
-	for (i = 0; i < NB_BUFFER; i++) 
+	
+	switch(vd->cap_meth)
 	{
-		
-		// unmap old buffer
-		if (setUNMAP)
-			if(munmap(vd->mem[i],vd->buf.length)<0) perror("couldn't unmap buff");
-		
-		memset(&vd->buf, 0, sizeof(struct v4l2_buffer));
-		vd->buf.index = i;
-		vd->buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-		vd->buf.flags = V4L2_BUF_FLAG_TIMECODE;
-		vd->buf.timecode = vd->timecode;
-		vd->buf.timestamp.tv_sec = 0;//get frame as soon as possible
-		vd->buf.timestamp.tv_usec = 0;
-		vd->buf.memory = V4L2_MEMORY_MMAP;
-		ret = ioctl(vd->fd, VIDIOC_QUERYBUF, &vd->buf);
-		if (ret < 0) 
-		{
-			perror("VIDIOC_QUERYBUF - Unable to query buffer");
-			return VDIN_QUERYBUF_ERR;
-		}
-		if (vd->buf.length <= 0) 
-			g_printerr("WARNING VIDIOC_QUERYBUF - buffer length is %d\n",
-					       vd->buf.length);
-		// map new buffer
-		vd->mem[i] = mmap( 0, // start anywhere
-			  vd->buf.length, PROT_READ, MAP_SHARED, vd->fd,
-			  vd->buf.m.offset);
-		if (vd->mem[i] == MAP_FAILED) 
-		{
-			perror("Unable to map buffer");
-			return VDIN_MMAP_ERR;
-		}
+		case IO_READ:
+			break;
+			
+		case IO_MMAP:
+			for (i = 0; i < NB_BUFFER; i++) 
+			{
+				// unmap old buffer
+				if (setUNMAP)
+					if(munmap(vd->mem[i],vd->buf.length)<0) perror("couldn't unmap buff");
+				memset(&vd->buf, 0, sizeof(struct v4l2_buffer));
+				vd->buf.index = i;
+				vd->buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+				vd->buf.flags = V4L2_BUF_FLAG_TIMECODE;
+				vd->buf.timecode = vd->timecode;
+				vd->buf.timestamp.tv_sec = 0;//get frame as soon as possible
+				vd->buf.timestamp.tv_usec = 0;
+				vd->buf.memory = V4L2_MEMORY_MMAP;
+				ret = ioctl(vd->fd, VIDIOC_QUERYBUF, &vd->buf);
+				if (ret < 0) 
+				{
+					perror("VIDIOC_QUERYBUF - Unable to query buffer");
+					return VDIN_QUERYBUF_ERR;
+				}
+				if (vd->buf.length <= 0) 
+					g_printerr("WARNING VIDIOC_QUERYBUF - buffer length is %d\n",
+						vd->buf.length);
+				// map new buffer
+				vd->mem[i] = mmap( 0, // start anywhere
+					vd->buf.length, PROT_READ, MAP_SHARED, vd->fd,
+					vd->buf.m.offset);
+				if (vd->mem[i] == MAP_FAILED) 
+				{
+					perror("Unable to map buffer");
+					return VDIN_MMAP_ERR;
+				}
+			}
 	}
 	return VDIN_OK;
 }
@@ -182,22 +188,30 @@ static int queue_buff(struct vdIn *vd)
 {
 	int i=0;
 	int ret=0;
-	for (i = 0; i < NB_BUFFER; ++i) 
+	switch(vd->cap_meth)
 	{
-		memset(&vd->buf, 0, sizeof(struct v4l2_buffer));
-		vd->buf.index = i;
-		vd->buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-		vd->buf.flags = V4L2_BUF_FLAG_TIMECODE;
-		vd->buf.timecode = vd->timecode;
-		vd->buf.timestamp.tv_sec = 0;//get frame as soon as possible
-		vd->buf.timestamp.tv_usec = 0;
-		vd->buf.memory = V4L2_MEMORY_MMAP;
-		ret = ioctl(vd->fd, VIDIOC_QBUF, &vd->buf);
-		if (ret < 0) 
-		{
-			perror("VIDIOC_QBUF - Unable to queue buffer");
-			return VDIN_QBUF_ERR;
-		}
+		case IO_READ:
+			break;
+			
+		case IO_MMAP:
+		default:
+			for (i = 0; i < NB_BUFFER; ++i) 
+			{
+				memset(&vd->buf, 0, sizeof(struct v4l2_buffer));
+				vd->buf.index = i;
+				vd->buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+				vd->buf.flags = V4L2_BUF_FLAG_TIMECODE;
+				vd->buf.timecode = vd->timecode;
+				vd->buf.timestamp.tv_sec = 0;//get frame as soon as possible
+				vd->buf.timestamp.tv_usec = 0;
+				vd->buf.memory = V4L2_MEMORY_MMAP;
+				ret = ioctl(vd->fd, VIDIOC_QBUF, &vd->buf);
+				if (ret < 0) 
+				{
+					perror("VIDIOC_QBUF - Unable to queue buffer");
+					return VDIN_QBUF_ERR;
+				}
+			}
 	}
 	return VDIN_OK;
 }
@@ -312,22 +326,34 @@ static int init_v4l2(struct vdIn *vd)
 	{
 		get_jpegcomp(vd);
 	}
-	// request buffers 
-	memset(&vd->rb, 0, sizeof(struct v4l2_requestbuffers));
-	vd->rb.count = NB_BUFFER;
-	vd->rb.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-	vd->rb.memory = V4L2_MEMORY_MMAP;
-
-	ret = ioctl(vd->fd, VIDIOC_REQBUFS, &vd->rb);
-	if (ret < 0) 
+	
+	switch (vd->cap_meth)
 	{
-		perror("VIDIOC_REQBUFS - Unable to allocate buffers");
-		return VDIN_REQBUFS_ERR;
+		case IO_READ: //allocate buffer for read
+			memset(&vd->buf, 0, sizeof(struct v4l2_buffer));
+			vd->buf.length = vd->width * vd->height * 3; //worst case (rgb)
+			vd->mem[vd->buf.index] = g_new0(BYTE, vd->buf.length);
+			break;
+		
+		case IO_MMAP:
+		default:
+			// request buffers 
+			memset(&vd->rb, 0, sizeof(struct v4l2_requestbuffers));
+			vd->rb.count = NB_BUFFER;
+			vd->rb.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+			vd->rb.memory = V4L2_MEMORY_MMAP;
+
+			ret = ioctl(vd->fd, VIDIOC_REQBUFS, &vd->rb);
+			if (ret < 0) 
+			{
+				perror("VIDIOC_REQBUFS - Unable to allocate buffers");
+				return VDIN_REQBUFS_ERR;
+			}
+			// map the buffers 
+			if (query_buff(vd,0)) return VDIN_QUERYBUF_ERR;
+			// Queue the buffers
+			if (queue_buff(vd)) return VDIN_QBUF_ERR;
 	}
-	// map the buffers 
-	if (query_buff(vd,0)) return VDIN_QUERYBUF_ERR;
-	// Queue the buffers
-	if (queue_buff(vd)) return VDIN_QBUF_ERR;
 	
 	return VDIN_OK;
 }
@@ -347,7 +373,6 @@ int init_videoIn(struct vdIn *vd, struct GLOBAL *global)
 	int width = global->width;
 	int height = global->height;
 	int format = global->format;
-	int grabmethod = global->grabmethod;
 	int fps = global->fps;
 	int fps_num = global->fps_num;
 	
@@ -356,19 +381,20 @@ int init_videoIn(struct vdIn *vd, struct GLOBAL *global)
 		return VDIN_ALLOC_ERR;
 	if (width == 0 || height == 0)
 		return VDIN_RESOL_ERR;
-	if (grabmethod < 0 || grabmethod > 1)
-		grabmethod = 1;		//mmap by default
+	if (global->cap_meth < IO_MMAP || global->cap_meth > IO_READ)
+		global->cap_meth = IO_MMAP;		//mmap by default
+	vd->cap_meth = global->cap_meth;
+	if(global->debug) g_printf("capture method = %i\n",vd->cap_meth);
 	vd->videodevice = NULL;
 	vd->videodevice = g_strdup(device);
 	g_printf("video device: %s \n", vd->videodevice);
 	
-	//flad to video thread
+	//flag to video thread
 	vd->capVid = FALSE;
 	//flag from video thread
 	vd->VidCapStop=TRUE;
 	
 	vd->VidFName = g_strdup(DEFAULT_AVI_FNAME);
-	
 	vd->fps = fps;
 	vd->fps_num = fps_num;
 	vd->signalquit = 1;
@@ -379,7 +405,6 @@ int init_videoIn(struct vdIn *vd, struct GLOBAL *global)
 	vd->width = width;
 	vd->height = height;
 	vd->formatIn = format;
-	vd->grabmethod = grabmethod;
 	vd->capImage=FALSE;
 	vd->cap_raw=0;
 	
@@ -424,8 +449,11 @@ int init_videoIn(struct vdIn *vd, struct GLOBAL *global)
 	// populate video capabilities structure array
 	// should only be called after all vdIn struct elements 
 	// have been initialized
-	check_videoIn(vd);
-	
+	if(check_videoIn(vd) == VDIN_READ_ERR)
+	{
+		ret = VDIN_READ_ERR;
+		goto error;
+	}
 	if(!(global->control_only))
 	{
 		if ((ret=init_v4l2(vd)) < 0) 
@@ -542,6 +570,11 @@ error:
 	g_free(vd->videodevice);
 	g_free(vd->VidFName);
 	g_free(vd->ImageFName);
+	if(vd->cap_meth == IO_READ)
+	{
+		g_printf("cleaning read buffer\n");
+		if((vd->buf.length > 0) && vd->mem[0]) g_free(vd->mem[0]);
+	}
 	g_mutex_free( vd->mutex );
 	return ret;
 }
@@ -623,16 +656,40 @@ int uvcGrab(struct vdIn *vd)
 	}
 	else if ((ret > 0) && (FD_ISSET(vd->fd, &rdset))) 
 	{
-		memset(&vd->buf, 0, sizeof(struct v4l2_buffer));
-		vd->buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-		vd->buf.memory = V4L2_MEMORY_MMAP;
-
-		ret = ioctl(vd->fd, VIDIOC_DQBUF, &vd->buf);
-		if (ret < 0) 
+		switch(vd->cap_meth)
 		{
-			perror("VIDIOC_DQBUF - Unable to dequeue buffer ");
-			ret = VDIN_DEQBUFS_ERR;
-			goto err;
+			case IO_READ:
+				vd->buf.bytesused = read (vd->fd, vd->mem[vd->buf.index], vd->buf.length);
+				if (-1 == vd->buf.bytesused ) 
+				{
+					switch (errno) 
+					{
+						case EAGAIN:
+							g_printf("No data available for read\n");
+							return VDIN_SELETIMEOUT_ERR;
+						case EINVAL:
+							g_printf("Read method is not supported, try mmap instead\n");
+						case EIO:
+							g_printf("I/O Error\n");
+						default:
+							perror("read");
+					}
+				}
+				break;
+				
+			case IO_MMAP:
+			default:
+				memset(&vd->buf, 0, sizeof(struct v4l2_buffer));
+				vd->buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+				vd->buf.memory = V4L2_MEMORY_MMAP;
+
+				ret = ioctl(vd->fd, VIDIOC_DQBUF, &vd->buf);
+				if (ret < 0) 
+				{
+					perror("VIDIOC_DQBUF - Unable to dequeue buffer ");
+					ret = VDIN_DEQBUFS_ERR;
+					goto err;
+				}
 		}
 	}
 
@@ -810,15 +867,23 @@ void close_v4l2(struct vdIn *vd)
 	// free format allocations
 	freeFormats(vd->listFormats);
 	// unmap queue buffers
-	for (i = 0; i < NB_BUFFER; i++) 
+	switch(vd->cap_meth)
 	{
-		if((vd->mem[i] != MAP_FAILED) && vd->buf.length)
-			if(munmap(vd->mem[i],vd->buf.length)<0) 
+		case IO_READ:
+			g_free(vd->mem[vd->buf.index]);
+			break;
+			
+		case IO_MMAP:
+		default:
+			for (i = 0; i < NB_BUFFER; i++) 
 			{
-				perror("Failed to unmap buffer");
+				if((vd->mem[i] != MAP_FAILED) && vd->buf.length)
+					if(munmap(vd->mem[i],vd->buf.length)<0) 
+					{
+						perror("Failed to unmap buffer");
+				}
 			}
 	}
-	
 	vd->videodevice = NULL;
 	vd->tmpbuffer = NULL;
 	vd->framebuffer = NULL;
