@@ -449,9 +449,8 @@ int init_videoIn(struct vdIn *vd, struct GLOBAL *global)
 	// populate video capabilities structure array
 	// should only be called after all vdIn struct elements 
 	// have been initialized
-	if(check_videoIn(vd) == VDIN_READ_ERR)
+	if((ret = check_videoIn(vd)) != VDIN_OK)
 	{
-		ret = VDIN_READ_ERR;
 		goto error;
 	}
 	if(!(global->control_only))

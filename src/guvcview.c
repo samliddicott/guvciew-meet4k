@@ -203,7 +203,7 @@ int main(int argc, char *argv[])
 		{
 			case VDIN_DEVICE_ERR://can't open device
 				ERR_DIALOG (N_("Guvcview error:\n\nUnable to open device"),
-					N_("Please make sure the camera is connected\nand that the linux-UVC driver is installed."),
+					N_("Please make sure the camera is connected\nand that the correct driver is installed."),
 					&all_data);
 				break;
 				
@@ -229,8 +229,8 @@ int main(int argc, char *argv[])
 				else 
 				{
 					g_printerr("ERROR: Can't set video stream. No supported format found\nExiting...\n");
-					ERR_DIALOG (N_("Guvcview error:\n\nCan't set MJPG or YUV stream for guvcview"),
-						N_("Make sure you have a UVC compliant camera\nand that you have the linux UVC driver installed."),
+					ERR_DIALOG (N_("Guvcview error:\n\nCan't set a valid video stream for guvcview"),
+						N_("Make sure your device driver is v4l2 compliant\nand that it is properly installed."),
 						&all_data);
 				}
 				
@@ -244,9 +244,14 @@ int main(int argc, char *argv[])
 				}
 				break;
 
+			case VDIN_QUERYCAP_ERR:
+				ERR_DIALOG (N_("Guvcview error:\n\nCouldn't query device capabilities"),
+					N_("Make sure the device driver suports v4l2."),
+					&all_data);
+				break;
 			case VDIN_READ_ERR:
 				ERR_DIALOG (N_("Guvcview error:\n\nRead method error"),
-					N_("Please try mmap instead."),
+					N_("Please try mmap instead (--capture_method=1)."),
 					&all_data);
 				break;
 			
@@ -270,8 +275,8 @@ int main(int argc, char *argv[])
 	if(videoIn->listFormats->current_format < 0) 
 	{
 		g_printerr("ERROR: Can't set video stream. No supported format found\nExiting...\n");
-		ERR_DIALOG (N_("Guvcview error:\n\nCan't set MJPG or YUV stream for guvcview"),
-			N_("Make sure you have a UVC compliant camera\nand that you have the linux UVC driver installed."),
+		ERR_DIALOG (N_("Guvcview error:\n\nCan't set a valid video stream for guvcview"),
+			N_("Make sure your device driver is v4l2 compliant\nand that it is properly installed."),
 			&all_data);
 	}
 	/* Set jpeg encoder buffer size */
