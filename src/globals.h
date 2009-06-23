@@ -107,7 +107,8 @@ struct GLOBAL
 	int jpeg_size;         //jpeg buffer size
 
 	float DispFps;         //fps value
-	
+
+	gboolean exit_on_close;//exit guvcview after closing video when capturing from start
 	gboolean Sound_enable; //Enable/disable Sound (Def. enable)
 	gboolean AFcontrol;    //Autofocus control flag (exists or not)
 	gboolean autofocus;    //autofocus flag (enable/disable)

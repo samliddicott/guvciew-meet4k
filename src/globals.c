@@ -127,7 +127,8 @@ int initGlobals (struct GLOBAL *global)
 	global->format = V4L2_PIX_FMT_MJPEG;
 
 	global->Frame_Flags = YUV_NOFILT;
-	
+
+	global->exit_on_close = FALSE;
 	global->jpeg=NULL;
 	global->jpeg_size = 0;
 	/* reset with videoIn parameters */

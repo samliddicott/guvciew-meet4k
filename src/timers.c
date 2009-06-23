@@ -29,6 +29,7 @@
 #include "globals.h"
 #include "guvcview.h"
 #include "callbacks.h"
+#include "close.h"
 
 /* called by video capture from start timer */
 gboolean
@@ -44,9 +45,12 @@ timer_callback(gpointer data)
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(gwidget->CapVidButt), FALSE);
 	gdk_flush();
 	gdk_threads_leave();
-	//g_mutex_lock(global->mutex);
-		global->Capture_time=0; 
-	//g_mutex_unlock(global->mutex);
+	
+	global->Capture_time=0;
+	//if exit_on_close then shutdown
+	if(global->exit_on_close)
+		shutd (0, data);
+	
 	return (FALSE);/*destroys the timer*/
 }
 

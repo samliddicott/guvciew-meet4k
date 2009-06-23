@@ -539,6 +539,7 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 		{ "npics", 'm', 0, G_OPTION_ARG_INT, &global->image_npics, N_("Number of Pictures to capture"), "NUMPIC"},
 		{ "video", 'n', 0, G_OPTION_ARG_STRING, &video, N_("Video File name (capture from start)"), "FILENAME"},
 		{ "vid_time", 't', 0, G_OPTION_ARG_INT, &global->Capture_time,N_("Video capture time (in seconds)"), "TIME"},
+		{ "exit_on_close", 0, 0, G_OPTION_ARG_NONE, &global->exit_on_close, N_("Exits guvcview after closing video"), NULL},
 		{ "show_fps", 'p', 0, G_OPTION_ARG_INT, &FpsCount, N_("Show FPS value (enable(1) | disable (0))"), "[1 | 0]"},
 		{ "profile", 'l', 0, G_OPTION_ARG_STRING, &profile, N_("Load Profile at start"), "FILENAME"},
 		{ NULL }
