@@ -28,7 +28,9 @@
 #include <glib/gprintf.h>
 /* support for internationalization - i18n */
 #include <glib/gi18n.h>
-#include <locale.h> //(gentoo patch) should already be included from libintl.h on glib/gi18n.h
+/* locale.h is needed if -O0 used (no optimiztions)  */
+/* otherwise included from libintl.h on glib/gi18n.h */
+#include <locale.h> 
 #include <gtk/gtk.h>
 #include <portaudio.h>
 
