@@ -441,9 +441,8 @@ int write_audio_frame (struct ALL_DATA *all_data)
 					int size_mp2 = MP2_encode(pdata,0);
 					ret=AVI_write_audio(videoF->AviOut,pdata->mp2Buff,size_mp2);
 				}
+				pdata->audio_flag=0;
 			g_mutex_unlock( pdata->mutex );
-				
-			pdata->audio_flag=0;
 			//videoF->keyframe = 1; /*marks next frame as key frame*/
 		
 			if (ret) 
@@ -495,9 +494,8 @@ int write_audio_frame (struct ALL_DATA *all_data)
 					ret = write_audio_packet (pdata->mp2Buff, size_mp2, pdata->samprate, videoF);
 					//g_printf("wrote audio block\n");
 				}
+				pdata->audio_flag=0;
 			g_mutex_unlock( pdata->mutex );
-				
-			pdata->audio_flag=0;
 			break;
 			
 		default:

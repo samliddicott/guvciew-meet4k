@@ -119,7 +119,6 @@ static mk_Context *mk_createContext(mk_Writer *w, mk_Context *parent, unsigned i
 
 static int	  mk_appendContextData(mk_Context *c, const void *data, unsigned size) {
   unsigned  ns = c->d_cur + size;
-
   if (ns > c->d_max) {
     void      *dp;
     unsigned  dn = c->d_max ? c->d_max << 1 : 16;
@@ -144,7 +143,6 @@ static int	  mk_appendContextData(mk_Context *c, const void *data, unsigned size
 
 static int	  mk_writeID(mk_Context *c, unsigned id) {
   unsigned char	  c_id[4] = { id >> 24, id >> 16, id >> 8, id };
-
   if (c_id[0])
     return mk_appendContextData(c, c_id, 4);
   if (c_id[1])
@@ -419,7 +417,6 @@ int	  mk_writeHeader(mk_Writer *w, const char *writingApp,
 {
   mk_Context  *c, *ti, *v, *ti2, *ti3, *a;
   BYTE empty[8] = {0x00,0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-  
   if (w->wrote_header)
     return -1;
   
@@ -664,9 +661,10 @@ static int mk_flushFrame(mk_Writer *w) {
 	}
 	else
 	{
-		if(w->cluster->d_cur > 2*CLSIZE)
+		if(w->cluster->d_cur > 4*CLSIZE)
 		{
 			//not closed yet?? is audio streaming?
+			printf("matroska.c(668): cluster size > 4*CLSIZE - video frame to big or audio not streaming\n");
 			CHECK(mk_closeCluster(w));
 		}
 		else
@@ -682,20 +680,31 @@ static int mk_flushAudioFrame(mk_Writer *w) {
   unsigned	fsize, bgsize;
   unsigned char	c_delta_flags[3];
   //unsigned char flags = 0x04; //lacing
-  //unsigned char framesinlace = 0x07; //FIXME:  total frames -1 
+  //unsigned char framesinlace = 0x07; //FIXME:  total frames -1
+
+  //make sure we have a cluster
+  if (w->cluster == NULL) {
+    w->cluster_tc_scaled = w->frame_tc / w->timescale ;//w->frame_tc * w->def_duration / w->timescale;
+    w->cluster = mk_createContext(w, w->root, MATROSKA_ID_CLUSTER); // Cluster
+    if (w->cluster == NULL)
+      return -1;
+
+    CHECK(mk_writeUInt(w->cluster, MATROSKA_ID_CLUSTERTIMECODE, w->cluster_tc_scaled)); // Timecode
+
+    delta = 0;
+    w->block_n=0;
+  }
+
 
   if (!w->audio_in_frame)
     return 0;
-
   delta = w->audio_frame_tc / w->timescale - w->cluster_tc_scaled;
 	
   fsize = w->audio_frame ? w->audio_frame->d_cur : 0;
   bgsize = fsize + 4 + mk_ebmlSizeSize(fsize + 4) + 1;
-
   CHECK(mk_writeID(w->cluster, MATROSKA_ID_BLOCKGROUP)); // BlockGroup
   CHECK(mk_writeSize(w->cluster, bgsize));
   CHECK(mk_writeID(w->cluster, MATROSKA_ID_BLOCK)); // Block
-
   w->block_n++;
   if(w->audio_block == 0) 
     {
@@ -703,20 +712,16 @@ static int mk_flushAudioFrame(mk_Writer *w) {
     }
   CHECK(mk_writeSize(w->cluster, fsize + 4));
   CHECK(mk_writeSize(w->cluster, 2)); // track number (1-video  2-audio)
-
   c_delta_flags[0] = delta >> 8;
   c_delta_flags[1] = delta;
   c_delta_flags[2] = 0;
   CHECK(mk_appendContextData(w->cluster, c_delta_flags, 3)); //block timecode (delta to cluster tc)
-  
   if (w->audio_frame) {
     CHECK(mk_appendContextData(w->cluster, w->audio_frame->data, w->audio_frame->d_cur));
     w->audio_frame->d_cur = 0;
   }
-
   w->audio_in_frame = 0;
   w->audio_prev_frame_tc_scaled = w->cluster_tc_scaled + delta;
-
   if (w->cluster->d_cur > CLSIZE)
   {
     CHECK(mk_closeCluster(w));
@@ -728,7 +733,6 @@ static int mk_flushAudioFrame(mk_Writer *w) {
       CHECK(mk_closeCluster(w));
       w->close_cluster = 0;
     }
-
   return 0;
 }
 
@@ -839,7 +843,6 @@ int	  mk_startFrame(mk_Writer *w) {
 int	  mk_startAudioFrame(mk_Writer *w) {
   if (mk_flushAudioFrame(w) < 0)
     return -1;
-
   w->audio_in_frame = 1;
   w->audio_keyframe = 0;
 
@@ -889,7 +892,6 @@ int	  mk_addAudioFrameData(mk_Writer *w, const void *data, unsigned size) {
   if (w->audio_frame == NULL)
     if ((w->audio_frame = mk_createContext(w, NULL, 0)) == NULL)
       return -1;
-
   return mk_appendContextData(w->audio_frame, data, size);
 }
 

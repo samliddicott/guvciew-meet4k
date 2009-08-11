@@ -91,7 +91,6 @@ char *setVidExt(char *filename, int format_ind)
 int write_video_packet (BYTE *picture_buf, int size, int fps, struct VideoFormatData* videoF)
 {
 	int64_t t_stamp = (int64_t) videoF->vpts; 
-	
 	videoF->b_writing_frame = 0;
 	mk_setFrameFlags( videoF->mkv_w, t_stamp, videoF->keyframe );
 	
@@ -110,10 +109,9 @@ int write_video_packet (BYTE *picture_buf, int size, int fps, struct VideoFormat
 int write_audio_packet (BYTE *audio_buf, int size, int samprate, struct VideoFormatData* videoF)
 {
 	int64_t t_stamp = (int64_t) videoF->apts ;
-	
 	videoF->b_writing_frame = 0;
 	mk_setAudioFrameFlags( videoF->mkv_w, t_stamp, videoF->keyframe );
-	
+
 	if (!videoF->b_writing_frame) //sort of mutex?
 	{
 		if( mk_startAudioFrame(videoF->mkv_w) < 0 )
@@ -248,7 +246,6 @@ int init_FormatContext(void *data)
                      videoIn->width, videoIn->height,
                      videoIn->width, videoIn->height,
                      samprate, channels, bitspersample );
-
 	videoF->b_header_written = 1;
 	return(0);
 }
