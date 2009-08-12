@@ -1,14 +1,66 @@
 dnl Process this file with autoconf to produce a configure script.
 
+# Save the original $CFLAGS so we can distinguish whether the user set those
+# in the environment, or whether autoconf added -O and -g options:
+ORIGINAL_CFLAGS="$CFLAGS"
+
 dnl Package definitions
 AC_INIT(guvcview, 1.1.1,[<pj.assis@gmail.com>])
 AM_INIT_AUTOMAKE(guvcview, 1.1.1)
 AM_CONFIG_HEADER(config.h)
-AM_MAINTAINER_MODE
+AM_MAINTAINER_MODE(disable)
+
+# autoconf 2.5x defaults to no cache file; we need the cache file's information
+# for building the config page.  But start with it empty to avoid confusion by
+# people who don't do a "make distclean" after applying patches.
+cache_file=config.cache
+rm -f config.cache; touch config.cache
+
+AC_PREFIX_DEFAULT(/usr/local)
 
 AC_ISC_POSIX
 AC_PROG_CC
 AC_HEADER_STDC
+
+dnl --------------------------------------------------------------------------
+dnl Debug/development/test
+dnl --------------------------------------------------------------------------
+
+dnl ---------------------------------------------------------------------------
+dnl CF_STRIP_G_OPT version: 3 updated: 2002/12/21 19:25:52
+dnl --------------
+dnl	Remove "-g" option from the compiler options
+AC_DEFUN([CF_STRIP_G_OPT],
+[$1=`echo ${$1} | sed -e 's%-g %%' -e 's%-g$%%'`])
+
+dnl ---------------------------------------------------------------------------
+dnl CF_STRIP_O_OPT version: 3 updated: 2001/02/02 19:06:08
+dnl --------------
+dnl	Remove "-O" option from the compiler options
+AC_DEFUN([CF_STRIP_O_OPT],
+[$1=`echo ${$1} | sed -e 's/-O[[1-9]]\? //' -e 's/-O[[1-9]]\?$//'`])
+
+# The comment about adding -g to $CFLAGS is unclear.  Autoconf tries to add
+# a -g flag; we remove it if the user's $CFLAGS was not set and debugging is
+# disabled.
+AC_MSG_CHECKING(if you want to enable debug-code)
+AC_ARG_ENABLE(debug, AS_HELP_STRING([--enable-debug],
+	[enable debug compile w/ debugging - if \$CFLAGS is set, add -g there, too]),
+	[enable_debug=yes],
+	[enable_debug=no])
+
+AC_MSG_RESULT($enable_debug)
+if test "x$enable_debug" = "xno" ; then
+	CF_STRIP_G_OPT(CFLAGS)
+else
+	test -z "$ORIGINAL_CFLAGS" && CF_STRIP_O_OPT(CFLAGS)
+	if test "$CC" = gcc; then
+		echo "adding -g to $CC"
+		CFLAGS="$CFLAGS -g"
+	fi
+fi
+
+AC_SUBST(CFLAGS)
 
 dnl Set gettext package name
 GETTEXT_PACKAGE=guvcview

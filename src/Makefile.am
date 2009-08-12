@@ -10,9 +10,8 @@ INCLUDES = \
 	$(PACKAGE_CFLAGS) $(EXTRA_CFLAGS)
 
 AM_CFLAGS =\
-	 -Wall\
-	 -g\
-	 -D_REENTRANT
+	 -D_REENTRANT\
+	 -Wall
 
 bin_PROGRAMS = guvcview
 

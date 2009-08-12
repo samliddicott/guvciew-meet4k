@@ -600,6 +600,7 @@ PACKAGE_VERSION='1.1.1'
 PACKAGE_STRING='guvcview 1.1.1'
 PACKAGE_BUGREPORT='<pj.assis@gmail.com>'
 
+ac_default_prefix=/usr/local
 # Factoring default headers for most tests.
 ac_includes_default="\
 #include <stdio.h>
@@ -751,6 +752,7 @@ ac_user_opts='
 enable_option_checking
 enable_maintainer_mode
 enable_dependency_tracking
+enable_debug
 enable_debian_menu
 enable_desktop
 enable_pulse
@@ -1399,6 +1401,8 @@ Optional Features:
 			  (and sometimes confusing) to the casual installer
   --disable-dependency-tracking  speeds up one-time build
   --enable-dependency-tracking   do not reject slow dependency extractors
+  --enable-debug          enable debug compile w/ debugging - if \$CFLAGS is
+                          set, add -g there, too
   --disable-debian-menu   disable debian menu (default: enabled)
   --disable-desktop       disable desktop file (default: enabled)
   --disable-pulse         disable pulseaudio support (default: enabled)
@@ -2381,6 +2385,14 @@ else
 fi
 
   MAINT=$MAINTAINER_MODE_TRUE
+
+
+
+# autoconf 2.5x defaults to no cache file; we need the cache file's information
+# for building the config page.  But start with it empty to avoid confusion by
+# people who don't do a "make distclean" after applying patches.
+cache_file=config.cache
+rm -f config.cache; touch config.cache
 
 
 
@@ -4914,6 +4926,38 @@ cat >>confdefs.h <<\_ACEOF
 _ACEOF
 
 fi
+
+
+
+
+
+
+
+# The comment about adding -g to $CFLAGS is unclear.  Autoconf tries to add
+# a -g flag; we remove it if the user's $CFLAGS was not set and debugging is
+# disabled.
+{ $as_echo "$as_me:$LINENO: checking if you want to enable debug-code" >&5
+$as_echo_n "checking if you want to enable debug-code... " >&6; }
+# Check whether --enable-debug was given.
+if test "${enable_debug+set}" = set; then
+  enableval=$enable_debug; enable_debug=yes
+else
+  enable_debug=no
+fi
+
+
+{ $as_echo "$as_me:$LINENO: result: $enable_debug" >&5
+$as_echo "$enable_debug" >&6; }
+if test "x$enable_debug" = "xno" ; then
+	CFLAGS=`echo ${CFLAGS} | sed -e 's%-g %%' -e 's%-g$%%'`
+else
+	test -z "$ORIGINAL_CFLAGS" && CFLAGS=`echo ${CFLAGS} | sed -e 's/-O[1-9]\? //' -e 's/-O[1-9]\?$//'`
+	if test "$CC" = gcc; then
+		echo "adding -g to $CC"
+		CFLAGS="$CFLAGS -g"
+	fi
+fi
+
 
 
 GETTEXT_PACKAGE=guvcview
