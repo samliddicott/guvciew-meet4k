@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GUVCView 1.0.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-06 11:53+0100\n"
+"POT-Creation-Date: 2009-08-12 23:39+0100\n"
 "PO-Revision-Date: 2009-03-23 20:47+0100\n"
 "Last-Translator: Paulo Assis <pj.assis@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,12 +17,12 @@ msgstr ""
 "X-Poedit-Language: Japanese\n"
 "X-Poedit-Country: JAPAN\n"
 
-#: src/guvcview.c:178
+#: src/guvcview.c:180
 msgid "GUVCViewer Controls"
 msgstr "GUVCViewer コントロール"
 
 #. can't open device
-#: src/guvcview.c:205
+#: src/guvcview.c:207
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -32,33 +32,36 @@ msgstr ""
 "\n"
 "デバイスをオープンすることができません"
 
-#: src/guvcview.c:206
+#: src/guvcview.c:208
+#, fuzzy
 msgid ""
 "Please make sure the camera is connected\n"
-"and that the linux-UVC driver is installed."
+"and that the correct driver is installed."
 msgstr ""
 "カメラがつながっていること、そして linux-UVC ドライバ\n"
 "がインストールされていることを確認してください。"
 
-#: src/guvcview.c:232 src/guvcview.c:267
+#: src/guvcview.c:234 src/guvcview.c:280
+#, fuzzy
 msgid ""
 "Guvcview error:\n"
 "\n"
-"Can't set MJPG or YUV stream for guvcview"
+"Can't set a valid video stream for guvcview"
 msgstr ""
 "Guvcview エラー:\n"
 "\n"
 "MJPG または YUV ストリームを guvcview に設定することができません"
 
-#: src/guvcview.c:233 src/guvcview.c:268
+#: src/guvcview.c:235 src/guvcview.c:281
+#, fuzzy
 msgid ""
-"Make sure you have a UVC compliant camera\n"
-"and that you have the linux UVC driver installed."
+"Make sure your device driver is v4l2 compliant\n"
+"and that it is properly installed."
 msgstr ""
 "UVC 対応カメラを持っているか、linux UVC ドライバ\n"
 "がインストールされていることを確認してください。"
 
-#: src/guvcview.c:241
+#: src/guvcview.c:243
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -68,11 +71,41 @@ msgstr ""
 "\n"
 "最小限のセットアップから始めることができません"
 
-#: src/guvcview.c:242
+#: src/guvcview.c:244
 msgid "Please reconnect your camera."
 msgstr "カメラを再接続してください。"
 
+#: src/guvcview.c:250
+#, fuzzy
+msgid ""
+"Guvcview error:\n"
+"\n"
+"Couldn't query device capabilities"
+msgstr ""
+"Guvcview エラー:\n"
+"\n"
+"デバイスをオープンすることができません"
+
 #: src/guvcview.c:251
+msgid "Make sure the device driver suports v4l2."
+msgstr ""
+
+#: src/guvcview.c:255
+#, fuzzy
+msgid ""
+"Guvcview error:\n"
+"\n"
+"Read method error"
+msgstr ""
+"Guvcview エラー:\n"
+"\n"
+"デバイスをオープンすることができません"
+
+#: src/guvcview.c:256
+msgid "Please try mmap instead (--capture_method=1)."
+msgstr ""
+
+#: src/guvcview.c:264
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -82,45 +115,45 @@ msgstr ""
 "\n"
 "バッファを確保できません"
 
-#: src/guvcview.c:252
+#: src/guvcview.c:265
 msgid "Please try restarting your system."
 msgstr "システムを再起動してみてください。"
 
-#: src/guvcview.c:299
+#: src/guvcview.c:312
 msgid "Image Controls"
 msgstr "イメージコントロール"
 
-#: src/guvcview.c:334
+#: src/guvcview.c:347
 msgid "Capture:"
 msgstr "キャプチャ:"
 
 #. increment column for labels
 #. end of control only exclusion
-#: src/guvcview.c:342
+#: src/guvcview.c:355
 msgid "Control Profiles:"
 msgstr "コントロールプロファイル:"
 
 #. image auto capture
-#: src/guvcview.c:369
+#: src/guvcview.c:382
 msgid "Stop Auto"
 msgstr "自動停止"
 
-#: src/guvcview.c:373 src/callbacks.c:966
+#: src/guvcview.c:386 src/callbacks.c:966
 msgid "Cap. Image"
 msgstr "キャプチャ.画像"
 
 #. vid capture enabled from start
-#: src/guvcview.c:378 src/callbacks.c:1042
+#: src/guvcview.c:391 src/callbacks.c:1042
 #, fuzzy
 msgid "Stop Video"
 msgstr "停止 Video"
 
-#: src/guvcview.c:384 src/callbacks.c:1014
+#: src/guvcview.c:397 src/callbacks.c:1014
 #, fuzzy
 msgid "Cap. Video"
 msgstr "キャプチャ.Video"
 
-#: src/guvcview.c:521
+#: src/guvcview.c:534
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -130,7 +163,7 @@ msgstr ""
 "\n"
 "ビデオスレッドを作成することができません"
 
-#: src/guvcview.c:522
+#: src/guvcview.c:535
 msgid "Please report it to http://developer.berlios.de/bugs/?group_id=8179"
 msgstr ""
 "http://developer.berlios.de/bugs/?group_id=8179 にレポートしてください。"
@@ -234,8 +267,8 @@ msgid "Save File"
 msgstr "ファイルを保存する"
 
 #. if auto naming restart counter
-#: src/video_tab.c:95 src/globals.c:69 src/globals.c:72 src/options.c:359
-#: src/options.c:412 src/callbacks.c:427 src/callbacks.c:748
+#: src/video_tab.c:95 src/globals.c:69 src/globals.c:72 src/options.c:360
+#: src/options.c:413 src/callbacks.c:427 src/callbacks.c:748
 #: src/callbacks.c:896 src/callbacks.c:913 src/callbacks.c:945
 #: src/callbacks.c:1019
 #, c-format
@@ -565,73 +598,81 @@ msgstr ""
 msgid "MPEG4 - MPEG4 format"
 msgstr ""
 
-#: src/options.c:526
+#: src/options.c:528
 msgid "Prints version"
 msgstr "バージョンを表示する"
 
-#: src/options.c:527
+#: src/options.c:529
 msgid "Displays debug information"
 msgstr "デバッグ情報を表示する"
 
-#: src/options.c:528
+#: src/options.c:530
 msgid "Video Device to use [default: /dev/video0]"
 msgstr "使用するビデオデバイス [デフォルト: /dev/video0]"
 
-#: src/options.c:529
+#: src/options.c:531
 #, fuzzy
 msgid "Don't stream video (image controls only)"
 msgstr "ビデオを流さない (コントロールのみ)"
 
-#: src/options.c:530
+#: src/options.c:532
+msgid "Capture method (1-mmap (default)  2-read)"
+msgstr ""
+
+#: src/options.c:533
 msgid "Configuration file"
 msgstr "設定ファイル"
 
-#: src/options.c:531
+#: src/options.c:534
 msgid "Hardware accelaration (enable(1) | disable(0))"
 msgstr "ハードウェアアクセラレーション (有効(1) | 無効(0))"
 
-#: src/options.c:532
+#: src/options.c:535
 msgid ""
 "Pixel format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|gbrg|grbg|bggr|rggb)"
 msgstr ""
 "ピクセルフォーマット (mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|gbrg|grbg|bggr|"
 "rggb)"
 
-#: src/options.c:533
+#: src/options.c:536
 msgid "Frame size, default: 640x480"
 msgstr "フレームサイズ、デフォルト: 640x480"
 
-#: src/options.c:534
+#: src/options.c:537
 msgid "Image File name"
 msgstr "画像ファイル名"
 
-#: src/options.c:535
+#: src/options.c:538
 msgid "Image capture interval in seconds"
 msgstr "秒単位の画像キャプチャ間隔"
 
-#: src/options.c:536
+#: src/options.c:539
 msgid "Number of Pictures to capture"
 msgstr "キャプチャする画像数"
 
-#: src/options.c:537
+#: src/options.c:540
 #, fuzzy
 msgid "Video File name (capture from start)"
 msgstr "Video ファイル名 (開始からのキャプチャ)"
 
-#: src/options.c:538
+#: src/options.c:541
 #, fuzzy
 msgid "Video capture time (in seconds)"
 msgstr "Video 撮影時間 (秒)"
 
-#: src/options.c:539
+#: src/options.c:542
+msgid "Exits guvcview after closing video"
+msgstr ""
+
+#: src/options.c:543
 msgid "Show FPS value (enable(1) | disable (0))"
 msgstr "FPS 値の表示 (有効(1) | 無効 (0))"
 
-#: src/options.c:540
+#: src/options.c:544
 msgid "Load Profile at start"
 msgstr "開始時にプロファイルを読み込む"
 
-#: src/options.c:546
+#: src/options.c:550
 msgid "- local options"
 msgstr "- ローカルオプション"
 

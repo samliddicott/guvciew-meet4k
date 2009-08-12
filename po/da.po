@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: guvcview\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-06-06 11:53+0100\n"
+"POT-Creation-Date: 2009-08-12 23:39+0100\n"
 "PO-Revision-Date: 2009-01-01 16:27+0000\n"
 "Last-Translator: nanker <Unknown>\n"
 "Language-Team: Danish <da@li.org>\n"
@@ -17,12 +17,12 @@ msgstr ""
 "X-Launchpad-Export-Date: 2009-01-08 11:56+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
-#: src/guvcview.c:178
+#: src/guvcview.c:180
 msgid "GUVCViewer Controls"
 msgstr "GUVCViewer kontroller"
 
 #. can't open device
-#: src/guvcview.c:205
+#: src/guvcview.c:207
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -32,33 +32,36 @@ msgstr ""
 "\n"
 "Kunne ikke åbne udstyr"
 
-#: src/guvcview.c:206
+#: src/guvcview.c:208
+#, fuzzy
 msgid ""
 "Please make sure the camera is connected\n"
-"and that the linux-UVC driver is installed."
+"and that the correct driver is installed."
 msgstr ""
 "Vær venligst sikker på at kamera er tilsluttet\n"
 "og at linux-UCV driveren er installeret."
 
-#: src/guvcview.c:232 src/guvcview.c:267
+#: src/guvcview.c:234 src/guvcview.c:280
+#, fuzzy
 msgid ""
 "Guvcview error:\n"
 "\n"
-"Can't set MJPG or YUV stream for guvcview"
+"Can't set a valid video stream for guvcview"
 msgstr ""
 "Guvcview fejl:\n"
 "\n"
 "Kan ikke sætte MJPG eller YUV stream til guvcview"
 
-#: src/guvcview.c:233 src/guvcview.c:268
+#: src/guvcview.c:235 src/guvcview.c:281
+#, fuzzy
 msgid ""
-"Make sure you have a UVC compliant camera\n"
-"and that you have the linux UVC driver installed."
+"Make sure your device driver is v4l2 compliant\n"
+"and that it is properly installed."
 msgstr ""
 "Vær sikker på at du har et UVC compatibelt kamera\n"
 "og at du har installeret en linux UVC driver."
 
-#: src/guvcview.c:241
+#: src/guvcview.c:243
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -68,54 +71,84 @@ msgstr ""
 "\n"
 "Kunne ikke starte på minimum setup"
 
-#: src/guvcview.c:242
+#: src/guvcview.c:244
 msgid "Please reconnect your camera."
 msgstr "Vær venlig at gentilslutte dit kamera."
 
+#: src/guvcview.c:250
+#, fuzzy
+msgid ""
+"Guvcview error:\n"
+"\n"
+"Couldn't query device capabilities"
+msgstr ""
+"Guvcview fejl:\n"
+"\n"
+"Kunne ikke åbne udstyr"
+
 #: src/guvcview.c:251
+msgid "Make sure the device driver suports v4l2."
+msgstr ""
+
+#: src/guvcview.c:255
+#, fuzzy
+msgid ""
+"Guvcview error:\n"
+"\n"
+"Read method error"
+msgstr ""
+"Guvcview fejl:\n"
+"\n"
+"Kunne ikke åbne udstyr"
+
+#: src/guvcview.c:256
+msgid "Please try mmap instead (--capture_method=1)."
+msgstr ""
+
+#: src/guvcview.c:264
 msgid ""
 "Guvcview error:\n"
 "\n"
 "Unable to allocate Buffers"
 msgstr ""
 
-#: src/guvcview.c:252
+#: src/guvcview.c:265
 msgid "Please try restarting your system."
 msgstr "Prøv venligst at genstarte dit system."
 
-#: src/guvcview.c:299
+#: src/guvcview.c:312
 msgid "Image Controls"
 msgstr "Billed kontroller"
 
-#: src/guvcview.c:334
+#: src/guvcview.c:347
 msgid "Capture:"
 msgstr ""
 
 #. increment column for labels
 #. end of control only exclusion
-#: src/guvcview.c:342
+#: src/guvcview.c:355
 msgid "Control Profiles:"
 msgstr "Kontrol profiler:"
 
 #. image auto capture
-#: src/guvcview.c:369
+#: src/guvcview.c:382
 msgid "Stop Auto"
 msgstr "Stop auto"
 
-#: src/guvcview.c:373 src/callbacks.c:966
+#: src/guvcview.c:386 src/callbacks.c:966
 msgid "Cap. Image"
 msgstr ""
 
 #. vid capture enabled from start
-#: src/guvcview.c:378 src/callbacks.c:1042
+#: src/guvcview.c:391 src/callbacks.c:1042
 msgid "Stop Video"
 msgstr "Stop Video"
 
-#: src/guvcview.c:384 src/callbacks.c:1014
+#: src/guvcview.c:397 src/callbacks.c:1014
 msgid "Cap. Video"
 msgstr ""
 
-#: src/guvcview.c:521
+#: src/guvcview.c:534
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -125,7 +158,7 @@ msgstr ""
 "\n"
 "Kunne ikke skabe video tråd"
 
-#: src/guvcview.c:522
+#: src/guvcview.c:535
 msgid "Please report it to http://developer.berlios.de/bugs/?group_id=8179"
 msgstr ""
 "Rapporter det venligst til http://developer.berlios.de/bugs/?group_id=8179"
@@ -229,8 +262,8 @@ msgid "Save File"
 msgstr "Gem fil"
 
 #. if auto naming restart counter
-#: src/video_tab.c:95 src/globals.c:69 src/globals.c:72 src/options.c:359
-#: src/options.c:412 src/callbacks.c:427 src/callbacks.c:748
+#: src/video_tab.c:95 src/globals.c:69 src/globals.c:72 src/options.c:360
+#: src/options.c:413 src/callbacks.c:427 src/callbacks.c:748
 #: src/callbacks.c:896 src/callbacks.c:913 src/callbacks.c:945
 #: src/callbacks.c:1019
 #, c-format
@@ -561,68 +594,76 @@ msgstr ""
 msgid "MPEG4 - MPEG4 format"
 msgstr ""
 
-#: src/options.c:526
+#: src/options.c:528
 msgid "Prints version"
 msgstr ""
 
-#: src/options.c:527
+#: src/options.c:529
 msgid "Displays debug information"
 msgstr "Vis debug information"
 
-#: src/options.c:528
+#: src/options.c:530
 msgid "Video Device to use [default: /dev/video0]"
 msgstr "Video udstyr at benyttet [default: /dev/video0]"
 
-#: src/options.c:529
+#: src/options.c:531
 msgid "Don't stream video (image controls only)"
 msgstr ""
 
-#: src/options.c:530
+#: src/options.c:532
+msgid "Capture method (1-mmap (default)  2-read)"
+msgstr ""
+
+#: src/options.c:533
 msgid "Configuration file"
 msgstr ""
 
-#: src/options.c:531
+#: src/options.c:534
 msgid "Hardware accelaration (enable(1) | disable(0))"
 msgstr ""
 
-#: src/options.c:532
+#: src/options.c:535
 msgid ""
 "Pixel format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|gbrg|grbg|bggr|rggb)"
 msgstr ""
 
-#: src/options.c:533
+#: src/options.c:536
 msgid "Frame size, default: 640x480"
 msgstr "Ramme størrelse, standard: 640x480"
 
-#: src/options.c:534
+#: src/options.c:537
 msgid "Image File name"
 msgstr "Billedfil navn"
 
-#: src/options.c:535
+#: src/options.c:538
 msgid "Image capture interval in seconds"
 msgstr ""
 
-#: src/options.c:536
+#: src/options.c:539
 msgid "Number of Pictures to capture"
 msgstr ""
 
-#: src/options.c:537
+#: src/options.c:540
 msgid "Video File name (capture from start)"
 msgstr ""
 
-#: src/options.c:538
+#: src/options.c:541
 msgid "Video capture time (in seconds)"
 msgstr ""
 
-#: src/options.c:539
+#: src/options.c:542
+msgid "Exits guvcview after closing video"
+msgstr ""
+
+#: src/options.c:543
 msgid "Show FPS value (enable(1) | disable (0))"
 msgstr ""
 
-#: src/options.c:540
+#: src/options.c:544
 msgid "Load Profile at start"
 msgstr "Indlæs profil ved start"
 
-#: src/options.c:546
+#: src/options.c:550
 msgid "- local options"
 msgstr "- lokale valgmuligheder"
 
