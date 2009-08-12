@@ -5,8 +5,8 @@ dnl Process this file with autoconf to produce a configure script.
 ORIGINAL_CFLAGS="$CFLAGS"
 
 dnl Package definitions
-AC_INIT(guvcview, 1.1.1,[<pj.assis@gmail.com>])
-AM_INIT_AUTOMAKE(guvcview, 1.1.1)
+AC_INIT(guvcview, 1.1.2,[<pj.assis@gmail.com>])
+AM_INIT_AUTOMAKE(guvcview, 1.1.2)
 AM_CONFIG_HEADER(config.h)
 AM_MAINTAINER_MODE(disable)
 
