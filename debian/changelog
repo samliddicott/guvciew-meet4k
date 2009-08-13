@@ -2,8 +2,9 @@ guvcview (1.1.2-ubuntu1) jaunty; urgency=low
 
    * Fixed YUYV Matroska codec segfault
    * Added enable-debug option to configure (debug symbols (-g) is now disable by default)
+   * Added Dutch translation
 
- -- Paulo Assis <pj.assis@gmail.com>  Wed, 12 Aug 2009 18:56:00 +0000
+ -- Paulo Assis <pj.assis@gmail.com>  Wed, 13 Aug 2009 12:59:00 +0000
 
 guvcview (1.1.1-ubuntu1) jaunty; urgency=low
 
