@@ -14,7 +14,7 @@ DEB_BUILD_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
 package = guvcview
 
 CC = gcc
-CFLAGS = -g -Wall
+CFLAGS = -Wall
 
 ifeq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
   CFLAGS += -O2
@@ -26,7 +26,7 @@ clean:
 	dh_testdir
 	dh_clean
 	rm -f build
-	-$(MAKE) -i distclean
+	
 
 install: build
 	dh_clean

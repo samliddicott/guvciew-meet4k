@@ -32,8 +32,8 @@
 #include <errno.h>
 #include "v4l2_formats.h"
 
-#define SUP_PIX_FMT 12                //total number of software(guvcview) 
-                                     //supported formats (list size)
+#define SUP_PIX_FMT 14                //total number of software(guvcview) 
+                                      //supported formats (list size)
 
 static SupFormats listSupFormats[SUP_PIX_FMT] = //list of software supported formats
 {
@@ -95,6 +95,16 @@ static SupFormats listSupFormats[SUP_PIX_FMT] = //list of software supported for
 	{
 		.format   = V4L2_PIX_FMT_SRGGB8,
 		.mode     = "rggb",
+		.hardware = 0
+	},
+	{
+		.format   = V4L2_PIX_FMT_RGB24,
+		.mode     = "rgb3",
+		.hardware = 0
+	},
+	{
+		.format   = V4L2_PIX_FMT_BGR24,
+		.mode     = "bgr3",
 		.hardware = 0
 	}
 };

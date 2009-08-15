@@ -511,7 +511,19 @@ int init_videoIn(struct vdIn *vd, struct GLOBAL *global)
 				framebuf_size = vd->framesizeIn;
 				vd->framebuffer = g_new0(unsigned char, framebuf_size);
 				break;
-			
+
+			case V4L2_PIX_FMT_RGB24:
+			case V4L2_PIX_FMT_BGR24:
+				//rgb or bgr (8-8-8)
+				// alloc a temp buffer for converting to YUYV
+				// rgb buffer
+				tmpbuf_size = vd->width * vd->height * 3;
+				vd->tmpbuffer = g_new0(unsigned char, tmpbuf_size);
+				
+				framebuf_size = vd->framesizeIn;
+				vd->framebuffer = g_new0(unsigned char, framebuf_size);
+				break;
+				
 			default:
 				g_printerr("(v4l2uvc.c) should never arrive (1)- exit fatal !!\n");
 				ret = VDIN_UNKNOWN_ERR;
@@ -536,6 +548,8 @@ int init_videoIn(struct vdIn *vd, struct GLOBAL *global)
 				case V4L2_PIX_FMT_SGRBG8: // converted to YUYV
 				case V4L2_PIX_FMT_SBGGR8: // converted to YUYV
 				case V4L2_PIX_FMT_SRGGB8: // converted to YUYV
+				case V4L2_PIX_FMT_RGB24:  // converted to YUYV
+				case V4L2_PIX_FMT_BGR24:  // converted to YUYV
 				case V4L2_PIX_FMT_YUV420: // converted to YUYV
 				case V4L2_PIX_FMT_YVU420: // converted to YUYV
 				case V4L2_PIX_FMT_YYUV:   // converted to YUYV
@@ -803,6 +817,14 @@ int uvcGrab(struct vdIn *vd)
 		case V4L2_PIX_FMT_SRGGB8: //3
 			bayer_to_rgb24 (vd->mem[vd->buf.index],vd->tmpbuffer,vd->width,vd->height, 3);
 			rgb2yuyv (vd->tmpbuffer,vd->framebuffer,vd->width,vd->height);
+			break;
+		case V4L2_PIX_FMT_RGB24:
+			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
+			rgb2yuyv(vd->tmpbuffer, vd->framebuffer, vd->width, vd->height);
+			break;
+		case V4L2_PIX_FMT_BGR24:
+			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
+			bgr2yuyv(vd->tmpbuffer, vd->framebuffer, vd->width, vd->height);
 			break;
 		
 		default:
