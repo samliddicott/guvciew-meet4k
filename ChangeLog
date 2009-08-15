@@ -1,3 +1,9 @@
+guvcview (1.1.3)
+
+   * Added rgb24 and bgr24 color formats
+
+ -- Paulo Assis <pj.assis@gmail.com>  Sat, 15 Aug 2009 13:52:00 +0000
+
 guvcview (1.1.2)
 
    * Fixed YUYV Matroska codec segfault
