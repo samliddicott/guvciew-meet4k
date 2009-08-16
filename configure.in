@@ -62,21 +62,29 @@ fi
 
 AC_SUBST(CFLAGS)
 
+dnl --------------------------------------------------------------------------
 dnl Set gettext package name
+dnl --------------------------------------------------------------------------
 GETTEXT_PACKAGE=guvcview
 AC_SUBST(GETTEXT_PACKAGE)
 AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE", [guvcview])
 
-dnl Add the languages which your application supports here.
+dnl --------------------------------------------------------------------------
+dnl Languages supported by guvcview.
+dnl --------------------------------------------------------------------------
 ALL_LINGUAS="pt pt_BR de es fr da tr cs ja ru nl"
 AM_GLIB_GNU_GETTEXT([external])
 
+dnl --------------------------------------------------------------------------
 dnl check for dependencies
+dnl --------------------------------------------------------------------------
 PKG_CHECK_MODULES(PACKAGE, [gtk+-2.0 >= 2.14.0 glib-2.0 >= 2.10.0 gthread-2.0 gdk-2.0 >= 2.10.0 sdl >= 1.2.10 portaudio-2.0 libpng twolame libavcodec])
 AC_SUBST(PACKAGE_CFLAGS)
 AC_SUBST(PACKAGE_LIBS)
 
+dnl --------------------------------------------------------------------------
 dnl set/unset debian menu
+dnl --------------------------------------------------------------------------
 AC_MSG_CHECKING(if you want to enable debian menu)
 AC_ARG_ENABLE(debian-menu, AS_HELP_STRING([--disable-debian-menu],
 		[disable debian menu (default: enabled)]),
@@ -87,7 +95,9 @@ AC_MSG_RESULT($enable_debian_menu)
 
 AM_CONDITIONAL(DEBIAN_MENU, test "$enable_debian_menu" = yes)
 
+dnl --------------------------------------------------------------------------
 dnl set/unset desktop file
+dnl --------------------------------------------------------------------------
 AC_MSG_CHECKING(if you want to enable desktop file)
 AC_ARG_ENABLE(desktop, AS_HELP_STRING([--disable-desktop],
 		[disable desktop file (default: enabled)]),
@@ -98,7 +108,9 @@ AC_MSG_RESULT($enable_desktop)
 
 AM_CONDITIONAL(DESKTOP, test "$enable_desktop" = yes)
 
+dnl --------------------------------------------------------------------------
 dnl Check for pulseaudio
+dnl --------------------------------------------------------------------------
 AC_MSG_CHECKING(if you want to enable pulse support)
 AC_ARG_ENABLE(pulse, AS_HELP_STRING([--enable-pulse],
 		[enable pulseaudio support (default: disabled)]),
@@ -107,18 +119,20 @@ AC_ARG_ENABLE(pulse, AS_HELP_STRING([--enable-pulse],
 
 AC_MSG_RESULT($enable_pulse)
 
-if test x$enable_pulse = xyes; then
+if test $enable_pulse = yes; then
 	PKG_CHECK_MODULES(PULSE, libpulse-simple >= 0.9.15, has_pulse=yes, has_pulse=no)
 	AC_SUBST(PULSE_CFLAGS)
 	AC_SUBST(PULSE_LIBS)
 	if test "$has_pulse" = yes; then
 	  AC_DEFINE(PULSEAUDIO,1,[set to 1 if pulseaudio installed])
 	else 
-		if test "$enable_pulse" = yes; then
-		  AC_MSG_WARN(libpulse missing... pulse support will be disabled.)
-		fi
+	  AC_MSG_WARN(libpulse missing... pulse support will be disabled.)
 	fi
 fi
+
+dnl --------------------------------------------------------------------------
+dnl Check for avcodec.h installation path
+dnl --------------------------------------------------------------------------
 
 dnl Check for avcodec.h directly
 dnl if all tests fail must add avcodec.h path to C_INCLUDE_PATH before running configure
@@ -141,8 +155,10 @@ if test "$has_libavcodec_dir" = yes; then
   AC_DEFINE(HAS_LIBAVCODEC_AVCODEC_H,1,[Define if avcodec.h installed to libavcodec dir])
 fi
 
+dnl --------------------------------------------------------------------------
 dnl Check if the processor stores words with the most significant byte first 
 dnl (like Motorola and SPARC, unlike Intel and VAX).
+dnl --------------------------------------------------------------------------
 AC_C_BIGENDIAN 
 
 dnl Write output

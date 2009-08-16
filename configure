@@ -6927,7 +6927,7 @@ fi
 { $as_echo "$as_me:$LINENO: result: $enable_pulse" >&5
 $as_echo "$enable_pulse" >&6; }
 
-if test x$enable_pulse = xyes; then
+if test $enable_pulse = yes; then
 
 pkg_failed=no
 { $as_echo "$as_me:$LINENO: checking for PULSE" >&5
@@ -7008,12 +7008,11 @@ cat >>confdefs.h <<\_ACEOF
 _ACEOF
 
 	else
-		if test "$enable_pulse" = yes; then
-		  { $as_echo "$as_me:$LINENO: WARNING: libpulse missing... pulse support will be disabled." >&5
+	  { $as_echo "$as_me:$LINENO: WARNING: libpulse missing... pulse support will be disabled." >&5
 $as_echo "$as_me: WARNING: libpulse missing... pulse support will be disabled." >&2;}
-		fi
 	fi
 fi
+
 
 if test "${ac_cv_header_avcodec_h+set}" = set; then
   { $as_echo "$as_me:$LINENO: checking for avcodec.h" >&5
