@@ -1011,7 +1011,10 @@ capture_vid (GtkToggleButton *VidButt, struct ALL_DATA *all_data)
 	{	/****************** Stop Video ************************/
 		closeVideoFile(all_data);
 		if(!(state))
+		{
 			gtk_button_set_label(GTK_BUTTON(gwidget->CapVidButt),_("Cap. Video"));
+			gtk_widget_show (gwidget->VidButton_Img);
+		}
 	} 
 	else if(!(videoIn->capVid) /*&& state*/)
 	{	/******************** Start Video *********************/
@@ -1039,7 +1042,10 @@ capture_vid (GtkToggleButton *VidButt, struct ALL_DATA *all_data)
 			state = FALSE;
 		}
 		if(state)
+		{
 			gtk_button_set_label(GTK_BUTTON(gwidget->CapVidButt),_("Stop Video"));
+			gtk_widget_show (gwidget->VidButton_Img);
+		}
 	}
 	
 	gwidget = NULL;
