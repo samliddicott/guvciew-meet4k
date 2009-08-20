@@ -1,8 +1,11 @@
 guvcview (1.1.3)
 
-   * Added rgb24 and bgr24 color formats
+   * Add rgb24 and bgr24 color formats
+   * Set pulse support disabled by default in configure
+   * Add extra messages to configure
+   * Fix button images display under gtk 2.17
 
- -- Paulo Assis <pj.assis@gmail.com>  Sat, 15 Aug 2009 13:52:00 +0000
+ -- Paulo Assis <pj.assis@gmail.com>  Thu, 20 Aug 2009 13:50:00 +0000
 
 guvcview (1.1.2)
 

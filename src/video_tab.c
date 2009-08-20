@@ -693,6 +693,8 @@ void video_tab(struct ALL_DATA *all_data)
 	
 	gtk_table_attach(GTK_TABLE(table2), gwidget->ImgFileButt, 2, 3, line, line+1,
 		GTK_SHRINK | GTK_FILL, 0, 0, 0);
+
+	gtk_widget_show (ImgFolder_img);
 	gtk_widget_show (gwidget->ImgFileButt);
 	
 	//incremental capture
@@ -760,7 +762,8 @@ void video_tab(struct ALL_DATA *all_data)
 	gtk_button_set_image (GTK_BUTTON(gwidget->VidFileButt), VidFolder_img);
 	gtk_table_attach(GTK_TABLE(table2), gwidget->VidFileButt, 2, 3, line, line+1,
 		GTK_SHRINK | GTK_FILL, 0, 0, 0);
-	
+
+	gtk_widget_show (VidFolder_img);
 	gtk_widget_show (gwidget->VidFileButt);
 	gtk_widget_show (label_VidFile);
 	gtk_widget_show (gwidget->VidFNameEntry);
