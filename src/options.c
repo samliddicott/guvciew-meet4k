@@ -532,7 +532,7 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 		{ "capture_method", 'r', 0, G_OPTION_ARG_INT, &cap_meth, N_("Capture method (1-mmap (default)  2-read)"), "[1 | 2]"},
 		{ "config", 'g', 0, G_OPTION_ARG_STRING, &config, N_("Configuration file"), "FILENAME" },
 		{ "hwd_acel", 'w', 0, G_OPTION_ARG_INT, &hwaccel, N_("Hardware accelaration (enable(1) | disable(0))"), "[1 | 0]" },
-		{ "format", 'f', 0, G_OPTION_ARG_STRING, &format, N_("Pixel format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|gbrg|grbg|bggr|rggb|bgr3|rgb3)"), "FORMAT" },
+		{ "format", 'f', 0, G_OPTION_ARG_STRING, &format, N_("Pixel format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|gbrg|grbg|ba81|rggb|bgr3|rgb3)"), "FORMAT" },
 		{ "size", 's', 0, G_OPTION_ARG_STRING, &size, N_("Frame size, default: 640x480"), "WIDTHxHEIGHT"},
 		{ "image", 'i', 0, G_OPTION_ARG_STRING, &image, N_("Image File name"), "FILENAME"},
 		{ "cap_time", 'c', 0, G_OPTION_ARG_INT, &global->image_timer, N_("Image capture interval in seconds"), "TIME"},
@@ -671,6 +671,8 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 		/*use fourcc but keep compatability with luvcview*/
 		if(g_strcmp0("yuv",format)==0)
 			g_snprintf(global->mode,5,"yuyv");
+		else if (g_strcmp0("bggr",format)==0) // be compatible with guvcview < 1.1.4
+			g_snprintf(global->mode,5,"ba81");
 		else
 			g_snprintf(global->mode,5,"%s",format);
 		

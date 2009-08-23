@@ -66,11 +66,19 @@
 #endif
 
 #ifndef V4L2_PIX_FMT_SBGGR8
-#define V4L2_PIX_FMT_SBGGR8  v4l2_fourcc('B', 'G', 'G', 'R') /* BGBG.. GRGR..    */
+#define V4L2_PIX_FMT_SBGGR8  v4l2_fourcc('B', 'A', '8', '1') /* BGBG.. GRGR..    */
 #endif
 
 #ifndef V4L2_PIX_FMT_SRGGB8
 #define V4L2_PIX_FMT_SRGGB8  v4l2_fourcc('R', 'G', 'G', 'B') /* RGRG.. GBGB..    */
+#endif
+
+#ifndef V4L2_PIX_FMT_BGR24
+#define V4L2_PIX_FMT_BGR24   v4l2_fourcc('B', 'G', 'R', '3') /* 24  BGR-8-8-8    */
+#endif
+
+#ifndef V4L2_PIX_FMT_RGB24
+#define V4L2_PIX_FMT_RGB24   v4l2_fourcc('R', 'G', 'B', '3') /* 24  RGB-8-8-8    */
 #endif
 
 typedef struct _SupFormats

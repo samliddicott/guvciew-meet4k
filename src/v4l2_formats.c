@@ -89,7 +89,7 @@ static SupFormats listSupFormats[SUP_PIX_FMT] = //list of software supported for
 	},
 	{
 		.format   = V4L2_PIX_FMT_SBGGR8,
-		.mode     = "bggr",
+		.mode     = "ba81",
 		.hardware = 0
 	},
 	{
