@@ -141,7 +141,8 @@ int main(int argc, char *argv[])
 	GtkWidget *LButton_Img;
 	GtkWidget *QButton_Img;
 	GtkWidget *HButtonBox;
-
+	
+	
 	s = g_new0(struct VidState, 1);
 
 	if(!control_only) /*control_only exclusion (video and Audio) */
@@ -174,6 +175,8 @@ int main(int argc, char *argv[])
 	/*---------------------------- GTK init ----------------------------------*/
 
 	gtk_init(&argc, &argv);
+	/* make sure gtk-button-images is set to true (defaults to false in karmic)*/
+	g_object_set (gtk_settings_get_default (), "gtk-button-images", TRUE, NULL);
 
 	/* Create a main window */
 	gwidget->mainwin = gtk_window_new(GTK_WINDOW_TOPLEVEL);
