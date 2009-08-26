@@ -1,3 +1,11 @@
+guvcview (1.1.4-ubuntu1) karmic; urgency=low
+
+   * set pixel format BA81 to correct fourcc
+   * Definitve fix button images display under karmic
+   * changed package dependencies to new ffmpeg naming (use ffmpeg-extra)
+
+ -- Paulo Assis <pj.assis@gmail.com>  Wed, 26 Aug 2009 22:10:00 +0000
+
 guvcview (1.1.3-ubuntu1) jaunty; urgency=low
 
    * Add rgb24 and bgr24 color formats

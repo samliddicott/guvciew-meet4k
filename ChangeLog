@@ -1,3 +1,10 @@
+guvcview (1.1.4)
+
+   * set pixel format BA81 to correct fourcc
+   * Definitve fix button images display under karmic
+
+ -- Paulo Assis <pj.assis@gmail.com>  Wed, 26 Aug 2009 22:10:00 +0000
+
 guvcview (1.1.3)
 
    * Add rgb24 and bgr24 color formats
