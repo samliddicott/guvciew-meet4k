@@ -695,7 +695,7 @@ void video_tab(struct ALL_DATA *all_data)
 		GTK_SHRINK | GTK_FILL, 0, 0, 0);
 
 	gtk_widget_show (ImgFolder_img);
-	gtk_widget_show (gwidget->ImgFileButt);
+	//gtk_widget_show (gwidget->ImgFileButt);
 	
 	//incremental capture
 	line++;

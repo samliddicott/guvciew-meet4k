@@ -411,18 +411,17 @@ int main(int argc, char *argv[])
 		
 			gtk_button_set_image(GTK_BUTTON(gwidget->CapVidButt),gwidget->VidButton_Img);
 			gtk_button_set_image_position(GTK_BUTTON(gwidget->CapVidButt),GTK_POS_TOP);
-			gtk_widget_show (gwidget->VidButton_Img);
+			//gtk_widget_show (gwidget->VidButton_Img);
 		}
 		//else g_printf("couldn't load %s\n", pix1path);
 		gchar* pix2path = g_strconcat (PACKAGE_DATA_DIR,"/pixmaps/guvcview/camera.png",NULL);
 		if (g_file_test(pix2path,G_FILE_TEST_EXISTS)) 
 		{
 			ImgButton_Img = gtk_image_new_from_file (pix2path);
-			//gtk_image_set_pixel_size (GTK_IMAGE(ImgButton_Img), 64);
 		
 			gtk_button_set_image(GTK_BUTTON(gwidget->CapImageButt),ImgButton_Img);
 			gtk_button_set_image_position(GTK_BUTTON(gwidget->CapImageButt),GTK_POS_TOP);
-			gtk_widget_show (ImgButton_Img);
+			//gtk_widget_show (ImgButton_Img);
 		}
 		g_free(pix1path);
 		g_free(pix2path);
@@ -442,31 +441,28 @@ int main(int argc, char *argv[])
 	if (g_file_test(pix3path,G_FILE_TEST_EXISTS)) 
 	{
 		SButton_Img = gtk_image_new_from_file (pix3path);
-		//gtk_image_set_pixel_size (GTK_IMAGE(SButton_Img), 64);
 		
 		gtk_button_set_image(GTK_BUTTON(SProfileButton),SButton_Img);
 		gtk_button_set_image_position(GTK_BUTTON(SProfileButton),GTK_POS_TOP);
-		gtk_widget_show (SButton_Img);
+		//gtk_widget_show (SButton_Img);
 	}
 	gchar* pix4path = g_strconcat (PACKAGE_DATA_DIR,"/pixmaps/guvcview/controls_folder.png",NULL);
 	if (g_file_test(pix4path,G_FILE_TEST_EXISTS)) 
 	{
 		LButton_Img = gtk_image_new_from_file (pix4path);
-		//gtk_image_set_pixel_size (GTK_IMAGE(LButton_Img), 64);
 		
 		gtk_button_set_image(GTK_BUTTON(LProfileButton),LButton_Img);
 		gtk_button_set_image_position(GTK_BUTTON(LProfileButton),GTK_POS_TOP);
-		gtk_widget_show (LButton_Img);
+		//gtk_widget_show (LButton_Img);
 	}
 	gchar* pix5path = g_strconcat (PACKAGE_DATA_DIR,"/pixmaps/guvcview/close.png",NULL);
 	if (g_file_test(pix5path,G_FILE_TEST_EXISTS)) 
 	{
 		QButton_Img = gtk_image_new_from_file (pix5path);
-		//gtk_image_set_pixel_size (GTK_IMAGE(QButton_Img), 64);
 		
 		gtk_button_set_image(GTK_BUTTON(quitButton),QButton_Img);
 		gtk_button_set_image_position(GTK_BUTTON(quitButton),GTK_POS_TOP);
-		gtk_widget_show (QButton_Img);
+		//gtk_widget_show (QButton_Img);
 	}
 
 	/*must free path strings*/
