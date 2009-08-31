@@ -55,6 +55,8 @@
 #define VDIN_MMAP_ERR            -13
 #define VDIN_READ_ERR            -14
 
+#define HEADERFRAME1 0xaf
+
 enum  v4l2_uvc_exposure_auto_type 
 {
 	V4L2_UVC_EXPOSURE_MANUAL = 1,

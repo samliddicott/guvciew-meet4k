@@ -86,6 +86,7 @@ typedef struct _SupFormats
 	int format;          //v4l2 software(guvcview) supported format
 	char mode[5];        //mode (fourcc - lower case)
 	int hardware;        //hardware supported (1 or 0)
+	//void *decoder;       //function to decode format into YUYV
 } SupFormats;
 
 typedef struct _VidCap 

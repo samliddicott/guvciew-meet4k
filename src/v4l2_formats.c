@@ -41,11 +41,13 @@ static SupFormats listSupFormats[SUP_PIX_FMT] = //list of software supported for
 		.format   = V4L2_PIX_FMT_MJPEG,
 		.mode     = "mjpg",
 		.hardware = 0
+		//.decoder  = decode_jpeg
 	},
 	{
 		.format   = V4L2_PIX_FMT_JPEG,
 		.mode     ="jpeg",
 		.hardware = 0
+		//.decoder  = decode_jpeg
 	},
 	{
 		.format   = V4L2_PIX_FMT_YUYV,

@@ -544,8 +544,8 @@ void video_tab(struct ALL_DATA *all_data)
 			listVidFormats->listVidCap[defres].numb_frates);
 	for ( i = 0 ; i < listVidFormats->listVidCap[defres].numb_frates ; i++) 
 	{
-		g_snprintf(temp_str,18,"%i/%i fps", listVidFormats->listVidCap[defres].framerate_num[i],
-			listVidFormats->listVidCap[defres].framerate_denom[i]);
+		g_snprintf(temp_str,18,"%i/%i fps", listVidFormats->listVidCap[defres].framerate_denom[i],
+			listVidFormats->listVidCap[defres].framerate_num[i]);
 		gtk_combo_box_append_text(GTK_COMBO_BOX(FrameRate),temp_str);
 		
 		if (( videoIn->fps_num == listVidFormats->listVidCap[defres].framerate_num[i]) && 

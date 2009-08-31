@@ -321,7 +321,8 @@ static int init_v4l2(struct vdIn *vd)
 		g_printerr("Unable to set %d fps\n",vd->fps);
 		perror("VIDIOC_S_PARM error");
 	}
-
+	
+	//deprecated in v4l2 - still waiting for new API implementation
 	if(vd->formatIn == V4L2_PIX_FMT_MJPEG || vd->formatIn == V4L2_PIX_FMT_JPEG)
 	{
 		get_jpegcomp(vd);
@@ -358,6 +359,134 @@ static int init_v4l2(struct vdIn *vd)
 	return VDIN_OK;
 }
 
+static int videoIn_frame_alloca(struct vdIn *vd)
+{
+	int ret = VDIN_OK;
+	size_t framebuf_size=0;
+	size_t tmpbuf_size=0;
+	
+	vd->framesizeIn = (vd->width * vd->height << 1); //2 bytes per pixel
+	switch (vd->formatIn) 
+	{
+		case V4L2_PIX_FMT_JPEG:
+		case V4L2_PIX_FMT_MJPEG:
+			// alloc a temp buffer to reconstruct the pict (MJPEG)
+			tmpbuf_size= vd->framesizeIn;
+			vd->tmpbuffer = g_new0(unsigned char, tmpbuf_size);
+			
+			framebuf_size = vd->width * (vd->height + 8) * 2;
+			vd->framebuffer = g_new0(unsigned char, framebuf_size); 
+			break;
+		
+		case V4L2_PIX_FMT_UYVY:
+		case V4L2_PIX_FMT_YVYU:
+		case V4L2_PIX_FMT_YYUV:
+		case V4L2_PIX_FMT_YUV420:
+		case V4L2_PIX_FMT_YVU420:
+			// alloc a temp buffer for converting to YUYV
+			tmpbuf_size= vd->framesizeIn;
+			vd->tmpbuffer = g_new0(unsigned char, tmpbuf_size);
+		
+			framebuf_size = vd->framesizeIn;
+			vd->framebuffer = g_new0(unsigned char, framebuf_size);
+			break;
+		
+		case V4L2_PIX_FMT_YUYV:
+			//  YUYV doesn't need a temp buffer but we will set it if/when
+			//  video processing disable control is checked (bayer processing).
+			//            (logitech cameras only) 
+			framebuf_size = vd->framesizeIn;
+			vd->framebuffer = g_new0(unsigned char, framebuf_size);
+			break;
+		
+		case V4L2_PIX_FMT_SGBRG8: //0
+		case V4L2_PIX_FMT_SGRBG8: //1
+		case V4L2_PIX_FMT_SBGGR8: //2
+		case V4L2_PIX_FMT_SRGGB8: //3
+			// Raw 8 bit bayer 
+			// when grabbing use:
+			//    bayer_to_rgb24(bayer_data, RGB24_data, width, height, 0..3)
+			//    rgb2yuyv(RGB24_data, vd->framebuffer, width, height)
+	
+			// alloc a temp buffer for converting to YUYV
+			// rgb buffer for decoding bayer data
+			tmpbuf_size = vd->width * vd->height * 3;
+			vd->tmpbuffer = g_new0(unsigned char, tmpbuf_size);
+		
+			framebuf_size = vd->framesizeIn;
+			vd->framebuffer = g_new0(unsigned char, framebuf_size);
+			break;
+		case V4L2_PIX_FMT_RGB24:
+		case V4L2_PIX_FMT_BGR24:
+			//rgb or bgr (8-8-8)
+			// alloc a temp buffer for converting to YUYV
+			// rgb buffer
+			tmpbuf_size = vd->width * vd->height * 3;
+			vd->tmpbuffer = g_new0(unsigned char, tmpbuf_size);
+			
+			framebuf_size = vd->framesizeIn;
+			vd->framebuffer = g_new0(unsigned char, framebuf_size);
+			break;
+			
+		default:
+			g_printerr("(v4l2uvc.c) should never arrive (1)- exit fatal !!\n");
+			ret = VDIN_UNKNOWN_ERR;
+			goto error;
+			break;
+	}
+	
+	if ((!vd->framebuffer) || (framebuf_size <=0)) 
+		{
+			g_printerr("couldn't calloc %lu bytes of memory for frame buffer\n",
+				(unsigned long) framebuf_size);
+			ret = VDIN_FBALLOC_ERR;
+			goto error;
+		} 
+		else
+		{
+			int i = 0;
+			// set framebuffer to black (y=0x00 u=0x80 v=0x80) by default
+			switch (vd->formatIn) 
+			{
+				case V4L2_PIX_FMT_JPEG:
+				case V4L2_PIX_FMT_MJPEG:
+				case V4L2_PIX_FMT_SGBRG8: // converted to YUYV
+				case V4L2_PIX_FMT_SGRBG8: // converted to YUYV
+				case V4L2_PIX_FMT_SBGGR8: // converted to YUYV
+				case V4L2_PIX_FMT_SRGGB8: // converted to YUYV
+				case V4L2_PIX_FMT_RGB24:  // converted to YUYV
+				case V4L2_PIX_FMT_BGR24:  // converted to YUYV
+				case V4L2_PIX_FMT_YUV420: // converted to YUYV
+				case V4L2_PIX_FMT_YVU420: // converted to YUYV
+				case V4L2_PIX_FMT_YYUV:   // converted to YUYV
+				case V4L2_PIX_FMT_YVYU:   // converted to YUYV
+				case V4L2_PIX_FMT_UYVY:   // converted to YUYV
+				case V4L2_PIX_FMT_YUYV:
+					for (i=0; i<(framebuf_size-4); i+=4)
+					{
+						vd->framebuffer[i]=0x00;  //Y
+						vd->framebuffer[i+1]=0x80;//U
+						vd->framebuffer[i+2]=0x00;//Y
+						vd->framebuffer[i+3]=0x80;//V
+					}
+					break;
+					
+				default:
+					g_printerr("(v4l2uvc.c) should never arrive (2)- exit fatal !!\n");
+					ret = VDIN_UNKNOWN_ERR;
+					goto error;
+					break;
+			}
+		}
+	return (ret);
+error:
+	g_free(vd->framebuffer);
+	vd->framebuffer = NULL;
+	g_free(vd->tmpbuffer);
+	vd->tmpbuffer = NULL;
+	return (ret);
+}
+
 /* Init VdIn struct with default and/or global values
  * args:
  * vd: pointer to a VdIn struct ( must be allready allocated )
@@ -368,7 +497,6 @@ static int init_v4l2(struct vdIn *vd)
 int init_videoIn(struct vdIn *vd, struct GLOBAL *global)
 {
 	int ret = VDIN_OK;
-	int i=0;
 	char *device = global->videodevice;
 	int width = global->width;
 	int height = global->height;
@@ -442,8 +570,6 @@ int init_videoIn(struct vdIn *vd, struct GLOBAL *global)
 		}
 	}
 	
-	size_t framebuf_size=0;
-	size_t tmpbuf_size=0;
 	//reset v4l2_format
 	memset(&vd->fmt, 0, sizeof(struct v4l2_format));
 	// populate video capabilities structure array
@@ -460,124 +586,15 @@ int init_videoIn(struct vdIn *vd, struct GLOBAL *global)
 			g_printerr("Init v4L2 failed !! \n");
 			goto error;
 		}
-		vd->framesizeIn = (vd->width * vd->height << 1); //2 bytes per pixel
-		switch (vd->formatIn) 
+		/*allocations*/
+		if((ret = videoIn_frame_alloca(vd)) != VDIN_OK)
 		{
-			case V4L2_PIX_FMT_JPEG:
-			case V4L2_PIX_FMT_MJPEG:
-				// alloc a temp buffer to reconstruct the pict (MJPEG)
-				tmpbuf_size= vd->framesizeIn;
-				vd->tmpbuffer = g_new0(unsigned char, tmpbuf_size);
-			
-				framebuf_size = vd->width * (vd->height + 8) * 2;
-				vd->framebuffer = g_new0(unsigned char, framebuf_size); 
-				break;
-			
-			case V4L2_PIX_FMT_UYVY:
-			case V4L2_PIX_FMT_YVYU:
-			case V4L2_PIX_FMT_YYUV:
-			case V4L2_PIX_FMT_YUV420:
-			case V4L2_PIX_FMT_YVU420:
-				// alloc a temp buffer for converting to YUYV
-				tmpbuf_size= vd->framesizeIn;
-				vd->tmpbuffer = g_new0(unsigned char, tmpbuf_size);
-			
-				framebuf_size = vd->framesizeIn;
-				vd->framebuffer = g_new0(unsigned char, framebuf_size);
-				break;
-			
-			case V4L2_PIX_FMT_YUYV:
-				//  YUYV doesn't need a temp buffer but we will set it if/when
-				//  video processing disable control is checked (bayer processing).
-				//            (logitech cameras only) 
-				framebuf_size = vd->framesizeIn;
-				vd->framebuffer = g_new0(unsigned char, framebuf_size);
-				break;
-			
-			case V4L2_PIX_FMT_SGBRG8: //0
-			case V4L2_PIX_FMT_SGRBG8: //1
-			case V4L2_PIX_FMT_SBGGR8: //2
-			case V4L2_PIX_FMT_SRGGB8: //3
-				// Raw 8 bit bayer 
-				// when grabbing use:
-				//    bayer_to_rgb24(bayer_data, RGB24_data, width, height, 0..3)
-				//    rgb2yuyv(RGB24_data, vd->framebuffer, width, height)
-		
-				// alloc a temp buffer for converting to YUYV
-				// rgb buffer for decoding bayer data
-				tmpbuf_size = vd->width * vd->height * 3;
-				vd->tmpbuffer = g_new0(unsigned char, tmpbuf_size);
-			
-				framebuf_size = vd->framesizeIn;
-				vd->framebuffer = g_new0(unsigned char, framebuf_size);
-				break;
-
-			case V4L2_PIX_FMT_RGB24:
-			case V4L2_PIX_FMT_BGR24:
-				//rgb or bgr (8-8-8)
-				// alloc a temp buffer for converting to YUYV
-				// rgb buffer
-				tmpbuf_size = vd->width * vd->height * 3;
-				vd->tmpbuffer = g_new0(unsigned char, tmpbuf_size);
-				
-				framebuf_size = vd->framesizeIn;
-				vd->framebuffer = g_new0(unsigned char, framebuf_size);
-				break;
-				
-			default:
-				g_printerr("(v4l2uvc.c) should never arrive (1)- exit fatal !!\n");
-				ret = VDIN_UNKNOWN_ERR;
-				goto error;
-				break;
-		}
-	
-		if ((!vd->framebuffer) || (framebuf_size <=0)) 
-		{
-			g_printerr("couldn't calloc %lu bytes of memory for frame buffer\n",
-				(unsigned long) framebuf_size);
-			ret = VDIN_FBALLOC_ERR;
 			goto error;
-		} 
-		else
-		{
-			// set framebuffer to black (y=0x00 u=0x80 v=0x80) by default
-			switch (vd->formatIn) {
-				case V4L2_PIX_FMT_JPEG:
-				case V4L2_PIX_FMT_MJPEG:
-				case V4L2_PIX_FMT_SGBRG8: // converted to YUYV
-				case V4L2_PIX_FMT_SGRBG8: // converted to YUYV
-				case V4L2_PIX_FMT_SBGGR8: // converted to YUYV
-				case V4L2_PIX_FMT_SRGGB8: // converted to YUYV
-				case V4L2_PIX_FMT_RGB24:  // converted to YUYV
-				case V4L2_PIX_FMT_BGR24:  // converted to YUYV
-				case V4L2_PIX_FMT_YUV420: // converted to YUYV
-				case V4L2_PIX_FMT_YVU420: // converted to YUYV
-				case V4L2_PIX_FMT_YYUV:   // converted to YUYV
-				case V4L2_PIX_FMT_YVYU:   // converted to YUYV
-				case V4L2_PIX_FMT_UYVY:   // converted to YUYV
-				case V4L2_PIX_FMT_YUYV:
-					for (i=0; i<(framebuf_size-4); i+=4)
-					{
-						vd->framebuffer[i]=0x00;  //Y
-						vd->framebuffer[i+1]=0x80;//U
-						vd->framebuffer[i+2]=0x00;//Y
-						vd->framebuffer[i+3]=0x80;//V
-					}
-					break;
-					
-				default:
-					g_printerr("(v4l2uvc.c) should never arrive (2)- exit fatal !!\n");
-					ret = VDIN_UNKNOWN_ERR;
-					goto error;
-					break;
-		}	
 		}
 	}
-	return VDIN_OK;
+	return (ret);
 	//error: clean up allocs
 error:
-	g_free(vd->framebuffer);
-	g_free(vd->tmpbuffer);
 	close(vd->fd);
 	vd->fd=0;
 	g_free(vd->videodevice);
@@ -635,88 +652,9 @@ static int video_disable(struct vdIn *vd)
 	return 0;
 }
 
-/* Grabs video frame and decodes it if necessary
- * args:
- * vd: pointer to a VdIn struct ( must be allready initiated)
- *
- * returns: error code ( 0 - VDIN_OK)
-*/
-int uvcGrab(struct vdIn *vd)
+static int frame_decode(struct vdIn *vd)
 {
-#define HEADERFRAME1 0xaf
 	int ret = VDIN_OK;
-	fd_set rdset;
-	struct timeval timeout;
-	//make sure streaming is on
-	if (!vd->isstreaming)
-		if (video_enable(vd)) goto err;
-	
-	FD_ZERO(&rdset);
-	FD_SET(vd->fd, &rdset);
-	timeout.tv_sec = 1; // 1 sec timeout 
-	timeout.tv_usec = 0;
-	// select - wait for data or timeout
-	ret = select(vd->fd + 1, &rdset, NULL, NULL, &timeout);
-	if (ret < 0) 
-	{
-		perror(" Could not grab image (select error)");
-		return VDIN_SELEFAIL_ERR;
-	} 
-	else if (ret == 0)
-	{
-		perror(" Could not grab image (select timeout)");
-		return VDIN_SELETIMEOUT_ERR;
-	}
-	else if ((ret > 0) && (FD_ISSET(vd->fd, &rdset))) 
-	{
-		switch(vd->cap_meth)
-		{
-			case IO_READ:
-				vd->buf.bytesused = read (vd->fd, vd->mem[vd->buf.index], vd->buf.length);
-				if (-1 == vd->buf.bytesused ) 
-				{
-					switch (errno) 
-					{
-						case EAGAIN:
-							g_printf("No data available for read\n");
-							return VDIN_SELETIMEOUT_ERR;
-						case EINVAL:
-							g_printf("Read method is not supported, try mmap instead\n");
-						case EIO:
-							g_printf("I/O Error\n");
-						default:
-							perror("read");
-					}
-				}
-				break;
-				
-			case IO_MMAP:
-			default:
-				memset(&vd->buf, 0, sizeof(struct v4l2_buffer));
-				vd->buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-				vd->buf.memory = V4L2_MEMORY_MMAP;
-
-				ret = ioctl(vd->fd, VIDIOC_DQBUF, &vd->buf);
-				if (ret < 0) 
-				{
-					perror("VIDIOC_DQBUF - Unable to dequeue buffer ");
-					ret = VDIN_DEQBUFS_ERR;
-					goto err;
-				}
-		}
-	}
-
-	// save raw frame
-	if (vd->cap_raw>0) 
-	{
-		if (vd->buf.bytesused > vd->framesizeIn)
-			SaveBuff (vd->ImageFName,vd->buf.bytesused,vd->mem[vd->buf.index]);
-		else
-			SaveBuff (vd->ImageFName,vd->framesizeIn,vd->mem[vd->buf.index]);
-	
-		vd->cap_raw=0;
-	}
-	
 	switch (vd->formatIn) 
 	{
 		case V4L2_PIX_FMT_JPEG:
@@ -725,10 +663,10 @@ int uvcGrab(struct vdIn *vd)
 			{
 				// Prevent crash on empty image
 				g_printf("Ignoring empty buffer ...\n");
-				return VDIN_OK;
+				return (ret);
 			}
 			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
-			
+
 			if (jpeg_decode(&vd->framebuffer, vd->tmpbuffer, &vd->width,
 				&vd->height) < 0) 
 			{
@@ -833,6 +771,97 @@ int uvcGrab(struct vdIn *vd)
 			goto err;
 			break;
 	}
+	return ret;
+err:
+	return ret;
+}
+
+/* Grabs video frame and decodes it if necessary
+ * args:
+ * vd: pointer to a VdIn struct ( must be allready initiated)
+ *
+ * returns: error code ( 0 - VDIN_OK)
+*/
+int uvcGrab(struct vdIn *vd)
+{
+	int ret = VDIN_OK;
+	fd_set rdset;
+	struct timeval timeout;
+	//make sure streaming is on
+	if (!vd->isstreaming)
+		if (video_enable(vd)) goto err;
+	
+	FD_ZERO(&rdset);
+	FD_SET(vd->fd, &rdset);
+	timeout.tv_sec = 1; // 1 sec timeout 
+	timeout.tv_usec = 0;
+	// select - wait for data or timeout
+	ret = select(vd->fd + 1, &rdset, NULL, NULL, &timeout);
+	if (ret < 0) 
+	{
+		perror(" Could not grab image (select error)");
+		return VDIN_SELEFAIL_ERR;
+	} 
+	else if (ret == 0)
+	{
+		perror(" Could not grab image (select timeout)");
+		return VDIN_SELETIMEOUT_ERR;
+	}
+	else if ((ret > 0) && (FD_ISSET(vd->fd, &rdset))) 
+	{
+		switch(vd->cap_meth)
+		{
+			case IO_READ:
+				vd->buf.bytesused = read (vd->fd, vd->mem[vd->buf.index], vd->buf.length);
+				if (-1 == vd->buf.bytesused ) 
+				{
+					switch (errno) 
+					{
+						case EAGAIN:
+							g_printf("No data available for read\n");
+							return VDIN_SELETIMEOUT_ERR;
+						case EINVAL:
+							g_printf("Read method is not supported, try mmap instead\n");
+						case EIO:
+							g_printf("I/O Error\n");
+						default:
+							perror("read");
+					}
+				}
+				break;
+				
+			case IO_MMAP:
+			default:
+				memset(&vd->buf, 0, sizeof(struct v4l2_buffer));
+				vd->buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+				vd->buf.memory = V4L2_MEMORY_MMAP;
+
+				ret = ioctl(vd->fd, VIDIOC_DQBUF, &vd->buf);
+				if (ret < 0) 
+				{
+					perror("VIDIOC_DQBUF - Unable to dequeue buffer ");
+					ret = VDIN_DEQBUFS_ERR;
+					goto err;
+				}
+		}
+	}
+
+	// save raw frame
+	if (vd->cap_raw>0) 
+	{
+		if (vd->buf.bytesused > vd->framesizeIn)
+			SaveBuff (vd->ImageFName,vd->buf.bytesused,vd->mem[vd->buf.index]);
+		else
+			SaveBuff (vd->ImageFName,vd->framesizeIn,vd->mem[vd->buf.index]);
+	
+		vd->cap_raw=0;
+	}
+	
+	if ((ret = frame_decode(vd)) != VDIN_OK)
+	{
+		goto err;
+	}
+	
 	if(vd->setFPS) //change fps
 	{
 		video_disable(vd);
@@ -852,8 +881,8 @@ int uvcGrab(struct vdIn *vd)
 		queue_buff(vd);
 		vd->setJPEGCOMP = 0;
 	}
-	else 
-	{	
+	else if ( vd->cap_meth == IO_MMAP)
+	{
 		ret = ioctl(vd->fd, VIDIOC_QBUF, &vd->buf);
 		if (ret < 0) 
 		{
