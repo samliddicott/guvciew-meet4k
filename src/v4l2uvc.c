@@ -849,10 +849,11 @@ int uvcGrab(struct vdIn *vd)
 	// save raw frame
 	if (vd->cap_raw>0) 
 	{
-		if (vd->buf.bytesused > vd->framesizeIn)
+		/*always use bytesused for buffer size*/
+		//if (vd->buf.bytesused > vd->framesizeIn)
 			SaveBuff (vd->ImageFName,vd->buf.bytesused,vd->mem[vd->buf.index]);
-		else
-			SaveBuff (vd->ImageFName,vd->framesizeIn,vd->mem[vd->buf.index]);
+		//else
+		//	SaveBuff (vd->ImageFName,vd->framesizeIn,vd->mem[vd->buf.index]);
 	
 		vd->cap_raw=0;
 	}
