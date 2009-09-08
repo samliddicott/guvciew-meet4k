@@ -71,6 +71,15 @@ void uyvy_to_yuyv (BYTE *framebuffer, BYTE *tmpbuffer, int width, int height);
 */
 void yvyu_to_yuyv (BYTE *framebuffer, BYTE *tmpbuffer, int width, int height);
 
+/*convert yuv 411 packed (y41p) to yuv 422
+* args: 
+*      framebuffer: pointer to frame buffer (yuyv)
+*      tmpbuffer: pointer to temp buffer containing y41p data frame
+*      width: picture width
+*      height: picture height
+*/
+void y41p_to_yuyv (BYTE *framebuffer, BYTE *tmpbuffer, int width, int height);
+
 /*convert yuyv to rgb24
 * args: 
 *      pyuv: pointer to buffer containing yuv data (yuyv)

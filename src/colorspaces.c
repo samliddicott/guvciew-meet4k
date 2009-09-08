@@ -322,6 +322,45 @@ int yvu420_to_yuyv (BYTE *framebuffer, BYTE *tmpbuffer, int width, int height)
 	return (0);
 }
 
+/*convert yuv 411 packed (y41p) to yuv 422
+* args: 
+*      framebuffer: pointer to frame buffer (yuyv)
+*      tmpbuffer: pointer to temp buffer containing y41p data frame
+*      width: picture width
+*      height: picture height
+*/
+void y41p_to_yuyv (BYTE *framebuffer, BYTE *tmpbuffer, int width, int height)
+{
+	int h=0;
+	int w=0;
+	int linesize = width * 3 /2;
+	int offset = 0;
+	
+	for(h=0;h<height;height++)
+	{
+		offset = linesize * h;
+		for(w=0;w<linesize;w+=12)
+		{
+			*framebuffer++=tmpbuffer[w+1 + offset]; //Y0
+			*framebuffer++=tmpbuffer[w   + offset]; //U0
+			*framebuffer++=tmpbuffer[w+3 + offset]; //Y1
+			*framebuffer++=tmpbuffer[w+2 + offset]; //V0
+			*framebuffer++=tmpbuffer[w+5 + offset]; //Y2
+			*framebuffer++=tmpbuffer[w   + offset]; //U0
+			*framebuffer++=tmpbuffer[w+7 + offset]; //Y3
+			*framebuffer++=tmpbuffer[w+2 + offset]; //V0
+			*framebuffer++=tmpbuffer[w+8 + offset]; //Y4
+			*framebuffer++=tmpbuffer[w+4 + offset]; //U4
+			*framebuffer++=tmpbuffer[w+9 + offset]; //Y5
+			*framebuffer++=tmpbuffer[w+6 + offset]; //V4
+			*framebuffer++=tmpbuffer[w+10+ offset]; //Y6
+			*framebuffer++=tmpbuffer[w+4 + offset]; //U4
+			*framebuffer++=tmpbuffer[w+11+ offset]; //Y7
+			*framebuffer++=tmpbuffer[w+6 + offset]; //V4
+		}
+	}
+}
+
 // raw bayer functions 
 // from libv4l bayer.c, (C) 2008 Hans de Goede <j.w.r.degoede@hhs.nl>
 //Note: original bayer_to_bgr24 code from :

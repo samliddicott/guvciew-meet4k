@@ -359,6 +359,12 @@ static int init_v4l2(struct vdIn *vd)
 	return VDIN_OK;
 }
 
+/* Alloc image buffers for decoding video stream
+ * args:
+ * vd: pointer to a VdIn struct ( must be allready allocated )
+ *
+ * returns: error code ( 0 - VDIN_OK)
+*/
 static int videoIn_frame_alloca(struct vdIn *vd)
 {
 	int ret = VDIN_OK;
@@ -381,8 +387,9 @@ static int videoIn_frame_alloca(struct vdIn *vd)
 		case V4L2_PIX_FMT_UYVY:
 		case V4L2_PIX_FMT_YVYU:
 		case V4L2_PIX_FMT_YYUV:
-		case V4L2_PIX_FMT_YUV420:
-		case V4L2_PIX_FMT_YVU420:
+		case V4L2_PIX_FMT_YUV420: // only needs 3/2 bytes per pixel but we alloc 2 bytes per pixel
+		case V4L2_PIX_FMT_YVU420: // only needs 3/2 bytes per pixel but we alloc 2 bytes per pixel
+		case V4L2_PIX_FMT_Y41P:   // only needs 3/2 bytes per pixel but we alloc 2 bytes per pixel
 			// alloc a temp buffer for converting to YUYV
 			tmpbuf_size= vd->framesizeIn;
 			vd->tmpbuffer = g_new0(unsigned char, tmpbuf_size);
@@ -390,7 +397,7 @@ static int videoIn_frame_alloca(struct vdIn *vd)
 			framebuf_size = vd->framesizeIn;
 			vd->framebuffer = g_new0(unsigned char, framebuf_size);
 			break;
-		
+	
 		case V4L2_PIX_FMT_YUYV:
 			//  YUYV doesn't need a temp buffer but we will set it if/when
 			//  video processing disable control is checked (bayer processing).
@@ -461,6 +468,7 @@ static int videoIn_frame_alloca(struct vdIn *vd)
 				case V4L2_PIX_FMT_YYUV:   // converted to YUYV
 				case V4L2_PIX_FMT_YVYU:   // converted to YUYV
 				case V4L2_PIX_FMT_UYVY:   // converted to YUYV
+				case V4L2_PIX_FMT_Y41P:   // converted to YUYV
 				case V4L2_PIX_FMT_YUYV:
 					for (i=0; i<(framebuf_size-4); i+=4)
 					{
@@ -652,6 +660,12 @@ static int video_disable(struct vdIn *vd)
 	return 0;
 }
 
+/* decode video stream (frame buffer in yuyv format)
+ * args:
+ * vd: pointer to a VdIn struct ( must be allready allocated )
+ *
+ * returns: error code ( 0 - VDIN_OK)
+*/
 static int frame_decode(struct vdIn *vd)
 {
 	int ret = VDIN_OK;
@@ -715,6 +729,11 @@ static int frame_decode(struct vdIn *vd)
 			}
 			break;
 		
+		case V4L2_PIX_FMT_Y41P: 
+			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
+			y41p_to_yuyv(vd->framebuffer, vd->tmpbuffer, vd->width, vd->height);
+			break;
+			
 		case V4L2_PIX_FMT_YUYV:
 			if(vd->isbayer>0) 
 			{
@@ -738,16 +757,17 @@ static int frame_decode(struct vdIn *vd)
 						(size_t) vd->buf.bytesused);
 			}
 			break;
-		
-		
+			
 		case V4L2_PIX_FMT_SGBRG8: //0
 			bayer_to_rgb24 (vd->mem[vd->buf.index],vd->tmpbuffer,vd->width,vd->height, 0);
 			rgb2yuyv (vd->tmpbuffer,vd->framebuffer,vd->width,vd->height);
 			break;
+			
 		case V4L2_PIX_FMT_SGRBG8: //1
 			bayer_to_rgb24 (vd->mem[vd->buf.index],vd->tmpbuffer,vd->width,vd->height, 1);
 			rgb2yuyv (vd->tmpbuffer,vd->framebuffer,vd->width,vd->height);
 			break;
+			
 		case V4L2_PIX_FMT_SBGGR8: //2
 			bayer_to_rgb24 (vd->mem[vd->buf.index],vd->tmpbuffer,vd->width,vd->height, 2);
 			rgb2yuyv (vd->tmpbuffer,vd->framebuffer,vd->width,vd->height);
@@ -756,6 +776,7 @@ static int frame_decode(struct vdIn *vd)
 			bayer_to_rgb24 (vd->mem[vd->buf.index],vd->tmpbuffer,vd->width,vd->height, 3);
 			rgb2yuyv (vd->tmpbuffer,vd->framebuffer,vd->width,vd->height);
 			break;
+			
 		case V4L2_PIX_FMT_RGB24:
 			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
 			rgb2yuyv(vd->tmpbuffer, vd->framebuffer, vd->width, vd->height);
