@@ -215,7 +215,7 @@ void yvyu_to_yuyv (BYTE *framebuffer, BYTE *tmpbuffer, int width, int height)
 *      width: picture width
 *      height: picture height
 */
-int yuv420_to_yuyv (BYTE *framebuffer, BYTE *tmpbuffer, int width, int height) 
+void yuv420_to_yuyv (BYTE *framebuffer, BYTE *tmpbuffer, int width, int height) 
 {
 	BYTE *py;
 	BYTE *pu;
@@ -223,6 +223,12 @@ int yuv420_to_yuyv (BYTE *framebuffer, BYTE *tmpbuffer, int width, int height)
 	
 	int linesize = width * 2;
 	int uvlinesize = width / 2;
+	int offset=0;
+	int offset1=0;
+	int offsety=0;
+	int offsety1=0;
+	int offsetuv=0;
+	
 	py=tmpbuffer;
 	pu=py+(width*height);
 	pv=pu+(width*height/4);
@@ -238,31 +244,37 @@ int yuv420_to_yuyv (BYTE *framebuffer, BYTE *tmpbuffer, int width, int height)
 	{
 		wy=0;
 		wuv=0;
+		offset = h * linesize;
+		offset1 = (h + 1) * linesize;
+		offsety = h * width;
+		offsety1 = (h + 1) * width;
+		offsetuv = huv * uvlinesize;
+		
 		for(w=0;w<linesize;w+=4) 
 		{
 			/*y00*/
-			framebuffer[h * linesize + w] = py[h * width + wy];
+			framebuffer[w + offset] = py[wy + offsety];
 			/*u0*/
-			framebuffer[h * linesize + (w + 1)] = pu[huv * uvlinesize + wuv];
+			framebuffer[(w + 1) + offset] = pu[wuv + offsetuv];
 			/*y01*/
-			framebuffer[h * linesize + (w + 2)] = py[h * width + (wy + 1)];
+			framebuffer[(w + 2) + offset] = py[(wy + 1) + offsety];
 			/*v0*/
-			framebuffer[h * linesize + (w + 3)] = pv[huv * uvlinesize + wuv];
+			framebuffer[(w + 3) + offset] = pv[wuv + offsetuv];
 			
 			/*y10*/
-			framebuffer[(h + 1) * linesize + w] = py[(h + 1) * width + wy];
+			framebuffer[w + offset1] = py[wy + offsety1];
 			/*u0*/
-			framebuffer[(h + 1) * linesize + ( w + 1)] = pu[huv * uvlinesize + wuv];
+			framebuffer[(w + 1) + offset1] = pu[wuv + offsetuv];
 			/*y11*/
-			framebuffer[(h + 1) * linesize + (w + 2)] = py[(h + 1) * width + (wy + 1)];
+			framebuffer[(w + 2) + offset1] = py[(wy + 1) + offsety1];
 			/*v0*/
-			framebuffer[(h + 1) * linesize + (w + 3)] = pv[huv * uvlinesize + wuv];
+			framebuffer[(w + 3) + offset1] = pv[wuv + offsetuv];
+			
 			wuv++;
 			wy+=2;
 		}
 		huv++;
 	}
-	return (0);
 }
 
 /*convert yvu 420 planar (yv12) to yuv 422
@@ -272,7 +284,7 @@ int yuv420_to_yuyv (BYTE *framebuffer, BYTE *tmpbuffer, int width, int height)
 *      width: picture width
 *      height: picture height
 */
-int yvu420_to_yuyv (BYTE *framebuffer, BYTE *tmpbuffer, int width, int height) 
+void yvu420_to_yuyv (BYTE *framebuffer, BYTE *tmpbuffer, int width, int height) 
 {
 	BYTE *py;
 	BYTE *pv;
@@ -280,6 +292,12 @@ int yvu420_to_yuyv (BYTE *framebuffer, BYTE *tmpbuffer, int width, int height)
 	
 	int linesize = width * 2;
 	int uvlinesize = width / 2;
+	int offset=0;
+	int offset1=0;
+	int offsety=0;
+	int offsety1=0;
+	int offsetuv=0;
+	
 	py=tmpbuffer;
 	pv=py+(width*height);
 	pu=pv+((width*height)/4);
@@ -295,31 +313,271 @@ int yvu420_to_yuyv (BYTE *framebuffer, BYTE *tmpbuffer, int width, int height)
 	{
 		wy=0;
 		wuv=0;
+		offset = h * linesize;
+		offset1 = (h + 1) * linesize;
+		offsety = h * width;
+		offsety1 = (h + 1) * width;
+		offsetuv = huv * uvlinesize;
+		
 		for(w=0;w<linesize;w+=4) 
 		{
 			/*y00*/
-			framebuffer[h * linesize + w] = py[h * width + wy];
+			framebuffer[w + offset] = py[wy + offsety];
 			/*u0*/
-			framebuffer[h * linesize + (w + 1)] = pu[huv * uvlinesize + wuv];
+			framebuffer[(w + 1) + offset] = pu[wuv + offsetuv];
 			/*y01*/
-			framebuffer[h * linesize + (w + 2)] = py[h * width + (wy + 1)];
+			framebuffer[(w + 2) + offset] = py[(wy + 1) + offsety];
 			/*v0*/
-			framebuffer[h * linesize + (w + 3)] = pv[huv * uvlinesize + wuv];
+			framebuffer[(w + 3) + offset] = pv[wuv + offsetuv];
 			
 			/*y10*/
-			framebuffer[(h + 1) * linesize + w] = py[(h + 1) * width + wy];
+			framebuffer[w + offset1] = py[wy + offsety1];
 			/*u0*/
-			framebuffer[(h + 1) * linesize + (w + 1)] = pu[huv * uvlinesize + wuv];
+			framebuffer[(w + 1) + offset1] = pu[wuv + offsetuv];
 			/*y11*/
-			framebuffer[(h + 1) * linesize + (w + 2)] = py[(h + 1) * width + (wy + 1)];
+			framebuffer[(w + 2) + offset1] = py[(wy + 1) + offsety1];
 			/*v0*/
-			framebuffer[(h + 1) * linesize + (w + 3)] = pv[huv * uvlinesize + wuv];
+			framebuffer[(w + 3) + offset1] = pv[wuv + offsetuv];
+			
 			wuv++;
 			wy+=2;
 		}
 		huv++;
 	}
-	return (0);
+}
+
+/*convert yuv 420 planar (uv interleaved) (nv12) to yuv 422
+* args: 
+*      framebuffer: pointer to frame buffer (yuyv)
+*      tmpbuffer: pointer to temp buffer containing yuv420 (nv12) planar data frame
+*      width: picture width
+*      height: picture height
+*/
+void nv12_to_yuyv (BYTE *framebuffer, BYTE *tmpbuffer, int width, int height) 
+{
+	BYTE *py;
+	BYTE *puv;
+	
+	int linesize = width * 2;
+	int offset=0;
+	int offset1=0;
+	int offsety=0;
+	int offsety1=0;
+	int offsetuv=0;
+	
+	py=tmpbuffer;
+	puv=py+(width*height);
+	
+	int h=0;
+	int w=0;
+	
+	int wy=0;
+	int huv=0;
+	int wuv=0;
+	
+	for(h=0;h<height;h+=2) 
+	{
+		wy=0;
+		wuv=0;
+		offset = h * linesize;
+		offset1 = (h+1) * linesize;
+		offsety = h * width;
+		offsety1 = (h+1) * width;
+		offsetuv = huv * width;
+		for(w=0;w<linesize;w+=4) 
+		{
+			/*y00*/
+			framebuffer[w + offset] = py[wy + offsety];
+			/*u0*/
+			framebuffer[(w + 1) + offset] = puv[wuv + offsetuv];
+			/*y01*/
+			framebuffer[(w + 2) + offset] = py[(wy + 1) + offsety];
+			/*v0*/
+			framebuffer[(w + 3) + offset] = puv[(wuv + 1) + offsetuv];
+			
+			/*y10*/
+			framebuffer[w + offset1] = py[wy + offsety1];
+			/*u0*/
+			framebuffer[(w + 1) + offset1] = puv[wuv + offsetuv];
+			/*y11*/
+			framebuffer[(w + 2) + offset1] = py[(wy + 1) + offsety1];
+			/*v0*/
+			framebuffer[(w + 3) + offset1] = puv[(wuv + 1) + offsetuv];
+			
+			wuv+=2;
+			wy+=2;
+		}
+		huv++;
+	}
+}
+
+/*convert yuv 420 planar (vu interleaved) (nv21) to yuv 422
+* args: 
+*      framebuffer: pointer to frame buffer (yuyv)
+*      tmpbuffer: pointer to temp buffer containing yuv420 (nv21) planar data frame
+*      width: picture width
+*      height: picture height
+*/
+void nv21_to_yuyv (BYTE *framebuffer, BYTE *tmpbuffer, int width, int height) 
+{
+	BYTE *py;
+	BYTE *puv;
+	
+	int linesize = width * 2;
+	int offset=0;
+	int offset1=0;
+	int offsety=0;
+	int offsety1=0;
+	int offsetuv=0;
+	
+	py=tmpbuffer;
+	puv=py+(width*height);
+	
+	int h=0;
+	int w=0;
+	
+	int wy=0;
+	int huv=0;
+	int wuv=0;
+	
+	for(h=0;h<height;h+=2) 
+	{
+		wy=0;
+		wuv=0;
+		offset = h * linesize;
+		offset1 = (h+1) * linesize;
+		offsety = h * width;
+		offsety1 = (h+1) * width;
+		offsetuv = huv * width;
+		for(w=0;w<linesize;w+=4) 
+		{
+			/*y00*/
+			framebuffer[w + offset] = py[wy + offsety];
+			/*u0*/
+			framebuffer[(w + 1) + offset] = puv[(wuv + 1) + offsetuv];
+			/*y01*/
+			framebuffer[(w + 2) + offset] = py[(wy + 1) + offsety];
+			/*v0*/
+			framebuffer[(w + 3) + offset] = puv[wuv + offsetuv];
+			
+			/*y10*/
+			framebuffer[w + offset1] = py[wy + offsety1];
+			/*u0*/
+			framebuffer[(w + 1) + offset1] = puv[(wuv + 1) + offsetuv];
+			/*y11*/
+			framebuffer[(w + 2) + offset1] = py[(wy + 1) + offsety1];
+			/*v0*/
+			framebuffer[(w + 3) + offset1] = puv[wuv + offsetuv];
+			
+			wuv+=2;
+			wy+=2;
+		}
+		huv++;
+	}
+}
+
+/*convert yuv 422 planar (uv interleaved) (nv16) to yuv 422
+* args: 
+*      framebuffer: pointer to frame buffer (yuyv)
+*      tmpbuffer: pointer to temp buffer containing yuv422 (nv16) planar data frame
+*      width: picture width
+*      height: picture height
+*/
+void nv16_to_yuyv (BYTE *framebuffer, BYTE *tmpbuffer, int width, int height)
+{
+	BYTE *py;
+	BYTE *puv;
+	
+	int linesize = width * 2;
+	int offset=0;
+	int offsety=0;
+	int offsetuv=0;
+	
+	py=tmpbuffer;
+	puv=py+(width*height);
+	
+	int h=0;
+	int w=0;
+	
+	int wy=0;
+	int huv=0;
+	int wuv=0;
+	
+	for(h=0;h<height;h++) 
+	{
+		wy=0;
+		wuv=0;
+		offset = h * linesize;
+		offsety = h * width;
+		offsetuv = huv * width;
+		for(w=0;w<linesize;w+=4) 
+		{
+			/*y00*/
+			framebuffer[w + offset] = py[wy + offsety];
+			/*u0*/
+			framebuffer[(w + 1) + offset] = puv[wuv + offsetuv];
+			/*y01*/
+			framebuffer[(w + 2) + offset] = py[(wy + 1) + offsety];
+			/*v0*/
+			framebuffer[(w + 3) + offset] = puv[(wuv + 1) + offsetuv];
+			
+			wuv+=2;
+			wy+=2;
+		}
+		huv++;
+	}
+}
+
+/*convert yuv 422 planar (vu interleaved) (nv61) to yuv 422
+* args: 
+*      framebuffer: pointer to frame buffer (yuyv)
+*      tmpbuffer: pointer to temp buffer containing yuv422 (nv61) planar data frame
+*      width: picture width
+*      height: picture height
+*/
+void nv61_to_yuyv (BYTE *framebuffer, BYTE *tmpbuffer, int width, int height)
+{
+	BYTE *py;
+	BYTE *puv;
+	
+	int linesize = width * 2;
+	int offset=0;
+	int offsety=0;
+	int offsetuv=0;
+	
+	py=tmpbuffer;
+	puv=py+(width*height);
+	
+	int h=0;
+	int w=0;
+	
+	int wy=0;
+	int huv=0;
+	int wuv=0;
+	
+	for(h=0;h<height;h++) 
+	{
+		wy=0;
+		wuv=0;
+		offset = h * linesize;
+		offsety = h * width;
+		offsetuv = huv * width;
+		for(w=0;w<linesize;w+=4) 
+		{
+			/*y00*/
+			framebuffer[w + offset] = py[wy + offsety];
+			/*u0*/
+			framebuffer[(w + 1) + offset] = puv[(wuv + 1) + offsetuv];
+			/*y01*/
+			framebuffer[(w + 2) + offset] = py[(wy + 1) + offsety];
+			/*v0*/
+			framebuffer[(w + 3) + offset] = puv[wuv + offsetuv];
+			
+			wuv+=2;
+			wy+=2;
+		}
+		huv++;
+	}
 }
 
 /*convert yuv 411 packed (y41p) to yuv 422
@@ -361,6 +619,29 @@ void y41p_to_yuyv (BYTE *framebuffer, BYTE *tmpbuffer, int width, int height)
 	}
 }
 
+/*convert yuv mono (grey) to yuv 422
+* args: 
+*      framebuffer: pointer to frame buffer (yuyv)
+*      tmpbuffer: pointer to temp buffer containing grey (y only) data frame
+*      width: picture width
+*      height: picture height
+*/
+void grey_to_yuyv (BYTE *framebuffer, BYTE *tmpbuffer, int width, int height)
+{
+	int h=0;
+	int w=0;
+	int offset = 0;
+	
+	for(h=0;h<height;height++)
+	{
+		offset = width * h;
+		for(w=0;w<width;w++)
+		{
+			*framebuffer++=tmpbuffer[w + offset]; //Y
+			*framebuffer++=0x80;                  //U or V
+		}
+	}
+}
 // raw bayer functions 
 // from libv4l bayer.c, (C) 2008 Hans de Goede <j.w.r.degoede@hhs.nl>
 //Note: original bayer_to_bgr24 code from :

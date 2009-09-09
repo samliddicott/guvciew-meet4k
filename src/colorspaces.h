@@ -31,7 +31,7 @@
 *      width: picture width
 *      height: picture height
 */
-int 
+void 
 yuv420_to_yuyv (BYTE *framebuffer, BYTE *tmpbuffer, int width, int height);
 
 /*convert yvu 420 planar (yv12) to yuv 422 (yuyv)
@@ -41,7 +41,43 @@ yuv420_to_yuyv (BYTE *framebuffer, BYTE *tmpbuffer, int width, int height);
 *      width: picture width
 *      height: picture height
 */
-int yvu420_to_yuyv (BYTE *framebuffer, BYTE *tmpbuffer, int width, int height);
+void yvu420_to_yuyv (BYTE *framebuffer, BYTE *tmpbuffer, int width, int height);
+
+/*convert yuv 420 planar (uv interleaved) (nv12) to yuv 422
+* args: 
+*      framebuffer: pointer to frame buffer (yuyv)
+*      tmpbuffer: pointer to temp buffer containing yuv420 (nv12) planar data frame
+*      width: picture width
+*      height: picture height
+*/
+void nv12_to_yuyv (BYTE *framebuffer, BYTE *tmpbuffer, int width, int height);
+
+/*convert yuv 420 planar (vu interleaved) (nv21) to yuv 422
+* args: 
+*      framebuffer: pointer to frame buffer (yuyv)
+*      tmpbuffer: pointer to temp buffer containing yuv420 (nv21) planar data frame
+*      width: picture width
+*      height: picture height
+*/
+void nv21_to_yuyv (BYTE *framebuffer, BYTE *tmpbuffer, int width, int height);
+
+/*convert yuv 422 planar (uv interleaved) (nv16) to yuv 422
+* args: 
+*      framebuffer: pointer to frame buffer (yuyv)
+*      tmpbuffer: pointer to temp buffer containing yuv422 (nv16) planar data frame
+*      width: picture width
+*      height: picture height
+*/
+void nv16_to_yuyv (BYTE *framebuffer, BYTE *tmpbuffer, int width, int height);
+
+/*convert yuv 422 planar (vu interleaved) (nv61) to yuv 422
+* args: 
+*      framebuffer: pointer to frame buffer (yuyv)
+*      tmpbuffer: pointer to temp buffer containing yuv422 (nv61) planar data frame
+*      width: picture width
+*      height: picture height
+*/
+void nv61_to_yuyv (BYTE *framebuffer, BYTE *tmpbuffer, int width, int height);
 
 /*convert yyuv to yuyv
 * args: 
@@ -79,6 +115,15 @@ void yvyu_to_yuyv (BYTE *framebuffer, BYTE *tmpbuffer, int width, int height);
 *      height: picture height
 */
 void y41p_to_yuyv (BYTE *framebuffer, BYTE *tmpbuffer, int width, int height);
+
+/*convert yuv mono (grey) to yuv 422
+* args: 
+*      framebuffer: pointer to frame buffer (yuyv)
+*      tmpbuffer: pointer to temp buffer containing grey (y only) data frame
+*      width: picture width
+*      height: picture height
+*/
+void grey_to_yuyv (BYTE *framebuffer, BYTE *tmpbuffer, int width, int height);
 
 /*convert yuyv to rgb24
 * args: 

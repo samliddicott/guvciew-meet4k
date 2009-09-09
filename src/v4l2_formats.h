@@ -56,8 +56,28 @@
 #define V4L2_PIX_FMT_YVU420  v4l2_fourcc('Y','V','1','2')   /* YUV 4:2:0 Planar  */
 #endif
 
+#ifndef V4L2_PIX_FMT_NV12
+#define V4L2_PIX_FMT_NV12  v4l2_fourcc('N','V','1','2')   /* YUV 4:2:0 Planar (u/v) interleaved */
+#endif
+
+#ifndef V4L2_PIX_FMT_NV21
+#define V4L2_PIX_FMT_NV21  v4l2_fourcc('N','V','2','1')   /* YUV 4:2:0 Planar (v/u) interleaved */
+#endif
+
+#ifndef V4L2_PIX_FMT_NV16
+#define V4L2_PIX_FMT_NV16  v4l2_fourcc('N','V','1','6')   /* YUV 4:2:2 Planar (u/v) interleaved */
+#endif
+
+#ifndef V4L2_PIX_FMT_NV61
+#define V4L2_PIX_FMT_NV61  v4l2_fourcc('N','V','6','1')   /* YUV 4:2:2 Planar (v/u) interleaved */
+#endif
+
 #ifndef V4L2_PIX_FMT_Y41P
 #define V4L2_PIX_FMT_Y41P  v4l2_fourcc('Y','4','1','P')    /* YUV 4:1:1          */
+#endif
+
+#ifndef V4L2_PIX_FMT_GREY
+#define V4L2_PIX_FMT_GREY  v4l2_fourcc('G','R','E','Y')    /* YUV - Y only       */
 #endif
 
 #ifndef V4L2_PIX_FMT_SGBRG8

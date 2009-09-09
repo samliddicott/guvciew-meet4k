@@ -390,14 +390,25 @@ static int videoIn_frame_alloca(struct vdIn *vd)
 		case V4L2_PIX_FMT_YUV420: // only needs 3/2 bytes per pixel but we alloc 2 bytes per pixel
 		case V4L2_PIX_FMT_YVU420: // only needs 3/2 bytes per pixel but we alloc 2 bytes per pixel
 		case V4L2_PIX_FMT_Y41P:   // only needs 3/2 bytes per pixel but we alloc 2 bytes per pixel
+		case V4L2_PIX_FMT_NV12:
+		case V4L2_PIX_FMT_NV21:
+		case V4L2_PIX_FMT_NV16:
+		case V4L2_PIX_FMT_NV61:
 			// alloc a temp buffer for converting to YUYV
 			tmpbuf_size= vd->framesizeIn;
 			vd->tmpbuffer = g_new0(unsigned char, tmpbuf_size);
-		
 			framebuf_size = vd->framesizeIn;
 			vd->framebuffer = g_new0(unsigned char, framebuf_size);
 			break;
-	
+			
+		case V4L2_PIX_FMT_GREY:
+			// alloc a temp buffer for converting to YUYV
+			tmpbuf_size= vd->width * vd->height; // 1 byte per pixel
+			vd->tmpbuffer = g_new0(unsigned char, tmpbuf_size);
+			framebuf_size = vd->framesizeIn;
+			vd->framebuffer = g_new0(unsigned char, framebuf_size);
+			break;
+			
 		case V4L2_PIX_FMT_YUYV:
 			//  YUYV doesn't need a temp buffer but we will set it if/when
 			//  video processing disable control is checked (bayer processing).
@@ -469,6 +480,11 @@ static int videoIn_frame_alloca(struct vdIn *vd)
 				case V4L2_PIX_FMT_YVYU:   // converted to YUYV
 				case V4L2_PIX_FMT_UYVY:   // converted to YUYV
 				case V4L2_PIX_FMT_Y41P:   // converted to YUYV
+				case V4L2_PIX_FMT_GREY:   // converted to YUYV
+				case V4L2_PIX_FMT_NV12:
+				case V4L2_PIX_FMT_NV21:
+				case V4L2_PIX_FMT_NV16:
+				case V4L2_PIX_FMT_NV61:
 				case V4L2_PIX_FMT_YUYV:
 					for (i=0; i<(framebuf_size-4); i+=4)
 					{
@@ -707,33 +723,45 @@ static int frame_decode(struct vdIn *vd)
 			
 		case V4L2_PIX_FMT_YUV420:
 			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
-			
-			if (yuv420_to_yuyv(vd->framebuffer, vd->tmpbuffer, vd->width,
-				vd->height) < 0) 
-			{
-				g_printerr("error converting yuv420 to yuyv\n");
-				ret = VDIN_DECODE_ERR;
-				goto err;
-			}
+			yuv420_to_yuyv(vd->framebuffer, vd->tmpbuffer, vd->width, vd->height);
 			break;
 		
 		case V4L2_PIX_FMT_YVU420:
 			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
-			
-			if (yvu420_to_yuyv(vd->framebuffer, vd->tmpbuffer, vd->width,
-				vd->height) < 0) 
-			{
-				g_printerr("error converting yvu420 to yuyv\n");
-				ret = VDIN_DECODE_ERR;
-				goto err;
-			}
+			yvu420_to_yuyv(vd->framebuffer, vd->tmpbuffer, vd->width, vd->height);
 			break;
 		
+		case V4L2_PIX_FMT_NV12:
+			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
+			nv12_to_yuyv(vd->framebuffer, vd->tmpbuffer, vd->width, vd->height);
+			break;
+			
+		case V4L2_PIX_FMT_NV21:
+			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
+			nv21_to_yuyv(vd->framebuffer, vd->tmpbuffer, vd->width, vd->height);
+			break;
+		
+		case V4L2_PIX_FMT_NV16:
+			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
+			nv16_to_yuyv(vd->framebuffer, vd->tmpbuffer, vd->width, vd->height);
+			break;
+			
+		case V4L2_PIX_FMT_NV61:
+			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
+			nv61_to_yuyv(vd->framebuffer, vd->tmpbuffer, vd->width, vd->height);
+			break;
+			
 		case V4L2_PIX_FMT_Y41P: 
 			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
 			y41p_to_yuyv(vd->framebuffer, vd->tmpbuffer, vd->width, vd->height);
 			break;
+		
+		case V4L2_PIX_FMT_GREY:
+			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
+			grey_to_yuyv(vd->framebuffer, vd->tmpbuffer, vd->width, vd->height);
+			break;
 			
+		
 		case V4L2_PIX_FMT_YUYV:
 			if(vd->isbayer>0) 
 			{
