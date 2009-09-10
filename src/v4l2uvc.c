@@ -714,16 +714,6 @@ static int frame_decode(struct vdIn *vd)
 			nv21_to_yuyv(vd->framebuffer, vd->tmpbuffer, vd->width, vd->height);
 			break;
 		
-		case V4L2_PIX_FMT_NV12:
-			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
-			nv12_to_yuyv(vd->framebuffer, vd->tmpbuffer, vd->width, vd->height);
-			break;
-			
-		case V4L2_PIX_FMT_NV21:
-			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
-			nv21_to_yuyv(vd->framebuffer, vd->tmpbuffer, vd->width, vd->height);
-			break;
-		
 		case V4L2_PIX_FMT_NV16:
 			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
 			nv16_to_yuyv(vd->framebuffer, vd->tmpbuffer, vd->width, vd->height);
