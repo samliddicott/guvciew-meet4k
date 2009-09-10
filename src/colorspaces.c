@@ -594,7 +594,7 @@ void y41p_to_yuyv (BYTE *framebuffer, BYTE *tmpbuffer, int width, int height)
 	int linesize = width * 3 /2;
 	int offset = 0;
 	
-	for(h=0;h<height;height++)
+	for(h=0;h<height;h++)
 	{
 		offset = linesize * h;
 		for(w=0;w<linesize;w+=12)
@@ -632,7 +632,7 @@ void grey_to_yuyv (BYTE *framebuffer, BYTE *tmpbuffer, int width, int height)
 	int w=0;
 	int offset = 0;
 	
-	for(h=0;h<height;height++)
+	for(h=0;h<height;h++)
 	{
 		offset = width * h;
 		for(w=0;w<width;w++)
@@ -642,6 +642,124 @@ void grey_to_yuyv (BYTE *framebuffer, BYTE *tmpbuffer, int width, int height)
 		}
 	}
 }
+
+/*convert SPCA501 (s501) to yuv 422
+* s501  |Y0..width..Y0|U..width/2..U|Y1..width..Y1|V..width/2..V|
+* signed values (-128;+127) must be converted to unsigned (0; 255)
+* args: 
+*      framebuffer: pointer to frame buffer (yuyv)
+*      tmpbuffer: pointer to temp buffer containing s501 data frame
+*      width: picture width
+*      height: picture height
+*/
+void s501_to_yuyv(BYTE *framebuffer, BYTE *tmpbuffer, int width, int height)
+{
+	BYTE *U, *V, *Y0, *Y1;
+	BYTE *line2;
+	int h, w;
+
+	Y0 = tmpbuffer; /*fisrt line*/
+	for (h = 0; h < height/2; h++ ) 
+	{
+		line2 = framebuffer + width * 2;   /* next line          */
+		U = Y0 + width;
+		Y1 = U + width / 2;
+		V = Y1 + width;
+		for (w = width / 2; --w >= 0; ) 
+		{
+			*framebuffer++ = 0x80 + *Y0++;
+			*framebuffer++ = 0x80 + *U;
+			*framebuffer++ = 0x80 + *Y0++;
+			*framebuffer++ = 0x80 + *V;
+
+			*line2++ = 0x80 + *Y1++;
+			*line2++ = 0x80 + *U++;
+			*line2++ = 0x80 + *Y1++;
+			*line2++ = 0x80 + *V++;
+		}
+		Y0 += width * 2;                  /* next block of lines */
+		framebuffer = line2;
+	}
+}
+
+/*convert SPCA505 (s505) to yuv 422
+* s505  |Y0..width..Y0|Y1..width..Y1|U..width/2..U|V..width/2..V|
+* signed values (-128;+127) must be converted to unsigned (0; 255)
+* args: 
+*      framebuffer: pointer to frame buffer (yuyv)
+*      tmpbuffer: pointer to temp buffer containing s501 data frame
+*      width: picture width
+*      height: picture height
+*/
+void s505_to_yuyv(BYTE *framebuffer, BYTE *tmpbuffer, int width, int height)
+{
+	BYTE *U, *V, *Y0, *Y1;
+	BYTE *line2;
+	int h, w;
+
+	Y0 = tmpbuffer; /*fisrt line*/
+	for (h = 0; h < height/2; h++ ) 
+	{
+		line2 = framebuffer + width * 2;   /* next line          */
+		Y1 = Y0 + width;
+		U  = Y1 + width;
+		V  = U + width/2;
+		for (w = width / 2; --w >= 0; ) 
+		{
+			*framebuffer++ = 0x80 + *Y0++;
+			*framebuffer++ = 0x80 + *U;
+			*framebuffer++ = 0x80 + *Y0++;
+			*framebuffer++ = 0x80 + *V;
+
+			*line2++ = 0x80 + *Y1++;
+			*line2++ = 0x80 + *U++;
+			*line2++ = 0x80 + *Y1++;
+			*line2++ = 0x80 + *V++;
+		}
+		Y0 += width * 2;                  /* next block of lines */
+		framebuffer = line2;
+	}
+}
+
+/*convert SPCA508 (s508) to yuv 422
+* s508  |Y0..width..Y0|U..width/2..U|V..width/2..V|Y1..width..Y1|
+* signed values (-128;+127) must be converted to unsigned (0; 255)
+* args: 
+*      framebuffer: pointer to frame buffer (yuyv)
+*      tmpbuffer: pointer to temp buffer containing s501 data frame
+*      width: picture width
+*      height: picture height
+*/
+void s508_to_yuyv(BYTE *framebuffer, BYTE *tmpbuffer, int width, int height)
+{
+	BYTE *U, *V, *Y0, *Y1;
+	BYTE *line2;
+	int h, w;
+
+	Y0 = tmpbuffer; /*fisrt line*/
+	for (h = 0; h < height/2; h++ ) 
+	{
+		line2 = framebuffer + width * 2;   /* next line          */
+		U = Y0 + width;
+		V = U + width/2;
+		Y1= V + width/2;
+		for (w = width / 2; --w >= 0; ) 
+		{
+			*framebuffer++ = 0x80 + *Y0++;
+			*framebuffer++ = 0x80 + *U;
+			*framebuffer++ = 0x80 + *Y0++;
+			*framebuffer++ = 0x80 + *V;
+
+			*line2++ = 0x80 + *Y1++;
+			*line2++ = 0x80 + *U++;
+			*line2++ = 0x80 + *Y1++;
+			*line2++ = 0x80 + *V++;
+		}
+		Y0 += width * 2;                  /* next block of lines */
+		framebuffer = line2;
+	}
+}
+
 // raw bayer functions 
 // from libv4l bayer.c, (C) 2008 Hans de Goede <j.w.r.degoede@hhs.nl>
 //Note: original bayer_to_bgr24 code from :

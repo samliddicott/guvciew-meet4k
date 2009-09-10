@@ -13,8 +13,7 @@ guvcviewdoc_DATA = \
 	COPYING\
 	AUTHORS\
 	ChangeLog\
-	INSTALL\
-	NEWS
+	INSTALL
 
 pixmapsdir = ${datadir}/pixmaps/guvcview
 

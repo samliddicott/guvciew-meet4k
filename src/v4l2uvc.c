@@ -394,6 +394,9 @@ static int videoIn_frame_alloca(struct vdIn *vd)
 		case V4L2_PIX_FMT_NV21:
 		case V4L2_PIX_FMT_NV16:
 		case V4L2_PIX_FMT_NV61:
+		case V4L2_PIX_FMT_SPCA501:
+		case V4L2_PIX_FMT_SPCA505:
+		case V4L2_PIX_FMT_SPCA508:
 			// alloc a temp buffer for converting to YUYV
 			tmpbuf_size= vd->framesizeIn;
 			vd->tmpbuffer = g_new0(unsigned char, tmpbuf_size);
@@ -464,43 +467,13 @@ static int videoIn_frame_alloca(struct vdIn *vd)
 		{
 			int i = 0;
 			// set framebuffer to black (y=0x00 u=0x80 v=0x80) by default
-			switch (vd->formatIn) 
-			{
-				case V4L2_PIX_FMT_JPEG:
-				case V4L2_PIX_FMT_MJPEG:
-				case V4L2_PIX_FMT_SGBRG8: // converted to YUYV
-				case V4L2_PIX_FMT_SGRBG8: // converted to YUYV
-				case V4L2_PIX_FMT_SBGGR8: // converted to YUYV
-				case V4L2_PIX_FMT_SRGGB8: // converted to YUYV
-				case V4L2_PIX_FMT_RGB24:  // converted to YUYV
-				case V4L2_PIX_FMT_BGR24:  // converted to YUYV
-				case V4L2_PIX_FMT_YUV420: // converted to YUYV
-				case V4L2_PIX_FMT_YVU420: // converted to YUYV
-				case V4L2_PIX_FMT_YYUV:   // converted to YUYV
-				case V4L2_PIX_FMT_YVYU:   // converted to YUYV
-				case V4L2_PIX_FMT_UYVY:   // converted to YUYV
-				case V4L2_PIX_FMT_Y41P:   // converted to YUYV
-				case V4L2_PIX_FMT_GREY:   // converted to YUYV
-				case V4L2_PIX_FMT_NV12:
-				case V4L2_PIX_FMT_NV21:
-				case V4L2_PIX_FMT_NV16:
-				case V4L2_PIX_FMT_NV61:
-				case V4L2_PIX_FMT_YUYV:
-					for (i=0; i<(framebuf_size-4); i+=4)
-					{
-						vd->framebuffer[i]=0x00;  //Y
-						vd->framebuffer[i+1]=0x80;//U
-						vd->framebuffer[i+2]=0x00;//Y
-						vd->framebuffer[i+3]=0x80;//V
-					}
-					break;
-					
-				default:
-					g_printerr("(v4l2uvc.c) should never arrive (2)- exit fatal !!\n");
-					ret = VDIN_UNKNOWN_ERR;
-					goto error;
-					break;
-			}
+			for (i=0; i<(framebuf_size-4); i+=4)
+				{
+					vd->framebuffer[i]=0x00;  //Y
+					vd->framebuffer[i+1]=0x80;//U
+					vd->framebuffer[i+2]=0x00;//Y
+					vd->framebuffer[i+3]=0x80;//V
+				}
 		}
 	return (ret);
 error:
@@ -741,6 +714,16 @@ static int frame_decode(struct vdIn *vd)
 			nv21_to_yuyv(vd->framebuffer, vd->tmpbuffer, vd->width, vd->height);
 			break;
 		
+		case V4L2_PIX_FMT_NV12:
+			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
+			nv12_to_yuyv(vd->framebuffer, vd->tmpbuffer, vd->width, vd->height);
+			break;
+			
+		case V4L2_PIX_FMT_NV21:
+			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
+			nv21_to_yuyv(vd->framebuffer, vd->tmpbuffer, vd->width, vd->height);
+			break;
+		
 		case V4L2_PIX_FMT_NV16:
 			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
 			nv16_to_yuyv(vd->framebuffer, vd->tmpbuffer, vd->width, vd->height);
@@ -761,6 +744,20 @@ static int frame_decode(struct vdIn *vd)
 			grey_to_yuyv(vd->framebuffer, vd->tmpbuffer, vd->width, vd->height);
 			break;
 			
+		case V4L2_PIX_FMT_SPCA501:
+			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
+			s501_to_yuyv(vd->framebuffer, vd->tmpbuffer, vd->width, vd->height);
+			break;
+		
+		case V4L2_PIX_FMT_SPCA505:
+			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
+			s505_to_yuyv(vd->framebuffer, vd->tmpbuffer, vd->width, vd->height);
+			break;
+		
+		case V4L2_PIX_FMT_SPCA508:
+			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
+			s508_to_yuyv(vd->framebuffer, vd->tmpbuffer, vd->width, vd->height);
+			break;
 		
 		case V4L2_PIX_FMT_YUYV:
 			if(vd->isbayer>0) 

@@ -77,7 +77,19 @@
 #endif
 
 #ifndef V4L2_PIX_FMT_GREY
-#define V4L2_PIX_FMT_GREY  v4l2_fourcc('G','R','E','Y')    /* YUV - Y only       */
+#define V4L2_PIX_FMT_GREY  v4l2_fourcc('G','R','E','Y')    /*      Y only       */
+#endif
+
+#ifndef V4L2_PIX_FMT_SPCA501
+#define V4L2_PIX_FMT_SPCA501 v4l2_fourcc('S','5','0','1')  /* YUYV - by line     */
+#endif
+
+#ifndef V4L2_PIX_FMT_SPCA505
+#define V4L2_PIX_FMT_SPCA505 v4l2_fourcc('S','5','0','5')  /* YYUV - by line     */
+#endif
+
+#ifndef V4L2_PIX_FMT_SPCA508
+#define V4L2_PIX_FMT_SPCA508 v4l2_fourcc('S','5','0','8')  /* YUVY - by line     */
 #endif
 
 #ifndef V4L2_PIX_FMT_SGBRG8

@@ -2,10 +2,10 @@ guvcview (1.1.4)
 
    * set pixel format BA81 to correct fourcc
    * Definitve fix button images display under karmic
-   * add pix formats: nv12, nv21, nv16, nv61, y41p, grey
+   * add pix formats: nv12, nv21, nv16, nv61, y41p, grey, s501, s505, s508
    * improve yu12 and yv12 format conversion.
 
- -- Paulo Assis <pj.assis@gmail.com>  Wed, 9 Sep 2009 14:06:00 +0000
+ -- Paulo Assis <pj.assis@gmail.com>  Wed, 10 Sep 2009 13:51:00 +0000
 
 guvcview (1.1.3)
 

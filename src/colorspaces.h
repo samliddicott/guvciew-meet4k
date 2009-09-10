@@ -125,6 +125,39 @@ void y41p_to_yuyv (BYTE *framebuffer, BYTE *tmpbuffer, int width, int height);
 */
 void grey_to_yuyv (BYTE *framebuffer, BYTE *tmpbuffer, int width, int height);
 
+/*convert SPCA501 (s501) to yuv 422
+* s501  |Y0..width..Y0|U..width/2..U|Y1..width..Y1|V..width/2..V|
+* signed values (-128;+127) must be converted to unsigned (0; 255)
+* args: 
+*      framebuffer: pointer to frame buffer (yuyv)
+*      tmpbuffer: pointer to temp buffer containing s501 data frame
+*      width: picture width
+*      height: picture height
+*/
+void s501_to_yuyv(BYTE *framebuffer, BYTE *tmpbuffer, int width, int height);
+
+/*convert SPCA505 (s505) to yuv 422
+* s505  |Y0..width..Y0|Y1..width..Y1|U..width/2..U|V..width/2..V|
+* signed values (-128;+127) must be converted to unsigned (0; 255)
+* args: 
+*      framebuffer: pointer to frame buffer (yuyv)
+*      tmpbuffer: pointer to temp buffer containing s501 data frame
+*      width: picture width
+*      height: picture height
+*/
+void s505_to_yuyv(BYTE *framebuffer, BYTE *tmpbuffer, int width, int height);
+
+/*convert SPCA508 (s508) to yuv 422
+* s508  |Y0..width..Y0|U..width/2..U|V..width/2..V|Y1..width..Y1|
+* signed values (-128;+127) must be converted to unsigned (0; 255)
+* args: 
+*      framebuffer: pointer to frame buffer (yuyv)
+*      tmpbuffer: pointer to temp buffer containing s501 data frame
+*      width: picture width
+*      height: picture height
+*/
+void s508_to_yuyv(BYTE *framebuffer, BYTE *tmpbuffer, int width, int height);
+
 /*convert yuyv to rgb24
 * args: 
 *      pyuv: pointer to buffer containing yuv data (yuyv)
