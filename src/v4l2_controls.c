@@ -32,7 +32,53 @@
 #include "v4l2_controls.h"
 #include "v4l2_dyna_ctrls.h"
 
-/* enumerate device controls 
+static InputControl *add_control(int fd, struct v4l2_queryctrl *queryctrl, InputControl * control, int * nctrl)
+{
+	int n = *nctrl;
+	g_printf("alloc control %i\n", n);
+	control = g_renew(InputControl, control, n+1);
+	control[n].i = n;
+	control[n].id = queryctrl->id;
+	control[n].type = queryctrl->type;
+	//allocate control name (must free it on exit)
+	control[n].name = strdup ((char *)queryctrl->name);
+	control[n].min = queryctrl->minimum;
+	control[n].max = queryctrl->maximum;
+	control[n].step = queryctrl->step;
+	control[n].default_val = queryctrl->default_value;
+	control[n].enabled = (queryctrl->flags & V4L2_CTRL_FLAG_GRABBED) ? 0 : 1;
+	control[n].entries = NULL;
+	if (queryctrl->type == V4L2_CTRL_TYPE_BOOLEAN)
+	{
+		control[n].min = 0;
+		control[n].max = 1;
+		control[n].step = 1;
+		/*get the first bit*/
+		control[n].default_val=(queryctrl->default_value & 0x0001);
+	} 
+	else if (queryctrl->type == V4L2_CTRL_TYPE_MENU) 
+	{
+		struct v4l2_querymenu querymenu;
+		memset(&querymenu,0,sizeof(struct v4l2_querymenu));
+		control[n].min = 0;
+		querymenu.id = queryctrl->id;
+		querymenu.index = 0;
+		while (ioctl (fd, VIDIOC_QUERYMENU, &querymenu) == 0) 
+		{
+			//allocate entries list
+			control[n].entries = g_renew(pchar, control[n].entries, querymenu.index+1);
+			//allocate entrie name
+			control[n].entries[querymenu.index] = g_strdup ((char *) querymenu.name);
+			querymenu.index++;
+		}
+		control[n].max = querymenu.index - 1;
+	}
+	n++;
+	*nctrl = n;
+	return control;
+}
+
+/* enumerate device controls (use partial libwebcam implementation)
  * args:
  * fd: device file descriptor (must call open on the device first)
  * numb_controls: pointer to integer containing number of existing supported controls
@@ -42,72 +88,106 @@ InputControl *
 input_enum_controls (int fd, int *num_controls)
 {
 	int ret=0;
+	int tries = 10;
 	InputControl * control = NULL;
 	int n = 0;
-	struct v4l2_queryctrl queryctrl;
+	struct v4l2_queryctrl queryctrl; 
 	memset(&queryctrl,0,sizeof(struct v4l2_queryctrl));
-	int i=0;
-
-	i = V4L2_CID_BASE; /* as defined by V4L2 */
-	while (i <= V4L2_CID_LAST_EXTCTR) 
-	{ 
-		queryctrl.id = i;
-		if ((ret=ioctl (fd, VIDIOC_QUERYCTRL, &queryctrl)) == 0 &&
-			!(queryctrl.flags & V4L2_CTRL_FLAG_DISABLED)) 
+	
+	queryctrl.id = 0 | V4L2_CTRL_FLAG_NEXT_CTRL;
+	
+	if ((ret=ioctl (fd, VIDIOC_QUERYCTRL, &queryctrl)) == 0)
+	{
+		// The driver supports the V4L2_CTRL_FLAG_NEXT_CTRL flag
+		queryctrl.id = 0;
+		int currentctrl= queryctrl.id;
+		queryctrl.id |= V4L2_CTRL_FLAG_NEXT_CTRL;
+		
+		// Loop as long as ioctl does not return EINVAL
+		while((ret = ioctl(fd, VIDIOC_QUERYCTRL, &queryctrl)), ret ? errno != EINVAL : 1) 
 		{
-			control = g_renew(InputControl, control, n+1);
-			control[n].i = n;
-			control[n].id = queryctrl.id;
-			control[n].type = queryctrl.type;
-			//allocate control name (must free it on exit)
-			control[n].name = strdup ((char *)queryctrl.name);
-			control[n].min = queryctrl.minimum;
-			control[n].max = queryctrl.maximum;
-			control[n].step = queryctrl.step;
-			control[n].default_val = queryctrl.default_value;
-			control[n].enabled = (queryctrl.flags & V4L2_CTRL_FLAG_GRABBED) ? 0 : 1;
-			control[n].entries = NULL;
-			if (queryctrl.type == V4L2_CTRL_TYPE_BOOLEAN)
+			
+			if(ret && (errno == EIO || errno == EPIPE || errno == ETIMEDOUT))
 			{
-				control[n].min = 0;
-				control[n].max = 1;
-				control[n].step = 1;
-				/*get the first bit*/
-				control[n].default_val=(queryctrl.default_value & 0x0001);
-			} 
-			else if (queryctrl.type == V4L2_CTRL_TYPE_MENU) 
-			{
-				struct v4l2_querymenu querymenu;
-				memset(&querymenu,0,sizeof(struct v4l2_querymenu));
-				control[n].min = 0;
-
-				querymenu.id = queryctrl.id;
-				querymenu.index = 0;
-				while (ioctl (fd, VIDIOC_QUERYMENU, &querymenu) == 0) 
+				// I/O error RETRY
+				queryctrl.id = currentctrl | V4L2_CTRL_FLAG_NEXT_CTRL;
+				tries = 10;
+				while(tries-- &&
+				  (ret = ioctl(fd, VIDIOC_QUERYCTRL, &queryctrl)) &&
+				  (errno == EIO || errno == EPIPE || errno == ETIMEDOUT)) 
 				{
-					//allocate entries list
-					control[n].entries = g_renew(pchar, control[n].entries, querymenu.index+1);
-					//allocate entrie name
-					control[n].entries[querymenu.index] = g_strdup ((char *) querymenu.name);
-					querymenu.index++;
+					g_printerr("Failed to query control id=%d: %s (retry %i)\n", currentctrl, strerror(errno), tries);
+					queryctrl.id = currentctrl | V4L2_CTRL_FLAG_NEXT_CTRL;
 				}
-				control[n].max = querymenu.index - 1;
 			}
-			n++;
-		} 
-		else 
-		{
-			if (errno != EINVAL) g_printerr("Failed to query control id=%d: %s\n"
-					, i, strerror(errno));
+			// Prevent infinite loop for buggy NEXT_CTRL implementations
+			if(ret && queryctrl.id <= currentctrl) 
+			{
+				currentctrl++;
+				goto next_control;
+			}
+			currentctrl = queryctrl.id;
+			
+			// skip if control is disabled or failed
+			if (ret || (queryctrl.flags & V4L2_CTRL_FLAG_DISABLED))
+				goto next_control;
+			
+			// Add control to control list
+			control = add_control(fd, &queryctrl, control, &n);
+			
+next_control:
+			queryctrl.id |= V4L2_CTRL_FLAG_NEXT_CTRL;
 		}
-		i++;
-		if (i == V4L2_CID_LAST_NEW)  /* jump between CIDs*/
-			i = V4L2_CID_CAMERA_CLASS_BASE_NEW;
-		if (i == V4L2_CID_CAMERA_CLASS_LAST)
-			i = V4L2_CID_PRIVATE_BASE_OLD;
-		if (i == V4L2_CID_PRIVATE_LAST)
-			i = V4L2_CID_BASE_EXTCTR;
 	}
+	else //NEXT_CTRL flag not supported, use old method 
+	{
+		int currentctrl;
+		for(currentctrl = V4L2_CID_BASE; currentctrl < V4L2_CID_LASTP1; currentctrl++) 
+		{
+			queryctrl.id = currentctrl;
+			// Try querying the control
+			tries = 10;
+			while(tries-- &&
+				(ret = ioctl(fd, VIDIOC_QUERYCTRL, &queryctrl)) &&
+				(errno == EIO || errno == EPIPE || errno == ETIMEDOUT));
+				
+			if(ret || queryctrl.flags & V4L2_CTRL_FLAG_DISABLED)
+				continue;
+			// Add control to control list
+			control = add_control(fd, &queryctrl, control, &n);
+		}
+		
+		for(currentctrl = V4L2_CID_CAMERA_CLASS_BASE; currentctrl < V4L2_CID_CAMERA_CLASS_LAST; currentctrl++) 
+		{
+			queryctrl.id = currentctrl;
+			// Try querying the control
+			tries = 10;
+			while(tries-- &&
+				(ret = ioctl(fd, VIDIOC_QUERYCTRL, &queryctrl)) &&
+				(errno == EIO || errno == EPIPE || errno == ETIMEDOUT));
+				
+			if(ret || queryctrl.flags & V4L2_CTRL_FLAG_DISABLED)
+				continue;
+			// Add control to control list
+			control = add_control(fd, &queryctrl, control, &n);
+		}
+		
+		for(currentctrl = V4L2_CID_BASE_LOGITECH; currentctrl < V4L2_CID_LAST_EXTCTR; currentctrl++) 
+		{
+			queryctrl.id = currentctrl;
+			// Try querying the control
+			tries = 10;
+			while(tries-- &&
+				(ret = ioctl(fd, VIDIOC_QUERYCTRL, &queryctrl)) &&
+				(errno == EIO || errno == EPIPE || errno == ETIMEDOUT));
+				  
+			if(ret || queryctrl.flags & V4L2_CTRL_FLAG_DISABLED)
+				continue;
+			// Add control to control list
+			control = add_control(fd, &queryctrl, control, &n);
+		}
+	}
+		
 	*num_controls = n;
 	return control;
 }
@@ -207,7 +287,7 @@ get_focus (int fd)
 	struct v4l2_control c;
 	int val=0;
 
-	c.id  = V4L2_CID_FOCUS_LOGITECH;
+	c.id  = V4L2_CID_FOCUS_ABSOLUTE;
 	ret = ioctl (fd, VIDIOC_G_CTRL, &c);
 	if (ret < 0) 
 	{
@@ -232,7 +312,7 @@ set_focus (int fd, int val)
 	int ret=0;
 	struct v4l2_control c;
 
-	c.id  = V4L2_CID_FOCUS_LOGITECH;
+	c.id  = V4L2_CID_FOCUS_ABSOLUTE;
 	c.value = val;
 	ret = ioctl (fd, VIDIOC_S_CTRL, &c);
 	if (ret < 0) perror("VIDIOC_S_CTRL - set focus error");
@@ -257,12 +337,12 @@ int uvcPanTilt(int fd, int pan, int tilt, int reset)
 		switch (reset) 
 		{
 			case 1:
-				xctrls[0].id = V4L2_CID_PAN_RESET_NEW;
+				xctrls[0].id = V4L2_CID_PAN_RESET;
 				xctrls[0].value = 1;
 				break;
 			
 			case 2:
-				xctrls[0].id = V4L2_CID_TILT_RESET_NEW;
+				xctrls[0].id = V4L2_CID_TILT_RESET;
 				xctrls[0].value = 1;
 				break;
 			
@@ -276,9 +356,9 @@ int uvcPanTilt(int fd, int pan, int tilt, int reset)
 	} 
 	else 
 	{
-		xctrls[0].id = V4L2_CID_PAN_RELATIVE_NEW;
+		xctrls[0].id = V4L2_CID_PAN_RELATIVE;
 		xctrls[0].value = pan;
-		xctrls[1].id = V4L2_CID_TILT_RELATIVE_NEW;
+		xctrls[1].id = V4L2_CID_TILT_RELATIVE;
 		xctrls[1].value = tilt;
 	
 		ctrls.count = 2;

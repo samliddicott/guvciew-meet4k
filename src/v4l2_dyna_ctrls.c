@@ -85,7 +85,7 @@ static struct uvc_xu_control_info xu_ctrls[] =
 static struct uvc_xu_control_mapping xu_mappings[] = 
 {
 	{
-		.id        = V4L2_CID_PAN_RELATIVE_NEW,
+		.id        = V4L2_CID_PAN_RELATIVE,
 		.name      = N_("Pan (relative)"),
 		.entity    = UVC_GUID_LOGITECH_MOTOR_CONTROL,
 		.selector  = XU_MOTORCONTROL_PANTILT_RELATIVE,
@@ -95,7 +95,7 @@ static struct uvc_xu_control_mapping xu_mappings[] =
 		.data_type = UVC_CTRL_DATA_TYPE_SIGNED
 	},
 	{
-		.id        = V4L2_CID_TILT_RELATIVE_NEW,
+		.id        = V4L2_CID_TILT_RELATIVE,
 		.name      = N_("Tilt (relative)"),
 		.entity    = UVC_GUID_LOGITECH_MOTOR_CONTROL,
 		.selector  = XU_MOTORCONTROL_PANTILT_RELATIVE,
@@ -105,7 +105,7 @@ static struct uvc_xu_control_mapping xu_mappings[] =
 		.data_type = UVC_CTRL_DATA_TYPE_SIGNED
 	},
 	{
-		.id        = V4L2_CID_PAN_RESET_NEW,
+		.id        = V4L2_CID_PAN_RESET,
 		.name      = N_("Pan Reset"),
 		.entity    = UVC_GUID_LOGITECH_MOTOR_CONTROL,
 		.selector  = XU_MOTORCONTROL_PANTILT_RESET,
@@ -115,7 +115,7 @@ static struct uvc_xu_control_mapping xu_mappings[] =
 		.data_type = UVC_CTRL_DATA_TYPE_UNSIGNED
 	},
 	{
-		.id        = V4L2_CID_TILT_RESET_NEW,
+		.id        = V4L2_CID_TILT_RESET,
 		.name      = N_("Tilt Reset"),
 		.entity    = UVC_GUID_LOGITECH_MOTOR_CONTROL,
 		.selector  = XU_MOTORCONTROL_PANTILT_RESET,
@@ -135,7 +135,7 @@ static struct uvc_xu_control_mapping xu_mappings[] =
 		.data_type = UVC_CTRL_DATA_TYPE_UNSIGNED
 	},
 	{
-		.id        = V4L2_CID_FOCUS_LOGITECH,
+		.id        = V4L2_CID_FOCUS_ABSOLUTE,
 		.name      = N_("Focus (absolute)"),
 		.entity    = UVC_GUID_LOGITECH_MOTOR_CONTROL,
 		.selector  = XU_MOTORCONTROL_FOCUS,

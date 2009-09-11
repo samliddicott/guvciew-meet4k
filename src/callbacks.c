@@ -373,14 +373,14 @@ combo_changed (GtkComboBox * combo, struct ALL_DATA *all_data)
 	int index = gtk_combo_box_get_active (combo);
 	int val=0;
 
-	if (c->id == V4L2_CID_EXPOSURE_AUTO_OLD) 
-	{
-		val=exp_vals[videoIn->available_exp[index]];
-	} 
-	else 
-	{
-		val=index;
-	}
+	//if (c->id == V4L2_CID_EXPOSURE_AUTO_OLD) 
+	//{
+	//	val=exp_vals[videoIn->available_exp[index]];
+	//} 
+	//else 
+	//{
+	val=index;
+	//}
 
 	if (input_set_control (videoIn->fd, c, val) != 0) 
 	{

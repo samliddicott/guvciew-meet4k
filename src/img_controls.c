@@ -37,12 +37,12 @@
 #include "callbacks.h"
 
 /*exposure menu for old type controls */
-static const char *exp_typ[]={
-				"Manual Mode",
-				"Auto Mode",
-				"Shutter Priority Mode",
-				"Aperture Priority Mode"
-				};
+// static const char *exp_typ[]={
+				// "Manual Mode",
+				// "Auto Mode",
+				// "Shutter Priority Mode",
+				// "Aperture Priority Mode"
+				// };
 
 /*--------------------------- draw camera controls ---------------------------*/
 void
@@ -106,53 +106,54 @@ draw_controls (struct ALL_DATA *all_data)
 		ci->label = NULL;
 		ci->spinbutton = NULL;
 		
-		if (c->id == V4L2_CID_EXPOSURE_AUTO_OLD) //backward compatible (older v4l2 interface)
-		{
-			int j=0;
-			int val=0;
-			/* test available modes */
-			int def=0;
-			input_get_control (videoIn->fd, c, &def);/*get stored value*/
+		// if (c->id == V4L2_CID_EXPOSURE_AUTO_OLD) //backward compatible (older v4l2 interface)
+		 // {
+		 	// int j=0;
+		 	// int val=0;
+		 	// /* test available modes */
+		 	// int def=0;
+		 	// input_get_control (videoIn->fd, c, &def);/*get stored value*/
 
-			for (j=0;j<4;j++) 
-			{
-				if (input_set_control (videoIn->fd, c, exp_vals[j]) == 0) 
-				{
-					videoIn->available_exp[val]=j;/*store valid index values*/
-					val++;
-				}
-			}
-			input_set_control (videoIn->fd, c, def);/*set back to stored*/
+			// for (j=0;j<4;j++) 
+			// {
+				// if (input_set_control (videoIn->fd, c, exp_vals[j]) == 0) 
+				// {
+					// videoIn->available_exp[val]=j;/*store valid index values*/
+					// val++;
+				// }
+			// }
+			// input_set_control (videoIn->fd, c, def);/*set back to stored*/
 			
-			ci->widget = gtk_combo_box_new_text ();
-			for (j = 0; j <val; j++) 
-			{
-				gtk_combo_box_append_text (GTK_COMBO_BOX (ci->widget), 
-								gettext(exp_typ[videoIn->available_exp[j]]));
-				if (def==exp_vals[videoIn->available_exp[j]])
-				{
-					gtk_combo_box_set_active (GTK_COMBO_BOX (ci->widget), j);
-				}
-			}
+			// ci->widget = gtk_combo_box_new_text ();
+			// for (j = 0; j <val; j++) 
+			// {
+				// gtk_combo_box_append_text (GTK_COMBO_BOX (ci->widget), 
+								// gettext(exp_typ[videoIn->available_exp[j]]));
+				// if (def==exp_vals[videoIn->available_exp[j]])
+				// {
+					// gtk_combo_box_set_active (GTK_COMBO_BOX (ci->widget), j);
+				// }
+			// }
 
-			gtk_table_attach (GTK_TABLE (s->table), ci->widget, 1, 2, 3+row, 4+row,
-				GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
-			g_object_set_data (G_OBJECT (ci->widget), "control_info", ci);
-			gtk_widget_show (ci->widget);
+			// gtk_table_attach (GTK_TABLE (s->table), ci->widget, 1, 2, 3+row, 4+row,
+				// GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+			// g_object_set_data (G_OBJECT (ci->widget), "control_info", ci);
+			// gtk_widget_show (ci->widget);
 
-			if (!c->enabled) 
-			{
-				gtk_widget_set_sensitive (ci->widget, FALSE);
-			}
+			// if (!c->enabled) 
+			// {
+				// gtk_widget_set_sensitive (ci->widget, FALSE);
+			// }
 			
-			g_signal_connect (G_OBJECT (ci->widget), "changed",
-				G_CALLBACK (combo_changed), all_data);
+			// g_signal_connect (G_OBJECT (ci->widget), "changed",
+				// G_CALLBACK (combo_changed), all_data);
 
-			ci->label = gtk_label_new (_("Exposure:"));
+			// ci->label = gtk_label_new (_("Exposure:"));
 			
-		} 
-		else if ((c->id == V4L2_CID_PAN_RELATIVE_NEW) ||
-			(c->id == V4L2_CID_PAN_RELATIVE_OLD)) 
+		// } 
+		// else
+		if (c->id == V4L2_CID_PAN_RELATIVE) //||
+			//(c->id == V4L2_CID_PAN_RELATIVE_OLD)) 
 		{
 			videoIn->PanTilt++;
 		
@@ -203,8 +204,8 @@ draw_controls (struct ALL_DATA *all_data)
 			g_free(tmp);
 			
 		}
-		else if ((c->id == V4L2_CID_TILT_RELATIVE_NEW) ||
-			(c->id == V4L2_CID_TILT_RELATIVE_OLD))
+		else if (c->id == V4L2_CID_TILT_RELATIVE) //||
+			//(c->id == V4L2_CID_TILT_RELATIVE_OLD))
 		{
 			videoIn->PanTilt++; 
 			
@@ -240,7 +241,7 @@ draw_controls (struct ALL_DATA *all_data)
 			g_free(tmp);
 			
 		} 
-		else if (c->id == V4L2_CID_PAN_RESET_NEW) 
+		else if (c->id == V4L2_CID_PAN_RESET) 
 		{
 			videoIn->PanTilt++; //Pan reset
 		
@@ -262,7 +263,7 @@ draw_controls (struct ALL_DATA *all_data)
 			g_free(tmp);
 		
 		}
-		else if (c->id == V4L2_CID_TILT_RESET_NEW) 
+		else if (c->id == V4L2_CID_TILT_RESET) 
 		{
 			videoIn->PanTilt++; //Pan reset
 		
@@ -285,8 +286,8 @@ draw_controls (struct ALL_DATA *all_data)
 			g_free(tmp);
 		
 		}
-		else if ((c->id == V4L2_CID_PANTILT_RESET_LOGITECH) ||
-			(c->id == V4L2_CID_PANTILT_RESET_OLD)) 
+		else if (c->id == V4L2_CID_PANTILT_RESET_LOGITECH) //||
+			//(c->id == V4L2_CID_PANTILT_RESET_OLD)) 
 		{
 			videoIn->PanTilt++;
 			
@@ -365,7 +366,7 @@ draw_controls (struct ALL_DATA *all_data)
 			ci->label = gtk_label_new (tmp);
 			g_free(tmp);
 			/* ---- Add auto-focus checkbox and focus button ----- */
-			if ((c->id== V4L2_CID_FOCUS_LOGITECH) && !(global->control_only)) 
+			if ((c->id== V4L2_CID_FOCUS_ABSOLUTE) && !(global->control_only)) 
 			{
 				global->AFcontrol=1;
 				GtkWidget *Focus_box = gtk_hbox_new (FALSE, 0);
