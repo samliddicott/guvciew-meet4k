@@ -35,7 +35,6 @@
 static InputControl *add_control(int fd, struct v4l2_queryctrl *queryctrl, InputControl * control, int * nctrl)
 {
 	int n = *nctrl;
-	g_printf("alloc control %i\n", n);
 	control = g_renew(InputControl, control, n+1);
 	control[n].i = n;
 	control[n].id = queryctrl->id;
