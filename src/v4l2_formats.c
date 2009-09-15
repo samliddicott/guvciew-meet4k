@@ -353,8 +353,20 @@ static int enum_frame_intervals(VidFormats *listVidFormats, __u32 pixfmt, __u32 
 			break;
 		}
 	}
-	
-	listVidFormats[fmtind-1].listVidCap[fsizeind-1].numb_frates = list_fps;
+
+	if (list_fps==0)
+	{
+		listVidFormats[fmtind-1].listVidCap[fsizeind-1].numb_frates = 1;
+		listVidFormats[fmtind-1].listVidCap[fsizeind-1].framerate_num = g_renew(
+				int, listVidFormats[fmtind-1].listVidCap[fsizeind-1].framerate_num, 1);
+		listVidFormats[fmtind-1].listVidCap[fsizeind-1].framerate_denom = g_renew(
+				int, listVidFormats[fmtind-1].listVidCap[fsizeind-1].framerate_denom, 1);
+			
+		listVidFormats[fmtind-1].listVidCap[fsizeind-1].framerate_num[0] = 1;
+		listVidFormats[fmtind-1].listVidCap[fsizeind-1].framerate_denom[0] = 1;
+	}
+	else
+		listVidFormats[fmtind-1].listVidCap[fsizeind-1].numb_frates = list_fps;
 	
 	g_printf("\n");
 	if (ret != 0 && errno != EINVAL) 
