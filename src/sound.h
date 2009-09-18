@@ -88,6 +88,7 @@ struct paRecordData
 	BYTE *mp2Buff; //mp2 encode buffer
 	int mp2BuffSize; // mp2 buffer size
 	int snd_Flags; // effects flag
+	int skip_n; //video frames to skip
 	GMutex *mutex; // audio mutex
 	//pthread_cond_t cond;
 	

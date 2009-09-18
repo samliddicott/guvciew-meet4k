@@ -197,7 +197,15 @@ void *main_loop(void *data)
 					global->DispFps=0;
 				}
 			}
-	
+			
+			//decrease skip frame count
+			if (global->skip_n > 0)
+			{
+				if (global->debug && videoIn->capVid) g_printf("skiping frame %d...\n", global->skip_n);
+				global->skip_n--;
+			}
+			if (global->Sound_enable && videoIn->capVid) pdata->skip_n = global->skip_n;
+			
 			/*---------------- autofocus control ------------------*/
 		
 			if (global->AFcontrol && (global->autofocus || AFdata->setFocus)) 
@@ -348,7 +356,7 @@ void *main_loop(void *data)
 			if (global->debug) g_printf("saved image to:%s\n",videoIn->ImageFName);
 		}
 		/*---------------------------capture Video---------------------------------*/
-		if (videoIn->capVid)
+		if (videoIn->capVid && !(global->skip_n))
 		{
 			videoIn->VidCapStop = FALSE;
 			write_video_frame(all_data, (void *) &(jpeg_struct), (void *) &(lavc_data), (void *) &(pvid));

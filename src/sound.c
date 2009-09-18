@@ -33,8 +33,20 @@ recordCallback (const void *inputBuffer, void *outputBuffer,
 	void *userData )
 {
 	struct paRecordData *data = (struct paRecordData*)userData;
+
 	const SAMPLE *rptr = (const SAMPLE*)inputBuffer;
 	int i;
+	
+	if (data->skip_n > 0) //skip audio while were skipping video frames
+	{
+		
+		if(data->capVid) return (paContinue); /*still capturing*/
+		else
+		{
+			data->streaming=0;
+			return (paComplete);
+		}
+	}
 	
 	data->framesPerBuffer = framesPerBuffer;
 	int numSamples= data->framesPerBuffer * data->channels;
@@ -127,6 +139,8 @@ set_sound (struct GLOBAL *global, struct paRecordData* data)
 	data->channels = global->Sound_NumChan;
 	data->numsec = global->Sound_NumSec;
 	data->MPEG_Frame_size = 1152; /*Layer 2 Mpeg Audio: 1 frame is 1152 samples*/
+	
+	data->skip_n = global->skip_n; //inital video frames to skip
 	
 	/* setting maximum buffer size*/
 	totalFrames = data->numsec * data->samprate;

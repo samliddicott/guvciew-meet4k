@@ -129,6 +129,7 @@ int initGlobals (struct GLOBAL *global)
 	global->Frame_Flags = YUV_NOFILT;
 
 	global->exit_on_close = FALSE;
+	global->skip_n=0;
 	global->jpeg=NULL;
 	global->jpeg_size = 0;
 	/* reset with videoIn parameters */
