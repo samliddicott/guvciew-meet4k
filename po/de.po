@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-08-12 23:39+0100\n"
+"POT-Creation-Date: 2009-09-18 18:18+0100\n"
 "PO-Revision-Date: 2009-03-23 20:39+0100\n"
 "Last-Translator: Paulo Assis <pj.assis@gmail.com>\n"
 "Language-Team: Portuguese <pt@li.org>\n"
@@ -20,12 +20,12 @@ msgstr ""
 "X-Launchpad-Export-Date: 2009-01-08 11:52+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
-#: src/guvcview.c:180
+#: src/guvcview.c:183
 msgid "GUVCViewer Controls"
 msgstr "GUVCViewer Kontrollen"
 
 #. can't open device
-#: src/guvcview.c:207
+#: src/guvcview.c:210
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -35,7 +35,7 @@ msgstr ""
 "\n"
 "Das Gerät konnte nicht geöffnet werden"
 
-#: src/guvcview.c:208
+#: src/guvcview.c:211
 #, fuzzy
 msgid ""
 "Please make sure the camera is connected\n"
@@ -44,7 +44,7 @@ msgstr ""
 "Bitte stellen Sie sicher, dass die Kamera angeschlossen wird\n"
 "und dass Linux-UVC driver angebracht ist."
 
-#: src/guvcview.c:234 src/guvcview.c:280
+#: src/guvcview.c:237 src/guvcview.c:283
 #, fuzzy
 msgid ""
 "Guvcview error:\n"
@@ -55,7 +55,7 @@ msgstr ""
 "\n"
 "Konnte weder MJPG noch YUV initialisieren"
 
-#: src/guvcview.c:235 src/guvcview.c:281
+#: src/guvcview.c:238 src/guvcview.c:284
 #, fuzzy
 msgid ""
 "Make sure your device driver is v4l2 compliant\n"
@@ -64,7 +64,7 @@ msgstr ""
 "Stellen Sie bitte sicher, dass Sie sowohl eine UVC kompatible Kamera "
 "besitzen als auch den Linux UVC Treiber geladen haben."
 
-#: src/guvcview.c:243
+#: src/guvcview.c:246
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -74,11 +74,11 @@ msgstr ""
 "\n"
 "Konnte nicht im minimalen Modus starten"
 
-#: src/guvcview.c:244
+#: src/guvcview.c:247
 msgid "Please reconnect your camera."
 msgstr "Bitte schließen Sie Ihre Kamera erneut an."
 
-#: src/guvcview.c:250
+#: src/guvcview.c:253
 #, fuzzy
 msgid ""
 "Guvcview error:\n"
@@ -89,11 +89,11 @@ msgstr ""
 "\n"
 "Das Gerät konnte nicht geöffnet werden"
 
-#: src/guvcview.c:251
+#: src/guvcview.c:254
 msgid "Make sure the device driver suports v4l2."
 msgstr ""
 
-#: src/guvcview.c:255
+#: src/guvcview.c:258
 #, fuzzy
 msgid ""
 "Guvcview error:\n"
@@ -104,11 +104,11 @@ msgstr ""
 "\n"
 "Das Gerät konnte nicht geöffnet werden"
 
-#: src/guvcview.c:256
+#: src/guvcview.c:259
 msgid "Please try mmap instead (--capture_method=1)."
 msgstr ""
 
-#: src/guvcview.c:264
+#: src/guvcview.c:267
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -118,43 +118,43 @@ msgstr ""
 "\n"
 "Konnte keine Puffer anlegen"
 
-#: src/guvcview.c:265
+#: src/guvcview.c:268
 msgid "Please try restarting your system."
 msgstr "Bitte System neu starten."
 
-#: src/guvcview.c:312
+#: src/guvcview.c:315
 msgid "Image Controls"
 msgstr "Bildkontrollen"
 
-#: src/guvcview.c:347
+#: src/guvcview.c:350
 msgid "Capture:"
 msgstr "Aufnahme:"
 
 #. increment column for labels
 #. end of control only exclusion
-#: src/guvcview.c:355
+#: src/guvcview.c:358
 msgid "Control Profiles:"
 msgstr "Kontrollen:"
 
 #. image auto capture
-#: src/guvcview.c:382
+#: src/guvcview.c:385
 msgid "Stop Auto"
 msgstr "Automatisch anhalten"
 
-#: src/guvcview.c:386 src/callbacks.c:966
+#: src/guvcview.c:389 src/callbacks.c:966
 msgid "Cap. Image"
 msgstr "Bild aufnehmen"
 
 #. vid capture enabled from start
-#: src/guvcview.c:391 src/callbacks.c:1042
+#: src/guvcview.c:394 src/callbacks.c:1046
 msgid "Stop Video"
 msgstr "Video stoppen"
 
-#: src/guvcview.c:397 src/callbacks.c:1014
+#: src/guvcview.c:400 src/callbacks.c:1015
 msgid "Cap. Video"
 msgstr "Video aufnehmen"
 
-#: src/guvcview.c:534
+#: src/guvcview.c:539
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -164,106 +164,250 @@ msgstr ""
 "\n"
 "Der Video-Thread konnte nicht erzeugt werden"
 
-#: src/guvcview.c:535
+#: src/guvcview.c:540
 msgid "Please report it to http://developer.berlios.de/bugs/?group_id=8179"
 msgstr ""
 "Bitte melden Sie dies an http://developer.berlios.de/bugs/?group_id=8179"
 
 #. needed only for language files (not used)
-#. UVC driver control strings
-#: src/v4l2uvc.c:51
+#. V4L2 control strings
+#: src/v4l2uvc.c:52
+#, fuzzy
+msgid "User Controls"
+msgstr "GUVCViewer Kontrollen"
+
+#: src/v4l2uvc.c:53
 msgid "Brightness"
 msgstr "Helligkeit"
 
-#: src/v4l2uvc.c:52
+#: src/v4l2uvc.c:54
 msgid "Contrast"
 msgstr "Kontrast"
 
-#: src/v4l2uvc.c:53
+#: src/v4l2uvc.c:55
 msgid "Hue"
 msgstr "Farbe"
 
-#: src/v4l2uvc.c:54
+#: src/v4l2uvc.c:56
 msgid "Saturation"
 msgstr "Sättigung"
 
-#: src/v4l2uvc.c:55
+#: src/v4l2uvc.c:57
 msgid "Sharpness"
 msgstr "Schärfe"
 
-#: src/v4l2uvc.c:56
+#: src/v4l2uvc.c:58
 msgid "Gamma"
 msgstr "Gamma"
 
-#: src/v4l2uvc.c:57
+#: src/v4l2uvc.c:59
 msgid "Backlight Compensation"
 msgstr "Korrektur der Hintergrundbeleuchtung"
 
-#: src/v4l2uvc.c:58
-msgid "Gain"
-msgstr "Gewinn"
-
-#: src/v4l2uvc.c:59
+#: src/v4l2uvc.c:60
 msgid "Power Line Frequency"
 msgstr "Netzfrequenz"
 
-#: src/v4l2uvc.c:60
-msgid "Hue, Auto"
+#: src/v4l2uvc.c:61
+#, fuzzy
+msgid "Hue, Automatic"
 msgstr "Farbe, Automatisch"
 
-#: src/v4l2uvc.c:61
-msgid "Exposure, Auto"
-msgstr "Belichtung, Automatisch"
-
 #: src/v4l2uvc.c:62
-msgid "Exposure, Auto Priority"
-msgstr "Belichtung, automatische Priorität"
-
-#: src/v4l2uvc.c:63
-msgid "Exposure (Absolute)"
-msgstr "Belichtung (Absolut)"
-
-#: src/v4l2uvc.c:64
-msgid "White Balance Temperature, Auto"
-msgstr "Automatischer Weißabgleich (Temperatur)"
-
-#: src/v4l2uvc.c:65
-msgid "White Balance Temperature"
-msgstr "Weißabgleich (Temperatur)"
-
-#: src/v4l2uvc.c:66
-msgid "White Balance Component, Auto"
-msgstr "Automatischer Weißabgleich (Komponente)"
-
-#: src/v4l2uvc.c:67
-msgid "White Balance Blue Component"
-msgstr "Weißabgleich (Blau)"
-
-#: src/v4l2uvc.c:68
-msgid "White Balance Red Component"
-msgstr "Weißabgleich (Rot)"
-
-#: src/v4l2uvc.c:69
 msgid "Focus, Auto"
 msgstr "Fokus, Automatisch"
 
-#: src/v4l2uvc.c:70
+#: src/v4l2uvc.c:63
 msgid "Manual Mode"
 msgstr "Händischer Modus"
 
-#: src/v4l2uvc.c:71
+#: src/v4l2uvc.c:64
 msgid "Auto Mode"
 msgstr "Automatischer Modus"
 
-#: src/v4l2uvc.c:72
+#: src/v4l2uvc.c:65
 msgid "Shutter Priority Mode"
 msgstr "Blendenautomatik-Modus"
 
-#: src/v4l2uvc.c:73
+#: src/v4l2uvc.c:66
 msgid "Aperture Priority Mode"
 msgstr "Blendenpriorität-Modus"
 
-#: src/video_tab.c:41 src/callbacks.c:1065
+#: src/v4l2uvc.c:67
+msgid "Black Level"
+msgstr ""
+
+#: src/v4l2uvc.c:68
+#, fuzzy
+msgid "White Balance, Automatic"
+msgstr "Automatischer Weißabgleich (Komponente)"
+
+#: src/v4l2uvc.c:69
+#, fuzzy
+msgid "Do White Balance"
+msgstr "Weißabgleich (Temperatur)"
+
+#: src/v4l2uvc.c:70
+msgid "Red Balance"
+msgstr ""
+
+#: src/v4l2uvc.c:71
+msgid "Blue Balance"
+msgstr ""
+
+#: src/v4l2uvc.c:72
+#, fuzzy
+msgid "Exposure"
+msgstr "Belichtung:"
+
+#: src/v4l2uvc.c:73
+msgid "Gain, Automatic"
+msgstr ""
+
+#: src/v4l2uvc.c:74
+msgid "Gain"
+msgstr "Gewinn"
+
+#: src/v4l2uvc.c:75
+msgid "Horizontal Flip"
+msgstr ""
+
+#: src/v4l2uvc.c:76
+msgid "Vertical Flip"
+msgstr ""
+
+#: src/v4l2uvc.c:77
+msgid "Horizontal Center"
+msgstr ""
+
+#: src/v4l2uvc.c:78
+msgid "Vertical Center"
+msgstr ""
+
+#: src/v4l2uvc.c:79
+msgid "Chroma AGC"
+msgstr ""
+
+#: src/v4l2uvc.c:80
+msgid "Color Killer"
+msgstr ""
+
+#: src/v4l2uvc.c:81
+msgid "Color Effects"
+msgstr ""
+
+#. CAMERA CLASS control strings
+#: src/v4l2uvc.c:84
+#, fuzzy
+msgid "Camera Controls"
+msgstr "Bildkontrollen"
+
+#: src/v4l2uvc.c:85
+#, fuzzy
+msgid "Auto Exposure"
+msgstr "Belichtung:"
+
+#: src/v4l2uvc.c:86
+#, fuzzy
+msgid "Exposure Time, Absolute"
+msgstr "Belichtung (Absolut)"
+
+#: src/v4l2uvc.c:87
+msgid "Exposure, Dynamic Framerate"
+msgstr ""
+
+#: src/v4l2uvc.c:88
+#, fuzzy
+msgid "Pan, Relative"
+msgstr "Umdrehung (relativ)"
+
+#: src/v4l2uvc.c:89
+#, fuzzy
+msgid "Tilt, Relative"
+msgstr "Neigung (relativ)"
+
+#: src/v4l2uvc.c:90
+#, fuzzy
+msgid "Pan, Reset"
+msgstr "Umdrehung (Zurückstellen)"
+
+#: src/v4l2uvc.c:91
+#, fuzzy
+msgid "Tilt, Reset"
+msgstr "Neigung (Zurückstellen)"
+
+#: src/v4l2uvc.c:92
+msgid "Pan, Absolute"
+msgstr ""
+
+#: src/v4l2uvc.c:94
+#, fuzzy
+msgid "Focus, Absolute"
+msgstr "Fokus (absolut)"
+
+#: src/v4l2uvc.c:95
+#, fuzzy
+msgid "Focus, Relative"
+msgstr "Fokus, Automatisch"
+
+#: src/v4l2uvc.c:96
+#, fuzzy
+msgid "Focus, Automatic"
+msgstr "Fokus, Automatisch"
+
+#: src/v4l2uvc.c:97
+#, fuzzy
+msgid "Zoom, Absolute"
+msgstr "Belichtung (Absolut)"
+
+#: src/v4l2uvc.c:98
+#, fuzzy
+msgid "Zoom, Relative"
+msgstr " Negativ"
+
+#: src/v4l2uvc.c:99
+#, fuzzy
+msgid "Zoom, Continuous"
+msgstr "Automatisch Fokus (con.)"
+
+#: src/v4l2uvc.c:100
+msgid "Privacy"
+msgstr ""
+
+#. UVC specific control strings
+#: src/v4l2uvc.c:103
+msgid "Exposure, Auto"
+msgstr "Belichtung, Automatisch"
+
+#: src/v4l2uvc.c:104
+msgid "Exposure, Auto Priority"
+msgstr "Belichtung, automatische Priorität"
+
+#: src/v4l2uvc.c:105
+msgid "Exposure (Absolute)"
+msgstr "Belichtung (Absolut)"
+
+#: src/v4l2uvc.c:106
+msgid "White Balance Temperature, Auto"
+msgstr "Automatischer Weißabgleich (Temperatur)"
+
+#: src/v4l2uvc.c:107
+msgid "White Balance Temperature"
+msgstr "Weißabgleich (Temperatur)"
+
+#: src/v4l2uvc.c:108
+msgid "White Balance Component, Auto"
+msgstr "Automatischer Weißabgleich (Komponente)"
+
+#: src/v4l2uvc.c:109
+msgid "White Balance Blue Component"
+msgstr "Weißabgleich (Blau)"
+
+#: src/v4l2uvc.c:110
+msgid "White Balance Red Component"
+msgstr "Weißabgleich (Rot)"
+
+#: src/video_tab.c:41 src/callbacks.c:1071
 msgid "Save File"
 msgstr "Datei speichern"
 
@@ -271,7 +415,7 @@ msgstr "Datei speichern"
 #: src/video_tab.c:95 src/globals.c:69 src/globals.c:72 src/options.c:360
 #: src/options.c:413 src/callbacks.c:427 src/callbacks.c:748
 #: src/callbacks.c:896 src/callbacks.c:913 src/callbacks.c:945
-#: src/callbacks.c:1019
+#: src/callbacks.c:1022
 #, c-format
 msgid "File num:%d"
 msgstr "Dateinummer:%d"
@@ -381,57 +525,57 @@ msgstr ""
 msgid "Image File:"
 msgstr "Bilddatei:"
 
-#: src/video_tab.c:706 src/video_tab.c:791
+#: src/video_tab.c:708 src/video_tab.c:794
 msgid "File,Auto"
 msgstr "Datei,Automatisch"
 
-#: src/video_tab.c:717
+#: src/video_tab.c:719
 msgid "Image Format:"
 msgstr "Bildformat:"
 
-#: src/video_tab.c:745
+#: src/video_tab.c:747
 msgid "Video File:"
 msgstr "Video Datei:"
 
-#: src/video_tab.c:824
+#: src/video_tab.c:827
 msgid "Video Codec:"
 msgstr ""
 
 #. lavc codec properties button
-#: src/video_tab.c:832
+#: src/video_tab.c:835
 msgid "properties"
 msgstr ""
 
-#: src/video_tab.c:859
+#: src/video_tab.c:862
 msgid "Video Format:"
 msgstr "Video-Format:"
 
-#: src/video_tab.c:868
+#: src/video_tab.c:871
 msgid "---- Video Filters ----"
 msgstr "---- Videofilter ----"
 
 #. Mirror
-#: src/video_tab.c:883
+#: src/video_tab.c:886
 msgid " Mirror"
 msgstr " Gespiegelt"
 
 #. Upturn
-#: src/video_tab.c:893
+#: src/video_tab.c:896
 msgid " Invert"
 msgstr " Gedreht"
 
 #. Negate
-#: src/video_tab.c:903
+#: src/video_tab.c:906
 msgid " Negative"
 msgstr " Negativ"
 
 #. Mono
-#: src/video_tab.c:913
+#: src/video_tab.c:916
 msgid " Mono"
 msgstr " Monochrom"
 
 #. Pieces
-#: src/video_tab.c:924
+#: src/video_tab.c:927
 msgid " Pieces"
 msgstr ""
 
@@ -625,8 +769,10 @@ msgid "Hardware accelaration (enable(1) | disable(0))"
 msgstr "Hardware accel. (aktivieren(1) | inaktivieren(0))"
 
 #: src/options.c:535
+#, fuzzy
 msgid ""
-"Pixel format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|gbrg|grbg|bggr|rggb)"
+"Pixel format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|"
+"y41p|grey|s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
 msgstr ""
 "Videoformat(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|gbrg|grbg|bggr|rggb)"
 
@@ -659,55 +805,56 @@ msgid "Exits guvcview after closing video"
 msgstr ""
 
 #: src/options.c:543
+#, fuzzy
+msgid "Number of inital frames to skip"
+msgstr "Bildquantität"
+
+#: src/options.c:544
 msgid "Show FPS value (enable(1) | disable (0))"
 msgstr "FPS anzeigen (aktivieren(1)|inaktivieren(0))"
 
-#: src/options.c:544
+#: src/options.c:545
 msgid "Load Profile at start"
 msgstr "kontrollen - Datei öffnen"
 
-#: src/options.c:550
+#: src/options.c:551
 msgid "- local options"
 msgstr "- lokale Wahlen"
 
-#: src/img_controls.c:151
-msgid "Exposure:"
-msgstr "Belichtung:"
-
-#: src/img_controls.c:161
+#: src/img_controls.c:162
 msgid "Invert (Pan)"
 msgstr "Gedreht (Umdrehung)"
 
-#: src/img_controls.c:165
+#: src/img_controls.c:166
 msgid "Left"
 msgstr "Links"
 
-#: src/img_controls.c:171
+#: src/img_controls.c:172
 msgid "Right"
 msgstr "Rechts"
 
-#: src/img_controls.c:212
+#: src/img_controls.c:213
 msgid "Up"
 msgstr "Hoch"
 
-#: src/img_controls.c:213
+#: src/img_controls.c:214
 msgid "Down"
 msgstr "Runter"
 
 #. Pan reset
-#: src/img_controls.c:247 src/img_controls.c:269 src/img_controls.c:293
+#: src/img_controls.c:248 src/img_controls.c:270 src/img_controls.c:294
 msgid "Reset"
 msgstr "Zurückstellen"
 
-#: src/img_controls.c:372
+#: src/img_controls.c:373
 msgid "Auto Focus (continuous)"
 msgstr "Automatisch Fokus (con.)"
 
-#: src/img_controls.c:373
+#: src/img_controls.c:374
 msgid "set Focus"
 msgstr "Fokus"
 
-#: src/img_controls.c:435
+#: src/img_controls.c:436
 #, c-format
 msgid "raw pixel order:"
 msgstr "Rohe Pixel Anordnung:"
@@ -760,7 +907,7 @@ msgstr ""
 "\n"
 "Jetzt neu starten?\n"
 
-#: src/callbacks.c:1078
+#: src/callbacks.c:1084
 msgid "Load File"
 msgstr "Datei öffnen"
 
