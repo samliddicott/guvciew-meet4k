@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: pt_PT\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-09-18 18:18+0100\n"
-"PO-Revision-Date: 2009-09-18 18:24+0100\n"
+"PO-Revision-Date: 2009-09-18 22:44+0100\n"
 "Last-Translator: Paulo Assis <pj.assis@gmail.com>\n"
 "Language-Team: Portuguese\n"
 "MIME-Version: 1.0\n"
@@ -169,7 +169,7 @@ msgstr "Por favor reporte em http://developer.berlios.de/bugs/?group_id=8179"
 #. V4L2 control strings
 #: src/v4l2uvc.c:52
 msgid "User Controls"
-msgstr " Controlos de Utilizador"
+msgstr "Controlos de Utilizador"
 
 #: src/v4l2uvc.c:53
 msgid "Brightness"
@@ -204,13 +204,12 @@ msgid "Power Line Frequency"
 msgstr "Frequência da Rede"
 
 #: src/v4l2uvc.c:61
-#, fuzzy
 msgid "Hue, Automatic"
-msgstr "Tonalidade, Auto"
+msgstr "Tonalidade, Automatica"
 
 #: src/v4l2uvc.c:62
 msgid "Focus, Auto"
-msgstr "Focagem, Auto"
+msgstr "Foco, Automático"
 
 #: src/v4l2uvc.c:63
 msgid "Manual Mode"
@@ -230,25 +229,23 @@ msgstr "Modo prioridade da abertura"
 
 #: src/v4l2uvc.c:67
 msgid "Black Level"
-msgstr "Nível de Preto"
+msgstr "Nível de Negro"
 
 #: src/v4l2uvc.c:68
-#, fuzzy
 msgid "White Balance, Automatic"
-msgstr "Componente de cor, Auto"
+msgstr "Balanço de Branco, Automático"
 
 #: src/v4l2uvc.c:69
-#, fuzzy
 msgid "Do White Balance"
-msgstr "Branco (Temp. de côr)"
+msgstr "Faz Balanço de Branco"
 
 #: src/v4l2uvc.c:70
 msgid "Red Balance"
-msgstr "Balanço de Vermelhos"
+msgstr "Balanço de Vermelho"
 
 #: src/v4l2uvc.c:71
 msgid "Blue Balance"
-msgstr "Balanço de Azuis"
+msgstr "Balanço de Azul"
 
 #: src/v4l2uvc.c:72
 msgid "Exposure"
@@ -308,56 +305,48 @@ msgid "Exposure, Dynamic Framerate"
 msgstr "Exposição, Taxa de Frames Dinâmica"
 
 #: src/v4l2uvc.c:88
-#, fuzzy
 msgid "Pan, Relative"
-msgstr "Rotação (relativa)"
+msgstr "Rotação, Relativa"
 
 #: src/v4l2uvc.c:89
-#, fuzzy
 msgid "Tilt, Relative"
-msgstr "Inclinação (relativa)"
+msgstr "Inclinação, Relativa"
 
 #: src/v4l2uvc.c:90
-#, fuzzy
 msgid "Pan, Reset"
-msgstr "Rotação (restaurar)"
+msgstr "Rotação, Restaurar"
 
 #: src/v4l2uvc.c:91
-#, fuzzy
 msgid "Tilt, Reset"
-msgstr "Inclinação (restaurar)"
+msgstr "Inclinação, Restaurar"
 
 #: src/v4l2uvc.c:92
 msgid "Pan, Absolute"
-msgstr ""
+msgstr "Rotação, Absoluta"
 
 #: src/v4l2uvc.c:94
 msgid "Focus, Absolute"
-msgstr "Focagem, Absoluta"
+msgstr "Foco, Absoluto"
 
 #: src/v4l2uvc.c:95
-#, fuzzy
 msgid "Focus, Relative"
-msgstr "Focagem, Auto"
+msgstr "Foco, Relativo"
 
 #: src/v4l2uvc.c:96
 msgid "Focus, Automatic"
-msgstr "Focagem, Automática"
+msgstr "Foco, Automático"
 
 #: src/v4l2uvc.c:97
-#, fuzzy
 msgid "Zoom, Absolute"
-msgstr "Exposição (Absoluta)"
+msgstr "Zoom, Absoluto"
 
 #: src/v4l2uvc.c:98
-#, fuzzy
 msgid "Zoom, Relative"
-msgstr " Negativo"
+msgstr "Zoom, Relativo"
 
 #: src/v4l2uvc.c:99
-#, fuzzy
 msgid "Zoom, Continuous"
-msgstr "Focagem continua"
+msgstr "Zoom, Continuo"
 
 #: src/v4l2uvc.c:100
 msgid "Privacy"
@@ -802,7 +791,7 @@ msgstr "Termina guvcview depois de completar video"
 
 #: src/options.c:543
 msgid "Number of inital frames to skip"
-msgstr ""
+msgstr "Numero inicial de frames a saltar"
 
 #: src/options.c:544
 msgid "Show FPS value (enable(1) | disable (0))"

@@ -279,7 +279,7 @@ check_changed (GtkToggleButton * toggle, struct ALL_DATA *all_data)
 		{
 			if (global->debug) g_printf ("hardware value is %d\n", val);
 		}
-		else 
+		else
 		{
 			g_printerr ("hardware get failed\n");
 		}
