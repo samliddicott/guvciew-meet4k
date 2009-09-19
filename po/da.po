@@ -2,19 +2,19 @@
 # Copyright (c) 2009 Rosetta Contributors and Canonical Ltd 2009
 # This file is distributed under the same license as the guvcview package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2009.
-# 
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: guvcview\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-09-18 18:18+0100\n"
-"PO-Revision-Date: 2009-01-01 16:27+0000\n"
-"Last-Translator: nanker <Unknown>\n"
+"PO-Revision-Date: 2009-09-15 03:36+0000\n"
+"Last-Translator: Paulo Assis <pj.assis@gmail.com>\n"
 "Language-Team: Danish <da@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-01-08 11:56+0000\n"
+"X-Launchpad-Export-Date: 2009-09-19 15:52+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: src/guvcview.c:183
@@ -33,33 +33,23 @@ msgstr ""
 "Kunne ikke åbne udstyr"
 
 #: src/guvcview.c:211
-#, fuzzy
 msgid ""
 "Please make sure the camera is connected\n"
 "and that the correct driver is installed."
 msgstr ""
-"Vær venligst sikker på at kamera er tilsluttet\n"
-"og at linux-UCV driveren er installeret."
 
 #: src/guvcview.c:237 src/guvcview.c:283
-#, fuzzy
 msgid ""
 "Guvcview error:\n"
 "\n"
 "Can't set a valid video stream for guvcview"
 msgstr ""
-"Guvcview fejl:\n"
-"\n"
-"Kan ikke sætte MJPG eller YUV stream til guvcview"
 
 #: src/guvcview.c:238 src/guvcview.c:284
-#, fuzzy
 msgid ""
 "Make sure your device driver is v4l2 compliant\n"
 "and that it is properly installed."
 msgstr ""
-"Vær sikker på at du har et UVC compatibelt kamera\n"
-"og at du har installeret en linux UVC driver."
 
 #: src/guvcview.c:246
 msgid ""
@@ -76,30 +66,22 @@ msgid "Please reconnect your camera."
 msgstr "Vær venlig at gentilslutte dit kamera."
 
 #: src/guvcview.c:253
-#, fuzzy
 msgid ""
 "Guvcview error:\n"
 "\n"
 "Couldn't query device capabilities"
 msgstr ""
-"Guvcview fejl:\n"
-"\n"
-"Kunne ikke åbne udstyr"
 
 #: src/guvcview.c:254
 msgid "Make sure the device driver suports v4l2."
 msgstr ""
 
 #: src/guvcview.c:258
-#, fuzzy
 msgid ""
 "Guvcview error:\n"
 "\n"
 "Read method error"
 msgstr ""
-"Guvcview fejl:\n"
-"\n"
-"Kunne ikke åbne udstyr"
 
 #: src/guvcview.c:259
 msgid "Please try mmap instead (--capture_method=1)."
@@ -166,9 +148,8 @@ msgstr ""
 #. needed only for language files (not used)
 #. V4L2 control strings
 #: src/v4l2uvc.c:52
-#, fuzzy
 msgid "User Controls"
-msgstr "GUVCViewer kontroller"
+msgstr ""
 
 #: src/v4l2uvc.c:53
 msgid "Brightness"
@@ -231,14 +212,12 @@ msgid "Black Level"
 msgstr ""
 
 #: src/v4l2uvc.c:68
-#, fuzzy
 msgid "White Balance, Automatic"
-msgstr "Hvid balance komponent, auto"
+msgstr ""
 
 #: src/v4l2uvc.c:69
-#, fuzzy
 msgid "Do White Balance"
-msgstr "Hvid balance temperatur"
+msgstr ""
 
 #: src/v4l2uvc.c:70
 msgid "Red Balance"
@@ -249,9 +228,8 @@ msgid "Blue Balance"
 msgstr ""
 
 #: src/v4l2uvc.c:72
-#, fuzzy
 msgid "Exposure"
-msgstr "Eksponering:"
+msgstr ""
 
 #: src/v4l2uvc.c:73
 msgid "Gain, Automatic"
@@ -291,14 +269,12 @@ msgstr ""
 
 #. CAMERA CLASS control strings
 #: src/v4l2uvc.c:84
-#, fuzzy
 msgid "Camera Controls"
-msgstr "Billed kontroller"
+msgstr ""
 
 #: src/v4l2uvc.c:85
-#, fuzzy
 msgid "Auto Exposure"
-msgstr "Eksponering:"
+msgstr ""
 
 #: src/v4l2uvc.c:86
 msgid "Exposure Time, Absolute"
@@ -309,58 +285,48 @@ msgid "Exposure, Dynamic Framerate"
 msgstr ""
 
 #: src/v4l2uvc.c:88
-#, fuzzy
 msgid "Pan, Relative"
-msgstr " Negativ"
+msgstr ""
 
 #: src/v4l2uvc.c:89
-#, fuzzy
 msgid "Tilt, Relative"
-msgstr " Negativ"
+msgstr ""
 
 #: src/v4l2uvc.c:90
-#, fuzzy
 msgid "Pan, Reset"
-msgstr "Nulstil"
+msgstr ""
 
 #: src/v4l2uvc.c:91
-#, fuzzy
 msgid "Tilt, Reset"
-msgstr "Nulstil"
+msgstr ""
 
 #: src/v4l2uvc.c:92
 msgid "Pan, Absolute"
 msgstr ""
 
 #: src/v4l2uvc.c:94
-#, fuzzy
 msgid "Focus, Absolute"
-msgstr "Fokus (absolut)"
+msgstr ""
 
 #: src/v4l2uvc.c:95
-#, fuzzy
 msgid "Focus, Relative"
-msgstr "Fokus, auto"
+msgstr ""
 
 #: src/v4l2uvc.c:96
-#, fuzzy
 msgid "Focus, Automatic"
-msgstr "Fokus, auto"
+msgstr ""
 
 #: src/v4l2uvc.c:97
-#, fuzzy
 msgid "Zoom, Absolute"
-msgstr "Fokus (absolut)"
+msgstr ""
 
 #: src/v4l2uvc.c:98
-#, fuzzy
 msgid "Zoom, Relative"
-msgstr " Negativ"
+msgstr ""
 
 #: src/v4l2uvc.c:99
-#, fuzzy
 msgid "Zoom, Continuous"
-msgstr "Auto fokus (fortsat)"
+msgstr ""
 
 #: src/v4l2uvc.c:100
 msgid "Privacy"
@@ -539,9 +505,8 @@ msgid "properties"
 msgstr ""
 
 #: src/video_tab.c:862
-#, fuzzy
 msgid "Video Format:"
-msgstr "Lyd format:"
+msgstr ""
 
 #: src/video_tab.c:871
 msgid "---- Video Filters ----"
@@ -581,9 +546,8 @@ msgid " Sound"
 msgstr " Lyd"
 
 #: src/audio_tab.c:108
-#, fuzzy
 msgid "Audio API:"
-msgstr "Lyd format:"
+msgstr ""
 
 #: src/audio_tab.c:118
 msgid "PORTAUDIO"
@@ -602,9 +566,8 @@ msgid "Dev. Default"
 msgstr ""
 
 #: src/audio_tab.c:190
-#, fuzzy
 msgid "Sample Rate:"
-msgstr "Billedrate:"
+msgstr ""
 
 #: src/audio_tab.c:202
 msgid "1 - mono"
@@ -631,9 +594,8 @@ msgid "Audio Format:"
 msgstr "Lyd format:"
 
 #: src/audio_tab.c:286
-#, fuzzy
 msgid "---- Audio Effects ----"
-msgstr "---- Video filtre ----"
+msgstr ""
 
 #. Echo
 #: src/audio_tab.c:305
@@ -766,8 +728,9 @@ msgstr ""
 
 #: src/options.c:535
 msgid ""
-"Pixel format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|"
-"y41p|grey|s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
+"Pixel "
+"format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|y41p|grey|"
+"s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
 msgstr ""
 
 #: src/options.c:536
@@ -910,3 +873,6 @@ msgstr "Indlæs fil"
 
 #~ msgid "UYVY - uncomp YUV"
 #~ msgstr "UYVY - ukomprimeret YUV"
+
+#~ msgid "Exposure:"
+#~ msgstr "Eksponering:"

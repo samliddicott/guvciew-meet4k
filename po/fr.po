@@ -11,12 +11,14 @@ msgstr ""
 "Project-Id-Version: fr\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-09-18 18:18+0100\n"
-"PO-Revision-Date: 2009-09-18 22:53+0100\n"
+"PO-Revision-Date: 2009-09-19 15:26+0000\n"
 "Last-Translator: Paulo Assis <pj.assis@gmail.com>\n"
 "Language-Team: Portuguese <pt@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Launchpad-Export-Date: 2009-09-19 15:52+0000\n"
+"X-Generator: Launchpad (build Unknown)\n"
 
 #: src/guvcview.c:183
 msgid "GUVCViewer Controls"
@@ -42,8 +44,7 @@ msgstr ""
 "\n"
 "et que le pilote est installé."
 
-#: src/guvcview.c:237
-#: src/guvcview.c:283
+#: src/guvcview.c:237 src/guvcview.c:283
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -53,8 +54,7 @@ msgstr ""
 "\n"
 "Incapable de gérer le flux vidéo"
 
-#: src/guvcview.c:238
-#: src/guvcview.c:284
+#: src/guvcview.c:238 src/guvcview.c:284
 msgid ""
 "Make sure your device driver is v4l2 compliant\n"
 "and that it is properly installed."
@@ -137,19 +137,16 @@ msgstr "Réglages Personnalisés:"
 msgid "Stop Auto"
 msgstr "Arrêt Auto"
 
-#: src/guvcview.c:389
-#: src/callbacks.c:966
+#: src/guvcview.c:389 src/callbacks.c:966
 msgid "Cap. Image"
 msgstr "Enr. Image"
 
 #. vid capture enabled from start
-#: src/guvcview.c:394
-#: src/callbacks.c:1046
+#: src/guvcview.c:394 src/callbacks.c:1046
 msgid "Stop Video"
 msgstr "Arrêter Video"
 
-#: src/guvcview.c:400
-#: src/callbacks.c:1015
+#: src/guvcview.c:400 src/callbacks.c:1015
 msgid "Cap. Video"
 msgstr "Enr. Video"
 
@@ -170,9 +167,8 @@ msgstr "Svp, rapportez-le à http://developer.berlios.de/bugs/?group_id=8179"
 #. needed only for language files (not used)
 #. V4L2 control strings
 #: src/v4l2uvc.c:52
-#, fuzzy
 msgid "User Controls"
-msgstr "Réglages GUVCViewer"
+msgstr ""
 
 #: src/v4l2uvc.c:53
 msgid "Brightness"
@@ -208,7 +204,7 @@ msgstr "Fréquence de rafraîchissement"
 
 #: src/v4l2uvc.c:61
 msgid "Hue, Automatic"
-msgstr "Teinte, auto"
+msgstr ""
 
 #: src/v4l2uvc.c:62
 msgid "Focus, Auto"
@@ -232,23 +228,23 @@ msgstr "Mode Priorité Ouverture"
 
 #: src/v4l2uvc.c:67
 msgid "Black Level"
-msgstr ""
+msgstr "Niveau de noir"
 
 #: src/v4l2uvc.c:68
 msgid "White Balance, Automatic"
-msgstr "Balance des blancs, Auto"
+msgstr ""
 
 #: src/v4l2uvc.c:69
 msgid "Do White Balance"
-msgstr "Balance des blancs"
+msgstr ""
 
 #: src/v4l2uvc.c:70
 msgid "Red Balance"
-msgstr ""
+msgstr "Balance des rouges"
 
 #: src/v4l2uvc.c:71
 msgid "Blue Balance"
-msgstr ""
+msgstr "Balance des bleus"
 
 #: src/v4l2uvc.c:72
 msgid "Exposure"
@@ -264,11 +260,11 @@ msgstr "Gain"
 
 #: src/v4l2uvc.c:75
 msgid "Horizontal Flip"
-msgstr ""
+msgstr "Miroir horizontal"
 
 #: src/v4l2uvc.c:76
 msgid "Vertical Flip"
-msgstr ""
+msgstr "Miroir vertical"
 
 #: src/v4l2uvc.c:77
 msgid "Horizontal Center"
@@ -288,21 +284,20 @@ msgstr ""
 
 #: src/v4l2uvc.c:81
 msgid "Color Effects"
-msgstr ""
+msgstr "Effets de couleur"
 
 #. CAMERA CLASS control strings
 #: src/v4l2uvc.c:84
-#, fuzzy
 msgid "Camera Controls"
-msgstr "Réglages de L'image"
+msgstr ""
 
 #: src/v4l2uvc.c:85
 msgid "Auto Exposure"
-msgstr "Exposition Auto"
+msgstr "Exposition automatique"
 
 #: src/v4l2uvc.c:86
 msgid "Exposure Time, Absolute"
-msgstr "Exposition (valeur absolue)"
+msgstr ""
 
 #: src/v4l2uvc.c:87
 msgid "Exposure, Dynamic Framerate"
@@ -310,19 +305,19 @@ msgstr ""
 
 #: src/v4l2uvc.c:88
 msgid "Pan, Relative"
-msgstr "Rotation Horizontale (valeur relative)"
+msgstr ""
 
 #: src/v4l2uvc.c:89
 msgid "Tilt, Relative"
-msgstr "Rotation Verticale (valeur relative)"
+msgstr ""
 
 #: src/v4l2uvc.c:90
 msgid "Pan, Reset"
-msgstr "Rotation Horizontale (remise à zero)"
+msgstr ""
 
 #: src/v4l2uvc.c:91
 msgid "Tilt, Reset"
-msgstr "Rotation Verticale (remise à zero)"
+msgstr ""
 
 #: src/v4l2uvc.c:92
 msgid "Pan, Absolute"
@@ -330,31 +325,31 @@ msgstr ""
 
 #: src/v4l2uvc.c:94
 msgid "Focus, Absolute"
-msgstr "Mise au Point (valeur absolue)"
+msgstr ""
 
 #: src/v4l2uvc.c:95
 msgid "Focus, Relative"
-msgstr "Mise au Point (valeur relative)"
+msgstr ""
 
 #: src/v4l2uvc.c:96
 msgid "Focus, Automatic"
-msgstr "Mise au Point, Auto"
+msgstr ""
 
 #: src/v4l2uvc.c:97
 msgid "Zoom, Absolute"
-msgstr "Zoom (valeur absolue)"
+msgstr ""
 
 #: src/v4l2uvc.c:98
 msgid "Zoom, Relative"
-msgstr "Zoom (valeur relative)"
+msgstr ""
 
 #: src/v4l2uvc.c:99
 msgid "Zoom, Continuous"
-msgstr "Zoom (continu)"
+msgstr ""
 
 #: src/v4l2uvc.c:100
 msgid "Privacy"
-msgstr ""
+msgstr "Confidentialité"
 
 #. UVC specific control strings
 #: src/v4l2uvc.c:103
@@ -389,22 +384,14 @@ msgstr "Balance des Blancs, Canal Bleu"
 msgid "White Balance Red Component"
 msgstr "Balance des Blancs, Canal Rouge"
 
-#: src/video_tab.c:41
-#: src/callbacks.c:1071
+#: src/video_tab.c:41 src/callbacks.c:1071
 msgid "Save File"
 msgstr "Enregistrer le Fichier"
 
 #. if auto naming restart counter
-#: src/video_tab.c:95
-#: src/globals.c:69
-#: src/globals.c:72
-#: src/options.c:360
-#: src/options.c:413
-#: src/callbacks.c:427
-#: src/callbacks.c:748
-#: src/callbacks.c:896
-#: src/callbacks.c:913
-#: src/callbacks.c:945
+#: src/video_tab.c:95 src/globals.c:69 src/globals.c:72 src/options.c:360
+#: src/options.c:413 src/callbacks.c:427 src/callbacks.c:748
+#: src/callbacks.c:896 src/callbacks.c:913 src/callbacks.c:945
 #: src/callbacks.c:1022
 #, c-format
 msgid "File num:%d"
@@ -505,18 +492,17 @@ msgstr "Sortie Caméra:"
 
 #: src/video_tab.c:657
 msgid "Apply"
-msgstr ""
+msgstr "Assigner"
 
 #: src/video_tab.c:665
 msgid "Quality:"
-msgstr ""
+msgstr "Qualité:"
 
 #: src/video_tab.c:675
 msgid "Image File:"
 msgstr "Ficher Image:"
 
-#: src/video_tab.c:708
-#: src/video_tab.c:794
+#: src/video_tab.c:708 src/video_tab.c:794
 msgid "File,Auto"
 msgstr "Fichier, Auto"
 
@@ -535,7 +521,7 @@ msgstr "Codec Video:"
 #. lavc codec properties button
 #: src/video_tab.c:835
 msgid "properties"
-msgstr ""
+msgstr "propriétés"
 
 #: src/video_tab.c:862
 msgid "Video Format:"
@@ -568,7 +554,7 @@ msgstr " Monochrome"
 #. Pieces
 #: src/video_tab.c:927
 msgid " Pieces"
-msgstr "Morceaux"
+msgstr " Morceaux"
 
 #: src/audio_tab.c:75
 msgid "Audio"
@@ -590,13 +576,11 @@ msgstr "PORTAUDIO"
 msgid "PULSEAUDIO"
 msgstr "PULSEAUDIO"
 
-#: src/audio_tab.c:135
-#: src/audio_tab.c:158
+#: src/audio_tab.c:135 src/audio_tab.c:158
 msgid "Input Device:"
 msgstr "Périphérique d'Entrée:"
 
-#: src/audio_tab.c:169
-#: src/audio_tab.c:201
+#: src/audio_tab.c:169 src/audio_tab.c:201
 msgid "Dev. Default"
 msgstr "Valeur par Défaut"
 
@@ -635,17 +619,17 @@ msgstr "---- Effets Audio ----"
 #. Echo
 #: src/audio_tab.c:305
 msgid " Echo"
-msgstr "Echo"
+msgstr " Echo"
 
 #. FUZZ
 #: src/audio_tab.c:315
 msgid " Fuzz"
-msgstr "Bruit"
+msgstr " Bruit"
 
 #. Reverb
 #: src/audio_tab.c:326
 msgid " Reverb"
-msgstr "Reverb"
+msgstr " Reverb"
 
 #. WahWah
 #: src/audio_tab.c:337
@@ -762,8 +746,14 @@ msgid "Hardware accelaration (enable(1) | disable(0))"
 msgstr "Accel. matérielle (activer(1) | desactiver(0))"
 
 #: src/options.c:535
-msgid "Pixel format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|y41p|grey|s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
-msgstr "Format d'entrée(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|y41p|grey|s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
+msgid ""
+"Pixel "
+"format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|y41p|grey|"
+"s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
+msgstr ""
+"Format "
+"d'entrée(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|y41p|gre"
+"y|s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
 
 #: src/options.c:536
 msgid "Frame size, default: 640x480"
@@ -779,7 +769,7 @@ msgstr "Interval d'enr. des images (secondes)"
 
 #: src/options.c:539
 msgid "Number of Pictures to capture"
-msgstr "Nombre d'images à enregistrer "
+msgstr "Nombre d'images à enregistrer"
 
 #: src/options.c:540
 msgid "Video File name (capture from start)"
@@ -807,7 +797,7 @@ msgstr "Charger réglages personnalisés"
 
 #: src/options.c:551
 msgid "- local options"
-msgstr "- options locales "
+msgstr "- options locales"
 
 #: src/img_controls.c:162
 msgid "Invert (Pan)"
@@ -830,9 +820,7 @@ msgid "Down"
 msgstr "Bas"
 
 #. Pan reset
-#: src/img_controls.c:248
-#: src/img_controls.c:270
-#: src/img_controls.c:294
+#: src/img_controls.c:248 src/img_controls.c:270 src/img_controls.c:294
 msgid "Reset"
 msgstr "Remise à Zero"
 
@@ -851,7 +839,7 @@ msgstr "bayer pixel format:"
 
 #: src/callbacks.c:496
 msgid "start new"
-msgstr "commencez nouveau "
+msgstr "commencez nouveau"
 
 #: src/callbacks.c:499
 msgid "restart"
@@ -873,23 +861,19 @@ msgstr ""
 "nouveau processus ou redémarrage?\n"
 "\n"
 
-#: src/callbacks.c:577
-#: src/callbacks.c:653
+#: src/callbacks.c:577 src/callbacks.c:653
 msgid "Program Restart"
 msgstr "Redémarrer l'application"
 
-#: src/callbacks.c:580
-#: src/callbacks.c:656
+#: src/callbacks.c:580 src/callbacks.c:656
 msgid "now"
 msgstr "Maintenant"
 
-#: src/callbacks.c:582
-#: src/callbacks.c:658
+#: src/callbacks.c:582 src/callbacks.c:658
 msgid "Later"
-msgstr "Plus tard "
+msgstr "Plus tard"
 
-#: src/callbacks.c:586
-#: src/callbacks.c:662
+#: src/callbacks.c:586 src/callbacks.c:662
 msgid ""
 "Changes will only take effect after guvcview restart.\n"
 "\n"
@@ -899,7 +883,7 @@ msgstr ""
 "Les changements seront effectifs après redémarrage de guvcview\n"
 "\n"
 "\n"
-"Redémarrer maintenant? \n"
+"Redémarrer maintenant?\n"
 
 #: src/callbacks.c:1084
 msgid "Load File"
@@ -907,12 +891,21 @@ msgstr "Charger Fichier"
 
 #~ msgid "AVI File:"
 #~ msgstr "Fichier Vidéo:"
-#~ msgid "AVI Format:"
-#~ msgstr "Format AVI:"
+
 #~ msgid "UYVY - uncomp YUV"
 #~ msgstr "UYVY - YUV non compressé"
+
+#~ msgid "AVI Format:"
+#~ msgstr "Format AVI:"
+
+#~ msgid "Hue, Auto"
+#~ msgstr "Teinte, auto"
+
+#~ msgid "Exposure:"
+#~ msgstr "Exposition:"
+
 #~ msgid "MPEG"
 #~ msgstr "MPEG"
+
 #~ msgid "FLV1"
 #~ msgstr "FLV1"
-

@@ -10,12 +10,14 @@ msgstr ""
 "Project-Id-Version: pt_BR\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-09-18 18:18+0100\n"
-"PO-Revision-Date: 2009-09-18 22:38+0100\n"
+"PO-Revision-Date: 2009-09-19 14:39+0000\n"
 "Last-Translator: Paulo Assis <pj.assis@gmail.com>\n"
 "Language-Team: Portuguese <pt@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Launchpad-Export-Date: 2009-09-19 15:52+0000\n"
+"X-Generator: Launchpad (build Unknown)\n"
 
 #: src/guvcview.c:183
 msgid "GUVCViewer Controls"
@@ -40,8 +42,7 @@ msgstr ""
 "Por favor verifique a conexão\n"
 "e se o driver correcto se encontra instalado."
 
-#: src/guvcview.c:237
-#: src/guvcview.c:283
+#: src/guvcview.c:237 src/guvcview.c:283
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -51,8 +52,7 @@ msgstr ""
 "\n"
 "Não foi possível iniciar fluxo de video"
 
-#: src/guvcview.c:238
-#: src/guvcview.c:284
+#: src/guvcview.c:238 src/guvcview.c:284
 msgid ""
 "Make sure your device driver is v4l2 compliant\n"
 "and that it is properly installed."
@@ -135,19 +135,16 @@ msgstr "Perfis de Controlo:"
 msgid "Stop Auto"
 msgstr "Parar Auto:"
 
-#: src/guvcview.c:389
-#: src/callbacks.c:966
+#: src/guvcview.c:389 src/callbacks.c:966
 msgid "Cap. Image"
 msgstr "Cap. Imagem"
 
 #. vid capture enabled from start
-#: src/guvcview.c:394
-#: src/callbacks.c:1046
+#: src/guvcview.c:394 src/callbacks.c:1046
 msgid "Stop Video"
 msgstr "Parar Video"
 
-#: src/guvcview.c:400
-#: src/callbacks.c:1015
+#: src/guvcview.c:400 src/callbacks.c:1015
 msgid "Cap. Video"
 msgstr "Cap. Video"
 
@@ -205,7 +202,7 @@ msgstr "Frequência da Rede"
 
 #: src/v4l2uvc.c:61
 msgid "Hue, Automatic"
-msgstr "Matiz, Automatica"
+msgstr "Matiz, Automático"
 
 #: src/v4l2uvc.c:62
 msgid "Focus, Auto"
@@ -229,23 +226,23 @@ msgstr "Modo prioridade da abertura"
 
 #: src/v4l2uvc.c:67
 msgid "Black Level"
-msgstr "Nível de Negro "
+msgstr "Níveis de Preto"
 
 #: src/v4l2uvc.c:68
 msgid "White Balance, Automatic"
-msgstr "Balanço de Branco, Automatico"
+msgstr "Balanço de Brancos"
 
 #: src/v4l2uvc.c:69
 msgid "Do White Balance"
-msgstr "Faz Balanço de Branco"
+msgstr "Fazer Balanço de Brancos"
 
 #: src/v4l2uvc.c:70
 msgid "Red Balance"
-msgstr "Balanço de Vermelho"
+msgstr "Balanço do Vermelho"
 
 #: src/v4l2uvc.c:71
 msgid "Blue Balance"
-msgstr "Balanço de Azul"
+msgstr "Balanço do Azul"
 
 #: src/v4l2uvc.c:72
 msgid "Exposure"
@@ -253,7 +250,7 @@ msgstr "Exposição"
 
 #: src/v4l2uvc.c:73
 msgid "Gain, Automatic"
-msgstr "Ganho, Automatico"
+msgstr "Ganho, Automático"
 
 #: src/v4l2uvc.c:74
 msgid "Gain"
@@ -261,19 +258,19 @@ msgstr "Ganho"
 
 #: src/v4l2uvc.c:75
 msgid "Horizontal Flip"
-msgstr "Rotação Horizontal"
+msgstr "Virar horizontalmente"
 
 #: src/v4l2uvc.c:76
 msgid "Vertical Flip"
-msgstr "Rotação Vertical"
+msgstr "Virar verticalmente"
 
 #: src/v4l2uvc.c:77
 msgid "Horizontal Center"
-msgstr "Centro Horizontal"
+msgstr "Eixo Horizontal"
 
 #: src/v4l2uvc.c:78
 msgid "Vertical Center"
-msgstr "Centro Vertical"
+msgstr "Eixo Vertical"
 
 #: src/v4l2uvc.c:79
 msgid "Chroma AGC"
@@ -285,7 +282,7 @@ msgstr ""
 
 #: src/v4l2uvc.c:81
 msgid "Color Effects"
-msgstr "Efeitos de Cor"
+msgstr "Efeitos de cor"
 
 #. CAMERA CLASS control strings
 #: src/v4l2uvc.c:84
@@ -294,11 +291,11 @@ msgstr "Controlos de Camera"
 
 #: src/v4l2uvc.c:85
 msgid "Auto Exposure"
-msgstr "Exposição Automatica"
+msgstr "Exposição automática"
 
 #: src/v4l2uvc.c:86
 msgid "Exposure Time, Absolute"
-msgstr "Exposição, Absoluta"
+msgstr "Tempo de Exposição, Absoluto"
 
 #: src/v4l2uvc.c:87
 msgid "Exposure, Dynamic Framerate"
@@ -326,15 +323,15 @@ msgstr "Rotação, Absoluta"
 
 #: src/v4l2uvc.c:94
 msgid "Focus, Absolute"
-msgstr "Focagem, Absoluta"
+msgstr "Foco, Absoluto"
 
 #: src/v4l2uvc.c:95
 msgid "Focus, Relative"
-msgstr "Focagem, Relativa"
+msgstr "Foco, Relativo"
 
 #: src/v4l2uvc.c:96
 msgid "Focus, Automatic"
-msgstr "Focagem, Automatica"
+msgstr "Foco, Automático"
 
 #: src/v4l2uvc.c:97
 msgid "Zoom, Absolute"
@@ -385,22 +382,14 @@ msgstr "Componente Azul"
 msgid "White Balance Red Component"
 msgstr "Componente Vermelho"
 
-#: src/video_tab.c:41
-#: src/callbacks.c:1071
+#: src/video_tab.c:41 src/callbacks.c:1071
 msgid "Save File"
 msgstr "Salvar Ficheiro"
 
 #. if auto naming restart counter
-#: src/video_tab.c:95
-#: src/globals.c:69
-#: src/globals.c:72
-#: src/options.c:360
-#: src/options.c:413
-#: src/callbacks.c:427
-#: src/callbacks.c:748
-#: src/callbacks.c:896
-#: src/callbacks.c:913
-#: src/callbacks.c:945
+#: src/video_tab.c:95 src/globals.c:69 src/globals.c:72 src/options.c:360
+#: src/options.c:413 src/callbacks.c:427 src/callbacks.c:748
+#: src/callbacks.c:896 src/callbacks.c:913 src/callbacks.c:945
 #: src/callbacks.c:1022
 #, c-format
 msgid "File num:%d"
@@ -489,7 +478,7 @@ msgstr "Taxa de imagens:"
 
 #: src/video_tab.c:585
 msgid " Show"
-msgstr "Mostrar"
+msgstr " Mostrar"
 
 #: src/video_tab.c:609
 msgid "Resolution:"
@@ -511,8 +500,7 @@ msgstr "Qualidade:"
 msgid "Image File:"
 msgstr "Ficheiro de Imagem:"
 
-#: src/video_tab.c:708
-#: src/video_tab.c:794
+#: src/video_tab.c:708 src/video_tab.c:794
 msgid "File,Auto"
 msgstr "Ficheiro,Auto"
 
@@ -586,13 +574,11 @@ msgstr "PORTAUDIO"
 msgid "PULSEAUDIO"
 msgstr "PULSEAUDIO"
 
-#: src/audio_tab.c:135
-#: src/audio_tab.c:158
+#: src/audio_tab.c:135 src/audio_tab.c:158
 msgid "Input Device:"
 msgstr "Dispositivo de som:"
 
-#: src/audio_tab.c:169
-#: src/audio_tab.c:201
+#: src/audio_tab.c:169 src/audio_tab.c:201
 msgid "Dev. Default"
 msgstr "Automático"
 
@@ -758,8 +744,14 @@ msgid "Hardware accelaration (enable(1) | disable(0))"
 msgstr "Aceleração vídeo por hardware (sim(1) | não(0))"
 
 #: src/options.c:535
-msgid "Pixel format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|y41p|grey|s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
-msgstr "Formato entrada(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|y41p|grey|s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
+msgid ""
+"Pixel "
+"format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|y41p|grey|"
+"s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
+msgstr ""
+"Formato "
+"entrada(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|y41p|grey"
+"|s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
 
 #: src/options.c:536
 msgid "Frame size, default: 640x480"
@@ -791,7 +783,7 @@ msgstr "Termina guvcview depois de completar video"
 
 #: src/options.c:543
 msgid "Number of inital frames to skip"
-msgstr "Numero inicial de imagens a saltar"
+msgstr "Numero Inicial de Frames a ignorar"
 
 #: src/options.c:544
 msgid "Show FPS value (enable(1) | disable (0))"
@@ -803,7 +795,7 @@ msgstr "Carrega perfil no arranque"
 
 #: src/options.c:551
 msgid "- local options"
-msgstr " - opções locais"
+msgstr "- opções locais"
 
 #: src/img_controls.c:162
 msgid "Invert (Pan)"
@@ -826,9 +818,7 @@ msgid "Down"
 msgstr "Descer"
 
 #. Pan reset
-#: src/img_controls.c:248
-#: src/img_controls.c:270
-#: src/img_controls.c:294
+#: src/img_controls.c:248 src/img_controls.c:270 src/img_controls.c:294
 msgid "Reset"
 msgstr "Restaurar"
 
@@ -869,23 +859,19 @@ msgstr ""
 "lançar novo processo ou recomeçar?.\n"
 "\n"
 
-#: src/callbacks.c:577
-#: src/callbacks.c:653
+#: src/callbacks.c:577 src/callbacks.c:653
 msgid "Program Restart"
 msgstr "Reiniciar Programa"
 
-#: src/callbacks.c:580
-#: src/callbacks.c:656
+#: src/callbacks.c:580 src/callbacks.c:656
 msgid "now"
 msgstr "Agora"
 
-#: src/callbacks.c:582
-#: src/callbacks.c:658
+#: src/callbacks.c:582 src/callbacks.c:658
 msgid "Later"
 msgstr "Depois"
 
-#: src/callbacks.c:586
-#: src/callbacks.c:662
+#: src/callbacks.c:586 src/callbacks.c:662
 msgid ""
 "Changes will only take effect after guvcview restart.\n"
 "\n"
@@ -903,12 +889,21 @@ msgstr "Abrir Ficheiro"
 
 #~ msgid "AVI File:"
 #~ msgstr "Ficheiro AVI:"
-#~ msgid "AVI Format:"
-#~ msgstr "Formato AVI:"
+
 #~ msgid "UYVY - uncomp YUV"
 #~ msgstr "UYVY - s/comp YUV"
+
+#~ msgid "AVI Format:"
+#~ msgstr "Formato AVI:"
+
+#~ msgid "Hue, Auto"
+#~ msgstr "Matiz, Auto"
+
+#~ msgid "Exposure:"
+#~ msgstr "Exposição:"
+
 #~ msgid "MPEG"
 #~ msgstr "MPEG"
+
 #~ msgid "FLV1"
 #~ msgstr "FLV1"
-

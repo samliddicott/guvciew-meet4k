@@ -7,14 +7,14 @@ msgstr ""
 "Project-Id-Version: guvcview\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-09-18 18:18+0100\n"
-"PO-Revision-Date: 2009-09-18 23:00+0100\n"
+"PO-Revision-Date: 2009-09-15 02:06+0000\n"
 "Last-Translator: Paulo Assis <pj.assis@gmail.com>\n"
 "Language-Team: Russian <>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Lokalize 0.3\n"
-"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"X-Launchpad-Export-Date: 2009-09-19 15:52+0000\n"
+"X-Generator: Launchpad (build Unknown)\n"
 
 #: src/guvcview.c:183
 msgid "GUVCViewer Controls"
@@ -32,35 +32,23 @@ msgstr ""
 "Не удалось открыть устройство"
 
 #: src/guvcview.c:211
-#, fuzzy
 msgid ""
 "Please make sure the camera is connected\n"
 "and that the correct driver is installed."
 msgstr ""
-"Необходимо удостовериться, что камера подключена\n"
-"и что драйвер Linux-UVC установлен."
 
-#: src/guvcview.c:237
-#: src/guvcview.c:283
-#, fuzzy
+#: src/guvcview.c:237 src/guvcview.c:283
 msgid ""
 "Guvcview error:\n"
 "\n"
 "Can't set a valid video stream for guvcview"
 msgstr ""
-"Ошибка Guvcview:\n"
-"\n"
-"Не удалось назначить поток в формате MJPG или YUV для guvcview"
 
-#: src/guvcview.c:238
-#: src/guvcview.c:284
-#, fuzzy
+#: src/guvcview.c:238 src/guvcview.c:284
 msgid ""
 "Make sure your device driver is v4l2 compliant\n"
 "and that it is properly installed."
 msgstr ""
-"Необходимо удостовериться, что камера соответствует стандарту UVC\n"
-"и что драйвер Linux-UVC установлен."
 
 #: src/guvcview.c:246
 msgid ""
@@ -77,30 +65,22 @@ msgid "Please reconnect your camera."
 msgstr "Необходимо переподключить камеру."
 
 #: src/guvcview.c:253
-#, fuzzy
 msgid ""
 "Guvcview error:\n"
 "\n"
 "Couldn't query device capabilities"
 msgstr ""
-"Ошибка Guvcview:\n"
-"\n"
-"Не удалось открыть устройство"
 
 #: src/guvcview.c:254
 msgid "Make sure the device driver suports v4l2."
 msgstr ""
 
 #: src/guvcview.c:258
-#, fuzzy
 msgid ""
 "Guvcview error:\n"
 "\n"
 "Read method error"
 msgstr ""
-"Ошибка Guvcview:\n"
-"\n"
-"Не удалось открыть устройство"
 
 #: src/guvcview.c:259
 msgid "Please try mmap instead (--capture_method=1)."
@@ -141,19 +121,16 @@ msgstr "Профиль регулировки:"
 msgid "Stop Auto"
 msgstr "Останов автозахвата"
 
-#: src/guvcview.c:389
-#: src/callbacks.c:966
+#: src/guvcview.c:389 src/callbacks.c:966
 msgid "Cap. Image"
 msgstr "Снимок"
 
 #. vid capture enabled from start
-#: src/guvcview.c:394
-#: src/callbacks.c:1046
+#: src/guvcview.c:394 src/callbacks.c:1046
 msgid "Stop Video"
 msgstr "Стоп"
 
-#: src/guvcview.c:400
-#: src/callbacks.c:1015
+#: src/guvcview.c:400 src/callbacks.c:1015
 msgid "Cap. Video"
 msgstr "Видео"
 
@@ -169,14 +146,15 @@ msgstr ""
 
 #: src/guvcview.c:540
 msgid "Please report it to http://developer.berlios.de/bugs/?group_id=8179"
-msgstr "Следует сообщить об этом сюда: http://developer.berlios.de/bugs/?group_id=8179"
+msgstr ""
+"Следует сообщить об этом сюда: "
+"http://developer.berlios.de/bugs/?group_id=8179"
 
 #. needed only for language files (not used)
 #. V4L2 control strings
 #: src/v4l2uvc.c:52
-#, fuzzy
 msgid "User Controls"
-msgstr "Регулировочная панель программы GUVCViewer"
+msgstr ""
 
 #: src/v4l2uvc.c:53
 msgid "Brightness"
@@ -211,9 +189,8 @@ msgid "Power Line Frequency"
 msgstr "Частота в электросети"
 
 #: src/v4l2uvc.c:61
-#, fuzzy
 msgid "Hue, Automatic"
-msgstr "Оттенок, авто"
+msgstr ""
 
 #: src/v4l2uvc.c:62
 msgid "Focus, Auto"
@@ -240,14 +217,12 @@ msgid "Black Level"
 msgstr ""
 
 #: src/v4l2uvc.c:68
-#, fuzzy
 msgid "White Balance, Automatic"
-msgstr "Компонент баланса белого, авто"
+msgstr ""
 
 #: src/v4l2uvc.c:69
-#, fuzzy
 msgid "Do White Balance"
-msgstr "Температура баланса белого"
+msgstr ""
 
 #: src/v4l2uvc.c:70
 msgid "Red Balance"
@@ -258,9 +233,8 @@ msgid "Blue Balance"
 msgstr ""
 
 #: src/v4l2uvc.c:72
-#, fuzzy
 msgid "Exposure"
-msgstr "Экспозиция:"
+msgstr ""
 
 #: src/v4l2uvc.c:73
 msgid "Gain, Automatic"
@@ -300,79 +274,64 @@ msgstr ""
 
 #. CAMERA CLASS control strings
 #: src/v4l2uvc.c:84
-#, fuzzy
 msgid "Camera Controls"
 msgstr ""
-"Регулировка\n"
-"изображения"
 
 #: src/v4l2uvc.c:85
-#, fuzzy
 msgid "Auto Exposure"
-msgstr "Экспозиция:"
+msgstr ""
 
 #: src/v4l2uvc.c:86
-#, fuzzy
 msgid "Exposure Time, Absolute"
-msgstr "Выдержка (абсолютная)"
+msgstr ""
 
 #: src/v4l2uvc.c:87
 msgid "Exposure, Dynamic Framerate"
 msgstr ""
 
 #: src/v4l2uvc.c:88
-#, fuzzy
 msgid "Pan, Relative"
-msgstr "Гор. поворот (относит.)"
+msgstr ""
 
 #: src/v4l2uvc.c:89
-#, fuzzy
 msgid "Tilt, Relative"
-msgstr "Верт. поворот (относит.)"
+msgstr ""
 
 #: src/v4l2uvc.c:90
-#, fuzzy
 msgid "Pan, Reset"
-msgstr "Гор. возврат"
+msgstr ""
 
 #: src/v4l2uvc.c:91
-#, fuzzy
 msgid "Tilt, Reset"
-msgstr "Верт. возврат"
+msgstr ""
 
 #: src/v4l2uvc.c:92
 msgid "Pan, Absolute"
 msgstr ""
 
 #: src/v4l2uvc.c:94
-#, fuzzy
 msgid "Focus, Absolute"
-msgstr "Фокус (абсолютный)"
+msgstr ""
 
 #: src/v4l2uvc.c:95
-#, fuzzy
 msgid "Focus, Relative"
-msgstr "Фокус, авто"
+msgstr ""
 
 #: src/v4l2uvc.c:96
-#, fuzzy
 msgid "Focus, Automatic"
-msgstr "Фокус, авто"
+msgstr ""
 
 #: src/v4l2uvc.c:97
-#, fuzzy
 msgid "Zoom, Absolute"
-msgstr "Выдержка (абсолютная)"
+msgstr ""
 
 #: src/v4l2uvc.c:98
-#, fuzzy
 msgid "Zoom, Relative"
-msgstr " Негатив"
+msgstr ""
 
 #: src/v4l2uvc.c:99
-#, fuzzy
 msgid "Zoom, Continuous"
-msgstr "Автофокусировка (непрерывная)"
+msgstr ""
 
 #: src/v4l2uvc.c:100
 msgid "Privacy"
@@ -411,22 +370,14 @@ msgstr "Синий компонент баланса белого"
 msgid "White Balance Red Component"
 msgstr "Красный компонент баланса белого"
 
-#: src/video_tab.c:41
-#: src/callbacks.c:1071
+#: src/video_tab.c:41 src/callbacks.c:1071
 msgid "Save File"
 msgstr "Сохранение файла"
 
 #. if auto naming restart counter
-#: src/video_tab.c:95
-#: src/globals.c:69
-#: src/globals.c:72
-#: src/options.c:360
-#: src/options.c:413
-#: src/callbacks.c:427
-#: src/callbacks.c:748
-#: src/callbacks.c:896
-#: src/callbacks.c:913
-#: src/callbacks.c:945
+#: src/video_tab.c:95 src/globals.c:69 src/globals.c:72 src/options.c:360
+#: src/options.c:413 src/callbacks.c:427 src/callbacks.c:748
+#: src/callbacks.c:896 src/callbacks.c:913 src/callbacks.c:945
 #: src/callbacks.c:1022
 #, c-format
 msgid "File num:%d"
@@ -537,8 +488,7 @@ msgstr ""
 msgid "Image File:"
 msgstr "Файл снимка:"
 
-#: src/video_tab.c:708
-#: src/video_tab.c:794
+#: src/video_tab.c:708 src/video_tab.c:794
 msgid "File,Auto"
 msgstr "автомат."
 
@@ -612,13 +562,11 @@ msgstr "PORTAUDIO"
 msgid "PULSEAUDIO"
 msgstr "PULSEAUDIO"
 
-#: src/audio_tab.c:135
-#: src/audio_tab.c:158
+#: src/audio_tab.c:135 src/audio_tab.c:158
 msgid "Input Device:"
 msgstr "Устройство ввода:"
 
-#: src/audio_tab.c:169
-#: src/audio_tab.c:201
+#: src/audio_tab.c:169 src/audio_tab.c:201
 msgid "Dev. Default"
 msgstr "по умолчанию"
 
@@ -768,9 +716,8 @@ msgid "Video Device to use [default: /dev/video0]"
 msgstr "Используемое видео-устройство (по умолчанию /dev/video0)"
 
 #: src/options.c:531
-#, fuzzy
 msgid "Don't stream video (image controls only)"
-msgstr "Без показа видео (только регулировка)"
+msgstr ""
 
 #: src/options.c:532
 msgid "Capture method (1-mmap (default)  2-read)"
@@ -785,8 +732,14 @@ msgid "Hardware accelaration (enable(1) | disable(0))"
 msgstr "Аппаратное ускорение (вкл.(1) | выкл.(0))"
 
 #: src/options.c:535
-msgid "Pixel format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|y41p|grey|s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
-msgstr "Формат пиксела (mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|y41p|grey|s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
+msgid ""
+"Pixel "
+"format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|y41p|grey|"
+"s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
+msgstr ""
+"Формат пиксела "
+"(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|y41p|grey|s501|s"
+"505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
 
 #: src/options.c:536
 msgid "Frame size, default: 640x480"
@@ -817,9 +770,8 @@ msgid "Exits guvcview after closing video"
 msgstr ""
 
 #: src/options.c:543
-#, fuzzy
 msgid "Number of inital frames to skip"
-msgstr "Количество снимков"
+msgstr ""
 
 #: src/options.c:544
 msgid "Show FPS value (enable(1) | disable (0))"
@@ -854,9 +806,7 @@ msgid "Down"
 msgstr "Вниз"
 
 #. Pan reset
-#: src/img_controls.c:248
-#: src/img_controls.c:270
-#: src/img_controls.c:294
+#: src/img_controls.c:248 src/img_controls.c:270 src/img_controls.c:294
 msgid "Reset"
 msgstr "Возврат"
 
@@ -897,23 +847,19 @@ msgstr ""
 "Запустить новый процесс или перезапустить?\n"
 "\n"
 
-#: src/callbacks.c:577
-#: src/callbacks.c:653
+#: src/callbacks.c:577 src/callbacks.c:653
 msgid "Program Restart"
 msgstr "Перезапуск программы"
 
-#: src/callbacks.c:580
-#: src/callbacks.c:656
+#: src/callbacks.c:580 src/callbacks.c:656
 msgid "now"
 msgstr "Сейчас"
 
-#: src/callbacks.c:582
-#: src/callbacks.c:658
+#: src/callbacks.c:582 src/callbacks.c:658
 msgid "Later"
 msgstr "Позже"
 
-#: src/callbacks.c:586
-#: src/callbacks.c:662
+#: src/callbacks.c:586 src/callbacks.c:662
 msgid ""
 "Changes will only take effect after guvcview restart.\n"
 "\n"
@@ -929,3 +875,8 @@ msgstr ""
 msgid "Load File"
 msgstr "Загрузка файла"
 
+#~ msgid "Hue, Auto"
+#~ msgstr "Оттенок, авто"
+
+#~ msgid "Exposure:"
+#~ msgstr "Экспозиция:"

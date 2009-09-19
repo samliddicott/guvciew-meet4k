@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: guvcview\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-09-18 18:18+0100\n"
-"PO-Revision-Date: 2009-06-08 15:31+0000\n"
-"Last-Translator: friendly demon <Unknown>\n"
+"PO-Revision-Date: 2009-09-15 02:57+0000\n"
+"Last-Translator: Paulo Assis <pj.assis@gmail.com>\n"
 "Language-Team: Dutch <nl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-08-13 11:32+0000\n"
+"X-Launchpad-Export-Date: 2009-09-19 15:52+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: src/guvcview.c:183
@@ -174,9 +174,8 @@ msgid "Power Line Frequency"
 msgstr ""
 
 #: src/v4l2uvc.c:61
-#, fuzzy
 msgid "Hue, Automatic"
-msgstr "Tint, Auto"
+msgstr ""
 
 #: src/v4l2uvc.c:62
 msgid "Focus, Auto"
@@ -219,9 +218,8 @@ msgid "Blue Balance"
 msgstr ""
 
 #: src/v4l2uvc.c:72
-#, fuzzy
 msgid "Exposure"
-msgstr "Belichting, Auto"
+msgstr ""
 
 #: src/v4l2uvc.c:73
 msgid "Gain, Automatic"
@@ -269,9 +267,8 @@ msgid "Auto Exposure"
 msgstr ""
 
 #: src/v4l2uvc.c:86
-#, fuzzy
 msgid "Exposure Time, Absolute"
-msgstr "Belichting, Auto"
+msgstr ""
 
 #: src/v4l2uvc.c:87
 msgid "Exposure, Dynamic Framerate"
@@ -286,14 +283,12 @@ msgid "Tilt, Relative"
 msgstr ""
 
 #: src/v4l2uvc.c:90
-#, fuzzy
 msgid "Pan, Reset"
-msgstr "Reset"
+msgstr ""
 
 #: src/v4l2uvc.c:91
-#, fuzzy
 msgid "Tilt, Reset"
-msgstr "Reset"
+msgstr ""
 
 #: src/v4l2uvc.c:92
 msgid "Pan, Absolute"
@@ -723,8 +718,9 @@ msgstr ""
 
 #: src/options.c:535
 msgid ""
-"Pixel format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|"
-"y41p|grey|s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
+"Pixel "
+"format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|y41p|grey|"
+"s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
 msgstr ""
 
 #: src/options.c:536
@@ -860,3 +856,6 @@ msgstr ""
 #: src/callbacks.c:1084
 msgid "Load File"
 msgstr "Bestand Openen"
+
+#~ msgid "Hue, Auto"
+#~ msgstr "Tint, Auto"
