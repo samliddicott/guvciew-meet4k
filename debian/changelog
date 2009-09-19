@@ -1,12 +1,15 @@
 guvcview (1.1.4-ubuntu1) karmic; urgency=low
 
-   * set pixel format BA81 to correct fourcc
+   * Set pixel format BA81 to correct fourcc
    * Definitve fix button images display under karmic
-   * add pix formats: nv12, nv21, nv16, nv61, y41p, grey, s501, s505, s508
-   * improve yu12 and yv12 format conversion.
-   * changed package dependencies to new ffmpeg naming (use ffmpeg-extra)
+   * Add pix formats: nv12, nv21, nv16, nv61, y41p, grey, s501, s505, s508
+   * Improve yu12 and yv12 format conversion.
+   * Changed package dependencies to new ffmpeg naming (use ffmpeg-extra)
+   * Add skip initial frames option
+   * Fix man pages
+   * Add hebrew language support
 
- -- Paulo Assis <pj.assis@gmail.com>  Wed, 10 Sep 2009 13:51:00 +0000
+ -- Paulo Assis <pj.assis@gmail.com>  Wed, 19 Sep 2009 21:59:00 +0000
 
 guvcview (1.1.3-ubuntu1) jaunty; urgency=low
 
