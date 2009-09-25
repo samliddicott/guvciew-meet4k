@@ -188,9 +188,9 @@ static int query_buff(struct vdIn *vd, const int setUNMAP)
 				vd->buf.index = i;
 				vd->buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 				vd->buf.flags = V4L2_BUF_FLAG_TIMECODE;
-				vd->buf.timecode = vd->timecode;
-				vd->buf.timestamp.tv_sec = 0;//get frame as soon as possible
-				vd->buf.timestamp.tv_usec = 0;
+				//vd->buf.timecode = vd->timecode;
+				//vd->buf.timestamp.tv_sec = 0;//get frame as soon as possible
+				//vd->buf.timestamp.tv_usec = 0;
 				vd->buf.memory = V4L2_MEMORY_MMAP;
 				ret = ioctl(vd->fd, VIDIOC_QUERYBUF, &vd->buf);
 				if (ret < 0) 
@@ -242,10 +242,10 @@ static int queue_buff(struct vdIn *vd)
 				memset(&vd->buf, 0, sizeof(struct v4l2_buffer));
 				vd->buf.index = i;
 				vd->buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-				vd->buf.flags = V4L2_BUF_FLAG_TIMECODE;
-				vd->buf.timecode = vd->timecode;
-				vd->buf.timestamp.tv_sec = 0;//get frame as soon as possible
-				vd->buf.timestamp.tv_usec = 0;
+				//vd->buf.flags = V4L2_BUF_FLAG_TIMECODE;
+				//vd->buf.timecode = vd->timecode;
+				//vd->buf.timestamp.tv_sec = 0;//get frame as soon as possible
+				//vd->buf.timestamp.tv_usec = 0;
 				vd->buf.memory = V4L2_MEMORY_MMAP;
 				ret = ioctl(vd->fd, VIDIOC_QBUF, &vd->buf);
 				if (ret < 0) 
