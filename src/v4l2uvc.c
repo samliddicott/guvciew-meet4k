@@ -196,6 +196,11 @@ static int query_buff(struct vdIn *vd, const int setUNMAP)
 				if (ret < 0) 
 				{
 					perror("VIDIOC_QUERYBUF - Unable to query buffer");
+					if(errno == EINVAL)
+					{
+						g_printerr("trying with read method instead\n");
+						vd->cap_meth = IO_READ;
+					}
 					return VDIN_QUERYBUF_ERR;
 				}
 				if (vd->buf.length <= 0) 
@@ -388,9 +393,23 @@ static int init_v4l2(struct vdIn *vd)
 				return VDIN_REQBUFS_ERR;
 			}
 			// map the buffers 
-			if (query_buff(vd,0)) return VDIN_QUERYBUF_ERR;
+			if (query_buff(vd,0)) 
+			{
+				//delete requested buffers
+				vd->rb.count = 0;
+				if(ioctl(vd->fd, VIDIOC_REQBUFS, &vd->rb)<0)
+					perror("VIDIOC_REQBUFS - Unable to delete buffers");
+				return VDIN_QUERYBUF_ERR;
+			}
 			// Queue the buffers
-			if (queue_buff(vd)) return VDIN_QBUF_ERR;
+			if (queue_buff(vd)) 
+			{
+				//delete requested buffers
+				vd->rb.count = 0;
+				if(ioctl(vd->fd, VIDIOC_REQBUFS, &vd->rb)<0)
+					perror("VIDIOC_REQBUFS - Unable to delete buffers");
+				return VDIN_QBUF_ERR;
+			}
 	}
 	
 	return VDIN_OK;

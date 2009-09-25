@@ -240,15 +240,52 @@ int main(int argc, char *argv[])
 				}
 				
 				//try again with new format
-				if (init_videoIn (videoIn, global) < 0)
+				ret = init_videoIn (videoIn, global);
+				
+				if ((ret == VDIN_QUERYBUF_ERR) && (global->cap_meth != videoIn->cap_method))
+				{
+					//mmap not supported ? try again with read method
+					g_printerr("mmap failed trying read method...");
+					global->cap_meth = videoIn->cap_method;
+					ret = init_videoIn (videoIn, global);
+					if (ret == VDIN_OK) 
+						g_printerr("OK\n");
+					else
+						g_printerr("FAILED\n");
+				} 
+				
+				if (ret < 0)
 				{
 					g_printerr("ERROR: Minimum Setup Failed.\n Exiting...\n");
 					ERR_DIALOG (N_("Guvcview error:\n\nUnable to start with minimum setup"),
 						N_("Please reconnect your camera."), 
 						&all_data);
 				}
+				
 				break;
-
+				
+			case VDIN_QUERYBUF_ERR;
+				if (global->cap_meth != videoIn->cap_method)
+				{
+					//mmap not supported ? try again with read method
+					g_printerr("mmap failed trying read method...");
+					global->cap_meth = videoIn->cap_method;
+					ret = init_videoIn (videoIn, global);
+					if (ret == VDIN_OK) 
+						g_printerr("OK\n");
+					else
+					{
+						g_printerr("FAILED\n");
+						//return to default method(mmap)
+						global->cap_meth = IO_MMAP;
+						g_printerr("ERROR: Minimum Setup Failed.\n Exiting...\n");
+						ERR_DIALOG (N_("Guvcview error:\n\nUnable to start with minimum setup"),
+							N_("Please reconnect your camera."), 
+							&all_data);
+					}
+				}
+				break;
+				
 			case VDIN_QUERYCAP_ERR:
 				ERR_DIALOG (N_("Guvcview error:\n\nCouldn't query device capabilities"),
 					N_("Make sure the device driver suports v4l2."),
