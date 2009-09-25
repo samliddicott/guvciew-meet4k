@@ -672,12 +672,21 @@ static int video_enable(struct vdIn *vd)
 {
 	int type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 	int ret=0;
-
-	ret = ioctl(vd->fd, VIDIOC_STREAMON, &type);
-	if (ret < 0) 
+	switch(vd->cap_meth)
 	{
-		perror("VIDIOC_STREAMON - Unable to start capture");
-		return ret;
+		case IO_READ:
+			//do nothing
+			break;
+
+		case IO_MMAP:
+		default:
+			ret = ioctl(vd->fd, VIDIOC_STREAMON, &type);
+			if (ret < 0) 
+			{
+				perror("VIDIOC_STREAMON - Unable to start capture");
+				return ret;
+			}
+			break;
 	}
 	vd->isstreaming = 1;
 	return 0;
@@ -693,13 +702,22 @@ static int video_disable(struct vdIn *vd)
 {
 	int type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 	int ret=0;
-
-	ret = ioctl(vd->fd, VIDIOC_STREAMOFF, &type);
-	if (ret < 0) 
+	switch(vd->cap_meth)
 	{
-		perror("VIDIOC_STREAMOFF - Unable to stop capture");
-		if(errno == 9) vd->isstreaming = 0;/*capture as allready stoped*/
-		return ret;
+		case IO_READ:
+			//do nothing
+			break;
+
+		case IO_MMAP:
+		default:
+			ret = ioctl(vd->fd, VIDIOC_STREAMOFF, &type);
+			if (ret < 0) 
+			{
+				perror("VIDIOC_STREAMOFF - Unable to stop capture");
+				if(errno == 9) vd->isstreaming = 0;/*capture as allready stoped*/
+				return ret;
+			}
+			break;
 	}
 	vd->isstreaming = 0;
 	return 0;
