@@ -1,0 +1,886 @@
+# Hebrew translation for guvcview
+# Copyright (c) 2009 Rosetta Contributors and Canonical Ltd 2009
+# This file is distributed under the same license as the guvcview package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2009.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: guvcview\n"
+"Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
+"POT-Creation-Date: 2009-09-18 18:18+0100\n"
+"PO-Revision-Date: 2009-09-15 19:44+0000\n"
+"Last-Translator: Hitchhiker <Unknown>\n"
+"Language-Team: Hebrew <he@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Launchpad-Export-Date: 2009-09-19 15:52+0000\n"
+"X-Generator: Launchpad (build Unknown)\n"
+
+#: src/guvcview.c:183
+msgid "GUVCViewer Controls"
+msgstr ""
+
+#. can't open device
+#: src/guvcview.c:210
+msgid ""
+"Guvcview error:\n"
+"\n"
+"Unable to open device"
+msgstr ""
+"שגיאה בGuvcview:\n"
+"\n"
+"לא יכול לפתוח התקן"
+
+#: src/guvcview.c:211
+msgid ""
+"Please make sure the camera is connected\n"
+"and that the correct driver is installed."
+msgstr ""
+"אנא וודא שהמצלמה מחוברת\n"
+"ושמנהל ההתקן הנכון מותקן."
+
+#: src/guvcview.c:237 src/guvcview.c:283
+msgid ""
+"Guvcview error:\n"
+"\n"
+"Can't set a valid video stream for guvcview"
+msgstr ""
+"שגיאה בGuvcview:\n"
+"\n"
+"לא יכול להגדיר זרימת וידאו תקפה לguvcview"
+
+#: src/guvcview.c:238 src/guvcview.c:284
+msgid ""
+"Make sure your device driver is v4l2 compliant\n"
+"and that it is properly installed."
+msgstr ""
+"וודא שמנהל ההתקן שלך תואם v4l2\n"
+"ושהוא מותקן כהלכה."
+
+#: src/guvcview.c:246
+msgid ""
+"Guvcview error:\n"
+"\n"
+"Unable to start with minimum setup"
+msgstr ""
+"שגיאה בGuvcview:\n"
+"\n"
+"לא ניתן להתחיל עם התקנה מינימאלית"
+
+#: src/guvcview.c:247
+msgid "Please reconnect your camera."
+msgstr "אנא חבר מחדש את המצלמה."
+
+#: src/guvcview.c:253
+msgid ""
+"Guvcview error:\n"
+"\n"
+"Couldn't query device capabilities"
+msgstr ""
+"שגיאה בGuvcview:\n"
+"\n"
+"לא ניתן לבדוק את יכולות ההתקן"
+
+#: src/guvcview.c:254
+msgid "Make sure the device driver suports v4l2."
+msgstr "וודא שמנהל ההתקן שלך תואם v4l2."
+
+#: src/guvcview.c:258
+msgid ""
+"Guvcview error:\n"
+"\n"
+"Read method error"
+msgstr ""
+"שגיאה בGuvcview:\n"
+"\n"
+"קרא שגיאת שיטה"
+
+#: src/guvcview.c:259
+msgid "Please try mmap instead (--capture_method=1)."
+msgstr "נסה את mmap במקום (--capture_method=1)."
+
+#: src/guvcview.c:267
+msgid ""
+"Guvcview error:\n"
+"\n"
+"Unable to allocate Buffers"
+msgstr ""
+"שגיאה בGuvcview:\n"
+"\n"
+"לא ניתן להקצות חוצץ"
+
+#: src/guvcview.c:268
+msgid "Please try restarting your system."
+msgstr "נסה לאתחל את המערכת."
+
+#: src/guvcview.c:315
+msgid "Image Controls"
+msgstr ""
+
+#: src/guvcview.c:350
+msgid "Capture:"
+msgstr "לכד:"
+
+#. increment column for labels
+#. end of control only exclusion
+#: src/guvcview.c:358
+msgid "Control Profiles:"
+msgstr ""
+
+#. image auto capture
+#: src/guvcview.c:385
+msgid "Stop Auto"
+msgstr "עצור לכידה אוטומטית"
+
+#: src/guvcview.c:389 src/callbacks.c:966
+msgid "Cap. Image"
+msgstr "לכד תמונה"
+
+#. vid capture enabled from start
+#: src/guvcview.c:394 src/callbacks.c:1046
+msgid "Stop Video"
+msgstr "עצור וידאו"
+
+#: src/guvcview.c:400 src/callbacks.c:1015
+msgid "Cap. Video"
+msgstr "לכד וידאו"
+
+#: src/guvcview.c:539
+msgid ""
+"Guvcview error:\n"
+"\n"
+"Unable to create Video Thread"
+msgstr ""
+"שגיאה בGuvcview:\n"
+"\n"
+"לא יכול ליצור שרשור וידאו"
+
+#: src/guvcview.c:540
+msgid "Please report it to http://developer.berlios.de/bugs/?group_id=8179"
+msgstr "דווח על כך לhttp://developer.berlios.de/bugs/?group_id=8179"
+
+#. needed only for language files (not used)
+#. V4L2 control strings
+#: src/v4l2uvc.c:52
+msgid "User Controls"
+msgstr ""
+
+#: src/v4l2uvc.c:53
+msgid "Brightness"
+msgstr "בהירות"
+
+#: src/v4l2uvc.c:54
+msgid "Contrast"
+msgstr "ניגודיות"
+
+#: src/v4l2uvc.c:55
+msgid "Hue"
+msgstr "גוון"
+
+#: src/v4l2uvc.c:56
+msgid "Saturation"
+msgstr "רוויה"
+
+#: src/v4l2uvc.c:57
+msgid "Sharpness"
+msgstr "חדות"
+
+#: src/v4l2uvc.c:58
+msgid "Gamma"
+msgstr "גאמה"
+
+#: src/v4l2uvc.c:59
+msgid "Backlight Compensation"
+msgstr ""
+
+#: src/v4l2uvc.c:60
+msgid "Power Line Frequency"
+msgstr ""
+
+#: src/v4l2uvc.c:61
+msgid "Hue, Automatic"
+msgstr ""
+
+#: src/v4l2uvc.c:62
+msgid "Focus, Auto"
+msgstr "מיקוד, אוטומטי"
+
+#: src/v4l2uvc.c:63
+msgid "Manual Mode"
+msgstr "מצב ידני"
+
+#: src/v4l2uvc.c:64
+msgid "Auto Mode"
+msgstr "מצב אוטומטי"
+
+#: src/v4l2uvc.c:65
+msgid "Shutter Priority Mode"
+msgstr "מצב עדיפות צמצם"
+
+#: src/v4l2uvc.c:66
+msgid "Aperture Priority Mode"
+msgstr ""
+
+#: src/v4l2uvc.c:67
+msgid "Black Level"
+msgstr ""
+
+#: src/v4l2uvc.c:68
+msgid "White Balance, Automatic"
+msgstr ""
+
+#: src/v4l2uvc.c:69
+msgid "Do White Balance"
+msgstr ""
+
+#: src/v4l2uvc.c:70
+msgid "Red Balance"
+msgstr ""
+
+#: src/v4l2uvc.c:71
+msgid "Blue Balance"
+msgstr ""
+
+#: src/v4l2uvc.c:72
+msgid "Exposure"
+msgstr ""
+
+#: src/v4l2uvc.c:73
+msgid "Gain, Automatic"
+msgstr ""
+
+#: src/v4l2uvc.c:74
+msgid "Gain"
+msgstr "הישג"
+
+#: src/v4l2uvc.c:75
+msgid "Horizontal Flip"
+msgstr ""
+
+#: src/v4l2uvc.c:76
+msgid "Vertical Flip"
+msgstr ""
+
+#: src/v4l2uvc.c:77
+msgid "Horizontal Center"
+msgstr ""
+
+#: src/v4l2uvc.c:78
+msgid "Vertical Center"
+msgstr ""
+
+#: src/v4l2uvc.c:79
+msgid "Chroma AGC"
+msgstr ""
+
+#: src/v4l2uvc.c:80
+msgid "Color Killer"
+msgstr ""
+
+#: src/v4l2uvc.c:81
+msgid "Color Effects"
+msgstr ""
+
+#. CAMERA CLASS control strings
+#: src/v4l2uvc.c:84
+msgid "Camera Controls"
+msgstr ""
+
+#: src/v4l2uvc.c:85
+msgid "Auto Exposure"
+msgstr ""
+
+#: src/v4l2uvc.c:86
+msgid "Exposure Time, Absolute"
+msgstr ""
+
+#: src/v4l2uvc.c:87
+msgid "Exposure, Dynamic Framerate"
+msgstr ""
+
+#: src/v4l2uvc.c:88
+msgid "Pan, Relative"
+msgstr ""
+
+#: src/v4l2uvc.c:89
+msgid "Tilt, Relative"
+msgstr ""
+
+#: src/v4l2uvc.c:90
+msgid "Pan, Reset"
+msgstr ""
+
+#: src/v4l2uvc.c:91
+msgid "Tilt, Reset"
+msgstr ""
+
+#: src/v4l2uvc.c:92
+msgid "Pan, Absolute"
+msgstr ""
+
+#: src/v4l2uvc.c:94
+msgid "Focus, Absolute"
+msgstr ""
+
+#: src/v4l2uvc.c:95
+msgid "Focus, Relative"
+msgstr ""
+
+#: src/v4l2uvc.c:96
+msgid "Focus, Automatic"
+msgstr ""
+
+#: src/v4l2uvc.c:97
+msgid "Zoom, Absolute"
+msgstr ""
+
+#: src/v4l2uvc.c:98
+msgid "Zoom, Relative"
+msgstr ""
+
+#: src/v4l2uvc.c:99
+msgid "Zoom, Continuous"
+msgstr ""
+
+#: src/v4l2uvc.c:100
+msgid "Privacy"
+msgstr "פרטיות"
+
+#. UVC specific control strings
+#: src/v4l2uvc.c:103
+msgid "Exposure, Auto"
+msgstr "חשיפה, אוטומטי"
+
+#: src/v4l2uvc.c:104
+msgid "Exposure, Auto Priority"
+msgstr "חשיפה, עדיפות אוטומטית"
+
+#: src/v4l2uvc.c:105
+msgid "Exposure (Absolute)"
+msgstr "חשיפה (מוחלטת)"
+
+#: src/v4l2uvc.c:106
+msgid "White Balance Temperature, Auto"
+msgstr ""
+
+#: src/v4l2uvc.c:107
+msgid "White Balance Temperature"
+msgstr ""
+
+#: src/v4l2uvc.c:108
+msgid "White Balance Component, Auto"
+msgstr "רכיב איזון הלבן, אוטומטי"
+
+#: src/v4l2uvc.c:109
+msgid "White Balance Blue Component"
+msgstr "רכיב איזון הלבן הכחול"
+
+#: src/v4l2uvc.c:110
+msgid "White Balance Red Component"
+msgstr "רכיב איזון הלבן האדום"
+
+#: src/video_tab.c:41 src/callbacks.c:1071
+msgid "Save File"
+msgstr "שמור קובץ"
+
+#. if auto naming restart counter
+#: src/video_tab.c:95 src/globals.c:69 src/globals.c:72 src/options.c:360
+#: src/options.c:413 src/callbacks.c:427 src/callbacks.c:748
+#: src/callbacks.c:896 src/callbacks.c:913 src/callbacks.c:945
+#: src/callbacks.c:1022
+#, c-format
+msgid "File num:%d"
+msgstr "קובץ מספר:%d"
+
+#: src/video_tab.c:115
+msgid "codec values"
+msgstr ""
+
+#: src/video_tab.c:126
+msgid "bit rate:   "
+msgstr ""
+
+#: src/video_tab.c:141
+msgid "qmax:   "
+msgstr ""
+
+#: src/video_tab.c:156
+msgid "qmin:   "
+msgstr ""
+
+#: src/video_tab.c:171
+msgid "max. qdiff:   "
+msgstr ""
+
+#: src/video_tab.c:186
+msgid "dia size:   "
+msgstr ""
+
+#: src/video_tab.c:201
+msgid "pre dia size:   "
+msgstr ""
+
+#: src/video_tab.c:216
+msgid "pre me:   "
+msgstr ""
+
+#: src/video_tab.c:231
+msgid "pre cmp:   "
+msgstr ""
+
+#: src/video_tab.c:246
+msgid "cmp:   "
+msgstr ""
+
+#: src/video_tab.c:261
+msgid "sub cmp:   "
+msgstr ""
+
+#: src/video_tab.c:276
+msgid "last predictor count:   "
+msgstr ""
+
+#: src/video_tab.c:291
+msgid "gop size:   "
+msgstr ""
+
+#: src/video_tab.c:306
+msgid "qcompress:   "
+msgstr ""
+
+#: src/video_tab.c:321
+msgid "qblur:   "
+msgstr ""
+
+#: src/video_tab.c:336
+msgid "me method:   "
+msgstr ""
+
+#: src/video_tab.c:351
+msgid "mb decision:   "
+msgstr ""
+
+#: src/video_tab.c:455
+msgid "Video & Files"
+msgstr "וידאו וקבצים"
+
+#. Devices
+#: src/video_tab.c:471
+msgid "Device:"
+msgstr "התקן:"
+
+#: src/video_tab.c:577
+msgid "Frame Rate:"
+msgstr ""
+
+#: src/video_tab.c:585
+msgid " Show"
+msgstr " הצג"
+
+#: src/video_tab.c:609
+msgid "Resolution:"
+msgstr "רזולוציה:"
+
+#: src/video_tab.c:635
+msgid "Camera Output:"
+msgstr "פלט מצלמה:"
+
+#: src/video_tab.c:657
+msgid "Apply"
+msgstr "החל"
+
+#: src/video_tab.c:665
+msgid "Quality:"
+msgstr "איכות:"
+
+#: src/video_tab.c:675
+msgid "Image File:"
+msgstr "קובץ תמונה:"
+
+#: src/video_tab.c:708 src/video_tab.c:794
+msgid "File,Auto"
+msgstr "קובץ,אוטומטי"
+
+#: src/video_tab.c:719
+msgid "Image Format:"
+msgstr "פורמט תמונה:"
+
+#: src/video_tab.c:747
+msgid "Video File:"
+msgstr "קובץ וידאו:"
+
+#: src/video_tab.c:827
+msgid "Video Codec:"
+msgstr "מקודד וידאו:"
+
+#. lavc codec properties button
+#: src/video_tab.c:835
+msgid "properties"
+msgstr "מאפיינים"
+
+#: src/video_tab.c:862
+msgid "Video Format:"
+msgstr "פורמט וידאו:"
+
+#: src/video_tab.c:871
+msgid "---- Video Filters ----"
+msgstr "--- מסנני וידאו ---"
+
+#. Mirror
+#: src/video_tab.c:886
+msgid " Mirror"
+msgstr " מראה"
+
+#. Upturn
+#: src/video_tab.c:896
+msgid " Invert"
+msgstr " הפוך"
+
+#. Negate
+#: src/video_tab.c:906
+msgid " Negative"
+msgstr ""
+
+#. Mono
+#: src/video_tab.c:916
+msgid " Mono"
+msgstr " מונו"
+
+#. Pieces
+#: src/video_tab.c:927
+msgid " Pieces"
+msgstr " חלקים"
+
+#: src/audio_tab.c:75
+msgid "Audio"
+msgstr "שמע"
+
+#: src/audio_tab.c:93
+msgid " Sound"
+msgstr " קול"
+
+#: src/audio_tab.c:108
+msgid "Audio API:"
+msgstr ""
+
+#: src/audio_tab.c:118
+msgid "PORTAUDIO"
+msgstr ""
+
+#: src/audio_tab.c:119
+msgid "PULSEAUDIO"
+msgstr "PULSEAUDIO"
+
+#: src/audio_tab.c:135 src/audio_tab.c:158
+msgid "Input Device:"
+msgstr ""
+
+#: src/audio_tab.c:169 src/audio_tab.c:201
+msgid "Dev. Default"
+msgstr ""
+
+#: src/audio_tab.c:190
+msgid "Sample Rate:"
+msgstr ""
+
+#: src/audio_tab.c:202
+msgid "1 - mono"
+msgstr "1 - מונו"
+
+#: src/audio_tab.c:203
+msgid "2 - stereo"
+msgstr "2 - סטריאו"
+
+#: src/audio_tab.c:237
+msgid "Channels:"
+msgstr "ערוצים:"
+
+#: src/audio_tab.c:248
+msgid "PCM"
+msgstr "PCM"
+
+#: src/audio_tab.c:249
+msgid "MP2"
+msgstr "MP2"
+
+#: src/audio_tab.c:277
+msgid "Audio Format:"
+msgstr "פורמט שמע"
+
+#: src/audio_tab.c:286
+msgid "---- Audio Effects ----"
+msgstr "--- אפקטים קוליים ---"
+
+#. Echo
+#: src/audio_tab.c:305
+msgid " Echo"
+msgstr " הד"
+
+#. FUZZ
+#: src/audio_tab.c:315
+msgid " Fuzz"
+msgstr ""
+
+#. Reverb
+#: src/audio_tab.c:326
+msgid " Reverb"
+msgstr ""
+
+#. WahWah
+#: src/audio_tab.c:337
+msgid " WahWah"
+msgstr ""
+
+#. Ducky
+#: src/audio_tab.c:348
+msgid " Ducky"
+msgstr ""
+
+#: src/v4l2_dyna_ctrls.c:89
+msgid "Pan (relative)"
+msgstr ""
+
+#: src/v4l2_dyna_ctrls.c:99
+msgid "Tilt (relative)"
+msgstr ""
+
+#: src/v4l2_dyna_ctrls.c:109
+msgid "Pan Reset"
+msgstr ""
+
+#: src/v4l2_dyna_ctrls.c:119
+msgid "Tilt Reset"
+msgstr ""
+
+#: src/v4l2_dyna_ctrls.c:129
+msgid "Pan/tilt Reset"
+msgstr ""
+
+#: src/v4l2_dyna_ctrls.c:139
+msgid "Focus (absolute)"
+msgstr "מיקוד (מוחלט)"
+
+#: src/v4l2_dyna_ctrls.c:149
+msgid "LED1 Mode"
+msgstr "מצב LED1"
+
+#: src/v4l2_dyna_ctrls.c:159
+msgid "LED1 Frequency"
+msgstr "תדר LED1"
+
+#: src/v4l2_dyna_ctrls.c:169
+msgid "Disable video processing"
+msgstr "בטל עיבוד וידאו"
+
+#: src/v4l2_dyna_ctrls.c:179
+msgid "Raw bits per pixel"
+msgstr ""
+
+#: src/vcodecs.c:61
+msgid "MJPG - compressed"
+msgstr "MJPG - מקובץ"
+
+#: src/vcodecs.c:91
+msgid "YUY2 - uncomp YUV"
+msgstr "YUY2 - YUV לא מקובץ"
+
+#: src/vcodecs.c:121
+msgid "RGB - uncomp BMP"
+msgstr "RGB - BMP לא מקובץ"
+
+#: src/vcodecs.c:150
+msgid "MPEG video 1"
+msgstr "MPEG וידאו 1"
+
+#: src/vcodecs.c:180
+msgid "FLV1 - flash video 1"
+msgstr "FLV1 - וידאו פלאש 1"
+
+#: src/vcodecs.c:210
+msgid "WMV1 - win. med. video 7"
+msgstr "WMV1 - וינדוס מדיה וידאו 7"
+
+#: src/vcodecs.c:239
+msgid "MPG2 - MPG2 format"
+msgstr "MPG2 - פורמט MPG2"
+
+#: src/vcodecs.c:268
+msgid "MS MP4 V3"
+msgstr "MS MP4 V3"
+
+#: src/vcodecs.c:297
+msgid "MPEG4 - MPEG4 format"
+msgstr "MPEG4 - פורמט MPEG4"
+
+#: src/options.c:528
+msgid "Prints version"
+msgstr "מדפיס גרסה"
+
+#: src/options.c:529
+msgid "Displays debug information"
+msgstr ""
+
+#: src/options.c:530
+msgid "Video Device to use [default: /dev/video0]"
+msgstr "התקן וידאו לשימוש [ברירת מחדל:/dev/video0]"
+
+#: src/options.c:531
+msgid "Don't stream video (image controls only)"
+msgstr ""
+
+#: src/options.c:532
+msgid "Capture method (1-mmap (default)  2-read)"
+msgstr ""
+
+#: src/options.c:533
+msgid "Configuration file"
+msgstr "קובץ הגדרות"
+
+#: src/options.c:534
+msgid "Hardware accelaration (enable(1) | disable(0))"
+msgstr "האצת חומרה (פעיל(1) | מנוטרל(0))"
+
+#: src/options.c:535
+msgid ""
+"Pixel "
+"format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|y41p|grey|"
+"s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
+msgstr ""
+"פורמט "
+"פיקסל(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|y41p|grey|s"
+"501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
+
+#: src/options.c:536
+msgid "Frame size, default: 640x480"
+msgstr "גודל פריים, ברירת מחדל: 640x480"
+
+#: src/options.c:537
+msgid "Image File name"
+msgstr "שם קובץ תמונה"
+
+#: src/options.c:538
+msgid "Image capture interval in seconds"
+msgstr ""
+
+#: src/options.c:539
+msgid "Number of Pictures to capture"
+msgstr "מספר תמונות ללכידה"
+
+#: src/options.c:540
+msgid "Video File name (capture from start)"
+msgstr "שם קובץ וידאו (לוכד מההתחלה)"
+
+#: src/options.c:541
+msgid "Video capture time (in seconds)"
+msgstr "זמן לכידת וידאו (בשניות)"
+
+#: src/options.c:542
+msgid "Exits guvcview after closing video"
+msgstr "יוצא מguvcview אחרי סגירת וידאו"
+
+#: src/options.c:543
+msgid "Number of inital frames to skip"
+msgstr ""
+
+#: src/options.c:544
+msgid "Show FPS value (enable(1) | disable (0))"
+msgstr "מראה ערך פריימים לשניה (FPS) (פעיל(1) | מנוטרל(2))"
+
+#: src/options.c:545
+msgid "Load Profile at start"
+msgstr "טען פרופיל בהפעלה"
+
+#: src/options.c:551
+msgid "- local options"
+msgstr "- אפשרויות מקומיות"
+
+#: src/img_controls.c:162
+msgid "Invert (Pan)"
+msgstr ""
+
+#: src/img_controls.c:166
+msgid "Left"
+msgstr "שמאל"
+
+#: src/img_controls.c:172
+msgid "Right"
+msgstr "ימין"
+
+#: src/img_controls.c:213
+msgid "Up"
+msgstr "למעלה"
+
+#: src/img_controls.c:214
+msgid "Down"
+msgstr "למטה"
+
+#. Pan reset
+#: src/img_controls.c:248 src/img_controls.c:270 src/img_controls.c:294
+msgid "Reset"
+msgstr "איפוס"
+
+#: src/img_controls.c:373
+msgid "Auto Focus (continuous)"
+msgstr "מיקוד אוטומטי (מתמשך)"
+
+#: src/img_controls.c:374
+msgid "set Focus"
+msgstr "הגדר מיקוד"
+
+#: src/img_controls.c:436
+#, c-format
+msgid "raw pixel order:"
+msgstr ""
+
+#: src/callbacks.c:496
+msgid "start new"
+msgstr "הפעל עכשיו"
+
+#: src/callbacks.c:499
+msgid "restart"
+msgstr "הפעל מחדש"
+
+#: src/callbacks.c:501
+msgid "new"
+msgstr "חדש"
+
+#: src/callbacks.c:503
+msgid "cancel"
+msgstr "בטל"
+
+#: src/callbacks.c:507
+msgid ""
+"launch new process or restart?.\n"
+"\n"
+msgstr ""
+"הפעל תהליך חדש או הפעל מחדש?.\n"
+"\n"
+
+#: src/callbacks.c:577 src/callbacks.c:653
+msgid "Program Restart"
+msgstr "הפעל מחדש את התוכנה"
+
+#: src/callbacks.c:580 src/callbacks.c:656
+msgid "now"
+msgstr "עכשיו"
+
+#: src/callbacks.c:582 src/callbacks.c:658
+msgid "Later"
+msgstr "מאוחר יותר"
+
+#: src/callbacks.c:586 src/callbacks.c:662
+msgid ""
+"Changes will only take effect after guvcview restart.\n"
+"\n"
+"\n"
+"Restart now?\n"
+msgstr ""
+"שינויים יחולו רק אחרי הפעלה מחדש של guvcview.\n"
+"\n"
+"\n"
+"להפעיל מחדש?\n"
+
+#: src/callbacks.c:1084
+msgid "Load File"
+msgstr "טען קובץ"

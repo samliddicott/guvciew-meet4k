@@ -242,11 +242,11 @@ int main(int argc, char *argv[])
 				//try again with new format
 				ret = init_videoIn (videoIn, global);
 				
-				if ((ret == VDIN_QUERYBUF_ERR) && (global->cap_meth != videoIn->cap_method))
+				if ((ret == VDIN_QUERYBUF_ERR) && (global->cap_meth != videoIn->cap_meth))
 				{
 					//mmap not supported ? try again with read method
 					g_printerr("mmap failed trying read method...");
-					global->cap_meth = videoIn->cap_method;
+					global->cap_meth = videoIn->cap_meth;
 					ret = init_videoIn (videoIn, global);
 					if (ret == VDIN_OK) 
 						g_printerr("OK\n");
@@ -264,12 +264,12 @@ int main(int argc, char *argv[])
 				
 				break;
 				
-			case VDIN_QUERYBUF_ERR;
-				if (global->cap_meth != videoIn->cap_method)
+			case VDIN_QUERYBUF_ERR:
+				if (global->cap_meth != videoIn->cap_meth)
 				{
 					//mmap not supported ? try again with read method
 					g_printerr("mmap failed trying read method...");
-					global->cap_meth = videoIn->cap_method;
+					global->cap_meth = videoIn->cap_meth;
 					ret = init_videoIn (videoIn, global);
 					if (ret == VDIN_OK) 
 						g_printerr("OK\n");
