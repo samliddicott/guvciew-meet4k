@@ -47,6 +47,8 @@
 #define VDIN_QBUF_ERR            -12
 #define VDIN_MMAP_ERR            -13
 #define VDIN_READ_ERR            -14
+#define VDIN_STREAMON_ERR        -15
+#define VDIN_STREAMOFF_ERR       -16
 
 #define HEADERFRAME1 0xaf
 

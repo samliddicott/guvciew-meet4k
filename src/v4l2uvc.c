@@ -187,7 +187,7 @@ static int query_buff(struct vdIn *vd, const int setUNMAP)
 				memset(&vd->buf, 0, sizeof(struct v4l2_buffer));
 				vd->buf.index = i;
 				vd->buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-				vd->buf.flags = V4L2_BUF_FLAG_TIMECODE;
+				//vd->buf.flags = V4L2_BUF_FLAG_TIMECODE;
 				//vd->buf.timecode = vd->timecode;
 				//vd->buf.timestamp.tv_sec = 0;//get frame as soon as possible
 				//vd->buf.timestamp.tv_usec = 0;
@@ -256,6 +256,67 @@ static int queue_buff(struct vdIn *vd)
 			}
 	}
 	return VDIN_OK;
+}
+
+/* Enable video stream
+ * args:
+ * vd: pointer to a VdIn struct ( must be allready initiated)
+ *
+ * returns: VIDIOC_STREAMON ioctl result (0- OK)
+*/
+static int video_enable(struct vdIn *vd)
+{
+	int type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+	int ret=0;
+	switch(vd->cap_meth)
+	{
+		case IO_READ:
+			//do nothing
+			break;
+
+		case IO_MMAP:
+		default:
+			ret = ioctl(vd->fd, VIDIOC_STREAMON, &type);
+			if (ret < 0) 
+			{
+				perror("VIDIOC_STREAMON - Unable to start capture");
+				return VDIN_STREAMON_ERR;
+			}
+			break;
+	}
+	vd->isstreaming = 1;
+	return 0;
+}
+
+/* Disable video stream
+ * args:
+ * vd: pointer to a VdIn struct ( must be allready initiated)
+ *
+ * returns: VIDIOC_STREAMOFF ioctl result (0- OK)
+*/
+static int video_disable(struct vdIn *vd)
+{
+	int type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+	int ret=0;
+	switch(vd->cap_meth)
+	{
+		case IO_READ:
+			//do nothing
+			break;
+
+		case IO_MMAP:
+		default:
+			ret = ioctl(vd->fd, VIDIOC_STREAMOFF, &type);
+			if (ret < 0) 
+			{
+				perror("VIDIOC_STREAMOFF - Unable to stop capture");
+				if(errno == 9) vd->isstreaming = 0;/*capture as allready stoped*/
+				return VDIN_STREAMOFF_ERR;
+			}
+			break;
+	}
+	vd->isstreaming = 0;
+	return 0;
 }
 
 /* gets video stream jpeg compression parameters
@@ -644,6 +705,9 @@ int init_videoIn(struct vdIn *vd, struct GLOBAL *global)
 		{
 			goto error;
 		}
+		/*try to start the video stream*/
+		//it's OK if it fails since it is retried in uvcGrab
+		video_enable(vd);
 	}
 	return (ret);
 	//error: clean up allocs
@@ -660,67 +724,6 @@ error:
 	}
 	g_mutex_free( vd->mutex );
 	return ret;
-}
-
-/* Enable video stream
- * args:
- * vd: pointer to a VdIn struct ( must be allready initiated)
- *
- * returns: VIDIOC_STREAMON ioctl result (0- OK)
-*/
-static int video_enable(struct vdIn *vd)
-{
-	int type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-	int ret=0;
-	switch(vd->cap_meth)
-	{
-		case IO_READ:
-			//do nothing
-			break;
-
-		case IO_MMAP:
-		default:
-			ret = ioctl(vd->fd, VIDIOC_STREAMON, &type);
-			if (ret < 0) 
-			{
-				perror("VIDIOC_STREAMON - Unable to start capture");
-				return ret;
-			}
-			break;
-	}
-	vd->isstreaming = 1;
-	return 0;
-}
-
-/* Disable video stream
- * args:
- * vd: pointer to a VdIn struct ( must be allready initiated)
- *
- * returns: VIDIOC_STREAMOFF ioctl result (0- OK)
-*/
-static int video_disable(struct vdIn *vd)
-{
-	int type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-	int ret=0;
-	switch(vd->cap_meth)
-	{
-		case IO_READ:
-			//do nothing
-			break;
-
-		case IO_MMAP:
-		default:
-			ret = ioctl(vd->fd, VIDIOC_STREAMOFF, &type);
-			if (ret < 0) 
-			{
-				perror("VIDIOC_STREAMOFF - Unable to stop capture");
-				if(errno == 9) vd->isstreaming = 0;/*capture as allready stoped*/
-				return ret;
-			}
-			break;
-	}
-	vd->isstreaming = 0;
-	return 0;
 }
 
 /* decode video stream (frame buffer in yuyv format)
@@ -1044,6 +1047,10 @@ void close_v4l2(struct vdIn *vd)
 						perror("Failed to unmap buffer");
 				}
 			}
+			//delete requested buffers
+			vd->rb.count = 0;
+			if(ioctl(vd->fd, VIDIOC_REQBUFS, &vd->rb)<0)
+				perror("VIDIOC_REQBUFS - Unable to delete buffers");
 	}
 	vd->videodevice = NULL;
 	vd->tmpbuffer = NULL;
