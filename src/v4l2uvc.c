@@ -933,12 +933,19 @@ int uvcGrab(struct vdIn *vd)
 						case EAGAIN:
 							g_printf("No data available for read\n");
 							return VDIN_SELETIMEOUT_ERR;
+							break;
 						case EINVAL:
-							g_printf("Read method is not supported, try mmap instead\n");
+							perror("Read method error, try mmap instead");
+							return VDIN_READ_ERR;
+							break;
 						case EIO:
-							g_printf("I/O Error\n");
+							perror("read I/O Error");
+							return VDIN_READ_ERR;
+							break;
 						default:
 							perror("read");
+							return VDIN_READ_ERR;
+							break;
 					}
 				}
 				break;
