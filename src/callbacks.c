@@ -56,7 +56,9 @@ ERR_DIALOG(const char *err_title, const char* err_msg, struct ALL_DATA *all_data
 	struct focusData *AFdata = all_data->AFdata;
 	struct vdIn *videoIn = all_data->videoIn;
 	struct VideoFormatData *videoF = all_data->videoF;
-
+	
+	gboolean control_only = global->control_only;
+	
 	GtkWidget *errdialog;
 	errdialog = gtk_message_dialog_new (GTK_WINDOW(gwidget->mainwin),
 		GTK_DIALOG_DESTROY_WITH_PARENT,
@@ -83,6 +85,11 @@ ERR_DIALOG(const char *err_title, const char* err_msg, struct ALL_DATA *all_data
 	s = NULL;
 	all_data->s = NULL;
 
+	if(videoIn->fd > 0) close_v4l2(videoIn, control_only);
+	else g_free(videoIn);
+	videoIn=NULL;
+	all_data->videoIn = NULL;
+	
 	if (global) closeGlobals (global);
 	global = NULL;
 	all_data->global = NULL;
@@ -90,11 +97,6 @@ ERR_DIALOG(const char *err_title, const char* err_msg, struct ALL_DATA *all_data
 	g_free(pdata);
 	pdata = NULL;
 	all_data->pdata = NULL;    
-
-	if(videoIn->fd > 0) close_v4l2(videoIn);
-	else g_free(videoIn);
-	videoIn=NULL;
-	all_data->videoIn = NULL;
 
 	g_free(videoF);
 	videoF = NULL;

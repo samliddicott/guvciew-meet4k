@@ -132,7 +132,7 @@ int uvcGrab(struct vdIn *vd);
  *
  * returns: void
 */
-void close_v4l2(struct vdIn *vd);
+void close_v4l2(struct vdIn *vd, gboolean control_only);
 
 /* sets video device frame rate
  * args:
