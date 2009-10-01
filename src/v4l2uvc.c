@@ -1014,7 +1014,7 @@ int uvcGrab(struct vdIn *vd)
 		if (ret < 0) 
 		{
 			perror("VIDIOC_QBUF - Unable to requeue buffer");
-			ret = VDIN_QBUFS_ERR;
+			ret = VDIN_QBUF_ERR;
 			goto err;
 		}
 	}
