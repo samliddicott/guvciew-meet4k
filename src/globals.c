@@ -137,6 +137,7 @@ int initGlobals (struct GLOBAL *global)
 	global->autofocus = FALSE;
 	global->AFcontrol = FALSE;
 	global->VidButtPress = FALSE;
+	global->change_res = FALSE;
 	
 	return (0);
 }

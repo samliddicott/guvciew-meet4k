@@ -43,6 +43,96 @@
 #include "vcodecs.h"
 #include "callbacks.h"
 #include "create_video.h"
+
+static SDL_Overlay * video_init(void *data, SDL_Surface **pscreen)
+{
+	struct ALL_DATA *all_data = (struct ALL_DATA *) data;
+	struct GLOBAL *global = all_data->global;
+	struct vdIn *videoIn = all_data->videoIn;
+	
+	static Uint32 SDL_VIDEO_Flags =
+		SDL_ANYFORMAT | SDL_DOUBLEBUF | SDL_RESIZABLE;
+		
+	if (*pscreen == NULL) //init SDL
+	{
+		const SDL_VideoInfo *info;
+		char driver[128];
+		/*----------------------------- Test SDL capabilities ---------------------*/
+		if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER) < 0) 
+		{
+			g_printerr("Couldn't initialize SDL: %s\n", SDL_GetError());
+			exit(1);
+		}
+	
+		/* For this version, we will use hardware acceleration as default*/
+		if(global->hwaccel) 
+		{
+			if ( ! getenv("SDL_VIDEO_YUV_HWACCEL") ) putenv("SDL_VIDEO_YUV_HWACCEL=1");
+			if ( ! getenv("SDL_VIDEO_YUV_DIRECT") ) putenv("SDL_VIDEO_YUV_DIRECT=1"); 
+		}
+		else 
+		{
+			if ( ! getenv("SDL_VIDEO_YUV_HWACCEL") ) putenv("SDL_VIDEO_YUV_HWACCEL=0");
+			if ( ! getenv("SDL_VIDEO_YUV_DIRECT") ) putenv("SDL_VIDEO_YUV_DIRECT=0"); 
+		}
+	 
+		if (SDL_VideoDriverName(driver, sizeof(driver)) && global->debug) 
+		{
+			g_printf("Video driver: %s\n", driver);
+		}
+	
+		info = SDL_GetVideoInfo();
+
+		if (info->wm_available && global->debug) g_printf("A window manager is available\n");
+
+		if (info->hw_available) 
+		{
+			if (global->debug) 
+				g_printf("Hardware surfaces are available (%dK video memory)\n", info->video_mem);
+
+			SDL_VIDEO_Flags |= SDL_HWSURFACE;
+		}
+		if (info->blit_hw) 
+		{
+			if (global->debug) g_printf("Copy blits between hardware surfaces are accelerated\n");
+
+			SDL_VIDEO_Flags |= SDL_ASYNCBLIT;
+		}
+	
+		if (global->debug) 
+		{
+			if (info->blit_hw_CC) g_printf ("Colorkey blits between hardware surfaces are accelerated\n");
+			if (info->blit_hw_A) g_printf("Alpha blits between hardware surfaces are accelerated\n");
+			if (info->blit_sw) g_printf ("Copy blits from software surfaces to hardware surfaces are accelerated\n");
+			if (info->blit_sw_CC) g_printf ("Colorkey blits from software surfaces to hardware surfaces are accelerated\n");
+			if (info->blit_sw_A) g_printf("Alpha blits from software surfaces to hardware surfaces are accelerated\n");
+			if (info->blit_fill) g_printf("Color fills on hardware surfaces are accelerated\n");
+		}
+
+		if (!(SDL_VIDEO_Flags & SDL_HWSURFACE))
+		{
+			SDL_VIDEO_Flags |= SDL_SWSURFACE;
+		}
+
+		SDL_WM_SetCaption(global->WVcaption, NULL); 
+
+		/* enable key repeat */
+		SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY,SDL_DEFAULT_REPEAT_INTERVAL);
+	}
+	/*------------------------------ SDL init video ---------------------*/
+
+	*pscreen = SDL_SetVideoMode( videoIn->width, 
+		videoIn->height, 
+		global->bpp,
+		SDL_VIDEO_Flags);
+		 
+	SDL_Overlay* overlay=NULL;
+	overlay = SDL_CreateYUVOverlay(videoIn->width, videoIn->height,
+		SDL_YUY2_OVERLAY, *pscreen);
+		
+	return (overlay);
+}
+
 /*-------------------------------- Main Video Loop ---------------------------*/ 
 /* run in a thread (SDL overlay)*/
 void *main_loop(void *data)
@@ -57,10 +147,8 @@ void *main_loop(void *data)
 	SDL_Event event;
 	/*the main SDL surface*/
 	SDL_Surface *pscreen = NULL;
-	SDL_Overlay *overlay=NULL;
+	SDL_Overlay *overlay = NULL;
 	SDL_Rect drect;
-	const SDL_VideoInfo *info;
-	char driver[128];
 	
 	struct JPEG_ENCODER_STRUCTURE *jpeg_struct=NULL;
 	struct lavcData *lavc_data = NULL;
@@ -79,80 +167,8 @@ void *main_loop(void *data)
 		if (last_focus < 0) last_focus=255;
 	}
 	
-	static Uint32 SDL_VIDEO_Flags =
-		SDL_ANYFORMAT | SDL_DOUBLEBUF | SDL_RESIZABLE;
- 
-	/*----------------------------- Test SDL capabilities ---------------------*/
-	if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER) < 0) 
-	{
-		g_printerr("Couldn't initialize SDL: %s\n", SDL_GetError());
-		exit(1);
-	}
-	
-	/* For this version, we will use hardware acceleration as default*/
-	if(global->hwaccel) 
-	{
-		if ( ! getenv("SDL_VIDEO_YUV_HWACCEL") ) putenv("SDL_VIDEO_YUV_HWACCEL=1");
-		if ( ! getenv("SDL_VIDEO_YUV_DIRECT") ) putenv("SDL_VIDEO_YUV_DIRECT=1"); 
-	}
-	else 
-	{
-		if ( ! getenv("SDL_VIDEO_YUV_HWACCEL") ) putenv("SDL_VIDEO_YUV_HWACCEL=0");
-		if ( ! getenv("SDL_VIDEO_YUV_DIRECT") ) putenv("SDL_VIDEO_YUV_DIRECT=0"); 
-	}
-	 
-	if (SDL_VideoDriverName(driver, sizeof(driver)) && global->debug) 
-	{
-		g_printf("Video driver: %s\n", driver);
-	}
-	
-	info = SDL_GetVideoInfo();
-
-	if (info->wm_available && global->debug) g_printf("A window manager is available\n");
-
-	if (info->hw_available) 
-	{
-		if (global->debug) 
-			g_printf("Hardware surfaces are available (%dK video memory)\n", info->video_mem);
-
-		SDL_VIDEO_Flags |= SDL_HWSURFACE;
-	}
-	if (info->blit_hw) 
-	{
-		if (global->debug) g_printf("Copy blits between hardware surfaces are accelerated\n");
-
-		SDL_VIDEO_Flags |= SDL_ASYNCBLIT;
-	}
-	
-	if (global->debug) 
-	{
-		if (info->blit_hw_CC) g_printf ("Colorkey blits between hardware surfaces are accelerated\n");
-		if (info->blit_hw_A) g_printf("Alpha blits between hardware surfaces are accelerated\n");
-		if (info->blit_sw) g_printf ("Copy blits from software surfaces to hardware surfaces are accelerated\n");
-		if (info->blit_sw_CC) g_printf ("Colorkey blits from software surfaces to hardware surfaces are accelerated\n");
-		if (info->blit_sw_A) g_printf("Alpha blits from software surfaces to hardware surfaces are accelerated\n");
-		if (info->blit_fill) g_printf("Color fills on hardware surfaces are accelerated\n");
-	}
-
-	if (!(SDL_VIDEO_Flags & SDL_HWSURFACE))
-	{
-		SDL_VIDEO_Flags |= SDL_SWSURFACE;
-	}
-
-	SDL_WM_SetCaption(global->WVcaption, NULL); 
-
-	/* enable key repeat */
-	SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY,SDL_DEFAULT_REPEAT_INTERVAL);
-	 
 	/*------------------------------ SDL init video ---------------------*/
-	pscreen = SDL_SetVideoMode( videoIn->width, 
-		videoIn->height, 
-		global->bpp,
-		SDL_VIDEO_Flags);
-		 
-	overlay = SDL_CreateYUVOverlay(videoIn->width, videoIn->height,
-		SDL_YUY2_OVERLAY, pscreen);
-	
+	overlay = video_init(data, &(pscreen));
 	p = (unsigned char *) overlay->pixels[0];
 	
 	drect.x = 0;
@@ -483,6 +499,61 @@ void *main_loop(void *data)
 
 			}
 		}
+		/*-----------------------------------*/
+		/*  restart video (new resolution)   */
+		/*-----------------------------------*/
+		if (global->change_res)
+		{
+			g_printf("setting new resolution (%d x %d)\n",global->width,global->height);
+			/*clean up */
+			if(lavc_data != NULL)
+			{
+				int nf = clean_lavc(&lavc_data);
+				if(global->debug) g_printf(" total frames: %d  -- encoded: %d\n", global->framecount, nf);
+				lavc_data = NULL;
+			}
+			if (videoIn->capVid) 
+			{
+				/*stop capture*/
+				global->Vidstoptime = ms_time();
+				videoIn->VidCapStop=TRUE;
+				videoIn->capVid = FALSE;
+				pdata->capVid = videoIn->capVid;
+				if (global->debug) g_printf("stoping Video capture\n");
+					closeVideoFile(all_data);
+			}
+			g_free(jpeg_struct);
+			jpeg_struct=NULL;
+			g_free(pim);
+			pim=NULL;
+			g_free(pvid);
+			pvid=NULL;
+			if (global->debug) g_printf("cleaning Thread allocations: 100%%\n");
+			fflush(NULL);//flush all output buffers 
+			
+			SDL_FreeYUVOverlay(overlay);
+			overlay = NULL;
+			/*init device*/
+			restart_v4l2(videoIn, global);
+			
+			/* restart SDL with new values*/
+			overlay = video_init(data, &(pscreen));
+			p = (unsigned char *) overlay->pixels[0];
+	
+			drect.x = 0;
+			drect.y = 0;
+			drect.w = pscreen->w;
+			drect.h = pscreen->h;
+			global->change_res = FALSE; 
+		}
+		/*---------------------------------------*/
+		/*   restart v4l2 with new input format  */
+                /*---------------------------------------*/		
+		if (global->format != videoIn->formatIn)
+		{
+			/*init device*/
+			restart_v4l2(videoIn, global);
+		}
 
 	}/*loop end*/
 
@@ -517,6 +588,8 @@ void *main_loop(void *data)
 	
 	close_audio_effects (aud_eff);
 	SDL_FreeYUVOverlay(overlay);
+	SDL_FreeSurface(pscreen);
+
 	SDL_Quit();   
 
 	if (global->debug) g_printf("SDL Quit\n");

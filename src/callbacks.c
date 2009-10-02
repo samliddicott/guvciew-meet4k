@@ -575,34 +575,36 @@ resolution_changed (GtkComboBox * Resolution, struct ALL_DATA *all_data)
 
 	if (listVidCap->framerate_denom)
 		global->fps = listVidCap->framerate_denom[deffps];
+		
+	global->change_res = TRUE;
 	
-	gwidget->restartdialog = gtk_dialog_new_with_buttons (_("Program Restart"),
-		GTK_WINDOW(gwidget->mainwin),
-		GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
-		_("now"),
-		GTK_RESPONSE_ACCEPT,
-		_("Later"),
-		GTK_RESPONSE_REJECT,
-		NULL);
+	//gwidget->restartdialog = gtk_dialog_new_with_buttons (_("Program Restart"),
+	//	GTK_WINDOW(gwidget->mainwin),
+	//	GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+	//	_("now"),
+	//	GTK_RESPONSE_ACCEPT,
+	//	_("Later"),
+	//	GTK_RESPONSE_REJECT,
+	//	NULL);
 	
-	GtkWidget *message = gtk_label_new (_("Changes will only take effect after guvcview restart.\n\n\nRestart now?\n"));
-	gtk_container_add (GTK_CONTAINER (GTK_DIALOG(gwidget->restartdialog)->vbox), message);
-	gtk_widget_show_all(GTK_WIDGET(GTK_CONTAINER (GTK_DIALOG(gwidget->restartdialog)->vbox)));
+	//GtkWidget *message = gtk_label_new (_("Changes will only take effect after guvcview restart.\n\n\nRestart now?\n"));
+	//gtk_container_add (GTK_CONTAINER (GTK_DIALOG(gwidget->restartdialog)->vbox), message);
+	//gtk_widget_show_all(GTK_WIDGET(GTK_CONTAINER (GTK_DIALOG(gwidget->restartdialog)->vbox)));
 	
-	gint result = gtk_dialog_run (GTK_DIALOG (gwidget->restartdialog));
-	switch (result) 
-	{
-		case GTK_RESPONSE_ACCEPT:
-			/*restart app*/
-			shutd(1, all_data);
-			break;
+	//gint result = gtk_dialog_run (GTK_DIALOG (gwidget->restartdialog));
+	//switch (result) 
+	//{
+	//	case GTK_RESPONSE_ACCEPT:
+	//		/*restart app*/
+	//		shutd(1, all_data);
+	//		break;
 
-		default:
-			/* do nothing since Restart rejected*/
-			break;
-	}
+	//	default:
+	//		/* do nothing since Restart rejected*/
+	//		break;
+	//}
 
-	gtk_widget_destroy (gwidget->restartdialog);
+	//gtk_widget_destroy (gwidget->restartdialog);
 
 	gwidget = NULL;
 	global = NULL;
@@ -617,9 +619,9 @@ ImpType_changed(GtkComboBox * ImpType, struct ALL_DATA *all_data)
 	struct GLOBAL *global = all_data->global;
 	struct vdIn *videoIn = all_data->videoIn;
 	
+	int format = 0;
+	
 	int index = gtk_combo_box_get_active(ImpType);
-	
-	
 	videoIn->listFormats->current_format = index;
 	
 	/*check if frame rate and resolution are available   */
@@ -628,7 +630,6 @@ ImpType_changed(GtkComboBox * ImpType, struct ALL_DATA *all_data)
 	int j=0;
 	int defres=0;
 	int deffps=0;
-	
 	
 	for (i=0;i<videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].numb_res;i++) 
 	{
@@ -645,40 +646,42 @@ ImpType_changed(GtkComboBox * ImpType, struct ALL_DATA *all_data)
 			}
 		}
 	}
-	global->format = videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].format;
-	get_PixMode(global->format, global->mode);
+	format = videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].format;
+	get_PixMode(format, global->mode);
 	global->height=videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[defres].height;
 	global->width=videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[defres].width;
 	global->fps_num=videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[defres].framerate_num[deffps];
 	global->fps=videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[defres].framerate_denom[deffps];
 	
-	gwidget->restartdialog = gtk_dialog_new_with_buttons (_("Program Restart"),
-		GTK_WINDOW(gwidget->mainwin),
-		GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
-		_("now"),
-		GTK_RESPONSE_ACCEPT,
-		_("Later"),
-		GTK_RESPONSE_REJECT,
-		NULL);
+	global->format = format; //must be the last thing to be changed (it works as a flag)
 	
-	GtkWidget *message = gtk_label_new (_("Changes will only take effect after guvcview restart.\n\n\nRestart now?\n"));
-	gtk_container_add (GTK_CONTAINER (GTK_DIALOG(gwidget->restartdialog)->vbox), message);
-	gtk_widget_show_all(GTK_WIDGET(GTK_CONTAINER (GTK_DIALOG(gwidget->restartdialog)->vbox)));
+	//gwidget->restartdialog = gtk_dialog_new_with_buttons (_("Program Restart"),
+	//	GTK_WINDOW(gwidget->mainwin),
+	//	GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+	//	_("now"),
+	//	GTK_RESPONSE_ACCEPT,
+	//	_("Later"),
+	//	GTK_RESPONSE_REJECT,
+	//	NULL);
 	
-	gint result = gtk_dialog_run (GTK_DIALOG (gwidget->restartdialog));
-	switch (result) 
-	{
-		case GTK_RESPONSE_ACCEPT:
-			/*restart app*/
-			shutd(1, all_data);
-			break;
-			
-		default:
-			/* do nothing since Restart rejected*/
-			break;
-	}
+	//GtkWidget *message = gtk_label_new (_("Changes will only take effect after guvcview restart.\n\n\nRestart now?\n"));
+	//gtk_container_add (GTK_CONTAINER (GTK_DIALOG(gwidget->restartdialog)->vbox), message);
+	//gtk_widget_show_all(GTK_WIDGET(GTK_CONTAINER (GTK_DIALOG(gwidget->restartdialog)->vbox)));
+	
+	//gint result = gtk_dialog_run (GTK_DIALOG (gwidget->restartdialog));
+	//switch (result) 
+	//{
+	//	case GTK_RESPONSE_ACCEPT:
+	//		/*restart app*/
+	//		shutd(1, all_data);
+	//		break;
+	//		
+	//	default:
+	//		/* do nothing since Restart rejected*/
+	//		break;
+	//}
   
-	gtk_widget_destroy (gwidget->restartdialog);
+	//gtk_widget_destroy (gwidget->restartdialog);
 	
 	gwidget = NULL;
 	global = NULL;

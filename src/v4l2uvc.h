@@ -134,6 +134,15 @@ int uvcGrab(struct vdIn *vd);
 */
 void close_v4l2(struct vdIn *vd, gboolean control_only);
 
+/* restarts v4l2 device with new format
+ * args:
+ * vd: pointer to vdIn struct
+ * global: poiter to GLOBAL struct 
+ *
+ * returns: error code ( 0 - VDIN_OK)
+*/
+int restart_v4l2(struct vdIn *vd, struct GLOBAL *global);
+
 /* sets video device frame rate
  * args:
  * vd: pointer to a VdIn struct ( must be allready initiated)

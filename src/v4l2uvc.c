@@ -659,8 +659,8 @@ int init_videoIn(struct vdIn *vd, struct GLOBAL *global)
 	vd->ImageFName = g_strdup(DEFAULT_IMAGE_FNAME);
 	
 	//timestamps not supported by UVC driver
-	vd->timecode.type = V4L2_TC_TYPE_25FPS;
-	vd->timecode.flags = V4L2_TC_FLAG_DROPFRAME;
+	//vd->timecode.type = V4L2_TC_TYPE_25FPS;
+	//vd->timecode.flags = V4L2_TC_FLAG_DROPFRAME;
 	
 	vd->available_exp[0]=-1;
 	vd->available_exp[1]=-1;
@@ -1025,6 +1025,78 @@ err:
 	return ret;
 }
 
+static int close_v4l2_buffers (struct vdIn *vd)
+{
+	int i = 0;
+	if (vd->isstreaming) video_disable(vd);
+	//clean frame buffers
+	g_free(vd->tmpbuffer);
+	g_free(vd->framebuffer);
+	// unmap queue buffers
+	switch(vd->cap_meth)
+	{
+		case IO_READ:
+			g_free(vd->mem[vd->buf.index]);
+			break;
+		
+		case IO_MMAP:
+		default:
+			for (i = 0; i < NB_BUFFER; i++) 
+			{
+				if((vd->mem[i] != MAP_FAILED) && vd->buf.length)
+					if(munmap(vd->mem[i],vd->buf.length)<0) 
+					{
+						perror("Failed to unmap buffer");
+						return(VDIN_MMAP_ERR);
+					}
+			}
+			//delete requested buffers
+			memset(&vd->rb, 0, sizeof(struct v4l2_requestbuffers));
+			vd->rb.count = 0;
+			vd->rb.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+			vd->rb.memory = V4L2_MEMORY_MMAP;
+			if(ioctl(vd->fd, VIDIOC_REQBUFS, &vd->rb)<0)
+			{
+				perror("VIDIOC_REQBUFS - Unable to delete buffers");
+				return(VDIN_REQBUFS_ERR);
+			}
+	}
+	return (VDIN_OK);
+}
+
+
+int restart_v4l2(struct vdIn *vd, struct GLOBAL *global)
+{
+	int ret = VDIN_OK;
+	
+	close_v4l2_buffers(vd);
+	
+	vd->width = global->width;
+	vd->height = global->height;
+	vd->formatIn = global->format;
+		
+	if ((ret=init_v4l2(vd)) < 0) 
+	{
+		g_printerr("Init v4L2 failed !! \n");
+		goto error;
+	}
+	/*allocations*/
+	if((ret = videoIn_frame_alloca(vd)) != VDIN_OK)
+	{
+		goto error;
+	}
+	/*try to start the video stream*/
+	//it's OK if it fails since it is retried in uvcGrab
+	video_enable(vd);
+	
+	return (ret);
+//error: clean up allocs
+error:
+	vd->signalquit = 0;
+	return (ret);
+	
+}
+
 /* cleans VdIn struct and allocations
  * args:
  * pointer to initiated vdIn struct
@@ -1033,8 +1105,6 @@ err:
 */
 void close_v4l2(struct vdIn *vd, gboolean control_only)
 {
-	int i=0;
-	
 	if (vd->isstreaming) video_disable(vd);
 	g_free(vd->videodevice);
 	g_free(vd->ImageFName);
@@ -1043,34 +1113,7 @@ void close_v4l2(struct vdIn *vd, gboolean control_only)
 	freeFormats(vd->listFormats);
 	if (!control_only)
 	{
-		//frame buffers are only allocated if not on control_only mode
-		g_free(vd->tmpbuffer);
-		g_free(vd->framebuffer);
-		// unmap queue buffers
-		switch(vd->cap_meth)
-		{
-			case IO_READ:
-				g_free(vd->mem[vd->buf.index]);
-				break;
-			
-			case IO_MMAP:
-			default:
-				for (i = 0; i < NB_BUFFER; i++) 
-				{
-					if((vd->mem[i] != MAP_FAILED) && vd->buf.length)
-						if(munmap(vd->mem[i],vd->buf.length)<0) 
-						{
-							perror("Failed to unmap buffer");
-						}
-				}
-				//delete requested buffers
-				memset(&vd->rb, 0, sizeof(struct v4l2_requestbuffers));
-				vd->rb.count = 0;
-				vd->rb.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-				vd->rb.memory = V4L2_MEMORY_MMAP;
-				if(ioctl(vd->fd, VIDIOC_REQBUFS, &vd->rb)<0)
-					perror("VIDIOC_REQBUFS - Unable to delete buffers");
-		}
+		close_v4l2_buffers(vd);
 	}
 	
 	vd->videodevice = NULL;
