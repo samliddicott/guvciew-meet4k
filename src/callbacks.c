@@ -575,7 +575,13 @@ resolution_changed (GtkComboBox * Resolution, struct ALL_DATA *all_data)
 
 	if (listVidCap->framerate_denom)
 		global->fps = listVidCap->framerate_denom[deffps];
-		
+
+	if(videoIn->capVid)
+	{
+		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(gwidget->CapVidButt), FALSE);
+		gdk_flush();
+	}
+
 	global->change_res = TRUE;
 	
 	//gwidget->restartdialog = gtk_dialog_new_with_buttons (_("Program Restart"),

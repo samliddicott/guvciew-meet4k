@@ -25,6 +25,7 @@
 #include <SDL/SDL.h>
 #include <glib.h>
 #include <glib/gprintf.h>
+#include <gtk/gtk.h>
 
 #include "defs.h"
 #include "video.h"
@@ -512,16 +513,7 @@ void *main_loop(void *data)
 				if(global->debug) g_printf(" total frames: %d  -- encoded: %d\n", global->framecount, nf);
 				lavc_data = NULL;
 			}
-			if (videoIn->capVid) 
-			{
-				/*stop capture*/
-				global->Vidstoptime = ms_time();
-				videoIn->VidCapStop=TRUE;
-				videoIn->capVid = FALSE;
-				pdata->capVid = videoIn->capVid;
-				if (global->debug) g_printf("stoping Video capture\n");
-					closeVideoFile(all_data);
-			}
+
 			g_free(jpeg_struct);
 			jpeg_struct=NULL;
 			g_free(pim);
@@ -544,7 +536,7 @@ void *main_loop(void *data)
 			drect.y = 0;
 			drect.w = pscreen->w;
 			drect.h = pscreen->h;
-			global->change_res = FALSE; 
+			global->change_res = FALSE;
 		}
 		/*---------------------------------------*/
 		/*   restart v4l2 with new input format  */
