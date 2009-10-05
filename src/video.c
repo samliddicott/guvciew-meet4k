@@ -501,7 +501,7 @@ void *main_loop(void *data)
 			}
 		}
 		/*-----------------------------------*/
-		/*  restart video (new resolution)   */
+		/*  restart video (new resolution/format)   */
 		/*-----------------------------------*/
 		if (global->change_res)
 		{
@@ -520,7 +520,7 @@ void *main_loop(void *data)
 			pim=NULL;
 			g_free(pvid);
 			pvid=NULL;
-			if (global->debug) g_printf("cleaning Thread allocations: 100%%\n");
+			if (global->debug) g_printf("cleaning buffer allocations\n");
 			fflush(NULL);//flush all output buffers 
 			
 			SDL_FreeYUVOverlay(overlay);
@@ -537,14 +537,6 @@ void *main_loop(void *data)
 			drect.w = pscreen->w;
 			drect.h = pscreen->h;
 			global->change_res = FALSE;
-		}
-		/*---------------------------------------*/
-		/*   restart v4l2 with new input format  */
-                /*---------------------------------------*/		
-		if (global->format != videoIn->formatIn)
-		{
-			/*init device*/
-			restart_v4l2(videoIn, global);
 		}
 
 	}/*loop end*/
@@ -580,7 +572,7 @@ void *main_loop(void *data)
 	
 	close_audio_effects (aud_eff);
 	SDL_FreeYUVOverlay(overlay);
-	SDL_FreeSurface(pscreen);
+	//SDL_FreeSurface(pscreen);
 
 	SDL_Quit();   
 

@@ -410,7 +410,7 @@ void video_tab(struct ALL_DATA *all_data)
 	GtkWidget *Tab2Label;
 	GtkWidget *Tab2Icon;
 	GtkWidget *label_Device;
-	GtkWidget *FrameRate;
+	//GtkWidget *FrameRate;
 	GtkWidget *label_FPS;
 	GtkWidget *ShowFPS;
 	GtkWidget *labelResol;
@@ -536,7 +536,7 @@ void video_tab(struct ALL_DATA *all_data)
 	videoIn->fps=global->fps;
 	input_set_framerate (videoIn);
 					  
-	FrameRate = gtk_combo_box_new_text ();
+	gwidget->FrameRate = gtk_combo_box_new_text ();
 	int deffps=0;
 	if (global->debug) 
 		g_printf("frame rates of %dº resolution=%d \n",
@@ -546,19 +546,19 @@ void video_tab(struct ALL_DATA *all_data)
 	{
 		g_snprintf(temp_str,18,"%i/%i fps", listVidFormats->listVidCap[defres].framerate_denom[i],
 			listVidFormats->listVidCap[defres].framerate_num[i]);
-		gtk_combo_box_append_text(GTK_COMBO_BOX(FrameRate),temp_str);
+		gtk_combo_box_append_text(GTK_COMBO_BOX(gwidget->FrameRate),temp_str);
 		
 		if (( videoIn->fps_num == listVidFormats->listVidCap[defres].framerate_num[i]) && 
 			(videoIn->fps == listVidFormats->listVidCap[defres].framerate_denom[i]))
 				deffps=i;//set selected
 	}
 	
-	gtk_table_attach(GTK_TABLE(table2), FrameRate, 1, 2, line, line+1,
+	gtk_table_attach(GTK_TABLE(table2), gwidget->FrameRate, 1, 2, line, line+1,
 		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
-	gtk_widget_show (FrameRate);
+	gtk_widget_show (gwidget->FrameRate);
 	
 	
-	gtk_combo_box_set_active(GTK_COMBO_BOX(FrameRate),deffps);
+	gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->FrameRate),deffps);
 	if (deffps==0) 
 	{
 		if (listVidFormats->listVidCap[0].framerate_denom)
@@ -570,8 +570,8 @@ void video_tab(struct ALL_DATA *all_data)
 		videoIn->fps=global->fps;
 		videoIn->fps_num=global->fps_num;
 	}
-	gtk_widget_set_sensitive (FrameRate, TRUE);
-	g_signal_connect (GTK_COMBO_BOX(FrameRate), "changed",
+	gtk_widget_set_sensitive (gwidget->FrameRate, TRUE);
+	g_signal_connect (GTK_COMBO_BOX(gwidget->FrameRate), "changed",
 		G_CALLBACK (FrameRate_changed), all_data);
 	
 	label_FPS = gtk_label_new(_("Frame Rate:"));

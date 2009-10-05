@@ -547,10 +547,14 @@ resolution_changed (GtkComboBox * Resolution, struct ALL_DATA *all_data)
 	VidCap *listVidCap = NULL;
 	int current_format = videoIn->listFormats->current_format;
 	int cmb_index = gtk_combo_box_get_active(Resolution);
+	char temp_str[20];
+	
+	/*disable fps combo*/
+	g_signal_handlers_block_by_func(GTK_COMBO_BOX(gwidget->FrameRate), G_CALLBACK (FrameRate_changed), all_data);
+	/* clear out the old fps list... */
+	GtkListStore *store = GTK_LIST_STORE(gtk_combo_box_get_model (GTK_COMBO_BOX (gwidget->FrameRate)));
+	gtk_list_store_clear(store);
 
-	/* The new resolution is writen to conf file at exit             */
-	/* then is read back at start. This means that for changing      */
-	/* resolution we must restart the application                    */
 
 	listVidCap = &videoIn->listFormats->listVidFormats[current_format].listVidCap[cmb_index];
 	global->width = listVidCap->width;
@@ -559,16 +563,23 @@ resolution_changed (GtkComboBox * Resolution, struct ALL_DATA *all_data)
 	/*check if frame rate is available at the new resolution*/
 	int i=0;
 	int deffps=0;
-	 
-	for(i = 0 ; i < listVidCap->numb_frates; i++)
+	
+	for ( i = 0 ; i < listVidCap->numb_frates ; i++) 
 	{
-		if ((listVidCap->framerate_num[i] == global->fps_num) && 
-			(listVidCap->framerate_denom[i] == global->fps)) 
-		{
-				deffps = i;
-				break;
-		}
+		g_snprintf(temp_str,18,"%i/%i fps", listVidCap->framerate_denom[i],
+			listVidCap->framerate_num[i]);
+		gtk_combo_box_append_text(GTK_COMBO_BOX(gwidget->FrameRate),temp_str);
+		
+		if (( global->fps_num == listVidCap->framerate_num[i]) && 
+			(global->fps == listVidCap->framerate_denom[i]))
+				deffps=i;//set selected
 	}
+
+	/*set default fps in combo*/
+	gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->FrameRate),deffps);
+	
+	/*enable fps combo*/ 
+	g_signal_handlers_unblock_by_func(GTK_COMBO_BOX(gwidget->FrameRate), G_CALLBACK (FrameRate_changed), all_data);
 	
 	if (listVidCap->framerate_num)	
 		global->fps_num = listVidCap->framerate_num[deffps];
@@ -626,40 +637,51 @@ ImpType_changed(GtkComboBox * ImpType, struct ALL_DATA *all_data)
 	struct vdIn *videoIn = all_data->videoIn;
 	
 	int format = 0;
-	
+	char temp_str[20];
 	int index = gtk_combo_box_get_active(ImpType);
-	videoIn->listFormats->current_format = index;
-	
-	/*check if frame rate and resolution are available   */
-	/*if not use minimum values - defres=0 and deffps=0  */
 	int i=0;
-	int j=0;
-	int defres=0;
-	int deffps=0;
+	//int j=0;
+	int defres = 0;
+	VidFormats *listVidFormats;
 	
-	for (i=0;i<videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].numb_res;i++) 
-	{
-		if((videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[i].height==global->height) &&
-			(videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[i].width==global->width) ) 
-		{
-			/* resolution ok check fps*/
-			defres=i;
-			for (j=0;j<videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[i].numb_frates;j++) 
-			{
-				if ((videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[i].framerate_num[j]==global->fps_num) && 
-					(videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[i].framerate_denom[j]==global->fps))
-						deffps=j;
-			}
-		}
-	}
+	/*disable resolution combo*/
+	g_signal_handlers_block_by_func(GTK_COMBO_BOX(gwidget->Resolution), G_CALLBACK (resolution_changed), all_data);
+	
+	/* clear out the old resolution list... */
+	GtkListStore *store = GTK_LIST_STORE(gtk_combo_box_get_model (GTK_COMBO_BOX (gwidget->Resolution)));
+	gtk_list_store_clear(store);
+	
+	videoIn->listFormats->current_format = index;
+	listVidFormats = &videoIn->listFormats->listVidFormats[index];
+	
 	format = videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].format;
 	get_PixMode(format, global->mode);
-	global->height=videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[defres].height;
-	global->width=videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[defres].width;
-	global->fps_num=videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[defres].framerate_num[deffps];
-	global->fps=videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[defres].framerate_denom[deffps];
 	
-	global->format = format; //must be the last thing to be changed (it works as a flag)
+	/*redraw resolution combo for new format*/
+	for(i = 0 ; i < listVidFormats->numb_res ; i++)  
+	{
+		if (listVidFormats->listVidCap[i].width>0)
+		{
+			g_snprintf(temp_str,18,"%ix%i", listVidFormats->listVidCap[i].width,
+							 listVidFormats->listVidCap[i].height);
+			gtk_combo_box_append_text(GTK_COMBO_BOX(gwidget->Resolution),temp_str);
+			
+			if ((global->width == listVidFormats->listVidCap[i].width) && 
+				(global->height == listVidFormats->listVidCap[i].height))
+					defres=i;//set selected resolution index
+		}
+	}
+	
+	
+	global->height = listVidFormats->listVidCap[defres].height;
+	global->width = listVidFormats->listVidCap[defres].width;
+	global->format = format;
+	
+	/*enable resolution combo*/
+	g_signal_handlers_unblock_by_func(GTK_COMBO_BOX(gwidget->Resolution), G_CALLBACK (resolution_changed), all_data);
+	
+	/*reset resolution/format*/
+	gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->Resolution),defres);
 	
 	//gwidget->restartdialog = gtk_dialog_new_with_buttons (_("Program Restart"),
 	//	GTK_WINDOW(gwidget->mainwin),

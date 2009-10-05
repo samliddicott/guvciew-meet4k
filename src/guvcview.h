@@ -65,6 +65,7 @@ struct GWIDGET
 	GtkWidget *VidInc;
 	GtkWidget *VidFormat;
 	GtkWidget *Resolution;
+	GtkWidget *FrameRate;
 	GtkWidget *Devices;
 	GtkWidget *FileDialog;
 	GtkWidget *lavc_button;

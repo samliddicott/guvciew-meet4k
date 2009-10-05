@@ -1013,7 +1013,7 @@ int uvcGrab(struct vdIn *vd)
 		ret = ioctl(vd->fd, VIDIOC_QBUF, &vd->buf);
 		if (ret < 0) 
 		{
-			perror("VIDIOC_QBUF - Unable to requeue buffer");
+			perror("VIDIOC_QBUF - Unable to queue buffer");
 			ret = VDIN_QBUF_ERR;
 			goto err;
 		}
@@ -1028,10 +1028,11 @@ err:
 static int close_v4l2_buffers (struct vdIn *vd)
 {
 	int i = 0;
-	if (vd->isstreaming) video_disable(vd);
 	//clean frame buffers
-	g_free(vd->tmpbuffer);
-	g_free(vd->framebuffer);
+	if(vd->tmpbuffer != NULL) g_free(vd->tmpbuffer);
+	vd->tmpbuffer = NULL;
+	if(vd->framebuffer != NULL) g_free(vd->framebuffer);
+	vd->framebuffer = NULL;
 	// unmap queue buffers
 	switch(vd->cap_meth)
 	{
@@ -1057,8 +1058,24 @@ static int close_v4l2_buffers (struct vdIn *vd)
 			vd->rb.memory = V4L2_MEMORY_MMAP;
 			if(ioctl(vd->fd, VIDIOC_REQBUFS, &vd->rb)<0)
 			{
-				perror("VIDIOC_REQBUFS - Unable to delete buffers");
-				return(VDIN_REQBUFS_ERR);
+				if(errno == EIO || errno == EPIPE || errno == ETIMEDOUT )
+				{
+					// I/O error RETRY
+					int tries = 10;
+					g_printerr("Failed to delete buffers: %s (retry %i)\n", strerror(errno), tries);
+					while(tries-- &&
+				  		(ioctl(vd->fd, VIDIOC_REQBUFS, &vd->rb) &&
+				  		(errno == EIO || errno == EPIPE || errno == ETIMEDOUT ))) 
+					{
+						g_printerr("VIDIOC_REQBUFS - Failed to delete buffers: %s (retry %i)\n", strerror(errno), tries);
+					}
+					if (tries <= 0) return(VDIN_REQBUFS_ERR);
+				}
+				else
+				{
+					g_printerr("VIDIOC_REQBUFS - Failed to delete buffers: %s (errno %d)\n", strerror(errno), errno);
+					return(VDIN_REQBUFS_ERR);
+				}
 			}
 	}
 	return (VDIN_OK);
@@ -1068,11 +1085,13 @@ static int close_v4l2_buffers (struct vdIn *vd)
 int restart_v4l2(struct vdIn *vd, struct GLOBAL *global)
 {
 	int ret = VDIN_OK;
-	
+	video_disable(vd);
 	close_v4l2_buffers(vd);
 	
 	vd->width = global->width;
 	vd->height = global->height;
+	vd->fps = global->fps;
+	vd->fps_num = global->fps_num;
 	vd->formatIn = global->format;
 		
 	if ((ret=init_v4l2(vd)) < 0) 
