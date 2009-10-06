@@ -610,7 +610,7 @@ InpType_changed(GtkComboBox * InpType, struct ALL_DATA *all_data)
 	
 	int format = 0;
 	char temp_str[20];
-	int index = gtk_combo_box_get_active(ImpType);
+	int index = gtk_combo_box_get_active(InpType);
 	int i=0;
 	//int j=0;
 	int defres = 0;
