@@ -549,7 +549,7 @@ resolution_changed (GtkComboBox * Resolution, struct ALL_DATA *all_data)
 	int cmb_index = gtk_combo_box_get_active(Resolution);
 	char temp_str[20];
 	
-	/*disable fps combo*/
+	/*disable fps combobox signals*/
 	g_signal_handlers_block_by_func(GTK_COMBO_BOX(gwidget->FrameRate), G_CALLBACK (FrameRate_changed), all_data);
 	/* clear out the old fps list... */
 	GtkListStore *store = GTK_LIST_STORE(gtk_combo_box_get_model (GTK_COMBO_BOX (gwidget->FrameRate)));
@@ -578,7 +578,7 @@ resolution_changed (GtkComboBox * Resolution, struct ALL_DATA *all_data)
 	/*set default fps in combo*/
 	gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->FrameRate),deffps);
 	
-	/*enable fps combo*/ 
+	/*enable fps combobox signals*/ 
 	g_signal_handlers_unblock_by_func(GTK_COMBO_BOX(gwidget->FrameRate), G_CALLBACK (FrameRate_changed), all_data);
 	
 	if (listVidCap->framerate_num)	
@@ -594,34 +594,6 @@ resolution_changed (GtkComboBox * Resolution, struct ALL_DATA *all_data)
 	}
 
 	global->change_res = TRUE;
-	
-	//gwidget->restartdialog = gtk_dialog_new_with_buttons (_("Program Restart"),
-	//	GTK_WINDOW(gwidget->mainwin),
-	//	GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
-	//	_("now"),
-	//	GTK_RESPONSE_ACCEPT,
-	//	_("Later"),
-	//	GTK_RESPONSE_REJECT,
-	//	NULL);
-	
-	//GtkWidget *message = gtk_label_new (_("Changes will only take effect after guvcview restart.\n\n\nRestart now?\n"));
-	//gtk_container_add (GTK_CONTAINER (GTK_DIALOG(gwidget->restartdialog)->vbox), message);
-	//gtk_widget_show_all(GTK_WIDGET(GTK_CONTAINER (GTK_DIALOG(gwidget->restartdialog)->vbox)));
-	
-	//gint result = gtk_dialog_run (GTK_DIALOG (gwidget->restartdialog));
-	//switch (result) 
-	//{
-	//	case GTK_RESPONSE_ACCEPT:
-	//		/*restart app*/
-	//		shutd(1, all_data);
-	//		break;
-
-	//	default:
-	//		/* do nothing since Restart rejected*/
-	//		break;
-	//}
-
-	//gtk_widget_destroy (gwidget->restartdialog);
 
 	gwidget = NULL;
 	global = NULL;
@@ -644,7 +616,7 @@ ImpType_changed(GtkComboBox * ImpType, struct ALL_DATA *all_data)
 	int defres = 0;
 	VidFormats *listVidFormats;
 	
-	/*disable resolution combo*/
+	/*disable resolution combobox signals*/
 	g_signal_handlers_block_by_func(GTK_COMBO_BOX(gwidget->Resolution), G_CALLBACK (resolution_changed), all_data);
 	
 	/* clear out the old resolution list... */
@@ -677,39 +649,11 @@ ImpType_changed(GtkComboBox * ImpType, struct ALL_DATA *all_data)
 	global->width = listVidFormats->listVidCap[defres].width;
 	global->format = format;
 	
-	/*enable resolution combo*/
+	/*enable resolution combobox signals*/
 	g_signal_handlers_unblock_by_func(GTK_COMBO_BOX(gwidget->Resolution), G_CALLBACK (resolution_changed), all_data);
 	
 	/*reset resolution/format*/
 	gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->Resolution),defres);
-	
-	//gwidget->restartdialog = gtk_dialog_new_with_buttons (_("Program Restart"),
-	//	GTK_WINDOW(gwidget->mainwin),
-	//	GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
-	//	_("now"),
-	//	GTK_RESPONSE_ACCEPT,
-	//	_("Later"),
-	//	GTK_RESPONSE_REJECT,
-	//	NULL);
-	
-	//GtkWidget *message = gtk_label_new (_("Changes will only take effect after guvcview restart.\n\n\nRestart now?\n"));
-	//gtk_container_add (GTK_CONTAINER (GTK_DIALOG(gwidget->restartdialog)->vbox), message);
-	//gtk_widget_show_all(GTK_WIDGET(GTK_CONTAINER (GTK_DIALOG(gwidget->restartdialog)->vbox)));
-	
-	//gint result = gtk_dialog_run (GTK_DIALOG (gwidget->restartdialog));
-	//switch (result) 
-	//{
-	//	case GTK_RESPONSE_ACCEPT:
-	//		/*restart app*/
-	//		shutd(1, all_data);
-	//		break;
-	//		
-	//	default:
-	//		/* do nothing since Restart rejected*/
-	//		break;
-	//}
-  
-	//gtk_widget_destroy (gwidget->restartdialog);
 	
 	gwidget = NULL;
 	global = NULL;

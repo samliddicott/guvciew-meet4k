@@ -500,9 +500,9 @@ void *main_loop(void *data)
 
 			}
 		}
-		/*-----------------------------------*/
+		/*------------------------------------------*/
 		/*  restart video (new resolution/format)   */
-		/*-----------------------------------*/
+		/*------------------------------------------*/
 		if (global->change_res)
 		{
 			g_printf("setting new resolution (%d x %d)\n",global->width,global->height);

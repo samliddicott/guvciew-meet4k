@@ -73,9 +73,6 @@ struct GWIDGET *gwidget = NULL;
 /*thread definitions*/
 GThread *video_thread = NULL;
 
-/* parameters passed when restarting*/
-//gchar *EXEC_CALL;
-
 /*--------------------------------- MAIN -------------------------------------*/
 int main(int argc, char *argv[])
 {
@@ -90,7 +87,6 @@ int main(int argc, char *argv[])
 	{
 		g_thread_init(NULL);
 		gdk_threads_init ();
-		//printf("g_thread supported\n");
 	}
 	else
 	{
