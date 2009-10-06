@@ -602,7 +602,7 @@ resolution_changed (GtkComboBox * Resolution, struct ALL_DATA *all_data)
 
 /* Input Format control */
 void
-ImpType_changed(GtkComboBox * ImpType, struct ALL_DATA *all_data) 
+InpType_changed(GtkComboBox * InpType, struct ALL_DATA *all_data) 
 {
 	struct GWIDGET *gwidget = all_data->gwidget;
 	struct GLOBAL *global = all_data->global;
@@ -986,6 +986,10 @@ capture_vid (GtkToggleButton *VidButt, struct ALL_DATA *all_data)
 	
 	if(videoIn->capVid || !state) 
 	{	/****************** Stop Video ************************/
+		//enable resolution and input format combos
+		gtk_widget_set_sensitive (gwidget->Resolution, TRUE);
+		gtk_widget_set_sensitive (gwidget->InpType, TRUE);
+		
 		closeVideoFile(all_data);
 		if(!(state))
 		{
@@ -995,6 +999,10 @@ capture_vid (GtkToggleButton *VidButt, struct ALL_DATA *all_data)
 	} 
 	else if(!(videoIn->capVid) /*&& state*/)
 	{	/******************** Start Video *********************/
+		//disable resolution and input format combos
+		gtk_widget_set_sensitive (gwidget->Resolution, FALSE);
+		gtk_widget_set_sensitive (gwidget->InpType, FALSE);
+		
 		global->vidFPath=splitPath((char *)fileEntr, global->vidFPath);
 		g_snprintf(global->vidinc_str,24,_("File num:%d"),global->vid_inc);
 		gtk_label_set_text(GTK_LABEL(gwidget->VidIncLabel), global->vidinc_str);

@@ -65,6 +65,7 @@ struct GWIDGET
 	GtkWidget *VidInc;
 	GtkWidget *VidFormat;
 	GtkWidget *Resolution;
+	GtkWidget *InpType;
 	GtkWidget *FrameRate;
 	GtkWidget *Devices;
 	GtkWidget *FileDialog;

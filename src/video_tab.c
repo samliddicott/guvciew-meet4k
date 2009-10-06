@@ -414,8 +414,7 @@ void video_tab(struct ALL_DATA *all_data)
 	GtkWidget *label_FPS;
 	GtkWidget *ShowFPS;
 	GtkWidget *labelResol;
-	GtkWidget *ImpType;
-	GtkWidget *label_ImpType;
+	GtkWidget *label_InpType;
 	GtkWidget *label_ImgFile;
 	GtkWidget *ImgFolder_img;
 	GtkWidget *label_ImageType;
@@ -614,31 +613,31 @@ void video_tab(struct ALL_DATA *all_data)
 	
 	// Input Format
 	line++;
-	ImpType= gtk_combo_box_new_text ();
+	gwidget->InpType= gtk_combo_box_new_text ();
 	
 	int fmtind=0;
 	for (fmtind=0; fmtind < videoIn->listFormats->numb_formats; fmtind++)
 	{
-		gtk_combo_box_append_text(GTK_COMBO_BOX(ImpType),videoIn->listFormats->listVidFormats[fmtind].fourcc);
+		gtk_combo_box_append_text(GTK_COMBO_BOX(gwidget->InpType),videoIn->listFormats->listVidFormats[fmtind].fourcc);
 		if(global->format == videoIn->listFormats->listVidFormats[fmtind].format)
-			gtk_combo_box_set_active(GTK_COMBO_BOX(ImpType),fmtind); /*set active*/
+			gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->InpType),fmtind); /*set active*/
 	}
 	
-	gtk_table_attach(GTK_TABLE(table2), ImpType, 1, 2, line, line+1,
+	gtk_table_attach(GTK_TABLE(table2), gwidget->InpType, 1, 2, line, line+1,
 		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	
-	gtk_widget_set_sensitive (ImpType, TRUE);
-	g_signal_connect (GTK_COMBO_BOX(ImpType), "changed",
-		G_CALLBACK (ImpType_changed), all_data);
-	gtk_widget_show (ImpType);
+	gtk_widget_set_sensitive (gwidget->InpType, TRUE);
+	g_signal_connect (GTK_COMBO_BOX(gwidget->InpType), "changed",
+		G_CALLBACK (InpType_changed), all_data);
+	gtk_widget_show (gwidget->InpType);
 	
-	label_ImpType = gtk_label_new(_("Camera Output:"));
-	gtk_misc_set_alignment (GTK_MISC (label_ImpType), 1, 0.5);
+	label_InpType = gtk_label_new(_("Camera Output:"));
+	gtk_misc_set_alignment (GTK_MISC (label_InpType), 1, 0.5);
 
-	gtk_table_attach (GTK_TABLE(table2), label_ImpType, 0, 1, line, line+1,
+	gtk_table_attach (GTK_TABLE(table2), label_InpType, 0, 1, line, line+1,
 		GTK_FILL, 0, 0, 0);
 
-	gtk_widget_show (label_ImpType);
+	gtk_widget_show (label_InpType);
 
 	//jpeg compression quality for MJPEG and JPEG input formats
 	if((global->format == V4L2_PIX_FMT_MJPEG || global->format == V4L2_PIX_FMT_JPEG) && videoIn->jpgcomp.quality > 0)

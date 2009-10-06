@@ -91,7 +91,7 @@ void
 resolution_changed (GtkComboBox * Resolution, struct ALL_DATA *all_data);
 
 void
-ImpType_changed(GtkComboBox * ImpType, struct ALL_DATA *all_data);
+InpType_changed(GtkComboBox * ImpType, struct ALL_DATA *all_data);
 
 void
 FrameRate_changed (GtkComboBox * FrameRate, struct ALL_DATA *all_data);
