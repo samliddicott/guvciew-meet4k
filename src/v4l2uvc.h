@@ -78,7 +78,7 @@ struct vdIn
 	struct v4l2_format fmt;             // v4l2 formar struct
 	struct v4l2_buffer buf;             // v4l2 buffer struct
 	struct v4l2_requestbuffers rb;      // v4l2 request buffers struct
-	struct v4l2_timecode timecode;      // v4l2 timecode struct
+	//struct v4l2_timecode timecode;      // v4l2 timecode struct
 	struct v4l2_streamparm streamparm;  // v4l2 stream parameters struct
 	struct v4l2_jpegcompression jpgcomp;// v4l2 jpeg compression settings
 	void *mem[NB_BUFFER];               // memory buffers for mmap driver frames 
@@ -108,6 +108,15 @@ struct vdIn
 	LFormats *listFormats;              // structure with frame formats list
 	LDevices *listDevices;              // structure with devices list
 };
+
+/* ioctl with a number of retries in the case of I/O failure
+* args:
+* fd - device descriptor
+* IOCTL_X - ioctl reference
+* arg - pointer to ioctl data
+* returns - ioctl result
+*/
+int xioctl(int fd, int IOCTL_X, void *arg);
 
 /* Init VdIn struct with default and/or global values
  * args:

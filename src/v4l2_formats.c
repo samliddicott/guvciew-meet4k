@@ -26,10 +26,11 @@
 #include <glib/gtestutils.h>
 #include <fcntl.h>
 #include <string.h>
-#include <sys/ioctl.h>
+//#include <sys/ioctl.h>
 #include <sys/types.h>
 #include <unistd.h>
 #include <errno.h>
+#include "v4l2uvc.h"
 #include "v4l2_formats.h"
 
 #define SUP_PIX_FMT 23                //total number of software(guvcview) 
@@ -320,7 +321,7 @@ static int enum_frame_intervals(VidFormats *listVidFormats, __u32 pixfmt, __u32 
 	listVidFormats[fmtind-1].listVidCap[fsizeind-1].framerate_denom=NULL;
 	
 	g_printf("\tTime interval between frame: ");
-	while ((ret = ioctl(fd, VIDIOC_ENUM_FRAMEINTERVALS, &fival)) == 0) 
+	while ((ret = xioctl(fd, VIDIOC_ENUM_FRAMEINTERVALS, &fival)) == 0) 
 	{
 		fival.index++;
 		if (fival.type == V4L2_FRMIVAL_TYPE_DISCRETE) 
@@ -397,7 +398,7 @@ static int enum_frame_sizes(VidFormats *listVidFormats, __u32 pixfmt, int fmtind
 	memset(&fsize, 0, sizeof(fsize));
 	fsize.index = 0;
 	fsize.pixel_format = pixfmt;
-	while ((ret = ioctl(fd, VIDIOC_ENUM_FRAMESIZES, &fsize)) == 0) 
+	while ((ret = xioctl(fd, VIDIOC_ENUM_FRAMESIZES, &fsize)) == 0) 
 	{
 		fsize.index++;
 		if (fsize.type == V4L2_FRMSIZE_TYPE_DISCRETE) 
@@ -467,7 +468,7 @@ static int enum_frame_sizes(VidFormats *listVidFormats, __u32 pixfmt, int fmtind
 		fmt.fmt.pix.height = *height;
 		fmt.fmt.pix.pixelformat = pixfmt;
 		fmt.fmt.pix.field = V4L2_FIELD_ANY;
-		ret = ioctl(fd, VIDIOC_TRY_FMT, &fmt);
+		ret = xioctl(fd, VIDIOC_TRY_FMT, &fmt);
 		/*use the returned values*/
 		*width = fmt.fmt.pix.width;
 		*height = fmt.fmt.pix.height;
@@ -522,7 +523,7 @@ LFormats *enum_frame_formats(int *width, int *height, int fd)
 	listFormats = g_new0 ( LFormats, 1);
 	listFormats->listVidFormats = NULL;
 
-	while ((ret = ioctl(fd, VIDIOC_ENUM_FMT, &fmt)) == 0) 
+	while ((ret = xioctl(fd, VIDIOC_ENUM_FMT, &fmt)) == 0) 
 	{
 		fmt.index++;
 		g_printf("{ pixelformat = '%c%c%c%c', description = '%s' }\n",

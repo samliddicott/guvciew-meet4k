@@ -24,9 +24,10 @@
 #include <glib/gstdio.h>
 /* support for internationalization - i18n */
 #include <glib/gi18n.h>
-#include <sys/ioctl.h>
+//#include <sys/ioctl.h>
 #include <errno.h>
 
+#include "v4l2uvc.h"
 #include "v4l2_controls.h"
 #include "v4l2_dyna_ctrls.h"
 
@@ -195,7 +196,7 @@ int initDynCtrls(int fd)
 	for ( i=0; i<LENGTH_OF_XU_CTR; i++ ) 
 	{
 		g_printf("Adding control for %s\n", xu_mappings[i].name);
-		if ((err=ioctl(fd, UVCIOC_CTRL_ADD, &xu_ctrls[i])) < 0 ) 
+		if ((err=xioctl(fd, UVCIOC_CTRL_ADD, &xu_ctrls[i])) < 0 ) 
 		{
 			if (errno != EEXIST) perror("UVCIOC_CTRL_ADD - Error");
 			//else perror("Control exists");
@@ -205,7 +206,7 @@ int initDynCtrls(int fd)
 	for ( i=0; i<LENGTH_OF_XU_MAP; i++ ) 
 	{
 		g_printf("mapping control for %s\n", xu_mappings[i].name);
-		if ((err=ioctl(fd, UVCIOC_CTRL_MAP, &xu_mappings[i])) < 0) 
+		if ((err=xioctl(fd, UVCIOC_CTRL_MAP, &xu_mappings[i])) < 0) 
 		{
 			if (errno!=EEXIST) perror("UVCIOC_CTRL_MAP - Error");
 			//else perror("Mapping exists");

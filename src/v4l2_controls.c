@@ -28,6 +28,7 @@
 #include <sys/ioctl.h>
 #include <errno.h>
 
+#include "v4l2uvc.h"
 #include "string_utils.h"
 #include "v4l2_controls.h"
 #include "v4l2_dyna_ctrls.h"
@@ -62,7 +63,7 @@ static InputControl *add_control(int fd, struct v4l2_queryctrl *queryctrl, Input
 		control[n].min = 0;
 		querymenu.id = queryctrl->id;
 		querymenu.index = 0;
-		while (ioctl (fd, VIDIOC_QUERYMENU, &querymenu) == 0) 
+		while (xioctl (fd, VIDIOC_QUERYMENU, &querymenu) == 0) 
 		{
 			//allocate entries list
 			control[n].entries = g_renew(pchar, control[n].entries, querymenu.index+1);
@@ -95,7 +96,7 @@ input_enum_controls (int fd, int *num_controls)
 	
 	queryctrl.id = 0 | V4L2_CTRL_FLAG_NEXT_CTRL;
 	
-	if ((ret=ioctl (fd, VIDIOC_QUERYCTRL, &queryctrl)) == 0)
+	if ((ret=xioctl (fd, VIDIOC_QUERYCTRL, &queryctrl)) == 0)
 	{
 		// The driver supports the V4L2_CTRL_FLAG_NEXT_CTRL flag
 		queryctrl.id = 0;
@@ -103,6 +104,7 @@ input_enum_controls (int fd, int *num_controls)
 		queryctrl.id |= V4L2_CTRL_FLAG_NEXT_CTRL;
 		
 		// Loop as long as ioctl does not return EINVAL
+		// don't use xioctl here since we must reset queryctrl.id every retry
 		while((ret = ioctl(fd, VIDIOC_QUERYCTRL, &queryctrl)), ret ? errno != EINVAL : 1) 
 		{
 			
@@ -144,11 +146,7 @@ next_control:
 		for(currentctrl = V4L2_CID_BASE; currentctrl < V4L2_CID_LASTP1; currentctrl++) 
 		{
 			queryctrl.id = currentctrl;
-			// Try querying the control
-			tries = 10;
-			while(tries-- &&
-				(ret = ioctl(fd, VIDIOC_QUERYCTRL, &queryctrl)) &&
-				(errno == EIO || errno == EPIPE || errno == ETIMEDOUT));
+			ret = xioctl(fd, VIDIOC_QUERYCTRL, &queryctrl);
 				
 			if(ret || queryctrl.flags & V4L2_CTRL_FLAG_DISABLED)
 				continue;
@@ -160,10 +158,7 @@ next_control:
 		{
 			queryctrl.id = currentctrl;
 			// Try querying the control
-			tries = 10;
-			while(tries-- &&
-				(ret = ioctl(fd, VIDIOC_QUERYCTRL, &queryctrl)) &&
-				(errno == EIO || errno == EPIPE || errno == ETIMEDOUT));
+			ret = xioctl(fd, VIDIOC_QUERYCTRL, &queryctrl);
 				
 			if(ret || queryctrl.flags & V4L2_CTRL_FLAG_DISABLED)
 				continue;
@@ -175,10 +170,7 @@ next_control:
 		{
 			queryctrl.id = currentctrl;
 			// Try querying the control
-			tries = 10;
-			while(tries-- &&
-				(ret = ioctl(fd, VIDIOC_QUERYCTRL, &queryctrl)) &&
-				(errno == EIO || errno == EPIPE || errno == ETIMEDOUT));
+			ret = xioctl(fd, VIDIOC_QUERYCTRL, &queryctrl);
 				  
 			if(ret || queryctrl.flags & V4L2_CTRL_FLAG_DISABLED)
 				continue;
@@ -245,7 +237,7 @@ input_get_control (int fd, InputControl * control, int * val)
 	memset(&c,0,sizeof(struct v4l2_control));
 
 	c.id  = control->id;
-	ret = ioctl (fd, VIDIOC_G_CTRL, &c);
+	ret = xioctl (fd, VIDIOC_G_CTRL, &c);
 	if (ret == 0) *val = c.value;
 	else perror("VIDIOC_G_CTRL - Unable to get control");
 	
@@ -267,7 +259,7 @@ input_set_control (int fd, InputControl * control, int val)
 
 	c.id  = control->id;
 	c.value = val;
-	ret = ioctl (fd, VIDIOC_S_CTRL, &c);
+	ret = xioctl (fd, VIDIOC_S_CTRL, &c);
 	if (ret < 0) perror("VIDIOC_S_CTRL - Unable to set control");
 
 	return ret;
@@ -287,7 +279,7 @@ get_focus (int fd)
 	int val=0;
 
 	c.id  = V4L2_CID_FOCUS_ABSOLUTE;
-	ret = ioctl (fd, VIDIOC_G_CTRL, &c);
+	ret = xioctl (fd, VIDIOC_G_CTRL, &c);
 	if (ret < 0) 
 	{
 		perror("VIDIOC_G_CTRL - get focus error");
@@ -313,7 +305,7 @@ set_focus (int fd, int val)
 
 	c.id  = V4L2_CID_FOCUS_ABSOLUTE;
 	c.value = val;
-	ret = ioctl (fd, VIDIOC_S_CTRL, &c);
+	ret = xioctl (fd, VIDIOC_S_CTRL, &c);
 	if (ret < 0) perror("VIDIOC_S_CTRL - set focus error");
 
 	return ret;
@@ -364,7 +356,7 @@ int uvcPanTilt(int fd, int pan, int tilt, int reset)
 		ctrls.controls = xctrls;
 	}
 	
-	if ( ioctl(fd, VIDIOC_S_EXT_CTRLS, &ctrls) < 0 ) 
+	if ( xioctl(fd, VIDIOC_S_EXT_CTRLS, &ctrls) < 0 ) 
 	{
 		perror("VIDIOC_S_EXT_CTRLS - Pan/Tilt error\n");
 			return -1;

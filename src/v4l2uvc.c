@@ -109,6 +109,33 @@
 #define CSTR_WBCB_UVC		N_("White Balance Blue Component")
 #define	CSTR_WBCR_UVC		N_("White Balance Red Component")
 
+
+/* ioctl with a number of retries in the case of failure
+* args:
+* fd - device descriptor
+* IOCTL_X - ioctl reference
+* arg - pointer to ioctl data
+* returns - ioctl result
+*/
+int xioctl(int fd, int IOCTL_X, void *arg)
+{
+	int ret = 0;
+	int tries= 5;
+	
+	ret = ioctl(fd, IOCTL_X, arg);
+	if( ret && (errno == EIO || errno == EPIPE || errno == ETIMEDOUT))
+	{
+		// I/O error RETRY
+		while(tries-- &&
+			(ret = ioctl(fd, IOCTL_X, arg)) &&
+			(errno == EIO || errno == EPIPE || errno == ETIMEDOUT)) 
+		{
+			g_printerr("ioctl (%i) failed - %s :(retry %i)\n", IOCTL_X, strerror(errno), tries);
+		}
+	}
+	return (ret);
+} 
+
 /* Query video device capabilities and supported formats
  * args:
  * vd: pointer to a VdIn struct ( must be allready allocated )
@@ -122,7 +149,7 @@ static int check_videoIn(struct vdIn *vd)
 	
 	memset(&vd->cap, 0, sizeof(struct v4l2_capability));
 	
-	if ( ioctl(vd->fd, VIDIOC_QUERYCAP, &vd->cap) < 0 ) 
+	if ( xioctl(vd->fd, VIDIOC_QUERYCAP, &vd->cap) < 0 ) 
 	{
 		perror("VIDIOC_QUERYCAP error");
 		return VDIN_QUERYCAP_ERR;
@@ -192,7 +219,7 @@ static int query_buff(struct vdIn *vd, const int setUNMAP)
 				//vd->buf.timestamp.tv_sec = 0;//get frame as soon as possible
 				//vd->buf.timestamp.tv_usec = 0;
 				vd->buf.memory = V4L2_MEMORY_MMAP;
-				ret = ioctl(vd->fd, VIDIOC_QUERYBUF, &vd->buf);
+				ret = xioctl(vd->fd, VIDIOC_QUERYBUF, &vd->buf);
 				if (ret < 0) 
 				{
 					perror("VIDIOC_QUERYBUF - Unable to query buffer");
@@ -207,8 +234,11 @@ static int query_buff(struct vdIn *vd, const int setUNMAP)
 					g_printerr("WARNING VIDIOC_QUERYBUF - buffer length is %d\n",
 						vd->buf.length);
 				// map new buffer
-				vd->mem[i] = mmap( 0, // start anywhere
-					vd->buf.length, PROT_READ, MAP_SHARED, vd->fd,
+				vd->mem[i] = mmap( NULL, // start anywhere
+					vd->buf.length, 
+					PROT_READ | PROT_WRITE, 
+					MAP_SHARED, 
+					vd->fd,
 					vd->buf.m.offset);
 				if (vd->mem[i] == MAP_FAILED) 
 				{
@@ -247,7 +277,7 @@ static int queue_buff(struct vdIn *vd)
 				//vd->buf.timestamp.tv_sec = 0;//get frame as soon as possible
 				//vd->buf.timestamp.tv_usec = 0;
 				vd->buf.memory = V4L2_MEMORY_MMAP;
-				ret = ioctl(vd->fd, VIDIOC_QBUF, &vd->buf);
+				ret = xioctl(vd->fd, VIDIOC_QBUF, &vd->buf);
 				if (ret < 0) 
 				{
 					perror("VIDIOC_QBUF - Unable to queue buffer");
@@ -276,7 +306,7 @@ static int video_enable(struct vdIn *vd)
 
 		case IO_MMAP:
 		default:
-			ret = ioctl(vd->fd, VIDIOC_STREAMON, &type);
+			ret = xioctl(vd->fd, VIDIOC_STREAMON, &type);
 			if (ret < 0) 
 			{
 				perror("VIDIOC_STREAMON - Unable to start capture");
@@ -306,7 +336,7 @@ static int video_disable(struct vdIn *vd)
 
 		case IO_MMAP:
 		default:
-			ret = ioctl(vd->fd, VIDIOC_STREAMOFF, &type);
+			ret = xioctl(vd->fd, VIDIOC_STREAMOFF, &type);
 			if (ret < 0) 
 			{
 				perror("VIDIOC_STREAMOFF - Unable to stop capture");
@@ -327,7 +357,7 @@ static int video_disable(struct vdIn *vd)
 */
 static int get_jpegcomp(struct vdIn *vd)
 {
-	int ret = ioctl(vd->fd, VIDIOC_G_JPEGCOMP, &vd->jpgcomp);
+	int ret = xioctl(vd->fd, VIDIOC_G_JPEGCOMP, &vd->jpgcomp);
 	if(!ret)
 	{
 		g_printf("VIDIOC_G_COMP:\n");
@@ -360,7 +390,7 @@ static int get_jpegcomp(struct vdIn *vd)
 */
 static int set_jpegcomp(struct vdIn *vd)
 {
-	int ret = ioctl(vd->fd, VIDIOC_S_JPEGCOMP, &vd->jpgcomp);
+	int ret = xioctl(vd->fd, VIDIOC_S_JPEGCOMP, &vd->jpgcomp);
 	if(ret != 0)
 	{
 		perror("VIDIOC_S_COMP:");
@@ -400,7 +430,7 @@ static int init_v4l2(struct vdIn *vd)
 	vd->fmt.fmt.pix.pixelformat = vd->formatIn;
 	vd->fmt.fmt.pix.field = V4L2_FIELD_ANY;
 	
-	ret = ioctl(vd->fd, VIDIOC_S_FMT, &vd->fmt);
+	ret = xioctl(vd->fd, VIDIOC_S_FMT, &vd->fmt);
 	if (ret < 0) 
 	{
 		perror("VIDIOC_S_FORMAT - Unable to set format");
@@ -418,7 +448,7 @@ static int init_v4l2(struct vdIn *vd)
 	vd->streamparm.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 	vd->streamparm.parm.capture.timeperframe.numerator = vd->fps_num;
 	vd->streamparm.parm.capture.timeperframe.denominator = vd->fps;
-	ret = ioctl(vd->fd,VIDIOC_S_PARM,&vd->streamparm);
+	ret = xioctl(vd->fd,VIDIOC_S_PARM,&vd->streamparm);
 	if (ret < 0) 
 	{
 		g_printerr("Unable to set %d fps\n",vd->fps);
@@ -447,7 +477,7 @@ static int init_v4l2(struct vdIn *vd)
 			vd->rb.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 			vd->rb.memory = V4L2_MEMORY_MMAP;
 
-			ret = ioctl(vd->fd, VIDIOC_REQBUFS, &vd->rb);
+			ret = xioctl(vd->fd, VIDIOC_REQBUFS, &vd->rb);
 			if (ret < 0) 
 			{
 				perror("VIDIOC_REQBUFS - Unable to allocate buffers");
@@ -461,7 +491,7 @@ static int init_v4l2(struct vdIn *vd)
 				vd->rb.count = 0;
 				vd->rb.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 				vd->rb.memory = V4L2_MEMORY_MMAP;
-				if(ioctl(vd->fd, VIDIOC_REQBUFS, &vd->rb)<0)
+				if(xioctl(vd->fd, VIDIOC_REQBUFS, &vd->rb)<0)
 					perror("VIDIOC_REQBUFS - Unable to delete buffers");
 				return VDIN_QUERYBUF_ERR;
 			}
@@ -473,7 +503,7 @@ static int init_v4l2(struct vdIn *vd)
 				vd->rb.count = 0;
 				vd->rb.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 				vd->rb.memory = V4L2_MEMORY_MMAP;
-				if(ioctl(vd->fd, VIDIOC_REQBUFS, &vd->rb)<0)
+				if(xioctl(vd->fd, VIDIOC_REQBUFS, &vd->rb)<0)
 					perror("VIDIOC_REQBUFS - Unable to delete buffers");
 				return VDIN_QBUF_ERR;
 			}
@@ -962,7 +992,7 @@ int uvcGrab(struct vdIn *vd)
 				vd->buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 				vd->buf.memory = V4L2_MEMORY_MMAP;
 
-				ret = ioctl(vd->fd, VIDIOC_DQBUF, &vd->buf);
+				ret = xioctl(vd->fd, VIDIOC_DQBUF, &vd->buf);
 				if (ret < 0) 
 				{
 					perror("VIDIOC_DQBUF - Unable to dequeue buffer ");
@@ -1005,7 +1035,7 @@ int uvcGrab(struct vdIn *vd)
 	}
 	else if ( vd->cap_meth == IO_MMAP)
 	{
-		ret = ioctl(vd->fd, VIDIOC_QBUF, &vd->buf);
+		ret = xioctl(vd->fd, VIDIOC_QBUF, &vd->buf);
 		if (ret < 0) 
 		{
 			perror("VIDIOC_QBUF - Unable to queue buffer");
@@ -1051,27 +1081,12 @@ static int close_v4l2_buffers (struct vdIn *vd)
 			vd->rb.count = 0;
 			vd->rb.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 			vd->rb.memory = V4L2_MEMORY_MMAP;
-			if(ioctl(vd->fd, VIDIOC_REQBUFS, &vd->rb)<0)
+			if(xioctl(vd->fd, VIDIOC_REQBUFS, &vd->rb)<0)
 			{
-				if(errno == EIO || errno == EPIPE || errno == ETIMEDOUT )
-				{
-					// I/O error RETRY
-					int tries = 10;
-					g_printerr("Failed to delete buffers: %s (retry %i)\n", strerror(errno), tries);
-					while(tries-- &&
-				  		(ioctl(vd->fd, VIDIOC_REQBUFS, &vd->rb) &&
-				  		(errno == EIO || errno == EPIPE || errno == ETIMEDOUT ))) 
-					{
-						g_printerr("VIDIOC_REQBUFS - Failed to delete buffers: %s (retry %i)\n", strerror(errno), tries);
-					}
-					if (tries <= 0) return(VDIN_REQBUFS_ERR);
-				}
-				else
-				{
-					g_printerr("VIDIOC_REQBUFS - Failed to delete buffers: %s (errno %d)\n", strerror(errno), errno);
-					return(VDIN_REQBUFS_ERR);
-				}
+				g_printerr("VIDIOC_REQBUFS - Failed to delete buffers: %s (errno %d)\n", strerror(errno), errno);
+				return(VDIN_REQBUFS_ERR);	
 			}
+			break;
 	}
 	return (VDIN_OK);
 }
@@ -1161,7 +1176,7 @@ input_set_framerate (struct vdIn * device)
 	device->streamparm.parm.capture.timeperframe.numerator = device->fps_num;
 	device->streamparm.parm.capture.timeperframe.denominator = device->fps;
 	 
-	ret = ioctl(fd,VIDIOC_S_PARM,&device->streamparm);
+	ret = xioctl(fd,VIDIOC_S_PARM,&device->streamparm);
 	if (ret < 0) 
 	{
 		g_printerr("Unable to set %d fps\n",device->fps);
@@ -1185,7 +1200,7 @@ input_get_framerate (struct vdIn * device)
 
 	fd = device->fd;
 
-	ret = ioctl(fd,VIDIOC_G_PARM,&device->streamparm);
+	ret = xioctl(fd,VIDIOC_G_PARM,&device->streamparm);
 	if (ret < 0) 
 	{
 		perror("VIDIOC_G_PARM - Unable to get timeperframe");
