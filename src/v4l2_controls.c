@@ -63,7 +63,7 @@ static InputControl *add_control(int fd, struct v4l2_queryctrl *queryctrl, Input
 		control[n].min = 0;
 		querymenu.id = queryctrl->id;
 		querymenu.index = 0;
-		while (xioctl (fd, VIDIOC_QUERYMENU, &querymenu) == 0) 
+		while ( xioctl(fd, VIDIOC_QUERYMENU, &querymenu) == 0 ) 
 		{
 			//allocate entries list
 			control[n].entries = g_renew(pchar, control[n].entries, querymenu.index+1);
@@ -88,7 +88,7 @@ InputControl *
 input_enum_controls (int fd, int *num_controls)
 {
 	int ret=0;
-	int tries = 10;
+	int tries = IOCTL_RETRY;
 	InputControl * control = NULL;
 	int n = 0;
 	struct v4l2_queryctrl queryctrl; 
@@ -98,13 +98,14 @@ input_enum_controls (int fd, int *num_controls)
 	
 	if ((ret=xioctl (fd, VIDIOC_QUERYCTRL, &queryctrl)) == 0)
 	{
+		g_printf("V4L2_CTRL_FLAG_NEXT_CTRL supported\n");
 		// The driver supports the V4L2_CTRL_FLAG_NEXT_CTRL flag
 		queryctrl.id = 0;
 		int currentctrl= queryctrl.id;
 		queryctrl.id |= V4L2_CTRL_FLAG_NEXT_CTRL;
 		
 		// Loop as long as ioctl does not return EINVAL
-		// don't use xioctl here since we must reset queryctrl.id every retry
+		// don't use xioctl here since we must reset queryctrl.id every retry (is this realy true ??)
 		while((ret = ioctl(fd, VIDIOC_QUERYCTRL, &queryctrl)), ret ? errno != EINVAL : 1) 
 		{
 			
@@ -112,14 +113,14 @@ input_enum_controls (int fd, int *num_controls)
 			{
 				// I/O error RETRY
 				queryctrl.id = currentctrl | V4L2_CTRL_FLAG_NEXT_CTRL;
-				tries = 10;
+				tries = IOCTL_RETRY;
 				while(tries-- &&
 				  (ret = ioctl(fd, VIDIOC_QUERYCTRL, &queryctrl)) &&
 				  (errno == EIO || errno == EPIPE || errno == ETIMEDOUT)) 
 				{
-					g_printerr("Failed to query control id=%d: %s (retry %i)\n", currentctrl, strerror(errno), tries);
 					queryctrl.id = currentctrl | V4L2_CTRL_FLAG_NEXT_CTRL;
 				}
+				if ( ret && ( tries <= 0)) g_printerr("Failed to query control id=%d tried %i times - giving up: %s\n", currentctrl, IOCTL_RETRY, strerror(errno));
 			}
 			// Prevent infinite loop for buggy NEXT_CTRL implementations
 			if(ret && queryctrl.id <= currentctrl) 
@@ -142,6 +143,7 @@ next_control:
 	}
 	else //NEXT_CTRL flag not supported, use old method 
 	{
+		g_printf("V4L2_CTRL_FLAG_NEXT_CTRL not supported\n");
 		int currentctrl;
 		for(currentctrl = V4L2_CID_BASE; currentctrl < V4L2_CID_LASTP1; currentctrl++) 
 		{

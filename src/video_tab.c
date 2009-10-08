@@ -533,7 +533,6 @@ void video_tab(struct ALL_DATA *all_data)
 	line++;
 	videoIn->fps_num=global->fps_num;
 	videoIn->fps=global->fps;
-	input_set_framerate (videoIn);
 					  
 	gwidget->FrameRate = gtk_combo_box_new_text ();
 	int deffps=0;

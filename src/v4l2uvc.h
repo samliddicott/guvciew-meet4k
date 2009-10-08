@@ -52,6 +52,8 @@
 
 #define HEADERFRAME1 0xaf
 
+#define IOCTL_RETRY 40
+
 enum  v4l2_uvc_exposure_auto_type 
 {
 	V4L2_UVC_EXPOSURE_MANUAL = 1,

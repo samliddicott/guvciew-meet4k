@@ -120,7 +120,7 @@
 int xioctl(int fd, int IOCTL_X, void *arg)
 {
 	int ret = 0;
-	int tries= 5;
+	int tries= IOCTL_RETRY;
 	
 	ret = ioctl(fd, IOCTL_X, arg);
 	if( ret && (errno == EIO || errno == EPIPE || errno == ETIMEDOUT))
@@ -130,8 +130,9 @@ int xioctl(int fd, int IOCTL_X, void *arg)
 			(ret = ioctl(fd, IOCTL_X, arg)) &&
 			(errno == EIO || errno == EPIPE || errno == ETIMEDOUT)) 
 		{
-			g_printerr("ioctl (%i) failed - %s :(retry %i)\n", IOCTL_X, strerror(errno), tries);
+			//g_printerr("ioctl (%i) failed - %s :(retry %i)\n", IOCTL_X, strerror(errno), tries);
 		}
+		if (ret && (tries <= 0)) g_printerr("ioctl (%i) retried %i times - giving up: %s)\n", IOCTL_X, IOCTL_RETRY, strerror(errno));
 	}
 	return (ret);
 } 
@@ -445,21 +446,14 @@ static int init_v4l2(struct vdIn *vd)
 		vd->height = vd->fmt.fmt.pix.height;
 	}
 	
-	vd->streamparm.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-	vd->streamparm.parm.capture.timeperframe.numerator = vd->fps_num;
-	vd->streamparm.parm.capture.timeperframe.denominator = vd->fps;
-	ret = xioctl(vd->fd,VIDIOC_S_PARM,&vd->streamparm);
-	if (ret < 0) 
-	{
-		g_printerr("Unable to set %d fps\n",vd->fps);
-		perror("VIDIOC_S_PARM error");
-	}
-	
 	//deprecated in v4l2 - still waiting for new API implementation
 	if(vd->formatIn == V4L2_PIX_FMT_MJPEG || vd->formatIn == V4L2_PIX_FMT_JPEG)
 	{
 		get_jpegcomp(vd);
 	}
+
+	//set fps
+	input_set_framerate(vd);
 	
 	switch (vd->cap_meth)
 	{
@@ -679,7 +673,7 @@ int init_videoIn(struct vdIn *vd, struct GLOBAL *global)
 	vd->PanTilt=0;
 	vd->isbayer = 0; //bayer mode off
 	vd->pix_order=0; // pix order for bayer mode def: gbgbgb..|rgrgrg..
-	vd->setFPS=0;
+	vd->setFPS=0; 
 	vd->width = width;
 	vd->height = height;
 	vd->formatIn = format;
@@ -741,6 +735,7 @@ int init_videoIn(struct vdIn *vd, struct GLOBAL *global)
 		{
 			goto error;
 		}
+		
 		/*try to start the video stream*/
 		//it's OK if it fails since it is retried in uvcGrab
 		video_enable(vd);
@@ -1173,6 +1168,7 @@ input_set_framerate (struct vdIn * device)
 
 	fd = device->fd;
 
+	device->streamparm.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 	device->streamparm.parm.capture.timeperframe.numerator = device->fps_num;
 	device->streamparm.parm.capture.timeperframe.denominator = device->fps;
 	 
