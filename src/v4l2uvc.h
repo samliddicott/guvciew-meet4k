@@ -30,6 +30,7 @@
 
 #define NB_BUFFER 8
 
+#define VDIN_DYNCTRL_OK            3
 #define VDIN_SELETIMEOUT_ERR       2
 #define VDIN_SELEFAIL_ERR          1
 #define VDIN_OK                    0
@@ -49,6 +50,7 @@
 #define VDIN_READ_ERR            -14
 #define VDIN_STREAMON_ERR        -15
 #define VDIN_STREAMOFF_ERR       -16
+#define VDIN_DYNCTRL_ERR         -17
 
 #define HEADERFRAME1 0xaf
 
@@ -169,6 +171,14 @@ int input_set_framerate (struct vdIn * device);
  * returns: VIDIOC_G_PARM ioctl result value
 */
 int input_get_framerate (struct vdIn * device);
+
+/* Enable video stream
+ * args:
+ * vd: pointer to a VdIn struct ( must be allready initiated)
+ *
+ * returns: VIDIOC_STREAMON ioctl result (0- OK)
+*/
+int video_enable(struct vdIn *vd);
 
 #endif
 

@@ -198,8 +198,17 @@ int initDynCtrls(int fd)
 		g_printf("Adding control for %s\n", xu_mappings[i].name);
 		if ((err=xioctl(fd, UVCIOC_CTRL_ADD, &xu_ctrls[i])) < 0 ) 
 		{
-			if (errno != EEXIST) perror("UVCIOC_CTRL_ADD - Error");
-			//else perror("Control exists");
+			if ((errno != EEXIST) || (errno != EACCES)) 
+			{	perror("UVCIOC_CTRL_ADD - Error");
+				return (-2);
+			}
+			else if (errno == EACCES)
+			{
+				g_printerr("need admin previledges for adding extension controls\n");
+				g_printerr("please run 'guvcview --add_ctrls' as root (or with sudo)\n");
+				return  (-1);
+			}
+			else perror("Control exists");
 		}
 	}
 	/* after adding the controls, add the mapping now */
@@ -208,8 +217,18 @@ int initDynCtrls(int fd)
 		g_printf("mapping control for %s\n", xu_mappings[i].name);
 		if ((err=xioctl(fd, UVCIOC_CTRL_MAP, &xu_mappings[i])) < 0) 
 		{
-			if (errno!=EEXIST) perror("UVCIOC_CTRL_MAP - Error");
-			//else perror("Mapping exists");
+			if ((errno!=EEXIST) || (errno != EACCES))
+			{
+				perror("UVCIOC_CTRL_MAP - Error");
+				return (-2);
+			}
+			else if (errno == EACCES)
+			{
+				g_printerr("need admin previledges for adding extension controls\n");
+				g_printerr("please run 'guvcview --add_ctrls' as root (or with sudo)\n");
+				return  (-1);
+			}
+			else perror("Mapping exists");
 		}
 	} 
 	return 0;

@@ -295,7 +295,7 @@ static int queue_buff(struct vdIn *vd)
  *
  * returns: VIDIOC_STREAMON ioctl result (0- OK)
 */
-static int video_enable(struct vdIn *vd)
+int video_enable(struct vdIn *vd)
 {
 	int type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 	int ret=0;
@@ -723,6 +723,39 @@ int init_videoIn(struct vdIn *vd, struct GLOBAL *global)
 	{
 		goto error;
 	}
+	
+	//add dynamic controls
+	//only for uvc logitech cameras
+	//needs admin rights
+	if(vd->listDevices->num_devices > 0)
+	{
+		g_printf("vid:%04x \npid:%04x \ndriver:%s\n",
+			vd->listDevices->listVidDevices[vd->listDevices->current_device].vendor,
+			vd->listDevices->listVidDevices[vd->listDevices->current_device].product,
+			vd->listDevices->listVidDevices[vd->listDevices->current_device].driver);
+		if(g_strcmp0(vd->listDevices->listVidDevices[vd->listDevices->current_device].driver,"uvcvideo") == 0)
+		{
+			if(vd->listDevices->listVidDevices[vd->listDevices->current_device].vendor != 0)
+			{
+				//check for logitech vid
+				if (vd->listDevices->listVidDevices[vd->listDevices->current_device].vendor == 0x046d)
+					(ret=initDynCtrls(vd->fd));
+				else ret= VDIN_DYNCTRL_ERR;
+			}
+			else (ret=initDynCtrls(vd->fd));
+		}
+		else ret = VDIN_DYNCTRL_ERR;
+		
+	}
+	
+	if(global->add_ctrls) 
+	{
+		//added extension controls so now we can exit
+		//set a return code for enabling the correct warning window
+		ret = (ret ? VDIN_DYNCTRL_ERR: VDIN_DYNCTRL_OK);
+		goto error;
+	}	
+	
 	if(!(global->control_only))
 	{
 		if ((ret=init_v4l2(vd)) < 0) 

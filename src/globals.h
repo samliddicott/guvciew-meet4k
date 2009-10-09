@@ -126,6 +126,7 @@ struct GLOBAL
 	gboolean VidButtPress;
 	gboolean control_only; //if set don't stream video (enables image control in other apps e.g. ekiga, skype, mplayer)
 	gboolean change_res;   //flag for reseting resolution
+	gboolean add_ctrls;    //flag for exiting after adding extension controls
 };
 
 /*----------------------------- prototypes ------------------------------------*/

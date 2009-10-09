@@ -197,7 +197,7 @@ int main(int argc, char *argv[])
 	global->format = get_PixFormat(global->mode);
 	if(global->debug) g_printf("%s: setting format to %i\n", global->mode, global->format);
 
-	if ( ( ret=init_videoIn (videoIn, global) ) < 0)
+	if ( ( ret=init_videoIn (videoIn, global) ) != 0)
 	{
 		g_printerr("Init video returned %i\n",ret);
 		switch (ret) 
@@ -205,6 +205,18 @@ int main(int argc, char *argv[])
 			case VDIN_DEVICE_ERR://can't open device
 				ERR_DIALOG (N_("Guvcview error:\n\nUnable to open device"),
 					N_("Please make sure the camera is connected\nand that the correct driver is installed."),
+					&all_data);
+				break;
+			
+			case VDIN_DYNCTRL_OK: //uvc extension controls OK
+				ERR_DIALOG (N_("Guvcview:\n\nUVC Extension controls"),
+					N_("Extension controls were added to the UVC driver"),
+					&all_data);
+				break;
+				
+			case VDIN_DYNCTRL_ERR: //uvc extension controls error - EACCES (needs root user)
+				ERR_DIALOG (N_("Guvcview error:\n\nUVC Extension controls"),
+					N_("An error ocurred while adding extension\ncontrols to the UVC driver\nMake sure you run guvcview as root (or sudo)."),
 					&all_data);
 				break;
 				

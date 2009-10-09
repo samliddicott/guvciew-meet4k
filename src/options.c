@@ -528,6 +528,7 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 		{ "version", 0, 0, G_OPTION_ARG_NONE, &vers, N_("Prints version"), NULL},
 		{ "verbose", 'v', 0, G_OPTION_ARG_NONE, &global->debug, N_("Displays debug information"), NULL },
 		{ "device", 'd', 0, G_OPTION_ARG_STRING, &device, N_("Video Device to use [default: /dev/video0]"), "VIDEO_DEVICE" },
+		{ "add_ctrls", 'a', 0, G_OPTION_ARG_NONE, &global->add_ctrls, N_("Exit after adding UVC extension controls (needs root/sudo)"), NULL},
 		{ "control_only", 'o', 0, G_OPTION_ARG_NONE, &global->control_only, N_("Don't stream video (image controls only)"), NULL},
 		{ "capture_method", 'r', 0, G_OPTION_ARG_INT, &cap_meth, N_("Capture method (1-mmap (default)  2-read)"), "[1 | 2]"},
 		{ "config", 'g', 0, G_OPTION_ARG_STRING, &config, N_("Configuration file"), "FILENAME" },

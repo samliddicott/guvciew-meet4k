@@ -138,6 +138,7 @@ int initGlobals (struct GLOBAL *global)
 	global->AFcontrol = FALSE;
 	global->VidButtPress = FALSE;
 	global->change_res = FALSE;
+	global->add_ctrls = FALSE;
 	return (0);
 }
 
