@@ -735,10 +735,6 @@ int init_videoIn(struct vdIn *vd, struct GLOBAL *global)
 		{
 			goto error;
 		}
-		
-		/*try to start the video stream*/
-		//it's OK if it fails since it is retried in uvcGrab
-		video_enable(vd);
 	}
 	return (ret);
 	//error: clean up allocs

@@ -180,7 +180,7 @@ next_control:
 			control = add_control(fd, &queryctrl, control, &n);
 		}
 	}
-		
+	
 	*num_controls = n;
 	return control;
 }

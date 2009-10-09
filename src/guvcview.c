@@ -534,6 +534,7 @@ int main(int argc, char *argv[])
 	{
 		/*------------------------- Video Tab ---------------------------------*/
 		video_tab (&all_data);
+		
 		/*-------------------------- Audio Tab --------------------------------*/
 		audio_tab (&all_data);
 	} /*end of control_only exclusion*/
