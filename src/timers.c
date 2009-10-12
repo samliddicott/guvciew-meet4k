@@ -150,7 +150,7 @@ FreeDiskCheck_timer(gpointer data)
 			break;
 			
 		case 1: //yuyv
-			free_tresh = 256000; // 250Mb
+			free_tresh = 358400; // 300Mb
 			break;
 			
 		case 2: //rgb
