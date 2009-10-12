@@ -754,7 +754,9 @@ int init_videoIn(struct vdIn *vd, struct GLOBAL *global)
 		//set a return code for enabling the correct warning window
 		ret = (ret ? VDIN_DYNCTRL_ERR: VDIN_DYNCTRL_OK);
 		goto error;
-	}	
+	}
+	else
+		ret = 0;
 	
 	if(!(global->control_only))
 	{
