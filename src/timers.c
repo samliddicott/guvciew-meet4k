@@ -135,32 +135,69 @@ FreeDiskCheck_timer(gpointer data)
 	struct ALL_DATA * all_data = (struct ALL_DATA *) data;
 	struct GLOBAL *global = all_data->global;
 	struct vdIn *videoIn = all_data->videoIn;
-	
+	struct GWIDGET *gwidget = all_data->gwidget;
+
+	int free_tresh = 51200; //50Mb - default for compressed data
 	int percent = 0;
-	QWORD free_bytes=0;
-	QWORD total_bytes=0;
+	QWORD free_kbytes=0;
+	QWORD total_kbytes=0;
 	struct statfs buf;
-	 
+
+	switch(global->VidCodec)
+	{
+		case 0: //MJPEG
+			free_tresh = 102400; // 100Mb
+			break;
+			
+		case 1: //yuyv
+			free_tresh = 256000; // 250Mb
+			break;
+			
+		case 2: //rgb
+			free_tresh = 512000; // 500Mb
+			break;
+			
+		default: //lavc
+			free_tresh = 51200; //50Mb 
+			break;
+	}
+	
 	statfs(videoIn->VidFName, &buf);
 
-	total_bytes= buf.f_blocks * (buf.f_bsize/1024);
-	free_bytes= buf.f_bavail * (buf.f_bsize/1024);
+	total_kbytes= buf.f_blocks * (buf.f_bsize/1024);
+	free_kbytes= buf.f_bavail * (buf.f_bsize/1024);
 
-	if(total_bytes > 0)
-		percent = (int) ((1.0f-((float)free_bytes/(float)total_bytes))*100.0f);
+	if(total_kbytes > 0)
+		percent = (int) ((1.0f-((float)free_kbytes/(float)total_kbytes))*100.0f);
+	else
+	{
+		g_printerr("couldn't get disk stats for %s\n", videoIn->VidFName);
+		return (FALSE);
+	}
 	
 	if(global->debug) 
-		g_printf("(%s) %llu Kbytes free on a total of %llu (used %d %%)\n", 
-			videoIn->VidFName, free_bytes, total_bytes, percent);
+		g_printf("(%s) %lluK bytes free on a total of %lluK (used: %d %%) treshold=%iK\n", 
+			videoIn->VidFName, free_kbytes, total_kbytes, percent, free_tresh);
+
 	
 	if (videoIn->capVid) 
 	{
-		return(TRUE); /*keeps the timer*/
+		if(free_kbytes < free_tresh)
+		{
+			g_printerr("Not enought free disk space (%lluKb)- stopping video capture\n", free_kbytes);
+			/*stop video capture*/
+			if(global->debug) g_printf("setting video toggle to FALSE\n");
+			gdk_threads_enter();
+			gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(gwidget->CapVidButt), FALSE);
+			gdk_flush();
+			gdk_threads_leave();
+		}
+		else
+			return(TRUE); /*keeps the timer*/
 	}
-	else 
-	{
-		//global->disk_timer_id=0;
-		return (FALSE);/*destroys the timer*/
-	}
+	
+	//global->disk_timer_id=0;
+	return (FALSE);/*destroys the timer*/
+	
 }
 
