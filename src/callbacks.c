@@ -989,6 +989,8 @@ capture_vid (GtkToggleButton *VidButt, struct ALL_DATA *all_data)
 			gtk_button_set_label(GTK_BUTTON(gwidget->CapVidButt),_("Cap. Video"));
 			//gtk_widget_show (gwidget->VidButton_Img);
 		}
+		if(global->disk_timer_id) g_source_remove(global->disk_timer_id);
+		global->disk_timer_id = 0;
 	} 
 	else if(!(videoIn->capVid) /*&& state*/)
 	{	/******************** Start Video *********************/
@@ -1000,6 +1002,10 @@ capture_vid (GtkToggleButton *VidButt, struct ALL_DATA *all_data)
 		g_snprintf(global->vidinc_str,24,_("File num:%d"),global->vid_inc);
 		gtk_label_set_text(GTK_LABEL(gwidget->VidIncLabel), global->vidinc_str);
 	
+		/*start disk check timed callback (every 10 sec)*/
+		if (!global->disk_timer_id)
+			global->disk_timer_id=g_timeout_add(10*1000, FreeDiskCheck_timer, all_data);
+				
 		if (global->vid_inc>0) 
 		{
 			videoIn->VidFName = incFilename(videoIn->VidFName,

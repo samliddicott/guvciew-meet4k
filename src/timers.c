@@ -24,6 +24,10 @@
 #include <glib/gi18n.h>
 #include <glib/gprintf.h>
 #include <gtk/gtk.h>
+#include <stdio.h>
+#include <sys/types.h>
+#include <sys/statfs.h>
+
 #include "string_utils.h"
 #include "v4l2uvc.h"
 #include "globals.h"
@@ -122,3 +126,41 @@ FpsCount_callback(gpointer data)
 		return (FALSE);/*destroys the timer*/
 	}
 }
+
+
+/* called by video capture every 10 sec for checking disk free space*/
+gboolean 
+FreeDiskCheck_timer(gpointer data)
+{
+	struct ALL_DATA * all_data = (struct ALL_DATA *) data;
+	struct GLOBAL *global = all_data->global;
+	struct vdIn *videoIn = all_data->videoIn;
+	
+	int percent = 0;
+	QWORD free_bytes=0;
+	QWORD total_bytes=0;
+	struct statfs buf;
+	 
+	statfs(videoIn->VidFName, &buf);
+
+	total_bytes= buf.f_blocks * (buf.f_bsize/1024);
+	free_bytes= buf.f_bavail * (buf.f_bsize/1024);
+
+	if(total_bytes > 0)
+		percent = (int) ((1.0f-((float)free_bytes/(float)total_bytes))*100.0f);
+	
+	if(global->debug) 
+		g_printf("(%s) %llu Kbytes free on a total of %llu (used %d %%)\n", 
+			videoIn->VidFName, free_bytes, total_bytes, percent);
+	
+	if (videoIn->capVid) 
+	{
+		return(TRUE); /*keeps the timer*/
+	}
+	else 
+	{
+		//global->disk_timer_id=0;
+		return (FALSE);/*destroys the timer*/
+	}
+}
+

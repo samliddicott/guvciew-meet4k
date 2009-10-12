@@ -33,4 +33,8 @@ Image_capture_timer(gpointer data);
 gboolean 
 FpsCount_callback(gpointer data);
 
+/* called by video capture every 10 sec for checking disk free space*/
+gboolean 
+FreeDiskCheck_timer(gpointer data);
+
 #endif

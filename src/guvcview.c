@@ -212,8 +212,8 @@ int main(int argc, char *argv[])
 				ERR_DIALOG (N_("Guvcview:\n\nUVC Extension controls"),
 					N_("Extension controls were added to the UVC driver"),
 					&all_data);
-				break;
-				
+				break;				
+
 			case VDIN_DYNCTRL_ERR: //uvc extension controls error - EACCES (needs root user)
 				ERR_DIALOG (N_("Guvcview error:\n\nUVC Extension controls"),
 					N_("An error ocurred while adding extension\ncontrols to the UVC driver\nMake sure you run guvcview as root (or sudo)."),
@@ -599,6 +599,11 @@ int main(int argc, char *argv[])
 		if(global->vidfile) 
 		{
 			videoIn->VidFName = joinPath(videoIn->VidFName, global->vidFPath);
+			
+			/*start disk check timed callback (every 10 sec)*/
+			if (!global->disk_timer_id)
+				global->disk_timer_id=g_timeout_add(10*1000, FreeDiskCheck_timer, &all_data);
+				
 			initVideoFile(&all_data);
 			if (global->Capture_time) 
 			{

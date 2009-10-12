@@ -90,6 +90,7 @@ struct GLOBAL
 	int FpsCount;          //frames counter for fps calc
 	int timer_id;          //fps count timer
 	int image_timer_id;    //auto image capture timer
+	int disk_timer_id;     //timer id for disk check (free space)
 	int image_timer;       //auto image capture time
 	int image_npics;       //number of captures
 	int fps;               //fps denominator

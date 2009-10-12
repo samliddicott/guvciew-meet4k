@@ -100,6 +100,7 @@ int initGlobals (struct GLOBAL *global)
 	
 	global->FpsCount=0;
 
+	global->disk_timer_id=0;
 	global->timer_id=0;
 	global->image_timer_id=0;
 	global->image_timer=0;
