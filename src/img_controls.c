@@ -89,7 +89,7 @@ draw_controls (struct ALL_DATA *all_data)
 	/* do it here (after all ioctls) since some cameras take  */
 	/* a long time to initialize after this                   */
 	/* it's OK if it fails since it is retried in uvcGrab     */
-	video_enable(videoIn);
+	if(!global->control_only) video_enable(videoIn);
 	
 	if (global->debug) 
 	{
