@@ -127,22 +127,25 @@ FpsCount_callback(gpointer data)
 	}
 }
 
-
-/* called by video capture every 10 sec for checking disk free space*/
-gboolean 
-FreeDiskCheck_timer(gpointer data)
+/*
+ * Not a timer callback
+ * Regular function to determine if enought free space is available
+ * returns TRUE if still enough free space left on disk
+ * FALSE otherwise
+ */
+gboolean
+DiskSupervisor(gpointer data)
 {
 	struct ALL_DATA * all_data = (struct ALL_DATA *) data;
 	struct GLOBAL *global = all_data->global;
 	struct vdIn *videoIn = all_data->videoIn;
-	struct GWIDGET *gwidget = all_data->gwidget;
 
 	int free_tresh = 51200; //50Mb - default for compressed data
 	int percent = 0;
 	QWORD free_kbytes=0;
 	QWORD total_kbytes=0;
 	struct statfs buf;
-
+	
 	switch(global->VidCodec)
 	{
 		case 0: //MJPEG
@@ -162,7 +165,7 @@ FreeDiskCheck_timer(gpointer data)
 			break;
 	}
 	
-	statfs(videoIn->VidFName, &buf);
+	statfs(global->vidFPath[1], &buf);
 
 	total_kbytes= buf.f_blocks * (buf.f_bsize/1024);
 	free_kbytes= buf.f_bavail * (buf.f_bsize/1024);
@@ -172,19 +175,37 @@ FreeDiskCheck_timer(gpointer data)
 	else
 	{
 		g_printerr("couldn't get disk stats for %s\n", videoIn->VidFName);
-		return (FALSE);
+		return (TRUE); /* don't invalidate video capture*/
 	}
 	
 	if(global->debug) 
 		g_printf("(%s) %lluK bytes free on a total of %lluK (used: %d %%) treshold=%iK\n", 
-			videoIn->VidFName, free_kbytes, total_kbytes, percent, free_tresh);
+			global->vidFPath[1], free_kbytes, total_kbytes, percent, free_tresh);
 
+	
+	if(free_kbytes < free_tresh)
+	{
+		g_printerr("Not enought free disk space (%lluKb) left on disk\n", free_kbytes);
+		return(FALSE); /* not enough free space left on disk   */
+	}
+	else
+		return (TRUE); /* still have enough free space on disk */
+}
+
+/* called by video capture every 10 sec for checking disk free space*/
+gboolean 
+FreeDiskCheck_timer(gpointer data)
+{
+	struct ALL_DATA * all_data = (struct ALL_DATA *) data;
+	struct vdIn *videoIn = all_data->videoIn;
+	struct GLOBAL *global = all_data->global;
+	struct GWIDGET *gwidget = all_data->gwidget;
 	
 	if (videoIn->capVid) 
 	{
-		if(free_kbytes < free_tresh)
+		if(!DiskSupervisor(data))
 		{
-			g_printerr("Not enought free disk space (%lluKb)- stopping video capture\n", free_kbytes);
+			g_printerr("Stopping video Capture\n");
 			/*stop video capture*/
 			if(global->debug) g_printf("setting video toggle to FALSE\n");
 			gdk_threads_enter();

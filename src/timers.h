@@ -33,6 +33,15 @@ Image_capture_timer(gpointer data);
 gboolean 
 FpsCount_callback(gpointer data);
 
+/*
+ * Not a timer callback
+ * Regular function to determine if enought free space is available
+ * returns TRUE if still enough free space left on disk
+ * FALSE otherwise
+ */
+gboolean
+DiskSupervisor(gpointer data);
+
 /* called by video capture every 10 sec for checking disk free space*/
 gboolean 
 FreeDiskCheck_timer(gpointer data);

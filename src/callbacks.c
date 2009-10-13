@@ -963,6 +963,9 @@ capture_vid (GtkToggleButton *VidButt, struct ALL_DATA *all_data)
 	struct paRecordData *pdata = all_data->pdata;
 	struct GLOBAL *global = all_data->global;
 	struct vdIn *videoIn = all_data->videoIn;
+
+	/*disable signals for this callback*/
+	g_signal_handlers_block_by_func(GTK_TOGGLE_BUTTON(gwidget->CapVidButt), G_CALLBACK (capture_vid), all_data);
 	
 	const char *fileEntr = gtk_entry_get_text(GTK_ENTRY(gwidget->VidFNameEntry));
 	if(g_strcmp0(fileEntr,global->vidFPath[0])!=0) 
@@ -1014,23 +1017,39 @@ capture_vid (GtkToggleButton *VidButt, struct ALL_DATA *all_data)
 		{
 			videoIn->VidFName = joinPath(videoIn->VidFName, global->vidFPath);
 		}
-		
-		/*start disk check timed callback (every 10 sec)*/
-		if (!global->disk_timer_id)
-			global->disk_timer_id=g_timeout_add(10*1000, FreeDiskCheck_timer, all_data);
-		
-		if(initVideoFile(all_data)<0)
+
+		/* check if enough free space is available on disk*/
+		if(!DiskSupervisor(all_data))
 		{
 			g_printf("Cap Video failed\n");
 			gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(gwidget->CapVidButt), FALSE);
+			
 			state = FALSE;
 		}
+		else
+		{
+			/*start disk check timed callback (every 10 sec)*/
+			if (!global->disk_timer_id)
+				global->disk_timer_id=g_timeout_add(10*1000, FreeDiskCheck_timer, all_data);
+		
+			if(initVideoFile(all_data)<0)
+			{
+				g_printf("Cap Video failed\n");
+				
+				gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(gwidget->CapVidButt), FALSE);
+				state = FALSE;
+			}
+		}
+		
 		if(state)
 		{
 			gtk_button_set_label(GTK_BUTTON(gwidget->CapVidButt),_("Stop Video"));
 			//gtk_widget_show (gwidget->VidButton_Img);
 		}
 	}
+
+	/*enable signals for this callback*/
+	g_signal_handlers_unblock_by_func(GTK_TOGGLE_BUTTON(gwidget->CapVidButt), G_CALLBACK (capture_vid), all_data);
 	
 	gwidget = NULL;
 	pdata = NULL;
