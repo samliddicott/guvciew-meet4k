@@ -54,7 +54,8 @@
 
 #define HEADERFRAME1 0xaf
 
-#define IOCTL_RETRY 40
+//set ioctl retries to 4 - linux uvc as increased timeout from 1000 to 3000 ms  
+#define IOCTL_RETRY 4
 
 enum  v4l2_uvc_exposure_auto_type 
 {

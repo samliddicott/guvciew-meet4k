@@ -1,3 +1,14 @@
+guvcview (1.2.0-ubuntu1) karmic; urgency=low
+
+   * Resolution and input format change no longer need a restart
+   * Add "add_ctrls" option - exits after adding extension controls
+   * Add disk check during capture (checks free space every 10sec)
+   * Stop capture if low on free disk space
+   * Add xioctl funtion - failed ioctl will be retried 4 times in case of I/O error
+   * Fixed invalid gtk-button-images property warning   
+
+ -- Paulo Assis <pj.assis@gmail.com>  Wed, 13 Oct 2009 11:30:00 +0000
+
 guvcview (1.1.4-ubuntu1) karmic; urgency=low
 
    * Set pixel format BA81 to correct fourcc
