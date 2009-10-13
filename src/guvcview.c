@@ -171,7 +171,10 @@ int main(int argc, char *argv[])
 	/*---------------------------- GTK init ----------------------------------*/
 
 	gtk_init(&argc, &argv);
-	/* make sure gtk-button-images is set to true (defaults to false in karmic)*/
+	
+	/* make sure the type is realized so that we can change the properties*/
+	g_type_class_unref (g_type_class_ref (GTK_TYPE_BUTTON));
+	/* make sure gtk-button-images property is set to true (defaults to false in karmic)*/
 	g_object_set (gtk_settings_get_default (), "gtk-button-images", TRUE, NULL);
 
 	/* Create a main window */
