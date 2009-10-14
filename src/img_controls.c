@@ -85,12 +85,6 @@ draw_controls (struct ALL_DATA *all_data)
 	s->num_controls = 0;
 	s->control = input_enum_controls (videoIn->fd, &(s->num_controls));
 	
-	/*              try to start the video stream             */
-	/* do it here (after all ioctls) since some cameras take  */
-	/* a long time to initialize after this                   */
-	/* it's OK if it fails since it is retried in uvcGrab     */
-	if(!global->control_only) video_enable(videoIn);
-	
 	if (global->debug) 
 	{
 		g_printf("Controls:\n");
@@ -506,6 +500,12 @@ draw_controls (struct ALL_DATA *all_data)
 		}
 		row++; /*increment control row*/
 	}
+
+	/*              try to start the video stream             */
+	/* do it here (after all ioctls) since some cameras take  */
+	/* a long time to initialize after this                   */
+	/* it's OK if it fails since it is retried in uvcGrab     */
+	if(!global->control_only) video_enable(videoIn);
 	
 	s = NULL;
 	global = NULL;
