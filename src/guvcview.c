@@ -609,7 +609,7 @@ int main(int argc, char *argv[])
 			
 			gboolean cap_ok = TRUE;
 			/* check if enough free space is available on disk*/
-			if(!DiskSupervisor(all_data))
+			if(!DiskSupervisor(&all_data))
 			{
 				cap_ok = FALSE;
 			}
