@@ -13,3 +13,4 @@ src/options.c
 src/img_controls.c 		 
 src/callbacks.c 		 
 src/close.c
+src/timers.c

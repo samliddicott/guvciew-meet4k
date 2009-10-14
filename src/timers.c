@@ -185,7 +185,8 @@ DiskSupervisor(gpointer data)
 	
 	if(free_kbytes < free_tresh)
 	{
-		g_printerr("Not enought free disk space (%lluKb) left on disk\n", free_kbytes);
+		g_printerr("Not enough free disk space (%lluKb) left on disk, need > %ik \n", free_kbytes, free_tresh);
+		WARN_DIALOG(N_("Guvcview Warning:"), N_("Not enough free space left on disk"), data);
 		return(FALSE); /* not enough free space left on disk   */
 	}
 	else

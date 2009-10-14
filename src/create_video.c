@@ -37,9 +37,7 @@
 #include "vcodecs.h"
 #include "video_format.h"
 
-
 /*--------------------------- controls enable/disable --------------------------*/
-
 /* sound controls*/
 void 
 set_sensitive_snd_contrls (const int flag, struct GWIDGET *gwidget)
@@ -59,6 +57,13 @@ set_sensitive_vid_contrls (const int flag, const int sndEnable, struct GWIDGET *
 	gtk_widget_set_sensitive (gwidget->SndEnable, flag); 
 	gtk_widget_set_sensitive (gwidget->VidInc, flag);
 	gtk_widget_set_sensitive (gwidget->VidFormat, flag);/*video format combobox*/
+	// resolution and input format combos
+	gtk_widget_set_sensitive (gwidget->Resolution, flag);
+	gtk_widget_set_sensitive (gwidget->InpType, flag);
+	// Video File entry and open button
+	gtk_widget_set_sensitive (gwidget->VidFNameEntry, flag);
+	gtk_widget_set_sensitive (gwidget->VidFileButt, flag);
+	
 	if(sndEnable > 0) 
 	{
 		set_sensitive_snd_contrls(flag, gwidget);

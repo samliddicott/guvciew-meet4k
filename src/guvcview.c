@@ -211,10 +211,11 @@ int main(int argc, char *argv[])
 					&all_data);
 				break;
 			
-			case VDIN_DYNCTRL_OK: //uvc extension controls OK
-				ERR_DIALOG (N_("Guvcview:\n\nUVC Extension controls"),
+			case VDIN_DYNCTRL_OK: //uvc extension controls OK, give warning and shutdown (called with --add_ctrls)
+				WARN_DIALOG (N_("Guvcview:\n\nUVC Extension controls"),
 					N_("Extension controls were added to the UVC driver"),
 					&all_data);
+				shutd(0, &all_data);
 				break;				
 
 			case VDIN_DYNCTRL_ERR: //uvc extension controls error - EACCES (needs root user)
@@ -440,7 +441,6 @@ int main(int argc, char *argv[])
 		if (global->vidfile) 
 		{	/*vid capture enabled from start*/
 			gwidget->CapVidButt=gtk_toggle_button_new_with_label (_("Stop Video"));
-		
 			gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gwidget->CapVidButt), TRUE);
 		} 
 		else 
@@ -603,17 +603,37 @@ int main(int argc, char *argv[])
 		{
 			videoIn->VidFName = joinPath(videoIn->VidFName, global->vidFPath);
 			
-			/*start disk check timed callback (every 10 sec)*/
-			if (!global->disk_timer_id)
-				global->disk_timer_id=g_timeout_add(10*1000, FreeDiskCheck_timer, &all_data);
-				
-			initVideoFile(&all_data);
-			if (global->Capture_time) 
+			gboolean cap_ok = TRUE;
+			/* check if enough free space is available on disk*/
+			if(!DiskSupervisor(all_data))
 			{
-				/*sets the timer function*/
-				g_timeout_add(global->Capture_time*1000,timer_callback,&all_data);
+				cap_ok = FALSE;
+			}
+			else
+			{
+				/*start disk check timed callback (every 10 sec)*/
+				if (!global->disk_timer_id)
+					global->disk_timer_id=g_timeout_add(10*1000, FreeDiskCheck_timer, &all_data);
+				
+				if(initVideoFile(&all_data)<0)
+				{
+					cap_ok = FALSE;
+				}
+				else if (global->Capture_time) 
+				{
+					/*sets the timer function*/
+					g_timeout_add(global->Capture_time*1000,timer_callback,&all_data);
+				}
 			}
 			
+			if(!cap_ok)
+			{
+				g_printerr("ERROR: couldn't start video capture\n");
+				//g_signal_handlers_block_by_func(GTK_TOGGLE_BUTTON(gwidget->CapVidButt), G_CALLBACK (capture_vid), all_data);
+				gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(gwidget->CapVidButt), FALSE);
+				gtk_button_set_label(GTK_BUTTON(gwidget->CapVidButt),_("Cap. Video"));
+				//g_signal_handlers_unblock_by_func(GTK_TOGGLE_BUTTON(gwidget->CapVidButt), G_CALLBACK (capture_vid), all_data);
+			}
 		}
 	
 		if (global->FpsCount>0)

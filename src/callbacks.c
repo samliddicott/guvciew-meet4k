@@ -45,7 +45,30 @@
 #include "lavc_common.h"
 #include "create_video.h"
 #include "video_format.h"
-/*---------------------------- error message dialog-----------------------------*/
+
+/*--------------------------- warning message dialog ----------------------------*/
+void
+WARN_DIALOG(const char *warn_title, const char* warn_msg, struct ALL_DATA *all_data)
+{
+	struct GWIDGET *gwidget = all_data->gwidget;
+	//struct GLOBAL *global = all_data->global;
+	
+	GtkWidget *warndialog;
+	warndialog = gtk_message_dialog_new (GTK_WINDOW(gwidget->mainwin),
+		GTK_DIALOG_DESTROY_WITH_PARENT,
+		GTK_MESSAGE_WARNING,
+		GTK_BUTTONS_CLOSE,
+		"%s",gettext(warn_title));
+
+	gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(warndialog),
+		"%s",gettext(warn_msg));
+
+	gtk_widget_show(warndialog);
+	gtk_dialog_run (GTK_DIALOG (warndialog));
+	gtk_widget_destroy (warndialog);
+}
+
+/*---------------------------- error message dialog -----------------------------*/
 void 
 ERR_DIALOG(const char *err_title, const char* err_msg, struct ALL_DATA *all_data)
 {
@@ -966,6 +989,7 @@ capture_vid (GtkToggleButton *VidButt, struct ALL_DATA *all_data)
 
 	/*disable signals for this callback*/
 	g_signal_handlers_block_by_func(GTK_TOGGLE_BUTTON(gwidget->CapVidButt), G_CALLBACK (capture_vid), all_data);
+	/*widgets are enable/disable in create_video.c*/
 	
 	const char *fileEntr = gtk_entry_get_text(GTK_ENTRY(gwidget->VidFNameEntry));
 	if(g_strcmp0(fileEntr,global->vidFPath[0])!=0) 
@@ -982,10 +1006,6 @@ capture_vid (GtkToggleButton *VidButt, struct ALL_DATA *all_data)
 	
 	if(videoIn->capVid || !state) 
 	{	/****************** Stop Video ************************/
-		//enable resolution and input format combos
-		gtk_widget_set_sensitive (gwidget->Resolution, TRUE);
-		gtk_widget_set_sensitive (gwidget->InpType, TRUE);
-		
 		closeVideoFile(all_data);
 		if(!(state))
 		{
@@ -995,12 +1015,8 @@ capture_vid (GtkToggleButton *VidButt, struct ALL_DATA *all_data)
 		if(global->disk_timer_id) g_source_remove(global->disk_timer_id);
 		global->disk_timer_id = 0;
 	} 
-	else if(!(videoIn->capVid) /*|| state*/)
+	else if(!(videoIn->capVid) /*&& state*/)
 	{	/******************** Start Video *********************/
-		//disable resolution and input format combos
-		gtk_widget_set_sensitive (gwidget->Resolution, FALSE);
-		gtk_widget_set_sensitive (gwidget->InpType, FALSE);
-		
 		global->vidFPath=splitPath((char *)fileEntr, global->vidFPath);
 		g_snprintf(global->vidinc_str,24,_("File num:%d"),global->vid_inc);
 		gtk_label_set_text(GTK_LABEL(gwidget->VidIncLabel), global->vidinc_str);

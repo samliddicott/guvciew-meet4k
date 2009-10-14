@@ -30,6 +30,10 @@
 void 
 set_sensitive_snd_contrls (const int flag, struct GWIDGET *gwidget);
 
+/*video controls*/
+void 
+set_sensitive_vid_contrls (const int flag, const int sndEnable, struct GWIDGET *gwidget);
+
 int initVideoFile(struct ALL_DATA *data);
 
 void closeVideoFile(struct ALL_DATA *all_data);

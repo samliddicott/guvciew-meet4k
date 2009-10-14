@@ -27,17 +27,14 @@
 #include <gtk/gtk.h>
 #include "guvcview.h"
 
+void
+WARN_DIALOG(const char *warn_title, const char* warn_msg, struct ALL_DATA *all_data);
+
 void 
 ERR_DIALOG(const char *err_title, const char* err_msg, struct ALL_DATA *all_data);
 
 gint
 delete_event (GtkWidget *widget, GdkEventConfigure *event, void *data);
-
-void 
-set_sensitive_snd_contrls (const int flag, struct GWIDGET *gwidget);
-
-void 
-set_sensitive_vid_contrls (const int flag, const int sndEnable, struct GWIDGET *gwidget);
 
 void 
 set_sensitive_img_contrls (const int flag, struct GWIDGET *gwidget);
