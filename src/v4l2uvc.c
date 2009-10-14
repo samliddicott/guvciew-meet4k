@@ -109,6 +109,10 @@
 #define CSTR_WBCB_UVC		N_("White Balance Blue Component")
 #define	CSTR_WBCR_UVC		N_("White Balance Red Component")
 
+//libwebcam specific control strings
+#define CSTR_FOCUS_LIBWC	N_("Focus")
+#define CSTR_FOCUSABS_LIBWC	N_("Focus (Absolute)")
+
 
 /* ioctl with a number of retries in the case of failure
 * args:

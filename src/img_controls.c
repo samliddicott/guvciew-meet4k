@@ -53,31 +53,6 @@ draw_controls (struct ALL_DATA *all_data)
 	struct GLOBAL *global = all_data->global;
 	struct vdIn *videoIn = all_data->videoIn;
 	
-	/*
-	 * add dynamic controls
-	 * only uvc logitech cameras
-	 * needs admin rights
-	 * only for uvc driver (uvcvideo)
-	 */
-	
-	// if(videoIn->listDevices->num_devices > 0)
-	// {
-		// g_printf("vid:%04x \npid:%04x \ndriver:%s\n",
-			// videoIn->listDevices->listVidDevices[videoIn->listDevices->current_device].vendor,
-			// videoIn->listDevices->listVidDevices[videoIn->listDevices->current_device].product,
-			// videoIn->listDevices->listVidDevices[videoIn->listDevices->current_device].driver);
-		// if(g_strcmp0(videoIn->listDevices->listVidDevices[videoIn->listDevices->current_device].driver,"uvcvideo") == 0)
-		// {
-			// if(videoIn->listDevices->listVidDevices[videoIn->listDevices->current_device].vendor != 0)
-			// {
-				// //check for logitech vid
-				// if (videoIn->listDevices->listVidDevices[videoIn->listDevices->current_device].vendor == 0x046d)
-					// initDynCtrls(videoIn->fd);
-			// }
-			// else initDynCtrls(videoIn->fd);
-		// }
-	// }
-	
 	if (s->control) 
 	{
 		input_free_controls (s);
