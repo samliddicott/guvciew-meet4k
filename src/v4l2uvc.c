@@ -755,8 +755,7 @@ int init_videoIn(struct vdIn *vd, struct GLOBAL *global)
 		ret = (ret ? VDIN_DYNCTRL_ERR: VDIN_DYNCTRL_OK);
 		goto error;
 	}
-	else
-		ret = 0;
+	else ret = 0; //clean ret code
 	
 	if(!(global->control_only))
 	{
@@ -779,12 +778,21 @@ error:
 	g_free(vd->videodevice);
 	g_free(vd->VidFName);
 	g_free(vd->ImageFName);
+	vd->videodevice = NULL;
+	vd->VidFName = NULL;
+	vd->ImageFName = NULL;
+	
 	if(vd->cap_meth == IO_READ)
 	{
 		g_printf("cleaning read buffer\n");
-		if((vd->buf.length > 0) && vd->mem[0]) g_free(vd->mem[0]);
+		if((vd->buf.length > 0) && vd->mem[0]) 
+		{
+			g_free(vd->mem[0]);
+			vd->mem[0] = NULL;
+		}
 	}
 	g_mutex_free( vd->mutex );
+	vd->mutex = NULL;
 	return ret;
 }
 
@@ -1180,6 +1188,7 @@ void close_v4l2(struct vdIn *vd, gboolean control_only)
 	// close device descriptor
 	close(vd->fd);
 	g_mutex_free( vd->mutex );
+	vd->mutex = NULL;
 	// free struct allocation
 	g_free(vd);
 	vd=NULL;

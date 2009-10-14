@@ -80,7 +80,7 @@ ERR_DIALOG(const char *err_title, const char* err_msg, struct ALL_DATA *all_data
 	struct vdIn *videoIn = all_data->videoIn;
 	struct VideoFormatData *videoF = all_data->videoF;
 	
-	gboolean control_only = global->control_only;
+	gboolean control_only = (global->control_only || global->add_ctrls);
 	
 	GtkWidget *errdialog;
 	errdialog = gtk_message_dialog_new (GTK_WINDOW(gwidget->mainwin),
@@ -95,7 +95,7 @@ ERR_DIALOG(const char *err_title, const char* err_msg, struct ALL_DATA *all_data
 	gtk_widget_show(errdialog);
 	gtk_dialog_run (GTK_DIALOG (errdialog));
 	gtk_widget_destroy (errdialog);
-
+	
 	g_free(gwidget);
 	gwidget = NULL;
 	all_data->gwidget = NULL;
@@ -125,6 +125,18 @@ ERR_DIALOG(const char *err_title, const char* err_msg, struct ALL_DATA *all_data
 	videoF = NULL;
 	all_data->videoF = NULL;
 
+	/* error dialog is allways called before creating the main loop */
+	/* so no need for gtk_main_quit()                               */
+	/* but this means we must close portaudio before exiting        */
+	if(!control_only)
+	{
+		g_printf("Closing portaudio ...");
+		if (Pa_Terminate() != paNoError) 
+			g_printf("Error\n");
+		else
+			g_printf("OK\n");
+	}
+	
 	g_printf("Terminated.\n");;
 	exit(1);
 };

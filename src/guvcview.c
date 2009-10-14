@@ -115,7 +115,9 @@ int main(int argc, char *argv[])
 	/*------------------------- reads configuration file ---------------------*/
 	readConf(global);
 	
-	control_only = global->control_only; //sets local control_only flag
+	//sets local control_only flag - prevents several initializations/allocations
+	control_only = (global->control_only || global->add_ctrls) ;
+	
 	/*---------------------------------- Allocations -------------------------*/
 	
 	gwidget = g_new0(struct GWIDGET, 1);
@@ -215,6 +217,8 @@ int main(int argc, char *argv[])
 				WARN_DIALOG (N_("Guvcview:\n\nUVC Extension controls"),
 					N_("Extension controls were added to the UVC driver"),
 					&all_data);
+				// this will call gtk_main_quit() since we didn't create the main loop yet it's unecessary
+				// but it should be ok
 				shutd(0, &all_data);
 				break;				
 
@@ -659,7 +663,7 @@ int main(int argc, char *argv[])
 			g_printf("OK\n");
 	}
 	
-	//g_printf("Exit: OK\n");
+	g_printf("Closing GTK... OK\n");
 	return 0;
 }
 
