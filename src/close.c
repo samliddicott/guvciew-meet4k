@@ -45,7 +45,7 @@
 
 /*-------------------------- clean up and shut down --------------------------*/
 
-static void
+void
 clean_struct (struct ALL_DATA *all_data) 
 {
 	struct GWIDGET *gwidget = all_data->gwidget;
@@ -55,8 +55,8 @@ clean_struct (struct ALL_DATA *all_data)
 	struct focusData *AFdata = all_data->AFdata;
 	struct vdIn *videoIn = all_data->videoIn;
 	struct VideoFormatData *videoF = all_data->videoF;
-
-	gboolean control_only = global->control_only;
+	
+	gboolean control_only = (global->control_only || global->add_ctrls);
 	
 	if(!control_only)
 	{

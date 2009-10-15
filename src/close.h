@@ -26,6 +26,9 @@
 
 #include "guvcview.h"
 
+void
+clean_struct (struct ALL_DATA *all_data);
+
 void 
 shutd (gint restart, struct ALL_DATA *all_data);
 

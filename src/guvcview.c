@@ -217,9 +217,8 @@ int main(int argc, char *argv[])
 				WARN_DIALOG (N_("Guvcview:\n\nUVC Extension controls"),
 					N_("Extension controls were added to the UVC driver"),
 					&all_data);
-				// this will call gtk_main_quit() since we didn't create the main loop yet it's unecessary
-				// but it should be ok
-				shutd(0, &all_data);
+				clean_struct(&all_data);
+				exit(0);
 				break;				
 
 			case VDIN_DYNCTRL_ERR: //uvc extension controls error - EACCES (needs root user)

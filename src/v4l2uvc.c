@@ -1173,9 +1173,10 @@ error:
 void close_v4l2(struct vdIn *vd, gboolean control_only)
 {
 	if (vd->isstreaming) video_disable(vd);
-	g_free(vd->videodevice);
-	g_free(vd->ImageFName);
-	g_free(vd->VidFName);
+	
+	if(vd->videodevice) g_free(vd->videodevice);
+	if(vd->ImageFName)g_free(vd->ImageFName);
+	if(vd->VidFName)g_free(vd->VidFName);
 	// free format allocations
 	freeFormats(vd->listFormats);
 	if (!control_only)
@@ -1190,11 +1191,11 @@ void close_v4l2(struct vdIn *vd, gboolean control_only)
 	vd->VidFName = NULL;
 	freeDevices(vd->listDevices);
 	// close device descriptor
-	close(vd->fd);
-	g_mutex_free( vd->mutex );
+	if(vd->fd) close(vd->fd);
+	if(vd->mutex) g_mutex_free( vd->mutex );
 	vd->mutex = NULL;
 	// free struct allocation
-	g_free(vd);
+	if(vd) g_free(vd);
 	vd=NULL;
 }
 
