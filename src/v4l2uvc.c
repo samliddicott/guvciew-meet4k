@@ -127,12 +127,12 @@ int xioctl(int fd, int IOCTL_X, void *arg)
 	int tries= IOCTL_RETRY;
 	
 	ret = ioctl(fd, IOCTL_X, arg);
-	if( ret && (errno == EIO || errno == EPIPE || errno == ETIMEDOUT))
+	if( ret && (errno == EINTR || errno == EAGAIN || errno == ETIMEDOUT))
 	{
 		// I/O error RETRY
 		while(tries-- &&
 			(ret = ioctl(fd, IOCTL_X, arg)) &&
-			(errno == EIO || errno == EPIPE || errno == ETIMEDOUT)) 
+			(errno == EINTR || errno = EAGAIN || errno == ETIMEDOUT)) 
 		{
 			//g_printerr("ioctl (%i) failed - %s :(retry %i)\n", IOCTL_X, strerror(errno), tries);
 		}
