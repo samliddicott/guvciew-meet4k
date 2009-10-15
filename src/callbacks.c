@@ -73,12 +73,7 @@ void
 ERR_DIALOG(const char *err_title, const char* err_msg, struct ALL_DATA *all_data)
 {
 	struct GWIDGET *gwidget = all_data->gwidget;
-	struct VidState *s = all_data->s;
-	struct paRecordData *pdata = all_data->pdata;
 	struct GLOBAL *global = all_data->global;
-	struct focusData *AFdata = all_data->AFdata;
-	struct vdIn *videoIn = all_data->videoIn;
-	struct VideoFormatData *videoF = all_data->videoF;
 	
 	gboolean control_only = (global->control_only || global->add_ctrls);
 	
@@ -95,35 +90,8 @@ ERR_DIALOG(const char *err_title, const char* err_msg, struct ALL_DATA *all_data
 	gtk_widget_show(errdialog);
 	gtk_dialog_run (GTK_DIALOG (errdialog));
 	gtk_widget_destroy (errdialog);
-	
-	g_free(gwidget);
-	gwidget = NULL;
-	all_data->gwidget = NULL;
 
-	g_free(AFdata);
-	AFdata = NULL;
-	all_data->AFdata = NULL;
-
-	g_free(s);
-	s = NULL;
-	all_data->s = NULL;
-
-	if(videoIn->fd > 0) close_v4l2(videoIn, control_only);
-	else g_free(videoIn);
-	videoIn=NULL;
-	all_data->videoIn = NULL;
-	
-	if (global) closeGlobals (global);
-	global = NULL;
-	all_data->global = NULL;
-
-	g_free(pdata);
-	pdata = NULL;
-	all_data->pdata = NULL;    
-
-	g_free(videoF);
-	videoF = NULL;
-	all_data->videoF = NULL;
+	clean_struct(all_data);
 
 	/* error dialog is allways called before creating the main loop */
 	/* so no need for gtk_main_quit()                               */
