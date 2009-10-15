@@ -132,7 +132,7 @@ int xioctl(int fd, int IOCTL_X, void *arg)
 		// I/O error RETRY
 		while(tries-- &&
 			(ret = ioctl(fd, IOCTL_X, arg)) &&
-			(errno == EINTR || errno = EAGAIN || errno == ETIMEDOUT)) 
+			(errno == EINTR || errno == EAGAIN || errno == ETIMEDOUT)) 
 		{
 			//g_printerr("ioctl (%i) failed - %s :(retry %i)\n", IOCTL_X, strerror(errno), tries);
 		}
