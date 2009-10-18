@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: guvcview\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-10-14 22:54+0100\n"
-"PO-Revision-Date: 2009-09-15 03:18+0000\n"
-"Last-Translator: Paulo Assis <pj.assis@gmail.com>\n"
+"PO-Revision-Date: 2009-10-16 22:46+0000\n"
+"Last-Translator: exxxo45 <exxxo45@gmail.com>\n"
 "Language-Team: Czech <cs@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-09-19 15:52+0000\n"
+"X-Launchpad-Export-Date: 2009-10-18 07:06+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: src/guvcview.c:184
@@ -37,6 +37,8 @@ msgid ""
 "Please make sure the camera is connected\n"
 "and that the correct driver is installed."
 msgstr ""
+"Ujistěte se prosím, že vaše kamera je připojena,\n"
+"a že máte nainstalován správný ovladač."
 
 #. uvc extension controls OK, give warning and shutdown (called with --add_ctrls)
 #: src/guvcview.c:217
@@ -45,22 +47,24 @@ msgid ""
 "\n"
 "UVC Extension controls"
 msgstr ""
+"Guvcview\n"
+"\n"
+"Rozšířené ovládání UVC"
 
 #: src/guvcview.c:218
 msgid "Extension controls were added to the UVC driver"
-msgstr ""
+msgstr "Rozšířené ovládání bylo přidáno do UVC ovladače"
 
 #. uvc extension controls error - EACCES (needs root user)
 #: src/guvcview.c:226
-#, fuzzy
 msgid ""
 "Guvcview error:\n"
 "\n"
 "UVC Extension controls"
 msgstr ""
-"Chyba Guvcview:\n"
+"Chyba Guvcview\n"
 "\n"
-"Nelze alokovat Buffery"
+"Rozšířené ovládání UCV"
 
 #: src/guvcview.c:227
 msgid ""
@@ -68,6 +72,9 @@ msgid ""
 "controls to the UVC driver\n"
 "Make sure you run guvcview as root (or sudo)."
 msgstr ""
+"Nastala chyba při přidání rozšířeného\n"
+"ovládání do ovladače UVC\n"
+"Ujistěte se, že spouštíte guvcview jako root (či sudo)."
 
 #: src/guvcview.c:253 src/guvcview.c:336
 msgid ""
@@ -81,6 +88,8 @@ msgid ""
 "Make sure your device driver is v4l2 compliant\n"
 "and that it is properly installed."
 msgstr ""
+"Ujistěte se, že ovladač vašeho přístroje je kompatibilní s v4|2\n"
+"a že je správně nainstalován."
 
 #: src/guvcview.c:276 src/guvcview.c:298
 msgid ""
@@ -105,7 +114,7 @@ msgstr ""
 
 #: src/guvcview.c:307
 msgid "Make sure the device driver suports v4l2."
-msgstr ""
+msgstr "Ujistěte se, že ovladač zařízení podporuje v 4|2."
 
 #: src/guvcview.c:311
 msgid ""
@@ -113,10 +122,13 @@ msgid ""
 "\n"
 "Read method error"
 msgstr ""
+"Chyba guvcview:\n"
+"\n"
+"Chyba metody čtení"
 
 #: src/guvcview.c:312
 msgid "Please try mmap instead (--capture_method=1)."
-msgstr ""
+msgstr "Místo (--capture_method=1) zkuste mmap."
 
 #: src/guvcview.c:320
 msgid ""
@@ -176,13 +188,14 @@ msgstr ""
 
 #: src/guvcview.c:593
 msgid "Please report it to http://developer.berlios.de/bugs/?group_id=8179"
-msgstr "Prosím nahlašte to na http://developer.berlios.de/bugs/?group_id=8179"
+msgstr ""
+"Prosím nahlašte to na http://developer.berlios.de/bugs/?group_id=8179"
 
 #. needed only for language files (not used)
 #. V4L2 control strings
 #: src/v4l2uvc.c:52
 msgid "User Controls"
-msgstr ""
+msgstr "Uživatelká nastavení"
 
 #: src/v4l2uvc.c:53
 msgid "Brightness"
@@ -214,11 +227,11 @@ msgstr "Komponzace podsvětlení"
 
 #: src/v4l2uvc.c:60
 msgid "Power Line Frequency"
-msgstr ""
+msgstr "Kmitočet sítě"
 
 #: src/v4l2uvc.c:61
 msgid "Hue, Automatic"
-msgstr ""
+msgstr "Odstín, Automatický"
 
 #: src/v4l2uvc.c:62
 msgid "Focus, Auto"
@@ -242,27 +255,27 @@ msgstr ""
 
 #: src/v4l2uvc.c:67
 msgid "Black Level"
-msgstr ""
+msgstr "Úroveň černé"
 
 #: src/v4l2uvc.c:68
 msgid "White Balance, Automatic"
-msgstr ""
+msgstr "Vyvážení bílé"
 
 #: src/v4l2uvc.c:69
 msgid "Do White Balance"
-msgstr ""
+msgstr "Vyvážit bílou"
 
 #: src/v4l2uvc.c:70
 msgid "Red Balance"
-msgstr ""
+msgstr "Vyvážení červené"
 
 #: src/v4l2uvc.c:71
 msgid "Blue Balance"
-msgstr ""
+msgstr "Vyvážení modré"
 
 #: src/v4l2uvc.c:72
 msgid "Exposure"
-msgstr ""
+msgstr "Expozice"
 
 #: src/v4l2uvc.c:73
 msgid "Gain, Automatic"
@@ -274,19 +287,19 @@ msgstr "Zisk"
 
 #: src/v4l2uvc.c:75
 msgid "Horizontal Flip"
-msgstr ""
+msgstr "Horizontální překlopení"
 
 #: src/v4l2uvc.c:76
 msgid "Vertical Flip"
-msgstr ""
+msgstr "Vertikální překlopení"
 
 #: src/v4l2uvc.c:77
 msgid "Horizontal Center"
-msgstr ""
+msgstr "Horizontální střed"
 
 #: src/v4l2uvc.c:78
 msgid "Vertical Center"
-msgstr ""
+msgstr "Vertikální střed"
 
 #: src/v4l2uvc.c:79
 msgid "Chroma AGC"
@@ -294,20 +307,20 @@ msgstr ""
 
 #: src/v4l2uvc.c:80
 msgid "Color Killer"
-msgstr ""
+msgstr "Odstranění barvy"
 
 #: src/v4l2uvc.c:81
 msgid "Color Effects"
-msgstr ""
+msgstr "Barevné efekty"
 
 #. CAMERA CLASS control strings
 #: src/v4l2uvc.c:84
 msgid "Camera Controls"
-msgstr ""
+msgstr "Ovládání kamery"
 
 #: src/v4l2uvc.c:85
 msgid "Auto Exposure"
-msgstr ""
+msgstr "Automatická korekce závěrky"
 
 #: src/v4l2uvc.c:86
 msgid "Exposure Time, Absolute"
@@ -347,7 +360,7 @@ msgstr ""
 
 #: src/v4l2uvc.c:96
 msgid "Focus, Automatic"
-msgstr ""
+msgstr "Zaostření, Automaticky"
 
 #: src/v4l2uvc.c:97
 msgid "Zoom, Absolute"
@@ -400,14 +413,12 @@ msgstr ""
 
 #. libwebcam specific control strings
 #: src/v4l2uvc.c:113
-#, fuzzy
 msgid "Focus"
-msgstr "nastavit Ostření"
+msgstr "Zaostření"
 
 #: src/v4l2uvc.c:114
-#, fuzzy
 msgid "Focus (Absolute)"
-msgstr "Ostření (absolutní)"
+msgstr ""
 
 #: src/video_tab.c:41 src/callbacks.c:1102
 msgid "Save File"
@@ -503,7 +514,7 @@ msgstr "Zařízení:"
 
 #: src/video_tab.c:575
 msgid "Frame Rate:"
-msgstr ""
+msgstr "Snímkový kmitočet"
 
 #: src/video_tab.c:583
 msgid " Show"
@@ -519,11 +530,11 @@ msgstr "Výstup kamery:"
 
 #: src/video_tab.c:655
 msgid "Apply"
-msgstr ""
+msgstr "Použít"
 
 #: src/video_tab.c:663
 msgid "Quality:"
-msgstr ""
+msgstr "Kvalita:"
 
 #: src/video_tab.c:673
 msgid "Image File:"
@@ -539,20 +550,20 @@ msgstr "Formát obrazu:"
 
 #: src/video_tab.c:745
 msgid "Video File:"
-msgstr ""
+msgstr "Video soubor:"
 
 #: src/video_tab.c:825
 msgid "Video Codec:"
-msgstr ""
+msgstr "Kodek videa:"
 
 #. lavc codec properties button
 #: src/video_tab.c:833
 msgid "properties"
-msgstr ""
+msgstr "vlastnosti"
 
 #: src/video_tab.c:860
 msgid "Video Format:"
-msgstr ""
+msgstr "Formát videa:"
 
 #: src/video_tab.c:869
 msgid "---- Video Filters ----"
@@ -585,7 +596,7 @@ msgstr ""
 
 #: src/audio_tab.c:75
 msgid "Audio"
-msgstr ""
+msgstr "Zvuk"
 
 #: src/audio_tab.c:93
 msgid " Sound"
@@ -597,11 +608,11 @@ msgstr ""
 
 #: src/audio_tab.c:118
 msgid "PORTAUDIO"
-msgstr ""
+msgstr "PORTAUDIO"
 
 #: src/audio_tab.c:119
 msgid "PULSEAUDIO"
-msgstr ""
+msgstr "PULSEAUDIO"
 
 #: src/audio_tab.c:135 src/audio_tab.c:158
 msgid "Input Device:"
@@ -641,7 +652,7 @@ msgstr "Formát zvuku:"
 
 #: src/audio_tab.c:286
 msgid "---- Audio Effects ----"
-msgstr ""
+msgstr "---- Zvukové efekty ----"
 
 #. Echo
 #: src/audio_tab.c:305
@@ -656,12 +667,12 @@ msgstr ""
 #. Reverb
 #: src/audio_tab.c:326
 msgid " Reverb"
-msgstr ""
+msgstr " Ozvěna"
 
 #. WahWah
 #: src/audio_tab.c:337
 msgid " WahWah"
-msgstr ""
+msgstr " WahWah"
 
 #. Ducky
 #: src/audio_tab.c:348
@@ -722,11 +733,11 @@ msgstr "RGB - uncomp BMP"
 
 #: src/vcodecs.c:150
 msgid "MPEG video 1"
-msgstr ""
+msgstr "MPEG video 1"
 
 #: src/vcodecs.c:180
 msgid "FLV1 - flash video 1"
-msgstr ""
+msgstr "FLV1 - flash video 1"
 
 #: src/vcodecs.c:210
 msgid "WMV1 - win. med. video 7"
@@ -734,7 +745,7 @@ msgstr ""
 
 #: src/vcodecs.c:239
 msgid "MPG2 - MPG2 format"
-msgstr ""
+msgstr "MPG2 - formát MPG2"
 
 #: src/vcodecs.c:268
 msgid "MS MP4 V3"
@@ -742,11 +753,11 @@ msgstr ""
 
 #: src/vcodecs.c:297
 msgid "MPEG4 - MPEG4 format"
-msgstr ""
+msgstr "MPEG4 - formát MPEG4"
 
 #: src/options.c:528
 msgid "Prints version"
-msgstr ""
+msgstr "Vypíše verzi"
 
 #: src/options.c:529
 msgid "Displays debug information"
@@ -778,11 +789,13 @@ msgstr "Hardwarová akcelerace (povolit(1) | zakázat(0))"
 
 #: src/options.c:536
 msgid ""
-"Pixel format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|"
-"y41p|grey|s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
+"Pixel "
+"format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|y41p|grey|"
+"s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
 msgstr ""
-"Formát pixelu (mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|"
-"y41p|grey|s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
+"Formát pixelu "
+"(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|y41p|grey|s501|s"
+"505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
 
 #: src/options.c:537
 msgid "Frame size, default: 640x480"
@@ -814,7 +827,7 @@ msgstr ""
 
 #: src/options.c:544
 msgid "Number of inital frames to skip"
-msgstr ""
+msgstr "Počet prvních vynechaných snímků"
 
 #: src/options.c:545
 msgid "Show FPS value (enable(1) | disable (0))"
@@ -900,27 +913,7 @@ msgstr ""
 
 #: src/timers.c:189
 msgid "Not enough free space left on disk"
-msgstr ""
-
-#~ msgid "Program Restart"
-#~ msgstr "Restart programu"
-
-#~ msgid "now"
-#~ msgstr "nyní"
-
-#~ msgid "Later"
-#~ msgstr "Později"
-
-#~ msgid ""
-#~ "Changes will only take effect after guvcview restart.\n"
-#~ "\n"
-#~ "\n"
-#~ "Restart now?\n"
-#~ msgstr ""
-#~ "Změsy se projeví až po restartu guvcview.\n"
-#~ "\n"
-#~ "\n"
-#~ "Restartovat nyní?\n"
+msgstr "Na disku nezbývá dost volného místa"
 
 #~ msgid "AVI File:"
 #~ msgstr "Soubor AVI:"
@@ -936,3 +929,23 @@ msgstr ""
 
 #~ msgid "Exposure:"
 #~ msgstr "Expozice:"
+
+#~ msgid ""
+#~ "Changes will only take effect after guvcview restart.\n"
+#~ "\n"
+#~ "\n"
+#~ "Restart now?\n"
+#~ msgstr ""
+#~ "Změsy se projeví až po restartu guvcview.\n"
+#~ "\n"
+#~ "\n"
+#~ "Restartovat nyní?\n"
+
+#~ msgid "Later"
+#~ msgstr "Později"
+
+#~ msgid "now"
+#~ msgstr "nyní"
+
+#~ msgid "Program Restart"
+#~ msgstr "Restart programu"

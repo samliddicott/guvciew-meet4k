@@ -8,18 +8,18 @@ msgstr ""
 "Project-Id-Version: guvcview\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-10-14 22:54+0100\n"
-"PO-Revision-Date: 2009-09-15 19:44+0000\n"
-"Last-Translator: Hitchhiker <Unknown>\n"
+"PO-Revision-Date: 2009-10-16 14:31+0000\n"
+"Last-Translator: Paulo Assis <pj.assis@gmail.com>\n"
 "Language-Team: Hebrew <he@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-09-19 15:52+0000\n"
+"X-Launchpad-Export-Date: 2009-10-18 07:06+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: src/guvcview.c:184
 msgid "GUVCViewer Controls"
-msgstr ""
+msgstr "פקדי GUVCViewer"
 
 #. can't open device
 #: src/guvcview.c:211
@@ -54,15 +54,11 @@ msgstr ""
 
 #. uvc extension controls error - EACCES (needs root user)
 #: src/guvcview.c:226
-#, fuzzy
 msgid ""
 "Guvcview error:\n"
 "\n"
 "UVC Extension controls"
 msgstr ""
-"שגיאה בGuvcview:\n"
-"\n"
-"לא ניתן להקצות חוצץ"
 
 #: src/guvcview.c:227
 msgid ""
@@ -147,7 +143,7 @@ msgstr "נסה לאתחל את המערכת."
 
 #: src/guvcview.c:368
 msgid "Image Controls"
-msgstr ""
+msgstr "פקדי תמונה"
 
 #: src/guvcview.c:403
 msgid "Capture:"
@@ -157,7 +153,7 @@ msgstr "לכד:"
 #. end of control only exclusion
 #: src/guvcview.c:411
 msgid "Control Profiles:"
-msgstr ""
+msgstr "פרופילי בקרה:"
 
 #. image auto capture
 #: src/guvcview.c:438
@@ -195,7 +191,7 @@ msgstr "דווח על כך לhttp://developer.berlios.de/bugs/?group_id=8179"
 #. V4L2 control strings
 #: src/v4l2uvc.c:52
 msgid "User Controls"
-msgstr ""
+msgstr "פקדי משתמש"
 
 #: src/v4l2uvc.c:53
 msgid "Brightness"
@@ -223,15 +219,15 @@ msgstr "גאמה"
 
 #: src/v4l2uvc.c:59
 msgid "Backlight Compensation"
-msgstr ""
+msgstr "פיצוי אור אחורי"
 
 #: src/v4l2uvc.c:60
 msgid "Power Line Frequency"
-msgstr ""
+msgstr "תדר חשמל"
 
 #: src/v4l2uvc.c:61
 msgid "Hue, Automatic"
-msgstr ""
+msgstr "גוון, אוטומטי"
 
 #: src/v4l2uvc.c:62
 msgid "Focus, Auto"
@@ -255,11 +251,11 @@ msgstr ""
 
 #: src/v4l2uvc.c:67
 msgid "Black Level"
-msgstr ""
+msgstr "רמת שחור"
 
 #: src/v4l2uvc.c:68
 msgid "White Balance, Automatic"
-msgstr ""
+msgstr "איזון לובן, אוטומטי"
 
 #: src/v4l2uvc.c:69
 msgid "Do White Balance"
@@ -267,19 +263,19 @@ msgstr ""
 
 #: src/v4l2uvc.c:70
 msgid "Red Balance"
-msgstr ""
+msgstr "איזון האדום"
 
 #: src/v4l2uvc.c:71
 msgid "Blue Balance"
-msgstr ""
+msgstr "איזון הכחול"
 
 #: src/v4l2uvc.c:72
 msgid "Exposure"
-msgstr ""
+msgstr "חשיפה"
 
 #: src/v4l2uvc.c:73
 msgid "Gain, Automatic"
-msgstr ""
+msgstr "מרווח, אוטומטי"
 
 #: src/v4l2uvc.c:74
 msgid "Gain"
@@ -287,19 +283,19 @@ msgstr "הישג"
 
 #: src/v4l2uvc.c:75
 msgid "Horizontal Flip"
-msgstr ""
+msgstr "היפוך אופקי"
 
 #: src/v4l2uvc.c:76
 msgid "Vertical Flip"
-msgstr ""
+msgstr "היפוך אנכי"
 
 #: src/v4l2uvc.c:77
 msgid "Horizontal Center"
-msgstr ""
+msgstr "מרכז אופקי"
 
 #: src/v4l2uvc.c:78
 msgid "Vertical Center"
-msgstr ""
+msgstr "מרכז אנכי"
 
 #: src/v4l2uvc.c:79
 msgid "Chroma AGC"
@@ -316,15 +312,15 @@ msgstr ""
 #. CAMERA CLASS control strings
 #: src/v4l2uvc.c:84
 msgid "Camera Controls"
-msgstr ""
+msgstr "פקדי מצלמה"
 
 #: src/v4l2uvc.c:85
 msgid "Auto Exposure"
-msgstr ""
+msgstr "חשיפה אוטומטית"
 
 #: src/v4l2uvc.c:86
 msgid "Exposure Time, Absolute"
-msgstr ""
+msgstr "זמן חשיפה, מוחלט"
 
 #: src/v4l2uvc.c:87
 msgid "Exposure, Dynamic Framerate"
@@ -336,7 +332,7 @@ msgstr ""
 
 #: src/v4l2uvc.c:89
 msgid "Tilt, Relative"
-msgstr ""
+msgstr "נטייה, יחסי"
 
 #: src/v4l2uvc.c:90
 msgid "Pan, Reset"
@@ -344,7 +340,7 @@ msgstr ""
 
 #: src/v4l2uvc.c:91
 msgid "Tilt, Reset"
-msgstr ""
+msgstr "נטייה, אפס"
 
 #: src/v4l2uvc.c:92
 msgid "Pan, Absolute"
@@ -352,15 +348,15 @@ msgstr ""
 
 #: src/v4l2uvc.c:94
 msgid "Focus, Absolute"
-msgstr ""
+msgstr "מיקוד, מוחלט"
 
 #: src/v4l2uvc.c:95
 msgid "Focus, Relative"
-msgstr ""
+msgstr "מיקוד, יחסי"
 
 #: src/v4l2uvc.c:96
 msgid "Focus, Automatic"
-msgstr ""
+msgstr "מיקוד, אוטומטי"
 
 #: src/v4l2uvc.c:97
 msgid "Zoom, Absolute"
@@ -393,11 +389,11 @@ msgstr "חשיפה (מוחלטת)"
 
 #: src/v4l2uvc.c:106
 msgid "White Balance Temperature, Auto"
-msgstr ""
+msgstr "טמפרטורת איזון הלבן, אוטומטית"
 
 #: src/v4l2uvc.c:107
 msgid "White Balance Temperature"
-msgstr ""
+msgstr "טפמרטורת איזון הלבן"
 
 #: src/v4l2uvc.c:108
 msgid "White Balance Component, Auto"
@@ -413,14 +409,12 @@ msgstr "רכיב איזון הלבן האדום"
 
 #. libwebcam specific control strings
 #: src/v4l2uvc.c:113
-#, fuzzy
 msgid "Focus"
-msgstr "הגדר מיקוד"
+msgstr ""
 
 #: src/v4l2uvc.c:114
-#, fuzzy
 msgid "Focus (Absolute)"
-msgstr "מיקוד (מוחלט)"
+msgstr ""
 
 #: src/video_tab.c:41 src/callbacks.c:1102
 msgid "Save File"
@@ -439,11 +433,11 @@ msgstr "קובץ מספר:%d"
 
 #: src/video_tab.c:115
 msgid "codec values"
-msgstr ""
+msgstr "ערכי מקודד"
 
 #: src/video_tab.c:126
 msgid "bit rate:   "
-msgstr ""
+msgstr "קצב סיביות:   "
 
 #: src/video_tab.c:141
 msgid "qmax:   "
@@ -626,7 +620,7 @@ msgstr ""
 
 #: src/audio_tab.c:190
 msgid "Sample Rate:"
-msgstr ""
+msgstr "קצב דגימה"
 
 #: src/audio_tab.c:202
 msgid "1 - mono"
@@ -687,7 +681,7 @@ msgstr ""
 
 #: src/v4l2_dyna_ctrls.c:100
 msgid "Tilt (relative)"
-msgstr ""
+msgstr "הטייה (יחסי)"
 
 #: src/v4l2_dyna_ctrls.c:110
 msgid "Pan Reset"
@@ -695,7 +689,7 @@ msgstr ""
 
 #: src/v4l2_dyna_ctrls.c:120
 msgid "Tilt Reset"
-msgstr ""
+msgstr "איפוס הטייה"
 
 #: src/v4l2_dyna_ctrls.c:130
 msgid "Pan/tilt Reset"
@@ -791,11 +785,13 @@ msgstr "האצת חומרה (פעיל(1) | מנוטרל(0))"
 
 #: src/options.c:536
 msgid ""
-"Pixel format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|"
-"y41p|grey|s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
+"Pixel "
+"format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|y41p|grey|"
+"s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
 msgstr ""
-"פורמט פיקסל(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|y41p|"
-"grey|s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
+"פורמט "
+"פיקסל(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|y41p|grey|s"
+"501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
 
 #: src/options.c:537
 msgid "Frame size, default: 640x480"
@@ -915,14 +911,14 @@ msgstr ""
 msgid "Not enough free space left on disk"
 msgstr ""
 
-#~ msgid "Program Restart"
-#~ msgstr "הפעל מחדש את התוכנה"
-
 #~ msgid "now"
 #~ msgstr "עכשיו"
 
 #~ msgid "Later"
 #~ msgstr "מאוחר יותר"
+
+#~ msgid "Program Restart"
+#~ msgstr "הפעל מחדש את התוכנה"
 
 #~ msgid ""
 #~ "Changes will only take effect after guvcview restart.\n"
