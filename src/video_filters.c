@@ -206,7 +206,7 @@ particles_effect(BYTE* frame, int width, int height, int trail_size, struct part
 	int part_w = width>>4;
 	int part_h = height>>3;
 	int y_pos = 0; //luma position in the frame
-	GRand* rand_= g_rand_new_with_seed(2);
+	GRand* rand_= g_rand_new();
 	//allocation
 	if (particles == NULL)
 	{
@@ -224,20 +224,23 @@ particles_effect(BYTE* frame, int width, int height, int trail_size, struct part
 		
 		for (j= 0; j < part_w * part_h; j++)
 		{
-			part->PX = part1->PX + g_rand_int_range(rand_, 1, 2);
-			part->PY = part1->PY + g_rand_int_range(rand_, -1, 1);
+			part->PX = part1->PX + g_rand_int_range(rand_, 1, 3);
+			part->PY = part1->PY + g_rand_int_range(rand_, 0, 2);
+			
 			part->Y = part1->Y;
 			part->U = part1->U;
 			part->V = part1->V;
+			
 			if((part->PX > width) || (part->PY > height))
 			{
-				part->PX = 0;
-				part->PY = 0;
-				part->decay = 0.0;
+				part->PX = width>>1;
+				part->PY = height>>1;
+				part->decay = 0;
 			}
 			else
 			{
-				part->decay = part1->decay - i;
+				if(part1->decay > 0) part->decay = part1->decay - i;
+				else part->decay = 0;
 			}
 			
 			part++;
@@ -252,11 +255,14 @@ particles_effect(BYTE* frame, int width, int height, int trail_size, struct part
 	{
 		for(h=1; h <= part_h; h++)
 		{
-			part->PX = (g_rand_int_range(rand_, 1, 1<<4) * w) -1;
-			part->PY = (g_rand_int_range(rand_, 1, 1<<3 ) * h) -1;
+			part->PX = g_rand_int_range(rand_, 1, width) -1;
+			part->PY = g_rand_int_range(rand_, 1, height) -1;
+			if(part->PX > width) part->PX = width>>1;
+			if(part->PY > height) part->PX = height>>1;
+			
 			y_pos = part->PX * 2 + (part->PY * width * 2);
 			part->Y = frame[y_pos];
-			if(ODD(y_pos))
+			if(ODD(part->PX))
 			{
 				part->U = frame[y_pos -1];
 				part->V = frame[y_pos +1];
@@ -276,18 +282,25 @@ particles_effect(BYTE* frame, int width, int height, int trail_size, struct part
 	//render particles to frame
 	for (i = 0; i < trail_size * part_w * part_h; i++)
 	{	
+		//g_printf("particle nrº %i of %i .... ", i, trail_size * part_w * part_h);
 		y_pos = part->PX * 2 + (part->PY * width * 2);
-		frame[y_pos] = frame[y_pos] * (1-(part->decay/trail_size)) + part->Y * (part->decay/trail_size);
-		if(ODD(y_pos))
+		//g_printf("pos = (%i, %i) %i\n",part->PX, part->PY, y_pos);
+		if(part->decay > 0)
 		{
-			frame[y_pos -1] = frame[y_pos -1] * (1-(part->decay/trail_size)) + part->U * (part->decay/trail_size);
-			frame[y_pos +1] = frame[y_pos +1] * (1-(part->decay/trail_size)) + part->V * (part->decay/trail_size);
+			frame[y_pos] = part->Y;
+		
+			if(ODD(part->PX))
+			{
+				frame[y_pos -1] = part->U;
+				frame[y_pos +1] = part->V ;
+			}
+			else
+			{
+				frame[y_pos +1] = part->U;
+				frame[y_pos +3] = part->V;
+			}
 		}
-		else
-		{
-			frame[y_pos +1] = frame[y_pos +1] * (1-(part->decay/trail_size)) + part->U * (part->decay/trail_size);
-			frame[y_pos +3] = frame[y_pos +3] * (1-(part->decay/trail_size)) + part->V * (part->decay/trail_size);
-		}
+		part++;
 	}
 	
 	g_rand_free(rand_);
