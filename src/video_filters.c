@@ -56,7 +56,7 @@ yuyv_mirror (BYTE *frame, int width, int height)
 
 /* Invert YUV frame
  * args:
- *      frame = pointer to frame buffer (yuyv or uyvy format)
+ *      frame = pointer to frame buffer (yuyv format)
  *      width = frame width
  *      height= frame height
  * returns: void
@@ -72,7 +72,7 @@ yuyv_negative(BYTE* frame, int width, int height)
 
 /* Flip YUV frame - vertical
  * args:
- *      frame = pointer to frame buffer (yuyv or uyvy format)
+ *      frame = pointer to frame buffer (yuyv format)
  *      width = frame width
  *      height= frame height
  * returns: void
@@ -119,7 +119,7 @@ yuyv_monochrome(BYTE* frame, int width, int height)
 
 /*break image in little square pieces
  * args:
- *    frame  = pointer to frame buffer (yuyv or uyvy format)
+ *    frame  = pointer to frame buffer (yuyv format)
  *    width  = frame width
  *    height = frame height
  *    piece_size = multiple of 2 (we need at least 2 pixels to get the entire pixel information)
@@ -189,4 +189,107 @@ pieces(BYTE* frame, int width, int height, int piece_size )
 	
 	g_free(piece);
 	g_rand_free(rand_);
+}
+
+/*sets a trail of particles obtained from the image
+ * args:
+ *    frame  = pointer to frame buffer (yuyv format)
+ *    width  = frame width
+ *    height = frame height
+ *    trail_size  = trail size (in frames)
+ *    particles = pointer to particles array (struct particle)
+ */
+struct particle*
+particles_effect(BYTE* frame, int width, int height, int trail_size, struct particle* particles)
+{
+	int i,j,w,h = 0;
+	int part_w = width>>4;
+	int part_h = height>>3;
+	int y_pos = 0; //luma position in the frame
+	GRand* rand_= g_rand_new_with_seed(2);
+	//allocation
+	if (particles == NULL)
+	{
+		particles = g_new0(struct particle, trail_size * part_w * part_h);
+	}
+	
+	struct particle* part = particles;
+	struct particle* part1 = part;
+	
+	//move particles in trail
+	for (i=trail_size; i > 1; i--)
+	{
+		part  += (i - 1) * part_w * part_h;
+		part1 += (i - 2) * part_w * part_h;
+		
+		for (j= 0; j < part_w * part_h; j++)
+		{
+			part->PX = part1->PX + g_rand_int_range(rand_, 1, 2);
+			part->PY = part1->PY + g_rand_int_range(rand_, -1, 1);
+			part->Y = part1->Y;
+			part->U = part1->U;
+			part->V = part1->V;
+			if((part->PX > width) || (part->PY > height))
+			{
+				part->PX = 0;
+				part->PY = 0;
+				part->decay = 0.0;
+			}
+			else
+			{
+				part->decay = part1->decay - i;
+			}
+			
+			part++;
+			part1++;
+		}
+		part = particles; //reset
+		part1 = part;
+	}
+			
+	//get particles from frame
+	for(w=1; w <= part_w; w++)
+	{
+		for(h=1; h <= part_h; h++)
+		{
+			part->PX = (g_rand_int_range(rand_, 1, 1<<4) * w) -1;
+			part->PY = (g_rand_int_range(rand_, 1, 1<<3 ) * h) -1;
+			y_pos = part->PX * 2 + (part->PY * width * 2);
+			part->Y = frame[y_pos];
+			if(ODD(y_pos))
+			{
+				part->U = frame[y_pos -1];
+				part->V = frame[y_pos +1];
+			}
+			else
+			{
+				part->U = frame[y_pos +1];
+				part->V = frame[y_pos +3];
+			}
+			part->decay = (float) trail_size;
+			
+			part++; //next particle
+		}
+	}
+	
+	part = particles; //reset
+	//render particles to frame
+	for (i = 0; i < trail_size * part_w * part_h; i++)
+	{	
+		y_pos = part->PX * 2 + (part->PY * width * 2);
+		frame[y_pos] = frame[y_pos] * (1-(part->decay/trail_size)) + part->Y * (part->decay/trail_size);
+		if(ODD(y_pos))
+		{
+			frame[y_pos -1] = frame[y_pos -1] * (1-(part->decay/trail_size)) + part->U * (part->decay/trail_size);
+			frame[y_pos +1] = frame[y_pos +1] * (1-(part->decay/trail_size)) + part->V * (part->decay/trail_size);
+		}
+		else
+		{
+			frame[y_pos +1] = frame[y_pos +1] * (1-(part->decay/trail_size)) + part->U * (part->decay/trail_size);
+			frame[y_pos +3] = frame[y_pos +3] * (1-(part->decay/trail_size)) + part->V * (part->decay/trail_size);
+		}
+	}
+	
+	g_rand_free(rand_);
+	return(particles);
 }

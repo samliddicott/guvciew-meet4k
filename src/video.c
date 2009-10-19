@@ -145,6 +145,8 @@ void *main_loop(void *data)
 	struct focusData *AFdata = all_data->AFdata;
 	struct vdIn *videoIn = all_data->videoIn;
 
+	struct particle* particles = NULL; //for the particles video effect
+	
 	SDL_Event event;
 	/*the main SDL surface*/
 	SDL_Surface *pscreen = NULL;
@@ -287,6 +289,9 @@ void *main_loop(void *data)
 		   
 			if((global->Frame_Flags & YUV_PIECES)==YUV_PIECES)
 				pieces (videoIn->framebuffer, videoIn->width, videoIn->height, 16 );
+			
+			if((global->Frame_Flags & YUV_PARTICLES)==YUV_PARTICLES)
+				particles = particles_effect(videoIn->framebuffer, videoIn->width, videoIn->height, 10, particles);
 			
 		}
 		g_mutex_unlock(global->mutex);
@@ -513,7 +518,9 @@ void *main_loop(void *data)
 				if(global->debug) g_printf(" total frames: %d  -- encoded: %d\n", global->framecount, nf);
 				lavc_data = NULL;
 			}
-
+			
+			if(particles) g_free(particles);
+			particles = NULL;
 			g_free(jpeg_struct);
 			jpeg_struct=NULL;
 			g_free(pim);
@@ -561,6 +568,8 @@ void *main_loop(void *data)
 	
 	if (global->debug) g_printf("Thread terminated...\n");
 	p = NULL;
+	if(particles) g_free(particles);
+	particles=NULL;
 	g_free(jpeg_struct);
 	jpeg_struct=NULL;
 	g_free(pim);

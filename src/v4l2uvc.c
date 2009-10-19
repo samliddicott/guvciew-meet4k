@@ -1178,12 +1178,11 @@ void close_v4l2(struct vdIn *vd, gboolean control_only)
 	if(vd->ImageFName)g_free(vd->ImageFName);
 	if(vd->VidFName)g_free(vd->VidFName);
 	// free format allocations
-	freeFormats(vd->listFormats);
+	if(vd->listFormats) freeFormats(vd->listFormats);
 	if (!control_only)
 	{
 		close_v4l2_buffers(vd);
 	}
-	
 	vd->videodevice = NULL;
 	vd->tmpbuffer = NULL;
 	vd->framebuffer = NULL;

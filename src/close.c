@@ -57,7 +57,6 @@ clean_struct (struct ALL_DATA *all_data)
 	struct VideoFormatData *videoF = all_data->videoF;
 	
 	gboolean control_only = (global->control_only || global->add_ctrls);
-	
 	if(!control_only)
 	{
 		/*destroy mutex for sound buffers*/
@@ -72,7 +71,6 @@ clean_struct (struct ALL_DATA *all_data)
 	
 	if(videoIn) close_v4l2(videoIn, control_only);
 	videoIn=NULL;
-
 	if (global->debug) g_printf("closed v4l2 strutures\n");
 
 	
@@ -82,7 +80,6 @@ clean_struct (struct ALL_DATA *all_data)
 		input_free_controls (s);
 		g_printf("free controls\n");
 	}
-
 	g_free(s);
 	s = NULL;
 	all_data->s = NULL;

@@ -24,6 +24,16 @@
 
 #include "defs.h"
 
+struct particle
+{
+	int PX;
+	int PY;
+	BYTE Y;
+	BYTE U;
+	BYTE V;
+	float decay;
+};
+
 /* Flip YUYV frame - horizontal
  * args:
  *      frame = pointer to frame buffer (yuyv format)
@@ -74,5 +84,16 @@ yuyv_monochrome(BYTE* frame, int width, int height);
  */
 void
 pieces(BYTE* frame, int width, int height, int piece_size );
+
+/*sets a trail of particles obtained from the image
+ * args:
+ *    frame  = pointer to frame buffer (yuyv format)
+ *    width  = frame width
+ *    height = frame height
+ *    trail_size  = trail size (in frames)
+ *    particles = pointer to particles array (struct particle)
+ */
+struct particle*
+particles_effect(BYTE* frame, int width, int height, int trail_size, struct particle* particles);
 
 #endif

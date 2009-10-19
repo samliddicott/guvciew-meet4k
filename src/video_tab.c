@@ -429,6 +429,7 @@ void video_tab(struct ALL_DATA *all_data)
 	GtkWidget *FiltNegateEnable;
 	GtkWidget *FiltMonoEnable;
 	GtkWidget *FiltPiecesEnable;
+	GtkWidget *FiltParticlesEnable;
 	GtkWidget *set_jpeg_comp;
 	GtkWidget *label_jpeg_comp;
 	
@@ -932,6 +933,21 @@ void video_tab(struct ALL_DATA *all_data)
 	g_signal_connect (GTK_CHECK_BUTTON(FiltPiecesEnable), "toggled",
 		G_CALLBACK (FiltEnable_changed), all_data);
 	
+	// Particles
+	FiltParticlesEnable=gtk_check_button_new_with_label (_(" Particles"));
+	g_object_set_data (G_OBJECT (FiltParticlesEnable), "filt_info", GINT_TO_POINTER(YUV_PARTICLES));
+	gtk_table_attach(GTK_TABLE(table_filt), FiltParticlesEnable, 1, 2, 1, 2,
+		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(FiltParticlesEnable),(global->Frame_Flags & YUV_PARTICLES)>0);
+	gtk_widget_show (FiltParticlesEnable);
+	g_signal_connect (GTK_CHECK_BUTTON(FiltParticlesEnable), "toggled",
+		G_CALLBACK (FiltEnable_changed), all_data);
+	
+	
+	
+	
+	//add filters to video tab
 	gtk_table_attach (GTK_TABLE(table2), table_filt, 0, 3, line, line+1,
 		GTK_FILL, 0, 0, 0);
 	gtk_widget_show (table_filt);

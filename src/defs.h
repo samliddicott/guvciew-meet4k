@@ -35,6 +35,8 @@
 #define IO_MMAP 1
 #define IO_READ 2
 
+#define ODD(x) ((x%2)?TRUE:FALSE)
+
 typedef uint64_t QWORD;
 typedef uint32_t DWORD;
 typedef uint16_t WORD;
@@ -111,6 +113,7 @@ static const int stdSampleRates[] =
 #define YUV_NEGATE (1<<2)
 #define YUV_MONOCR (1<<3)
 #define YUV_PIECES (1<<4)
+#define YUV_PARTICLES (1<<5)
 
 /*Audio Effects*/
 #define SND_NOEF   (0)
