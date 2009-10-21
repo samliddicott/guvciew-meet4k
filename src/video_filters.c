@@ -197,14 +197,15 @@ pieces(BYTE* frame, int width, int height, int piece_size )
  *    width  = frame width
  *    height = frame height
  *    trail_size  = trail size (in frames)
+ *    particle_size = in pixels (square - size x size)
  *    particles = pointer to particles array (struct particle)
  */
 struct particle*
-particles_effect(BYTE* frame, int width, int height, int trail_size, struct particle* particles)
+particles_effect(BYTE* frame, int width, int height, int trail_size, int particle_size, struct particle* particles)
 {
 	int i,j,w,h = 0;
-	int part_w = width>>4;
-	int part_h = height>>3;
+	int part_w = width>>6;
+	int part_h = height>>5;
 	int y_pos = 0; //luma position in the frame
 	GRand* rand_= g_rand_new();
 	//allocation
@@ -224,24 +225,26 @@ particles_effect(BYTE* frame, int width, int height, int trail_size, struct part
 		
 		for (j= 0; j < part_w * part_h; j++)
 		{
-			part->PX = part1->PX + g_rand_int_range(rand_, 1, 3);
-			part->PY = part1->PY + g_rand_int_range(rand_, 0, 2);
+			part->PX = part1->PX + g_rand_int_range(rand_, 1, particle_size);
+			part->PY = part1->PY + g_rand_int_range(rand_, -particle_size, particle_size);
 			
-			part->Y = part1->Y;
-			part->U = part1->U;
-			part->V = part1->V;
+			if(ODD(part->PX)) part->PX++; //make sure PX is allways even
 			
-			if((part->PX > width) || (part->PY > height))
+			if((part->PX > (width-particle_size)) || (part->PY > (height-particle_size)) || (part->PX < 0) || (part->PY < 0))
 			{
-				part->PX = width>>1;
-				part->PY = height>>1;
+				part->PX = 0;
+				part->PY = 0;
 				part->decay = 0;
 			}
 			else
 			{
-				if(part1->decay > 0) part->decay = part1->decay - i;
+				if(part1->decay > 0) part->decay = part1->decay - 1;
 				else part->decay = 0;
 			}
+
+			part->Y = part1->Y;
+			part->U = part1->U;
+			part->V = part1->V;
 			
 			part++;
 			part1++;
@@ -249,55 +252,48 @@ particles_effect(BYTE* frame, int width, int height, int trail_size, struct part
 		part = particles; //reset
 		part1 = part;
 	}
-			
-	//get particles from frame
-	for(w=1; w <= part_w; w++)
+
+	part = particles; //reset
+	//get particles from frame (one pixel per particle - make PX allways even)
+	for(i=0; i < part_w * part_h; i++)
 	{
-		for(h=1; h <= part_h; h++)
-		{
-			part->PX = g_rand_int_range(rand_, 1, width) -1;
-			part->PY = g_rand_int_range(rand_, 1, height) -1;
-			if(part->PX > width) part->PX = width>>1;
-			if(part->PY > height) part->PX = height>>1;
-			
-			y_pos = part->PX * 2 + (part->PY * width * 2);
-			part->Y = frame[y_pos];
-			if(ODD(part->PX))
-			{
-				part->U = frame[y_pos -1];
-				part->V = frame[y_pos +1];
-			}
-			else
-			{
-				part->U = frame[y_pos +1];
-				part->V = frame[y_pos +3];
-			}
-			part->decay = (float) trail_size;
-			
-			part++; //next particle
-		}
+		part->PX = g_rand_int_range(rand_, 2 * particle_size, width - 4 * particle_size);
+		part->PY = g_rand_int_range(rand_, 2* particle_size, height - 4 * particle_size);
+		
+		if(ODD(part->PX)) part->PX++;
+		
+		y_pos = part->PX * 2 + (part->PY * width * 2);
+		
+		part->Y = frame[y_pos];
+		part->U = frame[y_pos +1];
+		part->V = frame[y_pos +3];
+		
+		part->decay = (float) trail_size;
+		
+		part++; //next particle
 	}
 	
 	part = particles; //reset
-	//render particles to frame
+	int line = 0;
+	j=0;
+	//render particles to frame (expand pixel to particle size)
 	for (i = 0; i < trail_size * part_w * part_h; i++)
 	{	
 		//g_printf("particle nrº %i of %i .... ", i, trail_size * part_w * part_h);
 		y_pos = part->PX * 2 + (part->PY * width * 2);
-		//g_printf("pos = (%i, %i) %i\n",part->PX, part->PY, y_pos);
+		//g_printf("pos = (%i, %i) %i ",part->PX, part->PY, y_pos);
 		if(part->decay > 0)
 		{
-			frame[y_pos] = part->Y;
-		
-			if(ODD(part->PX))
+			for(h=0; h<particle_size; h++)
 			{
-				frame[y_pos -1] = part->U;
-				frame[y_pos +1] = part->V ;
-			}
-			else
-			{
-				frame[y_pos +1] = part->U;
-				frame[y_pos +3] = part->V;
+				line = h * width * 2;
+				for (w=0; w<particle_size*2; w+=4)
+				{
+					frame[y_pos + w + line] = part->Y;
+					frame[(y_pos + w + 1) + line] = part->U;
+					frame[(y_pos + w + 2) + line] = part->Y;
+					frame[(y_pos + w + 3) + line] = part->V;
+				}
 			}
 		}
 		part++;

@@ -276,7 +276,7 @@ void *main_loop(void *data)
 		if(global->Frame_Flags>0)
 		{
 			if((global->Frame_Flags & YUV_PARTICLES)==YUV_PARTICLES)
-				particles = particles_effect(videoIn->framebuffer, videoIn->width, videoIn->height, 40, particles);
+				particles = particles_effect(videoIn->framebuffer, videoIn->width, videoIn->height, 20, 2, particles);
 			
 			if((global->Frame_Flags & YUV_MIRROR)==YUV_MIRROR) 
 				yuyv_mirror(videoIn->framebuffer,videoIn->width,videoIn->height);

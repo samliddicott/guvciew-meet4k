@@ -104,7 +104,9 @@ SaveControls(struct VidState *s, struct GLOBAL *global, struct vdIn *videoIn)
 			
 		}
 	}
-	fclose(fp);
+	fflush(fp); //flush stream buffers to filesystem
+	fsync(fileno(fp)); //sync file data to disk (don't wait for filesystem)
+	fclose(fp); //close file stream
 	g_free(filename);
 	return (0);
 }

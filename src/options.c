@@ -40,8 +40,12 @@ writeConf(struct GLOBAL *global, char *videodevice)
 {
 	int ret=0;
 	FILE *fp;
-
-	if ((fp = g_fopen(global->confPath,"w"))!=NULL) 
+	
+	// write to tmp file then rename after sucessfull fsync
+	// using fsync avois data loss on system crash 
+	// see: https://bugs.launchpad.net/ubuntu/+source/linux/+bug/317781/comments/54
+	char *tmpfile = g_strjoin (".", global->confPath, "tmp", NULL);
+	if ((fp = g_fopen(tmpfile,"w"))!=NULL) 
 	{
 		g_fprintf(fp,"# guvcview configuration file for %s\n\n",videodevice);
 		g_fprintf(fp,"# Thread stack size: default 128 pages of 64k = 8388608 bytes\n");
@@ -112,13 +116,29 @@ writeConf(struct GLOBAL *global, char *videodevice)
 		g_fprintf(fp,"# control profiles Full Path\n");
 		g_fprintf(fp,"profile_path='%s/%s'\n",global->profile_FPath[1],global->profile_FPath[0]);
 		printf("write %s OK\n",global->confPath);
-		fclose(fp);
+		
+		//flush stream buffers to filesystem
+		fflush(fp);
+		
+		//close file after fsync (sync file data to disk) 
+		if (fsync(fileno(fp)) || fclose(fp))
+		{
+			perror("error writing configuration data to file");
+			ret=-1;
+		} 
+		else
+		{
+			//rename from tmp to real name
+			g_rename (tmpfile, global->confPath);
+		}
 	} 
 	else 
 	{
-		g_printerr("Could not write file %s \n Please check file permissions\n",global->confPath);
-		ret=-1;
+		g_printerr("Could not write file %s \n Please check file permissions\n",tmpfile);
+		ret=-2;
 	}
+	g_free(tmpfile);
+	
 	return ret;
 }
 

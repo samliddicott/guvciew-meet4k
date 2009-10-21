@@ -91,9 +91,10 @@ pieces(BYTE* frame, int width, int height, int piece_size );
  *    width  = frame width
  *    height = frame height
  *    trail_size  = trail size (in frames)
+ *    particle_size = in pixels (square - size x size)
  *    particles = pointer to particles array (struct particle)
  */
 struct particle*
-particles_effect(BYTE* frame, int width, int height, int trail_size, struct particle* particles);
+particles_effect(BYTE* frame, int width, int height, int trail_size, int particle_size, struct particle* particles);
 
 #endif
