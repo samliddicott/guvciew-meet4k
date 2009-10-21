@@ -204,8 +204,8 @@ struct particle*
 particles_effect(BYTE* frame, int width, int height, int trail_size, int particle_size, struct particle* particles)
 {
 	int i,j,w,h = 0;
-	int part_w = width>>6;
-	int part_h = height>>5;
+	int part_w = width>>7;
+	int part_h = height>>6;
 	int y_pos = 0; //luma position in the frame
 	GRand* rand_= g_rand_new();
 	//allocation
@@ -225,8 +225,8 @@ particles_effect(BYTE* frame, int width, int height, int trail_size, int particl
 		
 		for (j= 0; j < part_w * part_h; j++)
 		{
-			part->PX = part1->PX + g_rand_int_range(rand_, 1, particle_size);
-			part->PY = part1->PY + g_rand_int_range(rand_, -particle_size, particle_size);
+			part->PX = part1->PX + g_rand_int_range(rand_, 0, 3);
+			part->PY = part1->PY + g_rand_int_range(rand_, -4, 1);
 			
 			if(ODD(part->PX)) part->PX++; //make sure PX is allways even
 			
@@ -275,19 +275,21 @@ particles_effect(BYTE* frame, int width, int height, int trail_size, int particl
 	
 	part = particles; //reset
 	int line = 0;
-	j=0;
+	int psize=particle_size;
 	//render particles to frame (expand pixel to particle size)
 	for (i = 0; i < trail_size * part_w * part_h; i++)
 	{	
 		//g_printf("particle nrº %i of %i .... ", i, trail_size * part_w * part_h);
 		y_pos = part->PX * 2 + (part->PY * width * 2);
+		psize = g_rand_int_range(rand_, 1, particle_size);
+		if(ODD(psize)) psize++;
 		//g_printf("pos = (%i, %i) %i ",part->PX, part->PY, y_pos);
 		if(part->decay > 0)
 		{
-			for(h=0; h<particle_size; h++)
+			for(h=0; h<psize; h++)
 			{
 				line = h * width * 2;
-				for (w=0; w<particle_size*2; w+=4)
+				for (w=0; w<psize*2; w+=4)
 				{
 					frame[y_pos + w + line] = part->Y;
 					frame[(y_pos + w + 1) + line] = part->U;
