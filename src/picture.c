@@ -23,6 +23,7 @@
 #include "huffman.h"
 #include "jpgenc.h"
 #include <glib.h>
+#include <glib/gprintf.h>
 #include <png.h>
 
 /*----------------------------------- Image Files ----------------------------*/ 
@@ -107,7 +108,9 @@ SaveJPG(const char *Filename,int imgsize,BYTE *ImagePix)
 			ret=fwrite(jpgtmp,totSize,1,fp);/*jpeg - jfif*/
 			if (ret< 1) ret=1; //write error 
 			else ret=0;
-			fclose(fp);
+			fflush(fp); //flush data stream to file system
+			if(fsync(fileno(fp)) || fclose(fp))
+				perror("JPEG ERROR - couldn't write to file");
 		} 
 		else ret=1;
 
@@ -138,7 +141,9 @@ SaveBuff(const char *Filename,int imgsize,BYTE *data)
 		if (ret<1) ret=1;//write error
 		else ret=0;
 		
-		fclose(fp);
+		fflush(fp); //flush data stream to file system
+		if(fsync(fileno(fp)) || fclose(fp))
+			perror("BUFF WRITE ERROR - couldn't write buffer to file");
 	} 
 	else ret = 1;
 	return (ret);
@@ -185,7 +190,12 @@ SaveBPM(const char *Filename, long width, long height, int BitCount, BYTE *Image
 		if (ret<3) ret=1;//write error
 		else ret=0;
 
-		fclose(fp);
+		fflush(fp); //flush data stream to file system
+		if(fsync(fileno(fp)) || fclose(fp))
+		{
+			perror("BMP ERROR - couldn't write to file");
+			ret=1;
+		}
 	} 
 	else 
 	{
@@ -337,7 +347,13 @@ int write_png(char *file_name, int width, int height,BYTE *prgb_data)
 	png_destroy_write_struct(&png_ptr, &info_ptr);
 
 	/* close the file */
-	fclose(fp);
+	fflush(fp); //flush data stream to file system
+	if(fsync(fileno(fp)) || fclose(fp))
+	{
+		perror("PNG ERROR - couldn't write to file");
+		return(5);
+	}
+	
 	for(l=0;l<height;l++) 
 	{
 		row_pointers[l]=NULL;

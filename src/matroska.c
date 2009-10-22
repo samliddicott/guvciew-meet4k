@@ -26,7 +26,8 @@
 #include <string.h>
 #include <stdio.h>
 #include <glib.h>
-#include <defs.h>
+#include <glib/gprintf.h>
+#include "defs.h"
 #include "matroska.h"
 
 #define	CLSIZE	  1048576
@@ -933,7 +934,10 @@ int	  mk_close(mk_Writer *w) {
   }
   mk_destroyContexts(w);
   g_free(w->cluster_pos);
-  fclose(w->fp);
+  fflush(w->fp); //flush the file stream to the file system
+  if(fsync(fileno(w->fp)) || fclose(w->fp)) //make sure we actually write do disk and then close 
+	perror("MATROSKA ERROR - couldn't write to matroska file\n");
+	
   g_free(w);
   w = NULL;
   printf("closed matroska file\n");

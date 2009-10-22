@@ -104,10 +104,15 @@ SaveControls(struct VidState *s, struct GLOBAL *global, struct vdIn *videoIn)
 			
 		}
 	}
-	fflush(fp); //flush stream buffers to filesystem
-	fsync(fileno(fp)); //sync file data to disk (don't wait for filesystem)
-	fclose(fp); //close file stream
 	g_free(filename);
+	
+	fflush(fp); //flush stream buffers to filesystem
+	if(fsync(fileno(fp)) ||	fclose(fp))
+	{
+		perror("PROFILE ERROR - write to file failed");
+		return(-1);
+	}
+	
 	return (0);
 }
 

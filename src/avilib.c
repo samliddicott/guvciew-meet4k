@@ -39,6 +39,7 @@
 #include <time.h>
 #include <glib.h>
 #include <glib/gstdio.h>
+#include <glib/gprintf.h>
 #include "config.h"
 #include "avilib.h"
 #include "defs.h"
@@ -564,7 +565,9 @@ int AVI_open_output_file(struct avi_t *AVI, const char * filename)
 	i = avi_write(AVI->fdes,AVI_header,HEADERBYTES);
 	if (i != HEADERBYTES)
 	{
-		close(AVI->fdes);
+		
+		if(fsync(AVI->fdes) || close(AVI->fdes))
+			perror("AVI ERROR: couldn't write to avi file\n");
 		AVI_errno = AVI_ERR_WRITE;
 		g_mutex_free(AVI->mutex);
 		//free(AVI);
@@ -1223,7 +1226,8 @@ int AVI_close(struct avi_t *AVI)
 			ret = 0;
 
 		/* Even if there happened a error, we first clean up */
-		close(AVI->fdes);
+		if(fsync(AVI->fdes) || close(AVI->fdes))
+			perror("AVI ERROR: couldn't write avi data\n");
 		if(AVI->idx) free(AVI->idx);
 		if(AVI->video_index) free(AVI->video_index);
 		for (j=0; j<AVI->anum; j++) 
