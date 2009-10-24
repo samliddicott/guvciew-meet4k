@@ -243,8 +243,8 @@ particles_effect(BYTE* frame, int width, int height, int trail_size, int particl
 			}
 
 			part->Y = part1->Y;
-			part->U = part1->U;
-			part->V = part1->V;
+			//part->U = part1->U;
+			//part->V = part1->V;
 			part->size = part1->size;
 			
 			part++;
@@ -266,36 +266,42 @@ particles_effect(BYTE* frame, int width, int height, int trail_size, int particl
 		y_pos = part->PX * 2 + (part->PY * width * 2);
 		
 		part->Y = frame[y_pos];
-		part->U = frame[y_pos +1];
-		part->V = frame[y_pos +3];
+		//part->U = frame[y_pos +1];
+		//part->V = frame[y_pos +3];
 
 		part->size = g_rand_int_range(rand_, 1, particle_size);
 		if(ODD(part->size)) part->size++;
-		
+
 		part->decay = (float) trail_size;
+		//if(part->Y > 0x40 ) part->decay = (float) trail_size; //don't use very dark colors
+		//else part->decay = 0;
 		
 		part++; //next particle
 	}
 	
 	part = particles; //reset
 	int line = 0;
+	float blend =0;
+	float blend1 =0;
 	//render particles to frame (expand pixel to particle size)
 	for (i = 0; i < trail_size * part_w * part_h; i++)
 	{	
-		//g_printf("particle nrº %i of %i .... ", i, trail_size * part_w * part_h);
-		y_pos = part->PX * 2 + (part->PY * width * 2);
-		//g_printf("pos = (%i, %i) %i ",part->PX, part->PY, y_pos);
 		if(part->decay > 0)
 		{
+			//g_printf("particle nrº %i of %i .... ", i, trail_size * part_w * part_h);
+			y_pos = part->PX * 2 + (part->PY * width * 2);
+			//g_printf("pos = (%i, %i) %i ",part->PX, part->PY, y_pos);
+			blend = part->decay/trail_size;
+			blend1= 1 -blend;
 			for(h=0; h<(part->size); h++)
 			{
 				line = h * width * 2;
 				for (w=0; w<(part->size)*2; w+=4)
 				{
-					frame[y_pos + w + line] = part->Y;
-					frame[(y_pos + w + 1) + line] = part->U;
-					frame[(y_pos + w + 2) + line] = part->Y;
-					frame[(y_pos + w + 3) + line] = part->V;
+					frame[y_pos + w + line] = CLIP((int)(part->Y*blend + frame[y_pos + w + line]*blend1));
+					//frame[(y_pos + w + 1) + line] = part->U;
+					frame[(y_pos + w + 2) + line] = CLIP((int) (part->Y*blend + frame[(y_pos + w + 2) + line]*blend1));
+					//frame[(y_pos + w + 3) + line] = part->V;
 				}
 			}
 		}
