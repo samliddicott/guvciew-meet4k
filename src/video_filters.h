@@ -31,6 +31,7 @@ struct particle
 	BYTE Y;
 	BYTE U;
 	BYTE V;
+	int size;
 	float decay;
 };
 

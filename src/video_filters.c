@@ -245,6 +245,7 @@ particles_effect(BYTE* frame, int width, int height, int trail_size, int particl
 			part->Y = part1->Y;
 			part->U = part1->U;
 			part->V = part1->V;
+			part->size = part1->size;
 			
 			part++;
 			part1++;
@@ -267,6 +268,9 @@ particles_effect(BYTE* frame, int width, int height, int trail_size, int particl
 		part->Y = frame[y_pos];
 		part->U = frame[y_pos +1];
 		part->V = frame[y_pos +3];
+
+		part->size = g_rand_int_range(rand_, 1, particle_size);
+		if(ODD(part->size)) part->size++;
 		
 		part->decay = (float) trail_size;
 		
@@ -275,21 +279,18 @@ particles_effect(BYTE* frame, int width, int height, int trail_size, int particl
 	
 	part = particles; //reset
 	int line = 0;
-	int psize=particle_size;
 	//render particles to frame (expand pixel to particle size)
 	for (i = 0; i < trail_size * part_w * part_h; i++)
 	{	
 		//g_printf("particle nrº %i of %i .... ", i, trail_size * part_w * part_h);
 		y_pos = part->PX * 2 + (part->PY * width * 2);
-		psize = g_rand_int_range(rand_, 1, particle_size);
-		if(ODD(psize)) psize++;
 		//g_printf("pos = (%i, %i) %i ",part->PX, part->PY, y_pos);
 		if(part->decay > 0)
 		{
-			for(h=0; h<psize; h++)
+			for(h=0; h<(part->size); h++)
 			{
 				line = h * width * 2;
-				for (w=0; w<psize*2; w+=4)
+				for (w=0; w<(part->size)*2; w+=4)
 				{
 					frame[y_pos + w + line] = part->Y;
 					frame[(y_pos + w + 1) + line] = part->U;
