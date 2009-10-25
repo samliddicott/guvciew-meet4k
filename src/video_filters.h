@@ -29,8 +29,8 @@ struct particle
 	int PX;
 	int PY;
 	BYTE Y;
-	//BYTE U;
-	//BYTE V;
+	BYTE U;
+	BYTE V;
 	int size;
 	float decay;
 };
@@ -92,7 +92,7 @@ pieces(BYTE* frame, int width, int height, int piece_size );
  *    width  = frame width
  *    height = frame height
  *    trail_size  = trail size (in frames)
- *    particle_size = in pixels (square - size x size)
+ *    particle_size = maximum size in pixels - should be even (square - size x size)
  *    particles = pointer to particles array (struct particle)
  */
 struct particle*

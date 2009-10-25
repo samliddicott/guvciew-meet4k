@@ -99,7 +99,7 @@ static const int stdSampleRates[] =
 #define SDL_WAIT_TIME 30 /*SDL - Thread loop sleep time */
 
 /*clip value between 0 and 255*/
-#define CLIP(value) (unsigned char)(((value)>0xFF)?0xff:(((value)<0)?0:(value)))
+#define CLIP(value) (BYTE)(((value)>0xFF)?0xff:(((value)<0)?0:(value)))
 
 /*MAX macro - gets the bigger value*/
 #ifndef MAX

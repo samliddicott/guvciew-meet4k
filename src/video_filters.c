@@ -197,7 +197,7 @@ pieces(BYTE* frame, int width, int height, int piece_size )
  *    width  = frame width
  *    height = frame height
  *    trail_size  = trail size (in frames)
- *    particle_size = in pixels (square - size x size)
+ *    particle_size = maximum size in pixels - should be even (square - size x size)
  *    particles = pointer to particles array (struct particle)
  */
 struct particle*
@@ -225,28 +225,33 @@ particles_effect(BYTE* frame, int width, int height, int trail_size, int particl
 		
 		for (j= 0; j < part_w * part_h; j++)
 		{
-			part->PX = part1->PX + g_rand_int_range(rand_, 0, 3);
-			part->PY = part1->PY + g_rand_int_range(rand_, -4, 1);
-			
-			if(ODD(part->PX)) part->PX++; //make sure PX is allways even
-			
-			if((part->PX > (width-particle_size)) || (part->PY > (height-particle_size)) || (part->PX < 0) || (part->PY < 0))
+			if(part1->decay > 0)
 			{
-				part->PX = 0;
-				part->PY = 0;
-				part->decay = 0;
+				part->PX = part1->PX + g_rand_int_range(rand_, 0, 3);
+				part->PY = part1->PY + g_rand_int_range(rand_, -4, 1);
+			
+				if(ODD(part->PX)) part->PX++; //make sure PX is allways even
+			
+				if((part->PX > (width-particle_size)) || (part->PY > (height-particle_size)) || (part->PX < 0) || (part->PY < 0))
+				{
+					part->PX = 0;
+					part->PY = 0;
+					part->decay = 0;
+				}
+				else
+				{
+					part->decay = part1->decay - 1;
+				}
+
+				part->Y = part1->Y;
+				part->U = part1->U;
+				part->V = part1->V;
+				part->size = part1->size;
 			}
 			else
 			{
-				if(part1->decay > 0) part->decay = part1->decay - 1;
-				else part->decay = 0;
+				part->decay = 0;
 			}
-
-			part->Y = part1->Y;
-			//part->U = part1->U;
-			//part->V = part1->V;
-			part->size = part1->size;
-			
 			part++;
 			part1++;
 		}
@@ -266,15 +271,14 @@ particles_effect(BYTE* frame, int width, int height, int trail_size, int particl
 		y_pos = part->PX * 2 + (part->PY * width * 2);
 		
 		part->Y = frame[y_pos];
-		//part->U = frame[y_pos +1];
-		//part->V = frame[y_pos +3];
+		part->U = frame[y_pos +1];
+		part->V = frame[y_pos +3];
 
 		part->size = g_rand_int_range(rand_, 1, particle_size);
 		if(ODD(part->size)) part->size++;
 
 		part->decay = (float) trail_size;
-		//if(part->Y > 0x40 ) part->decay = (float) trail_size; //don't use very dark colors
-		//else part->decay = 0;
+		part->decay = (float) trail_size;
 		
 		part++; //next particle
 	}
@@ -288,9 +292,7 @@ particles_effect(BYTE* frame, int width, int height, int trail_size, int particl
 	{	
 		if(part->decay > 0)
 		{
-			//g_printf("particle nrº %i of %i .... ", i, trail_size * part_w * part_h);
 			y_pos = part->PX * 2 + (part->PY * width * 2);
-			//g_printf("pos = (%i, %i) %i ",part->PX, part->PY, y_pos);
 			blend = part->decay/trail_size;
 			blend1= 1 -blend;
 			for(h=0; h<(part->size); h++)
@@ -298,10 +300,10 @@ particles_effect(BYTE* frame, int width, int height, int trail_size, int particl
 				line = h * width * 2;
 				for (w=0; w<(part->size)*2; w+=4)
 				{
-					frame[y_pos + w + line] = CLIP((int)(part->Y*blend + frame[y_pos + w + line]*blend1));
-					//frame[(y_pos + w + 1) + line] = part->U;
-					frame[(y_pos + w + 2) + line] = CLIP((int) (part->Y*blend + frame[(y_pos + w + 2) + line]*blend1));
-					//frame[(y_pos + w + 3) + line] = part->V;
+					frame[y_pos + w + line] = CLIP(part->Y*blend + frame[y_pos + w + line]*blend1);
+					frame[(y_pos + w + 1) + line] = CLIP(part->U*blend + frame[(y_pos + w + 1) + line]*blend1);
+					frame[(y_pos + w + 2) + line] = CLIP(part->Y*blend + frame[(y_pos + w + 2) + line]*blend1);
+					frame[(y_pos + w + 3) + line] = CLIP(part->V*blend + frame[(y_pos + w + 3) + line]*blend1);
 				}
 			}
 		}
