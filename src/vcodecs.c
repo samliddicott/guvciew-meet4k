@@ -30,10 +30,6 @@
 #include <glib/gi18n.h>
 #include <linux/videodev2.h>
 
-#define CODEC_MJPEG 0
-#define CODEC_YUV   1
-#define CODEC_DIB   2
-
 static BITMAPINFOHEADER mkv_codecPriv =
 {
 	.biSize = 0x00000028, //40 bytes 
@@ -291,7 +287,7 @@ static vcodecs_data listSupVCodecs[] = //list of software supported formats
 	{       //only available in libavcodec-unstriped
 		.avcodec      = TRUE,
 		.valid        = TRUE,
-		.compressor   = "MP4V",
+		.compressor   = "DIVX",
 		.mkv_codec    = "V_MPEG4/ISO/ASP",
 		.mkv_codecPriv= NULL,
 		.description  = N_("MPEG4 - MPEG4 format"),
@@ -406,9 +402,11 @@ vcodecs_data *get_codec_defaults(int codec_ind)
 	return (&(listSupVCodecs[get_real_index (codec_ind)]));
 }
 
-static int encode_lavc (struct lavcData *lavc_data, struct ALL_DATA *all_data)
+static int encode_lavc (struct lavcData *lavc_data, 
+	struct ALL_DATA *all_data, 
+	VidBuff *proc_buff)
 {
-	struct vdIn *videoIn = all_data->videoIn;
+	//struct vdIn *videoIn = all_data->videoIn;
 	struct VideoFormatData *videoF = all_data->videoF;
 	
 	int framesize = 0;
@@ -416,14 +414,14 @@ static int encode_lavc (struct lavcData *lavc_data, struct ALL_DATA *all_data)
 	
 	if(lavc_data)
 	{
-		framesize= encode_lavc_frame (videoIn->framebuffer, lavc_data );
+		framesize= encode_lavc_frame (proc_buff->frame, lavc_data );
 		
 		if(lavc_data->codec_context->coded_frame->pts != AV_NOPTS_VALUE)
 			videoF->vpts = lavc_data->codec_context->coded_frame->pts;
 		if(lavc_data->codec_context->coded_frame->key_frame)
 			videoF->keyframe = 1;
 			
-		ret = write_video_data (all_data, lavc_data->outbuf, framesize);
+		ret = write_video_data (all_data, lavc_data->outbuf, framesize, proc_buff->time_stamp);
 	}
 	return (ret);
 }
@@ -431,12 +429,12 @@ static int encode_lavc (struct lavcData *lavc_data, struct ALL_DATA *all_data)
 int compress_frame(void *data, 
 	void *jpeg_data, 
 	void *lav_data,
-	void *pvid_buff)
+	VidBuff *proc_buff)
 {
 	struct JPEG_ENCODER_STRUCTURE **jpeg_struct = (struct JPEG_ENCODER_STRUCTURE **) jpeg_data;
 	struct lavcData **lavc_data = (struct lavcData **) lav_data;
-	BYTE **pvid = (BYTE **) pvid_buff;
-		
+	BYTE *prgb =NULL;
+	
 	struct ALL_DATA *all_data = (struct ALL_DATA *) data;
 	
 	struct GLOBAL *global = all_data->global;
@@ -451,7 +449,7 @@ int compress_frame(void *data,
 			/* save MJPG frame */   
 			if((global->Frame_Flags==0) && (videoIn->formatIn==V4L2_PIX_FMT_MJPEG)) 
 			{
-				ret = write_video_data (all_data, videoIn->tmpbuffer, videoIn->buf.bytesused);
+				ret = write_video_data (all_data, proc_buff->frame, proc_buff->bytes_used, proc_buff->time_stamp);
 			} 
 			else 
 			{
@@ -470,27 +468,26 @@ int compress_frame(void *data,
 					initialize_quantization_tables (*jpeg_struct);
 				} 
 				
-				global->jpeg_size = encode_image(videoIn->framebuffer, global->jpeg, 
+				global->jpeg_size = encode_image(proc_buff->frame, global->jpeg, 
 					*jpeg_struct,1, videoIn->width, videoIn->height);
 			
-				ret = write_video_data (all_data, global->jpeg, global->jpeg_size);
+				ret = write_video_data (all_data, global->jpeg, global->jpeg_size, proc_buff->time_stamp);
 			}
 			break;
 
 		case CODEC_YUV:
-			framesize=(videoIn->width)*(videoIn->height)*2; /*YUY2-> 2 bytes per pixel */
-			ret = write_video_data (all_data, videoIn->framebuffer, framesize);
+			ret = write_video_data (all_data, proc_buff->frame, proc_buff->bytes_used, proc_buff->time_stamp);
 			break;
 					
 		case CODEC_DIB:
 			framesize=(videoIn->width)*(videoIn->height)*3; /*DIB 24/32 -> 3/4 bytes per pixel*/ 
-			if(*pvid==NULL)
-			{
-				*pvid = g_new0(BYTE, framesize);
-			}
-			yuyv2bgr(videoIn->framebuffer, *pvid, videoIn->width, videoIn->height);
+			prgb = g_new0(BYTE, framesize);
+			
+			yuyv2bgr(proc_buff->frame, prgb, videoIn->width, videoIn->height);
 					
-			ret = write_video_data (all_data, *pvid, framesize);
+			ret = write_video_data (all_data, prgb, framesize, proc_buff->time_stamp);
+			g_free(prgb);
+			prgb=NULL;
 			break;
 				
 		default:
@@ -498,7 +495,7 @@ int compress_frame(void *data,
 			{
 				*lavc_data = init_lavc(videoIn->width, videoIn->height, videoIn->fps, global->VidCodec);
 			}
-			ret = encode_lavc (*lavc_data, all_data);
+			ret = encode_lavc (*lavc_data, all_data, proc_buff);
 			break;
 	}
 	return (ret);

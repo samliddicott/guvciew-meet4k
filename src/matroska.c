@@ -27,6 +27,8 @@
 #include <stdio.h>
 #include <glib.h>
 #include <glib/gprintf.h>
+#include <unistd.h>
+
 #include "defs.h"
 #include "matroska.h"
 

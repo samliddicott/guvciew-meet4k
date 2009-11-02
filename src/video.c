@@ -31,17 +31,13 @@
 #include "video.h"
 #include "guvcview.h"
 #include "v4l2uvc.h"
-#include "avilib.h"
 #include "colorspaces.h"
 #include "video_filters.h"
-#include "audio_effects.h"
 #include "jpgenc.h"
 #include "autofocus.h"
 #include "picture.h"
 #include "ms_time.h"
 #include "string_utils.h"
-#include "mp2.h"
-#include "vcodecs.h"
 #include "callbacks.h"
 #include "create_video.h"
 
@@ -152,16 +148,13 @@ void *main_loop(void *data)
 	SDL_Surface *pscreen = NULL;
 	SDL_Overlay *overlay = NULL;
 	SDL_Rect drect;
-	
-	struct JPEG_ENCODER_STRUCTURE *jpeg_struct=NULL;
-	struct lavcData *lavc_data = NULL;
 
-	struct audio_effects *aud_eff = init_audio_effects ();
+	struct JPEG_ENCODER_STRUCTURE *jpeg_struct=NULL;
 	
 	BYTE *p = NULL;
 	BYTE *pim= NULL;
-	BYTE *pvid=NULL;
-
+	int v_ind = 0; //video buffer current index
+	
 	int last_focus = 0;
 	if (global->AFcontrol) 
 	{
@@ -381,78 +374,12 @@ void *main_loop(void *data)
 		if (videoIn->capVid && !(global->skip_n))
 		{
 			videoIn->VidCapStop = FALSE;
-			write_video_frame(all_data, (void *) &(jpeg_struct), (void *) &(lavc_data), (void *) &(pvid));
-			/*----------------------- add audio -----------------------------*/
-			if ((global->Sound_enable) && (pdata->audio_flag>0)) 
-			{
-				g_mutex_lock( pdata->mutex );
-					sync_audio_frame(all_data);
-					//if(global->debug) g_printf("audio: %lu frames per buffer and %d total samples\n",
-					//	pdata->framesPerBuffer, pdata->numSamples);
-					/*run effects on data*/
-					/*echo*/
-					if((pdata->snd_Flags & SND_ECHO)==SND_ECHO) 
-					{
-						Echo(pdata, aud_eff, 300, 0.5);
-					}
-					else
-					{
-						close_DELAY(aud_eff->ECHO);
-						aud_eff->ECHO = NULL;
-					}
-					/*fuzz*/
-					if((pdata->snd_Flags & SND_FUZZ)==SND_FUZZ) 
-					{
-						Fuzz(pdata, aud_eff);
-					}
-					else
-					{
-						close_FILT(aud_eff->HPF);
-						aud_eff->HPF = NULL;
-					}
-					/*reverb*/
-					if((pdata->snd_Flags & SND_REVERB)==SND_REVERB) 
-					{
-						Reverb(pdata, aud_eff, 50);
-					}
-					else
-					{
-						close_REVERB(aud_eff);
-					}
-					/*wahwah*/
-					if((pdata->snd_Flags & SND_WAHWAH)==SND_WAHWAH) 
-					{
-						WahWah (pdata, aud_eff, 1.5, 0, 0.7, 0.3, 2.5);
-					}
-					else
-					{
-						close_WAHWAH(aud_eff->wahData);
-						aud_eff->wahData = NULL;
-					}
-					/*Ducky*/
-					if((pdata->snd_Flags & SND_DUCKY)==SND_DUCKY) 
-					{
-						change_pitch(pdata, aud_eff, 2);
-					}
-					else
-					{
-						close_pitch (aud_eff);
-					}
-				g_mutex_unlock( pdata->mutex );
-				
-				write_audio_frame(all_data);
-			}
+			//write_video_frame(all_data, (void *) &(jpeg_struct), (void *) &(lavc_data), (void *) &(pvid));
+			v_ind = store_video_frame(all_data, v_ind);
+			
 		} /*video and audio capture have stopped */
 		else
 		{
-			if(lavc_data != NULL)
-			{
-				int nf = clean_lavc(&(lavc_data));
-				if(global->debug) g_printf(" total frames: %d  -- encoded: %d\n", global->framecount, nf);
-				//if (global->framecount > nf)
-				//	global->framecount = nf;
-			}
-	
 			videoIn->VidCapStop=TRUE;
 		}
 	
@@ -512,12 +439,6 @@ void *main_loop(void *data)
 		{
 			g_printf("setting new resolution (%d x %d)\n",global->width,global->height);
 			/*clean up */
-			if(lavc_data != NULL)
-			{
-				int nf = clean_lavc(&lavc_data);
-				if(global->debug) g_printf(" total frames: %d  -- encoded: %d\n", global->framecount, nf);
-				lavc_data = NULL;
-			}
 			
 			if(particles) g_free(particles);
 			particles = NULL;
@@ -525,8 +446,7 @@ void *main_loop(void *data)
 			jpeg_struct=NULL;
 			g_free(pim);
 			pim=NULL;
-			g_free(pvid);
-			pvid=NULL;
+			
 			if (global->debug) g_printf("cleaning buffer allocations\n");
 			fflush(NULL);//flush all output buffers 
 			
@@ -548,12 +468,6 @@ void *main_loop(void *data)
 
 	}/*loop end*/
 
-	if(lavc_data != NULL)
-	{
-		int nf = clean_lavc(&lavc_data);
-		if(global->debug) g_printf(" total frames: %d  -- encoded: %d\n", global->framecount, nf);
-		lavc_data = NULL;
-	}
 	/*check if thread exited while in Video capture mode*/
 	if (videoIn->capVid) 
 	{
@@ -574,12 +488,10 @@ void *main_loop(void *data)
 	jpeg_struct=NULL;
 	g_free(pim);
 	pim=NULL;
-	g_free(pvid);
-	pvid=NULL;
+
 	if (global->debug) g_printf("cleaning Thread allocations: 100%%\n");
 	fflush(NULL);//flush all output buffers 
 	
-	close_audio_effects (aud_eff);
 	SDL_FreeYUVOverlay(overlay);
 	//SDL_FreeSurface(pscreen);
 

@@ -35,10 +35,20 @@ typedef struct _sndDev
 	//PaTime Llatency;
 } sndDev;
 
+typedef struct _VidBuff
+{
+	gboolean used;
+	QWORD time_stamp;
+	BYTE *frame;
+	int bytes_used;
+} VidBuff;
+
 /*global variables used in guvcview*/
 struct GLOBAL 
 {
 	GMutex *mutex;         //global structure mutex
+	VidBuff *videoBuff;    //video Buffer
+	
 	char *videodevice;     // video device (def. /dev/video0)
 	char *confPath;        //configuration file path
 	char *vidfile;         //video filename passed through argument options with -n

@@ -56,17 +56,23 @@ ULLONG ns_time (void)
 	return ((ULLONG) ts.tv_sec * 1000000000.0 + (ULLONG) ts.tv_nsec);
 }
 
+//sleep for given time in ms
+void sleep_ms(int ms_time)
+{
+	gulong sleep_us = ms_time *1000; /*convert to microseconds*/
+	g_usleep( sleep_us );/*sleep for sleep_ms ms*/
+}
 
 /*wait on cond by sleeping for n_loops of sleep_ms ms (test var==val every loop)*/
 /*return remaining number of loops (if 0 then a stall ocurred)              */
-int wait_ms(int *var, int val, int sleep_ms, int n_loops)
+int wait_ms(int *var, int val, int ms_time, int n_loops)
 {
 	int n=n_loops;
-	gulong sleep_us = sleep_ms *1000; /*convert to microseconds*/
 	while( (*var!=val) && ( n > 0 ) ) /*wait at max (n_loops*sleep_ms) ms */
 	{
 		n--;
-		g_usleep( sleep_us );/*sleep for sleep_ms ms*/
+		sleep_ms( ms_time );/*sleep for sleep_ms ms*/
 	};
 	return (n);
 }
+

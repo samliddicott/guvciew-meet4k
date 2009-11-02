@@ -37,6 +37,8 @@
 
 #define ODD(x) ((x%2)?TRUE:FALSE)
 
+#define VIDBUFF_SIZE 30
+
 typedef uint64_t QWORD;
 typedef uint32_t DWORD;
 typedef uint16_t WORD;

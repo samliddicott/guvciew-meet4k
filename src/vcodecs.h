@@ -25,8 +25,13 @@
 #include <glib.h>
 #include "jpgenc.h"
 #include "lavc_common.h"
+#include "globals.h"
 
-#define MAX_VCODECS 9 
+#define MAX_VCODECS 9
+
+#define CODEC_MJPEG 0
+#define CODEC_YUV   1
+#define CODEC_DIB   2
 
 typedef struct _vcodecs_data
 {
@@ -84,6 +89,6 @@ vcodecs_data *get_codec_defaults(int codec_ind);
 int compress_frame(void *data, 
 	void *jpeg_data, 
 	void *lav_data,
-	void *pvid_buff);
+	VidBuff *proc_buff);
 
 #endif

@@ -28,6 +28,10 @@ DWORD ms_time (void);
 ULLONG us_time(void);
 /*time in nanoseconds (real time for benchmark)*/
 ULLONG ns_time (void);
+
+/*sleep for given time in ms*/
+void sleep_ms(int ms_time);
+
 /*wait on cond by sleeping for n_loops of sleep_ms ms */
 /*(test (var == val) every loop)                     */
 int wait_ms(int *var, int val, int sleep_ms, int n_loops);

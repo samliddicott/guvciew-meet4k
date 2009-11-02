@@ -35,6 +35,19 @@ struct particle
 	float decay;
 };
 
+//struct dizzy_data
+//{
+//	BYTE *buffer;
+//	BYTE *current_buffer, *alt_buffer;
+//	int dx;
+//	int dy;
+//	int sx;
+//	int sy;
+//	double phase = 0.0;
+//	double phase_increment = 0.02;
+//	double zoomrate = 1.01;
+//};
+
 /* Flip YUYV frame - horizontal
  * args:
  *      frame = pointer to frame buffer (yuyv format)

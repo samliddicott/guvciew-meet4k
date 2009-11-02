@@ -60,6 +60,8 @@ int initGlobals (struct GLOBAL *global)
 	global->WVcaption = g_new(char, 32);
 	
 	g_snprintf(global->WVcaption,10,"GUVCVIdeo");
+
+	global->videoBuff = NULL;
 	
 	global->stack_size=TSTACK;
 	

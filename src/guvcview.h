@@ -85,6 +85,7 @@ struct ALL_DATA
 	struct GWIDGET *gwidget;
 	struct VidState *s;
 	GThread *video_thread;
+	GThread *IO_thread;
 };
 
 #endif

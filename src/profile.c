@@ -23,6 +23,7 @@
 #include <glib.h>
 #include <glib/gstdio.h>
 #include <glib/gprintf.h>
+#include <unistd.h>
 
 #include "defs.h"
 #include "profile.h"
