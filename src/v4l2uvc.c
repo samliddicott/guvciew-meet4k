@@ -1100,7 +1100,11 @@ static int close_v4l2_buffers (struct vdIn *vd)
 	switch(vd->cap_meth)
 	{
 		case IO_READ:
-			g_free(vd->mem[vd->buf.index]);
+			if(vd->mem[vd->buf.index]!= NULL) 
+	    		{
+				g_free(vd->mem[vd->buf.index]);
+				vd->mem[vd->buf.index] = NULL;
+			 }
 			break;
 		
 		case IO_MMAP:
@@ -1188,7 +1192,7 @@ void close_v4l2(struct vdIn *vd, gboolean control_only)
 	vd->framebuffer = NULL;
 	vd->ImageFName = NULL;
 	vd->VidFName = NULL;
-	freeDevices(vd->listDevices);
+	if(vd->listDevices != NULL) freeDevices(vd->listDevices);
 	// close device descriptor
 	if(vd->fd) close(vd->fd);
 	if(vd->mutex) g_mutex_free( vd->mutex );
