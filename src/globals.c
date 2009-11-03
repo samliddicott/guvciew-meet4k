@@ -86,7 +86,9 @@ int initGlobals (struct GLOBAL *global)
 	global->Vidstarttime=0;
 	global->Vidstoptime=0;
 	global->framecount=0;
-	
+	global->s_ind=0;
+	global->r_ind=0;
+		
 	global->Sound_enable=TRUE; /*Enable Sound by Default*/
 	global->Sound_IndexDev=NULL;
 	global->Sound_SampRate=SAMPLE_RATE;

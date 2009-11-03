@@ -49,7 +49,7 @@ int sync_audio_frame(struct ALL_DATA *all_data);
 
 int write_audio_frame (struct ALL_DATA *all_data);
 
-int store_video_frame(void *data, int index);
+int store_video_frame(void *data);
 
 void *IO_loop(void *data);
 

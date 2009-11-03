@@ -153,7 +153,6 @@ void *main_loop(void *data)
 	
 	BYTE *p = NULL;
 	BYTE *pim= NULL;
-	int v_ind = 0; //video buffer current index
 	
 	int last_focus = 0;
 	if (global->AFcontrol) 
@@ -375,7 +374,7 @@ void *main_loop(void *data)
 		{
 			videoIn->VidCapStop = FALSE;
 			//write_video_frame(all_data, (void *) &(jpeg_struct), (void *) &(lavc_data), (void *) &(pvid));
-			v_ind = store_video_frame(all_data, v_ind);
+			store_video_frame(all_data);
 			
 		} /*video and audio capture have stopped */
 		else
@@ -391,8 +390,8 @@ void *main_loop(void *data)
 		SDL_DisplayYUVOverlay(overlay, &drect);
 	
 		/*sleep for a while*/
-		if(global->vid_sleep)
-			SDL_Delay(global->vid_sleep);
+		if(global->vid_sleep) sleep_ms(global->vid_sleep);
+			//SDL_Delay(global->vid_sleep);
 		
 		/*------------------------- Read Key events ------------------------------*/
 		if (videoIn->PanTilt) 
