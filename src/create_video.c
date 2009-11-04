@@ -618,64 +618,111 @@ int sync_audio_frame(struct ALL_DATA *all_data)
 #define NEXT_IND(ind,size) ind++;if(ind>=size) ind=0
 //#define PREV_IND(ind,size) ind--;if(ind<0) ind=size-1
 
+static int buff_scheduler(int w_ind, int r_ind)
+{
+	int diff_ind = 0;
+	int vid_sleep = 0;
+	//try to balance buffer overrun in read/write operations 
+	if(w_ind >= r_ind)
+		diff_ind = w_ind - r_ind;
+	else
+		diff_ind = (VIDBUFF_SIZE - r_ind) + w_ind;
+
+	if(diff_ind <= 2) vid_sleep = 0;
+	else if (diff_ind <= 5)  vid_sleep = diff_ind * 2;/* <= 10  ms ~1 frame @ 90  fps*/
+	else if (diff_ind <= 10) vid_sleep = diff_ind * 3;/* <= 30  ms ~1 frame @ 30  fps*/
+	else if (diff_ind <= 15) vid_sleep = diff_ind * 4;/* <= 60  ms ~1 frame @ 15  fps*/
+	else if (diff_ind <= 20) vid_sleep = diff_ind * 5;/* <= 100 ms ~1 frame @ 10  fps*/
+	else if (diff_ind <= 25) vid_sleep = diff_ind * 6;/* <= 130 ms ~1 frame @ 7,5 fps*/
+	else vid_sleep = diff_ind * 7;                    /* <= 210 ms ~1 frame @ 5   fps*/
+	
+	return vid_sleep;
+}
+
 int store_video_frame(void *data)
 {
 	struct ALL_DATA *all_data = (struct ALL_DATA *) data;
 
 	struct GLOBAL *global = all_data->global;
 	struct vdIn *videoIn = all_data->videoIn;
-	int diff_ind = 0;
+	int ret = 0;
 	
 	g_mutex_lock(global->mutex);
-	if (!global->videoBuff[global->s_ind].used)
+	if (!global->videoBuff[global->w_ind].used)
 	{
-		global->videoBuff[global->s_ind].time_stamp = global->v_ts;
+		global->videoBuff[global->w_ind].time_stamp = global->v_ts;
 		/*store frame at index*/
 		if((global->VidCodec == CODEC_MJPEG) &&
 			(global->Frame_Flags==0) &&
 			(videoIn->formatIn==V4L2_PIX_FMT_MJPEG))
 		{
 			/*store MJPEG frame*/
-			global->videoBuff[global->s_ind].bytes_used = videoIn->buf.bytesused;
-			memcpy(global->videoBuff[global->s_ind].frame, 
+			global->videoBuff[global->w_ind].bytes_used = videoIn->buf.bytesused;
+			memcpy(global->videoBuff[global->w_ind].frame, 
 				videoIn->tmpbuffer, 
-				global->videoBuff[global->s_ind].bytes_used);
+				global->videoBuff[global->w_ind].bytes_used);
 		}
 		else
 		{
 			/*store YUYV frame*/
-			global->videoBuff[global->s_ind].bytes_used = videoIn->height*videoIn->width*2;
-			memcpy(global->videoBuff[global->s_ind].frame, 
+			global->videoBuff[global->w_ind].bytes_used = videoIn->height*videoIn->width*2;
+			memcpy(global->videoBuff[global->w_ind].frame, 
 				videoIn->framebuffer, 
-				global->videoBuff[global->s_ind].bytes_used);
+				global->videoBuff[global->w_ind].bytes_used);
 		}
-		global->videoBuff[global->s_ind].used = TRUE;
-
-		if(global->s_ind >= global->r_ind)
-			diff_ind = global->s_ind - global->r_ind;
-		else
-			diff_ind = (VIDBUFF_SIZE - global->r_ind) + global->s_ind;
-
-		//try to balance buffer store/read in slower single core cpus
-		if(diff_ind < 5) global->vid_sleep = 0;
-		else if (diff_ind < 10) global->vid_sleep = 33;  /*33 ms  ~1 frame @ 30  fps*/
-		else if (diff_ind < 15) global->vid_sleep = 66;  /*66 ms  ~1 frame @ 15  fps*/
-		else if (diff_ind < 20) global->vid_sleep = 99;  /*99 ms  ~1 frame @ 10  fps*/
-		else if (diff_ind < 25) global->vid_sleep = 132; /*132 ms ~1 frame @ 7,5 fps*/
-		else global->vid_sleep = 200;                    /*200 ms ~1 frame @ 5   fps*/
+		global->videoBuff[global->w_ind].used = TRUE;
 		
-		NEXT_IND(global->s_ind, VIDBUFF_SIZE);
+		global->vid_sleep = buff_scheduler(global->w_ind, global->r_ind);
+		
+		NEXT_IND(global->w_ind, VIDBUFF_SIZE);
 	}
 	else
 	{
-		/*drop frame- hopefully the sleep function in video loop will make sure this never happens*/
-		if(global->debug) g_printerr("WARNING: Droping a Frame: buffer full\n");
-		//wait for IO recovery
-		global->vid_sleep = 99;
+		if(global->debug) g_printerr("WARNING: buffer full waiting for free space\n");
+		/*wait for IO_cond at least 100ms*/
+		GTimeVal *timev;
+		timev = g_new0(GTimeVal, 1);
+		g_get_current_time(timev);
+		g_time_val_add(timev,200*1000); /*200 ms*/
+		if(g_cond_timed_wait(global->IO_cond, global->mutex, timev))
+		{
+			/*try to store the frame again*/
+			if (!global->videoBuff[global->w_ind].used)
+			{
+				global->videoBuff[global->w_ind].time_stamp = global->v_ts;
+				/*store frame at index*/
+				if((global->VidCodec == CODEC_MJPEG) &&
+					(global->Frame_Flags==0) &&
+					(videoIn->formatIn==V4L2_PIX_FMT_MJPEG))
+				{
+					/*store MJPEG frame*/
+					global->videoBuff[global->w_ind].bytes_used = videoIn->buf.bytesused;
+					memcpy(global->videoBuff[global->w_ind].frame, 
+						videoIn->tmpbuffer, 
+						global->videoBuff[global->w_ind].bytes_used);
+				}
+				else
+				{
+					/*store YUYV frame*/
+					global->videoBuff[global->w_ind].bytes_used = videoIn->height*videoIn->width*2;
+					memcpy(global->videoBuff[global->w_ind].frame, 
+						videoIn->framebuffer, 
+						global->videoBuff[global->w_ind].bytes_used);
+				}
+				global->videoBuff[global->w_ind].used = TRUE;
+				NEXT_IND(global->w_ind, VIDBUFF_SIZE);
+			}
+			else ret = -1;/*drop frame*/
+			
+		}
+		else ret = -2;/*drop frame*/
+		
+		g_free(timev);
+		
 	}
 	g_mutex_unlock(global->mutex);
 	
-	return 0;
+	return ret;
 }
 
 void *IO_loop(void *data)
@@ -705,32 +752,36 @@ void *IO_loop(void *data)
 	{
 		/*process the video*/
 		g_mutex_lock(global->mutex);
-		if (global->videoBuff[global->r_ind].used)
-		{
-			/*read video Frame*/
-			proc_buff->bytes_used = global->videoBuff[global->r_ind].bytes_used;
-			memcpy(proc_buff->frame, global->videoBuff[global->r_ind].frame, proc_buff->bytes_used);
-			proc_buff->time_stamp = global->videoBuff[global->r_ind].time_stamp;
-			global->videoBuff[global->r_ind].used = FALSE;
-			NEXT_IND(global->r_ind,VIDBUFF_SIZE);
+			if (global->videoBuff[global->r_ind].used)
+			{
+				/*read video Frame*/
+				proc_buff->bytes_used = global->videoBuff[global->r_ind].bytes_used;
+				memcpy(proc_buff->frame, global->videoBuff[global->r_ind].frame, proc_buff->bytes_used);
+				proc_buff->time_stamp = global->videoBuff[global->r_ind].time_stamp;
+				global->videoBuff[global->r_ind].used = FALSE;
+				/*signals an empty slot in the video buffer*/
+				g_cond_broadcast(global->IO_cond);
+				
+				NEXT_IND(global->r_ind,VIDBUFF_SIZE);
 			g_mutex_unlock(global->mutex);
 
-			/*process video Frame*/
-			write_video_frame(all_data, (void *) &(jpeg_struct), (void *) &(lavc_data), proc_buff);
-		}
-		else
-		{
+				/*process video Frame*/
+				write_video_frame(all_data, (void *) &(jpeg_struct), (void *) &(lavc_data), proc_buff);
+			}
+			else
+			{
 			g_mutex_unlock(global->mutex);
-			if (videoIn->capVid)
-			{
-				/*wait for next frame (20 ms)*/
-				sleep_ms(20);
+				if (videoIn->capVid)
+				{
+					/*video buffer underrun            */
+					/*wait for next frame (sleep 20 ms)*/
+					sleep_ms(20);
+				}
+				else 
+				{
+					finished = TRUE; /*all frames processed and no longer capturing so finish*/
+				}
 			}
-			else 
-			{
-				finished = TRUE; /*all frames processed and no longer capturing so finish*/
-			}
-		}
 
 		/*now process the audio*/
 		/*----------------------- add audio -----------------------------*/

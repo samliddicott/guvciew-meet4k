@@ -30,6 +30,7 @@
 int initGlobals (struct GLOBAL *global) 
 {
 	global->mutex = g_mutex_new();
+	global->IO_cond = g_cond_new();   /* Initialized video buffer semaphore */
 
 	global->debug = DEBUG;
 	
@@ -86,7 +87,7 @@ int initGlobals (struct GLOBAL *global)
 	global->Vidstarttime=0;
 	global->Vidstoptime=0;
 	global->framecount=0;
-	global->s_ind=0;
+	global->w_ind=0;
 	global->r_ind=0;
 		
 	global->Sound_enable=TRUE; /*Enable Sound by Default*/
@@ -167,6 +168,7 @@ int closeGlobals(struct GLOBAL *global)
 	g_free(global->mode);
 	g_free(global->Sound_IndexDev);
 	g_mutex_free( global->mutex );
+	g_cond_free( global->IO_cond);
 	
 	global->videodevice=NULL;
 	global->confPath=NULL;

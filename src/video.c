@@ -373,8 +373,8 @@ void *main_loop(void *data)
 		if (videoIn->capVid && !(global->skip_n))
 		{
 			videoIn->VidCapStop = FALSE;
-			//write_video_frame(all_data, (void *) &(jpeg_struct), (void *) &(lavc_data), (void *) &(pvid));
-			store_video_frame(all_data);
+			int res=0;
+			if((res=store_video_frame(all_data))<0) g_printerr("WARNING: droped frame (%i)\n",res);
 			
 		} /*video and audio capture have stopped */
 		else

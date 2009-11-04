@@ -47,6 +47,8 @@ typedef struct _VidBuff
 struct GLOBAL 
 {
 	GMutex *mutex;         //global structure mutex
+	GCond   *IO_cond;      //IO thread semaphore
+	
 	VidBuff *videoBuff;    //video Buffer
 	
 	char *videodevice;     // video device (def. /dev/video0)
@@ -117,8 +119,8 @@ struct GLOBAL
 	int Frame_Flags;       //frame filter flags
 	int jpeg_size;         //jpeg buffer size
 	int skip_n;            //initial frames to skip
-	int s_ind;             //store frame index
-	int r_ind;             //read frame index
+	int w_ind;             //write frame index
+	int r_ind;             //read  frame index
 
 	float DispFps;         //fps value
 
