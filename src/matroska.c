@@ -52,6 +52,7 @@ struct mk_Writer {
   int		      video_only;       //not muxing audio
   int		      close_cluster;    //if we are also muxing audio, signal to close cluster after saving audio frame 
   unsigned	      duration_ptr;     //file location pointer for duration
+  int64_t	      def_duration_ptr; //file location pointer for default frame duration
   int64_t	      segment_size_ptr; //file location pointer for segment size
   int64_t	      cues_pos;
   int64_t	      seekhead_pos;
@@ -511,7 +512,10 @@ int	  mk_writeHeader(mk_Writer *w, const char *writingApp,
     CHECK(mk_writeBin(ti2, MATROSKA_ID_CODECPRIVATE, codecPrivate, codecPrivateSize));
 
   if (default_frame_duration)
+  {
     CHECK(mk_writeUInt(ti2, MATROSKA_ID_TRACKDEFAULTDURATION, default_frame_duration)); // DefaultDuration
+    w->def_duration_ptr = 4290;//FIXME (4290)
+  }
 
   if ((v = mk_createContext(w, ti2, MATROSKA_ID_TRACKVIDEO)) == NULL) // Video
     return -1;
@@ -832,6 +836,10 @@ static int write_SegSeek(mk_Writer *w, int64_t cues_pos, int64_t seekHeadPos) {
   return 0;
 }
 
+void	  mk_setDef_Duration(mk_Writer *w, int64_t def_duration)
+{
+	w->def_duration = def_duration;
+}
 
 int	  mk_startFrame(mk_Writer *w) {
   if (mk_flushFrame(w) < 0)
@@ -928,9 +936,14 @@ int	  mk_close(mk_Writer *w) {
     //move to seekentries
     fseek(w->fp, w->seekhead_pos, SEEK_SET);
     write_SegSeek (w, CuesPos, SeekHeadPos);
+    //move to default frame duration entry - set real fps value
+    fseek(w->fp, w->def_duration_ptr, SEEK_SET);
+    if (mk_writeUInt(w->root, MATROSKA_ID_TRACKDEFAULTDURATION, w->def_duration) < 0 ||
+	mk_flushContextData(w->root) < 0)
+      ret = -1;
     //move to segment duration entry
     fseek(w->fp, w->duration_ptr, SEEK_SET);
-   if (mk_writeFloatRaw(w->root, (float)(double)(w->max_frame_tc/ w->timescale)) < 0 ||
+    if (mk_writeFloatRaw(w->root, (float)(double)(w->max_frame_tc/ w->timescale)) < 0 ||
 	mk_flushContextData(w->root) < 0)
       ret = -1;
   }

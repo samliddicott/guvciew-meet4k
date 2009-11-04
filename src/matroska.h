@@ -234,6 +234,7 @@ int  mk_writeHeader( mk_Writer *w, const char *writingApp,
                      unsigned d_width, unsigned d_height,
                      float SampRate, int channels, int bitsSample );
 
+void mk_setDef_Duration(mk_Writer *w, int64_t def_duration);
 int  mk_startFrame( mk_Writer *w );
 int  mk_startAudioFrame(mk_Writer *w);
 int  mk_addFrameData( mk_Writer *w, const void *data, unsigned size );
