@@ -628,7 +628,7 @@ static int buff_scheduler(int w_ind, int r_ind)
 	else
 		diff_ind = (VIDBUFF_SIZE - r_ind) + w_ind;
 
-	if(diff_ind <= 2) vid_sleep = 0;
+	if(diff_ind <= 2) vid_sleep = 0;                  /*    full throtle             */
 	else if (diff_ind <= 5)  vid_sleep = diff_ind * 2;/* <= 10  ms ~1 frame @ 90  fps*/
 	else if (diff_ind <= 10) vid_sleep = diff_ind * 3;/* <= 30  ms ~1 frame @ 30  fps*/
 	else if (diff_ind <= 15) vid_sleep = diff_ind * 4;/* <= 60  ms ~1 frame @ 15  fps*/
@@ -679,7 +679,7 @@ int store_video_frame(void *data)
 	else
 	{
 		if(global->debug) g_printerr("WARNING: buffer full waiting for free space\n");
-		/*wait for IO_cond at least 100ms*/
+		/*wait for IO_cond at least 200ms*/
 		GTimeVal *timev;
 		timev = g_new0(GTimeVal, 1);
 		g_get_current_time(timev);
