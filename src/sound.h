@@ -49,7 +49,7 @@
 
 #define PA_SAMPLE_TYPE  paFloat32
 #define PA_FOURCC       WAVE_FORMAT_PCM //use PCM 16 bits converted from float
-typedef float SAMPLE;
+
 #define SAMPLE_SILENCE  (0.0f)
 #define MAX_SAMPLE (1.0f)
 #define PRINTF_S_FORMAT "%.8f"
@@ -57,6 +57,13 @@ typedef float SAMPLE;
 //API index
 #define PORT  0
 #define PULSE 1
+
+typedef struct _AudBuff
+{
+	gboolean used;
+	QWORD time_stamp;
+	SAMPLE *frame;
+} AudBuff;
 
 // main audio interface struct
 struct paRecordData
@@ -66,25 +73,25 @@ struct paRecordData
 	PaStreamParameters inputParameters;
 	PaStream *stream;
 	unsigned long framesPerBuffer; //frames per buffer passed in audio callback
-	int MPEG_Frame_size; //number of samples per mpeg frame (1152 for MP2)
-	int sampleIndex; // callback buffer index
-	int maxIndex; // maximum callback buffer index
+
+	//int sampleIndex;
+	int w_ind; // producer index
+	int r_ind; // consumer index
 	int channels; // channels
-	int numSamples; //captured samples in callback
+	//int numSamples; //captured samples in callback
 	int streaming; // audio streaming flag
 	int flush; // flush mp2 buffer flag
-	int audio_flag; // ou buffer data ready flag
 	int samprate; // samp rate
-	int tresh;    //samples treshold for output buffer in audio callback
 	int numsec; // aprox. number of seconds for out buffer size
-	int snd_numBytes; //bytes copied to out buffer*/
-	int snd_numSamples; //samples copied to out buffer*/
+	int aud_numBytes; //bytes copied to out buffer*/
+	int aud_numSamples; //samples copied to out buffer*/
 	int64_t snd_begintime; //audio recording start time*/
 	int capVid; // video capture flag
 	SAMPLE *recordedSamples; // callback buffer
-	SAMPLE *vid_sndBuff; // out buffer
+    	int sampleIndex;
+	AudBuff *audio_buff; // ring buffer for audio data
 	INT64 a_ts; //audio frame time stamp
-	gint16 *vid_sndBuff1; //buffer for pcm coding with int16
+	gint16 *pcm_sndBuff; //buffer for pcm coding with int16
 	BYTE *mp2Buff; //mp2 encode buffer
 	int mp2BuffSize; // mp2 buffer size
 	int snd_Flags; // effects flag
@@ -116,7 +123,7 @@ int
 close_sound (struct paRecordData *data);
 
 void 
-Float2Int16 (struct paRecordData* data);
+Float2Int16 (struct paRecordData* data, AudBuff *proc_buff);
 
 #ifdef PULSEAUDIO
 void

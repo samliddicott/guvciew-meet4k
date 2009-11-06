@@ -37,7 +37,15 @@
 
 #define ODD(x) ((x%2)?TRUE:FALSE)
 
-#define VIDBUFF_SIZE 30
+/*next index of ring buffer with size elements*/
+#define NEXT_IND(ind,size) ind++;if(ind>=size) ind=0
+/*previous index of ring buffer with size elements*/
+//#define PREV_IND(ind,size) ind--;if(ind<0) ind=size-1
+
+#define VIDBUFF_SIZE 30    //number of video frames in the ring buffer
+#define AUDBUFF_SIZE 40    //number of audio frames in the ring buffer
+#define MPG_NUM_SAMP 1152  //number of samples in a MPEG frame 
+#define MPG_NUM_FRAMES 4   //number of MPEG frames in a audio frame
 
 typedef uint64_t QWORD;
 typedef uint32_t DWORD;
@@ -59,6 +67,8 @@ typedef int32_t    INT32;
 typedef uint32_t   UINT32;
 typedef int64_t    INT64;
 typedef uint64_t   UINT64;
+
+typedef float SAMPLE;
 
 /* 0 is device default*/
 static const int stdSampleRates[] = 

@@ -45,9 +45,9 @@ int write_video_frame (struct ALL_DATA *all_data,
 	void *lavc_data,
 	VidBuff *proc_buff);
 
-int sync_audio_frame(struct ALL_DATA *all_data);
+int sync_audio_frame(struct ALL_DATA *all_data, AudBuff *proc_buff);
 
-int write_audio_frame (struct ALL_DATA *all_data);
+int write_audio_frame (struct ALL_DATA *all_data, AudBuff *proc_buff);
 
 int store_video_frame(void *data);
 

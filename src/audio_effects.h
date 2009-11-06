@@ -118,13 +118,13 @@ struct audio_effects
 
 
 void
-Echo(struct paRecordData* data, struct audio_effects *aud_eff, int delay_ms, float decay);
+Echo(struct paRecordData* data, AudBuff *proc_buff, struct audio_effects *aud_eff, int delay_ms, float decay);
 
 void 
-Fuzz (struct paRecordData* data, struct audio_effects *aud_eff);
+Fuzz (struct paRecordData* data, AudBuff *proc_buff, struct audio_effects *aud_eff);
 
 void 
-Reverb (struct paRecordData* data, struct audio_effects *aud_eff, int delay_ms);
+Reverb (struct paRecordData* data, AudBuff *proc_buff, struct audio_effects *aud_eff, int delay_ms);
 
 /* Parameters:
 	freq - LFO frequency (1.5)
@@ -137,11 +137,11 @@ Reverb (struct paRecordData* data, struct audio_effects *aud_eff, int delay_ms);
 	depth and freqofs should be from 0(min) to 1(max) !
 	res should be greater than 0 !  */
 void 
-WahWah (struct paRecordData* data, struct audio_effects *aud_eff, 
+WahWah (struct paRecordData* data, AudBuff *proc_buff, struct audio_effects *aud_eff, 
 	float freq, float startphase, float depth, float freqofs, float res);
 
 void 
-change_pitch (struct paRecordData* data, struct audio_effects *aud_eff, int rate);
+change_pitch (struct paRecordData* data, AudBuff *proc_buff, struct audio_effects *aud_eff, int rate);
 
 struct audio_effects* init_audio_effects (void);
 

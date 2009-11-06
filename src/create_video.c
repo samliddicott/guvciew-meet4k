@@ -261,34 +261,35 @@ aviClose (struct ALL_DATA *all_data)
 				pdata->streaming = 0;
 			}
 			/*write any available audio data*/  
-			if(pdata->audio_flag)
-			{
-				g_printerr("writing %d bytes of audio data\n",pdata->snd_numBytes);
-				g_mutex_lock( pdata->mutex);
-					if(global->Sound_Format == PA_FOURCC)
-					{
-						if(pdata->vid_sndBuff) 
-						{
-							Float2Int16(pdata);
-							AVI_write_audio(videoF->AviOut,(BYTE *) pdata->vid_sndBuff1,pdata->snd_numSamples*2);
-						}
-					}
-					else if (global->Sound_Format == ISO_FORMAT_MPEG12)
-					{
-						int size_mp2=0;
-						if(pdata->vid_sndBuff && pdata->mp2Buff) 
-						{
-							size_mp2 = MP2_encode(pdata,0);
-							AVI_write_audio(videoF->AviOut,pdata->mp2Buff,size_mp2);
-							pdata->flush = 1; /*flush mp2 encoder*/
-							size_mp2 = MP2_encode(pdata,0);
-							AVI_write_audio(videoF->AviOut,pdata->mp2Buff,size_mp2);
-							pdata->flush = 0;
-						}
-					}
-				g_mutex_unlock( pdata->mutex );
-			}
-			pdata->audio_flag = 0; /*all audio should have been writen by now*/
+		//	if(pdata->audio_flag)
+		//	{
+		//		g_printerr("writing %d bytes of audio data\n",pdata->snd_numBytes);
+		//		g_mutex_lock( pdata->mutex);
+		//			if(global->Sound_Format == PA_FOURCC)
+		//			{
+		//				if(pdata->vid_sndBuff) 
+		//				{
+		//					Float2Int16(pdata);
+		//					AVI_write_audio(videoF->AviOut,(BYTE *) pdata->pcm_sndBuff,pdata->snd_numSamples*2);
+		//				}
+		//			}
+		//			else if (global->Sound_Format == ISO_FORMAT_MPEG12)
+		//			{
+		//				int size_mp2=0;
+		//				if(pdata->vid_sndBuff && pdata->mp2Buff) 
+		//				{
+		//					size_mp2 = MP2_encode(pdata,0);
+		//					AVI_write_audio(videoF->AviOut,pdata->mp2Buff,size_mp2);
+		//					pdata->flush = 1; /*flush mp2 encoder*/
+		//					size_mp2 = MP2_encode(pdata,0);
+		//					AVI_write_audio(videoF->AviOut,pdata->mp2Buff,size_mp2);
+		//					pdata->flush = 0;
+		//				}
+		//			}
+		//		g_mutex_unlock( pdata->mutex );
+		//	}
+		//
+		//	pdata->audio_flag = 0; /*all audio should have been writen by now*/
 			
 			if (close_sound (pdata)) g_printerr("Sound Close error\n");
 			if(global->Sound_Format == ISO_FORMAT_MPEG12) close_MP2_encoder();
@@ -460,7 +461,7 @@ int write_video_frame (struct ALL_DATA *all_data,
 	return (0);
 }
 
-int write_audio_frame (struct ALL_DATA *all_data)
+int write_audio_frame (struct ALL_DATA *all_data, AudBuff *proc_buff)
 {
 	struct paRecordData *pdata = all_data->pdata;
 	struct GLOBAL *global = all_data->global;
@@ -472,21 +473,17 @@ int write_audio_frame (struct ALL_DATA *all_data)
 	switch (global->VidFormat)
 	{
 		case AVI_FORMAT:
-			g_mutex_lock( pdata->mutex );
 				/*write audio chunk*/
 				if(global->Sound_Format == PA_FOURCC) 
 				{
-					Float2Int16(pdata); /*convert from float sample to 16 bit PCM*/
-					ret=AVI_write_audio(videoF->AviOut,(BYTE *) pdata->vid_sndBuff1,pdata->snd_numSamples*2);
+					Float2Int16(pdata, proc_buff); /*convert from float sample to 16 bit PCM*/
+					ret=AVI_write_audio(videoF->AviOut,(BYTE *) pdata->pcm_sndBuff, pdata->aud_numSamples*2);
 				}
 				else if(global->Sound_Format == ISO_FORMAT_MPEG12)
 				{
-					int size_mp2 = MP2_encode(pdata,0);
-					ret=AVI_write_audio(videoF->AviOut,pdata->mp2Buff,size_mp2);
+					int size_mp2 = MP2_encode(pdata, proc_buff, 0);
+					ret=AVI_write_audio(videoF->AviOut, pdata->mp2Buff, size_mp2);
 				}
-				pdata->audio_flag=0;
-			g_mutex_unlock( pdata->mutex );
-			//videoF->keyframe = 1; /*marks next frame as key frame*/
 		
 			if (ret) 
 			{	
@@ -522,20 +519,21 @@ int write_audio_frame (struct ALL_DATA *all_data)
 		case MKV_FORMAT:
 			g_mutex_lock( pdata->mutex );
 				/*set pts*/
-				videoF->apts = videoF->old_apts;
-				videoF->old_apts = pdata->a_ts - global->Vidstarttime;
+				if(proc_buff->time_stamp >= global->Vidstarttime) 
+					videoF->apts = proc_buff->time_stamp - global->Vidstarttime;
+				else videoF->apts = 0;
+					
 				/*write audio chunk*/
 				if(global->Sound_Format == PA_FOURCC) 
 				{
-					Float2Int16(pdata); /*convert from float sample to 16 bit PCM*/
-					ret = write_audio_packet ((BYTE *) pdata->vid_sndBuff1, pdata->snd_numSamples*2, pdata->samprate, videoF);
+					Float2Int16(pdata, proc_buff); /*convert from float sample to 16 bit PCM*/
+					ret = write_audio_packet ((BYTE *) pdata->pcm_sndBuff, pdata->aud_numSamples*2, pdata->samprate, videoF);
 				}
 				else if(global->Sound_Format == ISO_FORMAT_MPEG12)
 				{
-					int size_mp2 = MP2_encode(pdata,0);
+					int size_mp2 = MP2_encode(pdata, proc_buff, 0);
 					ret = write_audio_packet (pdata->mp2Buff, size_mp2, pdata->samprate, videoF);
 				}
-				pdata->audio_flag=0;
 			g_mutex_unlock( pdata->mutex );
 			break;
 			
@@ -546,7 +544,7 @@ int write_audio_frame (struct ALL_DATA *all_data)
 	return (0);
 }
 
-int sync_audio_frame(struct ALL_DATA *all_data)
+int sync_audio_frame(struct ALL_DATA *all_data, AudBuff *proc_buff)
 {
 	struct paRecordData *pdata = all_data->pdata;
 	struct GLOBAL *global = all_data->global;
@@ -579,7 +577,7 @@ int sync_audio_frame(struct ALL_DATA *all_data)
 					} 
 					else if(global->Sound_Format == ISO_FORMAT_MPEG12) 
 					{
-						int size_mp2 = MP2_encode(pdata, synctime);
+						int size_mp2 = MP2_encode(pdata, proc_buff, synctime);
 						if (global->debug) g_printf("shift sound forward by %d bytes\n",size_mp2);
 						AVI_write_audio(videoF->AviOut,pdata->mp2Buff,size_mp2);
 					}
@@ -588,24 +586,7 @@ int sync_audio_frame(struct ALL_DATA *all_data)
 			break;
 		
 		case MKV_FORMAT:
-			//sync audio 
-		/*
-			if(!(videoF->old_apts)) 
-			{
-				int synctime= pdata->snd_begintime - global->Vidstarttime; 
-				if (global->debug) g_printf("shift sound by %d ms\n",synctime);
-				if(synctime>10 && synctime<5000) 
-				{ 	//only sync between 10ms and 5 seconds
-					//shift sound by synctime
-					UINT32 shiftFrames = abs(synctime * global->Sound_SampRate / 1000);
-					UINT32 shiftSamples = shiftFrames * global->Sound_NumChan;
-					if (global->debug) g_printf("shift sound forward by %d samples\n", shiftSamples);
-					videoF->old_apts = shiftSamples;
-				} 
-				else
-					videoF->old_apts = 1;
-			}
-		 */
+			
 			break;
 		
 		default:
@@ -614,9 +595,6 @@ int sync_audio_frame(struct ALL_DATA *all_data)
 	
 	return (0);
 }
-
-#define NEXT_IND(ind,size) ind++;if(ind>=size) ind=0
-//#define PREV_IND(ind,size) ind--;if(ind<0) ind=size-1
 
 static int buff_scheduler(int w_ind, int r_ind)
 {
@@ -740,17 +718,104 @@ void *IO_loop(void *data)
 	//int a_ind=0; /*audio buffer current index*/
 	gboolean finished=FALSE;
 
-	//buffer to be processed
+	//buffers to be processed (video and audio)
 	int frame_size = videoIn->height*videoIn->width*2;
 	VidBuff *proc_buff = g_new0(VidBuff, 1);
 	proc_buff->frame = g_new0(BYTE, frame_size);
+	
+	AudBuff *aud_proc_buff = NULL;
+	if (global->Sound_enable) 
+	{
+		aud_proc_buff = g_new0(AudBuff, 1);
+		aud_proc_buff->frame = g_new0(SAMPLE, pdata->aud_numSamples);
+	}
+	
+	
 	
 	if(global->debug) g_printf("IO thread started...OK\n");
 
 	/*IO loop*/
 	while(!finished)
 	{
-		/*process the video*/
+		/*process the audio*/
+		/*----------------------- add audio -----------------------------*/
+		if (global->Sound_enable) 
+		{
+			int count = 0;
+			g_mutex_lock( pdata->mutex );
+				//read at most 10 audio Frames (1152 * channels  samples each)
+				if(pdata->audio_buff[pdata->r_ind].used && count < 10)
+				{
+					memcpy(aud_proc_buff->frame, pdata->audio_buff[pdata->r_ind].frame, pdata->aud_numSamples*sizeof(SAMPLE));
+					pdata->audio_buff[pdata->r_ind].used = FALSE;
+					aud_proc_buff->time_stamp = pdata->audio_buff[pdata->r_ind].time_stamp;
+					NEXT_IND(pdata->r_ind, AUDBUFF_SIZE);
+				
+				g_mutex_unlock( pdata->mutex ); /*now we should be able to unlock the audio mutex*/	
+					
+					count++;
+					
+					sync_audio_frame(all_data, aud_proc_buff);
+				
+					/*run effects on data*/
+					/*echo*/
+					if((pdata->snd_Flags & SND_ECHO)==SND_ECHO) 
+					{
+						Echo(pdata, aud_proc_buff, aud_eff, 300, 0.5);
+					}
+					else
+					{
+						close_DELAY(aud_eff->ECHO);
+						aud_eff->ECHO = NULL;
+					}
+					/*fuzz*/
+					if((pdata->snd_Flags & SND_FUZZ)==SND_FUZZ) 
+					{
+						Fuzz(pdata, aud_proc_buff, aud_eff);
+					}
+					else
+					{
+						close_FILT(aud_eff->HPF);
+						aud_eff->HPF = NULL;
+					}
+					/*reverb*/
+					if((pdata->snd_Flags & SND_REVERB)==SND_REVERB) 
+					{
+						Reverb(pdata, aud_proc_buff, aud_eff, 50);
+					}
+					else
+					{
+						close_REVERB(aud_eff);
+					}
+					/*wahwah*/
+					if((pdata->snd_Flags & SND_WAHWAH)==SND_WAHWAH) 
+					{
+						WahWah (pdata, aud_proc_buff, aud_eff, 1.5, 0, 0.7, 0.3, 2.5);
+					}
+					else
+					{
+						close_WAHWAH(aud_eff->wahData);
+						aud_eff->wahData = NULL;
+					}
+					/*Ducky*/
+					if((pdata->snd_Flags & SND_DUCKY)==SND_DUCKY) 
+					{
+						change_pitch(pdata, aud_proc_buff, aud_eff, 2);
+					}
+					else
+					{
+						close_pitch (aud_eff);
+					}
+				
+					write_audio_frame(all_data, aud_proc_buff);
+					
+				g_mutex_lock( pdata->mutex ); /*lock mutex again for while loop check on use flag*/
+				
+				}
+			g_mutex_unlock( pdata->mutex ); /*make sure to unlock the audio mutex*/
+		}
+
+	    	/*process the video*/
 		g_mutex_lock(global->mutex);
 			if (global->videoBuff[global->r_ind].used)
 			{
@@ -782,73 +847,16 @@ void *IO_loop(void *data)
 					finished = TRUE; /*all frames processed and no longer capturing so finish*/
 				}
 			}
-
-		/*now process the audio*/
-		/*----------------------- add audio -----------------------------*/
-		if ((global->Sound_enable) && (pdata->audio_flag>0)) 
-		{
-			g_mutex_lock( pdata->mutex );
-				sync_audio_frame(all_data);
-				//if(global->debug) g_printf("audio: %lu frames per buffer and %d total samples\n",
-				//	pdata->framesPerBuffer, pdata->numSamples);
-				/*run effects on data*/
-				/*echo*/
-				if((pdata->snd_Flags & SND_ECHO)==SND_ECHO) 
-				{
-					Echo(pdata, aud_eff, 300, 0.5);
-				}
-				else
-				{
-					close_DELAY(aud_eff->ECHO);
-					aud_eff->ECHO = NULL;
-				}
-				/*fuzz*/
-				if((pdata->snd_Flags & SND_FUZZ)==SND_FUZZ) 
-				{
-					Fuzz(pdata, aud_eff);
-				}
-				else
-				{
-					close_FILT(aud_eff->HPF);
-					aud_eff->HPF = NULL;
-				}
-				/*reverb*/
-				if((pdata->snd_Flags & SND_REVERB)==SND_REVERB) 
-				{
-					Reverb(pdata, aud_eff, 50);
-				}
-				else
-				{
-					close_REVERB(aud_eff);
-				}
-				/*wahwah*/
-				if((pdata->snd_Flags & SND_WAHWAH)==SND_WAHWAH) 
-				{
-					WahWah (pdata, aud_eff, 1.5, 0, 0.7, 0.3, 2.5);
-				}
-				else
-				{
-					close_WAHWAH(aud_eff->wahData);
-					aud_eff->wahData = NULL;
-				}
-				/*Ducky*/
-				if((pdata->snd_Flags & SND_DUCKY)==SND_DUCKY) 
-				{
-					change_pitch(pdata, aud_eff, 2);
-				}
-				else
-				{
-					close_pitch (aud_eff);
-				}
-			g_mutex_unlock( pdata->mutex );
-				
-			write_audio_frame(all_data);
-		}
 	}
 	
 	/*free proc buffer*/
 	g_free(proc_buff->frame);
 	g_free(proc_buff);
+	if(aud_proc_buff) 
+	{
+		g_free(aud_proc_buff->frame);
+		g_free(aud_proc_buff);
+	}
 	
 	if(lavc_data != NULL)
 	{

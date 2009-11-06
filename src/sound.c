@@ -24,6 +24,33 @@
 #include "audio_effects.h"
 #include "ms_time.h"
 
+static int fill_audio_buffer(struct paRecordData *data)
+{
+	int ret =0;
+	
+	if(data->sampleIndex >= data->aud_numSamples)
+	{
+		data->sampleIndex = 0; //reset
+		if(!data->audio_buff[data->w_ind].used)
+		{
+			/*copy data to audio buffer*/
+			memcpy(data->audio_buff[data->w_ind].frame, data->recordedSamples, data->aud_numSamples*sizeof(SAMPLE));
+			data->audio_buff[data->w_ind].time_stamp = data->a_ts;
+			data->audio_buff[data->w_ind].used = TRUE;
+			NEXT_IND(data->w_ind, AUDBUFF_SIZE);
+			data->a_ts += (data->aud_numSamples * 1000000000)/data->samprate;
+		}
+		else
+		{
+			//drop audio data
+			ret = -1;
+			
+		}
+	}
+	
+	return ret;
+}
+
 /*--------------------------- sound callback ------------------------------*/
 int 
 recordCallback (const void *inputBuffer, void *outputBuffer,
@@ -37,6 +64,11 @@ recordCallback (const void *inputBuffer, void *outputBuffer,
 	const SAMPLE *rptr = (const SAMPLE*)inputBuffer;
 	int i;
 	
+	//time stamps
+	int64_t tstamp = ns_time();
+	//double tdiff = (timeInfo->currentTime - timeInfo->inputBufferAdcTime) * 1000000; //in milisec
+	//tstamp = tstamp - (tdiff*1000); //in nanosec 
+	
 	if (data->skip_n > 0) //skip audio while were skipping video frames
 	{
 		
@@ -48,83 +80,48 @@ recordCallback (const void *inputBuffer, void *outputBuffer,
 		}
 	}
 	
-	data->framesPerBuffer = framesPerBuffer;
-	int numSamples= data->framesPerBuffer * data->channels;
+	int numSamples= framesPerBuffer * data->channels;
 
 	/*set to zero on paComplete*/    
 	data->streaming=1;
 
-	if( inputBuffer == NULL )
-	{
-		for( i=0; i<numSamples; i++ )
+	g_mutex_lock( data->mutex );
+		if( inputBuffer == NULL )
 		{
-			data->recordedSamples[data->sampleIndex] = 0;/*silence*/
-			data->sampleIndex++;
+			for( i=0; i<numSamples; i++ )
+			{
+				data->recordedSamples[data->sampleIndex] = 0;/*silence*/
+				data->sampleIndex++;
+			
+				fill_audio_buffer(data);
+			}
 		}
-	}
-	else
-	{
-		for( i=0; i<numSamples; i++ )
+		else
 		{
-			data->recordedSamples[data->sampleIndex] = *rptr++;
-			data->sampleIndex++;
+			for( i=0; i<numSamples; i++ )
+			{
+				data->recordedSamples[data->sampleIndex] = *rptr++;
+				data->sampleIndex++;
+			
+				fill_audio_buffer(data);
+			}
 		}
-	}
-
-	data->numSamples += numSamples;
-	//if (data->numSamples > (data->maxIndex-(2*numSamples)))
-	if(data->numSamples > data->tresh)
-	{
-		//primary buffer near limit (don't wait for overflow)
-		//or video capture stopped
-		//copy data to secondary buffer and restart primary buffer index
-		//the buffer is only writen every 1sec or so, plenty of time for a read to complete,
-		//anyway lock a mutex on the buffer just in case a read operation is still going on.
-		// This is not a good idea as it may cause data loss
-		//but since we sould never have to wait, it shouldn't be a problem.
-		//printf("capvid: %d\n",data->capVid);
-		g_mutex_lock( data->mutex );
-			data->snd_numSamples = data->numSamples;
-			data->snd_numBytes = data->numSamples*sizeof(SAMPLE);
-			memcpy(data->vid_sndBuff, data->recordedSamples ,data->snd_numBytes);
-			data->a_ts = ns_time();
-			/*flags that secondary buffer as data (can be saved to file)*/
-			data->audio_flag=1;
-		g_mutex_unlock( data->mutex );
-		data->sampleIndex=0;
-		data->numSamples = 0;
-	}
+		data->a_ts= tstamp; //timestamp for next callback
+		
+	g_mutex_unlock( data->mutex );
 
 	if(data->capVid) return (paContinue); /*still capturing*/
-	else 
-	{
-		/*recording stopped*/
-		if(!(data->audio_flag) && data->streaming) 
-		{
-			/*need to copy remaining audio to secondary buffer*/
-			g_mutex_lock( data->mutex);
-				data->snd_numSamples = data->numSamples;
-				data->snd_numBytes = data->numSamples*sizeof(SAMPLE);
-				memcpy(data->vid_sndBuff, data->recordedSamples ,data->snd_numBytes);
-				data->a_ts = ns_time();
-				/*flags that secondary buffer as data (can be saved to file)*/
-				data->audio_flag=1;
-			g_mutex_unlock( data->mutex);
-			data->sampleIndex=0;
-			data->numSamples = 0;
-		}
-		data->streaming=0;
-		return (paComplete);
-	}
+	else return (paComplete);
+	
 }
 
 void
 set_sound (struct GLOBAL *global, struct paRecordData* data) 
 {
-	int totalFrames;
-	int MP2Frames=0;
-	int numSamples;
-	
+	//int totalFrames;
+	//int MP2Frames=0;
+	int i=0;
+    
 	if(global->Sound_SampRateInd==0)
 		global->Sound_SampRate=global->Sound_IndexDev[global->Sound_UseDev].samprate;/*using default*/
 	
@@ -137,44 +134,31 @@ set_sound (struct GLOBAL *global, struct paRecordData* data)
 	
 	data->samprate = global->Sound_SampRate;
 	data->channels = global->Sound_NumChan;
-	data->numsec = global->Sound_NumSec;
-	data->MPEG_Frame_size = 1152; /*Layer 2 Mpeg Audio: 1 frame is 1152 samples*/
-	
 	data->skip_n = global->skip_n; //inital video frames to skip
 	
-	/* setting maximum buffer size*/
-	totalFrames = data->numsec * data->samprate;
-	numSamples = totalFrames * data->channels;
-
-	if(data->samprate < 32000)
-		data->tresh = (data->MPEG_Frame_size * 3) * data->channels;
-	else 
-		data->tresh = (data->MPEG_Frame_size * 7) * data->channels;
-	/*round to libtwolame Frames (1 Frame = 1152 samples)*/
-	MP2Frames=numSamples / data->MPEG_Frame_size;
-	numSamples=MP2Frames * data->MPEG_Frame_size;
-
-	if(numSamples < (data->tresh + (4 * data->MPEG_Frame_size))) 
-		numSamples = data->tresh + (4 * data->MPEG_Frame_size);
-
+	data->aud_numSamples = MPG_NUM_FRAMES * (MPG_NUM_SAMP * data->channels);
+	
 	data->input_type = PA_SAMPLE_TYPE;
 	data->mp2Buff = NULL;
 	
-	data->snd_numBytes = numSamples * sizeof(SAMPLE);
+	data->aud_numBytes = data->aud_numSamples * sizeof(SAMPLE);
 	
-	data->recordedSamples = g_new0(SAMPLE, numSamples);
-	data->maxIndex = numSamples;
+	data->recordedSamples = g_new0(SAMPLE, data->aud_numSamples);
 	data->sampleIndex = 0;
 	
-	data->audio_flag = 0;
 	data->flush = 0;
 	data->streaming = 0;
 	data->stream = NULL;
 	
-	/*secondary shared buffer*/
-	data->vid_sndBuff = g_new0(SAMPLE, numSamples);
+	/*alloc audio ring buffer*/
+	data->audio_buff = g_new0(AudBuff, AUDBUFF_SIZE);
+	for(i=0; i<AUDBUFF_SIZE; i++)
+		data->audio_buff[i].frame = g_new0(SAMPLE, data->aud_numSamples);
+		
+	data->r_ind = 0;
+	data->w_ind = 0;
 	/*buffer for video PCM 16 bits*/
-	data->vid_sndBuff1=NULL;
+	data->pcm_sndBuff=NULL;
 	/*set audio device to use*/
 	data->inputParameters.device = global->Sound_IndexDev[global->Sound_UseDev].id; /* input device */
 }
@@ -183,7 +167,8 @@ int
 init_sound(struct paRecordData* data)
 {
 	PaError err = paNoError;
-
+	int i=0;
+    
 	switch(data->api)
 	{
 #ifdef PULSEAUDIO
@@ -222,7 +207,7 @@ init_sound(struct paRecordData* data)
 				&data->inputParameters,
 				NULL,                  /* &outputParameters, */
 				data->samprate,
-				data->MPEG_Frame_size,            // buffer size = Mpeg frame size (1152 samples)
+				MPG_NUM_SAMP,            // buffer in frames => Mpeg frame size (samples = 1152 samples * channels)
 				//paFramesPerBufferUnspecified,       // buffer Size - set by portaudio
 				//paClipOff | paDitherOff, 
 				paNoFlag,      /* PaNoFlag - clip and dhiter*/
@@ -238,6 +223,8 @@ init_sound(struct paRecordData* data)
 	
 	/*sound start time - used to sync with video*/
 	data->snd_begintime = ns_time();
+	/*first frame time stamp*/
+	//data->a_ts = data->snd_begintime;
 
 	return (0);
 error:
@@ -252,8 +239,13 @@ error:
 	}
 	g_free( data->recordedSamples );
 	data->recordedSamples=NULL;
-	g_free(data->vid_sndBuff);
-	data->vid_sndBuff=NULL;
+	if(data->audio_buff)
+	{
+		for(i=0; i<AUDBUFF_SIZE; i++)
+			g_free(data->audio_buff[i].frame);
+		g_free(data->audio_buff);
+	}
+	data->audio_buff = NULL;
 
 	return(-1);
 } 
@@ -262,15 +254,17 @@ int
 close_sound (struct paRecordData *data) 
 {
 	int err =0;
+    	int i=0;
+    
 	data->capVid = 0;
 	/*make sure we stoped streaming */
-	int stall = wait_ms( &data->streaming, FALSE, 10, 50 );
-	if(!(stall)) 
-	{
-		g_printerr("WARNING:sound capture stall (still streaming(%d)) \n",
-			data->streaming);
-			data->streaming = 0;
-	}
+	//int stall = wait_ms( &data->streaming, FALSE, 10, 50 );
+	//if(!(stall)) 
+	//{
+	//	g_printerr("WARNING:sound capture stall (still streaming(%d)) \n",
+	//		data->streaming);
+	//		data->streaming = 0;
+	//}
 	/*stops and closes the audio stream*/
 	if(data->stream)
 	{
@@ -293,24 +287,26 @@ close_sound (struct paRecordData *data)
 		if( err != paNoError ) goto error; 
 	}
 	data->stream = NULL;
-	if(data->audio_flag) 
-		g_printerr("Droped %i bytes of audio data\n", data->snd_numBytes);
-	data->audio_flag=0;
 	data->flush = 0;
 
 	/*---------------------------------------------------------------------*/
 	/*make sure no operations are performed on the buffers*/
 	g_mutex_lock( data->mutex);
 		/*free primary buffer*/
-		g_free( data->recordedSamples  );
+		g_free( data->recordedSamples );
 		data->recordedSamples=NULL;
-		g_free(data->vid_sndBuff);
-		data->vid_sndBuff = NULL;
+		if(data->audio_buff)
+		{
+			for(i=0; i<AUDBUFF_SIZE; i++)
+				g_free(data->audio_buff[i].frame);
+			g_free(data->audio_buff);
+		}
+		data->audio_buff = NULL;
 	
-		g_free(data->mp2Buff);
+		if(data->mp2Buff) g_free(data->mp2Buff);
 		data->mp2Buff = NULL;
-		g_free(data->vid_sndBuff1);
-		data->vid_sndBuff1 = NULL;
+		if(data->pcm_sndBuff) g_free(data->pcm_sndBuff);
+		data->pcm_sndBuff = NULL;
 	g_mutex_unlock( data->mutex );
 	
 	return (0);
@@ -319,7 +315,6 @@ error:
 	g_printerr("Error number: %d\n", err );
 	g_printerr("Error message: %s\n", Pa_GetErrorText( err ) );
 	data->flush=0;
-	data->audio_flag=0;
 	data->streaming=0;
 	g_mutex_lock( data->mutex);
 		g_free( data->recordedSamples );
@@ -329,13 +324,19 @@ error:
 			Pa_CloseStream( data->stream );
 		}
 		data->stream = NULL;
-		g_free(data->vid_sndBuff);
-		data->vid_sndBuff = NULL;
 		
-		g_free(data->mp2Buff);
+		if(data->audio_buff)
+		{
+			for(i=0; i<AUDBUFF_SIZE; i++)
+				g_free(data->audio_buff[i].frame);
+			g_free(data->audio_buff);
+		}
+		data->audio_buff = NULL;
+	
+		if(data->mp2Buff) g_free(data->mp2Buff);
 		data->mp2Buff = NULL;
-		g_free(data->vid_sndBuff1);
-		data->vid_sndBuff1 = NULL;
+		if(data->pcm_sndBuff) g_free(data->pcm_sndBuff);
+		data->pcm_sndBuff = NULL;
 	g_mutex_unlock( data->mutex );
 	return(-1);
 }
@@ -348,18 +349,19 @@ static gint16 clip_int16 (float in)
 	return ((gint16) in);
 }
 
-void Float2Int16 (struct paRecordData* data)
+void Float2Int16 (struct paRecordData* data, AudBuff *proc_buff)
 {
-	if (data->vid_sndBuff1 == NULL) 
-		data->vid_sndBuff1 = g_new0(gint16, data->maxIndex);
+	if (data->pcm_sndBuff == NULL) 
+		data->pcm_sndBuff = g_new0(gint16, data->aud_numSamples);
 	
 	float res = 0.0;
 	int samp = 0;
-	for(samp=0; samp < data->snd_numSamples; samp++)
+	
+	for(samp=0; samp < data->aud_numSamples; samp++)
 	{
-		res = data->vid_sndBuff[samp] * 32768 + 385;
+		res = proc_buff->frame[samp] * 32768 + 385;
 		/*clip*/
-		data->vid_sndBuff1[samp] = clip_int16(res);
+		data->pcm_sndBuff[samp] = clip_int16(res);
 	}
 }
 
