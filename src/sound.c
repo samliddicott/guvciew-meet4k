@@ -44,6 +44,7 @@ static int fill_audio_buffer(struct paRecordData *data)
 		{
 			//drop audio data
 			ret = -1;
+			g_printerr("AUDIO: droping audio data\n");
 			
 		}
 	}
@@ -75,15 +76,15 @@ recordCallback (const void *inputBuffer, void *outputBuffer,
 		if(data->capVid) return (paContinue); /*still capturing*/
 		else
 		{
-			data->streaming=0;
+			data->streaming=FALSE;
 			return (paComplete);
 		}
 	}
 	
 	int numSamples= framesPerBuffer * data->channels;
 
-	/*set to zero on paComplete*/    
-	data->streaming=1;
+	/*set to FALSE on paComplete*/    
+	data->streaming=TRUE;
 
 	g_mutex_lock( data->mutex );
 		if( inputBuffer == NULL )
@@ -106,12 +107,16 @@ recordCallback (const void *inputBuffer, void *outputBuffer,
 				fill_audio_buffer(data);
 			}
 		}
-		data->a_ts= tstamp; //timestamp for next callback
+		data->a_ts= tstamp - data->snd_begintime; //timestamp for next callback
 		
 	g_mutex_unlock( data->mutex );
 
 	if(data->capVid) return (paContinue); /*still capturing*/
-	else return (paComplete);
+	else 
+	{
+		data->streaming=FALSE;
+		return (paComplete);
+	}
 	
 }
 
@@ -121,7 +126,7 @@ set_sound (struct GLOBAL *global, struct paRecordData* data)
 	//int totalFrames;
 	//int MP2Frames=0;
 	int i=0;
-    
+
 	if(global->Sound_SampRateInd==0)
 		global->Sound_SampRate=global->Sound_IndexDev[global->Sound_UseDev].samprate;/*using default*/
 	
@@ -136,7 +141,7 @@ set_sound (struct GLOBAL *global, struct paRecordData* data)
 	data->channels = global->Sound_NumChan;
 	data->skip_n = global->skip_n; //inital video frames to skip
 	
-	data->aud_numSamples = MPG_NUM_FRAMES * (MPG_NUM_SAMP * data->channels);
+	data->aud_numSamples = (data->samprate/16000 ) * MPG_NUM_FRAMES * (MPG_NUM_SAMP * data->channels); // 4 MPG frames
 	
 	data->input_type = PA_SAMPLE_TYPE;
 	data->mp2Buff = NULL;
@@ -147,7 +152,8 @@ set_sound (struct GLOBAL *global, struct paRecordData* data)
 	data->sampleIndex = 0;
 	
 	data->flush = 0;
-	data->streaming = 0;
+	data->a_ts= 0;
+	
 	data->stream = NULL;
 	
 	/*alloc audio ring buffer*/
@@ -254,17 +260,17 @@ int
 close_sound (struct paRecordData *data) 
 {
 	int err =0;
-    	int i=0;
+	int i=0;
     
 	data->capVid = 0;
-	/*make sure we stoped streaming */
-	//int stall = wait_ms( &data->streaming, FALSE, 10, 50 );
-	//if(!(stall)) 
-	//{
-	//	g_printerr("WARNING:sound capture stall (still streaming(%d)) \n",
-	//		data->streaming);
-	//		data->streaming = 0;
-	//}
+	/*make sure we have stoped streaming - IO thread also checks for this*/
+	int stall = wait_ms( &data->streaming, FALSE, 10, 50 );
+	if(!(stall)) 
+	{
+		g_printerr("WARNING:sound capture stall (still streaming(%d)) \n",
+			data->streaming);
+			data->streaming = FALSE;
+	}
 	/*stops and closes the audio stream*/
 	if(data->stream)
 	{
@@ -291,7 +297,7 @@ close_sound (struct paRecordData *data)
 
 	/*---------------------------------------------------------------------*/
 	/*make sure no operations are performed on the buffers*/
-	g_mutex_lock( data->mutex);
+	g_mutex_lock(data->mutex);
 		/*free primary buffer*/
 		g_free( data->recordedSamples );
 		data->recordedSamples=NULL;
@@ -307,7 +313,7 @@ close_sound (struct paRecordData *data)
 		data->mp2Buff = NULL;
 		if(data->pcm_sndBuff) g_free(data->pcm_sndBuff);
 		data->pcm_sndBuff = NULL;
-	g_mutex_unlock( data->mutex );
+	g_mutex_unlock(data->mutex);
 	
 	return (0);
 error:  
@@ -315,7 +321,7 @@ error:
 	g_printerr("Error number: %d\n", err );
 	g_printerr("Error message: %s\n", Pa_GetErrorText( err ) );
 	data->flush=0;
-	data->streaming=0;
+	data->streaming=FALSE;
 	g_mutex_lock( data->mutex);
 		g_free( data->recordedSamples );
 		data->recordedSamples=NULL;

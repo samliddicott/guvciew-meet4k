@@ -186,7 +186,7 @@ void *main_loop(void *data)
 		else 
 		{
 			/*reset video start time to first frame capture time */  
-			if(global->framecount < 2) 
+			if(global->framecount <= 1 )
 			{
 				global->Vidstarttime = ns_time(); //nanoseconds
 				global->v_ts = 0;

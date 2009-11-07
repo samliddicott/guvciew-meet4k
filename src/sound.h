@@ -79,7 +79,7 @@ struct paRecordData
 	int r_ind; // consumer index
 	int channels; // channels
 	//int numSamples; //captured samples in callback
-	int streaming; // audio streaming flag
+	gboolean streaming; // audio streaming flag
 	int flush; // flush mp2 buffer flag
 	int samprate; // samp rate
 	int numsec; // aprox. number of seconds for out buffer size

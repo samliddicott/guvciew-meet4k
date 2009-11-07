@@ -57,9 +57,10 @@ clean_struct (struct ALL_DATA *all_data)
 	struct VideoFormatData *videoF = all_data->videoF;
 	
 	gboolean control_only = (global->control_only || global->add_ctrls);
-	if(!control_only)
+	if((!control_only) && (pdata != NULL))
 	{
 		/*destroy mutex for sound buffers*/
+		if (global->debug) g_printf("free audio mutex\n");
 		g_mutex_free( pdata->mutex );
 
 		g_free(pdata);
@@ -114,15 +115,14 @@ shutd (gint restart, struct ALL_DATA *all_data)
 	struct vdIn *videoIn = all_data->videoIn;
 
 	gboolean control_only = (global->control_only || global->add_ctrls);
-
-	if (global->debug) g_printf("Shuting Down Thread\n");
-	if(videoIn->signalquit > 0) videoIn->signalquit=0;
-	if (global->debug) g_printf("waiting for thread to finish\n");
 	
 	/* wait for the main loop (video) thread */
 	if(!(control_only))
 	{ 
+		if (global->debug) g_printf("Shuting Down Thread\n");
+		if(videoIn->signalquit > 0) videoIn->signalquit=0;
 		g_thread_join( video_thread );
+		if (global->debug) g_printf("Video Thread finished\n");
 	}
 
 	/* destroys fps timer*/

@@ -330,7 +330,9 @@ void closeVideoFile(struct ALL_DATA *all_data)
 	global->Vidstoptime = ns_time();
 	
 	/*join IO thread*/
+	if (global->debug) g_printf("Shuting Down IO Thread\n");
 	g_thread_join( all_data->IO_thread );
+	if (global->debug) g_printf("IO Thread finished\n");
 	
 	/*free video buffer allocations*/
 	if (global->videoBuff != NULL)
@@ -519,9 +521,8 @@ int write_audio_frame (struct ALL_DATA *all_data, AudBuff *proc_buff)
 		case MKV_FORMAT:
 			g_mutex_lock( pdata->mutex );
 				/*set pts*/
-				if(proc_buff->time_stamp >= global->Vidstarttime) 
-					videoF->apts = proc_buff->time_stamp - global->Vidstarttime;
-				else videoF->apts = 0;
+				videoF->apts = proc_buff->time_stamp + (global->Vidstarttime - pdata->snd_begintime);
+				
 					
 				/*write audio chunk*/
 				if(global->Sound_Format == PA_FOURCC) 
@@ -703,6 +704,123 @@ int store_video_frame(void *data)
 	return ret;
 }
 
+static void process_audio(struct ALL_DATA *all_data, 
+			AudBuff *aud_proc_buff, 
+			struct audio_effects **aud_eff)
+{
+	struct paRecordData *pdata = all_data->pdata;
+
+	g_mutex_lock( pdata->mutex );
+		//read at most 10 audio Frames (1152 * channels  samples each)
+		if(pdata->audio_buff[pdata->r_ind].used)
+		{
+			memcpy(aud_proc_buff->frame, pdata->audio_buff[pdata->r_ind].frame, pdata->aud_numSamples*sizeof(SAMPLE));
+			pdata->audio_buff[pdata->r_ind].used = FALSE;
+			aud_proc_buff->time_stamp = pdata->audio_buff[pdata->r_ind].time_stamp;
+			NEXT_IND(pdata->r_ind, AUDBUFF_SIZE);
+			
+		g_mutex_unlock( pdata->mutex ); /*now we should be able to unlock the audio mutex*/	
+			sync_audio_frame(all_data, aud_proc_buff);
+			
+			/*run effects on data*/
+			/*echo*/
+			if((pdata->snd_Flags & SND_ECHO)==SND_ECHO) 
+			{
+				Echo(pdata, aud_proc_buff, *aud_eff, 300, 0.5);
+			}
+			else
+			{
+				close_DELAY((*aud_eff)->ECHO);
+				(*aud_eff)->ECHO = NULL;
+			}
+			/*fuzz*/
+			if((pdata->snd_Flags & SND_FUZZ)==SND_FUZZ) 
+			{
+				Fuzz(pdata, aud_proc_buff, *aud_eff);
+			}
+			else
+			{
+				close_FILT((*aud_eff)->HPF);
+				(*aud_eff)->HPF = NULL;
+			}
+			/*reverb*/
+			if((pdata->snd_Flags & SND_REVERB)==SND_REVERB) 
+			{
+				Reverb(pdata, aud_proc_buff, *aud_eff, 50);
+			}
+			else
+			{
+				close_REVERB(*aud_eff);
+			}
+			/*wahwah*/
+			if((pdata->snd_Flags & SND_WAHWAH)==SND_WAHWAH) 
+			{
+				WahWah (pdata, aud_proc_buff, *aud_eff, 1.5, 0, 0.7, 0.3, 2.5);
+			}
+			else
+			{
+				close_WAHWAH((*aud_eff)->wahData);
+				(*aud_eff)->wahData = NULL;
+			}
+			/*Ducky*/
+			if((pdata->snd_Flags & SND_DUCKY)==SND_DUCKY) 
+			{
+				change_pitch(pdata, aud_proc_buff, *aud_eff, 2);
+			}
+			else
+			{
+				close_pitch (*aud_eff);
+			}
+			
+			write_audio_frame(all_data, aud_proc_buff);
+		}
+		else g_mutex_unlock( pdata->mutex ); /*make sure to unlock the audio mutex*/
+}
+
+static gboolean process_video(struct ALL_DATA *all_data, 
+				VidBuff *proc_buff, 
+				struct lavcData **lavc_data, 
+				struct JPEG_ENCODER_STRUCTURE **jpeg_struct)
+{
+	struct GLOBAL *global = all_data->global;
+	struct vdIn *videoIn = all_data->videoIn;
+	
+	gboolean finish = FALSE;
+	
+	g_mutex_lock(global->mutex);
+		if (global->videoBuff[global->r_ind].used)
+		{
+			/*read video Frame*/
+			proc_buff->bytes_used = global->videoBuff[global->r_ind].bytes_used;
+			memcpy(proc_buff->frame, global->videoBuff[global->r_ind].frame, proc_buff->bytes_used);
+			proc_buff->time_stamp = global->videoBuff[global->r_ind].time_stamp;
+			global->videoBuff[global->r_ind].used = FALSE;
+			/*signals an empty slot in the video buffer*/
+			g_cond_broadcast(global->IO_cond);
+				
+			NEXT_IND(global->r_ind,VIDBUFF_SIZE);
+		g_mutex_unlock(global->mutex);
+
+			/*process video Frame*/
+			write_video_frame(all_data, (void *) jpeg_struct, (void *) lavc_data, proc_buff);
+		}
+		else
+		{
+		g_mutex_unlock(global->mutex);
+			if (videoIn->capVid)
+			{
+				/*video buffer underrun            */
+				/*wait for next frame (sleep 10 ms)*/
+				sleep_ms(10);
+			}
+			else 
+			{
+				finish = TRUE; /*all frames processed and no longer capturing so finish*/
+			}
+		}
+	return finish;
+}
+
 void *IO_loop(void *data)
 {
 	struct ALL_DATA *all_data = (struct ALL_DATA *) data;
@@ -717,7 +835,8 @@ void *IO_loop(void *data)
 	
 	//int a_ind=0; /*audio buffer current index*/
 	gboolean finished=FALSE;
-
+	gboolean proc_flag = FALSE;
+	
 	//buffers to be processed (video and audio)
 	int frame_size = videoIn->height*videoIn->width*2;
 	VidBuff *proc_buff = g_new0(VidBuff, 1);
@@ -737,116 +856,51 @@ void *IO_loop(void *data)
 	/*IO loop*/
 	while(!finished)
 	{
-		/*process the audio*/
-		/*----------------------- add audio -----------------------------*/
-		if (global->Sound_enable) 
+		if(global->Sound_enable)
 		{
-			int count = 0;
 			g_mutex_lock( pdata->mutex );
-				//read at most 10 audio Frames (1152 * channels  samples each)
-				if(pdata->audio_buff[pdata->r_ind].used && count < 10)
+			g_mutex_lock( global->mutex );
+				if( (pdata->audio_buff[pdata->r_ind].used && global->videoBuff[global->r_ind].used) &&
+					((pdata->audio_buff[pdata->r_ind].time_stamp + (global->Vidstarttime - pdata->snd_begintime)) > global->videoBuff[global->r_ind].time_stamp))
 				{
-					memcpy(aud_proc_buff->frame, pdata->audio_buff[pdata->r_ind].frame, pdata->aud_numSamples*sizeof(SAMPLE));
-					pdata->audio_buff[pdata->r_ind].used = FALSE;
-					aud_proc_buff->time_stamp = pdata->audio_buff[pdata->r_ind].time_stamp;
-					NEXT_IND(pdata->r_ind, AUDBUFF_SIZE);
-				
-				g_mutex_unlock( pdata->mutex ); /*now we should be able to unlock the audio mutex*/	
-					
-					count++;
-					
-					sync_audio_frame(all_data, aud_proc_buff);
-				
-					/*run effects on data*/
-					/*echo*/
-					if((pdata->snd_Flags & SND_ECHO)==SND_ECHO) 
-					{
-						Echo(pdata, aud_proc_buff, aud_eff, 300, 0.5);
-					}
-					else
-					{
-						close_DELAY(aud_eff->ECHO);
-						aud_eff->ECHO = NULL;
-					}
-					/*fuzz*/
-					if((pdata->snd_Flags & SND_FUZZ)==SND_FUZZ) 
-					{
-						Fuzz(pdata, aud_proc_buff, aud_eff);
-					}
-					else
-					{
-						close_FILT(aud_eff->HPF);
-						aud_eff->HPF = NULL;
-					}
-					/*reverb*/
-					if((pdata->snd_Flags & SND_REVERB)==SND_REVERB) 
-					{
-						Reverb(pdata, aud_proc_buff, aud_eff, 50);
-					}
-					else
-					{
-						close_REVERB(aud_eff);
-					}
-					/*wahwah*/
-					if((pdata->snd_Flags & SND_WAHWAH)==SND_WAHWAH) 
-					{
-						WahWah (pdata, aud_proc_buff, aud_eff, 1.5, 0, 0.7, 0.3, 2.5);
-					}
-					else
-					{
-						close_WAHWAH(aud_eff->wahData);
-						aud_eff->wahData = NULL;
-					}
-					/*Ducky*/
-					if((pdata->snd_Flags & SND_DUCKY)==SND_DUCKY) 
-					{
-						change_pitch(pdata, aud_proc_buff, aud_eff, 2);
-					}
-					else
-					{
-						close_pitch (aud_eff);
-					}
-				
-					write_audio_frame(all_data, aud_proc_buff);
-					
-				g_mutex_lock( pdata->mutex ); /*lock mutex again for while loop check on use flag*/
-				
+					proc_flag = FALSE;	//process video
 				}
-			g_mutex_unlock( pdata->mutex ); /*make sure to unlock the audio mutex*/
+				else if (pdata->audio_buff[pdata->r_ind].used) //process audio
+				{
+					proc_flag = TRUE; //process audio
+				}
+				else proc_flag = FALSE;    //process video
+			g_mutex_unlock( global->mutex );
+			g_mutex_unlock( pdata->mutex );
+			
+			
+			if (proc_flag) //process audio
+			{
+				process_audio(all_data, aud_proc_buff, &(aud_eff));
+			}
+			else //process video
+			{
+				finished = process_video (all_data, proc_buff, &(lavc_data), &(jpeg_struct));
+			}
 		}
-
-	    	/*process the video*/
-		g_mutex_lock(global->mutex);
-			if (global->videoBuff[global->r_ind].used)
+		else
+		{
+			//process video
+			finished = process_video (all_data, proc_buff, &(lavc_data), &(jpeg_struct));
+		}
+		
+		if(finished)
+		{
+			/*wait for audio to finish*/
+			int stall = wait_ms( &pdata->streaming, FALSE, 10, 30 );
+			if(!(stall)) 
 			{
-				/*read video Frame*/
-				proc_buff->bytes_used = global->videoBuff[global->r_ind].bytes_used;
-				memcpy(proc_buff->frame, global->videoBuff[global->r_ind].frame, proc_buff->bytes_used);
-				proc_buff->time_stamp = global->videoBuff[global->r_ind].time_stamp;
-				global->videoBuff[global->r_ind].used = FALSE;
-				/*signals an empty slot in the video buffer*/
-				g_cond_broadcast(global->IO_cond);
-				
-				NEXT_IND(global->r_ind,VIDBUFF_SIZE);
-			g_mutex_unlock(global->mutex);
-
-				/*process video Frame*/
-				write_video_frame(all_data, (void *) &(jpeg_struct), (void *) &(lavc_data), proc_buff);
+				g_printerr("WARNING:sound capture stall (still streaming(%d) \n",
+					pdata->streaming);
+				pdata->streaming = 0;
 			}
-			else
-			{
-			g_mutex_unlock(global->mutex);
-				if (videoIn->capVid)
-				{
-					/*video buffer underrun            */
-					/*wait for next frame (sleep 20 ms)*/
-					sleep_ms(20);
-				}
-				else 
-				{
-					finished = TRUE; /*all frames processed and no longer capturing so finish*/
-				}
-			}
+			process_audio(all_data, aud_proc_buff, &(aud_eff)); //process last audio if any
+		}
 	}
 	
 	/*free proc buffer*/
