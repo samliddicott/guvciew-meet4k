@@ -24,10 +24,11 @@
 #include "audio_effects.h"
 #include "ms_time.h"
 
-static int fill_audio_buffer(struct paRecordData *data)
+static int fill_audio_buffer(struct paRecordData *data, int64_t tstamp)
 {
 	int ret =0;
-	
+	/* first frame time stamp*/
+	if((data->a_ts == 0) && (data->ts_ref < data->snd_begintime)) data->a_ts= data->snd_begintime - data->ts_ref;
 	if(data->sampleIndex >= data->aud_numSamples)
 	{
 		data->sampleIndex = 0; //reset
@@ -38,15 +39,14 @@ static int fill_audio_buffer(struct paRecordData *data)
 			data->audio_buff[data->w_ind].time_stamp = data->a_ts;
 			data->audio_buff[data->w_ind].used = TRUE;
 			NEXT_IND(data->w_ind, AUDBUFF_SIZE);
-			data->a_ts += (data->aud_numSamples * 1000000000)/data->samprate;
 		}
 		else
 		{
 			//drop audio data
 			ret = -1;
 			g_printerr("AUDIO: droping audio data\n");
-			
 		}
+		data->a_ts= tstamp - data->ts_ref; //timestamp for next callback
 	}
 	
 	return ret;
@@ -92,7 +92,7 @@ recordCallback (const void *inputBuffer, void *outputBuffer,
 				data->recordedSamples[data->sampleIndex] = 0;/*silence*/
 				data->sampleIndex++;
 			
-				fill_audio_buffer(data);
+				fill_audio_buffer(data, tstamp);
 			}
 		}
 		else
@@ -102,10 +102,9 @@ recordCallback (const void *inputBuffer, void *outputBuffer,
 				data->recordedSamples[data->sampleIndex] = *rptr++;
 				data->sampleIndex++;
 			
-				fill_audio_buffer(data);
+				fill_audio_buffer(data, tstamp);
 			}
 		}
-		data->a_ts= tstamp - data->snd_begintime; //timestamp for next callback
 		
 	g_mutex_unlock( data->mutex );
 
@@ -138,6 +137,7 @@ set_sound (struct GLOBAL *global, struct paRecordData* data)
 	data->samprate = global->Sound_SampRate;
 	data->channels = global->Sound_NumChan;
 	data->skip_n = global->skip_n; //inital video frames to skip
+	//data->ts_ref = global->Vidstarttime; //maybe not set yet
 	
 	data->aud_numSamples = (data->samprate/16000 ) * MPG_NUM_FRAMES * (MPG_NUM_SAMP * data->channels); // 4 MPG frames
 	
@@ -227,8 +227,6 @@ init_sound(struct paRecordData* data)
 	
 	/*sound start time - used to sync with video*/
 	data->snd_begintime = ns_time();
-	/*first frame time stamp*/
-	//data->a_ts = data->snd_begintime;
 
 	return (0);
 error:

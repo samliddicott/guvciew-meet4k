@@ -445,14 +445,14 @@ int write_video_frame (struct ALL_DATA *all_data,
 				}
 			}
 		   
-			global->framecount++;
+			//global->framecount++;
 			if (videoF->keyframe) videoF->keyframe=0; /*resets key frame*/
 			
 			break;
 		
 		
 		case MKV_FORMAT:
-			global->framecount++;
+			//global->framecount++;
 			
 			ret = compress_frame(all_data, jpeg_struct, lavc_data, proc_buff);
 			break;
@@ -521,8 +521,7 @@ int write_audio_frame (struct ALL_DATA *all_data, AudBuff *proc_buff)
 		case MKV_FORMAT:
 			g_mutex_lock( pdata->mutex );
 				/*set pts*/
-				videoF->apts = proc_buff->time_stamp + (global->Vidstarttime - pdata->snd_begintime);
-				
+				videoF->apts = proc_buff->time_stamp;
 					
 				/*write audio chunk*/
 				if(global->Sound_Format == PA_FOURCC) 
@@ -607,13 +606,13 @@ static int buff_scheduler(int w_ind, int r_ind)
 	else
 		diff_ind = (VIDBUFF_SIZE - r_ind) + w_ind;
 
-	if(diff_ind <= 2) vid_sleep = 0;                  /*    full throtle             */
-	else if (diff_ind <= 5)  vid_sleep = diff_ind * 2;/* <= 10  ms ~1 frame @ 90  fps*/
-	else if (diff_ind <= 10) vid_sleep = diff_ind * 3;/* <= 30  ms ~1 frame @ 30  fps*/
-	else if (diff_ind <= 15) vid_sleep = diff_ind * 4;/* <= 60  ms ~1 frame @ 15  fps*/
-	else if (diff_ind <= 20) vid_sleep = diff_ind * 5;/* <= 100 ms ~1 frame @ 10  fps*/
-	else if (diff_ind <= 25) vid_sleep = diff_ind * 6;/* <= 130 ms ~1 frame @ 7,5 fps*/
-	else vid_sleep = diff_ind * 7;                    /* <= 210 ms ~1 frame @ 5   fps*/
+	if(diff_ind <= 15) vid_sleep = 0; /* full throtle (must wait for audio at least 10 frames) */
+	else if (diff_ind <= 20) vid_sleep = (diff_ind-15) * 2; /* <= 10  ms ~1 frame @ 90  fps */
+	else if (diff_ind <= 25) vid_sleep = (diff_ind-15) * 3; /* <= 30  ms ~1 frame @ 30  fps */
+	else if (diff_ind <= 30) vid_sleep = (diff_ind-15) * 4; /* <= 60  ms ~1 frame @ 15  fps */
+	else if (diff_ind <= 35) vid_sleep = (diff_ind-15) * 5; /* <= 100 ms ~1 frame @ 10  fps */
+	else if (diff_ind <= 40) vid_sleep = (diff_ind-15) * 6; /* <= 130 ms ~1 frame @ 7,5 fps */
+	else vid_sleep = (diff_ind-15) * 7;                     /* <= 210 ms ~1 frame @ 5   fps */
 	
 	return vid_sleep;
 }
@@ -697,8 +696,8 @@ int store_video_frame(void *data)
 		else ret = -2;/*drop frame*/
 		
 		g_free(timev);
-		
 	}
+	if(!ret) global->framecount++;
 	g_mutex_unlock(global->mutex);
 	
 	return ret;
@@ -835,8 +834,10 @@ void *IO_loop(void *data)
 	
 	//int a_ind=0; /*audio buffer current index*/
 	gboolean finished=FALSE;
-	gboolean proc_flag = FALSE;
-	
+	int proc_flag = 0;
+	int diff_ind=0;
+	global->r_ind = 0;
+	pdata->r_ind = 0;
 	//buffers to be processed (video and audio)
 	int frame_size = videoIn->height*videoIn->width*2;
 	VidBuff *proc_buff = g_new0(VidBuff, 1);
@@ -860,27 +861,45 @@ void *IO_loop(void *data)
 		{
 			g_mutex_lock( pdata->mutex );
 			g_mutex_lock( global->mutex );
+				//check read/write index delta in frames 
+				if(global->w_ind >= global->r_ind)
+					diff_ind = global->w_ind - global->r_ind;
+				else
+					diff_ind = (VIDBUFF_SIZE - global->r_ind) + global->w_ind;
+			
 				if( (pdata->audio_buff[pdata->r_ind].used && global->videoBuff[global->r_ind].used) &&
-					((pdata->audio_buff[pdata->r_ind].time_stamp + (global->Vidstarttime - pdata->snd_begintime)) > global->videoBuff[global->r_ind].time_stamp))
+					(pdata->audio_buff[pdata->r_ind].time_stamp < global->videoBuff[global->r_ind].time_stamp))
 				{
-					proc_flag = FALSE;	//process video
+					proc_flag = 1;	//process audio
 				}
-				else if (pdata->audio_buff[pdata->r_ind].used) //process audio
+				else if(pdata->audio_buff[pdata->r_ind].used && global->videoBuff[global->r_ind].used)
 				{
-					proc_flag = TRUE; //process audio
+					proc_flag = 2;    //process video
 				}
-				else proc_flag = FALSE;    //process video
+				else if (diff_ind < 10 && videoIn->capVid)
+				{
+					proc_flag = 3;	//sleep -wait for audio (at most 10 video frames)
+				}
+				else if(pdata->audio_buff[pdata->r_ind].used)
+				{	
+					proc_flag = 1;    //process audio
+				}
+				else proc_flag = 2;    //process video
 			g_mutex_unlock( global->mutex );
 			g_mutex_unlock( pdata->mutex );
 			
 			
-			if (proc_flag) //process audio
+			switch(proc_flag)
 			{
-				process_audio(all_data, aud_proc_buff, &(aud_eff));
-			}
-			else //process video
-			{
-				finished = process_video (all_data, proc_buff, &(lavc_data), &(jpeg_struct));
+				case 1:
+					process_audio(all_data, aud_proc_buff, &(aud_eff));
+					break;
+				case 2:
+					finished = process_video (all_data, proc_buff, &(lavc_data), &(jpeg_struct));
+					break;
+				default:
+					sleep_ms(10);
+					break;
 			}
 		}
 		else

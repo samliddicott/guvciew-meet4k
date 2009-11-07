@@ -189,6 +189,7 @@ void *main_loop(void *data)
 			if(global->framecount <= 1 )
 			{
 				global->Vidstarttime = ns_time(); //nanoseconds
+				pdata->ts_ref = global->Vidstarttime; //used for audio time stamp
 				global->v_ts = 0;
 			}
 			else

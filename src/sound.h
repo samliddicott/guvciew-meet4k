@@ -90,7 +90,8 @@ struct paRecordData
 	SAMPLE *recordedSamples; // callback buffer
     	int sampleIndex;
 	AudBuff *audio_buff; // ring buffer for audio data
-	INT64 a_ts; //audio frame time stamp
+	int64_t a_ts; //audio frame time stamp
+	int64_t ts_ref; //timestamp video reference
 	gint16 *pcm_sndBuff; //buffer for pcm coding with int16
 	BYTE *mp2Buff; //mp2 encode buffer
 	int mp2BuffSize; // mp2 buffer size
