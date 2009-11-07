@@ -602,24 +602,7 @@ static int mk_flushFrame(mk_Writer *w) {
     return 0;
 
   delta = w->frame_tc / w->timescale - w->cluster_tc_scaled;
-
-  //allways close cluster with audio frame unless no audio
-  if (delta > 31000ll || delta < -31000ll)
-  {
-	if(w->video_only)
-	{
-		CHECK(mk_closeCluster(w));
-	}
-	else
-	    if (delta > 32767ll || delta < -32768ll || w->close_cluster)
-	    {   //not closed yet?? is audio streaming?
-		CHECK(mk_closeCluster(w));
-		w->close_cluster = 0;
-	    }
-	    else
-		w->close_cluster = 1;
-  }
-
+	
   if (w->cluster == NULL) {
     w->cluster_tc_scaled = w->frame_tc / w->timescale ;//w->frame_tc * w->def_duration / w->timescale;
     w->cluster = mk_createContext(w, w->root, MATROSKA_ID_CLUSTER); // Cluster
@@ -660,24 +643,20 @@ static int mk_flushFrame(mk_Writer *w) {
   w->in_frame = 0;
   w->prev_frame_tc_scaled = w->cluster_tc_scaled + delta;
 
+	/*******************************/
   if (w->cluster->d_cur > CLSIZE)
   {
-	if(w->video_only)
-	{
-		CHECK(mk_closeCluster(w));
-	}
-	else
-	{
-		if(w->cluster->d_cur > 4*CLSIZE)
-		{
-			//not closed yet?? is audio streaming?
-			printf("matroska.c(668): cluster size > 4*CLSIZE - video frame to big or audio not streaming\n");
-			CHECK(mk_closeCluster(w));
-		}
-		else
-			w->close_cluster = 1;
-	}
+    CHECK(mk_closeCluster(w));
+    w->close_cluster = 0;
   }
+  else
+    if (delta > 32767ll || delta < -32768ll || w->close_cluster)
+    {
+      CHECK(mk_closeCluster(w));
+      w->close_cluster = 0;
+    }
+	/*******************************/
+
   return 0;
 }
 
@@ -688,6 +667,7 @@ static int mk_flushAudioFrame(mk_Writer *w) {
   unsigned char	c_delta_flags[3];
   //unsigned char flags = 0x04; //lacing
   //unsigned char framesinlace = 0x07; //FIXME:  total frames -1
+	
 
   //make sure we have a cluster
   if (w->cluster == NULL) {
@@ -729,6 +709,8 @@ static int mk_flushAudioFrame(mk_Writer *w) {
   }
   w->audio_in_frame = 0;
   w->audio_prev_frame_tc_scaled = w->cluster_tc_scaled + delta;
+	
+	/*******************************/
   if (w->cluster->d_cur > CLSIZE)
   {
     CHECK(mk_closeCluster(w));
@@ -740,6 +722,7 @@ static int mk_flushAudioFrame(mk_Writer *w) {
       CHECK(mk_closeCluster(w));
       w->close_cluster = 0;
     }
+	/*******************************/
   return 0;
 }
 

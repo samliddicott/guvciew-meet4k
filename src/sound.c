@@ -67,8 +67,6 @@ recordCallback (const void *inputBuffer, void *outputBuffer,
 	
 	//time stamps
 	int64_t tstamp = ns_time();
-	//double tdiff = (timeInfo->currentTime - timeInfo->inputBufferAdcTime) * 1000000; //in milisec
-	//tstamp = tstamp - (tdiff*1000); //in nanosec 
 	
 	if (data->skip_n > 0) //skip audio while were skipping video frames
 	{
