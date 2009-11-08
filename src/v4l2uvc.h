@@ -102,6 +102,7 @@ struct vdIn
 	int signalquit;                     // video loop exit flag
 	int capVid;                         // Video capture flag (raised while capturing)
 	int VidCapStop;                     // Video capture stop flag (raised when video capture has stopped)
+	UINT64 timestamp;                   //video frame time stamp
 	char *VidFName;                     // Video File name (with full path)
 	int fps;                            // fps value (denominator)
 	int fps_num;                        // fps numerator ( should be 1 almost all cases)

@@ -45,6 +45,7 @@
 #include "utils.h"
 #include "picture.h"
 #include "colorspaces.h"
+#include "ms_time.h"
 
 /* needed only for language files (not used)*/
 
@@ -427,7 +428,8 @@ static int init_v4l2(struct vdIn *vd)
 		g_printerr("Format unavailable: %d.\n",vd->formatIn);
 		return VDIN_FORMAT_ERR;
 	}
-    
+	
+	vd->timestamp = 0;
 	// set format
 	vd->fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 	vd->fmt.fmt.pix.width = vd->width;
@@ -987,11 +989,13 @@ int uvcGrab(struct vdIn *vd)
 	if (ret < 0) 
 	{
 		perror(" Could not grab image (select error)");
+		vd->timestamp = 0;
 		return VDIN_SELEFAIL_ERR;
 	} 
 	else if (ret == 0)
 	{
 		perror(" Could not grab image (select timeout)");
+		vd->timestamp = 0;
 		return VDIN_SELETIMEOUT_ERR;
 	}
 	else if ((ret > 0) && (FD_ISSET(vd->fd, &rdset))) 
@@ -1000,6 +1004,7 @@ int uvcGrab(struct vdIn *vd)
 		{
 			case IO_READ:
 				vd->buf.bytesused = read (vd->fd, vd->mem[vd->buf.index], vd->buf.length);
+				vd->timestamp = ns_time();
 				if (-1 == vd->buf.bytesused ) 
 				{
 					switch (errno) 
@@ -1021,6 +1026,7 @@ int uvcGrab(struct vdIn *vd)
 							return VDIN_READ_ERR;
 							break;
 					}
+					vd->timestamp = 0;
 				}
 				break;
 				
@@ -1031,10 +1037,12 @@ int uvcGrab(struct vdIn *vd)
 				vd->buf.memory = V4L2_MEMORY_MMAP;
 
 				ret = xioctl(vd->fd, VIDIOC_DQBUF, &vd->buf);
+				vd->timestamp = ns_time();
 				if (ret < 0) 
 				{
 					perror("VIDIOC_DQBUF - Unable to dequeue buffer ");
 					ret = VDIN_DEQBUFS_ERR;
+					vd->timestamp = 0;
 					goto err;
 				}
 		}

@@ -346,6 +346,9 @@ void closeVideoFile(struct ALL_DATA *all_data)
 		g_free(global->videoBuff);
 		global->videoBuff = NULL;
 	}
+	//reset the indexes
+	global->r_ind=0;
+	global->w_ind=0;
 	
 	switch (global->VidFormat)
 	{

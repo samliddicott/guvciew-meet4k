@@ -171,7 +171,6 @@ void *main_loop(void *data)
 	drect.w = pscreen->w;
 	drect.h = pscreen->h;
 	
-	
 	while (videoIn->signalquit) 
 	{
 		/*-------------------------- Grab Frame ----------------------------------*/
@@ -185,16 +184,21 @@ void *main_loop(void *data)
 		} 
 		else 
 		{
+			if(!videoIn->timestamp)
+			{
+				global->skip_n++; //skip this frame
+			}
 			/*reset video start time to first frame capture time */  
 			if(global->framecount <= 1 )
 			{
-				global->Vidstarttime = ns_time(); //nanoseconds
+				global->Vidstarttime = videoIn->timestamp;
+				
 				pdata->ts_ref = global->Vidstarttime; //used for audio time stamp
 				global->v_ts = 0;
 			}
 			else
 			{
-				global->v_ts = ns_time() - global->Vidstarttime; //nanoseconds
+				global->v_ts = videoIn->timestamp - global->Vidstarttime;
 				//printf("start: %lu, timestamp: %llu\n",(unsigned long) global->Vidstarttime, global->v_ts);
 			}
 
@@ -209,14 +213,6 @@ void *main_loop(void *data)
 					global->DispFps=0;
 				}
 			}
-			
-			//decrease skip frame count
-			if (global->skip_n > 0)
-			{
-				if (global->debug && videoIn->capVid) g_printf("skiping frame %d...\n", global->skip_n);
-				global->skip_n--;
-			}
-			if (global->Sound_enable && videoIn->capVid) pdata->skip_n = global->skip_n;
 			
 			/*---------------- autofocus control ------------------*/
 		
@@ -382,6 +378,14 @@ void *main_loop(void *data)
 		{
 			videoIn->VidCapStop=TRUE;
 		}
+
+		//decrease skip frame count
+		if (global->skip_n > 0)
+		{
+			if (global->debug && videoIn->capVid) g_printf("skiping frame %d...\n", global->skip_n);
+			global->skip_n--;
+		}
+		if (global->Sound_enable && videoIn->capVid) pdata->skip_n = global->skip_n;
 	
 		/*------------------------- Display Frame --------------------------------*/
 		SDL_LockYUVOverlay(overlay);

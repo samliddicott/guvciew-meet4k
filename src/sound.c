@@ -46,7 +46,8 @@ static int fill_audio_buffer(struct paRecordData *data, int64_t tstamp)
 			ret = -1;
 			g_printerr("AUDIO: droping audio data\n");
 		}
-		data->a_ts= tstamp - data->ts_ref; //timestamp for next callback
+		if((data->ts_ref > 0) && (data->ts_ref < tstamp)) data->a_ts= tstamp - data->ts_ref; //timestamp for next callback
+		else data->a_ts = tstamp - data->snd_begintime;
 	}
 	
 	return ret;
