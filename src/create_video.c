@@ -20,6 +20,7 @@
 ********************************************************************************/
 
 #include <glib.h>
+#include <glib/gi18n.h>
 #include <glib/gprintf.h>
 #include <stdlib.h>
 
@@ -70,6 +71,7 @@ set_sensitive_vid_contrls (const int flag, const int sndEnable, struct GWIDGET *
 	{
 		set_sensitive_snd_contrls(flag, gwidget);
 	}
+    
 	gwidget->vid_widget_state = flag;
 }
 
@@ -98,6 +100,9 @@ int initVideoFile(struct ALL_DATA *all_data)
 			global->videoBuff[i].frame = g_new0(BYTE,framesize);
 		}
 	}
+	//reset the indexes
+	global->r_ind=0;
+	global->w_ind=0;
 	
 	switch (global->VidFormat)
 	{
@@ -145,7 +150,10 @@ int initVideoFile(struct ALL_DATA *all_data)
 					{
 						g_printerr("error opening portaudio\n");
 						global->Sound_enable=0;
+						gdk_threads_enter();
 						gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gwidget->SndEnable),0);
+						gdk_flush();
+						gdk_threads_leave();
 					} 
 					else 
 					{
@@ -166,7 +174,12 @@ int initVideoFile(struct ALL_DATA *all_data)
 				/*set channels, sample rate and allocate buffers*/
 				set_sound(global,pdata);
 			}
-			init_FormatContext((void *) all_data);
+			if(init_FormatContext((void *) all_data)<0)
+			{
+				videoIn->capVid = FALSE;
+				pdata->capVid = videoIn->capVid;
+				return (-1);
+			}
 			/* start sound capture*/
 			if(global->Sound_enable > 0) 
 			{
@@ -175,7 +188,10 @@ int initVideoFile(struct ALL_DATA *all_data)
 				{
 					g_printerr("error opening portaudio\n");
 					global->Sound_enable=0;
+					gdk_threads_enter();
 					gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gwidget->SndEnable),0);
+					gdk_flush();
+					gdk_threads_leave();
 				} 
 				else 
 				{
@@ -200,21 +216,6 @@ int initVideoFile(struct ALL_DATA *all_data)
 		default:
 			
 			break;
-	}
-
-	GError *err1 = NULL;
-	/*start IO thread*/
-	if( (all_data->IO_thread = g_thread_create_full((GThreadFunc) IO_loop, 
-		(void *) all_data,       //data - argument supplied to thread
-		global->stack_size,       //stack size
-		TRUE,                     //joinable
-		FALSE,                    //bound
-		G_THREAD_PRIORITY_NORMAL, //priority - no priority for threads in GNU-Linux
-		&err1)                    //error
-		) == NULL)
-	{
-		g_printerr("Thread create failed: %s!!\n", err1->message );
-		g_error_free ( err1 ) ;
 	}
 	
 	return (ret);
@@ -329,11 +330,6 @@ void closeVideoFile(struct ALL_DATA *all_data)
 	}
 	global->Vidstoptime = ns_time();
 	
-	/*join IO thread*/
-	if (global->debug) g_printf("Shuting Down IO Thread\n");
-	g_thread_join( all_data->IO_thread );
-	if (global->debug) g_printf("IO Thread finished\n");
-	
 	/*free video buffer allocations*/
 	if (global->videoBuff != NULL)
 	{
@@ -365,9 +361,10 @@ void closeVideoFile(struct ALL_DATA *all_data)
 			
 			break;
 	}
-
+	if(global->debug) g_printf("enabling controls\n");
 	/*enabling sound and video compression controls*/
 	set_sensitive_vid_contrls(TRUE, global->Sound_enable, gwidget);
+	if(global->debug) g_printf("controls enabled\n");
 	global->Vidstoptime = 0;
 	global->Vidstarttime = 0;
 	global->framecount = 0;
@@ -827,111 +824,140 @@ void *IO_loop(void *data)
 {
 	struct ALL_DATA *all_data = (struct ALL_DATA *) data;
 	
+	struct GWIDGET *gwidget = all_data->gwidget;
 	struct paRecordData *pdata = all_data->pdata;
 	struct GLOBAL *global = all_data->global;
 	struct vdIn *videoIn = all_data->videoIn;
 
 	struct JPEG_ENCODER_STRUCTURE *jpeg_struct=NULL;
 	struct lavcData *lavc_data = NULL;
-	struct audio_effects *aud_eff = init_audio_effects ();
+	struct audio_effects *aud_eff = NULL;
 	
-	//int a_ind=0; /*audio buffer current index*/
 	gboolean finished=FALSE;
+	gboolean failed = FALSE;
 	int proc_flag = 0;
 	int diff_ind=0;
 	global->r_ind = 0;
 	pdata->r_ind = 0;
+	
 	//buffers to be processed (video and audio)
-	int frame_size = videoIn->height*videoIn->width*2;
-	VidBuff *proc_buff = g_new0(VidBuff, 1);
-	proc_buff->frame = g_new0(BYTE, frame_size);
-	
+	int frame_size=0;
+	VidBuff *proc_buff = NULL;
 	AudBuff *aud_proc_buff = NULL;
-	if (global->Sound_enable) 
+	
+	if(initVideoFile(all_data)<0)
 	{
-		aud_proc_buff = g_new0(AudBuff, 1);
-		aud_proc_buff->frame = g_new0(SAMPLE, pdata->aud_numSamples);
-	}
-	
-	
-	
-	if(global->debug) g_printf("IO thread started...OK\n");
-
-	/*IO loop*/
-	while(!finished)
-	{
-		if(global->Sound_enable)
-		{
-			g_mutex_lock( pdata->mutex );
-			g_mutex_lock( global->mutex );
-				//check read/write index delta in frames 
-				if(global->w_ind >= global->r_ind)
-					diff_ind = global->w_ind - global->r_ind;
-				else
-					diff_ind = (VIDBUFF_SIZE - global->r_ind) + global->w_ind;
-			
-				if( (pdata->audio_buff[pdata->r_ind].used && global->videoBuff[global->r_ind].used) &&
-					(pdata->audio_buff[pdata->r_ind].time_stamp < global->videoBuff[global->r_ind].time_stamp))
-				{
-					proc_flag = 1;	//process audio
-				}
-				else if(pdata->audio_buff[pdata->r_ind].used && global->videoBuff[global->r_ind].used)
-				{
-					proc_flag = 2;    //process video
-				}
-				else if (diff_ind < 10 && videoIn->capVid)
-				{
-					proc_flag = 3;	//sleep -wait for audio (at most 10 video frames)
-				}
-				else if(pdata->audio_buff[pdata->r_ind].used)
-				{	
-					proc_flag = 1;    //process audio
-				}
-				else proc_flag = 2;    //process video
-			g_mutex_unlock( global->mutex );
-			g_mutex_unlock( pdata->mutex );
-			
-			
-			switch(proc_flag)
-			{
-				case 1:
-					process_audio(all_data, aud_proc_buff, &(aud_eff));
-					break;
-				case 2:
-					finished = process_video (all_data, proc_buff, &(lavc_data), &(jpeg_struct));
-					break;
-				default:
-					sleep_ms(10);
-					break;
-			}
-		}
-		else
-		{
-			//process video
-			finished = process_video (all_data, proc_buff, &(lavc_data), &(jpeg_struct));
-		}
+		g_printerr("Cap Video failed\n");
 		
-		if(finished)
+		gdk_threads_enter();
+		/*disable signals for video capture callback*/
+		g_signal_handlers_block_by_func(GTK_TOGGLE_BUTTON(gwidget->CapVidButt), G_CALLBACK (capture_vid), all_data);
+		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(gwidget->CapVidButt), FALSE);
+		gtk_button_set_label(GTK_BUTTON(gwidget->CapVidButt),_("Cap. Video"));
+		/*enable signals for video capture callback*/
+		g_signal_handlers_unblock_by_func(GTK_TOGGLE_BUTTON(gwidget->CapVidButt), G_CALLBACK (capture_vid), all_data);
+		gdk_flush();
+		gdk_threads_leave();
+		
+		finished = TRUE;
+		failed = TRUE;
+	}
+	else
+	{
+		if(global->debug) g_printf("IO thread started...OK\n");
+		frame_size = videoIn->height*videoIn->width*2;
+		proc_buff = g_new0(VidBuff, 1);
+		proc_buff->frame = g_new0(BYTE, frame_size);
+	
+		if (global->Sound_enable) 
 		{
-			/*wait for audio to finish*/
-			int stall = wait_ms( &pdata->streaming, FALSE, 10, 30 );
-			if(!(stall)) 
-			{
-				g_printerr("WARNING:sound capture stall (still streaming(%d) \n",
-					pdata->streaming);
-				pdata->streaming = 0;
-			}
-			process_audio(all_data, aud_proc_buff, &(aud_eff)); //process last audio if any
+			aud_eff=init_audio_effects ();
+			aud_proc_buff = g_new0(AudBuff, 1);
+			aud_proc_buff->frame = g_new0(SAMPLE, pdata->aud_numSamples);
 		}
 	}
 	
-	/*free proc buffer*/
-	g_free(proc_buff->frame);
-	g_free(proc_buff);
-	if(aud_proc_buff) 
+	if(!failed)
 	{
-		g_free(aud_proc_buff->frame);
-		g_free(aud_proc_buff);
+		while(!finished)
+		{
+			if(global->Sound_enable)
+			{
+				g_mutex_lock( pdata->mutex );
+				g_mutex_lock( global->mutex );
+					//check read/write index delta in frames 
+					if(global->w_ind >= global->r_ind)
+						diff_ind = global->w_ind - global->r_ind;
+					else
+						diff_ind = (VIDBUFF_SIZE - global->r_ind) + global->w_ind;
+			
+					if( (pdata->audio_buff[pdata->r_ind].used && global->videoBuff[global->r_ind].used) &&
+						(pdata->audio_buff[pdata->r_ind].time_stamp < global->videoBuff[global->r_ind].time_stamp))
+					{
+						proc_flag = 1;	//process audio
+					}
+					else if(pdata->audio_buff[pdata->r_ind].used && global->videoBuff[global->r_ind].used)
+					{
+						proc_flag = 2;    //process video
+					}
+					else if (diff_ind < 10 && videoIn->capVid)
+					{
+						proc_flag = 3;	//sleep -wait for audio (at most 10 video frames)
+					}
+					else if(pdata->audio_buff[pdata->r_ind].used)
+					{	
+						proc_flag = 1;    //process audio
+					}
+					else proc_flag = 2;    //process video
+				g_mutex_unlock( global->mutex );
+				g_mutex_unlock( pdata->mutex );
+			
+			
+				switch(proc_flag)
+				{
+					case 1:
+						process_audio(all_data, aud_proc_buff, &(aud_eff));
+						break;
+					case 2:
+						finished = process_video (all_data, proc_buff, &(lavc_data), &(jpeg_struct));
+						break;
+					default:
+						sleep_ms(10);
+						break;
+				}
+			}
+			else
+			{
+				//process video
+				finished = process_video (all_data, proc_buff, &(lavc_data), &(jpeg_struct));
+			}
+		
+			if(finished)
+			{
+				/*wait for audio to finish*/
+				int stall = wait_ms( &pdata->streaming, FALSE, 10, 30 );
+				if(!(stall)) 
+				{
+					g_printerr("WARNING:sound capture stall (still streaming(%d) \n",
+						pdata->streaming);
+					pdata->streaming = 0;
+				}
+				process_audio(all_data, aud_proc_buff, &(aud_eff)); //process last audio if any
+			}
+		}
+	
+		/*finish capture*/
+		closeVideoFile(all_data);
+	
+		/*free proc buffer*/
+		g_free(proc_buff->frame);
+		g_free(proc_buff);
+		if(aud_proc_buff) 
+		{
+			g_free(aud_proc_buff->frame);
+			g_free(aud_proc_buff);
+		}
+		close_audio_effects (aud_eff);
 	}
 	
 	if(lavc_data != NULL)
@@ -940,9 +966,8 @@ void *IO_loop(void *data)
 		if(global->debug) g_printf(" total frames: %d  -- encoded: %d\n", global->framecount, nf);
 		lavc_data = NULL;
 	}
-	g_free(jpeg_struct);
+	if(jpeg_struct != NULL) g_free(jpeg_struct);
 	
-	close_audio_effects (aud_eff);
 	/*make sure video thread returns to full throtle*/
 	global->vid_sleep = 0;
 

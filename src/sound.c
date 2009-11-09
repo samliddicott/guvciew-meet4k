@@ -21,6 +21,7 @@
 
 #include <glib/gprintf.h>
 #include <string.h>
+#include <math.h>
 #include "audio_effects.h"
 #include "ms_time.h"
 
@@ -140,7 +141,7 @@ set_sound (struct GLOBAL *global, struct paRecordData* data)
 	data->skip_n = global->skip_n; //inital video frames to skip
 	//data->ts_ref = global->Vidstarttime; //maybe not set yet
 	
-	data->aud_numSamples = (data->samprate/16000 ) * MPG_NUM_FRAMES * (MPG_NUM_SAMP * data->channels); // 4 MPG frames
+	data->aud_numSamples = round(data->samprate/16000 ) * MPG_NUM_FRAMES * (MPG_NUM_SAMP * data->channels); //  MPG frames
 	
 	data->input_type = PA_SAMPLE_TYPE;
 	data->mp2Buff = NULL;
@@ -159,7 +160,8 @@ set_sound (struct GLOBAL *global, struct paRecordData* data)
 	data->audio_buff = g_new0(AudBuff, AUDBUFF_SIZE);
 	for(i=0; i<AUDBUFF_SIZE; i++)
 		data->audio_buff[i].frame = g_new0(SAMPLE, data->aud_numSamples);
-		
+	
+	//reset the indexes	
 	data->r_ind = 0;
 	data->w_ind = 0;
 	/*buffer for video PCM 16 bits*/

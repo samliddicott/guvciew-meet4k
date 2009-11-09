@@ -392,6 +392,7 @@ mk_Writer *mk_createWriter(const char *filename) {
 
   w->fp = fopen(filename, "wb");
   if (w->fp == NULL) {
+    perror("Could not open file for writing");
     mk_destroyContexts(w);
     g_free(w);
     return NULL;

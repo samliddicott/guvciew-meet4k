@@ -207,7 +207,12 @@ int init_FormatContext(void *data)
 	}
 	
 	videoF->mkv_w = mk_createWriter( videoIn->VidFName );
-
+	if(videoF->mkv_w == NULL)
+	{
+		g_printerr("matroska: failed to initialize file\n");
+		return (-1);
+	}
+	
 	if(global->Sound_enable > 0)
 	{
 		switch (global->Sound_Format)
@@ -226,7 +231,7 @@ int init_FormatContext(void *data)
 			samprate = (float) pdata->samprate;
 			channels = pdata->channels;
 			if(pdata->api == PORT)
-				duration = (int64_t) 1000000000*pdata->aud_numSamples/samprate;//((samprate * pdata->channels)/(pdata->tresh + (pdata->channels * pdata->MPEG_Frame_size)));
+				duration = (int64_t) (1000000000*pdata->aud_numSamples)/samprate;//((samprate * pdata->channels)/(pdata->tresh + (pdata->channels * pdata->MPEG_Frame_size)));
 			else
 				duration = (int64_t) (1000000000*pdata->aud_numSamples)/samprate;//((samprate * pdata->channels)/pdata->tresh);
 		}
@@ -242,7 +247,7 @@ int init_FormatContext(void *data)
                      get_mkvCodec(global->VidCodec),
                      AcodecID,
                      get_mkvCodecPriv(global->VidCodec), size,
-                     (int64_t) (global->fps_num * 1000000000/global->fps), //nano seconds
+                     (int64_t) (global->fps_num * 1000000000/global->fps), //nano seconds -reset later
                      duration, //FIXME: 1152 samples is a MP2 Frame
                      1000000,
                      videoIn->width, videoIn->height,

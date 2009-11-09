@@ -986,7 +986,12 @@ capture_vid (GtkToggleButton *VidButt, struct ALL_DATA *all_data)
 	
 	if(videoIn->capVid || !state) 
 	{	/****************** Stop Video ************************/
-		closeVideoFile(all_data);
+	    	videoIn->capVid = FALSE;
+		/*join IO thread*/
+		if (global->debug) g_printf("Shuting Down IO Thread\n");
+		g_thread_join( all_data->IO_thread );
+		if (global->debug) g_printf("IO Thread finished\n");
+		
 		if(!(state))
 		{
 			gtk_button_set_label(GTK_BUTTON(gwidget->CapVidButt),_("Cap. Video"));
@@ -1018,8 +1023,6 @@ capture_vid (GtkToggleButton *VidButt, struct ALL_DATA *all_data)
 		if(!DiskSupervisor(all_data))
 		{
 			g_printf("Cap Video failed\n");
-			gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(gwidget->CapVidButt), FALSE);
-			
 			state = FALSE;
 		}
 		else
@@ -1027,12 +1030,20 @@ capture_vid (GtkToggleButton *VidButt, struct ALL_DATA *all_data)
 			/*start disk check timed callback (every 10 sec)*/
 			if (!global->disk_timer_id)
 				global->disk_timer_id=g_timeout_add(10*1000, FreeDiskCheck_timer, all_data);
-		
-			if(initVideoFile(all_data)<0)
+		    
+			GError *err1 = NULL;
+			/*start IO thread*/
+			if( (all_data->IO_thread = g_thread_create_full((GThreadFunc) IO_loop, 
+				(void *) all_data,       //data - argument supplied to thread
+				global->stack_size,       //stack size
+				TRUE,                     //joinable
+				FALSE,                    //bound
+				G_THREAD_PRIORITY_NORMAL, //priority - no priority for threads in GNU-Linux
+				&err1)                    //error
+			) == NULL)
 			{
-				g_printf("Cap Video failed\n");
-				
-				gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(gwidget->CapVidButt), FALSE);
+				g_printerr("Thread create failed: %s!!\n", err1->message );
+				g_error_free ( err1 ) ;
 				state = FALSE;
 			}
 		}
@@ -1041,6 +1052,10 @@ capture_vid (GtkToggleButton *VidButt, struct ALL_DATA *all_data)
 		{
 			gtk_button_set_label(GTK_BUTTON(gwidget->CapVidButt),_("Stop Video"));
 			//gtk_widget_show (gwidget->VidButton_Img);
+		}
+		else
+		{
+			gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(gwidget->CapVidButt), FALSE);
 		}
 	}
 
