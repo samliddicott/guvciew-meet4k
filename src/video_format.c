@@ -248,7 +248,7 @@ int init_FormatContext(void *data)
                      AcodecID,
                      get_mkvCodecPriv(global->VidCodec), size,
                      (int64_t) (global->fps_num * 1000000000/global->fps), //nano seconds -reset later
-                     duration, //FIXME: 1152 samples is a MP2 Frame
+                     duration,
                      1000000,
                      videoIn->width, videoIn->height,
                      videoIn->width, videoIn->height,

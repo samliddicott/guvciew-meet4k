@@ -517,6 +517,7 @@ int	  mk_writeHeader(mk_Writer *w, const char *writingApp,
     CHECK(mk_writeUInt(ti2, MATROSKA_ID_TRACKDEFAULTDURATION, default_frame_duration)); // DefaultDuration
     w->def_duration_ptr = 4290;//FIXME (4290)
   }
+  else w->def_duration_ptr = 0;
 
   if ((v = mk_createContext(w, ti2, MATROSKA_ID_TRACKVIDEO)) == NULL) // Video
     return -1;
@@ -921,10 +922,13 @@ int	  mk_close(mk_Writer *w) {
     fseek(w->fp, w->seekhead_pos, SEEK_SET);
     write_SegSeek (w, CuesPos, SeekHeadPos);
     //move to default frame duration entry - set real fps value
-    fseek(w->fp, w->def_duration_ptr, SEEK_SET);
-    if (mk_writeUInt(w->root, MATROSKA_ID_TRACKDEFAULTDURATION, w->def_duration) < 0 ||
-	mk_flushContextData(w->root) < 0)
-      ret = -1;
+    if(w->def_duration_ptr)
+    {
+	fseek(w->fp, w->def_duration_ptr, SEEK_SET);
+	if (mk_writeUInt(w->root, MATROSKA_ID_TRACKDEFAULTDURATION, w->def_duration) < 0 ||
+	    mk_flushContextData(w->root) < 0)
+	  ret = -1;
+    }
     //move to segment duration entry
     fseek(w->fp, w->duration_ptr, SEEK_SET);
     if (mk_writeFloatRaw(w->root, (float)(double)(w->max_frame_tc/ w->timescale)) < 0 ||
