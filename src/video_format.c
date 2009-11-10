@@ -231,9 +231,9 @@ int init_FormatContext(void *data)
 			samprate = (float) pdata->samprate;
 			channels = pdata->channels;
 			if(pdata->api == PORT)
-				duration = (int64_t) (1000000000*pdata->aud_numSamples)/samprate;//((samprate * pdata->channels)/(pdata->tresh + (pdata->channels * pdata->MPEG_Frame_size)));
+				duration = (int64_t) (1000000000*pdata->aud_numSamples)/(samprate * pdata->channels);
 			else
-				duration = (int64_t) (1000000000*pdata->aud_numSamples)/samprate;//((samprate * pdata->channels)/pdata->tresh);
+				duration = (int64_t) (1000000000*pdata->aud_numSamples)/(samprate * pdata->channels);
 		}
 	}
 	

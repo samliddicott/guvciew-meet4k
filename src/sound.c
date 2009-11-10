@@ -140,8 +140,9 @@ set_sound (struct GLOBAL *global, struct paRecordData* data)
 	data->channels = global->Sound_NumChan;
 	data->skip_n = global->skip_n; //inital video frames to skip
 	//data->ts_ref = global->Vidstarttime; //maybe not set yet
-	
-	data->aud_numSamples = round(data->samprate/16000 ) * MPG_NUM_FRAMES * (MPG_NUM_SAMP * data->channels); //  MPG frames
+	int mfactor = round(data->samprate/16000);
+	if( mfactor < 1 ) mfactor = 1;
+	data->aud_numSamples = mfactor * MPG_NUM_FRAMES * (MPG_NUM_SAMP * data->channels); //  MPG frames
 	
 	data->input_type = PA_SAMPLE_TYPE;
 	data->mp2Buff = NULL;
