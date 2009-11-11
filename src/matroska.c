@@ -512,7 +512,7 @@ int	  mk_writeHeader(mk_Writer *w, const char *writingApp,
   if (w->def_duration) //for fixed frame rate
   {
     w->def_duration_ptr = 4291;//FIXME
-    printf("def_duration_ptr %i\n",w->def_duration_ptr);
+    //printf("def_duration_ptr %i\n",w->def_duration_ptr);
     CHECK(mk_writeUInt(ti2, MATROSKA_ID_TRACKDEFAULTDURATION, w->def_duration)); // DefaultDuration
   }
   else w->def_duration_ptr = 0; 

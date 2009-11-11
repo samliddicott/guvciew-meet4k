@@ -385,8 +385,11 @@ void *main_loop(void *data)
 			if (global->debug && videoIn->capVid) g_printf("skiping frame %d...\n", global->skip_n);
 			global->skip_n--;
 		}
-		if (global->Sound_enable && videoIn->capVid) pdata->skip_n = global->skip_n;
-	
+
+		g_mutex_lock( pdata->mutex );
+			if (global->Sound_enable && videoIn->capVid) pdata->skip_n = global->skip_n;
+		g_mutex_unlock( pdata->mutex );
+		
 		/*------------------------- Display Frame --------------------------------*/
 		SDL_LockYUVOverlay(overlay);
 		memcpy(p, videoIn->framebuffer,
@@ -476,12 +479,14 @@ void *main_loop(void *data)
 	if (videoIn->capVid) 
 	{
 		/*stop capture*/
+		if (global->debug) g_printf("stoping Video capture\n");
 		global->Vidstoptime = ms_time();
 		videoIn->VidCapStop=TRUE;
 		videoIn->capVid = FALSE;
-		pdata->capVid = videoIn->capVid;
-		if (global->debug) g_printf("stoping Video capture\n");
-		closeVideoFile(all_data);
+
+		g_mutex_lock( pdata->mutex );
+			pdata->capVid = videoIn->capVid;
+		g_mutex_unlock( pdata->mutex );
 	}
 	
 	if (global->debug) g_printf("Thread terminated...\n");

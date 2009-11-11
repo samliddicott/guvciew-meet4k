@@ -987,6 +987,9 @@ capture_vid (GtkToggleButton *VidButt, struct ALL_DATA *all_data)
 	if(videoIn->capVid || !state) 
 	{	/****************** Stop Video ************************/
 	    	videoIn->capVid = FALSE;
+		g_mutex_lock(pdata->mutex);
+			pdata->capVid = videoIn->capVid;
+		g_mutex_unlock(pdata->mutex);
 		/*join IO thread*/
 		if (global->debug) g_printf("Shuting Down IO Thread\n");
 		g_thread_join( all_data->IO_thread );

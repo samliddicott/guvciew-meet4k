@@ -65,34 +65,42 @@ recordCallback (const void *inputBuffer, void *outputBuffer,
 
 	const SAMPLE *rptr = (const SAMPLE*)inputBuffer;
 	int i;
-	
 	//time stamps
 	int64_t tstamp = ns_time();
+
+	g_mutex_lock( data->mutex );
+		gboolean capVid = data->capVid;
+		int channels = data->channels;
+		int skip_n = data->skip_n;
+	g_mutex_unlock( data->mutex );
 	
-	if (data->skip_n > 0) //skip audio while were skipping video frames
+	if (skip_n > 0) //skip audio while were skipping video frames
 	{
 		
-		if(data->capVid) 
+		if(capVid) 
 		{
-			data->snd_begintime = tstamp; //reset first time stamp
+			g_mutex_lock( data->mutex );
+				data->snd_begintime = tstamp; //reset first time stamp
+			g_mutex_unlock( data->mutex );
 			return (paContinue); /*still capturing*/
 		}
 		else
-		{
-			data->streaming=FALSE;
+		{	g_mutex_lock( data->mutex );
+				data->streaming=FALSE;
+			g_mutex_lock( data->mutex );
 			return (paComplete);
 		}
 	}
 	
-	/*first frame time stamp*/
-	if((data->a_ts == 0) && (data->ts_ref > 0) && (data->ts_ref < data->snd_begintime)) data->a_ts= data->snd_begintime - data->ts_ref;
-	
-	int numSamples= framesPerBuffer * data->channels;
-
-	/*set to FALSE on paComplete*/    
-	data->streaming=TRUE;
+	int numSamples= framesPerBuffer * channels;
 
 	g_mutex_lock( data->mutex );
+		/*set to FALSE on paComplete*/
+		data->streaming=TRUE;
+		/*first frame time stamp*/
+		if((data->a_ts == 0) && (data->ts_ref > 0) && (data->ts_ref < data->snd_begintime)) 
+			data->a_ts= data->snd_begintime - data->ts_ref;
+
 		if( inputBuffer == NULL )
 		{
 			for( i=0; i<numSamples; i++ )
@@ -116,10 +124,12 @@ recordCallback (const void *inputBuffer, void *outputBuffer,
 		
 	g_mutex_unlock( data->mutex );
 
-	if(data->capVid) return (paContinue); /*still capturing*/
+	if(capVid) return (paContinue); /*still capturing*/
 	else 
 	{
-		data->streaming=FALSE;
+		g_mutex_lock( data->mutex );
+			data->streaming=FALSE;
+		g_mutex_unlock( data->mutex );
 		return (paComplete);
 	}
 	
@@ -147,7 +157,9 @@ set_sound (struct GLOBAL *global, struct paRecordData* data)
 	
 	data->samprate = global->Sound_SampRate;
 	data->channels = global->Sound_NumChan;
-	data->skip_n = global->skip_n; //inital video frames to skip
+	g_mutex_lock( data->mutex );
+		data->skip_n = global->skip_n; //inital video frames to skip
+	g_mutex_unlock( data->mutex );
 	
 	int mfactor = round(data->samprate/16000);
 	if( mfactor < 1 ) mfactor = 1;

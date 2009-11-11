@@ -193,6 +193,7 @@ int initVideoFile(struct ALL_DATA *all_data)
 			videoIn->capVid = TRUE;
 			pdata->capVid = videoIn->capVid;
 			
+			
 			/* start sound capture*/
 			if(global->Sound_enable > 0) 
 			{
@@ -321,8 +322,11 @@ void closeVideoFile(struct ALL_DATA *all_data)
 	struct GWIDGET *gwidget = all_data->gwidget;
 	
 	int i=0;
+	/*we are streaming so we need to lock a mutex*/
 	videoIn->capVid = FALSE; /*flag video thread to stop recording frames*/
-	pdata->capVid = videoIn->capVid;
+	g_mutex_lock(pdata->mutex);
+		pdata->capVid = videoIn->capVid;
+	g_mutex_unlock(pdata->mutex);
 	/*wait for flag from video thread that recording has stopped    */
 	/*wait on videoIn->VidCapStop by sleeping for 200 loops of 10 ms*/
 	/*(test VidCapStop == TRUE on every loop)*/
