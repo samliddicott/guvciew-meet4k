@@ -28,15 +28,14 @@
 static int fill_audio_buffer(struct paRecordData *data, int64_t tstamp)
 {
 	int ret =0;
-	/* first frame time stamp*/
-	if((data->a_ts == 0) && (data->ts_ref < data->snd_begintime)) data->a_ts= data->snd_begintime - data->ts_ref;
+
 	if(data->sampleIndex >= data->aud_numSamples)
 	{
 		data->sampleIndex = 0; //reset
 		if(!data->audio_buff[data->w_ind].used)
 		{
 			/*copy data to audio buffer*/
-			memcpy(data->audio_buff[data->w_ind].frame, data->recordedSamples, data->aud_numSamples*sizeof(SAMPLE));
+			memcpy(data->audio_buff[data->w_ind].frame, data->recordedSamples, data->aud_numBytes);
 			data->audio_buff[data->w_ind].time_stamp = data->a_ts;
 			data->audio_buff[data->w_ind].used = TRUE;
 			NEXT_IND(data->w_ind, AUDBUFF_SIZE);
@@ -73,13 +72,20 @@ recordCallback (const void *inputBuffer, void *outputBuffer,
 	if (data->skip_n > 0) //skip audio while were skipping video frames
 	{
 		
-		if(data->capVid) return (paContinue); /*still capturing*/
+		if(data->capVid) 
+		{
+			data->snd_begintime = tstamp; //reset first time stamp
+			return (paContinue); /*still capturing*/
+		}
 		else
 		{
 			data->streaming=FALSE;
 			return (paComplete);
 		}
 	}
+	
+	/*first frame time stamp*/
+	if((data->a_ts == 0) && (data->ts_ref > 0) && (data->ts_ref < data->snd_begintime)) data->a_ts= data->snd_begintime - data->ts_ref;
 	
 	int numSamples= framesPerBuffer * data->channels;
 
@@ -124,8 +130,8 @@ set_sound (struct GLOBAL *global, struct paRecordData* data)
 {
 	//int totalFrames;
 	//int MP2Frames=0;
-	int i=0;
-
+	//int i=0;
+	
 	if(global->Sound_SampRateInd==0)
 		global->Sound_SampRate=global->Sound_IndexDev[global->Sound_UseDev].samprate;/*using default*/
 	
@@ -136,31 +142,27 @@ set_sound (struct GLOBAL *global, struct paRecordData* data)
 			global->Sound_IndexDev[global->Sound_UseDev].chan : 2;
 	}
 	
+	data->audio_buff = NULL;
+	data->recordedSamples = NULL;
+	
 	data->samprate = global->Sound_SampRate;
 	data->channels = global->Sound_NumChan;
 	data->skip_n = global->skip_n; //inital video frames to skip
-	//data->ts_ref = global->Vidstarttime; //maybe not set yet
+	
 	int mfactor = round(data->samprate/16000);
 	if( mfactor < 1 ) mfactor = 1;
 	data->aud_numSamples = mfactor * MPG_NUM_FRAMES * (MPG_NUM_SAMP * data->channels); //  MPG frames
+	data->aud_numBytes = data->aud_numSamples * sizeof(SAMPLE);
 	
 	data->input_type = PA_SAMPLE_TYPE;
 	data->mp2Buff = NULL;
 	
-	data->aud_numBytes = data->aud_numSamples * sizeof(SAMPLE);
-	
-	data->recordedSamples = g_new0(SAMPLE, data->aud_numSamples);
 	data->sampleIndex = 0;
 	
 	data->flush = 0;
 	data->a_ts= 0;
 	
 	data->stream = NULL;
-	
-	/*alloc audio ring buffer*/
-	data->audio_buff = g_new0(AudBuff, AUDBUFF_SIZE);
-	for(i=0; i<AUDBUFF_SIZE; i++)
-		data->audio_buff[i].frame = g_new0(SAMPLE, data->aud_numSamples);
 	
 	//reset the indexes	
 	data->r_ind = 0;
@@ -176,7 +178,15 @@ init_sound(struct paRecordData* data)
 {
 	PaError err = paNoError;
 	int i=0;
-    
+	
+	/*alloc audio ring buffer*/
+	data->audio_buff = g_new0(AudBuff, AUDBUFF_SIZE);
+	for(i=0; i<AUDBUFF_SIZE; i++)
+		data->audio_buff[i].frame = g_new0(SAMPLE, data->aud_numSamples);
+	
+	//alloc the callback buffer
+	data->recordedSamples = g_new0(SAMPLE, data->aud_numSamples);
+	
 	switch(data->api)
 	{
 #ifdef PULSEAUDIO
@@ -199,7 +209,6 @@ init_sound(struct paRecordData* data)
 				}
 			}
 				
-			/* Record for a few seconds. */
 			data->inputParameters.channelCount = data->channels;
 			data->inputParameters.sampleFormat = PA_SAMPLE_TYPE;
 			if (Pa_GetDeviceInfo( data->inputParameters.device ))
@@ -208,7 +217,7 @@ init_sound(struct paRecordData* data)
 				data->inputParameters.suggestedLatency = DEFAULT_LATENCY_DURATION/1000.0;
 			data->inputParameters.hostApiSpecificStreamInfo = NULL; 
 	
-			/*---------------------------- Record some audio. ----------------------------- */
+			/*---------------------------- start recording Audio. ----------------------------- */
 	
 			err = Pa_OpenStream(
 				&data->stream,
@@ -243,7 +252,7 @@ error:
 	{
 		if(data->stream) Pa_AbortStream( data->stream );
 	}
-	g_free( data->recordedSamples );
+	if(data->recordedSamples) g_free( data->recordedSamples );
 	data->recordedSamples=NULL;
 	if(data->audio_buff)
 	{

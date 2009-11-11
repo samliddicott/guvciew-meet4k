@@ -89,7 +89,7 @@ int initVideoFile(struct ALL_DATA *all_data)
 	int ret = 0;
 	int i=0;
 	
-	/*allocate video buffer*/
+	/*alloc video ring buffer*/
 	if (global->videoBuff == NULL)
 	{
 		int framesize= videoIn->height*videoIn->width*2; /*yuyv (maximum size)*/
@@ -100,7 +100,7 @@ int initVideoFile(struct ALL_DATA *all_data)
 			global->videoBuff[i].frame = g_new0(BYTE,framesize);
 		}
 	}
-	//reset the indexes
+	//reset indexes
 	global->r_ind=0;
 	global->w_ind=0;
 	
@@ -168,6 +168,9 @@ int initVideoFile(struct ALL_DATA *all_data)
 			break;
 			
 		case MKV_FORMAT:
+			/*disabling sound and video compression controls*/
+			set_sensitive_vid_contrls(FALSE, global->Sound_enable, gwidget);
+			
 			/* start sound capture*/
 			if(global->Sound_enable > 0) 
 			{
@@ -180,6 +183,16 @@ int initVideoFile(struct ALL_DATA *all_data)
 				pdata->capVid = videoIn->capVid;
 				return (-1);
 			}
+			
+			videoF->keyframe = 1;
+			videoF->old_apts = 0;
+			videoF->apts = 0;
+			videoF->vpts = 0;
+			
+			/* start video capture*/
+			videoIn->capVid = TRUE;
+			pdata->capVid = videoIn->capVid;
+			
 			/* start sound capture*/
 			if(global->Sound_enable > 0) 
 			{
@@ -188,6 +201,7 @@ int initVideoFile(struct ALL_DATA *all_data)
 				{
 					g_printerr("error opening portaudio\n");
 					global->Sound_enable=0;
+					/*will this work with the checkbox disabled?*/
 					gdk_threads_enter();
 					gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gwidget->SndEnable),0);
 					gdk_flush();
@@ -201,18 +215,8 @@ int initVideoFile(struct ALL_DATA *all_data)
 					}
 				}
 			}
-			/*disabling sound and video compression controls*/
-			set_sensitive_vid_contrls(FALSE, global->Sound_enable, gwidget);
-			
-			videoF->keyframe = 1;
-			videoF->old_apts = 0;
-			videoF->apts = 0;
-			videoF->vpts = 0;
-			
-			/* start video capture*/
-			videoIn->capVid = TRUE;
-			pdata->capVid = videoIn->capVid;
 			break;
+			
 		default:
 			
 			break;
@@ -626,6 +630,8 @@ int store_video_frame(void *data)
 	int ret = 0;
 	
 	g_mutex_lock(global->mutex);
+	
+	
 	if (!global->videoBuff[global->w_ind].used)
 	{
 		global->videoBuff[global->w_ind].time_stamp = global->v_ts;
@@ -963,7 +969,7 @@ void *IO_loop(void *data)
 	if(lavc_data != NULL)
 	{
 		int nf = clean_lavc(&lavc_data);
-		if(global->debug) g_printf(" total frames: %d  -- encoded: %d\n", global->framecount, nf);
+		if(global->debug) g_printf(" total frames encoded: %d\n", nf);
 		lavc_data = NULL;
 	}
 	if(jpeg_struct != NULL) g_free(jpeg_struct);

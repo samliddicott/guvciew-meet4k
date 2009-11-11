@@ -50,19 +50,18 @@ struct mk_Writer {
   
   //video
   int		      video_only;       //not muxing audio
-  int		      close_cluster;    //if we are also muxing audio, signal to close cluster after saving audio frame 
+  //int		      close_cluster;    
   unsigned	      duration_ptr;     //file location pointer for duration
   int64_t	      def_duration_ptr; //file location pointer for default frame duration
   int64_t	      segment_size_ptr; //file location pointer for segment size
   int64_t	      cues_pos;
-  int64_t	      seekhead_pos;
-    
+  int64_t	      seekhead_pos;  
     
   mk_Context	      *root, *cluster, *frame;
   mk_Context	      *freelist;
   mk_Context	      *actlist;
 
-  int64_t	      def_duration;
+  UINT64	      def_duration;
   int64_t	      timescale;
   int64_t	      cluster_tc_scaled;
   int64_t	      frame_tc, prev_frame_tc_scaled, max_frame_tc;
@@ -72,10 +71,10 @@ struct mk_Writer {
   //audio
   mk_Context	      *audio_frame;
 
-  int64_t	      audio_def_duration;
-  int64_t	      audio_timescale;
-  int64_t	      audio_cluster_tc_scaled;
-  int64_t	      audio_frame_tc, audio_prev_frame_tc_scaled, audio_max_frame_tc;
+  //UINT64	      audio_def_duration;
+  //int64_t	      audio_timescale;
+  //int64_t	      audio_cluster_tc_scaled;
+  int64_t	      audio_frame_tc, audio_prev_frame_tc_scaled; //,audio_max_frame_tc;
   int64_t	      audio_block, block_n;
 
   char		      audio_in_frame, audio_keyframe;
@@ -398,7 +397,7 @@ mk_Writer *mk_createWriter(const char *filename) {
     return NULL;
   }
 
-  w->timescale = 1000000;
+  //w->timescale = 1000000;
 
   return w;
 }
@@ -413,8 +412,8 @@ int	  mk_writeHeader(mk_Writer *w, const char *writingApp,
 			 const char *codecID,
 			 const char *AcodecID,
 			 const void *codecPrivate, unsigned codecPrivateSize,
-			 int64_t default_frame_duration, //video
-			 int64_t default_aframe_duration, //audio
+			 UINT64 default_frame_duration, //video
+			 UINT64 default_aframe_duration, //audio
 			 int64_t timescale,
 			 unsigned width, unsigned height,
 			 unsigned d_width, unsigned d_height,
@@ -427,7 +426,7 @@ int	  mk_writeHeader(mk_Writer *w, const char *writingApp,
   
   w->timescale = timescale;
   w->def_duration = default_frame_duration;
-
+  
   if ((c = mk_createContext(w, w->root, EBML_ID_HEADER)) == NULL) // EBML
     return -1;
   //CHECK(mk_writeUInt(c, EBML_ID_EBMLVERSION, 1)); // EBMLVersion
@@ -506,19 +505,22 @@ int	  mk_writeHeader(mk_Writer *w, const char *writingApp,
   CHECK(mk_writeUInt(ti2, MATROSKA_ID_TRACKMINCACHE, 1));     //MinCache
   CHECK(mk_writeFloat(ti2, MATROSKA_ID_TRACKTIMECODESCALE, 1));//Timecode scale (float)
   CHECK(mk_writeUInt(ti2, MATROSKA_ID_TRACKMAXBLKADDID, 0));  //Max Block Addition ID
+  
   CHECK(mk_writeStr(ti2, MATROSKA_ID_CODECID, codecID));      // CodecID
   CHECK(mk_writeUInt(ti2, MATROSKA_ID_CODECDECODEALL, 1));    //Codec Decode All
+
+  if (w->def_duration) //for fixed frame rate
+  {
+    w->def_duration_ptr = 4291;//FIXME
+    printf("def_duration_ptr %i\n",w->def_duration_ptr);
+    CHECK(mk_writeUInt(ti2, MATROSKA_ID_TRACKDEFAULTDURATION, w->def_duration)); // DefaultDuration
+  }
+  else w->def_duration_ptr = 0; 
    // CodecPrivate
   if (codecPrivateSize)
-    CHECK(mk_writeBin(ti2, MATROSKA_ID_CODECPRIVATE, codecPrivate, codecPrivateSize));
-
-  if (default_frame_duration)
-  {
-    CHECK(mk_writeUInt(ti2, MATROSKA_ID_TRACKDEFAULTDURATION, default_frame_duration)); // DefaultDuration
-    w->def_duration_ptr = 4290;//FIXME (4290)
-  }
-  else w->def_duration_ptr = 0;
-
+	CHECK(mk_writeBin(ti2, MATROSKA_ID_CODECPRIVATE, codecPrivate, codecPrivateSize));
+  else CHECK(mk_writeVoid(ti2, 40));
+	
   if ((v = mk_createContext(w, ti2, MATROSKA_ID_TRACKVIDEO)) == NULL) // Video
     return -1;
   CHECK(mk_writeUInt(v, MATROSKA_ID_VIDEOPIXELWIDTH, width));
@@ -549,7 +551,8 @@ int	  mk_writeHeader(mk_Writer *w, const char *writingApp,
 	CHECK(mk_writeUInt(ti3, MATROSKA_ID_TRACKMAXBLKADDID, 0));  //Max Block Addition ID
 	CHECK(mk_writeStr(ti3, MATROSKA_ID_CODECID, AcodecID));     // CodecID
 	CHECK(mk_writeUInt(ti3, MATROSKA_ID_CODECDECODEALL, 1));    //Codec Decode All
-	if (default_aframe_duration)
+	
+	if (default_aframe_duration) //for fixed sample rate
 		CHECK(mk_writeUInt(ti3, MATROSKA_ID_TRACKDEFAULTDURATION, default_aframe_duration)); // DefaultDuration audio
   
 	if ((a = mk_createContext(w, ti3, MATROSKA_ID_TRACKAUDIO)) == NULL) // Audio
@@ -649,13 +652,13 @@ static int mk_flushFrame(mk_Writer *w) {
   if (w->cluster->d_cur > CLSIZE)
   {
     CHECK(mk_closeCluster(w));
-    w->close_cluster = 0;
+    //w->close_cluster = 0;
   }
   else
-    if (delta > 32767ll || delta < -32768ll || w->close_cluster)
+    if (delta > 32767ll || delta < -32768ll)// || w->close_cluster)
     {
       CHECK(mk_closeCluster(w));
-      w->close_cluster = 0;
+      //w->close_cluster = 0;
     }
 	/*******************************/
 
@@ -716,13 +719,13 @@ static int mk_flushAudioFrame(mk_Writer *w) {
   if (w->cluster->d_cur > CLSIZE)
   {
     CHECK(mk_closeCluster(w));
-    w->close_cluster = 0;
+    //w->close_cluster = 0;
   }
   else
-    if (delta > 32767ll || delta < -32768ll || w->close_cluster)
+    if (delta > 32767ll || delta < -32768ll)// || w->close_cluster)
     {
       CHECK(mk_closeCluster(w));
-      w->close_cluster = 0;
+      //w->close_cluster = 0;
     }
 	/*******************************/
   return 0;
@@ -821,7 +824,7 @@ static int write_SegSeek(mk_Writer *w, int64_t cues_pos, int64_t seekHeadPos) {
   return 0;
 }
 
-void	  mk_setDef_Duration(mk_Writer *w, int64_t def_duration)
+void	  mk_setDef_Duration(mk_Writer *w, UINT64 def_duration)
 {
 	w->def_duration = def_duration;
 }
@@ -921,8 +924,9 @@ int	  mk_close(mk_Writer *w) {
     //move to seekentries
     fseek(w->fp, w->seekhead_pos, SEEK_SET);
     write_SegSeek (w, CuesPos, SeekHeadPos);
-    //move to default frame duration entry - set real fps value
-    if(w->def_duration_ptr)
+    //move to default frame duration entry - set real fps value (for fixed frame rate)
+    //w->def_duration = 0;
+    if(w->def_duration_ptr && w->def_duration)
     {
 	fseek(w->fp, w->def_duration_ptr, SEEK_SET);
 	if (mk_writeUInt(w->root, MATROSKA_ID_TRACKDEFAULTDURATION, w->def_duration) < 0 ||

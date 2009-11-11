@@ -173,12 +173,14 @@ int main(int argc, char *argv[])
 	/*---------------------------- GTK init ----------------------------------*/
 
 	gtk_init(&argc, &argv);
-	
+	g_set_application_name(_("Guvcview Video Capture"));
+	g_setenv("PULSE_PROP_media.role", "video", TRUE); //needed for Pulse Audio
+
 	/* make sure the type is realized so that we can change the properties*/
 	g_type_class_unref (g_type_class_ref (GTK_TYPE_BUTTON));
 	/* make sure gtk-button-images property is set to true (defaults to false in karmic)*/
 	g_object_set (gtk_settings_get_default (), "gtk-button-images", TRUE, NULL);
-
+	
 	/* Create a main window */
 	gwidget->mainwin = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_title (GTK_WINDOW (gwidget->mainwin), _("GUVCViewer Controls"));

@@ -195,9 +195,9 @@ int init_FormatContext(void *data)
 	
 	char *AcodecID = NULL;
 	int bitspersample = 0;
-	float samprate = -1;
+	float samprate = 16000.0; //reference
 	int channels = 1;
-	int64_t duration = 0;
+	UINT64 duration = 0;
 	
 	if(videoF->mkv_w !=NULL )
 	{
@@ -231,10 +231,15 @@ int init_FormatContext(void *data)
 			samprate = (float) pdata->samprate;
 			channels = pdata->channels;
 			if(pdata->api == PORT)
-				duration = (int64_t) (1000000000*pdata->aud_numSamples)/(samprate * pdata->channels);
+				duration = (UINT64) (1000*pdata->aud_numSamples)/(pdata->samprate * channels);
 			else
-				duration = (int64_t) (1000000000*pdata->aud_numSamples)/(samprate * pdata->channels);
+				duration = (UINT64) (1000*pdata->aud_numSamples)/(pdata->samprate * channels);
+
+		    	duration = duration * 1000000; //from milisec to nanosec
 		}
+	    
+		if(global->debug) g_printf("audio frame: %i | %i | %i | %llu\n", 
+			pdata->aud_numSamples, pdata->samprate, channels, duration);
 	}
 	
 	videoF->apts = 0;
@@ -247,7 +252,7 @@ int init_FormatContext(void *data)
                      get_mkvCodec(global->VidCodec),
                      AcodecID,
                      get_mkvCodecPriv(global->VidCodec), size,
-                     (int64_t) (global->fps_num * 1000000000/global->fps), //nano seconds -reset later
+                     (UINT64) (global->fps_num * 1000000000/global->fps), //nano seconds -reset later
                      duration,
                      1000000,
                      videoIn->width, videoIn->height,
