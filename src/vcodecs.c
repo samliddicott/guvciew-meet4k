@@ -458,7 +458,7 @@ int compress_frame(void *data,
 				{ 
 					global->jpeg = g_new0(BYTE, global->jpeg_bufsize);
 				}
-				if(!*jpeg_struct) 
+				if(!*jpeg_struct)
 				{
 					*jpeg_struct = g_new0(struct JPEG_ENCODER_STRUCTURE, 1);
 					/* Initialization of JPEG control structure */

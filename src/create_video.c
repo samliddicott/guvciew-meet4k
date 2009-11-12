@@ -861,7 +861,7 @@ void *IO_loop(void *data)
 	struct GLOBAL *global = all_data->global;
 	struct vdIn *videoIn = all_data->videoIn;
 
-	struct JPEG_ENCODER_STRUCTURE *jpeg_struct=NULL;
+	struct JPEG_ENCODER_STRUCTURE *jpg_data=NULL;
 	struct lavcData *lavc_data = NULL;
 	struct audio_effects *aud_eff = NULL;
 	
@@ -957,7 +957,7 @@ void *IO_loop(void *data)
 						process_audio(all_data, aud_proc_buff, &(aud_eff));
 						break;
 					case 2:
-						finished = process_video (all_data, proc_buff, &(lavc_data), &(jpeg_struct));
+						finished = process_video (all_data, proc_buff, &(lavc_data), &(jpg_data));
 						break;
 					default:
 						sleep_ms(10);
@@ -967,7 +967,7 @@ void *IO_loop(void *data)
 			else
 			{
 				//process video
-				finished = process_video (all_data, proc_buff, &(lavc_data), &(jpeg_struct));
+				finished = process_video (all_data, proc_buff, &(lavc_data), &(jpg_data));
 			}
 		
 			if(finished)
@@ -1004,7 +1004,7 @@ void *IO_loop(void *data)
 		if(global->debug) g_printf(" total frames encoded: %d\n", nf);
 		lavc_data = NULL;
 	}
-	if(jpeg_struct != NULL) g_free(jpeg_struct);
+	if(jpg_data != NULL) g_free(jpg_data);
 	
 	/*make sure video thread returns to full throtle*/
 	global->vid_sleep = 0;
