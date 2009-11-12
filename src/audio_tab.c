@@ -121,7 +121,7 @@ void audio_tab(struct ALL_DATA *all_data)
 	//default API - portaudio
 	gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->SndAPI),global->Sound_API);
 	
-	if(global->Sound_API > 0) global->Sound_UseDev=0; //force default device
+	if(global->Sound_API > 0) global->Sound_UseDev=-1; //force default device
 	
 	gtk_widget_set_sensitive (gwidget->SndAPI, TRUE);
 	g_signal_connect (GTK_COMBO_BOX(gwidget->SndAPI), "changed",
@@ -146,7 +146,7 @@ void audio_tab(struct ALL_DATA *all_data)
 		GTK_SHRINK | GTK_FILL , 0, 0, 0);
 	gtk_widget_show (gwidget->SndDevice);
 	//using default device
-	if(global->Sound_UseDev==0) global->Sound_UseDev=global->Sound_DefDev;
+	if(global->Sound_UseDev < 0) global->Sound_UseDev=global->Sound_DefDev;
 	gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->SndDevice),global->Sound_UseDev);
 	
 	//disable if using pulse api

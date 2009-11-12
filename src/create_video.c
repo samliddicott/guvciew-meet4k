@@ -88,6 +88,9 @@ int initVideoFile(struct ALL_DATA *all_data)
 	videoF->acodec = CODEC_ID_NONE;
 	int ret = 0;
 	int i=0;
+	g_mutex_lock(videoIn->mutex);
+		gboolean capVid = videoIn->capVid;
+	g_mutex_unlock(videoIn->mutex);
 	
 	/*alloc video ring buffer*/
 	if (global->videoBuff == NULL)
@@ -118,8 +121,11 @@ int initVideoFile(struct ALL_DATA *all_data)
 			if(AVI_open_output_file(videoF->AviOut, videoIn->VidFName)<0) 
 			{
 				g_printerr("Error: Couldn't create Video.\n");
-				videoIn->capVid = FALSE;
-				pdata->capVid = videoIn->capVid;
+				capVid = FALSE;
+				g_mutex_lock(videoIn->mutex);
+					videoIn->capVid = capVid;
+				g_mutex_unlock(videoIn->mutex);
+				pdata->capVid = capVid;
 				return(-1);
 			} 
 			else 
@@ -131,8 +137,11 @@ int initVideoFile(struct ALL_DATA *all_data)
 					videoIn->fps,compression);
 		  
 				/* start video capture*/
-				videoIn->capVid = TRUE;
-				pdata->capVid = videoIn->capVid;
+				capVid = TRUE;
+				g_mutex_lock(videoIn->mutex);
+					videoIn->capVid = capVid;
+				g_mutex_unlock(videoIn->mutex);
+				pdata->capVid = capVid;
 				
 				/* start sound capture*/
 				if(global->Sound_enable > 0) 
@@ -179,8 +188,11 @@ int initVideoFile(struct ALL_DATA *all_data)
 			}
 			if(init_FormatContext((void *) all_data)<0)
 			{
-				videoIn->capVid = FALSE;
-				pdata->capVid = videoIn->capVid;
+				capVid = FALSE;
+				g_mutex_lock(videoIn->mutex);
+					videoIn->capVid = capVid;
+				g_mutex_unlock(videoIn->mutex);
+				pdata->capVid = capVid;
 				return (-1);
 			}
 			
@@ -190,8 +202,11 @@ int initVideoFile(struct ALL_DATA *all_data)
 			videoF->vpts = 0;
 			
 			/* start video capture*/
-			videoIn->capVid = TRUE;
-			pdata->capVid = videoIn->capVid;
+			capVid = TRUE;
+			g_mutex_lock(videoIn->mutex);
+				videoIn->capVid = capVid;
+			g_mutex_unlock(videoIn->mutex);
+			pdata->capVid = capVid;
 			
 			
 			/* start sound capture*/
@@ -323,9 +338,12 @@ void closeVideoFile(struct ALL_DATA *all_data)
 	
 	int i=0;
 	/*we are streaming so we need to lock a mutex*/
-	videoIn->capVid = FALSE; /*flag video thread to stop recording frames*/
+	gboolean capVid = FALSE;
+	g_mutex_lock(videoIn->mutex);
+		videoIn->capVid = capVid; /*flag video thread to stop recording frames*/
+	g_mutex_unlock(videoIn->mutex);
 	g_mutex_lock(pdata->mutex);
-		pdata->capVid = videoIn->capVid;
+		pdata->capVid = capVid;
 	g_mutex_unlock(pdata->mutex);
 	/*wait for flag from video thread that recording has stopped    */
 	/*wait on videoIn->VidCapStop by sleeping for 200 loops of 10 ms*/
@@ -794,6 +812,10 @@ static gboolean process_video(struct ALL_DATA *all_data,
 	struct GLOBAL *global = all_data->global;
 	struct vdIn *videoIn = all_data->videoIn;
 	
+	g_mutex_lock(videoIn->mutex);
+		gboolean capVid = videoIn->capVid;
+	g_mutex_unlock(videoIn->mutex);
+	
 	gboolean finish = FALSE;
 	
 	g_mutex_lock(global->mutex);
@@ -816,7 +838,7 @@ static gboolean process_video(struct ALL_DATA *all_data,
 		else
 		{
 		g_mutex_unlock(global->mutex);
-			if (videoIn->capVid)
+			if (capVid)
 			{
 				/*video buffer underrun            */
 				/*wait for next frame (sleep 10 ms)*/
@@ -844,6 +866,8 @@ void *IO_loop(void *data)
 	struct audio_effects *aud_eff = NULL;
 	
 	gboolean finished=FALSE;
+    	gboolean capVid=FALSE;
+    
 	gboolean failed = FALSE;
 	int proc_flag = 0;
 	int diff_ind=0;
@@ -893,6 +917,10 @@ void *IO_loop(void *data)
 		{
 			if(global->Sound_enable)
 			{
+				g_mutex_lock(videoIn->mutex);
+					capVid = videoIn->capVid;
+				g_mutex_unlock(videoIn->mutex);
+				
 				g_mutex_lock( pdata->mutex );
 				g_mutex_lock( global->mutex );
 					//check read/write index delta in frames 
@@ -910,7 +938,7 @@ void *IO_loop(void *data)
 					{
 						proc_flag = 2;    //process video
 					}
-					else if (diff_ind < 10 && videoIn->capVid)
+					else if (diff_ind < 10 && capVid)
 					{
 						proc_flag = 3;	//sleep -wait for audio (at most 10 video frames)
 					}

@@ -777,8 +777,15 @@ void video_tab(struct ALL_DATA *all_data)
 	} 
 	else 
 	{
-		videoIn->capVid = FALSE;
-		pdata->capVid = videoIn->capVid;
+		/*
+		gboolean capVid = FALSE;
+		g_mutex_lock(videoIn->mutex);
+			videoIn->capVid = capVid;
+		g_mutex_unlock(videoIn->mutex);
+		g_mutex_lock(pdata->mutex);
+			pdata->capVid = capVid;
+		g_mutex_unlock(videoIn->mutex);
+		*/
 		gtk_entry_set_text(GTK_ENTRY(gwidget->VidFNameEntry),global->vidFPath[0]);
 	}
 	

@@ -545,6 +545,9 @@ resolution_changed (GtkComboBox * Resolution, struct ALL_DATA *all_data)
 	int cmb_index = gtk_combo_box_get_active(Resolution);
 	char temp_str[20];
 	
+	g_mutex_lock(videoIn->mutex);
+		gboolean capVid = videoIn->capVid;
+	g_mutex_unlock(videoIn->mutex);
 	/*disable fps combobox signals*/
 	g_signal_handlers_block_by_func(GTK_COMBO_BOX(gwidget->FrameRate), G_CALLBACK (FrameRate_changed), all_data);
 	/* clear out the old fps list... */
@@ -583,7 +586,7 @@ resolution_changed (GtkComboBox * Resolution, struct ALL_DATA *all_data)
 	if (listVidCap->framerate_denom)
 		global->fps = listVidCap->framerate_denom[deffps];
 
-	if(videoIn->capVid)
+	if(capVid)
 	{
 		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(gwidget->CapVidButt), FALSE);
 		gdk_flush();
@@ -967,6 +970,9 @@ capture_vid (GtkToggleButton *VidButt, struct ALL_DATA *all_data)
 	struct GLOBAL *global = all_data->global;
 	struct vdIn *videoIn = all_data->videoIn;
 
+	g_mutex_lock(videoIn->mutex);
+		gboolean capVid = videoIn->capVid;
+	g_mutex_unlock(videoIn->mutex);
 	/*disable signals for this callback*/
 	g_signal_handlers_block_by_func(GTK_TOGGLE_BUTTON(gwidget->CapVidButt), G_CALLBACK (capture_vid), all_data);
 	/*widgets are enable/disable in create_video.c*/
@@ -984,11 +990,14 @@ capture_vid (GtkToggleButton *VidButt, struct ALL_DATA *all_data)
 	gboolean state = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(gwidget->CapVidButt));
 	if(global->debug) g_printf("Cap Video toggled: %d\n", state);
 	
-	if(videoIn->capVid || !state) 
+	if(capVid || !state) 
 	{	/****************** Stop Video ************************/
-	    	videoIn->capVid = FALSE;
+		capVid = FALSE;
+		g_mutex_lock(videoIn->mutex);
+			videoIn->capVid = capVid;
+		g_mutex_unlock(videoIn->mutex);
 		g_mutex_lock(pdata->mutex);
-			pdata->capVid = videoIn->capVid;
+			pdata->capVid = capVid;
 		g_mutex_unlock(pdata->mutex);
 		/*join IO thread*/
 		if (global->debug) g_printf("Shuting Down IO Thread\n");
@@ -1003,7 +1012,7 @@ capture_vid (GtkToggleButton *VidButt, struct ALL_DATA *all_data)
 		if(global->disk_timer_id) g_source_remove(global->disk_timer_id);
 		global->disk_timer_id = 0;
 	} 
-	else if(!(videoIn->capVid) /*&& state*/)
+	else if(!(capVid) /*&& state*/)
 	{	/******************** Start Video *********************/
 		global->vidFPath=splitPath((char *)fileEntr, global->vidFPath);
 		g_snprintf(global->vidinc_str,24,_("File num:%d"),global->vid_inc);

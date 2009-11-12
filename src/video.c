@@ -171,8 +171,14 @@ void *main_loop(void *data)
 	drect.w = pscreen->w;
 	drect.h = pscreen->h;
 	
+	gboolean capVid = FALSE;
+	
 	while (videoIn->signalquit) 
 	{
+		g_mutex_lock(videoIn->mutex);
+			capVid = videoIn->capVid;
+		g_mutex_unlock(videoIn->mutex);
+		
 		/*-------------------------- Grab Frame ----------------------------------*/
 		if (uvcGrab(videoIn) < 0) 
 		{
@@ -367,7 +373,7 @@ void *main_loop(void *data)
 			if (global->debug) g_printf("saved image to:%s\n",videoIn->ImageFName);
 		}
 		/*---------------------------capture Video---------------------------------*/
-		if (videoIn->capVid && !(global->skip_n))
+		if (capVid && !(global->skip_n))
 		{
 			videoIn->VidCapStop = FALSE;
 			int res=0;
@@ -382,12 +388,12 @@ void *main_loop(void *data)
 		//decrease skip frame count
 		if (global->skip_n > 0)
 		{
-			if (global->debug && videoIn->capVid) g_printf("skiping frame %d...\n", global->skip_n);
+			if (global->debug && capVid) g_printf("skiping frame %d...\n", global->skip_n);
 			global->skip_n--;
 		}
 
 		g_mutex_lock( pdata->mutex );
-			if (global->Sound_enable && videoIn->capVid) pdata->skip_n = global->skip_n;
+			if (global->Sound_enable && capVid) pdata->skip_n = global->skip_n;
 		g_mutex_unlock( pdata->mutex );
 		
 		/*------------------------- Display Frame --------------------------------*/
@@ -475,17 +481,23 @@ void *main_loop(void *data)
 
 	}/*loop end*/
 
+	g_mutex_lock(videoIn->mutex);
+		capVid = videoIn->capVid;
+	g_mutex_unlock(videoIn->mutex);
 	/*check if thread exited while in Video capture mode*/
-	if (videoIn->capVid) 
+	if (capVid) 
 	{
 		/*stop capture*/
 		if (global->debug) g_printf("stoping Video capture\n");
 		global->Vidstoptime = ms_time();
 		videoIn->VidCapStop=TRUE;
-		videoIn->capVid = FALSE;
+		capVid = FALSE;
+		g_mutex_lock(videoIn->mutex);
+			videoIn->capVid = capVid;
+		g_mutex_unlock(videoIn->mutex);
 
 		g_mutex_lock( pdata->mutex );
-			pdata->capVid = videoIn->capVid;
+			pdata->capVid = capVid;
 		g_mutex_unlock( pdata->mutex );
 	}
 	

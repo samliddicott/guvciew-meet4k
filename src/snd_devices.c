@@ -42,14 +42,16 @@ list_snd_devices(struct GLOBAL *global)
 	} 
 	else 
 	{
+		global->Sound_DefDev = 0;
+			
 		for( it=0; it<numDevices; it++ )
 		{
 			deviceInfo = Pa_GetDeviceInfo( it );
 			if (global->debug) g_printf( "--------------------------------------- device #%d\n", it );
 			// Mark global and API specific default devices
 			defaultDisplayed = 0;
-			// DEFAULT INPUT will save the ALSA default device index
-			// since ALSA lists after OSS                           
+			
+			// with pulse, ALSA is now listed first and doesn't set a API default- 11-2009
 			if( it == Pa_GetDefaultInputDevice() )
 			{
 				if (global->debug) g_printf( "[ Default Input" );
@@ -61,7 +63,7 @@ list_snd_devices(struct GLOBAL *global)
 				const PaHostApiInfo *hostInfo = Pa_GetHostApiInfo( deviceInfo->hostApi );
 				if (global->debug) g_printf( "[ Default %s Input", hostInfo->name );
 				defaultDisplayed = 2;
-				global->Sound_DefDev=global->Sound_numInputDev;/*index in array of input devs*/
+				//global->Sound_DefDev=global->Sound_numInputDev;/*index in array of input devs*/
 			}
 			// OUTPUT device doesn't matter for capture
 			if( it == Pa_GetDefaultOutputDevice() )

@@ -202,7 +202,11 @@ FreeDiskCheck_timer(gpointer data)
 	struct GLOBAL *global = all_data->global;
 	struct GWIDGET *gwidget = all_data->gwidget;
 	
-	if (videoIn->capVid) 
+	g_mutex_lock(videoIn->mutex);
+		gboolean capVid = videoIn->capVid;
+	g_mutex_unlock(videoIn->mutex);
+	
+	if (capVid) 
 	{
 		if(!DiskSupervisor(data))
 		{
