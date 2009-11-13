@@ -172,18 +172,20 @@ void *main_loop(void *data)
 	drect.h = pscreen->h;
 	
 	gboolean capVid = FALSE;
+	gboolean signalquit = FALSE;
 	
-	while (videoIn->signalquit) 
+	while (!signalquit) 
 	{
 		g_mutex_lock(videoIn->mutex);
 			capVid = videoIn->capVid;
+			signalquit = videoIn->signalquit;
 		g_mutex_unlock(videoIn->mutex);
 		
 		/*-------------------------- Grab Frame ----------------------------------*/
 		if (uvcGrab(videoIn) < 0) 
 		{
 			g_printerr("Error grabbing image \n");
-			videoIn->signalquit=0;
+			signalquit=TRUE;
 			g_snprintf(global->WVcaption,20,"GUVCVideo - CRASHED");
 			SDL_WM_SetCaption(global->WVcaption, NULL);
 			g_thread_exit((void *) -2);
@@ -195,18 +197,23 @@ void *main_loop(void *data)
 				global->skip_n++; //skip this frame
 			}
 			/*reset video start time to first frame capture time */  
-			if(global->framecount <= 1 )
+			if(capVid)
 			{
-				global->Vidstarttime = videoIn->timestamp;
-				
-				pdata->ts_ref = global->Vidstarttime; //used for audio time stamp
-				global->v_ts = 0;
+		    		if(global->framecount < 1)
+				{
+					global->Vidstarttime = videoIn->timestamp;
+					g_mutex_lock(pdata->mutex);
+						pdata->ts_ref = global->Vidstarttime; //used for audio time stamp
+				    	g_mutex_unlock(pdata->mutex);
+					global->v_ts = 0;
+				}
+				else
+				{
+					global->v_ts = videoIn->timestamp - global->Vidstarttime;
+					//printf("start: %lu, timestamp: %llu\n",(unsigned long) global->Vidstarttime, global->v_ts);
+				}
 			}
-			else
-			{
-				global->v_ts = videoIn->timestamp - global->Vidstarttime;
-				//printf("start: %lu, timestamp: %llu\n",(unsigned long) global->Vidstarttime, global->v_ts);
-			}
+		    	//g_printf("v_ts = %llu \n",global->v_ts);
 
 			if (global->FpsCount) 
 			{/* sets fps count in window title bar */

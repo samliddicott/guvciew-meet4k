@@ -411,10 +411,11 @@ static int encode_lavc (struct lavcData *lavc_data,
 	
 	int framesize = 0;
 	int ret = 0;
+	//int64_t ts_ms = proc_buff->time_stamp / 1000000; //nsec to msec (variable fps)
 	
 	if(lavc_data)
 	{
-		framesize= encode_lavc_frame (proc_buff->frame, lavc_data );
+		framesize= encode_lavc_frame (proc_buff->frame, lavc_data/*, ts_ms*/);
 		
 		if(lavc_data->codec_context->coded_frame->pts != AV_NOPTS_VALUE)
 			videoF->vpts = lavc_data->codec_context->coded_frame->pts;
@@ -493,8 +494,9 @@ int compress_frame(void *data,
 		default:
 			if(!(*lavc_data)) 
 			{
-				*lavc_data = init_lavc(videoIn->width, videoIn->height, videoIn->fps, global->VidCodec);
+				*lavc_data = init_lavc(videoIn->width, videoIn->height, videoIn->fps_num, videoIn->fps, global->VidCodec);
 			}
+			
 			ret = encode_lavc (*lavc_data, all_data, proc_buff);
 			break;
 	}

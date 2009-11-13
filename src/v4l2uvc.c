@@ -675,7 +675,7 @@ int init_videoIn(struct vdIn *vd, struct GLOBAL *global)
 	vd->VidFName = g_strdup(DEFAULT_AVI_FNAME);
 	vd->fps = fps;
 	vd->fps_num = fps_num;
-	vd->signalquit = 1;
+	vd->signalquit = FALSE;
 	vd->PanTilt=0;
 	vd->isbayer = 0; //bayer mode off
 	vd->pix_order=0; // pix order for bayer mode def: gbgbgb..|rgrgrg..
@@ -1092,7 +1092,7 @@ int uvcGrab(struct vdIn *vd)
 
 	return VDIN_OK;
 err:
-	vd->signalquit = 0;
+	vd->signalquit = TRUE;
 	return ret;
 }
 
@@ -1171,7 +1171,7 @@ int restart_v4l2(struct vdIn *vd, struct GLOBAL *global)
 	return (ret);
 //error: clean up allocs
 error:
-	vd->signalquit = 0;
+	vd->signalquit = TRUE;
 	return (ret);
 	
 }

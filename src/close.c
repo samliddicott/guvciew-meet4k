@@ -120,7 +120,9 @@ shutd (gint restart, struct ALL_DATA *all_data)
 	if(!(control_only))
 	{ 
 		if (global->debug) g_printf("Shuting Down Thread\n");
-		if(videoIn->signalquit > 0) videoIn->signalquit=0;
+		g_mutex_lock(videoIn->mutex);
+			videoIn->signalquit=TRUE;
+		g_mutex_unlock(videoIn->mutex);
 		g_thread_join( video_thread );
 		if (global->debug) g_printf("Video Thread finished\n");
 	}

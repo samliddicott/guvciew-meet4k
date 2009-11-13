@@ -65,11 +65,14 @@ static void yuv422to420p(BYTE* pic, struct lavcData* data )
 	data->picture->linesize[2] = data->codec_context->width / 2;
 }
 
-int encode_lavc_frame (BYTE *picture_buf, struct lavcData* data)
+int encode_lavc_frame (BYTE *picture_buf, struct lavcData* data /*, int64_t ts_ms*/)
 {
 	int out_size = 0;
 	//convert to 4:2:0
 	yuv422to420p(picture_buf, data );
+	/*set time stamp*/
+    	//data->picture->pts = ts_ms; //for variable fps (lowers quality)
+    	
 	/* encode the image */
 	out_size = avcodec_encode_video(data->codec_context, data->outbuf, data->outbuf_size, data->picture);
 	return (out_size);
@@ -97,7 +100,7 @@ int clean_lavc (void* arg)
 	return (enc_frames);
 }
 
-struct lavcData* init_lavc(int width, int height, int fps, int codec_ind)
+struct lavcData* init_lavc(int width, int height, int fps_num, int fps_den, int codec_ind)
 {
 	//allocate
 	struct lavcData* data = g_new0(struct lavcData, 1);
@@ -159,7 +162,8 @@ struct lavcData* init_lavc(int width, int height, int fps, int codec_ind)
 	data->codec_context->strict_std_compliance = FF_COMPLIANCE_NORMAL;
 	data->codec_context->codec_id = defaults->codec_id;
 	data->codec_context->pix_fmt = PIX_FMT_YUV420P; //only yuv420p available for mpeg
-	data->codec_context->time_base = (AVRational){1,fps};
+	data->codec_context->time_base = (AVRational){fps_num,fps_den}; //fixed fps
+	//data->codec_context->time_base = (AVRational){1,1000}; //1 msec for variable fps
 	
 	// open codec
 	if (avcodec_open(data->codec_context, data->codec) < 0) 

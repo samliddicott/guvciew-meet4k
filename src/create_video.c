@@ -738,70 +738,71 @@ static void process_audio(struct ALL_DATA *all_data,
 	struct paRecordData *pdata = all_data->pdata;
 
 	g_mutex_lock( pdata->mutex );
-		//read at most 10 audio Frames (1152 * channels  samples each)
-		if(pdata->audio_buff[pdata->r_ind].used)
-		{
+		gboolean used = pdata->audio_buff[pdata->r_ind].used;
+    	g_mutex_unlock( pdata->mutex );
+  
+	/*read at most 10 audio Frames (1152 * channels  samples each)*/
+	if(used)
+	{
+	    	g_mutex_lock( pdata->mutex );
 			memcpy(aud_proc_buff->frame, pdata->audio_buff[pdata->r_ind].frame, pdata->aud_numSamples*sizeof(SAMPLE));
 			pdata->audio_buff[pdata->r_ind].used = FALSE;
 			aud_proc_buff->time_stamp = pdata->audio_buff[pdata->r_ind].time_stamp;
-			NEXT_IND(pdata->r_ind, AUDBUFF_SIZE);
-			
+			NEXT_IND(pdata->r_ind, AUDBUFF_SIZE);	
 		g_mutex_unlock( pdata->mutex ); /*now we should be able to unlock the audio mutex*/	
-			sync_audio_frame(all_data, aud_proc_buff);
-			
-			/*run effects on data*/
-			/*echo*/
-			if((pdata->snd_Flags & SND_ECHO)==SND_ECHO) 
-			{
-				Echo(pdata, aud_proc_buff, *aud_eff, 300, 0.5);
-			}
-			else
-			{
-				close_DELAY((*aud_eff)->ECHO);
-				(*aud_eff)->ECHO = NULL;
-			}
-			/*fuzz*/
-			if((pdata->snd_Flags & SND_FUZZ)==SND_FUZZ) 
-			{
-				Fuzz(pdata, aud_proc_buff, *aud_eff);
-			}
-			else
-			{
-				close_FILT((*aud_eff)->HPF);
-				(*aud_eff)->HPF = NULL;
-			}
-			/*reverb*/
-			if((pdata->snd_Flags & SND_REVERB)==SND_REVERB) 
-			{
-				Reverb(pdata, aud_proc_buff, *aud_eff, 50);
-			}
-			else
-			{
-				close_REVERB(*aud_eff);
-			}
-			/*wahwah*/
-			if((pdata->snd_Flags & SND_WAHWAH)==SND_WAHWAH) 
-			{
-				WahWah (pdata, aud_proc_buff, *aud_eff, 1.5, 0, 0.7, 0.3, 2.5);
-			}
-			else
-			{
-				close_WAHWAH((*aud_eff)->wahData);
-				(*aud_eff)->wahData = NULL;
-			}
-			/*Ducky*/
-			if((pdata->snd_Flags & SND_DUCKY)==SND_DUCKY) 
-			{
-				change_pitch(pdata, aud_proc_buff, *aud_eff, 2);
-			}
-			else
-			{
-				close_pitch (*aud_eff);
-			}
-			
-			write_audio_frame(all_data, aud_proc_buff);
+		sync_audio_frame(all_data, aud_proc_buff);	
+		/*run effects on data*/
+		/*echo*/
+		if((pdata->snd_Flags & SND_ECHO)==SND_ECHO) 
+		{
+			Echo(pdata, aud_proc_buff, *aud_eff, 300, 0.5);
 		}
-		else g_mutex_unlock( pdata->mutex ); /*make sure to unlock the audio mutex*/
+		else
+		{
+			close_DELAY((*aud_eff)->ECHO);
+			(*aud_eff)->ECHO = NULL;
+		}
+		/*fuzz*/
+		if((pdata->snd_Flags & SND_FUZZ)==SND_FUZZ) 
+		{
+			Fuzz(pdata, aud_proc_buff, *aud_eff);
+		}
+		else
+		{
+			close_FILT((*aud_eff)->HPF);
+			(*aud_eff)->HPF = NULL;
+		}
+		/*reverb*/
+		if((pdata->snd_Flags & SND_REVERB)==SND_REVERB) 
+		{
+			Reverb(pdata, aud_proc_buff, *aud_eff, 50);
+		}
+		else
+		{
+			close_REVERB(*aud_eff);
+		}
+		/*wahwah*/
+		if((pdata->snd_Flags & SND_WAHWAH)==SND_WAHWAH) 
+		{
+			WahWah (pdata, aud_proc_buff, *aud_eff, 1.5, 0, 0.7, 0.3, 2.5);
+		}
+		else
+		{
+			close_WAHWAH((*aud_eff)->wahData);
+			(*aud_eff)->wahData = NULL;
+		}
+		/*Ducky*/
+		if((pdata->snd_Flags & SND_DUCKY)==SND_DUCKY) 
+		{
+			change_pitch(pdata, aud_proc_buff, *aud_eff, 2);
+		}
+		else
+		{
+			close_pitch (*aud_eff);
+		}
+			
+		write_audio_frame(all_data, aud_proc_buff);
+	}
 }
 
 static gboolean process_video(struct ALL_DATA *all_data, 
@@ -819,9 +820,12 @@ static gboolean process_video(struct ALL_DATA *all_data,
 	gboolean finish = FALSE;
 	
 	g_mutex_lock(global->mutex);
-		if (global->videoBuff[global->r_ind].used)
-		{
-			/*read video Frame*/
+    		gboolean used = global->videoBuff[global->r_ind].used;
+    	g_mutex_unlock(global->mutex);
+	if (used)
+	{
+		g_mutex_lock(global->mutex);
+	    		/*read video Frame*/
 			proc_buff->bytes_used = global->videoBuff[global->r_ind].bytes_used;
 			memcpy(proc_buff->frame, global->videoBuff[global->r_ind].frame, proc_buff->bytes_used);
 			proc_buff->time_stamp = global->videoBuff[global->r_ind].time_stamp;
@@ -832,23 +836,22 @@ static gboolean process_video(struct ALL_DATA *all_data,
 			NEXT_IND(global->r_ind,VIDBUFF_SIZE);
 		g_mutex_unlock(global->mutex);
 
-			/*process video Frame*/
-			write_video_frame(all_data, (void *) jpeg_struct, (void *) lavc_data, proc_buff);
-		}
-		else
+		/*process video Frame*/
+		write_video_frame(all_data, (void *) jpeg_struct, (void *) lavc_data, proc_buff);
+	}
+	else
+	{
+		if (capVid)
 		{
-		g_mutex_unlock(global->mutex);
-			if (capVid)
-			{
-				/*video buffer underrun            */
-				/*wait for next frame (sleep 10 ms)*/
-				sleep_ms(10);
-			}
-			else 
-			{
-				finish = TRUE; /*all frames processed and no longer capturing so finish*/
-			}
+			/*video buffer underrun            */
+			/*wait for next frame (sleep 10 ms)*/
+			sleep_ms(10);
 		}
+		else 
+		{
+			finish = TRUE; /*all frames processed and no longer capturing so finish*/
+		}
+	}
 	return finish;
 }
 
@@ -920,7 +923,7 @@ void *IO_loop(void *data)
 				g_mutex_lock(videoIn->mutex);
 					capVid = videoIn->capVid;
 				g_mutex_unlock(videoIn->mutex);
-				
+
 				g_mutex_lock( pdata->mutex );
 				g_mutex_lock( global->mutex );
 					//check read/write index delta in frames 

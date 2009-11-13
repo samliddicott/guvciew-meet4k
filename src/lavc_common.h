@@ -50,12 +50,12 @@ struct lavcData
 	BYTE* outbuf;
 };
 
-int encode_lavc_frame (BYTE *picture_buf, struct lavcData* data);
+int encode_lavc_frame (BYTE *picture_buf, struct lavcData* data/*, int64_t ts_ms*/);
 
 // arg = pointer to lavcData struct =>
 // *arg = struct lavcData**
 int clean_lavc (void *arg);
 
-struct lavcData* init_lavc(int width, int height, int fps, int codec_ind);
+struct lavcData* init_lavc(int width, int height, int fps_num, int fps_den, int codec_ind);
 
 #endif

@@ -402,7 +402,7 @@ void video_tab(struct ALL_DATA *all_data)
 	struct GLOBAL *global = all_data->global;
 	struct vdIn *videoIn = all_data->videoIn;
 	struct GWIDGET *gwidget = all_data->gwidget;
-	struct paRecordData *pdata = all_data->pdata;
+	//struct paRecordData *pdata = all_data->pdata;
 	
 	GtkWidget *table2;
 	GtkWidget *scroll2;
@@ -777,15 +777,6 @@ void video_tab(struct ALL_DATA *all_data)
 	} 
 	else 
 	{
-		/*
-		gboolean capVid = FALSE;
-		g_mutex_lock(videoIn->mutex);
-			videoIn->capVid = capVid;
-		g_mutex_unlock(videoIn->mutex);
-		g_mutex_lock(pdata->mutex);
-			pdata->capVid = capVid;
-		g_mutex_unlock(videoIn->mutex);
-		*/
 		gtk_entry_set_text(GTK_ENTRY(gwidget->VidFNameEntry),global->vidFPath[0]);
 	}
 	

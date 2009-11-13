@@ -99,9 +99,6 @@ struct vdIn
 	int height;                         // frame height
 	int formatIn;                       // Input format
 	int framesizeIn;                    // Input frame size (buffer size)
-	int signalquit;                     // video loop exit flag
-	int capVid;                         // Video capture flag (raised while capturing)
-	int VidCapStop;                     // Video capture stop flag (raised when video capture has stopped)
 	UINT64 timestamp;                   //video frame time stamp
 	char *VidFName;                     // Video File name (with full path)
 	int fps;                            // fps value (denominator)
@@ -111,6 +108,9 @@ struct vdIn
 	int cap_raw;                        // raw frame capture flag
 	int available_exp[4];               //backward compatible (old v4l2 exposure menu interface)
 	int PanTilt;                        //1-if PanTilt Camera 0-otherwise
+	gboolean signalquit;                // video loop exit flag
+	gboolean capVid;                    // Video capture flag (raised while capturing)
+	gboolean VidCapStop;                // Video capture stop flag (raised when video capture has stopped)
 	LFormats *listFormats;              // structure with frame formats list
 	LDevices *listDevices;              // structure with devices list
 };

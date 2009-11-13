@@ -173,6 +173,7 @@ set_sound (struct GLOBAL *global, struct paRecordData* data)
 	
 	data->flush = 0;
 	data->a_ts= 0;
+    	data->ts_ref = 0;
 	
 	data->stream = NULL;
 	
@@ -192,9 +193,12 @@ init_sound(struct paRecordData* data)
 	int i=0;
 	
 	/*alloc audio ring buffer*/
-	data->audio_buff = g_new0(AudBuff, AUDBUFF_SIZE);
-	for(i=0; i<AUDBUFF_SIZE; i++)
-		data->audio_buff[i].frame = g_new0(SAMPLE, data->aud_numSamples);
+    	if(!(data->audio_buff))
+    	{
+		data->audio_buff = g_new0(AudBuff, AUDBUFF_SIZE);
+		for(i=0; i<AUDBUFF_SIZE; i++)
+			data->audio_buff[i].frame = g_new0(SAMPLE, data->aud_numSamples);
+	}
 	
 	//alloc the callback buffer
 	data->recordedSamples = g_new0(SAMPLE, data->aud_numSamples);
