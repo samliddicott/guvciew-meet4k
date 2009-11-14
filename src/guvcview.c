@@ -619,9 +619,20 @@ int main(int argc, char *argv[])
 				/*start disk check timed callback (every 10 sec)*/
 				if (!global->disk_timer_id)
 					global->disk_timer_id=g_timeout_add(10*1000, FreeDiskCheck_timer, &all_data);
-				
-				if(initVideoFile(&all_data)<0)
+
+				GError *err1 = NULL;
+				/*start IO thread*/
+				if( (all_data.IO_thread = g_thread_create_full((GThreadFunc) IO_loop, 
+					(void *) &all_data,       //data - argument supplied to thread
+					global->stack_size,       //stack size
+					TRUE,                     //joinable
+					FALSE,                    //bound
+					G_THREAD_PRIORITY_NORMAL, //priority - no priority for threads in GNU-Linux
+					&err1)                    //error
+				) == NULL)
 				{
+					g_printerr("Thread create failed: %s!!\n", err1->message );
+					g_error_free ( err1 ) ;
 					cap_ok = FALSE;
 				}
 				else if (global->Capture_time) 
