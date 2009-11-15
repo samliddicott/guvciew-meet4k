@@ -111,6 +111,7 @@ struct vdIn
 	gboolean signalquit;                // video loop exit flag
 	gboolean capVid;                    // Video capture flag (raised while capturing)
 	gboolean VidCapStop;                // Video capture stop flag (raised when video capture has stopped)
+	gboolean IOfinished;                // Signals that IO thread has finished
 	LFormats *listFormats;              // structure with frame formats list
 	LDevices *listDevices;              // structure with devices list
 };

@@ -1159,17 +1159,17 @@ split_avi(void *data)
 	//gtk_toggle_button_toggled (GTK_TOGGLE_BUTTON(gwidget->CapAVIButt));
 	gdk_flush ();
 	gdk_threads_leave();
-	int stall = wait_ms(&(videoIn->VidCapStop), TRUE, 10, 200);
+
+	int stall = wait_ms(&(videoIn->IOfinished), TRUE, 10, 200);
 	if( !(stall > 0) )
 	{
-		g_printerr("video capture stall on exit(%d) - timeout\n",
-			videoIn->VidCapStop);
+		g_printerr("IO thread stalled (%d) - timeout\n",
+			videoIn->IOfinished);
 	}
 	/*starts avi capture*/
 	gdk_threads_enter();
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(gwidget->CapVidButt), TRUE);
-	
-	global->VidButtPress = FALSE;
+
 	gdk_flush ();
 	gdk_threads_leave();
 	/*thread as finished*/

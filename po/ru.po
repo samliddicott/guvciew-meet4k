@@ -7,13 +7,13 @@ msgstr ""
 "Project-Id-Version: guvcview\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-10-14 22:54+0100\n"
-"PO-Revision-Date: 2009-09-15 02:06+0000\n"
-"Last-Translator: Paulo Assis <pj.assis@gmail.com>\n"
+"PO-Revision-Date: 2009-10-31 07:08+0000\n"
+"Last-Translator: igorsh <ishipenkov@gmail.com>\n"
 "Language-Team: Russian <>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-09-19 15:52+0000\n"
+"X-Launchpad-Export-Date: 2009-11-15 23:44+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: src/guvcview.c:184
@@ -36,6 +36,8 @@ msgid ""
 "Please make sure the camera is connected\n"
 "and that the correct driver is installed."
 msgstr ""
+"Пожалуйста убедитесь в том, что камера отключена\n"
+"и драйвер установлен корректно."
 
 #. uvc extension controls OK, give warning and shutdown (called with --add_ctrls)
 #: src/guvcview.c:217
@@ -51,15 +53,11 @@ msgstr ""
 
 #. uvc extension controls error - EACCES (needs root user)
 #: src/guvcview.c:226
-#, fuzzy
 msgid ""
 "Guvcview error:\n"
 "\n"
 "UVC Extension controls"
 msgstr ""
-"Ошибка Guvcview:\n"
-"\n"
-"Не удалось выделить место для буферов"
 
 #: src/guvcview.c:227
 msgid ""
@@ -74,12 +72,16 @@ msgid ""
 "\n"
 "Can't set a valid video stream for guvcview"
 msgstr ""
+"Ошибка Guvcview:\n"
+"Не могу установить правильный видео поток для guvcview"
 
 #: src/guvcview.c:254 src/guvcview.c:337
 msgid ""
 "Make sure your device driver is v4l2 compliant\n"
 "and that it is properly installed."
 msgstr ""
+"Убедитесь что драйвер совместим с v4l2\n"
+"и установлен правильно."
 
 #: src/guvcview.c:276 src/guvcview.c:298
 msgid ""
@@ -101,10 +103,12 @@ msgid ""
 "\n"
 "Couldn't query device capabilities"
 msgstr ""
+"Ошибка Guvcview:\n"
+"Не могу получить свойства устройства"
 
 #: src/guvcview.c:307
 msgid "Make sure the device driver suports v4l2."
-msgstr ""
+msgstr "Убедитесь в том, что драйвер устройства поддерживает v4l2."
 
 #: src/guvcview.c:311
 msgid ""
@@ -115,7 +119,7 @@ msgstr ""
 
 #: src/guvcview.c:312
 msgid "Please try mmap instead (--capture_method=1)."
-msgstr ""
+msgstr "Попробуйте лучше mmap (--capture_method=1)."
 
 #: src/guvcview.c:320
 msgid ""
@@ -178,8 +182,8 @@ msgstr ""
 #: src/guvcview.c:593
 msgid "Please report it to http://developer.berlios.de/bugs/?group_id=8179"
 msgstr ""
-"Следует сообщить об этом сюда: http://developer.berlios.de/bugs/?"
-"group_id=8179"
+"Следует сообщить об этом сюда: "
+"http://developer.berlios.de/bugs/?group_id=8179"
 
 #. needed only for language files (not used)
 #. V4L2 control strings
@@ -245,7 +249,7 @@ msgstr "Режим приоритета диафрагмы"
 
 #: src/v4l2uvc.c:67
 msgid "Black Level"
-msgstr ""
+msgstr "Уровень чёрного"
 
 #: src/v4l2uvc.c:68
 msgid "White Balance, Automatic"
@@ -403,14 +407,12 @@ msgstr "Красный компонент баланса белого"
 
 #. libwebcam specific control strings
 #: src/v4l2uvc.c:113
-#, fuzzy
 msgid "Focus"
-msgstr "Установка фокуса"
+msgstr ""
 
 #: src/v4l2uvc.c:114
-#, fuzzy
 msgid "Focus (Absolute)"
-msgstr "Фокус (абсолютный)"
+msgstr ""
 
 #: src/video_tab.c:41 src/callbacks.c:1102
 msgid "Save File"
@@ -781,11 +783,13 @@ msgstr "Аппаратное ускорение (вкл.(1) | выкл.(0))"
 
 #: src/options.c:536
 msgid ""
-"Pixel format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|"
-"y41p|grey|s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
+"Pixel "
+"format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|y41p|grey|"
+"s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
 msgstr ""
-"Формат пиксела (mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|"
-"y41p|grey|s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
+"Формат пиксела "
+"(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|y41p|grey|s501|s"
+"505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
 
 #: src/options.c:537
 msgid "Frame size, default: 640x480"
@@ -905,6 +909,12 @@ msgstr ""
 msgid "Not enough free space left on disk"
 msgstr ""
 
+#~ msgid "Hue, Auto"
+#~ msgstr "Оттенок, авто"
+
+#~ msgid "Exposure:"
+#~ msgstr "Экспозиция:"
+
 #~ msgid "Program Restart"
 #~ msgstr "Перезапуск программы"
 
@@ -924,9 +934,3 @@ msgstr ""
 #~ "\n"
 #~ "\n"
 #~ "Перезапустить сейчас?\n"
-
-#~ msgid "Hue, Auto"
-#~ msgstr "Оттенок, авто"
-
-#~ msgid "Exposure:"
-#~ msgstr "Экспозиция:"

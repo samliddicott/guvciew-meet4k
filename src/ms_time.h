@@ -21,7 +21,9 @@
 #ifndef MS_TIME_H
 #define MS_TIME_H
 
+#include <glib.h>
 #include "defs.h"
+
 /*time in miliseconds*/
 DWORD ms_time (void);
 /*time in microseconds*/
@@ -33,7 +35,7 @@ ULLONG ns_time (void);
 void sleep_ms(int ms_time);
 
 /*wait on cond by sleeping for n_loops of sleep_ms ms */
-/*(test (var == val) every loop)                     */
-int wait_ms(int *var, int val, int sleep_ms, int n_loops);
+/*(test (var == val) every loop)                      */
+int wait_ms(gboolean* var, gboolean val, int ms_time, int n_loops);
 #endif
 

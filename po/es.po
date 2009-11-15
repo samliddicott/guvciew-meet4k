@@ -10,13 +10,13 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-10-14 22:54+0100\n"
-"PO-Revision-Date: 2009-10-17 00:27+0000\n"
-"Last-Translator: DiegoJ <diegojromerolopez@gmail.com>\n"
+"PO-Revision-Date: 2009-11-08 19:47+0000\n"
+"Last-Translator: Monkey <Unknown>\n"
 "Language-Team: Portuguese <pt@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-10-18 07:06+0000\n"
+"X-Launchpad-Export-Date: 2009-11-15 23:44+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: src/guvcview.c:184
@@ -481,7 +481,7 @@ msgstr ""
 
 #: src/video_tab.c:246
 msgid "cmp:   "
-msgstr ""
+msgstr "cmp:   "
 
 #: src/video_tab.c:261
 msgid "sub cmp:   "
@@ -843,7 +843,7 @@ msgstr "Exhibir FPS (habilitar(1) | deshabilitar(0))"
 
 #: src/options.c:546
 msgid "Load Profile at start"
-msgstr "Carregar Perfil"
+msgstr "Cargar perfil al inicio"
 
 #: src/options.c:552
 msgid "- local options"
@@ -851,7 +851,7 @@ msgstr "- opciones locales"
 
 #: src/img_controls.c:94
 msgid "Invert (Pan)"
-msgstr "Inverter (Rotación)"
+msgstr "Invertir (Rotación)"
 
 #: src/img_controls.c:98
 msgid "Left"

@@ -14,7 +14,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-09-19 15:52+0000\n"
+"X-Launchpad-Export-Date: 2009-11-15 23:44+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: src/guvcview.c:184
@@ -760,8 +760,9 @@ msgstr ""
 
 #: src/options.c:536
 msgid ""
-"Pixel format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|"
-"y41p|grey|s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
+"Pixel "
+"format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|y41p|grey|"
+"s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
 msgstr ""
 
 #: src/options.c:537
@@ -882,14 +883,11 @@ msgstr ""
 msgid "Not enough free space left on disk"
 msgstr ""
 
+#~ msgid "Hue, Auto"
+#~ msgstr "Tint, Auto"
+
 #~ msgid "Program Restart"
 #~ msgstr "Programma Herstart"
-
-#~ msgid "now"
-#~ msgstr "nu"
-
-#~ msgid "Later"
-#~ msgstr "Later"
 
 #~ msgid ""
 #~ "Changes will only take effect after guvcview restart.\n"
@@ -902,5 +900,8 @@ msgstr ""
 #~ "\n"
 #~ "Wilt u nu herstarten?\n"
 
-#~ msgid "Hue, Auto"
-#~ msgstr "Tint, Auto"
+#~ msgid "Later"
+#~ msgstr "Later"
+
+#~ msgid "now"
+#~ msgstr "nu"

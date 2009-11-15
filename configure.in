@@ -5,8 +5,8 @@ dnl Process this file with autoconf to produce a configure script.
 ORIGINAL_CFLAGS="$CFLAGS"
 
 dnl Package definitions
-AC_INIT(guvcview, 1.2.0,[<pj.assis@gmail.com>])
-AM_INIT_AUTOMAKE(guvcview, 1.2.0)
+AC_INIT(guvcview, 1.2.1,[<pj.assis@gmail.com>])
+AM_INIT_AUTOMAKE(guvcview, 1.2.1)
 AM_CONFIG_HEADER(config.h)
 AM_MAINTAINER_MODE(disable)
 
@@ -72,7 +72,7 @@ AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE", [guvcview])
 dnl --------------------------------------------------------------------------
 dnl Languages supported by guvcview.
 dnl --------------------------------------------------------------------------
-ALL_LINGUAS="pt pt_BR de es fr da tr cs ja ru nl he"
+ALL_LINGUAS="pt pt_BR de es fr da tr cs ja ru nl he eu"
 AM_GLIB_GNU_GETTEXT([external])
 
 dnl --------------------------------------------------------------------------

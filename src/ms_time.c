@@ -65,7 +65,7 @@ void sleep_ms(int ms_time)
 
 /*wait on cond by sleeping for n_loops of sleep_ms ms (test var==val every loop)*/
 /*return remaining number of loops (if 0 then a stall ocurred)              */
-int wait_ms(int *var, int val, int ms_time, int n_loops)
+int wait_ms(gboolean* var, gboolean val, int ms_time, int n_loops)
 {
 	int n=n_loops;
 	while( (*var!=val) && ( n > 0 ) ) /*wait at max (n_loops*sleep_ms) ms */

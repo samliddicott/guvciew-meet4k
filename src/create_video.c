@@ -429,41 +429,50 @@ int write_video_frame (struct ALL_DATA *all_data,
 {
 	struct GLOBAL *global = all_data->global;
 	struct VideoFormatData *videoF = all_data->videoF;
-	
+	GThread *press_butt_thread = NULL;
 	int ret=0;
-	GThread *press_butt_thread;
+	gboolean VidButtPress;
+	
+
 	
 	switch (global->VidFormat)
 	{
 		case AVI_FORMAT:
+			g_mutex_lock(global->mutex);
+				VidButtPress = global->VidButtPress;
+			g_mutex_unlock(global->mutex);
 			/*all video controls are now disabled so related values cannot be changed*/
-			ret = compress_frame(all_data, jpeg_struct, lavc_data, proc_buff);
+			if(!VidButtPress) //if this is set AVI reached it's limit size
+				ret = compress_frame(all_data, jpeg_struct, lavc_data, proc_buff);
 
 			if (ret)
 			{
 				if (AVI_getErrno () == AVI_ERR_SIZELIM)
 				{
-					if (!(global->VidButtPress))
-					{
-						
-						GError *err1 = NULL;
-					
-						/*avi file limit reached - must end capture close file and start new one*/
-						if( (press_butt_thread =g_thread_create((GThreadFunc) split_avi, 
-							all_data, //data
-							FALSE,    //joinable - no need waiting for thread to finish
-							&err1)    //error
-						) == NULL)  
+					g_mutex_lock(global->mutex);
+						if (!(global->VidButtPress))
 						{
-							g_printerr("Thread create failed: %s!!\n", err1->message );
-							g_error_free ( err1 ) ;
-							printf("using blocking method\n");
-							split_avi(all_data); /*blocking call*/
-						}
+							global->VidButtPress = TRUE;
+						
+							GError *err1 = NULL;
 					
-						//split_avi(all_data);/*blocking call*/
-						g_printf("AVI file size limit reached - restarted capture on new file\n");
-					}
+							/*avi file limit reached - must end capture close file and start new one*/
+							if( (press_butt_thread =g_thread_create((GThreadFunc) split_avi, 
+								all_data, //data
+								FALSE,    //joinable - no need waiting for thread to finish
+								&err1)    //error
+							) == NULL)  
+							{
+								g_printerr("Thread create failed: %s!!\n", err1->message );
+								g_error_free ( err1 ) ;
+								printf("using blocking method\n");
+								split_avi(all_data); /*blocking call*/
+							}
+					
+							//split_avi(all_data);/*blocking call*/
+							g_printf("AVI file size limit reached - restarted capture on new file\n");
+						}
+					g_mutex_unlock(global->mutex);
 				} 
 				else 
 				{
@@ -497,10 +506,16 @@ int write_audio_frame (struct ALL_DATA *all_data, AudBuff *proc_buff)
 	
 	int ret =0;
 	GThread *press_butt_thread;
+	gboolean VidButtPress;
 	
 	switch (global->VidFormat)
 	{
 		case AVI_FORMAT:
+			g_mutex_lock(global->mutex);
+				VidButtPress = global->VidButtPress;
+			g_mutex_unlock(global->mutex);
+			if(!VidButtPress) //if this is set AVI reached it's limit size
+			{
 				/*write audio chunk*/
 				if(global->Sound_Format == PA_FOURCC) 
 				{
@@ -512,30 +527,36 @@ int write_audio_frame (struct ALL_DATA *all_data, AudBuff *proc_buff)
 					int size_mp2 = MP2_encode(pdata, proc_buff, 0);
 					ret=AVI_write_audio(videoF->AviOut, pdata->mp2Buff, size_mp2);
 				}
+			}
 		
 			if (ret) 
 			{	
 				if (AVI_getErrno () == AVI_ERR_SIZELIM) 
 				{
-					if (!(global->VidButtPress))
-					{
-						global->VidButtPress = TRUE;
-						GError *err1 = NULL;
-						/*avi file limit reached - must end capture close file and start new one*/
-						if( (press_butt_thread =g_thread_create((GThreadFunc) split_avi, 
-							all_data, //data
-							FALSE,    //joinable - no need waiting for thread to finish
-							&err1)    //error
-						) == NULL)  
+					g_mutex_lock(global->mutex);
+						if (!(global->VidButtPress))
 						{
-							g_printerr("Thread create failed: %s!!\n", err1->message );
-							g_error_free ( err1 ) ;
-							printf("using blocking method\n");
-							split_avi(all_data); /*blocking call*/
-						}
+							global->VidButtPress = TRUE;
+						
+							GError *err1 = NULL;
 					
-						g_printf("AVI file size limit reached - restarted capture on new file\n");
-					}
+							/*avi file limit reached - must end capture close file and start new one*/
+							if( (press_butt_thread =g_thread_create((GThreadFunc) split_avi, 
+								all_data, //data
+								FALSE,    //joinable - no need waiting for thread to finish
+								&err1)    //error
+							) == NULL)  
+							{
+								g_printerr("Thread create failed: %s!!\n", err1->message );
+								g_error_free ( err1 ) ;
+								printf("using blocking method\n");
+								split_avi(all_data); /*blocking call*/
+							}
+					
+							//split_avi(all_data);/*blocking call*/
+							g_printf("AVI file size limit reached - restarted capture on new file\n");
+						}
+					g_mutex_unlock(global->mutex);
 				} 
 				else 
 				{
@@ -869,6 +890,8 @@ void *IO_loop(void *data)
 	struct audio_effects *aud_eff = NULL;
 	
 	gboolean finished=FALSE;
+	videoIn->IOfinished=FALSE;
+	
     	gboolean capVid=FALSE;
     
 	gboolean failed = FALSE;
@@ -1011,8 +1034,10 @@ void *IO_loop(void *data)
 	
 	/*make sure video thread returns to full throtle*/
 	global->vid_sleep = 0;
-
 	if(global->debug) g_printf("IO thread finished...OK\n");
+
+	global->VidButtPress = FALSE;
+	videoIn->IOfinished=TRUE;
 	
 	return ((void *) 0);
 }
