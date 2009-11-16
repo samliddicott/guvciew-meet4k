@@ -22,6 +22,6 @@
 #ifndef CREATE_IMAGE_H
 #define CREATE_IMAGE_H
 
-int store_video_frame(void *data);
+int store_picture(void *data);
 
 #endif

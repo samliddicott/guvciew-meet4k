@@ -32,7 +32,7 @@
 #include "ms_time.h"
 #include "string_utils.h"
 
-int store_video_frame(void *data)
+int store_picture(void *data)
 {
 	struct ALL_DATA *all_data = (struct ALL_DATA *) data;
 

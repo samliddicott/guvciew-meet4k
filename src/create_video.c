@@ -993,9 +993,10 @@ void *IO_loop(void *data)
 		lavc_data = NULL;
 	}
 	if(jpg_data != NULL) g_free(jpg_data);
-	jpeg_data = NULL;
+	jpg_data = NULL;
 	
 	if(global->jpeg != NULL) g_free(global->jpeg); //jpeg buffer used in encoding
+	global->jpeg = NULL;
 	
 	/*make sure video thread returns to full throtle*/
 	global->vid_sleep = 0;
