@@ -137,9 +137,7 @@ int initGlobals (struct GLOBAL *global)
 	global->exit_on_close = FALSE;
 	global->skip_n=0;
 	global->jpeg=NULL;
-	global->jpeg_size = 0;
 	/* reset with videoIn parameters */
-	global->jpeg_bufsize = 0;
 	global->autofocus = FALSE;
 	global->AFcontrol = FALSE;
 	global->VidButtPress = FALSE;
@@ -174,7 +172,7 @@ int closeGlobals(struct GLOBAL *global)
 	global->confPath=NULL;
 	global->vidfile=NULL;
 	global->mode=NULL;
-	g_free(global->jpeg);
+	if(global->jpeg) g_free(global->jpeg);
 	global->jpeg=NULL;
 	g_free(global);
 	global=NULL;

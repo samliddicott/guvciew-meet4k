@@ -40,6 +40,7 @@
 #include "string_utils.h"
 #include "callbacks.h"
 #include "create_video.h"
+#include "create_image.h"
 
 static SDL_Overlay * video_init(void *data, SDL_Surface **pscreen)
 {
@@ -148,11 +149,8 @@ void *main_loop(void *data)
 	SDL_Surface *pscreen = NULL;
 	SDL_Overlay *overlay = NULL;
 	SDL_Rect drect;
-
-	struct JPEG_ENCODER_STRUCTURE *jpeg_struct=NULL;
 	
 	BYTE *p = NULL;
-	BYTE *pim= NULL;
 	
 	int last_focus = 0;
 	if (global->AFcontrol) 
@@ -300,82 +298,7 @@ void *main_loop(void *data)
 		/*-------------------------capture Image----------------------------------*/
 		if (videoIn->capImage)
 		{
-			switch(global->imgFormat) 
-			{
-				case 0:/*jpg*/
-					/* Save directly from MJPG frame */
-					if((global->Frame_Flags==0) && (videoIn->formatIn==V4L2_PIX_FMT_MJPEG)) 
-					{
-						if(SaveJPG(videoIn->ImageFName,videoIn->buf.bytesused,videoIn->tmpbuffer)) 
-						{
-							g_printerr ("Error: Couldn't capture Image to %s \n",
-								videoIn->ImageFName);
-						}
-					} 
-					else if ((global->Frame_Flags==0) && (videoIn->formatIn==V4L2_PIX_FMT_JPEG))
-					{
-						if (SaveBuff(videoIn->ImageFName,videoIn->buf.bytesused,videoIn->tmpbuffer))
-						{
-							g_printerr ("Error: Couldn't capture Image to %s \n",
-								videoIn->ImageFName);
-						}
-					}
-					else 
-					{ /* use built in encoder */
-						if (!global->jpeg)
-						{ 
-							global->jpeg = g_new0(BYTE, global->jpeg_bufsize);
-						}
-						if(!jpeg_struct) 
-						{
-							jpeg_struct = g_new0(struct JPEG_ENCODER_STRUCTURE, 1);
-							
-							/* Initialization of JPEG control structure */
-							initialization (jpeg_struct,videoIn->width,videoIn->height);
-	
-							/* Initialization of Quantization Tables  */
-							initialize_quantization_tables (jpeg_struct);
-						} 
-
-						global->jpeg_size = encode_image(videoIn->framebuffer, global->jpeg, 
-							jpeg_struct,1, videoIn->width, videoIn->height);
-							
-						if(SaveBuff(videoIn->ImageFName,global->jpeg_size,global->jpeg)) 
-						{ 
-							g_printerr ("Error: Couldn't capture Image to %s \n",
-							videoIn->ImageFName);
-						}
-					}
-					break;
-
-				case 1:/*bmp*/
-					if(pim==NULL) 
-					{  
-						/*24 bits -> 3bytes     32 bits ->4 bytes*/
-						pim = g_new0(BYTE, (pscreen->w)*(pscreen->h)*3);
-					}
-			
-					yuyv2bgr(videoIn->framebuffer,pim,videoIn->width,videoIn->height);
-					
-			
-					if(SaveBPM(videoIn->ImageFName, videoIn->width, videoIn->height, 24, pim)) 
-					{
-						g_printerr ("Error: Couldn't capture Image to %s \n",
-						videoIn->ImageFName);
-					} 
-					break;
-					
-				case 2:/*png*/
-					if(pim==NULL) 
-					{  
-						/*24 bits -> 3bytes     32 bits ->4 bytes*/
-						pim = g_new0(BYTE, (pscreen->w)*(pscreen->h)*3);
-					}
-			
-					yuyv2rgb(videoIn->framebuffer,pim,videoIn->width,videoIn->height);
-					
-					write_png(videoIn->ImageFName, videoIn->width, videoIn->height,pim);
-			}
+			store_picture(all_data);
 			videoIn->capImage=FALSE;
 			if (global->debug) g_printf("saved image to:%s\n",videoIn->ImageFName);
 		}
@@ -462,10 +385,6 @@ void *main_loop(void *data)
 			
 			if(particles) g_free(particles);
 			particles = NULL;
-			g_free(jpeg_struct);
-			jpeg_struct=NULL;
-			g_free(pim);
-			pim=NULL;
 			
 			if (global->debug) g_printf("cleaning buffer allocations\n");
 			fflush(NULL);//flush all output buffers 
@@ -512,10 +431,6 @@ void *main_loop(void *data)
 	p = NULL;
 	if(particles) g_free(particles);
 	particles=NULL;
-	g_free(jpeg_struct);
-	jpeg_struct=NULL;
-	g_free(pim);
-	pim=NULL;
 
 	if (global->debug) g_printf("cleaning Thread allocations: 100%%\n");
 	fflush(NULL);//flush all output buffers 

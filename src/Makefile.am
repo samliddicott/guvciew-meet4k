@@ -32,6 +32,8 @@ guvcview_SOURCES = \
 	colorspaces.c \
 	create_video.h \
 	create_video.c \
+	create_image.h \
+	create_image.c \
 	dct.h \
 	dct.c \
 	defs.h \

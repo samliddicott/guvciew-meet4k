@@ -338,8 +338,6 @@ int main(int argc, char *argv[])
 			N_("Make sure your device driver is v4l2 compliant\nand that it is properly installed."),
 			&all_data);
 	}
-	/* Set jpeg encoder buffer size */
-	global->jpeg_bufsize=((videoIn->width)*(videoIn->height))>>1;
 	/*-----------------------------GTK widgets---------------------------------*/
 	/*----------------------- Image controls Tab ------------------------------*/
 	s->table = gtk_table_new (1, 3, FALSE);

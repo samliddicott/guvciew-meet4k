@@ -441,8 +441,9 @@ int compress_frame(void *data,
 	struct GLOBAL *global = all_data->global;
 	struct vdIn *videoIn = all_data->videoIn;
 	
-	long framesize=0;
-	int ret=0;
+	long framesize = 0;
+	int jpeg_size = 0;
+	int ret = 0;
 	
 	switch (global->VidCodec) 
 	{
@@ -457,9 +458,9 @@ int compress_frame(void *data,
 				/* use built in encoder */ 
 				if (!global->jpeg)
 				{ 
-					global->jpeg = g_new0(BYTE, global->jpeg_bufsize);
+					global->jpeg = g_new0(BYTE, ((videoIn->width)*(videoIn->height))>>1);
 				}
-				if(!*jpeg_struct)
+				if(!(*jpeg_struct))
 				{
 					*jpeg_struct = g_new0(struct JPEG_ENCODER_STRUCTURE, 1);
 					/* Initialization of JPEG control structure */
@@ -469,10 +470,10 @@ int compress_frame(void *data,
 					initialize_quantization_tables (*jpeg_struct);
 				} 
 				
-				global->jpeg_size = encode_image(proc_buff->frame, global->jpeg, 
+				jpeg_size = encode_image(proc_buff->frame, global->jpeg, 
 					*jpeg_struct,1, videoIn->width, videoIn->height);
 			
-				ret = write_video_data (all_data, global->jpeg, global->jpeg_size, proc_buff->time_stamp);
+				ret = write_video_data (all_data, global->jpeg, jpeg_size, proc_buff->time_stamp);
 			}
 			break;
 
