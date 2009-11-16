@@ -1,3 +1,13 @@
+guvcview (1.2.1)
+
+   * Performance boost:
+    - Use ring buffers for video and audio processing.
+    - Moved video and audio processing (including file IO) to separate thread.
+   * Add particles video effect.
+   * Fixed bug caused by empty device list.    
+
+ -- Paulo Assis <pj.assis@gmail.com>  Mon, 16 Nov 2009 10:25:00 +0000
+
 guvcview (1.2.0)
 
    * Resolution and input format change no longer need a restart

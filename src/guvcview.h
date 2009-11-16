@@ -86,7 +86,6 @@ struct ALL_DATA
 	struct VidState *s;
 	GThread *video_thread;
 	GThread *IO_thread;
-	GThread *press_butt_thread;
 };
 
 #endif
