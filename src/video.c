@@ -409,10 +409,6 @@ void *main_loop(void *data)
 			videoIn->width * (videoIn->height) * 2);
 		SDL_UnlockYUVOverlay(overlay);
 		SDL_DisplayYUVOverlay(overlay, &drect);
-	
-		/*sleep for a while*/
-		if(global->vid_sleep) sleep_ms(global->vid_sleep);
-			//SDL_Delay(global->vid_sleep);
 		
 		/*------------------------- Read Key events ------------------------------*/
 		if (videoIn->PanTilt) 
@@ -452,6 +448,10 @@ void *main_loop(void *data)
 
 			}
 		}
+		
+		/*-------------sleep for a while----------------*/
+		if(global->vid_sleep) sleep_ms(global->vid_sleep);
+		
 		/*------------------------------------------*/
 		/*  restart video (new resolution/format)   */
 		/*------------------------------------------*/
