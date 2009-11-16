@@ -298,9 +298,11 @@ void *main_loop(void *data)
 		/*-------------------------capture Image----------------------------------*/
 		if (videoIn->capImage)
 		{
-			store_picture(all_data);
+			if(store_picture(all_data) < 0)
+				g_printerr("saved image to:%s ...Failed \n",videoIn->ImageFName);
+			else if (global->debug) g_printf("saved image to:%s ...OK \n",videoIn->ImageFName);
+			
 			videoIn->capImage=FALSE;
-			if (global->debug) g_printf("saved image to:%s\n",videoIn->ImageFName);
 		}
 		/*---------------------------capture Video---------------------------------*/
 		if (capVid && !(global->skip_n))
