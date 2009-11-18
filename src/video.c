@@ -374,7 +374,7 @@ void *main_loop(void *data)
 			}
 		}
 		
-		/*-------------sleep for a while----------------*/
+		/* if set make the thread sleep - default no sleep (full throttle)*/
 		if(global->vid_sleep) sleep_ms(global->vid_sleep);
 		
 		/*------------------------------------------*/

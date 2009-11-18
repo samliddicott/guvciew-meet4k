@@ -262,7 +262,7 @@ error:
 	g_printerr("An error occured while starting portaudio\n" );
 	g_printerr("Error number: %d\n", err );
 	g_printerr("Error message: %s\n", Pa_GetErrorText( err ) ); 
-	data->streaming=0;
+	data->streaming=FALSE;
 	data->flush=0;
 	if(data->api < 1)
 	{
@@ -288,14 +288,7 @@ close_sound (struct paRecordData *data)
 	int i=0;
     
 	data->capVid = 0;
-	/*make sure we have stoped streaming - IO thread also checks for this*/
-	int stall = wait_ms( &data->streaming, FALSE, 10, 50 );
-	if(!(stall)) 
-	{
-		g_printerr("WARNING:sound capture stall (still streaming(%d)) \n",
-			data->streaming);
-			data->streaming = FALSE;
-	}
+	
 	/*stops and closes the audio stream*/
 	if(data->stream)
 	{
@@ -369,6 +362,7 @@ error:
 		if(data->pcm_sndBuff) g_free(data->pcm_sndBuff);
 		data->pcm_sndBuff = NULL;
 	g_mutex_unlock( data->mutex );
+
 	return(-1);
 }
 

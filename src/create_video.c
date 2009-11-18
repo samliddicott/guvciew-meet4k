@@ -274,13 +274,6 @@ aviClose (struct ALL_DATA *all_data)
 		if (global->Sound_enable > 0) 
 		{
 			/*wait for audio to finish*/
-			int stall = wait_ms( &pdata->streaming, FALSE, 10, 30 );
-			if(!(stall)) 
-			{
-				g_printerr("WARNING:sound capture stall (still streaming(%d) \n",
-					pdata->streaming);
-				pdata->streaming = 0;
-			}
 			if (close_sound (pdata)) g_printerr("Sound Close error\n");
 			if(global->Sound_Format == ISO_FORMAT_MPEG12) close_MP2_encoder();
 		} 
@@ -608,22 +601,22 @@ int sync_audio_frame(struct ALL_DATA *all_data, AudBuff *proc_buff)
 static int buff_scheduler(int w_ind, int r_ind)
 {
 	int diff_ind = 0;
-	int vid_sleep = 0;
+	int sched_sleep = 0;
 	//try to balance buffer overrun in read/write operations 
 	if(w_ind >= r_ind)
 		diff_ind = w_ind - r_ind;
 	else
 		diff_ind = (VIDBUFF_SIZE - r_ind) + w_ind;
 
-	if(diff_ind <= 15) vid_sleep = 0; /* full throtle (must wait for audio at least 10 frames) */
-	else if (diff_ind <= 20) vid_sleep = (diff_ind-15) * 2; /* <= 10  ms ~1 frame @ 90  fps */
-	else if (diff_ind <= 25) vid_sleep = (diff_ind-15) * 3; /* <= 30  ms ~1 frame @ 30  fps */
-	else if (diff_ind <= 30) vid_sleep = (diff_ind-15) * 4; /* <= 60  ms ~1 frame @ 15  fps */
-	else if (diff_ind <= 35) vid_sleep = (diff_ind-15) * 5; /* <= 100 ms ~1 frame @ 10  fps */
-	else if (diff_ind <= 40) vid_sleep = (diff_ind-15) * 6; /* <= 130 ms ~1 frame @ 7,5 fps */
-	else vid_sleep = (diff_ind-15) * 7;                     /* <= 210 ms ~1 frame @ 5   fps */
+	if(diff_ind <= 15) sched_sleep = 0; /* full throttle (must wait for audio at least 10 frames) */
+	else if (diff_ind <= 20) sched_sleep = (diff_ind-15) * 2; /* <= 10  ms ~1 frame @ 90  fps */
+	else if (diff_ind <= 25) sched_sleep = (diff_ind-15) * 3; /* <= 30  ms ~1 frame @ 30  fps */
+	else if (diff_ind <= 30) sched_sleep = (diff_ind-15) * 4; /* <= 60  ms ~1 frame @ 15  fps */
+	else if (diff_ind <= 35) sched_sleep = (diff_ind-15) * 5; /* <= 100 ms ~1 frame @ 10  fps */
+	else if (diff_ind <= 40) sched_sleep = (diff_ind-15) * 6; /* <= 130 ms ~1 frame @ 7,5 fps */
+	else sched_sleep = (diff_ind-15) * 7;                     /* <= 210 ms ~1 frame @ 5   fps */
 	
-	return vid_sleep;
+	return sched_sleep;
 }
 
 int store_video_frame(void *data)
@@ -633,9 +626,9 @@ int store_video_frame(void *data)
 	struct GLOBAL *global = all_data->global;
 	struct vdIn *videoIn = all_data->videoIn;
 	int ret = 0;
+	int producer_sleep = 0;
 	
 	g_mutex_lock(global->mutex);
-	
 	
 	if (!global->videoBuff[global->w_ind].used)
 	{
@@ -661,7 +654,7 @@ int store_video_frame(void *data)
 		}
 		global->videoBuff[global->w_ind].used = TRUE;
 		
-		global->vid_sleep = buff_scheduler(global->w_ind, global->r_ind);
+		producer_sleep = buff_scheduler(global->w_ind, global->r_ind);
 		
 		NEXT_IND(global->w_ind, VIDBUFF_SIZE);
 	}
@@ -710,6 +703,9 @@ int store_video_frame(void *data)
 	}
 	if(!ret) global->framecount++;
 	g_mutex_unlock(global->mutex);
+	
+	/*-------------if needed, make the thread sleep for a while----------------*/
+	if(producer_sleep) sleep_ms(producer_sleep);
 	
 	return ret;
 }
@@ -948,7 +944,7 @@ void *IO_loop(void *data)
 						finished = process_video (all_data, proc_buff, &(lavc_data), &(jpg_data));
 						break;
 					default:
-						sleep_ms(10);
+						sleep_ms(10); /*make the thread sleep for 10ms*/
 						break;
 				}
 			}
@@ -960,14 +956,13 @@ void *IO_loop(void *data)
 		
 			if(finished)
 			{
-				/*wait for audio to finish*/
-				int stall = wait_ms( &pdata->streaming, FALSE, 10, 30 );
-				if(!(stall)) 
+				//wait for audio to finish
+				int stall = wait_ms(&(pdata->streaming), FALSE, 10, 25);
+				if( !(stall > 0) )
 				{
-					g_printerr("WARNING:sound capture stall (still streaming(%d) \n",
-						pdata->streaming);
-					pdata->streaming = 0;
+					g_printerr("audio streaming stalled - timeout\n");
 				}
+				//process any remaining audio
 				process_audio(all_data, aud_proc_buff, &(aud_eff)); //process last audio if any
 			}
 		}
@@ -998,8 +993,6 @@ void *IO_loop(void *data)
 	if(global->jpeg != NULL) g_free(global->jpeg); //jpeg buffer used in encoding
 	global->jpeg = NULL;
 	
-	/*make sure video thread returns to full throtle*/
-	global->vid_sleep = 0;
 	if(global->debug) g_printf("IO thread finished...OK\n");
 
 	global->VidButtPress = FALSE;

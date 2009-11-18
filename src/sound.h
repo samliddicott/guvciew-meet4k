@@ -74,31 +74,28 @@ struct paRecordData
 	PaStream *stream;
 	unsigned long framesPerBuffer; //frames per buffer passed in audio callback
 
-	//int sampleIndex;
-	int w_ind; // producer index
-	int r_ind; // consumer index
-	int channels; // channels
-	//int numSamples; //captured samples in callback
-	gboolean streaming; // audio streaming flag
-	int flush; // flush mp2 buffer flag
-	int samprate; // samp rate
-	int numsec; // aprox. number of seconds for out buffer size
-	int aud_numBytes; //bytes copied to out buffer*/
-	int aud_numSamples; //samples copied to out buffer*/
-	int64_t snd_begintime; //audio recording start time*/
-	int capVid; // video capture flag
-	SAMPLE *recordedSamples; // callback buffer
+	int w_ind;                    // producer index
+	int r_ind;                    // consumer index
+	int channels;                 // channels
+	gboolean streaming;           // audio streaming flag
+	int flush;                    // flush mp2 buffer flag
+	int samprate;                 // samp rate
+	int numsec;                   // aprox. number of seconds for out buffer size
+	int aud_numBytes;             //bytes copied to out buffer*/
+	int aud_numSamples;           //samples copied to out buffer*/
+	int64_t snd_begintime;        //audio recording start time*/
+	int capVid;                   // video capture flag
+	SAMPLE *recordedSamples;      // callback buffer
     	int sampleIndex;
-	AudBuff *audio_buff; // ring buffer for audio data
-	int64_t a_ts; //audio frame time stamp
-	int64_t ts_ref; //timestamp video reference
-	gint16 *pcm_sndBuff; //buffer for pcm coding with int16
-	BYTE *mp2Buff; //mp2 encode buffer
-	int mp2BuffSize; // mp2 buffer size
-	int snd_Flags; // effects flag
-	int skip_n; //video frames to skip
-	GMutex *mutex; // audio mutex
-	//pthread_cond_t cond;
+	AudBuff *audio_buff;          // ring buffer for audio data
+	int64_t a_ts;                 //audio frame time stamp
+	int64_t ts_ref;               //timestamp video reference
+	gint16 *pcm_sndBuff;          //buffer for pcm coding with int16
+	BYTE *mp2Buff;                //mp2 encode buffer
+	int mp2BuffSize;              // mp2 buffer size
+	int snd_Flags;                // effects flag
+	int skip_n;                   //video frames to skip
+	GMutex *mutex;                // audio mutex
 	
 	//PULSE SUPPORT
 #ifdef PULSEAUDIO
