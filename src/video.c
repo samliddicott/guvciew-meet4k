@@ -427,10 +427,13 @@ void *main_loop(void *data)
 		g_mutex_lock(videoIn->mutex);
 			videoIn->capVid = capVid;
 		g_mutex_unlock(videoIn->mutex);
-
-		g_mutex_lock( pdata->mutex );
+		g_mutex_lock(pdata->mutex);
 			pdata->capVid = capVid;
-		g_mutex_unlock( pdata->mutex );
+		g_mutex_unlock(pdata->mutex);
+		/*join IO thread*/
+		if (global->debug) g_printf("Shuting Down IO Thread\n");
+		g_thread_join( all_data->IO_thread );
+		if (global->debug) g_printf("IO Thread finished\n");
 	}
 	
 	if (global->debug) g_printf("Thread terminated...\n");
