@@ -75,18 +75,18 @@ set_sensitive_vid_contrls (const int flag, const int sndEnable, struct GWIDGET *
 	gwidget->vid_widget_state = flag;
 }
 
+/*video capture can only start after buffer allocation*/
 static void alloc_videoBuff(struct ALL_DATA *all_data)
 {
 	struct GLOBAL *global = all_data->global;
 	struct vdIn *videoIn = all_data->videoIn;
 	
-	/*video capture can only start after buffer allocation*/
+	int framesize= videoIn->height*videoIn->width*2; /*yuyv (maximum size)*/
 	
 	/*alloc video ring buffer*/
 	g_mutex_lock(global->mutex);
 		if (global->videoBuff == NULL)
 		{
-			int framesize= videoIn->height*videoIn->width*2; /*yuyv (maximum size)*/
 			/*alloc video frames to videoBuff*/
 			global->videoBuff = g_new0(VidBuff,VIDBUFF_SIZE);
 			for(i=0;i<VIDBUFF_SIZE;i++)
@@ -104,7 +104,6 @@ static void alloc_videoBuff(struct ALL_DATA *all_data)
 			}
 			g_free(global->videoBuff);
 			
-			int framesize= videoIn->height*videoIn->width*2; /*yuyv (maximum size)*/
 			/*alloc video frames to videoBuff*/
 			global->videoBuff = g_new0(VidBuff,VIDBUFF_SIZE);
 			for(i=0;i<VIDBUFF_SIZE;i++)
@@ -648,6 +647,36 @@ static int buff_scheduler(int w_ind, int r_ind)
 	return sched_sleep;
 }
 
+static void store_at_index(void *data)
+{
+	struct ALL_DATA *all_data = (struct ALL_DATA *) data;
+
+	struct GLOBAL *global = all_data->global;
+	struct vdIn *videoIn = all_data->videoIn;
+	
+	global->videoBuff[global->w_ind].time_stamp = global->v_ts;
+	/*store frame at index*/
+	if((global->VidCodec == CODEC_MJPEG) &&
+		(global->Frame_Flags==0) &&
+		(videoIn->formatIn==V4L2_PIX_FMT_MJPEG))
+	{
+		/*store MJPEG frame*/
+		global->videoBuff[global->w_ind].bytes_used = videoIn->buf.bytesused;
+		memcpy(global->videoBuff[global->w_ind].frame, 
+			videoIn->tmpbuffer, 
+			global->videoBuff[global->w_ind].bytes_used);
+	}
+	else
+	{
+		/*store YUYV frame*/
+		global->videoBuff[global->w_ind].bytes_used = videoIn->height*videoIn->width*2;
+		memcpy(global->videoBuff[global->w_ind].frame, 
+			videoIn->framebuffer, 
+			global->videoBuff[global->w_ind].bytes_used);
+	}
+	global->videoBuff[global->w_ind].used = TRUE;
+}
+
 int store_video_frame(void *data)
 {
 	struct ALL_DATA *all_data = (struct ALL_DATA *) data;
@@ -659,32 +688,17 @@ int store_video_frame(void *data)
 	
 	g_mutex_lock(global->mutex);
 	
+	if(!global->videoBuff)
+	{
+		g_printerr("WARNING: video ring buffer not allocated yet - dropping frame.");
+		g_mutex_unlock(global->mutex);
+		return(-1);
+	}
+	
 	if (!global->videoBuff[global->w_ind].used)
 	{
-		global->videoBuff[global->w_ind].time_stamp = global->v_ts;
-		/*store frame at index*/
-		if((global->VidCodec == CODEC_MJPEG) &&
-			(global->Frame_Flags==0) &&
-			(videoIn->formatIn==V4L2_PIX_FMT_MJPEG))
-		{
-			/*store MJPEG frame*/
-			global->videoBuff[global->w_ind].bytes_used = videoIn->buf.bytesused;
-			memcpy(global->videoBuff[global->w_ind].frame, 
-				videoIn->tmpbuffer, 
-				global->videoBuff[global->w_ind].bytes_used);
-		}
-		else
-		{
-			/*store YUYV frame*/
-			global->videoBuff[global->w_ind].bytes_used = videoIn->height*videoIn->width*2;
-			memcpy(global->videoBuff[global->w_ind].frame, 
-				videoIn->framebuffer, 
-				global->videoBuff[global->w_ind].bytes_used);
-		}
-		global->videoBuff[global->w_ind].used = TRUE;
-		
+		store_at_index(data);
 		producer_sleep = buff_scheduler(global->w_ind, global->r_ind);
-		
 		NEXT_IND(global->w_ind, VIDBUFF_SIZE);
 	}
 	else
@@ -700,37 +714,18 @@ int store_video_frame(void *data)
 			/*try to store the frame again*/
 			if (!global->videoBuff[global->w_ind].used)
 			{
-				global->videoBuff[global->w_ind].time_stamp = global->v_ts;
-				/*store frame at index*/
-				if((global->VidCodec == CODEC_MJPEG) &&
-					(global->Frame_Flags==0) &&
-					(videoIn->formatIn==V4L2_PIX_FMT_MJPEG))
-				{
-					/*store MJPEG frame*/
-					global->videoBuff[global->w_ind].bytes_used = videoIn->buf.bytesused;
-					memcpy(global->videoBuff[global->w_ind].frame, 
-						videoIn->tmpbuffer, 
-						global->videoBuff[global->w_ind].bytes_used);
-				}
-				else
-				{
-					/*store YUYV frame*/
-					global->videoBuff[global->w_ind].bytes_used = videoIn->height*videoIn->width*2;
-					memcpy(global->videoBuff[global->w_ind].frame, 
-						videoIn->framebuffer, 
-						global->videoBuff[global->w_ind].bytes_used);
-				}
-				global->videoBuff[global->w_ind].used = TRUE;
+				store_at_index(data);
 				NEXT_IND(global->w_ind, VIDBUFF_SIZE);
 			}
-			else ret = -1;/*drop frame*/
+			else ret = -2;/*drop frame*/
 			
 		}
-		else ret = -2;/*drop frame*/
+		else ret = -3;/*drop frame*/
 		
 		g_free(timev);
 	}
 	if(!ret) global->framecount++;
+	
 	g_mutex_unlock(global->mutex);
 	
 	/*-------------if needed, make the thread sleep for a while----------------*/
