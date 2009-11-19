@@ -80,8 +80,8 @@ static void alloc_videoBuff(struct ALL_DATA *all_data)
 {
 	struct GLOBAL *global = all_data->global;
 	struct vdIn *videoIn = all_data->videoIn;
-	
-	int framesize= videoIn->height*videoIn->width*2; /*yuyv (maximum size)*/
+	int i = 0;
+	int framesize = videoIn->height*videoIn->width*2; /*yuyv (maximum size)*/
 	
 	/*alloc video ring buffer*/
 	g_mutex_lock(global->mutex);
@@ -129,7 +129,7 @@ int initVideoFile(struct ALL_DATA *all_data)
 	videoF->vcodec = get_vcodec_id(global->VidCodec);
 	videoF->acodec = CODEC_ID_NONE;
 	int ret = 0;
-	int i=0;
+	
 	g_mutex_lock(videoIn->mutex);
 		gboolean capVid = videoIn->capVid;
 	g_mutex_unlock(videoIn->mutex);
@@ -680,9 +680,8 @@ static void store_at_index(void *data)
 int store_video_frame(void *data)
 {
 	struct ALL_DATA *all_data = (struct ALL_DATA *) data;
-
 	struct GLOBAL *global = all_data->global;
-	struct vdIn *videoIn = all_data->videoIn;
+	
 	int ret = 0;
 	int producer_sleep = 0;
 	
