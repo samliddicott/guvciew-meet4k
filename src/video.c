@@ -307,14 +307,18 @@ void *main_loop(void *data)
 		/*---------------------------capture Video---------------------------------*/
 		if (capVid && !(global->skip_n))
 		{
-			videoIn->VidCapStop = FALSE;
+			g_mutex_lock(videoIn->mutex);
+				if(videoIn->VidCapStop) videoIn->VidCapStop = FALSE;
+			g_mutex_unlock(videoIn->mutex);
 			int res=0;
 			if((res=store_video_frame(all_data))<0) g_printerr("WARNING: droped frame (%i)\n",res);
 			
 		} /*video and audio capture have stopped */
 		else
 		{
-			videoIn->VidCapStop=TRUE;
+			g_mutex_lock(videoIn->mutex);
+				if(!(videoIn->VidCapStop)) videoIn->VidCapStop=TRUE;
+			g_mutex_unlock(videoIn->mutex);
 		}
 
 		//decrease skip frame count

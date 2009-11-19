@@ -135,39 +135,6 @@ int clean_FormatContext (void* data)
 	/*------------------- close audio stream and clean up -------------------*/
 	if (global->Sound_enable > 0) 
 	{
-		/*wait for audio to finish*/
-		//int stall = wait_ms( &pdata->streaming, FALSE, 10, 30 );
-		//if(!(stall)) 
-		//{
-		//	g_printerr("video_format.c(144):sound capture stall (still streaming(%d) \n",
-		//		pdata->streaming);
-		//	pdata->streaming = 0;
-		//}
-		/*write any available audio data*/
-		//g_mutex_lock( pdata->mutex);
-		//	if(pdata->audio_flag)
-		//	{
-		//		g_printerr("writing %d bytes of audio data\n",pdata->snd_numBytes);
-		//		if(global->Sound_Format == PA_FOURCC)
-		//		{
-		//			if(pdata->vid_sndBuff) 
-		//			{
-		//				Float2Int16(pdata);
-		//				write_audio_packet ((BYTE *) pdata->vid_sndBuff1, pdata->snd_numSamples*2, pdata->samprate, videoF);
-		//			}
-		//		}
-		//		else if (global->Sound_Format == ISO_FORMAT_MPEG12)
-		//		{
-		//			int size_mp2=0;
-		//			if(pdata->vid_sndBuff && pdata->mp2Buff) 
-		//			{
-		//				size_mp2 = MP2_encode(pdata,0);
-		//				write_audio_packet (pdata->mp2Buff, size_mp2, pdata->samprate, videoF);
-		//			}
-		//		}
-		//	}
-		//	pdata->audio_flag = 0; /*all audio should have been writen by now*/
-		//g_mutex_unlock( pdata->mutex );
 		if(global->debug) g_printf("closing sound...\n");
 		if (close_sound (pdata)) g_printerr("Sound Close error\n");
 		if(global->Sound_Format == ISO_FORMAT_MPEG12) close_MP2_encoder();

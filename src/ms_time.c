@@ -22,7 +22,6 @@
 
 #include <time.h>
 #include <sys/time.h>
-#include <glib.h>
 #include "ms_time.h"
 
 
@@ -65,14 +64,18 @@ void sleep_ms(int ms_time)
 
 /*wait on cond by sleeping for n_loops of sleep_ms ms (test var==val every loop)*/
 /*return remaining number of loops (if 0 then a stall ocurred)              */
-int wait_ms(gboolean* var, gboolean val, int ms_time, int n_loops)
+int wait_ms(gboolean* var, gboolean val, GMutex *mutex, int ms_time, int n_loops)
 {
 	int n=n_loops;
-	while( (*var!=val) && ( n > 0 ) ) /*wait at max (n_loops*sleep_ms) ms */
-	{
-		n--;
-		sleep_ms( ms_time );/*sleep for sleep_ms ms*/
-	};
+	g_mutex_lock(mutex);
+		while( (*var!=val) && ( n > 0 ) ) /*wait at max (n_loops*sleep_ms) ms */
+		{
+			g_mutex_unlock(mutex);
+			n--;
+			sleep_ms( ms_time );/*sleep for sleep_ms ms*/
+			g_mutex_lock(mutex);
+		};
+	g_mutex_unlock(mutex);
 	return (n);
 }
 

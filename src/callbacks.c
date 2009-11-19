@@ -1160,7 +1160,8 @@ split_avi(void *data)
 	gdk_flush ();
 	gdk_threads_leave();
 
-	int stall = wait_ms(&(videoIn->IOfinished), TRUE, 10, 200);
+	/*FIXME: should join the caller thread instead (will it work?)*/
+	int stall = wait_ms(&(videoIn->IOfinished), TRUE, videoIn->mutex, 10, 200);
 	if( !(stall > 0) )
 	{
 		g_printerr("IO thread stalled (%d) - timeout\n",

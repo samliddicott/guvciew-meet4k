@@ -75,6 +75,49 @@ set_sensitive_vid_contrls (const int flag, const int sndEnable, struct GWIDGET *
 	gwidget->vid_widget_state = flag;
 }
 
+static void alloc_videoBuff(struct ALL_DATA *all_data)
+{
+	struct GLOBAL *global = all_data->global;
+	struct vdIn *videoIn = all_data->videoIn;
+	
+	/*video capture can only start after buffer allocation*/
+	
+	/*alloc video ring buffer*/
+	g_mutex_lock(global->mutex);
+		if (global->videoBuff == NULL)
+		{
+			int framesize= videoIn->height*videoIn->width*2; /*yuyv (maximum size)*/
+			/*alloc video frames to videoBuff*/
+			global->videoBuff = g_new0(VidBuff,VIDBUFF_SIZE);
+			for(i=0;i<VIDBUFF_SIZE;i++)
+			{
+				global->videoBuff[i].frame = g_new0(BYTE,framesize);
+			}
+		}
+		else
+		{
+			/*free video frames to videoBuff*/
+			for(i=0;i<VIDBUFF_SIZE;i++)
+			{
+				if(global->videoBuff[i].frame) g_free(global->videoBuff[i].frame);
+				global->videoBuff[i].frame = NULL;
+			}
+			g_free(global->videoBuff);
+			
+			int framesize= videoIn->height*videoIn->width*2; /*yuyv (maximum size)*/
+			/*alloc video frames to videoBuff*/
+			global->videoBuff = g_new0(VidBuff,VIDBUFF_SIZE);
+			for(i=0;i<VIDBUFF_SIZE;i++)
+			{
+				global->videoBuff[i].frame = g_new0(BYTE,framesize);
+			}
+		}
+		//reset indexes
+		global->r_ind=0;
+		global->w_ind=0;
+	g_mutex_unlock(global->mutex);
+}
+
 int initVideoFile(struct ALL_DATA *all_data)
 {
 	struct GWIDGET *gwidget = all_data->gwidget;
@@ -93,19 +136,7 @@ int initVideoFile(struct ALL_DATA *all_data)
 	g_mutex_unlock(videoIn->mutex);
 	
 	/*alloc video ring buffer*/
-	if (global->videoBuff == NULL)
-	{
-		int framesize= videoIn->height*videoIn->width*2; /*yuyv (maximum size)*/
-		/*alloc video frames to videoBuff*/
-		global->videoBuff = g_new0(VidBuff,VIDBUFF_SIZE);
-		for(i=0;i<VIDBUFF_SIZE;i++)
-		{
-			global->videoBuff[i].frame = g_new0(BYTE,framesize);
-		}
-	}
-	//reset indexes
-	global->r_ind=0;
-	global->w_ind=0;
+	alloc_videoBuff(all_data);
 	
 	switch (global->VidFormat)
 	{
@@ -121,7 +152,7 @@ int initVideoFile(struct ALL_DATA *all_data)
 			if(AVI_open_output_file(videoF->AviOut, videoIn->VidFName)<0) 
 			{
 				g_printerr("Error: Couldn't create Video.\n");
-				capVid = FALSE;
+				capVid = FALSE; /*don't start video capture*/
 				g_mutex_lock(videoIn->mutex);
 					videoIn->capVid = capVid;
 				g_mutex_unlock(videoIn->mutex);
@@ -180,7 +211,6 @@ int initVideoFile(struct ALL_DATA *all_data)
 			/*disabling sound and video compression controls*/
 			set_sensitive_vid_contrls(FALSE, global->Sound_enable, gwidget);
 			
-			/* start sound capture*/
 			if(global->Sound_enable > 0) 
 			{
 				/*set channels, sample rate and allocate buffers*/
@@ -273,7 +303,6 @@ aviClose (struct ALL_DATA *all_data)
 		/*------------------- close audio stream and clean up -------------------*/
 		if (global->Sound_enable > 0) 
 		{
-			/*wait for audio to finish*/
 			if (close_sound (pdata)) g_printerr("Sound Close error\n");
 			if(global->Sound_Format == ISO_FORMAT_MPEG12) close_MP2_encoder();
 		} 
@@ -310,7 +339,7 @@ void closeVideoFile(struct ALL_DATA *all_data)
 	/*wait for flag from video thread that recording has stopped    */
 	/*wait on videoIn->VidCapStop by sleeping for 200 loops of 10 ms*/
 	/*(test VidCapStop == TRUE on every loop)*/
-	int stall = wait_ms(&(videoIn->VidCapStop), TRUE, 10, 200);
+	int stall = wait_ms(&(videoIn->VidCapStop), TRUE, videoIn->mutex, 10, 200);
 	if( !(stall > 0) )
 	{
 		g_printerr("video capture stall on exit(%d) - timeout\n",
@@ -848,7 +877,9 @@ void *IO_loop(void *data)
 	struct audio_effects *aud_eff = NULL;
 	
 	gboolean finished=FALSE;
-	videoIn->IOfinished=FALSE;
+	g_mutex_lock(videoIn->mutex);
+		videoIn->IOfinished=FALSE;
+	g_mutex_unlock(videoIn->mutex);
 	
     	gboolean capVid=FALSE;
     
@@ -957,7 +988,7 @@ void *IO_loop(void *data)
 			if(finished)
 			{
 				//wait for audio to finish
-				int stall = wait_ms(&(pdata->streaming), FALSE, 10, 25);
+				int stall = wait_ms(&(pdata->streaming), FALSE, pdata->mutex, 10, 25);
 				if( !(stall > 0) )
 				{
 					g_printerr("audio streaming stalled - timeout\n");
@@ -996,7 +1027,9 @@ void *IO_loop(void *data)
 	if(global->debug) g_printf("IO thread finished...OK\n");
 
 	global->VidButtPress = FALSE;
-	videoIn->IOfinished=TRUE;
+	g_mutex_lock(videoIn->mutex);
+		videoIn->IOfinished=TRUE;
+	g_mutex_unlock(videoIn->mutex);
 	
 	return ((void *) 0);
 }
