@@ -1225,7 +1225,7 @@ int AVI_close(struct avi_t *AVI)
 		else
 			ret = 0;
 
-		/* Even if there happened a error, we first clean up */
+		/* Even if a error ocurred, we first clean up */
 		if(fsync(AVI->fdes) || close(AVI->fdes))
 			perror("AVI ERROR: couldn't write avi data\n");
 		if(AVI->idx) free(AVI->idx);

@@ -162,8 +162,8 @@ struct lavcData* init_lavc(int width, int height, int fps_num, int fps_den, int 
 	data->codec_context->strict_std_compliance = FF_COMPLIANCE_NORMAL;
 	data->codec_context->codec_id = defaults->codec_id;
 	data->codec_context->pix_fmt = PIX_FMT_YUV420P; //only yuv420p available for mpeg
-	data->codec_context->time_base = (AVRational){fps_num,fps_den}; //fixed fps
-	//data->codec_context->time_base = (AVRational){1,1000}; //1 msec for variable fps
+	//data->codec_context->time_base = (AVRational){fps_num,fps_den}; //fixed fps
+	data->codec_context->time_base = (AVRational){1,30}; //allways use 30 fps
 	
 	// open codec
 	if (avcodec_open(data->codec_context, data->codec) < 0) 

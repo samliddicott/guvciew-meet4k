@@ -219,7 +219,8 @@ int init_FormatContext(void *data)
                      get_mkvCodec(global->VidCodec),
                      AcodecID,
                      get_mkvCodecPriv(global->VidCodec), size,
-                     (UINT64) (global->fps_num * 1000000000/global->fps), //nano seconds -reset later
+                     //(UINT64) (global->fps_num * 1000000000/global->fps), //nano seconds -reset later
+                     (UINT64) (1000000000/30),//always use the fastest frame rate - 30 fps)
                      duration,
                      1000000,
                      videoIn->width, videoIn->height,
