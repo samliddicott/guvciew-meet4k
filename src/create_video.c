@@ -40,41 +40,6 @@
 #include "audio_effects.h"
 #include "globals.h"
 
-/*--------------------------- controls enable/disable --------------------------*/
-/* sound controls*/
-void 
-set_sensitive_snd_contrls (const int flag, struct GWIDGET *gwidget)
-{
-	gtk_widget_set_sensitive (gwidget->SndSampleRate, flag);
-	gtk_widget_set_sensitive (gwidget->SndDevice, flag);
-	gtk_widget_set_sensitive (gwidget->SndNumChan, flag);
-	gtk_widget_set_sensitive (gwidget->SndComp, flag);
-}
-
-/*video controls*/
-void 
-set_sensitive_vid_contrls (const int flag, const int sndEnable, struct GWIDGET *gwidget)
-{
-	/* sound and video compression controls */
-	gtk_widget_set_sensitive (gwidget->VidCodec, flag);
-	gtk_widget_set_sensitive (gwidget->SndEnable, flag); 
-	gtk_widget_set_sensitive (gwidget->VidInc, flag);
-	gtk_widget_set_sensitive (gwidget->VidFormat, flag);/*video format combobox*/
-	/* resolution and input format combos   */
-	gtk_widget_set_sensitive (gwidget->Resolution, flag);
-	gtk_widget_set_sensitive (gwidget->InpType, flag);
-	/* Video File entry and open button     */
-	gtk_widget_set_sensitive (gwidget->VidFNameEntry, flag);
-	gtk_widget_set_sensitive (gwidget->VidFileButt, flag);
-	
-	if(sndEnable > 0) 
-	{
-		set_sensitive_snd_contrls(flag, gwidget);
-	}
-    
-	gwidget->vid_widget_state = flag;
-}
-
 /*video capture can only start after buffer allocation*/
 static void alloc_videoBuff(struct ALL_DATA *all_data)
 {
@@ -160,9 +125,6 @@ int initVideoFile(struct ALL_DATA *all_data)
 			} 
 			else 
 			{
-				/*disabling sound and video compression controls*/
-				set_sensitive_vid_contrls(FALSE, global->Sound_enable, gwidget);
-		
 				AVI_set_video(videoF->AviOut, videoIn->width, videoIn->height, 
 					videoIn->fps,compression);
 		  
@@ -207,9 +169,6 @@ int initVideoFile(struct ALL_DATA *all_data)
 			break;
 			
 		case MKV_FORMAT:
-			/*disabling sound and video compression controls*/
-			set_sensitive_vid_contrls(FALSE, global->Sound_enable, gwidget);
-			
 			if(global->Sound_enable > 0) 
 			{
 				/*set channels, sample rate and allocate buffers*/
@@ -324,7 +283,6 @@ void closeVideoFile(struct ALL_DATA *all_data)
 	struct GLOBAL *global = all_data->global;
 	struct vdIn *videoIn = all_data->videoIn;
 	struct paRecordData *pdata = all_data->pdata;
-	struct GWIDGET *gwidget = all_data->gwidget;
 	
 	int i=0;
 	/*we are streaming so we need to lock a mutex*/
@@ -377,10 +335,7 @@ void closeVideoFile(struct ALL_DATA *all_data)
 			
 			break;
 	}
-	if(global->debug) g_printf("enabling controls\n");
-	/*enabling sound and video compression controls*/
-	set_sensitive_vid_contrls(TRUE, global->Sound_enable, gwidget);
-	if(global->debug) g_printf("controls enabled\n");
+	
 	global->Vidstoptime = 0;
 	global->Vidstarttime = 0;
 	global->framecount = 0;
@@ -901,6 +856,9 @@ void *IO_loop(void *data)
 		g_signal_handlers_unblock_by_func(GTK_TOGGLE_BUTTON(gwidget->CapVidButt), G_CALLBACK (capture_vid), all_data);
 		gdk_flush();
 		gdk_threads_leave();
+		
+		/*enabling sound and video compression controls*/
+		set_sensitive_vid_contrls(TRUE, global->Sound_enable, gwidget);
 		
 		finished = TRUE;
 		failed = TRUE;

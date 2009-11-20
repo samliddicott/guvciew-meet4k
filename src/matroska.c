@@ -52,7 +52,7 @@ struct mk_Writer {
   int		      video_only;       //not muxing audio
   //int		      close_cluster;    
   unsigned	      duration_ptr;     //file location pointer for duration
-  int64_t	      def_duration_ptr; //file location pointer for default frame duration
+  //int64_t	      def_duration_ptr; //file location pointer for default frame duration
   int64_t	      segment_size_ptr; //file location pointer for segment size
   int64_t	      cues_pos;
   int64_t	      seekhead_pos;  
@@ -524,7 +524,7 @@ int	  mk_writeHeader(mk_Writer *w, const char *writingApp,
    // CodecPrivate
   if (codecPrivateSize)
 	CHECK(mk_writeBin(ti2, MATROSKA_ID_CODECPRIVATE, codecPrivate, codecPrivateSize));
-  else CHECK(mk_writeVoid(ti2, 40));
+  //else CHECK(mk_writeVoid(ti2, 40));
 	
   if ((v = mk_createContext(w, ti2, MATROSKA_ID_TRACKVIDEO)) == NULL) // Video
     return -1;

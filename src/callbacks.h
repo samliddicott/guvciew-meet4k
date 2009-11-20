@@ -33,6 +33,14 @@ WARN_DIALOG(const char *warn_title, const char* warn_msg, struct ALL_DATA *all_d
 void 
 ERR_DIALOG(const char *err_title, const char* err_msg, struct ALL_DATA *all_data);
 
+/* sound controls*/
+void 
+set_sensitive_snd_contrls (const int flag, struct GWIDGET *gwidget);
+
+/*video controls*/
+void 
+set_sensitive_vid_contrls (const int flag, const int sndEnable, struct GWIDGET *gwidget);
+
 gint
 delete_event (GtkWidget *widget, GdkEventConfigure *event, void *data);
 

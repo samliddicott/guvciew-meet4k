@@ -121,6 +121,7 @@ delete_event (GtkWidget *widget, GdkEventConfigure *event, void *data)
 	return 0;
 }
 
+/*--------------------------- controls enable/disable --------------------------*/
 /*image controls*/
 void 
 set_sensitive_img_contrls (const int flag, struct GWIDGET *gwidget)
@@ -129,6 +130,40 @@ set_sensitive_img_contrls (const int flag, struct GWIDGET *gwidget)
 	gtk_widget_set_sensitive(gwidget->ImageType, flag);/*file type combo*/
 	gtk_widget_set_sensitive(gwidget->ImageFNameEntry, flag);/*Image Entry*/
 	gtk_widget_set_sensitive(gwidget->ImageInc, flag);/*image inc checkbox*/
+}
+
+/* sound controls*/
+void 
+set_sensitive_snd_contrls (const int flag, struct GWIDGET *gwidget)
+{
+	gtk_widget_set_sensitive (gwidget->SndSampleRate, flag);
+	gtk_widget_set_sensitive (gwidget->SndDevice, flag);
+	gtk_widget_set_sensitive (gwidget->SndNumChan, flag);
+	gtk_widget_set_sensitive (gwidget->SndComp, flag);
+}
+
+/*video controls*/
+void 
+set_sensitive_vid_contrls (const int flag, const int sndEnable, struct GWIDGET *gwidget)
+{
+	/* sound and video compression controls */
+	gtk_widget_set_sensitive (gwidget->VidCodec, flag);
+	gtk_widget_set_sensitive (gwidget->SndEnable, flag); 
+	gtk_widget_set_sensitive (gwidget->VidInc, flag);
+	gtk_widget_set_sensitive (gwidget->VidFormat, flag);/*video format combobox*/
+	/* resolution and input format combos   */
+	gtk_widget_set_sensitive (gwidget->Resolution, flag);
+	gtk_widget_set_sensitive (gwidget->InpType, flag);
+	/* Video File entry and open button     */
+	gtk_widget_set_sensitive (gwidget->VidFNameEntry, flag);
+	gtk_widget_set_sensitive (gwidget->VidFileButt, flag);
+	
+	if(sndEnable > 0) 
+	{
+		set_sensitive_snd_contrls(flag, gwidget);
+	}
+    
+	gwidget->vid_widget_state = flag;
 }
 
 /*----------------------------- Callbacks ------------------------------------*/
@@ -1004,6 +1039,10 @@ capture_vid (GtkToggleButton *VidButt, struct ALL_DATA *all_data)
 		g_thread_join( all_data->IO_thread );
 		if (global->debug) g_printf("IO Thread finished\n");
 		
+		if(global->debug) g_printf("enabling controls\n");
+		/*enabling sound and video compression controls*/
+		set_sensitive_vid_contrls(TRUE, global->Sound_enable, gwidget);
+		
 		if(!(state))
 		{
 			gtk_button_set_label(GTK_BUTTON(gwidget->CapVidButt),_("Cap. Video"));
@@ -1042,7 +1081,10 @@ capture_vid (GtkToggleButton *VidButt, struct ALL_DATA *all_data)
 			/*start disk check timed callback (every 10 sec)*/
 			if (!global->disk_timer_id)
 				global->disk_timer_id=g_timeout_add(10*1000, FreeDiskCheck_timer, all_data);
-		    
+			
+			/*disabling sound and video compression controls*/
+			set_sensitive_vid_contrls(FALSE, global->Sound_enable, gwidget);
+			
 			GError *err1 = NULL;
 			/*start IO thread*/
 			if( (all_data->IO_thread = g_thread_create_full((GThreadFunc) IO_loop, 
