@@ -180,6 +180,11 @@ yuyv2rgb (BYTE *pyuv, BYTE *prgb, int width, int height);
 void 
 yuyv2bgr (BYTE *pyuv, BYTE *pbgr, int width, int height);
 
+/* used for rgb video (fourcc="RGB ")
+*  lines are in correct order
+*/
+void 
+yuyv2bgr1 (BYTE *pyuv, BYTE *pbgr, int width, int height);
 
 /*convert bayer raw data to rgb24
 * args: 

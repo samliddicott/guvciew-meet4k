@@ -110,8 +110,8 @@ static vcodecs_data listSupVCodecs[] = //list of software supported formats
 	{
 		.avcodec      = FALSE,
 		.valid        = TRUE,
-		.compressor   = "DIB ",
-		.mkv_4cc      = v4l2_fourcc('D','I','B',' '),
+		.compressor   = "RGB ",
+		.mkv_4cc      = v4l2_fourcc('R','G','B',' '),
 		.mkv_codec    = "V_MS/VFW/FOURCC",
 		.mkv_codecPriv= &mkv_codecPriv,
 		.description = N_("RGB - uncomp BMP"),
@@ -387,7 +387,11 @@ int set_mkvCodecPriv(int codec_ind, int width, int height)
 		mkv_codecPriv.biWidth = width;
 		mkv_codecPriv.biHeight = height; 
 		mkv_codecPriv.biCompression = listSupVCodecs[get_real_index (codec_ind)].mkv_4cc; 
-		if(index != CODEC_DIB) mkv_codecPriv.biSizeImage = width*height*2;
+		if(index != CODEC_DIB) 
+		{
+			mkv_codecPriv.biSizeImage = width*height*2;
+			mkv_codecPriv.biHeight =-height;
+		}
 		else mkv_codecPriv.biSizeImage = width*height*3; /*rgb*/
 		size = 40; //40 bytes
 	}
@@ -515,9 +519,15 @@ int compress_frame(void *data,
 		case CODEC_DIB:
 			framesize=(videoIn->width)*(videoIn->height)*3; /*DIB 24/32 -> 3/4 bytes per pixel*/ 
 			prgb = g_new0(BYTE, framesize);
-			
-			yuyv2bgr(proc_buff->frame, prgb, videoIn->width, videoIn->height);
-					
+			switch (global->VidFormat)
+			{
+				case AVI_FORMAT: /* lines upside down     */
+					yuyv2bgr(proc_buff->frame, prgb, videoIn->width, videoIn->height);
+					break;
+				case MKV_FORMAT: /* lines in correct order*/
+					yuyv2bgr1(proc_buff->frame, prgb, videoIn->width, videoIn->height);
+					break;
+			}
 			ret = write_video_data (all_data, prgb, framesize, proc_buff->time_stamp);
 			g_free(prgb);
 			prgb=NULL;

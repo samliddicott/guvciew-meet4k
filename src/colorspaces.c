@@ -56,6 +56,37 @@ yuyv2rgb (BYTE *pyuv, BYTE *prgb, int width, int height)
 	}
 }
 
+/* used for rgb video (fourcc="RGB ")           */
+/* lines are on correct order                   */
+void 
+yuyv2bgr1 (BYTE *pyuv, BYTE *pbgr, int width, int height)
+{
+
+	int l=0;
+	int SizeYUV=height * width * 2; /* 2 bytes per pixel*/
+	for(l=0;l<SizeYUV;l=l+4) 
+	{	/*iterate every 4 bytes*/
+		/* standart: b = y0 + 1.772 (u-128) */
+		/* logitech: b = y0 + 1.732446 (u-128) */
+		*pbgr++=CLIP(pyuv[l] + 1.772 *( pyuv[l+1]-128));
+		/* standart: g = y0 - 0.34414 (u-128) - 0.71414 (v-128)*/
+		/* logitech: g = y0 - 0.337633 (u-128)- 0.698001 (v-128)*/
+		*pbgr++=CLIP(pyuv[l] - 0.34414 * (pyuv[l+1]-128) -0.71414*(pyuv[l+3]-128));
+		/* standart: r = y0 + 1.402 (v-128) */
+		/* logitech: r = y0 + 1.370705 (v-128) */
+		*pbgr++=CLIP(pyuv[l] + 1.402 * (pyuv[l+3]-128));
+		/* standart: b1 = y1 + 1.772 (u-128) */
+		/* logitech: b1 = y1 + 1.732446 (u-128) */
+		*pbgr++=CLIP(pyuv[l+2] + 1.772*(pyuv[l+1]-128));
+		/* standart: g1 = y1 - 0.34414 (u-128) - 0.71414 (v-128)*/
+		/* logitech: g1 = y1 - 0.337633 (u-128)- 0.698001 (v-128)*/
+		*pbgr++=CLIP(pyuv[l+2] - 0.34414 * (pyuv[l+1]-128) -0.71414 * (pyuv[l+3]-128));
+		/* standart: r1 =y1 + 1.402 (v-128) */
+		/* logitech: r1 = y1 + 1.370705 (v-128) */
+		*pbgr++=CLIP(pyuv[l+2] + 1.402 * (pyuv[l+3]-128));
+	}
+}
+
 /* yuv (YUYV) to bgr with lines upsidedown */
 /* used for bitmap files (DIB24)           */
 void 
