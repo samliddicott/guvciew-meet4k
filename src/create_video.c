@@ -305,20 +305,22 @@ void closeVideoFile(struct ALL_DATA *all_data)
 	global->Vidstoptime = ns_time();
 	
 	/*free video buffer allocations*/
-	if (global->videoBuff != NULL)
-	{
-		/*free video frames to videoBuff*/
-		for(i=0;i<VIDBUFF_SIZE;i++)
+	g_mutex_lock(global->mutex);
+		//reset the indexes
+		global->r_ind=0;
+		global->w_ind=0;
+		if (global->videoBuff != NULL)
 		{
-			g_free(global->videoBuff[i].frame);
-			global->videoBuff[i].frame = NULL;
+			/*free video frames to videoBuff*/
+			for(i=0;i<VIDBUFF_SIZE;i++)
+			{
+				g_free(global->videoBuff[i].frame);
+				global->videoBuff[i].frame = NULL;
+			}
+			g_free(global->videoBuff);
+			global->videoBuff = NULL;
 		}
-		g_free(global->videoBuff);
-		global->videoBuff = NULL;
-	}
-	//reset the indexes
-	global->r_ind=0;
-	global->w_ind=0;
+	g_mutex_unlock(global->mutex);
 	
 	switch (global->VidFormat)
 	{
@@ -602,6 +604,7 @@ static int buff_scheduler(int w_ind, int r_ind)
 	return sched_sleep;
 }
 
+/* this function can only be called after a lock on global->mutex */
 static void store_at_index(void *data)
 {
 	struct ALL_DATA *all_data = (struct ALL_DATA *) data;
@@ -661,8 +664,9 @@ int store_video_frame(void *data)
 		/*wait for IO_cond at least 200ms*/
 		GTimeVal *timev;
 		timev = g_new0(GTimeVal, 1);
-		g_get_current_time(timev);
-		g_time_val_add(timev,200*1000); /*200 ms*/
+		g_get_current_time(timev); 
+		g_time_val_add(timev,100*1000); /*100 ms*/
+		/* WARNING: if system time changes it can cause undesired behaviour */
 		if(g_cond_timed_wait(global->IO_cond, global->mutex, timev))
 		{
 			/*try to store the frame again*/
@@ -835,8 +839,6 @@ void *IO_loop(void *data)
 	gboolean failed = FALSE;
 	int proc_flag = 0;
 	int diff_ind=0;
-	global->r_ind = 0;
-	pdata->r_ind = 0;
 	
 	//buffers to be processed (video and audio)
 	int frame_size=0;
