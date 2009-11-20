@@ -226,7 +226,7 @@ int init_FormatContext(void *data)
                      get_mkvCodec(global->VidCodec),
                      AcodecID,
                      get_mkvCodecPriv(global->VidCodec), size,
-                     (UINT64) (global->fps_num * 1000000000/fps), //nano seconds
+                     v_def_dur, 
                      duration,
                      1000000,
                      videoIn->width, videoIn->height,
