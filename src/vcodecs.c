@@ -36,9 +36,9 @@ static BITMAPINFOHEADER mkv_codecPriv =
 	.biWidth = 640, //default values (must be set before use)
 	.biHeight = 480, 
 	.biPlanes = 1, 
-	.biBitCount = 1, 
+	.biBitCount = 24, 
 	.biCompression = V4L2_PIX_FMT_MJPEG, 
-	.biSizeImage = 640*480*2, //2 bytes per pixel 
+	.biSizeImage = 640*480*2, //2 bytes per pixel (max buffer - use x3 for RGB)
 	.biXPelsPerMeter = 0, 
 	.biYPelsPerMeter = 0, 
 	.biClrUsed = 0, 
@@ -287,7 +287,7 @@ static vcodecs_data listSupVCodecs[] = //list of software supported formats
 	{       //only available in libavcodec-unstriped
 		.avcodec      = TRUE,
 		.valid        = TRUE,
-		.compressor   = "DIVX",
+		.compressor   = "DX50",
 		.mkv_codec    = "V_MPEG4/ISO/ASP",
 		.mkv_codecPriv= NULL,
 		.description  = N_("MPEG4 - MPEG4 format"),
@@ -352,12 +352,14 @@ void *get_mkvCodecPriv(int codec_ind)
 int set_mkvCodecPriv(int codec_ind, int width, int height)
 {
 	int size = 0;
-	if(listSupVCodecs[get_real_index (codec_ind)].mkv_codecPriv != NULL)
+	int index = get_real_index (codec_ind);
+	if(listSupVCodecs[index].mkv_codecPriv != NULL)
 	{
 		mkv_codecPriv.biWidth = width;
 		mkv_codecPriv.biHeight = height; 
 		mkv_codecPriv.biCompression = listSupVCodecs[get_real_index (codec_ind)].mkv_4cc; 
-		mkv_codecPriv.biSizeImage = width*height*2;
+		if(index != 2) mkv_codecPriv.biSizeImage = width*height*2;
+		else mkv_codecPriv.biSizeImage = width*height*3; /*rgb*/
 		size = 40; //40 bytes
 	}
 	

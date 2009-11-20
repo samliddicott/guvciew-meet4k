@@ -516,15 +516,16 @@ int	  mk_writeHeader(mk_Writer *w, const char *writingApp,
   CHECK(mk_writeUInt(ti2, MATROSKA_ID_TRACKMAXBLKADDID, 0));  //Max Block Addition ID
   CHECK(mk_writeStr(ti2, MATROSKA_ID_CODECID, codecID));      // CodecID
   CHECK(mk_writeUInt(ti2, MATROSKA_ID_CODECDECODEALL, 1));    //Codec Decode All
+
+   // CodecPrivate
+  if (codecPrivateSize)
+	CHECK(mk_writeBin(ti2, MATROSKA_ID_CODECPRIVATE, codecPrivate, codecPrivateSize));
+  //else CHECK(mk_writeVoid(ti2, 40));
   
   if (w->def_duration) //for fixed frame rate (not required by the spec, but at least vlc seems to need it)
   {
     CHECK(mk_writeUInt(ti2, MATROSKA_ID_TRACKDEFAULTDURATION, w->def_duration)); // DefaultDuration
   }
-   // CodecPrivate
-  if (codecPrivateSize)
-	CHECK(mk_writeBin(ti2, MATROSKA_ID_CODECPRIVATE, codecPrivate, codecPrivateSize));
-  //else CHECK(mk_writeVoid(ti2, 40));
 	
   if ((v = mk_createContext(w, ti2, MATROSKA_ID_TRACKVIDEO)) == NULL) // Video
     return -1;
