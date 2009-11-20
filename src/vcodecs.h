@@ -27,7 +27,7 @@
 #include "lavc_common.h"
 #include "globals.h"
 
-#define MAX_VCODECS 9
+#define MAX_VCODECS 10
 
 #define CODEC_MJPEG 0
 #define CODEC_YUV   1

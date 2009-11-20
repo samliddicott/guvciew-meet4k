@@ -312,6 +312,35 @@ static vcodecs_data listSupVCodecs[] = //list of software supported formats
 		.mpeg_quant   = 1,
 		.max_b_frames = 0,
 		.flags        = 0
+	},
+	{       //only available in libavcodec-unstriped
+		.avcodec      = TRUE,
+		.valid        = TRUE,
+		.compressor   = "H264",
+		.mkv_codec    = "V_MPEG4/ISO/AVC",
+		.mkv_codecPriv= NULL,
+		.description  = N_("MPEG4-AVC (H264)"),
+		.bit_rate     = 1500000,
+		.qmax         = 31,
+		.qmin         = 2,
+		.max_qdiff    = 3,
+		.dia          = 2,
+		.pre_dia      = 2,
+		.pre_me       = 2,
+		.me_pre_cmp   = 0,
+		.me_cmp       = 3,
+		.me_sub_cmp   = 3,
+		.last_pred    = 2,
+		.gop_size     = 100,
+		.qcompress    = 0.5,
+		.qblur        = 0.5,
+		.codec_id     = CODEC_ID_H264,
+		.mb_decision  = FF_MB_DECISION_RD,
+		.trellis      = 1,
+		.me_method    = ME_EPZS,
+		.mpeg_quant   = 1,
+		.max_b_frames = 0,
+		.flags        = 0
 	}
 };
 
@@ -358,7 +387,7 @@ int set_mkvCodecPriv(int codec_ind, int width, int height)
 		mkv_codecPriv.biWidth = width;
 		mkv_codecPriv.biHeight = height; 
 		mkv_codecPriv.biCompression = listSupVCodecs[get_real_index (codec_ind)].mkv_4cc; 
-		if(index != 2) mkv_codecPriv.biSizeImage = width*height*2;
+		if(index != CODEC_DIB) mkv_codecPriv.biSizeImage = width*height*2;
 		else mkv_codecPriv.biSizeImage = width*height*3; /*rgb*/
 		size = 40; //40 bytes
 	}
