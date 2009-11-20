@@ -215,12 +215,18 @@ int init_FormatContext(void *data)
 	set_mkvCodecPriv(global->VidCodec, videoIn->width, videoIn->height);
 	int size = set_mkvCodecPriv(global->VidCodec, videoIn->width, videoIn->height);
 	printf("writing header\n");
+	
+	/*gspca doesn't set the fps value so we don't set it in the file header    */
+	/*this is OK acording to the standard (variable fps )but vlc seems to have */
+	/*a problem with this in the case of mpeg codecs (mpg1 and mpg2)            */
+	UINT64 v_def_dur = 0;
+	if(global->fps >= 5) v_def_dur = (UINT64) (global->fps_num * 1000000000/global->fps); //nano seconds
+	
 	mk_writeHeader( videoF->mkv_w, "Guvcview",
                      get_mkvCodec(global->VidCodec),
                      AcodecID,
                      get_mkvCodecPriv(global->VidCodec), size,
-                     //(UINT64) (global->fps_num * 1000000000/global->fps), //nano seconds -reset later
-                     (UINT64) (1000000000/30),//always use the fastest frame rate - 30 fps)
+                     (UINT64) (global->fps_num * 1000000000/fps), //nano seconds
                      duration,
                      1000000,
                      videoIn->width, videoIn->height,

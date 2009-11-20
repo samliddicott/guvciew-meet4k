@@ -514,22 +514,17 @@ int	  mk_writeHeader(mk_Writer *w, const char *writingApp,
   CHECK(mk_writeUInt(ti2, MATROSKA_ID_TRACKMINCACHE, 1));     //MinCache
   CHECK(mk_writeFloat(ti2, MATROSKA_ID_TRACKTIMECODESCALE, 1));//Timecode scale (float)
   CHECK(mk_writeUInt(ti2, MATROSKA_ID_TRACKMAXBLKADDID, 0));  //Max Block Addition ID
-
   CHECK(mk_writeStr(ti2, MATROSKA_ID_CODECID, codecID));      // CodecID
   CHECK(mk_writeUInt(ti2, MATROSKA_ID_CODECDECODEALL, 1));    //Codec Decode All
-
-  //if (w->def_duration) //for fixed frame rate (allways set it to 30 fps)
-  //{
-    //printf("def_duration_ptr %i\n",ti2->d_cur);
-   // w->def_duration_ptr = 4226+(ti2->d_cur);//FIXME
-    //CHECK(mk_writeUIntRaw(ti2, MATROSKA_ID_TRACKDEFAULTDURATION, w->def_duration)); // DefaultDuration
-  //}
-  //else w->def_duration_ptr = 0;
-
+  
+  if (w->def_duration) //for fixed frame rate (not required by the spec, but at least vlc seems to need it)
+  {
+    CHECK(mk_writeUInt(ti2, MATROSKA_ID_TRACKDEFAULTDURATION, w->def_duration)); // DefaultDuration
+  }
    // CodecPrivate
   if (codecPrivateSize)
 	CHECK(mk_writeBin(ti2, MATROSKA_ID_CODECPRIVATE, codecPrivate, codecPrivateSize));
-  //else CHECK(mk_writeVoid(ti2, 40));
+  else CHECK(mk_writeVoid(ti2, 40));
 	
   if ((v = mk_createContext(w, ti2, MATROSKA_ID_TRACKVIDEO)) == NULL) // Video
     return -1;
@@ -934,15 +929,6 @@ int	  mk_close(mk_Writer *w) {
     //move to seekentries
     fseek(w->fp, w->seekhead_pos, SEEK_SET);
     write_SegSeek (w, CuesPos, SeekHeadPos);
-    //move to default frame duration entry - set real fps value (for fixed frame rate)
-    //w->def_duration = 0;
-    //if(w->def_duration_ptr && w->def_duration)
-    //{
-      //fseek(w->fp, w->def_duration_ptr, SEEK_SET);
-      //if (mk_writeUIntRaw(w->root, MATROSKA_ID_TRACKDEFAULTDURATION, w->def_duration) < 0 ||
-        //   mk_flushContextData(w->root) < 0)
-         //ret = -1;
-    //}
     //move to segment duration entry
     fseek(w->fp, w->duration_ptr, SEEK_SET);
     if (mk_writeFloatRaw(w->root, (float)(double)(w->max_frame_tc/ w->timescale)) < 0 ||
