@@ -651,8 +651,6 @@ int init_videoIn(struct vdIn *vd, struct GLOBAL *global)
 	int width = global->width;
 	int height = global->height;
 	int format = global->format;
-	int fps = global->fps;
-	int fps_num = global->fps_num;
 	
 	vd->mutex = g_mutex_new();
 	if (vd == NULL || device == NULL)
@@ -673,8 +671,8 @@ int init_videoIn(struct vdIn *vd, struct GLOBAL *global)
 	vd->VidCapStop=TRUE;
 	
 	vd->VidFName = g_strdup(DEFAULT_AVI_FNAME);
-	vd->fps = fps;
-	vd->fps_num = fps_num;
+	vd->fps = global->fps;
+	vd->fps_num = global->fps_num;
 	vd->signalquit = FALSE;
 	vd->PanTilt=0;
 	vd->isbayer = 0; //bayer mode off
@@ -770,6 +768,11 @@ int init_videoIn(struct vdIn *vd, struct GLOBAL *global)
 			g_printerr("Init v4L2 failed !! \n");
 			goto error;
 		}
+		/*vd->fps is reset to the real value in the device*/
+		/*make sure global is in sync                     */
+		global->fps=vd->fps;
+		global->fps_num=vd->fps_num;
+		g_printf("fps is set to %i/%i\n", global->fps_num, global->fps);
 		/*allocations*/
 		if((ret = videoIn_frame_alloca(vd)) != VDIN_OK)
 		{
@@ -1234,7 +1237,10 @@ input_set_framerate (struct vdIn * device)
 		g_printerr("Unable to set %d fps\n",device->fps);
 		perror("VIDIOC_S_PARM error");
 	} 
-
+	
+	/*make sure we now have the correct fps*/
+	input_get_framerate (device);
+	
 	return ret;
 }
 

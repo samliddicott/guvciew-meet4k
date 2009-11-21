@@ -353,12 +353,14 @@ int write_video_data(struct ALL_DATA *all_data, BYTE *buff, int size, QWORD v_ts
 	switch (global->VidFormat)
 	{
 		case AVI_FORMAT:
-			ret = AVI_write_frame (videoF->AviOut, buff, size, videoF->keyframe);
+			if(size)
+				ret = AVI_write_frame (videoF->AviOut, buff, size, videoF->keyframe);
 			break;
 		
 		case MKV_FORMAT:
 			videoF->vpts = v_ts;
-			ret = write_video_packet (buff, size, global->fps, videoF);
+			if(size)
+				ret = write_video_packet (buff, size, global->fps, videoF);
 			break;
 			
 		default:
@@ -388,7 +390,7 @@ int write_video_frame (struct ALL_DATA *all_data,
 			if(!(global->VidButtPress)) //if this is set AVI reached it's limit size
 				ret = compress_frame(all_data, jpeg_struct, lavc_data, proc_buff);
 
-			if (ret)
+			if (ret) //if size is zero skip it
 			{
 				if (AVI_getErrno () == AVI_ERR_SIZELIM)
 				{
@@ -611,7 +613,11 @@ static void store_at_index(void *data)
 
 	struct GLOBAL *global = all_data->global;
 	struct vdIn *videoIn = all_data->videoIn;
-	
+	//int delay = get_delay(global->VidCodec);
+	//int ts_ind = global->w_ind;
+	//int i =0;
+	//for(i=0; i< delay; i++)
+	//	NEXT_IND(ts_ind, VIDBUFF_SIZE);
 	global->videoBuff[global->w_ind].time_stamp = global->v_ts;
 	/*store frame at index*/
 	if((global->VidCodec == CODEC_MJPEG) &&

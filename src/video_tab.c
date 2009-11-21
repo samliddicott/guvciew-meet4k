@@ -561,7 +561,7 @@ void video_tab(struct ALL_DATA *all_data)
 					defres=i;//set selected resolution index
 		}
 	}
-	
+
 	// Frame Rate
 	line++;
 	videoIn->fps_num=global->fps_num;
@@ -592,14 +592,16 @@ void video_tab(struct ALL_DATA *all_data)
 	gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->FrameRate),deffps);
 	if (deffps==0) 
 	{
-		if (listVidFormats->listVidCap[0].framerate_denom)
-			global->fps = listVidFormats->listVidCap[0].framerate_denom[0];
+		if (listVidFormats->listVidCap[defres].framerate_denom)
+			global->fps = listVidFormats->listVidCap[defres].framerate_denom[0];
 
-		if (listVidFormats->listVidCap[0].framerate_num)
-			global->fps_num = listVidFormats->listVidCap[0].framerate_num[0];
+		if (listVidFormats->listVidCap[defres].framerate_num)
+			global->fps_num = listVidFormats->listVidCap[defres].framerate_num[0];
 
 		videoIn->fps=global->fps;
 		videoIn->fps_num=global->fps_num;
+
+		g_printf("fps is set to %i/%i\n", global->fps_num, global->fps);
 	}
 	gtk_widget_set_sensitive (gwidget->FrameRate, TRUE);
 	g_signal_connect (GTK_COMBO_BOX(gwidget->FrameRate), "changed",

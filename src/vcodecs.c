@@ -338,6 +338,7 @@ static vcodecs_data listSupVCodecs[] = //list of software supported formats
 		.mkv_codec    = "V_MPEG4/ISO/AVC",
 		.mkv_codecPriv= NULL,
 		.description  = N_("MPEG4-AVC (H264)"),
+		//.frame_delay  = 2,
 		.bit_rate     = 1500000,
 		.qmax         = 31,
 		.qmin         = 2,
@@ -356,11 +357,11 @@ static vcodecs_data listSupVCodecs[] = //list of software supported formats
 		.framerefs    = 2,
 		.codec_id     = CODEC_ID_H264,
 		.mb_decision  = FF_MB_DECISION_RD,
-		.trellis      = 1,
+		.trellis      = 0,
 		.me_method    = ME_HEX,
 		.mpeg_quant   = 1,
 		.max_b_frames = 2,
-		.flags        = CODEC_FLAG2_BPYRAMID | CODEC_FLAG2_WPRED
+		.flags        = CODEC_FLAG2_BPYRAMID | CODEC_FLAG2_WPRED | CODEC_FLAG2_FASTPSKIP
 	}
 };
 
@@ -387,6 +388,11 @@ const char *get_desc4cc(int codec_ind)
 {
 	return (listSupVCodecs[get_real_index (codec_ind)].description);
 }
+
+//int get_delay(int codec_ind)
+//{
+//	return (listSupVCodecs[get_real_index (codec_ind)].frame_delay);
+//}
 
 const char *get_mkvCodec(int codec_ind)
 {

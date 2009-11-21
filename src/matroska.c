@@ -291,14 +291,14 @@ static int	  mk_writeVoid(mk_Context *c, unsigned size) {
   return 0;
 }
 
-static int	  mk_writeUIntRaw(mk_Context *c, unsigned id, int64_t ui) {
-  unsigned char	  c_ui[8] = { ui >> 56, ui >> 48, ui >> 40, ui >> 32, ui >> 24, ui >> 16, ui >> 8, ui };
-
-  CHECK(mk_writeID(c, id));
-  CHECK(mk_writeSize(c, 8));
-  CHECK(mk_appendContextData(c, c_ui, 8));
-  return 0;
-}
+//static int	  mk_writeUIntRaw(mk_Context *c, unsigned id, int64_t ui) {
+//  unsigned char	  c_ui[8] = { ui >> 56, ui >> 48, ui >> 40, ui >> 32, ui >> 24, ui >> 16, ui >> 8, ui };
+//
+//  CHECK(mk_writeID(c, id));
+//  CHECK(mk_writeSize(c, 8));
+//  CHECK(mk_appendContextData(c, c_ui, 8));
+//  return 0;
+//}
 
 static int	  mk_writeUInt(mk_Context *c, unsigned id, int64_t ui) {
   unsigned char	  c_ui[8] = { ui >> 56, ui >> 48, ui >> 40, ui >> 32, ui >> 24, ui >> 16, ui >> 8, ui };
@@ -611,7 +611,7 @@ static int mk_flushFrame(mk_Writer *w) {
 
   if (!w->in_frame)
     return 0;
-
+	
   delta = w->frame_tc / w->timescale - w->cluster_tc_scaled;
 	
   if (w->cluster == NULL) {
@@ -655,17 +655,11 @@ static int mk_flushFrame(mk_Writer *w) {
   w->prev_frame_tc_scaled = w->cluster_tc_scaled + delta;
 
 	/*******************************/
-  if (w->cluster->d_cur > CLSIZE)
+  if (delta > 32767ll || delta < -32768ll || (w->cluster->d_cur) > CLSIZE)
   {
     CHECK(mk_closeCluster(w));
     //w->close_cluster = 0;
   }
-  else
-    if (delta > 32767ll || delta < -32768ll)// || w->close_cluster)
-    {
-      CHECK(mk_closeCluster(w));
-      //w->close_cluster = 0;
-    }
 	/*******************************/
 
   return 0;
@@ -678,11 +672,10 @@ static int mk_flushAudioFrame(mk_Writer *w) {
   unsigned char	c_delta_flags[3];
   //unsigned char flags = 0x04; //lacing
   //unsigned char framesinlace = 0x07; //FIXME:  total frames -1
-	
 
   //make sure we have a cluster
   if (w->cluster == NULL) {
-    w->cluster_tc_scaled = w->frame_tc / w->timescale ;//w->frame_tc * w->def_duration / w->timescale;
+    w->cluster_tc_scaled = w->audio_frame_tc / w->timescale ;
     w->cluster = mk_createContext(w, w->root, MATROSKA_ID_CLUSTER); // Cluster
     if (w->cluster == NULL)
       return -1;
@@ -720,20 +713,15 @@ static int mk_flushAudioFrame(mk_Writer *w) {
   }
   w->audio_in_frame = 0;
   w->audio_prev_frame_tc_scaled = w->cluster_tc_scaled + delta;
-	
+
 	/*******************************/
-  if (w->cluster->d_cur > CLSIZE)
+  if (delta > 32767ll || delta < -32768ll || (w->cluster->d_cur) > CLSIZE)
   {
     CHECK(mk_closeCluster(w));
     //w->close_cluster = 0;
   }
-  else
-    if (delta > 32767ll || delta < -32768ll)// || w->close_cluster)
-    {
-      CHECK(mk_closeCluster(w));
-      //w->close_cluster = 0;
-    }
 	/*******************************/
+
   return 0;
 }
 

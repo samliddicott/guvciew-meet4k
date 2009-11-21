@@ -32,6 +32,7 @@
 #define CODEC_MJPEG 0
 #define CODEC_YUV   1
 #define CODEC_DIB   2
+#define CODEC_LAVC  3
 
 typedef struct _vcodecs_data
 {
@@ -42,6 +43,7 @@ typedef struct _vcodecs_data
 	const char *mkv_codec;    //mkv codecID
 	const void *mkv_codecPriv;//mkv codec private data
 	const char *description;  //codec description
+	//int frame_delay;          //frame delay
 	int bit_rate;             //lavc default bit rate
 	int qmax;                 //lavc qmax
 	int qmin;                 //lavc qmin
@@ -73,6 +75,8 @@ const char *get_vid4cc(int codec_ind);
 const char *get_desc4cc(int codec_ind);
 
 const char *get_mkvCodec(int codec_ind);
+
+//int get_delay(int codec_ind);
 
 void *get_mkvCodecPriv(int codec_ind);
 

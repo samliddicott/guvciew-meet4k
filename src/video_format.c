@@ -220,8 +220,8 @@ int init_FormatContext(void *data)
 	/*this is OK acording to the standard (variable fps )but vlc seems to have */
 	/*a problem with this in the case of mpeg codecs (mpg1 and mpg2)            */
 	UINT64 v_def_dur = 0;
-	if(global->fps >= 5) v_def_dur = (UINT64) (global->fps_num * 1000000000/global->fps); //nano seconds
-	
+	if(videoIn->fps >= 5) v_def_dur = (UINT64) (videoIn->fps_num * 1000000000/videoIn->fps); //nano seconds
+	if (global->debug) g_printf("video frame default duration =%llu for %i fps\n", v_def_dur, videoIn->fps);
 	mk_writeHeader( videoF->mkv_w, "Guvcview",
                      get_mkvCodec(global->VidCodec),
                      AcodecID,
