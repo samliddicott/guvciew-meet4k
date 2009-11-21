@@ -56,6 +56,8 @@ typedef struct _vcodecs_data
 	int gop_size;             //lavc gop_size
 	float qcompress;          //lavc qcompress
 	float qblur;              //lavc qblur
+	int subq;                 //lavc subq
+	int framerefs;            //lavc refs
 	int codec_id;             //lavc codec_id
 	int mb_decision;          //lavc mb_decision
 	int trellis;              //lavc trellis quantization

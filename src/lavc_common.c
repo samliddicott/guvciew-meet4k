@@ -148,6 +148,8 @@ struct lavcData* init_lavc(int width, int height, int fps_num, int fps_den, int 
 	data->codec_context->me_pre_cmp = defaults->me_pre_cmp;
 	data->codec_context->me_cmp = defaults->me_cmp;
 	data->codec_context->me_sub_cmp = defaults->me_sub_cmp;
+	data->codec_context->me_subpel_quality = defaults->subq; //NEW
+	data->codec_context->refs = defaults->framerefs;         //NEW
 	data->codec_context->last_predictor_count = defaults->last_pred;
 	
 	data->codec_context->mpeg_quant = defaults->mpeg_quant; //h.263

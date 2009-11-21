@@ -333,6 +333,36 @@ lavc_properties(GtkButton * CodecButt, struct ALL_DATA *all_data)
 	gtk_widget_show (qblur);
 	line++;
 
+	GtkWidget *lbl_subq = gtk_label_new(_("subq:   "));
+	gtk_misc_set_alignment (GTK_MISC (lbl_subq), 1, 0.5);
+	gtk_table_attach (GTK_TABLE(table), lbl_subq, 0, 1, line, line+1,
+		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_widget_show (lbl_subq);
+	
+	GtkWidget *subq = gtk_spin_button_new_with_range(0,8,1);
+	gtk_editable_set_editable(GTK_EDITABLE(subq),TRUE);
+	gtk_spin_button_set_value (GTK_SPIN_BUTTON(subq), codec_defaults->subq);
+	
+	gtk_table_attach (GTK_TABLE(table), subq, 1, 2, line, line+1,
+		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_widget_show (subq);
+	line++;
+
+	GtkWidget *lbl_framerefs = gtk_label_new(_("framerefs:   "));
+	gtk_misc_set_alignment (GTK_MISC (lbl_framerefs), 1, 0.5);
+	gtk_table_attach (GTK_TABLE(table), lbl_framerefs, 0, 1, line, line+1,
+		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_widget_show (lbl_framerefs);
+	
+	GtkWidget *framerefs = gtk_spin_button_new_with_range(0,12,1);
+	gtk_editable_set_editable(GTK_EDITABLE(framerefs),TRUE);
+	gtk_spin_button_set_value (GTK_SPIN_BUTTON(framerefs), codec_defaults->framerefs);
+	
+	gtk_table_attach (GTK_TABLE(table), framerefs, 1, 2, line, line+1,
+		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_widget_show (framerefs);
+	line++;
+	
 	GtkWidget *lbl_me_method = gtk_label_new(_("me method:   "));
 	gtk_misc_set_alignment (GTK_MISC (lbl_me_method), 1, 0.5);
 	gtk_table_attach (GTK_TABLE(table), lbl_me_method, 0, 1, line, line+1,
@@ -385,6 +415,8 @@ lavc_properties(GtkButton * CodecButt, struct ALL_DATA *all_data)
 			codec_defaults->gop_size = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON(gop_size));
 			codec_defaults->qcompress = gtk_spin_button_get_value_as_float (GTK_SPIN_BUTTON(qcompress));
 			codec_defaults->qblur = gtk_spin_button_get_value_as_float (GTK_SPIN_BUTTON(qblur));
+			codec_defaults->subq = gtk_spin_button_get_value_as_float (GTK_SPIN_BUTTON(subq));
+			codec_defaults->framerefs = gtk_spin_button_get_value_as_float (GTK_SPIN_BUTTON(framerefs));
 			codec_defaults->me_method = gtk_spin_button_get_value_as_float (GTK_SPIN_BUTTON(me_method));
 			codec_defaults->mb_decision = gtk_spin_button_get_value_as_float (GTK_SPIN_BUTTON(mb_decision));
 			break;
