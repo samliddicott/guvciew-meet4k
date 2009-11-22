@@ -42,7 +42,6 @@
 #define SAMPLE_RATE  (0) /* 0 device default*/
 //#define FRAMES_PER_BUFFER (4096)
 
-#define NUM_SECONDS     (1) /* captures 1 second bloks */
 /* sound can go for more 1 seconds than video          */
 
 #define NUM_CHANNELS    (0) /* 0-device default 1-mono 2-stereo */
@@ -95,6 +94,7 @@ struct paRecordData
 	int mp2BuffSize;              // mp2 buffer size
 	int snd_Flags;                // effects flag
 	int skip_n;                   //video frames to skip
+	UINT64 delay;                 //in nanosec - h264 has a two frame delay that must be compensated
 	GMutex *mutex;                // audio mutex
 	
 	//PULSE SUPPORT

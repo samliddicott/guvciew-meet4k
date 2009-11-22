@@ -22,6 +22,7 @@
 #include <glib/gprintf.h>
 #include <string.h>
 #include <math.h>
+#include "vcodecs.h"
 #include "audio_effects.h"
 #include "ms_time.h"
 
@@ -36,7 +37,7 @@ static int fill_audio_buffer(struct paRecordData *data, int64_t tstamp)
 		{
 			/*copy data to audio buffer*/
 			memcpy(data->audio_buff[data->w_ind].frame, data->recordedSamples, data->aud_numBytes);
-			data->audio_buff[data->w_ind].time_stamp = data->a_ts;
+			data->audio_buff[data->w_ind].time_stamp = data->a_ts + data->delay;
 			data->audio_buff[data->w_ind].used = TRUE;
 			NEXT_IND(data->w_ind, AUDBUFF_SIZE);
 		}
@@ -176,6 +177,9 @@ set_sound (struct GLOBAL *global, struct paRecordData* data)
     	data->ts_ref = 0;
 	
 	data->stream = NULL;
+
+	if(get_vcodec_id(global->VidCodec) == CODEC_ID_H264) data->delay = (UINT64) 2*(global->fps_num *1000000000/global->fps); //in nanosec
+	data->delay += global->Sound_delay; /*add predefined delay - def = 0*/
 	
 	//reset the indexes	
 	data->r_ind = 0;

@@ -94,8 +94,8 @@ writeConf(struct GLOBAL *global, char *videodevice)
 		g_fprintf(fp,"# snd_numchan - sound number of channels 0- dev def 1 - mono 2 -stereo\n");
 		g_fprintf(fp,"snd_numchan=%i\n",global->Sound_NumChanInd);
 		g_fprintf(fp,"#snd_numsec - video audio blocks size in sec: 1,2,3,.. \n");
-		g_fprintf(fp,"# more seconds = more granularity, more memory allocation but less disc I/O\n");
-		g_fprintf(fp,"snd_numsec=%i\n",global->Sound_NumSec);
+		g_fprintf(fp,"# sound delay in nanosec - delays sound by the specified amount when capturing video\n");
+		g_fprintf(fp,"snd_delay=%llu\n",global->Sound_delay);
 		g_fprintf(fp,"# Sound Format (PCM=1 (0x0001) MP2=80 (0x0050)\n");
 		g_fprintf(fp,"snd_format=%i\n",global->Sound_Format);
 		g_fprintf(fp,"# Sound bit Rate used by mpeg audio default=160 Kbps\n");
@@ -170,14 +170,14 @@ readConf(struct GLOBAL *global)
 		TRUE,                          /* scan hex */
 		FALSE,                         /* scan hex dollar */
 		TRUE,                          /* scan single quote strings */
-		TRUE,                          /* scan double quite strings */
+		TRUE,                          /* scan double quote strings */
 		TRUE,                          /* numbers to int */
 		FALSE,                         /* int to float */
 		TRUE,                          /* identifier to string */
 		TRUE,                          /* char to token */
-		FALSE,                          /* symbol to token */
+		FALSE,                         /* symbol to token */
 		FALSE,                         /* scope 0 fallback */
-		FALSE                          /* store int64 */
+		TRUE                           /* store int64 */
 	};
 
 	int fd = g_open (global->confPath, O_RDONLY, 0);
@@ -399,9 +399,9 @@ readConf(struct GLOBAL *global)
 						{
 							global->Sound_NumChanInd = scanner->value.v_int;
 						}
-						else if (g_strcmp0(name,"snd_numsec")==0) 
+						else if (g_strcmp0(name,"snd_delay")==0) 
 						{
-							global->Sound_NumSec = scanner->value.v_int;
+							global->Sound_delay = scanner->value.v_int64;
 						}
 						else if (g_strcmp0(name,"snd_format")==0) 
 						{
@@ -503,7 +503,7 @@ readConf(struct GLOBAL *global)
 			g_printf("sound Device: %i\n",global->Sound_UseDev);
 			g_printf("sound samp rate: %i\n",global->Sound_SampRateInd);
 			g_printf("sound Channels: %i\n",global->Sound_NumChanInd);
-			g_printf("Sound Block Size: %i seconds\n",global->Sound_NumSec);
+			g_printf("Sound delay: %llu nanosec\n",global->Sound_delay);
 			g_printf("Sound Format: %i \n",global->Sound_Format);
 			g_printf("Sound bit Rate: %i Kbps\n",global->Sound_bitRate);
 			g_printf("Pan Step: %i degrees\n",global->PanStep);

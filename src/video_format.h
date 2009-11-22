@@ -55,7 +55,7 @@ struct VideoFormatData
 	int vcodec;
 	int acodec;
 	int keyframe;             //for avi only (not really necessary)
-	int frame_delay;          // h264 has a two frame delay
+	//int frame_delay;          // h264 has a two frame delay
 };
 
 const char *get_vformat_extension(int codec_ind);

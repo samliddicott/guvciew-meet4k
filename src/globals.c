@@ -100,9 +100,9 @@ int initGlobals (struct GLOBAL *global)
 	global->Sound_UseDev=0;
 	global->Sound_NumChan=NUM_CHANNELS;
 	global->Sound_NumChanInd=0;
-	global->Sound_NumSec=NUM_SECONDS;
+	global->Sound_delay=0;
 	global->Sound_bitRate=160; /*160 Kbps = 20000 Bps*/
-	
+	global->Sound_delay=0;     /*sound delay in nanosec*/
 	global->FpsCount=0;
 
 	global->disk_timer_id=0;
