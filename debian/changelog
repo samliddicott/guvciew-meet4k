@@ -5,6 +5,7 @@ guvcview (1.2.1-ubuntu1~karmic~ppa1) karmic; urgency=low
     - Moved video and audio processing (including file IO) to separate thread.
    * Add particles video effect.
    * Fixed bug caused by empty device list.
+   * Add MPG4-AVC (H264) codec support.
    * Package renamed to avoid future conflict with universe repo.   
 
  -- Paulo Assis <pj.assis@gmail.com>  Mon, 16 Nov 2009 10:25:00 +0000

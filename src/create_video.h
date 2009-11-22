@@ -24,21 +24,6 @@
 
 #include "guvcview.h"
 
-int initVideoFile(struct ALL_DATA *data);
-
-void closeVideoFile(struct ALL_DATA *all_data);
-
-int write_video_data(struct ALL_DATA *all_data, BYTE *buff, int size, QWORD v_ts);
-
-int write_video_frame (struct ALL_DATA *all_data, 
-	void *jpeg_struct, 
-	void *lavc_data,
-	VidBuff *proc_buff);
-
-int sync_audio_frame(struct ALL_DATA *all_data, AudBuff *proc_buff);
-
-int write_audio_frame (struct ALL_DATA *all_data, AudBuff *proc_buff);
-
 int store_video_frame(void *data);
 
 void *IO_loop(void *data);

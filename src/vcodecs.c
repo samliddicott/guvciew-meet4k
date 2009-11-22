@@ -463,6 +463,34 @@ vcodecs_data *get_codec_defaults(int codec_ind)
 	return (&(listSupVCodecs[get_real_index (codec_ind)]));
 }
 
+static int write_video_data(struct ALL_DATA *all_data, BYTE *buff, int size, QWORD v_ts)
+{
+	struct VideoFormatData *videoF = all_data->videoF;
+	struct GLOBAL *global = all_data->global;
+	
+	int ret =0;
+	
+	switch (global->VidFormat)
+	{
+		case AVI_FORMAT:
+			if(size)
+				ret = AVI_write_frame (videoF->AviOut, buff, size, videoF->keyframe);
+			break;
+		
+		case MKV_FORMAT:
+			videoF->vpts = v_ts;
+			if(size)
+				ret = write_video_packet (buff, size, global->fps, videoF);
+			break;
+			
+		default:
+			
+			break;
+	}
+	
+	return (ret);
+}
+
 static int encode_lavc (struct lavcData *lavc_data, 
 	struct ALL_DATA *all_data, 
 	VidBuff *proc_buff)

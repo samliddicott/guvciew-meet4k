@@ -82,7 +82,7 @@ static void alloc_videoBuff(struct ALL_DATA *all_data)
 	g_mutex_unlock(global->mutex);
 }
 
-int initVideoFile(struct ALL_DATA *all_data)
+static int initVideoFile(struct ALL_DATA *all_data)
 {
 	struct GWIDGET *gwidget = all_data->gwidget;
 	struct paRecordData *pdata = all_data->pdata;
@@ -278,7 +278,7 @@ aviClose (struct ALL_DATA *all_data)
 }
 
 
-void closeVideoFile(struct ALL_DATA *all_data)
+static void closeVideoFile(struct ALL_DATA *all_data)
 {
 	struct GLOBAL *global = all_data->global;
 	struct vdIn *videoIn = all_data->videoIn;
@@ -343,35 +343,7 @@ void closeVideoFile(struct ALL_DATA *all_data)
 	global->framecount = 0;
 }
 
-int write_video_data(struct ALL_DATA *all_data, BYTE *buff, int size, QWORD v_ts)
-{
-	struct VideoFormatData *videoF = all_data->videoF;
-	struct GLOBAL *global = all_data->global;
-	
-	int ret =0;
-	
-	switch (global->VidFormat)
-	{
-		case AVI_FORMAT:
-			if(size)
-				ret = AVI_write_frame (videoF->AviOut, buff, size, videoF->keyframe);
-			break;
-		
-		case MKV_FORMAT:
-			videoF->vpts = v_ts;
-			if(size)
-				ret = write_video_packet (buff, size, global->fps, videoF);
-			break;
-			
-		default:
-			
-			break;
-	}
-	
-	return (ret);
-}
-
-int write_video_frame (struct ALL_DATA *all_data, 
+static int write_video_frame (struct ALL_DATA *all_data, 
 	void *jpeg_struct, 
 	void *lavc_data,
 	VidBuff *proc_buff)
@@ -442,7 +414,7 @@ int write_video_frame (struct ALL_DATA *all_data,
 	return (0);
 }
 
-int write_audio_frame (struct ALL_DATA *all_data, AudBuff *proc_buff)
+static int write_audio_frame (struct ALL_DATA *all_data, AudBuff *proc_buff)
 {
 	struct paRecordData *pdata = all_data->pdata;
 	struct GLOBAL *global = all_data->global;
@@ -533,7 +505,7 @@ int write_audio_frame (struct ALL_DATA *all_data, AudBuff *proc_buff)
 	return (0);
 }
 
-int sync_audio_frame(struct ALL_DATA *all_data, AudBuff *proc_buff)
+static int sync_audio_frame(struct ALL_DATA *all_data, AudBuff *proc_buff)
 {
 	struct paRecordData *pdata = all_data->pdata;
 	struct GLOBAL *global = all_data->global;
@@ -604,98 +576,6 @@ static int buff_scheduler(int w_ind, int r_ind)
 	else sched_sleep = (diff_ind-15) * 7;                     /* <= 210 ms ~1 frame @ 5   fps */
 	
 	return sched_sleep;
-}
-
-/* this function can only be called after a lock on global->mutex */
-static void store_at_index(void *data)
-{
-	struct ALL_DATA *all_data = (struct ALL_DATA *) data;
-
-	struct GLOBAL *global = all_data->global;
-	struct vdIn *videoIn = all_data->videoIn;
-	//int delay = get_delay(global->VidCodec);
-	//int ts_ind = global->w_ind;
-	//int i =0;
-	//for(i=0; i< delay; i++)
-	//	NEXT_IND(ts_ind, VIDBUFF_SIZE);
-	global->videoBuff[global->w_ind].time_stamp = global->v_ts;
-	/*store frame at index*/
-	if((global->VidCodec == CODEC_MJPEG) &&
-		(global->Frame_Flags==0) &&
-		(videoIn->formatIn==V4L2_PIX_FMT_MJPEG))
-	{
-		/*store MJPEG frame*/
-		global->videoBuff[global->w_ind].bytes_used = videoIn->buf.bytesused;
-		memcpy(global->videoBuff[global->w_ind].frame, 
-			videoIn->tmpbuffer, 
-			global->videoBuff[global->w_ind].bytes_used);
-	}
-	else
-	{
-		/*store YUYV frame*/
-		global->videoBuff[global->w_ind].bytes_used = videoIn->height*videoIn->width*2;
-		memcpy(global->videoBuff[global->w_ind].frame, 
-			videoIn->framebuffer, 
-			global->videoBuff[global->w_ind].bytes_used);
-	}
-	global->videoBuff[global->w_ind].used = TRUE;
-}
-
-int store_video_frame(void *data)
-{
-	struct ALL_DATA *all_data = (struct ALL_DATA *) data;
-	struct GLOBAL *global = all_data->global;
-	
-	int ret = 0;
-	int producer_sleep = 0;
-	
-	g_mutex_lock(global->mutex);
-	
-	if(!global->videoBuff)
-	{
-		g_printerr("WARNING: video ring buffer not allocated yet - dropping frame.");
-		g_mutex_unlock(global->mutex);
-		return(-1);
-	}
-	
-	if (!global->videoBuff[global->w_ind].used)
-	{
-		store_at_index(data);
-		producer_sleep = buff_scheduler(global->w_ind, global->r_ind);
-		NEXT_IND(global->w_ind, VIDBUFF_SIZE);
-	}
-	else
-	{
-		if(global->debug) g_printerr("WARNING: buffer full waiting for free space\n");
-		/*wait for IO_cond at least 200ms*/
-		GTimeVal *timev;
-		timev = g_new0(GTimeVal, 1);
-		g_get_current_time(timev); 
-		g_time_val_add(timev,100*1000); /*100 ms*/
-		/* WARNING: if system time changes it can cause undesired behaviour */
-		if(g_cond_timed_wait(global->IO_cond, global->mutex, timev))
-		{
-			/*try to store the frame again*/
-			if (!global->videoBuff[global->w_ind].used)
-			{
-				store_at_index(data);
-				NEXT_IND(global->w_ind, VIDBUFF_SIZE);
-			}
-			else ret = -2;/*drop frame*/
-			
-		}
-		else ret = -3;/*drop frame*/
-		
-		g_free(timev);
-	}
-	if(!ret) global->framecount++;
-	
-	g_mutex_unlock(global->mutex);
-	
-	/*-------------if needed, make the thread sleep for a while----------------*/
-	if(producer_sleep) sleep_ms(producer_sleep);
-	
-	return ret;
 }
 
 static void process_audio(struct ALL_DATA *all_data, 
@@ -820,6 +700,98 @@ static gboolean process_video(struct ALL_DATA *all_data,
 		}
 	}
 	return finish;
+}
+
+/* this function can only be called after a lock on global->mutex */
+static void store_at_index(void *data)
+{
+	struct ALL_DATA *all_data = (struct ALL_DATA *) data;
+
+	struct GLOBAL *global = all_data->global;
+	struct vdIn *videoIn = all_data->videoIn;
+	//int delay = get_delay(global->VidCodec);
+	//int ts_ind = global->w_ind;
+	//int i =0;
+	//for(i=0; i< delay; i++)
+	//	NEXT_IND(ts_ind, VIDBUFF_SIZE);
+	global->videoBuff[global->w_ind].time_stamp = global->v_ts;
+	/*store frame at index*/
+	if((global->VidCodec == CODEC_MJPEG) &&
+		(global->Frame_Flags==0) &&
+		(videoIn->formatIn==V4L2_PIX_FMT_MJPEG))
+	{
+		/*store MJPEG frame*/
+		global->videoBuff[global->w_ind].bytes_used = videoIn->buf.bytesused;
+		memcpy(global->videoBuff[global->w_ind].frame, 
+			videoIn->tmpbuffer, 
+			global->videoBuff[global->w_ind].bytes_used);
+	}
+	else
+	{
+		/*store YUYV frame*/
+		global->videoBuff[global->w_ind].bytes_used = videoIn->height*videoIn->width*2;
+		memcpy(global->videoBuff[global->w_ind].frame, 
+			videoIn->framebuffer, 
+			global->videoBuff[global->w_ind].bytes_used);
+	}
+	global->videoBuff[global->w_ind].used = TRUE;
+}
+
+int store_video_frame(void *data)
+{
+	struct ALL_DATA *all_data = (struct ALL_DATA *) data;
+	struct GLOBAL *global = all_data->global;
+	
+	int ret = 0;
+	int producer_sleep = 0;
+	
+	g_mutex_lock(global->mutex);
+	
+	if(!global->videoBuff)
+	{
+		g_printerr("WARNING: video ring buffer not allocated yet - dropping frame.");
+		g_mutex_unlock(global->mutex);
+		return(-1);
+	}
+	
+	if (!global->videoBuff[global->w_ind].used)
+	{
+		store_at_index(data);
+		producer_sleep = buff_scheduler(global->w_ind, global->r_ind);
+		NEXT_IND(global->w_ind, VIDBUFF_SIZE);
+	}
+	else
+	{
+		if(global->debug) g_printerr("WARNING: buffer full waiting for free space\n");
+		/*wait for IO_cond at least 200ms*/
+		GTimeVal *timev;
+		timev = g_new0(GTimeVal, 1);
+		g_get_current_time(timev); 
+		g_time_val_add(timev,100*1000); /*100 ms*/
+		/* WARNING: if system time changes it can cause undesired behaviour */
+		if(g_cond_timed_wait(global->IO_cond, global->mutex, timev))
+		{
+			/*try to store the frame again*/
+			if (!global->videoBuff[global->w_ind].used)
+			{
+				store_at_index(data);
+				NEXT_IND(global->w_ind, VIDBUFF_SIZE);
+			}
+			else ret = -2;/*drop frame*/
+			
+		}
+		else ret = -3;/*drop frame*/
+		
+		g_free(timev);
+	}
+	if(!ret) global->framecount++;
+	
+	g_mutex_unlock(global->mutex);
+	
+	/*-------------if needed, make the thread sleep for a while----------------*/
+	if(producer_sleep) sleep_ms(producer_sleep);
+	
+	return ret;
 }
 
 void *IO_loop(void *data)
