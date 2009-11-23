@@ -29,6 +29,7 @@
 #include <glib/gprintf.h>
 #include <unistd.h>
 
+#include "ms_time.h"
 #include "defs.h"
 #include "matroska.h"
 
@@ -48,11 +49,9 @@ typedef struct mk_Context mk_Context;
 struct mk_Writer {
   FILE		      *fp;
   
-  //video
-  int		      video_only;       //not muxing audio
-  //int		      close_cluster;    
+  /*  header   */
+  int		      video_only;       //not muxing audio   
   unsigned	      duration_ptr;     //file location pointer for duration
-  //int64_t	      def_duration_ptr; //file location pointer for default frame duration
   int64_t	      segment_size_ptr; //file location pointer for segment size
   int64_t	      cues_pos;
   int64_t	      seekhead_pos;  
@@ -61,35 +60,32 @@ struct mk_Writer {
   mk_Context	      *freelist;
   mk_Context	      *actlist;
 
+  gboolean	      wrote_header;
+  
+  /*  video   */
   UINT64	      def_duration;
   int64_t	      timescale;
   int64_t	      cluster_tc_scaled;
   int64_t	      frame_tc, prev_frame_tc_scaled, max_frame_tc;
 
-  char		      wrote_header, in_frame, keyframe;
+  gboolean		      in_frame, keyframe;
   
-  //audio
+  /*  audio   */
   mk_Context	      *audio_frame;
-
-  //UINT64	      audio_def_duration;
-  //int64_t	      audio_timescale;
-  //int64_t	      audio_cluster_tc_scaled;
-  int64_t	      audio_frame_tc, audio_prev_frame_tc_scaled; //,audio_max_frame_tc;
+  int64_t	      audio_frame_tc, audio_prev_frame_tc_scaled; 
   int64_t	      audio_block, block_n;
 
-  char		      audio_in_frame, audio_keyframe;
+  gboolean		      audio_in_frame, audio_keyframe;
     
-  //cues
+  /*   cues    */
   mk_Context	       *cues;
   int64_t	       cue_time;
   int64_t	       cue_video_track_pos;
   int64_t	       cue_audio_track_pos;
   
-  //seek head
+  /* seek head */
   unsigned cluster_index;
   int64_t *cluster_pos;
-  
-  
 };
 
 static mk_Context *mk_createContext(mk_Writer *w, mk_Context *parent, unsigned id) {
@@ -100,8 +96,6 @@ static mk_Context *mk_createContext(mk_Writer *w, mk_Context *parent, unsigned i
     w->freelist = w->freelist->next;
   } else {
     c = g_new0(mk_Context, 1);
-    //c = malloc(sizeof(*c));
-    //memset(c, 0, sizeof(*c));
   }
 
   if (c == NULL)
@@ -127,8 +121,7 @@ static int	  mk_appendContextData(mk_Context *c, const void *data, unsigned size
     unsigned  dn = c->d_max ? c->d_max << 1 : 16;
     while (ns > dn)
       dn <<= 1;
-
-    //dp = realloc(c->data, dn);
+      
     dp = g_renew(BYTE, c->data, dn);
     if (dp == NULL)
       return -1;
@@ -291,14 +284,14 @@ static int	  mk_writeVoid(mk_Context *c, unsigned size) {
   return 0;
 }
 
-//static int	  mk_writeUIntRaw(mk_Context *c, unsigned id, int64_t ui) {
-//  unsigned char	  c_ui[8] = { ui >> 56, ui >> 48, ui >> 40, ui >> 32, ui >> 24, ui >> 16, ui >> 8, ui };
-//
-//  CHECK(mk_writeID(c, id));
-//  CHECK(mk_writeSize(c, 8));
-//  CHECK(mk_appendContextData(c, c_ui, 8));
-//  return 0;
-//}
+static int	  mk_writeUIntRaw(mk_Context *c, unsigned id, int64_t ui) {
+  unsigned char	  c_ui[8] = { ui >> 56, ui >> 48, ui >> 40, ui >> 32, ui >> 24, ui >> 16, ui >> 8, ui };
+
+  CHECK(mk_writeID(c, id));
+  CHECK(mk_writeSize(c, 8));
+  CHECK(mk_appendContextData(c, c_ui, 8));
+  return 0;
+}
 
 static int	  mk_writeUInt(mk_Context *c, unsigned id, int64_t ui) {
   unsigned char	  c_ui[8] = { ui >> 56, ui >> 48, ui >> 40, ui >> 32, ui >> 24, ui >> 16, ui >> 8, ui };
@@ -386,11 +379,9 @@ static unsigned	  mk_ebmlSIntSize(int64_t si) {
 
 mk_Writer *mk_createWriter(const char *filename) {
   mk_Writer *w = g_new0(mk_Writer, 1);
-  //mk_Writer *w = malloc(sizeof(*w));
+  
   if (w == NULL)
     return NULL;
-
-  //memset(w, 0, sizeof(*w));
 
   w->root = mk_createContext(w, NULL, 0);
   if (w->root == NULL) {
@@ -405,8 +396,6 @@ mk_Writer *mk_createWriter(const char *filename) {
     g_free(w);
     return NULL;
   }
-
-  //w->timescale = 1000000;
 
   return w;
 }
@@ -430,59 +419,67 @@ int	  mk_writeHeader(mk_Writer *w, const char *writingApp,
 {
   mk_Context  *c, *ti, *v, *ti2, *ti3, *a;
   BYTE empty[8] = {0x00,0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+  int extra=6;/*use six extra bytes for segment size*/
   if (w->wrote_header)
     return -1;
   
   w->timescale = timescale;
-  w->def_duration = default_frame_duration;
+  w->def_duration = default_frame_duration; 
   
   if ((c = mk_createContext(w, w->root, EBML_ID_HEADER)) == NULL) // EBML
     return -1;
-  //CHECK(mk_writeUInt(c, EBML_ID_EBMLVERSION, 1)); // EBMLVersion
-  //CHECK(mk_writeUInt(c, EBML_ID_EBMLREADVERSION, 1)); // EBMLReadVersion
-  //CHECK(mk_writeUInt(c, EBML_ID_EBMLMAXIDLENGTH, 4)); // EBMLMaxIDLength
+  //CHECK(mk_writeUInt(c, EBML_ID_EBMLVERSION, 1));       // EBMLVersion
+  //CHECK(mk_writeUInt(c, EBML_ID_EBMLREADVERSION, 1));   // EBMLReadVersion
+  //CHECK(mk_writeUInt(c, EBML_ID_EBMLMAXIDLENGTH, 4));   // EBMLMaxIDLength
   //CHECK(mk_writeUInt(c, EBML_ID_EBMLMAXSIZELENGTH, 8)); // EBMLMaxSizeLength
-  CHECK(mk_writeStr(c, EBML_ID_DOCTYPE, "matroska")); // DocType
-  CHECK(mk_writeUInt(c, EBML_ID_DOCTYPEVERSION, 2)); // DocTypeVersion
-  CHECK(mk_writeUInt(c, EBML_ID_DOCTYPEREADVERSION, 2)); // DocTypeReadversion
+  CHECK(mk_writeStr(c, EBML_ID_DOCTYPE, "matroska"));     // DocType
+  CHECK(mk_writeUInt(c, EBML_ID_DOCTYPEVERSION, 2));      // DocTypeVersion
+  CHECK(mk_writeUInt(c, EBML_ID_DOCTYPEREADVERSION, 2));  // DocTypeReadversion
   CHECK(mk_closeContext(c, 0));
 	
-  if ((c = mk_createContext(w, w->root, MATROSKA_ID_SEGMENT)) == NULL) // Segment
+  int ebml_header_size = 24;
+  
+  /* SEGMENT starts at position 24  */
+  if ((c = mk_createContext(w, w->root, MATROSKA_ID_SEGMENT)) == NULL)
     return -1;
-  w->segment_size_ptr = 0x1c; //FIXME: should not be hardcoded
-  //needs full segment size here (including clusters) but we only know the head size for now.
-  mk_appendContextData(c, empty, 6); //add extra six (0) bytes (reserve space for segment size later)
+  w->segment_size_ptr = ebml_header_size + 4;
+  /*needs full segment size here (including clusters) but we only know the header size for now.(2 bytes)*/
+  /*add extra (6) bytes - reserve a total of 8 bytes for segment size in ebml format =6+2(header size)  */
+  mk_appendContextData(c, empty, extra);
 
-  w->seekhead_pos = 36; //FIXME:  SeekHead Position (should not be hardcoded)
-  if ((ti = mk_createContext(w, c, MATROSKA_ID_SEEKHEAD)) == NULL) // SeekHead
+  w->seekhead_pos = w->segment_size_ptr + 8; //SeekHead Position
+  if ((ti = mk_createContext(w, c, MATROSKA_ID_SEEKHEAD)) == NULL)    // SeekHead
     return -1;
   if ((ti2 = mk_createContext(w, ti, MATROSKA_ID_SEEKENTRY)) == NULL) // Seek
     return -1;
-  CHECK(mk_writeUInt (ti2, MATROSKA_ID_SEEKID, MATROSKA_ID_INFO)); //seekID
-  CHECK(mk_writeUInt(ti2, MATROSKA_ID_SEEKPOSITION, 4099)); //FIXME: SeekPosition (should not be hardcoded)
+  CHECK(mk_writeUInt (ti2, MATROSKA_ID_SEEKID, MATROSKA_ID_INFO));    //seekID
+  CHECK(mk_writeUInt(ti2, MATROSKA_ID_SEEKPOSITION, 4099));  //FIXME: SeekPosition (should not be hardcoded)
   CHECK(mk_closeContext(ti2, 0));
 
   if ((ti2 = mk_createContext(w, ti, MATROSKA_ID_SEEKENTRY)) == NULL) // Seek
     return -1;
-  CHECK(mk_writeUInt(ti2, MATROSKA_ID_SEEKID, MATROSKA_ID_TRACKS)); //seekID
-  CHECK(mk_writeUInt(ti2, MATROSKA_ID_SEEKPOSITION, 4184)); //FIXME:  SeekPosition (should not be hardcoded)
+  CHECK(mk_writeUInt(ti2, MATROSKA_ID_SEEKID, MATROSKA_ID_TRACKS));   //seekID
+  CHECK(mk_writeUInt(ti2, MATROSKA_ID_SEEKPOSITION, 4184));  //FIXME:  SeekPosition (should not be hardcoded)
   CHECK(mk_closeContext(ti2, 0));
 	
   CHECK(mk_closeContext(ti, 0));
 
-  //allways start Segment info at pos 4135
-  //this will be overwritten by seek entries for cues and the final seekhead
-  CHECK(mk_writeVoid(c, 4135-(71+3)));
-        
-  if ((ti = mk_createContext(w, c, MATROSKA_ID_INFO)) == NULL) // SegmentInfo
+  /* allways start Segment info at pos 4135
+   * this will be overwritten by seek entries for cues and the final seekhead */
+  CHECK(mk_writeVoid(c, 4135-(71+3))); //FIXME
+  
+  /* Segment Info at position 4135 */  
+  if ((ti = mk_createContext(w, c, MATROSKA_ID_INFO)) == NULL)
     return -1;
   CHECK(mk_writeUInt(ti, MATROSKA_ID_TIMECODESCALE, w->timescale));
-  CHECK(mk_writeStr(ti, MATROSKA_ID_MUXINGAPP, "guvcview Haali Matroska Writer b0"));
+  CHECK(mk_writeStr(ti, MATROSKA_ID_MUXINGAPP, "Guvcview 1.2.1 - Muxer"));
   CHECK(mk_writeStr(ti, MATROSKA_ID_WRITINGAPP, writingApp));
-  //signed 8 byte integer in nanoseconds 
-  //with 0 indicating the precise beginning of the millennium (at 2001-01-01T00:00:00,000000000 UTC)
-  //CHECK(mk_writeUInt(ti, MATROSKA_ID_DATEUTC, date));
-  //generate seg uid - 16 byte random int
+  /* signed 8 byte integer in nanoseconds 
+   * with 0 indicating the precise beginning of the millennium (at 2001-01-01T00:00:00,000000000 UTC)
+   * value: ns_time - 978307200000000000  ( Unix Epoch is 01/01/1970 ) */
+  UINT64 date = ns_time() - 978307200000000000LL;
+  CHECK(mk_writeUIntRaw(ti, MATROSKA_ID_DATEUTC, date)); //always use 8 bytes
+  /*generate seg uid - 16 byte random int*/
   GRand* rand_uid= g_rand_new_with_seed(2);
   int seg_uid[4] = {0,0,0,0};
   seg_uid[0] = g_rand_int_range(rand_uid, G_MININT32, G_MAXINT32);
@@ -491,43 +488,43 @@ int	  mk_writeHeader(mk_Writer *w, const char *writingApp,
   seg_uid[3] = g_rand_int_range(rand_uid, G_MININT32, G_MAXINT32);
   CHECK(mk_writeBin(ti, MATROSKA_ID_SEGMENTUID, seg_uid, 16));
 
-  CHECK(mk_writeFloat(ti, MATROSKA_ID_DURATION, 0)); //Duration
-  w->duration_ptr = ti->d_cur+26;//FIXME
-  CHECK(mk_closeContext(ti, &w->duration_ptr));
+  CHECK(mk_writeFloat(ti, MATROSKA_ID_DURATION, 0)); //Track Duration
+  /*ti->d_cur - float size(4) + EBML header size(24) + extra empty bytes for segment size(6)*/
+  w->duration_ptr = ti->d_cur + 20 + extra;
+  CHECK(mk_closeContext(ti, &w->duration_ptr)); //add ti->parent->d_cur to duration_ptr
   
   /*segment tracks start at 4220*/
-  if ((ti = mk_createContext(w, c, MATROSKA_ID_TRACKS)) == NULL) // tracks
+  if ((ti = mk_createContext(w, c, MATROSKA_ID_TRACKS)) == NULL)
     return -1;
-  /*video track start at 4226*/
-  if ((ti2 = mk_createContext(w, ti, MATROSKA_ID_TRACKENTRY)) == NULL) // TrackEntry (video)
+  /*VIDEO TRACK entry start at 4226*/
+  if ((ti2 = mk_createContext(w, ti, MATROSKA_ID_TRACKENTRY)) == NULL)
     return -1;
-  CHECK(mk_writeUInt(ti2, MATROSKA_ID_TRACKNUMBER, 1)); // TrackNumber
+  CHECK(mk_writeUInt(ti2, MATROSKA_ID_TRACKNUMBER, 1));        // TrackNumber
   
   int track_uid1 = g_rand_int_range(rand_uid, G_MININT32, G_MAXINT32);
-  CHECK(mk_writeUInt(ti2, MATROSKA_ID_TRACKUID, track_uid1)); //Track UID
+  CHECK(mk_writeUInt(ti2, MATROSKA_ID_TRACKUID, track_uid1));  //Track UID
   
   CHECK(mk_writeUInt(ti2, MATROSKA_ID_TRACKTYPE, MATROSKA_TRACK_TYPE_VIDEO)); // TrackType 1 -video 2 -audio
-  CHECK(mk_writeUInt(ti2, MATROSKA_ID_TRACKFLAGENABLED, 1));  //enabled
-  CHECK(mk_writeUInt(ti2, MATROSKA_ID_TRACKFLAGDEFAULT, 1));  //default
-  CHECK(mk_writeUInt(ti2, MATROSKA_ID_TRACKFLAGFORCED, 0));   //forced
-  CHECK(mk_writeUInt(ti2, MATROSKA_ID_TRACKFLAGLACING, 0));   // FlagLacing
-  CHECK(mk_writeUInt(ti2, MATROSKA_ID_TRACKMINCACHE, 1));     //MinCache
+  CHECK(mk_writeUInt(ti2, MATROSKA_ID_TRACKFLAGENABLED, 1));   //enabled
+  CHECK(mk_writeUInt(ti2, MATROSKA_ID_TRACKFLAGDEFAULT, 1));   //default
+  CHECK(mk_writeUInt(ti2, MATROSKA_ID_TRACKFLAGFORCED, 0));    //forced
+  CHECK(mk_writeUInt(ti2, MATROSKA_ID_TRACKFLAGLACING, 0));    // FlagLacing
+  CHECK(mk_writeUInt(ti2, MATROSKA_ID_TRACKMINCACHE, 1));      //MinCache
   CHECK(mk_writeFloat(ti2, MATROSKA_ID_TRACKTIMECODESCALE, 1));//Timecode scale (float)
-  CHECK(mk_writeUInt(ti2, MATROSKA_ID_TRACKMAXBLKADDID, 0));  //Max Block Addition ID
-  CHECK(mk_writeStr(ti2, MATROSKA_ID_CODECID, codecID));      // CodecID
-  CHECK(mk_writeUInt(ti2, MATROSKA_ID_CODECDECODEALL, 1));    //Codec Decode All
+  CHECK(mk_writeUInt(ti2, MATROSKA_ID_TRACKMAXBLKADDID, 0));   //Max Block Addition ID
+  CHECK(mk_writeStr(ti2, MATROSKA_ID_CODECID, codecID));       // CodecID
+  CHECK(mk_writeUInt(ti2, MATROSKA_ID_CODECDECODEALL, 1));     //Codec Decode All
 
-   // CodecPrivate
+  /* CodecPrivate (40 bytes) */
   if (codecPrivateSize)
 	CHECK(mk_writeBin(ti2, MATROSKA_ID_CODECPRIVATE, codecPrivate, codecPrivateSize));
-  //else CHECK(mk_writeVoid(ti2, 40));
-  
-  if (w->def_duration) //for fixed frame rate (not required by the spec, but at least vlc seems to need it)
-  {
-    CHECK(mk_writeUInt(ti2, MATROSKA_ID_TRACKDEFAULTDURATION, w->def_duration)); // DefaultDuration
-  }
 	
-  if ((v = mk_createContext(w, ti2, MATROSKA_ID_TRACKVIDEO)) == NULL) // Video
+  /* Default video frame duration - for fixed frame rate only
+   * not required by the spec, but at least vlc seems to need it to work properly */
+  if (w->def_duration)
+    CHECK(mk_writeUInt(ti2, MATROSKA_ID_TRACKDEFAULTDURATION, w->def_duration));
+	
+  if ((v = mk_createContext(w, ti2, MATROSKA_ID_TRACKVIDEO)) == NULL) // Video track
     return -1;
   CHECK(mk_writeUInt(v, MATROSKA_ID_VIDEOPIXELWIDTH, width));
   CHECK(mk_writeUInt(v, MATROSKA_ID_VIDEOPIXELHEIGHT, height));
@@ -540,33 +537,34 @@ int	  mk_writeHeader(mk_Writer *w, const char *writingApp,
         
   if (SampRate > 0)
   {
-	if ((ti3 = mk_createContext(w, ti, MATROSKA_ID_TRACKENTRY)) == NULL) // TrackEntry (audio)
+	/*AUDIO TRACK entry */
+	if ((ti3 = mk_createContext(w, ti, MATROSKA_ID_TRACKENTRY)) == NULL)
 		return -1;
-	CHECK(mk_writeUInt(ti3, MATROSKA_ID_TRACKNUMBER, 2)); // TrackNumber
+	CHECK(mk_writeUInt(ti3, MATROSKA_ID_TRACKNUMBER, 2));        // TrackNumber
 	
 	int track_uid2 = g_rand_int_range(rand_uid, G_MININT32, G_MAXINT32);
 	CHECK(mk_writeUInt(ti3, MATROSKA_ID_TRACKUID, track_uid2));
 
 	CHECK(mk_writeUInt(ti3, MATROSKA_ID_TRACKTYPE, MATROSKA_TRACK_TYPE_AUDIO)); // TrackType 1 -video 2 -audio
-	CHECK(mk_writeUInt(ti3, MATROSKA_ID_TRACKFLAGENABLED, 1));  //enabled
-	CHECK(mk_writeUInt(ti3, MATROSKA_ID_TRACKFLAGDEFAULT, 1));  //default
-	CHECK(mk_writeUInt(ti3, MATROSKA_ID_TRACKFLAGFORCED, 0));   //forced
-	CHECK(mk_writeUInt(ti3, MATROSKA_ID_TRACKFLAGLACING, 1));   // FlagLacing
-	CHECK(mk_writeUInt(ti3, MATROSKA_ID_TRACKMINCACHE, 0));     //MinCache
+	CHECK(mk_writeUInt(ti3, MATROSKA_ID_TRACKFLAGENABLED, 1));   //enabled
+	CHECK(mk_writeUInt(ti3, MATROSKA_ID_TRACKFLAGDEFAULT, 1));   //default
+	CHECK(mk_writeUInt(ti3, MATROSKA_ID_TRACKFLAGFORCED, 0));    //forced
+	CHECK(mk_writeUInt(ti3, MATROSKA_ID_TRACKFLAGLACING, 1));    // FlagLacing
+	CHECK(mk_writeUInt(ti3, MATROSKA_ID_TRACKMINCACHE, 0));      //MinCache
 	CHECK(mk_writeFloat(ti3, MATROSKA_ID_TRACKTIMECODESCALE, 1));//Timecode scale (float)
-	CHECK(mk_writeUInt(ti3, MATROSKA_ID_TRACKMAXBLKADDID, 0));  //Max Block Addition ID
-	CHECK(mk_writeStr(ti3, MATROSKA_ID_CODECID, AcodecID));     // CodecID
-	CHECK(mk_writeUInt(ti3, MATROSKA_ID_CODECDECODEALL, 1));    //Codec Decode All
+	CHECK(mk_writeUInt(ti3, MATROSKA_ID_TRACKMAXBLKADDID, 0));   //Max Block Addition ID
+	CHECK(mk_writeStr(ti3, MATROSKA_ID_CODECID, AcodecID));      // CodecID
+	CHECK(mk_writeUInt(ti3, MATROSKA_ID_CODECDECODEALL, 1));     //Codec Decode All
 	
-	if (default_aframe_duration) //for fixed sample rate
+	if (default_aframe_duration) /* for fixed sample rate */
 		CHECK(mk_writeUInt(ti3, MATROSKA_ID_TRACKDEFAULTDURATION, default_aframe_duration)); // DefaultDuration audio
   
-	if ((a = mk_createContext(w, ti3, MATROSKA_ID_TRACKAUDIO)) == NULL) // Audio
+	if ((a = mk_createContext(w, ti3, MATROSKA_ID_TRACKAUDIO)) == NULL) // Audio track
 		return -1;
 	CHECK(mk_writeFloat(a, MATROSKA_ID_AUDIOSAMPLINGFREQ, SampRate));
 	CHECK(mk_writeUInt(a, MATROSKA_ID_AUDIOCHANNELS, channels));
-	if (bitsSample > 0)
-		CHECK(mk_writeUInt(a, MATROSKA_ID_AUDIOBITDEPTH, bitsSample)); // for pcm only (16)
+	if (bitsSample > 0) /* for pcm only (16) */
+		CHECK(mk_writeUInt(a, MATROSKA_ID_AUDIOBITDEPTH, bitsSample));
 	CHECK(mk_closeContext(a, 0));
 	CHECK(mk_closeContext(ti3, 0));
   }
@@ -582,10 +580,9 @@ int	  mk_writeHeader(mk_Writer *w, const char *writingApp,
   CHECK(mk_closeContext(c, 0));
   CHECK(mk_flushContextData(w->root));
   w->cluster_index = 1;
-  //w->cluster_pos = realloc(w->cluster_pos, w->cluster_index*sizeof(int64_t));
   w->cluster_pos = g_renew(int64_t, w->cluster_pos, w->cluster_index);
   w->cluster_pos[0] = ftell(w->fp) -36;
-  w->wrote_header = 1;
+  w->wrote_header = TRUE;
 
   return 0;
 }
@@ -597,7 +594,6 @@ static int mk_closeCluster(mk_Writer *w) {
   w->cluster = NULL;
   CHECK(mk_flushContextData(w->root));
   w->cluster_index++;
-  //w->cluster_pos = realloc(w->cluster_pos, w->cluster_index*sizeof(int64_t));
   w->cluster_pos = g_renew(int64_t, w->cluster_pos, w->cluster_index);
   w->cluster_pos[w->cluster_index-1] = ftell(w->fp) - 36;
   return 0;
@@ -615,8 +611,8 @@ static int mk_flushFrame(mk_Writer *w) {
   delta = w->frame_tc / w->timescale - w->cluster_tc_scaled;
 	
   if (w->cluster == NULL) {
-    w->cluster_tc_scaled = w->frame_tc / w->timescale ;//w->frame_tc * w->def_duration / w->timescale;
-    w->cluster = mk_createContext(w, w->root, MATROSKA_ID_CLUSTER); // Cluster
+    w->cluster_tc_scaled = w->frame_tc / w->timescale ;
+    w->cluster = mk_createContext(w, w->root, MATROSKA_ID_CLUSTER); // New Cluster
     if (w->cluster == NULL)
       return -1;
 
@@ -651,14 +647,13 @@ static int mk_flushFrame(mk_Writer *w) {
   if (!w->keyframe)
     CHECK(mk_writeSInt(w->cluster, MATROSKA_ID_BLOCKREFERENCE, ref)); // ReferenceBlock
 
-  w->in_frame = 0;
+  w->in_frame = FALSE;
   w->prev_frame_tc_scaled = w->cluster_tc_scaled + delta;
 
 	/*******************************/
   if (delta > 32767ll || delta < -32768ll || (w->cluster->d_cur) > CLSIZE)
   {
     CHECK(mk_closeCluster(w));
-    //w->close_cluster = 0;
   }
 	/*******************************/
 
@@ -673,7 +668,7 @@ static int mk_flushAudioFrame(mk_Writer *w) {
   //unsigned char flags = 0x04; //lacing
   //unsigned char framesinlace = 0x07; //FIXME:  total frames -1
 
-  //make sure we have a cluster
+  /* make sure we have a cluster */
   if (w->cluster == NULL) {
     w->cluster_tc_scaled = w->audio_frame_tc / w->timescale ;
     w->cluster = mk_createContext(w, w->root, MATROSKA_ID_CLUSTER); // Cluster
@@ -711,14 +706,13 @@ static int mk_flushAudioFrame(mk_Writer *w) {
     CHECK(mk_appendContextData(w->cluster, w->audio_frame->data, w->audio_frame->d_cur));
     w->audio_frame->d_cur = 0;
   }
-  w->audio_in_frame = 0;
+  w->audio_in_frame = FALSE;
   w->audio_prev_frame_tc_scaled = w->cluster_tc_scaled + delta;
 
 	/*******************************/
   if (delta > 32767ll || delta < -32768ll || (w->cluster->d_cur) > CLSIZE)
   {
     CHECK(mk_closeCluster(w));
-    //w->close_cluster = 0;
   }
 	/*******************************/
 
@@ -827,8 +821,8 @@ int	  mk_startFrame(mk_Writer *w) {
   if (mk_flushFrame(w) < 0)
     return -1;
 
-  w->in_frame = 1;
-  w->keyframe = 0;
+  w->in_frame = TRUE;
+  w->keyframe = FALSE;
 
   return 0;
 }
@@ -836,8 +830,8 @@ int	  mk_startFrame(mk_Writer *w) {
 int	  mk_startAudioFrame(mk_Writer *w) {
   if (mk_flushAudioFrame(w) < 0)
     return -1;
-  w->audio_in_frame = 1;
-  w->audio_keyframe = 0;
+  w->audio_in_frame = TRUE;
+  w->audio_keyframe = FALSE;
 
   return 0;
 }
@@ -847,7 +841,7 @@ int	  mk_setFrameFlags(mk_Writer *w,int64_t timestamp, int keyframe) {
     return -1;
   //printf("ts: %lu\n", (long unsigned int) timestamp);
   w->frame_tc = timestamp;
-  w->keyframe = keyframe != 0;
+  w->keyframe = (keyframe != 0);
 
   if (w->max_frame_tc < timestamp)
     w->max_frame_tc = timestamp;
@@ -860,7 +854,7 @@ int	  mk_setAudioFrameFlags(mk_Writer *w,int64_t timestamp, int keyframe) {
     return -1;
   //printf("ts: %lu\n", (long unsigned int) timestamp);
   w->audio_frame_tc = timestamp;
-  w->audio_keyframe = keyframe != 0;
+  w->audio_keyframe = (keyframe != 0);
 
 
   return 0;
@@ -893,32 +887,32 @@ int	  mk_close(mk_Writer *w) {
   if (mk_flushFrame(w) < 0 || mk_flushAudioFrame(w) < 0 || mk_closeCluster(w) < 0)
     ret = -1;
   if (w->wrote_header) {
-    //move to end of file
+    /* move to end of file */
     fseek(w->fp, 0, SEEK_END);
-    //store last position
+    /* store last position */
     int64_t CuesPos = ftell (w->fp) - 36;
     printf("cues at %llu\n",CuesPos);
     write_cues(w);
-    //move to end of file
+    /* move to end of file */
     fseek(w->fp, 0, SEEK_END);
     int64_t SeekHeadPos = ftell (w->fp) - 36;
     printf("SeekHead at %llu\n",SeekHeadPos);
-    //write seekHead
+    /* write seekHead */
     write_SeekHead(w);
-    //move to end of file
+    /* move to end of file */
     fseek(w->fp, 0, SEEK_END);
     int64_t lLastPos = ftell (w->fp);
     int64_t seg_size = lLastPos - (w->segment_size_ptr);
     //printf("segment size is: %llu bytes\n", seg_size);
     seg_size |= 0x0100000000000000ll;
-    //move to segment entry
+    /* move to segment entry */
     fseek(w->fp, w->segment_size_ptr, SEEK_SET);
     if (mk_writeSegPos (w->root, seg_size ) < 0 || mk_flushContextData(w->root) < 0)
       ret = -1;
-    //move to seekentries
+    /* move to seekentries */
     fseek(w->fp, w->seekhead_pos, SEEK_SET);
     write_SegSeek (w, CuesPos, SeekHeadPos);
-    //move to segment duration entry
+    /* move to segment duration entry */
     fseek(w->fp, w->duration_ptr, SEEK_SET);
     if (mk_writeFloatRaw(w->root, (float)(double)(w->max_frame_tc/ w->timescale)) < 0 ||
 	mk_flushContextData(w->root) < 0)
@@ -926,8 +920,8 @@ int	  mk_close(mk_Writer *w) {
   }
   mk_destroyContexts(w);
   g_free(w->cluster_pos);
-  fflush(w->fp); //flush the file stream to the file system
-  if(fsync(fileno(w->fp)) || fclose(w->fp)) //make sure we actually write do disk and then close 
+  fflush(w->fp); /* flush the file stream to the file system */
+  if(fsync(fileno(w->fp)) || fclose(w->fp)) /* make sure we actually write do disk and then close */
 	perror("MATROSKA ERROR - couldn't write to matroska file\n");
 	
   g_free(w);
