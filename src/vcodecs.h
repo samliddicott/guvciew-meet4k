@@ -44,6 +44,7 @@ typedef struct _vcodecs_data
 	const void *mkv_codecPriv;//mkv codec private data
 	const char *description;  //codec description
 	//int frame_delay;          //frame delay
+	int fps;                  // encoder frame rate (used for time base)
 	int bit_rate;             //lavc default bit rate
 	int qmax;                 //lavc qmax
 	int qmin;                 //lavc qmin

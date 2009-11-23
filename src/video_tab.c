@@ -122,14 +122,29 @@ lavc_properties(GtkButton * CodecButt, struct ALL_DATA *all_data)
 		NULL);
 	
 	GtkWidget *table = gtk_table_new(1,2,FALSE);
+
+	GtkWidget *lbl_fps = gtk_label_new(_("                              encoder fps:   \n (0 - use fps combobox value)"));
+	gtk_misc_set_alignment (GTK_MISC (lbl_fps), 1, 0.5);
+	gtk_table_attach (GTK_TABLE(table), lbl_fps, 0, 1, line, line+1,
+		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_widget_show (lbl_fps);
 	
+	GtkWidget *enc_fps = gtk_spin_button_new_with_range(0,30,5);
+	gtk_editable_set_editable(GTK_EDITABLE(enc_fps),TRUE);
+	gtk_spin_button_set_value (GTK_SPIN_BUTTON(enc_fps), codec_defaults->fps);
+	
+	gtk_table_attach (GTK_TABLE(table), enc_fps, 1, 2, line, line+1,
+		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_widget_show (enc_fps);
+	line++;
+
 	GtkWidget *lbl_bit_rate = gtk_label_new(_("bit rate:   "));
 	gtk_misc_set_alignment (GTK_MISC (lbl_bit_rate), 1, 0.5);
 	gtk_table_attach (GTK_TABLE(table), lbl_bit_rate, 0, 1, line, line+1,
 		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (lbl_bit_rate);
 	
-	GtkWidget *bit_rate = gtk_spin_button_new_with_range(160000,4000000,20000);
+	GtkWidget *bit_rate = gtk_spin_button_new_with_range(160000,4000000,10000);
 	gtk_editable_set_editable(GTK_EDITABLE(bit_rate),TRUE);
 	gtk_spin_button_set_value (GTK_SPIN_BUTTON(bit_rate), codec_defaults->bit_rate);
 	
@@ -401,6 +416,7 @@ lavc_properties(GtkButton * CodecButt, struct ALL_DATA *all_data)
 	switch (result)
 	{
 		case GTK_RESPONSE_ACCEPT:
+			codec_defaults->fps = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON(enc_fps));
 			codec_defaults->bit_rate = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON(bit_rate));
 			codec_defaults->qmax = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON(qmax));
 			codec_defaults->qmin = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON(qmin));
