@@ -420,6 +420,7 @@ int	  mk_writeHeader(mk_Writer *w, const char *writingApp,
   mk_Context  *c, *ti, *v, *ti2, *ti3, *a;
   BYTE empty[8] = {0x00,0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
   int extra=6;/*use six extra bytes for segment size*/
+  unsigned pos = 0; /*current position in header*/
   if (w->wrote_header)
     return -1;
   
@@ -435,44 +436,48 @@ int	  mk_writeHeader(mk_Writer *w, const char *writingApp,
   CHECK(mk_writeStr(c, EBML_ID_DOCTYPE, "matroska"));     // DocType
   CHECK(mk_writeUInt(c, EBML_ID_DOCTYPEVERSION, 2));      // DocTypeVersion
   CHECK(mk_writeUInt(c, EBML_ID_DOCTYPEREADVERSION, 2));  // DocTypeReadversion
-  CHECK(mk_closeContext(c, 0));
+  pos=c->d_cur;
+  CHECK(mk_closeContext(c, &pos));
 	
-  int ebml_header_size = 24;
+  int ebml_header_size = pos; /*pos=24*/
   
   /* SEGMENT starts at position 24  */
   if ((c = mk_createContext(w, w->root, MATROSKA_ID_SEGMENT)) == NULL)
     return -1;
-  w->segment_size_ptr = ebml_header_size + 4;
+  pos+=4; /*pos=28*/
+	
+  w->segment_size_ptr = pos;
   /*needs full segment size here (including clusters) but we only know the header size for now.(2 bytes)*/
   /*add extra (6) bytes - reserve a total of 8 bytes for segment size in ebml format =6+2(header size)  */
   mk_appendContextData(c, empty, extra);
+  pos+=extra+2;/*(pos=36) account 2 bytes from header size -these will only be available after closing c context*/
 
-  w->seekhead_pos = w->segment_size_ptr + 8; //SeekHead Position
+  w->seekhead_pos = pos; //SeekHead Position
   if ((ti = mk_createContext(w, c, MATROSKA_ID_SEEKHEAD)) == NULL)    // SeekHead
     return -1;
   if ((ti2 = mk_createContext(w, ti, MATROSKA_ID_SEEKENTRY)) == NULL) // Seek
     return -1;
   CHECK(mk_writeUInt (ti2, MATROSKA_ID_SEEKID, MATROSKA_ID_INFO));    //seekID
-  CHECK(mk_writeUInt(ti2, MATROSKA_ID_SEEKPOSITION, 4099));  //FIXME: SeekPosition (should not be hardcoded)
+  CHECK(mk_writeUInt(ti2, MATROSKA_ID_SEEKPOSITION, 4135-(w->seekhead_pos)));
   CHECK(mk_closeContext(ti2, 0));
 
   if ((ti2 = mk_createContext(w, ti, MATROSKA_ID_SEEKENTRY)) == NULL) // Seek
     return -1;
   CHECK(mk_writeUInt(ti2, MATROSKA_ID_SEEKID, MATROSKA_ID_TRACKS));   //seekID
-  CHECK(mk_writeUInt(ti2, MATROSKA_ID_SEEKPOSITION, 4184));  //FIXME:  SeekPosition (should not be hardcoded)
+  CHECK(mk_writeUInt(ti2, MATROSKA_ID_SEEKPOSITION, 4220-(w->seekhead_pos)));
   CHECK(mk_closeContext(ti2, 0));
-	
-  CHECK(mk_closeContext(ti, 0));
-
+  pos = ti->d_cur + w->segment_size_ptr + 2;/* add 2 bytes from the header size*/
+  CHECK(mk_closeContext(ti, &pos)); /*pos=71*/
   /* allways start Segment info at pos 4135
-   * this will be overwritten by seek entries for cues and the final seekhead */
-  CHECK(mk_writeVoid(c, 4135-(71+3))); //FIXME
-  
-  /* Segment Info at position 4135 */  
+   * this will be overwritten by seek entries for cues and the final seekhead   */
+  CHECK(mk_writeVoid(c, 4135-(pos+3))); /* account 3 bytes from Void ID (1) and size(2) */
+
+  /* Segment Info at position 4135 (fixed)*/
+  pos=4135;
   if ((ti = mk_createContext(w, c, MATROSKA_ID_INFO)) == NULL)
     return -1;
   CHECK(mk_writeUInt(ti, MATROSKA_ID_TIMECODESCALE, w->timescale));
-  CHECK(mk_writeStr(ti, MATROSKA_ID_MUXINGAPP, "Guvcview 1.2.1 - Muxer"));
+  CHECK(mk_writeStr(ti, MATROSKA_ID_MUXINGAPP, "Guvcview Muxer-2009.11"));
   CHECK(mk_writeStr(ti, MATROSKA_ID_WRITINGAPP, writingApp));
   /* signed 8 byte integer in nanoseconds 
    * with 0 indicating the precise beginning of the millennium (at 2001-01-01T00:00:00,000000000 UTC)
@@ -487,16 +492,17 @@ int	  mk_writeHeader(mk_Writer *w, const char *writingApp,
   seg_uid[2] = g_rand_int_range(rand_uid, G_MININT32, G_MAXINT32);
   seg_uid[3] = g_rand_int_range(rand_uid, G_MININT32, G_MAXINT32);
   CHECK(mk_writeBin(ti, MATROSKA_ID_SEGMENTUID, seg_uid, 16));
-
   CHECK(mk_writeFloat(ti, MATROSKA_ID_DURATION, 0)); //Track Duration
   /*ti->d_cur - float size(4) + EBML header size(24) + extra empty bytes for segment size(6)*/
   w->duration_ptr = ti->d_cur + 20 + extra;
   CHECK(mk_closeContext(ti, &w->duration_ptr)); //add ti->parent->d_cur to duration_ptr
-  
-  /*segment tracks start at 4220*/
+	
+  /*segment tracks start at 4220 (fixed)*/
+  pos=4220;
   if ((ti = mk_createContext(w, c, MATROSKA_ID_TRACKS)) == NULL)
     return -1;
   /*VIDEO TRACK entry start at 4226*/
+  pos+=6;
   if ((ti2 = mk_createContext(w, ti, MATROSKA_ID_TRACKENTRY)) == NULL)
     return -1;
   CHECK(mk_writeUInt(ti2, MATROSKA_ID_TRACKNUMBER, 1));        // TrackNumber
@@ -521,9 +527,10 @@ int	  mk_writeHeader(mk_Writer *w, const char *writingApp,
 	
   /* Default video frame duration - for fixed frame rate only
    * not required by the spec, but at least vlc seems to need it to work properly */
+  unsigned delta_pos = ti2->d_cur;
   if (w->def_duration)
-    CHECK(mk_writeUInt(ti2, MATROSKA_ID_TRACKDEFAULTDURATION, w->def_duration));
-	
+    CHECK(mk_writeUIntRaw(ti2, MATROSKA_ID_TRACKDEFAULTDURATION, w->def_duration));
+
   if ((v = mk_createContext(w, ti2, MATROSKA_ID_TRACKVIDEO)) == NULL) // Video track
     return -1;
   CHECK(mk_writeUInt(v, MATROSKA_ID_VIDEOPIXELWIDTH, width));
@@ -531,10 +538,12 @@ int	  mk_writeHeader(mk_Writer *w, const char *writingApp,
   CHECK(mk_writeUInt(v, MATROSKA_ID_VIDEOFLAGINTERLACED, 0)); //interlaced flag
   CHECK(mk_writeUInt(v, MATROSKA_ID_VIDEODISPLAYWIDTH, d_width));
   CHECK(mk_writeUInt(v, MATROSKA_ID_VIDEODISPLAYHEIGHT, d_height));
-  
-  CHECK(mk_closeContext(v, 0));
-  CHECK(mk_closeContext(ti2, 0));
-        
+  unsigned delta_pos1=v->d_cur;
+  CHECK(mk_closeContext(v, &delta_pos1));
+  delta_pos = delta_pos1-delta_pos;
+  pos+=ti2->d_cur;
+  CHECK(mk_closeContext(ti2, &pos));
+        	g_printf("def dur pos: %i\n", pos-delta_pos);
   if (SampRate > 0)
   {
 	/*AUDIO TRACK entry */
@@ -574,7 +583,6 @@ int	  mk_writeHeader(mk_Writer *w, const char *writingApp,
   }
   
   g_rand_free(rand_uid); //free random uid generator
-  
   CHECK(mk_closeContext(ti, 0));
   CHECK(mk_writeVoid(c, 1024));
   CHECK(mk_closeContext(c, 0));
