@@ -64,6 +64,7 @@ struct mk_Writer {
   
   /*  video   */
   UINT64	      def_duration;
+  unsigned            def_duration_ptr;
   int64_t	      timescale;
   int64_t	      cluster_tc_scaled;
   int64_t	      frame_tc, prev_frame_tc_scaled, max_frame_tc;
@@ -439,7 +440,7 @@ int	  mk_writeHeader(mk_Writer *w, const char *writingApp,
   pos=c->d_cur;
   CHECK(mk_closeContext(c, &pos));
 	
-  int ebml_header_size = pos; /*pos=24*/
+  //int ebml_header_size = pos; /*pos=24*/
   
   /* SEGMENT starts at position 24  */
   if ((c = mk_createContext(w, w->root, MATROSKA_ID_SEGMENT)) == NULL)
@@ -543,7 +544,8 @@ int	  mk_writeHeader(mk_Writer *w, const char *writingApp,
   delta_pos = delta_pos1-delta_pos;
   pos+=ti2->d_cur;
   CHECK(mk_closeContext(ti2, &pos));
-        	g_printf("def dur pos: %i\n", pos-delta_pos);
+  w->def_duration_ptr =  pos-delta_pos;/* default duration position*/
+	
   if (SampRate > 0)
   {
 	/*AUDIO TRACK entry */

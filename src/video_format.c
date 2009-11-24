@@ -208,6 +208,8 @@ int init_FormatContext(void *data)
 		if(global->debug) g_printf("audio frame: %i | %i | %i | %llu\n", 
 			pdata->aud_numSamples, pdata->samprate, channels, duration);
 	}
+	else
+		samprate = 0.0;
 	
 	videoF->apts = 0;
 	videoF->old_apts = 0;

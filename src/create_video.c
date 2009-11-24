@@ -926,7 +926,7 @@ void *IO_loop(void *data)
 					g_printerr("audio streaming stalled - timeout\n");
 				}
 				//process any remaining audio
-				process_audio(all_data, aud_proc_buff, &(aud_eff)); //process last audio if any
+				if(global->Sound_enable) process_audio(all_data, aud_proc_buff, &(aud_eff)); //process last audio if any
 			}
 		}
 	
@@ -941,7 +941,7 @@ void *IO_loop(void *data)
 			g_free(aud_proc_buff->frame);
 			g_free(aud_proc_buff);
 		}
-		close_audio_effects (aud_eff);
+		if (global->Sound_enable) close_audio_effects (aud_eff);
 	}
 	
 	if(lavc_data != NULL)
