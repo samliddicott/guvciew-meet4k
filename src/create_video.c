@@ -523,8 +523,8 @@ static int sync_audio_frame(struct ALL_DATA *all_data, AudBuff *proc_buff)
 				/*time diff for audio-video*/
 				int synctime= (int) (pdata->delay + pdata->snd_begintime - global->Vidstarttime)/1000000; /*convert to miliseconds*/
 				if (global->debug) g_printf("shift sound by %d ms\n", synctime);
-				if(synctime>10 && synctime<5000) 
-				{ 	/*only sync between 10ms and 5 seconds*/
+				if(synctime>10 && synctime<2000) 
+				{ 	/*only sync between 10ms and 2 seconds*/
 					if(global->Sound_Format == PA_FOURCC) 
 					{	/*shift sound by synctime*/
 						UINT32 shiftFrames = abs(synctime * global->Sound_SampRate / 1000);
