@@ -502,7 +502,7 @@ int	  mk_writeHeader(mk_Writer *w, const char *writingApp,
   pos=4220;
   if ((ti = mk_createContext(w, c, MATROSKA_ID_TRACKS)) == NULL)
     return -1;
-  /*VIDEO TRACK entry start at 4226*/
+  /*VIDEO TRACK entry start at 4226 = 4220 + 4 + 2(tracks header size)*/
   pos+=6;
   if ((ti2 = mk_createContext(w, ti, MATROSKA_ID_TRACKENTRY)) == NULL)
     return -1;
@@ -526,12 +526,12 @@ int	  mk_writeHeader(mk_Writer *w, const char *writingApp,
   if (codecPrivateSize)
 	CHECK(mk_writeBin(ti2, MATROSKA_ID_CODECPRIVATE, codecPrivate, codecPrivateSize));
 	
-  /* Default video frame duration - for fixed frame rate only
-   * not required by the spec, but at least vlc seems to need it to work properly */
+  /* Default video frame duration - for fixed frame rate only (reset when closing matroska file)
+   * not required by the spec, but at least vlc seems to need it to work properly
+   * default duration position will be set after closing the current context */
   unsigned delta_pos = ti2->d_cur;
-  if (w->def_duration)
-    CHECK(mk_writeUIntRaw(ti2, MATROSKA_ID_TRACKDEFAULTDURATION, w->def_duration));
-
+  CHECK(mk_writeUIntRaw(ti2, MATROSKA_ID_TRACKDEFAULTDURATION, w->def_duration));
+	
   if ((v = mk_createContext(w, ti2, MATROSKA_ID_TRACKVIDEO)) == NULL) // Video track
     return -1;
   CHECK(mk_writeUInt(v, MATROSKA_ID_VIDEOPIXELWIDTH, width));
@@ -541,10 +541,11 @@ int	  mk_writeHeader(mk_Writer *w, const char *writingApp,
   CHECK(mk_writeUInt(v, MATROSKA_ID_VIDEODISPLAYHEIGHT, d_height));
   unsigned delta_pos1=v->d_cur;
   CHECK(mk_closeContext(v, &delta_pos1));
-  delta_pos = delta_pos1-delta_pos;
+  delta_pos = delta_pos1-delta_pos; /*video track header size + default duration entry */
   pos+=ti2->d_cur;
   CHECK(mk_closeContext(ti2, &pos));
-  w->def_duration_ptr =  pos-delta_pos;/* default duration position*/
+  /* default duration position = current postion - (video track header size + def dur. entry)*/
+  w->def_duration_ptr =  pos-delta_pos;
 	
   if (SampRate > 0)
   {
@@ -791,13 +792,13 @@ static int write_SegSeek(mk_Writer *w, int64_t cues_pos, int64_t seekHeadPos) {
   if ((se = mk_createContext(w, sh, MATROSKA_ID_SEEKENTRY)) == NULL) // Seek
     return -1;
   CHECK(mk_writeUInt (se, MATROSKA_ID_SEEKID, MATROSKA_ID_INFO)); //seekID
-  CHECK(mk_writeUInt(se, MATROSKA_ID_SEEKPOSITION, 4099)); //FIXME: SeekPosition (should not be hardcoded)
+  CHECK(mk_writeUInt(se, MATROSKA_ID_SEEKPOSITION, 4135-(w->seekhead_pos)));
   CHECK(mk_closeContext(se, 0));
 
   if ((se = mk_createContext(w, sh, MATROSKA_ID_SEEKENTRY)) == NULL) // Seek
     return -1;
   CHECK(mk_writeUInt(se, MATROSKA_ID_SEEKID, MATROSKA_ID_TRACKS)); //seekID
-  CHECK(mk_writeUInt(se, MATROSKA_ID_SEEKPOSITION, 4184)); //FIXME:  SeekPosition (should not be hardcoded)
+  CHECK(mk_writeUInt(se, MATROSKA_ID_SEEKPOSITION, 4220-(w->seekhead_pos)));
   CHECK(mk_closeContext(se, 0));
 	
   //printf("cues@%d seekHead@%d\n", cues_pos, seekHeadPos);
@@ -914,7 +915,7 @@ int	  mk_close(mk_Writer *w) {
     int64_t lLastPos = ftell (w->fp);
     int64_t seg_size = lLastPos - (w->segment_size_ptr);
     //printf("segment size is: %llu bytes\n", seg_size);
-    seg_size |= 0x0100000000000000ll;
+    seg_size |= 0x0100000000000000LL;
     /* move to segment entry */
     fseek(w->fp, w->segment_size_ptr, SEEK_SET);
     if (mk_writeSegPos (w->root, seg_size ) < 0 || mk_flushContextData(w->root) < 0)
@@ -922,6 +923,12 @@ int	  mk_close(mk_Writer *w) {
     /* move to seekentries */
     fseek(w->fp, w->seekhead_pos, SEEK_SET);
     write_SegSeek (w, CuesPos, SeekHeadPos);
+    /* move to default video frame duration entry and set the correct value*/
+    fseek(w->fp, w->def_duration_ptr, SEEK_SET);
+    if ((mk_writeUIntRaw(w->root, MATROSKA_ID_TRACKDEFAULTDURATION, w->def_duration)) < 0 ||
+	mk_flushContextData(w->root) < 0)
+      ret = -1;
+    
     /* move to segment duration entry */
     fseek(w->fp, w->duration_ptr, SEEK_SET);
     if (mk_writeFloatRaw(w->root, (float)(double)(w->max_frame_tc/ w->timescale)) < 0 ||

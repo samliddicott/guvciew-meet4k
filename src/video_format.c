@@ -141,8 +141,8 @@ int clean_FormatContext (void* data)
 		if(global->debug) g_printf("sound closed\n");
 	} 
 
-	//int64_t def_duration = ((global->Vidstoptime - global->Vidstarttime)/global->framecount);
-	//mk_setDef_Duration(videoF->mkv_w, def_duration);/* set real fps ( average frame duration)*/
+	int64_t def_duration = ((global->Vidstoptime - global->Vidstarttime)/global->framecount);
+	mk_setDef_Duration(videoF->mkv_w, def_duration);/* set real fps ( average frame duration)*/
 	
 	ret = mk_close(videoF->mkv_w);
 	videoF->mkv_w = NULL;
