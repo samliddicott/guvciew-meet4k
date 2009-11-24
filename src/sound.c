@@ -174,11 +174,13 @@ set_sound (struct GLOBAL *global, struct paRecordData* data)
 	
 	data->flush = 0;
 	data->a_ts= 0;
-    	data->ts_ref = 0;
+	data->ts_ref = 0;
 	
 	data->stream = NULL;
-
-	if(get_vcodec_id(global->VidCodec) == CODEC_ID_H264) data->delay = (UINT64) 2*(global->fps_num *1000000000/global->fps); //in nanosec
+	/* some drivers, e.g. GSPCA, don't set fps( guvcview sets it to 1/1 ) 
+	 * so we can't obtain the proper delay for H.264 */
+	if((get_vcodec_id(global->VidCodec) == CODEC_ID_H264) && (global->fps >= 5)) 
+		data->delay = (UINT64) 2*(global->fps_num *1000000000/global->fps); //in nanosec
 	data->delay += global->Sound_delay; /*add predefined delay - def = 0*/
 	
 	//reset the indexes	
