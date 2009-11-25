@@ -178,9 +178,17 @@ set_sound (struct GLOBAL *global, struct paRecordData* data)
 	
 	data->stream = NULL;
 	/* some drivers, e.g. GSPCA, don't set fps( guvcview sets it to 1/1 ) 
-	 * so we can't obtain the proper delay for H.264 */
-	if((get_vcodec_id(global->VidCodec) == CODEC_ID_H264) && (global->fps >= 5)) 
-		data->delay = (UINT64) 2*(global->fps_num *1000000000/global->fps); //in nanosec
+	 * so we can't obtain the proper delay for H.264 (2 video frames)
+	 * if set, use the codec properties fps value */
+	int fps_num = 1;
+	int fps_den = get_enc_fps(global->VidCodec); /*if set use encoder fps */
+	if(!fps) /*if not set use video combobox fps*/
+	{
+		fps_num = global->fps_num;
+		fps_den = global->fps;
+	}
+	if((get_vcodec_id(global->VidCodec) == CODEC_ID_H264) && (fps_den >= 5)) 
+		data->delay = (UINT64) 2*(fps_num *1000000000/fps_den); //2 frame delay in nanosec
 	data->delay += global->Sound_delay; /*add predefined delay - def = 0*/
 	
 	//reset the indexes	
@@ -213,14 +221,12 @@ init_sound(struct paRecordData* data)
 	{
 #ifdef PULSEAUDIO
 		case PULSE:
-			if(pulse_init_audio(data))
+			if(err = pulse_init_audio(data))
 				goto error;
 			break;
 #endif
 		case PORT:
 		default:
-			//err = Pa_Initialize();
-			//if( err != paNoError ) goto error;
 			if(data->stream)
 			{
 				if( !(Pa_IsStreamStopped( data->stream )))
@@ -265,12 +271,13 @@ init_sound(struct paRecordData* data)
 
 	return (0);
 error:
-	g_printerr("An error occured while starting portaudio\n" );
+	g_printerr("An error occured while starting the audio API\n" );
 	g_printerr("Error number: %d\n", err );
-	g_printerr("Error message: %s\n", Pa_GetErrorText( err ) ); 
+	if(data->api == PORT) g_printerr("Error message: %s\n", Pa_GetErrorText( err ) ); 
 	data->streaming=FALSE;
 	data->flush=0;
-	if(data->api < 1)
+	data->delay=0;
+	if(data->api == PORT)
 	{
 		if(data->stream) Pa_AbortStream( data->stream );
 	}
@@ -290,8 +297,9 @@ error:
 int
 close_sound (struct paRecordData *data) 
 {
-	int err =0;
-	int i=0;
+	int err = 0;
+	int ret = 0;
+	int i   = 0;
     
 	data->capVid = 0;
 	
@@ -308,17 +316,30 @@ close_sound (struct paRecordData *data)
 			g_printf("Stoping audio stream\n");
 			err = Pa_StopStream( data->stream );
 		}
-		if( err != paNoError ) goto error;
+		if( err != paNoError )
+		{
+			g_printerr("An error occured while stoping the audio stream\n" );
+			g_printerr("Error number: %d\n", err );
+			g_printerr("Error message: %s\n", Pa_GetErrorText( err ) );
+			ret = -1;
+		}
 	}
-	if(data->api < 1)
+	
+	if(data->api == PORT)
 	{
 		g_printf("Closing audio stream...\n");
 		err = Pa_CloseStream( data->stream );
-		if( err != paNoError ) goto error; 
+		if( err != paNoError )
+		{
+			g_printerr("An error occured while closing the audio stream\n" );
+			g_printerr("Error number: %d\n", err );
+			g_printerr("Error message: %s\n", Pa_GetErrorText( err ) );
+			ret = -1;
+		}
 	}
 	data->stream = NULL;
 	data->flush = 0;
-
+	data->delay = 0; /*reset the audio delay*/
 	/*---------------------------------------------------------------------*/
 	/*make sure no operations are performed on the buffers*/
 	g_mutex_lock(data->mutex);
@@ -339,37 +360,7 @@ close_sound (struct paRecordData *data)
 		data->pcm_sndBuff = NULL;
 	g_mutex_unlock(data->mutex);
 	
-	return (0);
-error:  
-	g_printerr("An error occured while closing the portaudio stream\n" );
-	g_printerr("Error number: %d\n", err );
-	g_printerr("Error message: %s\n", Pa_GetErrorText( err ) );
-	data->flush=0;
-	data->streaming=FALSE;
-	g_mutex_lock( data->mutex);
-		g_free( data->recordedSamples );
-		data->recordedSamples=NULL;
-		if(data->api < 1) 
-		{
-			Pa_CloseStream( data->stream );
-		}
-		data->stream = NULL;
-		
-		if(data->audio_buff)
-		{
-			for(i=0; i<AUDBUFF_SIZE; i++)
-				g_free(data->audio_buff[i].frame);
-			g_free(data->audio_buff);
-		}
-		data->audio_buff = NULL;
-	
-		if(data->mp2Buff) g_free(data->mp2Buff);
-		data->mp2Buff = NULL;
-		if(data->pcm_sndBuff) g_free(data->pcm_sndBuff);
-		data->pcm_sndBuff = NULL;
-	g_mutex_unlock( data->mutex );
-
-	return(-1);
+	return (ret);
 }
 
 /* saturate float samples to int16 limits*/

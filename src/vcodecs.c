@@ -398,10 +398,10 @@ const char *get_desc4cc(int codec_ind)
 	return (listSupVCodecs[get_real_index (codec_ind)].description);
 }
 
-//int get_delay(int codec_ind)
-//{
-//	return (listSupVCodecs[get_real_index (codec_ind)].frame_delay);
-//}
+int get_enc_fps(int codec_ind)
+{
+	return (listSupVCodecs[get_real_index (codec_ind)].fps);
+}
 
 const char *get_mkvCodec(int codec_ind)
 {

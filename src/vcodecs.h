@@ -77,7 +77,7 @@ const char *get_desc4cc(int codec_ind);
 
 const char *get_mkvCodec(int codec_ind);
 
-//int get_delay(int codec_ind);
+int get_enc_fps(int codec_ind);
 
 void *get_mkvCodecPriv(int codec_ind);
 
