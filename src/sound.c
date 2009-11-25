@@ -182,7 +182,7 @@ set_sound (struct GLOBAL *global, struct paRecordData* data)
 	 * if set, use the codec properties fps value */
 	int fps_num = 1;
 	int fps_den = get_enc_fps(global->VidCodec); /*if set use encoder fps */
-	if(!fps) /*if not set use video combobox fps*/
+	if(!fps_den) /*if not set use video combobox fps*/
 	{
 		fps_num = global->fps_num;
 		fps_den = global->fps;
