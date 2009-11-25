@@ -28,7 +28,7 @@
 #include "v4l2_formats.h"
 #include "v4l2_controls.h"
 
-#define NB_BUFFER 8
+#define NB_BUFFER 4
 
 #define VDIN_DYNCTRL_OK            3
 #define VDIN_SELETIMEOUT_ERR       2

@@ -52,7 +52,7 @@ ULLONG ns_time (void)
 {
 	static struct timespec ts;
 	clock_gettime(CLOCK_REALTIME, &ts);
-	return ((ULLONG) ts.tv_sec * 1000000000.0 + (ULLONG) ts.tv_nsec);
+	return ((ULLONG) ts.tv_sec * 1e9 + (ULLONG) ts.tv_nsec);
 }
 
 //sleep for given time in ms
