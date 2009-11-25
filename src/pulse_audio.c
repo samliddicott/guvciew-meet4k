@@ -101,7 +101,11 @@ static void* pulse_read_audio(void *userdata)
 				}
 			g_mutex_unlock( data->mutex );
 		}
-		else data->snd_begintime = tstamp;
+		else 
+		{
+			data->snd_begintime = ns_time();
+			data->a_ts = 0;
+		}
 	}
 
 finish:
