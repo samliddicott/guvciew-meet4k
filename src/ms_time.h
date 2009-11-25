@@ -24,6 +24,10 @@
 #include <glib.h>
 #include "defs.h"
 
+#ifndef G_NSEC_PER_SEC
+#define G_NSEC_PER_SEC 1000000000ll
+#endif
+
 /*time in miliseconds*/
 DWORD ms_time (void);
 /*time in microseconds*/

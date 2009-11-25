@@ -302,7 +302,6 @@ static void closeVideoFile(struct ALL_DATA *all_data)
 		g_printerr("video capture stall on exit(%d) - timeout\n",
 			videoIn->VidCapStop);
 	}
-	global->Vidstoptime = ns_time();
 	
 	/*free video buffer allocations*/
 	g_mutex_lock(global->mutex);
@@ -354,7 +353,7 @@ static int write_video_frame (struct ALL_DATA *all_data,
 	
 	GThread *press_butt_thread = NULL;
 	int ret=0;
-	
+    
 	switch (global->VidFormat)
 	{
 		case AVI_FORMAT:

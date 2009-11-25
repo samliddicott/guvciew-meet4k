@@ -24,8 +24,6 @@
 #include <sys/time.h>
 #include "ms_time.h"
 
-
-
 /*------------------------------ get time ------------------------------------*/
 /*in miliseconds*/
 DWORD ms_time (void)
@@ -52,7 +50,7 @@ ULLONG ns_time (void)
 {
 	static struct timespec ts;
 	clock_gettime(CLOCK_REALTIME, &ts);
-	return ((ULLONG) ts.tv_sec * 1e9 + (ULLONG) ts.tv_nsec);
+	return ((ULLONG) ts.tv_sec * G_NSEC_PER_SEC + (ULLONG) ts.tv_nsec);
 }
 
 //sleep for given time in ms
