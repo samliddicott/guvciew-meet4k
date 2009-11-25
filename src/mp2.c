@@ -52,7 +52,7 @@ init_MP2_encoder(struct paRecordData* pdata, int bitRate)
 		twolame_set_mode(encodeOptions, TWOLAME_JOINT_STEREO);
 	}
 
-	pdata->mp2BuffSize = pdata->aud_numSamples*sizeof(SAMPLE)*25; /*can reach 2 sec for avi sync*/
+	pdata->mp2BuffSize = pdata->aud_numSamples*sizeof(SAMPLE)*24; /*can reach 2 sec for avi sync*/
 	pdata->mp2Buff = g_new0(BYTE, pdata->mp2BuffSize); /*mp2 buffer*/
 	/* Set the input and output sample rate to the same */
 	twolame_set_in_samplerate(encodeOptions, pdata->samprate);

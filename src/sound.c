@@ -26,12 +26,22 @@
 #include "audio_effects.h"
 #include "ms_time.h"
 
-static int fill_audio_buffer(struct paRecordData *data, int64_t tstamp)
+static int fill_audio_buffer(struct paRecordData *data)
 {
 	int ret =0;
 
 	if(data->sampleIndex >= data->aud_numSamples)
 	{
+		/*first frame time stamp*/
+		if(data->a_ts <= 0)
+		{
+			if((data->ts_ref > 0) && (data->ts_ref < data->snd_begintime)) 
+				data->a_ts = data->snd_begintime - data->ts_ref; /*sync to video     */
+			else data->a_ts = 1; /*make it > 0 otherwise we will keep getting the same ts*/
+		}
+		else /*increment time stamp for audio frame*/
+			data->a_ts += (G_NSEC_PER_SEC * data->aud_numSamples)/(data->samprate * data->channels);
+		
 		data->sampleIndex = 0; //reset
 		if(!data->audio_buff[data->w_ind].used)
 		{
@@ -47,8 +57,6 @@ static int fill_audio_buffer(struct paRecordData *data, int64_t tstamp)
 			ret = -1;
 			g_printerr("AUDIO: droping audio data\n");
 		}
-		if((data->ts_ref > 0) && (data->ts_ref < tstamp)) data->a_ts= tstamp - data->ts_ref; //timestamp for next callback
-		else data->a_ts = tstamp - data->snd_begintime;
 	}
 	
 	return ret;
@@ -67,7 +75,7 @@ recordCallback (const void *inputBuffer, void *outputBuffer,
 	const SAMPLE *rptr = (const SAMPLE*)inputBuffer;
 	int i;
 	//time stamps
-	int64_t tstamp = ns_time();
+	//int64_t tstamp = ns_time();
 
 	g_mutex_lock( data->mutex );
 		gboolean capVid = data->capVid;
@@ -81,7 +89,7 @@ recordCallback (const void *inputBuffer, void *outputBuffer,
 		if(capVid) 
 		{
 			g_mutex_lock( data->mutex );
-				data->snd_begintime = tstamp; //reset first time stamp
+				data->snd_begintime = ns_time(); //reset first time stamp
 			g_mutex_unlock( data->mutex );
 			return (paContinue); /*still capturing*/
 		}
@@ -98,10 +106,6 @@ recordCallback (const void *inputBuffer, void *outputBuffer,
 	g_mutex_lock( data->mutex );
 		/*set to FALSE on paComplete*/
 		data->streaming=TRUE;
-		/*first frame time stamp*/
-		if((data->a_ts == 0) && (data->ts_ref > 0) && (data->ts_ref < data->snd_begintime)) 
-			data->a_ts= data->snd_begintime - data->ts_ref;
-
 		if( inputBuffer == NULL )
 		{
 			for( i=0; i<numSamples; i++ )
@@ -109,7 +113,7 @@ recordCallback (const void *inputBuffer, void *outputBuffer,
 				data->recordedSamples[data->sampleIndex] = 0;/*silence*/
 				data->sampleIndex++;
 			
-				fill_audio_buffer(data, tstamp);
+				fill_audio_buffer(data);
 			}
 		}
 		else
@@ -119,7 +123,7 @@ recordCallback (const void *inputBuffer, void *outputBuffer,
 				data->recordedSamples[data->sampleIndex] = *rptr++;
 				data->sampleIndex++;
 			
-				fill_audio_buffer(data, tstamp);
+				fill_audio_buffer(data);
 			}
 		}
 		
@@ -188,7 +192,7 @@ set_sound (struct GLOBAL *global, struct paRecordData* data)
 		fps_den = global->fps;
 	}
 	if((get_vcodec_id(global->VidCodec) == CODEC_ID_H264) && (fps_den >= 5)) 
-		data->delay = (UINT64) 2*(fps_num *1000000000/fps_den); //2 frame delay in nanosec
+		data->delay = (UINT64) 2*(fps_num * G_NSEC_PER_SEC / fps_den); //2 frame delay in nanosec
 	data->delay += global->Sound_delay; /*add predefined delay - def = 0*/
 	
 	//reset the indexes	

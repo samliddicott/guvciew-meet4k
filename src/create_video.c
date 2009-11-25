@@ -520,7 +520,7 @@ static int sync_audio_frame(struct ALL_DATA *all_data, AudBuff *proc_buff)
 			{ 
 				/*only 1 audio stream*/
 				/*time diff for audio-video*/
-				int synctime= (int) (pdata->delay + pdata->snd_begintime - global->Vidstarttime)/1000000; /*convert to miliseconds*/
+				int synctime= (int) (pdata->delay + pdata->snd_begintime - pdata->ts_ref)/1000000; /*convert to miliseconds*/
 				if (global->debug) g_printf("shift sound by %d ms\n", synctime);
 				if(synctime>10 && synctime<2000) 
 				{ 	/*only sync between 10ms and 2 seconds*/

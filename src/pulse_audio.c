@@ -36,8 +36,6 @@ static void* pulse_read_audio(void *userdata)
 	int error;
 	
 	struct paRecordData *data = (struct paRecordData*) userdata;
-	//time stamps
-	int64_t tstamp = 0;
 	/* The sample type to use */
 	pa_sample_spec ss;
 	if (BIGENDIAN)
@@ -68,14 +66,19 @@ static void* pulse_read_audio(void *userdata)
 			g_printerr("pulse: pa_simple_read() failed: %s\n", pa_strerror(error));
 			goto finish;
 		}
-		//time stamps
-		tstamp = ns_time();
 
 		g_mutex_lock(data->mutex);
 			capVid = data->capVid;
 			/*first frame time stamp*/
-			if((data->a_ts == 0) && (data->ts_ref > 0) && (data->ts_ref < data->snd_begintime)) 
-				data->a_ts= data->snd_begintime - data->ts_ref;
+			if(data->a_ts <= 0)
+			{
+				if((data->ts_ref > 0) && (data->ts_ref < data->snd_begintime)) 
+					data->a_ts = data->snd_begintime - data->ts_ref;
+				else data->a_ts = 1;
+			}
+			else /*increment time stamp for audio frame*/
+				data->a_ts += (G_NSEC_PER_SEC * data->aud_numSamples)/(data->samprate * data->channels);
+	
 			skip_n = data->skip_n;
 		g_mutex_unlock(data->mutex);
 		
@@ -84,9 +87,10 @@ static void* pulse_read_audio(void *userdata)
 			g_mutex_lock( data->mutex );
 				if(!data->audio_buff[data->w_ind].used)
 				{
+					
 					/*copy data to audio buffer*/
 					memcpy(data->audio_buff[data->w_ind].frame, data->recordedSamples, data->aud_numBytes);
-					data->audio_buff[data->w_ind].time_stamp = data->a_ts;
+					data->audio_buff[data->w_ind].time_stamp = data->a_ts + data->delay;
 					data->audio_buff[data->w_ind].used = TRUE;
 					NEXT_IND(data->w_ind, AUDBUFF_SIZE);
 				}
@@ -95,8 +99,6 @@ static void* pulse_read_audio(void *userdata)
 					//drop audio data
 					g_printerr("AUDIO: droping audio data\n");
 				}
-				if((data->ts_ref > 0) && (data->ts_ref < tstamp)) data->a_ts= tstamp - data->ts_ref; //timestamp for next callback
-				else data->a_ts = tstamp - data->snd_begintime;
 			g_mutex_unlock( data->mutex );
 		}
 		else data->snd_begintime = tstamp;
