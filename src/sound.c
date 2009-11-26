@@ -35,14 +35,16 @@ static int fill_audio_buffer(struct paRecordData *data)
 		/*first frame time stamp*/
 		if(data->a_ts <= 0)
 		{
+			/*if sound begin time > first video frame ts then sync audio to video
+			* else set audio ts to aprox. the video ts */
 			if((data->ts_ref > 0) && (data->ts_ref < data->snd_begintime)) 
-				data->a_ts = data->snd_begintime - data->ts_ref; /*sync to video     */
+				data->a_ts = data->snd_begintime - data->ts_ref;
 			else data->a_ts = 1; /*make it > 0 otherwise we will keep getting the same ts*/
 		}
 		else /*increment time stamp for audio frame*/
 			data->a_ts += (G_NSEC_PER_SEC * data->aud_numSamples)/(data->samprate * data->channels);
 		
-		data->sampleIndex = 0; //reset
+		data->sampleIndex = 0; /*reset*/
 		if(!data->audio_buff[data->w_ind].used)
 		{
 			/*copy data to audio buffer*/
@@ -53,7 +55,7 @@ static int fill_audio_buffer(struct paRecordData *data)
 		}
 		else
 		{
-			//drop audio data
+			/*drop audio data*/
 			ret = -1;
 			g_printerr("AUDIO: droping audio data\n");
 		}
@@ -74,8 +76,6 @@ recordCallback (const void *inputBuffer, void *outputBuffer,
 
 	const SAMPLE *rptr = (const SAMPLE*)inputBuffer;
 	int i;
-	//time stamps
-	//int64_t tstamp = ns_time();
 
 	g_mutex_lock( data->mutex );
 		gboolean capVid = data->capVid;
@@ -83,13 +83,13 @@ recordCallback (const void *inputBuffer, void *outputBuffer,
 		int skip_n = data->skip_n;
 	g_mutex_unlock( data->mutex );
 	
-	if (skip_n > 0) //skip audio while were skipping video frames
+	if (skip_n > 0) /*skip audio while were skipping video frames*/
 	{
 		
 		if(capVid) 
 		{
 			g_mutex_lock( data->mutex );
-				data->snd_begintime = ns_time(); //reset first time stamp
+				data->snd_begintime = ns_time(); /*reset first time stamp*/
 			g_mutex_unlock( data->mutex );
 			return (paContinue); /*still capturing*/
 		}
@@ -143,10 +143,6 @@ recordCallback (const void *inputBuffer, void *outputBuffer,
 void
 set_sound (struct GLOBAL *global, struct paRecordData* data) 
 {
-	//int totalFrames;
-	//int MP2Frames=0;
-	//int i=0;
-	
 	if(global->Sound_SampRateInd==0)
 		global->Sound_SampRate=global->Sound_IndexDev[global->Sound_UseDev].samprate;/*using default*/
 	
@@ -163,12 +159,12 @@ set_sound (struct GLOBAL *global, struct paRecordData* data)
 	data->samprate = global->Sound_SampRate;
 	data->channels = global->Sound_NumChan;
 	g_mutex_lock( data->mutex );
-		data->skip_n = global->skip_n; //inital video frames to skip
+		data->skip_n = global->skip_n; /*inital video frames to skip*/
 	g_mutex_unlock( data->mutex );
 	
 	int mfactor = round(data->samprate/16000);
 	if( mfactor < 1 ) mfactor = 1;
-	data->aud_numSamples = mfactor * MPG_NUM_FRAMES * (MPG_NUM_SAMP * data->channels); //  MPG frames
+	data->aud_numSamples = mfactor * MPG_NUM_FRAMES * (MPG_NUM_SAMP * data->channels); /*MPG frames*/
 	data->aud_numBytes = data->aud_numSamples * sizeof(SAMPLE);
 	
 	data->input_type = PA_SAMPLE_TYPE;
@@ -192,10 +188,10 @@ set_sound (struct GLOBAL *global, struct paRecordData* data)
 		fps_den = global->fps;
 	}
 	if((get_vcodec_id(global->VidCodec) == CODEC_ID_H264) && (fps_den >= 5)) 
-		data->delay = (UINT64) 2*(fps_num * G_NSEC_PER_SEC / fps_den); //2 frame delay in nanosec
+		data->delay = (UINT64) 2*(fps_num * G_NSEC_PER_SEC / fps_den); /*2 frame delay in nanosec*/
 	data->delay += global->Sound_delay; /*add predefined delay - def = 0*/
 	
-	//reset the indexes	
+	/*reset the indexes*/	
 	data->r_ind = 0;
 	data->w_ind = 0;
 	/*buffer for video PCM 16 bits*/
@@ -218,7 +214,7 @@ init_sound(struct paRecordData* data)
 			data->audio_buff[i].frame = g_new0(SAMPLE, data->aud_numSamples);
 	}
 	
-	//alloc the callback buffer
+	/*alloc the callback buffer*/
 	data->recordedSamples = g_new0(SAMPLE, data->aud_numSamples);
 	
 	switch(data->api)
@@ -255,13 +251,11 @@ init_sound(struct paRecordData* data)
 				&data->stream,
 				&data->inputParameters,
 				NULL,                  /* &outputParameters, */
-				data->samprate,
-				MPG_NUM_SAMP,            // buffer in frames => Mpeg frame size (samples = 1152 samples * channels)
-				//paFramesPerBufferUnspecified,       // buffer Size - set by portaudio
-				//paClipOff | paDitherOff, 
-				paNoFlag,      /* PaNoFlag - clip and dhiter*/
-				recordCallback, /* sound callback */
-				data ); /* callback userData */
+				data->samprate,        /* sample rate        */
+				MPG_NUM_SAMP,          /* buffer in frames => Mpeg frame size (samples = 1152 samples * channels)*/
+				paNoFlag,              /* PaNoFlag - clip and dhiter*/
+				recordCallback,        /* sound callback     */
+				data );                /* callback userData  */
 	
 			if( err != paNoError ) goto error;
 	
@@ -344,8 +338,9 @@ close_sound (struct paRecordData *data)
 	data->stream = NULL;
 	data->flush = 0;
 	data->delay = 0; /*reset the audio delay*/
-	/*---------------------------------------------------------------------*/
-	/*make sure no operations are performed on the buffers*/
+	
+	/* ---------------------------------------------------------------------
+	 * make sure no operations are performed on the buffers  */
 	g_mutex_lock(data->mutex);
 		/*free primary buffer*/
 		g_free( data->recordedSamples );

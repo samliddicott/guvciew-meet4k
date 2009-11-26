@@ -25,7 +25,7 @@
 #include "defs.h"
 
 #ifndef G_NSEC_PER_SEC
-#define G_NSEC_PER_SEC 1000000000ll
+#define G_NSEC_PER_SEC 1000000000LL
 #endif
 
 /*time in miliseconds*/
