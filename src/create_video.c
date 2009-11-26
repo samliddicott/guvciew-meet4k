@@ -93,6 +93,7 @@ static int initVideoFile(struct ALL_DATA *all_data)
 	const char *compression= get_vid4cc(global->VidCodec);
 	videoF->vcodec = get_vcodec_id(global->VidCodec);
 	videoF->acodec = CODEC_ID_NONE;
+	videoF->keyframe = 0;
 	int ret = 0;
 	
 	g_mutex_lock(videoIn->mutex);
@@ -111,7 +112,6 @@ static int initVideoFile(struct ALL_DATA *all_data)
 				videoF->AviOut = NULL;
 			}
 			videoF->AviOut = g_new0(struct avi_t, 1);
-			videoF->keyframe = 1;
 			
 			if(AVI_open_output_file(videoF->AviOut, videoIn->VidFName)<0) 
 			{
@@ -184,7 +184,6 @@ static int initVideoFile(struct ALL_DATA *all_data)
 				return (-1);
 			}
 			
-			videoF->keyframe = 1;
 			videoF->old_apts = 0;
 			videoF->apts = 0;
 			videoF->vpts = 0;
@@ -361,7 +360,7 @@ static int write_video_frame (struct ALL_DATA *all_data,
 			if(!(global->VidButtPress)) //if this is set AVI reached it's limit size
 				ret = compress_frame(all_data, jpeg_struct, lavc_data, proc_buff);
 
-			if (ret) //if size is zero skip it
+			if (ret)
 			{
 				if (AVI_getErrno () == AVI_ERR_SIZELIM)
 				{
@@ -394,10 +393,6 @@ static int write_video_frame (struct ALL_DATA *all_data,
 					g_printerr ("write error on avi out \n");
 				}
 			}
-		   
-			//global->framecount++;
-			if (videoF->keyframe) videoF->keyframe=0; /*resets key frame*/
-			
 			break;
 		
 		

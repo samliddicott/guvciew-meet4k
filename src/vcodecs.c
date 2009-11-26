@@ -509,17 +509,12 @@ static int encode_lavc (struct lavcData *lavc_data,
 	
 	int framesize = 0;
 	int ret = 0;
-	//int64_t ts_ms = proc_buff->time_stamp / 1000000; //nsec to msec (variable fps)
 	
 	if(lavc_data)
 	{
 		framesize= encode_lavc_frame (proc_buff->frame, lavc_data/*, ts_ms*/);
+		videoF->keyframe = lavc_data->codec_context->coded_frame->key_frame;
 		
-		if(lavc_data->codec_context->coded_frame->pts != AV_NOPTS_VALUE)
-			videoF->vpts = lavc_data->codec_context->coded_frame->pts;
-		if(lavc_data->codec_context->coded_frame->key_frame)
-			videoF->keyframe = 1;
-			
 		ret = write_video_data (all_data, lavc_data->outbuf, framesize, proc_buff->time_stamp);
 	}
 	return (ret);

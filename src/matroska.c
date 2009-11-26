@@ -71,7 +71,7 @@ struct mk_Writer
 	mk_Context *audio_frame;
 	int64_t audio_frame_tc, audio_prev_frame_tc_scaled; 
 	int64_t audio_block, block_n;
-	gboolean audio_in_frame, audio_keyframe;
+	gboolean audio_in_frame;
 	/*--------cues-------*/
 	mk_Context *cues;
 	int64_t cue_time;
@@ -841,7 +841,6 @@ int mk_startAudioFrame(mk_Writer *w)
 	if (mk_flushAudioFrame(w) < 0)
 		return -1;
 	w->audio_in_frame = TRUE;
-	w->audio_keyframe = FALSE;
 
 	return 0;
 }
@@ -866,7 +865,6 @@ int mk_setAudioFrameFlags(mk_Writer *w,int64_t timestamp, int keyframe)
 		return -1;
 	//printf("ts: %lu\n", (long unsigned int) timestamp);
 	w->audio_frame_tc = timestamp;
-	w->audio_keyframe = (keyframe != 0);
 
 	return 0;
 }
