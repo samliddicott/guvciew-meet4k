@@ -624,11 +624,11 @@ static int mk_flushFrame(mk_Writer *w)
 
 	fsize = w->frame ? w->frame->d_cur : 0;
 	bgsize = fsize + 4 + mk_ebmlSizeSize(fsize + 4) + 1;
-	if (!w->keyframe)
-	{
-		ref = w->prev_frame_tc_scaled - w->cluster_tc_scaled - delta;
-		bgsize += 1 + 1 + mk_ebmlSIntSize(ref);
-	}
+	//if (!w->keyframe)
+	//{
+	//	ref = w->prev_frame_tc_scaled - w->cluster_tc_scaled - delta;
+	//	bgsize += 1 + 1 + mk_ebmlSIntSize(ref);
+	//}
 
 	CHECK(mk_writeID(w->cluster, MATROSKA_ID_BLOCKGROUP)); /* BlockGroup */
 	CHECK(mk_writeSize(w->cluster, bgsize));
@@ -646,8 +646,8 @@ static int mk_flushFrame(mk_Writer *w)
 		CHECK(mk_appendContextData(w->cluster, w->frame->data, w->frame->d_cur));
 		w->frame->d_cur = 0;
 	}
-	if (!w->keyframe)
-		CHECK(mk_writeSInt(w->cluster, MATROSKA_ID_BLOCKREFERENCE, ref)); /* ReferenceBlock */
+	//if (!w->keyframe)
+	//	CHECK(mk_writeSInt(w->cluster, MATROSKA_ID_BLOCKREFERENCE, ref)); /* ReferenceBlock */
 
 	w->in_frame = FALSE;
 	w->prev_frame_tc_scaled = w->cluster_tc_scaled + delta;

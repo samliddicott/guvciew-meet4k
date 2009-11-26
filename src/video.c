@@ -197,24 +197,24 @@ void *main_loop(void *data)
 			/*reset video start time to first frame capture time */  
 			if(capVid)
 			{
-		    		if(global->framecount < 1)
+				if(global->framecount < 1)
 				{
 					global->Vidstarttime = videoIn->timestamp;
-				   	/*use current system time for audio ts(0) reference*/
+					/*use current system time for audio ts(0) reference*/
 					g_mutex_lock(pdata->mutex);
 						pdata->ts_ref = ns_time();
-				    	g_mutex_unlock(pdata->mutex);
-				    	
+					g_mutex_unlock(pdata->mutex);
+					
 					global->v_ts = 0;
 				}
 				else
 				{
 					global->v_ts = videoIn->timestamp - global->Vidstarttime;
 					/*always use the last frame time stamp for video stop time*/
-		    			global->Vidstoptime = videoIn->timestamp;
+					global->Vidstoptime = videoIn->timestamp;
 				}
 			}
-		    	//g_printf("v_ts = %llu \n",global->v_ts);
+			//g_printf("v_ts = %llu \n",global->v_ts);
 
 			if (global->FpsCount) 
 			{/* sets fps count in window title bar */

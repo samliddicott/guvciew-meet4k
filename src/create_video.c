@@ -347,12 +347,11 @@ static int write_video_frame (struct ALL_DATA *all_data,
 	VidBuff *proc_buff)
 {
 	struct GLOBAL *global = all_data->global;
-	struct VideoFormatData *videoF = all_data->videoF;
 	struct GWIDGET *gwidget = all_data->gwidget;
 	
 	GThread *press_butt_thread = NULL;
 	int ret=0;
-    
+
 	switch (global->VidFormat)
 	{
 		case AVI_FORMAT:
@@ -580,12 +579,12 @@ static void process_audio(struct ALL_DATA *all_data,
 
 	g_mutex_lock( pdata->mutex );
 		gboolean used = pdata->audio_buff[pdata->r_ind].used;
-    	g_mutex_unlock( pdata->mutex );
+	g_mutex_unlock( pdata->mutex );
   
 	/*read at most 10 audio Frames (1152 * channels  samples each)*/
 	if(used)
 	{
-	    	g_mutex_lock( pdata->mutex );
+		g_mutex_lock( pdata->mutex );
 			memcpy(aud_proc_buff->frame, pdata->audio_buff[pdata->r_ind].frame, pdata->aud_numSamples*sizeof(SAMPLE));
 			pdata->audio_buff[pdata->r_ind].used = FALSE;
 			aud_proc_buff->time_stamp = pdata->audio_buff[pdata->r_ind].time_stamp;
