@@ -92,6 +92,10 @@ int write_video_packet (BYTE *picture_buf, int size, int fps, struct VideoFormat
 {
 	int64_t t_stamp = (int64_t) videoF->vpts; 
 	videoF->b_writing_frame = 0;
+	
+	if( mk_addFrameData(videoF->mkv_w, picture_buf , size) < 0 )
+		return -1;
+		
 	mk_setFrameFlags( videoF->mkv_w, t_stamp, videoF->keyframe );
 	
 	if (!videoF->b_writing_frame) //sort of mutex?
@@ -100,8 +104,6 @@ int write_video_packet (BYTE *picture_buf, int size, int fps, struct VideoFormat
 			return -1;
 		videoF->b_writing_frame = 1;
 	}
-	if( mk_addFrameData(videoF->mkv_w, picture_buf , size) < 0 )
-		return -1;
 
 	return (0);
 }
@@ -110,6 +112,10 @@ int write_audio_packet (BYTE *audio_buf, int size, int samprate, struct VideoFor
 {
 	int64_t t_stamp = (int64_t) videoF->apts ;
 	videoF->b_writing_frame = 0;
+	
+	if( mk_addAudioFrameData(videoF->mkv_w, audio_buf , size) < 0 )
+		return -1;
+		
 	mk_setAudioFrameFlags( videoF->mkv_w, t_stamp, videoF->keyframe );
 
 	if (!videoF->b_writing_frame) //sort of mutex?
@@ -118,8 +124,6 @@ int write_audio_packet (BYTE *audio_buf, int size, int samprate, struct VideoFor
 			return -1;
 		videoF->b_writing_frame = 1;
 	}
-	if( mk_addAudioFrameData(videoF->mkv_w, audio_buf , size) < 0 )
-		return -1;
 
 	return (0);
 

@@ -650,7 +650,8 @@ static int mk_flushFrame(mk_Writer *w)
 	//if (!w->keyframe)
 	//	CHECK(mk_writeSInt(w->cluster, MATROSKA_ID_BLOCKREFERENCE, ref)); /* ReferenceBlock */
 
-	w->in_frame = FALSE;
+	w->in_frame = FALSE; /* current frame processed */
+	
 	w->prev_frame_tc_scaled = w->cluster_tc_scaled + delta;
 
 	/*******************************/
@@ -712,7 +713,9 @@ static int mk_flushAudioFrame(mk_Writer *w)
 		CHECK(mk_appendContextData(w->cluster, w->audio_frame->data, w->audio_frame->d_cur));
 		w->audio_frame->d_cur = 0;
 	}
-	w->audio_in_frame = FALSE;
+	
+	w->audio_in_frame = FALSE; /* current frame processed */
+	
 	w->audio_prev_frame_tc_scaled = w->cluster_tc_scaled + delta;
 
 	/*******************************/
@@ -842,8 +845,6 @@ int mk_startAudioFrame(mk_Writer *w)
 	if (mk_flushAudioFrame(w) < 0)
 		return -1;
 
-	w->audio_in_frame = TRUE;/*first frame will have size zero (don't write it)*/
-
 	return 0;
 }
 
@@ -874,24 +875,29 @@ int mk_setAudioFrameFlags(mk_Writer *w,int64_t timestamp, int keyframe)
 
 int mk_addFrameData(mk_Writer *w, const void *data, unsigned size)
 {
-	if (!w->in_frame)
-		return -1;
+	//if (!w->in_frame)
+	//	return -1;
 	
 	if (w->frame == NULL)
 		if ((w->frame = mk_createContext(w, NULL, 0)) == NULL)
 			return -1;
-
+	
+	w->in_frame = TRUE;
+	
 	return mk_appendContextData(w->frame, data, size);
 }
 
 int mk_addAudioFrameData(mk_Writer *w, const void *data, unsigned size)
 {
-	if (!w->audio_in_frame)
-		return -1;
+	//if (!w->audio_in_frame)
+	//	return -1;
 	
 	if (w->audio_frame == NULL)
 		if ((w->audio_frame = mk_createContext(w, NULL, 0)) == NULL)
 			return -1;
+	
+	w->audio_in_frame = TRUE;
+	
 	return mk_appendContextData(w->audio_frame, data, size);
 }
 
