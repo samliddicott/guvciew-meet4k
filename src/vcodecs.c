@@ -482,13 +482,13 @@ static int write_video_data(struct ALL_DATA *all_data, BYTE *buff, int size, QWO
 	switch (global->VidFormat)
 	{
 		case AVI_FORMAT:
-			if(size)
+			if(size > 0)
 				ret = AVI_write_frame (videoF->AviOut, buff, size, videoF->keyframe);
 			break;
 		
 		case MKV_FORMAT:
 			videoF->vpts = v_ts;
-			if(size)
+			if(size > 0)
 				ret = write_video_packet (buff, size, global->fps, videoF);
 			break;
 			

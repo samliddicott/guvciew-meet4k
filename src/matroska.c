@@ -292,22 +292,22 @@ static int mk_writeSegPos(mk_Context *c, int64_t ui)
 	return 0;
 }
 
-static int mk_writeSInt(mk_Context *c, unsigned id, int64_t si) 
-{
-	unsigned char c_si[8] = { si >> 56, si >> 48, si >> 40, si >> 32, si >> 24, si >> 16, si >> 8, si };
-	unsigned i = 0;
-
-	CHECK(mk_writeID(c, id));
-	if (si < 0)
-		while (i < 7 && c_si[i] == 0xff && c_si[i+1] & 0x80)
-			++i;
-	else
-		while (i < 7 && c_si[i] == 0 && !(c_si[i+1] & 0x80))
-			++i;
-	CHECK(mk_writeSize(c, 8 - i));
-	CHECK(mk_appendContextData(c, c_si+i, 8 - i));
-	return 0;
-}
+//static int mk_writeSInt(mk_Context *c, unsigned id, int64_t si) 
+//{
+//	unsigned char c_si[8] = { si >> 56, si >> 48, si >> 40, si >> 32, si >> 24, si >> 16, si >> 8, si };
+//	unsigned i = 0;
+//
+//	CHECK(mk_writeID(c, id));
+//	if (si < 0)
+//		while (i < 7 && c_si[i] == 0xff && c_si[i+1] & 0x80)
+//			++i;
+//	else
+//		while (i < 7 && c_si[i] == 0 && !(c_si[i+1] & 0x80))
+//			++i;
+//	CHECK(mk_writeSize(c, 8 - i));
+//	CHECK(mk_appendContextData(c, c_si+i, 8 - i));
+//	return 0;
+//}
 
 static int mk_writeFloatRaw(mk_Context *c, float f)
 {
@@ -348,20 +348,20 @@ static unsigned mk_ebmlSizeSize(unsigned s)
 	return 5;
 }
 
-static unsigned mk_ebmlSIntSize(int64_t si)
-{
-	unsigned char c_si[8] = { si >> 56, si >> 48, si >> 40, si >> 32, si >> 24, si >> 16, si >> 8, si };
-	unsigned i = 0;
-
-	if (si < 0)
-		while (i < 7 && c_si[i] == 0xff && c_si[i+1] & 0x80)
-			++i;
-	else
-		while (i < 7 && c_si[i] == 0 && !(c_si[i+1] & 0x80))
-			++i;
-
-	return 8 - i;
-}
+//static unsigned mk_ebmlSIntSize(int64_t si)
+//{
+//	unsigned char c_si[8] = { si >> 56, si >> 48, si >> 40, si >> 32, si >> 24, si >> 16, si >> 8, si };
+//	unsigned i = 0;
+//
+//	if (si < 0)
+//		while (i < 7 && c_si[i] == 0xff && c_si[i+1] & 0x80)
+//			++i;
+//	else
+//		while (i < 7 && c_si[i] == 0 && !(c_si[i+1] & 0x80))
+//			++i;
+//
+//	return 8 - i;
+//}
 
 mk_Writer *mk_createWriter(const char *filename)
 {
@@ -600,7 +600,8 @@ static int mk_closeCluster(mk_Writer *w)
 
 static int mk_flushFrame(mk_Writer *w)
 {
-	int64_t delta, ref = 0;
+	//int64_t ref = 0;
+	int64_t delta = 0;
 	unsigned fsize, bgsize;
 	unsigned char c_delta_flags[3];
 
@@ -608,7 +609,7 @@ static int mk_flushFrame(mk_Writer *w)
 		return 0;
 
 	delta = w->frame_tc / w->timescale - w->cluster_tc_scaled;
-
+	
 	if (w->cluster == NULL) 
 	{
 		w->cluster_tc_scaled = w->frame_tc / w->timescale ;
@@ -671,6 +672,7 @@ static int mk_flushAudioFrame(mk_Writer *w)
 	//unsigned char flags = 0x04; //lacing
 	//unsigned char framesinlace = 0x07; //FIXME:  total frames -1
 
+	delta = w->audio_frame_tc / w->timescale - w->cluster_tc_scaled;
 	/* make sure we have a cluster */
 	if (w->cluster == NULL) 
 	{
@@ -685,10 +687,9 @@ static int mk_flushAudioFrame(mk_Writer *w)
 		w->block_n=0;
 	}
 
-
+	
 	if (!w->audio_in_frame)
 		return 0;
-	delta = w->audio_frame_tc / w->timescale - w->cluster_tc_scaled;
 
 	fsize = w->audio_frame ? w->audio_frame->d_cur : 0;
 	bgsize = fsize + 4 + mk_ebmlSizeSize(fsize + 4) + 1;
@@ -830,9 +831,9 @@ int mk_startFrame(mk_Writer *w)
 	if (mk_flushFrame(w) < 0)
 		return -1;
 
-	w->in_frame = TRUE;
+	w->in_frame = TRUE; /*first frame will have size zero (don't write it)*/
 	w->keyframe = FALSE;
-
+	
 	return 0;
 }
 
@@ -840,7 +841,8 @@ int mk_startAudioFrame(mk_Writer *w)
 {
 	if (mk_flushAudioFrame(w) < 0)
 		return -1;
-	w->audio_in_frame = TRUE;
+
+	w->audio_in_frame = TRUE;/*first frame will have size zero (don't write it)*/
 
 	return 0;
 }
@@ -849,7 +851,7 @@ int mk_setFrameFlags(mk_Writer *w,int64_t timestamp, int keyframe)
 {
 	if (!w->in_frame)
 		return -1;
-	//printf("ts: %lu\n", (long unsigned int) timestamp);
+
 	w->frame_tc = timestamp;
 	w->keyframe = (keyframe != 0);
 
@@ -863,7 +865,7 @@ int mk_setAudioFrameFlags(mk_Writer *w,int64_t timestamp, int keyframe)
 {
 	if (!w->audio_in_frame)
 		return -1;
-	//printf("ts: %lu\n", (long unsigned int) timestamp);
+
 	w->audio_frame_tc = timestamp;
 
 	return 0;
@@ -874,7 +876,7 @@ int mk_addFrameData(mk_Writer *w, const void *data, unsigned size)
 {
 	if (!w->in_frame)
 		return -1;
-
+	
 	if (w->frame == NULL)
 		if ((w->frame = mk_createContext(w, NULL, 0)) == NULL)
 			return -1;
@@ -886,7 +888,7 @@ int mk_addAudioFrameData(mk_Writer *w, const void *data, unsigned size)
 {
 	if (!w->audio_in_frame)
 		return -1;
-
+	
 	if (w->audio_frame == NULL)
 		if ((w->audio_frame = mk_createContext(w, NULL, 0)) == NULL)
 			return -1;

@@ -486,7 +486,8 @@ static int write_audio_frame (struct ALL_DATA *all_data, AudBuff *proc_buff)
 				else if(global->Sound_Format == ISO_FORMAT_MPEG12)
 				{
 					int size_mp2 = MP2_encode(pdata, proc_buff, 0);
-					ret = write_audio_packet (pdata->mp2Buff, size_mp2, pdata->samprate, videoF);
+					if(size_mp2 > 0)
+						ret = write_audio_packet (pdata->mp2Buff, size_mp2, pdata->samprate, videoF);
 				}
 			g_mutex_unlock( pdata->mutex );
 			break;
@@ -805,7 +806,7 @@ void *IO_loop(void *data)
 		videoIn->IOfinished=FALSE;
 	g_mutex_unlock(videoIn->mutex);
 	
-    	gboolean capVid=FALSE;
+	gboolean capVid=FALSE;
     
 	gboolean failed = FALSE;
 	int proc_flag = 0;
