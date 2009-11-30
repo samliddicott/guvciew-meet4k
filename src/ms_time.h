@@ -34,6 +34,8 @@ DWORD ms_time (void);
 ULLONG us_time(void);
 /*time in nanoseconds (real time for benchmark)*/
 ULLONG ns_time (void);
+/*MONOTONIC CLOCK in nano sec for time stamps*/
+UINT64 ns_time_monotonic();
 
 /*sleep for given time in ms*/
 void sleep_ms(int ms_time);

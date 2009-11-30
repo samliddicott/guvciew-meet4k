@@ -45,12 +45,23 @@ ULLONG us_time(void)
 	g_free(tod);
 	return (ust);
 }
+
+/*REAL TIME CLOCK*/
 /*in nanoseconds*/
 ULLONG ns_time (void)
 {
 	static struct timespec ts;
 	clock_gettime(CLOCK_REALTIME, &ts);
 	return ((ULLONG) ts.tv_sec * G_NSEC_PER_SEC + (ULLONG) ts.tv_nsec);
+}
+
+/*MONOTONIC CLOCK*/
+/*in nanosec*/
+UINT64 ns_time_monotonic()
+{
+	static struct timespec ts;
+	clock_gettime(CLOCK_MONOTONIC, &ts);
+	return ((UINT64) ts.tv_sec * G_NSEC_PER_SEC + (ULLONG) ts.tv_nsec);
 }
 
 //sleep for given time in ms

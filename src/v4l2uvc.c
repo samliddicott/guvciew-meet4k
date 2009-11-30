@@ -1008,7 +1008,7 @@ int uvcGrab(struct vdIn *vd)
 		{
 			case IO_READ:
 				vd->buf.bytesused = read (vd->fd, vd->mem[vd->buf.index], vd->buf.length);
-				vd->timestamp = ns_time();
+				vd->timestamp = ns_time_monotonic();
 				if (-1 == vd->buf.bytesused ) 
 				{
 					switch (errno) 
@@ -1045,7 +1045,7 @@ int uvcGrab(struct vdIn *vd)
 				/* user buffer timestamp if set by the driver, otherwise use current system time
 				 * current time will differ from frame ts if we use older buffer index (vid_sleep > 0)*/
 				if(ts > 0) vd->timestamp = ts; 
-				else vd->timestamp = ns_time(); 
+				else vd->timestamp = ns_time_monotonic(); 
 				             
 				if (ret < 0) 
 				{

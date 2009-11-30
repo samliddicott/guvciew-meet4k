@@ -103,7 +103,7 @@ static void* pulse_read_audio(void *userdata)
 		}
 		else 
 		{
-			data->snd_begintime = ns_time();
+			data->snd_begintime = ns_time_monotonic();
 			data->a_ts = 0;
 		}
 	}

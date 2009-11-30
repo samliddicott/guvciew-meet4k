@@ -89,7 +89,7 @@ recordCallback (const void *inputBuffer, void *outputBuffer,
 		if(capVid) 
 		{
 			g_mutex_lock( data->mutex );
-				data->snd_begintime = ns_time(); /*reset first time stamp*/
+				data->snd_begintime = ns_time_monotonic(); /*reset first time stamp*/
 			g_mutex_unlock( data->mutex );
 			return (paContinue); /*still capturing*/
 		}
@@ -265,7 +265,7 @@ init_sound(struct paRecordData* data)
 	}
 	
 	/*sound start time - used to sync with video*/
-	data->snd_begintime = ns_time();
+	data->snd_begintime = ns_time_monotonic();
 
 	return (0);
 error:

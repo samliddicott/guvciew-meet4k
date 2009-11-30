@@ -200,9 +200,9 @@ void *main_loop(void *data)
 				if(global->framecount < 1)
 				{
 					global->Vidstarttime = videoIn->timestamp;
-					/*use current system time for audio ts(0) reference*/
+					/*use current time for audio ts(0) reference (MONOTONIC)*/
 					g_mutex_lock(pdata->mutex);
-						pdata->ts_ref = ns_time();
+						pdata->ts_ref = ns_time_monotonic();
 					g_mutex_unlock(pdata->mutex);
 					
 					global->v_ts = 0;
@@ -424,7 +424,7 @@ void *main_loop(void *data)
 	{
 		/*stop capture*/
 		if (global->debug) g_printf("stoping Video capture\n");
-		//global->Vidstoptime = ns_time(); /*this is set in IO thread*/
+		//global->Vidstoptime = ns_time_monotonic(); /*this is set in IO thread*/
 		videoIn->VidCapStop=TRUE;
 		capVid = FALSE;
 		g_mutex_lock(videoIn->mutex);

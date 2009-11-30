@@ -177,7 +177,6 @@ static int Sort(struct focusData *AFdata, int size)
 		g_printerr("WARNING: focus array size=%d exceeds 20\n",size);
 		size = 10;
 	}
-	//ULLONG tm1 = ns_time();
 #if (SORT == 1)
 	q_sort(AFdata, 0, size);
 #elif (SORT == 2)
