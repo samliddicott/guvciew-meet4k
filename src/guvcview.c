@@ -648,6 +648,11 @@ int main(int argc, char *argv[])
 				gtk_button_set_label(GTK_BUTTON(gwidget->CapVidButt),_("Cap. Video"));
 				//g_signal_handlers_unblock_by_func(GTK_TOGGLE_BUTTON(gwidget->CapVidButt), G_CALLBACK (capture_vid), all_data);
 			}
+			else
+			{
+				/*disabling sound and video compression controls*/
+				set_sensitive_vid_contrls(FALSE, global->Sound_enable, gwidget);
+			}
 		}
 	
 		if (global->FpsCount>0)
