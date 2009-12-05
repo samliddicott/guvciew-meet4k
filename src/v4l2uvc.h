@@ -92,8 +92,8 @@ struct vdIn
 	int isstreaming;                    // video stream flag (1- ON  0- OFF)
 	int isbayer;                        // raw bayer flag
 	int pix_order;                      // raw bayer pixel order (rg/gb, bg/gr, ...)
-	int setFPS;                         // show new FPS value flag
-	int setJPEGCOMP;                    //set jpeg compression flag
+	int setFPS;                         // set FPS flag (0-do nothing, 1-change fps value, 2-query and queue buffer)
+	int setJPEGCOMP;                    // set jpeg compression flag (0-do nothing, 1-change compression value, 2-query and queue buffer)
 	int grabmethod;                     // only mmap available UVC doesn't support read
 	int width;                          // frame width
 	int height;                         // frame height
@@ -101,8 +101,6 @@ struct vdIn
 	int framesizeIn;                    // Input frame size (buffer size)
 	UINT64 timestamp;                   //video frame time stamp
 	char *VidFName;                     // Video File name (with full path)
-	int fps;                            // fps value (denominator)
-	int fps_num;                        // fps numerator ( should be 1 almost all cases)
 	int capImage;                       // Image capture flag (raised for capturing a frame)
 	char *ImageFName;                   // Image File name (with full path)
 	int cap_raw;                        // raw frame capture flag
@@ -162,18 +160,40 @@ int restart_v4l2(struct vdIn *vd, struct GLOBAL *global);
 /* sets video device frame rate
  * args:
  * vd: pointer to a VdIn struct ( must be allready initiated)
+ * fps: pointer to int containing fps value
+ * fps_num: pointer to int containing fps numerator value
  *
  * returns: VIDIOC_S_PARM ioctl result value
+ * sets fps and fps_num to device value
 */
-int input_set_framerate (struct vdIn * device);
+int input_set_framerate (struct vdIn * device, int *fps, int *fps_num);
 
 /* gets video device defined frame rate (not real - consider it a maximum value)
  * args:
  * vd: pointer to a VdIn struct ( must be allready initiated)
+ * fps: pointer to int containing fps value
+ * fps_num: pointer to int containing fps numerator value
  *
  * returns: VIDIOC_G_PARM ioctl result value
+ * sets fps and fps_num to device value
 */
-int input_get_framerate (struct vdIn * device);
+int input_get_framerate (struct vdIn * device, int *fps, int *fps_num);
+
+/* gets video stream jpeg compression parameters
+ * args:
+ * vd: pointer to a VdIn struct ( must be allready initiated)
+ *
+ * returns: VIDIOC_G_JPEGCOMP ioctl result value
+*/
+int get_jpegcomp(struct vdIn *vd);
+
+/* sets video stream jpeg compression parameters
+ * args:
+ * vd: pointer to a VdIn struct ( must be allready initiated)
+ *
+ * returns: VIDIOC_S_JPEGCOMP ioctl result value
+*/
+int set_jpegcomp(struct vdIn *vd);
 
 /* Enable video stream
  * args:
@@ -182,6 +202,14 @@ int input_get_framerate (struct vdIn * device);
  * returns: VIDIOC_STREAMON ioctl result (0- OK)
 */
 int video_enable(struct vdIn *vd);
+
+/* Disable video stream
+ * args:
+ * vd: pointer to a VdIn struct ( must be allready initiated)
+ *
+ * returns: VIDIOC_STREAMOFF ioctl result (0- OK)
+*/
+int video_disable(struct vdIn *vd);
 
 #endif
 

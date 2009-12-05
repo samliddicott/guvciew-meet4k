@@ -126,7 +126,7 @@ static int initVideoFile(struct ALL_DATA *all_data)
 			else 
 			{
 				AVI_set_video(videoF->AviOut, videoIn->width, videoIn->height, 
-					videoIn->fps,compression);
+					global->fps, compression);
 		  
 				/* start video capture*/
 				capVid = TRUE;
@@ -253,7 +253,7 @@ aviClose (struct ALL_DATA *all_data)
 		else 
 		{
 			/*set the hardware frame rate*/   
-			videoF->AviOut->fps=videoIn->fps;
+			videoF->AviOut->fps = global->fps;
 		}
 
 		if (global->debug) g_printf("VIDEO: %d frames in %f ms = %f fps\n",global->framecount,tottime,videoF->AviOut->fps);

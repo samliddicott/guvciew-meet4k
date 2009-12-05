@@ -594,7 +594,7 @@ int compress_frame(void *data,
 		default:
 			if(!(*lavc_data)) 
 			{
-				*lavc_data = init_lavc(videoIn->width, videoIn->height, videoIn->fps_num, videoIn->fps, global->VidCodec);
+				*lavc_data = init_lavc(videoIn->width, videoIn->height, global->fps_num, global->fps, global->VidCodec);
 			}
 			
 			ret = encode_lavc (*lavc_data, all_data, proc_buff);

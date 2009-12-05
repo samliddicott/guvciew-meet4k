@@ -330,7 +330,7 @@ int video_enable(struct vdIn *vd)
  *
  * returns: VIDIOC_STREAMOFF ioctl result (0- OK)
 */
-static int video_disable(struct vdIn *vd)
+int video_disable(struct vdIn *vd)
 {
 	int type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 	int ret=0;
@@ -361,7 +361,7 @@ static int video_disable(struct vdIn *vd)
  *
  * returns: VIDIOC_G_JPEGCOMP ioctl result value
 */
-static int get_jpegcomp(struct vdIn *vd)
+int get_jpegcomp(struct vdIn *vd)
 {
 	int ret = xioctl(vd->fd, VIDIOC_G_JPEGCOMP, &vd->jpgcomp);
 	if(!ret)
@@ -394,7 +394,7 @@ static int get_jpegcomp(struct vdIn *vd)
  *
  * returns: VIDIOC_S_JPEGCOMP ioctl result value
 */
-static int set_jpegcomp(struct vdIn *vd)
+int set_jpegcomp(struct vdIn *vd)
 {
 	int ret = xioctl(vd->fd, VIDIOC_S_JPEGCOMP, &vd->jpgcomp);
 	if(ret != 0)
@@ -416,7 +416,7 @@ static int set_jpegcomp(struct vdIn *vd)
  *
  * returns: error code ( 0 - VDIN_OK)
 */
-static int init_v4l2(struct vdIn *vd)
+static int init_v4l2(struct vdIn *vd, int *fps, int *fps_num)
 {
 	int ret = 0;
 	
@@ -459,7 +459,7 @@ static int init_v4l2(struct vdIn *vd)
 	}
 
 	//set fps
-	input_set_framerate(vd);
+	input_set_framerate(vd, fps, fps_num);
 	
 	switch (vd->cap_meth)
 	{
@@ -671,8 +671,6 @@ int init_videoIn(struct vdIn *vd, struct GLOBAL *global)
 	vd->VidCapStop=TRUE;
 	
 	vd->VidFName = g_strdup(DEFAULT_AVI_FNAME);
-	vd->fps = global->fps;
-	vd->fps_num = global->fps_num;
 	vd->signalquit = FALSE;
 	vd->PanTilt=0;
 	vd->isbayer = 0; //bayer mode off
@@ -763,15 +761,12 @@ int init_videoIn(struct vdIn *vd, struct GLOBAL *global)
 	
 	if(!(global->control_only))
 	{
-		if ((ret=init_v4l2(vd)) < 0) 
+		if ((ret=init_v4l2(vd, &global->fps, &global->fps_num)) < 0) 
 		{
 			g_printerr("Init v4L2 failed !! \n");
 			goto error;
 		}
-		/*vd->fps is reset to the real value in the device*/
-		/*make sure global is in sync                     */
-		global->fps=vd->fps;
-		global->fps_num=vd->fps_num;
+		
 		g_printf("fps is set to %i/%i\n", global->fps_num, global->fps);
 		/*allocations*/
 		if((ret = videoIn_frame_alloca(vd)) != VDIN_OK)
@@ -780,7 +775,6 @@ int init_videoIn(struct vdIn *vd, struct GLOBAL *global)
 		}
 	}
 	return (ret);
-	//error: clean up allocs
 error:
 	close(vd->fd);
 	vd->fd=0;
@@ -1007,6 +1001,8 @@ int uvcGrab(struct vdIn *vd)
 		switch(vd->cap_meth)
 		{
 			case IO_READ:
+				if(vd->setFPS > 1) vd->setFPS = 0; /*no need to query and queue buufers*/
+				
 				vd->buf.bytesused = read (vd->fd, vd->mem[vd->buf.index], vd->buf.length);
 				vd->timestamp = ns_time_monotonic();
 				if (-1 == vd->buf.bytesused ) 
@@ -1036,14 +1032,21 @@ int uvcGrab(struct vdIn *vd)
 				
 			case IO_MMAP:
 			default:
+				/*query and queue buffers since fps or compression as changed*/
+				if((vd->setFPS > 1) || (vd->setJPEGCOMP > 1))
+				{
+					query_buff(vd,1);
+					queue_buff(vd);
+					if(vd->setFPS > 1) vd->setFPS = 0;
+					if(vd->setJPEGCOMP > 1) vd->setJPEGCOMP = 0;
+				}
 				memset(&vd->buf, 0, sizeof(struct v4l2_buffer));
 				vd->buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 				vd->buf.memory = V4L2_MEMORY_MMAP;
 
 				ret = xioctl(vd->fd, VIDIOC_DQBUF, &vd->buf);
 				ts = (UINT64) vd->buf.timestamp.tv_sec * G_NSEC_PER_SEC +  vd->buf.timestamp.tv_usec * 1000; //in nanosec
-				/* user buffer timestamp if set by the driver, otherwise use current system time
-				 * current time will differ from frame ts if we use older buffer index (vid_sleep > 0)*/
+				/* use buffer timestamp if set by the driver, otherwise use current system time */
 				if(ts > 0) vd->timestamp = ts; 
 				else vd->timestamp = ns_time_monotonic(); 
 				             
@@ -1069,26 +1072,7 @@ int uvcGrab(struct vdIn *vd)
 		goto err;
 	}
 	
-	if(vd->setFPS) //change fps
-	{
-		video_disable(vd);
-		input_set_framerate (vd);
-		video_enable(vd);
-		query_buff(vd,1);
-		queue_buff(vd);
-		vd->setFPS=0;
-	}
-	else if(vd->setJPEGCOMP) //change jpeg quality/compression in video frame
-	{
-		video_disable(vd);
-		set_jpegcomp(vd);
-		get_jpegcomp(vd);
-		video_enable(vd);
-		query_buff(vd,1);
-		queue_buff(vd);
-		vd->setJPEGCOMP = 0;
-	}
-	else if ( vd->cap_meth == IO_MMAP)
+	if ( vd->cap_meth == IO_MMAP)
 	{
 		ret = xioctl(vd->fd, VIDIOC_QBUF, &vd->buf);
 		if (ret < 0) 
@@ -1159,11 +1143,9 @@ int restart_v4l2(struct vdIn *vd, struct GLOBAL *global)
 	
 	vd->width = global->width;
 	vd->height = global->height;
-	vd->fps = global->fps;
-	vd->fps_num = global->fps_num;
 	vd->formatIn = global->format;
 		
-	if ((ret=init_v4l2(vd)) < 0) 
+	if ((ret=init_v4l2(vd, &global->fps, &global->fps_num)) < 0) 
 	{
 		g_printerr("Init v4L2 failed !! \n");
 		goto error;
@@ -1226,7 +1208,7 @@ void close_v4l2(struct vdIn *vd, gboolean control_only)
  * returns: VIDIOC_S_PARM ioctl result value
 */
 int
-input_set_framerate (struct vdIn * device)
+input_set_framerate (struct vdIn * device, int *fps, int *fps_num)
 {  
 	int fd;
 	int ret=0;
@@ -1234,18 +1216,18 @@ input_set_framerate (struct vdIn * device)
 	fd = device->fd;
 
 	device->streamparm.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-	device->streamparm.parm.capture.timeperframe.numerator = device->fps_num;
-	device->streamparm.parm.capture.timeperframe.denominator = device->fps;
+	device->streamparm.parm.capture.timeperframe.numerator = *fps_num;
+	device->streamparm.parm.capture.timeperframe.denominator = *fps;
 	 
 	ret = xioctl(fd,VIDIOC_S_PARM,&device->streamparm);
 	if (ret < 0) 
 	{
-		g_printerr("Unable to set %d fps\n",device->fps);
+		g_printerr("Unable to set %d/%d fps\n", *fps_num, *fps);
 		perror("VIDIOC_S_PARM error");
 	} 
 	
 	/*make sure we now have the correct fps*/
-	input_get_framerate (device);
+	input_get_framerate (device, fps, fps_num);
 	
 	return ret;
 }
@@ -1257,7 +1239,7 @@ input_set_framerate (struct vdIn * device)
  * returns: VIDIOC_G_PARM ioctl result value
 */
 int
-input_get_framerate (struct vdIn * device)
+input_get_framerate (struct vdIn * device, int *fps, int *fps_num)
 {
 	int fd;
 	int ret=0;
@@ -1272,8 +1254,8 @@ input_get_framerate (struct vdIn * device)
 	else 
 	{
 		// it seems numerator is allways 1 but we don't do assumptions here :-)
-		device->fps = device->streamparm.parm.capture.timeperframe.denominator;
-		device->fps_num = device->streamparm.parm.capture.timeperframe.numerator;
+		*fps = device->streamparm.parm.capture.timeperframe.denominator;
+		*fps_num = device->streamparm.parm.capture.timeperframe.numerator;
 	}
 	return ret;
 }

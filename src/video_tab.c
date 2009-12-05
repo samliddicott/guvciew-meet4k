@@ -580,8 +580,6 @@ void video_tab(struct ALL_DATA *all_data)
 
 	// Frame Rate
 	line++;
-	videoIn->fps_num=global->fps_num;
-	videoIn->fps=global->fps;
 					  
 	gwidget->FrameRate = gtk_combo_box_new_text ();
 	int deffps=0;
@@ -595,8 +593,8 @@ void video_tab(struct ALL_DATA *all_data)
 			listVidFormats->listVidCap[defres].framerate_num[i]);
 		gtk_combo_box_append_text(GTK_COMBO_BOX(gwidget->FrameRate),temp_str);
 		
-		if (( videoIn->fps_num == listVidFormats->listVidCap[defres].framerate_num[i]) && 
-			(videoIn->fps == listVidFormats->listVidCap[defres].framerate_denom[i]))
+		if (( global->fps_num == listVidFormats->listVidCap[defres].framerate_num[i]) && 
+			(global->fps == listVidFormats->listVidCap[defres].framerate_denom[i]))
 				deffps=i;//set selected
 	}
 	
@@ -613,9 +611,6 @@ void video_tab(struct ALL_DATA *all_data)
 
 		if (listVidFormats->listVidCap[defres].framerate_num)
 			global->fps_num = listVidFormats->listVidCap[defres].framerate_num[0];
-
-		videoIn->fps=global->fps;
-		videoIn->fps_num=global->fps_num;
 
 		g_printf("fps is set to %i/%i\n", global->fps_num, global->fps);
 	}

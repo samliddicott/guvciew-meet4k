@@ -240,7 +240,7 @@ void *main_loop(void *data)
 						g_printerr("ERROR: couldn't set focus to %d\n", AFdata->focus);
 					/*number of frames until focus is stable*/
 					/*1.4 ms focus time - every 1 step*/
-					AFdata->focus_wait = (int) abs(AFdata->focus-last_focus)*1.4/(1000/videoIn->fps)+1;
+					AFdata->focus_wait = (int) abs(AFdata->focus-last_focus)*1.4/(1000/global->fps)+1;
 					last_focus = AFdata->focus;
 				} 
 				else 
@@ -262,7 +262,7 @@ void *main_loop(void *data)
 									AFdata->focus);
 							/*number of frames until focus is stable*/
 							/*1.4 ms focus time - every 1 step*/
-							AFdata->focus_wait = (int) abs(AFdata->focus-last_focus)*1.4/(1000/videoIn->fps)+1;
+							AFdata->focus_wait = (int) abs(AFdata->focus-last_focus)*1.4/(1000/global->fps)+1;
 						}
 						last_focus = AFdata->focus;
 					} 
@@ -383,6 +383,25 @@ void *main_loop(void *data)
 		
 		/* if set make the thread sleep - default no sleep (full throttle)*/
 		if(global->vid_sleep) sleep_ms(global->vid_sleep);
+		
+		/*------------------------------------------*/
+		/*  change video fps or frame compression   */
+		/*------------------------------------------*/
+		if(videoIn->setFPS) //change fps
+		{
+			video_disable(videoIn);
+			input_set_framerate (videoIn, &global->fps, &global->fps_num);
+			video_enable(videoIn);
+			videoIn->setFPS = 2;
+		}
+		else if(videoIn->setJPEGCOMP) //change jpeg quality/compression in video frame
+		{
+			video_disable(videoIn);
+			set_jpegcomp(videoIn);
+			get_jpegcomp(videoIn);
+			video_enable(videoIn);
+			videoIn->setJPEGCOMP = 2;
+		}
 		
 		/*------------------------------------------*/
 		/*  restart video (new resolution/format)   */

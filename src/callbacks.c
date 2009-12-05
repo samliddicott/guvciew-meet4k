@@ -706,13 +706,13 @@ FrameRate_changed (GtkComboBox * FrameRate, struct ALL_DATA *all_data)
 	
 	int index = gtk_combo_box_get_active (FrameRate);
 		
-	videoIn->fps=videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[resind].framerate_denom[index];
-	videoIn->fps_num=videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[resind].framerate_num[index];
+	global->fps=videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[resind].framerate_denom[index];
+	global->fps_num=videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[resind].framerate_num[index];
  
+	/*fps change is done in two fases:
+	 * 1- in video.c we try to change device fps (and set flag to 2)
+	 * 2- in v4l2uvc.c (uvcGrab) we query and queue the buffers if using MMAP (and reset flag to 0)*/
 	videoIn->setFPS=1;
-
-	global->fps=videoIn->fps;
-	global->fps_num=videoIn->fps_num;
 	
 	gwidget = NULL;
 	global = NULL;
