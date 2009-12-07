@@ -154,6 +154,7 @@ set_sensitive_vid_contrls (const int flag, const int sndEnable, struct GWIDGET *
 	/* resolution and input format combos   */
 	gtk_widget_set_sensitive (gwidget->Resolution, flag);
 	gtk_widget_set_sensitive (gwidget->InpType, flag);
+	gtk_widget_set_sensitive (gwidget->FrameRate, flag);
 	/* Video File entry and open button     */
 	gtk_widget_set_sensitive (gwidget->VidFNameEntry, flag);
 	gtk_widget_set_sensitive (gwidget->VidFileButt, flag);
