@@ -119,13 +119,13 @@ static SDL_Overlay * video_init(void *data, SDL_Surface **pscreen)
 	}
 	/*------------------------------ SDL init video ---------------------*/
 
-	*pscreen = SDL_SetVideoMode( videoIn->width, 
-		videoIn->height, 
+	*pscreen = SDL_SetVideoMode( global->width, 
+		global->height, 
 		global->bpp,
 		SDL_VIDEO_Flags);
 		 
 	SDL_Overlay* overlay=NULL;
-	overlay = SDL_CreateYUVOverlay(videoIn->width, videoIn->height,
+	overlay = SDL_CreateYUVOverlay(global->width, global->height,
 		SDL_YUY2_OVERLAY, *pscreen);
 		
 	return (overlay);
@@ -149,6 +149,9 @@ void *main_loop(void *data)
 	SDL_Surface *pscreen = NULL;
 	SDL_Overlay *overlay = NULL;
 	SDL_Rect drect;
+	
+	int width = global->width;
+	int height = global->height;
 	
 	BYTE *p = NULL;
 	
@@ -180,7 +183,7 @@ void *main_loop(void *data)
 		g_mutex_unlock(videoIn->mutex);
 		
 		/*-------------------------- Grab Frame ----------------------------------*/
-		if (uvcGrab(videoIn) < 0) 
+		if (uvcGrab(videoIn, width, height) < 0) 
 		{
 			g_printerr("Error grabbing image \n");
 			signalquit=TRUE;
@@ -247,8 +250,7 @@ void *main_loop(void *data)
 				{
 					if (AFdata->focus_wait == 0) 
 					{
-						AFdata->sharpness=getSharpness (videoIn->framebuffer, videoIn->width, 
-							videoIn->height, 5);
+						AFdata->sharpness=getSharpness (videoIn->framebuffer, width, height, 5);
 						if (global->debug) 
 							g_printf("sharp=%d focus_sharp=%d foc=%d right=%d left=%d ind=%d flag=%d\n",
 								AFdata->sharpness,AFdata->focus_sharpness,
@@ -279,22 +281,22 @@ void *main_loop(void *data)
 		if(global->Frame_Flags>0)
 		{
 			if((global->Frame_Flags & YUV_PARTICLES)==YUV_PARTICLES)
-				particles = particles_effect(videoIn->framebuffer, videoIn->width, videoIn->height, 20, 4, particles);
+				particles = particles_effect(videoIn->framebuffer, width, height, 20, 4, particles);
 			
 			if((global->Frame_Flags & YUV_MIRROR)==YUV_MIRROR) 
-				yuyv_mirror(videoIn->framebuffer,videoIn->width,videoIn->height);
+				yuyv_mirror(videoIn->framebuffer, width, height);
 			
 			if((global->Frame_Flags & YUV_UPTURN)==YUV_UPTURN)
-				yuyv_upturn(videoIn->framebuffer,videoIn->width,videoIn->height);
+				yuyv_upturn(videoIn->framebuffer, width, height);
 				
 			if((global->Frame_Flags & YUV_NEGATE)==YUV_NEGATE)
-				yuyv_negative (videoIn->framebuffer,videoIn->width,videoIn->height);
+				yuyv_negative (videoIn->framebuffer, width, height);
 				
 			if((global->Frame_Flags & YUV_MONOCR)==YUV_MONOCR) 
-				yuyv_monochrome (videoIn->framebuffer,videoIn->width,videoIn->height);
+				yuyv_monochrome (videoIn->framebuffer, width, height);
 		   
 			if((global->Frame_Flags & YUV_PIECES)==YUV_PIECES)
-				pieces (videoIn->framebuffer, videoIn->width, videoIn->height, 16 );
+				pieces (videoIn->framebuffer, width, height, 16 );
 			
 		}
 		g_mutex_unlock(global->mutex);
@@ -337,8 +339,7 @@ void *main_loop(void *data)
 		
 		/*------------------------- Display Frame --------------------------------*/
 		SDL_LockYUVOverlay(overlay);
-		memcpy(p, videoIn->framebuffer,
-			videoIn->width * (videoIn->height) * 2);
+		memcpy(p, videoIn->framebuffer, width * height * 2);
 		SDL_UnlockYUVOverlay(overlay);
 		SDL_DisplayYUVOverlay(overlay, &drect);
 		
@@ -408,7 +409,7 @@ void *main_loop(void *data)
 		/*------------------------------------------*/
 		if (global->change_res)
 		{
-			g_printf("setting new resolution (%d x %d)\n",global->width,global->height);
+			g_printf("setting new resolution (%d x %d)\n", global->width, global->height);
 			/*clean up */
 			
 			if(particles) g_free(particles);
@@ -421,7 +422,9 @@ void *main_loop(void *data)
 			overlay = NULL;
 			/*init device*/
 			restart_v4l2(videoIn, global);
-			
+			/*set new resolution for video thread*/
+			width = global->width;
+			height = global->height;
 			/* restart SDL with new values*/
 			overlay = video_init(data, &(pscreen));
 			p = (unsigned char *) overlay->pixels[0];

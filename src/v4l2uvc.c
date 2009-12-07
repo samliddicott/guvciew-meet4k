@@ -148,7 +148,7 @@ int xioctl(int fd, int IOCTL_X, void *arg)
  *
  * returns: error code  (0- OK)
 */
-static int check_videoIn(struct vdIn *vd)
+static int check_videoIn(struct vdIn *vd, int *width, int *height)
 {
 	if (vd == NULL)
 		return VDIN_ALLOC_ERR;
@@ -187,7 +187,7 @@ static int check_videoIn(struct vdIn *vd)
 	}
 	g_printf("Init. %s (location: %s)\n", vd->cap.card, vd->cap.bus_info);
 	
-	vd->listFormats = enum_frame_formats( &(vd->width), &(vd->height), vd->fd);
+	vd->listFormats = enum_frame_formats( width, height, vd->fd);
 	
 	if(!(vd->listFormats->listVidFormats))
 		g_printerr("Couldn't detect any supported formats on your device (%i)\n", vd->listFormats->numb_formats);
@@ -416,7 +416,7 @@ int set_jpegcomp(struct vdIn *vd)
  *
  * returns: error code ( 0 - VDIN_OK)
 */
-static int init_v4l2(struct vdIn *vd, int *fps, int *fps_num)
+static int init_v4l2(struct vdIn *vd, int *width, int *height, int *fps, int *fps_num)
 {
 	int ret = 0;
 	
@@ -432,8 +432,8 @@ static int init_v4l2(struct vdIn *vd, int *fps, int *fps_num)
 	vd->timestamp = 0;
 	// set format
 	vd->fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-	vd->fmt.fmt.pix.width = vd->width;
-	vd->fmt.fmt.pix.height = vd->height;
+	vd->fmt.fmt.pix.width = *width;
+	vd->fmt.fmt.pix.height = *height;
 	vd->fmt.fmt.pix.pixelformat = vd->formatIn;
 	vd->fmt.fmt.pix.field = V4L2_FIELD_ANY;
 	
@@ -443,13 +443,13 @@ static int init_v4l2(struct vdIn *vd, int *fps, int *fps_num)
 		perror("VIDIOC_S_FORMAT - Unable to set format");
 		return VDIN_FORMAT_ERR;
 	}
-	if ((vd->fmt.fmt.pix.width != vd->width) ||
-		(vd->fmt.fmt.pix.height != vd->height)) 
+	if ((vd->fmt.fmt.pix.width != *width) ||
+		(vd->fmt.fmt.pix.height != *height)) 
 	{
 		g_printerr("Requested Format unavailable: get width %d height %d \n",
 		vd->fmt.fmt.pix.width, vd->fmt.fmt.pix.height);
-		vd->width = vd->fmt.fmt.pix.width;
-		vd->height = vd->fmt.fmt.pix.height;
+		*width = vd->fmt.fmt.pix.width;
+		*height = vd->fmt.fmt.pix.height;
 	}
 	
 	//deprecated in v4l2 - still waiting for new API implementation
@@ -465,7 +465,7 @@ static int init_v4l2(struct vdIn *vd, int *fps, int *fps_num)
 	{
 		case IO_READ: //allocate buffer for read
 			memset(&vd->buf, 0, sizeof(struct v4l2_buffer));
-			vd->buf.length = vd->width * vd->height * 3; //worst case (rgb)
+			vd->buf.length = *width * *height * 3; //worst case (rgb)
 			vd->mem[vd->buf.index] = g_new0(BYTE, vd->buf.length);
 			break;
 		
@@ -518,13 +518,13 @@ static int init_v4l2(struct vdIn *vd, int *fps, int *fps_num)
  *
  * returns: error code ( 0 - VDIN_OK)
 */
-static int videoIn_frame_alloca(struct vdIn *vd)
+static int videoIn_frame_alloca(struct vdIn *vd, int width, int height)
 {
 	int ret = VDIN_OK;
 	size_t framebuf_size=0;
 	size_t tmpbuf_size=0;
 	
-	vd->framesizeIn = (vd->width * vd->height << 1); //2 bytes per pixel
+	vd->framesizeIn = (width * height << 1); //2 bytes per pixel
 	switch (vd->formatIn) 
 	{
 		case V4L2_PIX_FMT_JPEG:
@@ -533,7 +533,7 @@ static int videoIn_frame_alloca(struct vdIn *vd)
 			tmpbuf_size= vd->framesizeIn;
 			vd->tmpbuffer = g_new0(unsigned char, tmpbuf_size);
 			
-			framebuf_size = vd->width * (vd->height + 8) * 2;
+			framebuf_size = width * (height + 8) * 2;
 			vd->framebuffer = g_new0(unsigned char, framebuf_size); 
 			break;
 		
@@ -559,7 +559,7 @@ static int videoIn_frame_alloca(struct vdIn *vd)
 			
 		case V4L2_PIX_FMT_GREY:
 			// alloc a temp buffer for converting to YUYV
-			tmpbuf_size= vd->width * vd->height; // 1 byte per pixel
+			tmpbuf_size= width * height; // 1 byte per pixel
 			vd->tmpbuffer = g_new0(unsigned char, tmpbuf_size);
 			framebuf_size = vd->framesizeIn;
 			vd->framebuffer = g_new0(unsigned char, framebuf_size);
@@ -584,7 +584,7 @@ static int videoIn_frame_alloca(struct vdIn *vd)
 	
 			// alloc a temp buffer for converting to YUYV
 			// rgb buffer for decoding bayer data
-			tmpbuf_size = vd->width * vd->height * 3;
+			tmpbuf_size = width * height * 3;
 			vd->tmpbuffer = g_new0(unsigned char, tmpbuf_size);
 		
 			framebuf_size = vd->framesizeIn;
@@ -595,7 +595,7 @@ static int videoIn_frame_alloca(struct vdIn *vd)
 			//rgb or bgr (8-8-8)
 			// alloc a temp buffer for converting to YUYV
 			// rgb buffer
-			tmpbuf_size = vd->width * vd->height * 3;
+			tmpbuf_size = width * height * 3;
 			vd->tmpbuffer = g_new0(unsigned char, tmpbuf_size);
 			
 			framebuf_size = vd->framesizeIn;
@@ -648,14 +648,12 @@ int init_videoIn(struct vdIn *vd, struct GLOBAL *global)
 {
 	int ret = VDIN_OK;
 	char *device = global->videodevice;
-	int width = global->width;
-	int height = global->height;
 	int format = global->format;
 	
 	vd->mutex = g_mutex_new();
 	if (vd == NULL || device == NULL)
 		return VDIN_ALLOC_ERR;
-	if (width == 0 || height == 0)
+	if (global->width == 0 || global->height == 0)
 		return VDIN_RESOL_ERR;
 	if (global->cap_meth < IO_MMAP || global->cap_meth > IO_READ)
 		global->cap_meth = IO_MMAP;		//mmap by default
@@ -676,8 +674,6 @@ int init_videoIn(struct vdIn *vd, struct GLOBAL *global)
 	vd->isbayer = 0; //bayer mode off
 	vd->pix_order=0; // pix order for bayer mode def: gbgbgb..|rgrgrg..
 	vd->setFPS=0; 
-	vd->width = width;
-	vd->height = height;
 	vd->formatIn = format;
 	vd->capImage=FALSE;
 	vd->cap_raw=0;
@@ -721,7 +717,7 @@ int init_videoIn(struct vdIn *vd, struct GLOBAL *global)
 	// populate video capabilities structure array
 	// should only be called after all vdIn struct elements 
 	// have been initialized
-	if((ret = check_videoIn(vd)) != VDIN_OK)
+	if((ret = check_videoIn(vd, &global->width, &global->height)) != VDIN_OK)
 	{
 		goto error;
 	}
@@ -761,7 +757,7 @@ int init_videoIn(struct vdIn *vd, struct GLOBAL *global)
 	
 	if(!(global->control_only))
 	{
-		if ((ret=init_v4l2(vd, &global->fps, &global->fps_num)) < 0) 
+		if ((ret=init_v4l2(vd, &global->width, &global->height, &global->fps, &global->fps_num)) < 0) 
 		{
 			g_printerr("Init v4L2 failed !! \n");
 			goto error;
@@ -769,7 +765,7 @@ int init_videoIn(struct vdIn *vd, struct GLOBAL *global)
 		
 		g_printf("fps is set to %i/%i\n", global->fps_num, global->fps);
 		/*allocations*/
-		if((ret = videoIn_frame_alloca(vd)) != VDIN_OK)
+		if((ret = videoIn_frame_alloca(vd, global->width, global->height)) != VDIN_OK)
 		{
 			goto error;
 		}
@@ -805,7 +801,7 @@ error:
  *
  * returns: error code ( 0 - VDIN_OK)
 */
-static int frame_decode(struct vdIn *vd)
+static int frame_decode(struct vdIn *vd, int width, int height)
 {
 	int ret = VDIN_OK;
 	switch (vd->formatIn) 
@@ -820,8 +816,7 @@ static int frame_decode(struct vdIn *vd)
 			}
 			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
 
-			if (jpeg_decode(&vd->framebuffer, vd->tmpbuffer, &vd->width,
-				&vd->height) < 0) 
+			if (jpeg_decode(&vd->framebuffer, vd->tmpbuffer, width, height) < 0) 
 			{
 				g_printerr("jpeg decode errors\n");
 				ret = VDIN_DECODE_ERR;
@@ -831,72 +826,72 @@ static int frame_decode(struct vdIn *vd)
 		
 		case V4L2_PIX_FMT_UYVY:
 			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
-			uyvy_to_yuyv(vd->framebuffer, vd->tmpbuffer, vd->width, vd->height);
+			uyvy_to_yuyv(vd->framebuffer, vd->tmpbuffer, width, height);
 			break;
 			
 		case V4L2_PIX_FMT_YVYU:
 			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
-			yvyu_to_yuyv(vd->framebuffer, vd->tmpbuffer, vd->width, vd->height);
+			yvyu_to_yuyv(vd->framebuffer, vd->tmpbuffer, width, height);
 			break;
 			
 		case V4L2_PIX_FMT_YYUV:
 			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
-			yyuv_to_yuyv(vd->framebuffer, vd->tmpbuffer, vd->width, vd->height);
+			yyuv_to_yuyv(vd->framebuffer, vd->tmpbuffer, width, height);
 			break;
 			
 		case V4L2_PIX_FMT_YUV420:
 			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
-			yuv420_to_yuyv(vd->framebuffer, vd->tmpbuffer, vd->width, vd->height);
+			yuv420_to_yuyv(vd->framebuffer, vd->tmpbuffer, width, height);
 			break;
 		
 		case V4L2_PIX_FMT_YVU420:
 			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
-			yvu420_to_yuyv(vd->framebuffer, vd->tmpbuffer, vd->width, vd->height);
+			yvu420_to_yuyv(vd->framebuffer, vd->tmpbuffer, width, height);
 			break;
 		
 		case V4L2_PIX_FMT_NV12:
 			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
-			nv12_to_yuyv(vd->framebuffer, vd->tmpbuffer, vd->width, vd->height);
+			nv12_to_yuyv(vd->framebuffer, vd->tmpbuffer, width, height);
 			break;
 			
 		case V4L2_PIX_FMT_NV21:
 			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
-			nv21_to_yuyv(vd->framebuffer, vd->tmpbuffer, vd->width, vd->height);
+			nv21_to_yuyv(vd->framebuffer, vd->tmpbuffer, width, height);
 			break;
 		
 		case V4L2_PIX_FMT_NV16:
 			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
-			nv16_to_yuyv(vd->framebuffer, vd->tmpbuffer, vd->width, vd->height);
+			nv16_to_yuyv(vd->framebuffer, vd->tmpbuffer, width, height);
 			break;
 			
 		case V4L2_PIX_FMT_NV61:
 			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
-			nv61_to_yuyv(vd->framebuffer, vd->tmpbuffer, vd->width, vd->height);
+			nv61_to_yuyv(vd->framebuffer, vd->tmpbuffer, width, height);
 			break;
 			
 		case V4L2_PIX_FMT_Y41P: 
 			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
-			y41p_to_yuyv(vd->framebuffer, vd->tmpbuffer, vd->width, vd->height);
+			y41p_to_yuyv(vd->framebuffer, vd->tmpbuffer, width, height);
 			break;
 		
 		case V4L2_PIX_FMT_GREY:
 			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
-			grey_to_yuyv(vd->framebuffer, vd->tmpbuffer, vd->width, vd->height);
+			grey_to_yuyv(vd->framebuffer, vd->tmpbuffer, width, height);
 			break;
 			
 		case V4L2_PIX_FMT_SPCA501:
 			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
-			s501_to_yuyv(vd->framebuffer, vd->tmpbuffer, vd->width, vd->height);
+			s501_to_yuyv(vd->framebuffer, vd->tmpbuffer, width, height);
 			break;
 		
 		case V4L2_PIX_FMT_SPCA505:
 			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
-			s505_to_yuyv(vd->framebuffer, vd->tmpbuffer, vd->width, vd->height);
+			s505_to_yuyv(vd->framebuffer, vd->tmpbuffer, width, height);
 			break;
 		
 		case V4L2_PIX_FMT_SPCA508:
 			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
-			s508_to_yuyv(vd->framebuffer, vd->tmpbuffer, vd->width, vd->height);
+			s508_to_yuyv(vd->framebuffer, vd->tmpbuffer, width, height);
 			break;
 		
 		case V4L2_PIX_FMT_YUYV:
@@ -906,11 +901,11 @@ static int frame_decode(struct vdIn *vd)
 				{
 					// rgb buffer for decoding bayer data
 					vd->tmpbuffer = g_new0(unsigned char, 
-						vd->width * vd->height * 3);
+						width * height * 3);
 				}
-				bayer_to_rgb24 (vd->mem[vd->buf.index],vd->tmpbuffer,vd->width,vd->height, vd->pix_order);
+				bayer_to_rgb24 (vd->mem[vd->buf.index],vd->tmpbuffer, *width, *height, vd->pix_order);
 				// raw bayer is only available in logitech cameras in yuyv mode
-				rgb2yuyv (vd->tmpbuffer,vd->framebuffer,vd->width,vd->height);
+				rgb2yuyv (vd->tmpbuffer,vd->framebuffer, width, height);
 			} 
 			else 
 			{
@@ -924,31 +919,31 @@ static int frame_decode(struct vdIn *vd)
 			break;
 			
 		case V4L2_PIX_FMT_SGBRG8: //0
-			bayer_to_rgb24 (vd->mem[vd->buf.index],vd->tmpbuffer,vd->width,vd->height, 0);
-			rgb2yuyv (vd->tmpbuffer,vd->framebuffer,vd->width,vd->height);
+			bayer_to_rgb24 (vd->mem[vd->buf.index],vd->tmpbuffer, width, height, 0);
+			rgb2yuyv (vd->tmpbuffer, vd->framebuffer, width, height);
 			break;
 			
 		case V4L2_PIX_FMT_SGRBG8: //1
-			bayer_to_rgb24 (vd->mem[vd->buf.index],vd->tmpbuffer,vd->width,vd->height, 1);
-			rgb2yuyv (vd->tmpbuffer,vd->framebuffer,vd->width,vd->height);
+			bayer_to_rgb24 (vd->mem[vd->buf.index], vd->tmpbuffer, width, height, 1);
+			rgb2yuyv (vd->tmpbuffer, vd->framebuffer, width, height);
 			break;
 			
 		case V4L2_PIX_FMT_SBGGR8: //2
-			bayer_to_rgb24 (vd->mem[vd->buf.index],vd->tmpbuffer,vd->width,vd->height, 2);
-			rgb2yuyv (vd->tmpbuffer,vd->framebuffer,vd->width,vd->height);
+			bayer_to_rgb24 (vd->mem[vd->buf.index], vd->tmpbuffer, width, height, 2);
+			rgb2yuyv (vd->tmpbuffer, vd->framebuffer, width, height);
 			break;
 		case V4L2_PIX_FMT_SRGGB8: //3
-			bayer_to_rgb24 (vd->mem[vd->buf.index],vd->tmpbuffer,vd->width,vd->height, 3);
-			rgb2yuyv (vd->tmpbuffer,vd->framebuffer,vd->width,vd->height);
+			bayer_to_rgb24 (vd->mem[vd->buf.index], vd->tmpbuffer, width, height, 3);
+			rgb2yuyv (vd->tmpbuffer, vd->framebuffer, width, height);
 			break;
 			
 		case V4L2_PIX_FMT_RGB24:
-			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
-			rgb2yuyv(vd->tmpbuffer, vd->framebuffer, vd->width, vd->height);
+			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index], vd->buf.bytesused);
+			rgb2yuyv(vd->tmpbuffer, vd->framebuffer, width, height);
 			break;
 		case V4L2_PIX_FMT_BGR24:
 			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
-			bgr2yuyv(vd->tmpbuffer, vd->framebuffer, vd->width, vd->height);
+			bgr2yuyv(vd->tmpbuffer, vd->framebuffer, width, height);
 			break;
 		
 		default:
@@ -968,7 +963,7 @@ err:
  *
  * returns: error code ( 0 - VDIN_OK)
 */
-int uvcGrab(struct vdIn *vd)
+int uvcGrab(struct vdIn *vd, int width, int height)
 {
 	int ret = VDIN_OK;
 	fd_set rdset;
@@ -1067,7 +1062,7 @@ int uvcGrab(struct vdIn *vd)
 		vd->cap_raw=0;
 	}
 	
-	if ((ret = frame_decode(vd)) != VDIN_OK)
+	if ((ret = frame_decode(vd, width, height)) != VDIN_OK)
 	{
 		goto err;
 	}
@@ -1141,17 +1136,15 @@ int restart_v4l2(struct vdIn *vd, struct GLOBAL *global)
 	video_disable(vd);
 	close_v4l2_buffers(vd);
 	
-	vd->width = global->width;
-	vd->height = global->height;
 	vd->formatIn = global->format;
 		
-	if ((ret=init_v4l2(vd, &global->fps, &global->fps_num)) < 0) 
+	if ((ret=init_v4l2(vd, &global->width, &global->height, &global->fps, &global->fps_num)) < 0) 
 	{
 		g_printerr("Init v4L2 failed !! \n");
 		goto error;
 	}
 	/*allocations*/
-	if((ret = videoIn_frame_alloca(vd)) != VDIN_OK)
+	if((ret = videoIn_frame_alloca(vd, global->width, global->height)) != VDIN_OK)
 	{
 		goto error;
 	}

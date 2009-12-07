@@ -134,7 +134,7 @@ struct scan
 #define ERR_DEPTH_MISMATCH 15
 
 
-int jpeg_decode(unsigned char **pic, unsigned char *buf, int *width, int *height);
+int jpeg_decode(unsigned char **pic, unsigned char *buf, int width, int height);
 
 #endif
 

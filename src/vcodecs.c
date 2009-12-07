@@ -551,20 +551,20 @@ int compress_frame(void *data,
 				/* use built in encoder */ 
 				if (!global->jpeg)
 				{ 
-					global->jpeg = g_new0(BYTE, ((videoIn->width)*(videoIn->height))>>1);
+					global->jpeg = g_new0(BYTE, ((global->width)*(global->height))>>1);
 				}
 				if(!(*jpeg_struct))
 				{
 					*jpeg_struct = g_new0(struct JPEG_ENCODER_STRUCTURE, 1);
 					/* Initialization of JPEG control structure */
-					initialization (*jpeg_struct,videoIn->width,videoIn->height);
+					initialization (*jpeg_struct,global->width,global->height);
 
 					/* Initialization of Quantization Tables  */
 					initialize_quantization_tables (*jpeg_struct);
 				} 
 				
 				jpeg_size = encode_image(proc_buff->frame, global->jpeg, 
-					*jpeg_struct,1, videoIn->width, videoIn->height);
+					*jpeg_struct,1, global->width, global->height);
 			
 				ret = write_video_data (all_data, global->jpeg, jpeg_size, proc_buff->time_stamp);
 			}
@@ -575,15 +575,15 @@ int compress_frame(void *data,
 			break;
 					
 		case CODEC_DIB:
-			framesize=(videoIn->width)*(videoIn->height)*3; /*DIB 24/32 -> 3/4 bytes per pixel*/ 
+			framesize=(global->width)*(global->height)*3; /*DIB 24/32 -> 3/4 bytes per pixel*/ 
 			prgb = g_new0(BYTE, framesize);
 			switch (global->VidFormat)
 			{
 				case AVI_FORMAT: /* lines upside down     */
-					yuyv2bgr(proc_buff->frame, prgb, videoIn->width, videoIn->height);
+					yuyv2bgr(proc_buff->frame, prgb, global->width, global->height);
 					break;
 				case MKV_FORMAT: /* lines in correct order*/
-					yuyv2bgr1(proc_buff->frame, prgb, videoIn->width, videoIn->height);
+					yuyv2bgr1(proc_buff->frame, prgb, global->width, global->height);
 					break;
 			}
 			ret = write_video_data (all_data, prgb, framesize, proc_buff->time_stamp);
@@ -594,7 +594,7 @@ int compress_frame(void *data,
 		default:
 			if(!(*lavc_data)) 
 			{
-				*lavc_data = init_lavc(videoIn->width, videoIn->height, global->fps_num, global->fps, global->VidCodec);
+				*lavc_data = init_lavc(global->width, global->height, global->fps_num, global->fps, global->VidCodec);
 			}
 			
 			ret = encode_lavc (*lavc_data, all_data, proc_buff);

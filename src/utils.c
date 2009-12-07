@@ -226,7 +226,7 @@ static int dec_checkmarker(void)
 *      with: picture width 
 *      height: picture height
 */
-int jpeg_decode(BYTE **pic, BYTE *buf, int *width, int *height)
+int jpeg_decode(BYTE **pic, BYTE *buf, int width, int height)
 {
 	struct jpeg_decdata *decdata;
 	int i=0, j=0, m=0, tac=0, tdc=0;
@@ -383,10 +383,10 @@ int jpeg_decode(BYTE **pic, BYTE *buf, int *width, int *height)
 	/* if internal width and external are not the same or heigth too 
 	and pic not allocated realloc the good size and mark the change 
 	need 1 macroblock line more ?? */
-	if (intwidth != *width || intheight != *height || *pic == NULL) 
+	if (intwidth != width || intheight != height || *pic == NULL) 
 	{
-		*width = intwidth;
-		*height = intheight;
+		width = intwidth;
+		height = intheight;
 		// BytesperPixel 2 yuyv , 3 rgb24 
 		*pic = g_renew(unsigned char, *pic,
 			intwidth * (intheight + 8) * 2);
@@ -396,30 +396,30 @@ int jpeg_decode(BYTE **pic, BYTE *buf, int *width, int *height)
 	{
 		case 0x22: // 411
 			mb=6;
-			mcusx = *width >> 4;
-			mcusy = *height >> 4;
+			mcusx = width >> 4;
+			mcusy = height >> 4;
 			bpp=2;
 			xpitch = 16 * bpp;
-			pitch = *width * bpp; // YUYV out
+			pitch = width * bpp; // YUYV out
 			ypitch = 16 * pitch;
 			convert = yuv420pto422; //choose the right conversion function
 			break;
 		case 0x21: //422
 			mb=4;
-			mcusx = *width >> 4;
-			mcusy = *height >> 3;
+			mcusx = width >> 4;
+			mcusy = height >> 3;
 			bpp=2;
 			xpitch = 16 * bpp;
-			pitch = *width * bpp; // YUYV out
+			pitch = width * bpp; // YUYV out
 			ypitch = 8 * pitch;
 			convert = yuv422pto422; //choose the right conversion function
 			break;
 		case 0x11: //444
-			mcusx = *width >> 3;
-			mcusy = *height >> 3;
+			mcusx = width >> 3;
+			mcusy = height >> 3;
 			bpp=2;
 			xpitch = 8 * bpp;
-			pitch = *width * bpp; // YUYV out
+			pitch = width * bpp; // YUYV out
 			ypitch = 8 * pitch;
 			if (info.ns==1) 
 			{

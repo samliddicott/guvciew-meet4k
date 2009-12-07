@@ -68,18 +68,18 @@ int store_picture(void *data)
 			}
 			else 
 			{ /* use built in encoder */
-				jpeg = g_new0(BYTE, ((videoIn->width)*(videoIn->height))>>1);
+				jpeg = g_new0(BYTE, ((global->width)*(global->height))>>1);
 				jpeg_struct = g_new0(struct JPEG_ENCODER_STRUCTURE, 1);
 					
 				/* Initialization of JPEG control structure */
-				initialization (jpeg_struct,videoIn->width,videoIn->height);
+				initialization (jpeg_struct,global->width,global->height);
 	
 				/* Initialization of Quantization Tables  */
 				initialize_quantization_tables (jpeg_struct);
 				 
 
 				jpeg_size = encode_image(videoIn->framebuffer, jpeg, 
-					jpeg_struct, 1, videoIn->width, videoIn->height);
+					jpeg_struct, 1, global->width, global->height);
 							
 				if(SaveBuff(videoIn->ImageFName, jpeg_size, jpeg)) 
 				{ 
@@ -92,10 +92,10 @@ int store_picture(void *data)
 
 		case 1:/*bmp*/
 			/*24 bits -> 3bytes     32 bits ->4 bytes*/
-			pim = g_new0(BYTE, (videoIn->width)*(videoIn->height)*3);
-			yuyv2bgr(videoIn->framebuffer,pim,videoIn->width,videoIn->height);
+			pim = g_new0(BYTE, (global->width)*(global->height)*3);
+			yuyv2bgr(videoIn->framebuffer,pim,global->width,global->height);
 					
-			if(SaveBPM(videoIn->ImageFName, videoIn->width, videoIn->height, 24, pim)) 
+			if(SaveBPM(videoIn->ImageFName, global->width, global->height, 24, pim)) 
 			{
 				g_printerr ("Error: Couldn't capture Image to %s \n",
 					videoIn->ImageFName);
@@ -105,9 +105,9 @@ int store_picture(void *data)
 			
 		case 2:/*png*/
 			/*24 bits -> 3bytes     32 bits ->4 bytes*/
-			pim = g_new0(BYTE, (videoIn->width)*(videoIn->height)*3);
-			yuyv2rgb(videoIn->framebuffer,pim,videoIn->width,videoIn->height);
-			write_png(videoIn->ImageFName, videoIn->width, videoIn->height,pim);
+			pim = g_new0(BYTE, (global->width)*(global->height)*3);
+			yuyv2rgb(videoIn->framebuffer,pim,global->width,global->height);
+			write_png(videoIn->ImageFName, global->width, global->height, pim);
 	}
 	
 	if(jpeg_struct) g_free(jpeg_struct);

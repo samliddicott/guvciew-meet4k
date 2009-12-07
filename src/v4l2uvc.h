@@ -95,8 +95,6 @@ struct vdIn
 	int setFPS;                         // set FPS flag (0-do nothing, 1-change fps value, 2-query and queue buffer)
 	int setJPEGCOMP;                    // set jpeg compression flag (0-do nothing, 1-change compression value, 2-query and queue buffer)
 	int grabmethod;                     // only mmap available UVC doesn't support read
-	int width;                          // frame width
-	int height;                         // frame height
 	int formatIn;                       // Input format
 	int framesizeIn;                    // Input frame size (buffer size)
 	UINT64 timestamp;                   //video frame time stamp
@@ -138,7 +136,7 @@ int init_videoIn(struct vdIn *vd, struct GLOBAL *global);
  *
  * returns: error code ( 0 - VDIN_OK)
 */
-int uvcGrab(struct vdIn *vd);
+int uvcGrab(struct vdIn *vd, int width, int height);
 
 /* cleans VdIn struct and allocations
  * args:

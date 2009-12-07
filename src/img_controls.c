@@ -342,8 +342,8 @@ draw_controls (struct ALL_DATA *all_data)
 			gtk_combo_box_append_text(GTK_COMBO_BOX(pix_ord),"BGBG... | GRGR...");
 			gtk_combo_box_append_text(GTK_COMBO_BOX(pix_ord),"RGRG... | GBGB...");
 			/* auto set pix order for 2Mp logitech cameras */
-			if((videoIn->width == 160) || (videoIn->width == 176) || 
-				(videoIn->width == 352) || (videoIn->width == 960)) 
+			if((global->width == 160) || (globnal->width == 176) || 
+				(global->width == 352) || (global->width == 960)) 
 					videoIn->pix_order=3; /* rg */
 			else videoIn->pix_order=0; /* gb */
 

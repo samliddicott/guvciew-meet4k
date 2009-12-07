@@ -325,8 +325,6 @@ int main(int argc, char *argv[])
 		}
 	}
 	/*make sure global and videoIn are in sync after v4l2 initialization*/
-	global->width = videoIn->width;
-	global->height = videoIn->height;
 	global->format = videoIn->formatIn;
 	
 	videoIn->listFormats->current_format = get_FormatIndex(videoIn->listFormats, global->format);

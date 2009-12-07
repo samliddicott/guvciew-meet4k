@@ -46,7 +46,7 @@ static void alloc_videoBuff(struct ALL_DATA *all_data)
 	struct GLOBAL *global = all_data->global;
 	struct vdIn *videoIn = all_data->videoIn;
 	int i = 0;
-	int framesize = videoIn->height*videoIn->width*2; /*yuyv (maximum size)*/
+	int framesize = global->height*global->width*2; /*yuyv (maximum size)*/
 	
 	/*alloc video ring buffer*/
 	g_mutex_lock(global->mutex);
@@ -125,7 +125,7 @@ static int initVideoFile(struct ALL_DATA *all_data)
 			} 
 			else 
 			{
-				AVI_set_video(videoF->AviOut, videoIn->width, videoIn->height, 
+				AVI_set_video(videoF->AviOut, global->width, global->height, 
 					global->fps, compression);
 		  
 				/* start video capture*/
@@ -723,7 +723,7 @@ static void store_at_index(void *data)
 	else
 	{
 		/*store YUYV frame*/
-		global->videoBuff[global->w_ind].bytes_used = videoIn->height*videoIn->width*2;
+		global->videoBuff[global->w_ind].bytes_used = global->height*global->width*2;
 		memcpy(global->videoBuff[global->w_ind].frame, 
 			videoIn->framebuffer, 
 			global->videoBuff[global->w_ind].bytes_used);
@@ -840,7 +840,7 @@ void *IO_loop(void *data)
 	else
 	{
 		if(global->debug) g_printf("IO thread started...OK\n");
-		frame_size = videoIn->height*videoIn->width*2;
+		frame_size = global->height*global->width*2;
 		proc_buff = g_new0(VidBuff, 1);
 		proc_buff->frame = g_new0(BYTE, frame_size);
 	

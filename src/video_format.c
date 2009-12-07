@@ -220,8 +220,8 @@ int init_FormatContext(void *data)
 	videoF->apts = 0;
 	videoF->old_apts = 0;
     
-	set_mkvCodecPriv(global->VidCodec, videoIn->width, videoIn->height);
-	int size = set_mkvCodecPriv(global->VidCodec, videoIn->width, videoIn->height);
+	set_mkvCodecPriv(global->VidCodec, global->width, global->height);
+	int size = set_mkvCodecPriv(global->VidCodec, global->width, global->height);
 	printf("writing header\n");
 	
 	/*gspca doesn't set the fps value so we don't set it in the file header    */
@@ -237,8 +237,8 @@ int init_FormatContext(void *data)
                      v_def_dur, 
                      duration,
                      1000000,
-                     videoIn->width, videoIn->height,
-                     videoIn->width, videoIn->height,
+                     global->width, global->height,
+                     global->width, global->height,
                      samprate, channels, bitspersample );
 	videoF->b_header_written = 1;
 	return(0);
