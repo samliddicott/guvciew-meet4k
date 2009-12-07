@@ -804,6 +804,7 @@ error:
 static int frame_decode(struct vdIn *vd, int width, int height)
 {
 	int ret = VDIN_OK;
+	int framesizeIn =(width * height << 1);//2 bytes per pixel
 	switch (vd->formatIn) 
 	{
 		case V4L2_PIX_FMT_JPEG:

@@ -44,7 +44,6 @@
 static void alloc_videoBuff(struct ALL_DATA *all_data)
 {
 	struct GLOBAL *global = all_data->global;
-	struct vdIn *videoIn = all_data->videoIn;
 	int i = 0;
 	int framesize = global->height*global->width*2; /*yuyv (maximum size)*/
 	

@@ -46,7 +46,6 @@ static SDL_Overlay * video_init(void *data, SDL_Surface **pscreen)
 {
 	struct ALL_DATA *all_data = (struct ALL_DATA *) data;
 	struct GLOBAL *global = all_data->global;
-	struct vdIn *videoIn = all_data->videoIn;
 	
 	static Uint32 SDL_VIDEO_Flags =
 		SDL_ANYFORMAT | SDL_DOUBLEBUF | SDL_RESIZABLE;
