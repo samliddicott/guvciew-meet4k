@@ -96,7 +96,6 @@ struct vdIn
 	int setJPEGCOMP;                    // set jpeg compression flag (0-do nothing, 1-change compression value, 2-query and queue buffer)
 	int grabmethod;                     // only mmap available UVC doesn't support read
 	int formatIn;                       // Input format
-	int framesizeIn;                    // Input frame size (buffer size)
 	UINT64 timestamp;                   //video frame time stamp
 	char *VidFName;                     // Video File name (with full path)
 	int capImage;                       // Image capture flag (raised for capturing a frame)

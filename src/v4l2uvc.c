@@ -524,13 +524,13 @@ static int videoIn_frame_alloca(struct vdIn *vd, int width, int height)
 	size_t framebuf_size=0;
 	size_t tmpbuf_size=0;
 	
-	vd->framesizeIn = (width * height << 1); //2 bytes per pixel
+	int framesizeIn = (width * height << 1); //2 bytes per pixel
 	switch (vd->formatIn) 
 	{
 		case V4L2_PIX_FMT_JPEG:
 		case V4L2_PIX_FMT_MJPEG:
 			// alloc a temp buffer to reconstruct the pict (MJPEG)
-			tmpbuf_size= vd->framesizeIn;
+			tmpbuf_size= framesizeIn;
 			vd->tmpbuffer = g_new0(unsigned char, tmpbuf_size);
 			
 			framebuf_size = width * (height + 8) * 2;
@@ -551,9 +551,9 @@ static int videoIn_frame_alloca(struct vdIn *vd, int width, int height)
 		case V4L2_PIX_FMT_SPCA505:
 		case V4L2_PIX_FMT_SPCA508:
 			// alloc a temp buffer for converting to YUYV
-			tmpbuf_size= vd->framesizeIn;
+			tmpbuf_size= framesizeIn;
 			vd->tmpbuffer = g_new0(unsigned char, tmpbuf_size);
-			framebuf_size = vd->framesizeIn;
+			framebuf_size = framesizeIn;
 			vd->framebuffer = g_new0(unsigned char, framebuf_size);
 			break;
 			
@@ -561,7 +561,7 @@ static int videoIn_frame_alloca(struct vdIn *vd, int width, int height)
 			// alloc a temp buffer for converting to YUYV
 			tmpbuf_size= width * height; // 1 byte per pixel
 			vd->tmpbuffer = g_new0(unsigned char, tmpbuf_size);
-			framebuf_size = vd->framesizeIn;
+			framebuf_size = framesizeIn;
 			vd->framebuffer = g_new0(unsigned char, framebuf_size);
 			break;
 			
@@ -569,7 +569,7 @@ static int videoIn_frame_alloca(struct vdIn *vd, int width, int height)
 			//  YUYV doesn't need a temp buffer but we will set it if/when
 			//  video processing disable control is checked (bayer processing).
 			//            (logitech cameras only) 
-			framebuf_size = vd->framesizeIn;
+			framebuf_size = framesizeIn;
 			vd->framebuffer = g_new0(unsigned char, framebuf_size);
 			break;
 		
@@ -587,7 +587,7 @@ static int videoIn_frame_alloca(struct vdIn *vd, int width, int height)
 			tmpbuf_size = width * height * 3;
 			vd->tmpbuffer = g_new0(unsigned char, tmpbuf_size);
 		
-			framebuf_size = vd->framesizeIn;
+			framebuf_size = framesizeIn;
 			vd->framebuffer = g_new0(unsigned char, framebuf_size);
 			break;
 		case V4L2_PIX_FMT_RGB24:
@@ -598,7 +598,7 @@ static int videoIn_frame_alloca(struct vdIn *vd, int width, int height)
 			tmpbuf_size = width * height * 3;
 			vd->tmpbuffer = g_new0(unsigned char, tmpbuf_size);
 			
-			framebuf_size = vd->framesizeIn;
+			framebuf_size = framesizeIn;
 			vd->framebuffer = g_new0(unsigned char, framebuf_size);
 			break;
 			
@@ -903,15 +903,15 @@ static int frame_decode(struct vdIn *vd, int width, int height)
 					vd->tmpbuffer = g_new0(unsigned char, 
 						width * height * 3);
 				}
-				bayer_to_rgb24 (vd->mem[vd->buf.index],vd->tmpbuffer, *width, *height, vd->pix_order);
+				bayer_to_rgb24 (vd->mem[vd->buf.index],vd->tmpbuffer, width, height, vd->pix_order);
 				// raw bayer is only available in logitech cameras in yuyv mode
 				rgb2yuyv (vd->tmpbuffer,vd->framebuffer, width, height);
 			} 
 			else 
 			{
-				if (vd->buf.bytesused > vd->framesizeIn)
+				if (vd->buf.bytesused > framesizeIn)
 					memcpy(vd->framebuffer, vd->mem[vd->buf.index],
-						(size_t) vd->framesizeIn);
+						(size_t) framesizeIn);
 				else
 					memcpy(vd->framebuffer, vd->mem[vd->buf.index],
 						(size_t) vd->buf.bytesused);
