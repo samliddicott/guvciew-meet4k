@@ -76,13 +76,11 @@ writeConf(struct GLOBAL *global, char *videodevice)
 		g_fprintf(fp,"# hardware accelaration: 0 1 (default - 1)\n");
 		g_fprintf(fp,"hwaccel=%i\n",global->hwaccel);
 		g_fprintf(fp,"# video compression format: 0-MJPG 1-YUY2/UYVY 2-DIB (BMP 24) 3-MPEG1 4-FLV1 5-MPEG2 6-MS MPEG4 V3(DIV3) 7-MPEG4 (DIV5)\n");
-		g_fprintf(fp,"avi_format=%i\n",global->VidCodec);
-		g_fprintf(fp,"# video muxer: 0-avi 1-matroska\n");
-		g_fprintf(fp,"vid_mux=%i\n",global->VidFormat);
+		g_fprintf(fp,"vid_codec=%i\n",global->VidCodec);
 		g_fprintf(fp,"# avi file max size (MAX: %d bytes)\n",AVI_MAX_SIZE);
 		g_fprintf(fp,"avi_max_len=%li\n",global->AVI_MAX_LEN);
 		g_fprintf(fp,"# Auto Video naming (ex: filename-n.avi)\n");
-		g_fprintf(fp,"avi_inc=%d\n",global->vid_inc);
+		g_fprintf(fp,"vid_inc=%d\n",global->vid_inc);
 		g_fprintf(fp,"# sound 0 - disable 1 - enable\n");
 		g_fprintf(fp,"sound=%i\n",global->Sound_enable);
 		g_fprintf(fp,"# sound API: 0- Portaudio  1- Pulseaudio\n");
@@ -112,7 +110,7 @@ writeConf(struct GLOBAL *global, char *videodevice)
 		g_fprintf(fp,"# Auto Image naming (filename-n.ext)\n");
 		g_fprintf(fp,"image_inc=%d\n",global->image_inc);
 		g_fprintf(fp,"# Video capture Full Path\n");
-		g_fprintf(fp,"avi_path='%s/%s'\n",global->vidFPath[1],global->vidFPath[0]);
+		g_fprintf(fp,"video_path='%s/%s'\n",global->vidFPath[1],global->vidFPath[0]);
 		g_fprintf(fp,"# control profiles Full Path\n");
 		g_fprintf(fp,"profile_path='%s/%s'\n",global->profile_FPath[1],global->profile_FPath[0]);
 		printf("write %s OK\n",global->confPath);
@@ -268,10 +266,14 @@ readConf(struct GLOBAL *global)
 								global->imgFormat = check_image_type(global->imgFPath[0]);
 							}
 						}
-						else if (g_strcmp0(name,"avi_path")==0) 
+						else if ((g_strcmp0(name,"video_path")==0) || (g_strcmp0(name,"avi_path")==0)) 
 						{
 							if(global->vidfile == NULL)
+							{
 								global->vidFPath=splitPath(scanner->value.v_string,global->vidFPath);
+								/*get the file type (0-avi 1-matroska)*/
+								global->VidFormat = check_video_type(global->vidFPath[0]);
+							}
 						}
 						else if (g_strcmp0(name,"profile_path")==0) 
 						{
@@ -361,20 +363,16 @@ readConf(struct GLOBAL *global)
 							if(global->flg_hwaccel < 1)
 								global->hwaccel = scanner->value.v_int;
 						}
-						else if (g_strcmp0(name,"avi_format")==0) 
+						else if (g_strcmp0(name,"vid_codec")==0 || (g_strcmp0(name,"avi_format")==0)) 
 						{
 							global->VidCodec = scanner->value.v_int;
-						}
-						else if (g_strcmp0(name,"vid_mux")==0) 
-						{
-							global->VidFormat = scanner->value.v_int;
 						}
 						else if (g_strcmp0(name,"avi_max_len")==0) 
 						{
 							global->AVI_MAX_LEN = (ULONG) scanner->value.v_int;
 							global->AVI_MAX_LEN = AVI_set_MAX_LEN (global->AVI_MAX_LEN);
 						}
-						else if (g_strcmp0(name,"avi_inc")==0) 
+						else if ((g_strcmp0(name,"vid_inc")==0) || (g_strcmp0(name,"avi_inc")==0)) 
 						{
 							global->vid_inc = (DWORD) scanner->value.v_int;
 							g_snprintf(global->vidinc_str,20,_("File num:%d"),global->vid_inc);
@@ -734,6 +732,8 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 		global->vidfile = g_strdup(video);
 		global->vidFPath=splitPath(global->vidfile,global->vidFPath);
 		g_printf("capturing video: %s , from start",global->vidfile);
+		/*get the file type*/
+		global->VidFormat = check_video_type(global->vidFPath[0]);
 	}
 	if(profile)
 	{
