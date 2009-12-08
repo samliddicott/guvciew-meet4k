@@ -1021,6 +1021,10 @@ capture_vid (GtkToggleButton *VidButt, struct ALL_DATA *all_data)
 		global->vidFPath=splitPath((char *)fileEntr, global->vidFPath);
 		gtk_entry_set_text(GTK_ENTRY(gwidget->VidFNameEntry),"");
 		gtk_entry_set_text(GTK_ENTRY(gwidget->VidFNameEntry),global->vidFPath[0]);
+		/*get the file type*/
+		global->VidFormat = check_video_type(global->vidFPath[0]);
+		/*set the file type*/
+		gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->VidFormat),global->VidFormat);
 	}
 	
 	gboolean state = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(gwidget->CapVidButt));

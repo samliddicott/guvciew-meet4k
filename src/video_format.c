@@ -77,17 +77,6 @@ gboolean isLavfFormat(int codec_ind)
 	return (listSupVFormats[codec_ind].avformat);
 }
 
-char *setVidExt(char *filename, int format_ind)
-{
-	int sname = strlen(filename)+1; /*include '\0' terminator*/
-	char basename[sname];
-	sscanf(filename,"%[^.]",basename);
-	
-	g_snprintf(filename, sname, "%s.%s", basename, get_vformat_extension(format_ind));
-	
-	return (filename);
-}
-
 int write_video_packet (BYTE *picture_buf, int size, int fps, struct VideoFormatData* videoF)
 {
 	int64_t t_stamp = (int64_t) videoF->vpts; 

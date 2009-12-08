@@ -23,6 +23,7 @@
 #include <glib.h>
 #include <glib/gprintf.h>
 #include "defs.h"
+#include "video_format.h"
 
 
 /* counts chars needed for n*/
@@ -44,6 +45,7 @@ num_chars (int n)
 	}
 	return i;
 }
+
 /* check image file extension and return image type*/
 int 
 check_image_type (char *filename) 
@@ -53,31 +55,22 @@ check_image_type (char *filename)
 	/*get the file extension*/
 	sscanf(filename,"%*[^.].%3c",str_ext);
 	/* change image type */
-	int somExt = str_ext[0]+str_ext[1]+str_ext[2];
+	int somExt = g_ascii_tolower(str_ext[0])*g_ascii_tolower(str_ext[1])+g_ascii_tolower(str_ext[2]);
 	switch (somExt) 
 	{
-		/* there are 8 variations we will check for 3*/
-		case ('j'+'p'+'g'):
-		case ('J'+'P'+'G'):
-		case ('J'+'p'+'g'):
+		case ('j'*'p'+'g'):
 			format=0;
 			break;
 			
-		case ('b'+'m'+'p'):
-		case ('B'+'M'+'P'):
-		case ('B'+'m'+'p'):
+		case ('b'*'m'+'p'):
 			format=1;
 			break;
 			
-		case ('p'+'n'+'g'):
-		case ('P'+'N'+'G'):
-		case ('P'+'n'+'g'):
+		case ('p'*'n'+'g'):
 			format=2;
 			break;
 			
-		case ('r'+'a'+'w'):
-		case ('R'+'A'+'W'):
-		case ('R'+'a'+'w'):
+		case ('r'*'a'+'w'):
 			format=3;
 		 	break;
 			
@@ -85,6 +78,33 @@ check_image_type (char *filename)
 			format=0;
 	}
 
+	return (format);
+}
+
+
+/* check video file extension and return video format*/
+int 
+check_video_type (char *filename) 
+{
+	int format=0;
+	const char str_ext[3];
+	/*get the file extension*/
+	sscanf(filename,"%*[^.].%3c",str_ext);
+	/* change image type */
+	int somExt = g_ascii_tolower(str_ext[0])*g_ascii_tolower(str_ext[1])+g_ascii_tolower(str_ext[2]);
+	switch (somExt) 
+	{
+		case ('a'*'v'+'i'):
+			format=0;
+			break;
+			
+		case ('m'*'k'+'v'):
+			format=1;
+			break;
+			
+		default: /* use avi as default*/
+			format=0;
+	}
 	return (format);
 }
 
@@ -189,3 +209,15 @@ char *setImgExt(char *filename, int format)
 	}
 	return (filename);
 }
+
+char *setVidExt(char *filename, int format_ind)
+{
+	int sname = strlen(filename)+1; /*include '\0' terminator*/
+	char basename[sname];
+	sscanf(filename,"%[^.]",basename);
+	
+	g_snprintf(filename, sname, "%s.%s", basename, get_vformat_extension(format_ind));
+	
+	return (filename);
+}
+

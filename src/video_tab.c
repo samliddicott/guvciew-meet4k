@@ -62,9 +62,20 @@ file_chooser (GtkButton * FileButt, struct ALL_DATA *all_data)
 		{
 			gchar *fullname = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (gwidget->FileDialog));
 			global->vidFPath=splitPath(fullname, global->vidFPath);
+			g_free(fullname);
 			gtk_entry_set_text(GTK_ENTRY(gwidget->VidFNameEntry)," ");
 			gtk_entry_set_text(GTK_ENTRY(gwidget->VidFNameEntry),global->vidFPath[0]);
-			g_free(fullname);
+			/*get the file type*/
+			global->VidFormat = check_video_type(global->vidFPath[0]);
+			/*set the file type*/
+			gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->VidFormat),global->VidFormat);
+
+			if(global->vid_inc>0)
+			{ 
+				global->vid_inc=1; /*if auto naming restart counter*/
+				g_snprintf(global->vidinc_str,24,_("File num:%d"),global->vid_inc);
+				gtk_label_set_text(GTK_LABEL(gwidget->VidIncLabel), global->vidinc_str);
+			}
 		}
 	}
 	else 

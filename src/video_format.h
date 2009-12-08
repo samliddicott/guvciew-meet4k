@@ -62,8 +62,6 @@ const char *get_vformat_extension(int codec_ind);
 
 const char *get_vformat_desc(int codec_ind);
 
-char *setVidExt(char *filename, int format_ind);
-
 int init_FormatContext(void *data);
 
 int clean_FormatContext (void* arg);

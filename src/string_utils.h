@@ -27,8 +27,13 @@
 int
 num_chars (int n);
 
+/* check image file extension and return image type*/
 int 
 check_image_type (char *filename);
+
+/* check video file extension and return video format*/
+int 
+check_video_type (char *filename);
 
 /* split fullpath in Path (splited[1]) and filename (splited[0])*/
 pchar* 
@@ -44,5 +49,8 @@ incFilename(char *fullPath, pchar *splited, int inc);
 
 char *
 setImgExt(char *filename, int format);
+
+char *
+setVidExt(char *filename, int format_ind);
 
 #endif
