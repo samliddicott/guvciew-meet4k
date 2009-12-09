@@ -530,9 +530,7 @@ int compress_frame(void *data,
 	BYTE *prgb =NULL;
 	
 	struct ALL_DATA *all_data = (struct ALL_DATA *) data;
-	
 	struct GLOBAL *global = all_data->global;
-	struct vdIn *videoIn = all_data->videoIn;
 	
 	long framesize = 0;
 	int jpeg_size = 0;
@@ -542,7 +540,7 @@ int compress_frame(void *data,
 	{
 		case CODEC_MJPEG: /*MJPG*/
 			/* save MJPG frame */   
-			if((global->Frame_Flags==0) && (videoIn->formatIn==V4L2_PIX_FMT_MJPEG)) 
+			if((global->Frame_Flags==0) && (global->format==V4L2_PIX_FMT_MJPEG)) 
 			{
 				ret = write_video_data (all_data, proc_buff->frame, proc_buff->bytes_used, proc_buff->time_stamp);
 			} 

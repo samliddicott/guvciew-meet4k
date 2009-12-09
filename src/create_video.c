@@ -711,7 +711,7 @@ static void store_at_index(void *data)
 	/*store frame at index*/
 	if((global->VidCodec == CODEC_MJPEG) &&
 		(global->Frame_Flags==0) &&
-		(videoIn->formatIn==V4L2_PIX_FMT_MJPEG))
+		(global->format==V4L2_PIX_FMT_MJPEG))
 	{
 		/*store MJPEG frame*/
 		global->videoBuff[global->w_ind].bytes_used = videoIn->buf.bytesused;

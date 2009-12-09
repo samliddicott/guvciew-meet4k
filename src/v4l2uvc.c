@@ -416,16 +416,16 @@ int set_jpegcomp(struct vdIn *vd)
  *
  * returns: error code ( 0 - VDIN_OK)
 */
-static int init_v4l2(struct vdIn *vd, int *width, int *height, int *fps, int *fps_num)
+static int init_v4l2(struct vdIn *vd, int *format, int *width, int *height, int *fps, int *fps_num)
 {
 	int ret = 0;
 	
 	// make sure we set a valid format
-	g_printf("checking format: %i\n", vd->formatIn);
-	if ((ret=check_SupPixFormat(vd->formatIn)) < 0)
+	g_printf("checking format: %i\n", *format);
+	if ((ret=check_SupPixFormat(*format)) < 0)
 	{
 		// not available - Fail so we can check other formats (don't bother trying it)
-		g_printerr("Format unavailable: %d.\n",vd->formatIn);
+		g_printerr("Format unavailable: %d.\n",*format);
 		return VDIN_FORMAT_ERR;
 	}
 	
@@ -434,7 +434,7 @@ static int init_v4l2(struct vdIn *vd, int *width, int *height, int *fps, int *fp
 	vd->fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 	vd->fmt.fmt.pix.width = *width;
 	vd->fmt.fmt.pix.height = *height;
-	vd->fmt.fmt.pix.pixelformat = vd->formatIn;
+	vd->fmt.fmt.pix.pixelformat = *format;
 	vd->fmt.fmt.pix.field = V4L2_FIELD_ANY;
 	
 	ret = xioctl(vd->fd, VIDIOC_S_FMT, &vd->fmt);
@@ -453,7 +453,7 @@ static int init_v4l2(struct vdIn *vd, int *width, int *height, int *fps, int *fp
 	}
 	
 	//deprecated in v4l2 - still waiting for new API implementation
-	if(vd->formatIn == V4L2_PIX_FMT_MJPEG || vd->formatIn == V4L2_PIX_FMT_JPEG)
+	if(*format == V4L2_PIX_FMT_MJPEG || *format == V4L2_PIX_FMT_JPEG)
 	{
 		get_jpegcomp(vd);
 	}
@@ -465,7 +465,7 @@ static int init_v4l2(struct vdIn *vd, int *width, int *height, int *fps, int *fp
 	{
 		case IO_READ: //allocate buffer for read
 			memset(&vd->buf, 0, sizeof(struct v4l2_buffer));
-			vd->buf.length = *width * *height * 3; //worst case (rgb)
+			vd->buf.length = (*width) * (*height) * 3; //worst case (rgb)
 			vd->mem[vd->buf.index] = g_new0(BYTE, vd->buf.length);
 			break;
 		
@@ -518,14 +518,14 @@ static int init_v4l2(struct vdIn *vd, int *width, int *height, int *fps, int *fp
  *
  * returns: error code ( 0 - VDIN_OK)
 */
-static int videoIn_frame_alloca(struct vdIn *vd, int width, int height)
+static int videoIn_frame_alloca(struct vdIn *vd, int format, int width, int height)
 {
 	int ret = VDIN_OK;
 	size_t framebuf_size=0;
 	size_t tmpbuf_size=0;
 	
 	int framesizeIn = (width * height << 1); //2 bytes per pixel
-	switch (vd->formatIn) 
+	switch (format) 
 	{
 		case V4L2_PIX_FMT_JPEG:
 		case V4L2_PIX_FMT_MJPEG:
@@ -648,7 +648,6 @@ int init_videoIn(struct vdIn *vd, struct GLOBAL *global)
 {
 	int ret = VDIN_OK;
 	char *device = global->videodevice;
-	int format = global->format;
 	
 	vd->mutex = g_mutex_new();
 	if (vd == NULL || device == NULL)
@@ -674,7 +673,6 @@ int init_videoIn(struct vdIn *vd, struct GLOBAL *global)
 	vd->isbayer = 0; //bayer mode off
 	vd->pix_order=0; // pix order for bayer mode def: gbgbgb..|rgrgrg..
 	vd->setFPS=0; 
-	vd->formatIn = format;
 	vd->capImage=FALSE;
 	vd->cap_raw=0;
 	
@@ -757,7 +755,7 @@ int init_videoIn(struct vdIn *vd, struct GLOBAL *global)
 	
 	if(!(global->control_only))
 	{
-		if ((ret=init_v4l2(vd, &global->width, &global->height, &global->fps, &global->fps_num)) < 0) 
+		if ((ret=init_v4l2(vd, &global->format, &global->width, &global->height, &global->fps, &global->fps_num)) < 0) 
 		{
 			g_printerr("Init v4L2 failed !! \n");
 			goto error;
@@ -765,7 +763,7 @@ int init_videoIn(struct vdIn *vd, struct GLOBAL *global)
 		
 		g_printf("fps is set to %i/%i\n", global->fps_num, global->fps);
 		/*allocations*/
-		if((ret = videoIn_frame_alloca(vd, global->width, global->height)) != VDIN_OK)
+		if((ret = videoIn_frame_alloca(vd, global->format, global->width, global->height)) != VDIN_OK)
 		{
 			goto error;
 		}
@@ -801,11 +799,11 @@ error:
  *
  * returns: error code ( 0 - VDIN_OK)
 */
-static int frame_decode(struct vdIn *vd, int width, int height)
+static int frame_decode(struct vdIn *vd, int format, int width, int height)
 {
 	int ret = VDIN_OK;
 	int framesizeIn =(width * height << 1);//2 bytes per pixel
-	switch (vd->formatIn) 
+	switch (format) 
 	{
 		case V4L2_PIX_FMT_JPEG:
 		case V4L2_PIX_FMT_MJPEG:
@@ -948,7 +946,7 @@ static int frame_decode(struct vdIn *vd, int width, int height)
 			break;
 		
 		default:
-			g_printerr("error grabbing (v4l2uvc.c) unknown format: %i\n", vd->formatIn);
+			g_printerr("error grabbing (v4l2uvc.c) unknown format: %i\n", format);
 			ret = VDIN_UNKNOWN_ERR;
 			goto err;
 			break;
@@ -964,7 +962,7 @@ err:
  *
  * returns: error code ( 0 - VDIN_OK)
 */
-int uvcGrab(struct vdIn *vd, int width, int height)
+int uvcGrab(struct vdIn *vd, int format, int width, int height)
 {
 	int ret = VDIN_OK;
 	fd_set rdset;
@@ -1063,7 +1061,7 @@ int uvcGrab(struct vdIn *vd, int width, int height)
 		vd->cap_raw=0;
 	}
 	
-	if ((ret = frame_decode(vd, width, height)) != VDIN_OK)
+	if ((ret = frame_decode(vd, format, width, height)) != VDIN_OK)
 	{
 		goto err;
 	}
@@ -1137,15 +1135,13 @@ int restart_v4l2(struct vdIn *vd, struct GLOBAL *global)
 	video_disable(vd);
 	close_v4l2_buffers(vd);
 	
-	vd->formatIn = global->format;
-		
-	if ((ret=init_v4l2(vd, &global->width, &global->height, &global->fps, &global->fps_num)) < 0) 
+	if ((ret=init_v4l2(vd, &global->format, &global->width, &global->height, &global->fps, &global->fps_num)) < 0) 
 	{
 		g_printerr("Init v4L2 failed !! \n");
 		goto error;
 	}
 	/*allocations*/
-	if((ret = videoIn_frame_alloca(vd, global->width, global->height)) != VDIN_OK)
+	if((ret = videoIn_frame_alloca(vd, global->format, global->width, global->height)) != VDIN_OK)
 	{
 		goto error;
 	}

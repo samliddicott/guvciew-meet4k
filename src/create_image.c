@@ -48,7 +48,7 @@ int store_picture(void *data)
 	{
 		case 0:/*jpg*/
 			/* Save directly from MJPG frame */
-			if((global->Frame_Flags==0) && (videoIn->formatIn==V4L2_PIX_FMT_MJPEG)) 
+			if((global->Frame_Flags==0) && (global->format==V4L2_PIX_FMT_MJPEG)) 
 			{
 				if(SaveJPG(videoIn->ImageFName,videoIn->buf.bytesused,videoIn->tmpbuffer)) 
 				{
@@ -57,7 +57,7 @@ int store_picture(void *data)
 					return(-1);
 				}
 			} 
-			else if ((global->Frame_Flags==0) && (videoIn->formatIn==V4L2_PIX_FMT_JPEG))
+			else if ((global->Frame_Flags==0) && (global->format==V4L2_PIX_FMT_JPEG))
 			{
 				if (SaveBuff(videoIn->ImageFName,videoIn->buf.bytesused,videoIn->tmpbuffer))
 				{

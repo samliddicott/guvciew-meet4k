@@ -151,6 +151,7 @@ void *main_loop(void *data)
 	
 	int width = global->width;
 	int height = global->height;
+	int format = global->format;
 	
 	BYTE *p = NULL;
 	
@@ -182,7 +183,7 @@ void *main_loop(void *data)
 		g_mutex_unlock(videoIn->mutex);
 		
 		/*-------------------------- Grab Frame ----------------------------------*/
-		if (uvcGrab(videoIn, width, height) < 0) 
+		if (uvcGrab(videoIn, format, width, height) < 0) 
 		{
 			g_printerr("Error grabbing image \n");
 			signalquit=TRUE;
@@ -302,6 +303,11 @@ void *main_loop(void *data)
 		/*-------------------------capture Image----------------------------------*/
 		if (videoIn->capImage)
 		{
+			/* 
+			 * format and resolution can change(enabled) while capturing the frame
+			 * but you would need to be speedy gonzalez to press two buttons 
+			 * at almost the same time :D 
+			 */
 			if(store_picture(all_data) < 0)
 				g_printerr("saved image to:%s ...Failed \n",videoIn->ImageFName);
 			else if (global->debug) g_printf("saved image to:%s ...OK \n",videoIn->ImageFName);
@@ -315,6 +321,7 @@ void *main_loop(void *data)
 				if(videoIn->VidCapStop) videoIn->VidCapStop = FALSE;
 			g_mutex_unlock(videoIn->mutex);
 			int res=0;
+			/*format and resolution don't change(disabled) while capturing video*/
 			if((res=store_video_frame(all_data))<0) g_printerr("WARNING: droped frame (%i)\n",res);
 			
 		} /*video and audio capture have stopped */
@@ -325,7 +332,7 @@ void *main_loop(void *data)
 			g_mutex_unlock(videoIn->mutex);
 		}
 
-		//decrease skip frame count
+		/* decrease skip frame count */
 		if (global->skip_n > 0)
 		{
 			if (global->debug && capVid) g_printf("skiping frame %d...\n", global->skip_n);
@@ -424,6 +431,7 @@ void *main_loop(void *data)
 			/*set new resolution for video thread*/
 			width = global->width;
 			height = global->height;
+			format = global->format;
 			/* restart SDL with new values*/
 			overlay = video_init(data, &(pscreen));
 			p = (unsigned char *) overlay->pixels[0];

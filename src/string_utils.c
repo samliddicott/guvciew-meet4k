@@ -87,7 +87,7 @@ int
 check_video_type (char *filename) 
 {
 	int format=0;
-	const char str_ext[3];
+	char str_ext[3];
 	/*get the file extension*/
 	sscanf(filename,"%*[^.].%3c",str_ext);
 	/* change image type */
