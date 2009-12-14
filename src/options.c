@@ -93,7 +93,7 @@ writeConf(struct GLOBAL *global, char *videodevice)
 		g_fprintf(fp,"snd_numchan=%i\n",global->Sound_NumChanInd);
 		g_fprintf(fp,"#snd_numsec - video audio blocks size in sec: 1,2,3,.. \n");
 		g_fprintf(fp,"# sound delay in nanosec - delays sound by the specified amount when capturing video\n");
-		g_fprintf(fp,"snd_delay=%llu\n",global->Sound_delay);
+		g_fprintf(fp,"snd_delay=%llu\n",(unsigned long long) global->Sound_delay);
 		g_fprintf(fp,"# Sound Format (PCM=1 (0x0001) MP2=80 (0x0050)\n");
 		g_fprintf(fp,"snd_format=%i\n",global->Sound_Format);
 		g_fprintf(fp,"# Sound bit Rate used by mpeg audio default=160 Kbps\n");
@@ -501,7 +501,7 @@ readConf(struct GLOBAL *global)
 			g_printf("sound Device: %i\n",global->Sound_UseDev);
 			g_printf("sound samp rate: %i\n",global->Sound_SampRateInd);
 			g_printf("sound Channels: %i\n",global->Sound_NumChanInd);
-			g_printf("Sound delay: %llu nanosec\n",global->Sound_delay);
+			g_printf("Sound delay: %llu nanosec\n",(unsigned long long) global->Sound_delay);
 			g_printf("Sound Format: %i \n",global->Sound_Format);
 			g_printf("Sound bit Rate: %i Kbps\n",global->Sound_bitRate);
 			g_printf("Pan Step: %i degrees\n",global->PanStep);

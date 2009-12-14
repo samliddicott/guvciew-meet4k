@@ -180,12 +180,14 @@ DiskSupervisor(gpointer data)
 	
 	if(global->debug) 
 		g_printf("(%s) %lluK bytes free on a total of %lluK (used: %d %%) treshold=%iK\n", 
-			global->vidFPath[1], free_kbytes, total_kbytes, percent, free_tresh);
+			global->vidFPath[1], (unsigned long long) free_kbytes, 
+			(unsigned long long) total_kbytes, percent, free_tresh);
 
 	
 	if(free_kbytes < free_tresh)
 	{
-		g_printerr("Not enough free disk space (%lluKb) left on disk, need > %ik \n", free_kbytes, free_tresh);
+		g_printerr("Not enough free disk space (%lluKb) left on disk, need > %ik \n", 
+			(unsigned long long) free_kbytes, free_tresh);
 		WARN_DIALOG(N_("Guvcview Warning:"), N_("Not enough free space left on disk"), data);
 		return(FALSE); /* not enough free space left on disk   */
 	}

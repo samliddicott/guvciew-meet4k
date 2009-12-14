@@ -912,19 +912,18 @@ int mk_close(mk_Writer *w)
 		fseek(w->fp, 0, SEEK_END);
 		/* store last position */
 		int64_t CuesPos = ftell (w->fp) - 36;
-		printf("cues at %llu\n",CuesPos);
+		//printf("cues at %llu\n",(unsigned long long) CuesPos);
 		write_cues(w);
 		/* move to end of file */
 		fseek(w->fp, 0, SEEK_END);
 		int64_t SeekHeadPos = ftell (w->fp) - 36;
-		printf("SeekHead at %llu\n",SeekHeadPos);
+		//printf("SeekHead at %llu\n",(unsigned long long) SeekHeadPos);
 		/* write seekHead */
 		write_SeekHead(w);
 		/* move to end of file */
 		fseek(w->fp, 0, SEEK_END);
 		int64_t lLastPos = ftell (w->fp);
 		int64_t seg_size = lLastPos - (w->segment_size_ptr);
-		//printf("segment size is: %llu bytes\n", seg_size);
 		seg_size |= 0x0100000000000000LL;
 		/* move to segment entry */
 		fseek(w->fp, w->segment_size_ptr, SEEK_SET);

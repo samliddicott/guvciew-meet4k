@@ -136,8 +136,9 @@ int clean_FormatContext (void* data)
 
 	int64_t def_duration = ((global->Vidstoptime - global->Vidstarttime)/global->framecount);
 	g_printf("video default duration:%llu start:%llu stop:%llu\n", 
-		def_duration, global->Vidstarttime, global->Vidstoptime);
-    	mk_setDef_Duration(videoF->mkv_w, def_duration);/* set real fps ( average frame duration)*/
+		(unsigned long long) def_duration, (unsigned long long) global->Vidstarttime, 
+		(unsigned long long) global->Vidstoptime);
+	mk_setDef_Duration(videoF->mkv_w, def_duration);/* set real fps ( average frame duration)*/
 	
 	ret = mk_close(videoF->mkv_w);
 	videoF->mkv_w = NULL;
@@ -201,7 +202,7 @@ int init_FormatContext(void *data)
 		}
 	    
 		if(global->debug) g_printf("audio frame: %i | %i | %i | %llu\n", 
-			pdata->aud_numSamples, pdata->samprate, channels, duration);
+			pdata->aud_numSamples, pdata->samprate, channels, (unsigned long long) duration);
 	}
 	else
 		samprate = 0.0;
@@ -218,7 +219,8 @@ int init_FormatContext(void *data)
 	/*a problem with this in the case of mpeg codecs (mpg1 and mpg2)            */
 	UINT64 v_def_dur = 0;
 	if(global->fps >= 5) v_def_dur = (UINT64) (global->fps_num * 1e9/global->fps); //nano seconds
-	if (global->debug) g_printf("video frame default duration =%llu for %i fps\n", v_def_dur, global->fps);
+	if (global->debug) g_printf("video frame default duration =%llu for %i fps\n", 
+		(unsigned long long) v_def_dur, global->fps);
 	mk_writeHeader( videoF->mkv_w, "Guvcview",
                      get_mkvCodec(global->VidCodec),
                      AcodecID,

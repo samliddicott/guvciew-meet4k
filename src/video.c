@@ -217,8 +217,7 @@ void *main_loop(void *data)
 					global->Vidstoptime = videoIn->timestamp;
 				}
 			}
-			//g_printf("v_ts = %llu \n",global->v_ts);
-
+			
 			if (global->FpsCount) 
 			{/* sets fps count in window title bar */
 				global->frmCount++;

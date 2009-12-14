@@ -243,7 +243,8 @@ aviClose (struct ALL_DATA *all_data)
 	{
 		tottime = (float) ((int64_t) (global->Vidstoptime - global->Vidstarttime) / 1000000); // convert to miliseconds
 		
-		if (global->debug) g_printf("stop= %llu start=%llu \n",global->Vidstoptime,global->Vidstarttime);
+		if (global->debug) g_printf("stop= %llu start=%llu \n",
+			(unsigned long long) global->Vidstoptime, (unsigned long long) global->Vidstarttime);
 		if (tottime > 0) 
 		{
 			/*try to find the real frame rate*/
