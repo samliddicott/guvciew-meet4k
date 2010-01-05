@@ -29,6 +29,7 @@
 #include "callbacks.h"
 #include "v4l2uvc.h"
 #include "snd_devices.h"
+#include "acodecs.h"
 #include "../config.h"
 
 void audio_tab(struct ALL_DATA *all_data)
@@ -245,26 +246,20 @@ void audio_tab(struct ALL_DATA *all_data)
 	//sound format
 	line++;
 	gwidget->SndComp = gtk_combo_box_new_text ();
-	gtk_combo_box_append_text(GTK_COMBO_BOX(gwidget->SndComp),_("PCM"));
-	gtk_combo_box_append_text(GTK_COMBO_BOX(gwidget->SndComp),_("MP2"));
-
-	switch (global->Sound_Format) 
+	//sets to valid only existing codecs
+	setAcodecVal ();
+	int acodec_ind =0;
+	for (acodec_ind =0; acodec_ind<MAX_ACODECS; acodec_ind++)
 	{
-		case PA_FOURCC:
-			//PCM - INT16 or FLOAT32
-			gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->SndComp),0);
-			break;
+		if (isAcodecValid(acodec_ind))
+			gtk_combo_box_append_text(GTK_COMBO_BOX(gwidget->SndComp),gettext(get_aud_desc4cc(acodec_ind)));
 		
-		case ISO_FORMAT_MPEG12:
-			//MP2
-			gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->SndComp),1);
-			break;
-		
-		default:
-			//set Default to MP2
-			gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->SndComp),1);
-			global->Sound_Format = ISO_FORMAT_MPEG12;
 	}
+
+	int aud_ind = get_ind_by4cc(global->Sound_Format);
+	gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->SndComp), aud_ind);
+	global->Sound_Format = get_aud4cc(aud_ind); /*sync index returned with format*/
+	
 	if (global->Sound_enable) gtk_widget_set_sensitive (gwidget->SndComp, TRUE);
 	
 	g_signal_connect (GTK_COMBO_BOX(gwidget->SndComp), "changed",

@@ -24,6 +24,8 @@
 #include <glib/gstdio.h>
 #include "lavc_common.h"
 #include "vcodecs.h"
+#include "acodecs.h"
+#include "sound.h"
 
 static void yuv422to420p(BYTE* pic, struct lavcData* data )
 {
@@ -78,6 +80,15 @@ int encode_lavc_frame (BYTE *picture_buf, struct lavcData* data /*, int64_t ts_m
 	return (out_size);
 }
 
+int encode_lavc_audio_frame (short *audio_buf, struct lavcAData* data)
+{
+	int out_size = 0;
+	
+	/* encode the audio */
+	out_size = avcodec_encode_audio(data->codec_context, data->outbuf, data->outbuf_size, audio_buf);
+	return (out_size);
+}
+
 int clean_lavc (void* arg)
 {
 	struct lavcData** data= (struct lavcData**) arg;
@@ -100,6 +111,27 @@ int clean_lavc (void* arg)
 	return (enc_frames);
 }
 
+int clean_lavc_audio (void* arg)
+{
+	struct lavcAData** data= (struct lavcAData**) arg;
+	int enc_frames =0;
+	if(*data)
+	{
+		//enc_frames = (*data)->codec_context->real_pict_num;
+		avcodec_flush_buffers((*data)->codec_context);
+		//close codec 
+		avcodec_close((*data)->codec_context);
+		//free codec context
+		g_free((*data)->codec_context);
+		(*data)->codec_context = NULL;
+		g_free((*data)->outbuf);
+		g_free((*data)->audio);
+		g_free(*data);
+		*data = NULL;
+	}
+	return (enc_frames);
+}
+
 struct lavcData* init_lavc(int width, int height, int fps_num, int fps_den, int codec_ind)
 {
 	//allocate
@@ -111,7 +143,7 @@ struct lavcData* init_lavc(int width, int height, int fps_num, int fps_den, int 
 	
 	vcodecs_data *defaults = get_codec_defaults(codec_ind);
 	
-	// find the mpeg video encoder
+	// find the video encoder
 	data->codec = avcodec_find_encoder(defaults->codec_id);
 	if (!data->codec) 
 	{
@@ -184,3 +216,48 @@ struct lavcData* init_lavc(int width, int height, int fps_num, int fps_den, int 
 	return(data);
 }
 
+struct lavcAData* init_lavc_audio(struct paRecordData *pdata, int codec_ind)
+{
+	//allocate
+	struct lavcAData* data = g_new0(struct lavcAData, 1);
+	
+	data->codec_context = NULL;
+	
+	data->codec_context = avcodec_alloc_context();
+	
+	acodecs_data *defaults = get_aud_codec_defaults(codec_ind);
+	
+	// find the audio encoder
+	data->codec = avcodec_find_encoder(defaults->codec_id);
+	if (!data->codec) 
+	{
+		fprintf(stderr, "ffmpeg audio codec not found\n");
+		return(NULL);
+	}
+
+	// define bit rate (lower = more compression but lower quality)
+	data->codec_context->bit_rate = defaults->bit_rate;
+	
+	data->codec_context->flags |= defaults->flags;
+	
+	data->codec_context->sample_rate = pdata->samprate;
+	data->codec_context->channels = pdata->channels;
+	
+	// open codec
+	if (avcodec_open(data->codec_context, data->codec) < 0) 
+	{
+		fprintf(stderr, "could not open codec\n");
+		return(NULL);
+	}
+	
+	/* the codec gives us the frame size, in samples */
+	int frame_size = data->codec_context->frame_size;  
+	g_printf("Audio frame size is %d samples for selected codec\n", frame_size);
+	//alloc audio data buffer - FIXME: dow we need to multiply by channels ?
+	data->audio = g_new0(short, frame_size * data->codec_context->channels);
+	//alloc outbuf
+	data->outbuf_size = 240000;
+	data->outbuf = g_new0(BYTE, data->outbuf_size);
+	
+	return(data);
+}

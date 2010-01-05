@@ -24,6 +24,7 @@
 
 #include "../config.h"
 #include "defs.h"
+#include "sound.h"
 
 #ifdef HAS_AVCODEC_H
   #include <avcodec.h>
@@ -39,8 +40,10 @@
   #endif
 #endif
 
+/*video*/
 struct lavcData
 {
+	/*video*/
 	AVCodec *codec;
 	AVCodecContext *codec_context;
 	AVFrame *picture;
@@ -50,12 +53,30 @@ struct lavcData
 	BYTE* outbuf;
 };
 
-int encode_lavc_frame (BYTE *picture_buf, struct lavcData* data/*, int64_t ts_ms*/);
+/*Audio*/
+struct lavcAData
+{
+	/*video*/
+	AVCodec *codec;
+	AVCodecContext *codec_context;
+	short *audio; /*pcm 16*/
+
+	int outbuf_size;
+	BYTE* outbuf;
+};
+
+int encode_lavc_frame (BYTE *picture_buf, struct lavcData* data);
+
+int encode_lavc_audio_frame (short *audio_buf, struct lavcAData* data);
 
 // arg = pointer to lavcData struct =>
 // *arg = struct lavcData**
 int clean_lavc (void *arg);
 
+int clean_lavc_audio (void* arg);
+
 struct lavcData* init_lavc(int width, int height, int fps_num, int fps_den, int codec_ind);
+
+struct lavcAData* init_lavc_audio(struct paRecordData *pdata, int codec_ind);
 
 #endif

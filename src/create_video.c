@@ -32,6 +32,7 @@
 #include "globals.h"
 #include "sound.h"
 #include "mp2.h"
+#include "acodecs.h"
 #include "ms_time.h"
 #include "string_utils.h"
 #include "callbacks.h"
@@ -81,8 +82,9 @@ static void alloc_videoBuff(struct ALL_DATA *all_data)
 	g_mutex_unlock(global->mutex);
 }
 
-static int initVideoFile(struct ALL_DATA *all_data)
+static int initVideoFile(struct ALL_DATA *all_data, void * lavc_aud_data)
 {
+	struct lavcAData** lavc_audio_data = (struct lavcAData**) lavc_aud_data;
 	struct GWIDGET *gwidget = all_data->gwidget;
 	struct paRecordData *pdata = all_data->pdata;
 	struct GLOBAL *global = all_data->global;
@@ -138,7 +140,7 @@ static int initVideoFile(struct ALL_DATA *all_data)
 				if(global->Sound_enable > 0) 
 				{
 					/*get channels and sample rate*/
-					set_sound(global,pdata);
+					set_sound(global, pdata, (void *) lavc_audio_data);
 					/*set audio header for avi*/
 					AVI_set_audio(videoF->AviOut, global->Sound_NumChan, 
 						global->Sound_SampRate,
@@ -171,7 +173,7 @@ static int initVideoFile(struct ALL_DATA *all_data)
 			if(global->Sound_enable > 0) 
 			{
 				/*set channels, sample rate and allocate buffers*/
-				set_sound(global,pdata);
+				set_sound(global, pdata, (void *) lavc_audio_data);
 			}
 			if(init_FormatContext((void *) all_data)<0)
 			{
@@ -407,7 +409,7 @@ static int write_video_frame (struct ALL_DATA *all_data,
 	return (0);
 }
 
-static int write_audio_frame (struct ALL_DATA *all_data, AudBuff *proc_buff)
+static int write_audio_frame (struct ALL_DATA *all_data, void *lavc_adata, AudBuff *proc_buff)
 {
 	struct paRecordData *pdata = all_data->pdata;
 	struct GLOBAL *global = all_data->global;
@@ -421,19 +423,7 @@ static int write_audio_frame (struct ALL_DATA *all_data, AudBuff *proc_buff)
 	{
 		case AVI_FORMAT:
 			if(!(global->VidButtPress)) //if this is set AVI reached it's limit size
-			{
-				/*write audio chunk*/
-				if(global->Sound_Format == PA_FOURCC) 
-				{
-					Float2Int16(pdata, proc_buff); /*convert from float sample to 16 bit PCM*/
-					ret=AVI_write_audio(videoF->AviOut,(BYTE *) pdata->pcm_sndBuff, pdata->aud_numSamples*2);
-				}
-				else if(global->Sound_Format == ISO_FORMAT_MPEG12)
-				{
-					int size_mp2 = MP2_encode(pdata, proc_buff, 0);
-					ret=AVI_write_audio(videoF->AviOut, pdata->mp2Buff, size_mp2);
-				}
-			}
+				ret = compress_audio_frame(all_data, lavc_adata, proc_buff);
 		
 			if (ret) 
 			{	
@@ -476,19 +466,8 @@ static int write_audio_frame (struct ALL_DATA *all_data, AudBuff *proc_buff)
 			g_mutex_lock( pdata->mutex ); //why do we need this ???
 				/*set pts*/
 				videoF->apts = proc_buff->time_stamp;
-					
 				/*write audio chunk*/
-				if(global->Sound_Format == PA_FOURCC) 
-				{
-					Float2Int16(pdata, proc_buff); /*convert from float sample to 16 bit PCM*/
-					ret = write_audio_packet ((BYTE *) pdata->pcm_sndBuff, pdata->aud_numSamples*2, pdata->samprate, videoF);
-				}
-				else if(global->Sound_Format == ISO_FORMAT_MPEG12)
-				{
-					int size_mp2 = MP2_encode(pdata, proc_buff, 0);
-					if(size_mp2 > 0)
-						ret = write_audio_packet (pdata->mp2Buff, size_mp2, pdata->samprate, videoF);
-				}
+				ret = compress_audio_frame(all_data, lavc_adata, proc_buff);
 			g_mutex_unlock( pdata->mutex );
 			break;
 			
@@ -536,6 +515,10 @@ static int sync_audio_frame(struct ALL_DATA *all_data, AudBuff *proc_buff)
 						if (global->debug) g_printf("shift sound forward by %d bytes\n",size_mp2);
 						AVI_write_audio(videoF->AviOut,pdata->mp2Buff,size_mp2);
 					}
+					else
+					{
+						/*use lavc encoder*/
+					}
 				}
 			}
 			break;
@@ -573,7 +556,8 @@ static int buff_scheduler(int w_ind, int r_ind)
 }
 
 static void process_audio(struct ALL_DATA *all_data, 
-			AudBuff *aud_proc_buff, 
+			AudBuff *aud_proc_buff,
+			void *lavc_adata, 
 			struct audio_effects **aud_eff)
 {
 	struct paRecordData *pdata = all_data->pdata;
@@ -642,7 +626,7 @@ static void process_audio(struct ALL_DATA *all_data,
 			close_pitch (*aud_eff);
 		}
 			
-		write_audio_frame(all_data, aud_proc_buff);
+		write_audio_frame(all_data, lavc_adata, aud_proc_buff);
 	}
 }
 
@@ -799,6 +783,7 @@ void *IO_loop(void *data)
 
 	struct JPEG_ENCODER_STRUCTURE *jpg_data=NULL;
 	struct lavcData *lavc_data = NULL;
+	struct lavcAData *lavc_audio_data = NULL;
 	struct audio_effects *aud_eff = NULL;
 	
 	gboolean finished=FALSE;
@@ -817,7 +802,7 @@ void *IO_loop(void *data)
 	VidBuff *proc_buff = NULL;
 	AudBuff *aud_proc_buff = NULL;
 	
-	if(initVideoFile(all_data)<0)
+	if(initVideoFile(all_data, (void *) &(lavc_audio_data))<0)
 	{
 		g_printerr("Cap Video failed\n");
 		
@@ -895,7 +880,7 @@ void *IO_loop(void *data)
 				switch(proc_flag)
 				{
 					case 1:
-						process_audio(all_data, aud_proc_buff, &(aud_eff));
+						process_audio(all_data, aud_proc_buff, (void *) &lavc_audio_data, &(aud_eff));
 						break;
 					case 2:
 						finished = process_video (all_data, proc_buff, &(lavc_data), &(jpg_data));
@@ -920,7 +905,7 @@ void *IO_loop(void *data)
 					g_printerr("audio streaming stalled - timeout\n");
 				}
 				//process any remaining audio
-				if(global->Sound_enable) process_audio(all_data, aud_proc_buff, &(aud_eff)); //process last audio if any
+				if(global->Sound_enable) process_audio(all_data, aud_proc_buff,(void *) &lavc_audio_data, &(aud_eff)); //process last audio if any
 			}
 		}
 	
@@ -943,6 +928,12 @@ void *IO_loop(void *data)
 		int nf = clean_lavc(&lavc_data);
 		if(global->debug) g_printf(" total frames encoded: %d\n", nf);
 		lavc_data = NULL;
+	}
+	if(lavc_audio_data != NULL)
+	{
+		int nf = clean_lavc_audio(&lavc_audio_data);
+		if(global->debug) g_printf(" total frames encoded: %d\n", nf);
+		lavc_audio_data = NULL;
 	}
 	if(jpg_data != NULL) g_free(jpg_data);
 	jpg_data = NULL;

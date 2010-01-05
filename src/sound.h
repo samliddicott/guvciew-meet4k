@@ -112,7 +112,7 @@ recordCallback (const void *inputBuffer, void *outputBuffer,
 	void *userData );
 
 void
-set_sound (struct GLOBAL *global, struct paRecordData* data);
+set_sound (struct GLOBAL *global, struct paRecordData* data, void* lav_aud_data);
 
 int
 init_sound(struct paRecordData* data);

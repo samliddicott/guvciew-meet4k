@@ -37,6 +37,7 @@
 #include "string_utils.h"
 #include "video.h"
 #include "mp2.h"
+#include "acodecs.h"
 #include "profile.h"
 #include "close.h"
 #include "timers.h"
@@ -815,18 +816,8 @@ SndComp_changed (GtkComboBox * SoundComp, struct ALL_DATA *all_data)
 {
 	struct GLOBAL *global = all_data->global;
 	
-	/* 0-PCM (default) 1-MP2 */
-	switch (gtk_combo_box_get_active (SoundComp)) 
-	{
-		case 0:
-			global->Sound_Format  = PA_FOURCC;
-			break;
-		case 1:
-			global->Sound_Format = ISO_FORMAT_MPEG12;
-			break;
-		default:
-			global->Sound_Format  = PA_FOURCC;
-	}
+	/* 0-PCM  1-MP2 2-(lavc)... 3-(lavc)...*/
+	global->Sound_Format = get_aud4cc(gtk_combo_box_get_active (SoundComp)); 
 	
 	global = NULL;
 }

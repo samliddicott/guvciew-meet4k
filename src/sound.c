@@ -23,6 +23,9 @@
 #include <string.h>
 #include <math.h>
 #include "vcodecs.h"
+#include "avilib.h"
+#include "acodecs.h"
+#include "lavc_common.h"
 #include "audio_effects.h"
 #include "ms_time.h"
 
@@ -141,8 +144,10 @@ recordCallback (const void *inputBuffer, void *outputBuffer,
 }
 
 void
-set_sound (struct GLOBAL *global, struct paRecordData* data) 
+set_sound (struct GLOBAL *global, struct paRecordData* data, void *lav_aud_data) 
 {
+	struct lavcAData **lavc_data = (struct lavcAData **) lav_aud_data;
+	
 	if(global->Sound_SampRateInd==0)
 		global->Sound_SampRate=global->Sound_IndexDev[global->Sound_UseDev].samprate;/*using default*/
 	
@@ -162,11 +167,24 @@ set_sound (struct GLOBAL *global, struct paRecordData* data)
 		data->skip_n = global->skip_n; /*inital video frames to skip*/
 	g_mutex_unlock( data->mutex );
 	
-	int mfactor = round(data->samprate/16000);
-	if( mfactor < 1 ) mfactor = 1;
-	data->aud_numSamples = mfactor * MPG_NUM_FRAMES * (MPG_NUM_SAMP * data->channels); /*MPG frames*/
-	data->aud_numBytes = data->aud_numSamples * sizeof(SAMPLE);
+	if((global->Sound_Format != PA_FOURCC) && (global->Sound_Format != ISO_FORMAT_MPEG12))
+	{
+		/*initialize lavc data*/
+		if(!(*lavc_data)) 
+		{
+			*lavc_data = init_lavc_audio(data, get_ind_by4cc(global->Sound_Format));
+		}
+		/*use lavc audio codec frame size to determine samples*/
+		data->aud_numSamples = (*lavc_data)->codec_context->frame_size * data->channels;
+	}
+	else
+	{
+		int mfactor = round(data->samprate/16000);
+		if( mfactor < 1 ) mfactor = 1;
+		data->aud_numSamples = mfactor * MPG_NUM_FRAMES * (MPG_NUM_SAMP * data->channels); /*MPG frames*/
+	}
 	
+	data->aud_numBytes = data->aud_numSamples * sizeof(SAMPLE);
 	data->input_type = PA_SAMPLE_TYPE;
 	data->mp2Buff = NULL;
 	
@@ -372,7 +390,7 @@ static gint16 clip_int16 (float in)
 
 void Float2Int16 (struct paRecordData* data, AudBuff *proc_buff)
 {
-	if (data->pcm_sndBuff == NULL) 
+	if (!(data->pcm_sndBuff)) 
 		data->pcm_sndBuff = g_new0(gint16, data->aud_numSamples);
 	
 	float res = 0.0;

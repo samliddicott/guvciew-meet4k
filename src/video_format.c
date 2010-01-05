@@ -32,6 +32,7 @@
 #include "lavc_common.h"
 #include "video_format.h"
 #include "vcodecs.h"
+#include "acodecs.h"
 #include "defs.h"
 
 
@@ -97,7 +98,7 @@ int write_video_packet (BYTE *picture_buf, int size, int fps, struct VideoFormat
 	return (0);
 }
 
-int write_audio_packet (BYTE *audio_buf, int size, int samprate, struct VideoFormatData* videoF)
+int write_audio_packet (BYTE *audio_buf, int size, struct VideoFormatData* videoF)
 {
 	int64_t t_stamp = (int64_t) videoF->apts ;
 	videoF->b_writing_frame = 0;
@@ -156,7 +157,6 @@ int init_FormatContext(void *data)
 	struct VideoFormatData *videoF = all_data->videoF;
 	struct paRecordData *pdata = all_data->pdata;
 	
-	char *AcodecID = NULL;
 	int bitspersample = 0;
 	float samprate = 16000.0; //reference
 	int channels = 1;
@@ -178,16 +178,8 @@ int init_FormatContext(void *data)
 	
 	if(global->Sound_enable > 0)
 	{
-		switch (global->Sound_Format)
-		{
-			case PA_FOURCC: //pcm codec
-				AcodecID = "A_PCM/INT/LIT";
-				bitspersample = 16;
-				break;
-			case ISO_FORMAT_MPEG12:
-				AcodecID = "A_MPEG/L2";
-				break;
-		}
+		bitspersample = get_aud_bits(get_ind_by4cc(global->Sound_Format));
+	
 		if (pdata) 
 		if(pdata->samprate > 0)
 		{
@@ -198,7 +190,7 @@ int init_FormatContext(void *data)
 			else
 				duration = (UINT64) (1000*pdata->aud_numSamples)/(pdata->samprate * channels);
 
-		    	duration = duration * 1000000; //from milisec to nanosec
+			duration = duration * 1000000; //from milisec to nanosec
 		}
 	    
 		if(global->debug) g_printf("audio frame: %i | %i | %i | %llu\n", 
@@ -223,7 +215,7 @@ int init_FormatContext(void *data)
 		(unsigned long long) v_def_dur, global->fps);
 	mk_writeHeader( videoF->mkv_w, "Guvcview",
                      get_mkvCodec(global->VidCodec),
-                     AcodecID,
+                     get_mkvACodec(get_ind_by4cc(global->Sound_Format)),
                      get_mkvCodecPriv(global->VidCodec), size,
                      v_def_dur, 
                      duration,

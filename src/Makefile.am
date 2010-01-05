@@ -22,6 +22,8 @@ guvcview_SOURCES = \
 	audio_tab.c \
 	autofocus.h \
 	autofocus.c \
+	acodecs.h \
+	acodecs.c \
 	avilib.c \
 	avilib.h \
 	callbacks.h \

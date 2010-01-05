@@ -572,7 +572,7 @@ void video_tab(struct ALL_DATA *all_data)
 
 	
 	if (global->debug) 
-		g_printf("resolutions of %dº format=%d \n",
+		g_printf("resolutions of format(%d) = %d \n",
 			videoIn->listFormats->current_format+1,
 			listVidFormats->numb_res);
 	for(i = 0 ; i < listVidFormats->numb_res ; i++)  

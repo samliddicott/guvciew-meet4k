@@ -68,6 +68,6 @@ int clean_FormatContext (void* arg);
 
 int write_video_packet (BYTE *picture_buf, int size, int fps, struct VideoFormatData* data);
 
-int write_audio_packet (BYTE *audio_buf, int size, int samprate, struct VideoFormatData* data);
+int write_audio_packet (BYTE *audio_buf, int size, struct VideoFormatData* data);
 
 #endif

@@ -93,7 +93,7 @@ struct GLOBAL
 	int Sound_UseDev;      //audio used device index
 	int Sound_NumChan;     //audio number of channels
 	int Sound_NumChanInd;  //audio number of channels combo index
-	int Sound_Format;      //audio format (mpeg2 or 16 bit PCM)
+	WORD Sound_Format;     //audio codec - fourcc (avilib.h)
 	int Sound_bitRate;     //bit rate for mpeg audio compression
 	UINT64 Sound_delay;    //sound delay in nanosec
 	int PanStep;           //step angle for Pan
