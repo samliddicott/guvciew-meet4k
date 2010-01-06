@@ -25,6 +25,7 @@
 #include "vcodecs.h"
 #include "avilib.h"
 #include "acodecs.h"
+#include "mp2.h"
 #include "lavc_common.h"
 #include "audio_effects.h"
 #include "ms_time.h"
@@ -167,21 +168,28 @@ set_sound (struct GLOBAL *global, struct paRecordData* data, void *lav_aud_data)
 		data->skip_n = global->skip_n; /*inital video frames to skip*/
 	g_mutex_unlock( data->mutex );
 	
-	if((global->Sound_Format != PA_FOURCC) && (global->Sound_Format != ISO_FORMAT_MPEG12))
+	switch (global->Sound_Format)
 	{
-		/*initialize lavc data*/
-		if(!(*lavc_data)) 
+		case WAVE_FORMAT_MPEG12:
+			init_MP2_encoder(data, get_aud_bit_rate(get_ind_by4cc(WAVE_FORMAT_MPEG12)));
+		case PA_FOURCC:
 		{
-			*lavc_data = init_lavc_audio(data, get_ind_by4cc(global->Sound_Format));
+			int mfactor = round(data->samprate/16000);
+			if( mfactor < 1 ) mfactor = 1;
+			data->aud_numSamples = mfactor * MPG_NUM_FRAMES * (MPG_NUM_SAMP * data->channels); /*MPG frames*/
+			break;
 		}
-		/*use lavc audio codec frame size to determine samples*/
-		data->aud_numSamples = (*lavc_data)->codec_context->frame_size * data->channels;
-	}
-	else
-	{
-		int mfactor = round(data->samprate/16000);
-		if( mfactor < 1 ) mfactor = 1;
-		data->aud_numSamples = mfactor * MPG_NUM_FRAMES * (MPG_NUM_SAMP * data->channels); /*MPG frames*/
+		default:
+		{
+			/*initialize lavc data*/
+			if(!(*lavc_data)) 
+			{
+				*lavc_data = init_lavc_audio(data, get_ind_by4cc(global->Sound_Format));
+			}
+			/*use lavc audio codec frame size to determine samples*/
+			data->aud_numSamples = (*lavc_data)->codec_context->frame_size * data->channels;
+			break;
+		}
 	}
 	
 	data->aud_numBytes = data->aud_numSamples * sizeof(SAMPLE);
@@ -306,7 +314,9 @@ error:
 		g_free(data->audio_buff);
 	}
 	data->audio_buff = NULL;
-
+	/*clean twolame mp2 encoder if in use*/
+	if(data->mp2Buff) close_MP2_encoder(data);
+	/*lavc is allways checked and cleaned when finishing worker thread*/
 	return(-1);
 } 
 
@@ -371,8 +381,7 @@ close_sound (struct paRecordData *data)
 		}
 		data->audio_buff = NULL;
 	
-		if(data->mp2Buff) g_free(data->mp2Buff);
-		data->mp2Buff = NULL;
+		if(data->mp2Buff) close_MP2_encoder(data);
 		if(data->pcm_sndBuff) g_free(data->pcm_sndBuff);
 		data->pcm_sndBuff = NULL;
 	g_mutex_unlock(data->mutex);

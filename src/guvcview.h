@@ -70,6 +70,7 @@ struct GWIDGET
 	GtkWidget *Devices;
 	GtkWidget *FileDialog;
 	GtkWidget *lavc_button;
+	GtkWidget *lavc_aud_button;
 	GtkWidget *jpeg_comp;
 	
 	gboolean vid_widget_state;

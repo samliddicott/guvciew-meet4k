@@ -32,6 +32,62 @@
 #include "acodecs.h"
 #include "../config.h"
 
+static void 
+lavc_audio_properties(GtkButton * CodecButt, struct ALL_DATA *all_data)
+{
+	struct GLOBAL *global = all_data->global;
+	struct GWIDGET *gwidget = all_data->gwidget;
+	
+	int line = 0;
+	acodecs_data *codec_defaults = get_aud_codec_defaults(get_ind_by4cc(global->Sound_Format));
+	
+	if (!(codec_defaults->avcodec)) return;
+	
+	GtkWidget *codec_dialog = gtk_dialog_new_with_buttons (_("audio codec values"),
+		GTK_WINDOW(gwidget->mainwin),
+		GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+		GTK_STOCK_OK,
+		GTK_RESPONSE_ACCEPT,
+		GTK_STOCK_CANCEL,
+		GTK_RESPONSE_REJECT,
+		NULL);
+	
+	GtkWidget *table = gtk_table_new(1,2,FALSE);
+	
+	/*bit rate*/
+	GtkWidget *lbl_bit_rate = gtk_label_new(_("bit rate:   "));
+	gtk_misc_set_alignment (GTK_MISC (lbl_bit_rate), 1, 0.5);
+	gtk_table_attach (GTK_TABLE(table), lbl_bit_rate, 0, 1, line, line+1,
+		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_widget_show (lbl_bit_rate);
+	
+	GtkWidget *bit_rate = gtk_spin_button_new_with_range(64000,400000,1000);
+	gtk_editable_set_editable(GTK_EDITABLE(bit_rate),TRUE);
+	gtk_spin_button_set_value (GTK_SPIN_BUTTON(bit_rate), codec_defaults->bit_rate);
+	
+	gtk_table_attach (GTK_TABLE(table), bit_rate, 1, 2, line, line+1,
+		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_widget_show (bit_rate);
+	line++;
+	
+	GtkWidget *content_area = gtk_dialog_get_content_area (GTK_DIALOG (codec_dialog));
+	gtk_container_add (GTK_CONTAINER (content_area), table);
+	gtk_widget_show (table);
+	
+	gint result = gtk_dialog_run (GTK_DIALOG (codec_dialog));
+	switch (result)
+	{
+		case GTK_RESPONSE_ACCEPT:
+			codec_defaults->bit_rate = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON(bit_rate));
+			break;
+		default:
+			// do nothing since dialog was cancelled
+			break;
+	}
+	gtk_widget_destroy (codec_dialog);
+
+}
+
 void audio_tab(struct ALL_DATA *all_data)
 {
 	struct GLOBAL *global = all_data->global;
@@ -275,6 +331,15 @@ void audio_tab(struct ALL_DATA *all_data)
 	gtk_table_attach (GTK_TABLE(table3), label_SndComp, 0, 1, line, line+1,
 		GTK_FILL, 0, 0, 0);
 	gtk_widget_show (label_SndComp);
+	
+	//lavc codec properties button
+	gwidget->lavc_aud_button = gtk_button_new_with_label (_("properties"));
+	gtk_table_attach (GTK_TABLE(table3), gwidget->lavc_aud_button, 2, 3, line, line+1,
+		GTK_FILL, 0, 0, 0);
+	gtk_widget_show (gwidget->lavc_aud_button);
+	g_signal_connect (GTK_BUTTON(gwidget->lavc_aud_button), "clicked",
+		G_CALLBACK (lavc_audio_properties), all_data);
+	gtk_widget_set_sensitive (gwidget->lavc_aud_button, isLavcACodec(get_ind_by4cc(global->Sound_Format)));
 	
 	// Audio effects
 	line++;

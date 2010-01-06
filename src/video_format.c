@@ -131,7 +131,6 @@ int clean_FormatContext (void* data)
 	{
 		if(global->debug) g_printf("closing sound...\n");
 		if (close_sound (pdata)) g_printerr("Sound Close error\n");
-		if(global->Sound_Format == ISO_FORMAT_MPEG12) close_MP2_encoder();
 		if(global->debug) g_printf("sound closed\n");
 	} 
 

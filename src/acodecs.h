@@ -27,7 +27,7 @@
 #include "globals.h"
 #include "sound.h"
 
-#define MAX_ACODECS 3
+#define MAX_ACODECS 4
 
 #define CODEC_PCM   0
 #define CODEC_MP2   1
@@ -41,32 +41,14 @@ typedef struct _acodecs_data
 	const char *mkv_codec;    //mkv codecID
 	const char *description;  //codec description
 	int bit_rate;             //lavc default bit rate
-	int qmax;                 //lavc qmax
-	int qmin;                 //lavc qmin
-	int max_qdiff;            //lavc qmin
-	int dia;                  //lavc dia_size
-	int pre_dia;              //lavc pre_dia_size
-	int pre_me;               //lavc pre_me
-	int me_pre_cmp;           //lavc me_pre_cmp
-	int me_cmp;               //lavc me_cmp
-	int me_sub_cmp;           //lavc me_sub_cmp
-	int last_pred;            //lavc last_predictor_count
-	int gop_size;             //lavc gop_size
-	float qcompress;          //lavc qcompress
-	float qblur;              //lavc qblur
-	int subq;                 //lavc subq
-	int framerefs;            //lavc refs
 	int codec_id;             //lavc codec_id
-	int mb_decision;          //lavc mb_decision
-	int trellis;              //lavc trellis quantization
-	int me_method;            //lavc motion estimation method
-	int mpeg_quant;           //lavc mpeg quantization
-	int max_b_frames;         //lavc max b frames
 	int flags;                //lavc flags
 } acodecs_data;
 
 
 WORD get_aud4cc(int codec_ind);
+
+int get_aud_bit_rate(int codec_ind);
 
 int get_aud_bits(int codec_ind);
 

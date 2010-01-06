@@ -122,7 +122,7 @@ static unsigned long str2ulong(BYTE *str)
 static int avi_sampsize(struct avi_t *AVI, int j)
 {
 	int s;
-	if (AVI->track[j].a_fmt == ISO_FORMAT_MPEG12) 
+	if (AVI->track[j].a_fmt != WAVE_FORMAT_PCM) 
 	{
 		s = 4;
 	} 
@@ -440,7 +440,7 @@ static int avi_update_header(struct avi_t *AVI)
        
 		// ThOe /4
 		OUTLONG(sampsize/4);      /* Scale */
-		OUTLONG(1000*AVI->track[j].mpgrate/8);
+		OUTLONG(AVI->track[j].mpgrate/8);
 		OUTLONG(0);             /* Start */
 		OUTLONG(4*AVI->track[j].audio_bytes/sampsize);   /* Length */
 		OUTLONG(0);             /* SuggestedBufferSize */
@@ -462,7 +462,7 @@ static int avi_update_header(struct avi_t *AVI)
 		OUTSHRT(AVI->track[j].a_chans);         /* Number of channels */
 		OUTLONG(AVI->track[j].a_rate);          /* SamplesPerSec */
 		// ThOe
-		OUTLONG(1000*AVI->track[j].mpgrate/8);
+		OUTLONG(AVI->track[j].mpgrate/8);
 		//ThOe (/4)
        
 		OUTSHRT(sampsize/4);           /* BlockAlign */
@@ -629,10 +629,10 @@ void AVI_set_audio(struct avi_t *AVI, int channels, long rate, int mpgrate, int 
    
 		AVI->track[AVI->aptr].audio_bytes = 0;
 		AVI->track[AVI->aptr].a_chans = channels;
-		AVI->track[AVI->aptr].a_rate  = rate;
+		AVI->track[AVI->aptr].a_rate  = rate; /*sample rate*/
 		AVI->track[AVI->aptr].a_bits  = bits;
 		AVI->track[AVI->aptr].a_fmt   = format;
-		AVI->track[AVI->aptr].mpgrate = mpgrate;
+		AVI->track[AVI->aptr].mpgrate = mpgrate; /* bit rate in b/s */
 
 		avi_update_header(AVI);
 	g_mutex_unlock(AVI->mutex);
@@ -838,8 +838,8 @@ static int avi_close_output_file(struct avi_t *AVI)
 		} 
 		else
 		{
-			avgbsec = 1000*AVI->track[j].mpgrate/8;
-			scalerate = 1000*AVI->track[j].mpgrate/8;
+			avgbsec = AVI->track[j].mpgrate/8;
+			scalerate = AVI->track[j].mpgrate/8;
 		}
 
 		OUT4CC ("LIST");
@@ -863,7 +863,7 @@ static int avi_close_output_file(struct avi_t *AVI)
 		OUTLONG(0);             /* InitialFrames */
 	 
 		// VBR 
-		if (AVI->track[j].a_fmt == ISO_FORMAT_MPEG12 && AVI->track[j].a_vbr) 
+		if ((AVI->track[j].a_fmt != WAVE_FORMAT_PCM) && AVI->track[j].a_vbr) 
 		{
 			OUTLONG(nBlockAlign);                   /* Scale */
 			OUTLONG(AVI->track[j].a_rate);          /* Rate */
@@ -896,7 +896,7 @@ static int avi_close_output_file(struct avi_t *AVI)
 
 		OUT4CC ("strf");
 
-		if (AVI->track[j].a_fmt == ISO_FORMAT_MPEG12 && AVI->track[j].a_vbr) 
+		if ((AVI->track[j].a_fmt != WAVE_FORMAT_PCM) && AVI->track[j].a_vbr) 
 		{
 
 			OUTLONG(30);                            /* # of bytes to follow */ // mplayer writes 28
@@ -904,7 +904,7 @@ static int avi_close_output_file(struct avi_t *AVI)
 			OUTSHRT(AVI->track[j].a_chans);         /* Number of channels */      // 2
 			OUTLONG(AVI->track[j].a_rate);          /* SamplesPerSec */           // 4
 			//ThOe/tibit
-			OUTLONG(1000*AVI->track[j].mpgrate/8);  /* maybe we should write an avg. */ // 4
+			OUTLONG(AVI->track[j].mpgrate/8);  /* maybe we should write an avg. */ // 4
 			OUTSHRT(nBlockAlign);                   /* BlockAlign */              // 2
 			OUTSHRT(AVI->track[j].a_bits);          /* BitsPerSample */           // 2
 
@@ -915,14 +915,14 @@ static int avi_close_output_file(struct avi_t *AVI)
 			OUTSHRT(1);                             /* nFramesPerBlock */          // 2
 			OUTSHRT(0);                             /* nCodecDelay */              // 2
 		} 
-		else if (AVI->track[j].a_fmt == ISO_FORMAT_MPEG12 && !AVI->track[j].a_vbr) 
+		else if ((AVI->track[j].a_fmt != WAVE_FORMAT_PCM) && !AVI->track[j].a_vbr) 
 		{
 			OUTLONG(30);                            /* # of bytes to follow (30)*/
 			OUTSHRT(AVI->track[j].a_fmt);           /* Format */
 			OUTSHRT(AVI->track[j].a_chans);         /* Number of channels */
 			OUTLONG(AVI->track[j].a_rate);          /* SamplesPerSec */
 			//ThOe/tibit
-			OUTLONG(1000*AVI->track[j].mpgrate/8);
+			OUTLONG(AVI->track[j].mpgrate/8);
 			OUTSHRT(sampsize/4);                    /* BlockAlign */
 			OUTSHRT(AVI->track[j].a_bits);          /* BitsPerSample */
 

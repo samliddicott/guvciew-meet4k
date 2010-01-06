@@ -49,10 +49,10 @@ static acodecs_data listSupACodecs[] = //list of software supported formats
 		.avcodec      = FALSE,
 		.valid        = TRUE,
 		.bits         = 0,
-		.avi_4cc      = ISO_FORMAT_MPEG12,
+		.avi_4cc      = WAVE_FORMAT_MPEG12,
 		.mkv_codec    = "A_MPEG/L2",
 		.description  = N_("MPEG2 - (twolame)"),
-		.bit_rate     = 0,
+		.bit_rate     = 160000,
 		.codec_id     = CODEC_ID_NONE,
 		.flags        = 0
 	},
@@ -60,11 +60,22 @@ static acodecs_data listSupACodecs[] = //list of software supported formats
 		.avcodec      = TRUE,
 		.valid        = TRUE,
 		.bits         = 0,
-		.avi_4cc      = ISO_FORMAT_MP3,
+		.avi_4cc      = WAVE_FORMAT_MP3,
 		.mkv_codec    = "A_MPEG/L3",
 		.description  = N_("MP3 - (lavc)"),
 		.bit_rate     = 160000,
 		.codec_id     = CODEC_ID_MP3,
+		.flags        = 0
+	},
+	{
+		.avcodec      = TRUE,
+		.valid        = TRUE,
+		.bits         = 0,
+		.avi_4cc      = WAVE_FORMAT_AC3,
+		.mkv_codec    = "A_AC3",
+		.description  = N_("Dolby AC3 - (lavc)"),
+		.bit_rate     = 160000,
+		.codec_id     = CODEC_ID_AC3,
 		.flags        = 0
 	}
 };
@@ -91,6 +102,11 @@ WORD get_aud4cc(int codec_ind)
 int get_aud_bits(int codec_ind)
 {
 	return (listSupACodecs[get_real_index (codec_ind)].bits);
+}
+
+int get_aud_bit_rate(int codec_ind)
+{
+	return (listSupACodecs[get_real_index (codec_ind)].bit_rate);
 }
 
 int get_ind_by4cc(WORD avi_4cc)
@@ -229,7 +245,7 @@ int compress_audio_frame(void *data,
 			ret = write_audio_data (all_data, (BYTE *) pdata->pcm_sndBuff, pdata->aud_numSamples*2, proc_buff->time_stamp);
 			break;
 		}
-		case ISO_FORMAT_MPEG12:
+		case WAVE_FORMAT_MPEG12:
 		{
 			int size_mp2 = MP2_encode(pdata, proc_buff, 0);
 			ret= write_audio_data (all_data, pdata->mp2Buff, size_mp2, proc_buff->time_stamp);

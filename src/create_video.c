@@ -144,8 +144,8 @@ static int initVideoFile(struct ALL_DATA *all_data, void * lavc_aud_data)
 					/*set audio header for avi*/
 					AVI_set_audio(videoF->AviOut, global->Sound_NumChan, 
 						global->Sound_SampRate,
-						global->Sound_bitRate,
-						16, /*only used for PCM*/
+						get_aud_bit_rate(get_ind_by4cc(global->Sound_Format)), /*bit rate*/
+						get_aud_bits(get_ind_by4cc(global->Sound_Format)),     /*sample size - only used for PCM*/
 						global->Sound_Format);
 					/* Initialize sound (open stream)*/
 					if(init_sound (pdata)) 
@@ -157,14 +157,6 @@ static int initVideoFile(struct ALL_DATA *all_data, void * lavc_aud_data)
 						gdk_flush();
 						gdk_threads_leave();
 					} 
-					else 
-					{
-						if (global->Sound_Format == ISO_FORMAT_MPEG12) 
-						{
-							init_MP2_encoder(pdata, global->Sound_bitRate);    
-						}
-					}
-				
 				}
 			}
 			break;
@@ -210,13 +202,6 @@ static int initVideoFile(struct ALL_DATA *all_data, void * lavc_aud_data)
 					gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gwidget->SndEnable),0);
 					gdk_flush();
 					gdk_threads_leave();
-				} 
-				else 
-				{
-					if (global->Sound_Format == ISO_FORMAT_MPEG12) 
-					{
-						init_MP2_encoder(pdata, global->Sound_bitRate);
-					}
 				}
 			}
 			break;
@@ -263,7 +248,6 @@ aviClose (struct ALL_DATA *all_data)
 		if (global->Sound_enable > 0) 
 		{
 			if (close_sound (pdata)) g_printerr("Sound Close error\n");
-			if(global->Sound_Format == ISO_FORMAT_MPEG12) close_MP2_encoder();
 		} 
 		AVI_close (videoF->AviOut);
 		global->framecount = 0;
@@ -509,7 +493,7 @@ static int sync_audio_frame(struct ALL_DATA *all_data, AudBuff *proc_buff)
 						AVI_write_audio(videoF->AviOut,(BYTE *) EmptySamp,shiftSamples*sizeof(short));
 						g_free(EmptySamp);
 					} 
-					else if(global->Sound_Format == ISO_FORMAT_MPEG12) 
+					else if(global->Sound_Format == WAVE_FORMAT_MPEG12) 
 					{
 						int size_mp2 = MP2_encode(pdata, proc_buff, synctime);
 						if (global->debug) g_printf("shift sound forward by %d bytes\n",size_mp2);
@@ -932,7 +916,7 @@ void *IO_loop(void *data)
 	if(lavc_audio_data != NULL)
 	{
 		int nf = clean_lavc_audio(&lavc_audio_data);
-		if(global->debug) g_printf(" total frames encoded: %d\n", nf);
+		if(global->debug) g_printf(" total audio frames encoded: %d\n", nf);
 		lavc_audio_data = NULL;
 	}
 	if(jpg_data != NULL) g_free(jpg_data);

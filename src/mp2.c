@@ -109,8 +109,10 @@ MP2_encode(struct paRecordData* pdata, AudBuff *proc_buff, int ms_delay)
 	return (mp2fill_size);
 }
 
-void close_MP2_encoder() 
+void close_MP2_encoder(struct paRecordData* pdata) 
 {
 	/*clean twolame encoder*/
+	if(pdata->mp2Buff) g_free(pdata->mp2Buff);
+	pdata->mp2Buff = NULL;
 	twolame_close( &encodeOptions );
 }
