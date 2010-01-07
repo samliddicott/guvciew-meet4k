@@ -242,6 +242,7 @@ struct lavcAData* init_lavc_audio(struct paRecordData *pdata, int codec_ind)
 	
 	data->codec_context->sample_rate = pdata->samprate;
 	data->codec_context->channels = pdata->channels;
+	data->codec_context->cutoff = 0; /*automatic*/
 	//data->codec_context->sample_fmt = SAMPLE_FMT_FLT; /* floating point sample */
 	
 	// open codec
