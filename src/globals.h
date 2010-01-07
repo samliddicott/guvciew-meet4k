@@ -94,7 +94,7 @@ struct GLOBAL
 	int Sound_NumChan;     //audio number of channels
 	int Sound_NumChanInd;  //audio number of channels combo index
 	WORD Sound_Format;     //audio codec - fourcc (avilib.h)
-	int Sound_bitRate;     //bit rate for mpeg audio compression
+	//int Sound_bitRate;     //bit rate for mpeg audio compression
 	UINT64 Sound_delay;    //sound delay in nanosec
 	int PanStep;           //step angle for Pan
 	int TiltStep;          //step angle for Tilt

@@ -43,6 +43,7 @@ static acodecs_data listSupACodecs[] = //list of software supported formats
 		.description  = N_("PCM - uncompressed (16 bit)"),
 		.bit_rate     = 0,
 		.codec_id     = CODEC_ID_NONE,
+		.profile      = FF_PROFILE_UNKNOWN,
 		.flags        = 0
 	},
 	{
@@ -54,6 +55,7 @@ static acodecs_data listSupACodecs[] = //list of software supported formats
 		.description  = N_("MPEG2 - (lavc)"),
 		.bit_rate     = 160000,
 		.codec_id     = CODEC_ID_MP2,
+		.profile      = FF_PROFILE_UNKNOWN,
 		.flags        = 0
 	},
 	{
@@ -65,6 +67,7 @@ static acodecs_data listSupACodecs[] = //list of software supported formats
 		.description  = N_("MP3 - (lavc)"),
 		.bit_rate     = 160000,
 		.codec_id     = CODEC_ID_MP3,
+		.profile      = FF_PROFILE_UNKNOWN,
 		.flags        = 0
 	},
 	{
@@ -76,6 +79,19 @@ static acodecs_data listSupACodecs[] = //list of software supported formats
 		.description  = N_("Dolby AC3 - (lavc)"),
 		.bit_rate     = 160000,
 		.codec_id     = CODEC_ID_AC3,
+		.profile      = FF_PROFILE_UNKNOWN,
+		.flags        = 0
+	},
+	{
+		.avcodec      = TRUE,
+		.valid        = TRUE,
+		.bits         = 0,
+		.avi_4cc      = WAVE_FORMAT_AAC,
+		.mkv_codec    = "A_ACC/MAIN",
+		.description  = N_("ACC - (lavc)"),
+		.bit_rate     = 160000,
+		.codec_id     = CODEC_ID_AAC,
+		.profile      = FF_PROFILE_AAC_MAIN,
 		.flags        = 0
 	}
 };
@@ -208,8 +224,6 @@ static int encode_lavc_audio (struct lavcAData *lavc_data,
 	struct ALL_DATA *all_data, 
 	AudBuff *proc_buff)
 {
-	//struct vdIn *videoIn = all_data->videoIn;
-	//struct VideoFormatData *videoF = all_data->videoF;
 	struct paRecordData *pdata = all_data->pdata;
 	
 	int framesize = 0;
@@ -217,7 +231,10 @@ static int encode_lavc_audio (struct lavcAData *lavc_data,
 	
 	if(lavc_data)
 	{
+		/*lavc is initialized when setting sound*/
+		Float2Int16(pdata, proc_buff); /*convert from float sample to 16 bit PCM*/
 		framesize= encode_lavc_audio_frame (pdata->pcm_sndBuff, lavc_data);
+		//framesize= encode_lavc_audio_frame (pdata->frame, lavc_data);
 		
 		ret = write_audio_data (all_data, lavc_data->outbuf, framesize, proc_buff->time_stamp);
 	}
@@ -245,16 +262,8 @@ int compress_audio_frame(void *data,
 			ret = write_audio_data (all_data, (BYTE *) pdata->pcm_sndBuff, pdata->aud_numSamples*2, proc_buff->time_stamp);
 			break;
 		}
-		//case WAVE_FORMAT_MPEG12:
-		//{
-		//	int size_mp2 = MP2_encode(pdata, proc_buff, 0);
-		//	ret= write_audio_data (all_data, pdata->mp2Buff, size_mp2, proc_buff->time_stamp);
-		//	break;
-		//}
 		default:
 		{
-			/*lavc is initialized when setting sound*/
-			Float2Int16(pdata, proc_buff); /*convert from float sample to 16 bit PCM*/
 			ret = encode_lavc_audio (*lavc_data, all_data, proc_buff);
 			break;
 		}

@@ -52,7 +52,6 @@ void
 WARN_DIALOG(const char *warn_title, const char* warn_msg, struct ALL_DATA *all_data)
 {
 	struct GWIDGET *gwidget = all_data->gwidget;
-	//struct GLOBAL *global = all_data->global;
 	
 	GtkWidget *warndialog;
 	warndialog = gtk_message_dialog_new (GTK_WINDOW(gwidget->mainwin),

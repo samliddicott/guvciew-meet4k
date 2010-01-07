@@ -27,7 +27,7 @@
 #include "globals.h"
 #include "sound.h"
 
-#define MAX_ACODECS 4
+#define MAX_ACODECS 5
 
 #define CODEC_PCM   0
 #define CODEC_MP2   1
@@ -42,6 +42,7 @@ typedef struct _acodecs_data
 	const char *description;  //codec description
 	int bit_rate;             //lavc default bit rate
 	int codec_id;             //lavc codec_id
+	int profile;              //for AAC only
 	int flags;                //lavc flags
 } acodecs_data;
 

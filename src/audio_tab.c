@@ -61,7 +61,7 @@ lavc_audio_properties(GtkButton * CodecButt, struct ALL_DATA *all_data)
 		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (lbl_bit_rate);
 	
-	GtkWidget *bit_rate = gtk_spin_button_new_with_range(64000,400000,1000);
+	GtkWidget *bit_rate = gtk_spin_button_new_with_range(48000,384000,8000);
 	gtk_editable_set_editable(GTK_EDITABLE(bit_rate),TRUE);
 	gtk_spin_button_set_value (GTK_SPIN_BUTTON(bit_rate), codec_defaults->bit_rate);
 	

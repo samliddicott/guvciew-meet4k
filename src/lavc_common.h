@@ -59,7 +59,6 @@ struct lavcAData
 	/*video*/
 	AVCodec *codec;
 	AVCodecContext *codec_context;
-	short *audio; /*pcm 16*/
 
 	int outbuf_size;
 	BYTE* outbuf;
@@ -69,8 +68,9 @@ int encode_lavc_frame (BYTE *picture_buf, struct lavcData* data);
 
 int encode_lavc_audio_frame (short *audio_buf, struct lavcAData* data);
 
-// arg = pointer to lavcData struct =>
-// *arg = struct lavcData**
+/* arg = pointer to lavcData struct =>
+ * *arg = struct lavcData**
+ */
 int clean_lavc (void *arg);
 
 int clean_lavc_audio (void* arg);

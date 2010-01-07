@@ -96,9 +96,9 @@ writeConf(struct GLOBAL *global, char *videodevice)
 		g_fprintf(fp,"snd_delay=%llu\n",(unsigned long long) global->Sound_delay);
 		g_fprintf(fp,"# Sound Format (PCM=1 (0x0001) MP2=80 (0x0050)\n");
 		g_fprintf(fp,"snd_format=%i\n",global->Sound_Format);
-		g_fprintf(fp,"# Sound bit Rate used by mpeg audio default=160 Kbps\n");
-		g_fprintf(fp,"#other values: 48 56 64 80 96 112 128 160 192 224 384\n");
-		g_fprintf(fp,"snd_bitrate=%i\n",global->Sound_bitRate);
+		//g_fprintf(fp,"# Sound bit Rate used by mpeg audio default=160 Kbps\n");
+		//g_fprintf(fp,"#other values: 48 56 64 80 96 112 128 160 192 224 384\n");
+		//g_fprintf(fp,"snd_bitrate=%i\n",global->Sound_bitRate);
 		g_fprintf(fp,"#Pan Step in degrees, Default=2\n");
 		g_fprintf(fp,"Pan_Step=%i\n",global->PanStep);
 		g_fprintf(fp,"#Tilt Step in degrees, Default=2\n");
@@ -405,10 +405,10 @@ readConf(struct GLOBAL *global)
 						{
 							global->Sound_Format = scanner->value.v_int;
 						}
-						else if (g_strcmp0(name,"snd_bitrate")==0) 
-						{
-							global->Sound_bitRate = scanner->value.v_int;
-						}
+						// else if (g_strcmp0(name,"snd_bitrate")==0) 
+						// {
+							// global->Sound_bitRate = scanner->value.v_int;
+						// }
 						else if (g_strcmp0(name,"Pan_Step")==0)
 						{
 							global->PanStep = signal * scanner->value.v_int;
@@ -503,7 +503,7 @@ readConf(struct GLOBAL *global)
 			g_printf("sound Channels: %i\n",global->Sound_NumChanInd);
 			g_printf("Sound delay: %llu nanosec\n",(unsigned long long) global->Sound_delay);
 			g_printf("Sound Format: %i \n",global->Sound_Format);
-			g_printf("Sound bit Rate: %i Kbps\n",global->Sound_bitRate);
+			//g_printf("Sound bit Rate: %i Kbps\n",global->Sound_bitRate);
 			g_printf("Pan Step: %i degrees\n",global->PanStep);
 			g_printf("Tilt Step: %i degrees\n",global->TiltStep);
 			g_printf("Video Filter Flags: %i\n",global->Frame_Flags);

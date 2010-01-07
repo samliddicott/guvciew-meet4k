@@ -117,7 +117,7 @@ int clean_lavc_audio (void* arg)
 	int enc_frames =0;
 	if(*data)
 	{
-		//enc_frames = (*data)->codec_context->real_pict_num;
+		enc_frames = (*data)->codec_context->real_pict_num;
 		avcodec_flush_buffers((*data)->codec_context);
 		//close codec 
 		avcodec_close((*data)->codec_context);
@@ -125,7 +125,6 @@ int clean_lavc_audio (void* arg)
 		g_free((*data)->codec_context);
 		(*data)->codec_context = NULL;
 		g_free((*data)->outbuf);
-		g_free((*data)->audio);
 		g_free(*data);
 		*data = NULL;
 	}
@@ -237,11 +236,13 @@ struct lavcAData* init_lavc_audio(struct paRecordData *pdata, int codec_ind)
 
 	// define bit rate (lower = more compression but lower quality)
 	data->codec_context->bit_rate = defaults->bit_rate;
+	data->codec_context->profile = defaults->profile; /*for AAC*/
 	
 	data->codec_context->flags |= defaults->flags;
 	
 	data->codec_context->sample_rate = pdata->samprate;
 	data->codec_context->channels = pdata->channels;
+	//data->codec_context->sample_fmt = SAMPLE_FMT_FLT; /* floating point sample */
 	
 	// open codec
 	if (avcodec_open(data->codec_context, data->codec) < 0) 
@@ -253,8 +254,7 @@ struct lavcAData* init_lavc_audio(struct paRecordData *pdata, int codec_ind)
 	/* the codec gives us the frame size, in samples */
 	int frame_size = data->codec_context->frame_size;  
 	g_printf("Audio frame size is %d samples for selected codec\n", frame_size);
-	//alloc audio data buffer - FIXME: dow we need to multiply by channels ?
-	data->audio = g_new0(short, frame_size * data->codec_context->channels);
+	
 	//alloc outbuf
 	data->outbuf_size = 240000;
 	data->outbuf = g_new0(BYTE, data->outbuf_size);

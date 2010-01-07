@@ -80,21 +80,21 @@ struct paRecordData
 	int flush;                    // flush mp2 buffer flag
 	int samprate;                 // samp rate
 	int numsec;                   // aprox. number of seconds for out buffer size
-	int aud_numBytes;             //bytes copied to out buffer*/
-	int aud_numSamples;           //samples copied to out buffer*/
-	int64_t snd_begintime;        //audio recording start time*/
+	int aud_numBytes;             // bytes copied to out buffer*/
+	int aud_numSamples;           // samples copied to out buffer*/
+	int64_t snd_begintime;        // audio recording start time*/
 	int capVid;                   // video capture flag
 	SAMPLE *recordedSamples;      // callback buffer
-    	int sampleIndex;
+	int sampleIndex;
 	AudBuff *audio_buff;          // ring buffer for audio data
-	int64_t a_ts;                 //audio frame time stamp
-	int64_t ts_ref;               //timestamp video reference
-	gint16 *pcm_sndBuff;          //buffer for pcm coding with int16
-	BYTE *mp2Buff;                //mp2 encode buffer
+	int64_t a_ts;                 // audio frame time stamp
+	int64_t ts_ref;               // timestamp video reference
+	gint16 *pcm_sndBuff;          // buffer for pcm coding with int16
+	BYTE *mp2Buff;                // mp2 encode buffer
 	int mp2BuffSize;              // mp2 buffer size
 	int snd_Flags;                // effects flag
-	int skip_n;                   //video frames to skip
-	UINT64 delay;                 //in nanosec - h264 has a two frame delay that must be compensated
+	int skip_n;                   // video frames to skip
+	UINT64 delay;                 // in nanosec - h264 has a two frame delay that must be compensated
 	GMutex *mutex;                // audio mutex
 	
 	//PULSE SUPPORT

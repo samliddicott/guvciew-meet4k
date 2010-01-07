@@ -493,12 +493,6 @@ static int sync_audio_frame(struct ALL_DATA *all_data, AudBuff *proc_buff)
 						AVI_write_audio(videoF->AviOut,(BYTE *) EmptySamp,shiftSamples*sizeof(short));
 						g_free(EmptySamp);
 					} 
-					//else if(global->Sound_Format == WAVE_FORMAT_MPEG12) 
-					//{
-					//	int size_mp2 = MP2_encode(pdata, proc_buff, synctime);
-					//	if (global->debug) g_printf("shift sound forward by %d bytes\n",size_mp2);
-					//	AVI_write_audio(videoF->AviOut,pdata->mp2Buff,size_mp2);
-					//}
 					else
 					{
 						/*use lavc encoder*/

@@ -170,12 +170,6 @@ set_sound (struct GLOBAL *global, struct paRecordData* data, void *lav_aud_data)
 	if(global->debug) g_printf("using audio codec: 0x%04x\n",global->Sound_Format );
 	switch (global->Sound_Format)
 	{
-		//case WAVE_FORMAT_MPEG12:
-		//{
-		//	data->aud_numSamples = MPG_NUM_SAMP * data->channels; /*MPG frames*/
-		//	init_MP2_encoder(data, get_aud_bit_rate(get_ind_by4cc(WAVE_FORMAT_MPEG12)));
-		//	break;
-		//}
 		case PA_FOURCC:
 		{
 			data->aud_numSamples = MPG_NUM_SAMP * data->channels;
@@ -316,8 +310,6 @@ error:
 		g_free(data->audio_buff);
 	}
 	data->audio_buff = NULL;
-	/*clean twolame mp2 encoder if in use*/
-	if(data->mp2Buff) close_MP2_encoder(data);
 	/*lavc is allways checked and cleaned when finishing worker thread*/
 	return(-1);
 } 
@@ -382,8 +374,6 @@ close_sound (struct paRecordData *data)
 			g_free(data->audio_buff);
 		}
 		data->audio_buff = NULL;
-	
-		if(data->mp2Buff) close_MP2_encoder(data);
 		if(data->pcm_sndBuff) g_free(data->pcm_sndBuff);
 		data->pcm_sndBuff = NULL;
 	g_mutex_unlock(data->mutex);
@@ -403,15 +393,12 @@ void Float2Int16 (struct paRecordData* data, AudBuff *proc_buff)
 {
 	if (!(data->pcm_sndBuff)) 
 		data->pcm_sndBuff = g_new0(gint16, data->aud_numSamples);
-	
-	float res = 0.0;
+		
 	int samp = 0;
 	
 	for(samp=0; samp < data->aud_numSamples; samp++)
 	{
-		res = proc_buff->frame[samp] * 32768 + 385;
-		/*clip*/
-		data->pcm_sndBuff[samp] = clip_int16(res);
+		data->pcm_sndBuff[samp] = clip_int16(proc_buff->frame[samp] * 32767.0); //* 32768 + 385;
 	}
 }
 
