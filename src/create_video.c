@@ -31,7 +31,6 @@
 #include "avilib.h"
 #include "globals.h"
 #include "sound.h"
-#include "mp2.h"
 #include "acodecs.h"
 #include "ms_time.h"
 #include "string_utils.h"

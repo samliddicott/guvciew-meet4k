@@ -27,7 +27,6 @@
 
 #include "guvcview.h"
 #include "ms_time.h"
-#include "mp2.h"
 #include "colorspaces.h"
 #include "lavc_common.h"
 #include "video_format.h"

@@ -48,7 +48,6 @@
 #include "video.h"
 #include "vcodecs.h"
 #include "create_video.h"
-#include "mp2.h"
 #include "profile.h"
 #include "callbacks.h"
 #include "close.h"

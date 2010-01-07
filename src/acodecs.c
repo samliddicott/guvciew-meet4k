@@ -27,7 +27,6 @@
 #include "lavc_common.h"
 #include "create_video.h"
 #include "sound.h"
-#include "mp2.h"
 /* support for internationalization - i18n */
 #include <glib/gi18n.h>
 #include <linux/videodev2.h>

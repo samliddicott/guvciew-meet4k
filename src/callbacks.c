@@ -36,7 +36,6 @@
 #include "ms_time.h"
 #include "string_utils.h"
 #include "video.h"
-#include "mp2.h"
 #include "acodecs.h"
 #include "profile.h"
 #include "close.h"

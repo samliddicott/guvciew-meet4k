@@ -25,7 +25,6 @@
 #include "vcodecs.h"
 #include "avilib.h"
 #include "acodecs.h"
-#include "mp2.h"
 #include "lavc_common.h"
 #include "audio_effects.h"
 #include "ms_time.h"
