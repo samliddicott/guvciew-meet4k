@@ -493,12 +493,12 @@ static int sync_audio_frame(struct ALL_DATA *all_data, AudBuff *proc_buff)
 						AVI_write_audio(videoF->AviOut,(BYTE *) EmptySamp,shiftSamples*sizeof(short));
 						g_free(EmptySamp);
 					} 
-					else if(global->Sound_Format == WAVE_FORMAT_MPEG12) 
-					{
-						int size_mp2 = MP2_encode(pdata, proc_buff, synctime);
-						if (global->debug) g_printf("shift sound forward by %d bytes\n",size_mp2);
-						AVI_write_audio(videoF->AviOut,pdata->mp2Buff,size_mp2);
-					}
+					//else if(global->Sound_Format == WAVE_FORMAT_MPEG12) 
+					//{
+					//	int size_mp2 = MP2_encode(pdata, proc_buff, synctime);
+					//	if (global->debug) g_printf("shift sound forward by %d bytes\n",size_mp2);
+					//	AVI_write_audio(videoF->AviOut,pdata->mp2Buff,size_mp2);
+					//}
 					else
 					{
 						/*use lavc encoder*/
@@ -864,9 +864,11 @@ void *IO_loop(void *data)
 				switch(proc_flag)
 				{
 					case 1:
+						//g_printf("processing audio frame\n");
 						process_audio(all_data, aud_proc_buff, (void *) &lavc_audio_data, &(aud_eff));
 						break;
 					case 2:
+						//g_printf("processing video frame\n");
 						finished = process_video (all_data, proc_buff, &(lavc_data), &(jpg_data));
 						break;
 					default:
@@ -889,7 +891,7 @@ void *IO_loop(void *data)
 					g_printerr("audio streaming stalled - timeout\n");
 				}
 				//process any remaining audio
-				if(global->Sound_enable) process_audio(all_data, aud_proc_buff,(void *) &lavc_audio_data, &(aud_eff)); //process last audio if any
+				if(global->Sound_enable) process_audio(all_data, aud_proc_buff,(void *) &lavc_audio_data, &(aud_eff));
 			}
 		}
 	

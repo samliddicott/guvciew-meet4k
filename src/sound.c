@@ -167,16 +167,18 @@ set_sound (struct GLOBAL *global, struct paRecordData* data, void *lav_aud_data)
 	g_mutex_lock( data->mutex );
 		data->skip_n = global->skip_n; /*inital video frames to skip*/
 	g_mutex_unlock( data->mutex );
-	
+	if(global->debug) g_printf("using audio codec: 0x%04x\n",global->Sound_Format );
 	switch (global->Sound_Format)
 	{
-		case WAVE_FORMAT_MPEG12:
-			init_MP2_encoder(data, get_aud_bit_rate(get_ind_by4cc(WAVE_FORMAT_MPEG12)));
+		//case WAVE_FORMAT_MPEG12:
+		//{
+		//	data->aud_numSamples = MPG_NUM_SAMP * data->channels; /*MPG frames*/
+		//	init_MP2_encoder(data, get_aud_bit_rate(get_ind_by4cc(WAVE_FORMAT_MPEG12)));
+		//	break;
+		//}
 		case PA_FOURCC:
 		{
-			int mfactor = round(data->samprate/16000);
-			if( mfactor < 1 ) mfactor = 1;
-			data->aud_numSamples = mfactor * MPG_NUM_FRAMES * (MPG_NUM_SAMP * data->channels); /*MPG frames*/
+			data->aud_numSamples = MPG_NUM_SAMP * data->channels;
 			break;
 		}
 		default:

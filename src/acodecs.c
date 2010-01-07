@@ -46,14 +46,14 @@ static acodecs_data listSupACodecs[] = //list of software supported formats
 		.flags        = 0
 	},
 	{
-		.avcodec      = FALSE,
+		.avcodec      = TRUE,
 		.valid        = TRUE,
 		.bits         = 0,
 		.avi_4cc      = WAVE_FORMAT_MPEG12,
 		.mkv_codec    = "A_MPEG/L2",
-		.description  = N_("MPEG2 - (twolame)"),
+		.description  = N_("MPEG2 - (lavc)"),
 		.bit_rate     = 160000,
-		.codec_id     = CODEC_ID_NONE,
+		.codec_id     = CODEC_ID_MP2,
 		.flags        = 0
 	},
 	{
@@ -245,12 +245,12 @@ int compress_audio_frame(void *data,
 			ret = write_audio_data (all_data, (BYTE *) pdata->pcm_sndBuff, pdata->aud_numSamples*2, proc_buff->time_stamp);
 			break;
 		}
-		case WAVE_FORMAT_MPEG12:
-		{
-			int size_mp2 = MP2_encode(pdata, proc_buff, 0);
-			ret= write_audio_data (all_data, pdata->mp2Buff, size_mp2, proc_buff->time_stamp);
-			break;
-		}
+		//case WAVE_FORMAT_MPEG12:
+		//{
+		//	int size_mp2 = MP2_encode(pdata, proc_buff, 0);
+		//	ret= write_audio_data (all_data, pdata->mp2Buff, size_mp2, proc_buff->time_stamp);
+		//	break;
+		//}
 		default:
 		{
 			/*lavc is initialized when setting sound*/

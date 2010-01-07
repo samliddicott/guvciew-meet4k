@@ -52,14 +52,14 @@ init_MP2_encoder(struct paRecordData* pdata, int bitRate)
 		twolame_set_mode(encodeOptions, TWOLAME_JOINT_STEREO);
 	}
 
-	pdata->mp2BuffSize = pdata->aud_numSamples*sizeof(SAMPLE)*24; /*can reach 2 sec for avi sync*/
+	pdata->mp2BuffSize = pdata->aud_numSamples*sizeof(SAMPLE); /*can reach 2 sec for avi sync*/
 	pdata->mp2Buff = g_new0(BYTE, pdata->mp2BuffSize); /*mp2 buffer*/
 	/* Set the input and output sample rate to the same */
 	twolame_set_in_samplerate(encodeOptions, pdata->samprate);
 	twolame_set_out_samplerate(encodeOptions, pdata->samprate);
 
 	/* Set the bitrate (160 Kbps by default) */
-	twolame_set_bitrate(encodeOptions, bitRate);
+	twolame_set_bitrate(encodeOptions, bitRate/1000);/*bit rate must be in Kbs*/
 	
 	/* initialise twolame with this set of options */
 	if (twolame_init_params( encodeOptions ) != 0) 
@@ -97,8 +97,10 @@ MP2_encode(struct paRecordData* pdata, AudBuff *proc_buff, int ms_delay)
 		{
 			int num_samples = pdata->aud_numSamples/pdata->channels;//MPG_NUM_SAMP (samples per channel)
 			// Encode the audio
+			g_printf("encoding mp2 buff:%d samp:%d\n", pdata->mp2BuffSize,pdata->aud_numSamples);
 			mp2fill_size = twolame_encode_buffer_float32_interleaved(encodeOptions, 
 				(float *) proc_buff->frame, num_samples, pdata->mp2Buff, pdata->mp2BuffSize);
+			g_printf("encoded mp2\n");
 		}
 		else 
 		{
