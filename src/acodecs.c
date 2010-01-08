@@ -31,6 +31,21 @@
 #include <glib/gi18n.h>
 #include <linux/videodev2.h>
 
+/* AAC object types index: MAIN = 1; LOW = 2; SSR = 3; LTP = 4*/
+static int AAC_OBJ_TYPE[5] = 
+	{ FF_PROFILE_UNKNOWN, FF_PROFILE_AAC_MAIN, FF_PROFILE_AAC_LOW, FF_PROFILE_AAC_SSR, FF_PROFILE_AAC_LTP };
+/*-1 = reserved; 0 = freq. is writen explictly (increases header by 24 bits)*/
+static int AAC_SAMP_FREQ[16] = 
+	{ 96000, 88200, 64000, 48000, 44100, 32000, 24000, 22050, 16000, 12000, 11025, 8000, 7350, -1, -1, 0};
+
+
+/*NORMAL AAC HEADER*/
+/*2 bytes: object type index(5 bits) + sample frequency index(4bits) + channels(4 bits) + flags(3 bit) */
+/*default = MAIN(1)+44100(4)+stereo(2)+flags(0) = 0x0A10*/
+static BYTE AAC_ESDS[2] = {0x0A,0x10};
+/* if samprate index == 15 AAC_ESDS[5]: 
+ * object type index(5 bits) + sample frequency index(4bits) + samprate(24bits) + channels(4 bits) + flags(3 bit)
+ */
 static acodecs_data listSupACodecs[] = //list of software supported formats
 {
 	{
@@ -43,6 +58,8 @@ static acodecs_data listSupACodecs[] = //list of software supported formats
 		.bit_rate     = 0,
 		.codec_id     = CODEC_ID_NONE,
 		.profile      = FF_PROFILE_UNKNOWN,
+		.mkv_codpriv  = NULL,
+		.codpriv_size = 0,
 		.flags        = 0
 	},
 	{
@@ -55,6 +72,8 @@ static acodecs_data listSupACodecs[] = //list of software supported formats
 		.bit_rate     = 160000,
 		.codec_id     = CODEC_ID_MP2,
 		.profile      = FF_PROFILE_UNKNOWN,
+		.mkv_codpriv  = NULL,
+		.codpriv_size = 0,
 		.flags        = 0
 	},
 	{
@@ -67,6 +86,8 @@ static acodecs_data listSupACodecs[] = //list of software supported formats
 		.bit_rate     = 160000,
 		.codec_id     = CODEC_ID_MP3,
 		.profile      = FF_PROFILE_UNKNOWN,
+		.mkv_codpriv  = NULL,
+		.codpriv_size = 0,
 		.flags        = 0
 	},
 	{
@@ -79,21 +100,51 @@ static acodecs_data listSupACodecs[] = //list of software supported formats
 		.bit_rate     = 160000,
 		.codec_id     = CODEC_ID_AC3,
 		.profile      = FF_PROFILE_UNKNOWN,
+		.mkv_codpriv  = NULL,
+		.codpriv_size = 0,
 		.flags        = 0
 	},
 	{
 		.avcodec      = TRUE,
 		.valid        = TRUE,
-		.bits         = 0,
+		.bits         = 16,
 		.avi_4cc      = WAVE_FORMAT_AAC,
-		.mkv_codec    = "A_AAC/MPEG4/MAIN",
+		.mkv_codec    = "A_AAC",
 		.description  = N_("ACC - (lavc)"),
 		.bit_rate     = 64000,
 		.codec_id     = CODEC_ID_AAC,
-		.profile      = FF_PROFILE_AAC_MAIN,
+		.profile      = FF_PROFILE_AAC_LOW,
+		.mkv_codpriv  = AAC_ESDS,
+		.codpriv_size = 2,
 		.flags        = 0
 	}
 };
+
+static int get_aac_obj_ind(int profile)
+{
+	int i = 0;
+
+	for (i=0; i<4; i++)
+	 if(AAC_OBJ_TYPE[i] == profile) break;
+	 
+	 return i;
+}
+
+static int get_aac_samp_ind(int samprate)
+{
+	int i = 0;
+
+	for (i=0; i<13; i++)
+	 if(AAC_SAMP_FREQ[i] == samprate) break;
+	 
+	 if (i>12) 
+	 {
+		g_printf("WARNING: invalid sample rate for AAC encoding\n");
+		g_printf("valid(96000, 88200, 64000, 48000, 44100, 32000, 24000, 22050, 16000, 12000, 11025, 8000, 7350)\n");
+		i=4; /*default 44100*/
+	 }
+	 return i;
+}
 
 static int get_real_index (int codec_ind)
 {
@@ -152,7 +203,29 @@ const char *get_mkvACodec(int codec_ind)
 	return (listSupACodecs[get_real_index (codec_ind)].mkv_codec);
 }
 
+const void *get_mkvACodecPriv(int codec_ind)
+{
+	return ((void *) listSupACodecs[get_real_index (codec_ind)].mkv_codpriv);
+}
 
+int set_mkvACodecPriv(int codec_ind, int samprate, int channels)
+{
+	int index = get_real_index (codec_ind);
+	if (listSupACodecs[index].mkv_codpriv != NULL)
+	{
+		if (listSupACodecs[index].codec_id == CODEC_ID_AAC)
+		{
+			int obj_type = get_aac_obj_ind(listSupACodecs[index].profile);
+			int sampind  = get_aac_samp_ind(samprate);
+			AAC_ESDS[0] = (BYTE) ((obj_type & 0x1F) << 3 ) + ((sampind & 0x0F) >> 1);
+			AAC_ESDS[1] = (BYTE) ((sampind & 0x0F) << 7 ) + ((channels & 0x0F) << 3);
+		
+			return 2; /*return size = 2 */
+		}
+	}
+
+	return 0;
+}
 int get_acodec_id(int codec_ind)
 {
 	return (listSupACodecs[get_real_index (codec_ind)].codec_id);

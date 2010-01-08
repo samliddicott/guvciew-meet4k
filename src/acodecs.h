@@ -43,6 +43,8 @@ typedef struct _acodecs_data
 	int bit_rate;             //lavc default bit rate
 	int codec_id;             //lavc codec_id
 	int profile;              //for AAC only
+	const void *mkv_codpriv;  //pointer for codec private data
+	int codpriv_size;         //size in bytes of private data
 	int flags;                //lavc flags
 } acodecs_data;
 
@@ -68,6 +70,10 @@ void setAcodecVal ();
 gboolean isAcodecValid(int codec_ind);
 
 acodecs_data *get_aud_codec_defaults(int codec_ind);
+
+const void *get_mkvACodecPriv(int codec_ind);
+
+int set_mkvACodecPriv(int codec_ind, int samprate, int channels);
 
 int compress_audio_frame(void *data, 
 	void *lav_aud_data,

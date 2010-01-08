@@ -114,6 +114,8 @@ static mk_Context *mk_createContext(mk_Writer *w, mk_Context *parent, unsigned i
 
 static int mk_appendContextData(mk_Context *c, const void *data, unsigned size)
 {
+	if (!size) return 0;
+	
 	unsigned  ns = c->d_cur + size;
 	if (ns > c->d_max)
 	{
@@ -247,6 +249,7 @@ static int mk_writeBin(mk_Context *c, unsigned id, const void *data, unsigned si
 	CHECK(mk_writeID(c, id));
 	CHECK(mk_writeSize(c, size));
 	CHECK(mk_appendContextData(c, data, size));
+	
 	return 0;
 }
 
@@ -400,6 +403,7 @@ int mk_writeHeader(mk_Writer *w, const char *writingApp,
 		 const char *AcodecID,
 		 const void *codecPrivate, unsigned codecPrivateSize,
 		 UINT64 default_frame_duration,  /*video */
+		 const void *AcodecPrivate, unsigned AcodecPrivateSize,
 		 UINT64 default_aframe_duration, /*audio */
 		 int64_t timescale,
 		 unsigned width, unsigned height,
@@ -547,7 +551,7 @@ int mk_writeHeader(mk_Writer *w, const char *writingApp,
 		CHECK(mk_writeUInt(ti3, MATROSKA_ID_TRACKFLAGENABLED, 1));   /* enabled                */
 		CHECK(mk_writeUInt(ti3, MATROSKA_ID_TRACKFLAGDEFAULT, 1));   /* default                */
 		CHECK(mk_writeUInt(ti3, MATROSKA_ID_TRACKFLAGFORCED, 0));    /* forced                 */
-		CHECK(mk_writeUInt(ti3, MATROSKA_ID_TRACKFLAGLACING, 1));    /* FlagLacing             */
+		CHECK(mk_writeUInt(ti3, MATROSKA_ID_TRACKFLAGLACING, 0));    /* FlagLacing             */
 		CHECK(mk_writeUInt(ti3, MATROSKA_ID_TRACKMINCACHE, 0));      /* MinCache               */
 		CHECK(mk_writeFloat(ti3, MATROSKA_ID_TRACKTIMECODESCALE, 1));/* Timecode scale (float) */
 		CHECK(mk_writeUInt(ti3, MATROSKA_ID_TRACKMAXBLKADDID, 0));   /* Max Block Addition ID  */
@@ -561,9 +565,12 @@ int mk_writeHeader(mk_Writer *w, const char *writingApp,
 			return -1;
 		CHECK(mk_writeFloat(a, MATROSKA_ID_AUDIOSAMPLINGFREQ, SampRate));
 		CHECK(mk_writeUInt(a, MATROSKA_ID_AUDIOCHANNELS, channels));
-		if (bitsSample > 0) /* for pcm only (16) */
+		if (bitsSample > 0) /* for pcm and aac (16) */
 			CHECK(mk_writeUInt(a, MATROSKA_ID_AUDIOBITDEPTH, bitsSample));
 		CHECK(mk_closeContext(a, 0));
+		/* AudioCodecPrivate */
+		if (AcodecPrivateSize)
+			CHECK(mk_writeBin(ti3, MATROSKA_ID_CODECPRIVATE, AcodecPrivate, AcodecPrivateSize));
 		CHECK(mk_closeContext(ti3, 0));
 	}
 	else
