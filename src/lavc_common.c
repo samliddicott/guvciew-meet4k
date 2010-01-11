@@ -199,6 +199,7 @@ struct lavcData* init_lavc(int width, int height, int fps_num, int fps_den, int 
 		data->codec_context->time_base = (AVRational){1,defaults->fps}; //use properties fps
 	else if (fps_den >= 5)
 		data->codec_context->time_base = (AVRational){fps_num,fps_den}; //default fps (for gspca this is 1/1)
+	else data->codec_context->time_base = (AVRational){1,15}; //fallback to 15 fps (e.g gspca) 
 	
 	// open codec
 	if (avcodec_open(data->codec_context, data->codec) < 0) 
