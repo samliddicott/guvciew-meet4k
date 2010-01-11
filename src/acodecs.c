@@ -38,7 +38,6 @@ static int AAC_OBJ_TYPE[5] =
 static int AAC_SAMP_FREQ[16] = 
 	{ 96000, 88200, 64000, 48000, 44100, 32000, 24000, 22050, 16000, 12000, 11025, 8000, 7350, -1, -1, 0};
 
-
 /*NORMAL AAC HEADER*/
 /*2 bytes: object type index(5 bits) + sample frequency index(4bits) + channels(4 bits) + flags(3 bit) */
 /*default = MAIN(1)+44100(4)+stereo(2)+flags(0) = 0x0A10*/
@@ -46,6 +45,7 @@ static BYTE AAC_ESDS[2] = {0x0A,0x10};
 /* if samprate index == 15 AAC_ESDS[5]: 
  * object type index(5 bits) + sample frequency index(4bits) + samprate(24bits) + channels(4 bits) + flags(3 bit)
  */
+
 static acodecs_data listSupACodecs[] = //list of software supported formats
 {
 	{
@@ -56,7 +56,7 @@ static acodecs_data listSupACodecs[] = //list of software supported formats
 		.mkv_codec    = "A_PCM/INT/LIT",
 		.description  = N_("PCM - uncompressed (16 bit)"),
 		.bit_rate     = 0,
-		.codec_id     = CODEC_ID_NONE,
+		.codec_id     = CODEC_ID_PCM_S16LE,
 		.profile      = FF_PROFILE_UNKNOWN,
 		.mkv_codpriv  = NULL,
 		.codpriv_size = 0,
@@ -110,7 +110,7 @@ static acodecs_data listSupACodecs[] = //list of software supported formats
 		.bits         = 16,
 		.avi_4cc      = WAVE_FORMAT_AAC,
 		.mkv_codec    = "A_AAC",
-		.description  = N_("ACC - (lavc)"),
+		.description  = N_("ACC Low - (faac)"),
 		.bit_rate     = 64000,
 		.codec_id     = CODEC_ID_AAC,
 		.profile      = FF_PROFILE_AAC_LOW,
@@ -220,7 +220,7 @@ int set_mkvACodecPriv(int codec_ind, int samprate, int channels)
 			AAC_ESDS[0] = (BYTE) ((obj_type & 0x1F) << 3 ) + ((sampind & 0x0F) >> 1);
 			AAC_ESDS[1] = (BYTE) ((sampind & 0x0F) << 7 ) + ((channels & 0x0F) << 3);
 		
-			return 2; /*return size = 2 */
+			return listSupACodecs[index].codpriv_size; /*return size = 2 */
 		}
 	}
 
