@@ -1,3 +1,11 @@
+guvcview (1.2.2-ubuntu1~karmic~ppa1) karmic; urgency=low
+
+   * Drop Twolame dependency
+   * Audio enconding through libavcodec
+   * Add MP3, AC3 and AAC(needs ffmpeg extra from medibuntu repo) support
+
+ -- Paulo Assis <pj.assis@gmail.com>  Sat, 30 Jan 2010 13:08:00 +0000
+
 guvcview (1.2.1-ubuntu1~karmic~ppa1) karmic; urgency=low
 
    * Performance boost:
