@@ -240,7 +240,7 @@ int write_png(char *file_name, int width, int height,BYTE *prgb_data)
 	if (info_ptr == NULL)
 	{
 		fclose(fp);
-		png_destroy_write_struct(&png_ptr,  png_infopp_NULL);
+		png_destroy_write_struct(&png_ptr, NULL);
 		return (3);
 	}
   
