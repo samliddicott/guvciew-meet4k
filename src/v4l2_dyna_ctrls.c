@@ -24,7 +24,6 @@
 #include <glib/gstdio.h>
 /* support for internationalization - i18n */
 #include <glib/gi18n.h>
-//#include <sys/ioctl.h>
 #include <errno.h>
 
 #include "v4l2uvc.h"

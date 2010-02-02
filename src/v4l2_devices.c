@@ -26,9 +26,12 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <sys/ioctl.h>
+#include <libv4l2.h>
 #include <linux/videodev2.h>
 
+#include "v4l2uvc.h"
 #include "v4l2_devices.h"
+
 
 /* enumerates system video devices
  * by checking /sys/class/video4linux
@@ -66,23 +69,24 @@ LDevices *enum_devices( gchar *videodevice )
 		gchar *device = NULL;
 		device = g_strjoin("/","/dev",v4l2_device,NULL);
 		
-		if ((fd = open(device, O_RDWR )) == -1) 
+		if ((fd = v4l2_open(device, O_RDWR | O_NONBLOCK, 0)) < 0) 
 		{
 			g_printerr("ERROR opening V4L interface for %s\n",
 				device);
-			close(fd);
-			continue;
+			g_free(device);
+			continue; /*next dir entry*/
 		} 
 		else
 		{
-			ret = ioctl(fd, VIDIOC_QUERYCAP, &v4l2_cap);
+			ret = xioctl(fd, VIDIOC_QUERYCAP, &v4l2_cap);
 			if (ret < 0) 
 			{
 				perror("VIDIOC_QUERYCAP error");
 				g_printerr("   couldn't query device %s\n",
 					device);
-				close(fd);
-				continue;
+				g_free(device);
+				v4l2_close(fd);
+				continue; /*next dir entry*/
 			}
 			else
 			{
@@ -106,8 +110,8 @@ LDevices *enum_devices( gchar *videodevice )
 			}
 		}
 		g_free(device);
+		v4l2_close(fd);
 		
-		close(fd);
 		listDevices->listVidDevices[num_dev-1].vendor = 0;
 		listDevices->listVidDevices[num_dev-1].product = 0;
 		
@@ -122,8 +126,10 @@ LDevices *enum_devices( gchar *videodevice )
 				error->message);
 			g_error_free ( error );
 			error=NULL;
-			//get vid, pid and version from uvc device name 
-			//we only need this info for Dynamic controls - uvc driver):
+			//if standard way fails try to get vid, pid from uvc device name 
+			//we only need this info for Dynamic controls - uvc driver 
+			listDevices->listVidDevices[num_dev-1].vendor = 0;  /*reset vid */
+			listDevices->listVidDevices[num_dev-1].product = 0; /*reset pid */
 			if(g_strcmp0(listDevices->listVidDevices[num_dev-1].driver,"uvcvideo") == 0)
 			{
 				sscanf(listDevices->listVidDevices[num_dev-1].name,"UVC Camera (%04x:%04x)",

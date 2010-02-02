@@ -26,7 +26,6 @@
 #include <glib/gtestutils.h>
 #include <fcntl.h>
 #include <string.h>
-//#include <sys/ioctl.h>
 #include <sys/types.h>
 #include <unistd.h>
 #include <errno.h>
