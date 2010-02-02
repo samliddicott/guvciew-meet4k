@@ -4759,8 +4759,8 @@ fi
 # The comment about adding -g to $CFLAGS is unclear.  Autoconf tries to add
 # a -g flag; we remove it if the user's $CFLAGS was not set and debugging is
 # disabled.
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking if you want to enable debug-code" >&5
-$as_echo_n "checking if you want to enable debug-code... " >&6; }
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking if you specifically want to enable debug-code -g" >&5
+$as_echo_n "checking if you specifically want to enable debug-code -g... " >&6; }
 # Check whether --enable-debug was given.
 if test "${enable_debug+set}" = set; then :
   enableval=$enable_debug; enable_debug=yes
@@ -4771,14 +4771,14 @@ fi
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $enable_debug" >&5
 $as_echo "$enable_debug" >&6; }
-if test "x$enable_debug" = "xno" ; then
-	CFLAGS=`echo ${CFLAGS} | sed -e 's%-g %%' -e 's%-g$%%'`
-else
+
+if test "x$enable_debug" = "xyes" ; then
 	test -z "$ORIGINAL_CFLAGS" && CFLAGS=`echo ${CFLAGS} | sed -e 's/-O[1-9]\? //' -e 's/-O[1-9]\?$//'`
 	if test "$CC" = gcc; then
-		echo "adding -g to $CC"
 		CFLAGS="$CFLAGS -g"
 	fi
+#else
+#	CF_STRIP_G_OPT(CFLAGS)
 fi
 
 
