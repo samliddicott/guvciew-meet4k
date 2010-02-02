@@ -26,6 +26,7 @@
 #include <fcntl.h>
 #include <string.h>
 #include <sys/ioctl.h>
+#include <libv4l2.h>
 #include <errno.h>
 
 #include "v4l2uvc.h"
@@ -106,7 +107,7 @@ input_enum_controls (int fd, int *num_controls)
 		
 		// Loop as long as ioctl does not return EINVAL
 		// don't use xioctl here since we must reset queryctrl.id every retry (is this realy true ??)
-		while((ret = ioctl(fd, VIDIOC_QUERYCTRL, &queryctrl)), ret ? errno != EINVAL : 1) 
+		while((ret = v4l2_ioctl(fd, VIDIOC_QUERYCTRL, &queryctrl)), ret ? errno != EINVAL : 1) 
 		{
 			
 			if(ret && (errno == EIO || errno == EPIPE || errno == ETIMEDOUT))
@@ -115,7 +116,7 @@ input_enum_controls (int fd, int *num_controls)
 				queryctrl.id = currentctrl | V4L2_CTRL_FLAG_NEXT_CTRL;
 				tries = IOCTL_RETRY;
 				while(tries-- &&
-				  (ret = ioctl(fd, VIDIOC_QUERYCTRL, &queryctrl)) &&
+				  (ret = v4l2_ioctl(fd, VIDIOC_QUERYCTRL, &queryctrl)) &&
 				  (errno == EIO || errno == EPIPE || errno == ETIMEDOUT)) 
 				{
 					queryctrl.id = currentctrl | V4L2_CTRL_FLAG_NEXT_CTRL;

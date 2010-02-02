@@ -32,6 +32,7 @@
 #include <fcntl.h>
 #include <string.h>
 #include <sys/ioctl.h>
+#include <libv4l2.h>
 #include <sys/mman.h>
 #include <sys/select.h>
 #include <errno.h>
@@ -126,19 +127,15 @@ int xioctl(int fd, int IOCTL_X, void *arg)
 {
 	int ret = 0;
 	int tries= IOCTL_RETRY;
-	
-	ret = ioctl(fd, IOCTL_X, arg);
-	if( ret && (errno == EINTR || errno == EAGAIN || errno == ETIMEDOUT))
+	do 
 	{
-		// I/O error RETRY
-		while(tries-- &&
-			(ret = ioctl(fd, IOCTL_X, arg)) &&
-			(errno == EINTR || errno == EAGAIN || errno == ETIMEDOUT)) 
-		{
-			//g_printerr("ioctl (%i) failed - %s :(retry %i)\n", IOCTL_X, strerror(errno), tries);
-		}
-		if (ret && (tries <= 0)) g_printerr("ioctl (%i) retried %i times - giving up: %s)\n", IOCTL_X, IOCTL_RETRY, strerror(errno));
-	}
+		ret = v4l2_ioctl(fd, IOCTL_X, arg);
+	} 
+	while (ret && tries-- &&
+			((errno == EINTR) || (errno == EAGAIN) || (errno == ETIMEDOUT)));
+
+	if (ret && (tries <= 0)) g_printerr("ioctl (%i) retried %i times - giving up: %s)\n", IOCTL_X, IOCTL_RETRY, strerror(errno));
+	
 	return (ret);
 } 
 
@@ -216,7 +213,7 @@ static int query_buff(struct vdIn *vd, const int setUNMAP)
 			{
 				// unmap old buffer
 				if (setUNMAP)
-					if(munmap(vd->mem[i],vd->buf.length)<0) perror("couldn't unmap buff");
+					if(v4l2_munmap(vd->mem[i],vd->buf.length)<0) perror("couldn't unmap buff");
 				memset(&vd->buf, 0, sizeof(struct v4l2_buffer));
 				vd->buf.index = i;
 				vd->buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
@@ -240,7 +237,7 @@ static int query_buff(struct vdIn *vd, const int setUNMAP)
 					g_printerr("WARNING VIDIOC_QUERYBUF - buffer length is %d\n",
 						vd->buf.length);
 				// map new buffer
-				vd->mem[i] = mmap( NULL, // start anywhere
+				vd->mem[i] = v4l2_mmap( NULL, // start anywhere
 					vd->buf.length, 
 					PROT_READ | PROT_WRITE, 
 					MAP_SHARED, 
@@ -702,7 +699,7 @@ int init_videoIn(struct vdIn *vd, struct GLOBAL *global)
 	
 	if (vd->fd <=0 ) //open device
 	{
-		if ((vd->fd = open(vd->videodevice, O_RDWR )) == -1) 
+		if ((vd->fd = v4l2_open(vd->videodevice, O_RDWR | O_NONBLOCK, 0)) < 0) 
 		{
 			perror("ERROR opening V4L interface");
 			ret = VDIN_DEVICE_ERR;
@@ -770,7 +767,7 @@ int init_videoIn(struct vdIn *vd, struct GLOBAL *global)
 	}
 	return (ret);
 error:
-	close(vd->fd);
+	v4l2_close(vd->fd);
 	vd->fd=0;
 	g_free(vd->videodevice);
 	g_free(vd->VidFName);
@@ -997,7 +994,7 @@ int uvcGrab(struct vdIn *vd, int format, int width, int height)
 			case IO_READ:
 				if(vd->setFPS > 1) vd->setFPS = 0; /*no need to query and queue buufers*/
 				
-				vd->buf.bytesused = read (vd->fd, vd->mem[vd->buf.index], vd->buf.length);
+				vd->buf.bytesused = v4l2_read (vd->fd, vd->mem[vd->buf.index], vd->buf.length);
 				vd->timestamp = ns_time_monotonic();
 				if (-1 == vd->buf.bytesused ) 
 				{
@@ -1107,7 +1104,7 @@ static int close_v4l2_buffers (struct vdIn *vd)
 			for (i = 0; i < NB_BUFFER; i++) 
 			{
 				if((vd->mem[i] != MAP_FAILED) && vd->buf.length)
-					if(munmap(vd->mem[i],vd->buf.length)<0) 
+					if(v4l2_munmap(vd->mem[i],vd->buf.length)<0) 
 					{
 						perror("Failed to unmap buffer");
 						return(VDIN_MMAP_ERR);
@@ -1183,7 +1180,7 @@ void close_v4l2(struct vdIn *vd, gboolean control_only)
 	vd->VidFName = NULL;
 	if(vd->listDevices != NULL) freeDevices(vd->listDevices);
 	// close device descriptor
-	if(vd->fd) close(vd->fd);
+	if(vd->fd) v4l2_close(vd->fd);
 	if(vd->mutex) g_mutex_free( vd->mutex );
 	vd->mutex = NULL;
 	// free struct allocation
