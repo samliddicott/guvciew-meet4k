@@ -411,9 +411,7 @@ combo_changed (GtkComboBox * combo, struct ALL_DATA *all_data)
 	ControlInfo * ci = g_object_get_data (G_OBJECT (combo), "control_info");
 	InputControl * c = s->control + ci->idx;
 	int index = gtk_combo_box_get_active (combo);
-	int val=0;
-
-	val=index;
+	int val = index;
 	
 	if (input_set_control (videoIn->fd, c, val) != 0) 
 	{
