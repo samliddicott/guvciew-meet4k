@@ -23,6 +23,7 @@
 #include <glib/gprintf.h>
 #include <glib/gstdio.h>
 #include "lavc_common.h"
+#include "v4l2uvc.h"
 #include "vcodecs.h"
 #include "acodecs.h"
 #include "sound.h"
@@ -74,7 +75,7 @@ static void nv12to420p(BYTE* pic, struct lavcData* data )
 	int size = width * height;
 
 	/*FIXME: do we really need this or can we use pic directly ?*/
-	data->tmpbuf = memcpy(pic, (width*height*3)/2);
+	data->tmpbuf = memcpy(data->tmpbuf, pic, (width*height*3)/2);
 	
 	data->picture->data[0] = data->tmpbuf;                    //Y
 	data->picture->data[1] = data->tmpbuf + size;             //U
@@ -91,7 +92,7 @@ static void nv21to420p(BYTE* pic, struct lavcData* data )
 	int size = width * height;
 
 	/*FIXME: do we really need this or can we use pic directly ?*/
-	data->tmpbuf = memcpy(pic, (width*height*3)/2);
+	data->tmpbuf = memcpy(data->tmpbuf, pic, (width*height*3)/2);
 	
 	data->picture->data[0] = data->tmpbuf;                    //Y
 	data->picture->data[2] = data->tmpbuf + size;             //V
