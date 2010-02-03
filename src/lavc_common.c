@@ -67,14 +67,59 @@ static void yuv422to420p(BYTE* pic, struct lavcData* data )
 	data->picture->linesize[2] = data->codec_context->width / 2;
 }
 
-int encode_lavc_frame (BYTE *picture_buf, struct lavcData* data /*, int64_t ts_ms*/)
+static void nv12to420p(BYTE* pic, struct lavcData* data )
+{
+	int width = data->codec_context->width;
+	int height = data->codec_context->height;
+	int size = width * height;
+
+	/*FIXME: do we really need this or can we use pic directly ?*/
+	data->tmpbuf = memcpy(pic, (width*height*3)/2);
+	
+	data->picture->data[0] = data->tmpbuf;                    //Y
+	data->picture->data[1] = data->tmpbuf + size;             //U
+	data->picture->data[2] = data->picture->data[1] + size/4; //V
+	data->picture->linesize[0] = data->codec_context->width;
+	data->picture->linesize[1] = data->codec_context->width / 2;
+	data->picture->linesize[2] = data->codec_context->width / 2;
+}
+
+static void nv21to420p(BYTE* pic, struct lavcData* data )
+{
+	int width = data->codec_context->width;
+	int height = data->codec_context->height;
+	int size = width * height;
+
+	/*FIXME: do we really need this or can we use pic directly ?*/
+	data->tmpbuf = memcpy(pic, (width*height*3)/2);
+	
+	data->picture->data[0] = data->tmpbuf;                    //Y
+	data->picture->data[2] = data->tmpbuf + size;             //V
+	data->picture->data[1] = data->picture->data[2] + size/4; //U
+	data->picture->linesize[0] = data->codec_context->width;
+	data->picture->linesize[1] = data->codec_context->width / 2;
+	data->picture->linesize[2] = data->codec_context->width / 2;
+}
+
+int encode_lavc_frame (BYTE *picture_buf, struct lavcData* data , int format)
 {
 	int out_size = 0;
+	
 	//convert to 4:2:0
-	yuv422to420p(picture_buf, data );
-	/*set time stamp*/
-    	//data->picture->pts = ts_ms; //for variable fps (lowers quality)
-    	
+	switch (format)
+	{
+		case V4L2_PIX_FMT_NV12:
+			nv12to420p(picture_buf, data );
+			break;
+			
+		case V4L2_PIX_FMT_NV21:
+			nv21to420p(picture_buf, data );
+			break;
+			
+		default:
+			yuv422to420p(picture_buf, data );
+			break;
+	}
 	/* encode the image */
 	out_size = avcodec_encode_video(data->codec_context, data->outbuf, data->outbuf_size, data->picture);
 	return (out_size);

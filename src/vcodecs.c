@@ -506,13 +506,23 @@ static int encode_lavc (struct lavcData *lavc_data,
 {
 	//struct vdIn *videoIn = all_data->videoIn;
 	struct VideoFormatData *videoF = all_data->videoF;
+	struct GLOBAL *global = all_data->global;
 	
 	int framesize = 0;
 	int ret = 0;
 	
 	if(lavc_data)
 	{
-		framesize= encode_lavc_frame (proc_buff->frame, lavc_data/*, ts_ms*/);
+		/* 
+		 * if no video filter applied take advantage 
+		 * of possible raw formats nv12 and nv21
+		 * else use internal format (yuyv)
+		 */
+		if ( !(global->Frame_Flags) )
+			framesize= encode_lavc_frame (proc_buff->frame, lavc_data, global->format);
+		else 
+			framesize= encode_lavc_frame (proc_buff->frame, lavc_data, V4L2_PIX_FMT_YUYV);
+			
 		videoF->keyframe = lavc_data->codec_context->coded_frame->key_frame;
 		
 		ret = write_video_data (all_data, lavc_data->outbuf, framesize, proc_buff->time_stamp);

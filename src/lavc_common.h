@@ -64,7 +64,7 @@ struct lavcAData
 	BYTE* outbuf;
 };
 
-int encode_lavc_frame (BYTE *picture_buf, struct lavcData* data);
+int encode_lavc_frame (BYTE *picture_buf, struct lavcData* data, int format);
 
 int encode_lavc_audio_frame (short *audio_buf, struct lavcAData* data);
 

@@ -664,18 +664,23 @@ static void store_at_index(void *data)
 
 	struct GLOBAL *global = all_data->global;
 	struct vdIn *videoIn = all_data->videoIn;
-	//int delay = get_delay(global->VidCodec);
-	//int ts_ind = global->w_ind;
-	//int i =0;
-	//for(i=0; i< delay; i++)
-	//	NEXT_IND(ts_ind, VIDBUFF_SIZE);
+
 	global->videoBuff[global->w_ind].time_stamp = global->v_ts;
+	
 	/*store frame at index*/
-	if((global->VidCodec == CODEC_MJPEG) &&
-		(global->Frame_Flags==0) &&
+	if ((global->VidCodec == CODEC_MJPEG) && (global->Frame_Flags==0) &&
 		(global->format==V4L2_PIX_FMT_MJPEG))
 	{
 		/*store MJPEG frame*/
+		global->videoBuff[global->w_ind].bytes_used = videoIn->buf.bytesused;
+		memcpy(global->videoBuff[global->w_ind].frame, 
+			videoIn->tmpbuffer, 
+			global->videoBuff[global->w_ind].bytes_used);
+	}
+	else if ((global->VidCodec == CODEC_LAVC) && (global->Frame_Flags==0) &&
+		((global->format==V4L2_PIX_FMT_NV12) || (global->format==V4L2_PIX_FMT_NV21)))
+	{
+		/*store yuv420p frame*/
 		global->videoBuff[global->w_ind].bytes_used = videoIn->buf.bytesused;
 		memcpy(global->videoBuff[global->w_ind].frame, 
 			videoIn->tmpbuffer, 
