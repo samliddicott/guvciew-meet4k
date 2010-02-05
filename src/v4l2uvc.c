@@ -215,20 +215,21 @@ static int unmap_buff(struct vdIn *vd)
 	return ret;
 }
 
-static int map_buff(struct vdIn *vd)
+static int map_buff(struct vdIn *vd, int index)
 {
 	// map new buffer
-	vd->mem[i] = v4l2_mmap( NULL, // start anywhere
+	vd->mem[index] = v4l2_mmap( NULL, // start anywhere
 		vd->buf.length, 
 		PROT_READ | PROT_WRITE, 
 		MAP_SHARED, 
 		vd->fd,
 		vd->buf.m.offset);
-	if (vd->mem[i] == MAP_FAILED) 
+	if (vd->mem[index] == MAP_FAILED) 
 	{
 		perror("Unable to map buffer");
 		return VDIN_MMAP_ERR;
 	}
+	
 	
 	return (0);
 }
@@ -276,7 +277,7 @@ static int query_buff(struct vdIn *vd)
 					g_printerr("WARNING VIDIOC_QUERYBUF - buffer length is %d\n",
 						vd->buf.length);
 				// map the new buffers
-				if(map_buff(vd) != 0) 
+				if(map_buff(vd, i) != 0) 
 					return VDIN_MMAP_ERR;
 			}
 	}
@@ -1066,7 +1067,7 @@ int uvcGrab(struct vdIn *vd, int format, int width, int height, int *fps, int *f
 					/*------------------------------------------*/
 					/*  change video fps or frame compression   */
 					/*------------------------------------------*/
-					if(videoIn->setFPS) //change fps
+					if(vd->setFPS) //change fps
 					{
 						video_disable(vd);
 						unmap_buff(vd);
@@ -1074,9 +1075,9 @@ int uvcGrab(struct vdIn *vd, int format, int width, int height, int *fps, int *f
 						query_buff(vd);
 						queue_buff(vd);
 						video_enable(vd);
-						videoIn->setFPS = 0;
+						vd->setFPS = 0;
 					}
-					else if(videoIn->setJPEGCOMP) //change jpeg quality/compression in video frame
+					else if(vd->setJPEGCOMP) //change jpeg quality/compression in video frame
 					{
 						video_disable(vd);
 						unmap_buff(vd);
@@ -1084,8 +1085,8 @@ int uvcGrab(struct vdIn *vd, int format, int width, int height, int *fps, int *f
 						get_jpegcomp(vd);
 						query_buff(vd);
 						queue_buff(vd);
-						video_enable(videoIn);
-						videoIn->setJPEGCOMP = 0;
+						video_enable(vd);
+						vd->setJPEGCOMP = 0;
 					}
 				}
 				memset(&vd->buf, 0, sizeof(struct v4l2_buffer));
@@ -1139,7 +1140,6 @@ err:
 
 static int close_v4l2_buffers (struct vdIn *vd)
 {
-	int i = 0;
 	//clean frame buffers
 	if(vd->tmpbuffer != NULL) g_free(vd->tmpbuffer);
 	vd->tmpbuffer = NULL;
