@@ -191,14 +191,7 @@ static int check_videoIn(struct vdIn *vd, int *width, int *height)
 	return VDIN_OK;
 }
 
-/* Query and map buffers
- * args:
- * vd: pointer to a VdIn struct ( must be allready allocated )
- * setUNMAP: ( flag )if set unmap old buffers first
- *
- * returns: error code  (0- OK)
-*/
-static int query_buff(struct vdIn *vd, const int setUNMAP) 
+static int unmap_buff(struct vdIn *vd)
 {
 	int i=0;
 	int ret=0;
@@ -212,8 +205,54 @@ static int query_buff(struct vdIn *vd, const int setUNMAP)
 			for (i = 0; i < NB_BUFFER; i++) 
 			{
 				// unmap old buffer
-				if (setUNMAP)
-					if(v4l2_munmap(vd->mem[i],vd->buf.length)<0) perror("couldn't unmap buff");
+				if((vd->mem[i] != MAP_FAILED) && vd->buf.length)
+					if((ret=v4l2_munmap(vd->mem[i],vd->buf.length))<0)
+					{
+						perror("couldn't unmap buff");
+					}
+			}
+	}
+	return ret;
+}
+
+static int map_buff(struct vdIn *vd)
+{
+	// map new buffer
+	vd->mem[i] = v4l2_mmap( NULL, // start anywhere
+		vd->buf.length, 
+		PROT_READ | PROT_WRITE, 
+		MAP_SHARED, 
+		vd->fd,
+		vd->buf.m.offset);
+	if (vd->mem[i] == MAP_FAILED) 
+	{
+		perror("Unable to map buffer");
+		return VDIN_MMAP_ERR;
+	}
+	
+	return (0);
+}
+
+/* Query and map buffers
+ * args:
+ * vd: pointer to a VdIn struct ( must be allready allocated )
+ * setUNMAP: ( flag )if set unmap old buffers first
+ *
+ * returns: error code  (0- OK)
+*/
+static int query_buff(struct vdIn *vd) 
+{
+	int i=0;
+	int ret=0;
+	
+	switch(vd->cap_meth)
+	{
+		case IO_READ:
+			break;
+			
+		case IO_MMAP:
+			for (i = 0; i < NB_BUFFER; i++) 
+			{
 				memset(&vd->buf, 0, sizeof(struct v4l2_buffer));
 				vd->buf.index = i;
 				vd->buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
@@ -236,18 +275,9 @@ static int query_buff(struct vdIn *vd, const int setUNMAP)
 				if (vd->buf.length <= 0) 
 					g_printerr("WARNING VIDIOC_QUERYBUF - buffer length is %d\n",
 						vd->buf.length);
-				// map new buffer
-				vd->mem[i] = v4l2_mmap( NULL, // start anywhere
-					vd->buf.length, 
-					PROT_READ | PROT_WRITE, 
-					MAP_SHARED, 
-					vd->fd,
-					vd->buf.m.offset);
-				if (vd->mem[i] == MAP_FAILED) 
-				{
-					perror("Unable to map buffer");
+				// map the new buffers
+				if(map_buff(vd) != 0) 
 					return VDIN_MMAP_ERR;
-				}
 			}
 	}
 	return VDIN_OK;
@@ -455,7 +485,7 @@ static int init_v4l2(struct vdIn *vd, int *format, int *width, int *height, int 
 		get_jpegcomp(vd);
 	}
 
-	//set fps
+	/* ----------- FPS --------------*/
 	input_set_framerate(vd, fps, fps_num);
 	
 	switch (vd->cap_meth)
@@ -481,9 +511,10 @@ static int init_v4l2(struct vdIn *vd, int *format, int *width, int *height, int 
 				return VDIN_REQBUFS_ERR;
 			}
 			// map the buffers 
-			if (query_buff(vd,0)) 
+			if (query_buff(vd)) 
 			{
 				//delete requested buffers
+				//no need to unmap as mmap failed for sure
 				memset(&vd->rb, 0, sizeof(struct v4l2_requestbuffers));
 				vd->rb.count = 0;
 				vd->rb.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
@@ -496,6 +527,7 @@ static int init_v4l2(struct vdIn *vd, int *format, int *width, int *height, int 
 			if (queue_buff(vd)) 
 			{
 				//delete requested buffers
+				unmap_buff(vd);
 				memset(&vd->rb, 0, sizeof(struct v4l2_requestbuffers));
 				vd->rb.count = 0;
 				vd->rb.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
@@ -959,7 +991,7 @@ err:
  *
  * returns: error code ( 0 - VDIN_OK)
 */
-int uvcGrab(struct vdIn *vd, int format, int width, int height)
+int uvcGrab(struct vdIn *vd, int format, int width, int height, int *fps, int *fps_num)
 {
 	int ret = VDIN_OK;
 	fd_set rdset;
@@ -992,8 +1024,13 @@ int uvcGrab(struct vdIn *vd, int format, int width, int height)
 		switch(vd->cap_meth)
 		{
 			case IO_READ:
-				if(vd->setFPS > 1) vd->setFPS = 0; /*no need to query and queue buufers*/
-				
+				if(vd->setFPS > 0)
+				{
+					video_disable(vd);
+					input_set_framerate (vd, fps, fps_num);
+					video_enable(vd);
+					vd->setFPS = 0; /*no need to query and queue buufers*/
+				}
 				vd->buf.bytesused = v4l2_read (vd->fd, vd->mem[vd->buf.index], vd->buf.length);
 				vd->timestamp = ns_time_monotonic();
 				if (-1 == vd->buf.bytesused ) 
@@ -1024,12 +1061,32 @@ int uvcGrab(struct vdIn *vd, int format, int width, int height)
 			case IO_MMAP:
 			default:
 				/*query and queue buffers since fps or compression as changed*/
-				if((vd->setFPS > 1) || (vd->setJPEGCOMP > 1))
+				if((vd->setFPS > 0) || (vd->setJPEGCOMP > 0))
 				{
-					query_buff(vd,1);
-					queue_buff(vd);
-					if(vd->setFPS > 1) vd->setFPS = 0;
-					if(vd->setJPEGCOMP > 1) vd->setJPEGCOMP = 0;
+					/*------------------------------------------*/
+					/*  change video fps or frame compression   */
+					/*------------------------------------------*/
+					if(videoIn->setFPS) //change fps
+					{
+						video_disable(vd);
+						unmap_buff(vd);
+						input_set_framerate (vd, fps, fps_num);
+						query_buff(vd);
+						queue_buff(vd);
+						video_enable(vd);
+						videoIn->setFPS = 0;
+					}
+					else if(videoIn->setJPEGCOMP) //change jpeg quality/compression in video frame
+					{
+						video_disable(vd);
+						unmap_buff(vd);
+						set_jpegcomp(vd);
+						get_jpegcomp(vd);
+						query_buff(vd);
+						queue_buff(vd);
+						video_enable(videoIn);
+						videoIn->setJPEGCOMP = 0;
+					}
 				}
 				memset(&vd->buf, 0, sizeof(struct v4l2_buffer));
 				vd->buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
@@ -1101,16 +1158,8 @@ static int close_v4l2_buffers (struct vdIn *vd)
 		
 		case IO_MMAP:
 		default:
-			for (i = 0; i < NB_BUFFER; i++) 
-			{
-				if((vd->mem[i] != MAP_FAILED) && vd->buf.length)
-					if(v4l2_munmap(vd->mem[i],vd->buf.length)<0) 
-					{
-						perror("Failed to unmap buffer");
-						return(VDIN_MMAP_ERR);
-					}
-			}
 			//delete requested buffers
+			unmap_buff(vd);
 			memset(&vd->rb, 0, sizeof(struct v4l2_requestbuffers));
 			vd->rb.count = 0;
 			vd->rb.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;

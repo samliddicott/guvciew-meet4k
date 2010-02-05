@@ -136,7 +136,7 @@ int init_videoIn(struct vdIn *vd, struct GLOBAL *global);
  * height: frame height
  * returns: error code ( 0 - VDIN_OK)
 */
-int uvcGrab(struct vdIn *vd, int format, int width, int height);
+int uvcGrab(struct vdIn *vd, int format, int width, int height, int *fps, int *fps_num);
 
 /* cleans VdIn struct and allocations
  * args:

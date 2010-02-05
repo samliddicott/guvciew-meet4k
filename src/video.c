@@ -183,7 +183,7 @@ void *main_loop(void *data)
 		g_mutex_unlock(videoIn->mutex);
 		
 		/*-------------------------- Grab Frame ----------------------------------*/
-		if (uvcGrab(videoIn, format, width, height) < 0) 
+		if (uvcGrab(videoIn, format, width, height, &global->fps, &global->fps_num) < 0) 
 		{
 			g_printerr("Error grabbing image \n");
 			signalquit=TRUE;
@@ -389,25 +389,6 @@ void *main_loop(void *data)
 		
 		/* if set make the thread sleep - default no sleep (full throttle)*/
 		if(global->vid_sleep) sleep_ms(global->vid_sleep);
-		
-		/*------------------------------------------*/
-		/*  change video fps or frame compression   */
-		/*------------------------------------------*/
-		if(videoIn->setFPS) //change fps
-		{
-			video_disable(videoIn);
-			input_set_framerate (videoIn, &global->fps, &global->fps_num);
-			video_enable(videoIn);
-			videoIn->setFPS = 2;
-		}
-		else if(videoIn->setJPEGCOMP) //change jpeg quality/compression in video frame
-		{
-			video_disable(videoIn);
-			set_jpegcomp(videoIn);
-			get_jpegcomp(videoIn);
-			video_enable(videoIn);
-			videoIn->setJPEGCOMP = 2;
-		}
 		
 		/*------------------------------------------*/
 		/*  restart video (new resolution/format)   */
