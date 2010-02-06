@@ -318,6 +318,7 @@ static int queue_buff(struct vdIn *vd)
 					return VDIN_QBUF_ERR;
 				}
 			}
+			vd->buf.index = 0; /*reset index*/
 	}
 	return VDIN_OK;
 }
@@ -1061,34 +1062,6 @@ int uvcGrab(struct vdIn *vd, int format, int width, int height, int *fps, int *f
 				
 			case IO_MMAP:
 			default:
-				/*query and queue buffers since fps or compression as changed*/
-				if((vd->setFPS > 0) || (vd->setJPEGCOMP > 0))
-				{
-					/*------------------------------------------*/
-					/*  change video fps or frame compression   */
-					/*------------------------------------------*/
-					if(vd->setFPS) //change fps
-					{
-						video_disable(vd);
-						unmap_buff(vd);
-						input_set_framerate (vd, fps, fps_num);
-						query_buff(vd);
-						queue_buff(vd);
-						video_enable(vd);
-						vd->setFPS = 0;
-					}
-					else if(vd->setJPEGCOMP) //change jpeg quality/compression in video frame
-					{
-						video_disable(vd);
-						unmap_buff(vd);
-						set_jpegcomp(vd);
-						get_jpegcomp(vd);
-						query_buff(vd);
-						queue_buff(vd);
-						video_enable(vd);
-						vd->setJPEGCOMP = 0;
-					}
-				}
 				memset(&vd->buf, 0, sizeof(struct v4l2_buffer));
 				vd->buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 				vd->buf.memory = V4L2_MEMORY_MMAP;
@@ -1106,6 +1079,48 @@ int uvcGrab(struct vdIn *vd, int format, int width, int height, int *fps, int *f
 					vd->timestamp = 0;
 					goto err;
 				}
+				
+				/*query and queue buffers since fps or compression as changed*/
+				if((vd->setFPS > 0) || (vd->setJPEGCOMP > 0))
+				{
+					/*------------------------------------------*/
+					/*  change video fps or frame compression   */
+					/*------------------------------------------*/
+					if(vd->setFPS) //change fps
+					{
+						g_printf("changing fps\n");
+						video_disable(vd);
+						g_printf("disable video\n");
+						input_set_framerate (vd, fps, fps_num);
+						g_printf("set fps to %i/%i\n",*fps,*fps_num);
+						unmap_buff(vd);
+						query_buff(vd);
+						queue_buff(vd);
+						video_enable(vd);
+						vd->setFPS = 0;
+					}
+					else if(vd->setJPEGCOMP) //change jpeg quality/compression in video frame
+					{
+						video_disable(vd);
+						unmap_buff(vd);
+						set_jpegcomp(vd);
+						get_jpegcomp(vd);
+						query_buff(vd);
+						queue_buff(vd);
+						video_enable(vd);
+						vd->setJPEGCOMP = 0;
+					}
+				}
+				else
+				{
+					ret = xioctl(vd->fd, VIDIOC_QBUF, &vd->buf);
+					if (ret < 0) 
+					{
+						perror("VIDIOC_QBUF - Unable to queue buffer");
+						ret = VDIN_QBUF_ERR;
+						goto err;
+					}
+				}
 		}
 	}
 
@@ -1121,17 +1136,6 @@ int uvcGrab(struct vdIn *vd, int format, int width, int height, int *fps, int *f
 		goto err;
 	}
 	
-	if ( vd->cap_meth == IO_MMAP)
-	{
-		ret = xioctl(vd->fd, VIDIOC_QBUF, &vd->buf);
-		if (ret < 0) 
-		{
-			perror("VIDIOC_QBUF - Unable to queue buffer");
-			ret = VDIN_QBUF_ERR;
-			goto err;
-		}
-	}
-
 	return VDIN_OK;
 err:
 	vd->signalquit = TRUE;
