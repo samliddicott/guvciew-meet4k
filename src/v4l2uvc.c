@@ -205,8 +205,8 @@ static int unmap_buff(struct vdIn *vd)
 			for (i = 0; i < NB_BUFFER; i++) 
 			{
 				// unmap old buffer
-				if((vd->mem[i] != MAP_FAILED) && vd->buf.length)
-					if((ret=v4l2_munmap(vd->mem[i],vd->buf.length))<0)
+				if((vd->mem[i] != MAP_FAILED) && vd->buff_length[i])
+					if((ret=v4l2_munmap(vd->mem[i], vd->buf_length[i]))<0)
 					{
 						perror("couldn't unmap buff");
 					}
@@ -215,21 +215,23 @@ static int unmap_buff(struct vdIn *vd)
 	return ret;
 }
 
-static int map_buff(struct vdIn *vd, int index)
+static int map_buff(struct vdIn *vd)
 {
 	// map new buffer
-	vd->mem[index] = v4l2_mmap( NULL, // start anywhere
-		vd->buf.length, 
-		PROT_READ | PROT_WRITE, 
-		MAP_SHARED, 
-		vd->fd,
-		vd->buf.m.offset);
-	if (vd->mem[index] == MAP_FAILED) 
+	for (i = 0; i < NB_BUFFER; i++) 
 	{
-		perror("Unable to map buffer");
-		return VDIN_MMAP_ERR;
+		vd->mem[i] = v4l2_mmap( NULL, // start anywhere
+			vd->buf_length[i], 
+			PROT_READ | PROT_WRITE, 
+			MAP_SHARED, 
+			vd->fd,
+			vd->buf_offset[i]);
+		if (vd->mem[i] == MAP_FAILED) 
+		{
+			perror("Unable to map buffer");
+			return VDIN_MMAP_ERR;
+		}
 	}
-	
 	
 	return (0);
 }
@@ -276,10 +278,13 @@ static int query_buff(struct vdIn *vd)
 				if (vd->buf.length <= 0) 
 					g_printerr("WARNING VIDIOC_QUERYBUF - buffer length is %d\n",
 						vd->buf.length);
-				// map the new buffers
-				if(map_buff(vd, i) != 0) 
-					return VDIN_MMAP_ERR;
+				
+				vd->buff_length[i] = vd->buf.length;
+				vd->buff_offset[i] = vd->buf.m.offset;
 			}
+			// map the new buffers
+			if(map_buff(vd) != 0) 
+				return VDIN_MMAP_ERR;
 	}
 	return VDIN_OK;
 }
@@ -1062,24 +1067,6 @@ int uvcGrab(struct vdIn *vd, int format, int width, int height, int *fps, int *f
 				
 			case IO_MMAP:
 			default:
-				memset(&vd->buf, 0, sizeof(struct v4l2_buffer));
-				vd->buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-				vd->buf.memory = V4L2_MEMORY_MMAP;
-
-				ret = xioctl(vd->fd, VIDIOC_DQBUF, &vd->buf);
-				ts = (UINT64) vd->buf.timestamp.tv_sec * G_NSEC_PER_SEC +  vd->buf.timestamp.tv_usec * 1000; //in nanosec
-				/* use buffer timestamp if set by the driver, otherwise use current system time */
-				if(ts > 0) vd->timestamp = ts; 
-				else vd->timestamp = ns_time_monotonic(); 
-				             
-				if (ret < 0) 
-				{
-					perror("VIDIOC_DQBUF - Unable to dequeue buffer ");
-					ret = VDIN_DEQBUFS_ERR;
-					vd->timestamp = 0;
-					goto err;
-				}
-				
 				/*query and queue buffers since fps or compression as changed*/
 				if((vd->setFPS > 0) || (vd->setJPEGCOMP > 0))
 				{
@@ -1088,12 +1075,9 @@ int uvcGrab(struct vdIn *vd, int format, int width, int height, int *fps, int *f
 					/*------------------------------------------*/
 					if(vd->setFPS) //change fps
 					{
-						g_printf("changing fps\n");
 						video_disable(vd);
-						g_printf("disable video\n");
-						input_set_framerate (vd, fps, fps_num);
-						g_printf("set fps to %i/%i\n",*fps,*fps_num);
 						unmap_buff(vd);
+						input_set_framerate (vd, fps, fps_num);
 						query_buff(vd);
 						queue_buff(vd);
 						video_enable(vd);
@@ -1113,12 +1097,28 @@ int uvcGrab(struct vdIn *vd, int format, int width, int height, int *fps, int *f
 				}
 				else
 				{
+					memset(&vd->buf, 0, sizeof(struct v4l2_buffer));
+					vd->buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+					vd->buf.memory = V4L2_MEMORY_MMAP;
+
+					ret = xioctl(vd->fd, VIDIOC_DQBUF, &vd->buf);
+					if (ret < 0) 
+					{
+						perror("VIDIOC_DQBUF - Unable to dequeue buffer ");
+						ret = VDIN_DEQBUFS_ERR;
+						return ret;
+					}
+					ts = (UINT64) vd->buf.timestamp.tv_sec * G_NSEC_PER_SEC +  vd->buf.timestamp.tv_usec * 1000; //in nanosec
+					/* use buffer timestamp if set by the driver, otherwise use current system time */
+					if(ts > 0) vd->timestamp = ts; 
+					else vd->timestamp = ns_time_monotonic(); 
+				
 					ret = xioctl(vd->fd, VIDIOC_QBUF, &vd->buf);
 					if (ret < 0) 
 					{
 						perror("VIDIOC_QBUF - Unable to queue buffer");
 						ret = VDIN_QBUF_ERR;
-						goto err;
+						return ret;
 					}
 				}
 		}

@@ -86,7 +86,9 @@ struct vdIn
 	//struct v4l2_timecode timecode;      // v4l2 timecode struct
 	struct v4l2_streamparm streamparm;  // v4l2 stream parameters struct
 	struct v4l2_jpegcompression jpgcomp;// v4l2 jpeg compression settings
-	void *mem[NB_BUFFER];               // memory buffers for mmap driver frames 
+	void *mem[NB_BUFFER];               // memory buffers for mmap driver frames
+	UINT32 buff_length[NB_BUFFER];      // memory buffers length as set by VIDIOC_QUERYBUF
+	UINT32 buff_offset[NB_BUFFER];      // memory buffers offset as set by VIDIOC_QUERYBUF
 	unsigned char *tmpbuffer;           // temp buffer for decoding compressed data
 	unsigned char *framebuffer;         // frame buffer (YUYV), for rendering in SDL overlay
 	int isstreaming;                    // video stream flag (1- ON  0- OFF)

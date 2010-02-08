@@ -186,10 +186,11 @@ void *main_loop(void *data)
 		if (uvcGrab(videoIn, format, width, height, &global->fps, &global->fps_num) < 0) 
 		{
 			g_printerr("Error grabbing image \n");
-			signalquit=TRUE;
-			g_snprintf(global->WVcaption,20,"GUVCVideo - CRASHED");
-			SDL_WM_SetCaption(global->WVcaption, NULL);
-			g_thread_exit((void *) -2);
+			continue;
+			//signalquit=TRUE;
+			//g_snprintf(global->WVcaption,20,"GUVCVideo - CRASHED");
+			//SDL_WM_SetCaption(global->WVcaption, NULL);
+			//g_thread_exit((void *) -2);
 		} 
 		else 
 		{
