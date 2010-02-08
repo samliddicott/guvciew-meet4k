@@ -206,7 +206,7 @@ static int unmap_buff(struct vdIn *vd)
 			{
 				// unmap old buffer
 				if((vd->mem[i] != MAP_FAILED) && vd->buff_length[i])
-					if((ret=v4l2_munmap(vd->mem[i], vd->buf_length[i]))<0)
+					if((ret=v4l2_munmap(vd->mem[i], vd->buff_length[i]))<0)
 					{
 						perror("couldn't unmap buff");
 					}
@@ -217,15 +217,16 @@ static int unmap_buff(struct vdIn *vd)
 
 static int map_buff(struct vdIn *vd)
 {
+	int i = 0;
 	// map new buffer
 	for (i = 0; i < NB_BUFFER; i++) 
 	{
 		vd->mem[i] = v4l2_mmap( NULL, // start anywhere
-			vd->buf_length[i], 
+			vd->buff_length[i], 
 			PROT_READ | PROT_WRITE, 
 			MAP_SHARED, 
 			vd->fd,
-			vd->buf_offset[i]);
+			vd->buff_offset[i]);
 		if (vd->mem[i] == MAP_FAILED) 
 		{
 			perror("Unable to map buffer");
