@@ -135,7 +135,7 @@ static struct uvc_xu_control_mapping xu_mappings[] =
 		.data_type = UVC_CTRL_DATA_TYPE_UNSIGNED
 	},
 	{
-		.id        = V4L2_CID_FOCUS_ABSOLUTE,
+		.id        = V4L2_CID_FOCUS_LOGITECH,
 		.name      = N_("Focus (absolute)"),
 		.entity    = UVC_GUID_LOGITECH_MOTOR_CONTROL,
 		.selector  = XU_MOTORCONTROL_FOCUS,

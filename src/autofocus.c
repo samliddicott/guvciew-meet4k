@@ -64,10 +64,12 @@ static int ACweight[64] = {
 void initFocusData (struct focusData *AFdata) 
 {
 	memset(AFdata,0,sizeof(struct focusData));
-	AFdata->right=255;
-	AFdata->left=8; /*start with focus at 8*/
-	AFdata->focus=-1;
-	AFdata->focus_wait=0;
+	AFdata->f_max = 255;
+	AFdata->f_min = 0;
+	AFdata->right = AFdata->f_max;
+	AFdata->left = AFdata->f_min + 8; /*start with focus at 8*/
+	AFdata->focus = -1;
+	AFdata->focus_wait = 0;
 	memset(sumAC,0,64);
 	/*all other values are 0 */
 }
@@ -369,8 +371,8 @@ int getFocusVal (struct focusData *AFdata)
 				/*get a window around the best value*/
 				AFdata->left = (focus- step/2);
 				AFdata->right = (focus + step/2);
-				if (AFdata->left < 0) AFdata->left=0;
-				if (AFdata->right > 255) AFdata->right=255;
+				if (AFdata->left < AFdata->f_min) AFdata->left = AFdata->f_min;
+				if (AFdata->right > AFdata->f_max) AFdata->right = AFdata->f_max;
 				AFdata->focus = AFdata->left;
 				AFdata->ind=0;
 				AFdata->flag = 1;
@@ -407,8 +409,8 @@ int getFocusVal (struct focusData *AFdata)
 			{
 				AFdata->setFocus = 0;
 				AFdata->flag= 0;
-				AFdata->right = 255;
-				AFdata->left = 8;
+				AFdata->right = AFdata->f_max;
+				AFdata->left = AFdata->f_min + 8;
 				AFdata->ind = 0;
 			}
 			else 
@@ -479,9 +481,9 @@ int getFocusVal (struct focusData *AFdata)
 			break;
 	}
 	/*clip focus, right and left*/
-	AFdata->focus=(AFdata->focus>255)?255:((AFdata->focus<0)?0:AFdata->focus);
-	AFdata->right=(AFdata->right>255)?255:((AFdata->right<0)?0:AFdata->right);
-	AFdata->left=(AFdata->left>255)?255:((AFdata->left<0)?0:AFdata->left);
+	AFdata->focus=(AFdata->focus > AFdata->f_max) ? AFdata->f_max : ((AFdata->focus < AFdata->f_min) ? AFdata->f_min : AFdata->focus);
+	AFdata->right=(AFdata->right > AFdata->f_max) ? AFdata->f_max : ((AFdata->right < AFdata->f_min) ? AFdata->f_min : AFdata->right);
+	AFdata->left =(AFdata->left > AFdata->f_max) ? AFdata->f_max : ((AFdata->left < AFdata->f_min) ? AFdata->f_min : AFdata->left);
 
 	return AFdata->focus;
 }

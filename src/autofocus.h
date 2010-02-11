@@ -45,6 +45,8 @@ struct focusData
 	int focus_sharpness;
 	int sharpLeft;
 	int sharpRight;
+	int f_max;
+	int f_min;
 	int focusDir;
 	int arr_sharp[MAX_ARR_S];
 	int arr_foc[MAX_ARR_S];

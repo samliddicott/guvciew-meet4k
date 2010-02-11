@@ -281,7 +281,7 @@ get_focus (int fd)
 	struct v4l2_control c;
 	int val=0;
 
-	c.id  = V4L2_CID_FOCUS_ABSOLUTE;
+	c.id  = V4L2_CID_FOCUS_LOGITECH;
 	ret = xioctl (fd, VIDIOC_G_CTRL, &c);
 	if (ret < 0) 
 	{
@@ -306,7 +306,7 @@ set_focus (int fd, int val)
 	int ret=0;
 	struct v4l2_control c;
 
-	c.id  = V4L2_CID_FOCUS_ABSOLUTE;
+	c.id  = V4L2_CID_FOCUS_LOGITECH;
 	c.value = val;
 	ret = xioctl (fd, VIDIOC_S_CTRL, &c);
 	if (ret < 0) perror("VIDIOC_S_CTRL - set focus error");
