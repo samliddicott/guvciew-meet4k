@@ -240,6 +240,7 @@ struct lavcData* init_lavc(int width, int height, int fps_num, int fps_den, int 
 	data->codec_context->qblur = defaults->qblur;
 	data->codec_context->strict_std_compliance = FF_COMPLIANCE_NORMAL;
 	data->codec_context->codec_id = defaults->codec_id;
+	data->codec_context->codec_type = CODEC_TYPE_VIDEO;
 	data->codec_context->pix_fmt = PIX_FMT_YUV420P; //only yuv420p available for mpeg
 	if(defaults->fps)
 		data->codec_context->time_base = (AVRational){1,defaults->fps}; //use properties fps
