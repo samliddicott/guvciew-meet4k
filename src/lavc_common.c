@@ -292,6 +292,8 @@ struct lavcAData* init_lavc_audio(struct paRecordData *pdata, int codec_ind)
 	data->codec_context->channels = pdata->channels;
 	data->codec_context->cutoff = 0; /*automatic*/
 	//data->codec_context->sample_fmt = SAMPLE_FMT_FLT; /* floating point sample */
+	data->codec_context->codec_id = defaults->codec_id;
+	data->codec_context->codec_type = CODEC_TYPE_AUDIO;
 	
 	// open codec
 	if (avcodec_open(data->codec_context, data->codec) < 0) 
