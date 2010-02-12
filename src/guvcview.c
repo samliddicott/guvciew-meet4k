@@ -558,15 +558,6 @@ int main(int argc, char *argv[])
 	
 	if (!control_only) /*control_only exclusion*/
 	{
-		/* if autofocus exists allocate data*/
-		if(global->AFcontrol) 
-		{
-			AFdata = g_new0(struct focusData, 1);
-			initFocusData(AFdata);
-		}
-
-		all_data.AFdata = AFdata;
-	
 		/*------------------ Creating the main loop (video) thread ---------------*/
 		GError *err1 = NULL;
 

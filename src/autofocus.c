@@ -61,13 +61,17 @@ static int ACweight[64] = {
 	7,7,7,7,7,7,7,7
 };
 
-void initFocusData (struct focusData *AFdata) 
+void initFocusData (struct focusData *AFdata, int f_max, int f_min, int step) 
 {
 	memset(AFdata,0,sizeof(struct focusData));
-	AFdata->f_max = 255;
-	AFdata->f_min = 0;
-	AFdata->right = AFdata->f_max;
-	AFdata->left = AFdata->f_min + 8; /*start with focus at 8*/
+	AFdata->f_max = f_max;
+	AFdata->f_min = f_min;
+	AFdata->f_step = step;
+	AFdata->i_step = (f_max + 1 - f_min)/32;
+	if(AFdata->i_step <= step) AFdata->i_step = step * 2;
+	g_printf("focus step:%i\n", AFdata->i_step);
+	AFdata->right = f_max;
+	AFdata->left = f_min + AFdata->i_step; /*start with focus at 8*/
 	AFdata->focus = -1;
 	AFdata->focus_wait = 0;
 	memset(sumAC,0,64);
@@ -299,7 +303,7 @@ int getSharpness (BYTE* img, int width, int height, int t)
 static int checkFocus(struct focusData *AFdata) 
 {
 	
-	if (AFdata->step<=8) 
+	if (AFdata->step <= AFdata->i_step) 
 	{
 		if (abs((AFdata->sharpLeft-AFdata->focus_sharpness)<(AFdata->focus_sharpness/TH)) && 
 			(abs(AFdata->sharpRight-AFdata->focus_sharpness)<(AFdata->focus_sharpness/TH))) 
@@ -349,8 +353,9 @@ static int checkFocus(struct focusData *AFdata)
 
 int getFocusVal (struct focusData *AFdata) 
 {
-	int step = 20;
-	int step2 = 2;
+	int step = AFdata->i_step * 2;
+	int step2 = AFdata->i_step / 2;
+	if (step2 <= 0 ) step2 = 1;
 	int focus=0;
 	
 	switch (AFdata->flag) 
@@ -362,10 +367,11 @@ int getFocusVal (struct focusData *AFdata)
 			AFdata->ind = 10;
 		}
 		
-		case 0: /*sample left to right*/
+		case 0: /*sample left to right at higher step*/
 			AFdata->arr_sharp[AFdata->ind] = AFdata->sharpness;
 			AFdata->arr_foc[AFdata->ind] = AFdata->focus;
-			if (AFdata->focus > (AFdata->right - step)) 
+			/*reached max focus value*/
+			if (AFdata->focus >= AFdata->right ) 
 			{	/*get left and right from arr_sharp*/
 				focus=Sort(AFdata,AFdata->ind);
 				/*get a window around the best value*/
@@ -377,50 +383,52 @@ int getFocusVal (struct focusData *AFdata)
 				AFdata->ind=0;
 				AFdata->flag = 1;
 			} 
-			else 
+			else /*increment focus*/
 			{ 
 				AFdata->focus=AFdata->arr_foc[AFdata->ind] + step; /*next focus*/
-				AFdata->ind=AFdata->ind+1;;
+				AFdata->ind++;
 				AFdata->flag = 0;
 			}
 			break;
-		case 1: /*sample left to right*/ 
+		case 1: /*sample left to right at lower step - fine tune*/ 
 			AFdata->arr_sharp[AFdata->ind] = AFdata->sharpness;
 			AFdata->arr_foc[AFdata->ind] = AFdata->focus;
-			if (AFdata->focus > (AFdata->right - step2)) 
+			/*reached window max focus*/
+			if (AFdata->focus >= AFdata->right ) 
 			{	/*get left and right from arr_sharp*/
 				focus=Sort(AFdata,AFdata->ind);
 				/*get the best value*/
 				AFdata->focus = focus;
 				AFdata->focus_sharpness = AFdata->arr_sharp[AFdata->ind];
-				AFdata->step = 8; /*first step for focus tracking*/
+				AFdata->step = AFdata->i_step; /*first step for focus tracking*/
 				AFdata->focusDir = FLAT; /*no direction for focus*/
 				AFdata->flag = 2;
 			}
-			else 
+			else /*increment focus*/
 			{ 
 				AFdata->focus=AFdata->arr_foc[AFdata->ind] + step2; /*next focus*/
-				AFdata->ind=AFdata->ind+1;;
+				AFdata->ind++;
 				AFdata->flag = 1;
 			}
 			break;
 		case 2: /* set treshold in order to sharpness*/
 			if (AFdata->setFocus) 
-			{
+			{	
+				/*reset*/
 				AFdata->setFocus = 0;
 				AFdata->flag= 0;
 				AFdata->right = AFdata->f_max;
-				AFdata->left = AFdata->f_min + 8;
+				AFdata->left = AFdata->f_min + AFdata->i_step;
 				AFdata->ind = 0;
 			}
 			else 
 			{
 				/*track focus*/
-				AFdata->focus_sharpness=AFdata->sharpness;
-				AFdata->flag= 3;
-				AFdata->sharpLeft=0;
-				AFdata->sharpRight=0;
-				AFdata->focus+=AFdata->step; /*check right*/
+				AFdata->focus_sharpness = AFdata->sharpness;
+				AFdata->flag = 3;
+				AFdata->sharpLeft = 0;
+				AFdata->sharpRight = 0;
+				AFdata->focus += AFdata->step; /*check right*/
 			}
 			break;
 		case 3:
@@ -438,7 +446,7 @@ int getFocusVal (struct focusData *AFdata)
 			{
 				case LOCAL_MAX:
 					AFdata->focus += AFdata->step; /*return to orig. focus*/
-					AFdata->step = 8;
+					AFdata->step = AFdata->i_step;
 					AFdata->flag = 2;
 					break;
 					
@@ -446,18 +454,18 @@ int getFocusVal (struct focusData *AFdata)
 					if(AFdata->focusDir == FLAT) 
 					{
 						AFdata->focus += AFdata->step; /*return to orig. focus*/
-						AFdata->step = 8;
+						AFdata->step = AFdata->i_step;
 						AFdata->flag = 2;
 					}
 					else if (AFdata->focusDir == RIGHT) 
 					{
 						AFdata->focus += 2*AFdata->step; /*go right*/
-						AFdata->step = 8;
+						AFdata->step = AFdata->i_step;
 						AFdata->flag = 2;
 					} 
 					else 
 					{	/*go left*/
-						AFdata->step = 8;
+						AFdata->step = AFdata->i_step;
 						AFdata->flag = 2;
 					}
 					break;
@@ -474,7 +482,7 @@ int getFocusVal (struct focusData *AFdata)
 					
 				case INCSTEP:
 					AFdata->focus += AFdata->step; /*return to orig. focus*/
-					AFdata->step = 16;
+					AFdata->step = 2 * AFdata->i_step;
 					AFdata->flag = 2;
 					break;
 			}

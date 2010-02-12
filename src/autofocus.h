@@ -47,6 +47,8 @@ struct focusData
 	int sharpRight;
 	int f_max;
 	int f_min;
+	int f_step;
+	int i_step;
 	int focusDir;
 	int arr_sharp[MAX_ARR_S];
 	int arr_foc[MAX_ARR_S];
@@ -56,7 +58,7 @@ struct focusData
 	int focus_wait;
 };
 
-void initFocusData (struct focusData *AFdata);
+void initFocusData (struct focusData *AFdata, int f_max, int f_min, int step);
 
 int getSharpness (BYTE* img, int width, int height, int t);
 

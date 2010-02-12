@@ -52,7 +52,7 @@ draw_controls (struct ALL_DATA *all_data)
 	struct VidState *s = all_data->s;
 	struct GLOBAL *global = all_data->global;
 	struct vdIn *videoIn = all_data->videoIn;
-	
+	struct focusData *AFdata = all_data->AFdata;
 	if (s->control) 
 	{
 		input_free_controls (s);
@@ -296,9 +296,17 @@ draw_controls (struct ALL_DATA *all_data)
 			ci->label = gtk_label_new (tmp);
 			g_free(tmp);
 			/* ---- Add auto-focus checkbox and focus button ----- */
-			if (((c->id== V4L2_CID_FOCUS_ABSOLUTE) || (c->id== V4L2_CID_FOCUS_LOGITECH)) && !(global->control_only)) 
+			if ((/*(c->id== V4L2_CID_FOCUS_ABSOLUTE) || */ (c->id== V4L2_CID_FOCUS_LOGITECH)) && !(global->control_only)) 
 			{
 				global->AFcontrol=1;
+				
+				if(!AFdata)
+				{
+					AFdata = g_new0(struct focusData, 1);
+					all_data->AFdata = AFdata;
+				}
+				initFocusData(AFdata, c->max, c->min, c->step);
+				
 				GtkWidget *Focus_box = gtk_hbox_new (FALSE, 0);
 				GtkWidget *AutoFocus = gtk_check_button_new_with_label (_("Auto Focus (continuous)"));
 				GtkWidget *FocusButton = gtk_button_new_with_label (_("set Focus"));
