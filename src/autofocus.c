@@ -433,9 +433,9 @@ int getFocusVal (struct focusData *AFdata)
 			break;
 		case 3:
 			/*track focus*/
-			AFdata->flag= 4;
-			AFdata->sharpRight=AFdata->sharpness;
-			AFdata->focus-=(2*AFdata->step); /*check left*/
+			AFdata->flag = 4;
+			AFdata->sharpRight = AFdata->sharpness;
+			AFdata->focus -= (2*AFdata->step); /*check left*/
 			break;
 		case 4:
 			/*track focus*/
