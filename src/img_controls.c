@@ -302,33 +302,37 @@ draw_controls (struct ALL_DATA *all_data)
 				
 				if(!AFdata)
 				{
-					AFdata = g_new0(struct focusData, 1);
+					AFdata = initFocusData(c->max, c->min, c->step);
 					all_data->AFdata = AFdata;
 				}
-				initFocusData(AFdata, c->max, c->min, c->step);
 				
-				GtkWidget *Focus_box = gtk_hbox_new (FALSE, 0);
-				GtkWidget *AutoFocus = gtk_check_button_new_with_label (_("Auto Focus (continuous)"));
-				GtkWidget *FocusButton = gtk_button_new_with_label (_("set Focus"));
-				gtk_box_pack_start (GTK_BOX (Focus_box), AutoFocus, TRUE, TRUE, 0);
-				gtk_box_pack_start (GTK_BOX (Focus_box), FocusButton, TRUE, TRUE, 0);
-				gtk_widget_show (Focus_box);
-				gtk_widget_show (AutoFocus);
-				gtk_widget_show (FocusButton);
-				gtk_table_attach (GTK_TABLE (s->table), Focus_box, 1, 2, 3+row, 4+row,
-					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+				if(!AFdata) 
+					global->AFcontrol = 0;
+				else
+				{
+					GtkWidget *Focus_box = gtk_hbox_new (FALSE, 0);
+					GtkWidget *AutoFocus = gtk_check_button_new_with_label (_("Auto Focus (continuous)"));
+					GtkWidget *FocusButton = gtk_button_new_with_label (_("set Focus"));
+					gtk_box_pack_start (GTK_BOX (Focus_box), AutoFocus, TRUE, TRUE, 0);
+					gtk_box_pack_start (GTK_BOX (Focus_box), FocusButton, TRUE, TRUE, 0);
+					gtk_widget_show (Focus_box);
+					gtk_widget_show (AutoFocus);
+					gtk_widget_show (FocusButton);
+					gtk_table_attach (GTK_TABLE (s->table), Focus_box, 1, 2, 3+row, 4+row,
+						GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 			
-				gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (AutoFocus),
-					global->autofocus ? TRUE: FALSE);
+					gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (AutoFocus),
+						global->autofocus ? TRUE: FALSE);
 
-				g_object_set_data (G_OBJECT (AutoFocus), "control_info", ci);
-				g_object_set_data (G_OBJECT (FocusButton), "control_info", ci);
+					g_object_set_data (G_OBJECT (AutoFocus), "control_info", ci);
+					g_object_set_data (G_OBJECT (FocusButton), "control_info", ci);
 				
-				g_signal_connect (G_OBJECT (AutoFocus), "toggled",
-					G_CALLBACK (autofocus_changed), all_data);
-				g_signal_connect (G_OBJECT (FocusButton), "clicked",
-					G_CALLBACK (setfocus_clicked), all_data);
-				row++; /*increment control row*/
+					g_signal_connect (G_OBJECT (AutoFocus), "toggled",
+						G_CALLBACK (autofocus_changed), all_data);
+					g_signal_connect (G_OBJECT (FocusButton), "clicked",
+						G_CALLBACK (setfocus_clicked), all_data);
+					row++; /*increment control row*/
+				}
 			
 			}
 			gtk_table_attach (GTK_TABLE (s->table), ci->widget, 1, 2, 3+row, 4+row,

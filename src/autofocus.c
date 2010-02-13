@@ -61,9 +61,11 @@ static int ACweight[64] = {
 	7,7,7,7,7,7,7,7
 };
 
-void initFocusData (struct focusData *AFdata, int f_max, int f_min, int step) 
+struct focusData *initFocusData (int f_max, int f_min, int step) 
 {
-	memset(AFdata,0,sizeof(struct focusData));
+	struct focusData *AFdata = g_new0(struct focusData, 1);
+	if(AFdata == NULL) 
+		return (AFdata);
 	AFdata->f_max = f_max;
 	AFdata->f_min = f_min;
 	AFdata->f_step = step;
@@ -76,6 +78,7 @@ void initFocusData (struct focusData *AFdata, int f_max, int f_min, int step)
 	AFdata->focus_wait = 0;
 	memset(sumAC,0,64);
 	/*all other values are 0 */
+	return (AFdata);
 }
 
 #if (SORT == 1)
