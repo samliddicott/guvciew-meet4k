@@ -40,7 +40,7 @@
 /*use insert sort - it's the fastest for small and almost sorted arrays (our case)*/
 #define SORT (3) //1 - Quick sort   2 - Shell sort  3- insert sort  other - bubble sort
 
-#define TH		(80) // treshold = 1/80 of focus sharpness value
+#define _TH_		(80) // default treshold = 1/80 of focus sharpness value
 
 #define FLAT 		(0)
 #define LOCAL_MAX	(1)
@@ -71,7 +71,7 @@ struct focusData *initFocusData (int f_max, int f_min, int step)
 	AFdata->f_step = step;
 	AFdata->i_step = (f_max + 1 - f_min)/32;
 	if(AFdata->i_step <= step) AFdata->i_step = step * 2;
-	g_printf("focus step:%i\n", AFdata->i_step);
+	//g_printf("focus step:%i\n", AFdata->i_step);
 	AFdata->right = f_max;
 	AFdata->left = f_min + AFdata->i_step; /*start with focus at 8*/
 	AFdata->focus = -1;
@@ -305,6 +305,9 @@ int getSharpness (BYTE* img, int width, int height, int t)
 
 static int checkFocus(struct focusData *AFdata) 
 {
+	/*change treshold according to sharpness*/
+	int TH = _TH_; 
+	//if(AFdata->focus_sharpness < (5 * _TH_)) TH = _TH_ * 4 ;
 	
 	if (AFdata->step <= AFdata->i_step) 
 	{
@@ -456,8 +459,14 @@ int getFocusVal (struct focusData *AFdata)
 				case FLAT:
 					if(AFdata->focusDir == FLAT) 
 					{
-						AFdata->focus += AFdata->step; /*return to orig. focus*/
-						AFdata->step = AFdata->i_step;
+						AFdata->step = AFdata->i_step; /*try it in a larger window*/
+						if(AFdata->focus_sharpness < 3 * _TH_) 
+						{
+							AFdata->focus = AFdata->f_max / 2;
+							
+						}
+						else
+							AFdata->focus += AFdata->step; /*return to orig. focus*/
 						AFdata->flag = 2;
 					}
 					else if (AFdata->focusDir == RIGHT) 
