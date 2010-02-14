@@ -460,7 +460,7 @@ int getFocusVal (struct focusData *AFdata)
 					if(AFdata->focusDir == FLAT) 
 					{
 						AFdata->step = AFdata->i_step;
-						if(AFdata->focus_sharpness < 3 * _TH_) 
+						if(AFdata->focus_sharpness < 4 * _TH_) 
 						{
 							/* 99% chance we lost focus     */	
 							/* move focus to half the range */
