@@ -459,14 +459,17 @@ int getFocusVal (struct focusData *AFdata)
 				case FLAT:
 					if(AFdata->focusDir == FLAT) 
 					{
-						AFdata->step = AFdata->i_step; /*try it in a larger window*/
+						AFdata->step = AFdata->i_step;
 						if(AFdata->focus_sharpness < 3 * _TH_) 
 						{
+							/* 99% chance we lost focus     */	
+							/* move focus to half the range */
 							AFdata->focus = AFdata->f_max / 2;
-							
 						}
 						else
+						{
 							AFdata->focus += AFdata->step; /*return to orig. focus*/
+						}
 						AFdata->flag = 2;
 					}
 					else if (AFdata->focusDir == RIGHT) 
