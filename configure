@@ -606,8 +606,6 @@ DEBIAN_MENU_FALSE
 DEBIAN_MENU_TRUE
 DEPS_LIBS
 DEPS_CFLAGS
-PKG_CONFIG_LIBDIR
-PKG_CONFIG_PATH
 PKG_CONFIG
 MKINSTALLDIRS
 POSUB
@@ -729,8 +727,6 @@ LIBS
 CPPFLAGS
 CPP
 PKG_CONFIG
-PKG_CONFIG_PATH
-PKG_CONFIG_LIBDIR
 DEPS_CFLAGS
 DEPS_LIBS
 PULSE_CFLAGS
@@ -1370,10 +1366,6 @@ Some influential environment variables:
               you have headers in a nonstandard directory <include dir>
   CPP         C preprocessor
   PKG_CONFIG  path to pkg-config utility
-  PKG_CONFIG_PATH
-              directories to add to pkg-config's search path
-  PKG_CONFIG_LIBDIR
-              path overriding pkg-config's built-in search path
   DEPS_CFLAGS C compiler flags for DEPS, overriding pkg-config
   DEPS_LIBS   linker flags for DEPS, overriding pkg-config
   PULSE_CFLAGS
@@ -5551,10 +5543,6 @@ $as_echo "$LINGUAS" >&6; }
 
 
 
-
-
-
-
 if test "x$ac_cv_env_PKG_CONFIG_set" != "xset"; then
 	if test -n "$ac_tool_prefix"; then
   # Extract the first word of "${ac_tool_prefix}pkg-config", so it can be a program name with args.
@@ -5674,10 +5662,11 @@ pkg_failed=no
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for DEPS" >&5
 $as_echo_n "checking for DEPS... " >&6; }
 
-if test -n "$DEPS_CFLAGS"; then
-    pkg_cv_DEPS_CFLAGS="$DEPS_CFLAGS"
- elif test -n "$PKG_CONFIG"; then
-    if test -n "$PKG_CONFIG" && \
+if test -n "$PKG_CONFIG"; then
+    if test -n "$DEPS_CFLAGS"; then
+        pkg_cv_DEPS_CFLAGS="$DEPS_CFLAGS"
+    else
+        if test -n "$PKG_CONFIG" && \
     { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"gtk+-2.0 >= 2.14.0 glib-2.0 >= 2.10.0 gthread-2.0 gdk-2.0 >= 2.10.0 sdl >= 1.2.10 portaudio-2.0 libpng libavcodec libv4l2\""; } >&5
   ($PKG_CONFIG --exists --print-errors "gtk+-2.0 >= 2.14.0 glib-2.0 >= 2.10.0 gthread-2.0 gdk-2.0 >= 2.10.0 sdl >= 1.2.10 portaudio-2.0 libpng libavcodec libv4l2") 2>&5
   ac_status=$?
@@ -5687,13 +5676,15 @@ if test -n "$DEPS_CFLAGS"; then
 else
   pkg_failed=yes
 fi
- else
-    pkg_failed=untried
+    fi
+else
+	pkg_failed=untried
 fi
-if test -n "$DEPS_LIBS"; then
-    pkg_cv_DEPS_LIBS="$DEPS_LIBS"
- elif test -n "$PKG_CONFIG"; then
-    if test -n "$PKG_CONFIG" && \
+if test -n "$PKG_CONFIG"; then
+    if test -n "$DEPS_LIBS"; then
+        pkg_cv_DEPS_LIBS="$DEPS_LIBS"
+    else
+        if test -n "$PKG_CONFIG" && \
     { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"gtk+-2.0 >= 2.14.0 glib-2.0 >= 2.10.0 gthread-2.0 gdk-2.0 >= 2.10.0 sdl >= 1.2.10 portaudio-2.0 libpng libavcodec libv4l2\""; } >&5
   ($PKG_CONFIG --exists --print-errors "gtk+-2.0 >= 2.14.0 glib-2.0 >= 2.10.0 gthread-2.0 gdk-2.0 >= 2.10.0 sdl >= 1.2.10 portaudio-2.0 libpng libavcodec libv4l2") 2>&5
   ac_status=$?
@@ -5703,8 +5694,9 @@ if test -n "$DEPS_LIBS"; then
 else
   pkg_failed=yes
 fi
- else
-    pkg_failed=untried
+    fi
+else
+	pkg_failed=untried
 fi
 
 
@@ -5717,9 +5709,9 @@ else
         _pkg_short_errors_supported=no
 fi
         if test $_pkg_short_errors_supported = yes; then
-	        DEPS_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors "gtk+-2.0 >= 2.14.0 glib-2.0 >= 2.10.0 gthread-2.0 gdk-2.0 >= 2.10.0 sdl >= 1.2.10 portaudio-2.0 libpng libavcodec libv4l2" 2>&1`
+	        DEPS_PKG_ERRORS=`$PKG_CONFIG --short-errors --errors-to-stdout --print-errors "gtk+-2.0 >= 2.14.0 glib-2.0 >= 2.10.0 gthread-2.0 gdk-2.0 >= 2.10.0 sdl >= 1.2.10 portaudio-2.0 libpng libavcodec libv4l2"`
         else
-	        DEPS_PKG_ERRORS=`$PKG_CONFIG --print-errors "gtk+-2.0 >= 2.14.0 glib-2.0 >= 2.10.0 gthread-2.0 gdk-2.0 >= 2.10.0 sdl >= 1.2.10 portaudio-2.0 libpng libavcodec libv4l2" 2>&1`
+	        DEPS_PKG_ERRORS=`$PKG_CONFIG --errors-to-stdout --print-errors "gtk+-2.0 >= 2.14.0 glib-2.0 >= 2.10.0 gthread-2.0 gdk-2.0 >= 2.10.0 sdl >= 1.2.10 portaudio-2.0 libpng libavcodec libv4l2"`
         fi
 	# Put the nasty error message in config.log where it belongs
 	echo "$DEPS_PKG_ERRORS" >&5
@@ -5821,10 +5813,11 @@ pkg_failed=no
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for PULSE" >&5
 $as_echo_n "checking for PULSE... " >&6; }
 
-if test -n "$PULSE_CFLAGS"; then
-    pkg_cv_PULSE_CFLAGS="$PULSE_CFLAGS"
- elif test -n "$PKG_CONFIG"; then
-    if test -n "$PKG_CONFIG" && \
+if test -n "$PKG_CONFIG"; then
+    if test -n "$PULSE_CFLAGS"; then
+        pkg_cv_PULSE_CFLAGS="$PULSE_CFLAGS"
+    else
+        if test -n "$PKG_CONFIG" && \
     { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libpulse-simple >= 0.9.15\""; } >&5
   ($PKG_CONFIG --exists --print-errors "libpulse-simple >= 0.9.15") 2>&5
   ac_status=$?
@@ -5834,13 +5827,15 @@ if test -n "$PULSE_CFLAGS"; then
 else
   pkg_failed=yes
 fi
- else
-    pkg_failed=untried
+    fi
+else
+	pkg_failed=untried
 fi
-if test -n "$PULSE_LIBS"; then
-    pkg_cv_PULSE_LIBS="$PULSE_LIBS"
- elif test -n "$PKG_CONFIG"; then
-    if test -n "$PKG_CONFIG" && \
+if test -n "$PKG_CONFIG"; then
+    if test -n "$PULSE_LIBS"; then
+        pkg_cv_PULSE_LIBS="$PULSE_LIBS"
+    else
+        if test -n "$PKG_CONFIG" && \
     { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libpulse-simple >= 0.9.15\""; } >&5
   ($PKG_CONFIG --exists --print-errors "libpulse-simple >= 0.9.15") 2>&5
   ac_status=$?
@@ -5850,8 +5845,9 @@ if test -n "$PULSE_LIBS"; then
 else
   pkg_failed=yes
 fi
- else
-    pkg_failed=untried
+    fi
+else
+	pkg_failed=untried
 fi
 
 
@@ -5864,9 +5860,9 @@ else
         _pkg_short_errors_supported=no
 fi
         if test $_pkg_short_errors_supported = yes; then
-	        PULSE_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors "libpulse-simple >= 0.9.15" 2>&1`
+	        PULSE_PKG_ERRORS=`$PKG_CONFIG --short-errors --errors-to-stdout --print-errors "libpulse-simple >= 0.9.15"`
         else
-	        PULSE_PKG_ERRORS=`$PKG_CONFIG --print-errors "libpulse-simple >= 0.9.15" 2>&1`
+	        PULSE_PKG_ERRORS=`$PKG_CONFIG --errors-to-stdout --print-errors "libpulse-simple >= 0.9.15"`
         fi
 	# Put the nasty error message in config.log where it belongs
 	echo "$PULSE_PKG_ERRORS" >&5
