@@ -264,7 +264,7 @@ draw_controls (struct ALL_DATA *all_data)
 			/*can't edit the spin value by hand*/
 			gtk_editable_set_editable(GTK_EDITABLE(ci->spinbutton),FALSE);
 
-			if (input_get_control (videoIn->fd, c, &val) == 0) 
+			if (input_get_control (videoIn->fd, c->id, &val) == 0) 
 			{
 				gtk_range_set_value (GTK_RANGE (ci->widget), val);
 				gtk_spin_button_set_value (GTK_SPIN_BUTTON(ci->spinbutton), val);
@@ -272,7 +272,7 @@ draw_controls (struct ALL_DATA *all_data)
 			else 
 			{
 				/*couldn't get control value -> set to default*/
-				input_set_control (videoIn->fd, c, c->default_val);
+				input_set_control (videoIn->fd, c->id, c->default_val);
 				gtk_range_set_value (GTK_RANGE (ci->widget), c->default_val);
 				gtk_spin_button_set_value (GTK_SPIN_BUTTON(ci->spinbutton), c->default_val);
 				gtk_widget_set_sensitive (ci->widget, TRUE);
@@ -302,7 +302,7 @@ draw_controls (struct ALL_DATA *all_data)
 				
 				if(!AFdata)
 				{
-					AFdata = initFocusData(c->max, c->min, c->step);
+					AFdata = initFocusData(c->max, c->min, c->step, c->id);
 					all_data->AFdata = AFdata;
 				}
 				
@@ -379,7 +379,7 @@ draw_controls (struct ALL_DATA *all_data)
 			ci->label = gtk_label_new (tmp);
 			g_free(tmp);
 			
-			if (input_get_control (videoIn->fd, c, &val) == 0) 
+			if (input_get_control (videoIn->fd, c->id, &val) == 0) 
 			{
 				gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (check_bayer),
 					val ? TRUE : FALSE);
@@ -408,7 +408,7 @@ draw_controls (struct ALL_DATA *all_data)
 			gtk_table_attach (GTK_TABLE (s->table), ci->widget, 1, 3, 3+row, 4+row,
 					GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 
-			if (input_get_control (videoIn->fd, c, &val) == 0) 
+			if (input_get_control (videoIn->fd, c->id, &val) == 0) 
 			{
 				gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (ci->widget),
 					val ? TRUE : FALSE);
@@ -416,7 +416,7 @@ draw_controls (struct ALL_DATA *all_data)
 			else 
 			{
 				/*couldn't get control value -> set to default*/
-				input_set_control (videoIn->fd, c, c->default_val);
+				input_set_control (videoIn->fd, c->id, c->default_val);
 				gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (ci->widget),
 					c->default_val ? TRUE : FALSE);
 				gtk_widget_set_sensitive (ci->widget, TRUE);
@@ -446,14 +446,14 @@ draw_controls (struct ALL_DATA *all_data)
 			g_object_set_data (G_OBJECT (ci->widget), "control_info", ci);
 			gtk_widget_show (ci->widget);
 
-			if (input_get_control (videoIn->fd, c, &val) == 0) 
+			if (input_get_control (videoIn->fd, c->id, &val) == 0) 
 			{
 				gtk_combo_box_set_active (GTK_COMBO_BOX (ci->widget), val);
 			}
 			else 
 			{
 				/*couldn't get control value -> set to default*/
-				input_set_control (videoIn->fd, c, c->default_val);
+				input_set_control (videoIn->fd, c->id, c->default_val);
 				gtk_combo_box_set_active (GTK_COMBO_BOX (ci->widget), c->default_val);
 				gtk_widget_set_sensitive (ci->widget, TRUE);
 			}

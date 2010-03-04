@@ -41,7 +41,6 @@ menu_DATA = pixmaps/guvcview
 endif
 
 EXTRA_DIST = \
-		config.rpath\
 		src\
 		$(guvcviewdoc_DATA)\
 		$(application_DATA)\

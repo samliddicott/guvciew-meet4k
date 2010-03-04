@@ -179,14 +179,14 @@ slider_changed (GtkRange * range, struct ALL_DATA *all_data)
 	InputControl * c = s->control + ci->idx;
 	int val = (int) gtk_range_get_value (range);
 
-	if (input_set_control (videoIn->fd, c, val) == 0) 
+	if (input_set_control (videoIn->fd, c->id, val) == 0) 
 	{
 		gtk_spin_button_set_value(GTK_SPIN_BUTTON(ci->spinbutton), val);
 	}
 	else 
 	{
 		if (global->debug) g_printerr ("%s change to %d failed\n",c->name, val);
-		if (input_get_control (videoIn->fd, c, &val) == 0) 
+		if (input_get_control (videoIn->fd, c->id, &val) == 0) 
 		{
 			if (global->debug) g_printerr ("hardware value is %d\n", val);
 			gtk_range_set_value (GTK_RANGE(ci->widget),val);
@@ -214,14 +214,14 @@ spin_changed (GtkSpinButton * spin, struct ALL_DATA *all_data)
 	InputControl * c = s->control + ci->idx;
 	int val = gtk_spin_button_get_value_as_int (spin);
 
-	if (input_set_control (videoIn->fd, c, val) == 0) 
+	if (input_set_control (videoIn->fd, c->id, val) == 0) 
 	{
 		gtk_range_set_value (GTK_RANGE(ci->widget),val);
 	}
 	else 
 	{
 		if (global->debug) g_printerr ("%s change to %d failed\n",c->name, val);
-		if (input_get_control (videoIn->fd, c, &val) == 0) 
+		if (input_get_control (videoIn->fd, c->id, &val) == 0) 
 		{
 			if (global->debug) g_printerr ("hardware value is %d\n", val);
 			gtk_spin_button_set_value(GTK_SPIN_BUTTON(ci->spinbutton),val);
@@ -271,12 +271,12 @@ autofocus_changed (GtkToggleButton * toggle, struct ALL_DATA *all_data)
 	AFdata->flag = 0;
 	AFdata->ind = 0;
 	AFdata->focus = -1; /*reset focus*/
-	AFdata->right = 255;
-	AFdata->left = 8;
+	AFdata->right = AFdata->f_max;
+	AFdata->left = AFdata->i_step;
 	/*set focus to first value if autofocus enabled*/
 	if (val>0) 
 	{
-		if (set_focus (videoIn->fd, AFdata->focus) != 0) 
+		if (input_set_control (videoIn->fd, AFdata->id, AFdata->focus) != 0) 
 			g_printerr("ERROR: couldn't set focus to %d\n", AFdata->focus);
 	}
 	global->autofocus = val;
@@ -300,10 +300,10 @@ check_changed (GtkToggleButton * toggle, struct ALL_DATA *all_data)
 
 	val = gtk_toggle_button_get_active (toggle) ? 1 : 0;
 
-	if (input_set_control (videoIn->fd, c, val) != 0)
+	if (input_set_control (videoIn->fd, c->id, val) != 0)
 	{
 		g_printerr ("%s change to %d failed\n",c->name, val);
-		if (input_get_control (videoIn->fd, c, &val) == 0) 
+		if (input_get_control (videoIn->fd, c->id, &val) == 0) 
 		{
 			g_printerr ("hardware value is %d\n", val);
 		}
@@ -315,7 +315,7 @@ check_changed (GtkToggleButton * toggle, struct ALL_DATA *all_data)
 	else 
 	{
 		if (global->debug) g_printf("changed %s to %d\n",c->name,val);
-		if (input_get_control (videoIn->fd, c, &val) == 0) 
+		if (input_get_control (videoIn->fd, c->id, &val) == 0) 
 		{
 			if (global->debug) g_printf ("hardware value is %d\n", val);
 		}
@@ -343,10 +343,10 @@ bayer_changed (GtkToggleButton * toggle, struct ALL_DATA *all_data)
 	int val;
 
 	val = gtk_toggle_button_get_active (toggle) ? 1 : 0;
-	if (input_set_control (videoIn->fd, c, val) != 0) 
+	if (input_set_control (videoIn->fd, c->id, val) != 0) 
 	{
 		g_printerr ("%s change to %d failed\n",c->name, val);
-		if (input_get_control (videoIn->fd, c, &val) == 0) 
+		if (input_get_control (videoIn->fd, c->id, &val) == 0) 
 		{
 			g_printerr ("hardware value is %d\n", val);
 		}
@@ -361,7 +361,7 @@ bayer_changed (GtkToggleButton * toggle, struct ALL_DATA *all_data)
 		/*stop and restart stream*/
 		videoIn->setFPS=1;
 		/*read value*/
-		if (input_get_control (videoIn->fd, c, &val) == 0) 
+		if (input_get_control (videoIn->fd, c->id, &val) == 0) 
 		{
 			if (val>0) videoIn->isbayer=1;
 			else videoIn->isbayer=0;
@@ -413,10 +413,10 @@ combo_changed (GtkComboBox * combo, struct ALL_DATA *all_data)
 	int index = gtk_combo_box_get_active (combo);
 	int val = index;
 	
-	if (input_set_control (videoIn->fd, c, val) != 0) 
+	if (input_set_control (videoIn->fd, c->id, val) != 0) 
 	{
 		g_printerr ("%s change to %d failed\n",c->name, val);
-		if (input_get_control (videoIn->fd, c, &val) == 0) 
+		if (input_get_control (videoIn->fd, c->id, &val) == 0) 
 		{
 			g_printerr ("hardware value is %d\n", val);
 		}
@@ -475,7 +475,7 @@ setfocus_clicked (GtkButton * FocusButton, struct ALL_DATA *all_data)
 	AFdata->right = 255;
 	AFdata->left = 8;
 	AFdata->focus = -1; /*reset focus*/
-	if (set_focus (videoIn->fd, AFdata->focus) != 0)
+	if (input_set_control (videoIn->fd, AFdata->id, AFdata->focus) != 0)
 		g_printerr("ERROR: couldn't set focus to %d\n", AFdata->focus);
 
 	AFdata = NULL;

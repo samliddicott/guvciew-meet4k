@@ -61,11 +61,12 @@ static int ACweight[64] = {
 	7,7,7,7,7,7,7,7
 };
 
-struct focusData *initFocusData (int f_max, int f_min, int step) 
+struct focusData *initFocusData (int f_max, int f_min, int step, int id) 
 {
 	struct focusData *AFdata = g_new0(struct focusData, 1);
 	if(AFdata == NULL) 
 		return (AFdata);
+    AFdata->id = id;
 	AFdata->f_max = f_max;
 	AFdata->f_min = f_min;
 	AFdata->f_step = step;

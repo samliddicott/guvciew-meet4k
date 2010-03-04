@@ -63,7 +63,7 @@ SaveControls(struct VidState *s, struct GLOBAL *global, struct vdIn *videoIn)
 				InputControl * c = s->control + i;
 				if(c->type == INPUT_CONTROL_TYPE_BOOLEAN) 
 				{
-					if (input_get_control (videoIn->fd, c, &val) != 0) 
+					if (input_get_control (videoIn->fd, c->id, &val) != 0) 
 					{
 						val=c->default_val;
 					}
@@ -79,7 +79,7 @@ SaveControls(struct VidState *s, struct GLOBAL *global, struct vdIn *videoIn)
 				InputControl * c = s->control + i;
 				if(c->type == INPUT_CONTROL_TYPE_MENU) 
 				{
-					if (input_get_control (videoIn->fd, c, &val) != 0)
+					if (input_get_control (videoIn->fd, c->id, &val) != 0)
 					{
 						val=c->default_val;
 					}
@@ -94,7 +94,7 @@ SaveControls(struct VidState *s, struct GLOBAL *global, struct vdIn *videoIn)
 				InputControl * c = s->control + i;
 				if(c->type == INPUT_CONTROL_TYPE_INTEGER) 
 				{
-					if (input_get_control (videoIn->fd, c, &val) != 0) 
+					if (input_get_control (videoIn->fd, c->id, &val) != 0) 
 					{
 						val=c->default_val;
 					}
@@ -157,19 +157,16 @@ LoadControls(struct VidState *s, struct GLOBAL *global)
 					{
 						if(type == INPUT_CONTROL_TYPE_INTEGER) 
 						{
-							//input_set_control (videoIn, c, val);
 							gtk_range_set_value (GTK_RANGE (ci->widget), val);
 						} 
 						else if (type == INPUT_CONTROL_TYPE_BOOLEAN) 
 						{
 							val = val & 0x0001;
-							//input_set_control (videoIn, c, val);
 							gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (ci->widget),
 												val ? TRUE : FALSE);
 						} 
 						else if (type == INPUT_CONTROL_TYPE_MENU) 
 						{
-							//input_set_control (videoIn, c, val);
 							gtk_combo_box_set_active (GTK_COMBO_BOX (ci->widget), val);
 						}
 					}

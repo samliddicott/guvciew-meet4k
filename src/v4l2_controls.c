@@ -233,13 +233,13 @@ input_free_controls (struct VidState *s)
  *
  * returns: control value                                                 */
 int
-input_get_control (int fd, InputControl * control, int * val)
+input_get_control (int fd, int control_id, int * val)
 {
 	int ret=0;
 	struct v4l2_control c;
 	memset(&c,0,sizeof(struct v4l2_control));
 
-	c.id  = control->id;
+	c.id  = control_id;
 	ret = xioctl (fd, VIDIOC_G_CTRL, &c);
 	if (ret == 0) *val = c.value;
 	else perror("VIDIOC_G_CTRL - Unable to get control");
@@ -255,61 +255,15 @@ input_get_control (int fd, InputControl * control, int * val)
  *
  * returns: VIDIOC_S_CTRL return value ( failure  < 0 )                   */
 int
-input_set_control (int fd, InputControl * control, int val)
+input_set_control (int fd, int control_id, int val)
 {
 	int ret=0;
 	struct v4l2_control c;
 
-	c.id  = control->id;
+	c.id  = control_id;
 	c.value = val;
 	ret = xioctl (fd, VIDIOC_S_CTRL, &c);
 	if (ret < 0) perror("VIDIOC_S_CTRL - Unable to set control");
-
-	return ret;
-}
-
-/*--------------------------- focus control ----------------------------------*/
-/* get device focus value
- * args:
- * fd: device file descriptor (must call open on the device first)
- *
- * returns: focus value                                                 */
-int 
-get_focus (int fd)
-{
-	int ret=0;
-	struct v4l2_control c;
-	int val=0;
-
-	c.id  = V4L2_CID_FOCUS_LOGITECH;
-	ret = xioctl (fd, VIDIOC_G_CTRL, &c);
-	if (ret < 0) 
-	{
-		perror("VIDIOC_G_CTRL - get focus error");
-		val = -1;
-	}
-	else val = c.value;
-	
-	return val;
-
-}
-
-/* set device focus value
- * args:
- * fd: device file descriptor (must call open on the device first)
- * val: focus value 
- *
- * returns: VIDIOC_S_CTRL return value ( failure  < 0 )                   */
-int 
-set_focus (int fd, int val) 
-{
-	int ret=0;
-	struct v4l2_control c;
-
-	c.id  = V4L2_CID_FOCUS_LOGITECH;
-	c.value = val;
-	ret = xioctl (fd, VIDIOC_S_CTRL, &c);
-	if (ret < 0) perror("VIDIOC_S_CTRL - set focus error");
 
 	return ret;
 }

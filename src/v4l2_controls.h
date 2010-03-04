@@ -85,7 +85,7 @@ InputControl *input_enum_controls (int fd, int *num_controls);
  * controls: pointer to InputControl struct containing basic control info
  *
  * returns: control value                                                 */
-int input_get_control (int fd, InputControl * control, int * val);
+int input_get_control (int fd, int control_id, int * val);
 
 /* set device control value
  * args:
@@ -94,22 +94,7 @@ int input_get_control (int fd, InputControl * control, int * val);
  * val: control value 
  *
  * returns: VIDIOC_S_CTRL return value ( failure  < 0 )                   */
-int input_set_control (int fd, InputControl * control, int val);
-
-/* get device focus value
- * args:
- * fd: device file descriptor (must call open on the device first)
- *
- * returns: focus value                                                  */
-int get_focus (int fd);
-
-/* set device focus value
- * args:
- * fd: device file descriptor (must call open on the device first)
- * val: focus value 
- *
- * returns: VIDIOC_S_CTRL return value ( failure  < 0 )                   */
-int set_focus (int fd, int val);
+int input_set_control (int fd, int control_id, int val);
 
 /* SRC: https://lists.berlios.de/pipermail/linux-uvc-devel/2007-July/001888.html
  * fd: the device file descriptor

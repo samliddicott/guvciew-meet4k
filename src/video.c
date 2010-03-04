@@ -158,9 +158,9 @@ void *main_loop(void *data)
 	int last_focus = 0;
 	if (global->AFcontrol) 
 	{
-		last_focus = get_focus(videoIn->fd);
+		input_get_control(videoIn->fd, AFdata->id, &last_focus);
 		/*make sure we wait for focus to settle on first check*/
-		if (last_focus < 0) last_focus=255;
+		if (last_focus < 0) last_focus = AFdata->f_max;
 	}
 	
 	/*------------------------------ SDL init video ---------------------*/
@@ -239,7 +239,7 @@ void *main_loop(void *data)
 				{
 					/*starting autofocus*/
 					AFdata->focus = AFdata->left; /*start left*/
-					if (set_focus (videoIn->fd, AFdata->focus) != 0) 
+					if (input_set_control (videoIn->fd, AFdata->id, AFdata->focus) != 0) 
 						g_printerr("ERROR: couldn't set focus to %d\n", AFdata->focus);
 					/*number of frames until focus is stable*/
 					/*1.4 ms focus time - every 1 step*/
@@ -259,7 +259,7 @@ void *main_loop(void *data)
 						AFdata->focus=getFocusVal (AFdata);
 						if ((AFdata->focus != last_focus)) 
 						{
-							if (set_focus (videoIn->fd, AFdata->focus) != 0) 
+							if (input_set_control (videoIn->fd, AFdata->id, AFdata->focus) != 0) 
 								g_printerr("ERROR: couldn't set focus to %d\n", 
 									AFdata->focus);
 							/*number of frames until focus is stable*/
