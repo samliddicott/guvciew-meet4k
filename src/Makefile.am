@@ -7,7 +7,7 @@ INCLUDES = \
 	-DPACKAGE_LOCALE_DIR=\""$(prefix)/$(DATADIRNAME)/locale"\" \
 	-DPACKAGE_SRC_DIR=\""$(srcdir)"\" \
 	-DPACKAGE_DATA_DIR=\""$(datadir)"\" \
-	$(PACKAGE_CFLAGS) $(EXTRA_CFLAGS)
+	$(DEPS_CFLAGS) $(EXTRA_CFLAGS)
 
 AM_CFLAGS =\
 	 -D_REENTRANT\
@@ -99,7 +99,7 @@ guvcview_SOURCES = \
 
 guvcview_LDFLAGS = $(LIBINTL)
 
-guvcview_LDADD = $(PACKAGE_LIBS) $(EXTRA_LIBS)
+guvcview_LDADD = $(DEPS_LIBS) $(EXTRA_LIBS)
 
 localedir = $(datadir)/locale
 DEFS = -DLOCALEDIR=\"$(localedir)\" @DEFS@

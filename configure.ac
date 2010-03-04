@@ -4,9 +4,13 @@ dnl Process this file with autoconf to produce a configure script.
 # in the environment, or whether autoconf added -O and -g options:
 ORIGINAL_CFLAGS="$CFLAGS"
 
-dnl Package definitions
-AC_INIT(guvcview, 1.2.3,[<pj.assis@gmail.com>])
-AM_INIT_AUTOMAKE(guvcview, 1.2.3)
+dnl --------------------------------------------------------------------------
+dnl Package definitions and initialization
+dnl --------------------------------------------------------------------------
+
+AC_INIT(guvcview, 1.2.3, [<pj.assis@gmail.com>])
+AM_INIT_AUTOMAKE([gnu])
+AC_CONFIG_MACRO_DIR([m4])
 AM_CONFIG_HEADER(config.h)
 AM_MAINTAINER_MODE(disable)
 
@@ -78,9 +82,9 @@ AM_GLIB_GNU_GETTEXT([external])
 dnl --------------------------------------------------------------------------
 dnl check for dependencies
 dnl --------------------------------------------------------------------------
-PKG_CHECK_MODULES(PACKAGE, [gtk+-2.0 >= 2.14.0 glib-2.0 >= 2.10.0 gthread-2.0 gdk-2.0 >= 2.10.0 sdl >= 1.2.10 portaudio-2.0 libpng libavcodec libv4l2])
-AC_SUBST(PACKAGE_CFLAGS)
-AC_SUBST(PACKAGE_LIBS)
+PKG_CHECK_MODULES(DEPS, [gtk+-2.0 >= 2.14.0 glib-2.0 >= 2.10.0 gthread-2.0 gdk-2.0 >= 2.10.0 sdl >= 1.2.10 portaudio-2.0 libpng libavcodec libv4l2])
+AC_SUBST(DEPS_CFLAGS)
+AC_SUBST(DEPS_LIBS)
 
 dnl --------------------------------------------------------------------------
 dnl set/unset debian menu
