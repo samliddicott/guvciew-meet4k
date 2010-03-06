@@ -16,17 +16,3 @@ Description: GTK UVC Viewer
  in several formats( currently: avi and matroska).
  I also supports a control only option (--control_only) that is compatible with any other v4l2 app.
  
-Package: guvcview-dbg
-Architecture: any
-Section: debug
-Depends: ${shlibs:Depends}, ${misc:Depends}
-Description: Debug Symbols for GTK UVC Viewer
- This package contains debug data of the gtk uvc viewer.
- .
- Most people will not need this package. Please install it to produce useful
- stacktraces to help debugging guvcview.
- . 
- Video capture tool for video4linux2 compliant cameras, with special emphasis on the linux uvc driver.
- It provides Image (jpg, png, bmp) and Video (mjpeg, flv1, wmv1, mpg2, mpg4,...) capture with sound
- in several formats( currently: avi and matroska).
- I also supports a control only option (--control_only) that is compatible with any other v4l2 app.

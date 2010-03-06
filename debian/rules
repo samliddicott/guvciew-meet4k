@@ -2,5 +2,5 @@
 %:
 	dh --with quilt $@
 	
-override_dh_strip:
-	dh_strip  --dbg-package=guvcview-dbg
+#override_dh_strip:
+#	dh_strip  --dbg-package=guvcview-dbg
