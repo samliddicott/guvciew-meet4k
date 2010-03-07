@@ -2,5 +2,6 @@
 %:
 	dh --with quilt $@
 	
-#override_dh_strip:
-#	dh_strip  --dbg-package=guvcview-dbg
+override_dh_install:
+    # only one package so its already created in debian/packagename
+	# dh_install  --fail-missing --sourcedir=debian/tmp # only for more than one package
