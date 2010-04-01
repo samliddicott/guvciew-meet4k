@@ -27,6 +27,10 @@
 #include <gtk/gtk.h>
 #include "guvcview.h"
 
+#ifndef GDK_WebCam
+#define GDK_WebCam 0x1008ff8f
+#endif
+
 void
 WARN_DIALOG(const char *warn_title, const char* warn_msg, struct ALL_DATA *all_data);
 
@@ -46,6 +50,9 @@ delete_event (GtkWidget *widget, GdkEventConfigure *event, void *data);
 
 void 
 set_sensitive_img_contrls (const int flag, struct GWIDGET *gwidget);
+
+gboolean
+key_pressed (GtkWidget *win, GdkEventKey *event, struct ALL_DATA *all_data);
 
 void
 vidClose (struct ALL_DATA *all_data);
