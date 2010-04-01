@@ -480,6 +480,9 @@ int main(int argc, char *argv[])
 			G_CALLBACK (capture_image), &all_data);
 		g_signal_connect (GTK_TOGGLE_BUTTON(gwidget->CapVidButt), "toggled",
 			G_CALLBACK (capture_vid), &all_data);
+        /*key events*/
+        gtk_widget_add_events (GTK_WIDGET (gwidget->mainwin), GDK_KEY_PRESS_MASK | GDK_KEY_RELEASE_MASK);
+        g_signal_connect (GTK_OBJECT(gwidget->mainwin), "key_press_event", G_CALLBACK (key_pressed), &all_data);
 	}/*end of control_only exclusion*/
 	
 	gchar* pix3path = g_strconcat (PACKAGE_DATA_DIR,"/pixmaps/guvcview/save.png",NULL);

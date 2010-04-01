@@ -166,6 +166,34 @@ set_sensitive_vid_contrls (const int flag, const int sndEnable, struct GWIDGET *
 	gwidget->vid_widget_state = flag;
 }
 
+gboolean
+key_pressed (GtkWidget *win, GdkEventKey *event, struct ALL_DATA *all_data)
+{
+    struct GWIDGET *gwidget = all_data->gwidget;
+    /* If we have modifiers, and either Ctrl, Mod1 (Alt), or any
+     * of Mod3 to Mod5 (Mod2 is num-lock...) are pressed, we
+     * let Gtk+ handle the key */
+    if (event->state != 0
+            && ((event->state & GDK_CONTROL_MASK)
+            || (event->state & GDK_MOD1_MASK)
+            || (event->state & GDK_MOD3_MASK)
+            || (event->state & GDK_MOD4_MASK)
+            || (event->state & GDK_MOD5_MASK)))
+        return FALSE;
+
+    switch (event->keyval)
+    {
+        case GDK_WebCam:
+
+        /* camera button pressed - trigger image capture*/
+        gtk_button_clicked (GTK_BUTTON(gwidget->CapImageButt));
+        return TRUE;
+    }
+
+    return FALSE;
+}
+
+
 /*----------------------------- Callbacks ------------------------------------*/
 /*slider controls callback*/
 void

@@ -22,6 +22,8 @@
 
 #include <time.h>
 #include <sys/time.h>
+#include <unistd.h>
+
 #include "ms_time.h"
 
 /*------------------------------ get time ------------------------------------*/
