@@ -173,6 +173,7 @@ key_pressed (GtkWidget *win, GdkEventKey *event, struct ALL_DATA *all_data)
     /* If we have modifiers, and either Ctrl, Mod1 (Alt), or any
      * of Mod3 to Mod5 (Mod2 is num-lock...) are pressed, we
      * let Gtk+ handle the key */
+    //printf("camera key pressed (key:%i)\n", event->keyval);
     if (event->state != 0
             && ((event->state & GDK_CONTROL_MASK)
             || (event->state & GDK_MOD1_MASK)

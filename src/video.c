@@ -140,7 +140,8 @@ void *main_loop(void *data)
 	struct GLOBAL *global = all_data->global;
 	struct focusData *AFdata = all_data->AFdata;
 	struct vdIn *videoIn = all_data->videoIn;
-
+    struct GWIDGET *gwidget = all_data->gwidget;
+    
 	struct particle* particles = NULL; //for the particles video effect
 	
 	SDL_Event event;
@@ -350,14 +351,15 @@ void *main_loop(void *data)
 		SDL_DisplayYUVOverlay(overlay, &drect);
 		
 		/*------------------------- Read Key events ------------------------------*/
-		if (videoIn->PanTilt) 
+	    /* Poll for events */
+		while( SDL_PollEvent(&event) )
 		{
-			/* Poll for events */
-			while( SDL_PollEvent(&event) )
+		    //printf("event type:%i  event key:%i\n", event.type, event.key.keysym.scancode);
+			if(event.type==SDL_KEYDOWN) 
 			{
-				if(event.type==SDL_KEYDOWN) 
-				{
-					switch( event.key.keysym.sym )
+			    if (videoIn->PanTilt) 
+	            {
+    				switch( event.key.keysym.sym )
 					{
 						/* Keyboard event */
 						/* Pass the event data onto PrintKeyInfo() */
@@ -384,7 +386,14 @@ void *main_loop(void *data)
 							break;
 					}
 				}
-
+				switch( event.key.keysym.scancode )
+			    {
+			        case 220: /*webcam button*/
+			            gdk_threads_enter();
+			            gtk_button_clicked (GTK_BUTTON(gwidget->CapImageButt));
+			            gdk_threads_leave();
+			            break;
+			    }
 			}
 		}
 		
