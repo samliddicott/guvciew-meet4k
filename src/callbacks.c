@@ -170,6 +170,8 @@ gboolean
 key_pressed (GtkWidget *win, GdkEventKey *event, struct ALL_DATA *all_data)
 {
     struct GWIDGET *gwidget = all_data->gwidget;
+    struct vdIn *videoIn = all_data->videoIn;
+    struct GLOBAL *global = all_data->global;
     /* If we have modifiers, and either Ctrl, Mod1 (Alt), or any
      * of Mod3 to Mod5 (Mod2 is num-lock...) are pressed, we
      * let Gtk+ handle the key */
@@ -181,7 +183,40 @@ key_pressed (GtkWidget *win, GdkEventKey *event, struct ALL_DATA *all_data)
             || (event->state & GDK_MOD4_MASK)
             || (event->state & GDK_MOD5_MASK)))
         return FALSE;
-
+    
+    if(videoIn->PanTilt)
+    {
+        switch (event->keyval)
+        {
+            case GDK_Down:
+            case GDK_KP_Down:
+                /*Tilt Down*/
+                uvcPanTilt (videoIn->fd,0,INCPANTILT*(global->TiltStep),0);
+                return TRUE;
+                
+            case GDK_Up:
+            case GDK_KP_Up:
+                /*Tilt UP*/
+                uvcPanTilt (videoIn->fd,0,-INCPANTILT*(global->TiltStep),0);
+                return TRUE;
+                
+            case GDK_Left:
+            case GDK_KP_Left:
+                /*Pan Left*/
+                uvcPanTilt (videoIn->fd,-INCPANTILT*(global->PanStep),0,0);
+                return TRUE;
+                
+            case GDK_Right:
+            case GDK_KP_Right:
+                /*Pan Right*/
+                uvcPanTilt (videoIn->fd,INCPANTILT*(global->PanStep),0,0);
+                return TRUE;
+                
+            default:
+                break;
+        }
+    }
+    
     switch (event->keyval)
     {
         case GDK_WebCam:
