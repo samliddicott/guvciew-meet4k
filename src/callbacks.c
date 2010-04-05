@@ -26,6 +26,7 @@
 #include <glib/gi18n.h>
 #include <glib.h>
 #include <glib/gprintf.h>
+#include <gdk/gdkkeysyms.h>
 
 #include <portaudio.h>
 
