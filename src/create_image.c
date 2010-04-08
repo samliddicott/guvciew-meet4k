@@ -108,6 +108,11 @@ int store_picture(void *data)
 			pim = g_new0(BYTE, (global->width)*(global->height)*3);
 			yuyv2rgb(videoIn->framebuffer,pim,global->width,global->height);
 			write_png(videoIn->ImageFName, global->width, global->height, pim);
+			break;
+
+       case 3:/*raw*/
+            videoIn->cap_raw = 1;
+            return 1;
 	}
 	
 	if(jpeg_struct) g_free(jpeg_struct);

@@ -309,9 +309,10 @@ void *main_loop(void *data)
 			 * but you would need to be speedy gonzalez to press two buttons 
 			 * at almost the same time :D 
 			 */
-			if(store_picture(all_data) < 0)
+			int ret = 0;
+			if((ret=store_picture(all_data)) < 0)
 				g_printerr("saved image to:%s ...Failed \n",videoIn->ImageFName);
-			else if (global->debug) g_printf("saved image to:%s ...OK \n",videoIn->ImageFName);
+			else if (!ret && global->debug) g_printf("saved image to:%s ...OK \n",videoIn->ImageFName);
 			
 			videoIn->capImage=FALSE;
 		}
