@@ -1033,14 +1033,7 @@ capture_image (GtkButton *ImageButt, struct ALL_DATA *all_data)
 	} 
 	else 
 	{
-		if(global->imgFormat == 3) 
-		{ /*raw frame*/
-			videoIn->cap_raw = 1;
-		} 
-		else 
-		{
-			videoIn->capImage = TRUE;
-		}
+		videoIn->capImage = TRUE;
 	}
 	
 	gwidget = NULL;
