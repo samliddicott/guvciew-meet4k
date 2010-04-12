@@ -8,7 +8,7 @@ dnl --------------------------------------------------------------------------
 dnl Package definitions and initialization
 dnl --------------------------------------------------------------------------
 
-AC_INIT(guvcview, 1.3.0, [<pj.assis@gmail.com>])
+AC_INIT(guvcview, 1.3.1, [<pj.assis@gmail.com>])
 AM_INIT_AUTOMAKE([gnu])
 AC_CONFIG_MACRO_DIR([m4])
 AM_CONFIG_HEADER(config.h)
