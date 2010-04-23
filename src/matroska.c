@@ -645,9 +645,9 @@ static int mk_flushFrame(mk_Writer *w)
 	CHECK(mk_writeSize(w->cluster, fsize + 4));
 	CHECK(mk_writeSize(w->cluster, 1)); /* track number (for guvcview 1-video  2-audio) */
 
-	c_delta_flags[0] = delta >> 8;
-	c_delta_flags[1] = delta;
-	c_delta_flags[2] = 0;
+	c_delta_flags[0] = delta >> 8; //timestamp ref to cluster
+	c_delta_flags[1] = delta;      //timestamp ref to cluster
+	c_delta_flags[2] = 0; // frame flags
 	CHECK(mk_appendContextData(w->cluster, c_delta_flags, 3)); /* block timecode */
 	if (w->frame)
 	{
