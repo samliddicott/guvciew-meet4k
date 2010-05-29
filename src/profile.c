@@ -24,6 +24,7 @@
 #include <glib/gstdio.h>
 #include <glib/gprintf.h>
 #include <unistd.h>
+#include <string.h>
 
 #include "defs.h"
 #include "profile.h"
@@ -34,7 +35,6 @@ SaveControls(struct VidState *s, struct GLOBAL *global, struct vdIn *videoIn)
 {
 	FILE *fp;
 	int i=0;
-	int val=0;
 	char *filename;
 	filename = g_strjoin("/", global->profile_FPath[1], global->profile_FPath[0], NULL);
 	
@@ -46,63 +46,52 @@ SaveControls(struct VidState *s, struct GLOBAL *global, struct vdIn *videoIn)
 	} 
 	else 
 	{
-		if (s->control) 
+		if (s->control_list) 
 		{
-			g_fprintf(fp,"#guvcview control profile\n");
-			g_fprintf(fp,"version=%s\n",VERSION);
-			g_fprintf(fp,"# control name +\n");
-			g_fprintf(fp,"#control[num]:id:type=val\n");
-			/*save controls by type order*/
-			/* 1- Boolean controls       */
-			/* 2- Menu controls          */
-			/* 3- Integer controls       */
-			g_fprintf(fp,"# 1-BOOLEAN CONTROLS\n");
-			for (i = 0; i < s->num_controls; i++)
-			{
-				/*Boolean*/
-				InputControl * c = s->control + i;
-				if(c->type == INPUT_CONTROL_TYPE_BOOLEAN) 
-				{
-					if (input_get_control (videoIn->fd, c->id, &val) != 0) 
-					{
-						val=c->default_val;
-					}
-					val = val & 0x0001;
-					g_fprintf(fp,"# %s +\n",c->name);
-					g_fprintf(fp,"control[%d]:0x%x:%d=%d\n",c->i,c->id,c->type, val);
-				}
-			}
-			g_fprintf(fp,"# 2-MENU CONTROLS\n");
-			for (i = 0; i < s->num_controls; i++) 
-			{
-				/*Menu*/
-				InputControl * c = s->control + i;
-				if(c->type == INPUT_CONTROL_TYPE_MENU) 
-				{
-					if (input_get_control (videoIn->fd, c->id, &val) != 0)
-					{
-						val=c->default_val;
-					}
-					g_fprintf(fp,"# %s +\n",c->name);
-					g_fprintf(fp,"control[%d]:0x%x:%d=%d\n",c->i,c->id,c->type, val);
-				}
-			}
-			g_fprintf(fp,"# 3-INTEGER CONTROLS\n");
-			for (i = 0; i < s->num_controls; i++) 
-			{
-				/*Integer*/
-				InputControl * c = s->control + i;
-				if(c->type == INPUT_CONTROL_TYPE_INTEGER) 
-				{
-					if (input_get_control (videoIn->fd, c->id, &val) != 0) 
-					{
-						val=c->default_val;
-					}
-					g_fprintf(fp,"# %s +\n",c->name);
-					g_fprintf(fp,"control[%d]:0x%x:%d=%d\n",c->i,c->id,c->type, val);
-				}
-			}
-			
+		    Control *current = s->control_list;
+		    Control *next = current->next;
+            //write header
+            fprintf(fp, "#V4L2/CTRL/0.0.2\n");
+            fprintf(fp, "APP{\"v4l2-re-store-ctrls example app\"}\n");
+            //write control data
+            fprintf(fp, "# control data\n");
+            for(i=0; i<s->num_controls; i++)
+            {
+                fprintf(fp, "#%s\n", current->control.name);
+                switch(current->control.type)
+                {
+                    case V4L2_CTRL_TYPE_STRING :
+                       fprintf(fp, "ID{0x%08x};CHK{%i:%i:%i:0}=STR{\"%s\"}\n",
+                            current->control.id, 
+                            current->control.minimum, 
+                            current->control.maximum,
+                            current->control.step,
+                            current->string);
+                        break;
+                    case V4L2_CTRL_TYPE_INTEGER64 :
+                        fprintf(fp, "ID{0x%08x};CHK{0:0:0:0}=VAL64{%" PRId64 "}\n",
+                            current->control.id, 
+                            current->value64);
+                        break;
+                    default :
+                        fprintf(fp, "ID{0x%08x};CHK{%i:%i:%i:%i}=VAL{%i}\n",
+                            current->control.id, 
+                            current->control.minimum, 
+                            current->control.maximum,
+                            current->control.step,
+                            current->control.default_value,
+                            current->value);
+                        break;
+                }
+            
+                if(next == NULL)
+                    break;
+                else 
+                {
+                    current = next;
+                    next = current->next;
+                }    
+            }
 		}
 	}
 	g_free(filename);
@@ -118,77 +107,112 @@ SaveControls(struct VidState *s, struct GLOBAL *global, struct vdIn *videoIn)
 }
 
 int
-LoadControls(struct VidState *s, struct GLOBAL *global)
+LoadControls(struct VidState *s, struct GLOBAL *global, struct vdIn *videoIn)
 {
 	FILE *fp;
-	int i=0;
+	int i=0, major=0, minor=0, rev=0;
 	unsigned int id=0;
-	int type=0;
-	int val=0;
 	
-	ControlInfo *base_ci = s->control_info;
-	InputControl *base_c = s->control;
-	ControlInfo *ci;
-	InputControl *c;
-	
+	Control *current = NULL;
+
 	char *filename;
 	filename = g_strjoin("/", global->profile_FPath[1], global->profile_FPath[0], NULL);
 	
 	if((fp = g_fopen(filename,"r"))!=NULL) 
 	{
-		char line[144];
-
-		while (fgets(line, sizeof(line), fp) != NULL) 
-		{
-			
-			if ((line[0]=='#') || (line[0]==' ') || (line[0]=='\n')) 
-			{
-				/*skip*/
-			} 
-			else if ((sscanf(line,"control[%i]:0x%x:%i=%i",&i,&id,&type,&val))==4)
-			{
-				/*set control*/
-				if (i < s->num_controls) 
-				{
-					ci=base_ci+i;
-					c=base_c+i;
-					g_printf("control[%i]:0x%x:%i=%d\n",i,id,type,val);
-					if((c->id==id) && (c->type==type)) 
-					{
-						if(type == INPUT_CONTROL_TYPE_INTEGER) 
-						{
-							gtk_range_set_value (GTK_RANGE (ci->widget), val);
-						} 
-						else if (type == INPUT_CONTROL_TYPE_BOOLEAN) 
-						{
-							val = val & 0x0001;
-							gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (ci->widget),
-												val ? TRUE : FALSE);
-						} 
-						else if (type == INPUT_CONTROL_TYPE_MENU) 
-						{
-							gtk_combo_box_set_active (GTK_COMBO_BOX (ci->widget), val);
-						}
-					}
-					else 
-					{
-						g_printerr("wrong control id(0x%x:0x%x) or type(%i:%i) for %s\n",
-							id,c->id,type,c->type,c->name);
-					}
-				} 
-				else 
-				{
-					g_printerr("wrong control index: %d\n",i);
-				}
-			}
-		}	
+        char line[200];
+        if(fgets(line, sizeof(line), fp) != NULL)
+        {
+            if(sscanf(line,"#V4L2/CTRL/%i.%i.%i", &major, &minor, &rev) == 3) 
+            {
+                //check standard version if needed
+            }
+            else
+            {
+                printf("no valid header found\n");
+                goto finish;
+            }
+        }
+        else
+        {
+            printf("no valid header found\n");
+            goto finish;
+        }
+            
+        while (fgets(line, sizeof(line), fp) != NULL) 
+        {
+            int id = 0; 
+            int min = 0, max = 0, step = 0, def = 0;
+            int32_t val = 0;
+            int64_t val64 = 0;
+            
+            if ((line[0]!='#') && (line[0]!='\n')) 
+            {
+                if(sscanf(line,"ID{0x%08x};CHK{%i:%i:%i:%i}=VAL{%i}",
+                    &id, &min, &max, &step, &def, &val) == 6)
+                {
+                    current = get_ctrl_by_id(s->control_list, id);
+                    if(current)
+                    {
+                        //check values
+                        if(current->control.minimum == min &&
+                           current->control.maximum == max &&
+                           current->control.step == step &&
+                           current->control.default_value == def)
+                        {
+                            current->value = val;
+                            //printf("setting %s to %i\n",
+                            //    current->control.name, val);
+                        }
+                    }
+                }
+                else if(sscanf(line,"ID{0x%08x};CHK{0:0:0:0}=VAL64{%" PRId64 "}",
+                    &id, &val64) == 2)
+                {
+                    current = get_ctrl_by_id(s->control_list, id);
+                    if(current)
+                    {
+                        current->value64 = val64;
+                    }
+                }
+                else if(sscanf(line,"ID{0x%08x};CHK{%i:%i:%i:0}=STR{\"%*s\"}",
+                    &id, &min, &max, &step) == 5)
+                {
+                    current = get_ctrl_by_id(s->control_list, id);
+                    if(current)
+                    {
+                         //check values
+                        if(current->control.minimum == min &&
+                           current->control.maximum == max &&
+                           current->control.step == step)
+                        {
+                            char str[max+1];
+                            sscanf(line, "ID{0x%*x};CHK{%*i:%*i:%*i:0}==STR{\"%s\"}", str);
+                            if(strlen(str) > max) //FIXME: should also check (minimum +N*step)
+                            {
+                                printf("string bigger than maximum buffer size");
+                            }
+                            else
+                            {
+                                //string size including terminating null character
+                                current->value = strlen(str) + 1;
+                                strcpy(current->string, str);
+                            }
+                        }
+                    }
+                }       
+            }
+        }
+        
+        set_ctrl_values(videoIn->fd, s->control_list, s->num_controls);	
 	} 
 	else 
 	{
 		g_printerr("Could not open profile data file: %s.\n",filename);
 		return (-1);
 	} 
-
+	
+finish:
 	fclose(fp);
 	g_free(filename);
 	return (0);

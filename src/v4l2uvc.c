@@ -85,7 +85,7 @@
 // CAMERA CLASS control strings 
 #define CSTR_CAMERA_CLASS	N_("Camera Controls")
 #define CSTR_EXPAUTO		N_("Auto Exposure")
-#define	CSTR_EXPABS		N_("Exposure Time, Absolute")
+#define	CSTR_EXPABS		    N_("Exposure Time, Absolute")
 #define CSTR_EXPAUTOPRI		N_("Exposure, Dynamic Framerate")
 #define	CSTR_PAN_REL		N_("Pan, Relative")
 #define CSTR_TILT_REL		N_("Tilt, Relative")

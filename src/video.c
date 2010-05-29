@@ -136,6 +136,7 @@ void *main_loop(void *data)
 {
 	struct ALL_DATA *all_data = (struct ALL_DATA *) data;
 	
+	struct VidState *s = all_data->s;
 	struct paRecordData *pdata = all_data->pdata;
 	struct GLOBAL *global = all_data->global;
 	struct focusData *AFdata = all_data->AFdata;
@@ -156,10 +157,14 @@ void *main_loop(void *data)
 	
 	BYTE *p = NULL;
 	
+	Control *focus_control = NULL;
 	int last_focus = 0;
+	
 	if (global->AFcontrol) 
 	{
-		input_get_control(videoIn->fd, AFdata->id, &last_focus);
+	    focus_control = get_ctrl_by_id(s->control_list, AFdata->id);
+		get_ctrl(videoIn->fd, s->control_list, AFdata->id);
+		last_focus = focus_control->value;
 		/*make sure we wait for focus to settle on first check*/
 		if (last_focus < 0) last_focus = AFdata->f_max;
 	}
@@ -240,7 +245,8 @@ void *main_loop(void *data)
 				{
 					/*starting autofocus*/
 					AFdata->focus = AFdata->left; /*start left*/
-					if (input_set_control (videoIn->fd, AFdata->id, AFdata->focus) != 0) 
+					focus_control->value = AFdata->focus;
+					if (set_ctrl (videoIn->fd, s->control_list, AFdata->id) != 0) 
 						g_printerr("ERROR: couldn't set focus to %d\n", AFdata->focus);
 					/*number of frames until focus is stable*/
 					/*1.4 ms focus time - every 1 step*/
@@ -260,7 +266,8 @@ void *main_loop(void *data)
 						AFdata->focus=getFocusVal (AFdata);
 						if ((AFdata->focus != last_focus)) 
 						{
-							if (input_set_control (videoIn->fd, AFdata->id, AFdata->focus) != 0) 
+						    focus_control->value = AFdata->focus;
+							if (set_ctrl (videoIn->fd, s->control_list, AFdata->id) != 0) 
 								g_printerr("ERROR: couldn't set focus to %d\n", 
 									AFdata->focus);
 							/*number of frames until focus is stable*/
@@ -366,22 +373,22 @@ void *main_loop(void *data)
 						/* Pass the event data onto PrintKeyInfo() */
 						case SDLK_DOWN:
 							/*Tilt Down*/
-							uvcPanTilt (videoIn->fd,0,INCPANTILT*(global->TiltStep),0);
+							uvcPanTilt (videoIn->fd, s->control_list, 0, 1);
 							break;
 							
 						case SDLK_UP:
 							/*Tilt UP*/
-							uvcPanTilt (videoIn->fd,0,-INCPANTILT*(global->TiltStep),0);
+							uvcPanTilt (videoIn->fd, s->control_list, 0, -1);
 							break;
 							
 						case SDLK_LEFT:
 							/*Pan Left*/
-							uvcPanTilt (videoIn->fd,-INCPANTILT*(global->PanStep),0,0);
+							uvcPanTilt (videoIn->fd, s->control_list, 1, 1);
 							break;
 							
 						case SDLK_RIGHT:
 							/*Pan Right*/
-							uvcPanTilt (videoIn->fd,INCPANTILT*(global->PanStep),0,0);
+							uvcPanTilt (videoIn->fd, s->control_list, 1, -1);
 							break;
 						default:
 							break;

@@ -334,16 +334,12 @@ int main(int argc, char *argv[])
 	}
 	/*-----------------------------GTK widgets---------------------------------*/
 	/*----------------------- Image controls Tab ------------------------------*/
-	s->table = gtk_table_new (1, 3, FALSE);
-	gtk_table_set_row_spacings (GTK_TABLE (s->table), 4);
-	gtk_table_set_col_spacings (GTK_TABLE (s->table), 4);
-	gtk_container_set_border_width (GTK_CONTAINER (s->table), 2);
-	
-	s->control = NULL;
+	s->control_list = NULL;
 	/*-- draw the controls --*/
+	printf("drawing controls\n\n");
 	draw_controls(&all_data);
 	
-	if (global->lprofile > 0) LoadControls (s,global);
+	if (global->lprofile > 0) LoadControls (s, global, videoIn);
 	
 	gwidget->boxv = gtk_vpaned_new ();
 	gwidget->boxh = gtk_notebook_new();

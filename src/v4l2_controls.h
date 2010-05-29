@@ -22,94 +22,92 @@
 #define V4L2_CONTROLS_H
 
 #include <gtk/gtk.h>
+#include <linux/videodev2.h>
+#include <inttypes.h>
 
-/* 
- * 11-09-2009 dropped support for private controls. Use V4L2 user and extended controls only
- */
- 
-#ifndef V4L2_CID_CAMERA_CLASS_LAST
-#define V4L2_CID_CAMERA_CLASS_LAST		(V4L2_CID_CAMERA_CLASS_BASE +20)
-#endif
-
-
-typedef enum 
+typedef struct _Control
 {
-	INPUT_CONTROL_TYPE_INTEGER = 1,
-	INPUT_CONTROL_TYPE_BOOLEAN = 2,
-	INPUT_CONTROL_TYPE_MENU = 3,
-	INPUT_CONTROL_TYPE_BUTTON = 4,
-} InputControlType;
-
-typedef struct _InputControl 
-{
-	unsigned int i;
-	unsigned int id;
-	InputControlType type;
-	char * name;
-	int min, max, step, default_val, enabled;
-	char ** entries;
-} InputControl;
-
-typedef struct _ControlInfo 
-{
-	GtkWidget * widget;
-	GtkWidget * label;
-	GtkWidget *spinbutton; /*used in integer (slider) controls*/
-	unsigned int idx;
-	int maxchars;
-} ControlInfo;
+    struct v4l2_queryctrl control;
+    struct v4l2_querymenu *menu;
+    int32_t class;
+    int32_t value; //also used for string max size
+    int64_t value64;
+    char *string;
+    //widgets
+    GtkWidget * widget;
+    GtkWidget * label;
+    GtkWidget *spinbutton;
+    //next control in the list
+    struct _Control *next;
+} Control;
 
 struct VidState 
 {
-	GtkWidget * table;
-
-	int width_req;
-	int height_req;
-
-	InputControl * control;
-	int num_controls;
-	ControlInfo * control_info;
+    GtkWidget * table;
+    Control *control_list;
+    
+    int num_controls;
+    int width_req;
+    int height_req;
 };
 
-/* enumerate device controls 
- * args:
- * fd: device file descriptor (must call open on the device first)
- * numb_controls: pointer to integer containing number of existing supported controls
- *
- * returns: allocated list of device controls or NULL on failure                      */
-InputControl *input_enum_controls (int fd, int *num_controls);
+/*
+ * returns a Control structure NULL terminated linked list
+ * with all of the device controls with Read/Write permissions.
+ * These are the only ones that we can store/restore.
+ * Also sets num_ctrls with the controls count.
+ */
+Control *get_control_list(int hdevice, int *num_ctrls);
 
-/* get device control value
- * args:
- * fd: device file descriptor (must call open on the device first)
- * controls: pointer to InputControl struct containing basic control info
- *
- * returns: control value                                                 */
-int input_get_control (int fd, int control_id, int * val);
+/*
+ * creates the control associated widgets for all controls in the list
+ */
+ 
+void create_control_widgets(Control *control_list, void *all_data, int control_only, int verbose);
+ 
+/*
+ * Returns the Control structure corresponding to control id,
+ * from the control list.
+ */
+Control *get_ctrl_by_id(Control *control_list, int id);
 
-/* set device control value
- * args:
- * fd: device file descriptor (must call open on the device first)
- * controls: pointer to InputControl struct containing basic control info
- * val: control value 
- *
- * returns: VIDIOC_S_CTRL return value ( failure  < 0 )                   */
-int input_set_control (int fd, int control_id, int val);
+/*
+ * Goes through the control list and gets the controls current values
+ */
+void get_ctrl_values (int hdevice, Control *control_list, int num_controls);
 
-/* SRC: https://lists.berlios.de/pipermail/linux-uvc-devel/2007-July/001888.html
- * fd: the device file descriptor
- * pan: pan angle in 1/64th of degree
- * tilt: tilt angle in 1/64th of degree
- * reset: set 1 to reset Pan, set 2 to reset tilt, set to 3 to reset pan/tilt to the device origin, set to 0 otherwise 
- *
- * returns: 0 on success or -1 on failure                                                                              */
-int uvcPanTilt(int fd, int pan, int tilt, int reset);
+/*
+ * Gets the value for control id
+ * and updates control flags and widgets
+ */
+int get_ctrl(int hdevice, Control *control_list, int id);
 
-/* free device control list 
- * args:
- * s: pointer to VidState struct containing complete device controls info
- *
- * returns: void*/
-void input_free_controls (struct VidState *s);
+/*
+ * Goes through the control list and tries to set the controls values 
+ */
+void set_ctrl_values (int hdevice, Control *control_list, int num_controls);
+
+/*
+ * sets the value for control id
+ */
+int set_ctrl(int hdevice, Control *control_list, int id);
+
+/*
+ * frees the control list allocations
+ */
+void free_control_list (Control *control_list);
+
+/*
+ * sets pan tilt (direction = 1 or -1)
+ */
+void uvcPanTilt (int hdevice, Control *control_list, int is_pan, int direction);
+
+#ifndef V4L2_CID_IRIS_ABSOLUTE
+#define V4L2_CID_IRIS_ABSOLUTE		(V4L2_CID_CAMERA_CLASS_BASE +17)
+#endif
+#ifndef V4L2_CID_IRIS_RELATIVE
+#define V4L2_CID_IRIS_RELATIVE		(V4L2_CID_CAMERA_CLASS_BASE +18)
+#endif
+
 
 #endif

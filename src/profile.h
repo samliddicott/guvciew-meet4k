@@ -29,6 +29,6 @@ int
 SaveControls(struct VidState *s,struct GLOBAL *global, struct vdIn *videoIn);
 
 int
-LoadControls(struct VidState *s, struct GLOBAL *global);
+LoadControls(struct VidState *s, struct GLOBAL *global, struct vdIn *videoIn);
 
 #endif

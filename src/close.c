@@ -76,9 +76,10 @@ clean_struct (struct ALL_DATA *all_data)
 
 	
 
-	if (s->control) 
+	if (s->control_list) 
 	{
-		input_free_controls (s);
+		free_control_list (s->control_list);
+		s->control_list = NULL;
 		g_printf("free controls\n");
 	}
 	g_free(s);

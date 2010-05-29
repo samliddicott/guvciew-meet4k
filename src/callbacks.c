@@ -31,6 +31,7 @@
 #include <portaudio.h>
 
 #include "v4l2uvc.h"
+#include "v4l2_dyna_ctrls.h"
 #include "avilib.h"
 #include "globals.h"
 #include "sound.h"
@@ -170,9 +171,10 @@ set_sensitive_vid_contrls (const int flag, const int sndEnable, struct GWIDGET *
 gboolean
 key_pressed (GtkWidget *win, GdkEventKey *event, struct ALL_DATA *all_data)
 {
+    struct VidState *s = all_data->s;
     struct GWIDGET *gwidget = all_data->gwidget;
     struct vdIn *videoIn = all_data->videoIn;
-    struct GLOBAL *global = all_data->global;
+    //struct GLOBAL *global = all_data->global;
     /* If we have modifiers, and either Ctrl, Mod1 (Alt), or any
      * of Mod3 to Mod5 (Mod2 is num-lock...) are pressed, we
      * let Gtk+ handle the key */
@@ -192,25 +194,25 @@ key_pressed (GtkWidget *win, GdkEventKey *event, struct ALL_DATA *all_data)
             case GDK_Down:
             case GDK_KP_Down:
                 /*Tilt Down*/
-                uvcPanTilt (videoIn->fd,0,INCPANTILT*(global->TiltStep),0);
+                uvcPanTilt (videoIn->fd, s->control_list, 0, 1);
                 return TRUE;
                 
             case GDK_Up:
             case GDK_KP_Up:
                 /*Tilt UP*/
-                uvcPanTilt (videoIn->fd,0,-INCPANTILT*(global->TiltStep),0);
+                uvcPanTilt (videoIn->fd, s->control_list, 0, -1);
                 return TRUE;
                 
             case GDK_Left:
             case GDK_KP_Left:
                 /*Pan Left*/
-                uvcPanTilt (videoIn->fd,-INCPANTILT*(global->PanStep),0,0);
+                uvcPanTilt (videoIn->fd, s->control_list, 1, 1);
                 return TRUE;
                 
             case GDK_Right:
             case GDK_KP_Right:
                 /*Pan Right*/
-                uvcPanTilt (videoIn->fd,INCPANTILT*(global->PanStep),0,0);
+                uvcPanTilt (videoIn->fd, s->control_list, 1, -1);
                 return TRUE;
                 
             default:
@@ -236,31 +238,18 @@ key_pressed (GtkWidget *win, GdkEventKey *event, struct ALL_DATA *all_data)
 void
 slider_changed (GtkRange * range, struct ALL_DATA *all_data)
 {
-	struct VidState *s = all_data->s;
-	struct GLOBAL *global = all_data->global;
-	struct vdIn *videoIn = all_data->videoIn;
+    struct VidState *s = all_data->s;
+    struct GLOBAL *global = all_data->global;
+    struct vdIn *videoIn = all_data->videoIn;
 
-	ControlInfo * ci = g_object_get_data (G_OBJECT (range), "control_info");
-	InputControl * c = s->control + ci->idx;
-	int val = (int) gtk_range_get_value (range);
+    int id = GPOINTER_TO_INT(g_object_get_data (G_OBJECT (range), "control_info"));
+    Control *c = get_ctrl_by_id(s->control_list, id);
+    
+    int val = (int) gtk_range_get_value (range);
+    
+    c->value = val;
 
-	if (input_set_control (videoIn->fd, c->id, val) == 0) 
-	{
-		gtk_spin_button_set_value(GTK_SPIN_BUTTON(ci->spinbutton), val);
-	}
-	else 
-	{
-		if (global->debug) g_printerr ("%s change to %d failed\n",c->name, val);
-		if (input_get_control (videoIn->fd, c->id, &val) == 0) 
-		{
-			if (global->debug) g_printerr ("hardware value is %d\n", val);
-			gtk_range_set_value (GTK_RANGE(ci->widget),val);
-		}
-		else 
-		{
-			g_printerr ("hardware get failed\n");
-		}
-	}
+    set_ctrl(videoIn->fd, s->control_list, id);
 	
 	s = NULL;
 	global = NULL;
@@ -275,27 +264,14 @@ spin_changed (GtkSpinButton * spin, struct ALL_DATA *all_data)
 	struct GLOBAL *global = all_data->global;
 	struct vdIn *videoIn = all_data->videoIn;
 	
-	ControlInfo * ci = g_object_get_data (G_OBJECT (spin), "control_info");
-	InputControl * c = s->control + ci->idx;
+	int id = GPOINTER_TO_INT(g_object_get_data (G_OBJECT (spin), "control_info"));
+	Control *c = get_ctrl_by_id(s->control_list, id);
+    
 	int val = gtk_spin_button_get_value_as_int (spin);
+    c->value = val;
 
-	if (input_set_control (videoIn->fd, c->id, val) == 0) 
-	{
-		gtk_range_set_value (GTK_RANGE(ci->widget),val);
-	}
-	else 
-	{
-		if (global->debug) g_printerr ("%s change to %d failed\n",c->name, val);
-		if (input_get_control (videoIn->fd, c->id, &val) == 0) 
-		{
-			if (global->debug) g_printerr ("hardware value is %d\n", val);
-			gtk_spin_button_set_value(GTK_SPIN_BUTTON(ci->spinbutton),val);
-		}
-		else 
-		{
-			g_printerr ("hardware get failed\n");
-		}
-	}
+    set_ctrl(videoIn->fd, s->control_list, id);
+
 	s = NULL;
 	global = NULL;
 	videoIn = NULL;
@@ -319,18 +295,19 @@ set_jpeg_comp_clicked (GtkButton * jpeg_comp, struct ALL_DATA *all_data)
 void
 autofocus_changed (GtkToggleButton * toggle, struct ALL_DATA *all_data) 
 {
+    struct VidState *s = all_data->s;
 	struct GLOBAL *global = all_data->global;
 	struct focusData *AFdata = all_data->AFdata;
 	struct vdIn *videoIn = all_data->videoIn;
 	
-	ControlInfo * ci = g_object_get_data (G_OBJECT (toggle), "control_info");
-	int val;
+	//int id = GPOINTER_TO_INT(g_object_get_data (G_OBJECT (toggle), "control_info"));
+	Control *c = get_ctrl_by_id(s->control_list, AFdata->id);
 	
-	val = gtk_toggle_button_get_active (toggle) ? 1 : 0;
+	int val = gtk_toggle_button_get_active (toggle) ? 1 : 0;
 
 	/*if autofocus disable manual focus control*/
-	gtk_widget_set_sensitive (ci->widget, !val);
-	gtk_widget_set_sensitive (ci->spinbutton, !val);
+	gtk_widget_set_sensitive (c->widget, !val);
+	gtk_widget_set_sensitive (c->spinbutton, !val);
 
 	/*reset flag*/
 	AFdata->flag = 0;
@@ -341,8 +318,8 @@ autofocus_changed (GtkToggleButton * toggle, struct ALL_DATA *all_data)
 	/*set focus to first value if autofocus enabled*/
 	if (val>0) 
 	{
-		if (input_set_control (videoIn->fd, AFdata->id, AFdata->focus) != 0) 
-			g_printerr("ERROR: couldn't set focus to %d\n", AFdata->focus);
+	    c->value = AFdata->focus;
+	    set_ctrl(videoIn->fd, s->control_list, AFdata->id);
 	}
 	global->autofocus = val;
 
@@ -359,84 +336,24 @@ check_changed (GtkToggleButton * toggle, struct ALL_DATA *all_data)
 	struct GLOBAL *global = all_data->global;
 	struct vdIn *videoIn = all_data->videoIn;
 
-	ControlInfo * ci = g_object_get_data (G_OBJECT (toggle), "control_info");
-	InputControl * c = s->control + ci->idx;
-	int val;
+    int id = GPOINTER_TO_INT(g_object_get_data (G_OBJECT (toggle), "control_info"));
+    Control *c = get_ctrl_by_id(s->control_list, id);
+    
+    int val = gtk_toggle_button_get_active (toggle) ? 1 : 0;
 
-	val = gtk_toggle_button_get_active (toggle) ? 1 : 0;
+    c->value = val;
 
-	if (input_set_control (videoIn->fd, c->id, val) != 0)
-	{
-		g_printerr ("%s change to %d failed\n",c->name, val);
-		if (input_get_control (videoIn->fd, c->id, &val) == 0) 
-		{
-			g_printerr ("hardware value is %d\n", val);
-		}
-		else 
-		{
-			g_printerr ("hardware get failed\n");
-		}
-	} 
-	else 
-	{
-		if (global->debug) g_printf("changed %s to %d\n",c->name,val);
-		if (input_get_control (videoIn->fd, c->id, &val) == 0) 
-		{
-			if (global->debug) g_printf ("hardware value is %d\n", val);
-		}
-		else
-		{
-			g_printerr ("hardware get failed\n");
-		}
-		
+    set_ctrl(videoIn->fd, s->control_list, id);
+    
+    if(id == V4L2_CID_DISABLE_PROCESSING_LOGITECH)
+    {
+        if (c->value > 0) videoIn->isbayer=1;
+	    else videoIn->isbayer=0;
+	    
+	    //restart stream by changing fps
+	    videoIn->setFPS = 1;
 	}
 	
-	s = NULL;
-	global = NULL;
-	videoIn = NULL;
-}
-
-void
-bayer_changed (GtkToggleButton * toggle, struct ALL_DATA *all_data)
-{
-	struct VidState *s = all_data->s;
-	struct GLOBAL *global = all_data->global;
-	struct vdIn *videoIn = all_data->videoIn;
-	
-	ControlInfo * ci = g_object_get_data (G_OBJECT (toggle), "control_info");
-	InputControl * c = s->control + ci->idx;
-	int val;
-
-	val = gtk_toggle_button_get_active (toggle) ? 1 : 0;
-	if (input_set_control (videoIn->fd, c->id, val) != 0) 
-	{
-		g_printerr ("%s change to %d failed\n",c->name, val);
-		if (input_get_control (videoIn->fd, c->id, &val) == 0) 
-		{
-			g_printerr ("hardware value is %d\n", val);
-		}
-		else 
-		{
-			g_printerr ("hardware get failed\n");
-		}
-	}
-	else
-	{
-		if (global->debug) g_printf("changed %s to %d\n",c->name,val);
-		/*stop and restart stream*/
-		videoIn->setFPS=1;
-		/*read value*/
-		if (input_get_control (videoIn->fd, c->id, &val) == 0) 
-		{
-			if (val>0) videoIn->isbayer=1;
-			else videoIn->isbayer=0;
-		}
-		else 
-		{
-			g_printerr ("hardware get failed\n");
-		}
-	}
-
 	s = NULL;
 	global = NULL;
 	videoIn = NULL;
@@ -453,19 +370,6 @@ pix_ord_changed (GtkComboBox * combo, struct ALL_DATA *all_data)
 	videoIn=NULL;
 }
 
-void
-reversePan_changed (GtkToggleButton * toggle, struct ALL_DATA *all_data)
-{
-	struct GLOBAL *global = all_data->global;
-
-	int val;
-
-	val = gtk_toggle_button_get_active (toggle) ? -1 : 1;
-
-	if(global->PanStep >0) global->PanStep= val * global->PanStep;
-	else global->PanStep= -val * global->PanStep;
-}
-
 /*combobox controls callback*/
 void
 combo_changed (GtkComboBox * combo, struct ALL_DATA *all_data)
@@ -473,27 +377,61 @@ combo_changed (GtkComboBox * combo, struct ALL_DATA *all_data)
 	struct VidState *s = all_data->s;
 	struct vdIn *videoIn = all_data->videoIn;
 
-	ControlInfo * ci = g_object_get_data (G_OBJECT (combo), "control_info");
-	InputControl * c = s->control + ci->idx;
-	int index = gtk_combo_box_get_active (combo);
-	int val = index;
-	
-	if (input_set_control (videoIn->fd, c->id, val) != 0) 
-	{
-		g_printerr ("%s change to %d failed\n",c->name, val);
-		if (input_get_control (videoIn->fd, c->id, &val) == 0) 
-		{
-			g_printerr ("hardware value is %d\n", val);
-		}
-		else 
-		{
-			g_printerr ("hardware get failed\n");
-		}
-	}
+    int id = GPOINTER_TO_INT(g_object_get_data (G_OBJECT (combo), "control_info"));
+    Control *c = get_ctrl_by_id(s->control_list, id);
+    
+    int index = gtk_combo_box_get_active (combo);
+    c->value = index;
 
+    set_ctrl(videoIn->fd, s->control_list, id);
+    
 	s = NULL;
 	videoIn = NULL;
 }
+
+/* generic button control */
+void
+button_clicked (GtkButton * Button, struct ALL_DATA *all_data)
+{
+    struct VidState *s = all_data->s;
+	struct vdIn *videoIn = all_data->videoIn;
+
+    int id = GPOINTER_TO_INT(g_object_get_data (G_OBJECT (Button), "control_info"));
+    Control *c = get_ctrl_by_id(s->control_list, id);
+    
+    c->value = 1;
+    set_ctrl(videoIn->fd, s->control_list, id);
+}
+
+/* Pan Tilt button 1 control */
+void
+button_PanTilt1_clicked (GtkButton * Button, struct ALL_DATA *all_data)
+{
+    struct VidState *s = all_data->s;
+	struct vdIn *videoIn = all_data->videoIn;
+
+    int id = GPOINTER_TO_INT(g_object_get_data (G_OBJECT (Button), "control_info"));
+    Control *c = get_ctrl_by_id(s->control_list, id);
+    
+    int val = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON(c->spinbutton));
+    c->value = val;
+    set_ctrl(videoIn->fd, s->control_list, id);
+}
+
+/* Pan Tilt button 2 control */
+void
+button_PanTilt2_clicked (GtkButton * Button, struct ALL_DATA *all_data)
+{
+    struct VidState *s = all_data->s;
+	struct vdIn *videoIn = all_data->videoIn;
+
+    int id = GPOINTER_TO_INT(g_object_get_data (G_OBJECT (Button), "control_info"));
+    Control *c = get_ctrl_by_id(s->control_list, id);
+    
+    int val = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON(c->spinbutton));
+    c->value = -val;
+    set_ctrl(videoIn->fd, s->control_list, id);
+}   
 
 /*video format control callback*/
 void
@@ -533,39 +471,21 @@ setfocus_clicked (GtkButton * FocusButton, struct ALL_DATA *all_data)
 {
 	struct focusData *AFdata = all_data->AFdata;
 	struct vdIn *videoIn = all_data->videoIn;
-
+    struct VidState *s = all_data->s;
+    
 	AFdata->setFocus = 1;
 	AFdata->ind = 0;
 	AFdata->flag = 0;
 	AFdata->right = 255;
 	AFdata->left = 8;
 	AFdata->focus = -1; /*reset focus*/
-	if (input_set_control (videoIn->fd, AFdata->id, AFdata->focus) != 0)
-		g_printerr("ERROR: couldn't set focus to %d\n", AFdata->focus);
+	
+    Control *c = get_ctrl_by_id(s->control_list, AFdata->id);
+	c->value = AFdata->focus;
+
+    set_ctrl(videoIn->fd, s->control_list, AFdata->id);
 
 	AFdata = NULL;
-	videoIn = NULL;
-}
-
-// Pan/Tilt (for motor cameras ex: Logitech Orbit/Sphere)
-void
-PanTilt_clicked (GtkButton * PanTilt, struct ALL_DATA *all_data)
-{
-	struct GLOBAL *global = all_data->global;
-	struct vdIn *videoIn = all_data->videoIn;
-	int pan = GPOINTER_TO_INT(g_object_get_data (G_OBJECT (PanTilt), "pan_info"));
-	int tilt = GPOINTER_TO_INT(g_object_get_data (G_OBJECT (PanTilt), "tilt_info"));
-	int reset = GPOINTER_TO_INT(g_object_get_data (G_OBJECT (PanTilt), "reset_info"));
-	
-	if(uvcPanTilt(videoIn->fd, pan * (global->PanStep), tilt * (global->TiltStep), reset)<0) 
-	{
-		g_printerr("Pan/Tilt Error: Pan = %d; Tilt = %d; reset = %d\n",
-			pan * (global->PanStep),
-			tilt * (global->TiltStep),
-			reset);
-	}
-
-	global = NULL;
 	videoIn = NULL;
 }
 
@@ -1219,7 +1139,7 @@ ProfileButton_clicked (GtkButton * ProfileButton, struct ALL_DATA *all_data)
 		if(*save)
 			SaveControls(s, global, videoIn);
 		else
-			LoadControls(s,global);
+			LoadControls(s,global, videoIn);
 	}
 	gtk_widget_destroy (gwidget->FileDialog);
 	gwidget = NULL;

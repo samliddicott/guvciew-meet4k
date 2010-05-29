@@ -73,16 +73,13 @@ void
 check_changed (GtkToggleButton * toggle, struct ALL_DATA *all_data);
 
 void
-reversePan_changed (GtkToggleButton * toggle, struct ALL_DATA *all_data);
-
-void
-bayer_changed (GtkToggleButton * toggle, struct ALL_DATA *all_data);
-
-void
 pix_ord_changed (GtkComboBox * combo, struct ALL_DATA *all_data);
 
 void
 combo_changed (GtkComboBox * combo, struct ALL_DATA *all_data);
+
+void
+button_clicked (GtkButton * Button, struct ALL_DATA *all_data);
 
 void
 VidFormat_changed (GtkComboBox * VidFormat, struct ALL_DATA *all_data);
@@ -91,7 +88,10 @@ void
 setfocus_clicked (GtkButton * FocusButton, struct ALL_DATA *all_data);
 
 void
-PanTilt_clicked (GtkButton * PanTilt, struct ALL_DATA *all_data);
+button_PanTilt1_clicked (GtkButton * Button, struct ALL_DATA *all_data);
+
+void
+button_PanTilt2_clicked (GtkButton * Button, struct ALL_DATA *all_data);
 
 void
 quitButton_clicked (GtkButton * quitButton, struct ALL_DATA *all_data);
