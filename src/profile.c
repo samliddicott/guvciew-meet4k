@@ -57,6 +57,19 @@ SaveControls(struct VidState *s, struct GLOBAL *global, struct vdIn *videoIn)
             fprintf(fp, "# control data\n");
             for(i=0; i<s->num_controls; i++)
             {
+                if((current->control.flags & V4L2_CTRL_FLAG_WRITE_ONLY) ||
+                   (current->control.flags & V4L2_CTRL_FLAG_READ_ONLY) ||
+                   (current->control.flags & V4L2_CTRL_FLAG_GRABBED))
+                {
+                    if(next == NULL)
+                        break;
+                    else 
+                    {
+                        current = next;
+                        next = current->next;
+                    }
+                    continue;
+                }
                 fprintf(fp, "#%s\n", current->control.name);
                 switch(current->control.type)
                 {
@@ -110,8 +123,7 @@ int
 LoadControls(struct VidState *s, struct GLOBAL *global, struct vdIn *videoIn)
 {
 	FILE *fp;
-	int i=0, major=0, minor=0, rev=0;
-	unsigned int id=0;
+	int major=0, minor=0, rev=0;
 	
 	Control *current = NULL;
 
@@ -120,6 +132,8 @@ LoadControls(struct VidState *s, struct GLOBAL *global, struct vdIn *videoIn)
 	
 	if((fp = g_fopen(filename,"r"))!=NULL) 
 	{
+	    disable_special_auto (videoIn->fd, s->control_list);
+	    
         char line[200];
         if(fgets(line, sizeof(line), fp) != NULL)
         {

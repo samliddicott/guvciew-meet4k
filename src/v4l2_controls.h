@@ -83,6 +83,13 @@ void get_ctrl_values (int hdevice, Control *control_list, int num_controls);
 int get_ctrl(int hdevice, Control *control_list, int id);
 
 /*
+ * Disables special auto-controls with higher IDs than
+ * their absolute/relative counterparts
+ * this is needed before restoring controls state
+ */
+void disable_special_auto (int hdevice, Control *control_list);
+
+/*
  * Goes through the control list and tries to set the controls values 
  */
 void set_ctrl_values (int hdevice, Control *control_list, int num_controls);

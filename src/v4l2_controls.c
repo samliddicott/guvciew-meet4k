@@ -282,16 +282,16 @@ static void update_ctrl_flags(Control *control_list, int id)
                             Control *ctrl_that = get_ctrl_by_id(control_list, 
                                 V4L2_CID_IRIS_ABSOLUTE );
                             if (ctrl_that)
-                                ctrl_that->control.flags |= V4L2_CTRL_FLAG_INACTIVE;
+                                ctrl_that->control.flags |= V4L2_CTRL_FLAG_GRABBED;
                             
                             ctrl_that = get_ctrl_by_id(control_list, 
                                 V4L2_CID_IRIS_RELATIVE );
                             if (ctrl_that)
-                                ctrl_that->control.flags |= V4L2_CTRL_FLAG_INACTIVE;
+                                ctrl_that->control.flags |= V4L2_CTRL_FLAG_GRABBED;
                             ctrl_that = get_ctrl_by_id(control_list, 
                                 V4L2_CID_EXPOSURE_ABSOLUTE );
                             if (ctrl_that)
-                                ctrl_that->control.flags |= V4L2_CTRL_FLAG_INACTIVE;
+                                ctrl_that->control.flags |= V4L2_CTRL_FLAG_GRABBED;
                         }
                         break;
                         
@@ -301,15 +301,15 @@ static void update_ctrl_flags(Control *control_list, int id)
                             Control *ctrl_that = get_ctrl_by_id(control_list, 
                                 V4L2_CID_EXPOSURE_ABSOLUTE );
                             if (ctrl_that)
-                                ctrl_that->control.flags |= V4L2_CTRL_FLAG_INACTIVE;
+                                ctrl_that->control.flags |= V4L2_CTRL_FLAG_GRABBED;
                             ctrl_that = get_ctrl_by_id(control_list, 
                                 V4L2_CID_IRIS_ABSOLUTE );
                             if (ctrl_that)
-                                ctrl_that->control.flags &= !(V4L2_CTRL_FLAG_INACTIVE);
+                                ctrl_that->control.flags &= !(V4L2_CTRL_FLAG_GRABBED);
                             ctrl_that = get_ctrl_by_id(control_list, 
                                 V4L2_CID_IRIS_RELATIVE );
                             if (ctrl_that)
-                                ctrl_that->control.flags &= !(V4L2_CTRL_FLAG_INACTIVE);
+                                ctrl_that->control.flags &= !(V4L2_CTRL_FLAG_GRABBED);
                         }
                         break;
                         
@@ -319,16 +319,16 @@ static void update_ctrl_flags(Control *control_list, int id)
                             Control *ctrl_that = get_ctrl_by_id(control_list, 
                                 V4L2_CID_IRIS_ABSOLUTE );
                             if (ctrl_that)
-                                ctrl_that->control.flags |= V4L2_CTRL_FLAG_INACTIVE;
+                                ctrl_that->control.flags |= V4L2_CTRL_FLAG_GRABBED;
                             
                             ctrl_that = get_ctrl_by_id(control_list, 
                                 V4L2_CID_IRIS_RELATIVE );
                             if (ctrl_that)
-                                ctrl_that->control.flags |= V4L2_CTRL_FLAG_INACTIVE;
+                                ctrl_that->control.flags |= V4L2_CTRL_FLAG_GRABBED;
                             ctrl_that = get_ctrl_by_id(control_list, 
                                 V4L2_CID_EXPOSURE_ABSOLUTE );
                             if (ctrl_that)
-                                ctrl_that->control.flags &= !(V4L2_CTRL_FLAG_INACTIVE);
+                                ctrl_that->control.flags &= !(V4L2_CTRL_FLAG_GRABBED);
                         }
                         break;
                     
@@ -338,15 +338,15 @@ static void update_ctrl_flags(Control *control_list, int id)
                             Control *ctrl_that = get_ctrl_by_id(control_list, 
                                 V4L2_CID_EXPOSURE_ABSOLUTE );
                             if (ctrl_that)
-                                ctrl_that->control.flags &= !(V4L2_CTRL_FLAG_INACTIVE);
+                                ctrl_that->control.flags &= !(V4L2_CTRL_FLAG_GRABBED);
                             ctrl_that = get_ctrl_by_id(control_list, 
                                 V4L2_CID_IRIS_ABSOLUTE );
                             if (ctrl_that)
-                                ctrl_that->control.flags &= !(V4L2_CTRL_FLAG_INACTIVE);
+                                ctrl_that->control.flags &= !(V4L2_CTRL_FLAG_GRABBED);
                             ctrl_that = get_ctrl_by_id(control_list, 
                                 V4L2_CID_IRIS_RELATIVE );
                             if (ctrl_that)
-                                ctrl_that->control.flags &= !(V4L2_CTRL_FLAG_INACTIVE);
+                                ctrl_that->control.flags &= !(V4L2_CTRL_FLAG_GRABBED);
                         }
                         break;
                 }
@@ -363,24 +363,24 @@ static void update_ctrl_flags(Control *control_list, int id)
                     Control *ctrl_that = get_ctrl_by_id(control_list,
                         V4L2_CID_FOCUS_ABSOLUTE);
                     if (ctrl_that)
-                        ctrl_that->control.flags |= V4L2_CTRL_FLAG_INACTIVE;
+                        ctrl_that->control.flags |= V4L2_CTRL_FLAG_GRABBED;
                             
                     ctrl_that = get_ctrl_by_id(control_list,
                         V4L2_CID_FOCUS_RELATIVE);
                     if (ctrl_that)
-                        ctrl_that->control.flags |= V4L2_CTRL_FLAG_INACTIVE;
+                        ctrl_that->control.flags |= V4L2_CTRL_FLAG_GRABBED;
                 }
                 else
                 {
                     Control *ctrl_that = get_ctrl_by_id(control_list,
                         V4L2_CID_FOCUS_ABSOLUTE);
                     if (ctrl_that)
-                        ctrl_that->control.flags &= !(V4L2_CTRL_FLAG_INACTIVE);
+                        ctrl_that->control.flags &= !(V4L2_CTRL_FLAG_GRABBED);
                          
                     ctrl_that = get_ctrl_by_id(control_list,
                         V4L2_CID_FOCUS_RELATIVE);
                     if (ctrl_that)
-                        ctrl_that->control.flags &= !(V4L2_CTRL_FLAG_INACTIVE);
+                        ctrl_that->control.flags &= !(V4L2_CTRL_FLAG_GRABBED);
                 }
             }
             break;
@@ -395,14 +395,14 @@ static void update_ctrl_flags(Control *control_list, int id)
                     Control *ctrl_that = get_ctrl_by_id(control_list,
                         V4L2_CID_HUE);
                     if (ctrl_that)
-                        ctrl_that->control.flags |= V4L2_CTRL_FLAG_INACTIVE;
+                        ctrl_that->control.flags |= V4L2_CTRL_FLAG_GRABBED;
                 }
                 else
                 {
                     Control *ctrl_that = get_ctrl_by_id(control_list,
                         V4L2_CID_HUE);
                     if (ctrl_that)
-                        ctrl_that->control.flags &= !(V4L2_CTRL_FLAG_INACTIVE);
+                        ctrl_that->control.flags &= !(V4L2_CTRL_FLAG_GRABBED);
                 }
             }
             break;
@@ -418,30 +418,30 @@ static void update_ctrl_flags(Control *control_list, int id)
                     Control *ctrl_that = get_ctrl_by_id(control_list,
                         V4L2_CID_WHITE_BALANCE_TEMPERATURE);
                     if (ctrl_that)
-                        ctrl_that->control.flags |= V4L2_CTRL_FLAG_INACTIVE;
+                        ctrl_that->control.flags |= V4L2_CTRL_FLAG_GRABBED;
                     ctrl_that = get_ctrl_by_id(control_list,
                         V4L2_CID_BLUE_BALANCE);
                     if (ctrl_that)
-                        ctrl_that->control.flags |= V4L2_CTRL_FLAG_INACTIVE;
+                        ctrl_that->control.flags |= V4L2_CTRL_FLAG_GRABBED;
                     ctrl_that = get_ctrl_by_id(control_list,
                         V4L2_CID_RED_BALANCE);
                     if (ctrl_that)
-                        ctrl_that->control.flags |= V4L2_CTRL_FLAG_INACTIVE;
+                        ctrl_that->control.flags |= V4L2_CTRL_FLAG_GRABBED;
                 }
                 else
                 {
                     Control *ctrl_that = get_ctrl_by_id(control_list,
                         V4L2_CID_WHITE_BALANCE_TEMPERATURE);
                     if (ctrl_that)
-                        ctrl_that->control.flags &= !(V4L2_CTRL_FLAG_INACTIVE);
+                        ctrl_that->control.flags &= !(V4L2_CTRL_FLAG_GRABBED);
                     ctrl_that = get_ctrl_by_id(control_list,
                         V4L2_CID_BLUE_BALANCE);
                     if (ctrl_that)
-                        ctrl_that->control.flags &= !(V4L2_CTRL_FLAG_INACTIVE);
+                        ctrl_that->control.flags &= !(V4L2_CTRL_FLAG_GRABBED);
                     ctrl_that = get_ctrl_by_id(control_list,
                         V4L2_CID_RED_BALANCE);
                     if (ctrl_that)
-                        ctrl_that->control.flags &= !(V4L2_CTRL_FLAG_INACTIVE);
+                        ctrl_that->control.flags &= !(V4L2_CTRL_FLAG_GRABBED);
                 }
             }
             break;
@@ -471,6 +471,36 @@ static void update_ctrl_list_flags(Control *control_list)
     }
 }
 
+/*
+ * Disables special auto-controls with higher IDs than
+ * their absolute/relative counterparts
+ * this is needed before restoring controls state
+ */
+void disable_special_auto (int hdevice, Control *control_list)
+{
+    Control *current = control_list;
+    Control *next = current->next;
+    int done = 0;
+    
+    while(!done)
+    {
+        if((current->control.id == V4L2_CID_FOCUS_AUTO) ||
+           (current->control.id == V4L2_CID_HUE_AUTO))
+        {
+            current->value = 0;
+            set_ctrl(hdevice, control_list, current->control.id);
+        }
+        
+        if(next == NULL)
+            done = 1;
+        else
+        {
+            current = next;
+            next = current->next;
+        }
+    }
+}
+
 static void update_widget_state(Control *control_list)
 {
     Control *current = control_list;
@@ -478,7 +508,7 @@ static void update_widget_state(Control *control_list)
     int done = 0;
     while(!done)
     {
-        if((current->control.flags & V4L2_CTRL_FLAG_INACTIVE) ||
+        if((current->control.flags & V4L2_CTRL_FLAG_GRABBED) ||
             (current->control.flags & V4L2_CTRL_FLAG_DISABLED))
         {
             if(current->label)
@@ -995,8 +1025,15 @@ void set_ctrl_values (int hdevice, Control *control_list, int num_controls)
                         ctrl.value = clist[i].value;
                         ret = xioctl(hdevice, VIDIOC_S_CTRL, &ctrl);
                         if(ret)
-                            printf("control id: 0x%08x failed to set (error %i)\n",
-                                clist[i].id, ret);
+                        {
+                            Control *ctrl = get_ctrl_by_id(control_list, clist[i].id);
+                            if(ctrl)
+                                printf("control(0x%08x) \"%s\" failed to set (error %i)\n",
+                                    clist[i].id, ctrl->control.name, ret);
+                            else
+                              printf("control(0x%08x) failed to set (error %i)\n",
+                                    clist[i].id, ret);  
+                        }
                     }
                 }
                 else
@@ -1009,8 +1046,15 @@ void set_ctrl_values (int hdevice, Control *control_list, int num_controls)
                         ctrls.controls = &clist[i];
                         ret = xioctl(hdevice, VIDIOC_S_EXT_CTRLS, &ctrls);
                         if(ret)
-                            printf("control id: 0x%08x failed to set (error %i)\n", 
-                                clist[i].id, ret);
+                        {
+                            Control *ctrl = get_ctrl_by_id(control_list, clist[i].id);
+                            if(ctrl)
+                                printf("control(0x%08x) \"%s\" failed to set (error %i)\n",
+                                    clist[i].id, ctrl->control.name, ret);
+                            else
+                              printf("control(0x%08x) failed to set (error %i)\n",
+                                    clist[i].id, ret);
+                        }
                     }
                 }
             }
