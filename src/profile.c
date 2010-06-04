@@ -31,8 +31,11 @@
 #include "../config.h"
 
 int
-SaveControls(struct VidState *s, struct GLOBAL *global, struct vdIn *videoIn)
+SaveControls(struct ALL_DATA *all_data)
 {
+    struct VidState *s = all_data->s;
+	struct GLOBAL *global = all_data->global;
+	struct vdIn *videoIn = all_data->videoIn;
     FILE *fp;
     int i=0;
     char *filename;
@@ -120,8 +123,11 @@ SaveControls(struct VidState *s, struct GLOBAL *global, struct vdIn *videoIn)
 }
 
 int
-LoadControls(struct VidState *s, struct GLOBAL *global, struct vdIn *videoIn)
+LoadControls(struct ALL_DATA *all_data)
 {
+    struct VidState *s = all_data->s;
+	struct GLOBAL *global = all_data->global;
+	struct vdIn *videoIn = all_data->videoIn;
     FILE *fp;
     int major=0, minor=0, rev=0;
     int num_controls = 0;
@@ -291,7 +297,7 @@ LoadControls(struct VidState *s, struct GLOBAL *global, struct vdIn *videoIn)
         }
         
         set_ctrl_values(videoIn->fd, set_list, num_controls);
-        get_ctrl_values(videoIn->fd, s->control_list, s->num_controls);
+        get_ctrl_values(videoIn->fd, s->control_list, s->num_controls, all_data);
     } 
     else 
     {

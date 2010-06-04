@@ -163,7 +163,7 @@ void *main_loop(void *data)
 	if (global->AFcontrol) 
 	{
 	    focus_control = get_ctrl_by_id(s->control_list, AFdata->id);
-		get_ctrl(videoIn->fd, s->control_list, AFdata->id);
+		get_ctrl(videoIn->fd, s->control_list, AFdata->id, all_data);
 		last_focus = focus_control->value;
 		/*make sure we wait for focus to settle on first check*/
 		if (last_focus < 0) last_focus = AFdata->f_max;

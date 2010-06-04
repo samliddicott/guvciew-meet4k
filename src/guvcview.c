@@ -341,7 +341,7 @@ int main(int argc, char *argv[])
 	printf("drawing controls\n\n");
 	draw_controls(&all_data);
 	
-	if (global->lprofile > 0) LoadControls (s, global, videoIn);
+	if (global->lprofile > 0) LoadControls (&all_data);
 	
 	gwidget->boxv = gtk_vpaned_new ();
 	gwidget->boxh = gtk_notebook_new();

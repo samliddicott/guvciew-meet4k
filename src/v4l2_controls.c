@@ -486,13 +486,61 @@ void disable_special_auto (int hdevice, Control *control_list, int id)
     }
 }
 
-static void update_widget_state(Control *control_list)
+static void update_widget_state(Control *control_list, void *all_data)
 {
     Control *current = control_list;
     Control *next = current->next;
     int done = 0;
     while(!done)
     {
+        switch(current->control.type)
+        {
+            case V4L2_CTRL_TYPE_BOOLEAN:
+                //disable widget signals
+                g_signal_handlers_block_by_func(GTK_TOGGLE_BUTTON(current->widget),
+                    G_CALLBACK (check_changed), all_data);
+                gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (current->widget),
+                    current->value ? TRUE : FALSE);    
+                //enable widget signals
+                g_signal_handlers_unblock_by_func(GTK_TOGGLE_BUTTON(current->widget),
+                    G_CALLBACK (check_changed), all_data);
+                break;
+            case V4L2_CTRL_TYPE_INTEGER:
+                if((current->control.id != V4L2_CID_PAN_RELATIVE) &&
+                   (current->control.id != V4L2_CID_TILT_RELATIVE))
+                {
+                    //disable widget signals
+                    g_signal_handlers_block_by_func(GTK_SCALE (current->widget), 
+                        G_CALLBACK (slider_changed), all_data);
+                    gtk_range_set_value (GTK_RANGE (current->widget), current->value);
+                    //enable widget signals    
+                    g_signal_handlers_unblock_by_func(GTK_SCALE (current->widget), 
+                        G_CALLBACK (slider_changed), all_data);
+                    if(current->spinbutton)
+                    {   
+                        //disable widget signals
+                        g_signal_handlers_block_by_func(GTK_SPIN_BUTTON(current->spinbutton), 
+                            G_CALLBACK (spin_changed), all_data); 
+                        gtk_spin_button_set_value (GTK_SPIN_BUTTON(current->spinbutton), current->value);
+                        //enable widget signals
+                        g_signal_handlers_unblock_by_func(GTK_SPIN_BUTTON(current->spinbutton), 
+                            G_CALLBACK (spin_changed), all_data);
+                    }
+                }
+                break;
+            case V4L2_CTRL_TYPE_MENU:
+                //disable widget signals
+                g_signal_handlers_block_by_func(GTK_COMBO_BOX(current->widget), 
+                    G_CALLBACK (combo_changed), all_data);
+                gtk_combo_box_set_active(GTK_COMBO_BOX(current->widget), current->value);
+                //enable widget signals    
+                g_signal_handlers_unblock_by_func(GTK_COMBO_BOX(current->widget), 
+                    G_CALLBACK (combo_changed), all_data);
+                break;
+            default:
+                break;
+        }
+                
         if((current->control.flags & V4L2_CTRL_FLAG_GRABBED) ||
             (current->control.flags & V4L2_CTRL_FLAG_DISABLED))
         {
@@ -661,9 +709,9 @@ static void update_widget_state(Control *control_list)
                     g_object_set_data (G_OBJECT (current->spinbutton), "control_info",
                         GINT_TO_POINTER(current->control.id));
                     //connect signal
-                    g_signal_connect (G_OBJECT (current->widget), "value-changed",
+                    g_signal_connect (GTK_SCALE(current->widget), "value-changed",
                         G_CALLBACK (slider_changed), all_data);
-                    g_signal_connect (G_OBJECT (current->spinbutton),"value-changed",
+                    g_signal_connect(GTK_SPIN_BUTTON(current->spinbutton),"value-changed",
                         G_CALLBACK (spin_changed), all_data);
                 }
                 break;
@@ -686,7 +734,7 @@ static void update_widget_state(Control *control_list)
                         g_object_set_data (G_OBJECT (current->widget), "control_info", 
                             GINT_TO_POINTER(current->control.id));
                         //connect signal
-                        g_signal_connect (G_OBJECT (current->widget), "changed",
+                        g_signal_connect (GTK_COMBO_BOX(current->widget), "changed",
                             G_CALLBACK (combo_changed), all_data);
                     }
                 }
@@ -723,7 +771,7 @@ static void update_widget_state(Control *control_list)
                     g_object_set_data (G_OBJECT (current->widget), "control_info", 
                         GINT_TO_POINTER(current->control.id));
                     //connect signal
-                    g_signal_connect (G_OBJECT (current->widget), "toggled",
+                    g_signal_connect (GTK_TOGGLE_BUTTON(current->widget), "toggled",
                         G_CALLBACK (check_changed), all_data);
                 }
                 break;
@@ -742,7 +790,7 @@ static void update_widget_state(Control *control_list)
         }
     }
     
-    update_widget_state(control_list);
+    update_widget_state(control_list, all_data);
  }
 
 /*
@@ -772,7 +820,7 @@ Control *get_ctrl_by_id(Control *control_list, int id)
  * Goes through the control list and gets the controls current values
  * also updates flags and widget states
  */
-void get_ctrl_values (int hdevice, Control *control_list, int num_controls)
+void get_ctrl_values (int hdevice, Control *control_list, int num_controls, void *all_data)
 {
     int ret = 0;
     struct v4l2_ext_control clist[num_controls];
@@ -879,7 +927,7 @@ next_control:
     }
     
     update_ctrl_list_flags(control_list);
-    update_widget_state(control_list);    
+    update_widget_state(control_list, all_data);    
     
 }
 
@@ -887,7 +935,7 @@ next_control:
  * Gets the value for control id
  * and updates control flags and widgets
  */
-int get_ctrl(int hdevice, Control *control_list, int id)
+int get_ctrl(int hdevice, Control *control_list, int id, void *all_data)
 {
     Control *control = get_ctrl_by_id(control_list, id );
     int ret = 0;
@@ -951,7 +999,7 @@ int get_ctrl(int hdevice, Control *control_list, int id)
     } 
     
     update_ctrl_flags(control_list, id);
-    update_widget_state(control_list);
+    update_widget_state(control_list, all_data);
     
     return (ret);
 }
@@ -1070,7 +1118,7 @@ next_control:
 /*
  * sets all controls to default values
  */
-void set_default_values(int hdevice, Control *control_list, int num_controls)
+void set_default_values(int hdevice, Control *control_list, int num_controls, void *all_data)
 {
     Control *current = control_list;
     Control *next = current->next;
@@ -1114,7 +1162,7 @@ void set_default_values(int hdevice, Control *control_list, int num_controls)
     }
     
     set_ctrl_values (hdevice, control_list, num_controls);
-    get_ctrl_values (hdevice, control_list, num_controls);
+    get_ctrl_values (hdevice, control_list, num_controls, all_data);
     
 }
 
@@ -1170,7 +1218,7 @@ int set_ctrl(int hdevice, Control *control_list, int id)
     }
     
     //update real value
-    get_ctrl(hdevice, control_list, id);
+    get_ctrl(hdevice, control_list, id, NULL);
     
     return (ret); 
 }

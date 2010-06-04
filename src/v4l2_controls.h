@@ -74,13 +74,13 @@ Control *get_ctrl_by_id(Control *control_list, int id);
 /*
  * Goes through the control list and gets the controls current values
  */
-void get_ctrl_values (int hdevice, Control *control_list, int num_controls);
+void get_ctrl_values (int hdevice, Control *control_list, int num_controls, void *all_data);
 
 /*
  * Gets the value for control id
  * and updates control flags and widgets
  */
-int get_ctrl(int hdevice, Control *control_list, int id);
+int get_ctrl(int hdevice, Control *control_list, int id, void *all_data);
 
 /*
  * Disables special auto-controls with higher IDs than
@@ -97,7 +97,7 @@ void set_ctrl_values (int hdevice, Control *control_list, int num_controls);
 /*
  * sets all controls to default values
  */
-void set_default_values(int hdevice, Control *control_list, int num_controls);
+void set_default_values(int hdevice, Control *control_list, int num_controls, void *all_data);
 
 /*
  * sets the value for control id

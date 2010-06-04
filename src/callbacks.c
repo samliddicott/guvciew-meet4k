@@ -1099,7 +1099,7 @@ DefaultsButton_clicked (GtkButton * DefaultsButton, struct ALL_DATA *all_data)
     struct VidState *s = all_data->s;
     struct vdIn *videoIn = all_data->videoIn;
 
-    set_default_values(videoIn->fd, s->control_list, s->num_controls);
+    set_default_values(videoIn->fd, s->control_list, s->num_controls, all_data);
 }
 
 void
@@ -1145,9 +1145,9 @@ ProfileButton_clicked (GtkButton * ProfileButton, struct ALL_DATA *all_data)
 		global->profile_FPath=splitPath(filename,global->profile_FPath);
 		
 		if(*save)
-			SaveControls(s, global, videoIn);
+			SaveControls(all_data);
 		else
-			LoadControls(s,global, videoIn);
+			LoadControls(all_data);
 	}
 	gtk_widget_destroy (gwidget->FileDialog);
 	gwidget = NULL;

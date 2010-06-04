@@ -23,12 +23,13 @@
 #define PROFILE_H
 
 #include "v4l2uvc.h"
+#include "guvcview.h"
 #include "globals.h"
 
 int
-SaveControls(struct VidState *s,struct GLOBAL *global, struct vdIn *videoIn);
+SaveControls(struct ALL_DATA *all_data);
 
 int
-LoadControls(struct VidState *s, struct GLOBAL *global, struct vdIn *videoIn);
+LoadControls(struct ALL_DATA *all_data);
 
 #endif
