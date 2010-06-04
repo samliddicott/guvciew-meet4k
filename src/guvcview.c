@@ -130,12 +130,14 @@ int main(int argc, char *argv[])
 	GtkWidget *quitButton;
 	GtkWidget *SProfileButton;
 	GtkWidget *LProfileButton;
+    GtkWidget *DefaultsButton;
 	GtkWidget *Tab1;
 	GtkWidget *Tab1Label;
 	GtkWidget *Tab1Icon;
 	GtkWidget *ImgButton_Img;
 	GtkWidget *SButton_Img;
 	GtkWidget *LButton_Img;
+	GtkWidget *DButton_Img;
 	GtkWidget *QButton_Img;
 	GtkWidget *HButtonBox;
 	
@@ -412,6 +414,7 @@ int main(int argc, char *argv[])
 	quitButton=gtk_button_new_from_stock(GTK_STOCK_QUIT);
 	SProfileButton=gtk_button_new_from_stock(GTK_STOCK_SAVE);
 	LProfileButton=gtk_button_new_from_stock(GTK_STOCK_OPEN);
+    DefaultsButton=gtk_button_new_with_label(_("Defaults"));
 
 	gchar* icon1path = g_strconcat (PACKAGE_DATA_DIR,"/pixmaps/guvcview/guvcview.png",NULL);
 	if (g_file_test(icon1path,G_FILE_TEST_EXISTS))
@@ -499,10 +502,19 @@ int main(int argc, char *argv[])
 		gtk_button_set_image_position(GTK_BUTTON(LProfileButton),GTK_POS_TOP);
 		//gtk_widget_show (LButton_Img);
 	}
-	gchar* pix5path = g_strconcat (PACKAGE_DATA_DIR,"/pixmaps/guvcview/close.png",NULL);
+    gchar* pix5path = g_strconcat (PACKAGE_DATA_DIR,"/pixmaps/guvcview/controls_folder.png",NULL);
 	if (g_file_test(pix5path,G_FILE_TEST_EXISTS)) 
 	{
-		QButton_Img = gtk_image_new_from_file (pix5path);
+		DButton_Img = gtk_image_new_from_file (pix5path);
+		
+		gtk_button_set_image(GTK_BUTTON(DefaultsButton),DButton_Img);
+		gtk_button_set_image_position(GTK_BUTTON(DefaultsButton),GTK_POS_TOP);
+		//gtk_widget_show (LButton_Img);
+	}
+	gchar* pix6path = g_strconcat (PACKAGE_DATA_DIR,"/pixmaps/guvcview/close.png",NULL);
+	if (g_file_test(pix6path,G_FILE_TEST_EXISTS)) 
+	{
+		QButton_Img = gtk_image_new_from_file (pix6path);
 		
 		gtk_button_set_image(GTK_BUTTON(quitButton),QButton_Img);
 		gtk_button_set_image_position(GTK_BUTTON(quitButton),GTK_POS_TOP);
@@ -513,13 +525,16 @@ int main(int argc, char *argv[])
 	g_free(pix3path);
 	g_free(pix4path);
 	g_free(pix5path);
+    g_free(pix6path);
 
 	gtk_box_pack_start(GTK_BOX(HButtonBox),SProfileButton,TRUE,TRUE,2);
 	gtk_box_pack_start(GTK_BOX(HButtonBox),LProfileButton,TRUE,TRUE,2);
+    gtk_box_pack_start(GTK_BOX(HButtonBox),DefaultsButton,TRUE,TRUE,2);
 	gtk_box_pack_start(GTK_BOX(HButtonBox),quitButton,TRUE,TRUE,2);
 
 	gtk_widget_show_all (LProfileButton);
 	gtk_widget_show_all (SProfileButton);
+    gtk_widget_show_all (DefaultsButton);
 	gtk_widget_show_all (quitButton);
 
 	g_signal_connect (GTK_BUTTON(quitButton), "clicked",
@@ -533,6 +548,9 @@ int main(int argc, char *argv[])
 	g_object_set_data (G_OBJECT (LProfileButton), "profile_save", &(LProfile));
 	g_signal_connect (GTK_BUTTON(LProfileButton), "clicked",
 		G_CALLBACK (ProfileButton_clicked), &all_data);
+    
+    g_signal_connect (GTK_BUTTON(DefaultsButton), "clicked",
+		G_CALLBACK (DefaultsButton_clicked), &all_data);
 	
 	/*sets the pan position*/
 	if(global->boxvsize==0) 

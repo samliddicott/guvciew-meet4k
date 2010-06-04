@@ -332,9 +332,9 @@ autofocus_changed (GtkToggleButton * toggle, struct ALL_DATA *all_data)
 void
 check_changed (GtkToggleButton * toggle, struct ALL_DATA *all_data)
 {
-	struct VidState *s = all_data->s;
-	struct GLOBAL *global = all_data->global;
-	struct vdIn *videoIn = all_data->videoIn;
+    struct VidState *s = all_data->s;
+    struct GLOBAL *global = all_data->global;
+    struct vdIn *videoIn = all_data->videoIn;
 
     int id = GPOINTER_TO_INT(g_object_get_data (G_OBJECT (toggle), "control_info"));
     Control *c = get_ctrl_by_id(s->control_list, id);
@@ -348,15 +348,15 @@ check_changed (GtkToggleButton * toggle, struct ALL_DATA *all_data)
     if(id == V4L2_CID_DISABLE_PROCESSING_LOGITECH)
     {
         if (c->value > 0) videoIn->isbayer=1;
-	    else videoIn->isbayer=0;
-	    
-	    //restart stream by changing fps
-	    videoIn->setFPS = 1;
-	}
-	
-	s = NULL;
-	global = NULL;
-	videoIn = NULL;
+        else videoIn->isbayer=0;
+        
+        //restart stream by changing fps
+        videoIn->setFPS = 1;
+    }
+    
+    s = NULL;
+    global = NULL;
+    videoIn = NULL;
 }
 
 void
@@ -1093,6 +1093,14 @@ capture_vid (GtkToggleButton *VidButt, struct ALL_DATA *all_data)
 }
 
 /*--------------------- buttons callbacks ------------------*/
+void
+DefaultsButton_clicked (GtkButton * DefaultsButton, struct ALL_DATA *all_data)
+{
+    struct VidState *s = all_data->s;
+    struct vdIn *videoIn = all_data->videoIn;
+
+    set_default_values(videoIn->fd, s->control_list, s->num_controls);
+}
 
 void
 ProfileButton_clicked (GtkButton * ProfileButton, struct ALL_DATA *all_data)

@@ -476,28 +476,13 @@ static void update_ctrl_list_flags(Control *control_list)
  * their absolute/relative counterparts
  * this is needed before restoring controls state
  */
-void disable_special_auto (int hdevice, Control *control_list)
+void disable_special_auto (int hdevice, Control *control_list, int id)
 {
-    Control *current = control_list;
-    Control *next = current->next;
-    int done = 0;
-    
-    while(!done)
+    Control *current = get_ctrl_by_id(control_list, id);
+    if(current && ((id == V4L2_CID_FOCUS_AUTO) || (id == V4L2_CID_HUE_AUTO)))
     {
-        if((current->control.id == V4L2_CID_FOCUS_AUTO) ||
-           (current->control.id == V4L2_CID_HUE_AUTO))
-        {
-            current->value = 0;
-            set_ctrl(hdevice, control_list, current->control.id);
-        }
-        
-        if(next == NULL)
-            done = 1;
-        else
-        {
-            current = next;
-            next = current->next;
-        }
+        current->value = 0;
+        set_ctrl(hdevice, control_list, id);
     }
 }
 
@@ -570,9 +555,11 @@ static void update_widget_state(Control *control_list)
         switch(current->control.type)
         {
             case V4L2_CTRL_TYPE_STRING:
+                //text box and set button
                 break;
             
             case V4L2_CTRL_TYPE_INTEGER64:
+                //slider
                 break;
             
             case V4L2_CTRL_TYPE_BUTTON:
@@ -593,48 +580,48 @@ static void update_widget_state(Control *control_list)
                     //special cases
                     if ((current->control.id == V4L2_CID_PAN_RELATIVE) ||
                         (current->control.id == V4L2_CID_TILT_RELATIVE))
-		            {
-			            //videoIn->PanTilt++;
-			            current->widget = gtk_hbox_new (TRUE, 1);
+                    {
+                        //videoIn->PanTilt++;
+                        current->widget = gtk_hbox_new (TRUE, 1);
 
-			            GtkWidget *PanTilt1 = NULL;
-			            GtkWidget *PanTilt2 = NULL;
-			            if(current->control.id == V4L2_CID_PAN_RELATIVE)
-			            {
-			                PanTilt1 = gtk_button_new_with_label(_("Left"));
-			                PanTilt2 = gtk_button_new_with_label(_("Right"));
-			            }
-			            else
-			            {
-			                PanTilt1 = gtk_button_new_with_label(_("Down"));
-			                PanTilt2 = gtk_button_new_with_label(_("Up"));
-			            }
-			             
-			            gtk_widget_show (PanTilt1);
-			            gtk_widget_show (PanTilt2);
-			            gtk_box_pack_start(GTK_BOX(current->widget),PanTilt1,TRUE,TRUE,2);
-			            gtk_box_pack_start(GTK_BOX(current->widget),PanTilt2,TRUE,TRUE,2);
-			            
-			            g_object_set_data (G_OBJECT (PanTilt1), "control_info", 
+                        GtkWidget *PanTilt1 = NULL;
+                        GtkWidget *PanTilt2 = NULL;
+                        if(current->control.id == V4L2_CID_PAN_RELATIVE)
+                        {
+                            PanTilt1 = gtk_button_new_with_label(_("Left"));
+                            PanTilt2 = gtk_button_new_with_label(_("Right"));
+                        }
+                        else
+                        {
+                            PanTilt1 = gtk_button_new_with_label(_("Down"));
+                            PanTilt2 = gtk_button_new_with_label(_("Up"));
+                        }
+                        
+                        gtk_widget_show (PanTilt1);
+                        gtk_widget_show (PanTilt2);
+                        gtk_box_pack_start(GTK_BOX(current->widget),PanTilt1,TRUE,TRUE,2);
+                        gtk_box_pack_start(GTK_BOX(current->widget),PanTilt2,TRUE,TRUE,2);
+                        
+                        g_object_set_data (G_OBJECT (PanTilt1), "control_info", 
                             GINT_TO_POINTER(current->control.id));
                         g_object_set_data (G_OBJECT (PanTilt2), "control_info", 
                             GINT_TO_POINTER(current->control.id));
-			            
-			            g_signal_connect (GTK_BUTTON(PanTilt1), "clicked",
+                        
+                        g_signal_connect (GTK_BUTTON(PanTilt1), "clicked",
                             G_CALLBACK (button_PanTilt1_clicked), all_data);
-			            g_signal_connect (GTK_BUTTON(PanTilt2), "clicked",
+                        g_signal_connect (GTK_BUTTON(PanTilt2), "clicked",
                             G_CALLBACK (button_PanTilt2_clicked), all_data);
 
                         gtk_widget_show (current->widget);
                         
-			            current->spinbutton = gtk_spin_button_new_with_range(-256, 256, 64);
+                        current->spinbutton = gtk_spin_button_new_with_range(-256, 256, 64);
                         /*can't edit the spin value by hand*/
                         gtk_editable_set_editable(GTK_EDITABLE(current->spinbutton),FALSE);
                     
                         gtk_spin_button_set_value (GTK_SPIN_BUTTON(current->spinbutton), 128);
                         gtk_widget_show (current->spinbutton);
                         break;
-			        }
+                    }
                     
                     if ((current->control.id == V4L2_CID_PAN_RESET) ||
                         (current->control.id == V4L2_CID_TILT_RESET))
@@ -769,8 +756,9 @@ Control *get_ctrl_by_id(Control *control_list, int id)
     while (next != NULL)
     {
         if(current->control.id == id)
+        {
             return (current);
-        
+        }
         current = next;
         next = current->next;
     }
@@ -917,7 +905,7 @@ int get_ctrl(int hdevice, Control *control_list, int id)
         ctrl.value = 0;
         ret = xioctl(hdevice, VIDIOC_G_CTRL, &ctrl);
         if(ret)
-            printf("control id: 0x%08x failed to set (error %i)\n",
+            printf("control id: 0x%08x failed to get value (error %i)\n",
                 ctrl.id, ret); 
         else
             control->value = ctrl.value;
@@ -939,7 +927,7 @@ int get_ctrl(int hdevice, Control *control_list, int id)
         ctrls.controls = &ctrl;
         ret = xioctl(hdevice, VIDIOC_G_EXT_CTRLS, &ctrls);
         if(ret)
-            printf("control id: 0x%08x failed to set (error %i)\n",
+            printf("control id: 0x%08x failed to get value (error %i)\n",
                 ctrl.id, ret);
         else
         {
@@ -1076,9 +1064,59 @@ next_control:
     }
     
     //update list with real values
-    get_ctrl_values (hdevice, control_list, num_controls);
+    //get_ctrl_values (hdevice, control_list, num_controls);
 }
 
+/*
+ * sets all controls to default values
+ */
+void set_default_values(int hdevice, Control *control_list, int num_controls)
+{
+    Control *current = control_list;
+    Control *next = current->next;
+    int done = 0;
+    
+    while(!done)
+    {
+        if(current->control.flags & V4L2_CTRL_FLAG_READ_ONLY)
+        {
+            if(next == NULL)
+                break;
+            else
+            {
+                current = next;
+                next = current->next;
+            }
+            continue;
+        }
+        //printf("setting 0x%08X to %i\n",current->control.id, current->control.default_value); 
+        switch (current->control.type)
+        {
+            case V4L2_CTRL_TYPE_STRING:
+                break;
+            case V4L2_CTRL_TYPE_INTEGER64:
+                current->value64 = current->control.default_value;
+                break;
+            default:
+                //if its one of the special auto controls disable it first
+                disable_special_auto (hdevice, control_list, current->control.id);
+                current->value = current->control.default_value;
+                break;
+        }
+        
+        if(next == NULL)
+            done = 1;
+        else
+        {
+            current = next;
+            next = current->next;
+        }
+    }
+    
+    set_ctrl_values (hdevice, control_list, num_controls);
+    get_ctrl_values (hdevice, control_list, num_controls);
+    
+}
 
 /*
  * sets the value for control id

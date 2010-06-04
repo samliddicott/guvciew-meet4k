@@ -33,23 +33,23 @@
 int
 SaveControls(struct VidState *s, struct GLOBAL *global, struct vdIn *videoIn)
 {
-	FILE *fp;
-	int i=0;
-	char *filename;
-	filename = g_strjoin("/", global->profile_FPath[1], global->profile_FPath[0], NULL);
-	
-	fp = g_fopen(filename, "w");
-	if( fp == NULL )
-	{
-		g_printerr("Could not open profile data file: %s.\n",filename);
-		return (-1);
-	} 
-	else 
-	{
-		if (s->control_list) 
-		{
-		    Control *current = s->control_list;
-		    Control *next = current->next;
+    FILE *fp;
+    int i=0;
+    char *filename;
+    filename = g_strjoin("/", global->profile_FPath[1], global->profile_FPath[0], NULL);
+    
+    fp = g_fopen(filename, "w");
+    if( fp == NULL )
+    {
+        g_printerr("Could not open profile data file: %s.\n",filename);
+        return (-1);
+    } 
+    else 
+    {
+        if (s->control_list) 
+        {
+            Control *current = s->control_list;
+            Control *next = current->next;
             //write header
             fprintf(fp, "#V4L2/CTRL/0.0.2\n");
             fprintf(fp, "APP{\"v4l2-re-store-ctrls example app\"}\n");
@@ -105,35 +105,36 @@ SaveControls(struct VidState *s, struct GLOBAL *global, struct vdIn *videoIn)
                     next = current->next;
                 }    
             }
-		}
-	}
-	g_free(filename);
-	
-	fflush(fp); //flush stream buffers to filesystem
-	if(fsync(fileno(fp)) ||	fclose(fp))
-	{
-		perror("PROFILE ERROR - write to file failed");
-		return(-1);
-	}
-	
-	return (0);
+        }
+    }
+    g_free(filename);
+    
+    fflush(fp); //flush stream buffers to filesystem
+    if(fsync(fileno(fp)) ||	fclose(fp))
+    {
+        perror("PROFILE ERROR - write to file failed");
+        return(-1);
+    }
+
+    return (0);
 }
 
 int
 LoadControls(struct VidState *s, struct GLOBAL *global, struct vdIn *videoIn)
 {
-	FILE *fp;
-	int major=0, minor=0, rev=0;
-	
-	Control *current = NULL;
+    FILE *fp;
+    int major=0, minor=0, rev=0;
+    int num_controls = 0;
+    Control *current = NULL;
+    Control *set_list= NULL;
+    Control *set_curr= NULL;
+    Control *set_next= NULL;
 
-	char *filename;
-	filename = g_strjoin("/", global->profile_FPath[1], global->profile_FPath[0], NULL);
-	
-	if((fp = g_fopen(filename,"r"))!=NULL) 
-	{
-	    disable_special_auto (videoIn->fd, s->control_list);
-	    
+    char *filename;
+    filename = g_strjoin("/", global->profile_FPath[1], global->profile_FPath[0], NULL);
+    
+    if((fp = g_fopen(filename,"r"))!=NULL) 
+    {
         char line[200];
         if(fgets(line, sizeof(line), fp) != NULL)
         {
@@ -165,6 +166,7 @@ LoadControls(struct VidState *s, struct GLOBAL *global, struct vdIn *videoIn)
                 if(sscanf(line,"ID{0x%08x};CHK{%i:%i:%i:%i}=VAL{%i}",
                     &id, &min, &max, &step, &def, &val) == 6)
                 {
+                   
                     current = get_ctrl_by_id(s->control_list, id);
                     if(current)
                     {
@@ -174,9 +176,33 @@ LoadControls(struct VidState *s, struct GLOBAL *global, struct vdIn *videoIn)
                            current->control.step == step &&
                            current->control.default_value == def)
                         {
-                            current->value = val;
-                            //printf("setting %s to %i\n",
-                            //    current->control.name, val);
+                            //if its one of the special auto controls disable it first
+                            disable_special_auto (videoIn->fd, s->control_list, id);
+                            //control exists add it to set_list
+                            if(!set_list)
+                            {
+                                set_list = calloc (1, sizeof(Control));
+                                set_curr = set_list;
+                                memcpy(&(set_curr->control), &(current->control), sizeof(struct v4l2_queryctrl));
+                                set_curr->class = set_curr->control.id & 0xFFFF0000;
+                                set_curr->next = NULL;
+                                set_curr->menu = NULL;
+                                set_curr->string = NULL;
+                                set_curr->value = val;
+                            }
+                            else
+                            {
+                                set_next = calloc (1, sizeof(Control));
+                                memcpy(&(set_next->control), &(current->control), sizeof(struct v4l2_queryctrl));
+                                set_next->next = NULL;
+                                set_curr->next = set_next;
+                                set_curr = set_next;
+                                set_curr->class = set_curr->control.id & 0xFFFF0000;
+                                set_curr->menu = NULL;
+                                set_curr->string = NULL;
+                                set_curr->value = val;
+                            }
+                            num_controls++;
                         }
                     }
                 }
@@ -186,7 +212,29 @@ LoadControls(struct VidState *s, struct GLOBAL *global, struct vdIn *videoIn)
                     current = get_ctrl_by_id(s->control_list, id);
                     if(current)
                     {
-                        current->value64 = val64;
+                        //control exists add it to set_list
+                        if(!set_list)
+                        {
+                            set_list = calloc (1, sizeof(Control));
+                            set_curr = set_list;
+                            memcpy(&(set_curr->control), &(current->control), sizeof(struct v4l2_queryctrl));
+                            set_curr->class = set_curr->control.id & 0xFFFF0000;
+                            set_curr->next = NULL;
+                            set_curr->value64 = val64;
+                        }
+                        else
+                        {
+                            set_next = calloc (1, sizeof(Control));
+                            memcpy(&(set_next->control), &(current->control), sizeof(struct v4l2_queryctrl));
+                            set_next->next = NULL;
+                            set_curr->next = set_next;
+                            set_curr = set_next;
+                            set_curr->class = set_curr->control.id & 0xFFFF0000;
+                            set_curr->menu = NULL;
+                            set_curr->string = NULL;
+                            set_curr->value64 = val64;
+                        }
+                        num_controls++;
                     }
                 }
                 else if(sscanf(line,"ID{0x%08x};CHK{%i:%i:%i:0}=STR{\"%*s\"}",
@@ -208,9 +256,33 @@ LoadControls(struct VidState *s, struct GLOBAL *global, struct vdIn *videoIn)
                             }
                             else
                             {
-                                //string size including terminating null character
-                                current->value = strlen(str) + 1;
-                                strcpy(current->string, str);
+                                //control exists add it to set_list
+                                if(!set_list)
+                                {
+                                    set_list = calloc (1, sizeof(Control));
+                                    set_curr = set_list;
+                                    memcpy(&(set_curr->control), &(current->control), sizeof(struct v4l2_queryctrl));
+                                    set_curr->class = set_curr->control.id & 0xFFFF0000;
+                                    set_curr->next = NULL;
+                                    set_curr->menu = NULL;
+                                    set_curr->value = strlen(str) + 1;
+                                    set_curr->string = calloc(set_curr->value, sizeof(char));
+                                    strcpy(set_curr->string, str);
+                                }
+                                else
+                                {
+                                    set_next = calloc (1, sizeof(Control));
+                                    memcpy(&(set_next->control), &(current->control), sizeof(struct v4l2_queryctrl));
+                                    set_next->next = NULL;
+                                    set_curr->next = set_next;
+                                    set_curr = set_next;
+                                    set_curr->class = set_curr->control.id & 0xFFFF0000;
+                                    set_curr->menu = NULL;
+                                    set_curr->value = strlen(str) + 1;
+                                    set_curr->string = calloc(set_curr->value, sizeof(char));
+                                    strcpy(set_curr->string, str);
+                                }
+                                num_controls++;
                             }
                         }
                     }
@@ -218,16 +290,18 @@ LoadControls(struct VidState *s, struct GLOBAL *global, struct vdIn *videoIn)
             }
         }
         
-        set_ctrl_values(videoIn->fd, s->control_list, s->num_controls);	
-	} 
-	else 
-	{
-		g_printerr("Could not open profile data file: %s.\n",filename);
-		return (-1);
-	} 
-	
+        set_ctrl_values(videoIn->fd, set_list, num_controls);
+        get_ctrl_values(videoIn->fd, s->control_list, s->num_controls);
+    } 
+    else 
+    {
+        g_printerr("Could not open profile data file: %s.\n",filename);
+        return (-1);
+    } 
+    
 finish:
-	fclose(fp);
-	g_free(filename);
-	return (0);
+    free_control_list (set_list);
+    fclose(fp);
+    g_free(filename);
+    return (0);
 }

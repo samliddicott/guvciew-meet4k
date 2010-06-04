@@ -87,12 +87,17 @@ int get_ctrl(int hdevice, Control *control_list, int id);
  * their absolute/relative counterparts
  * this is needed before restoring controls state
  */
-void disable_special_auto (int hdevice, Control *control_list);
+void disable_special_auto (int hdevice, Control *control_list, int id);
 
 /*
  * Goes through the control list and tries to set the controls values 
  */
 void set_ctrl_values (int hdevice, Control *control_list, int num_controls);
+
+/*
+ * sets all controls to default values
+ */
+void set_default_values(int hdevice, Control *control_list, int num_controls);
 
 /*
  * sets the value for control id
