@@ -250,6 +250,18 @@ slider_changed (GtkRange * range, struct ALL_DATA *all_data)
     c->value = val;
 
     set_ctrl(videoIn->fd, s->control_list, id);
+    
+    //update spin
+    if(c->spinbutton)
+    {   
+        //disable widget signals
+        g_signal_handlers_block_by_func(GTK_SPIN_BUTTON(c->spinbutton), 
+            G_CALLBACK (spin_changed), all_data); 
+        gtk_spin_button_set_value (GTK_SPIN_BUTTON(c->spinbutton), c->value);
+        //enable widget signals
+        g_signal_handlers_unblock_by_func(GTK_SPIN_BUTTON(c->spinbutton), 
+            G_CALLBACK (spin_changed), all_data);
+    }
 	
 	s = NULL;
 	global = NULL;
@@ -271,6 +283,17 @@ spin_changed (GtkSpinButton * spin, struct ALL_DATA *all_data)
     c->value = val;
 
     set_ctrl(videoIn->fd, s->control_list, id);
+    
+    if(c->widget)
+    {
+        //disable widget signals
+        g_signal_handlers_block_by_func(GTK_SCALE (c->widget), 
+            G_CALLBACK (slider_changed), all_data);
+        gtk_range_set_value (GTK_RANGE (c->widget), c->value);
+        //enable widget signals    
+        g_signal_handlers_unblock_by_func(GTK_SCALE (c->widget), 
+            G_CALLBACK (slider_changed), all_data);
+    }
 
 	s = NULL;
 	global = NULL;

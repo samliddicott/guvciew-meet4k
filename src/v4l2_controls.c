@@ -495,7 +495,6 @@ static void update_widget_state(Control *control_list, void *all_data)
     {
         if(all_data && current->widget)
         {
-            printf("update widget values\n");
             switch(current->control.type)
             {
                 case V4L2_CTRL_TYPE_BOOLEAN:
@@ -510,7 +509,9 @@ static void update_widget_state(Control *control_list, void *all_data)
                     break;
                 case V4L2_CTRL_TYPE_INTEGER:
                     if((current->control.id != V4L2_CID_PAN_RELATIVE) &&
-                       (current->control.id != V4L2_CID_TILT_RELATIVE))
+                       (current->control.id != V4L2_CID_TILT_RELATIVE) &&
+                       (current->control.id != V4L2_CID_PAN_RESET) &&
+                       (current->control.id != V4L2_CID_TILT_RESET))
                     {
                         //disable widget signals
                         g_signal_handlers_block_by_func(GTK_SCALE (current->widget), 
