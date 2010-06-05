@@ -22,6 +22,7 @@ pixmaps_DATA = \
 		pixmaps/camera.png\
 		pixmaps/movie.png\
 		pixmaps/save.png\
+		pixmaps/defaults.png\
 		pixmaps/image_controls.png\
 		pixmaps/video_controls.png\
 		pixmaps/audio_controls.png\

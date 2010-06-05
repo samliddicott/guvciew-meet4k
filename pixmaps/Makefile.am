@@ -5,6 +5,7 @@ pixs = \
 	camera.png\
 	movie.png\
 	save.png\
+	defaults.png\
 	image_controls.png\
 	video_controls.png\
 	audio_controls.png\

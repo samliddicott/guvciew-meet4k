@@ -502,7 +502,7 @@ int main(int argc, char *argv[])
 		gtk_button_set_image_position(GTK_BUTTON(LProfileButton),GTK_POS_TOP);
 		//gtk_widget_show (LButton_Img);
 	}
-    gchar* pix5path = g_strconcat (PACKAGE_DATA_DIR,"/pixmaps/guvcview/controls_folder.png",NULL);
+    gchar* pix5path = g_strconcat (PACKAGE_DATA_DIR,"/pixmaps/guvcview/defaults.png",NULL);
 	if (g_file_test(pix5path,G_FILE_TEST_EXISTS)) 
 	{
 		DButton_Img = gtk_image_new_from_file (pix5path);
