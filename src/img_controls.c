@@ -68,7 +68,7 @@ draw_controls (struct ALL_DATA *all_data)
         return;
     }
     
-    get_ctrl_values (videoIn->fd, s->control_list, s->num_controls, all_data);
+    get_ctrl_values (videoIn->fd, s->control_list, s->num_controls, NULL);
     
     s->table = gtk_table_new (1, 3, FALSE);
     gtk_table_set_row_spacings (GTK_TABLE (s->table), 4);

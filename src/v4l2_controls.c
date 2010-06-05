@@ -493,54 +493,57 @@ static void update_widget_state(Control *control_list, void *all_data)
     int done = 0;
     while(!done)
     {
-        switch(current->control.type)
+        if(all_data && current->widget)
         {
-            case V4L2_CTRL_TYPE_BOOLEAN:
-                //disable widget signals
-                g_signal_handlers_block_by_func(GTK_TOGGLE_BUTTON(current->widget),
-                    G_CALLBACK (check_changed), all_data);
-                gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (current->widget),
-                    current->value ? TRUE : FALSE);    
-                //enable widget signals
-                g_signal_handlers_unblock_by_func(GTK_TOGGLE_BUTTON(current->widget),
-                    G_CALLBACK (check_changed), all_data);
-                break;
-            case V4L2_CTRL_TYPE_INTEGER:
-                if((current->control.id != V4L2_CID_PAN_RELATIVE) &&
-                   (current->control.id != V4L2_CID_TILT_RELATIVE))
-                {
+            printf("update widget values\n");
+            switch(current->control.type)
+            {
+                case V4L2_CTRL_TYPE_BOOLEAN:
                     //disable widget signals
-                    g_signal_handlers_block_by_func(GTK_SCALE (current->widget), 
-                        G_CALLBACK (slider_changed), all_data);
-                    gtk_range_set_value (GTK_RANGE (current->widget), current->value);
-                    //enable widget signals    
-                    g_signal_handlers_unblock_by_func(GTK_SCALE (current->widget), 
-                        G_CALLBACK (slider_changed), all_data);
-                    if(current->spinbutton)
-                    {   
+                    g_signal_handlers_block_by_func(GTK_TOGGLE_BUTTON(current->widget),
+                        G_CALLBACK (check_changed), all_data);
+                    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (current->widget),
+                        current->value ? TRUE : FALSE);    
+                    //enable widget signals
+                    g_signal_handlers_unblock_by_func(GTK_TOGGLE_BUTTON(current->widget),
+                        G_CALLBACK (check_changed), all_data);
+                    break;
+                case V4L2_CTRL_TYPE_INTEGER:
+                    if((current->control.id != V4L2_CID_PAN_RELATIVE) &&
+                       (current->control.id != V4L2_CID_TILT_RELATIVE))
+                    {
                         //disable widget signals
-                        g_signal_handlers_block_by_func(GTK_SPIN_BUTTON(current->spinbutton), 
-                            G_CALLBACK (spin_changed), all_data); 
-                        gtk_spin_button_set_value (GTK_SPIN_BUTTON(current->spinbutton), current->value);
-                        //enable widget signals
-                        g_signal_handlers_unblock_by_func(GTK_SPIN_BUTTON(current->spinbutton), 
-                            G_CALLBACK (spin_changed), all_data);
+                        g_signal_handlers_block_by_func(GTK_SCALE (current->widget), 
+                            G_CALLBACK (slider_changed), all_data);
+                        gtk_range_set_value (GTK_RANGE (current->widget), current->value);
+                        //enable widget signals    
+                        g_signal_handlers_unblock_by_func(GTK_SCALE (current->widget), 
+                            G_CALLBACK (slider_changed), all_data);
+                        if(current->spinbutton)
+                        {   
+                            //disable widget signals
+                            g_signal_handlers_block_by_func(GTK_SPIN_BUTTON(current->spinbutton), 
+                                G_CALLBACK (spin_changed), all_data); 
+                            gtk_spin_button_set_value (GTK_SPIN_BUTTON(current->spinbutton), current->value);
+                            //enable widget signals
+                            g_signal_handlers_unblock_by_func(GTK_SPIN_BUTTON(current->spinbutton), 
+                                G_CALLBACK (spin_changed), all_data);
+                        }
                     }
-                }
-                break;
-            case V4L2_CTRL_TYPE_MENU:
-                //disable widget signals
-                g_signal_handlers_block_by_func(GTK_COMBO_BOX(current->widget), 
-                    G_CALLBACK (combo_changed), all_data);
-                gtk_combo_box_set_active(GTK_COMBO_BOX(current->widget), current->value);
-                //enable widget signals    
-                g_signal_handlers_unblock_by_func(GTK_COMBO_BOX(current->widget), 
-                    G_CALLBACK (combo_changed), all_data);
-                break;
-            default:
-                break;
-        }
-                
+                    break;
+                case V4L2_CTRL_TYPE_MENU:
+                    //disable widget signals
+                    g_signal_handlers_block_by_func(GTK_COMBO_BOX(current->widget), 
+                        G_CALLBACK (combo_changed), all_data);
+                    gtk_combo_box_set_active(GTK_COMBO_BOX(current->widget), current->value);
+                    //enable widget signals    
+                    g_signal_handlers_unblock_by_func(GTK_COMBO_BOX(current->widget), 
+                        G_CALLBACK (combo_changed), all_data);
+                    break;
+                default:
+                    break;
+            }
+        }        
         if((current->control.flags & V4L2_CTRL_FLAG_GRABBED) ||
             (current->control.flags & V4L2_CTRL_FLAG_DISABLED))
         {
