@@ -6,7 +6,7 @@ guvcview (1.4.0-ubuntu~lucid~ppa1) lucid; urgency=low
         http://mattahan.deviantart.com/
         these were relicensed to GPL under is permission
 
- -- Paulo Assis <pj.assis@gmail.com>  Sun, 30 May 2010 00:38:00 +0000
+ -- Paulo Assis <pj.assis@gmail.com>  Tue, 8 Jun 2010 10:18:00 +0000
 
 guvcview (1.3.1-ubuntu2~karmic~ppa1) karmic; urgency=low
    * Add support for GDK events
