@@ -4,7 +4,6 @@ guvcview (1.4.0)
    * change to control profile file format - rfc 0.0.2
    * change icon set, use Paul Davey <mattahan@gmail.com> icons: 
         http://mattahan.deviantart.com/
-        these were relicensed to GPL under is permission
 
  -- Paulo Assis <pj.assis@gmail.com>  Tue, 8 Jun 2010 10:18:00 +0000
 
