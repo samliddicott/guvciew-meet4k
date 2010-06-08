@@ -2,8 +2,9 @@ guvcview (1.4.0-ubuntu~lucid~ppa1) lucid; urgency=low
 
    * completly refactor v4l control interface
    * change to control profile file format - rfc 0.0.2
-   * change icon set, use Aero-stlxv icons (LGPL): 
-        http://gnome-look.org/content/show.php/Aero-stlxv?content=65072
+   * change icon set, use Paul Davey <mattahan@gmail.com> icons: 
+        http://mattahan.deviantart.com/
+        these were relicensed to GPL under is permission
 
  -- Paulo Assis <pj.assis@gmail.com>  Sun, 30 May 2010 00:38:00 +0000
 
