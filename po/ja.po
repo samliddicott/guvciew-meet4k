@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GUVCView 1.0.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-10-14 22:54+0100\n"
+"POT-Creation-Date: 2010-06-09 23:46+0100\n"
 "PO-Revision-Date: 2009-09-15 02:40+0000\n"
 "Last-Translator: Paulo Assis <pj.assis@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,12 +19,16 @@ msgstr ""
 "X-Poedit-Country: JAPAN\n"
 "X-Poedit-Language: Japanese\n"
 
-#: src/guvcview.c:184
+#: src/guvcview.c:177
+msgid "Guvcview Video Capture"
+msgstr ""
+
+#: src/guvcview.c:187
 msgid "GUVCViewer Controls"
 msgstr "GUVCViewer コントロール"
 
 #. can't open device
-#: src/guvcview.c:211
+#: src/guvcview.c:214
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -34,53 +38,53 @@ msgstr ""
 "\n"
 "デバイスをオープンすることができません"
 
-#: src/guvcview.c:212
+#: src/guvcview.c:215
 msgid ""
 "Please make sure the camera is connected\n"
 "and that the correct driver is installed."
 msgstr ""
 
 #. uvc extension controls OK, give warning and shutdown (called with --add_ctrls)
-#: src/guvcview.c:217
+#: src/guvcview.c:220
 msgid ""
 "Guvcview:\n"
 "\n"
 "UVC Extension controls"
 msgstr ""
 
-#: src/guvcview.c:218
+#: src/guvcview.c:221
 msgid "Extension controls were added to the UVC driver"
 msgstr ""
 
 #. uvc extension controls error - EACCES (needs root user)
-#: src/guvcview.c:226
+#: src/guvcview.c:228
 msgid ""
 "Guvcview error:\n"
 "\n"
 "UVC Extension controls"
 msgstr ""
 
-#: src/guvcview.c:227
+#: src/guvcview.c:229
 msgid ""
 "An error ocurred while adding extension\n"
 "controls to the UVC driver\n"
 "Make sure you run guvcview as root (or sudo)."
 msgstr ""
 
-#: src/guvcview.c:253 src/guvcview.c:336
+#: src/guvcview.c:255 src/guvcview.c:333
 msgid ""
 "Guvcview error:\n"
 "\n"
 "Can't set a valid video stream for guvcview"
 msgstr ""
 
-#: src/guvcview.c:254 src/guvcview.c:337
+#: src/guvcview.c:256 src/guvcview.c:334
 msgid ""
 "Make sure your device driver is v4l2 compliant\n"
 "and that it is properly installed."
 msgstr ""
 
-#: src/guvcview.c:276 src/guvcview.c:298
+#: src/guvcview.c:278 src/guvcview.c:300
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -90,33 +94,33 @@ msgstr ""
 "\n"
 "最小限のセットアップから始めることができません"
 
-#: src/guvcview.c:277 src/guvcview.c:299
+#: src/guvcview.c:279 src/guvcview.c:301
 msgid "Please reconnect your camera."
 msgstr "カメラを再接続してください。"
 
-#: src/guvcview.c:306
+#: src/guvcview.c:308
 msgid ""
 "Guvcview error:\n"
 "\n"
 "Couldn't query device capabilities"
 msgstr ""
 
-#: src/guvcview.c:307
+#: src/guvcview.c:309
 msgid "Make sure the device driver suports v4l2."
 msgstr ""
 
-#: src/guvcview.c:311
+#: src/guvcview.c:313
 msgid ""
 "Guvcview error:\n"
 "\n"
 "Read method error"
 msgstr ""
 
-#: src/guvcview.c:312
+#: src/guvcview.c:314
 msgid "Please try mmap instead (--capture_method=1)."
 msgstr ""
 
-#: src/guvcview.c:320
+#: src/guvcview.c:322
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -126,43 +130,49 @@ msgstr ""
 "\n"
 "バッファを確保できません"
 
-#: src/guvcview.c:321
+#: src/guvcview.c:323
 msgid "Please try restarting your system."
 msgstr "システムを再起動してみてください。"
 
-#: src/guvcview.c:368
+#: src/guvcview.c:359
 msgid "Image Controls"
 msgstr "イメージコントロール"
 
-#: src/guvcview.c:403
+#: src/guvcview.c:394
 msgid "Capture:"
 msgstr "キャプチャ:"
 
 #. increment column for labels
 #. end of control only exclusion
-#: src/guvcview.c:411
+#: src/guvcview.c:402
 msgid "Control Profiles:"
 msgstr "コントロールプロファイル:"
 
+#: src/guvcview.c:417
+#, fuzzy
+msgid "Defaults"
+msgstr "デバイス デフォルト"
+
 #. image auto capture
-#: src/guvcview.c:438
+#: src/guvcview.c:430
 msgid "Stop Auto"
 msgstr "自動停止"
 
-#: src/guvcview.c:442 src/callbacks.c:971 src/timers.c:95
+#: src/guvcview.c:434 src/callbacks.c:973 src/timers.c:95
 msgid "Cap. Image"
 msgstr "キャプチャ.画像"
 
 #. vid capture enabled from start
-#: src/guvcview.c:447 src/callbacks.c:1074
+#: src/guvcview.c:439 src/callbacks.c:1100
 msgid "Stop Video"
 msgstr ""
 
-#: src/guvcview.c:452 src/guvcview.c:638 src/callbacks.c:1024
+#: src/guvcview.c:444 src/guvcview.c:650 src/callbacks.c:1041
+#: src/create_video.c:795
 msgid "Cap. Video"
 msgstr ""
 
-#: src/guvcview.c:592
+#: src/guvcview.c:593
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -172,715 +182,721 @@ msgstr ""
 "\n"
 "ビデオスレッドを作成することができません"
 
-#: src/guvcview.c:593
+#: src/guvcview.c:594
 msgid "Please report it to http://developer.berlios.de/bugs/?group_id=8179"
-msgstr "http://developer.berlios.de/bugs/?group_id=8179 にレポートしてください。"
+msgstr ""
+"http://developer.berlios.de/bugs/?group_id=8179 にレポートしてください。"
 
 #. needed only for language files (not used)
 #. V4L2 control strings
-#: src/v4l2uvc.c:52
+#: src/v4l2uvc.c:54
 msgid "User Controls"
 msgstr ""
 
-#: src/v4l2uvc.c:53
+#: src/v4l2uvc.c:55
 msgid "Brightness"
 msgstr "輝度"
 
-#: src/v4l2uvc.c:54
+#: src/v4l2uvc.c:56
 msgid "Contrast"
 msgstr "コントラスト"
 
-#: src/v4l2uvc.c:55
+#: src/v4l2uvc.c:57
 msgid "Hue"
 msgstr "色相"
 
-#: src/v4l2uvc.c:56
+#: src/v4l2uvc.c:58
 msgid "Saturation"
 msgstr "彩度"
 
-#: src/v4l2uvc.c:57
+#: src/v4l2uvc.c:59
 msgid "Sharpness"
 msgstr "鮮明度"
 
-#: src/v4l2uvc.c:58
+#: src/v4l2uvc.c:60
 msgid "Gamma"
 msgstr "ガンマ"
 
-#: src/v4l2uvc.c:59
+#: src/v4l2uvc.c:61
 msgid "Backlight Compensation"
 msgstr "バックライト補正"
 
-#: src/v4l2uvc.c:60
+#: src/v4l2uvc.c:62
 msgid "Power Line Frequency"
 msgstr "電源ライン周波数"
 
-#: src/v4l2uvc.c:61
+#: src/v4l2uvc.c:63
 msgid "Hue, Automatic"
 msgstr ""
 
-#: src/v4l2uvc.c:62
+#: src/v4l2uvc.c:64
 msgid "Focus, Auto"
 msgstr "フォーカス,自動"
 
-#: src/v4l2uvc.c:63
+#: src/v4l2uvc.c:65
 msgid "Manual Mode"
 msgstr "手動モード"
 
-#: src/v4l2uvc.c:64
+#: src/v4l2uvc.c:66
 msgid "Auto Mode"
 msgstr "自動モード"
 
-#: src/v4l2uvc.c:65
+#: src/v4l2uvc.c:67
 msgid "Shutter Priority Mode"
 msgstr "シャッター優先モード"
 
-#: src/v4l2uvc.c:66
+#: src/v4l2uvc.c:68
 msgid "Aperture Priority Mode"
 msgstr "絞り優先モード"
 
-#: src/v4l2uvc.c:67
+#: src/v4l2uvc.c:69
 msgid "Black Level"
 msgstr ""
 
-#: src/v4l2uvc.c:68
+#: src/v4l2uvc.c:70
 msgid "White Balance, Automatic"
 msgstr ""
 
-#: src/v4l2uvc.c:69
+#: src/v4l2uvc.c:71
 msgid "Do White Balance"
 msgstr ""
 
-#: src/v4l2uvc.c:70
+#: src/v4l2uvc.c:72
 msgid "Red Balance"
 msgstr ""
 
-#: src/v4l2uvc.c:71
+#: src/v4l2uvc.c:73
 msgid "Blue Balance"
 msgstr ""
 
-#: src/v4l2uvc.c:72
+#: src/v4l2uvc.c:74
 msgid "Exposure"
 msgstr ""
 
-#: src/v4l2uvc.c:73
+#: src/v4l2uvc.c:75
 msgid "Gain, Automatic"
 msgstr ""
 
-#: src/v4l2uvc.c:74
+#: src/v4l2uvc.c:76
 msgid "Gain"
 msgstr "ゲイン"
 
-#: src/v4l2uvc.c:75
+#: src/v4l2uvc.c:77
 msgid "Horizontal Flip"
 msgstr ""
 
-#: src/v4l2uvc.c:76
+#: src/v4l2uvc.c:78
 msgid "Vertical Flip"
 msgstr ""
 
-#: src/v4l2uvc.c:77
+#: src/v4l2uvc.c:79
 msgid "Horizontal Center"
 msgstr ""
 
-#: src/v4l2uvc.c:78
+#: src/v4l2uvc.c:80
 msgid "Vertical Center"
 msgstr ""
 
-#: src/v4l2uvc.c:79
+#: src/v4l2uvc.c:81
 msgid "Chroma AGC"
 msgstr ""
 
-#: src/v4l2uvc.c:80
+#: src/v4l2uvc.c:82
 msgid "Color Killer"
 msgstr ""
 
-#: src/v4l2uvc.c:81
+#: src/v4l2uvc.c:83
 msgid "Color Effects"
 msgstr ""
 
 #. CAMERA CLASS control strings
-#: src/v4l2uvc.c:84
+#: src/v4l2uvc.c:86
 msgid "Camera Controls"
 msgstr ""
 
-#: src/v4l2uvc.c:85
+#: src/v4l2uvc.c:87
 msgid "Auto Exposure"
 msgstr ""
 
-#: src/v4l2uvc.c:86
+#: src/v4l2uvc.c:88
 msgid "Exposure Time, Absolute"
 msgstr ""
 
-#: src/v4l2uvc.c:87
+#: src/v4l2uvc.c:89
 msgid "Exposure, Dynamic Framerate"
 msgstr ""
 
-#: src/v4l2uvc.c:88
+#: src/v4l2uvc.c:90
 msgid "Pan, Relative"
 msgstr ""
 
-#: src/v4l2uvc.c:89
+#: src/v4l2uvc.c:91
 msgid "Tilt, Relative"
 msgstr ""
 
-#: src/v4l2uvc.c:90
+#: src/v4l2uvc.c:92
 msgid "Pan, Reset"
 msgstr ""
 
-#: src/v4l2uvc.c:91
+#: src/v4l2uvc.c:93
 msgid "Tilt, Reset"
 msgstr ""
 
-#: src/v4l2uvc.c:92
+#: src/v4l2uvc.c:94
 msgid "Pan, Absolute"
 msgstr ""
 
-#: src/v4l2uvc.c:94
+#: src/v4l2uvc.c:96
 msgid "Focus, Absolute"
 msgstr ""
 
-#: src/v4l2uvc.c:95
+#: src/v4l2uvc.c:97
 msgid "Focus, Relative"
 msgstr ""
 
-#: src/v4l2uvc.c:96
+#: src/v4l2uvc.c:98
 msgid "Focus, Automatic"
 msgstr ""
 
-#: src/v4l2uvc.c:97
+#: src/v4l2uvc.c:99
 msgid "Zoom, Absolute"
 msgstr ""
 
-#: src/v4l2uvc.c:98
+#: src/v4l2uvc.c:100
 msgid "Zoom, Relative"
 msgstr ""
 
-#: src/v4l2uvc.c:99
+#: src/v4l2uvc.c:101
 msgid "Zoom, Continuous"
 msgstr ""
 
-#: src/v4l2uvc.c:100
+#: src/v4l2uvc.c:102
 msgid "Privacy"
 msgstr ""
 
 #. UVC specific control strings
-#: src/v4l2uvc.c:103
+#: src/v4l2uvc.c:105
 msgid "Exposure, Auto"
 msgstr "露出、自動"
 
-#: src/v4l2uvc.c:104
+#: src/v4l2uvc.c:106
 msgid "Exposure, Auto Priority"
 msgstr "露出、自動優先"
 
-#: src/v4l2uvc.c:105
+#: src/v4l2uvc.c:107
 msgid "Exposure (Absolute)"
 msgstr "Exposure (完全な)"
 
-#: src/v4l2uvc.c:106
+#: src/v4l2uvc.c:108
 msgid "White Balance Temperature, Auto"
 msgstr "ホワイトバランス温度、自動"
 
-#: src/v4l2uvc.c:107
+#: src/v4l2uvc.c:109
 msgid "White Balance Temperature"
 msgstr "ホワイトバランス温度"
 
-#: src/v4l2uvc.c:108
+#: src/v4l2uvc.c:110
 msgid "White Balance Component, Auto"
 msgstr "ホワイトバランス成分、自動"
 
-#: src/v4l2uvc.c:109
+#: src/v4l2uvc.c:111
 msgid "White Balance Blue Component"
 msgstr "ホワイトバランス青成分"
 
-#: src/v4l2uvc.c:110
+#: src/v4l2uvc.c:112
 msgid "White Balance Red Component"
 msgstr "ホワイトバランス赤成分"
 
 #. libwebcam specific control strings
-#: src/v4l2uvc.c:113
+#: src/v4l2uvc.c:115
 msgid "Focus"
 msgstr ""
 
-#: src/v4l2uvc.c:114
+#: src/v4l2uvc.c:116
 msgid "Focus (Absolute)"
 msgstr ""
 
-#: src/video_tab.c:41 src/callbacks.c:1102
+#: src/video_tab.c:41 src/callbacks.c:1140
 msgid "Save File"
 msgstr "ファイルを保存する"
 
 #. if auto naming restart counter
 #. g_mutex_unlock(videoIn->mutex);
 #. g_mutex_lock(global->mutex);
-#: src/video_tab.c:95 src/globals.c:69 src/globals.c:72 src/options.c:360
-#: src/options.c:413 src/callbacks.c:457 src/callbacks.c:753
-#: src/callbacks.c:901 src/callbacks.c:918 src/callbacks.c:950
-#: src/callbacks.c:1033 src/timers.c:78
+#: src/video_tab.c:76 src/video_tab.c:106 src/globals.c:72 src/globals.c:75
+#: src/options.c:378 src/options.c:431 src/callbacks.c:484 src/callbacks.c:765
+#: src/callbacks.c:903 src/callbacks.c:920 src/callbacks.c:952
+#: src/callbacks.c:1050 src/timers.c:78
 #, c-format
 msgid "File num:%d"
 msgstr "ファイル番号:%d"
 
-#: src/video_tab.c:115
+#: src/video_tab.c:126
 msgid "codec values"
 msgstr ""
 
-#: src/video_tab.c:126
+#: src/video_tab.c:137
+msgid ""
+"                              encoder fps:   \n"
+" (0 - use fps combobox value)"
+msgstr ""
+
+#. bit rate
+#: src/video_tab.c:152 src/audio_tab.c:58
 msgid "bit rate:   "
 msgstr ""
 
-#: src/video_tab.c:141
+#: src/video_tab.c:167
 msgid "qmax:   "
 msgstr ""
 
-#: src/video_tab.c:156
+#: src/video_tab.c:182
 msgid "qmin:   "
 msgstr ""
 
-#: src/video_tab.c:171
+#: src/video_tab.c:197
 msgid "max. qdiff:   "
 msgstr ""
 
-#: src/video_tab.c:186
+#: src/video_tab.c:212
 msgid "dia size:   "
 msgstr ""
 
-#: src/video_tab.c:201
+#: src/video_tab.c:227
 msgid "pre dia size:   "
 msgstr ""
 
-#: src/video_tab.c:216
+#: src/video_tab.c:242
 msgid "pre me:   "
 msgstr ""
 
-#: src/video_tab.c:231
+#: src/video_tab.c:257
 msgid "pre cmp:   "
 msgstr ""
 
-#: src/video_tab.c:246
+#: src/video_tab.c:272
 msgid "cmp:   "
 msgstr ""
 
-#: src/video_tab.c:261
+#: src/video_tab.c:287
 msgid "sub cmp:   "
 msgstr ""
 
-#: src/video_tab.c:276
+#: src/video_tab.c:302
 msgid "last predictor count:   "
 msgstr ""
 
-#: src/video_tab.c:291
+#: src/video_tab.c:317
 msgid "gop size:   "
 msgstr ""
 
-#: src/video_tab.c:306
+#: src/video_tab.c:332
 msgid "qcompress:   "
 msgstr ""
 
-#: src/video_tab.c:321
+#: src/video_tab.c:347
 msgid "qblur:   "
 msgstr ""
 
-#: src/video_tab.c:336
+#: src/video_tab.c:362
+msgid "subq:   "
+msgstr ""
+
+#: src/video_tab.c:377
+msgid "framerefs:   "
+msgstr ""
+
+#: src/video_tab.c:392
 msgid "me method:   "
 msgstr ""
 
-#: src/video_tab.c:351
+#: src/video_tab.c:407
 msgid "mb decision:   "
 msgstr ""
 
-#: src/video_tab.c:454
+#: src/video_tab.c:514
 msgid "Video & Files"
 msgstr "ビデオ & ファイル"
 
 #. Devices
-#: src/video_tab.c:470
+#: src/video_tab.c:530
 msgid "Device:"
 msgstr "デバイス:"
 
-#: src/video_tab.c:575
+#: src/video_tab.c:632
 msgid "Frame Rate:"
 msgstr "フレームレート:"
 
-#: src/video_tab.c:583
+#: src/video_tab.c:640
 msgid " Show"
 msgstr " 表示"
 
-#: src/video_tab.c:607
+#: src/video_tab.c:664
 msgid "Resolution:"
 msgstr "解像度:"
 
-#: src/video_tab.c:633
+#: src/video_tab.c:690
 msgid "Camera Output:"
 msgstr "カメラ出力:"
 
-#: src/video_tab.c:655
+#: src/video_tab.c:712
 msgid "Apply"
 msgstr ""
 
-#: src/video_tab.c:663
+#: src/video_tab.c:720
 msgid "Quality:"
 msgstr ""
 
-#: src/video_tab.c:673
+#: src/video_tab.c:730
 msgid "Image File:"
 msgstr "画像ファイル:"
 
-#: src/video_tab.c:706 src/video_tab.c:792
+#: src/video_tab.c:763 src/video_tab.c:847
 msgid "File,Auto"
 msgstr "ファイル,自動"
 
-#: src/video_tab.c:717
+#: src/video_tab.c:774
 msgid "Image Format:"
 msgstr "画像フォーマット:"
 
-#: src/video_tab.c:745
+#: src/video_tab.c:802
 msgid "Video File:"
 msgstr ""
 
-#: src/video_tab.c:825
+#: src/video_tab.c:880
 msgid "Video Codec:"
 msgstr ""
 
 #. lavc codec properties button
-#: src/video_tab.c:833
+#: src/video_tab.c:888 src/audio_tab.c:336
 msgid "properties"
 msgstr ""
 
-#: src/video_tab.c:860
+#: src/video_tab.c:915
 msgid "Video Format:"
 msgstr ""
 
-#: src/video_tab.c:869
+#: src/video_tab.c:924
 msgid "---- Video Filters ----"
 msgstr "---- ビデオフィルタ ----"
 
 #. Mirror
-#: src/video_tab.c:884
+#: src/video_tab.c:939
 msgid " Mirror"
 msgstr " 鏡"
 
 #. Upturn
-#: src/video_tab.c:894
+#: src/video_tab.c:949
 msgid " Invert"
 msgstr " 反転"
 
 #. Negate
-#: src/video_tab.c:904
+#: src/video_tab.c:959
 msgid " Negative"
 msgstr " ネガ"
 
 #. Mono
-#: src/video_tab.c:914
+#: src/video_tab.c:969
 msgid " Mono"
 msgstr " モノクロ"
 
 #. Pieces
-#: src/video_tab.c:925
+#: src/video_tab.c:980
 msgid " Pieces"
 msgstr " 断片"
 
-#: src/audio_tab.c:75
+#. Particles
+#: src/video_tab.c:991
+#, fuzzy
+msgid " Particles"
+msgstr " 断片"
+
+#: src/audio_tab.c:46
+msgid "audio codec values"
+msgstr ""
+
+#: src/audio_tab.c:132
 msgid "Audio"
 msgstr "オーディオ"
 
-#: src/audio_tab.c:93
+#: src/audio_tab.c:150
 msgid " Sound"
 msgstr " サウンド"
 
-#: src/audio_tab.c:108
+#: src/audio_tab.c:165
 msgid "Audio API:"
 msgstr ""
 
-#: src/audio_tab.c:118
+#: src/audio_tab.c:175
 msgid "PORTAUDIO"
 msgstr ""
 
-#: src/audio_tab.c:119
+#: src/audio_tab.c:176
 msgid "PULSEAUDIO"
 msgstr ""
 
-#: src/audio_tab.c:135 src/audio_tab.c:158
+#: src/audio_tab.c:192 src/audio_tab.c:215
 msgid "Input Device:"
 msgstr "入力デバイス:"
 
-#: src/audio_tab.c:169 src/audio_tab.c:201
+#: src/audio_tab.c:226 src/audio_tab.c:258
 msgid "Dev. Default"
 msgstr "デバイス デフォルト"
 
-#: src/audio_tab.c:190
+#: src/audio_tab.c:247
 msgid "Sample Rate:"
 msgstr "サンプルレート:"
 
-#: src/audio_tab.c:202
+#: src/audio_tab.c:259
 msgid "1 - mono"
 msgstr "1 - モノラル"
 
-#: src/audio_tab.c:203
+#: src/audio_tab.c:260
 msgid "2 - stereo"
 msgstr "2 - ステレオ"
 
-#: src/audio_tab.c:237
+#: src/audio_tab.c:294
 msgid "Channels:"
 msgstr "チャンネル:"
 
-#: src/audio_tab.c:248
-msgid "PCM"
-msgstr "PCM"
-
-#: src/audio_tab.c:249
-msgid "MP2"
-msgstr "MP2"
-
-#: src/audio_tab.c:277
+#: src/audio_tab.c:328
 msgid "Audio Format:"
 msgstr "音楽フォーマット:"
 
-#: src/audio_tab.c:286
+#: src/audio_tab.c:346
 msgid "---- Audio Effects ----"
 msgstr "---- オーディオ エフェクト ----"
 
 #. Echo
-#: src/audio_tab.c:305
+#: src/audio_tab.c:365
 msgid " Echo"
 msgstr " Echo"
 
 #. FUZZ
-#: src/audio_tab.c:315
+#: src/audio_tab.c:375
 msgid " Fuzz"
 msgstr " Fuzz"
 
 #. Reverb
-#: src/audio_tab.c:326
+#: src/audio_tab.c:386
 msgid " Reverb"
 msgstr " Reverb"
 
 #. WahWah
-#: src/audio_tab.c:337
+#: src/audio_tab.c:397
 msgid " WahWah"
 msgstr " WahWah"
 
 #. Ducky
-#: src/audio_tab.c:348
+#: src/audio_tab.c:408
 msgid " Ducky"
 msgstr " Ducky"
 
-#: src/v4l2_dyna_ctrls.c:90
-msgid "Pan (relative)"
-msgstr "パン (相対)"
-
-#: src/v4l2_dyna_ctrls.c:100
-msgid "Tilt (relative)"
-msgstr "チルト (相対)"
-
-#: src/v4l2_dyna_ctrls.c:110
-msgid "Pan Reset"
-msgstr "パン リセット"
-
-#: src/v4l2_dyna_ctrls.c:120
-msgid "Tilt Reset"
-msgstr "チルト リセット"
-
-#: src/v4l2_dyna_ctrls.c:130
-msgid "Pan/tilt Reset"
-msgstr "パン/チルト リセット"
-
-#: src/v4l2_dyna_ctrls.c:140
-msgid "Focus (absolute)"
-msgstr "フォーカス (完全な)"
-
-#: src/v4l2_dyna_ctrls.c:150
-msgid "LED1 Mode"
-msgstr "LED1 モード"
-
-#: src/v4l2_dyna_ctrls.c:160
-msgid "LED1 Frequency"
-msgstr "LED1 回数"
-
-#: src/v4l2_dyna_ctrls.c:170
-msgid "Disable video processing"
-msgstr "ビデオ処理 を無効にする"
-
-#: src/v4l2_dyna_ctrls.c:180
-msgid "Raw bits per pixel"
-msgstr "1画素あたりの生のビット"
-
-#: src/vcodecs.c:61
-msgid "MJPG - compressed"
-msgstr "MJPG - 圧縮"
-
-#: src/vcodecs.c:91
-msgid "YUY2 - uncomp YUV"
-msgstr "YUY2 - 非圧縮 YUV"
-
-#: src/vcodecs.c:121
-msgid "RGB - uncomp BMP"
-msgstr "RGB - 非圧縮 BMP"
-
-#: src/vcodecs.c:150
-msgid "MPEG video 1"
-msgstr ""
-
-#: src/vcodecs.c:180
-msgid "FLV1 - flash video 1"
-msgstr ""
-
-#: src/vcodecs.c:210
-msgid "WMV1 - win. med. video 7"
-msgstr ""
-
-#: src/vcodecs.c:239
-msgid "MPG2 - MPG2 format"
-msgstr ""
-
-#: src/vcodecs.c:268
-msgid "MS MP4 V3"
-msgstr ""
-
-#: src/vcodecs.c:297
-msgid "MPEG4 - MPEG4 format"
-msgstr ""
-
-#: src/options.c:528
-msgid "Prints version"
-msgstr "バージョンを表示する"
-
-#: src/options.c:529
-msgid "Displays debug information"
-msgstr "デバッグ情報を表示する"
-
-#: src/options.c:530
-msgid "Video Device to use [default: /dev/video0]"
-msgstr "使用するビデオデバイス [デフォルト: /dev/video0]"
-
-#: src/options.c:531
-msgid "Exit after adding UVC extension controls (needs root/sudo)"
-msgstr ""
-
-#: src/options.c:532
-msgid "Don't stream video (image controls only)"
-msgstr ""
-
-#: src/options.c:533
-msgid "Capture method (1-mmap (default)  2-read)"
-msgstr ""
-
-#: src/options.c:534
-msgid "Configuration file"
-msgstr "設定ファイル"
-
-#: src/options.c:535
-msgid "Hardware accelaration (enable(1) | disable(0))"
-msgstr "ハードウェアアクセラレーション (有効(1) | 無効(0))"
-
-#: src/options.c:536
-msgid ""
-"Pixel "
-"format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|y41p|grey|"
-"s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
-msgstr ""
-"ピクセルフォーマット "
-"(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|y41p|grey|s501|s"
-"505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
-
-#: src/options.c:537
-msgid "Frame size, default: 640x480"
-msgstr "フレームサイズ、デフォルト: 640x480"
-
-#: src/options.c:538
-msgid "Image File name"
-msgstr "画像ファイル名"
-
-#: src/options.c:539
-msgid "Image capture interval in seconds"
-msgstr "秒単位の画像キャプチャ間隔"
-
-#: src/options.c:540
-msgid "Number of Pictures to capture"
-msgstr "キャプチャする画像数"
-
-#: src/options.c:541
-msgid "Video File name (capture from start)"
-msgstr ""
-
-#: src/options.c:542
-msgid "Video capture time (in seconds)"
-msgstr ""
-
-#: src/options.c:543
-msgid "Exits guvcview after closing video"
-msgstr ""
-
-#: src/options.c:544
-msgid "Number of inital frames to skip"
-msgstr ""
-
-#: src/options.c:545
-msgid "Show FPS value (enable(1) | disable (0))"
-msgstr "FPS 値の表示 (有効(1) | 無効 (0))"
-
-#: src/options.c:546
-msgid "Load Profile at start"
-msgstr "開始時にプロファイルを読み込む"
-
-#: src/options.c:552
-msgid "- local options"
-msgstr "- ローカルオプション"
-
-#: src/img_controls.c:94
-msgid "Invert (Pan)"
-msgstr "反転 (パン)"
-
-#: src/img_controls.c:98
+#: src/v4l2_controls.c:643
 msgid "Left"
 msgstr "左"
 
-#: src/img_controls.c:104
+#: src/v4l2_controls.c:644
 msgid "Right"
 msgstr "右"
 
-#: src/img_controls.c:144
-msgid "Up"
-msgstr "上"
-
-#: src/img_controls.c:145
+#: src/v4l2_controls.c:648
 msgid "Down"
 msgstr "下"
 
-#. Pan reset
-#: src/img_controls.c:179 src/img_controls.c:201 src/img_controls.c:224
-msgid "Reset"
-msgstr "リセット"
+#: src/v4l2_controls.c:649
+msgid "Up"
+msgstr "上"
 
-#: src/img_controls.c:303
+#: src/v4l2_dyna_ctrls.c:89
+msgid "Pan (relative)"
+msgstr "パン (相対)"
+
+#: src/v4l2_dyna_ctrls.c:99
+msgid "Tilt (relative)"
+msgstr "チルト (相対)"
+
+#: src/v4l2_dyna_ctrls.c:109
+msgid "Pan Reset"
+msgstr "パン リセット"
+
+#: src/v4l2_dyna_ctrls.c:119
+msgid "Tilt Reset"
+msgstr "チルト リセット"
+
+#: src/v4l2_dyna_ctrls.c:129
+msgid "Pan/tilt Reset"
+msgstr "パン/チルト リセット"
+
+#: src/v4l2_dyna_ctrls.c:139
+msgid "Focus (absolute)"
+msgstr "フォーカス (完全な)"
+
+#: src/v4l2_dyna_ctrls.c:149
+msgid "LED1 Mode"
+msgstr "LED1 モード"
+
+#: src/v4l2_dyna_ctrls.c:159
+msgid "LED1 Frequency"
+msgstr "LED1 回数"
+
+#: src/v4l2_dyna_ctrls.c:169
+msgid "Disable video processing"
+msgstr "ビデオ処理 を無効にする"
+
+#: src/v4l2_dyna_ctrls.c:179
+msgid "Raw bits per pixel"
+msgstr "1画素あたりの生のビット"
+
+#: src/vcodecs.c:57
+msgid "MJPG - compressed"
+msgstr "MJPG - 圧縮"
+
+#: src/vcodecs.c:90
+msgid "YUY2 - uncomp YUV"
+msgstr "YUY2 - 非圧縮 YUV"
+
+#: src/vcodecs.c:123
+msgid "RGB - uncomp BMP"
+msgstr "RGB - 非圧縮 BMP"
+
+#: src/vcodecs.c:156
+msgid "MPEG video 1"
+msgstr ""
+
+#: src/vcodecs.c:189
+msgid "FLV1 - flash video 1"
+msgstr ""
+
+#: src/vcodecs.c:222
+msgid "WMV1 - win. med. video 7"
+msgstr ""
+
+#: src/vcodecs.c:255
+msgid "MPG2 - MPG2 format"
+msgstr ""
+
+#: src/vcodecs.c:288
+msgid "MS MP4 V3"
+msgstr ""
+
+#: src/vcodecs.c:321
+msgid "MPEG4-ASP"
+msgstr ""
+
+#: src/vcodecs.c:354
+msgid "MPEG4-AVC (H264)"
+msgstr ""
+
+#: src/options.c:546
+msgid "Prints version"
+msgstr "バージョンを表示する"
+
+#: src/options.c:547
+msgid "Displays debug information"
+msgstr "デバッグ情報を表示する"
+
+#: src/options.c:548
+msgid "Video Device to use [default: /dev/video0]"
+msgstr "使用するビデオデバイス [デフォルト: /dev/video0]"
+
+#: src/options.c:549
+msgid "Exit after adding UVC extension controls (needs root/sudo)"
+msgstr ""
+
+#: src/options.c:550
+msgid "Don't stream video (image controls only)"
+msgstr ""
+
+#: src/options.c:551
+msgid "Capture method (1-mmap (default)  2-read)"
+msgstr ""
+
+#: src/options.c:552
+msgid "Configuration file"
+msgstr "設定ファイル"
+
+#: src/options.c:553
+msgid "Hardware accelaration (enable(1) | disable(0))"
+msgstr "ハードウェアアクセラレーション (有効(1) | 無効(0))"
+
+#: src/options.c:554
+msgid ""
+"Pixel format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|"
+"y41p|grey|s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
+msgstr ""
+"ピクセルフォーマット (mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|"
+"nv61|y41p|grey|s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
+
+#: src/options.c:555
+msgid "Frame size, default: 640x480"
+msgstr "フレームサイズ、デフォルト: 640x480"
+
+#: src/options.c:556
+msgid "Image File name"
+msgstr "画像ファイル名"
+
+#: src/options.c:557
+msgid "Image capture interval in seconds"
+msgstr "秒単位の画像キャプチャ間隔"
+
+#: src/options.c:558
+msgid "Number of Pictures to capture"
+msgstr "キャプチャする画像数"
+
+#: src/options.c:559
+msgid "Video File name (capture from start)"
+msgstr ""
+
+#: src/options.c:560
+msgid "Video capture time (in seconds)"
+msgstr ""
+
+#: src/options.c:561
+msgid "Exits guvcview after closing video"
+msgstr ""
+
+#: src/options.c:562
+msgid "Number of inital frames to skip"
+msgstr ""
+
+#: src/options.c:563
+msgid "Show FPS value (enable(1) | disable (0))"
+msgstr "FPS 値の表示 (有効(1) | 無効 (0))"
+
+#: src/options.c:564
+msgid "Load Profile at start"
+msgstr "開始時にプロファイルを読み込む"
+
+#: src/options.c:570
+msgid "- local options"
+msgstr "- ローカルオプション"
+
+#: src/img_controls.c:117
 msgid "Auto Focus (continuous)"
 msgstr "オートフォーカス(連続)"
 
-#: src/img_controls.c:304
+#: src/img_controls.c:118
 msgid "set Focus"
 msgstr "フォーカスを設定する"
 
-#: src/img_controls.c:366
-#, c-format
-msgid "raw pixel order:"
-msgstr "raw ピクセルの順序:"
-
-#: src/callbacks.c:526
+#: src/callbacks.c:535
 msgid "start new"
 msgstr "新しく開始する"
 
-#: src/callbacks.c:529
+#: src/callbacks.c:538
 msgid "restart"
 msgstr "再起動"
 
-#: src/callbacks.c:531
+#: src/callbacks.c:540
 msgid "new"
 msgstr "新規"
 
-#: src/callbacks.c:533
+#: src/callbacks.c:542
 msgid "cancel"
 msgstr "キャンセル"
 
-#: src/callbacks.c:537
+#: src/callbacks.c:546
 msgid ""
 "launch new process or restart?.\n"
 "\n"
@@ -888,17 +904,32 @@ msgstr ""
 "新しいプロセスを立ち上げるか、再起動しますか?\n"
 "\n"
 
-#: src/callbacks.c:1115
+#: src/callbacks.c:1153
 msgid "Load File"
 msgstr "ファイルを読込む"
 
-#: src/timers.c:189
+#: src/timers.c:191
 msgid "Guvcview Warning:"
 msgstr ""
 
-#: src/timers.c:189
+#: src/timers.c:191
 msgid "Not enough free space left on disk"
 msgstr ""
+
+#~ msgid "PCM"
+#~ msgstr "PCM"
+
+#~ msgid "MP2"
+#~ msgstr "MP2"
+
+#~ msgid "Invert (Pan)"
+#~ msgstr "反転 (パン)"
+
+#~ msgid "Reset"
+#~ msgstr "リセット"
+
+#~ msgid "raw pixel order:"
+#~ msgstr "raw ピクセルの順序:"
 
 #~ msgid "Hue, Auto"
 #~ msgstr "色相、自動"
