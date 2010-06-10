@@ -1,4 +1,4 @@
-guvcview (1.4.0-ubuntu~lucid~ppa1) lucid; urgency=low
+guvcview (1.4.0-ubuntu1~lucid~ppa1) lucid; urgency=low
 
    * completly refactor v4l control interface
    * change to control profile file format - rfc 0.0.2

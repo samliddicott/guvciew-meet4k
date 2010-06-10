@@ -170,7 +170,7 @@ lavc_properties(GtkButton * CodecButt, struct ALL_DATA *all_data)
 		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (lbl_qmax);
 	
-	GtkWidget *qmax = gtk_spin_button_new_with_range(1,31,1);
+	GtkWidget *qmax = gtk_spin_button_new_with_range(1,60,1);
 	gtk_editable_set_editable(GTK_EDITABLE(qmax),TRUE);
 	gtk_spin_button_set_value (GTK_SPIN_BUTTON(qmax), codec_defaults->qmax);
 	
