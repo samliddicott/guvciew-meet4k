@@ -1,3 +1,10 @@
+guvcview (1.4.1)
+
+   * Fix h264 default values
+   * Fix dynamic control mappings (uncache dynamic ctrls in uvc driver)
+
+ -- Paulo Assis <pj.assis@gmail.com>  Mon, 14 Jun 2010 23:24:00 +0000
+ 
 guvcview (1.4.0)
 
    * completly refactor v4l control interface

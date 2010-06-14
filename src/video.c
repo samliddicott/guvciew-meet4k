@@ -193,10 +193,6 @@ void *main_loop(void *data)
 		{
 			g_printerr("Error grabbing image \n");
 			continue;
-			//signalquit=TRUE;
-			//g_snprintf(global->WVcaption,20,"GUVCVideo - CRASHED");
-			//SDL_WM_SetCaption(global->WVcaption, NULL);
-			//g_thread_exit((void *) -2);
 		} 
 		else 
 		{
@@ -214,7 +210,7 @@ void *main_loop(void *data)
 					g_mutex_lock(pdata->mutex);
 						pdata->ts_ref = ns_time_monotonic();
 					g_mutex_unlock(pdata->mutex);
-					
+					//printf("video ts ref: %llu audio ts_ ref: %llu\n",global->Vidstarttime, pdata->ts_ref);
 					global->v_ts = 0;
 				}
 				else
