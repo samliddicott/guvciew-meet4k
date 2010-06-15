@@ -123,6 +123,7 @@ void uvcPanTilt (int hdevice, Control *control_list, int is_pan, int direction);
 
 #ifndef V4L2_CTRL_TYPE_STRING
 #define V4L2_CTRL_TYPE_STRING 7
+#define DISABLE_STRING_CONTROLS
 #endif
 
 #endif
