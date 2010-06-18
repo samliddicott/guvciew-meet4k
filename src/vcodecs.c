@@ -374,7 +374,7 @@ static vcodecs_data listSupVCodecs[] = //list of software supported formats
 		.trellis      = 0,
 		.me_method    = ME_HEX,
 		.mpeg_quant   = 1,
-		.max_b_frames = 2,
+		.max_b_frames = 0,
 		.flags        = CODEC_FLAG2_BPYRAMID | CODEC_FLAG2_WPRED | CODEC_FLAG2_FASTPSKIP
 	}
 };

@@ -419,6 +419,21 @@ lavc_properties(GtkButton * CodecButt, struct ALL_DATA *all_data)
 	gtk_widget_show (mb_decision);
 	line++;
 	
+	GtkWidget *lbl_max_b_frames = gtk_label_new(_("max B frames:   "));
+	gtk_misc_set_alignment (GTK_MISC (lbl_max_b_frames), 1, 0.5);
+	gtk_table_attach (GTK_TABLE(table), lbl_max_b_frames, 0, 1, line, line+1,
+		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_widget_show (lbl_max_b_frames);
+	
+	GtkWidget *max_b_frames = gtk_spin_button_new_with_range(0,4,1);
+	gtk_editable_set_editable(GTK_EDITABLE(max_b_frames),TRUE);
+	gtk_spin_button_set_value (GTK_SPIN_BUTTON(max_b_frames), codec_defaults->max_b_frames);
+	
+	gtk_table_attach (GTK_TABLE(table), max_b_frames, 1, 2, line, line+1,
+		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_widget_show (max_b_frames);
+	line++;
+	
 	GtkWidget *content_area = gtk_dialog_get_content_area (GTK_DIALOG (codec_dialog));
 	gtk_container_add (GTK_CONTAINER (content_area), table);
 	gtk_widget_show (table);
@@ -446,6 +461,7 @@ lavc_properties(GtkButton * CodecButt, struct ALL_DATA *all_data)
 			codec_defaults->framerefs = gtk_spin_button_get_value_as_float (GTK_SPIN_BUTTON(framerefs));
 			codec_defaults->me_method = gtk_spin_button_get_value_as_float (GTK_SPIN_BUTTON(me_method));
 			codec_defaults->mb_decision = gtk_spin_button_get_value_as_float (GTK_SPIN_BUTTON(mb_decision));
+			codec_defaults->max_b_frames = gtk_spin_button_get_value_as_float (GTK_SPIN_BUTTON(max_b_frames));
 			break;
 		default:
 			// do nothing since dialog was cancelled
