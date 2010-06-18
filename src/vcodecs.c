@@ -577,7 +577,7 @@ int compress_frame(void *data,
 				} 
 				
 				jpeg_size = encode_image(proc_buff->frame, global->jpeg, 
-					*jpeg_struct,1, global->width, global->height);
+					*jpeg_struct, 0, global->width, global->height);
 			
 				ret = write_video_data (all_data, global->jpeg, jpeg_size, proc_buff->time_stamp);
 			}
