@@ -2,6 +2,8 @@ guvcview (1.4.1-ubuntu1~lucid~ppa1) lucid; urgency=low
 
    * Fix h264 defaults
    * Fix dynamic control mappings (uncache dynamic ctrls in uvc driver)
+   * check for valid ranges on integer controls
+   * Add uvcdynctrl to Recommends
 
  -- Paulo Assis <pj.assis@gmail.com>  Mon, 14 Jun 2010 23:24:00 +0000
  

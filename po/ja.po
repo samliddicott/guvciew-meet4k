@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GUVCView 1.0.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-06-09 23:46+0100\n"
+"POT-Creation-Date: 2010-06-19 13:45+0100\n"
 "PO-Revision-Date: 2009-09-15 02:40+0000\n"
 "Last-Translator: Paulo Assis <pj.assis@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -514,99 +514,103 @@ msgstr ""
 msgid "mb decision:   "
 msgstr ""
 
-#: src/video_tab.c:514
+#: src/video_tab.c:422
+msgid "max B frames:   "
+msgstr ""
+
+#: src/video_tab.c:530
 msgid "Video & Files"
 msgstr "ビデオ & ファイル"
 
 #. Devices
-#: src/video_tab.c:530
+#: src/video_tab.c:546
 msgid "Device:"
 msgstr "デバイス:"
 
-#: src/video_tab.c:632
+#: src/video_tab.c:648
 msgid "Frame Rate:"
 msgstr "フレームレート:"
 
-#: src/video_tab.c:640
+#: src/video_tab.c:656
 msgid " Show"
 msgstr " 表示"
 
-#: src/video_tab.c:664
+#: src/video_tab.c:680
 msgid "Resolution:"
 msgstr "解像度:"
 
-#: src/video_tab.c:690
+#: src/video_tab.c:706
 msgid "Camera Output:"
 msgstr "カメラ出力:"
 
-#: src/video_tab.c:712
+#: src/video_tab.c:728
 msgid "Apply"
 msgstr ""
 
-#: src/video_tab.c:720
+#: src/video_tab.c:736
 msgid "Quality:"
 msgstr ""
 
-#: src/video_tab.c:730
+#: src/video_tab.c:746
 msgid "Image File:"
 msgstr "画像ファイル:"
 
-#: src/video_tab.c:763 src/video_tab.c:847
+#: src/video_tab.c:779 src/video_tab.c:863
 msgid "File,Auto"
 msgstr "ファイル,自動"
 
-#: src/video_tab.c:774
+#: src/video_tab.c:790
 msgid "Image Format:"
 msgstr "画像フォーマット:"
 
-#: src/video_tab.c:802
+#: src/video_tab.c:818
 msgid "Video File:"
 msgstr ""
 
-#: src/video_tab.c:880
+#: src/video_tab.c:896
 msgid "Video Codec:"
 msgstr ""
 
 #. lavc codec properties button
-#: src/video_tab.c:888 src/audio_tab.c:336
+#: src/video_tab.c:904 src/audio_tab.c:336
 msgid "properties"
 msgstr ""
 
-#: src/video_tab.c:915
+#: src/video_tab.c:931
 msgid "Video Format:"
 msgstr ""
 
-#: src/video_tab.c:924
+#: src/video_tab.c:940
 msgid "---- Video Filters ----"
 msgstr "---- ビデオフィルタ ----"
 
 #. Mirror
-#: src/video_tab.c:939
+#: src/video_tab.c:955
 msgid " Mirror"
 msgstr " 鏡"
 
 #. Upturn
-#: src/video_tab.c:949
+#: src/video_tab.c:965
 msgid " Invert"
 msgstr " 反転"
 
 #. Negate
-#: src/video_tab.c:959
+#: src/video_tab.c:975
 msgid " Negative"
 msgstr " ネガ"
 
 #. Mono
-#: src/video_tab.c:969
+#: src/video_tab.c:985
 msgid " Mono"
 msgstr " モノクロ"
 
 #. Pieces
-#: src/video_tab.c:980
+#: src/video_tab.c:996
 msgid " Pieces"
 msgstr " 断片"
 
 #. Particles
-#: src/video_tab.c:991
+#: src/video_tab.c:1007
 #, fuzzy
 msgid " Particles"
 msgstr " 断片"
@@ -692,19 +696,19 @@ msgstr " WahWah"
 msgid " Ducky"
 msgstr " Ducky"
 
-#: src/v4l2_controls.c:643
+#: src/v4l2_controls.c:645
 msgid "Left"
 msgstr "左"
 
-#: src/v4l2_controls.c:644
+#: src/v4l2_controls.c:646
 msgid "Right"
 msgstr "右"
 
-#: src/v4l2_controls.c:648
+#: src/v4l2_controls.c:650
 msgid "Down"
 msgstr "下"
 
-#: src/v4l2_controls.c:649
+#: src/v4l2_controls.c:651
 msgid "Up"
 msgstr "上"
 

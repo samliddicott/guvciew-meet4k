@@ -9,7 +9,7 @@ Homepage: http://guvcview.berlios.de/
 Package: guvcview
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Recommends: libavcodec-extra-52
+Recommends: libavcodec-extra-52, uvcdynctrl
 Description: GTK UVC Viewer 
  Video capture tool for video4linux2 compliant cameras, with special emphasis on the linux uvc driver.
  It provides Image (jpg, png, bmp) and Video (mjpeg, flv1, wmv1, mpg2, mpg4,...) capture with sound

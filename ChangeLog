@@ -2,6 +2,7 @@ guvcview (1.4.1)
 
    * Fix h264 default values
    * Fix dynamic control mappings (uncache dynamic ctrls in uvc driver)
+   * Check for valid ranges on integer controls
 
  -- Paulo Assis <pj.assis@gmail.com>  Mon, 14 Jun 2010 23:24:00 +0000
  
