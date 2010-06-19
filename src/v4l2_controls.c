@@ -580,8 +580,8 @@ static void update_widget_state(Control *control_list, void *all_data)
  * creates the control associated widgets for all controls in the list
  */
  
- void create_control_widgets(Control *control_list, void *all_data, int control_only, int verbose)
- {  
+void create_control_widgets(Control *control_list, void *all_data, int control_only, int verbose)
+{  
     Control *current = control_list;
     Control *next = current->next;
     int done = 0;
@@ -691,34 +691,42 @@ static void update_widget_state(Control *control_list, void *all_data)
                         break;
                     }
                     
-                    current->widget = gtk_hscale_new_with_range (
-                        current->control.minimum,
-                        current->control.maximum,
-                        current->control.step);
-                    gtk_scale_set_draw_value (GTK_SCALE (current->widget), FALSE);
-                    GTK_RANGE (current->widget)->round_digits = 0;
-                    gtk_widget_show (current->widget);
+                    /* check for valid range */
+                    if((current->control.maximum > current->control.minimum) && (current->control.step != 0))
+                    {
+                        current->widget = gtk_hscale_new_with_range (
+                            current->control.minimum,
+                            current->control.maximum,
+                            current->control.step);
+                        gtk_scale_set_draw_value (GTK_SCALE (current->widget), FALSE);
+                        GTK_RANGE (current->widget)->round_digits = 0;
+                        gtk_widget_show (current->widget);
                     
-                    current->spinbutton = gtk_spin_button_new_with_range(
-                        current->control.minimum,
-                        current->control.maximum,
-                        current->control.step);
-                    /*can't edit the spin value by hand*/
-                    gtk_editable_set_editable(GTK_EDITABLE(current->spinbutton),FALSE);
+                        current->spinbutton = gtk_spin_button_new_with_range(
+                            current->control.minimum,
+                            current->control.maximum,
+                            current->control.step);
+                        /*can't edit the spin value by hand*/
+                        gtk_editable_set_editable(GTK_EDITABLE(current->spinbutton),FALSE);
                     
-                    gtk_range_set_value (GTK_RANGE (current->widget), current->value);
-                    gtk_spin_button_set_value (GTK_SPIN_BUTTON(current->spinbutton), current->value);
-                    gtk_widget_show (current->spinbutton);
+                        gtk_range_set_value (GTK_RANGE (current->widget), current->value);
+                        gtk_spin_button_set_value (GTK_SPIN_BUTTON(current->spinbutton), current->value);
+                        gtk_widget_show (current->spinbutton);
                      
-                    g_object_set_data (G_OBJECT (current->widget), "control_info", 
-                        GINT_TO_POINTER(current->control.id));
-                    g_object_set_data (G_OBJECT (current->spinbutton), "control_info",
-                        GINT_TO_POINTER(current->control.id));
-                    //connect signal
-                    g_signal_connect (GTK_SCALE(current->widget), "value-changed",
-                        G_CALLBACK (slider_changed), all_data);
-                    g_signal_connect(GTK_SPIN_BUTTON(current->spinbutton),"value-changed",
-                        G_CALLBACK (spin_changed), all_data);
+                        g_object_set_data (G_OBJECT (current->widget), "control_info", 
+                            GINT_TO_POINTER(current->control.id));
+                        g_object_set_data (G_OBJECT (current->spinbutton), "control_info",
+                            GINT_TO_POINTER(current->control.id));
+                        //connect signal
+                        g_signal_connect (GTK_SCALE(current->widget), "value-changed",
+                            G_CALLBACK (slider_changed), all_data);
+                        g_signal_connect(GTK_SPIN_BUTTON(current->spinbutton),"value-changed",
+                            G_CALLBACK (spin_changed), all_data);
+                    }
+                    else
+                    {
+                        printf("INVALID RANGE (MAX <= MIN) for control id: 0x%08x \n", current->control.id);
+                    }
                 }
                 break;
             
@@ -783,7 +791,7 @@ static void update_widget_state(Control *control_list, void *all_data)
                 break;
                 
             default:
-                printf("control type: 0x%08x not supoorted\n", current->control.type);
+                printf("control type: 0x%08x not suported\n", current->control.type);
                 break;
         }
 
@@ -1281,6 +1289,5 @@ void uvcPanTilt (int hdevice, Control *control_list, int is_pan, int direction)
     }
     
 }
-
 
 
