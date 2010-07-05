@@ -35,7 +35,7 @@ SaveControls(struct ALL_DATA *all_data)
 {
     struct VidState *s = all_data->s;
     struct GLOBAL *global = all_data->global;
-    struct vdIn *videoIn = all_data->videoIn;
+    
     FILE *fp;
     int i=0;
     char *filename;
