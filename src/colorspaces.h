@@ -79,6 +79,15 @@ void nv16_to_yuyv (BYTE *framebuffer, BYTE *tmpbuffer, int width, int height);
 */
 void nv61_to_yuyv (BYTE *framebuffer, BYTE *tmpbuffer, int width, int height);
 
+/*convert y16 (grey) to yuyv (packed)
+* args: 
+*      framebuffer: pointer to frame buffer (yuyv)
+*      tmpbuffer: pointer to temp buffer containing y16 (grey) data frame
+*      width: picture width
+*      height: picture height
+*/
+void y16_to_yuyv (BYTE *framebuffer, BYTE *tmpbuffer, int width, int height);
+
 /*convert yyuv to yuyv
 * args: 
 *      framebuffer: pointer to frame buffer (yuyv)

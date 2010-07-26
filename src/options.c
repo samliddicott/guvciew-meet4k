@@ -63,7 +63,7 @@ writeConf(struct GLOBAL *global, char *videodevice)
 		g_fprintf(fp,"vpane=%i\n",global->boxvsize);
 		g_fprintf(fp,"#spin button behavior: 0-non editable 1-editable\n");
 		g_fprintf(fp,"spinbehave=%i\n", global->spinbehave);
-		g_fprintf(fp,"# mode video format 'yuvy' 'yvyu' 'uyvy' 'yyuv' 'yu12' 'yv12' 'nv12' 'nv21' 'nv16' 'nv61' 'y41p' 'grey' 's501' 's505' 's508' 'gbrg' 'grbg' 'ba81' 'rggb' 'rgb3' 'bgr3' 'jpeg' 'mjpg'(default)\n");
+		g_fprintf(fp,"# mode video format 'yuvy' 'yvyu' 'uyvy' 'yyuv' 'yu12' 'yv12' 'nv12' 'nv21' 'nv16' 'nv61' 'y41p' 'grey' 'y16 ' 's501' 's505' 's508' 'gbrg' 'grbg' 'ba81' 'rggb' 'rgb3' 'bgr3' 'jpeg' 'mjpg'(default)\n");
 		g_fprintf(fp,"mode='%s'\n",global->mode);
 		g_fprintf(fp,"# frames per sec. - hardware supported - default( %i )\n",DEFAULT_FPS);
 		g_fprintf(fp,"fps='%d/%d'\n",global->fps_num,global->fps);
@@ -551,7 +551,7 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 		{ "capture_method", 'r', 0, G_OPTION_ARG_INT, &cap_meth, N_("Capture method (1-mmap (default)  2-read)"), "[1 | 2]"},
 		{ "config", 'g', 0, G_OPTION_ARG_STRING, &config, N_("Configuration file"), "FILENAME" },
 		{ "hwd_acel", 'w', 0, G_OPTION_ARG_INT, &hwaccel, N_("Hardware accelaration (enable(1) | disable(0))"), "[1 | 0]" },
-		{ "format", 'f', 0, G_OPTION_ARG_STRING, &format, N_("Pixel format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|y41p|grey|s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"), "FORMAT" },
+		{ "format", 'f', 0, G_OPTION_ARG_STRING, &format, N_("Pixel format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|y41p|grey|y16 |s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"), "FORMAT" },
 		{ "size", 's', 0, G_OPTION_ARG_STRING, &size, N_("Frame size, default: 640x480"), "WIDTHxHEIGHT"},
 		{ "image", 'i', 0, G_OPTION_ARG_STRING, &image, N_("Image File name"), "FILENAME"},
 		{ "cap_time", 'c', 0, G_OPTION_ARG_INT, &global->image_timer, N_("Image capture interval in seconds"), "TIME"},
@@ -694,7 +694,9 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 		else if (g_strcmp0("bggr",format)==0) // be compatible with guvcview < 1.1.4
 			g_snprintf(global->mode,5,"ba81");
 		else
-			g_snprintf(global->mode,5,"%s",format);
+			g_snprintf(global->mode,5,"%s ",format);
+			
+	    printf("requested format \"%s\" from command line\n", global->mode);
 		
 		global->flg_mode = 1;
 	}

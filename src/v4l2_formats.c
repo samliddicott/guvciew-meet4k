@@ -32,7 +32,7 @@
 #include "v4l2uvc.h"
 #include "v4l2_formats.h"
 
-#define SUP_PIX_FMT 23                //total number of software(guvcview) 
+#define SUP_PIX_FMT 24                //total number of software(guvcview) 
                                       //supported formats (list size)
 
 static SupFormats listSupFormats[SUP_PIX_FMT] = //list of software supported formats
@@ -77,6 +77,11 @@ static SupFormats listSupFormats[SUP_PIX_FMT] = //list of software supported for
 	{
 		.format   = V4L2_PIX_FMT_GREY,
 		.mode     = "grey",
+		.hardware = 0
+	},
+	{
+		.format   = V4L2_PIX_FMT_Y16,
+		.mode     = "y16 ",
 		.hardware = 0
 	},
 	{

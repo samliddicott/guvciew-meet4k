@@ -132,6 +132,38 @@ yuyv2bgr (BYTE *pyuv, BYTE *pbgr, int width, int height)
 	preverse=NULL;
 }
 
+/*convert y16 (grey) to yuyv (packed)
+* args: 
+*      framebuffer: pointer to frame buffer (yuyv)
+*      tmpbuffer: pointer to temp buffer containing y16 (grey) data frame
+*      width: picture width
+*      height: picture height
+*/
+void y16_to_yuyv (BYTE *framebuffer, BYTE *tmpbuffer, int width, int height)
+{
+	UINT16 *ptmp= (UINT16 *) tmpbuffer;
+
+	int h=0;
+	int w=0;
+	
+	for(h=0;h<height;h++) 
+	{
+		for(w=0;w<width;w+=2) 
+		{
+			/* Y0 */
+			*framebuffer++ = (BYTE) (ptmp[0] & 0xFF00) >> 8;
+			/* U */
+			*framebuffer++ = 0x7F;
+			/* Y1 */
+			*framebuffer++ = (BYTE) (ptmp[1] & 0xFF00) >> 8;
+			/* V */
+			*framebuffer++ = 0x7F;
+			
+			ptmp += 2;
+		}
+	}
+}
+
 /*convert yyuv (packed) to yuyv (packed)
 * args: 
 *      framebuffer: pointer to frame buffer (yuyv)

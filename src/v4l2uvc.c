@@ -602,6 +602,14 @@ static int videoIn_frame_alloca(struct vdIn *vd, int format, int width, int heig
 			vd->framebuffer = g_new0(unsigned char, framebuf_size);
 			break;
 			
+	    case V4L2_PIX_FMT_Y16:
+			// alloc a temp buffer for converting to YUYV
+			tmpbuf_size= width * height * 2; // 2 byte per pixel
+			vd->tmpbuffer = g_new0(unsigned char, tmpbuf_size);
+			framebuf_size = framesizeIn;
+			vd->framebuffer = g_new0(unsigned char, framebuf_size);
+			break;
+			
 		case V4L2_PIX_FMT_YUYV:
 			//  YUYV doesn't need a temp buffer but we will set it if/when
 			//  video processing disable control is checked (bayer processing).
@@ -913,6 +921,11 @@ static int frame_decode(struct vdIn *vd, int format, int width, int height)
 		case V4L2_PIX_FMT_GREY:
 			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
 			grey_to_yuyv(vd->framebuffer, vd->tmpbuffer, width, height);
+			break;
+			
+	    case V4L2_PIX_FMT_Y16:
+			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
+			y16_to_yuyv(vd->framebuffer, vd->tmpbuffer, width, height);
 			break;
 			
 		case V4L2_PIX_FMT_SPCA501:
