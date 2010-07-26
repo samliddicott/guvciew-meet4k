@@ -1,3 +1,9 @@
+guvcview (1.4.2)
+
+   * Add support for Y16 pixel format (Greyscale)
+
+ -- Paulo Assis <pj.assis@gmail.com>  Mon, 26 Jul 2010 14:05:00 +0000
+ 
 guvcview (1.4.1)
 
    * Fix h264 default values
