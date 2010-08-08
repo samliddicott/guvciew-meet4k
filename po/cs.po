@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: guvcview\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-06-19 13:45+0100\n"
+"POT-Creation-Date: 2010-08-08 23:27+0100\n"
 "PO-Revision-Date: 2009-11-01 16:17+0000\n"
 "Last-Translator: exxxo45 <exxxo45@gmail.com>\n"
 "Language-Team: Czech <cs@li.org>\n"
@@ -172,16 +172,16 @@ msgstr "Výchozí zařízení"
 msgid "Stop Auto"
 msgstr "Zastavit automat"
 
-#: src/guvcview.c:434 src/callbacks.c:973 src/timers.c:95
+#: src/guvcview.c:434 src/callbacks.c:1072 src/timers.c:95
 msgid "Cap. Image"
 msgstr "Zazn. Obraz"
 
 #. vid capture enabled from start
-#: src/guvcview.c:439 src/callbacks.c:1100
+#: src/guvcview.c:439 src/callbacks.c:1199
 msgid "Stop Video"
 msgstr "Zastavit Video"
 
-#: src/guvcview.c:444 src/guvcview.c:650 src/callbacks.c:1041
+#: src/guvcview.c:444 src/guvcview.c:650 src/callbacks.c:1140
 #: src/create_video.c:795
 msgid "Cap. Video"
 msgstr "Zazn. Video"
@@ -429,7 +429,7 @@ msgstr "Zaostření"
 msgid "Focus (Absolute)"
 msgstr ""
 
-#: src/video_tab.c:41 src/callbacks.c:1140
+#: src/video_tab.c:41 src/callbacks.c:1239
 msgid "Save File"
 msgstr "Uložit soubor"
 
@@ -437,9 +437,9 @@ msgstr "Uložit soubor"
 #. g_mutex_unlock(videoIn->mutex);
 #. g_mutex_lock(global->mutex);
 #: src/video_tab.c:76 src/video_tab.c:106 src/globals.c:72 src/globals.c:75
-#: src/options.c:378 src/options.c:431 src/callbacks.c:484 src/callbacks.c:765
-#: src/callbacks.c:903 src/callbacks.c:920 src/callbacks.c:952
-#: src/callbacks.c:1050 src/timers.c:78
+#: src/options.c:378 src/options.c:431 src/callbacks.c:583 src/callbacks.c:864
+#: src/callbacks.c:1002 src/callbacks.c:1019 src/callbacks.c:1051
+#: src/callbacks.c:1149 src/timers.c:78
 #, c-format
 msgid "File num:%d"
 msgstr "Číslo souboru:%d"
@@ -536,7 +536,7 @@ msgid "Video & Files"
 msgstr "Video & Soubory"
 
 #. Devices
-#: src/video_tab.c:546
+#: src/video_tab.c:546 src/callbacks.c:120
 msgid "Device:"
 msgstr "Zařízení:"
 
@@ -837,9 +837,10 @@ msgid "Hardware accelaration (enable(1) | disable(0))"
 msgstr "Hardwarová akcelerace (povolit(1) | zakázat(0))"
 
 #: src/options.c:554
+#, fuzzy
 msgid ""
 "Pixel format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|"
-"y41p|grey|s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
+"y41p|grey|y16 |s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
 msgstr ""
 "Formát pixelu (mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|"
 "y41p|grey|s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
@@ -896,23 +897,35 @@ msgstr "Automatické ostření (pozvolné)"
 msgid "set Focus"
 msgstr "nastavit Ostření"
 
-#: src/callbacks.c:535
+#: src/callbacks.c:89
+#, fuzzy
+msgid "Error"
+msgstr " Zrcadlo"
+
+#: src/callbacks.c:113
+msgid ""
+"\n"
+"You have more than one video device installed.\n"
+"Do you want to try another one ?\n"
+msgstr ""
+
+#: src/callbacks.c:634
 msgid "start new"
 msgstr "spustit nový"
 
-#: src/callbacks.c:538
+#: src/callbacks.c:637
 msgid "restart"
 msgstr "restart"
 
-#: src/callbacks.c:540
+#: src/callbacks.c:639
 msgid "new"
 msgstr "nový"
 
-#: src/callbacks.c:542
+#: src/callbacks.c:641
 msgid "cancel"
 msgstr "zrušit"
 
-#: src/callbacks.c:546
+#: src/callbacks.c:645
 msgid ""
 "launch new process or restart?.\n"
 "\n"
@@ -920,7 +933,7 @@ msgstr ""
 "Spustit nový proces nebo restartovat?.\n"
 "\n"
 
-#: src/callbacks.c:1153
+#: src/callbacks.c:1252
 msgid "Load File"
 msgstr "Nahrát soubor"
 

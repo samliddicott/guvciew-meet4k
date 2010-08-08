@@ -75,21 +75,120 @@ ERR_DIALOG(const char *err_title, const char* err_msg, struct ALL_DATA *all_data
 {
 	struct GWIDGET *gwidget = all_data->gwidget;
 	struct GLOBAL *global = all_data->global;
+	struct vdIn *videoIn = all_data->videoIn;
+	
+	int i=0;
 	
 	gboolean control_only = (global->control_only || global->add_ctrls);
 	
 	GtkWidget *errdialog;
-	errdialog = gtk_message_dialog_new (GTK_WINDOW(gwidget->mainwin),
-		GTK_DIALOG_DESTROY_WITH_PARENT,
-		GTK_MESSAGE_ERROR,
-		GTK_BUTTONS_CLOSE,
-		"%s",gettext(err_title));
+	GtkWidget *Devices;
+	
+	if (videoIn->listDevices->num_devices > 1)
+	{
+		errdialog = gtk_dialog_new_with_buttons (_("Error"),
+		    GTK_WINDOW(gwidget->mainwin),
+		    GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+		    GTK_STOCK_OK,
+		    GTK_RESPONSE_ACCEPT,
+		    GTK_STOCK_CANCEL,
+		    GTK_RESPONSE_REJECT,
+		    NULL);
+		
+	    GtkWidget *table = gtk_table_new(4,2,FALSE);
+	    
+	    GtkWidget *title = gtk_label_new (gettext(err_title));
+	    gtk_misc_set_alignment (GTK_MISC (title), 0, 0);
+        gtk_table_attach (GTK_TABLE (table), title, 0, 2, 0, 1,
+                    GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+        gtk_widget_show (title);
+	    
+	    GtkWidget *text = gtk_label_new (gettext(err_msg));
+	    gtk_misc_set_alignment (GTK_MISC (text), 0, 0);
+        gtk_table_attach (GTK_TABLE (table), text, 0, 2, 1, 2,
+                    GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+        gtk_widget_show (text);
 
-	gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(errdialog),
-		"%s",gettext(err_msg));
 
-	gtk_widget_show(errdialog);
-	gtk_dialog_run (GTK_DIALOG (errdialog));
+        GtkWidget *text2 = gtk_label_new (_("\nYou have more than one video device installed.\n"
+            "Do you want to try another one ?\n"));
+	    gtk_misc_set_alignment (GTK_MISC (text2), 0, 0);
+        gtk_table_attach (GTK_TABLE (table), text2, 0, 2, 2, 3,
+                    GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+        gtk_widget_show (text2);
+	    
+	    GtkWidget *lbl_dev = gtk_label_new(_("Device:"));
+	    gtk_misc_set_alignment (GTK_MISC (lbl_dev), 1, 0.5);
+	    gtk_table_attach (GTK_TABLE(table), lbl_dev, 0, 1, 3, 4,
+		    GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	    gtk_widget_show (lbl_dev);
+	    
+	    Devices = gtk_combo_box_new_text ();
+	    
+	    for(i=0;i<(videoIn->listDevices->num_devices);i++)
+		{
+			gtk_combo_box_append_text(GTK_COMBO_BOX(Devices),
+				videoIn->listDevices->listVidDevices[i].name);
+		}
+		gtk_combo_box_set_active(GTK_COMBO_BOX(Devices),videoIn->listDevices->num_devices-1);
+		
+		gtk_table_attach(GTK_TABLE(table), Devices, 1, 2, 3, 4,
+		    GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	    gtk_widget_show (Devices);
+
+	    GtkWidget *content_area = gtk_dialog_get_content_area (GTK_DIALOG (errdialog));
+    	gtk_container_add (GTK_CONTAINER (content_area), table);
+    	gtk_widget_show (table);
+	}
+	else
+	{
+	
+	    errdialog = gtk_message_dialog_new (GTK_WINDOW(gwidget->mainwin),
+		    GTK_DIALOG_DESTROY_WITH_PARENT,
+		    GTK_MESSAGE_ERROR,
+		    GTK_BUTTONS_CLOSE,
+		    "%s",gettext(err_title));
+
+	    gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(errdialog),
+		    "%s",gettext(err_msg));
+    
+    }
+    
+    //gtk_widget_show(errdialog);
+    
+    gint result = gtk_dialog_run (GTK_DIALOG (errdialog));
+	switch (result)
+	{
+		case GTK_RESPONSE_ACCEPT:
+		{
+		    /*launch another guvcview instance for the selected device*/
+		    int index = gtk_combo_box_get_active(GTK_COMBO_BOX(Devices));
+	        //if(index == videoIn->listDevices->current_device) 
+		    //    break;
+	        g_free(global->videodevice);
+	        global->videodevice = g_strdup(videoIn->listDevices->listVidDevices[index].device);
+	        gchar *command = g_strjoin("",
+		    g_get_prgname(),
+		        " --device=",
+		        global->videodevice,
+		        NULL);
+		    /*spawn new process*/
+		    GError *error = NULL;
+			if(!(g_spawn_command_line_async(command, &error)))
+			{
+				g_printerr ("spawn failed: %s\n", error->message);
+				g_error_free ( error );
+			}
+			
+		}
+		    break;
+		    
+		default:
+			/* do nothing since dialog was cancelled or closed */
+			break;
+    
+	}
+	
 	gtk_widget_destroy (errdialog);
 
 	clean_struct(all_data);
