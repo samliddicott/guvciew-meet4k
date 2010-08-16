@@ -35,6 +35,16 @@
 #include "callbacks.h"
 #include "close.h"
 
+/* called for timed shutdown (from video thread)*/
+gboolean
+shutd_timer(gpointer data)
+{
+	/*stop video capture*/
+	shutd (0, data);
+	
+	return (FALSE);/*destroys the timer*/
+}
+
 /* called by video capture from start timer */
 gboolean
 timer_callback(gpointer data)

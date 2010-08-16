@@ -25,6 +25,9 @@
 #include <glib.h>
 
 gboolean
+shutd_timer(gpointer data);
+
+gboolean
 timer_callback(gpointer data);
 
 gboolean

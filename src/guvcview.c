@@ -127,7 +127,6 @@ int main(int argc, char *argv[])
 	GtkWidget *buttons_table;
 	GtkWidget *profile_labels;
 	GtkWidget *capture_labels;
-	GtkWidget *quitButton;
 	GtkWidget *SProfileButton;
 	GtkWidget *LProfileButton;
     GtkWidget *DefaultsButton;
@@ -411,7 +410,7 @@ int main(int argc, char *argv[])
 		
 	gtk_widget_show(HButtonBox);
 	
-	quitButton=gtk_button_new_from_stock(GTK_STOCK_QUIT);
+	gwidget->quitButton=gtk_button_new_from_stock(GTK_STOCK_QUIT);
 	SProfileButton=gtk_button_new_from_stock(GTK_STOCK_SAVE);
 	LProfileButton=gtk_button_new_from_stock(GTK_STOCK_OPEN);
     DefaultsButton=gtk_button_new_with_label(_("Defaults"));
@@ -516,8 +515,8 @@ int main(int argc, char *argv[])
 	{
 		QButton_Img = gtk_image_new_from_file (pix6path);
 		
-		gtk_button_set_image(GTK_BUTTON(quitButton),QButton_Img);
-		gtk_button_set_image_position(GTK_BUTTON(quitButton),GTK_POS_TOP);
+		gtk_button_set_image(GTK_BUTTON(gwidget->quitButton),QButton_Img);
+		gtk_button_set_image_position(GTK_BUTTON(gwidget->quitButton),GTK_POS_TOP);
 		//gtk_widget_show (QButton_Img);
 	}
 
@@ -530,14 +529,14 @@ int main(int argc, char *argv[])
 	gtk_box_pack_start(GTK_BOX(HButtonBox),SProfileButton,TRUE,TRUE,2);
 	gtk_box_pack_start(GTK_BOX(HButtonBox),LProfileButton,TRUE,TRUE,2);
     gtk_box_pack_start(GTK_BOX(HButtonBox),DefaultsButton,TRUE,TRUE,2);
-	gtk_box_pack_start(GTK_BOX(HButtonBox),quitButton,TRUE,TRUE,2);
+	gtk_box_pack_start(GTK_BOX(HButtonBox),gwidget->quitButton,TRUE,TRUE,2);
 
 	gtk_widget_show_all (LProfileButton);
 	gtk_widget_show_all (SProfileButton);
     gtk_widget_show_all (DefaultsButton);
-	gtk_widget_show_all (quitButton);
+	gtk_widget_show_all (gwidget->quitButton);
 
-	g_signal_connect (GTK_BUTTON(quitButton), "clicked",
+	g_signal_connect (GTK_BUTTON(gwidget->quitButton), "clicked",
 		G_CALLBACK (quitButton_clicked), &all_data);
 	
 	gboolean SProfile = TRUE;
@@ -575,14 +574,14 @@ int main(int argc, char *argv[])
 	
 	if (!control_only) /*control_only exclusion*/
 	{
-		/*------------------ Creating the main loop (video) thread ---------------*/
+		/*------------------ Creating the video thread ---------------*/
 		GError *err1 = NULL;
 
 		if( (video_thread = g_thread_create_full((GThreadFunc) main_loop, 
 			(void *) &all_data,       //data - argument supplied to thread
 			global->stack_size,       //stack size
 			TRUE,                     //joinable
-			FALSE,                    //bound
+			TRUE,                     //bound
 			G_THREAD_PRIORITY_NORMAL, //priority - no priority for threads in GNU-Linux
 			&err1)                    //error
 		) == NULL)
@@ -626,7 +625,7 @@ int main(int argc, char *argv[])
 					(void *) &all_data,       //data - argument supplied to thread
 					global->stack_size,       //stack size
 					TRUE,                     //joinable
-					FALSE,                    //bound
+					TRUE,                     //bound
 					G_THREAD_PRIORITY_NORMAL, //priority - no priority for threads in GNU-Linux
 					&err1)                    //error
 				) == NULL)

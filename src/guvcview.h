@@ -72,6 +72,7 @@ struct GWIDGET
 	GtkWidget *lavc_button;
 	GtkWidget *lavc_aud_button;
 	GtkWidget *jpeg_comp;
+	GtkWidget *quitButton;
 	
 	gboolean vid_widget_state;
 };

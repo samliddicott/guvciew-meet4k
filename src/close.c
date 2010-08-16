@@ -114,10 +114,10 @@ shutd (gint restart, struct ALL_DATA *all_data)
 	struct paRecordData *pdata = all_data->pdata;
 	struct GLOBAL *global = all_data->global;
 	struct vdIn *videoIn = all_data->videoIn;
-
+	
 	gboolean control_only = (global->control_only || global->add_ctrls);
 	
-	/* wait for the main loop (video) thread */
+	/* wait for the video thread */
 	if(!(control_only))
 	{ 
 		if (global->debug) g_printf("Shuting Down Thread\n");
