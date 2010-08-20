@@ -81,8 +81,8 @@ ERR_DIALOG(const char *err_title, const char* err_msg, struct ALL_DATA *all_data
 	
 	gboolean control_only = (global->control_only || global->add_ctrls);
 	
-	GtkWidget *errdialog;
-	GtkWidget *Devices;
+	GtkWidget *errdialog=NULL;
+	GtkWidget *Devices=NULL;
 	
 	if (videoIn->listDevices->num_devices > 1)
 	{
@@ -98,12 +98,14 @@ ERR_DIALOG(const char *err_title, const char* err_msg, struct ALL_DATA *all_data
 	    GtkWidget *table = gtk_table_new(4,2,FALSE);
 	    
 	    GtkWidget *title = gtk_label_new (gettext(err_title));
+	    gtk_widget_modify_font(title, pango_font_description_from_string ("Sans bold 10"));
 	    gtk_misc_set_alignment (GTK_MISC (title), 0, 0);
         gtk_table_attach (GTK_TABLE (table), title, 0, 2, 0, 1,
                     GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
         gtk_widget_show (title);
 	    
 	    GtkWidget *text = gtk_label_new (gettext(err_msg));
+	    gtk_widget_modify_font(text, pango_font_description_from_string ("Sans italic 8"));
 	    gtk_misc_set_alignment (GTK_MISC (text), 0, 0);
         gtk_table_attach (GTK_TABLE (table), text, 0, 2, 1, 2,
                     GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
@@ -112,13 +114,14 @@ ERR_DIALOG(const char *err_title, const char* err_msg, struct ALL_DATA *all_data
 
         GtkWidget *text2 = gtk_label_new (_("\nYou have more than one video device installed.\n"
             "Do you want to try another one ?\n"));
+        gtk_widget_modify_font(text2, pango_font_description_from_string ("Sans 10"));
 	    gtk_misc_set_alignment (GTK_MISC (text2), 0, 0);
         gtk_table_attach (GTK_TABLE (table), text2, 0, 2, 2, 3,
                     GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
         gtk_widget_show (text2);
 	    
 	    GtkWidget *lbl_dev = gtk_label_new(_("Device:"));
-	    gtk_misc_set_alignment (GTK_MISC (lbl_dev), 1, 0.5);
+	    gtk_misc_set_alignment (GTK_MISC (lbl_dev), 0.5, 0.5);
 	    gtk_table_attach (GTK_TABLE(table), lbl_dev, 0, 1, 3, 4,
 		    GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	    gtk_widget_show (lbl_dev);
