@@ -50,6 +50,7 @@ struct GLOBAL
 	GCond   *IO_cond;      //IO thread semaphore
 	
 	VidBuff *videoBuff;    //video Buffer
+	int video_buff_size;   //size in frmaes of video buffer
 	
 	char *videodevice;     // video device (def. /dev/video0)
 	char *confPath;        //configuration file path

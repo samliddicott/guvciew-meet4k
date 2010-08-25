@@ -46,14 +46,17 @@ static void alloc_videoBuff(struct ALL_DATA *all_data)
 	struct GLOBAL *global = all_data->global;
 	int i = 0;
 	int framesize = global->height*global->width*2; /*yuyv (maximum size)*/
+	if((global->fps > 0) && (global->fps_num > 0))
+	    global->video_buff_size = (global->fps * 3) / (global->fps_num * 2); /* 1,5 times fps*/
+	if (global->video_buff_size < 2) global->video_buff_size = 2; /*keep at least two frames*/
 	
 	/*alloc video ring buffer*/
 	g_mutex_lock(global->mutex);
 		if (global->videoBuff == NULL)
 		{
 			/*alloc video frames to videoBuff*/
-			global->videoBuff = g_new0(VidBuff,VIDBUFF_SIZE);
-			for(i=0;i<VIDBUFF_SIZE;i++)
+			global->videoBuff = g_new0(VidBuff, global->video_buff_size);
+			for(i=0;i<global->video_buff_size;i++)
 			{
 				global->videoBuff[i].frame = g_new0(BYTE,framesize);
 			}
@@ -61,7 +64,7 @@ static void alloc_videoBuff(struct ALL_DATA *all_data)
 		else
 		{
 			/*free video frames to videoBuff*/
-			for(i=0;i<VIDBUFF_SIZE;i++)
+			for(i=0;i<global->video_buff_size;i++)
 			{
 				if(global->videoBuff[i].frame) g_free(global->videoBuff[i].frame);
 				global->videoBuff[i].frame = NULL;
@@ -69,8 +72,8 @@ static void alloc_videoBuff(struct ALL_DATA *all_data)
 			g_free(global->videoBuff);
 			
 			/*alloc video frames to videoBuff*/
-			global->videoBuff = g_new0(VidBuff,VIDBUFF_SIZE);
-			for(i=0;i<VIDBUFF_SIZE;i++)
+			global->videoBuff = g_new0(VidBuff,global->video_buff_size);
+			for(i=0;i<global->video_buff_size;i++)
 			{
 				global->videoBuff[i].frame = g_new0(BYTE,framesize);
 			}
@@ -295,7 +298,7 @@ static void closeVideoFile(struct ALL_DATA *all_data)
 		if (global->videoBuff != NULL)
 		{
 			/*free video frames to videoBuff*/
-			for(i=0;i<VIDBUFF_SIZE;i++)
+			for(i=0;i<global->video_buff_size;i++)
 			{
 				g_free(global->videoBuff[i].frame);
 				global->videoBuff[i].frame = NULL;
@@ -511,7 +514,7 @@ static int sync_audio_frame(struct ALL_DATA *all_data, AudBuff *proc_buff)
 	return (0);
 }
 
-static int buff_scheduler(int w_ind, int r_ind)
+static int buff_scheduler(int w_ind, int r_ind, int buff_size)
 {
 	int diff_ind = 0;
 	int sched_sleep = 0;
@@ -519,7 +522,7 @@ static int buff_scheduler(int w_ind, int r_ind)
 	if(w_ind >= r_ind)
 		diff_ind = w_ind - r_ind;
 	else
-		diff_ind = (VIDBUFF_SIZE - r_ind) + w_ind;
+		diff_ind = (buff_size - r_ind) + w_ind;
 
 	if(diff_ind <= 15) sched_sleep = 0; /* full throttle (must wait for audio at least 10 frames) */
 	else if (diff_ind <= 20) sched_sleep = (diff_ind-15) * 2; /* <= 10  ms ~1 frame @ 90  fps */
@@ -635,7 +638,7 @@ static gboolean process_video(struct ALL_DATA *all_data,
 			/*signals an empty slot in the video buffer*/
 			g_cond_broadcast(global->IO_cond);
 				
-			NEXT_IND(global->r_ind,VIDBUFF_SIZE);
+			NEXT_IND(global->r_ind,global->video_buff_size);
 		g_mutex_unlock(global->mutex);
 
 		/*process video Frame*/
@@ -717,8 +720,8 @@ int store_video_frame(void *data)
 	if (!global->videoBuff[global->w_ind].used)
 	{
 		store_at_index(data);
-		producer_sleep = buff_scheduler(global->w_ind, global->r_ind);
-		NEXT_IND(global->w_ind, VIDBUFF_SIZE);
+		producer_sleep = buff_scheduler(global->w_ind, global->r_ind, global->video_buff_size);
+		NEXT_IND(global->w_ind, global->video_buff_size);
 	}
 	else
 	{
@@ -735,7 +738,7 @@ int store_video_frame(void *data)
 			if (!global->videoBuff[global->w_ind].used)
 			{
 				store_at_index(data);
-				NEXT_IND(global->w_ind, VIDBUFF_SIZE);
+				NEXT_IND(global->w_ind, global->video_buff_size);
 			}
 			else ret = -2;/*drop frame*/
 			
@@ -835,7 +838,7 @@ void *IO_loop(void *data)
 					if(global->w_ind >= global->r_ind)
 						diff_ind = global->w_ind - global->r_ind;
 					else
-						diff_ind = (VIDBUFF_SIZE - global->r_ind) + global->w_ind;
+						diff_ind = (global->video_buff_size - global->r_ind) + global->w_ind;
 			
 					if( (pdata->audio_buff[pdata->r_ind].used && global->videoBuff[global->r_ind].used) &&
 						(pdata->audio_buff[pdata->r_ind].time_stamp < global->videoBuff[global->r_ind].time_stamp))
