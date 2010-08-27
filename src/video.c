@@ -43,13 +43,16 @@
 #include "create_image.h"
 #include "timers.h"
 
+static Uint32 SDL_VIDEO_Flags =
+        SDL_ANYFORMAT | SDL_RESIZABLE;
+        
 static SDL_Overlay * video_init(void *data, SDL_Surface **pscreen)
 {
     struct ALL_DATA *all_data = (struct ALL_DATA *) data;
     struct GLOBAL *global = all_data->global;
     
-    static Uint32 SDL_VIDEO_Flags =
-        SDL_ANYFORMAT | SDL_DOUBLEBUF | SDL_RESIZABLE;
+    int width = global->width;
+    int height = global->height;
         
     if (*pscreen == NULL) //init SDL
     {
@@ -89,7 +92,13 @@ static SDL_Overlay * video_init(void *data, SDL_Surface **pscreen)
                 g_printf("Hardware surfaces are available (%dK video memory)\n", info->video_mem);
 
             SDL_VIDEO_Flags |= SDL_HWSURFACE;
+            SDL_VIDEO_Flags |= SDL_DOUBLEBUF;
         }
+        else
+        {
+            SDL_VIDEO_Flags |= SDL_SWSURFACE;
+        }
+        
         if (info->blit_hw) 
         {
             if (global->debug) g_printf("Copy blits between hardware surfaces are accelerated\n");
@@ -107,11 +116,6 @@ static SDL_Overlay * video_init(void *data, SDL_Surface **pscreen)
             if (info->blit_fill) g_printf("Color fills on hardware surfaces are accelerated\n");
         }
 
-        if (!(SDL_VIDEO_Flags & SDL_HWSURFACE))
-        {
-            SDL_VIDEO_Flags |= SDL_SWSURFACE;
-        }
-
         SDL_WM_SetCaption(global->WVcaption, NULL); 
 
         /* enable key repeat */
@@ -119,11 +123,32 @@ static SDL_Overlay * video_init(void *data, SDL_Surface **pscreen)
     }
     /*------------------------------ SDL init video ---------------------*/
 
-    *pscreen = SDL_SetVideoMode( global->width,
-        global->height, 
+    g_printf("Checking video mode %ix%i@%ibpp : ", width, height, global->bpp);
+    int bpp = SDL_VideoModeOK(width,
+        height,
         global->bpp,
         SDL_VIDEO_Flags);
-         
+
+    if(!bpp)
+    {
+        g_printf("Not available \n");
+        //resize video mode
+        g_printf("Resizing to 800x600\n");
+        width = 800;
+        height = 600;
+    }
+    else
+    {
+        g_printf("OK \n");
+    }
+
+    
+    *pscreen = SDL_SetVideoMode( width,
+        height, 
+        global->bpp,
+        SDL_VIDEO_Flags);
+    
+    //use requested resolution for overlay even if not available as video mode
     SDL_Overlay* overlay=NULL;
     overlay = SDL_CreateYUVOverlay(global->width, global->height,
         SDL_YUY2_OVERLAY, *pscreen);
@@ -419,8 +444,6 @@ void *main_loop(void *data)
             }
             if(event.type==SDL_VIDEORESIZE)
             {
-                Uint32 SDL_VIDEO_Flags =
-                    SDL_ANYFORMAT | SDL_DOUBLEBUF | SDL_RESIZABLE;
                 pscreen =
                     SDL_SetVideoMode(event.resize.w,
                              event.resize.h,
