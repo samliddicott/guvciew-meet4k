@@ -106,6 +106,9 @@ static SDL_Overlay * video_init(void *data, SDL_Surface **pscreen)
 
             SDL_VIDEO_Flags |= SDL_ASYNCBLIT;
         }
+        
+        if(!global->desktop_w) global->desktop_w = info->current_w; //get desktop width
+        if(!global->desktop_h) global->desktop_h = info->current_h; //get desktop height
     
         if (global->debug) 
         {
@@ -123,22 +126,23 @@ static SDL_Overlay * video_init(void *data, SDL_Surface **pscreen)
         SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY,SDL_DEFAULT_REPEAT_INTERVAL);
     }
     /*------------------------------ SDL init video ---------------------*/
-
-    g_printf("Checking video mode %ix%i@%ibpp : ", width, height, global->bpp);
+    if(global->debug)  
+        g_printf("(Desktop resolution = %ix%i)\n", global->desktop_w, global->desktop_h);
+    g_printf("Checking video mode %ix%i@24bpp : ", width, height);
     int bpp = SDL_VideoModeOK(
         width,
         height,
-        global->bpp,
+        24,
         SDL_VIDEO_Flags);
 
     if(!bpp)
     {
         g_printf("Not available \n");
         /*resize video mode*/
-        if ((width > info->current_w) || (height > info->current_h))
+        if ((width > global->desktop_w) || (height > global->desktop_h))
         {
-            width = info->current_w; /*use current video resolution*/
-            height = info->current_h; 
+            width = global->desktop_w; /*use desktop video resolution*/
+            height = global->desktop_h; 
         }
         else
         {
@@ -152,6 +156,7 @@ static SDL_Overlay * video_init(void *data, SDL_Surface **pscreen)
     {
         g_printf("OK \n");
         if ((bpp != global->bpp) && global->debug) g_printf("recomended color depth = %i\n", bpp);
+        global->bpp = bpp;
     }
 
     *pscreen = SDL_SetVideoMode( 

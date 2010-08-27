@@ -109,6 +109,8 @@ struct GLOBAL
 	int fps_num;           //fps numerator (usually 1)
 	int bpp;               //current bytes per pixel
 	int hwaccel;           //use hardware acceleration
+	int desktop_w;         //Desktop width
+	int desktop_h;         //Desktop height
 	int width;             //frame width
 	int height;            //frame height
 	int winwidth;          //control windoe width
