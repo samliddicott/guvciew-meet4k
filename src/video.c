@@ -128,11 +128,11 @@ static SDL_Overlay * video_init(void *data, SDL_Surface **pscreen)
     /*------------------------------ SDL init video ---------------------*/
     if(global->debug)  
         g_printf("(Desktop resolution = %ix%i)\n", global->desktop_w, global->desktop_h);
-    g_printf("Checking video mode %ix%i@24bpp : ", width, height);
+    g_printf("Checking video mode %ix%i@32bpp : ", width, height);
     int bpp = SDL_VideoModeOK(
         width,
         height,
-        24,
+        32,
         SDL_VIDEO_Flags);
 
     if(!bpp)
@@ -155,7 +155,7 @@ static SDL_Overlay * video_init(void *data, SDL_Surface **pscreen)
     else
     {
         g_printf("OK \n");
-        if ((bpp != global->bpp) && global->debug) g_printf("recomended color depth = %i\n", bpp);
+        if ((bpp != 32) && global->debug) g_printf("recomended color depth = %i\n", bpp);
         global->bpp = bpp;
     }
 
