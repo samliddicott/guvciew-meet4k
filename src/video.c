@@ -159,7 +159,11 @@ static SDL_Overlay * video_init(void *data, SDL_Surface **pscreen)
         height, 
         global->bpp,
         SDL_VIDEO_Flags);
-    
+        
+    if(*pscreen == NULL)
+    {
+        return (NULL);
+    }
     //use requested resolution for overlay even if not available as video mode
     SDL_Overlay* overlay=NULL;
     overlay = SDL_CreateYUVOverlay(global->width, global->height,
@@ -208,17 +212,26 @@ void *main_loop(void *data)
         if (last_focus < 0) last_focus = AFdata->f_max;
     }
     
-    /*------------------------------ SDL init video ---------------------*/
-    overlay = video_init(data, &(pscreen));
-    p = (unsigned char *) overlay->pixels[0];
-    
-    drect.x = 0;
-    drect.y = 0;
-    drect.w = pscreen->w;
-    drect.h = pscreen->h;
-    
     gboolean capVid = FALSE;
     gboolean signalquit = FALSE;
+    
+    /*------------------------------ SDL init video ---------------------*/
+    overlay = video_init(data, &(pscreen));
+    
+    if(overlay == NULL)
+    {
+        g_printf("FATAL: Couldn't init SDL video\n");
+        signalquit = TRUE; /*exit video thread*/
+    }
+    else
+    {
+        p = (unsigned char *) overlay->pixels[0];
+    
+        drect.x = 0;
+        drect.y = 0;
+        drect.w = pscreen->w;
+        drect.h = pscreen->h;
+    }
     
     while (!signalquit) 
     {
@@ -535,7 +548,8 @@ void *main_loop(void *data)
     if (global->debug) g_printf("cleaning Thread allocations: 100%%\n");
     fflush(NULL);//flush all output buffers 
     
-    SDL_FreeYUVOverlay(overlay);
+    if(overlay)
+        SDL_FreeYUVOverlay(overlay);
     //SDL_FreeSurface(pscreen);
 
     SDL_Quit();   
