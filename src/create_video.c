@@ -47,7 +47,7 @@ static void alloc_videoBuff(struct ALL_DATA *all_data)
 	int i = 0;
 	int framesize = global->height*global->width*2; /*yuyv (maximum size)*/
 	if((global->fps > 0) && (global->fps_num > 0))
-	    global->video_buff_size = (global->fps * 3) / (global->fps_num * 2); /* 1,5 times fps*/
+	    global->video_buff_size = (global->fps * 3) / (global->fps_num * 2); /* 1,5 seconds of video in buffer*/
 	if (global->video_buff_size < 2) global->video_buff_size = 2; /*keep at least two frames*/
 	
 	/*alloc video ring buffer*/

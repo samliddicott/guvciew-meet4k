@@ -135,7 +135,7 @@ static SDL_Overlay * video_init(void *data, SDL_Surface **pscreen)
     {
         g_printf("Not available \n");
         /*resize video mode*/
-        if (width > info->current_w) || (height > info->current_h)
+        if ((width > info->current_w) || (height > info->current_h))
         {
             width = info->current_w; /*use current video resolution*/
             height = info->current_h; 
