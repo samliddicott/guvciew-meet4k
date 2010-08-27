@@ -46,6 +46,8 @@
 static Uint32 SDL_VIDEO_Flags =
         SDL_ANYFORMAT | SDL_RESIZABLE;
         
+static const SDL_VideoInfo *info;
+
 static SDL_Overlay * video_init(void *data, SDL_Surface **pscreen)
 {
     struct ALL_DATA *all_data = (struct ALL_DATA *) data;
@@ -53,10 +55,9 @@ static SDL_Overlay * video_init(void *data, SDL_Surface **pscreen)
     
     int width = global->width;
     int height = global->height;
-        
+    
     if (*pscreen == NULL) //init SDL
     {
-        const SDL_VideoInfo *info;
         char driver[128];
         /*----------------------------- Test SDL capabilities ---------------------*/
         if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER) < 0) 
@@ -124,7 +125,8 @@ static SDL_Overlay * video_init(void *data, SDL_Surface **pscreen)
     /*------------------------------ SDL init video ---------------------*/
 
     g_printf("Checking video mode %ix%i@%ibpp : ", width, height, global->bpp);
-    int bpp = SDL_VideoModeOK(width,
+    int bpp = SDL_VideoModeOK(
+        width,
         height,
         global->bpp,
         SDL_VIDEO_Flags);
@@ -132,18 +134,28 @@ static SDL_Overlay * video_init(void *data, SDL_Surface **pscreen)
     if(!bpp)
     {
         g_printf("Not available \n");
-        //resize video mode
-        g_printf("Resizing to 800x600\n");
-        width = 800;
-        height = 600;
+        /*resize video mode*/
+        if (width > info->current_w) || (height > info->current_h)
+        {
+            width = info->current_w; /*use current video resolution*/
+            height = info->current_h; 
+        }
+        else
+        {
+            width = 800;
+            height = 600;
+        }
+        g_printf("Resizing to %ix%i\n", width, height);
+
     }
     else
     {
         g_printf("OK \n");
+        if ((bpp != global->bpp) && global->debug) g_printf("recomended color depth = %i\n", bpp);
     }
 
-    
-    *pscreen = SDL_SetVideoMode( width,
+    *pscreen = SDL_SetVideoMode( 
+        width,
         height, 
         global->bpp,
         SDL_VIDEO_Flags);
