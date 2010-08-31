@@ -225,7 +225,7 @@ void *main_loop(void *data)
     
     if(overlay == NULL)
     {
-        g_printf("FATAL: Couldn't init SDL video\n");
+        g_printf("FATAL: Couldn't create yuv overlay - please disable hardware accelaration\n");
         signalquit = TRUE; /*exit video thread*/
     }
     else
@@ -511,13 +511,21 @@ void *main_loop(void *data)
             format = global->format;
             /* restart SDL with new values*/
             overlay = video_init(data, &(pscreen));
-            p = (unsigned char *) overlay->pixels[0];
+            if(overlay == NULL)
+            {
+                g_printf("FATAL: Couldn't create yuv overlay - please disable hardware accelaration\n");
+                signalquit = TRUE; /*exit video thread*/
+            }
+            else
+            {
+                p = (unsigned char *) overlay->pixels[0];
     
-            drect.x = 0;
-            drect.y = 0;
-            drect.w = pscreen->w;
-            drect.h = pscreen->h;
-            global->change_res = FALSE;
+                drect.x = 0;
+                drect.y = 0;
+                drect.w = pscreen->w;
+                drect.h = pscreen->h;
+                global->change_res = FALSE;
+            }
         }
 
     }/*loop end*/
