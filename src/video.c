@@ -518,6 +518,7 @@ void *main_loop(void *data)
             }
             else
             {
+                if (global->debug) g_printf("yuv overlay created (%ix%i).\n", overlay->w, overlay->h);
                 p = (unsigned char *) overlay->pixels[0];
     
                 drect.x = 0;
