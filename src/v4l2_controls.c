@@ -40,8 +40,7 @@
 #include "callbacks.h"
 
 /* 
- * don't use xioctl here since control query has very 
- * specific needs due to V4L2_CTRL_FLAG_NEXT_CTRL
+ * don't use xioctl for control query when using V4L2_CTRL_FLAG_NEXT_CTRL
  */
 static int query_ioctl(int hdevice, int current_ctrl, struct v4l2_queryctrl *ctrl)
 {
