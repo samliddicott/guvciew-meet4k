@@ -49,14 +49,13 @@ static int query_ioctl(int hdevice, int current_ctrl, struct v4l2_queryctrl *ctr
     int tries = 4;
     do 
     {
+        if(ret) 
+            ctrl.id = current_ctrl | V4L2_CTRL_FLAG_NEXT_CTRL;
         ret = v4l2_ioctl(hdevice, VIDIOC_QUERYCTRL, ctrl);
     } 
     while (ret && tries-- &&
         ((errno == EIO || errno == EPIPE || errno == ETIMEDOUT)))
-    {
-        ctrl.id = current_ctrl | V4L2_CTRL_FLAG_NEXT_CTRL;
-    }
-    
+        
     return ret;
 }
 
