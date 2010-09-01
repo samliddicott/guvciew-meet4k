@@ -39,6 +39,27 @@
 #include "v4l2_dyna_ctrls.h"
 #include "callbacks.h"
 
+/* 
+ * don't use xioctl here since control query has very 
+ * specific needs due to V4L2_CTRL_FLAG_NEXT_CTRL
+ */
+static int query_ioctl(int hdevice, int current_ctrl, struct v4l2_queryctrl *ctrl)
+{
+    int ret = 0;
+    int tries = 4;
+    do 
+    {
+        ret = v4l2_ioctl(hdevice, VIDIOC_QUERYCTRL, ctrl);
+    } 
+    while (ret && tries-- &&
+        ((errno == EIO || errno == EPIPE || errno == ETIMEDOUT)))
+    {
+        ctrl.id = current_ctrl | V4L2_CTRL_FLAG_NEXT_CTRL;
+    }
+    
+    return ret;
+}
+
 /*
  * returns a Control structure NULL terminated linked list
  * with all of the device controls with Read/Write permissions.
@@ -56,31 +77,50 @@ Control *get_control_list(int hdevice, int *num_ctrls)
     struct v4l2_queryctrl queryctrl={0};
     struct v4l2_querymenu querymenu={0};
 
+    int currentctrl = 0;
     queryctrl.id = 0 | V4L2_CTRL_FLAG_NEXT_CTRL;
     
-    if ((ret=xioctl (hdevice, VIDIOC_QUERYCTRL, &queryctrl)) == 0)
+    if ((ret=query_ioctl (hdevice, currentctrl, &queryctrl)) == 0)
     {
         // The driver supports the V4L2_CTRL_FLAG_NEXT_CTRL flag
         queryctrl.id = 0;
-        int currentctrl= queryctrl.id;
+        currentctrl= queryctrl.id;
         queryctrl.id |= V4L2_CTRL_FLAG_NEXT_CTRL;
 
-        while((ret = xioctl(hdevice, VIDIOC_QUERYCTRL, &queryctrl)), ret ? errno != EINVAL : 1) 
+        while((ret = query_ioctl(hdevice, currentctrl, &queryctrl)), ret ? errno != EINVAL : 1) 
         {
             struct v4l2_querymenu *menu = NULL;
             
-            // Prevent infinite loop for buggy NEXT_CTRL implementations
+            // Prevent infinite loop for buggy V4L2_CTRL_FLAG_NEXT_CTRL implementations
             if(ret && queryctrl.id <= currentctrl) 
             {
+                printf("buggy V4L2_CTRL_FLAG_NEXT_CTRL flag implementation (workaround enabled)\n");
                 currentctrl++;
                 goto next_control;
             }
+            else if (!ret && queryctrl.id == currentctrl)
+            {
+                printf("buggy V4L2_CTRL_FLAG_NEXT_CTRL flag implementation (failed enumeration)\n");
+                *num_ctrls = n;
+                return first;
+            }
+            
             currentctrl = queryctrl.id;
-    
-            // skip if control is disabled or failed
-            if (ret || (queryctrl.flags & V4L2_CTRL_FLAG_DISABLED) )
+            
+            // skip if control failed
+            if (ret)
+            {
+                printf("Control 0x%08x failed to query\n", queryctrl.id);
                 goto next_control;
-
+            }
+            
+            // skip if control is disabled
+            if (queryctrl.flags & V4L2_CTRL_FLAG_DISABLED)
+            {
+                printf("Disabling control 0x%08x\n", queryctrl.id);
+                goto next_control;
+            }
+            
             //check menu items if needed
             if(queryctrl.type == V4L2_CTRL_TYPE_MENU)
             {
@@ -895,7 +935,7 @@ void get_ctrl_values (int hdevice, Control *control_list, int num_controls, void
                         ctrls.controls = &clist[i];
                         ret = xioctl(hdevice, VIDIOC_G_EXT_CTRLS, &ctrls);
                         if(ret)
-                            printf("control id: 0x%08x failed to set (error %i)\n",
+                            printf("control id: 0x%08x failed to get (error %i)\n",
                                 clist[i].id, ret);
                     }
                 }
