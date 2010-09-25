@@ -4,7 +4,8 @@ guvcview (1.4.2-ubuntu1~lucid~ppa1) lucid; urgency=low
    * Fix dynamic control support under kernels > 2.6.35
    * Check if resolution is supported by SDL_Surface
    * Check for null overlays
-   * Use a sanner video ring buffer size (dependent on fps) 
+   * Use a sanner video ring buffer size (dependent on fps)
+   * Add gdk-pixbuf-2.0 to pkg-config dependencies - fix build error on Maverick 
 
  -- Paulo Assis <pj.assis@gmail.com>  Sat, 25 Sept 2010 14:45:00 +0000
 
