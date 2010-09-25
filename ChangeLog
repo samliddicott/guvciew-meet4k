@@ -1,8 +1,12 @@
 guvcview (1.4.2)
 
    * Add support for Y16 pixel format (Greyscale)
+   * Fix dynamic control support under kernels > 2.6.35
+   * Check if resolution is supported by SDL_Surface
+   * Check for null overlays
+   * Use a sanner video ring buffer size (dependent on fps) 
 
- -- Paulo Assis <pj.assis@gmail.com>  Mon, 26 Jul 2010 14:05:00 +0000
+ -- Paulo Assis <pj.assis@gmail.com>  Sat, 25 Sept 2010 14:45:00 +0000
  
 guvcview (1.4.1)
 
