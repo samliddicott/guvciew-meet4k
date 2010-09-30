@@ -105,10 +105,10 @@ writeConf(struct GLOBAL *global, char *videodevice)
 		//g_fprintf(fp,"Tilt_Step=%i\n",global->TiltStep);
 		g_fprintf(fp,"# video filters: 0 -none 1- flip 2- upturn 4- negate 8- mono (add the ones you want)\n");
 		g_fprintf(fp,"frame_flags=%i\n",global->Frame_Flags);
-		g_fprintf(fp,"# Image capture Full Path\n");
-		g_fprintf(fp,"image_path='%s/%s'\n",global->imgFPath[1],global->imgFPath[0]);
 		g_fprintf(fp,"# Auto Image naming (filename-n.ext)\n");
 		g_fprintf(fp,"image_inc=%d\n",global->image_inc);
+		g_fprintf(fp,"# Image capture Full Path\n");
+		g_fprintf(fp,"image_path='%s/%s'\n",global->imgFPath[1],global->imgFPath[0]);
 		g_fprintf(fp,"# Video capture Full Path\n");
 		g_fprintf(fp,"video_path='%s/%s'\n",global->vidFPath[1],global->vidFPath[0]);
 		g_fprintf(fp,"# control profiles Full Path\n");
@@ -263,7 +263,25 @@ readConf(struct GLOBAL *global)
 							{
 								global->imgFPath = splitPath(scanner->value.v_string,global->imgFPath);
 								/*get the file type*/
+		
 								global->imgFormat = check_image_type(global->imgFPath[0]);
+							}
+							else
+							{
+							    /* check if new file != old file */
+							    gchar * newPath = g_strjoin ("/", global->imgFPath[1], global->imgFPath[0], NULL);
+							    //printf("image path: %s\n old path: %s\n", newPath, scanner->value.v_string);
+							    if(g_strcmp0(scanner->value.v_string, newPath) !=0) 
+	                            {
+	                                /* reset counter */
+	                                //printf("reset counter from: %i\n", global->image_inc);
+	                                if(global->image_inc > 0) 
+	                                {
+	                                    global->image_inc = 1;
+	                                    g_snprintf(global->imageinc_str,20,_("File num:%d"),global->image_inc);  
+	                                }
+	                            }
+	                            g_free(newPath);
 							}
 						}
 						else if ((g_strcmp0(name,"video_path")==0) || (g_strcmp0(name,"avi_path")==0)) 
@@ -425,11 +443,10 @@ readConf(struct GLOBAL *global)
 						}
 						else if (g_strcmp0(name,"image_inc")==0) 
 						{
-							if(global->image_timer <= 0)
-							{
-								global->image_inc = (DWORD) scanner->value.v_int;
-								g_snprintf(global->imageinc_str,20,_("File num:%d"),global->image_inc);
-							}
+							global->image_inc = (DWORD) scanner->value.v_int;
+							if((global->image_timer > 0) && (global->image_inc <= 0))
+							    global->image_inc = 1;
+							g_snprintf(global->imageinc_str,20,_("File num:%d"),global->image_inc);
 						}
 						else
 						{
@@ -698,7 +715,7 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 			
 	    printf("requested format \"%s\" from command line\n", global->mode);
 		
-		global->flg_mode = 1;
+		global->flg_mode = TRUE;
 	}
 	if(size)
 	{
@@ -722,18 +739,17 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 		global->imgFPath=splitPath(image,global->imgFPath);
 		/*get the file type*/
 		global->imgFormat = check_image_type(global->imgFPath[0]);
-		global->flg_imgFPath = 1;
+		global->flg_imgFPath = TRUE;
 	}
 	if(global->image_timer > 0 )
 	{
-		global->image_inc=1;
-		g_printf("capturing images every %i seconds",global->image_timer);
+		g_printf("capturing images every %i seconds\n",global->image_timer);
 	}
 	if(video)
 	{
 		global->vidfile = g_strdup(video);
 		global->vidFPath=splitPath(global->vidfile,global->vidFPath);
-		g_printf("capturing video: %s , from start",global->vidfile);
+		g_printf("capturing video: %s , from start\n",global->vidfile);
 		/*get the file type*/
 		global->VidFormat = check_video_type(global->vidFPath[0]);
 	}
