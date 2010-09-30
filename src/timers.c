@@ -39,102 +39,97 @@
 gboolean
 shutd_timer(gpointer data)
 {
-	/*stop video capture*/
-	shutd (0, data);
-	
-	return (FALSE);/*destroys the timer*/
+    /*stop video capture*/
+    shutd (0, data);
+    
+    return (FALSE);/*destroys the timer*/
 }
 
 /* called by video capture from start timer */
 gboolean
 timer_callback(gpointer data)
 {
-	struct ALL_DATA * all_data = (struct ALL_DATA *) data;
-	struct GLOBAL *global = all_data->global;
-	struct GWIDGET *gwidget = all_data->gwidget;
-	
-	/*stop video capture*/
-	if(global->debug) g_printf("setting video toggle to FALSE\n");
-	gdk_threads_enter();
-	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(gwidget->CapVidButt), FALSE);
-	gdk_flush();
-	gdk_threads_leave();
-	
-	global->Capture_time=0;
-	//if exit_on_close then shutdown
-	if(global->exit_on_close)
-		shutd (0, data);
-	
-	return (FALSE);/*destroys the timer*/
+    struct ALL_DATA * all_data = (struct ALL_DATA *) data;
+    struct GLOBAL *global = all_data->global;
+    struct GWIDGET *gwidget = all_data->gwidget;
+    
+    /*stop video capture*/
+    if(global->debug) g_printf("setting video toggle to FALSE\n");
+    gdk_threads_enter();
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(gwidget->CapVidButt), FALSE);
+    gdk_flush();
+    gdk_threads_leave();
+    
+    global->Capture_time=0;
+    //if exit_on_close then shutdown
+    if(global->exit_on_close)
+        shutd (0, data);
+    
+    return (FALSE);/*destroys the timer*/
 }
 
 /*called by timed capture [-c seconds] command line option*/
 gboolean
 Image_capture_timer(gpointer data)
 {
-	struct ALL_DATA * all_data = (struct ALL_DATA *) data;
-	struct GLOBAL *global = all_data->global;
-	struct GWIDGET *gwidget = all_data->gwidget;
-	struct vdIn *videoIn = all_data->videoIn; 
-	
-	/*increment image name */
-	//g_mutex_lock(videoIn->mutex);
-		videoIn->ImageFName = incFilename(videoIn->ImageFName, 
-			global->imgFPath,
-			global->image_inc);
-	//g_mutex_unlock(videoIn->mutex);
+    struct ALL_DATA * all_data = (struct ALL_DATA *) data;
+    struct GLOBAL *global = all_data->global;
+    struct GWIDGET *gwidget = all_data->gwidget;
+    struct vdIn *videoIn = all_data->videoIn; 
+    
+    /*increment image name */
+    //g_mutex_lock(videoIn->mutex);
+    videoIn->ImageFName = incFilename(videoIn->ImageFName, 
+        global->imgFPath,
+        global->image_inc);
+    //g_mutex_unlock(videoIn->mutex);
 
-	//g_mutex_lock(global->mutex);
-		g_snprintf(global->imageinc_str,24,_("File num:%d"),global->image_inc);
-	
-		gdk_threads_enter();
-		gtk_label_set_text(GTK_LABEL(gwidget->ImageIncLabel), global->imageinc_str);
-		gdk_flush();
-		gdk_threads_leave();
-	
-		global->image_inc++;
-	//g_mutex_unlock(global->mutex);
-	/*set image capture flag*/
-	//g_mutex_lock(videoIn->mutex);
-		videoIn->capImage = TRUE;
-	//g_mutex_unlock(videoIn->mutex);
+    //g_mutex_lock(global->mutex);
+    g_snprintf(global->imageinc_str,24,_("File num:%d"),global->image_inc);
+    
+    gdk_threads_enter();
+        gtk_label_set_text(GTK_LABEL(gwidget->ImageIncLabel), global->imageinc_str);
+        gdk_flush();
+    gdk_threads_leave();
+    
+    global->image_inc++;
+    videoIn->capImage = TRUE;
 
-	if(global->image_inc > global->image_npics) 
-	{	/*destroy timer*/
-		gdk_threads_enter();
-		gtk_button_set_label(GTK_BUTTON(gwidget->CapImageButt),_("Cap. Image"));
-		//g_mutex_lock(global->mutex);
-			global->image_timer=0;
-		//g_mutex_unlock(global->mutex);
-		set_sensitive_img_contrls(TRUE, gwidget);/*enable image controls*/
-		gdk_flush();
-		gdk_threads_leave();
-		return (FALSE);
-	}
-	else return (TRUE);/*keep the timer*/
+    if(global->image_inc > global->image_npics) 
+    {   /*destroy timer*/
+        gdk_threads_enter();
+        gtk_button_set_label(GTK_BUTTON(gwidget->CapImageButt),_("Cap. Image"));
+        global->image_timer=0;
+        set_sensitive_img_contrls(TRUE, gwidget);/*enable image controls*/
+        gdk_flush();
+        gdk_threads_leave();
+        
+        //if exit_on_close then shutdown
+        if(global->exit_on_close)
+            shutd (0, data);
+        
+        return (FALSE);
+    }
+    else return (TRUE);/*keep the timer*/
 }
 
 /* called by fps counter every 2 sec */
 gboolean 
 FpsCount_callback(gpointer data)
 {
-	struct ALL_DATA * all_data = (struct ALL_DATA *) data;
-	struct GLOBAL *global = all_data->global;
-	
-	//g_mutex_lock(global->mutex);
-		global->DispFps = (double) global->frmCount / 2;
-	//g_mutex_unlock(global->mutex);
-	
-	if (global->FpsCount>0) 
-		return(TRUE); /*keeps the timer*/
-	else 
-	{
-		//g_mutex_lock(global->mutex);
-			g_snprintf(global->WVcaption,10,"GUVCVideo");
-			SDL_WM_SetCaption(global->WVcaption, NULL);
-		//g_mutex_unlock(global->mutex);
-		return (FALSE);/*destroys the timer*/
-	}
+    struct ALL_DATA * all_data = (struct ALL_DATA *) data;
+    struct GLOBAL *global = all_data->global;
+    
+    global->DispFps = (double) global->frmCount / 2;
+
+    if (global->FpsCount>0) 
+        return(TRUE); /*keeps the timer*/
+    else 
+    {
+        g_snprintf(global->WVcaption,10,"GUVCVideo");
+        SDL_WM_SetCaption(global->WVcaption, NULL);
+        return (FALSE);/*destroys the timer*/
+    }
 }
 
 /*
@@ -146,96 +141,93 @@ FpsCount_callback(gpointer data)
 gboolean
 DiskSupervisor(gpointer data)
 {
-	struct ALL_DATA * all_data = (struct ALL_DATA *) data;
-	struct GLOBAL *global = all_data->global;
-	struct vdIn *videoIn = all_data->videoIn;
+    struct ALL_DATA * all_data = (struct ALL_DATA *) data;
+    struct GLOBAL *global = all_data->global;
+    struct vdIn *videoIn = all_data->videoIn;
 
-	int free_tresh = 51200; //50Mb - default for compressed data
-	int percent = 0;
-	QWORD free_kbytes=0;
-	QWORD total_kbytes=0;
-	struct statfs buf;
-	
-	switch(global->VidCodec)
-	{
-		case 0: //MJPEG
-			free_tresh = 102400; // 100Mb
-			break;
-			
-		case 1: //yuyv
-			free_tresh = 358400; // 300Mb
-			break;
-			
-		case 2: //rgb
-			free_tresh = 512000; // 500Mb
-			break;
-			
-		default: //lavc
-			free_tresh = 51200; //50Mb 
-			break;
-	}
-	
-	statfs(global->vidFPath[1], &buf);
+    int free_tresh = 51200; //50Mb - default for compressed data
+    int percent = 0;
+    QWORD free_kbytes=0;
+    QWORD total_kbytes=0;
+    struct statfs buf;
+    
+    switch(global->VidCodec)
+    {
+        case 0: //MJPEG
+            free_tresh = 102400; // 100Mb
+            break;
 
-	total_kbytes= buf.f_blocks * (buf.f_bsize/1024);
-	free_kbytes= buf.f_bavail * (buf.f_bsize/1024);
+        case 1: //yuyv
+            free_tresh = 358400; // 300Mb
+            break;
 
-	if(total_kbytes > 0)
-		percent = (int) ((1.0f-((float)free_kbytes/(float)total_kbytes))*100.0f);
-	else
-	{
-		g_printerr("couldn't get disk stats for %s\n", videoIn->VidFName);
-		return (TRUE); /* don't invalidate video capture*/
-	}
-	
-	if(global->debug) 
-		g_printf("(%s) %lluK bytes free on a total of %lluK (used: %d %%) treshold=%iK\n", 
-			global->vidFPath[1], (unsigned long long) free_kbytes, 
-			(unsigned long long) total_kbytes, percent, free_tresh);
+        case 2: //rgb
+            free_tresh = 512000; // 500Mb
+            break;
 
-	
-	if(free_kbytes < free_tresh)
-	{
-		g_printerr("Not enough free disk space (%lluKb) left on disk, need > %ik \n", 
-			(unsigned long long) free_kbytes, free_tresh);
-		WARN_DIALOG(N_("Guvcview Warning:"), N_("Not enough free space left on disk"), data);
-		return(FALSE); /* not enough free space left on disk   */
-	}
-	else
-		return (TRUE); /* still have enough free space on disk */
+        default: //lavc
+            free_tresh = 51200; //50Mb 
+            break;
+    }
+
+    statfs(global->vidFPath[1], &buf);
+
+    total_kbytes= buf.f_blocks * (buf.f_bsize/1024);
+    free_kbytes= buf.f_bavail * (buf.f_bsize/1024);
+
+    if(total_kbytes > 0)
+        percent = (int) ((1.0f-((float)free_kbytes/(float)total_kbytes))*100.0f);
+    else
+    {
+        g_printerr("couldn't get disk stats for %s\n", videoIn->VidFName);
+        return (TRUE); /* don't invalidate video capture*/
+    }
+
+    if(global->debug) 
+        g_printf("(%s) %lluK bytes free on a total of %lluK (used: %d %%) treshold=%iK\n", 
+            global->vidFPath[1], (unsigned long long) free_kbytes, 
+            (unsigned long long) total_kbytes, percent, free_tresh);
+
+    if(free_kbytes < free_tresh)
+    {
+        g_printerr("Not enough free disk space (%lluKb) left on disk, need > %ik \n", 
+            (unsigned long long) free_kbytes, free_tresh);
+        WARN_DIALOG(N_("Guvcview Warning:"), N_("Not enough free space left on disk"), data);
+        return(FALSE); /* not enough free space left on disk   */
+    }
+    else
+        return (TRUE); /* still have enough free space on disk */
 }
 
 /* called by video capture every 10 sec for checking disk free space*/
 gboolean 
 FreeDiskCheck_timer(gpointer data)
 {
-	struct ALL_DATA * all_data = (struct ALL_DATA *) data;
-	struct vdIn *videoIn = all_data->videoIn;
-	struct GLOBAL *global = all_data->global;
-	struct GWIDGET *gwidget = all_data->gwidget;
-	
-	g_mutex_lock(videoIn->mutex);
-		gboolean capVid = videoIn->capVid;
-	g_mutex_unlock(videoIn->mutex);
-	
-	if (capVid) 
-	{
-		if(!DiskSupervisor(data))
-		{
-			g_printerr("Stopping video Capture\n");
-			/*stop video capture*/
-			if(global->debug) g_printf("setting video toggle to FALSE\n");
-			gdk_threads_enter();
-			gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(gwidget->CapVidButt), FALSE);
-			gdk_flush();
-			gdk_threads_leave();
-		}
-		else
-			return(TRUE); /*keeps the timer*/
-	}
-	
-	//global->disk_timer_id=0;
-	return (FALSE);/*destroys the timer*/
-	
+    struct ALL_DATA * all_data = (struct ALL_DATA *) data;
+    struct vdIn *videoIn = all_data->videoIn;
+    struct GLOBAL *global = all_data->global;
+    struct GWIDGET *gwidget = all_data->gwidget;
+
+    g_mutex_lock(videoIn->mutex);
+        gboolean capVid = videoIn->capVid;
+    g_mutex_unlock(videoIn->mutex);
+
+    if (capVid) 
+    {
+        if(!DiskSupervisor(data))
+        {
+            g_printerr("Stopping video Capture\n");
+            /*stop video capture*/
+            if(global->debug) g_printf("setting video toggle to FALSE\n");
+            gdk_threads_enter();
+            gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(gwidget->CapVidButt), FALSE);
+            gdk_flush();
+            gdk_threads_leave();
+        }
+        else
+            return(TRUE); /*keeps the timer*/
+    }
+
+    return (FALSE);/*destroys the timer*/
 }
 
