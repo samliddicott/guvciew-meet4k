@@ -93,13 +93,16 @@ Control *get_control_list(int hdevice, int *num_ctrls)
             if(ret && queryctrl.id <= currentctrl) 
             {
                 printf("buggy V4L2_CTRL_FLAG_NEXT_CTRL flag implementation (workaround enabled)\n");
+                // increment the control id manually
                 currentctrl++;
+                queryctrl.id = currentctrl;
                 goto next_control;
             }
             else if ((queryctrl.id == V4L2_CTRL_FLAG_NEXT_CTRL) || (!ret && queryctrl.id == currentctrl))
             {
                 printf("buggy V4L2_CTRL_FLAG_NEXT_CTRL flag implementation (failed enumeration for id=0x%08x)\n", 
                     queryctrl.id);
+                // stop control enumeration
                 *num_ctrls = n;
                 return first;
             }
