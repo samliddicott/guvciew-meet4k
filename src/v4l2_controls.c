@@ -78,14 +78,14 @@ Control *get_control_list(int hdevice, int *num_ctrls)
     int currentctrl = 0;
     queryctrl.id = 0 | V4L2_CTRL_FLAG_NEXT_CTRL;
     
-    if (((ret=query_ioctl (hdevice, currentctrl, &queryctrl)) == 0) && (queryctrl.id != V4L2_CTRL_FLAG_NEXT_CTRL))
+    if ((ret=query_ioctl (hdevice, currentctrl, &queryctrl)) == 0) 
     {
         // The driver supports the V4L2_CTRL_FLAG_NEXT_CTRL flag
         queryctrl.id = 0;
         currentctrl= queryctrl.id;
         queryctrl.id |= V4L2_CTRL_FLAG_NEXT_CTRL;
 
-        while(((ret = query_ioctl(hdevice, currentctrl, &queryctrl)), ret ? errno != EINVAL : 1) && (queryctrl.id != V4L2_CTRL_FLAG_NEXT_CTRL)) 
+        while((ret = query_ioctl(hdevice, currentctrl, &queryctrl)), ret ? errno != EINVAL : 1) 
         {
             struct v4l2_querymenu *menu = NULL;
             
@@ -96,9 +96,10 @@ Control *get_control_list(int hdevice, int *num_ctrls)
                 currentctrl++;
                 goto next_control;
             }
-            else if (!ret && queryctrl.id == currentctrl)
+            else if ((queryctrl.id == V4L2_CTRL_FLAG_NEXT_CTRL) || (!ret && queryctrl.id == currentctrl))
             {
-                printf("buggy V4L2_CTRL_FLAG_NEXT_CTRL flag implementation (failed enumeration)\n");
+                printf("buggy V4L2_CTRL_FLAG_NEXT_CTRL flag implementation (failed enumeration for id=0x%08x)\n", 
+                    queryctrl.id);
                 *num_ctrls = n;
                 return first;
             }
