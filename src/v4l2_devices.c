@@ -32,14 +32,14 @@
 #include "v4l2uvc.h"
 #include "v4l2_devices.h"
 
-
-/* enumerates system video devices
+/* (fall through - DEPRECATED)
+ * enumerates system video devices
  * by checking /sys/class/video4linux
  * args: 
  * videodevice: current device string (default "/dev/video0")
  * 
  * returns: pointer to LDevices struct containing the video devices list */
-LDevices *enum_devices( gchar *videodevice )
+LDevices *list_devices( gchar *videodevice )
 {
 	int ret=0;
 	int fd=0;
@@ -190,6 +190,139 @@ LDevices *enum_devices( gchar *videodevice )
 	
 	listDevices->num_devices = num_dev;
 	return(listDevices);
+}
+
+/* enumerates v4l2 devices 
+ * by using libudev
+ args: 
+ * videodevice: current device string (default "/dev/video0")
+ * 
+ * returns: pointer to LDevices struct containing the video devices list */
+
+LDevices *enum_devices( gchar *videodevice, struct udev *udev)
+{
+    struct udev_enumerate *enumerate;
+    struct udev_list_entry *devices, *dev_list_entry;
+    struct udev_device *dev;
+    
+    int num_dev = 0;
+    int fd = 0;
+    struct v4l2_capability v4l2_cap;
+    
+    if (!udev) 
+    {
+        /*use fall through method (sysfs)*/
+        g_printf("Can't create udev...using sysfs method\n");
+        return(list_devices(videodevice));
+    }
+    
+    LDevices *listDevices = NULL;
+    listDevices = g_new0( LDevices, 1);
+    listDevices->listVidDevices = NULL;
+    
+    /* Create a list of the devices in the 'v4l2' subsystem. */
+    enumerate = udev_enumerate_new(udev);
+    udev_enumerate_add_match_subsystem(enumerate, "video4linux");
+    udev_enumerate_scan_devices(enumerate);
+    devices = udev_enumerate_get_list_entry(enumerate);
+    /* For each item enumerated, print out its information.
+        udev_list_entry_foreach is a macro which expands to
+        a loop. The loop will be executed for each member in
+        devices, setting dev_list_entry to a list entry
+        which contains the device's path in /sys. */
+    udev_list_entry_foreach(dev_list_entry, devices) 
+    {
+        const char *path;
+
+        /* Get the filename of the /sys entry for the device
+            and create a udev_device object (dev) representing it */
+        path = udev_list_entry_get_name(dev_list_entry);
+        dev = udev_device_new_from_syspath(udev, path);
+
+        /* usb_device_get_devnode() returns the path to the device node
+            itself in /dev. */
+        const gchar *v4l2_device = udev_device_get_devnode(dev);
+        g_printf("Device Node Path: %s\n", v4l2_device);
+        
+        /* open the device and query the capabilities */
+        if ((fd = v4l2_open(v4l2_device, O_RDWR | O_NONBLOCK, 0)) < 0) 
+        {
+            g_printerr("ERROR opening V4L2 interface for %s\n", v4l2_device);
+            v4l2_close(fd);
+            continue; /*next dir entry*/
+        }
+
+        if (xioctl(fd, VIDIOC_QUERYCAP, &v4l2_cap) < 0) 
+        {
+            perror("VIDIOC_QUERYCAP error");
+            g_printerr("   couldn't query device %s\n", v4l2_device);
+            v4l2_close(fd);
+            continue; /*next dir entry*/
+        }
+        v4l2_close(fd);
+        
+        num_dev++;
+        /* Update the device list*/
+        listDevices->listVidDevices = g_renew(VidDevice, 
+            listDevices->listVidDevices, 
+            num_dev);
+        listDevices->listVidDevices[num_dev-1].device = g_strdup(v4l2_device);
+        listDevices->listVidDevices[num_dev-1].name = g_strdup((gchar *) v4l2_cap.card);
+        listDevices->listVidDevices[num_dev-1].driver = g_strdup((gchar *) v4l2_cap.driver);
+        listDevices->listVidDevices[num_dev-1].location = g_strdup((gchar *) v4l2_cap.bus_info);
+        listDevices->listVidDevices[num_dev-1].valid = 1;
+        if(g_strcmp0(videodevice,listDevices->listVidDevices[num_dev-1].device)==0) 
+        {
+            listDevices->listVidDevices[num_dev-1].current = 1;
+            listDevices->current_device = num_dev-1;
+        }
+        else
+            listDevices->listVidDevices[num_dev-1].current = 0;
+        
+        /* The device pointed to by dev contains information about
+            the v4l2 device. In order to get information about the
+            USB device, get the parent device with the
+            subsystem/devtype pair of "usb"/"usb_device". This will
+            be several levels up the tree, but the function will find
+            it.*/
+        dev = udev_device_get_parent_with_subsystem_devtype(
+                dev,
+                "usb",
+                "usb_device");
+        if (!dev) 
+        {
+            printf("Unable to find parent usb device.");
+            continue;
+        }
+        
+        /* From here, we can call get_sysattr_value() for each file
+            in the device's /sys entry. The strings passed into these
+            functions (idProduct, idVendor, serial, etc.) correspond
+            directly to the files in the directory which represents
+            the USB device. Note that USB strings are Unicode, UCS2
+            encoded, but the strings returned from
+            udev_device_get_sysattr_value() are UTF-8 encoded. */
+        //g_printf("%s - device %d\n", device, num_dev);
+        g_printf("  VID/PID: %s %s\n",
+                udev_device_get_sysattr_value(dev,"idVendor"),
+                udev_device_get_sysattr_value(dev, "idProduct"));
+        g_printf("  %s\n  %s\n",
+                udev_device_get_sysattr_value(dev,"manufacturer"),
+                udev_device_get_sysattr_value(dev,"product"));
+        g_printf("  serial: %s\n",
+                udev_device_get_sysattr_value(dev, "serial"));
+        
+        listDevices->listVidDevices[num_dev-1].vendor = g_ascii_strtoull(udev_device_get_sysattr_value(dev,"idVendor"), NULL, 16);
+        listDevices->listVidDevices[num_dev-1].product = g_ascii_strtoull(udev_device_get_sysattr_value(dev, "idProduct"), NULL, 16);
+        
+        udev_device_unref(dev);
+    }
+    /* Free the enumerator object */
+    udev_enumerate_unref(enumerate);
+    
+    listDevices->num_devices = num_dev;
+    return(listDevices);
+
 }
 
 /*clean video devices list

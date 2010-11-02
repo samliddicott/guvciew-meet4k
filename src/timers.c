@@ -231,3 +231,51 @@ FreeDiskCheck_timer(gpointer data)
     return (FALSE);/*destroys the timer*/
 }
 
+/* check for udev events for v4l2 devices*/
+gboolean 
+check_v4l2_udev_events(gpointer data)
+{
+    struct ALL_DATA * all_data = (struct ALL_DATA *) data;
+    struct vdIn *videoIn = all_data->videoIn;
+    
+    fd_set fds;
+    struct timeval tv;
+    int ret;
+
+    FD_ZERO(&fds);
+    FD_SET(videoIn->udev_fd, &fds);
+    tv.tv_sec = 0;
+    tv.tv_usec = 0;
+    
+    ret = select(videoIn->udev_fd+1, &fds, NULL, NULL, &tv);
+    
+    /* Check if our file descriptor has received data. */
+    if (ret > 0 && FD_ISSET(videoIn->udev_fd, &fds)) 
+    {
+        g_printf("\nselect() says there should be data\n");
+
+        /* Make the call to receive the device.
+            select() ensured that this will not block. */
+        struct udev_device *dev = udev_monitor_receive_device(videoIn->udev_mon);
+        if (dev) 
+        {
+            g_printf("Got Device event\n");
+            g_printf("   Node: %s\n", udev_device_get_devnode(dev));
+            g_printf("   Subsystem: %s\n", udev_device_get_subsystem(dev));
+            g_printf("   Devtype: %s\n", udev_device_get_devtype(dev));
+
+            g_printf("   Action: %s\n",udev_device_get_action(dev));
+            
+            /*update device list*/
+            
+            
+            udev_device_unref(dev);
+        }
+        else 
+            printf("No Device from receive_device(). An error occured.\n");
+
+    }
+
+    return(TRUE);
+}
+

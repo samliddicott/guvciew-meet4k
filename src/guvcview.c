@@ -572,6 +572,9 @@ int main(int argc, char *argv[])
 	
 	gtk_widget_show (gwidget->mainwin);
 	
+    /*Add udev device monitoring timer*/
+    global->udev_timer_id=g_timeout_add( 1000, check_v4l2_udev_events, &all_data);
+    
 	if (!control_only) /*control_only exclusion*/
 	{
 		/*------------------ Creating the video thread ---------------*/
@@ -599,7 +602,7 @@ int main(int argc, char *argv[])
 		if(global->image_timer)
 		{
 			global->image_timer_id=g_timeout_add(global->image_timer*1000,
-				Image_capture_timer,&all_data);
+				Image_capture_timer, &all_data);
 			set_sensitive_img_contrls(FALSE, gwidget);/*disable image controls*/
 		}
 		/*--------------------- video capture from start ---------------------------*/

@@ -49,4 +49,8 @@ DiskSupervisor(gpointer data);
 gboolean 
 FreeDiskCheck_timer(gpointer data);
 
+/* check for udev events for v4l2 devices*/
+gboolean 
+check_v4l2_udev_events(gpointer data);
+
 #endif

@@ -693,7 +693,10 @@ int init_videoIn(struct vdIn *vd, struct GLOBAL *global)
 {
 	int ret = VDIN_OK;
 	char *device = global->videodevice;
-	
+    
+    /* Create a udev object */
+    vd->udev = udev_new();
+
 	vd->mutex = g_mutex_new();
 	if (vd == NULL || device == NULL)
 		return VDIN_ALLOC_ERR;
@@ -734,8 +737,18 @@ int init_videoIn(struct vdIn *vd, struct GLOBAL *global)
 	
 	vd->tmpbuffer = NULL;
 	vd->framebuffer = NULL;
+    /*start udev device monitoring*/
+    /* Set up a monitor to monitor v4l2 devices */
+    if(vd->udev)
+    {
+        vd->udev_mon = udev_monitor_new_from_netlink(vd->udev, "udev");
+        udev_monitor_filter_add_match_subsystem_devtype(vd->udev_mon, "v4l2", NULL);
+        udev_monitor_enable_receiving(vd->udev_mon);
+        /* Get the file descriptor (fd) for the monitor */
+        vd->udev_fd = udev_monitor_get_fd(vd->udev_mon);
+    }
 
-	vd->listDevices = enum_devices( vd->videodevice );
+    vd->listDevices = enum_devices( vd->videodevice, vd->udev );
 	
 	if (vd->listDevices != NULL)
 	{
@@ -1230,7 +1243,9 @@ error:
 void close_v4l2(struct vdIn *vd, gboolean control_only)
 {
 	if (vd->isstreaming) video_disable(vd);
-	
+
+    if (vd->udev) udev_unref(vd->udev);
+
 	if(vd->videodevice) g_free(vd->videodevice);
 	if(vd->ImageFName)g_free(vd->ImageFName);
 	if(vd->VidFName)g_free(vd->VidFName);

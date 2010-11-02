@@ -22,6 +22,8 @@
 #ifndef V4L2_DEVICES_H
 #define V4L2_DEVICES_H
 
+#include <libudev.h>
+
 typedef struct _VidDevice
 {
 	char *device;
@@ -47,7 +49,7 @@ typedef struct _LDevices
  * videodevice: current device string (default "/dev/video0")
  * 
  * returns: pointer to LDevices struct containing the video devices list */
-LDevices *enum_devices( gchar *videodevice );
+LDevices *enum_devices( gchar *videodevice, struct udev *udev );
 
 /*clean video devices list
  * args:

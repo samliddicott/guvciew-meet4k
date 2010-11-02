@@ -23,6 +23,7 @@
 #define V4L2UVC_H
 
 #include <linux/videodev2.h>
+#include <libudev.h>
 #include "globals.h"
 #include "v4l2_devices.h"
 #include "v4l2_formats.h"
@@ -76,6 +77,9 @@ static const int exp_vals[]=
 struct vdIn 
 {
 	GMutex *mutex;                      // VdIn struct mutex
+    struct udev *udev;                  // pointer to a udev struct (lib udev)
+    struct udev_monitor *udev_mon;      // udev monitor
+    int udev_fd;                        // udev monitor file descriptor
 	int fd;                             // device file descriptor
 	char *videodevice;                  // video device string (default "/dev/video0)"
 	int cap_meth;                       // capture method : IO_MMAP (1)  IO_READ (0)
