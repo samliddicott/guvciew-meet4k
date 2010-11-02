@@ -737,12 +737,13 @@ int init_videoIn(struct vdIn *vd, struct GLOBAL *global)
 	
 	vd->tmpbuffer = NULL;
 	vd->framebuffer = NULL;
+	
     /*start udev device monitoring*/
     /* Set up a monitor to monitor v4l2 devices */
     if(vd->udev)
     {
         vd->udev_mon = udev_monitor_new_from_netlink(vd->udev, "udev");
-        udev_monitor_filter_add_match_subsystem_devtype(vd->udev_mon, "v4l2", NULL);
+        udev_monitor_filter_add_match_subsystem_devtype(vd->udev_mon, "video4linux", NULL);
         udev_monitor_enable_receiving(vd->udev_mon);
         /* Get the file descriptor (fd) for the monitor */
         vd->udev_fd = udev_monitor_get_fd(vd->udev_mon);

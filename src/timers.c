@@ -241,7 +241,7 @@ check_v4l2_udev_events(gpointer data)
     fd_set fds;
     struct timeval tv;
     int ret;
-
+    
     FD_ZERO(&fds);
     FD_SET(videoIn->udev_fd, &fds);
     tv.tv_sec = 0;
@@ -252,8 +252,6 @@ check_v4l2_udev_events(gpointer data)
     /* Check if our file descriptor has received data. */
     if (ret > 0 && FD_ISSET(videoIn->udev_fd, &fds)) 
     {
-        g_printf("\nselect() says there should be data\n");
-
         /* Make the call to receive the device.
             select() ensured that this will not block. */
         struct udev_device *dev = udev_monitor_receive_device(videoIn->udev_mon);

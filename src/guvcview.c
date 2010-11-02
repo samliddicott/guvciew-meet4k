@@ -571,9 +571,9 @@ int main(int argc, char *argv[])
 	gtk_container_add (GTK_CONTAINER (gwidget->mainwin), gwidget->boxv);
 	
 	gtk_widget_show (gwidget->mainwin);
-	
-    /*Add udev device monitoring timer*/
-    global->udev_timer_id=g_timeout_add( 1000, check_v4l2_udev_events, &all_data);
+    
+     /*Add udev device monitoring timer*/
+    global->udev_timer_id=g_timeout_add( 500, check_v4l2_udev_events, &all_data);
     
 	if (!control_only) /*control_only exclusion*/
 	{
