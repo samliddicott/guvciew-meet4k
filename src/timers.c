@@ -237,6 +237,7 @@ check_v4l2_udev_events(gpointer data)
 {
     struct ALL_DATA * all_data = (struct ALL_DATA *) data;
     struct vdIn *videoIn = all_data->videoIn;
+    struct GWIDGET *gwidget = all_data->gwidget;
     
     fd_set fds;
     struct timeval tv;
@@ -265,7 +266,38 @@ check_v4l2_udev_events(gpointer data)
             g_printf("   Action: %s\n",udev_device_get_action(dev));
             
             /*update device list*/
+            g_signal_handlers_block_by_func(GTK_COMBO_BOX(gwidget->Devices), 
+                G_CALLBACK (Devices_changed), all_data);
+                
+            /* clear out the old device list... */
+            if(videoIn->listDevices != NULL) freeDevices(videoIn->listDevices);
             
+	        GtkListStore *store = GTK_LIST_STORE(gtk_combo_box_get_model (GTK_COMBO_BOX (gwidget->Devices)));
+	        gtk_list_store_clear(store);
+            
+            /*create new device list*/
+            videoIn->listDevices = enum_devices( videoIn->videodevice, videoIn->udev );
+            
+	        if (videoIn->listDevices->num_devices < 1)
+	        {
+		        //use current
+		        gtk_combo_box_append_text(GTK_COMBO_BOX(gwidget->Devices),
+			        videoIn->videodevice);
+		        gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->Devices),0);
+	        }
+	        else
+	        {
+	            int i=0;
+		        for(i=0;i<(videoIn->listDevices->num_devices);i++)
+		        {
+			        gtk_combo_box_append_text(GTK_COMBO_BOX(gwidget->Devices),
+				        videoIn->listDevices->listVidDevices[i].name);
+			        if(videoIn->listDevices->listVidDevices[i].current)
+				        gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->Devices),i);
+		        }
+	        }
+            g_signal_handlers_unblock_by_func(GTK_COMBO_BOX(gwidget->Devices), 
+                G_CALLBACK (Devices_changed), all_data);
             
             udev_device_unref(dev);
         }
