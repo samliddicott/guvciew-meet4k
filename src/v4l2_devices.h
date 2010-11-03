@@ -49,7 +49,7 @@ typedef struct _LDevices
  * videodevice: current device string (default "/dev/video0")
  * 
  * returns: pointer to LDevices struct containing the video devices list */
-LDevices *enum_devices( gchar *videodevice, struct udev *udev );
+LDevices *enum_devices( gchar *videodevice, struct udev *udev, int debug);
 
 /*clean video devices list
  * args:

@@ -199,7 +199,7 @@ LDevices *list_devices( gchar *videodevice )
  * 
  * returns: pointer to LDevices struct containing the video devices list */
 
-LDevices *enum_devices( gchar *videodevice, struct udev *udev)
+LDevices *enum_devices( gchar *videodevice, struct udev *udev, int debug)
 {
     struct udev_enumerate *enumerate;
     struct udev_list_entry *devices, *dev_list_entry;
@@ -242,7 +242,8 @@ LDevices *enum_devices( gchar *videodevice, struct udev *udev)
         /* usb_device_get_devnode() returns the path to the device node
             itself in /dev. */
         const gchar *v4l2_device = udev_device_get_devnode(dev);
-        g_printf("Device Node Path: %s\n", v4l2_device);
+        if (debug) 
+            g_printf("Device Node Path: %s\n", v4l2_device);
         
         /* open the device and query the capabilities */
         if ((fd = v4l2_open(v4l2_device, O_RDWR | O_NONBLOCK, 0)) < 0) 
@@ -302,15 +303,17 @@ LDevices *enum_devices( gchar *videodevice, struct udev *udev)
             the USB device. Note that USB strings are Unicode, UCS2
             encoded, but the strings returned from
             udev_device_get_sysattr_value() are UTF-8 encoded. */
-        //g_printf("%s - device %d\n", device, num_dev);
-        g_printf("  VID/PID: %s %s\n",
+        if (debug) 
+        {
+            g_printf("  VID/PID: %s %s\n",
                 udev_device_get_sysattr_value(dev,"idVendor"),
                 udev_device_get_sysattr_value(dev, "idProduct"));
-        g_printf("  %s\n  %s\n",
+            g_printf("  %s\n  %s\n",
                 udev_device_get_sysattr_value(dev,"manufacturer"),
                 udev_device_get_sysattr_value(dev,"product"));
-        g_printf("  serial: %s\n",
+            g_printf("  serial: %s\n",
                 udev_device_get_sysattr_value(dev, "serial"));
+        }
         
         listDevices->listVidDevices[num_dev-1].vendor = g_ascii_strtoull(udev_device_get_sysattr_value(dev,"idVendor"), NULL, 16);
         listDevices->listVidDevices[num_dev-1].product = g_ascii_strtoull(udev_device_get_sysattr_value(dev, "idProduct"), NULL, 16);

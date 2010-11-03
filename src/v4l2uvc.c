@@ -749,7 +749,7 @@ int init_videoIn(struct vdIn *vd, struct GLOBAL *global)
         vd->udev_fd = udev_monitor_get_fd(vd->udev_mon);
     }
 
-    vd->listDevices = enum_devices( vd->videodevice, vd->udev );
+    vd->listDevices = enum_devices( vd->videodevice, vd->udev, (int) global->debug);
 	
 	if (vd->listDevices != NULL)
 	{
