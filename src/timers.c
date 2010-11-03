@@ -280,7 +280,7 @@ check_v4l2_udev_events(gpointer data)
             gtk_list_store_clear(store);
             
             /*create new device list*/
-            videoIn->listDevices = enum_devices( videoIn->videodevice, videoIn->udev );
+            videoIn->listDevices = enum_devices( videoIn->videodevice, videoIn->udev, global->debug );
             
             if (videoIn->listDevices->num_devices < 1)
             {
