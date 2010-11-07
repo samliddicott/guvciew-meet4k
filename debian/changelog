@@ -1,3 +1,12 @@
+guvcview (1.4.3-ubuntu1~maverick~ppa1) maverick; urgency=low
+
+   * Fix control enumeration for buggy cameras (endless loop on failed control query)
+   * Add udev events support (new dependy libudev)
+   * Add exit on close to image capture
+   * Fix image capture autonaming when set from command line
+
+ -- Paulo Assis <pj.assis@gmail.com>  Sun, 06 Nov 2010 11:00:00 +0000
+
 guvcview (1.4.2-ubuntu1~lucid~ppa1) lucid; urgency=low
 
    * Add support for Y16 pixel format (Greyscale)
