@@ -42,7 +42,7 @@ struct mk_Context
 	struct mk_Writer  *owner;
 	unsigned id;
 	void *data;
-	unsigned d_cur, d_max;
+	int64_t d_cur, d_max;
 };
 
 typedef struct mk_Context mk_Context;
@@ -52,7 +52,7 @@ struct mk_Writer
 	FILE *fp;
 	/*-------header------*/
 	int video_only;            //not muxing audio   
-	unsigned duration_ptr;     //file location pointer for duration
+	int64_t duration_ptr;      //file location pointer for duration
 	int64_t segment_size_ptr;  //file location pointer for segment size
 	int64_t cues_pos;
 	int64_t seekhead_pos;  
@@ -62,7 +62,7 @@ struct mk_Writer
 	gboolean wrote_header;
 	/*-------video-------*/
 	UINT64 def_duration;
-	unsigned def_duration_ptr;
+	int64_t def_duration_ptr;
 	int64_t timescale;
 	int64_t cluster_tc_scaled;
 	int64_t frame_tc, prev_frame_tc_scaled, max_frame_tc;
@@ -112,15 +112,15 @@ static mk_Context *mk_createContext(mk_Writer *w, mk_Context *parent, unsigned i
 	return c;
 }
 
-static int mk_appendContextData(mk_Context *c, const void *data, unsigned size)
+static int mk_appendContextData(mk_Context *c, const void *data, int64_t size)
 {
 	if (!size) return 0;
 	
-	unsigned  ns = c->d_cur + size;
+	int64_t ns = c->d_cur + size;
 	if (ns > c->d_max)
 	{
 		void *dp;
-		unsigned  dn = c->d_max ? c->d_max << 1 : 16;
+		int64_t dn = c->d_max ? c->d_max << 1 : 16;
 		while (ns > dn)
 			dn <<= 1;
 
@@ -150,31 +150,26 @@ static int mk_writeID(mk_Context *c, unsigned id)
 	return mk_appendContextData(c, c_id+3, 1);
 }
 
-static int mk_writeSize(mk_Context *c, unsigned size)
+static int mk_writeSize(mk_Context *c, int64_t size)
 {
-	unsigned char c_size[5] = { 0x08, size >> 24, size >> 16, size >> 8, size };
+	unsigned char c_size[8] = { size >> 56, size >> 48, size >> 40, size >> 32, size >> 24, size >> 16, size >> 8, size };
+	unsigned char head = 0x80;
+	int64_t max = 0x80;
+	int i;
 
-	if (size < 0x7f)
+	for (i = 7; i >= 0; i--)
 	{
-		c_size[4] |= 0x80;
-		return mk_appendContextData(c, c_size+4, 1);
+		if (size < max - 1)
+		{
+			c_size[i] |= head;
+			return mk_appendContextData(c, c_size + i, 8 - i);
+		}
+		head >>= 1;
+		max <<= 7;
 	}
-	if (size < 0x3fff)
-	{
-		c_size[3] |= 0x40;
-		return mk_appendContextData(c, c_size+3, 2);
-	}
-	if (size < 0x1fffff)
-	{
-		c_size[2] |= 0x20;
-		return mk_appendContextData(c, c_size+2, 3);
-	}
-	if (size < 0x0fffffff)
-	{
-		c_size[1] |= 0x10;
-		return mk_appendContextData(c, c_size+1, 4);
-	}
-	return mk_appendContextData(c, c_size, 5);
+
+	/* size overflow (> 72 PB), write max permitted size instead */
+	return mk_writeSize(c, 0xFFFFFFFFFFFFFELL);
 }
 
 static int mk_flushContextData(mk_Context *c)
@@ -191,7 +186,7 @@ static int mk_flushContextData(mk_Context *c)
 	return 0;
 }
 
-static int mk_closeContext(mk_Context *c, unsigned *off)
+static int mk_closeContext(mk_Context *c, int64_t *off)
 {
 	if (c->id)
 	{
@@ -244,7 +239,7 @@ static int mk_writeStr(mk_Context *c, unsigned id, const char *str)
 	return 0;
 }
 
-static int mk_writeBin(mk_Context *c, unsigned id, const void *data, unsigned size)
+static int mk_writeBin(mk_Context *c, unsigned id, const void *data, int64_t size)
 {
 	CHECK(mk_writeID(c, id));
 	CHECK(mk_writeSize(c, size));
@@ -253,7 +248,7 @@ static int mk_writeBin(mk_Context *c, unsigned id, const void *data, unsigned si
 	return 0;
 }
 
-static int mk_writeVoid(mk_Context *c, unsigned size)
+static int mk_writeVoid(mk_Context *c, int64_t size)
 {
 	BYTE EbmlVoid = 0x00;
 	int i=0;
@@ -401,9 +396,9 @@ mk_Writer *mk_createWriter(const char *filename)
 int mk_writeHeader(mk_Writer *w, const char *writingApp,
 		 const char *codecID,
 		 const char *AcodecID,
-		 const void *codecPrivate, unsigned codecPrivateSize,
+		 const void *codecPrivate, int64_t codecPrivateSize,
 		 UINT64 default_frame_duration,  /*video */
-		 const void *AcodecPrivate, unsigned AcodecPrivateSize,
+		 const void *AcodecPrivate, int64_t AcodecPrivateSize,
 		 UINT64 default_aframe_duration, /*audio */
 		 int64_t timescale,
 		 unsigned width, unsigned height,
@@ -413,7 +408,7 @@ int mk_writeHeader(mk_Writer *w, const char *writingApp,
 	mk_Context *c, *ti, *v, *ti2, *ti3, *a;
 	BYTE empty[8] = {0x00,0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 	int extra=6; /* use six extra bytes for segment size */
-	unsigned pos = 0; /* current position in header */
+	int64_t pos = 0; /* current position in header */
 	if (w->wrote_header)
 		return -1;
 
@@ -519,7 +514,7 @@ int mk_writeHeader(mk_Writer *w, const char *writingApp,
 	/* Default video frame duration - for fixed frame rate only (reset when closing matroska file)
 	* not required by the spec, but at least vlc seems to need it to work properly
 	* default duration position will be set after closing the current context */
-	unsigned delta_pos = ti2->d_cur;
+	int64_t delta_pos = ti2->d_cur;
 	CHECK(mk_writeUIntRaw(ti2, MATROSKA_ID_TRACKDEFAULTDURATION, w->def_duration));
 
 	if ((v = mk_createContext(w, ti2, MATROSKA_ID_TRACKVIDEO)) == NULL) /* Video track */
@@ -529,7 +524,7 @@ int mk_writeHeader(mk_Writer *w, const char *writingApp,
 	CHECK(mk_writeUInt(v, MATROSKA_ID_VIDEOFLAGINTERLACED, 0));  /* interlaced flag */
 	CHECK(mk_writeUInt(v, MATROSKA_ID_VIDEODISPLAYWIDTH, d_width));
 	CHECK(mk_writeUInt(v, MATROSKA_ID_VIDEODISPLAYHEIGHT, d_height));
-	unsigned delta_pos1=v->d_cur;
+	int64_t delta_pos1=v->d_cur;
 	CHECK(mk_closeContext(v, &delta_pos1));
 	delta_pos = delta_pos1-delta_pos; /* video track header size + default duration entry */
 	pos+=ti2->d_cur;
@@ -585,7 +580,7 @@ int mk_writeHeader(mk_Writer *w, const char *writingApp,
 	CHECK(mk_flushContextData(w->root));
 	w->cluster_index = 1;
 	w->cluster_pos = g_renew(int64_t, w->cluster_pos, w->cluster_index);
-	w->cluster_pos[0] = ftell(w->fp) -36;
+	w->cluster_pos[0] = ftello(w->fp) -36;
 	w->wrote_header = TRUE;
 
 	return 0;
@@ -600,7 +595,7 @@ static int mk_closeCluster(mk_Writer *w)
 	CHECK(mk_flushContextData(w->root));
 	w->cluster_index++;
 	w->cluster_pos = g_renew(int64_t, w->cluster_pos, w->cluster_index);
-	w->cluster_pos[w->cluster_index-1] = ftell(w->fp) - 36;
+	w->cluster_pos[w->cluster_index-1] = ftello(w->fp) - 36;
 	return 0;
 }
 
@@ -609,7 +604,7 @@ static int mk_flushFrame(mk_Writer *w)
 {
 	//int64_t ref = 0;
 	int64_t delta = 0;
-	unsigned fsize, bgsize;
+	int64_t fsize, bgsize;
 	unsigned char c_delta_flags[3];
 
 	if (!w->in_frame)
@@ -675,7 +670,7 @@ static int mk_flushFrame(mk_Writer *w)
 static int mk_flushAudioFrame(mk_Writer *w)
 {
 	int64_t delta = 0;
-	unsigned fsize, bgsize;
+	int64_t fsize, bgsize;
 	unsigned char c_delta_flags[3];
 	//unsigned char flags = 0x04; //lacing
 	//unsigned char framesinlace = 0x07; //FIXME:  total frames -1
@@ -825,7 +820,7 @@ static int write_SegSeek(mk_Writer *w, int64_t cues_pos, int64_t seekHeadPos)
 	if(mk_flushContextData(w->root) < 0) 
 	return -1;
 
-	CHECK(mk_writeVoid(w->root, 4135 - (ftell(w->fp)+3)));
+	CHECK(mk_writeVoid(w->root, 4135 - (ftello(w->fp)+3)));
 	if(mk_flushContextData(w->root) < 0) 
 		return -1;
 	return 0;
@@ -880,7 +875,7 @@ int mk_setAudioFrameFlags(mk_Writer *w,int64_t timestamp, int keyframe)
 }
 
 
-int mk_addFrameData(mk_Writer *w, const void *data, unsigned size)
+int mk_addFrameData(mk_Writer *w, const void *data, int64_t size)
 {
 	//if (!w->in_frame)
 	//	return -1;
@@ -894,7 +889,7 @@ int mk_addFrameData(mk_Writer *w, const void *data, unsigned size)
 	return mk_appendContextData(w->frame, data, size);
 }
 
-int mk_addAudioFrameData(mk_Writer *w, const void *data, unsigned size)
+int mk_addAudioFrameData(mk_Writer *w, const void *data, int64_t size)
 {
 	//if (!w->audio_in_frame)
 	//	return -1;
@@ -916,37 +911,37 @@ int mk_close(mk_Writer *w)
 	if (w->wrote_header)
 	{
 		/* move to end of file */
-		fseek(w->fp, 0, SEEK_END);
+		fseeko(w->fp, 0, SEEK_END);
 		/* store last position */
-		int64_t CuesPos = ftell (w->fp) - 36;
+		int64_t CuesPos = ftello (w->fp) - 36;
 		//printf("cues at %llu\n",(unsigned long long) CuesPos);
 		write_cues(w);
 		/* move to end of file */
-		fseek(w->fp, 0, SEEK_END);
-		int64_t SeekHeadPos = ftell (w->fp) - 36;
+		fseeko(w->fp, 0, SEEK_END);
+		int64_t SeekHeadPos = ftello (w->fp) - 36;
 		//printf("SeekHead at %llu\n",(unsigned long long) SeekHeadPos);
 		/* write seekHead */
 		write_SeekHead(w);
 		/* move to end of file */
-		fseek(w->fp, 0, SEEK_END);
-		int64_t lLastPos = ftell (w->fp);
+		fseeko(w->fp, 0, SEEK_END);
+		int64_t lLastPos = ftello (w->fp);
 		int64_t seg_size = lLastPos - (w->segment_size_ptr);
 		seg_size |= 0x0100000000000000LL;
 		/* move to segment entry */
-		fseek(w->fp, w->segment_size_ptr, SEEK_SET);
+		fseeko(w->fp, w->segment_size_ptr, SEEK_SET);
 		if (mk_writeSegPos (w->root, seg_size ) < 0 || mk_flushContextData(w->root) < 0)
 			ret = -1;
 		/* move to seekentries */
-		fseek(w->fp, w->seekhead_pos, SEEK_SET);
+		fseeko(w->fp, w->seekhead_pos, SEEK_SET);
 		write_SegSeek (w, CuesPos, SeekHeadPos);
 		/* move to default video frame duration entry and set the correct value*/
-		fseek(w->fp, w->def_duration_ptr, SEEK_SET);
+		fseeko(w->fp, w->def_duration_ptr, SEEK_SET);
 		if ((mk_writeUIntRaw(w->root, MATROSKA_ID_TRACKDEFAULTDURATION, w->def_duration)) < 0 ||
 			mk_flushContextData(w->root) < 0)
 				ret = -1;
 
 		/* move to segment duration entry */
-		fseek(w->fp, w->duration_ptr, SEEK_SET);
+		fseeko(w->fp, w->duration_ptr, SEEK_SET);
 		if (mk_writeFloatRaw(w->root, (float)(double)(w->max_frame_tc/ w->timescale)) < 0 ||
 			mk_flushContextData(w->root) < 0)
 				ret = -1;

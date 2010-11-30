@@ -11,6 +11,7 @@ INCLUDES = \
 
 AM_CFLAGS =\
 	 -D_REENTRANT\
+	 -D_FILE_OFFSET_BITS=64\
 	 -Wall
 
 bin_PROGRAMS = guvcview

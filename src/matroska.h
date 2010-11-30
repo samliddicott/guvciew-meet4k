@@ -226,9 +226,9 @@ mk_Writer *mk_createWriter( const char *filename );
 int  mk_writeHeader( mk_Writer *w, const char *writingApp,
                      const char *codecID,
                      const char *AcodecID,
-                     const void *codecPrivate, unsigned codecPrivateSize,
+                     const void *codecPrivate, int64_t codecPrivateSize,
                      UINT64 default_frame_duration,
-                     const void *AcodecPrivate, unsigned AcodecPrivateSize,
+                     const void *AcodecPrivate, int64_t AcodecPrivateSize,
                      UINT64 default_aframe_duration,
                      int64_t timescale,
                      unsigned width, unsigned height,
@@ -238,8 +238,8 @@ int  mk_writeHeader( mk_Writer *w, const char *writingApp,
 void mk_setDef_Duration(mk_Writer *w, UINT64 def_duration);
 int  mk_startFrame( mk_Writer *w );
 int  mk_startAudioFrame(mk_Writer *w);
-int  mk_addFrameData( mk_Writer *w, const void *data, unsigned size );
-int  mk_addAudioFrameData(mk_Writer *w, const void *data, unsigned size);
+int  mk_addFrameData( mk_Writer *w, const void *data, int64_t size );
+int  mk_addAudioFrameData(mk_Writer *w, const void *data, int64_t size);
 int  mk_setFrameFlags( mk_Writer *w, int64_t timestamp, int keyframe );
 int  mk_setAudioFrameFlags(mk_Writer *w,int64_t timestamp, int keyframe);
 int  mk_close( mk_Writer *w );
