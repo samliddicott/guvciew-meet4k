@@ -89,6 +89,7 @@ struct paRecordData
 	AudBuff *audio_buff;          // ring buffer for audio data
 	int64_t a_ts;                 // audio frame time stamp
 	int64_t ts_ref;               // timestamp video reference
+	int64_t ts_drift;             // time drift between audio device clock and system clock
 	gint16 *pcm_sndBuff;          // buffer for pcm coding with int16
 	BYTE *mp2Buff;                // mp2 encode buffer
 	int mp2BuffSize;              // mp2 buffer size

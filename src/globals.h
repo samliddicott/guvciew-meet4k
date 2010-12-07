@@ -67,7 +67,7 @@ struct GLOBAL
 	BYTE *jpeg;            // jpeg buffer
 
 	ULONG AVI_MAX_LEN;     //avi max length
-	DWORD snd_begintime;   //begin time for audio capture
+	int64_t av_drift;      // amount of A/V time correction
 	DWORD currtime;
 	DWORD lasttime;
 	UINT64 Vidstarttime;    //video start time

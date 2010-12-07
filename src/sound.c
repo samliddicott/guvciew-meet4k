@@ -29,12 +29,15 @@
 #include "audio_effects.h"
 #include "ms_time.h"
 
-static int fill_audio_buffer(struct paRecordData *data)
+static int fill_audio_buffer(struct paRecordData *data, UINT64 ts)
 {
 	int ret =0;
+	UINT64 buffer_length;
 
 	if(data->sampleIndex >= data->aud_numSamples)
 	{
+		buffer_length = (G_NSEC_PER_SEC * data->aud_numSamples)/(data->samprate * data->channels);
+
 		/*first frame time stamp*/
 		if(data->a_ts <= 0)
 		{
@@ -45,7 +48,18 @@ static int fill_audio_buffer(struct paRecordData *data)
 			else data->a_ts = 1; /*make it > 0 otherwise we will keep getting the same ts*/
 		}
 		else /*increment time stamp for audio frame*/
-			data->a_ts += (G_NSEC_PER_SEC * data->aud_numSamples)/(data->samprate * data->channels);
+			data->a_ts += buffer_length;
+
+		/* check audio drift through timestamps */
+		if (ts > data->snd_begintime)
+			ts -= data->snd_begintime;
+		else
+			ts = 0;
+		if (ts > buffer_length)
+			ts -= buffer_length;
+		else
+			ts = 0;
+		data->ts_drift = ts - data->a_ts;
 		
 		data->sampleIndex = 0; /*reset*/
 		if(!data->audio_buff[data->w_ind].used)
@@ -79,6 +93,11 @@ recordCallback (const void *inputBuffer, void *outputBuffer,
 
 	const SAMPLE *rptr = (const SAMPLE*)inputBuffer;
 	int i;
+	UINT64 ts, nsec_per_frame;
+
+	/* buffer ends at timestamp "now", calculate beginning timestamp */
+	nsec_per_frame = G_NSEC_PER_SEC / data->samprate;
+	ts = ns_time_monotonic() - (UINT64) framesPerBuffer * nsec_per_frame;
 
 	g_mutex_lock( data->mutex );
 		gboolean capVid = data->capVid;
@@ -109,25 +128,17 @@ recordCallback (const void *inputBuffer, void *outputBuffer,
 	g_mutex_lock( data->mutex );
 		/*set to FALSE on paComplete*/
 		data->streaming=TRUE;
-		if( inputBuffer == NULL )
+
+		for( i=0; i<numSamples; i++ )
 		{
-			for( i=0; i<numSamples; i++ )
-			{
-				data->recordedSamples[data->sampleIndex] = 0;/*silence*/
-				data->sampleIndex++;
-			
-				fill_audio_buffer(data);
-			}
-		}
-		else
-		{
-			for( i=0; i<numSamples; i++ )
-			{
-				data->recordedSamples[data->sampleIndex] = *rptr++;
-				data->sampleIndex++;
-			
-				fill_audio_buffer(data);
-			}
+			data->recordedSamples[data->sampleIndex] = inputBuffer ? *rptr++ : 0;
+			data->sampleIndex++;
+		
+			fill_audio_buffer(data, ts);
+
+			/* increment timestamp accordingly while copying */
+			if (i % channels == 0)
+				ts += nsec_per_frame;
 		}
 		
 	g_mutex_unlock( data->mutex );

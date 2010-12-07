@@ -617,7 +617,16 @@ static gboolean process_video(struct ALL_DATA *all_data,
 {
 	struct GLOBAL *global = all_data->global;
 	struct vdIn *videoIn = all_data->videoIn;
+	struct paRecordData *pdata = all_data->pdata;
+	int64_t max_drift = 0, audio_drift = 0;
 	
+	if (global->Sound_enable) {
+		g_mutex_lock(pdata->mutex);
+			audio_drift = pdata->ts_drift;
+		g_mutex_unlock(pdata->mutex);
+		max_drift = 1000000000 / global->fps;	/* one frame */
+	}
+
 	g_mutex_lock(videoIn->mutex);
 		gboolean capVid = videoIn->capVid;
 	g_mutex_unlock(videoIn->mutex);
@@ -639,10 +648,59 @@ static gboolean process_video(struct ALL_DATA *all_data,
 			g_cond_broadcast(global->IO_cond);
 				
 			NEXT_IND(global->r_ind,global->video_buff_size);
+			audio_drift -= global->av_drift;
 		g_mutex_unlock(global->mutex);
 
+		/* fprintf(stderr, "audio drift = %lli ms\n", audio_drift / 1000000); */
 		/*process video Frame*/
-		write_video_frame(all_data, (void *) jpeg_struct, (void *) lavc_data, proc_buff);
+		if (audio_drift > max_drift)
+		{
+			/* audio delayed */
+			g_printf("audio drift: dropping/shifting frame\n");
+			g_mutex_lock(global->mutex);
+				global->av_drift += max_drift;
+			g_mutex_unlock(global->mutex);
+
+			switch (global->VidFormat)
+			{
+				case AVI_FORMAT:
+					/* drop frame */
+					break;
+
+				case MKV_FORMAT:
+					write_video_frame(all_data, (void *) jpeg_struct, (void *) lavc_data, proc_buff);
+					break;
+
+				default:
+					break;
+			}
+		}
+		else if (audio_drift < -1 * max_drift)
+		{
+			/* audio too fast */
+			g_printf("audio drift: duplicating/shifting frame\n");
+			g_mutex_lock(global->mutex);
+				global->av_drift -= max_drift;
+			g_mutex_unlock(global->mutex);
+
+			switch (global->VidFormat)
+			{
+				case AVI_FORMAT:
+					/* write frame twice */
+					write_video_frame(all_data, (void *) jpeg_struct, (void *) lavc_data, proc_buff);
+					write_video_frame(all_data, (void *) jpeg_struct, (void *) lavc_data, proc_buff);
+					break;
+
+				case MKV_FORMAT:
+					write_video_frame(all_data, (void *) jpeg_struct, (void *) lavc_data, proc_buff);
+					break;
+
+				default:
+					break;
+			}
+		}
+		else
+			write_video_frame(all_data, (void *) jpeg_struct, (void *) lavc_data, proc_buff);
 	}
 	else
 	{
@@ -668,7 +726,7 @@ static void store_at_index(void *data)
 	struct GLOBAL *global = all_data->global;
 	struct vdIn *videoIn = all_data->videoIn;
 
-	global->videoBuff[global->w_ind].time_stamp = global->v_ts;
+	global->videoBuff[global->w_ind].time_stamp = global->v_ts - global->av_drift;
 	
 	/*store frame at index*/
 	if ((global->VidCodec == CODEC_MJPEG) && (global->Frame_Flags==0) &&
@@ -819,6 +877,8 @@ void *IO_loop(void *data)
 			aud_eff=init_audio_effects ();
 			aud_proc_buff = g_new0(AudBuff, 1);
 			aud_proc_buff->frame = g_new0(SAMPLE, pdata->aud_numSamples);
+			global->av_drift = 0;
+			pdata->ts_drift = 0;
 		}
 	}
 	
