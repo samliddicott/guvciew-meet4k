@@ -1128,7 +1128,7 @@ int uvcGrab(struct vdIn *vd, int format, int width, int height, int *fps, int *f
 					memset(&vd->buf, 0, sizeof(struct v4l2_buffer));
 					vd->buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 					vd->buf.memory = V4L2_MEMORY_MMAP;
-
+                    
 					ret = xioctl(vd->fd, VIDIOC_DQBUF, &vd->buf);
 					if (ret < 0) 
 					{
@@ -1136,11 +1136,13 @@ int uvcGrab(struct vdIn *vd, int format, int width, int height, int *fps, int *f
 						ret = VDIN_DEQBUFS_ERR;
 						return ret;
 					}
-					ts = (UINT64) vd->buf.timestamp.tv_sec * G_NSEC_PER_SEC +  vd->buf.timestamp.tv_usec * 1000; //in nanosec
+					ts = (UINT64) vd->buf.timestamp.tv_sec * G_NSEC_PER_SEC +  
+					    vd->buf.timestamp.tv_usec * 1000; //in nanosec
+					    
 					/* use buffer timestamp if set by the driver, otherwise use current system time */
 					if(ts > 0) vd->timestamp = ts; 
 					else vd->timestamp = ns_time_monotonic(); 
-				
+
 					ret = xioctl(vd->fd, VIDIOC_QBUF, &vd->buf);
 					if (ret < 0) 
 					{

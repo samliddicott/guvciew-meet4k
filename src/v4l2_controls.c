@@ -624,6 +624,8 @@ static void update_widget_state(Control *control_list, void *all_data)
  
 void create_control_widgets(Control *control_list, void *all_data, int control_only, int verbose)
 {  
+    struct ALL_DATA *data = (struct ALL_DATA *) all_data;
+    struct vdIn *videoIn = data->videoIn;
     Control *current = control_list;
     Control *next = current->next;
     int done = 0;
@@ -817,6 +819,8 @@ void create_control_widgets(Control *control_list, void *all_data, int control_o
 			            
 			            g_signal_connect (GTK_COMBO_BOX (current->spinbutton), "changed",
 				            G_CALLBACK (pix_ord_changed), all_data);
+				        
+				        videoIn->isbayer = (current->value ? TRUE : FALSE);
                     }
                 
                     current->widget = gtk_check_button_new();
