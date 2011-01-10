@@ -1,3 +1,14 @@
+guvcview (1.4.4)
+
+    * add av_sync patch by Richard Fuchs <dfx@dfx.at>:
+        Fixes sync issues between audio and video 
+        (most noticeable in avi container due to lack of timestamps)
+    * Apply matroska-largefiles patch by Richard Fuchs <dfx@dfx.at>:
+        Fix large files indexing in 32 bit systems
+    * fix logitech disable video processing mode
+
+ -- Paulo Assis <pj.assis@gmail.com>  Mon, 10 Jan 2011 15:05:00 +0000
+
 guvcview (1.4.3)
 
    * Fix control enumeration for buggy cameras (endless loop on failed control query)
