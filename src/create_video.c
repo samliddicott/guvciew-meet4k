@@ -796,6 +796,7 @@ int store_video_frame(void *data)
 			if (!global->videoBuff[global->w_ind].used)
 			{
 				store_at_index(data);
+                producer_sleep = buff_scheduler(global->w_ind, global->r_ind, global->video_buff_size);
 				NEXT_IND(global->w_ind, global->video_buff_size);
 			}
 			else ret = -2;/*drop frame*/
