@@ -10,22 +10,22 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-08-08 23:27+0100\n"
-"PO-Revision-Date: 2010-06-09 13:17+0000\n"
-"Last-Translator: victor tejada yau <Unknown>\n"
+"PO-Revision-Date: 2011-01-09 05:42+0000\n"
+"Last-Translator: Fitoschido <fitoschido@gmail.com>\n"
 "Language-Team: Portuguese <pt@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-06-09 22:52+0000\n"
-"X-Generator: Launchpad (build Unknown)\n"
+"X-Launchpad-Export-Date: 2011-01-19 14:28+0000\n"
+"X-Generator: Launchpad (build 12214)\n"
 
 #: src/guvcview.c:177
 msgid "Guvcview Video Capture"
-msgstr ""
+msgstr "Captura de vídeo Guvcview"
 
 #: src/guvcview.c:187
 msgid "GUVCViewer Controls"
-msgstr "GUVCViewer Controles"
+msgstr "Controles de GUVCViewer"
 
 #. can't open device
 #: src/guvcview.c:214
@@ -34,9 +34,9 @@ msgid ""
 "\n"
 "Unable to open device"
 msgstr ""
-"Guvcview error:\n"
+"Error de Guvcview:\n"
 "\n"
-"Incapaz de abrir el dispositivo"
+"No se pudo abrir el dispositivo"
 
 #: src/guvcview.c:215
 msgid ""
@@ -44,7 +44,7 @@ msgid ""
 "and that the correct driver is installed."
 msgstr ""
 "Por favor, verifique de que la cámara esté conectada\n"
-"y que el driver está instalado."
+"y que se instaló el controlador correcto."
 
 #. uvc extension controls OK, give warning and shutdown (called with --add_ctrls)
 #: src/guvcview.c:220
@@ -59,7 +59,7 @@ msgstr ""
 
 #: src/guvcview.c:221
 msgid "Extension controls were added to the UVC driver"
-msgstr "Control de extensiones fueron añadidos al controlador UVC"
+msgstr "Los controles de extensión se añadieron al controlador de UVC"
 
 #. uvc extension controls error - EACCES (needs root user)
 #: src/guvcview.c:228
@@ -97,7 +97,7 @@ msgid ""
 "Make sure your device driver is v4l2 compliant\n"
 "and that it is properly installed."
 msgstr ""
-"Por favor, verifique de que usted tiene un driver v4l2\n"
+"Asegúrese de que tiene un controlador v4l2\n"
 "y que está instalado."
 
 #: src/guvcview.c:278 src/guvcview.c:300
@@ -108,11 +108,11 @@ msgid ""
 msgstr ""
 "Guvcview error:\n"
 "\n"
-"Incapaz de comenzar con la disposición mínima"
+"No se pudo iniciar con la configuración mínima"
 
 #: src/guvcview.c:279 src/guvcview.c:301
 msgid "Please reconnect your camera."
-msgstr "Por favor, vuelva a conectar su cámara."
+msgstr "Vuelva a conectar su cámara."
 
 #: src/guvcview.c:308
 msgid ""
@@ -122,7 +122,7 @@ msgid ""
 msgstr ""
 "Guvcview error:\n"
 "\n"
-"Incapaz de abrir el dispositivo"
+"No se pudo abrir el dispositivo"
 
 #: src/guvcview.c:309
 msgid "Make sure the device driver supports v4l2."
@@ -134,13 +134,13 @@ msgid ""
 "\n"
 "Read method error"
 msgstr ""
-"Guvcview error:\n"
+"Error de Guvcview:\n"
 "\n"
-"erro de metodo Read"
+"error de método Read"
 
 #: src/guvcview.c:314
 msgid "Please try mmap instead (--capture_method=1)."
-msgstr "Por favor, intente en vez de eso, mmap (--capture_method=1)."
+msgstr "Intente, en vez de eso, mmap (--capture_method=1)."
 
 #: src/guvcview.c:322
 msgid ""
@@ -148,13 +148,13 @@ msgid ""
 "\n"
 "Unable to allocate Buffers"
 msgstr ""
-"Guvcview error:\n"
+"Error de Guvcview:\n"
 "\n"
-"Incapaz de asignar Buffers"
+"No se pudieron asignar búferes"
 
 #: src/guvcview.c:323
 msgid "Please try restarting your system."
-msgstr "Deberá intentar recomenzar su sistema."
+msgstr "Pruebe a reiniciar su sistema."
 
 #: src/guvcview.c:359
 msgid "Image Controls"
@@ -168,31 +168,30 @@ msgstr "Captura:"
 #. end of control only exclusion
 #: src/guvcview.c:402
 msgid "Control Profiles:"
-msgstr "Perfiles de Controles:"
+msgstr "Perfiles de control:"
 
 #: src/guvcview.c:417
-#, fuzzy
 msgid "Defaults"
-msgstr "Automático"
+msgstr "Predeterminados"
 
 #. image auto capture
 #: src/guvcview.c:430
 msgid "Stop Auto"
-msgstr "Parar Auto:"
+msgstr "Detener auto"
 
 #: src/guvcview.c:434 src/callbacks.c:1072 src/timers.c:95
 msgid "Cap. Image"
-msgstr "Cap. Imagen"
+msgstr "Cap. imagen"
 
 #. vid capture enabled from start
 #: src/guvcview.c:439 src/callbacks.c:1199
 msgid "Stop Video"
-msgstr "Parar Video"
+msgstr "Detener vídeo"
 
 #: src/guvcview.c:444 src/guvcview.c:650 src/callbacks.c:1140
 #: src/create_video.c:795
 msgid "Cap. Video"
-msgstr "Cap. Video"
+msgstr "Cap. vídeo"
 
 #: src/guvcview.c:593
 msgid ""
@@ -200,14 +199,13 @@ msgid ""
 "\n"
 "Unable to create Video Thread"
 msgstr ""
-"Guvcview error:\n"
+"Error de Guvcview:\n"
 "\n"
-"Incapaz de crear thread de video"
+"No se pudo crear hilo de vídeo"
 
 #: src/guvcview.c:594
 msgid "Please report it to http://developer.berlios.de/bugs/?group_id=8179"
-msgstr ""
-"Por favor, divulgúelo a http://developer.berlios.de/bugs/?group_id=8179"
+msgstr "Repórtelo a http://developer.berlios.de/bugs/?group_id=8179"
 
 #. needed only for language files (not used)
 #. V4L2 control strings
@@ -217,7 +215,7 @@ msgstr "Controles de usuario"
 
 #: src/v4l2uvc.c:55
 msgid "Brightness"
-msgstr "Claridad"
+msgstr "Brillo"
 
 #: src/v4l2uvc.c:56
 msgid "Contrast"
@@ -225,7 +223,7 @@ msgstr "Contraste"
 
 #: src/v4l2uvc.c:57
 msgid "Hue"
-msgstr "Tonalidad"
+msgstr "Matiz"
 
 #: src/v4l2uvc.c:58
 msgid "Saturation"
@@ -241,7 +239,7 @@ msgstr "Gamma"
 
 #: src/v4l2uvc.c:61
 msgid "Backlight Compensation"
-msgstr "Contraluz"
+msgstr "Compensación de retroiluminación"
 
 #: src/v4l2uvc.c:62
 msgid "Power Line Frequency"
@@ -249,7 +247,7 @@ msgstr "Frecuencia de la línea eléctrica"
 
 #: src/v4l2uvc.c:63
 msgid "Hue, Automatic"
-msgstr "Tono, automático"
+msgstr "Matiz, automático"
 
 #: src/v4l2uvc.c:64
 msgid "Focus, Auto"
@@ -273,7 +271,7 @@ msgstr "Modo prioridad de la abertura"
 
 #: src/v4l2uvc.c:69
 msgid "Black Level"
-msgstr "Nivel de negro"
+msgstr "Nivel de negros"
 
 #: src/v4l2uvc.c:70
 msgid "White Balance, Automatic"
@@ -301,7 +299,7 @@ msgstr "Ganancia, automático"
 
 #: src/v4l2uvc.c:76
 msgid "Gain"
-msgstr "Aumento"
+msgstr "Ganancia"
 
 #: src/v4l2uvc.c:77
 msgid "Horizontal Flip"
@@ -321,7 +319,7 @@ msgstr "Centrado vertical"
 
 #: src/v4l2uvc.c:81
 msgid "Chroma AGC"
-msgstr ""
+msgstr "AGC de croma"
 
 #: src/v4l2uvc.c:82
 msgid "Color Killer"
@@ -521,14 +519,12 @@ msgid "qblur:   "
 msgstr ""
 
 #: src/video_tab.c:362
-#, fuzzy
 msgid "subq:   "
-msgstr "qmáx:   "
+msgstr ""
 
 #: src/video_tab.c:377
-#, fuzzy
 msgid "framerefs:   "
-msgstr "pre me:   "
+msgstr ""
 
 #: src/video_tab.c:392
 msgid "me method:   "
@@ -539,9 +535,8 @@ msgid "mb decision:   "
 msgstr "mb desición   "
 
 #: src/video_tab.c:422
-#, fuzzy
 msgid "max B frames:   "
-msgstr "pre me:   "
+msgstr ""
 
 #: src/video_tab.c:530
 msgid "Video & Files"
@@ -636,14 +631,12 @@ msgstr " Pedazos"
 
 #. Particles
 #: src/video_tab.c:1007
-#, fuzzy
 msgid " Particles"
-msgstr " Pedazos"
+msgstr ""
 
 #: src/audio_tab.c:46
-#, fuzzy
 msgid "audio codec values"
-msgstr "valores de códecs"
+msgstr ""
 
 #: src/audio_tab.c:132
 msgid "Audio"
@@ -811,9 +804,8 @@ msgid "MS MP4 V3"
 msgstr "MS MP4 V3"
 
 #: src/vcodecs.c:321
-#, fuzzy
 msgid "MPEG4-ASP"
-msgstr "MPEG"
+msgstr ""
 
 #: src/vcodecs.c:354
 msgid "MPEG4-AVC (H264)"
@@ -853,13 +845,11 @@ msgid "Hardware accelaration (enable(1) | disable(0))"
 msgstr "Accel. del hardware (habilitar(1)|deshabil.(0))"
 
 #: src/options.c:554
-#, fuzzy
 msgid ""
-"Pixel format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|"
-"y41p|grey|y16 |s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
+"Pixel "
+"format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|y41p|grey|"
+"y16 |s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
 msgstr ""
-"Formato(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|y41p|"
-"grey|s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
 
 #: src/options.c:555
 msgid "Frame size, default: 640x480"
@@ -914,9 +904,8 @@ msgid "set Focus"
 msgstr "Focar"
 
 #: src/callbacks.c:89
-#, fuzzy
 msgid "Error"
-msgstr " Espejo"
+msgstr ""
 
 #: src/callbacks.c:113
 msgid ""
@@ -961,23 +950,34 @@ msgstr "Aviso de Guvcview:"
 msgid "Not enough free space left on disk"
 msgstr "No hay suficiente espacio libre en disco"
 
-#~ msgid "PCM"
-#~ msgstr "PCM"
+#~ msgid ""
+#~ "Please make sure the camera is connected\n"
+#~ "and that the linux-UVC driver is installed."
+#~ msgstr ""
+#~ "Por favor, verifique de que la cámara esté conectada\n"
+#~ "y que el driver linux-UVC está instalado."
 
-#~ msgid "MP2"
-#~ msgstr "MP2"
+#~ msgid ""
+#~ "Guvcview error:\n"
+#~ "\n"
+#~ "Can't set MJPG or YUV stream for guvcview"
+#~ msgstr ""
+#~ "Guvcview error:\n"
+#~ "\n"
+#~ "Incapaz de establecer video stream (MJPG o YUV)"
 
-#~ msgid "MPEG4 - MPEG4 format"
-#~ msgstr "MPEG4 - MPEG4 format"
+#~ msgid ""
+#~ "Make sure you have a UVC compliant camera\n"
+#~ "and that you have the linux UVC driver installed."
+#~ msgstr ""
+#~ "Por favor, verifique de que usted tiene una cámara UVC\n"
+#~ "y que el driver linux-UVC está instalado."
 
-#~ msgid "Invert (Pan)"
-#~ msgstr "Invertir (Rotación)"
+#~ msgid "Stop AVI"
+#~ msgstr "Parar AVI"
 
-#~ msgid "Reset"
-#~ msgstr "Restablecer"
-
-#~ msgid "raw pixel order:"
-#~ msgstr "orden de pixel:"
+#~ msgid "Cap. AVI"
+#~ msgstr "Cap. AVI"
 
 #~ msgid "AVI File:"
 #~ msgstr "Archivo AVI:"
@@ -988,11 +988,27 @@ msgstr "No hay suficiente espacio libre en disco"
 #~ msgid "AVI Format:"
 #~ msgstr "Formato de AVI:"
 
+#~ msgid "PCM"
+#~ msgstr "PCM"
+
+#~ msgid "MP2"
+#~ msgstr "MP2"
+
 #~ msgid "Hue, Auto"
 #~ msgstr "Tonalidad, Auto"
 
+#~ msgid "AVI File name (capture from start)"
+#~ msgstr "Archivo video (captura del arranque)"
+
+#~ msgid "AVI capture time (in seconds)"
+#~ msgstr "Tiempo de la captura video (segundos)"
+
 #~ msgid "Exposure:"
 #~ msgstr "Exposición:"
+
+#, c-format
+#~ msgid "raw pixel order:"
+#~ msgstr "orden de pixel:"
 
 #~ msgid "Program Restart"
 #~ msgstr "Recomenzar aplicación"
@@ -1011,8 +1027,53 @@ msgstr "No hay suficiente espacio libre en disco"
 #~ "\n"
 #~ "¿Recomenzar ahora?\n"
 
+#~ msgid "MPEG"
+#~ msgstr "MPEG"
+
 #~ msgid "FLV1"
 #~ msgstr "FLV1"
 
+#~ msgid "Pixel format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|gbrg)"
+#~ msgstr "Formato(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|gbrg)"
+
+#~ msgid "Don't stream video (controls only)"
+#~ msgstr "No hacer streaming de vídeo (sólo controles)"
+
+#~ msgid ""
+#~ "Pixel format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|gbrg|grbg|bggr|rggb)"
+#~ msgstr "Formato(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|gbrg|grbg|bggr|rggb)"
+
+#~ msgid "Make sure the device driver suports v4l2."
+#~ msgstr "Asegúrese de que el controlador del dispositivo soporta v4l2."
+
+#~ msgid "MPEG4 - MPEG4 format"
+#~ msgstr "MPEG4 - MPEG4 format"
+
+#~ msgid ""
+#~ "Pixel "
+#~ "format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|y41p|grey|"
+#~ "s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
+#~ msgstr ""
+#~ "Formato(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|y41p|grey"
+#~ "|s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
+
+#~ msgid "Reset"
+#~ msgstr "Restablecer"
+
 #~ msgid "Later"
 #~ msgstr "Después"
+
+#~ msgid "Number of inital frames to skip"
+#~ msgstr "Número de fotogramas iniciales a omitir"
+
+#~ msgid ""
+#~ "An error ocurred while adding extension\n"
+#~ "controls to the UVC driver\n"
+#~ "Make sure you run guvcview as root (or sudo)."
+#~ msgstr ""
+#~ "Ocurrió un error al añadir los controles\n"
+#~ "de extensión al controlador UVC\n"
+#~ "Asegúrese de que ejecuta guvcview como root (o sudo)."
+
+#~ msgid "Invert (Pan)"
+#~ msgstr "Invertir (Rotación)"

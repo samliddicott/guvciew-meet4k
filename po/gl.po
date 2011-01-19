@@ -1,18 +1,17 @@
-# translation of pt_BR.po to Portuguese
-# translation of guvcview to Portuguese
-# Copyright (C) 2008 Paulo Assis
+# Galician translation for guvcview
+# Copyright (c) 2010 Rosetta Contributors and Canonical Ltd 2010
 # This file is distributed under the same license as the guvcview package.
-# guvcview <pj.assis@gmail.com>, 2008.
 #
-#
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2010.
+# Dario Villar Veres <dario.villar.v@gmail.com>, 2010.
 msgid ""
 msgstr ""
-"Project-Id-Version: pt_BR\n"
-"Report-Msgid-Bugs-To: \n"
+"Project-Id-Version: guvcview\n"
+"Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-08-08 23:27+0100\n"
-"PO-Revision-Date: 2010-11-18 03:22+0000\n"
-"Last-Translator: Paulo Assis <Unknown>\n"
-"Language-Team: Portuguese <pt@li.org>\n"
+"PO-Revision-Date: 2010-12-14 02:26+0000\n"
+"Last-Translator: Dario <dario.villar.v@gmail.com>\n"
+"Language-Team: Galician <gl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -21,11 +20,11 @@ msgstr ""
 
 #: src/guvcview.c:177
 msgid "Guvcview Video Capture"
-msgstr "Guvcview Captura de Video"
+msgstr "Capturador de vídeo Guvcview"
 
 #: src/guvcview.c:187
 msgid "GUVCViewer Controls"
-msgstr "GUVCViewer Controlos"
+msgstr "Controles de Guvcviewer"
 
 #. can't open device
 #: src/guvcview.c:214
@@ -34,17 +33,17 @@ msgid ""
 "\n"
 "Unable to open device"
 msgstr ""
-"Guvcview erro:\n"
+"Erro de Guvcview:\n"
 "\n"
-"Não foi possivel conectar a camera"
+"Non foi posíbel conectar a camara"
 
 #: src/guvcview.c:215
 msgid ""
 "Please make sure the camera is connected\n"
 "and that the correct driver is installed."
 msgstr ""
-"Por favor verifique a conexão\n"
-"e se o driver correcto se encontra instalado."
+"Asegúrese de que a súa camara está conectada\n"
+"e que o controlador está correctamente instalada."
 
 #. uvc extension controls OK, give warning and shutdown (called with --add_ctrls)
 #: src/guvcview.c:220
@@ -53,13 +52,10 @@ msgid ""
 "\n"
 "UVC Extension controls"
 msgstr ""
-"Guvcview:\n"
-"\n"
-"Controlos UVC dinâmicos"
 
 #: src/guvcview.c:221
 msgid "Extension controls were added to the UVC driver"
-msgstr "Os Controlos dinâmicos foram adicionados ao driver UVC"
+msgstr ""
 
 #. uvc extension controls error - EACCES (needs root user)
 #: src/guvcview.c:228
@@ -68,9 +64,6 @@ msgid ""
 "\n"
 "UVC Extension controls"
 msgstr ""
-"Guvcview erro:\n"
-"\n"
-"Controlos UVC dinâmicos"
 
 #: src/guvcview.c:229
 msgid ""
@@ -78,9 +71,6 @@ msgid ""
 "controls to the UVC driver\n"
 "Make sure you run guvcview as root (or sudo)."
 msgstr ""
-"Ocorreu um erro ao adicionar os controlos\n"
-"dinâmicos ao driver UVC\n"
-"Verifique se lançou guvcview como root (ou sudo)."
 
 #: src/guvcview.c:255 src/guvcview.c:333
 msgid ""
@@ -88,17 +78,12 @@ msgid ""
 "\n"
 "Can't set a valid video stream for guvcview"
 msgstr ""
-"Guvcview erro:\n"
-"\n"
-"Não foi possível iniciar fluxo de video"
 
 #: src/guvcview.c:256 src/guvcview.c:334
 msgid ""
 "Make sure your device driver is v4l2 compliant\n"
 "and that it is properly installed."
 msgstr ""
-"Verfique se o driver é compativel com v4l2\n"
-"e se este se encontra instalado correctamente."
 
 #: src/guvcview.c:278 src/guvcview.c:300
 msgid ""
@@ -106,13 +91,10 @@ msgid ""
 "\n"
 "Unable to start with minimum setup"
 msgstr ""
-"Guvcview erro:\n"
-"\n"
-"Não foi possivel iniciar com as definições minimas"
 
 #: src/guvcview.c:279 src/guvcview.c:301
 msgid "Please reconnect your camera."
-msgstr "Por favor remova e volte a conectar a camera."
+msgstr "Conecte de novo a súa camara."
 
 #: src/guvcview.c:308
 msgid ""
@@ -120,13 +102,13 @@ msgid ""
 "\n"
 "Couldn't query device capabilities"
 msgstr ""
-"Guvcview erro:\n"
+"Erro de Guvcview:\n"
 "\n"
-"Não foi possivel verificar as propriedades do dispositivo de vídeo"
+"Non se poideron consultar as capacidades do dispositivo"
 
 #: src/guvcview.c:309
 msgid "Make sure the device driver supports v4l2."
-msgstr "Por favor verifique se o driver suporta v4l2."
+msgstr "Asegúrese de que o controlador do dispositivo soporta v4l2."
 
 #: src/guvcview.c:313
 msgid ""
@@ -134,13 +116,13 @@ msgid ""
 "\n"
 "Read method error"
 msgstr ""
-"Guvcview erro:\n"
+"Erro de Guvcview:\n"
 "\n"
-"Erro do metodo Read"
+"Erro no método de lectura"
 
 #: src/guvcview.c:314
 msgid "Please try mmap instead (--capture_method=1)."
-msgstr "por favor experimente mmap (--capture_method=1)"
+msgstr "Probe mmap no seu lugar  (--capture_method=1)."
 
 #: src/guvcview.c:322
 msgid ""
@@ -148,45 +130,45 @@ msgid ""
 "\n"
 "Unable to allocate Buffers"
 msgstr ""
-"Guvcview erro:\n"
+"Erro de Guvcview:\n"
 "\n"
-"Não foi possivel alocar Buffers"
+"Non foi posíbel asignarlle memoria aos búferes"
 
 #: src/guvcview.c:323
 msgid "Please try restarting your system."
-msgstr "Por favor experimente reiniciar o sistema."
+msgstr "Probe reiniciando o seu sistema."
 
 #: src/guvcview.c:359
 msgid "Image Controls"
-msgstr "Controlos de imagem"
+msgstr ""
 
 #: src/guvcview.c:394
 msgid "Capture:"
-msgstr "Captura:"
+msgstr "Capturar:"
 
 #. increment column for labels
 #. end of control only exclusion
 #: src/guvcview.c:402
 msgid "Control Profiles:"
-msgstr "Perfis de Controlo:"
+msgstr ""
 
 #: src/guvcview.c:417
 msgid "Defaults"
-msgstr "Padrões"
+msgstr "Valores predeterminados"
 
 #. image auto capture
 #: src/guvcview.c:430
 msgid "Stop Auto"
-msgstr "Parar Auto:"
+msgstr ""
 
 #: src/guvcview.c:434 src/callbacks.c:1072 src/timers.c:95
 msgid "Cap. Image"
-msgstr "Cap. Imagem"
+msgstr "Cap. Imaxe"
 
 #. vid capture enabled from start
 #: src/guvcview.c:439 src/callbacks.c:1199
 msgid "Stop Video"
-msgstr "Parar Video"
+msgstr "Deter vídeo"
 
 #: src/guvcview.c:444 src/guvcview.c:650 src/callbacks.c:1140
 #: src/create_video.c:795
@@ -199,23 +181,24 @@ msgid ""
 "\n"
 "Unable to create Video Thread"
 msgstr ""
-"Guvcview erro:\n"
+"Erro en Guvcview:\n"
 "\n"
-"Não foi possivel criar o Thread de Video"
+"Non foi posíble crear un fío de execución de vídeo"
 
 #: src/guvcview.c:594
 msgid "Please report it to http://developer.berlios.de/bugs/?group_id=8179"
-msgstr "Por favor reporte em http://developer.berlios.de/bugs/?group_id=8179"
+msgstr ""
+"Por favor, informe do erro a http://developer.berlios.de/bugs/?group_id=8179"
 
 #. needed only for language files (not used)
 #. V4L2 control strings
 #: src/v4l2uvc.c:54
 msgid "User Controls"
-msgstr "Controlos de Utilizador"
+msgstr ""
 
 #: src/v4l2uvc.c:55
 msgid "Brightness"
-msgstr "Brilho"
+msgstr "Brillo"
 
 #: src/v4l2uvc.c:56
 msgid "Contrast"
@@ -223,15 +206,15 @@ msgstr "Contraste"
 
 #: src/v4l2uvc.c:57
 msgid "Hue"
-msgstr "Matiz"
+msgstr "Ton"
 
 #: src/v4l2uvc.c:58
 msgid "Saturation"
-msgstr "Saturação"
+msgstr "Saturación"
 
 #: src/v4l2uvc.c:59
 msgid "Sharpness"
-msgstr "Agudeza"
+msgstr "Focalización"
 
 #: src/v4l2uvc.c:60
 msgid "Gamma"
@@ -239,11 +222,11 @@ msgstr "Gamma"
 
 #: src/v4l2uvc.c:61
 msgid "Backlight Compensation"
-msgstr "Compensação de Luz"
+msgstr ""
 
 #: src/v4l2uvc.c:62
 msgid "Power Line Frequency"
-msgstr "Frequência da Rede"
+msgstr ""
 
 #: src/v4l2uvc.c:63
 msgid "Hue, Automatic"
@@ -251,144 +234,144 @@ msgstr "Matiz, Automático"
 
 #: src/v4l2uvc.c:64
 msgid "Focus, Auto"
-msgstr "Focagem, Auto"
+msgstr "Foco, Automático"
 
 #: src/v4l2uvc.c:65
 msgid "Manual Mode"
-msgstr "Modo manual"
+msgstr "Modo Manual"
 
 #: src/v4l2uvc.c:66
 msgid "Auto Mode"
-msgstr "Modo automático"
+msgstr "Modo Automático"
 
 #: src/v4l2uvc.c:67
 msgid "Shutter Priority Mode"
-msgstr "Modo prioridade do obturador"
+msgstr ""
 
 #: src/v4l2uvc.c:68
 msgid "Aperture Priority Mode"
-msgstr "Modo prioridade da abertura"
+msgstr ""
 
 #: src/v4l2uvc.c:69
 msgid "Black Level"
-msgstr "Níveis de Preto"
+msgstr "Nivel de negro"
 
 #: src/v4l2uvc.c:70
 msgid "White Balance, Automatic"
-msgstr "Balanço de Brancos"
+msgstr ""
 
 #: src/v4l2uvc.c:71
 msgid "Do White Balance"
-msgstr "Fazer Balanço de Brancos"
+msgstr ""
 
 #: src/v4l2uvc.c:72
 msgid "Red Balance"
-msgstr "Balanço do Vermelho"
+msgstr "Balance vermello"
 
 #: src/v4l2uvc.c:73
 msgid "Blue Balance"
-msgstr "Balanço do Azul"
+msgstr "Balance azul"
 
 #: src/v4l2uvc.c:74
 msgid "Exposure"
-msgstr "Exposição"
+msgstr "Exposición"
 
 #: src/v4l2uvc.c:75
 msgid "Gain, Automatic"
-msgstr "Ganho, Automático"
+msgstr "Ganancia, Automática"
 
 #: src/v4l2uvc.c:76
 msgid "Gain"
-msgstr "Ganho"
+msgstr "Ganancia"
 
 #: src/v4l2uvc.c:77
 msgid "Horizontal Flip"
-msgstr "Virar horizontalmente"
+msgstr "Xiro horizontal"
 
 #: src/v4l2uvc.c:78
 msgid "Vertical Flip"
-msgstr "Virar verticalmente"
+msgstr "Xiro vertical"
 
 #: src/v4l2uvc.c:79
 msgid "Horizontal Center"
-msgstr "Eixo Horizontal"
+msgstr ""
 
 #: src/v4l2uvc.c:80
 msgid "Vertical Center"
-msgstr "Eixo Vertical"
+msgstr ""
 
 #: src/v4l2uvc.c:81
 msgid "Chroma AGC"
-msgstr "AGC de croma"
+msgstr ""
 
 #: src/v4l2uvc.c:82
 msgid "Color Killer"
-msgstr "Remoção de cores"
+msgstr ""
 
 #: src/v4l2uvc.c:83
 msgid "Color Effects"
-msgstr "Efeitos de cor"
+msgstr "Efectos de cor"
 
 #. CAMERA CLASS control strings
 #: src/v4l2uvc.c:86
 msgid "Camera Controls"
-msgstr "Controlos de Camera"
+msgstr ""
 
 #: src/v4l2uvc.c:87
 msgid "Auto Exposure"
-msgstr "Exposição automática"
+msgstr "Exposición automática"
 
 #: src/v4l2uvc.c:88
 msgid "Exposure Time, Absolute"
-msgstr "Tempo de Exposição, Absoluto"
+msgstr "Tempo de exposición, Absoluto"
 
 #: src/v4l2uvc.c:89
 msgid "Exposure, Dynamic Framerate"
-msgstr "Exposição, Taxa de Frames Dinâmica"
+msgstr ""
 
 #: src/v4l2uvc.c:90
 msgid "Pan, Relative"
-msgstr "Rotação, Relativa"
+msgstr ""
 
 #: src/v4l2uvc.c:91
 msgid "Tilt, Relative"
-msgstr "Inclinação, Relativa"
+msgstr "Inclinación, relativo"
 
 #: src/v4l2uvc.c:92
 msgid "Pan, Reset"
-msgstr "Rotação, Restaurar"
+msgstr ""
 
 #: src/v4l2uvc.c:93
 msgid "Tilt, Reset"
-msgstr "Inclinação, Restaurar"
+msgstr "Inclinación, Restabelecer"
 
 #: src/v4l2uvc.c:94
 msgid "Pan, Absolute"
-msgstr "Rotação, Absoluta"
+msgstr ""
 
 #: src/v4l2uvc.c:96
 msgid "Focus, Absolute"
-msgstr "Foco, Absoluto"
+msgstr "Foco, absoluto"
 
 #: src/v4l2uvc.c:97
 msgid "Focus, Relative"
-msgstr "Foco, Relativo"
+msgstr "Foco, relativo"
 
 #: src/v4l2uvc.c:98
 msgid "Focus, Automatic"
-msgstr "Foco, Automático"
+msgstr "Foco, automático"
 
 #: src/v4l2uvc.c:99
 msgid "Zoom, Absolute"
-msgstr "Zoom, Absoluto"
+msgstr ""
 
 #: src/v4l2uvc.c:100
 msgid "Zoom, Relative"
-msgstr "Zoom, Relativo"
+msgstr ""
 
 #: src/v4l2uvc.c:101
 msgid "Zoom, Continuous"
-msgstr "Zoom, Continuo"
+msgstr ""
 
 #: src/v4l2uvc.c:102
 msgid "Privacy"
@@ -397,35 +380,35 @@ msgstr "Privacidade"
 #. UVC specific control strings
 #: src/v4l2uvc.c:105
 msgid "Exposure, Auto"
-msgstr "Exposição, Auto"
+msgstr "Exposición, Automático"
 
 #: src/v4l2uvc.c:106
 msgid "Exposure, Auto Priority"
-msgstr "Exposição, Prioridade Auto"
+msgstr "Exposición, Prioridade automática"
 
 #: src/v4l2uvc.c:107
 msgid "Exposure (Absolute)"
-msgstr "Exposição (Absoluta)"
+msgstr "Exposición (absoluto)"
 
 #: src/v4l2uvc.c:108
 msgid "White Balance Temperature, Auto"
-msgstr "Balanço de Brancos, Auto"
+msgstr ""
 
 #: src/v4l2uvc.c:109
 msgid "White Balance Temperature"
-msgstr "Branco (Temp. de côr)"
+msgstr ""
 
 #: src/v4l2uvc.c:110
 msgid "White Balance Component, Auto"
-msgstr "Componente de cor, Auto"
+msgstr ""
 
 #: src/v4l2uvc.c:111
 msgid "White Balance Blue Component"
-msgstr "Componente Azul"
+msgstr ""
 
 #: src/v4l2uvc.c:112
 msgid "White Balance Red Component"
-msgstr "Componente Vermelho"
+msgstr ""
 
 #. libwebcam specific control strings
 #: src/v4l2uvc.c:115
@@ -434,11 +417,11 @@ msgstr "Foco"
 
 #: src/v4l2uvc.c:116
 msgid "Focus (Absolute)"
-msgstr "Foco (Absoluto)"
+msgstr "Foco(absoluto)"
 
 #: src/video_tab.c:41 src/callbacks.c:1239
 msgid "Save File"
-msgstr "Salvar Ficheiro"
+msgstr "Gardar o ficheiro"
 
 #. if auto naming restart counter
 #. g_mutex_unlock(videoIn->mutex);
@@ -449,36 +432,34 @@ msgstr "Salvar Ficheiro"
 #: src/callbacks.c:1149 src/timers.c:78
 #, c-format
 msgid "File num:%d"
-msgstr "Ficheiro num:%d"
+msgstr ""
 
 #: src/video_tab.c:126
 msgid "codec values"
-msgstr "Valores do Codec"
+msgstr ""
 
 #: src/video_tab.c:137
 msgid ""
 "                              encoder fps:   \n"
 " (0 - use fps combobox value)"
 msgstr ""
-"                              codificador fps:   \n"
-" (0 - use o valor fps da caixa de combinação)"
 
 #. bit rate
 #: src/video_tab.c:152 src/audio_tab.c:58
 msgid "bit rate:   "
-msgstr "taxa de bits:   "
+msgstr "Taxa de bits:   "
 
 #: src/video_tab.c:167
 msgid "qmax:   "
-msgstr ""
+msgstr "qmax:   "
 
 #: src/video_tab.c:182
 msgid "qmin:   "
-msgstr ""
+msgstr "qmin:   "
 
 #: src/video_tab.c:197
 msgid "max. qdiff:   "
-msgstr ""
+msgstr "max. qdiff:   "
 
 #: src/video_tab.c:212
 msgid "dia size:   "
@@ -490,19 +471,19 @@ msgstr ""
 
 #: src/video_tab.c:242
 msgid "pre me:   "
-msgstr ""
+msgstr "pre me:   "
 
 #: src/video_tab.c:257
 msgid "pre cmp:   "
-msgstr ""
+msgstr "pre cmp:   "
 
 #: src/video_tab.c:272
 msgid "cmp:   "
-msgstr ""
+msgstr "cmp:   "
 
 #: src/video_tab.c:287
 msgid "sub cmp:   "
-msgstr ""
+msgstr "sub cmp:   "
 
 #: src/video_tab.c:302
 msgid "last predictor count:   "
@@ -510,7 +491,7 @@ msgstr ""
 
 #: src/video_tab.c:317
 msgid "gop size:   "
-msgstr ""
+msgstr "Tamaño do gop:   "
 
 #: src/video_tab.c:332
 msgid "qcompress:   "
@@ -542,16 +523,16 @@ msgstr ""
 
 #: src/video_tab.c:530
 msgid "Video & Files"
-msgstr "Video e Ficheiros"
+msgstr ""
 
 #. Devices
 #: src/video_tab.c:546 src/callbacks.c:120
 msgid "Device:"
-msgstr "Dispositivo de video:"
+msgstr "Dispositivo:"
 
 #: src/video_tab.c:648
 msgid "Frame Rate:"
-msgstr "Taxa de imagens:"
+msgstr "Taxa de fotogramas:"
 
 #: src/video_tab.c:656
 msgid " Show"
@@ -559,11 +540,11 @@ msgstr " Mostrar"
 
 #: src/video_tab.c:680
 msgid "Resolution:"
-msgstr "Resolução:"
+msgstr "Resolution:"
 
 #: src/video_tab.c:706
 msgid "Camera Output:"
-msgstr "Saída de Câmera:"
+msgstr "Saída da cámara:"
 
 #: src/video_tab.c:728
 msgid "Apply"
@@ -571,50 +552,50 @@ msgstr "Aplicar"
 
 #: src/video_tab.c:736
 msgid "Quality:"
-msgstr "Qualidade:"
+msgstr "Calidade:"
 
 #: src/video_tab.c:746
 msgid "Image File:"
-msgstr "Ficheiro de Imagem:"
+msgstr "Ficheiro de imaxe:"
 
 #: src/video_tab.c:779 src/video_tab.c:863
 msgid "File,Auto"
-msgstr "Ficheiro,Auto"
+msgstr ""
 
 #: src/video_tab.c:790
 msgid "Image Format:"
-msgstr "Formato de Imagem:"
+msgstr "Formato da imaxe:"
 
 #: src/video_tab.c:818
 msgid "Video File:"
-msgstr "Ficheiro de Video:"
+msgstr ""
 
 #: src/video_tab.c:896
 msgid "Video Codec:"
-msgstr "Codec de Video:"
+msgstr "Códec de vídeo:"
 
 #. lavc codec properties button
 #: src/video_tab.c:904 src/audio_tab.c:336
 msgid "properties"
-msgstr "propriedades"
+msgstr "propiedades"
 
 #: src/video_tab.c:931
 msgid "Video Format:"
-msgstr "Formato Video:"
+msgstr "Formato de vídeo:"
 
 #: src/video_tab.c:940
 msgid "---- Video Filters ----"
-msgstr "---- Filtros de Video ----"
+msgstr ""
 
 #. Mirror
 #: src/video_tab.c:955
 msgid " Mirror"
-msgstr " Espelho"
+msgstr " Espello"
 
 #. Upturn
 #: src/video_tab.c:965
 msgid " Invert"
-msgstr " Invertido"
+msgstr " Inverter"
 
 #. Negate
 #: src/video_tab.c:975
@@ -624,37 +605,37 @@ msgstr " Negativo"
 #. Mono
 #: src/video_tab.c:985
 msgid " Mono"
-msgstr " Cinza"
+msgstr " Mono"
 
 #. Pieces
 #: src/video_tab.c:996
 msgid " Pieces"
-msgstr " Pedaços"
+msgstr ""
 
 #. Particles
 #: src/video_tab.c:1007
 msgid " Particles"
-msgstr " Particulas"
+msgstr " Partículas"
 
 #: src/audio_tab.c:46
 msgid "audio codec values"
-msgstr "Valores do Codec de audio"
+msgstr ""
 
 #: src/audio_tab.c:132
 msgid "Audio"
-msgstr "Audio"
+msgstr "Son"
 
 #: src/audio_tab.c:150
 msgid " Sound"
-msgstr " Som"
+msgstr " Son"
 
 #: src/audio_tab.c:165
 msgid "Audio API:"
-msgstr "API de Audio:"
+msgstr ""
 
 #: src/audio_tab.c:175
 msgid "PORTAUDIO"
-msgstr "PORTAUDIO"
+msgstr ""
 
 #: src/audio_tab.c:176
 msgid "PULSEAUDIO"
@@ -662,15 +643,15 @@ msgstr "PULSEAUDIO"
 
 #: src/audio_tab.c:192 src/audio_tab.c:215
 msgid "Input Device:"
-msgstr "Dispositivo de som:"
+msgstr "Dispositivo de entrada:"
 
 #: src/audio_tab.c:226 src/audio_tab.c:258
 msgid "Dev. Default"
-msgstr "Automático"
+msgstr ""
 
 #: src/audio_tab.c:247
 msgid "Sample Rate:"
-msgstr "Frequência:"
+msgstr "Taxa de mostraxe:"
 
 #: src/audio_tab.c:259
 msgid "1 - mono"
@@ -682,40 +663,40 @@ msgstr "2 - stereo"
 
 #: src/audio_tab.c:294
 msgid "Channels:"
-msgstr "Canais:"
+msgstr "Canles:"
 
 #: src/audio_tab.c:328
 msgid "Audio Format:"
-msgstr "Formato Audio:"
+msgstr "Formato do son:"
 
 #: src/audio_tab.c:346
 msgid "---- Audio Effects ----"
-msgstr "---- Efeitos de Audio ----"
+msgstr ""
 
 #. Echo
 #: src/audio_tab.c:365
 msgid " Echo"
-msgstr " Eco"
+msgstr " Echo"
 
 #. FUZZ
 #: src/audio_tab.c:375
 msgid " Fuzz"
-msgstr " Ruído"
+msgstr " Difuso"
 
 #. Reverb
 #: src/audio_tab.c:386
 msgid " Reverb"
-msgstr " Reverb"
+msgstr " Reverberar"
 
 #. WahWah
 #: src/audio_tab.c:397
 msgid " WahWah"
-msgstr " WahWah"
+msgstr ""
 
 #. Ducky
 #: src/audio_tab.c:408
 msgid " Ducky"
-msgstr " Patinho"
+msgstr ""
 
 #: src/v4l2_controls.c:645
 msgid "Left"
@@ -723,127 +704,127 @@ msgstr "Esquerda"
 
 #: src/v4l2_controls.c:646
 msgid "Right"
-msgstr "Direita"
+msgstr "Dereita"
 
 #: src/v4l2_controls.c:650
 msgid "Down"
-msgstr "Descer"
+msgstr "Abaixo"
 
 #: src/v4l2_controls.c:651
 msgid "Up"
-msgstr "Subir"
+msgstr "Arriba"
 
 #: src/v4l2_dyna_ctrls.c:89
 msgid "Pan (relative)"
-msgstr "Rotação (relativa)"
+msgstr ""
 
 #: src/v4l2_dyna_ctrls.c:99
 msgid "Tilt (relative)"
-msgstr "Inclinação (relativa)"
+msgstr ""
 
 #: src/v4l2_dyna_ctrls.c:109
 msgid "Pan Reset"
-msgstr "Rotação (restaurar)"
+msgstr ""
 
 #: src/v4l2_dyna_ctrls.c:119
 msgid "Tilt Reset"
-msgstr "Inclinação (restaurar)"
+msgstr ""
 
 #: src/v4l2_dyna_ctrls.c:129
 msgid "Pan/tilt Reset"
-msgstr "Rot./Incl. (restaurar)"
+msgstr ""
 
 #: src/v4l2_dyna_ctrls.c:139
 msgid "Focus (absolute)"
-msgstr "Focagem (absoluta)"
+msgstr ""
 
 #: src/v4l2_dyna_ctrls.c:149
 msgid "LED1 Mode"
-msgstr "Modo LED1"
+msgstr ""
 
 #: src/v4l2_dyna_ctrls.c:159
 msgid "LED1 Frequency"
-msgstr "Frequência LED1"
+msgstr ""
 
 #: src/v4l2_dyna_ctrls.c:169
 msgid "Disable video processing"
-msgstr "Parar proc. video (Raw)"
+msgstr ""
 
 #: src/v4l2_dyna_ctrls.c:179
 msgid "Raw bits per pixel"
-msgstr "Bits por pixel (Raw)"
+msgstr ""
 
 #: src/vcodecs.c:57
 msgid "MJPG - compressed"
-msgstr "MJPG - c/comp."
+msgstr ""
 
 #: src/vcodecs.c:90
 msgid "YUY2 - uncomp YUV"
-msgstr "YUY2 - s/comp YUV"
+msgstr ""
 
 #: src/vcodecs.c:123
 msgid "RGB - uncomp BMP"
-msgstr "RGB - s/comp BMP"
+msgstr ""
 
 #: src/vcodecs.c:156
 msgid "MPEG video 1"
-msgstr "MPEG video 1"
+msgstr ""
 
 #: src/vcodecs.c:189
 msgid "FLV1 - flash video 1"
-msgstr "FLV1 - flash video 1"
+msgstr ""
 
 #: src/vcodecs.c:222
 msgid "WMV1 - win. med. video 7"
-msgstr "WMV1 - wind. med. video 7"
+msgstr ""
 
 #: src/vcodecs.c:255
 msgid "MPG2 - MPG2 format"
-msgstr "MPG2 - Mpeg video 2"
+msgstr ""
 
 #: src/vcodecs.c:288
 msgid "MS MP4 V3"
-msgstr "MP4 - MS Mpeg4 V3"
+msgstr "MS MP4 V3"
 
 #: src/vcodecs.c:321
 msgid "MPEG4-ASP"
-msgstr ""
+msgstr "MPEG4-ASP"
 
 #: src/vcodecs.c:354
 msgid "MPEG4-AVC (H264)"
-msgstr ""
+msgstr "MPEG4-AVC (H264)"
 
 #: src/options.c:546
 msgid "Prints version"
-msgstr "Mostra versão"
+msgstr "Mostrar a versión"
 
 #: src/options.c:547
 msgid "Displays debug information"
-msgstr "Apresenta Informação para Depuração"
+msgstr ""
 
 #: src/options.c:548
 msgid "Video Device to use [default: /dev/video0]"
-msgstr "Dispositivo de vídeo [defeito: /dev/video0]"
+msgstr ""
 
 #: src/options.c:549
 msgid "Exit after adding UVC extension controls (needs root/sudo)"
-msgstr "Sair após adicionar controlos UVC dinâmicos (necessita de root/sudo)"
+msgstr ""
 
 #: src/options.c:550
 msgid "Don't stream video (image controls only)"
-msgstr "Desabilitar o fluxo de vídeo (apenas controlos)"
+msgstr ""
 
 #: src/options.c:551
 msgid "Capture method (1-mmap (default)  2-read)"
-msgstr "Matodo de captura (1-mmap (padrão) 2-read)"
+msgstr ""
 
 #: src/options.c:552
 msgid "Configuration file"
-msgstr "Ficheiro de configuração"
+msgstr ""
 
 #: src/options.c:553
 msgid "Hardware accelaration (enable(1) | disable(0))"
-msgstr "Aceleração vídeo por hardware (sim(1) | não(0))"
+msgstr ""
 
 #: src/options.c:554
 msgid ""
@@ -851,61 +832,58 @@ msgid ""
 "format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|y41p|grey|"
 "y16 |s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
 msgstr ""
-"Formato "
-"entrada(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|y41p|grey"
-"|y16 |s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
 
 #: src/options.c:555
 msgid "Frame size, default: 640x480"
-msgstr "Resolução, defeito: 640x480"
+msgstr "Tamaño predeterminado do marco:640x480"
 
 #: src/options.c:556
 msgid "Image File name"
-msgstr "Ficheiro de Imagem:"
+msgstr "Nome da imaxe"
 
 #: src/options.c:557
 msgid "Image capture interval in seconds"
-msgstr "Intervalo de captura de imagens em segundos"
+msgstr ""
 
 #: src/options.c:558
 msgid "Number of Pictures to capture"
-msgstr "Numero de imagens a capturar"
+msgstr ""
 
 #: src/options.c:559
 msgid "Video File name (capture from start)"
-msgstr "Ficheiro de vídeo (captura no arranque)"
+msgstr ""
 
 #: src/options.c:560
 msgid "Video capture time (in seconds)"
-msgstr "Tempo de captura vídeo (em segundos)"
+msgstr ""
 
 #: src/options.c:561
 msgid "Exits guvcview after closing video"
-msgstr "Termina guvcview depois de completar video"
+msgstr ""
 
 #: src/options.c:562
 msgid "Number of initial frames to skip"
-msgstr "Numero Inicial de Frames a ignorar"
+msgstr ""
 
 #: src/options.c:563
 msgid "Show FPS value (enable(1) | disable (0))"
-msgstr "Apresentar FPS (sim(1) | não(0))"
+msgstr ""
 
 #: src/options.c:564
 msgid "Load Profile at start"
-msgstr "Carrega perfil no arranque"
+msgstr ""
 
 #: src/options.c:570
 msgid "- local options"
-msgstr "- opções locais"
+msgstr ""
 
 #: src/img_controls.c:117
 msgid "Auto Focus (continuous)"
-msgstr "Focagem continua"
+msgstr "Foco automático(continuo)"
 
 #: src/img_controls.c:118
 msgid "set Focus"
-msgstr "Focar"
+msgstr "Definir foco"
 
 #: src/callbacks.c:89
 msgid "Error"
@@ -917,17 +895,14 @@ msgid ""
 "You have more than one video device installed.\n"
 "Do you want to try another one ?\n"
 msgstr ""
-"\n"
-"Foram detectados múltiplos dispositivos de vídeo.\n"
-"Quer tentar outro ?\n"
 
 #: src/callbacks.c:634
 msgid "start new"
-msgstr "começar novo"
+msgstr ""
 
 #: src/callbacks.c:637
 msgid "restart"
-msgstr "Reiniciar"
+msgstr "reiniciar"
 
 #: src/callbacks.c:639
 msgid "new"
@@ -942,17 +917,18 @@ msgid ""
 "launch new process or restart?.\n"
 "\n"
 msgstr ""
-"lançar novo processo ou recomeçar?.\n"
-"\n"
 
 #: src/callbacks.c:1252
 msgid "Load File"
-msgstr "Abrir Ficheiro"
+msgstr "Cargar un ficheiro"
 
 #: src/timers.c:191
 msgid "Guvcview Warning:"
-msgstr "Alerta Guvcview:"
+msgstr ""
 
 #: src/timers.c:191
 msgid "Not enough free space left on disk"
-msgstr "Espaço livre em disco insuficiente"
+msgstr ""
+
+#~ msgid "Make sure the device driver suports v4l2."
+#~ msgstr "Asegúrese de que o controlador do dispositivo soporta v4l2."

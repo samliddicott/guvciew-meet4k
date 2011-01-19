@@ -1,18 +1,16 @@
-# translation of pt_BR.po to Portuguese
-# translation of guvcview to Portuguese
-# Copyright (C) 2008 Paulo Assis
+# Croatian translation for guvcview
+# Copyright (c) 2010 Rosetta Contributors and Canonical Ltd 2010
 # This file is distributed under the same license as the guvcview package.
-# guvcview <pj.assis@gmail.com>, 2008.
-#
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2010.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: pt_BR\n"
-"Report-Msgid-Bugs-To: \n"
+"Project-Id-Version: guvcview\n"
+"Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-08-08 23:27+0100\n"
-"PO-Revision-Date: 2010-11-18 03:22+0000\n"
-"Last-Translator: Paulo Assis <Unknown>\n"
-"Language-Team: Portuguese <pt@li.org>\n"
+"PO-Revision-Date: 2010-12-03 18:33+0000\n"
+"Last-Translator: Dino Lovaković <Unknown>\n"
+"Language-Team: Croatian <hr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -21,11 +19,11 @@ msgstr ""
 
 #: src/guvcview.c:177
 msgid "Guvcview Video Capture"
-msgstr "Guvcview Captura de Video"
+msgstr "Guvcview Snimanje Videa"
 
 #: src/guvcview.c:187
 msgid "GUVCViewer Controls"
-msgstr "GUVCViewer Controlos"
+msgstr "GUVCViewer Kontrole"
 
 #. can't open device
 #: src/guvcview.c:214
@@ -34,17 +32,17 @@ msgid ""
 "\n"
 "Unable to open device"
 msgstr ""
-"Guvcview erro:\n"
+"Guvcview grješka:\n"
 "\n"
-"Não foi possivel conectar a camera"
+"Nije moguče pokrenuti uređaj"
 
 #: src/guvcview.c:215
 msgid ""
 "Please make sure the camera is connected\n"
 "and that the correct driver is installed."
 msgstr ""
-"Por favor verifique a conexão\n"
-"e se o driver correcto se encontra instalado."
+"Molim provjerite dali je kamera spojena\n"
+"i dali je instaliran ispravan driver."
 
 #. uvc extension controls OK, give warning and shutdown (called with --add_ctrls)
 #: src/guvcview.c:220
@@ -55,11 +53,11 @@ msgid ""
 msgstr ""
 "Guvcview:\n"
 "\n"
-"Controlos UVC dinâmicos"
+"UVC kontrole Ekstenzije"
 
 #: src/guvcview.c:221
 msgid "Extension controls were added to the UVC driver"
-msgstr "Os Controlos dinâmicos foram adicionados ao driver UVC"
+msgstr "Kontrole Ekstenzije su dodane UVC driveru"
 
 #. uvc extension controls error - EACCES (needs root user)
 #: src/guvcview.c:228
@@ -68,9 +66,9 @@ msgid ""
 "\n"
 "UVC Extension controls"
 msgstr ""
-"Guvcview erro:\n"
+"Guvcview:\n"
 "\n"
-"Controlos UVC dinâmicos"
+"UVC kontrole Ekstenzije"
 
 #: src/guvcview.c:229
 msgid ""
@@ -78,9 +76,9 @@ msgid ""
 "controls to the UVC driver\n"
 "Make sure you run guvcview as root (or sudo)."
 msgstr ""
-"Ocorreu um erro ao adicionar os controlos\n"
-"dinâmicos ao driver UVC\n"
-"Verifique se lançou guvcview como root (ou sudo)."
+"Dogodila se grješka prilikom dodavanja kontrola\n"
+"ekstenzije UVC driveru\n"
+"Pokrenite guvcview kao root (ili sudo)."
 
 #: src/guvcview.c:255 src/guvcview.c:333
 msgid ""
@@ -88,17 +86,17 @@ msgid ""
 "\n"
 "Can't set a valid video stream for guvcview"
 msgstr ""
-"Guvcview erro:\n"
+"Guvcview grješka:\n"
 "\n"
-"Não foi possível iniciar fluxo de video"
+"Nije moguče postaviti vrijedeći video stream za guvcview"
 
 #: src/guvcview.c:256 src/guvcview.c:334
 msgid ""
 "Make sure your device driver is v4l2 compliant\n"
 "and that it is properly installed."
 msgstr ""
-"Verfique se o driver é compativel com v4l2\n"
-"e se este se encontra instalado correctamente."
+"Provjerite dali vaš video driver ima podršku za v4l2\n"
+"i pogledajte dali je ispravno instaliran."
 
 #: src/guvcview.c:278 src/guvcview.c:300
 msgid ""
@@ -106,13 +104,13 @@ msgid ""
 "\n"
 "Unable to start with minimum setup"
 msgstr ""
-"Guvcview erro:\n"
+"Guvcview error:\n"
 "\n"
-"Não foi possivel iniciar com as definições minimas"
+"Nije moguče pokretanje s minimalnim postavkama"
 
 #: src/guvcview.c:279 src/guvcview.c:301
 msgid "Please reconnect your camera."
-msgstr "Por favor remova e volte a conectar a camera."
+msgstr "Molim ponovno spajanje kamere."
 
 #: src/guvcview.c:308
 msgid ""
@@ -120,13 +118,13 @@ msgid ""
 "\n"
 "Couldn't query device capabilities"
 msgstr ""
-"Guvcview erro:\n"
+"Guvcview error:\n"
 "\n"
-"Não foi possivel verificar as propriedades do dispositivo de vídeo"
+"Sposobnost uređaja nije čitljiva"
 
 #: src/guvcview.c:309
 msgid "Make sure the device driver supports v4l2."
-msgstr "Por favor verifique se o driver suporta v4l2."
+msgstr "Provjerite da vaš driver ima podršku za v4l2."
 
 #: src/guvcview.c:313
 msgid ""
@@ -134,13 +132,10 @@ msgid ""
 "\n"
 "Read method error"
 msgstr ""
-"Guvcview erro:\n"
-"\n"
-"Erro do metodo Read"
 
 #: src/guvcview.c:314
 msgid "Please try mmap instead (--capture_method=1)."
-msgstr "por favor experimente mmap (--capture_method=1)"
+msgstr ""
 
 #: src/guvcview.c:322
 msgid ""
@@ -148,50 +143,47 @@ msgid ""
 "\n"
 "Unable to allocate Buffers"
 msgstr ""
-"Guvcview erro:\n"
-"\n"
-"Não foi possivel alocar Buffers"
 
 #: src/guvcview.c:323
 msgid "Please try restarting your system."
-msgstr "Por favor experimente reiniciar o sistema."
+msgstr "Probajte ponovno pokrenuti vaš sustav."
 
 #: src/guvcview.c:359
 msgid "Image Controls"
-msgstr "Controlos de imagem"
+msgstr "Kontrole Slike"
 
 #: src/guvcview.c:394
 msgid "Capture:"
-msgstr "Captura:"
+msgstr "Snimi:"
 
 #. increment column for labels
 #. end of control only exclusion
 #: src/guvcview.c:402
 msgid "Control Profiles:"
-msgstr "Perfis de Controlo:"
+msgstr "Upravljački Profili:"
 
 #: src/guvcview.c:417
 msgid "Defaults"
-msgstr "Padrões"
+msgstr "Zadano"
 
 #. image auto capture
 #: src/guvcview.c:430
 msgid "Stop Auto"
-msgstr "Parar Auto:"
+msgstr "Zaustavi Automatsko"
 
 #: src/guvcview.c:434 src/callbacks.c:1072 src/timers.c:95
 msgid "Cap. Image"
-msgstr "Cap. Imagem"
+msgstr "Snimi Sliku"
 
 #. vid capture enabled from start
 #: src/guvcview.c:439 src/callbacks.c:1199
 msgid "Stop Video"
-msgstr "Parar Video"
+msgstr "Zaustavi Video"
 
 #: src/guvcview.c:444 src/guvcview.c:650 src/callbacks.c:1140
 #: src/create_video.c:795
 msgid "Cap. Video"
-msgstr "Cap. Video"
+msgstr "Snimi Video"
 
 #: src/guvcview.c:593
 msgid ""
@@ -199,246 +191,243 @@ msgid ""
 "\n"
 "Unable to create Video Thread"
 msgstr ""
-"Guvcview erro:\n"
-"\n"
-"Não foi possivel criar o Thread de Video"
 
 #: src/guvcview.c:594
 msgid "Please report it to http://developer.berlios.de/bugs/?group_id=8179"
-msgstr "Por favor reporte em http://developer.berlios.de/bugs/?group_id=8179"
+msgstr "Molimo prijavite na http://developer.berlios.de/bugs/?group_id=8179"
 
 #. needed only for language files (not used)
 #. V4L2 control strings
 #: src/v4l2uvc.c:54
 msgid "User Controls"
-msgstr "Controlos de Utilizador"
+msgstr "Korisničke Kontrole"
 
 #: src/v4l2uvc.c:55
 msgid "Brightness"
-msgstr "Brilho"
+msgstr "Osvjetljenje"
 
 #: src/v4l2uvc.c:56
 msgid "Contrast"
-msgstr "Contraste"
+msgstr "Kontrast"
 
 #: src/v4l2uvc.c:57
 msgid "Hue"
-msgstr "Matiz"
+msgstr "Nijansa"
 
 #: src/v4l2uvc.c:58
 msgid "Saturation"
-msgstr "Saturação"
+msgstr "Zasićenje"
 
 #: src/v4l2uvc.c:59
 msgid "Sharpness"
-msgstr "Agudeza"
+msgstr "Oštrina"
 
 #: src/v4l2uvc.c:60
 msgid "Gamma"
-msgstr "Gamma"
+msgstr "Gama"
 
 #: src/v4l2uvc.c:61
 msgid "Backlight Compensation"
-msgstr "Compensação de Luz"
+msgstr "Ispravke pozadinskog osvjetljenja"
 
 #: src/v4l2uvc.c:62
 msgid "Power Line Frequency"
-msgstr "Frequência da Rede"
+msgstr ""
 
 #: src/v4l2uvc.c:63
 msgid "Hue, Automatic"
-msgstr "Matiz, Automático"
+msgstr ""
 
 #: src/v4l2uvc.c:64
 msgid "Focus, Auto"
-msgstr "Focagem, Auto"
+msgstr "Fokusiranje, Automatsko"
 
 #: src/v4l2uvc.c:65
 msgid "Manual Mode"
-msgstr "Modo manual"
+msgstr "Ručni Način"
 
 #: src/v4l2uvc.c:66
 msgid "Auto Mode"
-msgstr "Modo automático"
+msgstr "Automatski Način"
 
 #: src/v4l2uvc.c:67
 msgid "Shutter Priority Mode"
-msgstr "Modo prioridade do obturador"
+msgstr ""
 
 #: src/v4l2uvc.c:68
 msgid "Aperture Priority Mode"
-msgstr "Modo prioridade da abertura"
+msgstr ""
 
 #: src/v4l2uvc.c:69
 msgid "Black Level"
-msgstr "Níveis de Preto"
+msgstr "Razina Crne boje"
 
 #: src/v4l2uvc.c:70
 msgid "White Balance, Automatic"
-msgstr "Balanço de Brancos"
+msgstr "Ravnoteža Bijele, Automatski"
 
 #: src/v4l2uvc.c:71
 msgid "Do White Balance"
-msgstr "Fazer Balanço de Brancos"
+msgstr "Uredi Ravnotežu Bijele"
 
 #: src/v4l2uvc.c:72
 msgid "Red Balance"
-msgstr "Balanço do Vermelho"
+msgstr "Ravnoteža Crvene"
 
 #: src/v4l2uvc.c:73
 msgid "Blue Balance"
-msgstr "Balanço do Azul"
+msgstr "Ravnoteža Plave"
 
 #: src/v4l2uvc.c:74
 msgid "Exposure"
-msgstr "Exposição"
+msgstr "Izloženost"
 
 #: src/v4l2uvc.c:75
 msgid "Gain, Automatic"
-msgstr "Ganho, Automático"
+msgstr ""
 
 #: src/v4l2uvc.c:76
 msgid "Gain"
-msgstr "Ganho"
+msgstr "Dobit"
 
 #: src/v4l2uvc.c:77
 msgid "Horizontal Flip"
-msgstr "Virar horizontalmente"
+msgstr "Vodoravno Okretanje"
 
 #: src/v4l2uvc.c:78
 msgid "Vertical Flip"
-msgstr "Virar verticalmente"
+msgstr "Okomito Okretanje"
 
 #: src/v4l2uvc.c:79
 msgid "Horizontal Center"
-msgstr "Eixo Horizontal"
+msgstr "Vodoravno Centriraj"
 
 #: src/v4l2uvc.c:80
 msgid "Vertical Center"
-msgstr "Eixo Vertical"
+msgstr "Okomito Centriraj"
 
 #: src/v4l2uvc.c:81
 msgid "Chroma AGC"
-msgstr "AGC de croma"
+msgstr ""
 
 #: src/v4l2uvc.c:82
 msgid "Color Killer"
-msgstr "Remoção de cores"
+msgstr ""
 
 #: src/v4l2uvc.c:83
 msgid "Color Effects"
-msgstr "Efeitos de cor"
+msgstr "Efekti Boje"
 
 #. CAMERA CLASS control strings
 #: src/v4l2uvc.c:86
 msgid "Camera Controls"
-msgstr "Controlos de Camera"
+msgstr "Kontrole Kamere"
 
 #: src/v4l2uvc.c:87
 msgid "Auto Exposure"
-msgstr "Exposição automática"
+msgstr "Automatska Izloženost"
 
 #: src/v4l2uvc.c:88
 msgid "Exposure Time, Absolute"
-msgstr "Tempo de Exposição, Absoluto"
+msgstr "Vrijeme Izloženosti, Apsolutno"
 
 #: src/v4l2uvc.c:89
 msgid "Exposure, Dynamic Framerate"
-msgstr "Exposição, Taxa de Frames Dinâmica"
+msgstr "Izloženost, Broj Slika"
 
 #: src/v4l2uvc.c:90
 msgid "Pan, Relative"
-msgstr "Rotação, Relativa"
+msgstr ""
 
 #: src/v4l2uvc.c:91
 msgid "Tilt, Relative"
-msgstr "Inclinação, Relativa"
+msgstr ""
 
 #: src/v4l2uvc.c:92
 msgid "Pan, Reset"
-msgstr "Rotação, Restaurar"
+msgstr ""
 
 #: src/v4l2uvc.c:93
 msgid "Tilt, Reset"
-msgstr "Inclinação, Restaurar"
+msgstr ""
 
 #: src/v4l2uvc.c:94
 msgid "Pan, Absolute"
-msgstr "Rotação, Absoluta"
+msgstr ""
 
 #: src/v4l2uvc.c:96
 msgid "Focus, Absolute"
-msgstr "Foco, Absoluto"
+msgstr "Fokusiranje, Apsolutno"
 
 #: src/v4l2uvc.c:97
 msgid "Focus, Relative"
-msgstr "Foco, Relativo"
+msgstr "Fokusiranje, Relativno"
 
 #: src/v4l2uvc.c:98
 msgid "Focus, Automatic"
-msgstr "Foco, Automático"
+msgstr "Fokusiranje, Automatsko"
 
 #: src/v4l2uvc.c:99
 msgid "Zoom, Absolute"
-msgstr "Zoom, Absoluto"
+msgstr "Približavanje, Apsolutno"
 
 #: src/v4l2uvc.c:100
 msgid "Zoom, Relative"
-msgstr "Zoom, Relativo"
+msgstr "Približavanje, Relativno"
 
 #: src/v4l2uvc.c:101
 msgid "Zoom, Continuous"
-msgstr "Zoom, Continuo"
+msgstr "Približavanje, Neprestano"
 
 #: src/v4l2uvc.c:102
 msgid "Privacy"
-msgstr "Privacidade"
+msgstr "Privatnost"
 
 #. UVC specific control strings
 #: src/v4l2uvc.c:105
 msgid "Exposure, Auto"
-msgstr "Exposição, Auto"
+msgstr "Izloženost, Automatsko"
 
 #: src/v4l2uvc.c:106
 msgid "Exposure, Auto Priority"
-msgstr "Exposição, Prioridade Auto"
+msgstr ""
 
 #: src/v4l2uvc.c:107
 msgid "Exposure (Absolute)"
-msgstr "Exposição (Absoluta)"
+msgstr "Izloženost (Apsolutna)"
 
 #: src/v4l2uvc.c:108
 msgid "White Balance Temperature, Auto"
-msgstr "Balanço de Brancos, Auto"
+msgstr ""
 
 #: src/v4l2uvc.c:109
 msgid "White Balance Temperature"
-msgstr "Branco (Temp. de côr)"
+msgstr ""
 
 #: src/v4l2uvc.c:110
 msgid "White Balance Component, Auto"
-msgstr "Componente de cor, Auto"
+msgstr ""
 
 #: src/v4l2uvc.c:111
 msgid "White Balance Blue Component"
-msgstr "Componente Azul"
+msgstr ""
 
 #: src/v4l2uvc.c:112
 msgid "White Balance Red Component"
-msgstr "Componente Vermelho"
+msgstr ""
 
 #. libwebcam specific control strings
 #: src/v4l2uvc.c:115
 msgid "Focus"
-msgstr "Foco"
+msgstr "Fokusiranje"
 
 #: src/v4l2uvc.c:116
 msgid "Focus (Absolute)"
-msgstr "Foco (Absoluto)"
+msgstr ""
 
 #: src/video_tab.c:41 src/callbacks.c:1239
 msgid "Save File"
-msgstr "Salvar Ficheiro"
+msgstr "Spremi Datoteku"
 
 #. if auto naming restart counter
 #. g_mutex_unlock(videoIn->mutex);
@@ -449,24 +438,22 @@ msgstr "Salvar Ficheiro"
 #: src/callbacks.c:1149 src/timers.c:78
 #, c-format
 msgid "File num:%d"
-msgstr "Ficheiro num:%d"
+msgstr ""
 
 #: src/video_tab.c:126
 msgid "codec values"
-msgstr "Valores do Codec"
+msgstr ""
 
 #: src/video_tab.c:137
 msgid ""
 "                              encoder fps:   \n"
 " (0 - use fps combobox value)"
 msgstr ""
-"                              codificador fps:   \n"
-" (0 - use o valor fps da caixa de combinação)"
 
 #. bit rate
 #: src/video_tab.c:152 src/audio_tab.c:58
 msgid "bit rate:   "
-msgstr "taxa de bits:   "
+msgstr ""
 
 #: src/video_tab.c:167
 msgid "qmax:   "
@@ -542,103 +529,103 @@ msgstr ""
 
 #: src/video_tab.c:530
 msgid "Video & Files"
-msgstr "Video e Ficheiros"
+msgstr ""
 
 #. Devices
 #: src/video_tab.c:546 src/callbacks.c:120
 msgid "Device:"
-msgstr "Dispositivo de video:"
+msgstr "Uređaj:"
 
 #: src/video_tab.c:648
 msgid "Frame Rate:"
-msgstr "Taxa de imagens:"
+msgstr "Broj Slika:"
 
 #: src/video_tab.c:656
 msgid " Show"
-msgstr " Mostrar"
+msgstr " Prikaži"
 
 #: src/video_tab.c:680
 msgid "Resolution:"
-msgstr "Resolução:"
+msgstr "Razlučivost:"
 
 #: src/video_tab.c:706
 msgid "Camera Output:"
-msgstr "Saída de Câmera:"
+msgstr ""
 
 #: src/video_tab.c:728
 msgid "Apply"
-msgstr "Aplicar"
+msgstr "Primjeni"
 
 #: src/video_tab.c:736
 msgid "Quality:"
-msgstr "Qualidade:"
+msgstr "Kvaliteta:"
 
 #: src/video_tab.c:746
 msgid "Image File:"
-msgstr "Ficheiro de Imagem:"
+msgstr ""
 
 #: src/video_tab.c:779 src/video_tab.c:863
 msgid "File,Auto"
-msgstr "Ficheiro,Auto"
+msgstr ""
 
 #: src/video_tab.c:790
 msgid "Image Format:"
-msgstr "Formato de Imagem:"
+msgstr "Format Slike:"
 
 #: src/video_tab.c:818
 msgid "Video File:"
-msgstr "Ficheiro de Video:"
+msgstr ""
 
 #: src/video_tab.c:896
 msgid "Video Codec:"
-msgstr "Codec de Video:"
+msgstr "Video Codec:"
 
 #. lavc codec properties button
 #: src/video_tab.c:904 src/audio_tab.c:336
 msgid "properties"
-msgstr "propriedades"
+msgstr "svojstva"
 
 #: src/video_tab.c:931
 msgid "Video Format:"
-msgstr "Formato Video:"
+msgstr "Video Format:"
 
 #: src/video_tab.c:940
 msgid "---- Video Filters ----"
-msgstr "---- Filtros de Video ----"
+msgstr "---- Video Filteri ----"
 
 #. Mirror
 #: src/video_tab.c:955
 msgid " Mirror"
-msgstr " Espelho"
+msgstr " Zrcalo"
 
 #. Upturn
 #: src/video_tab.c:965
 msgid " Invert"
-msgstr " Invertido"
+msgstr " Izokrenuto"
 
 #. Negate
 #: src/video_tab.c:975
 msgid " Negative"
-msgstr " Negativo"
+msgstr " Negativ"
 
 #. Mono
 #: src/video_tab.c:985
 msgid " Mono"
-msgstr " Cinza"
+msgstr " Mono"
 
 #. Pieces
 #: src/video_tab.c:996
 msgid " Pieces"
-msgstr " Pedaços"
+msgstr " Komadići"
 
 #. Particles
 #: src/video_tab.c:1007
 msgid " Particles"
-msgstr " Particulas"
+msgstr " Čestice"
 
 #: src/audio_tab.c:46
 msgid "audio codec values"
-msgstr "Valores do Codec de audio"
+msgstr "vrijednosti audio codeca"
 
 #: src/audio_tab.c:132
 msgid "Audio"
@@ -646,31 +633,31 @@ msgstr "Audio"
 
 #: src/audio_tab.c:150
 msgid " Sound"
-msgstr " Som"
+msgstr " Zvuk"
 
 #: src/audio_tab.c:165
 msgid "Audio API:"
-msgstr "API de Audio:"
+msgstr ""
 
 #: src/audio_tab.c:175
 msgid "PORTAUDIO"
-msgstr "PORTAUDIO"
+msgstr ""
 
 #: src/audio_tab.c:176
 msgid "PULSEAUDIO"
-msgstr "PULSEAUDIO"
+msgstr ""
 
 #: src/audio_tab.c:192 src/audio_tab.c:215
 msgid "Input Device:"
-msgstr "Dispositivo de som:"
+msgstr "Ulazni uređaj:"
 
 #: src/audio_tab.c:226 src/audio_tab.c:258
 msgid "Dev. Default"
-msgstr "Automático"
+msgstr "Zadane Postavke Uređaja"
 
 #: src/audio_tab.c:247
 msgid "Sample Rate:"
-msgstr "Frequência:"
+msgstr ""
 
 #: src/audio_tab.c:259
 msgid "1 - mono"
@@ -682,108 +669,108 @@ msgstr "2 - stereo"
 
 #: src/audio_tab.c:294
 msgid "Channels:"
-msgstr "Canais:"
+msgstr "Kanali:"
 
 #: src/audio_tab.c:328
 msgid "Audio Format:"
-msgstr "Formato Audio:"
+msgstr "Audio Format:"
 
 #: src/audio_tab.c:346
 msgid "---- Audio Effects ----"
-msgstr "---- Efeitos de Audio ----"
+msgstr "---- Audio Efekti ----"
 
 #. Echo
 #: src/audio_tab.c:365
 msgid " Echo"
-msgstr " Eco"
+msgstr " Jeka"
 
 #. FUZZ
 #: src/audio_tab.c:375
 msgid " Fuzz"
-msgstr " Ruído"
+msgstr " Mutno"
 
 #. Reverb
 #: src/audio_tab.c:386
 msgid " Reverb"
-msgstr " Reverb"
+msgstr " Odjek"
 
 #. WahWah
 #: src/audio_tab.c:397
 msgid " WahWah"
-msgstr " WahWah"
+msgstr ""
 
 #. Ducky
 #: src/audio_tab.c:408
 msgid " Ducky"
-msgstr " Patinho"
+msgstr " Patka"
 
 #: src/v4l2_controls.c:645
 msgid "Left"
-msgstr "Esquerda"
+msgstr "Lijevo"
 
 #: src/v4l2_controls.c:646
 msgid "Right"
-msgstr "Direita"
+msgstr "Desno:"
 
 #: src/v4l2_controls.c:650
 msgid "Down"
-msgstr "Descer"
+msgstr "Dolje"
 
 #: src/v4l2_controls.c:651
 msgid "Up"
-msgstr "Subir"
+msgstr "Gore"
 
 #: src/v4l2_dyna_ctrls.c:89
 msgid "Pan (relative)"
-msgstr "Rotação (relativa)"
+msgstr ""
 
 #: src/v4l2_dyna_ctrls.c:99
 msgid "Tilt (relative)"
-msgstr "Inclinação (relativa)"
+msgstr ""
 
 #: src/v4l2_dyna_ctrls.c:109
 msgid "Pan Reset"
-msgstr "Rotação (restaurar)"
+msgstr ""
 
 #: src/v4l2_dyna_ctrls.c:119
 msgid "Tilt Reset"
-msgstr "Inclinação (restaurar)"
+msgstr ""
 
 #: src/v4l2_dyna_ctrls.c:129
 msgid "Pan/tilt Reset"
-msgstr "Rot./Incl. (restaurar)"
+msgstr ""
 
 #: src/v4l2_dyna_ctrls.c:139
 msgid "Focus (absolute)"
-msgstr "Focagem (absoluta)"
+msgstr ""
 
 #: src/v4l2_dyna_ctrls.c:149
 msgid "LED1 Mode"
-msgstr "Modo LED1"
+msgstr ""
 
 #: src/v4l2_dyna_ctrls.c:159
 msgid "LED1 Frequency"
-msgstr "Frequência LED1"
+msgstr ""
 
 #: src/v4l2_dyna_ctrls.c:169
 msgid "Disable video processing"
-msgstr "Parar proc. video (Raw)"
+msgstr ""
 
 #: src/v4l2_dyna_ctrls.c:179
 msgid "Raw bits per pixel"
-msgstr "Bits por pixel (Raw)"
+msgstr ""
 
 #: src/vcodecs.c:57
 msgid "MJPG - compressed"
-msgstr "MJPG - c/comp."
+msgstr ""
 
 #: src/vcodecs.c:90
 msgid "YUY2 - uncomp YUV"
-msgstr "YUY2 - s/comp YUV"
+msgstr ""
 
 #: src/vcodecs.c:123
 msgid "RGB - uncomp BMP"
-msgstr "RGB - s/comp BMP"
+msgstr ""
 
 #: src/vcodecs.c:156
 msgid "MPEG video 1"
@@ -795,55 +782,55 @@ msgstr "FLV1 - flash video 1"
 
 #: src/vcodecs.c:222
 msgid "WMV1 - win. med. video 7"
-msgstr "WMV1 - wind. med. video 7"
+msgstr "WMV1 - win. med. video 7"
 
 #: src/vcodecs.c:255
 msgid "MPG2 - MPG2 format"
-msgstr "MPG2 - Mpeg video 2"
+msgstr "MPG2 - MPG2 format"
 
 #: src/vcodecs.c:288
 msgid "MS MP4 V3"
-msgstr "MP4 - MS Mpeg4 V3"
+msgstr "MS MP4 V3"
 
 #: src/vcodecs.c:321
 msgid "MPEG4-ASP"
-msgstr ""
+msgstr "MPEG4-ASP"
 
 #: src/vcodecs.c:354
 msgid "MPEG4-AVC (H264)"
-msgstr ""
+msgstr "MPEG4-AVC (H264)"
 
 #: src/options.c:546
 msgid "Prints version"
-msgstr "Mostra versão"
+msgstr "Isprintaj verziju"
 
 #: src/options.c:547
 msgid "Displays debug information"
-msgstr "Apresenta Informação para Depuração"
+msgstr ""
 
 #: src/options.c:548
 msgid "Video Device to use [default: /dev/video0]"
-msgstr "Dispositivo de vídeo [defeito: /dev/video0]"
+msgstr "Video uređaj rabljen [zadani: /dev/video0]"
 
 #: src/options.c:549
 msgid "Exit after adding UVC extension controls (needs root/sudo)"
-msgstr "Sair após adicionar controlos UVC dinâmicos (necessita de root/sudo)"
+msgstr "Izlaz nakon dodavanja UVC ekstenzivnih kontrola (potreban root/sudo)"
 
 #: src/options.c:550
 msgid "Don't stream video (image controls only)"
-msgstr "Desabilitar o fluxo de vídeo (apenas controlos)"
+msgstr ""
 
 #: src/options.c:551
 msgid "Capture method (1-mmap (default)  2-read)"
-msgstr "Matodo de captura (1-mmap (padrão) 2-read)"
+msgstr ""
 
 #: src/options.c:552
 msgid "Configuration file"
-msgstr "Ficheiro de configuração"
+msgstr "Datoteka Postavki"
 
 #: src/options.c:553
 msgid "Hardware accelaration (enable(1) | disable(0))"
-msgstr "Aceleração vídeo por hardware (sim(1) | não(0))"
+msgstr "Hardversko ubrzanje (omoguči(1) | onemoguči(0))"
 
 #: src/options.c:554
 msgid ""
@@ -851,65 +838,62 @@ msgid ""
 "format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|y41p|grey|"
 "y16 |s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
 msgstr ""
-"Formato "
-"entrada(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|y41p|grey"
-"|y16 |s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
 
 #: src/options.c:555
 msgid "Frame size, default: 640x480"
-msgstr "Resolução, defeito: 640x480"
+msgstr "Veličina slike, zadana: 640x480"
 
 #: src/options.c:556
 msgid "Image File name"
-msgstr "Ficheiro de Imagem:"
+msgstr "Ime Slikovne Datoteke"
 
 #: src/options.c:557
 msgid "Image capture interval in seconds"
-msgstr "Intervalo de captura de imagens em segundos"
+msgstr "Interval slikanja u sekundama"
 
 #: src/options.c:558
 msgid "Number of Pictures to capture"
-msgstr "Numero de imagens a capturar"
+msgstr "Broj Slika za snimiti"
 
 #: src/options.c:559
 msgid "Video File name (capture from start)"
-msgstr "Ficheiro de vídeo (captura no arranque)"
+msgstr "Ime Video Datoteke (snimka od početka)"
 
 #: src/options.c:560
 msgid "Video capture time (in seconds)"
-msgstr "Tempo de captura vídeo (em segundos)"
+msgstr "Vrijeme snimanja videa (u sekundama)"
 
 #: src/options.c:561
 msgid "Exits guvcview after closing video"
-msgstr "Termina guvcview depois de completar video"
+msgstr "Izlaz iz guvcviewa nakon zatvaranja videa"
 
 #: src/options.c:562
 msgid "Number of initial frames to skip"
-msgstr "Numero Inicial de Frames a ignorar"
+msgstr "Broj preskočenih početnih slika"
 
 #: src/options.c:563
 msgid "Show FPS value (enable(1) | disable (0))"
-msgstr "Apresentar FPS (sim(1) | não(0))"
+msgstr "Prikaz FPS broja (omoguči(1) | onemoguči (0))"
 
 #: src/options.c:564
 msgid "Load Profile at start"
-msgstr "Carrega perfil no arranque"
+msgstr "Učitaj Profil pri pokretanju"
 
 #: src/options.c:570
 msgid "- local options"
-msgstr "- opções locais"
+msgstr "- lokalne opcije"
 
 #: src/img_controls.c:117
 msgid "Auto Focus (continuous)"
-msgstr "Focagem continua"
+msgstr "Automatski Focus (neprekidno)"
 
 #: src/img_controls.c:118
 msgid "set Focus"
-msgstr "Focar"
+msgstr "postavi fokusiranje"
 
 #: src/callbacks.c:89
 msgid "Error"
-msgstr "Erro"
+msgstr "Grješka"
 
 #: src/callbacks.c:113
 msgid ""
@@ -918,16 +902,16 @@ msgid ""
 "Do you want to try another one ?\n"
 msgstr ""
 "\n"
-"Foram detectados múltiplos dispositivos de vídeo.\n"
-"Quer tentar outro ?\n"
+"Imate više uređaja instalirano.\n"
+"Želite li isprobati ostale?\n"
 
 #: src/callbacks.c:634
 msgid "start new"
-msgstr "começar novo"
+msgstr "pokreni novo"
 
 #: src/callbacks.c:637
 msgid "restart"
-msgstr "Reiniciar"
+msgstr "ponovo pokreni"
 
 #: src/callbacks.c:639
 msgid "new"
@@ -935,24 +919,39 @@ msgstr "novo"
 
 #: src/callbacks.c:641
 msgid "cancel"
-msgstr "cancelar"
+msgstr "odustani"
 
 #: src/callbacks.c:645
 msgid ""
 "launch new process or restart?.\n"
 "\n"
 msgstr ""
-"lançar novo processo ou recomeçar?.\n"
+"upalite novi proces ili ponovno pokrenite?.\n"
 "\n"
 
 #: src/callbacks.c:1252
 msgid "Load File"
-msgstr "Abrir Ficheiro"
+msgstr "Učitaj Datoteku"
 
 #: src/timers.c:191
 msgid "Guvcview Warning:"
-msgstr "Alerta Guvcview:"
+msgstr "Guvcview Upozorenje"
 
 #: src/timers.c:191
 msgid "Not enough free space left on disk"
-msgstr "Espaço livre em disco insuficiente"
+msgstr "Nema dovoljno slobodnog prostora na disku"
+
+#~ msgid ""
+#~ "An error ocurred while adding extension\n"
+#~ "controls to the UVC driver\n"
+#~ "Make sure you run guvcview as root (or sudo)."
+#~ msgstr ""
+#~ "Dogodila se grješka prilikom dodavanja kontrola\n"
+#~ "ekstenzije UVC driveru\n"
+#~ "Pokrenite guvcview kao root (ili sudo)."
+
+#~ msgid "Make sure the device driver suports v4l2."
+#~ msgstr "Provjerite da vaš driver ima podršku za v4l2."
+
+#~ msgid "Number of inital frames to skip"
+#~ msgstr "Broj preskočenih početnih slika"

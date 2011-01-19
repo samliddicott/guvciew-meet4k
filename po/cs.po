@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: guvcview\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-08-08 23:27+0100\n"
-"PO-Revision-Date: 2009-11-01 16:17+0000\n"
+"PO-Revision-Date: 2009-11-16 01:36+0000\n"
 "Last-Translator: exxxo45 <exxxo45@gmail.com>\n"
 "Language-Team: Czech <cs@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-11-15 23:44+0000\n"
-"X-Generator: Launchpad (build Unknown)\n"
+"X-Launchpad-Export-Date: 2011-01-19 14:28+0000\n"
+"X-Generator: Launchpad (build 12214)\n"
 
 #: src/guvcview.c:177
 msgid "Guvcview Video Capture"
@@ -76,9 +76,6 @@ msgid ""
 "controls to the UVC driver\n"
 "Make sure you run guvcview as root (or sudo)."
 msgstr ""
-"Nastala chyba při přidání rozšířeného\n"
-"ovládání do ovladače UVC\n"
-"Ujistěte se, že spouštíte guvcview jako root (či sudo)."
 
 #: src/guvcview.c:255 src/guvcview.c:333
 msgid ""
@@ -118,7 +115,7 @@ msgstr ""
 
 #: src/guvcview.c:309
 msgid "Make sure the device driver supports v4l2."
-msgstr "Ujistěte se, že ovladač zařízení podporuje v4l2."
+msgstr ""
 
 #: src/guvcview.c:313
 msgid ""
@@ -163,9 +160,8 @@ msgid "Control Profiles:"
 msgstr "Ovládací profily:"
 
 #: src/guvcview.c:417
-#, fuzzy
 msgid "Defaults"
-msgstr "Výchozí zařízení"
+msgstr ""
 
 #. image auto capture
 #: src/guvcview.c:430
@@ -198,7 +194,8 @@ msgstr ""
 
 #: src/guvcview.c:594
 msgid "Please report it to http://developer.berlios.de/bugs/?group_id=8179"
-msgstr "Prosím nahlašte to na http://developer.berlios.de/bugs/?group_id=8179"
+msgstr ""
+"Prosím nahlašte to na http://developer.berlios.de/bugs/?group_id=8179"
 
 #. needed only for language files (not used)
 #. V4L2 control strings
@@ -837,13 +834,14 @@ msgid "Hardware accelaration (enable(1) | disable(0))"
 msgstr "Hardwarová akcelerace (povolit(1) | zakázat(0))"
 
 #: src/options.c:554
-#, fuzzy
 msgid ""
-"Pixel format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|"
-"y41p|grey|y16 |s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
+"Pixel "
+"format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|y41p|grey|"
+"y16 |s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
 msgstr ""
-"Formát pixelu (mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|"
-"y41p|grey|s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
+"Formát pixelu "
+"(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|y41p|grey|"
+"y16 |s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
 
 #: src/options.c:555
 msgid "Frame size, default: 640x480"
@@ -898,9 +896,8 @@ msgid "set Focus"
 msgstr "nastavit Ostření"
 
 #: src/callbacks.c:89
-#, fuzzy
 msgid "Error"
-msgstr " Zrcadlo"
+msgstr ""
 
 #: src/callbacks.c:113
 msgid ""
@@ -945,20 +942,44 @@ msgstr ""
 msgid "Not enough free space left on disk"
 msgstr "Na disku nezbývá dost volného místa"
 
-#~ msgid "PCM"
-#~ msgstr "PCM"
+#: src/guvcview.c:229
+msgid ""
+"An error occurred while adding extension\n"
+"controls to the UVC driver\n"
+"Make sure you run guvcview as root (or sudo)."
+msgstr ""
+"Nastala chyba při přidání rozšířeného\n"
+"ovládání do ovladače UVC\n"
+"Ujistěte se, že spouštíte guvcview jako root (či sudo)."
 
-#~ msgid "MP2"
-#~ msgstr "MP2"
+#~ msgid ""
+#~ "Guvcview error:\n"
+#~ "\n"
+#~ "Can't set MJPG or YUV stream for guvcview"
+#~ msgstr ""
+#~ "ChybaGuvcview:\n"
+#~ "\n"
+#~ "Nelze nastavit MJPG nebo YUV proud pro guvcview"
 
-#~ msgid "MPEG4 - MPEG4 format"
-#~ msgstr "MPEG4 - formát MPEG4"
+#~ msgid ""
+#~ "Make sure you have a UVC compliant camera\n"
+#~ "and that you have the linux UVC driver installed."
+#~ msgstr ""
+#~ "Ujistěte se, zda máte vhodnou UVC kameru,\n"
+#~ "a že máte nantstalovaný lnux UVC driver."
 
-#~ msgid "Invert (Pan)"
-#~ msgstr "Invertovat (Pan)"
+#~ msgid ""
+#~ "Please make sure the camera is connected\n"
+#~ "and that the linux-UVC driver is installed."
+#~ msgstr ""
+#~ "Prosím usjistěte se, že kamera je připojena\n"
+#~ "a je nainstalován driver linux-UVC."
 
-#~ msgid "Reset"
-#~ msgstr "Obnovit"
+#~ msgid "Stop AVI"
+#~ msgstr "Zastavit AVI"
+
+#~ msgid "Cap. AVI"
+#~ msgstr "Zazn. AVI"
 
 #~ msgid "AVI File:"
 #~ msgstr "Soubor AVI:"
@@ -969,11 +990,29 @@ msgstr "Na disku nezbývá dost volného místa"
 #~ msgid "AVI Format:"
 #~ msgstr "Formát AVI:"
 
+#~ msgid "MP2"
+#~ msgstr "MP2"
+
+#~ msgid "PCM"
+#~ msgstr "PCM"
+
 #~ msgid "Hue, Auto"
 #~ msgstr "Odstín, Auto"
 
 #~ msgid "Exposure:"
 #~ msgstr "Expozice:"
+
+#~ msgid "Invert (Pan)"
+#~ msgstr "Invertovat (Pan)"
+
+#~ msgid "AVI capture time (in seconds)"
+#~ msgstr "Čas AVI záznamu (v sekundách)"
+
+#~ msgid "AVI File name (capture from start)"
+#~ msgstr "Jméno AVI souboru (záznam od začátku)"
+
+#~ msgid "Reset"
+#~ msgstr "Obnovit"
 
 #~ msgid ""
 #~ "Changes will only take effect after guvcview restart.\n"
@@ -994,3 +1033,9 @@ msgstr "Na disku nezbývá dost volného místa"
 
 #~ msgid "Program Restart"
 #~ msgstr "Restart programu"
+
+#~ msgid "MPEG4 - MPEG4 format"
+#~ msgstr "MPEG4 - formát MPEG4"
+
+#~ msgid "Make sure the device driver supports v4l2."
+#~ msgstr "Ujistěte se, že ovladač zařízení podporuje v4l2."

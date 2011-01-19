@@ -7,22 +7,22 @@ msgstr ""
 "Project-Id-Version: guvcview\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-08-08 23:27+0100\n"
-"PO-Revision-Date: 2009-10-31 07:08+0000\n"
-"Last-Translator: igorsh <ishipenkov@gmail.com>\n"
+"PO-Revision-Date: 2010-12-26 23:25+0000\n"
+"Last-Translator: Paul D <Unknown>\n"
 "Language-Team: Russian <>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-11-15 23:44+0000\n"
-"X-Generator: Launchpad (build Unknown)\n"
+"X-Launchpad-Export-Date: 2011-01-19 14:28+0000\n"
+"X-Generator: Launchpad (build 12214)\n"
 
 #: src/guvcview.c:177
 msgid "Guvcview Video Capture"
-msgstr ""
+msgstr "Заxват видео через Guvcview"
 
 #: src/guvcview.c:187
 msgid "GUVCViewer Controls"
-msgstr "Регулировочная панель программы GUVCViewer"
+msgstr "Панель управления программы GUVCViewer"
 
 #. can't open device
 #: src/guvcview.c:214
@@ -40,7 +40,7 @@ msgid ""
 "Please make sure the camera is connected\n"
 "and that the correct driver is installed."
 msgstr ""
-"Пожалуйста убедитесь в том, что камера отключена\n"
+"Пожалуйста убедитесь в том, что камера подключена\n"
 "и драйвер установлен корректно."
 
 #. uvc extension controls OK, give warning and shutdown (called with --add_ctrls)
@@ -53,7 +53,7 @@ msgstr ""
 
 #: src/guvcview.c:221
 msgid "Extension controls were added to the UVC driver"
-msgstr ""
+msgstr "Управления расширениями был длбавлен к драйверу UVC"
 
 #. uvc extension controls error - EACCES (needs root user)
 #: src/guvcview.c:228
@@ -62,6 +62,8 @@ msgid ""
 "\n"
 "UVC Extension controls"
 msgstr ""
+"Ошибка Guvcview:\n"
+"Управление UVC расширениями"
 
 #: src/guvcview.c:229
 msgid ""
@@ -69,6 +71,9 @@ msgid ""
 "controls to the UVC driver\n"
 "Make sure you run guvcview as root (or sudo)."
 msgstr ""
+"Произошла ошибка в добавление\n"
+"управлений к расширению UVC драйвера.\n"
+"Убедитесь, что вы запустили guvcview как root (или sudo)"
 
 #: src/guvcview.c:255 src/guvcview.c:333
 msgid ""
@@ -77,7 +82,7 @@ msgid ""
 "Can't set a valid video stream for guvcview"
 msgstr ""
 "Ошибка Guvcview:\n"
-"Не могу установить правильный видео поток для guvcview"
+"Правильный видео поток не может быть установлен для guvcview"
 
 #: src/guvcview.c:256 src/guvcview.c:334
 msgid ""
@@ -85,7 +90,7 @@ msgid ""
 "and that it is properly installed."
 msgstr ""
 "Убедитесь что драйвер совместим с v4l2\n"
-"и установлен правильно."
+"и правильно установлен"
 
 #: src/guvcview.c:278 src/guvcview.c:300
 msgid ""
@@ -99,7 +104,7 @@ msgstr ""
 
 #: src/guvcview.c:279 src/guvcview.c:301
 msgid "Please reconnect your camera."
-msgstr "Необходимо переподключить камеру."
+msgstr "Пожалуйста, переподключите камеру."
 
 #: src/guvcview.c:308
 msgid ""
@@ -141,9 +146,7 @@ msgstr "Следует попробовать перезапустить сис�
 
 #: src/guvcview.c:359
 msgid "Image Controls"
-msgstr ""
-"Регулировка\n"
-"изображения"
+msgstr "Регулировка изображения"
 
 #: src/guvcview.c:394
 msgid "Capture:"
@@ -156,18 +159,17 @@ msgid "Control Profiles:"
 msgstr "Профиль регулировки:"
 
 #: src/guvcview.c:417
-#, fuzzy
 msgid "Defaults"
-msgstr "по умолчанию"
+msgstr "Заводские установки"
 
 #. image auto capture
 #: src/guvcview.c:430
 msgid "Stop Auto"
-msgstr "Останов автозахвата"
+msgstr ""
 
 #: src/guvcview.c:434 src/callbacks.c:1072 src/timers.c:95
 msgid "Cap. Image"
-msgstr "Снимок"
+msgstr "Сделать снимок"
 
 #. vid capture enabled from start
 #: src/guvcview.c:439 src/callbacks.c:1199
@@ -192,14 +194,14 @@ msgstr ""
 #: src/guvcview.c:594
 msgid "Please report it to http://developer.berlios.de/bugs/?group_id=8179"
 msgstr ""
-"Следует сообщить об этом сюда: http://developer.berlios.de/bugs/?"
-"group_id=8179"
+"Следует сообщить об этом сюда: "
+"http://developer.berlios.de/bugs/?group_id=8179"
 
 #. needed only for language files (not used)
 #. V4L2 control strings
 #: src/v4l2uvc.c:54
 msgid "User Controls"
-msgstr ""
+msgstr "Настройки пользователя"
 
 #: src/v4l2uvc.c:55
 msgid "Brightness"
@@ -235,7 +237,7 @@ msgstr "Частота в электросети"
 
 #: src/v4l2uvc.c:63
 msgid "Hue, Automatic"
-msgstr ""
+msgstr "Оттенок, Автоматически"
 
 #: src/v4l2uvc.c:64
 msgid "Focus, Auto"
@@ -263,7 +265,7 @@ msgstr "Уровень чёрного"
 
 #: src/v4l2uvc.c:70
 msgid "White Balance, Automatic"
-msgstr ""
+msgstr "Баланс белого, Автоматически"
 
 #: src/v4l2uvc.c:71
 msgid "Do White Balance"
@@ -271,11 +273,11 @@ msgstr ""
 
 #: src/v4l2uvc.c:72
 msgid "Red Balance"
-msgstr ""
+msgstr "Баланс красного"
 
 #: src/v4l2uvc.c:73
 msgid "Blue Balance"
-msgstr ""
+msgstr "Баланс синего"
 
 #: src/v4l2uvc.c:74
 msgid "Exposure"
@@ -283,7 +285,7 @@ msgstr ""
 
 #: src/v4l2uvc.c:75
 msgid "Gain, Automatic"
-msgstr ""
+msgstr "Усиление, автоматически"
 
 #: src/v4l2uvc.c:76
 msgid "Gain"
@@ -291,19 +293,19 @@ msgstr "Усиление"
 
 #: src/v4l2uvc.c:77
 msgid "Horizontal Flip"
-msgstr ""
+msgstr "Отразить по горизонтали"
 
 #: src/v4l2uvc.c:78
 msgid "Vertical Flip"
-msgstr ""
+msgstr "Отразить по вертикали"
 
 #: src/v4l2uvc.c:79
 msgid "Horizontal Center"
-msgstr ""
+msgstr "Горизонтальный центр"
 
 #: src/v4l2uvc.c:80
 msgid "Vertical Center"
-msgstr ""
+msgstr "Вертикальный центр"
 
 #: src/v4l2uvc.c:81
 msgid "Chroma AGC"
@@ -315,24 +317,24 @@ msgstr ""
 
 #: src/v4l2uvc.c:83
 msgid "Color Effects"
-msgstr ""
+msgstr "Цветовые эффекты"
 
 #. CAMERA CLASS control strings
 #: src/v4l2uvc.c:86
 msgid "Camera Controls"
-msgstr ""
+msgstr "Настройки камеры"
 
 #: src/v4l2uvc.c:87
 msgid "Auto Exposure"
-msgstr ""
+msgstr "Авто выдержка"
 
 #: src/v4l2uvc.c:88
 msgid "Exposure Time, Absolute"
-msgstr ""
+msgstr "Время выдержки, Абсолютное"
 
 #: src/v4l2uvc.c:89
 msgid "Exposure, Dynamic Framerate"
-msgstr ""
+msgstr "Выдержка, Динамичная частота кадров"
 
 #: src/v4l2uvc.c:90
 msgid "Pan, Relative"
@@ -356,15 +358,15 @@ msgstr ""
 
 #: src/v4l2uvc.c:96
 msgid "Focus, Absolute"
-msgstr ""
+msgstr "Фокус, Совершенный"
 
 #: src/v4l2uvc.c:97
 msgid "Focus, Relative"
-msgstr ""
+msgstr "Фокус, Относительный"
 
 #: src/v4l2uvc.c:98
 msgid "Focus, Automatic"
-msgstr ""
+msgstr "Фокус, Автоматический"
 
 #: src/v4l2uvc.c:99
 msgid "Zoom, Absolute"
@@ -372,11 +374,11 @@ msgstr ""
 
 #: src/v4l2uvc.c:100
 msgid "Zoom, Relative"
-msgstr ""
+msgstr "Увеличение, Относительное"
 
 #: src/v4l2uvc.c:101
 msgid "Zoom, Continuous"
-msgstr ""
+msgstr "Увеличение, Постоянное"
 
 #: src/v4l2uvc.c:102
 msgid "Privacy"
@@ -393,7 +395,7 @@ msgstr "Режим частоты кадров"
 
 #: src/v4l2uvc.c:107
 msgid "Exposure (Absolute)"
-msgstr "Выдержка (абсолютная)"
+msgstr "Выдержка (совершенная)"
 
 #: src/v4l2uvc.c:108
 msgid "White Balance Temperature, Auto"
@@ -426,7 +428,7 @@ msgstr ""
 
 #: src/video_tab.c:41 src/callbacks.c:1239
 msgid "Save File"
-msgstr "Сохранение файла"
+msgstr "Сохранить файл"
 
 #. if auto naming restart counter
 #. g_mutex_unlock(videoIn->mutex);
@@ -507,14 +509,12 @@ msgid "qblur:   "
 msgstr "qblur:   "
 
 #: src/video_tab.c:362
-#, fuzzy
 msgid "subq:   "
-msgstr "sub-cmp:   "
+msgstr ""
 
 #: src/video_tab.c:377
-#, fuzzy
 msgid "framerefs:   "
-msgstr "qcompress:   "
+msgstr ""
 
 #: src/video_tab.c:392
 msgid "me method:   "
@@ -525,9 +525,8 @@ msgid "mb decision:   "
 msgstr "mb-decision:   "
 
 #: src/video_tab.c:422
-#, fuzzy
 msgid "max B frames:   "
-msgstr "qcompress:   "
+msgstr ""
 
 #: src/video_tab.c:530
 msgid "Video & Files"
@@ -556,11 +555,11 @@ msgstr "Вывод камеры:"
 
 #: src/video_tab.c:728
 msgid "Apply"
-msgstr ""
+msgstr "Применить"
 
 #: src/video_tab.c:736
 msgid "Quality:"
-msgstr ""
+msgstr "Качество:"
 
 #: src/video_tab.c:746
 msgid "Image File:"
@@ -622,14 +621,12 @@ msgstr " Мозаика"
 
 #. Particles
 #: src/video_tab.c:1007
-#, fuzzy
 msgid " Particles"
-msgstr " Мозаика"
+msgstr ""
 
 #: src/audio_tab.c:46
-#, fuzzy
 msgid "audio codec values"
-msgstr "Параметры кодека"
+msgstr ""
 
 #: src/audio_tab.c:132
 msgid "Audio"
@@ -798,11 +795,11 @@ msgstr "MS MP4 V3"
 
 #: src/vcodecs.c:321
 msgid "MPEG4-ASP"
-msgstr ""
+msgstr "MPEG4-ASP"
 
 #: src/vcodecs.c:354
 msgid "MPEG4-AVC (H264)"
-msgstr ""
+msgstr "MPEG4-AVC (H264)"
 
 #: src/options.c:546
 msgid "Prints version"
@@ -837,13 +834,14 @@ msgid "Hardware accelaration (enable(1) | disable(0))"
 msgstr "Аппаратное ускорение (вкл.(1) | выкл.(0))"
 
 #: src/options.c:554
-#, fuzzy
 msgid ""
-"Pixel format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|"
-"y41p|grey|y16 |s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
+"Pixel "
+"format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|y41p|grey|"
+"y16 |s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
 msgstr ""
-"Формат пиксела (mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|"
-"y41p|grey|s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
+"Формат "
+"пикселя(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|y41p|grey"
+"|y16 |s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
 
 #: src/options.c:555
 msgid "Frame size, default: 640x480"
@@ -875,7 +873,7 @@ msgstr ""
 
 #: src/options.c:562
 msgid "Number of initial frames to skip"
-msgstr ""
+msgstr "Количество начальных кадров для пропуска"
 
 #: src/options.c:563
 msgid "Show FPS value (enable(1) | disable (0))"
@@ -898,9 +896,8 @@ msgid "set Focus"
 msgstr "Установка фокуса"
 
 #: src/callbacks.c:89
-#, fuzzy
 msgid "Error"
-msgstr " Гор. отражение"
+msgstr "Ошибка"
 
 #: src/callbacks.c:113
 msgid ""
@@ -908,6 +905,9 @@ msgid ""
 "You have more than one video device installed.\n"
 "Do you want to try another one ?\n"
 msgstr ""
+"\n"
+"У вас установлен дополнительный видео прибор.\n"
+"Хотите попробовать другой?\n"
 
 #: src/callbacks.c:634
 msgid "start new"
@@ -915,7 +915,7 @@ msgstr "Запуск нового"
 
 #: src/callbacks.c:637
 msgid "restart"
-msgstr "Перезапуск"
+msgstr "перезагрузить"
 
 #: src/callbacks.c:639
 msgid "new"
@@ -943,7 +943,33 @@ msgstr ""
 
 #: src/timers.c:191
 msgid "Not enough free space left on disk"
-msgstr ""
+msgstr "Недостаточно свободного места на диске"
+
+#~ msgid ""
+#~ "Please make sure the camera is connected\n"
+#~ "and that the linux-UVC driver is installed."
+#~ msgstr ""
+#~ "Необходимо удостовериться, что камера подключена\n"
+#~ "и что драйвер Linux-UVC установлен."
+
+#~ msgid ""
+#~ "Guvcview error:\n"
+#~ "\n"
+#~ "Can't set MJPG or YUV stream for guvcview"
+#~ msgstr ""
+#~ "Ошибка Guvcview:\n"
+#~ "\n"
+#~ "Не удалось назначить поток в формате MJPG или YUV для guvcview"
+
+#~ msgid ""
+#~ "Make sure you have a UVC compliant camera\n"
+#~ "and that you have the linux UVC driver installed."
+#~ msgstr ""
+#~ "Необходимо удостовериться, что камера соответствует стандарту UVC\n"
+#~ "и что драйвер Linux-UVC установлен."
+
+#~ msgid "Hue, Auto"
+#~ msgstr "Оттенок, авто"
 
 #~ msgid "PCM"
 #~ msgstr "PCM"
@@ -954,20 +980,26 @@ msgstr ""
 #~ msgid "MPEG4 - MPEG4 format"
 #~ msgstr "MPEG4 - формат MPEG4"
 
+#~ msgid "Don't stream video (controls only)"
+#~ msgstr "Без показа видео (только регулировка)"
+
+#~ msgid ""
+#~ "Pixel format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|gbrg|grbg|bggr|rggb)"
+#~ msgstr ""
+#~ "Формат пиксела (mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|gbrg|grbg|bggr|rggb)"
+
+#~ msgid "Exposure:"
+#~ msgstr "Экспозиция:"
+
 #~ msgid "Invert (Pan)"
 #~ msgstr "Инверсия (гор. поворот)"
 
 #~ msgid "Reset"
 #~ msgstr "Возврат"
 
+#, c-format
 #~ msgid "raw pixel order:"
 #~ msgstr "Порядок пикселов:"
-
-#~ msgid "Hue, Auto"
-#~ msgstr "Оттенок, авто"
-
-#~ msgid "Exposure:"
-#~ msgstr "Экспозиция:"
 
 #~ msgid "Program Restart"
 #~ msgstr "Перезапуск программы"
@@ -988,3 +1020,27 @@ msgstr ""
 #~ "\n"
 #~ "\n"
 #~ "Перезапустить сейчас?\n"
+
+#~ msgid ""
+#~ "Pixel "
+#~ "format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|y41p|grey|"
+#~ "s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
+#~ msgstr ""
+#~ "Формат пиксела "
+#~ "(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|y41p|grey|s501|s"
+#~ "505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
+
+#~ msgid "Make sure the device driver suports v4l2."
+#~ msgstr "Убедитесь в том, что драйвер устройства поддерживает v4l2."
+
+#~ msgid "Number of inital frames to skip"
+#~ msgstr "Количество начальных кадров для пропуска"
+
+#~ msgid ""
+#~ "An error ocurred while adding extension\n"
+#~ "controls to the UVC driver\n"
+#~ "Make sure you run guvcview as root (or sudo)."
+#~ msgstr ""
+#~ "Произошла ошибка в добавление\n"
+#~ "управлений к расширению UVC драйвера.\n"
+#~ "Убедитесь, что вы запустили guvcview как root (или sudo)"
