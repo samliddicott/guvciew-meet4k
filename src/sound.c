@@ -175,7 +175,7 @@ set_sound (struct GLOBAL *global, struct paRecordData* data, void *lav_aud_data)
 	data->samprate = global->Sound_SampRate;
 	data->channels = global->Sound_NumChan;
 	g_mutex_lock( data->mutex );
-		data->skip_n = global->skip_n; /*inital video frames to skip*/
+		data->skip_n = global->skip_n; /*initial video frames to skip*/
 	g_mutex_unlock( data->mutex );
 	if(global->debug) g_printf("using audio codec: 0x%04x\n",global->Sound_Format );
 	switch (global->Sound_Format)

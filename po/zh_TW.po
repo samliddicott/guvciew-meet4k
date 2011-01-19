@@ -67,7 +67,7 @@ msgstr ""
 
 #: src/guvcview.c:229
 msgid ""
-"An error ocurred while adding extension\n"
+"An error occurred while adding extension\n"
 "controls to the UVC driver\n"
 "Make sure you run guvcview as root (or sudo)."
 msgstr ""
@@ -118,7 +118,7 @@ msgstr ""
 "設備無法開啟"
 
 #: src/guvcview.c:309
-msgid "Make sure the device driver suports v4l2."
+msgid "Make sure the device driver supports v4l2."
 msgstr "確定你的設備驅動程式支援 v4l2."
 
 #: src/guvcview.c:313
@@ -877,7 +877,7 @@ msgid "Exits guvcview after closing video"
 msgstr "在關掉影像後離開guvcview"
 
 #: src/options.c:562
-msgid "Number of inital frames to skip"
+msgid "Number of initial frames to skip"
 msgstr "跳過的初始影格數"
 
 #: src/options.c:563

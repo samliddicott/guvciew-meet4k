@@ -74,7 +74,7 @@ void sleep_ms(int ms_time)
 }
 
 /*wait on cond by sleeping for n_loops of sleep_ms ms (test var==val every loop)*/
-/*return remaining number of loops (if 0 then a stall ocurred)              */
+/*return remaining number of loops (if 0 then a stall occurred)              */
 int wait_ms(gboolean* var, gboolean val, GMutex *mutex, int ms_time, int n_loops)
 {
 	int n=n_loops;

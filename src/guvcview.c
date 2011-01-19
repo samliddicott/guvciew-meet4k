@@ -225,7 +225,7 @@ int main(int argc, char *argv[])
 
 			case VDIN_DYNCTRL_ERR: //uvc extension controls error - EACCES (needs root user)
 				ERR_DIALOG (N_("Guvcview error:\n\nUVC Extension controls"),
-					N_("An error ocurred while adding extension\ncontrols to the UVC driver\nMake sure you run guvcview as root (or sudo)."),
+					N_("An error occurred while adding extension\ncontrols to the UVC driver\nMake sure you run guvcview as root (or sudo)."),
 					&all_data);
 				break;
 				
@@ -305,7 +305,7 @@ int main(int argc, char *argv[])
 				
 			case VDIN_QUERYCAP_ERR:
 				ERR_DIALOG (N_("Guvcview error:\n\nCouldn't query device capabilities"),
-					N_("Make sure the device driver suports v4l2."),
+					N_("Make sure the device driver supports v4l2."),
 					&all_data);
 				break;
 			case VDIN_READ_ERR:

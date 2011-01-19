@@ -837,7 +837,7 @@ void create_control_widgets(Control *control_list, void *all_data, int control_o
                 break;
                 
             default:
-                printf("control type: 0x%08x not suported\n", current->control.type);
+                printf("control type: 0x%08x not supported\n", current->control.type);
                 break;
         }
 
