@@ -55,7 +55,7 @@ SaveControls(struct ALL_DATA *all_data)
             Control *next = current->next;
             //write header
             fprintf(fp, "#V4L2/CTRL/0.0.2\n");
-            fprintf(fp, "APP{\"v4l2-re-store-ctrls example app\"}\n");
+            fprintf(fp, "APP{\"%s\"}\n", PACKAGE_STRING);
             //write control data
             fprintf(fp, "# control data\n");
             for(i=0; i<s->num_controls; i++)
