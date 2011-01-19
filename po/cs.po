@@ -76,6 +76,9 @@ msgid ""
 "controls to the UVC driver\n"
 "Make sure you run guvcview as root (or sudo)."
 msgstr ""
+"Nastala chyba při přidání rozšířeného\n"
+"ovládání do ovladače UVC\n"
+"Ujistěte se, že spouštíte guvcview jako root (či sudo)."
 
 #: src/guvcview.c:255 src/guvcview.c:333
 msgid ""
@@ -115,7 +118,7 @@ msgstr ""
 
 #: src/guvcview.c:309
 msgid "Make sure the device driver supports v4l2."
-msgstr ""
+msgstr "Ujistěte se, že ovladač zařízení podporuje v4l2."
 
 #: src/guvcview.c:313
 msgid ""
@@ -942,16 +945,6 @@ msgstr ""
 msgid "Not enough free space left on disk"
 msgstr "Na disku nezbývá dost volného místa"
 
-#: src/guvcview.c:229
-msgid ""
-"An error occurred while adding extension\n"
-"controls to the UVC driver\n"
-"Make sure you run guvcview as root (or sudo)."
-msgstr ""
-"Nastala chyba při přidání rozšířeného\n"
-"ovládání do ovladače UVC\n"
-"Ujistěte se, že spouštíte guvcview jako root (či sudo)."
-
 #~ msgid ""
 #~ "Guvcview error:\n"
 #~ "\n"
@@ -1037,5 +1030,3 @@ msgstr ""
 #~ msgid "MPEG4 - MPEG4 format"
 #~ msgstr "MPEG4 - formát MPEG4"
 
-#~ msgid "Make sure the device driver supports v4l2."
-#~ msgstr "Ujistěte se, že ovladač zařízení podporuje v4l2."
