@@ -42,6 +42,7 @@ writeConf(struct GLOBAL *global, char *videodevice)
 {
 	int ret=0;
 	FILE *fp;
+	//unsetenv("TK_USE_CURRENT_LOCALE");
     //get pointers to codec properties
     vcodecs_data *vcodec_defaults = get_codec_defaults(global->VidCodec);
     acodecs_data *acodec_defaults = get_aud_codec_defaults(get_ind_by4cc(global->Sound_Format));
@@ -130,8 +131,8 @@ writeConf(struct GLOBAL *global, char *videodevice)
 		g_fprintf(fp, "vcodec_me_sub_cmp=%d\n",vcodec_defaults->me_sub_cmp);
 		g_fprintf(fp, "vcodec_last_pred=%d\n",vcodec_defaults->last_pred);
 		g_fprintf(fp, "vcodec_gop_size=%d\n",vcodec_defaults->gop_size);
-		g_fprintf(fp, "vcodec_qcompress=%f\n",vcodec_defaults->qcompress);
-		g_fprintf(fp, "vcodec_qblur=%f\n",vcodec_defaults->qblur);
+		g_fprintf(fp, "vcodec_qcompress=%.2f\n",vcodec_defaults->qcompress);
+		g_fprintf(fp, "vcodec_qblur=%.2f\n",vcodec_defaults->qblur);
 		g_fprintf(fp, "vcodec_subq=%d\n",vcodec_defaults->subq);
 		g_fprintf(fp, "vcodec_framerefs=%d\n",vcodec_defaults->framerefs);
 		g_fprintf(fp, "vcodec_mb_decision=%d\n",vcodec_defaults->mb_decision);
@@ -205,6 +206,10 @@ readConf(struct GLOBAL *global)
 		TRUE                           /* store int64 */
 	};
 
+    //get pointers to codec properties
+    vcodecs_data *vcodec_defaults = get_codec_defaults(global->VidCodec);
+    acodecs_data *acodec_defaults = get_aud_codec_defaults(get_ind_by4cc(global->Sound_Format));
+    
 	int fd = g_open (global->confPath, O_RDONLY, 0);
 	
 	if (fd < 0 )
@@ -475,6 +480,94 @@ readConf(struct GLOBAL *global)
 							    global->image_inc = 1;
 							g_snprintf(global->imageinc_str,20,_("File num:%d"),global->image_inc);
 						}
+						else if (g_strcmp0(name,"acodec_bit_rate")==0) 
+						{
+						    acodec_defaults->bit_rate = scanner->value.v_int;
+						}
+						else if (g_strcmp0(name,"vcodec_bit_rate")==0) 
+						{
+						    vcodec_defaults->bit_rate = scanner->value.v_int;
+						}
+						else if (g_strcmp0(name,"vcodec_fps")==0) 
+						{
+						    vcodec_defaults->fps = scanner->value.v_int;
+						}
+						else if (g_strcmp0(name,"vcodec_qmax")==0) 
+						{
+						    vcodec_defaults->qmax = scanner->value.v_int;
+						}
+						else if (g_strcmp0(name,"vcodec_qmin")==0) 
+						{
+						    vcodec_defaults->qmin = scanner->value.v_int;
+						}
+						else if (g_strcmp0(name,"vcodec_max_qdiff")==0) 
+						{
+						    vcodec_defaults->max_qdiff = scanner->value.v_int;
+						}
+						else if (g_strcmp0(name,"vcodec_dia")==0) 
+						{
+						    vcodec_defaults->dia = scanner->value.v_int;
+						}
+						else if (g_strcmp0(name,"vcodec_pre_dia")==0) 
+						{
+						    vcodec_defaults->pre_dia = scanner->value.v_int;
+						}
+						else if (g_strcmp0(name,"vcodec_pre_me")==0) 
+						{
+						    vcodec_defaults->pre_me= scanner->value.v_int;
+						}
+						else if (g_strcmp0(name,"vcodec_me_pre_cmp")==0) 
+						{
+						    vcodec_defaults->me_pre_cmp = scanner->value.v_int;
+						}
+						else if (g_strcmp0(name,"vcodec_me_cmp")==0) 
+						{
+						    vcodec_defaults->me_cmp = scanner->value.v_int;
+						}
+						else if (g_strcmp0(name,"vcodec_me_sub_cmp")==0) 
+						{
+						    vcodec_defaults->me_sub_cmp = scanner->value.v_int;
+						}
+						else if (g_strcmp0(name,"vcodec_last_pred")==0) 
+						{
+						    vcodec_defaults->last_pred = scanner->value.v_int;
+						}
+						else if (g_strcmp0(name,"vcodec_gop_size")==0) 
+						{
+						    vcodec_defaults->gop_size = scanner->value.v_int;
+						}
+						else if (g_strcmp0(name,"vcodec_subq")==0) 
+						{
+						    vcodec_defaults->subq = scanner->value.v_int;
+						}
+						else if (g_strcmp0(name,"vcodec_framerefs")==0) 
+						{
+						    vcodec_defaults->framerefs = scanner->value.v_int;
+						}
+						else if (g_strcmp0(name,"vcodec_mb_decision")==0) 
+						{
+						    vcodec_defaults->mb_decision = scanner->value.v_int;
+						}
+						else if (g_strcmp0(name,"vcodec_trellis")==0) 
+						{
+						    vcodec_defaults->trellis = scanner->value.v_int;
+						}
+						else if (g_strcmp0(name,"vcodec_me_method")==0) 
+						{
+						    vcodec_defaults->me_method = scanner->value.v_int;
+						}
+						else if (g_strcmp0(name,"vcodec_mpeg_quant")==0) 
+						{
+						    vcodec_defaults->mpeg_quant = scanner->value.v_int;
+						}
+						else if (g_strcmp0(name,"vcodec_max_b_frames")==0) 
+						{
+						    vcodec_defaults->max_b_frames = scanner->value.v_int;
+						}
+						else if (g_strcmp0(name,"vcodec_flags")==0) 
+						{
+						    vcodec_defaults->flags = scanner->value.v_int;
+						}
 						else
 						{
 							printf("unexpected integer value (%lu) for %s\n", 
@@ -484,7 +577,16 @@ readConf(struct GLOBAL *global)
 					}
 					else if (ttype==G_TOKEN_FLOAT)
 					{
-						printf("unexpected float value (%f) for %s\n", scanner->value.v_float, name);
+					    if (g_strcmp0(name,"vcodec_qcompress")==0) 
+						{
+						    vcodec_defaults->qcompress = scanner->value.v_float;
+						}
+						else if (g_strcmp0(name,"vcodec_qblur")==0) 
+						{
+						    vcodec_defaults->qblur = scanner->value.v_float;
+						}
+						else
+						    printf("unexpected float value (%f) for %s\n", scanner->value.v_float, name);
 					}
 					else if (ttype==G_TOKEN_CHAR)
 					{
