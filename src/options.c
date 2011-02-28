@@ -30,6 +30,8 @@
 
 #include "defs.h"
 #include "globals.h"
+#include "vcodecs.h"
+#include "acodecs.h"
 #include "string_utils.h"
 #include "avilib.h"
 #include "v4l2uvc.h"
@@ -40,7 +42,9 @@ writeConf(struct GLOBAL *global, char *videodevice)
 {
 	int ret=0;
 	FILE *fp;
-	
+    //get pointers to codec properties
+    vcodecs_data *vcodec_defaults = get_codec_defaults(global->VidCodec);
+    acodecs_data *acodec_defaults = get_aud_codec_defaults(get_ind_by4cc(global->Sound_Format));
 	// write to tmp file then rename after sucessfull fsync
 	// using fsync avois data loss on system crash 
 	// see: https://bugs.launchpad.net/ubuntu/+source/linux/+bug/317781/comments/54
@@ -96,9 +100,6 @@ writeConf(struct GLOBAL *global, char *videodevice)
 		g_fprintf(fp,"snd_delay=%llu\n",(unsigned long long) global->Sound_delay);
 		g_fprintf(fp,"# Sound Format (PCM=1 (0x0001) MP2=80 (0x0050)\n");
 		g_fprintf(fp,"snd_format=%i\n",global->Sound_Format);
-		//g_fprintf(fp,"# Sound bit Rate used by mpeg audio default=160 Kbps\n");
-		//g_fprintf(fp,"#other values: 48 56 64 80 96 112 128 160 192 224 384\n");
-		//g_fprintf(fp,"snd_bitrate=%i\n",global->Sound_bitRate);
 		//g_fprintf(fp,"#Pan Step in degrees, Default=2\n");
 		//g_fprintf(fp,"Pan_Step=%i\n",global->PanStep);
 		//g_fprintf(fp,"#Tilt Step in degrees, Default=2\n");
@@ -113,6 +114,32 @@ writeConf(struct GLOBAL *global, char *videodevice)
 		g_fprintf(fp,"video_path='%s/%s'\n",global->vidFPath[1],global->vidFPath[0]);
 		g_fprintf(fp,"# control profiles Full Path\n");
 		g_fprintf(fp,"profile_path='%s/%s'\n",global->profile_FPath[1],global->profile_FPath[0]);
+        g_fprintf(fp, "# audio codec properties (remove for default values\n");
+        g_fprintf(fp, "acodec_bit_rate=%d\n",acodec_defaults->bit_rate);
+		g_fprintf(fp, "# video codec (%s) properties (remove for default values\n", vcodec_defaults->compressor);
+		g_fprintf(fp, "vcodec_bit_rate=%d\n",vcodec_defaults->bit_rate);
+		g_fprintf(fp, "vcodec_fps=%d\n",vcodec_defaults->fps);
+		g_fprintf(fp, "vcodec_qmax=%d\n",vcodec_defaults->qmax);
+		g_fprintf(fp, "vcodec_qmin=%d\n",vcodec_defaults->qmin);
+		g_fprintf(fp, "vcodec_max_qdiff=%d\n",vcodec_defaults->max_qdiff);
+		g_fprintf(fp, "vcodec_dia=%d\n",vcodec_defaults->dia);
+		g_fprintf(fp, "vcodec_pre_dia=%d\n",vcodec_defaults->pre_dia);
+		g_fprintf(fp, "vcodec_pre_me=%d\n",vcodec_defaults->pre_me);
+		g_fprintf(fp, "vcodec_me_pre_cmp=%d\n",vcodec_defaults->me_pre_cmp);
+		g_fprintf(fp, "vcodec_me_cmp=%d\n",vcodec_defaults->me_cmp);
+		g_fprintf(fp, "vcodec_me_sub_cmp=%d\n",vcodec_defaults->me_sub_cmp);
+		g_fprintf(fp, "vcodec_last_pred=%d\n",vcodec_defaults->last_pred);
+		g_fprintf(fp, "vcodec_gop_size=%d\n",vcodec_defaults->gop_size);
+		g_fprintf(fp, "vcodec_qcompress=%d\n",vcodec_defaults->qcompress);
+		g_fprintf(fp, "vcodec_qblur=%d\n",vcodec_defaults->qblur);
+		g_fprintf(fp, "vcodec_subq=%d\n",vcodec_defaults->subq);
+		g_fprintf(fp, "vcodec_framerefs=%d\n",vcodec_defaults->framerefs);
+		g_fprintf(fp, "vcodec_mb_decision=%d\n",codec_defaults->mb_decision);
+		g_fprintf(fp, "vcodec_trellis=%d\n",vcodec_defaults->trellis);
+		g_fprintf(fp, "vcodec_me_method=%d\n",vcodec_defaults->me_method);
+		g_fprintf(fp, "vcodec_mpeg_quant=%d\n",vcodec_defaults->mpeg_quant);
+		g_fprintf(fp, "vcodec_max_b_frames=%d\n",vcodec_defaults->max_b_frames);
+		g_fprintf(fp, "vcodec_flags=%d\n",vcodec_defaults->flags);
 		printf("write %s OK\n",global->confPath);
 		
 		//flush stream buffers to filesystem
