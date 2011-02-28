@@ -921,9 +921,11 @@ void
 SndComp_changed (GtkComboBox * SoundComp, struct ALL_DATA *all_data)
 {
 	struct GLOBAL *global = all_data->global;
+	struct GWIDGET *gwidget = all_data->gwidget;
 	
 	/* 0-PCM  1-MP2 2-(lavc)... 3-(lavc)...*/
-	global->Sound_Format = get_aud4cc(gtk_combo_box_get_active (SoundComp)); 
+	global->Sound_Format = get_aud4cc(gtk_combo_box_get_active (SoundComp));
+	gtk_widget_set_sensitive (gwidget->lavc_aud_button, isLavcACodec(get_ind_by4cc(global->Sound_Format))); 
 	
 	global = NULL;
 }

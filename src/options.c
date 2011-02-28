@@ -130,11 +130,11 @@ writeConf(struct GLOBAL *global, char *videodevice)
 		g_fprintf(fp, "vcodec_me_sub_cmp=%d\n",vcodec_defaults->me_sub_cmp);
 		g_fprintf(fp, "vcodec_last_pred=%d\n",vcodec_defaults->last_pred);
 		g_fprintf(fp, "vcodec_gop_size=%d\n",vcodec_defaults->gop_size);
-		g_fprintf(fp, "vcodec_qcompress=%d\n",vcodec_defaults->qcompress);
-		g_fprintf(fp, "vcodec_qblur=%d\n",vcodec_defaults->qblur);
+		g_fprintf(fp, "vcodec_qcompress=%f\n",vcodec_defaults->qcompress);
+		g_fprintf(fp, "vcodec_qblur=%f\n",vcodec_defaults->qblur);
 		g_fprintf(fp, "vcodec_subq=%d\n",vcodec_defaults->subq);
 		g_fprintf(fp, "vcodec_framerefs=%d\n",vcodec_defaults->framerefs);
-		g_fprintf(fp, "vcodec_mb_decision=%d\n",codec_defaults->mb_decision);
+		g_fprintf(fp, "vcodec_mb_decision=%d\n",vcodec_defaults->mb_decision);
 		g_fprintf(fp, "vcodec_trellis=%d\n",vcodec_defaults->trellis);
 		g_fprintf(fp, "vcodec_me_method=%d\n",vcodec_defaults->me_method);
 		g_fprintf(fp, "vcodec_mpeg_quant=%d\n",vcodec_defaults->mpeg_quant);
