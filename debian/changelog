@@ -1,3 +1,10 @@
+guvcview (1.4.5-ubuntu1~maverick~ppa1) maverick; urgency=low
+
+    * store current codec properties in configuration file
+    * fix audio codec properties button
+
+ -- Paulo Assis <pj.assis@gmail.com>  Tue, 1 Mar 2011 23:09:00 +0000
+
 guvcview (1.4.4-ubuntu1~maverick~ppa1) maverick; urgency=low
 
     * add av_sync patch by Richard Fuchs <dfx@dfx.at>:

@@ -209,10 +209,6 @@ readConf(struct GLOBAL *global)
 		FALSE,                         /* scope 0 fallback */
 		TRUE                           /* store int64 */
 	};
-
-    //get pointers to codec properties
-    vcodecs_data *vcodec_defaults = get_codec_defaults(global->VidCodec);
-    acodecs_data *acodec_defaults = get_aud_codec_defaults(get_ind_by4cc(global->Sound_Format));
     
 	int fd = g_open (global->confPath, O_RDONLY, 0);
 	
@@ -226,6 +222,13 @@ readConf(struct GLOBAL *global)
 		scanner = g_scanner_new (&config);
 		g_scanner_input_file (scanner, fd);
 		scanner->input_name = global->confPath;
+		//temp codec values
+		int ac_bit_rate =-1, vc_bit_rate=-1, vc_fps=-1, vc_qmax=-1, vc_qmin=-1, vc_max_qdiff=-1, vc_dia=-1;
+		int vc_pre_dia=-1, vc_pre_me=-1, vc_me_pre_cmp=-1, vc_me_cmp=-1, vc_me_sub_cmp=-1, vc_last_pred=-1;
+		int vc_gop_size=-1, vc_subq=-1, vc_framerefs=-1, vc_mb_decision=-1, vc_trellis=-1, vc_me_method=-1;
+		int vc_mpeg_quant=-1, vc_max_b_frames=-1, vc_flags=-1;
+		float vc_qcompress=-1, vc_qblur=-1;
+		
 		
 		for (ttype = g_scanner_get_next_token (scanner);
 			ttype != G_TOKEN_EOF;
@@ -486,91 +489,91 @@ readConf(struct GLOBAL *global)
 						}
 						else if (g_strcmp0(name,"acodec_bit_rate")==0) 
 						{
-						    acodec_defaults->bit_rate = scanner->value.v_int;
+						    ac_bit_rate = scanner->value.v_int;
 						}
 						else if (g_strcmp0(name,"vcodec_bit_rate")==0) 
 						{
-						    vcodec_defaults->bit_rate = scanner->value.v_int;
+						    vc_bit_rate = scanner->value.v_int;
 						}
 						else if (g_strcmp0(name,"vcodec_fps")==0) 
 						{
-						    vcodec_defaults->fps = scanner->value.v_int;
+						    vc_fps = scanner->value.v_int;
 						}
 						else if (g_strcmp0(name,"vcodec_qmax")==0) 
 						{
-						    vcodec_defaults->qmax = scanner->value.v_int;
+						    vc_qmax = scanner->value.v_int;
 						}
 						else if (g_strcmp0(name,"vcodec_qmin")==0) 
 						{
-						    vcodec_defaults->qmin = scanner->value.v_int;
+						    vc_qmin = scanner->value.v_int;
 						}
 						else if (g_strcmp0(name,"vcodec_max_qdiff")==0) 
 						{
-						    vcodec_defaults->max_qdiff = scanner->value.v_int;
+						    vc_max_qdiff = scanner->value.v_int;
 						}
 						else if (g_strcmp0(name,"vcodec_dia")==0) 
 						{
-						    vcodec_defaults->dia = scanner->value.v_int;
+						    vc_dia = scanner->value.v_int;
 						}
 						else if (g_strcmp0(name,"vcodec_pre_dia")==0) 
 						{
-						    vcodec_defaults->pre_dia = scanner->value.v_int;
+						    vc_pre_dia = scanner->value.v_int;
 						}
 						else if (g_strcmp0(name,"vcodec_pre_me")==0) 
 						{
-						    vcodec_defaults->pre_me= scanner->value.v_int;
+						    vc_pre_me= scanner->value.v_int;
 						}
 						else if (g_strcmp0(name,"vcodec_me_pre_cmp")==0) 
 						{
-						    vcodec_defaults->me_pre_cmp = scanner->value.v_int;
+						    vc_me_pre_cmp = scanner->value.v_int;
 						}
 						else if (g_strcmp0(name,"vcodec_me_cmp")==0) 
 						{
-						    vcodec_defaults->me_cmp = scanner->value.v_int;
+						    vc_me_cmp = scanner->value.v_int;
 						}
 						else if (g_strcmp0(name,"vcodec_me_sub_cmp")==0) 
 						{
-						    vcodec_defaults->me_sub_cmp = scanner->value.v_int;
+						    vc_me_sub_cmp = scanner->value.v_int;
 						}
 						else if (g_strcmp0(name,"vcodec_last_pred")==0) 
 						{
-						    vcodec_defaults->last_pred = scanner->value.v_int;
+						    vc_last_pred = scanner->value.v_int;
 						}
 						else if (g_strcmp0(name,"vcodec_gop_size")==0) 
 						{
-						    vcodec_defaults->gop_size = scanner->value.v_int;
+						    vc_gop_size = scanner->value.v_int;
 						}
 						else if (g_strcmp0(name,"vcodec_subq")==0) 
 						{
-						    vcodec_defaults->subq = scanner->value.v_int;
+						    vc_subq = scanner->value.v_int;
 						}
 						else if (g_strcmp0(name,"vcodec_framerefs")==0) 
 						{
-						    vcodec_defaults->framerefs = scanner->value.v_int;
+						    vc_framerefs = scanner->value.v_int;
 						}
 						else if (g_strcmp0(name,"vcodec_mb_decision")==0) 
 						{
-						    vcodec_defaults->mb_decision = scanner->value.v_int;
+						    vc_mb_decision = scanner->value.v_int;
 						}
 						else if (g_strcmp0(name,"vcodec_trellis")==0) 
 						{
-						    vcodec_defaults->trellis = scanner->value.v_int;
+						    vc_trellis = scanner->value.v_int;
 						}
 						else if (g_strcmp0(name,"vcodec_me_method")==0) 
 						{
-						    vcodec_defaults->me_method = scanner->value.v_int;
+						    vc_me_method = scanner->value.v_int;
 						}
 						else if (g_strcmp0(name,"vcodec_mpeg_quant")==0) 
 						{
-						    vcodec_defaults->mpeg_quant = scanner->value.v_int;
+						    vc_mpeg_quant = scanner->value.v_int;
 						}
 						else if (g_strcmp0(name,"vcodec_max_b_frames")==0) 
 						{
-						    vcodec_defaults->max_b_frames = scanner->value.v_int;
+						    vc_max_b_frames = scanner->value.v_int;
 						}
 						else if (g_strcmp0(name,"vcodec_flags")==0) 
 						{
-						    vcodec_defaults->flags = scanner->value.v_int;
+						    vc_flags = scanner->value.v_int;
 						}
 						else
 						{
@@ -583,11 +586,11 @@ readConf(struct GLOBAL *global)
 					{
 					    if (g_strcmp0(name,"vcodec_qcompress")==0) 
 						{
-						    vcodec_defaults->qcompress = scanner->value.v_float;
+						    vc_qcompress = scanner->value.v_float;
 						}
 						else if (g_strcmp0(name,"vcodec_qblur")==0) 
 						{
-						    vcodec_defaults->qblur = scanner->value.v_float;
+						    vc_qblur = scanner->value.v_float;
 						}
 						else
 						    printf("unexpected float value (%f) for %s\n", scanner->value.v_float, name);
@@ -632,6 +635,35 @@ readConf(struct GLOBAL *global)
 		g_scanner_destroy (scanner);
 		close (fd);
 		
+		//get pointers to codec properties
+        vcodecs_data *vcodec_defaults = get_codec_defaults(global->VidCodec);
+        acodecs_data *acodec_defaults = get_aud_codec_defaults(get_ind_by4cc(global->Sound_Format));
+        
+        if (ac_bit_rate >= 0) acodec_defaults->bit_rate = ac_bit_rate;
+        if (vc_bit_rate >= 0) vcodec_defaults->bit_rate = vc_bit_rate;
+        if (vc_fps >= 0) vcodec_defaults->fps = vc_fps;
+		if (vc_qmax >= 0) vcodec_defaults->qmax = vc_qmax;
+		if (vc_qmin >= 0) vcodec_defaults->qmin = vc_qmin;
+		if (vc_max_qdiff >=0) vcodec_defaults->max_qdiff = vc_max_qdiff;
+		if (vc_dia >=0) vcodec_defaults->dia = vc_dia;
+		if (vc_pre_dia >=0) vcodec_defaults->pre_dia = vc_pre_dia;
+		if (vc_pre_me >=0) vcodec_defaults->pre_me = vc_pre_me;
+		if (vc_me_pre_cmp >=0) vcodec_defaults->me_pre_cmp = vc_me_pre_cmp;
+		if (vc_me_cmp >=0) vcodec_defaults->me_cmp = vc_me_cmp;
+		if (vc_me_sub_cmp >=0) vcodec_defaults->me_sub_cmp = vc_me_sub_cmp;
+		if (vc_last_pred >= 0) vcodec_defaults->last_pred = vc_last_pred;
+		if (vc_gop_size >= 0) vcodec_defaults->gop_size = vc_gop_size;
+		if (vc_subq >=0) vcodec_defaults->subq = vc_subq;
+		if (vc_framerefs >=0) vcodec_defaults->framerefs = vc_framerefs;
+		if (vc_mb_decision >=0) vcodec_defaults->mb_decision = vc_mb_decision;
+		if (vc_trellis >=0) vcodec_defaults->trellis = vc_trellis;
+		if (vc_me_method >=0) vcodec_defaults->me_method = vc_me_method;
+		if (vc_mpeg_quant >=0) vcodec_defaults->mpeg_quant = vc_mpeg_quant;
+		if (vc_max_b_frames >=0) vcodec_defaults->max_b_frames = vc_max_b_frames;
+        if (vc_flags >=0) vcodec_defaults->flags = vc_flags;
+        if (vc_qcompress >= 0) vcodec_defaults->qcompress = vc_qcompress;
+		if (vc_qblur >=0) vcodec_defaults->qblur = vc_qblur;
+        
 		if (global->debug) 
 		{
 			g_printf("video_device: %s\n",global->videodevice);
