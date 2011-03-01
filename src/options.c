@@ -42,7 +42,8 @@ writeConf(struct GLOBAL *global, char *videodevice)
 {
 	int ret=0;
 	FILE *fp;
-	//unsetenv("TK_USE_CURRENT_LOCALE");
+    //use c locale - make sure floats are writen with a "." and not a ","
+    setlocale(LC_NUMERIC, "C");
     //get pointers to codec properties
     vcodecs_data *vcodec_defaults = get_codec_defaults(global->VidCodec);
     acodecs_data *acodec_defaults = get_aud_codec_defaults(get_ind_by4cc(global->Sound_Format));
@@ -164,7 +165,10 @@ writeConf(struct GLOBAL *global, char *videodevice)
 		ret=-2;
 	}
 	g_free(tmpfile);
-	
+    
+    //return to system locale
+    setlocale(LC_NUMERIC, "");
+    
 	return ret;
 }
 
