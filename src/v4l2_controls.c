@@ -735,6 +735,56 @@ void create_control_widgets(Control *control_list, void *all_data, int control_o
                         break;
                     }
                     
+                    if (current->control.id == V4L2_CID_LED1_MODE_LOGITECH)
+                    {
+                        /*turn it into a menu control*/
+                        current->widget = gtk_combo_box_new_text ();
+                        gtk_combo_box_append_text (
+                                GTK_COMBO_BOX (current->widget),
+                                _("Off"));
+                        gtk_combo_box_append_text (
+                                GTK_COMBO_BOX (current->widget),
+                                _("On"));
+                        gtk_combo_box_append_text (
+                                GTK_COMBO_BOX (current->widget),
+                                _("Blinking"));
+                        gtk_combo_box_append_text (
+                                GTK_COMBO_BOX (current->widget),
+                                _("Auto"));
+                        gtk_combo_box_set_active (GTK_COMBO_BOX (current->widget), current->value);
+                        gtk_widget_show (current->widget);
+                         
+                        g_object_set_data (G_OBJECT (current->widget), "control_info", 
+                            GINT_TO_POINTER(current->control.id));
+                        //connect signal
+                        g_signal_connect (GTK_COMBO_BOX(current->widget), "changed",
+                            G_CALLBACK (combo_changed), all_data);
+                        
+                        break;
+                    }
+                    if (current->control.id == V4L2_CID_RAW_BITS_PER_PIXEL_LOGITECH)
+                    {
+                        /*turn it into a menu control*/
+                        current->widget = gtk_combo_box_new_text ();
+                        gtk_combo_box_append_text (
+                                GTK_COMBO_BOX (current->widget),
+                                _("8 bit"));
+                        gtk_combo_box_append_text (
+                                GTK_COMBO_BOX (current->widget),
+                                _("12 bit"));
+                        
+                        gtk_combo_box_set_active (GTK_COMBO_BOX (current->widget), current->value);
+                        gtk_widget_show (current->widget);
+                         
+                        g_object_set_data (G_OBJECT (current->widget), "control_info", 
+                            GINT_TO_POINTER(current->control.id));
+                        //connect signal
+                        g_signal_connect (GTK_COMBO_BOX(current->widget), "changed",
+                            G_CALLBACK (combo_changed), all_data);
+                        
+                        break;
+                    }
+                    
                     /* check for valid range */
                     if((current->control.maximum > current->control.minimum) && (current->control.step != 0))
                     {
