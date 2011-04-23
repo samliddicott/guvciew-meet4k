@@ -58,6 +58,24 @@ static int query_ioctl(int hdevice, int current_ctrl, struct v4l2_queryctrl *ctr
     return(ret);
 }
 
+gboolean is_special_case_control(int control_id)
+{
+    switch(control_id)
+    {
+        case V4L2_CID_PAN_RELATIVE:
+        case V4L2_CID_TILT_RELATIVE:
+        case V4L2_CID_PAN_RESET:
+        case V4L2_CID_TILT_RESET:
+        case V4L2_CID_LED1_MODE_LOGITECH:
+        case V4L2_CID_RAW_BITS_PER_PIXEL_LOGITECH:
+            return TRUE;
+            break;
+        default:
+            return FALSE;
+            break;
+    }
+}
+
 /*
  * returns a Control structure NULL terminated linked list
  * with all of the device controls with Read/Write permissions.
@@ -551,10 +569,7 @@ static void update_widget_state(Control *control_list, void *all_data)
                         G_CALLBACK (check_changed), all_data);
                     break;
                 case V4L2_CTRL_TYPE_INTEGER:
-                    if((current->control.id != V4L2_CID_PAN_RELATIVE) &&
-                       (current->control.id != V4L2_CID_TILT_RELATIVE) &&
-                       (current->control.id != V4L2_CID_PAN_RESET) &&
-                       (current->control.id != V4L2_CID_TILT_RESET))
+                    if(!(is_special_case_control(current->control.id)))
                     {
                         //disable widget signals
                         g_signal_handlers_block_by_func(GTK_SCALE (current->widget), 
@@ -675,153 +690,158 @@ void create_control_widgets(Control *control_list, void *all_data, int control_o
             
             case V4L2_CTRL_TYPE_INTEGER:
                 {
-                    //special cases
-                    if ((current->control.id == V4L2_CID_PAN_RELATIVE) ||
-                        (current->control.id == V4L2_CID_TILT_RELATIVE))
-                    {
-                        //videoIn->PanTilt++;
-                        current->widget = gtk_hbox_new (TRUE, 1);
-
-                        GtkWidget *PanTilt1 = NULL;
-                        GtkWidget *PanTilt2 = NULL;
-                        if(current->control.id == V4L2_CID_PAN_RELATIVE)
+                    switch (current->control.id)
+                    {   //special cases
+                        case V4L2_CID_PAN_RELATIVE:
+                        case V4L2_CID_TILT_RELATIVE:
                         {
-                            PanTilt1 = gtk_button_new_with_label(_("Left"));
-                            PanTilt2 = gtk_button_new_with_label(_("Right"));
-                        }
-                        else
-                        {
-                            PanTilt1 = gtk_button_new_with_label(_("Down"));
-                            PanTilt2 = gtk_button_new_with_label(_("Up"));
-                        }
-                        
-                        gtk_widget_show (PanTilt1);
-                        gtk_widget_show (PanTilt2);
-                        gtk_box_pack_start(GTK_BOX(current->widget),PanTilt1,TRUE,TRUE,2);
-                        gtk_box_pack_start(GTK_BOX(current->widget),PanTilt2,TRUE,TRUE,2);
-                        
-                        g_object_set_data (G_OBJECT (PanTilt1), "control_info", 
-                            GINT_TO_POINTER(current->control.id));
-                        g_object_set_data (G_OBJECT (PanTilt2), "control_info", 
-                            GINT_TO_POINTER(current->control.id));
-                        
-                        g_signal_connect (GTK_BUTTON(PanTilt1), "clicked",
-                            G_CALLBACK (button_PanTilt1_clicked), all_data);
-                        g_signal_connect (GTK_BUTTON(PanTilt2), "clicked",
-                            G_CALLBACK (button_PanTilt2_clicked), all_data);
+                            //videoIn->PanTilt++;
+                            current->widget = gtk_hbox_new (TRUE, 1);
 
-                        gtk_widget_show (current->widget);
+                            GtkWidget *PanTilt1 = NULL;
+                            GtkWidget *PanTilt2 = NULL;
+                            if(current->control.id == V4L2_CID_PAN_RELATIVE)
+                            {
+                                PanTilt1 = gtk_button_new_with_label(_("Left"));
+                                PanTilt2 = gtk_button_new_with_label(_("Right"));
+                            }
+                            else
+                            {
+                                PanTilt1 = gtk_button_new_with_label(_("Down"));
+                                PanTilt2 = gtk_button_new_with_label(_("Up"));
+                            }
+                            
+                            gtk_widget_show (PanTilt1);
+                            gtk_widget_show (PanTilt2);
+                            gtk_box_pack_start(GTK_BOX(current->widget),PanTilt1,TRUE,TRUE,2);
+                            gtk_box_pack_start(GTK_BOX(current->widget),PanTilt2,TRUE,TRUE,2);
+                            
+                            g_object_set_data (G_OBJECT (PanTilt1), "control_info", 
+                                GINT_TO_POINTER(current->control.id));
+                            g_object_set_data (G_OBJECT (PanTilt2), "control_info", 
+                                GINT_TO_POINTER(current->control.id));
+                            
+                            g_signal_connect (GTK_BUTTON(PanTilt1), "clicked",
+                                G_CALLBACK (button_PanTilt1_clicked), all_data);
+                            g_signal_connect (GTK_BUTTON(PanTilt2), "clicked",
+                                G_CALLBACK (button_PanTilt2_clicked), all_data);
+
+                            gtk_widget_show (current->widget);
+                            
+                            current->spinbutton = gtk_spin_button_new_with_range(-256, 256, 64);
+                            /*can't edit the spin value by hand*/
+                            gtk_editable_set_editable(GTK_EDITABLE(current->spinbutton),FALSE);
                         
-                        current->spinbutton = gtk_spin_button_new_with_range(-256, 256, 64);
-                        /*can't edit the spin value by hand*/
-                        gtk_editable_set_editable(GTK_EDITABLE(current->spinbutton),FALSE);
-                    
-                        gtk_spin_button_set_value (GTK_SPIN_BUTTON(current->spinbutton), 128);
-                        gtk_widget_show (current->spinbutton);
+                            gtk_spin_button_set_value (GTK_SPIN_BUTTON(current->spinbutton), 128);
+                            gtk_widget_show (current->spinbutton);
+                        };
                         break;
-                    }
                     
-                    if ((current->control.id == V4L2_CID_PAN_RESET) ||
-                        (current->control.id == V4L2_CID_TILT_RESET))
-                    {
-                        current->widget = gtk_button_new_with_label(" ");
-                        gtk_widget_show (current->widget);
-                    
-                        g_object_set_data (G_OBJECT (current->widget), "control_info", 
-                            GINT_TO_POINTER(current->control.id));
+                        case V4L2_CID_PAN_RESET:
+                        case V4L2_CID_TILT_RESET:
+                        {
+                            current->widget = gtk_button_new_with_label(" ");
+                            gtk_widget_show (current->widget);
                         
-                        g_signal_connect (GTK_BUTTON(current->widget), "clicked",
-                            G_CALLBACK (button_clicked), all_data);
+                            g_object_set_data (G_OBJECT (current->widget), "control_info", 
+                                GINT_TO_POINTER(current->control.id));
+                            
+                            g_signal_connect (GTK_BUTTON(current->widget), "clicked",
+                                G_CALLBACK (button_clicked), all_data);
+                        };
                         break;
-                    }
                     
-                    if (current->control.id == V4L2_CID_LED1_MODE_LOGITECH)
-                    {
-                        /*turn it into a menu control*/
-                        current->widget = gtk_combo_box_new_text ();
-                        gtk_combo_box_append_text (
-                                GTK_COMBO_BOX (current->widget),
-                                _("Off"));
-                        gtk_combo_box_append_text (
-                                GTK_COMBO_BOX (current->widget),
-                                _("On"));
-                        gtk_combo_box_append_text (
-                                GTK_COMBO_BOX (current->widget),
-                                _("Blinking"));
-                        gtk_combo_box_append_text (
-                                GTK_COMBO_BOX (current->widget),
-                                _("Auto"));
-                        gtk_combo_box_set_active (GTK_COMBO_BOX (current->widget), current->value);
-                        gtk_widget_show (current->widget);
-                         
-                        g_object_set_data (G_OBJECT (current->widget), "control_info", 
-                            GINT_TO_POINTER(current->control.id));
-                        //connect signal
-                        g_signal_connect (GTK_COMBO_BOX(current->widget), "changed",
-                            G_CALLBACK (combo_changed), all_data);
-                        
+                        case V4L2_CID_LED1_MODE_LOGITECH:
+                        {
+                            /*turn it into a menu control*/
+                            current->widget = gtk_combo_box_new_text ();
+                            gtk_combo_box_append_text (
+                                    GTK_COMBO_BOX (current->widget),
+                                    _("Off"));
+                            gtk_combo_box_append_text (
+                                    GTK_COMBO_BOX (current->widget),
+                                    _("On"));
+                            gtk_combo_box_append_text (
+                                    GTK_COMBO_BOX (current->widget),
+                                    _("Blinking"));
+                            gtk_combo_box_append_text (
+                                    GTK_COMBO_BOX (current->widget),
+                                    _("Auto"));
+                            gtk_combo_box_set_active (GTK_COMBO_BOX (current->widget), current->value);
+                            gtk_widget_show (current->widget);
+                             
+                            g_object_set_data (G_OBJECT (current->widget), "control_info", 
+                                GINT_TO_POINTER(current->control.id));
+                            //connect signal
+                            g_signal_connect (GTK_COMBO_BOX(current->widget), "changed",
+                                G_CALLBACK (combo_changed), all_data);
+                        };
                         break;
-                    }
-                    if (current->control.id == V4L2_CID_RAW_BITS_PER_PIXEL_LOGITECH)
-                    {
-                        /*turn it into a menu control*/
-                        current->widget = gtk_combo_box_new_text ();
-                        gtk_combo_box_append_text (
-                                GTK_COMBO_BOX (current->widget),
-                                _("8 bit"));
-                        gtk_combo_box_append_text (
-                                GTK_COMBO_BOX (current->widget),
-                                _("12 bit"));
                         
-                        gtk_combo_box_set_active (GTK_COMBO_BOX (current->widget), current->value);
-                        gtk_widget_show (current->widget);
-                         
-                        g_object_set_data (G_OBJECT (current->widget), "control_info", 
-                            GINT_TO_POINTER(current->control.id));
-                        //connect signal
-                        g_signal_connect (GTK_COMBO_BOX(current->widget), "changed",
-                            G_CALLBACK (combo_changed), all_data);
-                        
+                        case V4L2_CID_RAW_BITS_PER_PIXEL_LOGITECH:
+                        {
+                            /*turn it into a menu control*/
+                            current->widget = gtk_combo_box_new_text ();
+                            gtk_combo_box_append_text (
+                                    GTK_COMBO_BOX (current->widget),
+                                    _("8 bit"));
+                            gtk_combo_box_append_text (
+                                    GTK_COMBO_BOX (current->widget),
+                                    _("12 bit"));
+                            
+                            gtk_combo_box_set_active (GTK_COMBO_BOX (current->widget), current->value);
+                            gtk_widget_show (current->widget);
+                             
+                            g_object_set_data (G_OBJECT (current->widget), "control_info", 
+                                GINT_TO_POINTER(current->control.id));
+                            //connect signal
+                            g_signal_connect (GTK_COMBO_BOX(current->widget), "changed",
+                                G_CALLBACK (combo_changed), all_data);
+                        };
                         break;
-                    }
                     
-                    /* check for valid range */
-                    if((current->control.maximum > current->control.minimum) && (current->control.step != 0))
-                    {
-                        current->widget = gtk_hscale_new_with_range (
-                            current->control.minimum,
-                            current->control.maximum,
-                            current->control.step);
-                        gtk_scale_set_draw_value (GTK_SCALE (current->widget), FALSE);
-                        GTK_RANGE (current->widget)->round_digits = 0;
-                        gtk_widget_show (current->widget);
-                    
-                        current->spinbutton = gtk_spin_button_new_with_range(
-                            current->control.minimum,
-                            current->control.maximum,
-                            current->control.step);
-                        /*can't edit the spin value by hand*/
-                        gtk_editable_set_editable(GTK_EDITABLE(current->spinbutton),FALSE);
-                    
-                        gtk_range_set_value (GTK_RANGE (current->widget), current->value);
-                        gtk_spin_button_set_value (GTK_SPIN_BUTTON(current->spinbutton), current->value);
-                        gtk_widget_show (current->spinbutton);
-                     
-                        g_object_set_data (G_OBJECT (current->widget), "control_info", 
-                            GINT_TO_POINTER(current->control.id));
-                        g_object_set_data (G_OBJECT (current->spinbutton), "control_info",
-                            GINT_TO_POINTER(current->control.id));
-                        //connect signal
-                        g_signal_connect (GTK_SCALE(current->widget), "value-changed",
-                            G_CALLBACK (slider_changed), all_data);
-                        g_signal_connect(GTK_SPIN_BUTTON(current->spinbutton),"value-changed",
-                            G_CALLBACK (spin_changed), all_data);
-                    }
-                    else
-                    {
-                        printf("INVALID RANGE (MAX <= MIN) for control id: 0x%08x \n", current->control.id);
-                    }
-                }
+                        default: //standard case - hscale
+                        {
+                            /* check for valid range */
+                            if((current->control.maximum > current->control.minimum) && (current->control.step != 0))
+                            {
+                                current->widget = gtk_hscale_new_with_range (
+                                    current->control.minimum,
+                                    current->control.maximum,
+                                    current->control.step);
+                                gtk_scale_set_draw_value (GTK_SCALE (current->widget), FALSE);
+                                GTK_RANGE (current->widget)->round_digits = 0;
+                                gtk_widget_show (current->widget);
+                            
+                                current->spinbutton = gtk_spin_button_new_with_range(
+                                    current->control.minimum,
+                                    current->control.maximum,
+                                    current->control.step);
+                                /*can't edit the spin value by hand*/
+                                gtk_editable_set_editable(GTK_EDITABLE(current->spinbutton),FALSE);
+                            
+                                gtk_range_set_value (GTK_RANGE (current->widget), current->value);
+                                gtk_spin_button_set_value (GTK_SPIN_BUTTON(current->spinbutton), current->value);
+                                gtk_widget_show (current->spinbutton);
+                             
+                                g_object_set_data (G_OBJECT (current->widget), "control_info", 
+                                    GINT_TO_POINTER(current->control.id));
+                                g_object_set_data (G_OBJECT (current->spinbutton), "control_info",
+                                    GINT_TO_POINTER(current->control.id));
+                                //connect signal
+                                g_signal_connect (GTK_SCALE(current->widget), "value-changed",
+                                    G_CALLBACK (slider_changed), all_data);
+                                g_signal_connect(GTK_SPIN_BUTTON(current->spinbutton),"value-changed",
+                                    G_CALLBACK (spin_changed), all_data);
+                            }
+                            else
+                            {
+                                printf("INVALID RANGE (MAX <= MIN) for control id: 0x%08x \n", current->control.id);
+                            }
+                        };
+                        break;
+                    };
+                };
                 break;
             
             case V4L2_CTRL_TYPE_MENU:
