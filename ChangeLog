@@ -2,6 +2,7 @@ guvcview (1.4.5)
 
     * store current codec properties in configuration file
     * fix audio codec properties button
+    * modify some logitech extra controls (integer to menu)
 
  -- Paulo Assis <pj.assis@gmail.com>  Tue, 1 Mar 2011 23:09:00 +0000
  
