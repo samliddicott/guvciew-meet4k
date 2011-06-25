@@ -137,6 +137,7 @@ int initGlobals (struct GLOBAL *global)
 
 	global->Frame_Flags = YUV_NOFILT;
 
+    global->no_display = FALSE;
 	global->exit_on_close = FALSE;
 	global->skip_n=0;
 	global->jpeg=NULL;

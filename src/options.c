@@ -730,6 +730,7 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 		{ "device", 'd', 0, G_OPTION_ARG_STRING, &device, N_("Video Device to use [default: /dev/video0]"), "VIDEO_DEVICE" },
 		{ "add_ctrls", 'a', 0, G_OPTION_ARG_NONE, &global->add_ctrls, N_("Exit after adding UVC extension controls (needs root/sudo)"), NULL},
 		{ "control_only", 'o', 0, G_OPTION_ARG_NONE, &global->control_only, N_("Don't stream video (image controls only)"), NULL},
+        { "no_display", 0,0, G_OPTION_ARG_NONE, &global->no_display, N_("Don't display a GUI"), NULL},
 		{ "capture_method", 'r', 0, G_OPTION_ARG_INT, &cap_meth, N_("Capture method (1-mmap (default)  2-read)"), "[1 | 2]"},
 		{ "config", 'g', 0, G_OPTION_ARG_STRING, &config, N_("Configuration file"), "FILENAME" },
 		{ "hwd_acel", 'w', 0, G_OPTION_ARG_INT, &hwaccel, N_("Hardware accelaration (enable(1) | disable(0))"), "[1 | 0]" },

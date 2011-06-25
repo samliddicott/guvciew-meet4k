@@ -154,10 +154,15 @@ static int initVideoFile(struct ALL_DATA *all_data, void * lavc_aud_data)
 					{
 						g_printerr("error opening portaudio\n");
 						global->Sound_enable=0;
-						gdk_threads_enter();
-						gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gwidget->SndEnable),0);
-						gdk_flush();
-						gdk_threads_leave();
+						if(!(global->no_display))
+                        {
+						    gdk_threads_enter();
+						    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gwidget->SndEnable),0);
+						    gdk_flush();
+						    gdk_threads_leave();
+						}
+						else
+                            capture_vid(NULL, all_data);
 					} 
 				}
 			}
@@ -199,11 +204,16 @@ static int initVideoFile(struct ALL_DATA *all_data, void * lavc_aud_data)
 				{
 					g_printerr("error opening portaudio\n");
 					global->Sound_enable=0;
-					/*will this work with the checkbox disabled?*/
-					gdk_threads_enter();
-					gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gwidget->SndEnable),0);
-					gdk_flush();
-					gdk_threads_leave();
+					if(!(global->no_display))
+                    {
+					    /*will this work with the checkbox disabled?*/
+					    gdk_threads_enter();
+					    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gwidget->SndEnable),0);
+					    gdk_flush();
+					    gdk_threads_leave();
+					}
+					else
+					    capture_vid(NULL, all_data);
 				}
 			}
 			break;
@@ -367,10 +377,15 @@ static int write_video_frame (struct ALL_DATA *all_data,
 							g_printerr("Thread create failed: %s!!\n", err1->message );
 							g_error_free ( err1 ) ;
 							printf("stoping video capture\n");
-							gdk_threads_enter();
-							gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(gwidget->CapVidButt), FALSE);
-							gdk_flush();
-							gdk_threads_leave();
+							if(!(global->no_display))
+                            {
+							    gdk_threads_enter();
+							    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(gwidget->CapVidButt), FALSE);
+							    gdk_flush();
+							    gdk_threads_leave();
+							}
+							else
+							    capture_vid(NULL, all_data);
 						}
 						g_printf("AVI file size limit reached - restarted capture on new file\n");
 					}
@@ -431,10 +446,15 @@ static int write_audio_frame (struct ALL_DATA *all_data, void *lavc_adata, AudBu
 							g_printerr("Thread create failed: %s!!\n", err1->message );
 							g_error_free ( err1 ) ;
 							printf("stoping video capture\n");
-							gdk_threads_enter();
-							gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(gwidget->CapVidButt), FALSE);
-							gdk_flush();
-							gdk_threads_leave();
+							if(!(global->no_display))
+                            {
+							    gdk_threads_enter();
+							    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(gwidget->CapVidButt), FALSE);
+							    gdk_flush();
+							    gdk_threads_leave();
+							}
+							else
+							    capture_vid(NULL, all_data);
 						}
 					
 						//split_avi(all_data);/*blocking call*/
@@ -849,19 +869,21 @@ void *IO_loop(void *data)
 	if(initVideoFile(all_data, (void *) &(lavc_audio_data))<0)
 	{
 		g_printerr("Cap Video failed\n");
+		if(!(global->no_display))
+        {
+		    gdk_threads_enter();
+		    /*disable signals for video capture callback*/
+		    g_signal_handlers_block_by_func(GTK_TOGGLE_BUTTON(gwidget->CapVidButt), G_CALLBACK (capture_vid), all_data);
+		    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(gwidget->CapVidButt), FALSE);
+		    gtk_button_set_label(GTK_BUTTON(gwidget->CapVidButt),_("Cap. Video"));
+		    /*enable signals for video capture callback*/
+		    g_signal_handlers_unblock_by_func(GTK_TOGGLE_BUTTON(gwidget->CapVidButt), G_CALLBACK (capture_vid), all_data);
+		    gdk_flush();
+		    gdk_threads_leave();
 		
-		gdk_threads_enter();
-		/*disable signals for video capture callback*/
-		g_signal_handlers_block_by_func(GTK_TOGGLE_BUTTON(gwidget->CapVidButt), G_CALLBACK (capture_vid), all_data);
-		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(gwidget->CapVidButt), FALSE);
-		gtk_button_set_label(GTK_BUTTON(gwidget->CapVidButt),_("Cap. Video"));
-		/*enable signals for video capture callback*/
-		g_signal_handlers_unblock_by_func(GTK_TOGGLE_BUTTON(gwidget->CapVidButt), G_CALLBACK (capture_vid), all_data);
-		gdk_flush();
-		gdk_threads_leave();
-		
-		/*enabling sound and video compression controls*/
-		set_sensitive_vid_contrls(TRUE, global->Sound_enable, gwidget);
+		    /*enabling sound and video compression controls*/
+		    set_sensitive_vid_contrls(TRUE, global->Sound_enable, gwidget);
+		}
 		
 		finished = TRUE;
 		failed = TRUE;

@@ -116,6 +116,14 @@ int main(int argc, char *argv[])
 	
 	//sets local control_only flag - prevents several initializations/allocations
 	control_only = (global->control_only || global->add_ctrls) ;
+    if(global->no_display && (global->control_only || !(global->exit_on_close && (global->Capture_time || global->image_timer))))
+    {
+        if(!(global->exit_on_close && (global->Capture_time || global->image_timer)))
+            g_printerr("no_display must be used with exit_on_close and a timed capture: enabling display");
+        else
+            g_printerr("incompatible options (control_only and no_display): enabling display");
+        global->no_display = FALSE;
+    }
 	
 	/*---------------------------------- Allocations -------------------------*/
 	
@@ -171,22 +179,24 @@ int main(int argc, char *argv[])
 		lc_dir, lc_all, langs[0], txtdom);
 #endif
 	/*---------------------------- GTK init ----------------------------------*/
+    gtk_init(&argc, &argv);
+    g_set_application_name(_("Guvcview Video Capture"));
+    g_setenv("PULSE_PROP_media.role", "video", TRUE); //needed for Pulse Audio
+        
+    if(!global->no_display)
+    {
+        /* make sure the type is realized so that we can change the properties*/
+        g_type_class_unref (g_type_class_ref (GTK_TYPE_BUTTON));
+        /* make sure gtk-button-images property is set to true (defaults to false in karmic)*/
+        g_object_set (gtk_settings_get_default (), "gtk-button-images", TRUE, NULL);
 
-	gtk_init(&argc, &argv);
-	g_set_application_name(_("Guvcview Video Capture"));
-	g_setenv("PULSE_PROP_media.role", "video", TRUE); //needed for Pulse Audio
-
-	/* make sure the type is realized so that we can change the properties*/
-	g_type_class_unref (g_type_class_ref (GTK_TYPE_BUTTON));
-	/* make sure gtk-button-images property is set to true (defaults to false in karmic)*/
-	g_object_set (gtk_settings_get_default (), "gtk-button-images", TRUE, NULL);
-	
-	/* Create a main window */
-	gwidget->mainwin = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_title (GTK_WINDOW (gwidget->mainwin), _("GUVCViewer Controls"));
-	gtk_window_resize(GTK_WINDOW(gwidget->mainwin),global->winwidth,global->winheight);
-	/* Add event handlers */
-	gtk_signal_connect(GTK_OBJECT(gwidget->mainwin), "delete_event", GTK_SIGNAL_FUNC(delete_event), &all_data);
+        /* Create a main window */
+        gwidget->mainwin = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+        gtk_window_set_title (GTK_WINDOW (gwidget->mainwin), _("GUVCViewer Controls"));
+        gtk_window_resize(GTK_WINDOW(gwidget->mainwin),global->winwidth,global->winheight);
+        /* Add event handlers */
+        gtk_signal_connect(GTK_OBJECT(gwidget->mainwin), "delete_event", GTK_SIGNAL_FUNC(delete_event), &all_data);
+    }
 
 	/*----------------------- init videoIn structure --------------------------*/
 	videoIn = g_new0(struct vdIn, 1);
@@ -335,245 +345,252 @@ int main(int argc, char *argv[])
 	}
 	/*-----------------------------GTK widgets---------------------------------*/
 	/*----------------------- Image controls Tab ------------------------------*/
-	s->control_list = NULL;
-	/*-- draw the controls --*/
-	printf("drawing controls\n\n");
-	draw_controls(&all_data);
-	
-	if (global->lprofile > 0) LoadControls (&all_data);
-	
-	gwidget->boxv = gtk_vpaned_new ();
-	gwidget->boxh = gtk_notebook_new();
-
-	gtk_widget_show (s->table);
-	gtk_widget_show (gwidget->boxh);
-	
-	scroll1=gtk_scrolled_window_new(NULL,NULL);
-	gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scroll1),s->table);
-	gtk_scrolled_window_set_placement(GTK_SCROLLED_WINDOW(scroll1), GTK_CORNER_TOP_LEFT);
-	
-	gtk_widget_show(scroll1);
-	
-	Tab1 = gtk_hbox_new(FALSE,2);
-	Tab1Label = gtk_label_new(_("Image Controls"));
-	gtk_widget_show (Tab1Label);
-	/*check for files*/
-	gchar* Tab1IconPath = g_strconcat (PACKAGE_DATA_DIR,"/pixmaps/guvcview/image_controls.png",NULL);
-	/*don't test for file - use default empty image if load fails*/
-	/*get icon image*/
-	Tab1Icon = gtk_image_new_from_file(Tab1IconPath);
-	g_free(Tab1IconPath);
-	gtk_widget_show (Tab1Icon);
-	gtk_box_pack_start (GTK_BOX(Tab1), Tab1Icon, FALSE, FALSE,1);
-	gtk_box_pack_start (GTK_BOX(Tab1), Tab1Label, FALSE, FALSE,1);
-	
-	gtk_widget_show (Tab1);
-	
-	gtk_notebook_append_page(GTK_NOTEBOOK(gwidget->boxh),scroll1,Tab1);
-
-	gtk_paned_add1(GTK_PANED(gwidget->boxv),gwidget->boxh);
-	
-	gtk_widget_show (gwidget->boxv);
-	
-	/*---------------------- Add  Buttons ---------------------------------*/
-	buttons_table = gtk_table_new(1,5,FALSE);
-	HButtonBox = gtk_hbutton_box_new();
-	gtk_button_box_set_layout(GTK_BUTTON_BOX(HButtonBox),GTK_BUTTONBOX_SPREAD);
-	gtk_box_set_homogeneous(GTK_BOX(HButtonBox),TRUE);
-
-	gtk_table_set_row_spacings (GTK_TABLE (buttons_table), 1);
-	gtk_table_set_col_spacings (GTK_TABLE (buttons_table), 4);
-	gtk_container_set_border_width (GTK_CONTAINER (buttons_table), 1);
-	
-	gtk_widget_show (buttons_table);
-	gtk_paned_add2(GTK_PANED(gwidget->boxv),buttons_table);
-	
-	if(!control_only) /*control_only exclusion (video and Audio) */
-	{
-		capture_labels=gtk_label_new(_("Capture:"));
-		gtk_misc_set_alignment (GTK_MISC (capture_labels), 0.5, 0.5);
-		gtk_table_attach (GTK_TABLE(buttons_table), capture_labels, n, n+2, 0, 1,
-			GTK_SHRINK | GTK_FILL | GTK_EXPAND, 0, 0, 0);
-		gtk_widget_show (capture_labels);
-		n+=2; //increment column for labels
-	}//end of control only exclusion
-	
-	profile_labels=gtk_label_new(_("Control Profiles:"));
-	gtk_misc_set_alignment (GTK_MISC (profile_labels), 0.5, 0.5);
-
-	gtk_table_attach (GTK_TABLE(buttons_table), profile_labels, n, n+2, 0, 1,
-		GTK_SHRINK | GTK_FILL | GTK_EXPAND , 0, 0, 0);
-	gtk_widget_show (profile_labels);
-	
-	gtk_table_attach(GTK_TABLE(buttons_table), HButtonBox, 0, 5, 1, 2,
-		GTK_SHRINK | GTK_FILL | GTK_EXPAND, 0, 0, 0);
-		
-	gtk_widget_show(HButtonBox);
-	
-	gwidget->quitButton=gtk_button_new_from_stock(GTK_STOCK_QUIT);
-	SProfileButton=gtk_button_new_from_stock(GTK_STOCK_SAVE);
-	LProfileButton=gtk_button_new_from_stock(GTK_STOCK_OPEN);
-    DefaultsButton=gtk_button_new_with_label(_("Defaults"));
-
-	gchar* icon1path = g_strconcat (PACKAGE_DATA_DIR,"/pixmaps/guvcview/guvcview.png",NULL);
-	if (g_file_test(icon1path,G_FILE_TEST_EXISTS))
-	{
-		gtk_window_set_icon_from_file(GTK_WINDOW (gwidget->mainwin),icon1path,NULL);
-	}
-	g_free(icon1path);
-	
-	if(!control_only)/*control_only exclusion Image and video buttons*/
-	{
-		if(global->image_timer)
-		{	/*image auto capture*/
-			gwidget->CapImageButt=gtk_button_new_with_label (_("Stop Auto"));
-		}
-		else 
-		{
-			gwidget->CapImageButt=gtk_button_new_with_label (_("Cap. Image"));
-		}
-
-		if (global->vidfile) 
-		{	/*vid capture enabled from start*/
-			gwidget->CapVidButt=gtk_toggle_button_new_with_label (_("Stop Video"));
-			gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gwidget->CapVidButt), TRUE);
-		} 
-		else 
-		{
-			gwidget->CapVidButt=gtk_toggle_button_new_with_label (_("Cap. Video"));
-			gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gwidget->CapVidButt), FALSE);
-		}
-
-		/*add images to Buttons and top window*/
-		/*check for files*/
-
-		gchar* pix1path = g_strconcat (PACKAGE_DATA_DIR,"/pixmaps/guvcview/movie.png",NULL);
-		if (g_file_test(pix1path,G_FILE_TEST_EXISTS)) 
-		{
-			gwidget->VidButton_Img = gtk_image_new_from_file (pix1path);
-		
-			gtk_button_set_image(GTK_BUTTON(gwidget->CapVidButt),gwidget->VidButton_Img);
-			gtk_button_set_image_position(GTK_BUTTON(gwidget->CapVidButt),GTK_POS_TOP);
-			//gtk_widget_show (gwidget->VidButton_Img);
-		}
-		//else g_printf("couldn't load %s\n", pix1path);
-		gchar* pix2path = g_strconcat (PACKAGE_DATA_DIR,"/pixmaps/guvcview/camera.png",NULL);
-		if (g_file_test(pix2path,G_FILE_TEST_EXISTS)) 
-		{
-			ImgButton_Img = gtk_image_new_from_file (pix2path);
-		
-			gtk_button_set_image(GTK_BUTTON(gwidget->CapImageButt),ImgButton_Img);
-			gtk_button_set_image_position(GTK_BUTTON(gwidget->CapImageButt),GTK_POS_TOP);
-			//gtk_widget_show (ImgButton_Img);
-		}
-		g_free(pix1path);
-		g_free(pix2path);
-		gtk_box_pack_start(GTK_BOX(HButtonBox),gwidget->CapImageButt,TRUE,TRUE,2);
-		gtk_box_pack_start(GTK_BOX(HButtonBox),gwidget->CapVidButt,TRUE,TRUE,2);
-		gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (gwidget->CapVidButt), FALSE);
-		gtk_widget_show (gwidget->CapImageButt);
-		gtk_widget_show (gwidget->CapVidButt);
-		
-		g_signal_connect (GTK_BUTTON(gwidget->CapImageButt), "clicked",
-			G_CALLBACK (capture_image), &all_data);
-		g_signal_connect (GTK_TOGGLE_BUTTON(gwidget->CapVidButt), "toggled",
-			G_CALLBACK (capture_vid), &all_data);
-        /*key events*/
-        gtk_widget_add_events (GTK_WIDGET (gwidget->mainwin), GDK_KEY_PRESS_MASK | GDK_KEY_RELEASE_MASK);
-        g_signal_connect (GTK_OBJECT(gwidget->mainwin), "key_press_event", G_CALLBACK (key_pressed), &all_data);
-	}/*end of control_only exclusion*/
-	
-	gchar* pix3path = g_strconcat (PACKAGE_DATA_DIR,"/pixmaps/guvcview/save.png",NULL);
-	if (g_file_test(pix3path,G_FILE_TEST_EXISTS)) 
-	{
-		SButton_Img = gtk_image_new_from_file (pix3path);
-		
-		gtk_button_set_image(GTK_BUTTON(SProfileButton),SButton_Img);
-		gtk_button_set_image_position(GTK_BUTTON(SProfileButton),GTK_POS_TOP);
-		//gtk_widget_show (SButton_Img);
-	}
-	gchar* pix4path = g_strconcat (PACKAGE_DATA_DIR,"/pixmaps/guvcview/controls_folder.png",NULL);
-	if (g_file_test(pix4path,G_FILE_TEST_EXISTS)) 
-	{
-		LButton_Img = gtk_image_new_from_file (pix4path);
-		
-		gtk_button_set_image(GTK_BUTTON(LProfileButton),LButton_Img);
-		gtk_button_set_image_position(GTK_BUTTON(LProfileButton),GTK_POS_TOP);
-		//gtk_widget_show (LButton_Img);
-	}
-    gchar* pix5path = g_strconcat (PACKAGE_DATA_DIR,"/pixmaps/guvcview/defaults.png",NULL);
-	if (g_file_test(pix5path,G_FILE_TEST_EXISTS)) 
-	{
-		DButton_Img = gtk_image_new_from_file (pix5path);
-		
-		gtk_button_set_image(GTK_BUTTON(DefaultsButton),DButton_Img);
-		gtk_button_set_image_position(GTK_BUTTON(DefaultsButton),GTK_POS_TOP);
-		//gtk_widget_show (LButton_Img);
-	}
-	gchar* pix6path = g_strconcat (PACKAGE_DATA_DIR,"/pixmaps/guvcview/close.png",NULL);
-	if (g_file_test(pix6path,G_FILE_TEST_EXISTS)) 
-	{
-		QButton_Img = gtk_image_new_from_file (pix6path);
-		
-		gtk_button_set_image(GTK_BUTTON(gwidget->quitButton),QButton_Img);
-		gtk_button_set_image_position(GTK_BUTTON(gwidget->quitButton),GTK_POS_TOP);
-		//gtk_widget_show (QButton_Img);
-	}
-
-	/*must free path strings*/
-	g_free(pix3path);
-	g_free(pix4path);
-	g_free(pix5path);
-    g_free(pix6path);
-
-	gtk_box_pack_start(GTK_BOX(HButtonBox),SProfileButton,TRUE,TRUE,2);
-	gtk_box_pack_start(GTK_BOX(HButtonBox),LProfileButton,TRUE,TRUE,2);
-    gtk_box_pack_start(GTK_BOX(HButtonBox),DefaultsButton,TRUE,TRUE,2);
-	gtk_box_pack_start(GTK_BOX(HButtonBox),gwidget->quitButton,TRUE,TRUE,2);
-
-	gtk_widget_show_all (LProfileButton);
-	gtk_widget_show_all (SProfileButton);
-    gtk_widget_show_all (DefaultsButton);
-	gtk_widget_show_all (gwidget->quitButton);
-
-	g_signal_connect (GTK_BUTTON(gwidget->quitButton), "clicked",
-		G_CALLBACK (quitButton_clicked), &all_data);
-	
-	gboolean SProfile = TRUE;
-	g_object_set_data (G_OBJECT (SProfileButton), "profile_save", &(SProfile));
-	g_signal_connect (GTK_BUTTON(SProfileButton), "clicked",
-		G_CALLBACK (ProfileButton_clicked), &all_data);
-	gboolean LProfile = FALSE;
-	g_object_set_data (G_OBJECT (LProfileButton), "profile_save", &(LProfile));
-	g_signal_connect (GTK_BUTTON(LProfileButton), "clicked",
-		G_CALLBACK (ProfileButton_clicked), &all_data);
     
-    g_signal_connect (GTK_BUTTON(DefaultsButton), "clicked",
-		G_CALLBACK (DefaultsButton_clicked), &all_data);
-	
-	/*sets the pan position*/
-	if(global->boxvsize==0) 
-	{
-		global->boxvsize=global->winheight-122;
-	}
-	gtk_paned_set_position (GTK_PANED(gwidget->boxv),global->boxvsize);
-	
-	if(!control_only) /*control_only exclusion (video and Audio) */
-	{
-		/*------------------------- Video Tab ---------------------------------*/
-		video_tab (&all_data);
-		
-		/*-------------------------- Audio Tab --------------------------------*/
-		audio_tab (&all_data);
-	} /*end of control_only exclusion*/
-	
-	/* main container */
-	gtk_container_add (GTK_CONTAINER (gwidget->mainwin), gwidget->boxv);
-	
-	gtk_widget_show (gwidget->mainwin);
+    if(!(global->no_display))
+    {
+        s->control_list = NULL;
+        /*-- draw the controls --*/
+        printf("drawing controls\n\n");
+        draw_controls(&all_data);
+        
+        if (global->lprofile > 0) LoadControls (&all_data);
+        
+        gwidget->boxv = gtk_vpaned_new ();
+        gwidget->boxh = gtk_notebook_new();
+
+        gtk_widget_show (s->table);
+        gtk_widget_show (gwidget->boxh);
+        
+        scroll1=gtk_scrolled_window_new(NULL,NULL);
+        gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scroll1),s->table);
+        gtk_scrolled_window_set_placement(GTK_SCROLLED_WINDOW(scroll1), GTK_CORNER_TOP_LEFT);
+        
+        gtk_widget_show(scroll1);
+        
+        Tab1 = gtk_hbox_new(FALSE,2);
+        Tab1Label = gtk_label_new(_("Image Controls"));
+        gtk_widget_show (Tab1Label);
+        /*check for files*/
+        gchar* Tab1IconPath = g_strconcat (PACKAGE_DATA_DIR,"/pixmaps/guvcview/image_controls.png",NULL);
+        /*don't test for file - use default empty image if load fails*/
+        /*get icon image*/
+        Tab1Icon = gtk_image_new_from_file(Tab1IconPath);
+        g_free(Tab1IconPath);
+        gtk_widget_show (Tab1Icon);
+        gtk_box_pack_start (GTK_BOX(Tab1), Tab1Icon, FALSE, FALSE,1);
+        gtk_box_pack_start (GTK_BOX(Tab1), Tab1Label, FALSE, FALSE,1);
+        
+        gtk_widget_show (Tab1);
+        
+        gtk_notebook_append_page(GTK_NOTEBOOK(gwidget->boxh),scroll1,Tab1);
+
+        gtk_paned_add1(GTK_PANED(gwidget->boxv),gwidget->boxh);
+        
+        gtk_widget_show (gwidget->boxv);
+        
+        /*---------------------- Add  Buttons ---------------------------------*/
+        buttons_table = gtk_table_new(1,5,FALSE);
+        HButtonBox = gtk_hbutton_box_new();
+        gtk_button_box_set_layout(GTK_BUTTON_BOX(HButtonBox),GTK_BUTTONBOX_SPREAD);
+        gtk_box_set_homogeneous(GTK_BOX(HButtonBox),TRUE);
+
+        gtk_table_set_row_spacings (GTK_TABLE (buttons_table), 1);
+        gtk_table_set_col_spacings (GTK_TABLE (buttons_table), 4);
+        gtk_container_set_border_width (GTK_CONTAINER (buttons_table), 1);
+        
+        gtk_widget_show (buttons_table);
+        gtk_paned_add2(GTK_PANED(gwidget->boxv),buttons_table);
+        
+        if(!control_only) /*control_only exclusion (video and Audio) */
+        {
+            capture_labels=gtk_label_new(_("Capture:"));
+            gtk_misc_set_alignment (GTK_MISC (capture_labels), 0.5, 0.5);
+            gtk_table_attach (GTK_TABLE(buttons_table), capture_labels, n, n+2, 0, 1,
+                GTK_SHRINK | GTK_FILL | GTK_EXPAND, 0, 0, 0);
+            gtk_widget_show (capture_labels);
+            n+=2; //increment column for labels
+        }//end of control only exclusion
+        
+        profile_labels=gtk_label_new(_("Control Profiles:"));
+        gtk_misc_set_alignment (GTK_MISC (profile_labels), 0.5, 0.5);
+
+        gtk_table_attach (GTK_TABLE(buttons_table), profile_labels, n, n+2, 0, 1,
+            GTK_SHRINK | GTK_FILL | GTK_EXPAND , 0, 0, 0);
+        gtk_widget_show (profile_labels);
+        
+        gtk_table_attach(GTK_TABLE(buttons_table), HButtonBox, 0, 5, 1, 2,
+            GTK_SHRINK | GTK_FILL | GTK_EXPAND, 0, 0, 0);
+            
+        gtk_widget_show(HButtonBox);
+        
+        gwidget->quitButton=gtk_button_new_from_stock(GTK_STOCK_QUIT);
+        SProfileButton=gtk_button_new_from_stock(GTK_STOCK_SAVE);
+        LProfileButton=gtk_button_new_from_stock(GTK_STOCK_OPEN);
+        DefaultsButton=gtk_button_new_with_label(_("Defaults"));
+
+        gchar* icon1path = g_strconcat (PACKAGE_DATA_DIR,"/pixmaps/guvcview/guvcview.png",NULL);
+        if (g_file_test(icon1path,G_FILE_TEST_EXISTS))
+        {
+            gtk_window_set_icon_from_file(GTK_WINDOW (gwidget->mainwin),icon1path,NULL);
+        }
+        g_free(icon1path);
+        
+        if(!control_only)/*control_only exclusion Image and video buttons*/
+        {
+            if(global->image_timer)
+            {	/*image auto capture*/
+                gwidget->CapImageButt=gtk_button_new_with_label (_("Stop Auto"));
+            }
+            else 
+            {
+                gwidget->CapImageButt=gtk_button_new_with_label (_("Cap. Image"));
+            }
+
+            if (global->vidfile) 
+            {	/*vid capture enabled from start*/
+                gwidget->CapVidButt=gtk_toggle_button_new_with_label (_("Stop Video"));
+                gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gwidget->CapVidButt), TRUE);
+            } 
+            else 
+            {
+                gwidget->CapVidButt=gtk_toggle_button_new_with_label (_("Cap. Video"));
+                gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gwidget->CapVidButt), FALSE);
+            }
+
+            /*add images to Buttons and top window*/
+            /*check for files*/
+
+            gchar* pix1path = g_strconcat (PACKAGE_DATA_DIR,"/pixmaps/guvcview/movie.png",NULL);
+            if (g_file_test(pix1path,G_FILE_TEST_EXISTS)) 
+            {
+                gwidget->VidButton_Img = gtk_image_new_from_file (pix1path);
+            
+                gtk_button_set_image(GTK_BUTTON(gwidget->CapVidButt),gwidget->VidButton_Img);
+                gtk_button_set_image_position(GTK_BUTTON(gwidget->CapVidButt),GTK_POS_TOP);
+                //gtk_widget_show (gwidget->VidButton_Img);
+            }
+            //else g_printf("couldn't load %s\n", pix1path);
+            gchar* pix2path = g_strconcat (PACKAGE_DATA_DIR,"/pixmaps/guvcview/camera.png",NULL);
+            if (g_file_test(pix2path,G_FILE_TEST_EXISTS)) 
+            {
+                ImgButton_Img = gtk_image_new_from_file (pix2path);
+            
+                gtk_button_set_image(GTK_BUTTON(gwidget->CapImageButt),ImgButton_Img);
+                gtk_button_set_image_position(GTK_BUTTON(gwidget->CapImageButt),GTK_POS_TOP);
+                //gtk_widget_show (ImgButton_Img);
+            }
+            g_free(pix1path);
+            g_free(pix2path);
+            gtk_box_pack_start(GTK_BOX(HButtonBox),gwidget->CapImageButt,TRUE,TRUE,2);
+            gtk_box_pack_start(GTK_BOX(HButtonBox),gwidget->CapVidButt,TRUE,TRUE,2);
+            gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (gwidget->CapVidButt), FALSE);
+            gtk_widget_show (gwidget->CapImageButt);
+            gtk_widget_show (gwidget->CapVidButt);
+            
+            g_signal_connect (GTK_BUTTON(gwidget->CapImageButt), "clicked",
+                G_CALLBACK (capture_image), &all_data);
+            g_signal_connect (GTK_TOGGLE_BUTTON(gwidget->CapVidButt), "toggled",
+                G_CALLBACK (capture_vid), &all_data);
+            /*key events*/
+            gtk_widget_add_events (GTK_WIDGET (gwidget->mainwin), GDK_KEY_PRESS_MASK | GDK_KEY_RELEASE_MASK);
+            g_signal_connect (GTK_OBJECT(gwidget->mainwin), "key_press_event", G_CALLBACK (key_pressed), &all_data);
+        }/*end of control_only exclusion*/
+        
+        gchar* pix3path = g_strconcat (PACKAGE_DATA_DIR,"/pixmaps/guvcview/save.png",NULL);
+        if (g_file_test(pix3path,G_FILE_TEST_EXISTS)) 
+        {
+            SButton_Img = gtk_image_new_from_file (pix3path);
+            
+            gtk_button_set_image(GTK_BUTTON(SProfileButton),SButton_Img);
+            gtk_button_set_image_position(GTK_BUTTON(SProfileButton),GTK_POS_TOP);
+            //gtk_widget_show (SButton_Img);
+        }
+        gchar* pix4path = g_strconcat (PACKAGE_DATA_DIR,"/pixmaps/guvcview/controls_folder.png",NULL);
+        if (g_file_test(pix4path,G_FILE_TEST_EXISTS)) 
+        {
+            LButton_Img = gtk_image_new_from_file (pix4path);
+            
+            gtk_button_set_image(GTK_BUTTON(LProfileButton),LButton_Img);
+            gtk_button_set_image_position(GTK_BUTTON(LProfileButton),GTK_POS_TOP);
+            //gtk_widget_show (LButton_Img);
+        }
+        gchar* pix5path = g_strconcat (PACKAGE_DATA_DIR,"/pixmaps/guvcview/defaults.png",NULL);
+        if (g_file_test(pix5path,G_FILE_TEST_EXISTS)) 
+        {
+            DButton_Img = gtk_image_new_from_file (pix5path);
+            
+            gtk_button_set_image(GTK_BUTTON(DefaultsButton),DButton_Img);
+            gtk_button_set_image_position(GTK_BUTTON(DefaultsButton),GTK_POS_TOP);
+            //gtk_widget_show (LButton_Img);
+        }
+        gchar* pix6path = g_strconcat (PACKAGE_DATA_DIR,"/pixmaps/guvcview/close.png",NULL);
+        if (g_file_test(pix6path,G_FILE_TEST_EXISTS)) 
+        {
+            QButton_Img = gtk_image_new_from_file (pix6path);
+            
+            gtk_button_set_image(GTK_BUTTON(gwidget->quitButton),QButton_Img);
+            gtk_button_set_image_position(GTK_BUTTON(gwidget->quitButton),GTK_POS_TOP);
+            //gtk_widget_show (QButton_Img);
+        }
+
+        /*must free path strings*/
+        g_free(pix3path);
+        g_free(pix4path);
+        g_free(pix5path);
+        g_free(pix6path);
+
+        gtk_box_pack_start(GTK_BOX(HButtonBox),SProfileButton,TRUE,TRUE,2);
+        gtk_box_pack_start(GTK_BOX(HButtonBox),LProfileButton,TRUE,TRUE,2);
+        gtk_box_pack_start(GTK_BOX(HButtonBox),DefaultsButton,TRUE,TRUE,2);
+        gtk_box_pack_start(GTK_BOX(HButtonBox),gwidget->quitButton,TRUE,TRUE,2);
+
+        gtk_widget_show_all (LProfileButton);
+        gtk_widget_show_all (SProfileButton);
+        gtk_widget_show_all (DefaultsButton);
+        gtk_widget_show_all (gwidget->quitButton);
+
+        g_signal_connect (GTK_BUTTON(gwidget->quitButton), "clicked",
+            G_CALLBACK (quitButton_clicked), &all_data);
+        
+        gboolean SProfile = TRUE;
+        g_object_set_data (G_OBJECT (SProfileButton), "profile_save", &(SProfile));
+        g_signal_connect (GTK_BUTTON(SProfileButton), "clicked",
+            G_CALLBACK (ProfileButton_clicked), &all_data);
+        gboolean LProfile = FALSE;
+        g_object_set_data (G_OBJECT (LProfileButton), "profile_save", &(LProfile));
+        g_signal_connect (GTK_BUTTON(LProfileButton), "clicked",
+            G_CALLBACK (ProfileButton_clicked), &all_data);
+        
+        g_signal_connect (GTK_BUTTON(DefaultsButton), "clicked",
+            G_CALLBACK (DefaultsButton_clicked), &all_data);
+        
+        /*sets the pan position*/
+        if(global->boxvsize==0) 
+        {
+            global->boxvsize=global->winheight-122;
+        }
+        gtk_paned_set_position (GTK_PANED(gwidget->boxv),global->boxvsize);
+        
+        if(!control_only) /*control_only exclusion (video and Audio) */
+        {
+            /*------------------------- Video Tab ---------------------------------*/
+            video_tab (&all_data);
+            
+            /*-------------------------- Audio Tab --------------------------------*/
+            audio_tab (&all_data);
+        } /*end of control_only exclusion*/
+        
+        /* main container */
+        gtk_container_add (GTK_CONTAINER (gwidget->mainwin), gwidget->boxv);
+        
+        gtk_widget_show (gwidget->mainwin);
+        
+         /*Add udev device monitoring timer*/
+        global->udev_timer_id=g_timeout_add( 500, check_v4l2_udev_events, &all_data);
+    }
+    else
+        list_snd_devices (global);
     
-     /*Add udev device monitoring timer*/
-    global->udev_timer_id=g_timeout_add( 500, check_v4l2_udev_events, &all_data);
     
 	if (!control_only) /*control_only exclusion*/
 	{
@@ -603,7 +620,8 @@ int main(int argc, char *argv[])
 		{
 			global->image_timer_id=g_timeout_add(global->image_timer*1000,
 				Image_capture_timer, &all_data);
-			set_sensitive_img_contrls(FALSE, gwidget);/*disable image controls*/
+            if(!global->no_display)
+                set_sensitive_img_contrls(FALSE, gwidget);/*disable image controls*/
 		}
 		/*--------------------- video capture from start ---------------------------*/
 		if(global->vidfile) 
@@ -617,7 +635,7 @@ int main(int argc, char *argv[])
 				cap_ok = FALSE;
 			}
 			else
-			{
+			{  
 				/*start disk check timed callback (every 10 sec)*/
 				if (!global->disk_timer_id)
 					global->disk_timer_id=g_timeout_add(10*1000, FreeDiskCheck_timer, &all_data);
@@ -647,12 +665,15 @@ int main(int argc, char *argv[])
 			if(!cap_ok)
 			{
 				g_printerr("ERROR: couldn't start video capture\n");
-				//g_signal_handlers_block_by_func(GTK_TOGGLE_BUTTON(gwidget->CapVidButt), G_CALLBACK (capture_vid), all_data);
-				gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(gwidget->CapVidButt), FALSE);
-				gtk_button_set_label(GTK_BUTTON(gwidget->CapVidButt),_("Cap. Video"));
-				//g_signal_handlers_unblock_by_func(GTK_TOGGLE_BUTTON(gwidget->CapVidButt), G_CALLBACK (capture_vid), all_data);
+                if(!global->no_display)
+                {
+                    //g_signal_handlers_block_by_func(GTK_TOGGLE_BUTTON(gwidget->CapVidButt), G_CALLBACK (capture_vid), all_data);
+                    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(gwidget->CapVidButt), FALSE);
+                    gtk_button_set_label(GTK_BUTTON(gwidget->CapVidButt),_("Cap. Video"));
+                    //g_signal_handlers_unblock_by_func(GTK_TOGGLE_BUTTON(gwidget->CapVidButt), G_CALLBACK (capture_vid), all_data);
+                }
 			}
-			else
+			else if(!global->no_display)
 			{
 				/*disabling sound and video compression controls*/
 				set_sensitive_vid_contrls(FALSE, global->Sound_enable, gwidget);
@@ -667,7 +688,7 @@ int main(int argc, char *argv[])
 	
 	}/*end of control_only exclusion*/ 
 	
-	/* The last thing to get called */
+	/* The last thing to get called (gtk loop)*/
 	gdk_threads_enter();
 	gtk_main();
 	gdk_threads_leave();

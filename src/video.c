@@ -221,21 +221,24 @@ void *main_loop(void *data)
     gboolean signalquit = FALSE;
     
     /*------------------------------ SDL init video ---------------------*/
-    overlay = video_init(data, &(pscreen));
-    
-    if(overlay == NULL)
+    if(!global->no_display)
     {
-        g_printf("FATAL: Couldn't create yuv overlay - please disable hardware accelaration\n");
-        signalquit = TRUE; /*exit video thread*/
-    }
-    else
-    {
-        p = (unsigned char *) overlay->pixels[0];
-    
-        drect.x = 0;
-        drect.y = 0;
-        drect.w = pscreen->w;
-        drect.h = pscreen->h;
+        overlay = video_init(data, &(pscreen));
+        
+        if(overlay == NULL)
+        {
+            g_printf("FATAL: Couldn't create yuv overlay - please disable hardware accelaration\n");
+            signalquit = TRUE; /*exit video thread*/
+        }
+        else
+        {
+            p = (unsigned char *) overlay->pixels[0];
+        
+            drect.x = 0;
+            drect.y = 0;
+            drect.w = pscreen->w;
+            drect.h = pscreen->h;
+        }
     }
     
     while (!signalquit) 
@@ -278,13 +281,14 @@ void *main_loop(void *data)
                 }
             }
             
-            if (global->FpsCount) 
+            if (global->FpsCount && !global->no_display) 
             {/* sets fps count in window title bar */
                 global->frmCount++;
                 if (global->DispFps>0) 
                 { /*set every 2 sec*/
                     g_snprintf(global->WVcaption,24,"GUVCVideo - %3.2f fps",global->DispFps);
                     SDL_WM_SetCaption(global->WVcaption, NULL);
+                    
                     global->frmCount=0;/*resets*/
                     global->DispFps=0;
                 }
@@ -406,84 +410,86 @@ void *main_loop(void *data)
         g_mutex_unlock( pdata->mutex );
         
         /*------------------------- Display Frame --------------------------------*/
-        SDL_LockYUVOverlay(overlay);
-        memcpy(p, videoIn->framebuffer, width * height * 2);
-        SDL_UnlockYUVOverlay(overlay);
-        SDL_DisplayYUVOverlay(overlay, &drect);
-        
-        /*------------------------- Read Key events ------------------------------*/
-        /* Poll for events */
-        while( SDL_PollEvent(&event) )
+        if(!global->no_display)
         {
-            //printf("event type:%i  event key:%i\n", event.type, event.key.keysym.scancode);
-            if(event.type==SDL_KEYDOWN) 
+            SDL_LockYUVOverlay(overlay);
+            memcpy(p, videoIn->framebuffer, width * height * 2);
+            SDL_UnlockYUVOverlay(overlay);
+            SDL_DisplayYUVOverlay(overlay, &drect);
+        
+            /*------------------------- Read Key events ------------------------------*/
+            /* Poll for events */
+            while( SDL_PollEvent(&event) )
             {
-                if (videoIn->PanTilt) 
+                //printf("event type:%i  event key:%i\n", event.type, event.key.keysym.scancode);
+                if(event.type==SDL_KEYDOWN) 
                 {
+                    if (videoIn->PanTilt) 
+                    {
+                        switch( event.key.keysym.sym )
+                        {
+                            /* Keyboard event */
+                            /* Pass the event data onto PrintKeyInfo() */
+                            case SDLK_DOWN:
+                                /*Tilt Down*/
+                                uvcPanTilt (videoIn->fd, s->control_list, 0, 1);
+                                break;
+                                
+                            case SDLK_UP:
+                                /*Tilt UP*/
+                                uvcPanTilt (videoIn->fd, s->control_list, 0, -1);
+                                break;
+                                
+                            case SDLK_LEFT:
+                                /*Pan Left*/
+                                uvcPanTilt (videoIn->fd, s->control_list, 1, 1);
+                                break;
+                                
+                            case SDLK_RIGHT:
+                                /*Pan Right*/
+                                uvcPanTilt (videoIn->fd, s->control_list, 1, -1);
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                    switch( event.key.keysym.scancode )
+                    {
+                        case 220: /*webcam button*/
+                            gdk_threads_enter();
+                            gtk_button_clicked (GTK_BUTTON(gwidget->CapImageButt));
+                            gdk_threads_leave();
+                            break;
+                    }
                     switch( event.key.keysym.sym )
                     {
-                        /* Keyboard event */
-                        /* Pass the event data onto PrintKeyInfo() */
-                        case SDLK_DOWN:
-                            /*Tilt Down*/
-                            uvcPanTilt (videoIn->fd, s->control_list, 0, 1);
+                        case SDLK_q:
+                            //shutDown
+                            g_timeout_add(200, shutd_timer, all_data);
+                            g_printf("q pressed - Quiting...\n");
                             break;
-                            
-                        case SDLK_UP:
-                            /*Tilt UP*/
-                            uvcPanTilt (videoIn->fd, s->control_list, 0, -1);
-                            break;
-                            
-                        case SDLK_LEFT:
-                            /*Pan Left*/
-                            uvcPanTilt (videoIn->fd, s->control_list, 1, 1);
-                            break;
-                            
-                        case SDLK_RIGHT:
-                            /*Pan Right*/
-                            uvcPanTilt (videoIn->fd, s->control_list, 1, -1);
+                        case SDLK_SPACE:
+                        {
+                            if(global->AFcontrol > 0)
+                                setfocus_clicked(NULL, all_data);
+                        }
                             break;
                         default:
                             break;
                     }
                 }
-                switch( event.key.keysym.scancode )
+                if(event.type==SDL_VIDEORESIZE)
                 {
-                    case 220: /*webcam button*/
-                        gdk_threads_enter();
-                        gtk_button_clicked (GTK_BUTTON(gwidget->CapImageButt));
-                        gdk_threads_leave();
-                        break;
+                    pscreen =
+                        SDL_SetVideoMode(event.resize.w,
+                                 event.resize.h,
+                                 global->bpp,
+                                 SDL_VIDEO_Flags);
+                    drect.w = event.resize.w;
+                    drect.h = event.resize.h;
                 }
-                switch( event.key.keysym.sym )
-                {
-                    case SDLK_q:
-                        //shutDown
-                        g_timeout_add(200, shutd_timer, all_data);
-                        g_printf("q pressed - Quiting...\n");
-                        break;
-                    case SDLK_SPACE:
-                    {
-                        if(global->AFcontrol > 0)
-                            setfocus_clicked(NULL, all_data);
-                    }
-                        break;
-                    default:
-                        break;
-                }
-            }
-            if(event.type==SDL_VIDEORESIZE)
-            {
-                pscreen =
-                    SDL_SetVideoMode(event.resize.w,
-                             event.resize.h,
-                             global->bpp,
-                             SDL_VIDEO_Flags);
-                drect.w = event.resize.w;
-                drect.h = event.resize.h;
             }
         }
-        
         /* if set make the thread sleep - default no sleep (full throttle)*/
         if(global->vid_sleep) sleep_ms(global->vid_sleep);
         
@@ -501,8 +507,11 @@ void *main_loop(void *data)
             if (global->debug) g_printf("cleaning buffer allocations\n");
             fflush(NULL);//flush all output buffers 
             
-            SDL_FreeYUVOverlay(overlay);
-            overlay = NULL;
+            if(!global->no_display)
+            {
+                SDL_FreeYUVOverlay(overlay);
+                overlay = NULL;
+            }
             /*init device*/
             restart_v4l2(videoIn, global);
             /*set new resolution for video thread*/
@@ -510,23 +519,27 @@ void *main_loop(void *data)
             height = global->height;
             format = global->format;
             /* restart SDL with new values*/
-            overlay = video_init(data, &(pscreen));
-            if(overlay == NULL)
+            if(!global->no_display)
             {
-                g_printf("FATAL: Couldn't create yuv overlay - please disable hardware accelaration\n");
-                signalquit = TRUE; /*exit video thread*/
+                overlay = video_init(data, &(pscreen));
+                if(overlay == NULL)
+                {
+                    g_printf("FATAL: Couldn't create yuv overlay - please disable hardware accelaration\n");
+                    signalquit = TRUE; /*exit video thread*/
+                }
+                else
+                {
+                    if (global->debug) g_printf("yuv overlay created (%ix%i).\n", overlay->w, overlay->h);
+                    p = (unsigned char *) overlay->pixels[0];
+        
+                    drect.x = 0;
+                    drect.y = 0;
+                    drect.w = pscreen->w;
+                    drect.h = pscreen->h;
+                    global->change_res = FALSE;
+                }
             }
-            else
-            {
-                if (global->debug) g_printf("yuv overlay created (%ix%i).\n", overlay->w, overlay->h);
-                p = (unsigned char *) overlay->pixels[0];
-    
-                drect.x = 0;
-                drect.y = 0;
-                drect.w = pscreen->w;
-                drect.h = pscreen->h;
-                global->change_res = FALSE;
-            }
+            else global->change_res = FALSE;
         }
 
     }/*loop end*/
@@ -562,13 +575,16 @@ void *main_loop(void *data)
     if (global->debug) g_printf("cleaning Thread allocations: 100%%\n");
     fflush(NULL);//flush all output buffers 
     
-    if(overlay)
-        SDL_FreeYUVOverlay(overlay);
-    //SDL_FreeSurface(pscreen);
+    if(!global->no_display)
+    {
+        if(overlay)
+            SDL_FreeYUVOverlay(overlay);
+        //SDL_FreeSurface(pscreen);
 
-    SDL_Quit();   
+        SDL_Quit();
+    }
 
-    if (global->debug) g_printf("SDL Quit\n");
+    if (global->debug) g_printf("Video thread completed\n");
     
     global = NULL;
     AFdata = NULL;

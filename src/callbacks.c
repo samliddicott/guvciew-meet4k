@@ -52,21 +52,29 @@
 void
 WARN_DIALOG(const char *warn_title, const char* warn_msg, struct ALL_DATA *all_data)
 {
+    struct GLOBAL *global = all_data->global;
 	struct GWIDGET *gwidget = all_data->gwidget;
 	
-	GtkWidget *warndialog;
-	warndialog = gtk_message_dialog_new (GTK_WINDOW(gwidget->mainwin),
-		GTK_DIALOG_DESTROY_WITH_PARENT,
-		GTK_MESSAGE_WARNING,
-		GTK_BUTTONS_CLOSE,
-		"%s",gettext(warn_title));
+    if(global->no_display)
+    {
+        g_printf("WARNING: %s\n", warn_msg);
+    }
+    else
+    {
+        GtkWidget *warndialog;
+        warndialog = gtk_message_dialog_new (GTK_WINDOW(gwidget->mainwin),
+            GTK_DIALOG_DESTROY_WITH_PARENT,
+            GTK_MESSAGE_WARNING,
+            GTK_BUTTONS_CLOSE,
+            "%s",gettext(warn_title));
 
-	gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(warndialog),
-		"%s",gettext(warn_msg));
+        gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(warndialog),
+            "%s",gettext(warn_msg));
 
-	gtk_widget_show(warndialog);
-	gtk_dialog_run (GTK_DIALOG (warndialog));
-	gtk_widget_destroy (warndialog);
+        gtk_widget_show(warndialog);
+        gtk_dialog_run (GTK_DIALOG (warndialog));
+        gtk_widget_destroy (warndialog);
+    }
 }
 
 /*---------------------------- error message dialog -----------------------------*/
@@ -76,124 +84,130 @@ ERR_DIALOG(const char *err_title, const char* err_msg, struct ALL_DATA *all_data
 	struct GWIDGET *gwidget = all_data->gwidget;
 	struct GLOBAL *global = all_data->global;
 	struct vdIn *videoIn = all_data->videoIn;
-	
-	int i=0;
-	
 	gboolean control_only = (global->control_only || global->add_ctrls);
 	
-	GtkWidget *errdialog=NULL;
-	GtkWidget *Devices=NULL;
-	
-	if (videoIn->listDevices->num_devices > 1)
-	{
-		errdialog = gtk_dialog_new_with_buttons (_("Error"),
-		    GTK_WINDOW(gwidget->mainwin),
-		    GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
-		    GTK_STOCK_OK,
-		    GTK_RESPONSE_ACCEPT,
-		    GTK_STOCK_CANCEL,
-		    GTK_RESPONSE_REJECT,
-		    NULL);
-		
-	    GtkWidget *table = gtk_table_new(4,2,FALSE);
-	    
-	    GtkWidget *title = gtk_label_new (gettext(err_title));
-	    gtk_widget_modify_font(title, pango_font_description_from_string ("Sans bold 10"));
-	    gtk_misc_set_alignment (GTK_MISC (title), 0, 0);
-        gtk_table_attach (GTK_TABLE (table), title, 0, 2, 0, 1,
-                    GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
-        gtk_widget_show (title);
-	    
-	    GtkWidget *text = gtk_label_new (gettext(err_msg));
-	    gtk_widget_modify_font(text, pango_font_description_from_string ("Sans italic 8"));
-	    gtk_misc_set_alignment (GTK_MISC (text), 0, 0);
-        gtk_table_attach (GTK_TABLE (table), text, 0, 2, 1, 2,
-                    GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
-        gtk_widget_show (text);
+    if(global->no_display)
+    {
+        g_printerr("ERROR: %s\n", err_msg);
+    }
+    else
+    {
+        int i=0;
+        
+        GtkWidget *errdialog=NULL;
+        GtkWidget *Devices=NULL;
+        
+        if (videoIn->listDevices->num_devices > 1)
+        {
+            errdialog = gtk_dialog_new_with_buttons (_("Error"),
+                GTK_WINDOW(gwidget->mainwin),
+                GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+                GTK_STOCK_OK,
+                GTK_RESPONSE_ACCEPT,
+                GTK_STOCK_CANCEL,
+                GTK_RESPONSE_REJECT,
+                NULL);
+            
+            GtkWidget *table = gtk_table_new(4,2,FALSE);
+            
+            GtkWidget *title = gtk_label_new (gettext(err_title));
+            gtk_widget_modify_font(title, pango_font_description_from_string ("Sans bold 10"));
+            gtk_misc_set_alignment (GTK_MISC (title), 0, 0);
+            gtk_table_attach (GTK_TABLE (table), title, 0, 2, 0, 1,
+                        GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+            gtk_widget_show (title);
+            
+            GtkWidget *text = gtk_label_new (gettext(err_msg));
+            gtk_widget_modify_font(text, pango_font_description_from_string ("Sans italic 8"));
+            gtk_misc_set_alignment (GTK_MISC (text), 0, 0);
+            gtk_table_attach (GTK_TABLE (table), text, 0, 2, 1, 2,
+                        GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+            gtk_widget_show (text);
 
 
-        GtkWidget *text2 = gtk_label_new (_("\nYou have more than one video device installed.\n"
-            "Do you want to try another one ?\n"));
-        gtk_widget_modify_font(text2, pango_font_description_from_string ("Sans 10"));
-	    gtk_misc_set_alignment (GTK_MISC (text2), 0, 0);
-        gtk_table_attach (GTK_TABLE (table), text2, 0, 2, 2, 3,
-                    GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
-        gtk_widget_show (text2);
-	    
-	    GtkWidget *lbl_dev = gtk_label_new(_("Device:"));
-	    gtk_misc_set_alignment (GTK_MISC (lbl_dev), 0.5, 0.5);
-	    gtk_table_attach (GTK_TABLE(table), lbl_dev, 0, 1, 3, 4,
-		    GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
-	    gtk_widget_show (lbl_dev);
-	    
-	    Devices = gtk_combo_box_new_text ();
-	    
-	    for(i=0;i<(videoIn->listDevices->num_devices);i++)
-		{
-			gtk_combo_box_append_text(GTK_COMBO_BOX(Devices),
-				videoIn->listDevices->listVidDevices[i].name);
-		}
-		gtk_combo_box_set_active(GTK_COMBO_BOX(Devices),videoIn->listDevices->num_devices-1);
-		
-		gtk_table_attach(GTK_TABLE(table), Devices, 1, 2, 3, 4,
-		    GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
-	    gtk_widget_show (Devices);
+            GtkWidget *text2 = gtk_label_new (_("\nYou have more than one video device installed.\n"
+                "Do you want to try another one ?\n"));
+            gtk_widget_modify_font(text2, pango_font_description_from_string ("Sans 10"));
+            gtk_misc_set_alignment (GTK_MISC (text2), 0, 0);
+            gtk_table_attach (GTK_TABLE (table), text2, 0, 2, 2, 3,
+                        GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+            gtk_widget_show (text2);
+            
+            GtkWidget *lbl_dev = gtk_label_new(_("Device:"));
+            gtk_misc_set_alignment (GTK_MISC (lbl_dev), 0.5, 0.5);
+            gtk_table_attach (GTK_TABLE(table), lbl_dev, 0, 1, 3, 4,
+                GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+            gtk_widget_show (lbl_dev);
+            
+            Devices = gtk_combo_box_new_text ();
+            
+            for(i=0;i<(videoIn->listDevices->num_devices);i++)
+            {
+                gtk_combo_box_append_text(GTK_COMBO_BOX(Devices),
+                    videoIn->listDevices->listVidDevices[i].name);
+            }
+            gtk_combo_box_set_active(GTK_COMBO_BOX(Devices),videoIn->listDevices->num_devices-1);
+            
+            gtk_table_attach(GTK_TABLE(table), Devices, 1, 2, 3, 4,
+                GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+            gtk_widget_show (Devices);
 
-	    GtkWidget *content_area = gtk_dialog_get_content_area (GTK_DIALOG (errdialog));
-    	gtk_container_add (GTK_CONTAINER (content_area), table);
-    	gtk_widget_show (table);
-	}
-	else
-	{
-	
-	    errdialog = gtk_message_dialog_new (GTK_WINDOW(gwidget->mainwin),
-		    GTK_DIALOG_DESTROY_WITH_PARENT,
-		    GTK_MESSAGE_ERROR,
-		    GTK_BUTTONS_CLOSE,
-		    "%s",gettext(err_title));
+            GtkWidget *content_area = gtk_dialog_get_content_area (GTK_DIALOG (errdialog));
+            gtk_container_add (GTK_CONTAINER (content_area), table);
+            gtk_widget_show (table);
+        }
+        else
+        {
+        
+            errdialog = gtk_message_dialog_new (GTK_WINDOW(gwidget->mainwin),
+                GTK_DIALOG_DESTROY_WITH_PARENT,
+                GTK_MESSAGE_ERROR,
+                GTK_BUTTONS_CLOSE,
+                "%s",gettext(err_title));
 
-	    gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(errdialog),
-		    "%s",gettext(err_msg));
-    
+            gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(errdialog),
+                "%s",gettext(err_msg));
+        
+        }
+        
+        //gtk_widget_show(errdialog);
+        
+        gint result = gtk_dialog_run (GTK_DIALOG (errdialog));
+        switch (result)
+        {
+            case GTK_RESPONSE_ACCEPT:
+            {
+                /*launch another guvcview instance for the selected device*/
+                int index = gtk_combo_box_get_active(GTK_COMBO_BOX(Devices));
+                //if(index == videoIn->listDevices->current_device) 
+                //    break;
+                g_free(global->videodevice);
+                global->videodevice = g_strdup(videoIn->listDevices->listVidDevices[index].device);
+                gchar *command = g_strjoin("",
+                g_get_prgname(),
+                    " --device=",
+                    global->videodevice,
+                    NULL);
+                /*spawn new process*/
+                GError *error = NULL;
+                if(!(g_spawn_command_line_async(command, &error)))
+                {
+                    g_printerr ("spawn failed: %s\n", error->message);
+                    g_error_free ( error );
+                }
+                
+            }
+                break;
+                
+            default:
+                /* do nothing since dialog was cancelled or closed */
+                break;
+        
+        }
+        
+        gtk_widget_destroy (errdialog);
     }
     
-    //gtk_widget_show(errdialog);
-    
-    gint result = gtk_dialog_run (GTK_DIALOG (errdialog));
-	switch (result)
-	{
-		case GTK_RESPONSE_ACCEPT:
-		{
-		    /*launch another guvcview instance for the selected device*/
-		    int index = gtk_combo_box_get_active(GTK_COMBO_BOX(Devices));
-	        //if(index == videoIn->listDevices->current_device) 
-		    //    break;
-	        g_free(global->videodevice);
-	        global->videodevice = g_strdup(videoIn->listDevices->listVidDevices[index].device);
-	        gchar *command = g_strjoin("",
-		    g_get_prgname(),
-		        " --device=",
-		        global->videodevice,
-		        NULL);
-		    /*spawn new process*/
-		    GError *error = NULL;
-			if(!(g_spawn_command_line_async(command, &error)))
-			{
-				g_printerr ("spawn failed: %s\n", error->message);
-				g_error_free ( error );
-			}
-			
-		}
-		    break;
-		    
-		default:
-			/* do nothing since dialog was cancelled or closed */
-			break;
-    
-	}
-	
-	gtk_widget_destroy (errdialog);
-
 	clean_struct(all_data);
 
 	/* error dialog is allways called before creating the main loop */
@@ -1039,22 +1053,27 @@ capture_image (GtkButton *ImageButt, struct ALL_DATA *all_data)
 	struct GLOBAL *global = all_data->global;
 	struct vdIn *videoIn = all_data->videoIn;
 	
-	const char *fileEntr=gtk_entry_get_text(GTK_ENTRY(gwidget->ImageFNameEntry));
-	if(g_strcmp0(fileEntr,global->imgFPath[0])!=0) 
-	{
-		/*reset if entry change from last capture*/
-		if(global->image_inc) global->image_inc=1;
-		global->imgFPath=splitPath((char *)fileEntr, global->imgFPath);
-		gtk_entry_set_text(GTK_ENTRY(gwidget->ImageFNameEntry),"");
-		gtk_entry_set_text(GTK_ENTRY(gwidget->ImageFNameEntry),global->imgFPath[0]);
-		/*get the file type*/
-		global->imgFormat = check_image_type(global->imgFPath[0]);
-		/*set the file type*/
-		gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->ImageType),global->imgFormat);
-	}
+	const char *fileEntr;
+    
+    if(!global->no_display)
+    {
+        fileEntr=gtk_entry_get_text(GTK_ENTRY(gwidget->ImageFNameEntry));
+        if(g_strcmp0(fileEntr,global->imgFPath[0])!=0) 
+        {
+            /*reset if entry change from last capture*/
+            if(global->image_inc) global->image_inc=1;
+            global->imgFPath=splitPath((char *)fileEntr, global->imgFPath);
+            gtk_entry_set_text(GTK_ENTRY(gwidget->ImageFNameEntry),"");
+            gtk_entry_set_text(GTK_ENTRY(gwidget->ImageFNameEntry),global->imgFPath[0]);
+            /*get the file type*/
+            global->imgFormat = check_image_type(global->imgFPath[0]);
+            /*set the file type*/
+            gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->ImageType),global->imgFormat);
+        }
 
-	g_snprintf(global->imageinc_str,24,_("File num:%d"),global->image_inc);
-	gtk_label_set_text(GTK_LABEL(gwidget->ImageIncLabel), global->imageinc_str);
+        g_snprintf(global->imageinc_str,24,_("File num:%d"),global->image_inc);
+        gtk_label_set_text(GTK_LABEL(gwidget->ImageIncLabel), global->imageinc_str);
+    }
 	
 	if ((global->image_timer == 0) && (global->image_inc>0)) 
 	{
@@ -1074,9 +1093,13 @@ capture_image (GtkButton *ImageButt, struct ALL_DATA *all_data)
 	{ 
 		/*auto capture on -> stop it*/
 		if (global->image_timer_id > 0) g_source_remove(global->image_timer_id);
-		gtk_button_set_label(GTK_BUTTON(gwidget->CapImageButt),_("Cap. Image"));
 		global->image_timer=0;
-		set_sensitive_img_contrls(TRUE, gwidget);/*enable image controls*/
+        
+        if(!global->no_display)
+        {
+            gtk_button_set_label(GTK_BUTTON(gwidget->CapImageButt),_("Cap. Image"));
+            set_sensitive_img_contrls(TRUE, gwidget);/*enable image controls*/
+        }
 	} 
 	else 
 	{
@@ -1101,25 +1124,32 @@ capture_vid (GtkToggleButton *VidButt, struct ALL_DATA *all_data)
 	g_mutex_lock(videoIn->mutex);
 		gboolean capVid = videoIn->capVid;
 	g_mutex_unlock(videoIn->mutex);
-	/*disable signals for this callback*/
-	g_signal_handlers_block_by_func(GTK_TOGGLE_BUTTON(gwidget->CapVidButt), G_CALLBACK (capture_vid), all_data);
-	/*widgets are enable/disable in create_video.c*/
-	
-	const char *fileEntr = gtk_entry_get_text(GTK_ENTRY(gwidget->VidFNameEntry));
-	if(g_strcmp0(fileEntr,global->vidFPath[0])!=0) 
-	{
-		/*reset if entry change from last capture*/
-		if(global->vid_inc) global->vid_inc=1;
-		global->vidFPath=splitPath((char *)fileEntr, global->vidFPath);
-		gtk_entry_set_text(GTK_ENTRY(gwidget->VidFNameEntry),"");
-		gtk_entry_set_text(GTK_ENTRY(gwidget->VidFNameEntry),global->vidFPath[0]);
-		/*get the file type*/
-		global->VidFormat = check_video_type(global->vidFPath[0]);
-		/*set the file type*/
-		gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->VidFormat),global->VidFormat);
-	}
-	
-	gboolean state = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(gwidget->CapVidButt));
+    const char *fileEntr;
+    gboolean state=!capVid;
+    
+    if(!global->no_display)
+    {
+        /*disable signals for this callback*/
+        g_signal_handlers_block_by_func(GTK_TOGGLE_BUTTON(gwidget->CapVidButt), G_CALLBACK (capture_vid), all_data);
+        /*widgets are enable/disable in create_video.c*/
+        
+        fileEntr = gtk_entry_get_text(GTK_ENTRY(gwidget->VidFNameEntry));
+        if(g_strcmp0(fileEntr,global->vidFPath[0])!=0) 
+        {
+            /*reset if entry change from last capture*/
+            if(global->vid_inc) global->vid_inc=1;
+            global->vidFPath=splitPath((char *)fileEntr, global->vidFPath);
+            gtk_entry_set_text(GTK_ENTRY(gwidget->VidFNameEntry),"");
+            gtk_entry_set_text(GTK_ENTRY(gwidget->VidFNameEntry),global->vidFPath[0]);
+            /*get the file type*/
+            global->VidFormat = check_video_type(global->vidFPath[0]);
+            /*set the file type*/
+            gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->VidFormat),global->VidFormat);
+        }
+        //check button state
+        state = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(gwidget->CapVidButt));
+    }
+   
 	if(global->debug) g_printf("Cap Video toggled: %d\n", state);
 	
 	if(capVid || !state) 
@@ -1135,25 +1165,30 @@ capture_vid (GtkToggleButton *VidButt, struct ALL_DATA *all_data)
 		if (global->debug) g_printf("Shuting Down IO Thread\n");
 		g_thread_join( all_data->IO_thread );
 		if (global->debug) g_printf("IO Thread finished\n");
-		
-		if(global->debug) g_printf("enabling controls\n");
-		/*enabling sound and video compression controls*/
-		set_sensitive_vid_contrls(TRUE, global->Sound_enable, gwidget);
-		
-		if(!(state))
-		{
-			gtk_button_set_label(GTK_BUTTON(gwidget->CapVidButt),_("Cap. Video"));
-			//gtk_widget_show (gwidget->VidButton_Img);
-		}
+
+        if(!global->no_display)
+        {
+            if(global->debug) g_printf("enabling controls\n");
+            /*enabling sound and video compression controls*/
+            set_sensitive_vid_contrls(TRUE, global->Sound_enable, gwidget);
+            if(!(state))
+            {
+                gtk_button_set_label(GTK_BUTTON(gwidget->CapVidButt),_("Cap. Video"));
+                //gtk_widget_show (gwidget->VidButton_Img);
+            }
+        }
 		if(global->disk_timer_id) g_source_remove(global->disk_timer_id);
 		global->disk_timer_id = 0;
 	} 
 	else if(!(capVid) /*&& state*/)
 	{	/******************** Start Video *********************/
-		global->vidFPath=splitPath((char *)fileEntr, global->vidFPath);
-		g_snprintf(global->vidinc_str,24,_("File num:%d"),global->vid_inc);
-		gtk_label_set_text(GTK_LABEL(gwidget->VidIncLabel), global->vidinc_str);
-				
+        if(!global->no_display)
+        {
+            global->vidFPath=splitPath((char *)fileEntr, global->vidFPath);
+            g_snprintf(global->vidinc_str,24,_("File num:%d"),global->vid_inc);
+            gtk_label_set_text(GTK_LABEL(gwidget->VidIncLabel), global->vidinc_str);
+        }
+
 		if (global->vid_inc>0) 
 		{
 			videoIn->VidFName = incFilename(videoIn->VidFName,
@@ -1180,7 +1215,8 @@ capture_vid (GtkToggleButton *VidButt, struct ALL_DATA *all_data)
 				global->disk_timer_id=g_timeout_add(10*1000, FreeDiskCheck_timer, all_data);
 			
 			/*disabling sound and video compression controls*/
-			set_sensitive_vid_contrls(FALSE, global->Sound_enable, gwidget);
+            if(!global->no_display)
+                set_sensitive_vid_contrls(FALSE, global->Sound_enable, gwidget);
 			
 			GError *err1 = NULL;
 			/*start IO thread*/
@@ -1199,19 +1235,23 @@ capture_vid (GtkToggleButton *VidButt, struct ALL_DATA *all_data)
 			}
 		}
 		
-		if(state)
-		{
-			gtk_button_set_label(GTK_BUTTON(gwidget->CapVidButt),_("Stop Video"));
-			//gtk_widget_show (gwidget->VidButton_Img);
-		}
-		else
-		{
-			gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(gwidget->CapVidButt), FALSE);
-		}
+        if(!global->no_display)
+        {
+            if(state)
+            {
+                gtk_button_set_label(GTK_BUTTON(gwidget->CapVidButt),_("Stop Video"));
+                //gtk_widget_show (gwidget->VidButton_Img);
+            }
+            else
+            {
+                gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(gwidget->CapVidButt), FALSE);
+            }
+        }
 	}
 
 	/*enable signals for this callback*/
-	g_signal_handlers_unblock_by_func(GTK_TOGGLE_BUTTON(gwidget->CapVidButt), G_CALLBACK (capture_vid), all_data);
+    if(!global->no_display)
+        g_signal_handlers_unblock_by_func(GTK_TOGGLE_BUTTON(gwidget->CapVidButt), G_CALLBACK (capture_vid), all_data);
 	
 	gwidget = NULL;
 	pdata = NULL;
@@ -1293,34 +1333,42 @@ split_avi(void *data)
 	struct vdIn *videoIn = all_data->videoIn;
 	struct GWIDGET *gwidget = all_data->gwidget;
 	
-	gdk_threads_enter();
-	/*make sure avi is in incremental mode*/
-	if(!global->vid_inc) 
-	{ 
-		VidInc_changed(GTK_TOGGLE_BUTTON(gwidget->VidInc), all_data);
-		global->vid_inc=1; /*just in case*/
-	}
-	
-	/*stops avi capture*/
-	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(gwidget->CapVidButt), FALSE);
-	//gtk_toggle_button_toggled (GTK_TOGGLE_BUTTON(gwidget->CapAVIButt));
-	gdk_flush ();
-	gdk_threads_leave();
+    
+    gdk_threads_enter();
+    /*make sure avi is in incremental mode*/
+    if(!global->vid_inc) 
+    { 
+        VidInc_changed(GTK_TOGGLE_BUTTON(gwidget->VidInc), all_data);
+        global->vid_inc=1; /*just in case*/
+    }
+        
+    /*stops avi capture*/
+    if(!global->no_display)
+        gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(gwidget->CapVidButt), FALSE);
+    else
+        capture_vid(NULL, all_data);
+    //gtk_toggle_button_toggled (GTK_TOGGLE_BUTTON(gwidget->CapAVIButt));
+    gdk_flush ();
+    gdk_threads_leave();
 
-	/*FIXME: should join the caller thread instead (will it work?)*/
-	int stall = wait_ms(&(videoIn->IOfinished), TRUE, videoIn->mutex, 10, 200);
-	if( !(stall > 0) )
-	{
-		g_printerr("IO thread stalled (%d) - timeout\n",
-			videoIn->IOfinished);
-	}
-	/*starts avi capture*/
-	gdk_threads_enter();
-	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(gwidget->CapVidButt), TRUE);
+    /*FIXME: should join the caller thread instead (will it work?)*/
+    int stall = wait_ms(&(videoIn->IOfinished), TRUE, videoIn->mutex, 10, 200);
+    if( !(stall > 0) )
+    {
+        g_printerr("IO thread stalled (%d) - timeout\n",
+            videoIn->IOfinished);
+    }
+    /*starts avi capture*/
+    gdk_threads_enter();
+    if(!global->no_display)
+        gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(gwidget->CapVidButt), TRUE);
+    else
+        capture_vid(NULL, all_data);
 
-	gdk_flush ();
-	gdk_threads_leave();
-	/*thread as finished*/
+    gdk_flush ();
+    gdk_threads_leave();
+    /*thread as finished*/
+
 	global=NULL;
 	gwidget = NULL;
 	return NULL;

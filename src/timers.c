@@ -55,10 +55,18 @@ timer_callback(gpointer data)
     
     /*stop video capture*/
     if(global->debug) g_printf("setting video toggle to FALSE\n");
-    gdk_threads_enter();
-    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(gwidget->CapVidButt), FALSE);
-    gdk_flush();
-    gdk_threads_leave();
+    
+    if(!global->no_display)
+    {
+        gdk_threads_enter();
+        gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(gwidget->CapVidButt), FALSE);
+        gdk_flush();
+        gdk_threads_leave();
+    }
+    else
+    {
+        capture_vid(NULL, all_data);
+    }
     
     global->Capture_time=0;
     //if exit_on_close then shutdown
@@ -85,24 +93,30 @@ Image_capture_timer(gpointer data)
     //g_mutex_unlock(videoIn->mutex);
 
     //g_mutex_lock(global->mutex);
-    g_snprintf(global->imageinc_str,24,_("File num:%d"),global->image_inc);
-    
-    gdk_threads_enter();
-        gtk_label_set_text(GTK_LABEL(gwidget->ImageIncLabel), global->imageinc_str);
-        gdk_flush();
-    gdk_threads_leave();
+    if(!global->no_display)
+    {
+        g_snprintf(global->imageinc_str,24,_("File num:%d"),global->image_inc);
+        
+        gdk_threads_enter();
+            gtk_label_set_text(GTK_LABEL(gwidget->ImageIncLabel), global->imageinc_str);
+            gdk_flush();
+        gdk_threads_leave();
+    }
     
     global->image_inc++;
     videoIn->capImage = TRUE;
 
     if(global->image_inc > global->image_npics) 
     {   /*destroy timer*/
-        gdk_threads_enter();
-        gtk_button_set_label(GTK_BUTTON(gwidget->CapImageButt),_("Cap. Image"));
+        if(!global->no_display)
+        {
+            gdk_threads_enter();
+            gtk_button_set_label(GTK_BUTTON(gwidget->CapImageButt),_("Cap. Image"));
+            set_sensitive_img_contrls(TRUE, gwidget);/*enable image controls*/
+            gdk_flush();
+            gdk_threads_leave();
+        }
         global->image_timer=0;
-        set_sensitive_img_contrls(TRUE, gwidget);/*enable image controls*/
-        gdk_flush();
-        gdk_threads_leave();
         
         //if exit_on_close then shutdown
         if(global->exit_on_close)
@@ -126,8 +140,11 @@ FpsCount_callback(gpointer data)
         return(TRUE); /*keeps the timer*/
     else 
     {
-        g_snprintf(global->WVcaption,10,"GUVCVideo");
-        SDL_WM_SetCaption(global->WVcaption, NULL);
+        if(!global->no_display)
+        {
+            g_snprintf(global->WVcaption,10,"GUVCVideo");
+            SDL_WM_SetCaption(global->WVcaption, NULL);
+        }
         return (FALSE);/*destroys the timer*/
     }
 }
@@ -219,10 +236,15 @@ FreeDiskCheck_timer(gpointer data)
             g_printerr("Stopping video Capture\n");
             /*stop video capture*/
             if(global->debug) g_printf("setting video toggle to FALSE\n");
-            gdk_threads_enter();
-            gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(gwidget->CapVidButt), FALSE);
-            gdk_flush();
-            gdk_threads_leave();
+            if(!global->no_display)
+            {
+                gdk_threads_enter();
+                gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(gwidget->CapVidButt), FALSE);
+                gdk_flush();
+                gdk_threads_leave();
+            }
+            else
+                capture_vid(NULL, all_data);
         }
         else
             return(TRUE); /*keeps the timer*/
