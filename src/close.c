@@ -133,9 +133,11 @@ shutd (gint restart, struct ALL_DATA *all_data)
     /* destroys udev device event check timer*/
     if (global->udev_timer_id > 0) g_source_remove(global->udev_timer_id);
 
-	gtk_window_get_size(GTK_WINDOW(gwidget->mainwin),&(global->winwidth),&(global->winheight));//mainwin or widget
-	global->boxvsize=gtk_paned_get_position (GTK_PANED(gwidget->boxv));
-	
+    if(!global->no_display)
+    {
+	    gtk_window_get_size(GTK_WINDOW(gwidget->mainwin),&(global->winwidth),&(global->winheight));//mainwin or widget
+	    global->boxvsize=gtk_paned_get_position (GTK_PANED(gwidget->boxv));
+	}
 	/*save configuration*/
 	writeConf(global, videoIn->videodevice);
 	
