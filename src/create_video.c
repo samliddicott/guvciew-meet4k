@@ -995,14 +995,12 @@ void *IO_loop(void *data)
 	
 	if(lavc_data != NULL)
 	{
-		int nf = clean_lavc(&lavc_data);
-		if(global->debug) g_printf(" total frames encoded: %d\n", nf);
+		clean_lavc(&lavc_data);
 		lavc_data = NULL;
 	}
 	if(lavc_audio_data != NULL)
 	{
-		int nf = clean_lavc_audio(&lavc_audio_data);
-		if(global->debug) g_printf(" total audio frames encoded: %d\n", nf);
+		clean_lavc_audio(&lavc_audio_data);
 		lavc_audio_data = NULL;
 	}
 	if(jpg_data != NULL) g_free(jpg_data);

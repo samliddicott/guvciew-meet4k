@@ -138,10 +138,10 @@ int encode_lavc_audio_frame (short *audio_buf, struct lavcAData* data)
 int clean_lavc (void* arg)
 {
 	struct lavcData** data= (struct lavcData**) arg;
-	int enc_frames =0;
+	//int enc_frames =0;
 	if(*data)
 	{
-		enc_frames = (*data)->codec_context->real_pict_num;
+		//enc_frames = (*data)->codec_context->real_pict_num;
 		avcodec_flush_buffers((*data)->codec_context);
 		//close codec 
 		avcodec_close((*data)->codec_context);
@@ -154,7 +154,7 @@ int clean_lavc (void* arg)
 		g_free(*data);
 		*data = NULL;
 	}
-	return (enc_frames);
+	return (0);
 }
 
 int clean_lavc_audio (void* arg)
@@ -240,7 +240,9 @@ struct lavcData* init_lavc(int width, int height, int fps_num, int fps_den, int 
 	data->codec_context->qblur = defaults->qblur;
 	data->codec_context->strict_std_compliance = FF_COMPLIANCE_NORMAL;
 	data->codec_context->codec_id = defaults->codec_id;
+#ifdef 	CODEC_TYPE_VIDEO
 	data->codec_context->codec_type = CODEC_TYPE_VIDEO;
+#endif
 	data->codec_context->pix_fmt = PIX_FMT_YUV420P; //only yuv420p available for mpeg
 	if(defaults->fps)
 		data->codec_context->time_base = (AVRational){1,defaults->fps}; //use properties fps
@@ -299,8 +301,9 @@ struct lavcAData* init_lavc_audio(struct paRecordData *pdata, int codec_ind)
 	data->codec_context->cutoff = 0; /*automatic*/
 	//data->codec_context->sample_fmt = SAMPLE_FMT_FLT; /* floating point sample */
 	data->codec_context->codec_id = defaults->codec_id;
+#ifdef CODEC_TYPE_AUDIO
 	data->codec_context->codec_type = CODEC_TYPE_AUDIO;
-	
+#endif	
 	// open codec
 	if (avcodec_open(data->codec_context, data->codec) < 0) 
 	{
