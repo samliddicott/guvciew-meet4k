@@ -160,10 +160,10 @@ int clean_lavc (void* arg)
 int clean_lavc_audio (void* arg)
 {
 	struct lavcAData** data= (struct lavcAData**) arg;
-	int enc_frames =0;
+	//int enc_frames =0;
 	if(*data)
 	{
-		enc_frames = (*data)->codec_context->real_pict_num;
+		//enc_frames = (*data)->codec_context->real_pict_num;
 		avcodec_flush_buffers((*data)->codec_context);
 		//close codec 
 		avcodec_close((*data)->codec_context);
@@ -174,7 +174,7 @@ int clean_lavc_audio (void* arg)
 		g_free(*data);
 		*data = NULL;
 	}
-	return (enc_frames);
+	return (0);
 }
 
 struct lavcData* init_lavc(int width, int height, int fps_num, int fps_den, int codec_ind)
