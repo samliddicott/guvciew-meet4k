@@ -325,7 +325,9 @@ void *main_loop(void *data)
     int height = global->height;
     int format = global->format;
     
-    BYTE *vuFrame = malloc(width*height*2);
+    //needs to be updated if resolution changes
+    BYTE *vuFrame = NULL;
+    
     SAMPLE vuPeak[2];  // The maximum vuLevel seen recently
     int vuPeakFreeze[2]; // The vuPeak values will be frozen for this many frames.
     vuPeak[0] = vuPeak[1] = 0;
@@ -542,8 +544,11 @@ void *main_loop(void *data)
         {
         	BYTE *videoBuffer = videoIn->framebuffer; 
 			if (global->osdFlags && pdata->audio_buff)
+			{
+				if(!vuFrame)
+	    			vuFrame = g_new(BYTE, width*height*2);
 				videoBuffer = draw_vu_meter(width, height, vuFrame, vuPeak, vuPeakFreeze, data);
-
+			}
             SDL_LockYUVOverlay(overlay);
             //memcpy(p, videoIn->framebuffer, width * height * 2);
             memcpy(p, videoBuffer, width * height * 2);
@@ -644,6 +649,8 @@ void *main_loop(void *data)
             {
                 SDL_FreeYUVOverlay(overlay);
                 overlay = NULL;
+                if(vuFrame) g_free(vuFrame);
+				vuFrame = NULL; //reset
             }
             /*init device*/
             restart_v4l2(videoIn, global);
@@ -669,6 +676,7 @@ void *main_loop(void *data)
                     drect.y = 0;
                     drect.w = pscreen->w;
                     drect.h = pscreen->h;
+                    
                     global->change_res = FALSE;
                 }
             }
@@ -717,7 +725,7 @@ void *main_loop(void *data)
         SDL_Quit();
     }
     
-	free(vuFrame);
+    if(vuFrame) g_free(vuFrame);
 	
     if (global->debug) g_printf("Video thread completed\n");
     
