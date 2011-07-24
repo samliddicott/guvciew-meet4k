@@ -136,7 +136,8 @@ int initGlobals (struct GLOBAL *global)
 	global->format = V4L2_PIX_FMT_MJPEG;
 
 	global->Frame_Flags = YUV_NOFILT;
-
+	global->osdFlags = 0;
+	
     global->no_display = FALSE;
 	global->exit_on_close = FALSE;
 	global->skip_n=0;

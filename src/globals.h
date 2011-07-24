@@ -120,6 +120,7 @@ struct GLOBAL
 	int spinbehave;        //spin: 0-non editable 1-editable
 	int format;            //v4l2 pixel format
 	int Frame_Flags;       //frame filter flags
+	int osdFlags;          // Flags to control onscreen display
 	int skip_n;            //initial frames to skip
 	int w_ind;             //write frame index
 	int r_ind;             //read  frame index

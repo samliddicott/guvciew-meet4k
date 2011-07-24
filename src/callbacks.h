@@ -135,6 +135,9 @@ SndEnable_changed (GtkToggleButton * toggle, struct ALL_DATA *all_data);
 void
 FiltEnable_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data);
 
+void 
+osdChanged(GtkToggleButton * toggle, struct ALL_DATA *all_data);
+
 void
 EffEnable_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data);
 

@@ -135,5 +135,8 @@ static const int stdSampleRates[] =
 #define SND_WAHWAH (1<<3)
 #define SND_DUCKY  (1<<4)
 
+/* On Screen Display flags*/
+#define OSD_METER  (1<<0)
+
 #endif
 

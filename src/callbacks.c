@@ -1010,6 +1010,15 @@ EffEnable_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data)
 	pdata = NULL;
 }
 
+void osdChanged(GtkToggleButton * toggle, struct ALL_DATA *all_data) 
+{
+	struct GLOBAL *global = all_data->global;
+  	int flag = GPOINTER_TO_INT(g_object_get_data (G_OBJECT (toggle), "flag"));
+  	global->osdFlags = gtk_toggle_button_get_active(toggle) ? 
+		(global->osdFlags | flag) : 
+    	(global->osdFlags & ~(flag));
+}
+
 void 
 ImageInc_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data)
 {

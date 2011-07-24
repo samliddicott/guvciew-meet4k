@@ -108,6 +108,8 @@ writeConf(struct GLOBAL *global, char *videodevice)
 		//g_fprintf(fp,"Tilt_Step=%i\n",global->TiltStep);
 		g_fprintf(fp,"# video filters: 0 -none 1- flip 2- upturn 4- negate 8- mono (add the ones you want)\n");
 		g_fprintf(fp,"frame_flags=%i\n",global->Frame_Flags);
+		g_fprintf(fp,"#on screen display flags (VU meter)");
+		g_fprintf(fp,"osd_flags=%i\n",global->osdFlags);
 		g_fprintf(fp,"# Auto Image naming (filename-n.ext)\n");
 		g_fprintf(fp,"image_inc=%d\n",global->image_inc);
 		g_fprintf(fp,"# Image capture Full Path\n");
@@ -479,6 +481,10 @@ readConf(struct GLOBAL *global)
 						else if (g_strcmp0(name,"frame_flags")==0) 
 						{
 							global->Frame_Flags = scanner->value.v_int;
+						}
+						else if (g_strcmp0(name,"osd_flags")==0) 
+						{
+							global->osdFlags = scanner->value.v_int;
 						}
 						else if (g_strcmp0(name,"image_inc")==0) 
 						{
