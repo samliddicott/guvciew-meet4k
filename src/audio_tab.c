@@ -156,7 +156,17 @@ void audio_tab(struct ALL_DATA *all_data)
 	gtk_widget_show (gwidget->SndEnable);
 	g_signal_connect (GTK_CHECK_BUTTON(gwidget->SndEnable), "toggled",
 		G_CALLBACK (SndEnable_changed), all_data);
-	
+		
+	line++;
+	 // VU meter on the image (OSD)
+	GtkWidget* vuMeterEnable=gtk_check_button_new_with_label(_(" Show VU meter"));
+	g_object_set_data(G_OBJECT(vuMeterEnable), "flag", GINT_TO_POINTER(OSD_METER));
+	gtk_table_attach(GTK_TABLE(table3), vuMeterEnable, 1, 2, line, line+1,
+		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(vuMeterEnable),(global->osdFlags & OSD_METER)>0);
+	gtk_widget_show(vuMeterEnable);
+	g_signal_connect(GTK_CHECK_BUTTON(vuMeterEnable), "toggled", G_CALLBACK(osdChanged), all_data);
 	
 	//sound API
 #ifdef PULSEAUDIO
@@ -415,13 +425,4 @@ void audio_tab(struct ALL_DATA *all_data)
 	g_signal_connect (GTK_CHECK_BUTTON(EffDuckyEnable), "toggled",
 		G_CALLBACK (EffEnable_changed), all_data);
 		
-    // VU meter on the image
-	GtkWidget* vuMeterEnable=gtk_check_button_new_with_label(_(" Show VU meter"));
-	g_object_set_data(G_OBJECT(vuMeterEnable), "flag", GINT_TO_POINTER(OSD_METER));
-	gtk_table_attach(GTK_TABLE(table_snd_eff), vuMeterEnable, 0, 1, 2, 3,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
-
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(vuMeterEnable),(global->osdFlags & OSD_METER)>0);
-	gtk_widget_show(vuMeterEnable);
-	g_signal_connect(GTK_CHECK_BUTTON(vuMeterEnable), "toggled", G_CALLBACK(osdChanged), all_data);
 }
