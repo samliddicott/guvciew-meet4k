@@ -183,6 +183,123 @@ static SDL_Overlay * video_init(void *data, SDL_Surface **pscreen)
     return (overlay);
 }
 
+BYTE *draw_vu_meter(int width, int height, BYTE *vuFrame, SAMPLE vuPeak[2], int vuPeakFreeze[2], void *data)
+{
+	struct ALL_DATA *all_data = (struct ALL_DATA *) data;
+    
+    struct paRecordData *pdata = all_data->pdata;
+    struct vdIn *videoIn = all_data->videoIn;
+    
+	int i,j; // Fuck pre-C99 sucks.
+	g_mutex_lock( pdata->mutex );
+	SAMPLE vuLevel[2]; // The maximum sample for this frame.
+	for (i=0;i<2;i++) 
+	{
+		vuLevel[i] = 0;
+		// Run through all available samples and find the current level.
+		SAMPLE *samples = pdata->audio_buff[pdata->r_ind].frame;
+		for (j=0;j<pdata->aud_numSamples;j++) 
+		{
+			int channel = j % pdata->channels;
+			if (channel < 2) 
+			{
+		  		SAMPLE s = samples[j];
+		  		if (s > vuLevel[channel]) 
+		  		{
+					vuLevel[channel] = s;
+		  		}
+			}
+  		}
+	}
+	g_mutex_unlock( pdata->mutex );
+    memcpy(vuFrame, videoIn->framebuffer, width * height * 2);
+	int bh = height / 20;
+	int bw = width  / 150;
+	int channel;
+	for (channel=0;channel<2;channel++) 
+	{
+		// Handle peak calculation and falloff.
+		if (vuPeak[channel] < vuLevel[channel]) 
+		{
+			vuPeak[channel] = vuLevel[channel];
+			vuPeakFreeze[channel] = 30;
+		} 
+		else if (vuPeakFreeze[channel] > 0) 
+		{
+			vuPeakFreeze[channel]--;
+  		}
+  		else if (vuPeak[channel] > vuLevel[channel]) 
+  		{
+			vuPeak[channel] -= (vuPeak[channel]-vuLevel[channel]) / 10;
+  		}
+  		float dBuLevel = 10*log10(vuLevel[channel]/AUDIO_REFERENCE_LEVEL);
+  		float dBuPeak  = 10*log10(vuPeak[channel] /AUDIO_REFERENCE_LEVEL);
+
+  		// Draw the pretty bars, but only if there actually is an audio channel with samples present
+  		if (vuLevel[channel] == 0) 
+			continue;
+
+  		int peaked = 0;
+  		int box;
+  		for (box=0;box<=26;box++) 
+  		{
+			float db = box-20; // The dB it takes to light the current box.    
+			int bx = (5+box)*bw*2*4; // Start byte for box on each line
+			int by = (channel*(bh+5) + bh*2)* 2*width; // Start byte for box top.
+			  
+			BYTE u = 0;
+			BYTE v = 0;
+			if (db > 4) 
+			{
+  				u=128;
+  				v=255;
+			} 
+			else if (db > 0) 
+			{
+  				u=0;
+  				v=200;	
+			}
+
+			int light = dBuLevel > db;
+			if (dBuPeak < db+1 && !peaked) 
+			{
+  				peaked = 1;
+  				light = 1;
+			}
+
+			if (light) 
+			{
+  				int yc;
+  				for (yc=0;yc<bh;yc++) 
+  				{
+					int bi = bx + by;
+					by += width*2;
+		  
+					for (j=0;j<bw;j++) 
+					{
+	  					vuFrame[bi+1] = u;
+	  					vuFrame[bi+3] = v;
+	 	 				bi += 4;
+					}
+  				}
+
+			} 
+			else if (bw > 0) 
+			{
+  				int bi = bx + by + width*2*bh/2;
+  				for (j=0;j<bw;j++) 
+  				{
+					vuFrame[bi+1] = u;
+					vuFrame[bi+3] = v;
+					bi += 4;
+  				}
+			}
+  		}    	    
+	}
+
+	return(vuFrame);
+}
+
 /*-------------------------------- Main Video Loop ---------------------------*/ 
 /* run in a thread (SDL overlay)*/
 void *main_loop(void *data)
@@ -208,16 +325,16 @@ void *main_loop(void *data)
     int height = global->height;
     int format = global->format;
     
-    BYTE *p = NULL;
-    
-    Control *focus_control = NULL;
-    int last_focus = 0;
-    
+    BYTE *vuFrame = malloc(width*height*2);
     SAMPLE vuPeak[2];  // The maximum vuLevel seen recently
     int vuPeakFreeze[2]; // The vuPeak values will be frozen for this many frames.
     vuPeak[0] = vuPeak[1] = 0;
     vuPeakFreeze[0] = vuPeakFreeze[1] = 0;
-    BYTE *vuFrame = malloc(width*height*2);
+    
+    BYTE *p = NULL;
+    
+    Control *focus_control = NULL;
+    int last_focus = 0;
     
     if (global->AFcontrol) 
     {
@@ -424,122 +541,8 @@ void *main_loop(void *data)
         if(!global->no_display)
         {
         	BYTE *videoBuffer = videoIn->framebuffer; 
-			if (global->osdFlags && pdata->audio_buff) 
-			{ // Don't try to access the audio data if nothing is present.
-				int i,j; // Fuck pre-C99 sucks.
-				g_mutex_lock( pdata->mutex );
-				SAMPLE vuLevel[2]; // The maximum sample for this frame.
-				for (i=0;i<2;i++) 
-				{
-					vuLevel[i] = 0;
-
-					// Run through all available samples and find the current level.
-					SAMPLE *samples = pdata->audio_buff[pdata->r_ind].frame;
-					for (j=0;j<pdata->aud_numSamples;j++) 
-					{
-						int channel = j % pdata->channels;
-						if (channel < 2) 
-						{
-					  		SAMPLE s = samples[j];
-					  		if (s > vuLevel[channel]) 
-					  		{
-								vuLevel[channel] = s;
-					  		}
-						}
-			  		}
-				}
-				g_mutex_unlock( pdata->mutex );
-
-		        memcpy(vuFrame, videoIn->framebuffer, width * height * 2);
-				int bh = height / 20;
-				int bw = width  / 150;
-				int channel;
-				for (channel=0;channel<2;channel++) 
-				{
-			  		// Handle peak calculation and falloff.
-			  		if (vuPeak[channel] < vuLevel[channel]) 
-			  		{
-						vuPeak[channel] = vuLevel[channel];
-						vuPeakFreeze[channel] = 30;
-
-					} 
-					else if (vuPeakFreeze[channel] > 0) 
-					{
-						vuPeakFreeze[channel]--;
-
-			  		}
-			  		else if (vuPeak[channel] > vuLevel[channel]) 
-			  		{
-						vuPeak[channel] -= (vuPeak[channel]-vuLevel[channel]) / 10;
-			  		}
-
-			  		float dBuLevel = 10*log10(vuLevel[channel]/AUDIO_REFERENCE_LEVEL);
-			  		float dBuPeak  = 10*log10(vuPeak[channel] /AUDIO_REFERENCE_LEVEL);
-
-			  		// Draw the pretty bars, but only if there actually is an audio channel with samples present
-			  		if (vuLevel[channel] == 0) 
-						continue;
-
-			  		int peaked = 0;
-			  		int box;
-			  		for (box=0;box<=26;box++) 
-			  		{
-						float db = box-20; // The dB it takes to light the current box.    
-						int bx = (5+box)*bw*2*4; // Start byte for box on each line
-						int by = (channel*(bh+5) + bh*2)* 2*width; // Start byte for box top.
-			  
-						BYTE u = 0;
-						BYTE v = 0;
-						if (db > 4) 
-						{
-			  				u=128;
-			  				v=255;
-						} 
-						else if (db > 0) 
-						{
-			  				u=0;
-			  				v=200;	
-						}
-
-						int light = dBuLevel > db;
-						if (dBuPeak < db+1 && !peaked) 
-						{
-			  				peaked = 1;
-			  				light = 1;
-						}
-
-						if (light) 
-						{
-			  				int yc;
-			  				for (yc=0;yc<bh;yc++) 
-			  				{
-								int bi = bx + by;
-								by += width*2;
-			  
-								for (j=0;j<bw;j++) 
-								{
-				  					vuFrame[bi+1] = u;
-				  					vuFrame[bi+3] = v;
-				 	 				bi += 4;
-								}
-			  				}
-
-						} 
-						else if (bw > 0) 
-						{
-			  				int bi = bx + by + width*2*bh/2;
-			  				for (j=0;j<bw;j++) 
-			  				{
-								vuFrame[bi+1] = u;
-								vuFrame[bi+3] = v;
-								bi += 4;
-			  				}
-						}
-			  		}    	    
-				}
-
-				videoBuffer = vuFrame;
-	    	} // End of VU-meter OSD drawing.
+			if (global->osdFlags && pdata->audio_buff)
+				videoBuffer = draw_vu_meter(width, height, vuFrame, vuPeak, vuPeakFreeze, data);
 
             SDL_LockYUVOverlay(overlay);
             //memcpy(p, videoIn->framebuffer, width * height * 2);
