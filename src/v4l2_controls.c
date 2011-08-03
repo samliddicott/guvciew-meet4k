@@ -880,7 +880,8 @@ void create_control_widgets(Control *control_list, void *all_data, int control_o
                         current->widget = gtk_combo_box_new_text ();
                         for (j = 0; current->menu[j].index <= current->control.maximum; j++) 
                         {
-                        	printf("adding menu entry %d: %d, %s\n",j, current->menu[j].index, current->menu[j].name);
+                        	if (verbose) 
+        	                   	printf("adding menu entry %d: %d, %s\n",j, current->menu[j].index, current->menu[j].name);
                             gtk_combo_box_append_text (
                                 GTK_COMBO_BOX (current->widget),
                                 (char *) current->menu[j].name);
