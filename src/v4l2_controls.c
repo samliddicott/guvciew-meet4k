@@ -144,26 +144,33 @@ Control *get_control_list(int hdevice, int *num_ctrls)
             //check menu items if needed
             if(queryctrl.type == V4L2_CTRL_TYPE_MENU)
             {
-                menu = calloc((queryctrl.maximum - queryctrl.minimum) + 1, sizeof(struct v4l2_querymenu));
                 int i = 0;
+                int ret = 0;
                 for (querymenu.index = queryctrl.minimum;
                     querymenu.index <= queryctrl.maximum;
                     querymenu.index++) 
                 {
                     querymenu.id = queryctrl.id;
-                    if (0 == xioctl (hdevice, VIDIOC_QUERYMENU, &querymenu)) 
-                    {
-                        memcpy(&(menu[i]), &querymenu, sizeof(struct v4l2_querymenu));
-                        i++;
-                    }
-                    else 
-                    {
-                        perror ("VIDIOC_QUERYMENU");
-                        free (menu);
-                        menu = NULL;
-                        goto next_control;
-                    }
+                    ret = xioctl (hdevice, VIDIOC_QUERYMENU, &querymenu);
+                    if (ret < 0)
+                    	break; 
+                    
+                    if(!menu)
+                    	menu = g_new0(struct v4l2_querymenu, i+1);
+                   	else
+                   		menu = g_renew(struct v4l2_querymenu, menu, i+1);	
+                   		
+                    memcpy(&(menu[i]), &querymenu, sizeof(struct v4l2_querymenu));
+                    i++;
                 }
+                if(!menu)
+                	menu = g_new0(struct v4l2_querymenu, i+1);
+                else
+                	menu = g_renew(struct v4l2_querymenu, menu, i+1);
+                	
+               	menu[i].id = querymenu.id;
+               	menu[i].index = queryctrl.maximum+1;
+               	menu[i].name[0] = 0;
             }
             
             // Add the control to the linked list
@@ -213,29 +220,34 @@ next_control:
             //check menu items if needed
             if(queryctrl.type == V4L2_CTRL_TYPE_MENU)
             {
-                menu = calloc((queryctrl.maximum - queryctrl.minimum) + 1, sizeof(struct v4l2_querymenu));
                 int i = 0;
+                int ret = 0;
                 for (querymenu.index = queryctrl.minimum;
                     querymenu.index <= queryctrl.maximum;
                     querymenu.index++) 
                 {
                     querymenu.id = queryctrl.id;
-                    if (0 == xioctl (hdevice, VIDIOC_QUERYMENU, &querymenu)) 
-                    {
-                        memcpy(&(menu[i]), &querymenu, sizeof(struct v4l2_querymenu));
-                        i++;
-                    }
-                    else 
-                    {
-                        perror ("VIDIOC_QUERYMENU");
-                        free (menu);
-                        menu = NULL;
-                        querymenu.index = queryctrl.maximum + 2; //exits loop
-                    }
+                    ret = xioctl (hdevice, VIDIOC_QUERYMENU, &querymenu);
+                    if (ret < 0)
+                    	break; 
+                    
+                    if(!menu)
+                    	menu = g_new0(struct v4l2_querymenu, i+1);
+                   	else
+                   		menu = g_renew(struct v4l2_querymenu, menu, i+1);	
+                   		
+                    memcpy(&(menu[i]), &querymenu, sizeof(struct v4l2_querymenu));
+                    i++;
                 }
+                if(!menu)
+                	menu = g_new0(struct v4l2_querymenu, i+1);
+                else
+                	menu = g_renew(struct v4l2_querymenu, menu, i+1);
+                	
+               	menu[i].id = querymenu.id;
+               	menu[i].index = queryctrl.maximum+1;
+               	menu[i].name[0] = 0;
                 
-                if(querymenu.index > (queryctrl.maximum + 1))
-                    continue; //query menu failed
             }
             
             // Add the control to the linked list
@@ -271,29 +283,33 @@ next_control:
             //check menu items if needed
             if(queryctrl.type == V4L2_CTRL_TYPE_MENU)
             {
-                menu = calloc((queryctrl.maximum - queryctrl.minimum) + 1, sizeof(struct v4l2_querymenu));
                 int i = 0;
+                int ret = 0;
                 for (querymenu.index = queryctrl.minimum;
                     querymenu.index <= queryctrl.maximum;
                     querymenu.index++) 
                 {
                     querymenu.id = queryctrl.id;
-                    if (0 == xioctl (hdevice, VIDIOC_QUERYMENU, &querymenu)) 
-                    {
-                        memcpy(&(menu[i]), &querymenu, sizeof(struct v4l2_querymenu));
-                        i++;
-                    }
-                    else 
-                    {
-                        perror ("VIDIOC_QUERYMENU");
-                        free (menu);
-                        menu = NULL;
-                        querymenu.index = queryctrl.maximum + 2; //exits loop
-                    }
+                    ret = xioctl (hdevice, VIDIOC_QUERYMENU, &querymenu);
+                    if (ret < 0)
+                    	break; 
+                    
+                    if(!menu)
+                    	menu = g_new0(struct v4l2_querymenu, i+1);
+                   	else
+                   		menu = g_renew(struct v4l2_querymenu, menu, i+1);	
+                   		
+                    memcpy(&(menu[i]), &querymenu, sizeof(struct v4l2_querymenu));
+                    i++;
                 }
-                
-                if(querymenu.index > (queryctrl.maximum + 1))
-                    continue; //query menu failed
+                if(!menu)
+                	menu = g_new0(struct v4l2_querymenu, i+1);
+                else
+                	menu = g_renew(struct v4l2_querymenu, menu, i+1);
+                	
+               	menu[i].id = querymenu.id;
+               	menu[i].index = queryctrl.maximum+1;
+               	menu[i].name[0] = 0;
             }
             
             // Add the control to the linked list
@@ -850,7 +866,7 @@ void create_control_widgets(Control *control_list, void *all_data, int control_o
                     {
                         int j = 0;
                         current->widget = gtk_combo_box_new_text ();
-                        for (j = 0; j <= (current->control.maximum - current->control.minimum); j++) 
+                        for (j = 0; current->menu[j].index <= current->control.maximum; j++) 
                         {
                             gtk_combo_box_append_text (
                                 GTK_COMBO_BOX (current->widget),
@@ -1373,7 +1389,7 @@ void free_control_list (Control *control_list)
     while (next != NULL)
     {
         if(first->string) free(first->string);
-        if(first->menu) free(first->menu);
+        if(first->menu) g_free(first->menu);
         free(first);
         first = next;
         next = first->next;
