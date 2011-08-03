@@ -60,6 +60,8 @@ guvcview_SOURCES = \
 	ms_time.c \
 	options.h \
 	options.c \
+	osd.h \
+	osd.c \
 	picture.h \
 	picture.c \
 	profile.h \
