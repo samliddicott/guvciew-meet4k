@@ -126,7 +126,6 @@ Control *get_control_list(int hdevice, int *num_ctrls)
             }
             
             currentctrl = queryctrl.id;
-            
             // skip if control failed
             if (ret)
             {
@@ -153,7 +152,7 @@ Control *get_control_list(int hdevice, int *num_ctrls)
                     querymenu.id = queryctrl.id;
                     ret = xioctl (hdevice, VIDIOC_QUERYMENU, &querymenu);
                     if (ret < 0)
-                    	break; 
+                    	continue; 
                     
                     if(!menu)
                     	menu = g_new0(struct v4l2_querymenu, i+1);
@@ -161,6 +160,7 @@ Control *get_control_list(int hdevice, int *num_ctrls)
                    		menu = g_renew(struct v4l2_querymenu, menu, i+1);	
                    		
                     memcpy(&(menu[i]), &querymenu, sizeof(struct v4l2_querymenu));
+                    printf("added menu item %s, %d, %d\n", menu[i].name, i, menu[i].index);
                     i++;
                 }
                 if(!menu)
@@ -253,6 +253,7 @@ next_control:
             // Add the control to the linked list
             control = calloc (1, sizeof(Control));
             memcpy(&(control->control), &queryctrl, sizeof(struct v4l2_queryctrl));
+            
             control->class = 0x00980000;
             //add the menu adress (NULL if not a menu)
             control->menu = menu;
@@ -868,6 +869,7 @@ void create_control_widgets(Control *control_list, void *all_data, int control_o
                         current->widget = gtk_combo_box_new_text ();
                         for (j = 0; current->menu[j].index <= current->control.maximum; j++) 
                         {
+                        	printf("adding menu index:%d - %d\n",j, current->menu[j].index);
                             gtk_combo_box_append_text (
                                 GTK_COMBO_BOX (current->widget),
                                 (char *) current->menu[j].name);
