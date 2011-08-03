@@ -160,7 +160,6 @@ Control *get_control_list(int hdevice, int *num_ctrls)
                    		menu = g_renew(struct v4l2_querymenu, menu, i+1);	
                    		
                     memcpy(&(menu[i]), &querymenu, sizeof(struct v4l2_querymenu));
-                    printf("added menu item %s, %d, %d\n", menu[i].name, i, menu[i].index);
                     i++;
                 }
                 if(!menu)
@@ -608,14 +607,25 @@ static void update_widget_state(Control *control_list, void *all_data)
                     }
                     break;
                 case V4L2_CTRL_TYPE_MENU:
+                {
                     //disable widget signals
                     g_signal_handlers_block_by_func(GTK_COMBO_BOX(current->widget), 
                         G_CALLBACK (combo_changed), all_data);
-                    gtk_combo_box_set_active(GTK_COMBO_BOX(current->widget), current->value);
+                    //get new index
+                    int j = 0;
+                    int def = 0;
+                    for (j = 0; current->menu[j].index <= current->control.maximum; j++) 
+                    {
+                    	if(current->value == current->menu[j].index)
+                    	   	def = j;
+                    }
+                    
+                    gtk_combo_box_set_active(GTK_COMBO_BOX(current->widget), def);
                     //enable widget signals    
                     g_signal_handlers_unblock_by_func(GTK_COMBO_BOX(current->widget), 
                         G_CALLBACK (combo_changed), all_data);
                     break;
+                }
                 default:
                     break;
             }
@@ -866,15 +876,19 @@ void create_control_widgets(Control *control_list, void *all_data, int control_o
                     if(current->menu)
                     {
                         int j = 0;
+                        int def = 0;
                         current->widget = gtk_combo_box_new_text ();
                         for (j = 0; current->menu[j].index <= current->control.maximum; j++) 
                         {
-                        	printf("adding menu index:%d - %d\n",j, current->menu[j].index);
+                        	printf("adding menu entry %d: %d, %s\n",j, current->menu[j].index, current->menu[j].name);
                             gtk_combo_box_append_text (
                                 GTK_COMBO_BOX (current->widget),
                                 (char *) current->menu[j].name);
+                            if(current->value == current->menu[j].index)
+                            	def = j;
                         }
-                        gtk_combo_box_set_active (GTK_COMBO_BOX (current->widget), current->value);
+                        
+                        gtk_combo_box_set_active (GTK_COMBO_BOX (current->widget), def);
                         gtk_widget_show (current->widget);
                          
                         g_object_set_data (G_OBJECT (current->widget), "control_info", 
