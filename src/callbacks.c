@@ -520,7 +520,7 @@ combo_changed (GtkComboBox * combo, struct ALL_DATA *all_data)
     Control *c = get_ctrl_by_id(s->control_list, id);
     
     int index = gtk_combo_box_get_active (combo);
-    c->value = index;
+    c->value = c->menu[index].index;
 
     set_ctrl(videoIn->fd, s->control_list, id);
     
