@@ -1,3 +1,13 @@
+guvcview (1.5.0-ubuntu1~natty~ppa1) natty; urgency=low
+
+    * add a no display mode (--no_display)
+    * fix build issues with newer versions (>=0.7.x) of ffmpeg libavcodec
+    * add support for unix signals
+    * add VU meter OSD
+    * fix menu controls (linux 3.0)
+    
+ -- Paulo Assis <pj.assis@gmail.com>  Tue, 9 Apr 2011 22:16:00 +0000
+ 
 guvcview (1.4.5-ubuntu1~maverick~ppa1) maverick; urgency=low
 
     * store current codec properties in configuration file
