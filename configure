@@ -4830,7 +4830,7 @@ cat >>confdefs.h <<_ACEOF
 _ACEOF
 
 
-ALL_LINGUAS="cs da de es eu fr gl he hr ja nl pl pt pt_BR ru tr uk zh_TW"
+ALL_LINGUAS="cs da de es eu fr gl he hr ja nl pl pt pt_BR ru sr tr uk zh_TW"
 # On IRIX 5.3, sys/types and inttypes.h are conflicting.
 for ac_header in sys/types.h sys/stat.h stdlib.h string.h memory.h strings.h \
 		  inttypes.h stdint.h unistd.h

@@ -2,8 +2,8 @@ Source: guvcview
 Section: graphics
 Priority: extra
 Maintainer: Paulo Assis <pj.assis@gmail.com>
-Build-Depends: debhelper (>= 7), autotools-dev, quilt, libsdl1.2-dev, libgtk2.0-dev, portaudio19-dev, libpng12-dev, libavcodec-dev, libv4l-dev, libudev-dev
-Standards-Version: 3.8.4
+Build-Depends: debhelper (>= 7.0.50~), autotools-dev, quilt, libsdl1.2-dev, libgtk2.0-dev, portaudio19-dev, libpng12-dev, libavcodec-dev, libv4l-dev, libudev-dev
+Standards-Version: 3.9.1
 Homepage: http://guvcview.berlios.de/
 
 Package: guvcview

@@ -1,5 +1,6 @@
 guvcview (1.5.0-ubuntu1~natty~ppa1) natty; urgency=low
 
+    * update standards version to 3.9.1
     * add a no display mode (--no_display)
     * fix build issues with newer versions (>=0.7.x) of ffmpeg libavcodec
     * add support for unix signals

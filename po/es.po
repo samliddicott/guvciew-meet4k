@@ -9,26 +9,27 @@ msgid ""
 msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-08-08 23:27+0100\n"
+"POT-Creation-Date: 2011-08-10 13:38+0100\n"
 "PO-Revision-Date: 2011-01-09 05:42+0000\n"
 "Last-Translator: Fitoschido <fitoschido@gmail.com>\n"
 "Language-Team: Portuguese <pt@li.org>\n"
+"Language: pt\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Launchpad-Export-Date: 2011-01-19 14:28+0000\n"
 "X-Generator: Launchpad (build 12214)\n"
 
-#: src/guvcview.c:177
+#: src/guvcview.c:288
 msgid "Guvcview Video Capture"
 msgstr "Captura de vídeo Guvcview"
 
-#: src/guvcview.c:187
+#: src/guvcview.c:300
 msgid "GUVCViewer Controls"
 msgstr "Controles de GUVCViewer"
 
 #. can't open device
-#: src/guvcview.c:214
+#: src/guvcview.c:328
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -38,7 +39,7 @@ msgstr ""
 "\n"
 "No se pudo abrir el dispositivo"
 
-#: src/guvcview.c:215
+#: src/guvcview.c:329
 msgid ""
 "Please make sure the camera is connected\n"
 "and that the correct driver is installed."
@@ -47,7 +48,7 @@ msgstr ""
 "y que se instaló el controlador correcto."
 
 #. uvc extension controls OK, give warning and shutdown (called with --add_ctrls)
-#: src/guvcview.c:220
+#: src/guvcview.c:334
 msgid ""
 "Guvcview:\n"
 "\n"
@@ -57,12 +58,12 @@ msgstr ""
 "\n"
 "Controles de la extensión UVC"
 
-#: src/guvcview.c:221
+#: src/guvcview.c:335
 msgid "Extension controls were added to the UVC driver"
 msgstr "Los controles de extensión se añadieron al controlador de UVC"
 
 #. uvc extension controls error - EACCES (needs root user)
-#: src/guvcview.c:228
+#: src/guvcview.c:342
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -72,7 +73,7 @@ msgstr ""
 "\n"
 "Controles de extensión UVC"
 
-#: src/guvcview.c:229
+#: src/guvcview.c:343
 msgid ""
 "An error occurred while adding extension\n"
 "controls to the UVC driver\n"
@@ -82,7 +83,7 @@ msgstr ""
 "de extensión al controlador UVC\n"
 "Asegúrese de que ejecuta guvcview como root (o sudo)."
 
-#: src/guvcview.c:255 src/guvcview.c:333
+#: src/guvcview.c:369 src/guvcview.c:447
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -92,7 +93,7 @@ msgstr ""
 "\n"
 "Incapaz de establecer video stream"
 
-#: src/guvcview.c:256 src/guvcview.c:334
+#: src/guvcview.c:370 src/guvcview.c:448
 msgid ""
 "Make sure your device driver is v4l2 compliant\n"
 "and that it is properly installed."
@@ -100,7 +101,7 @@ msgstr ""
 "Asegúrese de que tiene un controlador v4l2\n"
 "y que está instalado."
 
-#: src/guvcview.c:278 src/guvcview.c:300
+#: src/guvcview.c:392 src/guvcview.c:414
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -110,11 +111,11 @@ msgstr ""
 "\n"
 "No se pudo iniciar con la configuración mínima"
 
-#: src/guvcview.c:279 src/guvcview.c:301
+#: src/guvcview.c:393 src/guvcview.c:415
 msgid "Please reconnect your camera."
 msgstr "Vuelva a conectar su cámara."
 
-#: src/guvcview.c:308
+#: src/guvcview.c:422
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -124,11 +125,11 @@ msgstr ""
 "\n"
 "No se pudo abrir el dispositivo"
 
-#: src/guvcview.c:309
+#: src/guvcview.c:423
 msgid "Make sure the device driver supports v4l2."
 msgstr "Asegúrese de que el controlador del dispositivo soporta v4l2."
 
-#: src/guvcview.c:313
+#: src/guvcview.c:427
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -138,11 +139,11 @@ msgstr ""
 "\n"
 "error de método Read"
 
-#: src/guvcview.c:314
+#: src/guvcview.c:428
 msgid "Please try mmap instead (--capture_method=1)."
 msgstr "Intente, en vez de eso, mmap (--capture_method=1)."
 
-#: src/guvcview.c:322
+#: src/guvcview.c:436
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -152,48 +153,48 @@ msgstr ""
 "\n"
 "No se pudieron asignar búferes"
 
-#: src/guvcview.c:323
+#: src/guvcview.c:437
 msgid "Please try restarting your system."
 msgstr "Pruebe a reiniciar su sistema."
 
-#: src/guvcview.c:359
+#: src/guvcview.c:476
 msgid "Image Controls"
 msgstr "Controles de la imagen"
 
-#: src/guvcview.c:394
+#: src/guvcview.c:511
 msgid "Capture:"
 msgstr "Captura:"
 
 #. increment column for labels
 #. end of control only exclusion
-#: src/guvcview.c:402
+#: src/guvcview.c:519
 msgid "Control Profiles:"
 msgstr "Perfiles de control:"
 
-#: src/guvcview.c:417
+#: src/guvcview.c:534
 msgid "Defaults"
 msgstr "Predeterminados"
 
 #. image auto capture
-#: src/guvcview.c:430
+#: src/guvcview.c:547
 msgid "Stop Auto"
 msgstr "Detener auto"
 
-#: src/guvcview.c:434 src/callbacks.c:1072 src/timers.c:95
+#: src/guvcview.c:551 src/callbacks.c:1109 src/timers.c:114
 msgid "Cap. Image"
 msgstr "Cap. imagen"
 
 #. vid capture enabled from start
-#: src/guvcview.c:439 src/callbacks.c:1199
+#: src/guvcview.c:556 src/callbacks.c:1251
 msgid "Stop Video"
 msgstr "Detener vídeo"
 
-#: src/guvcview.c:444 src/guvcview.c:650 src/callbacks.c:1140
-#: src/create_video.c:795
+#: src/guvcview.c:561 src/guvcview.c:777 src/callbacks.c:1185
+#: src/create_video.c:878
 msgid "Cap. Video"
 msgstr "Cap. vídeo"
 
-#: src/guvcview.c:593
+#: src/guvcview.c:717
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -203,7 +204,7 @@ msgstr ""
 "\n"
 "No se pudo crear hilo de vídeo"
 
-#: src/guvcview.c:594
+#: src/guvcview.c:718
 msgid "Please report it to http://developer.berlios.de/bugs/?group_id=8179"
 msgstr "Repórtelo a http://developer.berlios.de/bugs/?group_id=8179"
 
@@ -436,17 +437,15 @@ msgstr "Enfoque"
 msgid "Focus (Absolute)"
 msgstr "Enfoque (absoluto)"
 
-#: src/video_tab.c:41 src/callbacks.c:1239
+#: src/video_tab.c:41 src/callbacks.c:1293
 msgid "Save File"
 msgstr "Guardar Archivo"
 
 #. if auto naming restart counter
-#. g_mutex_unlock(videoIn->mutex);
-#. g_mutex_lock(global->mutex);
-#: src/video_tab.c:76 src/video_tab.c:106 src/globals.c:72 src/globals.c:75
-#: src/options.c:378 src/options.c:431 src/callbacks.c:583 src/callbacks.c:864
-#: src/callbacks.c:1002 src/callbacks.c:1019 src/callbacks.c:1051
-#: src/callbacks.c:1149 src/timers.c:78
+#: src/video_tab.c:76 src/video_tab.c:106 src/globals.c:73 src/globals.c:76
+#: src/options.c:322 src/options.c:437 src/options.c:494 src/callbacks.c:600
+#: src/callbacks.c:881 src/callbacks.c:1030 src/callbacks.c:1047
+#: src/callbacks.c:1083 src/callbacks.c:1197 src/timers.c:98
 #, c-format
 msgid "File num:%d"
 msgstr "Archivo num:%d"
@@ -543,7 +542,7 @@ msgid "Video & Files"
 msgstr "Video e Archivos"
 
 #. Devices
-#: src/video_tab.c:546 src/callbacks.c:120
+#: src/video_tab.c:546 src/callbacks.c:136
 msgid "Device:"
 msgstr "Dispositivo de entrada:"
 
@@ -592,7 +591,7 @@ msgid "Video Codec:"
 msgstr "Códec de vídeo:"
 
 #. lavc codec properties button
-#: src/video_tab.c:904 src/audio_tab.c:336
+#: src/video_tab.c:904 src/audio_tab.c:346
 msgid "properties"
 msgstr "propiedades"
 
@@ -646,90 +645,120 @@ msgstr "Audio"
 msgid " Sound"
 msgstr " Sonido"
 
-#: src/audio_tab.c:165
+#. VU meter on the image (OSD)
+#: src/audio_tab.c:162
+msgid " Show VU meter"
+msgstr ""
+
+#: src/audio_tab.c:175
 msgid "Audio API:"
 msgstr "Audio API"
 
-#: src/audio_tab.c:175
+#: src/audio_tab.c:185
 msgid "PORTAUDIO"
 msgstr "PORTAUDIO"
 
-#: src/audio_tab.c:176
+#: src/audio_tab.c:186
 msgid "PULSEAUDIO"
 msgstr "PULSEAUDIO"
 
-#: src/audio_tab.c:192 src/audio_tab.c:215
+#: src/audio_tab.c:202 src/audio_tab.c:225
 msgid "Input Device:"
 msgstr "Dispositivo de entrada:"
 
-#: src/audio_tab.c:226 src/audio_tab.c:258
+#: src/audio_tab.c:236 src/audio_tab.c:268
 msgid "Dev. Default"
 msgstr "Automático"
 
-#: src/audio_tab.c:247
+#: src/audio_tab.c:257
 msgid "Sample Rate:"
 msgstr "Sample Rate:"
 
-#: src/audio_tab.c:259
+#: src/audio_tab.c:269
 msgid "1 - mono"
 msgstr "1 - mono"
 
-#: src/audio_tab.c:260
+#: src/audio_tab.c:270
 msgid "2 - stereo"
 msgstr "2 - stereo"
 
-#: src/audio_tab.c:294
+#: src/audio_tab.c:304
 msgid "Channels:"
 msgstr "Canales:"
 
-#: src/audio_tab.c:328
+#: src/audio_tab.c:338
 msgid "Audio Format:"
 msgstr "Formato de Audio:"
 
-#: src/audio_tab.c:346
+#: src/audio_tab.c:356
 msgid "---- Audio Effects ----"
 msgstr "---- Efectos de Audio ----"
 
 #. Echo
-#: src/audio_tab.c:365
+#: src/audio_tab.c:375
 msgid " Echo"
 msgstr " Eco"
 
 #. FUZZ
-#: src/audio_tab.c:375
+#: src/audio_tab.c:385
 msgid " Fuzz"
 msgstr " Ruido"
 
 #. Reverb
-#: src/audio_tab.c:386
+#: src/audio_tab.c:396
 msgid " Reverb"
 msgstr " Reverb"
 
 #. WahWah
-#: src/audio_tab.c:397
+#: src/audio_tab.c:407
 msgid " WahWah"
 msgstr " WahWah"
 
 #. Ducky
-#: src/audio_tab.c:408
+#: src/audio_tab.c:418
 msgid " Ducky"
 msgstr " Pato"
 
-#: src/v4l2_controls.c:645
+#: src/v4l2_controls.c:732
 msgid "Left"
 msgstr "Izquierda"
 
-#: src/v4l2_controls.c:646
+#: src/v4l2_controls.c:733
 msgid "Right"
 msgstr "Derecha"
 
-#: src/v4l2_controls.c:650
+#: src/v4l2_controls.c:737
 msgid "Down"
 msgstr "Abajo"
 
-#: src/v4l2_controls.c:651
+#: src/v4l2_controls.c:738
 msgid "Up"
 msgstr "Arriba"
+
+#: src/v4l2_controls.c:787
+msgid "Off"
+msgstr ""
+
+#: src/v4l2_controls.c:790
+msgid "On"
+msgstr ""
+
+#: src/v4l2_controls.c:793
+msgid "Blinking"
+msgstr ""
+
+#: src/v4l2_controls.c:796
+#, fuzzy
+msgid "Auto"
+msgstr "Detener auto"
+
+#: src/v4l2_controls.c:814
+msgid "8 bit"
+msgstr ""
+
+#: src/v4l2_controls.c:817
+msgid "12 bit"
+msgstr ""
 
 #: src/v4l2_dyna_ctrls.c:89
 msgid "Pan (relative)"
@@ -811,87 +840,90 @@ msgstr ""
 msgid "MPEG4-AVC (H264)"
 msgstr ""
 
-#: src/options.c:546
+#: src/options.c:734
 msgid "Prints version"
 msgstr "Imprimir versión"
 
-#: src/options.c:547
+#: src/options.c:735
 msgid "Displays debug information"
 msgstr "Exhibir information de depuracion"
 
-#: src/options.c:548
+#: src/options.c:736
 msgid "Video Device to use [default: /dev/video0]"
 msgstr "Dispositivo de video [pred: /dev/video0]"
 
-#: src/options.c:549
+#: src/options.c:737
 msgid "Exit after adding UVC extension controls (needs root/sudo)"
 msgstr ""
 "Salir después de añadir los controles de extensión UVC (requiere root/sudo)"
 
-#: src/options.c:550
+#: src/options.c:738
 msgid "Don't stream video (image controls only)"
 msgstr "No hacer streaming de vídeo (sólo controles)"
 
-#: src/options.c:551
+#: src/options.c:739
+msgid "Don't display a GUI"
+msgstr ""
+
+#: src/options.c:740
 msgid "Capture method (1-mmap (default)  2-read)"
 msgstr "Método de captura (1-mmap (predeterminado) 2-read)"
 
-#: src/options.c:552
+#: src/options.c:741
 msgid "Configuration file"
 msgstr "Archivo de configuración"
 
-#: src/options.c:553
+#: src/options.c:742
 msgid "Hardware accelaration (enable(1) | disable(0))"
 msgstr "Accel. del hardware (habilitar(1)|deshabil.(0))"
 
-#: src/options.c:554
+#: src/options.c:743
 msgid ""
-"Pixel "
-"format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|y41p|grey|"
-"y16 |s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
+"Pixel format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|"
+"y41p|grey|y16 |s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
 msgstr ""
 
-#: src/options.c:555
+#: src/options.c:744
 msgid "Frame size, default: 640x480"
 msgstr "Resolución (defect: 640x480)"
 
-#: src/options.c:556
+#: src/options.c:745
 msgid "Image File name"
 msgstr "Archivo de Imagen"
 
-#: src/options.c:557
+#: src/options.c:746
 msgid "Image capture interval in seconds"
 msgstr "Intervalo de captura Imagen en segundos"
 
-#: src/options.c:558
+#: src/options.c:747
 msgid "Number of Pictures to capture"
 msgstr "Número de imagens a capturar"
 
-#: src/options.c:559
+#: src/options.c:748
 msgid "Video File name (capture from start)"
 msgstr "Archivo video (captura del arranque)"
 
-#: src/options.c:560
+#: src/options.c:749
 msgid "Video capture time (in seconds)"
 msgstr "Tiempo de la captura video (segundos)"
 
-#: src/options.c:561
+#: src/options.c:750
 msgid "Exits guvcview after closing video"
 msgstr "Salir de guvcview después de cerrar el vídeo"
 
-#: src/options.c:562
+#: src/options.c:751
 msgid "Number of initial frames to skip"
 msgstr "Número de fotogramas iniciales a omitir"
 
-#: src/options.c:563
+#: src/options.c:752
 msgid "Show FPS value (enable(1) | disable (0))"
 msgstr "Exhibir FPS (habilitar(1) | deshabilitar(0))"
 
-#: src/options.c:564
+#: src/options.c:753
 msgid "Load Profile at start"
 msgstr "Cargar perfil al inicio"
 
-#: src/options.c:570
+#: src/options.c:759
 msgid "- local options"
 msgstr "- opciones locales"
 
@@ -903,34 +935,34 @@ msgstr "Foco Automatico (continuo)"
 msgid "set Focus"
 msgstr "Focar"
 
-#: src/callbacks.c:89
+#: src/callbacks.c:102
 msgid "Error"
 msgstr ""
 
-#: src/callbacks.c:113
+#: src/callbacks.c:128
 msgid ""
 "\n"
 "You have more than one video device installed.\n"
 "Do you want to try another one ?\n"
 msgstr ""
 
-#: src/callbacks.c:634
+#: src/callbacks.c:651
 msgid "start new"
 msgstr "Comenzar nuevo"
 
-#: src/callbacks.c:637
+#: src/callbacks.c:654
 msgid "restart"
 msgstr "Recomenzar aplicación"
 
-#: src/callbacks.c:639
+#: src/callbacks.c:656
 msgid "new"
 msgstr "nuevo"
 
-#: src/callbacks.c:641
+#: src/callbacks.c:658
 msgid "cancel"
 msgstr "cancelar"
 
-#: src/callbacks.c:645
+#: src/callbacks.c:662
 msgid ""
 "launch new process or restart?.\n"
 "\n"
@@ -938,15 +970,15 @@ msgstr ""
 "nuevo proceso o recomenzar?\n"
 "\n"
 
-#: src/callbacks.c:1252
+#: src/callbacks.c:1306
 msgid "Load File"
 msgstr "Cargar Archivo"
 
-#: src/timers.c:191
+#: src/timers.c:212
 msgid "Guvcview Warning:"
 msgstr "Aviso de Guvcview:"
 
-#: src/timers.c:191
+#: src/timers.c:212
 msgid "Not enough free space left on disk"
 msgstr "No hay suficiente espacio libre en disco"
 
@@ -1006,7 +1038,6 @@ msgstr "No hay suficiente espacio libre en disco"
 #~ msgid "Exposure:"
 #~ msgstr "Exposición:"
 
-#, c-format
 #~ msgid "raw pixel order:"
 #~ msgstr "orden de pixel:"
 
@@ -1041,7 +1072,8 @@ msgstr "No hay suficiente espacio libre en disco"
 
 #~ msgid ""
 #~ "Pixel format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|gbrg|grbg|bggr|rggb)"
-#~ msgstr "Formato(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|gbrg|grbg|bggr|rggb)"
+#~ msgstr ""
+#~ "Formato(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|gbrg|grbg|bggr|rggb)"
 
 #~ msgid "Make sure the device driver suports v4l2."
 #~ msgstr "Asegúrese de que el controlador del dispositivo soporta v4l2."
@@ -1050,12 +1082,11 @@ msgstr "No hay suficiente espacio libre en disco"
 #~ msgstr "MPEG4 - MPEG4 format"
 
 #~ msgid ""
-#~ "Pixel "
-#~ "format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|y41p|grey|"
-#~ "s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
+#~ "Pixel format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|"
+#~ "y41p|grey|s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
 #~ msgstr ""
-#~ "Formato(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|y41p|grey"
-#~ "|s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
+#~ "Formato(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|y41p|"
+#~ "grey|s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
 
 #~ msgid "Reset"
 #~ msgstr "Restablecer"

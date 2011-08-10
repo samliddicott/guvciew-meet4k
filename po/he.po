@@ -7,26 +7,27 @@ msgid ""
 msgstr ""
 "Project-Id-Version: guvcview\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-08-08 23:27+0100\n"
+"POT-Creation-Date: 2011-08-10 13:38+0100\n"
 "PO-Revision-Date: 2009-10-19 04:31+0000\n"
 "Last-Translator: Paulo Assis <pj.assis@gmail.com>\n"
 "Language-Team: Hebrew <he@li.org>\n"
+"Language: he\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Launchpad-Export-Date: 2009-11-15 23:44+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
-#: src/guvcview.c:177
+#: src/guvcview.c:288
 msgid "Guvcview Video Capture"
 msgstr ""
 
-#: src/guvcview.c:187
+#: src/guvcview.c:300
 msgid "GUVCViewer Controls"
 msgstr "פקדי GUVCViewer"
 
 #. can't open device
-#: src/guvcview.c:214
+#: src/guvcview.c:328
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -36,7 +37,7 @@ msgstr ""
 "\n"
 "לא יכול לפתוח התקן"
 
-#: src/guvcview.c:215
+#: src/guvcview.c:329
 msgid ""
 "Please make sure the camera is connected\n"
 "and that the correct driver is installed."
@@ -45,33 +46,33 @@ msgstr ""
 "ושמנהל ההתקן הנכון מותקן."
 
 #. uvc extension controls OK, give warning and shutdown (called with --add_ctrls)
-#: src/guvcview.c:220
+#: src/guvcview.c:334
 msgid ""
 "Guvcview:\n"
 "\n"
 "UVC Extension controls"
 msgstr ""
 
-#: src/guvcview.c:221
+#: src/guvcview.c:335
 msgid "Extension controls were added to the UVC driver"
 msgstr ""
 
 #. uvc extension controls error - EACCES (needs root user)
-#: src/guvcview.c:228
+#: src/guvcview.c:342
 msgid ""
 "Guvcview error:\n"
 "\n"
 "UVC Extension controls"
 msgstr ""
 
-#: src/guvcview.c:229
+#: src/guvcview.c:343
 msgid ""
 "An error occurred while adding extension\n"
 "controls to the UVC driver\n"
 "Make sure you run guvcview as root (or sudo)."
 msgstr ""
 
-#: src/guvcview.c:255 src/guvcview.c:333
+#: src/guvcview.c:369 src/guvcview.c:447
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -81,7 +82,7 @@ msgstr ""
 "\n"
 "לא יכול להגדיר זרימת וידאו תקפה לguvcview"
 
-#: src/guvcview.c:256 src/guvcview.c:334
+#: src/guvcview.c:370 src/guvcview.c:448
 msgid ""
 "Make sure your device driver is v4l2 compliant\n"
 "and that it is properly installed."
@@ -89,7 +90,7 @@ msgstr ""
 "וודא שמנהל ההתקן שלך תואם v4l2\n"
 "ושהוא מותקן כהלכה."
 
-#: src/guvcview.c:278 src/guvcview.c:300
+#: src/guvcview.c:392 src/guvcview.c:414
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -99,11 +100,11 @@ msgstr ""
 "\n"
 "לא ניתן להתחיל עם התקנה מינימאלית"
 
-#: src/guvcview.c:279 src/guvcview.c:301
+#: src/guvcview.c:393 src/guvcview.c:415
 msgid "Please reconnect your camera."
 msgstr "אנא חבר מחדש את המצלמה."
 
-#: src/guvcview.c:308
+#: src/guvcview.c:422
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -113,11 +114,11 @@ msgstr ""
 "\n"
 "לא ניתן לבדוק את יכולות ההתקן"
 
-#: src/guvcview.c:309
+#: src/guvcview.c:423
 msgid "Make sure the device driver supports v4l2."
 msgstr "וודא שמנהל ההתקן שלך תואם v4l2."
 
-#: src/guvcview.c:313
+#: src/guvcview.c:427
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -127,11 +128,11 @@ msgstr ""
 "\n"
 "קרא שגיאת שיטה"
 
-#: src/guvcview.c:314
+#: src/guvcview.c:428
 msgid "Please try mmap instead (--capture_method=1)."
 msgstr "נסה את mmap במקום (--capture_method=1)."
 
-#: src/guvcview.c:322
+#: src/guvcview.c:436
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -141,48 +142,48 @@ msgstr ""
 "\n"
 "לא ניתן להקצות חוצץ"
 
-#: src/guvcview.c:323
+#: src/guvcview.c:437
 msgid "Please try restarting your system."
 msgstr "נסה לאתחל את המערכת."
 
-#: src/guvcview.c:359
+#: src/guvcview.c:476
 msgid "Image Controls"
 msgstr "פקדי תמונה"
 
-#: src/guvcview.c:394
+#: src/guvcview.c:511
 msgid "Capture:"
 msgstr "לכד:"
 
 #. increment column for labels
 #. end of control only exclusion
-#: src/guvcview.c:402
+#: src/guvcview.c:519
 msgid "Control Profiles:"
 msgstr "פרופילי בקרה:"
 
-#: src/guvcview.c:417
+#: src/guvcview.c:534
 msgid "Defaults"
 msgstr ""
 
 #. image auto capture
-#: src/guvcview.c:430
+#: src/guvcview.c:547
 msgid "Stop Auto"
 msgstr "עצור לכידה אוטומטית"
 
-#: src/guvcview.c:434 src/callbacks.c:1072 src/timers.c:95
+#: src/guvcview.c:551 src/callbacks.c:1109 src/timers.c:114
 msgid "Cap. Image"
 msgstr "לכד תמונה"
 
 #. vid capture enabled from start
-#: src/guvcview.c:439 src/callbacks.c:1199
+#: src/guvcview.c:556 src/callbacks.c:1251
 msgid "Stop Video"
 msgstr "עצור וידאו"
 
-#: src/guvcview.c:444 src/guvcview.c:650 src/callbacks.c:1140
-#: src/create_video.c:795
+#: src/guvcview.c:561 src/guvcview.c:777 src/callbacks.c:1185
+#: src/create_video.c:878
 msgid "Cap. Video"
 msgstr "לכד וידאו"
 
-#: src/guvcview.c:593
+#: src/guvcview.c:717
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -192,7 +193,7 @@ msgstr ""
 "\n"
 "לא יכול ליצור שרשור וידאו"
 
-#: src/guvcview.c:594
+#: src/guvcview.c:718
 msgid "Please report it to http://developer.berlios.de/bugs/?group_id=8179"
 msgstr "דווח על כך לhttp://developer.berlios.de/bugs/?group_id=8179"
 
@@ -425,17 +426,15 @@ msgstr ""
 msgid "Focus (Absolute)"
 msgstr ""
 
-#: src/video_tab.c:41 src/callbacks.c:1239
+#: src/video_tab.c:41 src/callbacks.c:1293
 msgid "Save File"
 msgstr "שמור קובץ"
 
 #. if auto naming restart counter
-#. g_mutex_unlock(videoIn->mutex);
-#. g_mutex_lock(global->mutex);
-#: src/video_tab.c:76 src/video_tab.c:106 src/globals.c:72 src/globals.c:75
-#: src/options.c:378 src/options.c:431 src/callbacks.c:583 src/callbacks.c:864
-#: src/callbacks.c:1002 src/callbacks.c:1019 src/callbacks.c:1051
-#: src/callbacks.c:1149 src/timers.c:78
+#: src/video_tab.c:76 src/video_tab.c:106 src/globals.c:73 src/globals.c:76
+#: src/options.c:322 src/options.c:437 src/options.c:494 src/callbacks.c:600
+#: src/callbacks.c:881 src/callbacks.c:1030 src/callbacks.c:1047
+#: src/callbacks.c:1083 src/callbacks.c:1197 src/timers.c:98
 #, c-format
 msgid "File num:%d"
 msgstr "קובץ מספר:%d"
@@ -532,7 +531,7 @@ msgid "Video & Files"
 msgstr "וידאו וקבצים"
 
 #. Devices
-#: src/video_tab.c:546 src/callbacks.c:120
+#: src/video_tab.c:546 src/callbacks.c:136
 msgid "Device:"
 msgstr "התקן:"
 
@@ -581,7 +580,7 @@ msgid "Video Codec:"
 msgstr "מקודד וידאו:"
 
 #. lavc codec properties button
-#: src/video_tab.c:904 src/audio_tab.c:336
+#: src/video_tab.c:904 src/audio_tab.c:346
 msgid "properties"
 msgstr "מאפיינים"
 
@@ -637,90 +636,120 @@ msgstr "שמע"
 msgid " Sound"
 msgstr " קול"
 
-#: src/audio_tab.c:165
-msgid "Audio API:"
+#. VU meter on the image (OSD)
+#: src/audio_tab.c:162
+msgid " Show VU meter"
 msgstr ""
 
 #: src/audio_tab.c:175
+msgid "Audio API:"
+msgstr ""
+
+#: src/audio_tab.c:185
 msgid "PORTAUDIO"
 msgstr ""
 
-#: src/audio_tab.c:176
+#: src/audio_tab.c:186
 msgid "PULSEAUDIO"
 msgstr "PULSEAUDIO"
 
-#: src/audio_tab.c:192 src/audio_tab.c:215
+#: src/audio_tab.c:202 src/audio_tab.c:225
 msgid "Input Device:"
 msgstr ""
 
-#: src/audio_tab.c:226 src/audio_tab.c:258
+#: src/audio_tab.c:236 src/audio_tab.c:268
 msgid "Dev. Default"
 msgstr ""
 
-#: src/audio_tab.c:247
+#: src/audio_tab.c:257
 msgid "Sample Rate:"
 msgstr "קצב דגימה"
 
-#: src/audio_tab.c:259
+#: src/audio_tab.c:269
 msgid "1 - mono"
 msgstr "1 - מונו"
 
-#: src/audio_tab.c:260
+#: src/audio_tab.c:270
 msgid "2 - stereo"
 msgstr "2 - סטריאו"
 
-#: src/audio_tab.c:294
+#: src/audio_tab.c:304
 msgid "Channels:"
 msgstr "ערוצים:"
 
-#: src/audio_tab.c:328
+#: src/audio_tab.c:338
 msgid "Audio Format:"
 msgstr "פורמט שמע"
 
-#: src/audio_tab.c:346
+#: src/audio_tab.c:356
 msgid "---- Audio Effects ----"
 msgstr "--- אפקטים קוליים ---"
 
 #. Echo
-#: src/audio_tab.c:365
+#: src/audio_tab.c:375
 msgid " Echo"
 msgstr " הד"
 
 #. FUZZ
-#: src/audio_tab.c:375
+#: src/audio_tab.c:385
 msgid " Fuzz"
 msgstr ""
 
 #. Reverb
-#: src/audio_tab.c:386
+#: src/audio_tab.c:396
 msgid " Reverb"
 msgstr ""
 
 #. WahWah
-#: src/audio_tab.c:397
+#: src/audio_tab.c:407
 msgid " WahWah"
 msgstr ""
 
 #. Ducky
-#: src/audio_tab.c:408
+#: src/audio_tab.c:418
 msgid " Ducky"
 msgstr ""
 
-#: src/v4l2_controls.c:645
+#: src/v4l2_controls.c:732
 msgid "Left"
 msgstr "שמאל"
 
-#: src/v4l2_controls.c:646
+#: src/v4l2_controls.c:733
 msgid "Right"
 msgstr "ימין"
 
-#: src/v4l2_controls.c:650
+#: src/v4l2_controls.c:737
 msgid "Down"
 msgstr "למטה"
 
-#: src/v4l2_controls.c:651
+#: src/v4l2_controls.c:738
 msgid "Up"
 msgstr "למעלה"
+
+#: src/v4l2_controls.c:787
+msgid "Off"
+msgstr ""
+
+#: src/v4l2_controls.c:790
+msgid "On"
+msgstr ""
+
+#: src/v4l2_controls.c:793
+msgid "Blinking"
+msgstr ""
+
+#: src/v4l2_controls.c:796
+#, fuzzy
+msgid "Auto"
+msgstr "עצור לכידה אוטומטית"
+
+#: src/v4l2_controls.c:814
+msgid "8 bit"
+msgstr ""
+
+#: src/v4l2_controls.c:817
+msgid "12 bit"
+msgstr ""
 
 #: src/v4l2_dyna_ctrls.c:89
 msgid "Pan (relative)"
@@ -802,39 +831,43 @@ msgstr ""
 msgid "MPEG4-AVC (H264)"
 msgstr ""
 
-#: src/options.c:546
+#: src/options.c:734
 msgid "Prints version"
 msgstr "מדפיס גרסה"
 
-#: src/options.c:547
+#: src/options.c:735
 msgid "Displays debug information"
 msgstr ""
 
-#: src/options.c:548
+#: src/options.c:736
 msgid "Video Device to use [default: /dev/video0]"
 msgstr "התקן וידאו לשימוש [ברירת מחדל:/dev/video0]"
 
-#: src/options.c:549
+#: src/options.c:737
 msgid "Exit after adding UVC extension controls (needs root/sudo)"
 msgstr ""
 
-#: src/options.c:550
+#: src/options.c:738
 msgid "Don't stream video (image controls only)"
 msgstr ""
 
-#: src/options.c:551
+#: src/options.c:739
+msgid "Don't display a GUI"
+msgstr ""
+
+#: src/options.c:740
 msgid "Capture method (1-mmap (default)  2-read)"
 msgstr ""
 
-#: src/options.c:552
+#: src/options.c:741
 msgid "Configuration file"
 msgstr "קובץ הגדרות"
 
-#: src/options.c:553
+#: src/options.c:742
 msgid "Hardware accelaration (enable(1) | disable(0))"
 msgstr "האצת חומרה (פעיל(1) | מנוטרל(0))"
 
-#: src/options.c:554
+#: src/options.c:743
 #, fuzzy
 msgid ""
 "Pixel format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|"
@@ -843,47 +876,47 @@ msgstr ""
 "פורמט פיקסל(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|y41p|"
 "grey|s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
 
-#: src/options.c:555
+#: src/options.c:744
 msgid "Frame size, default: 640x480"
 msgstr "גודל פריים, ברירת מחדל: 640x480"
 
-#: src/options.c:556
+#: src/options.c:745
 msgid "Image File name"
 msgstr "שם קובץ תמונה"
 
-#: src/options.c:557
+#: src/options.c:746
 msgid "Image capture interval in seconds"
 msgstr ""
 
-#: src/options.c:558
+#: src/options.c:747
 msgid "Number of Pictures to capture"
 msgstr "מספר תמונות ללכידה"
 
-#: src/options.c:559
+#: src/options.c:748
 msgid "Video File name (capture from start)"
 msgstr "שם קובץ וידאו (לוכד מההתחלה)"
 
-#: src/options.c:560
+#: src/options.c:749
 msgid "Video capture time (in seconds)"
 msgstr "זמן לכידת וידאו (בשניות)"
 
-#: src/options.c:561
+#: src/options.c:750
 msgid "Exits guvcview after closing video"
 msgstr "יוצא מguvcview אחרי סגירת וידאו"
 
-#: src/options.c:562
+#: src/options.c:751
 msgid "Number of initial frames to skip"
 msgstr ""
 
-#: src/options.c:563
+#: src/options.c:752
 msgid "Show FPS value (enable(1) | disable (0))"
 msgstr "מראה ערך פריימים לשניה (FPS) (פעיל(1) | מנוטרל(2))"
 
-#: src/options.c:564
+#: src/options.c:753
 msgid "Load Profile at start"
 msgstr "טען פרופיל בהפעלה"
 
-#: src/options.c:570
+#: src/options.c:759
 msgid "- local options"
 msgstr "- אפשרויות מקומיות"
 
@@ -895,35 +928,35 @@ msgstr "מיקוד אוטומטי (מתמשך)"
 msgid "set Focus"
 msgstr "הגדר מיקוד"
 
-#: src/callbacks.c:89
+#: src/callbacks.c:102
 #, fuzzy
 msgid "Error"
 msgstr " מראה"
 
-#: src/callbacks.c:113
+#: src/callbacks.c:128
 msgid ""
 "\n"
 "You have more than one video device installed.\n"
 "Do you want to try another one ?\n"
 msgstr ""
 
-#: src/callbacks.c:634
+#: src/callbacks.c:651
 msgid "start new"
 msgstr "הפעל עכשיו"
 
-#: src/callbacks.c:637
+#: src/callbacks.c:654
 msgid "restart"
 msgstr "הפעל מחדש"
 
-#: src/callbacks.c:639
+#: src/callbacks.c:656
 msgid "new"
 msgstr "חדש"
 
-#: src/callbacks.c:641
+#: src/callbacks.c:658
 msgid "cancel"
 msgstr "בטל"
 
-#: src/callbacks.c:645
+#: src/callbacks.c:662
 msgid ""
 "launch new process or restart?.\n"
 "\n"
@@ -931,15 +964,15 @@ msgstr ""
 "הפעל תהליך חדש או הפעל מחדש?.\n"
 "\n"
 
-#: src/callbacks.c:1252
+#: src/callbacks.c:1306
 msgid "Load File"
 msgstr "טען קובץ"
 
-#: src/timers.c:191
+#: src/timers.c:212
 msgid "Guvcview Warning:"
 msgstr ""
 
-#: src/timers.c:191
+#: src/timers.c:212
 msgid "Not enough free space left on disk"
 msgstr ""
 
