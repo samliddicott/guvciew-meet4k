@@ -120,6 +120,10 @@
 #define V4L2_PIX_FMT_RGB24   v4l2_fourcc('R', 'G', 'B', '3') /* 24  RGB-8-8-8    */
 #endif
 
+#ifndef V4L2_PIX_FMT_H264
+#define V4L2_PIX_FMT_H264     v4l2_fourcc('H', '2', '6', '4') /* H264 with start codes */
+#endif
+
 typedef struct _SupFormats
 {
 	int format;          //v4l2 software(guvcview) supported format
