@@ -179,11 +179,11 @@ void audio_tab(struct ALL_DATA *all_data)
 		GTK_FILL, 0, 0, 0);
 	gtk_widget_show (gwidget->label_SndAPI);
 	
-	gwidget->SndAPI = gtk_combo_box_new_text ();;
+	gwidget->SndAPI = gtk_combo_box_text_new ();;
 	gtk_table_attach(GTK_TABLE(table3), gwidget->SndAPI, 1, 3, line, line+1,
 		GTK_SHRINK | GTK_FILL , 0, 0, 0);
-	gtk_combo_box_append_text(GTK_COMBO_BOX(gwidget->SndAPI),_("PORTAUDIO"));
-	gtk_combo_box_append_text(GTK_COMBO_BOX(gwidget->SndAPI),_("PULSEAUDIO"));
+	gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(gwidget->SndAPI),_("PORTAUDIO"));
+	gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(gwidget->SndAPI),_("PULSEAUDIO"));
 	gtk_widget_show (gwidget->SndAPI);
 	//default API - portaudio
 	gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->SndAPI),global->Sound_API);
@@ -191,7 +191,7 @@ void audio_tab(struct ALL_DATA *all_data)
 	if(global->Sound_API > 0) global->Sound_UseDev=-1; //force default device
 	
 	gtk_widget_set_sensitive (gwidget->SndAPI, TRUE);
-	g_signal_connect (GTK_COMBO_BOX(gwidget->SndAPI), "changed",
+	g_signal_connect (GTK_COMBO_BOX_TEXT(gwidget->SndAPI), "changed",
 		G_CALLBACK (SndAPI_changed), all_data);
 	
 #endif
@@ -219,7 +219,7 @@ void audio_tab(struct ALL_DATA *all_data)
 	//disable if using pulse api
 	if (global->Sound_enable && !global->Sound_API) gtk_widget_set_sensitive (gwidget->SndDevice, TRUE);
 	else  gtk_widget_set_sensitive (gwidget->SndDevice, FALSE);
-	g_signal_connect (GTK_COMBO_BOX(gwidget->SndDevice), "changed",
+	g_signal_connect (GTK_COMBO_BOX_TEXT(gwidget->SndDevice), "changed",
 		G_CALLBACK (SndDevice_changed), all_data);
 	
 	label_SndDevice = gtk_label_new(_("Input Device:"));
@@ -232,13 +232,13 @@ void audio_tab(struct ALL_DATA *all_data)
 	
 	//sample rate
 	line++;
-	gwidget->SndSampleRate= gtk_combo_box_new_text ();
-	gtk_combo_box_append_text(GTK_COMBO_BOX(gwidget->SndSampleRate),_("Dev. Default"));
+	gwidget->SndSampleRate= gtk_combo_box_text_new ();
+	gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(gwidget->SndSampleRate),_("Dev. Default"));
 	for( i=1; stdSampleRates[i] > 0; i++ )
 	{
 		char dst[8];
 		g_snprintf(dst,7,"%d",stdSampleRates[i]);
-		gtk_combo_box_append_text(GTK_COMBO_BOX(gwidget->SndSampleRate),dst);
+		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(gwidget->SndSampleRate),dst);
 	}
 	if (global->Sound_SampRateInd>(i-1)) global->Sound_SampRateInd=0; /*out of range*/
 	
@@ -251,7 +251,7 @@ void audio_tab(struct ALL_DATA *all_data)
 	
 	if (global->Sound_enable) gtk_widget_set_sensitive (gwidget->SndSampleRate, TRUE);
 	else  gtk_widget_set_sensitive (gwidget->SndSampleRate, FALSE);
-	g_signal_connect (GTK_COMBO_BOX(gwidget->SndSampleRate), "changed",
+	g_signal_connect (GTK_COMBO_BOX_TEXT(gwidget->SndSampleRate), "changed",
 		G_CALLBACK (SndSampleRate_changed), all_data);
 
 	label_SndSampRate = gtk_label_new(_("Sample Rate:"));
@@ -264,10 +264,10 @@ void audio_tab(struct ALL_DATA *all_data)
 	
 	//channels
 	line++;
-	gwidget->SndNumChan= gtk_combo_box_new_text ();
-	gtk_combo_box_append_text(GTK_COMBO_BOX(gwidget->SndNumChan),_("Dev. Default"));
-	gtk_combo_box_append_text(GTK_COMBO_BOX(gwidget->SndNumChan),_("1 - mono"));
-	gtk_combo_box_append_text(GTK_COMBO_BOX(gwidget->SndNumChan),_("2 - stereo"));
+	gwidget->SndNumChan= gtk_combo_box_text_new ();
+	gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(gwidget->SndNumChan),_("Dev. Default"));
+	gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(gwidget->SndNumChan),_("1 - mono"));
+	gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(gwidget->SndNumChan),_("2 - stereo"));
 
 	gtk_table_attach(GTK_TABLE(table3), gwidget->SndNumChan, 1, 2, line, line+1,
 		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
@@ -298,7 +298,7 @@ void audio_tab(struct ALL_DATA *all_data)
 	}
 	if (global->Sound_enable) gtk_widget_set_sensitive (gwidget->SndNumChan, TRUE);
 	else gtk_widget_set_sensitive (gwidget->SndNumChan, FALSE);
-	g_signal_connect (GTK_COMBO_BOX(gwidget->SndNumChan), "changed",
+	g_signal_connect (GTK_COMBO_BOX_TEXT(gwidget->SndNumChan), "changed",
 		G_CALLBACK (SndNumChan_changed), all_data);
 	
 	label_SndNumChan = gtk_label_new(_("Channels:"));
@@ -311,14 +311,14 @@ void audio_tab(struct ALL_DATA *all_data)
 	
 	//sound format
 	line++;
-	gwidget->SndComp = gtk_combo_box_new_text ();
+	gwidget->SndComp = gtk_combo_box_text_new ();
 	//sets to valid only existing codecs
 	setAcodecVal ();
 	int acodec_ind =0;
 	for (acodec_ind =0; acodec_ind<MAX_ACODECS; acodec_ind++)
 	{
 		if (isAcodecValid(acodec_ind))
-			gtk_combo_box_append_text(GTK_COMBO_BOX(gwidget->SndComp),gettext(get_aud_desc4cc(acodec_ind)));
+			gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(gwidget->SndComp),gettext(get_aud_desc4cc(acodec_ind)));
 		
 	}
 
@@ -328,7 +328,7 @@ void audio_tab(struct ALL_DATA *all_data)
 	
 	if (global->Sound_enable) gtk_widget_set_sensitive (gwidget->SndComp, TRUE);
 	
-	g_signal_connect (GTK_COMBO_BOX(gwidget->SndComp), "changed",
+	g_signal_connect (GTK_COMBO_BOX_TEXT(gwidget->SndComp), "changed",
 		G_CALLBACK (SndComp_changed), all_data);
 	
 	gtk_table_attach(GTK_TABLE(table3), gwidget->SndComp, 1, 2, line, line+1,

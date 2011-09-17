@@ -31,7 +31,7 @@ list_snd_devices(struct GLOBAL *global)
 
 	PaError err;
 	/*sound device combo box*/
-	GtkWidget *SndDevice = gtk_combo_box_new_text ();
+	GtkWidget *SndDevice = gtk_combo_box_text_new ();
 	
 	numDevices = Pa_GetDeviceCount();
 	if( numDevices < 0 )
@@ -108,7 +108,7 @@ list_snd_devices(struct GLOBAL *global)
 				global->Sound_IndexDev[global->Sound_numInputDev-1].samprate=deviceInfo->defaultSampleRate;
 				//Sound_IndexDev[Sound_numInputDev].Hlatency=deviceInfo->defaultHighInputLatency;
 				//Sound_IndexDev[Sound_numInputDev].Llatency=deviceInfo->defaultLowInputLatency;
-				gtk_combo_box_append_text(GTK_COMBO_BOX(SndDevice),deviceInfo->name);
+				gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(SndDevice),deviceInfo->name);
 			}
 			if (global->debug) 
 			{

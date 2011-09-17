@@ -139,11 +139,11 @@ ERR_DIALOG(const char *err_title, const char* err_msg, struct ALL_DATA *all_data
                 GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
             gtk_widget_show (lbl_dev);
             
-            Devices = gtk_combo_box_new_text ();
+            Devices = gtk_combo_box_text_new ();
             
             for(i=0;i<(videoIn->listDevices->num_devices);i++)
             {
-                gtk_combo_box_append_text(GTK_COMBO_BOX(Devices),
+                gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(Devices),
                     videoIn->listDevices->listVidDevices[i].name);
             }
             gtk_combo_box_set_active(GTK_COMBO_BOX(Devices),videoIn->listDevices->num_devices-1);
@@ -307,26 +307,26 @@ key_pressed (GtkWidget *win, GdkEventKey *event, struct ALL_DATA *all_data)
     {
         switch (event->keyval)
         {
-            case GDK_Down:
-            case GDK_KP_Down:
+            case GDK_KEY_Down:
+            case GDK_KEY_KP_Down:
                 /*Tilt Down*/
                 uvcPanTilt (videoIn->fd, s->control_list, 0, 1);
                 return TRUE;
                 
-            case GDK_Up:
-            case GDK_KP_Up:
+            case GDK_KEY_Up:
+            case GDK_KEY_KP_Up:
                 /*Tilt UP*/
                 uvcPanTilt (videoIn->fd, s->control_list, 0, -1);
                 return TRUE;
                 
-            case GDK_Left:
-            case GDK_KP_Left:
+            case GDK_KEY_Left:
+            case GDK_KEY_KP_Left:
                 /*Pan Left*/
                 uvcPanTilt (videoIn->fd, s->control_list, 1, 1);
                 return TRUE;
                 
-            case GDK_Right:
-            case GDK_KP_Right:
+            case GDK_KEY_Right:
+            case GDK_KEY_KP_Right:
                 /*Pan Right*/
                 uvcPanTilt (videoIn->fd, s->control_list, 1, -1);
                 return TRUE;
@@ -659,9 +659,10 @@ Devices_changed (GtkComboBox * Devices, struct ALL_DATA *all_data)
 		GTK_RESPONSE_CANCEL,
 		NULL);
 	
+	GtkWidget * content_area = gtk_dialog_get_content_area (GTK_DIALOG (gwidget->restartdialog));
 	GtkWidget *message = gtk_label_new (_("launch new process or restart?.\n\n"));
-	gtk_container_add (GTK_CONTAINER (GTK_DIALOG(gwidget->restartdialog)->vbox), message);
-	gtk_widget_show_all(GTK_WIDGET(GTK_CONTAINER (GTK_DIALOG(gwidget->restartdialog)->vbox)));
+	gtk_container_add (GTK_CONTAINER (content_area), message);
+	gtk_widget_show_all(gwidget->restartdialog);
 	
 	gint result = gtk_dialog_run (GTK_DIALOG (gwidget->restartdialog));
 	switch (result) 
@@ -706,9 +707,9 @@ resolution_changed (GtkComboBox * Resolution, struct ALL_DATA *all_data)
 		gboolean capVid = videoIn->capVid;
 	g_mutex_unlock(videoIn->mutex);
 	/*disable fps combobox signals*/
-	g_signal_handlers_block_by_func(GTK_COMBO_BOX(gwidget->FrameRate), G_CALLBACK (FrameRate_changed), all_data);
+	g_signal_handlers_block_by_func(GTK_COMBO_BOX_TEXT(gwidget->FrameRate), G_CALLBACK (FrameRate_changed), all_data);
 	/* clear out the old fps list... */
-	GtkListStore *store = GTK_LIST_STORE(gtk_combo_box_get_model (GTK_COMBO_BOX (gwidget->FrameRate)));
+	GtkListStore *store = GTK_LIST_STORE(gtk_combo_box_get_model (GTK_COMBO_BOX_TEXT (gwidget->FrameRate)));
 	gtk_list_store_clear(store);
 
 
@@ -724,7 +725,7 @@ resolution_changed (GtkComboBox * Resolution, struct ALL_DATA *all_data)
 	{
 		g_snprintf(temp_str,18,"%i/%i fps", listVidCap->framerate_denom[i],
 			listVidCap->framerate_num[i]);
-		gtk_combo_box_append_text(GTK_COMBO_BOX(gwidget->FrameRate),temp_str);
+		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(gwidget->FrameRate),temp_str);
 		
 		if (( global->fps_num == listVidCap->framerate_num[i]) && 
 			(global->fps == listVidCap->framerate_denom[i]))
@@ -735,7 +736,7 @@ resolution_changed (GtkComboBox * Resolution, struct ALL_DATA *all_data)
 	gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->FrameRate),deffps);
 	
 	/*enable fps combobox signals*/ 
-	g_signal_handlers_unblock_by_func(GTK_COMBO_BOX(gwidget->FrameRate), G_CALLBACK (FrameRate_changed), all_data);
+	g_signal_handlers_unblock_by_func(GTK_COMBO_BOX_TEXT(gwidget->FrameRate), G_CALLBACK (FrameRate_changed), all_data);
 	
 	if (listVidCap->framerate_num)	
 		global->fps_num = listVidCap->framerate_num[deffps];
@@ -773,10 +774,10 @@ InpType_changed(GtkComboBox * InpType, struct ALL_DATA *all_data)
 	VidFormats *listVidFormats;
 	
 	/*disable resolution combobox signals*/
-	g_signal_handlers_block_by_func(GTK_COMBO_BOX(gwidget->Resolution), G_CALLBACK (resolution_changed), all_data);
+	g_signal_handlers_block_by_func(GTK_COMBO_BOX_TEXT(gwidget->Resolution), G_CALLBACK (resolution_changed), all_data);
 	
 	/* clear out the old resolution list... */
-	GtkListStore *store = GTK_LIST_STORE(gtk_combo_box_get_model (GTK_COMBO_BOX (gwidget->Resolution)));
+	GtkListStore *store = GTK_LIST_STORE(gtk_combo_box_get_model (GTK_COMBO_BOX(gwidget->Resolution)));
 	gtk_list_store_clear(store);
 	
 	videoIn->listFormats->current_format = index;
@@ -792,7 +793,7 @@ InpType_changed(GtkComboBox * InpType, struct ALL_DATA *all_data)
 		{
 			g_snprintf(temp_str,18,"%ix%i", listVidFormats->listVidCap[i].width,
 							 listVidFormats->listVidCap[i].height);
-			gtk_combo_box_append_text(GTK_COMBO_BOX(gwidget->Resolution),temp_str);
+			gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(gwidget->Resolution),temp_str);
 			
 			if ((global->width == listVidFormats->listVidCap[i].width) && 
 				(global->height == listVidFormats->listVidCap[i].height))
@@ -806,7 +807,7 @@ InpType_changed(GtkComboBox * InpType, struct ALL_DATA *all_data)
 	global->format = format;
 	
 	/*enable resolution combobox signals*/
-	g_signal_handlers_unblock_by_func(GTK_COMBO_BOX(gwidget->Resolution), G_CALLBACK (resolution_changed), all_data);
+	g_signal_handlers_unblock_by_func(GTK_COMBO_BOX_TEXT(gwidget->Resolution), G_CALLBACK (resolution_changed), all_data);
 	
 	/*reset resolution/format*/
 	gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->Resolution),defres);

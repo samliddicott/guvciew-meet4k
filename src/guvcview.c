@@ -299,8 +299,9 @@ int main(int argc, char *argv[])
         gwidget->mainwin = gtk_window_new(GTK_WINDOW_TOPLEVEL);
         gtk_window_set_title (GTK_WINDOW (gwidget->mainwin), _("GUVCViewer Controls"));
         gtk_window_resize(GTK_WINDOW(gwidget->mainwin),global->winwidth,global->winheight);
+        
         /* Add event handlers */
-        gtk_signal_connect(GTK_OBJECT(gwidget->mainwin), "delete_event", GTK_SIGNAL_FUNC(delete_event), &all_data);
+        g_signal_connect(GTK_WINDOW(gwidget->mainwin), "delete_event", G_CALLBACK(delete_event), &all_data);
     }
 
 	/*----------------------- init videoIn structure --------------------------*/
@@ -598,7 +599,7 @@ int main(int argc, char *argv[])
                 G_CALLBACK (capture_vid), &all_data);
             /*key events*/
             gtk_widget_add_events (GTK_WIDGET (gwidget->mainwin), GDK_KEY_PRESS_MASK | GDK_KEY_RELEASE_MASK);
-            g_signal_connect (GTK_OBJECT(gwidget->mainwin), "key_press_event", G_CALLBACK (key_pressed), &all_data);
+            g_signal_connect (GTK_WINDOW(gwidget->mainwin), "key_press_event", G_CALLBACK(key_pressed), &all_data);
         }/*end of control_only exclusion*/
         
         gchar* pix3path = g_strconcat (PACKAGE_DATA_DIR,"/pixmaps/guvcview/save.png",NULL);

@@ -455,13 +455,13 @@ lavc_properties(GtkButton * CodecButt, struct ALL_DATA *all_data)
 			codec_defaults->me_sub_cmp = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON(me_sub_cmp));
 			codec_defaults->last_pred = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON(last_pred));
 			codec_defaults->gop_size = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON(gop_size));
-			codec_defaults->qcompress = gtk_spin_button_get_value_as_float (GTK_SPIN_BUTTON(qcompress));
-			codec_defaults->qblur = gtk_spin_button_get_value_as_float (GTK_SPIN_BUTTON(qblur));
-			codec_defaults->subq = gtk_spin_button_get_value_as_float (GTK_SPIN_BUTTON(subq));
-			codec_defaults->framerefs = gtk_spin_button_get_value_as_float (GTK_SPIN_BUTTON(framerefs));
-			codec_defaults->me_method = gtk_spin_button_get_value_as_float (GTK_SPIN_BUTTON(me_method));
-			codec_defaults->mb_decision = gtk_spin_button_get_value_as_float (GTK_SPIN_BUTTON(mb_decision));
-			codec_defaults->max_b_frames = gtk_spin_button_get_value_as_float (GTK_SPIN_BUTTON(max_b_frames));
+			codec_defaults->qcompress = (float) gtk_spin_button_get_value (GTK_SPIN_BUTTON(qcompress));
+			codec_defaults->qblur = (float) gtk_spin_button_get_value (GTK_SPIN_BUTTON(qblur));
+			codec_defaults->subq = (float) gtk_spin_button_get_value (GTK_SPIN_BUTTON(subq));
+			codec_defaults->framerefs = (float) gtk_spin_button_get_value (GTK_SPIN_BUTTON(framerefs));
+			codec_defaults->me_method = (float) gtk_spin_button_get_value (GTK_SPIN_BUTTON(me_method));
+			codec_defaults->mb_decision = (float) gtk_spin_button_get_value (GTK_SPIN_BUTTON(mb_decision));
+			codec_defaults->max_b_frames = (float) gtk_spin_button_get_value (GTK_SPIN_BUTTON(max_b_frames));
 			break;
 		default:
 			// do nothing since dialog was cancelled
@@ -552,11 +552,11 @@ void video_tab(struct ALL_DATA *all_data)
 	gtk_widget_show (label_Device);
 	
 	
-	gwidget->Devices = gtk_combo_box_new_text ();
+	gwidget->Devices = gtk_combo_box_text_new ();
 	if (videoIn->listDevices->num_devices < 1)
 	{
 		//use current
-		gtk_combo_box_append_text(GTK_COMBO_BOX(gwidget->Devices),
+		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(gwidget->Devices),
 			videoIn->videodevice);
 		gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->Devices),0);
 	}
@@ -564,7 +564,7 @@ void video_tab(struct ALL_DATA *all_data)
 	{
 		for(i=0;i<(videoIn->listDevices->num_devices);i++)
 		{
-			gtk_combo_box_append_text(GTK_COMBO_BOX(gwidget->Devices),
+			gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(gwidget->Devices),
 				videoIn->listDevices->listVidDevices[i].name);
 			if(videoIn->listDevices->listVidDevices[i].current)
 				gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->Devices),i);
@@ -573,11 +573,11 @@ void video_tab(struct ALL_DATA *all_data)
 	gtk_table_attach(GTK_TABLE(table2), gwidget->Devices, 1, 2, line, line+1,
 		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (gwidget->Devices);
-	g_signal_connect (GTK_COMBO_BOX(gwidget->Devices), "changed",
+	g_signal_connect (GTK_COMBO_BOX_TEXT(gwidget->Devices), "changed",
 		G_CALLBACK (Devices_changed), all_data);
 	
 	// Resolution
-	gwidget->Resolution = gtk_combo_box_new_text ();
+	gwidget->Resolution = gtk_combo_box_text_new ();
 	char temp_str[20];
 	int defres=0;
 
@@ -597,7 +597,7 @@ void video_tab(struct ALL_DATA *all_data)
 		{
 			g_snprintf(temp_str,18,"%ix%i", listVidFormats->listVidCap[i].width,
 							 listVidFormats->listVidCap[i].height);
-			gtk_combo_box_append_text(GTK_COMBO_BOX(gwidget->Resolution),temp_str);
+			gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(gwidget->Resolution),temp_str);
 			
 			if ((global->width == listVidFormats->listVidCap[i].width) && 
 				(global->height == listVidFormats->listVidCap[i].height))
@@ -608,7 +608,7 @@ void video_tab(struct ALL_DATA *all_data)
 	// Frame Rate
 	line++;
 					  
-	gwidget->FrameRate = gtk_combo_box_new_text ();
+	gwidget->FrameRate = gtk_combo_box_text_new ();
 	int deffps=0;
 	if (global->debug) 
 		g_printf("frame rates of %dº resolution=%d \n",
@@ -618,7 +618,7 @@ void video_tab(struct ALL_DATA *all_data)
 	{
 		g_snprintf(temp_str,18,"%i/%i fps", listVidFormats->listVidCap[defres].framerate_denom[i],
 			listVidFormats->listVidCap[defres].framerate_num[i]);
-		gtk_combo_box_append_text(GTK_COMBO_BOX(gwidget->FrameRate),temp_str);
+		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(gwidget->FrameRate),temp_str);
 		
 		if (( global->fps_num == listVidFormats->listVidCap[defres].framerate_num[i]) && 
 			(global->fps == listVidFormats->listVidCap[defres].framerate_denom[i]))
@@ -642,7 +642,7 @@ void video_tab(struct ALL_DATA *all_data)
 		g_printf("fps is set to %i/%i\n", global->fps_num, global->fps);
 	}
 	gtk_widget_set_sensitive (gwidget->FrameRate, TRUE);
-	g_signal_connect (GTK_COMBO_BOX(gwidget->FrameRate), "changed",
+	g_signal_connect (GTK_COMBO_BOX_TEXT(gwidget->FrameRate), "changed",
 		G_CALLBACK (FrameRate_changed), all_data);
 	
 	label_FPS = gtk_label_new(_("Frame Rate:"));
@@ -685,12 +685,12 @@ void video_tab(struct ALL_DATA *all_data)
 	
 	// Input Format
 	line++;
-	gwidget->InpType= gtk_combo_box_new_text ();
+	gwidget->InpType= gtk_combo_box_text_new ();
 	
 	int fmtind=0;
 	for (fmtind=0; fmtind < videoIn->listFormats->numb_formats; fmtind++)
 	{
-		gtk_combo_box_append_text(GTK_COMBO_BOX(gwidget->InpType),videoIn->listFormats->listVidFormats[fmtind].fourcc);
+		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(gwidget->InpType),videoIn->listFormats->listVidFormats[fmtind].fourcc);
 		if(global->format == videoIn->listFormats->listVidFormats[fmtind].format)
 			gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->InpType),fmtind); /*set active*/
 	}
@@ -699,7 +699,7 @@ void video_tab(struct ALL_DATA *all_data)
 		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	
 	gtk_widget_set_sensitive (gwidget->InpType, TRUE);
-	g_signal_connect (GTK_COMBO_BOX(gwidget->InpType), "changed",
+	g_signal_connect (GTK_COMBO_BOX_TEXT(gwidget->InpType), "changed",
 		G_CALLBACK (InpType_changed), all_data);
 	gtk_widget_show (gwidget->InpType);
 	
@@ -793,11 +793,11 @@ void video_tab(struct ALL_DATA *all_data)
 		GTK_FILL, 0, 0, 0);
 	gtk_widget_show (label_ImageType);
 	
-	gwidget->ImageType=gtk_combo_box_new_text ();
-	gtk_combo_box_append_text(GTK_COMBO_BOX(gwidget->ImageType),"JPG");
-	gtk_combo_box_append_text(GTK_COMBO_BOX(gwidget->ImageType),"BMP");
-	gtk_combo_box_append_text(GTK_COMBO_BOX(gwidget->ImageType),"PNG");
-	gtk_combo_box_append_text(GTK_COMBO_BOX(gwidget->ImageType),"RAW");
+	gwidget->ImageType=gtk_combo_box_text_new ();
+	gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(gwidget->ImageType),"JPG");
+	gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(gwidget->ImageType),"BMP");
+	gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(gwidget->ImageType),"PNG");
+	gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(gwidget->ImageType),"RAW");
 	gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->ImageType),global->imgFormat);
 	gtk_table_attach(GTK_TABLE(table2), gwidget->ImageType, 1, 2, line, line+1,
 		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
@@ -807,7 +807,7 @@ void video_tab(struct ALL_DATA *all_data)
 	gtk_widget_show (gwidget->ImageFNameEntry);
 	gtk_widget_show (gwidget->ImageType);
 	
-	g_signal_connect (GTK_COMBO_BOX(gwidget->ImageType), "changed",
+	g_signal_connect (GTK_COMBO_BOX_TEXT(gwidget->ImageType), "changed",
 		G_CALLBACK (ImageType_changed), all_data);
 	g_object_set_data (G_OBJECT (gwidget->ImgFileButt), "file_butt", GINT_TO_POINTER(0));
 	g_signal_connect (GTK_BUTTON(gwidget->ImgFileButt), "clicked",
@@ -872,7 +872,7 @@ void video_tab(struct ALL_DATA *all_data)
 	
 	// Video Codec
 	line++;
-	gwidget->VidCodec = gtk_combo_box_new_text ();
+	gwidget->VidCodec = gtk_combo_box_text_new ();
 	
 	//sets to valid only existing codecs
 	setVcodecVal ();
@@ -880,7 +880,7 @@ void video_tab(struct ALL_DATA *all_data)
 	for (vcodec_ind =0; vcodec_ind<MAX_VCODECS; vcodec_ind++)
 	{
 		if (isVcodecValid(vcodec_ind))
-			gtk_combo_box_append_text(GTK_COMBO_BOX(gwidget->VidCodec),gettext(get_desc4cc(vcodec_ind)));
+			gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(gwidget->VidCodec),gettext(get_desc4cc(vcodec_ind)));
 		
 	}
 	gtk_table_attach(GTK_TABLE(table2), gwidget->VidCodec, 1, 2, line, line+1,
@@ -890,7 +890,7 @@ void video_tab(struct ALL_DATA *all_data)
 	gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->VidCodec),global->VidCodec);
 	
 	gtk_widget_set_sensitive (gwidget->VidCodec, TRUE);
-	g_signal_connect (GTK_COMBO_BOX(gwidget->VidCodec), "changed",
+	g_signal_connect (GTK_COMBO_BOX_TEXT(gwidget->VidCodec), "changed",
 		G_CALLBACK (VidCodec_changed), all_data);
 	
 	label_VidCodec = gtk_label_new(_("Video Codec:"));
@@ -912,11 +912,11 @@ void video_tab(struct ALL_DATA *all_data)
 	
 	//video container
 	line++;
-	gwidget->VidFormat = gtk_combo_box_new_text ();
+	gwidget->VidFormat = gtk_combo_box_text_new ();
 	
 	int vformat_ind =0;
 	for (vformat_ind =0; vformat_ind<MAX_VFORMATS; vformat_ind++)
-		gtk_combo_box_append_text(GTK_COMBO_BOX(gwidget->VidFormat),gettext(get_vformat_desc(vformat_ind)));
+		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(gwidget->VidFormat),gettext(get_vformat_desc(vformat_ind)));
 	
 	gtk_table_attach(GTK_TABLE(table2), gwidget->VidFormat, 1, 2, line, line+1,
 		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
@@ -925,7 +925,7 @@ void video_tab(struct ALL_DATA *all_data)
 	gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->VidFormat),global->VidFormat);
 	
 	gtk_widget_set_sensitive (gwidget->VidFormat, TRUE);
-	g_signal_connect (GTK_COMBO_BOX(gwidget->VidFormat), "changed",
+	g_signal_connect (GTK_COMBO_BOX_TEXT(gwidget->VidFormat), "changed",
 		G_CALLBACK (VidFormat_changed), all_data);
 	
 	label_VidFormat = gtk_label_new(_("Video Format:"));

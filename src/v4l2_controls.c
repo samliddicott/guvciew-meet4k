@@ -609,7 +609,7 @@ static void update_widget_state(Control *control_list, void *all_data)
                 case V4L2_CTRL_TYPE_MENU:
                 {
                     //disable widget signals
-                    g_signal_handlers_block_by_func(GTK_COMBO_BOX(current->widget), 
+                    g_signal_handlers_block_by_func(GTK_COMBO_BOX_TEXT(current->widget), 
                         G_CALLBACK (combo_changed), all_data);
                     //get new index
                     int j = 0;
@@ -622,7 +622,7 @@ static void update_widget_state(Control *control_list, void *all_data)
                     
                     gtk_combo_box_set_active(GTK_COMBO_BOX(current->widget), def);
                     //enable widget signals    
-                    g_signal_handlers_unblock_by_func(GTK_COMBO_BOX(current->widget), 
+                    g_signal_handlers_unblock_by_func(GTK_COMBO_BOX_TEXT(current->widget), 
                         G_CALLBACK (combo_changed), all_data);
                     break;
                 }
@@ -781,26 +781,26 @@ void create_control_widgets(Control *control_list, void *all_data, int control_o
                         case V4L2_CID_LED1_MODE_LOGITECH:
                         {
                             /*turn it into a menu control*/
-                            current->widget = gtk_combo_box_new_text ();
-                            gtk_combo_box_append_text (
-                                    GTK_COMBO_BOX (current->widget),
+                            current->widget = gtk_combo_box_text_new ();
+                            gtk_combo_box_text_append_text (
+                                    GTK_COMBO_BOX_TEXT (current->widget),
                                     _("Off"));
-                            gtk_combo_box_append_text (
-                                    GTK_COMBO_BOX (current->widget),
+                            gtk_combo_box_text_append_text (
+                                    GTK_COMBO_BOX_TEXT (current->widget),
                                     _("On"));
-                            gtk_combo_box_append_text (
-                                    GTK_COMBO_BOX (current->widget),
+                            gtk_combo_box_text_append_text (
+                                    GTK_COMBO_BOX_TEXT (current->widget),
                                     _("Blinking"));
-                            gtk_combo_box_append_text (
-                                    GTK_COMBO_BOX (current->widget),
+                            gtk_combo_box_text_append_text (
+                                    GTK_COMBO_BOX_TEXT (current->widget),
                                     _("Auto"));
-                            gtk_combo_box_set_active (GTK_COMBO_BOX (current->widget), current->value);
+                            gtk_combo_box_set_active (GTK_COMBO_BOX(current->widget), current->value);
                             gtk_widget_show (current->widget);
                              
                             g_object_set_data (G_OBJECT (current->widget), "control_info", 
                                 GINT_TO_POINTER(current->control.id));
                             //connect signal
-                            g_signal_connect (GTK_COMBO_BOX(current->widget), "changed",
+                            g_signal_connect (GTK_COMBO_BOX_TEXT(current->widget), "changed",
                                 G_CALLBACK (combo_changed), all_data);
                         };
                         break;
@@ -808,21 +808,21 @@ void create_control_widgets(Control *control_list, void *all_data, int control_o
                         case V4L2_CID_RAW_BITS_PER_PIXEL_LOGITECH:
                         {
                             /*turn it into a menu control*/
-                            current->widget = gtk_combo_box_new_text ();
-                            gtk_combo_box_append_text (
-                                    GTK_COMBO_BOX (current->widget),
+                            current->widget = gtk_combo_box_text_new ();
+                            gtk_combo_box_text_append_text (
+                                    GTK_COMBO_BOX_TEXT (current->widget),
                                     _("8 bit"));
-                            gtk_combo_box_append_text (
-                                    GTK_COMBO_BOX (current->widget),
+                            gtk_combo_box_text_append_text (
+                                    GTK_COMBO_BOX_TEXT (current->widget),
                                     _("12 bit"));
                             
-                            gtk_combo_box_set_active (GTK_COMBO_BOX (current->widget), current->value);
+                            gtk_combo_box_set_active (GTK_COMBO_BOX(current->widget), current->value);
                             gtk_widget_show (current->widget);
                              
                             g_object_set_data (G_OBJECT (current->widget), "control_info", 
                                 GINT_TO_POINTER(current->control.id));
                             //connect signal
-                            g_signal_connect (GTK_COMBO_BOX(current->widget), "changed",
+                            g_signal_connect (GTK_COMBO_BOX_TEXT(current->widget), "changed",
                                 G_CALLBACK (combo_changed), all_data);
                         };
                         break;
@@ -837,7 +837,7 @@ void create_control_widgets(Control *control_list, void *all_data, int control_o
                                     current->control.maximum,
                                     current->control.step);
                                 gtk_scale_set_draw_value (GTK_SCALE (current->widget), FALSE);
-                                GTK_RANGE (current->widget)->round_digits = 0;
+                                gtk_range_set_round_digits(GTK_RANGE (current->widget), 0);
                                 gtk_widget_show (current->widget);
                             
                                 current->spinbutton = gtk_spin_button_new_with_range(
@@ -877,25 +877,25 @@ void create_control_widgets(Control *control_list, void *all_data, int control_o
                     {
                         int j = 0;
                         int def = 0;
-                        current->widget = gtk_combo_box_new_text ();
+                        current->widget = gtk_combo_box_text_new ();
                         for (j = 0; current->menu[j].index <= current->control.maximum; j++) 
                         {
                         	if (verbose) 
         	                   	printf("adding menu entry %d: %d, %s\n",j, current->menu[j].index, current->menu[j].name);
-                            gtk_combo_box_append_text (
-                                GTK_COMBO_BOX (current->widget),
+                            gtk_combo_box_text_append_text (
+                                GTK_COMBO_BOX_TEXT (current->widget),
                                 (char *) current->menu[j].name);
                             if(current->value == current->menu[j].index)
                             	def = j;
                         }
                         
-                        gtk_combo_box_set_active (GTK_COMBO_BOX (current->widget), def);
+                        gtk_combo_box_set_active (GTK_COMBO_BOX(current->widget), def);
                         gtk_widget_show (current->widget);
                          
                         g_object_set_data (G_OBJECT (current->widget), "control_info", 
                             GINT_TO_POINTER(current->control.id));
                         //connect signal
-                        g_signal_connect (GTK_COMBO_BOX(current->widget), "changed",
+                        g_signal_connect (GTK_COMBO_BOX_TEXT(current->widget), "changed",
                             G_CALLBACK (combo_changed), all_data);
                     }
                 }
@@ -906,21 +906,21 @@ void create_control_widgets(Control *control_list, void *all_data, int control_o
                     if(current->control.id ==V4L2_CID_DISABLE_PROCESSING_LOGITECH)
                     {       
                         //a little hack :D we use the spin widget as a combo
-                        current->spinbutton = gtk_combo_box_new_text ();
-			            gtk_combo_box_append_text(GTK_COMBO_BOX(current->spinbutton),
+                        current->spinbutton = gtk_combo_box_text_new ();
+			            gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(current->spinbutton),
 			                "GBGB... | RGRG...");
-			            gtk_combo_box_append_text(GTK_COMBO_BOX(current->spinbutton),
+			            gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(current->spinbutton),
 			                "GRGR... | BGBG...");
-			            gtk_combo_box_append_text(GTK_COMBO_BOX(current->spinbutton),
+			            gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(current->spinbutton),
 			                "BGBG... | GRGR...");
-			            gtk_combo_box_append_text(GTK_COMBO_BOX(current->spinbutton),
+			            gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(current->spinbutton),
 			                "RGRG... | GBGB...");
 			        
 			            gtk_combo_box_set_active(GTK_COMBO_BOX(current->spinbutton), 0);
 
 			            gtk_widget_show (current->spinbutton);
 			            
-			            g_signal_connect (GTK_COMBO_BOX (current->spinbutton), "changed",
+			            g_signal_connect (GTK_COMBO_BOX_TEXT (current->spinbutton), "changed",
 				            G_CALLBACK (pix_ord_changed), all_data);
 				        
 				        videoIn->isbayer = (current->value ? TRUE : FALSE);
