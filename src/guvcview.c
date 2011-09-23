@@ -270,7 +270,7 @@ int main(int argc, char *argv[])
 		avcodec_init();
 
 		// register all the codecs (you can also register only the codec
-		//you wish to have smaller code
+		//you wish to have smaller code)
 		avcodec_register_all();
 
 		/*---------------------------- Start PortAudio API -----------------------*/
@@ -298,6 +298,22 @@ int main(int argc, char *argv[])
         /* Create a main window */
         gwidget->mainwin = gtk_window_new(GTK_WINDOW_TOPLEVEL);
         gtk_window_set_title (GTK_WINDOW (gwidget->mainwin), _("GUVCViewer Controls"));
+        //get screen resolution
+        if((!global->desktop_w) || (!global->desktop_h))
+        {
+            GdkScreen* screen = NULL;
+            screen = gtk_window_get_screen(GTK_WINDOW(gwidget->mainwin));
+            global->desktop_w = gdk_screen_get_width(screen);
+            global->desktop_h = gdk_screen_get_height(screen);
+        }
+        if(global->debug)
+            g_printf("Screen resolution is (%d x %d)\n", global->desktop_w, global->desktop_h);
+        
+        if((global->winwidth > global->desktop_w) && (global->desktop_w > 0))
+            global->winwidth = global->desktop_w;
+        if((global->winheight > global->desktop_h) && (global->desktop_h > 0))
+            global->winheight = global->desktop_h;
+        
         gtk_window_resize(GTK_WINDOW(gwidget->mainwin),global->winwidth,global->winheight);
         
         /* Add event handlers */
@@ -670,8 +686,8 @@ int main(int argc, char *argv[])
         g_signal_connect (GTK_BUTTON(DefaultsButton), "clicked",
             G_CALLBACK (DefaultsButton_clicked), &all_data);
         
-        /*sets the pan position*/
-        if(global->boxvsize==0) 
+        /*sets the pan position (always leave enough space for the buttons)*/
+        if((global->boxvsize <= 0) || (global->boxvsize > (global->winheight-122))) 
         {
             global->boxvsize=global->winheight-122;
         }
