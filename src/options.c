@@ -69,6 +69,8 @@ writeConf(struct GLOBAL *global, char *videodevice)
 		g_fprintf(fp,"vpane=%i\n",global->boxvsize);
 		g_fprintf(fp,"#spin button behavior: 0-non editable 1-editable\n");
 		g_fprintf(fp,"spinbehave=%i\n", global->spinbehave);
+		g_fprintf(fp,"#Default action. 0 for picture, 1 for video.\n");
+		g_fprintf(fp,"default_action=%i\n", global->default_action);
 		g_fprintf(fp,"# mode video format 'yuvy' 'yvyu' 'uyvy' 'yyuv' 'yu12' 'yv12' 'nv12' 'nv21' 'nv16' 'nv61' 'y41p' 'grey' 'y16 ' 's501' 's505' 's508' 'gbrg' 'grbg' 'ba81' 'rggb' 'rgb3' 'bgr3' 'jpeg' 'mjpg'(default)\n");
 		g_fprintf(fp,"mode='%s'\n",global->mode);
 		g_fprintf(fp,"# frames per sec. - hardware supported - default( %i )\n",DEFAULT_FPS);
@@ -143,6 +145,7 @@ writeConf(struct GLOBAL *global, char *videodevice)
 		g_fprintf(fp, "vcodec_me_method=%d\n",vcodec_defaults->me_method);
 		g_fprintf(fp, "vcodec_mpeg_quant=%d\n",vcodec_defaults->mpeg_quant);
 		g_fprintf(fp, "vcodec_max_b_frames=%d\n",vcodec_defaults->max_b_frames);
+		g_fprintf(fp, "vcodec_num_threads=%d\n",vcodec_defaults->num_threads);
 		g_fprintf(fp, "vcodec_flags=%d\n",vcodec_defaults->flags);
 		printf("write %s OK\n",global->confPath);
 		
@@ -228,7 +231,7 @@ readConf(struct GLOBAL *global)
 		int ac_bit_rate =-1, vc_bit_rate=-1, vc_fps=-1, vc_qmax=-1, vc_qmin=-1, vc_max_qdiff=-1, vc_dia=-1;
 		int vc_pre_dia=-1, vc_pre_me=-1, vc_me_pre_cmp=-1, vc_me_cmp=-1, vc_me_sub_cmp=-1, vc_last_pred=-1;
 		int vc_gop_size=-1, vc_subq=-1, vc_framerefs=-1, vc_mb_decision=-1, vc_trellis=-1, vc_me_method=-1;
-		int vc_mpeg_quant=-1, vc_max_b_frames=-1, vc_flags=-1;
+		int vc_mpeg_quant=-1, vc_max_b_frames=-1, vc_num_threads=-1, vc_flags=-1;
 		float vc_qcompress=-1, vc_qblur=-1;
 		
 		
@@ -368,6 +371,10 @@ readConf(struct GLOBAL *global)
 						else if (g_strcmp0(name,"spinbehave")==0) 
 						{
 							global->spinbehave = scanner->value.v_int;
+						}
+						else if (g_strcmp0(name,"default_action")==0)
+						{
+							global->default_action = scanner->value.v_int;
 						}
 						else if (g_strcmp0(name,"fps")==0)
 						{
@@ -581,6 +588,10 @@ readConf(struct GLOBAL *global)
 						{
 						    vc_flags = scanner->value.v_int;
 						}
+						else if (g_strcmp0(name,"vcodec_num_threads")==0)
+						{
+						    vc_num_threads = scanner->value.v_int;
+						}
 						else
 						{
 							printf("unexpected integer value (%lu) for %s\n", 
@@ -666,6 +677,7 @@ readConf(struct GLOBAL *global)
 		if (vc_me_method >=0) vcodec_defaults->me_method = vc_me_method;
 		if (vc_mpeg_quant >=0) vcodec_defaults->mpeg_quant = vc_mpeg_quant;
 		if (vc_max_b_frames >=0) vcodec_defaults->max_b_frames = vc_max_b_frames;
+		if (vc_num_threads >=0) vcodec_defaults->num_threads = vc_num_threads;
         if (vc_flags >=0) vcodec_defaults->flags = vc_flags;
         if (vc_qcompress >= 0) vcodec_defaults->qcompress = vc_qcompress;
 		if (vc_qblur >=0) vcodec_defaults->qblur = vc_qblur;
@@ -679,6 +691,7 @@ readConf(struct GLOBAL *global)
 			g_printf("windowsize: %i x %i\n",global->winwidth,global->winheight);
 			g_printf("vert pane: %i\n",global->boxvsize);
 			g_printf("spin behavior: %i\n",global->spinbehave);
+			g_printf("default action: %i\n",global->default_action);
 			g_printf("mode: %s\n",global->mode);
 			g_printf("fps: %i/%i\n",global->fps_num,global->fps);
 			g_printf("Display Fps: %i\n",global->FpsCount);

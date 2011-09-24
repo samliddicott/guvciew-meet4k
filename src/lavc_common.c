@@ -205,6 +205,8 @@ struct lavcData* init_lavc(int width, int height, int fps_num, int fps_den, int 
 	data->codec_context->height = height;
 	
 	data->codec_context->flags |= defaults->flags;
+	if (defaults->num_threads > 0) 
+		data->codec_context->thread_count = defaults->num_threads;
 	
 	/* 
 	* mb_decision

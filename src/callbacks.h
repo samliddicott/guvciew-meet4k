@@ -27,8 +27,8 @@
 #include <gtk/gtk.h>
 #include "guvcview.h"
 
-#ifndef GDK_WebCam
-#define GDK_WebCam 0x1008ff8f
+#ifndef GDK_KEY_WebCam
+#define GDK_KEY_WebCam 0x1008ff8f
 #endif
 
 void
@@ -152,6 +152,12 @@ capture_image (GtkButton *ImageButt, struct ALL_DATA *all_data);
 
 void
 capture_vid (GtkToggleButton *VidButt, struct ALL_DATA *all_data);
+
+void
+TakePictureByDefault_clicked (GtkRadioButton * radio, struct ALL_DATA *all_data);
+
+void
+TakeVidByDefault_clicked (GtkRadioButton * radio, struct ALL_DATA *all_data);
 
 void
 ProfileButton_clicked (GtkButton * SProfileButton, struct ALL_DATA *all_data);

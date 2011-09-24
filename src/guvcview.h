@@ -74,6 +74,9 @@ struct GWIDGET
 	GtkWidget *jpeg_comp;
 	GtkWidget *quitButton;
 	
+	GtkWidget *TakeImageByDefault;
+	GtkWidget *TakeVidByDefault;
+	
 	gboolean vid_widget_state;
 };
 

@@ -469,7 +469,14 @@ void *main_loop(void *data)
                     {
                         case 220: /*webcam button*/
                             gdk_threads_enter();
-                            gtk_button_clicked (GTK_BUTTON(gwidget->CapImageButt));
+                           	if (all_data->global->default_action == 0) 
+                           	{
+                           		gtk_button_clicked (GTK_BUTTON(gwidget->CapImageButt));
+                           	} 
+							else 
+							{
+                            	gtk_toggle_button_toggled (GTK_TOGGLE_BUTTON(gwidget->CapVidButt));
+                            }
                             gdk_threads_leave();
                             break;
                     }
@@ -499,6 +506,11 @@ void *main_loop(void *data)
                                  SDL_VIDEO_Flags);
                     drect.w = event.resize.w;
                     drect.h = event.resize.h;
+                }
+                if(event.type==SDL_QUIT)
+                {
+                    //shutDown
+                    g_timeout_add(200, shutd_timer, all_data);
                 }
             }
         }

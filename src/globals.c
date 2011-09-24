@@ -128,6 +128,7 @@ int initGlobals (struct GLOBAL *global)
 	global->winwidth=WINSIZEX;
 	global->winheight=WINSIZEY;
 	global->spinbehave=0;
+	global->default_action=0;
 	global->boxvsize=0;
 	
 	global->mode = g_new(char, 6);

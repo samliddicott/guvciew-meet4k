@@ -78,6 +78,7 @@ static vcodecs_data listSupVCodecs[] = //list of software supported formats
 		.me_method    = 0,
 		.mpeg_quant   = 0,
 		.max_b_frames = 0,
+		.num_threads  = 0,
 		.flags        = 0
 	},
 	{
@@ -111,6 +112,7 @@ static vcodecs_data listSupVCodecs[] = //list of software supported formats
 		.me_method    = 0,
 		.mpeg_quant   = 0,
 		.max_b_frames = 0,
+		.num_threads  = 0,
 		.flags        = 0
 	},
 	{
@@ -144,6 +146,7 @@ static vcodecs_data listSupVCodecs[] = //list of software supported formats
 		.me_method    = 0,
 		.mpeg_quant   = 0,
 		.max_b_frames = 0,
+		.num_threads  = 0,
 		.flags        = 0
 	},
 	{
@@ -177,6 +180,7 @@ static vcodecs_data listSupVCodecs[] = //list of software supported formats
 		.me_method    = ME_EPZS,
 		.mpeg_quant   = 0,
 		.max_b_frames = 0,
+		.num_threads  = 1,
 		.flags        = 0
 	},
 	{
@@ -210,6 +214,7 @@ static vcodecs_data listSupVCodecs[] = //list of software supported formats
 		.me_method    = ME_EPZS,
 		.mpeg_quant   = 0,
 		.max_b_frames = 0,
+		.num_threads  = 1,
 		.flags        = CODEC_FLAG_4MV
 	},
 	{
@@ -243,6 +248,7 @@ static vcodecs_data listSupVCodecs[] = //list of software supported formats
 		.me_method    = ME_EPZS,
 		.mpeg_quant   = 0,
 		.max_b_frames = 0,
+		.num_threads  = 1,
 		.flags        = 0
 	},
 	{       //only available in libavcodec-unstriped
@@ -276,6 +282,7 @@ static vcodecs_data listSupVCodecs[] = //list of software supported formats
 		.me_method    = ME_EPZS,
 		.mpeg_quant   = 0,
 		.max_b_frames = 0,
+		.num_threads  = 1,
 		.flags        = 0
 	},
 	{       //only available in libavcodec-unstriped
@@ -309,6 +316,7 @@ static vcodecs_data listSupVCodecs[] = //list of software supported formats
 		.me_method    = ME_EPZS,
 		.mpeg_quant   = 0,
 		.max_b_frames = 0,
+		.num_threads  = 1,
 		.flags        = 0
 	},
 	{       //only available in libavcodec-unstriped
@@ -342,6 +350,7 @@ static vcodecs_data listSupVCodecs[] = //list of software supported formats
 		.me_method    = ME_EPZS,
 		.mpeg_quant   = 1,
 		.max_b_frames = 0,
+		.num_threads  = 1,
 		.flags        = 0
 	},
 	{       //only available in libavcodec-unstriped
@@ -375,6 +384,7 @@ static vcodecs_data listSupVCodecs[] = //list of software supported formats
 		.me_method    = ME_HEX,
 		.mpeg_quant   = 1,
 		.max_b_frames = 0,
+		.num_threads  = 1,
 		.flags        = CODEC_FLAG2_BPYRAMID | CODEC_FLAG2_WPRED | CODEC_FLAG2_FASTPSKIP
 	}
 };

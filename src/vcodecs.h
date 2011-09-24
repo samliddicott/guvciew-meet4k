@@ -67,6 +67,7 @@ typedef struct _vcodecs_data
 	int me_method;            //lavc motion estimation method
 	int mpeg_quant;           //lavc mpeg quantization
 	int max_b_frames;         //lavc max b frames
+	int num_threads;          //lavc num threads
 	int flags;                //lavc flags
 } vcodecs_data;
 

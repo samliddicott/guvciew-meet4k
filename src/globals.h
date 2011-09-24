@@ -124,6 +124,7 @@ struct GLOBAL
 	int skip_n;            //initial frames to skip
 	int w_ind;             //write frame index
 	int r_ind;             //read  frame index
+	int default_action;    // 0 for taking picture, 1 for video
 
 	float DispFps;         //fps value
 

@@ -434,6 +434,21 @@ lavc_properties(GtkButton * CodecButt, struct ALL_DATA *all_data)
 	gtk_widget_show (max_b_frames);
 	line++;
 	
+	GtkWidget *lbl_num_threads = gtk_label_new(_("num threads:   "));
+	gtk_misc_set_alignment (GTK_MISC (lbl_num_threads), 1, 0.5);
+	gtk_table_attach (GTK_TABLE(table), lbl_num_threads, 0, 1, line, line+1,
+		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_widget_show (lbl_num_threads);
+
+	GtkWidget *num_threads = gtk_spin_button_new_with_range(0,8,1);
+	gtk_editable_set_editable(GTK_EDITABLE(num_threads),TRUE);
+	gtk_spin_button_set_value (GTK_SPIN_BUTTON(num_threads), codec_defaults->num_threads);
+
+	gtk_table_attach (GTK_TABLE(table), num_threads, 1, 2, line, line+1,
+		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_widget_show (num_threads);
+	line++;
+	
 	GtkWidget *content_area = gtk_dialog_get_content_area (GTK_DIALOG (codec_dialog));
 	gtk_container_add (GTK_CONTAINER (content_area), table);
 	gtk_widget_show (table);
@@ -457,11 +472,12 @@ lavc_properties(GtkButton * CodecButt, struct ALL_DATA *all_data)
 			codec_defaults->gop_size = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON(gop_size));
 			codec_defaults->qcompress = (float) gtk_spin_button_get_value (GTK_SPIN_BUTTON(qcompress));
 			codec_defaults->qblur = (float) gtk_spin_button_get_value (GTK_SPIN_BUTTON(qblur));
-			codec_defaults->subq = (float) gtk_spin_button_get_value (GTK_SPIN_BUTTON(subq));
-			codec_defaults->framerefs = (float) gtk_spin_button_get_value (GTK_SPIN_BUTTON(framerefs));
-			codec_defaults->me_method = (float) gtk_spin_button_get_value (GTK_SPIN_BUTTON(me_method));
-			codec_defaults->mb_decision = (float) gtk_spin_button_get_value (GTK_SPIN_BUTTON(mb_decision));
-			codec_defaults->max_b_frames = (float) gtk_spin_button_get_value (GTK_SPIN_BUTTON(max_b_frames));
+			codec_defaults->subq = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON(subq));
+			codec_defaults->framerefs = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON(framerefs));
+			codec_defaults->me_method = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON(me_method));
+			codec_defaults->mb_decision = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON(mb_decision));
+			codec_defaults->max_b_frames = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON(max_b_frames));
+			codec_defaults->num_threads = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON(num_threads));
 			break;
 		default:
 			// do nothing since dialog was cancelled
@@ -812,7 +828,17 @@ void video_tab(struct ALL_DATA *all_data)
 	g_object_set_data (G_OBJECT (gwidget->ImgFileButt), "file_butt", GINT_TO_POINTER(0));
 	g_signal_connect (GTK_BUTTON(gwidget->ImgFileButt), "clicked",
 		 G_CALLBACK (file_chooser), all_data);
+	
+	gwidget->TakeImageByDefault = gtk_radio_button_new_with_label (NULL, _("Take Picture by Default"));
+	
+	gtk_table_attach(GTK_TABLE(table2), gwidget->TakeImageByDefault, 2, 3, line, line+1,
+		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gwidget->TakeImageByDefault),(global->default_action == 0));
+	g_signal_connect (GTK_CHECK_BUTTON(gwidget->TakeImageByDefault), "toggled",
+		G_CALLBACK (TakePictureByDefault_clicked), all_data);
+	gtk_widget_show (gwidget->TakeImageByDefault);
+	
 	//Video Capture
 	line++;
 	label_VidFile= gtk_label_new(_("Video File:"));
@@ -934,6 +960,15 @@ void video_tab(struct ALL_DATA *all_data)
 	gtk_table_attach (GTK_TABLE(table2), label_VidFormat, 0, 1, line, line+1,
 		GTK_FILL, 0, 0, 0);
 	gtk_widget_show (label_VidFormat);
+	
+	gwidget->TakeVidByDefault =gtk_radio_button_new_with_label (gtk_radio_button_get_group (GTK_RADIO_BUTTON (gwidget->TakeImageByDefault)), _("Take Video by Default"));
+	gtk_table_attach(GTK_TABLE(table2), gwidget->TakeVidByDefault, 2, 3, line, line+1,
+		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gwidget->TakeVidByDefault),(global->default_action == 1));
+	g_signal_connect (GTK_CHECK_BUTTON(gwidget->TakeVidByDefault), "toggled",
+		G_CALLBACK (TakeVidByDefault_clicked), all_data);
+	gtk_widget_show (gwidget->TakeVidByDefault);
 	
 	// Filter controls 
 	line++;

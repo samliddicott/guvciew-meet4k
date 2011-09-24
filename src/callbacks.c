@@ -247,6 +247,8 @@ set_sensitive_img_contrls (const int flag, struct GWIDGET *gwidget)
 	gtk_widget_set_sensitive(gwidget->ImageType, flag);/*file type combo*/
 	gtk_widget_set_sensitive(gwidget->ImageFNameEntry, flag);/*Image Entry*/
 	gtk_widget_set_sensitive(gwidget->ImageInc, flag);/*image inc checkbox*/
+	gtk_widget_set_sensitive(gwidget->TakeImageByDefault, flag);/*default action radio*/
+	gtk_widget_set_sensitive(gwidget->TakeVidByDefault, flag);/*default action radio*/
 }
 
 /* sound controls*/
@@ -257,6 +259,8 @@ set_sensitive_snd_contrls (const int flag, struct GWIDGET *gwidget)
 	gtk_widget_set_sensitive (gwidget->SndDevice, flag);
 	gtk_widget_set_sensitive (gwidget->SndNumChan, flag);
 	gtk_widget_set_sensitive (gwidget->SndComp, flag);
+	gtk_widget_set_sensitive(gwidget->TakeImageByDefault, flag);/*default action radio*/
+	gtk_widget_set_sensitive(gwidget->TakeVidByDefault, flag);/*default action radio*/
 }
 
 /*video controls*/
@@ -338,10 +342,14 @@ key_pressed (GtkWidget *win, GdkEventKey *event, struct ALL_DATA *all_data)
     
     switch (event->keyval)
     {
-        case GDK_WebCam:
+        case GDK_KEY_WebCam:
 
         /* camera button pressed - trigger image capture*/
-        gtk_button_clicked (GTK_BUTTON(gwidget->CapImageButt));
+        if (all_data->global->default_action == 0) {
+        	gtk_button_clicked (GTK_BUTTON(gwidget->CapImageButt));
+        } else {
+        	gtk_toggle_button_toggled (GTK_TOGGLE_BUTTON(gwidget->CapVidButt));
+        }
         return TRUE;
     }
 
@@ -1157,7 +1165,7 @@ capture_vid (GtkToggleButton *VidButt, struct ALL_DATA *all_data)
             gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->VidFormat),global->VidFormat);
         }
         //check button state
-        state = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(gwidget->CapVidButt));
+        //state = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(gwidget->CapVidButt));
     }
    
 	if(global->debug) g_printf("Cap Video toggled: %d\n", state);
@@ -1184,6 +1192,7 @@ capture_vid (GtkToggleButton *VidButt, struct ALL_DATA *all_data)
             if(!(state))
             {
                 gtk_button_set_label(GTK_BUTTON(gwidget->CapVidButt),_("Cap. Video"));
+                gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(gwidget->CapVidButt), FALSE);
                 //gtk_widget_show (gwidget->VidButton_Img);
             }
         }
@@ -1250,6 +1259,7 @@ capture_vid (GtkToggleButton *VidButt, struct ALL_DATA *all_data)
             if(state)
             {
                 gtk_button_set_label(GTK_BUTTON(gwidget->CapVidButt),_("Stop Video"));
+                gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(gwidget->CapVidButt), TRUE);
                 //gtk_widget_show (gwidget->VidButton_Img);
             }
             else
@@ -1267,6 +1277,33 @@ capture_vid (GtkToggleButton *VidButt, struct ALL_DATA *all_data)
 	pdata = NULL;
 	global = NULL;
 	videoIn = NULL;
+}
+
+void
+TakePictureByDefault_clicked (GtkRadioButton * radio, struct ALL_DATA *all_data)
+{
+	if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(radio))) 
+	{
+		all_data->global->default_action = 0;
+	} else 
+	{
+		all_data->global->default_action = 1;
+	}
+	return;
+}
+
+void
+TakeVidByDefault_clicked (GtkRadioButton * radio, struct ALL_DATA *all_data)
+{
+	if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(radio))) 
+	{
+		all_data->global->default_action = 1;
+	} 
+	else 
+	{
+		all_data->global->default_action = 0;
+	}
+	return;
 }
 
 /*--------------------- buttons callbacks ------------------*/

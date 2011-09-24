@@ -650,8 +650,11 @@ static int videoIn_frame_alloca(struct vdIn *vd, int format, int width, int heig
 		default:
 			g_printerr("(v4l2uvc.c) should never arrive (1)- exit fatal !!\n");
 			ret = VDIN_UNKNOWN_ERR;
-			goto error;
-			break;
+			g_free(vd->framebuffer);
+			vd->framebuffer = NULL;
+			g_free(vd->tmpbuffer);
+			vd->tmpbuffer = NULL;
+			return (ret);
 	}
 	
 	if ((!vd->framebuffer) || (framebuf_size <=0)) 
@@ -659,7 +662,11 @@ static int videoIn_frame_alloca(struct vdIn *vd, int format, int width, int heig
 			g_printerr("couldn't calloc %lu bytes of memory for frame buffer\n",
 				(unsigned long) framebuf_size);
 			ret = VDIN_FBALLOC_ERR;
-			goto error;
+			g_free(vd->framebuffer);
+			vd->framebuffer = NULL;
+			g_free(vd->tmpbuffer);
+			vd->tmpbuffer = NULL;
+			return (ret);
 		} 
 		else
 		{
@@ -674,12 +681,36 @@ static int videoIn_frame_alloca(struct vdIn *vd, int format, int width, int heig
 				}
 		}
 	return (ret);
-error:
-	g_free(vd->framebuffer);
-	vd->framebuffer = NULL;
-	g_free(vd->tmpbuffer);
-	vd->tmpbuffer = NULL;
-	return (ret);
+}
+
+/* cleans VdIn struct and allocations
+ * args:
+ * pointer to initiated vdIn struct
+ *
+ * returns: void
+*/
+void clear_v4l2(struct vdIn *vd)
+{
+	v4l2_close(vd->fd);
+	vd->fd=0;
+	g_free(vd->videodevice);
+	g_free(vd->VidFName);
+	g_free(vd->ImageFName);
+	vd->videodevice = NULL;
+	vd->VidFName = NULL;
+	vd->ImageFName = NULL;
+
+	if(vd->cap_meth == IO_READ)
+	{
+		g_printf("cleaning read buffer\n");
+		if((vd->buf.length > 0) && vd->mem[0])
+		{
+			g_free(vd->mem[0]);
+			vd->mem[0] = NULL;
+		}
+	}
+	g_mutex_free( vd->mutex );
+	vd->mutex = NULL;
 }
 
 /* Init VdIn struct with default and/or global values
@@ -765,7 +796,8 @@ int init_videoIn(struct vdIn *vd, struct GLOBAL *global)
 		{
 			perror("ERROR opening V4L interface");
 			ret = VDIN_DEVICE_ERR;
-			goto error;
+			clear_v4l2(vd);
+			return (ret);
 		}
 	}
 	
@@ -776,7 +808,8 @@ int init_videoIn(struct vdIn *vd, struct GLOBAL *global)
 	// have been initialized
 	if((ret = check_videoIn(vd, &global->width, &global->height)) != VDIN_OK)
 	{
-		goto error;
+		clear_v4l2(vd);
+		return (ret);
 	}
 	
 	//add dynamic controls
@@ -808,7 +841,8 @@ int init_videoIn(struct vdIn *vd, struct GLOBAL *global)
 		//added extension controls so now we can exit
 		//set a return code for enabling the correct warning window
 		ret = (ret ? VDIN_DYNCTRL_ERR: VDIN_DYNCTRL_OK);
-		goto error;
+		clear_v4l2(vd);
+		return (ret);
 	}
 	else ret = 0; //clean ret code
 	
@@ -817,39 +851,19 @@ int init_videoIn(struct vdIn *vd, struct GLOBAL *global)
 		if ((ret=init_v4l2(vd, &global->format, &global->width, &global->height, &global->fps, &global->fps_num)) < 0) 
 		{
 			g_printerr("Init v4L2 failed !! \n");
-			goto error;
+			clear_v4l2(vd);
+			return (ret);
 		}
 		
 		g_printf("fps is set to %i/%i\n", global->fps_num, global->fps);
 		/*allocations*/
 		if((ret = videoIn_frame_alloca(vd, global->format, global->width, global->height)) != VDIN_OK)
 		{
-			goto error;
+			clear_v4l2(vd);
+			return (ret);
 		}
 	}
 	return (ret);
-error:
-	v4l2_close(vd->fd);
-	vd->fd=0;
-	g_free(vd->videodevice);
-	g_free(vd->VidFName);
-	g_free(vd->ImageFName);
-	vd->videodevice = NULL;
-	vd->VidFName = NULL;
-	vd->ImageFName = NULL;
-	
-	if(vd->cap_meth == IO_READ)
-	{
-		g_printf("cleaning read buffer\n");
-		if((vd->buf.length > 0) && vd->mem[0]) 
-		{
-			g_free(vd->mem[0]);
-			vd->mem[0] = NULL;
-		}
-	}
-	g_mutex_free( vd->mutex );
-	vd->mutex = NULL;
-	return ret;
 }
 
 /* decode video stream (frame buffer in yuyv format)
@@ -878,7 +892,7 @@ static int frame_decode(struct vdIn *vd, int format, int width, int height)
 			{
 				g_printerr("jpeg decode errors\n");
 				ret = VDIN_DECODE_ERR;
-				goto err;
+				return ret;
 			}
 			break;
 		
@@ -1012,11 +1026,8 @@ static int frame_decode(struct vdIn *vd, int format, int width, int height)
 		default:
 			g_printerr("error grabbing (v4l2uvc.c) unknown format: %i\n", format);
 			ret = VDIN_UNKNOWN_ERR;
-			goto err;
-			break;
+			return ret;
 	}
-	return ret;
-err:
 	return ret;
 }
 
@@ -1034,7 +1045,11 @@ int uvcGrab(struct vdIn *vd, int format, int width, int height, int *fps, int *f
 	UINT64 ts = 0;
 	//make sure streaming is on
 	if (!vd->isstreaming)
-		if (video_enable(vd)) goto err;
+		if (video_enable(vd)) 
+		{
+			vd->signalquit = TRUE;
+			return ret;
+		}
 	
 	FD_ZERO(&rdset);
 	FD_SET(vd->fd, &rdset);
@@ -1163,13 +1178,11 @@ int uvcGrab(struct vdIn *vd, int format, int width, int height, int *fps, int *f
 	
 	if ((ret = frame_decode(vd, format, width, height)) != VDIN_OK)
 	{
-		goto err;
+		vd->signalquit = TRUE;
+		return ret;
 	}
 	
 	return VDIN_OK;
-err:
-	vd->signalquit = TRUE;
-	return ret;
 }
 
 static int close_v4l2_buffers (struct vdIn *vd)
@@ -1218,23 +1231,20 @@ int restart_v4l2(struct vdIn *vd, struct GLOBAL *global)
 	if ((ret=init_v4l2(vd, &global->format, &global->width, &global->height, &global->fps, &global->fps_num)) < 0) 
 	{
 		g_printerr("Init v4L2 failed !! \n");
-		goto error;
+		vd->signalquit = TRUE;
+		return ret;
 	}
 	/*allocations*/
 	if((ret = videoIn_frame_alloca(vd, global->format, global->width, global->height)) != VDIN_OK)
 	{
-		goto error;
+		vd->signalquit = TRUE;
+		return ret;
 	}
 	/*try to start the video stream*/
 	//it's OK if it fails since it is retried in uvcGrab
 	video_enable(vd);
 	
-	return (ret);
-//error: clean up allocs
-error:
-	vd->signalquit = TRUE;
-	return (ret);
-	
+	return (ret);	
 }
 
 /* cleans VdIn struct and allocations
