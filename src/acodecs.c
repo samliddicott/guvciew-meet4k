@@ -336,6 +336,8 @@ int compress_audio_frame(void *data,
 		}
 		default:
 		{
+			//Argh! libavcodec 7.1 only seems to accept S16 sample_fmt
+			Float2Int16(pdata, proc_buff); /*convert from float sample to 16 bit PCM*/
 			ret = encode_lavc_audio (*lavc_data, all_data, proc_buff);
 			break;
 		}
