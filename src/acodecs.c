@@ -304,9 +304,7 @@ static int encode_lavc_audio (struct lavcAData *lavc_data,
 	if(lavc_data)
 	{
 		/*lavc is initialized when setting sound*/
-		Float2Int16(pdata, proc_buff); /*convert from float sample to 16 bit PCM*/
 		framesize= encode_lavc_audio_frame (pdata->pcm_sndBuff, lavc_data);
-		//framesize= encode_lavc_audio_frame (pdata->frame, lavc_data);
 		
 		ret = write_audio_data (all_data, lavc_data->outbuf, framesize, proc_buff->time_stamp);
 	}
