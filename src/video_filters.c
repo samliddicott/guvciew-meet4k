@@ -82,8 +82,7 @@ yuyv_upturn(BYTE* frame, int width, int height)
 {   
 	int h=0;
 	int sizeline = width*2; /* 2 bytes per pixel*/ 
-	BYTE *pframe;
-	pframe=frame;
+	//BYTE *pframe =frame;
 	BYTE line1[sizeline-1];/*line1 buffer*/
 	BYTE line2[sizeline-1];/*line2 buffer*/
 	for (h=0; h < height/2; h++) 

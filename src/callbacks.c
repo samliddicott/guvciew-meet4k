@@ -355,7 +355,7 @@ void
 slider_changed (GtkRange * range, struct ALL_DATA *all_data)
 {
     struct VidState *s = all_data->s;
-    struct GLOBAL *global = all_data->global;
+    //struct GLOBAL *global = all_data->global;
     struct vdIn *videoIn = all_data->videoIn;
 
     int id = GPOINTER_TO_INT(g_object_get_data (G_OBJECT (range), "control_info"));
@@ -380,7 +380,7 @@ slider_changed (GtkRange * range, struct ALL_DATA *all_data)
     }
 	
 	s = NULL;
-	global = NULL;
+	//global = NULL;
 	videoIn = NULL;
 }
 
@@ -389,7 +389,7 @@ void
 spin_changed (GtkSpinButton * spin, struct ALL_DATA *all_data)
 {
 	struct VidState *s = all_data->s;
-	struct GLOBAL *global = all_data->global;
+	//struct GLOBAL *global = all_data->global;
 	struct vdIn *videoIn = all_data->videoIn;
 	
 	int id = GPOINTER_TO_INT(g_object_get_data (G_OBJECT (spin), "control_info"));
@@ -412,7 +412,7 @@ spin_changed (GtkSpinButton * spin, struct ALL_DATA *all_data)
     }
 
 	s = NULL;
-	global = NULL;
+	//global = NULL;
 	videoIn = NULL;
 }
 
@@ -472,7 +472,7 @@ void
 check_changed (GtkToggleButton * toggle, struct ALL_DATA *all_data)
 {
     struct VidState *s = all_data->s;
-    struct GLOBAL *global = all_data->global;
+   //struct GLOBAL *global = all_data->global;
     struct vdIn *videoIn = all_data->videoIn;
 
     int id = GPOINTER_TO_INT(g_object_get_data (G_OBJECT (toggle), "control_info"));
@@ -494,7 +494,7 @@ check_changed (GtkToggleButton * toggle, struct ALL_DATA *all_data)
     }
     
     s = NULL;
-    global = NULL;
+    //global = NULL;
     videoIn = NULL;
 }
 
@@ -709,7 +709,7 @@ resolution_changed (GtkComboBox * Resolution, struct ALL_DATA *all_data)
 	/*disable fps combobox signals*/
 	g_signal_handlers_block_by_func(GTK_COMBO_BOX_TEXT(gwidget->FrameRate), G_CALLBACK (FrameRate_changed), all_data);
 	/* clear out the old fps list... */
-	GtkListStore *store = GTK_LIST_STORE(gtk_combo_box_get_model (GTK_COMBO_BOX_TEXT (gwidget->FrameRate)));
+	GtkListStore *store = GTK_LIST_STORE(gtk_combo_box_get_model (GTK_COMBO_BOX(gwidget->FrameRate)));
 	gtk_list_store_clear(store);
 
 
@@ -1134,7 +1134,7 @@ capture_vid (GtkToggleButton *VidButt, struct ALL_DATA *all_data)
 	g_mutex_lock(videoIn->mutex);
 		gboolean capVid = videoIn->capVid;
 	g_mutex_unlock(videoIn->mutex);
-    const char *fileEntr;
+    char *fileEntr = NULL;
     gboolean state=!capVid;
     
     if(!global->no_display)
@@ -1143,12 +1143,12 @@ capture_vid (GtkToggleButton *VidButt, struct ALL_DATA *all_data)
         g_signal_handlers_block_by_func(GTK_TOGGLE_BUTTON(gwidget->CapVidButt), G_CALLBACK (capture_vid), all_data);
         /*widgets are enable/disable in create_video.c*/
         
-        fileEntr = gtk_entry_get_text(GTK_ENTRY(gwidget->VidFNameEntry));
+        fileEntr = (char *) gtk_entry_get_text(GTK_ENTRY(gwidget->VidFNameEntry));
         if(g_strcmp0(fileEntr,global->vidFPath[0])!=0) 
         {
             /*reset if entry change from last capture*/
             if(global->vid_inc) global->vid_inc=1;
-            global->vidFPath=splitPath((char *)fileEntr, global->vidFPath);
+            global->vidFPath=splitPath(fileEntr, global->vidFPath);
             gtk_entry_set_text(GTK_ENTRY(gwidget->VidFNameEntry),"");
             gtk_entry_set_text(GTK_ENTRY(gwidget->VidFNameEntry),global->vidFPath[0]);
             /*get the file type*/
@@ -1194,7 +1194,7 @@ capture_vid (GtkToggleButton *VidButt, struct ALL_DATA *all_data)
 	{	/******************** Start Video *********************/
         if(!global->no_display)
         {
-            global->vidFPath=splitPath((char *)fileEntr, global->vidFPath);
+            global->vidFPath=splitPath(fileEntr, global->vidFPath);
             g_snprintf(global->vidinc_str,24,_("File num:%d"),global->vid_inc);
             gtk_label_set_text(GTK_LABEL(gwidget->VidIncLabel), global->vidinc_str);
         }
@@ -1283,9 +1283,9 @@ void
 ProfileButton_clicked (GtkButton * ProfileButton, struct ALL_DATA *all_data)
 {
 	struct GWIDGET *gwidget = all_data->gwidget;
-	struct VidState *s = all_data->s;
+	//struct VidState *s = all_data->s;
 	struct GLOBAL *global = all_data->global;
-	struct vdIn *videoIn = all_data->videoIn;
+	//struct vdIn *videoIn = all_data->videoIn;
 	
 	gboolean *save = g_object_get_data (G_OBJECT (ProfileButton), "profile_save");
 	if(global->debug) g_printf("Profile dialog (%d)\n",*save);
@@ -1328,9 +1328,9 @@ ProfileButton_clicked (GtkButton * ProfileButton, struct ALL_DATA *all_data)
 	}
 	gtk_widget_destroy (gwidget->FileDialog);
 	gwidget = NULL;
-	s = NULL;
+	//s = NULL;
 	global = NULL;
-	videoIn = NULL;
+	//videoIn = NULL;
 }
 
 /*called when avi max file size reached*/

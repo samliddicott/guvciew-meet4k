@@ -29,7 +29,7 @@ list_snd_devices(struct GLOBAL *global)
 	int   it, numDevices, defaultDisplayed;
 	const PaDeviceInfo *deviceInfo;
 
-	PaError err;
+	//PaError err;
 	/*sound device combo box*/
 	GtkWidget *SndDevice = gtk_combo_box_text_new ();
 	
@@ -37,7 +37,7 @@ list_snd_devices(struct GLOBAL *global)
 	if( numDevices < 0 )
 	{
 		g_printf( "SOUND DISABLE: Pa_CountDevices returned 0x%x\n", numDevices );
-		err = numDevices;
+		//err = numDevices;
 		global->Sound_enable=0;
 	} 
 	else 

@@ -179,7 +179,7 @@ int
 readConf(struct GLOBAL *global)
 {
 	int ret=0;
-	int signal=1; /*1=>+ or -1=>-*/
+	//int signal=1; /*1=>+ or -1=>-*/
 	GScanner  *scanner;
 	GTokenType ttype;
 	GScannerConfig config = 
@@ -257,13 +257,13 @@ readConf(struct GLOBAL *global)
 					/*check for signed integers*/
 					if(ttype == '-')
 					{
-						signal = -1;
+						//signal = -1;
 						ttype = g_scanner_get_next_token (scanner);
 					}
 					
 					if (ttype == G_TOKEN_STRING)
 					{
-						signal=1; /*reset signal*/
+						//signal=1; /*reset signal*/
 						//if (g_strcmp0(name,"video_device")==0) 
 						//{
 						//	g_snprintf(global->videodevice,15,"%s",scanner->value.v_string);

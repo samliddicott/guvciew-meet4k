@@ -111,7 +111,7 @@ shutd (gint restart, struct ALL_DATA *all_data)
 	struct GWIDGET *gwidget = all_data->gwidget;
 	//gchar *EXEC_CALL = all_data->EXEC_CALL;
 	GThread *video_thread = all_data->video_thread;
-	struct paRecordData *pdata = all_data->pdata;
+	//struct paRecordData *pdata = all_data->pdata;
 	struct GLOBAL *global = all_data->global;
 	struct vdIn *videoIn = all_data->videoIn;
 	
@@ -145,7 +145,7 @@ shutd (gint restart, struct ALL_DATA *all_data)
 	
 	clean_struct(all_data);
 	gwidget = NULL;
-	pdata = NULL;
+	//pdata = NULL;
 	global = NULL;
 	videoIn = NULL;
 

@@ -234,7 +234,7 @@ aviClose (struct ALL_DATA *all_data)
 	float tottime = 0;
 
 	struct GLOBAL *global = all_data->global;
-	struct vdIn *videoIn = all_data->videoIn;
+	//struct vdIn *videoIn = all_data->videoIn;
 	struct VideoFormatData *videoF = all_data->videoF;
 	struct paRecordData *pdata = all_data->pdata;
 
@@ -270,7 +270,7 @@ aviClose (struct ALL_DATA *all_data)
 	g_free(videoF->AviOut);
 	pdata = NULL;
 	global = NULL;
-	videoIn = NULL;
+	//videoIn = NULL;
 	videoF->AviOut = NULL;
 }
 

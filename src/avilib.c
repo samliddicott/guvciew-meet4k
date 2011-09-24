@@ -262,17 +262,19 @@ static int avi_add_index_entry(struct avi_t *AVI, BYTE *tag, long flags, long po
 //ThOe write preliminary AVI file header: 0 frames, max vid/aud size
 static int avi_update_header(struct avi_t *AVI)
 {
-	int njunk, sampsize, hasIndex, ms_per_frame, frate, flag;
+	int njunk, sampsize, ms_per_frame, frate, flag;
 	int movi_len, hdrl_start, strl_start, j;
 	BYTE AVI_header[HEADERBYTES];
 	long nhb;
 	ULONG xd_size, xd_size_align2;
 
+	//assume index will be written
+	//int hasIndex=1;
+	
 	//assume max size
 	movi_len = AVI_MAX_LEN - HEADERBYTES + 4;
 
-	//assume index will be written
-	hasIndex=1;
+	
 
 	if(AVI->fps < 0.001) 
 	{

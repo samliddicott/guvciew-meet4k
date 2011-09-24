@@ -1,3 +1,10 @@
+guvcview (1.5.1-ubuntu1~oneiric~ppa1) oneiric; urgency=low
+
+    * move to gtk3
+    * make control window size dependent on screen resolution
+    
+ -- Paulo Assis <pj.assis@gmail.com>  Tue, 24 Sep 2011 14:21:00 +0000
+
 guvcview (1.5.0-ubuntu1~natty~ppa1) natty; urgency=low
 
     * update standards version to 3.9.1
