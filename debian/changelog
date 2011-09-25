@@ -2,6 +2,7 @@ guvcview (1.5.1-ubuntu1~oneiric~ppa1) oneiric; urgency=low
 
     * move to gtk3
     * make control window size dependent on screen resolution
+    * Threaded coding patch George Sedov <radist.morse@gmail.com>
     
  -- Paulo Assis <pj.assis@gmail.com>  Tue, 24 Sep 2011 14:21:00 +0000
 

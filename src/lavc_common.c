@@ -2,6 +2,8 @@
 #           guvcview              http://guvcview.berlios.de                    #
 #                                                                               #
 #           Paulo Assis <pj.assis@gmail.com>                                    #
+#           George Sedov <radist.morse@gmail.com>                               #
+#                   - Threaded encoding                                         #
 #                                                                               #
 # This program is free software; you can redistribute it and/or modify          #
 # it under the terms of the GNU General Public License as published by          #
