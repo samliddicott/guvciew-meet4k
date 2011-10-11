@@ -385,7 +385,7 @@ static vcodecs_data listSupVCodecs[] = //list of software supported formats
 		.mpeg_quant   = 1,
 		.max_b_frames = 0,
 		.num_threads  = 1,
-		.flags        = CODEC_FLAG2_BPYRAMID | CODEC_FLAG2_WPRED | CODEC_FLAG2_FASTPSKIP
+		.flags        = CODEC_FLAG2_BPYRAMID | CODEC_FLAG2_WPRED | CODEC_FLAG2_FASTPSKIP | CODEC_FLAG2_INTRA_REFRESH
 	}
 };
 
@@ -487,7 +487,7 @@ vcodecs_data *get_codec_defaults(int codec_ind)
 	return (&(listSupVCodecs[get_real_index (codec_ind)]));
 }
 
-static int write_video_data(struct ALL_DATA *all_data, BYTE *buff, int size, QWORD v_ts)
+static int write_video_data(struct ALL_DATA *all_data, BYTE *buff, int size)
 {
 	struct VideoFormatData *videoF = all_data->videoF;
 	struct GLOBAL *global = all_data->global;
@@ -502,9 +502,10 @@ static int write_video_data(struct ALL_DATA *all_data, BYTE *buff, int size, QWO
 			break;
 		
 		case MKV_FORMAT:
-			videoF->vpts = v_ts;
 			if(size > 0)
+			{
 				ret = write_video_packet (buff, size, global->fps, videoF);
+			}
 			break;
 			
 		default:
@@ -533,14 +534,15 @@ static int encode_lavc (struct lavcData *lavc_data,
 		 * of possible raw formats nv12 and nv21
 		 * else use internal format (yuyv)
 		 */
+		
 		if ( !(global->Frame_Flags) )
-			framesize= encode_lavc_frame (proc_buff->frame, lavc_data, global->format);
+			framesize= encode_lavc_frame (proc_buff->frame, lavc_data, global->format, videoF);
 		else 
-			framesize= encode_lavc_frame (proc_buff->frame, lavc_data, V4L2_PIX_FMT_YUYV);
+			framesize= encode_lavc_frame (proc_buff->frame, lavc_data, V4L2_PIX_FMT_YUYV, videoF);
 			
 		videoF->keyframe = lavc_data->codec_context->coded_frame->key_frame;
 		
-		ret = write_video_data (all_data, lavc_data->outbuf, framesize, proc_buff->time_stamp);
+		ret = write_video_data (all_data, lavc_data->outbuf, framesize);
 	}
 	return (ret);
 }
@@ -556,10 +558,14 @@ int compress_frame(void *data,
 	
 	struct ALL_DATA *all_data = (struct ALL_DATA *) data;
 	struct GLOBAL *global = all_data->global;
+	struct VideoFormatData *videoF = all_data->videoF;
 	
 	long framesize = 0;
 	int jpeg_size = 0;
 	int ret = 0;
+	
+	videoF->old_vpts = videoF->vpts;			
+	videoF->vpts = proc_buff->time_stamp;
 	
 	switch (global->VidCodec) 
 	{
@@ -567,7 +573,7 @@ int compress_frame(void *data,
 			/* save MJPG frame */   
 			if((global->Frame_Flags==0) && (global->format==V4L2_PIX_FMT_MJPEG)) 
 			{
-				ret = write_video_data (all_data, proc_buff->frame, proc_buff->bytes_used, proc_buff->time_stamp);
+				ret = write_video_data (all_data, proc_buff->frame, proc_buff->bytes_used);
 			} 
 			else 
 			{
@@ -589,12 +595,12 @@ int compress_frame(void *data,
 				jpeg_size = encode_image(proc_buff->frame, global->jpeg, 
 					*jpeg_struct, 0, global->width, global->height);
 			
-				ret = write_video_data (all_data, global->jpeg, jpeg_size, proc_buff->time_stamp);
+				ret = write_video_data (all_data, global->jpeg, jpeg_size);
 			}
 			break;
 
 		case CODEC_YUV:
-			ret = write_video_data (all_data, proc_buff->frame, proc_buff->bytes_used, proc_buff->time_stamp);
+			ret = write_video_data (all_data, proc_buff->frame, proc_buff->bytes_used);
 			break;
 					
 		case CODEC_DIB:
@@ -609,7 +615,7 @@ int compress_frame(void *data,
 					yuyv2bgr1(proc_buff->frame, prgb, global->width, global->height);
 					break;
 			}
-			ret = write_video_data (all_data, prgb, framesize, proc_buff->time_stamp);
+			ret = write_video_data (all_data, prgb, framesize);
 			g_free(prgb);
 			prgb=NULL;
 			break;

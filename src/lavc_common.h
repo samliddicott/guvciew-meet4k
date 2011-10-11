@@ -27,6 +27,7 @@
 #include "../config.h"
 #include "defs.h"
 #include "sound.h"
+#include "video_format.h"
 
 #ifdef HAS_AVCODEC_H
   #include <avcodec.h>
@@ -53,6 +54,7 @@ struct lavcData
 	BYTE* tmpbuf;
 	int outbuf_size;
 	BYTE* outbuf;
+	int codec_id;
 };
 
 /*Audio*/
@@ -66,7 +68,7 @@ struct lavcAData
 	BYTE* outbuf;
 };
 
-int encode_lavc_frame (BYTE *picture_buf, struct lavcData* data, int format);
+int encode_lavc_frame (BYTE *picture_buf, struct lavcData* data, int format, struct VideoFormatData *videoF);
 
 int encode_lavc_audio_frame (short *audio_buf, struct lavcAData* data);
 

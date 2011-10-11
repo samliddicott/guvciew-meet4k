@@ -49,11 +49,13 @@ struct VideoFormatData
 	mk_Writer *mkv_w;
 	int b_writing_frame;      //set when writing frame
 	int b_header_written;     //set after mkv header written
+	INT64 old_vpts;           //previous video pts
 	INT64 vpts;               //video stream presentation time stamp
 	INT64 old_apts;           //previous audio time stamp
 	INT64 apts;               //audio stream presentation time stamp
 	int vcodec;
 	int acodec;
+	int frame_number;         //frame number in bitstream order
 	int keyframe;             //for avi only (not really necessary)
 	//int frame_delay;          // h264 has a two frame delay
 };

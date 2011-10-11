@@ -104,7 +104,7 @@ static void nv21to420p(BYTE* pic, struct lavcData* data )
 	data->picture->linesize[2] = data->codec_context->width / 2;
 }
 
-int encode_lavc_frame (BYTE *picture_buf, struct lavcData* data , int format)
+int encode_lavc_frame (BYTE *picture_buf, struct lavcData* data , int format, struct VideoFormatData *videoF)
 {
 	int out_size = 0;
 	
@@ -124,6 +124,13 @@ int encode_lavc_frame (BYTE *picture_buf, struct lavcData* data , int format)
 			break;
 	}
 	/* encode the image */
+	
+	videoF->frame_number++;
+	if(data->codec_id == CODEC_ID_H264)
+	{
+		data->picture->pts += ((videoF->vpts - videoF->old_vpts)/1000) * 90;
+		//data->picture->pts += (data->codec_context->time_base.num*1000/data->codec_context->time_base.den) * 90;
+	}
 	out_size = avcodec_encode_video(data->codec_context, data->outbuf, data->outbuf_size, data->picture);
 	return (out_size);
 }
@@ -190,6 +197,7 @@ struct lavcData* init_lavc(int width, int height, int fps_num, int fps_den, int 
 	
 	vcodecs_data *defaults = get_codec_defaults(codec_ind);
 	
+	data->codec_id = defaults->codec_id;
 	// find the video encoder
 	data->codec = avcodec_find_encoder(defaults->codec_id);
 	if (!data->codec) 
@@ -200,6 +208,7 @@ struct lavcData* init_lavc(int width, int height, int fps_num, int fps_den, int 
 	
 	//alloc picture
 	data->picture= avcodec_alloc_frame();
+	data->picture->pts = 0;
 	// define bit rate (lower = more compression but lower quality)
 	data->codec_context->bit_rate = defaults->bit_rate;
 	// resolution must be a multiple of two
@@ -258,10 +267,12 @@ struct lavcData* init_lavc(int width, int height, int fps_num, int fps_den, int 
 	
 	if(defaults->codec_id == CODEC_ID_H264)
 	{
-	    //printf("CODEC ID is %i\n", defaults->codec_id);
 	    data->codec_context->me_range = 16;
-	    
+	    //the first compressed frame will be empty (1 frame out of sync)
+	    //but avoids x264 warning on lookaheadless mb-tree 
+	    data->codec_context->rc_lookahead=1;	    
 	}
+	
 	// open codec
 	if (avcodec_open(data->codec_context, data->codec) < 0) 
 	{
