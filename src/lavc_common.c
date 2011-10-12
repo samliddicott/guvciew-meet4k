@@ -126,13 +126,12 @@ int encode_lavc_frame (BYTE *picture_buf, struct lavcData* data , int format, st
 	/* encode the image */
 	
 	//videoF->frame_number++;
-	if(data->codec_id == CODEC_ID_H264)
-	{
-        //generate a real pts based on the frame timestamp
-		data->picture->pts += ((videoF->vpts - videoF->old_vpts)/1000) * 90;
-        //generate a true monotonic pts based on the codec fps
-		//data->picture->pts += (data->codec_context->time_base.num*1000/data->codec_context->time_base.den) * 90;
-	}
+	
+	//generate a real pts based on the frame timestamp
+	data->picture->pts += ((videoF->vpts - videoF->old_vpts)/1000) * 90;
+    //generate a true monotonic pts based on the codec fps
+	//data->picture->pts += (data->codec_context->time_base.num*1000/data->codec_context->time_base.den) * 90;
+	
 	out_size = avcodec_encode_video(data->codec_context, data->outbuf, data->outbuf_size, data->picture);
 	return (out_size);
 }
