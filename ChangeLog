@@ -3,8 +3,9 @@ guvcview (1.5.1)
     * move to gtk3
     * make control window size dependent on screen resolution
     * Threaded coding patch by George Sedov <radist.morse@gmail.com>
+    * fix h264 codec properties
     
- -- Paulo Assis <pj.assis@gmail.com>  Tue, 24 Sep 2011 14:21:00 +0000
+ -- Paulo Assis <pj.assis@gmail.com>  Tue, 12 Oct 2011 12:12:00 +0000
 
 guvcview (1.5.0)
 
