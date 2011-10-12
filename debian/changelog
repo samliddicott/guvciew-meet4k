@@ -5,7 +5,7 @@ guvcview (1.5.1-ubuntu1~oneiric~ppa1) oneiric; urgency=low
     * Threaded coding patch George Sedov <radist.morse@gmail.com>
     * fix h264 codec properties
     
- -- Paulo Assis <pj.assis@gmail.com>  Tue, 12 Oct 2011 12:12:00 +0000
+ -- Paulo Assis <pj.assis@gmail.com>  Wed, 12 Oct 2011 12:12:00 +0000
 
 guvcview (1.5.0-ubuntu1~natty~ppa1) natty; urgency=low
 
