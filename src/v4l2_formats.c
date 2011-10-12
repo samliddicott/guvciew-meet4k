@@ -1,5 +1,5 @@
 /*******************************************************************************#
-#           guvcview              http://guvcview.berlios.de                    #
+#           guvcview              http://guvcview.sourceforge.net               #
 #                                                                               #
 #           Paulo Assis <pj.assis@gmail.com>                                    #
 #           Nobuhiro Iwamatsu <iwamatsu@nigauri.org>                            # 
@@ -550,7 +550,7 @@ LFormats *enum_frame_formats(int *width, int *height, int fd)
 		}
 		else
 		{
-			g_printerr("   { not supported - request format(%i) support at http://guvcview.berlios.de }\n",
+			g_printerr("   { not supported - request format(%i) support at http://guvcview.sourceforge.net }\n",
 						fmt.pixelformat);
 		}
 	}

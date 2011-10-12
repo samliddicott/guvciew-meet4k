@@ -1,5 +1,5 @@
 /*******************************************************************************#
-#           guvcview              http://guvcview.berlios.de                    #
+#           guvcview              http://guvcview.sourceforge.net               #
 #                                                                               #
 #           Paulo Assis <pj.assis@gmail.com>                                    #
 #                                                                               #
@@ -55,7 +55,7 @@ struct VideoFormatData
 	INT64 apts;               //audio stream presentation time stamp
 	int vcodec;
 	int acodec;
-	int frame_number;         //frame number in bitstream order
+	//int frame_number;         //frame number in bitstream order
 	int keyframe;             //for avi only (not really necessary)
 	//int frame_delay;          // h264 has a two frame delay
 };

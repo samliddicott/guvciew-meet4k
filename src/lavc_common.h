@@ -1,5 +1,5 @@
 /*******************************************************************************#
-#           guvcview              http://guvcview.berlios.de                    #
+#           guvcview              http://guvcview.sourceforge.net               #
 #                                                                               #
 #           Paulo Assis <pj.assis@gmail.com>                                    #
 #           George Sedov <radist.morse@gmail.com>                               #

@@ -1,5 +1,5 @@
 /*******************************************************************************#
-#           guvcview              http://guvcview.berlios.de                    #
+#           guvcview              http://guvcview.sourceforge.net               #
 #                                                                               #
 #           Paulo Assis <pj.assis@gmail.com>                                    #
 #           Nobuhiro Iwamatsu <iwamatsu@nigauri.org>                            # 

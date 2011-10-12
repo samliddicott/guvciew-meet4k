@@ -1,5 +1,5 @@
 /*******************************************************************************#
-#           guvcview              http://guvcview.berlios.de                    #
+#           guvcview              http://guvcview.sourceforge.net               #
 #                                                                               #
 #           Paulo Assis <pj.assis@gmail.com>                                    #
 #           George Sedov <radist.morse@gmail.com>                               #
@@ -125,10 +125,12 @@ int encode_lavc_frame (BYTE *picture_buf, struct lavcData* data , int format, st
 	}
 	/* encode the image */
 	
-	videoF->frame_number++;
+	//videoF->frame_number++;
 	if(data->codec_id == CODEC_ID_H264)
 	{
+        //generate a real pts based on the frame timestamp
 		data->picture->pts += ((videoF->vpts - videoF->old_vpts)/1000) * 90;
+        //generate a true monotonic pts based on the codec fps
 		//data->picture->pts += (data->codec_context->time_base.num*1000/data->codec_context->time_base.den) * 90;
 	}
 	out_size = avcodec_encode_video(data->codec_context, data->outbuf, data->outbuf_size, data->picture);
@@ -247,7 +249,6 @@ struct lavcData* init_lavc(int width, int height, int fps_num, int fps_den, int 
 	data->codec_context->qmax = defaults->qmax;             // worst detail allowed - best compression
 	data->codec_context->max_qdiff = defaults->max_qdiff;
 	data->codec_context->max_b_frames = defaults->max_b_frames;
-	data->codec_context->gop_size = defaults->gop_size;
 	
 	data->codec_context->qcompress = defaults->qcompress;
 	data->codec_context->qblur = defaults->qblur;
@@ -260,17 +261,25 @@ struct lavcData* init_lavc(int width, int height, int fps_num, int fps_den, int 
 #endif
 	data->codec_context->pix_fmt = PIX_FMT_YUV420P; //only yuv420p available for mpeg
 	if(defaults->fps)
-		data->codec_context->time_base = (AVRational){1,defaults->fps}; //use properties fps
+		data->codec_context->time_base = (AVRational){1,defaults->fps}; //use codec properties fps
 	else if (fps_den >= 5)
 		data->codec_context->time_base = (AVRational){fps_num,fps_den}; //default fps (for gspca this is 1/1)
 	else data->codec_context->time_base = (AVRational){1,15}; //fallback to 15 fps (e.g gspca) 
 	
+    if(defaults->gop_size > 0)
+        data->codec_context->gop_size = defaults->gop_size;
+    else
+        data->codec_context->gop_size = data->codec_context->time_base.den;
+    
 	if(defaults->codec_id == CODEC_ID_H264)
 	{
 	    data->codec_context->me_range = 16;
 	    //the first compressed frame will be empty (1 frame out of sync)
 	    //but avoids x264 warning on lookaheadless mb-tree 
-	    data->codec_context->rc_lookahead=1;	    
+	    data->codec_context->rc_lookahead=1;
+        //TODO:
+        // add rc_lookahead to codec properties and handle it gracefully by
+        // fixing the frames timestamps => shift them by rc_lookahead frames 
 	}
 	
 	// open codec
