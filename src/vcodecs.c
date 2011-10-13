@@ -30,6 +30,11 @@
 #include <glib/gi18n.h>
 #include <linux/videodev2.h>
 
+//if not defined don't set any bits but prevent build error
+#ifndef CODEC_FLAG2_INTRA_REFRESH
+#define CODEC_FLAG2_INTRA_REFRESH 0
+#endif
+
 static BITMAPINFOHEADER mkv_codecPriv =
 {
 	.biSize = 0x00000028, //40 bytes 
