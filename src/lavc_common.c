@@ -253,11 +253,12 @@ struct lavcData* init_lavc(int width, int height, int fps_num, int fps_den, int 
 	data->codec_context->qblur = defaults->qblur;
 	data->codec_context->strict_std_compliance = FF_COMPLIANCE_NORMAL;
 	data->codec_context->codec_id = defaults->codec_id;
-#ifdef CODEC_TYPE_VIDEO
-	data->codec_context->codec_type = CODEC_TYPE_VIDEO;
-#else
-	data->codec_context->codec_type = AVMEDIA_TYPE_VIDEO;
+    
+#ifndef AVMEDIA_TYPE_VIDEO
+#define AVMEDIA_TYPE_VIDEO CODEC_TYPE_VIDEO
 #endif
+	data->codec_context->codec_type = AVMEDIA_TYPE_VIDEO;
+    
 	data->codec_context->pix_fmt = PIX_FMT_YUV420P; //only yuv420p available for mpeg
 	if(defaults->fps)
 		data->codec_context->time_base = (AVRational){1,defaults->fps}; //use codec properties fps
@@ -325,14 +326,17 @@ struct lavcAData* init_lavc_audio(struct paRecordData *pdata, int codec_ind)
 	data->codec_context->channels = pdata->channels;
 	data->codec_context->cutoff = 0; /*automatic*/
 	/*libav 7.1 only seems to accept S16 format*/
-	data->codec_context->sample_fmt = AV_SAMPLE_FMT_S16; /* Int16 sample */
-	data->codec_context->codec_id = defaults->codec_id;
-	
-#ifdef CODEC_TYPE_AUDIO
-	data->codec_context->codec_type = CODEC_TYPE_AUDIO;
-#else
-	data->codec_context->codec_type = AVMEDIA_TYPE_AUDIO;
+#ifndef AV_SAMPLE_FMT_S16
+#define AV_SAMPLE_FMT_S16 SAMPLE_FMT_S16 
 #endif
+	data->codec_context->sample_fmt = AV_SAMPLE_FMT_S16; /* Int16 sample */
+	
+    data->codec_context->codec_id = defaults->codec_id;
+	
+#ifndef AVMEDIA_TYPE_AUDIO
+#define AVMEDIA_TYPE_AUDIO CODEC_TYPE_AUDIO
+#endif
+	data->codec_context->codec_type = AVMEDIA_TYPE_AUDIO;
 		
 	// open codec
 	if (avcodec_open(data->codec_context, data->codec) < 0) 
