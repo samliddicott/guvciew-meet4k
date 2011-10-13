@@ -1,4 +1,4 @@
-guvcview (1.5.1-ubuntu1~oneiric~ppa1) oneiric; urgency=low
+guvcview (1.5.1-ubuntu3~oneiric~ppa1) oneiric; urgency=low
 
     * move to gtk3
     * make control window size dependent on screen resolution
