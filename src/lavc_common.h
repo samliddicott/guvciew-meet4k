@@ -46,7 +46,6 @@
 /*video*/
 struct lavcData
 {
-	/*video*/
 	AVCodec *codec;
 	AVCodecContext *codec_context;
 	AVFrame *picture;
@@ -55,12 +54,12 @@ struct lavcData
 	int outbuf_size;
 	BYTE* outbuf;
 	int codec_id;
+	int monotonic_pts;
 };
 
 /*Audio*/
 struct lavcAData
 {
-	/*video*/
 	AVCodec *codec;
 	AVCodecContext *codec_context;
 

@@ -69,6 +69,7 @@ typedef struct _vcodecs_data
 	int max_b_frames;         //lavc max b frames
 	int num_threads;          //lavc num threads
 	int flags;                //lavc flags
+	int monotonic_pts;		  //use monotonic pts instead of timestamp based
 } vcodecs_data;
 
 

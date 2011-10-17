@@ -148,7 +148,15 @@ lavc_properties(GtkButton * CodecButt, struct ALL_DATA *all_data)
 		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
 	gtk_widget_show (enc_fps);
 	line++;
-
+	
+	GtkWidget *monotonic_pts = gtk_check_button_new_with_label (_(" monotonic pts"));
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(monotonic_pts),(codec_defaults->monotonic_pts != 0));
+	
+	gtk_table_attach (GTK_TABLE(table), monotonic_pts, 1, 2, line, line+1,
+		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_widget_show (monotonic_pts);
+	line++;
+	
 	GtkWidget *lbl_bit_rate = gtk_label_new(_("bit rate:   "));
 	gtk_misc_set_alignment (GTK_MISC (lbl_bit_rate), 1, 0.5);
 	gtk_table_attach (GTK_TABLE(table), lbl_bit_rate, 0, 1, line, line+1,
@@ -458,6 +466,7 @@ lavc_properties(GtkButton * CodecButt, struct ALL_DATA *all_data)
 	{
 		case GTK_RESPONSE_ACCEPT:
 			codec_defaults->fps = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON(enc_fps));
+			codec_defaults->monotonic_pts = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(monotonic_pts));
 			codec_defaults->bit_rate = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON(bit_rate));
 			codec_defaults->qmax = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON(qmax));
 			codec_defaults->qmin = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON(qmin));

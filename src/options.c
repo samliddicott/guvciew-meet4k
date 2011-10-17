@@ -125,6 +125,7 @@ writeConf(struct GLOBAL *global, char *videodevice)
 		g_fprintf(fp, "# video codec (%s) properties (remove for default values\n", vcodec_defaults->compressor);
 		g_fprintf(fp, "vcodec_bit_rate=%d\n",vcodec_defaults->bit_rate);
 		g_fprintf(fp, "vcodec_fps=%d\n",vcodec_defaults->fps);
+		g_fprintf(fp, "vcodec_monotonic_pts=%d\n",vcodec_defaults->monotonic_pts);
 		g_fprintf(fp, "vcodec_qmax=%d\n",vcodec_defaults->qmax);
 		g_fprintf(fp, "vcodec_qmin=%d\n",vcodec_defaults->qmin);
 		g_fprintf(fp, "vcodec_max_qdiff=%d\n",vcodec_defaults->max_qdiff);
@@ -231,7 +232,7 @@ readConf(struct GLOBAL *global)
 		int ac_bit_rate =-1, vc_bit_rate=-1, vc_fps=-1, vc_qmax=-1, vc_qmin=-1, vc_max_qdiff=-1, vc_dia=-1;
 		int vc_pre_dia=-1, vc_pre_me=-1, vc_me_pre_cmp=-1, vc_me_cmp=-1, vc_me_sub_cmp=-1, vc_last_pred=-1;
 		int vc_gop_size=-1, vc_subq=-1, vc_framerefs=-1, vc_mb_decision=-1, vc_trellis=-1, vc_me_method=-1;
-		int vc_mpeg_quant=-1, vc_max_b_frames=-1, vc_num_threads=-1, vc_flags=-1;
+		int vc_mpeg_quant=-1, vc_max_b_frames=-1, vc_num_threads=-1, vc_flags=-1, vc_monotonic_pts=-1;
 		float vc_qcompress=-1, vc_qblur=-1;
 		
 		
@@ -512,6 +513,10 @@ readConf(struct GLOBAL *global)
 						{
 						    vc_fps = scanner->value.v_int;
 						}
+						else if (g_strcmp0(name,"vcodec_monotonic_pts")==0) 
+						{
+						    vc_monotonic_pts = scanner->value.v_int;
+						}
 						else if (g_strcmp0(name,"vcodec_qmax")==0) 
 						{
 						    vc_qmax = scanner->value.v_int;
@@ -659,6 +664,7 @@ readConf(struct GLOBAL *global)
         if (ac_bit_rate >= 0) acodec_defaults->bit_rate = ac_bit_rate;
         if (vc_bit_rate >= 0) vcodec_defaults->bit_rate = vc_bit_rate;
         if (vc_fps >= 0) vcodec_defaults->fps = vc_fps;
+        if (vc_monotonic_pts >= 0) vcodec_defaults->monotonic_pts = vc_monotonic_pts;
 		if (vc_qmax >= 0) vcodec_defaults->qmax = vc_qmax;
 		if (vc_qmin >= 0) vcodec_defaults->qmin = vc_qmin;
 		if (vc_max_qdiff >=0) vcodec_defaults->max_qdiff = vc_max_qdiff;

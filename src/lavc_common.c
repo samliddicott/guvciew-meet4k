@@ -127,10 +127,10 @@ int encode_lavc_frame (BYTE *picture_buf, struct lavcData* data , int format, st
 	
 	//videoF->frame_number++;
 	
-	//generate a real pts based on the frame timestamp
-	data->picture->pts += ((videoF->vpts - videoF->old_vpts)/1000) * 90;
-    //generate a true monotonic pts based on the codec fps
-	//data->picture->pts += (data->codec_context->time_base.num*1000/data->codec_context->time_base.den) * 90;
+	if(!data->monotonic_pts) //generate a real pts based on the frame timestamp
+		data->picture->pts += ((videoF->vpts - videoF->old_vpts)/1000) * 90;
+	else  //generate a true monotonic pts based on the codec fps
+		data->picture->pts += (data->codec_context->time_base.num*1000/data->codec_context->time_base.den) * 90;
 	
 	out_size = avcodec_encode_video(data->codec_context, data->outbuf, data->outbuf_size, data->picture);
 	return (out_size);
@@ -253,6 +253,7 @@ struct lavcData* init_lavc(int width, int height, int fps_num, int fps_den, int 
 	data->codec_context->qblur = defaults->qblur;
 	data->codec_context->strict_std_compliance = FF_COMPLIANCE_NORMAL;
 	data->codec_context->codec_id = defaults->codec_id;
+	data->monotonic_pts = defaults->monotonic_pts;
     
 #if LIBAVCODEC_VERSION_MAJOR < 53
 #define AVMEDIA_TYPE_VIDEO CODEC_TYPE_VIDEO
