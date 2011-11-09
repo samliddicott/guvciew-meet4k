@@ -308,7 +308,7 @@ void audio_tab(struct ALL_DATA *all_data)
 
 	gtk_grid_attach (GTK_GRID(table3), label_SndNumChan, 0, line, 1, 1);
 	gtk_widget_show (label_SndNumChan);
-	if (global->debug) g_printf("SampleRate:%d Channels:%d\n",global->Sound_SampRate,global->Sound_NumChan);
+	if (global->debug) g_print("SampleRate:%d Channels:%d\n",global->Sound_SampRate,global->Sound_NumChan);
 	
 	//sound format
 	line++;

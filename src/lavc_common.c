@@ -349,7 +349,7 @@ struct lavcAData* init_lavc_audio(struct paRecordData *pdata, int codec_ind)
 	
 	/* the codec gives us the frame size, in samples */
 	int frame_size = data->codec_context->frame_size;  
-	g_printf("Audio frame size is %d samples for selected codec\n", frame_size);
+	g_print("Audio frame size is %d samples for selected codec\n", frame_size);
 	
 	//alloc outbuf
 	data->outbuf_size = 240000;

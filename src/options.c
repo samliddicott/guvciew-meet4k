@@ -690,32 +690,32 @@ readConf(struct GLOBAL *global)
         
 		if (global->debug) 
 		{
-			g_printf("video_device: %s\n",global->videodevice);
-			g_printf("vid_sleep: %i\n",global->vid_sleep);
-			g_printf("cap_meth: %i\n",global->cap_meth);
-			g_printf("resolution: %i x %i\n",global->width,global->height);
-			g_printf("windowsize: %i x %i\n",global->winwidth,global->winheight);
-			g_printf("vert pane: %i\n",global->boxvsize);
-			g_printf("spin behavior: %i\n",global->spinbehave);
-			g_printf("default action: %i\n",global->default_action);
-			g_printf("mode: %s\n",global->mode);
-			g_printf("fps: %i/%i\n",global->fps_num,global->fps);
-			g_printf("Display Fps: %i\n",global->FpsCount);
-			g_printf("bpp: %i\n",global->bpp);
-			g_printf("hwaccel: %i\n",global->hwaccel);
-			g_printf("avi_format: %i\n",global->VidCodec);
-			g_printf("sound: %i\n",global->Sound_enable);
-			g_printf("sound Device: %i\n",global->Sound_UseDev);
-			g_printf("sound samp rate: %i\n",global->Sound_SampRateInd);
-			g_printf("sound Channels: %i\n",global->Sound_NumChanInd);
-			g_printf("Sound delay: %llu nanosec\n",(unsigned long long) global->Sound_delay);
-			g_printf("Sound Format: %i \n",global->Sound_Format);
-			//g_printf("Sound bit Rate: %i Kbps\n",global->Sound_bitRate);
-			g_printf("Pan Step: %i degrees\n",global->PanStep);
-			g_printf("Tilt Step: %i degrees\n",global->TiltStep);
-			g_printf("Video Filter Flags: %i\n",global->Frame_Flags);
-			g_printf("image inc: %d\n",global->image_inc);
-			g_printf("profile(default):%s/%s\n",global->profile_FPath[1],global->profile_FPath[0]);
+			g_print("video_device: %s\n",global->videodevice);
+			g_print("vid_sleep: %i\n",global->vid_sleep);
+			g_print("cap_meth: %i\n",global->cap_meth);
+			g_print("resolution: %i x %i\n",global->width,global->height);
+			g_print("windowsize: %i x %i\n",global->winwidth,global->winheight);
+			g_print("vert pane: %i\n",global->boxvsize);
+			g_print("spin behavior: %i\n",global->spinbehave);
+			g_print("default action: %i\n",global->default_action);
+			g_print("mode: %s\n",global->mode);
+			g_print("fps: %i/%i\n",global->fps_num,global->fps);
+			g_print("Display Fps: %i\n",global->FpsCount);
+			g_print("bpp: %i\n",global->bpp);
+			g_print("hwaccel: %i\n",global->hwaccel);
+			g_print("avi_format: %i\n",global->VidCodec);
+			g_print("sound: %i\n",global->Sound_enable);
+			g_print("sound Device: %i\n",global->Sound_UseDev);
+			g_print("sound samp rate: %i\n",global->Sound_SampRateInd);
+			g_print("sound Channels: %i\n",global->Sound_NumChanInd);
+			g_print("Sound delay: %llu nanosec\n",(unsigned long long) global->Sound_delay);
+			g_print("Sound Format: %i \n",global->Sound_Format);
+			//g_print("Sound bit Rate: %i Kbps\n",global->Sound_bitRate);
+			g_print("Pan Step: %i degrees\n",global->PanStep);
+			g_print("Tilt Step: %i degrees\n",global->TiltStep);
+			g_print("Video Filter Flags: %i\n",global->Frame_Flags);
+			g_print("image inc: %d\n",global->image_inc);
+			g_print("profile(default):%s/%s\n",global->profile_FPath[1],global->profile_FPath[0]);
 		}
 	}
 	
@@ -790,7 +790,7 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 		g_error_free ( error );
 		closeGlobals(global);
 		global=NULL;
-		g_printf("%s",help_all_str);
+		g_print("%s",help_all_str);
 		g_free(help_all_str);
 		g_free(help_str);
 		g_free(help_gtk_str);
@@ -815,7 +815,7 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 	{
 		closeGlobals(global);
 		global=NULL;
-		g_printf("%s",help_all_str);
+		g_print("%s",help_all_str);
 		g_free(help_all_str);
 		g_free(help_str);
 		g_free(help_gtk_str);
@@ -826,7 +826,7 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 	{
 		closeGlobals(global);
 		global=NULL;
-		g_printf("%s",help_str);
+		g_print("%s",help_str);
 		g_free(help_str);
 		g_free(help_gtk_str);
 		g_free(help_all_str);
@@ -836,7 +836,7 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 	{
 		closeGlobals(global);
 		global=NULL;
-		g_printf("%s",help_gtk_str);
+		g_print("%s",help_gtk_str);
 		g_free(help_str);
 		g_free(help_gtk_str);
 		g_free(help_all_str);
@@ -934,13 +934,13 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 	}
 	if(global->image_timer > 0 )
 	{
-		g_printf("capturing images every %i seconds\n",global->image_timer);
+		g_print("capturing images every %i seconds\n",global->image_timer);
 	}
 	if(video)
 	{
 		global->vidfile = g_strdup(video);
 		global->vidFPath=splitPath(global->vidfile,global->vidFPath);
-		g_printf("capturing video: %s , from start\n",global->vidfile);
+		g_print("capturing video: %s , from start\n",global->vidfile);
 		/*get the file type*/
 		global->VidFormat = check_video_type(global->vidFPath[0]);
 	}
@@ -965,7 +965,7 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 		global->cap_meth = cap_meth;
 	}
 	
-	//g_printf("option capture meth is %i\n", global->cap_meth);
+	//g_print("option capture meth is %i\n", global->cap_meth);
 	g_free(help_str);
 	g_free(help_gtk_str);
 	g_free(help_all_str);

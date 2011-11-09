@@ -139,8 +139,8 @@ static int get_aac_samp_ind(int samprate)
 	 
 	 if (i>12) 
 	 {
-		g_printf("WARNING: invalid sample rate for AAC encoding\n");
-		g_printf("valid(96000, 88200, 64000, 48000, 44100, 32000, 24000, 22050, 16000, 12000, 11025, 8000, 7350)\n");
+		g_print("WARNING: invalid sample rate for AAC encoding\n");
+		g_print("valid(96000, 88200, 64000, 48000, 44100, 32000, 24000, 22050, 16000, 12000, 11025, 8000, 7350)\n");
 		i=4; /*default 44100*/
 	 }
 	 return i;
@@ -247,7 +247,7 @@ void setAcodecVal ()
 			codec = avcodec_find_encoder(get_acodec_id(ind));
 			if (!codec) 
 			{
-				g_printf("no codec detected for %s\n", listSupACodecs[ind].description);
+				g_print("no codec detected for %s\n", listSupACodecs[ind].description);
 				listSupACodecs[ind].valid = FALSE;
 			}
 		}

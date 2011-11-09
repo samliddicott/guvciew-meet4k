@@ -177,7 +177,7 @@ set_sound (struct GLOBAL *global, struct paRecordData* data, void *lav_aud_data)
 	g_mutex_lock( data->mutex );
 		data->skip_n = global->skip_n; /*initial video frames to skip*/
 	g_mutex_unlock( data->mutex );
-	if(global->debug) g_printf("using audio codec: 0x%04x\n",global->Sound_Format );
+	if(global->debug) g_print("using audio codec: 0x%04x\n",global->Sound_Format );
 	switch (global->Sound_Format)
 	{
 		case PA_FOURCC:
@@ -338,12 +338,12 @@ close_sound (struct paRecordData *data)
 	{
 		if(Pa_IsStreamActive( data->stream ) > 0)
 		{
-			g_printf("Aborting audio stream\n");
+			g_print("Aborting audio stream\n");
 			err = Pa_AbortStream( data->stream );
 		}
 		else
 		{
-			g_printf("Stoping audio stream\n");
+			g_print("Stoping audio stream\n");
 			err = Pa_StopStream( data->stream );
 		}
 		if( err != paNoError )
@@ -357,7 +357,7 @@ close_sound (struct paRecordData *data)
 	
 	if(data->api == PORT)
 	{
-		g_printf("Closing audio stream...\n");
+		g_print("Closing audio stream...\n");
 		err = Pa_CloseStream( data->stream );
 		if( err != paNoError )
 		{

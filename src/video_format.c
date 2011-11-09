@@ -128,13 +128,13 @@ int clean_FormatContext (void* data)
 	/*------------------- close audio stream and clean up -------------------*/
 	if (global->Sound_enable > 0) 
 	{
-		if(global->debug) g_printf("closing sound...\n");
+		if(global->debug) g_print("closing sound...\n");
 		if (close_sound (pdata)) g_printerr("Sound Close error\n");
-		if(global->debug) g_printf("sound closed\n");
+		if(global->debug) g_print("sound closed\n");
 	} 
 
 	int64_t def_duration = ((global->Vidstoptime - global->Vidstarttime)/global->framecount);
-	g_printf("video default duration:%llu start:%llu stop:%llu\n", 
+	g_print("video default duration:%llu start:%llu stop:%llu\n", 
 		(unsigned long long) def_duration, (unsigned long long) global->Vidstarttime, 
 		(unsigned long long) global->Vidstoptime);
 	mk_setDef_Duration(videoF->mkv_w, def_duration);/* set real fps ( average frame duration)*/
@@ -143,7 +143,7 @@ int clean_FormatContext (void* data)
 	videoF->mkv_w = NULL;
 	videoF->apts = 0;
 	videoF->old_apts = 0;
-	if(global->debug) g_printf("finished cleaning up\n");
+	if(global->debug) g_print("finished cleaning up\n");
 	return (ret);
 }
 
@@ -162,7 +162,7 @@ int init_FormatContext(void *data)
 	
 	if(videoF->mkv_w !=NULL )
 	{
-		g_printf("matroska: older mux ref not closed, cleaning now...\n");
+		g_print("matroska: older mux ref not closed, cleaning now...\n");
 		mk_close(videoF->mkv_w);
 		videoF->mkv_w = NULL;
 	}
@@ -191,7 +191,7 @@ int init_FormatContext(void *data)
 			duration = duration * 1000000; //from milisec to nanosec
 		}
 	    
-		if(global->debug) g_printf("audio frame: %i | %i | %i | %llu\n", 
+		if(global->debug) g_print("audio frame: %i | %i | %i | %llu\n", 
 			pdata->aud_numSamples, pdata->samprate, channels, (unsigned long long) duration);
 	}
 	else
@@ -212,7 +212,7 @@ int init_FormatContext(void *data)
 	/*a problem with this in the case of mpeg codecs (mpg1 and mpg2)            */
 	UINT64 v_def_dur = 0;
 	if(global->fps >= 5) v_def_dur = (UINT64) (global->fps_num * 1e9/global->fps); //nano seconds
-	if (global->debug) g_printf("video frame default duration =%llu for %i fps\n", 
+	if (global->debug) g_print("video frame default duration =%llu for %i fps\n", 
 		(unsigned long long) v_def_dur, global->fps);
 	mk_writeHeader( videoF->mkv_w, "Guvcview",
                      get_mkvCodec(global->VidCodec),

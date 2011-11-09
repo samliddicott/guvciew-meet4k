@@ -72,7 +72,7 @@ struct focusData *initFocusData (int f_max, int f_min, int step, int id)
 	AFdata->f_step = step;
 	AFdata->i_step = (f_max + 1 - f_min)/32;
 	if(AFdata->i_step <= step) AFdata->i_step = step * 2;
-	//g_printf("focus step:%i\n", AFdata->i_step);
+	//g_print("focus step:%i\n", AFdata->i_step);
 	AFdata->right = f_max;
 	AFdata->left = f_min + AFdata->i_step; /*start with focus at 8*/
 	AFdata->focus = -1;

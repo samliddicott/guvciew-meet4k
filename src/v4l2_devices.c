@@ -91,7 +91,7 @@ LDevices *list_devices( gchar *videodevice )
 			else
 			{
 				num_dev++;
-				g_printf("%s - device %d\n", device, num_dev);
+				g_print("%s - device %d\n", device, num_dev);
 				listDevices->listVidDevices = g_renew(VidDevice, 
 					listDevices->listVidDevices, 
 					num_dev);
@@ -146,8 +146,8 @@ LDevices *list_devices( gchar *videodevice )
 			gchar *idVendor = g_strjoin("/", id_dir, "idVendor" ,NULL);
 			gchar *idProduct = g_strjoin("/", id_dir, "idProduct" ,NULL);
 			
-			//g_printf("idVendor: %s\n", idVendor);
-			//g_printf("idProduct: %s\n", idProduct);
+			//g_print("idVendor: %s\n", idVendor);
+			//g_print("idProduct: %s\n", idProduct);
 			FILE *vid_fp = g_fopen(idVendor,"r");
 			if(vid_fp != NULL)
 			{
@@ -212,7 +212,7 @@ LDevices *enum_devices( gchar *videodevice, struct udev *udev, int debug)
     if (!udev) 
     {
         /*use fall through method (sysfs)*/
-        g_printf("Can't create udev...using sysfs method\n");
+        g_print("Can't create udev...using sysfs method\n");
         return(list_devices(videodevice));
     }
     
@@ -243,7 +243,7 @@ LDevices *enum_devices( gchar *videodevice, struct udev *udev, int debug)
             itself in /dev. */
         const gchar *v4l2_device = udev_device_get_devnode(dev);
         if (debug) 
-            g_printf("Device Node Path: %s\n", v4l2_device);
+            g_print("Device Node Path: %s\n", v4l2_device);
         
         /* open the device and query the capabilities */
         if ((fd = v4l2_open(v4l2_device, O_RDWR | O_NONBLOCK, 0)) < 0) 
@@ -305,13 +305,13 @@ LDevices *enum_devices( gchar *videodevice, struct udev *udev, int debug)
             udev_device_get_sysattr_value() are UTF-8 encoded. */
         if (debug) 
         {
-            g_printf("  VID/PID: %s %s\n",
+            g_print("  VID/PID: %s %s\n",
                 udev_device_get_sysattr_value(dev,"idVendor"),
                 udev_device_get_sysattr_value(dev, "idProduct"));
-            g_printf("  %s\n  %s\n",
+            g_print("  %s\n  %s\n",
                 udev_device_get_sysattr_value(dev,"manufacturer"),
                 udev_device_get_sysattr_value(dev,"product"));
-            g_printf("  serial: %s\n",
+            g_print("  serial: %s\n",
                 udev_device_get_sysattr_value(dev, "serial"));
         }
         

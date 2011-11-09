@@ -194,7 +194,7 @@ int initDynCtrls(int fd)
 	/* try to add all controls listed above */
 	for ( i=0; i<LENGTH_OF_XU_CTR; i++ ) 
 	{
-		g_printf("Adding control for %s\n", xu_mappings[i].name);
+		g_print("Adding control for %s\n", xu_mappings[i].name);
 		if ((err=xioctl(fd, UVCIOC_CTRL_ADD, &xu_ctrls[i])) < 0 ) 
 		{
 			if ((errno != EEXIST) || (errno != EACCES)) 
@@ -213,7 +213,7 @@ int initDynCtrls(int fd)
 	/* after adding the controls, add the mapping now */
 	for ( i=0; i<LENGTH_OF_XU_MAP; i++ ) 
 	{
-		g_printf("mapping control for %s\n", xu_mappings[i].name);
+		g_print("mapping control for %s\n", xu_mappings[i].name);
 		if ((err=xioctl(fd, UVCIOC_CTRL_MAP, &xu_mappings[i])) < 0) 
 		{
 			if ((errno!=EEXIST) || (errno != EACCES))

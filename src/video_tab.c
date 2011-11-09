@@ -613,7 +613,7 @@ void video_tab(struct ALL_DATA *all_data)
 
 	
 	if (global->debug) 
-		g_printf("resolutions of format(%d) = %d \n",
+		g_print("resolutions of format(%d) = %d \n",
 			videoIn->listFormats->current_format+1,
 			listVidFormats->numb_res);
 	for(i = 0 ; i < listVidFormats->numb_res ; i++)  
@@ -636,7 +636,7 @@ void video_tab(struct ALL_DATA *all_data)
 	gwidget->FrameRate = gtk_combo_box_text_new ();
 	int deffps=0;
 	if (global->debug) 
-		g_printf("frame rates of %dº resolution=%d \n",
+		g_print("frame rates of %dº resolution=%d \n",
 			defres+1,
 			listVidFormats->listVidCap[defres].numb_frates);
 	for ( i = 0 ; i < listVidFormats->listVidCap[defres].numb_frates ; i++) 
@@ -664,7 +664,7 @@ void video_tab(struct ALL_DATA *all_data)
 		if (listVidFormats->listVidCap[defres].framerate_num)
 			global->fps_num = listVidFormats->listVidCap[defres].framerate_num[0];
 
-		g_printf("fps is set to %i/%i\n", global->fps_num, global->fps);
+		g_print("fps is set to %i/%i\n", global->fps_num, global->fps);
 	}
 	gtk_widget_set_sensitive (gwidget->FrameRate, TRUE);
 	g_signal_connect (GTK_COMBO_BOX_TEXT(gwidget->FrameRate), "changed",
@@ -692,7 +692,7 @@ void video_tab(struct ALL_DATA *all_data)
 	gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->Resolution),defres);
 	
 	if(global->debug) 
-		g_printf("Def. Res: %i  numb. fps:%i\n",defres,videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[defres].numb_frates);
+		g_print("Def. Res: %i  numb. fps:%i\n",defres,videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[defres].numb_frates);
 	
 	gtk_table_attach(GTK_TABLE(table2), gwidget->Resolution, 1, 2, line, line+1,
 		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);

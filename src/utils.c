@@ -322,7 +322,7 @@ int jpeg_decode(BYTE **pic, BYTE *buf, int width, int height)
 	info.ns = getbyte(); /* number of scans */
 	if (!info.ns)
 	{
-	g_printf("info ns %d/n",info.ns);
+	g_print("info ns %d/n",info.ns);
 		err = ERR_NOT_YCBCR_221111;
 		goto error;
 	}

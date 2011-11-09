@@ -677,8 +677,8 @@ void create_control_widgets(Control *control_list, void *all_data, int control_o
     {
         if (verbose) 
         {
-            g_printf("control[%d]: 0x%x",i ,current->control.id);
-            g_printf ("  %s, %d:%d:%d, default %d\n", current->control.name,
+            g_print("control[%d]: 0x%x",i ,current->control.id);
+            g_print ("  %s, %d:%d:%d, default %d\n", current->control.name,
                 current->control.minimum, current->control.maximum, current->control.step,
                 current->control.default_value);
         }

@@ -82,7 +82,7 @@ AM_GLIB_GNU_GETTEXT([external])
 dnl --------------------------------------------------------------------------
 dnl check for dependencies
 dnl --------------------------------------------------------------------------
-PKG_CHECK_MODULES(DEPS, [gtk+-3.0 >= 3.0.0 glib-2.0 >= 2.10.0 gthread-2.0 gdk-3.0 >= 3.0.0 gdk-pixbuf-2.0 sdl >= 1.2.10 portaudio-2.0 libpng libavcodec libv4l2 libudev])
+PKG_CHECK_MODULES(DEPS, [gtk+-3.0 >= 3.0.0 glib-2.0 >= 2.10.0 sdl >= 1.2.10 portaudio-2.0 libpng libavcodec libv4l2 libudev])
 AC_SUBST(DEPS_CFLAGS)
 AC_SUBST(DEPS_LIBS)
 

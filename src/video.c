@@ -83,17 +83,17 @@ static SDL_Overlay * video_init(void *data, SDL_Surface **pscreen)
      
         if (SDL_VideoDriverName(driver, sizeof(driver)) && global->debug) 
         {
-            g_printf("Video driver: %s\n", driver);
+            g_print("Video driver: %s\n", driver);
         }
     
         info = SDL_GetVideoInfo();
 
-        if (info->wm_available && global->debug) g_printf("A window manager is available\n");
+        if (info->wm_available && global->debug) g_print("A window manager is available\n");
 
         if (info->hw_available) 
         {
             if (global->debug) 
-                g_printf("Hardware surfaces are available (%dK video memory)\n", info->video_mem);
+                g_print("Hardware surfaces are available (%dK video memory)\n", info->video_mem);
 
             SDL_VIDEO_Flags |= SDL_HWSURFACE;
             SDL_VIDEO_Flags |= SDL_DOUBLEBUF;
@@ -105,7 +105,7 @@ static SDL_Overlay * video_init(void *data, SDL_Surface **pscreen)
         
         if (info->blit_hw) 
         {
-            if (global->debug) g_printf("Copy blits between hardware surfaces are accelerated\n");
+            if (global->debug) g_print("Copy blits between hardware surfaces are accelerated\n");
 
             SDL_VIDEO_Flags |= SDL_ASYNCBLIT;
         }
@@ -115,12 +115,12 @@ static SDL_Overlay * video_init(void *data, SDL_Surface **pscreen)
     
         if (global->debug) 
         {
-            if (info->blit_hw_CC) g_printf ("Colorkey blits between hardware surfaces are accelerated\n");
-            if (info->blit_hw_A) g_printf("Alpha blits between hardware surfaces are accelerated\n");
-            if (info->blit_sw) g_printf ("Copy blits from software surfaces to hardware surfaces are accelerated\n");
-            if (info->blit_sw_CC) g_printf ("Colorkey blits from software surfaces to hardware surfaces are accelerated\n");
-            if (info->blit_sw_A) g_printf("Alpha blits from software surfaces to hardware surfaces are accelerated\n");
-            if (info->blit_fill) g_printf("Color fills on hardware surfaces are accelerated\n");
+            if (info->blit_hw_CC) g_print ("Colorkey blits between hardware surfaces are accelerated\n");
+            if (info->blit_hw_A) g_print("Alpha blits between hardware surfaces are accelerated\n");
+            if (info->blit_sw) g_print ("Copy blits from software surfaces to hardware surfaces are accelerated\n");
+            if (info->blit_sw_CC) g_print ("Colorkey blits from software surfaces to hardware surfaces are accelerated\n");
+            if (info->blit_sw_A) g_print("Alpha blits from software surfaces to hardware surfaces are accelerated\n");
+            if (info->blit_fill) g_print("Color fills on hardware surfaces are accelerated\n");
         }
 
         SDL_WM_SetCaption(global->WVcaption, NULL); 
@@ -130,8 +130,8 @@ static SDL_Overlay * video_init(void *data, SDL_Surface **pscreen)
     }
     /*------------------------------ SDL init video ---------------------*/
     if(global->debug)  
-        g_printf("(Desktop resolution = %ix%i)\n", global->desktop_w, global->desktop_h);
-    g_printf("Checking video mode %ix%i@32bpp : ", width, height);
+        g_print("(Desktop resolution = %ix%i)\n", global->desktop_w, global->desktop_h);
+    g_print("Checking video mode %ix%i@32bpp : ", width, height);
     int bpp = SDL_VideoModeOK(
         width,
         height,
@@ -140,7 +140,7 @@ static SDL_Overlay * video_init(void *data, SDL_Surface **pscreen)
 
     if(!bpp)
     {
-        g_printf("Not available \n");
+        g_print("Not available \n");
         /*resize video mode*/
         if ((width > global->desktop_w) || (height > global->desktop_h))
         {
@@ -152,13 +152,13 @@ static SDL_Overlay * video_init(void *data, SDL_Surface **pscreen)
             width = 800;
             height = 600;
         }
-        g_printf("Resizing to %ix%i\n", width, height);
+        g_print("Resizing to %ix%i\n", width, height);
 
     }
     else
     {
-        g_printf("OK \n");
-        if ((bpp != 32) && global->debug) g_printf("recomended color depth = %i\n", bpp);
+        g_print("OK \n");
+        if ((bpp != 32) && global->debug) g_print("recomended color depth = %i\n", bpp);
         global->bpp = bpp;
     }
 
@@ -235,7 +235,7 @@ void *main_loop(void *data)
         
         if(overlay == NULL)
         {
-            g_printf("FATAL: Couldn't create yuv overlay - please disable hardware accelaration\n");
+            g_print("FATAL: Couldn't create yuv overlay - please disable hardware accelaration\n");
             signalquit = TRUE; /*exit video thread*/
         }
         else
@@ -324,7 +324,7 @@ void *main_loop(void *data)
                     {
                         AFdata->sharpness=getSharpness (videoIn->framebuffer, width, height, 5);
                         if (global->debug) 
-                            g_printf("sharp=%d focus_sharp=%d foc=%d right=%d left=%d ind=%d flag=%d\n",
+                            g_print("sharp=%d focus_sharp=%d foc=%d right=%d left=%d ind=%d flag=%d\n",
                                 AFdata->sharpness,AFdata->focus_sharpness,
                                 AFdata->focus, AFdata->right, AFdata->left, 
                                 AFdata->ind, AFdata->flag);
@@ -344,7 +344,7 @@ void *main_loop(void *data)
                     else 
                     {
                         AFdata->focus_wait--;
-                        if (global->debug) g_printf("Wait Frame: %d\n",AFdata->focus_wait);
+                        if (global->debug) g_print("Wait Frame: %d\n",AFdata->focus_wait);
                     }
                 }
             }
@@ -384,7 +384,7 @@ void *main_loop(void *data)
             int ret = 0;
             if((ret=store_picture(all_data)) < 0)
                 g_printerr("saved image to:%s ...Failed \n",videoIn->ImageFName);
-            else if (!ret && global->debug) g_printf("saved image to:%s ...OK \n",videoIn->ImageFName);
+            else if (!ret && global->debug) g_print("saved image to:%s ...OK \n",videoIn->ImageFName);
             
             videoIn->capImage=FALSE;
         }
@@ -409,7 +409,7 @@ void *main_loop(void *data)
         /* decrease skip frame count */
         if (global->skip_n > 0)
         {
-            if (global->debug && capVid) g_printf("skiping frame %d...\n", global->skip_n);
+            if (global->debug && capVid) g_print("skiping frame %d...\n", global->skip_n);
             global->skip_n--;
         }
 
@@ -485,7 +485,7 @@ void *main_loop(void *data)
                         case SDLK_q:
                             //shutDown
                             g_timeout_add(200, shutd_timer, all_data);
-                            g_printf("q pressed - Quiting...\n");
+                            g_print("q pressed - Quiting...\n");
                             break;
                         case SDLK_SPACE:
                         {
@@ -522,13 +522,13 @@ void *main_loop(void *data)
         /*------------------------------------------*/
         if (global->change_res)
         {
-            g_printf("setting new resolution (%d x %d)\n", global->width, global->height);
+            g_print("setting new resolution (%d x %d)\n", global->width, global->height);
             /*clean up */
             
             if(particles) g_free(particles);
             particles = NULL;
             
-            if (global->debug) g_printf("cleaning buffer allocations\n");
+            if (global->debug) g_print("cleaning buffer allocations\n");
             fflush(NULL);//flush all output buffers 
             
             if(!global->no_display)
@@ -548,12 +548,12 @@ void *main_loop(void *data)
                 overlay = video_init(data, &(pscreen));
                 if(overlay == NULL)
                 {
-                    g_printf("FATAL: Couldn't create yuv overlay - please disable hardware accelaration\n");
+                    g_print("FATAL: Couldn't create yuv overlay - please disable hardware accelaration\n");
                     signalquit = TRUE; /*exit video thread*/
                 }
                 else
                 {
-                    if (global->debug) g_printf("yuv overlay created (%ix%i).\n", overlay->w, overlay->h);
+                    if (global->debug) g_print("yuv overlay created (%ix%i).\n", overlay->w, overlay->h);
                     p = (unsigned char *) overlay->pixels[0];
         
                     drect.x = 0;
@@ -576,7 +576,7 @@ void *main_loop(void *data)
     if (capVid) 
     {
         /*stop capture*/
-        if (global->debug) g_printf("stoping Video capture\n");
+        if (global->debug) g_print("stoping Video capture\n");
         //global->Vidstoptime = ns_time_monotonic(); /*this is set in IO thread*/
         videoIn->VidCapStop=TRUE;
         capVid = FALSE;
@@ -587,17 +587,17 @@ void *main_loop(void *data)
             pdata->capVid = capVid;
         g_mutex_unlock(pdata->mutex);
         /*join IO thread*/
-        if (global->debug) g_printf("Shuting Down IO Thread\n");
+        if (global->debug) g_print("Shuting Down IO Thread\n");
         g_thread_join( all_data->IO_thread );
-        if (global->debug) g_printf("IO Thread finished\n");
+        if (global->debug) g_print("IO Thread finished\n");
     }
     
-    if (global->debug) g_printf("Thread terminated...\n");
+    if (global->debug) g_print("Thread terminated...\n");
     p = NULL;
     if(particles) g_free(particles);
     particles=NULL;
 
-    if (global->debug) g_printf("cleaning Thread allocations: 100%%\n");
+    if (global->debug) g_print("cleaning Thread allocations: 100%%\n");
     fflush(NULL);//flush all output buffers 
     
     if(!global->no_display)
@@ -609,7 +609,7 @@ void *main_loop(void *data)
         SDL_Quit();
     }
 	
-    if (global->debug) g_printf("Video thread completed\n");
+    if (global->debug) g_print("Video thread completed\n");
     
     global = NULL;
     AFdata = NULL;

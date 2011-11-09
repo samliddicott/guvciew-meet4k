@@ -60,7 +60,7 @@ clean_struct (struct ALL_DATA *all_data)
 	if((!control_only) && (pdata != NULL))
 	{
 		/*destroy mutex for sound buffers*/
-		if (global->debug) g_printf("free audio mutex\n");
+		if (global->debug) g_print("free audio mutex\n");
 		g_mutex_free( pdata->mutex );
 
 		g_free(pdata);
@@ -72,7 +72,7 @@ clean_struct (struct ALL_DATA *all_data)
 	
 	if(videoIn) close_v4l2(videoIn, control_only);
 	videoIn=NULL;
-	if (global->debug) g_printf("closed v4l2 strutures\n");
+	if (global->debug) g_print("closed v4l2 strutures\n");
 
 	
 
@@ -80,7 +80,7 @@ clean_struct (struct ALL_DATA *all_data)
 	{
 		free_control_list (s->control_list);
 		s->control_list = NULL;
-		g_printf("free controls\n");
+		g_print("free controls\n");
 	}
 	g_free(s);
 	s = NULL;
@@ -90,7 +90,7 @@ clean_struct (struct ALL_DATA *all_data)
 	gwidget = NULL;
 	all_data->gwidget = NULL;
 
-	if (global->debug) g_printf("free controls - vidState\n");
+	if (global->debug) g_print("free controls - vidState\n");
 
 	g_free(AFdata);
 	AFdata = NULL;
@@ -100,7 +100,7 @@ clean_struct (struct ALL_DATA *all_data)
 	global=NULL;
 	all_data->global=NULL;
 
-	g_printf("cleaned allocations - 100%%\n");
+	g_print("cleaned allocations - 100%%\n");
 }
 
 void 
@@ -120,12 +120,12 @@ shutd (gint restart, struct ALL_DATA *all_data)
 	/* wait for the video thread */
 	if(!(control_only))
 	{ 
-		if (global->debug) g_printf("Shuting Down Thread\n");
+		if (global->debug) g_print("Shuting Down Thread\n");
 		g_mutex_lock(videoIn->mutex);
 			videoIn->signalquit=TRUE;
 		g_mutex_unlock(videoIn->mutex);
 		g_thread_join( video_thread );
-		if (global->debug) g_printf("Video Thread finished\n");
+		if (global->debug) g_print("Video Thread finished\n");
 	}
 
 	/* destroys fps timer*/
@@ -157,14 +157,14 @@ shutd (gint restart, struct ALL_DATA *all_data)
 		//closing portaudio
 		if(!control_only)
 		{
-			g_printf("Closing portaudio ...");
+			g_print("Closing portaudio ...");
 			if (Pa_Terminate() != paNoError) 
-				g_printf("Error\n");
+				g_print("Error\n");
 			else
-				g_printf("OK\n");
+				g_print("OK\n");
 		}
 		/* replace running process with new one */
-		g_printf("Restarting: guvcview -d %s\n", videodevice);
+		g_print("Restarting: guvcview -d %s\n", videodevice);
 		exec_status = execlp(g_get_prgname(),
 			g_get_prgname(),
 			"-d", 

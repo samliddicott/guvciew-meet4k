@@ -242,7 +242,7 @@ aviClose (struct ALL_DATA *all_data)
 	{
 		tottime = (float) ((int64_t) (global->Vidstoptime - global->Vidstarttime) / 1000000); // convert to miliseconds
 		
-		if (global->debug) g_printf("stop= %llu start=%llu \n",
+		if (global->debug) g_print("stop= %llu start=%llu \n",
 			(unsigned long long) global->Vidstoptime, (unsigned long long) global->Vidstarttime);
 		if (tottime > 0) 
 		{
@@ -255,7 +255,7 @@ aviClose (struct ALL_DATA *all_data)
 			videoF->AviOut->fps = global->fps;
 		}
 
-		if (global->debug) g_printf("VIDEO: %d frames in %f ms = %f fps\n",global->framecount,tottime,videoF->AviOut->fps);
+		if (global->debug) g_print("VIDEO: %d frames in %f ms = %f fps\n",global->framecount,tottime,videoF->AviOut->fps);
 		/*------------------- close audio stream and clean up -------------------*/
 		if (global->Sound_enable > 0) 
 		{
@@ -264,7 +264,7 @@ aviClose (struct ALL_DATA *all_data)
 		AVI_close (videoF->AviOut);
 		global->framecount = 0;
 		global->Vidstarttime = 0;
-		if (global->debug) g_printf ("close avi\n");
+		if (global->debug) g_print ("close avi\n");
 	}
 	
 	g_free(videoF->AviOut);
@@ -387,7 +387,7 @@ static int write_video_frame (struct ALL_DATA *all_data,
 							else
 							    capture_vid(NULL, all_data);
 						}
-						g_printf("AVI file size limit reached - restarted capture on new file\n");
+						g_print("AVI file size limit reached - restarted capture on new file\n");
 					}
 				} 
 				else 
@@ -458,7 +458,7 @@ static int write_audio_frame (struct ALL_DATA *all_data, void *lavc_adata, AudBu
 						}
 					
 						//split_avi(all_data);/*blocking call*/
-						g_printf("AVI file size limit reached - restarted capture on new file\n");
+						g_print("AVI file size limit reached - restarted capture on new file\n");
 					}
 				} 
 				else 
@@ -501,14 +501,14 @@ static int sync_audio_frame(struct ALL_DATA *all_data, AudBuff *proc_buff)
 				/*only 1 audio stream*/
 				/*time diff for audio-video*/
 				int synctime= (int) (pdata->delay + pdata->snd_begintime - pdata->ts_ref)/1000000; /*convert to miliseconds*/
-				if (global->debug) g_printf("shift sound by %d ms\n", synctime);
+				if (global->debug) g_print("shift sound by %d ms\n", synctime);
 				if(synctime>10 && synctime<2000) 
 				{ 	/*only sync between 10ms and 2 seconds*/
 					if(global->Sound_Format == PA_FOURCC) 
 					{	/*shift sound by synctime*/
 						UINT32 shiftFrames = abs(synctime * global->Sound_SampRate / 1000);
 						UINT32 shiftSamples = shiftFrames * global->Sound_NumChan;
-						if (global->debug) g_printf("shift sound forward by %d samples\n", 
+						if (global->debug) g_print("shift sound forward by %d samples\n", 
 							shiftSamples);
 						short *EmptySamp;
 						EmptySamp=g_new0(short, shiftSamples);
@@ -676,7 +676,7 @@ static gboolean process_video(struct ALL_DATA *all_data,
 		if (audio_drift > max_drift)
 		{
 			/* audio delayed */
-			g_printf("audio drift: dropping/shifting frame\n");
+			g_print("audio drift: dropping/shifting frame\n");
 			g_mutex_lock(global->mutex);
 				global->av_drift += max_drift;
 			g_mutex_unlock(global->mutex);
@@ -698,7 +698,7 @@ static gboolean process_video(struct ALL_DATA *all_data,
 		else if (audio_drift < -1 * max_drift)
 		{
 			/* audio too fast */
-			g_printf("audio drift: duplicating/shifting frame\n");
+			g_print("audio drift: duplicating/shifting frame\n");
 			g_mutex_lock(global->mutex);
 				global->av_drift -= max_drift;
 			g_mutex_unlock(global->mutex);
@@ -890,7 +890,7 @@ void *IO_loop(void *data)
 	}
 	else
 	{
-		if(global->debug) g_printf("IO thread started...OK\n");
+		if(global->debug) g_print("IO thread started...OK\n");
 		frame_size = global->height*global->width*2;
 		proc_buff = g_new0(VidBuff, 1);
 		proc_buff->frame = g_new0(BYTE, frame_size);
@@ -948,11 +948,11 @@ void *IO_loop(void *data)
 				switch(proc_flag)
 				{
 					case 1:
-						//g_printf("processing audio frame\n");
+						//g_print("processing audio frame\n");
 						process_audio(all_data, aud_proc_buff, (void *) &lavc_audio_data, &(aud_eff));
 						break;
 					case 2:
-						//g_printf("processing video frame\n");
+						//g_print("processing video frame\n");
 						finished = process_video (all_data, proc_buff, &(lavc_data), &(jpg_data));
 						break;
 					default:
@@ -1009,7 +1009,7 @@ void *IO_loop(void *data)
 	if(global->jpeg != NULL) g_free(global->jpeg); //jpeg buffer used in encoding
 	global->jpeg = NULL;
 	
-	if(global->debug) g_printf("IO thread finished...OK\n");
+	if(global->debug) g_print("IO thread finished...OK\n");
 
 	global->VidButtPress = FALSE;
 	g_mutex_lock(videoIn->mutex);

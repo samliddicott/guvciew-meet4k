@@ -57,7 +57,7 @@ WARN_DIALOG(const char *warn_title, const char* warn_msg, struct ALL_DATA *all_d
 	
     if(global->no_display)
     {
-        g_printf("WARNING: %s\n", warn_msg);
+        g_print("WARNING: %s\n", warn_msg);
     }
     else
     {
@@ -215,14 +215,14 @@ ERR_DIALOG(const char *err_title, const char* err_msg, struct ALL_DATA *all_data
 	/* but this means we must close portaudio before exiting        */
 	if(!control_only)
 	{
-		g_printf("Closing portaudio ...");
+		g_print("Closing portaudio ...");
 		if (Pa_Terminate() != paNoError) 
-			g_printf("Error\n");
+			g_print("Error\n");
 		else
-			g_printf("OK\n");
+			g_print("OK\n");
 	}
 	
-	g_printf("Terminated.\n");;
+	g_print("Terminated.\n");;
 	exit(1);
 };
 
@@ -911,7 +911,7 @@ SndAPI_changed (GtkComboBox * SoundAPI, struct ALL_DATA *all_data)
 		gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->SndDevice),global->Sound_UseDev);
 		gtk_widget_set_sensitive (gwidget->SndDevice, FALSE); //disable sound device combobox
 	}
-	g_printf("using audio API n:%d\n",global->Sound_API);
+	g_print("using audio API n:%d\n",global->Sound_API);
 	global = NULL;
 }
 
@@ -922,7 +922,7 @@ SndDevice_changed (GtkComboBox * SoundDevice, struct ALL_DATA *all_data)
 	struct GLOBAL *global = all_data->global;
 	
 	global->Sound_UseDev=gtk_combo_box_get_active (SoundDevice);
-	g_printf("using device id:%d\n",global->Sound_IndexDev[global->Sound_UseDev].id);
+	g_print("using device id:%d\n",global->Sound_IndexDev[global->Sound_UseDev].id);
 	global = NULL;
 }
 
@@ -977,12 +977,12 @@ SndEnable_changed (GtkToggleButton * toggle, struct ALL_DATA *all_data)
 	global->Sound_enable = gtk_toggle_button_get_active (toggle) ? 1 : 0;
 	if (!global->Sound_enable) 
 	{
-		if(global->debug) g_printf("disabling sound.\n");
+		if(global->debug) g_print("disabling sound.\n");
 		set_sensitive_snd_contrls(FALSE, gwidget);
 	}
 	else 
 	{ 
-		if(global->debug) g_printf("enabling sound.\n");
+		if(global->debug) g_print("enabling sound.\n");
 		set_sensitive_snd_contrls(TRUE, gwidget);
 	}
 	
@@ -1168,7 +1168,7 @@ capture_vid (GtkToggleButton *VidButt, struct ALL_DATA *all_data)
         //state = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(gwidget->CapVidButt));
     }
    
-	if(global->debug) g_printf("Cap Video toggled: %d\n", state);
+	if(global->debug) g_print("Cap Video toggled: %d\n", state);
 	
 	if(capVid || !state) 
 	{	/****************** Stop Video ************************/
@@ -1180,13 +1180,13 @@ capture_vid (GtkToggleButton *VidButt, struct ALL_DATA *all_data)
 			pdata->capVid = capVid;
 		g_mutex_unlock(pdata->mutex);
 		/*join IO thread*/
-		if (global->debug) g_printf("Shuting Down IO Thread\n");
+		if (global->debug) g_print("Shuting Down IO Thread\n");
 		g_thread_join( all_data->IO_thread );
-		if (global->debug) g_printf("IO Thread finished\n");
+		if (global->debug) g_print("IO Thread finished\n");
 
         if(!global->no_display)
         {
-            if(global->debug) g_printf("enabling controls\n");
+            if(global->debug) g_print("enabling controls\n");
             /*enabling sound and video compression controls*/
             set_sensitive_vid_contrls(TRUE, global->Sound_enable, gwidget);
             if(!(state))
@@ -1224,7 +1224,7 @@ capture_vid (GtkToggleButton *VidButt, struct ALL_DATA *all_data)
 		/* check if enough free space is available on disk*/
 		if(!DiskSupervisor(all_data))
 		{
-			g_printf("Cap Video failed\n");
+			g_print("Cap Video failed\n");
 			state = FALSE;
 		}
 		else
@@ -1325,7 +1325,7 @@ ProfileButton_clicked (GtkButton * ProfileButton, struct ALL_DATA *all_data)
 	//struct vdIn *videoIn = all_data->videoIn;
 	
 	gboolean *save = g_object_get_data (G_OBJECT (ProfileButton), "profile_save");
-	if(global->debug) g_printf("Profile dialog (%d)\n",*save);
+	if(global->debug) g_print("Profile dialog (%d)\n",*save);
 	if (*save)
 	{
 		gwidget->FileDialog = gtk_file_chooser_dialog_new (_("Save File"),

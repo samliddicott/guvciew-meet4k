@@ -185,19 +185,19 @@ int main(int argc, char *argv[])
   	GError *error = NULL;	/* handle errors */
   	
 	/*print package name and version*/ 
-	g_printf("%s\n", PACKAGE_STRING);
+	g_print("%s\n", PACKAGE_STRING);
 	
 	/* initialize glib threads - make glib thread safe*/ 
-	if( !g_thread_supported() )
-	{
-		g_thread_init(NULL);
-		gdk_threads_init ();
-	}
-	else
-	{
-		g_printerr("Fatal:g_thread NOT supported\n");
-		exit(1);
-	}
+	//if( !g_thread_supported() )
+	//{
+	//	g_thread_init(NULL);
+	//	gdk_threads_init ();
+	//}
+	//else
+	//{
+	//	g_printerr("Fatal:g_thread NOT supported\n");
+	//	exit(1);
+	//}
 	
 #ifdef ENABLE_NLS
 	char* lc_all = setlocale (LC_ALL, "");
@@ -275,13 +275,13 @@ int main(int argc, char *argv[])
 		avcodec_register_all();
 
 		/*---------------------------- Start PortAudio API -----------------------*/
-		if(global->debug) g_printf("starting portaudio...\n");
+		if(global->debug) g_print("starting portaudio...\n");
 		Pa_Initialize(); 
 	}
 
 #ifdef ENABLE_NLS
 	/* if --verbose mode set do debug*/
-	if (global->debug) g_printf("language catalog=> dir:%s type:%s lang:%s cat:%s.mo\n",
+	if (global->debug) g_print("language catalog=> dir:%s type:%s lang:%s cat:%s.mo\n",
 		lc_dir, lc_all, langs[0], txtdom);
 #endif
 	/*---------------------------- GTK init ----------------------------------*/
@@ -308,7 +308,7 @@ int main(int argc, char *argv[])
             global->desktop_h = gdk_screen_get_height(screen);
         }
         if(global->debug)
-            g_printf("Screen resolution is (%d x %d)\n", global->desktop_w, global->desktop_h);
+            g_print("Screen resolution is (%d x %d)\n", global->desktop_w, global->desktop_h);
         
         if((global->winwidth > global->desktop_w) && (global->desktop_w > 0))
             global->winwidth = global->desktop_w;
@@ -335,7 +335,7 @@ int main(int argc, char *argv[])
 
 	/*get format from selected mode*/
 	global->format = get_PixFormat(global->mode);
-	if(global->debug) g_printf("%s: setting format to %i\n", global->mode, global->format);
+	if(global->debug) g_print("%s: setting format to %i\n", global->mode, global->format);
 
 	if ( ( ret=init_videoIn (videoIn, global) ) != 0)
 	{
@@ -365,7 +365,7 @@ int main(int argc, char *argv[])
 			case VDIN_UNKNOWN_ERR: //unknown error (treat as invalid format)
 			case VDIN_FORMAT_ERR://invalid format
 			case VDIN_RESOL_ERR: //invalid resolution
-				g_printf("trying minimum setup ...\n");
+				g_print("trying minimum setup ...\n");
 				if (videoIn->listFormats->numb_formats > 0) //check for supported formats
 				{
 					VidFormats *listVidFormats;
@@ -592,7 +592,7 @@ int main(int argc, char *argv[])
                 gtk_button_set_image_position(GTK_BUTTON(gwidget->CapVidButt),GTK_POS_TOP);
                 //gtk_widget_show (gwidget->VidButton_Img);
             }
-            //else g_printf("couldn't load %s\n", pix1path);
+            //else g_print("couldn't load %s\n", pix1path);
             gchar* pix2path = g_strconcat (PACKAGE_DATA_DIR,"/pixmaps/guvcview/camera.png",NULL);
             if (g_file_test(pix2path,G_FILE_TEST_EXISTS)) 
             {
@@ -875,14 +875,14 @@ int main(int argc, char *argv[])
 	//closing portaudio
 	if(!control_only)
 	{
-		g_printf("Closing portaudio ...");
+		g_print("Closing portaudio ...");
 		if (Pa_Terminate() != paNoError) 
-			g_printf("Error\n");
+			g_print("Error\n");
 		else
-			g_printf("OK\n");
+			g_print("OK\n");
 	}
 	
-	g_printf("Closing GTK... OK\n");
+	g_print("Closing GTK... OK\n");
 	return 0;
 }
 

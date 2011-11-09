@@ -54,7 +54,7 @@ timer_callback(gpointer data)
     struct GWIDGET *gwidget = all_data->gwidget;
     
     /*stop video capture*/
-    if(global->debug) g_printf("setting video toggle to FALSE\n");
+    if(global->debug) g_print("setting video toggle to FALSE\n");
     
     if(!global->no_display)
     {
@@ -201,7 +201,7 @@ DiskSupervisor(gpointer data)
     }
 
     if(global->debug) 
-        g_printf("(%s) %lluK bytes free on a total of %lluK (used: %d %%) treshold=%iK\n", 
+        g_print("(%s) %lluK bytes free on a total of %lluK (used: %d %%) treshold=%iK\n", 
             global->vidFPath[1], (unsigned long long) free_kbytes, 
             (unsigned long long) total_kbytes, percent, free_tresh);
 
@@ -235,7 +235,7 @@ FreeDiskCheck_timer(gpointer data)
         {
             g_printerr("Stopping video Capture\n");
             /*stop video capture*/
-            if(global->debug) g_printf("setting video toggle to FALSE\n");
+            if(global->debug) g_print("setting video toggle to FALSE\n");
             if(!global->no_display)
             {
                 gdk_threads_enter();
@@ -283,12 +283,12 @@ check_v4l2_udev_events(gpointer data)
         {
             if (global->debug)
             {
-                g_printf("Got Device event\n");
-                g_printf("   Node: %s\n", udev_device_get_devnode(dev));
-                g_printf("   Subsystem: %s\n", udev_device_get_subsystem(dev));
-                g_printf("   Devtype: %s\n", udev_device_get_devtype(dev));
+                g_print("Got Device event\n");
+                g_print("   Node: %s\n", udev_device_get_devnode(dev));
+                g_print("   Subsystem: %s\n", udev_device_get_subsystem(dev));
+                g_print("   Devtype: %s\n", udev_device_get_devtype(dev));
 
-                g_printf("   Action: %s\n",udev_device_get_action(dev));
+                g_print("   Action: %s\n",udev_device_get_action(dev));
             }
             
             /*update device list*/

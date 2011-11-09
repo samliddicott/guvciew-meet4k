@@ -182,7 +182,7 @@ static int check_videoIn(struct vdIn *vd, int *width, int *height)
 			return VDIN_READ_ERR;
 		}
 	}
-	g_printf("Init. %s (location: %s)\n", vd->cap.card, vd->cap.bus_info);
+	g_print("Init. %s (location: %s)\n", vd->cap.card, vd->cap.bus_info);
 	
 	vd->listFormats = enum_frame_formats( width, height, vd->fd);
 	
@@ -401,14 +401,14 @@ int get_jpegcomp(struct vdIn *vd)
 	int ret = xioctl(vd->fd, VIDIOC_G_JPEGCOMP, &vd->jpgcomp);
 	if(!ret)
 	{
-		g_printf("VIDIOC_G_COMP:\n");
-		g_printf("    quality:      %i\n", vd->jpgcomp.quality);
-		g_printf("    APPn:         %i\n", vd->jpgcomp.APPn);
-		g_printf("    APP_len:      %i\n", vd->jpgcomp.APP_len);
-		g_printf("    APP_data:     %s\n", vd->jpgcomp.APP_data);
-		g_printf("    COM_len:      %i\n", vd->jpgcomp.COM_len);
-		g_printf("    COM_data:     %s\n", vd->jpgcomp.COM_data);
-		g_printf("    jpeg_markers: 0x%x\n", vd->jpgcomp.jpeg_markers);
+		g_print("VIDIOC_G_COMP:\n");
+		g_print("    quality:      %i\n", vd->jpgcomp.quality);
+		g_print("    APPn:         %i\n", vd->jpgcomp.APPn);
+		g_print("    APP_len:      %i\n", vd->jpgcomp.APP_len);
+		g_print("    APP_data:     %s\n", vd->jpgcomp.APP_data);
+		g_print("    COM_len:      %i\n", vd->jpgcomp.COM_len);
+		g_print("    COM_data:     %s\n", vd->jpgcomp.COM_data);
+		g_print("    jpeg_markers: 0x%x\n", vd->jpgcomp.jpeg_markers);
 	}
 	else
 	{
@@ -416,7 +416,7 @@ int get_jpegcomp(struct vdIn *vd)
 		if(errno == EINVAL)
 		{
 			vd->jpgcomp.quality = -1; //not supported
-			g_printf("   compression control not supported\n");
+			g_print("   compression control not supported\n");
 		}
 	}
 
@@ -438,7 +438,7 @@ int set_jpegcomp(struct vdIn *vd)
 		if(errno == EINVAL)
 		{
 			vd->jpgcomp.quality = -1; //not supported
-			g_printf("   compression control not supported\n");
+			g_print("   compression control not supported\n");
 		}
 	}
 
@@ -456,7 +456,7 @@ static int init_v4l2(struct vdIn *vd, int *format, int *width, int *height, int 
 	int ret = 0;
 	
 	// make sure we set a valid format
-	g_printf("checking format: %i\n", *format);
+	g_print("checking format: %i\n", *format);
 	if ((ret=check_SupPixFormat(*format)) < 0)
 	{
 		// not available - Fail so we can check other formats (don't bother trying it)
@@ -702,7 +702,7 @@ void clear_v4l2(struct vdIn *vd)
 
 	if(vd->cap_meth == IO_READ)
 	{
-		g_printf("cleaning read buffer\n");
+		g_print("cleaning read buffer\n");
 		if((vd->buf.length > 0) && vd->mem[0])
 		{
 			g_free(vd->mem[0]);
@@ -736,10 +736,10 @@ int init_videoIn(struct vdIn *vd, struct GLOBAL *global)
 	if (global->cap_meth < IO_MMAP || global->cap_meth > IO_READ)
 		global->cap_meth = IO_MMAP;		//mmap by default
 	vd->cap_meth = global->cap_meth;
-	if(global->debug) g_printf("capture method = %i\n",vd->cap_meth);
+	if(global->debug) g_print("capture method = %i\n",vd->cap_meth);
 	vd->videodevice = NULL;
 	vd->videodevice = g_strdup(device);
-	g_printf("video device: %s \n", vd->videodevice);
+	g_print("video device: %s \n", vd->videodevice);
 	
 	//flag to video thread
 	vd->capVid = FALSE;
@@ -817,7 +817,7 @@ int init_videoIn(struct vdIn *vd, struct GLOBAL *global)
 	//needs admin rights
 	if(vd->listDevices->num_devices > 0)
 	{
-		g_printf("vid:%04x \npid:%04x \ndriver:%s\n",
+		g_print("vid:%04x \npid:%04x \ndriver:%s\n",
 			vd->listDevices->listVidDevices[vd->listDevices->current_device].vendor,
 			vd->listDevices->listVidDevices[vd->listDevices->current_device].product,
 			vd->listDevices->listVidDevices[vd->listDevices->current_device].driver);
@@ -855,7 +855,7 @@ int init_videoIn(struct vdIn *vd, struct GLOBAL *global)
 			return (ret);
 		}
 		
-		g_printf("fps is set to %i/%i\n", global->fps_num, global->fps);
+		g_print("fps is set to %i/%i\n", global->fps_num, global->fps);
 		/*allocations*/
 		if((ret = videoIn_frame_alloca(vd, global->format, global->width, global->height)) != VDIN_OK)
 		{
@@ -883,7 +883,7 @@ static int frame_decode(struct vdIn *vd, int format, int width, int height)
 			if(vd->buf.bytesused <= HEADERFRAME1) 
 			{
 				// Prevent crash on empty image
-				g_printf("Ignoring empty buffer ...\n");
+				g_print("Ignoring empty buffer ...\n");
 				return (ret);
 			}
 			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
@@ -1088,7 +1088,7 @@ int uvcGrab(struct vdIn *vd, int format, int width, int height, int *fps, int *f
 					switch (errno) 
 					{
 						case EAGAIN:
-							g_printf("No data available for read\n");
+							g_print("No data available for read\n");
 							return VDIN_SELETIMEOUT_ERR;
 							break;
 						case EINVAL:

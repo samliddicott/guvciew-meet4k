@@ -485,7 +485,7 @@ void setVcodecVal ()
 			codec = avcodec_find_encoder(get_vcodec_id(ind));
 			if (!codec) 
 			{
-				g_printf("no codec detected for %s\n", listSupVCodecs[ind].compressor);
+				g_print("no codec detected for %s\n", listSupVCodecs[ind].compressor);
 				listSupVCodecs[ind].valid = FALSE;
 			}
 		}
