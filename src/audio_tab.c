@@ -52,21 +52,20 @@ lavc_audio_properties(GtkButton * CodecButt, struct ALL_DATA *all_data)
 		GTK_RESPONSE_REJECT,
 		NULL);
 	
-	GtkWidget *table = gtk_table_new(1,2,FALSE);
+	GtkWidget *table = gtk_grid_new();
+	gtk_grid_set_column_homogeneous (GTK_GRID(table), TRUE);
 	
 	/*bit rate*/
 	GtkWidget *lbl_bit_rate = gtk_label_new(_("bit rate:   "));
 	gtk_misc_set_alignment (GTK_MISC (lbl_bit_rate), 1, 0.5);
-	gtk_table_attach (GTK_TABLE(table), lbl_bit_rate, 0, 1, line, line+1,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table), lbl_bit_rate, 0, line, 1, 1);
 	gtk_widget_show (lbl_bit_rate);
 	
 	GtkWidget *bit_rate = gtk_spin_button_new_with_range(48000,384000,8000);
 	gtk_editable_set_editable(GTK_EDITABLE(bit_rate),TRUE);
 	gtk_spin_button_set_value (GTK_SPIN_BUTTON(bit_rate), codec_defaults->bit_rate);
 	
-	gtk_table_attach (GTK_TABLE(table), bit_rate, 1, 2, line, line+1,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table), bit_rate, 1, line, 1, 1);
 	gtk_widget_show (bit_rate);
 	line++;
 	
@@ -114,11 +113,16 @@ void audio_tab(struct ALL_DATA *all_data)
 	int line = 0;
 	int i = 0;
 	//TABLE
-	table3 = gtk_table_new(1,3,FALSE);
-	gtk_table_set_row_spacings (GTK_TABLE (table3), 4);
-	gtk_table_set_col_spacings (GTK_TABLE (table3), 4);
+	table3 = gtk_grid_new();
+	gtk_grid_set_column_homogeneous (GTK_GRID(table3), FALSE);
+	gtk_widget_set_hexpand (table3, TRUE);
+	gtk_widget_set_halign (table3, GTK_ALIGN_FILL);
+	
+	gtk_grid_set_row_spacing (GTK_GRID(table3), 4);
+	gtk_grid_set_column_spacing (GTK_GRID (table3), 4);
 	gtk_container_set_border_width (GTK_CONTAINER (table3), 2);
 	gtk_widget_show (table3);
+	
 	//SCROLL
 	scroll3=gtk_scrolled_window_new(NULL,NULL);
 	//ADD TABLE TO SCROLL
@@ -148,8 +152,7 @@ void audio_tab(struct ALL_DATA *all_data)
 	//enable sound
 	line++;
 	gwidget->SndEnable=gtk_check_button_new_with_label (_(" Sound"));
-	gtk_table_attach(GTK_TABLE(table3), gwidget->SndEnable, 1, 2, line, line+1,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_grid_attach(GTK_GRID(table3), gwidget->SndEnable, 1, line, 1, 1);
 	
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gwidget->SndEnable),
 		(global->Sound_enable > 0));
@@ -161,8 +164,7 @@ void audio_tab(struct ALL_DATA *all_data)
 	 // VU meter on the image (OSD)
 	GtkWidget* vuMeterEnable=gtk_check_button_new_with_label(_(" Show VU meter"));
 	g_object_set_data(G_OBJECT(vuMeterEnable), "flag", GINT_TO_POINTER(OSD_METER));
-	gtk_table_attach(GTK_TABLE(table3), vuMeterEnable, 1, 2, line, line+1,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_grid_attach(GTK_GRID(table3), vuMeterEnable, 1, line, 1, 1);
 
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(vuMeterEnable),(global->osdFlags & OSD_METER)>0);
 	gtk_widget_show(vuMeterEnable);
@@ -175,13 +177,14 @@ void audio_tab(struct ALL_DATA *all_data)
 	gwidget->label_SndAPI = gtk_label_new(_("Audio API:"));
 	gtk_misc_set_alignment (GTK_MISC (gwidget->label_SndAPI), 1, 0.5);
 
-	gtk_table_attach (GTK_TABLE(table3), gwidget->label_SndAPI, 0, 1, line, line+1,
-		GTK_FILL, 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table3), gwidget->label_SndAPI, 0, line, 1, 1);
 	gtk_widget_show (gwidget->label_SndAPI);
 	
-	gwidget->SndAPI = gtk_combo_box_text_new ();;
-	gtk_table_attach(GTK_TABLE(table3), gwidget->SndAPI, 1, 3, line, line+1,
-		GTK_SHRINK | GTK_FILL , 0, 0, 0);
+	gwidget->SndAPI = gtk_combo_box_text_new ();
+	gtk_widget_set_halign (gwidget->SndAPI, GTK_ALIGN_FILL);
+	gtk_widget_set_hexpand (gwidget->SndAPI, TRUE);
+	gtk_grid_attach(GTK_GRID(table3), gwidget->SndAPI, 1, line, 2, 1);
+	
 	gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(gwidget->SndAPI),_("PORTAUDIO"));
 	gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(gwidget->SndAPI),_("PULSEAUDIO"));
 	gtk_widget_show (gwidget->SndAPI);
@@ -202,15 +205,14 @@ void audio_tab(struct ALL_DATA *all_data)
 	label_SndDevice = gtk_label_new(_("Input Device:"));
 	gtk_misc_set_alignment (GTK_MISC (label_SndDevice), 1, 0.5);
 
-	gtk_table_attach (GTK_TABLE(table3), label_SndDevice, 0, 1, line, line+1,
-		GTK_FILL, 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table3), label_SndDevice, 0, line, 1, 1);
 	gtk_widget_show (label_SndDevice);
 	
 	// get sound device list and info
 	gwidget->SndDevice = list_snd_devices (global);
-	
-	gtk_table_attach(GTK_TABLE(table3), gwidget->SndDevice, 1, 3, line, line+1,
-		GTK_SHRINK | GTK_FILL , 0, 0, 0);
+	gtk_widget_set_halign (gwidget->SndDevice, GTK_ALIGN_FILL);
+	gtk_widget_set_hexpand (gwidget->SndDevice, TRUE);
+	gtk_grid_attach(GTK_GRID(table3), gwidget->SndDevice, 1, line, 1, 1);
 	gtk_widget_show (gwidget->SndDevice);
 	//using default device
 	if(global->Sound_UseDev < 0) global->Sound_UseDev=global->Sound_DefDev;
@@ -225,8 +227,7 @@ void audio_tab(struct ALL_DATA *all_data)
 	label_SndDevice = gtk_label_new(_("Input Device:"));
 	gtk_misc_set_alignment (GTK_MISC (label_SndDevice), 1, 0.5);
 
-	gtk_table_attach (GTK_TABLE(table3), label_SndDevice, 0, 1, line, line+1,
-		GTK_FILL, 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table3), label_SndDevice, 0, line, 1, 1);
 
 	gtk_widget_show (label_SndDevice);
 	
@@ -242,8 +243,9 @@ void audio_tab(struct ALL_DATA *all_data)
 	}
 	if (global->Sound_SampRateInd>(i-1)) global->Sound_SampRateInd=0; /*out of range*/
 	
-	gtk_table_attach(GTK_TABLE(table3), gwidget->SndSampleRate, 1, 2, line, line+1,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_widget_set_halign (gwidget->SndSampleRate, GTK_ALIGN_FILL);
+	gtk_widget_set_hexpand (gwidget->SndSampleRate, TRUE);
+	gtk_grid_attach(GTK_GRID(table3), gwidget->SndSampleRate, 1, line, 1, 1);
 	gtk_widget_show (gwidget->SndSampleRate);
 	
 	global->Sound_SampRate=stdSampleRates[global->Sound_SampRateInd];
@@ -257,8 +259,7 @@ void audio_tab(struct ALL_DATA *all_data)
 	label_SndSampRate = gtk_label_new(_("Sample Rate:"));
 	gtk_misc_set_alignment (GTK_MISC (label_SndSampRate), 1, 0.5);
 
-	gtk_table_attach (GTK_TABLE(table3), label_SndSampRate, 0, 1, line, line+1,
-		GTK_FILL, 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table3), label_SndSampRate, 0, line, 1, 1);
 
 	gtk_widget_show (label_SndSampRate);
 	
@@ -268,9 +269,10 @@ void audio_tab(struct ALL_DATA *all_data)
 	gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(gwidget->SndNumChan),_("Dev. Default"));
 	gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(gwidget->SndNumChan),_("1 - mono"));
 	gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(gwidget->SndNumChan),_("2 - stereo"));
-
-	gtk_table_attach(GTK_TABLE(table3), gwidget->SndNumChan, 1, 2, line, line+1,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	
+	gtk_widget_set_halign (gwidget->SndNumChan, GTK_ALIGN_FILL);
+	gtk_widget_set_hexpand (gwidget->SndNumChan, TRUE);
+	gtk_grid_attach(GTK_GRID(table3), gwidget->SndNumChan, 1, line, 1, 1);
 	gtk_widget_show (gwidget->SndNumChan);
 	switch (global->Sound_NumChanInd) 
 	{
@@ -304,8 +306,7 @@ void audio_tab(struct ALL_DATA *all_data)
 	label_SndNumChan = gtk_label_new(_("Channels:"));
 	gtk_misc_set_alignment (GTK_MISC (label_SndNumChan), 1, 0.5);
 
-	gtk_table_attach (GTK_TABLE(table3), label_SndNumChan, 0, 1, line, line+1,
-		GTK_FILL, 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table3), label_SndNumChan, 0, line, 1, 1);
 	gtk_widget_show (label_SndNumChan);
 	if (global->debug) g_printf("SampleRate:%d Channels:%d\n",global->Sound_SampRate,global->Sound_NumChan);
 	
@@ -331,21 +332,20 @@ void audio_tab(struct ALL_DATA *all_data)
 	g_signal_connect (GTK_COMBO_BOX_TEXT(gwidget->SndComp), "changed",
 		G_CALLBACK (SndComp_changed), all_data);
 	
-	gtk_table_attach(GTK_TABLE(table3), gwidget->SndComp, 1, 2, line, line+1,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_widget_set_halign (gwidget->SndComp, GTK_ALIGN_FILL);
+	gtk_widget_set_hexpand (gwidget->SndComp, TRUE);
+	gtk_grid_attach(GTK_GRID(table3), gwidget->SndComp, 1, line, 1, 1);
 
 	gtk_widget_show (gwidget->SndComp);
 	label_SndComp = gtk_label_new(_("Audio Format:"));
 	gtk_misc_set_alignment (GTK_MISC (label_SndComp), 1, 0.5);
 
-	gtk_table_attach (GTK_TABLE(table3), label_SndComp, 0, 1, line, line+1,
-		GTK_FILL, 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table3), label_SndComp, 0, line, 1, 1);
 	gtk_widget_show (label_SndComp);
 	
 	//lavc codec properties button
 	gwidget->lavc_aud_button = gtk_button_new_with_label (_("properties"));
-	gtk_table_attach (GTK_TABLE(table3), gwidget->lavc_aud_button, 2, 3, line, line+1,
-		GTK_FILL, 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table3), gwidget->lavc_aud_button, 2, line, 1, 1);
 	gtk_widget_show (gwidget->lavc_aud_button);
 	g_signal_connect (GTK_BUTTON(gwidget->lavc_aud_button), "clicked",
 		G_CALLBACK (lavc_audio_properties), all_data);
@@ -355,27 +355,28 @@ void audio_tab(struct ALL_DATA *all_data)
 	line++;
 	label_audioFilters = gtk_label_new(_("---- Audio Effects ----"));
 	gtk_misc_set_alignment (GTK_MISC (label_audioFilters), 0.5, 0.5);
-
-	gtk_table_attach (GTK_TABLE(table3), label_audioFilters, 0, 3, line, line+1,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL , 0, 0, 0);
+	
+	gtk_grid_attach (GTK_GRID(table3), label_audioFilters, 0, line, 3, 1);
 	gtk_widget_show (label_audioFilters);
 	
 	line++;
-	table_snd_eff = gtk_table_new(1,4,FALSE);
-	gtk_table_set_row_spacings (GTK_TABLE (table_snd_eff), 4);
-	gtk_table_set_col_spacings (GTK_TABLE (table_snd_eff), 4);
+	table_snd_eff = gtk_grid_new();
+	gtk_grid_set_row_spacing (GTK_GRID (table_snd_eff), 4);
+	gtk_grid_set_column_spacing (GTK_GRID (table_snd_eff), 4);
 	gtk_container_set_border_width (GTK_CONTAINER (table_snd_eff), 4);
 	gtk_widget_set_size_request (table_snd_eff, -1, -1);
 	
-	gtk_table_attach (GTK_TABLE(table3), table_snd_eff, 0, 3, line, line+1,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL , 0, 0, 0);
+	gtk_widget_set_halign (table_snd_eff, GTK_ALIGN_FILL);
+	gtk_widget_set_hexpand (table_snd_eff, TRUE);
+	gtk_grid_attach (GTK_GRID(table3), table_snd_eff, 0, line, 3, 1);
 	gtk_widget_show (table_snd_eff);
 
 	// Echo
 	EffEchoEnable=gtk_check_button_new_with_label (_(" Echo"));
 	g_object_set_data (G_OBJECT (EffEchoEnable), "effect_info", GINT_TO_POINTER(SND_ECHO));
-	gtk_table_attach(GTK_TABLE(table_snd_eff), EffEchoEnable, 0, 1, 0, 1,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_widget_set_halign (EffEchoEnable, GTK_ALIGN_FILL);
+	gtk_widget_set_hexpand (EffEchoEnable, TRUE);
+	gtk_grid_attach(GTK_GRID(table_snd_eff), EffEchoEnable, 0, 0, 1, 1);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(EffEchoEnable),(pdata->snd_Flags & SND_ECHO)>0);
 	gtk_widget_show (EffEchoEnable);
 	g_signal_connect (GTK_CHECK_BUTTON(EffEchoEnable), "toggled",
@@ -384,8 +385,9 @@ void audio_tab(struct ALL_DATA *all_data)
 	// FUZZ
 	EffFuzzEnable=gtk_check_button_new_with_label (_(" Fuzz"));
 	g_object_set_data (G_OBJECT (EffFuzzEnable), "effect_info", GINT_TO_POINTER(SND_FUZZ));
-	gtk_table_attach(GTK_TABLE(table_snd_eff), EffFuzzEnable, 1, 2, 0, 1,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_widget_set_halign (EffFuzzEnable, GTK_ALIGN_FILL);
+	gtk_widget_set_hexpand (EffFuzzEnable, TRUE);
+	gtk_grid_attach(GTK_GRID(table_snd_eff), EffFuzzEnable, 1, 0, 1, 1);
 
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(EffFuzzEnable),(pdata->snd_Flags & SND_FUZZ)>0);
 	gtk_widget_show (EffFuzzEnable);
@@ -395,8 +397,9 @@ void audio_tab(struct ALL_DATA *all_data)
 	// Reverb
 	EffRevEnable=gtk_check_button_new_with_label (_(" Reverb"));
 	g_object_set_data (G_OBJECT (EffRevEnable), "effect_info", GINT_TO_POINTER(SND_REVERB));
-	gtk_table_attach(GTK_TABLE(table_snd_eff), EffRevEnable, 2, 3, 0, 1,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_widget_set_halign (EffRevEnable, GTK_ALIGN_FILL);
+	gtk_widget_set_hexpand (EffRevEnable, TRUE);
+	gtk_grid_attach(GTK_GRID(table_snd_eff), EffRevEnable, 2, 0, 1, 1);
 
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(EffRevEnable),(pdata->snd_Flags & SND_REVERB)>0);
 	gtk_widget_show (EffRevEnable);
@@ -406,8 +409,9 @@ void audio_tab(struct ALL_DATA *all_data)
 	// WahWah
 	EffWahEnable=gtk_check_button_new_with_label (_(" WahWah"));
 	g_object_set_data (G_OBJECT (EffWahEnable), "effect_info", GINT_TO_POINTER(SND_WAHWAH));
-	gtk_table_attach(GTK_TABLE(table_snd_eff), EffWahEnable, 3, 4, 0, 1,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_widget_set_halign (EffWahEnable, GTK_ALIGN_FILL);
+	gtk_widget_set_hexpand (EffWahEnable, TRUE);
+	gtk_grid_attach(GTK_GRID(table_snd_eff), EffWahEnable, 3, 0, 1, 1);
 
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(EffWahEnable),(pdata->snd_Flags & SND_WAHWAH)>0);
 	gtk_widget_show (EffWahEnable);
@@ -417,8 +421,9 @@ void audio_tab(struct ALL_DATA *all_data)
 	// Ducky
 	EffDuckyEnable=gtk_check_button_new_with_label (_(" Ducky"));
 	g_object_set_data (G_OBJECT (EffDuckyEnable), "effect_info", GINT_TO_POINTER(SND_DUCKY));
-	gtk_table_attach(GTK_TABLE(table_snd_eff), EffDuckyEnable, 0, 1, 1, 2,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_widget_set_halign (EffDuckyEnable, GTK_ALIGN_FILL);
+	gtk_widget_set_hexpand (EffDuckyEnable, TRUE);
+	gtk_grid_attach(GTK_GRID(table_snd_eff), EffDuckyEnable, 4, 0, 1, 1);
 
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(EffDuckyEnable),(pdata->snd_Flags & SND_DUCKY)>0);
 	gtk_widget_show (EffDuckyEnable);
