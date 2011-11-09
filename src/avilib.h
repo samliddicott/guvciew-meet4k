@@ -140,8 +140,11 @@ struct avi_t
 {
 	long   fdes;              /* File descriptor of AVI file */
 	long   mode;              /* 0 for reading, 1 for writing */
-	GMutex *mutex;             /* avi mutex - since we write to avi from 2 threads*/
-	                          /* let's make it thead safe                        */
+#if GLIB_MINOR_VERSION < 31	  /* avi mutex - since we write to avi from 2 threads*/
+	GMutex *mutex;            /* old glib thread API */
+#else
+	GMutex mutex              /* new glib thread API */
+#endif
   
 	long   width;             /* Width  of a video frame */
 	long   height;            /* Height of a video frame */
