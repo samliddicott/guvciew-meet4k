@@ -131,8 +131,8 @@ void audio_tab(struct ALL_DATA *all_data)
 		GTK_CORNER_TOP_LEFT);
 	gtk_widget_show(scroll3);
 	
-	//new hbox for tab label and icon
-	Tab3 = gtk_hbox_new(FALSE,2);
+	//new grid for tab label and icon
+	Tab3 = gtk_grid_new();
 	Tab3Label = gtk_label_new(_("Audio"));
 	gtk_widget_show (Tab3Label);
 	//check for files
@@ -142,8 +142,8 @@ void audio_tab(struct ALL_DATA *all_data)
 	Tab3Icon = gtk_image_new_from_file(Tab3IconPath);
 	g_free(Tab3IconPath);
 	gtk_widget_show (Tab3Icon);
-	gtk_box_pack_start (GTK_BOX(Tab3), Tab3Icon, FALSE, FALSE,1);
-	gtk_box_pack_start (GTK_BOX(Tab3), Tab3Label, FALSE, FALSE,1);
+	gtk_grid_attach (GTK_GRID(Tab3), Tab3Icon, 0, 0, 1, 1);
+	gtk_grid_attach (GTK_GRID(Tab3), Tab3Label, 1, 0, 1, 1);
 	gtk_widget_show (Tab3);
 	
 	//ADD SCROLL to NOTEBOOK (TAB)
