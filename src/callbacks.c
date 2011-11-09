@@ -108,20 +108,18 @@ ERR_DIALOG(const char *err_title, const char* err_msg, struct ALL_DATA *all_data
                 GTK_RESPONSE_REJECT,
                 NULL);
             
-            GtkWidget *table = gtk_table_new(4,2,FALSE);
+            GtkWidget *table = gtk_grid_new();
             
             GtkWidget *title = gtk_label_new (gettext(err_title));
             gtk_widget_modify_font(title, pango_font_description_from_string ("Sans bold 10"));
             gtk_misc_set_alignment (GTK_MISC (title), 0, 0);
-            gtk_table_attach (GTK_TABLE (table), title, 0, 2, 0, 1,
-                        GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+            gtk_grid_attach (GTK_GRID (table), title, 0, 0, 2, 1);
             gtk_widget_show (title);
             
             GtkWidget *text = gtk_label_new (gettext(err_msg));
             gtk_widget_modify_font(text, pango_font_description_from_string ("Sans italic 8"));
             gtk_misc_set_alignment (GTK_MISC (text), 0, 0);
-            gtk_table_attach (GTK_TABLE (table), text, 0, 2, 1, 2,
-                        GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+            gtk_grid_attach (GTK_GRID (table), text, 0, 1, 2, 1);
             gtk_widget_show (text);
 
 
@@ -129,14 +127,12 @@ ERR_DIALOG(const char *err_title, const char* err_msg, struct ALL_DATA *all_data
                 "Do you want to try another one ?\n"));
             gtk_widget_modify_font(text2, pango_font_description_from_string ("Sans 10"));
             gtk_misc_set_alignment (GTK_MISC (text2), 0, 0);
-            gtk_table_attach (GTK_TABLE (table), text2, 0, 2, 2, 3,
-                        GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+            gtk_grid_attach (GTK_GRID (table), text2, 0, 2, 2, 1);
             gtk_widget_show (text2);
             
             GtkWidget *lbl_dev = gtk_label_new(_("Device:"));
             gtk_misc_set_alignment (GTK_MISC (lbl_dev), 0.5, 0.5);
-            gtk_table_attach (GTK_TABLE(table), lbl_dev, 0, 1, 3, 4,
-                GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+            gtk_grid_attach (GTK_GRID(table), lbl_dev, 0, 3, 1, 1);
             gtk_widget_show (lbl_dev);
             
             Devices = gtk_combo_box_text_new ();
@@ -148,8 +144,7 @@ ERR_DIALOG(const char *err_title, const char* err_msg, struct ALL_DATA *all_data
             }
             gtk_combo_box_set_active(GTK_COMBO_BOX(Devices),videoIn->listDevices->num_devices-1);
             
-            gtk_table_attach(GTK_TABLE(table), Devices, 1, 2, 3, 4,
-                GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+            gtk_grid_attach(GTK_GRID(table), Devices, 1, 3, 1, 1);
             gtk_widget_show (Devices);
 
             GtkWidget *content_area = gtk_dialog_get_content_area (GTK_DIALOG (errdialog));
@@ -1239,6 +1234,7 @@ capture_vid (GtkToggleButton *VidButt, struct ALL_DATA *all_data)
 			
 			GError *err1 = NULL;
 			/*start IO thread*/
+#if GLIB_MINOR_VERSION < 31				
 			if( (all_data->IO_thread = g_thread_create_full((GThreadFunc) IO_loop, 
 				(void *) all_data,       //data - argument supplied to thread
 				global->stack_size,       //stack size
@@ -1247,6 +1243,11 @@ capture_vid (GtkToggleButton *VidButt, struct ALL_DATA *all_data)
 				G_THREAD_PRIORITY_NORMAL, //priority - no priority for threads in GNU-Linux
 				&err1)                    //error
 			) == NULL)
+#else
+		  if( (all_data->IO_thread = g_thread_new("IO thread",
+		  		(GThreadFunc) IO_loop, 
+				(void *) all_data)) == NULL)
+#endif
 			{
 				g_printerr("Thread create failed: %s!!\n", err1->message );
 				g_error_free ( err1 ) ;
