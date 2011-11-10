@@ -40,6 +40,17 @@
 #include "audio_effects.h"
 #include "globals.h"
 
+
+#if GLIB_MINOR_VERSION < 31
+	#define __AMUTEX pdata->mutex
+	#define __VMUTEX videoIn->mutex
+	#define __GMUTEX global->mutex
+#else
+	#define __AMUTEX &pdata->mutex
+	#define __VMUTEX &videoIn->mutex
+	#define __GMUTEX &global->mutex
+#endif
+
 /*video capture can only start after buffer allocation*/
 static void alloc_videoBuff(struct ALL_DATA *all_data)
 {
@@ -51,7 +62,7 @@ static void alloc_videoBuff(struct ALL_DATA *all_data)
 	if (global->video_buff_size < 2) global->video_buff_size = 2; /*keep at least two frames*/
 	
 	/*alloc video ring buffer*/
-	g_mutex_lock(global->mutex);
+	g_mutex_lock(__GMUTEX);
 		if (global->videoBuff == NULL)
 		{
 			/*alloc video frames to videoBuff*/
@@ -81,7 +92,7 @@ static void alloc_videoBuff(struct ALL_DATA *all_data)
 		//reset indexes
 		global->r_ind=0;
 		global->w_ind=0;
-	g_mutex_unlock(global->mutex);
+	g_mutex_unlock(__GMUTEX);
 }
 
 static int initVideoFile(struct ALL_DATA *all_data, void * lavc_aud_data)
@@ -99,9 +110,9 @@ static int initVideoFile(struct ALL_DATA *all_data, void * lavc_aud_data)
 	videoF->keyframe = 0;
 	int ret = 0;
 	
-	g_mutex_lock(videoIn->mutex);
+	g_mutex_lock(__VMUTEX);
 		gboolean capVid = videoIn->capVid;
-	g_mutex_unlock(videoIn->mutex);
+	g_mutex_unlock(__VMUTEX);
 	
 	/*alloc video ring buffer*/
 	alloc_videoBuff(all_data);
@@ -120,9 +131,9 @@ static int initVideoFile(struct ALL_DATA *all_data, void * lavc_aud_data)
 			{
 				g_printerr("Error: Couldn't create Video.\n");
 				capVid = FALSE; /*don't start video capture*/
-				g_mutex_lock(videoIn->mutex);
+				g_mutex_lock(__VMUTEX);
 					videoIn->capVid = capVid;
-				g_mutex_unlock(videoIn->mutex);
+				g_mutex_unlock(__VMUTEX);
 				pdata->capVid = capVid;
 				return(-1);
 			} 
@@ -133,9 +144,9 @@ static int initVideoFile(struct ALL_DATA *all_data, void * lavc_aud_data)
 		  
 				/* start video capture*/
 				capVid = TRUE;
-				g_mutex_lock(videoIn->mutex);
+				g_mutex_lock(__VMUTEX);
 					videoIn->capVid = capVid;
-				g_mutex_unlock(videoIn->mutex);
+				g_mutex_unlock(__VMUTEX);
 				pdata->capVid = capVid;
 				
 				/* start sound capture*/
@@ -177,9 +188,9 @@ static int initVideoFile(struct ALL_DATA *all_data, void * lavc_aud_data)
 			if(init_FormatContext((void *) all_data)<0)
 			{
 				capVid = FALSE;
-				g_mutex_lock(videoIn->mutex);
+				g_mutex_lock(__VMUTEX);
 					videoIn->capVid = capVid;
-				g_mutex_unlock(videoIn->mutex);
+				g_mutex_unlock(__VMUTEX);
 				pdata->capVid = capVid;
 				return (-1);
 			}
@@ -190,9 +201,9 @@ static int initVideoFile(struct ALL_DATA *all_data, void * lavc_aud_data)
 			
 			/* start video capture*/
 			capVid = TRUE;
-			g_mutex_lock(videoIn->mutex);
+			g_mutex_lock(__VMUTEX);
 				videoIn->capVid = capVid;
-			g_mutex_unlock(videoIn->mutex);
+			g_mutex_unlock(__VMUTEX);
 			pdata->capVid = capVid;
 			
 			
@@ -284,16 +295,16 @@ static void closeVideoFile(struct ALL_DATA *all_data)
 	int i=0;
 	/*we are streaming so we need to lock a mutex*/
 	gboolean capVid = FALSE;
-	g_mutex_lock(videoIn->mutex);
+	g_mutex_lock(__VMUTEX);
 		videoIn->capVid = capVid; /*flag video thread to stop recording frames*/
-	g_mutex_unlock(videoIn->mutex);
-	g_mutex_lock(pdata->mutex);
+	g_mutex_unlock(__VMUTEX);
+	g_mutex_lock(__AMUTEX);
 		pdata->capVid = capVid;
-	g_mutex_unlock(pdata->mutex);
+	g_mutex_unlock(__AMUTEX);
 	/*wait for flag from video thread that recording has stopped    */
 	/*wait on videoIn->VidCapStop by sleeping for 200 loops of 10 ms*/
 	/*(test VidCapStop == TRUE on every loop)*/
-	int stall = wait_ms(&(videoIn->VidCapStop), TRUE, videoIn->mutex, 10, 200);
+	int stall = wait_ms(&(videoIn->VidCapStop), TRUE, __VMUTEX, 10, 200);
 	if( !(stall > 0) )
 	{
 		g_printerr("video capture stall on exit(%d) - timeout\n",
@@ -301,7 +312,7 @@ static void closeVideoFile(struct ALL_DATA *all_data)
 	}
 	
 	/*free video buffer allocations*/
-	g_mutex_lock(global->mutex);
+	g_mutex_lock(__GMUTEX);
 		//reset the indexes
 		global->r_ind=0;
 		global->w_ind=0;
@@ -316,7 +327,7 @@ static void closeVideoFile(struct ALL_DATA *all_data)
 			g_free(global->videoBuff);
 			global->videoBuff = NULL;
 		}
-	g_mutex_unlock(global->mutex);
+	g_mutex_unlock(__GMUTEX);
 	
 	switch (global->VidFormat)
 	{
@@ -364,18 +375,23 @@ static int write_video_frame (struct ALL_DATA *all_data,
 					if (!(global->VidButtPress))
 					{
 						global->VidButtPress = TRUE;
-						GError *err1 = NULL;
 						/*avi file limit reached - must end capture close file and start new one*/
+#if GLIB_MINOR_VERSION < 31						
 						if( (press_butt_thread =g_thread_create((GThreadFunc) split_avi, 
 							all_data, //data
 							FALSE,    //joinable - no need waiting for thread to finish
-							&err1)    //error
-						) == NULL)  
+							NULL)    //error
+						) == NULL)
+#else
+						if( (press_butt_thread =g_thread_new("split avi", 
+							(GThreadFunc) split_avi, 
+							all_data)
+						) == NULL)
+#endif  
 						{
 							/*thread failed to start - stop video capture   */
 							/*can't restart since we need IO thread to stop */
-							g_printerr("Thread create failed: %s!!\n", err1->message );
-							g_error_free ( err1 ) ;
+							g_printerr("split avi: thread creation failed\n");
 							printf("stoping video capture\n");
 							if(!(global->no_display))
                             {
@@ -433,18 +449,25 @@ static int write_audio_frame (struct ALL_DATA *all_data, void *lavc_adata, AudBu
 					if (!(global->VidButtPress))
 					{
 						global->VidButtPress = TRUE;
-						GError *err1 = NULL;
+
 						/*avi file limit reached - must end capture close file and start new one*/
+#if GLIB_MINOR_VERSION < 31	
 						if( (press_butt_thread =g_thread_create((GThreadFunc) split_avi, 
 							all_data, //data
 							FALSE,    //joinable - no need waiting for thread to finish
-							&err1)    //error
-						) == NULL)  
+							NULL)    //error
+						) == NULL)
+#else
+						if( (press_butt_thread =g_thread_new("split avi", 
+							(GThreadFunc) split_avi, 
+							all_data)
+						) == NULL)
+#endif  
 						{
 							/*thread failed to start - stop video capture   */
 							/*can't restart since we need IO thread to stop */
-							g_printerr("Thread create failed: %s!!\n", err1->message );
-							g_error_free ( err1 ) ;
+							g_printerr("split avi: thread creation failed\n");
+							
 							printf("stoping video capture\n");
 							if(!(global->no_display))
                             {
@@ -469,12 +492,12 @@ static int write_audio_frame (struct ALL_DATA *all_data, void *lavc_adata, AudBu
 			}
 			break;
 		case MKV_FORMAT:
-			g_mutex_lock( pdata->mutex ); //why do we need this ???
+			g_mutex_lock( __AMUTEX ); //why do we need this ???
 				/*set pts*/
 				videoF->apts = proc_buff->time_stamp;
 				/*write audio chunk*/
 				ret = compress_audio_frame(all_data, lavc_adata, proc_buff);
-			g_mutex_unlock( pdata->mutex );
+			g_mutex_unlock( __AMUTEX );
 			break;
 			
 		default:
@@ -562,19 +585,19 @@ static void process_audio(struct ALL_DATA *all_data,
 {
 	struct paRecordData *pdata = all_data->pdata;
 
-	g_mutex_lock( pdata->mutex );
+	g_mutex_lock( __AMUTEX );
 		gboolean used = pdata->audio_buff[pdata->r_ind].used;
-	g_mutex_unlock( pdata->mutex );
+	g_mutex_unlock( __AMUTEX );
   
 	/*read at most 10 audio Frames (1152 * channels  samples each)*/
 	if(used)
 	{
-		g_mutex_lock( pdata->mutex );
+		g_mutex_lock( __AMUTEX );
 			memcpy(aud_proc_buff->frame, pdata->audio_buff[pdata->r_ind].frame, pdata->aud_numSamples*sizeof(SAMPLE));
 			pdata->audio_buff[pdata->r_ind].used = FALSE;
 			aud_proc_buff->time_stamp = pdata->audio_buff[pdata->r_ind].time_stamp;
 			NEXT_IND(pdata->r_ind, AUDBUFF_SIZE);	
-		g_mutex_unlock( pdata->mutex ); /*now we should be able to unlock the audio mutex*/	
+		g_mutex_unlock( __AMUTEX ); /*now we should be able to unlock the audio mutex*/	
 		sync_audio_frame(all_data, aud_proc_buff);	
 		/*run effects on data*/
 		/*echo*/
@@ -641,24 +664,24 @@ static gboolean process_video(struct ALL_DATA *all_data,
 	int64_t max_drift = 0, audio_drift = 0;
 	
 	if (global->Sound_enable) {
-		g_mutex_lock(pdata->mutex);
+		g_mutex_lock(__AMUTEX);
 			audio_drift = pdata->ts_drift;
-		g_mutex_unlock(pdata->mutex);
+		g_mutex_unlock(__AMUTEX);
 		max_drift = 1000000000 / global->fps;	/* one frame */
 	}
 
-	g_mutex_lock(videoIn->mutex);
+	g_mutex_lock(__VMUTEX);
 		gboolean capVid = videoIn->capVid;
-	g_mutex_unlock(videoIn->mutex);
+	g_mutex_unlock(__VMUTEX);
 	
 	gboolean finish = FALSE;
 	
-	g_mutex_lock(global->mutex);
-    		gboolean used = global->videoBuff[global->r_ind].used;
-    	g_mutex_unlock(global->mutex);
+	g_mutex_lock(__GMUTEX);
+    	gboolean used = global->videoBuff[global->r_ind].used;
+    g_mutex_unlock(__GMUTEX);
 	if (used)
 	{
-		g_mutex_lock(global->mutex);
+		g_mutex_lock(__GMUTEX);
 	    		/*read video Frame*/
 			proc_buff->bytes_used = global->videoBuff[global->r_ind].bytes_used;
 			memcpy(proc_buff->frame, global->videoBuff[global->r_ind].frame, proc_buff->bytes_used);
@@ -669,7 +692,7 @@ static gboolean process_video(struct ALL_DATA *all_data,
 				
 			NEXT_IND(global->r_ind,global->video_buff_size);
 			audio_drift -= global->av_drift;
-		g_mutex_unlock(global->mutex);
+		g_mutex_unlock(__GMUTEX);
 
 		/* fprintf(stderr, "audio drift = %lli ms\n", audio_drift / 1000000); */
 		/*process video Frame*/
@@ -677,9 +700,9 @@ static gboolean process_video(struct ALL_DATA *all_data,
 		{
 			/* audio delayed */
 			g_print("audio drift: dropping/shifting frame\n");
-			g_mutex_lock(global->mutex);
+			g_mutex_lock(__GMUTEX);
 				global->av_drift += max_drift;
-			g_mutex_unlock(global->mutex);
+			g_mutex_unlock(__GMUTEX);
 
 			switch (global->VidFormat)
 			{
@@ -699,9 +722,9 @@ static gboolean process_video(struct ALL_DATA *all_data,
 		{
 			/* audio too fast */
 			g_print("audio drift: duplicating/shifting frame\n");
-			g_mutex_lock(global->mutex);
+			g_mutex_lock(__GMUTEX);
 				global->av_drift -= max_drift;
-			g_mutex_unlock(global->mutex);
+			g_mutex_unlock(__GMUTEX);
 
 			switch (global->VidFormat)
 			{
@@ -786,12 +809,12 @@ int store_video_frame(void *data)
 	int ret = 0;
 	int producer_sleep = 0;
 	
-	g_mutex_lock(global->mutex);
+	g_mutex_lock(__GMUTEX);
 	
 	if(!global->videoBuff)
 	{
 		g_printerr("WARNING: video ring buffer not allocated yet - dropping frame.");
-		g_mutex_unlock(global->mutex);
+		g_mutex_unlock(__GMUTEX);
 		return(-1);
 	}
 	
@@ -804,13 +827,18 @@ int store_video_frame(void *data)
 	else
 	{
 		if(global->debug) g_printerr("WARNING: buffer full waiting for free space\n");
-		/*wait for IO_cond at least 200ms*/
+		/*wait for IO_cond at least 100ms*/
+#if GLIB_MINOR_VERSION < 31	
 		GTimeVal *timev;
 		timev = g_new0(GTimeVal, 1);
-		g_get_current_time(timev); 
-		g_time_val_add(timev,100*1000); /*100 ms*/
 		/* WARNING: if system time changes it can cause undesired behaviour */
-		if(g_cond_timed_wait(global->IO_cond, global->mutex, timev))
+		g_get_current_time(timev); 
+		g_time_val_add(timev,100*1000); /*100 ms*/	
+		if(g_cond_timed_wait(global->IO_cond, __GMUTEX, timev))
+#else
+		end_time = g_get_monotonic_time () + 100 * G_TIME_SPAN_MILLISECOND;
+		if(g_cond_wait_until(global->IO_cond, __GMUTEX, endtime))
+#endif
 		{
 			/*try to store the frame again*/
 			if (!global->videoBuff[global->w_ind].used)
@@ -828,7 +856,7 @@ int store_video_frame(void *data)
 	}
 	if(!ret) global->framecount++;
 	
-	g_mutex_unlock(global->mutex);
+	g_mutex_unlock(__GMUTEX);
 	
 	/*-------------if needed, make the thread sleep for a while----------------*/
 	if(producer_sleep) sleep_ms(producer_sleep);
@@ -851,9 +879,9 @@ void *IO_loop(void *data)
 	struct audio_effects *aud_eff = NULL;
 	
 	gboolean finished=FALSE;
-	g_mutex_lock(videoIn->mutex);
+	g_mutex_lock(__VMUTEX);
 		videoIn->IOfinished=FALSE;
-	g_mutex_unlock(videoIn->mutex);
+	g_mutex_unlock(__VMUTEX);
 	
 	gboolean capVid=FALSE;
     
@@ -911,12 +939,12 @@ void *IO_loop(void *data)
 		{
 			if(global->Sound_enable)
 			{
-				g_mutex_lock(videoIn->mutex);
+				g_mutex_lock(__VMUTEX);
 					capVid = videoIn->capVid;
-				g_mutex_unlock(videoIn->mutex);
+				g_mutex_unlock(__VMUTEX);
 
-				g_mutex_lock( pdata->mutex );
-				g_mutex_lock( global->mutex );
+				g_mutex_lock( __AMUTEX );
+				g_mutex_lock( __GMUTEX );
 					//check read/write index delta in frames 
 					if(global->w_ind >= global->r_ind)
 						diff_ind = global->w_ind - global->r_ind;
@@ -941,8 +969,8 @@ void *IO_loop(void *data)
 						proc_flag = 1;    //process audio
 					}
 					else proc_flag = 2;    //process video
-				g_mutex_unlock( global->mutex );
-				g_mutex_unlock( pdata->mutex );
+				g_mutex_unlock( __GMUTEX );
+				g_mutex_unlock( __AMUTEX );
 			
 			
 				switch(proc_flag)
@@ -969,7 +997,7 @@ void *IO_loop(void *data)
 			if(finished)
 			{
 				//wait for audio to finish
-				int stall = wait_ms(&(pdata->streaming), FALSE, pdata->mutex, 10, 25);
+				int stall = wait_ms(&(pdata->streaming), FALSE, __AMUTEX, 10, 25);
 				if( !(stall > 0) )
 				{
 					g_printerr("audio streaming stalled - timeout\n");
@@ -1012,9 +1040,9 @@ void *IO_loop(void *data)
 	if(global->debug) g_print("IO thread finished...OK\n");
 
 	global->VidButtPress = FALSE;
-	g_mutex_lock(videoIn->mutex);
+	g_mutex_lock(__VMUTEX);
 		videoIn->IOfinished=TRUE;
-	g_mutex_unlock(videoIn->mutex);
+	g_mutex_unlock(__VMUTEX);
 	
 	return ((void *) 0);
 }

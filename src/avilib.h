@@ -143,7 +143,7 @@ struct avi_t
 #if GLIB_MINOR_VERSION < 31	  /* avi mutex - since we write to avi from 2 threads*/
 	GMutex *mutex;            /* old glib thread API */
 #else
-	GMutex mutex              /* new glib thread API */
+	GMutex mutex;             /* new glib thread API */
 #endif
   
 	long   width;             /* Width  of a video frame */

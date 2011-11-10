@@ -46,7 +46,12 @@ typedef struct _VidBuff
 /*global variables used in guvcview*/
 struct GLOBAL 
 {
-	GMutex *mutex;         //global structure mutex
+#if GLIB_MINOR_VERSION < 31	  	
+	GMutex *mutex;            /* old glib thread API */
+#else
+	GMutex mutex;             /* new glib thread API */
+#endif
+
 	GCond   *IO_cond;      //IO thread semaphore
 	
 	VidBuff *videoBuff;    //video Buffer

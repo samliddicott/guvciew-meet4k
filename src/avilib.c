@@ -74,12 +74,8 @@ static char id_str[MAX_INFO_STRLEN];
 
 #if GLIB_MINOR_VERSION < 31
 	#define __MUTEX AVI->mutex
-	#define __INIT_MUTEX(m) ( m = g_mutex_new() )
-	#define __CLOSE_MUTEX(m) ( g_mutex_free(m) )
 #else
 	#define __MUTEX &AVI->mutex
-	#define __INIT_MUTEX(m) ( g_mutex_init(m) )
-	#define __CLOSE_MUTEX(m) ( g_mutex_clear(m) )
 #endif
 
 /* AVI_MAX_LEN: The maximum length of an AVI file, we stay a bit below

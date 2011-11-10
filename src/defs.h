@@ -37,6 +37,14 @@
 
 #define ODD(x) ((x%2)?TRUE:FALSE)
 
+#if GLIB_MINOR_VERSION < 31
+	#define __INIT_MUTEX(m) ( m = g_mutex_new() )
+	#define __CLOSE_MUTEX(m) ( g_mutex_free(m) )
+#else
+	#define __INIT_MUTEX(m) ( g_mutex_init(m) )
+	#define __CLOSE_MUTEX(m) ( g_mutex_clear(m) )
+#endif
+
 /*next index of ring buffer with size elements*/
 #define NEXT_IND(ind,size) ind++;if(ind>=size) ind=0
 /*previous index of ring buffer with size elements*/

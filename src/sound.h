@@ -96,7 +96,12 @@ struct paRecordData
 	int snd_Flags;                // effects flag
 	int skip_n;                   // video frames to skip
 	UINT64 delay;                 // in nanosec - h264 has a two frame delay that must be compensated
-	GMutex *mutex;                // audio mutex
+
+#if GLIB_MINOR_VERSION < 31	  	
+	GMutex *mutex;            /* old glib thread API */
+#else
+	GMutex mutex;             /* new glib thread API */
+#endif
 	
 	//PULSE SUPPORT
 #ifdef PULSEAUDIO

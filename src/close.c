@@ -41,7 +41,13 @@
 #include "video.h"
 #include "close.h"
 
-
+#if GLIB_MINOR_VERSION < 31
+	#define __AMUTEX pdata->mutex
+	#define __VMUTEX videoIn->mutex
+#else
+	#define __AMUTEX &pdata->mutex
+	#define __VMUTEX &videoIn->mutex
+#endif
 
 /*-------------------------- clean up and shut down --------------------------*/
 
@@ -61,7 +67,7 @@ clean_struct (struct ALL_DATA *all_data)
 	{
 		/*destroy mutex for sound buffers*/
 		if (global->debug) g_print("free audio mutex\n");
-		g_mutex_free( pdata->mutex );
+		__CLOSE_MUTEX( __AMUTEX );
 
 		g_free(pdata);
 		pdata=NULL;
@@ -121,9 +127,9 @@ shutd (gint restart, struct ALL_DATA *all_data)
 	if(!(control_only))
 	{ 
 		if (global->debug) g_print("Shuting Down Thread\n");
-		g_mutex_lock(videoIn->mutex);
+		g_mutex_lock(__VMUTEX);
 			videoIn->signalquit=TRUE;
-		g_mutex_unlock(videoIn->mutex);
+		g_mutex_unlock(__VMUTEX);
 		g_thread_join( video_thread );
 		if (global->debug) g_print("Video Thread finished\n");
 	}

@@ -76,7 +76,12 @@ static const int exp_vals[]=
 
 struct vdIn 
 {
-	GMutex *mutex;                      // VdIn struct mutex
+#if GLIB_MINOR_VERSION < 31	  	
+	GMutex *mutex;            /* old glib thread API */
+#else
+	GMutex mutex;             /* new glib thread API */
+#endif
+
     struct udev *udev;                  // pointer to a udev struct (lib udev)
     struct udev_monitor *udev_mon;      // udev monitor
     int udev_fd;                        // udev monitor file descriptor
