@@ -39,7 +39,7 @@
 
 #if GLIB_MINOR_VERSION < 31
 	#define __INIT_MUTEX(m) ( m = g_mutex_new() )
-	#define __INIT_COND(c)  ( g_cond_new(c) )
+	#define __INIT_COND(c)  ( c = g_cond_new() )
 	#define __CLOSE_MUTEX(m) ( g_mutex_free(m) )
 	#define __CLOSE_COND(c) ( g_cond_free(c) )
 #else

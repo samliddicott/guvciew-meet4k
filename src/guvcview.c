@@ -733,7 +733,7 @@ int main(int argc, char *argv[])
 			TRUE,                     //joinable
 			TRUE,                     //bound
 			G_THREAD_PRIORITY_NORMAL, //priority - no priority for threads in GNU-Linux
-			&err1)                    //error
+			NULL)                    //error
 		) == NULL)
 #else
 		if( (video_thread = g_thread_new ("video thread",
@@ -774,16 +774,15 @@ int main(int argc, char *argv[])
 				/*start disk check timed callback (every 10 sec)*/
 				if (!global->disk_timer_id)
 					global->disk_timer_id=g_timeout_add(10*1000, FreeDiskCheck_timer, &all_data);
-#if GLIB_MINOR_VERSION < 31
-
 				/*start IO thread*/
+#if GLIB_MINOR_VERSION < 31
 				if( (all_data.IO_thread = g_thread_create_full((GThreadFunc) IO_loop, 
 					(void *) &all_data,       //data - argument supplied to thread
 					global->stack_size,       //stack size
 					TRUE,                     //joinable
 					TRUE,                     //bound
 					G_THREAD_PRIORITY_NORMAL, //priority - no priority for threads in GNU-Linux
-					&err1)                    //error
+					NULL)                    //error
 				) == NULL)
 #else
 				if( (all_data.IO_thread = g_thread_new("IO thread",

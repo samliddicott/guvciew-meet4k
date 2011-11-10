@@ -23,19 +23,24 @@
 #ifdef PULSEAUDIO
 
 #include <glib.h>
-#include <glib/gprintf.h>
 #include <string.h>
 #include "audio_effects.h"
 #include "ms_time.h"
 
 #include <errno.h>
 
+#if GLIB_MINOR_VERSION < 31
+	#define __AMUTEX pdata->mutex
+#else
+	#define __AMUTEX &pdata->mutex
+#endif
+
 //run in separate thread
 static void* pulse_read_audio(void *userdata) 
 {
 	int error;
 	
-	struct paRecordData *data = (struct paRecordData*) userdata;
+	struct paRecordData *pdata = (struct paRecordData*) userdata;
 	/* The sample type to use */
 	pa_sample_spec ss;
 	if (BIGENDIAN)
@@ -43,16 +48,16 @@ static void* pulse_read_audio(void *userdata)
 	else
 		ss.format = PA_SAMPLE_FLOAT32LE;
 	
-	g_mutex_lock(data->mutex);
-		gboolean capVid = data->capVid;
-		int skip_n = data->skip_n;
-		data->streaming = TRUE;
-		ss.rate = data->samprate;
-		ss.channels = data->channels;
-	g_mutex_unlock(data->mutex);
+	g_mutex_lock(__AMUTEX);
+		gboolean capVid = pdata->capVid;
+		int skip_n = pdata->skip_n;
+		pdata->streaming = TRUE;
+		ss.rate = pdata->samprate;
+		ss.channels = pdata->channels;
+	g_mutex_unlock(__AMUTEX);
 
 	printf("starting pulse audio thread: %d hz- %d ch\n",ss.rate, ss.channels);
-	if (!(data->pulse_simple = pa_simple_new(NULL, "Guvcview Video Capture", PA_STREAM_RECORD, NULL, "pcm.record", &ss, NULL, NULL, &error))) 
+	if (!(pdata->pulse_simple = pa_simple_new(NULL, "Guvcview Video Capture", PA_STREAM_RECORD, NULL, "pcm.record", &ss, NULL, NULL, &error))) 
 	{
 		g_printerr(": pa_simple_new() failed: %s\n", pa_strerror(error));
 		goto finish;
@@ -61,77 +66,81 @@ static void* pulse_read_audio(void *userdata)
 	/* Record some data ... */
 	while(capVid)
 	{
-		if (pa_simple_read(data->pulse_simple, data->recordedSamples, data->aud_numBytes, &error) < 0) 
+		if (pa_simple_read(pdata->pulse_simple, pdata->recordedSamples, pdata->aud_numBytes, &error) < 0) 
 		{
 			g_printerr("pulse: pa_simple_read() failed: %s\n", pa_strerror(error));
 			goto finish;
 		}
 
-		g_mutex_lock(data->mutex);
-			capVid = data->capVid;
+		g_mutex_lock(__AMUTEX);
+			capVid = pdata->capVid;
 			/*first frame time stamp*/
-			if(data->a_ts <= 0)
+			if(pdata->a_ts <= 0)
 			{
-				if((data->ts_ref > 0) && (data->ts_ref < data->snd_begintime)) 
-					data->a_ts = data->snd_begintime - data->ts_ref;
-				else data->a_ts = 1;
+				if((pdata->ts_ref > 0) && (pdata->ts_ref < pdata->snd_begintime)) 
+					pdata->a_ts = pdata->snd_begintime - pdata->ts_ref;
+				else pdata->a_ts = 1;
 			}
 			else /*increment time stamp for audio frame*/
-				data->a_ts += (G_NSEC_PER_SEC * data->aud_numSamples)/(data->samprate * data->channels);
+				pdata->a_ts += (G_NSEC_PER_SEC * pdata->aud_numSamples)/(pdata->samprate * pdata->channels);
 	
-			skip_n = data->skip_n;
-		g_mutex_unlock(data->mutex);
+			skip_n = pdata->skip_n;
+		g_mutex_unlock(__AMUTEX);
 		
 		if (!skip_n) //skip audio while were skipping video frames
 		{
-			g_mutex_lock( data->mutex );
-				if(!data->audio_buff[data->w_ind].used)
+			g_mutex_lock( __AMUTEX );
+				if(!pdata->audio_buff[pdata->w_ind].used)
 				{
 					
 					/*copy data to audio buffer*/
-					memcpy(data->audio_buff[data->w_ind].frame, data->recordedSamples, data->aud_numBytes);
-					data->audio_buff[data->w_ind].time_stamp = data->a_ts + data->delay;
-					data->audio_buff[data->w_ind].used = TRUE;
-					NEXT_IND(data->w_ind, AUDBUFF_SIZE);
+					memcpy(pdata->audio_buff[pdata->w_ind].frame, pdata->recordedSamples, pdata->aud_numBytes);
+					pdata->audio_buff[pdata->w_ind].time_stamp = pdata->a_ts + pdata->delay;
+					pdata->audio_buff[pdata->w_ind].used = TRUE;
+					NEXT_IND(pdata->w_ind, AUDBUFF_SIZE);
 				}
 				else
 				{
 					//drop audio data
 					g_printerr("AUDIO: droping audio data\n");
 				}
-			g_mutex_unlock( data->mutex );
+			g_mutex_unlock( __AMUTEX );
 		}
 		else 
 		{
-			data->snd_begintime = ns_time_monotonic();
-			data->a_ts = 0;
+			pdata->snd_begintime = ns_time_monotonic();
+			pdata->a_ts = 0;
 		}
 	}
 
 finish:
 	printf("audio thread exited\n");
-	data->streaming = FALSE;
-	if (data->pulse_simple)
-		pa_simple_free(data->pulse_simple);
+	pdata->streaming = FALSE;
+	if (pdata->pulse_simple)
+		pa_simple_free(pdata->pulse_simple);
 	return (NULL);
 }
 
 
 int
-pulse_init_audio(struct paRecordData* data)
-{
-	GError *err1 = NULL;
-	
-	//start audio capture thread 
-	if( (data->pulse_read_th = g_thread_create((
-		GThreadFunc) pulse_read_audio,
-		data, //data
+pulse_init_audio(struct paRecordData* pdata)
+{	
+	//start audio capture thread
+#if GLIB_MINOR_VERSION < 31 
+	if( (pdata->pulse_read_th = g_thread_create(
+		(GThreadFunc) pulse_read_audio,
+		pdata, //data
 		FALSE,    //joinable - no need waiting for thread to finish
-		&err1)    //error
-		) == NULL)  
+		NULL)    //error
+		) == NULL)
+#else
+	if( (pdata->pulse_read_th = g_thread_new("pulse thread",
+		(GThreadFunc) pulse_read_audio,
+		pdata)
+		) == NULL)
+#endif  
 	{
-		g_printerr("Thread create failed: %s!!\n", err1->message );
-		g_error_free ( err1 ) ;
+		g_printerr("Pulse thread creation failed\n");
 		return (-1);
 	}
 	return (0);

@@ -35,6 +35,12 @@
 #include "callbacks.h"
 #include "close.h"
 
+#if GLIB_MINOR_VERSION < 31
+	#define __VMUTEX videoIn->mutex
+#else
+	#define __VMUTEX &videoIn->mutex
+#endif
+
 /* called for timed shutdown (from video thread)*/
 gboolean
 shutd_timer(gpointer data)
@@ -86,13 +92,10 @@ Image_capture_timer(gpointer data)
     struct vdIn *videoIn = all_data->videoIn; 
     
     /*increment image name */
-    //g_mutex_lock(videoIn->mutex);
     videoIn->ImageFName = incFilename(videoIn->ImageFName, 
         global->imgFPath,
         global->image_inc);
-    //g_mutex_unlock(videoIn->mutex);
 
-    //g_mutex_lock(global->mutex);
     if(!global->no_display)
     {
         g_snprintf(global->imageinc_str,24,_("File num:%d"),global->image_inc);
@@ -225,9 +228,9 @@ FreeDiskCheck_timer(gpointer data)
     struct GLOBAL *global = all_data->global;
     struct GWIDGET *gwidget = all_data->gwidget;
 
-    g_mutex_lock(videoIn->mutex);
+    g_mutex_lock(__VMUTEX);
         gboolean capVid = videoIn->capVid;
-    g_mutex_unlock(videoIn->mutex);
+    g_mutex_unlock(__VMUTEX);
 
     if (capVid) 
     {

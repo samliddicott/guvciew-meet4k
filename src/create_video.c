@@ -836,11 +836,11 @@ int store_video_frame(void *data)
 		/* WARNING: if system time changes it can cause undesired behaviour */
 		g_get_current_time(endtime); 
 		g_time_val_add(endtime,100*1000); /*100 ms*/
+		if(g_cond_timed_wait(__GCOND, __GMUTEX, endtime))
 #else	
 		gint64 endtime = g_get_monotonic_time () + 100 * G_TIME_SPAN_MILLISECOND;
-#endif		
-
 		if(g_cond_wait_until(__GCOND, __GMUTEX, endtime))
+#endif		
 		{
 			/*try to store the frame again*/
 			if (!global->videoBuff[global->w_ind].used)
@@ -854,7 +854,7 @@ int store_video_frame(void *data)
 		}
 		else ret = -3;/*drop frame*/
 #if GLIB_MINOR_VERSION < 31		
-		g_free(timev);
+		g_free(endtime);
 #endif
 	}
 	if(!ret) global->framecount++;

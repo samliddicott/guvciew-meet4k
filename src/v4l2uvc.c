@@ -48,6 +48,12 @@
 #include "colorspaces.h"
 #include "ms_time.h"
 
+#if GLIB_MINOR_VERSION < 31
+	#define __VMUTEX videoIn->mutex
+#else
+	#define __VMUTEX &videoIn->mutex
+#endif
+
 /* needed only for language files (not used)*/
 
 // V4L2 control strings
@@ -689,28 +695,27 @@ static int videoIn_frame_alloca(struct vdIn *vd, int format, int width, int heig
  *
  * returns: void
 */
-void clear_v4l2(struct vdIn *vd)
+void clear_v4l2(struct vdIn *videoIn)
 {
-	v4l2_close(vd->fd);
-	vd->fd=0;
-	g_free(vd->videodevice);
-	g_free(vd->VidFName);
-	g_free(vd->ImageFName);
-	vd->videodevice = NULL;
-	vd->VidFName = NULL;
-	vd->ImageFName = NULL;
+	v4l2_close(videoIn->fd);
+	videoIn->fd=0;
+	g_free(videoIn->videodevice);
+	g_free(videoIn->VidFName);
+	g_free(videoIn->ImageFName);
+	videoIn->videodevice = NULL;
+	videoIn->VidFName = NULL;
+	videoIn->ImageFName = NULL;
 
-	if(vd->cap_meth == IO_READ)
+	if(videoIn->cap_meth == IO_READ)
 	{
 		g_print("cleaning read buffer\n");
-		if((vd->buf.length > 0) && vd->mem[0])
+		if((videoIn->buf.length > 0) && videoIn->mem[0])
 		{
-			g_free(vd->mem[0]);
-			vd->mem[0] = NULL;
+			g_free(videoIn->mem[0]);
+			videoIn->mem[0] = NULL;
 		}
 	}
-	g_mutex_free( vd->mutex );
-	vd->mutex = NULL;
+	__CLOSE_MUTEX( __VMUTEX );
 }
 
 /* Init VdIn struct with default and/or global values
@@ -720,117 +725,117 @@ void clear_v4l2(struct vdIn *vd)
  *
  * returns: error code ( 0 - VDIN_OK)
 */
-int init_videoIn(struct vdIn *vd, struct GLOBAL *global)
+int init_videoIn(struct vdIn *videoIn, struct GLOBAL *global)
 {
 	int ret = VDIN_OK;
 	char *device = global->videodevice;
     
     /* Create a udev object */
-    vd->udev = udev_new();
+    videoIn->udev = udev_new();
 
-	vd->mutex = g_mutex_new();
-	if (vd == NULL || device == NULL)
+	__INIT_MUTEX( __VMUTEX );
+	if (videoIn == NULL || device == NULL)
 		return VDIN_ALLOC_ERR;
 	if (global->width == 0 || global->height == 0)
 		return VDIN_RESOL_ERR;
 	if (global->cap_meth < IO_MMAP || global->cap_meth > IO_READ)
 		global->cap_meth = IO_MMAP;		//mmap by default
-	vd->cap_meth = global->cap_meth;
-	if(global->debug) g_print("capture method = %i\n",vd->cap_meth);
-	vd->videodevice = NULL;
-	vd->videodevice = g_strdup(device);
-	g_print("video device: %s \n", vd->videodevice);
+	videoIn->cap_meth = global->cap_meth;
+	if(global->debug) g_print("capture method = %i\n",videoIn->cap_meth);
+	videoIn->videodevice = NULL;
+	videoIn->videodevice = g_strdup(device);
+	g_print("video device: %s \n", videoIn->videodevice);
 	
 	//flag to video thread
-	vd->capVid = FALSE;
+	videoIn->capVid = FALSE;
 	//flag from video thread
-	vd->VidCapStop=TRUE;
+	videoIn->VidCapStop=TRUE;
 	
-	vd->VidFName = g_strdup(DEFAULT_AVI_FNAME);
-	vd->signalquit = FALSE;
-	vd->PanTilt=0;
-	vd->isbayer = 0; //bayer mode off
-	vd->pix_order=0; // pix order for bayer mode def: gbgbgb..|rgrgrg..
-	vd->setFPS=0; 
-	vd->capImage=FALSE;
-	vd->cap_raw=0;
+	videoIn->VidFName = g_strdup(DEFAULT_AVI_FNAME);
+	videoIn->signalquit = FALSE;
+	videoIn->PanTilt=0;
+	videoIn->isbayer = 0; //bayer mode off
+	videoIn->pix_order=0; // pix order for bayer mode def: gbgbgb..|rgrgrg..
+	videoIn->setFPS=0; 
+	videoIn->capImage=FALSE;
+	videoIn->cap_raw=0;
 	
-	vd->ImageFName = g_strdup(DEFAULT_IMAGE_FNAME);
+	videoIn->ImageFName = g_strdup(DEFAULT_IMAGE_FNAME);
 	
 	//timestamps not supported by UVC driver
 	//vd->timecode.type = V4L2_TC_TYPE_25FPS;
 	//vd->timecode.flags = V4L2_TC_FLAG_DROPFRAME;
 	
-	vd->available_exp[0]=-1;
-	vd->available_exp[1]=-1;
-	vd->available_exp[2]=-1;
-	vd->available_exp[3]=-1;
+	videoIn->available_exp[0]=-1;
+	videoIn->available_exp[1]=-1;
+	videoIn->available_exp[2]=-1;
+	videoIn->available_exp[3]=-1;
 	
-	vd->tmpbuffer = NULL;
-	vd->framebuffer = NULL;
+	videoIn->tmpbuffer = NULL;
+	videoIn->framebuffer = NULL;
 	
     /*start udev device monitoring*/
     /* Set up a monitor to monitor v4l2 devices */
-    if(vd->udev)
+    if(videoIn->udev)
     {
-        vd->udev_mon = udev_monitor_new_from_netlink(vd->udev, "udev");
-        udev_monitor_filter_add_match_subsystem_devtype(vd->udev_mon, "video4linux", NULL);
-        udev_monitor_enable_receiving(vd->udev_mon);
+        videoIn->udev_mon = udev_monitor_new_from_netlink(videoIn->udev, "udev");
+        udev_monitor_filter_add_match_subsystem_devtype(videoIn->udev_mon, "video4linux", NULL);
+        udev_monitor_enable_receiving(videoIn->udev_mon);
         /* Get the file descriptor (fd) for the monitor */
-        vd->udev_fd = udev_monitor_get_fd(vd->udev_mon);
+        videoIn->udev_fd = udev_monitor_get_fd(videoIn->udev_mon);
     }
 
-    vd->listDevices = enum_devices( vd->videodevice, vd->udev, (int) global->debug);
+    videoIn->listDevices = enum_devices( videoIn->videodevice, videoIn->udev, (int) global->debug);
 	
-	if (vd->listDevices != NULL)
+	if (videoIn->listDevices != NULL)
 	{
-		if(!(vd->listDevices->listVidDevices))
-			g_printerr("unable to detect video devices on your system (%i)\n", vd->listDevices->num_devices);
+		if(!(videoIn->listDevices->listVidDevices))
+			g_printerr("unable to detect video devices on your system (%i)\n", videoIn->listDevices->num_devices);
 	}
 	else
 		g_printerr("Unable to detect devices on your system\n");
 	
-	if (vd->fd <=0 ) //open device
+	if (videoIn->fd <=0 ) //open device
 	{
-		if ((vd->fd = v4l2_open(vd->videodevice, O_RDWR | O_NONBLOCK, 0)) < 0) 
+		if ((videoIn->fd = v4l2_open(videoIn->videodevice, O_RDWR | O_NONBLOCK, 0)) < 0) 
 		{
 			perror("ERROR opening V4L interface");
 			ret = VDIN_DEVICE_ERR;
-			clear_v4l2(vd);
+			clear_v4l2(videoIn);
 			return (ret);
 		}
 	}
 	
 	//reset v4l2_format
-	memset(&vd->fmt, 0, sizeof(struct v4l2_format));
+	memset(&videoIn->fmt, 0, sizeof(struct v4l2_format));
 	// populate video capabilities structure array
 	// should only be called after all vdIn struct elements 
 	// have been initialized
-	if((ret = check_videoIn(vd, &global->width, &global->height)) != VDIN_OK)
+	if((ret = check_videoIn(videoIn, &global->width, &global->height)) != VDIN_OK)
 	{
-		clear_v4l2(vd);
+		clear_v4l2(videoIn);
 		return (ret);
 	}
 	
 	//add dynamic controls
 	//only for uvc logitech cameras
 	//needs admin rights
-	if(vd->listDevices->num_devices > 0)
+	if(videoIn->listDevices->num_devices > 0)
 	{
 		g_print("vid:%04x \npid:%04x \ndriver:%s\n",
-			vd->listDevices->listVidDevices[vd->listDevices->current_device].vendor,
-			vd->listDevices->listVidDevices[vd->listDevices->current_device].product,
-			vd->listDevices->listVidDevices[vd->listDevices->current_device].driver);
-		if(g_strcmp0(vd->listDevices->listVidDevices[vd->listDevices->current_device].driver,"uvcvideo") == 0)
+			videoIn->listDevices->listVidDevices[videoIn->listDevices->current_device].vendor,
+			videoIn->listDevices->listVidDevices[videoIn->listDevices->current_device].product,
+			videoIn->listDevices->listVidDevices[videoIn->listDevices->current_device].driver);
+		if(g_strcmp0(videoIn->listDevices->listVidDevices[videoIn->listDevices->current_device].driver,"uvcvideo") == 0)
 		{
-			if(vd->listDevices->listVidDevices[vd->listDevices->current_device].vendor != 0)
+			if(videoIn->listDevices->listVidDevices[videoIn->listDevices->current_device].vendor != 0)
 			{
 				//check for logitech vid
-				if (vd->listDevices->listVidDevices[vd->listDevices->current_device].vendor == 0x046d)
-					(ret=initDynCtrls(vd->fd));
+				if (videoIn->listDevices->listVidDevices[videoIn->listDevices->current_device].vendor == 0x046d)
+					(ret=initDynCtrls(videoIn->fd));
 				else ret= VDIN_DYNCTRL_ERR;
 			}
-			else (ret=initDynCtrls(vd->fd));
+			else (ret=initDynCtrls(videoIn->fd));
 		}
 		else ret = VDIN_DYNCTRL_ERR;
 		
@@ -841,25 +846,25 @@ int init_videoIn(struct vdIn *vd, struct GLOBAL *global)
 		//added extension controls so now we can exit
 		//set a return code for enabling the correct warning window
 		ret = (ret ? VDIN_DYNCTRL_ERR: VDIN_DYNCTRL_OK);
-		clear_v4l2(vd);
+		clear_v4l2(videoIn);
 		return (ret);
 	}
 	else ret = 0; //clean ret code
 	
 	if(!(global->control_only))
 	{
-		if ((ret=init_v4l2(vd, &global->format, &global->width, &global->height, &global->fps, &global->fps_num)) < 0) 
+		if ((ret=init_v4l2(videoIn, &global->format, &global->width, &global->height, &global->fps, &global->fps_num)) < 0) 
 		{
 			g_printerr("Init v4L2 failed !! \n");
-			clear_v4l2(vd);
+			clear_v4l2(videoIn);
 			return (ret);
 		}
 		
 		g_print("fps is set to %i/%i\n", global->fps_num, global->fps);
 		/*allocations*/
-		if((ret = videoIn_frame_alloca(vd, global->format, global->width, global->height)) != VDIN_OK)
+		if((ret = videoIn_frame_alloca(videoIn, global->format, global->width, global->height)) != VDIN_OK)
 		{
-			clear_v4l2(vd);
+			clear_v4l2(videoIn);
 			return (ret);
 		}
 	}
@@ -1253,34 +1258,33 @@ int restart_v4l2(struct vdIn *vd, struct GLOBAL *global)
  *
  * returns: void
 */
-void close_v4l2(struct vdIn *vd, gboolean control_only)
+void close_v4l2(struct vdIn *videoIn, gboolean control_only)
 {
-	if (vd->isstreaming) video_disable(vd);
+	if (videoIn->isstreaming) video_disable(videoIn);
 
-    if (vd->udev) udev_unref(vd->udev);
+    if (videoIn->udev) udev_unref(videoIn->udev);
 
-	if(vd->videodevice) g_free(vd->videodevice);
-	if(vd->ImageFName)g_free(vd->ImageFName);
-	if(vd->VidFName)g_free(vd->VidFName);
+	if(videoIn->videodevice) g_free(videoIn->videodevice);
+	if(videoIn->ImageFName)g_free(videoIn->ImageFName);
+	if(videoIn->VidFName)g_free(videoIn->VidFName);
 	// free format allocations
-	if(vd->listFormats) freeFormats(vd->listFormats);
+	if(videoIn->listFormats) freeFormats(videoIn->listFormats);
 	if (!control_only)
 	{
-		close_v4l2_buffers(vd);
+		close_v4l2_buffers(videoIn);
 	}
-	vd->videodevice = NULL;
-	vd->tmpbuffer = NULL;
-	vd->framebuffer = NULL;
-	vd->ImageFName = NULL;
-	vd->VidFName = NULL;
-	if(vd->listDevices != NULL) freeDevices(vd->listDevices);
+	videoIn->videodevice = NULL;
+	videoIn->tmpbuffer = NULL;
+	videoIn->framebuffer = NULL;
+	videoIn->ImageFName = NULL;
+	videoIn->VidFName = NULL;
+	if(videoIn->listDevices != NULL) freeDevices(videoIn->listDevices);
 	// close device descriptor
-	if(vd->fd) v4l2_close(vd->fd);
-	if(vd->mutex) g_mutex_free( vd->mutex );
-	vd->mutex = NULL;
+	if(videoIn->fd) v4l2_close(videoIn->fd);
+	__CLOSE_MUTEX( __VMUTEX );
 	// free struct allocation
-	if(vd) g_free(vd);
-	vd=NULL;
+	if(videoIn) g_free(videoIn);
+	videoIn=NULL;
 }
 
 /* sets video device frame rate

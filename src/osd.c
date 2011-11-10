@@ -28,6 +28,12 @@
 #include "defs.h"
 #include "guvcview.h"
 
+#if GLIB_MINOR_VERSION < 31
+	#define __AMUTEX pdata->mutex
+#else
+	#define __AMUTEX &pdata->mutex
+#endif
+
 #define AUDIO_REFERENCE_LEVEL 0.2
 
 void draw_vu_meter(int width, int height, SAMPLE vuPeak[2], int vuPeakFreeze[2], void *data)
@@ -38,7 +44,7 @@ void draw_vu_meter(int width, int height, SAMPLE vuPeak[2], int vuPeakFreeze[2],
     struct vdIn *videoIn = all_data->videoIn;
     
 	int i,j; // Fuck pre-C99 sucks.
-	g_mutex_lock( pdata->mutex );
+	g_mutex_lock( __AMUTEX );
 	SAMPLE vuLevel[2]; // The maximum sample for this frame.
 	for (i=0;i<2;i++) 
 	{
@@ -58,7 +64,7 @@ void draw_vu_meter(int width, int height, SAMPLE vuPeak[2], int vuPeakFreeze[2],
 			}
   		}
 	}
-	g_mutex_unlock( pdata->mutex );
+	g_mutex_unlock( __AMUTEX );
 
 	BYTE *vuFrame = videoIn->framebuffer;
 	
