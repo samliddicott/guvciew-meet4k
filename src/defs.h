@@ -39,10 +39,14 @@
 
 #if GLIB_MINOR_VERSION < 31
 	#define __INIT_MUTEX(m) ( m = g_mutex_new() )
+	#define __INIT_COND(c)  ( g_cond_new(c) )
 	#define __CLOSE_MUTEX(m) ( g_mutex_free(m) )
+	#define __CLOSE_COND(c) ( g_cond_free(c) )
 #else
 	#define __INIT_MUTEX(m) ( g_mutex_init(m) )
+	#define __INIT_COND(c)  ( g_cond_init(c) )
 	#define __CLOSE_MUTEX(m) ( g_mutex_clear(m) )
+	#define __CLOSE_COND(c) ( g_cond_clear(c) )
 #endif
 
 /*next index of ring buffer with size elements*/

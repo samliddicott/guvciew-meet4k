@@ -60,6 +60,12 @@
 #include "audio_tab.h"
 #include "timers.h"
 
+#if GLIB_MINOR_VERSION < 31
+	#define __AMUTEX pdata->mutex
+#else
+	#define __AMUTEX &pdata->mutex
+#endif
+
 /*----------------------------- globals --------------------------------------*/
 
 struct paRecordData *pdata = NULL;
@@ -264,7 +270,7 @@ int main(int argc, char *argv[])
 		pdata = g_new0(struct paRecordData, 1);
 
 		/*create mutex for sound buffers*/
-		pdata->mutex = g_mutex_new();
+		__INIT_MUTEX(__AMUTEX);
 
 		/* Allocate the video Format struct */
 		videoF = g_new0(struct VideoFormatData, 1);
@@ -720,8 +726,7 @@ int main(int argc, char *argv[])
 	if (!control_only) /*control_only exclusion*/
 	{
 		/*------------------ Creating the video thread ---------------*/
-		GError *err1 = NULL;
-
+#if GLIB_MINOR_VERSION < 31
 		if( (video_thread = g_thread_create_full((GThreadFunc) main_loop, 
 			(void *) &all_data,       //data - argument supplied to thread
 			global->stack_size,       //stack size
@@ -730,9 +735,14 @@ int main(int argc, char *argv[])
 			G_THREAD_PRIORITY_NORMAL, //priority - no priority for threads in GNU-Linux
 			&err1)                    //error
 		) == NULL)
+#else
+		if( (video_thread = g_thread_new ("video thread",
+						(GThreadFunc) main_loop,
+						(void *) &all_data)
+		) == NULL)
+#endif
 		{
-			g_printerr("Thread create failed: %s!!\n", err1->message );
-			g_error_free ( err1 ) ;
+			g_printerr("Video thread creation failed\n");
 
 			ERR_DIALOG (N_("Guvcview error:\n\nUnable to create Video Thread"),
 				N_("Please report it to http://developer.berlios.de/bugs/?group_id=8179"),
@@ -764,8 +774,8 @@ int main(int argc, char *argv[])
 				/*start disk check timed callback (every 10 sec)*/
 				if (!global->disk_timer_id)
 					global->disk_timer_id=g_timeout_add(10*1000, FreeDiskCheck_timer, &all_data);
+#if GLIB_MINOR_VERSION < 31
 
-				GError *err1 = NULL;
 				/*start IO thread*/
 				if( (all_data.IO_thread = g_thread_create_full((GThreadFunc) IO_loop, 
 					(void *) &all_data,       //data - argument supplied to thread
@@ -775,9 +785,14 @@ int main(int argc, char *argv[])
 					G_THREAD_PRIORITY_NORMAL, //priority - no priority for threads in GNU-Linux
 					&err1)                    //error
 				) == NULL)
+#else
+				if( (all_data.IO_thread = g_thread_new("IO thread",
+								(GThreadFunc) IO_loop,
+								(void *) &all_data)
+				) == NULL)
+#endif
 				{
-					g_printerr("Thread create failed: %s!!\n", err1->message );
-					g_error_free ( err1 ) ;
+					g_printerr("IO thread creation failed\n");
 					cap_ok = FALSE;
 				}
 				else if (global->Capture_time) 

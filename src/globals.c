@@ -27,10 +27,22 @@
 #include "sound.h"
 #include "v4l2uvc.h"
 
+#if GLIB_MINOR_VERSION < 31
+	#define __AMUTEX pdata->mutex
+	#define __VMUTEX videoIn->mutex
+	#define __GMUTEX global->mutex
+	#define __GCOND  global->IO_cond
+#else
+	#define __AMUTEX &pdata->mutex
+	#define __VMUTEX &videoIn->mutex
+	#define __GMUTEX &global->mutex
+	#define __GCOND  &global->IO_cond
+#endif
+
 int initGlobals (struct GLOBAL *global) 
 {
-	global->mutex = g_mutex_new();
-	global->IO_cond = g_cond_new();   /* Initialized video buffer semaphore */
+	__INIT_MUTEX( __GMUTEX );
+	__INIT_COND( __GCOND );   /* Initialized video buffer semaphore */
 
 	global->debug = DEBUG;
 	
@@ -171,8 +183,8 @@ int closeGlobals(struct GLOBAL *global)
 	g_free(global->vidfile);
 	g_free(global->mode);
 	g_free(global->Sound_IndexDev);
-	g_mutex_free( global->mutex );
-	g_cond_free( global->IO_cond);
+	__CLOSE_MUTEX( __GMUTEX );
+	__CLOSE_COND( __GCOND );
 	
 	global->videodevice=NULL;
 	global->confPath=NULL;

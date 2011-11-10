@@ -48,6 +48,16 @@
 #include "create_video.h"
 #include "video_format.h"
 
+#if GLIB_MINOR_VERSION < 31
+	#define __AMUTEX pdata->mutex
+	#define __VMUTEX videoIn->mutex
+	#define __GMUTEX global->mutex
+#else
+	#define __AMUTEX &pdata->mutex
+	#define __VMUTEX &videoIn->mutex
+	#define __GMUTEX &global->mutex
+#endif
+
 /*--------------------------- warning message dialog ----------------------------*/
 void
 WARN_DIALOG(const char *warn_title, const char* warn_msg, struct ALL_DATA *all_data)
@@ -706,9 +716,9 @@ resolution_changed (GtkComboBox * Resolution, struct ALL_DATA *all_data)
 	int cmb_index = gtk_combo_box_get_active(Resolution);
 	char temp_str[20];
 	
-	g_mutex_lock(videoIn->mutex);
+	g_mutex_lock(__VMUTEX);
 		gboolean capVid = videoIn->capVid;
-	g_mutex_unlock(videoIn->mutex);
+	g_mutex_unlock(__VMUTEX);
 	/*disable fps combobox signals*/
 	g_signal_handlers_block_by_func(GTK_COMBO_BOX_TEXT(gwidget->FrameRate), G_CALLBACK (FrameRate_changed), all_data);
 	/* clear out the old fps list... */
@@ -991,11 +1001,11 @@ FiltEnable_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data)
 {
 	struct GLOBAL *global = all_data->global;
 	int filter = GPOINTER_TO_INT(g_object_get_data (G_OBJECT (toggle), "filt_info"));
-	g_mutex_lock(global->mutex);
+	g_mutex_lock(__GMUTEX);
 		global->Frame_Flags = gtk_toggle_button_get_active (toggle) ? 
 			(global->Frame_Flags | filter) : 
 			(global->Frame_Flags & ~(filter));
-	g_mutex_unlock(global->mutex);
+	g_mutex_unlock(__GMUTEX);
 	
 	global = NULL;
 }
@@ -1006,11 +1016,11 @@ EffEnable_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data)
 {
 	struct paRecordData *pdata = all_data->pdata;
 	int effect = GPOINTER_TO_INT(g_object_get_data (G_OBJECT (toggle), "effect_info"));
-	g_mutex_lock(pdata->mutex);
+	g_mutex_lock(__AMUTEX);
 		pdata->snd_Flags = gtk_toggle_button_get_active (toggle) ? 
 			(pdata->snd_Flags | effect) : 
 			(pdata->snd_Flags & ~(effect));
-	g_mutex_unlock(pdata->mutex);
+	g_mutex_unlock(__AMUTEX);
 	pdata = NULL;
 }
 
@@ -1134,9 +1144,9 @@ capture_vid (GtkToggleButton *VidButt, struct ALL_DATA *all_data)
 	struct GLOBAL *global = all_data->global;
 	struct vdIn *videoIn = all_data->videoIn;
 
-	g_mutex_lock(videoIn->mutex);
+	g_mutex_lock(__VMUTEX);
 		gboolean capVid = videoIn->capVid;
-	g_mutex_unlock(videoIn->mutex);
+	g_mutex_unlock(__VMUTEX);
     char *fileEntr = NULL;
     gboolean state=!capVid;
     
@@ -1168,12 +1178,12 @@ capture_vid (GtkToggleButton *VidButt, struct ALL_DATA *all_data)
 	if(capVid || !state) 
 	{	/****************** Stop Video ************************/
 		capVid = FALSE;
-		g_mutex_lock(videoIn->mutex);
+		g_mutex_lock(__VMUTEX);
 			videoIn->capVid = capVid;
-		g_mutex_unlock(videoIn->mutex);
-		g_mutex_lock(pdata->mutex);
+		g_mutex_unlock(__VMUTEX);
+		g_mutex_lock(__AMUTEX);
 			pdata->capVid = capVid;
-		g_mutex_unlock(pdata->mutex);
+		g_mutex_unlock(__AMUTEX);
 		/*join IO thread*/
 		if (global->debug) g_print("Shuting Down IO Thread\n");
 		g_thread_join( all_data->IO_thread );
@@ -1400,7 +1410,7 @@ split_avi(void *data)
     gdk_threads_leave();
 
     /*FIXME: should join the caller thread instead (will it work?)*/
-    int stall = wait_ms(&(videoIn->IOfinished), TRUE, videoIn->mutex, 10, 200);
+    int stall = wait_ms(&(videoIn->IOfinished), TRUE, __VMUTEX, 10, 200);
     if( !(stall > 0) )
     {
         g_printerr("IO thread stalled (%d) - timeout\n",

@@ -45,10 +45,12 @@
 	#define __AMUTEX pdata->mutex
 	#define __VMUTEX videoIn->mutex
 	#define __GMUTEX global->mutex
+	#define __GCOND  global->IO_cond
 #else
 	#define __AMUTEX &pdata->mutex
 	#define __VMUTEX &videoIn->mutex
 	#define __GMUTEX &global->mutex
+	#define __GCOND  &global->IO_cond
 #endif
 
 /*video capture can only start after buffer allocation*/
@@ -688,7 +690,7 @@ static gboolean process_video(struct ALL_DATA *all_data,
 			proc_buff->time_stamp = global->videoBuff[global->r_ind].time_stamp;
 			global->videoBuff[global->r_ind].used = FALSE;
 			/*signals an empty slot in the video buffer*/
-			g_cond_broadcast(global->IO_cond);
+			g_cond_broadcast(__GCOND);
 				
 			NEXT_IND(global->r_ind,global->video_buff_size);
 			audio_drift -= global->av_drift;
@@ -829,16 +831,16 @@ int store_video_frame(void *data)
 		if(global->debug) g_printerr("WARNING: buffer full waiting for free space\n");
 		/*wait for IO_cond at least 100ms*/
 #if GLIB_MINOR_VERSION < 31	
-		GTimeVal *timev;
-		timev = g_new0(GTimeVal, 1);
+		GTimeVal *endtime;
+		endtime = g_new0(GTimeVal, 1);
 		/* WARNING: if system time changes it can cause undesired behaviour */
-		g_get_current_time(timev); 
-		g_time_val_add(timev,100*1000); /*100 ms*/	
-		if(g_cond_timed_wait(global->IO_cond, __GMUTEX, timev))
-#else
-		end_time = g_get_monotonic_time () + 100 * G_TIME_SPAN_MILLISECOND;
-		if(g_cond_wait_until(global->IO_cond, __GMUTEX, endtime))
-#endif
+		g_get_current_time(endtime); 
+		g_time_val_add(endtime,100*1000); /*100 ms*/
+#else	
+		gint64 endtime = g_get_monotonic_time () + 100 * G_TIME_SPAN_MILLISECOND;
+#endif		
+
+		if(g_cond_wait_until(__GCOND, __GMUTEX, endtime))
 		{
 			/*try to store the frame again*/
 			if (!global->videoBuff[global->w_ind].used)
@@ -851,8 +853,9 @@ int store_video_frame(void *data)
 			
 		}
 		else ret = -3;/*drop frame*/
-		
+#if GLIB_MINOR_VERSION < 31		
 		g_free(timev);
+#endif
 	}
 	if(!ret) global->framecount++;
 	

@@ -48,12 +48,12 @@ struct GLOBAL
 {
 #if GLIB_MINOR_VERSION < 31	  	
 	GMutex *mutex;            /* old glib thread API */
+	GCond   *IO_cond;      
 #else
 	GMutex mutex;             /* new glib thread API */
+	GCond   IO_cond;      //IO thread semaphore
 #endif
 
-	GCond   *IO_cond;      //IO thread semaphore
-	
 	VidBuff *videoBuff;    //video Buffer
 	int video_buff_size;   //size in frmaes of video buffer
 	
