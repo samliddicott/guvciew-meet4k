@@ -193,19 +193,8 @@ int main(int argc, char *argv[])
 	/*print package name and version*/ 
 	g_print("%s\n", PACKAGE_STRING);
 	
-#if GLIB_MINOR_VERSION < 31	
-	/* initialize glib threads - make glib thread safe*/ 
-	if( !g_thread_supported() )
-	{
-		g_thread_init(NULL);
-		gdk_threads_init ();
-	}
-	else
-	{
-		g_printerr("Fatal:g_thread NOT supported\n");
-		exit(1);
-	}
-#endif
+	g_type_init ();
+	gdk_threads_init();
 	
 #ifdef ENABLE_NLS
 	char* lc_all = setlocale (LC_ALL, "");
