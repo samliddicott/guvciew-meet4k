@@ -1180,7 +1180,7 @@ capture_vid (GtkToggleButton *VidButt, struct ALL_DATA *all_data)
 		__UNLOCK_MUTEX(__AMUTEX);
 		/*join IO thread*/
 		if (global->debug) g_print("Shuting Down IO Thread\n");
-		g_thread_join( all_data->IO_thread );
+		__THREAD_JOIN( all_data->IO_thread );
 		if (global->debug) g_print("IO Thread finished\n");
 
         if(!global->no_display)
@@ -1236,25 +1236,10 @@ capture_vid (GtkToggleButton *VidButt, struct ALL_DATA *all_data)
             if(!global->no_display)
                 set_sensitive_vid_contrls(FALSE, global->Sound_enable, gwidget);
 			
-			GError *err1 = NULL;
 			/*start IO thread*/
-#if GLIB_MINOR_VERSION < 31				
-			if( (all_data->IO_thread = g_thread_create_full((GThreadFunc) IO_loop, 
-				(void *) all_data,       //data - argument supplied to thread
-				global->stack_size,       //stack size
-				TRUE,                     //joinable
-				FALSE,                    //bound
-				G_THREAD_PRIORITY_NORMAL, //priority - no priority for threads in GNU-Linux
-				&err1)                    //error
-			) == NULL)
-#else
-		  if( (all_data->IO_thread = g_thread_new("IO thread",
-		  		(GThreadFunc) IO_loop, 
-				(void *) all_data)) == NULL)
-#endif
+			if( __THREAD_CREATE(&all_data->IO_thread, IO_loop, (void *) all_data))
 			{
-				g_printerr("Thread create failed: %s!!\n", err1->message );
-				g_error_free ( err1 ) ;
+				g_printerr("Thread creation failed\n");
 				state = FALSE;
 			}
 		}

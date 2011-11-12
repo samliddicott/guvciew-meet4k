@@ -37,6 +37,11 @@
 
 #define ODD(x) ((x%2)?TRUE:FALSE)
 
+#define __THREAD_TYPE pthread_t
+#define __THREAD_CREATE(t,f,d) (pthread_create(t,NULL,f,d))
+#define __THREAD_JOIN(t) (pthread_join(t, NULL))
+
+
 #define __MUTEX_TYPE pthread_mutex_t
 #define __COND_TYPE pthread_cond_t
 #define __INIT_MUTEX(m) ( pthread_mutex_init(m, NULL) )

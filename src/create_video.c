@@ -353,7 +353,7 @@ static int write_video_frame (struct ALL_DATA *all_data,
 	struct GLOBAL *global = all_data->global;
 	struct GWIDGET *gwidget = all_data->gwidget;
 	
-	GThread *press_butt_thread = NULL;
+	__THREAD_TYPE press_butt_thread;
 	int ret=0;
 
 	switch (global->VidFormat)
@@ -371,18 +371,7 @@ static int write_video_frame (struct ALL_DATA *all_data,
 					{
 						global->VidButtPress = TRUE;
 						/*avi file limit reached - must end capture close file and start new one*/
-#if GLIB_MINOR_VERSION < 31						
-						if( (press_butt_thread =g_thread_create((GThreadFunc) split_avi, 
-							all_data, //data
-							FALSE,    //joinable - no need waiting for thread to finish
-							NULL)    //error
-						) == NULL)
-#else
-						if( (press_butt_thread =g_thread_new("split avi", 
-							(GThreadFunc) split_avi, 
-							all_data)
-						) == NULL)
-#endif  
+						if( __THREAD_CREATE(&press_butt_thread, split_avi, all_data)) //should be created detachable
 						{
 							/*thread failed to start - stop video capture   */
 							/*can't restart since we need IO thread to stop */
@@ -429,7 +418,7 @@ static int write_audio_frame (struct ALL_DATA *all_data, void *lavc_adata, AudBu
 	struct GWIDGET *gwidget = all_data->gwidget;
 	
 	int ret =0;
-	GThread *press_butt_thread;
+	__THREAD_TYPE press_butt_thread;
 	
 	switch (global->VidFormat)
 	{
@@ -446,18 +435,7 @@ static int write_audio_frame (struct ALL_DATA *all_data, void *lavc_adata, AudBu
 						global->VidButtPress = TRUE;
 
 						/*avi file limit reached - must end capture close file and start new one*/
-#if GLIB_MINOR_VERSION < 31	
-						if( (press_butt_thread =g_thread_create((GThreadFunc) split_avi, 
-							all_data, //data
-							FALSE,    //joinable - no need waiting for thread to finish
-							NULL)    //error
-						) == NULL)
-#else
-						if( (press_butt_thread =g_thread_new("split avi", 
-							(GThreadFunc) split_avi, 
-							all_data)
-						) == NULL)
-#endif  
+						if( __THREAD_CREATE(&press_butt_thread, split_avi, all_data))  //should be created detachable
 						{
 							/*thread failed to start - stop video capture   */
 							/*can't restart since we need IO thread to stop */

@@ -592,7 +592,7 @@ void *main_loop(void *data)
         __UNLOCK_MUTEX(__AMUTEX);
         /*join IO thread*/
         if (global->debug) g_print("Shuting Down IO Thread\n");
-        g_thread_join( all_data->IO_thread );
+        __THREAD_JOIN( all_data->IO_thread );
         if (global->debug) g_print("IO Thread finished\n");
     }
     

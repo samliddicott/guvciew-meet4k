@@ -92,8 +92,8 @@ struct ALL_DATA
 	struct VideoFormatData *videoF;
 	struct GWIDGET *gwidget;
 	struct VidState *s;
-	GThread *video_thread;
-	GThread *IO_thread;
+	__THREAD_TYPE video_thread;
+	__THREAD_TYPE IO_thread;
 };
 
 #endif

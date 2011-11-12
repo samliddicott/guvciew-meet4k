@@ -77,7 +77,7 @@ struct VidState *s = NULL;
 struct GWIDGET *gwidget = NULL;
 
 /*thread definitions*/
-GThread *video_thread = NULL;
+//__THREAD_TYPE video_thread;
 
 /* 
  * Unix signals that are cought are written to a pipe. The pipe connects 
@@ -712,21 +712,7 @@ int main(int argc, char *argv[])
 	if (!control_only) /*control_only exclusion*/
 	{
 		/*------------------ Creating the video thread ---------------*/
-#if GLIB_MINOR_VERSION < 31
-		if( (video_thread = g_thread_create_full((GThreadFunc) main_loop, 
-			(void *) &all_data,       //data - argument supplied to thread
-			global->stack_size,       //stack size
-			TRUE,                     //joinable
-			TRUE,                     //bound
-			G_THREAD_PRIORITY_NORMAL, //priority - no priority for threads in GNU-Linux
-			NULL)                    //error
-		) == NULL)
-#else
-		if( (video_thread = g_thread_new ("video thread",
-						(GThreadFunc) main_loop,
-						(void *) &all_data)
-		) == NULL)
-#endif
+		if( __THREAD_CREATE(&all_data.video_thread, main_loop, (void *) &all_data))
 		{
 			g_printerr("Video thread creation failed\n");
 
@@ -734,7 +720,7 @@ int main(int argc, char *argv[])
 				N_("Please report it to http://developer.berlios.de/bugs/?group_id=8179"),
 				&all_data);      
 		}
-		all_data.video_thread = video_thread;
+		//all_data.video_thread = video_thread;
 	
 		/*---------------------- image timed capture -----------------------------*/
 		if(global->image_timer)
@@ -761,21 +747,7 @@ int main(int argc, char *argv[])
 				if (!global->disk_timer_id)
 					global->disk_timer_id=g_timeout_add(10*1000, FreeDiskCheck_timer, &all_data);
 				/*start IO thread*/
-#if GLIB_MINOR_VERSION < 31
-				if( (all_data.IO_thread = g_thread_create_full((GThreadFunc) IO_loop, 
-					(void *) &all_data,       //data - argument supplied to thread
-					global->stack_size,       //stack size
-					TRUE,                     //joinable
-					TRUE,                     //bound
-					G_THREAD_PRIORITY_NORMAL, //priority - no priority for threads in GNU-Linux
-					NULL)                    //error
-				) == NULL)
-#else
-				if( (all_data.IO_thread = g_thread_new("IO thread",
-								(GThreadFunc) IO_loop,
-								(void *) &all_data)
-				) == NULL)
-#endif
+				if( __THREAD_CREATE(&all_data.IO_thread, IO_loop, (void *) &all_data))
 				{
 					g_printerr("IO thread creation failed\n");
 					cap_ok = FALSE;

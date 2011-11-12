@@ -111,7 +111,7 @@ shutd (gint restart, struct ALL_DATA *all_data)
 	gchar videodevice[16];
 	struct GWIDGET *gwidget = all_data->gwidget;
 	//gchar *EXEC_CALL = all_data->EXEC_CALL;
-	GThread *video_thread = all_data->video_thread;
+	
 	//struct paRecordData *pdata = all_data->pdata;
 	struct GLOBAL *global = all_data->global;
 	struct vdIn *videoIn = all_data->videoIn;
@@ -125,7 +125,7 @@ shutd (gint restart, struct ALL_DATA *all_data)
 		__LOCK_MUTEX(__VMUTEX);
 			videoIn->signalquit=TRUE;
 		__UNLOCK_MUTEX(__VMUTEX);
-		g_thread_join( video_thread );
+		__THREAD_JOIN(all_data->video_thread);
 		if (global->debug) g_print("Video Thread finished\n");
 	}
 
