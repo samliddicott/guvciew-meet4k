@@ -48,13 +48,13 @@ static void* pulse_read_audio(void *userdata)
 	else
 		ss.format = PA_SAMPLE_FLOAT32LE;
 	
-	g_mutex_lock(__AMUTEX);
+	__LOCK_MUTEX(__AMUTEX);
 		gboolean capVid = pdata->capVid;
 		int skip_n = pdata->skip_n;
 		pdata->streaming = TRUE;
 		ss.rate = pdata->samprate;
 		ss.channels = pdata->channels;
-	g_mutex_unlock(__AMUTEX);
+	__UNLOCK_MUTEX(__AMUTEX);
 
 	printf("starting pulse audio thread: %d hz- %d ch\n",ss.rate, ss.channels);
 	if (!(pdata->pulse_simple = pa_simple_new(NULL, "Guvcview Video Capture", PA_STREAM_RECORD, NULL, "pcm.record", &ss, NULL, NULL, &error))) 
@@ -72,7 +72,7 @@ static void* pulse_read_audio(void *userdata)
 			goto finish;
 		}
 
-		g_mutex_lock(__AMUTEX);
+		__LOCK_MUTEX(__AMUTEX);
 			capVid = pdata->capVid;
 			/*first frame time stamp*/
 			if(pdata->a_ts <= 0)
@@ -85,11 +85,11 @@ static void* pulse_read_audio(void *userdata)
 				pdata->a_ts += (G_NSEC_PER_SEC * pdata->aud_numSamples)/(pdata->samprate * pdata->channels);
 	
 			skip_n = pdata->skip_n;
-		g_mutex_unlock(__AMUTEX);
+		__UNLOCK_MUTEX(__AMUTEX);
 		
 		if (!skip_n) //skip audio while were skipping video frames
 		{
-			g_mutex_lock( __AMUTEX );
+			__LOCK_MUTEX( __AMUTEX );
 				if(!pdata->audio_buff[pdata->w_ind].used)
 				{
 					
@@ -104,7 +104,7 @@ static void* pulse_read_audio(void *userdata)
 					//drop audio data
 					g_printerr("AUDIO: droping audio data\n");
 				}
-			g_mutex_unlock( __AMUTEX );
+			__UNLOCK_MUTEX( __AMUTEX );
 		}
 		else 
 		{

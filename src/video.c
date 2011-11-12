@@ -46,15 +46,9 @@
 #include "timers.h"
 #include "osd.h"
 
-#if GLIB_MINOR_VERSION < 31
-	#define __AMUTEX pdata->mutex
-	#define __VMUTEX videoIn->mutex
-	#define __GMUTEX global->mutex
-#else
-	#define __AMUTEX &pdata->mutex
-	#define __VMUTEX &videoIn->mutex
-	#define __GMUTEX &global->mutex
-#endif
+#define __AMUTEX &pdata->mutex
+#define __VMUTEX &videoIn->mutex
+#define __GMUTEX &global->mutex
 
 static Uint32 SDL_VIDEO_Flags =
         SDL_ANYFORMAT | SDL_RESIZABLE;
@@ -261,10 +255,10 @@ void *main_loop(void *data)
     
     while (!signalquit) 
     {
-        g_mutex_lock(__VMUTEX);
+        __LOCK_MUTEX(__VMUTEX);
             capVid = videoIn->capVid;
             signalquit = videoIn->signalquit;
-        g_mutex_unlock(__VMUTEX);
+        __UNLOCK_MUTEX(__VMUTEX);
         
         /*-------------------------- Grab Frame ----------------------------------*/
         if (uvcGrab(videoIn, format, width, height, &global->fps, &global->fps_num) < 0) 
@@ -285,9 +279,9 @@ void *main_loop(void *data)
                 {
                     global->Vidstarttime = videoIn->timestamp;
                     /*use current time for audio ts(0) reference (MONOTONIC)*/
-                    g_mutex_lock(__AMUTEX);
+                    __LOCK_MUTEX(__AMUTEX);
                         pdata->ts_ref = ns_time_monotonic();
-                    g_mutex_unlock(__AMUTEX);
+                    __UNLOCK_MUTEX(__AMUTEX);
                     //printf("video ts ref: %llu audio ts_ ref: %llu\n",global->Vidstarttime, pdata->ts_ref);
                     global->v_ts = 0;
                 }
@@ -360,7 +354,7 @@ void *main_loop(void *data)
             }
         }
         /*------------------------- Filter Frame ---------------------------------*/
-        g_mutex_lock(__GMUTEX);
+        __LOCK_MUTEX(__GMUTEX);
         if(global->Frame_Flags>0)
         {
             if((global->Frame_Flags & YUV_PARTICLES)==YUV_PARTICLES)
@@ -382,7 +376,7 @@ void *main_loop(void *data)
                 pieces (videoIn->framebuffer, width, height, 16 );
             
         }
-        g_mutex_unlock(__GMUTEX);
+        __UNLOCK_MUTEX(__GMUTEX);
         /*-------------------------capture Image----------------------------------*/
         if (videoIn->capImage)
         {
@@ -401,9 +395,9 @@ void *main_loop(void *data)
         /*---------------------------capture Video---------------------------------*/
         if (capVid && !(global->skip_n))
         {
-            g_mutex_lock(__VMUTEX);
+            __LOCK_MUTEX(__VMUTEX);
                 if(videoIn->VidCapStop) videoIn->VidCapStop = FALSE;
-            g_mutex_unlock(__VMUTEX);
+            __UNLOCK_MUTEX(__VMUTEX);
             int res=0;
             /*format and resolution don't change(disabled) while capturing video*/
             if((res=store_video_frame(all_data))<0) g_printerr("WARNING: droped frame (%i)\n",res);
@@ -411,9 +405,9 @@ void *main_loop(void *data)
         } /*video and audio capture have stopped */
         else
         {
-            g_mutex_lock(__VMUTEX);
+            __LOCK_MUTEX(__VMUTEX);
                 if(!(videoIn->VidCapStop)) videoIn->VidCapStop=TRUE;
-            g_mutex_unlock(__VMUTEX);
+            __UNLOCK_MUTEX(__VMUTEX);
         }
 
         /* decrease skip frame count */
@@ -423,9 +417,9 @@ void *main_loop(void *data)
             global->skip_n--;
         }
 
-        g_mutex_lock( __AMUTEX );
+        __LOCK_MUTEX( __AMUTEX );
             if (global->Sound_enable && capVid) pdata->skip_n = global->skip_n;
-        g_mutex_unlock( __AMUTEX );
+        __UNLOCK_MUTEX( __AMUTEX );
         
         /*------------------------- Display Frame --------------------------------*/
         if(!global->no_display)
@@ -579,9 +573,9 @@ void *main_loop(void *data)
 
     }/*loop end*/
 
-    g_mutex_lock(__VMUTEX);
+    __LOCK_MUTEX(__VMUTEX);
         capVid = videoIn->capVid;
-    g_mutex_unlock(__VMUTEX);
+    __UNLOCK_MUTEX(__VMUTEX);
     /*check if thread exited while in Video capture mode*/
     if (capVid) 
     {
@@ -590,12 +584,12 @@ void *main_loop(void *data)
         //global->Vidstoptime = ns_time_monotonic(); /*this is set in IO thread*/
         videoIn->VidCapStop=TRUE;
         capVid = FALSE;
-        g_mutex_lock(__VMUTEX);
+        __LOCK_MUTEX(__VMUTEX);
             videoIn->capVid = capVid;
-        g_mutex_unlock(__VMUTEX);
-        g_mutex_lock(__AMUTEX);
+        __UNLOCK_MUTEX(__VMUTEX);
+        __LOCK_MUTEX(__AMUTEX);
             pdata->capVid = capVid;
-        g_mutex_unlock(__AMUTEX);
+        __UNLOCK_MUTEX(__AMUTEX);
         /*join IO thread*/
         if (global->debug) g_print("Shuting Down IO Thread\n");
         g_thread_join( all_data->IO_thread );

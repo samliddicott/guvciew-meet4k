@@ -23,6 +23,7 @@
 #define GLOBALS_H
 
 #include <glib.h>
+#include <pthread.h>
 #include "defs.h"
 #include "utils.h"
 
@@ -46,13 +47,9 @@ typedef struct _VidBuff
 /*global variables used in guvcview*/
 struct GLOBAL 
 {
-#if GLIB_MINOR_VERSION < 31	  	
-	GMutex *mutex;            /* old glib thread API */
-	GCond   *IO_cond;      
-#else
-	GMutex mutex;             /* new glib thread API */
-	GCond   IO_cond;      //IO thread semaphore
-#endif
+	  	
+	__MUTEX_TYPE mutex;            
+	__COND_TYPE  IO_cond;      //IO thread semaphore
 
 	VidBuff *videoBuff;    //video Buffer
 	int video_buff_size;   //size in frmaes of video buffer

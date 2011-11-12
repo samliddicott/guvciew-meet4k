@@ -35,11 +35,7 @@
 #include "callbacks.h"
 #include "close.h"
 
-#if GLIB_MINOR_VERSION < 31
-	#define __VMUTEX videoIn->mutex
-#else
-	#define __VMUTEX &videoIn->mutex
-#endif
+#define __VMUTEX &videoIn->mutex
 
 /* called for timed shutdown (from video thread)*/
 gboolean
@@ -228,9 +224,9 @@ FreeDiskCheck_timer(gpointer data)
     struct GLOBAL *global = all_data->global;
     struct GWIDGET *gwidget = all_data->gwidget;
 
-    g_mutex_lock(__VMUTEX);
+    __LOCK_MUTEX(__VMUTEX);
         gboolean capVid = videoIn->capVid;
-    g_mutex_unlock(__VMUTEX);
+    __UNLOCK_MUTEX(__VMUTEX);
 
     if (capVid) 
     {

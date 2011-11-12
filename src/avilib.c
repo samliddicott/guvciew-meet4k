@@ -31,15 +31,13 @@
 /*  Paulo Assis (6-4-2008): removed reading functions, cleaned build wranings  */
 
 #include <stdio.h>
+#include <glib/gstdio.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
 #include <time.h>
-#include <glib.h>
-#include <glib/gstdio.h>
-#include <glib/gprintf.h>
 #include "config.h"
 #include "avilib.h"
 #include "defs.h"
@@ -72,11 +70,7 @@ static char id_str[MAX_INFO_STRLEN];
 #define VERSION "1.0"
 #endif
 
-#if GLIB_MINOR_VERSION < 31
-	#define __MUTEX AVI->mutex
-#else
-	#define __MUTEX &AVI->mutex
-#endif
+#define __MUTEX &AVI->mutex
 
 /* AVI_MAX_LEN: The maximum length of an AVI file, we stay a bit below
     the 2GB limit (Remember: 2*10^9 is smaller than 2 GB - using 1900*1024*1024) */
@@ -601,7 +595,7 @@ void AVI_set_video(struct avi_t *AVI, int width, int height, double fps, const c
 
 	if(AVI->mode==AVI_MODE_READ) return;
 
-	g_mutex_lock(__MUTEX);
+	__LOCK_MUTEX(__MUTEX);
 		AVI->width  = width;
 		AVI->height = height;
 		AVI->fps    = fps; /* just in case avi doesn't close properly */
@@ -617,7 +611,7 @@ void AVI_set_video(struct avi_t *AVI, int width, int height, double fps, const c
    
 		AVI->compressor[4] = 0;
 		avi_update_header(AVI);
-	g_mutex_unlock(__MUTEX);
+	__UNLOCK_MUTEX(__MUTEX);
 
 }
 
@@ -627,7 +621,7 @@ void AVI_set_audio(struct avi_t *AVI, int channels, long rate, int mpgrate, int 
 
 	if(AVI->mode==AVI_MODE_READ) return;
 
-	g_mutex_lock(__MUTEX);
+	__LOCK_MUTEX(__MUTEX);
 		//inc audio tracks
 		AVI->aptr=AVI->anum;
 		++AVI->anum;
@@ -646,7 +640,7 @@ void AVI_set_audio(struct avi_t *AVI, int channels, long rate, int mpgrate, int 
 		AVI->track[AVI->aptr].mpgrate = mpgrate; /* bit rate in b/s */
 
 		avi_update_header(AVI);
-	g_mutex_unlock(__MUTEX);
+	__UNLOCK_MUTEX(__MUTEX);
 }
 
 /*
@@ -1100,7 +1094,7 @@ int AVI_write_frame(struct avi_t *AVI, BYTE *data, long bytes, int keyframe)
 
 	if(AVI->mode==AVI_MODE_READ) { AVI_errno = AVI_ERR_NOT_PERM; return -1; }
 
-	g_mutex_lock(__MUTEX);
+	__LOCK_MUTEX(__MUTEX);
 		pos = AVI->pos;
 		ret = avi_write_data(AVI,data,bytes,0, keyframe);
    
@@ -1110,7 +1104,7 @@ int AVI_write_frame(struct avi_t *AVI, BYTE *data, long bytes, int keyframe)
 			AVI->last_len = bytes;
 			AVI->video_frames++;
 		}
-	g_mutex_unlock(__MUTEX);
+	__UNLOCK_MUTEX(__MUTEX);
 	return ret;
 }
 
@@ -1120,11 +1114,11 @@ int AVI_dup_frame(struct avi_t *AVI)
 
 	if(AVI->last_pos==0) return 0; /* No previous real frame */
 
-	g_mutex_lock(__MUTEX);
+	__LOCK_MUTEX(__MUTEX);
 		if(avi_add_index_entry(AVI,(BYTE *) "00dc",0x10,AVI->last_pos,AVI->last_len)) return -1;
 		AVI->video_frames++;
 		AVI->must_use_index = 1;
-	g_mutex_unlock(__MUTEX);
+	__UNLOCK_MUTEX(__MUTEX);
 	return 0;
 }
 
@@ -1133,7 +1127,7 @@ int AVI_write_audio(struct avi_t *AVI, BYTE *data, long bytes)
 	int ret=0;
 	if(AVI->mode==AVI_MODE_READ) { AVI_errno = AVI_ERR_NOT_PERM; return -1; }
 
-	g_mutex_lock(__MUTEX);
+	__LOCK_MUTEX(__MUTEX);
 		ret = avi_write_data(AVI,data,bytes,1,0);
    
 		if(!(ret<0)) 
@@ -1141,7 +1135,7 @@ int AVI_write_audio(struct avi_t *AVI, BYTE *data, long bytes)
 			AVI->track[AVI->aptr].audio_bytes += bytes;
 			AVI->track[AVI->aptr].audio_chunks++;
 		}
-	g_mutex_unlock(__MUTEX);
+	__UNLOCK_MUTEX(__MUTEX);
 	return ret;
 }
 
@@ -1156,7 +1150,7 @@ int AVI_append_audio(struct avi_t *AVI, BYTE *data, long bytes)
 	if(AVI->mode==AVI_MODE_READ) { AVI_errno = AVI_ERR_NOT_PERM; return -1; }
   
 	// update last index entry:
-	g_mutex_lock(__MUTEX);
+	__LOCK_MUTEX(__MUTEX);
 		--AVI->n_idx;
 		length = str2ulong(AVI->idx[AVI->n_idx]+12);
 		pos    = str2ulong(AVI->idx[AVI->n_idx]+8);
@@ -1181,7 +1175,7 @@ int AVI_append_audio(struct avi_t *AVI, BYTE *data, long bytes)
 		bytes = i - length;
 		avi_write(AVI->fdes, data, bytes);
 		AVI->pos = pos + 8 + i;
-	g_mutex_unlock(__MUTEX);
+	__UNLOCK_MUTEX(__MUTEX);
 	
 	return 0;
 }
@@ -1229,7 +1223,7 @@ int AVI_close(struct avi_t *AVI)
 	/* If the file was open for writing, the header and index still have
 	to be written */
 	
-	g_mutex_lock(__MUTEX);
+	__LOCK_MUTEX(__MUTEX);
 		AVI->closed = 1; /*closed - not recording*/
 		if(AVI->mode == AVI_MODE_WRITE)
 			ret = avi_close_output_file(AVI);
@@ -1246,7 +1240,7 @@ int AVI_close(struct avi_t *AVI)
 			AVI->track[j].audio_bytes=0;  
 			if(AVI->track[j].audio_index) free(AVI->track[j].audio_index);
 		}
-	g_mutex_unlock(__MUTEX);
+	__UNLOCK_MUTEX(__MUTEX);
 	/*free the mutex*/
 	__CLOSE_MUTEX(__MUTEX);
 	

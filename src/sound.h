@@ -24,6 +24,7 @@
 
 #include <portaudio.h>
 #include <glib.h>
+#include <pthread.h>
 #include "globals.h"
 #include "../config.h"
 
@@ -97,11 +98,7 @@ struct paRecordData
 	int skip_n;                   // video frames to skip
 	UINT64 delay;                 // in nanosec - h264 has a two frame delay that must be compensated
 
-#if GLIB_MINOR_VERSION < 31	  	
-	GMutex *mutex;            /* old glib thread API */
-#else
-	GMutex mutex;             /* new glib thread API */
-#endif
+	__MUTEX_TYPE mutex;
 	
 	//PULSE SUPPORT
 #ifdef PULSEAUDIO

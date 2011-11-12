@@ -37,6 +37,7 @@
 #include <inttypes.h>
 #include <sys/types.h>
 #include <glib.h>
+#include <pthread.h>
 
 #define AVI_MAX_TRACKS 8
 #define FRAME_RATE_SCALE 1000000
@@ -140,11 +141,7 @@ struct avi_t
 {
 	long   fdes;              /* File descriptor of AVI file */
 	long   mode;              /* 0 for reading, 1 for writing */
-#if GLIB_MINOR_VERSION < 31	  /* avi mutex - since we write to avi from 2 threads*/
-	GMutex *mutex;            /* old glib thread API */
-#else
-	GMutex mutex;             /* new glib thread API */
-#endif
+	__MUTEX_TYPE mutex;
   
 	long   width;             /* Width  of a video frame */
 	long   height;            /* Height of a video frame */

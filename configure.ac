@@ -25,6 +25,11 @@ AC_PREFIX_DEFAULT(/usr/local)
 AC_ISC_POSIX
 AC_PROG_CC
 AC_HEADER_STDC
+dnl --------------------------------------------------------------------------
+dnl set pthread_libs and pthread_cflags
+dnl --------------------------------------------------------------------------
+dnl ACX_PTHREAD([ACTION-IF-FOUND[, ACTION-IF-NOT-FOUND]])
+ACX_PTHREAD()
 
 dnl --------------------------------------------------------------------------
 dnl Debug/development/test

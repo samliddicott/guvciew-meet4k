@@ -29,11 +29,7 @@
 #include "audio_effects.h"
 #include "ms_time.h"
 
-#if GLIB_MINOR_VERSION < 31
-	#define __AMUTEX pdata->mutex
-#else
-	#define __AMUTEX &pdata->mutex
-#endif
+#define __AMUTEX &pdata->mutex
 
 static int fill_audio_buffer(struct paRecordData *pdata, UINT64 ts)
 {
@@ -105,33 +101,33 @@ recordCallback (const void *inputBuffer, void *outputBuffer,
 	nsec_per_frame = G_NSEC_PER_SEC / pdata->samprate;
 	ts = ns_time_monotonic() - (UINT64) framesPerBuffer * nsec_per_frame;
 
-	g_mutex_lock( __AMUTEX );
+	__LOCK_MUTEX( __AMUTEX );
 		gboolean capVid = pdata->capVid;
 		int channels = pdata->channels;
 		int skip_n = pdata->skip_n;
-	g_mutex_unlock( __AMUTEX );
+	__UNLOCK_MUTEX( __AMUTEX );
 	
 	if (skip_n > 0) /*skip audio while were skipping video frames*/
 	{
 		
 		if(capVid) 
 		{
-			g_mutex_lock( __AMUTEX );
+			__LOCK_MUTEX( __AMUTEX );
 				pdata->snd_begintime = ns_time_monotonic(); /*reset first time stamp*/
-			g_mutex_unlock( __AMUTEX );
+			__UNLOCK_MUTEX( __AMUTEX );
 			return (paContinue); /*still capturing*/
 		}
 		else
-		{	g_mutex_lock( __AMUTEX );
+		{	__LOCK_MUTEX( __AMUTEX );
 				pdata->streaming=FALSE;
-			g_mutex_lock( __AMUTEX );
+			__LOCK_MUTEX( __AMUTEX );
 			return (paComplete);
 		}
 	}
 	
 	int numSamples= framesPerBuffer * channels;
 
-	g_mutex_lock( __AMUTEX );
+	__LOCK_MUTEX( __AMUTEX );
 		/*set to FALSE on paComplete*/
 		pdata->streaming=TRUE;
 
@@ -147,14 +143,14 @@ recordCallback (const void *inputBuffer, void *outputBuffer,
 				ts += nsec_per_frame;
 		}
 		
-	g_mutex_unlock( __AMUTEX );
+	__UNLOCK_MUTEX( __AMUTEX );
 
 	if(capVid) return (paContinue); /*still capturing*/
 	else 
 	{
-		g_mutex_lock( __AMUTEX );
+		__LOCK_MUTEX( __AMUTEX );
 			pdata->streaming=FALSE;
-		g_mutex_unlock( __AMUTEX );
+		__UNLOCK_MUTEX( __AMUTEX );
 		return (paComplete);
 	}
 	
@@ -180,9 +176,9 @@ set_sound (struct GLOBAL *global, struct paRecordData* pdata, void *lav_aud_data
 	
 	pdata->samprate = global->Sound_SampRate;
 	pdata->channels = global->Sound_NumChan;
-	g_mutex_lock( __AMUTEX );
+	__LOCK_MUTEX( __AMUTEX );
 		pdata->skip_n = global->skip_n; /*initial video frames to skip*/
-	g_mutex_unlock( __AMUTEX );
+	__UNLOCK_MUTEX( __AMUTEX );
 	if(global->debug) g_print("using audio codec: 0x%04x\n",global->Sound_Format );
 	switch (global->Sound_Format)
 	{
@@ -379,7 +375,7 @@ close_sound (struct paRecordData *pdata)
 	
 	/* ---------------------------------------------------------------------
 	 * make sure no operations are performed on the buffers  */
-	g_mutex_lock(__AMUTEX);
+	__LOCK_MUTEX(__AMUTEX);
 		/*free primary buffer*/
 		g_free( pdata->recordedSamples );
 		pdata->recordedSamples=NULL;
@@ -392,7 +388,7 @@ close_sound (struct paRecordData *pdata)
 		pdata->audio_buff = NULL;
 		if(pdata->pcm_sndBuff) g_free(pdata->pcm_sndBuff);
 		pdata->pcm_sndBuff = NULL;
-	g_mutex_unlock(__AMUTEX);
+	__UNLOCK_MUTEX(__AMUTEX);
 	
 	return (ret);
 }

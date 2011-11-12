@@ -26,7 +26,7 @@
 /* support for internationalization - i18n */
 #include <glib/gi18n.h>
 #include <glib.h>
-#include <glib/gprintf.h>
+#include <pthread.h>
 #include <gtk/gtk.h>
 #include <portaudio.h>
 
@@ -41,13 +41,8 @@
 #include "video.h"
 #include "close.h"
 
-#if GLIB_MINOR_VERSION < 31
-	#define __AMUTEX pdata->mutex
-	#define __VMUTEX videoIn->mutex
-#else
-	#define __AMUTEX &pdata->mutex
-	#define __VMUTEX &videoIn->mutex
-#endif
+#define __AMUTEX &pdata->mutex
+#define __VMUTEX &videoIn->mutex
 
 /*-------------------------- clean up and shut down --------------------------*/
 
@@ -127,9 +122,9 @@ shutd (gint restart, struct ALL_DATA *all_data)
 	if(!(control_only))
 	{ 
 		if (global->debug) g_print("Shuting Down Thread\n");
-		g_mutex_lock(__VMUTEX);
+		__LOCK_MUTEX(__VMUTEX);
 			videoIn->signalquit=TRUE;
-		g_mutex_unlock(__VMUTEX);
+		__UNLOCK_MUTEX(__VMUTEX);
 		g_thread_join( video_thread );
 		if (global->debug) g_print("Video Thread finished\n");
 	}

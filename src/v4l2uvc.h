@@ -24,6 +24,7 @@
 
 #include <linux/videodev2.h>
 #include <libudev.h>
+#include <pthread.h>
 #include "globals.h"
 #include "v4l2_devices.h"
 #include "v4l2_formats.h"
@@ -76,11 +77,7 @@ static const int exp_vals[]=
 
 struct vdIn 
 {
-#if GLIB_MINOR_VERSION < 31	  	
-	GMutex *mutex;            /* old glib thread API */
-#else
-	GMutex mutex;             /* new glib thread API */
-#endif
+	__MUTEX_TYPE mutex;
 
     struct udev *udev;                  // pointer to a udev struct (lib udev)
     struct udev_monitor *udev_mon;      // udev monitor

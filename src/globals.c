@@ -27,17 +27,10 @@
 #include "sound.h"
 #include "v4l2uvc.h"
 
-#if GLIB_MINOR_VERSION < 31
-	#define __AMUTEX pdata->mutex
-	#define __VMUTEX videoIn->mutex
-	#define __GMUTEX global->mutex
-	#define __GCOND  global->IO_cond
-#else
-	#define __AMUTEX &pdata->mutex
-	#define __VMUTEX &videoIn->mutex
-	#define __GMUTEX &global->mutex
-	#define __GCOND  &global->IO_cond
-#endif
+#define __AMUTEX &pdata->mutex
+#define __VMUTEX &videoIn->mutex
+#define __GMUTEX &global->mutex
+#define __GCOND  &global->IO_cond
 
 int initGlobals (struct GLOBAL *global) 
 {

@@ -48,11 +48,7 @@
 #include "colorspaces.h"
 #include "ms_time.h"
 
-#if GLIB_MINOR_VERSION < 31
-	#define __VMUTEX videoIn->mutex
-#else
-	#define __VMUTEX &videoIn->mutex
-#endif
+#define __VMUTEX &videoIn->mutex
 
 /* needed only for language files (not used)*/
 

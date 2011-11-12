@@ -60,11 +60,8 @@
 #include "audio_tab.h"
 #include "timers.h"
 
-#if GLIB_MINOR_VERSION < 31
-	#define __AMUTEX pdata->mutex
-#else
-	#define __AMUTEX &pdata->mutex
-#endif
+#define __AMUTEX &pdata->mutex
+
 
 /*----------------------------- globals --------------------------------------*/
 

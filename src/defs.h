@@ -37,17 +37,17 @@
 
 #define ODD(x) ((x%2)?TRUE:FALSE)
 
-#if GLIB_MINOR_VERSION < 31
-	#define __INIT_MUTEX(m) ( m = g_mutex_new() )
-	#define __INIT_COND(c)  ( c = g_cond_new() )
-	#define __CLOSE_MUTEX(m) ( g_mutex_free(m) )
-	#define __CLOSE_COND(c) ( g_cond_free(c) )
-#else
-	#define __INIT_MUTEX(m) ( g_mutex_init(m) )
-	#define __INIT_COND(c)  ( g_cond_init(c) )
-	#define __CLOSE_MUTEX(m) ( g_mutex_clear(m) )
-	#define __CLOSE_COND(c) ( g_cond_clear(c) )
-#endif
+#define __MUTEX_TYPE pthread_mutex_t
+#define __COND_TYPE pthread_cond_t
+#define __INIT_MUTEX(m) ( pthread_mutex_init(m, NULL) )
+#define __CLOSE_MUTEX(m) ( pthread_mutex_destroy(m) )
+#define __LOCK_MUTEX(m) ( pthread_mutex_lock(m) )
+#define __UNLOCK_MUTEX(m) ( pthread_mutex_unlock(m) )
+
+#define __INIT_COND(c)  ( pthread_cond_init (c, NULL) )
+#define __CLOSE_COND(c) ( pthread_cond_destroy(c) )
+#define __COND_BCAST(c) ( pthread_cond_broadcast(c) ) 
+#define __COND_TIMED_WAIT(c,m,t) ( pthread_cond_timedwait(c,m,t) )
 
 /*next index of ring buffer with size elements*/
 #define NEXT_IND(ind,size) ind++;if(ind>=size) ind=0

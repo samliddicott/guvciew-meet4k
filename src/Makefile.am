@@ -7,7 +7,7 @@ INCLUDES = \
 	-DPACKAGE_LOCALE_DIR=\""$(prefix)/$(DATADIRNAME)/locale"\" \
 	-DPACKAGE_SRC_DIR=\""$(srcdir)"\" \
 	-DPACKAGE_DATA_DIR=\""$(datadir)"\" \
-	$(DEPS_CFLAGS) $(EXTRA_CFLAGS)
+	$(DEPS_CFLAGS) $(EXTRA_CFLAGS) $(PTHREAD_CFLAGS)
 
 AM_CFLAGS =\
 	 -D_REENTRANT\
@@ -100,9 +100,9 @@ guvcview_SOURCES = \
 	video_tab.h \
 	video_tab.c 
 
-guvcview_LDFLAGS = $(LIBINTL)
+guvcview_LDFLAGS = $(LIBINTL) 
 
-guvcview_LDADD = $(DEPS_LIBS) $(EXTRA_LIBS)
+guvcview_LDADD = $(DEPS_LIBS) $(EXTRA_LIBS) $(PTHREAD_LIBS)
 
 localedir = $(datadir)/locale
 DEFS = -DLOCALEDIR=\"$(localedir)\" @DEFS@
