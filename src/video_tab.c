@@ -132,328 +132,285 @@ lavc_properties(GtkButton * CodecButt, struct ALL_DATA *all_data)
 		GTK_RESPONSE_REJECT,
 		NULL);
 	
-	GtkWidget *table = gtk_table_new(1,2,FALSE);
+	GtkWidget *table = gtk_grid_new();
 
 	GtkWidget *lbl_fps = gtk_label_new(_("                              encoder fps:   \n (0 - use fps combobox value)"));
 	gtk_misc_set_alignment (GTK_MISC (lbl_fps), 1, 0.5);
-	gtk_table_attach (GTK_TABLE(table), lbl_fps, 0, 1, line, line+1,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table), lbl_fps, 0, line, 1, 1);
 	gtk_widget_show (lbl_fps);
 	
 	GtkWidget *enc_fps = gtk_spin_button_new_with_range(0,30,5);
 	gtk_editable_set_editable(GTK_EDITABLE(enc_fps),TRUE);
 	gtk_spin_button_set_value (GTK_SPIN_BUTTON(enc_fps), codec_defaults->fps);
 	
-	gtk_table_attach (GTK_TABLE(table), enc_fps, 1, 2, line, line+1,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table), enc_fps, 1, line, 1, 1);
 	gtk_widget_show (enc_fps);
 	line++;
 	
 	GtkWidget *monotonic_pts = gtk_check_button_new_with_label (_(" monotonic pts"));
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(monotonic_pts),(codec_defaults->monotonic_pts != 0));
 	
-	gtk_table_attach (GTK_TABLE(table), monotonic_pts, 1, 2, line, line+1,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table), monotonic_pts, 1, line, 1, 1);
 	gtk_widget_show (monotonic_pts);
 	line++;
 	
 	GtkWidget *lbl_bit_rate = gtk_label_new(_("bit rate:   "));
 	gtk_misc_set_alignment (GTK_MISC (lbl_bit_rate), 1, 0.5);
-	gtk_table_attach (GTK_TABLE(table), lbl_bit_rate, 0, 1, line, line+1,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table), lbl_bit_rate, 0, line, 1, 1);
 	gtk_widget_show (lbl_bit_rate);
 	
 	GtkWidget *bit_rate = gtk_spin_button_new_with_range(160000,4000000,10000);
 	gtk_editable_set_editable(GTK_EDITABLE(bit_rate),TRUE);
 	gtk_spin_button_set_value (GTK_SPIN_BUTTON(bit_rate), codec_defaults->bit_rate);
 	
-	gtk_table_attach (GTK_TABLE(table), bit_rate, 1, 2, line, line+1,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table), bit_rate, 1, line, 1, 1);
 	gtk_widget_show (bit_rate);
 	line++;
 	
 	GtkWidget *lbl_qmax = gtk_label_new(_("qmax:   "));
 	gtk_misc_set_alignment (GTK_MISC (lbl_qmax), 1, 0.5);
-	gtk_table_attach (GTK_TABLE(table), lbl_qmax, 0, 1, line, line+1,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table), lbl_qmax, 0, line, 1 ,1);
 	gtk_widget_show (lbl_qmax);
 	
 	GtkWidget *qmax = gtk_spin_button_new_with_range(1,60,1);
 	gtk_editable_set_editable(GTK_EDITABLE(qmax),TRUE);
 	gtk_spin_button_set_value (GTK_SPIN_BUTTON(qmax), codec_defaults->qmax);
 	
-	gtk_table_attach (GTK_TABLE(table), qmax, 1, 2, line, line+1,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table), qmax, 1, line, 1, 1);
 	gtk_widget_show (qmax);
 	line++;
 	
 	GtkWidget *lbl_qmin = gtk_label_new(_("qmin:   "));
 	gtk_misc_set_alignment (GTK_MISC (lbl_qmin), 1, 0.5);
-	gtk_table_attach (GTK_TABLE(table), lbl_qmin, 0, 1, line, line+1,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table), lbl_qmin, 0, line, 1, 1);
 	gtk_widget_show (lbl_qmin);
 	
 	GtkWidget *qmin = gtk_spin_button_new_with_range(1,31,1);
 	gtk_editable_set_editable(GTK_EDITABLE(qmin),TRUE);
 	gtk_spin_button_set_value (GTK_SPIN_BUTTON(qmin), codec_defaults->qmin);
 	
-	gtk_table_attach (GTK_TABLE(table), qmin, 1, 2, line, line+1,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table), qmin, 1, line, 1, 1);
 	gtk_widget_show (qmin);
 	line++;
 	
 	GtkWidget *lbl_max_qdiff = gtk_label_new(_("max. qdiff:   "));
 	gtk_misc_set_alignment (GTK_MISC (lbl_max_qdiff), 1, 0.5);
-	gtk_table_attach (GTK_TABLE(table), lbl_max_qdiff, 0, 1, line, line+1,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table), lbl_max_qdiff, 0, line, 1, 1);
 	gtk_widget_show (lbl_max_qdiff);
 	
 	GtkWidget *max_qdiff = gtk_spin_button_new_with_range(1,4,1);
 	gtk_editable_set_editable(GTK_EDITABLE(max_qdiff),TRUE);
 	gtk_spin_button_set_value (GTK_SPIN_BUTTON(max_qdiff), codec_defaults->max_qdiff);
 	
-	gtk_table_attach (GTK_TABLE(table), max_qdiff, 1, 2, line, line+1,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table), max_qdiff, 1, line, 1, 1);
 	gtk_widget_show (max_qdiff);
 	line++;
 	
 	GtkWidget *lbl_dia = gtk_label_new(_("dia size:   "));
 	gtk_misc_set_alignment (GTK_MISC (lbl_dia), 1, 0.5);
-	gtk_table_attach (GTK_TABLE(table), lbl_dia, 0, 1, line, line+1,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table), lbl_dia, 0, line, 1, 1);
 	gtk_widget_show (lbl_dia);
 	
 	GtkWidget *dia = gtk_spin_button_new_with_range(-1,4,1);
 	gtk_editable_set_editable(GTK_EDITABLE(dia),TRUE);
 	gtk_spin_button_set_value (GTK_SPIN_BUTTON(dia), codec_defaults->dia);
 	
-	gtk_table_attach (GTK_TABLE(table), dia, 1, 2, line, line+1,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table), dia, 1, line, 1, 1);
 	gtk_widget_show (dia);
 	line++;
 	
 	GtkWidget *lbl_pre_dia = gtk_label_new(_("pre dia size:   "));
 	gtk_misc_set_alignment (GTK_MISC (lbl_pre_dia), 1, 0.5);
-	gtk_table_attach (GTK_TABLE(table), lbl_pre_dia, 0, 1, line, line+1,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table), lbl_pre_dia, 0, line, 1, 1);
 	gtk_widget_show (lbl_pre_dia);
 	
 	GtkWidget *pre_dia = gtk_spin_button_new_with_range(1,4,1);
 	gtk_editable_set_editable(GTK_EDITABLE(pre_dia),TRUE);
 	gtk_spin_button_set_value (GTK_SPIN_BUTTON(pre_dia), codec_defaults->pre_dia);
 	
-	gtk_table_attach (GTK_TABLE(table), pre_dia, 1, 2, line, line+1,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table), pre_dia, 1, line, 1, 1);
 	gtk_widget_show (pre_dia);
 	line++;
 	
 	GtkWidget *lbl_pre_me = gtk_label_new(_("pre me:   "));
 	gtk_misc_set_alignment (GTK_MISC (lbl_pre_me), 1, 0.5);
-	gtk_table_attach (GTK_TABLE(table), lbl_pre_me, 0, 1, line, line+1,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table), lbl_pre_me, 0, line, 1, 1);
 	gtk_widget_show (lbl_pre_me);
 	
 	GtkWidget *pre_me = gtk_spin_button_new_with_range(0,2,1);
 	gtk_editable_set_editable(GTK_EDITABLE(pre_me),TRUE);
 	gtk_spin_button_set_value (GTK_SPIN_BUTTON(pre_me), codec_defaults->pre_me);
 	
-	gtk_table_attach (GTK_TABLE(table), pre_me, 1, 2, line, line+1,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table), pre_me, 1, line, 1, 1);
 	gtk_widget_show (pre_me);
 	line++;
 	
 	GtkWidget *lbl_me_pre_cmp = gtk_label_new(_("pre cmp:   "));
 	gtk_misc_set_alignment (GTK_MISC (lbl_me_pre_cmp), 1, 0.5);
-	gtk_table_attach (GTK_TABLE(table), lbl_me_pre_cmp, 0, 1, line, line+1,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table), lbl_me_pre_cmp, 0, line, 1, 1);
 	gtk_widget_show (lbl_me_pre_cmp);
 	
 	GtkWidget *me_pre_cmp = gtk_spin_button_new_with_range(0,6,1);
 	gtk_editable_set_editable(GTK_EDITABLE(me_pre_cmp),TRUE);
 	gtk_spin_button_set_value (GTK_SPIN_BUTTON(me_pre_cmp), codec_defaults->me_pre_cmp);
 	
-	gtk_table_attach (GTK_TABLE(table), me_pre_cmp, 1, 2, line, line+1,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table), me_pre_cmp, 1, line, 1, 1);
 	gtk_widget_show (me_pre_cmp);
 	line++;
 	
 	GtkWidget *lbl_me_cmp = gtk_label_new(_("cmp:   "));
 	gtk_misc_set_alignment (GTK_MISC (lbl_me_cmp), 1, 0.5);
-	gtk_table_attach (GTK_TABLE(table), lbl_me_cmp, 0, 1, line, line+1,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table), lbl_me_cmp, 0, line, 1, 1);
 	gtk_widget_show (lbl_me_cmp);
 	
 	GtkWidget *me_cmp = gtk_spin_button_new_with_range(0,6,1);
 	gtk_editable_set_editable(GTK_EDITABLE(me_cmp),TRUE);
 	gtk_spin_button_set_value (GTK_SPIN_BUTTON(me_cmp), codec_defaults->me_cmp);
 	
-	gtk_table_attach (GTK_TABLE(table), me_cmp, 1, 2, line, line+1,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table), me_cmp, 1, line, 1, 1);
 	gtk_widget_show (me_cmp);
 	line++;
 	
 	GtkWidget *lbl_me_sub_cmp = gtk_label_new(_("sub cmp:   "));
 	gtk_misc_set_alignment (GTK_MISC (lbl_me_sub_cmp), 1, 0.5);
-	gtk_table_attach (GTK_TABLE(table), lbl_me_sub_cmp, 0, 1, line, line+1,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table), lbl_me_sub_cmp, 0, line, 1, 1);
 	gtk_widget_show (lbl_me_sub_cmp);
 	
 	GtkWidget *me_sub_cmp = gtk_spin_button_new_with_range(0,6,1);
 	gtk_editable_set_editable(GTK_EDITABLE(me_sub_cmp),TRUE);
 	gtk_spin_button_set_value (GTK_SPIN_BUTTON(me_sub_cmp), codec_defaults->me_sub_cmp);
 	
-	gtk_table_attach (GTK_TABLE(table), me_sub_cmp, 1, 2, line, line+1,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table), me_sub_cmp, 1, line, 1, 1);
 	gtk_widget_show (me_sub_cmp);
 	line++;
 	
 	GtkWidget *lbl_last_pred = gtk_label_new(_("last predictor count:   "));
 	gtk_misc_set_alignment (GTK_MISC (lbl_last_pred), 1, 0.5);
-	gtk_table_attach (GTK_TABLE(table), lbl_last_pred, 0, 1, line, line+1,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table), lbl_last_pred, 0, line, 1, 1);
 	gtk_widget_show (lbl_last_pred);
 	
 	GtkWidget *last_pred = gtk_spin_button_new_with_range(1,3,1);
 	gtk_editable_set_editable(GTK_EDITABLE(last_pred),TRUE);
 	gtk_spin_button_set_value (GTK_SPIN_BUTTON(last_pred), codec_defaults->last_pred);
 	
-	gtk_table_attach (GTK_TABLE(table), last_pred, 1, 2, line, line+1,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table), last_pred, 1, line, 1, 1);
 	gtk_widget_show (last_pred);
 	line++;
 	
 	GtkWidget *lbl_gop_size = gtk_label_new(_("gop size:   "));
 	gtk_misc_set_alignment (GTK_MISC (lbl_gop_size), 1, 0.5);
-	gtk_table_attach (GTK_TABLE(table), lbl_gop_size, 0, 1, line, line+1,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table), lbl_gop_size, 0, line, 1, 1);
 	gtk_widget_show (lbl_gop_size);
 	
 	GtkWidget *gop_size = gtk_spin_button_new_with_range(1,250,1);
 	gtk_editable_set_editable(GTK_EDITABLE(gop_size),TRUE);
 	gtk_spin_button_set_value (GTK_SPIN_BUTTON(gop_size), codec_defaults->gop_size);
 	
-	gtk_table_attach (GTK_TABLE(table), gop_size, 1, 2, line, line+1,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table), gop_size, 1, line, 1, 1);
 	gtk_widget_show (gop_size);
 	line++;
 	
 	GtkWidget *lbl_qcompress = gtk_label_new(_("qcompress:   "));
 	gtk_misc_set_alignment (GTK_MISC (lbl_qcompress), 1, 0.5);
-	gtk_table_attach (GTK_TABLE(table), lbl_qcompress, 0, 1, line, line+1,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table), lbl_qcompress, 0, line, 1, 1);
 	gtk_widget_show (lbl_qcompress);
 	
 	GtkWidget *qcompress = gtk_spin_button_new_with_range(0,1,0.1);
 	gtk_editable_set_editable(GTK_EDITABLE(qcompress),TRUE);
 	gtk_spin_button_set_value (GTK_SPIN_BUTTON(qcompress), codec_defaults->qcompress);
 	
-	gtk_table_attach (GTK_TABLE(table), qcompress, 1, 2, line, line+1,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table), qcompress, 1, line, 1 ,1);
 	gtk_widget_show (qcompress);
 	line++;
 	
 	GtkWidget *lbl_qblur = gtk_label_new(_("qblur:   "));
 	gtk_misc_set_alignment (GTK_MISC (lbl_qblur), 1, 0.5);
-	gtk_table_attach (GTK_TABLE(table), lbl_qblur, 0, 1, line, line+1,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table), lbl_qblur, 0, line, 1 ,1);
 	gtk_widget_show (lbl_qblur);
 	
 	GtkWidget *qblur = gtk_spin_button_new_with_range(0,1,0.1);
 	gtk_editable_set_editable(GTK_EDITABLE(qblur),TRUE);
 	gtk_spin_button_set_value (GTK_SPIN_BUTTON(qblur), codec_defaults->qblur);
 	
-	gtk_table_attach (GTK_TABLE(table), qblur, 1, 2, line, line+1,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table), qblur, 1, line, 1 ,1);
 	gtk_widget_show (qblur);
 	line++;
 
 	GtkWidget *lbl_subq = gtk_label_new(_("subq:   "));
 	gtk_misc_set_alignment (GTK_MISC (lbl_subq), 1, 0.5);
-	gtk_table_attach (GTK_TABLE(table), lbl_subq, 0, 1, line, line+1,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table), lbl_subq, 0, line, 1 ,1);
 	gtk_widget_show (lbl_subq);
 	
 	GtkWidget *subq = gtk_spin_button_new_with_range(0,8,1);
 	gtk_editable_set_editable(GTK_EDITABLE(subq),TRUE);
 	gtk_spin_button_set_value (GTK_SPIN_BUTTON(subq), codec_defaults->subq);
 	
-	gtk_table_attach (GTK_TABLE(table), subq, 1, 2, line, line+1,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table), subq, 1, line, 1 ,1);
 	gtk_widget_show (subq);
 	line++;
 
 	GtkWidget *lbl_framerefs = gtk_label_new(_("framerefs:   "));
 	gtk_misc_set_alignment (GTK_MISC (lbl_framerefs), 1, 0.5);
-	gtk_table_attach (GTK_TABLE(table), lbl_framerefs, 0, 1, line, line+1,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table), lbl_framerefs, 0, line, 1 ,1);
 	gtk_widget_show (lbl_framerefs);
 	
 	GtkWidget *framerefs = gtk_spin_button_new_with_range(0,12,1);
 	gtk_editable_set_editable(GTK_EDITABLE(framerefs),TRUE);
 	gtk_spin_button_set_value (GTK_SPIN_BUTTON(framerefs), codec_defaults->framerefs);
 	
-	gtk_table_attach (GTK_TABLE(table), framerefs, 1, 2, line, line+1,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table), framerefs, 1, line, 1 ,1);
 	gtk_widget_show (framerefs);
 	line++;
 	
 	GtkWidget *lbl_me_method = gtk_label_new(_("me method:   "));
 	gtk_misc_set_alignment (GTK_MISC (lbl_me_method), 1, 0.5);
-	gtk_table_attach (GTK_TABLE(table), lbl_me_method, 0, 1, line, line+1,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table), lbl_me_method, 0, line, 1 ,1);
 	gtk_widget_show (lbl_me_method);
 	
 	GtkWidget *me_method = gtk_spin_button_new_with_range(1,10,1);
 	gtk_editable_set_editable(GTK_EDITABLE(me_method),TRUE);
 	gtk_spin_button_set_value (GTK_SPIN_BUTTON(me_method), codec_defaults->me_method);
 	
-	gtk_table_attach (GTK_TABLE(table), me_method, 1, 2, line, line+1,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table), me_method, 1, line, 1 ,1);
 	gtk_widget_show (me_method);
 	line++;
 	
 	GtkWidget *lbl_mb_decision = gtk_label_new(_("mb decision:   "));
 	gtk_misc_set_alignment (GTK_MISC (lbl_mb_decision), 1, 0.5);
-	gtk_table_attach (GTK_TABLE(table), lbl_mb_decision, 0, 1, line, line+1,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table), lbl_mb_decision, 0, line, 1 ,1);
 	gtk_widget_show (lbl_mb_decision);
 	
 	GtkWidget *mb_decision = gtk_spin_button_new_with_range(0,2,1);
 	gtk_editable_set_editable(GTK_EDITABLE(mb_decision),TRUE);
 	gtk_spin_button_set_value (GTK_SPIN_BUTTON(mb_decision), codec_defaults->mb_decision);
 	
-	gtk_table_attach (GTK_TABLE(table), mb_decision, 1, 2, line, line+1,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table), mb_decision, 1, line, 1 ,1);
 	gtk_widget_show (mb_decision);
 	line++;
 	
 	GtkWidget *lbl_max_b_frames = gtk_label_new(_("max B frames:   "));
 	gtk_misc_set_alignment (GTK_MISC (lbl_max_b_frames), 1, 0.5);
-	gtk_table_attach (GTK_TABLE(table), lbl_max_b_frames, 0, 1, line, line+1,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table), lbl_max_b_frames, 0, line, 1 ,1);
 	gtk_widget_show (lbl_max_b_frames);
 	
 	GtkWidget *max_b_frames = gtk_spin_button_new_with_range(0,4,1);
 	gtk_editable_set_editable(GTK_EDITABLE(max_b_frames),TRUE);
 	gtk_spin_button_set_value (GTK_SPIN_BUTTON(max_b_frames), codec_defaults->max_b_frames);
 	
-	gtk_table_attach (GTK_TABLE(table), max_b_frames, 1, 2, line, line+1,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table), max_b_frames, 1, line, 1 ,1);
 	gtk_widget_show (max_b_frames);
 	line++;
 	
 	GtkWidget *lbl_num_threads = gtk_label_new(_("num threads:   "));
 	gtk_misc_set_alignment (GTK_MISC (lbl_num_threads), 1, 0.5);
-	gtk_table_attach (GTK_TABLE(table), lbl_num_threads, 0, 1, line, line+1,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table), lbl_num_threads, 0, line, 1 ,1);
 	gtk_widget_show (lbl_num_threads);
 
 	GtkWidget *num_threads = gtk_spin_button_new_with_range(0,8,1);
 	gtk_editable_set_editable(GTK_EDITABLE(num_threads),TRUE);
 	gtk_spin_button_set_value (GTK_SPIN_BUTTON(num_threads), codec_defaults->num_threads);
 
-	gtk_table_attach (GTK_TABLE(table), num_threads, 1, 2, line, line+1,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table), num_threads, 1, line, 1 ,1);
 	gtk_widget_show (num_threads);
 	line++;
 	
@@ -538,9 +495,13 @@ void video_tab(struct ALL_DATA *all_data)
 	VidFormats *listVidFormats;
 
 	//TABLE
-	table2 = gtk_table_new(1,3,FALSE);
-	gtk_table_set_row_spacings (GTK_TABLE (table2), 4);
-	gtk_table_set_col_spacings (GTK_TABLE (table2), 4);
+	table2 = gtk_grid_new();
+	gtk_grid_set_column_homogeneous (GTK_GRID(table2), FALSE);
+	gtk_widget_set_hexpand (table2, TRUE);
+	gtk_widget_set_halign (table2, GTK_ALIGN_FILL);
+	
+	gtk_grid_set_row_spacing (GTK_GRID(table2), 4);
+	gtk_grid_set_column_spacing (GTK_GRID (table2), 4);
 	gtk_container_set_border_width (GTK_CONTAINER (table2), 2);
 	gtk_widget_show (table2);
 	//SCROLL
@@ -551,7 +512,7 @@ void video_tab(struct ALL_DATA *all_data)
 	gtk_widget_show(scroll2);
 	
 	//new hbox for tab label and icon
-	Tab2 = gtk_hbox_new(FALSE,2);
+	Tab2 = gtk_grid_new();
 	Tab2Label = gtk_label_new(_("Video & Files"));
 	gtk_widget_show (Tab2Label);
 	
@@ -561,8 +522,8 @@ void video_tab(struct ALL_DATA *all_data)
 	Tab2Icon = gtk_image_new_from_file(Tab2IconPath);
 	g_free(Tab2IconPath);
 	gtk_widget_show (Tab2Icon);
-	gtk_box_pack_start (GTK_BOX(Tab2), Tab2Icon, FALSE, FALSE,1);
-	gtk_box_pack_start (GTK_BOX(Tab2), Tab2Label, FALSE, FALSE,1);
+	gtk_grid_attach (GTK_GRID(Tab2), Tab2Icon, 0, 0, 1, 1);
+	gtk_grid_attach (GTK_GRID(Tab2), Tab2Label, 1, 0, 1, 1);
 	
 	gtk_widget_show (Tab2);
 	gtk_notebook_append_page(GTK_NOTEBOOK(gwidget->boxh),scroll2,Tab2);
@@ -571,13 +532,14 @@ void video_tab(struct ALL_DATA *all_data)
 	label_Device = gtk_label_new(_("Device:"));
 	gtk_misc_set_alignment (GTK_MISC (label_Device), 1, 0.5);
 
-	gtk_table_attach (GTK_TABLE(table2), label_Device, 0, 1, line, line+1,
-		GTK_FILL, 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table2), label_Device, 0, line, 1, 1);
 
 	gtk_widget_show (label_Device);
 	
 	
 	gwidget->Devices = gtk_combo_box_text_new ();
+	gtk_widget_set_halign (gwidget->Devices, GTK_ALIGN_FILL);
+	gtk_widget_set_hexpand (gwidget->Devices, TRUE);
 	if (videoIn->listDevices->num_devices < 1)
 	{
 		//use current
@@ -595,14 +557,15 @@ void video_tab(struct ALL_DATA *all_data)
 				gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->Devices),i);
 		}
 	}
-	gtk_table_attach(GTK_TABLE(table2), gwidget->Devices, 1, 2, line, line+1,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table2), gwidget->Devices, 1, line, 1 ,1);
 	gtk_widget_show (gwidget->Devices);
 	g_signal_connect (GTK_COMBO_BOX_TEXT(gwidget->Devices), "changed",
 		G_CALLBACK (Devices_changed), all_data);
 	
 	// Resolution
 	gwidget->Resolution = gtk_combo_box_text_new ();
+	gtk_widget_set_halign (gwidget->Resolution, GTK_ALIGN_FILL);
+	gtk_widget_set_hexpand (gwidget->Resolution, TRUE);
 	char temp_str[20];
 	int defres=0;
 
@@ -634,6 +597,8 @@ void video_tab(struct ALL_DATA *all_data)
 	line++;
 					  
 	gwidget->FrameRate = gtk_combo_box_text_new ();
+	gtk_widget_set_halign (gwidget->FrameRate, GTK_ALIGN_FILL);
+	gtk_widget_set_hexpand (gwidget->FrameRate, TRUE);
 	int deffps=0;
 	if (global->debug) 
 		g_print("frame rates of %dº resolution=%d \n",
@@ -650,8 +615,7 @@ void video_tab(struct ALL_DATA *all_data)
 				deffps=i;//set selected
 	}
 	
-	gtk_table_attach(GTK_TABLE(table2), gwidget->FrameRate, 1, 2, line, line+1,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table2), gwidget->FrameRate, 1, line, 1 ,1);
 	gtk_widget_show (gwidget->FrameRate);
 	
 	
@@ -673,14 +637,12 @@ void video_tab(struct ALL_DATA *all_data)
 	label_FPS = gtk_label_new(_("Frame Rate:"));
 	gtk_misc_set_alignment (GTK_MISC (label_FPS), 1, 0.5);
 
-	gtk_table_attach (GTK_TABLE(table2), label_FPS, 0, 1, line, line+1,
-		GTK_FILL, 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table2), label_FPS, 0, line, 1, 1);
 
 	gtk_widget_show (label_FPS);
 	
 	ShowFPS=gtk_check_button_new_with_label (_(" Show"));
-	gtk_table_attach(GTK_TABLE(table2), ShowFPS, 2, 3, line, line+1,
-		GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table2), ShowFPS, 2, line, 1, 1);
 	
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ShowFPS),(global->FpsCount > 0));
 	gtk_widget_show (ShowFPS);
@@ -694,8 +656,7 @@ void video_tab(struct ALL_DATA *all_data)
 	if(global->debug) 
 		g_print("Def. Res: %i  numb. fps:%i\n",defres,videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[defres].numb_frates);
 	
-	gtk_table_attach(GTK_TABLE(table2), gwidget->Resolution, 1, 2, line, line+1,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table2), gwidget->Resolution, 1, line, 1 ,1);
 	gtk_widget_show (gwidget->Resolution);
 	
 	gtk_widget_set_sensitive (gwidget->Resolution, TRUE);
@@ -704,13 +665,14 @@ void video_tab(struct ALL_DATA *all_data)
 	
 	labelResol = gtk_label_new(_("Resolution:"));
 	gtk_misc_set_alignment (GTK_MISC (labelResol), 1, 0.5);
-	gtk_table_attach (GTK_TABLE(table2), labelResol, 0, 1, line, line+1,
-		GTK_FILL, 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table2), labelResol, 0, line, 1, 1);
 	gtk_widget_show (labelResol);
 	
 	// Input Format
 	line++;
 	gwidget->InpType= gtk_combo_box_text_new ();
+	gtk_widget_set_halign (gwidget->InpType, GTK_ALIGN_FILL);
+	gtk_widget_set_hexpand (gwidget->InpType, TRUE);
 	
 	int fmtind=0;
 	for (fmtind=0; fmtind < videoIn->listFormats->numb_formats; fmtind++)
@@ -720,8 +682,7 @@ void video_tab(struct ALL_DATA *all_data)
 			gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->InpType),fmtind); /*set active*/
 	}
 	
-	gtk_table_attach(GTK_TABLE(table2), gwidget->InpType, 1, 2, line, line+1,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table2), gwidget->InpType, 1, line, 1 ,1);
 	
 	gtk_widget_set_sensitive (gwidget->InpType, TRUE);
 	g_signal_connect (GTK_COMBO_BOX_TEXT(gwidget->InpType), "changed",
@@ -731,8 +692,7 @@ void video_tab(struct ALL_DATA *all_data)
 	label_InpType = gtk_label_new(_("Camera Output:"));
 	gtk_misc_set_alignment (GTK_MISC (label_InpType), 1, 0.5);
 
-	gtk_table_attach (GTK_TABLE(table2), label_InpType, 0, 1, line, line+1,
-		GTK_FILL, 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table2), label_InpType, 0, line, 1, 1);
 
 	gtk_widget_show (label_InpType);
 
@@ -741,18 +701,18 @@ void video_tab(struct ALL_DATA *all_data)
 	{
 		line++;
 		gwidget->jpeg_comp = gtk_spin_button_new_with_range(0,100,1);
+		gtk_widget_set_halign (gwidget->jpeg_comp, GTK_ALIGN_FILL);
+		gtk_widget_set_hexpand (gwidget->jpeg_comp, TRUE);
 		/*can't edit the spin value by hand*/
 		gtk_editable_set_editable(GTK_EDITABLE(gwidget->jpeg_comp),FALSE);
 		gtk_spin_button_set_value (GTK_SPIN_BUTTON(gwidget->jpeg_comp), videoIn->jpgcomp.quality);
-		gtk_table_attach(GTK_TABLE(table2), gwidget->jpeg_comp, 1, 2, line, line+1,
-			GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+		gtk_grid_attach (GTK_GRID(table2), gwidget->jpeg_comp, 1, line, 1 ,1);
 	
 		gtk_widget_set_sensitive (gwidget->jpeg_comp, TRUE);
 		gtk_widget_show (gwidget->jpeg_comp);
 
 		set_jpeg_comp = gtk_button_new_with_label(_("Apply"));
-		gtk_table_attach(GTK_TABLE(table2), set_jpeg_comp, 2, 3, line, line+1,
-			GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+		gtk_grid_attach (GTK_GRID(table2), set_jpeg_comp, 2, line, 1 ,1);
 		g_signal_connect (GTK_BUTTON (set_jpeg_comp), "clicked",
 				G_CALLBACK (set_jpeg_comp_clicked), all_data);
 		gtk_widget_set_sensitive (set_jpeg_comp, TRUE);
@@ -761,8 +721,7 @@ void video_tab(struct ALL_DATA *all_data)
 		label_jpeg_comp = gtk_label_new(_("Quality:"));
 		gtk_misc_set_alignment (GTK_MISC (label_jpeg_comp), 1, 0.5);
 
-		gtk_table_attach (GTK_TABLE(table2), label_jpeg_comp, 0, 1, line, line+1,
-			GTK_FILL, 0, 0, 0);
+		gtk_grid_attach (GTK_GRID(table2), label_jpeg_comp, 0, line, 1 ,1);
 
 		gtk_widget_show (label_jpeg_comp);
 	}
@@ -772,12 +731,12 @@ void video_tab(struct ALL_DATA *all_data)
 	gtk_misc_set_alignment (GTK_MISC (label_ImgFile), 1, 0.5);
 	    
 	gwidget->ImageFNameEntry = gtk_entry_new();
+	gtk_widget_set_halign (gwidget->ImageFNameEntry, GTK_ALIGN_FILL);
+	gtk_widget_set_hexpand (gwidget->ImageFNameEntry, TRUE);
 	gtk_entry_set_text(GTK_ENTRY(gwidget->ImageFNameEntry),global->imgFPath[0]);
-	gtk_table_attach(GTK_TABLE(table2), label_ImgFile, 0, 1, line, line+1,
-		GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table2), label_ImgFile, 0, line, 1 ,1);
 	
-	gtk_table_attach(GTK_TABLE(table2), gwidget->ImageFNameEntry, 1, 2, line, line+1,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table2), gwidget->ImageFNameEntry, 1, line, 1 ,1);
 	
 	gwidget->ImgFileButt=gtk_button_new_from_stock(GTK_STOCK_OPEN); 
 	gchar* OImgIconPath = g_strconcat (PACKAGE_DATA_DIR,"/pixmaps/guvcview/images_folder.png",NULL);
@@ -787,8 +746,7 @@ void video_tab(struct ALL_DATA *all_data)
 	g_free(OImgIconPath);
 	gtk_button_set_image (GTK_BUTTON(gwidget->ImgFileButt), ImgFolder_img);
 	
-	gtk_table_attach(GTK_TABLE(table2), gwidget->ImgFileButt, 2, 3, line, line+1,
-		GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table2), gwidget->ImgFileButt, 2, line, 1, 1);
 
 	gtk_widget_show (ImgFolder_img);
 	gtk_widget_show (gwidget->ImgFileButt);
@@ -797,13 +755,11 @@ void video_tab(struct ALL_DATA *all_data)
 	line++;
 	gwidget->ImageIncLabel=gtk_label_new(global->imageinc_str);
 	gtk_misc_set_alignment (GTK_MISC (gwidget->ImageIncLabel), 0, 0.5);
-	gtk_table_attach (GTK_TABLE(table2), gwidget->ImageIncLabel, 1, 2, line, line+1,
-		GTK_FILL, 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table2), gwidget->ImageIncLabel, 1, line, 1 ,1);
 	gtk_widget_show (gwidget->ImageIncLabel);
 	
 	gwidget->ImageInc=gtk_check_button_new_with_label (_("File,Auto"));
-	gtk_table_attach(GTK_TABLE(table2), gwidget->ImageInc, 2, 3, line, line+1,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table2), gwidget->ImageInc, 2, line, 1 ,1);
 	
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gwidget->ImageInc),(global->image_inc > 0));
 	g_signal_connect (GTK_CHECK_BUTTON(gwidget->ImageInc), "toggled",
@@ -814,18 +770,18 @@ void video_tab(struct ALL_DATA *all_data)
 	line++;
 	label_ImageType=gtk_label_new(_("Image Format:"));
 	gtk_misc_set_alignment (GTK_MISC (label_ImageType), 1, 0.5);
-	gtk_table_attach (GTK_TABLE(table2), label_ImageType, 0, 1, line, line+1,
-		GTK_FILL, 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table2), label_ImageType, 0, line, 1, 1);
 	gtk_widget_show (label_ImageType);
 	
 	gwidget->ImageType=gtk_combo_box_text_new ();
+	gtk_widget_set_halign (gwidget->ImageType, GTK_ALIGN_FILL);
+	gtk_widget_set_hexpand (gwidget->ImageType, TRUE);
 	gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(gwidget->ImageType),"JPG");
 	gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(gwidget->ImageType),"BMP");
 	gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(gwidget->ImageType),"PNG");
 	gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(gwidget->ImageType),"RAW");
 	gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->ImageType),global->imgFormat);
-	gtk_table_attach(GTK_TABLE(table2), gwidget->ImageType, 1, 2, line, line+1,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table2), gwidget->ImageType, 1, line, 1 ,1);
 	gtk_widget_show (gwidget->ImageType);
 	
 	gtk_widget_show (label_ImgFile);
@@ -840,8 +796,7 @@ void video_tab(struct ALL_DATA *all_data)
 	
 	gwidget->TakeImageByDefault = gtk_radio_button_new_with_label (NULL, _("Take Picture by Default"));
 	
-	gtk_table_attach(GTK_TABLE(table2), gwidget->TakeImageByDefault, 2, 3, line, line+1,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table2), gwidget->TakeImageByDefault, 2, line, 1 ,1);
 
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gwidget->TakeImageByDefault),(global->default_action == 0));
 	g_signal_connect (GTK_CHECK_BUTTON(gwidget->TakeImageByDefault), "toggled",
@@ -853,10 +808,10 @@ void video_tab(struct ALL_DATA *all_data)
 	label_VidFile= gtk_label_new(_("Video File:"));
 	gtk_misc_set_alignment (GTK_MISC (label_VidFile), 1, 0.5);
 	gwidget->VidFNameEntry = gtk_entry_new();
-	gtk_table_attach(GTK_TABLE(table2), label_VidFile, 0, 1, line, line+1,
-		GTK_SHRINK | GTK_FILL, 0, 0, 0);
-	gtk_table_attach(GTK_TABLE(table2), gwidget->VidFNameEntry, 1, 2, line, line+1,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_widget_set_halign (gwidget->VidFNameEntry, GTK_ALIGN_FILL);
+	gtk_widget_set_hexpand (gwidget->VidFNameEntry, TRUE);
+	gtk_grid_attach (GTK_GRID(table2), label_VidFile, 0, line, 1 ,1);
+	gtk_grid_attach (GTK_GRID(table2), gwidget->VidFNameEntry, 1, line, 1 ,1);
 	
 	gwidget->VidFileButt=gtk_button_new_from_stock(GTK_STOCK_OPEN);
 	gchar* OVidIconPath = g_strconcat (PACKAGE_DATA_DIR,"/pixmaps/guvcview/videos_folder.png",NULL);
@@ -866,8 +821,7 @@ void video_tab(struct ALL_DATA *all_data)
 	g_free(OVidIconPath);
 	
 	gtk_button_set_image (GTK_BUTTON(gwidget->VidFileButt), VidFolder_img);
-	gtk_table_attach(GTK_TABLE(table2), gwidget->VidFileButt, 2, 3, line, line+1,
-		GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table2), gwidget->VidFileButt, 2, line, 1, 1);
 
 	gtk_widget_show (VidFolder_img);
 	gtk_widget_show (gwidget->VidFileButt);
@@ -891,13 +845,11 @@ void video_tab(struct ALL_DATA *all_data)
 	line++;
 	gwidget->VidIncLabel=gtk_label_new(global->vidinc_str);
 	gtk_misc_set_alignment (GTK_MISC (gwidget->VidIncLabel), 0, 0.5);
-	gtk_table_attach (GTK_TABLE(table2), gwidget->VidIncLabel, 1, 2, line, line+1,
-		GTK_FILL, 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table2), gwidget->VidIncLabel, 1, line, 1 ,1);
 	gtk_widget_show (gwidget->VidIncLabel);
 	
 	gwidget->VidInc=gtk_check_button_new_with_label (_("File,Auto"));
-	gtk_table_attach(GTK_TABLE(table2), gwidget->VidInc, 2, 3, line, line+1,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table2), gwidget->VidInc, 2, line, 1 ,1);
 	
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gwidget->VidInc),(global->vid_inc > 0));
 	
@@ -908,6 +860,8 @@ void video_tab(struct ALL_DATA *all_data)
 	// Video Codec
 	line++;
 	gwidget->VidCodec = gtk_combo_box_text_new ();
+	gtk_widget_set_halign (gwidget->VidCodec, GTK_ALIGN_FILL);
+	gtk_widget_set_hexpand (gwidget->VidCodec, TRUE);
 	
 	//sets to valid only existing codecs
 	setVcodecVal ();
@@ -918,8 +872,7 @@ void video_tab(struct ALL_DATA *all_data)
 			gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(gwidget->VidCodec),gettext(get_desc4cc(vcodec_ind)));
 		
 	}
-	gtk_table_attach(GTK_TABLE(table2), gwidget->VidCodec, 1, 2, line, line+1,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table2), gwidget->VidCodec, 1, line, 1 ,1);
 	gtk_widget_show (gwidget->VidCodec);
 	
 	gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->VidCodec),global->VidCodec);
@@ -931,14 +884,12 @@ void video_tab(struct ALL_DATA *all_data)
 	label_VidCodec = gtk_label_new(_("Video Codec:"));
 	gtk_misc_set_alignment (GTK_MISC (label_VidCodec), 1, 0.5);
 
-	gtk_table_attach (GTK_TABLE(table2), label_VidCodec, 0, 1, line, line+1,
-		GTK_FILL, 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table2), label_VidCodec, 0, line, 1, 1);
 	gtk_widget_show (label_VidCodec);
 	
 	//lavc codec properties button
 	gwidget->lavc_button = gtk_button_new_with_label (_("properties"));
-	gtk_table_attach (GTK_TABLE(table2), gwidget->lavc_button, 2, 3, line, line+1,
-		GTK_FILL, 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table2), gwidget->lavc_button, 2, line, 1 ,1);
 	gtk_widget_show (gwidget->lavc_button);
 	g_signal_connect (GTK_BUTTON(gwidget->lavc_button), "clicked",
 		G_CALLBACK (lavc_properties), all_data);
@@ -948,13 +899,14 @@ void video_tab(struct ALL_DATA *all_data)
 	//video container
 	line++;
 	gwidget->VidFormat = gtk_combo_box_text_new ();
+	gtk_widget_set_halign (gwidget->VidFormat, GTK_ALIGN_FILL);
+	gtk_widget_set_hexpand (gwidget->VidFormat, TRUE);
 	
 	int vformat_ind =0;
 	for (vformat_ind =0; vformat_ind<MAX_VFORMATS; vformat_ind++)
 		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(gwidget->VidFormat),gettext(get_vformat_desc(vformat_ind)));
 	
-	gtk_table_attach(GTK_TABLE(table2), gwidget->VidFormat, 1, 2, line, line+1,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table2), gwidget->VidFormat, 1, line, 1 ,1);
 	gtk_widget_show (gwidget->VidFormat);
 	
 	gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->VidFormat),global->VidFormat);
@@ -966,13 +918,11 @@ void video_tab(struct ALL_DATA *all_data)
 	label_VidFormat = gtk_label_new(_("Video Format:"));
 	gtk_misc_set_alignment (GTK_MISC (label_VidFormat), 1, 0.5);
 
-	gtk_table_attach (GTK_TABLE(table2), label_VidFormat, 0, 1, line, line+1,
-		GTK_FILL, 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table2), label_VidFormat, 0, line, 1, 1);
 	gtk_widget_show (label_VidFormat);
 	
 	gwidget->TakeVidByDefault =gtk_radio_button_new_with_label (gtk_radio_button_get_group (GTK_RADIO_BUTTON (gwidget->TakeImageByDefault)), _("Take Video by Default"));
-	gtk_table_attach(GTK_TABLE(table2), gwidget->TakeVidByDefault, 2, 3, line, line+1,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table2), gwidget->TakeVidByDefault, 2, line, 1 ,1);
 
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gwidget->TakeVidByDefault),(global->default_action == 1));
 	g_signal_connect (GTK_CHECK_BUTTON(gwidget->TakeVidByDefault), "toggled",
@@ -984,22 +934,28 @@ void video_tab(struct ALL_DATA *all_data)
 	label_videoFilters = gtk_label_new(_("---- Video Filters ----"));
 	gtk_misc_set_alignment (GTK_MISC (label_videoFilters), 0.5, 0.5);
 
-	gtk_table_attach (GTK_TABLE(table2), label_videoFilters, 0, 3, line, line+1,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL , 0, 0, 0);
+	gtk_grid_attach (GTK_GRID(table2), label_videoFilters, 0, line, 3, 1);
 	gtk_widget_show (label_videoFilters);
 	
 	line++;
-	table_filt = gtk_table_new(1,4,FALSE);
-	gtk_table_set_row_spacings (GTK_TABLE (table_filt), 4);
-	gtk_table_set_col_spacings (GTK_TABLE (table_filt), 4);
+	table_filt = gtk_grid_new();
+	gtk_widget_set_halign (table_filt, GTK_ALIGN_FILL);
+	gtk_widget_set_hexpand (table_filt, TRUE);
+	
+	gtk_grid_set_row_spacing (GTK_GRID (table_filt), 4);
+	gtk_grid_set_column_spacing (GTK_GRID (table_filt), 4);
 	gtk_container_set_border_width (GTK_CONTAINER (table_filt), 4);
 	gtk_widget_set_size_request (table_filt, -1, -1);
+	
+	gtk_widget_set_halign (table_filt, GTK_ALIGN_FILL);
+	gtk_widget_set_hexpand (table_filt, TRUE);
+	gtk_grid_attach (GTK_GRID(table2), table_filt, 0, line, 3, 1);
+	gtk_widget_show (table_filt);
 	
 	// Mirror
 	FiltMirrorEnable=gtk_check_button_new_with_label (_(" Mirror"));
 	g_object_set_data (G_OBJECT (FiltMirrorEnable), "filt_info", GINT_TO_POINTER(YUV_MIRROR));
-	gtk_table_attach(GTK_TABLE(table_filt), FiltMirrorEnable, 0, 1, 0, 1,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_grid_attach(GTK_GRID(table_filt), FiltMirrorEnable, 0, 0, 1, 1);
 	
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(FiltMirrorEnable),(global->Frame_Flags & YUV_MIRROR)>0);
 	gtk_widget_show (FiltMirrorEnable);
@@ -1008,8 +964,7 @@ void video_tab(struct ALL_DATA *all_data)
 	// Upturn
 	FiltUpturnEnable=gtk_check_button_new_with_label (_(" Invert"));
 	g_object_set_data (G_OBJECT (FiltUpturnEnable), "filt_info", GINT_TO_POINTER(YUV_UPTURN));
-	gtk_table_attach(GTK_TABLE(table_filt), FiltUpturnEnable, 1, 2, 0, 1,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_grid_attach(GTK_GRID(table_filt), FiltUpturnEnable, 1, 0, 1, 1);
 	
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(FiltUpturnEnable),(global->Frame_Flags & YUV_UPTURN)>0);
 	gtk_widget_show (FiltUpturnEnable);
@@ -1018,8 +973,7 @@ void video_tab(struct ALL_DATA *all_data)
 	// Negate
 	FiltNegateEnable=gtk_check_button_new_with_label (_(" Negative"));
 	g_object_set_data (G_OBJECT (FiltNegateEnable), "filt_info", GINT_TO_POINTER(YUV_NEGATE));
-	gtk_table_attach(GTK_TABLE(table_filt), FiltNegateEnable, 2, 3, 0, 1,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_grid_attach(GTK_GRID(table_filt), FiltNegateEnable, 2, 0, 1, 1);
 	
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(FiltNegateEnable),(global->Frame_Flags & YUV_NEGATE)>0);
 	gtk_widget_show (FiltNegateEnable);
@@ -1028,8 +982,7 @@ void video_tab(struct ALL_DATA *all_data)
 	// Mono
 	FiltMonoEnable=gtk_check_button_new_with_label (_(" Mono"));
 	g_object_set_data (G_OBJECT (FiltMonoEnable), "filt_info", GINT_TO_POINTER(YUV_MONOCR));
-	gtk_table_attach(GTK_TABLE(table_filt), FiltMonoEnable, 3, 4, 0, 1,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_grid_attach(GTK_GRID(table_filt), FiltMonoEnable, 3, 0, 1, 1);
 	
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(FiltMonoEnable),(global->Frame_Flags & YUV_MONOCR)>0);
 	gtk_widget_show (FiltMonoEnable);
@@ -1039,8 +992,7 @@ void video_tab(struct ALL_DATA *all_data)
 	// Pieces
 	FiltPiecesEnable=gtk_check_button_new_with_label (_(" Pieces"));
 	g_object_set_data (G_OBJECT (FiltPiecesEnable), "filt_info", GINT_TO_POINTER(YUV_PIECES));
-	gtk_table_attach(GTK_TABLE(table_filt), FiltPiecesEnable, 0, 1, 1, 2,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_grid_attach(GTK_GRID(table_filt), FiltPiecesEnable, 4, 0, 1, 1);
 	
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(FiltPiecesEnable),(global->Frame_Flags & YUV_PIECES)>0);
 	gtk_widget_show (FiltPiecesEnable);
@@ -1050,20 +1002,11 @@ void video_tab(struct ALL_DATA *all_data)
 	// Particles
 	FiltParticlesEnable=gtk_check_button_new_with_label (_(" Particles"));
 	g_object_set_data (G_OBJECT (FiltParticlesEnable), "filt_info", GINT_TO_POINTER(YUV_PARTICLES));
-	gtk_table_attach(GTK_TABLE(table_filt), FiltParticlesEnable, 1, 2, 1, 2,
-		GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+	gtk_grid_attach(GTK_GRID(table_filt), FiltParticlesEnable, 5, 0, 1, 1);
 	
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(FiltParticlesEnable),(global->Frame_Flags & YUV_PARTICLES)>0);
 	gtk_widget_show (FiltParticlesEnable);
 	g_signal_connect (GTK_CHECK_BUTTON(FiltParticlesEnable), "toggled",
 		G_CALLBACK (FiltEnable_changed), all_data);
-	
-	
-	
-	
-	//add filters to video tab
-	gtk_table_attach (GTK_TABLE(table2), table_filt, 0, 3, line, line+1,
-		GTK_FILL, 0, 0, 0);
-	gtk_widget_show (table_filt);
 	
 }

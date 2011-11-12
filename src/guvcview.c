@@ -484,7 +484,7 @@ int main(int argc, char *argv[])
         
         gtk_widget_show(scroll1);
         
-        Tab1 = gtk_hbox_new(FALSE,2);
+        Tab1 = gtk_grid_new();
         Tab1Label = gtk_label_new(_("Image Controls"));
         gtk_widget_show (Tab1Label);
         /*check for files*/
@@ -494,8 +494,8 @@ int main(int argc, char *argv[])
         Tab1Icon = gtk_image_new_from_file(Tab1IconPath);
         g_free(Tab1IconPath);
         gtk_widget_show (Tab1Icon);
-        gtk_box_pack_start (GTK_BOX(Tab1), Tab1Icon, FALSE, FALSE,1);
-        gtk_box_pack_start (GTK_BOX(Tab1), Tab1Label, FALSE, FALSE,1);
+        gtk_grid_attach (GTK_GRID(Tab1), Tab1Icon, 0, 0, 1, 1);
+		gtk_grid_attach (GTK_GRID(Tab1), Tab1Label, 1, 0, 1, 1);
         
         gtk_widget_show (Tab1);
         
@@ -506,13 +506,13 @@ int main(int argc, char *argv[])
         gtk_widget_show (gwidget->boxv);
         
         /*---------------------- Add  Buttons ---------------------------------*/
-        buttons_table = gtk_table_new(1,5,FALSE);
-        HButtonBox = gtk_hbutton_box_new();
+        buttons_table = gtk_grid_new();
+        HButtonBox = gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL);
         gtk_button_box_set_layout(GTK_BUTTON_BOX(HButtonBox),GTK_BUTTONBOX_SPREAD);
         gtk_box_set_homogeneous(GTK_BOX(HButtonBox),TRUE);
 
-        gtk_table_set_row_spacings (GTK_TABLE (buttons_table), 1);
-        gtk_table_set_col_spacings (GTK_TABLE (buttons_table), 4);
+        gtk_grid_set_row_spacing (GTK_GRID(buttons_table), 1);
+		gtk_grid_set_column_spacing (GTK_GRID (buttons_table), 4);
         gtk_container_set_border_width (GTK_CONTAINER (buttons_table), 1);
         
         gtk_widget_show (buttons_table);
@@ -522,8 +522,7 @@ int main(int argc, char *argv[])
         {
             capture_labels=gtk_label_new(_("Capture:"));
             gtk_misc_set_alignment (GTK_MISC (capture_labels), 0.5, 0.5);
-            gtk_table_attach (GTK_TABLE(buttons_table), capture_labels, n, n+2, 0, 1,
-                GTK_SHRINK | GTK_FILL | GTK_EXPAND, 0, 0, 0);
+            gtk_grid_attach(GTK_GRID(buttons_table), capture_labels, n, 0, 2 , 1);
             gtk_widget_show (capture_labels);
             n+=2; //increment column for labels
         }//end of control only exclusion
@@ -531,12 +530,10 @@ int main(int argc, char *argv[])
         profile_labels=gtk_label_new(_("Control Profiles:"));
         gtk_misc_set_alignment (GTK_MISC (profile_labels), 0.5, 0.5);
 
-        gtk_table_attach (GTK_TABLE(buttons_table), profile_labels, n, n+2, 0, 1,
-            GTK_SHRINK | GTK_FILL | GTK_EXPAND , 0, 0, 0);
+        gtk_grid_attach(GTK_GRID(buttons_table), profile_labels, n, 0, 2 , 1);
         gtk_widget_show (profile_labels);
         
-        gtk_table_attach(GTK_TABLE(buttons_table), HButtonBox, 0, 5, 1, 2,
-            GTK_SHRINK | GTK_FILL | GTK_EXPAND, 0, 0, 0);
+        gtk_grid_attach(GTK_GRID(buttons_table), HButtonBox, 0, 1, 5, 1);
             
         gtk_widget_show(HButtonBox);
         

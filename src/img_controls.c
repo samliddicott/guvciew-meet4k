@@ -70,10 +70,14 @@ draw_controls (struct ALL_DATA *all_data)
     
     get_ctrl_values (videoIn->fd, s->control_list, s->num_controls, NULL);
     
-    s->table = gtk_table_new (1, 3, FALSE);
-    gtk_table_set_row_spacings (GTK_TABLE (s->table), 4);
-    gtk_table_set_col_spacings (GTK_TABLE (s->table), 4);
-    gtk_container_set_border_width (GTK_CONTAINER (s->table), 2);
+    s->table = gtk_grid_new ();
+   	gtk_grid_set_column_homogeneous (GTK_GRID(s->table), FALSE);
+	gtk_widget_set_hexpand (s->table, TRUE);
+	gtk_widget_set_halign (s->table, GTK_ALIGN_FILL);
+	
+	gtk_grid_set_row_spacing (GTK_GRID(s->table), 4);
+	gtk_grid_set_column_spacing (GTK_GRID (s->table), 4);
+	gtk_container_set_border_width (GTK_CONTAINER (s->table), 2);
     
     //add control widgets to control list
     create_control_widgets(s->control_list, (void *) all_data, global->control_only, global->debug);
@@ -113,7 +117,7 @@ draw_controls (struct ALL_DATA *all_data)
 			    global->AFcontrol = 0;
 			else
 			{
-				GtkWidget *Focus_box = gtk_hbox_new (FALSE, 0);
+				GtkWidget *Focus_box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
 				GtkWidget *AutoFocus = gtk_check_button_new_with_label (_("Auto Focus (continuous)"));
 				GtkWidget *FocusButton = gtk_button_new_with_label (_("set Focus"));
 				gtk_box_pack_start (GTK_BOX (Focus_box), AutoFocus, TRUE, TRUE, 0);
@@ -121,8 +125,7 @@ draw_controls (struct ALL_DATA *all_data)
 				gtk_widget_show (Focus_box);
 				gtk_widget_show (AutoFocus);
 				gtk_widget_show (FocusButton);
-				gtk_table_attach (GTK_TABLE (s->table), Focus_box, 1, 2, row, row+1,
-				    GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+				gtk_grid_attach(GTK_GRID(s->table), Focus_box, 1, row, 1, 1);
 			
 				gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (AutoFocus),
 				    global->autofocus ? TRUE: FALSE);
@@ -139,14 +142,15 @@ draw_controls (struct ALL_DATA *all_data)
  
         
         if(current->label)
-            gtk_table_attach (GTK_TABLE (s->table), current->label, 0, 1, row, row+1,
-                GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+            gtk_grid_attach(GTK_GRID(s->table), current->label, 0, row, 1 , 1);
         if(current->widget)
-            gtk_table_attach (GTK_TABLE (s->table), current->widget, 1, 2, row, row+1,
-                GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+        {
+            gtk_grid_attach(GTK_GRID(s->table), current->widget, 1, row, 1 , 1);
+            gtk_widget_set_halign (current->widget, GTK_ALIGN_FILL);
+			gtk_widget_set_hexpand (current->widget, TRUE);
+        }    
         if(current->spinbutton)
-            gtk_table_attach (GTK_TABLE (s->table), current->spinbutton, 2, 3, row, row+1,
-                GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0, 0);
+            gtk_grid_attach(GTK_GRID(s->table), current->spinbutton, 2, row, 1 , 1);
         
                 
         if(next == NULL)

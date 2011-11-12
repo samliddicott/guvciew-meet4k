@@ -723,7 +723,7 @@ void create_control_widgets(Control *control_list, void *all_data, int control_o
                         case V4L2_CID_TILT_RELATIVE:
                         {
                             //videoIn->PanTilt++;
-                            current->widget = gtk_hbox_new (TRUE, 1);
+                            current->widget = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 1);
 
                             GtkWidget *PanTilt1 = NULL;
                             GtkWidget *PanTilt2 = NULL;
@@ -832,7 +832,8 @@ void create_control_widgets(Control *control_list, void *all_data, int control_o
                             /* check for valid range */
                             if((current->control.maximum > current->control.minimum) && (current->control.step != 0))
                             {
-                                current->widget = gtk_hscale_new_with_range (
+                                current->widget = gtk_scale_new_with_range (
+                                	GTK_ORIENTATION_HORIZONTAL,
                                     current->control.minimum,
                                     current->control.maximum,
                                     current->control.step);
