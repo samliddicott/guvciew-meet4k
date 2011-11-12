@@ -508,6 +508,8 @@ int main(int argc, char *argv[])
         /*---------------------- Add  Buttons ---------------------------------*/
         buttons_table = gtk_grid_new();
         HButtonBox = gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL);
+        gtk_widget_set_halign (HButtonBox, GTK_ALIGN_FILL);
+		gtk_widget_set_hexpand (HButtonBox, TRUE);
         gtk_button_box_set_layout(GTK_BUTTON_BOX(HButtonBox),GTK_BUTTONBOX_SPREAD);
         gtk_box_set_homogeneous(GTK_BOX(HButtonBox),TRUE);
 

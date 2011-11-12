@@ -939,9 +939,6 @@ void video_tab(struct ALL_DATA *all_data)
 	
 	line++;
 	table_filt = gtk_grid_new();
-	gtk_widget_set_halign (table_filt, GTK_ALIGN_FILL);
-	gtk_widget_set_hexpand (table_filt, TRUE);
-	
 	gtk_grid_set_row_spacing (GTK_GRID (table_filt), 4);
 	gtk_grid_set_column_spacing (GTK_GRID (table_filt), 4);
 	gtk_container_set_border_width (GTK_CONTAINER (table_filt), 4);
@@ -955,6 +952,8 @@ void video_tab(struct ALL_DATA *all_data)
 	// Mirror
 	FiltMirrorEnable=gtk_check_button_new_with_label (_(" Mirror"));
 	g_object_set_data (G_OBJECT (FiltMirrorEnable), "filt_info", GINT_TO_POINTER(YUV_MIRROR));
+	gtk_widget_set_halign (FiltMirrorEnable, GTK_ALIGN_FILL);
+	gtk_widget_set_hexpand (FiltMirrorEnable, TRUE);
 	gtk_grid_attach(GTK_GRID(table_filt), FiltMirrorEnable, 0, 0, 1, 1);
 	
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(FiltMirrorEnable),(global->Frame_Flags & YUV_MIRROR)>0);
@@ -964,6 +963,8 @@ void video_tab(struct ALL_DATA *all_data)
 	// Upturn
 	FiltUpturnEnable=gtk_check_button_new_with_label (_(" Invert"));
 	g_object_set_data (G_OBJECT (FiltUpturnEnable), "filt_info", GINT_TO_POINTER(YUV_UPTURN));
+	gtk_widget_set_halign (FiltUpturnEnable, GTK_ALIGN_FILL);
+	gtk_widget_set_hexpand (FiltUpturnEnable, TRUE);
 	gtk_grid_attach(GTK_GRID(table_filt), FiltUpturnEnable, 1, 0, 1, 1);
 	
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(FiltUpturnEnable),(global->Frame_Flags & YUV_UPTURN)>0);
@@ -973,6 +974,8 @@ void video_tab(struct ALL_DATA *all_data)
 	// Negate
 	FiltNegateEnable=gtk_check_button_new_with_label (_(" Negative"));
 	g_object_set_data (G_OBJECT (FiltNegateEnable), "filt_info", GINT_TO_POINTER(YUV_NEGATE));
+	gtk_widget_set_halign (FiltNegateEnable, GTK_ALIGN_FILL);
+	gtk_widget_set_hexpand (FiltNegateEnable, TRUE);
 	gtk_grid_attach(GTK_GRID(table_filt), FiltNegateEnable, 2, 0, 1, 1);
 	
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(FiltNegateEnable),(global->Frame_Flags & YUV_NEGATE)>0);
@@ -982,6 +985,8 @@ void video_tab(struct ALL_DATA *all_data)
 	// Mono
 	FiltMonoEnable=gtk_check_button_new_with_label (_(" Mono"));
 	g_object_set_data (G_OBJECT (FiltMonoEnable), "filt_info", GINT_TO_POINTER(YUV_MONOCR));
+	gtk_widget_set_halign (FiltMonoEnable, GTK_ALIGN_FILL);
+	gtk_widget_set_hexpand (FiltMonoEnable, TRUE);
 	gtk_grid_attach(GTK_GRID(table_filt), FiltMonoEnable, 3, 0, 1, 1);
 	
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(FiltMonoEnable),(global->Frame_Flags & YUV_MONOCR)>0);
@@ -992,6 +997,8 @@ void video_tab(struct ALL_DATA *all_data)
 	// Pieces
 	FiltPiecesEnable=gtk_check_button_new_with_label (_(" Pieces"));
 	g_object_set_data (G_OBJECT (FiltPiecesEnable), "filt_info", GINT_TO_POINTER(YUV_PIECES));
+	gtk_widget_set_halign (FiltPiecesEnable, GTK_ALIGN_FILL);
+	gtk_widget_set_hexpand (FiltPiecesEnable, TRUE);
 	gtk_grid_attach(GTK_GRID(table_filt), FiltPiecesEnable, 4, 0, 1, 1);
 	
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(FiltPiecesEnable),(global->Frame_Flags & YUV_PIECES)>0);
@@ -1002,6 +1009,8 @@ void video_tab(struct ALL_DATA *all_data)
 	// Particles
 	FiltParticlesEnable=gtk_check_button_new_with_label (_(" Particles"));
 	g_object_set_data (G_OBJECT (FiltParticlesEnable), "filt_info", GINT_TO_POINTER(YUV_PARTICLES));
+	gtk_widget_set_halign (FiltParticlesEnable, GTK_ALIGN_FILL);
+	gtk_widget_set_hexpand (FiltParticlesEnable, TRUE);
 	gtk_grid_attach(GTK_GRID(table_filt), FiltParticlesEnable, 5, 0, 1, 1);
 	
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(FiltParticlesEnable),(global->Frame_Flags & YUV_PARTICLES)>0);
