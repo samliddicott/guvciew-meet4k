@@ -780,50 +780,95 @@ void create_control_widgets(Control *control_list, void *all_data, int control_o
                     
                         case V4L2_CID_LED1_MODE_LOGITECH:
                         {
+                        	char* LEDMenu[4] = {_("Off"),_("On"),_("Blinking"),_("Auto")}; 
                             /*turn it into a menu control*/
-                            current->widget = gtk_combo_box_text_new ();
-                            gtk_combo_box_text_append_text (
-                                    GTK_COMBO_BOX_TEXT (current->widget),
-                                    _("Off"));
-                            gtk_combo_box_text_append_text (
-                                    GTK_COMBO_BOX_TEXT (current->widget),
-                                    _("On"));
-                            gtk_combo_box_text_append_text (
-                                    GTK_COMBO_BOX_TEXT (current->widget),
-                                    _("Blinking"));
-                            gtk_combo_box_text_append_text (
-                                    GTK_COMBO_BOX_TEXT (current->widget),
-                                    _("Auto"));
-                            gtk_combo_box_set_active (GTK_COMBO_BOX(current->widget), current->value);
-                            gtk_widget_show (current->widget);
-                             
-                            g_object_set_data (G_OBJECT (current->widget), "control_info", 
-                                GINT_TO_POINTER(current->control.id));
-                            //connect signal
-                            g_signal_connect (GTK_COMBO_BOX_TEXT(current->widget), "changed",
-                                G_CALLBACK (combo_changed), all_data);
+                            if(!current->menu)
+                    			current->menu = g_new0(struct v4l2_querymenu, 4+1);
+                    		else
+                    			current->menu = g_renew(struct v4l2_querymenu, current->menu, 4+1);
+                   			 
+                   			current->menu[0].id = current->control.id;
+                   			current->menu[0].index = 0;
+                   			current->menu[0].name[0] = 'N'; //just set something here
+                   			current->menu[1].id = current->control.id;
+                   			current->menu[1].index = 1;
+                   			current->menu[1].name[0] = 'O';
+                   			current->menu[2].id = current->control.id;
+                   			current->menu[2].index = 2;
+                   			current->menu[2].name[0] = 'B';
+                   			current->menu[3].id = current->control.id;
+                   			current->menu[3].index = 3;
+                   			current->menu[3].name[0] = 'A';
+                   			current->menu[4].id = current->control.id;
+                   			current->menu[4].index = current->control.maximum+1;
+                   			current->menu[4].name[0] = '\0';
+                   			
+                            int j = 0;
+                        	int def = 0;
+                        	current->widget = gtk_combo_box_text_new ();
+                        	for (j = 0; current->menu[j].index <= current->control.maximum; j++) 
+                        	{
+                        		if (verbose) 
+        	                   		printf("adding menu entry %d: %d, %s\n",j, current->menu[j].index, current->menu[j].name);
+                            	gtk_combo_box_text_append_text (
+                                	GTK_COMBO_BOX_TEXT (current->widget),
+                                	(char *) LEDMenu[j]);
+                            	if(current->value == current->menu[j].index)
+                            		def = j;
+                        	}
+                        
+                        	gtk_combo_box_set_active (GTK_COMBO_BOX(current->widget), def);
+                        	gtk_widget_show (current->widget);
+                         
+                        	g_object_set_data (G_OBJECT (current->widget), "control_info", 
+                            	GINT_TO_POINTER(current->control.id));
+                        	//connect signal
+                       	 	g_signal_connect (GTK_COMBO_BOX_TEXT(current->widget), "changed",
+                            	G_CALLBACK (combo_changed), all_data);
                         };
                         break;
                         
                         case V4L2_CID_RAW_BITS_PER_PIXEL_LOGITECH:
                         {
                             /*turn it into a menu control*/
-                            current->widget = gtk_combo_box_text_new ();
-                            gtk_combo_box_text_append_text (
-                                    GTK_COMBO_BOX_TEXT (current->widget),
-                                    _("8 bit"));
-                            gtk_combo_box_text_append_text (
-                                    GTK_COMBO_BOX_TEXT (current->widget),
-                                    _("12 bit"));
-                            
-                            gtk_combo_box_set_active (GTK_COMBO_BOX(current->widget), current->value);
-                            gtk_widget_show (current->widget);
-                             
-                            g_object_set_data (G_OBJECT (current->widget), "control_info", 
-                                GINT_TO_POINTER(current->control.id));
-                            //connect signal
-                            g_signal_connect (GTK_COMBO_BOX_TEXT(current->widget), "changed",
-                                G_CALLBACK (combo_changed), all_data);
+                            char* BITSMenu[2] = {_("8 bit"),_("12 bit")}; 
+                            /*turn it into a menu control*/
+                            if(!current->menu)
+                    			current->menu = g_new0(struct v4l2_querymenu, 2+1);
+                    		else
+                    			current->menu = g_renew(struct v4l2_querymenu, current->menu, 2+1);
+                   			 
+                   			current->menu[0].id = current->control.id;
+                   			current->menu[0].index = 0;
+                   			current->menu[0].name[0] = 'o'; //just set something here
+                   			current->menu[1].id = current->control.id;
+                   			current->menu[1].index = 1;
+                   			current->menu[1].name[0] = 'd';
+                   			current->menu[2].id = current->control.id;
+                   			current->menu[2].index = 2;
+                   			current->menu[2].name[0] = '\0';
+                            int j = 0;
+                        	int def = 0;
+                        	current->widget = gtk_combo_box_text_new ();
+                        	for (j = 0; current->menu[j].index <= current->control.maximum; j++) 
+                        	{
+                        		if (verbose) 
+        	                   		printf("adding menu entry %d: %d, %s\n",j, current->menu[j].index, current->menu[j].name);
+                            	gtk_combo_box_text_append_text (
+                                	GTK_COMBO_BOX_TEXT (current->widget),
+                                	(char *) BITSMenu[j]);
+                            	if(current->value == current->menu[j].index)
+                            		def = j;
+                        	}
+                        
+                        	gtk_combo_box_set_active (GTK_COMBO_BOX(current->widget), def);
+                        	gtk_widget_show (current->widget);
+                         
+                        	g_object_set_data (G_OBJECT (current->widget), "control_info", 
+                            	GINT_TO_POINTER(current->control.id));
+                        	//connect signal
+                       	 	g_signal_connect (GTK_COMBO_BOX_TEXT(current->widget), "changed",
+                            	G_CALLBACK (combo_changed), all_data);
                         };
                         break;
                     
