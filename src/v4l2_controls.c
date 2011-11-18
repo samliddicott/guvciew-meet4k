@@ -1039,10 +1039,10 @@ void get_ctrl_values (int hdevice, Control *control_list, int num_controls, void
     int i = 0;
     int done = 0;
     
-    while(!done)
+    for(; next != NULL; current = next, next = current->next)
     {   
         if(current->control.flags & V4L2_CTRL_FLAG_WRITE_ONLY)
-            goto next_control;
+             continue;
             
         clist[count].id = current->control.id;
 #ifndef DISABLE_STRING_CONTROLS 
@@ -1126,16 +1126,6 @@ void get_ctrl_values (int hdevice, Control *control_list, int num_controls, void
             }
             
             count = 0;
-            
-            if(next == NULL)
-                done = 1;
-        }
-        
-next_control:
-        if(!done)
-        {
-            current = next;
-            next = current->next;
         }
     }
     
@@ -1234,10 +1224,10 @@ void set_ctrl_values (int hdevice, Control *control_list, int num_controls)
     int i = 0;
     int done = 0;
     
-    while(!done)
+    for(; next != NULL; current = next, next = current->next)
     {
         if(current->control.flags & V4L2_CTRL_FLAG_READ_ONLY)
-            goto next_control;
+            continue;
             
         clist[count].id = current->control.id;
         switch (current->control.type)
@@ -1310,21 +1300,8 @@ void set_ctrl_values (int hdevice, Control *control_list, int num_controls)
                         }
                     }
                 }
-            }
-            
-            
-            
-            count = 0;
-            
-            if(next == NULL)
-                done = 1;
-        }
-
-next_control:
-        if(!done)
-        {
-            current = next;
-            next = current->next;   
+            } 
+            count = 0;  
         }
     }
     
