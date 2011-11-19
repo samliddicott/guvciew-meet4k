@@ -532,20 +532,9 @@ static void update_ctrl_list_flags(Control *control_list)
 {
     Control *current = control_list;
     Control *next = current->next;
-    int done = 0;
     
-    while(!done)
-    {
+    for(; next != NULL; current = next, next = current->next)
         update_ctrl_flags(control_list, current->control.id);
-        
-        if(next == NULL)
-            done = 1;
-        else
-        {
-            current = next;
-            next = current->next;
-        }
-    }
 }
 
 /*
@@ -567,8 +556,7 @@ static void update_widget_state(Control *control_list, void *all_data)
 {
     Control *current = control_list;
     Control *next = current->next;
-    int done = 0;
-    while(!done)
+    for(; next != NULL; current = next, next = current->next)
     {
         if(all_data && current->widget)
         {
@@ -649,14 +637,6 @@ static void update_widget_state(Control *control_list, void *all_data)
             if(current->spinbutton)
                 gtk_widget_set_sensitive (current->spinbutton, TRUE);
         }
-        
-        if(next == NULL)
-            done = 1;
-        else
-        {
-            current = next;
-            next = current->next;
-        }
     }
 }
 
@@ -670,17 +650,17 @@ void create_control_widgets(Control *control_list, void *all_data, int control_o
     struct vdIn *videoIn = data->videoIn;
     Control *current = control_list;
     Control *next = current->next;
-    int done = 0;
     int i = 0;
     
-    while(!done)
+    for(; next != NULL; current = next, next = current->next)
     {
+    	get_ctrl(videoIn->fd, control_list, current->control.id, all_data);
         if (verbose) 
         {
             g_print("control[%d]: 0x%x",i ,current->control.id);
-            g_print ("  %s, %d:%d:%d, default %d\n", current->control.name,
+            g_print ("  %s, %d:%d:%d, default %d , current %d\n", current->control.name,
                 current->control.minimum, current->control.maximum, current->control.step,
-                current->control.default_value);
+                current->control.default_value, current->value);
         }
         
         if(!current->control.step) current->control.step = 1;
@@ -989,16 +969,7 @@ void create_control_widgets(Control *control_list, void *all_data, int control_o
                 printf("control type: 0x%08x not supported\n", current->control.type);
                 break;
         }
-
-        if(next == NULL)
-            done = 1;
-        else
-        {
-            current = next;
-            next = current->next;
-        }
     }
-    
     update_widget_state(control_list, all_data);
  }
 
@@ -1010,14 +981,10 @@ Control *get_ctrl_by_id(Control *control_list, int id)
 {
     Control *current = control_list;
     Control *next = current->next;
-    while (next != NULL)
+    for(; next != NULL; current = next, next = current->next)
     {
         if(current->control.id == id)
-        {
             return (current);
-        }
-        current = next;
-        next = current->next;
     }
     if(current->control.id == id)
         return (current);
@@ -1037,7 +1004,6 @@ void get_ctrl_values (int hdevice, Control *control_list, int num_controls, void
     Control *next = current->next;
     int count = 0;
     int i = 0;
-    int done = 0;
     
     for(; next != NULL; current = next, next = current->next)
     {   
@@ -1222,7 +1188,6 @@ void set_ctrl_values (int hdevice, Control *control_list, int num_controls)
     Control *next = current->next;
     int count = 0;
     int i = 0;
-    int done = 0;
     
     for(; next != NULL; current = next, next = current->next)
     {
@@ -1316,9 +1281,8 @@ void set_default_values(int hdevice, Control *control_list, int num_controls, vo
 {
     Control *current = control_list;
     Control *next = current->next;
-    int done = 0;
     
-    while(!done)
+    for(; next != NULL; current = next, next = current->next)
     {
         if(current->control.flags & V4L2_CTRL_FLAG_READ_ONLY)
         {
@@ -1347,19 +1311,10 @@ void set_default_values(int hdevice, Control *control_list, int num_controls, vo
                 current->value = current->control.default_value;
                 break;
         }
-        
-        if(next == NULL)
-            done = 1;
-        else
-        {
-            current = next;
-            next = current->next;
-        }
     }
     
     set_ctrl_values (hdevice, control_list, num_controls);
     get_ctrl_values (hdevice, control_list, num_controls, all_data);
-    
 }
 
 /*
