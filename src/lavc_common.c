@@ -193,12 +193,8 @@ struct lavcData* init_lavc(int width, int height, int fps_num, int fps_den, int 
 	struct lavcData* data = g_new0(struct lavcData, 1);
 	
 	data->codec_context = NULL;
-	
-	data->codec_context = avcodec_alloc_context();
-	
 	vcodecs_data *defaults = get_codec_defaults(codec_ind);
 	
-	data->codec_id = defaults->codec_id;
 	// find the video encoder
 	data->codec = avcodec_find_encoder(defaults->codec_id);
 	if (!data->codec) 
@@ -206,6 +202,12 @@ struct lavcData* init_lavc(int width, int height, int fps_num, int fps_den, int 
 		fprintf(stderr, "ffmpeg codec not found\n");
 		return(NULL);
 	}
+#if LIBAVCODEC_VERSION_MAJOR < 53	
+	data->codec_context = avcodec_alloc_context();
+#else
+	data->codec_context = avcodec_alloc_context3(data->codec);	
+#endif	
+	data->codec_id = defaults->codec_id;
 	
 	//alloc picture
 	data->picture= avcodec_alloc_frame();
@@ -284,7 +286,11 @@ struct lavcData* init_lavc(int width, int height, int fps_num, int fps_den, int 
 	}
 	
 	// open codec
+#if LIBAVCODEC_VERSION_MAJOR < 53
 	if (avcodec_open(data->codec_context, data->codec) < 0) 
+#else
+	if (avcodec_open2(data->codec_context, data->codec, NULL) < 0)
+#endif
 	{
 		fprintf(stderr, "could not open codec\n");
 		return(NULL);
@@ -304,11 +310,8 @@ struct lavcAData* init_lavc_audio(struct paRecordData *pdata, int codec_ind)
 	struct lavcAData* data = g_new0(struct lavcAData, 1);
 	
 	data->codec_context = NULL;
-	
-	data->codec_context = avcodec_alloc_context();
-	
 	acodecs_data *defaults = get_aud_codec_defaults(codec_ind);
-	
+
 	// find the audio encoder
 	data->codec = avcodec_find_encoder(defaults->codec_id);
 	if (!data->codec) 
@@ -316,6 +319,12 @@ struct lavcAData* init_lavc_audio(struct paRecordData *pdata, int codec_ind)
 		fprintf(stderr, "ffmpeg audio codec not found\n");
 		return(NULL);
 	}
+	
+#if LIBAVCODEC_VERSION_MAJOR < 53	
+	data->codec_context = avcodec_alloc_context();
+#else
+	data->codec_context = avcodec_alloc_context3(data->codec);
+#endif
 
 	// define bit rate (lower = more compression but lower quality)
 	data->codec_context->bit_rate = defaults->bit_rate;
@@ -339,9 +348,13 @@ struct lavcAData* init_lavc_audio(struct paRecordData *pdata, int codec_ind)
 #define AVMEDIA_TYPE_AUDIO CODEC_TYPE_AUDIO
 #endif
 	data->codec_context->codec_type = AVMEDIA_TYPE_AUDIO;
-		
+	
 	// open codec
+#if LIBAVCODEC_VERSION_MAJOR < 53
 	if (avcodec_open(data->codec_context, data->codec) < 0) 
+#else
+	if (avcodec_open2(data->codec_context, data->codec, NULL) < 0)
+#endif
 	{
 		fprintf(stderr, "could not open codec\n");
 		return(NULL);

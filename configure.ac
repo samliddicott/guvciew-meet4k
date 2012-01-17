@@ -81,7 +81,7 @@ AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE", [guvcview])
 dnl --------------------------------------------------------------------------
 dnl Languages supported by guvcview.
 dnl --------------------------------------------------------------------------
-ALL_LINGUAS="cs da de es eu fr gl he hr ja nl pl pt pt_BR ru sr tr uk zh_TW"
+ALL_LINGUAS="cs da de es eu fr gl he hr it ja nl pl pt pt_BR ru sr tr uk zh_TW"
 AM_GLIB_GNU_GETTEXT([external])
 
 dnl --------------------------------------------------------------------------
