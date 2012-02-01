@@ -43,6 +43,9 @@
   #endif
 #endif
 
+#define LIBAVCODEC_VER_AT_LEAST(major,minor)  (LIBAVCODEC_VERSION_MAJOR > major || \
+                                              (LIBAVCODEC_VERSION_MAJOR == major && \
+                                               LIBAVCODEC_VERSION_MINOR >= minor))
 /*video*/
 struct lavcData
 {

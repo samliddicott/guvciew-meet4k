@@ -202,10 +202,10 @@ struct lavcData* init_lavc(int width, int height, int fps_num, int fps_den, int 
 		fprintf(stderr, "ffmpeg codec not found\n");
 		return(NULL);
 	}
-#if LIBAVCODEC_VERSION_MAJOR < 53	
-	data->codec_context = avcodec_alloc_context();
-#else
+#if LIBAVCODEC_VER_AT_LEAST(53,6)
 	data->codec_context = avcodec_alloc_context3(data->codec);	
+#else
+	data->codec_context = avcodec_alloc_context();
 #endif	
 	data->codec_id = defaults->codec_id;
 	
@@ -257,7 +257,7 @@ struct lavcData* init_lavc(int width, int height, int fps_num, int fps_den, int 
 	data->codec_context->codec_id = defaults->codec_id;
 	data->monotonic_pts = defaults->monotonic_pts;
     
-#if LIBAVCODEC_VERSION_MAJOR < 53
+#if !LIBAVCODEC_VER_AT_LEAST(53,0)
 #define AVMEDIA_TYPE_VIDEO CODEC_TYPE_VIDEO
 #endif
 	data->codec_context->codec_type = AVMEDIA_TYPE_VIDEO;
@@ -286,10 +286,10 @@ struct lavcData* init_lavc(int width, int height, int fps_num, int fps_den, int 
 	}
 	
 	// open codec
-#if LIBAVCODEC_VERSION_MAJOR < 53
-	if (avcodec_open(data->codec_context, data->codec) < 0) 
-#else
+#if LIBAVCODEC_VER_AT_LEAST(53,6)
 	if (avcodec_open2(data->codec_context, data->codec, NULL) < 0)
+#else
+	if (avcodec_open(data->codec_context, data->codec) < 0) 
 #endif
 	{
 		fprintf(stderr, "could not open codec\n");
@@ -320,10 +320,10 @@ struct lavcAData* init_lavc_audio(struct paRecordData *pdata, int codec_ind)
 		return(NULL);
 	}
 	
-#if LIBAVCODEC_VERSION_MAJOR < 53	
-	data->codec_context = avcodec_alloc_context();
-#else
+#if LIBAVCODEC_VER_AT_LEAST(53,6)	
 	data->codec_context = avcodec_alloc_context3(data->codec);
+#else
+	data->codec_context = avcodec_alloc_context();
 #endif
 
 	// define bit rate (lower = more compression but lower quality)
@@ -337,23 +337,23 @@ struct lavcAData* init_lavc_audio(struct paRecordData *pdata, int codec_ind)
 	data->codec_context->cutoff = 0; /*automatic*/
 	/*libav 7.1 only seems to accept S16 format*/
 
-#if LIBAVCODEC_VERSION_MAJOR < 53
+#if !LIBAVCODEC_VER_AT_LEAST(53,0)
 #define AV_SAMPLE_FMT_S16 SAMPLE_FMT_S16 
 #endif
 	data->codec_context->sample_fmt = AV_SAMPLE_FMT_S16; /* Int16 sample */
 	
     data->codec_context->codec_id = defaults->codec_id;
 	
-#if LIBAVCODEC_VERSION_MAJOR < 53
+#if !LIBAVCODEC_VER_AT_LEAST(53,0)
 #define AVMEDIA_TYPE_AUDIO CODEC_TYPE_AUDIO
 #endif
 	data->codec_context->codec_type = AVMEDIA_TYPE_AUDIO;
 	
 	// open codec
-#if LIBAVCODEC_VERSION_MAJOR < 53
-	if (avcodec_open(data->codec_context, data->codec) < 0) 
-#else
+#if LIBAVCODEC_VER_AT_LEAST(53,6)
 	if (avcodec_open2(data->codec_context, data->codec, NULL) < 0)
+#else
+	if (avcodec_open(data->codec_context, data->codec) < 0) 
 #endif
 	{
 		fprintf(stderr, "could not open codec\n");
