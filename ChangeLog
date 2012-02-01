@@ -1,3 +1,11 @@
+guvcview (1.5.2)
+
+    * move to pthreads (fix gthread API 2 issues)
+    * add italian translation
+    * fix several libavcodec issues
+    * fix some gtk3 widgets
+    
+ -- Paulo Assis <pj.assis@gmail.com>  Wed, 1 Feb 2012 23:01:00 +0000
 guvcview (1.5.1)
 
     * move to gtk3

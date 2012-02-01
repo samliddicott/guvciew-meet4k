@@ -1,3 +1,12 @@
+guvcview (1.5.2-ubuntu1~oneiric~ppa1) oneiric; urgency=low
+
+    * move to pthreads (fix gthread API 2 issues)
+    * add italian translation
+    * fix several libavcodec issues
+    * fix some gtk3 widgets
+    
+ -- Paulo Assis <pj.assis@gmail.com>  Wed, 12 Oct 2011 12:12:00 +0000
+
 guvcview (1.5.1-ubuntu3~oneiric~ppa1) oneiric; urgency=low
 
     * move to gtk3
