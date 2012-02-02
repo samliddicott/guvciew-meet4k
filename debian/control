@@ -3,7 +3,7 @@ Section: graphics
 Priority: extra
 Maintainer: Paulo Assis <pj.assis@gmail.com>
 Build-Depends: debhelper (>= 7.0.50~), autotools-dev, quilt, libsdl1.2-dev, libgtk-3-dev, portaudio19-dev, libpng12-dev, libavcodec-dev, libv4l-dev, libudev-dev
-Standards-Version: 3.9.1
+Standards-Version: 3.9.2
 Homepage: http://guvcview.sourceforge.net/
 
 Package: guvcview

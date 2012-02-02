@@ -4,6 +4,7 @@ guvcview (1.5.2-ubuntu1~oneiric~ppa1) oneiric; urgency=low
     * add italian translation
     * fix several libavcodec issues
     * fix some gtk3 widgets
+    * update standards version to 3.9.2
     
  -- Paulo Assis <pj.assis@gmail.com>  Wed, 12 Oct 2011 12:12:00 +0000
 
