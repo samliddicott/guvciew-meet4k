@@ -29,11 +29,7 @@
 
 #include <errno.h>
 
-#if GLIB_MINOR_VERSION < 31
-	#define __AMUTEX pdata->mutex
-#else
-	#define __AMUTEX &pdata->mutex
-#endif
+#define __AMUTEX &pdata->mutex
 
 //run in separate thread
 static void* pulse_read_audio(void *userdata) 
@@ -56,7 +52,7 @@ static void* pulse_read_audio(void *userdata)
 		ss.channels = pdata->channels;
 	__UNLOCK_MUTEX(__AMUTEX);
 
-	printf("starting pulse audio thread: %d hz- %d ch\n",ss.rate, ss.channels);
+	g_print("starting pulse audio thread: %d hz- %d ch\n",ss.rate, ss.channels);
 	if (!(pdata->pulse_simple = pa_simple_new(NULL, "Guvcview Video Capture", PA_STREAM_RECORD, NULL, "pcm.record", &ss, NULL, NULL, &error))) 
 	{
 		g_printerr(": pa_simple_new() failed: %s\n", pa_strerror(error));
@@ -114,7 +110,7 @@ static void* pulse_read_audio(void *userdata)
 	}
 
 finish:
-	printf("audio thread exited\n");
+	g_print("audio thread exited\n");
 	pdata->streaming = FALSE;
 	if (pdata->pulse_simple)
 		pa_simple_free(pdata->pulse_simple);
@@ -126,19 +122,7 @@ int
 pulse_init_audio(struct paRecordData* pdata)
 {	
 	//start audio capture thread
-#if GLIB_MINOR_VERSION < 31 
-	if( (pdata->pulse_read_th = g_thread_create(
-		(GThreadFunc) pulse_read_audio,
-		pdata, //data
-		FALSE,    //joinable - no need waiting for thread to finish
-		NULL)    //error
-		) == NULL)
-#else
-	if( (pdata->pulse_read_th = g_thread_new("pulse thread",
-		(GThreadFunc) pulse_read_audio,
-		pdata)
-		) == NULL)
-#endif  
+	if(__THREAD_CREATE(&pdata->pulse_read_th, (GThreadFunc) pulse_read_audio,pdata))  
 	{
 		g_printerr("Pulse thread creation failed\n");
 		return (-1);

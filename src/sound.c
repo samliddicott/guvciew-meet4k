@@ -255,7 +255,8 @@ init_sound(struct paRecordData* pdata)
 	{
 #ifdef PULSEAUDIO
 		case PULSE:
-			if(err = pulse_init_audio(pdata))
+			err = pulse_init_audio(pdata);
+			if(err)
 				goto error;
 			break;
 #endif

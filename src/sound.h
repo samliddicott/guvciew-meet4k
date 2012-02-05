@@ -103,7 +103,7 @@ struct paRecordData
 	//PULSE SUPPORT
 #ifdef PULSEAUDIO
 	pa_simple *pulse_simple;
-	GThread *pulse_read_th;
+	 __THREAD_TYPE pulse_read_th;
 #endif
 };
 
