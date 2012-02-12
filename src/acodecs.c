@@ -66,6 +66,7 @@ static acodecs_data listSupACodecs[] = //list of software supported formats
 		.avcodec      = TRUE,
 		.valid        = TRUE,
 		.bits         = 0,
+		.monotonic_pts= 1,
 		.avi_4cc      = WAVE_FORMAT_MPEG12,
 		.mkv_codec    = "A_MPEG/L2",
 		.description  = N_("MPEG2 - (lavc)"),
@@ -80,6 +81,7 @@ static acodecs_data listSupACodecs[] = //list of software supported formats
 		.avcodec      = TRUE,
 		.valid        = TRUE,
 		.bits         = 0,
+		.monotonic_pts= 1,
 		.avi_4cc      = WAVE_FORMAT_MP3,
 		.mkv_codec    = "A_MPEG/L3",
 		.description  = N_("MP3 - (lavc)"),
@@ -94,6 +96,7 @@ static acodecs_data listSupACodecs[] = //list of software supported formats
 		.avcodec      = TRUE,
 		.valid        = TRUE,
 		.bits         = 0,
+		.monotonic_pts= 1,
 		.avi_4cc      = WAVE_FORMAT_AC3,
 		.mkv_codec    = "A_AC3",
 		.description  = N_("Dolby AC3 - (lavc)"),
@@ -108,6 +111,7 @@ static acodecs_data listSupACodecs[] = //list of software supported formats
 		.avcodec      = TRUE,
 		.valid        = TRUE,
 		.bits         = 16,
+		.monotonic_pts= 1,
 		.avi_4cc      = WAVE_FORMAT_AAC,
 		.mkv_codec    = "A_AAC",
 		.description  = N_("ACC Low - (faac)"),
@@ -297,14 +301,17 @@ static int encode_lavc_audio (struct lavcAData *lavc_data,
 	AudBuff *proc_buff)
 {
 	struct paRecordData *pdata = all_data->pdata;
+	struct VideoFormatData *videoF = all_data->videoF;
 	
 	int framesize = 0;
 	int ret = 0;
 	
+	videoF->old_apts = videoF->apts;
+	
 	if(lavc_data)
 	{
 		/*lavc is initialized when setting sound*/
-		framesize= encode_lavc_audio_frame (pdata->pcm_sndBuff, lavc_data);
+		framesize= encode_lavc_audio_frame (pdata->pcm_sndBuff, lavc_data, videoF);
 		
 		ret = write_audio_data (all_data, lavc_data->outbuf, framesize, proc_buff->time_stamp);
 	}

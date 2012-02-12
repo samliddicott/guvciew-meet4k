@@ -50,12 +50,15 @@
 struct lavcData
 {
 	AVCodec *codec;
+	AVDictionary *private_options;
 	AVCodecContext *codec_context;
 	AVFrame *picture;
-
+	AVPacket *outpkt;
+	
 	BYTE* tmpbuf;
 	int outbuf_size;
 	BYTE* outbuf;
+	
 	int codec_id;
 	int monotonic_pts;
 };
@@ -65,14 +68,18 @@ struct lavcAData
 {
 	AVCodec *codec;
 	AVCodecContext *codec_context;
-
+	AVFrame *frame;
+	AVPacket *outpkt;
+	
 	int outbuf_size;
 	BYTE* outbuf;
+	
+	int monotonic_pts;
 };
 
 int encode_lavc_frame (BYTE *picture_buf, struct lavcData* data, int format, struct VideoFormatData *videoF);
 
-int encode_lavc_audio_frame (short *audio_buf, struct lavcAData* data);
+int encode_lavc_audio_frame (short *audio_buf, struct lavcAData* data, struct VideoFormatData *videoF);
 
 /* arg = pointer to lavcData struct =>
  * *arg = struct lavcData**

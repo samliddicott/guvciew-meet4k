@@ -37,6 +37,7 @@ typedef struct _acodecs_data
 	gboolean avcodec;         //is a avcodec codec
 	gboolean valid;           //the encoding codec exists in ffmpeg
 	int bits;                 //bits per sample (pcm only) 
+	int monotonic_pts;
 	WORD avi_4cc;             //fourcc WORD value
 	const char *mkv_codec;    //mkv codecID
 	const char *description;  //codec description

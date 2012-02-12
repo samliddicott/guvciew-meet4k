@@ -128,7 +128,7 @@ int encode_lavc_frame (BYTE *picture_buf, struct lavcData* data , int format, st
 	//videoF->frame_number++;
 	
 	if(!data->monotonic_pts) //generate a real pts based on the frame timestamp
-		data->picture->pts += ((videoF->vpts - videoF->old_vpts)/1000) * 90;
+		data->picture->pts += ((videoF->apts - videoF->old_apts)/1000) * 90;
 	else  //generate a true monotonic pts based on the codec fps
 		data->picture->pts += (data->codec_context->time_base.num*1000/data->codec_context->time_base.den) * 90;
 	
@@ -136,12 +136,42 @@ int encode_lavc_frame (BYTE *picture_buf, struct lavcData* data , int format, st
 	return (out_size);
 }
 
-int encode_lavc_audio_frame (short *audio_buf, struct lavcAData* data)
+int encode_lavc_audio_frame (short *audio_buf, struct lavcAData* data, struct VideoFormatData *videoF)
 {
 	int out_size = 0;
 	
 	/* encode the audio */
+#if LIBAVCODEC_VER_AT_LEAST(53,34)
+	AVPacket pkt;
+	int got_packet;
+	av_init_packet(&pkt);
+	pkt.data = data->outbuf;
+	pkt.size = data->outbuf_size;
+	
+	data->frame->nb_samples  = data->codec_context->frame_size;
+	int samples_size = av_samples_get_buffer_size(NULL, data->codec_context->channels,
+		                                          data->frame->nb_samples,
+                                                  data->codec_context->sample_fmt, 1);
+                                                  
+    avcodec_fill_audio_frame(data->frame, data->codec_context->channels,
+                                   data->codec_context->sample_fmt,
+                                   (const uint8_t *) audio_buf, samples_size, 1);
+	if(!data->monotonic_pts) //generate a real pts based on the frame timestamp
+		data->frame->pts += ((videoF->apts - videoF->old_apts)/1000) * 90;
+	else  //generate a true monotonic pts based on the codec fps
+		data->frame->pts += (data->codec_context->time_base.num*1000/data->codec_context->time_base.den) * 90;
+                                    
+	avcodec_encode_audio2(data->codec_context, &pkt, data->frame, &got_packet);
+	/* free any side data since we cannot return it */
+	//ff_packet_free_side_data(&pkt);
+ 
+	if (data->frame && data->frame->extended_data != data->frame->data)
+		av_freep(data->frame->extended_data);
+		
+	out_size = pkt.size;
+#else
 	out_size = avcodec_encode_audio(data->codec_context, data->outbuf, data->outbuf_size, audio_buf);
+#endif
 	return (out_size);
 }
 
@@ -155,6 +185,11 @@ int clean_lavc (void* arg)
 		avcodec_flush_buffers((*data)->codec_context);
 		//close codec 
 		avcodec_close((*data)->codec_context);
+#if LIBAVCODEC_VER_AT_LEAST(53,6)
+		//free private options;
+		struct lavcData *pdata = *data;
+		av_dict_free(&(pdata->private_options));
+#endif
 		//free codec context
 		g_free((*data)->codec_context);
 		(*data)->codec_context = NULL;
@@ -181,6 +216,7 @@ int clean_lavc_audio (void* arg)
 		g_free((*data)->codec_context);
 		(*data)->codec_context = NULL;
 		g_free((*data)->outbuf);
+		g_free((*data)->frame);
 		g_free(*data);
 		*data = NULL;
 	}
@@ -278,8 +314,12 @@ struct lavcData* init_lavc(int width, int height, int fps_num, int fps_den, int 
 	{
 	    data->codec_context->me_range = 16;
 	    //the first compressed frame will be empty (1 frame out of sync)
-	    //but avoids x264 warning on lookaheadless mb-tree 
+	    //but avoids x264 warning on lookaheadless mb-tree
+#if LIBAVCODEC_VER_AT_LEAST(53,6)
+	    av_dict_set(&data->private_options, "rc_lookahead", "1", 0);
+#else 
 	    data->codec_context->rc_lookahead=1;
+#endif
         //TODO:
         // add rc_lookahead to codec properties and handle it gracefully by
         // fixing the frames timestamps => shift them by rc_lookahead frames 
@@ -287,7 +327,7 @@ struct lavcData* init_lavc(int width, int height, int fps_num, int fps_den, int 
 	
 	// open codec
 #if LIBAVCODEC_VER_AT_LEAST(53,6)
-	if (avcodec_open2(data->codec_context, data->codec, NULL) < 0)
+	if (avcodec_open2(data->codec_context, data->codec, &data->private_options) < 0)
 #else
 	if (avcodec_open(data->codec_context, data->codec) < 0) 
 #endif
@@ -364,9 +404,15 @@ struct lavcAData* init_lavc_audio(struct paRecordData *pdata, int codec_ind)
 	int frame_size = data->codec_context->frame_size;  
 	g_print("Audio frame size is %d samples for selected codec\n", frame_size);
 	
+	data->monotonic_pts = defaults->monotonic_pts;
+	
 	//alloc outbuf
 	data->outbuf_size = 240000;
 	data->outbuf = g_new0(BYTE, data->outbuf_size);
 	
+#if LIBAVCODEC_VER_AT_LEAST(53,34)	
+	data->frame= avcodec_alloc_frame();
+	avcodec_get_frame_defaults(data->frame);
+#endif
 	return(data);
 }

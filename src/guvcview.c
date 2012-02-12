@@ -50,6 +50,7 @@
 #include "string_utils.h"
 #include "options.h"
 #include "video.h"
+#include "lavc_common.h"
 #include "vcodecs.h"
 #include "create_video.h"
 #include "profile.h"
@@ -138,7 +139,7 @@ gboolean deliver_signal(GIOChannel *source, GIOCondition cond, gpointer data)
        */
       if(bytes_read != sizeof(int)){
 	fprintf(stderr, "lost data in signal pipe (expected %lu, received %lu)\n",
-		sizeof(int), bytes_read);
+		(long unsigned int) sizeof(int), (long unsigned int) bytes_read);
 	continue;	      /* discard the garbage and keep fingers crossed */
       }
 
@@ -260,9 +261,10 @@ int main(int argc, char *argv[])
 
 		/* Allocate the video Format struct */
 		videoF = g_new0(struct VideoFormatData, 1);
-
-		// must be called before using avcodec lib
+		
+#if !LIBAVCODEC_VER_AT_LEAST(53,34)
 		avcodec_init();
+#endif
 
 		// register all the codecs (you can also register only the codec
 		//you wish to have smaller code)

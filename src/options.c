@@ -54,6 +54,7 @@ writeConf(struct GLOBAL *global, char *videodevice)
 	if ((fp = g_fopen(tmpfile,"w"))!=NULL) 
 	{
 		g_fprintf(fp,"# guvcview configuration file for %s\n\n",videodevice);
+		g_fprintf(fp,"version=%s\n",VERSION);
 		g_fprintf(fp,"# Thread stack size: default 128 pages of 64k = 8388608 bytes\n");
 		g_fprintf(fp,"stack_size=%d\n",global->stack_size);
 		g_fprintf(fp,"# video loop sleep time in ms: 0,1,2,3,...\n");
@@ -234,7 +235,7 @@ readConf(struct GLOBAL *global)
 		int vc_gop_size=-1, vc_subq=-1, vc_framerefs=-1, vc_mb_decision=-1, vc_trellis=-1, vc_me_method=-1;
 		int vc_mpeg_quant=-1, vc_max_b_frames=-1, vc_num_threads=-1, vc_flags=-1, vc_monotonic_pts=-1;
 		float vc_qcompress=-1, vc_qblur=-1;
-		
+		int VMAJOR =-1, VMINOR=-1, VMICRO=-1; 
 		
 		for (ttype = g_scanner_get_next_token (scanner);
 			ttype != G_TOKEN_EOF;
@@ -273,10 +274,16 @@ readConf(struct GLOBAL *global)
 						//	g_snprintf(global->videodevice,15,"%s",scanner->value.v_string);
 						//}
 						
-						/*must check for defaults since ReadOpts runs before ReadConf*/
-						if (g_strcmp0(name,"resolution")==0) 
+						if (g_strcmp0(name,"version")==0)
 						{
-							if(global->flg_res < 1)
+							sscanf(scanner->value.v_string,"%i.%i.%i",
+								&(VMAJOR), 
+								&(VMINOR),
+								&(VMICRO));
+						}
+						else if (g_strcmp0(name,"resolution")==0) 
+						{
+							if(global->flg_res < 1) /*must check for defaults since ReadOpts runs before ReadConf*/
 								sscanf(scanner->value.v_string,"%ix%i",
 									&(global->width), 
 									&(global->height));
@@ -664,7 +671,8 @@ readConf(struct GLOBAL *global)
         if (ac_bit_rate >= 0) acodec_defaults->bit_rate = ac_bit_rate;
         if (vc_bit_rate >= 0) vcodec_defaults->bit_rate = vc_bit_rate;
         if (vc_fps >= 0) vcodec_defaults->fps = vc_fps;
-        if (vc_monotonic_pts >= 0) vcodec_defaults->monotonic_pts = vc_monotonic_pts;
+        //from 1.5.3 onwards we set version on conf file and monotonic is set by default for all codecs
+        if ((vc_monotonic_pts >= 0) && (VMAJOR > 0)) vcodec_defaults->monotonic_pts = vc_monotonic_pts;
 		if (vc_qmax >= 0) vcodec_defaults->qmax = vc_qmax;
 		if (vc_qmin >= 0) vcodec_defaults->qmin = vc_qmin;
 		if (vc_max_qdiff >=0) vcodec_defaults->max_qdiff = vc_max_qdiff;
