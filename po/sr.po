@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: guvcview\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-10-17 22:15+0100\n"
-"PO-Revision-Date: 2011-03-19 06:21+0000\n"
+"PO-Revision-Date: 2011-10-31 21:01+0000\n"
 "Last-Translator: Мирослав Николић <miroslavnikolic@rocketmail.com>\n"
 "Language-Team: Launchpad Serbian Translators\n"
-"Language: Serbian (sr)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-08-10 12:28+0000\n"
-"X-Generator: Launchpad (build 13636)\n"
+"X-Launchpad-Export-Date: 2012-02-27 23:28+0000\n"
+"X-Generator: Launchpad (build 14868)\n"
+"Language: sr\n"
 
 #: src/guvcview.c:289
 msgid "Guvcview Video Capture"
@@ -340,11 +340,11 @@ msgstr "Аутоматска експозиција"
 
 #: src/v4l2uvc.c:88
 msgid "Exposure Time, Absolute"
-msgstr "Време експозиције, апсолутно"
+msgstr "Време излагања, апсолутно"
 
 #: src/v4l2uvc.c:89
 msgid "Exposure, Dynamic Framerate"
-msgstr "Експозиција, динамички проток кадра"
+msgstr "Излагање, динамички проток кадра"
 
 #: src/v4l2uvc.c:90
 msgid "Pan, Relative"
@@ -438,7 +438,7 @@ msgstr "Фокус (апсолутни)"
 
 #: src/video_tab.c:41 src/callbacks.c:1331
 msgid "Save File"
-msgstr "Сачувај датотеку"
+msgstr "Сачувајте датотеку"
 
 #. if auto naming restart counter
 #: src/video_tab.c:76 src/video_tab.c:106 src/globals.c:73 src/globals.c:76
@@ -447,7 +447,7 @@ msgstr "Сачувај датотеку"
 #: src/callbacks.c:1092 src/callbacks.c:1207 src/timers.c:98
 #, c-format
 msgid "File num:%d"
-msgstr "Датотека број:%d"
+msgstr "Дат. бр.:%d"
 
 #: src/video_tab.c:126
 msgid "codec values"
@@ -463,7 +463,7 @@ msgstr ""
 
 #: src/video_tab.c:152
 msgid " monotonic pts"
-msgstr ""
+msgstr " једнообразне тачке"
 
 #. bit rate
 #: src/video_tab.c:160 src/audio_tab.c:58
@@ -516,7 +516,7 @@ msgstr "гоп величина:   "
 
 #: src/video_tab.c:340
 msgid "qcompress:   "
-msgstr "q-компримовање:   "
+msgstr "q-сажимање:   "
 
 #: src/video_tab.c:355
 msgid "qblur:   "
@@ -543,9 +543,8 @@ msgid "max B frames:   "
 msgstr "највише Б оквира:   "
 
 #: src/video_tab.c:445
-#, fuzzy
 msgid "num threads:   "
-msgstr "ме начин:   "
+msgstr "бр. нити:   "
 
 #: src/video_tab.c:555
 msgid "Video & Files"
@@ -586,7 +585,7 @@ msgstr "Датотека слике:"
 
 #: src/video_tab.c:804 src/video_tab.c:898
 msgid "File,Auto"
-msgstr "Датотека,аутоматски"
+msgstr "Датотека, самостално"
 
 #: src/video_tab.c:815
 msgid "Image Format:"
@@ -594,7 +593,7 @@ msgstr "Формат слике:"
 
 #: src/video_tab.c:841
 msgid "Take Picture by Default"
-msgstr ""
+msgstr "Сними слику по основи"
 
 #: src/video_tab.c:853
 msgid "Video File:"
@@ -611,11 +610,11 @@ msgstr "својства"
 
 #: src/video_tab.c:966
 msgid "Video Format:"
-msgstr "формат видеа:"
+msgstr "Формат снимка:"
 
 #: src/video_tab.c:973
 msgid "Take Video by Default"
-msgstr ""
+msgstr "Сними видео по основи"
 
 #: src/video_tab.c:984
 msgid "---- Video Filters ----"
@@ -653,7 +652,7 @@ msgstr " Честице"
 
 #: src/audio_tab.c:46
 msgid "audio codec values"
-msgstr "вредности аудио кодека"
+msgstr "вредност кодека звука"
 
 #: src/audio_tab.c:132
 msgid "Audio"
@@ -666,7 +665,7 @@ msgstr " Звук"
 #. VU meter on the image (OSD)
 #: src/audio_tab.c:162
 msgid " Show VU meter"
-msgstr ""
+msgstr " Прикажи ВУ метар"
 
 #: src/audio_tab.c:175
 msgid "Audio API:"
@@ -686,7 +685,7 @@ msgstr "Улазни уређај:"
 
 #: src/audio_tab.c:236 src/audio_tab.c:268
 msgid "Dev. Default"
-msgstr "Основни уређаја"
+msgstr "Основни са уређаја"
 
 #: src/audio_tab.c:257
 msgid "Sample Rate:"
@@ -706,7 +705,7 @@ msgstr "Број канала:"
 
 #: src/audio_tab.c:338
 msgid "Audio Format:"
-msgstr "Формат аудиа:"
+msgstr "Формат звука:"
 
 #: src/audio_tab.c:356
 msgid "---- Audio Effects ----"
@@ -755,28 +754,27 @@ msgstr "Горе"
 
 #: src/v4l2_controls.c:787
 msgid "Off"
-msgstr ""
+msgstr "Искљ."
 
 #: src/v4l2_controls.c:790
 msgid "On"
-msgstr ""
+msgstr "Укљ."
 
 #: src/v4l2_controls.c:793
 msgid "Blinking"
-msgstr ""
+msgstr "Треперење"
 
 #: src/v4l2_controls.c:796
-#, fuzzy
 msgid "Auto"
-msgstr "Заустави аутоматско"
+msgstr "Самостално"
 
 #: src/v4l2_controls.c:814
 msgid "8 bit"
-msgstr ""
+msgstr "8 бита"
 
 #: src/v4l2_controls.c:817
 msgid "12 bit"
-msgstr ""
+msgstr "12 бита"
 
 #: src/v4l2_dyna_ctrls.c:89
 msgid "Pan (relative)"
@@ -788,15 +786,15 @@ msgstr "Нагибање (релативно)"
 
 #: src/v4l2_dyna_ctrls.c:109
 msgid "Pan Reset"
-msgstr "Праћење поновно"
+msgstr "Поновно праћење"
 
 #: src/v4l2_dyna_ctrls.c:119
 msgid "Tilt Reset"
-msgstr "Нагибање поновно"
+msgstr "Поновно нагибање"
 
 #: src/v4l2_dyna_ctrls.c:129
 msgid "Pan/tilt Reset"
-msgstr "Праћење/нагибање поновно"
+msgstr "Поновно праћење/нагибање"
 
 #: src/v4l2_dyna_ctrls.c:139
 msgid "Focus (absolute)"
@@ -820,15 +818,15 @@ msgstr "Сирових бита по тачци"
 
 #: src/vcodecs.c:62
 msgid "MJPG - compressed"
-msgstr "МЈПГ — компримовани"
+msgstr "МЈПГ — сажети"
 
 #: src/vcodecs.c:97
 msgid "YUY2 - uncomp YUV"
-msgstr "ЈУЈ2 — некомпримовани ЈУВ"
+msgstr "ЈУЈ2 — несажети ЈУВ"
 
 #: src/vcodecs.c:132
 msgid "RGB - uncomp BMP"
-msgstr "РГБ — некомпримовани БМП"
+msgstr "РГБ — несажети БМП"
 
 #: src/vcodecs.c:167
 msgid "MPEG video 1"
@@ -880,7 +878,7 @@ msgstr "Не пушта ток видеа (само контроле слике)
 
 #: src/options.c:758
 msgid "Don't display a GUI"
-msgstr ""
+msgstr "Не приказује ГКС"
 
 #: src/options.c:759
 msgid "Capture method (1-mmap (default)  2-read)"
@@ -896,11 +894,13 @@ msgstr "Убрзање физичке компоненте (укључи(1) | и
 
 #: src/options.c:762
 msgid ""
-"Pixel format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|"
-"y41p|grey|y16 |s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
+"Pixel "
+"format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|y41p|grey|"
+"y16 |s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
 msgstr ""
-"Формат тачака (mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|"
-"y41p|grey|y16 |s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
+"Формат тачака "
+"(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|y41p|grey|y16 "
+"|s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
 
 #: src/options.c:763
 msgid "Frame size, default: 640x480"
@@ -948,7 +948,7 @@ msgstr "— локална опција"
 
 #: src/img_controls.c:117
 msgid "Auto Focus (continuous)"
-msgstr "Аутоматско фокусирање (непрекидно)"
+msgstr "Самостално фокусирање (непрекидно)"
 
 #: src/img_controls.c:118
 msgid "set Focus"
@@ -982,7 +982,7 @@ msgstr "нови"
 
 #: src/callbacks.c:666
 msgid "cancel"
-msgstr "отказжи"
+msgstr "откажи"
 
 #: src/callbacks.c:671
 msgid ""
@@ -994,7 +994,7 @@ msgstr ""
 
 #: src/callbacks.c:1344
 msgid "Load File"
-msgstr "Учитај датотеку"
+msgstr "Учитајте датотеку"
 
 #: src/timers.c:212
 msgid "Guvcview Warning:"

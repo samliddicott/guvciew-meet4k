@@ -1,3 +1,12 @@
+guvcview (1.5.3)
+
+    * update libavcodec API
+    * add libavutil dependency
+    * fix pulse interface
+    * update language catalogs (add bs and fo)
+    
+ -- Paulo Assis <pj.assis@gmail.com>  Mon, 27 Feb 2011 23:18:00 +0000
+ 
 guvcview (1.5.2)
 
     * move to pthreads (fix gthread API 2 issues)
@@ -6,6 +15,7 @@ guvcview (1.5.2)
     * fix some gtk3 widgets
     
  -- Paulo Assis <pj.assis@gmail.com>  Wed, 1 Feb 2012 23:01:00 +0000
+ 
 guvcview (1.5.1)
 
     * move to gtk3

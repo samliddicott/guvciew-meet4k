@@ -8,7 +8,7 @@ dnl --------------------------------------------------------------------------
 dnl Package definitions and initialization
 dnl --------------------------------------------------------------------------
 
-AC_INIT(guvcview, 1.5.2, [<pj.assis@gmail.com>])
+AC_INIT(guvcview, 1.5.3, [<pj.assis@gmail.com>])
 AM_INIT_AUTOMAKE([gnu])
 AC_CONFIG_MACRO_DIR([m4])
 AM_CONFIG_HEADER(config.h)
@@ -81,7 +81,7 @@ AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE", [guvcview])
 dnl --------------------------------------------------------------------------
 dnl Languages supported by guvcview.
 dnl --------------------------------------------------------------------------
-ALL_LINGUAS="cs da de es eu fr gl he hr it ja nl pl pt pt_BR ru sr tr uk zh_TW"
+ALL_LINGUAS="bs cs da de es eu fo fr gl he hr it ja nl pl pt pt_BR ru sr tr uk zh_TW"
 AM_GLIB_GNU_GETTEXT([external])
 
 dnl --------------------------------------------------------------------------
