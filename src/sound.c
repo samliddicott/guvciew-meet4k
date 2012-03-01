@@ -76,7 +76,7 @@ static int fill_audio_buffer(struct paRecordData *pdata, UINT64 ts)
 		{
 			/*drop audio data*/
 			ret = -1;
-			g_printerr("AUDIO: droping audio data\n");
+			g_printerr("AUDIO: dropping audio data\n");
 		}
 	}
 	
