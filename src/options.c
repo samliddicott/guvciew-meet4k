@@ -54,7 +54,7 @@ writeConf(struct GLOBAL *global, char *videodevice)
 	if ((fp = g_fopen(tmpfile,"w"))!=NULL) 
 	{
 		g_fprintf(fp,"# guvcview configuration file for %s\n\n",videodevice);
-		g_fprintf(fp,"version=%s\n",VERSION);
+		g_fprintf(fp,"version='%s'\n",VERSION);
 		g_fprintf(fp,"# Thread stack size: default 128 pages of 64k = 8388608 bytes\n");
 		g_fprintf(fp,"stack_size=%d\n",global->stack_size);
 		g_fprintf(fp,"# video loop sleep time in ms: 0,1,2,3,...\n");
