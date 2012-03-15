@@ -1,3 +1,5 @@
+[encoding: UTF-8]
+
 src/guvcview.c  	 	 
 src/v4l2uvc.c 		 
 src/video_tab.c 		 
@@ -16,3 +18,4 @@ src/close.c
 src/timers.c
 src/create_video.c
 src/osd.c
+data/guvcview.desktop.in

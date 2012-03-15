@@ -1,0 +1,30 @@
+iconsdir = ${datadir}/pixmaps/guvcview
+icons_DATA = \
+		guvcview.png\
+		camera.png\
+		movie.png\
+		save.png\
+		defaults.png\
+		image_controls.png\
+		video_controls.png\
+		audio_controls.png\
+		images_folder.png\
+		videos_folder.png\
+		controls_folder.png\
+		close.png
+
+
+gtk_update_icon_cache = gtk-update-icon-cache -f -t $(datadir)/pixmaps/guvcview/
+
+install-data-hook: update-icon-cache
+uninstall-hook: update-icon-cache
+update-icon-cache:
+	@-if test -z "$(DESTDIR)"; then \
+		echo "Updating Gtk icon cache."; \
+		$(gtk_update_icon_cache); \
+	else \
+		echo "*** Icon cache not updated.  After (un)install, run this:"; \
+		echo "***   $(gtk_update_icon_cache)"; \
+	fi
+
+EXTRA_DIST = $(icons_DATA)

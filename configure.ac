@@ -7,8 +7,15 @@ ORIGINAL_CFLAGS="$CFLAGS"
 dnl --------------------------------------------------------------------------
 dnl Package definitions and initialization
 dnl --------------------------------------------------------------------------
+m4_define([guvcview_major], [1])
+m4_define([guvcview_minor], [5])
+m4_define([guvcview_micro], [3])
+m4_define([guvcview_version],
+          [guvcview_major.guvcview_minor.guvcview_micro])
 
-AC_INIT(guvcview, 1.5.3, [<pj.assis@gmail.com>])
+AC_INIT([guvcview],[guvcview_version],[http://guvcview.sourceforge.net/])
+m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
+		  
 AM_INIT_AUTOMAKE([gnu])
 AC_CONFIG_MACRO_DIR([m4])
 AM_CONFIG_HEADER(config.h)
@@ -170,10 +177,31 @@ dnl (like Motorola and SPARC, unlike Intel and VAX).
 dnl --------------------------------------------------------------------------
 AC_C_BIGENDIAN 
 
-dnl Write output
-AC_OUTPUT([
-Makefile
-src/Makefile
-po/Makefile.in
-pixmaps/Makefile
+dnl Create the Makefiles
+AC_CONFIG_FILES([
+ Makefile
+ data/Makefile
+ data/icons/Makefile
+ data/guvcview.desktop.in
+ data/guvcview.in
+ po/Makefile.in
+ src/Makefile
 ])
+AC_OUTPUT
+
+dnl Output the results
+AC_MSG_NOTICE([
+
+  guvcview $VERSION
+  ----------------------
+
+  Prefix         : ${prefix}
+
+  Pulse API      : ${enable_pulse}
+  
+  Desktop File   : ${enable_desktop}
+  Debian Menu    : ${enable_debian_menu}
+  
+  Debug Symbols  : ${enable_debug}
+])
+
