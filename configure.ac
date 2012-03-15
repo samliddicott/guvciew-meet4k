@@ -32,6 +32,7 @@ AC_PREFIX_DEFAULT(/usr/local)
 AC_ISC_POSIX
 AC_PROG_CC
 AC_HEADER_STDC
+
 dnl --------------------------------------------------------------------------
 dnl set pthread_libs and pthread_cflags
 dnl --------------------------------------------------------------------------
@@ -84,6 +85,8 @@ dnl --------------------------------------------------------------------------
 GETTEXT_PACKAGE=guvcview
 AC_SUBST(GETTEXT_PACKAGE)
 AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE", [guvcview])
+
+IT_PROG_INTLTOOL([0.40])
 
 dnl --------------------------------------------------------------------------
 dnl Languages supported by guvcview.
