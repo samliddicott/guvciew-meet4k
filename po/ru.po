@@ -5,451 +5,82 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: guvcview\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-10-17 22:15+0100\n"
+"Report-Msgid-Bugs-To: pj.assis@gmail.com\n"
+"POT-Creation-Date: 2012-03-15 19:50+0000\n"
 "PO-Revision-Date: 2012-02-24 06:49+0000\n"
 "Last-Translator: Auduf <5097@mail.ru>\n"
 "Language-Team: Russian <>\n"
+"Language: ru\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Launchpad-Export-Date: 2012-02-27 23:28+0000\n"
 "X-Generator: Launchpad (build 14868)\n"
-"Language: ru\n"
 
-#: src/guvcview.c:289
+#: ../src/guvcview.c:285
 msgid "Guvcview Video Capture"
 msgstr "Заxват видео через Guvcview"
 
-#: src/guvcview.c:301
+#: ../src/guvcview.c:297
 msgid "GUVCViewer Controls"
 msgstr "Панель управления программы GUVCViewer"
 
-#. can't open device
-#: src/guvcview.c:346
-msgid ""
-"Guvcview error:\n"
-"\n"
-"Unable to open device"
-msgstr ""
-"Ошибка Guvcview:\n"
-"\n"
-"Не удалось открыть устройство"
-
-#: src/guvcview.c:347
-msgid ""
-"Please make sure the camera is connected\n"
-"and that the correct driver is installed."
-msgstr ""
-"Пожалуйста убедитесь в том, что камера подключена\n"
-"и драйвер установлен корректно."
-
-#. uvc extension controls OK, give warning and shutdown (called with --add_ctrls)
-#: src/guvcview.c:352
-msgid ""
-"Guvcview:\n"
-"\n"
-"UVC Extension controls"
-msgstr ""
-"Guvcview:\n"
-"Управление UVC расширениями"
-
-#: src/guvcview.c:353
-msgid "Extension controls were added to the UVC driver"
-msgstr "Управления расширениями был длбавлен к драйверу UVC"
-
-#. uvc extension controls error - EACCES (needs root user)
-#: src/guvcview.c:360
-msgid ""
-"Guvcview error:\n"
-"\n"
-"UVC Extension controls"
-msgstr ""
-"Ошибка Guvcview:\n"
-"Управление UVC расширениями"
-
-#: src/guvcview.c:361
-msgid ""
-"An error occurred while adding extension\n"
-"controls to the UVC driver\n"
-"Make sure you run guvcview as root (or sudo)."
-msgstr ""
-"Произошла ошибка в добавление\n"
-"управлений к расширению UVC драйвера.\n"
-"Убедитесь, что вы запустили guvcview как root (или sudo)"
-
-#: src/guvcview.c:387 src/guvcview.c:465
-msgid ""
-"Guvcview error:\n"
-"\n"
-"Can't set a valid video stream for guvcview"
-msgstr ""
-"Ошибка Guvcview:\n"
-"Правильный видео поток не может быть установлен для guvcview"
-
-#: src/guvcview.c:388 src/guvcview.c:466
-msgid ""
-"Make sure your device driver is v4l2 compliant\n"
-"and that it is properly installed."
-msgstr ""
-"Убедитесь что драйвер совместим с v4l2\n"
-"и правильно установлен"
-
-#: src/guvcview.c:410 src/guvcview.c:432
-msgid ""
-"Guvcview error:\n"
-"\n"
-"Unable to start with minimum setup"
-msgstr ""
-"Ошибка Guvcview:\n"
-"\n"
-"Не удался запуск с минимальной начальной установкой"
-
-#: src/guvcview.c:411 src/guvcview.c:433
-msgid "Please reconnect your camera."
-msgstr "Пожалуйста, переподключите камеру."
-
-#: src/guvcview.c:440
-msgid ""
-"Guvcview error:\n"
-"\n"
-"Couldn't query device capabilities"
-msgstr ""
-"Ошибка Guvcview:\n"
-"Не могу получить свойства устройства"
-
-#: src/guvcview.c:441
-msgid "Make sure the device driver supports v4l2."
-msgstr "Убедитесь в том, что драйвер устройства поддерживает v4l2."
-
-#: src/guvcview.c:445
-msgid ""
-"Guvcview error:\n"
-"\n"
-"Read method error"
-msgstr ""
-"Ошибка Guvcview:\n"
-"\n"
-"Ошибка метода чтения"
-
-#: src/guvcview.c:446
-msgid "Please try mmap instead (--capture_method=1)."
-msgstr "Попробуйте лучше mmap (--capture_method=1)."
-
-#: src/guvcview.c:454
-msgid ""
-"Guvcview error:\n"
-"\n"
-"Unable to allocate Buffers"
-msgstr ""
-"Ошибка Guvcview:\n"
-"\n"
-"Не удалось выделить место для буферов"
-
-#: src/guvcview.c:455
-msgid "Please try restarting your system."
-msgstr "Следует попробовать перезапустить систему."
-
-#: src/guvcview.c:494
+#: ../src/guvcview.c:490
 msgid "Image Controls"
 msgstr "Регулировка изображения"
 
-#: src/guvcview.c:529
+#: ../src/guvcview.c:527
 msgid "Capture:"
 msgstr "Захват:"
 
 #. increment column for labels
 #. end of control only exclusion
-#: src/guvcview.c:537
+#: ../src/guvcview.c:534
 msgid "Control Profiles:"
 msgstr "Профиль регулировки:"
 
-#: src/guvcview.c:552
+#: ../src/guvcview.c:547
 msgid "Defaults"
 msgstr "Заводские установки"
 
 #. image auto capture
-#: src/guvcview.c:565
+#: ../src/guvcview.c:560
 msgid "Stop Auto"
 msgstr ""
 
-#: src/guvcview.c:569 src/callbacks.c:1118 src/timers.c:114
+#: ../src/guvcview.c:564 ../src/callbacks.c:1117 ../src/timers.c:113
 msgid "Cap. Image"
 msgstr "Сделать снимок"
 
 #. vid capture enabled from start
-#: src/guvcview.c:574 src/callbacks.c:1261
+#: ../src/guvcview.c:569 ../src/callbacks.c:1251
 msgid "Stop Video"
 msgstr "Стоп"
 
-#: src/guvcview.c:579 src/guvcview.c:795 src/callbacks.c:1194
-#: src/create_video.c:878
+#: ../src/guvcview.c:574 ../src/guvcview.c:770 ../src/callbacks.c:1193
+#: ../src/create_video.c:870
 msgid "Cap. Video"
 msgstr "Видео"
 
-#: src/guvcview.c:735
-msgid ""
-"Guvcview error:\n"
-"\n"
-"Unable to create Video Thread"
-msgstr ""
-"Ошибка Guvcview:\n"
-"\n"
-"Не удалось создать поток команд для видео"
-
-#: src/guvcview.c:736
-msgid "Please report it to http://developer.berlios.de/bugs/?group_id=8179"
-msgstr ""
-"Следует сообщить об этом сюда: "
-"http://developer.berlios.de/bugs/?group_id=8179"
-
-#. needed only for language files (not used)
-#. V4L2 control strings
-#: src/v4l2uvc.c:54
-msgid "User Controls"
-msgstr "Настройки пользователя"
-
-#: src/v4l2uvc.c:55
-msgid "Brightness"
-msgstr "Яркость"
-
-#: src/v4l2uvc.c:56
-msgid "Contrast"
-msgstr "Контрастность"
-
-#: src/v4l2uvc.c:57
-msgid "Hue"
-msgstr "Оттенок"
-
-#: src/v4l2uvc.c:58
-msgid "Saturation"
-msgstr "Насыщенность"
-
-#: src/v4l2uvc.c:59
-msgid "Sharpness"
-msgstr "Резкость"
-
-#: src/v4l2uvc.c:60
-msgid "Gamma"
-msgstr "Гамма"
-
-#: src/v4l2uvc.c:61
-msgid "Backlight Compensation"
-msgstr "Компенсация ярких участков"
-
-#: src/v4l2uvc.c:62
-msgid "Power Line Frequency"
-msgstr "Частота в электросети"
-
-#: src/v4l2uvc.c:63
-msgid "Hue, Automatic"
-msgstr "Оттенок, Автоматически"
-
-#: src/v4l2uvc.c:64
-msgid "Focus, Auto"
-msgstr "Фокус, авто"
-
-#: src/v4l2uvc.c:65
-msgid "Manual Mode"
-msgstr "Ручной режим"
-
-#: src/v4l2uvc.c:66
-msgid "Auto Mode"
-msgstr "Авторежим"
-
-#: src/v4l2uvc.c:67
-msgid "Shutter Priority Mode"
-msgstr "Режим приоритета затвора"
-
-#: src/v4l2uvc.c:68
-msgid "Aperture Priority Mode"
-msgstr "Режим приоритета диафрагмы"
-
-#: src/v4l2uvc.c:69
-msgid "Black Level"
-msgstr "Уровень чёрного"
-
-#: src/v4l2uvc.c:70
-msgid "White Balance, Automatic"
-msgstr "Баланс белого, Автоматически"
-
-#: src/v4l2uvc.c:71
-msgid "Do White Balance"
-msgstr ""
-
-#: src/v4l2uvc.c:72
-msgid "Red Balance"
-msgstr "Баланс красного"
-
-#: src/v4l2uvc.c:73
-msgid "Blue Balance"
-msgstr "Баланс синего"
-
-#: src/v4l2uvc.c:74
-msgid "Exposure"
-msgstr "Экспозиция"
-
-#: src/v4l2uvc.c:75
-msgid "Gain, Automatic"
-msgstr "Усиление, автоматически"
-
-#: src/v4l2uvc.c:76
-msgid "Gain"
-msgstr "Усиление"
-
-#: src/v4l2uvc.c:77
-msgid "Horizontal Flip"
-msgstr "Отразить по горизонтали"
-
-#: src/v4l2uvc.c:78
-msgid "Vertical Flip"
-msgstr "Отразить по вертикали"
-
-#: src/v4l2uvc.c:79
-msgid "Horizontal Center"
-msgstr "Горизонтальный центр"
-
-#: src/v4l2uvc.c:80
-msgid "Vertical Center"
-msgstr "Вертикальный центр"
-
-#: src/v4l2uvc.c:81
-msgid "Chroma AGC"
-msgstr ""
-
-#: src/v4l2uvc.c:82
-msgid "Color Killer"
-msgstr ""
-
-#: src/v4l2uvc.c:83
-msgid "Color Effects"
-msgstr "Цветовые эффекты"
-
-#. CAMERA CLASS control strings
-#: src/v4l2uvc.c:86
-msgid "Camera Controls"
-msgstr "Настройки камеры"
-
-#: src/v4l2uvc.c:87
-msgid "Auto Exposure"
-msgstr "Авто выдержка"
-
-#: src/v4l2uvc.c:88
-msgid "Exposure Time, Absolute"
-msgstr "Время выдержки, Абсолютное"
-
-#: src/v4l2uvc.c:89
-msgid "Exposure, Dynamic Framerate"
-msgstr "Выдержка, Динамичная частота кадров"
-
-#: src/v4l2uvc.c:90
-msgid "Pan, Relative"
-msgstr ""
-
-#: src/v4l2uvc.c:91
-msgid "Tilt, Relative"
-msgstr ""
-
-#: src/v4l2uvc.c:92
-msgid "Pan, Reset"
-msgstr ""
-
-#: src/v4l2uvc.c:93
-msgid "Tilt, Reset"
-msgstr ""
-
-#: src/v4l2uvc.c:94
-msgid "Pan, Absolute"
-msgstr ""
-
-#: src/v4l2uvc.c:96
-msgid "Focus, Absolute"
-msgstr "Фокус, Совершенный"
-
-#: src/v4l2uvc.c:97
-msgid "Focus, Relative"
-msgstr "Фокус, Относительный"
-
-#: src/v4l2uvc.c:98
-msgid "Focus, Automatic"
-msgstr "Фокус, Автоматический"
-
-#: src/v4l2uvc.c:99
-msgid "Zoom, Absolute"
-msgstr "Увеличение, Совершенное"
-
-#: src/v4l2uvc.c:100
-msgid "Zoom, Relative"
-msgstr "Увеличение, Относительное"
-
-#: src/v4l2uvc.c:101
-msgid "Zoom, Continuous"
-msgstr "Увеличение, Постоянное"
-
-#: src/v4l2uvc.c:102
-msgid "Privacy"
-msgstr "Конфиденциальность"
-
-#. UVC specific control strings
-#: src/v4l2uvc.c:105
-msgid "Exposure, Auto"
-msgstr "Экспозиция, авто"
-
-#: src/v4l2uvc.c:106
-msgid "Exposure, Auto Priority"
-msgstr "Режим частоты кадров"
-
-#: src/v4l2uvc.c:107
-msgid "Exposure (Absolute)"
-msgstr "Выдержка (совершенная)"
-
-#: src/v4l2uvc.c:108
-msgid "White Balance Temperature, Auto"
-msgstr "Температура баланса белого, авто"
-
-#: src/v4l2uvc.c:109
-msgid "White Balance Temperature"
-msgstr "Температура баланса белого"
-
-#: src/v4l2uvc.c:110
-msgid "White Balance Component, Auto"
-msgstr "Компонент баланса белого, авто"
-
-#: src/v4l2uvc.c:111
-msgid "White Balance Blue Component"
-msgstr "Синий компонент баланса белого"
-
-#: src/v4l2uvc.c:112
-msgid "White Balance Red Component"
-msgstr "Красный компонент баланса белого"
-
-#. libwebcam specific control strings
-#: src/v4l2uvc.c:115
-msgid "Focus"
-msgstr "Фокусирование"
-
-#: src/v4l2uvc.c:116
-msgid "Focus (Absolute)"
-msgstr "Фокусирование (Абсолютное)"
-
-#: src/video_tab.c:41 src/callbacks.c:1331
+#: ../src/video_tab.c:41 ../src/callbacks.c:1321
 msgid "Save File"
 msgstr "Сохранить файл"
 
 #. if auto naming restart counter
-#: src/video_tab.c:76 src/video_tab.c:106 src/globals.c:73 src/globals.c:76
-#: src/options.c:326 src/options.c:445 src/options.c:502 src/callbacks.c:608
-#: src/callbacks.c:890 src/callbacks.c:1039 src/callbacks.c:1056
-#: src/callbacks.c:1092 src/callbacks.c:1207 src/timers.c:98
+#: ../src/video_tab.c:76 ../src/video_tab.c:106 ../src/globals.c:78
+#: ../src/globals.c:81 ../src/options.c:333 ../src/options.c:452
+#: ../src/options.c:509 ../src/callbacks.c:607 ../src/callbacks.c:889
+#: ../src/callbacks.c:1038 ../src/callbacks.c:1055 ../src/callbacks.c:1091
+#: ../src/callbacks.c:1206 ../src/timers.c:97
 #, c-format
 msgid "File num:%d"
 msgstr "№ п/п:%d"
 
-#: src/video_tab.c:126
+#: ../src/video_tab.c:126
 msgid "codec values"
 msgstr "Параметры кодека"
 
-#: src/video_tab.c:137
+#: ../src/video_tab.c:137
 msgid ""
 "                              encoder fps:   \n"
 " (0 - use fps combobox value)"
@@ -457,504 +88,335 @@ msgstr ""
 "                              кодек кадров/с.:   \n"
 " (0 - использовать значение списка)"
 
-#: src/video_tab.c:152
+#: ../src/video_tab.c:150
 msgid " monotonic pts"
 msgstr ""
 
 #. bit rate
-#: src/video_tab.c:160 src/audio_tab.c:58
+#: ../src/video_tab.c:157 ../src/audio_tab.c:59
 msgid "bit rate:   "
 msgstr "Битрейт:   "
 
-#: src/video_tab.c:175
+#: ../src/video_tab.c:170
 msgid "qmax:   "
 msgstr "qmax:   "
 
-#: src/video_tab.c:190
+#: ../src/video_tab.c:183
 msgid "qmin:   "
 msgstr "qmin:   "
 
-#: src/video_tab.c:205
+#: ../src/video_tab.c:196
 msgid "max. qdiff:   "
 msgstr "макс. qdiff:   "
 
-#: src/video_tab.c:220
+#: ../src/video_tab.c:209
 msgid "dia size:   "
 msgstr "dia-size:   "
 
-#: src/video_tab.c:235
+#: ../src/video_tab.c:222
 msgid "pre dia size:   "
 msgstr "pre-dia-size:   "
 
-#: src/video_tab.c:250
+#: ../src/video_tab.c:235
 msgid "pre me:   "
 msgstr "pre-me:   "
 
-#: src/video_tab.c:265
+#: ../src/video_tab.c:248
 msgid "pre cmp:   "
 msgstr "pre-cmp:   "
 
-#: src/video_tab.c:280
+#: ../src/video_tab.c:261
 msgid "cmp:   "
 msgstr "cmp:   "
 
-#: src/video_tab.c:295
+#: ../src/video_tab.c:274
 msgid "sub cmp:   "
 msgstr "sub-cmp:   "
 
-#: src/video_tab.c:310
+#: ../src/video_tab.c:287
 msgid "last predictor count:   "
 msgstr "last-predictor-count:   "
 
-#: src/video_tab.c:325
+#: ../src/video_tab.c:300
 msgid "gop size:   "
 msgstr "gop-size:   "
 
-#: src/video_tab.c:340
+#: ../src/video_tab.c:313
 msgid "qcompress:   "
 msgstr "qcompress:   "
 
-#: src/video_tab.c:355
+#: ../src/video_tab.c:326
 msgid "qblur:   "
 msgstr "qblur:   "
 
-#: src/video_tab.c:370
+#: ../src/video_tab.c:339
 msgid "subq:   "
 msgstr ""
 
-#: src/video_tab.c:385
+#: ../src/video_tab.c:352
 msgid "framerefs:   "
 msgstr ""
 
-#: src/video_tab.c:400
+#: ../src/video_tab.c:365
 msgid "me method:   "
 msgstr "me-method:   "
 
-#: src/video_tab.c:415
+#: ../src/video_tab.c:378
 msgid "mb decision:   "
 msgstr "mb-decision:   "
 
-#: src/video_tab.c:430
+#: ../src/video_tab.c:391
 msgid "max B frames:   "
 msgstr ""
 
-#: src/video_tab.c:445
+#: ../src/video_tab.c:404
 msgid "num threads:   "
 msgstr ""
 
-#: src/video_tab.c:555
+#: ../src/video_tab.c:516
 msgid "Video & Files"
 msgstr "Видео и файлы"
 
 #. Devices
-#: src/video_tab.c:571 src/callbacks.c:136
+#: ../src/video_tab.c:532 ../src/callbacks.c:137
 msgid "Device:"
 msgstr "Устройство:"
 
-#: src/video_tab.c:673
+#: ../src/video_tab.c:637
 msgid "Frame Rate:"
 msgstr "Частота кадров:"
 
-#: src/video_tab.c:681
+#: ../src/video_tab.c:644
 msgid " Show"
 msgstr " Показать"
 
-#: src/video_tab.c:705
+#: ../src/video_tab.c:666
 msgid "Resolution:"
 msgstr "Разрешение:"
 
-#: src/video_tab.c:731
+#: ../src/video_tab.c:692
 msgid "Camera Output:"
 msgstr "Вывод камеры:"
 
-#: src/video_tab.c:753
+#: ../src/video_tab.c:714
 msgid "Apply"
 msgstr "Применить"
 
-#: src/video_tab.c:761
+#: ../src/video_tab.c:721
 msgid "Quality:"
 msgstr "Качество:"
 
-#: src/video_tab.c:771
+#: ../src/video_tab.c:730
 msgid "Image File:"
 msgstr "Файл снимка:"
 
-#: src/video_tab.c:804 src/video_tab.c:898
+#: ../src/video_tab.c:761 ../src/video_tab.c:851
 msgid "File,Auto"
 msgstr "автомат."
 
-#: src/video_tab.c:815
+#: ../src/video_tab.c:771
 msgid "Image Format:"
 msgstr "Формат снимка:"
 
-#: src/video_tab.c:841
+#: ../src/video_tab.c:797
 msgid "Take Picture by Default"
 msgstr ""
 
-#: src/video_tab.c:853
+#: ../src/video_tab.c:808
 msgid "Video File:"
 msgstr "Файл видео:"
 
-#: src/video_tab.c:931
+#: ../src/video_tab.c:884
 msgid "Video Codec:"
 msgstr "Видео-кодек:"
 
 #. lavc codec properties button
-#: src/video_tab.c:939 src/audio_tab.c:346
+#: ../src/video_tab.c:891 ../src/audio_tab.c:347
 msgid "properties"
 msgstr "Свойства"
 
-#: src/video_tab.c:966
+#: ../src/video_tab.c:918
 msgid "Video Format:"
 msgstr "Формат видео:"
 
-#: src/video_tab.c:973
+#: ../src/video_tab.c:924
 msgid "Take Video by Default"
 msgstr ""
 
-#: src/video_tab.c:984
+#: ../src/video_tab.c:934
 msgid "---- Video Filters ----"
 msgstr "---- Видео-фильтры ----"
 
 #. Mirror
-#: src/video_tab.c:999
+#: ../src/video_tab.c:953
 msgid " Mirror"
 msgstr " Гор. отражение"
 
 #. Upturn
-#: src/video_tab.c:1009
+#: ../src/video_tab.c:964
 msgid " Invert"
 msgstr " Верт. отражение"
 
 #. Negate
-#: src/video_tab.c:1019
+#: ../src/video_tab.c:975
 msgid " Negative"
 msgstr " Негатив"
 
 #. Mono
-#: src/video_tab.c:1029
+#: ../src/video_tab.c:986
 msgid " Mono"
 msgstr " Чёрно-белое"
 
 #. Pieces
-#: src/video_tab.c:1040
+#: ../src/video_tab.c:998
 msgid " Pieces"
 msgstr " Мозаика"
 
 #. Particles
-#: src/video_tab.c:1051
+#: ../src/video_tab.c:1010
 msgid " Particles"
 msgstr ""
 
-#: src/audio_tab.c:46
+#: ../src/audio_tab.c:46
 msgid "audio codec values"
 msgstr ""
 
-#: src/audio_tab.c:132
+#: ../src/audio_tab.c:136
 msgid "Audio"
 msgstr "Аудио"
 
-#: src/audio_tab.c:150
+#: ../src/audio_tab.c:154
 msgid " Sound"
 msgstr " Звук"
 
 #. VU meter on the image (OSD)
-#: src/audio_tab.c:162
+#: ../src/audio_tab.c:165
 msgid " Show VU meter"
 msgstr ""
 
-#: src/audio_tab.c:175
+#: ../src/audio_tab.c:177
 msgid "Audio API:"
 msgstr "Аудио-API:"
 
-#: src/audio_tab.c:185
+#: ../src/audio_tab.c:188
 msgid "PORTAUDIO"
 msgstr "PORTAUDIO"
 
-#: src/audio_tab.c:186
+#: ../src/audio_tab.c:189
 msgid "PULSEAUDIO"
 msgstr "PULSEAUDIO"
 
-#: src/audio_tab.c:202 src/audio_tab.c:225
+#: ../src/audio_tab.c:205 ../src/audio_tab.c:227
 msgid "Input Device:"
 msgstr "Устройство ввода:"
 
-#: src/audio_tab.c:236 src/audio_tab.c:268
+#: ../src/audio_tab.c:237 ../src/audio_tab.c:269
 msgid "Dev. Default"
 msgstr "по умолчанию"
 
-#: src/audio_tab.c:257
+#: ../src/audio_tab.c:259
 msgid "Sample Rate:"
 msgstr "Частота дискретизации:"
 
-#: src/audio_tab.c:269
+#: ../src/audio_tab.c:270
 msgid "1 - mono"
 msgstr "1 - моно"
 
-#: src/audio_tab.c:270
+#: ../src/audio_tab.c:271
 msgid "2 - stereo"
 msgstr "2 - стерео"
 
-#: src/audio_tab.c:304
+#: ../src/audio_tab.c:306
 msgid "Channels:"
 msgstr "Каналов:"
 
-#: src/audio_tab.c:338
+#: ../src/audio_tab.c:340
 msgid "Audio Format:"
 msgstr "Формат аудио:"
 
-#: src/audio_tab.c:356
+#: ../src/audio_tab.c:356
 msgid "---- Audio Effects ----"
 msgstr "---- Аудио-эффекты ----"
 
 #. Echo
-#: src/audio_tab.c:375
+#: ../src/audio_tab.c:375
 msgid " Echo"
 msgstr " Эхо"
 
 #. FUZZ
-#: src/audio_tab.c:385
+#: ../src/audio_tab.c:386
 msgid " Fuzz"
 msgstr " Фуз"
 
 #. Reverb
-#: src/audio_tab.c:396
+#: ../src/audio_tab.c:398
 msgid " Reverb"
 msgstr " Реверберация"
 
 #. WahWah
-#: src/audio_tab.c:407
+#: ../src/audio_tab.c:410
 msgid " WahWah"
 msgstr " Квакушка"
 
 #. Ducky
-#: src/audio_tab.c:418
+#: ../src/audio_tab.c:422
 msgid " Ducky"
 msgstr " Утёнок"
 
-#: src/v4l2_controls.c:732
+#: ../src/v4l2_controls.c:712
 msgid "Left"
 msgstr "Влево"
 
-#: src/v4l2_controls.c:733
+#: ../src/v4l2_controls.c:713
 msgid "Right"
 msgstr "Вправо"
 
-#: src/v4l2_controls.c:737
+#: ../src/v4l2_controls.c:717
 msgid "Down"
 msgstr "Вниз"
 
-#: src/v4l2_controls.c:738
+#: ../src/v4l2_controls.c:718
 msgid "Up"
 msgstr "Вверх"
 
-#: src/v4l2_controls.c:787
+#: ../src/v4l2_controls.c:763
 msgid "Off"
 msgstr "Откл."
 
-#: src/v4l2_controls.c:790
+#: ../src/v4l2_controls.c:763
 msgid "On"
 msgstr "Вкл."
 
-#: src/v4l2_controls.c:793
+#: ../src/v4l2_controls.c:763
 msgid "Blinking"
 msgstr "Мерцание"
 
-#: src/v4l2_controls.c:796
+#: ../src/v4l2_controls.c:763
 msgid "Auto"
 msgstr "Авто"
 
-#: src/v4l2_controls.c:814
+#. turn it into a menu control
+#: ../src/v4l2_controls.c:814
 msgid "8 bit"
 msgstr "8 бит"
 
-#: src/v4l2_controls.c:817
+#: ../src/v4l2_controls.c:814
 msgid "12 bit"
 msgstr "12 бит"
 
-#: src/v4l2_dyna_ctrls.c:89
-msgid "Pan (relative)"
-msgstr "Гор. поворот (относит.)"
-
-#: src/v4l2_dyna_ctrls.c:99
-msgid "Tilt (relative)"
-msgstr "Верт. поворот (относит.)"
-
-#: src/v4l2_dyna_ctrls.c:109
-msgid "Pan Reset"
-msgstr "Гор. возврат"
-
-#: src/v4l2_dyna_ctrls.c:119
-msgid "Tilt Reset"
-msgstr "Верт. возврат"
-
-#: src/v4l2_dyna_ctrls.c:129
-msgid "Pan/tilt Reset"
-msgstr "Гор./верт. возврат"
-
-#: src/v4l2_dyna_ctrls.c:139
-msgid "Focus (absolute)"
-msgstr "Фокус (абсолютный)"
-
-#: src/v4l2_dyna_ctrls.c:149
-msgid "LED1 Mode"
-msgstr "Режим светодиода1"
-
-#: src/v4l2_dyna_ctrls.c:159
-msgid "LED1 Frequency"
-msgstr "Частота светодиода1"
-
-#: src/v4l2_dyna_ctrls.c:169
-msgid "Disable video processing"
-msgstr "Отключение обработки видео"
-
-#: src/v4l2_dyna_ctrls.c:179
-msgid "Raw bits per pixel"
-msgstr "Кол-во бит на пиксел"
-
-#: src/vcodecs.c:62
-msgid "MJPG - compressed"
-msgstr "MJPG - сжатый"
-
-#: src/vcodecs.c:97
-msgid "YUY2 - uncomp YUV"
-msgstr "YUY2 - несжатый YUV"
-
-#: src/vcodecs.c:132
-msgid "RGB - uncomp BMP"
-msgstr "RGB - несжатый BMP"
-
-#: src/vcodecs.c:167
-msgid "MPEG video 1"
-msgstr "MPEG-видео 1"
-
-#: src/vcodecs.c:202
-msgid "FLV1 - flash video 1"
-msgstr "FLV1 - флэш-видео 1"
-
-#: src/vcodecs.c:237
-msgid "WMV1 - win. med. video 7"
-msgstr "WMV1 - видео Windows Media 7"
-
-#: src/vcodecs.c:272
-msgid "MPG2 - MPG2 format"
-msgstr "MPG2 - формат MPG2"
-
-#: src/vcodecs.c:307
-msgid "MS MP4 V3"
-msgstr "MS MP4 V3"
-
-#: src/vcodecs.c:342
-msgid "MPEG4-ASP"
-msgstr "MPEG4-ASP"
-
-#: src/vcodecs.c:377
-msgid "MPEG4-AVC (H264)"
-msgstr "MPEG4-AVC (H264)"
-
-#: src/options.c:753
-msgid "Prints version"
-msgstr "Показывает версию"
-
-#: src/options.c:754
-msgid "Displays debug information"
-msgstr "Показывает информацию для отладки"
-
-#: src/options.c:755
-msgid "Video Device to use [default: /dev/video0]"
-msgstr "Используемое видео-устройство (по умолчанию /dev/video0)"
-
-#: src/options.c:756
-msgid "Exit after adding UVC extension controls (needs root/sudo)"
-msgstr ""
-
-#: src/options.c:757
-msgid "Don't stream video (image controls only)"
-msgstr ""
-
-#: src/options.c:758
-msgid "Don't display a GUI"
-msgstr "Не отображать графический интерфейс"
-
-#: src/options.c:759
-msgid "Capture method (1-mmap (default)  2-read)"
-msgstr ""
-
-#: src/options.c:760
-msgid "Configuration file"
-msgstr "Конфигурационный файл"
-
-#: src/options.c:761
-msgid "Hardware accelaration (enable(1) | disable(0))"
-msgstr "Аппаратное ускорение (вкл.(1) | выкл.(0))"
-
-#: src/options.c:762
-msgid ""
-"Pixel "
-"format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|y41p|grey|"
-"y16 |s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
-msgstr ""
-"Формат "
-"пикселя(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|y41p|grey"
-"|y16 |s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
-
-#: src/options.c:763
-msgid "Frame size, default: 640x480"
-msgstr "Размер кадра (по умолчанию 640х480)"
-
-#: src/options.c:764
-msgid "Image File name"
-msgstr "Имя файла изображения"
-
-#: src/options.c:765
-msgid "Image capture interval in seconds"
-msgstr "Интервал между снимками (сек)"
-
-#: src/options.c:766
-msgid "Number of Pictures to capture"
-msgstr "Количество снимков"
-
-#: src/options.c:767
-msgid "Video File name (capture from start)"
-msgstr "Имя видео-файла (запись сразу после запуска)"
-
-#: src/options.c:768
-msgid "Video capture time (in seconds)"
-msgstr "Продолжительность видео-записи (сек)"
-
-#: src/options.c:769
-msgid "Exits guvcview after closing video"
-msgstr ""
-
-#: src/options.c:770
-msgid "Number of initial frames to skip"
-msgstr "Количество начальных кадров для пропуска"
-
-#: src/options.c:771
-msgid "Show FPS value (enable(1) | disable (0))"
-msgstr "Отображение частоты кадров (вкл.(1) | выкл.(0))"
-
-#: src/options.c:772
-msgid "Load Profile at start"
-msgstr "Загрузка профиля при запуске"
-
-#: src/options.c:778
-msgid "- local options"
-msgstr "- локальные параметры"
-
-#: src/img_controls.c:117
+#: ../src/img_controls.c:121
 msgid "Auto Focus (continuous)"
 msgstr "Автофокусировка (непрерывная)"
 
-#: src/img_controls.c:118
+#: ../src/img_controls.c:122
 msgid "set Focus"
 msgstr "Установка фокуса"
 
-#: src/callbacks.c:102
+#: ../src/callbacks.c:106
 msgid "Error"
 msgstr "Ошибка"
 
-#: src/callbacks.c:128
+#: ../src/callbacks.c:130
 msgid ""
 "\n"
 "You have more than one video device installed.\n"
@@ -964,23 +426,23 @@ msgstr ""
 "У вас установлен дополнительный видео прибор.\n"
 "Хотите попробовать другой?\n"
 
-#: src/callbacks.c:659
+#: ../src/callbacks.c:658
 msgid "start new"
 msgstr "Запуск нового"
 
-#: src/callbacks.c:662
+#: ../src/callbacks.c:661
 msgid "restart"
 msgstr "перезагрузить"
 
-#: src/callbacks.c:664
+#: ../src/callbacks.c:663
 msgid "new"
 msgstr "Новый"
 
-#: src/callbacks.c:666
+#: ../src/callbacks.c:665
 msgid "cancel"
 msgstr "Отмена"
 
-#: src/callbacks.c:671
+#: ../src/callbacks.c:670
 msgid ""
 "launch new process or restart?.\n"
 "\n"
@@ -988,14 +450,388 @@ msgstr ""
 "Запустить новый процесс или перезапустить?\n"
 "\n"
 
-#: src/callbacks.c:1344
+#: ../src/callbacks.c:1334
 msgid "Load File"
 msgstr "Загрузка файла"
 
-#: src/timers.c:212
-msgid "Guvcview Warning:"
-msgstr ""
+#~ msgid ""
+#~ "Guvcview error:\n"
+#~ "\n"
+#~ "Unable to open device"
+#~ msgstr ""
+#~ "Ошибка Guvcview:\n"
+#~ "\n"
+#~ "Не удалось открыть устройство"
 
-#: src/timers.c:212
-msgid "Not enough free space left on disk"
-msgstr "Недостаточно свободного места на диске"
+#~ msgid ""
+#~ "Please make sure the camera is connected\n"
+#~ "and that the correct driver is installed."
+#~ msgstr ""
+#~ "Пожалуйста убедитесь в том, что камера подключена\n"
+#~ "и драйвер установлен корректно."
+
+#~ msgid ""
+#~ "Guvcview:\n"
+#~ "\n"
+#~ "UVC Extension controls"
+#~ msgstr ""
+#~ "Guvcview:\n"
+#~ "Управление UVC расширениями"
+
+#~ msgid "Extension controls were added to the UVC driver"
+#~ msgstr "Управления расширениями был длбавлен к драйверу UVC"
+
+#~ msgid ""
+#~ "Guvcview error:\n"
+#~ "\n"
+#~ "UVC Extension controls"
+#~ msgstr ""
+#~ "Ошибка Guvcview:\n"
+#~ "Управление UVC расширениями"
+
+#~ msgid ""
+#~ "An error occurred while adding extension\n"
+#~ "controls to the UVC driver\n"
+#~ "Make sure you run guvcview as root (or sudo)."
+#~ msgstr ""
+#~ "Произошла ошибка в добавление\n"
+#~ "управлений к расширению UVC драйвера.\n"
+#~ "Убедитесь, что вы запустили guvcview как root (или sudo)"
+
+#~ msgid ""
+#~ "Guvcview error:\n"
+#~ "\n"
+#~ "Can't set a valid video stream for guvcview"
+#~ msgstr ""
+#~ "Ошибка Guvcview:\n"
+#~ "Правильный видео поток не может быть установлен для guvcview"
+
+#~ msgid ""
+#~ "Make sure your device driver is v4l2 compliant\n"
+#~ "and that it is properly installed."
+#~ msgstr ""
+#~ "Убедитесь что драйвер совместим с v4l2\n"
+#~ "и правильно установлен"
+
+#~ msgid ""
+#~ "Guvcview error:\n"
+#~ "\n"
+#~ "Unable to start with minimum setup"
+#~ msgstr ""
+#~ "Ошибка Guvcview:\n"
+#~ "\n"
+#~ "Не удался запуск с минимальной начальной установкой"
+
+#~ msgid "Please reconnect your camera."
+#~ msgstr "Пожалуйста, переподключите камеру."
+
+#~ msgid ""
+#~ "Guvcview error:\n"
+#~ "\n"
+#~ "Couldn't query device capabilities"
+#~ msgstr ""
+#~ "Ошибка Guvcview:\n"
+#~ "Не могу получить свойства устройства"
+
+#~ msgid "Make sure the device driver supports v4l2."
+#~ msgstr "Убедитесь в том, что драйвер устройства поддерживает v4l2."
+
+#~ msgid ""
+#~ "Guvcview error:\n"
+#~ "\n"
+#~ "Read method error"
+#~ msgstr ""
+#~ "Ошибка Guvcview:\n"
+#~ "\n"
+#~ "Ошибка метода чтения"
+
+#~ msgid "Please try mmap instead (--capture_method=1)."
+#~ msgstr "Попробуйте лучше mmap (--capture_method=1)."
+
+#~ msgid ""
+#~ "Guvcview error:\n"
+#~ "\n"
+#~ "Unable to allocate Buffers"
+#~ msgstr ""
+#~ "Ошибка Guvcview:\n"
+#~ "\n"
+#~ "Не удалось выделить место для буферов"
+
+#~ msgid "Please try restarting your system."
+#~ msgstr "Следует попробовать перезапустить систему."
+
+#~ msgid ""
+#~ "Guvcview error:\n"
+#~ "\n"
+#~ "Unable to create Video Thread"
+#~ msgstr ""
+#~ "Ошибка Guvcview:\n"
+#~ "\n"
+#~ "Не удалось создать поток команд для видео"
+
+#~ msgid "Please report it to http://developer.berlios.de/bugs/?group_id=8179"
+#~ msgstr ""
+#~ "Следует сообщить об этом сюда: http://developer.berlios.de/bugs/?"
+#~ "group_id=8179"
+
+#~ msgid "User Controls"
+#~ msgstr "Настройки пользователя"
+
+#~ msgid "Brightness"
+#~ msgstr "Яркость"
+
+#~ msgid "Contrast"
+#~ msgstr "Контрастность"
+
+#~ msgid "Hue"
+#~ msgstr "Оттенок"
+
+#~ msgid "Saturation"
+#~ msgstr "Насыщенность"
+
+#~ msgid "Sharpness"
+#~ msgstr "Резкость"
+
+#~ msgid "Gamma"
+#~ msgstr "Гамма"
+
+#~ msgid "Backlight Compensation"
+#~ msgstr "Компенсация ярких участков"
+
+#~ msgid "Power Line Frequency"
+#~ msgstr "Частота в электросети"
+
+#~ msgid "Hue, Automatic"
+#~ msgstr "Оттенок, Автоматически"
+
+#~ msgid "Focus, Auto"
+#~ msgstr "Фокус, авто"
+
+#~ msgid "Manual Mode"
+#~ msgstr "Ручной режим"
+
+#~ msgid "Auto Mode"
+#~ msgstr "Авторежим"
+
+#~ msgid "Shutter Priority Mode"
+#~ msgstr "Режим приоритета затвора"
+
+#~ msgid "Aperture Priority Mode"
+#~ msgstr "Режим приоритета диафрагмы"
+
+#~ msgid "Black Level"
+#~ msgstr "Уровень чёрного"
+
+#~ msgid "White Balance, Automatic"
+#~ msgstr "Баланс белого, Автоматически"
+
+#~ msgid "Red Balance"
+#~ msgstr "Баланс красного"
+
+#~ msgid "Blue Balance"
+#~ msgstr "Баланс синего"
+
+#~ msgid "Exposure"
+#~ msgstr "Экспозиция"
+
+#~ msgid "Gain, Automatic"
+#~ msgstr "Усиление, автоматически"
+
+#~ msgid "Gain"
+#~ msgstr "Усиление"
+
+#~ msgid "Horizontal Flip"
+#~ msgstr "Отразить по горизонтали"
+
+#~ msgid "Vertical Flip"
+#~ msgstr "Отразить по вертикали"
+
+#~ msgid "Horizontal Center"
+#~ msgstr "Горизонтальный центр"
+
+#~ msgid "Vertical Center"
+#~ msgstr "Вертикальный центр"
+
+#~ msgid "Color Effects"
+#~ msgstr "Цветовые эффекты"
+
+#~ msgid "Camera Controls"
+#~ msgstr "Настройки камеры"
+
+#~ msgid "Auto Exposure"
+#~ msgstr "Авто выдержка"
+
+#~ msgid "Exposure Time, Absolute"
+#~ msgstr "Время выдержки, Абсолютное"
+
+#~ msgid "Exposure, Dynamic Framerate"
+#~ msgstr "Выдержка, Динамичная частота кадров"
+
+#~ msgid "Focus, Absolute"
+#~ msgstr "Фокус, Совершенный"
+
+#~ msgid "Focus, Relative"
+#~ msgstr "Фокус, Относительный"
+
+#~ msgid "Focus, Automatic"
+#~ msgstr "Фокус, Автоматический"
+
+#~ msgid "Zoom, Absolute"
+#~ msgstr "Увеличение, Совершенное"
+
+#~ msgid "Zoom, Relative"
+#~ msgstr "Увеличение, Относительное"
+
+#~ msgid "Zoom, Continuous"
+#~ msgstr "Увеличение, Постоянное"
+
+#~ msgid "Privacy"
+#~ msgstr "Конфиденциальность"
+
+#~ msgid "Exposure, Auto"
+#~ msgstr "Экспозиция, авто"
+
+#~ msgid "Exposure, Auto Priority"
+#~ msgstr "Режим частоты кадров"
+
+#~ msgid "Exposure (Absolute)"
+#~ msgstr "Выдержка (совершенная)"
+
+#~ msgid "White Balance Temperature, Auto"
+#~ msgstr "Температура баланса белого, авто"
+
+#~ msgid "White Balance Temperature"
+#~ msgstr "Температура баланса белого"
+
+#~ msgid "White Balance Component, Auto"
+#~ msgstr "Компонент баланса белого, авто"
+
+#~ msgid "White Balance Blue Component"
+#~ msgstr "Синий компонент баланса белого"
+
+#~ msgid "White Balance Red Component"
+#~ msgstr "Красный компонент баланса белого"
+
+#~ msgid "Focus"
+#~ msgstr "Фокусирование"
+
+#~ msgid "Focus (Absolute)"
+#~ msgstr "Фокусирование (Абсолютное)"
+
+#~ msgid "Pan (relative)"
+#~ msgstr "Гор. поворот (относит.)"
+
+#~ msgid "Tilt (relative)"
+#~ msgstr "Верт. поворот (относит.)"
+
+#~ msgid "Pan Reset"
+#~ msgstr "Гор. возврат"
+
+#~ msgid "Tilt Reset"
+#~ msgstr "Верт. возврат"
+
+#~ msgid "Pan/tilt Reset"
+#~ msgstr "Гор./верт. возврат"
+
+#~ msgid "Focus (absolute)"
+#~ msgstr "Фокус (абсолютный)"
+
+#~ msgid "LED1 Mode"
+#~ msgstr "Режим светодиода1"
+
+#~ msgid "LED1 Frequency"
+#~ msgstr "Частота светодиода1"
+
+#~ msgid "Disable video processing"
+#~ msgstr "Отключение обработки видео"
+
+#~ msgid "Raw bits per pixel"
+#~ msgstr "Кол-во бит на пиксел"
+
+#~ msgid "MJPG - compressed"
+#~ msgstr "MJPG - сжатый"
+
+#~ msgid "YUY2 - uncomp YUV"
+#~ msgstr "YUY2 - несжатый YUV"
+
+#~ msgid "RGB - uncomp BMP"
+#~ msgstr "RGB - несжатый BMP"
+
+#~ msgid "MPEG video 1"
+#~ msgstr "MPEG-видео 1"
+
+#~ msgid "FLV1 - flash video 1"
+#~ msgstr "FLV1 - флэш-видео 1"
+
+#~ msgid "WMV1 - win. med. video 7"
+#~ msgstr "WMV1 - видео Windows Media 7"
+
+#~ msgid "MPG2 - MPG2 format"
+#~ msgstr "MPG2 - формат MPG2"
+
+#~ msgid "MS MP4 V3"
+#~ msgstr "MS MP4 V3"
+
+#~ msgid "MPEG4-ASP"
+#~ msgstr "MPEG4-ASP"
+
+#~ msgid "MPEG4-AVC (H264)"
+#~ msgstr "MPEG4-AVC (H264)"
+
+#~ msgid "Prints version"
+#~ msgstr "Показывает версию"
+
+#~ msgid "Displays debug information"
+#~ msgstr "Показывает информацию для отладки"
+
+#~ msgid "Video Device to use [default: /dev/video0]"
+#~ msgstr "Используемое видео-устройство (по умолчанию /dev/video0)"
+
+#~ msgid "Don't display a GUI"
+#~ msgstr "Не отображать графический интерфейс"
+
+#~ msgid "Configuration file"
+#~ msgstr "Конфигурационный файл"
+
+#~ msgid "Hardware accelaration (enable(1) | disable(0))"
+#~ msgstr "Аппаратное ускорение (вкл.(1) | выкл.(0))"
+
+#~ msgid ""
+#~ "Pixel format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|"
+#~ "y41p|grey|y16 |s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
+#~ msgstr ""
+#~ "Формат пикселя(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|"
+#~ "nv61|y41p|grey|y16 |s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
+
+#~ msgid "Frame size, default: 640x480"
+#~ msgstr "Размер кадра (по умолчанию 640х480)"
+
+#~ msgid "Image File name"
+#~ msgstr "Имя файла изображения"
+
+#~ msgid "Image capture interval in seconds"
+#~ msgstr "Интервал между снимками (сек)"
+
+#~ msgid "Number of Pictures to capture"
+#~ msgstr "Количество снимков"
+
+#~ msgid "Video File name (capture from start)"
+#~ msgstr "Имя видео-файла (запись сразу после запуска)"
+
+#~ msgid "Video capture time (in seconds)"
+#~ msgstr "Продолжительность видео-записи (сек)"
+
+#~ msgid "Number of initial frames to skip"
+#~ msgstr "Количество начальных кадров для пропуска"
+
+#~ msgid "Show FPS value (enable(1) | disable (0))"
+#~ msgstr "Отображение частоты кадров (вкл.(1) | выкл.(0))"
+
+#~ msgid "Load Profile at start"
+#~ msgstr "Загрузка профиля при запуске"
+
+#~ msgid "- local options"
+#~ msgstr "- локальные параметры"
+
+#~ msgid "Not enough free space left on disk"
+#~ msgstr "Недостаточно свободного места на диске"

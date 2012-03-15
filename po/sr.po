@@ -6,454 +6,82 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: guvcview\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-10-17 22:15+0100\n"
+"Report-Msgid-Bugs-To: pj.assis@gmail.com\n"
+"POT-Creation-Date: 2012-03-15 19:50+0000\n"
 "PO-Revision-Date: 2011-10-31 21:01+0000\n"
 "Last-Translator: Мирослав Николић <miroslavnikolic@rocketmail.com>\n"
 "Language-Team: Launchpad Serbian Translators\n"
+"Language: sr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Launchpad-Export-Date: 2012-02-27 23:28+0000\n"
 "X-Generator: Launchpad (build 14868)\n"
-"Language: sr\n"
 
-#: src/guvcview.c:289
+#: ../src/guvcview.c:285
 msgid "Guvcview Video Capture"
 msgstr "Камерица — видео снимање"
 
-#: src/guvcview.c:301
+#: ../src/guvcview.c:297
 msgid "GUVCViewer Controls"
 msgstr "Контроле Камерице"
 
-#. can't open device
-#: src/guvcview.c:346
-msgid ""
-"Guvcview error:\n"
-"\n"
-"Unable to open device"
-msgstr ""
-"Грешка Камерице:\n"
-"\n"
-"Не могу да отворим уређај"
-
-#: src/guvcview.c:347
-msgid ""
-"Please make sure the camera is connected\n"
-"and that the correct driver is installed."
-msgstr ""
-"Проверите да ли је камера повезана и да ли\n"
-"је инсталиран исправан управљачки програм."
-
-#. uvc extension controls OK, give warning and shutdown (called with --add_ctrls)
-#: src/guvcview.c:352
-msgid ""
-"Guvcview:\n"
-"\n"
-"UVC Extension controls"
-msgstr ""
-"Камерица:\n"
-"\n"
-"Контроле УВЦ проширења"
-
-#: src/guvcview.c:353
-msgid "Extension controls were added to the UVC driver"
-msgstr "Контроле проширења су додате УВЦ управљачком програму"
-
-#. uvc extension controls error - EACCES (needs root user)
-#: src/guvcview.c:360
-msgid ""
-"Guvcview error:\n"
-"\n"
-"UVC Extension controls"
-msgstr ""
-"Грешка Камерице:\n"
-"\n"
-"Контроле УВЦ проширења"
-
-#: src/guvcview.c:361
-msgid ""
-"An error occurred while adding extension\n"
-"controls to the UVC driver\n"
-"Make sure you run guvcview as root (or sudo)."
-msgstr ""
-"Дошло је до грешке приликом додавања контрола\n"
-"проширења УВЦ управљачком програму. Уверите се да\n"
-"сте покренули камерче као администратор (или судо)."
-
-#: src/guvcview.c:387 src/guvcview.c:465
-msgid ""
-"Guvcview error:\n"
-"\n"
-"Can't set a valid video stream for guvcview"
-msgstr ""
-"Грешка Камерице:\n"
-"\n"
-"Не могу да подесим исправан видео ток за камерче"
-
-#: src/guvcview.c:388 src/guvcview.c:466
-msgid ""
-"Make sure your device driver is v4l2 compliant\n"
-"and that it is properly installed."
-msgstr ""
-"Уверите се да је управљачки програм вашег уређаја\n"
-"усаглашен са в4л2 и да је исправно инсталиран."
-
-#: src/guvcview.c:410 src/guvcview.c:432
-msgid ""
-"Guvcview error:\n"
-"\n"
-"Unable to start with minimum setup"
-msgstr ""
-"Грешка Камерице:\n"
-"\n"
-"Не могу да започнем са минималним подешавањима"
-
-#: src/guvcview.c:411 src/guvcview.c:433
-msgid "Please reconnect your camera."
-msgstr "Молим поново повежите вашу камеру."
-
-#: src/guvcview.c:440
-msgid ""
-"Guvcview error:\n"
-"\n"
-"Couldn't query device capabilities"
-msgstr ""
-"Грешка Камерице:\n"
-"\n"
-"Не могу да испитам могућности уређаја"
-
-#: src/guvcview.c:441
-msgid "Make sure the device driver supports v4l2."
-msgstr "Уверите се да управљачки програм уређаја подржава в4л2."
-
-#: src/guvcview.c:445
-msgid ""
-"Guvcview error:\n"
-"\n"
-"Read method error"
-msgstr ""
-"Грешка Камерице:\n"
-"\n"
-"Грешка режима читања"
-
-#: src/guvcview.c:446
-msgid "Please try mmap instead (--capture_method=1)."
-msgstr "Молим покушајте „mmap“ уместо овог (--capture_method=1)."
-
-#: src/guvcview.c:454
-msgid ""
-"Guvcview error:\n"
-"\n"
-"Unable to allocate Buffers"
-msgstr ""
-"Грешка Камерице:\n"
-"\n"
-"Не могу да доделим Бафере"
-
-#: src/guvcview.c:455
-msgid "Please try restarting your system."
-msgstr "Молим покушајте поново да покренете систем."
-
-#: src/guvcview.c:494
+#: ../src/guvcview.c:490
 msgid "Image Controls"
 msgstr "Контроле слике"
 
-#: src/guvcview.c:529
+#: ../src/guvcview.c:527
 msgid "Capture:"
 msgstr "Снимање:"
 
 #. increment column for labels
 #. end of control only exclusion
-#: src/guvcview.c:537
+#: ../src/guvcview.c:534
 msgid "Control Profiles:"
 msgstr "Профили контрола:"
 
-#: src/guvcview.c:552
+#: ../src/guvcview.c:547
 msgid "Defaults"
 msgstr "Основно"
 
 #. image auto capture
-#: src/guvcview.c:565
+#: ../src/guvcview.c:560
 msgid "Stop Auto"
 msgstr "Заустави аутоматско"
 
-#: src/guvcview.c:569 src/callbacks.c:1118 src/timers.c:114
+#: ../src/guvcview.c:564 ../src/callbacks.c:1117 ../src/timers.c:113
 msgid "Cap. Image"
 msgstr "Сними слику"
 
 #. vid capture enabled from start
-#: src/guvcview.c:574 src/callbacks.c:1261
+#: ../src/guvcview.c:569 ../src/callbacks.c:1251
 msgid "Stop Video"
 msgstr "Заустави видео"
 
-#: src/guvcview.c:579 src/guvcview.c:795 src/callbacks.c:1194
-#: src/create_video.c:878
+#: ../src/guvcview.c:574 ../src/guvcview.c:770 ../src/callbacks.c:1193
+#: ../src/create_video.c:870
 msgid "Cap. Video"
 msgstr "Сними видео"
 
-#: src/guvcview.c:735
-msgid ""
-"Guvcview error:\n"
-"\n"
-"Unable to create Video Thread"
-msgstr ""
-"Грешка Камерице:\n"
-"\n"
-"Не могу да направим видео нит"
-
-#: src/guvcview.c:736
-msgid "Please report it to http://developer.berlios.de/bugs/?group_id=8179"
-msgstr ""
-"Молим пријавите на адресу: http://developer.berlios.de/bugs/?group_id=8179"
-
-#. needed only for language files (not used)
-#. V4L2 control strings
-#: src/v4l2uvc.c:54
-msgid "User Controls"
-msgstr "Контроле корисника"
-
-#: src/v4l2uvc.c:55
-msgid "Brightness"
-msgstr "Осветљеност"
-
-#: src/v4l2uvc.c:56
-msgid "Contrast"
-msgstr "Контраст"
-
-#: src/v4l2uvc.c:57
-msgid "Hue"
-msgstr "Нијанса"
-
-#: src/v4l2uvc.c:58
-msgid "Saturation"
-msgstr "Засићеност"
-
-#: src/v4l2uvc.c:59
-msgid "Sharpness"
-msgstr "Оштрина"
-
-#: src/v4l2uvc.c:60
-msgid "Gamma"
-msgstr "Гама"
-
-#: src/v4l2uvc.c:61
-msgid "Backlight Compensation"
-msgstr "Поправка светла позадине"
-
-#: src/v4l2uvc.c:62
-msgid "Power Line Frequency"
-msgstr "Учесталост освежавања"
-
-#: src/v4l2uvc.c:63
-msgid "Hue, Automatic"
-msgstr "Нијанса, аутоматски"
-
-#: src/v4l2uvc.c:64
-msgid "Focus, Auto"
-msgstr "Фокус, ауто"
-
-#: src/v4l2uvc.c:65
-msgid "Manual Mode"
-msgstr "Ручно"
-
-#: src/v4l2uvc.c:66
-msgid "Auto Mode"
-msgstr "Аутоматски"
-
-#: src/v4l2uvc.c:67
-msgid "Shutter Priority Mode"
-msgstr "Приоритет затварача"
-
-#: src/v4l2uvc.c:68
-msgid "Aperture Priority Mode"
-msgstr "Приоритет бленде"
-
-#: src/v4l2uvc.c:69
-msgid "Black Level"
-msgstr "Ниво црне"
-
-#: src/v4l2uvc.c:70
-msgid "White Balance, Automatic"
-msgstr "Равнотежа белог, аутоматски"
-
-#: src/v4l2uvc.c:71
-msgid "Do White Balance"
-msgstr "Уравнотежавање белог"
-
-#: src/v4l2uvc.c:72
-msgid "Red Balance"
-msgstr "Равнотежа црвеног"
-
-#: src/v4l2uvc.c:73
-msgid "Blue Balance"
-msgstr "Равнотежа плавог"
-
-#: src/v4l2uvc.c:74
-msgid "Exposure"
-msgstr "Излагање"
-
-#: src/v4l2uvc.c:75
-msgid "Gain, Automatic"
-msgstr "Појачање, аутоматски"
-
-#: src/v4l2uvc.c:76
-msgid "Gain"
-msgstr "Појачање"
-
-#: src/v4l2uvc.c:77
-msgid "Horizontal Flip"
-msgstr "Водоравно превртање"
-
-#: src/v4l2uvc.c:78
-msgid "Vertical Flip"
-msgstr "Усправно превртање"
-
-#: src/v4l2uvc.c:79
-msgid "Horizontal Center"
-msgstr "Водоравно центрирање"
-
-#: src/v4l2uvc.c:80
-msgid "Vertical Center"
-msgstr "Усправно центрирање"
-
-#: src/v4l2uvc.c:81
-msgid "Chroma AGC"
-msgstr "АГЦ хроминансе"
-
-#: src/v4l2uvc.c:82
-msgid "Color Killer"
-msgstr "Укидач боје"
-
-#: src/v4l2uvc.c:83
-msgid "Color Effects"
-msgstr "Ефекти боје"
-
-#. CAMERA CLASS control strings
-#: src/v4l2uvc.c:86
-msgid "Camera Controls"
-msgstr "Контроле камере"
-
-#: src/v4l2uvc.c:87
-msgid "Auto Exposure"
-msgstr "Аутоматска експозиција"
-
-#: src/v4l2uvc.c:88
-msgid "Exposure Time, Absolute"
-msgstr "Време излагања, апсолутно"
-
-#: src/v4l2uvc.c:89
-msgid "Exposure, Dynamic Framerate"
-msgstr "Излагање, динамички проток кадра"
-
-#: src/v4l2uvc.c:90
-msgid "Pan, Relative"
-msgstr "Праћење, релативно"
-
-#: src/v4l2uvc.c:91
-msgid "Tilt, Relative"
-msgstr "Нагибање, релативно"
-
-#: src/v4l2uvc.c:92
-msgid "Pan, Reset"
-msgstr "Праћење, поновно"
-
-#: src/v4l2uvc.c:93
-msgid "Tilt, Reset"
-msgstr "Нагибање, поновно"
-
-#: src/v4l2uvc.c:94
-msgid "Pan, Absolute"
-msgstr "Праћење, апсолутно"
-
-#: src/v4l2uvc.c:96
-msgid "Focus, Absolute"
-msgstr "Фокус, апсолутни"
-
-#: src/v4l2uvc.c:97
-msgid "Focus, Relative"
-msgstr "Фокус, релативни"
-
-#: src/v4l2uvc.c:98
-msgid "Focus, Automatic"
-msgstr "Фокус, аутоматски"
-
-#: src/v4l2uvc.c:99
-msgid "Zoom, Absolute"
-msgstr "Зум, апсолутни"
-
-#: src/v4l2uvc.c:100
-msgid "Zoom, Relative"
-msgstr "Зум, релативни"
-
-#: src/v4l2uvc.c:101
-msgid "Zoom, Continuous"
-msgstr "Зум, непрекидни"
-
-#: src/v4l2uvc.c:102
-msgid "Privacy"
-msgstr "Приватност"
-
-#. UVC specific control strings
-#: src/v4l2uvc.c:105
-msgid "Exposure, Auto"
-msgstr "Излагање, аутоматско"
-
-#: src/v4l2uvc.c:106
-msgid "Exposure, Auto Priority"
-msgstr "Излагање, приоритет аутоматског"
-
-#: src/v4l2uvc.c:107
-msgid "Exposure (Absolute)"
-msgstr "Излагање (апсолутно)"
-
-#: src/v4l2uvc.c:108
-msgid "White Balance Temperature, Auto"
-msgstr "Температура равнотеже белог, ауто"
-
-#: src/v4l2uvc.c:109
-msgid "White Balance Temperature"
-msgstr "Температура равнотеже белог"
-
-#: src/v4l2uvc.c:110
-msgid "White Balance Component, Auto"
-msgstr "Састојак равнотеже белог, ауто"
-
-#: src/v4l2uvc.c:111
-msgid "White Balance Blue Component"
-msgstr "Плави састојак равнотеже белог"
-
-#: src/v4l2uvc.c:112
-msgid "White Balance Red Component"
-msgstr "Црвени састојак равнотеже белог"
-
-#. libwebcam specific control strings
-#: src/v4l2uvc.c:115
-msgid "Focus"
-msgstr "Фокус"
-
-#: src/v4l2uvc.c:116
-msgid "Focus (Absolute)"
-msgstr "Фокус (апсолутни)"
-
-#: src/video_tab.c:41 src/callbacks.c:1331
+#: ../src/video_tab.c:41 ../src/callbacks.c:1321
 msgid "Save File"
 msgstr "Сачувајте датотеку"
 
 #. if auto naming restart counter
-#: src/video_tab.c:76 src/video_tab.c:106 src/globals.c:73 src/globals.c:76
-#: src/options.c:326 src/options.c:445 src/options.c:502 src/callbacks.c:608
-#: src/callbacks.c:890 src/callbacks.c:1039 src/callbacks.c:1056
-#: src/callbacks.c:1092 src/callbacks.c:1207 src/timers.c:98
+#: ../src/video_tab.c:76 ../src/video_tab.c:106 ../src/globals.c:78
+#: ../src/globals.c:81 ../src/options.c:333 ../src/options.c:452
+#: ../src/options.c:509 ../src/callbacks.c:607 ../src/callbacks.c:889
+#: ../src/callbacks.c:1038 ../src/callbacks.c:1055 ../src/callbacks.c:1091
+#: ../src/callbacks.c:1206 ../src/timers.c:97
 #, c-format
 msgid "File num:%d"
 msgstr "Дат. бр.:%d"
 
-#: src/video_tab.c:126
+#: ../src/video_tab.c:126
 msgid "codec values"
 msgstr "вредности кодека"
 
-#: src/video_tab.c:137
+#: ../src/video_tab.c:137
 msgid ""
 "                              encoder fps:   \n"
 " (0 - use fps combobox value)"
@@ -461,504 +89,335 @@ msgstr ""
 "                              ф/с енкодера:   \n"
 " (0 — користите вредност ф/с поља за бирање)"
 
-#: src/video_tab.c:152
+#: ../src/video_tab.c:150
 msgid " monotonic pts"
 msgstr " једнообразне тачке"
 
 #. bit rate
-#: src/video_tab.c:160 src/audio_tab.c:58
+#: ../src/video_tab.c:157 ../src/audio_tab.c:59
 msgid "bit rate:   "
 msgstr "проток бита:   "
 
-#: src/video_tab.c:175
+#: ../src/video_tab.c:170
 msgid "qmax:   "
 msgstr "qmax:   "
 
-#: src/video_tab.c:190
+#: ../src/video_tab.c:183
 msgid "qmin:   "
 msgstr "qmin:   "
 
-#: src/video_tab.c:205
+#: ../src/video_tab.c:196
 msgid "max. qdiff:   "
 msgstr "max. q разл:   "
 
-#: src/video_tab.c:220
+#: ../src/video_tab.c:209
 msgid "dia size:   "
 msgstr "диа величина:   "
 
-#: src/video_tab.c:235
+#: ../src/video_tab.c:222
 msgid "pre dia size:   "
 msgstr "пре диа величина:   "
 
-#: src/video_tab.c:250
+#: ../src/video_tab.c:235
 msgid "pre me:   "
 msgstr "пре ме:   "
 
-#: src/video_tab.c:265
+#: ../src/video_tab.c:248
 msgid "pre cmp:   "
 msgstr "пре цмп:   "
 
-#: src/video_tab.c:280
+#: ../src/video_tab.c:261
 msgid "cmp:   "
 msgstr "цмп:   "
 
-#: src/video_tab.c:295
+#: ../src/video_tab.c:274
 msgid "sub cmp:   "
 msgstr "под цмп:   "
 
-#: src/video_tab.c:310
+#: ../src/video_tab.c:287
 msgid "last predictor count:   "
 msgstr "последњи број предсказивача:   "
 
-#: src/video_tab.c:325
+#: ../src/video_tab.c:300
 msgid "gop size:   "
 msgstr "гоп величина:   "
 
-#: src/video_tab.c:340
+#: ../src/video_tab.c:313
 msgid "qcompress:   "
 msgstr "q-сажимање:   "
 
-#: src/video_tab.c:355
+#: ../src/video_tab.c:326
 msgid "qblur:   "
 msgstr "q-замућење:   "
 
-#: src/video_tab.c:370
+#: ../src/video_tab.c:339
 msgid "subq:   "
 msgstr "под-q:   "
 
-#: src/video_tab.c:385
+#: ../src/video_tab.c:352
 msgid "framerefs:   "
 msgstr "framerefs:   "
 
-#: src/video_tab.c:400
+#: ../src/video_tab.c:365
 msgid "me method:   "
 msgstr "ме начин:   "
 
-#: src/video_tab.c:415
+#: ../src/video_tab.c:378
 msgid "mb decision:   "
 msgstr "мб одлука:   "
 
-#: src/video_tab.c:430
+#: ../src/video_tab.c:391
 msgid "max B frames:   "
 msgstr "највише Б оквира:   "
 
-#: src/video_tab.c:445
+#: ../src/video_tab.c:404
 msgid "num threads:   "
 msgstr "бр. нити:   "
 
-#: src/video_tab.c:555
+#: ../src/video_tab.c:516
 msgid "Video & Files"
 msgstr "Видео и датотеке"
 
 #. Devices
-#: src/video_tab.c:571 src/callbacks.c:136
+#: ../src/video_tab.c:532 ../src/callbacks.c:137
 msgid "Device:"
 msgstr "Уређај:"
 
-#: src/video_tab.c:673
+#: ../src/video_tab.c:637
 msgid "Frame Rate:"
 msgstr "Проток кадра:"
 
-#: src/video_tab.c:681
+#: ../src/video_tab.c:644
 msgid " Show"
 msgstr " Прикажи"
 
-#: src/video_tab.c:705
+#: ../src/video_tab.c:666
 msgid "Resolution:"
 msgstr "Резолуција:"
 
-#: src/video_tab.c:731
+#: ../src/video_tab.c:692
 msgid "Camera Output:"
 msgstr "Излаз камере:"
 
-#: src/video_tab.c:753
+#: ../src/video_tab.c:714
 msgid "Apply"
 msgstr "Примени"
 
-#: src/video_tab.c:761
+#: ../src/video_tab.c:721
 msgid "Quality:"
 msgstr "Квалитет:"
 
-#: src/video_tab.c:771
+#: ../src/video_tab.c:730
 msgid "Image File:"
 msgstr "Датотека слике:"
 
-#: src/video_tab.c:804 src/video_tab.c:898
+#: ../src/video_tab.c:761 ../src/video_tab.c:851
 msgid "File,Auto"
 msgstr "Датотека, самостално"
 
-#: src/video_tab.c:815
+#: ../src/video_tab.c:771
 msgid "Image Format:"
 msgstr "Формат слике:"
 
-#: src/video_tab.c:841
+#: ../src/video_tab.c:797
 msgid "Take Picture by Default"
 msgstr "Сними слику по основи"
 
-#: src/video_tab.c:853
+#: ../src/video_tab.c:808
 msgid "Video File:"
 msgstr "Датотека видеа:"
 
-#: src/video_tab.c:931
+#: ../src/video_tab.c:884
 msgid "Video Codec:"
 msgstr "Видео кодек:"
 
 #. lavc codec properties button
-#: src/video_tab.c:939 src/audio_tab.c:346
+#: ../src/video_tab.c:891 ../src/audio_tab.c:347
 msgid "properties"
 msgstr "својства"
 
-#: src/video_tab.c:966
+#: ../src/video_tab.c:918
 msgid "Video Format:"
 msgstr "Формат снимка:"
 
-#: src/video_tab.c:973
+#: ../src/video_tab.c:924
 msgid "Take Video by Default"
 msgstr "Сними видео по основи"
 
-#: src/video_tab.c:984
+#: ../src/video_tab.c:934
 msgid "---- Video Filters ----"
 msgstr "———— Видео филтери ————"
 
 #. Mirror
-#: src/video_tab.c:999
+#: ../src/video_tab.c:953
 msgid " Mirror"
 msgstr " Огледало"
 
 #. Upturn
-#: src/video_tab.c:1009
+#: ../src/video_tab.c:964
 msgid " Invert"
 msgstr " Обрнуто"
 
 #. Negate
-#: src/video_tab.c:1019
+#: ../src/video_tab.c:975
 msgid " Negative"
 msgstr " Негатив"
 
 #. Mono
-#: src/video_tab.c:1029
+#: ../src/video_tab.c:986
 msgid " Mono"
 msgstr " Моно"
 
 #. Pieces
-#: src/video_tab.c:1040
+#: ../src/video_tab.c:998
 msgid " Pieces"
 msgstr " Комадићи"
 
 #. Particles
-#: src/video_tab.c:1051
+#: ../src/video_tab.c:1010
 msgid " Particles"
 msgstr " Честице"
 
-#: src/audio_tab.c:46
+#: ../src/audio_tab.c:46
 msgid "audio codec values"
 msgstr "вредност кодека звука"
 
-#: src/audio_tab.c:132
+#: ../src/audio_tab.c:136
 msgid "Audio"
 msgstr "Аудио"
 
-#: src/audio_tab.c:150
+#: ../src/audio_tab.c:154
 msgid " Sound"
 msgstr " Звук"
 
 #. VU meter on the image (OSD)
-#: src/audio_tab.c:162
+#: ../src/audio_tab.c:165
 msgid " Show VU meter"
 msgstr " Прикажи ВУ метар"
 
-#: src/audio_tab.c:175
+#: ../src/audio_tab.c:177
 msgid "Audio API:"
 msgstr "Аудио АПИ:"
 
-#: src/audio_tab.c:185
+#: ../src/audio_tab.c:188
 msgid "PORTAUDIO"
 msgstr "ПОРТАУДИО"
 
-#: src/audio_tab.c:186
+#: ../src/audio_tab.c:189
 msgid "PULSEAUDIO"
 msgstr "ПУЛСЕАУДИО"
 
-#: src/audio_tab.c:202 src/audio_tab.c:225
+#: ../src/audio_tab.c:205 ../src/audio_tab.c:227
 msgid "Input Device:"
 msgstr "Улазни уређај:"
 
-#: src/audio_tab.c:236 src/audio_tab.c:268
+#: ../src/audio_tab.c:237 ../src/audio_tab.c:269
 msgid "Dev. Default"
 msgstr "Основни са уређаја"
 
-#: src/audio_tab.c:257
+#: ../src/audio_tab.c:259
 msgid "Sample Rate:"
 msgstr "Проток узорка:"
 
-#: src/audio_tab.c:269
+#: ../src/audio_tab.c:270
 msgid "1 - mono"
 msgstr "1 — моно"
 
-#: src/audio_tab.c:270
+#: ../src/audio_tab.c:271
 msgid "2 - stereo"
 msgstr "2 — стерео"
 
-#: src/audio_tab.c:304
+#: ../src/audio_tab.c:306
 msgid "Channels:"
 msgstr "Број канала:"
 
-#: src/audio_tab.c:338
+#: ../src/audio_tab.c:340
 msgid "Audio Format:"
 msgstr "Формат звука:"
 
-#: src/audio_tab.c:356
+#: ../src/audio_tab.c:356
 msgid "---- Audio Effects ----"
 msgstr "———— Аудио ефекти ————"
 
 #. Echo
-#: src/audio_tab.c:375
+#: ../src/audio_tab.c:375
 msgid " Echo"
 msgstr " Ехо"
 
 #. FUZZ
-#: src/audio_tab.c:385
+#: ../src/audio_tab.c:386
 msgid " Fuzz"
 msgstr " Маљ"
 
 #. Reverb
-#: src/audio_tab.c:396
+#: ../src/audio_tab.c:398
 msgid " Reverb"
 msgstr " Одјек"
 
 #. WahWah
-#: src/audio_tab.c:407
+#: ../src/audio_tab.c:410
 msgid " WahWah"
 msgstr " ВауВау"
 
 #. Ducky
-#: src/audio_tab.c:418
+#: ../src/audio_tab.c:422
 msgid " Ducky"
 msgstr " Паче"
 
-#: src/v4l2_controls.c:732
+#: ../src/v4l2_controls.c:712
 msgid "Left"
 msgstr "Лево"
 
-#: src/v4l2_controls.c:733
+#: ../src/v4l2_controls.c:713
 msgid "Right"
 msgstr "Десно"
 
-#: src/v4l2_controls.c:737
+#: ../src/v4l2_controls.c:717
 msgid "Down"
 msgstr "Доле"
 
-#: src/v4l2_controls.c:738
+#: ../src/v4l2_controls.c:718
 msgid "Up"
 msgstr "Горе"
 
-#: src/v4l2_controls.c:787
+#: ../src/v4l2_controls.c:763
 msgid "Off"
 msgstr "Искљ."
 
-#: src/v4l2_controls.c:790
+#: ../src/v4l2_controls.c:763
 msgid "On"
 msgstr "Укљ."
 
-#: src/v4l2_controls.c:793
+#: ../src/v4l2_controls.c:763
 msgid "Blinking"
 msgstr "Треперење"
 
-#: src/v4l2_controls.c:796
+#: ../src/v4l2_controls.c:763
 msgid "Auto"
 msgstr "Самостално"
 
-#: src/v4l2_controls.c:814
+#. turn it into a menu control
+#: ../src/v4l2_controls.c:814
 msgid "8 bit"
 msgstr "8 бита"
 
-#: src/v4l2_controls.c:817
+#: ../src/v4l2_controls.c:814
 msgid "12 bit"
 msgstr "12 бита"
 
-#: src/v4l2_dyna_ctrls.c:89
-msgid "Pan (relative)"
-msgstr "Праћење (релативно)"
-
-#: src/v4l2_dyna_ctrls.c:99
-msgid "Tilt (relative)"
-msgstr "Нагибање (релативно)"
-
-#: src/v4l2_dyna_ctrls.c:109
-msgid "Pan Reset"
-msgstr "Поновно праћење"
-
-#: src/v4l2_dyna_ctrls.c:119
-msgid "Tilt Reset"
-msgstr "Поновно нагибање"
-
-#: src/v4l2_dyna_ctrls.c:129
-msgid "Pan/tilt Reset"
-msgstr "Поновно праћење/нагибање"
-
-#: src/v4l2_dyna_ctrls.c:139
-msgid "Focus (absolute)"
-msgstr "Фокус (апсолутни)"
-
-#: src/v4l2_dyna_ctrls.c:149
-msgid "LED1 Mode"
-msgstr "ЛЕД1 режим"
-
-#: src/v4l2_dyna_ctrls.c:159
-msgid "LED1 Frequency"
-msgstr "ЛЕД1 учесталост"
-
-#: src/v4l2_dyna_ctrls.c:169
-msgid "Disable video processing"
-msgstr "Онемогући обрађивање видеа"
-
-#: src/v4l2_dyna_ctrls.c:179
-msgid "Raw bits per pixel"
-msgstr "Сирових бита по тачци"
-
-#: src/vcodecs.c:62
-msgid "MJPG - compressed"
-msgstr "МЈПГ — сажети"
-
-#: src/vcodecs.c:97
-msgid "YUY2 - uncomp YUV"
-msgstr "ЈУЈ2 — несажети ЈУВ"
-
-#: src/vcodecs.c:132
-msgid "RGB - uncomp BMP"
-msgstr "РГБ — несажети БМП"
-
-#: src/vcodecs.c:167
-msgid "MPEG video 1"
-msgstr "МПЕГ видео 1"
-
-#: src/vcodecs.c:202
-msgid "FLV1 - flash video 1"
-msgstr "ФЛВ1 — флеш видео 1"
-
-#: src/vcodecs.c:237
-msgid "WMV1 - win. med. video 7"
-msgstr "ВМВ1 — виндоуз медија видео 7"
-
-#: src/vcodecs.c:272
-msgid "MPG2 - MPG2 format"
-msgstr "МПГ2 — МПГ2 формат"
-
-#: src/vcodecs.c:307
-msgid "MS MP4 V3"
-msgstr "МС МП4 В3"
-
-#: src/vcodecs.c:342
-msgid "MPEG4-ASP"
-msgstr "МПЕГ4-АСП"
-
-#: src/vcodecs.c:377
-msgid "MPEG4-AVC (H264)"
-msgstr "МПЕГ4-АВЦ (Х264)"
-
-#: src/options.c:753
-msgid "Prints version"
-msgstr "Штампа издање"
-
-#: src/options.c:754
-msgid "Displays debug information"
-msgstr "Приказује информацијe о исправљању грешака"
-
-#: src/options.c:755
-msgid "Video Device to use [default: /dev/video0]"
-msgstr "Видео уређај за коришћење [основни: „/dev/video0“]"
-
-#: src/options.c:756
-msgid "Exit after adding UVC extension controls (needs root/sudo)"
-msgstr "Излази после додавања контрола УВЦ проширења (захтева „root/sudo“)"
-
-#: src/options.c:757
-msgid "Don't stream video (image controls only)"
-msgstr "Не пушта ток видеа (само контроле слике)"
-
-#: src/options.c:758
-msgid "Don't display a GUI"
-msgstr "Не приказује ГКС"
-
-#: src/options.c:759
-msgid "Capture method (1-mmap (default)  2-read)"
-msgstr "Начин снимања (1-ммап (основно) 2-читај)"
-
-#: src/options.c:760
-msgid "Configuration file"
-msgstr "Датотека подешавања"
-
-#: src/options.c:761
-msgid "Hardware accelaration (enable(1) | disable(0))"
-msgstr "Убрзање физичке компоненте (укључи(1) | искључи(0))"
-
-#: src/options.c:762
-msgid ""
-"Pixel "
-"format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|y41p|grey|"
-"y16 |s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
-msgstr ""
-"Формат тачака "
-"(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|y41p|grey|y16 "
-"|s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
-
-#: src/options.c:763
-msgid "Frame size, default: 640x480"
-msgstr "Величина кадра, основна: 640к480"
-
-#: src/options.c:764
-msgid "Image File name"
-msgstr "Име датотеке слике"
-
-#: src/options.c:765
-msgid "Image capture interval in seconds"
-msgstr "Интервал снимања слике у секундама"
-
-#: src/options.c:766
-msgid "Number of Pictures to capture"
-msgstr "Број слика за снимање"
-
-#: src/options.c:767
-msgid "Video File name (capture from start)"
-msgstr "Име датотеке видеа (снимање од почетка)"
-
-#: src/options.c:768
-msgid "Video capture time (in seconds)"
-msgstr "Време снимања видеа (у секундама)"
-
-#: src/options.c:769
-msgid "Exits guvcview after closing video"
-msgstr "Излази из камерице након затварања видеа"
-
-#: src/options.c:770
-msgid "Number of initial frames to skip"
-msgstr "Број почетних кадрова за прескакање"
-
-#: src/options.c:771
-msgid "Show FPS value (enable(1) | disable (0))"
-msgstr "Приказује ФПС вредност (укључи (1) | искључи (0))"
-
-#: src/options.c:772
-msgid "Load Profile at start"
-msgstr "Учитава профил приликом покретања"
-
-#: src/options.c:778
-msgid "- local options"
-msgstr "— локална опција"
-
-#: src/img_controls.c:117
+#: ../src/img_controls.c:121
 msgid "Auto Focus (continuous)"
 msgstr "Самостално фокусирање (непрекидно)"
 
-#: src/img_controls.c:118
+#: ../src/img_controls.c:122
 msgid "set Focus"
 msgstr "подеси фокус"
 
-#: src/callbacks.c:102
+#: ../src/callbacks.c:106
 msgid "Error"
 msgstr "Грешка"
 
-#: src/callbacks.c:128
+#: ../src/callbacks.c:130
 msgid ""
 "\n"
 "You have more than one video device installed.\n"
@@ -968,23 +427,23 @@ msgstr ""
 "Имате инсталираних неколико видео уређаја.\n"
 "Желите ли да пробате неки други\n"
 
-#: src/callbacks.c:659
+#: ../src/callbacks.c:658
 msgid "start new"
 msgstr "покрени нови"
 
-#: src/callbacks.c:662
+#: ../src/callbacks.c:661
 msgid "restart"
 msgstr "поново покрени"
 
-#: src/callbacks.c:664
+#: ../src/callbacks.c:663
 msgid "new"
 msgstr "нови"
 
-#: src/callbacks.c:666
+#: ../src/callbacks.c:665
 msgid "cancel"
 msgstr "откажи"
 
-#: src/callbacks.c:671
+#: ../src/callbacks.c:670
 msgid ""
 "launch new process or restart?.\n"
 "\n"
@@ -992,14 +451,430 @@ msgstr ""
 "да покренем нови процес или да се поново покренем?.\n"
 "\n"
 
-#: src/callbacks.c:1344
+#: ../src/callbacks.c:1334
 msgid "Load File"
 msgstr "Учитајте датотеку"
 
-#: src/timers.c:212
-msgid "Guvcview Warning:"
-msgstr "Упозорење Камерице:"
+#~ msgid ""
+#~ "Guvcview error:\n"
+#~ "\n"
+#~ "Unable to open device"
+#~ msgstr ""
+#~ "Грешка Камерице:\n"
+#~ "\n"
+#~ "Не могу да отворим уређај"
 
-#: src/timers.c:212
-msgid "Not enough free space left on disk"
-msgstr "Нема довољно слободног простора на диску"
+#~ msgid ""
+#~ "Please make sure the camera is connected\n"
+#~ "and that the correct driver is installed."
+#~ msgstr ""
+#~ "Проверите да ли је камера повезана и да ли\n"
+#~ "је инсталиран исправан управљачки програм."
+
+#~ msgid ""
+#~ "Guvcview:\n"
+#~ "\n"
+#~ "UVC Extension controls"
+#~ msgstr ""
+#~ "Камерица:\n"
+#~ "\n"
+#~ "Контроле УВЦ проширења"
+
+#~ msgid "Extension controls were added to the UVC driver"
+#~ msgstr "Контроле проширења су додате УВЦ управљачком програму"
+
+#~ msgid ""
+#~ "Guvcview error:\n"
+#~ "\n"
+#~ "UVC Extension controls"
+#~ msgstr ""
+#~ "Грешка Камерице:\n"
+#~ "\n"
+#~ "Контроле УВЦ проширења"
+
+#~ msgid ""
+#~ "An error occurred while adding extension\n"
+#~ "controls to the UVC driver\n"
+#~ "Make sure you run guvcview as root (or sudo)."
+#~ msgstr ""
+#~ "Дошло је до грешке приликом додавања контрола\n"
+#~ "проширења УВЦ управљачком програму. Уверите се да\n"
+#~ "сте покренули камерче као администратор (или судо)."
+
+#~ msgid ""
+#~ "Guvcview error:\n"
+#~ "\n"
+#~ "Can't set a valid video stream for guvcview"
+#~ msgstr ""
+#~ "Грешка Камерице:\n"
+#~ "\n"
+#~ "Не могу да подесим исправан видео ток за камерче"
+
+#~ msgid ""
+#~ "Make sure your device driver is v4l2 compliant\n"
+#~ "and that it is properly installed."
+#~ msgstr ""
+#~ "Уверите се да је управљачки програм вашег уређаја\n"
+#~ "усаглашен са в4л2 и да је исправно инсталиран."
+
+#~ msgid ""
+#~ "Guvcview error:\n"
+#~ "\n"
+#~ "Unable to start with minimum setup"
+#~ msgstr ""
+#~ "Грешка Камерице:\n"
+#~ "\n"
+#~ "Не могу да започнем са минималним подешавањима"
+
+#~ msgid "Please reconnect your camera."
+#~ msgstr "Молим поново повежите вашу камеру."
+
+#~ msgid ""
+#~ "Guvcview error:\n"
+#~ "\n"
+#~ "Couldn't query device capabilities"
+#~ msgstr ""
+#~ "Грешка Камерице:\n"
+#~ "\n"
+#~ "Не могу да испитам могућности уређаја"
+
+#~ msgid "Make sure the device driver supports v4l2."
+#~ msgstr "Уверите се да управљачки програм уређаја подржава в4л2."
+
+#~ msgid ""
+#~ "Guvcview error:\n"
+#~ "\n"
+#~ "Read method error"
+#~ msgstr ""
+#~ "Грешка Камерице:\n"
+#~ "\n"
+#~ "Грешка режима читања"
+
+#~ msgid "Please try mmap instead (--capture_method=1)."
+#~ msgstr "Молим покушајте „mmap“ уместо овог (--capture_method=1)."
+
+#~ msgid ""
+#~ "Guvcview error:\n"
+#~ "\n"
+#~ "Unable to allocate Buffers"
+#~ msgstr ""
+#~ "Грешка Камерице:\n"
+#~ "\n"
+#~ "Не могу да доделим Бафере"
+
+#~ msgid "Please try restarting your system."
+#~ msgstr "Молим покушајте поново да покренете систем."
+
+#~ msgid ""
+#~ "Guvcview error:\n"
+#~ "\n"
+#~ "Unable to create Video Thread"
+#~ msgstr ""
+#~ "Грешка Камерице:\n"
+#~ "\n"
+#~ "Не могу да направим видео нит"
+
+#~ msgid "Please report it to http://developer.berlios.de/bugs/?group_id=8179"
+#~ msgstr ""
+#~ "Молим пријавите на адресу: http://developer.berlios.de/bugs/?group_id=8179"
+
+#~ msgid "User Controls"
+#~ msgstr "Контроле корисника"
+
+#~ msgid "Brightness"
+#~ msgstr "Осветљеност"
+
+#~ msgid "Contrast"
+#~ msgstr "Контраст"
+
+#~ msgid "Hue"
+#~ msgstr "Нијанса"
+
+#~ msgid "Saturation"
+#~ msgstr "Засићеност"
+
+#~ msgid "Sharpness"
+#~ msgstr "Оштрина"
+
+#~ msgid "Gamma"
+#~ msgstr "Гама"
+
+#~ msgid "Backlight Compensation"
+#~ msgstr "Поправка светла позадине"
+
+#~ msgid "Power Line Frequency"
+#~ msgstr "Учесталост освежавања"
+
+#~ msgid "Hue, Automatic"
+#~ msgstr "Нијанса, аутоматски"
+
+#~ msgid "Focus, Auto"
+#~ msgstr "Фокус, ауто"
+
+#~ msgid "Manual Mode"
+#~ msgstr "Ручно"
+
+#~ msgid "Auto Mode"
+#~ msgstr "Аутоматски"
+
+#~ msgid "Shutter Priority Mode"
+#~ msgstr "Приоритет затварача"
+
+#~ msgid "Aperture Priority Mode"
+#~ msgstr "Приоритет бленде"
+
+#~ msgid "Black Level"
+#~ msgstr "Ниво црне"
+
+#~ msgid "White Balance, Automatic"
+#~ msgstr "Равнотежа белог, аутоматски"
+
+#~ msgid "Do White Balance"
+#~ msgstr "Уравнотежавање белог"
+
+#~ msgid "Red Balance"
+#~ msgstr "Равнотежа црвеног"
+
+#~ msgid "Blue Balance"
+#~ msgstr "Равнотежа плавог"
+
+#~ msgid "Exposure"
+#~ msgstr "Излагање"
+
+#~ msgid "Gain, Automatic"
+#~ msgstr "Појачање, аутоматски"
+
+#~ msgid "Gain"
+#~ msgstr "Појачање"
+
+#~ msgid "Horizontal Flip"
+#~ msgstr "Водоравно превртање"
+
+#~ msgid "Vertical Flip"
+#~ msgstr "Усправно превртање"
+
+#~ msgid "Horizontal Center"
+#~ msgstr "Водоравно центрирање"
+
+#~ msgid "Vertical Center"
+#~ msgstr "Усправно центрирање"
+
+#~ msgid "Chroma AGC"
+#~ msgstr "АГЦ хроминансе"
+
+#~ msgid "Color Killer"
+#~ msgstr "Укидач боје"
+
+#~ msgid "Color Effects"
+#~ msgstr "Ефекти боје"
+
+#~ msgid "Camera Controls"
+#~ msgstr "Контроле камере"
+
+#~ msgid "Auto Exposure"
+#~ msgstr "Аутоматска експозиција"
+
+#~ msgid "Exposure Time, Absolute"
+#~ msgstr "Време излагања, апсолутно"
+
+#~ msgid "Exposure, Dynamic Framerate"
+#~ msgstr "Излагање, динамички проток кадра"
+
+#~ msgid "Pan, Relative"
+#~ msgstr "Праћење, релативно"
+
+#~ msgid "Tilt, Relative"
+#~ msgstr "Нагибање, релативно"
+
+#~ msgid "Pan, Reset"
+#~ msgstr "Праћење, поновно"
+
+#~ msgid "Tilt, Reset"
+#~ msgstr "Нагибање, поновно"
+
+#~ msgid "Pan, Absolute"
+#~ msgstr "Праћење, апсолутно"
+
+#~ msgid "Focus, Absolute"
+#~ msgstr "Фокус, апсолутни"
+
+#~ msgid "Focus, Relative"
+#~ msgstr "Фокус, релативни"
+
+#~ msgid "Focus, Automatic"
+#~ msgstr "Фокус, аутоматски"
+
+#~ msgid "Zoom, Absolute"
+#~ msgstr "Зум, апсолутни"
+
+#~ msgid "Zoom, Relative"
+#~ msgstr "Зум, релативни"
+
+#~ msgid "Zoom, Continuous"
+#~ msgstr "Зум, непрекидни"
+
+#~ msgid "Privacy"
+#~ msgstr "Приватност"
+
+#~ msgid "Exposure, Auto"
+#~ msgstr "Излагање, аутоматско"
+
+#~ msgid "Exposure, Auto Priority"
+#~ msgstr "Излагање, приоритет аутоматског"
+
+#~ msgid "Exposure (Absolute)"
+#~ msgstr "Излагање (апсолутно)"
+
+#~ msgid "White Balance Temperature, Auto"
+#~ msgstr "Температура равнотеже белог, ауто"
+
+#~ msgid "White Balance Temperature"
+#~ msgstr "Температура равнотеже белог"
+
+#~ msgid "White Balance Component, Auto"
+#~ msgstr "Састојак равнотеже белог, ауто"
+
+#~ msgid "White Balance Blue Component"
+#~ msgstr "Плави састојак равнотеже белог"
+
+#~ msgid "White Balance Red Component"
+#~ msgstr "Црвени састојак равнотеже белог"
+
+#~ msgid "Focus"
+#~ msgstr "Фокус"
+
+#~ msgid "Focus (Absolute)"
+#~ msgstr "Фокус (апсолутни)"
+
+#~ msgid "Pan (relative)"
+#~ msgstr "Праћење (релативно)"
+
+#~ msgid "Tilt (relative)"
+#~ msgstr "Нагибање (релативно)"
+
+#~ msgid "Pan Reset"
+#~ msgstr "Поновно праћење"
+
+#~ msgid "Tilt Reset"
+#~ msgstr "Поновно нагибање"
+
+#~ msgid "Pan/tilt Reset"
+#~ msgstr "Поновно праћење/нагибање"
+
+#~ msgid "Focus (absolute)"
+#~ msgstr "Фокус (апсолутни)"
+
+#~ msgid "LED1 Mode"
+#~ msgstr "ЛЕД1 режим"
+
+#~ msgid "LED1 Frequency"
+#~ msgstr "ЛЕД1 учесталост"
+
+#~ msgid "Disable video processing"
+#~ msgstr "Онемогући обрађивање видеа"
+
+#~ msgid "Raw bits per pixel"
+#~ msgstr "Сирових бита по тачци"
+
+#~ msgid "MJPG - compressed"
+#~ msgstr "МЈПГ — сажети"
+
+#~ msgid "YUY2 - uncomp YUV"
+#~ msgstr "ЈУЈ2 — несажети ЈУВ"
+
+#~ msgid "RGB - uncomp BMP"
+#~ msgstr "РГБ — несажети БМП"
+
+#~ msgid "MPEG video 1"
+#~ msgstr "МПЕГ видео 1"
+
+#~ msgid "FLV1 - flash video 1"
+#~ msgstr "ФЛВ1 — флеш видео 1"
+
+#~ msgid "WMV1 - win. med. video 7"
+#~ msgstr "ВМВ1 — виндоуз медија видео 7"
+
+#~ msgid "MPG2 - MPG2 format"
+#~ msgstr "МПГ2 — МПГ2 формат"
+
+#~ msgid "MS MP4 V3"
+#~ msgstr "МС МП4 В3"
+
+#~ msgid "MPEG4-ASP"
+#~ msgstr "МПЕГ4-АСП"
+
+#~ msgid "MPEG4-AVC (H264)"
+#~ msgstr "МПЕГ4-АВЦ (Х264)"
+
+#~ msgid "Prints version"
+#~ msgstr "Штампа издање"
+
+#~ msgid "Displays debug information"
+#~ msgstr "Приказује информацијe о исправљању грешака"
+
+#~ msgid "Video Device to use [default: /dev/video0]"
+#~ msgstr "Видео уређај за коришћење [основни: „/dev/video0“]"
+
+#~ msgid "Exit after adding UVC extension controls (needs root/sudo)"
+#~ msgstr "Излази после додавања контрола УВЦ проширења (захтева „root/sudo“)"
+
+#~ msgid "Don't stream video (image controls only)"
+#~ msgstr "Не пушта ток видеа (само контроле слике)"
+
+#~ msgid "Don't display a GUI"
+#~ msgstr "Не приказује ГКС"
+
+#~ msgid "Capture method (1-mmap (default)  2-read)"
+#~ msgstr "Начин снимања (1-ммап (основно) 2-читај)"
+
+#~ msgid "Configuration file"
+#~ msgstr "Датотека подешавања"
+
+#~ msgid "Hardware accelaration (enable(1) | disable(0))"
+#~ msgstr "Убрзање физичке компоненте (укључи(1) | искључи(0))"
+
+#~ msgid ""
+#~ "Pixel format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|"
+#~ "y41p|grey|y16 |s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
+#~ msgstr ""
+#~ "Формат тачака (mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|"
+#~ "nv61|y41p|grey|y16 |s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
+
+#~ msgid "Frame size, default: 640x480"
+#~ msgstr "Величина кадра, основна: 640к480"
+
+#~ msgid "Image File name"
+#~ msgstr "Име датотеке слике"
+
+#~ msgid "Image capture interval in seconds"
+#~ msgstr "Интервал снимања слике у секундама"
+
+#~ msgid "Number of Pictures to capture"
+#~ msgstr "Број слика за снимање"
+
+#~ msgid "Video File name (capture from start)"
+#~ msgstr "Име датотеке видеа (снимање од почетка)"
+
+#~ msgid "Video capture time (in seconds)"
+#~ msgstr "Време снимања видеа (у секундама)"
+
+#~ msgid "Exits guvcview after closing video"
+#~ msgstr "Излази из камерице након затварања видеа"
+
+#~ msgid "Number of initial frames to skip"
+#~ msgstr "Број почетних кадрова за прескакање"
+
+#~ msgid "Show FPS value (enable(1) | disable (0))"
+#~ msgstr "Приказује ФПС вредност (укључи (1) | искључи (0))"
+
+#~ msgid "Load Profile at start"
+#~ msgstr "Учитава профил приликом покретања"
+
+#~ msgid "- local options"
+#~ msgstr "— локална опција"
+
+#~ msgid "Guvcview Warning:"
+#~ msgstr "Упозорење Камерице:"
+
+#~ msgid "Not enough free space left on disk"
+#~ msgstr "Нема довољно слободног простора на диску"
