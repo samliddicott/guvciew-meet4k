@@ -9,7 +9,10 @@ clean-generic:
 if DEBIAN_MENU
 
 MENU_IN_FILES= guvcview.in
-MENU_FILES= $(MENU_IN_FILES:guvcview.in=guvcview)
+MENU_FILES= guvcview
+
+$(MENU_FILES): $(MENU_IN_FILES)
+	cp $? $@
 
 menudir = ${datadir}/menu
 menu_DATA = $(MENU_FILES)

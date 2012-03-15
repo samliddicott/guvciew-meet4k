@@ -4,4 +4,4 @@
 	title="guvcview"\
 	longtitle="GTK UVC Viewer - uvc video viewer and capturer"\
 	command="guvcview"\
-	icon="@datadir@/pixmaps/guvcview/guvcview.png"
+	icon="@prefix@/share/pixmaps/guvcview/guvcview.png"

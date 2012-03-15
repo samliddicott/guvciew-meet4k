@@ -32,8 +32,6 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-build_triplet = @build@
-host_triplet = @host@
 subdir = .
 DIST_COMMON = README $(am__configure_deps) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in $(srcdir)/config.h.in \
@@ -41,8 +39,8 @@ DIST_COMMON = README $(am__configure_deps) $(srcdir)/Makefile.am \
 	INSTALL NEWS config.guess config.rpath config.sub depcomp \
 	install-sh missing mkinstalldirs
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-am__aclocal_m4_deps = $(top_srcdir)/m4/acx_pthread.m4 \
-	$(top_srcdir)/configure.ac
+am__aclocal_m4_deps = $(top_srcdir)/m4/intltool.m4 \
+	$(top_srcdir)/m4/nls.m4 $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
@@ -51,6 +49,12 @@ mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
+AM_V_GEN = $(am__v_GEN_$(V))
+am__v_GEN_ = $(am__v_GEN_$(AM_DEFAULT_VERBOSITY))
+am__v_GEN_0 = @echo "  GEN   " $@;
+AM_V_at = $(am__v_at_$(V))
+am__v_at_ = $(am__v_at_$(AM_DEFAULT_VERBOSITY))
+am__v_at_0 = @
 SOURCES =
 DIST_SOURCES =
 RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
@@ -81,11 +85,8 @@ am__nobase_list = $(am__nobase_strip_setup); \
 am__base_list = \
   sed '$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;s/\n/ /g' | \
   sed '$$!N;$$!N;$$!N;$$!N;s/\n/ /g'
-am__installdirs = "$(DESTDIR)$(applicationdir)" \
-	"$(DESTDIR)$(guvcviewdocdir)" "$(DESTDIR)$(guvcviewmandir)" \
-	"$(DESTDIR)$(menudir)" "$(DESTDIR)$(pixmapsdir)"
-DATA = $(application_DATA) $(guvcviewdoc_DATA) $(guvcviewman_DATA) \
-	$(menu_DATA) $(pixmaps_DATA)
+am__installdirs = "$(DESTDIR)$(docdir)"
+DATA = $(doc_DATA)
 RECURSIVE_CLEAN_TARGETS = mostlyclean-recursive clean-recursive	\
   distclean-recursive maintainer-clean-recursive
 AM_RECURSIVE_TARGETS = $(RECURSIVE_TARGETS:-recursive=) \
@@ -93,7 +94,6 @@ AM_RECURSIVE_TARGETS = $(RECURSIVE_TARGETS:-recursive=) \
 	distdir dist dist-all distcheck
 ETAGS = etags
 CTAGS = ctags
-DIST_SUBDIRS = $(SUBDIRS)
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 distdir = $(PACKAGE)-$(VERSION)
 top_distdir = $(distdir)
@@ -131,7 +131,9 @@ GZIP_ENV = --best
 distuninstallcheck_listfiles = find . -type f -print
 distcleancheck_listfiles = find . -type f -print
 ACLOCAL = @ACLOCAL@
+ALL_LINGUAS = @ALL_LINGUAS@
 AMTAR = @AMTAR@
+AM_DEFAULT_VERBOSITY = @AM_DEFAULT_VERBOSITY@
 AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
@@ -165,6 +167,10 @@ INSTALL_SCRIPT = @INSTALL_SCRIPT@
 INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
 INSTOBJEXT = @INSTOBJEXT@
 INTLLIBS = @INTLLIBS@
+INTLTOOL_EXTRACT = @INTLTOOL_EXTRACT@
+INTLTOOL_MERGE = @INTLTOOL_MERGE@
+INTLTOOL_PERL = @INTLTOOL_PERL@
+INTLTOOL_UPDATE = @INTLTOOL_UPDATE@
 LDFLAGS = @LDFLAGS@
 LIBOBJS = @LIBOBJS@
 LIBS = @LIBS@
@@ -175,6 +181,7 @@ MKDIR_P = @MKDIR_P@
 MKINSTALLDIRS = @MKINSTALLDIRS@
 MSGFMT = @MSGFMT@
 MSGFMT_OPTS = @MSGFMT_OPTS@
+MSGMERGE = @MSGMERGE@
 OBJEXT = @OBJEXT@
 PACKAGE = @PACKAGE@
 PACKAGE_BUGREPORT = @PACKAGE_BUGREPORT@
@@ -191,9 +198,6 @@ POFILES = @POFILES@
 POSUB = @POSUB@
 PO_IN_DATADIR_FALSE = @PO_IN_DATADIR_FALSE@
 PO_IN_DATADIR_TRUE = @PO_IN_DATADIR_TRUE@
-PTHREAD_CC = @PTHREAD_CC@
-PTHREAD_CFLAGS = @PTHREAD_CFLAGS@
-PTHREAD_LIBS = @PTHREAD_LIBS@
 PULSE_CFLAGS = @PULSE_CFLAGS@
 PULSE_LIBS = @PULSE_LIBS@
 SET_MAKE = @SET_MAKE@
@@ -207,29 +211,20 @@ abs_srcdir = @abs_srcdir@
 abs_top_builddir = @abs_top_builddir@
 abs_top_srcdir = @abs_top_srcdir@
 ac_ct_CC = @ac_ct_CC@
-acx_pthread_config = @acx_pthread_config@
 am__include = @am__include@
 am__leading_dot = @am__leading_dot@
 am__quote = @am__quote@
 am__tar = @am__tar@
 am__untar = @am__untar@
 bindir = @bindir@
-build = @build@
 build_alias = @build_alias@
-build_cpu = @build_cpu@
-build_os = @build_os@
-build_vendor = @build_vendor@
 builddir = @builddir@
 datadir = @datadir@
 datarootdir = @datarootdir@
-docdir = @docdir@
+docdir = ${datadir}/doc/guvcview
 dvidir = @dvidir@
 exec_prefix = @exec_prefix@
-host = @host@
 host_alias = @host_alias@
-host_cpu = @host_cpu@
-host_os = @host_os@
-host_vendor = @host_vendor@
 htmldir = @htmldir@
 includedir = @includedir@
 infodir = @infodir@
@@ -253,44 +248,28 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-SUBDIRS = src po pixmaps
+SUBDIRS = src po data
 ACLOCAL_AMFLAGS = -I m4
-guvcviewmandir = ${datadir}/man/man1
-guvcviewman_DATA = pixmaps/guvcview.1.gz
-guvcviewdocdir = ${datadir}/doc/guvcview
-guvcviewdoc_DATA = \
+doc_DATA = \
 	README\
 	COPYING\
 	AUTHORS\
 	ChangeLog\
 	INSTALL
 
-pixmapsdir = ${datadir}/pixmaps/guvcview
-pixmaps_DATA = \
-		pixmaps/guvcview.png\
-		pixmaps/camera.png\
-		pixmaps/movie.png\
-		pixmaps/save.png\
-		pixmaps/defaults.png\
-		pixmaps/image_controls.png\
-		pixmaps/video_controls.png\
-		pixmaps/audio_controls.png\
-		pixmaps/images_folder.png\
-		pixmaps/videos_folder.png\
-		pixmaps/controls_folder.png\
-		pixmaps/close.png
+DISTCLEANFILES = \
+	intltool-extract \
+	intltool-merge \
+	intltool-update
 
-@DESKTOP_TRUE@applicationdir = ${datadir}/applications
-@DESKTOP_TRUE@application_DATA = pixmaps/guvcview.desktop
-@DEBIAN_MENU_TRUE@menudir = ${datadir}/menu
-@DEBIAN_MENU_TRUE@menu_DATA = pixmaps/guvcview
 EXTRA_DIST = \
-		src\
-		$(guvcviewdoc_DATA)\
-		$(application_DATA)\
-		$(menu_DATA)\
-		$(pixmaps_DATA)
+	bootstrap.sh \
+	intltool-extract.in \
+	intltool-merge.in \
+	intltool-update.in
 
+DISTCHECK_CONFIGURE_FLAGS = --enable-maintainer-flags=no
+DIST_SUBDIRS = ${SUBDIRS}
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive
 
@@ -346,106 +325,26 @@ $(srcdir)/config.h.in: @MAINTAINER_MODE_TRUE@ $(am__configure_deps)
 
 distclean-hdr:
 	-rm -f config.h stamp-h1
-install-applicationDATA: $(application_DATA)
+install-docDATA: $(doc_DATA)
 	@$(NORMAL_INSTALL)
-	test -z "$(applicationdir)" || $(MKDIR_P) "$(DESTDIR)$(applicationdir)"
-	@list='$(application_DATA)'; test -n "$(applicationdir)" || list=; \
+	test -z "$(docdir)" || $(MKDIR_P) "$(DESTDIR)$(docdir)"
+	@list='$(doc_DATA)'; test -n "$(docdir)" || list=; \
 	for p in $$list; do \
 	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
 	  echo "$$d$$p"; \
 	done | $(am__base_list) | \
 	while read files; do \
-	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(applicationdir)'"; \
-	  $(INSTALL_DATA) $$files "$(DESTDIR)$(applicationdir)" || exit $$?; \
+	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(docdir)'"; \
+	  $(INSTALL_DATA) $$files "$(DESTDIR)$(docdir)" || exit $$?; \
 	done
 
-uninstall-applicationDATA:
+uninstall-docDATA:
 	@$(NORMAL_UNINSTALL)
-	@list='$(application_DATA)'; test -n "$(applicationdir)" || list=; \
+	@list='$(doc_DATA)'; test -n "$(docdir)" || list=; \
 	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
 	test -n "$$files" || exit 0; \
-	echo " ( cd '$(DESTDIR)$(applicationdir)' && rm -f" $$files ")"; \
-	cd "$(DESTDIR)$(applicationdir)" && rm -f $$files
-install-guvcviewdocDATA: $(guvcviewdoc_DATA)
-	@$(NORMAL_INSTALL)
-	test -z "$(guvcviewdocdir)" || $(MKDIR_P) "$(DESTDIR)$(guvcviewdocdir)"
-	@list='$(guvcviewdoc_DATA)'; test -n "$(guvcviewdocdir)" || list=; \
-	for p in $$list; do \
-	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
-	  echo "$$d$$p"; \
-	done | $(am__base_list) | \
-	while read files; do \
-	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(guvcviewdocdir)'"; \
-	  $(INSTALL_DATA) $$files "$(DESTDIR)$(guvcviewdocdir)" || exit $$?; \
-	done
-
-uninstall-guvcviewdocDATA:
-	@$(NORMAL_UNINSTALL)
-	@list='$(guvcviewdoc_DATA)'; test -n "$(guvcviewdocdir)" || list=; \
-	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
-	test -n "$$files" || exit 0; \
-	echo " ( cd '$(DESTDIR)$(guvcviewdocdir)' && rm -f" $$files ")"; \
-	cd "$(DESTDIR)$(guvcviewdocdir)" && rm -f $$files
-install-guvcviewmanDATA: $(guvcviewman_DATA)
-	@$(NORMAL_INSTALL)
-	test -z "$(guvcviewmandir)" || $(MKDIR_P) "$(DESTDIR)$(guvcviewmandir)"
-	@list='$(guvcviewman_DATA)'; test -n "$(guvcviewmandir)" || list=; \
-	for p in $$list; do \
-	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
-	  echo "$$d$$p"; \
-	done | $(am__base_list) | \
-	while read files; do \
-	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(guvcviewmandir)'"; \
-	  $(INSTALL_DATA) $$files "$(DESTDIR)$(guvcviewmandir)" || exit $$?; \
-	done
-
-uninstall-guvcviewmanDATA:
-	@$(NORMAL_UNINSTALL)
-	@list='$(guvcviewman_DATA)'; test -n "$(guvcviewmandir)" || list=; \
-	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
-	test -n "$$files" || exit 0; \
-	echo " ( cd '$(DESTDIR)$(guvcviewmandir)' && rm -f" $$files ")"; \
-	cd "$(DESTDIR)$(guvcviewmandir)" && rm -f $$files
-install-menuDATA: $(menu_DATA)
-	@$(NORMAL_INSTALL)
-	test -z "$(menudir)" || $(MKDIR_P) "$(DESTDIR)$(menudir)"
-	@list='$(menu_DATA)'; test -n "$(menudir)" || list=; \
-	for p in $$list; do \
-	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
-	  echo "$$d$$p"; \
-	done | $(am__base_list) | \
-	while read files; do \
-	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(menudir)'"; \
-	  $(INSTALL_DATA) $$files "$(DESTDIR)$(menudir)" || exit $$?; \
-	done
-
-uninstall-menuDATA:
-	@$(NORMAL_UNINSTALL)
-	@list='$(menu_DATA)'; test -n "$(menudir)" || list=; \
-	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
-	test -n "$$files" || exit 0; \
-	echo " ( cd '$(DESTDIR)$(menudir)' && rm -f" $$files ")"; \
-	cd "$(DESTDIR)$(menudir)" && rm -f $$files
-install-pixmapsDATA: $(pixmaps_DATA)
-	@$(NORMAL_INSTALL)
-	test -z "$(pixmapsdir)" || $(MKDIR_P) "$(DESTDIR)$(pixmapsdir)"
-	@list='$(pixmaps_DATA)'; test -n "$(pixmapsdir)" || list=; \
-	for p in $$list; do \
-	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
-	  echo "$$d$$p"; \
-	done | $(am__base_list) | \
-	while read files; do \
-	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(pixmapsdir)'"; \
-	  $(INSTALL_DATA) $$files "$(DESTDIR)$(pixmapsdir)" || exit $$?; \
-	done
-
-uninstall-pixmapsDATA:
-	@$(NORMAL_UNINSTALL)
-	@list='$(pixmaps_DATA)'; test -n "$(pixmapsdir)" || list=; \
-	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
-	test -n "$$files" || exit 0; \
-	echo " ( cd '$(DESTDIR)$(pixmapsdir)' && rm -f" $$files ")"; \
-	cd "$(DESTDIR)$(pixmapsdir)" && rm -f $$files
+	echo " ( cd '$(DESTDIR)$(docdir)' && rm -f" $$files ")"; \
+	cd "$(DESTDIR)$(docdir)" && rm -f $$files
 
 # This directory's subdirectories are mostly independent; you can cd
 # into them and run `make' without going through this Makefile.
@@ -765,7 +664,7 @@ check: check-recursive
 all-am: Makefile $(DATA) config.h
 installdirs: installdirs-recursive
 installdirs-am:
-	for dir in "$(DESTDIR)$(applicationdir)" "$(DESTDIR)$(guvcviewdocdir)" "$(DESTDIR)$(guvcviewmandir)" "$(DESTDIR)$(menudir)" "$(DESTDIR)$(pixmapsdir)"; do \
+	for dir in "$(DESTDIR)$(docdir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-recursive
@@ -789,6 +688,7 @@ clean-generic:
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
+	-test -z "$(DISTCLEANFILES)" || rm -f $(DISTCLEANFILES)
 
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
@@ -814,8 +714,7 @@ info: info-recursive
 
 info-am:
 
-install-data-am: install-applicationDATA install-guvcviewdocDATA \
-	install-guvcviewmanDATA install-menuDATA install-pixmapsDATA
+install-data-am: install-docDATA
 
 install-dvi: install-dvi-recursive
 
@@ -861,9 +760,7 @@ ps: ps-recursive
 
 ps-am:
 
-uninstall-am: uninstall-applicationDATA uninstall-guvcviewdocDATA \
-	uninstall-guvcviewmanDATA uninstall-menuDATA \
-	uninstall-pixmapsDATA
+uninstall-am: uninstall-docDATA
 
 .MAKE: $(RECURSIVE_CLEAN_TARGETS) $(RECURSIVE_TARGETS) all \
 	ctags-recursive install-am install-strip tags-recursive
@@ -875,18 +772,14 @@ uninstall-am: uninstall-applicationDATA uninstall-guvcviewdocDATA \
 	distcheck distclean distclean-generic distclean-hdr \
 	distclean-tags distcleancheck distdir distuninstallcheck dvi \
 	dvi-am html html-am info info-am install install-am \
-	install-applicationDATA install-data install-data-am \
-	install-dvi install-dvi-am install-exec install-exec-am \
-	install-guvcviewdocDATA install-guvcviewmanDATA install-html \
+	install-data install-data-am install-docDATA install-dvi \
+	install-dvi-am install-exec install-exec-am install-html \
 	install-html-am install-info install-info-am install-man \
-	install-menuDATA install-pdf install-pdf-am \
-	install-pixmapsDATA install-ps install-ps-am install-strip \
-	installcheck installcheck-am installdirs installdirs-am \
-	maintainer-clean maintainer-clean-generic mostlyclean \
-	mostlyclean-generic pdf pdf-am ps ps-am tags tags-recursive \
-	uninstall uninstall-am uninstall-applicationDATA \
-	uninstall-guvcviewdocDATA uninstall-guvcviewmanDATA \
-	uninstall-menuDATA uninstall-pixmapsDATA
+	install-pdf install-pdf-am install-ps install-ps-am \
+	install-strip installcheck installcheck-am installdirs \
+	installdirs-am maintainer-clean maintainer-clean-generic \
+	mostlyclean mostlyclean-generic pdf pdf-am ps ps-am tags \
+	tags-recursive uninstall uninstall-am uninstall-docDATA
 
 
 check-gettext:
@@ -909,18 +802,8 @@ force-update-gmo: check-gettext
 	touch po/*.po
 	cd po && $(MAKE) $(AM_MAKEFLAGS) update-gmo
 
-$(guvcviewman_DATA):
-	cd pixmaps && $(MAKE) $(AM_MAKEFLAGS) .manpage
-
-$(pixmaps_DATA):
-	cd pixmaps && $(MAKE) $(AM_MAKEFLAGS) .png
-
-@DEBIAN_MENU_TRUE@$(menu_DATA):
-@DEBIAN_MENU_TRUE@	cd pixmaps && $(MAKE) $(AM_MAKEFLAGS) .menu
-
-# builds desktop menu entry
-@DESKTOP_TRUE@$(application_DATA): 
-@DESKTOP_TRUE@	cd pixmaps && $(MAKE) $(AM_MAKEFLAGS) .desktop
+update-pot:
+	$(MAKE) -C po "$(GETTEXT_PACKAGE).pot"	
 
 # Copy all the spec files. Of cource, only one is actually used.
 dist-hook:
