@@ -19,5 +19,5 @@ src/close.c
 src/timers.c
 src/create_video.c
 src/osd.c
-data/guvcview.desktop.in
+data/guvcview.desktop.in.in
 
