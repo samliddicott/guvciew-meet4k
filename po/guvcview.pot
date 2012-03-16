@@ -8,11 +8,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: pj.assis@gmail.com\n"
-"POT-Creation-Date: 2012-03-16 00:41+0000\n"
+"POT-Creation-Date: 2012-03-16 16:57+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -959,14 +958,14 @@ msgstr ""
 msgid "Not enough free space left on disk"
 msgstr ""
 
-#: ../data/guvcview.desktop.in.h:1
+#: ../data/guvcview.desktop.in.in.h:1
 msgid "A video viewer and capturer for the linux uvc driver"
 msgstr ""
 
-#: ../data/guvcview.desktop.in.h:2
+#: ../data/guvcview.desktop.in.in.h:2
 msgid "GTK UVC video viewer"
 msgstr ""
 
-#: ../data/guvcview.desktop.in.h:3
+#: ../data/guvcview.desktop.in.in.h:3
 msgid "guvcview"
 msgstr ""
