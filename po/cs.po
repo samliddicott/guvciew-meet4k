@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: guvcview\n"
 "Report-Msgid-Bugs-To: pj.assis@gmail.com\n"
-"POT-Creation-Date: 2012-03-15 19:50+0000\n"
+"POT-Creation-Date: 2012-03-16 00:37+0000\n"
 "PO-Revision-Date: 2009-11-16 01:36+0000\n"
 "Last-Translator: exxxo45 <exxxo45@gmail.com>\n"
 "Language-Team: Czech <cs@li.org>\n"
@@ -25,6 +25,137 @@ msgstr ""
 #: ../src/guvcview.c:297
 msgid "GUVCViewer Controls"
 msgstr "Ovládání GUVCViewer"
+
+#. can't open device
+#: ../src/guvcview.c:342
+msgid ""
+"Guvcview error:\n"
+"\n"
+"Unable to open device"
+msgstr ""
+"ChybaGuvcview:\n"
+"\n"
+"Nelze otevřít zařízení"
+
+#: ../src/guvcview.c:343
+msgid ""
+"Please make sure the camera is connected\n"
+"and that the correct driver is installed."
+msgstr ""
+"Ujistěte se prosím, že vaše kamera je připojena,\n"
+"a že máte nainstalován správný ovladač."
+
+#. uvc extension controls OK, give warning and shutdown (called with --add_ctrls)
+#: ../src/guvcview.c:348
+msgid ""
+"Guvcview:\n"
+"\n"
+"UVC Extension controls"
+msgstr ""
+"Guvcview\n"
+"\n"
+"Rozšířené ovládání UVC"
+
+#: ../src/guvcview.c:349
+msgid "Extension controls were added to the UVC driver"
+msgstr "Rozšířené ovládání bylo přidáno do UVC ovladače"
+
+#. uvc extension controls error - EACCES (needs root user)
+#: ../src/guvcview.c:356
+msgid ""
+"Guvcview error:\n"
+"\n"
+"UVC Extension controls"
+msgstr ""
+"Chyba Guvcview\n"
+"\n"
+"Rozšířené ovládání UCV"
+
+#: ../src/guvcview.c:357
+msgid ""
+"An error occurred while adding extension\n"
+"controls to the UVC driver\n"
+"Make sure you run guvcview as root (or sudo)."
+msgstr ""
+"Nastala chyba při přidání rozšířeného\n"
+"ovládání do ovladače UVC\n"
+"Ujistěte se, že spouštíte guvcview jako root (či sudo)."
+
+#: ../src/guvcview.c:383 ../src/guvcview.c:461
+#, fuzzy
+msgid ""
+"Guvcview error:\n"
+"\n"
+"Can't set a valid video stream for guvcview"
+msgstr ""
+"ChybaGuvcview:\n"
+"\n"
+"Nelze nastavit MJPG nebo YUV proud pro guvcview"
+
+#: ../src/guvcview.c:384 ../src/guvcview.c:462
+msgid ""
+"Make sure your device driver is v4l2 compliant\n"
+"and that it is properly installed."
+msgstr ""
+"Ujistěte se, že ovladač vašeho přístroje je kompatibilní s v4|2\n"
+"a že je správně nainstalován."
+
+#: ../src/guvcview.c:406 ../src/guvcview.c:428
+msgid ""
+"Guvcview error:\n"
+"\n"
+"Unable to start with minimum setup"
+msgstr ""
+"Chyba Guvcview:\n"
+"\n"
+"Nelze spustit minimální konfguraci"
+
+#: ../src/guvcview.c:407 ../src/guvcview.c:429
+msgid "Please reconnect your camera."
+msgstr "Prosím připojte znovu kameru."
+
+#: ../src/guvcview.c:436
+#, fuzzy
+msgid ""
+"Guvcview error:\n"
+"\n"
+"Couldn't query device capabilities"
+msgstr ""
+"ChybaGuvcview:\n"
+"\n"
+"Nelze otevřít zařízení"
+
+#: ../src/guvcview.c:437
+msgid "Make sure the device driver supports v4l2."
+msgstr "Ujistěte se, že ovladač zařízení podporuje v4l2."
+
+#: ../src/guvcview.c:441
+msgid ""
+"Guvcview error:\n"
+"\n"
+"Read method error"
+msgstr ""
+"Chyba guvcview:\n"
+"\n"
+"Chyba metody čtení"
+
+#: ../src/guvcview.c:442
+msgid "Please try mmap instead (--capture_method=1)."
+msgstr "Místo (--capture_method=1) zkuste mmap."
+
+#: ../src/guvcview.c:450
+msgid ""
+"Guvcview error:\n"
+"\n"
+"Unable to allocate Buffers"
+msgstr ""
+"Chyba Guvcview:\n"
+"\n"
+"Nelze alokovat Buffery"
+
+#: ../src/guvcview.c:451
+msgid "Please try restarting your system."
+msgstr "Prosím zkuste restartovat váš systém."
 
 #: ../src/guvcview.c:490
 msgid "Image Controls"
@@ -62,6 +193,264 @@ msgstr "Zastavit Video"
 #: ../src/create_video.c:870
 msgid "Cap. Video"
 msgstr "Zazn. Video"
+
+#: ../src/guvcview.c:720
+msgid ""
+"Guvcview error:\n"
+"\n"
+"Unable to create Video Thread"
+msgstr ""
+"Chyba Guvcview:\n"
+"\n"
+"Nelze založit vlákno videa"
+
+#: ../src/guvcview.c:721
+msgid "Please report it to http://developer.berlios.de/bugs/?group_id=8179"
+msgstr "Prosím nahlašte to na http://developer.berlios.de/bugs/?group_id=8179"
+
+#. needed only for language files (not used)
+#. V4L2 control strings
+#: ../src/v4l2uvc.c:56
+msgid "User Controls"
+msgstr "Uživatelká nastavení"
+
+#: ../src/v4l2uvc.c:57
+msgid "Brightness"
+msgstr "Jas"
+
+#: ../src/v4l2uvc.c:58
+msgid "Contrast"
+msgstr "Kontrast"
+
+#: ../src/v4l2uvc.c:59
+msgid "Hue"
+msgstr "Odstín"
+
+#: ../src/v4l2uvc.c:60
+msgid "Saturation"
+msgstr "Sytost"
+
+#: ../src/v4l2uvc.c:61
+msgid "Sharpness"
+msgstr "Ostrost"
+
+#: ../src/v4l2uvc.c:62
+msgid "Gamma"
+msgstr "Gamma"
+
+#: ../src/v4l2uvc.c:63
+msgid "Backlight Compensation"
+msgstr "Komponzace podsvětlení"
+
+#: ../src/v4l2uvc.c:64
+msgid "Power Line Frequency"
+msgstr "Kmitočet sítě"
+
+#: ../src/v4l2uvc.c:65
+msgid "Hue, Automatic"
+msgstr "Odstín, Automatický"
+
+#: ../src/v4l2uvc.c:66
+msgid "Focus, Auto"
+msgstr "Ostření, Auto"
+
+#: ../src/v4l2uvc.c:67
+msgid "Manual Mode"
+msgstr "Ruční mód"
+
+#: ../src/v4l2uvc.c:68
+msgid "Auto Mode"
+msgstr "Auto. mód"
+
+#: ../src/v4l2uvc.c:69
+msgid "Shutter Priority Mode"
+msgstr "Mód priority clony"
+
+#: ../src/v4l2uvc.c:70
+#, fuzzy
+msgid "Aperture Priority Mode"
+msgstr "Mód priority clony"
+
+#: ../src/v4l2uvc.c:71
+msgid "Black Level"
+msgstr "Úroveň černé"
+
+#: ../src/v4l2uvc.c:72
+msgid "White Balance, Automatic"
+msgstr "Vyvážení bílé"
+
+#: ../src/v4l2uvc.c:73
+msgid "Do White Balance"
+msgstr "Vyvážit bílou"
+
+#: ../src/v4l2uvc.c:74
+msgid "Red Balance"
+msgstr "Vyvážení červené"
+
+#: ../src/v4l2uvc.c:75
+msgid "Blue Balance"
+msgstr "Vyvážení modré"
+
+#: ../src/v4l2uvc.c:76
+msgid "Exposure"
+msgstr "Expozice"
+
+#: ../src/v4l2uvc.c:77
+#, fuzzy
+msgid "Gain, Automatic"
+msgstr "Odstín, Automatický"
+
+#: ../src/v4l2uvc.c:78
+msgid "Gain"
+msgstr "Zisk"
+
+#: ../src/v4l2uvc.c:79
+msgid "Horizontal Flip"
+msgstr "Horizontální překlopení"
+
+#: ../src/v4l2uvc.c:80
+msgid "Vertical Flip"
+msgstr "Vertikální překlopení"
+
+#: ../src/v4l2uvc.c:81
+msgid "Horizontal Center"
+msgstr "Horizontální střed"
+
+#: ../src/v4l2uvc.c:82
+msgid "Vertical Center"
+msgstr "Vertikální střed"
+
+#: ../src/v4l2uvc.c:83
+msgid "Chroma AGC"
+msgstr ""
+
+#: ../src/v4l2uvc.c:84
+msgid "Color Killer"
+msgstr "Odstranění barvy"
+
+#: ../src/v4l2uvc.c:85
+msgid "Color Effects"
+msgstr "Barevné efekty"
+
+#. CAMERA CLASS control strings
+#: ../src/v4l2uvc.c:88
+msgid "Camera Controls"
+msgstr "Ovládání kamery"
+
+#: ../src/v4l2uvc.c:89
+msgid "Auto Exposure"
+msgstr "Automatická korekce závěrky"
+
+#: ../src/v4l2uvc.c:90
+#, fuzzy
+msgid "Exposure Time, Absolute"
+msgstr "Expozice (Absolutní)"
+
+#: ../src/v4l2uvc.c:91
+msgid "Exposure, Dynamic Framerate"
+msgstr ""
+
+#: ../src/v4l2uvc.c:92
+#, fuzzy
+msgid "Pan, Relative"
+msgstr "Záběr (relativní)"
+
+#: ../src/v4l2uvc.c:93
+#, fuzzy
+msgid "Tilt, Relative"
+msgstr "Záběr (relativní)"
+
+#: ../src/v4l2uvc.c:94
+#, fuzzy
+msgid "Pan, Reset"
+msgstr "Reset záběru"
+
+#: ../src/v4l2uvc.c:95
+#, fuzzy
+msgid "Tilt, Reset"
+msgstr "Obnovit"
+
+#: ../src/v4l2uvc.c:96
+msgid "Pan, Absolute"
+msgstr ""
+
+#: ../src/v4l2uvc.c:98
+#, fuzzy
+msgid "Focus, Absolute"
+msgstr "Ostření (absolutní)"
+
+#: ../src/v4l2uvc.c:99
+#, fuzzy
+msgid "Focus, Relative"
+msgstr "Zaostření, Automaticky"
+
+#: ../src/v4l2uvc.c:100
+msgid "Focus, Automatic"
+msgstr "Zaostření, Automaticky"
+
+#: ../src/v4l2uvc.c:101
+#, fuzzy
+msgid "Zoom, Absolute"
+msgstr "Expozice (Absolutní)"
+
+#: ../src/v4l2uvc.c:102
+#, fuzzy
+msgid "Zoom, Relative"
+msgstr " Negativ"
+
+#: ../src/v4l2uvc.c:103
+#, fuzzy
+msgid "Zoom, Continuous"
+msgstr "Automatické ostření (pozvolné)"
+
+#: ../src/v4l2uvc.c:104
+msgid "Privacy"
+msgstr ""
+
+#. UVC specific control strings
+#: ../src/v4l2uvc.c:107
+msgid "Exposure, Auto"
+msgstr "Expozive, Auto"
+
+#: ../src/v4l2uvc.c:108
+msgid "Exposure, Auto Priority"
+msgstr "Expozice Auto. prorita"
+
+#: ../src/v4l2uvc.c:109
+msgid "Exposure (Absolute)"
+msgstr "Expozice (Absolutní)"
+
+#: ../src/v4l2uvc.c:110
+msgid "White Balance Temperature, Auto"
+msgstr "Vyvážení bílé, Auto"
+
+#: ../src/v4l2uvc.c:111
+msgid "White Balance Temperature"
+msgstr "Vyvážení bílé"
+
+#: ../src/v4l2uvc.c:112
+msgid "White Balance Component, Auto"
+msgstr "Komponenta vyvážení bílé, Auto"
+
+#: ../src/v4l2uvc.c:113
+#, fuzzy
+msgid "White Balance Blue Component"
+msgstr "Komponenta vyvážení bílé, Auto"
+
+#: ../src/v4l2uvc.c:114
+#, fuzzy
+msgid "White Balance Red Component"
+msgstr "Komponenta vyvážení bílé, Auto"
+
+#. libwebcam specific control strings
+#: ../src/v4l2uvc.c:117
+msgid "Focus"
+msgstr "Zaostření"
+
+#: ../src/v4l2uvc.c:118
+#, fuzzy
+msgid "Focus (Absolute)"
+msgstr "Ostření (absolutní)"
 
 #: ../src/video_tab.c:41 ../src/callbacks.c:1321
 msgid "Save File"
@@ -404,6 +793,179 @@ msgstr ""
 msgid "12 bit"
 msgstr ""
 
+#: ../src/v4l2_dyna_ctrls.c:89
+#, fuzzy
+msgid "Pan (relative)"
+msgstr "Záběr (relativní)"
+
+#: ../src/v4l2_dyna_ctrls.c:99
+#, fuzzy
+msgid "Tilt (relative)"
+msgstr "Záběr (relativní)"
+
+#: ../src/v4l2_dyna_ctrls.c:109
+#, fuzzy
+msgid "Pan Reset"
+msgstr "Reset záběru"
+
+#: ../src/v4l2_dyna_ctrls.c:119
+#, fuzzy
+msgid "Tilt Reset"
+msgstr "Obnovit"
+
+#: ../src/v4l2_dyna_ctrls.c:129
+msgid "Pan/tilt Reset"
+msgstr "Reset záběru"
+
+#: ../src/v4l2_dyna_ctrls.c:139
+#, fuzzy
+msgid "Focus (absolute)"
+msgstr "Ostření (absolutní)"
+
+#: ../src/v4l2_dyna_ctrls.c:149
+msgid "LED1 Mode"
+msgstr "Mód LED1"
+
+#: ../src/v4l2_dyna_ctrls.c:159
+msgid "LED1 Frequency"
+msgstr "Frekvence LED1"
+
+#: ../src/v4l2_dyna_ctrls.c:169
+msgid "Disable video processing"
+msgstr "Zakázat zpracování videa"
+
+#: ../src/v4l2_dyna_ctrls.c:179
+msgid "Raw bits per pixel"
+msgstr "Raw bity / pxel"
+
+#: ../src/vcodecs.c:62
+msgid "MJPG - compressed"
+msgstr "MJPG - komprimovaný"
+
+#: ../src/vcodecs.c:97
+msgid "YUY2 - uncomp YUV"
+msgstr "YUY2 - uncomp YUV"
+
+#: ../src/vcodecs.c:132
+msgid "RGB - uncomp BMP"
+msgstr "RGB - uncomp BMP"
+
+#: ../src/vcodecs.c:167
+msgid "MPEG video 1"
+msgstr "MPEG video 1"
+
+#: ../src/vcodecs.c:202
+msgid "FLV1 - flash video 1"
+msgstr "FLV1 - flash video 1"
+
+#: ../src/vcodecs.c:237
+msgid "WMV1 - win. med. video 7"
+msgstr ""
+
+#: ../src/vcodecs.c:272
+msgid "MPG2 - MPG2 format"
+msgstr "MPG2 - formát MPG2"
+
+#: ../src/vcodecs.c:307
+msgid "MS MP4 V3"
+msgstr ""
+
+#: ../src/vcodecs.c:342
+msgid "MPEG4-ASP"
+msgstr ""
+
+#: ../src/vcodecs.c:377
+msgid "MPEG4-AVC (H264)"
+msgstr ""
+
+#: ../src/options.c:761
+msgid "Prints version"
+msgstr "Vypíše verzi"
+
+#: ../src/options.c:762
+msgid "Displays debug information"
+msgstr "Zobrazí ladící informace"
+
+#: ../src/options.c:763
+msgid "Video Device to use [default: /dev/video0]"
+msgstr "Video zařízení [výchozí /dev/video0]"
+
+#: ../src/options.c:764
+msgid "Exit after adding UVC extension controls (needs root/sudo)"
+msgstr ""
+
+#: ../src/options.c:765
+msgid "Don't stream video (image controls only)"
+msgstr ""
+
+#: ../src/options.c:766
+msgid "Don't display a GUI"
+msgstr ""
+
+#: ../src/options.c:767
+msgid "Capture method (1-mmap (default)  2-read)"
+msgstr ""
+
+#: ../src/options.c:768
+msgid "Configuration file"
+msgstr "Konfigurační soubor"
+
+#: ../src/options.c:769
+msgid "Hardware accelaration (enable(1) | disable(0))"
+msgstr "Hardwarová akcelerace (povolit(1) | zakázat(0))"
+
+#: ../src/options.c:770
+msgid ""
+"Pixel format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|"
+"y41p|grey|y16 |s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
+msgstr ""
+"Formát pixelu (mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|"
+"y41p|grey|y16 |s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
+
+#: ../src/options.c:771
+msgid "Frame size, default: 640x480"
+msgstr "Velikost rámce, výchozí: 640x480"
+
+#: ../src/options.c:772
+msgid "Image File name"
+msgstr "Název souboru orazu"
+
+#: ../src/options.c:773
+msgid "Image capture interval in seconds"
+msgstr "Interval snímání v sekundách"
+
+#: ../src/options.c:774
+msgid "Number of Pictures to capture"
+msgstr "Počet obrázků k zaznamenání"
+
+#: ../src/options.c:775
+msgid "Video File name (capture from start)"
+msgstr "Jméno Video souboru (záznam od začátku)"
+
+#: ../src/options.c:776
+msgid "Video capture time (in seconds)"
+msgstr "Čas Video záznamu (v sekundách)"
+
+#: ../src/options.c:777
+msgid "Exits guvcview after closing video"
+msgstr ""
+
+#: ../src/options.c:778
+msgid "Number of initial frames to skip"
+msgstr "Počet prvních vynechaných snímků"
+
+#: ../src/options.c:779
+msgid "Show FPS value (enable(1) | disable (0))"
+msgstr "Zobrazit hodnotu FPS (povolit(1) | zakázat(0))"
+
+#: ../src/options.c:780
+msgid "Load Profile at start"
+msgstr "Načíst profil při spuštění"
+
+#: ../src/options.c:786
+msgid "- local options"
+msgstr "- místní nastavení"
+
 #: ../src/img_controls.c:121
 msgid "Auto Focus (continuous)"
 msgstr "Automatické ostření (pozvolné)"
@@ -451,333 +1013,25 @@ msgstr ""
 msgid "Load File"
 msgstr "Nahrát soubor"
 
-#~ msgid ""
-#~ "Guvcview error:\n"
-#~ "\n"
-#~ "Unable to open device"
-#~ msgstr ""
-#~ "ChybaGuvcview:\n"
-#~ "\n"
-#~ "Nelze otevřít zařízení"
-
-#~ msgid ""
-#~ "Please make sure the camera is connected\n"
-#~ "and that the correct driver is installed."
-#~ msgstr ""
-#~ "Ujistěte se prosím, že vaše kamera je připojena,\n"
-#~ "a že máte nainstalován správný ovladač."
-
-#~ msgid ""
-#~ "Guvcview:\n"
-#~ "\n"
-#~ "UVC Extension controls"
-#~ msgstr ""
-#~ "Guvcview\n"
-#~ "\n"
-#~ "Rozšířené ovládání UVC"
-
-#~ msgid "Extension controls were added to the UVC driver"
-#~ msgstr "Rozšířené ovládání bylo přidáno do UVC ovladače"
-
-#~ msgid ""
-#~ "Guvcview error:\n"
-#~ "\n"
-#~ "UVC Extension controls"
-#~ msgstr ""
-#~ "Chyba Guvcview\n"
-#~ "\n"
-#~ "Rozšířené ovládání UCV"
-
-#~ msgid ""
-#~ "An error occurred while adding extension\n"
-#~ "controls to the UVC driver\n"
-#~ "Make sure you run guvcview as root (or sudo)."
-#~ msgstr ""
-#~ "Nastala chyba při přidání rozšířeného\n"
-#~ "ovládání do ovladače UVC\n"
-#~ "Ujistěte se, že spouštíte guvcview jako root (či sudo)."
-
-#~ msgid ""
-#~ "Make sure your device driver is v4l2 compliant\n"
-#~ "and that it is properly installed."
-#~ msgstr ""
-#~ "Ujistěte se, že ovladač vašeho přístroje je kompatibilní s v4|2\n"
-#~ "a že je správně nainstalován."
-
-#~ msgid ""
-#~ "Guvcview error:\n"
-#~ "\n"
-#~ "Unable to start with minimum setup"
-#~ msgstr ""
-#~ "Chyba Guvcview:\n"
-#~ "\n"
-#~ "Nelze spustit minimální konfguraci"
-
-#~ msgid "Please reconnect your camera."
-#~ msgstr "Prosím připojte znovu kameru."
-
-#~ msgid "Make sure the device driver supports v4l2."
-#~ msgstr "Ujistěte se, že ovladač zařízení podporuje v4l2."
-
-#~ msgid ""
-#~ "Guvcview error:\n"
-#~ "\n"
-#~ "Read method error"
-#~ msgstr ""
-#~ "Chyba guvcview:\n"
-#~ "\n"
-#~ "Chyba metody čtení"
-
-#~ msgid "Please try mmap instead (--capture_method=1)."
-#~ msgstr "Místo (--capture_method=1) zkuste mmap."
-
-#~ msgid ""
-#~ "Guvcview error:\n"
-#~ "\n"
-#~ "Unable to allocate Buffers"
-#~ msgstr ""
-#~ "Chyba Guvcview:\n"
-#~ "\n"
-#~ "Nelze alokovat Buffery"
-
-#~ msgid "Please try restarting your system."
-#~ msgstr "Prosím zkuste restartovat váš systém."
-
-#~ msgid ""
-#~ "Guvcview error:\n"
-#~ "\n"
-#~ "Unable to create Video Thread"
-#~ msgstr ""
-#~ "Chyba Guvcview:\n"
-#~ "\n"
-#~ "Nelze založit vlákno videa"
-
-#~ msgid "Please report it to http://developer.berlios.de/bugs/?group_id=8179"
-#~ msgstr ""
-#~ "Prosím nahlašte to na http://developer.berlios.de/bugs/?group_id=8179"
-
-#~ msgid "User Controls"
-#~ msgstr "Uživatelká nastavení"
-
-#~ msgid "Brightness"
-#~ msgstr "Jas"
-
-#~ msgid "Contrast"
-#~ msgstr "Kontrast"
-
-#~ msgid "Hue"
-#~ msgstr "Odstín"
-
-#~ msgid "Saturation"
-#~ msgstr "Sytost"
-
-#~ msgid "Sharpness"
-#~ msgstr "Ostrost"
-
-#~ msgid "Gamma"
-#~ msgstr "Gamma"
-
-#~ msgid "Backlight Compensation"
-#~ msgstr "Komponzace podsvětlení"
-
-#~ msgid "Power Line Frequency"
-#~ msgstr "Kmitočet sítě"
-
-#~ msgid "Hue, Automatic"
-#~ msgstr "Odstín, Automatický"
-
-#~ msgid "Focus, Auto"
-#~ msgstr "Ostření, Auto"
-
-#~ msgid "Manual Mode"
-#~ msgstr "Ruční mód"
-
-#~ msgid "Auto Mode"
-#~ msgstr "Auto. mód"
-
-#~ msgid "Shutter Priority Mode"
-#~ msgstr "Mód priority clony"
-
-#~ msgid "Black Level"
-#~ msgstr "Úroveň černé"
-
-#~ msgid "White Balance, Automatic"
-#~ msgstr "Vyvážení bílé"
-
-#~ msgid "Do White Balance"
-#~ msgstr "Vyvážit bílou"
-
-#~ msgid "Red Balance"
-#~ msgstr "Vyvážení červené"
-
-#~ msgid "Blue Balance"
-#~ msgstr "Vyvážení modré"
-
-#~ msgid "Exposure"
-#~ msgstr "Expozice"
-
-#~ msgid "Gain"
-#~ msgstr "Zisk"
-
-#~ msgid "Horizontal Flip"
-#~ msgstr "Horizontální překlopení"
-
-#~ msgid "Vertical Flip"
-#~ msgstr "Vertikální překlopení"
-
-#~ msgid "Horizontal Center"
-#~ msgstr "Horizontální střed"
-
-#~ msgid "Vertical Center"
-#~ msgstr "Vertikální střed"
-
-#~ msgid "Color Killer"
-#~ msgstr "Odstranění barvy"
-
-#~ msgid "Color Effects"
-#~ msgstr "Barevné efekty"
-
-#~ msgid "Camera Controls"
-#~ msgstr "Ovládání kamery"
-
-#~ msgid "Auto Exposure"
-#~ msgstr "Automatická korekce závěrky"
-
-#~ msgid "Focus, Automatic"
-#~ msgstr "Zaostření, Automaticky"
-
-#~ msgid "Exposure, Auto"
-#~ msgstr "Expozive, Auto"
-
-#~ msgid "Exposure, Auto Priority"
-#~ msgstr "Expozice Auto. prorita"
-
-#~ msgid "Exposure (Absolute)"
-#~ msgstr "Expozice (Absolutní)"
-
-#~ msgid "White Balance Temperature, Auto"
-#~ msgstr "Vyvážení bílé, Auto"
-
-#~ msgid "White Balance Temperature"
-#~ msgstr "Vyvážení bílé"
-
-#~ msgid "White Balance Component, Auto"
-#~ msgstr "Komponenta vyvážení bílé, Auto"
-
-#~ msgid "Focus"
-#~ msgstr "Zaostření"
-
-#~ msgid "Pan (relative)"
-#~ msgstr "Záběr (relativní)"
-
-#~ msgid "Tilt (relative)"
-#~ msgstr "Záběr (relativní)"
-
-#~ msgid "Pan Reset"
-#~ msgstr "Reset záběru"
-
-#~ msgid "Tilt Reset"
-#~ msgstr "Obnovit"
-
-#~ msgid "Pan/tilt Reset"
-#~ msgstr "Reset záběru"
-
-#~ msgid "Focus (absolute)"
-#~ msgstr "Ostření (absolutní)"
-
-#~ msgid "LED1 Mode"
-#~ msgstr "Mód LED1"
-
-#~ msgid "LED1 Frequency"
-#~ msgstr "Frekvence LED1"
-
-#~ msgid "Disable video processing"
-#~ msgstr "Zakázat zpracování videa"
-
-#~ msgid "Raw bits per pixel"
-#~ msgstr "Raw bity / pxel"
-
-#~ msgid "MJPG - compressed"
-#~ msgstr "MJPG - komprimovaný"
-
-#~ msgid "YUY2 - uncomp YUV"
-#~ msgstr "YUY2 - uncomp YUV"
-
-#~ msgid "RGB - uncomp BMP"
-#~ msgstr "RGB - uncomp BMP"
-
-#~ msgid "MPEG video 1"
-#~ msgstr "MPEG video 1"
-
-#~ msgid "FLV1 - flash video 1"
-#~ msgstr "FLV1 - flash video 1"
-
-#~ msgid "MPG2 - MPG2 format"
-#~ msgstr "MPG2 - formát MPG2"
-
-#~ msgid "Prints version"
-#~ msgstr "Vypíše verzi"
-
-#~ msgid "Displays debug information"
-#~ msgstr "Zobrazí ladící informace"
-
-#~ msgid "Video Device to use [default: /dev/video0]"
-#~ msgstr "Video zařízení [výchozí /dev/video0]"
-
-#~ msgid "Configuration file"
-#~ msgstr "Konfigurační soubor"
-
-#~ msgid "Hardware accelaration (enable(1) | disable(0))"
-#~ msgstr "Hardwarová akcelerace (povolit(1) | zakázat(0))"
-
-#~ msgid ""
-#~ "Pixel format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|"
-#~ "y41p|grey|y16 |s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
-#~ msgstr ""
-#~ "Formát pixelu (mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|"
-#~ "nv61|y41p|grey|y16 |s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
-
-#~ msgid "Frame size, default: 640x480"
-#~ msgstr "Velikost rámce, výchozí: 640x480"
-
-#~ msgid "Image File name"
-#~ msgstr "Název souboru orazu"
-
-#~ msgid "Image capture interval in seconds"
-#~ msgstr "Interval snímání v sekundách"
-
-#~ msgid "Number of Pictures to capture"
-#~ msgstr "Počet obrázků k zaznamenání"
-
-#~ msgid "Video File name (capture from start)"
-#~ msgstr "Jméno Video souboru (záznam od začátku)"
-
-#~ msgid "Video capture time (in seconds)"
-#~ msgstr "Čas Video záznamu (v sekundách)"
-
-#~ msgid "Number of initial frames to skip"
-#~ msgstr "Počet prvních vynechaných snímků"
-
-#~ msgid "Show FPS value (enable(1) | disable (0))"
-#~ msgstr "Zobrazit hodnotu FPS (povolit(1) | zakázat(0))"
-
-#~ msgid "Load Profile at start"
-#~ msgstr "Načíst profil při spuštění"
-
-#~ msgid "- local options"
-#~ msgstr "- místní nastavení"
-
-#~ msgid "Not enough free space left on disk"
-#~ msgstr "Na disku nezbývá dost volného místa"
-
-#~ msgid ""
-#~ "Guvcview error:\n"
-#~ "\n"
-#~ "Can't set MJPG or YUV stream for guvcview"
-#~ msgstr ""
-#~ "ChybaGuvcview:\n"
-#~ "\n"
-#~ "Nelze nastavit MJPG nebo YUV proud pro guvcview"
+#: ../src/timers.c:211
+msgid "Guvcview Warning:"
+msgstr ""
+
+#: ../src/timers.c:211
+msgid "Not enough free space left on disk"
+msgstr "Na disku nezbývá dost volného místa"
+
+#: ../data/guvcview.desktop.in.h:1
+msgid "A video viewer and capturer for the linux uvc driver"
+msgstr ""
+
+#: ../data/guvcview.desktop.in.h:2
+msgid "GTK UVC video viewer"
+msgstr ""
+
+#: ../data/guvcview.desktop.in.h:3
+msgid "guvcview"
+msgstr ""
 
 #~ msgid ""
 #~ "Make sure you have a UVC compliant camera\n"

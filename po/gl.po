@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: guvcview\n"
 "Report-Msgid-Bugs-To: pj.assis@gmail.com\n"
-"POT-Creation-Date: 2012-03-15 19:50+0000\n"
+"POT-Creation-Date: 2012-03-16 00:37+0000\n"
 "PO-Revision-Date: 2010-12-14 02:26+0000\n"
 "Last-Translator: Dario <dario.villar.v@gmail.com>\n"
 "Language-Team: Galician <gl@li.org>\n"
@@ -26,6 +26,126 @@ msgstr "Capturador de vídeo Guvcview"
 #: ../src/guvcview.c:297
 msgid "GUVCViewer Controls"
 msgstr "Controles de Guvcviewer"
+
+#. can't open device
+#: ../src/guvcview.c:342
+msgid ""
+"Guvcview error:\n"
+"\n"
+"Unable to open device"
+msgstr ""
+"Erro de Guvcview:\n"
+"\n"
+"Non foi posíbel conectar a camara"
+
+#: ../src/guvcview.c:343
+msgid ""
+"Please make sure the camera is connected\n"
+"and that the correct driver is installed."
+msgstr ""
+"Asegúrese de que a súa camara está conectada\n"
+"e que o controlador está correctamente instalada."
+
+#. uvc extension controls OK, give warning and shutdown (called with --add_ctrls)
+#: ../src/guvcview.c:348
+msgid ""
+"Guvcview:\n"
+"\n"
+"UVC Extension controls"
+msgstr ""
+
+#: ../src/guvcview.c:349
+msgid "Extension controls were added to the UVC driver"
+msgstr ""
+
+#. uvc extension controls error - EACCES (needs root user)
+#: ../src/guvcview.c:356
+#, fuzzy
+msgid ""
+"Guvcview error:\n"
+"\n"
+"UVC Extension controls"
+msgstr ""
+"Erro de Guvcview:\n"
+"\n"
+"Non foi posíbel asignarlle memoria aos búferes"
+
+#: ../src/guvcview.c:357
+msgid ""
+"An error occurred while adding extension\n"
+"controls to the UVC driver\n"
+"Make sure you run guvcview as root (or sudo)."
+msgstr ""
+
+#: ../src/guvcview.c:383 ../src/guvcview.c:461
+msgid ""
+"Guvcview error:\n"
+"\n"
+"Can't set a valid video stream for guvcview"
+msgstr ""
+
+#: ../src/guvcview.c:384 ../src/guvcview.c:462
+msgid ""
+"Make sure your device driver is v4l2 compliant\n"
+"and that it is properly installed."
+msgstr ""
+
+#: ../src/guvcview.c:406 ../src/guvcview.c:428
+#, fuzzy
+msgid ""
+"Guvcview error:\n"
+"\n"
+"Unable to start with minimum setup"
+msgstr ""
+"Erro de Guvcview:\n"
+"\n"
+"Non foi posíbel asignarlle memoria aos búferes"
+
+#: ../src/guvcview.c:407 ../src/guvcview.c:429
+msgid "Please reconnect your camera."
+msgstr "Conecte de novo a súa camara."
+
+#: ../src/guvcview.c:436
+msgid ""
+"Guvcview error:\n"
+"\n"
+"Couldn't query device capabilities"
+msgstr ""
+"Erro de Guvcview:\n"
+"\n"
+"Non se poideron consultar as capacidades do dispositivo"
+
+#: ../src/guvcview.c:437
+msgid "Make sure the device driver supports v4l2."
+msgstr "Asegúrese de que o controlador do dispositivo soporta v4l2."
+
+#: ../src/guvcview.c:441
+msgid ""
+"Guvcview error:\n"
+"\n"
+"Read method error"
+msgstr ""
+"Erro de Guvcview:\n"
+"\n"
+"Erro no método de lectura"
+
+#: ../src/guvcview.c:442
+msgid "Please try mmap instead (--capture_method=1)."
+msgstr "Probe mmap no seu lugar  (--capture_method=1)."
+
+#: ../src/guvcview.c:450
+msgid ""
+"Guvcview error:\n"
+"\n"
+"Unable to allocate Buffers"
+msgstr ""
+"Erro de Guvcview:\n"
+"\n"
+"Non foi posíbel asignarlle memoria aos búferes"
+
+#: ../src/guvcview.c:451
+msgid "Please try restarting your system."
+msgstr "Probe reiniciando o seu sistema."
 
 #: ../src/guvcview.c:490
 msgid "Image Controls"
@@ -63,6 +183,262 @@ msgstr "Deter vídeo"
 #: ../src/create_video.c:870
 msgid "Cap. Video"
 msgstr "Cap. Video"
+
+#: ../src/guvcview.c:720
+msgid ""
+"Guvcview error:\n"
+"\n"
+"Unable to create Video Thread"
+msgstr ""
+"Erro en Guvcview:\n"
+"\n"
+"Non foi posíble crear un fío de execución de vídeo"
+
+#: ../src/guvcview.c:721
+msgid "Please report it to http://developer.berlios.de/bugs/?group_id=8179"
+msgstr ""
+"Por favor, informe do erro a http://developer.berlios.de/bugs/?group_id=8179"
+
+#. needed only for language files (not used)
+#. V4L2 control strings
+#: ../src/v4l2uvc.c:56
+#, fuzzy
+msgid "User Controls"
+msgstr "Controles de Guvcviewer"
+
+#: ../src/v4l2uvc.c:57
+msgid "Brightness"
+msgstr "Brillo"
+
+#: ../src/v4l2uvc.c:58
+msgid "Contrast"
+msgstr "Contraste"
+
+#: ../src/v4l2uvc.c:59
+msgid "Hue"
+msgstr "Ton"
+
+#: ../src/v4l2uvc.c:60
+msgid "Saturation"
+msgstr "Saturación"
+
+#: ../src/v4l2uvc.c:61
+msgid "Sharpness"
+msgstr "Focalización"
+
+#: ../src/v4l2uvc.c:62
+msgid "Gamma"
+msgstr "Gamma"
+
+#: ../src/v4l2uvc.c:63
+msgid "Backlight Compensation"
+msgstr ""
+
+#: ../src/v4l2uvc.c:64
+msgid "Power Line Frequency"
+msgstr ""
+
+#: ../src/v4l2uvc.c:65
+msgid "Hue, Automatic"
+msgstr "Matiz, Automático"
+
+#: ../src/v4l2uvc.c:66
+msgid "Focus, Auto"
+msgstr "Foco, Automático"
+
+#: ../src/v4l2uvc.c:67
+msgid "Manual Mode"
+msgstr "Modo Manual"
+
+#: ../src/v4l2uvc.c:68
+msgid "Auto Mode"
+msgstr "Modo Automático"
+
+#: ../src/v4l2uvc.c:69
+msgid "Shutter Priority Mode"
+msgstr ""
+
+#: ../src/v4l2uvc.c:70
+msgid "Aperture Priority Mode"
+msgstr ""
+
+#: ../src/v4l2uvc.c:71
+msgid "Black Level"
+msgstr "Nivel de negro"
+
+#: ../src/v4l2uvc.c:72
+#, fuzzy
+msgid "White Balance, Automatic"
+msgstr "Ganancia, Automática"
+
+#: ../src/v4l2uvc.c:73
+#, fuzzy
+msgid "Do White Balance"
+msgstr "Balance vermello"
+
+#: ../src/v4l2uvc.c:74
+msgid "Red Balance"
+msgstr "Balance vermello"
+
+#: ../src/v4l2uvc.c:75
+msgid "Blue Balance"
+msgstr "Balance azul"
+
+#: ../src/v4l2uvc.c:76
+msgid "Exposure"
+msgstr "Exposición"
+
+#: ../src/v4l2uvc.c:77
+msgid "Gain, Automatic"
+msgstr "Ganancia, Automática"
+
+#: ../src/v4l2uvc.c:78
+msgid "Gain"
+msgstr "Ganancia"
+
+#: ../src/v4l2uvc.c:79
+msgid "Horizontal Flip"
+msgstr "Xiro horizontal"
+
+#: ../src/v4l2uvc.c:80
+msgid "Vertical Flip"
+msgstr "Xiro vertical"
+
+#: ../src/v4l2uvc.c:81
+#, fuzzy
+msgid "Horizontal Center"
+msgstr "Xiro horizontal"
+
+#: ../src/v4l2uvc.c:82
+#, fuzzy
+msgid "Vertical Center"
+msgstr "Xiro vertical"
+
+#: ../src/v4l2uvc.c:83
+msgid "Chroma AGC"
+msgstr ""
+
+#: ../src/v4l2uvc.c:84
+msgid "Color Killer"
+msgstr ""
+
+#: ../src/v4l2uvc.c:85
+msgid "Color Effects"
+msgstr "Efectos de cor"
+
+#. CAMERA CLASS control strings
+#: ../src/v4l2uvc.c:88
+#, fuzzy
+msgid "Camera Controls"
+msgstr "Controles de Guvcviewer"
+
+#: ../src/v4l2uvc.c:89
+msgid "Auto Exposure"
+msgstr "Exposición automática"
+
+#: ../src/v4l2uvc.c:90
+msgid "Exposure Time, Absolute"
+msgstr "Tempo de exposición, Absoluto"
+
+#: ../src/v4l2uvc.c:91
+msgid "Exposure, Dynamic Framerate"
+msgstr ""
+
+#: ../src/v4l2uvc.c:92
+#, fuzzy
+msgid "Pan, Relative"
+msgstr "Inclinación, relativo"
+
+#: ../src/v4l2uvc.c:93
+msgid "Tilt, Relative"
+msgstr "Inclinación, relativo"
+
+#: ../src/v4l2uvc.c:94
+#, fuzzy
+msgid "Pan, Reset"
+msgstr "Inclinación, Restabelecer"
+
+#: ../src/v4l2uvc.c:95
+msgid "Tilt, Reset"
+msgstr "Inclinación, Restabelecer"
+
+#: ../src/v4l2uvc.c:96
+#, fuzzy
+msgid "Pan, Absolute"
+msgstr "Foco, absoluto"
+
+#: ../src/v4l2uvc.c:98
+msgid "Focus, Absolute"
+msgstr "Foco, absoluto"
+
+#: ../src/v4l2uvc.c:99
+msgid "Focus, Relative"
+msgstr "Foco, relativo"
+
+#: ../src/v4l2uvc.c:100
+msgid "Focus, Automatic"
+msgstr "Foco, automático"
+
+#: ../src/v4l2uvc.c:101
+#, fuzzy
+msgid "Zoom, Absolute"
+msgstr "Foco, absoluto"
+
+#: ../src/v4l2uvc.c:102
+#, fuzzy
+msgid "Zoom, Relative"
+msgstr "Foco, relativo"
+
+#: ../src/v4l2uvc.c:103
+#, fuzzy
+msgid "Zoom, Continuous"
+msgstr "Foco automático(continuo)"
+
+#: ../src/v4l2uvc.c:104
+msgid "Privacy"
+msgstr "Privacidade"
+
+#. UVC specific control strings
+#: ../src/v4l2uvc.c:107
+msgid "Exposure, Auto"
+msgstr "Exposición, Automático"
+
+#: ../src/v4l2uvc.c:108
+msgid "Exposure, Auto Priority"
+msgstr "Exposición, Prioridade automática"
+
+#: ../src/v4l2uvc.c:109
+msgid "Exposure (Absolute)"
+msgstr "Exposición (absoluto)"
+
+#: ../src/v4l2uvc.c:110
+msgid "White Balance Temperature, Auto"
+msgstr ""
+
+#: ../src/v4l2uvc.c:111
+msgid "White Balance Temperature"
+msgstr ""
+
+#: ../src/v4l2uvc.c:112
+msgid "White Balance Component, Auto"
+msgstr ""
+
+#: ../src/v4l2uvc.c:113
+msgid "White Balance Blue Component"
+msgstr ""
+
+#: ../src/v4l2uvc.c:114
+msgid "White Balance Red Component"
+msgstr ""
+
+#. libwebcam specific control strings
+#: ../src/v4l2uvc.c:117
+msgid "Focus"
+msgstr "Foco"
+
+#: ../src/v4l2uvc.c:118
+msgid "Focus (Absolute)"
+msgstr "Foco(absoluto)"
 
 #: ../src/video_tab.c:41 ../src/callbacks.c:1321
 msgid "Save File"
@@ -405,6 +781,178 @@ msgstr ""
 msgid "12 bit"
 msgstr ""
 
+#: ../src/v4l2_dyna_ctrls.c:89
+#, fuzzy
+msgid "Pan (relative)"
+msgstr "Inclinación, relativo"
+
+#: ../src/v4l2_dyna_ctrls.c:99
+#, fuzzy
+msgid "Tilt (relative)"
+msgstr "Inclinación, relativo"
+
+#: ../src/v4l2_dyna_ctrls.c:109
+#, fuzzy
+msgid "Pan Reset"
+msgstr "Inclinación, Restabelecer"
+
+#: ../src/v4l2_dyna_ctrls.c:119
+#, fuzzy
+msgid "Tilt Reset"
+msgstr "Inclinación, Restabelecer"
+
+#: ../src/v4l2_dyna_ctrls.c:129
+#, fuzzy
+msgid "Pan/tilt Reset"
+msgstr "Inclinación, Restabelecer"
+
+#: ../src/v4l2_dyna_ctrls.c:139
+#, fuzzy
+msgid "Focus (absolute)"
+msgstr "Foco(absoluto)"
+
+#: ../src/v4l2_dyna_ctrls.c:149
+msgid "LED1 Mode"
+msgstr ""
+
+#: ../src/v4l2_dyna_ctrls.c:159
+msgid "LED1 Frequency"
+msgstr ""
+
+#: ../src/v4l2_dyna_ctrls.c:169
+msgid "Disable video processing"
+msgstr ""
+
+#: ../src/v4l2_dyna_ctrls.c:179
+msgid "Raw bits per pixel"
+msgstr ""
+
+#: ../src/vcodecs.c:62
+msgid "MJPG - compressed"
+msgstr ""
+
+#: ../src/vcodecs.c:97
+msgid "YUY2 - uncomp YUV"
+msgstr ""
+
+#: ../src/vcodecs.c:132
+msgid "RGB - uncomp BMP"
+msgstr ""
+
+#: ../src/vcodecs.c:167
+msgid "MPEG video 1"
+msgstr ""
+
+#: ../src/vcodecs.c:202
+msgid "FLV1 - flash video 1"
+msgstr ""
+
+#: ../src/vcodecs.c:237
+msgid "WMV1 - win. med. video 7"
+msgstr ""
+
+#: ../src/vcodecs.c:272
+msgid "MPG2 - MPG2 format"
+msgstr ""
+
+#: ../src/vcodecs.c:307
+msgid "MS MP4 V3"
+msgstr "MS MP4 V3"
+
+#: ../src/vcodecs.c:342
+msgid "MPEG4-ASP"
+msgstr "MPEG4-ASP"
+
+#: ../src/vcodecs.c:377
+msgid "MPEG4-AVC (H264)"
+msgstr "MPEG4-AVC (H264)"
+
+#: ../src/options.c:761
+msgid "Prints version"
+msgstr "Mostrar a versión"
+
+#: ../src/options.c:762
+msgid "Displays debug information"
+msgstr ""
+
+#: ../src/options.c:763
+msgid "Video Device to use [default: /dev/video0]"
+msgstr ""
+
+#: ../src/options.c:764
+msgid "Exit after adding UVC extension controls (needs root/sudo)"
+msgstr ""
+
+#: ../src/options.c:765
+msgid "Don't stream video (image controls only)"
+msgstr ""
+
+#: ../src/options.c:766
+msgid "Don't display a GUI"
+msgstr ""
+
+#: ../src/options.c:767
+msgid "Capture method (1-mmap (default)  2-read)"
+msgstr ""
+
+#: ../src/options.c:768
+msgid "Configuration file"
+msgstr ""
+
+#: ../src/options.c:769
+msgid "Hardware accelaration (enable(1) | disable(0))"
+msgstr ""
+
+#: ../src/options.c:770
+msgid ""
+"Pixel format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|"
+"y41p|grey|y16 |s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
+msgstr ""
+
+#: ../src/options.c:771
+msgid "Frame size, default: 640x480"
+msgstr "Tamaño predeterminado do marco:640x480"
+
+#: ../src/options.c:772
+msgid "Image File name"
+msgstr "Nome da imaxe"
+
+#: ../src/options.c:773
+msgid "Image capture interval in seconds"
+msgstr ""
+
+#: ../src/options.c:774
+msgid "Number of Pictures to capture"
+msgstr ""
+
+#: ../src/options.c:775
+msgid "Video File name (capture from start)"
+msgstr ""
+
+#: ../src/options.c:776
+msgid "Video capture time (in seconds)"
+msgstr ""
+
+#: ../src/options.c:777
+msgid "Exits guvcview after closing video"
+msgstr ""
+
+#: ../src/options.c:778
+msgid "Number of initial frames to skip"
+msgstr ""
+
+#: ../src/options.c:779
+msgid "Show FPS value (enable(1) | disable (0))"
+msgstr ""
+
+#: ../src/options.c:780
+msgid "Load Profile at start"
+msgstr ""
+
+#: ../src/options.c:786
+msgid "- local options"
+msgstr ""
+
 #: ../src/img_controls.c:121
 msgid "Auto Focus (continuous)"
 msgstr "Foco automático(continuo)"
@@ -450,188 +998,25 @@ msgstr ""
 msgid "Load File"
 msgstr "Cargar un ficheiro"
 
-#~ msgid ""
-#~ "Guvcview error:\n"
-#~ "\n"
-#~ "Unable to open device"
-#~ msgstr ""
-#~ "Erro de Guvcview:\n"
-#~ "\n"
-#~ "Non foi posíbel conectar a camara"
+#: ../src/timers.c:211
+msgid "Guvcview Warning:"
+msgstr ""
 
-#~ msgid ""
-#~ "Please make sure the camera is connected\n"
-#~ "and that the correct driver is installed."
-#~ msgstr ""
-#~ "Asegúrese de que a súa camara está conectada\n"
-#~ "e que o controlador está correctamente instalada."
+#: ../src/timers.c:211
+msgid "Not enough free space left on disk"
+msgstr ""
 
-#~ msgid "Please reconnect your camera."
-#~ msgstr "Conecte de novo a súa camara."
+#: ../data/guvcview.desktop.in.h:1
+msgid "A video viewer and capturer for the linux uvc driver"
+msgstr ""
 
-#~ msgid ""
-#~ "Guvcview error:\n"
-#~ "\n"
-#~ "Couldn't query device capabilities"
-#~ msgstr ""
-#~ "Erro de Guvcview:\n"
-#~ "\n"
-#~ "Non se poideron consultar as capacidades do dispositivo"
+#: ../data/guvcview.desktop.in.h:2
+msgid "GTK UVC video viewer"
+msgstr ""
 
-#~ msgid "Make sure the device driver supports v4l2."
-#~ msgstr "Asegúrese de que o controlador do dispositivo soporta v4l2."
-
-#~ msgid ""
-#~ "Guvcview error:\n"
-#~ "\n"
-#~ "Read method error"
-#~ msgstr ""
-#~ "Erro de Guvcview:\n"
-#~ "\n"
-#~ "Erro no método de lectura"
-
-#~ msgid "Please try mmap instead (--capture_method=1)."
-#~ msgstr "Probe mmap no seu lugar  (--capture_method=1)."
-
-#~ msgid ""
-#~ "Guvcview error:\n"
-#~ "\n"
-#~ "Unable to allocate Buffers"
-#~ msgstr ""
-#~ "Erro de Guvcview:\n"
-#~ "\n"
-#~ "Non foi posíbel asignarlle memoria aos búferes"
-
-#~ msgid "Please try restarting your system."
-#~ msgstr "Probe reiniciando o seu sistema."
-
-#~ msgid ""
-#~ "Guvcview error:\n"
-#~ "\n"
-#~ "Unable to create Video Thread"
-#~ msgstr ""
-#~ "Erro en Guvcview:\n"
-#~ "\n"
-#~ "Non foi posíble crear un fío de execución de vídeo"
-
-#~ msgid "Please report it to http://developer.berlios.de/bugs/?group_id=8179"
-#~ msgstr ""
-#~ "Por favor, informe do erro a http://developer.berlios.de/bugs/?"
-#~ "group_id=8179"
-
-#~ msgid "Brightness"
-#~ msgstr "Brillo"
-
-#~ msgid "Contrast"
-#~ msgstr "Contraste"
-
-#~ msgid "Hue"
-#~ msgstr "Ton"
-
-#~ msgid "Saturation"
-#~ msgstr "Saturación"
-
-#~ msgid "Sharpness"
-#~ msgstr "Focalización"
-
-#~ msgid "Gamma"
-#~ msgstr "Gamma"
-
-#~ msgid "Hue, Automatic"
-#~ msgstr "Matiz, Automático"
-
-#~ msgid "Focus, Auto"
-#~ msgstr "Foco, Automático"
-
-#~ msgid "Manual Mode"
-#~ msgstr "Modo Manual"
-
-#~ msgid "Auto Mode"
-#~ msgstr "Modo Automático"
-
-#~ msgid "Black Level"
-#~ msgstr "Nivel de negro"
-
-#~ msgid "Red Balance"
-#~ msgstr "Balance vermello"
-
-#~ msgid "Blue Balance"
-#~ msgstr "Balance azul"
-
-#~ msgid "Exposure"
-#~ msgstr "Exposición"
-
-#~ msgid "Gain, Automatic"
-#~ msgstr "Ganancia, Automática"
-
-#~ msgid "Gain"
-#~ msgstr "Ganancia"
-
-#~ msgid "Horizontal Flip"
-#~ msgstr "Xiro horizontal"
-
-#~ msgid "Vertical Flip"
-#~ msgstr "Xiro vertical"
-
-#~ msgid "Color Effects"
-#~ msgstr "Efectos de cor"
-
-#~ msgid "Auto Exposure"
-#~ msgstr "Exposición automática"
-
-#~ msgid "Exposure Time, Absolute"
-#~ msgstr "Tempo de exposición, Absoluto"
-
-#~ msgid "Tilt, Relative"
-#~ msgstr "Inclinación, relativo"
-
-#~ msgid "Tilt, Reset"
-#~ msgstr "Inclinación, Restabelecer"
-
-#~ msgid "Focus, Absolute"
-#~ msgstr "Foco, absoluto"
-
-#~ msgid "Focus, Relative"
-#~ msgstr "Foco, relativo"
-
-#~ msgid "Focus, Automatic"
-#~ msgstr "Foco, automático"
-
-#~ msgid "Privacy"
-#~ msgstr "Privacidade"
-
-#~ msgid "Exposure, Auto"
-#~ msgstr "Exposición, Automático"
-
-#~ msgid "Exposure, Auto Priority"
-#~ msgstr "Exposición, Prioridade automática"
-
-#~ msgid "Exposure (Absolute)"
-#~ msgstr "Exposición (absoluto)"
-
-#~ msgid "Focus"
-#~ msgstr "Foco"
-
-#~ msgid "Focus (Absolute)"
-#~ msgstr "Foco(absoluto)"
-
-#~ msgid "MS MP4 V3"
-#~ msgstr "MS MP4 V3"
-
-#~ msgid "MPEG4-ASP"
-#~ msgstr "MPEG4-ASP"
-
-#~ msgid "MPEG4-AVC (H264)"
-#~ msgstr "MPEG4-AVC (H264)"
-
-#~ msgid "Prints version"
-#~ msgstr "Mostrar a versión"
-
-#~ msgid "Frame size, default: 640x480"
-#~ msgstr "Tamaño predeterminado do marco:640x480"
-
-#~ msgid "Image File name"
-#~ msgstr "Nome da imaxe"
+#: ../data/guvcview.desktop.in.h:3
+msgid "guvcview"
+msgstr ""
 
 #~ msgid "Make sure the device driver suports v4l2."
 #~ msgstr "Asegúrese de que o controlador do dispositivo soporta v4l2."

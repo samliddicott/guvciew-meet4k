@@ -70,6 +70,8 @@ POTFILES = \
 
 CATALOGS=$(shell LINGUAS="$(USE_LINGUAS)"; for lang in $$LINGUAS; do printf "$$lang.gmo "; done)
 
+XGETTEXT_KEYWORDS = --keyword --keyword=N_
+
 .SUFFIXES:
 .SUFFIXES: .po .pox .gmo .mo .msg .cat
 
@@ -196,7 +198,7 @@ update-po: Makefile
 	      fi; \
 	    fi; \
 	  else \
-	    echo "msgmerge for $$lang.gmo failed!"; \
+		echo "msgmerge for $$lang.gmo failed!"; \
 	    rm -f $$tmpdir/$$lang.new.po; \
 	  fi; \
 	done

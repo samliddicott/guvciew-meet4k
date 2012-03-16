@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: guvcview\n"
 "Report-Msgid-Bugs-To: pj.assis@gmail.com\n"
-"POT-Creation-Date: 2012-03-15 19:50+0000\n"
+"POT-Creation-Date: 2012-03-16 00:37+0000\n"
 "PO-Revision-Date: 2009-10-26 21:43+0000\n"
 "Last-Translator: Pablo Zubiaurre <pablozub89@gmail.com>\n"
 "Language-Team: Basque <eu@li.org>\n"
@@ -25,6 +25,133 @@ msgstr ""
 #: ../src/guvcview.c:297
 msgid "GUVCViewer Controls"
 msgstr "GUVCViewer kontrolak"
+
+#. can't open device
+#: ../src/guvcview.c:342
+msgid ""
+"Guvcview error:\n"
+"\n"
+"Unable to open device"
+msgstr ""
+"Gucview errorea:\n"
+"\n"
+"Ez da posible gailua zabaltzea"
+
+#: ../src/guvcview.c:343
+msgid ""
+"Please make sure the camera is connected\n"
+"and that the correct driver is installed."
+msgstr ""
+"Ziurtatu kamera konektatua\n"
+"eta driver-a instalatuta dagoela"
+
+#. uvc extension controls OK, give warning and shutdown (called with --add_ctrls)
+#: ../src/guvcview.c:348
+msgid ""
+"Guvcview:\n"
+"\n"
+"UVC Extension controls"
+msgstr ""
+"Gucview:\n"
+"\n"
+"UVC luzapenaren kontrolak"
+
+#: ../src/guvcview.c:349
+msgid "Extension controls were added to the UVC driver"
+msgstr "Luzapen kontrolak UVC kontroladoreari gehitu zaizkio"
+
+#. uvc extension controls error - EACCES (needs root user)
+#: ../src/guvcview.c:356
+msgid ""
+"Guvcview error:\n"
+"\n"
+"UVC Extension controls"
+msgstr ""
+"Gucview errorea:\n"
+"\n"
+"UVC luzapenaren kontrolak"
+
+#: ../src/guvcview.c:357
+msgid ""
+"An error occurred while adding extension\n"
+"controls to the UVC driver\n"
+"Make sure you run guvcview as root (or sudo)."
+msgstr ""
+
+#: ../src/guvcview.c:383 ../src/guvcview.c:461
+msgid ""
+"Guvcview error:\n"
+"\n"
+"Can't set a valid video stream for guvcview"
+msgstr ""
+"Gucview errorea:\n"
+"\n"
+"Ezin izan da bideo-korrontea ezarri"
+
+#: ../src/guvcview.c:384 ../src/guvcview.c:462
+msgid ""
+"Make sure your device driver is v4l2 compliant\n"
+"and that it is properly installed."
+msgstr ""
+"Mesedez,egiaztatu v4I2 kontrolatzailea duzula\n"
+"eta instalatuta dagoela."
+
+#: ../src/guvcview.c:406 ../src/guvcview.c:428
+msgid ""
+"Guvcview error:\n"
+"\n"
+"Unable to start with minimum setup"
+msgstr ""
+"Gucview errorea:\n"
+"\n"
+"Ezin izan da konfigurazio minimoarekin abiarazi"
+
+#: ../src/guvcview.c:407 ../src/guvcview.c:429
+msgid "Please reconnect your camera."
+msgstr "Mesedez, kamera berriro konektatu"
+
+#: ../src/guvcview.c:436
+#, fuzzy
+msgid ""
+"Guvcview error:\n"
+"\n"
+"Couldn't query device capabilities"
+msgstr ""
+"Gucview errorea:\n"
+"\n"
+"Ez da posible gailua zabaltzea"
+
+#: ../src/guvcview.c:437
+msgid "Make sure the device driver supports v4l2."
+msgstr "Ziurtatu gailuaren kontrolatzaileak v4I2 eusten duela"
+
+#: ../src/guvcview.c:441
+msgid ""
+"Guvcview error:\n"
+"\n"
+"Read method error"
+msgstr ""
+"Gucview errorea:\n"
+"\n"
+"Irakurketametodoaren errorea"
+
+#: ../src/guvcview.c:442
+msgid "Please try mmap instead (--capture_method=1)."
+msgstr ""
+
+#: ../src/guvcview.c:450
+msgid ""
+"Guvcview error:\n"
+"\n"
+"Unable to allocate Buffers"
+msgstr ""
+"Gucview errorea:\n"
+"\n"
+"Ezin izan dira bufferrak esleitu"
+
+#: ../src/guvcview.c:451
+msgid "Please try restarting your system."
+msgstr "Mesedez saiatu sistema berrabiarazten."
 
 #: ../src/guvcview.c:490
 msgid "Image Controls"
@@ -62,6 +189,270 @@ msgstr "Bideoa gelditu"
 #: ../src/create_video.c:870
 msgid "Cap. Video"
 msgstr ""
+
+#: ../src/guvcview.c:720
+#, fuzzy
+msgid ""
+"Guvcview error:\n"
+"\n"
+"Unable to create Video Thread"
+msgstr ""
+"Gucview errorea:\n"
+"\n"
+"Ezin izan dira bufferrak esleitu"
+
+#: ../src/guvcview.c:721
+msgid "Please report it to http://developer.berlios.de/bugs/?group_id=8179"
+msgstr ""
+
+#. needed only for language files (not used)
+#. V4L2 control strings
+#: ../src/v4l2uvc.c:56
+#, fuzzy
+msgid "User Controls"
+msgstr "GUVCViewer kontrolak"
+
+#: ../src/v4l2uvc.c:57
+msgid "Brightness"
+msgstr "Distira"
+
+#: ../src/v4l2uvc.c:58
+msgid "Contrast"
+msgstr "Kontrastea"
+
+#: ../src/v4l2uvc.c:59
+msgid "Hue"
+msgstr "Ñabardura"
+
+#: ../src/v4l2uvc.c:60
+msgid "Saturation"
+msgstr "Asetasuna"
+
+#: ../src/v4l2uvc.c:61
+msgid "Sharpness"
+msgstr "Garbitasuna"
+
+#: ../src/v4l2uvc.c:62
+msgid "Gamma"
+msgstr "Gamma"
+
+#: ../src/v4l2uvc.c:63
+msgid "Backlight Compensation"
+msgstr ""
+
+#: ../src/v4l2uvc.c:64
+msgid "Power Line Frequency"
+msgstr ""
+
+#: ../src/v4l2uvc.c:65
+#, fuzzy
+msgid "Hue, Automatic"
+msgstr "Irabazia, Automatikoa"
+
+#: ../src/v4l2uvc.c:66
+msgid "Focus, Auto"
+msgstr "Foku automatikoa"
+
+#: ../src/v4l2uvc.c:67
+msgid "Manual Mode"
+msgstr "Eskuzko modua"
+
+#: ../src/v4l2uvc.c:68
+msgid "Auto Mode"
+msgstr "Modu automatikoa"
+
+#: ../src/v4l2uvc.c:69
+msgid "Shutter Priority Mode"
+msgstr "Obturadore lehentasun modua"
+
+#: ../src/v4l2uvc.c:70
+#, fuzzy
+msgid "Aperture Priority Mode"
+msgstr "Obturadore lehentasun modua"
+
+#: ../src/v4l2uvc.c:71
+msgid "Black Level"
+msgstr "Beltz-maila"
+
+#: ../src/v4l2uvc.c:72
+msgid "White Balance, Automatic"
+msgstr "Zuri-balantzea,automatikoa"
+
+#: ../src/v4l2uvc.c:73
+msgid "Do White Balance"
+msgstr "Zuri-balantzea egin"
+
+#: ../src/v4l2uvc.c:74
+msgid "Red Balance"
+msgstr "Gorri balantzea"
+
+#: ../src/v4l2uvc.c:75
+msgid "Blue Balance"
+msgstr "Urdin balantzea"
+
+#: ../src/v4l2uvc.c:76
+msgid "Exposure"
+msgstr "Esposizioa"
+
+#: ../src/v4l2uvc.c:77
+msgid "Gain, Automatic"
+msgstr "Irabazia, Automatikoa"
+
+#: ../src/v4l2uvc.c:78
+msgid "Gain"
+msgstr "Irabazia"
+
+#: ../src/v4l2uvc.c:79
+msgid "Horizontal Flip"
+msgstr "Irauli horizontalki"
+
+#: ../src/v4l2uvc.c:80
+msgid "Vertical Flip"
+msgstr "Irauli bertikalki"
+
+#: ../src/v4l2uvc.c:81
+#, fuzzy
+msgid "Horizontal Center"
+msgstr "Irauli horizontalki"
+
+#: ../src/v4l2uvc.c:82
+#, fuzzy
+msgid "Vertical Center"
+msgstr "Irauli bertikalki"
+
+#: ../src/v4l2uvc.c:83
+msgid "Chroma AGC"
+msgstr ""
+
+#: ../src/v4l2uvc.c:84
+msgid "Color Killer"
+msgstr ""
+
+#: ../src/v4l2uvc.c:85
+msgid "Color Effects"
+msgstr ""
+
+#. CAMERA CLASS control strings
+#: ../src/v4l2uvc.c:88
+#, fuzzy
+msgid "Camera Controls"
+msgstr "Irudi kontrolak"
+
+#: ../src/v4l2uvc.c:89
+#, fuzzy
+msgid "Auto Exposure"
+msgstr "Esposizioa"
+
+#: ../src/v4l2uvc.c:90
+msgid "Exposure Time, Absolute"
+msgstr ""
+
+#: ../src/v4l2uvc.c:91
+msgid "Exposure, Dynamic Framerate"
+msgstr ""
+
+#: ../src/v4l2uvc.c:92
+msgid "Pan, Relative"
+msgstr ""
+
+#: ../src/v4l2uvc.c:93
+msgid "Tilt, Relative"
+msgstr ""
+
+#: ../src/v4l2uvc.c:94
+#, fuzzy
+msgid "Pan, Reset"
+msgstr "Berrezarri"
+
+#: ../src/v4l2uvc.c:95
+#, fuzzy
+msgid "Tilt, Reset"
+msgstr "Berrezarri"
+
+#: ../src/v4l2uvc.c:96
+msgid "Pan, Absolute"
+msgstr ""
+
+#: ../src/v4l2uvc.c:98
+#, fuzzy
+msgid "Focus, Absolute"
+msgstr "Foku automatikoa"
+
+#: ../src/v4l2uvc.c:99
+#, fuzzy
+msgid "Focus, Relative"
+msgstr "Foku automatikoa"
+
+#: ../src/v4l2uvc.c:100
+#, fuzzy
+msgid "Focus, Automatic"
+msgstr "Foku automatikoa"
+
+#: ../src/v4l2uvc.c:101
+msgid "Zoom, Absolute"
+msgstr ""
+
+#: ../src/v4l2uvc.c:102
+msgid "Zoom, Relative"
+msgstr ""
+
+#: ../src/v4l2uvc.c:103
+msgid "Zoom, Continuous"
+msgstr ""
+
+#: ../src/v4l2uvc.c:104
+msgid "Privacy"
+msgstr ""
+
+#. UVC specific control strings
+#: ../src/v4l2uvc.c:107
+#, fuzzy
+msgid "Exposure, Auto"
+msgstr "Esposizioa"
+
+#: ../src/v4l2uvc.c:108
+msgid "Exposure, Auto Priority"
+msgstr ""
+
+#: ../src/v4l2uvc.c:109
+msgid "Exposure (Absolute)"
+msgstr ""
+
+#: ../src/v4l2uvc.c:110
+#, fuzzy
+msgid "White Balance Temperature, Auto"
+msgstr "Zuri-balantzea,automatikoa"
+
+#: ../src/v4l2uvc.c:111
+#, fuzzy
+msgid "White Balance Temperature"
+msgstr "Zuri-balantzea,automatikoa"
+
+#: ../src/v4l2uvc.c:112
+#, fuzzy
+msgid "White Balance Component, Auto"
+msgstr "Zuri-balantzea,automatikoa"
+
+#: ../src/v4l2uvc.c:113
+#, fuzzy
+msgid "White Balance Blue Component"
+msgstr "Zuri-balantzea,automatikoa"
+
+#: ../src/v4l2uvc.c:114
+#, fuzzy
+msgid "White Balance Red Component"
+msgstr "Zuri-balantzea,automatikoa"
+
+#. libwebcam specific control strings
+#: ../src/v4l2uvc.c:117
+#, fuzzy
+msgid "Focus"
+msgstr "Fokatu"
+
+#: ../src/v4l2uvc.c:118
+#, fuzzy
+msgid "Focus (Absolute)"
+msgstr "Foku automatikoa"
 
 #: ../src/video_tab.c:41 ../src/callbacks.c:1321
 msgid "Save File"
@@ -404,6 +795,177 @@ msgstr ""
 msgid "12 bit"
 msgstr ""
 
+#: ../src/v4l2_dyna_ctrls.c:89
+msgid "Pan (relative)"
+msgstr ""
+
+#: ../src/v4l2_dyna_ctrls.c:99
+msgid "Tilt (relative)"
+msgstr ""
+
+#: ../src/v4l2_dyna_ctrls.c:109
+#, fuzzy
+msgid "Pan Reset"
+msgstr "Berrezarri"
+
+#: ../src/v4l2_dyna_ctrls.c:119
+#, fuzzy
+msgid "Tilt Reset"
+msgstr "Berrezarri"
+
+#: ../src/v4l2_dyna_ctrls.c:129
+#, fuzzy
+msgid "Pan/tilt Reset"
+msgstr "Berrezarri"
+
+#: ../src/v4l2_dyna_ctrls.c:139
+#, fuzzy
+msgid "Focus (absolute)"
+msgstr "Foku automatikoa"
+
+#: ../src/v4l2_dyna_ctrls.c:149
+msgid "LED1 Mode"
+msgstr ""
+
+#: ../src/v4l2_dyna_ctrls.c:159
+msgid "LED1 Frequency"
+msgstr ""
+
+#: ../src/v4l2_dyna_ctrls.c:169
+msgid "Disable video processing"
+msgstr ""
+
+#: ../src/v4l2_dyna_ctrls.c:179
+msgid "Raw bits per pixel"
+msgstr ""
+
+#: ../src/vcodecs.c:62
+msgid "MJPG - compressed"
+msgstr ""
+
+#: ../src/vcodecs.c:97
+msgid "YUY2 - uncomp YUV"
+msgstr ""
+
+#: ../src/vcodecs.c:132
+msgid "RGB - uncomp BMP"
+msgstr ""
+
+#: ../src/vcodecs.c:167
+msgid "MPEG video 1"
+msgstr ""
+
+#: ../src/vcodecs.c:202
+msgid "FLV1 - flash video 1"
+msgstr ""
+
+#: ../src/vcodecs.c:237
+msgid "WMV1 - win. med. video 7"
+msgstr ""
+
+#: ../src/vcodecs.c:272
+msgid "MPG2 - MPG2 format"
+msgstr ""
+
+#: ../src/vcodecs.c:307
+msgid "MS MP4 V3"
+msgstr ""
+
+#: ../src/vcodecs.c:342
+msgid "MPEG4-ASP"
+msgstr ""
+
+#: ../src/vcodecs.c:377
+msgid "MPEG4-AVC (H264)"
+msgstr ""
+
+#: ../src/options.c:761
+msgid "Prints version"
+msgstr ""
+
+#: ../src/options.c:762
+msgid "Displays debug information"
+msgstr ""
+
+#: ../src/options.c:763
+msgid "Video Device to use [default: /dev/video0]"
+msgstr ""
+
+#: ../src/options.c:764
+msgid "Exit after adding UVC extension controls (needs root/sudo)"
+msgstr ""
+
+#: ../src/options.c:765
+msgid "Don't stream video (image controls only)"
+msgstr ""
+
+#: ../src/options.c:766
+msgid "Don't display a GUI"
+msgstr ""
+
+#: ../src/options.c:767
+msgid "Capture method (1-mmap (default)  2-read)"
+msgstr ""
+
+#: ../src/options.c:768
+msgid "Configuration file"
+msgstr ""
+
+#: ../src/options.c:769
+msgid "Hardware accelaration (enable(1) | disable(0))"
+msgstr ""
+
+#: ../src/options.c:770
+msgid ""
+"Pixel format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|"
+"y41p|grey|y16 |s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
+msgstr ""
+
+#: ../src/options.c:771
+msgid "Frame size, default: 640x480"
+msgstr ""
+
+#: ../src/options.c:772
+msgid "Image File name"
+msgstr ""
+
+#: ../src/options.c:773
+msgid "Image capture interval in seconds"
+msgstr ""
+
+#: ../src/options.c:774
+msgid "Number of Pictures to capture"
+msgstr "Kapturatu beharreko argazki kopurua"
+
+#: ../src/options.c:775
+msgid "Video File name (capture from start)"
+msgstr ""
+
+#: ../src/options.c:776
+msgid "Video capture time (in seconds)"
+msgstr ""
+
+#: ../src/options.c:777
+msgid "Exits guvcview after closing video"
+msgstr ""
+
+#: ../src/options.c:778
+#, fuzzy
+msgid "Number of initial frames to skip"
+msgstr "Kapturatu beharreko argazki kopurua"
+
+#: ../src/options.c:779
+msgid "Show FPS value (enable(1) | disable (0))"
+msgstr ""
+
+#: ../src/options.c:780
+msgid "Load Profile at start"
+msgstr "Profila kargatu hastean"
+
+#: ../src/options.c:786
+msgid "- local options"
+msgstr "-aukera lokalak"
+
 #: ../src/img_controls.c:121
 msgid "Auto Focus (continuous)"
 msgstr ""
@@ -451,172 +1013,25 @@ msgstr ""
 msgid "Load File"
 msgstr "Kargatu fitxategia"
 
-#~ msgid ""
-#~ "Guvcview error:\n"
-#~ "\n"
-#~ "Unable to open device"
-#~ msgstr ""
-#~ "Gucview errorea:\n"
-#~ "\n"
-#~ "Ez da posible gailua zabaltzea"
+#: ../src/timers.c:211
+msgid "Guvcview Warning:"
+msgstr "Gucview oharra:"
 
-#~ msgid ""
-#~ "Please make sure the camera is connected\n"
-#~ "and that the correct driver is installed."
-#~ msgstr ""
-#~ "Ziurtatu kamera konektatua\n"
-#~ "eta driver-a instalatuta dagoela"
+#: ../src/timers.c:211
+msgid "Not enough free space left on disk"
+msgstr "Ez dago leku nahikorik diskoan"
 
-#~ msgid ""
-#~ "Guvcview:\n"
-#~ "\n"
-#~ "UVC Extension controls"
-#~ msgstr ""
-#~ "Gucview:\n"
-#~ "\n"
-#~ "UVC luzapenaren kontrolak"
+#: ../data/guvcview.desktop.in.h:1
+msgid "A video viewer and capturer for the linux uvc driver"
+msgstr ""
 
-#~ msgid "Extension controls were added to the UVC driver"
-#~ msgstr "Luzapen kontrolak UVC kontroladoreari gehitu zaizkio"
+#: ../data/guvcview.desktop.in.h:2
+msgid "GTK UVC video viewer"
+msgstr ""
 
-#~ msgid ""
-#~ "Guvcview error:\n"
-#~ "\n"
-#~ "UVC Extension controls"
-#~ msgstr ""
-#~ "Gucview errorea:\n"
-#~ "\n"
-#~ "UVC luzapenaren kontrolak"
-
-#~ msgid ""
-#~ "Guvcview error:\n"
-#~ "\n"
-#~ "Can't set a valid video stream for guvcview"
-#~ msgstr ""
-#~ "Gucview errorea:\n"
-#~ "\n"
-#~ "Ezin izan da bideo-korrontea ezarri"
-
-#~ msgid ""
-#~ "Make sure your device driver is v4l2 compliant\n"
-#~ "and that it is properly installed."
-#~ msgstr ""
-#~ "Mesedez,egiaztatu v4I2 kontrolatzailea duzula\n"
-#~ "eta instalatuta dagoela."
-
-#~ msgid ""
-#~ "Guvcview error:\n"
-#~ "\n"
-#~ "Unable to start with minimum setup"
-#~ msgstr ""
-#~ "Gucview errorea:\n"
-#~ "\n"
-#~ "Ezin izan da konfigurazio minimoarekin abiarazi"
-
-#~ msgid "Please reconnect your camera."
-#~ msgstr "Mesedez, kamera berriro konektatu"
-
-#~ msgid "Make sure the device driver supports v4l2."
-#~ msgstr "Ziurtatu gailuaren kontrolatzaileak v4I2 eusten duela"
-
-#~ msgid ""
-#~ "Guvcview error:\n"
-#~ "\n"
-#~ "Read method error"
-#~ msgstr ""
-#~ "Gucview errorea:\n"
-#~ "\n"
-#~ "Irakurketametodoaren errorea"
-
-#~ msgid ""
-#~ "Guvcview error:\n"
-#~ "\n"
-#~ "Unable to allocate Buffers"
-#~ msgstr ""
-#~ "Gucview errorea:\n"
-#~ "\n"
-#~ "Ezin izan dira bufferrak esleitu"
-
-#~ msgid "Please try restarting your system."
-#~ msgstr "Mesedez saiatu sistema berrabiarazten."
-
-#~ msgid "Brightness"
-#~ msgstr "Distira"
-
-#~ msgid "Contrast"
-#~ msgstr "Kontrastea"
-
-#~ msgid "Hue"
-#~ msgstr "Ñabardura"
-
-#~ msgid "Saturation"
-#~ msgstr "Asetasuna"
-
-#~ msgid "Sharpness"
-#~ msgstr "Garbitasuna"
-
-#~ msgid "Gamma"
-#~ msgstr "Gamma"
-
-#~ msgid "Focus, Auto"
-#~ msgstr "Foku automatikoa"
-
-#~ msgid "Manual Mode"
-#~ msgstr "Eskuzko modua"
-
-#~ msgid "Auto Mode"
-#~ msgstr "Modu automatikoa"
-
-#~ msgid "Shutter Priority Mode"
-#~ msgstr "Obturadore lehentasun modua"
-
-#~ msgid "Black Level"
-#~ msgstr "Beltz-maila"
-
-#~ msgid "White Balance, Automatic"
-#~ msgstr "Zuri-balantzea,automatikoa"
-
-#~ msgid "Do White Balance"
-#~ msgstr "Zuri-balantzea egin"
-
-#~ msgid "Red Balance"
-#~ msgstr "Gorri balantzea"
-
-#~ msgid "Blue Balance"
-#~ msgstr "Urdin balantzea"
-
-#~ msgid "Exposure"
-#~ msgstr "Esposizioa"
-
-#~ msgid "Gain, Automatic"
-#~ msgstr "Irabazia, Automatikoa"
-
-#~ msgid "Gain"
-#~ msgstr "Irabazia"
-
-#~ msgid "Horizontal Flip"
-#~ msgstr "Irauli horizontalki"
-
-#~ msgid "Vertical Flip"
-#~ msgstr "Irauli bertikalki"
-
-#~ msgid "Number of Pictures to capture"
-#~ msgstr "Kapturatu beharreko argazki kopurua"
-
-#~ msgid "Load Profile at start"
-#~ msgstr "Profila kargatu hastean"
-
-#~ msgid "- local options"
-#~ msgstr "-aukera lokalak"
-
-#~ msgid "Guvcview Warning:"
-#~ msgstr "Gucview oharra:"
-
-#~ msgid "Not enough free space left on disk"
-#~ msgstr "Ez dago leku nahikorik diskoan"
+#: ../data/guvcview.desktop.in.h:3
+msgid "guvcview"
+msgstr ""
 
 #~ msgid "Invert (Pan)"
 #~ msgstr "Alderantzikatu (Biraketa)"
-
-#~ msgid "Reset"
-#~ msgstr "Berrezarri"

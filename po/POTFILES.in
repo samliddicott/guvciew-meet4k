@@ -7,7 +7,8 @@ src/audio_tab.c
 src/v4l2_controls.c 		 
 src/v4l2_devices.c 		 
 src/v4l2_dyna_ctrls.c 		 
-src/v4l2_formats.c 		 
+src/v4l2_formats.c 	
+src/v4l2uvc.c 	 
 src/video.c 		 
 src/vcodecs.c 		 
 src/globals.c 		 

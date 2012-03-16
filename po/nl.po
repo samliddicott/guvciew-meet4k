@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: guvcview\n"
 "Report-Msgid-Bugs-To: pj.assis@gmail.com\n"
-"POT-Creation-Date: 2012-03-15 19:50+0000\n"
+"POT-Creation-Date: 2012-03-16 00:37+0000\n"
 "PO-Revision-Date: 2009-09-15 02:57+0000\n"
 "Last-Translator: Paulo Assis <pj.assis@gmail.com>\n"
 "Language-Team: Dutch <nl@li.org>\n"
@@ -24,6 +24,104 @@ msgstr ""
 
 #: ../src/guvcview.c:297
 msgid "GUVCViewer Controls"
+msgstr ""
+
+#. can't open device
+#: ../src/guvcview.c:342
+msgid ""
+"Guvcview error:\n"
+"\n"
+"Unable to open device"
+msgstr ""
+
+#: ../src/guvcview.c:343
+msgid ""
+"Please make sure the camera is connected\n"
+"and that the correct driver is installed."
+msgstr ""
+
+#. uvc extension controls OK, give warning and shutdown (called with --add_ctrls)
+#: ../src/guvcview.c:348
+msgid ""
+"Guvcview:\n"
+"\n"
+"UVC Extension controls"
+msgstr ""
+
+#: ../src/guvcview.c:349
+msgid "Extension controls were added to the UVC driver"
+msgstr ""
+
+#. uvc extension controls error - EACCES (needs root user)
+#: ../src/guvcview.c:356
+msgid ""
+"Guvcview error:\n"
+"\n"
+"UVC Extension controls"
+msgstr ""
+
+#: ../src/guvcview.c:357
+msgid ""
+"An error occurred while adding extension\n"
+"controls to the UVC driver\n"
+"Make sure you run guvcview as root (or sudo)."
+msgstr ""
+
+#: ../src/guvcview.c:383 ../src/guvcview.c:461
+msgid ""
+"Guvcview error:\n"
+"\n"
+"Can't set a valid video stream for guvcview"
+msgstr ""
+
+#: ../src/guvcview.c:384 ../src/guvcview.c:462
+msgid ""
+"Make sure your device driver is v4l2 compliant\n"
+"and that it is properly installed."
+msgstr ""
+
+#: ../src/guvcview.c:406 ../src/guvcview.c:428
+msgid ""
+"Guvcview error:\n"
+"\n"
+"Unable to start with minimum setup"
+msgstr ""
+
+#: ../src/guvcview.c:407 ../src/guvcview.c:429
+msgid "Please reconnect your camera."
+msgstr "Sluit uw camera opnieuw aan a.u.b."
+
+#: ../src/guvcview.c:436
+msgid ""
+"Guvcview error:\n"
+"\n"
+"Couldn't query device capabilities"
+msgstr ""
+
+#: ../src/guvcview.c:437
+msgid "Make sure the device driver supports v4l2."
+msgstr ""
+
+#: ../src/guvcview.c:441
+msgid ""
+"Guvcview error:\n"
+"\n"
+"Read method error"
+msgstr ""
+
+#: ../src/guvcview.c:442
+msgid "Please try mmap instead (--capture_method=1)."
+msgstr ""
+
+#: ../src/guvcview.c:450
+msgid ""
+"Guvcview error:\n"
+"\n"
+"Unable to allocate Buffers"
+msgstr ""
+
+#: ../src/guvcview.c:451
+msgid "Please try restarting your system."
 msgstr ""
 
 #: ../src/guvcview.c:490
@@ -62,6 +160,256 @@ msgstr "Stop Video"
 #: ../src/create_video.c:870
 msgid "Cap. Video"
 msgstr "Video Vastleggen"
+
+#: ../src/guvcview.c:720
+msgid ""
+"Guvcview error:\n"
+"\n"
+"Unable to create Video Thread"
+msgstr ""
+
+#: ../src/guvcview.c:721
+msgid "Please report it to http://developer.berlios.de/bugs/?group_id=8179"
+msgstr ""
+
+#. needed only for language files (not used)
+#. V4L2 control strings
+#: ../src/v4l2uvc.c:56
+msgid "User Controls"
+msgstr ""
+
+#: ../src/v4l2uvc.c:57
+msgid "Brightness"
+msgstr "Helderheid"
+
+#: ../src/v4l2uvc.c:58
+msgid "Contrast"
+msgstr "contrast"
+
+#: ../src/v4l2uvc.c:59
+msgid "Hue"
+msgstr "Tint"
+
+#: ../src/v4l2uvc.c:60
+msgid "Saturation"
+msgstr "Verzadiging"
+
+#: ../src/v4l2uvc.c:61
+msgid "Sharpness"
+msgstr "Scherpte"
+
+#: ../src/v4l2uvc.c:62
+msgid "Gamma"
+msgstr "Gamma"
+
+#: ../src/v4l2uvc.c:63
+msgid "Backlight Compensation"
+msgstr "achtergrondverlichtingscompensatie"
+
+#: ../src/v4l2uvc.c:64
+#, fuzzy
+msgid "Power Line Frequency"
+msgstr "LED1 Frequentie"
+
+#: ../src/v4l2uvc.c:65
+#, fuzzy
+msgid "Hue, Automatic"
+msgstr "Tint, Auto"
+
+#: ../src/v4l2uvc.c:66
+#, fuzzy
+msgid "Focus, Auto"
+msgstr "Tint, Auto"
+
+#: ../src/v4l2uvc.c:67
+msgid "Manual Mode"
+msgstr ""
+
+#: ../src/v4l2uvc.c:68
+#, fuzzy
+msgid "Auto Mode"
+msgstr "Stop Auto"
+
+#: ../src/v4l2uvc.c:69
+msgid "Shutter Priority Mode"
+msgstr ""
+
+#: ../src/v4l2uvc.c:70
+msgid "Aperture Priority Mode"
+msgstr ""
+
+#: ../src/v4l2uvc.c:71
+msgid "Black Level"
+msgstr ""
+
+#: ../src/v4l2uvc.c:72
+msgid "White Balance, Automatic"
+msgstr ""
+
+#: ../src/v4l2uvc.c:73
+msgid "Do White Balance"
+msgstr ""
+
+#: ../src/v4l2uvc.c:74
+msgid "Red Balance"
+msgstr ""
+
+#: ../src/v4l2uvc.c:75
+msgid "Blue Balance"
+msgstr ""
+
+#: ../src/v4l2uvc.c:76
+#, fuzzy
+msgid "Exposure"
+msgstr "Belichting, Auto"
+
+#: ../src/v4l2uvc.c:77
+msgid "Gain, Automatic"
+msgstr ""
+
+#: ../src/v4l2uvc.c:78
+msgid "Gain"
+msgstr ""
+
+#: ../src/v4l2uvc.c:79
+msgid "Horizontal Flip"
+msgstr ""
+
+#: ../src/v4l2uvc.c:80
+msgid "Vertical Flip"
+msgstr ""
+
+#: ../src/v4l2uvc.c:81
+msgid "Horizontal Center"
+msgstr ""
+
+#: ../src/v4l2uvc.c:82
+msgid "Vertical Center"
+msgstr ""
+
+#: ../src/v4l2uvc.c:83
+msgid "Chroma AGC"
+msgstr ""
+
+#: ../src/v4l2uvc.c:84
+msgid "Color Killer"
+msgstr ""
+
+#: ../src/v4l2uvc.c:85
+msgid "Color Effects"
+msgstr ""
+
+#. CAMERA CLASS control strings
+#: ../src/v4l2uvc.c:88
+msgid "Camera Controls"
+msgstr ""
+
+#: ../src/v4l2uvc.c:89
+msgid "Auto Exposure"
+msgstr ""
+
+#: ../src/v4l2uvc.c:90
+#, fuzzy
+msgid "Exposure Time, Absolute"
+msgstr "Belichting, Auto"
+
+#: ../src/v4l2uvc.c:91
+msgid "Exposure, Dynamic Framerate"
+msgstr ""
+
+#: ../src/v4l2uvc.c:92
+msgid "Pan, Relative"
+msgstr ""
+
+#: ../src/v4l2uvc.c:93
+msgid "Tilt, Relative"
+msgstr ""
+
+#: ../src/v4l2uvc.c:94
+#, fuzzy
+msgid "Pan, Reset"
+msgstr "Reset"
+
+#: ../src/v4l2uvc.c:95
+#, fuzzy
+msgid "Tilt, Reset"
+msgstr "Reset"
+
+#: ../src/v4l2uvc.c:96
+msgid "Pan, Absolute"
+msgstr ""
+
+#: ../src/v4l2uvc.c:98
+msgid "Focus, Absolute"
+msgstr ""
+
+#: ../src/v4l2uvc.c:99
+msgid "Focus, Relative"
+msgstr ""
+
+#: ../src/v4l2uvc.c:100
+msgid "Focus, Automatic"
+msgstr ""
+
+#: ../src/v4l2uvc.c:101
+msgid "Zoom, Absolute"
+msgstr ""
+
+#: ../src/v4l2uvc.c:102
+msgid "Zoom, Relative"
+msgstr ""
+
+#: ../src/v4l2uvc.c:103
+msgid "Zoom, Continuous"
+msgstr ""
+
+#: ../src/v4l2uvc.c:104
+msgid "Privacy"
+msgstr ""
+
+#. UVC specific control strings
+#: ../src/v4l2uvc.c:107
+msgid "Exposure, Auto"
+msgstr "Belichting, Auto"
+
+#: ../src/v4l2uvc.c:108
+#, fuzzy
+msgid "Exposure, Auto Priority"
+msgstr "Belichting, Auto"
+
+#: ../src/v4l2uvc.c:109
+#, fuzzy
+msgid "Exposure (Absolute)"
+msgstr "Belichting, Auto"
+
+#: ../src/v4l2uvc.c:110
+msgid "White Balance Temperature, Auto"
+msgstr ""
+
+#: ../src/v4l2uvc.c:111
+msgid "White Balance Temperature"
+msgstr ""
+
+#: ../src/v4l2uvc.c:112
+msgid "White Balance Component, Auto"
+msgstr ""
+
+#: ../src/v4l2uvc.c:113
+msgid "White Balance Blue Component"
+msgstr ""
+
+#: ../src/v4l2uvc.c:114
+msgid "White Balance Red Component"
+msgstr ""
+
+#. libwebcam specific control strings
+#: ../src/v4l2uvc.c:117
+msgid "Focus"
+msgstr ""
+
+#: ../src/v4l2uvc.c:118
+msgid "Focus (Absolute)"
+msgstr ""
 
 #: ../src/video_tab.c:41 ../src/callbacks.c:1321
 msgid "Save File"
@@ -404,6 +752,177 @@ msgstr ""
 msgid "12 bit"
 msgstr ""
 
+#: ../src/v4l2_dyna_ctrls.c:89
+msgid "Pan (relative)"
+msgstr ""
+
+#: ../src/v4l2_dyna_ctrls.c:99
+msgid "Tilt (relative)"
+msgstr ""
+
+#: ../src/v4l2_dyna_ctrls.c:109
+#, fuzzy
+msgid "Pan Reset"
+msgstr "Reset"
+
+#: ../src/v4l2_dyna_ctrls.c:119
+#, fuzzy
+msgid "Tilt Reset"
+msgstr "Reset"
+
+#: ../src/v4l2_dyna_ctrls.c:129
+#, fuzzy
+msgid "Pan/tilt Reset"
+msgstr "Reset"
+
+#: ../src/v4l2_dyna_ctrls.c:139
+#, fuzzy
+msgid "Focus (absolute)"
+msgstr "Belichting, Auto"
+
+#: ../src/v4l2_dyna_ctrls.c:149
+msgid "LED1 Mode"
+msgstr "LED1 Mode"
+
+#: ../src/v4l2_dyna_ctrls.c:159
+#, fuzzy
+msgid "LED1 Frequency"
+msgstr "LED1 Frequentie"
+
+#: ../src/v4l2_dyna_ctrls.c:169
+msgid "Disable video processing"
+msgstr ""
+
+#: ../src/v4l2_dyna_ctrls.c:179
+msgid "Raw bits per pixel"
+msgstr ""
+
+#: ../src/vcodecs.c:62
+msgid "MJPG - compressed"
+msgstr ""
+
+#: ../src/vcodecs.c:97
+msgid "YUY2 - uncomp YUV"
+msgstr ""
+
+#: ../src/vcodecs.c:132
+msgid "RGB - uncomp BMP"
+msgstr ""
+
+#: ../src/vcodecs.c:167
+msgid "MPEG video 1"
+msgstr "MPEG video 1"
+
+#: ../src/vcodecs.c:202
+msgid "FLV1 - flash video 1"
+msgstr "FLV1 - flash video 1"
+
+#: ../src/vcodecs.c:237
+msgid "WMV1 - win. med. video 7"
+msgstr "WMV1 - win. med. video 7"
+
+#: ../src/vcodecs.c:272
+msgid "MPG2 - MPG2 format"
+msgstr "MPG2 - MPG2 formaat"
+
+#: ../src/vcodecs.c:307
+msgid "MS MP4 V3"
+msgstr "MS MP4 V3"
+
+#: ../src/vcodecs.c:342
+msgid "MPEG4-ASP"
+msgstr ""
+
+#: ../src/vcodecs.c:377
+msgid "MPEG4-AVC (H264)"
+msgstr ""
+
+#: ../src/options.c:761
+msgid "Prints version"
+msgstr ""
+
+#: ../src/options.c:762
+msgid "Displays debug information"
+msgstr ""
+
+#: ../src/options.c:763
+msgid "Video Device to use [default: /dev/video0]"
+msgstr ""
+
+#: ../src/options.c:764
+msgid "Exit after adding UVC extension controls (needs root/sudo)"
+msgstr ""
+
+#: ../src/options.c:765
+msgid "Don't stream video (image controls only)"
+msgstr ""
+
+#: ../src/options.c:766
+msgid "Don't display a GUI"
+msgstr ""
+
+#: ../src/options.c:767
+msgid "Capture method (1-mmap (default)  2-read)"
+msgstr ""
+
+#: ../src/options.c:768
+msgid "Configuration file"
+msgstr ""
+
+#: ../src/options.c:769
+msgid "Hardware accelaration (enable(1) | disable(0))"
+msgstr ""
+
+#: ../src/options.c:770
+msgid ""
+"Pixel format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|"
+"y41p|grey|y16 |s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
+msgstr ""
+
+#: ../src/options.c:771
+msgid "Frame size, default: 640x480"
+msgstr ""
+
+#: ../src/options.c:772
+msgid "Image File name"
+msgstr ""
+
+#: ../src/options.c:773
+msgid "Image capture interval in seconds"
+msgstr ""
+
+#: ../src/options.c:774
+msgid "Number of Pictures to capture"
+msgstr ""
+
+#: ../src/options.c:775
+msgid "Video File name (capture from start)"
+msgstr ""
+
+#: ../src/options.c:776
+msgid "Video capture time (in seconds)"
+msgstr ""
+
+#: ../src/options.c:777
+msgid "Exits guvcview after closing video"
+msgstr ""
+
+#: ../src/options.c:778
+msgid "Number of initial frames to skip"
+msgstr ""
+
+#: ../src/options.c:779
+msgid "Show FPS value (enable(1) | disable (0))"
+msgstr ""
+
+#: ../src/options.c:780
+msgid "Load Profile at start"
+msgstr ""
+
+#: ../src/options.c:786
+msgid "- local options"
+msgstr ""
+
 #: ../src/img_controls.c:121
 msgid "Auto Focus (continuous)"
 msgstr ""
@@ -451,53 +970,25 @@ msgstr ""
 msgid "Load File"
 msgstr "Bestand Openen"
 
-#~ msgid "Please reconnect your camera."
-#~ msgstr "Sluit uw camera opnieuw aan a.u.b."
+#: ../src/timers.c:211
+msgid "Guvcview Warning:"
+msgstr ""
 
-#~ msgid "Brightness"
-#~ msgstr "Helderheid"
+#: ../src/timers.c:211
+msgid "Not enough free space left on disk"
+msgstr ""
 
-#~ msgid "Contrast"
-#~ msgstr "contrast"
+#: ../data/guvcview.desktop.in.h:1
+msgid "A video viewer and capturer for the linux uvc driver"
+msgstr ""
 
-#~ msgid "Hue"
-#~ msgstr "Tint"
+#: ../data/guvcview.desktop.in.h:2
+msgid "GTK UVC video viewer"
+msgstr ""
 
-#~ msgid "Saturation"
-#~ msgstr "Verzadiging"
-
-#~ msgid "Sharpness"
-#~ msgstr "Scherpte"
-
-#~ msgid "Gamma"
-#~ msgstr "Gamma"
-
-#~ msgid "Backlight Compensation"
-#~ msgstr "achtergrondverlichtingscompensatie"
-
-#~ msgid "Exposure, Auto"
-#~ msgstr "Belichting, Auto"
-
-#~ msgid "LED1 Mode"
-#~ msgstr "LED1 Mode"
-
-#~ msgid "LED1 Frequency"
-#~ msgstr "LED1 Frequentie"
-
-#~ msgid "MPEG video 1"
-#~ msgstr "MPEG video 1"
-
-#~ msgid "FLV1 - flash video 1"
-#~ msgstr "FLV1 - flash video 1"
-
-#~ msgid "WMV1 - win. med. video 7"
-#~ msgstr "WMV1 - win. med. video 7"
-
-#~ msgid "MPG2 - MPG2 format"
-#~ msgstr "MPG2 - MPG2 formaat"
-
-#~ msgid "MS MP4 V3"
-#~ msgstr "MS MP4 V3"
+#: ../data/guvcview.desktop.in.h:3
+msgid "guvcview"
+msgstr ""
 
 #~ msgid "PCM"
 #~ msgstr "PCM"
@@ -507,12 +998,6 @@ msgstr "Bestand Openen"
 
 #~ msgid "MPEG4 - MPEG4 format"
 #~ msgstr "MPEG4 - MPEG4 formaat"
-
-#~ msgid "Reset"
-#~ msgstr "Reset"
-
-#~ msgid "Hue, Auto"
-#~ msgstr "Tint, Auto"
 
 #~ msgid "Program Restart"
 #~ msgstr "Programma Herstart"
