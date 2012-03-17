@@ -206,5 +206,6 @@ AC_MSG_NOTICE([
   Debian Menu    : ${enable_debian_menu}
   
   Debug Symbols  : ${enable_debug}
+  
 ])
 

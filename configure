@@ -8746,6 +8746,7 @@ fi
   Debian Menu    : ${enable_debian_menu}
 
   Debug Symbols  : ${enable_debug}
+
 " >&5
 $as_echo "$as_me:
 
@@ -8760,5 +8761,6 @@ $as_echo "$as_me:
   Debian Menu    : ${enable_debian_menu}
 
   Debug Symbols  : ${enable_debug}
+
 " >&6;}
 

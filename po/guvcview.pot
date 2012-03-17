@@ -8,13 +8,212 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: pj.assis@gmail.com\n"
-"POT-Creation-Date: 2012-03-16 16:57+0000\n"
+"POT-Creation-Date: 2012-03-17 12:56+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
+
+#: ../data/guvcview.desktop.in.in.h:1
+msgid "A video viewer and capturer for the linux uvc driver"
+msgstr ""
+
+#: ../data/guvcview.desktop.in.in.h:2
+msgid "GTK UVC video viewer"
+msgstr ""
+
+#: ../data/guvcview.desktop.in.in.h:3
+msgid "guvcview"
+msgstr ""
+
+#: ../src/acodecs.c:57
+msgid "PCM - uncompressed (16 bit)"
+msgstr ""
+
+#: ../src/acodecs.c:72
+msgid "MPEG2 - (lavc)"
+msgstr ""
+
+#: ../src/acodecs.c:87
+msgid "MP3 - (lavc)"
+msgstr ""
+
+#: ../src/acodecs.c:102
+msgid "Dolby AC3 - (lavc)"
+msgstr ""
+
+#: ../src/acodecs.c:117
+msgid "ACC Low - (faac)"
+msgstr ""
+
+#: ../src/audio_tab.c:46
+msgid "audio codec values"
+msgstr ""
+
+#. bit rate
+#: ../src/audio_tab.c:59 ../src/video_tab.c:157
+msgid "bit rate:   "
+msgstr ""
+
+#: ../src/audio_tab.c:136
+msgid "Audio"
+msgstr ""
+
+#: ../src/audio_tab.c:154
+msgid " Sound"
+msgstr ""
+
+#. VU meter on the image (OSD)
+#: ../src/audio_tab.c:165
+msgid " Show VU meter"
+msgstr ""
+
+#: ../src/audio_tab.c:177
+msgid "Audio API:"
+msgstr ""
+
+#: ../src/audio_tab.c:188
+msgid "PORTAUDIO"
+msgstr ""
+
+#: ../src/audio_tab.c:189
+msgid "PULSEAUDIO"
+msgstr ""
+
+#: ../src/audio_tab.c:205 ../src/audio_tab.c:227
+msgid "Input Device:"
+msgstr ""
+
+#: ../src/audio_tab.c:237 ../src/audio_tab.c:269
+msgid "Dev. Default"
+msgstr ""
+
+#: ../src/audio_tab.c:259
+msgid "Sample Rate:"
+msgstr ""
+
+#: ../src/audio_tab.c:270
+msgid "1 - mono"
+msgstr ""
+
+#: ../src/audio_tab.c:271
+msgid "2 - stereo"
+msgstr ""
+
+#: ../src/audio_tab.c:306
+msgid "Channels:"
+msgstr ""
+
+#: ../src/audio_tab.c:340
+msgid "Audio Format:"
+msgstr ""
+
+#. lavc codec properties button
+#: ../src/audio_tab.c:347 ../src/video_tab.c:891
+msgid "properties"
+msgstr ""
+
+#: ../src/audio_tab.c:356
+msgid "---- Audio Effects ----"
+msgstr ""
+
+#. Echo
+#: ../src/audio_tab.c:375
+msgid " Echo"
+msgstr ""
+
+#. FUZZ
+#: ../src/audio_tab.c:386
+msgid " Fuzz"
+msgstr ""
+
+#. Reverb
+#: ../src/audio_tab.c:398
+msgid " Reverb"
+msgstr ""
+
+#. WahWah
+#: ../src/audio_tab.c:410
+msgid " WahWah"
+msgstr ""
+
+#. Ducky
+#: ../src/audio_tab.c:422
+msgid " Ducky"
+msgstr ""
+
+#: ../src/callbacks.c:106
+msgid "Error"
+msgstr ""
+
+#: ../src/callbacks.c:130
+msgid ""
+"\n"
+"You have more than one video device installed.\n"
+"Do you want to try another one ?\n"
+msgstr ""
+
+#. Devices
+#: ../src/callbacks.c:137 ../src/video_tab.c:532
+msgid "Device:"
+msgstr ""
+
+#. if auto naming restart counter
+#: ../src/callbacks.c:607 ../src/callbacks.c:889 ../src/callbacks.c:1038
+#: ../src/callbacks.c:1055 ../src/callbacks.c:1091 ../src/callbacks.c:1206
+#: ../src/globals.c:78 ../src/globals.c:81 ../src/options.c:333
+#: ../src/options.c:452 ../src/options.c:509 ../src/timers.c:97
+#: ../src/video_tab.c:76 ../src/video_tab.c:106
+#, c-format
+msgid "File num:%d"
+msgstr ""
+
+#: ../src/callbacks.c:658
+msgid "start new"
+msgstr ""
+
+#: ../src/callbacks.c:661
+msgid "restart"
+msgstr ""
+
+#: ../src/callbacks.c:663
+msgid "new"
+msgstr ""
+
+#: ../src/callbacks.c:665
+msgid "cancel"
+msgstr ""
+
+#: ../src/callbacks.c:670
+msgid ""
+"launch new process or restart?.\n"
+"\n"
+msgstr ""
+
+#: ../src/callbacks.c:1117 ../src/guvcview.c:564 ../src/timers.c:113
+msgid "Cap. Image"
+msgstr ""
+
+#: ../src/callbacks.c:1193 ../src/create_video.c:870 ../src/guvcview.c:574
+#: ../src/guvcview.c:770
+msgid "Cap. Video"
+msgstr ""
+
+#. vid capture enabled from start
+#: ../src/callbacks.c:1251 ../src/guvcview.c:569
+msgid "Stop Video"
+msgstr ""
+
+#: ../src/callbacks.c:1321 ../src/video_tab.c:41
+msgid "Save File"
+msgstr ""
+
+#: ../src/callbacks.c:1334
+msgid "Load File"
+msgstr ""
 
 #: ../src/guvcview.c:285
 msgid "Guvcview Video Capture"
@@ -145,20 +344,6 @@ msgstr ""
 msgid "Stop Auto"
 msgstr ""
 
-#: ../src/guvcview.c:564 ../src/callbacks.c:1117 ../src/timers.c:113
-msgid "Cap. Image"
-msgstr ""
-
-#. vid capture enabled from start
-#: ../src/guvcview.c:569 ../src/callbacks.c:1251
-msgid "Stop Video"
-msgstr ""
-
-#: ../src/guvcview.c:574 ../src/guvcview.c:770 ../src/callbacks.c:1193
-#: ../src/create_video.c:870
-msgid "Cap. Video"
-msgstr ""
-
 #: ../src/guvcview.c:720
 msgid ""
 "Guvcview error:\n"
@@ -168,6 +353,189 @@ msgstr ""
 
 #: ../src/guvcview.c:721
 msgid "Please report it to http://developer.berlios.de/bugs/?group_id=8179"
+msgstr ""
+
+#: ../src/img_controls.c:121
+msgid "Auto Focus (continuous)"
+msgstr ""
+
+#: ../src/img_controls.c:122
+msgid "set Focus"
+msgstr ""
+
+#: ../src/options.c:761
+msgid "Prints version"
+msgstr ""
+
+#: ../src/options.c:762
+msgid "Displays debug information"
+msgstr ""
+
+#: ../src/options.c:763
+msgid "Video Device to use [default: /dev/video0]"
+msgstr ""
+
+#: ../src/options.c:764
+msgid "Exit after adding UVC extension controls (needs root/sudo)"
+msgstr ""
+
+#: ../src/options.c:765
+msgid "Don't stream video (image controls only)"
+msgstr ""
+
+#: ../src/options.c:766
+msgid "Don't display a GUI"
+msgstr ""
+
+#: ../src/options.c:767
+msgid "Capture method (1-mmap (default)  2-read)"
+msgstr ""
+
+#: ../src/options.c:768
+msgid "Configuration file"
+msgstr ""
+
+#: ../src/options.c:769
+msgid "Hardware accelaration (enable(1) | disable(0))"
+msgstr ""
+
+#: ../src/options.c:770
+msgid ""
+"Pixel format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|"
+"y41p|grey|y16 |s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
+msgstr ""
+
+#: ../src/options.c:771
+msgid "Frame size, default: 640x480"
+msgstr ""
+
+#: ../src/options.c:772
+msgid "Image File name"
+msgstr ""
+
+#: ../src/options.c:773
+msgid "Image capture interval in seconds"
+msgstr ""
+
+#: ../src/options.c:774
+msgid "Number of Pictures to capture"
+msgstr ""
+
+#: ../src/options.c:775
+msgid "Video File name (capture from start)"
+msgstr ""
+
+#: ../src/options.c:776
+msgid "Video capture time (in seconds)"
+msgstr ""
+
+#: ../src/options.c:777
+msgid "Exits guvcview after closing video"
+msgstr ""
+
+#: ../src/options.c:778
+msgid "Number of initial frames to skip"
+msgstr ""
+
+#: ../src/options.c:779
+msgid "Show FPS value (enable(1) | disable (0))"
+msgstr ""
+
+#: ../src/options.c:780
+msgid "Load Profile at start"
+msgstr ""
+
+#: ../src/options.c:786
+msgid "- local options"
+msgstr ""
+
+#: ../src/timers.c:211
+msgid "Guvcview Warning:"
+msgstr ""
+
+#: ../src/timers.c:211
+msgid "Not enough free space left on disk"
+msgstr ""
+
+#: ../src/v4l2_controls.c:712
+msgid "Left"
+msgstr ""
+
+#: ../src/v4l2_controls.c:713
+msgid "Right"
+msgstr ""
+
+#: ../src/v4l2_controls.c:717
+msgid "Down"
+msgstr ""
+
+#: ../src/v4l2_controls.c:718
+msgid "Up"
+msgstr ""
+
+#: ../src/v4l2_controls.c:763
+msgid "Off"
+msgstr ""
+
+#: ../src/v4l2_controls.c:763
+msgid "On"
+msgstr ""
+
+#: ../src/v4l2_controls.c:763
+msgid "Blinking"
+msgstr ""
+
+#: ../src/v4l2_controls.c:763
+msgid "Auto"
+msgstr ""
+
+#. turn it into a menu control
+#: ../src/v4l2_controls.c:814
+msgid "8 bit"
+msgstr ""
+
+#: ../src/v4l2_controls.c:814
+msgid "12 bit"
+msgstr ""
+
+#: ../src/v4l2_dyna_ctrls.c:89
+msgid "Pan (relative)"
+msgstr ""
+
+#: ../src/v4l2_dyna_ctrls.c:99
+msgid "Tilt (relative)"
+msgstr ""
+
+#: ../src/v4l2_dyna_ctrls.c:109
+msgid "Pan Reset"
+msgstr ""
+
+#: ../src/v4l2_dyna_ctrls.c:119
+msgid "Tilt Reset"
+msgstr ""
+
+#: ../src/v4l2_dyna_ctrls.c:129
+msgid "Pan/tilt Reset"
+msgstr ""
+
+#: ../src/v4l2_dyna_ctrls.c:139
+msgid "Focus (absolute)"
+msgstr ""
+
+#: ../src/v4l2_dyna_ctrls.c:149
+msgid "LED1 Mode"
+msgstr ""
+
+#: ../src/v4l2_dyna_ctrls.c:159
+msgid "LED1 Frequency"
+msgstr ""
+
+#: ../src/v4l2_dyna_ctrls.c:169
+msgid "Disable video processing"
+msgstr ""
+
+#: ../src/v4l2_dyna_ctrls.c:179
+msgid "Raw bits per pixel"
 msgstr ""
 
 #. needed only for language files (not used)
@@ -399,18 +767,52 @@ msgstr ""
 msgid "Focus (Absolute)"
 msgstr ""
 
-#: ../src/video_tab.c:41 ../src/callbacks.c:1321
-msgid "Save File"
+#: ../src/vcodecs.c:62
+msgid "MJPG - compressed"
 msgstr ""
 
-#. if auto naming restart counter
-#: ../src/video_tab.c:76 ../src/video_tab.c:106 ../src/globals.c:78
-#: ../src/globals.c:81 ../src/options.c:333 ../src/options.c:452
-#: ../src/options.c:509 ../src/callbacks.c:607 ../src/callbacks.c:889
-#: ../src/callbacks.c:1038 ../src/callbacks.c:1055 ../src/callbacks.c:1091
-#: ../src/callbacks.c:1206 ../src/timers.c:97
-#, c-format
-msgid "File num:%d"
+#: ../src/vcodecs.c:97
+msgid "YUY2 - uncomp YUV"
+msgstr ""
+
+#: ../src/vcodecs.c:132
+msgid "RGB - uncomp BMP"
+msgstr ""
+
+#: ../src/vcodecs.c:167
+msgid "MPEG video 1"
+msgstr ""
+
+#: ../src/vcodecs.c:202
+msgid "FLV1 - flash video 1"
+msgstr ""
+
+#: ../src/vcodecs.c:237
+msgid "WMV1 - win. med. video 7"
+msgstr ""
+
+#: ../src/vcodecs.c:272
+msgid "MPG2 - MPG2 format"
+msgstr ""
+
+#: ../src/vcodecs.c:307
+msgid "MS MP4 V3"
+msgstr ""
+
+#: ../src/vcodecs.c:342
+msgid "MPEG4-ASP"
+msgstr ""
+
+#: ../src/vcodecs.c:377
+msgid "MPEG4-AVC (H264)"
+msgstr ""
+
+#: ../src/video_format.c:43
+msgid "AVI - avi format"
+msgstr ""
+
+#: ../src/video_format.c:51
+msgid "MKV - Matroska format"
 msgstr ""
 
 #: ../src/video_tab.c:126
@@ -425,11 +827,6 @@ msgstr ""
 
 #: ../src/video_tab.c:150
 msgid " monotonic pts"
-msgstr ""
-
-#. bit rate
-#: ../src/video_tab.c:157 ../src/audio_tab.c:59
-msgid "bit rate:   "
 msgstr ""
 
 #: ../src/video_tab.c:170
@@ -512,11 +909,6 @@ msgstr ""
 msgid "Video & Files"
 msgstr ""
 
-#. Devices
-#: ../src/video_tab.c:532 ../src/callbacks.c:137
-msgid "Device:"
-msgstr ""
-
 #: ../src/video_tab.c:637
 msgid "Frame Rate:"
 msgstr ""
@@ -565,11 +957,6 @@ msgstr ""
 msgid "Video Codec:"
 msgstr ""
 
-#. lavc codec properties button
-#: ../src/video_tab.c:891 ../src/audio_tab.c:347
-msgid "properties"
-msgstr ""
-
 #: ../src/video_tab.c:918
 msgid "Video Format:"
 msgstr ""
@@ -610,362 +997,4 @@ msgstr ""
 #. Particles
 #: ../src/video_tab.c:1010
 msgid " Particles"
-msgstr ""
-
-#: ../src/audio_tab.c:46
-msgid "audio codec values"
-msgstr ""
-
-#: ../src/audio_tab.c:136
-msgid "Audio"
-msgstr ""
-
-#: ../src/audio_tab.c:154
-msgid " Sound"
-msgstr ""
-
-#. VU meter on the image (OSD)
-#: ../src/audio_tab.c:165
-msgid " Show VU meter"
-msgstr ""
-
-#: ../src/audio_tab.c:177
-msgid "Audio API:"
-msgstr ""
-
-#: ../src/audio_tab.c:188
-msgid "PORTAUDIO"
-msgstr ""
-
-#: ../src/audio_tab.c:189
-msgid "PULSEAUDIO"
-msgstr ""
-
-#: ../src/audio_tab.c:205 ../src/audio_tab.c:227
-msgid "Input Device:"
-msgstr ""
-
-#: ../src/audio_tab.c:237 ../src/audio_tab.c:269
-msgid "Dev. Default"
-msgstr ""
-
-#: ../src/audio_tab.c:259
-msgid "Sample Rate:"
-msgstr ""
-
-#: ../src/audio_tab.c:270
-msgid "1 - mono"
-msgstr ""
-
-#: ../src/audio_tab.c:271
-msgid "2 - stereo"
-msgstr ""
-
-#: ../src/audio_tab.c:306
-msgid "Channels:"
-msgstr ""
-
-#: ../src/audio_tab.c:340
-msgid "Audio Format:"
-msgstr ""
-
-#: ../src/audio_tab.c:356
-msgid "---- Audio Effects ----"
-msgstr ""
-
-#. Echo
-#: ../src/audio_tab.c:375
-msgid " Echo"
-msgstr ""
-
-#. FUZZ
-#: ../src/audio_tab.c:386
-msgid " Fuzz"
-msgstr ""
-
-#. Reverb
-#: ../src/audio_tab.c:398
-msgid " Reverb"
-msgstr ""
-
-#. WahWah
-#: ../src/audio_tab.c:410
-msgid " WahWah"
-msgstr ""
-
-#. Ducky
-#: ../src/audio_tab.c:422
-msgid " Ducky"
-msgstr ""
-
-#: ../src/v4l2_controls.c:712
-msgid "Left"
-msgstr ""
-
-#: ../src/v4l2_controls.c:713
-msgid "Right"
-msgstr ""
-
-#: ../src/v4l2_controls.c:717
-msgid "Down"
-msgstr ""
-
-#: ../src/v4l2_controls.c:718
-msgid "Up"
-msgstr ""
-
-#: ../src/v4l2_controls.c:763
-msgid "Off"
-msgstr ""
-
-#: ../src/v4l2_controls.c:763
-msgid "On"
-msgstr ""
-
-#: ../src/v4l2_controls.c:763
-msgid "Blinking"
-msgstr ""
-
-#: ../src/v4l2_controls.c:763
-msgid "Auto"
-msgstr ""
-
-#. turn it into a menu control
-#: ../src/v4l2_controls.c:814
-msgid "8 bit"
-msgstr ""
-
-#: ../src/v4l2_controls.c:814
-msgid "12 bit"
-msgstr ""
-
-#: ../src/v4l2_dyna_ctrls.c:89
-msgid "Pan (relative)"
-msgstr ""
-
-#: ../src/v4l2_dyna_ctrls.c:99
-msgid "Tilt (relative)"
-msgstr ""
-
-#: ../src/v4l2_dyna_ctrls.c:109
-msgid "Pan Reset"
-msgstr ""
-
-#: ../src/v4l2_dyna_ctrls.c:119
-msgid "Tilt Reset"
-msgstr ""
-
-#: ../src/v4l2_dyna_ctrls.c:129
-msgid "Pan/tilt Reset"
-msgstr ""
-
-#: ../src/v4l2_dyna_ctrls.c:139
-msgid "Focus (absolute)"
-msgstr ""
-
-#: ../src/v4l2_dyna_ctrls.c:149
-msgid "LED1 Mode"
-msgstr ""
-
-#: ../src/v4l2_dyna_ctrls.c:159
-msgid "LED1 Frequency"
-msgstr ""
-
-#: ../src/v4l2_dyna_ctrls.c:169
-msgid "Disable video processing"
-msgstr ""
-
-#: ../src/v4l2_dyna_ctrls.c:179
-msgid "Raw bits per pixel"
-msgstr ""
-
-#: ../src/vcodecs.c:62
-msgid "MJPG - compressed"
-msgstr ""
-
-#: ../src/vcodecs.c:97
-msgid "YUY2 - uncomp YUV"
-msgstr ""
-
-#: ../src/vcodecs.c:132
-msgid "RGB - uncomp BMP"
-msgstr ""
-
-#: ../src/vcodecs.c:167
-msgid "MPEG video 1"
-msgstr ""
-
-#: ../src/vcodecs.c:202
-msgid "FLV1 - flash video 1"
-msgstr ""
-
-#: ../src/vcodecs.c:237
-msgid "WMV1 - win. med. video 7"
-msgstr ""
-
-#: ../src/vcodecs.c:272
-msgid "MPG2 - MPG2 format"
-msgstr ""
-
-#: ../src/vcodecs.c:307
-msgid "MS MP4 V3"
-msgstr ""
-
-#: ../src/vcodecs.c:342
-msgid "MPEG4-ASP"
-msgstr ""
-
-#: ../src/vcodecs.c:377
-msgid "MPEG4-AVC (H264)"
-msgstr ""
-
-#: ../src/options.c:761
-msgid "Prints version"
-msgstr ""
-
-#: ../src/options.c:762
-msgid "Displays debug information"
-msgstr ""
-
-#: ../src/options.c:763
-msgid "Video Device to use [default: /dev/video0]"
-msgstr ""
-
-#: ../src/options.c:764
-msgid "Exit after adding UVC extension controls (needs root/sudo)"
-msgstr ""
-
-#: ../src/options.c:765
-msgid "Don't stream video (image controls only)"
-msgstr ""
-
-#: ../src/options.c:766
-msgid "Don't display a GUI"
-msgstr ""
-
-#: ../src/options.c:767
-msgid "Capture method (1-mmap (default)  2-read)"
-msgstr ""
-
-#: ../src/options.c:768
-msgid "Configuration file"
-msgstr ""
-
-#: ../src/options.c:769
-msgid "Hardware accelaration (enable(1) | disable(0))"
-msgstr ""
-
-#: ../src/options.c:770
-msgid ""
-"Pixel format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|"
-"y41p|grey|y16 |s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
-msgstr ""
-
-#: ../src/options.c:771
-msgid "Frame size, default: 640x480"
-msgstr ""
-
-#: ../src/options.c:772
-msgid "Image File name"
-msgstr ""
-
-#: ../src/options.c:773
-msgid "Image capture interval in seconds"
-msgstr ""
-
-#: ../src/options.c:774
-msgid "Number of Pictures to capture"
-msgstr ""
-
-#: ../src/options.c:775
-msgid "Video File name (capture from start)"
-msgstr ""
-
-#: ../src/options.c:776
-msgid "Video capture time (in seconds)"
-msgstr ""
-
-#: ../src/options.c:777
-msgid "Exits guvcview after closing video"
-msgstr ""
-
-#: ../src/options.c:778
-msgid "Number of initial frames to skip"
-msgstr ""
-
-#: ../src/options.c:779
-msgid "Show FPS value (enable(1) | disable (0))"
-msgstr ""
-
-#: ../src/options.c:780
-msgid "Load Profile at start"
-msgstr ""
-
-#: ../src/options.c:786
-msgid "- local options"
-msgstr ""
-
-#: ../src/img_controls.c:121
-msgid "Auto Focus (continuous)"
-msgstr ""
-
-#: ../src/img_controls.c:122
-msgid "set Focus"
-msgstr ""
-
-#: ../src/callbacks.c:106
-msgid "Error"
-msgstr ""
-
-#: ../src/callbacks.c:130
-msgid ""
-"\n"
-"You have more than one video device installed.\n"
-"Do you want to try another one ?\n"
-msgstr ""
-
-#: ../src/callbacks.c:658
-msgid "start new"
-msgstr ""
-
-#: ../src/callbacks.c:661
-msgid "restart"
-msgstr ""
-
-#: ../src/callbacks.c:663
-msgid "new"
-msgstr ""
-
-#: ../src/callbacks.c:665
-msgid "cancel"
-msgstr ""
-
-#: ../src/callbacks.c:670
-msgid ""
-"launch new process or restart?.\n"
-"\n"
-msgstr ""
-
-#: ../src/callbacks.c:1334
-msgid "Load File"
-msgstr ""
-
-#: ../src/timers.c:211
-msgid "Guvcview Warning:"
-msgstr ""
-
-#: ../src/timers.c:211
-msgid "Not enough free space left on disk"
-msgstr ""
-
-#: ../data/guvcview.desktop.in.in.h:1
-msgid "A video viewer and capturer for the linux uvc driver"
-msgstr ""
-
-#: ../data/guvcview.desktop.in.in.h:2
-msgid "GTK UVC video viewer"
-msgstr ""
-
-#: ../data/guvcview.desktop.in.in.h:3
-msgid "guvcview"
 msgstr ""
