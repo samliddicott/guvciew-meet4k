@@ -27,6 +27,7 @@
 #include <pthread.h>
 #include "globals.h"
 #include "../config.h"
+#include "defs.h"
 
 #ifdef PULSEAUDIO
   #include <pulse/simple.h>
@@ -54,6 +55,13 @@
 #define MAX_SAMPLE (1.0f)
 #define PRINTF_S_FORMAT "%.8f"
 
+/*buffer flags*/
+#define AUD_IN_USE           0 /* in use by interrupt handler*/
+#define AUD_PROCESS          1 /* ready to process */
+#define AUD_PROCESSING       2 /* processing */
+#define AUD_PROCESSED        3 /* ready to write to disk */
+#define AUD_READY            4 /* ready to re-use by interrupt handler*/
+
 //API index
 #define PORT  0
 #define PULSE 1
@@ -74,30 +82,37 @@ struct paRecordData
 	PaStream *stream;
 	unsigned long framesPerBuffer; //frames per buffer passed in audio callback
 
-	int w_ind;                    // producer index
-	int r_ind;                    // consumer index
-	int channels;                 // channels
-	gboolean streaming;           // audio streaming flag
-	int flush;                    // flush mp2 buffer flag
-	int samprate;                 // samp rate
-	int numsec;                   // aprox. number of seconds for out buffer size
-	int aud_numBytes;             // bytes copied to out buffer*/
-	int aud_numSamples;           // samples copied to out buffer*/
-	int64_t snd_begintime;        // audio recording start time*/
-	int capVid;                   // video capture flag
-	SAMPLE *recordedSamples;      // callback buffer
+	int w_ind;                       // producer index
+	int r_ind;                       // consumer index
+	int bw_ind;                      // audio_buffer in_use index
+	int br_ind;                      // audio_buffer processing
+	int blast_ind;                   // last in_use index (for vu meter)
+	int last_ind;                    // last producer index (for vu meter)
+	int channels;                    // channels
+	gboolean streaming;              // audio streaming flag
+	int flush;                       // flush mp2 buffer flag
+	int samprate;                    // samp rate
+	int numsec;                      // aprox. number of seconds for out buffer size
+	int aud_numBytes;                // bytes copied to out buffer*/
+	int aud_numSamples;              // samples copied to out buffer*/
+	int64_t snd_begintime;           // audio recording start time*/
+	int capVid;                      // video capture flag
+	SAMPLE *recordedSamples;         // callback buffer
 	int sampleIndex;
-	AudBuff *audio_buff;          // ring buffer for audio data
-	int64_t a_ts;                 // audio frame time stamp
-	int64_t ts_ref;               // timestamp video reference
-	int64_t ts_drift;             // time drift between audio device clock and system clock
-	gint16 *pcm_sndBuff;          // buffer for pcm coding with int16
-	BYTE *mp2Buff;                // mp2 encode buffer
-	int mp2BuffSize;              // mp2 buffer size
-	int snd_Flags;                // effects flag
-	int skip_n;                   // video frames to skip
-	UINT64 delay;                 // in nanosec - h264 has a two frame delay that must be compensated
-
+	AudBuff *audio_buff[AUDBUFF_NUM];// ring buffers for audio data captured from device
+	int audio_buff_flag[AUDBUFF_NUM];// process_buffer flags
+	int64_t a_ts;                    // audio frame time stamp
+	int64_t ts_ref;                  // timestamp video reference
+	int64_t ts_drift;                // time drift between audio device clock and system clock
+	gint16 *pcm_sndBuff;             // buffer for pcm coding with int16
+	BYTE *mp2Buff;                   // mp2 encode buffer
+	int mp2BuffSize;                 // mp2 buffer size
+	int snd_Flags;                   // effects flag
+	int skip_n;                      // video frames to skip
+	UINT64 delay;                    // in nanosec - h264 has a two frame delay that must be compensated
+	
+	int outbuf_size;	         //size of output buffer
+	struct lavcAData* lavc_data;     //libavcodec data
 	__MUTEX_TYPE mutex;
 	
 	//PULSE SUPPORT
@@ -115,7 +130,7 @@ recordCallback (const void *inputBuffer, void *outputBuffer,
 	void *userData );
 
 void
-set_sound (struct GLOBAL *global, struct paRecordData* data, void* lav_aud_data);
+set_sound (struct GLOBAL *global, struct paRecordData* data);
 
 int
 init_sound(struct paRecordData* data);
@@ -124,7 +139,7 @@ int
 close_sound (struct paRecordData *data);
 
 void 
-Float2Int16 (struct paRecordData* data, AudBuff *proc_buff);
+Float2Int16 (struct paRecordData* data);
 
 #ifdef PULSEAUDIO
 void

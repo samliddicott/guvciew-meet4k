@@ -1339,5 +1339,11 @@ input_get_framerate (struct vdIn * device, int *fps, int *fps_num)
 		*fps = device->streamparm.parm.capture.timeperframe.denominator;
 		*fps_num = device->streamparm.parm.capture.timeperframe.numerator;
 	}
+	
+	if(*fps == 0 )
+		*fps = 1;
+	if(*fps_num == 0)
+		*fps_num = 1;
+
 	return ret;
 }

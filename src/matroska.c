@@ -33,7 +33,7 @@
 #include "defs.h"
 #include "matroska.h"
 
-#define CLSIZE    1048576
+#define CLSIZE    55242880 /*5 Mb  (1Mb = 1048576)*/
 #define CHECK(x)  do { if ((x) < 0) return -1; } while (0)
 
 struct mk_Context 

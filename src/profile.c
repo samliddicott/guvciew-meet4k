@@ -25,6 +25,7 @@
 #include <glib/gprintf.h>
 #include <unistd.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include "defs.h"
 #include "profile.h"

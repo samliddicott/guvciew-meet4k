@@ -27,6 +27,8 @@
 #include <glib/gprintf.h>
 /* support for internationalization - i18n */
 #include <glib/gi18n.h>
+/*needs locale.h when debug is enabled*/
+#include <locale.h>
 
 #include "defs.h"
 #include "globals.h"

@@ -46,7 +46,7 @@ void draw_vu_meter(int width, int height, SAMPLE vuPeak[2], int vuPeakFreeze[2],
 	{
 		vuLevel[i] = 0;
 		// Run through all available samples and find the current level.
-		SAMPLE *samples = pdata->audio_buff[pdata->r_ind].frame;
+		SAMPLE *samples = pdata->audio_buff[pdata->blast_ind][pdata->last_ind].frame;
 		for (j=0;j<pdata->aud_numSamples;j++) 
 		{
 			int channel = j % pdata->channels;

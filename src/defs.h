@@ -60,8 +60,11 @@
 //#define PREV_IND(ind,size) ind--;if(ind<0) ind=size-1
 
 #define VIDBUFF_SIZE 45    //number of video frames in the ring buffer
-#define AUDBUFF_SIZE 100   //number of audio mpeg frames in the ring buffer
-#define MPG_NUM_SAMP 1152  //number of samples in a audio MPEG frame 
+
+#define MPG_NUM_SAMP 1152  //number of samples in a audio MPEG frame
+#define AUDBUFF_SIZE 20    //number of audio mpeg frames in each audio buffer
+                           // direct impact on latency as buffer is only processed when full
+#define AUDBUFF_NUM  7     //number of audio buffers 
 //#define MPG_NUM_FRAMES 2   //number of MPEG frames in a audio frame
 
 typedef uint64_t QWORD;

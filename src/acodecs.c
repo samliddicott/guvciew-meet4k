@@ -296,9 +296,7 @@ static int write_audio_data(struct ALL_DATA *all_data, BYTE *buff, int size, QWO
 	return (ret);
 }
 
-static int encode_lavc_audio (struct lavcAData *lavc_data, 
-	struct ALL_DATA *all_data, 
-	AudBuff *proc_buff)
+static int encode_lavc_audio ( struct ALL_DATA *all_data )
 {
 	struct paRecordData *pdata = all_data->pdata;
 	struct VideoFormatData *videoF = all_data->videoF;
@@ -308,22 +306,18 @@ static int encode_lavc_audio (struct lavcAData *lavc_data,
 	
 	videoF->old_apts = videoF->apts;
 	
-	if(lavc_data)
+	if(pdata->lavc_data)
 	{
 		/*lavc is initialized when setting sound*/
-		framesize= encode_lavc_audio_frame (pdata->pcm_sndBuff, lavc_data, videoF);
+		framesize= encode_lavc_audio_frame (pdata->pcm_sndBuff, pdata->lavc_data, videoF);
 		
-		ret = write_audio_data (all_data, lavc_data->outbuf, framesize, proc_buff->time_stamp);
+		ret = write_audio_data (all_data, pdata->lavc_data->outbuf, framesize, pdata->audio_buff[pdata->br_ind][pdata->r_ind].time_stamp);
 	}
 	return (ret);
 }
 		   
-int compress_audio_frame(void *data, 
-	void *lav_aud_data,
-	AudBuff *proc_buff)
-{
-	struct lavcAData **lavc_data = (struct lavcAData **) lav_aud_data;
-	
+int compress_audio_frame(void *data)
+{	
 	struct ALL_DATA *all_data = (struct ALL_DATA *) data;
 	struct GLOBAL *global = all_data->global;
 	struct paRecordData *pdata = all_data->pdata;
@@ -335,15 +329,15 @@ int compress_audio_frame(void *data,
 		/*write audio chunk*/
 		case PA_FOURCC: 
 		{
-			Float2Int16(pdata, proc_buff); /*convert from float sample to 16 bit PCM*/
-			ret = write_audio_data (all_data, (BYTE *) pdata->pcm_sndBuff, pdata->aud_numSamples*2, proc_buff->time_stamp);
+			Float2Int16(pdata); /*convert from float sample to 16 bit PCM*/
+			ret = write_audio_data (all_data, (BYTE *) pdata->pcm_sndBuff, pdata->aud_numSamples*2, pdata->audio_buff[pdata->br_ind][pdata->r_ind].time_stamp);
 			break;
 		}
 		default:
 		{
 			//Argh! libavcodec 7.1 only seems to accept S16 sample_fmt
-			Float2Int16(pdata, proc_buff); /*convert from float sample to 16 bit PCM*/
-			ret = encode_lavc_audio (*lavc_data, all_data, proc_buff);
+			Float2Int16(pdata); /*convert from float sample to 16 bit PCM*/
+			ret = encode_lavc_audio (all_data);
 			break;
 		}
 	}

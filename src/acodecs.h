@@ -76,8 +76,6 @@ const void *get_mkvACodecPriv(int codec_ind);
 
 int set_mkvACodecPriv(int codec_ind, int samprate, int channels);
 
-int compress_audio_frame(void *data, 
-	void *lav_aud_data,
-	AudBuff *proc_buff);
+int compress_audio_frame(void *data);
 
 #endif

@@ -21,6 +21,7 @@
 
 #include <glib.h>
 #include <glib/gi18n.h>
+#include <glib/gprintf.h>
 #include <pthread.h>
 #include <stdlib.h>
 
@@ -54,7 +55,7 @@ static void alloc_videoBuff(struct ALL_DATA *all_data)
 	int framesize = global->height*global->width*2; /*yuyv (maximum size)*/
 	if((global->fps > 0) && (global->fps_num > 0))
 	    global->video_buff_size = (global->fps * 3) / (global->fps_num * 2); /* 1,5 seconds of video in buffer*/
-	if (global->video_buff_size < 2) global->video_buff_size = 2; /*keep at least two frames*/
+	if (global->video_buff_size < 16) global->video_buff_size = 16; /*keep at least 16 frames*/
 	
 	/*alloc video ring buffer*/
 	__LOCK_MUTEX(__GMUTEX);
@@ -92,7 +93,6 @@ static void alloc_videoBuff(struct ALL_DATA *all_data)
 
 static int initVideoFile(struct ALL_DATA *all_data, void * lavc_aud_data)
 {
-	struct lavcAData** lavc_audio_data = (struct lavcAData**) lavc_aud_data;
 	struct GWIDGET *gwidget = all_data->gwidget;
 	struct paRecordData *pdata = all_data->pdata;
 	struct GLOBAL *global = all_data->global;
@@ -148,7 +148,7 @@ static int initVideoFile(struct ALL_DATA *all_data, void * lavc_aud_data)
 				if(global->Sound_enable > 0) 
 				{
 					/*get channels and sample rate*/
-					set_sound(global, pdata, (void *) lavc_audio_data);
+					set_sound(global, pdata);
 					/*set audio header for avi*/
 					AVI_set_audio(videoF->AviOut, global->Sound_NumChan, 
 						global->Sound_SampRate,
@@ -178,7 +178,7 @@ static int initVideoFile(struct ALL_DATA *all_data, void * lavc_aud_data)
 			if(global->Sound_enable > 0) 
 			{
 				/*set channels, sample rate and allocate buffers*/
-				set_sound(global, pdata, (void *) lavc_audio_data);
+				set_sound(global, pdata);
 			}
 			if(init_FormatContext((void *) all_data)<0)
 			{
@@ -410,7 +410,7 @@ static int write_video_frame (struct ALL_DATA *all_data,
 	return (0);
 }
 
-static int write_audio_frame (struct ALL_DATA *all_data, void *lavc_adata, AudBuff *proc_buff)
+static int write_audio_frame (struct ALL_DATA *all_data)
 {
 	struct paRecordData *pdata = all_data->pdata;
 	struct GLOBAL *global = all_data->global;
@@ -424,7 +424,7 @@ static int write_audio_frame (struct ALL_DATA *all_data, void *lavc_adata, AudBu
 	{
 		case AVI_FORMAT:
 			if(!(global->VidButtPress)) //if this is set AVI reached it's limit size
-				ret = compress_audio_frame(all_data, lavc_adata, proc_buff);
+				ret = compress_audio_frame(all_data);
 		
 			if (ret) 
 			{	
@@ -467,9 +467,9 @@ static int write_audio_frame (struct ALL_DATA *all_data, void *lavc_adata, AudBu
 		case MKV_FORMAT:
 			__LOCK_MUTEX( __AMUTEX ); //why do we need this ???
 				/*set pts*/
-				videoF->apts = proc_buff->time_stamp;
+				videoF->apts = pdata->audio_buff[pdata->br_ind][pdata->r_ind].time_stamp;
 				/*write audio chunk*/
-				ret = compress_audio_frame(all_data, lavc_adata, proc_buff);
+				ret = compress_audio_frame(all_data);
 			__UNLOCK_MUTEX( __AMUTEX );
 			break;
 			
@@ -539,44 +539,36 @@ static int buff_scheduler(int w_ind, int r_ind, int buff_size)
 		diff_ind = w_ind - r_ind;
 	else
 		diff_ind = (buff_size - r_ind) + w_ind;
-
-	if(diff_ind <= 15) sched_sleep = 0; /* full throttle (must wait for audio at least 10 frames) */
-	else if (diff_ind <= 20) sched_sleep = (diff_ind-15) * 2; /* <= 10  ms ~1 frame @ 90  fps */
-	else if (diff_ind <= 25) sched_sleep = (diff_ind-15) * 3; /* <= 30  ms ~1 frame @ 30  fps */
-	else if (diff_ind <= 30) sched_sleep = (diff_ind-15) * 4; /* <= 60  ms ~1 frame @ 15  fps */
-	else if (diff_ind <= 35) sched_sleep = (diff_ind-15) * 5; /* <= 100 ms ~1 frame @ 10  fps */
-	else if (diff_ind <= 40) sched_sleep = (diff_ind-15) * 6; /* <= 130 ms ~1 frame @ 7,5 fps */
-	else sched_sleep = (diff_ind-15) * 7;                     /* <= 210 ms ~1 frame @ 5   fps */
 	
+	if (diff_ind <= (buff_size * 4/10)) sched_sleep = 0;        /* full throttle */
+	else if (diff_ind <= (buff_size * 5/10)) sched_sleep = 10;  /* <= 10  ms ~1 frame @ 90  fps */
+	else if (diff_ind <= (buff_size * 6/10)) sched_sleep = 30;  /* <= 30  ms ~1 frame @ 30  fps */
+	else if (diff_ind <= (buff_size * 7/10)) sched_sleep = 60;  /* <= 60  ms ~1 frame @ 15  fps */
+	else if (diff_ind <= (buff_size * 8/10)) sched_sleep = 100; /* <= 100 ms ~1 frame @ 10  fps */
+	else if (diff_ind <= (buff_size * 9/10)) sched_sleep = 130; /* <= 130 ms ~1 frame @ 7,5 fps */
+	else sched_sleep = 210;                                                   /* <= 210 ms ~1 frame @ 5   fps */
+	//g_printf("diff index: %i sleep %i\n",diff_ind, sched_sleep);
 	return sched_sleep;
 }
 
-static void process_audio(struct ALL_DATA *all_data, 
-			AudBuff *aud_proc_buff,
-			void *lavc_adata, 
+static void process_audio(struct ALL_DATA *all_data,  
 			struct audio_effects **aud_eff)
 {
 	struct paRecordData *pdata = all_data->pdata;
 
-	__LOCK_MUTEX( __AMUTEX );
-		gboolean used = pdata->audio_buff[pdata->r_ind].used;
-	__UNLOCK_MUTEX( __AMUTEX );
+	/*doesn't need locking as current buffer is on AUD_PROCESSING state*/
+	gboolean used = pdata->audio_buff[pdata->br_ind][pdata->r_ind].used;
   
 	/*read at most 10 audio Frames (1152 * channels  samples each)*/
 	if(used)
-	{
-		__LOCK_MUTEX( __AMUTEX );
-			memcpy(aud_proc_buff->frame, pdata->audio_buff[pdata->r_ind].frame, pdata->aud_numSamples*sizeof(SAMPLE));
-			pdata->audio_buff[pdata->r_ind].used = FALSE;
-			aud_proc_buff->time_stamp = pdata->audio_buff[pdata->r_ind].time_stamp;
-			NEXT_IND(pdata->r_ind, AUDBUFF_SIZE);	
-		__UNLOCK_MUTEX( __AMUTEX ); /*now we should be able to unlock the audio mutex*/	
-		sync_audio_frame(all_data, aud_proc_buff);	
+	{	
+
+		sync_audio_frame(all_data, &pdata->audio_buff[pdata->br_ind][pdata->r_ind]);	
 		/*run effects on data*/
 		/*echo*/
 		if((pdata->snd_Flags & SND_ECHO)==SND_ECHO) 
 		{
-			Echo(pdata, aud_proc_buff, *aud_eff, 300, 0.5);
+			Echo(pdata, &pdata->audio_buff[pdata->br_ind][pdata->r_ind], *aud_eff, 300, 0.5);
 		}
 		else
 		{
@@ -586,7 +578,7 @@ static void process_audio(struct ALL_DATA *all_data,
 		/*fuzz*/
 		if((pdata->snd_Flags & SND_FUZZ)==SND_FUZZ) 
 		{
-			Fuzz(pdata, aud_proc_buff, *aud_eff);
+			Fuzz(pdata, &pdata->audio_buff[pdata->br_ind][pdata->r_ind], *aud_eff);
 		}
 		else
 		{
@@ -596,7 +588,7 @@ static void process_audio(struct ALL_DATA *all_data,
 		/*reverb*/
 		if((pdata->snd_Flags & SND_REVERB)==SND_REVERB) 
 		{
-			Reverb(pdata, aud_proc_buff, *aud_eff, 50);
+			Reverb(pdata, &pdata->audio_buff[pdata->br_ind][pdata->r_ind], *aud_eff, 50);
 		}
 		else
 		{
@@ -605,7 +597,7 @@ static void process_audio(struct ALL_DATA *all_data,
 		/*wahwah*/
 		if((pdata->snd_Flags & SND_WAHWAH)==SND_WAHWAH) 
 		{
-			WahWah (pdata, aud_proc_buff, *aud_eff, 1.5, 0, 0.7, 0.3, 2.5);
+			WahWah (pdata, &pdata->audio_buff[pdata->br_ind][pdata->r_ind], *aud_eff, 1.5, 0, 0.7, 0.3, 2.5);
 		}
 		else
 		{
@@ -615,14 +607,26 @@ static void process_audio(struct ALL_DATA *all_data,
 		/*Ducky*/
 		if((pdata->snd_Flags & SND_DUCKY)==SND_DUCKY) 
 		{
-			change_pitch(pdata, aud_proc_buff, *aud_eff, 2);
+			change_pitch(pdata, &pdata->audio_buff[pdata->br_ind][pdata->r_ind], *aud_eff, 2);
 		}
 		else
 		{
 			close_pitch (*aud_eff);
 		}
 			
-		write_audio_frame(all_data, lavc_adata, aud_proc_buff);
+		write_audio_frame(all_data);
+		
+		pdata->audio_buff[pdata->br_ind][pdata->r_ind].used = FALSE;
+		NEXT_IND(pdata->r_ind, AUDBUFF_SIZE);
+		
+		if(pdata->r_ind == 0)
+		{
+			__LOCK_MUTEX(__AMUTEX);
+				pdata->audio_buff_flag[pdata->br_ind] = AUD_READY; 
+				NEXT_IND(pdata->br_ind, AUDBUFF_NUM);
+			__UNLOCK_MUTEX(__AMUTEX);
+		}
+		
 	}
 }
 
@@ -774,6 +778,9 @@ static void store_at_index(void *data)
 	global->videoBuff[global->w_ind].used = TRUE;
 }
 
+/* called from main video loop*
+ * stores current frame in video ring buffer
+ */
 int store_video_frame(void *data)
 {
 	struct ALL_DATA *all_data = (struct ALL_DATA *) data;
@@ -810,7 +817,7 @@ int store_video_frame(void *data)
 			if (!global->videoBuff[global->w_ind].used)
 			{
 				store_at_index(data);
-                producer_sleep = buff_scheduler(global->w_ind, global->r_ind, global->video_buff_size);
+                		producer_sleep = buff_scheduler(global->w_ind, global->r_ind, global->video_buff_size);
 				NEXT_IND(global->w_ind, global->video_buff_size);
 			}
 			else ret = -2;/*drop frame*/
@@ -826,6 +833,54 @@ int store_video_frame(void *data)
 	if(producer_sleep) sleep_ms(producer_sleep);
 	
 	return ret;
+}
+
+static int get_audio_flag(struct paRecordData *pdata)
+{
+	int flag = 0;
+	__LOCK_MUTEX(__AMUTEX);
+		flag = pdata->audio_buff_flag[pdata->br_ind];
+	__UNLOCK_MUTEX(__AMUTEX);
+	return flag;
+}
+
+static gboolean is_audio_processing(struct paRecordData *pdata, gboolean set_processing)
+{
+	int flag = get_audio_flag(pdata);
+	
+	if((set_processing) && (flag == AUD_PROCESS))
+	{
+		__LOCK_MUTEX(__AMUTEX);
+			pdata->audio_buff_flag[pdata->br_ind] = AUD_PROCESSING;
+		__UNLOCK_MUTEX(__AMUTEX);
+		
+		flag = AUD_PROCESSING;
+	}	
+	
+	if(flag == AUD_PROCESSING)
+		return TRUE;
+	else
+		return FALSE;
+}
+
+static gboolean is_audioTS_lessThan_videoTS(void *data)
+{
+	struct ALL_DATA *all_data = (struct ALL_DATA *) data;
+	struct paRecordData *pdata = all_data->pdata;
+	struct GLOBAL *global = all_data->global;
+
+	__LOCK_MUTEX(__AMUTEX);
+		QWORD audioTS = pdata->audio_buff[pdata->br_ind][pdata->r_ind].time_stamp;
+	__UNLOCK_MUTEX(__AMUTEX);
+	
+	__LOCK_MUTEX( __GMUTEX );
+		QWORD videoTS = global->videoBuff[global->r_ind].time_stamp;
+	__UNLOCK_MUTEX( __GMUTEX );
+	
+	if (audioTS < videoTS)
+		return TRUE;
+	else
+		return FALSE;
 }
 
 void *IO_loop(void *data)
@@ -846,17 +901,12 @@ void *IO_loop(void *data)
 	__LOCK_MUTEX(__VMUTEX);
 		videoIn->IOfinished=FALSE;
 	__UNLOCK_MUTEX(__VMUTEX);
-	
-	gboolean capVid=FALSE;
     
 	gboolean failed = FALSE;
-	int proc_flag = 0;
-	int diff_ind=0;
 	
-	//buffers to be processed (video and audio)
+	//video buffers to be processed
 	int frame_size=0;
 	VidBuff *proc_buff = NULL;
-	AudBuff *aud_proc_buff = NULL;
 	
 	if(initVideoFile(all_data, (void *) &(lavc_audio_data))<0)
 	{
@@ -890,8 +940,6 @@ void *IO_loop(void *data)
 		if (global->Sound_enable) 
 		{
 			aud_eff=init_audio_effects ();
-			aud_proc_buff = g_new0(AudBuff, 1);
-			aud_proc_buff->frame = g_new0(SAMPLE, pdata->aud_numSamples);
 			global->av_drift = 0;
 			pdata->ts_drift = 0;
 		}
@@ -901,73 +949,34 @@ void *IO_loop(void *data)
 	{
 		while(!finished)
 		{
-			if(global->Sound_enable)
+			/*encode audio in buffer if ready to process (up to current videoTS)*/
+			if(	global->Sound_enable && 
+				is_audio_processing(pdata, TRUE) && 
+				is_audioTS_lessThan_videoTS(all_data) )
 			{
-				__LOCK_MUTEX(__VMUTEX);
-					capVid = videoIn->capVid;
-				__UNLOCK_MUTEX(__VMUTEX);
-
-				__LOCK_MUTEX( __AMUTEX );
-				__LOCK_MUTEX( __GMUTEX );
-					//check read/write index delta in frames 
-					if(global->w_ind >= global->r_ind)
-						diff_ind = global->w_ind - global->r_ind;
-					else
-						diff_ind = (global->video_buff_size - global->r_ind) + global->w_ind;
-			
-					if( (pdata->audio_buff[pdata->r_ind].used && global->videoBuff[global->r_ind].used) &&
-						(pdata->audio_buff[pdata->r_ind].time_stamp < global->videoBuff[global->r_ind].time_stamp))
-					{
-						proc_flag = 1;	//process audio
-					}
-					else if(pdata->audio_buff[pdata->r_ind].used && global->videoBuff[global->r_ind].used)
-					{
-						proc_flag = 2;    //process video
-					}
-					else if (diff_ind < 10 && capVid)
-					{
-						proc_flag = 3;	//sleep -wait for audio (at most 10 video frames)
-					}
-					else if(pdata->audio_buff[pdata->r_ind].used)
-					{	
-						proc_flag = 1;    //process audio
-					}
-					else proc_flag = 2;    //process video
-				__UNLOCK_MUTEX( __GMUTEX );
-				__UNLOCK_MUTEX( __AMUTEX );
-			
-			
-				switch(proc_flag)
-				{
-					case 1:
-						//g_print("processing audio frame\n");
-						process_audio(all_data, aud_proc_buff, (void *) &lavc_audio_data, &(aud_eff));
-						break;
-					case 2:
-						//g_print("processing video frame\n");
-						finished = process_video (all_data, proc_buff, &(lavc_data), &(jpg_data));
-						break;
-					default:
-						sleep_ms(10); /*make the thread sleep for 10ms*/
-						break;
-				}
+				process_audio(all_data, &(aud_eff));
 			}
-			else
-			{
-				//process video
+			else /* encode video */
+			{	
 				finished = process_video (all_data, proc_buff, &(lavc_data), &(jpg_data));
 			}
 		
 			if(finished)
 			{
-				//wait for audio to finish
-				int stall = wait_ms(&(pdata->streaming), FALSE, __AMUTEX, 10, 25);
-				if( !(stall > 0) )
+				if(global->Sound_enable)
 				{
-					g_printerr("audio streaming stalled - timeout\n");
+				//	/*wait for audio to finish*/
+				//	int stall = wait_ms(&(pdata->streaming), FALSE, __AMUTEX, 10, 25);
+				//	if( !(stall > 0) )
+				//	{
+				//		g_printerr("audio streaming stalled - timeout\n");
+				//	}
+				//	/*process any remaining audio*/
+				//	while (	is_audio_processing(pdata, TRUE) )
+				//	{
+				//		process_audio(all_data, &(aud_eff));
+				//	}
 				}
-				//process any remaining audio
-				if(global->Sound_enable) process_audio(all_data, aud_proc_buff,(void *) &lavc_audio_data, &(aud_eff));
 			}
 		}
 	
@@ -977,11 +986,6 @@ void *IO_loop(void *data)
 		/*free proc buffer*/
 		g_free(proc_buff->frame);
 		g_free(proc_buff);
-		if(aud_proc_buff) 
-		{
-			g_free(aud_proc_buff->frame);
-			g_free(aud_proc_buff);
-		}
 		if (global->Sound_enable) close_audio_effects (aud_eff);
 	}
 	

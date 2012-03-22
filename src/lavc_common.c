@@ -347,53 +347,53 @@ struct lavcData* init_lavc(int width, int height, int fps_num, int fps_den, int 
 struct lavcAData* init_lavc_audio(struct paRecordData *pdata, int codec_ind)
 {
 	//allocate
-	struct lavcAData* data = g_new0(struct lavcAData, 1);
+	pdata->lavc_data = g_new0(struct lavcAData, 1);
 	
-	data->codec_context = NULL;
+	pdata->lavc_data->codec_context = NULL;
 	acodecs_data *defaults = get_aud_codec_defaults(codec_ind);
 
 	// find the audio encoder
-	data->codec = avcodec_find_encoder(defaults->codec_id);
-	if (!data->codec) 
+	pdata->lavc_data->codec = avcodec_find_encoder(defaults->codec_id);
+	if (!pdata->lavc_data->codec) 
 	{
 		fprintf(stderr, "ffmpeg audio codec not found\n");
 		return(NULL);
 	}
 	
 #if LIBAVCODEC_VER_AT_LEAST(53,6)	
-	data->codec_context = avcodec_alloc_context3(data->codec);
+	pdata->lavc_data->codec_context = avcodec_alloc_context3(pdata->lavc_data->codec);
 #else
-	data->codec_context = avcodec_alloc_context();
+	pdata->lavc_data->codec_context = avcodec_alloc_context();
 #endif
 
 	// define bit rate (lower = more compression but lower quality)
-	data->codec_context->bit_rate = defaults->bit_rate;
-	data->codec_context->profile = defaults->profile; /*for AAC*/
+	pdata->lavc_data->codec_context->bit_rate = defaults->bit_rate;
+	pdata->lavc_data->codec_context->profile = defaults->profile; /*for AAC*/
 	
-	data->codec_context->flags |= defaults->flags;
+	pdata->lavc_data->codec_context->flags |= defaults->flags;
 	
-	data->codec_context->sample_rate = pdata->samprate;
-	data->codec_context->channels = pdata->channels;
-	data->codec_context->cutoff = 0; /*automatic*/
+	pdata->lavc_data->codec_context->sample_rate = pdata->samprate;
+	pdata->lavc_data->codec_context->channels = pdata->channels;
+	pdata->lavc_data->codec_context->cutoff = 0; /*automatic*/
 	/*libav 7.1 only seems to accept S16 format*/
 
 #if !LIBAVCODEC_VER_AT_LEAST(53,0)
 #define AV_SAMPLE_FMT_S16 SAMPLE_FMT_S16 
 #endif
-	data->codec_context->sample_fmt = AV_SAMPLE_FMT_S16; /* Int16 sample */
+	pdata->lavc_data->codec_context->sample_fmt = AV_SAMPLE_FMT_S16; /* Int16 sample */
 	
-    data->codec_context->codec_id = defaults->codec_id;
+    pdata->lavc_data->codec_context->codec_id = defaults->codec_id;
 	
 #if !LIBAVCODEC_VER_AT_LEAST(53,0)
 #define AVMEDIA_TYPE_AUDIO CODEC_TYPE_AUDIO
 #endif
-	data->codec_context->codec_type = AVMEDIA_TYPE_AUDIO;
+	pdata->lavc_data->codec_context->codec_type = AVMEDIA_TYPE_AUDIO;
 	
 	// open codec
 #if LIBAVCODEC_VER_AT_LEAST(53,6)
-	if (avcodec_open2(data->codec_context, data->codec, NULL) < 0)
+	if (avcodec_open2(pdata->lavc_data->codec_context, pdata->lavc_data->codec, NULL) < 0)
 #else
-	if (avcodec_open(data->codec_context, data->codec) < 0) 
+	if (avcodec_open(pdata->lavc_data->codec_context, pdata->lavc_data->codec) < 0) 
 #endif
 	{
 		fprintf(stderr, "could not open codec\n");
@@ -401,18 +401,17 @@ struct lavcAData* init_lavc_audio(struct paRecordData *pdata, int codec_ind)
 	}
 	
 	/* the codec gives us the frame size, in samples */
-	int frame_size = data->codec_context->frame_size;  
+	int frame_size = pdata->lavc_data->codec_context->frame_size;  
 	g_print("Audio frame size is %d samples for selected codec\n", frame_size);
 	
-	data->monotonic_pts = defaults->monotonic_pts;
+	pdata->lavc_data->monotonic_pts = defaults->monotonic_pts;
 	
 	//alloc outbuf
-	data->outbuf_size = 240000;
-	data->outbuf = g_new0(BYTE, data->outbuf_size);
+	pdata->lavc_data->outbuf = g_new0(BYTE, pdata->outbuf_size);
 	
 #if LIBAVCODEC_VER_AT_LEAST(53,34)	
-	data->frame= avcodec_alloc_frame();
-	avcodec_get_frame_defaults(data->frame);
+	pdata->lavc_data->frame= avcodec_alloc_frame();
+	avcodec_get_frame_defaults(pdata->lavc_data->frame);
 #endif
-	return(data);
+	return(pdata->lavc_data);
 }

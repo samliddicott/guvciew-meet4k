@@ -399,7 +399,10 @@ void *main_loop(void *data)
                 if(videoIn->VidCapStop) videoIn->VidCapStop = FALSE;
             __UNLOCK_MUTEX(__VMUTEX);
             int res=0;
-            /*format and resolution don't change(disabled) while capturing video*/
+            
+			/* format and resolution don't change(disabled) while capturing video
+			 * store_video_frame may sleep if needed to avoid buffer overrun
+			 */
             if((res=store_video_frame(all_data))<0) g_printerr("WARNING: droped frame (%i)\n",res);
             
         } /*video and audio capture have stopped */
@@ -424,7 +427,7 @@ void *main_loop(void *data)
         /*------------------------- Display Frame --------------------------------*/
         if(!global->no_display)
         {
-			if (global->osdFlags && pdata->audio_buff)
+			if (global->osdFlags && pdata->audio_buff[0])
 			{
 				draw_vu_meter(width, height, vuPeak, vuPeakFreeze, data);
 			}
