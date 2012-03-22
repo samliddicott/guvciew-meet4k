@@ -897,7 +897,10 @@ void *IO_loop(void *data)
 	struct lavcAData *lavc_audio_data = NULL;
 	struct audio_effects *aud_eff = NULL;
 	
+	gboolean capVid = TRUE;
 	gboolean finished=FALSE;
+	int max_loops = 60;
+	
 	__LOCK_MUTEX(__VMUTEX);
 		videoIn->IOfinished=FALSE;
 	__UNLOCK_MUTEX(__VMUTEX);
@@ -945,10 +948,16 @@ void *IO_loop(void *data)
 		}
 	}
 	
+	
 	if(!failed)
 	{
 		while(!finished)
 		{
+		
+			__LOCK_MUTEX(__VMUTEX);
+				capVid = videoIn->capVid;
+			__UNLOCK_MUTEX(__VMUTEX);
+	
 			/*encode audio in buffer if ready to process (up to current videoTS)*/
 			if(	global->Sound_enable && 
 				is_audio_processing(pdata, TRUE) && 
@@ -961,10 +970,10 @@ void *IO_loop(void *data)
 				finished = process_video (all_data, proc_buff, &(lavc_data), &(jpg_data));
 			}
 		
-			if(finished)
-			{
-				if(global->Sound_enable)
-				{
+			//if(finished)
+			//{
+				//if(global->Sound_enable)
+				//{
 				//	/*wait for audio to finish*/
 				//	int stall = wait_ms(&(pdata->streaming), FALSE, __AMUTEX, 10, 25);
 				//	if( !(stall > 0) )
@@ -976,7 +985,20 @@ void *IO_loop(void *data)
 				//	{
 				//		process_audio(all_data, &(aud_eff));
 				//	}
-				}
+				//}
+			//}
+			
+			if(!capVid)
+			{
+				/* if capture has stopped then limit the number of iterations
+				 * fixes any possible lock on process_audio since finish is only 
+				 * checked on process_video
+				 */
+				max_loops--;
+				if(max_loops < 1)
+					finished = TRUE;
+				else
+					process_video (all_data, proc_buff, &(lavc_data), &(jpg_data));	
 			}
 		}
 	
