@@ -30,11 +30,13 @@
 #define __AMUTEX &pdata->mutex
 #define __VMUTEX &videoIn->mutex
 #define __GMUTEX &global->mutex
+#define __FMUTEX &global->file_mutex
 #define __GCOND  &global->IO_cond
 
 int initGlobals (struct GLOBAL *global) 
 {
 	__INIT_MUTEX( __GMUTEX );
+	__INIT_MUTEX( __FMUTEX );
 	__INIT_COND( __GCOND );   /* Initialized video buffer semaphore */
 
 	global->debug = DEBUG;
@@ -177,6 +179,7 @@ int closeGlobals(struct GLOBAL *global)
 	g_free(global->mode);
 	g_free(global->Sound_IndexDev);
 	__CLOSE_MUTEX( __GMUTEX );
+	__CLOSE_MUTEX( __FMUTEX );
 	__CLOSE_COND( __GCOND );
 	
 	global->videodevice=NULL;

@@ -48,7 +48,8 @@ typedef struct _VidBuff
 struct GLOBAL 
 {
 	  	
-	__MUTEX_TYPE mutex;            
+	__MUTEX_TYPE mutex;    //global struct mutex
+	__MUTEX_TYPE file_mutex; //video file mutex
 	__COND_TYPE  IO_cond;      //IO thread semaphore
 
 	VidBuff *videoBuff;    //video Buffer

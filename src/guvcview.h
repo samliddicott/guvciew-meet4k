@@ -93,6 +93,7 @@ struct ALL_DATA
 	struct GWIDGET *gwidget;
 	struct VidState *s;
 	__THREAD_TYPE video_thread;
+	__THREAD_TYPE audio_thread;
 	__THREAD_TYPE IO_thread;
 };
 

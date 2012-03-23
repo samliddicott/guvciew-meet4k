@@ -45,6 +45,7 @@
 #define __AMUTEX &pdata->mutex
 #define __VMUTEX &videoIn->mutex
 #define __GMUTEX &global->mutex
+#define __FMUTEX &global->file_mutex
 #define __GCOND  &global->IO_cond
 
 /*video capture can only start after buffer allocation*/
@@ -551,17 +552,72 @@ static int buff_scheduler(int w_ind, int r_ind, int buff_size)
 	return sched_sleep;
 }
 
-static void process_audio(struct ALL_DATA *all_data,  
+static int get_audio_flag(struct paRecordData *pdata)
+{
+	int flag = 0;
+	__LOCK_MUTEX(__AMUTEX);
+		flag = pdata->audio_buff_flag[pdata->br_ind];
+	__UNLOCK_MUTEX(__AMUTEX);
+	return flag;
+}
+
+static gboolean is_audio_processing(struct paRecordData *pdata, gboolean set_processing)
+{
+	int flag = get_audio_flag(pdata);
+	
+	if((set_processing) && (flag == AUD_PROCESS))
+	{
+		__LOCK_MUTEX(__AMUTEX);
+			pdata->audio_buff_flag[pdata->br_ind] = AUD_PROCESSING;
+		__UNLOCK_MUTEX(__AMUTEX);
+		
+		flag = AUD_PROCESSING;
+	}	
+	
+	if(flag == AUD_PROCESSING)
+		return TRUE;
+	else
+		return FALSE;
+}
+
+static gboolean is_audioTS_lessThan_videoTS(void *data)
+{
+	struct ALL_DATA *all_data = (struct ALL_DATA *) data;
+	struct paRecordData *pdata = all_data->pdata;
+	struct GLOBAL *global = all_data->global;
+
+	__LOCK_MUTEX(__AMUTEX);
+		QWORD audioTS = pdata->audio_buff[pdata->br_ind][pdata->r_ind].time_stamp;
+	__UNLOCK_MUTEX(__AMUTEX);
+	
+	__LOCK_MUTEX( __GMUTEX );
+		QWORD videoTS = global->videoBuff[global->r_ind].time_stamp;
+	__UNLOCK_MUTEX( __GMUTEX );
+	
+	if (audioTS < videoTS)
+		return TRUE;
+	else
+		return FALSE;
+}
+
+static gboolean process_audio(struct ALL_DATA *all_data,  
 			struct audio_effects **aud_eff)
 {
+	struct vdIn *videoIn = all_data->videoIn;
 	struct paRecordData *pdata = all_data->pdata;
-
-	/*doesn't need locking as current buffer is on AUD_PROCESSING state*/
-	gboolean used = pdata->audio_buff[pdata->br_ind][pdata->r_ind].used;
-  
+	
+	__LOCK_MUTEX(__VMUTEX);
+		gboolean capVid = videoIn->capVid;
+	__UNLOCK_MUTEX(__VMUTEX);
+	
 	/*read audio Frames (1152 * channels  samples each)*/
-	if(used)
-	{	
+	
+	gboolean finish = FALSE;
+	
+	/*used - doesn't need locking as current buffer must be on AUD_PROCESSING state*/
+	if(is_audio_processing(pdata, TRUE) &&
+		pdata->audio_buff[pdata->br_ind][pdata->r_ind].used)
+	{
 		sync_audio_frame(all_data, &pdata->audio_buff[pdata->br_ind][pdata->r_ind]);	
 		/*run effects on data*/
 		/*echo*/
@@ -618,6 +674,7 @@ static void process_audio(struct ALL_DATA *all_data,
 		pdata->audio_buff[pdata->br_ind][pdata->r_ind].used = FALSE;
 		NEXT_IND(pdata->r_ind, AUDBUFF_SIZE);
 		
+		/*start of new buffer block*/
 		if(pdata->r_ind == 0)
 		{
 			__LOCK_MUTEX(__AMUTEX);
@@ -627,6 +684,21 @@ static void process_audio(struct ALL_DATA *all_data,
 		}
 		
 	}
+	else
+	{
+		if (capVid)
+		{
+			/*video buffer underrun            */
+			/*wait for next frame (sleep 10 ms)*/
+			sleep_ms(10);
+		}
+		else 
+		{
+			finish = TRUE; /*all frames processed and no longer capturing so finish*/
+		}
+	}
+	
+	return finish;
 }
 
 static gboolean process_video(struct ALL_DATA *all_data, 
@@ -655,6 +727,7 @@ static gboolean process_video(struct ALL_DATA *all_data,
 	__LOCK_MUTEX(__GMUTEX);
     	gboolean used = global->videoBuff[global->r_ind].used;
     __UNLOCK_MUTEX(__GMUTEX);
+	
 	if (used)
 	{
 		__LOCK_MUTEX(__GMUTEX);
@@ -834,52 +907,43 @@ int store_video_frame(void *data)
 	return ret;
 }
 
-static int get_audio_flag(struct paRecordData *pdata)
-{
-	int flag = 0;
-	__LOCK_MUTEX(__AMUTEX);
-		flag = pdata->audio_buff_flag[pdata->br_ind];
-	__UNLOCK_MUTEX(__AMUTEX);
-	return flag;
-}
-
-static gboolean is_audio_processing(struct paRecordData *pdata, gboolean set_processing)
-{
-	int flag = get_audio_flag(pdata);
-	
-	if((set_processing) && (flag == AUD_PROCESS))
-	{
-		__LOCK_MUTEX(__AMUTEX);
-			pdata->audio_buff_flag[pdata->br_ind] = AUD_PROCESSING;
-		__UNLOCK_MUTEX(__AMUTEX);
-		
-		flag = AUD_PROCESSING;
-	}	
-	
-	if(flag == AUD_PROCESSING)
-		return TRUE;
-	else
-		return FALSE;
-}
-
-static gboolean is_audioTS_lessThan_videoTS(void *data)
+void *Audio_loop(void *data)
 {
 	struct ALL_DATA *all_data = (struct ALL_DATA *) data;
-	struct paRecordData *pdata = all_data->pdata;
 	struct GLOBAL *global = all_data->global;
+	struct paRecordData *pdata = all_data->pdata;
+	struct vdIn *videoIn = all_data->videoIn;
 
-	__LOCK_MUTEX(__AMUTEX);
-		QWORD audioTS = pdata->audio_buff[pdata->br_ind][pdata->r_ind].time_stamp;
-	__UNLOCK_MUTEX(__AMUTEX);
+	struct audio_effects *aud_eff = init_audio_effects ();
+	global->av_drift = 0;
+	pdata->ts_drift = 0;
 	
-	__LOCK_MUTEX( __GMUTEX );
-		QWORD videoTS = global->videoBuff[global->r_ind].time_stamp;
-	__UNLOCK_MUTEX( __GMUTEX );
+	gboolean capVid = TRUE;
+	gboolean finished = FALSE;
+	int max_loops = 60;
 	
-	if (audioTS < videoTS)
-		return TRUE;
-	else
-		return FALSE;
+	while(!finished)
+	{
+		__LOCK_MUTEX(__VMUTEX);
+			capVid = videoIn->capVid;
+		__UNLOCK_MUTEX(__VMUTEX);
+			
+		finished = process_audio(all_data, &(aud_eff));
+		
+		if(!capVid)
+		{
+			/* if capture has stopped then limit the number of iterations
+			 * fixes any possible loop lock on process_audio
+			 */
+			max_loops--;
+			if(max_loops < 1)
+				finished = TRUE;
+		}
+	}
+	
+	close_audio_effects (aud_eff);
+	
+	return ((void *) 0);
 }
 
 void *IO_loop(void *data)
@@ -894,7 +958,7 @@ void *IO_loop(void *data)
 	struct JPEG_ENCODER_STRUCTURE *jpg_data=NULL;
 	struct lavcData *lavc_data = NULL;
 	struct lavcAData *lavc_audio_data = NULL;
-	struct audio_effects *aud_eff = NULL;
+	//struct audio_effects *aud_eff = NULL;
 	
 	gboolean capVid = TRUE;
 	gboolean finished=FALSE;
@@ -905,6 +969,7 @@ void *IO_loop(void *data)
 	__UNLOCK_MUTEX(__VMUTEX);
     
 	gboolean failed = FALSE;
+	gboolean audio_failed = FALSE;
 	
 	//video buffers to be processed
 	int frame_size=0;
@@ -940,14 +1005,17 @@ void *IO_loop(void *data)
 		proc_buff->frame = g_new0(BYTE, frame_size);
 	
 		if (global->Sound_enable) 
-		{
-			aud_eff=init_audio_effects ();
-			global->av_drift = 0;
-			pdata->ts_drift = 0;
+		{	
+			/*start audio process thread*/
+			if( __THREAD_CREATE(&all_data->audio_thread, Audio_loop, (void *) all_data))
+			{
+				g_printerr("Audio thread creation failed\n");
+				audio_failed = TRUE;
+			}
 		}
 	}
 	
-	
+	/*process video frames*/
 	if(!failed)
 	{
 		while(!finished)
@@ -957,57 +1025,32 @@ void *IO_loop(void *data)
 				capVid = videoIn->capVid;
 			__UNLOCK_MUTEX(__VMUTEX);
 	
-			/*encode audio in buffer if ready to process (up to current videoTS)*/
-			if(	global->Sound_enable && 
-				is_audio_processing(pdata, TRUE) && 
-				is_audioTS_lessThan_videoTS(all_data) )
-			{
-				process_audio(all_data, &(aud_eff));
-			}
-			else /* encode video */
-			{	
-				finished = process_video (all_data, proc_buff, &(lavc_data), &(jpg_data));
-			}
-		
-			//if(finished)
-			//{
-				//if(global->Sound_enable)
-				//{
-				//	/*wait for audio to finish*/
-				//	int stall = wait_ms(&(pdata->streaming), FALSE, __AMUTEX, 10, 25);
-				//	if( !(stall > 0) )
-				//	{
-				//		g_printerr("audio streaming stalled - timeout\n");
-				//	}
-				//	/*process any remaining audio*/
-				//	while (	is_audio_processing(pdata, TRUE) )
-				//	{
-				//		process_audio(all_data, &(aud_eff));
-				//	}
-				//}
-			//}
+			finished = process_video (all_data, proc_buff, &(lavc_data), &(jpg_data));
 			
 			if(!capVid)
 			{
 				/* if capture has stopped then limit the number of iterations
-				 * fixes any possible lock on process_audio since finish is only 
-				 * checked on process_video
+				 * fixes any possible loop lock on process_video 
 				 */
 				max_loops--;
 				if(max_loops < 1)
 					finished = TRUE;
-				else
-					process_video (all_data, proc_buff, &(lavc_data), &(jpg_data));	
 			}
 		}
-	
+		
+		if (global->Sound_enable && !audio_failed) 
+		{
+			/* join audio thread*/
+			__THREAD_JOIN( all_data->audio_thread );
+		}
+		
 		/*finish capture*/
 		closeVideoFile(all_data);
 	
 		/*free proc buffer*/
 		g_free(proc_buff->frame);
 		g_free(proc_buff);
-		if (global->Sound_enable) close_audio_effects (aud_eff);
+		//if (global->Sound_enable) close_audio_effects (aud_eff);
 	}
 	
 	if(lavc_data != NULL)

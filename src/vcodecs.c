@@ -35,6 +35,8 @@
 #define CODEC_FLAG2_INTRA_REFRESH 0
 #endif
 
+#define __FMUTEX &global->file_mutex
+
 static BITMAPINFOHEADER mkv_codecPriv =
 {
 	.biSize = 0x00000028, //40 bytes 
@@ -509,6 +511,7 @@ static int write_video_data(struct ALL_DATA *all_data, BYTE *buff, int size)
 	
 	int ret =0;
 	
+	__LOCK_MUTEX( __FMUTEX );
 	switch (global->VidFormat)
 	{
 		case AVI_FORMAT:
@@ -527,6 +530,7 @@ static int write_video_data(struct ALL_DATA *all_data, BYTE *buff, int size)
 			
 			break;
 	}
+	__UNLOCK_MUTEX( __FMUTEX );
 	
 	return (ret);
 }

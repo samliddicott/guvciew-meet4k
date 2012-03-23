@@ -31,6 +31,8 @@
 #include <glib/gi18n.h>
 #include <linux/videodev2.h>
 
+#define __FMUTEX &global->file_mutex
+
 /* AAC object types index: MAIN = 1; LOW = 2; SSR = 3; LTP = 4*/
 static int AAC_OBJ_TYPE[5] = 
 	{ FF_PROFILE_UNKNOWN, FF_PROFILE_AAC_MAIN, FF_PROFILE_AAC_LOW, FF_PROFILE_AAC_SSR, FF_PROFILE_AAC_LTP };
@@ -275,6 +277,8 @@ static int write_audio_data(struct ALL_DATA *all_data, BYTE *buff, int size, QWO
 	
 	int ret =0;
 	
+	__LOCK_MUTEX( __FMUTEX );
+	
 	switch (global->VidFormat)
 	{
 		case AVI_FORMAT:
@@ -292,6 +296,8 @@ static int write_audio_data(struct ALL_DATA *all_data, BYTE *buff, int size, QWO
 			
 			break;
 	}
+	
+	__UNLOCK_MUTEX( __FMUTEX );
 	
 	return (ret);
 }
