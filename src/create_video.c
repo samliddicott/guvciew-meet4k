@@ -534,19 +534,19 @@ static int buff_scheduler(int w_ind, int r_ind, int buff_size)
 {
 	int diff_ind = 0;
 	int sched_sleep = 0;
-	//try to balance buffer overrun in read/write operations 
+	/* try to balance buffer overrun in read/write operations */
 	if(w_ind >= r_ind)
 		diff_ind = w_ind - r_ind;
 	else
 		diff_ind = (buff_size - r_ind) + w_ind;
 	
-	if (diff_ind <= (buff_size * 4/10)) sched_sleep = 0;        /* full throttle */
-	else if (diff_ind <= (buff_size * 5/10)) sched_sleep = 10;  /* <= 10  ms ~1 frame @ 90  fps */
-	else if (diff_ind <= (buff_size * 6/10)) sched_sleep = 30;  /* <= 30  ms ~1 frame @ 30  fps */
-	else if (diff_ind <= (buff_size * 7/10)) sched_sleep = 60;  /* <= 60  ms ~1 frame @ 15  fps */
-	else if (diff_ind <= (buff_size * 8/10)) sched_sleep = 100; /* <= 100 ms ~1 frame @ 10  fps */
-	else if (diff_ind <= (buff_size * 9/10)) sched_sleep = 130; /* <= 130 ms ~1 frame @ 7,5 fps */
-	else sched_sleep = 210;                                                   /* <= 210 ms ~1 frame @ 5   fps */
+	int th = (int) buff_size * 0.5;
+	
+	if(diff_ind <= th) /* from 0 to 50 ms (down to 20 fps)*/
+		sched_sleep = (int) (diff_ind/buff_size) * 50;
+	else               /*from 50 to 210 ms (down to 5 fps)*/
+		sched_sleep = (int) (diff_ind/buff_size) * 320 - 110;
+	
 	//g_printf("diff index: %i sleep %i\n",diff_ind, sched_sleep);
 	return sched_sleep;
 }
@@ -559,10 +559,9 @@ static void process_audio(struct ALL_DATA *all_data,
 	/*doesn't need locking as current buffer is on AUD_PROCESSING state*/
 	gboolean used = pdata->audio_buff[pdata->br_ind][pdata->r_ind].used;
   
-	/*read at most 10 audio Frames (1152 * channels  samples each)*/
+	/*read audio Frames (1152 * channels  samples each)*/
 	if(used)
 	{	
-
 		sync_audio_frame(all_data, &pdata->audio_buff[pdata->br_ind][pdata->r_ind]);	
 		/*run effects on data*/
 		/*echo*/
