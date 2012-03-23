@@ -24,6 +24,7 @@
 #include <glib/gprintf.h>
 #include <pthread.h>
 #include <stdlib.h>
+#include <math.h>
 
 #include "../config.h"
 #include "defs.h"
@@ -541,12 +542,14 @@ static int buff_scheduler(int w_ind, int r_ind, int buff_size)
 	else
 		diff_ind = (buff_size - r_ind) + w_ind;
 	
-	int th = (int) buff_size * 0.5;
+	int th = (int) lround((double) buff_size * 0.7);
 	
-	if(diff_ind <= th) /* from 0 to 50 ms (down to 20 fps)*/
-		sched_sleep = (int) (diff_ind/buff_size) * 50;
-	else               /*from 50 to 210 ms (down to 5 fps)*/
-		sched_sleep = (int) (diff_ind/buff_size) * 320 - 110;
+	if(diff_ind <= th) /* from 0 to 50 ms (down below 20 fps)*/
+		sched_sleep = (int) lround((double) (diff_ind * 71) / buff_size);
+	else               /*from 50 to 210 ms (down below 5 fps)*/
+		sched_sleep = (int) lround((double) ((diff_ind * 320) / buff_size) - 110);
+	
+	if(sched_sleep < 0) sched_sleep = 0; /*clip to positive values just in case*/
 	
 	//g_printf("diff index: %i sleep %i\n",diff_ind, sched_sleep);
 	return sched_sleep;
