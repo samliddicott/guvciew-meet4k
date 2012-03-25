@@ -583,25 +583,25 @@ static gboolean is_audio_processing(struct paRecordData *pdata, gboolean set_pro
 		return FALSE;
 }
 
-static gboolean is_audioTS_lessThan_videoTS(void *data)
-{
-	struct ALL_DATA *all_data = (struct ALL_DATA *) data;
-	struct paRecordData *pdata = all_data->pdata;
-	struct GLOBAL *global = all_data->global;
-
-	__LOCK_MUTEX(__AMUTEX);
-		QWORD audioTS = pdata->audio_buff[pdata->br_ind][pdata->r_ind].time_stamp;
-	__UNLOCK_MUTEX(__AMUTEX);
-	
-	__LOCK_MUTEX( __GMUTEX );
-		QWORD videoTS = global->videoBuff[global->r_ind].time_stamp;
-	__UNLOCK_MUTEX( __GMUTEX );
-	
-	if (audioTS < videoTS)
-		return TRUE;
-	else
-		return FALSE;
-}
+//static gboolean is_audioTS_lessThan_videoTS(void *data)
+//{
+//	struct ALL_DATA *all_data = (struct ALL_DATA *) data;
+//	struct paRecordData *pdata = all_data->pdata;
+//	struct GLOBAL *global = all_data->global;
+//
+//	__LOCK_MUTEX(__AMUTEX);
+//		QWORD audioTS = pdata->audio_buff[pdata->br_ind][pdata->r_ind].time_stamp;
+//	__UNLOCK_MUTEX(__AMUTEX);
+//	
+//	__LOCK_MUTEX( __GMUTEX );
+//		QWORD videoTS = global->videoBuff[global->r_ind].time_stamp;
+//	__UNLOCK_MUTEX( __GMUTEX );
+//	
+//	if (audioTS < videoTS)
+//		return TRUE;
+//	else
+//		return FALSE;
+//}
 
 static gboolean process_audio(struct ALL_DATA *all_data,  
 			struct audio_effects **aud_eff)
@@ -954,7 +954,6 @@ void *IO_loop(void *data)
 	struct ALL_DATA *all_data = (struct ALL_DATA *) data;
 	
 	struct GWIDGET *gwidget = all_data->gwidget;
-	struct paRecordData *pdata = all_data->pdata;
 	struct GLOBAL *global = all_data->global;
 	struct vdIn *videoIn = all_data->videoIn;
 
