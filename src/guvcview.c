@@ -474,7 +474,7 @@ int main(int argc, char *argv[])
         
         if (global->lprofile > 0) LoadControls (&all_data);
         
-        gwidget->boxv = gtk_vpaned_new ();
+        gwidget->boxv = gtk_paned_new (GTK_ORIENTATION_VERTICAL);
         gwidget->boxh = gtk_notebook_new();
 
         gtk_widget_show (s->table);
