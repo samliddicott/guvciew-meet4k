@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: guvcview\n"
 "Report-Msgid-Bugs-To: pj.assis@gmail.com\n"
 "POT-Creation-Date: 2012-03-16 00:37+0000\n"
-"PO-Revision-Date: 2012-01-17 21:00+0100\n"
+"PO-Revision-Date: 2012-04-05 10:00+0100\n"
 "Last-Translator: Giovanni Scafora <giovanni@archlinux.org>\n"
 "Language-Team: Arch Linux Italian Team <giovanni@archlinux.org>\n"
 "Language: it\n"
@@ -463,7 +463,7 @@ msgstr ""
 
 #: ../src/video_tab.c:150
 msgid " monotonic pts"
-msgstr ""
+msgstr " punti monocromatici"
 
 #. bit rate
 #: ../src/video_tab.c:157 ../src/audio_tab.c:59
@@ -543,9 +543,8 @@ msgid "max B frames:   "
 msgstr "numero massimo di immagini B:   "
 
 #: ../src/video_tab.c:404
-#, fuzzy
 msgid "num threads:   "
-msgstr "metodo me:   "
+msgstr "numero di thread:   "
 
 #: ../src/video_tab.c:516
 msgid "Video & Files"
@@ -594,7 +593,7 @@ msgstr "Formato dell'immagine:"
 
 #: ../src/video_tab.c:797
 msgid "Take Picture by Default"
-msgstr ""
+msgstr "Prendi l'immagine predefinita"
 
 #: ../src/video_tab.c:808
 msgid "Video File:"
@@ -615,7 +614,7 @@ msgstr "Formato video:"
 
 #: ../src/video_tab.c:924
 msgid "Take Video by Default"
-msgstr ""
+msgstr "Prendi il video predefinito"
 
 #: ../src/video_tab.c:934
 msgid "---- Video Filters ----"
@@ -1008,12 +1007,12 @@ msgstr "Spazio libero sul disco insufficiente"
 
 #: ../data/guvcview.desktop.in.h:1
 msgid "A video viewer and capturer for the linux uvc driver"
-msgstr ""
+msgstr "Un visualizzatore e catturatore video per il driver uvc di linux"
 
 #: ../data/guvcview.desktop.in.h:2
 msgid "GTK UVC video viewer"
-msgstr ""
+msgstr "GTK UVC visualizzatore video"
 
 #: ../data/guvcview.desktop.in.h:3
 msgid "guvcview"
-msgstr ""
+msgstr "guvcview"
