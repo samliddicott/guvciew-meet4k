@@ -31,7 +31,7 @@
 
 #define __AMUTEX &pdata->mutex
 
-static void* finish(struct paRecordData *pdata)
+static void finish(struct paRecordData *pdata)
 {
 	g_print("audio thread exited\n");
 	pdata->streaming = FALSE;
@@ -99,7 +99,7 @@ static void* pulse_read_audio(void *userdata)
 		
 		ts = ns_time_monotonic() - framesPerBuffer * nsec_per_frame;
 		
-		buffer_length = (G_NSEC_PER_SEC * pdata->aud_numSamples)/(pdata->samprate * pdata->channels);
+		UINT64 buffer_length = (G_NSEC_PER_SEC * pdata->aud_numSamples)/(pdata->samprate * pdata->channels);
 		/*first frame time stamp*/
 		if(pdata->a_ts <= 0)
 		{
@@ -157,7 +157,7 @@ static void* pulse_read_audio(void *userdata)
 				
 					if(pdata->audio_buff_flag[pdata->bw_ind] != AUD_READY)
 					{
-						g_printf("AUDIO: next buffer is not yet ready\n");
+						g_print("AUDIO: next buffer is not yet ready\n");
 					}
 					else
 					{
