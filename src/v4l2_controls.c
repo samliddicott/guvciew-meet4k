@@ -857,24 +857,26 @@ void create_control_widgets(Control *control_list, void *all_data, int control_o
                             /* check for valid range */
                             if((current->control.maximum > current->control.minimum) && (current->control.step != 0))
                             {
-                                current->widget = gtk_scale_new_with_range (
-                                	GTK_ORIENTATION_HORIZONTAL,
-                                    current->control.minimum,
+                            	GtkAdjustment *adjustment =  gtk_adjustment_new (
+                                	current->value,
+                                	current->control.minimum,
                                     current->control.maximum,
-                                    current->control.step);
+                                    current->control.step,
+                                    current->control.step*10,
+                                    0);
+                                    
+                                current->widget = gtk_scale_new (GTK_ORIENTATION_HORIZONTAL, adjustment);
+                                
                                 gtk_scale_set_draw_value (GTK_SCALE (current->widget), FALSE);
                                 gtk_range_set_round_digits(GTK_RANGE (current->widget), 0);
+                                
                                 gtk_widget_show (current->widget);
-                            
-                                current->spinbutton = gtk_spin_button_new_with_range(
-                                    current->control.minimum,
-                                    current->control.maximum,
-                                    current->control.step);
+                                	
+                                current->spinbutton = gtk_spin_button_new(adjustment,current->control.step, 0);
+                                
                                 /*can't edit the spin value by hand*/
-                                gtk_editable_set_editable(GTK_EDITABLE(current->spinbutton),FALSE);
-                            
-                                gtk_range_set_value (GTK_RANGE (current->widget), current->value);
-                                gtk_spin_button_set_value (GTK_SPIN_BUTTON(current->spinbutton), current->value);
+                                gtk_editable_set_editable(GTK_EDITABLE(current->spinbutton),TRUE);
+                                
                                 gtk_widget_show (current->spinbutton);
                              
                                 g_object_set_data (G_OBJECT (current->widget), "control_info", 

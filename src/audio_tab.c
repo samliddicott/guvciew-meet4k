@@ -183,7 +183,7 @@ void audio_tab(struct ALL_DATA *all_data)
 	gwidget->SndAPI = gtk_combo_box_text_new ();
 	gtk_widget_set_halign (gwidget->SndAPI, GTK_ALIGN_FILL);
 	gtk_widget_set_hexpand (gwidget->SndAPI, TRUE);
-	gtk_grid_attach(GTK_GRID(table3), gwidget->SndAPI, 1, line, 2, 1);
+	gtk_grid_attach(GTK_GRID(table3), gwidget->SndAPI, 1, line, 1, 1);
 	
 	gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(gwidget->SndAPI),_("PORTAUDIO"));
 	gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(gwidget->SndAPI),_("PULSEAUDIO"));
