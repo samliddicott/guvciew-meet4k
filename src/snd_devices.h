@@ -23,8 +23,12 @@
 #define SNDDEV_H
 #include <gtk/gtk.h>
 #include "globals.h"
+#include "guvcview.h"
 
 GtkWidget * 
 list_snd_devices(struct GLOBAL *global);
+
+void
+update_snd_devices(struct ALL_DATA *all_data);
 
 #endif

@@ -160,7 +160,7 @@ static int initVideoFile(struct ALL_DATA *all_data, void * lavc_aud_data)
 					/* Initialize sound (open stream)*/
 					if(init_sound (pdata)) 
 					{
-						g_printerr("error opening portaudio\n");
+						g_printerr("Audio initialization error\n");
 						global->Sound_enable=0;
 						if(!(global->no_display))
                         {
@@ -210,7 +210,7 @@ static int initVideoFile(struct ALL_DATA *all_data, void * lavc_aud_data)
 				/* Initialize sound (open stream)*/
 				if(init_sound (pdata)) 
 				{
-					g_printerr("error opening portaudio\n");
+					g_printerr("Audio initialization error\n");
 					global->Sound_enable=0;
 					if(!(global->no_display))
                     {

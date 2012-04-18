@@ -32,6 +32,8 @@ typedef struct _sndDev
 	int id;
 	int chan;
 	int samprate;
+	char name[512];
+	char description[256];
 	//PaTime Hlatency;
 	//PaTime Llatency;
 } sndDev;

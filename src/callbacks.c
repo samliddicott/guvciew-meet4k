@@ -35,6 +35,7 @@
 #include "avilib.h"
 #include "globals.h"
 #include "sound.h"
+#include "snd_devices.h"
 #include "ms_time.h"
 #include "string_utils.h"
 #include "video.h"
@@ -899,17 +900,13 @@ SndAPI_changed (GtkComboBox * SoundAPI, struct ALL_DATA *all_data)
 {
 	struct GLOBAL *global = all_data->global;
 	struct paRecordData *pdata = all_data->pdata;
-	struct GWIDGET *gwidget = all_data->gwidget;
+	//struct GWIDGET *gwidget = all_data->gwidget;
 	
 	global->Sound_API=gtk_combo_box_get_active (SoundAPI);
 	pdata->api = global->Sound_API;
-	if(!global->Sound_API) gtk_widget_set_sensitive (gwidget->SndDevice, TRUE);//enable sound device combobox
-	else
-	{
-		global->Sound_UseDev = global->Sound_DefDev;; //force default device
-		gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->SndDevice),global->Sound_UseDev);
-		gtk_widget_set_sensitive (gwidget->SndDevice, FALSE); //disable sound device combobox
-	}
+	
+	update_snd_devices(all_data);
+	
 	g_print("using audio API n:%d\n",global->Sound_API);
 	global = NULL;
 }

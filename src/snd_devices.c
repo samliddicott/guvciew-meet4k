@@ -20,18 +20,21 @@
 ********************************************************************************/
 #include <glib.h>
 #include <glib/gprintf.h>
+#include <string.h>
 #include <portaudio.h>
+#include "sound.h"
+#include "guvcview.h"
+#include "callbacks.h"
 #include "snd_devices.h"
 
-GtkWidget * 
-list_snd_devices(struct GLOBAL *global)
+int
+portaudio_list_snd_devices(struct GLOBAL *global)
 {
 	int   it, numDevices, defaultDisplayed;
 	const PaDeviceInfo *deviceInfo;
-
-	//PaError err;
-	/*sound device combo box*/
-	GtkWidget *SndDevice = gtk_combo_box_text_new ();
+	
+	//reset device count
+	global->Sound_numInputDev = 0;
 	
 	numDevices = Pa_GetDeviceCount();
 	if( numDevices < 0 )
@@ -104,11 +107,12 @@ list_snd_devices(struct GLOBAL *global)
 				global->Sound_IndexDev = g_renew(sndDev, global->Sound_IndexDev, global->Sound_numInputDev);
 				//fill structure with sound data
 				global->Sound_IndexDev[global->Sound_numInputDev-1].id=it; /*saves dev id*/
+				strncpy(global->Sound_IndexDev[global->Sound_numInputDev-1].name, deviceInfo->name, 511);
+				strncpy(global->Sound_IndexDev[global->Sound_numInputDev-1].description, deviceInfo->name, 255);
 				global->Sound_IndexDev[global->Sound_numInputDev-1].chan=deviceInfo->maxInputChannels;
 				global->Sound_IndexDev[global->Sound_numInputDev-1].samprate=deviceInfo->defaultSampleRate;
 				//Sound_IndexDev[Sound_numInputDev].Hlatency=deviceInfo->defaultHighInputLatency;
 				//Sound_IndexDev[Sound_numInputDev].Llatency=deviceInfo->defaultLowInputLatency;
-				gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(SndDevice),deviceInfo->name);
 			}
 			if (global->debug) 
 			{
@@ -125,5 +129,75 @@ list_snd_devices(struct GLOBAL *global)
 		if (global->debug) g_print("----------------------------------------------\n");
 	}
 	
+	return 0;
+}
+
+GtkWidget * 
+list_snd_devices(struct GLOBAL *global)
+{
+	int i = 0;
+	
+	switch(global->Sound_API)
+	{
+#ifdef PULSEAUDIO
+		case PULSE:
+			pulse_list_snd_devices(global);
+			break;
+#endif
+		default:
+		case PORT:
+			portaudio_list_snd_devices(global);
+			break;
+	}
+	/*sound device combo box*/
+	
+	GtkWidget *SndDevice = gtk_combo_box_text_new ();
+	
+	for(i=0; i < global->Sound_numInputDev; i++)
+	{
+		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(SndDevice),global->Sound_IndexDev[i].description);
+	}
+	
 	return (SndDevice);
+}
+
+void
+update_snd_devices(struct ALL_DATA *all_data)
+{
+	struct GLOBAL *global = all_data->global;
+	struct GWIDGET *gwidget = all_data->gwidget;
+	
+	int i = 0;
+	
+	switch(global->Sound_API)
+	{
+#ifdef PULSEAUDIO
+		case PULSE:
+			pulse_list_snd_devices(global);
+			break;
+#endif
+		default:
+		case PORT:
+			portaudio_list_snd_devices(global);
+			break;
+	}
+	
+	/*disable fps combobox signals*/
+	g_signal_handlers_block_by_func(GTK_COMBO_BOX_TEXT(gwidget->SndDevice), G_CALLBACK (SndDevice_changed), all_data);
+	/* clear out the old device list... */
+	GtkListStore *store = GTK_LIST_STORE(gtk_combo_box_get_model (GTK_COMBO_BOX(gwidget->SndDevice)));
+	gtk_list_store_clear(store);
+	
+	for(i=0; i < global->Sound_numInputDev; i++)
+	{
+		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(gwidget->SndDevice), global->Sound_IndexDev[i].description);
+	}
+	
+	/*set default device in combo*/
+	global->Sound_UseDev = global->Sound_DefDev;
+	gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->SndDevice), global->Sound_UseDev);
+	
+	/*enable fps combobox signals*/ 
+	g_signal_handlers_unblock_by_func(GTK_COMBO_BOX_TEXT(gwidget->SndDevice), G_CALLBACK (SndDevice_changed), all_data);
+	
 }

@@ -255,7 +255,7 @@ int main(int argc, char *argv[])
 	if(!control_only) /*control_only exclusion (video and Audio) */
 	{
 		pdata = g_new0(struct paRecordData, 1);
-
+		//pdata->maincontext = g_main_context_default();
 		/*create mutex for sound buffers*/
 		__INIT_MUTEX(__AMUTEX);
 
@@ -284,7 +284,7 @@ int main(int argc, char *argv[])
     gtk_init(&argc, &argv);
     g_set_application_name(_("Guvcview Video Capture"));
     g_setenv("PULSE_PROP_media.role", "video", TRUE); //needed for Pulse Audio
-        
+	
     if(!global->no_display)
     {
         /* make sure the type is realized so that we can change the properties*/

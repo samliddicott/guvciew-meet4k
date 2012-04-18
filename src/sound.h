@@ -30,9 +30,7 @@
 #include "defs.h"
 
 #ifdef PULSEAUDIO
-  #include <pulse/simple.h>
-  #include <pulse/error.h>
-  #include <pulse/gccmacro.h>
+#include <pulse/pulseaudio.h>
 #endif
 
 /*------------- portaudio defs ----------------*/
@@ -48,8 +46,10 @@
 
 #define NUM_CHANNELS    (0) /* 0-device default 1-mono 2-stereo */
 
-#define PA_SAMPLE_TYPE  paFloat32
-#define PA_FOURCC       WAVE_FORMAT_PCM //use PCM 16 bits converted from float
+#define PA_SAMPLE_TYPE     paFloat32
+#define PA_FOURCC          WAVE_FORMAT_PCM //use PCM 16 bits converted from float
+#define PULSE_SAMPLE_TYPE  PA_SAMPLE_FLOAT32LE //for PCM -> PA_SAMPLE_S16LE
+
 
 #define SAMPLE_SILENCE  (0.0f)
 #define MAX_SAMPLE (1.0f)
@@ -80,8 +80,9 @@ struct paRecordData
 	int input_type; // audio SAMPLE type
 	PaStreamParameters inputParameters;
 	PaStream *stream;
-	unsigned long framesPerBuffer; //frames per buffer passed in audio callback
-
+	unsigned long framesPerBuffer;   //frames per buffer passed in audio callback
+	char device_name[512];           //pulse device name 
+	
 	int w_ind;                       // producer index
 	int r_ind;                       // consumer index
 	int bw_ind;                      // audio_buffer in_use index
@@ -111,14 +112,15 @@ struct paRecordData
 	int skip_n;                      // video frames to skip
 	UINT64 delay;                    // in nanosec - h264 has a two frame delay that must be compensated
 	
-	int outbuf_size;	         //size of output buffer
+	int outbuf_size;	             //size of output buffer
 	struct lavcAData* lavc_data;     //libavcodec data
 	__MUTEX_TYPE mutex;
 	
 	//PULSE SUPPORT
 #ifdef PULSEAUDIO
-	pa_simple *pulse_simple;
 	 __THREAD_TYPE pulse_read_th;
+	/*The main loop context*/
+	//GMainContext *maincontext;
 #endif
 };
 
@@ -128,6 +130,9 @@ recordCallback (const void *inputBuffer, void *outputBuffer,
 	const PaStreamCallbackTimeInfo* timeInfo,
 	PaStreamCallbackFlags statusFlags,
 	void *userData );
+
+int 
+fill_audio_buffer(struct paRecordData *pdata, UINT64 ts);
 
 void
 set_sound (struct GLOBAL *global, struct paRecordData* data);
@@ -142,14 +147,12 @@ void
 Float2Int16 (struct paRecordData* data);
 
 #ifdef PULSEAUDIO
-void
-pulse_set_audio (struct GLOBAL *global, struct paRecordData* data);
+int
+pulse_list_snd_devices(struct GLOBAL *global);
 
 int
 pulse_init_audio(struct paRecordData* data);
 
-int
-pulse_close_sound (struct paRecordData *data);
 #endif
 
 #endif

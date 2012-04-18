@@ -31,7 +31,7 @@
 
 #define __AMUTEX &pdata->mutex
 
-static int fill_audio_buffer(struct paRecordData *pdata, UINT64 ts)
+int fill_audio_buffer(struct paRecordData *pdata, UINT64 ts)
 {
 	int ret =0;
 	UINT64 buffer_length;
@@ -211,6 +211,7 @@ set_sound (struct GLOBAL *global, struct paRecordData* pdata)
 			global->Sound_IndexDev[global->Sound_UseDev].chan : 2;
 	}
 	
+	pdata->api = global->Sound_API;
 	pdata->audio_buff[0] = NULL;
 	pdata->recordedSamples = NULL;
 	
@@ -280,8 +281,10 @@ set_sound (struct GLOBAL *global, struct paRecordData* pdata)
 	pdata->last_ind  = 0;
 	/*buffer for video PCM 16 bits*/
 	pdata->pcm_sndBuff=NULL;
-	/*set audio device to use*/
+	/*set audio device to use (portaudio)*/
 	pdata->inputParameters.device = global->Sound_IndexDev[global->Sound_UseDev].id; /* input device */
+	/*set audio device to use (pulseudio)*/
+	strncpy(pdata->device_name, global->Sound_IndexDev[global->Sound_UseDev].name, 511);
 }
 
 

@@ -24,6 +24,7 @@
 
 #include <glib.h>
 #include <string.h>
+#include "sound.h"
 #include "audio_effects.h"
 #include "ms_time.h"
 
@@ -31,150 +32,443 @@
 
 #define __AMUTEX &pdata->mutex
 
-static void finish(struct paRecordData *pdata)
+static int latency = 20000; // start latency in micro seconds
+//static pa_buffer_attr bufattr;
+//static pa_sample_spec ss;
+static int underflows = 0;
+static int sink_index = 0;
+static int source_index = 0;
+
+static void 
+finish(pa_context *pa_ctx, pa_mainloop *pa_ml)
 {
 	g_print("audio thread exited\n");
-	pdata->streaming = FALSE;
-	if (pdata->pulse_simple)
-		pa_simple_free(pdata->pulse_simple);
+	// clean up and disconnect
+	pa_context_disconnect(pa_ctx);
+	pa_context_unref(pa_ctx);
+	pa_mainloop_free(pa_ml);
 }
 
-//run in separate thread
-static void* pulse_read_audio(void *userdata) 
+// This callback gets called when our context changes state.  We really only
+// care about when it's ready or if it has failed
+void 
+pa_state_cb(pa_context *c, void *userdata) 
 {
-	int error = 0;
-	int flag = 0;
-	int skip_n = 0;
-	struct paRecordData *pdata = (struct paRecordData*) userdata;
-	UINT64 ts, nsec_per_frame;
-	UINT64 framesPerBuffer;
-	
-	/* The sample type to use */
-	pa_sample_spec ss;
-	if (BIGENDIAN)
-		ss.format = PA_SAMPLE_FLOAT32BE;
-	else
-		ss.format = PA_SAMPLE_FLOAT32LE;
-	
-	__LOCK_MUTEX(__AMUTEX);
-		gboolean capVid = pdata->capVid;
-		pdata->streaming = TRUE;
-		ss.rate = pdata->samprate;
-		ss.channels = pdata->channels;
-	__UNLOCK_MUTEX(__AMUTEX);
-
-	g_print("starting pulse audio thread: %d hz- %d ch\n",ss.rate, ss.channels);
-	if (!(pdata->pulse_simple = pa_simple_new(NULL, "Guvcview Video Capture", PA_STREAM_RECORD, NULL, "pcm.record", &ss, NULL, NULL, &error))) 
+	pa_context_state_t state;
+	int *pa_ready = userdata;
+	state = pa_context_get_state(c);
+	switch  (state) 
 	{
-		g_printerr(": pa_simple_new() failed: %s\n", pa_strerror(error));
-		finish(pdata);
-		return (NULL);
+		// These are just here for reference
+		case PA_CONTEXT_UNCONNECTED:
+		case PA_CONTEXT_CONNECTING:
+		case PA_CONTEXT_AUTHORIZING:
+		case PA_CONTEXT_SETTING_NAME:
+		default:
+			break;
+		case PA_CONTEXT_FAILED:
+		case PA_CONTEXT_TERMINATED:
+			*pa_ready = 2;
+			break;
+		case PA_CONTEXT_READY:
+			*pa_ready = 1;
+			break;
 	}
+}
+
+// pa_mainloop will call this function when it's ready to tell us about a sink.
+// Since we're not threading, there's no need for mutexes on the devicelist
+// structure
+void pa_sinklist_cb(pa_context *c, const pa_sink_info *l, int eol, void *userdata) 
+{
+    // If eol is set to a positive number, you're at the end of the list
+    if (eol > 0) 
+	{
+        return;
+    }
 	
+	sink_index++;
+	
+	g_print("=======[ Output Device #%d ]=======\n", sink_index);
+	g_print("Description: %s\n", l->description);
+	g_print("Name: %s\n", l->name);
+	g_print("Index: %d\n", l->index);
+	g_print("Channels: %d\n", l->channel_map.channels);
+	g_print("SampleRate: %d\n", l->sample_spec.rate);
+	g_print("Latency: %llu (usec)\n", (long long unsigned) l->latency);
+	g_print("Card: %d\n", l->card);
+	g_print("\n");	
+}
+
+// See above.  This callback is pretty much identical to the previous
+void pa_sourcelist_cb(pa_context *c, const pa_source_info *l, int eol, void *userdata) 
+{
+    struct GLOBAL *global = userdata;
+    int channels = 1;
+
+    if (eol > 0) 
+	{
+        return;
+    }
+	
+	source_index++;
+	
+	if(l->sample_spec.channels <1)
+		channels = 1;
+	else if (l->sample_spec.channels > 2)
+		channels = 2;
+	else
+		channels = l->sample_spec.channels;
+	
+	g_print("=======[ Input Device #%d ]=======\n", source_index);
+	g_print("Description: %s\n", l->description);
+    g_print("Name: %s\n", l->name);
+    g_print("Index: %d\n", l->index);
+	g_print("Channels: %d (default to: %d)\n", l->sample_spec.channels, channels);
+	g_print("SampleRate: %d\n", l->sample_spec.rate);
+	g_print("Latency: %llu (usec)\n", (long long unsigned) l->latency);
+	g_print("Card: %d\n", l->card);
+    g_print("\n");
+	
+	if(l->monitor_of_sink == PA_INVALID_INDEX)
+	{
+		global->Sound_numInputDev++;
+		//allocate new Sound Device Info
+		global->Sound_IndexDev = g_renew(sndDev, global->Sound_IndexDev, global->Sound_numInputDev);
+		//fill structure with sound data
+		global->Sound_IndexDev[global->Sound_numInputDev-1].id = l->index; /*saves dev id*/
+		strncpy(global->Sound_IndexDev[global->Sound_numInputDev-1].name,  l->name, 511);
+		strncpy(global->Sound_IndexDev[global->Sound_numInputDev-1].description, l->description, 255);
+		global->Sound_IndexDev[global->Sound_numInputDev-1].chan = channels;
+		global->Sound_IndexDev[global->Sound_numInputDev-1].samprate = l->sample_spec.rate;
+	}
+}
+
+int pa_get_devicelist(struct GLOBAL *global) 
+{
+	// Define our pulse audio loop and connection variables
+	pa_mainloop *pa_ml;
+	pa_mainloop_api *pa_mlapi;
+	pa_operation *pa_op;
+	pa_context *pa_ctx;
+
+	// We'll need these state variables to keep track of our requests
+    int state = 0;
+    int pa_ready = 0;
+
+    // Create a mainloop API and connection to the default server
+    pa_ml = pa_mainloop_new();
+    pa_mlapi = pa_mainloop_get_api(pa_ml);
+    pa_ctx = pa_context_new(pa_mlapi, "getDevices");
+
+    // This function connects to the pulse server
+    pa_context_connect(pa_ctx, NULL, 0, NULL);
+
+    // This function defines a callback so the server will tell us it's state.
+    // Our callback will wait for the state to be ready.  The callback will
+    // modify the variable to 1 so we know when we have a connection and it's
+    // ready.
+    // If there's an error, the callback will set pa_ready to 2
+    pa_context_set_state_callback(pa_ctx, pa_state_cb, &pa_ready);
+
+    // Now we'll enter into an infinite loop until we get the data we receive
+    // or if there's an error
+    for (;;) 
+	{
+        // We can't do anything until PA is ready, so just iterate the mainloop
+        // and continue
+        if (pa_ready == 0) 
+		{
+            pa_mainloop_iterate(pa_ml, 1, NULL);
+            continue;
+        }
+        // We couldn't get a connection to the server, so exit out
+        if (pa_ready == 2) 
+		{
+            finish(pa_ctx, pa_ml);
+            return -1;
+        }
+        // At this point, we're connected to the server and ready to make
+        // requests
+        switch (state) 
+		{
+            // State 0: we haven't done anything yet
+            case 0:
+                // This sends an operation to the server.  pa_sinklist_cb is
+                // our callback function and a pointer to our devicelist will
+                // be passed to the callback (global) The operation ID is stored in the
+                // pa_op variable
+                pa_op = pa_context_get_sink_info_list(pa_ctx,
+                        pa_sinklist_cb,
+                        NULL//userdata
+                        );
+
+                // Update state for next iteration through the loop
+                state++;
+                break;
+            case 1:
+                // Now we wait for our operation to complete.  When it's
+                // complete our pa_output_devicelist is filled out, and we move
+                // along to the next state
+                if (pa_operation_get_state(pa_op) == PA_OPERATION_DONE) 
+				{
+                    pa_operation_unref(pa_op);
+
+                    // Now we perform another operation to get the source
+                    // (input device) list just like before.  This time we pass
+                    // a pointer to our input structure
+                    pa_op = pa_context_get_source_info_list(pa_ctx,
+                            pa_sourcelist_cb,
+                            global //userdata
+                            );
+                    // Update the state so we know what to do next
+                    state++;
+                }
+                break;
+            case 2:
+                if (pa_operation_get_state(pa_op) == PA_OPERATION_DONE) 
+				{
+                    // Now we're done, clean up and disconnect and return
+                    pa_operation_unref(pa_op);
+                    finish(pa_ctx, pa_ml);
+                    return 0;
+                }
+                break;
+            default:
+                // We should never see this state
+                g_print("in state %d\n", state);
+                return -1;
+        }
+        // Iterate the main loop and go again.  The second argument is whether
+        // or not the iteration should block until something is ready to be
+        // done.  Set it to zero for non-blocking.
+        pa_mainloop_iterate(pa_ml, 1, NULL);
+    }
+}
+
+int 
+pulse_list_snd_devices(struct GLOBAL *global)
+{
+	global->Sound_numInputDev = 0; //reset input device count
+    	global->Sound_DefDev = 0;
+
+    // This is where we'll store the output device list
+    //pa_devicelist_t pa_output_devicelist[16];
+
+    if (pa_get_devicelist(global) < 0) 
+	{
+        g_print("failed to get audio device list from PULSE server\n");
+        return 1;
+    }
+	
+    return 0;
+} 
+
+static void 
+stream_underflow_cb(pa_stream *s, void *userdata) 
+{
+  // We increase the latency by 50% if we get 6 underflows and latency is under 2s
+  // This is very useful for over the network playback that can't handle low latencies
+  g_print("AUDIO: underflow\n");
+  underflows++;
+//  if (underflows >= 6 && latency < 2000000) 
+//  {
+//    latency = (latency*3)/2;
+//    bufattr.maxlength = pa_usec_to_bytes(latency,&ss);
+//    bufattr.tlength = pa_usec_to_bytes(latency,&ss);  
+//    pa_stream_set_buffer_attr(s, &bufattr, NULL, NULL);
+//    underflows = 0;
+//    g_print("AUDIO: latency increased to %d\n", latency);
+//  }
+}
+
+//recordCallback
+static void 
+stream_request_cb(pa_stream *s, size_t length, void *userdata) 
+{
+	
+	struct paRecordData *pdata = (struct paRecordData*) userdata;
+	const void *inputBuffer;
+	//pa_usec_t usec;
+	//int neg;
+	
+	//pa_stream_get_latency(s, &usec, &neg);
+	//g_print("  latency %8d us\n",(int)usec);
+  
+	//read from stream
+	if (pa_stream_peek(s, &inputBuffer, &length) < 0) 
+	{
+		g_print( "pa_stream_peek() failed\n");
+		//quit(1);
+		return;
+	}
+
+	//assert(inputBuffer);
+	//assert(length > 0);
+
+	__LOCK_MUTEX( __AMUTEX );
+		gboolean capVid = pdata->capVid;
+		int channels = pdata->channels;
+		int skip_n = pdata->skip_n;
+	__UNLOCK_MUTEX( __AMUTEX );	
+		
+	const SAMPLE *rptr = (const SAMPLE*) inputBuffer;
+	int i;
+	UINT64 ts, nsec_per_frame;
+
+	int numSamples= length / sizeof(SAMPLE);
+	UINT64 numFrames = numSamples / channels;
+
 	/* buffer ends at timestamp "now", calculate beginning timestamp */
 	nsec_per_frame = G_NSEC_PER_SEC / pdata->samprate;
-	framesPerBuffer = (UINT64) pdata->aud_numSamples / pdata->channels;
-	/* Record some data ... */
-	while(capVid)
+	//g_print("num samples = %d, frames = %llu", numSamples, numFrames);
+	
+	ts = ns_time_monotonic() - numFrames * nsec_per_frame;
+
+	
+	if (skip_n > 0) /*skip audio while were skipping video frames*/
 	{
-		if (pa_simple_read(pdata->pulse_simple, pdata->recordedSamples, pdata->aud_numBytes, &error) < 0) 
-		{
-			g_printerr("pulse: pa_simple_read() failed: %s\n", pa_strerror(error));
-			finish(pdata);
-			return (NULL);
-		}
+		__LOCK_MUTEX( __AMUTEX );
+			if(capVid) 
+				pdata->snd_begintime = ns_time_monotonic(); /*reset first time stamp*/
+			else
+				pdata->streaming=FALSE;
+		__UNLOCK_MUTEX( __AMUTEX );
 		
-		__LOCK_MUTEX(__AMUTEX);
-			capVid = pdata->capVid;
-			skip_n = pdata->skip_n;
-			flag = pdata->audio_buff_flag[pdata->bw_ind];
-		__UNLOCK_MUTEX(__AMUTEX);
-		
-		if(skip_n > 0)
-		{
-			pdata->snd_begintime = ns_time_monotonic(); /*reset first time stamp*/
-			pdata->a_ts = 0;
-			continue;
-		}
-		
-		ts = ns_time_monotonic() - framesPerBuffer * nsec_per_frame;
-		
-		UINT64 buffer_length = (G_NSEC_PER_SEC * pdata->aud_numSamples)/(pdata->samprate * pdata->channels);
-		/*first frame time stamp*/
-		if(pdata->a_ts <= 0)
-		{
-			if((pdata->ts_ref > 0) && (pdata->ts_ref < pdata->snd_begintime)) 
-				pdata->a_ts = pdata->snd_begintime - pdata->ts_ref;
-			else pdata->a_ts = 1;
-		}
-		else /*increment time stamp for audio frame*/
-			pdata->a_ts += buffer_length;
-		
-		/* check audio drift through timestamps */
-		if (ts > pdata->snd_begintime)
-			ts -= pdata->snd_begintime;
-		else
-			ts = 0;
-		
-		if (ts > buffer_length)
-			ts -= buffer_length;
-		else
-			ts = 0;
-		
-		pdata->ts_drift = ts - pdata->a_ts;
-		
-		
-		if(  flag == AUD_READY || flag == AUD_IN_USE )
-		{
-			if(flag == AUD_READY)
-			{
-				/*flag as IN_USE*/
-				__LOCK_MUTEX( __AMUTEX );
-					pdata->audio_buff_flag[pdata->bw_ind] = AUD_IN_USE;
-				__UNLOCK_MUTEX( __AMUTEX );
-			}
-			/*copy data to audio buffer*/
-			memcpy(pdata->audio_buff[pdata->bw_ind][pdata->w_ind].frame, pdata->recordedSamples, pdata->aud_numBytes);
-			pdata->audio_buff[pdata->bw_ind][pdata->w_ind].time_stamp = pdata->a_ts + pdata->delay;
-			pdata->audio_buff[pdata->bw_ind][pdata->w_ind].used = TRUE;
-		
-			pdata->blast_ind = pdata->bw_ind;
-			pdata->last_ind  = pdata->w_ind;
-			
-			/*doesn't need locking as it's only used in the callback*/
-			NEXT_IND(pdata->w_ind, AUDBUFF_SIZE);
-		
-			if(pdata->w_ind == 0)
-			{
-				/* reached end of current ring buffer 
-				 * flag it as AUD_PROCESS
-				 * move to next one and flag it as AUD_IN_USE (if READY)
-				 */
-				pdata->audio_buff_flag[pdata->bw_ind] = AUD_PROCESS;
-			
-				__LOCK_MUTEX( __AMUTEX );
-					NEXT_IND(pdata->bw_ind, AUDBUFF_NUM);
-				
-					if(pdata->audio_buff_flag[pdata->bw_ind] != AUD_READY)
-					{
-						g_print("AUDIO: next buffer is not yet ready\n");
-					}
-					else
-					{
-						pdata->audio_buff_flag[pdata->bw_ind] = AUD_IN_USE;
-					}
-				__UNLOCK_MUTEX( __AMUTEX );		
-			}
-		}
-		else
-		{
-			/*drop audio data*/
-			g_printerr("AUDIO: dropping audio data\n");
-		}
+		pa_stream_drop(s);
+		return;
 	}
 
-	finish(pdata);
-	return (NULL);
+	// __LOCK_MUTEX( __AMUTEX );
+		// pdata->streaming=TRUE;
+	// __UNLOCK_MUTEX( __AMUTEX );
+	
+	for( i=0; i<numSamples; i++ )
+	{
+		pdata->recordedSamples[pdata->sampleIndex] = inputBuffer ? *rptr++ : 0;
+		pdata->sampleIndex++;
+		
+		fill_audio_buffer(pdata, ts);
+		
+		/* increment timestamp accordingly while copying */
+		if (i % channels == 0)
+			ts += nsec_per_frame;
+	}
+		
+	
+	if(!capVid) 
+	{
+		__LOCK_MUTEX( __AMUTEX );
+			pdata->streaming=FALSE;
+			/*mark current buffer as ready to process*/
+			pdata->audio_buff_flag[pdata->bw_ind] = AUD_PROCESS;
+		__UNLOCK_MUTEX( __AMUTEX );
+	}
+	
+	//empty stream buffer
+	pa_stream_drop(s);
+}
+
+static int
+pulse_read_audio(void *userdata)
+{
+	
+	struct paRecordData *pdata = (struct paRecordData*) userdata;
+	
+	g_print("Pulse audio Thread started\n");
+	pa_mainloop *pa_ml;
+	pa_mainloop_api *pa_mlapi;
+	pa_context *pa_ctx;
+	pa_stream *recordstream;
+	pa_buffer_attr bufattr;
+	pa_sample_spec ss;
+	int r;
+	int pa_ready = 0;
+	
+	// Create a mainloop API and connection to the default server
+	pa_ml = pa_mainloop_new();
+	pa_mlapi = pa_mainloop_get_api(pa_ml);
+	pa_ctx = pa_context_new(pa_mlapi, "guvcview Pulse API");
+	pa_context_connect(pa_ctx, NULL, 0, NULL);
+
+	// This function defines a callback so the server will tell us it's state.
+	// Our callback will wait for the state to be ready.  The callback will
+	// modify the variable to 1 so we know when we have a connection and it's
+	// ready.
+	// If there's an error, the callback will set pa_ready to 2
+	pa_context_set_state_callback(pa_ctx, pa_state_cb, &pa_ready);
+	
+	// We can't do anything until PA is ready, so just iterate the mainloop
+	// and continue
+	while (pa_ready == 0) 
+	{
+		pa_mainloop_iterate(pa_ml, 1, NULL);
+	}
+	if (pa_ready == 2) 
+	{
+		finish(pa_ctx, pa_ml);
+		return -1;
+	}
+	
+	ss.rate = pdata->samprate;
+	ss.channels = pdata->channels;
+	ss.format = PULSE_SAMPLE_TYPE;
+	
+	recordstream = pa_stream_new(pa_ctx, "Record", &ss, NULL);
+	if (!recordstream)
+		g_print("AUDIO: pa_stream_new failed\n");
+	
+	//define callbacks
+	pa_stream_set_read_callback(recordstream, stream_request_cb, (void *) pdata);
+	pa_stream_set_underflow_callback(recordstream, stream_underflow_cb, NULL);
+	
+	//default is (uint32_t)-1   ~= 2 sec
+	bufattr.fragsize = pa_usec_to_bytes(latency,&ss);
+	//bufattr.fragsize = (uint32_t)-1;	
+	bufattr.maxlength = pa_usec_to_bytes(latency,&ss)*2; //maximum value supported is (uint32_t)-1
+	//bufattr.maxlength =  pdata->aud_numSamples * sizeof(SAMPLE) * 2;
+	
+	//bufattr.minreq = pa_usec_to_bytes(0,&ss);
+	//bufattr.prebuf = (uint32_t)-1;
+	//bufattr.tlength = pa_usec_to_bytes(latency,&ss);
+	
+	char * dev = pdata->device_name;
+	g_print("AUDIO: connecting to pulse audio device %s\n\t (channels %d rate %d)\n", dev, ss.channels, ss.rate);
+	r = pa_stream_connect_record(recordstream, dev, &bufattr,
+								 PA_STREAM_INTERPOLATE_TIMING
+								|PA_STREAM_ADJUST_LATENCY
+								|PA_STREAM_AUTO_TIMING_UPDATE);
+	if (r < 0) 
+	{
+		g_print("AUDIO: skip latency adjustment\n");
+		// Old pulse audio servers don't like the ADJUST_LATENCY flag, so retry without that
+		r = pa_stream_connect_record(recordstream, dev, &bufattr,
+									 PA_STREAM_INTERPOLATE_TIMING|
+									 PA_STREAM_AUTO_TIMING_UPDATE);
+	}
+	if (r < 0) 
+	{
+		g_print("AUDIO: pa_stream_connect_record failed\n");
+		finish(pa_ctx, pa_ml);
+		return -1;
+	}
+	
+	pdata->streaming=TRUE;
+	
+	// Iterate the main loop while streaming.  The second argument is whether
+	// or not the iteration should block until something is ready to be
+	// done.  Set it to zero for non-blocking.
+	while (pdata->capVid) 
+	{
+		pa_mainloop_iterate(pa_ml, 1, NULL);
+		
+		//sleep_ms(4);
+	}
+	
+	pa_stream_disconnect (recordstream);
+	pa_stream_unref (recordstream);
+	finish(pa_ctx, pa_ml);	
+	return 0;
 }
 
 
@@ -182,12 +476,13 @@ int
 pulse_init_audio(struct paRecordData* pdata)
 {	
 	//start audio capture thread
-	if(__THREAD_CREATE(&pdata->pulse_read_th, (GThreadFunc) pulse_read_audio,pdata))  
+	if(__THREAD_CREATE(&pdata->pulse_read_th, (GThreadFunc) pulse_read_audio, pdata))  
 	{
 		g_printerr("Pulse thread creation failed\n");
 		return (-1);
 	}
-	return (0);
+	
+	return 0;
 } 
 
 #endif
