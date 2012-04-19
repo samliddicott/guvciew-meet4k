@@ -220,7 +220,11 @@ set_sound (struct GLOBAL *global, struct paRecordData* pdata)
 	__LOCK_MUTEX( __AMUTEX );
 		pdata->skip_n = global->skip_n; /*initial video frames to skip*/
 	__UNLOCK_MUTEX( __AMUTEX );
-	if(global->debug) g_print("using audio codec: 0x%04x\n",global->Sound_Format );
+	if(global->debug)
+	{
+		g_print("using audio codec: 0x%04x\n",global->Sound_Format );
+		g_print("\tchannels: %d  samplerate: %d\n", pdata->channels, pdata->samprate);
+	}
 	
 	switch (global->Sound_Format)
 	{
@@ -463,6 +467,9 @@ close_sound (struct paRecordData *pdata)
 		}
 		if(pdata->pcm_sndBuff) g_free(pdata->pcm_sndBuff);
 		pdata->pcm_sndBuff = NULL;
+		if(pdata->lavc_data) 
+			clean_lavc_audio(pdata->lavc_data);
+		pdata->lavc_data = NULL;
 	__UNLOCK_MUTEX(__AMUTEX);
 	
 	return (ret);

@@ -267,19 +267,24 @@ pulse_list_snd_devices(struct GLOBAL *global)
 static void 
 stream_underflow_cb(pa_stream *s, void *userdata) 
 {
-  // We increase the latency by 50% if we get 6 underflows and latency is under 2s
-  // This is very useful for over the network playback that can't handle low latencies
-  g_print("AUDIO: underflow\n");
-  underflows++;
-//  if (underflows >= 6 && latency < 2000000) 
-//  {
-//    latency = (latency*3)/2;
-//    bufattr.maxlength = pa_usec_to_bytes(latency,&ss);
-//    bufattr.tlength = pa_usec_to_bytes(latency,&ss);  
-//    pa_stream_set_buffer_attr(s, &bufattr, NULL, NULL);
-//    underflows = 0;
-//    g_print("AUDIO: latency increased to %d\n", latency);
-//  }
+	// We increase the latency by 50% if we get 6 underflows and latency is under 2s
+	// This is very useful for over the network playback that can't handle low latencies
+	g_print("AUDIO: underflow\n");
+	underflows++;
+	if (underflows >= 6 && latency < 2000000) 
+	{
+		latency = (latency*3)/2;
+		
+		pa_sample_spec *ss = pa_stream_get_sample_spec (s);
+		pa_buffer_attr *bufattr = pa_stream_get_buffer_attr	(s);
+		
+		bufattr->fragsize = pa_usec_to_bytes(latency, ss);
+		bufattr->maxlength = pa_usec_to_bytes(latency, ss) * 2;
+		pa_stream_set_buffer_attr(s, bufattr, NULL, NULL);
+		
+		underflows = 0;
+		g_print("AUDIO: latency increased to %d\n", latency);
+	}
 }
 
 //recordCallback
@@ -423,9 +428,9 @@ pulse_read_audio(void *userdata)
 	pa_stream_set_underflow_callback(recordstream, stream_underflow_cb, NULL);
 	
 	//default is (uint32_t)-1   ~= 2 sec
-	bufattr.fragsize = pa_usec_to_bytes(latency,&ss);
+	bufattr.fragsize = pa_usec_to_bytes(latency, &ss);
 	//bufattr.fragsize = (uint32_t)-1;	
-	bufattr.maxlength = pa_usec_to_bytes(latency,&ss)*2; //maximum value supported is (uint32_t)-1
+	bufattr.maxlength = pa_usec_to_bytes(latency, &ss) * 2; //maximum value supported is (uint32_t)-1
 	//bufattr.maxlength =  pdata->aud_numSamples * sizeof(SAMPLE) * 2;
 	
 	//bufattr.minreq = pa_usec_to_bytes(0,&ss);

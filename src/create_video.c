@@ -93,7 +93,7 @@ static void alloc_videoBuff(struct ALL_DATA *all_data)
 	__UNLOCK_MUTEX(__GMUTEX);
 }
 
-static int initVideoFile(struct ALL_DATA *all_data, void * lavc_aud_data)
+static int initVideoFile(struct ALL_DATA *all_data)
 {
 	struct GWIDGET *gwidget = all_data->gwidget;
 	struct paRecordData *pdata = all_data->pdata;
@@ -955,11 +955,11 @@ void *IO_loop(void *data)
 	
 	struct GWIDGET *gwidget = all_data->gwidget;
 	struct GLOBAL *global = all_data->global;
+	
 	struct vdIn *videoIn = all_data->videoIn;
 
 	struct JPEG_ENCODER_STRUCTURE *jpg_data=NULL;
 	struct lavcData *lavc_data = NULL;
-	struct lavcAData *lavc_audio_data = NULL;
 	//struct audio_effects *aud_eff = NULL;
 	
 	gboolean capVid = TRUE;
@@ -1060,11 +1060,7 @@ void *IO_loop(void *data)
 		clean_lavc(&lavc_data);
 		lavc_data = NULL;
 	}
-	if(lavc_audio_data != NULL)
-	{
-		clean_lavc_audio(&lavc_audio_data);
-		lavc_audio_data = NULL;
-	}
+	
 	if(jpg_data != NULL) g_free(jpg_data);
 	jpg_data = NULL;
 	
