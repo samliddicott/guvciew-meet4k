@@ -148,7 +148,7 @@ int pa_get_devicelist(struct GLOBAL *global)
 	// Define our pulse audio loop and connection variables
 	pa_mainloop *pa_ml;
 	pa_mainloop_api *pa_mlapi;
-	pa_operation *pa_op;
+	pa_operation *pa_op = NULL;
 	pa_context *pa_ctx;
 
 	// We'll need these state variables to keep track of our requests

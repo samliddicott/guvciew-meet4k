@@ -1,3 +1,13 @@
+guvcview (1.6.0)
+
+    * run audio in separate thread
+    * update audio buffer
+    * move pulse audio interface from simple to async API
+    * add pulse device list
+    * enable build of pulse API by default
+    
+ -- Paulo Assis <pj.assis@gmail.com>  Thu, 19 Apr 2012 23:18:00 +0000
+
 guvcview (1.5.3)
 
     * update libavcodec API
@@ -5,7 +15,7 @@ guvcview (1.5.3)
     * fix pulse interface
     * update language catalogs (add bs and fo)
     
- -- Paulo Assis <pj.assis@gmail.com>  Mon, 27 Feb 2011 23:18:00 +0000
+ -- Paulo Assis <pj.assis@gmail.com>  Mon, 27 Feb 2012 23:18:00 +0000
  
 guvcview (1.5.2)
 

@@ -1,9 +1,19 @@
+guvcview (1.6.0-ubuntu1~precise~ppa1) precise; urgency=low
+
+    * run audio in separate thread
+    * update audio buffer
+    * move pulse audio interface from simple to async API
+    * add pulse device list
+    * enable build of pulse API by default
+    
+ -- Paulo Assis <pj.assis@gmail.com>  Thu, 19 Apr 2012 23:18:00 +0000
+
 guvcview (1.5.3-ubuntu1~oneiric~ppa1) oneiric; urgency=low
 
     * update libavcodec API
     * add libavutil dependency
     
- -- Paulo Assis <pj.assis@gmail.com>  Sat, 11 Feb 2011 14:27:00 +0000
+ -- Paulo Assis <pj.assis@gmail.com>  Mon, 27 Feb 2012 14:27:00 +0000
   
 guvcview (1.5.2-ubuntu1~oneiric~ppa1) oneiric; urgency=low
 
@@ -13,7 +23,7 @@ guvcview (1.5.2-ubuntu1~oneiric~ppa1) oneiric; urgency=low
     * fix some gtk3 widgets
     * update standards version to 3.9.2
     
- -- Paulo Assis <pj.assis@gmail.com>  Wed, 12 Oct 2011 12:12:00 +0000
+ -- Paulo Assis <pj.assis@gmail.com>  Wed, 1 Feb 2012 12:12:00 +0000
 
 guvcview (1.5.1-ubuntu3~oneiric~ppa1) oneiric; urgency=low
 

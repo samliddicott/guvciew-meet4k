@@ -8,8 +8,8 @@ dnl --------------------------------------------------------------------------
 dnl Package definitions and initialization
 dnl --------------------------------------------------------------------------
 m4_define([guvcview_major], [1])
-m4_define([guvcview_minor], [5])
-m4_define([guvcview_micro], [3])
+m4_define([guvcview_minor], [6])
+m4_define([guvcview_micro], [0])
 m4_define([guvcview_version],
           [guvcview_major.guvcview_minor.guvcview_micro])
 
@@ -131,10 +131,10 @@ dnl --------------------------------------------------------------------------
 dnl Check for pulseaudio
 dnl --------------------------------------------------------------------------
 AC_MSG_CHECKING(if you want to enable pulse support)
-AC_ARG_ENABLE(pulse, AS_HELP_STRING([--enable-pulse],
-		[enable pulseaudio support (default: disabled)]),
-	[enable_pulse=yes],
-	[enable_pulse=no])
+AC_ARG_ENABLE(pulse, AS_HELP_STRING([--disable-pulse],
+		[disable pulseaudio support (default: enabled)]),
+	[enable_pulse=no],
+	[enable_pulse=yes])
 
 AC_MSG_RESULT($enable_pulse)
 
@@ -145,7 +145,8 @@ if test $enable_pulse = yes; then
 	if test "$has_pulse" = yes; then
 	  AC_DEFINE(PULSEAUDIO,1,[set to 1 if pulseaudio installed])
 	else 
-	  AC_MSG_WARN(libpulse missing... pulse support will be disabled.)
+	  AC_MSG_WARN(libpulse missing... pulse support will be disabled.);
+	  $enable_pulse = no
 	fi
 fi
 
