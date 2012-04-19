@@ -977,7 +977,7 @@ void *IO_loop(void *data)
 	int frame_size=0;
 	VidBuff *proc_buff = NULL;
 	
-	if(initVideoFile(all_data, (void *) &(lavc_audio_data))<0)
+	if(initVideoFile(all_data)<0)
 	{
 		g_printerr("Cap Video failed\n");
 		if(!(global->no_display))
