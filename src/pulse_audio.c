@@ -42,7 +42,6 @@ static int source_index = 0;
 static void 
 finish(pa_context *pa_ctx, pa_mainloop *pa_ml)
 {
-	g_print("audio thread exited\n");
 	// clean up and disconnect
 	pa_context_disconnect(pa_ctx);
 	pa_context_unref(pa_ctx);
@@ -275,8 +274,8 @@ stream_underflow_cb(pa_stream *s, void *userdata)
 	{
 		latency = (latency*3)/2;
 		
-		pa_sample_spec *ss = pa_stream_get_sample_spec (s);
-		pa_buffer_attr *bufattr = pa_stream_get_buffer_attr	(s);
+		pa_sample_spec *ss = (pa_sample_spec *) pa_stream_get_sample_spec (s);
+		pa_buffer_attr *bufattr = (pa_buffer_attr *) pa_stream_get_buffer_attr	(s);
 		
 		bufattr->fragsize = pa_usec_to_bytes(latency, ss);
 		bufattr->maxlength = pa_usec_to_bytes(latency, ss) * 2;
@@ -488,6 +487,15 @@ pulse_init_audio(struct paRecordData* pdata)
 	}
 	
 	return 0;
-} 
+}
+
+int
+pulse_join_audio(struct paRecordData* pdata)
+{
+	__THREAD_JOIN( pdata->pulse_read_th );
+	g_print("AUDIO: pulse read thread joined\n");
+	return 0;
+}
+ 
 
 #endif

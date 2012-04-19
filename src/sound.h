@@ -153,6 +153,8 @@ pulse_list_snd_devices(struct GLOBAL *global);
 int
 pulse_init_audio(struct paRecordData* data);
 
+int
+pulse_join_audio(struct paRecordData* data);
 #endif
 
 #endif

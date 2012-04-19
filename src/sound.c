@@ -450,6 +450,9 @@ close_sound (struct paRecordData *pdata)
 	/* ---------------------------------------------------------------------
 	 * make sure no operations are performed on the buffers  */
 	__LOCK_MUTEX(__AMUTEX);
+		if(pdata->lavc_data) 
+			clean_lavc_audio(&(pdata->lavc_data));
+		pdata->lavc_data = NULL;
 		/*free primary buffer*/
 		g_free( pdata->recordedSamples );
 		pdata->recordedSamples=NULL;
@@ -467,9 +470,6 @@ close_sound (struct paRecordData *pdata)
 		}
 		if(pdata->pcm_sndBuff) g_free(pdata->pcm_sndBuff);
 		pdata->pcm_sndBuff = NULL;
-		if(pdata->lavc_data) 
-			clean_lavc_audio(pdata->lavc_data);
-		pdata->lavc_data = NULL;
 	__UNLOCK_MUTEX(__AMUTEX);
 	
 	return (ret);
