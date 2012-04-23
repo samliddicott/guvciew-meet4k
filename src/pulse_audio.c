@@ -316,7 +316,7 @@ static void
 stream_request_cb(pa_stream *s, size_t length, void *userdata) 
 {
     
-    struct paRecordData *pdata = (struct paRecordData*) userdata;
+    //struct paRecordData *pdata = (struct paRecordData*) userdata;
     const void *inputBuffer;
     //pa_usec_t usec;
     //int neg;
@@ -334,7 +334,7 @@ stream_request_cb(pa_stream *s, size_t length, void *userdata)
 
     int numSamples= length / sizeof(SAMPLE);
     
-	int res = record_sound ( inputBuffer, numSamples, userData );
+	record_sound ( inputBuffer, numSamples, userdata );
         
     pa_stream_drop(s);
 }
@@ -474,7 +474,7 @@ pulse_init_audio(struct paRecordData* pdata)
  * join the main loop iteration thread
  */
 int
-pulse_close_audio(struct paRecordData* data)
+pulse_close_audio(struct paRecordData* pdata)
 {
 	__THREAD_JOIN( pdata->pulse_read_th );
     g_print("AUDIO: pulse read thread joined\n");

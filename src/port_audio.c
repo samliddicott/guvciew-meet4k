@@ -150,7 +150,7 @@ recordCallback (const void *inputBuffer, void *outputBuffer,
 
 /*--------------------------- API initialization -------------------------*/
 int
-port_init_audio(struct paRecordData* pdata pdata)
+port_init_audio(struct paRecordData* pdata)
 {
 	PaError err = paNoError;
 	PaStream *stream = (PaStream *) pdata->stream;

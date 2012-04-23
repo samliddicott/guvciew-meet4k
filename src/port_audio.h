@@ -46,7 +46,7 @@ int
 portaudio_list_snd_devices(struct GLOBAL *global);
 
 int
-port_init_audio(struct paRecordData* pdata pdata);
+port_init_audio(struct paRecordData* pdata);
 
 int
 port_close_audio(struct paRecordData *pdata);

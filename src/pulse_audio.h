@@ -28,9 +28,9 @@ int
 pulse_list_snd_devices(struct GLOBAL *global);
 
 int
-pulse_init_audio(struct paRecordData* data);
+pulse_init_audio(struct paRecordData* pdata);
 
 int
-pulse_close_audio(struct paRecordData* data);
+pulse_close_audio(struct paRecordData* pdata);
 
 #endif

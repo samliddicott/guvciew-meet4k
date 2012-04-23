@@ -943,12 +943,6 @@ void *Audio_loop(void *data)
 				finished = TRUE;
 		}
 	}
-#ifdef PULSEAUDIO
-	if(pdata->api == PULSE)
-	{
-		pulse_join_audio(pdata);
-	}
-#endif
 
 	close_audio_effects (aud_eff);
 	
