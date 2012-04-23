@@ -24,13 +24,11 @@
 
 #include <glib.h>
 #include <string.h>
-#include "sound.h"
+#include "pulse_audio.h"
 #include "audio_effects.h"
 #include "ms_time.h"
 
 #include <errno.h>
-
-#define __AMUTEX &pdata->mutex
 
 static int latency = 20000; // start latency in micro seconds
 static int underflows = 0;
@@ -334,69 +332,10 @@ stream_request_cb(pa_stream *s, size_t length, void *userdata)
         return;
     }
 
-    //assert(inputBuffer);
-    //assert(length > 0);
-
-    __LOCK_MUTEX( __AMUTEX );
-        gboolean capVid = pdata->capVid;
-        int channels = pdata->channels;
-        int skip_n = pdata->skip_n;
-    __UNLOCK_MUTEX( __AMUTEX );    
-        
-    const SAMPLE *rptr = (const SAMPLE*) inputBuffer;
-    int i;
-    UINT64 ts, nsec_per_frame;
-
     int numSamples= length / sizeof(SAMPLE);
-    UINT64 numFrames = numSamples / channels;
-
-    /* buffer ends at timestamp "now", calculate beginning timestamp */
-    nsec_per_frame = G_NSEC_PER_SEC / pdata->samprate;
-    //g_print("num samples = %d, frames = %llu", numSamples, numFrames);
     
-    ts = ns_time_monotonic() - numFrames * nsec_per_frame;
-
-    
-    if (skip_n > 0) /* skip audio while were skipping video frames */
-    {
-        __LOCK_MUTEX( __AMUTEX );
-            if(capVid) 
-                pdata->snd_begintime = ns_time_monotonic(); /* reset first time stamp */
-            else
-                pdata->streaming=FALSE;
-        __UNLOCK_MUTEX( __AMUTEX );
+	int res = record_sound ( inputBuffer, numSamples, userData );
         
-        pa_stream_drop(s);
-        return;
-    }
-
-    // __LOCK_MUTEX( __AMUTEX );
-        // pdata->streaming=TRUE;
-    // __UNLOCK_MUTEX( __AMUTEX );
-    
-    for( i=0; i<numSamples; i++ )
-    {
-        pdata->recordedSamples[pdata->sampleIndex] = inputBuffer ? *rptr++ : 0;
-        pdata->sampleIndex++;
-        
-        fill_audio_buffer(pdata, ts);
-        
-        /* increment timestamp accordingly while copying */
-        if (i % channels == 0)
-            ts += nsec_per_frame;
-    }
-        
-    
-    if(!capVid) 
-    {
-        __LOCK_MUTEX( __AMUTEX );
-            pdata->streaming=FALSE;
-            /* mark current buffer as ready to process */
-            pdata->audio_buff_flag[pdata->bw_ind] = AUD_PROCESS;
-        __UNLOCK_MUTEX( __AMUTEX );
-    }
-    
-    /* empty stream buffer */
     pa_stream_drop(s);
 }
 
@@ -523,6 +462,8 @@ pulse_init_audio(struct paRecordData* pdata)
     if(__THREAD_CREATE(&pdata->pulse_read_th, (GThreadFunc) pulse_read_audio, pdata))  
     {
         g_printerr("Pulse thread creation failed\n");
+		pdata->streaming=FALSE;
+		
         return (-1);
     }
     
@@ -533,12 +474,11 @@ pulse_init_audio(struct paRecordData* pdata)
  * join the main loop iteration thread
  */
 int
-pulse_join_audio(struct paRecordData* pdata)
+pulse_close_audio(struct paRecordData* data)
 {
-    __THREAD_JOIN( pdata->pulse_read_th );
+	__THREAD_JOIN( pdata->pulse_read_th );
     g_print("AUDIO: pulse read thread joined\n");
     return 0;
 }
- 
 
 #endif

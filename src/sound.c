@@ -22,6 +22,9 @@
 #include <glib/gprintf.h>
 #include <string.h>
 #include <math.h>
+#include "sound.h"
+#include "port_audio.h"
+#include "pulse_audio.h"
 #include "vcodecs.h"
 #include "avilib.h"
 #include "acodecs.h"
@@ -125,27 +128,26 @@ int fill_audio_buffer(struct paRecordData *pdata, UINT64 ts)
 
 /*--------------------------- sound callback ------------------------------*/
 int 
-recordCallback (const void *inputBuffer, void *outputBuffer,
-	unsigned long framesPerBuffer,
-	const PaStreamCallbackTimeInfo* timeInfo,
-	PaStreamCallbackFlags statusFlags,
-	void *userData )
+record_sound ( const void *inputBuffer, unsigned long numSamples, void *userData )
 {
 	struct paRecordData *pdata = (struct paRecordData*)userData;
-
-	const SAMPLE *rptr = (const SAMPLE*)inputBuffer;
-	int i;
-	UINT64 ts, nsec_per_frame;
-
-	/* buffer ends at timestamp "now", calculate beginning timestamp */
-	nsec_per_frame = G_NSEC_PER_SEC / pdata->samprate;
-	ts = ns_time_monotonic() - (UINT64) framesPerBuffer * nsec_per_frame;
-
+	
 	__LOCK_MUTEX( __AMUTEX );
-		gboolean capVid = pdata->capVid;
-		int channels = pdata->channels;
-		int skip_n = pdata->skip_n;
-	__UNLOCK_MUTEX( __AMUTEX );
+        gboolean capVid = pdata->capVid;
+        int channels = pdata->channels;
+        int skip_n = pdata->skip_n;
+    __UNLOCK_MUTEX( __AMUTEX );
+	
+	const SAMPLE *rptr = (const SAMPLE*) inputBuffer;
+    int i;
+	
+	const SAMPLE *rptr = (const SAMPLE*) inputBuffer;
+	
+	UINT64 numFrames = numSamples / channels;
+	/* buffer ends at timestamp "now", calculate beginning timestamp */
+    UINT64 nsec_per_frame = G_NSEC_PER_SEC / pdata->samprate;
+    
+    UINT64 ts = ns_time_monotonic() - numFrames * nsec_per_frame;
 	
 	if (skip_n > 0) /*skip audio while were skipping video frames*/
 	{
@@ -155,47 +157,44 @@ recordCallback (const void *inputBuffer, void *outputBuffer,
 			__LOCK_MUTEX( __AMUTEX );
 				pdata->snd_begintime = ns_time_monotonic(); /*reset first time stamp*/
 			__UNLOCK_MUTEX( __AMUTEX );
-			return (paContinue); /*still capturing*/
+			return (0); /*still capturing*/
 		}
 		else
 		{	__LOCK_MUTEX( __AMUTEX );
 				pdata->streaming=FALSE;
 			__LOCK_MUTEX( __AMUTEX );
-			return (paComplete);
+			return (-1); /*capture has stopped*/
 		}
 	}
 	
-	int numSamples= framesPerBuffer * channels;
-
-	__LOCK_MUTEX( __AMUTEX );
-		/*set to FALSE on paComplete*/
-		pdata->streaming=TRUE;
-	__UNLOCK_MUTEX( __AMUTEX );
-	
-	for( i=0; i<numSamples; i++ )
-	{
-		pdata->recordedSamples[pdata->sampleIndex] = inputBuffer ? *rptr++ : 0;
-		pdata->sampleIndex++;
-		
-		fill_audio_buffer(pdata, ts);
-		
-		/* increment timestamp accordingly while copying */
-		if (i % channels == 0)
-			ts += nsec_per_frame;
-	}
-		
-
-	if(capVid) return (paContinue); /*still capturing*/
+	// __LOCK_MUTEX( __AMUTEX );
+        // pdata->streaming=TRUE;
+    // __UNLOCK_MUTEX( __AMUTEX );
+    
+    for( i=0; i<numSamples; i++ )
+    {
+        pdata->recordedSamples[pdata->sampleIndex] = inputBuffer ? *rptr++ : 0;
+        pdata->sampleIndex++;
+        
+        fill_audio_buffer(pdata, ts);
+        
+        /* increment timestamp accordingly while copying */
+        if (i % channels == 0)
+            ts += nsec_per_frame;
+    }
+        
+    
+    if(capVid) return (0); /*still capturing*/
 	else 
-	{
-		__LOCK_MUTEX( __AMUTEX );
-			pdata->streaming=FALSE;
-			/*mark current buffer as ready to process*/
-			pdata->audio_buff_flag[pdata->bw_ind] = AUD_PROCESS;
-		__UNLOCK_MUTEX( __AMUTEX );
-		return (paComplete);
-	}
+    {
+        __LOCK_MUTEX( __AMUTEX );
+            pdata->streaming=FALSE;
+            /* mark current buffer as ready to process */
+            pdata->audio_buff_flag[pdata->bw_ind] = AUD_PROCESS;
+        __UNLOCK_MUTEX( __AMUTEX );
+    }
 	
+	return(-1); /* audio capture stopped*/
 }
 
 void
@@ -285,8 +284,12 @@ set_sound (struct GLOBAL *global, struct paRecordData* pdata)
 	pdata->last_ind  = 0;
 	/*buffer for video PCM 16 bits*/
 	pdata->pcm_sndBuff=NULL;
-	/*set audio device to use (portaudio)*/
-	pdata->inputParameters.device = global->Sound_IndexDev[global->Sound_UseDev].id; /* input device */
+	
+	
+	/*set audio device id to use (portaudio)*/
+	pdata->device_id = global->Sound_IndexDev[global->Sound_UseDev].id; /* input device */
+	
+	
 	/*set audio device to use (pulseudio)*/
 	strncpy(pdata->device_name, global->Sound_IndexDev[global->Sound_UseDev].name, 511);
 }
@@ -295,7 +298,7 @@ set_sound (struct GLOBAL *global, struct paRecordData* pdata)
 int
 init_sound(struct paRecordData* pdata)
 {
-	PaError err = paNoError;
+	int err = paNoError;
 	int i = 0;
 	int j = 0;
 	
@@ -329,40 +332,9 @@ init_sound(struct paRecordData* pdata)
 #endif
 		case PORT:
 		default:
-			if(pdata->stream)
-			{
-				if( !(Pa_IsStreamStopped( pdata->stream )))
-				{
-					Pa_AbortStream( pdata->stream );
-					Pa_CloseStream( pdata->stream );
-					pdata->stream = NULL;
-				}
-			}
-				
-			pdata->inputParameters.channelCount = pdata->channels;
-			pdata->inputParameters.sampleFormat = PA_SAMPLE_TYPE;
-			if (Pa_GetDeviceInfo( pdata->inputParameters.device ))
-				pdata->inputParameters.suggestedLatency = Pa_GetDeviceInfo( pdata->inputParameters.device )->defaultHighInputLatency;
-			else
-				pdata->inputParameters.suggestedLatency = DEFAULT_LATENCY_DURATION/1000.0;
-			pdata->inputParameters.hostApiSpecificStreamInfo = NULL; 
-	
-			/*---------------------------- start recording Audio. ----------------------------- */
-	
-			err = Pa_OpenStream(
-				&pdata->stream,
-				&pdata->inputParameters,
-				NULL,                  /* &outputParameters, */
-				pdata->samprate,        /* sample rate        */
-				MPG_NUM_SAMP,          /* buffer in frames => Mpeg frame size (samples = 1152 samples * channels)*/
-				paNoFlag,              /* PaNoFlag - clip and dhiter*/
-				recordCallback,        /* sound callback     */
-				pdata );                /* callback userData  */
-	
-			if( err != paNoError ) goto error;
-	
-			err = Pa_StartStream( pdata->stream );
-			if( err != paNoError ) goto error; /*should close the stream if error ?*/
+			err = port_init_audio(pdata);
+			if(err)
+				goto error;
 			break;
 	}
 	
@@ -370,17 +342,12 @@ init_sound(struct paRecordData* pdata)
 	pdata->snd_begintime = ns_time_monotonic();
 
 	return (0);
+	
 error:
-	g_printerr("An error occured while starting the audio API\n" );
-	g_printerr("Error number: %d\n", err );
-	if(pdata->api == PORT) g_printerr("Error message: %s\n", Pa_GetErrorText( err ) ); 
 	pdata->streaming=FALSE;
 	pdata->flush=0;
 	pdata->delay=0;
-	if(pdata->api == PORT)
-	{
-		if(pdata->stream) Pa_AbortStream( pdata->stream );
-	}
+	
 	if(pdata->recordedSamples) g_free( pdata->recordedSamples );
 	pdata->recordedSamples=NULL;
 	if(pdata->audio_buff)
@@ -409,41 +376,19 @@ close_sound (struct paRecordData *pdata)
     
 	pdata->capVid = 0;
 	
-	/*stops and closes the audio stream*/
-	if(pdata->stream)
+	switch(pdata->api)
 	{
-		if(Pa_IsStreamActive( pdata->stream ) > 0)
-		{
-			g_print("Aborting audio stream\n");
-			err = Pa_AbortStream( pdata->stream );
-		}
-		else
-		{
-			g_print("Stoping audio stream\n");
-			err = Pa_StopStream( pdata->stream );
-		}
-		if( err != paNoError )
-		{
-			g_printerr("An error occured while stoping the audio stream\n" );
-			g_printerr("Error number: %d\n", err );
-			g_printerr("Error message: %s\n", Pa_GetErrorText( err ) );
-			ret = -1;
-		}
+#ifdef PULSEAUDIO
+		case PULSE:
+			err = pulse_close_audio(pdata);
+			break;
+#endif
+		case PORT:
+		default:
+			err = port_close_audio(pdata);
+			break;
 	}
 	
-	if(pdata->api == PORT)
-	{
-		g_print("Closing audio stream...\n");
-		err = Pa_CloseStream( pdata->stream );
-		if( err != paNoError )
-		{
-			g_printerr("An error occured while closing the audio stream\n" );
-			g_printerr("Error number: %d\n", err );
-			g_printerr("Error message: %s\n", Pa_GetErrorText( err ) );
-			ret = -1;
-		}
-	}
-	pdata->stream = NULL;
 	pdata->flush = 0;
 	pdata->delay = 0; /*reset the audio delay*/
 	

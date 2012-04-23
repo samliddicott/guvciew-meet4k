@@ -22,16 +22,11 @@
 #ifndef SOUND_H
 #define SOUND_H
 
-#include <portaudio.h>
 #include <glib.h>
 #include <pthread.h>
 #include "globals.h"
 #include "../config.h"
 #include "defs.h"
-
-#ifdef PULSEAUDIO
-#include <pulse/pulseaudio.h>
-#endif
 
 /*------------- portaudio defs ----------------*/
 /*---- can be override in rc file or GUI ------*/
@@ -78,10 +73,10 @@ struct paRecordData
 {
 	int api; //0-Portaudio 1-pulse audio
 	int input_type; // audio SAMPLE type
-	PaStreamParameters inputParameters;
-	PaStream *stream;
+	
 	unsigned long framesPerBuffer;   //frames per buffer passed in audio callback
-	char device_name[512];           //pulse device name 
+	char device_name[512];           //device name - for pulse
+	int device_id;                   //device id - for portaudio
 	
 	int w_ind;                       // producer index
 	int r_ind;                       // consumer index
@@ -116,6 +111,9 @@ struct paRecordData
 	struct lavcAData* lavc_data;     //libavcodec data
 	__MUTEX_TYPE mutex;
 	
+	//PORTAUDIO SUPPORT
+	void *stream;
+	
 	//PULSE SUPPORT
 #ifdef PULSEAUDIO
 	 __THREAD_TYPE pulse_read_th;
@@ -125,11 +123,7 @@ struct paRecordData
 };
 
 int 
-recordCallback (const void *inputBuffer, void *outputBuffer,
-	unsigned long framesPerBuffer,
-	const PaStreamCallbackTimeInfo* timeInfo,
-	PaStreamCallbackFlags statusFlags,
-	void *userData );
+record_sound ( const void *inputBuffer, unsigned long numSamples, void *userData );
 
 int 
 fill_audio_buffer(struct paRecordData *pdata, UINT64 ts);
@@ -145,17 +139,6 @@ close_sound (struct paRecordData *data);
 
 void 
 Float2Int16 (struct paRecordData* data);
-
-#ifdef PULSEAUDIO
-int
-pulse_list_snd_devices(struct GLOBAL *global);
-
-int
-pulse_init_audio(struct paRecordData* data);
-
-int
-pulse_join_audio(struct paRecordData* data);
-#endif
 
 #endif
 

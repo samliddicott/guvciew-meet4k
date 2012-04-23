@@ -66,6 +66,9 @@ guvcview_SOURCES = \
 	picture.c \
 	profile.h \
 	profile.c \
+	port_audio.h \
+	port_audio.c \
+	pulse_audio.h \
 	pulse_audio.c \
 	quant.c \
 	readYUV.c \
