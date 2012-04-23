@@ -21,7 +21,8 @@
 #include <glib.h>
 #include <glib/gprintf.h>
 #include <string.h>
-#include <port_audio.h>
+#include "port_audio.h"
+#include "pulse_audio.h"
 #include "sound.h"
 #include "guvcview.h"
 #include "callbacks.h"

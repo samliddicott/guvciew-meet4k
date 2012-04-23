@@ -20,6 +20,8 @@
 ********************************************************************************/
 
 #ifdef PULSEAUDIO
+#ifndef PULSE_AUDIO_H
+#define PULSE_AUDIO_H
 
 #include <pulse/pulseaudio.h>
 #include "sound.h"
@@ -33,4 +35,5 @@ pulse_init_audio(struct paRecordData* pdata);
 int
 pulse_close_audio(struct paRecordData* pdata);
 
+#endif
 #endif

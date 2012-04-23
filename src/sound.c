@@ -139,9 +139,8 @@ record_sound ( const void *inputBuffer, unsigned long numSamples, void *userData
     __UNLOCK_MUTEX( __AMUTEX );
 	
 	const SAMPLE *rptr = (const SAMPLE*) inputBuffer;
-    int i;
-	
-	const SAMPLE *rptr = (const SAMPLE*) inputBuffer;
+    	int i;
+
 	
 	UINT64 numFrames = numSamples / channels;
 	/* buffer ends at timestamp "now", calculate beginning timestamp */
@@ -370,8 +369,7 @@ error:
 int
 close_sound (struct paRecordData *pdata) 
 {
-	int err = 0;
-	int ret = 0;
+	int err = 0;	
 	int i= 0, j= 0;
     
 	pdata->capVid = 0;
@@ -417,7 +415,7 @@ close_sound (struct paRecordData *pdata)
 		pdata->pcm_sndBuff = NULL;
 	__UNLOCK_MUTEX(__AMUTEX);
 	
-	return (ret);
+	return (err);
 }
 
 /* saturate float samples to int16 limits*/
