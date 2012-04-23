@@ -154,7 +154,8 @@ int
 port_init_audio(struct paRecordData* pdata)
 {
 	PaError err = paNoError;
-	PaStream *stream = (PaStream *) pdata->stream;
+	PaStream *stream = NULL;
+	
 	PaStreamParameters inputParameters;
 	
 	if(stream)
@@ -190,9 +191,12 @@ port_init_audio(struct paRecordData* pdata)
 		pdata );                /* callback userData  */
 	
 	if( err != paNoError ) goto error;
+	
 	err = Pa_StartStream( stream );
+	pdata->stream = (void *) stream; //store stream pointer
+	
 	if( err != paNoError ) goto error; /*should close the stream if error ?*/
-
+	
 	return 0;
 	
 error:
@@ -227,6 +231,7 @@ port_close_audio (struct paRecordData *pdata)
 			g_print("Stoping audio stream\n");
 			err = Pa_StopStream( stream );
 		}
+		
 		if( err != paNoError )
 		{
 			g_printerr("An error occured while stoping the audio stream\n" );
@@ -234,17 +239,21 @@ port_close_audio (struct paRecordData *pdata)
 			g_printerr("Error message: %s\n", Pa_GetErrorText( err ) );
 			ret = -1;
 		}
+		
+		g_print("Closing audio stream...\n");
+		err = Pa_CloseStream( stream );
+		
+		if( err != paNoError )
+		{	
+			g_printerr("An error occured while closing the audio stream\n" );
+			g_printerr("Error number: %d\n", err );
+			g_printerr("Error message: %s\n", Pa_GetErrorText( err ) );
+			ret = -1;
+		}
 	}
+	else
+		g_print("Invalid stream pointer.\n");
 	
-	g_print("Closing audio stream...\n");
-	err = Pa_CloseStream( stream );
-	if( err != paNoError )
-	{
-		g_printerr("An error occured while closing the audio stream\n" );
-		g_printerr("Error number: %d\n", err );
-		g_printerr("Error message: %s\n", Pa_GetErrorText( err ) );
-		ret = -1;
-	}
 	
 	pdata->stream = NULL;
 	
