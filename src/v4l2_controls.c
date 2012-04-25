@@ -648,11 +648,10 @@ void create_control_widgets(Control *control_list, void *all_data, int control_o
 {  
     struct ALL_DATA *data = (struct ALL_DATA *) all_data;
     struct vdIn *videoIn = data->videoIn;
-    Control *current = control_list;
-    Control *next = current->next;
+    Control *current;
     int i = 0;
     
-    for(; next != NULL; current = next, next = current->next)
+    for(current = control_list; current != NULL; current = current->next)
     {
     	get_ctrl(videoIn->fd, control_list, current->control.id, all_data);
         if (verbose) 
