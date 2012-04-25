@@ -50,7 +50,9 @@
 struct lavcData
 {
 	AVCodec *codec;
+#if LIBAVCODEC_VER_AT_LEAST(53,6)
 	AVDictionary *private_options;
+#endif
 	AVCodecContext *codec_context;
 	AVFrame *picture;
 	AVPacket *outpkt;
