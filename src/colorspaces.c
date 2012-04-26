@@ -153,12 +153,12 @@ void y16_to_yuyv (BYTE *framebuffer, BYTE *tmpbuffer, int width, int height)
 			/* Y0 */
 			*framebuffer++ = (BYTE) ((ptmp[0] & 0xFF00) >> 8);
 			/* U */
-			*framebuffer++ = 0x7F;
+			*framebuffer++ = 0x80;
 			/* Y1 */
 			*framebuffer++ = (BYTE) ((ptmp[1] & 0xFF00) >> 8);
 			/* V */
-			*framebuffer++ = 0x7F;
-			
+			*framebuffer++ = 0x80;
+
 			ptmp += 2;
 		}
 	}
