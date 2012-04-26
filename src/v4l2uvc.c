@@ -1304,6 +1304,13 @@ input_set_framerate (struct vdIn * device, int *fps, int *fps_num)
 	fd = device->fd;
 
 	device->streamparm.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+	ret = xioctl(fd, VIDIOC_G_PARM, &device->streamparm);
+	if (ret < 0)
+		return ret;
+
+	if (!(device->streamparm.parm.capture.capability & V4L2_CAP_TIMEPERFRAME))
+		return -ENOTSUP;
+
 	device->streamparm.parm.capture.timeperframe.numerator = *fps_num;
 	device->streamparm.parm.capture.timeperframe.denominator = *fps;
 	 
@@ -1334,6 +1341,7 @@ input_get_framerate (struct vdIn * device, int *fps, int *fps_num)
 
 	fd = device->fd;
 
+	device->streamparm.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 	ret = xioctl(fd,VIDIOC_G_PARM,&device->streamparm);
 	if (ret < 0) 
 	{
@@ -1341,9 +1349,11 @@ input_get_framerate (struct vdIn * device, int *fps, int *fps_num)
 	} 
 	else 
 	{
-		// it seems numerator is allways 1 but we don't do assumptions here :-)
-		*fps = device->streamparm.parm.capture.timeperframe.denominator;
-		*fps_num = device->streamparm.parm.capture.timeperframe.numerator;
+		if (device->streamparm.parm.capture.capability & V4L2_CAP_TIMEPERFRAME) {
+			// it seems numerator is allways 1 but we don't do assumptions here :-)
+			*fps = device->streamparm.parm.capture.timeperframe.denominator;
+			*fps_num = device->streamparm.parm.capture.timeperframe.numerator;
+		}
 	}
 	
 	if(*fps == 0 )
