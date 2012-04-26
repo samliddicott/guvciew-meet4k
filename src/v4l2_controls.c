@@ -1143,6 +1143,7 @@ int get_ctrl(int hdevice, Control *control_list, int id, void *all_data)
             ctrl.string = control->string; 
         }
 #endif
+        ctrls.ctrl_class = control->class;
         ctrls.count = 1;
         ctrls.controls = &ctrl;
         ret = xioctl(hdevice, VIDIOC_G_EXT_CTRLS, &ctrls);
@@ -1361,6 +1362,7 @@ int set_ctrl(int hdevice, Control *control_list, int id)
                 ctrl.value = control->value;
                 break;
         }
+        ctrls.ctrl_class = control->class;
         ctrls.count = 1;
         ctrls.controls = &ctrl;
         ret = xioctl(hdevice, VIDIOC_S_EXT_CTRLS, &ctrls);
