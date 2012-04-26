@@ -1086,7 +1086,7 @@ int uvcGrab(struct vdIn *vd, int format, int width, int height, int *fps, int *f
 					video_disable(vd);
 					input_set_framerate (vd, fps, fps_num);
 					video_enable(vd);
-					vd->setFPS = 0; /*no need to query and queue buufers*/
+					vd->setFPS = 0; /*no need to query and queue buffers*/
 				}
 				vd->buf.bytesused = v4l2_read (vd->fd, vd->mem[vd->buf.index], vd->buf.length);
 				vd->timestamp = ns_time_monotonic();
