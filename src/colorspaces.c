@@ -132,6 +132,61 @@ yuyv2bgr (BYTE *pyuv, BYTE *pbgr, int width, int height)
 	preverse=NULL;
 }
 
+/* Unpack buffer of (vw bit) data into padded 16bit buffer. */
+static inline void convert_packed_to_16bit(uint8_t *raw, uint16_t *unpacked, int vw, int unpacked_len)
+{
+	int mask = (1 << vw) - 1;
+	uint32_t buffer = 0;
+	int bitsIn = 0;
+	while (unpacked_len--) {
+		while (bitsIn < vw) {
+			buffer = (buffer << 8) | *(raw++);
+			bitsIn += 8;
+		}
+		bitsIn -= vw;
+		*(unpacked++) = (buffer >> bitsIn) & mask;
+	}
+}
+
+/*convert y10b (bit-packed array greyscale format) to yuyv (packed)
+* args:
+*      framebuffer: pointer to frame buffer (yuyv)
+*      tmpbuffer: pointer to temp buffer containing y10b (bit-packed array) data frame
+*      width: picture width
+*      height: picture height
+*/
+void y10b_to_yuyv (BYTE *framebuffer, BYTE *tmpbuffer, int width, int height)
+{
+	UINT16 *unpacked_buffer = NULL;
+	UINT16 *ptmp;
+	int h = 0;
+	int w = 0;
+
+	unpacked_buffer = malloc(width * height * sizeof(UINT16));
+	convert_packed_to_16bit(tmpbuffer, unpacked_buffer, 10, width * height);
+
+	ptmp = unpacked_buffer;
+
+	for (h = 0; h < height; h++)
+	{
+		for (w = 0; w < width; w += 2)
+		{
+			/* Y0 */
+			*framebuffer++ = (BYTE) ((ptmp[0] & 0x3FF) >> 2);
+			/* U */
+			*framebuffer++ = 0x80;
+			/* Y1 */
+			*framebuffer++ = (BYTE) ((ptmp[1] & 0x3FF) >> 2);
+			/* V */
+			*framebuffer++ = 0x80;
+
+			ptmp += 2;
+		}
+	}
+	
+	free(unpacked_buffer);
+}
+
 /*convert y16 (grey) to yuyv (packed)
 * args: 
 *      framebuffer: pointer to frame buffer (yuyv)

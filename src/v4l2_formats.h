@@ -80,6 +80,10 @@
 #define V4L2_PIX_FMT_GREY  v4l2_fourcc('G','R','E','Y')    /*      Y only       */
 #endif
 
+#ifndef V4L2_PIX_FMT_Y10BPACK
+#define V4L2_PIX_FMT_Y10BPACK  v4l2_fourcc('Y','1','0','B')    /*      Y only (10 bit bit-packed array) */
+#endif
+
 #ifndef V4L2_PIX_FMT_Y16
 #define V4L2_PIX_FMT_Y16  v4l2_fourcc('Y','1','6',' ')    /*      Y only (16 bit)      */
 #endif
