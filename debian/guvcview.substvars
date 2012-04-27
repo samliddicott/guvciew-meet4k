@@ -1,2 +1,0 @@
-shlibs:Depends=libasound2 (>> 1.0.18), libatk1.0-0 (>= 1.20.0), libavcodec-extra-52 (>= 3:0.svn20090303-1), libc6 (>= 2.4), libcairo2 (>= 1.2.4), libfontconfig1 (>= 2.4.0), libfreetype6 (>= 2.2.1), libglib2.0-0 (>= 2.16.0), libgtk2.0-0 (>= 2.14.0), libpango1.0-0 (>= 1.14.0), libpng12-0 (>= 1.2.13-4), libportaudio2, libsdl1.2debian (>= 1.2.10-1)
-misc:Depends=

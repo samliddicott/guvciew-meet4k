@@ -1,7 +1,0 @@
-#!/usr/bin/make -f
-%:
-	dh --with quilt $@
-	
-override_dh_install:
-    # only one package so its already created in debian/packagename
-	# dh_install  --fail-missing --sourcedir=debian/tmp # only for more than one package
