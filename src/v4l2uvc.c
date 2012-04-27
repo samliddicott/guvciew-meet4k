@@ -1125,8 +1125,13 @@ int uvcGrab(struct vdIn *vd, int format, int width, int height, int *fps, int *f
 					/*------------------------------------------*/
 					if(vd->setFPS) //change fps
 					{
+						video_disable(vd);
+						unmap_buff(vd);
 						input_set_framerate (vd, fps, fps_num);
 						vd->setFPS = 0;
+						query_buff(vd);
+						queue_buff(vd);
+						video_enable(vd);
 					}
 					else if(vd->setJPEGCOMP) //change jpeg quality/compression in video frame
 					{
