@@ -117,7 +117,8 @@ int initGlobals (struct GLOBAL *global)
 	global->timer_id=0;
 	global->image_timer_id=0;
 	global->image_timer=0;
-	global->image_npics=999;/*default max number of captures*/
+	global->image_npics=9999;/*default max number of captures*/
+	global->image_picn =0;
 	global->frmCount=0;
 	global->PanStep=2;/*2 degree step for Pan*/
 	global->TiltStep=2;/*2 degree step for Tilt*/

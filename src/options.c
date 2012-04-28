@@ -506,8 +506,8 @@ readConf(struct GLOBAL *global)
 						else if (g_strcmp0(name,"image_inc")==0) 
 						{
 							global->image_inc = (DWORD) scanner->value.v_int;
-							if((global->image_timer > 0) && (global->image_inc <= 0))
-							    global->image_inc = 1;
+							//if((global->image_timer > 0) && (global->image_inc <= 0))
+							//    global->image_inc = 1;
 							g_snprintf(global->imageinc_str,20,_("File num:%d"),global->image_inc);
 						}
 						else if (g_strcmp0(name,"acodec_bit_rate")==0) 

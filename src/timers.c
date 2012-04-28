@@ -87,25 +87,33 @@ Image_capture_timer(gpointer data)
     struct GWIDGET *gwidget = all_data->gwidget;
     struct vdIn *videoIn = all_data->videoIn; 
     
-    /*increment image name */
-    videoIn->ImageFName = incFilename(videoIn->ImageFName, 
-        global->imgFPath,
-        global->image_inc);
+    global->image_picn++;   
 
-    if(!global->no_display)
-    {
-        g_snprintf(global->imageinc_str,24,_("File num:%d"),global->image_inc);
+	if(global->image_inc > 0)
+	{
+		/*increment image name */
+	    videoIn->ImageFName = incFilename(videoIn->ImageFName, 
+    	    global->imgFPath,
+    	    global->image_inc);
         
-        gdk_threads_enter();
-            gtk_label_set_text(GTK_LABEL(gwidget->ImageIncLabel), global->imageinc_str);
-            gdk_flush();
-        gdk_threads_leave();
-    }
+    	if(!global->no_display)
+    	{
+        	g_snprintf(global->imageinc_str,24,_("File num:%d"),global->image_inc);
+        
+        	gdk_threads_enter();
+            	gtk_label_set_text(GTK_LABEL(gwidget->ImageIncLabel), global->imageinc_str);
+            	gdk_flush();
+        	gdk_threads_leave();
+    	}
     
-    global->image_inc++;
+    	global->image_inc = global->image_picn;
+    }
+    else
+    	videoIn->ImageFName = joinPath(videoIn->ImageFName, global->imgFPath);
+    
     videoIn->capImage = TRUE;
 
-    if(global->image_inc > global->image_npics) 
+    if(global->image_picn > global->image_npics) 
     {   /*destroy timer*/
         if(!global->no_display)
         {
@@ -116,7 +124,7 @@ Image_capture_timer(gpointer data)
             gdk_threads_leave();
         }
         global->image_timer=0;
-        
+        global->image_picn=0;
         //if exit_on_close then shutdown
         if(global->exit_on_close)
             shutd (0, data);

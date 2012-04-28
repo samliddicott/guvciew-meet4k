@@ -111,6 +111,7 @@ struct GLOBAL
 	int disk_timer_id;     //timer id for disk check (free space)
 	int image_timer;       //auto image capture time
 	int image_npics;       //number of captures
+	int image_picn;        //capture number
 	int fps;               //fps denominator
 	int fps_num;           //fps numerator (usually 1)
 	int bpp;               //current bytes per pixel
