@@ -34,6 +34,7 @@
 #define LENGTH_OF_XU_CTR (6)
 #define LENGTH_OF_XU_MAP (10)
 
+/*
 static struct uvc_xu_control_info xu_ctrls[] = 
 {
 	{
@@ -80,6 +81,12 @@ static struct uvc_xu_control_info xu_ctrls[] =
 	},
 	
 };
+*/
+
+static struct uvc_menu_info led_menu_entry[4] = {{0, "Off"}, 
+												 {1, "On"}, 
+												 {2, "Blinking"}, 
+												 {3, "Auto"}};
 
 /* mapping for Pan/Tilt/Focus */
 static struct uvc_xu_control_mapping xu_mappings[] = 
@@ -92,7 +99,10 @@ static struct uvc_xu_control_mapping xu_mappings[] =
 		.size      = 16,
 		.offset    = 0,
 		.v4l2_type = V4L2_CTRL_TYPE_INTEGER,
-		.data_type = UVC_CTRL_DATA_TYPE_SIGNED
+		.data_type = UVC_CTRL_DATA_TYPE_SIGNED,
+		.menu_info = NULL,
+		.menu_count = 0,
+		.reserved = {0,0,0,0}
 	},
 	{
 		.id        = V4L2_CID_TILT_RELATIVE,
@@ -102,7 +112,10 @@ static struct uvc_xu_control_mapping xu_mappings[] =
 		.size      = 16,
 		.offset    = 16,
 		.v4l2_type = V4L2_CTRL_TYPE_INTEGER,
-		.data_type = UVC_CTRL_DATA_TYPE_SIGNED
+		.data_type = UVC_CTRL_DATA_TYPE_SIGNED,
+		.menu_info = NULL,
+		.menu_count = 0,
+		.reserved = {0,0,0,0}
 	},
 	{
 		.id        = V4L2_CID_PAN_RESET,
@@ -111,8 +124,11 @@ static struct uvc_xu_control_mapping xu_mappings[] =
 		.selector  = XU_MOTORCONTROL_PANTILT_RESET,
 		.size      = 1,
 		.offset    = 0,
-		.v4l2_type = V4L2_CTRL_TYPE_INTEGER,
-		.data_type = UVC_CTRL_DATA_TYPE_UNSIGNED
+		.v4l2_type = V4L2_CTRL_TYPE_BUTTON,
+		.data_type = UVC_CTRL_DATA_TYPE_UNSIGNED,
+		.menu_info = NULL,
+		.menu_count = 0,
+		.reserved = {0,0,0,0}
 	},
 	{
 		.id        = V4L2_CID_TILT_RESET,
@@ -121,18 +137,11 @@ static struct uvc_xu_control_mapping xu_mappings[] =
 		.selector  = XU_MOTORCONTROL_PANTILT_RESET,
 		.size      = 1,
 		.offset    = 1,
-		.v4l2_type = V4L2_CTRL_TYPE_INTEGER,
-		.data_type = UVC_CTRL_DATA_TYPE_UNSIGNED
-	},
-	{
-		.id        = V4L2_CID_PANTILT_RESET_LOGITECH,
-		.name      = N_("Pan/tilt Reset"),
-		.entity    = UVC_GUID_LOGITECH_MOTOR_CONTROL,
-		.selector  = XU_MOTORCONTROL_PANTILT_RESET,
-		.size      = 8,
-		.offset    = 0,
-		.v4l2_type = V4L2_CTRL_TYPE_INTEGER,
-		.data_type = UVC_CTRL_DATA_TYPE_UNSIGNED
+		.v4l2_type = V4L2_CTRL_TYPE_BUTTON,
+		.data_type = UVC_CTRL_DATA_TYPE_UNSIGNED,
+		.menu_info = NULL,
+		.menu_count = 0,
+		.reserved = {0,0,0,0}
 	},
 	{
 		.id        = V4L2_CID_FOCUS_LOGITECH,
@@ -142,7 +151,10 @@ static struct uvc_xu_control_mapping xu_mappings[] =
 		.size      = 8,
 		.offset    = 0,
 		.v4l2_type = V4L2_CTRL_TYPE_INTEGER,
-		.data_type = UVC_CTRL_DATA_TYPE_UNSIGNED
+		.data_type = UVC_CTRL_DATA_TYPE_UNSIGNED,
+		.menu_info = NULL,
+		.menu_count = 0,
+		.reserved = {0,0,0,0}
 	},
 	{
 		.id        = V4L2_CID_LED1_MODE_LOGITECH,
@@ -151,8 +163,11 @@ static struct uvc_xu_control_mapping xu_mappings[] =
 		.selector  = XU_HW_CONTROL_LED1,
 		.size      = 8,
 		.offset    = 0,
-		.v4l2_type = V4L2_CTRL_TYPE_INTEGER,
-		.data_type = UVC_CTRL_DATA_TYPE_UNSIGNED
+		.v4l2_type = V4L2_CTRL_TYPE_MENU,
+		.data_type = UVC_CTRL_DATA_TYPE_UNSIGNED,
+		.menu_info = led_menu_entry,
+		.menu_count = 4,
+		.reserved = {0,0,0,0}
 	},
 	{
 		.id        = V4L2_CID_LED1_FREQUENCY_LOGITECH,
@@ -162,7 +177,10 @@ static struct uvc_xu_control_mapping xu_mappings[] =
 		.size      = 8,
 		.offset    = 16,
 		.v4l2_type = V4L2_CTRL_TYPE_INTEGER,
-		.data_type = UVC_CTRL_DATA_TYPE_UNSIGNED
+		.data_type = UVC_CTRL_DATA_TYPE_UNSIGNED,
+		.menu_info = NULL,
+		.menu_count = 0,
+		.reserved = {0,0,0,0}
 	},
 	{
 		.id        = V4L2_CID_DISABLE_PROCESSING_LOGITECH,
@@ -172,7 +190,10 @@ static struct uvc_xu_control_mapping xu_mappings[] =
 		.size      = 8,
 		.offset    = 0,
 		.v4l2_type = V4L2_CTRL_TYPE_BOOLEAN,
-		.data_type = UVC_CTRL_DATA_TYPE_BOOLEAN
+		.data_type = UVC_CTRL_DATA_TYPE_BOOLEAN,
+		.menu_info = NULL,
+		.menu_count = 0,
+		.reserved = {0,0,0,0}
 	},
 	{
 		.id        = V4L2_CID_RAW_BITS_PER_PIXEL_LOGITECH,
@@ -182,7 +203,10 @@ static struct uvc_xu_control_mapping xu_mappings[] =
 		.size      = 8,
 		.offset    = 0,
 		.v4l2_type = V4L2_CTRL_TYPE_INTEGER,
-		.data_type = UVC_CTRL_DATA_TYPE_UNSIGNED
+		.data_type = UVC_CTRL_DATA_TYPE_UNSIGNED,
+		.menu_info = NULL,
+		.menu_count = 0,
+		.reserved = {0,0,0,0}
 	},
 	
 };
@@ -191,25 +215,6 @@ int initDynCtrls(int fd)
 {
 	int i=0;
 	int err=0;
-	/* try to add all controls listed above */
-	for ( i=0; i<LENGTH_OF_XU_CTR; i++ ) 
-	{
-		g_print("Adding control for %s\n", xu_mappings[i].name);
-		if ((err=xioctl(fd, UVCIOC_CTRL_ADD, &xu_ctrls[i])) < 0 ) 
-		{
-			if ((errno != EEXIST) || (errno != EACCES)) 
-			{	perror("UVCIOC_CTRL_ADD - Error");
-				return (-2);
-			}
-			else if (errno == EACCES)
-			{
-				g_printerr("need admin previledges for adding extension controls\n");
-				g_printerr("please run 'guvcview --add_ctrls' as root (or with sudo)\n");
-				return  (-1);
-			}
-			else perror("Control exists");
-		}
-	}
 	/* after adding the controls, add the mapping now */
 	for ( i=0; i<LENGTH_OF_XU_MAP; i++ ) 
 	{
@@ -219,7 +224,7 @@ int initDynCtrls(int fd)
 			if ((errno!=EEXIST) || (errno != EACCES))
 			{
 				perror("UVCIOC_CTRL_MAP - Error");
-				return (-2);
+				//return (-2);
 			}
 			else if (errno == EACCES)
 			{
