@@ -3,9 +3,6 @@ SUBDIRS = icons
 
 dist_man_MANS = guvcview.1
 
-clean-generic:
-	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
-
 if DEBIAN_MENU
 
 MENU_IN_FILES= guvcview.in
@@ -36,3 +33,7 @@ CLEANFILES = \
 EXTRA_DIST = \
 		$(DESKTOP_IN_FILES)\
 		$(MENU_IN_FILES)
+
+clean-generic:
+	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES); \
+	-test -z "$(CLEANFILES)" || rm -f $(CLEANFILES)

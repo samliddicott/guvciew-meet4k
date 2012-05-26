@@ -703,11 +703,12 @@ uninstall-man: uninstall-man1
 
 @INTLTOOL_DESKTOP_RULE@
 
-clean-generic:
-	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
-
 @DEBIAN_MENU_TRUE@$(MENU_FILES): $(MENU_IN_FILES)
 @DEBIAN_MENU_TRUE@	cp $? $@
+
+clean-generic:
+	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES); \
+	-test -z "$(CLEANFILES)" || rm -f $(CLEANFILES)
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
