@@ -6556,7 +6556,7 @@ $as_echo "#define PULSEAUDIO 1" >>confdefs.h
 	else
 	  { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: libpulse missing... pulse support will be disabled." >&5
 $as_echo "$as_me: WARNING: libpulse missing... pulse support will be disabled." >&2;};
-	  $enable_pulse = no
+	  enable_pulse = no
 	fi
 fi
 

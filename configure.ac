@@ -146,7 +146,7 @@ if test $enable_pulse = yes; then
 	  AC_DEFINE(PULSEAUDIO,1,[set to 1 if pulseaudio installed])
 	else 
 	  AC_MSG_WARN(libpulse missing... pulse support will be disabled.);
-	  $enable_pulse = no
+	  enable_pulse = no
 	fi
 fi
 
