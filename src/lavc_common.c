@@ -502,7 +502,8 @@ struct lavcAData* init_lavc_audio(struct paRecordData *pdata, int codec_ind)
 	pdata->lavc_data->monotonic_pts = defaults->monotonic_pts;
 	
 	//alloc outbuf
-	pdata->lavc_data->outbuf = g_new0(BYTE, pdata->outbuf_size);
+	pdata->lavc_data->outbuf_size = pdata->outbuf_size;
+	pdata->lavc_data->outbuf = g_new0(BYTE, pdata->lavc_data->outbuf_size);
 	
 #if LIBAVCODEC_VER_AT_LEAST(53,34)	
 	pdata->lavc_data->frame= avcodec_alloc_frame();
