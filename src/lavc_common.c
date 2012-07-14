@@ -128,11 +128,93 @@ int encode_lavc_frame (BYTE *picture_buf, struct lavcData* data , int format, st
 	//videoF->frame_number++;
 	
 	if(!data->monotonic_pts) //generate a real pts based on the frame timestamp
-		data->picture->pts += ((videoF->apts - videoF->old_apts)/1000) * 90;
+		data->picture->pts += ((videoF->vpts - videoF->old_vpts)/1000) * 90;
 	else  //generate a true monotonic pts based on the codec fps
 		data->picture->pts += (data->codec_context->time_base.num*1000/data->codec_context->time_base.den) * 90;
 	
-	out_size = avcodec_encode_video(data->codec_context, data->outbuf, data->outbuf_size, data->picture);
+	if(data->flush_delayed_frames)
+	{
+		//pkt.size = 0;
+		if(!data->flushed_buffers)
+		{
+			avcodec_flush_buffers(data->codec_context);
+			data->flushed_buffers = 1;
+		}
+			
+ 	}
+ 		
+#if LIBAVCODEC_VER_AT_LEAST(54,01)
+	AVPacket pkt;
+    int got_packet = 0;
+    av_init_packet(&pkt);
+	pkt.data = data->outbuf;
+	pkt.size = data->outbuf_size;
+	
+    //if(data->outbuf_size < FF_MIN_BUFFER_SIZE)
+    //{
+	//	av_log(avctx, AV_LOG_ERROR, "buffer smaller than minimum size\n");
+    //    return -1;
+    //}
+ 	int ret = 0;
+ 	if(!data->flush_delayed_frames)
+    	ret = avcodec_encode_video2(data->codec_context, &pkt, data->picture, &got_packet);
+   	else
+   		ret = avcodec_encode_video2(data->codec_context, &pkt, NULL, &got_packet);
+    
+    if (!ret && got_packet && data->codec_context->coded_frame) 
+    {
+    	data->codec_context->coded_frame->pts       = pkt.pts;
+        data->codec_context->coded_frame->key_frame = !!(pkt.flags & AV_PKT_FLAG_KEY);
+    }
+ 
+    /* free any side data since we cannot return it */
+    if (pkt.side_data_elems > 0) 
+    {
+    	int i;
+        for (i = 0; i < pkt.side_data_elems; i++)
+        	av_free(pkt.side_data[i].data);
+        av_freep(&pkt.side_data);
+        pkt.side_data_elems = 0;
+    }
+ 
+    out_size = pkt.size;
+#else
+	if(!data->flush_delayed_frames)
+		out_size = avcodec_encode_video(data->codec_context, data->outbuf, data->outbuf_size, data->picture);
+	else
+		out_size = avcodec_encode_video(data->codec_context, data->outbuf, data->outbuf_size, NULL);
+#endif
+
+	 if(data->flush_delayed_frames && out_size == 0)
+    	data->flush_done = 1;
+	
+	if(out_size == 0 && data->index_of_df < 0)
+	{
+	    data->delayed_pts[data->delayed_frames] = videoF->vpts;
+	    data->delayed_frames++;
+	    if(data->delayed_frames > MAX_DELAYED_FRAMES)
+	    {
+	    	data->delayed_frames = MAX_DELAYED_FRAMES;
+	    	printf("WARNING: Maximum of %i delayed video frames reached...\n", MAX_DELAYED_FRAMES);
+	    }
+	}
+	else
+	{
+		if(data->delayed_frames > 0)
+		{
+			if(data->index_of_df < 0)
+			{
+				data->index_of_df = 0;
+				printf("WARNING: video codec is using %i delayed video frames\n", data->delayed_frames);
+			}
+			INT64 pts = videoF->vpts;
+			videoF->vpts = data->delayed_pts[data->index_of_df];
+			data->delayed_pts[data->index_of_df] = pts;
+			data->index_of_df++;
+			if(data->index_of_df >= data->delayed_frames)
+				data->index_of_df = 0;
+		}
+	}	
 	return (out_size);
 }
 
@@ -182,7 +264,11 @@ int clean_lavc (void* arg)
 	if(*data)
 	{
 		//enc_frames = (*data)->codec_context->real_pict_num;
-		avcodec_flush_buffers((*data)->codec_context);
+		if(!(*data)->flushed_buffers)
+		{
+			avcodec_flush_buffers((*data)->codec_context);
+			(*data)->flushed_buffers = 1;
+		}
 		//close codec 
 		avcodec_close((*data)->codec_context);
 #if LIBAVCODEC_VER_AT_LEAST(53,6)
@@ -338,8 +424,15 @@ struct lavcData* init_lavc(int width, int height, int fps_num, int fps_den, int 
 	//alloc tmpbuff (yuv420p)
 	data->tmpbuf = g_new0(BYTE, (width*height*3)/2);
 	//alloc outbuf
-	data->outbuf_size = 240000;
+	data->outbuf_size = 240000;//1792
 	data->outbuf = g_new0(BYTE, data->outbuf_size);
+	
+	data->delayed_frames = 0;
+	data->index_of_df = -1;
+	
+	data->flushed_buffers = 0;
+	data->flush_delayed_frames = 0;
+	data->flush_done = 0;
 	
 	return(data);
 }

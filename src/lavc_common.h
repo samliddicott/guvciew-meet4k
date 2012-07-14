@@ -46,6 +46,9 @@
 #define LIBAVCODEC_VER_AT_LEAST(major,minor)  (LIBAVCODEC_VERSION_MAJOR > major || \
                                               (LIBAVCODEC_VERSION_MAJOR == major && \
                                                LIBAVCODEC_VERSION_MINOR >= minor))
+                                               
+#define MAX_DELAYED_FRAMES 50  //Maximum supported delayed frames
+
 /*video*/
 struct lavcData
 {
@@ -56,6 +59,13 @@ struct lavcData
 	AVCodecContext *codec_context;
 	AVFrame *picture;
 	AVPacket *outpkt;
+	
+	int delayed_frames;
+	int index_of_df; //index of delayed frame pts in use;
+	INT64 delayed_pts[MAX_DELAYED_FRAMES]; //delayed frames pts
+	int flush_delayed_frames;
+	int flushed_buffers;
+	int flush_done;
 	
 	BYTE* tmpbuf;
 	int outbuf_size;

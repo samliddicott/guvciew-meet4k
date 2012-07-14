@@ -402,7 +402,11 @@ static vcodecs_data listSupVCodecs[] = //list of software supported formats
 		.mpeg_quant   = 1,
 		.max_b_frames = 0,
 		.num_threads  = 1,
+#if LIBAVCODEC_VER_AT_LEAST(54,01)
+		.flags        = CODEC_FLAG2_INTRA_REFRESH
+#else
 		.flags        = CODEC_FLAG2_BPYRAMID | CODEC_FLAG2_WPRED | CODEC_FLAG2_FASTPSKIP | CODEC_FLAG2_INTRA_REFRESH
+#endif
 	}
 };
 

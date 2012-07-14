@@ -807,7 +807,10 @@ static gboolean process_video(struct ALL_DATA *all_data,
 		}
 		else 
 		{
-			finish = TRUE; /*all frames processed and no longer capturing so finish*/
+			//flush video encoder
+			(*lavc_data)->flush_delayed_frames = 1;
+			write_video_frame(all_data, (void *) jpeg_struct, (void *) lavc_data, proc_buff);
+			finish = (*lavc_data)->flush_done; /*all frames processed and no longer capturing so finish*/
 		}
 	}
 	return finish;
