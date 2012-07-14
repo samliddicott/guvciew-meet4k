@@ -47,6 +47,11 @@
                                               (LIBAVCODEC_VERSION_MAJOR == major && \
                                                LIBAVCODEC_VERSION_MINOR >= minor))
                                                
+#if !LIBAVCODEC_VER_AT_LEAST(53,0)
+  #define AV_SAMPLE_FMT_S16 SAMPLE_FMT_S16
+  #define AV_SAMPLE_FMT_FLT SAMPLE_FMT_FLT 
+#endif
+
 #define MAX_DELAYED_FRAMES 50  //Maximum supported delayed frames
 
 /*video*/
@@ -91,7 +96,7 @@ struct lavcAData
 
 int encode_lavc_frame (BYTE *picture_buf, struct lavcData* data, int format, struct VideoFormatData *videoF);
 
-int encode_lavc_audio_frame (short *audio_buf, struct lavcAData* data, struct VideoFormatData *videoF);
+int encode_lavc_audio_frame (void *audio_buf, struct lavcAData* data, struct VideoFormatData *videoF);
 
 /* arg = pointer to lavcData struct =>
  * *arg = struct lavcData**

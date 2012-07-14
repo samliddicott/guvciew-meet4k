@@ -220,7 +220,7 @@ int encode_lavc_frame (BYTE *picture_buf, struct lavcData* data , int format, st
 	return (out_size);
 }
 
-int encode_lavc_audio_frame (short *audio_buf, struct lavcAData* data, struct VideoFormatData *videoF)
+int encode_lavc_audio_frame (void *audio_buf, struct lavcAData* data, struct VideoFormatData *videoF)
 {
 	int out_size = 0;
 	
@@ -472,10 +472,10 @@ struct lavcAData* init_lavc_audio(struct paRecordData *pdata, int codec_ind)
 	pdata->lavc_data->codec_context->cutoff = 0; /*automatic*/
 	/*libav 7.1 only seems to accept S16 format*/
 
-#if !LIBAVCODEC_VER_AT_LEAST(53,0)
-#define AV_SAMPLE_FMT_S16 SAMPLE_FMT_S16 
-#endif
-	pdata->lavc_data->codec_context->sample_fmt = AV_SAMPLE_FMT_S16; /* Int16 sample */
+	if(defaults->codec_id == CODEC_ID_AC3 || defaults->codec_id == CODEC_ID_AAC)
+		pdata->lavc_data->codec_context->sample_fmt = AV_SAMPLE_FMT_FLT; /* Float sample */
+	else
+		pdata->lavc_data->codec_context->sample_fmt = AV_SAMPLE_FMT_S16; /* Int16 sample */
 	
     pdata->lavc_data->codec_context->codec_id = defaults->codec_id;
 	

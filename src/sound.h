@@ -101,6 +101,7 @@ struct paRecordData
 	int64_t ts_ref;                  // timestamp video reference
 	int64_t ts_drift;                // time drift between audio device clock and system clock
 	gint16 *pcm_sndBuff;             // buffer for pcm coding with int16
+	float  *float_sndBuff;           // buffer for pcm coding with float
 	BYTE *mp2Buff;                   // mp2 encode buffer
 	int mp2BuffSize;                 // mp2 buffer size
 	int snd_Flags;                   // effects flag
@@ -138,7 +139,7 @@ int
 close_sound (struct paRecordData *data);
 
 void 
-Float2Int16 (struct paRecordData* data);
+SampleConverter (struct paRecordData* data);
 
 #endif
 

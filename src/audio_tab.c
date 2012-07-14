@@ -315,7 +315,7 @@ void audio_tab(struct ALL_DATA *all_data)
 	line++;
 	gwidget->SndComp = gtk_combo_box_text_new ();
 	//sets to valid only existing codecs
-	setAcodecVal ();
+	setAcodecVal();
 	int acodec_ind =0;
 	for (acodec_ind =0; acodec_ind<MAX_ACODECS; acodec_ind++)
 	{

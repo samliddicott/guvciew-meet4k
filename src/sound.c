@@ -426,16 +426,31 @@ static gint16 clip_int16 (float in)
 	return ((gint16) in);
 }
 
-void Float2Int16 (struct paRecordData* pdata)
+void SampleConverter (struct paRecordData* pdata)
 {
-	if (!(pdata->pcm_sndBuff)) 
-		pdata->pcm_sndBuff = g_new0(gint16, pdata->aud_numSamples);
-		
-	int samp = 0;
-	
-	for(samp=0; samp < pdata->aud_numSamples; samp++)
+	if(pdata->lavc_data && pdata->lavc_data->codec_context->sample_fmt == AV_SAMPLE_FMT_FLT)
 	{
-		pdata->pcm_sndBuff[samp] = clip_int16(pdata->audio_buff[pdata->br_ind][pdata->r_ind].frame[samp] * 32767.0); //* 32768 + 385;
+		if(!(pdata->float_sndBuff)) 
+			pdata->float_sndBuff = g_new0(float, pdata->aud_numSamples);
+		
+		int samp = 0;
+	
+		for(samp=0; samp < pdata->aud_numSamples; samp++)
+		{
+			pdata->float_sndBuff[samp] = pdata->audio_buff[pdata->br_ind][pdata->r_ind].frame[samp];
+		}
+	}
+	else
+	{
+		if (!(pdata->pcm_sndBuff)) 
+			pdata->pcm_sndBuff = g_new0(gint16, pdata->aud_numSamples);
+		
+		int samp = 0;
+	
+		for(samp=0; samp < pdata->aud_numSamples; samp++)
+		{
+			pdata->pcm_sndBuff[samp] = clip_int16(pdata->audio_buff[pdata->br_ind][pdata->r_ind].frame[samp] * 32767.0); //* 32768 + 385;
+		}
 	}
 }
 

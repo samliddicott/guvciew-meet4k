@@ -314,9 +314,11 @@ static int encode_lavc_audio ( struct ALL_DATA *all_data )
 	
 	if(pdata->lavc_data)
 	{
-		/*lavc is initialized when setting sound*/
-		framesize= encode_lavc_audio_frame (pdata->pcm_sndBuff, pdata->lavc_data, videoF);
-		
+		if(pdata->lavc_data->codec_context->sample_fmt == AV_SAMPLE_FMT_FLT)
+			framesize= encode_lavc_audio_frame (pdata->float_sndBuff, pdata->lavc_data, videoF);
+		else
+			framesize= encode_lavc_audio_frame (pdata->pcm_sndBuff, pdata->lavc_data, videoF);
+	
 		ret = write_audio_data (all_data, pdata->lavc_data->outbuf, framesize, pdata->audio_buff[pdata->br_ind][pdata->r_ind].time_stamp);
 	}
 	return (ret);
@@ -335,14 +337,13 @@ int compress_audio_frame(void *data)
 		/*write audio chunk*/
 		case PA_FOURCC: 
 		{
-			Float2Int16(pdata); /*convert from float sample to 16 bit PCM*/
+			SampleConverter(pdata); /*convert from float sample to 16 bit PCM*/
 			ret = write_audio_data (all_data, (BYTE *) pdata->pcm_sndBuff, pdata->aud_numSamples*2, pdata->audio_buff[pdata->br_ind][pdata->r_ind].time_stamp);
 			break;
 		}
 		default:
 		{
-			//Argh! libavcodec 7.1 only seems to accept S16 sample_fmt
-			Float2Int16(pdata); /*convert from float sample to 16 bit PCM*/
+			SampleConverter(pdata);
 			ret = encode_lavc_audio (all_data);
 			break;
 		}
