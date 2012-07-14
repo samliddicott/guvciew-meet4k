@@ -132,6 +132,8 @@ int encode_lavc_frame (BYTE *picture_buf, struct lavcData* data , int format, st
 	else  //generate a true monotonic pts based on the codec fps
 		data->picture->pts += (data->codec_context->time_base.num*1000/data->codec_context->time_base.den) * 90;
 	
+	videoF->old_vpts = videoF->vpts;
+	
 	if(data->flush_delayed_frames)
 	{
 		//pkt.size = 0;

@@ -586,8 +586,7 @@ int compress_frame(void *data,
 	long framesize = 0;
 	int jpeg_size = 0;
 	int ret = 0;
-	
-	videoF->old_vpts = videoF->vpts;			
+				
 	videoF->vpts = proc_buff->time_stamp;
 	
 	switch (global->VidCodec) 
