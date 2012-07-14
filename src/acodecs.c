@@ -242,10 +242,11 @@ gboolean isLavcACodec(int codec_ind)
 	return (listSupACodecs[get_real_index (codec_ind)].avcodec);
 }
 
-void setAcodecVal ()
+int getAcodecNum()
 {
 	AVCodec *codec;
 	int ind = 0;
+	int num_codecs = 1; //pcm is always valid
 	for (ind=0;ind<MAX_ACODECS;ind++)
 	{
 		if (isLavcACodec(ind))
@@ -256,8 +257,12 @@ void setAcodecVal ()
 				g_print("no codec detected for %s\n", listSupACodecs[ind].description);
 				listSupACodecs[ind].valid = FALSE;
 			}
+			else
+				num_codecs++;
 		}
 	}
+	
+	return num_codecs;
 }
 
 gboolean isAcodecValid(int codec_ind)

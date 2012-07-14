@@ -315,14 +315,10 @@ void audio_tab(struct ALL_DATA *all_data)
 	line++;
 	gwidget->SndComp = gtk_combo_box_text_new ();
 	//sets to valid only existing codecs
-	setAcodecVal();
+	int num_codecs = getAcodecNum();
 	int acodec_ind =0;
-	for (acodec_ind =0; acodec_ind<MAX_ACODECS; acodec_ind++)
-	{
-		if (isAcodecValid(acodec_ind))
-			gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(gwidget->SndComp),gettext(get_aud_desc4cc(acodec_ind)));
-		
-	}
+	for (acodec_ind =0; acodec_ind < num_codecs; acodec_ind++)
+		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(gwidget->SndComp),gettext(get_aud_desc4cc(acodec_ind)));
 
 	int aud_ind = get_ind_by4cc(global->Sound_Format);
 	gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->SndComp), aud_ind);
