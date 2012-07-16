@@ -470,11 +470,15 @@ struct lavcAData* init_lavc_audio(struct paRecordData *pdata, int codec_ind)
 	pdata->lavc_data->codec_context->sample_rate = pdata->samprate;
 	pdata->lavc_data->codec_context->channels = pdata->channels;
 	pdata->lavc_data->codec_context->cutoff = 0; /*automatic*/
-	/*libav 7.1 only seems to accept S16 format*/
-
+	/*
+	 * libav 7.1 only seems to accept S16 format
+	 * but for newer versions AC3 and AAC must be float type 
+	 */
+#if LIBAVCODEC_VER_AT_LEAST(54,01)
 	if(defaults->codec_id == CODEC_ID_AC3 || defaults->codec_id == CODEC_ID_AAC)
 		pdata->lavc_data->codec_context->sample_fmt = AV_SAMPLE_FMT_FLT; /* Float sample */
 	else
+#endif
 		pdata->lavc_data->codec_context->sample_fmt = AV_SAMPLE_FMT_S16; /* Int16 sample */
 	
     pdata->lavc_data->codec_context->codec_id = defaults->codec_id;
