@@ -22,6 +22,7 @@
 #include "picture.h"
 #include "huffman.h"
 #include "jpgenc.h"
+#include <unistd.h>
 #include <glib.h>
 #include <glib/gprintf.h>
 #include <png.h>
