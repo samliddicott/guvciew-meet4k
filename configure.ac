@@ -9,7 +9,7 @@ dnl Package definitions and initialization
 dnl --------------------------------------------------------------------------
 m4_define([guvcview_major], [1])
 m4_define([guvcview_minor], [6])
-m4_define([guvcview_micro], [0])
+m4_define([guvcview_micro], [1])
 m4_define([guvcview_version],
           [guvcview_major.guvcview_minor.guvcview_micro])
 
@@ -139,7 +139,7 @@ AC_ARG_ENABLE(pulse, AS_HELP_STRING([--disable-pulse],
 AC_MSG_RESULT($enable_pulse)
 
 if test $enable_pulse = yes; then
-	PKG_CHECK_MODULES(PULSE, libpulse-simple >= 0.9.15, has_pulse=yes, has_pulse=no)
+	PKG_CHECK_MODULES(PULSE, libpulse >= 0.9.15, has_pulse=yes, has_pulse=no)
 	AC_SUBST(PULSE_CFLAGS)
 	AC_SUBST(PULSE_LIBS)
 	if test "$has_pulse" = yes; then
