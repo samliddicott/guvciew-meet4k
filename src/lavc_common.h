@@ -31,14 +31,18 @@
 
 #ifdef HAS_AVCODEC_H
   #include <avcodec.h>
+  #include <audioconvert.h>
 #else
   #ifdef HAS_LIBAVCODEC_AVCODEC_H
     #include <libavcodec/avcodec.h>
+    #include <libavutil/audioconvert.h> //channel_layout definitions
   #else
     #ifdef HAS_FFMPEG_AVCODEC_H
       #include <ffmpeg/avcodec.h>
+      #include <ffmpeg/audioconvert.h>
     #else
       #include <libavcodec/avcodec.h>
+      #include <libavutil/audioconvert.h>
     #endif
   #endif
 #endif
