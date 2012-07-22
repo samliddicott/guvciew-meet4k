@@ -1,3 +1,12 @@
+guvcview (1.6.1)
+
+    * Fix build with latest libavcodec
+    * Fix audio codecs listing
+    * Fix audio codecs (AC3 and AAC) input format for latest libavcodec API (float)
+    * Add support for delayed frames in video encoding
+    
+ -- Paulo Assis <pj.assis@gmail.com>  Sun, 22 Jul 2012 14:35:00 +0000
+ 
 guvcview (1.6.0)
 
     * run audio in separate thread
