@@ -68,6 +68,7 @@ static void alloc_videoBuff(struct ALL_DATA *all_data)
 			for(i=0;i<global->video_buff_size;i++)
 			{
 				global->videoBuff[i].frame = g_new0(BYTE,framesize);
+				global->videoBuff[i].used = FALSE;
 			}
 		}
 		else
@@ -85,6 +86,7 @@ static void alloc_videoBuff(struct ALL_DATA *all_data)
 			for(i=0;i<global->video_buff_size;i++)
 			{
 				global->videoBuff[i].frame = g_new0(BYTE,framesize);
+				global->videoBuff[i].used = FALSE;
 			}
 		}
 		//reset indexes
@@ -805,13 +807,15 @@ static gboolean process_video(struct ALL_DATA *all_data,
 			/*wait for next frame (sleep 10 ms)*/
 			sleep_ms(10);
 		}
-		else 
+		else if (*lavc_data != NULL) //if we are using a lavc encoder flush the last frames
 		{
 			//flush video encoder
 			(*lavc_data)->flush_delayed_frames = 1;
 			write_video_frame(all_data, (void *) jpeg_struct, (void *) lavc_data, proc_buff);
 			finish = (*lavc_data)->flush_done; /*all frames processed and no longer capturing so finish*/
 		}
+		else //finish
+			finish = TRUE;
 	}
 	return finish;
 }
