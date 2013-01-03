@@ -407,6 +407,45 @@ static vcodecs_data listSupVCodecs[] = //list of software supported formats
 #else
 		.flags        = CODEC_FLAG2_BPYRAMID | CODEC_FLAG2_WPRED | CODEC_FLAG2_FASTPSKIP | CODEC_FLAG2_INTRA_REFRESH
 #endif
+	},
+	{       //only available in libavcodec-unstriped
+		.avcodec      = TRUE,
+		.valid        = TRUE,
+		.compressor   = "VP80",
+		.mkv_4cc      = v4l2_fourcc('V','P','8','0'),
+		.mkv_codec    = "V_VP8",
+		.mkv_codecPriv= NULL,
+		.description  = N_("VP8 (VP8)"),
+		.fps          = 0,
+		.monotonic_pts= 1,
+		.bit_rate     = 1500000,
+		.qmax         = 51,
+		.qmin         = 10,
+		.max_qdiff    = 4,
+		.dia          = 2,
+		.pre_dia      = 2,
+		.pre_me       = 2,
+		.me_pre_cmp   = 0,
+		.me_cmp       = 3,
+		.me_sub_cmp   = 3,
+		.last_pred    = 2,
+		.gop_size     = 100,
+		.qcompress    = 0.6,
+		.qblur        = 0.5,
+		.subq         = 5,
+		.framerefs    = 0,
+		.codec_id     = CODEC_ID_VP8,
+		.mb_decision  = FF_MB_DECISION_RD,
+		.trellis      = 0,
+		.me_method    = ME_HEX,
+		.mpeg_quant   = 1,
+		.max_b_frames = 0,
+		.num_threads  = 1,
+#if LIBAVCODEC_VER_AT_LEAST(54,01)
+		.flags        = CODEC_FLAG2_INTRA_REFRESH
+#else
+		.flags        = CODEC_FLAG2_BPYRAMID | CODEC_FLAG2_WPRED | CODEC_FLAG2_FASTPSKIP | CODEC_FLAG2_INTRA_REFRESH
+#endif
 	}
 };
 
