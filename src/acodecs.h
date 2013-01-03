@@ -27,7 +27,7 @@
 #include "globals.h"
 #include "sound.h"
 
-#define MAX_ACODECS 5
+#define MAX_ACODECS 6
 
 #define CODEC_PCM   0
 #define CODEC_MP2   1

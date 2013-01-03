@@ -48,6 +48,16 @@ static BYTE AAC_ESDS[2] = {0x0A,0x10};
  * object type index(5 bits) + sample frequency index(4bits) + samprate(24bits) + channels(4 bits) + flags(3 bit)
  */
 
+/*VORBIS PRIVATE DATA*/
+/*
+ * The private data contains the first three Vorbis packet in order. The lengths of the packets precedes them. The actual layout is:
+ * Byte 1: number of distinct packets '#p' minus one inside the CodecPrivate block. This should be '2' for current Vorbis headers.
+ * Bytes 2..n: lengths of the first '#p' packets, coded in Xiph-style lacing. The length of the last packet is the length of the CodecPrivate block minus the lengths coded in these bytes minus one.
+ * Bytes n+1..: The Vorbis identification header, followed by the Vorbis comment header followed by the codec setup header.
+ * 
+ */
+static BYTE VORBIS_PRIV[3] = {0x02,0x00,0x00};
+
 static acodecs_data listSupACodecs[] = //list of software supported formats
 {
 	{
@@ -122,6 +132,21 @@ static acodecs_data listSupACodecs[] = //list of software supported formats
 		.profile      = FF_PROFILE_AAC_LOW,
 		.mkv_codpriv  = AAC_ESDS,
 		.codpriv_size = 2,
+		.flags        = 0
+	},
+	{
+		.avcodec      = TRUE,
+		.valid        = TRUE,
+		.bits         = 16,
+		.monotonic_pts= 1,
+		.avi_4cc      = OGG_FORMAT_VORBIS1,
+		.mkv_codec    = "A_VORBIS",
+		.description  = N_("Vorbis"),
+		.bit_rate     = 64000,
+		.codec_id     = CODEC_ID_VORBIS,
+		.profile      = FF_PROFILE_UNKNOWN,
+		.mkv_codpriv  = NULL, //matroska spec requires private data
+		.codpriv_size = 0,
 		.flags        = 0
 	}
 };
