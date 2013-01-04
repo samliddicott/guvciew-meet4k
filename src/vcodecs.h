@@ -62,6 +62,7 @@ typedef struct _vcodecs_data
 	int subq;                 //lavc subq
 	int framerefs;            //lavc refs
 	int codec_id;             //lavc codec_id
+	const char* codec_name;   //lavc codec_name
 	int mb_decision;          //lavc mb_decision
 	int trellis;              //lavc trellis quantization
 	int me_method;            //lavc motion estimation method
@@ -95,8 +96,8 @@ gboolean isVcodecValid(int codec_ind);
 
 vcodecs_data *get_codec_defaults(int codec_ind);
 
-int compress_frame(void *data, 
-	void *jpeg_data, 
+int compress_frame(void *data,
+	void *jpeg_data,
 	void *lav_data,
 	VidBuff *proc_buff);
 

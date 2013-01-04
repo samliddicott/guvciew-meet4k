@@ -46,22 +46,22 @@ static void yuv422to420p(BYTE* pic, struct lavcData* data )
 	y1 = data->tmpbuf + width;
 	u = data->tmpbuf + size;
 	v = u + size/4;
-	
+
 	for(j=0;j<(height-1);j+=2)
 	{
 		for(i=0;i<(linesize-3);i+=4)
-		{ 
+		{
 			*y++ = pic[i+j*linesize];
-			*y++ = pic[i+2+j*linesize]; 
-			*y1++ = pic[i+(j+1)*linesize]; 
-			*y1++ = pic[i+2+(j+1)*linesize]; 
-			*u++ = (pic[i+1+j*linesize] + pic[i+1+(j+1)*linesize])>>1; // div by 2 
-			*v++ = (pic[i+3+j*linesize] + pic[i+3+(j+1)*linesize])>>1; 
-		} 
-		y += width; 
+			*y++ = pic[i+2+j*linesize];
+			*y1++ = pic[i+(j+1)*linesize];
+			*y1++ = pic[i+2+(j+1)*linesize];
+			*u++ = (pic[i+1+j*linesize] + pic[i+1+(j+1)*linesize])>>1; // div by 2
+			*v++ = (pic[i+3+j*linesize] + pic[i+3+(j+1)*linesize])>>1;
+		}
+		y += width;
 		y1 += width;//2 lines
 	}
-	
+
 	data->picture->data[0] = data->tmpbuf;                    //Y
 	data->picture->data[1] = data->tmpbuf + size;             //U
 	data->picture->data[2] = data->picture->data[1] + size/4; //V
@@ -78,7 +78,7 @@ static void nv12to420p(BYTE* pic, struct lavcData* data )
 
 	/*FIXME: do we really need this or can we use pic directly ?*/
 	data->tmpbuf = memcpy(data->tmpbuf, pic, (width*height*3)/2);
-	
+
 	data->picture->data[0] = data->tmpbuf;                    //Y
 	data->picture->data[1] = data->tmpbuf + size;             //U
 	data->picture->data[2] = data->picture->data[1] + size/4; //V
@@ -95,7 +95,7 @@ static void nv21to420p(BYTE* pic, struct lavcData* data )
 
 	/*FIXME: do we really need this or can we use pic directly ?*/
 	data->tmpbuf = memcpy(data->tmpbuf, pic, (width*height*3)/2);
-	
+
 	data->picture->data[0] = data->tmpbuf;                    //Y
 	data->picture->data[2] = data->tmpbuf + size;             //V
 	data->picture->data[1] = data->picture->data[2] + size/4; //U
@@ -107,33 +107,33 @@ static void nv21to420p(BYTE* pic, struct lavcData* data )
 int encode_lavc_frame (BYTE *picture_buf, struct lavcData* data , int format, struct VideoFormatData *videoF)
 {
 	int out_size = 0;
-	
+
 	//convert to 4:2:0
 	switch (format)
 	{
 		case V4L2_PIX_FMT_NV12:
 			nv12to420p(picture_buf, data );
 			break;
-			
+
 		case V4L2_PIX_FMT_NV21:
 			nv21to420p(picture_buf, data );
 			break;
-			
+
 		default:
 			yuv422to420p(picture_buf, data );
 			break;
 	}
 	/* encode the image */
-	
+
 	//videoF->frame_number++;
-	
+
 	if(!data->monotonic_pts) //generate a real pts based on the frame timestamp
 		data->picture->pts += ((videoF->vpts - videoF->old_vpts)/1000) * 90;
 	else  //generate a true monotonic pts based on the codec fps
 		data->picture->pts += (data->codec_context->time_base.num*1000/data->codec_context->time_base.den) * 90;
-	
+
 	videoF->old_vpts = videoF->vpts;
-	
+
 	if(data->flush_delayed_frames)
 	{
 		//pkt.size = 0;
@@ -142,16 +142,16 @@ int encode_lavc_frame (BYTE *picture_buf, struct lavcData* data , int format, st
 			avcodec_flush_buffers(data->codec_context);
 			data->flushed_buffers = 1;
 		}
-			
+
  	}
- 		
+
 #if LIBAVCODEC_VER_AT_LEAST(54,01)
 	AVPacket pkt;
     int got_packet = 0;
     av_init_packet(&pkt);
 	pkt.data = data->outbuf;
 	pkt.size = data->outbuf_size;
-	
+
     //if(data->outbuf_size < FF_MIN_BUFFER_SIZE)
     //{
 	//	av_log(avctx, AV_LOG_ERROR, "buffer smaller than minimum size\n");
@@ -162,15 +162,15 @@ int encode_lavc_frame (BYTE *picture_buf, struct lavcData* data , int format, st
     	ret = avcodec_encode_video2(data->codec_context, &pkt, data->picture, &got_packet);
    	else
    		ret = avcodec_encode_video2(data->codec_context, &pkt, NULL, &got_packet);
-    
-    if (!ret && got_packet && data->codec_context->coded_frame) 
+
+    if (!ret && got_packet && data->codec_context->coded_frame)
     {
     	data->codec_context->coded_frame->pts       = pkt.pts;
         data->codec_context->coded_frame->key_frame = !!(pkt.flags & AV_PKT_FLAG_KEY);
     }
- 
+
     /* free any side data since we cannot return it */
-    if (pkt.side_data_elems > 0) 
+    if (pkt.side_data_elems > 0)
     {
     	int i;
         for (i = 0; i < pkt.side_data_elems; i++)
@@ -178,7 +178,7 @@ int encode_lavc_frame (BYTE *picture_buf, struct lavcData* data , int format, st
         av_freep(&pkt.side_data);
         pkt.side_data_elems = 0;
     }
- 
+
     out_size = pkt.size;
 #else
 	if(!data->flush_delayed_frames)
@@ -189,7 +189,7 @@ int encode_lavc_frame (BYTE *picture_buf, struct lavcData* data , int format, st
 
 	 if(data->flush_delayed_frames && out_size == 0)
     	data->flush_done = 1;
-	
+
 	if(out_size == 0 && data->index_of_df < 0)
 	{
 	    data->delayed_pts[data->delayed_frames] = videoF->vpts;
@@ -216,14 +216,14 @@ int encode_lavc_frame (BYTE *picture_buf, struct lavcData* data , int format, st
 			if(data->index_of_df >= data->delayed_frames)
 				data->index_of_df = 0;
 		}
-	}	
+	}
 	return (out_size);
 }
 
 int encode_lavc_audio_frame (void *audio_buf, struct lavcAData* data, struct VideoFormatData *videoF)
 {
 	int out_size = 0;
-	
+
 	/* encode the audio */
 #if LIBAVCODEC_VER_AT_LEAST(53,34)
 	AVPacket pkt;
@@ -231,12 +231,12 @@ int encode_lavc_audio_frame (void *audio_buf, struct lavcAData* data, struct Vid
 	av_init_packet(&pkt);
 	pkt.data = data->outbuf;
 	pkt.size = data->outbuf_size;
-	
+
 	data->frame->nb_samples  = data->codec_context->frame_size;
 	int samples_size = av_samples_get_buffer_size(NULL, data->codec_context->channels,
 		                                          data->frame->nb_samples,
                                                   data->codec_context->sample_fmt, 1);
-                                                  
+
     avcodec_fill_audio_frame(data->frame, data->codec_context->channels,
                                    data->codec_context->sample_fmt,
                                    (const uint8_t *) audio_buf, samples_size, 1);
@@ -244,14 +244,14 @@ int encode_lavc_audio_frame (void *audio_buf, struct lavcAData* data, struct Vid
 		data->frame->pts += ((videoF->apts - videoF->old_apts)/1000) * 90;
 	else  //generate a true monotonic pts based on the codec fps
 		data->frame->pts += (data->codec_context->time_base.num*1000/data->codec_context->time_base.den) * 90;
-                                    
+
 	avcodec_encode_audio2(data->codec_context, &pkt, data->frame, &got_packet);
 	/* free any side data since we cannot return it */
 	//ff_packet_free_side_data(&pkt);
- 
+
 	if (data->frame && data->frame->extended_data != data->frame->data)
 		av_freep(data->frame->extended_data);
-		
+
 	out_size = pkt.size;
 #else
 	out_size = avcodec_encode_audio(data->codec_context, data->outbuf, data->outbuf_size, audio_buf);
@@ -271,7 +271,7 @@ int clean_lavc (void* arg)
 			avcodec_flush_buffers((*data)->codec_context);
 			(*data)->flushed_buffers = 1;
 		}
-		//close codec 
+		//close codec
 		avcodec_close((*data)->codec_context);
 #if LIBAVCODEC_VER_AT_LEAST(53,6)
 		//free private options;
@@ -298,7 +298,7 @@ int clean_lavc_audio (void* arg)
 	{
 		//enc_frames = (*data)->codec_context->real_pict_num;
 		avcodec_flush_buffers((*data)->codec_context);
-		//close codec 
+		//close codec
 		avcodec_close((*data)->codec_context);
 		//free codec context
 		g_free((*data)->codec_context);
@@ -315,38 +315,43 @@ struct lavcData* init_lavc(int width, int height, int fps_num, int fps_den, int 
 {
 	//allocate
 	struct lavcData* data = g_new0(struct lavcData, 1);
-	
+
 	data->codec_context = NULL;
 	vcodecs_data *defaults = get_codec_defaults(codec_ind);
-	
-	// find the video encoder
-	data->codec = avcodec_find_encoder(defaults->codec_id);
-	if (!data->codec) 
+
+	// find the audio encoder
+	//try specific codec (by name)
+	data->codec = avcodec_find_encoder_by_name(defaults->codec_name);
+
+	if(!data->codec) //if it fails try any codec with matching CODEC_ID
+		data->codec = avcodec_find_encoder(defaults->codec_id);
+
+	if (!data->codec)
 	{
 		fprintf(stderr, "ffmpeg codec not found\n");
 		return(NULL);
 	}
 #if LIBAVCODEC_VER_AT_LEAST(53,6)
-	data->codec_context = avcodec_alloc_context3(data->codec);	
+	data->codec_context = avcodec_alloc_context3(data->codec);
 #else
 	data->codec_context = avcodec_alloc_context();
-#endif	
+#endif
 	data->codec_id = defaults->codec_id;
-	
+
 	//alloc picture
 	data->picture= avcodec_alloc_frame();
 	data->picture->pts = 0;
 	// define bit rate (lower = more compression but lower quality)
 	data->codec_context->bit_rate = defaults->bit_rate;
 	// resolution must be a multiple of two
-	data->codec_context->width = width; 
+	data->codec_context->width = width;
 	data->codec_context->height = height;
-	
+
 	data->codec_context->flags |= defaults->flags;
-	if (defaults->num_threads > 0) 
+	if (defaults->num_threads > 0)
 		data->codec_context->thread_count = defaults->num_threads;
-	
-	/* 
+
+	/*
 	* mb_decision
 	*0 (FF_MB_DECISION_SIMPLE) Use mbcmp (default).
 	*1 (FF_MB_DECISION_BITS)   Select the MB mode which needs the fewest bits (=vhq).
@@ -355,10 +360,10 @@ struct lavcData* init_lavc(int width, int height, int fps_num, int fps_den, int 
 	data->codec_context->mb_decision = defaults->mb_decision;
 	/*use trellis quantization*/
 	data->codec_context->trellis = defaults->trellis;
-	
+
 	//motion estimation method epzs
-	data->codec_context->me_method = defaults->me_method; 
-	
+	data->codec_context->me_method = defaults->me_method;
+
 	data->codec_context->dia_size = defaults->dia;
 	data->codec_context->pre_dia_size = defaults->pre_dia;
 	data->codec_context->pre_me = defaults->pre_me;
@@ -368,36 +373,36 @@ struct lavcData* init_lavc(int width, int height, int fps_num, int fps_den, int 
 	data->codec_context->me_subpel_quality = defaults->subq; //NEW
 	data->codec_context->refs = defaults->framerefs;         //NEW
 	data->codec_context->last_predictor_count = defaults->last_pred;
-	
+
 	data->codec_context->mpeg_quant = defaults->mpeg_quant; //h.263
 	data->codec_context->qmin = defaults->qmin;             // best detail allowed - worst compression
 	data->codec_context->qmax = defaults->qmax;             // worst detail allowed - best compression
 	data->codec_context->max_qdiff = defaults->max_qdiff;
 	data->codec_context->max_b_frames = defaults->max_b_frames;
-	
+
 	data->codec_context->qcompress = defaults->qcompress;
 	data->codec_context->qblur = defaults->qblur;
 	data->codec_context->strict_std_compliance = FF_COMPLIANCE_NORMAL;
 	data->codec_context->codec_id = defaults->codec_id;
 	data->monotonic_pts = defaults->monotonic_pts;
-    
+
 #if !LIBAVCODEC_VER_AT_LEAST(53,0)
 #define AVMEDIA_TYPE_VIDEO CODEC_TYPE_VIDEO
 #endif
 	data->codec_context->codec_type = AVMEDIA_TYPE_VIDEO;
-    
+
 	data->codec_context->pix_fmt = PIX_FMT_YUV420P; //only yuv420p available for mpeg
 	if(defaults->fps)
 		data->codec_context->time_base = (AVRational){1,defaults->fps}; //use codec properties fps
 	else if (fps_den >= 5)
 		data->codec_context->time_base = (AVRational){fps_num,fps_den}; //default fps (for gspca this is 1/1)
-	else data->codec_context->time_base = (AVRational){1,15}; //fallback to 15 fps (e.g gspca) 
-	
+	else data->codec_context->time_base = (AVRational){1,15}; //fallback to 15 fps (e.g gspca)
+
     if(defaults->gop_size > 0)
         data->codec_context->gop_size = defaults->gop_size;
     else
         data->codec_context->gop_size = data->codec_context->time_base.den;
-    
+
 	if(defaults->codec_id == CODEC_ID_H264)
 	{
 	    data->codec_context->me_range = 16;
@@ -405,19 +410,19 @@ struct lavcData* init_lavc(int width, int height, int fps_num, int fps_den, int 
 	    //but avoids x264 warning on lookaheadless mb-tree
 #if LIBAVCODEC_VER_AT_LEAST(53,6)
 	    av_dict_set(&data->private_options, "rc_lookahead", "1", 0);
-#else 
+#else
 	    data->codec_context->rc_lookahead=1;
 #endif
         //TODO:
         // add rc_lookahead to codec properties and handle it gracefully by
-        // fixing the frames timestamps => shift them by rc_lookahead frames 
+        // fixing the frames timestamps => shift them by rc_lookahead frames
 	}
-	
+
 	// open codec
 #if LIBAVCODEC_VER_AT_LEAST(53,6)
 	if (avcodec_open2(data->codec_context, data->codec, &data->private_options) < 0)
 #else
-	if (avcodec_open(data->codec_context, data->codec) < 0) 
+	if (avcodec_open(data->codec_context, data->codec) < 0)
 #endif
 	{
 		fprintf(stderr, "could not open codec\n");
@@ -428,14 +433,14 @@ struct lavcData* init_lavc(int width, int height, int fps_num, int fps_den, int 
 	//alloc outbuf
 	data->outbuf_size = 240000;//1792
 	data->outbuf = g_new0(BYTE, data->outbuf_size);
-	
+
 	data->delayed_frames = 0;
 	data->index_of_df = -1;
-	
+
 	data->flushed_buffers = 0;
 	data->flush_delayed_frames = 0;
 	data->flush_done = 0;
-	
+
 	return(data);
 }
 
@@ -443,19 +448,24 @@ struct lavcAData* init_lavc_audio(struct paRecordData *pdata, int codec_ind)
 {
 	//allocate
 	pdata->lavc_data = g_new0(struct lavcAData, 1);
-	
+
 	pdata->lavc_data->codec_context = NULL;
 	acodecs_data *defaults = get_aud_codec_defaults(codec_ind);
 
 	// find the audio encoder
-	pdata->lavc_data->codec = avcodec_find_encoder(defaults->codec_id);
-	if (!pdata->lavc_data->codec) 
+	//try specific codec (by name)
+	pdata->lavc_data->codec = avcodec_find_encoder_by_name(defaults->codec_name);
+
+	if(!pdata->lavc_data->codec) //if it fails try any codec with matching CODEC_ID
+		pdata->lavc_data->codec = avcodec_find_encoder(defaults->codec_id);
+
+	if (!pdata->lavc_data->codec)
 	{
 		fprintf(stderr, "ffmpeg audio codec not found\n");
 		return(NULL);
 	}
-	
-#if LIBAVCODEC_VER_AT_LEAST(53,6)	
+
+#if LIBAVCODEC_VER_AT_LEAST(53,6)
 	pdata->lavc_data->codec_context = avcodec_alloc_context3(pdata->lavc_data->codec);
 #else
 	pdata->lavc_data->codec_context = avcodec_alloc_context();
@@ -464,62 +474,52 @@ struct lavcAData* init_lavc_audio(struct paRecordData *pdata, int codec_ind)
 	// define bit rate (lower = more compression but lower quality)
 	pdata->lavc_data->codec_context->bit_rate = defaults->bit_rate;
 	pdata->lavc_data->codec_context->profile = defaults->profile; /*for AAC*/
-	
+
 	pdata->lavc_data->codec_context->flags |= defaults->flags;
-	
+
 	pdata->lavc_data->codec_context->sample_rate = pdata->samprate;
 	pdata->lavc_data->codec_context->channels = pdata->channels;
 
-#ifdef AV_CH_LAYOUT_MONO	
+#ifdef AV_CH_LAYOUT_MONO
 	if(pdata->channels < 2)
 		pdata->lavc_data->codec_context->channel_layout = AV_CH_LAYOUT_MONO;
 	else
 		pdata->lavc_data->codec_context->channel_layout = AV_CH_LAYOUT_STEREO;
 #endif
-		
+
 	pdata->lavc_data->codec_context->cutoff = 0; /*automatic*/
-	/*
-	 * recent libav only seems to accept S16 format except for 
-	 * AC3 and AAC that must be float type 
-	 */
-#if !LIBAVCODEC_VER_AT_LEAST(54,01)
-	if(defaults->codec_id == CODEC_ID_AC3)
-#else
-	if(defaults->codec_id == CODEC_ID_AC3 || defaults->codec_id == CODEC_ID_AAC)
-#endif
-		pdata->lavc_data->codec_context->sample_fmt = AV_SAMPLE_FMT_FLT; /* Float sample */
-	else
-		pdata->lavc_data->codec_context->sample_fmt = AV_SAMPLE_FMT_S16; /* Int16 sample */
-	
+
+	pdata->lavc_data->codec_context->sample_fmt = defaults->sample_format;
+
     pdata->lavc_data->codec_context->codec_id = defaults->codec_id;
-	
+
 #if !LIBAVCODEC_VER_AT_LEAST(53,0)
 #define AVMEDIA_TYPE_AUDIO CODEC_TYPE_AUDIO
 #endif
 	pdata->lavc_data->codec_context->codec_type = AVMEDIA_TYPE_AUDIO;
-	
+
 	// open codec
 #if LIBAVCODEC_VER_AT_LEAST(53,6)
 	if (avcodec_open2(pdata->lavc_data->codec_context, pdata->lavc_data->codec, NULL) < 0)
 #else
-	if (avcodec_open(pdata->lavc_data->codec_context, pdata->lavc_data->codec) < 0) 
+	if (avcodec_open(pdata->lavc_data->codec_context, pdata->lavc_data->codec) < 0)
 #endif
 	{
 		fprintf(stderr, "could not open codec\n");
 		return(NULL);
 	}
-	
+
 	/* the codec gives us the frame size, in samples */
-	int frame_size = pdata->lavc_data->codec_context->frame_size;  
+	int frame_size = pdata->lavc_data->codec_context->frame_size;
 	g_print("Audio frame size is %d samples for selected codec\n", frame_size);
-	
+
 	pdata->lavc_data->monotonic_pts = defaults->monotonic_pts;
-	
+
 	//alloc outbuf
 	pdata->lavc_data->outbuf_size = pdata->outbuf_size;
 	pdata->lavc_data->outbuf = g_new0(BYTE, pdata->lavc_data->outbuf_size);
-	
-#if LIBAVCODEC_VER_AT_LEAST(53,34)	
+
+#if LIBAVCODEC_VER_AT_LEAST(53,34)
 	pdata->lavc_data->frame= avcodec_alloc_frame();
 	avcodec_get_frame_defaults(pdata->lavc_data->frame);
 #endif

@@ -34,17 +34,17 @@
 #define __FMUTEX &global->file_mutex
 
 /* AAC object types index: MAIN = 1; LOW = 2; SSR = 3; LTP = 4*/
-static int AAC_OBJ_TYPE[5] = 
+static int AAC_OBJ_TYPE[5] =
 	{ FF_PROFILE_UNKNOWN, FF_PROFILE_AAC_MAIN, FF_PROFILE_AAC_LOW, FF_PROFILE_AAC_SSR, FF_PROFILE_AAC_LTP };
 /*-1 = reserved; 0 = freq. is writen explictly (increases header by 24 bits)*/
-static int AAC_SAMP_FREQ[16] = 
+static int AAC_SAMP_FREQ[16] =
 	{ 96000, 88200, 64000, 48000, 44100, 32000, 24000, 22050, 16000, 12000, 11025, 8000, 7350, -1, -1, 0};
 
 /*NORMAL AAC HEADER*/
 /*2 bytes: object type index(5 bits) + sample frequency index(4bits) + channels(4 bits) + flags(3 bit) */
 /*default = MAIN(1)+44100(4)+stereo(2)+flags(0) = 0x0A10*/
 static BYTE AAC_ESDS[2] = {0x0A,0x10};
-/* if samprate index == 15 AAC_ESDS[5]: 
+/* if samprate index == 15 AAC_ESDS[5]:
  * object type index(5 bits) + sample frequency index(4bits) + samprate(24bits) + channels(4 bits) + flags(3 bit)
  */
 
@@ -54,7 +54,7 @@ static BYTE AAC_ESDS[2] = {0x0A,0x10};
  * Byte 1: number of distinct packets '#p' minus one inside the CodecPrivate block. This should be '2' for current Vorbis headers.
  * Bytes 2..n: lengths of the first '#p' packets, coded in Xiph-style lacing. The length of the last packet is the length of the CodecPrivate block minus the lengths coded in these bytes minus one.
  * Bytes n+1..: The Vorbis identification header, followed by the Vorbis comment header followed by the codec setup header.
- * 
+ *
  */
 static BYTE VORBIS_PRIV[3] = {0x02,0x00,0x00};
 
@@ -69,6 +69,8 @@ static acodecs_data listSupACodecs[] = //list of software supported formats
 		.description  = N_("PCM - uncompressed (16 bit)"),
 		.bit_rate     = 0,
 		.codec_id     = CODEC_ID_PCM_S16LE,
+		.codec_name   = "pcm_s16le",
+		.sample_format = AV_SAMPLE_FMT_S16,
 		.profile      = FF_PROFILE_UNKNOWN,
 		.mkv_codpriv  = NULL,
 		.codpriv_size = 0,
@@ -84,6 +86,8 @@ static acodecs_data listSupACodecs[] = //list of software supported formats
 		.description  = N_("MPEG2 - (lavc)"),
 		.bit_rate     = 160000,
 		.codec_id     = CODEC_ID_MP2,
+		.codec_name   = "mp2float",
+		.sample_format = AV_SAMPLE_FMT_FLT,
 		.profile      = FF_PROFILE_UNKNOWN,
 		.mkv_codpriv  = NULL,
 		.codpriv_size = 0,
@@ -99,6 +103,8 @@ static acodecs_data listSupACodecs[] = //list of software supported formats
 		.description  = N_("MP3 - (lavc)"),
 		.bit_rate     = 160000,
 		.codec_id     = CODEC_ID_MP3,
+		.codec_name   = "mp3float",
+		.sample_format = AV_SAMPLE_FMT_FLT,
 		.profile      = FF_PROFILE_UNKNOWN,
 		.mkv_codpriv  = NULL,
 		.codpriv_size = 0,
@@ -114,6 +120,8 @@ static acodecs_data listSupACodecs[] = //list of software supported formats
 		.description  = N_("Dolby AC3 - (lavc)"),
 		.bit_rate     = 160000,
 		.codec_id     = CODEC_ID_AC3,
+		.codec_name   = "ac3",
+		.sample_format = AV_SAMPLE_FMT_FLT,
 		.profile      = FF_PROFILE_UNKNOWN,
 		.mkv_codpriv  = NULL,
 		.codpriv_size = 0,
@@ -129,6 +137,8 @@ static acodecs_data listSupACodecs[] = //list of software supported formats
 		.description  = N_("ACC Low - (faac)"),
 		.bit_rate     = 64000,
 		.codec_id     = CODEC_ID_AAC,
+		.codec_name   = "aac",
+		.sample_format = AV_SAMPLE_FMT_FLT,
 		.profile      = FF_PROFILE_AAC_LOW,
 		.mkv_codpriv  = AAC_ESDS,
 		.codpriv_size = 2,
@@ -139,11 +149,13 @@ static acodecs_data listSupACodecs[] = //list of software supported formats
 		.valid        = TRUE,
 		.bits         = 16,
 		.monotonic_pts= 1,
-		.avi_4cc      = OGG_FORMAT_VORBIS1,
+		.avi_4cc      = OGG_FORMAT_VORBIS,
 		.mkv_codec    = "A_VORBIS",
 		.description  = N_("Vorbis"),
 		.bit_rate     = 64000,
 		.codec_id     = CODEC_ID_VORBIS,
+		.codec_name   = "libvorbis",
+		.sample_format = AV_SAMPLE_FMT_FLT,
 		.profile      = FF_PROFILE_UNKNOWN,
 		.mkv_codpriv  = NULL, //matroska spec requires private data
 		.codpriv_size = 0,
@@ -157,7 +169,7 @@ static int get_aac_obj_ind(int profile)
 
 	for (i=0; i<4; i++)
 	 if(AAC_OBJ_TYPE[i] == profile) break;
-	 
+
 	 return i;
 }
 
@@ -167,8 +179,8 @@ static int get_aac_samp_ind(int samprate)
 
 	for (i=0; i<13; i++)
 	 if(AAC_SAMP_FREQ[i] == samprate) break;
-	 
-	 if (i>12) 
+
+	 if (i>12)
 	 {
 		g_print("WARNING: invalid sample rate for AAC encoding\n");
 		g_print("valid(96000, 88200, 64000, 48000, 44100, 32000, 24000, 22050, 16000, 12000, 11025, 8000, 7350)\n");
@@ -250,7 +262,7 @@ int set_mkvACodecPriv(int codec_ind, int samprate, int channels)
 			int sampind  = get_aac_samp_ind(samprate);
 			AAC_ESDS[0] = (BYTE) ((obj_type & 0x1F) << 3 ) + ((sampind & 0x0F) >> 1);
 			AAC_ESDS[1] = (BYTE) ((sampind & 0x0F) << 7 ) + ((channels & 0x0F) << 3);
-		
+
 			return listSupACodecs[index].codpriv_size; /*return size = 2 */
 		}
 	}
@@ -277,7 +289,7 @@ int getAcodecNum()
 		if (isLavcACodec(ind))
 		{
 			codec = avcodec_find_encoder(get_acodec_id(ind));
-			if (!codec) 
+			if (!codec)
 			{
 				g_print("no codec detected for %s\n", listSupACodecs[ind].description);
 				listSupACodecs[ind].valid = FALSE;
@@ -286,7 +298,7 @@ int getAcodecNum()
 				num_codecs++;
 		}
 	}
-	
+
 	return num_codecs;
 }
 
@@ -304,31 +316,31 @@ static int write_audio_data(struct ALL_DATA *all_data, BYTE *buff, int size, QWO
 {
 	struct VideoFormatData *videoF = all_data->videoF;
 	struct GLOBAL *global = all_data->global;
-	
+
 	int ret =0;
-	
+
 	__LOCK_MUTEX( __FMUTEX );
-	
+
 	switch (global->VidFormat)
 	{
 		case AVI_FORMAT:
 			if(size > 0)
 				ret = AVI_write_audio (videoF->AviOut, buff, size);
 			break;
-		
+
 		case MKV_FORMAT:
 			videoF->apts = a_ts;
 			if(size > 0)
 				ret = write_audio_packet (buff, size, videoF);
 			break;
-			
+
 		default:
-			
+
 			break;
 	}
-	
+
 	__UNLOCK_MUTEX( __FMUTEX );
-	
+
 	return (ret);
 }
 
@@ -336,36 +348,36 @@ static int encode_lavc_audio ( struct ALL_DATA *all_data )
 {
 	struct paRecordData *pdata = all_data->pdata;
 	struct VideoFormatData *videoF = all_data->videoF;
-	
+
 	int framesize = 0;
 	int ret = 0;
-	
+
 	videoF->old_apts = videoF->apts;
-	
+
 	if(pdata->lavc_data)
 	{
 		if(pdata->lavc_data->codec_context->sample_fmt == AV_SAMPLE_FMT_FLT)
 			framesize= encode_lavc_audio_frame (pdata->float_sndBuff, pdata->lavc_data, videoF);
 		else
 			framesize= encode_lavc_audio_frame (pdata->pcm_sndBuff, pdata->lavc_data, videoF);
-	
+
 		ret = write_audio_data (all_data, pdata->lavc_data->outbuf, framesize, pdata->audio_buff[pdata->br_ind][pdata->r_ind].time_stamp);
 	}
 	return (ret);
 }
-		   
+
 int compress_audio_frame(void *data)
-{	
+{
 	struct ALL_DATA *all_data = (struct ALL_DATA *) data;
 	struct GLOBAL *global = all_data->global;
 	struct paRecordData *pdata = all_data->pdata;
-	
+
 	int ret = 0;
-	
-	switch (global->Sound_Format) 
+
+	switch (global->Sound_Format)
 	{
 		/*write audio chunk*/
-		case PA_FOURCC: 
+		case PA_FOURCC:
 		{
 			SampleConverter(pdata); /*convert from float sample to 16 bit PCM*/
 			ret = write_audio_data (all_data, (BYTE *) pdata->pcm_sndBuff, pdata->aud_numSamples*2, pdata->audio_buff[pdata->br_ind][pdata->r_ind].time_stamp);

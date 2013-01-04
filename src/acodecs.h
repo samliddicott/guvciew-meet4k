@@ -36,13 +36,15 @@ typedef struct _acodecs_data
 {
 	gboolean avcodec;         //is a avcodec codec
 	gboolean valid;           //the encoding codec exists in ffmpeg
-	int bits;                 //bits per sample (pcm only) 
+	int bits;                 //bits per sample (pcm only)
 	int monotonic_pts;
 	WORD avi_4cc;             //fourcc WORD value
 	const char *mkv_codec;    //mkv codecID
 	const char *description;  //codec description
 	int bit_rate;             //lavc default bit rate
 	int codec_id;             //lavc codec_id
+	const char *codec_name;   //lavc codec name
+	AVSampleFormat sample_format; //lavc sample format
 	int profile;              //for AAC only
 	const void *mkv_codpriv;  //pointer for codec private data
 	int codpriv_size;         //size in bytes of private data

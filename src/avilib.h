@@ -19,7 +19,7 @@
 #                                                                               #
 ********************************************************************************/
 /*******************************************************************************#
-#   Some utilities for writing and reading AVI files.                           # 
+#   Some utilities for writing and reading AVI files.                           #
 #   These are not intended to serve for a full blown                            #
 #   AVI handling software (this would be much too complex)                      #
 #   The only intention is to write out MJPEG encoded                            #
@@ -75,9 +75,9 @@ typedef struct track_s
 	char   audio_tag[4];      /* Tag of audio data */
 	long   audio_posc;        /* Audio position: chunk */
 	long   audio_posb;        /* Audio position: byte within chunk */
- 
-	off_t  a_codech_off;       /* absolut offset of audio codec information */ 
-	off_t  a_codecf_off;       /* absolut offset of audio codec information */ 
+
+	off_t  a_codech_off;       /* absolut offset of audio codec information */
+	off_t  a_codecf_off;       /* absolut offset of audio codec information */
 
 	audio_index_entry *audio_index;
 
@@ -112,10 +112,10 @@ typedef struct
 
 typedef struct
 {
-  DWORD fcc_type; 
-  DWORD fcc_handler; 
-  DWORD dw_flags; 
-  DWORD dw_caps; 
+  DWORD fcc_type;
+  DWORD fcc_handler;
+  DWORD dw_flags;
+  DWORD dw_caps;
   WORD w_priority;
   WORD w_language;
   DWORD dw_scale;
@@ -142,7 +142,7 @@ struct avi_t
 	long   fdes;              /* File descriptor of AVI file */
 	long   mode;              /* 0 for reading, 1 for writing */
 	__MUTEX_TYPE mutex;
-  
+
 	long   width;             /* Width  of a video frame */
 	long   height;            /* Height of a video frame */
 	double fps;               /* Frames per second */
@@ -153,41 +153,41 @@ struct avi_t
 	char   video_tag[4];      /* Tag of video data */
 	long   video_pos;         /* Number of next frame to be read
 	                             (if index present) */
-    
+
 	DWORD max_len;    /* maximum video chunk present */
-  
+
 	track_t track[AVI_MAX_TRACKS];  // up to AVI_MAX_TRACKS audio tracks supported
-  
+
 	off_t  pos;               /* position in file */
 	long   n_idx;             /* number of index entries actually filled */
 	long   max_idx;           /* number of index entries actually allocated */
-  
-	off_t  v_codech_off;      /* absolut offset of video codec (strh) info */ 
-	off_t  v_codecf_off;      /* absolut offset of video codec (strf) info */ 
-  
+
+	off_t  v_codech_off;      /* absolut offset of video codec (strh) info */
+	off_t  v_codecf_off;      /* absolut offset of video codec (strf) info */
+
 	BYTE (*idx)[16]; /* index entries (AVI idx1 tag) */
 
 	video_index_entry *video_index;
-    
+
 	//int is_opendml;           /* set to 1 if this is an odml file with multiple index chunks */
-  
+
 	off_t  last_pos;          /* Position of last frame written */
 	DWORD last_len;   /* Length of last frame written */
 	int must_use_index;       /* Flag if frames are duplicated */
 	off_t  movi_start;
 	int total_frames;         /* total number of frames if dmlh is present */
-    
-	int anum;            // total number of audio tracks 
-	int aptr;            // current audio working track 
+
+	int anum;            // total number of audio tracks
+	int aptr;            // current audio working track
 	// int comment_fd;      // Read avi header comments from this fd
 	// char *index_file;    // read the avi index from this file
-  
+
 	//alBITMAPINFOHEADER *bitmap_info_header;
 	//alWAVEFORMATEX *wave_format_ex[AVI_MAX_TRACKS];
 
 	void*	extradata;
 	ULONG	extradata_size;
-	int closed; /* 0 - AVI is opened(recordind) 1 -AVI is closed (not recording)*/ 
+	int closed; /* 0 - AVI is opened(recordind) 1 -AVI is closed (not recording)*/
 
 };
 
@@ -264,7 +264,7 @@ struct avi_t
 #define ANTEX_FORMAT_ADPCME		(0x0033)
 #define AUDIO_FORMAT_APTX		(0x0025)
 #define AUDIOFILE_FORMAT_AF10		(0x0026)
-#define AUDIOFILE_FORMAT_AF36		(0x0024) 
+#define AUDIOFILE_FORMAT_AF36		(0x0024)
 #define BROOKTREE_FORMAT_BTVD		(0x0400)
 #define CANOPUS_FORMAT_ATRAC		(0x0063)
 #define CIRRUS_FORMAT_CIRRUS		(0x0060)
@@ -285,6 +285,7 @@ struct avi_t
 #define IEEE_FORMAT_FLOAT		(0x0003)
 #define MS_FORMAT_MSAUDIO1_DIVX		(0x0160)
 #define MS_FORMAT_MSAUDIO2_DIVX		(0x0161)
+#define OGG_FORMAT_VORBIS		(0x566f)
 #define OGG_FORMAT_VORBIS1		(0x674f)
 #define OGG_FORMAT_VORBIS1P		(0x676f)
 #define OGG_FORMAT_VORBIS2		(0x6750)
