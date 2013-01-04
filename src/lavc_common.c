@@ -457,12 +457,15 @@ struct lavcAData* init_lavc_audio(struct paRecordData *pdata, int codec_ind)
 	pdata->lavc_data->codec = avcodec_find_encoder_by_name(defaults->codec_name);
 
 	if(!pdata->lavc_data->codec) //if it fails try any codec with matching CODEC_ID
-		pdata->lavc_data->codec = avcodec_find_encoder(defaults->codec_id);
-
-	if (!pdata->lavc_data->codec)
 	{
-		fprintf(stderr, "ffmpeg audio codec not found\n");
-		return(NULL);
+		fprintf(stderr, "ffmpeg audio codec %s not found\n", defaults->codec_name);
+		pdata->lavc_data->codec = avcodec_find_encoder(defaults->codec_id);
+		
+		if (!pdata->lavc_data->codec)
+		{
+			fprintf(stderr, "ffmpeg no audio codec for ID: %i found\n", defaults->codec_id);
+			return(NULL);
+		}
 	}
 
 #if LIBAVCODEC_VER_AT_LEAST(53,6)
@@ -505,8 +508,28 @@ struct lavcAData* init_lavc_audio(struct paRecordData *pdata, int codec_ind)
 	if (avcodec_open(pdata->lavc_data->codec_context, pdata->lavc_data->codec) < 0)
 #endif
 	{
-		fprintf(stderr, "could not open codec\n");
-		return(NULL);
+		switch(defaults->sample_format)
+		{
+			case AV_SAMPLE_FMT_S16:
+				defaults->sample_format = AV_SAMPLE_FMT_FLT;
+				pdata->lavc_data->codec_context->sample_fmt = defaults->sample_format;
+				fprintf(stderr, "could not open codec...trying again with float sample format\n");
+				break;
+			case AV_SAMPLE_FMT_FLT:
+				defaults->sample_format = AV_SAMPLE_FMT_S16;
+				pdata->lavc_data->codec_context->sample_fmt = defaults->sample_format;
+				fprintf(stderr, "could not open codec...trying again with int16 sample format\n");
+				break;
+		} 
+		#if LIBAVCODEC_VER_AT_LEAST(53,6)
+		if (avcodec_open2(pdata->lavc_data->codec_context, pdata->lavc_data->codec, NULL) < 0)
+		#else
+		if (avcodec_open(pdata->lavc_data->codec_context, pdata->lavc_data->codec) < 0)
+		#endif
+		{
+			fprintf(stderr, "could not open codec...giving up\n");
+			return(NULL);
+		}
 	}
 
 	/* the codec gives us the frame size, in samples */

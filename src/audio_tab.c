@@ -92,7 +92,7 @@ lavc_audio_properties(GtkButton * CodecButt, struct ALL_DATA *all_data)
 	{
 		case GTK_RESPONSE_ACCEPT:
 			codec_defaults->bit_rate = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON(bit_rate));
-			codec_defaults->sample_format = (AVSampleFormat) gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON(sample_fmt));
+			codec_defaults->sample_format = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON(sample_fmt));
 			break;
 		default:
 			// do nothing since dialog was cancelled

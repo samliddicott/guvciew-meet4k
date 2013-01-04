@@ -44,7 +44,7 @@ typedef struct _acodecs_data
 	int bit_rate;             //lavc default bit rate
 	int codec_id;             //lavc codec_id
 	const char *codec_name;   //lavc codec name
-	AVSampleFormat sample_format; //lavc sample format
+	int sample_format;        //lavc sample format
 	int profile;              //for AAC only
 	const void *mkv_codpriv;  //pointer for codec private data
 	int codpriv_size;         //size in bytes of private data
