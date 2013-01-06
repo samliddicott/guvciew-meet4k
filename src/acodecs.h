@@ -51,7 +51,6 @@ typedef struct _acodecs_data
 	int flags;                //lavc flags
 } acodecs_data;
 
-
 WORD get_aud4cc(int codec_ind);
 
 int get_aud_bit_rate(int codec_ind);
@@ -76,8 +75,25 @@ acodecs_data *get_aud_codec_defaults(int codec_ind);
 
 const void *get_mkvACodecPriv(int codec_ind);
 
-int set_mkvACodecPriv(int codec_ind, int samprate, int channels);
+int set_mkvACodecPriv(int codec_ind, int samprate, int channels, struct lavcAData* data);
 
 int compress_audio_frame(void *data);
+
+/**
+ * Split a single extradata buffer into the three headers that most
+ * Xiph codecs use. (e.g. Theora and Vorbis)
+ * Works both with Matroska's packing and lavc's packing.
+ *
+ * @param[in] extradata The single chunk that combines all three headers
+ * @param[in] extradata_size The size of the extradata buffer
+ * @param[in] first_header_size The size of the first header, used to
+ * differentiate between the Matroska packing and lavc packing.
+ * @param[out] header_start Pointers to the start of the three separate headers.
+ * @param[out] header_len The sizes of each of the three headers.
+ * @return On error a negative value is returned, on success zero.
+ */
+int avpriv_split_xiph_headers(uint8_t *extradata, int extradata_size,
+                               int first_header_size, uint8_t *header_start[3],
+                               int header_len[3]);
 
 #endif

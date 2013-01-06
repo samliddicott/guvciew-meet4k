@@ -48,15 +48,6 @@ static BYTE AAC_ESDS[2] = {0x0A,0x10};
  * object type index(5 bits) + sample frequency index(4bits) + samprate(24bits) + channels(4 bits) + flags(3 bit)
  */
 
-/*VORBIS PRIVATE DATA*/
-/*
- * The private data contains the first three Vorbis packet in order. The lengths of the packets precedes them. The actual layout is:
- * Byte 1: number of distinct packets '#p' minus one inside the CodecPrivate block. This should be '2' for current Vorbis headers.
- * Bytes 2..n: lengths of the first '#p' packets, coded in Xiph-style lacing. The length of the last packet is the length of the CodecPrivate block minus the lengths coded in these bytes minus one.
- * Bytes n+1..: The Vorbis identification header, followed by the Vorbis comment header followed by the codec setup header.
- *
- */
-static BYTE VORBIS_PRIV[3] = {0x02,0x00,0x00};
 
 static acodecs_data listSupACodecs[] = //list of software supported formats
 {
@@ -138,7 +129,7 @@ static acodecs_data listSupACodecs[] = //list of software supported formats
 		.bit_rate     = 64000,
 		.codec_id     = CODEC_ID_AAC,
 		.codec_name   = "aac",
-		.sample_format = AV_SAMPLE_FMT_FLT,
+		.sample_format = AV_SAMPLE_FMT_S16,
 		.profile      = FF_PROFILE_AAC_LOW,
 		.mkv_codpriv  = AAC_ESDS,
 		.codpriv_size = 2,
@@ -157,11 +148,56 @@ static acodecs_data listSupACodecs[] = //list of software supported formats
 		.codec_name   = "libvorbis",
 		.sample_format = AV_SAMPLE_FMT_S16,
 		.profile      = FF_PROFILE_UNKNOWN,
-		.mkv_codpriv  = NULL, //matroska spec requires private data
-		.codpriv_size = 0,
+		.mkv_codpriv  =  NULL,
+		.codpriv_size =  0,
 		.flags        = 0
 	}
 };
+
+#   define AV_RB16(x)                           \
+    ((((const uint8_t*)(x))[0] << 8) |          \
+      ((const uint8_t*)(x))[1])
+
+int avpriv_split_xiph_headers(uint8_t *extradata, int extradata_size,
+                         int first_header_size, uint8_t *header_start[3],
+                         int header_len[3])
+{
+    int i;
+
+     if (extradata_size >= 6 && AV_RB16(extradata) == first_header_size) {
+        int overall_len = 6;
+        for (i=0; i<3; i++) {
+            header_len[i] = AV_RB16(extradata);
+            extradata += 2;
+            header_start[i] = extradata;
+            extradata += header_len[i];
+            if (overall_len > extradata_size - header_len[i])
+                return -1;
+            overall_len += header_len[i];
+        }
+    } else if (extradata_size >= 3 && extradata_size < INT_MAX - 0x1ff && extradata[0] == 2) {
+        int overall_len = 3;
+        extradata++;
+        for (i=0; i<2; i++, extradata++) {
+            header_len[i] = 0;
+            for (; overall_len < extradata_size && *extradata==0xff; extradata++) {
+                header_len[i] += 0xff;
+                overall_len   += 0xff + 1;
+            }
+            header_len[i] += *extradata;
+            overall_len   += *extradata;
+            if (overall_len > extradata_size)
+                return -1;
+        }
+        header_len[2] = extradata_size - overall_len;
+        header_start[0] = extradata;
+        header_start[1] = header_start[0] + header_len[0];
+        header_start[2] = header_start[1] + header_len[1];
+    } else {
+        return -1;
+    }
+    return 0;
+}
 
 static int get_aac_obj_ind(int profile)
 {
@@ -251,21 +287,78 @@ const void *get_mkvACodecPriv(int codec_ind)
 	return ((void *) listSupACodecs[get_real_index (codec_ind)].mkv_codpriv);
 }
 
-int set_mkvACodecPriv(int codec_ind, int samprate, int channels)
+int set_mkvACodecPriv(int codec_ind, int samprate, int channels, struct lavcAData* data)
 {
 	int index = get_real_index (codec_ind);
-	if (listSupACodecs[index].mkv_codpriv != NULL)
+	
+	if (listSupACodecs[index].codec_id == CODEC_ID_AAC)
 	{
-		if (listSupACodecs[index].codec_id == CODEC_ID_AAC)
-		{
-			int obj_type = get_aac_obj_ind(listSupACodecs[index].profile);
-			int sampind  = get_aac_samp_ind(samprate);
-			AAC_ESDS[0] = (BYTE) ((obj_type & 0x1F) << 3 ) + ((sampind & 0x0F) >> 1);
-			AAC_ESDS[1] = (BYTE) ((sampind & 0x0F) << 7 ) + ((channels & 0x0F) << 3);
+		int obj_type = get_aac_obj_ind(listSupACodecs[index].profile);
+		int sampind  = get_aac_samp_ind(samprate);
+		AAC_ESDS[0] = (BYTE) ((obj_type & 0x1F) << 3 ) + ((sampind & 0x0F) >> 1);
+		AAC_ESDS[1] = (BYTE) ((sampind & 0x0F) << 7 ) + ((channels & 0x0F) << 3);
 
-			return listSupACodecs[index].codpriv_size; /*return size = 2 */
-		}
+		return listSupACodecs[index].codpriv_size; /*return size = 2 */
 	}
+	else if(listSupACodecs[index].codec_id == CODEC_ID_VORBIS)
+	{
+		//get the 3 first header packets
+		uint8_t *header_start[3];
+		int header_len[3];
+		int first_header_size;
+			
+		first_header_size = 30; //theora = 42
+    	if (avpriv_split_xiph_headers(data->codec_context->extradata, data->codec_context->extradata_size,
+				first_header_size, header_start, header_len) < 0) 
+        {
+			fprintf(stderr, "vorbis codec - Extradata corrupt.\n");
+			return -1;
+		}
+		
+		//printf("Vorbis: header1: %i  header2: %i  header3:%i \n", header_len[0], header_len[1], header_len[2]);
+			
+		//get the allocation needed for headers size
+		int header_lace_size[2];
+		header_lace_size[0]=0;
+		header_lace_size[1]=0;
+		int i;
+		for (i = 0; i < header_len[0] / 255; i++)
+			header_lace_size[0]++;
+		header_lace_size[0]++;
+		for (i = 0; i < header_len[1] / 255; i++)
+			header_lace_size[1]++;
+		header_lace_size[1]++;
+			
+		int priv_data_size = 1 + //number of packets -1
+						header_lace_size[0] +  //first packet size
+						header_lace_size[1] +  //second packet size
+						header_len[0] + //first packet header
+						header_len[1] + //second packet header
+						header_len[2];  //third packet header
+		data->priv_data = g_new0(BYTE, priv_data_size);
+		//write header
+		BYTE* tmp = data->priv_data;
+		*tmp++ = 0x02; //number of packets -1
+		//size of head 1
+		for (i = 0; i < header_len[0] / 0xff; i++)
+			*tmp++ = 0xff;
+		*tmp++ = header_len[0] % 0xff;
+		//size of head 2
+		for (i = 0; i < header_len[1] / 0xff; i++)
+			*tmp++ = 0xff;
+		*tmp++ = header_len[1] % 0xff;
+		//add headers
+		for(i=0; i<3; i++)
+		{
+			memcpy(tmp, header_start[i] , header_len[i]);
+			tmp += header_len[i];
+		}
+			
+		listSupACodecs[index].mkv_codpriv = data->priv_data;
+		listSupACodecs[index].codpriv_size = priv_data_size;
+		return listSupACodecs[index].codpriv_size;
+	}
+	
 
 	return 0;
 }

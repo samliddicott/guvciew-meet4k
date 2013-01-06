@@ -265,6 +265,9 @@ int clean_lavc (void* arg)
 	//int enc_frames =0;
 	if(*data)
 	{
+		if((*data)->priv_data != NULL)
+			g_free((*data)->priv_data);
+			
 		//enc_frames = (*data)->codec_context->real_pict_num;
 		if(!(*data)->flushed_buffers)
 		{
@@ -296,6 +299,8 @@ int clean_lavc_audio (void* arg)
 	//int enc_frames =0;
 	if(*data)
 	{
+		if((*data)->priv_data != NULL)
+			g_free((*data)->priv_data);
 		//enc_frames = (*data)->codec_context->real_pict_num;
 		avcodec_flush_buffers((*data)->codec_context);
 		//close codec
@@ -316,6 +321,8 @@ struct lavcData* init_lavc(int width, int height, int fps_num, int fps_den, int 
 	//allocate
 	struct lavcData* data = g_new0(struct lavcData, 1);
 
+	data->priv_data = NULL;
+	
 	data->codec_context = NULL;
 	vcodecs_data *defaults = get_codec_defaults(codec_ind);
 
@@ -448,7 +455,9 @@ struct lavcAData* init_lavc_audio(struct paRecordData *pdata, int codec_ind)
 {
 	//allocate
 	pdata->lavc_data = g_new0(struct lavcAData, 1);
-
+	
+	pdata->lavc_data->priv_data = NULL;
+	
 	pdata->lavc_data->codec_context = NULL;
 	acodecs_data *defaults = get_aud_codec_defaults(codec_ind);
 

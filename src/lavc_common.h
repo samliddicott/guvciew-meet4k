@@ -76,6 +76,7 @@ struct lavcData
 	int flushed_buffers;
 	int flush_done;
 	
+	BYTE* priv_data;
 	BYTE* tmpbuf;
 	int outbuf_size;
 	BYTE* outbuf;
@@ -92,6 +93,7 @@ struct lavcAData
 	AVFrame *frame;
 	AVPacket *outpkt;
 	
+	BYTE* priv_data;
 	int outbuf_size;
 	BYTE* outbuf;
 	

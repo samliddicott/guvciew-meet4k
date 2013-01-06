@@ -203,7 +203,10 @@ int init_FormatContext(void *data)
 	//set_mkvCodecPriv(global->VidCodec, global->width, global->height);
 	unsigned size = set_mkvCodecPriv(global->VidCodec, global->width, global->height);
 	
-	unsigned asize = set_mkvACodecPriv(get_ind_by4cc(global->Sound_Format), pdata->samprate, channels);
+	unsigned asize = set_mkvACodecPriv(get_ind_by4cc(global->Sound_Format), 
+							pdata->samprate, 
+							channels, 
+							pdata->lavc_data);
 	
 	printf("writing header\n");
 	
