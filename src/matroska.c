@@ -36,7 +36,7 @@
 #define CLSIZE    55242880 /*5 Mb  (1Mb = 1048576)*/
 #define CHECK(x)  do { if ((x) < 0) return -1; } while (0)
 
-struct mk_Context 
+struct mk_Context
 {
 	struct mk_Context *next, **prev, *parent;
 	struct mk_Writer  *owner;
@@ -47,15 +47,15 @@ struct mk_Context
 
 typedef struct mk_Context mk_Context;
 
-struct mk_Writer 
+struct mk_Writer
 {
 	FILE *fp;
 	/*-------header------*/
-	int video_only;            //not muxing audio   
+	int video_only;            //not muxing audio
 	int64_t duration_ptr;      //file location pointer for duration
 	int64_t segment_size_ptr;  //file location pointer for segment size
 	int64_t cues_pos;
-	int64_t seekhead_pos;  
+	int64_t seekhead_pos;
 	mk_Context *root, *cluster, *frame;
 	mk_Context *freelist;
 	mk_Context *actlist;
@@ -69,7 +69,7 @@ struct mk_Writer
 	gboolean in_frame, keyframe;
 	/*-------audio-------*/
 	mk_Context *audio_frame;
-	int64_t audio_frame_tc, audio_prev_frame_tc_scaled; 
+	int64_t audio_frame_tc, audio_prev_frame_tc_scaled;
 	int64_t audio_block, block_n;
 	gboolean audio_in_frame;
 	/*--------cues-------*/
@@ -91,7 +91,7 @@ static mk_Context *mk_createContext(mk_Writer *w, mk_Context *parent, unsigned i
 		c = w->freelist;
 		w->freelist = w->freelist->next;
 	}
-	else 
+	else
 	{
 		c = g_new0(mk_Context, 1);
 	}
@@ -115,7 +115,7 @@ static mk_Context *mk_createContext(mk_Writer *w, mk_Context *parent, unsigned i
 static int mk_appendContextData(mk_Context *c, const void *data, int64_t size)
 {
 	if (!size) return 0;
-	
+
 	int64_t ns = c->d_cur + size;
 	if (ns > c->d_max)
 	{
@@ -244,7 +244,7 @@ static int mk_writeBin(mk_Context *c, unsigned id, const void *data, int64_t siz
 	CHECK(mk_writeID(c, id));
 	CHECK(mk_writeSize(c, size));
 	CHECK(mk_appendContextData(c, data, size));
-	
+
 	return 0;
 }
 
@@ -290,7 +290,7 @@ static int mk_writeSegPos(mk_Context *c, int64_t ui)
 	return 0;
 }
 
-//static int mk_writeSInt(mk_Context *c, unsigned id, int64_t si) 
+//static int mk_writeSInt(mk_Context *c, unsigned id, int64_t si)
 //{
 //	unsigned char c_si[8] = { si >> 56, si >> 48, si >> 40, si >> 32, si >> 24, si >> 16, si >> 8, si };
 //	unsigned i = 0;
@@ -413,7 +413,7 @@ int mk_writeHeader(mk_Writer *w, const char *writingApp,
 		return -1;
 
 	w->timescale = timescale;
-	w->def_duration = default_frame_duration; 
+	w->def_duration = default_frame_duration;
 
 	if ((c = mk_createContext(w, w->root, EBML_ID_HEADER)) == NULL) /* EBML */
 		return -1;
@@ -465,7 +465,7 @@ int mk_writeHeader(mk_Writer *w, const char *writingApp,
 	CHECK(mk_writeUInt(ti, MATROSKA_ID_TIMECODESCALE, w->timescale));
 	CHECK(mk_writeStr(ti, MATROSKA_ID_MUXINGAPP, "Guvcview Muxer-2009.11"));
 	CHECK(mk_writeStr(ti, MATROSKA_ID_WRITINGAPP, writingApp));
-	/* signed 8 byte integer in nanoseconds 
+	/* signed 8 byte integer in nanoseconds
 	* with 0 indicating the precise beginning of the millennium (at 2001-01-01T00:00:00,000000000 UTC)
 	* value: ns_time - 978307200000000000  ( Unix Epoch is 01/01/1970 ) */
 	UINT64 date = ns_time() - 978307200000000000LL;
@@ -482,7 +482,7 @@ int mk_writeHeader(mk_Writer *w, const char *writingApp,
 	/*ti->d_cur - float size(4) + EBML header size(24) + extra empty bytes for segment size(6)*/
 	w->duration_ptr = ti->d_cur + 20 + extra;
 	CHECK(mk_closeContext(ti, &w->duration_ptr)); /* add ti->parent->d_cur to duration_ptr */
-	
+
 	/*segment tracks start at 4220 (fixed)*/
 	pos=4220;
 	if ((ti = mk_createContext(w, c, MATROSKA_ID_TRACKS)) == NULL)
@@ -496,7 +496,7 @@ int mk_writeHeader(mk_Writer *w, const char *writingApp,
 	int track_uid1 = g_rand_int_range(rand_uid, G_MININT32, G_MAXINT32);
 	CHECK(mk_writeUInt(ti2, MATROSKA_ID_TRACKUID, track_uid1));  /* Track UID  */
 	/* TrackType 1 -video 2 -audio */
-	CHECK(mk_writeUInt(ti2, MATROSKA_ID_TRACKTYPE, MATROSKA_TRACK_TYPE_VIDEO)); 
+	CHECK(mk_writeUInt(ti2, MATROSKA_ID_TRACKTYPE, MATROSKA_TRACK_TYPE_VIDEO));
 	CHECK(mk_writeUInt(ti2, MATROSKA_ID_TRACKFLAGENABLED, 1));   /* enabled    */
 	CHECK(mk_writeUInt(ti2, MATROSKA_ID_TRACKFLAGDEFAULT, 1));   /* default    */
 	CHECK(mk_writeUInt(ti2, MATROSKA_ID_TRACKFLAGFORCED, 0));    /* forced     */
@@ -538,7 +538,7 @@ int mk_writeHeader(mk_Writer *w, const char *writingApp,
 		if ((ti3 = mk_createContext(w, ti, MATROSKA_ID_TRACKENTRY)) == NULL)
 			return -1;
 		CHECK(mk_writeUInt(ti3, MATROSKA_ID_TRACKNUMBER, 2));        /* TrackNumber            */
-	
+
 		int track_uid2 = g_rand_int_range(rand_uid, G_MININT32, G_MAXINT32);
 		CHECK(mk_writeUInt(ti3, MATROSKA_ID_TRACKUID, track_uid2));
 		/* TrackType 1 -video 2 -audio */
@@ -580,7 +580,7 @@ int mk_writeHeader(mk_Writer *w, const char *writingApp,
 	CHECK(mk_flushContextData(w->root));
 	w->cluster_index = 1;
 	w->cluster_pos = g_renew(int64_t, w->cluster_pos, w->cluster_index);
-	w->cluster_pos[0] = ftello(w->fp) -36;
+	w->cluster_pos[0] = ftello64(w->fp) -36;
 	w->wrote_header = TRUE;
 
 	return 0;
@@ -595,7 +595,7 @@ static int mk_closeCluster(mk_Writer *w)
 	CHECK(mk_flushContextData(w->root));
 	w->cluster_index++;
 	w->cluster_pos = g_renew(int64_t, w->cluster_pos, w->cluster_index);
-	w->cluster_pos[w->cluster_index-1] = ftello(w->fp) - 36;
+	w->cluster_pos[w->cluster_index-1] = ftello64(w->fp) - 36;
 	return 0;
 }
 
@@ -611,8 +611,8 @@ static int mk_flushFrame(mk_Writer *w)
 		return 0;
 
 	delta = w->frame_tc / w->timescale - w->cluster_tc_scaled;
-	
-	if (w->cluster == NULL) 
+
+	if (w->cluster == NULL)
 	{
 		w->cluster_tc_scaled = w->frame_tc / w->timescale ;
 		w->cluster = mk_createContext(w, w->root, MATROSKA_ID_CLUSTER); /* New Cluster */
@@ -653,7 +653,7 @@ static int mk_flushFrame(mk_Writer *w)
 	//	CHECK(mk_writeSInt(w->cluster, MATROSKA_ID_BLOCKREFERENCE, ref)); /* ReferenceBlock */
 
 	w->in_frame = FALSE; /* current frame processed */
-	
+
 	w->prev_frame_tc_scaled = w->cluster_tc_scaled + delta;
 
 	/*******************************/
@@ -677,7 +677,7 @@ static int mk_flushAudioFrame(mk_Writer *w)
 
 	delta = w->audio_frame_tc / w->timescale - w->cluster_tc_scaled;
 	/* make sure we have a cluster */
-	if (w->cluster == NULL) 
+	if (w->cluster == NULL)
 	{
 		w->cluster_tc_scaled = w->audio_frame_tc / w->timescale ;
 		w->cluster = mk_createContext(w, w->root, MATROSKA_ID_CLUSTER); /* Cluster */
@@ -690,7 +690,7 @@ static int mk_flushAudioFrame(mk_Writer *w)
 		w->block_n=0;
 	}
 
-	
+
 	if (!w->audio_in_frame)
 		return 0;
 
@@ -700,7 +700,7 @@ static int mk_flushAudioFrame(mk_Writer *w)
 	CHECK(mk_writeSize(w->cluster, bgsize));
 	CHECK(mk_writeID(w->cluster, MATROSKA_ID_BLOCK)); /* Block */
 	w->block_n++;
-	if(w->audio_block == 0) 
+	if(w->audio_block == 0)
 	{
 		w->audio_block = w->block_n;
 	}
@@ -715,9 +715,9 @@ static int mk_flushAudioFrame(mk_Writer *w)
 		CHECK(mk_appendContextData(w->cluster, w->audio_frame->data, w->audio_frame->d_cur));
 		w->audio_frame->d_cur = 0;
 	}
-	
+
 	w->audio_in_frame = FALSE; /* current frame processed */
-	
+
 	w->audio_prev_frame_tc_scaled = w->cluster_tc_scaled + delta;
 
 	/*******************************/
@@ -760,7 +760,7 @@ static int write_cues(mk_Writer *w)
 	}
 	CHECK(mk_closeContext(cpe, 0));
 	CHECK(mk_closeContext(w->cues, 0));
-	if(mk_flushContextData(w->root) < 0) 
+	if(mk_flushContextData(w->root) < 0)
 		return -1;
 	return 0;
 }
@@ -781,7 +781,7 @@ static int write_SeekHead(mk_Writer *w)
 		CHECK(mk_closeContext(se, 0));
 	}
 	CHECK(mk_closeContext(sk, 0));
-	if(mk_flushContextData(w->root) < 0) 
+	if(mk_flushContextData(w->root) < 0)
 		return -1;
 	return 0;
 }
@@ -808,20 +808,20 @@ static int write_SegSeek(mk_Writer *w, int64_t cues_pos, int64_t seekHeadPos)
 	if ((se = mk_createContext(w, sh, MATROSKA_ID_SEEKENTRY)) == NULL) /* Seek */
 		return -1;
 	CHECK(mk_writeUInt(se, MATROSKA_ID_SEEKID, MATROSKA_ID_SEEKHEAD)); /* seekID */
-	CHECK(mk_writeUInt(se, MATROSKA_ID_SEEKPOSITION, seekHeadPos)); 
+	CHECK(mk_writeUInt(se, MATROSKA_ID_SEEKPOSITION, seekHeadPos));
 	CHECK(mk_closeContext(se, 0));
 	if ((se = mk_createContext(w, sh, MATROSKA_ID_SEEKENTRY)) == NULL) /* Seek */
 		return -1;
 	CHECK(mk_writeUInt(se, MATROSKA_ID_SEEKID, MATROSKA_ID_CUES));  /* seekID */
-	CHECK(mk_writeUInt(se, MATROSKA_ID_SEEKPOSITION, cues_pos)); 
+	CHECK(mk_writeUInt(se, MATROSKA_ID_SEEKPOSITION, cues_pos));
 	CHECK(mk_closeContext(se, 0));
 	CHECK(mk_closeContext(sh, 0));
 
-	if(mk_flushContextData(w->root) < 0) 
+	if(mk_flushContextData(w->root) < 0)
 	return -1;
 
-	CHECK(mk_writeVoid(w->root, 4135 - (ftello(w->fp)+3)));
-	if(mk_flushContextData(w->root) < 0) 
+	CHECK(mk_writeVoid(w->root, 4135 - (ftello64(w->fp)+3)));
+	if(mk_flushContextData(w->root) < 0)
 		return -1;
 	return 0;
 }
@@ -838,7 +838,7 @@ int mk_startFrame(mk_Writer *w)
 
 	w->in_frame = TRUE; /*first frame will have size zero (don't write it)*/
 	w->keyframe = FALSE;
-	
+
 	return 0;
 }
 
@@ -879,13 +879,13 @@ int mk_addFrameData(mk_Writer *w, const void *data, int64_t size)
 {
 	//if (!w->in_frame)
 	//	return -1;
-	
+
 	if (w->frame == NULL)
 		if ((w->frame = mk_createContext(w, NULL, 0)) == NULL)
 			return -1;
-	
+
 	w->in_frame = TRUE;
-	
+
 	return mk_appendContextData(w->frame, data, size);
 }
 
@@ -893,13 +893,13 @@ int mk_addAudioFrameData(mk_Writer *w, const void *data, int64_t size)
 {
 	//if (!w->audio_in_frame)
 	//	return -1;
-	
+
 	if (w->audio_frame == NULL)
 		if ((w->audio_frame = mk_createContext(w, NULL, 0)) == NULL)
 			return -1;
-	
+
 	w->audio_in_frame = TRUE;
-	
+
 	return mk_appendContextData(w->audio_frame, data, size);
 }
 
@@ -913,18 +913,18 @@ int mk_close(mk_Writer *w)
 		/* move to end of file */
 		fseeko(w->fp, 0, SEEK_END);
 		/* store last position */
-		int64_t CuesPos = ftello (w->fp) - 36;
+		int64_t CuesPos = ftello64(w->fp) - 36;
 		//printf("cues at %llu\n",(unsigned long long) CuesPos);
 		write_cues(w);
 		/* move to end of file */
 		fseeko(w->fp, 0, SEEK_END);
-		int64_t SeekHeadPos = ftello (w->fp) - 36;
+		int64_t SeekHeadPos = ftello64(w->fp) - 36;
 		//printf("SeekHead at %llu\n",(unsigned long long) SeekHeadPos);
 		/* write seekHead */
 		write_SeekHead(w);
 		/* move to end of file */
 		fseeko(w->fp, 0, SEEK_END);
-		int64_t lLastPos = ftello (w->fp);
+		int64_t lLastPos = ftello64(w->fp);
 		int64_t seg_size = lLastPos - (w->segment_size_ptr);
 		seg_size |= 0x0100000000000000LL;
 		/* move to segment entry */

@@ -187,6 +187,10 @@ struct avi_t
 
 	void*	extradata;
 	ULONG	extradata_size;
+
+	void* audio_priv_data
+	ULONG audio_priv_data_size;
+
 	int closed; /* 0 - AVI is opened(recordind) 1 -AVI is closed (not recording)*/
 
 };
