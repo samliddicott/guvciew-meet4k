@@ -42,6 +42,15 @@
 #define AVI_MAX_TRACKS 8
 #define FRAME_RATE_SCALE 1000000
 
+enum STREAM_TYPE
+{
+	STREAM_TYPE_VIDEO = 0,
+	STREAM_TYPE_AUDIO = 1,
+	STREAM_TYPE_SUB = 2 //not supported
+}
+
+typedef enum STREAM_TYPE STREAM_TYPE;
+
 typedef struct _video_index_entry
 {
 	off_t key;
@@ -57,7 +66,12 @@ typedef struct _audio_index_entry
 } audio_index_entry;
 
 
-typedef struct track_s
+
+
+
+
+
+struct track_t
 {
 
 	long   a_fmt;             /* Audio format, see #defines below */
@@ -81,7 +95,52 @@ typedef struct track_s
 
 	audio_index_entry *audio_index;
 
-} track_t;
+	struct track_t *previous, *next;
+
+};
+
+typedef struct track_t track_t;
+
+typedef struct avi_Ientry {
+    unsigned int flags, pos, len;
+} avi_Ientry;
+
+typedef struct avi_Index {
+    int64_t     indx_start;
+    int         entry;
+    int         ents_allocated;
+    avi_Ientry** cluster;
+} avi_Index;
+
+
+struct avi_Stream
+{
+	STREAM_TYPE type;          //stream type
+
+	int stream_id;
+
+	avi_Index indexes;
+
+	char   compressor[8];        /* Type of compressor, 4 bytes + padding for 0 byte */
+
+	//video
+	int   width;                 /* Width  of a video frame */
+	int   height;                /* Height of a video frame */
+	double fps;                  /* Frames per second */
+	//audio
+	long   a_fmt;             /* Audio format, see #defines below */
+	long   a_chans;           /* Audio channels, 0 for no audio */
+	long   a_rate;            /* Rate in Hz */
+	long   a_bits;            /* bits per audio sample */
+	long   mpgrate;           /* mpg bitrate kbs*/
+	long   a_vbr;             /* 0 == no Variable BitRate */
+	off_t  audio_bytes;       /* Total number of bytes of audio data */
+
+	BYTE* extra_data;
+	int extra_data_size;
+}
+
+typedef struct avi_Stream avi_Stream;
 
 /*
 typedef struct

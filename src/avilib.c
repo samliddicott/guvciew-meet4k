@@ -72,7 +72,6 @@ static char id_str[MAX_INFO_STRLEN];
 #define VERSION "1.0"
 #endif
 
-
 #define __MUTEX &AVI->mutex
 
 #define AVI_INDEX_CLUSTER_SIZE 16384
@@ -84,21 +83,33 @@ static char id_str[MAX_INFO_STRLEN];
 #define AVIF_WASCAPTUREFILE     0x00010000
 #define AVIF_COPYRIGHTED        0x00020000
 
-typedef struct avi_Ientry {
-    unsigned int flags, pos, len;
-} avi_Ientry;
+#define AVI_MAX_RIFF_SIZE       0x40000000LL
+#define AVI_MASTER_INDEX_SIZE   256
+#define AVI_MAX_STREAM_COUNT    100
 
-typedef struct avi_Index {
-    int64_t     indx_start;
-    int         entry;
-    int         ents_allocated;
-    avi_Ientry** cluster;
-} avi_Index;
+/* index flags */
+#define AVIIF_INDEX             0x10
+
+// bIndexType codes
+//
+#define AVI_INDEX_OF_INDEXES 0x00 	// when each entry in aIndex
+									// array points to an index chunk
+
+#define AVI_INDEX_OF_CHUNKS 0x01 	// when each entry in aIndex
+									// array points to a chunk in the file
+
+#define AVI_INDEX_IS_DATA 0x80 		// when each entry is aIndex is
+									// really the data
+									// bIndexSubtype codes for INDEX_OF_CHUNKS
+
+#define AVI_INDEX_2FIELD 0x01 		// when fields within frames
+									// are also indexed
 
 struct avi_RIFF {
     int64_t riff_start, movi_list, odml_list;
     int64_t frames_hdr_all;
     int id;
+
     struct avi_RIFF *previous, *next;
 };
 
@@ -115,30 +126,22 @@ typedef struct avi_Writer
 
 }avi_Writer;
 
-typedef struct avi_Context
+struct avi_Context
 {
-	int audio_streams;
-	int   width;                 /* Width  of a video frame */
-	int   height;                /* Height of a video frame */
-	double fps;                  /* Frames per second */
-	char   video_compressor[8];  /* Type of compressor, 4 bytes + padding for 0 byte */
-	char   audio_compressor[8];  /* Type of compressor, 4 bytes + padding for 0 byte */
-
 	struct avi_Writer  *writer;
 	__MUTEX_TYPE mutex;
 
 	int flags; /* 0 - AVI is recordind;   1 - AVI is not recording*/
-	avi_RIFF* riff_list;
+
+	avi_RIFF* riff_list; // avi_riff list (NULL terminated)
 	int riff_list_size;
 
-	track_t track[AVI_MAX_TRACKS];  // up to AVI_MAX_TRACKS audio tracks supported
+	avi_Stream* stream_list;
+	int stream_list_size;
 
-	BYTE* video_extra_data;
-	int video_extra_data_size;
-
-	BYTE* audio_extra_data;
-	int audio_extra_data_size;
 } avi_Context;
+
+typedef struct avi_Context avi_Context;
 
 int64_t flush_buffer(avi_Context* AVI)
 {
@@ -190,38 +193,66 @@ void write_mem(avi_Context* AVI, BYTE *buf, int size)
 
 void write_wl16(avi_Context* AVI, uint16_t val)
 {
-    write_w8(AVI, val);
-    write_w8(AVI, val >> 8);
+    write_w8(AVI, (BYTE) val);
+    write_w8(AVI, (BYTE) (val >> 8));
 }
 
 void write_wb16(avi_Context* AVI, uint16_t val)
 {
-    write_w8(AVI, val >> 8);
-    write_w8(AVI, val);
+    write_w8(AVI, (BYTE) (val >> 8));
+    write_w8(AVI, (BYTE) val);
+}
+
+void write_wl24(avi_Context* AVI, uint32_t val)
+{
+    write_wl16(AVI, (uint16_t) (val & 0xffff));
+    write_w8(AVI, (BYTE) (val >> 16));
+}
+
+void write_wb24(avi_Context* AVI, uint32_t val)
+{
+    write_wb16(AVI, (uint16_t) (val >> 8));
+    write_w8(AVI, (BYTE) val);
 }
 
 void write_wl32(avi_Context* AVI, uint32_t val)
 {
-    write_w8(AVI, val);
-    write_w8(AVI, val >> 8);
-    write_w8(AVI, val >> 16);
-    write_w8(AVI, val >> 24);
+    write_w8(AVI, (BYTE) val);
+    write_w8(AVI, (BYTE) (val >> 8));
+    write_w8(AVI, (BYTE) (val >> 16));
+    write_w8(AVI, (BYTE) (val >> 24));
 }
 
 void write_wb32(avi_Context* AVI, uint32_t val)
 {
-    write_w8(AVI, val >> 24);
-    write_w8(AVI, val >> 16);
-    write_w8(AVI, val >> 8);
-    write_w8(AVI, val);
+    write_w8(AVI, (BYTE) (val >> 24));
+    write_w8(AVI, (BYTE) (val >> 16));
+    write_w8(AVI, (BYTE) (val >> 8));
+    write_w8(AVI, (BYTE) val);
+}
+
+void avio_wl64(avi_Context* AVI, uint64_t val)
+{
+    write_wl32(AVI, (uint32_t)(val & 0xffffffff));
+    write_wl32(AVI, (uint32_t)(val >> 32));
+}
+
+void avio_wb64(avi_Context* AVI, uint64_t val)
+{
+    write_wb32(AVI, (uint32_t)(val >> 32));
+    write_wb32(AVI, (uint32_t)(val & 0xffffffff));
 }
 
 #if BIG_ENDIAN
-	#define write_w32 write_wb32
 	#define write_w16 write_wb16
+	#define write_w24 write_wb24
+	#define write_w32 write_wb32
+	#define write_w64 write_wb64
 #else
-	#define wrtie_w32 write_wl32
 	#define write_w16 write_wl16
+	#define write_w24 write_wl24
+	#define wrtie_w32 write_wl32
+	#define write_w64 write_wl64
 #endif
 
 void write_4cc(avi_Context* AVI, const char *str)
@@ -257,42 +288,436 @@ int write_str(avi_Context* AVI, const char *str)
 /* Calculate audio sample size from number of bits and number of channels.
    This may have to be adjusted for eg. 12 bits and stereo */
 
-static int avi_audio_sample_size(avi_Context* AVI, int j)
+static int avi_audio_sample_size(avi_Stream* stream)
 {
+	if(stream->type != STREAM_TYPE_AUDIO)
+		return -1;
+
 	int s;
-	if (AVI->track[j].a_fmt != WAVE_FORMAT_PCM)
+	if (stream->a_fmt != WAVE_FORMAT_PCM)
 	{
 		s = 4;
 	}
 	else
 	{
-		s = ((AVI->track[j].a_bits+7)/8)*AVI->track[j].a_chans;
+		s = ((stream->a_bits+7)/8)*stream->a_chans;
 		if(s<4) s=4; /* avoid possible zero divisions */
 	}
 	return s;
 }
 
-int create_new_riff(avi_Context* AVI)
+static char* avi_stream2fourcc(char* tag, int index, avi_Stream* stream)
 {
-	int frate;
-	int ms_per_frame;
+    tag[0] = '0' + index/10;
+    tag[1] = '0' + index%10;
+    switch(stream->type)
+    {
+		case STREAM_TYPE_VIDEO:
+			tag[2] = 'd';
+			tag[3] = 'c';
+			break;
+		case STREAM_TYPE_SUB:
+			// note: this is not an official code
+			tag[2] = 's';
+			tag[3] = 'b';
+			break;
+		default: //audio
+			tag[2] = 'w';
+			tag[3] = 'b';
+			break;
+	}
+    tag[4] = '\0';
+    return tag;
+}
 
-	if(AVI->fps < 0.001)
+avi_Stream* avi_get_last_stream(avi_Context* AVI)
+{
+	avi_Stream* stream = AVI->stream_list;
+
+	if(!stream)
+		return NULL;
+
+	while(stream->next != NULL)
+		stream = stream->next;
+
+	return stream;
+}
+
+avi_Stream* avi_get_stream(avi_Context* AVI, int index)
+{
+	avi_Stream* stream = AVI->stream_list;
+
+	if(!stream)
+		return NULL;
+
+	int j = 0;
+
+	while(stream->next != NULL && (j < index))
 	{
-		frate=0;
-		ms_per_frame=0;
+		stream = stream->next;
+		j++;
+	}
+
+	if(j != index)
+		return NULL;
+
+	return stream;
+}
+
+avi_Stream* avi_add_new_stream(avi_Context* AVI)
+{
+	avi_Stream* stream = g_new0(avi_Stream, 1);
+	stream->next = NULL;
+	stream->id = AVI->stream_list_size;
+
+	if(stream->id == 0)
+	{
+		stream->previous = NULL;
+		AVI->stream_list = stream;
 	}
 	else
 	{
-		frate = (int) (FRAME_RATE_SCALE*AVI->fps + 0.5);
-		ms_per_frame=(int) (1000000/AVI->fps + 0.5);
+
+		avi_Stream* last_stream = avi_get_last_stream(AVI);
+		stream->previous = last_stream;
+		last_stream->next = stream;
 	}
 
-	int vxd_size        = AVI->video_extra_data_size;
-	int vxd_size_align  = (AVI->video_extra_data_size+1) & ~1;
-	int axd_size        = AVI->audio_extra_data_size;
-	int axd_size_align  = (AVI->audio_extra_data_size+1) & ~1;
+	AVI->stream_list_size++;
 
+	return(stream);
+}
+
+avi_Stream* get_first_video_stream(avi_Context* AVI)
+{
+	avi_Stream* stream = AVI->stream_list;
+
+	if(!stream)
+		return NULL;
+
+	if(stream->type == STREAM_TYPE_VIDEO)
+		return stream;
+
+	while(stream->next != NULL)
+	{
+		stream = stream->next;
+
+		if(stream->type == STREAM_TYPE_VIDEO)
+			return stream;
+	}
+
+	return NULL;
+}
+
+int avi_get_total_extra_size(avi_Context* AVI)
+{
+	avi_Stream* stream = AVI->stream_list;
+
+	if(!stream)
+		return -1;
+
+	int size = 0;
+	if(stream->extra_data_size && stream->extra_data)
+	{
+		size += (stream->extra_data_size+1) & ~1;
+
+		if(stream->type == STREAM_TYPE_VIDEO)
+			size += 4*2; // 2 dWord (tag + size)
+	}
+
+	while(stream->next != NULL)
+	{
+		stream = stream->next;
+		if(stream->extra_data_size && stream->extra_data)
+		{
+			size += (stream->extra_data_size+1) & ~1;
+			if(stream->type == STREAM_TYPE_VIDEO)
+				size += 4*2; // 2 dWord (tag + size)
+		}
+	}
+
+	return size;
+
+}
+
+void avi_put_main_header(avi_Context* AVI)
+{
+	double fps = get_first_video_stream(AVI)->fps;
+	int width = get_first_video_stream(AVI)->width;
+	int height = get_first_video_stream(AVI)->height;
+
+	int ms_per_frame = 0;
+	if(fps > 0.001)
+		ms_per_frame=(int) (1000000/fps + 0.5);
+
+	/*do not force index yet -only when closing*/
+	/*this should prevent bad avi files even if it is not closed properly*/
+	//if(hasIndex) flag |= AVIF_HASINDEX;
+	//if(hasIndex && AVI->must_use_index) flag |= AVIF_MUSTUSEINDEX;
+	uint32_t flags = AVIF_WASCAPTUREFILE;
+
+	write_4cc(AVI, "avih");             // main avi header
+	write_wl32(AVI, 56);				// size of header (56 bytes)
+	write_wl32(AVI, ms_per_frame);		// time delay between frames (milisec)
+	write_wl32(AVI, 0);                 // data rate
+	write_wl32(AVI, 0);                 // Padding multiple size (2048)
+	write_wl32(AVI, flags);			    // parameter Flags
+	write_wl32(AVI, 0);			        // number of video frames
+	write_wl32(AVI, 0);			        // number of preview frames
+	write_wl32(AVI, AVI->stream_list_size); // number of data streams (audio + video)*/
+	write_wl32(AVI, 0);			        // suggested playback buffer size (bytes)
+	write_wl32(AVI, width);		        // width
+	write_wl32(AVI, height);	    	// height
+	write_wl32(AVI, 0);			        // time scale:  unit used to measure time (30)
+	write_wl32(AVI, 0);			        // data rate (frame rate * time scale)
+	write_wl32(AVI, 0);			        // start time (0)
+	write_wl32(AVI, 0);			        // size of AVI data chunk (in scale units)
+}
+
+void avi_put_bmp_header(avi_Context* AVI, avi_Stream* stream)
+{
+	int frate = 0;
+	if(stream->fps > 0.001)
+		frate = (int) (FRAME_RATE_SCALE*stream->fps + 0.5);
+
+	write_4cc(AVI, "strh");              // video stream header
+	write_wl32(AVI, 60);                 // size of header (60 bytes)
+	write_4cc(AVI, "vids");              // stream type
+	write_4cc(AVI, stream->compressor);  // Handler (VIDEO CODEC)
+	write_wl32(AVI, 0);                  // Flags
+	write_wl32(AVI, 0);                  // stream priority
+	write_wl32(AVI, 0);                  // language tag
+	write_wl32(AVI, 0);                  // initial frames
+	write_wl32(AVI, FRAME_RATE_SCALE);   // Scale
+	write_wl32(AVI, frate);              // Rate: Rate/Scale == sample/second (fps) */
+	write_wl32(AVI, 0);                  // start time
+	write_wl32(AVI, 0);                  // lenght of stream
+	write_wl32(AVI, 0);                  // suggested playback buffer size
+	write_wl32(AVI, -1);                 // Quality
+	write_wl32(AVI, 0);                  // SampleSize
+	write_wl16(AVI, 0);                  // rFrame (left)
+	write_wl16(AVI, 0);                  // rFrame (top)
+	write_wl16(AVI, 0);                  // rFrame (right)
+	write_wl16(AVI, 0);                  // rFrame (bottom)
+}
+
+void avi_put_wav_header(avi_Context* AVI, avi_Stream* stream)
+{
+	int sampsize = avi_audio_sample_size(stream);
+
+	write_4cc(AVI, "strh");              // audio stream header
+	write_wl32(AVI, 60);                 // size of header
+	write_4cc(AVI, "auds");
+	write_4cc(AVI, stream->compressor);  // Handler (AUDIO CODEC)
+	write_wl32(AVI, 0);                  // Flags
+	write_wl32(AVI, 0);                  // stream priority
+	write_wl32(AVI, 0);                  // language tag
+	write_wl32(AVI, 0);                  // initial frames
+	write_wl32(AVI, sampsize/4);         // Scale
+	write_wl32(AVI, stream->mpgrate/8);   // Rate: Rate/Scale == sample/second (fps) */
+	write_wl32(AVI, 0);                  // start time
+	write_wl32(AVI, 4*stream->audio_bytes/sampsize); // lenght of stream
+	write_wl32(AVI, 0);                  // suggested playback buffer size
+	write_wl32(AVI, -1);                 // Quality
+	write_wl32(AVI, sampsize/4);         // SampleSize
+	write_wl16(AVI, 0);                  // rFrame (left)
+	write_wl16(AVI, 0);                  // rFrame (top)
+	write_wl16(AVI, 0);                  // rFrame (right)
+	write_wl16(AVI, 0);                  // rFrame (bottom)
+}
+
+void avi_put_vstream_format_header(avi_Context* AVI, avi_Stream* stream)
+{
+	write_4cc(AVI,"strf");           // stream format header
+	write_wl32(AVI, 40);             // header size
+	write_wl32(AVI, 40);             // sruct Size
+	write_wl32(AVI, stream->width);     // Width
+	write_wl32(AVI, stream->height);    // Height
+	write_wl16(AVI, 1);              // Planes
+	write_wl16(AVI, 24);             // Count - bitsperpixel - 1,4,8 or 24  32
+	if(strncmp(stream->compressor,"DIB",3)==0)
+		write_wl32(AVI, 0);          // Compression
+	else
+		write_4cc(AVI, stream->compressor);
+	write_wl32(AVI, stream->width*stream->height);// image size (in bytes?)
+	write_wl32(AVI, 0);              // XPelsPerMeter
+	write_wl32(AVI, 0);              // YPelsPerMeter
+	write_wl32(AVI, 0);              // ClrUsed: Number of colors used
+	write_wl32(AVI, 0);              // ClrImportant: Number of colors important
+
+}
+
+void avi_put_astream_format_header(avi_Context* AVI, avi_Stream* stream)
+{
+	int axd_size        = stream->extra_data_size;
+	int axd_size_align  = (stream->extra_data_size+1) & ~1;
+
+	int strf_size = 4 * 4 + 2;
+	if (axd_size > 0 && stream->extra_data)
+		strf_size += axd_size_align;
+
+	int sampsize = avi_audio_sample_size(stream);
+
+	write_4cc(AVI, "strf");            // audio stream format
+	write_wl32(AVI, strf_size);        // header size
+	write_wl16(AVI, stream->a_fmt);    // Format tag
+	write_wl16(AVI, stream->a_chans);  // Number of channels
+	write_wl32(AVI, stream->a_rate);   // SamplesPerSec
+	write_wl32(AVI, stream->mpgrate/8);// Average Bytes per sec
+	write_wl16(AVI, sampsize/4);      // BlockAlign
+	write_wl16(AVI, stream->a_bits);   //BitsPerSample
+	write_wl16(AVI, axd_size);        //size of extra data
+	// write extradata (codec private)
+	if (axd_size > 0 && stream->extra_data)
+	{
+		write_mem(AVI, stream->extra_data, axd_size);
+		if (axd_size != axd_size_align)
+		{
+			write_w8(AVI, 0);  //align
+		}
+	}
+}
+
+void avi_create_riff_header(avi_Context* AVI, avi_RIFF* riff)
+{
+	if(riff->id > 0) // 'AVIX'
+	{
+		/* The RIFF header (skeleton)*/
+		write_4cc(AVI, "RIFF");
+		//flush whathever is on the buffer to disk and store the stream position
+		riff->riff_start = flush_buffer(AVI);
+		write_wl32(AVI, 0);                 //RIFF chunk size (don't know it yet)
+		write_4cc(AVI, "AVIX");
+		write_w32(AVI, 0);                  //AVI chunk size (don't know it yet)
+		write_4cc(AVI, "LIST");
+	}
+	else //'AVI'
+	{
+		int j = 0;
+
+		/* The RIFF header (skeleton)*/
+		write_4cc(AVI, "RIFF");
+		//flush whathever is on the buffer to disk and store the stream position
+		riff->riff_start = flush_buffer(AVI);
+		write_wl32(AVI, 0);                 //RIFF chunk size (don't know it yet)
+		write_4cc(AVI, "AVI ");
+		write_w32(AVI, 0);                  //AVI chunk size (don't know it yet)
+		write_4cc(AVI, "LIST");
+		write_wl32(AVI, 0);                 //LIST chunk size (don't know it yet)
+		write_4cc(AVI, "hdrl");
+
+		avi_put_main_header(AVI);
+
+		for(j=0; j< AVI->stream_list_size; j++)
+		{
+			avi_Stream* stream = avi_get_stream(AVI, j);
+
+			if(stream->type == STREAM_TYPE_VIDEO)
+			{
+				int list_size = (30 * 4) +
+						(8 * 4) +
+						4 * 4 * AVI_MASTER_INDEX_SIZE;
+
+				if(stream->extra_data_size > 0 && stream->extra_data)
+						list_size += 2 + ((stream->extra_data_size+1) & ~1);
+
+				write_4cc(AVI, "LIST");
+				write_wl32(AVI, list_size);         //LIST chunk size (bytes)
+				write_4cc(AVI,"strl");              //stream list
+
+				avi_put_bmp_header(AVI, stream);
+				avi_put_vstream_format_header(AVI, stream);
+				// write extradata (codec private)
+				if (stream->extra_data_size > 0 && stream->extra_data)
+				{
+					int size_align = (stream->extra_data_size+1) & ~1;
+					write_4cc(AVI,"strd");
+					write_wl32(AVI, size_align);
+					write_mem(AVI, stream->extra_data, stream->extra_data_size);
+					if (stream->extra_data_size != size_align)
+					{
+						write_w8(AVI, 0);  //align
+					}
+				}
+			}
+			else
+			{
+				int list_size = 24 * 4 + 2 + 4 * 4 * AVI_MASTER_INDEX_SIZE;
+				if(stream->extra_data_size > 0 && stream->extra_data)
+						list_size += (stream->extra_data_size+1) & ~1;
+
+				write_4cc(AVI, "LIST");
+				write_wl32(AVI, list_size);         //LIST chunk size (bytes)
+				write_4cc(AVI,"strl");              //stream list
+
+				avi_put_wav_header(AVI, stream);
+				avi_put_astream_header(AVI, stream);
+			}
+
+			/* Starting to lay out AVI OpenDML master index.
+			 * We want to make it JUNK entry for now, since we'd
+			 * like to get away without making AVI an OpenDML one
+			 * for compatibility reasons. (8*4 + 4*4*AVI_MASTER_INDEX_SIZE)
+			 */
+			char tag[5];
+			stream->indexes.entry = stream->indexes.ents_allocated = 0;
+			write_4cc(AVI, "JUNK");           // ’ix##’
+			AVI->indexes.indx_start = flush_buffer(AVI);
+			write_wl32(AVI, 0);               // size of this structure
+			write_wl16(AVI, 4);               // wLongsPerEntry must be 4 (size of each entry in aIndex array)
+			write_w8(AVI, 0);                 // bIndexSubType must be 0 (frame index) or AVI_INDEX_2FIELD
+			write_w8(AVI, 0);                 // bIndexType (0 == AVI_INDEX_OF_INDEXES)
+			write_wl32(AVI, 0);               // nEntriesInUse (will fill out later on)
+			write_4cc(AVI, avi_stream2fourcc(tag, 0, STREAM_TYPE_VIDEO)); // dwChunkId
+			write_wl32(AVI, 0);               // dwReserved[3] must be 0
+			write_wl32(AVI, 0);
+			write_wl32(AVI, 0);
+			for (j=0; j < AVI_MASTER_INDEX_SIZE; j++)
+			{
+				write_wl64(AVI, 0);           // absolute file offset, offset 0 is unused entry
+				write_wl32(AVI, 0);           // dwSize - size of index chunk at this offset
+				write_wl32(AVI, 0);           // dwDuration - time span in stream ticks
+			}
+		}
+
+		riff->movi_list = flush_buffer(AVI);
+
+	}
+
+}
+
+avi_RIFF* avi_get_last_riff(avi_Context* AVI)
+{
+	avi_RIFF* last_riff = AVI->riff_list;
+	while(last_riff->next != NULL)
+		last_riff = last_riff->next;
+
+	return last_riff;
+}
+
+avi_RIFF* avi_get_riff(avi_Context* AVI, int index)
+{
+	avi_RIFF* riff = AVI->riff_list;
+
+	if(!riff)
+		return NULL;
+
+	int j = 0;
+
+	while(riff->next != NULL && (j < index))
+	{
+		riff = riff->next;
+		j++;
+	}
+
+	if(j != index)
+		return NULL;
+
+	return riff;
+}
+
+int avi_add_new_riff(avi_Context* AVI)
+{
 	avi_RIFF* riff = g_new0(avi_RIFF, 1);
 	riff->next = NULL;
 	riff->id = AVI->riff_list_size;
@@ -303,166 +728,14 @@ int create_new_riff(avi_Context* AVI)
 	}
 	else
 	{
-		avi_RIFF* last_riff = AVI->riff_list;
-		while(last_riff->next != NULL)
-			last_riff = last_riff->next;
-	
+		avi_RIFF* last_riff = avi_get_last_riff(AVI);
 		riff->previous = last_riff;
 		last_riff->next = riff;
 	}
 
 	AVI->riff_list_size++;
 
-	/*do not force index yet -only when closing*/
-	/*this should prevent bad avi files even if it is not closed properly*/
-	//if(hasIndex) flag |= AVIF_HASINDEX;
-	//if(hasIndex && AVI->must_use_index) flag |= AVIF_MUSTUSEINDEX;
-	uint32_t flags = AVIF_WASCAPTUREFILE;
-
-	/* The RIFF header (skeleton)*/
-	write_4cc(AVI, "RIFF");
-	//flush whathever is on the buffer to disk and store the stream position
-	riff->riff_start = flush_buffer(AVI);
-	write_wl32(AVI, 0);                 //RIFF chunk size (don't know it yet)
-	write_4cc(AVI, "AVI ");
-	write_w32(AVI, 0);                  //AVI chunk size (don't know it yet)
-	write_4cc(AVI, "LIST");
-	write_wl32(AVI, 0);                 //LIST chunk size (don't know it yet)
-	write_4cc(AVI, "hdrl");
-	write_4cc(AVI, "avih");             // main avi header
-	/*header*/
-	write_wl32(AVI,56);					// size of header (56 bytes)
-	write_wl32(AVI,ms_per_frame);		// time delay between frames (milisec)
-	write_wl32(AVI,0);                  // data rate
-	write_wl32(AVI,0);                  // Padding multiple size (2048)
-	write_wl32(AVI,flags);			    // parameter Flags
-	write_wl32(AVI,0);			        // number of video frames
-	write_wl32(AVI,0);			        // number of preview frames
-	write_wl32(AVI,AVI->audio_streams + 1); // number of data streams (audio + video)*/
-	write_wl32(AVI,0);			        // suggested playback buffer size (bytes)
-	write_wl32(AVI,AVI->width);		    // width
-	write_wl32(AVI,AVI->height);		// height
-	write_wl32(AVI,0);			        // time scale:  unit used to measure time (30)
-	write_wl32(AVI,0);			        // data rate (frame rate * time scale)
-	write_wl32(AVI,0);			        // start time (0)
-	write_wl32(AVI,0);			        // size of AVI data chunk (in scale units)
-	write_4cc(AVI, "LIST");
-	int list_size = 30 * 4;
-	int strf_size = 10 * 4;
-	if (vxd_size > 0 && AVI->video_extra_data)
-	{
-		list_size = 32*4 + vxd_size_align;
-		strf_size = 12 * 4 + vxd_size_align;
-	}
-	write_wl32(AVI, list_size);         //LIST chunk size (bytes)
-	write_4cc(AVI,"strl");              //stream list
-	write_4cc(AVI,"strh");              // video stream header
-	write_wl32(AVI,60);                 // size of header (60 bytes)
-	write_4cc(AVI,"vids");              // stream type
-	write_4cc(AVI,AVI->video_compressor); // Handler (VIDEO CODEC)
-	write_wl32(AVI,0);                  // Flags
-	write_wl32(AVI,0);                  // stream priority
-	write_wl32(AVI,0);                  // language tag
-	write_wl32(AVI,0);                  // initial frames
-	write_wl32(AVI,FRAME_RATE_SCALE);   // Scale
-	write_wl32(AVI,frate);              // Rate: Rate/Scale == sample/second (fps) */
-	write_wl32(AVI,0);                  // start time
-	write_wl32(AVI,0);                  // lenght of stream
-	write_wl32(AVI,0);                  // suggested playback buffer size
-	write_wl32(AVI,-1);                 // Quality
-	write_wl32(AVI,0);                  // SampleSize
-	write_wl16(AVI,0);                  // rFrame (left)
-	write_wl16(AVI,0);                  // rFrame (top)
-	write_wl16(AVI,0);                  // rFrame (right)
-	write_wl16(AVI,0);                  // rFrame (bottom)
-	write_4cc(AVI,"strf");              // stream format header
-	write_wl32(AVI, strf_size);         // header size
-	write_wl32(AVI,40);                 // Size
-	write_wl32(AVI,AVI->width);         // Width
-	write_wl32(AVI,AVI->height);        // Height
-	write_wl16(AVI,1);                  // Planes
-	write_wl16(AVI,24);                 // Count - bitsperpixel - 1,4,8 or 24  32
-	if(strncmp(AVI->video_compressor,"DIB",3)==0)
-		write_wl32(AVI,0);              // Compression
-	else
-		write_4cc(AVI,AVI->video_compressor);
-	write_wl32(AVI,AVI->width*AVI->height);// image size (in bytes?)
-	write_wl32(AVI,0);                  // XPelsPerMeter
-	write_wl32(AVI,0);                  // YPelsPerMeter
-	write_wl32(AVI,0);                  // ClrUsed: Number of colors used
-	write_wl32(AVI,0);                  // ClrImportant: Number of colors important
-
-	// write extradata (codec private)
-	if (vxd_size > 0 && AVI->video_extra_data)
-	{
-		write_4cc(AVI,"strd");
-		write_wl32(AVI, vxd_size_align);
-		write_mem(AVI, AVI->video_extra_data, vxd_size);
-		if (vxd_size != vxd_size_align)
-		{
-			write_w8(AVI, 0);  //align
-		}
-	}
-
-
-	/* Start the audio stream list ---------------------------------- */
-	/* only 1 audio stream => AVI->audio_streams=1*/
-	int j = 0;
-	for(j=0; j < AVI->audio_streams; ++j)
-	{
-
-		int sampsize = avi_audio_sample_size(AVI, j);
-
-		int list_size = 24 * 4 + 2;
-		int strf_size = 4 * 4 + 2;
-		if (axd_size > 0 && AVI->audio_extra_data)
-		{
-			list_size = 24 * 4 + 2 + axd_size_align;
-			strf_size = 4 * 4 + 2 + axd_size_align;
-		}
-
-		write_4cc(AVI, "LIST");
-		write_wl32(AVI, list_size);         // LIST chunk size
-		write_4cc(AVI,"strl");              //stream list
-		write_4cc(AVI,"strh");              // audio stream header
-		write_wl32(AVI, 60);                // size of header
-		write_4cc(AVI,"auds");
-		write_4cc(AVI,AVI->audio_compressor); // Handler (AUDIO CODEC)
-		write_wl32(AVI,0);                  // Flags
-		write_wl32(AVI,0);                  // stream priority
-		write_wl32(AVI,0);                  // language tag
-		write_wl32(AVI,0);                  // initial frames
-		write_wl32(AVI, sampsize/4);        // Scale
-		write_wl32(AVI, AVI->track[j].mpgrate/8); // Rate: Rate/Scale == sample/second (fps) */
-		write_wl32(AVI,0);                  // start time
-		write_wl32(AVI, 4*AVI->track[j].audio_bytes/sampsize); // lenght of stream
-		write_wl32(AVI,0);                  // suggested playback buffer size
-		write_wl32(AVI,-1);                 // Quality
-		write_wl32(AVI, sampsize/4);        // SampleSize
-		write_wl16(AVI,0);                  // rFrame (left)
-		write_wl16(AVI,0);                  // rFrame (top)
-		write_wl16(AVI,0);                  // rFrame (right)
-		write_wl16(AVI,0);                  // rFrame (bottom)
-		write_4cc(AVI, "strf");             // audio stream format
-		write_wl32(AVI, strf_size);         // header size
-		write_wl16(AVI,AVI->track[j].a_fmt);// Format tag
-		write_wl16(AVI,AVI->track[j].a_chans); // Number of channels
-		write_wl32(AVI,AVI->track[j].a_rate);  // SamplesPerSec
-		write_wl32(AVI,AVI->track[j].mpgrate/8);// Average Bytes per sec
-		write_wl16(AVI,sampsize/4);           // BlockAlign
-		write_wl16(AVI,AVI->track[j].a_bits); //BitsPerSample
-		write_wl16(AVI, axd_size);            //size of extra data
-		// write extradata (codec private)
-		if (axd_size > 0 && AVI->audio_extra_data)
-		{
-			write_mem(AVI, AVI->audio_extra_data, axd_size);
-			if (axd_size != axd_size_align)
-			{
-				write_w8(AVI, 0);  //align
-			}
-		}
-	}
-
+	avi_create_riff_header(AVI, riff);
 
 	return(AVI->riff_list_size);
 }
@@ -482,13 +755,9 @@ avi_Context* avi_create_context(const char * filename,
 		double fps,
 		int width,
 		int height,
-		int audio_streams,
-		char* video_compressor,
-		char* audio_compressor,
-		BYTE* video_extra_data,
-		int video_extra_data_size,
-		BYTE* audio_extra_data,
-		int audio_extra_data_size
+		char* def_video_compressor,
+		int audio_streams
+		char* def_audio_compressor
 		)
 {
 	avi_Context* AVI = g_new0(avi_Context, 1);
@@ -496,17 +765,24 @@ avi_Context* avi_create_context(const char * filename,
 	if(AVI == NULL)
 		return NULL;
 
-	AVI->fps = fps;
-	AVI->width = width;
-	AVI->height = height;
-	AVI->audio_streams = audio_streams;
-	strncpy(AVI->video_compressor, video_compressor, 8);
-	strncpy(AVI->audio_compressor, audio_compressor, 8);
+	//add a video stream
+	avi_Stream* stream = avi_add_new_stream(AVI);
+	stream->type = STREAM_TYPE_VIDEO;
+	stream->fps = fps;
+	stream->width = width;
+	stream->height = height;
+	if(def_video_compressor)
+		strncpy(stream->compressor, def_video_compressor, 8);
 
-	AVI->video_extra_data = video_extra_data;
-	AVI->video_extra_data_size = video_extra_data_size;
-	AVI->audio_extra_data = audio_extra_data;
-	AVI->audio_extra_data_size = audio_extra_data_size;
+	//add audio streams
+	j = 0;
+	for(j=0; j < audio_streams; j++)
+	{
+		stream = avi_add_new_stream(AVI);
+		stream->type = STREAM_TYPE_AUDIO;
+		if(def_audio_compressor)
+			strncpy(stream->compressor, def_audio_compressor, 8);
+	}
 
 	AVI->writer = g_new0(avi_Writer, 1);
 
@@ -531,6 +807,7 @@ avi_Context* avi_create_context(const char * filename,
 
 	__INIT_MUTEX(__MUTEX);
 	AVI->flags = 0; /*recordind*/
+
 	AVI->riff_list = NULL;
 	AVI->riff_list_size = 0;
 
