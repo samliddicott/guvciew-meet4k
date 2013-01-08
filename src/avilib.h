@@ -47,7 +47,7 @@ enum STREAM_TYPE
 	STREAM_TYPE_VIDEO = 0,
 	STREAM_TYPE_AUDIO = 1,
 	STREAM_TYPE_SUB = 2 //not supported
-}
+};
 
 typedef enum STREAM_TYPE STREAM_TYPE;
 
@@ -117,7 +117,7 @@ struct avi_Stream
 {
 	STREAM_TYPE type;          //stream type
 
-	int stream_id;
+	int id;
 
 	avi_Index indexes;
 
@@ -138,7 +138,9 @@ struct avi_Stream
 
 	BYTE* extra_data;
 	int extra_data_size;
-}
+	
+	struct avi_Stream *previous, *next;
+};
 
 typedef struct avi_Stream avi_Stream;
 

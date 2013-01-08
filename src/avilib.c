@@ -139,7 +139,7 @@ struct avi_Context
 	avi_Stream* stream_list;
 	int stream_list_size;
 
-} avi_Context;
+};
 
 typedef struct avi_Context avi_Context;
 
@@ -231,13 +231,13 @@ void write_wb32(avi_Context* AVI, uint32_t val)
     write_w8(AVI, (BYTE) val);
 }
 
-void avio_wl64(avi_Context* AVI, uint64_t val)
+void write_wl64(avi_Context* AVI, uint64_t val)
 {
     write_wl32(AVI, (uint32_t)(val & 0xffffffff));
     write_wl32(AVI, (uint32_t)(val >> 32));
 }
 
-void avio_wb64(avi_Context* AVI, uint64_t val)
+void write_wb64(avi_Context* AVI, uint64_t val)
 {
     write_wb32(AVI, (uint32_t)(val >> 32));
     write_wb32(AVI, (uint32_t)(val & 0xffffffff));
@@ -651,7 +651,7 @@ void avi_create_riff_header(avi_Context* AVI, avi_RIFF* riff)
 				write_4cc(AVI,"strl");              //stream list
 
 				avi_put_wav_header(AVI, stream);
-				avi_put_astream_header(AVI, stream);
+				avi_put_astream_format_header(AVI, stream);
 			}
 
 			/* Starting to lay out AVI OpenDML master index.
@@ -662,7 +662,7 @@ void avi_create_riff_header(avi_Context* AVI, avi_RIFF* riff)
 			char tag[5];
 			stream->indexes.entry = stream->indexes.ents_allocated = 0;
 			write_4cc(AVI, "JUNK");           // ’ix##’
-			AVI->indexes.indx_start = flush_buffer(AVI);
+			stream->indexes.indx_start = flush_buffer(AVI);
 			write_wl32(AVI, 0);               // size of this structure
 			write_wl16(AVI, 4);               // wLongsPerEntry must be 4 (size of each entry in aIndex array)
 			write_w8(AVI, 0);                 // bIndexSubType must be 0 (frame index) or AVI_INDEX_2FIELD
@@ -756,7 +756,7 @@ avi_Context* avi_create_context(const char * filename,
 		int width,
 		int height,
 		char* def_video_compressor,
-		int audio_streams
+		int audio_streams,
 		char* def_audio_compressor
 		)
 {
@@ -775,7 +775,7 @@ avi_Context* avi_create_context(const char * filename,
 		strncpy(stream->compressor, def_video_compressor, 8);
 
 	//add audio streams
-	j = 0;
+	int j = 0;
 	for(j=0; j < audio_streams; j++)
 	{
 		stream = avi_add_new_stream(AVI);
