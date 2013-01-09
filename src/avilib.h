@@ -38,6 +38,7 @@
 #include <sys/types.h>
 #include <glib.h>
 #include <pthread.h>
+#include "lavc_common.h"
 
 #define AVI_MAX_TRACKS 8
 #define FRAME_RATE_SCALE 1000000
@@ -119,6 +120,10 @@ struct avi_Stream
 
 	int id;
 
+	int packet_count;
+
+	int entry;
+
 	avi_Index indexes;
 
 	char   compressor[8];        /* Type of compressor, 4 bytes + padding for 0 byte */
@@ -127,6 +132,7 @@ struct avi_Stream
 	int   width;                 /* Width  of a video frame */
 	int   height;                /* Height of a video frame */
 	double fps;                  /* Frames per second */
+
 	//audio
 	long   a_fmt;             /* Audio format, see #defines below */
 	long   a_chans;           /* Audio channels, 0 for no audio */
@@ -135,10 +141,12 @@ struct avi_Stream
 	long   mpgrate;           /* mpg bitrate kbs*/
 	long   a_vbr;             /* 0 == no Variable BitRate */
 	off_t  audio_bytes;       /* Total number of bytes of audio data */
+	uint64_t audio_strm_length;
 
+	//stream private data (codec private data)
 	BYTE* extra_data;
 	int extra_data_size;
-	
+
 	struct avi_Stream *previous, *next;
 };
 
