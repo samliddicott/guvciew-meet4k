@@ -38,7 +38,6 @@
 #include <sys/types.h>
 #include <glib.h>
 #include <pthread.h>
-#include "lavc_common.h"
 
 #define AVI_MAX_TRACKS 8
 #define FRAME_RATE_SCALE 1000000
@@ -76,7 +75,6 @@ typedef struct avi_Index {
     int         ents_allocated;
     avi_Ientry** cluster;
 } avi_Index;
-
 
 struct avi_Stream
 {
@@ -118,6 +116,48 @@ struct avi_Stream
 
 typedef struct avi_Stream avi_Stream;
 
+struct avi_RIFF {
+    int64_t riff_start, movi_list;
+    int64_t frames_hdr_all;
+    int id;
+
+    struct avi_RIFF *previous, *next;
+};
+
+typedef struct avi_RIFF avi_RIFF;
+
+typedef struct avi_Writer
+{
+	FILE *fp;      /* file pointer     */
+
+	BYTE *buffer;  /**< Start of the buffer. */
+    int buffer_size;        /**< Maximum buffer size */
+    BYTE *buf_ptr; /**< Current position in the buffer */
+    BYTE *buf_end; /**< End of the buffer. */
+
+	int64_t size; //file size (end of file position)
+	int64_t position; //file pointer position (updates on buffer flush)
+}avi_Writer;
+
+struct avi_Context
+{
+	struct avi_Writer  *writer;
+	__MUTEX_TYPE mutex;
+
+	int flags; /* 0 - AVI is recordind;   1 - AVI is not recording*/
+
+	avi_RIFF* riff_list; // avi_riff list (NULL terminated)
+	int riff_list_size;
+
+	avi_Stream* stream_list;
+	int stream_list_size;
+
+	double fps;
+
+	int64_t time_delay_off, odml_list; //some file offsets
+};
+
+typedef struct avi_Context avi_Context;
 
 avi_Context* avi_create_context(const char * filename);
 
@@ -146,8 +186,9 @@ int avi_write_packet(avi_Context* AVI,
 					int stream_index,
 					BYTE *data,
 					uint32_t size,
-					int dts,
-					int block_align);
+					int64_t dts,
+					int block_align,
+					int32_t flags);
 
 int avi_close(avi_Context* AVI);
 

@@ -54,8 +54,10 @@ struct VideoFormatData
 	INT64 old_apts;           //previous audio time stamp
 	INT64 apts;               //audio stream presentation time stamp
 
-	int dts;
+	int64_t dts;
 	int block_align;
+	int32_t aflags;
+	int32_t vflags;
 
 	int vcodec;
 	int acodec;

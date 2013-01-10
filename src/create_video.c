@@ -439,7 +439,7 @@ static int sync_audio_frame(struct ALL_DATA *all_data, AudBuff *proc_buff)
 							shiftSamples);
 						short *EmptySamp;
 						EmptySamp=g_new0(short, shiftSamples);
-						avi_write_packet(videoF->avi, 1, (BYTE *) EmptySamp, shiftSamples*sizeof(short), 0, -1);
+						avi_write_packet(videoF->avi, 1, (BYTE *) EmptySamp, shiftSamples*sizeof(short), 0, -1, 0);
 						//AVI_write_audio(videoF->AviOut,(BYTE *) EmptySamp,shiftSamples*sizeof(short));
 						g_free(EmptySamp);
 					}

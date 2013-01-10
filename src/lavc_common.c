@@ -170,6 +170,7 @@ int encode_lavc_frame (BYTE *picture_buf, struct lavcData* data , int format, st
     }
 
 	videoF->dts = pkt.dts;
+	videoF->vflags = pkt.flags;
 
     /* free any side data since we cannot return it */
     if (pkt.side_data_elems > 0)
@@ -189,6 +190,7 @@ int encode_lavc_frame (BYTE *picture_buf, struct lavcData* data , int format, st
 		out_size = avcodec_encode_video(data->codec_context, data->outbuf, data->outbuf_size, NULL);
 
 	videoF->dts = 0;
+	videoF->vflags = 0;
 #endif
 
 	 if(data->flush_delayed_frames && out_size == 0)
@@ -257,8 +259,10 @@ int encode_lavc_audio_frame (void *audio_buf, struct lavcAData* data, struct Vid
 		av_freep(data->frame->extended_data);
 
 	out_size = pkt.size;
+	videoF->aflags = pkt.flags;
 #else
 	out_size = avcodec_encode_audio(data->codec_context, data->outbuf, data->outbuf_size, audio_buf);
+	videoF->aflags = 0;
 #endif
 	return (out_size);
 }

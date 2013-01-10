@@ -570,7 +570,7 @@ static int write_video_data(struct ALL_DATA *all_data, BYTE *buff, int size)
 	{
 		case AVI_FORMAT:
 			if(size > 0)
-				ret = avi_write_packet(videoF->avi, 0, buff, size, videoF->dts, videoF->block_align);
+				ret = avi_write_packet(videoF->avi, 0, buff, size, videoF->dts, videoF->block_align, videoF->vflags);
 				//ret = AVI_write_frame (videoF->AviOut, buff, size, videoF->keyframe);
 			break;
 
