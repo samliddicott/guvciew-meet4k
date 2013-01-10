@@ -27,7 +27,7 @@
 #include "defs.h"
 #include "utils.h"
 
-typedef struct _sndDev 
+typedef struct _sndDev
 {
 	int id;
 	int chan;
@@ -47,16 +47,16 @@ typedef struct _VidBuff
 } VidBuff;
 
 /*global variables used in guvcview*/
-struct GLOBAL 
+struct GLOBAL
 {
-	  	
+
 	__MUTEX_TYPE mutex;    //global struct mutex
 	__MUTEX_TYPE file_mutex; //video file mutex
 	__COND_TYPE  IO_cond;      //IO thread semaphore
 
 	VidBuff *videoBuff;    //video Buffer
 	int video_buff_size;   //size in frmaes of video buffer
-	
+
 	char *videodevice;     // video device (def. /dev/video0)
 	char *confPath;        //configuration file path
 	char *vidfile;         //video filename passed through argument options with -n
@@ -75,8 +75,8 @@ struct GLOBAL
 	int64_t av_drift;      // amount of A/V time correction
 	DWORD currtime;
 	DWORD lasttime;
-	UINT64 Vidstarttime;    //video start time
-	UINT64 Vidstoptime;     //video stop time
+	UINT64 Vidstarttime;   //video start time
+	UINT64 Vidstoptime;    //video stop time
 	QWORD v_ts;            //video time stamp
 	QWORD a_ts;            //audio time stamp
 	DWORD vid_inc;         //video name increment
@@ -87,9 +87,10 @@ struct GLOBAL
 	int stack_size;        //thread stack size
 	int vid_sleep;         //video thread sleep time (0 by default)
 	int cap_meth;          //capture method: 1-mmap 2-read
-	int Capture_time;      //video capture time passed through argument options with -t 
+	int Capture_time;      //video capture time passed through argument options with -t
 	int imgFormat;         //image format: 0-"jpg", 1-"png", 2-"bmp"
 	int VidCodec;          //0-"MJPG"  1-"YUY2" 2-"DIB "(rgb32) 3-....
+	int AudCodec;
 	int VidFormat;         //0-AVI 1-MKV ....
 	int Sound_API;         //audio API: 0-PORTAUDIO 1-PULSEAUDIO
 	int Sound_SampRate;    //audio sample rate

@@ -570,7 +570,8 @@ static int write_video_data(struct ALL_DATA *all_data, BYTE *buff, int size)
 	{
 		case AVI_FORMAT:
 			if(size > 0)
-				ret = AVI_write_frame (videoF->AviOut, buff, size, videoF->keyframe);
+				ret = avi_write_packet(videoF->avi, 0, buff, size, videoF->dts, videoF->block_align);
+				//ret = AVI_write_frame (videoF->AviOut, buff, size, videoF->keyframe);
 			break;
 
 		case MKV_FORMAT:
@@ -614,6 +615,7 @@ static int encode_lavc (struct lavcData *lavc_data,
 			framesize= encode_lavc_frame (proc_buff->frame, lavc_data, V4L2_PIX_FMT_YUYV, videoF);
 
 		videoF->keyframe = lavc_data->codec_context->coded_frame->key_frame;
+		videoF->block_align = 0;
 
 		ret = write_video_data (all_data, lavc_data->outbuf, framesize);
 	}

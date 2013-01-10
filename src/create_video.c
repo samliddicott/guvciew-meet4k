@@ -58,7 +58,7 @@ static void alloc_videoBuff(struct ALL_DATA *all_data)
 	if((global->fps > 0) && (global->fps_num > 0))
 	    global->video_buff_size = (global->fps * 3) / (global->fps_num * 2); /* 1,5 seconds of video in buffer*/
 	if (global->video_buff_size < 16) global->video_buff_size = 16; /*keep at least 16 frames*/
-	
+
 	/*alloc video ring buffer*/
 	__LOCK_MUTEX(__GMUTEX);
 		if (global->videoBuff == NULL)
@@ -80,7 +80,7 @@ static void alloc_videoBuff(struct ALL_DATA *all_data)
 				global->videoBuff[i].frame = NULL;
 			}
 			g_free(global->videoBuff);
-			
+
 			/*alloc video frames to videoBuff*/
 			global->videoBuff = g_new0(VidBuff,global->video_buff_size);
 			for(i=0;i<global->video_buff_size;i++)
@@ -102,84 +102,86 @@ static int initVideoFile(struct ALL_DATA *all_data)
 	struct GLOBAL *global = all_data->global;
 	struct vdIn *videoIn = all_data->videoIn;
 	struct VideoFormatData *videoF = all_data->videoF;
-	
-	const char *compression= get_vid4cc(global->VidCodec);
+
 	videoF->vcodec = get_vcodec_id(global->VidCodec);
-	videoF->acodec = CODEC_ID_NONE;
+	videoF->acodec = get_acodec_id(global->AudCodec);
 	videoF->keyframe = 0;
 	int ret = 0;
-	
+
 	__LOCK_MUTEX(__VMUTEX);
 		gboolean capVid = videoIn->capVid;
 	__UNLOCK_MUTEX(__VMUTEX);
-	
+
 	/*alloc video ring buffer*/
 	alloc_videoBuff(all_data);
-	
+
 	switch (global->VidFormat)
 	{
 		case AVI_FORMAT:
-			if(videoF->AviOut != NULL)
+			if(videoF->avi != NULL)
 			{
-				g_free(videoF->AviOut);
-				videoF->AviOut = NULL;
+				avi_destroy_context(videoF->avi);
+				videoF->avi = NULL;
 			}
-			videoF->AviOut = g_new0(struct avi_t, 1);
-			
-			if(AVI_open_output_file(videoF->AviOut, videoIn->VidFName)<0) 
+			videoF->avi = avi_create_context(videoIn->VidFName);
+
+			if(!videoF->avi)
 			{
-				g_printerr("Error: Couldn't create Video.\n");
+				g_printerr("Error: Couldn't create AVI context.\n");
 				capVid = FALSE; /*don't start video capture*/
 				__LOCK_MUTEX(__VMUTEX);
 					videoIn->capVid = capVid;
 				__UNLOCK_MUTEX(__VMUTEX);
 				pdata->capVid = capVid;
 				return(-1);
-			} 
-			else 
+			}
+
+			avi_add_video_stream(videoF->avi,
+								global->width,
+								global->height,
+								global->fps,
+								videoF->vcodec,
+								get_vid4cc(global->VidCodec));
+
+			if(global->Sound_enable > 0)
 			{
-				AVI_set_video(videoF->AviOut, global->width, global->height, 
-					global->fps, compression);
-		  
-				/* start video capture*/
-				capVid = TRUE;
-				__LOCK_MUTEX(__VMUTEX);
-					videoIn->capVid = capVid;
-				__UNLOCK_MUTEX(__VMUTEX);
-				pdata->capVid = capVid;
-				
-				/* start sound capture*/
-				if(global->Sound_enable > 0) 
-				{
-					/*get channels and sample rate*/
-					set_sound(global, pdata);
-					/*set audio header for avi*/
-					AVI_set_audio(videoF->AviOut, global->Sound_NumChan, 
-						global->Sound_SampRate,
-						get_aud_bit_rate(get_ind_by4cc(global->Sound_Format)), /*bit rate*/
-						get_aud_bits(get_ind_by4cc(global->Sound_Format)),     /*sample size - only used for PCM*/
-						global->Sound_Format);
-					/* Initialize sound (open stream)*/
-					if(init_sound (pdata)) 
-					{
-						g_printerr("Audio initialization error\n");
-						global->Sound_enable=0;
-						if(!(global->no_display))
-                        {
-						    gdk_threads_enter();
-						    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gwidget->SndEnable),0);
-						    gdk_flush();
-						    gdk_threads_leave();
-						}
-						else
-                            capture_vid(NULL, all_data);
-					} 
-				}
+				/*get channels and sample rate*/
+				set_sound(global, pdata);
+
+				/*sample size - only used for PCM*/
+				int32_t a_bits = get_aud_bits(get_ind_by4cc(global->Sound_Format));
+				/*bit rate (compressed formats)*/
+				int32_t b_rate = get_aud_bit_rate(get_ind_by4cc(global->Sound_Format));
+
+				avi_add_audio_stream(videoF->avi,
+								global->Sound_NumChan,
+								global->Sound_SampRate,
+								a_bits,
+								b_rate,
+								videoF->acodec,
+								global->Sound_Format);
+
+			}
+			/* add first riff header */
+			avi_add_new_riff(videoF->avi);
+
+			/* start video capture*/
+			capVid = TRUE;
+			__LOCK_MUTEX(__VMUTEX);
+				videoIn->capVid = capVid;
+			__UNLOCK_MUTEX(__VMUTEX);
+			pdata->capVid = capVid;
+
+			/* start sound capture*/
+			if(global->Sound_enable > 0 && init_sound (pdata))
+			{
+				g_printerr("Audio initialization error\n");
+				global->Sound_enable=0;
 			}
 			break;
-			
+
 		case MKV_FORMAT:
-			if(global->Sound_enable > 0) 
+			if(global->Sound_enable > 0)
 			{
 				/*set channels, sample rate and allocate buffers*/
 				set_sound(global, pdata);
@@ -193,24 +195,24 @@ static int initVideoFile(struct ALL_DATA *all_data)
 				pdata->capVid = capVid;
 				return (-1);
 			}
-			
+
 			videoF->old_apts = 0;
 			videoF->apts = 0;
 			videoF->vpts = 0;
-			
+
 			/* start video capture*/
 			capVid = TRUE;
 			__LOCK_MUTEX(__VMUTEX);
 				videoIn->capVid = capVid;
 			__UNLOCK_MUTEX(__VMUTEX);
 			pdata->capVid = capVid;
-			
-			
+
+
 			/* start sound capture*/
-			if(global->Sound_enable > 0) 
+			if(global->Sound_enable > 0)
 			{
 				/* Initialize sound (open stream)*/
-				if(init_sound (pdata)) 
+				if(init_sound (pdata))
 				{
 					g_printerr("Audio initialization error\n");
 					global->Sound_enable=0;
@@ -227,12 +229,12 @@ static int initVideoFile(struct ALL_DATA *all_data)
 				}
 			}
 			break;
-			
+
 		default:
-			
+
 			break;
 	}
-	
+
 	return (ret);
 }
 
@@ -248,40 +250,41 @@ aviClose (struct ALL_DATA *all_data)
 	struct VideoFormatData *videoF = all_data->videoF;
 	struct paRecordData *pdata = all_data->pdata;
 
-	if (!(videoF->AviOut->closed))
+	if (videoF->avi)
 	{
 		tottime = (float) ((int64_t) (global->Vidstoptime - global->Vidstarttime) / 1000000); // convert to miliseconds
-		
+
 		if (global->debug) g_print("stop= %llu start=%llu \n",
 			(unsigned long long) global->Vidstoptime, (unsigned long long) global->Vidstarttime);
-		if (tottime > 0) 
+		if (tottime > 0)
 		{
 			/*try to find the real frame rate*/
-			videoF->AviOut->fps = (double) (global->framecount * 1000) / tottime;
+			videoF->avi->fps = (double) (global->framecount * 1000) / tottime;
 		}
-		else 
+		else
 		{
-			/*set the hardware frame rate*/   
-			videoF->AviOut->fps = global->fps;
+			/*set the hardware frame rate*/
+			videoF->avi->fps = global->fps;
 		}
 
-		if (global->debug) g_print("VIDEO: %d frames in %f ms = %f fps\n",global->framecount,tottime,videoF->AviOut->fps);
+		if (global->debug) g_print("VIDEO: %d frames in %f ms = %f fps\n",global->framecount,tottime,videoF->avi->fps);
 		/*------------------- close audio stream and clean up -------------------*/
-		if (global->Sound_enable > 0) 
+		if (global->Sound_enable > 0)
 		{
 			if (close_sound (pdata)) g_printerr("Sound Close error\n");
-		} 
-		AVI_close (videoF->AviOut);
+		}
+		avi_close(videoF->avi);
+
 		global->framecount = 0;
 		global->Vidstarttime = 0;
 		if (global->debug) g_print ("close avi\n");
 	}
-	
-	g_free(videoF->AviOut);
+
+	avi_destroy_context(videoF->avi);
 	pdata = NULL;
 	global = NULL;
 	//videoIn = NULL;
-	videoF->AviOut = NULL;
+	videoF->avi = NULL;
 }
 
 
@@ -290,7 +293,7 @@ static void closeVideoFile(struct ALL_DATA *all_data)
 	struct GLOBAL *global = all_data->global;
 	struct vdIn *videoIn = all_data->videoIn;
 	struct paRecordData *pdata = all_data->pdata;
-	
+
 	int i=0;
 	/*we are streaming so we need to lock a mutex*/
 	gboolean capVid = FALSE;
@@ -309,7 +312,7 @@ static void closeVideoFile(struct ALL_DATA *all_data)
 		g_printerr("video capture stall on exit(%d) - timeout\n",
 			videoIn->VidCapStop);
 	}
-	
+
 	/*free video buffer allocations*/
 	__LOCK_MUTEX(__GMUTEX);
 		//reset the indexes
@@ -327,87 +330,51 @@ static void closeVideoFile(struct ALL_DATA *all_data)
 			global->videoBuff = NULL;
 		}
 	__UNLOCK_MUTEX(__GMUTEX);
-	
+
 	switch (global->VidFormat)
 	{
 		case AVI_FORMAT:
 			aviClose(all_data);
 			break;
-			
+
 		case MKV_FORMAT:
 			if(clean_FormatContext ((void*) all_data))
 				g_printerr("matroska close returned a error\n");
 			break;
-			
+
 		default:
-			
+
 			break;
 	}
-	
+
 	global->Vidstoptime = 0;
 	global->Vidstarttime = 0;
 	global->framecount = 0;
 }
 
-static int write_video_frame (struct ALL_DATA *all_data, 
-	void *jpeg_struct, 
+static int write_video_frame (struct ALL_DATA *all_data,
+	void *jpeg_struct,
 	void *lavc_data,
 	VidBuff *proc_buff)
 {
 	struct GLOBAL *global = all_data->global;
 	struct GWIDGET *gwidget = all_data->gwidget;
-	
-	__THREAD_TYPE press_butt_thread;
+
 	int ret=0;
 
 	switch (global->VidFormat)
 	{
 		case AVI_FORMAT:
-			/*all video controls are now disabled so related values cannot be changed*/
-			if(!(global->VidButtPress)) //if this is set AVI reached it's limit size
-				ret = compress_frame(all_data, jpeg_struct, lavc_data, proc_buff);
-
-			if (ret)
-			{
-				if (AVI_getErrno () == AVI_ERR_SIZELIM)
-				{
-					if (!(global->VidButtPress))
-					{
-						global->VidButtPress = TRUE;
-						/*avi file limit reached - must end capture close file and start new one*/
-						if( __THREAD_CREATE(&press_butt_thread, split_avi, all_data)) //should be created detachable
-						{
-							/*thread failed to start - stop video capture   */
-							/*can't restart since we need IO thread to stop */
-							g_printerr("split avi: thread creation failed\n");
-							printf("stoping video capture\n");
-							if(!(global->no_display))
-                            {
-							    gdk_threads_enter();
-							    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(gwidget->CapVidButt), FALSE);
-							    gdk_flush();
-							    gdk_threads_leave();
-							}
-							else
-							    capture_vid(NULL, all_data);
-						}
-						g_print("AVI file size limit reached - restarted capture on new file\n");
-					}
-				} 
-				else 
-				{
-					g_printerr ("write error on avi out \n");
-				}
-			}
-			break;
-		
-		
-		case MKV_FORMAT:
-			//global->framecount++;
-			
 			ret = compress_frame(all_data, jpeg_struct, lavc_data, proc_buff);
 			break;
-		
+
+
+		case MKV_FORMAT:
+			//global->framecount++;
+
+			ret = compress_frame(all_data, jpeg_struct, lavc_data, proc_buff);
+			break;
+
 		default:
 			break;
 	}
@@ -420,53 +387,13 @@ static int write_audio_frame (struct ALL_DATA *all_data)
 	struct GLOBAL *global = all_data->global;
 	struct VideoFormatData *videoF = all_data->videoF;
 	struct GWIDGET *gwidget = all_data->gwidget;
-	
+
 	int ret =0;
-	__THREAD_TYPE press_butt_thread;
-	
+
 	switch (global->VidFormat)
 	{
 		case AVI_FORMAT:
-			if(!(global->VidButtPress)) //if this is set AVI reached it's limit size
-				ret = compress_audio_frame(all_data);
-		
-			if (ret) 
-			{	
-				if (AVI_getErrno () == AVI_ERR_SIZELIM) 
-				{
-					if (!(global->VidButtPress))
-					{
-						global->VidButtPress = TRUE;
-
-						/*avi file limit reached - must end capture close file and start new one*/
-						if( __THREAD_CREATE(&press_butt_thread, split_avi, all_data))  //should be created detachable
-						{
-							/*thread failed to start - stop video capture   */
-							/*can't restart since we need IO thread to stop */
-							g_printerr("split avi: thread creation failed\n");
-							
-							printf("stoping video capture\n");
-							if(!(global->no_display))
-                            {
-							    gdk_threads_enter();
-							    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(gwidget->CapVidButt), FALSE);
-							    gdk_flush();
-							    gdk_threads_leave();
-							}
-							else
-							    capture_vid(NULL, all_data);
-						}
-					
-						//split_avi(all_data);/*blocking call*/
-						g_print("AVI file size limit reached - restarted capture on new file\n");
-					}
-				} 
-				else 
-				{
-					g_printerr ("write error on avi out \n");
-				}
-					
-			}
+			ret = compress_audio_frame(all_data);
 			break;
 		case MKV_FORMAT:
 			__LOCK_MUTEX( __AMUTEX ); //why do we need this ???
@@ -476,9 +403,9 @@ static int write_audio_frame (struct ALL_DATA *all_data)
 				ret = compress_audio_frame(all_data);
 			__UNLOCK_MUTEX( __AMUTEX );
 			break;
-			
+
 		default:
-			
+
 			break;
 	}
 	return (0);
@@ -489,32 +416,33 @@ static int sync_audio_frame(struct ALL_DATA *all_data, AudBuff *proc_buff)
 	struct paRecordData *pdata = all_data->pdata;
 	struct GLOBAL *global = all_data->global;
 	struct VideoFormatData *videoF = all_data->videoF;
-	
+
 	switch (global->VidFormat)
 	{
 		case AVI_FORMAT:
 			/*first audio data - sync with video (audio stream capture can take               */
 			/*a bit longer to start)                                                          */
 			/*no need of locking the audio mutex yet, since we are not reading from the buffer*/
-			if (!(videoF->AviOut->track[0].audio_bytes)) 
-			{ 
+			if (!avi_get_stream(videoF->avi, 1)->audio_strm_length)
+			{
 				/*only 1 audio stream*/
 				/*time diff for audio-video*/
 				int synctime= (int) (pdata->delay + pdata->snd_begintime - pdata->ts_ref)/1000000; /*convert to miliseconds*/
 				if (global->debug) g_print("shift sound by %d ms\n", synctime);
-				if(synctime>10 && synctime<2000) 
+				if(synctime>10 && synctime<2000)
 				{ 	/*only sync between 10ms and 2 seconds*/
-					if(global->Sound_Format == PA_FOURCC) 
+					if(global->Sound_Format == PA_FOURCC)
 					{	/*shift sound by synctime*/
 						UINT32 shiftFrames = abs(synctime * global->Sound_SampRate / 1000);
 						UINT32 shiftSamples = shiftFrames * global->Sound_NumChan;
-						if (global->debug) g_print("shift sound forward by %d samples\n", 
+						if (global->debug) g_print("shift sound forward by %d samples\n",
 							shiftSamples);
 						short *EmptySamp;
 						EmptySamp=g_new0(short, shiftSamples);
-						AVI_write_audio(videoF->AviOut,(BYTE *) EmptySamp,shiftSamples*sizeof(short));
+						avi_write_packet(videoF->avi, 1, (BYTE *) EmptySamp, shiftSamples*sizeof(short), 0, -1);
+						//AVI_write_audio(videoF->AviOut,(BYTE *) EmptySamp,shiftSamples*sizeof(short));
 						g_free(EmptySamp);
-					} 
+					}
 					else
 					{
 						/*use lavc encoder*/
@@ -522,15 +450,15 @@ static int sync_audio_frame(struct ALL_DATA *all_data, AudBuff *proc_buff)
 				}
 			}
 			break;
-		
+
 		case MKV_FORMAT:
-			
+
 			break;
-		
+
 		default:
 			break;
 	}
-	
+
 	return (0);
 }
 
@@ -543,16 +471,16 @@ static int buff_scheduler(int w_ind, int r_ind, int buff_size)
 		diff_ind = w_ind - r_ind;
 	else
 		diff_ind = (buff_size - r_ind) + w_ind;
-	
+
 	int th = (int) lround((double) buff_size * 0.7);
-	
+
 	if(diff_ind <= th) /* from 0 to 50 ms (down below 20 fps)*/
 		sched_sleep = (int) lround((double) (diff_ind * 71) / buff_size);
 	else               /*from 50 to 210 ms (down below 5 fps)*/
 		sched_sleep = (int) lround((double) ((diff_ind * 320) / buff_size) - 110);
-	
+
 	if(sched_sleep < 0) sched_sleep = 0; /*clip to positive values just in case*/
-	
+
 	//g_printf("diff index: %i sleep %i\n",diff_ind, sched_sleep);
 	return sched_sleep;
 }
@@ -569,16 +497,16 @@ static int get_audio_flag(struct paRecordData *pdata)
 static gboolean is_audio_processing(struct paRecordData *pdata, gboolean set_processing)
 {
 	int flag = get_audio_flag(pdata);
-	
+
 	if((set_processing) && (flag == AUD_PROCESS))
 	{
 		__LOCK_MUTEX(__AMUTEX);
 			pdata->audio_buff_flag[pdata->br_ind] = AUD_PROCESSING;
 		__UNLOCK_MUTEX(__AMUTEX);
-		
+
 		flag = AUD_PROCESSING;
-	}	
-	
+	}
+
 	if(flag == AUD_PROCESSING)
 		return TRUE;
 	else
@@ -594,39 +522,39 @@ static gboolean is_audio_processing(struct paRecordData *pdata, gboolean set_pro
 //	__LOCK_MUTEX(__AMUTEX);
 //		QWORD audioTS = pdata->audio_buff[pdata->br_ind][pdata->r_ind].time_stamp;
 //	__UNLOCK_MUTEX(__AMUTEX);
-//	
+//
 //	__LOCK_MUTEX( __GMUTEX );
 //		QWORD videoTS = global->videoBuff[global->r_ind].time_stamp;
 //	__UNLOCK_MUTEX( __GMUTEX );
-//	
+//
 //	if (audioTS < videoTS)
 //		return TRUE;
 //	else
 //		return FALSE;
 //}
 
-static gboolean process_audio(struct ALL_DATA *all_data,  
+static gboolean process_audio(struct ALL_DATA *all_data,
 			struct audio_effects **aud_eff)
 {
 	struct vdIn *videoIn = all_data->videoIn;
 	struct paRecordData *pdata = all_data->pdata;
-	
+
 	__LOCK_MUTEX(__VMUTEX);
 		gboolean capVid = videoIn->capVid;
 	__UNLOCK_MUTEX(__VMUTEX);
-	
+
 	/*read audio Frames (1152 * channels  samples each)*/
-	
+
 	gboolean finish = FALSE;
-	
+
 	/*used - doesn't need locking as current buffer must be on AUD_PROCESSING state*/
 	if(is_audio_processing(pdata, TRUE) &&
 		pdata->audio_buff[pdata->br_ind][pdata->r_ind].used)
 	{
-		sync_audio_frame(all_data, &pdata->audio_buff[pdata->br_ind][pdata->r_ind]);	
+		sync_audio_frame(all_data, &pdata->audio_buff[pdata->br_ind][pdata->r_ind]);
 		/*run effects on data*/
 		/*echo*/
-		if((pdata->snd_Flags & SND_ECHO)==SND_ECHO) 
+		if((pdata->snd_Flags & SND_ECHO)==SND_ECHO)
 		{
 			Echo(pdata, &pdata->audio_buff[pdata->br_ind][pdata->r_ind], *aud_eff, 300, 0.5);
 		}
@@ -636,7 +564,7 @@ static gboolean process_audio(struct ALL_DATA *all_data,
 			(*aud_eff)->ECHO = NULL;
 		}
 		/*fuzz*/
-		if((pdata->snd_Flags & SND_FUZZ)==SND_FUZZ) 
+		if((pdata->snd_Flags & SND_FUZZ)==SND_FUZZ)
 		{
 			Fuzz(pdata, &pdata->audio_buff[pdata->br_ind][pdata->r_ind], *aud_eff);
 		}
@@ -646,7 +574,7 @@ static gboolean process_audio(struct ALL_DATA *all_data,
 			(*aud_eff)->HPF = NULL;
 		}
 		/*reverb*/
-		if((pdata->snd_Flags & SND_REVERB)==SND_REVERB) 
+		if((pdata->snd_Flags & SND_REVERB)==SND_REVERB)
 		{
 			Reverb(pdata, &pdata->audio_buff[pdata->br_ind][pdata->r_ind], *aud_eff, 50);
 		}
@@ -655,7 +583,7 @@ static gboolean process_audio(struct ALL_DATA *all_data,
 			close_REVERB(*aud_eff);
 		}
 		/*wahwah*/
-		if((pdata->snd_Flags & SND_WAHWAH)==SND_WAHWAH) 
+		if((pdata->snd_Flags & SND_WAHWAH)==SND_WAHWAH)
 		{
 			WahWah (pdata, &pdata->audio_buff[pdata->br_ind][pdata->r_ind], *aud_eff, 1.5, 0, 0.7, 0.3, 2.5);
 		}
@@ -665,7 +593,7 @@ static gboolean process_audio(struct ALL_DATA *all_data,
 			(*aud_eff)->wahData = NULL;
 		}
 		/*Ducky*/
-		if((pdata->snd_Flags & SND_DUCKY)==SND_DUCKY) 
+		if((pdata->snd_Flags & SND_DUCKY)==SND_DUCKY)
 		{
 			change_pitch(pdata, &pdata->audio_buff[pdata->br_ind][pdata->r_ind], *aud_eff, 2);
 		}
@@ -673,21 +601,21 @@ static gboolean process_audio(struct ALL_DATA *all_data,
 		{
 			close_pitch (*aud_eff);
 		}
-			
+
 		write_audio_frame(all_data);
-		
+
 		pdata->audio_buff[pdata->br_ind][pdata->r_ind].used = FALSE;
 		NEXT_IND(pdata->r_ind, AUDBUFF_SIZE);
-		
+
 		/*start of new buffer block*/
 		if(pdata->r_ind == 0)
 		{
 			__LOCK_MUTEX(__AMUTEX);
-				pdata->audio_buff_flag[pdata->br_ind] = AUD_READY; 
+				pdata->audio_buff_flag[pdata->br_ind] = AUD_READY;
 				NEXT_IND(pdata->br_ind, AUDBUFF_NUM);
 			__UNLOCK_MUTEX(__AMUTEX);
 		}
-		
+
 	}
 	else
 	{
@@ -697,25 +625,25 @@ static gboolean process_audio(struct ALL_DATA *all_data,
 			/*wait for next frame (sleep 10 ms)*/
 			sleep_ms(10);
 		}
-		else 
+		else
 		{
 			finish = TRUE; /*all frames processed and no longer capturing so finish*/
 		}
 	}
-	
+
 	return finish;
 }
 
-static gboolean process_video(struct ALL_DATA *all_data, 
-				VidBuff *proc_buff, 
-				struct lavcData **lavc_data, 
+static gboolean process_video(struct ALL_DATA *all_data,
+				VidBuff *proc_buff,
+				struct lavcData **lavc_data,
 				struct JPEG_ENCODER_STRUCTURE **jpeg_struct)
 {
 	struct GLOBAL *global = all_data->global;
 	struct vdIn *videoIn = all_data->videoIn;
 	struct paRecordData *pdata = all_data->pdata;
 	int64_t max_drift = 0, audio_drift = 0;
-	
+
 	if (global->Sound_enable) {
 		__LOCK_MUTEX(__AMUTEX);
 			audio_drift = pdata->ts_drift;
@@ -726,13 +654,13 @@ static gboolean process_video(struct ALL_DATA *all_data,
 	__LOCK_MUTEX(__VMUTEX);
 		gboolean capVid = videoIn->capVid;
 	__UNLOCK_MUTEX(__VMUTEX);
-	
+
 	gboolean finish = FALSE;
-	
+
 	__LOCK_MUTEX(__GMUTEX);
     	gboolean used = global->videoBuff[global->r_ind].used;
     __UNLOCK_MUTEX(__GMUTEX);
-	
+
 	if (used)
 	{
 		__LOCK_MUTEX(__GMUTEX);
@@ -743,7 +671,7 @@ static gboolean process_video(struct ALL_DATA *all_data,
 			global->videoBuff[global->r_ind].used = FALSE;
 			/*signals an empty slot in the video buffer*/
 			__COND_BCAST(__GCOND);
-				
+
 			NEXT_IND(global->r_ind,global->video_buff_size);
 			audio_drift -= global->av_drift;
 		__UNLOCK_MUTEX(__GMUTEX);
@@ -829,15 +757,15 @@ static void store_at_index(void *data)
 	struct vdIn *videoIn = all_data->videoIn;
 
 	global->videoBuff[global->w_ind].time_stamp = global->v_ts - global->av_drift;
-	
+
 	/*store frame at index*/
 	if ((global->VidCodec == CODEC_MJPEG) && (global->Frame_Flags==0) &&
 		(global->format==V4L2_PIX_FMT_MJPEG))
 	{
 		/*store MJPEG frame*/
 		global->videoBuff[global->w_ind].bytes_used = videoIn->buf.bytesused;
-		memcpy(global->videoBuff[global->w_ind].frame, 
-			videoIn->tmpbuffer, 
+		memcpy(global->videoBuff[global->w_ind].frame,
+			videoIn->tmpbuffer,
 			global->videoBuff[global->w_ind].bytes_used);
 	}
 	else if ((global->VidCodec == CODEC_LAVC) && (global->Frame_Flags==0) &&
@@ -845,16 +773,16 @@ static void store_at_index(void *data)
 	{
 		/*store yuv420p frame*/
 		global->videoBuff[global->w_ind].bytes_used = videoIn->buf.bytesused;
-		memcpy(global->videoBuff[global->w_ind].frame, 
-			videoIn->tmpbuffer, 
+		memcpy(global->videoBuff[global->w_ind].frame,
+			videoIn->tmpbuffer,
 			global->videoBuff[global->w_ind].bytes_used);
 	}
 	else
 	{
 		/*store YUYV frame*/
 		global->videoBuff[global->w_ind].bytes_used = global->height*global->width*2;
-		memcpy(global->videoBuff[global->w_ind].frame, 
-			videoIn->framebuffer, 
+		memcpy(global->videoBuff[global->w_ind].frame,
+			videoIn->framebuffer,
 			global->videoBuff[global->w_ind].bytes_used);
 	}
 	global->videoBuff[global->w_ind].used = TRUE;
@@ -867,19 +795,19 @@ int store_video_frame(void *data)
 {
 	struct ALL_DATA *all_data = (struct ALL_DATA *) data;
 	struct GLOBAL *global = all_data->global;
-	
+
 	int ret = 0;
 	int producer_sleep = 0;
-	
+
 	__LOCK_MUTEX(__GMUTEX);
-	
+
 	if(!global->videoBuff)
 	{
 		g_printerr("WARNING: video ring buffer not allocated yet - dropping frame.");
 		__UNLOCK_MUTEX(__GMUTEX);
 		return(-1);
 	}
-	
+
 	if (!global->videoBuff[global->w_ind].used)
 	{
 		store_at_index(data);
@@ -903,17 +831,17 @@ int store_video_frame(void *data)
 				NEXT_IND(global->w_ind, global->video_buff_size);
 			}
 			else ret = -2;/*drop frame*/
-			
+
 		}
 		else ret = -3;/*drop frame*/
 	}
 	if(!ret) global->framecount++;
-	
+
 	__UNLOCK_MUTEX(__GMUTEX);
-	
+
 	/*-------------if needed, make the thread sleep for a while----------------*/
 	if(producer_sleep) sleep_ms(producer_sleep);
-	
+
 	return ret;
 }
 
@@ -927,19 +855,19 @@ void *Audio_loop(void *data)
 	struct audio_effects *aud_eff = init_audio_effects ();
 	global->av_drift = 0;
 	pdata->ts_drift = 0;
-	
+
 	gboolean capVid = TRUE;
 	gboolean finished = FALSE;
 	int max_loops = 60;
-	
+
 	while(!finished)
 	{
 		__LOCK_MUTEX(__VMUTEX);
 			capVid = videoIn->capVid;
 		__UNLOCK_MUTEX(__VMUTEX);
-			
+
 		finished = process_audio(all_data, &(aud_eff));
-		
+
 		if(!capVid)
 		{
 			/* if capture has stopped then limit the number of iterations
@@ -952,38 +880,38 @@ void *Audio_loop(void *data)
 	}
 
 	close_audio_effects (aud_eff);
-	
+
 	return ((void *) 0);
 }
 
 void *IO_loop(void *data)
 {
 	struct ALL_DATA *all_data = (struct ALL_DATA *) data;
-	
+
 	struct GWIDGET *gwidget = all_data->gwidget;
 	struct GLOBAL *global = all_data->global;
-	
+
 	struct vdIn *videoIn = all_data->videoIn;
 
 	struct JPEG_ENCODER_STRUCTURE *jpg_data=NULL;
 	struct lavcData *lavc_data = NULL;
 	//struct audio_effects *aud_eff = NULL;
-	
+
 	gboolean capVid = TRUE;
 	gboolean finished=FALSE;
 	int max_loops = 60;
-	
+
 	__LOCK_MUTEX(__VMUTEX);
 		videoIn->IOfinished=FALSE;
 	__UNLOCK_MUTEX(__VMUTEX);
-    
+
 	gboolean failed = FALSE;
 	gboolean audio_failed = FALSE;
-	
+
 	//video buffers to be processed
 	int frame_size=0;
 	VidBuff *proc_buff = NULL;
-	
+
 	if(initVideoFile(all_data)<0)
 	{
 		g_printerr("Cap Video failed\n");
@@ -998,11 +926,11 @@ void *IO_loop(void *data)
 		    g_signal_handlers_unblock_by_func(GTK_TOGGLE_BUTTON(gwidget->CapVidButt), G_CALLBACK (capture_vid), all_data);
 		    gdk_flush();
 		    gdk_threads_leave();
-		
+
 		    /*enabling sound and video compression controls*/
 		    set_sensitive_vid_contrls(TRUE, global->Sound_enable, gwidget);
 		}
-		
+
 		finished = TRUE;
 		failed = TRUE;
 	}
@@ -1012,9 +940,9 @@ void *IO_loop(void *data)
 		frame_size = global->height*global->width*2;
 		proc_buff = g_new0(VidBuff, 1);
 		proc_buff->frame = g_new0(BYTE, frame_size);
-	
-		if (global->Sound_enable) 
-		{	
+
+		if (global->Sound_enable)
+		{
 			/*start audio process thread*/
 			if( __THREAD_CREATE(&all_data->audio_thread, Audio_loop, (void *) all_data))
 			{
@@ -1023,64 +951,64 @@ void *IO_loop(void *data)
 			}
 		}
 	}
-	
+
 	/*process video frames*/
 	if(!failed)
 	{
 		while(!finished)
 		{
-		
+
 			__LOCK_MUTEX(__VMUTEX);
 				capVid = videoIn->capVid;
 			__UNLOCK_MUTEX(__VMUTEX);
-	
+
 			finished = process_video (all_data, proc_buff, &(lavc_data), &(jpg_data));
-			
+
 			if(!capVid)
 			{
 				/* if capture has stopped then limit the number of iterations
-				 * fixes any possible loop lock on process_video 
+				 * fixes any possible loop lock on process_video
 				 */
 				max_loops--;
 				if(max_loops < 1)
 					finished = TRUE;
 			}
 		}
-		
-		if (global->Sound_enable && !audio_failed) 
+
+		if (global->Sound_enable && !audio_failed)
 		{
 			/* join audio thread*/
 			__THREAD_JOIN( all_data->audio_thread );
 		}
-		
+
 		/*finish capture*/
 		closeVideoFile(all_data);
-	
+
 		/*free proc buffer*/
 		g_free(proc_buff->frame);
 		g_free(proc_buff);
 		//if (global->Sound_enable) close_audio_effects (aud_eff);
 	}
-	
+
 	if(lavc_data != NULL)
 	{
 		clean_lavc(&lavc_data);
 		lavc_data = NULL;
 	}
-	
+
 	if(jpg_data != NULL) g_free(jpg_data);
 	jpg_data = NULL;
-	
+
 	if(global->jpeg != NULL) g_free(global->jpeg); //jpeg buffer used in encoding
 	global->jpeg = NULL;
-	
+
 	if(global->debug) g_print("IO thread finished...OK\n");
 
 	global->VidButtPress = FALSE;
 	__LOCK_MUTEX(__VMUTEX);
 		videoIn->IOfinished=TRUE;
 	__UNLOCK_MUTEX(__VMUTEX);
-	
+
 	return ((void *) 0);
 }
 

@@ -50,10 +50,10 @@
 #define LIBAVCODEC_VER_AT_LEAST(major,minor)  (LIBAVCODEC_VERSION_MAJOR > major || \
                                               (LIBAVCODEC_VERSION_MAJOR == major && \
                                                LIBAVCODEC_VERSION_MINOR >= minor))
-                                               
+
 #if !LIBAVCODEC_VER_AT_LEAST(53,0)
   #define AV_SAMPLE_FMT_S16 SAMPLE_FMT_S16
-  #define AV_SAMPLE_FMT_FLT SAMPLE_FMT_FLT 
+  #define AV_SAMPLE_FMT_FLT SAMPLE_FMT_FLT
 #endif
 
 #define MAX_DELAYED_FRAMES 50  //Maximum supported delayed frames
@@ -62,25 +62,28 @@
 struct lavcData
 {
 	AVCodec *codec;
+
 #if LIBAVCODEC_VER_AT_LEAST(53,6)
 	AVDictionary *private_options;
 #endif
+
 	AVCodecContext *codec_context;
 	AVFrame *picture;
 	AVPacket *outpkt;
-	
+
 	int delayed_frames;
 	int index_of_df; //index of delayed frame pts in use;
 	INT64 delayed_pts[MAX_DELAYED_FRAMES]; //delayed frames pts
 	int flush_delayed_frames;
 	int flushed_buffers;
 	int flush_done;
-	
-	BYTE* priv_data;
+
 	BYTE* tmpbuf;
+
+	BYTE* priv_data;
 	int outbuf_size;
 	BYTE* outbuf;
-	
+
 	int codec_id;
 	int monotonic_pts;
 };
@@ -92,11 +95,12 @@ struct lavcAData
 	AVCodecContext *codec_context;
 	AVFrame *frame;
 	AVPacket *outpkt;
-	
+
 	BYTE* priv_data;
 	int outbuf_size;
 	BYTE* outbuf;
-	
+
+	int codec_id;
 	int monotonic_pts;
 };
 

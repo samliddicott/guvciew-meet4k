@@ -169,6 +169,8 @@ int encode_lavc_frame (BYTE *picture_buf, struct lavcData* data , int format, st
         data->codec_context->coded_frame->key_frame = !!(pkt.flags & AV_PKT_FLAG_KEY);
     }
 
+	videoF->dts = pkt.dts;
+
     /* free any side data since we cannot return it */
     if (pkt.side_data_elems > 0)
     {
@@ -185,6 +187,8 @@ int encode_lavc_frame (BYTE *picture_buf, struct lavcData* data , int format, st
 		out_size = avcodec_encode_video(data->codec_context, data->outbuf, data->outbuf_size, data->picture);
 	else
 		out_size = avcodec_encode_video(data->codec_context, data->outbuf, data->outbuf_size, NULL);
+
+	videoF->dts = 0;
 #endif
 
 	 if(data->flush_delayed_frames && out_size == 0)
@@ -267,7 +271,7 @@ int clean_lavc (void* arg)
 	{
 		if((*data)->priv_data != NULL)
 			g_free((*data)->priv_data);
-			
+
 		//enc_frames = (*data)->codec_context->real_pict_num;
 		if(!(*data)->flushed_buffers)
 		{
@@ -322,7 +326,7 @@ struct lavcData* init_lavc(int width, int height, int fps_num, int fps_den, int 
 	struct lavcData* data = g_new0(struct lavcData, 1);
 
 	data->priv_data = NULL;
-	
+
 	data->codec_context = NULL;
 	vcodecs_data *defaults = get_codec_defaults(codec_ind);
 
@@ -455,9 +459,9 @@ struct lavcAData* init_lavc_audio(struct paRecordData *pdata, int codec_ind)
 {
 	//allocate
 	pdata->lavc_data = g_new0(struct lavcAData, 1);
-	
+
 	pdata->lavc_data->priv_data = NULL;
-	
+
 	pdata->lavc_data->codec_context = NULL;
 	acodecs_data *defaults = get_aud_codec_defaults(codec_ind);
 
@@ -469,7 +473,7 @@ struct lavcAData* init_lavc_audio(struct paRecordData *pdata, int codec_ind)
 	{
 		fprintf(stderr, "ffmpeg audio codec %s not found\n", defaults->codec_name);
 		pdata->lavc_data->codec = avcodec_find_encoder(defaults->codec_id);
-		
+
 		if (!pdata->lavc_data->codec)
 		{
 			fprintf(stderr, "ffmpeg no audio codec for ID: %i found\n", defaults->codec_id);
@@ -529,7 +533,7 @@ struct lavcAData* init_lavc_audio(struct paRecordData *pdata, int codec_ind)
 				pdata->lavc_data->codec_context->sample_fmt = defaults->sample_format;
 				fprintf(stderr, "could not open codec...trying again with int16 sample format\n");
 				break;
-		} 
+		}
 		#if LIBAVCODEC_VER_AT_LEAST(53,6)
 		if (avcodec_open2(pdata->lavc_data->codec_context, pdata->lavc_data->codec, NULL) < 0)
 		#else

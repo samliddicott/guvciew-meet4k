@@ -38,7 +38,7 @@ int fill_audio_buffer(struct paRecordData *pdata, UINT64 ts)
 {
 	int ret =0;
 	UINT64 buffer_length;
-	
+
 	if(pdata->sampleIndex >= pdata->aud_numSamples)
 	{
 		buffer_length = (G_NSEC_PER_SEC * pdata->aud_numSamples)/(pdata->samprate * pdata->channels);
@@ -48,7 +48,7 @@ int fill_audio_buffer(struct paRecordData *pdata, UINT64 ts)
 		{
 			/*if sound begin time > first video frame ts then sync audio to video
 			* else set audio ts to aprox. the video ts */
-			if((pdata->ts_ref > 0) && (pdata->ts_ref < pdata->snd_begintime)) 
+			if((pdata->ts_ref > 0) && (pdata->ts_ref < pdata->snd_begintime))
 				pdata->a_ts = pdata->snd_begintime - pdata->ts_ref;
 			else pdata->a_ts = 1; /*make it > 0 otherwise we will keep getting the same ts*/
 		}
@@ -65,13 +65,13 @@ int fill_audio_buffer(struct paRecordData *pdata, UINT64 ts)
 		else
 			ts = 0;
 		pdata->ts_drift = ts - pdata->a_ts;
-		
+
 		pdata->sampleIndex = 0; /*reset*/
-		
+
 		__LOCK_MUTEX( __AMUTEX );
 			int flag = pdata->audio_buff_flag[pdata->bw_ind];
 		__UNLOCK_MUTEX( __AMUTEX );
-		
+
 		if(  flag == AUD_READY || flag == AUD_IN_USE )
 		{
 			if(flag == AUD_READY)
@@ -85,24 +85,24 @@ int fill_audio_buffer(struct paRecordData *pdata, UINT64 ts)
 			memcpy(pdata->audio_buff[pdata->bw_ind][pdata->w_ind].frame, pdata->recordedSamples, pdata->aud_numBytes);
 			pdata->audio_buff[pdata->bw_ind][pdata->w_ind].time_stamp = pdata->a_ts + pdata->delay;
 			pdata->audio_buff[pdata->bw_ind][pdata->w_ind].used = TRUE;
-			
+
 			pdata->blast_ind = pdata->bw_ind;
 			pdata->last_ind  = pdata->w_ind;
-			
+
 			/*doesn't need locking as it's only used in the callback*/
 			NEXT_IND(pdata->w_ind, AUDBUFF_SIZE);
-			
+
 			if(pdata->w_ind == 0)
 			{
-				/* reached end of current ring buffer 
+				/* reached end of current ring buffer
 				 * flag it as AUD_PROCESS
 				 * move to next one and flag it as AUD_IN_USE (if READY)
 				 */
 				pdata->audio_buff_flag[pdata->bw_ind] = AUD_PROCESS;
-				
+
 				__LOCK_MUTEX( __AMUTEX );
 					NEXT_IND(pdata->bw_ind, AUDBUFF_NUM);
-				
+
 					if(pdata->audio_buff_flag[pdata->bw_ind] != AUD_READY)
 					{
 						g_printf("AUDIO: next buffer is not yet ready\n");
@@ -112,7 +112,7 @@ int fill_audio_buffer(struct paRecordData *pdata, UINT64 ts)
 						pdata->audio_buff_flag[pdata->bw_ind] = AUD_IN_USE;
 					}
 				__UNLOCK_MUTEX( __AMUTEX );
-					
+
 			}
 		}
 		else
@@ -122,36 +122,36 @@ int fill_audio_buffer(struct paRecordData *pdata, UINT64 ts)
 			g_printerr("AUDIO: dropping audio data\n");
 		}
 	}
-	
+
 	return ret;
 }
 
 /*--------------------------- sound callback ------------------------------*/
-int 
+int
 record_sound ( const void *inputBuffer, unsigned long numSamples, void *userData )
 {
 	struct paRecordData *pdata = (struct paRecordData*)userData;
-	
+
 	__LOCK_MUTEX( __AMUTEX );
         gboolean capVid = pdata->capVid;
         int channels = pdata->channels;
         int skip_n = pdata->skip_n;
     __UNLOCK_MUTEX( __AMUTEX );
-	
+
 	const SAMPLE *rptr = (const SAMPLE*) inputBuffer;
     	int i;
 
-	
+
 	UINT64 numFrames = numSamples / channels;
 	/* buffer ends at timestamp "now", calculate beginning timestamp */
     UINT64 nsec_per_frame = G_NSEC_PER_SEC / pdata->samprate;
-    
+
     UINT64 ts = ns_time_monotonic() - numFrames * nsec_per_frame;
-	
+
 	if (skip_n > 0) /*skip audio while were skipping video frames*/
 	{
-		
-		if(capVid) 
+
+		if(capVid)
 		{
 			__LOCK_MUTEX( __AMUTEX );
 				pdata->snd_begintime = ns_time_monotonic(); /*reset first time stamp*/
@@ -165,26 +165,26 @@ record_sound ( const void *inputBuffer, unsigned long numSamples, void *userData
 			return (-1); /*capture has stopped*/
 		}
 	}
-	
+
 	// __LOCK_MUTEX( __AMUTEX );
         // pdata->streaming=TRUE;
     // __UNLOCK_MUTEX( __AMUTEX );
-    
+
     for( i=0; i<numSamples; i++ )
     {
         pdata->recordedSamples[pdata->sampleIndex] = inputBuffer ? *rptr++ : 0;
         pdata->sampleIndex++;
-        
+
         fill_audio_buffer(pdata, ts);
-        
+
         /* increment timestamp accordingly while copying */
         if (i % channels == 0)
             ts += nsec_per_frame;
     }
-        
-    
+
+
     if(capVid) return (0); /*still capturing*/
-	else 
+	else
     {
         __LOCK_MUTEX( __AMUTEX );
             pdata->streaming=FALSE;
@@ -192,27 +192,27 @@ record_sound ( const void *inputBuffer, unsigned long numSamples, void *userData
             pdata->audio_buff_flag[pdata->bw_ind] = AUD_PROCESS;
         __UNLOCK_MUTEX( __AMUTEX );
     }
-	
+
 	return(-1); /* audio capture stopped*/
 }
 
 void
-set_sound (struct GLOBAL *global, struct paRecordData* pdata) 
-{	
+set_sound (struct GLOBAL *global, struct paRecordData* pdata)
+{
 	if(global->Sound_SampRateInd==0)
 		global->Sound_SampRate=global->Sound_IndexDev[global->Sound_UseDev].samprate;/*using default*/
-	
-	if(global->Sound_NumChanInd==0) 
+
+	if(global->Sound_NumChanInd==0)
 	{
 		/*using default if channels <3 or stereo(2) otherwise*/
-		global->Sound_NumChan=(global->Sound_IndexDev[global->Sound_UseDev].chan < 3) ? 
+		global->Sound_NumChan=(global->Sound_IndexDev[global->Sound_UseDev].chan < 3) ?
 			global->Sound_IndexDev[global->Sound_UseDev].chan : 2;
 	}
-	
+
 	pdata->api = global->Sound_API;
 	pdata->audio_buff[0] = NULL;
 	pdata->recordedSamples = NULL;
-	
+
 	pdata->samprate = global->Sound_SampRate;
 	pdata->channels = global->Sound_NumChan;
 	__LOCK_MUTEX( __AMUTEX );
@@ -223,7 +223,7 @@ set_sound (struct GLOBAL *global, struct paRecordData* pdata)
 		g_print("using audio codec: 0x%04x\n",global->Sound_Format );
 		g_print("\tchannels: %d  samplerate: %d\n", pdata->channels, pdata->samprate);
 	}
-	
+
 	switch (global->Sound_Format)
 	{
 		case PA_FOURCC:
@@ -237,30 +237,30 @@ set_sound (struct GLOBAL *global, struct paRecordData* pdata)
 		{
 			//outbuffer size in bytes (max value is for pcm 2 bytes per sample)
 			pdata->outbuf_size = MPG_NUM_SAMP * pdata->channels * 2; //a good value is 240000;
-			
+
 			/*initialize lavc data*/
-			if(!(pdata->lavc_data)) 
+			if(!(pdata->lavc_data))
 			{
-				pdata->lavc_data = init_lavc_audio(pdata, get_ind_by4cc(global->Sound_Format));
+				pdata->lavc_data = init_lavc_audio(pdata, global->AudCodec);
 			}
 			/*use lavc audio codec frame size to determine samples*/
 			pdata->aud_numSamples = (pdata->lavc_data)->codec_context->frame_size * pdata->channels;
 			break;
 		}
 	}
-	
+
 	pdata->aud_numBytes = pdata->aud_numSamples * sizeof(SAMPLE);
 	pdata->input_type = PA_SAMPLE_TYPE;
 	pdata->mp2Buff = NULL;
-	
+
 	pdata->sampleIndex = 0;
-	
+
 	pdata->flush = 0;
 	pdata->a_ts= 0;
 	pdata->ts_ref = 0;
-	
+
 	pdata->stream = NULL;
-	/* some drivers, e.g. GSPCA, don't set fps( guvcview sets it to 1/1 ) 
+	/* some drivers, e.g. GSPCA, don't set fps( guvcview sets it to 1/1 )
 	 * so we can't obtain the proper delay for H.264 (2 video frames)
 	 * if set, use the codec properties fps value */
 	int fps_num = 1;
@@ -270,11 +270,11 @@ set_sound (struct GLOBAL *global, struct paRecordData* pdata)
 		fps_num = global->fps_num;
 		fps_den = global->fps;
 	}
-	if((get_vcodec_id(global->VidCodec) == CODEC_ID_H264) && (fps_den >= 5)) 
+	if((get_vcodec_id(global->VidCodec) == CODEC_ID_H264) && (fps_den >= 5))
 		pdata->delay = (UINT64) 2*(fps_num * G_NSEC_PER_SEC / fps_den); /*2 frame delay in nanosec*/
 	pdata->delay += global->Sound_delay; /*add predefined delay - def = 0*/
-	
-	/*reset the indexes*/	
+
+	/*reset the indexes*/
 	pdata->r_ind     = 0;
 	pdata->w_ind     = 0;
 	pdata->bw_ind    = 0;
@@ -283,12 +283,12 @@ set_sound (struct GLOBAL *global, struct paRecordData* pdata)
 	pdata->last_ind  = 0;
 	/*buffer for video PCM 16 bits*/
 	pdata->pcm_sndBuff=NULL;
-	
-	
+
+
 	/*set audio device id to use (portaudio)*/
 	pdata->device_id = global->Sound_IndexDev[global->Sound_UseDev].id; /* input device */
-	
-	
+
+
 	/*set audio device to use (pulseudio)*/
 	strncpy(pdata->device_name, global->Sound_IndexDev[global->Sound_UseDev].name, 511);
 }
@@ -300,7 +300,7 @@ init_sound(struct paRecordData* pdata)
 	int err = paNoError;
 	int i = 0;
 	int j = 0;
-	
+
 	/*alloc audio ring buffers*/
     if(!(pdata->audio_buff[0]))
     {
@@ -316,10 +316,10 @@ init_sound(struct paRecordData* pdata)
 			pdata->audio_buff_flag[j] = AUD_READY;
 		}
 	}
-	
+
 	/*alloc the callback buffer*/
 	pdata->recordedSamples = g_new0(SAMPLE, pdata->aud_numSamples);
-	
+
 	switch(pdata->api)
 	{
 #ifdef PULSEAUDIO
@@ -336,22 +336,22 @@ init_sound(struct paRecordData* pdata)
 				goto error;
 			break;
 	}
-	
+
 	/*sound start time - used to sync with video*/
 	pdata->snd_begintime = ns_time_monotonic();
 
 	return (0);
-	
+
 error:
 	pdata->streaming=FALSE;
 	pdata->flush=0;
 	pdata->delay=0;
-	
+
 	if(pdata->recordedSamples) g_free( pdata->recordedSamples );
 	pdata->recordedSamples=NULL;
 	if(pdata->audio_buff)
 	{
-	
+
 		for(j=0; j< AUDBUFF_NUM; j++)
 		{
 			for(i=0; i<AUDBUFF_SIZE; i++)
@@ -364,16 +364,16 @@ error:
 	}
 	/*lavc is allways checked and cleaned when finishing worker thread*/
 	return(-1);
-} 
+}
 
 int
-close_sound (struct paRecordData *pdata) 
+close_sound (struct paRecordData *pdata)
 {
-	int err = 0;	
+	int err = 0;
 	int i= 0, j= 0;
-    
+
 	pdata->capVid = 0;
-	
+
 	switch(pdata->api)
 	{
 #ifdef PULSEAUDIO
@@ -386,14 +386,14 @@ close_sound (struct paRecordData *pdata)
 			err = port_close_audio(pdata);
 			break;
 	}
-	
+
 	pdata->flush = 0;
 	pdata->delay = 0; /*reset the audio delay*/
-	
+
 	/* ---------------------------------------------------------------------
 	 * make sure no operations are performed on the buffers  */
 	__LOCK_MUTEX(__AMUTEX);
-		if(pdata->lavc_data) 
+		if(pdata->lavc_data)
 			clean_lavc_audio(&(pdata->lavc_data));
 		pdata->lavc_data = NULL;
 		/*free primary buffer*/
@@ -414,7 +414,7 @@ close_sound (struct paRecordData *pdata)
 		if(pdata->pcm_sndBuff) g_free(pdata->pcm_sndBuff);
 		pdata->pcm_sndBuff = NULL;
 	__UNLOCK_MUTEX(__AMUTEX);
-	
+
 	return (err);
 }
 
@@ -422,7 +422,7 @@ close_sound (struct paRecordData *pdata)
 static gint16 clip_int16 (float in)
 {
 	in = (in < -32768) ? -32768 : (in > 32767) ? 32767 : in;
-	
+
 	return ((gint16) in);
 }
 
@@ -430,11 +430,11 @@ void SampleConverter (struct paRecordData* pdata)
 {
 	if(pdata->lavc_data && pdata->lavc_data->codec_context->sample_fmt == AV_SAMPLE_FMT_FLT)
 	{
-		if(!(pdata->float_sndBuff)) 
+		if(!(pdata->float_sndBuff))
 			pdata->float_sndBuff = g_new0(float, pdata->aud_numSamples);
-		
+
 		int samp = 0;
-	
+
 		for(samp=0; samp < pdata->aud_numSamples; samp++)
 		{
 			pdata->float_sndBuff[samp] = pdata->audio_buff[pdata->br_ind][pdata->r_ind].frame[samp];
@@ -442,11 +442,11 @@ void SampleConverter (struct paRecordData* pdata)
 	}
 	else
 	{
-		if (!(pdata->pcm_sndBuff)) 
+		if (!(pdata->pcm_sndBuff))
 			pdata->pcm_sndBuff = g_new0(gint16, pdata->aud_numSamples);
-		
+
 		int samp = 0;
-	
+
 		for(samp=0; samp < pdata->aud_numSamples; samp++)
 		{
 			pdata->pcm_sndBuff[samp] = clip_int16(pdata->audio_buff[pdata->br_ind][pdata->r_ind].frame[samp] * 32767.0); //* 32768 + 385;

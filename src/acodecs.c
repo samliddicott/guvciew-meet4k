@@ -290,7 +290,7 @@ const void *get_mkvACodecPriv(int codec_ind)
 int set_mkvACodecPriv(int codec_ind, int samprate, int channels, struct lavcAData* data)
 {
 	int index = get_real_index (codec_ind);
-	
+
 	if (listSupACodecs[index].codec_id == CODEC_ID_AAC)
 	{
 		int obj_type = get_aac_obj_ind(listSupACodecs[index].profile);
@@ -306,17 +306,17 @@ int set_mkvACodecPriv(int codec_ind, int samprate, int channels, struct lavcADat
 		uint8_t *header_start[3];
 		int header_len[3];
 		int first_header_size;
-			
+
 		first_header_size = 30; //theora = 42
     	if (avpriv_split_xiph_headers(data->codec_context->extradata, data->codec_context->extradata_size,
-				first_header_size, header_start, header_len) < 0) 
+				first_header_size, header_start, header_len) < 0)
         {
 			fprintf(stderr, "vorbis codec - Extradata corrupt.\n");
 			return -1;
 		}
-		
+
 		//printf("Vorbis: header1: %i  header2: %i  header3:%i \n", header_len[0], header_len[1], header_len[2]);
-			
+
 		//get the allocation needed for headers size
 		int header_lace_size[2];
 		header_lace_size[0]=0;
@@ -328,7 +328,7 @@ int set_mkvACodecPriv(int codec_ind, int samprate, int channels, struct lavcADat
 		for (i = 0; i < header_len[1] / 255; i++)
 			header_lace_size[1]++;
 		header_lace_size[1]++;
-			
+
 		int priv_data_size = 1 + //number of packets -1
 						header_lace_size[0] +  //first packet size
 						header_lace_size[1] +  //second packet size
@@ -353,12 +353,12 @@ int set_mkvACodecPriv(int codec_ind, int samprate, int channels, struct lavcADat
 			memcpy(tmp, header_start[i] , header_len[i]);
 			tmp += header_len[i];
 		}
-			
+
 		listSupACodecs[index].mkv_codpriv = data->priv_data;
 		listSupACodecs[index].codpriv_size = priv_data_size;
 		return listSupACodecs[index].codpriv_size;
 	}
-	
+
 
 	return 0;
 }
@@ -418,7 +418,7 @@ static int write_audio_data(struct ALL_DATA *all_data, BYTE *buff, int size, QWO
 	{
 		case AVI_FORMAT:
 			if(size > 0)
-				ret = AVI_write_audio (videoF->AviOut, buff, size);
+				ret = avi_write_packet(videoF->avi, 1, buff, size, 0, -1);
 			break;
 
 		case MKV_FORMAT:

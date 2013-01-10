@@ -106,7 +106,7 @@ static char id_str[MAX_INFO_STRLEN];
 									// are also indexed
 
 struct avi_RIFF {
-    int64_t riff_start, movi_list, odml_list;
+    int64_t riff_start, movi_list;
     int64_t frames_hdr_all;
     int id;
 
@@ -141,6 +141,9 @@ struct avi_Context
 	avi_Stream* stream_list;
 	int stream_list_size;
 
+	double fps;
+
+	int64_t time_delay_off, odml_list; //some file offsets
 };
 
 typedef struct avi_Context avi_Context;
@@ -314,7 +317,7 @@ void write_wb64(avi_Context* AVI, uint64_t val)
     write_wb32(AVI, (uint32_t)(val & 0xffffffff));
 }
 
-#if BIG_ENDIAN
+#if BIGENDIAN
 	#define write_w16 write_wb16
 	#define write_w24 write_wb24
 	#define write_w32 write_wb32
@@ -536,15 +539,36 @@ avi_Stream* get_first_video_stream(avi_Context* AVI)
 	return NULL;
 }
 
+avi_Stream* get_first_audio_stream(avi_Context* AVI)
+{
+	avi_Stream* stream = AVI->stream_list;
+
+	if(!stream)
+		return NULL;
+
+	if(stream->type == STREAM_TYPE_AUDIO)
+		return stream;
+
+	while(stream->next != NULL)
+	{
+		stream = stream->next;
+
+		if(stream->type == STREAM_TYPE_AUDIO)
+			return stream;
+	}
+
+	return NULL;
+}
+
 void avi_put_main_header(avi_Context* AVI, avi_RIFF* riff)
 {
-	double fps = get_first_video_stream(AVI)->fps;
+	AVI->fps = get_first_video_stream(AVI)->fps;
 	int width = get_first_video_stream(AVI)->width;
 	int height = get_first_video_stream(AVI)->height;
 
 	int ms_per_frame = 0;
-	if(fps > 0.001)
-		ms_per_frame=(int) (1000000/fps + 0.5);
+	if(AVI->fps > 0.001)
+		ms_per_frame=(int) (1000000/AVI->fps + 0.5);
 
 	/*do not force index yet -only when closing*/
 	/*this should prevent bad avi files even if it is not closed properly*/
@@ -554,6 +578,7 @@ void avi_put_main_header(avi_Context* AVI, avi_RIFF* riff)
 
 	int64_t avih = avi_open_tag(AVI, "avih"); // main avi header
 	write_wl32(AVI, ms_per_frame);		// time delay between frames (milisec)
+	AVI->time_delay_off = avi_tell(AVI);
 	write_wl32(AVI, 0);                 // data rate
 	write_wl32(AVI, 0);                 // Padding multiple size (2048)
 	write_wl32(AVI, flags);			    // parameter Flags
@@ -607,7 +632,7 @@ int64_t avi_put_wav_header(avi_Context* AVI, avi_Stream* stream)
 
 	int64_t strh = avi_open_tag(AVI, "strh");// audio stream header
 	write_4cc(AVI, "auds");
-	write_4cc(AVI, stream->compressor);  // Handler (AUDIO CODEC)
+	write_wl32(AVI, 1);                  // codec tag on strf
 	write_wl32(AVI, 0);                  // Flags
 	write_wl32(AVI, 0);                  // stream priority
 	write_wl32(AVI, 0);                  // language tag
@@ -662,13 +687,13 @@ void avi_put_astream_format_header(avi_Context* AVI, avi_Stream* stream)
 
 	int64_t strf = avi_open_tag(AVI, "strf");// audio stream format
 	write_wl32(AVI, strf_size);        // header size
-	write_wl16(AVI, stream->a_fmt);    // Format tag
+	write_wl16(AVI, stream->a_fmt);    // Format (codec) tag
 	write_wl16(AVI, stream->a_chans);  // Number of channels
 	write_wl32(AVI, stream->a_rate);   // SamplesPerSec
 	write_wl32(AVI, stream->mpgrate/8);// Average Bytes per sec
-	write_wl16(AVI, sampsize/4);      // BlockAlign
+	write_wl16(AVI, sampsize/4);       // BlockAlign
 	write_wl16(AVI, stream->a_bits);   //BitsPerSample
-	write_wl16(AVI, axd_size);        //size of extra data
+	write_wl16(AVI, axd_size);         //size of extra data
 	// write extradata (codec private)
 	if (axd_size > 0 && stream->extra_data)
 	{
@@ -725,12 +750,13 @@ int64_t avi_create_riff_tags(avi_Context* AVI, avi_RIFF* riff)
 		off = avi_open_tag(AVI, "LIST");
 		write_4cc(AVI, "movi");
 
-		riff->movi_list = off;
+		riff->movi_list = off; //update movi list pos for this riff
 	}
 
 	return off;
 }
 
+//only for riff id = 0
 void avi_create_riff_header(avi_Context* AVI, avi_RIFF* riff)
 {
 	int64_t list1 = avi_create_riff_tags(AVI, riff);
@@ -803,13 +829,13 @@ void avi_create_riff_header(avi_Context* AVI, avi_RIFF* riff)
 		avi_close_tag(AVI, list2); //write the chunk size
 	}
 
-	riff->odml_list = avi_open_tag(AVI, "JUNK");
+	AVI->odml_list = avi_open_tag(AVI, "JUNK");
     write_4cc(AVI, "odml");
     write_4cc(AVI, "dmlh");
     write_wl32(AVI, 248);
     for (i = 0; i < 248; i+= 4)
         write_wl32(AVI, 0);
-    avi_close_tag(AVI, avi->odml_list);
+    avi_close_tag(AVI, AVI->odml_list);
 
 	avi_close_tag(AVI, list1); //write the chunk size
 
@@ -886,9 +912,10 @@ avi_RIFF* avi_add_new_riff(avi_Context* AVI)
 //second function to get called (add video stream to avi_Context)
 avi_Stream*
 avi_add_video_stream(avi_Context *AVI,
-					int width,
-					int height,
+					int32_t width,
+					int32_t height,
 					double fps,
+					int32_t codec_id,
 					char* compressor)
 {
 	avi_Stream* stream = avi_add_new_stream(AVI);
@@ -896,6 +923,8 @@ avi_add_video_stream(avi_Context *AVI,
 	stream->fps = fps;
 	stream->width = width;
 	stream->height = height;
+	stream->codec_id = codec_id;
+
 	if(compressor)
 		strncpy(stream->compressor, compressor, 8);
 
@@ -905,28 +934,22 @@ avi_add_video_stream(avi_Context *AVI,
 //third function to get called (add audio stream to avi_Context)
 avi_Stream*
 avi_add_audio_stream(avi_Context *AVI,
-					int32_t   format,
 					int32_t   channels,
 					int32_t   rate,
 					int32_t   bits,
 					int32_t   mpgrate,
-					int32_t   vbr,
 					int32_t   codec_id,
-					char* compressor)
+					int32_t   format)
 {
 	avi_Stream* stream = avi_add_new_stream(AVI);
 	stream->type = STREAM_TYPE_AUDIO;
 
-	stream->a_fmt = format;
 	stream->a_rate = rate;
 	stream->a_bits = bits;
 	stream->mpgrate = mpgrate;
-	stream->a_vbr = vbr;
+	stream->a_vbr = 0;
 	stream->codec_id = codec_id;
-
-	if(compressor)
-		strncpy(stream->compressor, compressor, 8);
-
+	stream->a_fmt = format;
 
 	return stream;
 }
@@ -1018,9 +1041,6 @@ static int avi_write_counters(avi_Context* AVI, avi_RIFF* riff)
 
         avi_seek(AVI, stream->frames_hdr_strm);
 
-		au_scale=stream->frame_size;
-		au_rate= stream->sample_rate;
-
         if(stream->type == STREAM_TYPE_VIDEO)
         {
             avi_wl32(AVI, stream->packet_count);
@@ -1038,6 +1058,16 @@ static int avi_write_counters(avi_Context* AVI, avi_RIFF* riff)
         avi_seek(AVI, riff->frames_hdr_all);
         avi_wl32(AVI, nb_frames);
     }
+
+    //update frame time delay
+    avi_seek(AVI, AVI->time_delay_off - 4);
+    int32_t ms_per_frame = 0;
+	if(AVI->fps > 0.001)
+		ms_per_frame=(int32_t) (1000000/AVI->fps + 0.5);
+    avi_wl32(AVI, ms_per_frame);
+
+
+
     avi_seek(AVI, file_size);
 
     return 0;
@@ -1251,7 +1281,7 @@ int avi_close(avi_Context* AVI)
         avi_close_tag(AVI, riff->riff_start);
 
         file_size = avi_tell(AVI);
-        avi_seek(AVI, riff->odml_list - 8);
+        avi_seek(AVI, AVI->odml_list - 8);
         write_4cc(AVI, "LIST"); /* Making this AVI OpenDML one */
         avi_skip(AVI, 16);
 

@@ -66,42 +66,6 @@ typedef struct _audio_index_entry
 	off_t tot;
 } audio_index_entry;
 
-
-
-
-
-
-
-struct track_t
-{
-
-	long   a_fmt;             /* Audio format, see #defines below */
-	long   a_chans;           /* Audio channels, 0 for no audio */
-	long   a_rate;            /* Rate in Hz */
-	long   a_bits;            /* bits per audio sample */
-	long   mpgrate;           /* mpg bitrate kbs*/
-	long   a_vbr;             /* 0 == no Variable BitRate */
-	long   padrate;	      /* byte rate used for zero padding */
-
-	long   audio_strn;        /* Audio stream number */
-	off_t  audio_bytes;       /* Total number of bytes of audio data */
-	long   audio_chunks;      /* Chunks of audio data in the file */
-
-	char   audio_tag[4];      /* Tag of audio data */
-	long   audio_posc;        /* Audio position: chunk */
-	long   audio_posb;        /* Audio position: byte within chunk */
-
-	off_t  a_codech_off;       /* absolut offset of audio codec information */
-	off_t  a_codecf_off;       /* absolut offset of audio codec information */
-
-	audio_index_entry *audio_index;
-
-	struct track_t *previous, *next;
-
-};
-
-typedef struct track_t track_t;
-
 typedef struct avi_Ientry {
     unsigned int flags, pos, len;
 } avi_Ientry;
@@ -153,6 +117,77 @@ struct avi_Stream
 };
 
 typedef struct avi_Stream avi_Stream;
+
+
+avi_Context* avi_create_context(const char * filename);
+
+avi_Stream*
+avi_add_video_stream(avi_Context *AVI,
+					int32_t width,
+					int32_t height,
+					double fps,
+					int32_t codec_id,
+					char* compressor);
+
+avi_Stream*
+avi_add_audio_stream(avi_Context *AVI,
+					int32_t   channels,
+					int32_t   rate,
+					int32_t   bits,
+					int32_t   mpgrate,
+					int32_t   codec_id,
+					int32_t   format);
+
+avi_Stream*
+avi_get_stream(avi_Context* AVI, int index);
+
+
+int avi_write_packet(avi_Context* AVI,
+					int stream_index,
+					BYTE *data,
+					uint32_t size,
+					int dts,
+					int block_align);
+
+int avi_close(avi_Context* AVI);
+
+
+void avi_destroy_context(avi_Context* AVI);
+
+
+
+
+
+
+struct track_t
+{
+
+	long   a_fmt;             /* Audio format, see #defines below */
+	long   a_chans;           /* Audio channels, 0 for no audio */
+	long   a_rate;            /* Rate in Hz */
+	long   a_bits;            /* bits per audio sample */
+	long   mpgrate;           /* mpg bitrate kbs*/
+	long   a_vbr;             /* 0 == no Variable BitRate */
+	long   padrate;	      /* byte rate used for zero padding */
+
+	long   audio_strn;        /* Audio stream number */
+	off_t  audio_bytes;       /* Total number of bytes of audio data */
+	long   audio_chunks;      /* Chunks of audio data in the file */
+
+	char   audio_tag[4];      /* Tag of audio data */
+	long   audio_posc;        /* Audio position: chunk */
+	long   audio_posb;        /* Audio position: byte within chunk */
+
+	off_t  a_codech_off;       /* absolut offset of audio codec information */
+	off_t  a_codecf_off;       /* absolut offset of audio codec information */
+
+	audio_index_entry *audio_index;
+
+	struct track_t *previous, *next;
+
+};
+
+typedef struct track_t track_t;
 
 /*
 typedef struct
