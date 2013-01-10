@@ -292,9 +292,9 @@ static void write_wb64(avi_Context* AVI, uint64_t val)
 static void write_4cc(avi_Context* AVI, const char *str)
 {
     int len = 4;
-    if(strlen(str) < len + 1) //null terminated string
+    if(strlen(str) < len )
 	{
-		len = strlen(str) -1;
+		len = strlen(str);
 	}
 
     write_mem(AVI, (BYTE *) str, len);
