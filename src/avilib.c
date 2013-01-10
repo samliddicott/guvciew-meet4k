@@ -124,7 +124,8 @@ typedef struct avi_Writer
     BYTE *buf_ptr; /**< Current position in the buffer */
     BYTE *buf_end; /**< End of the buffer. */
 
-	int64_t position; //file write offset increments on buffer flush
+	int64_t size; //file size (end of file position)
+	int64_t position; //file pointer position (updates on buffer flush)
 }avi_Writer;
 
 struct avi_Context
@@ -148,19 +149,47 @@ int64_t avi_tell(avi_Context* AVI)
 {
 	//flush the file buffer
 	fflush(AVI->writer->fp);
+
 	//return the file pointer position
 	return ((int64_t) ftello64(AVI->writer->fp));
 }
 
 int avi_seek(avi_Context* AVI, int64_t position)
 {
-	//flush the file buffer
-	fflush(AVI->writer->fp);
-	//try to move the file pointer to position
-	int ret = fseeko(AVI->writer->fp, position, SEEK_SET);
-	if(ret != 0)
-		fprintf(stderr, "AVI: seek to file position 0x%x failed\n", position);
+	int ret = 0;
 
+	if(position < AVI->writer->file_size) //position is on the file
+	{
+		//flush the memory buffer (we need an empty buffer)
+		flush_buffer(AVI);
+		//try to move the file pointer to position
+		int ret = fseeko(AVI->writer->fp, position, SEEK_SET);
+		if(ret != 0)
+			fprintf(stderr, "AVI: seek to file position 0x%x failed\n", position);
+		else
+			AVI->writer->position = position; //update writer position
+		//we are now on position with an empty memory buffer
+	}
+	else // position is on the buffer
+	{
+		//move buffer pointer to position
+		AVI->writer->buf_ptr = AVI->writer->buffer + (position - AVI->writer->position);
+	}
+	return ret;
+}
+
+int avi_skip(avi_Context* AVI, int amount)
+{
+	//flush the memory buffer (clean buffer)
+	flush_buffer(AVI);
+	//try to move the file pointer to position
+	int ret = fseeko(AVI->writer->fp, amount, SEEK_CUR);
+	if(ret != 0)
+		fprintf(stderr, "AVI: skip file pointer by 0x%x failed\n", amount);
+
+	AVI->writer->position = avi_tell(AVI); //update current file pointer position
+
+	//we are on position with an empty memory buffer
 	return ret;
 }
 
@@ -188,27 +217,23 @@ int64_t flush_buffer(avi_Context* AVI)
 	else if (AVI->writer->buf_ptr != AVI->writer->buffer)
 	{
 		fprintf(stderr, "AVI: Bad buffer pointer - dropping buffer\n");
+		AVI->writer->buf_ptr = AVI->writer->buffer;
+		return -1;
 	}
 
-	AVI->writer->position += (int64_t) nitems;
+	int64_t size_inc = (AVI->writer->file_size - AVI->writer->position) + nitems;
+	if(size_inc > 0)
+		AVI->writer->file_size += size_inc;
+
+	AVI->writer->position = avi_tell(AVI); //update current file pointer position
+
 	AVI->writer->buf_ptr = AVI->writer->buffer;
 
-	//just for debug - should be commented out
-	if(AVI->writer->position != avi_tell(AVI))
-		fprintf(stderr, "AVI: file position discrepancy\n")
+	//just for debug - should be removed
+	if(AVI->writer->position != AVI->writer->file_size)
+		fprintf(stderr, "AVI: writing on the middle of the file\n")
 
-	return file_pos;
-}
-
-void write_skip(avi_Context* AVI, int amount)
-{
-	int i = 0;
-	for (i = 0; i< amount; i++)
-	{
-		AVI->writer->buf_ptr++;
-		if (AVI->writer->buf_ptr >= AVI->writer->buf_end)
-			flush_buffer(AVI);
-	}
+	return AVI->writer->position;
 }
 
 void write_w8(avi_Context* AVI, BYTE b)
@@ -331,81 +356,6 @@ int write_str(avi_Context* AVI, const char *str)
     return len;
 }
 
-void avi_write_wl32_to(avi_Context* AVI, uint32_t val, int64_t position)
-{
-	int64_t current_offset = avi_get_offset(AVI);
-
-	if(postion < AVI->writer->position) //write size to file
-	{
-		int res = 0;
-
-		//move to postion
-		res = avi_seek(AVI, position);
-		if(res != 0)
-			return;
-
-		BYTE out[4];
-		out[0] = (BYTE) val;
-		out[1] = (BYTE) (val >> 8);
-		out[2] = (BYTE) (val >> 16);
-		out[3] = (BYTE) (val >> 24);
-		//write the value to file
-		if(fwrite(out, 1, 4, AVI->writer->fp) < 4)
-			perror("AVI: size write error");
-
-		//move back to writer position
-		res = avi_seek(AVI, AVI->writer->position);
-		if(res != 0)
-			fprintf(stderr, "AVI: seek file to writer position 0x%x failed\n", AVI->writer->position);
-	}
-	else // can write to buffer
-	{
-		//store the current buffer pointer position
-		BYTE* current_ptr = AVI->writer->buf_ptr;
-		//move buffer pointer to position
-		AVI->writer->buf_ptr = AVI->writer->buffer + (position - AVI->writer->position);
-		//write the value
-		write_wl32(AVI, val);
-		//move the buffer pointer to initial position
-		AVI->writer->buf_ptr = current_ptr;
-	}
-}
-
-void avi_write_4cc_to(avi_Context* AVI, const char *val, int64_t position)
-{
-	int64_t current_offset = avi_get_offset(AVI);
-
-	if(postion < AVI->writer->position) //write size to file
-	{
-		int res = 0;
-
-		//move to postion
-		res = avi_seek(AVI, position);
-		if(res != 0)
-			return;
-
-		//write the value to file
-		if(fwrite(val, 1, 4, AVI->writer->fp) < 4)
-			perror("AVI: 4cc write error");
-
-		//move back to writer position
-		res = avi_seek(AVI, AVI->writer->position);
-		if(res != 0)
-			fprintf(stderr, "AVI: seek file to writer position 0x%x failed\n", AVI->writer->position);
-	}
-	else // can write to buffer
-	{
-		//store the current buffer pointer position
-		BYTE* current_ptr = AVI->writer->buf_ptr;
-		//move buffer pointer to position
-		AVI->writer->buf_ptr = AVI->writer->buffer + (position - AVI->writer->position);
-		//write the value
-		write_4cc(AVI, val);
-		//move the buffer pointer to initial position
-		AVI->writer->buf_ptr = current_ptr;
-	}
-}
-
 int64_t avi_open_tag (avi_Context* AVI, const char *tag)
 {
 	write_4cc(AVI, tag);
@@ -417,8 +367,9 @@ void avi_close_tag(avi_Context* AVI, int64_t start_pos)
 {
 	int64_t current_offset = avi_get_offset(AVI);
 	uint32_t size = uint32_t (current_offset - start_pos);
-
-	avi_write_wl32_to(AVI, size, start_pos - 4);
+	avi_seek(AVI, start_pos-4);
+	avi_write_wl32(AVI, size);
+	avi_seek(AVI, current_offset);
 }
 
 /* create a new writer for filename*/
@@ -585,38 +536,7 @@ avi_Stream* get_first_video_stream(avi_Context* AVI)
 	return NULL;
 }
 
-int avi_get_total_extra_size(avi_Context* AVI)
-{
-	avi_Stream* stream = AVI->stream_list;
-
-	if(!stream)
-		return -1;
-
-	int size = 0;
-	if(stream->extra_data_size && stream->extra_data)
-	{
-		size += (stream->extra_data_size+1) & ~1;
-
-		if(stream->type == STREAM_TYPE_VIDEO)
-			size += 4*2; // 2 dWord (tag + size)
-	}
-
-	while(stream->next != NULL)
-	{
-		stream = stream->next;
-		if(stream->extra_data_size && stream->extra_data)
-		{
-			size += (stream->extra_data_size+1) & ~1;
-			if(stream->type == STREAM_TYPE_VIDEO)
-				size += 4*2; // 2 dWord (tag + size)
-		}
-	}
-
-	return size;
-
-}
-
-void avi_put_main_header(avi_Context* AVI)
+void avi_put_main_header(avi_Context* AVI, avi_RIFF* riff)
 {
 	double fps = get_first_video_stream(AVI)->fps;
 	int width = get_first_video_stream(AVI)->width;
@@ -637,6 +557,7 @@ void avi_put_main_header(avi_Context* AVI)
 	write_wl32(AVI, 0);                 // data rate
 	write_wl32(AVI, 0);                 // Padding multiple size (2048)
 	write_wl32(AVI, flags);			    // parameter Flags
+	riff->frames_hdr_all = avi_tell(AVI);
 	write_wl32(AVI, 0);			        // number of video frames
 	write_wl32(AVI, 0);			        // number of preview frames
 	write_wl32(AVI, AVI->stream_list_size); // number of data streams (audio + video)*/
@@ -650,7 +571,7 @@ void avi_put_main_header(avi_Context* AVI)
 	avi_close_tag(AVI, avih); //write the chunk size
 }
 
-void avi_put_bmp_header(avi_Context* AVI, avi_Stream* stream)
+int64_t avi_put_bmp_header(avi_Context* AVI, avi_Stream* stream)
 {
 	int frate = 0;
 	if(stream->fps > 0.001)
@@ -666,8 +587,9 @@ void avi_put_bmp_header(avi_Context* AVI, avi_Stream* stream)
 	write_wl32(AVI, FRAME_RATE_SCALE);   // Scale
 	write_wl32(AVI, frate);              // Rate: Rate/Scale == sample/second (fps) */
 	write_wl32(AVI, 0);                  // start time
+	stream->frames_hdr_strm = avi_tell(AVI);
 	write_wl32(AVI, 0);                  // lenght of stream
-	write_wl32(AVI, 0);                  // suggested playback buffer size
+	write_wl32(AVI, 1024*1024);          // suggested playback buffer size
 	write_wl32(AVI, -1);                 // Quality
 	write_wl32(AVI, 0);                  // SampleSize
 	write_wl16(AVI, 0);                  // rFrame (left)
@@ -675,9 +597,11 @@ void avi_put_bmp_header(avi_Context* AVI, avi_Stream* stream)
 	write_wl16(AVI, 0);                  // rFrame (right)
 	write_wl16(AVI, 0);                  // rFrame (bottom)
 	avi_close_tag(AVI, strh); //write the chunk size
+
+	return strh;
 }
 
-void avi_put_wav_header(avi_Context* AVI, avi_Stream* stream)
+int64_t avi_put_wav_header(avi_Context* AVI, avi_Stream* stream)
 {
 	int sampsize = avi_audio_sample_size(stream);
 
@@ -691,8 +615,9 @@ void avi_put_wav_header(avi_Context* AVI, avi_Stream* stream)
 	write_wl32(AVI, sampsize/4);         // Scale
 	write_wl32(AVI, stream->mpgrate/8);   // Rate: Rate/Scale == sample/second (fps) */
 	write_wl32(AVI, 0);                  // start time
-	write_wl32(AVI, 4*stream->audio_bytes/sampsize); // lenght of stream
-	write_wl32(AVI, 0);                  // suggested playback buffer size
+	stream->frames_hdr_strm = avi_tell(AVI);
+	write_wl32(AVI, 0);                  // lenght of stream
+	write_wl32(AVI, 12*1024);            // suggested playback buffer size
 	write_wl32(AVI, -1);                 // Quality
 	write_wl32(AVI, sampsize/4);         // SampleSize
 	write_wl16(AVI, 0);                  // rFrame (left)
@@ -700,6 +625,8 @@ void avi_put_wav_header(avi_Context* AVI, avi_Stream* stream)
 	write_wl16(AVI, 0);                  // rFrame (right)
 	write_wl16(AVI, 0);                  // rFrame (bottom)
 	avi_close_tag(AVI, strh); //write the chunk size
+
+	return strh;
 }
 
 void avi_put_vstream_format_header(avi_Context* AVI, avi_Stream* stream)
@@ -808,7 +735,7 @@ void avi_create_riff_header(avi_Context* AVI, avi_RIFF* riff)
 {
 	int64_t list1 = avi_create_riff_tags(AVI, riff);
 
-	avi_put_main_header(AVI);
+	avi_put_main_header(AVI, riff);
 
 	int i, j = 0;
 
@@ -978,13 +905,13 @@ avi_add_video_stream(avi_Context *AVI,
 //third function to get called (add audio stream to avi_Context)
 avi_Stream*
 avi_add_audio_stream(avi_Context *AVI,
-					long   format,
-					long   channels,
-					long   rate,
-					long   bits,
-					long   mpgrate,
-					long   vbr,
-					off_t  audio_bytes,
+					int32_t   format,
+					int32_t   channels,
+					int32_t   rate,
+					int32_t   bits,
+					int32_t   mpgrate,
+					int32_t   vbr,
+					int32_t   codec_id,
 					char* compressor)
 {
 	avi_Stream* stream = avi_add_new_stream(AVI);
@@ -995,7 +922,7 @@ avi_add_audio_stream(avi_Context *AVI,
 	stream->a_bits = bits;
 	stream->mpgrate = mpgrate;
 	stream->a_vbr = vbr;
-	stream->audio_bytes = audio_bytes;
+	stream->codec_id = codec_id;
 
 	if(compressor)
 		strncpy(stream->compressor, compressor, 8);
@@ -1007,9 +934,9 @@ avi_add_audio_stream(avi_Context *AVI,
 /*
    first function to get called
 
-   avi_create_context: Open an AVI File and write a bunch
-                         of zero bytes as space for the header.
-                         Creates a mutex.
+   avi_create_context:  Open an AVI File and write a bunch
+                        of zero bytes as space for the header.
+                        Creates a mutex.
 
    returns a pointer to avi_Context on success, a NULL pointer on error
 */
@@ -1077,43 +1004,45 @@ avi_Ientry* avi_get_ientry(avi_Index* idx, int ent_id)
     return &idx->cluster[cl][id];
 }
 
-/*
-
-static int avi_write_counters(avi_Context* AVI, int riff_id)
+static int avi_write_counters(avi_Context* AVI, avi_RIFF* riff)
 {
-    AVIOContext *pb = s->pb;
-    AVIContext *avi = s->priv_data;
     int n, au_byterate, au_ssize, au_scale, nb_frames = 0;
     int64_t file_size;
-    AVCodecContext* stream;
 
-    file_size = avio_tell(pb);
-    for(n = 0; n < s->nb_streams; n++) {
-        AVIStream *avist= s->streams[n]->priv_data;
+    file_size = avi_tell(AVI);
+    for(n = 0; n < AVI->stream_list_size; n++)
+    {
+        avi_Stream *stream= = avi_get_stream(AVI, n);
 
-        assert(avist->frames_hdr_strm);
-        stream = s->streams[n]->codec;
-        avio_seek(pb, avist->frames_hdr_strm, SEEK_SET);
-        ff_parse_specific_params(stream, &au_byterate, &au_ssize, &au_scale);
-        if(au_ssize == 0) {
-            avio_wl32(pb, avist->packet_count);
-        } else {
-            avio_wl32(pb, avist->audio_strm_length / au_ssize);
+        assert(stream->frames_hdr_strm);
+
+        avi_seek(AVI, stream->frames_hdr_strm);
+
+		au_scale=stream->frame_size;
+		au_rate= stream->sample_rate;
+
+        if(stream->type == STREAM_TYPE_VIDEO)
+        {
+            avi_wl32(AVI, stream->packet_count);
+            nb_frames = MAX(nb_frames, stream->packet_count);
         }
-        if(stream->codec_type == AVMEDIA_TYPE_VIDEO)
-            nb_frames = FFMAX(nb_frames, avist->packet_count);
+        else
+        {
+			int sampsize = avi_audio_sample_size(stream);
+            avi_wl32(AVI, 4*stream->audio_strm_length/sampsize);
+        }
     }
-    if(riff_id == 1) {
-        assert(avi->frames_hdr_all);
-        avio_seek(pb, avi->frames_hdr_all, SEEK_SET);
-        avio_wl32(pb, nb_frames);
+    if(riff->id == 0)
+    {
+        assert(riff->frames_hdr_all);
+        avi_seek(AVI, riff->frames_hdr_all);
+        avi_wl32(AVI, nb_frames);
     }
-    avio_seek(pb, file_size, SEEK_SET);
+    avi_seek(AVI, file_size);
 
     return 0;
 }
 
-*/
 static int avi_write_ix(avi_Context* AVI)
 {
     char tag[5];
@@ -1122,12 +1051,12 @@ static int avi_write_ix(avi_Context* AVI)
 
 	avi_RIFF *riff = avi_get_last_riff(AVI);
 
-    if (riff->id > AVI_MASTER_INDEX_SIZE)
+    if (riff->id >= AVI_MASTER_INDEX_SIZE)
         return -1;
 
     for (i=0;i<AVI->stream_list_size;i++)
     {
-        avi_Stream *avist= avi_get_stream(AVI, i);
+        avi_Stream *avist = avi_get_stream(AVI, i);
         int64_t ix, pos;
 
         avi_stream2fourcc(tag, avist);
@@ -1162,8 +1091,8 @@ static int avi_write_ix(avi_Context* AVI)
          avi_seek(AVI, avist->indexes.indx_start - 8);
          write_4cc(AVI, "indx");            /* enabling this entry */
          write_skip(AVI, 8);
-         write_wl32(AVI, riff->id);         /* nEntriesInUse */
-         write_skip(AVI, 16*riff->id);
+         write_wl32(AVI, riff->id +1);         /* nEntriesInUse */
+         write_skip(AVI, 16*(riff->id +1));
          write_wl64(AVI, ix);                   /* qwOffset */
          write_wl32(AVI, pos - ix);             /* dwSize */
          write_wl32(AVI, avist->indexes.entry); /* dwDuration */
@@ -1174,7 +1103,7 @@ static int avi_write_ix(avi_Context* AVI)
     return 0;
 }
 
-static int avi_write_idx1(avi_Context* AVI)
+static int avi_write_idx1(avi_Context* AVI, avi_RIFF *riff)
 {
 
     int64_t idx_chunk;
@@ -1226,36 +1155,24 @@ static int avi_write_idx1(avi_Context* AVI)
 
     avi_close_tag(AVI, idx_chunk);
 
-	avi_RIFF *riff = avi_get_last_riff(AVI);
-    avi_write_counters(AVI, riff->id);
+    avi_write_counters(AVI, riff);
 
     return 0;
 }
 
-int avi_write_packet(avi_Context* AVI, AVPacket *pkt, int block_align)
+int avi_write_packet(avi_Context* AVI, int stream_index, BYTE *data, uint32_t size, int dts, int block_align)
 {
     unsigned char tag[5];
     unsigned int flags=0;
-	int stream_index =  pkt->stream_index;
 
     avi_Stream *avist= avi_get_stream(AVI, stream_index);
 
-    int size= pkt->size;
+    //int size= pkt->size;
 
 	avi_RIFF* riff = avi_get_last_riff(AVI);
 	//align
-	/*
-    while(block_align==0 && pkt->dts != AV_NOPTS_VALUE && pkt->dts > avist->packet_count)
-    {
-        AVPacket empty_packet;
-
-        av_init_packet(&empty_packet);
-        empty_packet.size= 0;
-        empty_packet.data= NULL;
-        empty_packet.stream_index= stream_index;
-        avi_write_packet(AVI, &empty_packet);
-    }
-    */
+    while(block_align==0 && dts != AV_NOPTS_VALUE && dts > avist->packet_count)
+        avi_write_packet(AVI, stream_index, NULL, 0, AV_NOPTS_VALUE, 0);
 
     avist->packet_count++;
 
@@ -1265,7 +1182,7 @@ int avi_write_packet(avi_Context* AVI, AVPacket *pkt, int block_align)
         avi_write_ix(AVI);
         avi_close_tag(AVI, riff->movi_list);
 
-        if (riff->id == 1)
+        if (riff->id == 0)
             avi_write_idx1(AVI);
 
         avi_close_tag(AVI, riff->riff_start);
@@ -1304,16 +1221,74 @@ int avi_write_packet(avi_Context* AVI, AVPacket *pkt, int block_align)
 
     write_4cc(AVI, tag);
     write_wl32(AVI, size);
-    write_mem(AVI, pkt->data, size);
+    write_mem(AVI, data, size);
     if (size & 1)
-        write_w8(pb, 0);
+        write_w8(AVI, 0);
 
     flush_buffer(AVI);
 
     return 0;
 }
 
+int avi_close(avi_Context* AVI)
+{
+    int res = 0;
+    int i, j, n, nb_frames;
+    int64_t file_size;
 
+    avi_RIFF* riff = avi_get_last_riff(AVI);
+
+    if (riff->id == 0)
+    {
+        avi_close_tag(AVI, riff->movi_list);
+        res = avi_write_idx1(AVI, riff);
+        avi_close_tag(AVI, riff->riff_start);
+    }
+    else
+    {
+        avi_write_ix(AVI);
+        avi_close_tag(AVI, riff->movi_list);
+        avi_close_tag(AVI, riff->riff_start);
+
+        file_size = avi_tell(AVI);
+        avi_seek(AVI, riff->odml_list - 8);
+        write_4cc(AVI, "LIST"); /* Making this AVI OpenDML one */
+        avi_skip(AVI, 16);
+
+        for (n=nb_frames=0;n<AVI->stream_list_size;n++)
+        {
+            avi_Stream *stream = avi_get_stream(AVI, n);
+
+            if (stream->type == STREAM_TYPE_VIDEO)
+            {
+                if (nb_frames < stream->packet_count)
+                        nb_frames = stream->packet_count;
+            }
+            else
+            {
+                if (stream->codec_id == AV_CODEC_ID_MP2 || stream->codec_id == AV_CODEC_ID_MP3)
+                        nb_frames += stream->packet_count;
+            }
+        }
+        write_wl32(AVI, nb_frames);
+        avi_seek(AVI, file_size);
+
+        avi_write_counters(AVI, riff);
+    }
+
+
+    for (i=0; i<AVI->stream_list_size; i++)
+    {
+         avi_Stream *stream = avi_get_stream(AVI, i);
+
+         for (j=0; j<stream->indexes.ents_allocated/AVI_INDEX_CLUSTER_SIZE; j++)
+              av_free(stream->indexes.cluster[j]);
+         av_freep(&stream->indexes.cluster);
+         stream->indexes.ents_allocated = stream->indexes.entry = 0;
+    }
+
+    return res;
+}
 
 
 
