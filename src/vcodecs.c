@@ -614,9 +614,6 @@ static int encode_lavc (struct lavcData *lavc_data,
 		else
 			framesize= encode_lavc_frame (proc_buff->frame, lavc_data, V4L2_PIX_FMT_YUYV, videoF);
 
-		videoF->keyframe = lavc_data->codec_context->coded_frame->key_frame;
-		videoF->block_align = 0;
-
 		ret = write_video_data (all_data, lavc_data->outbuf, framesize);
 	}
 	return (ret);

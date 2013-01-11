@@ -656,14 +656,9 @@ void avi_put_astream_format_header(avi_Context* AVI, avi_Stream* stream)
 	int axd_size        = stream->extra_data_size;
 	int axd_size_align  = (stream->extra_data_size+1) & ~1;
 
-	int strf_size = 4 * 4 + 2;
-	if (axd_size > 0 && stream->extra_data)
-		strf_size += axd_size_align;
-
 	int sampsize = avi_audio_sample_size(stream);
 
 	int64_t strf = avi_open_tag(AVI, "strf");// audio stream format
-	write_wl32(AVI, strf_size);        // header size
 	write_wl16(AVI, stream->a_fmt);    // Format (codec) tag
 	write_wl16(AVI, stream->a_chans);  // Number of channels
 	write_wl32(AVI, stream->a_rate);   // SamplesPerSec
