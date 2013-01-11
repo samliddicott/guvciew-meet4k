@@ -472,7 +472,9 @@ struct lavcAData* init_lavc_audio(struct paRecordData *pdata, int codec_ind)
 	// find the audio encoder
 	//try specific codec (by name)
 	pdata->lavc_data->codec = avcodec_find_encoder_by_name(defaults->codec_name);
-
+	
+	fprintf(stderr, "AUDIO: codec %s selected\n", defaults->codec_name);
+	
 	if(!pdata->lavc_data->codec) //if it fails try any codec with matching CODEC_ID
 	{
 		fprintf(stderr, "ffmpeg audio codec %s not found\n", defaults->codec_name);

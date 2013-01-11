@@ -245,6 +245,10 @@ set_sound (struct GLOBAL *global, struct paRecordData* pdata)
 			}
 			/*use lavc audio codec frame size to determine samples*/
 			pdata->aud_numSamples = (pdata->lavc_data)->codec_context->frame_size * pdata->channels;
+			if(pdata->aud_numSamples <= 0)
+			{
+				pdata->aud_numSamples = MPG_NUM_SAMP * pdata->channels;
+			}
 			break;
 		}
 	}
@@ -254,7 +258,8 @@ set_sound (struct GLOBAL *global, struct paRecordData* pdata)
 	pdata->mp2Buff = NULL;
 
 	pdata->sampleIndex = 0;
-
+	
+	fprintf(stderr, "AUDIO: samples(%d)\n", pdata->aud_numSamples);
 	pdata->flush = 0;
 	pdata->a_ts= 0;
 	pdata->ts_ref = 0;

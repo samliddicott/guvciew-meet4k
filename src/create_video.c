@@ -149,9 +149,9 @@ static int initVideoFile(struct ALL_DATA *all_data)
 				set_sound(global, pdata);
 
 				/*sample size - only used for PCM*/
-				int32_t a_bits = get_aud_bits(get_ind_by4cc(global->Sound_Format));
+				int32_t a_bits = get_aud_bits(global->AudCodec);
 				/*bit rate (compressed formats)*/
-				int32_t b_rate = get_aud_bit_rate(get_ind_by4cc(global->Sound_Format));
+				int32_t b_rate = get_aud_bit_rate(global->AudCodec);
 
 				avi_add_audio_stream(videoF->avi,
 								global->Sound_NumChan,

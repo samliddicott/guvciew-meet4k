@@ -105,8 +105,8 @@ writeConf(struct GLOBAL *global, char *videodevice)
 		g_fprintf(fp,"#snd_numsec - video audio blocks size in sec: 1,2,3,.. \n");
 		g_fprintf(fp,"# sound delay in nanosec - delays sound by the specified amount when capturing video\n");
 		g_fprintf(fp,"snd_delay=%llu\n",(unsigned long long) global->Sound_delay);
-		g_fprintf(fp,"# Sound Format (PCM=1 (0x0001) MP2=80 (0x0050)\n");
-		g_fprintf(fp,"snd_format=%i\n",global->Sound_Format);
+		g_fprintf(fp,"# Audio codec (PCM=0 MPG2=1 (\n");
+		g_fprintf(fp,"aud_format=%i\n",global->AudCodec);
 		//g_fprintf(fp,"#Pan Step in degrees, Default=2\n");
 		//g_fprintf(fp,"Pan_Step=%i\n",global->PanStep);
 		//g_fprintf(fp,"#Tilt Step in degrees, Default=2\n");
@@ -477,9 +477,10 @@ readConf(struct GLOBAL *global)
 						{
 							global->Sound_delay = scanner->value.v_int64;
 						}
-						else if (g_strcmp0(name,"snd_format")==0) 
+						else if (g_strcmp0(name,"aud_codec")==0) 
 						{
-							global->Sound_Format = scanner->value.v_int;
+							global->AudCodec = scanner->value.v_int;
+							global->Sound_Format = get_aud4cc(global->AudCodec);
 						}
 						// else if (g_strcmp0(name,"snd_bitrate")==0) 
 						// {
