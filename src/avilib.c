@@ -347,9 +347,9 @@ static void avi_close_tag(avi_Context* AVI, int64_t start_pos)
 	avi_seek(AVI, start_pos-4);
 	write_wl32(AVI, size);
 	avi_seek(AVI, current_offset);
-	
+
 	fprintf(stderr, "AVI:(0x%llx) closing tag at 0x%llx with size 0x%llx\n",current_offset, start_pos-4, size);
-	
+
 }
 
 /* create a new writer for filename*/
@@ -714,7 +714,7 @@ int64_t avi_create_riff_tags(avi_Context* AVI, avi_RIFF* riff)
 {
 	int64_t off = 0;
 	riff->riff_start = avi_open_tag(AVI, "RIFF");
-	
+
 	if(riff->id == 0)
 	{
 		write_4cc(AVI, "AVI ");
@@ -1005,14 +1005,19 @@ static int avi_write_counters(avi_Context* AVI, avi_RIFF* riff)
 {
     int n, nb_frames = 0;
     flush_buffer(AVI);
-    
-    int64_t file_size = avi_tell(AVI);
+
+    int64_t file_size = avi_get_offset((AVI);//avi_tell(AVI);
+    fprintf(stderr, "AVI: file size = %llu\n", file_size);
+
     for(n = 0; n < AVI->stream_list_size; n++)
     {
         avi_Stream *stream = avi_get_stream(AVI, n);
 
         if(!stream->frames_hdr_strm <= 0)
+        {
+			fprintf(stderr, "AVI: stream frames header pos not valid\n")
 			return -1;
+		}
 
         avi_seek(AVI, stream->frames_hdr_strm);
 
@@ -1030,20 +1035,27 @@ static int avi_write_counters(avi_Context* AVI, avi_RIFF* riff)
     if(riff->id == 0)
     {
         if(riff->frames_hdr_all <= 0)
+        {
+			fprintf(stderr, "AVI: riff frames header pos not valid\n")
 			return(-2);
+        }
         avi_seek(AVI, riff->frames_hdr_all);
         write_wl32(AVI, nb_frames);
     }
 
     //update frame time delay
+    if(AVI->time_delay_off <= 0)
+    {
+		fprintf(stderr, "AVI: avi frame time pos not valid\n")
+		return(-2);
+    }
     avi_seek(AVI, AVI->time_delay_off - 4);
     int32_t ms_per_frame = 0;
 	if(AVI->fps > 0.001)
 		ms_per_frame=(int32_t) (1000000/AVI->fps + 0.5);
     write_wl32(AVI, ms_per_frame);
 
-
-
+	//return to position (EOF)
     avi_seek(AVI, file_size);
 
     return 0;
