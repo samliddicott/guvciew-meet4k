@@ -418,7 +418,7 @@ static int write_audio_data(struct ALL_DATA *all_data, BYTE *buff, int size, QWO
 	{
 		case AVI_FORMAT:
 			if(size > 0)
-				ret = avi_write_packet(videoF->avi, 1, buff, size, 0, -1, videoF->aflags);
+				ret = avi_write_packet(videoF->avi, 1, buff, size, videoF->adts, videoF->ablock_align, videoF->aflags);
 			break;
 
 		case MKV_FORMAT:

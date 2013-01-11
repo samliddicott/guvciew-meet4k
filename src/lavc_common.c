@@ -108,6 +108,8 @@ int encode_lavc_frame (BYTE *picture_buf, struct lavcData* data , int format, st
 {
 	int out_size = 0;
 
+	videoF->vblock_align = data->codec_context->block_align;
+
 	//convert to 4:2:0
 	switch (format)
 	{
@@ -169,7 +171,7 @@ int encode_lavc_frame (BYTE *picture_buf, struct lavcData* data , int format, st
         data->codec_context->coded_frame->key_frame = !!(pkt.flags & AV_PKT_FLAG_KEY);
     }
 
-	videoF->dts = pkt.dts;
+	videoF->vdts = pkt.dts;
 	videoF->vflags = pkt.flags;
 
     /* free any side data since we cannot return it */
@@ -189,7 +191,7 @@ int encode_lavc_frame (BYTE *picture_buf, struct lavcData* data , int format, st
 	else
 		out_size = avcodec_encode_video(data->codec_context, data->outbuf, data->outbuf_size, NULL);
 
-	videoF->dts = 0;
+	videoF->vdts = AV_NOPTS_VALUE;
 	videoF->vflags = 0;
 #endif
 
@@ -229,6 +231,9 @@ int encode_lavc_frame (BYTE *picture_buf, struct lavcData* data , int format, st
 int encode_lavc_audio_frame (void *audio_buf, struct lavcAData* data, struct VideoFormatData *videoF)
 {
 	int out_size = 0;
+	int ret = 0;
+
+	videoF->ablock_align = data->codec_context->block_align;
 
 	/* encode the audio */
 #if LIBAVCODEC_VER_AT_LEAST(53,34)
@@ -251,17 +256,26 @@ int encode_lavc_audio_frame (void *audio_buf, struct lavcAData* data, struct Vid
 	else  //generate a true monotonic pts based on the codec fps
 		data->frame->pts += (data->codec_context->time_base.num*1000/data->codec_context->time_base.den) * 90;
 
-	avcodec_encode_audio2(data->codec_context, &pkt, data->frame, &got_packet);
+	ret = avcodec_encode_audio2(data->codec_context, &pkt, data->frame, &got_packet);
+
+	if (!ret && got_packet && data->codec_context->coded_frame)
+    {
+    	data->codec_context->coded_frame->pts       = pkt.pts;
+        data->codec_context->coded_frame->key_frame = !!(pkt.flags & AV_PKT_FLAG_KEY);
+    }
+
+	videoF->adts = pkt.dts;
+	videoF->aflags = pkt.flags;
+
 	/* free any side data since we cannot return it */
 	//ff_packet_free_side_data(&pkt);
-
 	if (data->frame && data->frame->extended_data != data->frame->data)
 		av_freep(data->frame->extended_data);
 
 	out_size = pkt.size;
-	videoF->aflags = pkt.flags;
 #else
 	out_size = avcodec_encode_audio(data->codec_context, data->outbuf, data->outbuf_size, audio_buf);
+	videoF->adts = AV_NOPTS_VALUE;
 	videoF->aflags = 0;
 #endif
 	return (out_size);
@@ -472,9 +486,9 @@ struct lavcAData* init_lavc_audio(struct paRecordData *pdata, int codec_ind)
 	// find the audio encoder
 	//try specific codec (by name)
 	pdata->lavc_data->codec = avcodec_find_encoder_by_name(defaults->codec_name);
-	
+
 	fprintf(stderr, "AUDIO: codec %s selected\n", defaults->codec_name);
-	
+
 	if(!pdata->lavc_data->codec) //if it fails try any codec with matching CODEC_ID
 	{
 		fprintf(stderr, "ffmpeg audio codec %s not found\n", defaults->codec_name);

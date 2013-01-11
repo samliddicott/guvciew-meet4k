@@ -54,15 +54,16 @@ struct VideoFormatData
 	INT64 old_apts;           //previous audio time stamp
 	INT64 apts;               //audio stream presentation time stamp
 
-	int64_t dts;
-	int block_align;
-	int32_t aflags;
-	int32_t vflags;
-
 	int vcodec;
-	int acodec;
-
+	int64_t vdts;
+	int vblock_align;
+	int32_t vflags;
 	int keyframe;
+
+	int acodec;
+	int64_t adts;
+	int ablock_align;
+	int32_t aflags;
 };
 
 const char *get_vformat_extension(int codec_ind);

@@ -1208,7 +1208,7 @@ int avi_write_packet(avi_Context* AVI, int stream_index, BYTE *data, uint32_t si
 
     avi_stream2fourcc(tag, avist);
 
-    if(flags & AV_PKT_FLAG_KEY)
+    if(flags & AV_PKT_FLAG_KEY) //key frame
         i_flags = 0x10;
 
     if (avist->type == STREAM_TYPE_AUDIO)
