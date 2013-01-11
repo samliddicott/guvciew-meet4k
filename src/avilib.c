@@ -555,11 +555,11 @@ void avi_put_main_header(avi_Context* AVI, avi_RIFF* riff)
 
 	int64_t avih = avi_open_tag(AVI, "avih"); // main avi header
 	write_wl32(AVI, ms_per_frame);		// time delay between frames (milisec)
-	AVI->time_delay_off = avi_tell(AVI);
+	AVI->time_delay_off = avi_get_offset(AVI);
 	write_wl32(AVI, 0);                 // data rate
 	write_wl32(AVI, 0);                 // Padding multiple size (2048)
 	write_wl32(AVI, flags);			    // parameter Flags
-	riff->frames_hdr_all = avi_tell(AVI);
+	riff->frames_hdr_all = avi_get_offset(AVI);
 	write_wl32(AVI, 0);			        // number of video frames
 	write_wl32(AVI, 0);			        // number of preview frames
 	write_wl32(AVI, AVI->stream_list_size); // number of data streams (audio + video)*/
@@ -589,7 +589,7 @@ int64_t avi_put_bmp_header(avi_Context* AVI, avi_Stream* stream)
 	write_wl32(AVI, FRAME_RATE_SCALE);   // Scale
 	write_wl32(AVI, frate);              // Rate: Rate/Scale == sample/second (fps) */
 	write_wl32(AVI, 0);                  // start time
-	stream->frames_hdr_strm = avi_tell(AVI);
+	stream->frames_hdr_strm = avi_get_offset(AVI);
 	write_wl32(AVI, 0);                  // lenght of stream
 	write_wl32(AVI, 1024*1024);          // suggested playback buffer size
 	write_wl32(AVI, -1);                 // Quality
@@ -617,7 +617,7 @@ int64_t avi_put_wav_header(avi_Context* AVI, avi_Stream* stream)
 	write_wl32(AVI, sampsize/4);         // Scale
 	write_wl32(AVI, stream->mpgrate/8);   // Rate: Rate/Scale == sample/second (fps) */
 	write_wl32(AVI, 0);                  // start time
-	stream->frames_hdr_strm = avi_tell(AVI);
+	stream->frames_hdr_strm = avi_get_offset(AVI);
 	write_wl32(AVI, 0);                  // lenght of stream
 	write_wl32(AVI, 12*1024);            // suggested playback buffer size
 	write_wl32(AVI, -1);                 // Quality
@@ -1006,7 +1006,7 @@ static int avi_write_counters(avi_Context* AVI, avi_RIFF* riff)
     int n, nb_frames = 0;
     flush_buffer(AVI);
 
-    int64_t file_size = avi_get_offset((AVI);//avi_tell(AVI);
+    int64_t file_size = avi_get_offset(AVI);//avi_tell(AVI);
     fprintf(stderr, "AVI: file size = %llu\n", file_size);
 
     for(n = 0; n < AVI->stream_list_size; n++)
@@ -1015,7 +1015,7 @@ static int avi_write_counters(avi_Context* AVI, avi_RIFF* riff)
 
         if(!stream->frames_hdr_strm <= 0)
         {
-			fprintf(stderr, "AVI: stream frames header pos not valid\n")
+			fprintf(stderr, "AVI: stream frames header pos not valid\n");
 			return -1;
 		}
 
@@ -1035,8 +1035,8 @@ static int avi_write_counters(avi_Context* AVI, avi_RIFF* riff)
     if(riff->id == 0)
     {
         if(riff->frames_hdr_all <= 0)
-        {
-			fprintf(stderr, "AVI: riff frames header pos not valid\n")
+        {;
+			fprintf(stderr, "AVI: riff frames header pos not valid\n");
 			return(-2);
         }
         avi_seek(AVI, riff->frames_hdr_all);
@@ -1046,7 +1046,7 @@ static int avi_write_counters(avi_Context* AVI, avi_RIFF* riff)
     //update frame time delay
     if(AVI->time_delay_off <= 0)
     {
-		fprintf(stderr, "AVI: avi frame time pos not valid\n")
+		fprintf(stderr, "AVI: avi frame time pos not valid\n");
 		return(-2);
     }
     avi_seek(AVI, AVI->time_delay_off - 4);
@@ -1082,7 +1082,7 @@ static int avi_write_ix(avi_Context* AVI)
         ix_tag[3] = '0' + i;
 
         /* Writing AVI OpenDML leaf index chunk */
-        ix = avi_tell(AVI);
+        ix = avi_get_offset(AVI);
         write_4cc(AVI, ix_tag);     /* ix?? */
         write_wl32(AVI, avist->indexes.entry * 8 + 24);
                                       /* chunk size */
@@ -1103,7 +1103,7 @@ static int avi_write_ix(avi_Context* AVI)
                           (ie->flags & 0x10 ? 0 : 0x80000000));
          }
          flush_buffer(AVI);
-         pos = avi_tell(AVI); //current position
+         pos = avi_get_offset(AVI); //current position
 
          /* Updating one entry in the AVI OpenDML master index */
          avi_seek(AVI, avist->indexes.indx_start - 8);
@@ -1193,7 +1193,7 @@ int avi_write_packet(avi_Context* AVI, int stream_index, BYTE *data, uint32_t si
     avist->packet_count++;
 
     // Make sure to put an OpenDML chunk when the file size exceeds the limits
-    if (avi_tell(AVI) - riff->riff_start > AVI_MAX_RIFF_SIZE)
+    if (avi_get_offset(AVI) - riff->riff_start > AVI_MAX_RIFF_SIZE)
     {
         avi_write_ix(AVI);
         avi_close_tag(AVI, riff->movi_list);
@@ -1230,7 +1230,7 @@ int avi_write_packet(avi_Context* AVI, int stream_index, BYTE *data, uint32_t si
     }
 
     idx->cluster[cl][id].flags = i_flags;
-    idx->cluster[cl][id].pos = avi_tell(AVI) - riff->movi_list;
+    idx->cluster[cl][id].pos = avi_get_offset(AVI) - riff->movi_list;
     idx->cluster[cl][id].len = size;
     idx->entry++;
 
@@ -1267,7 +1267,7 @@ int avi_close(avi_Context* AVI)
         avi_close_tag(AVI, riff->movi_list);
         avi_close_tag(AVI, riff->riff_start);
 
-        file_size = avi_tell(AVI);
+        file_size = avi_get_offset(AVI);
         avi_seek(AVI, AVI->odml_list - 8);
         write_4cc(AVI, "LIST"); /* Making this AVI OpenDML one */
         avi_skip(AVI, 16);
