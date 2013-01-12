@@ -40,7 +40,7 @@
 #include <pthread.h>
 
 #define AVI_MAX_TRACKS 8
-#define FRAME_RATE_SCALE 30 //1000000
+#define FRAME_RATE_SCALE 1000 //1000000
 
 enum STREAM_TYPE
 {
@@ -157,7 +157,7 @@ struct avi_Context
 
 	double fps;
 
-	int64_t time_delay_off, odml_list; //some file offsets
+	int64_t odml_list /*,time_delay_off*/ ; //some file offsets
 };
 
 typedef struct avi_Context avi_Context;
