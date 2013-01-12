@@ -153,13 +153,19 @@ static int initVideoFile(struct ALL_DATA *all_data)
 				/*bit rate (compressed formats)*/
 				int32_t b_rate = get_aud_bit_rate(global->AudCodec);
 
-				avi_add_audio_stream(videoF->avi,
+				avi_Stream* stream = avi_add_audio_stream(videoF->avi,
 								global->Sound_NumChan,
 								global->Sound_SampRate,
 								a_bits,
 								b_rate,
 								videoF->acodec,
 								global->Sound_Format);
+				
+				if(videoF->acodec == CODEC_ID_VORBIS)
+				{
+						stream->extra_data = (BYTE*) pdata->lavc_data->codec_context->extradata;
+						stream->extra_data_size = pdata->lavc_data->codec_context->extradata_size;
+				}
 
 			}
 			/* add first riff header */
