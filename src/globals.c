@@ -88,8 +88,7 @@ int initGlobals (struct GLOBAL *global)
 	global->lprofile=0; /* flag for -l command line option*/
 	global->imgFormat=0; /* 0 -JPG 1-BMP 2-PNG*/
 	global->VidCodec=0; /*0-"MJPG"  1-"YUY2" 2-"DIB "(rgb32) 3-...*/
-	global->AudCodec=1; /*0-"PCM"  1-"MPG2" 2-...*/  
-	global->AVI_MAX_LEN=AVI_MAX_SIZE; /* ~2 Gb*/    
+	global->AudCodec=1; /*0-"PCM"  1-"MPG2" 2-...*/    
 	global->av_drift=0;
 	global->currtime=0;
 	global->lasttime=0;

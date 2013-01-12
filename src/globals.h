@@ -71,7 +71,6 @@ struct GLOBAL
 	sndDev *Sound_IndexDev;//list of sound input devices
 	BYTE *jpeg;            // jpeg buffer
 
-	ULONG AVI_MAX_LEN;     //avi max length
 	int64_t av_drift;      // amount of A/V time correction
 	DWORD currtime;
 	DWORD lasttime;
