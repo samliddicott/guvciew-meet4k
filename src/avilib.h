@@ -40,7 +40,7 @@
 #include <pthread.h>
 
 #define AVI_MAX_TRACKS 8
-#define FRAME_RATE_SCALE 1000000
+#define FRAME_RATE_SCALE 30 //1000000
 
 enum STREAM_TYPE
 {
@@ -86,7 +86,7 @@ struct avi_Stream
 
 	int32_t entry;
 
-	int64_t frames_hdr_strm;
+	int64_t rate_hdr_strm, frames_hdr_strm;
 
 	avi_Index indexes;
 
@@ -145,7 +145,10 @@ struct avi_Context
 	__MUTEX_TYPE mutex;
 
 	int flags; /* 0 - AVI is recordind;   1 - AVI is not recording*/
-
+	
+	int32_t time_base_num;       /* video time base numerator */
+	int32_t time_base_den;       /* video time base denominator */    
+	
 	avi_RIFF* riff_list; // avi_riff list (NULL terminated)
 	int riff_list_size;
 

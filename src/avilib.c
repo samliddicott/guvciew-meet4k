@@ -542,11 +542,17 @@ void avi_put_main_header(avi_Context* AVI, avi_RIFF* riff)
 	AVI->fps = get_first_video_stream(AVI)->fps;
 	int width = get_first_video_stream(AVI)->width;
 	int height = get_first_video_stream(AVI)->height;
+	int time_base_num = AVI->time_base_num;
+	int time_base_den = AVI->time_base_den;
+	
+	uint32_t data_rate = 0; 
+	if(time_base_den > 0 || time_base_num > 0) //these are not set yet so it's always false
+		data_rate = (uint32_t) (INT64_C(1000000) * time_base_num/time_base_den);
+	else
+		fprintf(stderr, "AVI: bad time base (%i/%i)", time_base_num, time_base_den);
 
-	int ms_per_frame = 0;
-	if(AVI->fps > 0.001)
-		ms_per_frame=(int) (1000000/AVI->fps + 0.5);
-
+	uint32_t ms_per_frame = 56;
+	
 	/*do not force index yet -only when closing*/
 	/*this should prevent bad avi files even if it is not closed properly*/
 	//if(hasIndex) flag |= AVIF_HASINDEX;
@@ -554,19 +560,19 @@ void avi_put_main_header(avi_Context* AVI, avi_RIFF* riff)
 	uint32_t flags = AVIF_WASCAPTUREFILE;
 
 	int64_t avih = avi_open_tag(AVI, "avih"); // main avi header
-	write_wl32(AVI, ms_per_frame);		// time delay between frames (milisec)
 	AVI->time_delay_off = avi_get_offset(AVI);
-	write_wl32(AVI, 0);                 // data rate
+	write_wl32(AVI, ms_per_frame);      // time delay between frames (milisec)
+	write_wl32(AVI, data_rate);         // data rate
 	write_wl32(AVI, 0);                 // Padding multiple size (2048)
 	write_wl32(AVI, flags);			    // parameter Flags
 	riff->frames_hdr_all = avi_get_offset(AVI);
 	write_wl32(AVI, 0);			        // number of video frames
 	write_wl32(AVI, 0);			        // number of preview frames
 	write_wl32(AVI, AVI->stream_list_size); // number of data streams (audio + video)*/
-	write_wl32(AVI, 0);			        // suggested playback buffer size (bytes)
+	write_wl32(AVI, 1024*1024);         // suggested playback buffer size (bytes)
 	write_wl32(AVI, width);		        // width
 	write_wl32(AVI, height);	    	// height
-	write_wl32(AVI, 0);			        // time scale:  unit used to measure time (30)
+	write_wl32(AVI, 0);                 // time scale:  unit used to measure time (30)
 	write_wl32(AVI, 0);			        // data rate (frame rate * time scale)
 	write_wl32(AVI, 0);			        // start time (0)
 	write_wl32(AVI, 0);			        // size of AVI data chunk (in scale units)
@@ -575,9 +581,9 @@ void avi_put_main_header(avi_Context* AVI, avi_RIFF* riff)
 
 int64_t avi_put_bmp_header(avi_Context* AVI, avi_Stream* stream)
 {
-	int frate = 0;
+	int frate = 15*FRAME_RATE_SCALE;
 	if(stream->fps > 0.001)
-		frate = (int) (FRAME_RATE_SCALE*stream->fps + 0.5);
+		frate = (int) (FRAME_RATE_SCALE*(stream->fps + 0.5));
 
 	int64_t strh = avi_open_tag(AVI, "strh");// video stream header
 	write_4cc(AVI, "vids");              // stream type
@@ -586,6 +592,7 @@ int64_t avi_put_bmp_header(avi_Context* AVI, avi_Stream* stream)
 	write_wl32(AVI, 0);                  // stream priority
 	write_wl32(AVI, 0);                  // language tag
 	write_wl32(AVI, 0);                  // initial frames
+	stream->rate_hdr_strm = avi_get_offset(AVI);
 	write_wl32(AVI, FRAME_RATE_SCALE);   // Scale
 	write_wl32(AVI, frate);              // Rate: Rate/Scale == sample/second (fps) */
 	write_wl32(AVI, 0);                  // start time
@@ -596,8 +603,8 @@ int64_t avi_put_bmp_header(avi_Context* AVI, avi_Stream* stream)
 	write_wl32(AVI, 0);                  // SampleSize
 	write_wl16(AVI, 0);                  // rFrame (left)
 	write_wl16(AVI, 0);                  // rFrame (top)
-	write_wl16(AVI, 0);                  // rFrame (right)
-	write_wl16(AVI, 0);                  // rFrame (bottom)
+	write_wl16(AVI, stream->width);                  // rFrame (right)
+	write_wl16(AVI, stream->height);                  // rFrame (bottom)
 	avi_close_tag(AVI, strh); //write the chunk size
 
 	return strh;
@@ -614,6 +621,7 @@ int64_t avi_put_wav_header(avi_Context* AVI, avi_Stream* stream)
 	write_wl32(AVI, 0);                  // stream priority
 	write_wl32(AVI, 0);                  // language tag
 	write_wl32(AVI, 0);                  // initial frames
+	stream->rate_hdr_strm = avi_get_offset(AVI);
 	write_wl32(AVI, sampsize/4);         // Scale
 	write_wl32(AVI, stream->mpgrate/8);   // Rate: Rate/Scale == sample/second (fps) */
 	write_wl32(AVI, 0);                  // start time
@@ -680,15 +688,20 @@ void avi_put_astream_format_header(avi_Context* AVI, avi_Stream* stream)
 
 void avi_put_vproperties_header(avi_Context* AVI, avi_Stream* stream)
 {
+	uint32_t refresh_rate =  (uint32_t) lrintf(2.0 * AVI->fps);
+	if(AVI->time_base_den  > 0 || AVI->time_base_num > 0) //these are not set yet so it's always false
+	{
+		double time_base = AVI->time_base_num / (double) AVI->time_base_den;
+		refresh_rate = lrintf(1.0/time_base);
+	}
 	int vprp= avi_open_tag(AVI, "vprp");
-
     write_wl32(AVI, 0); //video format  = unknown
     write_wl32(AVI, 0); //video standard= unknown
-    write_wl32(AVI, 2 * lrintf(stream->fps)); // dwVerticalRefreshRate
+    write_wl32(AVI, refresh_rate); // dwVerticalRefreshRate
     write_wl32(AVI, stream->width ); //horizontal pixels
     write_wl32(AVI, stream->height); //vertical lines
-    write_wl16(AVI, stream->width);  //Active Frame Aspect Ratio (4:3 - 16:9)
-    write_wl16(AVI, stream->height); //Active Frame Aspect Ratio
+    write_wl16(AVI, stream->height);  //Active Frame Aspect Ratio (4:3 - 16:9)
+    write_wl16(AVI, stream->width); //Active Frame Aspect Ratio
     write_wl32(AVI, stream->width ); //Active Frame Height in Pixels
     write_wl32(AVI, stream->height);//Active Frame Height in Lines
     write_wl32(AVI, 1); //progressive FIXME
@@ -1000,55 +1013,87 @@ static int avi_write_counters(avi_Context* AVI, avi_RIFF* riff)
 {
     int n, nb_frames = 0;
     flush_buffer(AVI);
-
+    
+	int time_base_num = AVI->time_base_num;
+	int time_base_den = AVI->time_base_den;
+	
     int64_t file_size = avi_get_offset(AVI);//avi_tell(AVI);
     fprintf(stderr, "AVI: file size = %llu\n", file_size);
 
     for(n = 0; n < AVI->stream_list_size; n++)
     {
         avi_Stream *stream = avi_get_stream(AVI, n);
-
-        if(!stream->frames_hdr_strm <= 0)
+		
+		if(stream->rate_hdr_strm <= 0)
+        {
+			fprintf(stderr, "AVI: stream rate header pos not valid\n");
+		}
+		else
+		{
+			avi_seek(AVI, stream->rate_hdr_strm);
+		
+			if(stream->type == STREAM_TYPE_VIDEO && AVI->fps > 0.001)
+			{
+				uint32_t frate =(uint32_t) FRAME_RATE_SCALE * lrintf(AVI->fps + 0.5);
+				fprintf(stderr,"AVI: storing rate(%i) and scale(%i)\n",FRAME_RATE_SCALE, frate);
+				write_wl32(AVI, lrintf(AVI->fps+0.5)/*FRAME_RATE_SCALE*/); //????
+				write_wl32(AVI, frate);
+			}
+		}
+		
+        if(stream->frames_hdr_strm <= 0)
         {
 			fprintf(stderr, "AVI: stream frames header pos not valid\n");
-			return -1;
 		}
+		else
+		{
+			avi_seek(AVI, stream->frames_hdr_strm);
 
-        avi_seek(AVI, stream->frames_hdr_strm);
-
-        if(stream->type == STREAM_TYPE_VIDEO)
-        {
-            write_wl32(AVI, stream->packet_count);
-            nb_frames = MAX(nb_frames, stream->packet_count);
-        }
-        else
-        {
-			int sampsize = avi_audio_sample_size(stream);
-            write_wl32(AVI, 4*stream->audio_strm_length/sampsize);
-        }
+			if(stream->type == STREAM_TYPE_VIDEO)
+			{
+				write_wl32(AVI, stream->packet_count);
+				nb_frames = MAX(nb_frames, stream->packet_count);
+			}
+			else
+			{
+				int sampsize = avi_audio_sample_size(stream);
+				write_wl32(AVI, 4*stream->audio_strm_length/sampsize);
+			}		
+		}
     }
     if(riff->id == 0)
     {
         if(riff->frames_hdr_all <= 0)
-        {;
+        {
 			fprintf(stderr, "AVI: riff frames header pos not valid\n");
-			return(-2);
         }
-        avi_seek(AVI, riff->frames_hdr_all);
-        write_wl32(AVI, nb_frames);
+        else
+        {
+			avi_seek(AVI, riff->frames_hdr_all);
+			write_wl32(AVI, nb_frames);
+		}
     }
 
     //update frame time delay
     if(AVI->time_delay_off <= 0)
     {
 		fprintf(stderr, "AVI: avi frame time pos not valid\n");
-		return(-2);
     }
-    avi_seek(AVI, AVI->time_delay_off - 4);
-    int32_t ms_per_frame = 0;
-	if(AVI->fps > 0.001)
-		ms_per_frame=(int32_t) (1000000/AVI->fps + 0.5);
-    write_wl32(AVI, ms_per_frame);
+    else
+    {
+		avi_seek(AVI, AVI->time_delay_off);
+		uint32_t ms_per_frame = 0;
+		if(AVI->fps > 0.001)
+			ms_per_frame=(uint32_t) lrintf(1000000.0 / AVI->fps + 0.5);
+		write_wl32(AVI, ms_per_frame);
+	
+		uint32_t data_rate = 0; 
+		if(time_base_den > 0 || time_base_num > 0) //these are not set yet so it's always false
+			data_rate = (uint32_t) (INT64_C(1000000) * time_base_num/time_base_den);
+		else
+			fprintf(stderr, "AVI: bad time base (%i/%i)", time_base_num, time_base_den);
+		write_wl32(AVI, data_rate);
+	}
 
 	//return to position (EOF)
     avi_seek(AVI, file_size);
