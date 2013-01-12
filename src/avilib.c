@@ -550,8 +550,6 @@ void avi_put_main_header(avi_Context* AVI, avi_RIFF* riff)
 		data_rate = (uint32_t) (INT64_C(1000000) * time_base_num/time_base_den);
 	else
 		fprintf(stderr, "AVI: bad time base (%i/%i)", time_base_num, time_base_den);
-
-	uint32_t ms_per_frame = 56;
 	
 	/*do not force index yet -only when closing*/
 	/*this should prevent bad avi files even if it is not closed properly*/
