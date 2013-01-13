@@ -31,6 +31,7 @@
 
 #include "ms_time.h"
 #include "defs.h"
+#include "video_format.h"
 #include "matroska.h"
 
 #define CLSIZE    55242880 /*5 Mb  (1Mb = 1048576)*/
@@ -51,6 +52,7 @@ struct mk_Writer
 {
 	FILE *fp;
 	/*-------header------*/
+	int format; // 1 matroska , 2 webm
 	int video_only;            //not muxing audio
 	int64_t duration_ptr;      //file location pointer for duration
 	int64_t segment_size_ptr;  //file location pointer for segment size
@@ -361,13 +363,15 @@ static unsigned mk_ebmlSizeSize(unsigned s)
 //	return 8 - i;
 //}
 
-mk_Writer *mk_createWriter(const char *filename)
+mk_Writer *mk_createWriter(const char *filename, int format)
 {
 	mk_Writer *w = g_new0(mk_Writer, 1);
 
 	if (w == NULL)
 		return NULL;
 
+	w->format = format;
+	
 	w->root = mk_createContext(w, NULL, 0);
 	if (w->root == NULL)
 	{
@@ -421,22 +425,25 @@ int mk_writeHeader(mk_Writer *w, const char *writingApp,
 	//CHECK(mk_writeUInt(c, EBML_ID_EBMLREADVERSION, 1));   // EBMLReadVersion
 	//CHECK(mk_writeUInt(c, EBML_ID_EBMLMAXIDLENGTH, 4));   // EBMLMaxIDLength
 	//CHECK(mk_writeUInt(c, EBML_ID_EBMLMAXSIZELENGTH, 8)); // EBMLMaxSizeLength
-	CHECK(mk_writeStr(c, EBML_ID_DOCTYPE, "matroska"));     // DocType
+	if(w->format == WEBM_FORMAT)
+		CHECK(mk_writeStr(c, EBML_ID_DOCTYPE, "webm"));     // DocType
+	else
+		CHECK(mk_writeStr(c, EBML_ID_DOCTYPE, "matroska"));     // DocType
 	CHECK(mk_writeUInt(c, EBML_ID_DOCTYPEVERSION, 2));      // DocTypeVersion
 	CHECK(mk_writeUInt(c, EBML_ID_DOCTYPEREADVERSION, 2));  // DocTypeReadversion
 	pos=c->d_cur;
 	CHECK(mk_closeContext(c, &pos));
 
-	/* SEGMENT starts at position 24  */
+	/* SEGMENT starts at position 24 (matroska) 20(webm) */
 	if ((c = mk_createContext(w, w->root, MATROSKA_ID_SEGMENT)) == NULL)
 		return -1;
-	pos+=4; /*pos=28*/
+	pos+=4; /*pos=28(24)*/
 
 	w->segment_size_ptr = pos;
 	/*needs full segment size here (including clusters) but we only know the header size for now.(2 bytes)*/
 	/*add extra (6) bytes - reserve a total of 8 bytes for segment size in ebml format =6+2(header size)  */
 	mk_appendContextData(c, empty, extra);
-	pos+=extra+2;/*(pos=36) account 2 bytes from header size -these will only be available after closing c context*/
+	pos+=extra+2;/*pos=36(32) account 2 bytes from header size -these will only be available after closing c context*/
 
 	w->seekhead_pos = pos; /* SeekHead Position */
 	if ((ti = mk_createContext(w, c, MATROSKA_ID_SEEKHEAD)) == NULL)    /* SeekHead */
@@ -453,7 +460,7 @@ int mk_writeHeader(mk_Writer *w, const char *writingApp,
 	CHECK(mk_writeUInt(ti2, MATROSKA_ID_SEEKPOSITION, 4220-(w->seekhead_pos)));
 	CHECK(mk_closeContext(ti2, 0));
 	pos = ti->d_cur + w->segment_size_ptr + 2;/* add 2 bytes from the header size */
-	CHECK(mk_closeContext(ti, &pos)); /* pos=71 */
+	CHECK(mk_closeContext(ti, &pos)); /* pos=71 (67) */
 	/* allways start Segment info at pos 4135
 	* this will be overwritten by seek entries for cues and the final seekhead   */
 	CHECK(mk_writeVoid(c, 4135-(pos+3))); /* account 3 bytes from Void ID (1) and size(2) */

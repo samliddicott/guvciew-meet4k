@@ -109,8 +109,8 @@ int encode_lavc_frame (BYTE *picture_buf, struct lavcData* data , int format, st
 	int out_size = 0;
 
 	videoF->vblock_align = data->codec_context->block_align;
-	videoF->avi->time_base_num = data->codec_context->time_base.num;
-	videoF->avi->time_base_den = data->codec_context->time_base.den;
+	//videoF->avi->time_base_num = data->codec_context->time_base.num;
+	//videoF->avi->time_base_den = data->codec_context->time_base.den;
 	
 	//convert to 4:2:0
 	switch (format)

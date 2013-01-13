@@ -574,6 +574,7 @@ static int write_video_data(struct ALL_DATA *all_data, BYTE *buff, int size)
 				//ret = AVI_write_frame (videoF->AviOut, buff, size, videoF->keyframe);
 			break;
 
+		case WEBM_FORMAT:
 		case MKV_FORMAT:
 			if(size > 0)
 			{
@@ -682,6 +683,8 @@ int compress_frame(void *data,
 				case AVI_FORMAT: /* lines upside down     */
 					yuyv2bgr(proc_buff->frame, prgb, global->width, global->height);
 					break;
+					
+				case WEBM_FORMAT:
 				case MKV_FORMAT: /* lines in correct order*/
 					yuyv2bgr1(proc_buff->frame, prgb, global->width, global->height);
 					break;

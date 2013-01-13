@@ -87,24 +87,30 @@ int
 check_video_type (char *filename) 
 {
 	int format=0;
-	char str_ext[3];
+	char str_ext[5];
 	/*get the file extension*/
-	sscanf(filename,"%*[^.].%3c",str_ext);
+	sscanf(filename,"%*[^.].%4s",str_ext);
 	/* change image type */
-	int somExt = g_ascii_tolower(str_ext[0])*g_ascii_tolower(str_ext[1])+g_ascii_tolower(str_ext[2]);
-	switch (somExt) 
+	GString * extension = g_string_new(str_ext);
+	extension = g_string_ascii_down(extension);
+	fprintf(stderr, "file %s has extension %s\n", filename, extension->str);
+	
+	if(g_strcmp0("avi", extension->str) == 0)
 	{
-		case ('a'*'v'+'i'):
-			format=0;
-			break;
-			
-		case ('m'*'k'+'v'):
-			format=1;
-			break;
-			
-		default: /* use avi as default*/
-			format=0;
+		format = 0;
 	}
+	else if (g_strcmp0("mvk", extension->str) == 0)
+	{
+		format=1;
+	}
+	else if(g_strcmp0("webm", extension->str) == 0)
+	{
+		format = 2;
+	}
+	else
+		format = 0;
+	
+	g_string_free(extension, TRUE);
 	return (format);
 }
 
@@ -168,13 +174,13 @@ char *incFilename(char *fullPath, pchar *splited, int inc)
 {
 	int fsize=strlen(splited[0]);
 	char basename[fsize];
-	char extension[4];
+	char extension[5];
 	int inc_n_char = num_chars(inc);
 	gchar *buffer = g_new0(gchar, inc_n_char+1);/*include '\0' terminator*/
 	buffer = g_ascii_dtostr(buffer, inc_n_char+1, inc);
 	
-	sscanf(splited[0],"%[^.].%3c", basename, extension);
-	extension[3]='\0';/*terminate extension string*/
+	sscanf(splited[0],"%[^.].%4s", basename, extension);
+	//extension[3]='\0';/*terminate extension string*/
 	
 	g_free (fullPath);
 	fullPath=NULL;

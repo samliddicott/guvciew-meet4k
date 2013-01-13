@@ -52,6 +52,14 @@ static vformats_data listSupVFormats[] = //list of software supported formats
 		.extension    = "mkv",
 		.format_str   = "mkv",
 		.flags        = 0
+	},
+	{
+		.avformat     = FALSE,
+		.name         = "WEBM",
+		.description  = N_("WEBM - format"),
+		.extension    = "webm",
+		.format_str   = "webm",
+		.flags        = 0
 	}
 };
 
@@ -147,7 +155,7 @@ int clean_FormatContext (void* data)
 	return (ret);
 }
 
-int init_FormatContext(void *data)
+int init_FormatContext(void *data, int format)
 {
 	struct ALL_DATA *all_data = (struct ALL_DATA *) data;
 	struct GLOBAL *global = all_data->global;
@@ -167,7 +175,7 @@ int init_FormatContext(void *data)
 		videoF->mkv_w = NULL;
 	}
 	
-	videoF->mkv_w = mk_createWriter( videoIn->VidFName );
+	videoF->mkv_w = mk_createWriter( videoIn->VidFName, format );
 	if(videoF->mkv_w == NULL)
 	{
 		g_printerr("matroska: failed to initialize file\n");

@@ -221,7 +221,7 @@ typedef enum {
 
 typedef struct mk_Writer mk_Writer;
 
-mk_Writer *mk_createWriter( const char *filename );
+mk_Writer *mk_createWriter( const char *filename, int format );
 
 int  mk_writeHeader( mk_Writer *w, const char *writingApp,
                      const char *codecID,

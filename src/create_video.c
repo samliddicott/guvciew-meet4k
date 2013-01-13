@@ -185,14 +185,15 @@ static int initVideoFile(struct ALL_DATA *all_data)
 				global->Sound_enable=0;
 			}
 			break;
-
+			
+		case WEBM_FORMAT:
 		case MKV_FORMAT:
 			if(global->Sound_enable > 0)
 			{
 				/*set channels, sample rate and allocate buffers*/
 				set_sound(global, pdata);
 			}
-			if(init_FormatContext((void *) all_data)<0)
+			if(init_FormatContext((void *) all_data, global->VidFormat)<0)
 			{
 				capVid = FALSE;
 				__LOCK_MUTEX(__VMUTEX);
@@ -343,6 +344,7 @@ static void closeVideoFile(struct ALL_DATA *all_data)
 			aviClose(all_data);
 			break;
 
+		case WEBM_FORMAT:
 		case MKV_FORMAT:
 			if(clean_FormatContext ((void*) all_data))
 				g_printerr("matroska close returned a error\n");
@@ -374,7 +376,7 @@ static int write_video_frame (struct ALL_DATA *all_data,
 			ret = compress_frame(all_data, jpeg_struct, lavc_data, proc_buff);
 			break;
 
-
+		case WEBM_FORMAT:
 		case MKV_FORMAT:
 			//global->framecount++;
 
@@ -401,6 +403,8 @@ static int write_audio_frame (struct ALL_DATA *all_data)
 		case AVI_FORMAT:
 			ret = compress_audio_frame(all_data);
 			break;
+			
+		case WEBM_FORMAT:
 		case MKV_FORMAT:
 			__LOCK_MUTEX( __AMUTEX ); //why do we need this ???
 				/*set pts*/
@@ -456,7 +460,8 @@ static int sync_audio_frame(struct ALL_DATA *all_data, AudBuff *proc_buff)
 				}
 			}
 			break;
-
+		
+		case WEBM_FORMAT:
 		case MKV_FORMAT:
 
 			break;
@@ -697,7 +702,8 @@ static gboolean process_video(struct ALL_DATA *all_data,
 				case AVI_FORMAT:
 					/* drop frame */
 					break;
-
+				
+				case WEBM_FORMAT:
 				case MKV_FORMAT:
 					write_video_frame(all_data, (void *) jpeg_struct, (void *) lavc_data, proc_buff);
 					break;
@@ -721,7 +727,8 @@ static gboolean process_video(struct ALL_DATA *all_data,
 					write_video_frame(all_data, (void *) jpeg_struct, (void *) lavc_data, proc_buff);
 					write_video_frame(all_data, (void *) jpeg_struct, (void *) lavc_data, proc_buff);
 					break;
-
+				
+				case WEBM_FORMAT:
 				case MKV_FORMAT:
 					write_video_frame(all_data, (void *) jpeg_struct, (void *) lavc_data, proc_buff);
 					break;

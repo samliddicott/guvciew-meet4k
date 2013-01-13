@@ -29,8 +29,9 @@
 
 #define AVI_FORMAT   0
 #define MKV_FORMAT   1
+#define WEBM_FORMAT   2
 
-#define MAX_VFORMATS 2
+#define MAX_VFORMATS 3
 
 typedef struct _vformats_data
 {
@@ -47,6 +48,7 @@ struct VideoFormatData
 {
 	avi_Context *avi;
 	mk_Writer *mkv_w;
+	
 	int b_writing_frame;      //set when writing frame
 	int b_header_written;     //set after mkv header written
 	INT64 old_vpts;           //previous video pts
@@ -70,7 +72,7 @@ const char *get_vformat_extension(int codec_ind);
 
 const char *get_vformat_desc(int codec_ind);
 
-int init_FormatContext(void *data);
+int init_FormatContext(void *data, int format);
 
 int clean_FormatContext (void* arg);
 
