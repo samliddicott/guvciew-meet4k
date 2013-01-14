@@ -74,6 +74,8 @@ typedef struct _vcodecs_data
 } vcodecs_data;
 
 
+int get_vcodec_index(int codec_id);
+
 const char *get_vid4cc(int codec_ind);
 
 const char *get_desc4cc(int codec_ind);

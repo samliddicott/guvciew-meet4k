@@ -433,7 +433,7 @@ static int sync_audio_frame(struct ALL_DATA *all_data, AudBuff *proc_buff)
 			/*first audio data - sync with video (audio stream capture can take               */
 			/*a bit longer to start)                                                          */
 			/*no need of locking the audio mutex yet, since we are not reading from the buffer*/
-			if (!get_stream(videoF->avi, 1)->audio_strm_length)
+			if (!get_stream(videoF->avi->stream_list, 1)->audio_strm_length)
 			{
 				/*only 1 audio stream*/
 				/*time diff for audio-video*/

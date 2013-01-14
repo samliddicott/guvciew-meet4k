@@ -87,7 +87,7 @@ static double mkv_int2double(uint64_t i)
 
 static uint64_t mkv_double2int(double f)
 {
-	union av_intfloat64 v;
+	union mkv_union_intfloat64 v;
 	v.f = f;
 	return v.i;
 }
@@ -196,14 +196,14 @@ static void mkv_put_ebml_float(mkv_Context* MKV, unsigned int elementid, double 
 }
 
 static void mkv_put_ebml_binary(mkv_Context* MKV, unsigned int elementid,
-                            const void *buf, int size)
+                            void *buf, int size)
 {
     mkv_put_ebml_id(MKV, elementid);
     mkv_put_ebml_num(MKV, size, 0);
     io_write_buf(MKV->writer, buf, size);
 }
 
-static void mkv_put_ebml_string(mkv_Context* MKV, unsigned int elementid, const char *str)
+static void mkv_put_ebml_string(mkv_Context* MKV, unsigned int elementid, char *str)
 {
     mkv_put_ebml_binary(MKV, elementid, str, strlen(str));
 }
@@ -388,7 +388,7 @@ static int mkv_add_cuepoint(mkv_cues *cues, int stream, int64_t ts, int64_t clus
     if (ts < 0)
         return 0;
 
-	g_renew(mkv_cuepoint, entries, cues->num_entries + 1);
+	entries = g_renew(mkv_cuepoint, entries, cues->num_entries + 1);
     //entries = av_realloc(entries, (cues->num_entries + 1) * sizeof(mkv_cuepoint));
     if (entries == NULL)
         return AVERROR(ENOMEM);
@@ -454,14 +454,14 @@ static int mkv_write_tracks(mkv_Context* MKV)
     ret = mkv_add_seekhead_entry(MKV->main_seekhead, MATROSKA_ID_TRACKS, io_get_offset(MKV->writer));
     if (ret < 0) return ret;
 
-    tracks = mkv_start_ebml_master(MKV->writer, MATROSKA_ID_TRACKS, 0);
+    tracks = mkv_start_ebml_master(MKV, MATROSKA_ID_TRACKS, 0);
 
     for (i = 0; i < MKV->stream_list_size; i++)
     {
         io_Stream* stream = get_stream(MKV->stream_list, i);
         ebml_master subinfo, track;
 
-        track = mkv_ start_ebml_master(MKV, MATROSKA_ID_TRACKENTRY, 0);
+        track = mkv_start_ebml_master(MKV, MATROSKA_ID_TRACKENTRY, 0);
         mkv_put_ebml_uint (MKV, MATROSKA_ID_TRACKNUMBER     , i + 1);
         mkv_put_ebml_uint (MKV, MATROSKA_ID_TRACKUID        , i + 1);
         mkv_put_ebml_uint (MKV, MATROSKA_ID_TRACKFLAGLACING , 0);    // no lacing (yet)
@@ -508,8 +508,8 @@ static int mkv_write_tracks(mkv_Context* MKV)
 
         mkv_put_ebml_string(MKV, MATROSKA_ID_CODECID, mkv_codec_name);
 
-        if (MKV->mode == WEBM_FORMAT && !(stream->codec_id == AV_CODEC_ID_VP8 ||
-                                        stream->codec_id == AV_CODEC_ID_VORBIS))
+        if (MKV->mode == WEBM_FORMAT && !(stream->codec_id == CODEC_ID_VP8 ||
+                                        stream->codec_id == CODEC_ID_VORBIS))
 		{
             fprintf(stderr, "MKV: Only VP8 video and Vorbis audio are supported for WebM.\n");
             return -2;
@@ -574,15 +574,15 @@ static int mkv_write_tracks(mkv_Context* MKV)
                fprintf(stderr, "MKV: Only audio and video are supported by the Matroska muxer.\n");
                break;
         }
-        ret = mkv_write_codecprivate(MKV, stream);
-        if (ret < 0) return ret;
+        
+        mkv_write_codecprivate(MKV, stream);
 
         mkv_end_ebml_master(MKV, track);
 
         // ms precision is the de-facto standard timescale for mkv files
         //avpriv_set_pts_info(st, 64, 1, 1000);
     }
-    mkv_end_ebml_master(pb, tracks);
+    mkv_end_ebml_master(MKV, tracks);
     return 0;
 }
 
@@ -590,14 +590,9 @@ static int mkv_write_header(mkv_Context* MKV)
 {
     ebml_master ebml_header, segment_info;
     int ret, i;
-	
-	if (MKV->mode == WEBM_FORMAT)
-	
-	else
-	
 
-    mkv->tracks = av_mallocz(s->nb_streams * sizeof(*mkv->tracks));
-    if (!mkv->tracks)
+    MKV->tracks = av_mallocz(MKV->stream_list_size * sizeof(*MKV->tracks));
+    if (!MKV->tracks)
     {
 		fprintf(stderr,"MKV: couldn't allocate tracks\n");
         return -1;
@@ -637,7 +632,7 @@ static int mkv_write_header(mkv_Context* MKV)
     segment_info = mkv_start_ebml_master(MKV, MATROSKA_ID_INFO, 0);
     mkv_put_ebml_uint(MKV, MATROSKA_ID_TIMECODESCALE, 1000000);
     mkv_put_ebml_string(MKV, MATROSKA_ID_MUXINGAPP , "Guvcview Muxer-2013.01");
-    mkv_put_ebml_string(pb, MATROSKA_ID_WRITINGAPP, "Guvcview");
+    mkv_put_ebml_string(MKV, MATROSKA_ID_WRITINGAPP, "Guvcview");
     
 	/*generate seg uid - 16 byte random int*/
 	GRand* rand_uid= g_rand_new_with_seed(2);
@@ -668,7 +663,7 @@ static int mkv_write_header(mkv_Context* MKV)
         return -1;
     }
 
-    io_flush_buffer(AVI->writer);
+    io_flush_buffer(MKV->writer);
     return 0;
 }
 
@@ -726,7 +721,7 @@ static int mkv_write_packet_internal(mkv_Context* MKV,
 	ebml_master blockgroup = mkv_start_ebml_master(MKV, MATROSKA_ID_BLOCKGROUP, mkv_blockgroup_size(size));
 	mkv_write_block(MKV, MATROSKA_ID_BLOCK, stream_index, data, size, dts, pts, flags);
 	mkv_put_ebml_uint(MKV, MATROSKA_ID_BLOCKDURATION, duration);
-	mkv_end_ebml_master(pb, blockgroup);
+	mkv_end_ebml_master(MKV, blockgroup);
     
 
     if (get_stream(MKV->stream_list, stream_index)->type == STREAM_TYPE_VIDEO && keyframe) 
@@ -739,7 +734,7 @@ static int mkv_write_packet_internal(mkv_Context* MKV,
     return 0;
 }
 
-static int mkv_write_packet((mkv_Context* MKV,
+static int mkv_write_packet(mkv_Context* MKV,
 							int stream_index,
 							BYTE* data, 
                             int size,
@@ -830,7 +825,7 @@ static int mkv_close(mkv_Context* MKV)
     currentpos = io_get_offset(MKV->writer);
     io_seek(MKV->writer, MKV->duration_offset);
     mkv_put_ebml_float(MKV, MATROSKA_ID_DURATION, MKV->duration);
-	io_seek(MKV, currentpos);
+	io_seek(MKV->writer, currentpos);
 
     mkv_end_ebml_master(MKV, MKV->segment);
     av_free(MKV->tracks);
@@ -840,7 +835,7 @@ static int mkv_close(mkv_Context* MKV)
     return 0;
 }
 
-mkv_Context* mkv_create_context(int mode
+mkv_Context* mkv_create_context(int mode,
 								char* filename)
 {
 	mkv_Context* MKV = g_new0(mkv_Context, 1);
@@ -873,7 +868,7 @@ mkv_add_video_stream(mkv_Context *MKV,
 					int32_t height,
 					int32_t codec_id)
 {
-	io_Stream* stream = io_add_new_stream(MKV->stream_list, &MKV->stream_list_size);
+	io_Stream* stream = add_new_stream(MKV->stream_list, &MKV->stream_list_size);
 	stream->type = STREAM_TYPE_VIDEO;
 	stream->width = width;
 	stream->height = height;
@@ -893,7 +888,7 @@ mkv_add_audio_stream(mkv_Context *MKV,
 					int32_t   codec_id,
 					int32_t   format)
 {
-	io_Stream* stream = io_add_new_stream(MKV->stream_list, &MKV->stream_list_size);
+	io_Stream* stream = add_new_stream(MKV->stream_list, &MKV->stream_list_size);
 	stream->type = STREAM_TYPE_AUDIO;
 
 	stream->a_rate = rate;

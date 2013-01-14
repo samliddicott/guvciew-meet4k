@@ -63,6 +63,8 @@ const char *get_aud_desc4cc(int codec_ind);
 
 const char *get_mkvACodec(int codec_ind);
 
+int get_acodec_index(int codec_id);
+
 int get_acodec_id(int codec_ind);
 
 gboolean isLavcACodec(int codec_ind);
