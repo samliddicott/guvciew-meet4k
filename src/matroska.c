@@ -436,37 +436,6 @@ static int64_t mkv_write_cues(mkv_Context* MKV, mkv_cues *cues, int num_tracks)
     return currentpos;
 }
 
-static int mkv_put_xiph_codecpriv(mkv_Context* MKV, io_Stream* stream)
-{
-    uint8_t *header_start[3];
-    int header_len[3];
-    int first_header_size;
-    int j;
-
-    if (stream->codec_id == CODEC_ID_VORBIS)
-        first_header_size = 30;
-    else
-        first_header_size = 42;
-
-	//get private data from stream extra data
-    if (avpriv_split_xiph_headers(stream->extradata, stream->extradata_size,
-                              first_header_size, header_start, header_len) < 0)
-	{
-        fprintf(stderr, "MKV: Extradata corrupt.\n");
-        return -1;
-    }
-
-    io_write_w8(MKV, 2);  // number packets - 1
-    for (j = 0; j < 2; j++) {
-        mkv_put_xiph_size(MKV, header_len[j]);
-    }
-    for (j = 0; j < 3; j++)
-        io_write_buf(MKV, header_start[j], header_len[j]);
-
-    return 0;
-}
-
-
 static void mkv_write_codecprivate(mkv_Context* MKV, io_Stream* stream)
 {
 	if (stream->extra_data_size && stream->extra_data != NULL)
@@ -474,7 +443,7 @@ static void mkv_write_codecprivate(mkv_Context* MKV, io_Stream* stream)
 }
 
 
-static int mkv_write_tracks(mkv_Context* MKV, io_Stream* stream)
+static int mkv_write_tracks(mkv_Context* MKV)
 {
     //MatroskaMuxContext *mkv = s->priv_data;
     //AVIOContext *pb = s->pb;
@@ -617,6 +586,158 @@ static int mkv_write_tracks(mkv_Context* MKV, io_Stream* stream)
     return 0;
 }
 
+static int mkv_write_header(mkv_Context* MKV)
+{
+    ebml_master ebml_header, segment_info;
+    int ret, i;
+	
+	if (MKV->mode == WEBM_FORMAT)
+	
+	else
+	
+
+    mkv->tracks = av_mallocz(s->nb_streams * sizeof(*mkv->tracks));
+    if (!mkv->tracks)
+    {
+		fprintf(stderr,"MKV: couldn't allocate tracks\n");
+        return -1;
+    }
+
+    ebml_header = mkv_start_ebml_master(MKV, EBML_ID_HEADER, 0);
+    mkv_put_ebml_uint   (MKV, EBML_ID_EBMLVERSION        ,           1);
+    mkv_put_ebml_uint   (MKV, EBML_ID_EBMLREADVERSION    ,           1);
+    mkv_put_ebml_uint   (MKV, EBML_ID_EBMLMAXIDLENGTH    ,           4);
+    mkv_put_ebml_uint   (MKV, EBML_ID_EBMLMAXSIZELENGTH  ,           8);
+    if (MKV->mode == WEBM_FORMAT)
+		mkv_put_ebml_string (MKV, EBML_ID_DOCTYPE        , "webm");
+	else
+		mkv_put_ebml_string (MKV, EBML_ID_DOCTYPE        , "matroska");
+    mkv_put_ebml_uint   (MKV, EBML_ID_DOCTYPEVERSION     ,           2);
+    mkv_put_ebml_uint   (MKV, EBML_ID_DOCTYPEREADVERSION ,           2);
+    mkv_end_ebml_master(MKV, ebml_header);
+
+    MKV->segment = mkv_start_ebml_master(MKV, MATROSKA_ID_SEGMENT, 0);
+    MKV->segment_offset = io_get_offset(MKV->writer);
+
+    // we write 2 seek heads - one at the end of the file to point to each
+    // cluster, and one at the beginning to point to all other level one
+    // elements (including the seek head at the end of the file), which
+    // isn't more than 10 elements if we only write one of each other
+    // currently defined level 1 element
+    MKV->main_seekhead    = mkv_start_seekhead(MKV, MKV->segment_offset, 10);
+    if (!MKV->main_seekhead)
+    {
+		fprintf(stderr,"MKV: couldn't allocate seekhead\n");
+        return -1;
+    }
+
+    ret = mkv_add_seekhead_entry(MKV->main_seekhead, MATROSKA_ID_INFO, io_get_offset(MKV->writer));
+    if (ret < 0) return ret;
+
+    segment_info = mkv_start_ebml_master(MKV, MATROSKA_ID_INFO, 0);
+    mkv_put_ebml_uint(MKV, MATROSKA_ID_TIMECODESCALE, 1000000);
+    mkv_put_ebml_string(MKV, MATROSKA_ID_MUXINGAPP , "Guvcview Muxer-2013.01");
+    mkv_put_ebml_string(pb, MATROSKA_ID_WRITINGAPP, "Guvcview");
+    
+	/*generate seg uid - 16 byte random int*/
+	GRand* rand_uid= g_rand_new_with_seed(2);
+	int seg_uid[4] = {0,0,0,0};
+	seg_uid[0] = g_rand_int_range(rand_uid, G_MININT32, G_MAXINT32);
+	seg_uid[1] = g_rand_int_range(rand_uid, G_MININT32, G_MAXINT32);
+	seg_uid[2] = g_rand_int_range(rand_uid, G_MININT32, G_MAXINT32);
+	seg_uid[3] = g_rand_int_range(rand_uid, G_MININT32, G_MAXINT32);
+    mkv_put_ebml_binary(MKV, MATROSKA_ID_SEGMENTUID, seg_uid, 16);
+    
+
+    // reserve space for the duration
+    MKV->duration = 0;
+    MKV->duration_offset = io_get_offset(MKV->writer);
+    mkv_put_ebml_void(MKV, 11);                  // assumes double-precision float to be written
+    mkv_end_ebml_master(MKV, segment_info);
+
+    ret = mkv_write_tracks(MKV);
+    if (ret < 0) return ret;
+	
+	//should it go here ???
+    mkv_write_seekhead(MKV, MKV->main_seekhead);
+
+    MKV->cues = mkv_start_cues(MKV->segment_offset);
+    if (MKV->cues == NULL)
+    {
+		fprintf(stderr,"MKV: couldn't allocate cues\n");
+        return -1;
+    }
+
+    io_flush_buffer(AVI->writer);
+    return 0;
+}
+
+static int mkv_blockgroup_size(int pkt_size)
+{
+    int size = pkt_size + 4;
+    size += ebml_num_size(size);
+    size += 2;              // EBML ID for block and block duration
+    size += 8;              // max size of block duration
+    size += ebml_num_size(size);
+    size += 1;              // blockgroup EBML ID
+    return size;
+}
+
+static void mkv_write_block(mkv_Context* MKV,
+                            unsigned int blockid, 
+                            int stream_index, 
+                            BYTE* data, 
+                            int size,
+                            uint64_t dts,
+                            uint64_t pts, 
+                            int flags)
+{
+    int64_t ts = MKV->tracks[stream_index].write_dts ? dts : pts;
+
+    mkv_put_ebml_id(MKV, blockid);
+    mkv_put_ebml_num(MKV, size+4, 0);
+    io_write_w8(MKV->writer, 0x80 | (stream_index + 1));     // this assumes stream_index is less than 126
+    io_write_wb16(MKV->writer, ts - MKV->cluster_pts);
+    io_write_w8(MKV->writer, flags);
+    io_write_buf(MKV->writer, data, size);
+}
+
+static int mkv_write_packet_internal(mkv_Context* MKV,
+							int stream_index,
+							BYTE* data, 
+                            int size,
+                            int duration,
+                            uint64_t dts,
+                            uint64_t pts, 
+                            int flags)
+{
+    int keyframe = !!(flags & AV_PKT_FLAG_KEY);
+    int ret;
+    int64_t ts = MKV->tracks[stream_index].write_dts ? dts : pts;
+
+    if (!MKV->cluster_pos) 
+    {
+        MKV->cluster_pos = io_get_offset(MKV->writer);
+        MKV->cluster = mkv_start_ebml_master(MKV, MATROSKA_ID_CLUSTER, 0);
+        mkv_put_ebml_uint(MKV, MATROSKA_ID_CLUSTERTIMECODE, MAX(0, ts));
+		MKV->cluster_pts = MAX(0, ts);
+    }
+
+	ebml_master blockgroup = mkv_start_ebml_master(MKV, MATROSKA_ID_BLOCKGROUP, mkv_blockgroup_size(size));
+	mkv_write_block(MKV, MATROSKA_ID_BLOCK, stream_index, data, size, dts, pts, flags);
+	mkv_put_ebml_uint(MKV, MATROSKA_ID_BLOCKDURATION, duration);
+	mkv_end_ebml_master(pb, blockgroup);
+    
+
+    if (get_stream(MKV->stream_list, stream_index)->type == STREAM_TYPE_VIDEO && keyframe) 
+    {
+        ret = mkv_add_cuepoint(MKV->cues, stream_index, ts, MKV->cluster_pos);
+        if (ret < 0) return ret;
+    }
+
+    MKV->duration = MAX(MKV->duration, ts + duration);
+    return 0;
+}
 
 
 
