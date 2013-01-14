@@ -35,10 +35,10 @@
 static int64_t io_tell(io_Writer* writer)
 {
 	//flush the file buffer
-	fflush(writer->writer->fp);
+	fflush(writer->fp);
 
 	//return the file pointer position
-	return ((int64_t) ftello64(writer->writer->fp));
+	return ((int64_t) ftello64(writer->fp));
 }
 
 
@@ -71,14 +71,14 @@ void io_destroy_writer(io_Writer* writer)
 {
 	//clean up
 	//flush the buffer to file
-	flush_buffer(writer);
+	io_flush_buffer(writer);
 
 	//flush the file buffer
-	fflush(writer->writer->fp);
+	fflush(writer->fp);
 	//close the file pointer
-	fclose(writer->writer->fp);
+	fclose(writer->fp);
 
-	free(writer->writer->buffer);
+	free(writer->buffer);
 }
 
 int64_t io_flush_buffer(io_Writer* writer)

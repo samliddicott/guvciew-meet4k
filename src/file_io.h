@@ -55,7 +55,7 @@ int64_t io_get_offset(io_Writer* writer);
 /* write 1 octet */
 void io_write_w8(io_Writer* writer, BYTE b);
 /* write a buffer of size*/
-void io_write_buf(io_Writer* writer, BYTE *buf, int size)
+void io_write_buf(io_Writer* writer, BYTE *buf, int size);
 /* write 2 octets le */
 void io_write_wl16(io_Writer* writer, uint16_t val);
 /* write 2 octets be */

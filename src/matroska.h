@@ -262,46 +262,8 @@ typedef struct {
     int             write_dts;
 } mkv_track;
 
-struct mkv_Stream
-{
-	STREAM_TYPE type;          //stream type
-
-	int32_t id;
-
-	uint32_t packet_count;
-
-	int32_t entry;
-
-	int64_t rate_hdr_strm, frames_hdr_strm;
-
-	avi_Index indexes;
-
-	char   compressor[8];        /* Type of compressor, 4 bytes + padding for 0 byte */
-	int32_t codec_id;
-
-	//video
-	int32_t   width;             /* Width  of a video frame */
-	int32_t   height;            /* Height of a video frame */
-	double fps;                  /* Frames per second */
-
-	//audio
-	int32_t   a_fmt;             /* Audio format, see #defines below */
-	int32_t   a_chans;           /* Audio channels, 0 for no audio */
-	int32_t   a_rate;            /* Rate in Hz */
-	int32_t   a_bits;            /* bits per audio sample */
-	int32_t   mpgrate;           /* mpg bitrate kbs*/
-	int32_t   a_vbr;             /* 0 == no Variable BitRate */
-	uint64_t audio_strm_length;  /* Total number of bytes of audio data */
-
-	//stream private data (codec private data)
-	BYTE*   extra_data;
-	int32_t extra_data_size;
-
-	struct avi_Stream *previous, *next;
-};
-
 typedef struct mkv_Context {
-    int             format; //matroska or webm
+    int             mode; //matroska or webm
     io_Writer*      writer;
     ebml_master     segment;
     int64_t         segment_offset;
@@ -315,11 +277,10 @@ typedef struct mkv_Context {
     mkv_track       *tracks;
 
     unsigned int    audio_buffer_size;
+    BYTE* audio_buffer;
 
     io_Stream* stream_list;
     int stream_list_size;
-
-    int have_attachments;
 } mkv_Context;
 
 

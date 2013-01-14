@@ -22,14 +22,13 @@
 #ifndef STREAM_H
 #define STREAM_H
 
-enum STREAM_TYPE
-{
-	STREAM_TYPE_VIDEO = 0,
-	STREAM_TYPE_AUDIO = 1,
-	STREAM_TYPE_SUB = 2 //not supported
-};
-
-typedef enum STREAM_TYPE STREAM_TYPE;
+#include "io_stream.h"
+#include <stdio.h>
+#include <glib/gstdio.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <string.h>
 
 io_Stream* add_new_stream(io_Stream* stream_list, int* list_size)
 {
@@ -45,12 +44,12 @@ io_Stream* add_new_stream(io_Stream* stream_list, int* list_size)
 	else
 	{
 
-		io_Stream* last_stream = stream_get_last(stream_list);
+		io_Stream* last_stream = get_last_stream(stream_list);
 		stream->previous = last_stream;
 		last_stream->next = stream;
 	}
 
-	indexes = NULL;
+	stream->indexes = NULL;
 
 	*list_size++;
 
@@ -59,12 +58,12 @@ io_Stream* add_new_stream(io_Stream* stream_list, int* list_size)
 
 void destroy_stream_list(io_Stream* stream_list, int* list_size)
 {
-	io_Stream* stream = io_get_last_stream(stream_list);
+	io_Stream* stream = get_last_stream(stream_list);
 	while(stream->previous != NULL) //from end to start
 	{
 		io_Stream* prev_stream = stream->previous;
 		if(stream->indexes != NULL)
-			g_free(indexes);
+			g_free(stream->indexes);
 		g_free(stream);
 		stream = prev_stream;
 		*list_size--;

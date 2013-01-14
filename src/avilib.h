@@ -38,6 +38,7 @@
 #include <sys/types.h>
 #include <glib.h>
 #include <pthread.h>
+#include "file_io.h"
 #include "io_stream.h"
 
 #define AVI_MAX_TRACKS 8
@@ -106,7 +107,7 @@ typedef struct avi_Context avi_Context;
 
 avi_Context* avi_create_context(const char * filename);
 
-avi_Stream*
+io_Stream*
 avi_add_video_stream(avi_Context *AVI,
 					int32_t width,
 					int32_t height,
@@ -114,7 +115,7 @@ avi_add_video_stream(avi_Context *AVI,
 					int32_t codec_id,
 					char* compressor);
 
-avi_Stream*
+io_Stream*
 avi_add_audio_stream(avi_Context *AVI,
 					int32_t   channels,
 					int32_t   rate,
@@ -122,9 +123,6 @@ avi_add_audio_stream(avi_Context *AVI,
 					int32_t   mpgrate,
 					int32_t   codec_id,
 					int32_t   format);
-
-avi_Stream*
-avi_get_stream(avi_Context* AVI, int index);
 
 
 int avi_write_packet(avi_Context* AVI,
@@ -134,6 +132,8 @@ int avi_write_packet(avi_Context* AVI,
 					int64_t dts,
 					int block_align,
 					int32_t flags);
+
+avi_RIFF* avi_add_new_riff(avi_Context* AVI);
 
 int avi_close(avi_Context* AVI);
 

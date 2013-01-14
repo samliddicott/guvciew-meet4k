@@ -118,7 +118,7 @@ static void avi_close_tag(avi_Context* AVI, int64_t start_pos)
 	io_write_wl32(AVI->writer, size);
 	io_seek(AVI->writer, current_offset);
 
-	fprintf(stderr, "AVI:(0x%llx) closing tag at 0x%llx with size 0x%llx\n",current_offset, start_pos-4, size);
+	fprintf(stderr, "AVI:(0x%llx) closing tag at %" PRIu64 " with size %" PRIu64 "\n",current_offset, start_pos-4, size);
 
 }
 
@@ -529,7 +529,7 @@ avi_add_video_stream(avi_Context *AVI,
 					int32_t codec_id,
 					char* compressor)
 {
-	io_Stream* stream = io_add_new_stream(AVI->stream_list, &AVI->stream_list_size);
+	io_Stream* stream = add_new_stream(AVI->stream_list, &AVI->stream_list_size);
 	stream->type = STREAM_TYPE_VIDEO;
 	stream->fps = fps;
 	stream->width = width;
@@ -554,7 +554,7 @@ avi_add_audio_stream(avi_Context *AVI,
 					int32_t   codec_id,
 					int32_t   format)
 {
-	io_Stream* stream = io_add_new_stream(AVI->stream_list, &AVI->stream_list_size);
+	io_Stream* stream = add_new_stream(AVI->stream_list, &AVI->stream_list_size);
 	stream->type = STREAM_TYPE_AUDIO;
 
 	stream->a_rate = rate;
@@ -643,7 +643,7 @@ static int avi_write_counters(avi_Context* AVI, avi_RIFF* riff)
 	int time_base_den = AVI->time_base_den;
 
     int64_t file_size = io_get_offset(AVI->writer);//avi_tell(AVI);
-    fprintf(stderr, "AVI: file size = %llu\n", file_size);
+    fprintf(stderr, "AVI: file size = %" PRIu64 "\n", file_size);
 
     for(n = 0; n < AVI->stream_list_size; n++)
     {
@@ -850,7 +850,7 @@ int avi_write_packet(avi_Context* AVI, int stream_index, BYTE *data, uint32_t si
     char tag[5];
     unsigned int i_flags=0;
 
-    avi_Stream *stream= get_stream(AVI->stream_list, stream_index);
+    io_Stream *stream= get_stream(AVI->stream_list, stream_index);
 
 	avi_RIFF* riff = avi_get_last_riff(AVI);
 	//align

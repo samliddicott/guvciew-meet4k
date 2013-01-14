@@ -22,6 +22,10 @@
 #ifndef IO_STREAM_H
 #define IO_STREAM_H
 
+
+#include "../config.h"
+#include "defs.h"
+
 enum STREAM_TYPE
 {
 	STREAM_TYPE_VIDEO = 0,

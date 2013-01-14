@@ -153,7 +153,7 @@ static int initVideoFile(struct ALL_DATA *all_data)
 				/*bit rate (compressed formats)*/
 				int32_t b_rate = get_aud_bit_rate(global->AudCodec);
 
-				avi_Stream* stream = avi_add_audio_stream(videoF->avi,
+				io_Stream* stream = avi_add_audio_stream(videoF->avi,
 								global->Sound_NumChan,
 								global->Sound_SampRate,
 								a_bits,
@@ -433,7 +433,7 @@ static int sync_audio_frame(struct ALL_DATA *all_data, AudBuff *proc_buff)
 			/*first audio data - sync with video (audio stream capture can take               */
 			/*a bit longer to start)                                                          */
 			/*no need of locking the audio mutex yet, since we are not reading from the buffer*/
-			if (!avi_get_stream(videoF->avi, 1)->audio_strm_length)
+			if (!get_stream(videoF->avi, 1)->audio_strm_length)
 			{
 				/*only 1 audio stream*/
 				/*time diff for audio-video*/

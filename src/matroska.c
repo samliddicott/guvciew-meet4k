@@ -739,9 +739,174 @@ static int mkv_write_packet_internal(mkv_Context* MKV,
     return 0;
 }
 
+static int mkv_write_packet((mkv_Context* MKV,
+							int stream_index,
+							BYTE* data, 
+                            int size,
+                            int duration,
+                            uint64_t dts,
+                            uint64_t pts, 
+                            int flags)
+{
+    int ret, keyframe = !!(flags & AV_PKT_FLAG_KEY);
+    int64_t ts = MKV->tracks[stream_index].write_dts ? dts : pts;
+    int cluster_size = io_get_offset(MKV->writer) - MKV->cluster_pos;
 
+    // start a new cluster every 5 MB or 5 sec, or 32k / 1 sec for streaming or
+    // after 4k and on a keyframe
+    if (MKV->cluster_pos &&
+        ((cluster_size > 32*1024 || ts > MKV->cluster_pts + 1000) ||
+          cluster_size > 5*1024*1024 || ts > MKV->cluster_pts + 5000 ||
+         (get_stream(MKV->stream_list, stream_index)->type == STREAM_TYPE_VIDEO && keyframe && cluster_size > 4*1024))) 
+    {
+		fprintf(stderr, "MKV: Starting new cluster at offset %" PRIu64 " bytes, pts %" PRIu64 "\n", io_get_offset(MKV->writer), ts);
+        mkv_end_ebml_master(MKV, MKV->cluster);
+        MKV->cluster_pos = 0;
+    }
 
+	/**
+    // check if we have an audio packet cached
+    if (MKV->cur_audio_pkt_size > 0) {
+        ret = mkv_write_packet_internal(MKV, );
+        mkv->cur_audio_pkt.size = 0;
+        if (ret < 0) {
+            av_log(s, AV_LOG_ERROR, "Could not write cached audio packet ret:%d\n", ret);
+            return ret;
+        }
+    }
 
+    // buffer an audio packet to ensure the packet containing the video
+    // keyframe's timecode is contained in the same cluster for WebM
+    if (codec->codec_type == AVMEDIA_TYPE_AUDIO)
+        ret = mkv_copy_packet(mkv, pkt);
+    else
+    
+    **/
+        ret = mkv_write_packet_internal(MKV, stream_index, data, size, duration, dts, pts, flags);
+        
+    return ret;
+}
+
+static int mkv_close(mkv_Context* MKV)
+{
+    int64_t currentpos, cuespos;
+    int ret;
+
+	/**
+    // check if we have an audio packet cached
+    if (mkv->cur_audio_pkt.size > 0) {
+        ret = mkv_write_packet_internal(s, &mkv->cur_audio_pkt);
+        mkv->cur_audio_pkt.size = 0;
+        if (ret < 0) {
+            av_log(s, AV_LOG_ERROR, "Could not write cached audio packet ret:%d\n", ret);
+            return ret;
+        }
+    }
+	*/
+	
+	/**
+    if (mkv->dyn_bc) {
+        end_ebml_master(mkv->dyn_bc, mkv->cluster);
+        mkv_flush_dynbuf(s);
+    } else if (mkv->cluster_pos) {
+        end_ebml_master(pb, mkv->cluster);
+    }
+    */
+	if(MKV->cluster_pos)
+		mkv_end_ebml_master(MKV, MKV->cluster);
+
+	if (MKV->cues->num_entries) 
+	{
+		cuespos = mkv_write_cues(MKV, MKV->cues, MKV->stream_list_size);
+
+		ret = mkv_add_seekhead_entry(MKV->main_seekhead, MATROSKA_ID_CUES, cuespos);
+        if (ret < 0) return ret;
+	}
+
+    mkv_write_seekhead(MKV, MKV->main_seekhead);
+
+    // update the duration
+    fprintf(stderr,"MKV: end duration = %" PRIu64 "\n", MKV->duration);
+    currentpos = io_get_offset(MKV->writer);
+    io_seek(MKV->writer, MKV->duration_offset);
+    mkv_put_ebml_float(MKV, MATROSKA_ID_DURATION, MKV->duration);
+	io_seek(MKV, currentpos);
+
+    mkv_end_ebml_master(MKV, MKV->segment);
+    av_free(MKV->tracks);
+    av_freep(&MKV->cues->entries);
+    av_freep(&MKV->cues);
+
+    return 0;
+}
+
+mkv_Context* mkv_create_context(int mode
+								char* filename)
+{
+	mkv_Context* MKV = g_new0(mkv_Context, 1);
+
+	MKV->writer = io_create_writer(filename);
+	MKV->mode = mode;
+	MKV->main_seekhead = NULL;
+	MKV->cues = NULL;
+	MKV->tracks = NULL;
+	MKV->audio_buffer = NULL;
+	MKV->stream_list = NULL;
+	
+	return MKV;
+}
+
+void mkv_destroy_context(mkv_Context* MKV)
+{
+	io_destroy_writer(MKV->writer);
+	
+	destroy_stream_list(MKV->stream_list, &MKV->stream_list_size);
+	
+	if(MKV->audio_buffer != NULL)
+		g_free(MKV->audio_buffer);
+	g_free(MKV);
+}
+
+io_Stream* 
+mkv_add_video_stream(mkv_Context *MKV,
+					int32_t width,
+					int32_t height,
+					int32_t codec_id)
+{
+	io_Stream* stream = io_add_new_stream(MKV->stream_list, &MKV->stream_list_size);
+	stream->type = STREAM_TYPE_VIDEO;
+	stream->width = width;
+	stream->height = height;
+	stream->codec_id = codec_id;
+
+	stream->indexes = NULL;
+
+	return stream;
+}
+
+io_Stream*
+mkv_add_audio_stream(mkv_Context *MKV,
+					int32_t   channels,
+					int32_t   rate,
+					int32_t   bits,
+					int32_t   mpgrate,
+					int32_t   codec_id,
+					int32_t   format)
+{
+	io_Stream* stream = io_add_new_stream(MKV->stream_list, &MKV->stream_list_size);
+	stream->type = STREAM_TYPE_AUDIO;
+
+	stream->a_rate = rate;
+	stream->a_bits = bits;
+	stream->mpgrate = mpgrate;
+	stream->a_vbr = 0;
+	stream->codec_id = codec_id;
+	stream->a_fmt = format;
+
+	stream->indexes = NULL;
+
+	return stream;
+}
 
 
 

@@ -244,7 +244,7 @@ int get_acodec_index(int codec_id)
 	int i = 0;
 	for(i=0; i<MAX_ACODECS; i++ )
 	{
-		if(codec_id == listSupVCodecs[i].codec_id)
+		if(codec_id == listSupACodecs[i].codec_id)
 			return i;
 	}
 
