@@ -474,6 +474,18 @@ static int get_real_index (int codec_ind)
 	return (codec_ind); //should never arrive
 }
 
+int get_vcodec_index(int codec_id)
+{
+	int i = 0;
+	for(i=0; i<MAX_VCODECS; i++ )
+	{
+		if(codec_id == listSupVCodecs[i].codec_id)
+			return i;
+	}
+
+	return -1;
+}
+
 const char *get_vid4cc(int codec_ind)
 {
 	return (listSupVCodecs[get_real_index (codec_ind)].compressor);
@@ -683,7 +695,7 @@ int compress_frame(void *data,
 				case AVI_FORMAT: /* lines upside down     */
 					yuyv2bgr(proc_buff->frame, prgb, global->width, global->height);
 					break;
-					
+
 				case WEBM_FORMAT:
 				case MKV_FORMAT: /* lines in correct order*/
 					yuyv2bgr1(proc_buff->frame, prgb, global->width, global->height);

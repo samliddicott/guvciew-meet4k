@@ -40,6 +40,8 @@ guvcview_SOURCES = \
 	dct.h \
 	dct.c \
 	defs.h \
+	file_io.h \
+	file_io.c \
 	globals.h \
 	globals.c \
 	guvcview.h \
@@ -48,6 +50,8 @@ guvcview_SOURCES = \
 	huffman.c \
 	img_controls.h \
 	img_controls.c \
+	io_stream.h \
+	io_stream.c \
 	jdatatype.h \
 	jpgenc.h \
 	jpgenc.c \
@@ -101,9 +105,9 @@ guvcview_SOURCES = \
 	video_format.h \
 	video_format.c \
 	video_tab.h \
-	video_tab.c 
+	video_tab.c
 
-guvcview_LDFLAGS = $(LIBINTL) 
+guvcview_LDFLAGS = $(LIBINTL)
 
 guvcview_LDADD = $(DEPS_LIBS) $(EXTRA_LIBS) $(PTHREAD_LIBS)
 

@@ -239,6 +239,18 @@ static int get_real_index (int codec_ind)
 	return (codec_ind); //should never arrive
 }
 
+int get_acodec_index(int codec_id)
+{
+	int i = 0;
+	for(i=0; i<MAX_ACODECS; i++ )
+	{
+		if(codec_id == listSupVCodecs[i].codec_id)
+			return i;
+	}
+
+	return -1;
+}
+
 WORD get_aud4cc(int codec_ind)
 {
 	return (listSupACodecs[get_real_index (codec_ind)].avi_4cc);
@@ -335,6 +347,8 @@ int set_mkvACodecPriv(int codec_ind, int samprate, int channels, struct lavcADat
 						header_len[0] + //first packet header
 						header_len[1] + //second packet header
 						header_len[2];  //third packet header
+
+		//should check and clean before allocating ??
 		data->priv_data = g_new0(BYTE, priv_data_size);
 		//write header
 		BYTE* tmp = data->priv_data;

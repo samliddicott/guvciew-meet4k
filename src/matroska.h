@@ -25,6 +25,14 @@
 #ifndef GUVC_MATROSKA_H
 #define GUVC_MATROSKA_H
 
+#include "defs.h"
+#include <inttypes.h>
+#include <sys/types.h>
+#include <glib.h>
+#include <pthread.h>
+#include "file_io.h"
+#include "io_stream.h"
+
 /* EBML version supported */
 #define EBML_VERSION 1
 
@@ -218,6 +226,127 @@ typedef enum {
   MATROSKA_TRACK_ENCODING_COMP_HEADERSTRIP = 3,
 } MatroskaTrackEncodingCompAlgo;
 */
+
+typedef struct ebml_master {
+    int64_t         pos;                ///< absolute offset in the file where the master's elements start
+    int             sizebytes;          ///< how many bytes were reserved for the size
+} ebml_master;
+
+typedef struct mkv_seekhead_entry {
+    unsigned int    elementid;
+    uint64_t        segmentpos;
+} mkv_seekhead_entry;
+
+typedef struct mkv_seekhead {
+    int64_t                 filepos;
+    int64_t                 segment_offset;     ///< the file offset to the beginning of the segment
+    int                     reserved_size;      ///< -1 if appending to file
+    int                     max_entries;
+    mkv_seekhead_entry      *entries;
+    int                     num_entries;
+} mkv_seekhead;
+
+typedef struct {
+    uint64_t        pts;
+    int             tracknum;
+    int64_t         cluster_pos;        ///< file offset of the cluster containing the block
+} mkv_cuepoint;
+
+typedef struct {
+    int64_t         segment_offset;
+    mkv_cuepoint    *entries;
+    int             num_entries;
+} mkv_cues;
+
+typedef struct {
+    int             write_dts;
+} mkv_track;
+
+struct mkv_Stream
+{
+	STREAM_TYPE type;          //stream type
+
+	int32_t id;
+
+	uint32_t packet_count;
+
+	int32_t entry;
+
+	int64_t rate_hdr_strm, frames_hdr_strm;
+
+	avi_Index indexes;
+
+	char   compressor[8];        /* Type of compressor, 4 bytes + padding for 0 byte */
+	int32_t codec_id;
+
+	//video
+	int32_t   width;             /* Width  of a video frame */
+	int32_t   height;            /* Height of a video frame */
+	double fps;                  /* Frames per second */
+
+	//audio
+	int32_t   a_fmt;             /* Audio format, see #defines below */
+	int32_t   a_chans;           /* Audio channels, 0 for no audio */
+	int32_t   a_rate;            /* Rate in Hz */
+	int32_t   a_bits;            /* bits per audio sample */
+	int32_t   mpgrate;           /* mpg bitrate kbs*/
+	int32_t   a_vbr;             /* 0 == no Variable BitRate */
+	uint64_t audio_strm_length;  /* Total number of bytes of audio data */
+
+	//stream private data (codec private data)
+	BYTE*   extra_data;
+	int32_t extra_data_size;
+
+	struct avi_Stream *previous, *next;
+};
+
+typedef struct mkv_Context {
+    int             format; //matroska or webm
+    io_Writer*      writer;
+    ebml_master     segment;
+    int64_t         segment_offset;
+    ebml_master     cluster;
+    int64_t         cluster_pos;        ///< file offset of the current cluster
+    int64_t         cluster_pts;
+    int64_t         duration_offset;
+    int64_t         duration;
+    mkv_seekhead    *main_seekhead;
+    mkv_cues        *cues;
+    mkv_track       *tracks;
+
+    unsigned int    audio_buffer_size;
+
+    io_Stream* stream_list;
+    int stream_list_size;
+
+    int have_attachments;
+} mkv_Context;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 typedef struct mk_Writer mk_Writer;
 

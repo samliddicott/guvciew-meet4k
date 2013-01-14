@@ -38,18 +38,10 @@
 #include <sys/types.h>
 #include <glib.h>
 #include <pthread.h>
+#include "io_stream.h"
 
 #define AVI_MAX_TRACKS 8
 #define FRAME_RATE_SCALE 1000 //1000000
-
-enum STREAM_TYPE
-{
-	STREAM_TYPE_VIDEO = 0,
-	STREAM_TYPE_AUDIO = 1,
-	STREAM_TYPE_SUB = 2 //not supported
-};
-
-typedef enum STREAM_TYPE STREAM_TYPE;
 
 typedef struct _video_index_entry
 {
@@ -65,58 +57,21 @@ typedef struct _audio_index_entry
 	off_t tot;
 } audio_index_entry;
 
-typedef struct avi_Ientry {
+typedef struct avi_Ientry
+{
     unsigned int flags, pos, len;
 } avi_Ientry;
 
-typedef struct avi_Index {
+typedef struct avi_Index
+{
     int64_t     indx_start;
     int         entry;
     int         ents_allocated;
     avi_Ientry** cluster;
 } avi_Index;
 
-struct avi_Stream
+struct avi_RIFF
 {
-	STREAM_TYPE type;          //stream type
-
-	int32_t id;
-
-	uint32_t packet_count;
-
-	int32_t entry;
-
-	int64_t rate_hdr_strm, frames_hdr_strm;
-
-	avi_Index indexes;
-
-	char   compressor[8];        /* Type of compressor, 4 bytes + padding for 0 byte */
-	int32_t codec_id;
-
-	//video
-	int32_t   width;             /* Width  of a video frame */
-	int32_t   height;            /* Height of a video frame */
-	double fps;                  /* Frames per second */
-
-	//audio
-	int32_t   a_fmt;             /* Audio format, see #defines below */
-	int32_t   a_chans;           /* Audio channels, 0 for no audio */
-	int32_t   a_rate;            /* Rate in Hz */
-	int32_t   a_bits;            /* bits per audio sample */
-	int32_t   mpgrate;           /* mpg bitrate kbs*/
-	int32_t   a_vbr;             /* 0 == no Variable BitRate */
-	uint64_t audio_strm_length;  /* Total number of bytes of audio data */
-
-	//stream private data (codec private data)
-	BYTE*   extra_data;
-	int32_t extra_data_size;
-
-	struct avi_Stream *previous, *next;
-};
-
-typedef struct avi_Stream avi_Stream;
-
-struct avi_RIFF {
     int64_t riff_start, movi_list;
     int64_t frames_hdr_all;
     int id;
@@ -126,33 +81,20 @@ struct avi_RIFF {
 
 typedef struct avi_RIFF avi_RIFF;
 
-typedef struct avi_Writer
-{
-	FILE *fp;      /* file pointer     */
-
-	BYTE *buffer;  /**< Start of the buffer. */
-    int buffer_size;        /**< Maximum buffer size */
-    BYTE *buf_ptr; /**< Current position in the buffer */
-    BYTE *buf_end; /**< End of the buffer. */
-
-	int64_t size; //file size (end of file position)
-	int64_t position; //file pointer position (updates on buffer flush)
-}avi_Writer;
-
 struct avi_Context
 {
-	struct avi_Writer  *writer;
+	io_Writer  *writer;
 	__MUTEX_TYPE mutex;
 
 	int flags; /* 0 - AVI is recordind;   1 - AVI is not recording*/
-	
+
 	int32_t time_base_num;       /* video time base numerator */
-	int32_t time_base_den;       /* video time base denominator */    
-	
+	int32_t time_base_den;       /* video time base denominator */
+
 	avi_RIFF* riff_list; // avi_riff list (NULL terminated)
 	int riff_list_size;
 
-	avi_Stream* stream_list;
+	io_Stream* stream_list;
 	int stream_list_size;
 
 	double fps;
