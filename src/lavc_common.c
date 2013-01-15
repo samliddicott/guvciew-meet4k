@@ -111,7 +111,7 @@ int encode_lavc_frame (BYTE *picture_buf, struct lavcData* data , int format, st
 	videoF->vblock_align = data->codec_context->block_align;
 	//videoF->avi->time_base_num = data->codec_context->time_base.num;
 	//videoF->avi->time_base_den = data->codec_context->time_base.den;
-	
+
 	//convert to 4:2:0
 	switch (format)
 	{
@@ -175,6 +175,7 @@ int encode_lavc_frame (BYTE *picture_buf, struct lavcData* data , int format, st
 
 	videoF->vdts = pkt.dts;
 	videoF->vflags = pkt.flags;
+	videoF->vduration = pkt.duration;
 
     /* free any side data since we cannot return it */
     if (pkt.side_data_elems > 0)
@@ -195,6 +196,7 @@ int encode_lavc_frame (BYTE *picture_buf, struct lavcData* data , int format, st
 
 	videoF->vdts = AV_NOPTS_VALUE;
 	videoF->vflags = 0;
+	videoF->vduration = 0;
 #endif
 
 	 if(data->flush_delayed_frames && out_size == 0)
@@ -268,6 +270,7 @@ int encode_lavc_audio_frame (void *audio_buf, struct lavcAData* data, struct Vid
 
 	videoF->adts = pkt.dts;
 	videoF->aflags = pkt.flags;
+	videoF->aduration = pkt.duration;
 
 	/* free any side data since we cannot return it */
 	//ff_packet_free_side_data(&pkt);
@@ -279,6 +282,7 @@ int encode_lavc_audio_frame (void *audio_buf, struct lavcAData* data, struct Vid
 	out_size = avcodec_encode_audio(data->codec_context, data->outbuf, data->outbuf_size, audio_buf);
 	videoF->adts = AV_NOPTS_VALUE;
 	videoF->aflags = 0;
+	videoF->vduration = 0;
 #endif
 	return (out_size);
 }

@@ -590,7 +590,7 @@ static int write_video_data(struct ALL_DATA *all_data, BYTE *buff, int size)
 		case MKV_FORMAT:
 			if(size > 0)
 			{
-				ret = mkv_write_packet(videoF->mkv, 0, buff, size, videoF->duration, videoF->vdts, videoF->vpts, videoF->vflags);
+				ret = mkv_write_packet(videoF->mkv, 0, buff, size, videoF->vduration, videoF->vdts, videoF->vpts, videoF->vflags);
 				//ret = write_video_packet (buff, size, global->fps, videoF);
 			}
 			break;
@@ -651,6 +651,7 @@ int compress_frame(void *data,
 	int ret = 0;
 
 	videoF->vpts = proc_buff->time_stamp;
+	videoF->vdts = videoF->vpts;
 
 	switch (global->VidCodec)
 	{

@@ -445,9 +445,6 @@ static void mkv_write_codecprivate(mkv_Context* MKV, io_Stream* stream)
 
 static int mkv_write_tracks(mkv_Context* MKV)
 {
-    //MatroskaMuxContext *mkv = s->priv_data;
-    //AVIOContext *pb = s->pb;
-
     ebml_master tracks;
     int i, j, ret;
 
@@ -526,6 +523,9 @@ static int mkv_write_tracks(mkv_Context* MKV)
                 // XXX: interlace flag?
                 mkv_put_ebml_uint (MKV, MATROSKA_ID_VIDEOPIXELWIDTH , stream->width);
                 mkv_put_ebml_uint (MKV, MATROSKA_ID_VIDEOPIXELHEIGHT, stream->height);
+
+               if(!isLavcCodec(get_vcodec_index(stream->codec_id)))
+					MKV->tracks[i].write_dts = 1; //use dts
 
                /***
                 if ((tag = av_dict_get(s->metadata, "stereo_mode", NULL, 0)))
@@ -719,7 +719,8 @@ static int mkv_write_packet_internal(mkv_Context* MKV,
 
 	ebml_master blockgroup = mkv_start_ebml_master(MKV, MATROSKA_ID_BLOCKGROUP, mkv_blockgroup_size(size));
 	mkv_write_block(MKV, MATROSKA_ID_BLOCK, stream_index, data, size, dts, pts, flags);
-	mkv_put_ebml_uint(MKV, MATROSKA_ID_BLOCKDURATION, duration);
+	if(duration)
+		mkv_put_ebml_uint(MKV, MATROSKA_ID_BLOCKDURATION, duration);
 	mkv_end_ebml_master(MKV, blockgroup);
 
 

@@ -438,8 +438,10 @@ static int write_audio_data(struct ALL_DATA *all_data, BYTE *buff, int size, QWO
 		case WEBM_FORMAT:
 		case MKV_FORMAT:
 			videoF->apts = a_ts;
+			videoF->adts = videoF->apts;
 			if(size > 0)
-				ret = write_audio_packet (buff, size, videoF);
+				ret = mkv_write_packet(videoF->mkv, 0, buff, size, videoF->aduration, videoF->adts, videoF->apts, videoF->aflags);
+				//ret = write_audio_packet (buff, size, videoF);
 			break;
 
 		default:
