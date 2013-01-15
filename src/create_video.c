@@ -160,7 +160,7 @@ static int initVideoFile(struct ALL_DATA *all_data)
 								b_rate,
 								videoF->acodec,
 								global->Sound_Format);
-				
+
 				if(videoF->acodec == CODEC_ID_VORBIS)
 				{
 						stream->extra_data = (BYTE*) pdata->lavc_data->codec_context->extradata;
@@ -181,31 +181,75 @@ static int initVideoFile(struct ALL_DATA *all_data)
 			/* start sound capture*/
 			if(global->Sound_enable > 0 && init_sound (pdata))
 			{
+				//FIXME: enable capture button
 				g_printerr("Audio initialization error\n");
 				global->Sound_enable=0;
 			}
 			break;
-			
+
 		case WEBM_FORMAT:
 		case MKV_FORMAT:
-			if(global->Sound_enable > 0)
+			if(videoF->mkv != NULL)
 			{
-				/*set channels, sample rate and allocate buffers*/
-				set_sound(global, pdata);
+				mkv_destroy_context(videoF->mkv);
+				videoF->mkv = NULL;
 			}
-			if(init_FormatContext((void *) all_data, global->VidFormat)<0)
+			videoF->mkv = mkv_create_context(videoIn->VidFName, global->VidFormat);
+
+			if(!videoF->mkv)
 			{
-				capVid = FALSE;
+				g_printerr("Error: Couldn't create MKV context.\n");
+				capVid = FALSE; /*don't start video capture*/
 				__LOCK_MUTEX(__VMUTEX);
 					videoIn->capVid = capVid;
 				__UNLOCK_MUTEX(__VMUTEX);
 				pdata->capVid = capVid;
-				return (-1);
+				return(-1);
 			}
 
-			videoF->old_apts = 0;
-			videoF->apts = 0;
-			videoF->vpts = 0;
+			io_Stream* vstream = mkv_add_video_stream(videoF->mkv,
+									global->width,
+									global->height,
+									videoF->vcodec);
+
+
+			vstream->extra_data_size = set_mkvCodecPriv(global->VidCodec, global->width, global->height);
+			if(vstream->extra_data_size > 0)
+				vstream->extra_data = get_mkvCodecPriv(global->VidCodec);
+
+			if(global->Sound_enable > 0)
+			{
+				/*get channels and sample rate*/
+				set_sound(global, pdata);
+
+				/*sample size - only used for PCM*/
+				int32_t a_bits = get_aud_bits(global->AudCodec);
+				/*bit rate (compressed formats)*/
+				int32_t b_rate = get_aud_bit_rate(global->AudCodec);
+
+				io_Stream* astream = mkv_add_audio_stream(
+								videoF->mkv,
+								pdata->channels,
+								pdata->samprate,
+								a_bits,
+								b_rate,
+								videoF->acodec,
+								global->Sound_Format);
+
+				astream->extra_data_size = set_mkvACodecPriv(
+								global->AudCodec,
+								pdata->samprate,
+								pdata->channels,
+								pdata->lavc_data);
+
+				if(astream->extra_data_size > 0)
+					astream->extra_data = get_mkvACodecPriv(global->AudCodec);
+
+
+			}
+
+			/** write the file header */
+			mkv_write_header(videoF->mkv);
 
 			/* start video capture*/
 			capVid = TRUE;
@@ -214,26 +258,12 @@ static int initVideoFile(struct ALL_DATA *all_data)
 			__UNLOCK_MUTEX(__VMUTEX);
 			pdata->capVid = capVid;
 
-
 			/* start sound capture*/
-			if(global->Sound_enable > 0)
+			if(global->Sound_enable > 0 && init_sound (pdata))
 			{
-				/* Initialize sound (open stream)*/
-				if(init_sound (pdata))
-				{
-					g_printerr("Audio initialization error\n");
-					global->Sound_enable=0;
-					if(!(global->no_display))
-                    {
-					    /*will this work with the checkbox disabled?*/
-					    gdk_threads_enter();
-					    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gwidget->SndEnable),0);
-					    gdk_flush();
-					    gdk_threads_leave();
-					}
-					else
-					    capture_vid(NULL, all_data);
-				}
+				//FIXME: enable capture button
+				g_printerr("Audio initialization error\n");
+				global->Sound_enable=0;
 			}
 			break;
 
@@ -294,6 +324,43 @@ aviClose (struct ALL_DATA *all_data)
 	videoF->avi = NULL;
 }
 
+static void
+mkvClose(struct ALL_DATA *all_data)
+{
+	float tottime = 0;
+
+	struct GLOBAL *global = all_data->global;
+	//struct vdIn *videoIn = all_data->videoIn;
+	struct VideoFormatData *videoF = all_data->videoF;
+	struct paRecordData *pdata = all_data->pdata;
+
+	if (videoF->mkv)
+	{
+		tottime = (float) ((int64_t) (global->Vidstoptime - global->Vidstarttime) / 1000000); // convert to miliseconds
+
+		if (global->debug) g_print("stop= %llu start=%llu \n",
+			(unsigned long long) global->Vidstoptime, (unsigned long long) global->Vidstarttime);
+
+		if (global->debug) g_print("VIDEO: %d frames in %f ms \n",global->framecount,tottime);
+		/*------------------- close audio stream and clean up -------------------*/
+		if (global->Sound_enable > 0)
+		{
+			if (close_sound (pdata)) g_printerr("Sound Close error\n");
+		}
+		mkv_close(videoF->mkv);
+
+		global->framecount = 0;
+		global->Vidstarttime = 0;
+		if (global->debug) g_print ("close mkv\n");
+	}
+
+	mkv_destroy_context(videoF->mkv);
+	pdata = NULL;
+	global = NULL;
+	//videoIn = NULL;
+	videoF->mkv = NULL;
+}
+
 
 static void closeVideoFile(struct ALL_DATA *all_data)
 {
@@ -346,8 +413,7 @@ static void closeVideoFile(struct ALL_DATA *all_data)
 
 		case WEBM_FORMAT:
 		case MKV_FORMAT:
-			if(clean_FormatContext ((void*) all_data))
-				g_printerr("matroska close returned a error\n");
+			mkvClose(all_data);
 			break;
 
 		default:
@@ -403,7 +469,7 @@ static int write_audio_frame (struct ALL_DATA *all_data)
 		case AVI_FORMAT:
 			ret = compress_audio_frame(all_data);
 			break;
-			
+
 		case WEBM_FORMAT:
 		case MKV_FORMAT:
 			__LOCK_MUTEX( __AMUTEX ); //why do we need this ???
@@ -460,7 +526,7 @@ static int sync_audio_frame(struct ALL_DATA *all_data, AudBuff *proc_buff)
 				}
 			}
 			break;
-		
+
 		case WEBM_FORMAT:
 		case MKV_FORMAT:
 
@@ -702,7 +768,7 @@ static gboolean process_video(struct ALL_DATA *all_data,
 				case AVI_FORMAT:
 					/* drop frame */
 					break;
-				
+
 				case WEBM_FORMAT:
 				case MKV_FORMAT:
 					write_video_frame(all_data, (void *) jpeg_struct, (void *) lavc_data, proc_buff);
@@ -727,7 +793,7 @@ static gboolean process_video(struct ALL_DATA *all_data,
 					write_video_frame(all_data, (void *) jpeg_struct, (void *) lavc_data, proc_buff);
 					write_video_frame(all_data, (void *) jpeg_struct, (void *) lavc_data, proc_buff);
 					break;
-				
+
 				case WEBM_FORMAT:
 				case MKV_FORMAT:
 					write_video_frame(all_data, (void *) jpeg_struct, (void *) lavc_data, proc_buff);

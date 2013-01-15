@@ -47,8 +47,8 @@ typedef struct _vformats_data
 struct VideoFormatData
 {
 	avi_Context *avi;
-	mk_Writer *mkv_w;
-	
+	mkv_Context *mkv;
+
 	int b_writing_frame;      //set when writing frame
 	int b_header_written;     //set after mkv header written
 	INT64 old_vpts;           //previous video pts
@@ -59,12 +59,14 @@ struct VideoFormatData
 	int vcodec;
 	int64_t vdts;
 	int vblock_align;
+	int vduration;
 	int32_t vflags;
 	int keyframe;
 
 	int acodec;
 	int64_t adts;
 	int ablock_align;
+	int aduration;
 	int32_t aflags;
 };
 

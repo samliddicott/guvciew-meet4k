@@ -34,6 +34,11 @@
 
 static int64_t io_tell(io_Writer* writer)
 {
+	if(writer->fp == NULL)
+	{
+		fprintf(stderr, "IO: (tell) no file pointer associated with writer (mem only ?)\n");
+		return -1;
+	}
 	//flush the file buffer
 	fflush(writer->fp);
 
@@ -41,28 +46,44 @@ static int64_t io_tell(io_Writer* writer)
 	return ((int64_t) ftello64(writer->fp));
 }
 
+/** flush a mem only writer(buf_writer) into a file writer */
+int io_flush_buf_writer(io_Writer* file_writer, io_Writer* buf_writer)
+{
+	int size = (int) (buf_writer->buf_ptr - buf_writer->buffer);
+	io_write_buf(file_writer, buf_writer->buffer, size);
+	buf_writer->buf_ptr = buf_writer->buffer;
+}
+
 
 /* create a new writer for filename*/
-io_Writer* io_create_writer(const char *filename)
+io_Writer* io_create_writer(const char *filename, int max_size)
 {
 	io_Writer* writer = g_new0(io_Writer, 1);
 
 	if(writer == NULL)
 		return NULL;
 
-	writer->buffer_size = IO_BUFFER_SIZE;
+	if(!size)
+		writer->buffer_size = IO_BUFFER_SIZE;
+	else
+		writer->buffer_size = size;
+
 	writer->buffer = g_new0(BYTE, writer->buffer_size);
 	writer->buf_ptr = writer->buffer;
 	writer->buf_end = writer->buf_ptr + writer->buffer_size;
 
-	writer->fp = fopen(filename, "wb");
-
-	if (writer->fp == NULL)
+	if(filename != NULL)
 	{
-		perror("Could not open file for writing");
-		g_free(writer);
-		return NULL;
+		writer->fp = fopen(filename, "wb");
+		if (writer->fp == NULL)
+		{
+			perror("Could not open file for writing");
+			g_free(writer);
+			return NULL;
+		}
 	}
+	else
+		writer->fp = NULL; //mem only writer (must be flushed to a file writer)
 
 	return writer;
 }
@@ -70,19 +91,30 @@ io_Writer* io_create_writer(const char *filename)
 void io_destroy_writer(io_Writer* writer)
 {
 	//clean up
-	//flush the buffer to file
-	io_flush_buffer(writer);
 
-	//flush the file buffer
-	fflush(writer->fp);
-	//close the file pointer
-	fclose(writer->fp);
+	if(writer->fp != NULL)
+	{
+		// flush the buffer to file
+		io_flush_buffer(writer);
+		// flush the file buffer
+		fflush(writer->fp);
+		// close the file pointer
+		fclose(writer->fp);
+	}
 
+	//clean the mem buffer
 	free(writer->buffer);
 }
 
 int64_t io_flush_buffer(io_Writer* writer)
 {
+	if(writer->fp == NULL)
+	{
+		fprintf(stderr, "IO: (flush) no file pointer associated with writer (mem only ?)\n");
+		fprintf(stderr, "IO: (flush) try to increase buffer size\n");
+		return -1;
+	}
+
 	size_t nitems = 0;
 	if (writer->buf_ptr > writer->buffer)
 	{
@@ -121,6 +153,11 @@ int io_seek(io_Writer* writer, int64_t position)
 
 	if(position <= writer->size) //position is on the file
 	{
+		if(writer->fp == NULL)
+		{
+			fprintf(stderr, "IO: (seek) no file pointer associated with writer (mem only ?)\n");
+			return -1;
+		}
 		//flush the memory buffer (we need an empty buffer)
 		io_flush_buffer(writer);
 		//try to move the file pointer to position
@@ -147,6 +184,11 @@ int io_seek(io_Writer* writer, int64_t position)
 
 int io_skip(io_Writer* writer, int amount)
 {
+	if(writer->fp == NULL)
+	{
+		fprintf(stderr, "IO: (skip) no file pointer associated with writer (mem only ?)\n");
+		return -1;
+	}
 	//flush the memory buffer (clean buffer)
 	io_flush_buffer(writer);
 	//try to move the file pointer to position

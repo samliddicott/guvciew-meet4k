@@ -276,15 +276,61 @@ typedef struct mkv_Context {
     mkv_cues        *cues;
     mkv_track       *tracks;
 
-    unsigned int    audio_buffer_size;
-    BYTE* audio_buffer;
+	// store one audio packet (webm)
+    unsigned int  pkt_buffer_size;
+    BYTE*         pkt_buffer;
+    unsigned int  pkt_size;
+    uint64_t      pkt_pts;
+    uint64_t      pkt_dts;
+    int           pkt_duration;
+    int           pkt_stream_index;
+    int           pkt_flags;
 
     io_Stream* stream_list;
     int stream_list_size;
 } mkv_Context;
 
 
+/** create a muxer context
+ * mode : WEBM_FORMAT or MKV_FORMAT*/
+mkv_Context*
+mkv_create_context(int mode,
+				   char* filename);
 
+/** add a video stream to the context */
+io_Stream*
+mkv_add_video_stream(mkv_Context *MKV,
+					int32_t width,
+					int32_t height,
+					int32_t codec_id);
+
+/** add a audio stream to the context */
+io_Stream*
+mkv_add_audio_stream(mkv_Context *MKV,
+					int32_t   channels,
+					int32_t   rate,
+					int32_t   bits,
+					int32_t   mpgrate,
+					int32_t   codec_id,
+					int32_t   format);
+
+/** write the header*/
+int mkv_write_header(mkv_Context* MKV);
+
+int mkv_write_packet(mkv_Context* MKV,
+					int stream_index,
+					BYTE* data,
+                    int size,
+                    int duration,
+                    uint64_t dts,
+                    uint64_t pts,
+                    int flags);
+
+/** finalize file operations*/
+int mkv_close(mkv_Context* MKV);
+
+/** destroy the muxer context (clean up)*/
+void mkv_destroy_context(mkv_Context* MKV);
 
 
 

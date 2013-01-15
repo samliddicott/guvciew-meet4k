@@ -51,7 +51,7 @@ io_Stream* add_new_stream(io_Stream* stream_list, int* list_size)
 
 	stream->indexes = NULL;
 
-	*list_size++;
+	*list_size = *list_size + 1;
 
 	return(stream);
 }
@@ -66,7 +66,7 @@ void destroy_stream_list(io_Stream* stream_list, int* list_size)
 			g_free(stream->indexes);
 		g_free(stream);
 		stream = prev_stream;
-		*list_size--;
+		*list_size = *list_size - 1;
 	}
 	g_free(stream); //free the last one;
 }

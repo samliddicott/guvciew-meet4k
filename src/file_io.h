@@ -40,8 +40,10 @@ typedef struct io_Writer
 	int64_t position; //file pointer position (updates on buffer flush)
 } io_Writer;
 
-/* create a new writer for filename*/
-io_Writer* io_create_writer(const char *filename);
+/** create a new writer:
+ * params: filename - file for write to (if NULL mem only writer)
+ *         max_size - mem buffer size (if 0 use default)*/
+io_Writer* io_create_writer(const char *filename, int max_size);
 /* destroy the writer*/
 void io_destroy_writer(io_Writer* writer);
 /*flush the writer buffer to disk */
