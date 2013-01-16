@@ -144,7 +144,7 @@ int64_t io_flush_buffer(io_Writer* writer)
 
 	//just for debug - should be removed
 	if(writer->position > writer->size)
-		fprintf(stderr, "IO: file pointer above expected file size\n");
+		fprintf(stderr, "IO: file pointer %" PRIu64 " above expected file size %" PRIu64 "\n");
 
 	return writer->position;
 }

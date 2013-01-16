@@ -708,7 +708,9 @@ static int mkv_write_packet_internal(mkv_Context* MKV,
     int keyframe = !!(flags & AV_PKT_FLAG_KEY);
     int ret;
     int64_t ts = MKV->tracks[stream_index].write_dts ? dts : pts;
-
+	io_Stream* stream = get_stream(MKV->stream_list, stream_index);
+	stream->packet_count++;
+	
     if (!MKV->cluster_pos)
     {
         MKV->cluster_pos = io_get_offset(MKV->writer);
@@ -777,6 +779,11 @@ int mkv_write_packet(mkv_Context* MKV,
 {
     int ret, keyframe = !!(flags & AV_PKT_FLAG_KEY);
     int64_t ts = MKV->tracks[stream_index].write_dts ? dts : pts;
+    if(!MKV->first_pts)
+		MKV->first_pts = ts;
+	
+	ts -= MKV->first_pts;
+	
     int cluster_size = io_get_offset(MKV->writer) - MKV->cluster_pos;
 
 	io_Stream* stream = get_stream(MKV->stream_list, stream_index);
@@ -815,9 +822,9 @@ int mkv_write_packet(mkv_Context* MKV,
     // buffer an audio packet to ensure the packet containing the video
     // keyframe's timecode is contained in the same cluster for WebM
     if (stream->type == STREAM_TYPE_AUDIO)
-        ret = mkv_copy_packet(MKV, stream_index, data, size, duration, dts, pts, flags);
+        ret = mkv_copy_packet(MKV, stream_index, data, size, duration, ts, ts, flags);
     else
-		ret = mkv_write_packet_internal(MKV, stream_index, data, size, duration, dts, pts, flags);
+		ret = mkv_write_packet_internal(MKV, stream_index, data, size, duration, ts, ts, flags);
 
     return ret;
 }
