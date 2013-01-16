@@ -844,7 +844,7 @@ int mkv_close(mkv_Context* MKV)
 							MKV->pkt_buffer,
 							MKV->pkt_size,
 							MKV->pkt_duration,
-							MKV->pkt_dts,
+							//MKV->pkt_dts,
 							MKV->pkt_pts,
 							MKV->pkt_flags);
 
