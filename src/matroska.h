@@ -258,9 +258,9 @@ typedef struct {
     int             num_entries;
 } mkv_cues;
 
-typedef struct {
-    int             write_dts;
-} mkv_track;
+//typedef struct {
+//    int             write_dts;
+//} mkv_track;
 
 typedef struct mkv_Context {
     int             mode; //matroska or webm
@@ -274,7 +274,7 @@ typedef struct mkv_Context {
     int64_t         duration;
     mkv_seekhead    *main_seekhead;
     mkv_cues        *cues;
-    mkv_track       *tracks;
+    //mkv_track       *tracks;
 
 	uint64_t      first_pts; //pts of first packet
 	// store one audio packet (webm)
@@ -282,7 +282,7 @@ typedef struct mkv_Context {
     BYTE*         pkt_buffer;
     unsigned int  pkt_size;
     uint64_t      pkt_pts;
-    uint64_t      pkt_dts;
+    //uint64_t      pkt_dts;
     int           pkt_duration;
     int           pkt_stream_index;
     int           pkt_flags;
@@ -322,7 +322,7 @@ int mkv_write_packet(mkv_Context* MKV,
 					BYTE* data,
                     int size,
                     int duration,
-                    uint64_t dts,
+                    //uint64_t dts,
                     uint64_t pts,
                     int flags);
 

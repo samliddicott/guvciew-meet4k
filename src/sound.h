@@ -73,11 +73,11 @@ struct paRecordData
 {
 	int api; //0-Portaudio 1-pulse audio
 	int input_type; // audio SAMPLE type
-	
+
 	unsigned long framesPerBuffer;   //frames per buffer passed in audio callback
 	char device_name[512];           //device name - for pulse
 	int device_id;                   //device id - for portaudio
-	
+
 	int w_ind;                       // producer index
 	int r_ind;                       // consumer index
 	int bw_ind;                      // audio_buffer in_use index
@@ -107,14 +107,14 @@ struct paRecordData
 	int snd_Flags;                   // effects flag
 	int skip_n;                      // video frames to skip
 	UINT64 delay;                    // in nanosec - h264 has a two frame delay that must be compensated
-	
+
 	int outbuf_size;	             //size of output buffer
 	struct lavcAData* lavc_data;     //libavcodec data
 	__MUTEX_TYPE mutex;
-	
+
 	//PORTAUDIO SUPPORT
 	void *stream;
-	
+
 	//PULSE SUPPORT
 #ifdef PULSEAUDIO
 	 __THREAD_TYPE pulse_read_th;
@@ -123,10 +123,10 @@ struct paRecordData
 #endif
 };
 
-int 
+int
 record_sound ( const void *inputBuffer, unsigned long numSamples, void *userData );
 
-int 
+int
 fill_audio_buffer(struct paRecordData *pdata, UINT64 ts);
 
 void
@@ -138,7 +138,7 @@ init_sound(struct paRecordData* data);
 int
 close_sound (struct paRecordData *data);
 
-void 
+void
 SampleConverter (struct paRecordData* data);
 
 #endif

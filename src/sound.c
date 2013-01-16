@@ -44,13 +44,14 @@ int fill_audio_buffer(struct paRecordData *pdata, UINT64 ts)
 		buffer_length = (G_NSEC_PER_SEC * pdata->aud_numSamples)/(pdata->samprate * pdata->channels);
 
 		/*first frame time stamp*/
-		if(pdata->a_ts <= 0)
+		if(pdata->a_ts < 0)
 		{
-			/*if sound begin time > first video frame ts then sync audio to video
-			* else set audio ts to aprox. the video ts */
+			/* if sound begin time > first video frame ts then sync audio to video
+			 * else set audio ts to aprox. the video ts */
 			if((pdata->ts_ref > 0) && (pdata->ts_ref < pdata->snd_begintime))
 				pdata->a_ts = pdata->snd_begintime - pdata->ts_ref;
-			else pdata->a_ts = 1; /*make it > 0 otherwise we will keep getting the same ts*/
+			else
+				pdata->a_ts = 0;
 		}
 		else /*increment time stamp for audio frame*/
 			pdata->a_ts += buffer_length;
@@ -258,10 +259,10 @@ set_sound (struct GLOBAL *global, struct paRecordData* pdata)
 	pdata->mp2Buff = NULL;
 
 	pdata->sampleIndex = 0;
-	
+
 	fprintf(stderr, "AUDIO: samples(%d)\n", pdata->aud_numSamples);
 	pdata->flush = 0;
-	pdata->a_ts= 0;
+	pdata->a_ts= -1;
 	pdata->ts_ref = 0;
 
 	pdata->stream = NULL;

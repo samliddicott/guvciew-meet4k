@@ -52,7 +52,7 @@ int io_flush_buf_writer(io_Writer* file_writer, io_Writer* buf_writer)
 	int size = (int) (buf_writer->buf_ptr - buf_writer->buffer);
 	io_write_buf(file_writer, buf_writer->buffer, size);
 	buf_writer->buf_ptr = buf_writer->buffer;
-	
+
 	return size;
 }
 
@@ -69,7 +69,7 @@ io_Writer* io_create_writer(const char *filename, int max_size)
 		writer->buffer_size = max_size;
 	else
 		writer->buffer_size = IO_BUFFER_SIZE;
-		
+
 	writer->buffer = g_new0(BYTE, writer->buffer_size);
 	writer->buf_ptr = writer->buffer;
 	writer->buf_end = writer->buf_ptr + writer->buffer_size;
@@ -134,7 +134,7 @@ int64_t io_flush_buffer(io_Writer* writer)
 		return -1;
 	}
 
-	int64_t size_inc = (writer->size - writer->position) + nitems;
+	int64_t size_inc = nitems - (writer->size - writer->position);
 	if(size_inc > 0)
 		writer->size += size_inc;
 
@@ -142,9 +142,12 @@ int64_t io_flush_buffer(io_Writer* writer)
 
 	writer->buf_ptr = writer->buffer;
 
-	//just for debug - should be removed
+	//should never happen
 	if(writer->position > writer->size)
+	{
 		fprintf(stderr, "IO: file pointer %" PRIu64 " above expected file size %" PRIu64 "\n");
+		writer->size = writer->position;
+	}
 
 	return writer->position;
 }
@@ -167,7 +170,8 @@ int io_seek(io_Writer* writer, int64_t position)
 		if(ret != 0)
 			fprintf(stderr, "IO: seek to file position %" PRIu64 "failed\n", position);
 		else
-			writer->position = position; //update writer position
+			writer->position = io_tell(writer); //update current file pointer position
+
 		//we are now on position with an empty memory buffer
 	}
 	else // position is on the buffer
