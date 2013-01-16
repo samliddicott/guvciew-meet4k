@@ -74,6 +74,7 @@ const char *get_vformat_extension(int codec_ind);
 
 const char *get_vformat_desc(int codec_ind);
 
+/**
 int init_FormatContext(void *data, int format);
 
 int clean_FormatContext (void* arg);
@@ -81,5 +82,5 @@ int clean_FormatContext (void* arg);
 int write_video_packet (BYTE *picture_buf, int size, int fps, struct VideoFormatData* data);
 
 int write_audio_packet (BYTE *audio_buf, int size, struct VideoFormatData* data);
-
+**/
 #endif

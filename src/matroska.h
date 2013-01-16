@@ -294,8 +294,7 @@ typedef struct mkv_Context {
 /** create a muxer context
  * mode : WEBM_FORMAT or MKV_FORMAT*/
 mkv_Context*
-mkv_create_context(int mode,
-				   char* filename);
+mkv_create_context(char* filename, int mode);
 
 /** add a video stream to the context */
 io_Stream*

@@ -75,7 +75,7 @@ struct io_Stream
 typedef struct io_Stream io_Stream;
 
 /** adds a new stream to the stream list*/
-io_Stream* add_new_stream(io_Stream* stream_list, int* list_size);
+io_Stream* add_new_stream(io_Stream** stream_list, int* list_size);
 /** destroys all streams in stream list*/
 void destroy_stream_list(io_Stream* stream_list, int* list_size);
 /** get stream with index from stream list*/

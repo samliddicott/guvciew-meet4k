@@ -46,7 +46,7 @@ typedef struct _acodecs_data
 	const char *codec_name;   //lavc codec name
 	int sample_format;        //lavc sample format
 	int profile;              //for AAC only
-	const void *mkv_codpriv;  //pointer for codec private data
+	void *mkv_codpriv;        //pointer for codec private data
 	int codpriv_size;         //size in bytes of private data
 	int flags;                //lavc flags
 } acodecs_data;
@@ -75,7 +75,7 @@ gboolean isAcodecValid(int codec_ind);
 
 acodecs_data *get_aud_codec_defaults(int codec_ind);
 
-const void *get_mkvACodecPriv(int codec_ind);
+void* get_mkvACodecPriv(int codec_ind);
 
 int set_mkvACodecPriv(int codec_ind, int samprate, int channels, struct lavcAData* data);
 

@@ -113,7 +113,7 @@ avi_add_video_stream(avi_Context *AVI,
 					int32_t height,
 					double fps,
 					int32_t codec_id,
-					char* compressor);
+					const char* compressor);
 
 io_Stream*
 avi_add_audio_stream(avi_Context *AVI,

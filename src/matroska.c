@@ -156,7 +156,7 @@ static void mkv_put_ebml_num(mkv_Context* MKV, uint64_t num, int bytes)
     // sizes larger than this are currently undefined in EBML
     if(num >= (1ULL<<56)-1)
     {
-		fprintf(stderr, "MKV: ebml number: %llu\n", num);
+		fprintf(stderr, "MKV: ebml number: %" PRIu64 "\n", num);
 		return;
 	}
 
@@ -167,7 +167,7 @@ static void mkv_put_ebml_num(mkv_Context* MKV, uint64_t num, int bytes)
     // that we need to use, so write unknown size. This shouldn't happen.
     if(bytes < needed_bytes)
     {
-		fprintf(stderr, "MKV: bad requested size for ebml number: %llu (%i < %i)\n", num, bytes, needed_bytes);
+		fprintf(stderr, "MKV: bad requested size for ebml number: %" PRIu64 " (%i < %i)\n", num, bytes, needed_bytes);
 		return;
 	}
 
@@ -220,7 +220,7 @@ static void mkv_put_ebml_void(mkv_Context* MKV, uint64_t size)
 
     if(size < 2)
     {
-		fprintf(stderr, "MKV: wrong void size %llu < 2", size);
+		fprintf(stderr, "MKV: wrong void size %" PRIu64 " < 2", size);
 	}
 
     mkv_put_ebml_id(MKV, EBML_ID_VOID);
@@ -446,7 +446,7 @@ static void mkv_write_codecprivate(mkv_Context* MKV, io_Stream* stream)
 static int mkv_write_tracks(mkv_Context* MKV)
 {
     ebml_master tracks;
-    int i, j, ret;
+    int i, ret;
 
     ret = mkv_add_seekhead_entry(MKV->main_seekhead, MATROSKA_ID_TRACKS, io_get_offset(MKV->writer));
     if (ret < 0) return ret;
@@ -490,7 +490,7 @@ static int mkv_write_tracks(mkv_Context* MKV)
 				fprintf(stderr, "MKV: bad video codec index for id:0x%x\n",stream->codec_id);
 				return -1;
 			}
-			mkv_codec_name = get_mkvCodec(codec_index);
+			mkv_codec_name = (char *) get_mkvCodec(codec_index);
 		}
 		else
 		{
@@ -500,7 +500,7 @@ static int mkv_write_tracks(mkv_Context* MKV)
 				fprintf(stderr, "MKV: bad audio codec index for id:0x%x\n",stream->codec_id);
 				return -1;
 			}
-			mkv_codec_name = get_mkvCodec(codec_index);
+			mkv_codec_name = (char *) get_mkvACodec(codec_index);
 		}
 
         mkv_put_ebml_string(MKV, MATROSKA_ID_CODECID, mkv_codec_name);
@@ -589,7 +589,7 @@ static int mkv_write_tracks(mkv_Context* MKV)
 int mkv_write_header(mkv_Context* MKV)
 {
     ebml_master ebml_header, segment_info;
-    int ret, i;
+    int ret;
 
     MKV->tracks = g_new0(mkv_track, MKV->stream_list_size);
     if (!MKV->tracks)
@@ -757,7 +757,7 @@ static int mkv_copy_packet(mkv_Context* MKV,
 	memcpy(MKV->pkt_buffer, data, size);
 	MKV->pkt_size = size;
     MKV->pkt_duration = duration;
-    MV->pkt_dts = dts;
+    MKV->pkt_dts = dts;
     MKV->pkt_pts = pts;
     MKV->pkt_flags = flags;
     MKV->pkt_stream_index = stream_index;
@@ -875,17 +875,16 @@ int mkv_close(mkv_Context* MKV)
     return 0;
 }
 
-mkv_Context* mkv_create_context(int mode,
-								char* filename)
+mkv_Context* mkv_create_context(char* filename, int mode)
 {
 	mkv_Context* MKV = g_new0(mkv_Context, 1);
 
-	MKV->writer = io_create_writer(filename);
+	MKV->writer = io_create_writer(filename, 0);
 	MKV->mode = mode;
 	MKV->main_seekhead = NULL;
 	MKV->cues = NULL;
 	MKV->tracks = NULL;
-	MKV->audio_buffer = NULL;
+	MKV->pkt_buffer = NULL;
 	MKV->stream_list = NULL;
 
 	return MKV;
@@ -908,7 +907,7 @@ mkv_add_video_stream(mkv_Context *MKV,
 					int32_t height,
 					int32_t codec_id)
 {
-	io_Stream* stream = add_new_stream(MKV->stream_list, &MKV->stream_list_size);
+	io_Stream* stream = add_new_stream(&MKV->stream_list, &MKV->stream_list_size);
 	stream->type = STREAM_TYPE_VIDEO;
 	stream->width = width;
 	stream->height = height;
@@ -928,7 +927,7 @@ mkv_add_audio_stream(mkv_Context *MKV,
 					int32_t   codec_id,
 					int32_t   format)
 {
-	io_Stream* stream = add_new_stream(MKV->stream_list, &MKV->stream_list_size);
+	io_Stream* stream = add_new_stream(&MKV->stream_list, &MKV->stream_list_size);
 	stream->type = STREAM_TYPE_AUDIO;
 
 	stream->a_rate = rate;

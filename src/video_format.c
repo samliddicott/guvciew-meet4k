@@ -85,6 +85,8 @@ gboolean isLavfFormat(int codec_ind)
 	return (listSupVFormats[codec_ind].avformat);
 }
 
+
+/**
 int write_video_packet (BYTE *picture_buf, int size, int fps, struct VideoFormatData* videoF)
 {
 	int64_t t_stamp = (int64_t) videoF->vpts; 
@@ -133,7 +135,7 @@ int clean_FormatContext (void* data)
 	struct paRecordData *pdata = all_data->pdata;
 	struct VideoFormatData *videoF = all_data->videoF;
 	int ret = 0;
-	/*------------------- close audio stream and clean up -------------------*/
+	//------------------- close audio stream and clean up -------------------
 	if (global->Sound_enable > 0) 
 	{
 		if(global->debug) g_print("closing sound...\n");
@@ -145,7 +147,7 @@ int clean_FormatContext (void* data)
 	g_print("video default duration:%llu start:%llu stop:%llu\n", 
 		(unsigned long long) def_duration, (unsigned long long) global->Vidstarttime, 
 		(unsigned long long) global->Vidstoptime);
-	mk_setDef_Duration(videoF->mkv_w, def_duration);/* set real fps ( average frame duration)*/
+	mk_setDef_Duration(videoF->mkv_w, def_duration);// set real fps ( average frame duration)
 	
 	ret = mk_close(videoF->mkv_w);
 	videoF->mkv_w = NULL;
@@ -218,9 +220,9 @@ int init_FormatContext(void *data, int format)
 	
 	printf("writing header\n");
 	
-	/*gspca doesn't set the fps value so we don't set it in the file header    */
-	/*this is OK acording to the standard (variable fps )but vlc seems to have */
-	/*a problem with this in the case of mpeg codecs (mpg1 and mpg2)            */
+	//gspca doesn't set the fps value so we don't set it in the file header    
+	//this is OK acording to the standard (variable fps )but vlc seems to have 
+	//a problem with this in the case of mpeg codecs (mpg1 and mpg2)            
 	UINT64 v_def_dur = 0;
 	if(global->fps >= 5) v_def_dur = (UINT64) (global->fps_num * 1e9/global->fps); //nano seconds
 	if (global->debug) g_print("video frame default duration =%llu for %i fps\n", 
@@ -239,3 +241,4 @@ int init_FormatContext(void *data, int format)
 	videoF->b_header_written = 1;
 	return(0);
 }
+**/

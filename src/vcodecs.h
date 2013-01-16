@@ -41,7 +41,7 @@ typedef struct _vcodecs_data
 	const char *compressor;   //fourcc - upper case
 	int mkv_4cc;              //fourcc WORD value
 	const char *mkv_codec;    //mkv codecID
-	const void *mkv_codecPriv;//mkv codec private data
+	void *mkv_codecPriv;      //mkv codec private data
 	const char *description;  //codec description
 	//int frame_delay;          //frame delay
 	int fps;                  // encoder frame rate (used for time base)

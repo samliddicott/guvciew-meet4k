@@ -30,21 +30,23 @@
 #include <stdlib.h>
 #include <string.h>
 
-io_Stream* add_new_stream(io_Stream* stream_list, int* list_size)
+io_Stream* add_new_stream(io_Stream** stream_list, int* list_size)
 {
+	
 	io_Stream* stream = g_new0(io_Stream, 1);
 	stream->next = NULL;
 	stream->id = *list_size;
 
+	fprintf(stderr, "STREAM: add stream %i to stream list\n", stream->id);
 	if(stream->id == 0)
 	{
 		stream->previous = NULL;
-		stream_list = stream;
+		*stream_list = stream;
 	}
 	else
 	{
 
-		io_Stream* last_stream = get_last_stream(stream_list);
+		io_Stream* last_stream = get_last_stream(*stream_list);
 		stream->previous = last_stream;
 		last_stream->next = stream;
 	}

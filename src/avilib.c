@@ -59,8 +59,8 @@
 
 #define INFO_LIST
 
-#define MAX_INFO_STRLEN 64
-static char id_str[MAX_INFO_STRLEN];
+//#define MAX_INFO_STRLEN 64
+//static char id_str[MAX_INFO_STRLEN];
 
 #ifndef PACKAGE
 #define PACKAGE "guvcview"
@@ -118,7 +118,7 @@ static void avi_close_tag(avi_Context* AVI, int64_t start_pos)
 	io_write_wl32(AVI->writer, size);
 	io_seek(AVI->writer, current_offset);
 
-	fprintf(stderr, "AVI:(0x%llx) closing tag at %" PRIu64 " with size %" PRIu64 "\n",current_offset, start_pos-4, size);
+	fprintf(stderr, "AVI:(%" PRIu64 ") closing tag at %" PRIu64 " with size %i\n",current_offset, start_pos-4, size);
 
 }
 
@@ -527,9 +527,9 @@ avi_add_video_stream(avi_Context *AVI,
 					int32_t height,
 					double fps,
 					int32_t codec_id,
-					char* compressor)
+					const char* compressor)
 {
-	io_Stream* stream = add_new_stream(AVI->stream_list, &AVI->stream_list_size);
+	io_Stream* stream = add_new_stream(&AVI->stream_list, &AVI->stream_list_size);
 	stream->type = STREAM_TYPE_VIDEO;
 	stream->fps = fps;
 	stream->width = width;
@@ -554,7 +554,7 @@ avi_add_audio_stream(avi_Context *AVI,
 					int32_t   codec_id,
 					int32_t   format)
 {
-	io_Stream* stream = add_new_stream(AVI->stream_list, &AVI->stream_list_size);
+	io_Stream* stream = add_new_stream(&AVI->stream_list, &AVI->stream_list_size);
 	stream->type = STREAM_TYPE_AUDIO;
 
 	stream->a_rate = rate;
@@ -585,7 +585,7 @@ avi_Context* avi_create_context(const char * filename)
 	if(AVI == NULL)
 		return NULL;
 
-	AVI->writer = io_create_writer(filename);
+	AVI->writer = io_create_writer(filename, 0);
 
 	if (AVI->writer == NULL)
 	{
@@ -639,8 +639,8 @@ static int avi_write_counters(avi_Context* AVI, avi_RIFF* riff)
     int n, nb_frames = 0;
     io_flush_buffer(AVI->writer);
 
-	int time_base_num = AVI->time_base_num;
-	int time_base_den = AVI->time_base_den;
+	//int time_base_num = AVI->time_base_num;
+	//int time_base_den = AVI->time_base_den;
 
     int64_t file_size = io_get_offset(AVI->writer);//avi_tell(AVI);
     fprintf(stderr, "AVI: file size = %" PRIu64 "\n", file_size);
@@ -924,7 +924,7 @@ int avi_close(avi_Context* AVI)
     if (riff->id == 0)
     {
         avi_close_tag(AVI, riff->movi_list);
-        fprintf(stderr, "AVI: (0x%llx) close movi tag\n",io_get_offset(AVI->writer));
+        fprintf(stderr, "AVI: (%" PRIu64 ") close movi tag\n",io_get_offset(AVI->writer));
         res = avi_write_idx1(AVI, riff);
         avi_close_tag(AVI, riff->riff_start);
     }

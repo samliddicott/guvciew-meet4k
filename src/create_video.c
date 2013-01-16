@@ -97,7 +97,7 @@ static void alloc_videoBuff(struct ALL_DATA *all_data)
 
 static int initVideoFile(struct ALL_DATA *all_data)
 {
-	struct GWIDGET *gwidget = all_data->gwidget;
+	//struct GWIDGET *gwidget = all_data->gwidget;
 	struct paRecordData *pdata = all_data->pdata;
 	struct GLOBAL *global = all_data->global;
 	struct vdIn *videoIn = all_data->videoIn;
@@ -432,7 +432,7 @@ static int write_video_frame (struct ALL_DATA *all_data,
 	VidBuff *proc_buff)
 {
 	struct GLOBAL *global = all_data->global;
-	struct GWIDGET *gwidget = all_data->gwidget;
+	//struct GWIDGET *gwidget = all_data->gwidget;
 
 	int ret=0;
 
@@ -452,7 +452,7 @@ static int write_video_frame (struct ALL_DATA *all_data,
 		default:
 			break;
 	}
-	return (0);
+	return (ret);
 }
 
 static int write_audio_frame (struct ALL_DATA *all_data)
@@ -460,7 +460,7 @@ static int write_audio_frame (struct ALL_DATA *all_data)
 	struct paRecordData *pdata = all_data->pdata;
 	struct GLOBAL *global = all_data->global;
 	struct VideoFormatData *videoF = all_data->videoF;
-	struct GWIDGET *gwidget = all_data->gwidget;
+	//struct GWIDGET *gwidget = all_data->gwidget;
 
 	int ret =0;
 
@@ -484,7 +484,7 @@ static int write_audio_frame (struct ALL_DATA *all_data)
 
 			break;
 	}
-	return (0);
+	return (ret);
 }
 
 static int sync_audio_frame(struct ALL_DATA *all_data, AudBuff *proc_buff)

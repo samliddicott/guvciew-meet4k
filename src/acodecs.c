@@ -294,7 +294,7 @@ const char *get_mkvACodec(int codec_ind)
 	return (listSupACodecs[get_real_index (codec_ind)].mkv_codec);
 }
 
-const void *get_mkvACodecPriv(int codec_ind)
+void *get_mkvACodecPriv(int codec_ind)
 {
 	return ((void *) listSupACodecs[get_real_index (codec_ind)].mkv_codpriv);
 }
