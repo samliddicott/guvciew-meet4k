@@ -297,7 +297,7 @@ static mkv_seekhead * mkv_start_seekhead(mkv_Context* MKV, int64_t segment_offse
 static int mkv_add_seekhead_entry(mkv_seekhead *seekhead, unsigned int elementid, uint64_t filepos)
 {
     mkv_seekhead_entry *entries = seekhead->entries;
-
+	fprintf(stderr,"MKV: add seekhead entry %i (max %i)\n", seekhead->num_entries, seekhead->max_entries);
     // don't store more elements than we reserved space for
     if (seekhead->max_entries > 0 && seekhead->max_entries <= seekhead->num_entries)
         return -1;
@@ -309,9 +309,11 @@ static int mkv_add_seekhead_entry(mkv_seekhead *seekhead, unsigned int elementid
 		fprintf(stderr, "MKV: couldn't allocate memory for seekhead entries\n");
         return -1;
 	}
-    entries[seekhead->num_entries  ].elementid = elementid;
-    entries[seekhead->num_entries++].segmentpos = filepos - seekhead->segment_offset;
-
+    entries[seekhead->num_entries].elementid = elementid;
+    entries[seekhead->num_entries].segmentpos = filepos - seekhead->segment_offset;
+	
+	seekhead->num_entries++;
+	
     seekhead->entries = entries;
     return 0;
 }
@@ -337,6 +339,7 @@ static int64_t mkv_write_seekhead(mkv_Context* MKV, mkv_seekhead *seekhead)
     {
         if (io_seek(MKV->writer, seekhead->filepos) < 0)
         {
+			fprintf(stderr, "MKV: failed to write seekhead at pos %" PRIu64 "\n");
             currentpos = -1;
             goto fail;
         }
@@ -621,6 +624,7 @@ int mkv_write_header(mkv_Context* MKV)
     // isn't more than 10 elements if we only write one of each other
     // currently defined level 1 element
     MKV->main_seekhead    = mkv_start_seekhead(MKV, MKV->segment_offset, 10);
+    fprintf(stderr, "MKV: allocated main seekhead at 0x%x\n",  MKV->main_seekhead);
     if (!MKV->main_seekhead)
     {
 		fprintf(stderr,"MKV: couldn't allocate seekhead\n");
@@ -654,7 +658,7 @@ int mkv_write_header(mkv_Context* MKV)
     if (ret < 0) return ret;
 
 	//should it go here ???
-    mkv_write_seekhead(MKV, MKV->main_seekhead);
+    //mkv_write_seekhead(MKV, MKV->main_seekhead);
 
     MKV->cues = mkv_start_cues(MKV->segment_offset);
     if (MKV->cues == NULL)
@@ -796,7 +800,7 @@ int mkv_write_packet(mkv_Context* MKV,
           cluster_size > 5*1024*1024 || ts > MKV->cluster_pts + 5000 ||
          (stream->type == STREAM_TYPE_VIDEO && keyframe && cluster_size > 4*1024)))
     {
-		fprintf(stderr, "MKV: Starting new cluster at offset %" PRIu64 " bytes, pts %" PRIu64 "\n", io_get_offset(MKV->writer), ts);
+		//fprintf(stderr, "MKV: Starting new cluster at offset %" PRIu64 " bytes, pts %" PRIu64 "\n", io_get_offset(MKV->writer), ts);
         mkv_end_ebml_master(MKV, MKV->cluster);
         MKV->cluster_pos = 0;
     }
