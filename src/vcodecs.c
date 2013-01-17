@@ -651,7 +651,6 @@ int compress_frame(void *data,
 	int ret = 0;
 
 	videoF->vpts = proc_buff->time_stamp;
-	//videoF->vdts = videoF->vpts;
 
 	switch (global->VidCodec)
 	{

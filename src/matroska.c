@@ -311,9 +311,9 @@ static int mkv_add_seekhead_entry(mkv_seekhead *seekhead, unsigned int elementid
 	}
     entries[seekhead->num_entries].elementid = elementid;
     entries[seekhead->num_entries].segmentpos = filepos - seekhead->segment_offset;
-	
+
 	seekhead->num_entries++;
-	
+
     seekhead->entries = entries;
     return 0;
 }
@@ -466,25 +466,8 @@ static int mkv_write_tracks(mkv_Context* MKV)
         mkv_put_ebml_uint (MKV, MATROSKA_ID_TRACKNUMBER     , i + 1);
         mkv_put_ebml_uint (MKV, MATROSKA_ID_TRACKUID        , i + 1);
         mkv_put_ebml_uint (MKV, MATROSKA_ID_TRACKFLAGLACING , 0);    // no lacing (yet)
-
-        //if ((tag = av_dict_get(st->metadata, "title", NULL, 0)))
-        //    put_ebml_string(pb, MATROSKA_ID_TRACKNAME, tag->value);
-        //tag = av_dict_get(st->metadata, "language", NULL, 0);
-        //put_ebml_string(pb, MATROSKA_ID_TRACKLANGUAGE, tag ? tag->value:"und");
-
-        //if (stream->disposition)
-        //mkv_put_ebml_uint(MKV, MATROSKA_ID_TRACKFLAGDEFAULT, !!(stream->disposition & AV_DISPOSITION_DEFAULT));
 		mkv_put_ebml_uint(MKV, MATROSKA_ID_TRACKFLAGDEFAULT, 1);
 
-        // look for a codec ID string specific to mkv to use,
-        // if none are found, use AVI codes
-        //for (j = 0; ff_mkv_codec_tags[j].id != AV_CODEC_ID_NONE; j++) {
-        //    if (ff_mkv_codec_tags[j].id == codec->codec_id) {
-        //        put_ebml_string(pb, MATROSKA_ID_CODECID, ff_mkv_codec_tags[j].str);
-        //        native_id = 1;
-        //        break;
-        //    }
-        //}
         char* mkv_codec_name;
         if(stream->type == STREAM_TYPE_VIDEO)
         {
@@ -527,32 +510,6 @@ static int mkv_write_tracks(mkv_Context* MKV)
                 // XXX: interlace flag?
                 mkv_put_ebml_uint (MKV, MATROSKA_ID_VIDEOPIXELWIDTH , stream->width);
 				mkv_put_ebml_uint (MKV, MATROSKA_ID_VIDEOPIXELHEIGHT, stream->height);
-
-				//if(!isLavcCodec(get_vcodec_index(stream->codec_id)))
-				//	MKV->tracks[i].write_dts = 1; //use dts
-
-               /***
-                if ((tag = av_dict_get(s->metadata, "stereo_mode", NULL, 0)))
-                {
-                    uint8_t stereo_fmt = atoi(tag->value);
-                    int valid_fmt = 0;
-
-                    switch (mkv->mode) {
-                    case WEBM_FORMAT:
-                        if (stereo_fmt <= MATROSKA_VIDEO_STEREOMODE_TYPE_TOP_BOTTOM
-                            || stereo_fmt == MATROSKA_VIDEO_STEREOMODE_TYPE_RIGHT_LEFT)
-                            valid_fmt = 1;
-                        break;
-                    case MKV_FORMAT:
-                        if (stereo_fmt <= MATROSKA_VIDEO_STEREOMODE_TYPE_BOTH_EYES_BLOCK_RL)
-                            valid_fmt = 1;
-                        break;
-                    }
-
-                    if (valid_fmt)
-                        put_ebml_uint (pb, MATROSKA_ID_VIDEOSTEREOMODE, stereo_fmt);
-                }
-                **/
                 mkv_put_ebml_uint(MKV, MATROSKA_ID_VIDEODISPLAYWIDTH , stream->width);
                 mkv_put_ebml_uint(MKV, MATROSKA_ID_VIDEODISPLAYHEIGHT, stream->height);
                 mkv_put_ebml_uint(MKV, MATROSKA_ID_VIDEODISPLAYUNIT, 3);
@@ -563,9 +520,9 @@ static int mkv_write_tracks(mkv_Context* MKV)
             case STREAM_TYPE_AUDIO:
                 mkv_put_ebml_uint(MKV, MATROSKA_ID_TRACKTYPE, MATROSKA_TRACK_TYPE_AUDIO);
 
-                //if (!native_id)
-                //    // no mkv-specific ID, use ACM mode
-                //    put_ebml_string(pb, MATROSKA_ID_CODECID, "A_MS/ACM");
+
+                //no mkv-specific ID, use ACM mode
+                //put_ebml_string(pb, MATROSKA_ID_CODECID, "A_MS/ACM");
 
                 subinfo = mkv_start_ebml_master(MKV, MATROSKA_ID_TRACKAUDIO, 0);
                 mkv_put_ebml_uint(MKV, MATROSKA_ID_AUDIOCHANNELS, stream->a_chans);
@@ -582,9 +539,6 @@ static int mkv_write_tracks(mkv_Context* MKV)
         mkv_write_codecprivate(MKV, stream);
 
         mkv_end_ebml_master(MKV, track);
-
-        // ms precision is the de-facto standard timescale for mkv files
-        //avpriv_set_pts_info(st, 64, 1, 1000);
     }
     mkv_end_ebml_master(MKV, tracks);
     return 0;
@@ -594,13 +548,6 @@ int mkv_write_header(mkv_Context* MKV)
 {
     ebml_master ebml_header, segment_info;
     int ret;
-
-    //MKV->tracks = g_new0(mkv_track, MKV->stream_list_size);
-    //if (!MKV->tracks)
-    //{
-	//	fprintf(stderr,"MKV: couldn't allocate tracks\n");
-    //    return -1;
-    //}
 
     ebml_header = mkv_start_ebml_master(MKV, EBML_ID_HEADER, 0);
     mkv_put_ebml_uint   (MKV, EBML_ID_EBMLVERSION        ,           1);
@@ -657,8 +604,6 @@ int mkv_write_header(mkv_Context* MKV)
     ret = mkv_write_tracks(MKV);
     if (ret < 0) return ret;
 
-	//should it go here ???
-    //mkv_write_seekhead(MKV, MKV->main_seekhead);
 
     MKV->cues = mkv_start_cues(MKV->segment_offset);
     if (MKV->cues == NULL)
@@ -687,11 +632,9 @@ static void mkv_write_block(mkv_Context* MKV,
                             int stream_index,
                             BYTE* data,
                             int size,
-                            //uint64_t dts,
                             uint64_t pts,
                             int flags)
 {
-    //int64_t ts = MKV->tracks[stream_index].write_dts ? dts : pts;
 	uint64_t ts = pts;
 
     mkv_put_ebml_id(MKV, blockid);
@@ -707,13 +650,11 @@ static int mkv_write_packet_internal(mkv_Context* MKV,
 							BYTE* data,
                             int size,
                             int duration,
-                            //uint64_t dts,
                             uint64_t pts,
                             int flags)
 {
     int keyframe = !!(flags & AV_PKT_FLAG_KEY);
     int ret;
-    //int64_t ts = MKV->tracks[stream_index].write_dts ? dts : pts;
     uint64_t ts = pts;
 	io_Stream* stream = get_stream(MKV->stream_list, stream_index);
 	stream->packet_count++;
@@ -748,7 +689,6 @@ static int mkv_copy_packet(mkv_Context* MKV,
 							BYTE* data,
                             int size,
                             int duration,
-                            //uint64_t dts,
                             uint64_t pts,
                             int flags)
 {
@@ -766,7 +706,6 @@ static int mkv_copy_packet(mkv_Context* MKV,
 	memcpy(MKV->pkt_buffer, data, size);
 	MKV->pkt_size = size;
     MKV->pkt_duration = duration;
-    //MKV->pkt_dts = dts;
     MKV->pkt_pts = pts;
     MKV->pkt_flags = flags;
     MKV->pkt_stream_index = stream_index;
@@ -780,12 +719,10 @@ int mkv_write_packet(mkv_Context* MKV,
 					BYTE* data,
                     int size,
                     int duration,
-                    //uint64_t dts,
                     uint64_t pts,
                     int flags)
 {
     int ret, keyframe = !!(flags & AV_PKT_FLAG_KEY);
-    //int64_t ts = MKV->tracks[stream_index].write_dts ? dts : pts;
     uint64_t ts = pts;
 
 	ts -= MKV->first_pts;
@@ -813,7 +750,6 @@ int mkv_write_packet(mkv_Context* MKV,
 							MKV->pkt_buffer,
 							MKV->pkt_size,
 							MKV->pkt_duration,
-							//MKV->pkt_dts,
 							MKV->pkt_pts,
 							MKV->pkt_flags);
 
@@ -848,7 +784,6 @@ int mkv_close(mkv_Context* MKV)
 							MKV->pkt_buffer,
 							MKV->pkt_size,
 							MKV->pkt_duration,
-							//MKV->pkt_dts,
 							MKV->pkt_pts,
 							MKV->pkt_flags);
 
@@ -881,7 +816,6 @@ int mkv_close(mkv_Context* MKV)
 	io_seek(MKV->writer, currentpos);
 
     mkv_end_ebml_master(MKV, MKV->segment);
-    //g_free(MKV->tracks);
     av_freep(&MKV->cues->entries);
     av_freep(&MKV->cues);
 
@@ -896,7 +830,6 @@ mkv_Context* mkv_create_context(char* filename, int mode)
 	MKV->mode = mode;
 	MKV->main_seekhead = NULL;
 	MKV->cues = NULL;
-	//MKV->tracks = NULL;
 	MKV->pkt_buffer = NULL;
 	MKV->stream_list = NULL;
 
