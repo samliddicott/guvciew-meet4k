@@ -271,6 +271,7 @@ typedef struct mkv_Context {
     mkv_seekhead    *main_seekhead;
     mkv_cues        *cues;
 
+	uint64_t      timescale;
 	uint64_t      first_pts; //pts of first packet
 	// store one audio packet (webm)
     unsigned int  pkt_buffer_size;

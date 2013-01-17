@@ -582,7 +582,7 @@ int mkv_write_header(mkv_Context* MKV)
     if (ret < 0) return ret;
 
     segment_info = mkv_start_ebml_master(MKV, MATROSKA_ID_INFO, 0);
-    mkv_put_ebml_uint(MKV, MATROSKA_ID_TIMECODESCALE, 1000000);
+    mkv_put_ebml_uint(MKV, MATROSKA_ID_TIMECODESCALE, MKV->timescale);
     mkv_put_ebml_string(MKV, MATROSKA_ID_MUXINGAPP , "Guvcview Muxer-2013.01");
     mkv_put_ebml_string(MKV, MATROSKA_ID_WRITINGAPP, "Guvcview");
 
@@ -635,12 +635,10 @@ static void mkv_write_block(mkv_Context* MKV,
                             uint64_t pts,
                             int flags)
 {
-	uint64_t ts = pts;
-
     mkv_put_ebml_id(MKV, blockid);
     mkv_put_ebml_num(MKV, size+4, 0);
-    io_write_w8(MKV->writer, 0x80 | (stream_index + 1));     // this assumes stream_index is less than 126
-    io_write_wb16(MKV->writer, ts - MKV->cluster_pts);
+    io_write_w8(MKV->writer, 0x80 | (stream_index + 1));// this assumes stream_index is less than 126
+    io_write_wb16(MKV->writer, pts - MKV->cluster_pts); //pts and cluster_pts are scaled
     io_write_w8(MKV->writer, flags);
     io_write_buf(MKV->writer, data, size);
 }
@@ -655,7 +653,8 @@ static int mkv_write_packet_internal(mkv_Context* MKV,
 {
     int keyframe = !!(flags & AV_PKT_FLAG_KEY);
     int ret;
-    uint64_t ts = pts;
+    uint64_t ts = pts / MKV->timescale; //scale the time stamp
+
 	io_Stream* stream = get_stream(MKV->stream_list, stream_index);
 	stream->packet_count++;
 
@@ -668,7 +667,7 @@ static int mkv_write_packet_internal(mkv_Context* MKV,
     }
 
 	ebml_master blockgroup = mkv_start_ebml_master(MKV, MATROSKA_ID_BLOCKGROUP, mkv_blockgroup_size(size));
-	mkv_write_block(MKV, MATROSKA_ID_BLOCK, stream_index, data, size, pts, flags);
+	mkv_write_block(MKV, MATROSKA_ID_BLOCK, stream_index, data, size, ts, flags);
 	if(duration)
 		mkv_put_ebml_uint(MKV, MATROSKA_ID_BLOCKDURATION, duration);
 	mkv_end_ebml_master(MKV, blockgroup);
@@ -832,6 +831,7 @@ mkv_Context* mkv_create_context(char* filename, int mode)
 	MKV->cues = NULL;
 	MKV->pkt_buffer = NULL;
 	MKV->stream_list = NULL;
+	MKV->timescale = 1000000;
 
 	return MKV;
 }
