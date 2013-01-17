@@ -88,6 +88,8 @@ writeConf(struct GLOBAL *global, char *videodevice)
 		g_fprintf(fp,"hwaccel=%i\n",global->hwaccel);
 		g_fprintf(fp,"# video compression format: 0-MJPG 1-YUY2/UYVY 2-DIB (BMP 24) 3-MPEG1 4-FLV1 5-MPEG2 6-MS MPEG4 V3(DIV3) 7-MPEG4 (DIV5)\n");
 		g_fprintf(fp,"vid_codec=%i\n",global->VidCodec);
+		g_fprintf(fp,"# video muxer format: 0-AVI 1-MKV 2-WebM\n");
+		g_fprintf(fp,"vid_format=%i\n",global->VidFormat);
 		g_fprintf(fp,"# Auto Video naming (ex: filename-n.avi)\n");
 		g_fprintf(fp,"vid_inc=%d\n",global->vid_inc);
 		g_fprintf(fp,"# sound 0 - disable 1 - enable\n");
@@ -440,6 +442,10 @@ readConf(struct GLOBAL *global)
 						else if (g_strcmp0(name,"vid_codec")==0 || (g_strcmp0(name,"avi_format")==0)) 
 						{
 							global->VidCodec = scanner->value.v_int;
+						}
+						else if (g_strcmp0(name,"vid_format")==0) 
+						{
+							global->VidFormat = scanner->value.v_int;
 						}
 						else if ((g_strcmp0(name,"vid_inc")==0) || (g_strcmp0(name,"avi_inc")==0)) 
 						{
