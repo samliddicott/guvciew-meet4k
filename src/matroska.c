@@ -504,10 +504,7 @@ static int mkv_write_tracks(mkv_Context* MKV)
         switch (stream->type)
         {
             case STREAM_TYPE_VIDEO:
-                mkv_put_ebml_uint(MKV, MATROSKA_ID_TRACKTYPE, MATROSKA_TRACK_TYPE_VIDEO);
-                mkv_put_ebml_uint(MKV, MATROSKA_ID_TRACKDEFAULTDURATION, 1000*1E9);
-
-
+                mkv_put_ebml_uint(MKV, MATROSKA_ID_TRACKTYPE, MATROSKA_TRACK_TYPE_VIDEO);   
                 subinfo = mkv_start_ebml_master(MKV, MATROSKA_ID_TRACKVIDEO, 0);
                 // XXX: interlace flag?
                 mkv_put_ebml_uint (MKV, MATROSKA_ID_VIDEOPIXELWIDTH , stream->width);
@@ -812,10 +809,11 @@ int mkv_close(mkv_Context* MKV)
     mkv_write_seekhead(MKV, MKV->main_seekhead);
 
     // update the duration
-    fprintf(stderr,"MKV: end duration = %" PRIu64 "\n", MKV->duration);
+    fprintf(stderr,"MKV: end duration = %" PRIu64 " (%f) \n", MKV->duration, (float) MKV->duration);
     currentpos = io_get_offset(MKV->writer);
     io_seek(MKV->writer, MKV->duration_offset);
-    mkv_put_ebml_float(MKV, MATROSKA_ID_DURATION, MKV->duration);
+    
+    mkv_put_ebml_float(MKV, MATROSKA_ID_DURATION, (float) MKV->duration);
 	io_seek(MKV->writer, currentpos);
 
     mkv_end_ebml_master(MKV, MKV->segment);
