@@ -397,10 +397,12 @@ static int mkv_add_cuepoint(mkv_cues *cues, int stream, int64_t ts, int64_t clus
     if (entries == NULL)
         return AVERROR(ENOMEM);
 
-    entries[cues->num_entries  ].pts = ts;
-    entries[cues->num_entries  ].tracknum = stream + 1;
-    entries[cues->num_entries++].cluster_pos = cluster_pos - cues->segment_offset;
+    entries[cues->num_entries].pts = ts;
+    entries[cues->num_entries].tracknum = stream + 1;
+    entries[cues->num_entries].cluster_pos = cluster_pos - cues->segment_offset;
 
+	cues->num_entries++;
+	
     cues->entries = entries;
     return 0;
 }
@@ -732,8 +734,8 @@ int mkv_write_packet(mkv_Context* MKV,
     // start a new cluster every 5 MB or 5 sec, or 32k / 1 sec for streaming or
     // after 4k and on a keyframe
     if (MKV->cluster_pos &&
-        ((cluster_size > 32*1024 || ts > MKV->cluster_pts + 1000) ||
-          cluster_size > 5*1024*1024 || ts > MKV->cluster_pts + 5000 ||
+        ((cluster_size > 32*1024 && ts > MKV->cluster_pts + 1000) ||
+         (cluster_size > 5*1024*1024 && ts > MKV->cluster_pts + 5000) ||
          (stream->type == STREAM_TYPE_VIDEO && keyframe && cluster_size > 4*1024)))
     {
 		//fprintf(stderr, "MKV: Starting new cluster at offset %" PRIu64 " bytes, pts %" PRIu64 "\n", io_get_offset(MKV->writer), ts);
