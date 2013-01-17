@@ -169,6 +169,7 @@ int encode_lavc_frame (BYTE *picture_buf, struct lavcData* data , int format, st
 
     if (!ret && got_packet && data->codec_context->coded_frame)
     {
+		// Do we really need to set this ???
     	data->codec_context->coded_frame->pts       = pkt.pts;
         data->codec_context->coded_frame->key_frame = !!(pkt.flags & AV_PKT_FLAG_KEY);
     }
@@ -193,10 +194,12 @@ int encode_lavc_frame (BYTE *picture_buf, struct lavcData* data , int format, st
 		out_size = avcodec_encode_video(data->codec_context, data->outbuf, data->outbuf_size, data->picture);
 	else
 		out_size = avcodec_encode_video(data->codec_context, data->outbuf, data->outbuf_size, NULL);
-
-	videoF->vdts = AV_NOPTS_VALUE;
+	
 	videoF->vflags = 0;
-	videoF->vduration = 0;
+	if (data->codec_context->coded_frame->key_frame)
+		videoF->vflags |= AV_PKT_FLAG_KEY;
+	videoF->vdts = AV_NOPTS_VALUE;
+	videoF->vduration = videoF->vpts - videoF->old_vpts;
 #endif
 
 	 if(data->flush_delayed_frames && out_size == 0)
@@ -282,7 +285,9 @@ int encode_lavc_audio_frame (void *audio_buf, struct lavcAData* data, struct Vid
 	out_size = avcodec_encode_audio(data->codec_context, data->outbuf, data->outbuf_size, audio_buf);
 	videoF->adts = AV_NOPTS_VALUE;
 	videoF->aflags = 0;
-	videoF->vduration = 0;
+	if (data->codec_context->coded_frame->key_frame)
+		videoF->aflags |= AV_PKT_FLAG_KEY;
+	videoF->aduration = videoF->apts - videoF->old_apts;;
 #endif
 	return (out_size);
 }

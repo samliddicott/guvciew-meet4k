@@ -573,7 +573,7 @@ int mkv_write_header(mkv_Context* MKV)
     // isn't more than 10 elements if we only write one of each other
     // currently defined level 1 element
     MKV->main_seekhead    = mkv_start_seekhead(MKV, MKV->segment_offset, 10);
-    fprintf(stderr, "MKV: allocated main seekhead at 0x%x\n",  MKV->main_seekhead);
+    //fprintf(stderr, "MKV: allocated main seekhead at 0x%x\n",  MKV->main_seekhead);
     if (!MKV->main_seekhead)
     {
 		fprintf(stderr,"MKV: couldn't allocate seekhead\n");
@@ -654,6 +654,7 @@ static int mkv_write_packet_internal(mkv_Context* MKV,
                             int flags)
 {
     int keyframe = !!(flags & AV_PKT_FLAG_KEY);
+
     int ret;
     uint64_t ts = pts / MKV->timescale; //scale the time stamp
 
@@ -677,6 +678,7 @@ static int mkv_write_packet_internal(mkv_Context* MKV,
 
     if (get_stream(MKV->stream_list, stream_index)->type == STREAM_TYPE_VIDEO && keyframe)
     {
+		//fprintf(stderr,"MKV: add a cue point\n");
         ret = mkv_add_cuepoint(MKV->cues, stream_index, ts, MKV->cluster_pos);
         if (ret < 0) return ret;
     }
