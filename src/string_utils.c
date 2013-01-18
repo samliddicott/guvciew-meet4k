@@ -32,13 +32,13 @@ num_chars (int n)
 {
 	int i = 0;
 
-	if (n <= 0) 
+	if (n <= 0)
 	{
 		i++;
 		n = -n;
 	}
 
-	while (n != 0) 
+	while (n != 0)
 	{
 		n /= 10;
 		i++;
@@ -47,8 +47,8 @@ num_chars (int n)
 }
 
 /* check image file extension and return image type*/
-int 
-check_image_type (char *filename) 
+int
+check_image_type (char *filename)
 {
 	int format=0;
 	char str_ext[3];
@@ -56,24 +56,24 @@ check_image_type (char *filename)
 	sscanf(filename,"%*[^.].%3c",str_ext);
 	/* change image type */
 	int somExt = g_ascii_tolower(str_ext[0])*g_ascii_tolower(str_ext[1])+g_ascii_tolower(str_ext[2]);
-	switch (somExt) 
+	switch (somExt)
 	{
 		case ('j'*'p'+'g'):
 			format=0;
 			break;
-			
+
 		case ('b'*'m'+'p'):
 			format=1;
 			break;
-			
+
 		case ('p'*'n'+'g'):
 			format=2;
 			break;
-			
+
 		case ('r'*'a'+'w'):
 			format=3;
 		 	break;
-			
+
 		default: /* use jpeg as default*/
 			format=0;
 	}
@@ -83,79 +83,79 @@ check_image_type (char *filename)
 
 
 /* check video file extension and return video format*/
-int 
-check_video_type (char *filename) 
+int
+check_video_type (char *filename)
 {
 	int format=0;
 	char str_ext[5];
 	/*get the file extension*/
 	sscanf(filename,"%*[^.].%4s",str_ext);
-	/* change image type */
+
 	GString * extension = g_string_new(str_ext);
 	extension = g_string_ascii_down(extension);
 	fprintf(stderr, "file %s has extension %s\n", filename, extension->str);
-	
+
 	if(g_strcmp0("avi", extension->str) == 0)
 	{
-		format = 0;
+		format = AVI_FORMAT;
 	}
 	else if (g_strcmp0("mvk", extension->str) == 0)
 	{
-		format=1;
+		format = MKV_FORMAT;
 	}
 	else if(g_strcmp0("webm", extension->str) == 0)
 	{
-		format = 2;
+		format = WEBM_FORMAT;
 	}
 	else
 		format = 0;
-	
+
 	g_string_free(extension, TRUE);
 	return (format);
 }
 
 /* split fullpath in Path (splited[1]) and filename (splited[0])*/
-pchar* splitPath(char *FullPath, char* splited[2]) 
+pchar* splitPath(char *FullPath, char* splited[2])
 {
 	char *basename = g_path_get_basename(FullPath);
 	char *dirname  = g_path_get_dirname(FullPath);
-	
+
 	int cpysize = 0;
-	int size = strlen(basename)+1; 
-	
+	int size = strlen(basename)+1;
+
 	if (size > (strlen(splited[0])+1))
 	{
 		/* strlen doesn't count '/0' so add 1 char*/
 		splited[0]=g_renew(char, splited[0], size);
 	}
-	
+
 	cpysize = g_strlcpy(splited[0], basename, size*sizeof(char));
-	if ( (cpysize+1) < (size*sizeof(char)) ) 
+	if ( (cpysize+1) < (size*sizeof(char)) )
 		g_printerr("filename copy size error:(%i != %lu)\n",
 			cpysize+1,
 			(unsigned long) size*sizeof(char));
-	
+
 	/*only change stored dirname if one is set*/
 	if(g_strcmp0(".",dirname)!=0)
 	{
-		size = strlen(dirname)+1; 
-	
+		size = strlen(dirname)+1;
+
 		if (size > (strlen(splited[1])+1))
 		{
 			/* strlen doesn't count '/0' so add 1 char*/
 			splited[1]=g_renew(char, splited[1], size);
 		}
-	
+
 		cpysize = g_strlcpy(splited[1], dirname, size*sizeof(char));
-		if ( (cpysize + 1) < (size*sizeof(char)) ) 
+		if ( (cpysize + 1) < (size*sizeof(char)) )
 			g_printerr("dirname copy size error:(%i != %lu)\n",
 				cpysize+1,
 				(unsigned long) size*sizeof(char));
 	}
-	
+
 	g_free(basename);
 	g_free(dirname);
-	
+
 	return (splited);
 }
 
@@ -163,10 +163,10 @@ char *joinPath(char *fullPath, pchar *splited)
 {
 	/*clean existing string allocation*/
 	g_free(fullPath);
-	
+
 	/*allocate newly formed string*/
 	fullPath = g_strjoin ("/", splited[1], splited[0], NULL);
-	
+
 	return (fullPath);
 }
 
@@ -178,10 +178,10 @@ char *incFilename(char *fullPath, pchar *splited, int inc)
 	int inc_n_char = num_chars(inc);
 	gchar *buffer = g_new0(gchar, inc_n_char+1);/*include '\0' terminator*/
 	buffer = g_ascii_dtostr(buffer, inc_n_char+1, inc);
-	
+
 	sscanf(splited[0],"%[^.].%4s", basename, extension);
 	//extension[3]='\0';/*terminate extension string*/
-	
+
 	g_free (fullPath);
 	fullPath=NULL;
 	fullPath = g_strjoin("", splited[1], "/", basename,
@@ -218,12 +218,18 @@ char *setImgExt(char *filename, int format)
 
 char *setVidExt(char *filename, int format_ind)
 {
-	int sname = strlen(filename)+1; /*include '\0' terminator*/
-	char basename[sname];
+	//include '\0' terminator
+	int size = strlen(filename) + 1;
+	char basename[size];
 	sscanf(filename,"%[^.]",basename);
-	
-	g_snprintf(filename, sname, "%s.%s", basename, get_vformat_extension(format_ind));
-	
+	char* extension = get_vformat_extension(format_ind);
+	//add '.' and '\0'
+	int total_size = strlen(basename) + strlen(extension) + 2;
+	if(total_size > size)
+		filename = g_renew(char, filename, total_size);
+
+	g_snprintf(filename, total_size, "%s.%s", basename, extension);
+
 	return (filename);
 }
 
