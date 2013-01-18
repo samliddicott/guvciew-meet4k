@@ -589,27 +589,27 @@ VidFormat_changed (GtkComboBox * VidFormat, struct ALL_DATA *all_data)
 
 	const char *filename;
 	global->VidFormat = gtk_combo_box_get_active (VidFormat);
-	//if webm set video codec to VP8 and audio to vorbis
+	//if webm then set video codec to VP8 and audio to Vorbis
 	if(global->VidFormat == WEBM_FORMAT)
 	{
-		int vcodec_ind = get_real_vcodec_index(CODEC_ID_VP8) - 1;
-		int acodec_ind = get_real_acodec_index(CODEC_ID_VORBIS) - 1;
+		int vcodec_ind = get_list_vcodec_index(CODEC_ID_VP8);
+		int acodec_ind = get_list_acodec_index(CODEC_ID_VORBIS);
 		if(vcodec_ind >= 0 && acodec_ind >= 0)
 		{
 			if(global->AudCodec != acodec_ind)
 			{
-				fprintf(stderr, "WARN: changing audio codec ind %i to %i\n", global->AudCodec, acodec_ind);
+				fprintf(stderr, "WARN: changing audio codec ind (%i --> %i)\n", global->AudCodec, acodec_ind);
 				global->AudCodec = acodec_ind; //this is also set by the gwidget->SndComp calback
 				gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->SndComp), global->AudCodec);
 			}
 			if(global->VidCodec != vcodec_ind)
 			{
-				fprintf(stderr, "WARN: changing video codec ind %i to %i\n", global->VidCodec, vcodec_ind);
+				fprintf(stderr, "WARN: changing video codec ind (%i --> %i)\n", global->VidCodec, vcodec_ind);
 				global->VidCodec = vcodec_ind;//this is also set by the gwidget->VidCodec calback
 				gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->VidCodec), global->VidCodec);
 			}
-			
-			
+
+
 		}
 		else
 		{
@@ -1000,7 +1000,7 @@ VidCodec_changed (GtkComboBox * VidCodec, struct ALL_DATA *all_data)
 	struct GLOBAL *global = all_data->global;
 	struct GWIDGET *gwidget = all_data->gwidget;
 
-	global->VidCodec= gtk_combo_box_get_active (VidCodec);
+	global->VidCodec = gtk_combo_box_get_active (VidCodec);
 	if( global->VidFormat == WEBM_FORMAT &&
 		get_vcodec_id(global->VidCodec) != CODEC_ID_VP8)
 	{

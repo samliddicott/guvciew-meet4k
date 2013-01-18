@@ -231,7 +231,7 @@ static int get_real_index (int codec_ind)
 	int ind = -1;
 	for (i=0;i<MAX_ACODECS; i++)
 	{
-		if(isAcodecValid(i))
+		if(listSupACodecs[i].valid)
 			ind++;
 		if(ind == codec_ind)
 			return i;
@@ -239,6 +239,27 @@ static int get_real_index (int codec_ind)
 	return (codec_ind); //should never arrive
 }
 
+/** returns the valid list index (combobox)
+ * or -1 if no valid codec*/
+static int get_list_index (int real_index)
+{
+	if( real_index < 0 ||
+		real_index >= MAX_ACODECS ||
+		!listSupACodecs[real_index].valid )
+		return -1; //error: real index is not valid
+
+	int i = 0;
+	int ind = -1;
+	for (i=0;i<=real_index; i++)
+	{
+		if(listSupACodecs[i].valid)
+			ind++;
+	}
+
+	return (ind);
+}
+
+/** returns the real codec array index*/
 int get_acodec_index(int codec_id)
 {
 	int i = 0;
@@ -251,24 +272,46 @@ int get_acodec_index(int codec_id)
 	return -1;
 }
 
-int get_real_acodec_index(int codec_id)
+int get_list_acodec_index(int codec_id)
 {
-	return get_real_index (get_acodec_index(codec_id));
+	return get_list_index (get_acodec_index(codec_id));
 }
+
 
 WORD get_aud4cc(int codec_ind)
 {
-	return (listSupACodecs[get_real_index (codec_ind)].avi_4cc);
+	int real_index = get_real_index (codec_ind);
+	if(real_index >= 0 && real_index < MAX_ACODECS)
+		return (listSupACodecs[real_index].avi_4cc);
+	else
+	{
+		fprintf(stderr, "ACODEC: (4cc) bad codec index\n");
+		return 0;
+	}
 }
 
 int get_aud_bits(int codec_ind)
 {
-	return (listSupACodecs[get_real_index (codec_ind)].bits);
+	int real_index = get_real_index (codec_ind);
+	if(real_index >= 0 && real_index < MAX_ACODECS)
+		return (listSupACodecs[real_index].bits);
+	else
+	{
+		fprintf(stderr, "ACODEC: (bits) bad codec index\n");
+		return 0;
+	}
 }
 
 int get_aud_bit_rate(int codec_ind)
 {
-	return (listSupACodecs[get_real_index (codec_ind)].bit_rate);
+	int real_index = get_real_index (codec_ind);
+	if(real_index >= 0 && real_index < MAX_ACODECS)
+		return (listSupACodecs[real_index].bit_rate);
+	else
+	{
+		fprintf(stderr, "ACODEC: (bit_rate) bad codec index\n");
+		return 0;
+	}
 }
 
 int get_ind_by4cc(WORD avi_4cc)
@@ -284,40 +327,67 @@ int get_ind_by4cc(WORD avi_4cc)
 				return (ind);
 		}
 	}
-	g_printerr("WARNING: audio codec (%d) not supported\n", avi_4cc);
+	g_printerr("ACODEC: audio codec (0x%x) not supported\n", avi_4cc);
 	return(0);
 }
 
 const char *get_aud_desc4cc(int codec_ind)
 {
-	return (listSupACodecs[get_real_index (codec_ind)].description);
+	int real_index = get_real_index (codec_ind);
+	if(real_index >= 0 && real_index < MAX_ACODECS)
+		return (listSupACodecs[real_index].description);
+	else
+	{
+		fprintf(stderr, "ACODEC: (desc4cc) bad codec index\n");
+		return NULL;
+	}
 }
 
 
 const char *get_mkvACodec(int codec_ind)
 {
-	return (listSupACodecs[get_real_index (codec_ind)].mkv_codec);
+	int real_index = get_real_index (codec_ind);
+	if(real_index >= 0 && real_index < MAX_ACODECS)
+		return (listSupACodecs[real_index].mkv_codec);
+	else
+	{
+		fprintf(stderr, "ACODEC: (mkvACodec) bad codec index\n");
+		return NULL;
+	}
 }
 
 void *get_mkvACodecPriv(int codec_ind)
 {
-	return ((void *) listSupACodecs[get_real_index (codec_ind)].mkv_codpriv);
+	int real_index = get_real_index (codec_ind);
+	if(real_index >= 0 && real_index < MAX_ACODECS)
+		return ((void *) listSupACodecs[real_index].mkv_codpriv);
+	else
+	{
+		fprintf(stderr, "ACODEC: (mkvACodecPriv) bad codec index\n");
+		return NULL;
+	}
 }
 
 int set_mkvACodecPriv(int codec_ind, int samprate, int channels, struct lavcAData* data)
 {
-	int index = get_real_index (codec_ind);
+	int real_index = get_real_index (codec_ind);
 
-	if (listSupACodecs[index].codec_id == CODEC_ID_AAC)
+	if(real_index < 0 || real_index >= MAX_VCODECS)
 	{
-		int obj_type = get_aac_obj_ind(listSupACodecs[index].profile);
+		fprintf(stderr, "ACODEC: (set mkvCodecPriv) bad codec index\n");
+		return 0;
+	}
+
+	if (listSupACodecs[real_index].codec_id == CODEC_ID_AAC)
+	{
+		int obj_type = get_aac_obj_ind(listSupACodecs[real_index].profile);
 		int sampind  = get_aac_samp_ind(samprate);
 		AAC_ESDS[0] = (BYTE) ((obj_type & 0x1F) << 3 ) + ((sampind & 0x0F) >> 1);
 		AAC_ESDS[1] = (BYTE) ((sampind & 0x0F) << 7 ) + ((channels & 0x0F) << 3);
 
-		return listSupACodecs[index].codpriv_size; /*return size = 2 */
+		return listSupACodecs[real_index].codpriv_size; /*return size = 2 */
 	}
-	else if(listSupACodecs[index].codec_id == CODEC_ID_VORBIS)
+	else if(listSupACodecs[real_index].codec_id == CODEC_ID_VORBIS)
 	{
 		//get the 3 first header packets
 		uint8_t *header_start[3];
@@ -328,7 +398,7 @@ int set_mkvACodecPriv(int codec_ind, int samprate, int channels, struct lavcADat
     	if (avpriv_split_xiph_headers(data->codec_context->extradata, data->codec_context->extradata_size,
 				first_header_size, header_start, header_len) < 0)
         {
-			fprintf(stderr, "vorbis codec - Extradata corrupt.\n");
+			fprintf(stderr, "ACODEC: vorbis codec - Extradata corrupt.\n");
 			return -1;
 		}
 
@@ -373,9 +443,9 @@ int set_mkvACodecPriv(int codec_ind, int samprate, int channels, struct lavcADat
 			tmp += header_len[i];
 		}
 
-		listSupACodecs[index].mkv_codpriv = data->priv_data;
-		listSupACodecs[index].codpriv_size = priv_data_size;
-		return listSupACodecs[index].codpriv_size;
+		listSupACodecs[real_index].mkv_codpriv = data->priv_data;
+		listSupACodecs[real_index].codpriv_size = priv_data_size;
+		return listSupACodecs[real_index].codpriv_size;
 	}
 
 
@@ -383,12 +453,26 @@ int set_mkvACodecPriv(int codec_ind, int samprate, int channels, struct lavcADat
 }
 int get_acodec_id(int codec_ind)
 {
-	return (listSupACodecs[get_real_index (codec_ind)].codec_id);
+	int real_index = get_real_index (codec_ind);
+	if(real_index >= 0 && real_index < MAX_ACODECS)
+		return (listSupACodecs[real_index].codec_id);
+	else
+	{
+		fprintf(stderr, "ACODEC: (id) bad codec index\n");
+		return 0;
+	}
 }
 
 gboolean isLavcACodec(int codec_ind)
 {
-	return (listSupACodecs[get_real_index (codec_ind)].avcodec);
+	int real_index = get_real_index (codec_ind);
+	if(real_index >= 0 && real_index < MAX_ACODECS)
+		return (listSupACodecs[real_index].avcodec);
+	else
+	{
+		fprintf(stderr, "ACODEC: (isLavc) bad codec index\n");
+		return FALSE;
+	}
 }
 
 int setAcodecVal()
@@ -421,12 +505,26 @@ int setAcodecVal()
 
 gboolean isAcodecValid(int codec_ind)
 {
-	return (listSupACodecs[codec_ind].valid);
+	int real_index = get_real_index (codec_ind);
+	if(real_index >= 0 && real_index < MAX_ACODECS)
+		return (listSupACodecs[real_index].valid);
+	else
+	{
+		fprintf(stderr, "ACODEC: (isValid) bad codec index\n");
+		return FALSE;
+	}
 }
 
 acodecs_data *get_aud_codec_defaults(int codec_ind)
 {
-	return (&(listSupACodecs[get_real_index (codec_ind)]));
+	int real_index = get_real_index (codec_ind);
+	if(real_index >= 0 && real_index < MAX_ACODECS)
+		return (&(listSupACodecs[real_index]));
+	else
+	{
+		fprintf(stderr, "ACODEC: (defaults) bad codec index\n");
+		return NULL;
+	}
 }
 
 static int write_audio_data(struct ALL_DATA *all_data, BYTE *buff, int size, QWORD a_ts)

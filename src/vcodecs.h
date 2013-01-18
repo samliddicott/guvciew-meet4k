@@ -73,10 +73,20 @@ typedef struct _vcodecs_data
 	int monotonic_pts;		  //use monotonic pts instead of timestamp based
 } vcodecs_data;
 
+/** must be called before all others
+ *  sets the valid flag
+ */
+int setVcodecVal();
 
+/** returns codec data array (all) index: 0 indexed */
 int get_vcodec_index(int codec_id);
 
-int get_real_vcodec_index(int codec_id);
+/** returns codec list (available) index: 0 indexed */
+int get_list_vcodec_index(int codec_id);
+
+/** codec_ind is the available codec list index
+ *  --  refers to the dropdown list
+ */
 
 const char *get_vid4cc(int codec_ind);
 
@@ -93,8 +103,6 @@ int set_mkvCodecPriv(int codec_ind, int width, int height);
 int get_vcodec_id(int codec_ind);
 
 gboolean isLavcCodec(int codec_ind);
-
-int setVcodecVal();
 
 gboolean isVcodecValid(int codec_ind);
 

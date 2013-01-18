@@ -466,7 +466,7 @@ static int get_real_index (int codec_ind)
 	int ind = -1;
 	for (i=0;i<MAX_VCODECS; i++)
 	{
-		if(isVcodecValid(i))
+		if(listSupVCodecs[i].valid)
 			ind++;
 		if(ind == codec_ind)
 			return i;
@@ -474,6 +474,27 @@ static int get_real_index (int codec_ind)
 	return (codec_ind); //should never arrive
 }
 
+/** returns the valid list index (combobox)
+ * or -1 if no valid codec*/
+static int get_list_index (int real_index)
+{
+	if( real_index < 0 ||
+		real_index >= MAX_VCODECS ||
+		!listSupVCodecs[real_index].valid )
+		return -1; //error: real index is not valid
+
+	int i = 0;
+	int ind = -1;
+	for (i=0;i<=real_index; i++)
+	{
+		if(listSupVCodecs[i].valid)
+			ind++;
+	}
+
+	return (ind);
+}
+
+/** returns the real codec array index*/
 int get_vcodec_index(int codec_id)
 {
 	int i = 0;
@@ -486,45 +507,87 @@ int get_vcodec_index(int codec_id)
 	return -1;
 }
 
-int get_real_vcodec_index(int codec_id)
+int get_list_vcodec_index(int codec_id)
 {
-	return get_real_index (get_vcodec_index(codec_id));
+	return get_list_index(get_vcodec_index(codec_id));
 }
 
 const char *get_vid4cc(int codec_ind)
 {
-	return (listSupVCodecs[get_real_index (codec_ind)].compressor);
+	int real_index = get_real_index (codec_ind);
+	if(real_index >= 0 && real_index < MAX_VCODECS)
+		return (listSupVCodecs[real_index].compressor);
+	else
+	{
+		fprintf(stderr, "VCODEC: (4cc) bad codec index\n");
+		return NULL;
+	}
 }
 
 const char *get_desc4cc(int codec_ind)
 {
-	return (listSupVCodecs[get_real_index (codec_ind)].description);
+	int real_index = get_real_index (codec_ind);
+	if(real_index >= 0 && real_index < MAX_VCODECS)
+		return (listSupVCodecs[real_index].description);
+	else
+	{
+		fprintf(stderr, "VCODEC: (desc4cc) bad codec index\n");
+		return NULL;
+	}
 }
 
 int get_enc_fps(int codec_ind)
 {
-	return (listSupVCodecs[get_real_index (codec_ind)].fps);
+	int real_index = get_real_index (codec_ind);
+	if(real_index >= 0 && real_index < MAX_VCODECS)
+		return (listSupVCodecs[real_index].fps);
+	else
+	{
+		fprintf(stderr, "VCODEC: (enc_fps) bad codec index\n");
+		return 0;
+	}
 }
 
 const char *get_mkvCodec(int codec_ind)
 {
-	return (listSupVCodecs[get_real_index (codec_ind)].mkv_codec);
+	int real_index = get_real_index (codec_ind);
+	if(real_index >= 0 && real_index < MAX_VCODECS)
+		return (listSupVCodecs[get_real_index (codec_ind)].mkv_codec);
+	else
+	{
+		fprintf(stderr, "VCODEC: (mkvCodec) bad codec index\n");
+		return NULL;
+	}
 }
 
 void *get_mkvCodecPriv(int codec_ind)
 {
-	return ((void *) listSupVCodecs[get_real_index (codec_ind)].mkv_codecPriv);
+	int real_index = get_real_index (codec_ind);
+	if(real_index >= 0 && real_index < MAX_VCODECS)
+		return ((void *) listSupVCodecs[real_index].mkv_codecPriv);
+	else
+	{
+		fprintf(stderr, "VCODEC: (mkvCodecPriv) bad codec index\n");
+		return NULL;
+	}
 }
 
 int set_mkvCodecPriv(int codec_ind, int width, int height)
 {
 	int size = 0;
-	int index = get_real_index (codec_ind);
-	if(listSupVCodecs[index].mkv_codecPriv != NULL)
+	int real_index = get_real_index (codec_ind);
+
+	if(real_index < 0 || real_index >= MAX_VCODECS)
+	{
+		fprintf(stderr, "VCODEC: (set mkvCodecPriv) bad codec index\n");
+		return 0;
+	}
+
+	if(listSupVCodecs[real_index].mkv_codecPriv != NULL)
 	{
 		mkv_codecPriv.biWidth = width;
 		mkv_codecPriv.biHeight = height;
-		mkv_codecPriv.biCompression = listSupVCodecs[get_real_index (codec_ind)].mkv_4cc;
+		mkv_codecPriv.biCompression = listSupVCodecs[real_index].mkv_4cc;
 		if(index != CODEC_DIB)
 		{
 			mkv_codecPriv.biSizeImage = width*height*2;
@@ -539,12 +602,26 @@ int set_mkvCodecPriv(int codec_ind, int width, int height)
 
 int get_vcodec_id(int codec_ind)
 {
-	return (listSupVCodecs[get_real_index (codec_ind)].codec_id);
+	int real_index = get_real_index (codec_ind);
+	if(real_index >= 0 && real_index < MAX_VCODECS)
+		return (listSupVCodecs[real_index].codec_id);
+	else
+	{
+		fprintf(stderr, "VCODEC: (id) bad codec index\n");
+		return 0;
+	}
 }
 
 gboolean isLavcCodec(int codec_ind)
 {
-	return (listSupVCodecs[get_real_index (codec_ind)].avcodec);
+	int real_index = get_real_index (codec_ind);
+	if(real_index >= 0 && real_index < MAX_VCODECS)
+		return (listSupVCodecs[real_index].avcodec);
+	else
+	{
+		fprintf(stderr, "VCODEC: (isLavcCodec) bad codec index\n");
+		return FALSE;
+	}
 }
 
 int setVcodecVal ()
@@ -576,12 +653,26 @@ int setVcodecVal ()
 
 gboolean isVcodecValid(int codec_ind)
 {
-	return (listSupVCodecs[codec_ind].valid);
+	int real_index = get_real_index (codec_ind);
+	if(real_index >= 0 && real_index < MAX_VCODECS)
+		return (listSupVCodecs[real_index].valid);
+	else
+	{
+		fprintf(stderr, "VCODEC: (isValid) bad codec index\n");
+		return FALSE;
+	}
 }
 
 vcodecs_data *get_codec_defaults(int codec_ind)
 {
-	return (&(listSupVCodecs[get_real_index (codec_ind)]));
+	int real_index = get_real_index (codec_ind);
+	if(real_index >= 0 && real_index < MAX_VCODECS)
+		return (&(listSupVCodecs[real_index]));
+	else
+	{
+		fprintf(stderr, "VCODEC: (defaults) bad codec index\n");
+		return NULL;
+	}
 }
 
 static int write_video_data(struct ALL_DATA *all_data, BYTE *buff, int size)

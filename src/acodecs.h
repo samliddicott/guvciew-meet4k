@@ -51,6 +51,21 @@ typedef struct _acodecs_data
 	int flags;                //lavc flags
 } acodecs_data;
 
+/** must be called before all others
+ *  sets the valid flag
+ */
+int setAcodecVal();
+
+/** returns codec data array (all) index: 0 indexed */
+int get_acodec_index(int codec_id);
+
+/** returns codec list (available) index: 0 indexed */
+int get_list_acodec_index(int codec_id);
+
+/** codec_ind is the available codec list index
+ *  --  refers to the dropdown list (1 indexed)
+ */
+
 WORD get_aud4cc(int codec_ind);
 
 int get_aud_bit_rate(int codec_ind);
@@ -63,15 +78,9 @@ const char *get_aud_desc4cc(int codec_ind);
 
 const char *get_mkvACodec(int codec_ind);
 
-int get_acodec_index(int codec_id);
-
-int get_real_acodec_index(int codec_id);
-
 int get_acodec_id(int codec_ind);
 
 gboolean isLavcACodec(int codec_ind);
-
-int setAcodecVal();
 
 gboolean isAcodecValid(int codec_ind);
 
