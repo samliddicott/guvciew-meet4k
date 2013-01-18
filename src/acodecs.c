@@ -372,7 +372,7 @@ int set_mkvACodecPriv(int codec_ind, int samprate, int channels, struct lavcADat
 {
 	int real_index = get_real_index (codec_ind);
 
-	if(real_index < 0 || real_index >= MAX_VCODECS)
+	if(real_index < 0 || real_index >= MAX_ACODECS)
 	{
 		fprintf(stderr, "ACODEC: (set mkvCodecPriv) bad codec index\n");
 		return 0;
