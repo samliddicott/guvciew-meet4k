@@ -486,6 +486,11 @@ int get_vcodec_index(int codec_id)
 	return -1;
 }
 
+int get_real_vcodec_index(int codec_id)
+{
+	return get_real_index (get_vcodec_index(codec_id));
+}
+
 const char *get_vid4cc(int codec_ind)
 {
 	return (listSupVCodecs[get_real_index (codec_ind)].compressor);

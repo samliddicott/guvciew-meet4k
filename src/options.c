@@ -106,7 +106,7 @@ writeConf(struct GLOBAL *global, char *videodevice)
 		g_fprintf(fp,"# sound delay in nanosec - delays sound by the specified amount when capturing video\n");
 		g_fprintf(fp,"snd_delay=%llu\n",(unsigned long long) global->Sound_delay);
 		g_fprintf(fp,"# Audio codec (PCM=0 MPG2=1 (\n");
-		g_fprintf(fp,"aud_format=%i\n",global->AudCodec);
+		g_fprintf(fp,"aud_codec=%i\n",global->AudCodec);
 		//g_fprintf(fp,"#Pan Step in degrees, Default=2\n");
 		//g_fprintf(fp,"Pan_Step=%i\n",global->PanStep);
 		//g_fprintf(fp,"#Tilt Step in degrees, Default=2\n");
@@ -343,8 +343,6 @@ readConf(struct GLOBAL *global)
 							if(global->vidfile == NULL)
 							{
 								global->vidFPath=splitPath(scanner->value.v_string,global->vidFPath);
-								/*get the file type (0-avi 1-matroska)*/
-								global->VidFormat = check_video_type(global->vidFPath[0]);
 							}
 						}
 						else if (g_strcmp0(name,"profile_path")==0) 

@@ -251,6 +251,11 @@ int get_acodec_index(int codec_id)
 	return -1;
 }
 
+int get_real_acodec_index(int codec_id)
+{
+	return get_real_index (get_acodec_index(codec_id));
+}
+
 WORD get_aud4cc(int codec_ind)
 {
 	return (listSupACodecs[get_real_index (codec_ind)].avi_4cc);
@@ -272,7 +277,7 @@ int get_ind_by4cc(WORD avi_4cc)
 	int ind = -1;
 	for (i=0;i<MAX_ACODECS; i++)
 	{
-		if(isAcodecValid(i))
+		if(listSupACodecs[i].avcodec)
 		{
 			ind++;
 			if (listSupACodecs[i].avi_4cc == avi_4cc)

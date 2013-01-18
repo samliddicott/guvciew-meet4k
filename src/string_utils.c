@@ -222,7 +222,7 @@ char *setVidExt(char *filename, int format_ind)
 	int size = strlen(filename) + 1;
 	char basename[size];
 	sscanf(filename,"%[^.]",basename);
-	char* extension = get_vformat_extension(format_ind);
+	const char* extension = get_vformat_extension(format_ind);
 	//add '.' and '\0'
 	int total_size = strlen(basename) + strlen(extension) + 2;
 	if(total_size > size)
