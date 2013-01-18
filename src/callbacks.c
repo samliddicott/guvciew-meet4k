@@ -588,8 +588,33 @@ VidFormat_changed (GtkComboBox * VidFormat, struct ALL_DATA *all_data)
 	struct GLOBAL *global = all_data->global;
 
 	const char *filename;
-	global->VidFormat=gtk_combo_box_get_active (VidFormat);
-	filename=gtk_entry_get_text(GTK_ENTRY(gwidget->VidFNameEntry));
+	global->VidFormat = gtk_combo_box_get_active (VidFormat);
+	//if webm set video codec to VP8 and audio to vorbis
+	if(global->VidFormat == WEBM_FORMAT)
+	{
+		int vcodec_ind = get_vcodec_index(CODEC_ID_VP8);
+		int acodec_ind = get_acodec_index(CODEC_ID_VORBIS);
+		if(vcodec_ind >= 0 && acodec_ind >= 0)
+		{
+			global->VidCodec = vcodec_ind;//this is also set by the gwidget->VidCodec calback
+			gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->VidCodec), global->VidCodec);
+
+			global->AudCodec = acodec_ind; //this is also set by the gwidget->SndComp calback
+			gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->SndComp), global->AudCodec);
+		}
+		else
+		{
+			fprintf(stderr, "ERROR: can't set webm codecs (VP8 and VORBIS)\n");
+			fprintf(stderr, "       using matroska muxer instead\n");
+			global->VidFormat = MKV_FORMAT;
+
+			g_signal_handlers_block_by_func(VidFormat, G_CALLBACK (VidFormat_changed), all_data);
+			gtk_combo_box_set_active (VidFormat, global->VidFormat);
+			g_signal_handlers_unblock_by_func(VidFormat, G_CALLBACK (VidFormat_changed), all_data);
+		}
+	}
+
+	filename = gtk_entry_get_text(GTK_ENTRY(gwidget->VidFNameEntry));
 
 	if(g_strcmp0(filename,global->vidFPath[0])!=0)
 	{
@@ -599,7 +624,7 @@ VidFormat_changed (GtkComboBox * VidFormat, struct ALL_DATA *all_data)
 	global->vidFPath[0] = setVidExt(global->vidFPath[0], global->VidFormat);
 
 	gtk_entry_set_text(GTK_ENTRY(gwidget->VidFNameEntry)," ");
-	gtk_entry_set_text(GTK_ENTRY(gwidget->VidFNameEntry),global->vidFPath[0]);
+	gtk_entry_set_text(GTK_ENTRY(gwidget->VidFNameEntry), global->vidFPath[0]);
 
 	if(global->vid_inc>0)
 	{
@@ -943,9 +968,18 @@ SndComp_changed (GtkComboBox * SoundComp, struct ALL_DATA *all_data)
 	struct GWIDGET *gwidget = all_data->gwidget;
 
 	global->AudCodec = gtk_combo_box_get_active (SoundComp);
-	/* 0-PCM  1-MP2 2-(lavc)... 3-(lavc)...*/
+	if( global->VidFormat == WEBM_FORMAT &&
+		get_acodec_id(global->AudCodec) != CODEC_ID_VORBIS)
+	{
+		//change VidFormat to Matroska
+		fprintf(stderr, "WARN: webm can only use VORBIS audio codec \n")
+		fprintf(stderr, "      using matroska muxer instead\n");
+		global->VidFormat = MKV_FORMAT; // this is also set by the gwidget->VidFormat callback
+		gtk_combo_box_set_active (gwidget->VidFormat, global->VidFormat);
+	}
+
 	global->Sound_Format = get_aud4cc(gtk_combo_box_get_active (SoundComp));
-	gtk_widget_set_sensitive (gwidget->lavc_aud_button, isLavcACodec(global->AudCodec));
+	//gtk_widget_set_sensitive (gwidget->lavc_aud_button, isLavcACodec(global->AudCodec));
 
 	global = NULL;
 }
@@ -958,7 +992,16 @@ VidCodec_changed (GtkComboBox * VidCodec, struct ALL_DATA *all_data)
 	struct GWIDGET *gwidget = all_data->gwidget;
 
 	global->VidCodec= gtk_combo_box_get_active (VidCodec);
-	gtk_widget_set_sensitive (gwidget->lavc_button, isLavcCodec(global->VidCodec));
+	if( global->VidFormat == WEBM_FORMAT &&
+		get_vcodec_id(global->VidCodec) != CODEC_ID_VP8)
+	{
+		//change VidFormat to Matroska
+		fprintf(stderr, "WARN: webm can only use VP8 video codec \n")
+		fprintf(stderr, "      using matroska muxer instead\n");
+		global->VidFormat = MKV_FORMAT; // this is also set by the gwidget->VidFormat callback
+		gtk_combo_box_set_active (gwidget->VidFormat, global->VidFormat);
+	}
+	//gtk_widget_set_sensitive (gwidget->lavc_button, isLavcCodec(global->VidCodec));
 
 	global = NULL;
 }

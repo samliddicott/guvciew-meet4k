@@ -542,22 +542,31 @@ gboolean isLavcCodec(int codec_ind)
 	return (listSupVCodecs[get_real_index (codec_ind)].avcodec);
 }
 
-void setVcodecVal ()
+int setVcodecVal ()
 {
 	AVCodec *codec;
 	int ind = 0;
+	int num_codecs = 0;
 	for (ind=0;ind<MAX_VCODECS;ind++)
 	{
-		if (isLavcCodec(ind))
+		if(!listSupVCodecs[ind].avcodec)
 		{
-			codec = avcodec_find_encoder(get_vcodec_id(ind));
+			//its a guvcview internal codec (allways valid)
+			num_codecs++;
+		}
+		else
+		{
+			codec = avcodec_find_encoder(listSupVCodecs[ind].codec_id);
 			if (!codec)
 			{
 				g_print("no codec detected for %s\n", listSupVCodecs[ind].compressor);
 				listSupVCodecs[ind].valid = FALSE;
 			}
+			else num_codecs++;
 		}
 	}
+
+	return num_codecs;
 }
 
 gboolean isVcodecValid(int codec_ind)

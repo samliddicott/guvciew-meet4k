@@ -92,7 +92,7 @@ int get_vcodec_id(int codec_ind);
 
 gboolean isLavcCodec(int codec_ind);
 
-void setVcodecVal ();
+int setVcodecVal();
 
 gboolean isVcodecValid(int codec_ind);
 

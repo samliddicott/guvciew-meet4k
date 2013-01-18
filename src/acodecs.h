@@ -69,7 +69,7 @@ int get_acodec_id(int codec_ind);
 
 gboolean isLavcACodec(int codec_ind);
 
-int getAcodecNum();
+int setAcodecVal();
 
 gboolean isAcodecValid(int codec_ind);
 
