@@ -64,26 +64,26 @@ union mkv_union_intfloat64
 	double f;
 };
 
-static float mkv_int2float(uint32_t i)
-{
-	union mkv_union_intfloat32 v;
-	v.i = i;
-	return v.f;
-}
+//static float mkv_int2float(uint32_t i)
+//{
+//	union mkv_union_intfloat32 v;
+//	v.i = i;
+//	return v.f;
+//}
 
-static uint32_t mkv_float2int(float f)
-{
-	union mkv_union_intfloat32 v;
-	v.f = f;
-	return v.i;
-}
+//static uint32_t mkv_float2int(float f)
+//{
+//	union mkv_union_intfloat32 v;
+//	v.f = f;
+//	return v.i;
+//}
 
-static double mkv_int2double(uint64_t i)
-{
-	union mkv_union_intfloat64 v;
-	v.i = i;
-	return v.f;
-}
+//static double mkv_int2double(uint64_t i)
+//{
+//	union mkv_union_intfloat64 v;
+//	v.i = i;
+//	return v.f;
+//}
 
 static uint64_t mkv_double2int(double f)
 {
@@ -254,13 +254,13 @@ static void mkv_end_ebml_master(mkv_Context* MKV, ebml_master master)
 	io_seek(MKV->writer, pos);
 }
 
-static void mkv_put_xiph_size(mkv_Context* MKV, int size)
-{
-    int i;
-    for (i = 0; i < size / 255; i++)
-		io_write_w8(MKV->writer, 255);
-    io_write_w8(MKV->writer, size % 255);
-}
+//static void mkv_put_xiph_size(mkv_Context* MKV, int size)
+//{
+//    int i;
+//    for (i = 0; i < size / 255; i++)
+//		io_write_w8(MKV->writer, 255);
+//    io_write_w8(MKV->writer, size % 255);
+//}
 
 /**
  * Initialize a mkv_seekhead element to be ready to index level 1 Matroska
@@ -339,7 +339,7 @@ static int64_t mkv_write_seekhead(mkv_Context* MKV, mkv_seekhead *seekhead)
     {
         if (io_seek(MKV->writer, seekhead->filepos) < 0)
         {
-			fprintf(stderr, "MKV: failed to write seekhead at pos %" PRIu64 "\n");
+			fprintf(stderr, "MKV: failed to write seekhead at pos %" PRIu64 "\n", seekhead->filepos);
             currentpos = -1;
             goto fail;
         }

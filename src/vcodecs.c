@@ -588,7 +588,7 @@ int set_mkvCodecPriv(int codec_ind, int width, int height)
 		mkv_codecPriv.biWidth = width;
 		mkv_codecPriv.biHeight = height;
 		mkv_codecPriv.biCompression = listSupVCodecs[real_index].mkv_4cc;
-		if(index != CODEC_DIB)
+		if(listSupVCodecs[real_index].codec_id != CODEC_DIB)
 		{
 			mkv_codecPriv.biSizeImage = width*height*2;
 			mkv_codecPriv.biHeight =-height;
