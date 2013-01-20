@@ -1,3 +1,12 @@
+guvcview (1.7.0)
+
+    * refactor avi muxer (base it on libav muxer with opendml support)
+    * refactor mkv muxer (base it on libav muxer with webm support)
+    * Add VP8 and Vorbis codecs
+    * Add Webm support
+    
+ -- Paulo Assis <pj.assis@gmail.com>  Sun, 20 Jan 2013 15:44:00 +0000
+ 
 guvcview (1.6.1)
 
     * Fix build with latest libavcodec
