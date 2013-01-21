@@ -615,7 +615,7 @@ int set_mkvCodecPriv(int codec_ind, int width, int height, struct lavcData* data
 		return 0;
 	}
 
-	if(listSupACodecs[real_index].codec_id == AV_CODEC_ID_THEORA)
+	if(listSupVCodecs[real_index].codec_id == AV_CODEC_ID_THEORA)
 	{
 		//get the 3 first header packets
 		uint8_t *header_start[3];
@@ -669,9 +669,9 @@ int set_mkvCodecPriv(int codec_ind, int width, int height, struct lavcData* data
 			tmp += header_len[i];
 		}
 
-		listSupACodecs[real_index].mkv_codpriv = data->priv_data;
-		listSupACodecs[real_index].codpriv_size = priv_data_size;
-		return listSupACodecs[real_index].codpriv_size;
+		listSupVCodecs[real_index].mkv_codpriv = data->priv_data;
+		listSupVCodecs[real_index].codpriv_size = priv_data_size;
+		return listSupVCodecs[real_index].codpriv_size;
 	}
 	else if(listSupVCodecs[real_index].mkv_codecPriv != NULL)
 	{

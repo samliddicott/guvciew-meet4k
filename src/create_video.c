@@ -102,7 +102,8 @@ static int initVideoFile(struct ALL_DATA *all_data, void* lav_data)
 	struct GLOBAL *global = all_data->global;
 	struct vdIn *videoIn = all_data->videoIn;
 	struct VideoFormatData *videoF = all_data->videoF;
-
+	
+	io_Stream *vstream, *astream;
 	struct lavcData **lavc_data = (struct lavcData **) lav_data;
 
 	videoF->vcodec = get_vcodec_id(global->VidCodec);
@@ -142,7 +143,7 @@ static int initVideoFile(struct ALL_DATA *all_data, void* lav_data)
 				return(-1);
 			}
 
-			avi_add_video_stream(videoF->avi,
+			vstream = avi_add_video_stream(videoF->avi,
 								global->width,
 								global->height,
 								global->fps,
@@ -151,8 +152,8 @@ static int initVideoFile(struct ALL_DATA *all_data, void* lav_data)
 
 			if(videoF->acodec == AV_CODEC_ID_THEORA)
 			{
-				stream->extra_data = (BYTE*) (*lavc_data)->codec_context->extradata;
-				stream->extra_data_size = (*lavc_data)->codec_context->extradata_size;
+				vstream->extra_data = (BYTE*) (*lavc_data)->codec_context->extradata;
+				vstream->extra_data_size = (*lavc_data)->codec_context->extradata_size;
 			}
 
 			if(global->Sound_enable > 0)
@@ -165,7 +166,7 @@ static int initVideoFile(struct ALL_DATA *all_data, void* lav_data)
 				/*bit rate (compressed formats)*/
 				int32_t b_rate = get_aud_bit_rate(global->AudCodec);
 
-				io_Stream* stream = avi_add_audio_stream(videoF->avi,
+				astream = avi_add_audio_stream(videoF->avi,
 								global->Sound_NumChan,
 								global->Sound_SampRate,
 								a_bits,
@@ -175,8 +176,8 @@ static int initVideoFile(struct ALL_DATA *all_data, void* lav_data)
 
 				if(videoF->acodec == AV_CODEC_ID_VORBIS)
 				{
-						stream->extra_data = (BYTE*) pdata->lavc_data->codec_context->extradata;
-						stream->extra_data_size = pdata->lavc_data->codec_context->extradata_size;
+						astream->extra_data = (BYTE*) pdata->lavc_data->codec_context->extradata;
+						astream->extra_data_size = pdata->lavc_data->codec_context->extradata_size;
 				}
 
 			}
@@ -219,7 +220,7 @@ static int initVideoFile(struct ALL_DATA *all_data, void* lav_data)
 				return(-1);
 			}
 
-			io_Stream* vstream = mkv_add_video_stream(videoF->mkv,
+			vstream = mkv_add_video_stream(videoF->mkv,
 									global->width,
 									global->height,
 									videoF->vcodec);
@@ -239,7 +240,7 @@ static int initVideoFile(struct ALL_DATA *all_data, void* lav_data)
 				/*bit rate (compressed formats)*/
 				int32_t b_rate = get_aud_bit_rate(global->AudCodec);
 
-				io_Stream* astream = mkv_add_audio_stream(
+				astream = mkv_add_audio_stream(
 								videoF->mkv,
 								pdata->channels,
 								pdata->samprate,
