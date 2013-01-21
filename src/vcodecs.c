@@ -80,7 +80,7 @@ static vcodecs_data listSupVCodecs[] = //list of software supported formats
 		.qblur        = 0,
 		.subq         = 0,
 		.framerefs    = 0,
-		.codec_id     = CODEC_ID_MJPEG,
+		.codec_id     = AV_CODEC_ID_MJPEG,
 		.codec_name   = "mjpeg",
 		.mb_decision  = 0,
 		.trellis      = 0,
@@ -116,7 +116,7 @@ static vcodecs_data listSupVCodecs[] = //list of software supported formats
 		.qblur        = 0,
 		.subq         = 0,
 		.framerefs    = 0,
-		.codec_id     = CODEC_ID_NONE,
+		.codec_id     = AV_CODEC_ID_NONE,
 		.codec_name   = "none",
 		.mb_decision  = 0,
 		.trellis      = 0,
@@ -152,7 +152,7 @@ static vcodecs_data listSupVCodecs[] = //list of software supported formats
 		.qblur        = 0,
 		.subq         = 0,
 		.framerefs    = 0,
-		.codec_id     = CODEC_ID_NONE,
+		.codec_id     = AV_CODEC_ID_NONE,
 		.codec_name   = "none",
 		.mb_decision  = 0,
 		.trellis      = 0,
@@ -188,7 +188,7 @@ static vcodecs_data listSupVCodecs[] = //list of software supported formats
 		.qblur        = 0.5,
 		.subq         = 0,
 		.framerefs    = 0,
-		.codec_id     = CODEC_ID_MPEG1VIDEO,
+		.codec_id     = AV_CODEC_ID_MPEG1VIDEO,
 		.codec_name   = "mpeg1video",
 		.mb_decision  = FF_MB_DECISION_RD,
 		.trellis      = 1,
@@ -224,7 +224,7 @@ static vcodecs_data listSupVCodecs[] = //list of software supported formats
 		.qblur        = 0.5,
 		.subq         = 0,
 		.framerefs    = 0,
-		.codec_id     = CODEC_ID_FLV1,
+		.codec_id     = AV_CODEC_ID_FLV1,
 		.codec_name   = "flv",
 		.mb_decision  = FF_MB_DECISION_RD,
 		.trellis      = 1,
@@ -260,7 +260,7 @@ static vcodecs_data listSupVCodecs[] = //list of software supported formats
 		.qblur        = 0.5,
 		.subq         = 0,
 		.framerefs    = 0,
-		.codec_id     = CODEC_ID_WMV1,
+		.codec_id     = AV_CODEC_ID_WMV1,
 		.codec_name   = "wmv1",
 		.mb_decision  = FF_MB_DECISION_RD,
 		.trellis      = 1,
@@ -296,7 +296,7 @@ static vcodecs_data listSupVCodecs[] = //list of software supported formats
 		.qblur        = 0.5,
 		.subq         = 0,
 		.framerefs    = 0,
-		.codec_id     = CODEC_ID_MPEG2VIDEO,
+		.codec_id     = AV_CODEC_ID_MPEG2VIDEO,
 		.codec_name   = "mpeg2video",
 		.mb_decision  = FF_MB_DECISION_RD,
 		.trellis      = 1,
@@ -332,7 +332,7 @@ static vcodecs_data listSupVCodecs[] = //list of software supported formats
 		.qblur        = 0.5,
 		.subq         = 0,
 		.framerefs    = 0,
-		.codec_id     = CODEC_ID_MSMPEG4V3,
+		.codec_id     = AV_CODEC_ID_MSMPEG4V3,
 		.codec_name   = "msmpeg4v3",
 		.mb_decision  = FF_MB_DECISION_RD,
 		.trellis      = 1,
@@ -368,7 +368,7 @@ static vcodecs_data listSupVCodecs[] = //list of software supported formats
 		.qblur        = 0.5,
 		.subq         = 0,
 		.framerefs    = 0,
-		.codec_id     = CODEC_ID_MPEG4,
+		.codec_id     = AV_CODEC_ID_MPEG4,
 		.codec_name   = "mpeg4",
 		.mb_decision  = FF_MB_DECISION_RD,
 		.trellis      = 1,
@@ -404,7 +404,7 @@ static vcodecs_data listSupVCodecs[] = //list of software supported formats
 		.qblur        = 0.5,
 		.subq         = 5,
 		.framerefs    = 0,
-		.codec_id     = CODEC_ID_H264,
+		.codec_id     = AV_CODEC_ID_H264,
 		.codec_name   = "libx264",
 		.mb_decision  = FF_MB_DECISION_RD,
 		.trellis      = 0,
@@ -444,7 +444,7 @@ static vcodecs_data listSupVCodecs[] = //list of software supported formats
 		.qblur        = 0.5,
 		.subq         = 5,
 		.framerefs    = 0,
-		.codec_id     = CODEC_ID_VP8,
+		.codec_id     = AV_CODEC_ID_VP8,
 		.codec_name   = "libvpx",
 		.mb_decision  = FF_MB_DECISION_RD,
 		.trellis      = 0,
@@ -452,11 +452,43 @@ static vcodecs_data listSupVCodecs[] = //list of software supported formats
 		.mpeg_quant   = 1,
 		.max_b_frames = 0,
 		.num_threads  = 4,
-#if LIBAVCODEC_VER_AT_LEAST(54,01)
-		.flags        = CODEC_FLAG2_INTRA_REFRESH
-#else
-		.flags        = CODEC_FLAG2_BPYRAMID | CODEC_FLAG2_WPRED | CODEC_FLAG2_FASTPSKIP | CODEC_FLAG2_INTRA_REFRESH
-#endif
+		.flags        = 0
+	},
+	{       //only available in libavcodec-unstriped
+		.avcodec      = TRUE,
+		.valid        = TRUE,
+		.compressor   = "THEO",
+		.mkv_4cc      = v4l2_fourcc('T','H','E','O'),
+		.mkv_codec    = "V_THEORA",
+		.mkv_codecPriv= NULL,
+		.description  = N_("Theora (ogg theora)"),
+		.fps          = 0,
+		.monotonic_pts= 1,
+		.bit_rate     = 600000,
+		.qmax         = 51,
+		.qmin         = 11,
+		.max_qdiff    = 4,
+		.dia          = 2,
+		.pre_dia      = 2,
+		.pre_me       = 2,
+		.me_pre_cmp   = 0,
+		.me_cmp       = 3,
+		.me_sub_cmp   = 3,
+		.last_pred    = 2,
+		.gop_size     = 120,
+		.qcompress    = 0.8,
+		.qblur        = 0.5,
+		.subq         = 5,
+		.framerefs    = 0,
+		.codec_id     = AV_CODEC_ID_THEORA,
+		.codec_name   = "libtheora",
+		.mb_decision  = FF_MB_DECISION_RD,
+		.trellis      = 0,
+		.me_method    = ME_HEX,
+		.mpeg_quant   = 1,
+		.max_b_frames = 0,
+		.num_threads  = 1,
+		.flags        = 0
 	}
 };
 
@@ -572,7 +604,7 @@ void *get_mkvCodecPriv(int codec_ind)
 	}
 }
 
-int set_mkvCodecPriv(int codec_ind, int width, int height)
+int set_mkvCodecPriv(int codec_ind, int width, int height, struct lavcData* data)
 {
 	int size = 0;
 	int real_index = get_real_index (codec_ind);
@@ -583,7 +615,65 @@ int set_mkvCodecPriv(int codec_ind, int width, int height)
 		return 0;
 	}
 
-	if(listSupVCodecs[real_index].mkv_codecPriv != NULL)
+	if(listSupACodecs[real_index].codec_id == AV_CODEC_ID_THEORA)
+	{
+		//get the 3 first header packets
+		uint8_t *header_start[3];
+		int header_len[3];
+		int first_header_size;
+
+		first_header_size = 42; //vorbis = 30
+    	if (avpriv_split_xiph_headers(data->codec_context->extradata, data->codec_context->extradata_size,
+				first_header_size, header_start, header_len) < 0)
+        {
+			fprintf(stderr, "VCODEC: theora codec - Extradata corrupt.\n");
+			return -1;
+		}
+
+		//get the allocation needed for headers size
+		int header_lace_size[2];
+		header_lace_size[0]=0;
+		header_lace_size[1]=0;
+		int i;
+		for (i = 0; i < header_len[0] / 255; i++)
+			header_lace_size[0]++;
+		header_lace_size[0]++;
+		for (i = 0; i < header_len[1] / 255; i++)
+			header_lace_size[1]++;
+		header_lace_size[1]++;
+
+		int priv_data_size = 1 + //number of packets -1
+						header_lace_size[0] +  //first packet size
+						header_lace_size[1] +  //second packet size
+						header_len[0] + //first packet header
+						header_len[1] + //second packet header
+						header_len[2];  //third packet header
+
+		//should check and clean before allocating ??
+		data->priv_data = g_new0(BYTE, priv_data_size);
+		//write header
+		BYTE* tmp = data->priv_data;
+		*tmp++ = 0x02; //number of packets -1
+		//size of head 1
+		for (i = 0; i < header_len[0] / 0xff; i++)
+			*tmp++ = 0xff;
+		*tmp++ = header_len[0] % 0xff;
+		//size of head 2
+		for (i = 0; i < header_len[1] / 0xff; i++)
+			*tmp++ = 0xff;
+		*tmp++ = header_len[1] % 0xff;
+		//add headers
+		for(i=0; i<3; i++)
+		{
+			memcpy(tmp, header_start[i] , header_len[i]);
+			tmp += header_len[i];
+		}
+
+		listSupACodecs[real_index].mkv_codpriv = data->priv_data;
+		listSupACodecs[real_index].codpriv_size = priv_data_size;
+		return listSupACodecs[real_index].codpriv_size;
+	}
+	else if(listSupVCodecs[real_index].mkv_codecPriv != NULL)
 	{
 		mkv_codecPriv.biWidth = width;
 		mkv_codecPriv.biHeight = height;
@@ -740,11 +830,10 @@ static int encode_lavc (struct lavcData *lavc_data,
 
 int compress_frame(void *data,
 	void *jpeg_data,
-	void *lav_data,
+	struct lavcData *lavc_data,
 	VidBuff *proc_buff)
 {
 	struct JPEG_ENCODER_STRUCTURE **jpeg_struct = (struct JPEG_ENCODER_STRUCTURE **) jpeg_data;
-	struct lavcData **lavc_data = (struct lavcData **) lav_data;
 	BYTE *prgb =NULL;
 
 	struct ALL_DATA *all_data = (struct ALL_DATA *) data;
@@ -813,12 +902,7 @@ int compress_frame(void *data,
 			break;
 
 		default:
-			if(!(*lavc_data))
-			{
-				*lavc_data = init_lavc(global->width, global->height, global->fps_num, global->fps, global->VidCodec);
-			}
-
-			ret = encode_lavc (*lavc_data, all_data, proc_buff);
+			ret = encode_lavc (lavc_data, all_data, proc_buff);
 			break;
 	}
 	return (ret);

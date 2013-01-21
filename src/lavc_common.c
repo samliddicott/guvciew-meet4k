@@ -194,7 +194,7 @@ int encode_lavc_frame (BYTE *picture_buf, struct lavcData* data , int format, st
 		out_size = avcodec_encode_video(data->codec_context, data->outbuf, data->outbuf_size, data->picture);
 	else
 		out_size = avcodec_encode_video(data->codec_context, data->outbuf, data->outbuf_size, NULL);
-	
+
 	videoF->vflags = 0;
 	if (data->codec_context->coded_frame->key_frame)
 		videoF->vflags |= AV_PKT_FLAG_KEY;
@@ -363,7 +363,7 @@ struct lavcData* init_lavc(int width, int height, int fps_num, int fps_den, int 
 	//try specific codec (by name)
 	data->codec = avcodec_find_encoder_by_name(defaults->codec_name);
 
-	if(!data->codec) //if it fails try any codec with matching CODEC_ID
+	if(!data->codec) //if it fails try any codec with matching AV_CODEC_ID
 		data->codec = avcodec_find_encoder(defaults->codec_id);
 
 	if (!data->codec)
@@ -443,7 +443,7 @@ struct lavcData* init_lavc(int width, int height, int fps_num, int fps_den, int 
     else
         data->codec_context->gop_size = data->codec_context->time_base.den;
 
-	if(defaults->codec_id == CODEC_ID_H264)
+	if(defaults->codec_id == AV_CODEC_ID_H264)
 	{
 	    data->codec_context->me_range = 16;
 	    //the first compressed frame will be empty (1 frame out of sync)
@@ -500,7 +500,7 @@ struct lavcAData* init_lavc_audio(struct paRecordData *pdata, int codec_ind)
 
 	fprintf(stderr, "AUDIO: codec %s selected\n", defaults->codec_name);
 
-	if(!pdata->lavc_data->codec) //if it fails try any codec with matching CODEC_ID
+	if(!pdata->lavc_data->codec) //if it fails try any codec with matching AV_CODEC_ID
 	{
 		fprintf(stderr, "ffmpeg audio codec %s not found\n", defaults->codec_name);
 		pdata->lavc_data->codec = avcodec_find_encoder(defaults->codec_id);

@@ -95,13 +95,15 @@ static void alloc_videoBuff(struct ALL_DATA *all_data)
 	__UNLOCK_MUTEX(__GMUTEX);
 }
 
-static int initVideoFile(struct ALL_DATA *all_data)
+static int initVideoFile(struct ALL_DATA *all_data, void* lav_data)
 {
 	//struct GWIDGET *gwidget = all_data->gwidget;
 	struct paRecordData *pdata = all_data->pdata;
 	struct GLOBAL *global = all_data->global;
 	struct vdIn *videoIn = all_data->videoIn;
 	struct VideoFormatData *videoF = all_data->videoF;
+
+	struct lavcData **lavc_data = (struct lavcData **) lav_data;
 
 	videoF->vcodec = get_vcodec_id(global->VidCodec);
 	videoF->acodec = get_acodec_id(global->AudCodec);
@@ -114,6 +116,10 @@ static int initVideoFile(struct ALL_DATA *all_data)
 
 	/*alloc video ring buffer*/
 	alloc_videoBuff(all_data);
+
+	if(isLavcCodec(global->VidCodec))
+		*lavc_data = init_lavc(global->width, global->height, global->fps_num, global->fps, global->VidCodec);
+
 
 	switch (global->VidFormat)
 	{
@@ -143,6 +149,12 @@ static int initVideoFile(struct ALL_DATA *all_data)
 								videoF->vcodec,
 								get_vid4cc(global->VidCodec));
 
+			if(videoF->acodec == AV_CODEC_ID_THEORA)
+			{
+				stream->extra_data = (BYTE*) (*lavc_data)->codec_context->extradata;
+				stream->extra_data_size = (*lavc_data)->codec_context->extradata_size;
+			}
+
 			if(global->Sound_enable > 0)
 			{
 				/*get channels and sample rate*/
@@ -161,7 +173,7 @@ static int initVideoFile(struct ALL_DATA *all_data)
 								videoF->acodec,
 								global->Sound_Format);
 
-				if(videoF->acodec == CODEC_ID_VORBIS)
+				if(videoF->acodec == AV_CODEC_ID_VORBIS)
 				{
 						stream->extra_data = (BYTE*) pdata->lavc_data->codec_context->extradata;
 						stream->extra_data_size = pdata->lavc_data->codec_context->extradata_size;
@@ -213,7 +225,7 @@ static int initVideoFile(struct ALL_DATA *all_data)
 									videoF->vcodec);
 
 
-			vstream->extra_data_size = set_mkvCodecPriv(global->VidCodec, global->width, global->height);
+			vstream->extra_data_size = set_mkvCodecPriv(global->VidCodec, global->width, global->height, *lavc_data);
 			if(vstream->extra_data_size > 0)
 				vstream->extra_data = get_mkvCodecPriv(global->VidCodec);
 
@@ -428,7 +440,7 @@ static void closeVideoFile(struct ALL_DATA *all_data)
 
 static int write_video_frame (struct ALL_DATA *all_data,
 	void *jpeg_struct,
-	void *lavc_data,
+	struct lavcData *lavc_data,
 	VidBuff *proc_buff)
 {
 	struct GLOBAL *global = all_data->global;
@@ -713,7 +725,7 @@ static gboolean process_audio(struct ALL_DATA *all_data,
 
 static gboolean process_video(struct ALL_DATA *all_data,
 				VidBuff *proc_buff,
-				struct lavcData **lavc_data,
+				struct lavcData *lavc_data,
 				struct JPEG_ENCODER_STRUCTURE **jpeg_struct)
 {
 	struct GLOBAL *global = all_data->global;
@@ -771,7 +783,7 @@ static gboolean process_video(struct ALL_DATA *all_data,
 
 				case WEBM_FORMAT:
 				case MKV_FORMAT:
-					write_video_frame(all_data, (void *) jpeg_struct, (void *) lavc_data, proc_buff);
+					write_video_frame(all_data, (void *) jpeg_struct, lavc_data, proc_buff);
 					break;
 
 				default:
@@ -790,13 +802,13 @@ static gboolean process_video(struct ALL_DATA *all_data,
 			{
 				case AVI_FORMAT:
 					/* write frame twice */
-					write_video_frame(all_data, (void *) jpeg_struct, (void *) lavc_data, proc_buff);
-					write_video_frame(all_data, (void *) jpeg_struct, (void *) lavc_data, proc_buff);
+					write_video_frame(all_data, (void *) jpeg_struct, lavc_data, proc_buff);
+					write_video_frame(all_data, (void *) jpeg_struct, lavc_data, proc_buff);
 					break;
 
 				case WEBM_FORMAT:
 				case MKV_FORMAT:
-					write_video_frame(all_data, (void *) jpeg_struct, (void *) lavc_data, proc_buff);
+					write_video_frame(all_data, (void *) jpeg_struct, lavc_data, proc_buff);
 					break;
 
 				default:
@@ -804,7 +816,7 @@ static gboolean process_video(struct ALL_DATA *all_data,
 			}
 		}
 		else
-			write_video_frame(all_data, (void *) jpeg_struct, (void *) lavc_data, proc_buff);
+			write_video_frame(all_data, (void *) jpeg_struct, lavc_data, proc_buff);
 	}
 	else
 	{
@@ -814,12 +826,12 @@ static gboolean process_video(struct ALL_DATA *all_data,
 			/*wait for next frame (sleep 10 ms)*/
 			sleep_ms(10);
 		}
-		else if (*lavc_data != NULL) //if we are using a lavc encoder flush the last frames
+		else if (lavc_data != NULL) //if we are using a lavc encoder flush the last frames
 		{
 			//flush video encoder
-			(*lavc_data)->flush_delayed_frames = 1;
-			write_video_frame(all_data, (void *) jpeg_struct, (void *) lavc_data, proc_buff);
-			finish = (*lavc_data)->flush_done; /*all frames processed and no longer capturing so finish*/
+			lavc_data->flush_delayed_frames = 1;
+			write_video_frame(all_data, (void *) jpeg_struct, lavc_data, proc_buff);
+			finish = lavc_data->flush_done; /*all frames processed and no longer capturing so finish*/
 		}
 		else //finish
 			finish = TRUE;
@@ -991,7 +1003,7 @@ void *IO_loop(void *data)
 	int frame_size=0;
 	VidBuff *proc_buff = NULL;
 
-	if(initVideoFile(all_data)<0)
+	if(initVideoFile(all_data, &(lavc_data))<0)
 	{
 		g_printerr("Cap Video failed\n");
 		if(!(global->no_display))
@@ -1041,7 +1053,7 @@ void *IO_loop(void *data)
 				capVid = videoIn->capVid;
 			__UNLOCK_MUTEX(__VMUTEX);
 
-			finished = process_video (all_data, proc_buff, &(lavc_data), &(jpg_data));
+			finished = process_video (all_data, proc_buff, lavc_data, &(jpg_data));
 
 			if(!capVid)
 			{

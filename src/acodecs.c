@@ -59,7 +59,7 @@ static acodecs_data listSupACodecs[] = //list of software supported formats
 		.mkv_codec    = "A_PCM/INT/LIT",
 		.description  = N_("PCM - uncompressed (16 bit)"),
 		.bit_rate     = 0,
-		.codec_id     = CODEC_ID_PCM_S16LE,
+		.codec_id     = AV_CODEC_ID_PCM_S16LE,
 		.codec_name   = "pcm_s16le",
 		.sample_format = AV_SAMPLE_FMT_S16,
 		.profile      = FF_PROFILE_UNKNOWN,
@@ -76,7 +76,7 @@ static acodecs_data listSupACodecs[] = //list of software supported formats
 		.mkv_codec    = "A_MPEG/L2",
 		.description  = N_("MPEG2 - (lavc)"),
 		.bit_rate     = 160000,
-		.codec_id     = CODEC_ID_MP2,
+		.codec_id     = AV_CODEC_ID_MP2,
 		.codec_name   = "mp2",
 		.sample_format = AV_SAMPLE_FMT_S16,
 		.profile      = FF_PROFILE_UNKNOWN,
@@ -93,7 +93,7 @@ static acodecs_data listSupACodecs[] = //list of software supported formats
 		.mkv_codec    = "A_MPEG/L3",
 		.description  = N_("MP3 - (lavc)"),
 		.bit_rate     = 160000,
-		.codec_id     = CODEC_ID_MP3,
+		.codec_id     = AV_CODEC_ID_MP3,
 		.codec_name   = "mp3",
 		.sample_format = AV_SAMPLE_FMT_S16,
 		.profile      = FF_PROFILE_UNKNOWN,
@@ -110,7 +110,7 @@ static acodecs_data listSupACodecs[] = //list of software supported formats
 		.mkv_codec    = "A_AC3",
 		.description  = N_("Dolby AC3 - (lavc)"),
 		.bit_rate     = 160000,
-		.codec_id     = CODEC_ID_AC3,
+		.codec_id     = AV_CODEC_ID_AC3,
 		.codec_name   = "ac3",
 		.sample_format = AV_SAMPLE_FMT_FLT,
 		.profile      = FF_PROFILE_UNKNOWN,
@@ -127,7 +127,7 @@ static acodecs_data listSupACodecs[] = //list of software supported formats
 		.mkv_codec    = "A_AAC",
 		.description  = N_("ACC Low - (faac)"),
 		.bit_rate     = 64000,
-		.codec_id     = CODEC_ID_AAC,
+		.codec_id     = AV_CODEC_ID_AAC,
 		.codec_name   = "aac",
 		.sample_format = AV_SAMPLE_FMT_S16,
 		.profile      = FF_PROFILE_AAC_LOW,
@@ -144,7 +144,7 @@ static acodecs_data listSupACodecs[] = //list of software supported formats
 		.mkv_codec    = "A_VORBIS",
 		.description  = N_("Vorbis"),
 		.bit_rate     = 64000,
-		.codec_id     = CODEC_ID_VORBIS,
+		.codec_id     = AV_CODEC_ID_VORBIS,
 		.codec_name   = "libvorbis",
 		.sample_format = AV_SAMPLE_FMT_S16,
 		.profile      = FF_PROFILE_UNKNOWN,
@@ -378,7 +378,7 @@ int set_mkvACodecPriv(int codec_ind, int samprate, int channels, struct lavcADat
 		return 0;
 	}
 
-	if (listSupACodecs[real_index].codec_id == CODEC_ID_AAC)
+	if (listSupACodecs[real_index].codec_id == AV_CODEC_ID_AAC)
 	{
 		int obj_type = get_aac_obj_ind(listSupACodecs[real_index].profile);
 		int sampind  = get_aac_samp_ind(samprate);
@@ -387,7 +387,7 @@ int set_mkvACodecPriv(int codec_ind, int samprate, int channels, struct lavcADat
 
 		return listSupACodecs[real_index].codpriv_size; /*return size = 2 */
 	}
-	else if(listSupACodecs[real_index].codec_id == CODEC_ID_VORBIS)
+	else if(listSupACodecs[real_index].codec_id == AV_CODEC_ID_VORBIS)
 	{
 		//get the 3 first header packets
 		uint8_t *header_start[3];

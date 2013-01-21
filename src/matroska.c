@@ -402,7 +402,7 @@ static int mkv_add_cuepoint(mkv_cues *cues, int stream, int64_t ts, int64_t clus
     entries[cues->num_entries].cluster_pos = cluster_pos - cues->segment_offset;
 
 	cues->num_entries++;
-	
+
     cues->entries = entries;
     return 0;
 }
@@ -494,8 +494,8 @@ static int mkv_write_tracks(mkv_Context* MKV)
 
         mkv_put_ebml_string(MKV, MATROSKA_ID_CODECID, mkv_codec_name);
 
-        if (MKV->mode == WEBM_FORMAT && !(stream->codec_id == CODEC_ID_VP8 ||
-                                        stream->codec_id == CODEC_ID_VORBIS))
+        if (MKV->mode == WEBM_FORMAT && !(stream->codec_id == AV_CODEC_ID_VP8 ||
+                                        stream->codec_id == AV_CODEC_ID_VORBIS))
 		{
             fprintf(stderr, "MKV: Only VP8 video and Vorbis audio are supported for WebM.\n");
             return -2;
@@ -504,7 +504,7 @@ static int mkv_write_tracks(mkv_Context* MKV)
         switch (stream->type)
         {
             case STREAM_TYPE_VIDEO:
-                mkv_put_ebml_uint(MKV, MATROSKA_ID_TRACKTYPE, MATROSKA_TRACK_TYPE_VIDEO);   
+                mkv_put_ebml_uint(MKV, MATROSKA_ID_TRACKTYPE, MATROSKA_TRACK_TYPE_VIDEO);
                 subinfo = mkv_start_ebml_master(MKV, MATROSKA_ID_TRACKVIDEO, 0);
                 // XXX: interlace flag?
                 mkv_put_ebml_uint (MKV, MATROSKA_ID_VIDEOPIXELWIDTH , stream->width);
@@ -812,7 +812,7 @@ int mkv_close(mkv_Context* MKV)
     fprintf(stderr,"MKV: end duration = %" PRIu64 " (%f) \n", MKV->duration, (float) MKV->duration);
     currentpos = io_get_offset(MKV->writer);
     io_seek(MKV->writer, MKV->duration_offset);
-    
+
     mkv_put_ebml_float(MKV, MATROSKA_ID_DURATION, (float) MKV->duration);
 	io_seek(MKV->writer, currentpos);
 
