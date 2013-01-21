@@ -127,6 +127,11 @@ struct lavcAData
 	int monotonic_pts;
 };
 
+//split the private codec data into xiph headers for mkv muxer (vorbis and theora)
+int avpriv_split_xiph_headers(uint8_t *extradata, int extradata_size,
+                         int first_header_size, uint8_t *header_start[3],
+                         int header_len[3]);
+
 int encode_lavc_frame (BYTE *picture_buf, struct lavcData* data, int format, struct VideoFormatData *videoF);
 
 int encode_lavc_audio_frame (void *audio_buf, struct lavcAData* data, struct VideoFormatData *videoF);

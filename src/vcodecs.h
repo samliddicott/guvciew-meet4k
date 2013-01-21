@@ -110,7 +110,7 @@ vcodecs_data *get_codec_defaults(int codec_ind);
 
 int compress_frame(void *data,
 	void *jpeg_data,
-	void *lav_data,
+	struct lavcData *lav_data,
 	VidBuff *proc_buff);
 
 #endif

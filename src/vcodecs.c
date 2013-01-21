@@ -24,7 +24,6 @@
 #include "guvcview.h"
 #include "picture.h"
 #include "colorspaces.h"
-#include "lavc_common.h"
 #include "create_video.h"
 /* support for internationalization - i18n */
 #include <glib/gi18n.h>
@@ -457,8 +456,8 @@ static vcodecs_data listSupVCodecs[] = //list of software supported formats
 	{       //only available in libavcodec-unstriped
 		.avcodec      = TRUE,
 		.valid        = TRUE,
-		.compressor   = "THEO",
-		.mkv_4cc      = v4l2_fourcc('T','H','E','O'),
+		.compressor   = "theo",
+		.mkv_4cc      = v4l2_fourcc('t','h','e','o'),
 		.mkv_codec    = "V_THEORA",
 		.mkv_codecPriv= NULL,
 		.description  = N_("Theora (ogg theora)"),
@@ -642,15 +641,15 @@ int set_mkvCodecPriv(int codec_ind, int width, int height, struct lavcData* data
 			header_lace_size[1]++;
 		header_lace_size[1]++;
 
-		int priv_data_size = 1 + //number of packets -1
-						header_lace_size[0] +  //first packet size
-						header_lace_size[1] +  //second packet size
-						header_len[0] + //first packet header
-						header_len[1] + //second packet header
-						header_len[2];  //third packet header
+		size = 1 + //number of packets -1
+				header_lace_size[0] +  //first packet size
+				header_lace_size[1] +  //second packet size
+				header_len[0] + //first packet header
+				header_len[1] + //second packet header
+				header_len[2];  //third packet header
 
 		//should check and clean before allocating ??
-		data->priv_data = g_new0(BYTE, priv_data_size);
+		data->priv_data = g_new0(BYTE, size);
 		//write header
 		BYTE* tmp = data->priv_data;
 		*tmp++ = 0x02; //number of packets -1
@@ -669,9 +668,7 @@ int set_mkvCodecPriv(int codec_ind, int width, int height, struct lavcData* data
 			tmp += header_len[i];
 		}
 
-		listSupVCodecs[real_index].mkv_codpriv = data->priv_data;
-		listSupVCodecs[real_index].codpriv_size = priv_data_size;
-		return listSupVCodecs[real_index].codpriv_size;
+		listSupVCodecs[real_index].mkv_codecPriv = data->priv_data;
 	}
 	else if(listSupVCodecs[real_index].mkv_codecPriv != NULL)
 	{
