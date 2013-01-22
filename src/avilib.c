@@ -269,10 +269,13 @@ int64_t avi_put_wav_header(avi_Context* AVI, io_Stream* stream)
 
 void avi_put_vstream_format_header(avi_Context* AVI, io_Stream* stream)
 {
+	int vxd_size        = stream->extra_data_size;
+	int vxd_size_align  = (stream->extra_data_size+1) & ~1;
+
 	int64_t strf = avi_open_tag(AVI, "strf");// stream format header
-	io_write_wl32(AVI->writer, 40);             // sruct Size
-	io_write_wl32(AVI->writer, stream->width);     // Width
-	io_write_wl32(AVI->writer, stream->height);    // Height
+	io_write_wl32(AVI->writer, 40 + vxd_size);  // sruct Size
+	io_write_wl32(AVI->writer, stream->width);  // Width
+	io_write_wl32(AVI->writer, stream->height); // Height
 	io_write_wl16(AVI->writer, 1);              // Planes
 	io_write_wl16(AVI->writer, 24);             // Count - bitsperpixel - 1,4,8 or 24  32
 	if(strncmp(stream->compressor,"DIB",3)==0)
@@ -284,6 +287,15 @@ void avi_put_vstream_format_header(avi_Context* AVI, io_Stream* stream)
 	io_write_wl32(AVI->writer, 0);              // YPelsPerMeter
 	io_write_wl32(AVI->writer, 0);              // ClrUsed: Number of colors used
 	io_write_wl32(AVI->writer, 0);              // ClrImportant: Number of colors important
+	// write extradata (codec private)
+	if (vxd_size > 0 && stream->extra_data)
+	{
+		io_write_buf(AVI->writer, stream->extra_data, vxd_size);
+		if (vxd_size != vxd_size_align)
+		{
+			io_write_w8(AVI->writer, 0);  //align
+		}
+	}
 	avi_close_tag(AVI, strf); //write the chunk size
 }
 
@@ -389,19 +401,6 @@ void avi_create_riff_header(avi_Context* AVI, avi_RIFF* riff)
 		{
 			avi_put_bmp_header(AVI, stream);
 			avi_put_vstream_format_header(AVI, stream);
-
-			// write extradata (codec private)
-			if (stream->extra_data_size > 0 && stream->extra_data)
-			{
-				int size_align = (stream->extra_data_size+1) & ~1;
-				io_write_4cc(AVI->writer,"strd");
-				io_write_wl32(AVI->writer, size_align);
-				io_write_buf(AVI->writer, stream->extra_data, stream->extra_data_size);
-				if (stream->extra_data_size != size_align)
-				{
-					io_write_w8(AVI->writer, 0);  //align
-				}
-			}
 		}
 		else
 		{
