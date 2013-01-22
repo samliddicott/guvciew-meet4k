@@ -24,11 +24,32 @@
 ###########
 *.patch
 
+# autoconf #
+############
+autom4te.cache
+Makefile.in
+configure
+aclocal.m4
+config.guess
+config.h.in
+config.sub
+depcomp
+install-sh
+missing
+
+# build dir #
+#############
+build
+
 # temp files#
 #############
 *~
 *.swp
 *.tmp
+
+# dumps #
+#########
+*.stackdump
 
 # Logs and databases #
 ######################
