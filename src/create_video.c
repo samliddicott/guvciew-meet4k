@@ -150,7 +150,7 @@ static int initVideoFile(struct ALL_DATA *all_data, void* lav_data)
 								videoF->vcodec,
 								get_vid4cc(global->VidCodec));
 
-			if(videoF->acodec == AV_CODEC_ID_THEORA)
+			if(videoF->vcodec == AV_CODEC_ID_THEORA)
 			{
 				vstream->extra_data = (BYTE*) (*lavc_data)->codec_context->extradata;
 				vstream->extra_data_size = (*lavc_data)->codec_context->extradata_size;
