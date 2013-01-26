@@ -37,6 +37,15 @@ WARN_DIALOG(const char *warn_title, const char* warn_msg, struct ALL_DATA *all_d
 void 
 ERR_DIALOG(const char *err_title, const char* err_msg, struct ALL_DATA *all_data);
 
+void
+file_chooser (GtkWidget * FileButt, struct ALL_DATA *all_data);
+
+void
+lavc_properties(GtkMenuItem * codec_prop, struct ALL_DATA *all_data);
+
+void
+lavc_audio_properties(GtkMenuItem * codec_prop, struct ALL_DATA *all_data);
+
 /* sound controls*/
 void 
 set_sensitive_snd_contrls (const int flag, struct GWIDGET *gwidget);
@@ -125,6 +134,9 @@ SndNumChan_changed (GtkComboBox * SoundChan, struct ALL_DATA *all_data);
 
 void
 SndComp_changed (GtkComboBox * SoundComp, struct ALL_DATA *all_data);
+
+void
+AudCodec_menu_changed (GtkRadioMenuItem *acodec_item, struct ALL_DATA *all_data);
 
 void
 VidCodec_changed (GtkComboBox * VidCodec, struct ALL_DATA *all_data);

@@ -32,76 +32,6 @@
 #include "acodecs.h"
 #include "../config.h"
 
-static void
-lavc_audio_properties(GtkButton * CodecButt, struct ALL_DATA *all_data)
-{
-	struct GLOBAL *global = all_data->global;
-	struct GWIDGET *gwidget = all_data->gwidget;
-
-	int line = 0;
-	acodecs_data *codec_defaults = get_aud_codec_defaults(get_ind_by4cc(global->Sound_Format));
-
-	if (!(codec_defaults->avcodec)) return;
-
-	GtkWidget *codec_dialog = gtk_dialog_new_with_buttons (_("audio codec values"),
-		GTK_WINDOW(gwidget->mainwin),
-		GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
-		GTK_STOCK_OK,
-		GTK_RESPONSE_ACCEPT,
-		GTK_STOCK_CANCEL,
-		GTK_RESPONSE_REJECT,
-		NULL);
-
-	GtkWidget *table = gtk_grid_new();
-	gtk_grid_set_column_homogeneous (GTK_GRID(table), TRUE);
-
-	/*bit rate*/
-	GtkWidget *lbl_bit_rate = gtk_label_new(_("bit rate:   "));
-	gtk_misc_set_alignment (GTK_MISC (lbl_bit_rate), 1, 0.5);
-	gtk_grid_attach (GTK_GRID(table), lbl_bit_rate, 0, line, 1, 1);
-	gtk_widget_show (lbl_bit_rate);
-
-	GtkWidget *bit_rate = gtk_spin_button_new_with_range(48000,384000,8000);
-	gtk_editable_set_editable(GTK_EDITABLE(bit_rate),TRUE);
-	gtk_spin_button_set_value (GTK_SPIN_BUTTON(bit_rate), codec_defaults->bit_rate);
-
-	gtk_grid_attach (GTK_GRID(table), bit_rate, 1, line, 1, 1);
-	gtk_widget_show (bit_rate);
-	line++;
-
-	/*sample format*/
-	GtkWidget *lbl_sample_fmt = gtk_label_new(_("sample format:   "));
-	gtk_misc_set_alignment (GTK_MISC (lbl_sample_fmt), 1, 0.5);
-	gtk_grid_attach (GTK_GRID(table), lbl_sample_fmt, 0, line, 1, 1);
-	gtk_widget_show (lbl_sample_fmt);
-
-	GtkWidget *sample_fmt = gtk_spin_button_new_with_range(0, AV_SAMPLE_FMT_NB, 1);
-	gtk_editable_set_editable(GTK_EDITABLE(sample_fmt),TRUE);
-	gtk_spin_button_set_value (GTK_SPIN_BUTTON(sample_fmt), codec_defaults->sample_format);
-
-	gtk_grid_attach (GTK_GRID(table), sample_fmt, 1, line, 1, 1);
-	gtk_widget_show (sample_fmt);
-	line++;
-
-	GtkWidget *content_area = gtk_dialog_get_content_area (GTK_DIALOG (codec_dialog));
-	gtk_container_add (GTK_CONTAINER (content_area), table);
-	gtk_widget_show (table);
-
-	gint result = gtk_dialog_run (GTK_DIALOG (codec_dialog));
-	switch (result)
-	{
-		case GTK_RESPONSE_ACCEPT:
-			codec_defaults->bit_rate = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON(bit_rate));
-			codec_defaults->sample_format = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON(sample_fmt));
-			break;
-		default:
-			// do nothing since dialog was cancelled
-			break;
-	}
-	gtk_widget_destroy (codec_dialog);
-
-}
-
 void audio_tab(struct ALL_DATA *all_data)
 {
 	struct GLOBAL *global = all_data->global;
@@ -326,43 +256,47 @@ void audio_tab(struct ALL_DATA *all_data)
 	gtk_widget_show (label_SndNumChan);
 	if (global->debug) g_print("SampleRate:%d Channels:%d\n",global->Sound_SampRate,global->Sound_NumChan);
 
-	//sound format
-	line++;
-	gwidget->SndComp = gtk_combo_box_text_new ();
-	//sets to valid only existing codecs
-	int num_codecs = setAcodecVal();
-	int acodec_ind =0;
-	for (acodec_ind =0; acodec_ind < num_codecs; acodec_ind++)
-	{
-		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(gwidget->SndComp),gettext(get_aud_desc4cc(acodec_ind)));
-	}
+	/** sound format
+	 * this is now done in the video menu
+	 */
+	//line++;
+	//gwidget->SndComp = gtk_combo_box_text_new ();
+	/**sets to valid only existing codecs*/
+	//int num_codecs = setAcodecVal();
+	//int acodec_ind =0;
+	//for (acodec_ind =0; acodec_ind < num_codecs; acodec_ind++)
+	//{
+	//	gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(gwidget->SndComp),gettext(get_aud_desc4cc(acodec_ind)));
+	//}
 
-	gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->SndComp), global->AudCodec);
-	global->Sound_Format = get_aud4cc(global->AudCodec); /*sync index returned with format*/
+	//gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->SndComp), global->AudCodec);
+	//global->Sound_Format = get_aud4cc(global->AudCodec); /*sync index returned with format*/
 
-	if (global->Sound_enable) gtk_widget_set_sensitive (gwidget->SndComp, TRUE);
+	//if (global->Sound_enable) gtk_widget_set_sensitive (gwidget->SndComp, TRUE);
 
-	g_signal_connect (GTK_COMBO_BOX_TEXT(gwidget->SndComp), "changed",
-		G_CALLBACK (SndComp_changed), all_data);
+	//g_signal_connect (GTK_COMBO_BOX_TEXT(gwidget->SndComp), "changed",
+	//	G_CALLBACK (SndComp_changed), all_data);
 
-	gtk_widget_set_halign (gwidget->SndComp, GTK_ALIGN_FILL);
-	gtk_widget_set_hexpand (gwidget->SndComp, TRUE);
-	gtk_grid_attach(GTK_GRID(table3), gwidget->SndComp, 1, line, 1, 1);
+	//gtk_widget_set_halign (gwidget->SndComp, GTK_ALIGN_FILL);
+	//gtk_widget_set_hexpand (gwidget->SndComp, TRUE);
+	//gtk_grid_attach(GTK_GRID(table3), gwidget->SndComp, 1, line, 1, 1);
 
-	gtk_widget_show (gwidget->SndComp);
-	label_SndComp = gtk_label_new(_("Audio Format:"));
-	gtk_misc_set_alignment (GTK_MISC (label_SndComp), 1, 0.5);
+	//gtk_widget_show (gwidget->SndComp);
+	//label_SndComp = gtk_label_new(_("Audio Format:"));
+	//gtk_misc_set_alignment (GTK_MISC (label_SndComp), 1, 0.5);
 
-	gtk_grid_attach (GTK_GRID(table3), label_SndComp, 0, line, 1, 1);
-	gtk_widget_show (label_SndComp);
+	//gtk_grid_attach (GTK_GRID(table3), label_SndComp, 0, line, 1, 1);
+	//gtk_widget_show (label_SndComp);
 
-	//lavc codec properties button
-	gwidget->lavc_aud_button = gtk_button_new_with_label (_("properties"));
-	gtk_grid_attach (GTK_GRID(table3), gwidget->lavc_aud_button, 2, line, 1, 1);
-	gtk_widget_show (gwidget->lavc_aud_button);
-	g_signal_connect (GTK_BUTTON(gwidget->lavc_aud_button), "clicked",
-		G_CALLBACK (lavc_audio_properties), all_data);
-	gtk_widget_set_sensitive (gwidget->lavc_aud_button, isLavcACodec(get_ind_by4cc(global->Sound_Format)));
+	/** lavc codec properties button
+	 *  this is now done in the video menu
+	 */
+	//gwidget->lavc_aud_button = gtk_button_new_with_label (_("properties"));
+	//gtk_grid_attach (GTK_GRID(table3), gwidget->lavc_aud_button, 2, line, 1, 1);
+	//gtk_widget_show (gwidget->lavc_aud_button);
+	//g_signal_connect (GTK_BUTTON(gwidget->lavc_aud_button), "clicked",
+	//	G_CALLBACK (lavc_audio_properties), all_data);
+	//gtk_widget_set_sensitive (gwidget->lavc_aud_button, isLavcACodec(get_ind_by4cc(global->Sound_Format)));
 
 	// Audio effects
 	line++;

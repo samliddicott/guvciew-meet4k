@@ -218,8 +218,10 @@ GtkWidget *create_menu(struct ALL_DATA *all_data, int control_only)
 		GtkWidget *video_timestamp;
 		GtkWidget *video_codec_menu;
 		GtkWidget *video_codec_top;
+		GtkWidget *video_codec_prop;
 		GtkWidget *audio_codec_menu;
 		GtkWidget *audio_codec_top;
+		GtkWidget *audio_codec_prop;
 
 		GtkWidget *photo_menu;
 		GtkWidget *photo_top;
@@ -238,6 +240,11 @@ GtkWidget *create_menu(struct ALL_DATA *all_data, int control_only)
 		gtk_widget_show (video_file);
 		gtk_widget_show (video_timestamp);
 		
+		/** flag the file dialog as video file*/
+		g_object_set_data (G_OBJECT (video_file), "file_butt", GINT_TO_POINTER(1));
+		g_signal_connect (GTK_MENU_ITEM(video_file), "activate",
+			G_CALLBACK (file_chooser), all_data);
+		
 		//video codec submenu
 		video_codec_menu = gtk_menu_new();
 		video_codec_top = gtk_menu_item_new_with_label(_("Video Codec"));
@@ -247,13 +254,14 @@ GtkWidget *create_menu(struct ALL_DATA *all_data, int control_only)
 		gwidget->vgroup = NULL;
 		int num_vcodecs = setVcodecVal();
 		int vcodec_ind =0;
-		//add in reverse order so that index matches GList position
 		for (vcodec_ind =0; vcodec_ind < num_vcodecs; vcodec_ind++)
 		{
 			item = gtk_radio_menu_item_new_with_label(gwidget->vgroup, gettext(get_desc4cc(vcodec_ind)));
-			gwidget->vgroup = gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (item));
 			if (vcodec_ind == global->VidCodec)
 				gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (item), TRUE);
+		
+			//NOTE: GSList indexes (g_slist_index) are in reverse order: last inserted has index 0
+			gwidget->vgroup = gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (item));
 			
 			gtk_widget_show (item);
 			gtk_menu_shell_append(GTK_MENU_SHELL(video_codec_menu), item);
@@ -261,8 +269,13 @@ GtkWidget *create_menu(struct ALL_DATA *all_data, int control_only)
 			g_signal_connect (GTK_RADIO_MENU_ITEM(item), "toggled",
                 G_CALLBACK (VidCodec_menu_changed), all_data);
 		}
-
-		//video codec submenu
+		
+		video_codec_prop =  gtk_menu_item_new_with_label(_("Video Codec Properties"));
+		gtk_widget_show (video_codec_prop);
+		g_signal_connect (GTK_MENU_ITEM(video_codec_prop), "activate",
+			G_CALLBACK (lavc_properties), all_data);
+		
+		//Audio codec submenu
 		audio_codec_menu = gtk_menu_new();
 		audio_codec_top = gtk_menu_item_new_with_label(_("Audio Codec"));
 		gtk_widget_show (audio_codec_top);
@@ -280,13 +293,23 @@ GtkWidget *create_menu(struct ALL_DATA *all_data, int control_only)
 			
 			gtk_widget_show (item);
 			gtk_menu_shell_append(GTK_MENU_SHELL(audio_codec_menu), item);
+			
+			g_signal_connect (GTK_RADIO_MENU_ITEM(item), "toggled",
+                G_CALLBACK (AudCodec_menu_changed), all_data);
 		}
-
+		
+		audio_codec_prop = gtk_menu_item_new_with_label(_("Audio Codec Properties"));
+		gtk_widget_show (audio_codec_prop);
+		g_signal_connect (GTK_MENU_ITEM(audio_codec_prop), "activate",
+			G_CALLBACK (lavc_audio_properties), all_data);
+		
 		gtk_menu_item_set_submenu(GTK_MENU_ITEM(video_top), video_menu);
 		gtk_menu_shell_append(GTK_MENU_SHELL(video_menu), video_file);
 		gtk_menu_shell_append(GTK_MENU_SHELL(video_menu), video_timestamp);
 		gtk_menu_shell_append(GTK_MENU_SHELL(video_menu), video_codec_top);
+		gtk_menu_shell_append(GTK_MENU_SHELL(video_menu), video_codec_prop);
 		gtk_menu_shell_append(GTK_MENU_SHELL(video_menu), audio_codec_top);
+		gtk_menu_shell_append(GTK_MENU_SHELL(video_menu), audio_codec_prop);
 		gtk_menu_shell_append(GTK_MENU_SHELL(menubar), video_top);
 
 		//photo menu
@@ -297,6 +320,12 @@ GtkWidget *create_menu(struct ALL_DATA *all_data, int control_only)
 		gtk_widget_show (photo_top);
 		gtk_widget_show (photo_file);
 		gtk_widget_show (photo_timestamp);
+		
+		/** flag the file dialog as image file*/
+		g_object_set_data (G_OBJECT (photo_file), "file_butt", GINT_TO_POINTER(0));
+		g_signal_connect (GTK_MENU_ITEM(photo_file), "activate",
+			G_CALLBACK (file_chooser), all_data);
+		
 		gtk_menu_item_set_submenu(GTK_MENU_ITEM(photo_top), photo_menu);
 		gtk_menu_shell_append(GTK_MENU_SHELL(photo_menu), photo_file);
 		gtk_menu_shell_append(GTK_MENU_SHELL(photo_menu), photo_timestamp);
