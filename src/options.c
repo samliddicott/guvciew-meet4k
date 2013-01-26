@@ -68,6 +68,8 @@ writeConf(struct GLOBAL *global, char *videodevice)
 		g_fprintf(fp,"resolution='%ix%i'\n",global->width,global->height);
 		g_fprintf(fp,"# control window size: default %ix%i\n",WINSIZEX,WINSIZEY);
 		g_fprintf(fp,"windowsize='%ix%i'\n",global->winwidth,global->winheight);
+		g_fprintf(fp,"#menu pane size\n");
+		g_fprintf(fp,"menu_height=%i\n",global->menu_height);
 		g_fprintf(fp,"#vertical pane size\n");
 		g_fprintf(fp,"vpane=%i\n",global->boxvsize);
 		g_fprintf(fp,"#spin button behavior: 0-non editable 1-editable\n");
@@ -371,6 +373,10 @@ readConf(struct GLOBAL *global)
 						{
 							if(!(global->flg_cap_meth))
 								global->cap_meth = scanner->value.v_int;
+						}
+						else if (g_strcmp0(name,"menu_height")==0) 
+						{
+							global->menu_height = scanner->value.v_int;
 						}
 						else if (g_strcmp0(name,"vpane")==0) 
 						{
@@ -703,6 +709,7 @@ readConf(struct GLOBAL *global)
 			g_print("cap_meth: %i\n",global->cap_meth);
 			g_print("resolution: %i x %i\n",global->width,global->height);
 			g_print("windowsize: %i x %i\n",global->winwidth,global->winheight);
+			g_print("menu pane: %i\n",global->menu_height);
 			g_print("vert pane: %i\n",global->boxvsize);
 			g_print("spin behavior: %i\n",global->spinbehave);
 			g_print("default action: %i\n",global->default_action);

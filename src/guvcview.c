@@ -184,6 +184,8 @@ GtkWidget *create_menu(int control_only)
 	GtkWidget *controls_default;
 
 	menubar = gtk_menu_bar_new();
+	gtk_menu_bar_set_pack_direction(GTK_MENU_BAR(menubar), GTK_PACK_DIRECTION_LTR);
+	
 	controls_menu = gtk_menu_new();
 
 	//controls menu
@@ -192,6 +194,11 @@ GtkWidget *create_menu(int control_only)
 	controls_save = gtk_menu_item_new_with_label(_("Save"));
 	controls_default = gtk_menu_item_new_with_label(_("Default"));
 
+	gtk_widget_show (controls_top);
+	gtk_widget_show (controls_load);
+	gtk_widget_show (controls_save);
+	gtk_widget_show (controls_default);
+	
 	gtk_menu_item_set_submenu(GTK_MENU_ITEM(controls_top), controls_menu);
 	gtk_menu_shell_append(GTK_MENU_SHELL(controls_menu), controls_load);
 	gtk_menu_shell_append(GTK_MENU_SHELL(controls_menu), controls_save);
@@ -224,6 +231,10 @@ GtkWidget *create_menu(int control_only)
 		video_file = gtk_menu_item_new_with_label(_("File"));
 		video_timestamp = gtk_check_menu_item_new_with_label(_("Append timestamp"));
 
+		gtk_widget_show (video_top);
+		gtk_widget_show (video_file);
+		gtk_widget_show (video_timestamp);
+		
 		//video codec submenu
 		video_codec_menu = gtk_menu_new();
 		video_codec_top = gtk_menu_item_new_with_label(_("Video Codec"));
@@ -238,7 +249,8 @@ GtkWidget *create_menu(int control_only)
 			vgroup = gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (item));
 			if (vcodec_ind == global->VidCodec)
 				gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (item), TRUE);
-
+			
+			gtk_widget_show (item);
 			gtk_menu_shell_append(GTK_MENU_SHELL(video_codec_menu), item);
 		}
 
@@ -256,7 +268,8 @@ GtkWidget *create_menu(int control_only)
 			agroup = gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (item));
 			if (acodec_ind == global->AudCodec)
 				gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (item), TRUE);
-
+			
+			gtk_widget_show (item);
 			gtk_menu_shell_append(GTK_MENU_SHELL(audio_codec_menu), item);
 		}
 
@@ -272,12 +285,17 @@ GtkWidget *create_menu(int control_only)
 		photo_file = gtk_menu_item_new_with_label(_("File"));
 		photo_timestamp = gtk_check_menu_item_new_with_label(_("Append timestamp"));
 
+		gtk_widget_show (photo_top);
+		gtk_widget_show (photo_file);
+		gtk_widget_show (photo_timestamp);
 		gtk_menu_item_set_submenu(GTK_MENU_ITEM(photo_top), photo_menu);
 		gtk_menu_shell_append(GTK_MENU_SHELL(photo_menu), photo_file);
 		gtk_menu_shell_append(GTK_MENU_SHELL(photo_menu), photo_timestamp);
 		gtk_menu_shell_append(GTK_MENU_SHELL(menubar), photo_top);
 	}
-
+	
+	gtk_widget_show (menubar);
+	gtk_container_set_resize_mode (GTK_CONTAINER(menubar), GTK_RESIZE_PARENT);
 	return menubar;
 }
 
@@ -575,19 +593,12 @@ int main(int argc, char *argv[])
 
     if(!(global->no_display))
     {
-		GtkWidget *maintable = gtk_paned_new(GTK_ORIENTATION_VERTICAL);
-		//gtk_grid_set_column_homogeneous (GTK_GRID(maintable), FALSE);
-		//gtk_widget_set_hexpand (maintable, TRUE);
-		//gtk_widget_set_halign (maintable, GTK_ALIGN_FILL);
+		gwidget->maintable = gtk_paned_new(GTK_ORIENTATION_VERTICAL);
 
-		//gtk_grid_set_row_spacing (GTK_GRID(maintable), 4);
-		//gtk_grid_set_column_spacing (GTK_GRID (maintable), 4);
-		//gtk_container_set_border_width (GTK_CONTAINER (maintable), 2);
-
-		gtk_widget_show (maintable);
+		gtk_widget_show (gwidget->maintable);
 
 		/** Attach the menu */
-		gtk_paned_add1(GTK_PANED(maintable), create_menu(control_only));
+		gtk_paned_pack1(GTK_PANED(gwidget->maintable), create_menu(control_only), TRUE, TRUE);
 
         s->control_list = NULL;
         /** draw the controls */
@@ -804,11 +815,18 @@ int main(int argc, char *argv[])
         g_signal_connect (GTK_BUTTON(DefaultsButton), "clicked",
             G_CALLBACK (DefaultsButton_clicked), &all_data);
 
-        /*sets the pan position (always leave enough space for the buttons)*/
+		gtk_paned_pack2(GTK_PANED(gwidget->maintable), gwidget->boxv, TRUE, TRUE);
+		
+        /*sets the pan position (always leave enough space for the buttons and menu)*/
         if((global->boxvsize <= 0) || (global->boxvsize > (global->winheight-122)))
         {
             global->boxvsize=global->winheight-122;
         }
+       
+		if(global->menu_height < 20)
+			global->menu_height = 20;
+			
+		gtk_paned_set_position (GTK_PANED(gwidget->maintable),global->menu_height);
         gtk_paned_set_position (GTK_PANED(gwidget->boxv),global->boxvsize);
 
         if(!control_only) /*control_only exclusion (video and Audio) */
@@ -820,11 +838,8 @@ int main(int argc, char *argv[])
             audio_tab (&all_data);
         } /*end of control_only exclusion*/
 
-
-		gtk_paned_add2(GTK_PANED(maintable), gwidget->boxv);
-
         /* main container */
-        gtk_container_add (GTK_CONTAINER (gwidget->mainwin), maintable);
+        gtk_container_add (GTK_CONTAINER (gwidget->mainwin), gwidget->maintable);
 
         gtk_widget_show (gwidget->mainwin);
 

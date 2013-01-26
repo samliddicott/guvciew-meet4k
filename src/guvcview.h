@@ -42,6 +42,7 @@ struct GWIDGET
 	/* A restart Dialog */
 	GtkWidget *restartdialog;
 	/*Paned containers*/
+	GtkWidget *maintable;
 	GtkWidget *boxv;
 	GtkWidget *boxh;
 
