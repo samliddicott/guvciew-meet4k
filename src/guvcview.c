@@ -238,6 +238,7 @@ GtkWidget *create_menu(int control_only)
 		//video codec submenu
 		video_codec_menu = gtk_menu_new();
 		video_codec_top = gtk_menu_item_new_with_label(_("Video Codec"));
+		gtk_widget_show (video_codec_top);
 		gtk_menu_item_set_submenu(GTK_MENU_ITEM(video_codec_top), video_codec_menu);
 		//Add codecs to submenu
 		GSList *vgroup = NULL;
@@ -257,6 +258,7 @@ GtkWidget *create_menu(int control_only)
 		//video codec submenu
 		audio_codec_menu = gtk_menu_new();
 		audio_codec_top = gtk_menu_item_new_with_label(_("Audio Codec"));
+		gtk_widget_show (audio_codec_top);
 		gtk_menu_item_set_submenu(GTK_MENU_ITEM(audio_codec_top), audio_codec_menu);
 		//Add codecs to submenu
 		GSList *agroup = NULL;
