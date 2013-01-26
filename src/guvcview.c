@@ -52,6 +52,7 @@
 #include "video.h"
 #include "lavc_common.h"
 #include "vcodecs.h"
+#include "acodecs.h"
 #include "create_video.h"
 #include "profile.h"
 #include "callbacks.h"
@@ -574,7 +575,7 @@ int main(int argc, char *argv[])
 
     if(!(global->no_display))
     {
-		GtkWidget *maintable = gtk_grid_new();
+		GtkWidget *maintable = gtk_paned_new(GTK_ORIENTATION_VERTICAL);
 		//gtk_grid_set_column_homogeneous (GTK_GRID(maintable), FALSE);
 		//gtk_widget_set_hexpand (maintable, TRUE);
 		//gtk_widget_set_halign (maintable, GTK_ALIGN_FILL);
@@ -586,7 +587,7 @@ int main(int argc, char *argv[])
 		gtk_widget_show (maintable);
 
 		/** Attach the menu */
-		gtk_grid_attach(GTK_GRID(maintable), create_menu(control_only), 0, 0, 1, 1);
+		gtk_paned_add1(GTK_PANED(maintable), create_menu(control_only));
 
         s->control_list = NULL;
         /** draw the controls */
@@ -820,7 +821,7 @@ int main(int argc, char *argv[])
         } /*end of control_only exclusion*/
 
 
-		gtk_grid_attach(GTK_GRID(maintable), gwidget->boxv, 0, 1, 1, 1);
+		gtk_paned_add2(GTK_PANED(maintable), gwidget->boxv);
 
         /* main container */
         gtk_container_add (GTK_CONTAINER (gwidget->mainwin), maintable);
