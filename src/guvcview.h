@@ -45,6 +45,11 @@ struct GWIDGET
 	GtkWidget *maintable;
 	GtkWidget *boxv;
 	GtkWidget *boxh;
+	
+	//group list for menu video codecs
+	GSList *vgroup;
+	//group list for menu audio codecs
+	GSList *agroup;
 
 	GtkWidget *VidCodec;
 	GtkWidget *label_SndAPI;

@@ -1015,6 +1015,38 @@ VidCodec_changed (GtkComboBox * VidCodec, struct ALL_DATA *all_data)
 	global = NULL;
 }
 
+/*video compression control callback*/
+void
+VidCodec_menu_changed (GtkRadioMenuItem *vcodec_item, struct ALL_DATA *all_data)
+{
+	
+	struct GLOBAL *global = all_data->global;
+	struct GWIDGET *gwidget = all_data->gwidget;
+
+	if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(vcodec_item)))
+	{
+		int num_vcodecs = setVcodecVal();
+		/*global->VidCodec*/ int index = g_slist_index (gwidget->vgroup, vcodec_item);
+		index = num_vcodecs - (index + 1); //reverse order and 0 indexed
+		fprintf(stderr,"DEBUG: video codec changed to %i\n", index);
+		
+		global->VidCodec = index;
+	}
+	
+	if( global->VidFormat == WEBM_FORMAT &&
+		get_vcodec_id(global->VidCodec) != CODEC_ID_VP8)
+	{
+		//change VidFormat to Matroska
+		fprintf(stderr, "WARN: webm can only use VP8 video codec (0x%x != 0x%x)\n", global->VidCodec, CODEC_ID_VP8);
+		fprintf(stderr, "      using matroska muxer instead\n");
+		global->VidFormat = MKV_FORMAT; // this is also set by the gwidget->VidFormat callback
+		gtk_combo_box_set_active (GTK_COMBO_BOX(gwidget->VidFormat), global->VidFormat);
+	}
+	//gtk_widget_set_sensitive (gwidget->lavc_button, isLavcCodec(global->VidCodec));
+
+	global = NULL;
+}
+
 /* sound enable check box callback */
 void
 SndEnable_changed (GtkToggleButton * toggle, struct ALL_DATA *all_data)

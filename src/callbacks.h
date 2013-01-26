@@ -130,6 +130,9 @@ void
 VidCodec_changed (GtkComboBox * VidCodec, struct ALL_DATA *all_data);
 
 void
+VidCodec_menu_changed (GtkRadioMenuItem *vcodec_item, struct ALL_DATA *all_data);
+
+void
 SndEnable_changed (GtkToggleButton * toggle, struct ALL_DATA *all_data);
 
 void

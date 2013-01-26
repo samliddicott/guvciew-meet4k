@@ -173,8 +173,11 @@ gboolean deliver_signal(GIOChannel *source, GIOCondition cond, gpointer data)
   return (TRUE);		/* keep the event source */
 }
 
-GtkWidget *create_menu(int control_only)
+GtkWidget *create_menu(struct ALL_DATA *all_data, int control_only)
 {
+	struct GLOBAL *global = all_data->global;
+	struct GWIDGET *gwidget = all_data->gwidget;
+	
 	GtkWidget *menubar;
 
 	GtkWidget *controls_menu;
@@ -241,18 +244,22 @@ GtkWidget *create_menu(int control_only)
 		gtk_widget_show (video_codec_top);
 		gtk_menu_item_set_submenu(GTK_MENU_ITEM(video_codec_top), video_codec_menu);
 		//Add codecs to submenu
-		GSList *vgroup = NULL;
+		gwidget->vgroup = NULL;
 		int num_vcodecs = setVcodecVal();
 		int vcodec_ind =0;
+		//add in reverse order so that index matches GList position
 		for (vcodec_ind =0; vcodec_ind < num_vcodecs; vcodec_ind++)
 		{
-			item = gtk_radio_menu_item_new_with_label(vgroup, gettext(get_desc4cc(vcodec_ind)));
-			vgroup = gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (item));
+			item = gtk_radio_menu_item_new_with_label(gwidget->vgroup, gettext(get_desc4cc(vcodec_ind)));
+			gwidget->vgroup = gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (item));
 			if (vcodec_ind == global->VidCodec)
 				gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (item), TRUE);
 			
 			gtk_widget_show (item);
 			gtk_menu_shell_append(GTK_MENU_SHELL(video_codec_menu), item);
+			
+			g_signal_connect (GTK_RADIO_MENU_ITEM(item), "toggled",
+                G_CALLBACK (VidCodec_menu_changed), all_data);
 		}
 
 		//video codec submenu
@@ -261,13 +268,13 @@ GtkWidget *create_menu(int control_only)
 		gtk_widget_show (audio_codec_top);
 		gtk_menu_item_set_submenu(GTK_MENU_ITEM(audio_codec_top), audio_codec_menu);
 		//Add codecs to submenu
-		GSList *agroup = NULL;
+		gwidget->agroup = NULL;
 		int num_acodecs = setAcodecVal();
 		int acodec_ind =0;
 		for (acodec_ind =0; acodec_ind < num_acodecs; acodec_ind++)
 		{
-			item = gtk_radio_menu_item_new_with_label(agroup, gettext(get_aud_desc4cc(acodec_ind)));
-			agroup = gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (item));
+			item = gtk_radio_menu_item_new_with_label(gwidget->agroup, gettext(get_aud_desc4cc(acodec_ind)));
+			gwidget->agroup = gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (item));
 			if (acodec_ind == global->AudCodec)
 				gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (item), TRUE);
 			
@@ -600,7 +607,7 @@ int main(int argc, char *argv[])
 		gtk_widget_show (gwidget->maintable);
 
 		/** Attach the menu */
-		gtk_paned_pack1(GTK_PANED(gwidget->maintable), create_menu(control_only), TRUE, TRUE);
+		gtk_paned_pack1(GTK_PANED(gwidget->maintable), create_menu(&all_data, control_only), TRUE, TRUE);
 
         s->control_list = NULL;
         /** draw the controls */
