@@ -89,28 +89,26 @@ check_video_type (char *filename)
 	int format=0;
 	char str_ext[5];
 	/*get the file extension*/
-	sscanf(filename,"%*[^.].%4s",str_ext);
+	GString * file_str = g_string_new(filename);
+	file_str = g_string_ascii_down(file_str);
 
-	GString * extension = g_string_new(str_ext);
-	extension = g_string_ascii_down(extension);
-	fprintf(stderr, "file %s has extension %s\n", filename, extension->str);
-
-	if(g_strcmp0("avi", extension->str) == 0)
+	if (g_str_has_suffix (file_str->str, ".avi"))
 	{
 		format = AVI_FORMAT;
 	}
-	else if (g_strcmp0("mvk", extension->str) == 0)
+	else if (g_str_has_suffix (file_str->str, ".mkv"))
 	{
 		format = MKV_FORMAT;
 	}
-	else if(g_strcmp0("webm", extension->str) == 0)
+	else if (g_str_has_suffix (file_str->str, ".webm"))
 	{
 		format = WEBM_FORMAT;
 	}
 	else
-		format = 0;
+		format = MKV_FORMAT;
 
-	g_string_free(extension, TRUE);
+	fprintf(stderr, "file %s has extension type %i\n", filename, format);
+	g_string_free(file_str, TRUE);
 	return (format);
 }
 

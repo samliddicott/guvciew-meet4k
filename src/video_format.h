@@ -40,6 +40,7 @@ typedef struct _vformats_data
 	const char *description;  //format description
 	const char *extension;    //format extension
 	const char *format_str;
+	const char *pattern;      //file filter pattern
 	int flags;                //lavf flags
 } vformats_data;
 
@@ -74,6 +75,7 @@ const char *get_vformat_extension(int codec_ind);
 
 const char *get_vformat_desc(int codec_ind);
 
+const char *get_vformat_pattern(int codec_ind);
 /**
 int init_FormatContext(void *data, int format);
 

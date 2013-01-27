@@ -43,6 +43,7 @@ static vformats_data listSupVFormats[] = //list of software supported formats
 		.description  = N_("AVI - avi format"),
 		.extension    = "avi",
 		.format_str   = "avi",
+		.pattern      ="*.avi",
 		.flags        = 0
 	},
 	{
@@ -51,6 +52,7 @@ static vformats_data listSupVFormats[] = //list of software supported formats
 		.description  = N_("MKV - Matroska format"),
 		.extension    = "mkv",
 		.format_str   = "mkv",
+		.pattern      = "*.mkv",
 		.flags        = 0
 	},
 	{
@@ -59,6 +61,7 @@ static vformats_data listSupVFormats[] = //list of software supported formats
 		.description  = N_("WEBM - format"),
 		.extension    = "webm",
 		.format_str   = "webm",
+		.pattern      = "*.webm",
 		.flags        = 0
 	}
 };
@@ -68,12 +71,10 @@ const char *get_vformat_extension(int codec_ind)
 	return (listSupVFormats[codec_ind].extension);
 }
 
-/*
-static const char *get_vformat_str(int codec_ind)
+const char *get_vformat_pattern(int codec_ind)
 {
-	return (listSupVFormats[codec_ind].format_str);
+	return (listSupVFormats[codec_ind].pattern);
 }
-*/
 
 const char *get_vformat_desc(int codec_ind)
 {

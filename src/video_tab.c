@@ -478,29 +478,29 @@ void video_tab(struct ALL_DATA *all_data)
 
 
 	//video container
-	line++;
-	gwidget->VidFormat = gtk_combo_box_text_new ();
-	gtk_widget_set_halign (gwidget->VidFormat, GTK_ALIGN_FILL);
-	gtk_widget_set_hexpand (gwidget->VidFormat, TRUE);
+	//line++;
+	//gwidget->VidFormat = gtk_combo_box_text_new ();
+	//gtk_widget_set_halign (gwidget->VidFormat, GTK_ALIGN_FILL);
+	//gtk_widget_set_hexpand (gwidget->VidFormat, TRUE);
 
-	int vformat_ind =0;
-	for (vformat_ind =0; vformat_ind<MAX_VFORMATS; vformat_ind++)
-		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(gwidget->VidFormat),gettext(get_vformat_desc(vformat_ind)));
+	//int vformat_ind =0;
+	//for (vformat_ind =0; vformat_ind<MAX_VFORMATS; vformat_ind++)
+	//	gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(gwidget->VidFormat),gettext(get_vformat_desc(vformat_ind)));
 
-	gtk_grid_attach (GTK_GRID(table2), gwidget->VidFormat, 1, line, 1 ,1);
-	gtk_widget_show (gwidget->VidFormat);
+	//gtk_grid_attach (GTK_GRID(table2), gwidget->VidFormat, 1, line, 1 ,1);
+	//gtk_widget_show (gwidget->VidFormat);
 
-	gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->VidFormat),global->VidFormat);
+	//gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->VidFormat),global->VidFormat);
 
-	gtk_widget_set_sensitive (gwidget->VidFormat, TRUE);
-	g_signal_connect (GTK_COMBO_BOX_TEXT(gwidget->VidFormat), "changed",
-		G_CALLBACK (VidFormat_changed), all_data);
+	//gtk_widget_set_sensitive (gwidget->VidFormat, TRUE);
+	//g_signal_connect (GTK_COMBO_BOX_TEXT(gwidget->VidFormat), "changed",
+	//	G_CALLBACK (VidFormat_changed), all_data);
 
-	label_VidFormat = gtk_label_new(_("Video Format:"));
-	gtk_misc_set_alignment (GTK_MISC (label_VidFormat), 1, 0.5);
+	//label_VidFormat = gtk_label_new(_("Video Format:"));
+	//gtk_misc_set_alignment (GTK_MISC (label_VidFormat), 1, 0.5);
 
-	gtk_grid_attach (GTK_GRID(table2), label_VidFormat, 0, line, 1, 1);
-	gtk_widget_show (label_VidFormat);
+	//gtk_grid_attach (GTK_GRID(table2), label_VidFormat, 0, line, 1, 1);
+	//gtk_widget_show (label_VidFormat);
 
 	gwidget->TakeVidByDefault =gtk_radio_button_new_with_label (gtk_radio_button_get_group (GTK_RADIO_BUTTON (gwidget->TakeImageByDefault)), _("Take Video by Default"));
 	gtk_grid_attach (GTK_GRID(table2), gwidget->TakeVidByDefault, 2, line, 1 ,1);

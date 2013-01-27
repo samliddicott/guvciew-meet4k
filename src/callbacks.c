@@ -226,35 +226,75 @@ ERR_DIALOG(const char *err_title, const char* err_msg, struct ALL_DATA *all_data
 	exit(1);
 };
 
+static void
+filename_update_extension (GtkComboBox *chooser, GtkWidget *file_dialog)
+{
+	int index = gtk_combo_box_get_active (chooser);
+	fprintf(stderr, "DEBUG: file filter changed to %i\n", index);
+	
+	gchar* filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER (file_dialog));
+	char *basename = g_path_get_basename(filename);
+	gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (file_dialog),
+			setVidExt(basename, index));
+	
+	GtkFileFilter *filter = gtk_file_filter_new();
+	gtk_file_filter_add_pattern(filter, get_vformat_pattern(index));
+	gtk_file_chooser_set_filter(GTK_FILE_CHOOSER (file_dialog), filter);
+	g_free(basename);
+	g_free(filename);
+}
+
 void
 file_chooser (GtkWidget * FileButt, struct ALL_DATA *all_data)
 {
 	struct GWIDGET *gwidget = all_data->gwidget;
 	struct GLOBAL *global = all_data->global;
 
-	gwidget->FileDialog = gtk_file_chooser_dialog_new (_("Save File"),
+	GtkWidget *FileDialog = gtk_file_chooser_dialog_new (_("Save File"),
 		GTK_WINDOW(gwidget->mainwin),
 		GTK_FILE_CHOOSER_ACTION_SAVE,
 		GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
 		GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
 		NULL);
-	gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (gwidget->FileDialog), TRUE);
-
+	gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (FileDialog), TRUE);
+	
+		    
 	int flag_vid = GPOINTER_TO_INT(g_object_get_data (G_OBJECT (FileButt), "file_butt"));
 	if(flag_vid)
 	{ /* video File chooser*/
+		/** add format file filters*/
+		GtkWidget *VidFormat = gtk_combo_box_text_new ();
+		gtk_widget_set_halign (VidFormat, GTK_ALIGN_FILL);
+		gtk_widget_set_hexpand (VidFormat, TRUE);
+
+		int vformat_ind =0;
+		for (vformat_ind =0; vformat_ind<MAX_VFORMATS; vformat_ind++)
+			gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(VidFormat),gettext(get_vformat_desc(vformat_ind)));
+			
+		gtk_combo_box_set_active(GTK_COMBO_BOX(VidFormat),global->VidFormat);
+		
+		GtkFileFilter *filter = gtk_file_filter_new();
+		gtk_file_filter_add_pattern(filter, get_vformat_pattern(global->VidFormat));
+		gtk_file_chooser_set_filter(GTK_FILE_CHOOSER (FileDialog), filter);
+		
+		gtk_file_chooser_set_extra_widget(GTK_FILE_CHOOSER (FileDialog), VidFormat);
+		
+		g_signal_connect (GTK_COMBO_BOX(VidFormat), "changed",
+			G_CALLBACK (filename_update_extension), FileDialog);
+			
 		const gchar *basename =  gtk_entry_get_text(GTK_ENTRY(gwidget->VidFNameEntry));
 
 		global->vidFPath=splitPath((gchar *) basename, global->vidFPath);
 
-		gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (gwidget->FileDialog),
+		gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (FileDialog),
 			global->vidFPath[1]);
-		gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (gwidget->FileDialog),
+		
+		gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (FileDialog),
 			global->vidFPath[0]);
 
-		if (gtk_dialog_run (GTK_DIALOG (gwidget->FileDialog)) == GTK_RESPONSE_ACCEPT)
+		if (gtk_dialog_run (GTK_DIALOG (FileDialog)) == GTK_RESPONSE_ACCEPT)
 		{
-			gchar *fullname = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (gwidget->FileDialog));
+			gchar *fullname = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (FileDialog));
 			global->vidFPath=splitPath(fullname, global->vidFPath);
 			g_free(fullname);
 			gtk_entry_set_text(GTK_ENTRY(gwidget->VidFNameEntry)," ");
@@ -262,7 +302,7 @@ file_chooser (GtkWidget * FileButt, struct ALL_DATA *all_data)
 			/*get the file type*/
 			global->VidFormat = check_video_type(global->vidFPath[0]);
 			/*set the file type*/
-			gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->VidFormat),global->VidFormat);
+			//gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->VidFormat),global->VidFormat);
 
 			if(global->vid_inc>0)
 			{
@@ -277,14 +317,14 @@ file_chooser (GtkWidget * FileButt, struct ALL_DATA *all_data)
 		const gchar *basename =  gtk_entry_get_text(GTK_ENTRY(gwidget->ImageFNameEntry));
 
 		global->imgFPath=splitPath((gchar *)basename, global->imgFPath);
-		gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (gwidget->FileDialog),
+		gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (FileDialog),
 			global->imgFPath[1]);
-		gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (gwidget->FileDialog),
+		gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (FileDialog),
 			global->imgFPath[0]);
 
-		if (gtk_dialog_run (GTK_DIALOG (gwidget->FileDialog)) == GTK_RESPONSE_ACCEPT)
+		if (gtk_dialog_run (GTK_DIALOG (FileDialog)) == GTK_RESPONSE_ACCEPT)
 		{
-			gchar *fullname = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (gwidget->FileDialog));
+			gchar *fullname = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (FileDialog));
 			global->imgFPath=splitPath(fullname, global->imgFPath);
 			g_free(fullname);
 			gtk_entry_set_text(GTK_ENTRY(gwidget->ImageFNameEntry)," ");
@@ -303,7 +343,7 @@ file_chooser (GtkWidget * FileButt, struct ALL_DATA *all_data)
 
 		}
 	}
-	gtk_widget_destroy (gwidget->FileDialog);
+	gtk_widget_destroy (FileDialog);
 }
 
 void
