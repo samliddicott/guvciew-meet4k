@@ -313,8 +313,45 @@ file_chooser (GtkWidget * FileButt, struct ALL_DATA *all_data)
 			gtk_entry_set_text(GTK_ENTRY(gwidget->VidFNameEntry),global->vidFPath[0]);
 			/*get the file type*/
 			global->VidFormat = check_video_type(global->vidFPath[0]);
-			/*set the file type*/
-			//gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->VidFormat),global->VidFormat);
+			/** check for webm and change codecs acordingly */
+			if(global->VidFormat == WEBM_FORMAT)
+			{
+				int vcodec_ind = get_list_vcodec_index(CODEC_ID_VP8);
+				int acodec_ind = get_list_acodec_index(CODEC_ID_VORBIS);
+				if(vcodec_ind >= 0 && acodec_ind >= 0)
+				{
+					if(global->AudCodec != acodec_ind)
+					{
+						fprintf(stderr, "WARN: changing audio codec ind (%i --> %i)\n", global->AudCodec, acodec_ind);
+						global->AudCodec = acodec_ind; //this is also set by the gwidget->SndComp calback
+						int index = g_slist_length (gwidget->agroup) - (global->AudCodec + 1); 
+						GtkWidget* codec_item = g_slist_nth_data (gwidget->agroup, index);
+						gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(codec_item), TRUE);
+						//gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->SndComp), global->AudCodec);
+					}
+					if(global->VidCodec != vcodec_ind)
+					{
+						fprintf(stderr, "WARN: changing video codec ind (%i --> %i)\n", global->VidCodec, vcodec_ind);
+						global->VidCodec = vcodec_ind;//this is also set by the gwidget->VidCodec calback
+						int index = g_slist_length (gwidget->vgroup) - (global->VidCodec + 1); 
+						GtkWidget* codec_item = g_slist_nth_data (gwidget->vgroup, index);
+						gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(codec_item), TRUE);
+						//gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->VidCodec), global->VidCodec);
+					}
+
+
+				}
+				else
+				{
+					fprintf(stderr, "ERROR: can't find webm codecs (VP8 , VORBIS)\n");
+					fprintf(stderr, "       using matroska muxer instead\n");
+					global->VidFormat = MKV_FORMAT;
+
+					g_signal_handlers_block_by_func(VidFormat, G_CALLBACK (VidFormat_changed), all_data);
+					gtk_combo_box_set_active (VidFormat, global->VidFormat);
+					g_signal_handlers_unblock_by_func(VidFormat, G_CALLBACK (VidFormat_changed), all_data);
+				}
+			}
 
 			if(global->vid_inc>0)
 			{
