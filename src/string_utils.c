@@ -51,33 +51,32 @@ int
 check_image_type (char *filename)
 {
 	int format=0;
-	char str_ext[3];
+	
 	/*get the file extension*/
-	sscanf(filename,"%*[^.].%3c",str_ext);
-	/* change image type */
-	int somExt = g_ascii_tolower(str_ext[0])*g_ascii_tolower(str_ext[1])+g_ascii_tolower(str_ext[2]);
-	switch (somExt)
+	GString * file_str = g_string_new(filename);
+	file_str = g_string_ascii_down(file_str);
+
+	if (g_str_has_suffix (file_str->str, ".jpg"))
 	{
-		case ('j'*'p'+'g'):
-			format=0;
-			break;
-
-		case ('b'*'m'+'p'):
-			format=1;
-			break;
-
-		case ('p'*'n'+'g'):
-			format=2;
-			break;
-
-		case ('r'*'a'+'w'):
-			format=3;
-		 	break;
-
-		default: /* use jpeg as default*/
-			format=0;
+		format = 0;
 	}
+	else if (g_str_has_suffix (file_str->str, ".bmp"))
+	{
+		format = 1;
+	}
+	else if (g_str_has_suffix (file_str->str, ".png"))
+	{
+		format = 2;
+	}
+	else if (g_str_has_suffix (file_str->str, ".raw"))
+	{
+		format = 3;
+	}
+	else
+		format = 0;
 
+	fprintf(stderr, "file %s has extension type %i\n", filename, format);
+	g_string_free(file_str, TRUE);
 	return (format);
 }
 
@@ -87,7 +86,6 @@ int
 check_video_type (char *filename)
 {
 	int format=0;
-	char str_ext[5];
 	/*get the file extension*/
 	GString * file_str = g_string_new(filename);
 	file_str = g_string_ascii_down(file_str);

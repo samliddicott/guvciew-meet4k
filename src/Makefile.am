@@ -50,6 +50,8 @@ guvcview_SOURCES = \
 	huffman.c \
 	img_controls.h \
 	img_controls.c \
+	image_format.h \
+	image_format.c\
 	io_stream.h \
 	io_stream.c \
 	jdatatype.h \
@@ -60,6 +62,8 @@ guvcview_SOURCES = \
 	matroska.h \
 	matroska.c \
 	marker.c \
+	menubar.h \
+	menubar.c \
 	ms_time.h \
 	ms_time.c \
 	options.h \
