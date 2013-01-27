@@ -43,6 +43,7 @@ struct GWIDGET
 	GtkWidget *restartdialog;
 	/*Paned containers*/
 	GtkWidget *maintable;
+	GtkWidget *secondtable;
 	GtkWidget *boxv;
 	GtkWidget *boxh;
 	
@@ -51,7 +52,8 @@ struct GWIDGET
 	//group list for menu audio codecs
 	GSList *agroup;
 
-	GtkWidget *VidCodec;
+	GtkWidget *status_bar;
+	
 	GtkWidget *label_SndAPI;
 	GtkWidget *SndAPI;
 	GtkWidget *SndEnable; 

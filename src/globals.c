@@ -138,7 +138,6 @@ int initGlobals (struct GLOBAL *global)
 	global->spinbehave=0;
 	global->default_action=0;
 	global->boxvsize=0;
-	global->menu_height = 30;
 	
 	global->mode = g_new(char, 6);
 	g_snprintf(global->mode, 5, "mjpg");

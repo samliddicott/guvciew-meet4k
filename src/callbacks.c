@@ -831,7 +831,7 @@ void
 set_sensitive_vid_contrls (const int flag, const int sndEnable, struct GWIDGET *gwidget)
 {
 	/* sound and video compression controls */
-	gtk_widget_set_sensitive (gwidget->VidCodec, flag);
+	//gtk_widget_set_sensitive (gwidget->VidCodec, flag);
 	gtk_widget_set_sensitive (gwidget->SndEnable, flag);
 	gtk_widget_set_sensitive (gwidget->VidInc, flag);
 	gtk_widget_set_sensitive (gwidget->VidFormat, flag);/*video format combobox*/

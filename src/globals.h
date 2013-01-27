@@ -122,8 +122,7 @@ struct GLOBAL
 	int height;            //frame height
 	int winwidth;          //control windoe width
 	int winheight;         //control window height
-	int boxvsize;          //size of vertical spliter
-	int menu_height;       //height of the menu           
+	int boxvsize;          //size of vertical spliter       
 	int spinbehave;        //spin: 0-non editable 1-editable
 	int format;            //v4l2 pixel format
 	int Frame_Flags;       //frame filter flags

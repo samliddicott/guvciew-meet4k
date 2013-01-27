@@ -468,12 +468,14 @@ int main(int argc, char *argv[])
 
     if(!(global->no_display))
     {
-		gwidget->maintable = gtk_paned_new(GTK_ORIENTATION_VERTICAL);
+		gwidget->maintable = gtk_box_new(GTK_ORIENTATION_VERTICAL, 2);
+		//gwidget->secondtable = gtk_paned_new(GTK_ORIENTATION_VERTICAL);
 
 		gtk_widget_show (gwidget->maintable);
+		//gtk_widget_show (gwidget->secondtable);
 
 		/** Attach the menu */
-		gtk_paned_pack1(GTK_PANED(gwidget->maintable), create_menu(&all_data, control_only), TRUE, TRUE);
+		gtk_box_pack_start(GTK_BOX(gwidget->maintable), create_menu(&all_data, control_only), FALSE, TRUE, 2);
 
         s->control_list = NULL;
         /** draw the controls */
@@ -690,18 +692,14 @@ int main(int argc, char *argv[])
         g_signal_connect (GTK_BUTTON(DefaultsButton), "clicked",
             G_CALLBACK (DefaultsButton_clicked), &all_data);
 
-		gtk_paned_pack2(GTK_PANED(gwidget->maintable), gwidget->boxv, TRUE, TRUE);
+		gtk_paned_pack2(GTK_PANED(gwidget->secondtable), gwidget->boxv, TRUE, TRUE);
 		
         /*sets the pan position (always leave enough space for the buttons and menu)*/
-        if((global->boxvsize <= 0) || (global->boxvsize > (global->winheight-122)))
+        if(global->boxvsize <= 100)
         {
-            global->boxvsize=global->winheight-122;
-        }
-       
-		if(global->menu_height < 20)
-			global->menu_height = 20;
-			
-		gtk_paned_set_position (GTK_PANED(gwidget->maintable),global->menu_height);
+            global->boxvsize=100;
+        }			
+		
         gtk_paned_set_position (GTK_PANED(gwidget->boxv),global->boxvsize);
 
         if(!control_only) /*control_only exclusion (video and Audio) */
@@ -712,7 +710,11 @@ int main(int argc, char *argv[])
             /*-------------------------- Audio Tab --------------------------------*/
             audio_tab (&all_data);
         } /*end of control_only exclusion*/
-
+        
+		gwidget->status_bar = gtk_statusbar_new();
+        gtk_widget_show(gwidget->status_bar);
+        gtk_box_pack_start(GTK_BOX(gwidget->maintable), gwidget->boxv, TRUE, TRUE, 4);
+        gtk_box_pack_start(GTK_BOX(gwidget->maintable), gwidget->status_bar, FALSE, FALSE, 2);
         /* main container */
         gtk_container_add (GTK_CONTAINER (gwidget->mainwin), gwidget->maintable);
 

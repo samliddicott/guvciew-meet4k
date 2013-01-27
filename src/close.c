@@ -137,7 +137,6 @@ shutd (gint restart, struct ALL_DATA *all_data)
     if(!global->no_display)
     {
 	    gtk_window_get_size(GTK_WINDOW(gwidget->mainwin),&(global->winwidth),&(global->winheight));//mainwin or widget
-	    global->menu_height=gtk_paned_get_position (GTK_PANED(gwidget->maintable));
 	    global->boxvsize=gtk_paned_get_position (GTK_PANED(gwidget->boxv));
 	}
 	/*save configuration*/
