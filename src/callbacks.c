@@ -294,10 +294,6 @@ file_chooser (GtkWidget * FileButt, struct ALL_DATA *all_data)
 		g_signal_connect (GTK_COMBO_BOX(VidFormat), "changed",
 			G_CALLBACK (filename_update_extension), FileDialog);
 
-		const gchar *basename =  gtk_entry_get_text(GTK_ENTRY(gwidget->VidFNameEntry));
-
-		global->vidFPath=splitPath((gchar *) basename, global->vidFPath);
-
 		gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (FileDialog),
 			global->vidFPath[1]);
 
@@ -361,9 +357,6 @@ file_chooser (GtkWidget * FileButt, struct ALL_DATA *all_data)
 	}
 	else
 	{	/* Image File chooser*/
-		const gchar *basename =  gtk_entry_get_text(GTK_ENTRY(gwidget->ImageFNameEntry));
-
-		global->imgFPath=splitPath((gchar *)basename, global->imgFPath);
 		gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (FileDialog),
 			global->imgFPath[1]);
 		gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (FileDialog),
@@ -1919,57 +1912,6 @@ Profile_clicked (GtkWidget *item, struct ALL_DATA *all_data)
 	//s = NULL;
 	global = NULL;
 	//videoIn = NULL;
-}
-
-/*called when avi max file size reached*/
-/* stops avi capture, increments avi file name, restart avi capture*/
-void *
-split_avi(void *data)
-{
-	struct ALL_DATA *all_data = (struct ALL_DATA *) data;
-	struct GLOBAL *global = all_data->global;
-	struct vdIn *videoIn = all_data->videoIn;
-	struct GWIDGET *gwidget = all_data->gwidget;
-
-
-    gdk_threads_enter();
-    /*make sure avi is in incremental mode*/
-    if(!global->vid_inc)
-    {
-        VidInc_changed(GTK_TOGGLE_BUTTON(gwidget->VidInc), all_data);
-        global->vid_inc=1; /*just in case*/
-    }
-
-    /*stops avi capture*/
-    if(!global->no_display)
-        gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(gwidget->CapVidButt), FALSE);
-    else
-        capture_vid(NULL, all_data);
-    //gtk_toggle_button_toggled (GTK_TOGGLE_BUTTON(gwidget->CapAVIButt));
-    gdk_flush ();
-    gdk_threads_leave();
-
-    /*FIXME: should join the caller thread instead (will it work?)*/
-    int stall = wait_ms(&(videoIn->IOfinished), TRUE, __VMUTEX, 10, 200);
-    if( !(stall > 0) )
-    {
-        g_printerr("IO thread stalled (%d) - timeout\n",
-            videoIn->IOfinished);
-    }
-    /*starts avi capture*/
-    gdk_threads_enter();
-    if(!global->no_display)
-        gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(gwidget->CapVidButt), TRUE);
-    else
-        capture_vid(NULL, all_data);
-
-    gdk_flush ();
-    gdk_threads_leave();
-    /*thread as finished*/
-
-	global=NULL;
-	gwidget = NULL;
-	return NULL;
 }
 
 void

@@ -525,7 +525,7 @@ int main(int argc, char *argv[])
 
 		gtk_widget_show(HButtonBox);
 
-        gtk_paned_add1(GTK_PANED(gwidget->boxv), HbuttonBox);
+        gtk_paned_add1(GTK_PANED(gwidget->boxv), HButtonBox);
 
         gwidget->quitButton=gtk_button_new_from_stock(GTK_STOCK_QUIT);
 
