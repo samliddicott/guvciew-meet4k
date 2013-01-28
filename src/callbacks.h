@@ -181,10 +181,10 @@ void
 TakeVidByDefault_clicked (GtkRadioButton * radio, struct ALL_DATA *all_data);
 
 void
-ProfileButton_clicked (GtkButton * SProfileButton, struct ALL_DATA *all_data);
+ProfileButton_clicked (GtkWidget * Button, struct ALL_DATA *all_data);
 
 void
-DefaultsButton_clicked (GtkButton * DefaultsButton, struct ALL_DATA *all_data);
+DefaultsButton_clicked (GtkWidget * Button, struct ALL_DATA *all_data);
 
 void *
 split_avi(void *data);

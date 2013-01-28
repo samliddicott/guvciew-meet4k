@@ -680,12 +680,10 @@ int main(int argc, char *argv[])
         g_signal_connect (GTK_BUTTON(gwidget->quitButton), "clicked",
             G_CALLBACK (quitButton_clicked), &all_data);
 
-        gboolean SProfile = TRUE;
-        g_object_set_data (G_OBJECT (SProfileButton), "profile_save", &(SProfile));
+        g_object_set_data (G_OBJECT (SProfileButton), "profile_save", GINT_TO_POINTER(1));
         g_signal_connect (GTK_BUTTON(SProfileButton), "clicked",
             G_CALLBACK (ProfileButton_clicked), &all_data);
-        gboolean LProfile = FALSE;
-        g_object_set_data (G_OBJECT (LProfileButton), "profile_save", &(LProfile));
+        g_object_set_data (G_OBJECT (LProfileButton), "profile_save",GINT_TO_POINTER(0));
         g_signal_connect (GTK_BUTTON(LProfileButton), "clicked",
             G_CALLBACK (ProfileButton_clicked), &all_data);
 

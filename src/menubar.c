@@ -69,6 +69,16 @@ GtkWidget *create_menu(struct ALL_DATA *all_data, int control_only)
 	gtk_widget_show (controls_save);
 	gtk_widget_show (controls_default);
 	
+	g_object_set_data (G_OBJECT (controls_save), "profile_save", GINT_TO_POINTER(1));
+	g_signal_connect (GTK_MENU_ITEM(controls_save), "activate",
+		G_CALLBACK (ProfileButton_clicked), all_data);
+	g_object_set_data (G_OBJECT (controls_load), "profile_save", GINT_TO_POINTER(0));
+	g_signal_connect (GTK_MENU_ITEM(controls_load), "activate",
+		G_CALLBACK (ProfileButton_clicked), all_data);
+	g_signal_connect (GTK_MENU_ITEM(controls_default), "activate",
+		G_CALLBACK (DefaultsButton_clicked), all_data);
+	
+	
 	gtk_menu_item_set_submenu(GTK_MENU_ITEM(controls_top), controls_menu);
 	gtk_menu_shell_append(GTK_MENU_SHELL(controls_menu), controls_load);
 	gtk_menu_shell_append(GTK_MENU_SHELL(controls_menu), controls_save);

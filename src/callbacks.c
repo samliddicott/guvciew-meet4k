@@ -2057,7 +2057,7 @@ TakeVidByDefault_clicked (GtkRadioButton * radio, struct ALL_DATA *all_data)
 
 /*--------------------- buttons callbacks ------------------*/
 void
-DefaultsButton_clicked (GtkButton * DefaultsButton, struct ALL_DATA *all_data)
+DefaultsButton_clicked (GtkWidget * Button, struct ALL_DATA *all_data)
 {
     struct VidState *s = all_data->s;
     struct vdIn *videoIn = all_data->videoIn;
@@ -2066,31 +2066,33 @@ DefaultsButton_clicked (GtkButton * DefaultsButton, struct ALL_DATA *all_data)
 }
 
 void
-ProfileButton_clicked (GtkButton * ProfileButton, struct ALL_DATA *all_data)
+ProfileButton_clicked (GtkWidget * Button, struct ALL_DATA *all_data)
 {
 	struct GWIDGET *gwidget = all_data->gwidget;
 	//struct VidState *s = all_data->s;
 	struct GLOBAL *global = all_data->global;
 	//struct vdIn *videoIn = all_data->videoIn;
-
-	gboolean *save = g_object_get_data (G_OBJECT (ProfileButton), "profile_save");
-	if(global->debug) g_print("Profile dialog (%d)\n",*save);
-	if (*save)
+	
+	GtkWidget *FileDialog;
+	
+	int save = GPOINTER_TO_INT(g_object_get_data (G_OBJECT (Button), "profile_save"));
+	if(global->debug) g_print("Profile dialog (%d)\n", save);
+	if (save > 0)
 	{
-		gwidget->FileDialog = gtk_file_chooser_dialog_new (_("Save File"),
+		FileDialog = gtk_file_chooser_dialog_new (_("Save File"),
 			GTK_WINDOW(gwidget->mainwin),
 			GTK_FILE_CHOOSER_ACTION_SAVE,
 			GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
 			GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
 			NULL);
-		gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (gwidget->FileDialog), TRUE);
+		gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (FileDialog), TRUE);
 
-		gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (gwidget->FileDialog),
+		gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (FileDialog),
 			global->profile_FPath[0]);
 	}
 	else
 	{
-		gwidget->FileDialog = gtk_file_chooser_dialog_new (_("Load File"),
+		FileDialog = gtk_file_chooser_dialog_new (_("Load File"),
 			GTK_WINDOW(gwidget->mainwin),
 			GTK_FILE_CHOOSER_ACTION_OPEN,
 			GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
@@ -2098,21 +2100,21 @@ ProfileButton_clicked (GtkButton * ProfileButton, struct ALL_DATA *all_data)
 			NULL);
 	}
 
-	gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (gwidget->FileDialog),
+	gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (FileDialog),
 		global->profile_FPath[1]);
 
-	if (gtk_dialog_run (GTK_DIALOG (gwidget->FileDialog)) == GTK_RESPONSE_ACCEPT)
+	if (gtk_dialog_run (GTK_DIALOG (FileDialog)) == GTK_RESPONSE_ACCEPT)
 	{
 		/*Save Controls Data*/
-		char *filename= gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (gwidget->FileDialog));
+		char *filename= gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (FileDialog));
 		global->profile_FPath=splitPath(filename,global->profile_FPath);
 
-		if(*save)
+		if(save > 0)
 			SaveControls(all_data);
 		else
 			LoadControls(all_data);
 	}
-	gtk_widget_destroy (gwidget->FileDialog);
+	gtk_widget_destroy (FileDialog);
 	gwidget = NULL;
 	//s = NULL;
 	global = NULL;
