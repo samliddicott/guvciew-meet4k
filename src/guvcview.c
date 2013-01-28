@@ -178,7 +178,6 @@ gboolean deliver_signal(GIOChannel *source, GIOCondition cond, gpointer data)
 int main(int argc, char *argv[])
 {
 	int ret=0;
-	int n=0; //button box labels column
 	gboolean control_only = FALSE;
 
 	/*
@@ -193,7 +192,7 @@ int main(int argc, char *argv[])
 	g_print("%s\n", PACKAGE_STRING);
 
 	g_type_init ();
-	gdk_threads_init();
+	//gdk_threads_init();
 
 #ifdef ENABLE_NLS
 	char* lc_all = setlocale (LC_ALL, "");
@@ -234,18 +233,11 @@ int main(int argc, char *argv[])
 
 	/* widgets */
 	GtkWidget *scroll1;
-	GtkWidget *profile_labels;
-	GtkWidget *capture_labels;
-	GtkWidget *SProfileButton;
-	GtkWidget *LProfileButton;
-    GtkWidget *DefaultsButton;
 	GtkWidget *Tab1;
 	GtkWidget *Tab1Label;
 	GtkWidget *Tab1Icon;
 	GtkWidget *ImgButton_Img;
-	GtkWidget *SButton_Img;
-	GtkWidget *LButton_Img;
-	GtkWidget *DButton_Img;
+	GtkWidget *VidButton_Img;
 	GtkWidget *QButton_Img;
 	GtkWidget *HButtonBox;
 
@@ -564,9 +556,9 @@ int main(int argc, char *argv[])
             gchar* pix1path = g_strconcat (PACKAGE_DATA_DIR,"/pixmaps/guvcview/movie.png",NULL);
             if (g_file_test(pix1path,G_FILE_TEST_EXISTS))
             {
-                gwidget->VidButton_Img = gtk_image_new_from_file (pix1path);
+                VidButton_Img = gtk_image_new_from_file (pix1path);
 
-                gtk_button_set_image(GTK_BUTTON(gwidget->CapVidButt),gwidget->VidButton_Img);
+                gtk_button_set_image(GTK_BUTTON(gwidget->CapVidButt),VidButton_Img);
                 gtk_button_set_image_position(GTK_BUTTON(gwidget->CapVidButt),GTK_POS_TOP);
                 //gtk_widget_show (gwidget->VidButton_Img);
             }
@@ -783,9 +775,9 @@ int main(int argc, char *argv[])
   	g_io_add_watch(g_signal_in, G_IO_IN | G_IO_PRI, deliver_signal, &all_data);
 
 	/* The last thing to get called (gtk loop)*/
-	gdk_threads_enter();
+	//gdk_threads_enter();
 	gtk_main();
-	gdk_threads_leave();
+	//gdk_threads_leave();
 
 	//closing portaudio
 	if(!control_only)

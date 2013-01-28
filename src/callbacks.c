@@ -305,8 +305,7 @@ file_chooser (GtkWidget * FileButt, struct ALL_DATA *all_data)
 			gchar *fullname = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (FileDialog));
 			global->vidFPath=splitPath(fullname, global->vidFPath);
 			g_free(fullname);
-			gtk_entry_set_text(GTK_ENTRY(gwidget->VidFNameEntry)," ");
-			gtk_entry_set_text(GTK_ENTRY(gwidget->VidFNameEntry),global->vidFPath[0]);
+			
 			/*get the file type*/
 			global->VidFormat = check_video_type(global->vidFPath[0]);
 			/** check for webm and change codecs acordingly */
@@ -388,8 +387,7 @@ file_chooser (GtkWidget * FileButt, struct ALL_DATA *all_data)
 			gchar *fullname = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (FileDialog));
 			global->imgFPath=splitPath(fullname, global->imgFPath);
 			g_free(fullname);
-			gtk_entry_set_text(GTK_ENTRY(gwidget->ImageFNameEntry)," ");
-			gtk_entry_set_text(GTK_ENTRY(gwidget->ImageFNameEntry),global->imgFPath[0]);
+			
 			/*get the file type*/
 			global->imgFormat = check_image_type(global->imgFPath[0]);
 			/*set the file type*/
@@ -834,24 +832,17 @@ delete_event (GtkWidget *widget, GdkEventConfigure *event, void *data)
 void
 set_sensitive_img_contrls (const int flag, struct GWIDGET *gwidget)
 {
-	gtk_widget_set_sensitive(gwidget->ImgFileButt, flag);/*image butt File chooser*/
-	gtk_widget_set_sensitive(gwidget->ImageType, flag);/*file type combo*/
-	gtk_widget_set_sensitive(gwidget->ImageFNameEntry, flag);/*Image Entry*/
-	gtk_widget_set_sensitive(gwidget->ImageInc, flag);/*image inc checkbox*/
-	gtk_widget_set_sensitive(gwidget->TakeImageByDefault, flag);/*default action radio*/
-	gtk_widget_set_sensitive(gwidget->TakeVidByDefault, flag);/*default action radio*/
+	gtk_widget_set_sensitive(gwidget->menu_photo_top, flag);/*image menu entry*/
 }
 
 /* sound controls*/
 void
 set_sensitive_snd_contrls (const int flag, struct GWIDGET *gwidget)
 {
+	gtk_widget_set_sensitive (gwidget->SndAPI, flag);
 	gtk_widget_set_sensitive (gwidget->SndSampleRate, flag);
 	gtk_widget_set_sensitive (gwidget->SndDevice, flag);
 	gtk_widget_set_sensitive (gwidget->SndNumChan, flag);
-	gtk_widget_set_sensitive (gwidget->SndComp, flag);
-	gtk_widget_set_sensitive(gwidget->TakeImageByDefault, flag);/*default action radio*/
-	gtk_widget_set_sensitive(gwidget->TakeVidByDefault, flag);/*default action radio*/
 }
 
 /*video controls*/
@@ -859,17 +850,12 @@ void
 set_sensitive_vid_contrls (const int flag, const int sndEnable, struct GWIDGET *gwidget)
 {
 	/* sound and video compression controls */
-	//gtk_widget_set_sensitive (gwidget->VidCodec, flag);
+	gtk_widget_set_sensitive(gwidget->menu_video_top, flag);/*video menu entry*/
 	gtk_widget_set_sensitive (gwidget->SndEnable, flag);
-	gtk_widget_set_sensitive (gwidget->VidInc, flag);
-	gtk_widget_set_sensitive (gwidget->VidFormat, flag);/*video format combobox*/
 	/* resolution and input format combos   */
 	gtk_widget_set_sensitive (gwidget->Resolution, flag);
 	gtk_widget_set_sensitive (gwidget->InpType, flag);
 	gtk_widget_set_sensitive (gwidget->FrameRate, flag);
-	/* Video File entry and open button     */
-	gtk_widget_set_sensitive (gwidget->VidFNameEntry, flag);
-	gtk_widget_set_sensitive (gwidget->VidFileButt, flag);
 
 	if(sndEnable > 0)
 	{
@@ -1490,8 +1476,8 @@ AudCodec_menu_changed (GtkRadioMenuItem *acodec_item, struct ALL_DATA *all_data)
 		//change VidFormat to Matroska
 		fprintf(stderr, "WARN: webm can only use VORBIS audio codec \n");
 		fprintf(stderr, "      using matroska muxer instead\n");
-		global->VidFormat = MKV_FORMAT; // this is also set by the gwidget->VidFormat callback
-		gtk_combo_box_set_active (GTK_COMBO_BOX(gwidget->VidFormat), global->VidFormat);
+		global->VidFormat = MKV_FORMAT;
+		//FIXME: change file extension if needed
 	}
 
 	global->Sound_Format = get_aud4cc(global->AudCodec);
@@ -1527,8 +1513,8 @@ VidCodec_menu_changed (GtkRadioMenuItem *vcodec_item, struct ALL_DATA *all_data)
 		//change VidFormat to Matroska
 		fprintf(stderr, "WARN: webm can only use VP8 video codec (0x%x != 0x%x)\n", global->VidCodec, CODEC_ID_VP8);
 		fprintf(stderr, "      using matroska muxer instead\n");
-		global->VidFormat = MKV_FORMAT; // this is also set by the gwidget->VidFormat callback
-		gtk_combo_box_set_active (GTK_COMBO_BOX(gwidget->VidFormat), global->VidFormat);
+		global->VidFormat = MKV_FORMAT;
+		//FIXME: change file extension if needed
 	}
 
 	global = NULL;
@@ -1598,7 +1584,7 @@ void osdChanged(GtkToggleButton * toggle, struct ALL_DATA *all_data)
 void
 image_prefix_toggled(GtkWidget * toggle, struct ALL_DATA *all_data)
 {
-	struct GWIDGET *gwidget = all_data->gwidget;
+	//struct GWIDGET *gwidget = all_data->gwidget;
 	struct GLOBAL *global = all_data->global;
 
 	global->image_inc = gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(toggle)) ? 1 : 0;
@@ -1606,7 +1592,6 @@ image_prefix_toggled(GtkWidget * toggle, struct ALL_DATA *all_data)
 	//g_snprintf(global->imageinc_str,24,_("File num:%d"),global->image_inc);
 	//gtk_label_set_text(GTK_LABEL(gwidget->ImageIncLabel), global->imageinc_str);
 
-	gwidget = NULL;
 	global = NULL;
 
 }
@@ -1614,7 +1599,7 @@ image_prefix_toggled(GtkWidget * toggle, struct ALL_DATA *all_data)
 void
 video_prefix_toggled(GtkWidget * toggle, struct ALL_DATA *all_data)
 {
-	struct GWIDGET *gwidget = all_data->gwidget;
+	//struct GWIDGET *gwidget = all_data->gwidget;
 	struct GLOBAL *global = all_data->global;
 
 	global->vid_inc = gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(toggle)) ? 1 : 0;
@@ -1622,7 +1607,6 @@ video_prefix_toggled(GtkWidget * toggle, struct ALL_DATA *all_data)
 	//g_snprintf(global->vidinc_str,24,_("File num:%d"),global->vid_inc);
 	//gtk_label_set_text(GTK_LABEL(gwidget->VidIncLabel), global->vidinc_str);
 
-	gwidget = NULL;
 	global = NULL;
 
 }
@@ -1708,7 +1692,7 @@ capture_vid (GtkToggleButton *VidButt, struct ALL_DATA *all_data)
 		gboolean capVid = videoIn->capVid;
 	__UNLOCK_MUTEX(__VMUTEX);
 
-    char *fileEntr = NULL;
+    //char *fileEntr = NULL;
     gboolean state=!capVid;
 
     if(!global->no_display)

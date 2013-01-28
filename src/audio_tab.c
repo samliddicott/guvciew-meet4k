@@ -46,7 +46,6 @@ void audio_tab(struct ALL_DATA *all_data)
 	GtkWidget *label_SndSampRate;
 	GtkWidget *label_SndDevice;
 	GtkWidget *label_SndNumChan;
-	GtkWidget *label_SndComp;
 	GtkWidget *label_audioFilters;
 	GtkWidget *table_snd_eff;
 	GtkWidget *EffEchoEnable;

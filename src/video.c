@@ -478,7 +478,7 @@ void *main_loop(void *data)
                     switch( event.key.keysym.scancode )
                     {
                         case 220: /*webcam button*/
-                            gdk_threads_enter();
+                            //gdk_threads_enter();
                            	if (all_data->global->default_action == 0)
                            	{
                            		gtk_button_clicked (GTK_BUTTON(gwidget->CapImageButt));
@@ -487,7 +487,7 @@ void *main_loop(void *data)
 							{
                             	gtk_toggle_button_toggled (GTK_TOGGLE_BUTTON(gwidget->CapVidButt));
                             }
-                            gdk_threads_leave();
+                            //gdk_threads_leave();
                             break;
                     }
                     switch( event.key.keysym.sym )

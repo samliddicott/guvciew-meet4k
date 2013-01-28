@@ -60,10 +60,10 @@ timer_callback(gpointer data)
     
     if(!global->no_display)
     {
-        gdk_threads_enter();
+        //gdk_threads_enter();
         gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(gwidget->CapVidButt), FALSE);
         gdk_flush();
-        gdk_threads_leave();
+        //gdk_threads_leave();
     }
     else
     {
@@ -98,12 +98,12 @@ Image_capture_timer(gpointer data)
         
     	if(!global->no_display)
     	{
-        	g_snprintf(global->imageinc_str,24,_("File num:%d"),global->image_inc);
+        	//g_snprintf(global->imageinc_str,24,_("File num:%d"),global->image_inc);
         
-        	gdk_threads_enter();
-            	gtk_label_set_text(GTK_LABEL(gwidget->ImageIncLabel), global->imageinc_str);
-            	gdk_flush();
-        	gdk_threads_leave();
+        	//gdk_threads_enter();
+            //gtk_label_set_text(GTK_LABEL(gwidget->ImageIncLabel), global->imageinc_str);
+            //gdk_flush();
+        	//gdk_threads_leave();
     	}
     
     	global->image_inc = global->image_picn;
@@ -117,11 +117,11 @@ Image_capture_timer(gpointer data)
     {   /*destroy timer*/
         if(!global->no_display)
         {
-            gdk_threads_enter();
+            //gdk_threads_enter();
             gtk_button_set_label(GTK_BUTTON(gwidget->CapImageButt),_("Cap. Image"));
             set_sensitive_img_contrls(TRUE, gwidget);/*enable image controls*/
             gdk_flush();
-            gdk_threads_leave();
+            //gdk_threads_leave();
         }
         global->image_timer=0;
         global->image_picn=0;
@@ -245,10 +245,10 @@ FreeDiskCheck_timer(gpointer data)
             if(global->debug) g_print("setting video toggle to FALSE\n");
             if(!global->no_display)
             {
-                gdk_threads_enter();
+                //gdk_threads_enter();
                 gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(gwidget->CapVidButt), FALSE);
                 gdk_flush();
-                gdk_threads_leave();
+                //gdk_threads_leave();
             }
             else
                 capture_vid(NULL, all_data);

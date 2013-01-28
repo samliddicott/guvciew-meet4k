@@ -122,7 +122,7 @@ GtkWidget *create_menu(struct ALL_DATA *all_data, int control_only)
 		GtkWidget *item = NULL;
 
 		GtkWidget *video_menu;
-		GtkWidget *video_top;
+		//GtkWidget *video_top;
 		GtkWidget *video_file;
 		GtkWidget *video_timestamp;
 		GtkWidget *video_codec_menu;
@@ -133,7 +133,7 @@ GtkWidget *create_menu(struct ALL_DATA *all_data, int control_only)
 		GtkWidget *audio_codec_prop;
 
 		GtkWidget *photo_menu;
-		GtkWidget *photo_top;
+		//GtkWidget *photo_top;
 		GtkWidget *photo_file;
 		GtkWidget *photo_timestamp;
 
@@ -141,11 +141,11 @@ GtkWidget *create_menu(struct ALL_DATA *all_data, int control_only)
 		photo_menu = gtk_menu_new();
 
 		//video menu
-		video_top = gtk_menu_item_new_with_label(_("Video"));
+		gwidget->menu_video_top = gtk_menu_item_new_with_label(_("Video"));
 		video_file = gtk_menu_item_new_with_label(_("File"));
 		video_timestamp = gtk_check_menu_item_new_with_label(_("Append timestamp"));
 
-		gtk_widget_show (video_top);
+		gtk_widget_show (gwidget->menu_video_top);
 		gtk_widget_show (video_file);
 		gtk_widget_show (video_timestamp);
 
@@ -217,21 +217,21 @@ GtkWidget *create_menu(struct ALL_DATA *all_data, int control_only)
 		g_signal_connect (GTK_MENU_ITEM(audio_codec_prop), "activate",
 			G_CALLBACK (lavc_audio_properties), all_data);
 
-		gtk_menu_item_set_submenu(GTK_MENU_ITEM(video_top), video_menu);
+		gtk_menu_item_set_submenu(GTK_MENU_ITEM(gwidget->menu_video_top), video_menu);
 		gtk_menu_shell_append(GTK_MENU_SHELL(video_menu), video_file);
 		gtk_menu_shell_append(GTK_MENU_SHELL(video_menu), video_timestamp);
 		gtk_menu_shell_append(GTK_MENU_SHELL(video_menu), video_codec_top);
 		gtk_menu_shell_append(GTK_MENU_SHELL(video_menu), video_codec_prop);
 		gtk_menu_shell_append(GTK_MENU_SHELL(video_menu), audio_codec_top);
 		gtk_menu_shell_append(GTK_MENU_SHELL(video_menu), audio_codec_prop);
-		gtk_menu_shell_append(GTK_MENU_SHELL(menubar), video_top);
+		gtk_menu_shell_append(GTK_MENU_SHELL(menubar), gwidget->menu_video_top);
 
 		//photo menu
-		photo_top = gtk_menu_item_new_with_label(_("Photo"));
+		gwidget->menu_photo_top = gtk_menu_item_new_with_label(_("Photo"));
 		photo_file = gtk_menu_item_new_with_label(_("File"));
 		photo_timestamp = gtk_check_menu_item_new_with_label(_("Append timestamp"));
 
-		gtk_widget_show (photo_top);
+		gtk_widget_show (gwidget->menu_photo_top);
 		gtk_widget_show (photo_file);
 		gtk_widget_show (photo_timestamp);
 
@@ -245,10 +245,10 @@ GtkWidget *create_menu(struct ALL_DATA *all_data, int control_only)
 		g_signal_connect (GTK_CHECK_MENU_ITEM(photo_timestamp), "toggled",
 			G_CALLBACK (image_prefix_toggled), all_data);
 
-		gtk_menu_item_set_submenu(GTK_MENU_ITEM(photo_top), photo_menu);
+		gtk_menu_item_set_submenu(GTK_MENU_ITEM(gwidget->menu_photo_top), photo_menu);
 		gtk_menu_shell_append(GTK_MENU_SHELL(photo_menu), photo_file);
 		gtk_menu_shell_append(GTK_MENU_SHELL(photo_menu), photo_timestamp);
-		gtk_menu_shell_append(GTK_MENU_SHELL(menubar), photo_top);
+		gtk_menu_shell_append(GTK_MENU_SHELL(menubar), gwidget->menu_photo_top);
 	}
 
 	gtk_widget_show (menubar);

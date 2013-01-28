@@ -50,6 +50,11 @@ struct GWIDGET
 	GSList *vgroup;
 	//group list for menu audio codecs
 	GSList *agroup;
+	
+	//menu top widgets
+	GtkWidget *menu_photo_top;
+	GtkWidget *menu_video_top;
+	
 
 	GtkWidget *status_bar;
 
@@ -61,31 +66,15 @@ struct GWIDGET
 	GtkWidget *SndNumChan;
 	GtkWidget *SndComp;
 	/*must be called from main loop if capture timer enabled*/
-	GtkWidget *ImageFNameEntry;
-	GtkWidget *ImgFileButt;
-	GtkWidget *VidFileButt;
 	GtkWidget *ImageType;
 	GtkWidget *CapImageButt;
-	GtkWidget *ImageInc;
-	GtkWidget *ImageIncLabel;
 	GtkWidget *CapVidButt;
-	GtkWidget *VidButton_Img;
-	GtkWidget *VidFNameEntry;
-	GtkWidget *VidIncLabel;
-	GtkWidget *VidInc;
-	GtkWidget *VidFormat;
 	GtkWidget *Resolution;
 	GtkWidget *InpType;
 	GtkWidget *FrameRate;
 	GtkWidget *Devices;
-	GtkWidget *FileDialog;
-	GtkWidget *lavc_button;
-	GtkWidget *lavc_aud_button;
 	GtkWidget *jpeg_comp;
 	GtkWidget *quitButton;
-
-	GtkWidget *TakeImageByDefault;
-	GtkWidget *TakeVidByDefault;
 
 	gboolean vid_widget_state;
 };

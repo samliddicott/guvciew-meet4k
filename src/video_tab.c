@@ -50,13 +50,6 @@ void video_tab(struct ALL_DATA *all_data)
 	GtkWidget *ShowFPS;
 	GtkWidget *labelResol;
 	GtkWidget *label_InpType;
-	GtkWidget *label_ImgFile;
-	GtkWidget *ImgFolder_img;
-	GtkWidget *label_ImageType;
-	GtkWidget *label_VidFile;
-	GtkWidget *label_VidFormat;
-	GtkWidget *VidFolder_img;
-	GtkWidget *label_VidCodec;
 	GtkWidget *label_videoFilters;
 	GtkWidget *table_filt;
 	GtkWidget *FiltMirrorEnable;
