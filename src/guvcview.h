@@ -35,7 +35,7 @@
 /* Must set this as global so they */
 /* can be set from any callback.   */
 
-struct GWIDGET 
+struct GWIDGET
 {
 	/* The main window*/
 	GtkWidget *mainwin;
@@ -43,20 +43,19 @@ struct GWIDGET
 	GtkWidget *restartdialog;
 	/*Paned containers*/
 	GtkWidget *maintable;
-	GtkWidget *secondtable;
 	GtkWidget *boxv;
 	GtkWidget *boxh;
-	
+
 	//group list for menu video codecs
 	GSList *vgroup;
 	//group list for menu audio codecs
 	GSList *agroup;
 
 	GtkWidget *status_bar;
-	
+
 	GtkWidget *label_SndAPI;
 	GtkWidget *SndAPI;
-	GtkWidget *SndEnable; 
+	GtkWidget *SndEnable;
 	GtkWidget *SndSampleRate;
 	GtkWidget *SndDevice;
 	GtkWidget *SndNumChan;
@@ -84,14 +83,14 @@ struct GWIDGET
 	GtkWidget *lavc_aud_button;
 	GtkWidget *jpeg_comp;
 	GtkWidget *quitButton;
-	
+
 	GtkWidget *TakeImageByDefault;
 	GtkWidget *TakeVidByDefault;
-	
+
 	gboolean vid_widget_state;
 };
 
-struct ALL_DATA 
+struct ALL_DATA
 {
 	struct paRecordData *pdata;
 	struct GLOBAL *global;

@@ -234,7 +234,6 @@ int main(int argc, char *argv[])
 
 	/* widgets */
 	GtkWidget *scroll1;
-	GtkWidget *buttons_table;
 	GtkWidget *profile_labels;
 	GtkWidget *capture_labels;
 	GtkWidget *SProfileButton;
@@ -518,43 +517,17 @@ int main(int argc, char *argv[])
         gtk_widget_show (gwidget->boxv);
 
         /*---------------------- Add  Buttons ---------------------------------*/
-        buttons_table = gtk_grid_new();
         HButtonBox = gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL);
         gtk_widget_set_halign (HButtonBox, GTK_ALIGN_FILL);
 		gtk_widget_set_hexpand (HButtonBox, TRUE);
         gtk_button_box_set_layout(GTK_BUTTON_BOX(HButtonBox),GTK_BUTTONBOX_SPREAD);
         gtk_box_set_homogeneous(GTK_BOX(HButtonBox),TRUE);
 
-        gtk_grid_set_row_spacing (GTK_GRID(buttons_table), 1);
-		gtk_grid_set_column_spacing (GTK_GRID (buttons_table), 4);
-        gtk_container_set_border_width (GTK_CONTAINER (buttons_table), 1);
+		gtk_widget_show(HButtonBox);
 
-        gtk_widget_show (buttons_table);
-        gtk_paned_add1(GTK_PANED(gwidget->boxv),buttons_table);
-
-        if(!control_only) /*control_only exclusion (video and Audio) */
-        {
-            capture_labels=gtk_label_new(_("Capture:"));
-            gtk_misc_set_alignment (GTK_MISC (capture_labels), 0.5, 0.5);
-            gtk_grid_attach(GTK_GRID(buttons_table), capture_labels, n, 0, 2 , 1);
-            gtk_widget_show (capture_labels);
-            n+=2; //increment column for labels
-        }//end of control only exclusion
-
-        profile_labels=gtk_label_new(_("Control Profiles:"));
-        gtk_misc_set_alignment (GTK_MISC (profile_labels), 0.5, 0.5);
-
-        gtk_grid_attach(GTK_GRID(buttons_table), profile_labels, n, 0, 2 , 1);
-        gtk_widget_show (profile_labels);
-
-        gtk_grid_attach(GTK_GRID(buttons_table), HButtonBox, 0, 1, 5, 1);
-
-        gtk_widget_show(HButtonBox);
+        gtk_paned_add1(GTK_PANED(gwidget->boxv), HbuttonBox);
 
         gwidget->quitButton=gtk_button_new_from_stock(GTK_STOCK_QUIT);
-        SProfileButton=gtk_button_new_from_stock(GTK_STOCK_SAVE);
-        LProfileButton=gtk_button_new_from_stock(GTK_STOCK_OPEN);
-        DefaultsButton=gtk_button_new_with_label(_("Defaults"));
 
         gchar* icon1path = g_strconcat (PACKAGE_DATA_DIR,"/pixmaps/guvcview/guvcview.png",NULL);
         if (g_file_test(icon1path,G_FILE_TEST_EXISTS))
@@ -624,37 +597,10 @@ int main(int argc, char *argv[])
             g_signal_connect (GTK_WINDOW(gwidget->mainwin), "key_press_event", G_CALLBACK(key_pressed), &all_data);
         }/*end of control_only exclusion*/
 
-        gchar* pix3path = g_strconcat (PACKAGE_DATA_DIR,"/pixmaps/guvcview/save.png",NULL);
+        gchar* pix3path = g_strconcat (PACKAGE_DATA_DIR,"/pixmaps/guvcview/close.png",NULL);
         if (g_file_test(pix3path,G_FILE_TEST_EXISTS))
         {
-            SButton_Img = gtk_image_new_from_file (pix3path);
-
-            gtk_button_set_image(GTK_BUTTON(SProfileButton),SButton_Img);
-            gtk_button_set_image_position(GTK_BUTTON(SProfileButton),GTK_POS_TOP);
-            //gtk_widget_show (SButton_Img);
-        }
-        gchar* pix4path = g_strconcat (PACKAGE_DATA_DIR,"/pixmaps/guvcview/controls_folder.png",NULL);
-        if (g_file_test(pix4path,G_FILE_TEST_EXISTS))
-        {
-            LButton_Img = gtk_image_new_from_file (pix4path);
-
-            gtk_button_set_image(GTK_BUTTON(LProfileButton),LButton_Img);
-            gtk_button_set_image_position(GTK_BUTTON(LProfileButton),GTK_POS_TOP);
-            //gtk_widget_show (LButton_Img);
-        }
-        gchar* pix5path = g_strconcat (PACKAGE_DATA_DIR,"/pixmaps/guvcview/defaults.png",NULL);
-        if (g_file_test(pix5path,G_FILE_TEST_EXISTS))
-        {
-            DButton_Img = gtk_image_new_from_file (pix5path);
-
-            gtk_button_set_image(GTK_BUTTON(DefaultsButton),DButton_Img);
-            gtk_button_set_image_position(GTK_BUTTON(DefaultsButton),GTK_POS_TOP);
-            //gtk_widget_show (LButton_Img);
-        }
-        gchar* pix6path = g_strconcat (PACKAGE_DATA_DIR,"/pixmaps/guvcview/close.png",NULL);
-        if (g_file_test(pix6path,G_FILE_TEST_EXISTS))
-        {
-            QButton_Img = gtk_image_new_from_file (pix6path);
+            QButton_Img = gtk_image_new_from_file (pix3path);
 
             gtk_button_set_image(GTK_BUTTON(gwidget->quitButton),QButton_Img);
             gtk_button_set_image_position(GTK_BUTTON(gwidget->quitButton),GTK_POS_TOP);
@@ -663,41 +609,20 @@ int main(int argc, char *argv[])
 
         /*must free path strings*/
         g_free(pix3path);
-        g_free(pix4path);
-        g_free(pix5path);
-        g_free(pix6path);
 
-        gtk_box_pack_start(GTK_BOX(HButtonBox),SProfileButton,TRUE,TRUE,2);
-        gtk_box_pack_start(GTK_BOX(HButtonBox),LProfileButton,TRUE,TRUE,2);
-        gtk_box_pack_start(GTK_BOX(HButtonBox),DefaultsButton,TRUE,TRUE,2);
         gtk_box_pack_start(GTK_BOX(HButtonBox),gwidget->quitButton,TRUE,TRUE,2);
 
-        gtk_widget_show_all (LProfileButton);
-        gtk_widget_show_all (SProfileButton);
-        gtk_widget_show_all (DefaultsButton);
         gtk_widget_show_all (gwidget->quitButton);
 
         g_signal_connect (GTK_BUTTON(gwidget->quitButton), "clicked",
             G_CALLBACK (quitButton_clicked), &all_data);
 
-        g_object_set_data (G_OBJECT (SProfileButton), "profile_save", GINT_TO_POINTER(1));
-        g_signal_connect (GTK_BUTTON(SProfileButton), "clicked",
-            G_CALLBACK (ProfileButton_clicked), &all_data);
-        g_object_set_data (G_OBJECT (LProfileButton), "profile_save",GINT_TO_POINTER(0));
-        g_signal_connect (GTK_BUTTON(LProfileButton), "clicked",
-            G_CALLBACK (ProfileButton_clicked), &all_data);
-
-        g_signal_connect (GTK_BUTTON(DefaultsButton), "clicked",
-            G_CALLBACK (DefaultsButton_clicked), &all_data);
-
-		gtk_paned_pack2(GTK_PANED(gwidget->secondtable), gwidget->boxv, TRUE, TRUE);
-		
         /*sets the pan position (always leave enough space for the buttons and menu)*/
         if(global->boxvsize <= 100)
         {
             global->boxvsize=100;
-        }			
-		
+        }
+
         gtk_paned_set_position (GTK_PANED(gwidget->boxv),global->boxvsize);
 
         if(!control_only) /*control_only exclusion (video and Audio) */
@@ -708,7 +633,7 @@ int main(int argc, char *argv[])
             /*-------------------------- Audio Tab --------------------------------*/
             audio_tab (&all_data);
         } /*end of control_only exclusion*/
-        
+
 		gwidget->status_bar = gtk_statusbar_new();
         gtk_widget_show(gwidget->status_bar);
         gtk_box_pack_start(GTK_BOX(gwidget->maintable), gwidget->boxv, TRUE, TRUE, 4);

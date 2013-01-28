@@ -232,10 +232,10 @@ filename_update_extension (GtkComboBox *chooser, GtkWidget *file_dialog)
 {
 	int index = gtk_combo_box_get_active (chooser);
 	fprintf(stderr, "DEBUG: file filter changed to %i\n", index);
-	
+
 	gchar* filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER (file_dialog));
 	char *basename = g_path_get_basename(filename);
-	
+
 	GtkFileFilter *filter = gtk_file_filter_new();
 	int flag_vid = GPOINTER_TO_INT(g_object_get_data (G_OBJECT (chooser), "format_combo"));
 	if(flag_vid)
@@ -249,7 +249,7 @@ filename_update_extension (GtkComboBox *chooser, GtkWidget *file_dialog)
 		gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (file_dialog),
 			setImgExt(basename, index));
 		gtk_file_filter_add_pattern(filter, get_iformat_pattern(index));
-	}	
+	}
 	gtk_file_chooser_set_filter(GTK_FILE_CHOOSER (file_dialog), filter);
 	g_free(basename);
 	g_free(filename);
@@ -268,8 +268,8 @@ file_chooser (GtkWidget * FileButt, struct ALL_DATA *all_data)
 		GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
 		NULL);
 	gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (FileDialog), TRUE);
-	
-		    
+
+
 	int flag_vid = GPOINTER_TO_INT(g_object_get_data (G_OBJECT (FileButt), "file_butt"));
 	if(flag_vid)
 	{ /* video File chooser*/
@@ -281,26 +281,26 @@ file_chooser (GtkWidget * FileButt, struct ALL_DATA *all_data)
 		int vformat_ind =0;
 		for (vformat_ind =0; vformat_ind<MAX_VFORMATS; vformat_ind++)
 			gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(VidFormat),gettext(get_vformat_desc(vformat_ind)));
-			
+
 		gtk_combo_box_set_active(GTK_COMBO_BOX(VidFormat),global->VidFormat);
-		
+
 		GtkFileFilter *filter = gtk_file_filter_new();
 		gtk_file_filter_add_pattern(filter, get_vformat_pattern(global->VidFormat));
 		gtk_file_chooser_set_filter(GTK_FILE_CHOOSER (FileDialog), filter);
-		
+
 		gtk_file_chooser_set_extra_widget(GTK_FILE_CHOOSER (FileDialog), VidFormat);
-		
+
 		g_object_set_data (G_OBJECT (VidFormat), "format_combo", GINT_TO_POINTER(1));
 		g_signal_connect (GTK_COMBO_BOX(VidFormat), "changed",
 			G_CALLBACK (filename_update_extension), FileDialog);
-			
+
 		const gchar *basename =  gtk_entry_get_text(GTK_ENTRY(gwidget->VidFNameEntry));
 
 		global->vidFPath=splitPath((gchar *) basename, global->vidFPath);
 
 		gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (FileDialog),
 			global->vidFPath[1]);
-		
+
 		gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (FileDialog),
 			global->vidFPath[0]);
 
@@ -324,7 +324,7 @@ file_chooser (GtkWidget * FileButt, struct ALL_DATA *all_data)
 					{
 						fprintf(stderr, "WARN: changing audio codec ind (%i --> %i)\n", global->AudCodec, acodec_ind);
 						global->AudCodec = acodec_ind; //this is also set by the gwidget->SndComp calback
-						int index = g_slist_length (gwidget->agroup) - (global->AudCodec + 1); 
+						int index = g_slist_length (gwidget->agroup) - (global->AudCodec + 1);
 						GtkWidget* codec_item = g_slist_nth_data (gwidget->agroup, index);
 						gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(codec_item), TRUE);
 						//gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->SndComp), global->AudCodec);
@@ -333,7 +333,7 @@ file_chooser (GtkWidget * FileButt, struct ALL_DATA *all_data)
 					{
 						fprintf(stderr, "WARN: changing video codec ind (%i --> %i)\n", global->VidCodec, vcodec_ind);
 						global->VidCodec = vcodec_ind;//this is also set by the gwidget->VidCodec calback
-						int index = g_slist_length (gwidget->vgroup) - (global->VidCodec + 1); 
+						int index = g_slist_length (gwidget->vgroup) - (global->VidCodec + 1);
 						GtkWidget* codec_item = g_slist_nth_data (gwidget->vgroup, index);
 						gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(codec_item), TRUE);
 						//gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->VidCodec), global->VidCodec);
@@ -347,17 +347,15 @@ file_chooser (GtkWidget * FileButt, struct ALL_DATA *all_data)
 					fprintf(stderr, "       using matroska muxer instead\n");
 					global->VidFormat = MKV_FORMAT;
 
-					g_signal_handlers_block_by_func(VidFormat, G_CALLBACK (VidFormat_changed), all_data);
 					gtk_combo_box_set_active (GTK_COMBO_BOX(VidFormat), global->VidFormat);
-					g_signal_handlers_unblock_by_func(VidFormat, G_CALLBACK (VidFormat_changed), all_data);
 				}
 			}
 
 			if(global->vid_inc>0)
 			{
 				global->vid_inc=1; /*if auto naming restart counter*/
-				g_snprintf(global->vidinc_str,24,_("File num:%d"),global->vid_inc);
-				gtk_label_set_text(GTK_LABEL(gwidget->VidIncLabel), global->vidinc_str);
+				//g_snprintf(global->vidinc_str,24,_("File num:%d"),global->vid_inc);
+				//gtk_label_set_text(GTK_LABEL(gwidget->VidIncLabel), global->vidinc_str);
 			}
 		}
 	}
@@ -370,7 +368,7 @@ file_chooser (GtkWidget * FileButt, struct ALL_DATA *all_data)
 			global->imgFPath[1]);
 		gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (FileDialog),
 			global->imgFPath[0]);
-			
+
 		/** add format file filters*/
 		GtkWidget *ImgFormat = gtk_combo_box_text_new ();
 		gtk_widget_set_halign (ImgFormat, GTK_ALIGN_FILL);
@@ -379,15 +377,15 @@ file_chooser (GtkWidget * FileButt, struct ALL_DATA *all_data)
 		int iformat_ind =0;
 		for (iformat_ind =0; iformat_ind<MAX_IFORMATS; iformat_ind++)
 			gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(ImgFormat),gettext(get_iformat_desc(iformat_ind)));
-			
+
 		gtk_combo_box_set_active(GTK_COMBO_BOX(ImgFormat),global->imgFormat);
-		
+
 		GtkFileFilter *filter = gtk_file_filter_new();
 		gtk_file_filter_add_pattern(filter, get_iformat_pattern(global->imgFormat));
 		gtk_file_chooser_set_filter(GTK_FILE_CHOOSER (FileDialog), filter);
-		
+
 		gtk_file_chooser_set_extra_widget(GTK_FILE_CHOOSER (FileDialog), ImgFormat);
-		
+
 		g_object_set_data (G_OBJECT (ImgFormat), "format_combo", GINT_TO_POINTER(0));
 		g_signal_connect (GTK_COMBO_BOX(ImgFormat), "changed",
 			G_CALLBACK (filename_update_extension), FileDialog);
@@ -407,8 +405,8 @@ file_chooser (GtkWidget * FileButt, struct ALL_DATA *all_data)
 			if(global->image_inc>0)
 			{
 				global->image_inc=1; /*if auto naming restart counter*/
-				g_snprintf(global->imageinc_str,24,_("File num:%d"),global->image_inc);
-				gtk_label_set_text(GTK_LABEL(gwidget->ImageIncLabel), global->imageinc_str);
+				//g_snprintf(global->imageinc_str,24,_("File num:%d"),global->image_inc);
+				//gtk_label_set_text(GTK_LABEL(gwidget->ImageIncLabel), global->imageinc_str);
 			}
 
 		}
@@ -424,7 +422,7 @@ lavc_properties(GtkMenuItem * codec_prop, struct ALL_DATA *all_data)
 
 	int line = 0;
 	vcodecs_data *codec_defaults = get_codec_defaults(global->VidCodec);
-	
+
 	if (!(codec_defaults->avcodec)) return;
 
 	GtkWidget *codec_dialog = gtk_dialog_new_with_buttons (_("codec values"),
@@ -1180,78 +1178,6 @@ button_PanTilt2_clicked (GtkButton * Button, struct ALL_DATA *all_data)
     set_ctrl(videoIn->fd, s->control_list, id);
 }
 
-/*video format control callback*/
-void
-VidFormat_changed (GtkComboBox * VidFormat, struct ALL_DATA *all_data)
-{
-	struct GWIDGET *gwidget = all_data->gwidget;
-	struct GLOBAL *global = all_data->global;
-
-	const char *filename;
-	global->VidFormat = gtk_combo_box_get_active (VidFormat);
-	//if webm then set video codec to VP8 and audio to Vorbis
-	if(global->VidFormat == WEBM_FORMAT)
-	{
-		int vcodec_ind = get_list_vcodec_index(CODEC_ID_VP8);
-		int acodec_ind = get_list_acodec_index(CODEC_ID_VORBIS);
-		if(vcodec_ind >= 0 && acodec_ind >= 0)
-		{
-			if(global->AudCodec != acodec_ind)
-			{
-				fprintf(stderr, "WARN: changing audio codec ind (%i --> %i)\n", global->AudCodec, acodec_ind);
-				global->AudCodec = acodec_ind; //this is also set by the gwidget->SndComp calback
-				int index = g_slist_length (gwidget->agroup) - (global->AudCodec + 1); 
-				GtkWidget* codec_item = g_slist_nth_data (gwidget->agroup, index);
-				gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(codec_item), TRUE);
-				//gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->SndComp), global->AudCodec);
-			}
-			if(global->VidCodec != vcodec_ind)
-			{
-				fprintf(stderr, "WARN: changing video codec ind (%i --> %i)\n", global->VidCodec, vcodec_ind);
-				global->VidCodec = vcodec_ind;//this is also set by the gwidget->VidCodec calback
-				int index = g_slist_length (gwidget->vgroup) - (global->VidCodec + 1); 
-				GtkWidget* codec_item = g_slist_nth_data (gwidget->vgroup, index);
-				gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(codec_item), TRUE);
-				//gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->VidCodec), global->VidCodec);
-			}
-
-
-		}
-		else
-		{
-			fprintf(stderr, "ERROR: can't find webm codecs (VP8 , VORBIS)\n");
-			fprintf(stderr, "       using matroska muxer instead\n");
-			global->VidFormat = MKV_FORMAT;
-
-			g_signal_handlers_block_by_func(VidFormat, G_CALLBACK (VidFormat_changed), all_data);
-			gtk_combo_box_set_active (VidFormat, global->VidFormat);
-			g_signal_handlers_unblock_by_func(VidFormat, G_CALLBACK (VidFormat_changed), all_data);
-		}
-	}
-
-	filename = gtk_entry_get_text(GTK_ENTRY(gwidget->VidFNameEntry));
-
-	if(g_strcmp0(filename,global->vidFPath[0])!=0)
-	{
-		global->vidFPath=splitPath((char *)filename, global->vidFPath);
-	}
-
-	global->vidFPath[0] = setVidExt(global->vidFPath[0], global->VidFormat);
-
-	gtk_entry_set_text(GTK_ENTRY(gwidget->VidFNameEntry)," ");
-	gtk_entry_set_text(GTK_ENTRY(gwidget->VidFNameEntry), global->vidFPath[0]);
-
-	if(global->vid_inc>0)
-	{
-		global->vid_inc=1; /*if auto naming restart counter*/
-	}
-	g_snprintf(global->vidinc_str,24,_("File num:%d"),global->vid_inc);
-	gtk_label_set_text(GTK_LABEL(gwidget->VidIncLabel), global->vidinc_str);
-
-	gwidget = NULL;
-	global = NULL;
-}
-
 /* set focus (for focus motor cameras ex: Logitech Orbit/Sphere and 9000 pro) */
 void
 setfocus_clicked (GtkButton * FocusButton, struct ALL_DATA *all_data)
@@ -1502,38 +1428,6 @@ SndSampleRate_changed (GtkComboBox * SampleRate, struct ALL_DATA *all_data)
 	global = NULL;
 }
 
-/*image type control callback*/
-void
-ImageType_changed (GtkComboBox * ImageType, struct ALL_DATA *all_data)
-{
-	struct GWIDGET *gwidget = all_data->gwidget;
-	struct GLOBAL *global = all_data->global;
-
-	const char *filename;
-	global->imgFormat=gtk_combo_box_get_active (ImageType);
-	filename=gtk_entry_get_text(GTK_ENTRY(gwidget->ImageFNameEntry));
-
-	if(g_strcmp0(filename,global->imgFPath[0])!=0)
-	{
-		global->imgFPath=splitPath((char *)filename, global->imgFPath);
-	}
-
-	global->imgFPath[0] = setImgExt(global->imgFPath[0], global->imgFormat);
-
-	gtk_entry_set_text(GTK_ENTRY(gwidget->ImageFNameEntry)," ");
-	gtk_entry_set_text(GTK_ENTRY(gwidget->ImageFNameEntry),global->imgFPath[0]);
-
-	if(global->image_inc>0)
-	{
-		global->image_inc=1; /*if auto naming restart counter*/
-	}
-	g_snprintf(global->imageinc_str,24,_("File num:%d"),global->image_inc);
-	gtk_label_set_text(GTK_LABEL(gwidget->ImageIncLabel), global->imageinc_str);
-
-	gwidget = NULL;
-	global = NULL;
-}
-
 /*Audio API control callback*/
 void
 SndAPI_changed (GtkComboBox * SoundAPI, struct ALL_DATA *all_data)
@@ -1575,40 +1469,17 @@ SndNumChan_changed (GtkComboBox * SoundChan, struct ALL_DATA *all_data)
 	global = NULL;
 }
 
-/*sound Format callback*/
-//void
-//SndComp_changed (GtkComboBox * SoundComp, struct ALL_DATA *all_data)
-//{
-//	struct GLOBAL *global = all_data->global;
-//	struct GWIDGET *gwidget = all_data->gwidget;
-
-//	global->AudCodec = gtk_combo_box_get_active (SoundComp);
-//	if( global->VidFormat == WEBM_FORMAT &&
-//		get_acodec_id(global->AudCodec) != CODEC_ID_VORBIS)
-//	{
-		/**change VidFormat to Matroska*/
-//		fprintf(stderr, "WARN: webm can only use VORBIS audio codec \n");
-//		fprintf(stderr, "      using matroska muxer instead\n");
-//		global->VidFormat = MKV_FORMAT; // this is also set by the gwidget->VidFormat callback
-//		gtk_combo_box_set_active (GTK_COMBO_BOX(gwidget->VidFormat), global->VidFormat);
-//	}
-
-//	global->Sound_Format = get_aud4cc(global->AudCodec);
-
-//	global = NULL;
-//}
-
 /*audio compression control callback*/
 void
 AudCodec_menu_changed (GtkRadioMenuItem *acodec_item, struct ALL_DATA *all_data)
 {
-	
+
 	struct GLOBAL *global = all_data->global;
 	struct GWIDGET *gwidget = all_data->gwidget;
 
 	if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(acodec_item)))
 	{
-		/**GSList indexes (g_slist_index) are in reverse order: 
+		/**GSList indexes (g_slist_index) are in reverse order:
 		 * last inserted has index 0
 		 * so count backwards
 		 */
@@ -1616,10 +1487,10 @@ AudCodec_menu_changed (GtkRadioMenuItem *acodec_item, struct ALL_DATA *all_data)
 		int index = g_slist_index (gwidget->agroup, acodec_item);
 		index = num_acodecs - (index + 1); //reverse order and 0 indexed
 		fprintf(stderr,"DEBUG: audio codec changed to %i\n", index);
-		
+
 		global->AudCodec = index;
 	}
-	
+
 	if( global->VidFormat == WEBM_FORMAT &&
 		get_acodec_id(global->AudCodec) != CODEC_ID_VORBIS)
 	{
@@ -1636,37 +1507,16 @@ AudCodec_menu_changed (GtkRadioMenuItem *acodec_item, struct ALL_DATA *all_data)
 }
 
 /*video compression control callback*/
-//void
-//VidCodec_changed (GtkComboBox * VidCodec, struct ALL_DATA *all_data)
-//{
-//	struct GLOBAL *global = all_data->global;
-//	struct GWIDGET *gwidget = all_data->gwidget;
-//
-//	global->VidCodec = gtk_combo_box_get_active (VidCodec);
-//	if( global->VidFormat == WEBM_FORMAT &&
-//		get_vcodec_id(global->VidCodec) != CODEC_ID_VP8)
-//	{
-		/**change VidFormat to Matroska*/
-//		fprintf(stderr, "WARN: webm can only use VP8 video codec (0x%x != 0x%x)\n", global->VidCodec, CODEC_ID_VP8);
-//		fprintf(stderr, "      using matroska muxer instead\n");
-//		global->VidFormat = MKV_FORMAT; // this is also set by the gwidget->VidFormat callback
-//		gtk_combo_box_set_active (GTK_COMBO_BOX(gwidget->VidFormat), global->VidFormat);
-//	}
-
-//	global = NULL;
-//}
-
-/*video compression control callback*/
 void
 VidCodec_menu_changed (GtkRadioMenuItem *vcodec_item, struct ALL_DATA *all_data)
 {
-	
+
 	struct GLOBAL *global = all_data->global;
 	struct GWIDGET *gwidget = all_data->gwidget;
 
 	if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(vcodec_item)))
 	{
-		/**GSList indexes (g_slist_index) are in reverse order: 
+		/**GSList indexes (g_slist_index) are in reverse order:
 		 * last inserted has index 0
 		 * so count backwards
 		 */
@@ -1674,10 +1524,10 @@ VidCodec_menu_changed (GtkRadioMenuItem *vcodec_item, struct ALL_DATA *all_data)
 		int index = g_slist_index (gwidget->vgroup, vcodec_item);
 		index = num_vcodecs - (index + 1); //reverse order and 0 indexed
 		fprintf(stderr,"DEBUG: video codec changed to %i\n", index);
-		
+
 		global->VidCodec = index;
 	}
-	
+
 	if( global->VidFormat == WEBM_FORMAT &&
 		get_vcodec_id(global->VidCodec) != CODEC_ID_VP8)
 	{
@@ -1760,29 +1610,12 @@ image_prefix_toggled(GtkWidget * toggle, struct ALL_DATA *all_data)
 
 	global->image_inc = gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(toggle)) ? 1 : 0;
 
-	g_snprintf(global->imageinc_str,24,_("File num:%d"),global->image_inc);
-
-	gtk_label_set_text(GTK_LABEL(gwidget->ImageIncLabel), global->imageinc_str);
-
-	gwidget = NULL;
-	global = NULL;
-
-}
-
-void
-ImageInc_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data)
-{
-	struct GWIDGET *gwidget = all_data->gwidget;
-	struct GLOBAL *global = all_data->global;
-
-	global->image_inc = gtk_toggle_button_get_active (toggle) ? 1 : 0;
-
-	g_snprintf(global->imageinc_str,24,_("File num:%d"),global->image_inc);
-
-	gtk_label_set_text(GTK_LABEL(gwidget->ImageIncLabel), global->imageinc_str);
+	//g_snprintf(global->imageinc_str,24,_("File num:%d"),global->image_inc);
+	//gtk_label_set_text(GTK_LABEL(gwidget->ImageIncLabel), global->imageinc_str);
 
 	gwidget = NULL;
 	global = NULL;
+
 }
 
 void
@@ -1793,27 +1626,8 @@ video_prefix_toggled(GtkWidget * toggle, struct ALL_DATA *all_data)
 
 	global->vid_inc = gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(toggle)) ? 1 : 0;
 
-	g_snprintf(global->vidinc_str,24,_("File num:%d"),global->vid_inc);
-
-	gtk_label_set_text(GTK_LABEL(gwidget->VidIncLabel), global->vidinc_str);
-
-	gwidget = NULL;
-	global = NULL;
-
-}
-
-void
-VidInc_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data)
-{
-	struct GWIDGET *gwidget = all_data->gwidget;
-	struct GLOBAL *global = all_data->global;
-
-
-	global->vid_inc = gtk_toggle_button_get_active (toggle) ? 1 : 0;
-
-	g_snprintf(global->vidinc_str,24,_("File num:%d"),global->vid_inc);
-
-	gtk_label_set_text(GTK_LABEL(gwidget->VidIncLabel), global->vidinc_str);
+	//g_snprintf(global->vidinc_str,24,_("File num:%d"),global->vid_inc);
+	//gtk_label_set_text(GTK_LABEL(gwidget->VidIncLabel), global->vidinc_str);
 
 	gwidget = NULL;
 	global = NULL;
@@ -1829,26 +1643,26 @@ capture_image (GtkButton *ImageButt, struct ALL_DATA *all_data)
 	struct GLOBAL *global = all_data->global;
 	struct vdIn *videoIn = all_data->videoIn;
 
-	const char *fileEntr;
-
     if(!global->no_display)
     {
-        fileEntr=gtk_entry_get_text(GTK_ENTRY(gwidget->ImageFNameEntry));
+	/**
+        const char *fileEntr = gtk_entry_get_text(GTK_ENTRY(gwidget->ImageFNameEntry));
         if(g_strcmp0(fileEntr,global->imgFPath[0])!=0)
         {
-            /*reset if entry change from last capture*/
+            //reset if entry change from last capture
             if(global->image_inc) global->image_inc=1;
             global->imgFPath=splitPath((char *)fileEntr, global->imgFPath);
             gtk_entry_set_text(GTK_ENTRY(gwidget->ImageFNameEntry),"");
             gtk_entry_set_text(GTK_ENTRY(gwidget->ImageFNameEntry),global->imgFPath[0]);
-            /*get the file type*/
+            //get the file type
             global->imgFormat = check_image_type(global->imgFPath[0]);
-            /*set the file type*/
+            //set the file type
             gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->ImageType),global->imgFormat);
         }
 
-        g_snprintf(global->imageinc_str,24,_("File num:%d"),global->image_inc);
-        gtk_label_set_text(GTK_LABEL(gwidget->ImageIncLabel), global->imageinc_str);
+        //g_snprintf(global->imageinc_str,24,_("File num:%d"),global->image_inc);
+        //gtk_label_set_text(GTK_LABEL(gwidget->ImageIncLabel), global->imageinc_str);
+    */
     }
 
 	if ((global->image_timer == 0) && (global->image_inc>0))
@@ -1900,32 +1714,34 @@ capture_vid (GtkToggleButton *VidButt, struct ALL_DATA *all_data)
 	__LOCK_MUTEX(__VMUTEX);
 		gboolean capVid = videoIn->capVid;
 	__UNLOCK_MUTEX(__VMUTEX);
+
     char *fileEntr = NULL;
     gboolean state=!capVid;
 
     if(!global->no_display)
     {
-        /*disable signals for this callback*/
-        g_signal_handlers_block_by_func(GTK_TOGGLE_BUTTON(gwidget->CapVidButt), G_CALLBACK (capture_vid), all_data);
-        /*widgets are enable/disable in create_video.c*/
 
+        //disable signals for this callback
+        g_signal_handlers_block_by_func(GTK_TOGGLE_BUTTON(gwidget->CapVidButt), G_CALLBACK (capture_vid), all_data);
+        //widgets are enable/disable in create_video.c
+	/**
         fileEntr = (char *) gtk_entry_get_text(GTK_ENTRY(gwidget->VidFNameEntry));
         if(g_strcmp0(fileEntr,global->vidFPath[0])!=0)
         {
-            /*reset if entry change from last capture*/
+            //reset if entry change from last capture
             if(global->vid_inc) global->vid_inc=1;
             global->vidFPath=splitPath(fileEntr, global->vidFPath);
             gtk_entry_set_text(GTK_ENTRY(gwidget->VidFNameEntry),"");
             gtk_entry_set_text(GTK_ENTRY(gwidget->VidFNameEntry),global->vidFPath[0]);
-            /*get the file type*/
+            //get the file type
             global->VidFormat = check_video_type(global->vidFPath[0]);
-            /*set the file type*/
+            //set the file type
             gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->VidFormat),global->VidFormat);
         }
         //check button state
         //state = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(gwidget->CapVidButt));
+    */
     }
-
 	if(global->debug) g_print("Cap Video toggled: %d\n", state);
 
 	if(capVid || !state)
@@ -1959,12 +1775,12 @@ capture_vid (GtkToggleButton *VidButt, struct ALL_DATA *all_data)
 	}
 	else if(!(capVid) /*&& state*/)
 	{	/******************** Start Video *********************/
-        if(!global->no_display)
-        {
-            global->vidFPath=splitPath(fileEntr, global->vidFPath);
-            g_snprintf(global->vidinc_str,24,_("File num:%d"),global->vid_inc);
-            gtk_label_set_text(GTK_LABEL(gwidget->VidIncLabel), global->vidinc_str);
-        }
+       // if(!global->no_display)
+       // {
+       //     global->vidFPath=splitPath(fileEntr, global->vidFPath);
+       //     g_snprintf(global->vidinc_str,24,_("File num:%d"),global->vid_inc);
+       //     gtk_label_set_text(GTK_LABEL(gwidget->VidIncLabel), global->vidinc_str);
+       // }
 
 		if (global->vid_inc>0)
 		{
@@ -2029,35 +1845,19 @@ capture_vid (GtkToggleButton *VidButt, struct ALL_DATA *all_data)
 }
 
 void
-TakePictureByDefault_clicked (GtkRadioButton * radio, struct ALL_DATA *all_data)
+camera_button_menu_changed (GtkWidget *item, struct ALL_DATA *all_data)
 {
-	if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(radio)))
-	{
-		all_data->global->default_action = 0;
-	} else
-	{
-		all_data->global->default_action = 1;
-	}
-	return;
-}
+	int flag = GPOINTER_TO_INT(g_object_get_data (G_OBJECT (item), "camera_default"));
 
-void
-TakeVidByDefault_clicked (GtkRadioButton * radio, struct ALL_DATA *all_data)
-{
-	if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(radio)))
+	if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(item)))
 	{
-		all_data->global->default_action = 1;
+		all_data->global->default_action = flag; //0-image; 1-video
 	}
-	else
-	{
-		all_data->global->default_action = 0;
-	}
-	return;
 }
 
 /*--------------------- buttons callbacks ------------------*/
 void
-DefaultsButton_clicked (GtkWidget * Button, struct ALL_DATA *all_data)
+Defaults_clicked (GtkWidget *item, struct ALL_DATA *all_data)
 {
     struct VidState *s = all_data->s;
     struct vdIn *videoIn = all_data->videoIn;
@@ -2066,20 +1866,20 @@ DefaultsButton_clicked (GtkWidget * Button, struct ALL_DATA *all_data)
 }
 
 void
-ProfileButton_clicked (GtkWidget * Button, struct ALL_DATA *all_data)
+Profile_clicked (GtkWidget *item, struct ALL_DATA *all_data)
 {
 	struct GWIDGET *gwidget = all_data->gwidget;
 	//struct VidState *s = all_data->s;
 	struct GLOBAL *global = all_data->global;
 	//struct vdIn *videoIn = all_data->videoIn;
-	
+
 	GtkWidget *FileDialog;
-	
-	int save = GPOINTER_TO_INT(g_object_get_data (G_OBJECT (Button), "profile_save"));
+
+	int save = GPOINTER_TO_INT(g_object_get_data (G_OBJECT (item), "profile_dialog"));
 	if(global->debug) g_print("Profile dialog (%d)\n", save);
 	if (save > 0)
 	{
-		FileDialog = gtk_file_chooser_dialog_new (_("Save File"),
+		FileDialog = gtk_file_chooser_dialog_new (_("Save Profile"),
 			GTK_WINDOW(gwidget->mainwin),
 			GTK_FILE_CHOOSER_ACTION_SAVE,
 			GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
@@ -2092,7 +1892,7 @@ ProfileButton_clicked (GtkWidget * Button, struct ALL_DATA *all_data)
 	}
 	else
 	{
-		FileDialog = gtk_file_chooser_dialog_new (_("Load File"),
+		FileDialog = gtk_file_chooser_dialog_new (_("Load Profile"),
 			GTK_WINDOW(gwidget->mainwin),
 			GTK_FILE_CHOOSER_ACTION_OPEN,
 			GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,

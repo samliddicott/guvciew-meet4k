@@ -2,20 +2,20 @@ guvcview (1.7.0)
 
     * refactor avi muxer (base it on libav muxer with opendml support)
     * refactor mkv muxer (base it on libav muxer with webm support)
-    * Add VP8 and Vorbis codecs
+    * Add VP8, Theora and Vorbis codecs
     * Add Webm support
-    
+
  -- Paulo Assis <pj.assis@gmail.com>  Sun, 20 Jan 2013 15:44:00 +0000
- 
+
 guvcview (1.6.1)
 
     * Fix build with latest libavcodec
     * Fix audio codecs listing
     * Fix audio codecs (AC3 and AAC) input format for latest libavcodec API (float)
     * Add support for delayed frames in video encoding
-    
+
  -- Paulo Assis <pj.assis@gmail.com>  Sun, 22 Jul 2012 14:35:00 +0000
- 
+
 guvcview (1.6.0)
 
     * run audio in separate thread
@@ -23,7 +23,7 @@ guvcview (1.6.0)
     * move pulse audio interface from simple to async API
     * add pulse device list
     * enable build of pulse API by default
-    
+
  -- Paulo Assis <pj.assis@gmail.com>  Thu, 19 Apr 2012 23:18:00 +0000
 
 guvcview (1.5.3)
@@ -32,25 +32,25 @@ guvcview (1.5.3)
     * add libavutil dependency
     * fix pulse interface
     * update language catalogs (add bs and fo)
-    
+
  -- Paulo Assis <pj.assis@gmail.com>  Mon, 27 Feb 2012 23:18:00 +0000
- 
+
 guvcview (1.5.2)
 
     * move to pthreads (fix gthread API 2 issues)
     * add italian translation
     * fix several libavcodec issues
     * fix some gtk3 widgets
-    
+
  -- Paulo Assis <pj.assis@gmail.com>  Wed, 1 Feb 2012 23:01:00 +0000
- 
+
 guvcview (1.5.1)
 
     * move to gtk3
     * make control window size dependent on screen resolution
     * Threaded coding patch by George Sedov <radist.morse@gmail.com>
     * fix h264 codec properties
-    
+
  -- Paulo Assis <pj.assis@gmail.com>  Wed, 12 Oct 2011 12:12:00 +0000
 
 guvcview (1.5.0)
@@ -70,11 +70,11 @@ guvcview (1.4.5)
     * modify some logitech extra controls (integer to menu)
 
  -- Paulo Assis <pj.assis@gmail.com>  Tue, 1 Mar 2011 23:09:00 +0000
- 
+
 guvcview (1.4.4)
 
     * add av_sync patch by Richard Fuchs <dfx@dfx.at>:
-        Fixes sync issues between audio and video 
+        Fixes sync issues between audio and video
         (most noticeable in avi container due to lack of timestamps)
     * Apply matroska-largefiles patch by Richard Fuchs <dfx@dfx.at>:
         Fix large files indexing in 32 bit systems
@@ -101,7 +101,7 @@ guvcview (1.4.2)
    * Add gdk-pixbuf-2.0 to pkg-config dependencies - fix build error on Maverick
 
  -- Paulo Assis <pj.assis@gmail.com>  Sat, 25 Sept 2010 14:45:00 +0000
- 
+
 guvcview (1.4.1)
 
    * Fix h264 default values
@@ -109,12 +109,12 @@ guvcview (1.4.1)
    * Check for valid ranges on integer controls
 
  -- Paulo Assis <pj.assis@gmail.com>  Mon, 14 Jun 2010 23:24:00 +0000
- 
+
 guvcview (1.4.0)
 
    * completly refactor v4l control interface
    * change to control profile file format - rfc 0.0.2
-   * change icon set, use Paul Davey <mattahan@gmail.com> icons: 
+   * change icon set, use Paul Davey <mattahan@gmail.com> icons:
         http://mattahan.deviantart.com/
 
  -- Paulo Assis <pj.assis@gmail.com>  Tue, 8 Jun 2010 10:18:00 +0000
@@ -161,7 +161,7 @@ guvcview (1.2.0)
    * Add disk check during capture (checks free space every 10sec)
    * Stop capture if low on free disk space
    * Add xioctl funtion - failed ioctl will be retried 4 times in case of I/O error
-   * Fixed invalid gtk-button-images property warning   
+   * Fixed invalid gtk-button-images property warning
 
  -- Paulo Assis <pj.assis@gmail.com>  Wed, 13 Oct 2009 11:30:00 +0000
 
@@ -210,31 +210,31 @@ guvcview (1.1.0)
    * Added Matroska file format support (mkv)
    * Fixed Ubuntu 9.10 audio capture
    * Added initial pulseaudio support (testing only - needs pulse-devel for enabling)
-   
+
  -- Paulo Assis <pj.assis@gmail.com>  Sun, 10 May 2009 14:26:00 +0000
 
 guvcview (1.0.5-ubuntu1) intrepid; urgency=low
 
-   * Added libavcodec properties button 
+   * Added libavcodec properties button
    * Improved default options for libavcodec
    * Improved support for libavcodec
-   
+
  -- Paulo Assis <pj.assis@gmail.com>  Sat, 4 Apr 2009 14:00:00 +0000
 
 guvcview (1.0.4-ubuntu1) intrepid; urgency=low
 
-   * Added WMV1 encoding to avi capture 
+   * Added WMV1 encoding to avi capture
    * fixed libavcodec configuration
    * changed support for uyvy (now we convert it to yuyv and use only one render format)
    * changed raw bayer conversion funtions
    * added full bayer support ( all bayer pixel formats)
-   
+
  -- Paulo Assis <pj.assis@gmail.com>  Sun, 29 Mar 2009 22:32:00 +0000
 
 
 guvcview (1.0.3-ubuntu1) intrepid; urgency=low
 
-   * Added MPEG encoding to avi capture 
+   * Added MPEG encoding to avi capture
    * Added FLV1 encoding to avi capture
    * Added japanese translation
 
@@ -242,13 +242,13 @@ guvcview (1.0.3-ubuntu1) intrepid; urgency=low
 
 guvcview (1.0.2-ubuntu1) intrepid; urgency=low
 
-   * Fixed segfault on gspca devices 
+   * Fixed segfault on gspca devices
 
  -- Paulo Assis <pj.assis@gmail.com>  Sun, 8 Mar 2009 09:58:00 +0000
 
 guvcview (1.0.1) intrepid; urgency=low
 
-   * Fixed giant bug that prevented format detection 
+   * Fixed giant bug that prevented format detection
 
  -- Paulo Assis <pj.assis@gmail.com>  Mon, 4 Mar 2009 23:57:00 +0000
 
@@ -280,7 +280,7 @@ guvcview (0.9.8) intrepid; urgency=low
    * Fixed Debian/armel corruption bug.(fix by Rask Ingemann Lambertsen)
    * Fixed gdk display bug after avi capture auto split (when max length reached), make gdk thread safe.
    * Fixed empty device list segfault bug
-   
+
  -- Paulo Assis <pj.assis@gmail.com>  Sat, 28 Jan 2009 09:43:00 +0000
 
 guvcview (0.9.7) stable; urgency=low
@@ -293,7 +293,7 @@ guvcview (0.9.7) stable; urgency=low
    * Change memory managment, using glib functions.
    * Change from pthreads to gthreads (glib).
    * Added multiple device support.
-   
+
  -- Paulo Assis <pj.assis@gmail.com>  Tue, 31 Dec 2008 12:16:00 +0000
 
 guvcview (0.9.6) stable; urgency=low
@@ -304,22 +304,22 @@ guvcview (0.9.6) stable; urgency=low
    * Added initial support for drivers that don't enumerate frame sizes (gspca).
    * Change console options parsing method, we now use getopt.
    * Improved v4l2 error handling by providing more usefull error messages.
-   
+
  -- Paulo Assis <pj.assis@gmail.com>  Sat, 6 Dec 2008 18:44:00 +0000
 
 guvcview (0.9.5) stable; urgency=low
 
    * Fixed several warnings in valgrind.
    * Fixed a couple of memory leaks.
-   * Fixed a device open/close bug after first format init failure, causing 
-    second init with a valid format to fail. 
-   
+   * Fixed a device open/close bug after first format init failure, causing
+    second init with a valid format to fail.
+
  -- Paulo Assis <pj.assis@gmail.com>  Fri, 7 Nov 2008 23:19:00 +0000
 
 guvcview (0.9.4) stable; urgency=low
 
    * Added support for isight camera - UYVY (Nobuhiro Iwamatsu).
-   * Added support for YU12 ( YUV 4:2:0 planar ) pix format 
+   * Added support for YU12 ( YUV 4:2:0 planar ) pix format
    * Changed audio capture from blocking API to callback API,
 	should improve audio performance.
    * Improved software autofocus (Dr. Alexander K. Seewald)
@@ -345,7 +345,7 @@ guvcview (0.9.2) stable; urgency=low
 
    * Fixed German Translation by Andreas Volz <andreas@tux-style.de>.
    * Fixed Jpg Save error on Cameras with incomplete JFIF headers
-   
+
  -- Paulo Assis <pj.assis@gmail.com>  Mon, 21 Jul 2008 23:30:00 +0000
 
 guvcview (0.9.1) stable; urgency=low
@@ -357,7 +357,7 @@ guvcview (0.9.1) stable; urgency=low
    * Changed icon set
    * Added guvcview icon to control window
    * Improved Raw support (needs patch for uvc driver,  http://forums.quickcamteam.net/showthread.php?tid=323)
-   
+
  -- Paulo Assis <pj.assis@gmail.com>  Wed, 11 Jul 2008 12:04:00 +0000
 
 
@@ -369,15 +369,15 @@ guvcview (0.9.0) stable; urgency=low
    * Add laguage catalogs (pt pt_PT pt_BR fr de).
    * Add button icons.
    * Changed build scripts, make will now build guvcview.desktop and make install will install all data files.
-   
+
  -- Paulo Assis <pj.assis@gmail.com>  Mon, 18 May 2008 10:20:00 +0000
- 
+
 guvcview (0.8.2) stable; urgency=low
 
    * Fixed SegFault after soundthread exit in 64 bit systems (bug: #013688)
    * Moved all SDL related stuff to video thread
    * Add support for long name command line args
-   
+
  -- Paulo Assis <pj.assis@gmail.com>  Fri, 02 May 2008 19:18:00 +0000
 
 

@@ -34,7 +34,7 @@
 void
 WARN_DIALOG(const char *warn_title, const char* warn_msg, struct ALL_DATA *all_data);
 
-void 
+void
 ERR_DIALOG(const char *err_title, const char* err_msg, struct ALL_DATA *all_data);
 
 void
@@ -47,17 +47,17 @@ void
 lavc_audio_properties(GtkMenuItem * codec_prop, struct ALL_DATA *all_data);
 
 /* sound controls*/
-void 
+void
 set_sensitive_snd_contrls (const int flag, struct GWIDGET *gwidget);
 
 /*video controls*/
-void 
+void
 set_sensitive_vid_contrls (const int flag, const int sndEnable, struct GWIDGET *gwidget);
 
 gint
 delete_event (GtkWidget *widget, GdkEventConfigure *event, void *data);
 
-void 
+void
 set_sensitive_img_contrls (const int flag, struct GWIDGET *gwidget);
 
 gboolean
@@ -91,9 +91,6 @@ void
 button_clicked (GtkButton * Button, struct ALL_DATA *all_data);
 
 void
-VidFormat_changed (GtkComboBox * VidFormat, struct ALL_DATA *all_data);
-
-void
 setfocus_clicked (GtkButton * FocusButton, struct ALL_DATA *all_data);
 
 void
@@ -105,7 +102,7 @@ button_PanTilt2_clicked (GtkButton * Button, struct ALL_DATA *all_data);
 void
 quitButton_clicked (GtkButton * quitButton, struct ALL_DATA *all_data);
 
-void 
+void
 Devices_changed (GtkComboBox * Devices, struct ALL_DATA *all_data);
 
 void
@@ -121,9 +118,6 @@ void
 SndSampleRate_changed (GtkComboBox * SampleRate, struct ALL_DATA *all_data);
 
 void
-ImageType_changed (GtkComboBox * ImageType, struct ALL_DATA *all_data);
-
-void
 SndAPI_changed (GtkComboBox * SoundAPI, struct ALL_DATA *all_data);
 
 void
@@ -133,13 +127,7 @@ void
 SndNumChan_changed (GtkComboBox * SoundChan, struct ALL_DATA *all_data);
 
 void
-SndComp_changed (GtkComboBox * SoundComp, struct ALL_DATA *all_data);
-
-void
 AudCodec_menu_changed (GtkRadioMenuItem *acodec_item, struct ALL_DATA *all_data);
-
-void
-VidCodec_changed (GtkComboBox * VidCodec, struct ALL_DATA *all_data);
 
 void
 VidCodec_menu_changed (GtkRadioMenuItem *vcodec_item, struct ALL_DATA *all_data);
@@ -150,7 +138,7 @@ SndEnable_changed (GtkToggleButton * toggle, struct ALL_DATA *all_data);
 void
 FiltEnable_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data);
 
-void 
+void
 osdChanged(GtkToggleButton * toggle, struct ALL_DATA *all_data);
 
 void
@@ -159,14 +147,8 @@ EffEnable_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data);
 void
 image_prefix_toggled(GtkWidget * toggle, struct ALL_DATA *all_data);
 
-void 
-ImageInc_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data);
-
 void
 video_prefix_toggled(GtkWidget * toggle, struct ALL_DATA *all_data);
-
-void
-VidInc_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data);
 
 void
 capture_image (GtkButton *ImageButt, struct ALL_DATA *all_data);
@@ -175,21 +157,18 @@ void
 capture_vid (GtkToggleButton *VidButt, struct ALL_DATA *all_data);
 
 void
-TakePictureByDefault_clicked (GtkRadioButton * radio, struct ALL_DATA *all_data);
+camera_button_menu_changed (GtkWidget *item, struct ALL_DATA *all_data);
 
 void
-TakeVidByDefault_clicked (GtkRadioButton * radio, struct ALL_DATA *all_data);
+Profile_clicked (GtkWidget *item, struct ALL_DATA *all_data);
 
 void
-ProfileButton_clicked (GtkWidget * Button, struct ALL_DATA *all_data);
-
-void
-DefaultsButton_clicked (GtkWidget * Button, struct ALL_DATA *all_data);
+Defaults_clicked (GtkWidget *item, struct ALL_DATA *all_data);
 
 void *
 split_avi(void *data);
 
-void 
+void
 ShowFPS_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data);
 
 #endif
