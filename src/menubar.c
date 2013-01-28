@@ -73,18 +73,21 @@ GtkWidget *create_menu(struct ALL_DATA *all_data, int control_only)
 
 	camera_button_menu = gtk_menu_new();
 	camera_button_top = gtk_menu_item_new_with_label(_("Camera Button"));
+	
 	GSList *camera_button_group = NULL;
 
 	GtkWidget *def_image = gtk_radio_menu_item_new_with_label(camera_button_group, _("Capture Image"));
 	g_object_set_data (G_OBJECT (def_image), "camera_default", GINT_TO_POINTER(0));
-	gtk_widget_show (def_image);
 	gtk_menu_shell_append(GTK_MENU_SHELL(camera_button_menu), def_image);
 
 	camera_button_group = gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (def_image));
 	GtkWidget *def_video = gtk_radio_menu_item_new_with_label(camera_button_group, _("Capture Video"));
 	g_object_set_data (G_OBJECT (def_video), "camera_default", GINT_TO_POINTER(1));
-	gtk_widget_show (def_video);
 	gtk_menu_shell_append(GTK_MENU_SHELL(camera_button_menu), def_video);
+
+	gtk_widget_show (camera_button_top);
+	gtk_widget_show (def_image);
+	gtk_widget_show (def_video);
 
 	gtk_menu_item_set_submenu(GTK_MENU_ITEM(camera_button_top), camera_button_menu);
 
