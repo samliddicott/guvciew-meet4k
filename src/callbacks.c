@@ -348,7 +348,7 @@ file_chooser (GtkWidget * FileButt, struct ALL_DATA *all_data)
 					global->VidFormat = MKV_FORMAT;
 
 					g_signal_handlers_block_by_func(VidFormat, G_CALLBACK (VidFormat_changed), all_data);
-					gtk_combo_box_set_active (VidFormat, global->VidFormat);
+					gtk_combo_box_set_active (GTK_COMBO_BOX(VidFormat), global->VidFormat);
 					g_signal_handlers_unblock_by_func(VidFormat, G_CALLBACK (VidFormat_changed), all_data);
 				}
 			}
@@ -1753,6 +1753,23 @@ void osdChanged(GtkToggleButton * toggle, struct ALL_DATA *all_data)
 }
 
 void
+image_prefix_toggled(GtkWidget * toggle, struct ALL_DATA *all_data)
+{
+	struct GWIDGET *gwidget = all_data->gwidget;
+	struct GLOBAL *global = all_data->global;
+
+	global->image_inc = gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(toggle)) ? 1 : 0;
+
+	g_snprintf(global->imageinc_str,24,_("File num:%d"),global->image_inc);
+
+	gtk_label_set_text(GTK_LABEL(gwidget->ImageIncLabel), global->imageinc_str);
+
+	gwidget = NULL;
+	global = NULL;
+
+}
+
+void
 ImageInc_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data)
 {
 	struct GWIDGET *gwidget = all_data->gwidget;
@@ -1766,6 +1783,23 @@ ImageInc_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data)
 
 	gwidget = NULL;
 	global = NULL;
+}
+
+void
+video_prefix_toggled(GtkWidget * toggle, struct ALL_DATA *all_data)
+{
+	struct GWIDGET *gwidget = all_data->gwidget;
+	struct GLOBAL *global = all_data->global;
+
+	global->vid_inc = gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(toggle)) ? 1 : 0;
+
+	g_snprintf(global->vidinc_str,24,_("File num:%d"),global->vid_inc);
+
+	gtk_label_set_text(GTK_LABEL(gwidget->VidIncLabel), global->vidinc_str);
+
+	gwidget = NULL;
+	global = NULL;
+
 }
 
 void

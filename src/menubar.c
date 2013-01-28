@@ -112,6 +112,11 @@ GtkWidget *create_menu(struct ALL_DATA *all_data, int control_only)
 		g_signal_connect (GTK_MENU_ITEM(video_file), "activate",
 			G_CALLBACK (file_chooser), all_data);
 		
+		/** add callback to Append timestamp */
+		gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (video_timestamp), (global->vid_inc > 0));
+		g_signal_connect (GTK_CHECK_MENU_ITEM(video_timestamp), "toggled",
+			G_CALLBACK (video_prefix_toggled), all_data);
+		
 		//video codec submenu
 		video_codec_menu = gtk_menu_new();
 		video_codec_top = gtk_menu_item_new_with_label(_("Video Codec"));
@@ -192,6 +197,11 @@ GtkWidget *create_menu(struct ALL_DATA *all_data, int control_only)
 		g_object_set_data (G_OBJECT (photo_file), "file_butt", GINT_TO_POINTER(0));
 		g_signal_connect (GTK_MENU_ITEM(photo_file), "activate",
 			G_CALLBACK (file_chooser), all_data);
+		
+		/** add callback to Append timestamp */
+		gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (photo_timestamp), (global->image_inc > 0));
+		g_signal_connect (GTK_CHECK_MENU_ITEM(photo_timestamp), "toggled",
+			G_CALLBACK (image_prefix_toggled), all_data);
 		
 		gtk_menu_item_set_submenu(GTK_MENU_ITEM(photo_top), photo_menu);
 		gtk_menu_shell_append(GTK_MENU_SHELL(photo_menu), photo_file);

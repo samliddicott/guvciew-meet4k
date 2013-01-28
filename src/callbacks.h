@@ -156,8 +156,14 @@ osdChanged(GtkToggleButton * toggle, struct ALL_DATA *all_data);
 void
 EffEnable_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data);
 
+void
+image_prefix_toggled(GtkWidget * toggle, struct ALL_DATA *all_data);
+
 void 
 ImageInc_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data);
+
+void
+video_prefix_toggled(GtkWidget * toggle, struct ALL_DATA *all_data);
 
 void
 VidInc_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data);
