@@ -9,6 +9,8 @@ src/create_video.c
 src/globals.c
 src/guvcview.c
 src/img_controls.c
+src/image_format.c
+src/menubar.c
 src/options.c
 src/osd.c
 src/timers.c
