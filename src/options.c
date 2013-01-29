@@ -91,7 +91,7 @@ writeConf(struct GLOBAL *global, char *videodevice)
 		g_fprintf(fp,"# video muxer format: 0-AVI 1-MKV 2-WebM\n");
 		g_fprintf(fp,"vid_format=%i\n",global->VidFormat);
 		g_fprintf(fp,"# Auto Video naming (ex: filename-n.avi)\n");
-		g_fprintf(fp,"vid_inc=%d\n",global->vid_inc);
+		g_fprintf(fp,"vid_inc=%llu\n",global->vid_inc);
 		g_fprintf(fp,"# sound 0 - disable 1 - enable\n");
 		g_fprintf(fp,"sound=%i\n",global->Sound_enable);
 		g_fprintf(fp,"# sound API: 0- Portaudio  1- Pulseaudio\n");
@@ -116,7 +116,7 @@ writeConf(struct GLOBAL *global, char *videodevice)
 		g_fprintf(fp,"#on screen display flags (VU meter)\n");
 		g_fprintf(fp,"osd_flags=%i\n",global->osdFlags);
 		g_fprintf(fp,"# Auto Image naming (filename-n.ext)\n");
-		g_fprintf(fp,"image_inc=%d\n",global->image_inc);
+		g_fprintf(fp,"image_inc=%llu\n",global->image_inc);
 		g_fprintf(fp,"# Image capture Full Path\n");
 		g_fprintf(fp,"image_path='%s/%s'\n",global->imgFPath[1],global->imgFPath[0]);
 		g_fprintf(fp,"# Video capture Full Path\n");
@@ -332,7 +332,7 @@ readConf(struct GLOBAL *global)
 	                                if(global->image_inc > 0) 
 	                                {
 	                                    global->image_inc = 1;
-	                                    g_snprintf(global->imageinc_str,20,_("File num:%d"),global->image_inc);  
+	                                    //g_snprintf(global->imageinc_str,20,_("File num:%d"),global->image_inc);  
 	                                }
 	                            }
 	                            g_free(newPath);
@@ -448,7 +448,7 @@ readConf(struct GLOBAL *global)
 						else if ((g_strcmp0(name,"vid_inc")==0) || (g_strcmp0(name,"avi_inc")==0)) 
 						{
 							global->vid_inc = (DWORD) scanner->value.v_int;
-							g_snprintf(global->vidinc_str,20,_("File num:%d"),global->vid_inc);
+							//g_snprintf(global->vidinc_str,20,_("File num:%d"),global->vid_inc);
 						}
 						else if (g_strcmp0(name,"sound")==0) 
 						{
@@ -506,7 +506,7 @@ readConf(struct GLOBAL *global)
 							global->image_inc = (DWORD) scanner->value.v_int;
 							//if((global->image_timer > 0) && (global->image_inc <= 0))
 							//    global->image_inc = 1;
-							g_snprintf(global->imageinc_str,20,_("File num:%d"),global->image_inc);
+							//g_snprintf(global->imageinc_str,20,_("File num:%d"),global->image_inc);
 						}
 						else if (g_strcmp0(name,"acodec_bit_rate")==0) 
 						{
@@ -722,7 +722,7 @@ readConf(struct GLOBAL *global)
 			g_print("Pan Step: %i degrees\n",global->PanStep);
 			g_print("Tilt Step: %i degrees\n",global->TiltStep);
 			g_print("Video Filter Flags: %i\n",global->Frame_Flags);
-			g_print("image inc: %d\n",global->image_inc);
+			g_print("image inc: %llu\n",global->image_inc);
 			g_print("profile(default):%s/%s\n",global->profile_FPath[1],global->profile_FPath[0]);
 		}
 	}

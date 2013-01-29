@@ -53,4 +53,7 @@ setImgExt(char *filename, int format);
 char *
 setVidExt(char *filename, int format_ind);
 
+uint64_t 
+get_file_suffix(const char *path, const char* filename);
+
 #endif

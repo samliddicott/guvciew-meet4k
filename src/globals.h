@@ -61,8 +61,8 @@ struct GLOBAL
 	char *confPath;        //configuration file path
 	char *vidfile;         //video filename passed through argument options with -n
 	char *WVcaption;       //video preview title bar caption
-	char *imageinc_str;    //label for File inc
-	char *vidinc_str;      //label for File inc
+	//char *imageinc_str;    //label for File inc
+	//char *vidinc_str;      //label for File inc
 	char *mode;            //mjpg (default)
 	pchar* vidFPath;       //video path [0] - filename  [1] - dir
 	pchar* imgFPath;       //image path [0] - filename  [1] - dir
@@ -78,10 +78,10 @@ struct GLOBAL
 	UINT64 Vidstoptime;    //video stop time
 	QWORD v_ts;            //video time stamp
 	QWORD a_ts;            //audio time stamp
-	DWORD vid_inc;         //video name increment
+	uint64_t vid_inc;      //video name increment
 	DWORD framecount;      //video frame count
 	DWORD frmCount;        //frame count for fps display calc
-	DWORD image_inc;       //image name increment
+	uint64_t image_inc;    //image name increment
 
 	int stack_size;        //thread stack size
 	int vid_sleep;         //video thread sleep time (0 by default)

@@ -1644,6 +1644,11 @@ capture_image (GtkButton *ImageButt, struct ALL_DATA *all_data)
 
 	if ((global->image_timer == 0) && (global->image_inc>0))
 	{
+		uint64_t suffix = get_file_suffix(global->imgFPath[1], global->imgFPath[0]);
+		fprintf(stderr, "Image file suffix detected: %llu\n", suffix);
+		if(suffix > 0)
+			global->image_inc = suffix + 1;
+				
 		videoIn->ImageFName = incFilename(videoIn->ImageFName,
 			global->imgFPath,
 			global->image_inc);
@@ -1761,6 +1766,11 @@ capture_vid (GtkToggleButton *VidButt, struct ALL_DATA *all_data)
 
 		if (global->vid_inc>0)
 		{
+			uint64_t suffix = get_file_suffix(global->vidFPath[1], global->vidFPath[0]);
+			fprintf(stderr, "Video file suffix detected: %llu\n", suffix);
+			if(suffix > 0)
+				global->vid_inc = suffix + 1;
+			
 			videoIn->VidFName = incFilename(videoIn->VidFName,
 				global->vidFPath,
 				global->vid_inc);

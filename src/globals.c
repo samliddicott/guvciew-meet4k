@@ -76,11 +76,11 @@ int initGlobals (struct GLOBAL *global)
 	
 	global->image_inc=0;
 
-	global->imageinc_str = g_new(char, 25);
-	g_snprintf(global->imageinc_str,20,_("File num:%d"),global->image_inc);
+	//global->imageinc_str = g_new(char, 25);
+	//g_snprintf(global->imageinc_str,20,_("File num:%d"),global->image_inc);
 	
-	global->vidinc_str = g_new(char, 25);
-	g_snprintf(global->vidinc_str,20,_("File num:%d"),global->vid_inc);
+	//global->vidinc_str = g_new(char, 25);
+	//g_snprintf(global->vidinc_str,20,_("File num:%d"),global->vid_inc);
 	
 	global->vid_sleep=0;
 	global->vidfile=NULL; /*vid filename passed through argument options with -n */
@@ -174,8 +174,8 @@ int closeGlobals(struct GLOBAL *global)
 	g_free(global->imgFPath);
 	g_free(global->profile_FPath);
 	g_free (global->WVcaption);
-	g_free(global->imageinc_str);
-	g_free(global->vidinc_str);
+	//g_free(global->imageinc_str);
+	//g_free(global->vidinc_str);
 	g_free(global->vidfile);
 	g_free(global->mode);
 	g_free(global->Sound_IndexDev);

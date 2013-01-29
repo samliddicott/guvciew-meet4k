@@ -229,3 +229,40 @@ char *setVidExt(char *filename, int format_ind)
 	return (filename);
 }
 
+uint64_t get_file_suffix(const char *path, const char* filename)
+{
+	uint64_t suffix = 0;
+	GDir *dir =  g_dir_open(path, 0, NULL);
+	
+	if(dir == NULL)
+	{
+		fprintf(stderr, "ERROR: Couldn't open %s directory\n", path);
+		return suffix;
+	}
+	
+	int fsize=strlen(filename);
+	char basename[fsize];
+	char extension[5];
+	
+	sscanf(filename,"%[^.].%4s", basename, extension);
+	fsize += 8;
+	char format_str[fsize];
+	g_snprintf(format_str, fsize-1, "%s-%%llu.%s", basename, extension);
+			
+	char* file_name = NULL;
+	while ((file_name = g_dir_read_name (dir)) != NULL)
+	{
+		if( g_str_has_prefix (file_name, basename) &&
+		    g_str_has_suffix (file_name, extension))
+		{
+			uint64_t sfix = 0;
+			sscanf(file_name, format_str, &sfix);
+			if(sfix > suffix)
+				suffix = sfix;
+		}
+	}
+	
+	g_dir_close(dir);
+	return suffix;
+}
+
