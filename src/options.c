@@ -699,7 +699,7 @@ readConf(struct GLOBAL *global)
         if(global->vid_inc>0)
 		{
 			uint64_t suffix = get_file_suffix(global->vidFPath[1], global->vidFPath[0]);
-			fprintf(stderr, "Video file suffix detected: %llu\n", suffix);
+			fprintf(stderr, "Video file suffix detected: %" PRIu64 "\n", suffix);
 			if(suffix > 0)
 				global->vid_inc = suffix + 1;
 		}
@@ -707,7 +707,7 @@ readConf(struct GLOBAL *global)
 		if(global->image_inc>0)
 		{
 			uint64_t suffix = get_file_suffix(global->imgFPath[1], global->imgFPath[0]);
-			fprintf(stderr, "Image file suffix detected: %llu\n", suffix);
+			fprintf(stderr, "Image file suffix detected: %" PRIu64 "\n", suffix);
 			if(suffix > 0)
 				global->image_inc = suffix + 1;
 		}
@@ -737,7 +737,7 @@ readConf(struct GLOBAL *global)
 			g_print("Pan Step: %i degrees\n",global->PanStep);
 			g_print("Tilt Step: %i degrees\n",global->TiltStep);
 			g_print("Video Filter Flags: %i\n",global->Frame_Flags);
-			g_print("image inc: %llu\n",global->image_inc);
+			g_print("image inc: %" PRIu64 "\n",global->image_inc);
 			g_print("profile(default):%s/%s\n",global->profile_FPath[1],global->profile_FPath[0]);
 		}
 	}

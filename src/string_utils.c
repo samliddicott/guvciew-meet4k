@@ -247,16 +247,18 @@ uint64_t get_file_suffix(const char *path, const char* filename)
 	sscanf(filename,"%[^.].%4s", basename, extension);
 	fsize += 8;
 	char format_str[fsize];
-	g_snprintf(format_str, fsize-1, "%s-%%llu.%s", basename, extension);
+	g_snprintf(format_str, fsize-1, "%s-%%18s.%s", basename, extension);
 			
 	char* file_name = NULL;
-	while ((file_name = g_dir_read_name (dir)) != NULL)
+	while ((file_name = (char *) g_dir_read_name (dir)) != NULL)
 	{
 		if( g_str_has_prefix (file_name, basename) &&
 		    g_str_has_suffix (file_name, extension))
 		{
-			uint64_t sfix = 0;
-			sscanf(file_name, format_str, &sfix);
+			char sfix_str[19];
+			sscanf(file_name, format_str, sfix_str);
+			uint64_t sfix = g_ascii_strtoull(sfix_str, NULL, 10);
+			
 			if(sfix > suffix)
 				suffix = sfix;
 		}

@@ -349,7 +349,7 @@ file_chooser (GtkWidget * FileButt, struct ALL_DATA *all_data)
 			if(global->vid_inc>0)
 			{
 				uint64_t suffix = get_file_suffix(global->vidFPath[1], global->vidFPath[0]);
-				fprintf(stderr, "Video file suffix detected: %llu\n", suffix);
+				fprintf(stderr, "Video file suffix detected: %" PRIu64 "\n", suffix);
 				if(suffix >= 0)
 					global->vid_inc = suffix + 1;
 			}
@@ -395,7 +395,7 @@ file_chooser (GtkWidget * FileButt, struct ALL_DATA *all_data)
 			if(global->image_inc>0)
 			{
 				uint64_t suffix = get_file_suffix(global->imgFPath[1], global->imgFPath[0]);
-				fprintf(stderr, "Image file suffix detected: %llu\n", suffix);
+				fprintf(stderr, "Image file suffix detected: %" PRIu64 "\n", suffix);
 				if(suffix >= 0)
 					global->image_inc = suffix + 1;
 			}
@@ -1592,7 +1592,7 @@ image_prefix_toggled(GtkWidget * toggle, struct ALL_DATA *all_data)
 	if(global->image_inc > 0)
 	{
 		uint64_t suffix = get_file_suffix(global->imgFPath[1], global->imgFPath[0]);
-		fprintf(stderr, "Image file suffix detected: %llu\n", suffix);
+		fprintf(stderr, "Image file suffix detected: %" PRIu64 "\n", suffix);
 		if(suffix >= 0)
 			global->image_inc = suffix + 1;
 	}
@@ -1612,7 +1612,7 @@ video_prefix_toggled(GtkWidget * toggle, struct ALL_DATA *all_data)
 	if(global->vid_inc > 0)
 	{
 		uint64_t suffix = get_file_suffix(global->vidFPath[1], global->vidFPath[0]);
-		fprintf(stderr, "Video file suffix detected: %llu\n", suffix);
+		fprintf(stderr, "Video file suffix detected: %" PRIu64 "\n", suffix);
 		if(suffix >= 0)
 			global->vid_inc = suffix + 1;
 	}
@@ -1630,6 +1630,12 @@ capture_image (GtkButton *ImageButt, struct ALL_DATA *all_data)
 	struct GLOBAL *global = all_data->global;
 	struct vdIn *videoIn = all_data->videoIn;
 
+	/** a previous image hasn't been captured yet
+	 *  no use flaging it again so return
+	 */ 
+	if(videoIn->capImage)
+		return;
+		
     if(!global->no_display)
     {
 	/**
