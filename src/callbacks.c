@@ -348,9 +348,10 @@ file_chooser (GtkWidget * FileButt, struct ALL_DATA *all_data)
 
 			if(global->vid_inc>0)
 			{
-				global->vid_inc=1; /*if auto naming restart counter*/
-				//g_snprintf(global->vidinc_str,24,_("File num:%d"),global->vid_inc);
-				//gtk_label_set_text(GTK_LABEL(gwidget->VidIncLabel), global->vidinc_str);
+				uint64_t suffix = get_file_suffix(global->vidFPath[1], global->vidFPath[0]);
+				fprintf(stderr, "Video file suffix detected: %llu\n", suffix);
+				if(suffix >= 0)
+					global->vid_inc = suffix + 1;
 			}
 		}
 	}
@@ -370,7 +371,7 @@ file_chooser (GtkWidget * FileButt, struct ALL_DATA *all_data)
 		for (iformat_ind =0; iformat_ind<MAX_IFORMATS; iformat_ind++)
 			gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(ImgFormat),gettext(get_iformat_desc(iformat_ind)));
 
-		gtk_combo_box_set_active(GTK_COMBO_BOX(ImgFormat),global->imgFormat);
+		gtk_combo_box_set_active(GTK_COMBO_BOX(ImgFormat), global->imgFormat);
 
 		GtkFileFilter *filter = gtk_file_filter_new();
 		gtk_file_filter_add_pattern(filter, get_iformat_pattern(global->imgFormat));
@@ -390,14 +391,13 @@ file_chooser (GtkWidget * FileButt, struct ALL_DATA *all_data)
 			
 			/*get the file type*/
 			global->imgFormat = check_image_type(global->imgFPath[0]);
-			/*set the file type*/
-			gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->ImageType),global->imgFormat);
 
 			if(global->image_inc>0)
 			{
-				global->image_inc=1; /*if auto naming restart counter*/
-				//g_snprintf(global->imageinc_str,24,_("File num:%d"),global->image_inc);
-				//gtk_label_set_text(GTK_LABEL(gwidget->ImageIncLabel), global->imageinc_str);
+				uint64_t suffix = get_file_suffix(global->imgFPath[1], global->imgFPath[0]);
+				fprintf(stderr, "Image file suffix detected: %llu\n", suffix);
+				if(suffix >= 0)
+					global->image_inc = suffix + 1;
 			}
 
 		}
@@ -1589,8 +1589,13 @@ image_prefix_toggled(GtkWidget * toggle, struct ALL_DATA *all_data)
 
 	global->image_inc = gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(toggle)) ? 1 : 0;
 
-	//g_snprintf(global->imageinc_str,24,_("File num:%d"),global->image_inc);
-	//gtk_label_set_text(GTK_LABEL(gwidget->ImageIncLabel), global->imageinc_str);
+	if(global->image_inc > 0)
+	{
+		uint64_t suffix = get_file_suffix(global->imgFPath[1], global->imgFPath[0]);
+		fprintf(stderr, "Image file suffix detected: %llu\n", suffix);
+		if(suffix >= 0)
+			global->image_inc = suffix + 1;
+	}
 
 	global = NULL;
 
@@ -1604,8 +1609,13 @@ video_prefix_toggled(GtkWidget * toggle, struct ALL_DATA *all_data)
 
 	global->vid_inc = gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(toggle)) ? 1 : 0;
 
-	//g_snprintf(global->vidinc_str,24,_("File num:%d"),global->vid_inc);
-	//gtk_label_set_text(GTK_LABEL(gwidget->VidIncLabel), global->vidinc_str);
+	if(global->vid_inc > 0)
+	{
+		uint64_t suffix = get_file_suffix(global->vidFPath[1], global->vidFPath[0]);
+		fprintf(stderr, "Video file suffix detected: %llu\n", suffix);
+		if(suffix >= 0)
+			global->vid_inc = suffix + 1;
+	}
 
 	global = NULL;
 
@@ -1643,12 +1653,7 @@ capture_image (GtkButton *ImageButt, struct ALL_DATA *all_data)
     }
 
 	if ((global->image_timer == 0) && (global->image_inc>0))
-	{
-		uint64_t suffix = get_file_suffix(global->imgFPath[1], global->imgFPath[0]);
-		fprintf(stderr, "Image file suffix detected: %llu\n", suffix);
-		if(suffix > 0)
-			global->image_inc = suffix + 1;
-				
+	{			
 		videoIn->ImageFName = incFilename(videoIn->ImageFName,
 			global->imgFPath,
 			global->image_inc);
@@ -1766,11 +1771,6 @@ capture_vid (GtkToggleButton *VidButt, struct ALL_DATA *all_data)
 
 		if (global->vid_inc>0)
 		{
-			uint64_t suffix = get_file_suffix(global->vidFPath[1], global->vidFPath[0]);
-			fprintf(stderr, "Video file suffix detected: %llu\n", suffix);
-			if(suffix > 0)
-				global->vid_inc = suffix + 1;
-			
 			videoIn->VidFName = incFilename(videoIn->VidFName,
 				global->vidFPath,
 				global->vid_inc);

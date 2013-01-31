@@ -91,7 +91,7 @@ writeConf(struct GLOBAL *global, char *videodevice)
 		g_fprintf(fp,"# video muxer format: 0-AVI 1-MKV 2-WebM\n");
 		g_fprintf(fp,"vid_format=%i\n",global->VidFormat);
 		g_fprintf(fp,"# Auto Video naming (ex: filename-n.avi)\n");
-		g_fprintf(fp,"vid_inc=%llu\n",global->vid_inc);
+		g_fprintf(fp,"vid_inc=%i\n",(global->vid_inc > 0 ? 1: 0));
 		g_fprintf(fp,"# sound 0 - disable 1 - enable\n");
 		g_fprintf(fp,"sound=%i\n",global->Sound_enable);
 		g_fprintf(fp,"# sound API: 0- Portaudio  1- Pulseaudio\n");
@@ -116,7 +116,7 @@ writeConf(struct GLOBAL *global, char *videodevice)
 		g_fprintf(fp,"#on screen display flags (VU meter)\n");
 		g_fprintf(fp,"osd_flags=%i\n",global->osdFlags);
 		g_fprintf(fp,"# Auto Image naming (filename-n.ext)\n");
-		g_fprintf(fp,"image_inc=%llu\n",global->image_inc);
+		g_fprintf(fp,"image_inc=%i\n",(global->image_inc > 0 ? 1: 0));
 		g_fprintf(fp,"# Image capture Full Path\n");
 		g_fprintf(fp,"image_path='%s/%s'\n",global->imgFPath[1],global->imgFPath[0]);
 		g_fprintf(fp,"# Video capture Full Path\n");
@@ -696,6 +696,22 @@ readConf(struct GLOBAL *global)
         if (vc_qcompress >= 0) vcodec_defaults->qcompress = vc_qcompress;
 		if (vc_qblur >=0) vcodec_defaults->qblur = vc_qblur;
         
+        if(global->vid_inc>0)
+		{
+			uint64_t suffix = get_file_suffix(global->vidFPath[1], global->vidFPath[0]);
+			fprintf(stderr, "Video file suffix detected: %llu\n", suffix);
+			if(suffix > 0)
+				global->vid_inc = suffix + 1;
+		}
+		
+		if(global->image_inc>0)
+		{
+			uint64_t suffix = get_file_suffix(global->imgFPath[1], global->imgFPath[0]);
+			fprintf(stderr, "Image file suffix detected: %llu\n", suffix);
+			if(suffix > 0)
+				global->image_inc = suffix + 1;
+		}
+		
 		if (global->debug) 
 		{
 			g_print("video_device: %s\n",global->videodevice);
@@ -718,7 +734,6 @@ readConf(struct GLOBAL *global)
 			g_print("sound Channels: %i\n",global->Sound_NumChanInd);
 			g_print("Sound delay: %llu nanosec\n",(unsigned long long) global->Sound_delay);
 			g_print("Sound Format: %i \n",global->Sound_Format);
-			//g_print("Sound bit Rate: %i Kbps\n",global->Sound_bitRate);
 			g_print("Pan Step: %i degrees\n",global->PanStep);
 			g_print("Tilt Step: %i degrees\n",global->TiltStep);
 			g_print("Video Filter Flags: %i\n",global->Frame_Flags);
