@@ -75,6 +75,7 @@ struct GWIDGET
 	GtkWidget *quitButton;
 
 	gboolean vid_widget_state;
+	int status_warning_id;
 };
 
 struct ALL_DATA

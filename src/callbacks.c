@@ -1635,28 +1635,6 @@ capture_image (GtkButton *ImageButt, struct ALL_DATA *all_data)
 	 */ 
 	if(videoIn->capImage)
 		return;
-		
-    if(!global->no_display)
-    {
-	/**
-        const char *fileEntr = gtk_entry_get_text(GTK_ENTRY(gwidget->ImageFNameEntry));
-        if(g_strcmp0(fileEntr,global->imgFPath[0])!=0)
-        {
-            //reset if entry change from last capture
-            if(global->image_inc) global->image_inc=1;
-            global->imgFPath=splitPath((char *)fileEntr, global->imgFPath);
-            gtk_entry_set_text(GTK_ENTRY(gwidget->ImageFNameEntry),"");
-            gtk_entry_set_text(GTK_ENTRY(gwidget->ImageFNameEntry),global->imgFPath[0]);
-            //get the file type
-            global->imgFormat = check_image_type(global->imgFPath[0]);
-            //set the file type
-            gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->ImageType),global->imgFormat);
-        }
-
-        //g_snprintf(global->imageinc_str,24,_("File num:%d"),global->image_inc);
-        //gtk_label_set_text(GTK_LABEL(gwidget->ImageIncLabel), global->imageinc_str);
-    */
-    }
 
 	if ((global->image_timer == 0) && (global->image_inc>0))
 	{			
@@ -1688,6 +1666,14 @@ capture_image (GtkButton *ImageButt, struct ALL_DATA *all_data)
 	{
 		videoIn->capImage = TRUE;
 	}
+	
+	if(!global->no_display)
+    {
+		char * message = g_strjoin(" ", "capturing photo to", videoIn->ImageFName);
+		gtk_statusbar_pop (GTK_STATUSBAR(gwidget->status_bar), gwidget->status_warning_id);
+		gtk_statusbar_push (GTK_STATUSBAR(gwidget->status_bar), gwidget->status_warning_id, message);
+		g_free(message);
+    }
 
 	gwidget = NULL;
 	global = NULL;
@@ -1717,23 +1703,6 @@ capture_vid (GtkToggleButton *VidButt, struct ALL_DATA *all_data)
         //disable signals for this callback
         g_signal_handlers_block_by_func(GTK_TOGGLE_BUTTON(gwidget->CapVidButt), G_CALLBACK (capture_vid), all_data);
         //widgets are enable/disable in create_video.c
-	/**
-        fileEntr = (char *) gtk_entry_get_text(GTK_ENTRY(gwidget->VidFNameEntry));
-        if(g_strcmp0(fileEntr,global->vidFPath[0])!=0)
-        {
-            //reset if entry change from last capture
-            if(global->vid_inc) global->vid_inc=1;
-            global->vidFPath=splitPath(fileEntr, global->vidFPath);
-            gtk_entry_set_text(GTK_ENTRY(gwidget->VidFNameEntry),"");
-            gtk_entry_set_text(GTK_ENTRY(gwidget->VidFNameEntry),global->vidFPath[0]);
-            //get the file type
-            global->VidFormat = check_video_type(global->vidFPath[0]);
-            //set the file type
-            gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->VidFormat),global->VidFormat);
-        }
-        //check button state
-        //state = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(gwidget->CapVidButt));
-    */
     }
 	if(global->debug) g_print("Cap Video toggled: %d\n", state);
 
@@ -1768,12 +1737,6 @@ capture_vid (GtkToggleButton *VidButt, struct ALL_DATA *all_data)
 	}
 	else if(!(capVid) /*&& state*/)
 	{	/******************** Start Video *********************/
-       // if(!global->no_display)
-       // {
-       //     global->vidFPath=splitPath(fileEntr, global->vidFPath);
-       //     g_snprintf(global->vidinc_str,24,_("File num:%d"),global->vid_inc);
-       //     gtk_label_set_text(GTK_LABEL(gwidget->VidIncLabel), global->vidinc_str);
-       // }
 
 		if (global->vid_inc>0)
 		{
@@ -1788,6 +1751,13 @@ capture_vid (GtkToggleButton *VidButt, struct ALL_DATA *all_data)
 			videoIn->VidFName = joinPath(videoIn->VidFName, global->vidFPath);
 		}
 
+		if(!global->no_display)
+		{
+			char * message = g_strjoin(" ", "capturing video to", videoIn->VidFName);
+			gtk_statusbar_pop (GTK_STATUSBAR(gwidget->status_bar), gwidget->status_warning_id);
+			gtk_statusbar_push (GTK_STATUSBAR(gwidget->status_bar), gwidget->status_warning_id, message);
+			g_free(message);
+		}
 		/* check if enough free space is available on disk*/
 		if(!DiskSupervisor(all_data))
 		{

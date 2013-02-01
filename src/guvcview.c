@@ -615,6 +615,8 @@ int main(int argc, char *argv[])
         } /*end of control_only exclusion*/
 
 		gwidget->status_bar = gtk_statusbar_new();
+		gwidget->status_warning_id = gtk_statusbar_get_context_id (GTK_STATUSBAR(gwidget->status_bar), "warning");
+		
         gtk_widget_show(gwidget->status_bar);
        /** add the status bar*/
         gtk_box_pack_start(GTK_BOX(gwidget->maintable), gwidget->status_bar, FALSE, FALSE, 2);
