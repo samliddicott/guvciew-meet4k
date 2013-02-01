@@ -460,10 +460,8 @@ int main(int argc, char *argv[])
     if(!(global->no_display))
     {
 		gwidget->maintable = gtk_box_new(GTK_ORIENTATION_VERTICAL, 2);
-		//gwidget->secondtable = gtk_paned_new(GTK_ORIENTATION_VERTICAL);
 
 		gtk_widget_show (gwidget->maintable);
-		//gtk_widget_show (gwidget->secondtable);
 
 		/** Attach the menu */
 		gtk_box_pack_start(GTK_BOX(gwidget->maintable), create_menu(&all_data, control_only), FALSE, TRUE, 2);
@@ -475,7 +473,6 @@ int main(int argc, char *argv[])
 
         if (global->lprofile > 0) LoadControls (&all_data);
 
-        gwidget->boxv = gtk_paned_new (GTK_ORIENTATION_VERTICAL);
         gwidget->boxh = gtk_notebook_new();
 
         gtk_widget_show (s->table);
@@ -504,10 +501,6 @@ int main(int argc, char *argv[])
 
         gtk_notebook_append_page(GTK_NOTEBOOK(gwidget->boxh),scroll1,Tab1);
 
-        gtk_paned_add2(GTK_PANED(gwidget->boxv),gwidget->boxh);
-
-        gtk_widget_show (gwidget->boxv);
-
         /*---------------------- Add  Buttons ---------------------------------*/
         HButtonBox = gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL);
         gtk_widget_set_halign (HButtonBox, GTK_ALIGN_FILL);
@@ -516,8 +509,11 @@ int main(int argc, char *argv[])
         gtk_box_set_homogeneous(GTK_BOX(HButtonBox),TRUE);
 
 		gtk_widget_show(HButtonBox);
-
-        gtk_paned_add1(GTK_PANED(gwidget->boxv), HButtonBox);
+		
+		/** Attach the buttons */
+		gtk_box_pack_start(GTK_BOX(gwidget->maintable), HButtonBox, FALSE, TRUE, 2);
+		/** Attach the notebook (tabs) */
+		gtk_box_pack_start(GTK_BOX(gwidget->maintable), gwidget->boxh, TRUE, TRUE, 2);
 
         gwidget->quitButton=gtk_button_new_from_stock(GTK_STOCK_QUIT);
 
@@ -602,20 +598,12 @@ int main(int argc, char *argv[])
         /*must free path strings*/
         g_free(pix3path);
 
-        gtk_box_pack_start(GTK_BOX(HButtonBox),gwidget->quitButton,TRUE,TRUE,2);
+        gtk_box_pack_start(GTK_BOX(HButtonBox), gwidget->quitButton,TRUE,TRUE,2);
 
         gtk_widget_show_all (gwidget->quitButton);
 
         g_signal_connect (GTK_BUTTON(gwidget->quitButton), "clicked",
             G_CALLBACK (quitButton_clicked), &all_data);
-
-        /*sets the pan position (always leave enough space for the buttons and menu)*/
-        if(global->boxvsize <= 100)
-        {
-            global->boxvsize=100;
-        }
-
-        gtk_paned_set_position (GTK_PANED(gwidget->boxv),global->boxvsize);
 
         if(!control_only) /*control_only exclusion (video and Audio) */
         {
@@ -628,7 +616,7 @@ int main(int argc, char *argv[])
 
 		gwidget->status_bar = gtk_statusbar_new();
         gtk_widget_show(gwidget->status_bar);
-        gtk_box_pack_start(GTK_BOX(gwidget->maintable), gwidget->boxv, TRUE, TRUE, 4);
+       /** add the status bar*/
         gtk_box_pack_start(GTK_BOX(gwidget->maintable), gwidget->status_bar, FALSE, FALSE, 2);
         /* main container */
         gtk_container_add (GTK_CONTAINER (gwidget->mainwin), gwidget->maintable);

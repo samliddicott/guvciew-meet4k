@@ -43,7 +43,6 @@ struct GWIDGET
 	GtkWidget *restartdialog;
 	/*Paned containers*/
 	GtkWidget *maintable;
-	GtkWidget *boxv;
 	GtkWidget *boxh;
 
 	//group list for menu video codecs
@@ -55,7 +54,6 @@ struct GWIDGET
 	GtkWidget *menu_photo_top;
 	GtkWidget *menu_video_top;
 	
-
 	GtkWidget *status_bar;
 
 	GtkWidget *label_SndAPI;

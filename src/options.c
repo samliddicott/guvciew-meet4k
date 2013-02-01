@@ -68,8 +68,6 @@ writeConf(struct GLOBAL *global, char *videodevice)
 		g_fprintf(fp,"resolution='%ix%i'\n",global->width,global->height);
 		g_fprintf(fp,"# control window size: default %ix%i\n",WINSIZEX,WINSIZEY);
 		g_fprintf(fp,"windowsize='%ix%i'\n",global->winwidth,global->winheight);
-		g_fprintf(fp,"#vertical pane size\n");
-		g_fprintf(fp,"vpane=%i\n",global->boxvsize);
 		g_fprintf(fp,"#spin button behavior: 0-non editable 1-editable\n");
 		g_fprintf(fp,"spinbehave=%i\n", global->spinbehave);
 		g_fprintf(fp,"#Default action. 0 for picture, 1 for video.\n");
@@ -107,10 +105,6 @@ writeConf(struct GLOBAL *global, char *videodevice)
 		g_fprintf(fp,"snd_delay=%llu\n",(unsigned long long) global->Sound_delay);
 		g_fprintf(fp,"# Audio codec (PCM=0 MPG2=1 (\n");
 		g_fprintf(fp,"aud_codec=%i\n",global->AudCodec);
-		//g_fprintf(fp,"#Pan Step in degrees, Default=2\n");
-		//g_fprintf(fp,"Pan_Step=%i\n",global->PanStep);
-		//g_fprintf(fp,"#Tilt Step in degrees, Default=2\n");
-		//g_fprintf(fp,"Tilt_Step=%i\n",global->TiltStep);
 		g_fprintf(fp,"# video filters: 0 -none 1- flip 2- upturn 4- negate 8- mono (add the ones you want)\n");
 		g_fprintf(fp,"frame_flags=%i\n",global->Frame_Flags);
 		g_fprintf(fp,"#on screen display flags (VU meter)\n");
@@ -372,10 +366,6 @@ readConf(struct GLOBAL *global)
 							if(!(global->flg_cap_meth))
 								global->cap_meth = scanner->value.v_int;
 						}
-						else if (g_strcmp0(name,"vpane")==0) 
-						{
-							global->boxvsize = scanner->value.v_int;
-						}
 						else if (g_strcmp0(name,"spinbehave")==0) 
 						{
 							global->spinbehave = scanner->value.v_int;
@@ -448,7 +438,6 @@ readConf(struct GLOBAL *global)
 						else if ((g_strcmp0(name,"vid_inc")==0) || (g_strcmp0(name,"avi_inc")==0)) 
 						{
 							global->vid_inc = (DWORD) scanner->value.v_int;
-							//g_snprintf(global->vidinc_str,20,_("File num:%d"),global->vid_inc);
 						}
 						else if (g_strcmp0(name,"sound")==0) 
 						{
@@ -479,20 +468,6 @@ readConf(struct GLOBAL *global)
 							global->AudCodec = scanner->value.v_int;
 							global->Sound_Format = get_aud4cc(global->AudCodec);
 						}
-						// else if (g_strcmp0(name,"snd_bitrate")==0) 
-						// {
-							// global->Sound_bitRate = scanner->value.v_int;
-						// }
-						//else if (g_strcmp0(name,"Pan_Step")==0)
-						//{
-						//	global->PanStep = signal * scanner->value.v_int;
-						//	signal = 1; /*reset signal*/
-						//}
-						//else if (g_strcmp0(name,"Tilt_Step")==0)
-						//{
-						//	global->TiltStep = signal * scanner->value.v_int;
-						//	signal = 1; /*reset signal*/
-						//}
 						else if (g_strcmp0(name,"frame_flags")==0) 
 						{
 							global->Frame_Flags = scanner->value.v_int;
@@ -504,9 +479,6 @@ readConf(struct GLOBAL *global)
 						else if (g_strcmp0(name,"image_inc")==0) 
 						{
 							global->image_inc = (DWORD) scanner->value.v_int;
-							//if((global->image_timer > 0) && (global->image_inc <= 0))
-							//    global->image_inc = 1;
-							//g_snprintf(global->imageinc_str,20,_("File num:%d"),global->image_inc);
 						}
 						else if (g_strcmp0(name,"acodec_bit_rate")==0) 
 						{
@@ -719,7 +691,6 @@ readConf(struct GLOBAL *global)
 			g_print("cap_meth: %i\n",global->cap_meth);
 			g_print("resolution: %i x %i\n",global->width,global->height);
 			g_print("windowsize: %i x %i\n",global->winwidth,global->winheight);
-			g_print("vert pane: %i\n",global->boxvsize);
 			g_print("spin behavior: %i\n",global->spinbehave);
 			g_print("default action: %i\n",global->default_action);
 			g_print("mode: %s\n",global->mode);
