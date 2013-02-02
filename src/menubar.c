@@ -143,7 +143,7 @@ GtkWidget *create_menu(struct ALL_DATA *all_data, int control_only)
 		//video menu
 		gwidget->menu_video_top = gtk_menu_item_new_with_label(_("Video"));
 		video_file = gtk_menu_item_new_with_label(_("File"));
-		video_timestamp = gtk_check_menu_item_new_with_label(_("Append timestamp"));
+		video_timestamp = gtk_check_menu_item_new_with_label(_("Increment Filename"));
 
 		gtk_widget_show (gwidget->menu_video_top);
 		gtk_widget_show (video_file);
@@ -229,7 +229,7 @@ GtkWidget *create_menu(struct ALL_DATA *all_data, int control_only)
 		//photo menu
 		gwidget->menu_photo_top = gtk_menu_item_new_with_label(_("Photo"));
 		photo_file = gtk_menu_item_new_with_label(_("File"));
-		photo_timestamp = gtk_check_menu_item_new_with_label(_("Append timestamp"));
+		photo_timestamp = gtk_check_menu_item_new_with_label(_("Increment Filename"));
 
 		gtk_widget_show (gwidget->menu_photo_top);
 		gtk_widget_show (photo_file);

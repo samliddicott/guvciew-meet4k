@@ -205,6 +205,16 @@ int main(int argc, char *argv[])
 	struct ALL_DATA all_data;
 	memset(&all_data,0,sizeof(struct ALL_DATA));
 
+	/** initGlobals needs codecs registered
+	 * so do it here
+	 */
+#if !LIBAVCODEC_VER_AT_LEAST(53,34)
+	avcodec_init();
+#endif
+	// register all the codecs (you can also register only the codec
+	//you wish to have smaller code)
+	avcodec_register_all();
+	
 	/*allocate global variables*/
 	global = g_new0(struct GLOBAL, 1);
 	initGlobals(global);
@@ -253,14 +263,6 @@ int main(int argc, char *argv[])
 
 		/* Allocate the video Format struct */
 		videoF = g_new0(struct VideoFormatData, 1);
-
-#if !LIBAVCODEC_VER_AT_LEAST(53,34)
-		avcodec_init();
-#endif
-
-		// register all the codecs (you can also register only the codec
-		//you wish to have smaller code)
-		avcodec_register_all();
 
 		/*---------------------------- Start PortAudio API -----------------------*/
 		if(global->debug) g_print("starting portaudio...\n");

@@ -748,7 +748,7 @@ int init_videoIn(struct vdIn *videoIn, struct GLOBAL *global)
 	//flag from video thread
 	videoIn->VidCapStop=TRUE;
 	
-	videoIn->VidFName = g_strdup(DEFAULT_AVI_FNAME);
+	videoIn->VidFName = g_strdup(global->vidFPath[0]);
 	videoIn->signalquit = FALSE;
 	videoIn->PanTilt=0;
 	videoIn->isbayer = 0; //bayer mode off
@@ -757,7 +757,7 @@ int init_videoIn(struct vdIn *videoIn, struct GLOBAL *global)
 	videoIn->capImage=FALSE;
 	videoIn->cap_raw=0;
 	
-	videoIn->ImageFName = g_strdup(DEFAULT_IMAGE_FNAME);
+	videoIn->ImageFName = g_strdup(global->imgFPath[0]);
 	
 	//timestamps not supported by UVC driver
 	//vd->timecode.type = V4L2_TC_TYPE_25FPS;

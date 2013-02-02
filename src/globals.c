@@ -26,6 +26,9 @@
 #include "avilib.h"
 #include "sound.h"
 #include "v4l2uvc.h"
+#include "string_utils.h"
+#include "vcodecs.h"
+#include "acodecs.h"
 
 #define __AMUTEX &pdata->mutex
 #define __VMUTEX &videoIn->mutex
@@ -59,9 +62,11 @@ int initGlobals (struct GLOBAL *global)
 	
 	global->profile_FPath[1] = g_strdup(home);
 	
-	global->vidFPath[0] = g_strdup(DEFAULT_AVI_FNAME);
-	
-	global->imgFPath[0] = g_strdup(DEFAULT_IMAGE_FNAME);
+	global->vidFPath[0] = g_strdup("guvcview_video.mkv");
+	global->VidFormat = check_video_type(global->vidFPath[0]);
+		
+	global->imgFPath[0] = g_strdup("guvcview_image.jpg");
+	global->imgFormat = check_image_type(global->imgFPath[0]);
 	
 	global->profile_FPath[0] = g_strdup("default.gpfl");
 	
@@ -74,21 +79,27 @@ int initGlobals (struct GLOBAL *global)
 	
 	global->stack_size=TSTACK;
 	
-	global->image_inc=0;
-
-	//global->imageinc_str = g_new(char, 25);
-	//g_snprintf(global->imageinc_str,20,_("File num:%d"),global->image_inc);
-	
-	//global->vidinc_str = g_new(char, 25);
-	//g_snprintf(global->vidinc_str,20,_("File num:%d"),global->vid_inc);
+	global->image_inc = 1; //increment filename by default
+	global->vid_inc = 1;   //increment filename by default
 	
 	global->vid_sleep=0;
 	global->vidfile=NULL; /*vid filename passed through argument options with -n */
 	global->Capture_time=0; /*vid capture time passed through argument options with -t */
 	global->lprofile=0; /* flag for -l command line option*/
-	global->imgFormat=0; /* 0 -JPG 1-BMP 2-PNG*/
-	global->VidCodec=0; /*0-"MJPG"  1-"YUY2" 2-"DIB "(rgb32) 3-...*/
-	global->AudCodec=1; /*0-"PCM"  1-"MPG2" 2-...*/    
+	
+	/** try to set video codec default to mpeg4*/
+	setVcodecVal ();
+	int vcodec = get_list_vcodec_index(AV_CODEC_ID_MPEG4);
+	if(vcodec < 0)
+		vcodec = 0;
+	global->VidCodec= vcodec; /*0-"MJPG"  1-"YUY2" 2-"DIB "(rgb32) 3-...*/
+	/** try to set audio codec default to mp2*/
+	setAcodecVal();
+	int acodec = get_list_acodec_index(AV_CODEC_ID_MP2);
+	if(acodec < 0)
+		acodec = 0;
+	global->AudCodec = acodec; /*0-"PCM"  1-"MPG2" 2-...*/    
+	
 	global->av_drift=0;
 	global->currtime=0;
 	global->lasttime=0;
@@ -109,7 +120,6 @@ int initGlobals (struct GLOBAL *global)
 	global->Sound_NumChan=NUM_CHANNELS;
 	global->Sound_NumChanInd=0;
 	global->Sound_delay=0;
-	//global->Sound_bitRate=160; /*160 Kbps = 20000 Bps*/
 	global->Sound_delay=0;     /*sound delay in nanosec*/
 	global->FpsCount=0;
 
@@ -173,8 +183,6 @@ int closeGlobals(struct GLOBAL *global)
 	g_free(global->imgFPath);
 	g_free(global->profile_FPath);
 	g_free (global->WVcaption);
-	//g_free(global->imageinc_str);
-	//g_free(global->vidinc_str);
 	g_free(global->vidfile);
 	g_free(global->mode);
 	g_free(global->Sound_IndexDev);

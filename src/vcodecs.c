@@ -269,7 +269,7 @@ static vcodecs_data listSupVCodecs[] = //list of software supported formats
 		.num_threads  = 1,
 		.flags        = 0
 	},
-	{       //only available in libavcodec-unstriped
+	{      
 		.avcodec      = TRUE,
 		.valid        = TRUE,
 		.compressor   = "MPG2",
@@ -305,7 +305,7 @@ static vcodecs_data listSupVCodecs[] = //list of software supported formats
 		.num_threads  = 1,
 		.flags        = 0
 	},
-	{       //only available in libavcodec-unstriped
+	{      
 		.avcodec      = TRUE,
 		.valid        = TRUE,
 		.compressor   = "MP43",
@@ -341,7 +341,7 @@ static vcodecs_data listSupVCodecs[] = //list of software supported formats
 		.num_threads  = 1,
 		.flags        = 0
 	},
-	{       //only available in libavcodec-unstriped
+	{      
 		.avcodec      = TRUE,
 		.valid        = TRUE,
 		.compressor   = "DX50",
@@ -377,7 +377,7 @@ static vcodecs_data listSupVCodecs[] = //list of software supported formats
 		.num_threads  = 1,
 		.flags        = 0
 	},
-	{       //only available in libavcodec-unstriped
+	{      
 		.avcodec      = TRUE,
 		.valid        = TRUE,
 		.compressor   = "H264",
@@ -417,7 +417,7 @@ static vcodecs_data listSupVCodecs[] = //list of software supported formats
 		.flags        = CODEC_FLAG2_BPYRAMID | CODEC_FLAG2_WPRED | CODEC_FLAG2_FASTPSKIP | CODEC_FLAG2_INTRA_REFRESH
 #endif
 	},
-	{       //only available in libavcodec-unstriped
+	{       
 		.avcodec      = TRUE,
 		.valid        = TRUE,
 		.compressor   = "VP80",
@@ -453,7 +453,7 @@ static vcodecs_data listSupVCodecs[] = //list of software supported formats
 		.num_threads  = 4,
 		.flags        = 0
 	},
-	{       //only available in libavcodec-unstriped
+	{       
 		.avcodec      = TRUE,
 		.valid        = TRUE,
 		.compressor   = "theo",

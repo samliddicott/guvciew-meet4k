@@ -106,15 +106,10 @@ static const int stdSampleRates[] =
 /*---------- Thread Stack Size (bytes) --------*/
 #define TSTACK (128*64*1024) /* Debian Default 128 pages of 64k = 8388608 bytes*/
 
-/*----------- AVI max file size ---------------*/
-#define AVI_MAX_SIZE (1900*1024*1024)
-/* extra size beyond MAX SIZE at wich we can still write data*/ 
-#define AVI_EXTRA_SIZE (20*1024*1024)
-
 #define INCPANTILT 64 // 1°
 
-#define WINSIZEX 480
-#define WINSIZEY 700
+#define WINSIZEX 560
+#define WINSIZEY 560
 
 #define AUTO_EXP 8
 #define MAN_EXP	1
@@ -124,8 +119,6 @@ static const int stdSampleRates[] =
 #define DEFAULT_WIDTH 640
 #define DEFAULT_HEIGHT 480
 
-#define DEFAULT_IMAGE_FNAME	"Image.jpg"
-#define DEFAULT_AVI_FNAME	"capture.avi"
 #define DEFAULT_FPS	25
 #define DEFAULT_FPS_NUM 1
 #define SDL_WAIT_TIME 30 /*SDL - Thread loop sleep time */
