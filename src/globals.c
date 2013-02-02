@@ -48,7 +48,13 @@ int initGlobals (struct GLOBAL *global)
 
 	global->videodevice = g_strdup("/dev/video0");
 	
-	global->confPath = g_strjoin("/", home, ".guvcviewrc", NULL);
+	global->confPath = g_strjoin("/", home, ".config", "guvcview", NULL);
+	int ret = g_mkdir_with_parents(global->confPath, 0777);
+	if(ret)
+		fprintf(stderr, "Couldn't create configuration dir: %s \n", global->confPath);
+	
+	g_free(global->confPath);
+	global->confPath = g_strjoin("/", home, ".config", "guvcview", "video0", NULL);
 	
 	global->vidFPath = g_new(pchar, 2);
 	

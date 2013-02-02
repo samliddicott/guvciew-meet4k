@@ -175,7 +175,7 @@ writeConf(struct GLOBAL *global, char *videodevice)
 	return ret;
 }
 
-/*----------------------- read conf (.guvcviewrc(-videoX)) file -----------------------*/
+/*----------------------- read conf (.config/guvcview/videoX) file -----------------------*/
 int
 readConf(struct GLOBAL *global)
 {
@@ -264,11 +264,6 @@ readConf(struct GLOBAL *global)
 					
 					if (ttype == G_TOKEN_STRING)
 					{
-						//signal=1; /*reset signal*/
-						//if (g_strcmp0(name,"video_device")==0) 
-						//{
-						//	g_snprintf(global->videodevice,15,"%s",scanner->value.v_string);
-						//}
 						
 						if (g_strcmp0(name,"version")==0)
 						{
@@ -870,9 +865,10 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 				{
 					g_free(global->confPath);
 					global->confPath=NULL;
-					global->confPath = g_strjoin("", 
+					global->confPath = g_strjoin("/", 
 						g_get_home_dir(), 
-						"/.guvcviewrc-",
+						".config",
+						"guvcview",
 						basename,
 						NULL);
 				}
