@@ -269,7 +269,14 @@ file_chooser (GtkWidget * FileButt, struct ALL_DATA *all_data)
 		NULL);
 	gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (FileDialog), TRUE);
 
-
+	GtkWidget *FBox = gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL);
+	GtkWidget *format_label = gtk_label_new(_("File Format:"));
+	gtk_widget_set_halign (FBox, GTK_ALIGN_FILL);
+	gtk_widget_set_hexpand (FBox, TRUE);
+	gtk_widget_show(FBox);
+	gtk_widget_show(format_label);
+	gtk_box_pack_start(GTK_BOX(FBox), format_label, FALSE, FALSE, 2);
+		
 	int flag_vid = GPOINTER_TO_INT(g_object_get_data (G_OBJECT (FileButt), "file_butt"));
 	if(flag_vid)
 	{ /* video File chooser*/
@@ -277,6 +284,7 @@ file_chooser (GtkWidget * FileButt, struct ALL_DATA *all_data)
 		GtkWidget *VidFormat = gtk_combo_box_text_new ();
 		gtk_widget_set_halign (VidFormat, GTK_ALIGN_FILL);
 		gtk_widget_set_hexpand (VidFormat, TRUE);
+		gtk_widget_show(VidFormat);
 
 		int vformat_ind =0;
 		for (vformat_ind =0; vformat_ind<MAX_VFORMATS; vformat_ind++)
@@ -284,11 +292,13 @@ file_chooser (GtkWidget * FileButt, struct ALL_DATA *all_data)
 
 		gtk_combo_box_set_active(GTK_COMBO_BOX(VidFormat),global->VidFormat);
 
+		gtk_box_pack_start(GTK_BOX(FBox), VidFormat, FALSE, FALSE, 2);
+		
 		GtkFileFilter *filter = gtk_file_filter_new();
 		gtk_file_filter_add_pattern(filter, get_vformat_pattern(global->VidFormat));
 		gtk_file_chooser_set_filter(GTK_FILE_CHOOSER (FileDialog), filter);
 
-		gtk_file_chooser_set_extra_widget(GTK_FILE_CHOOSER (FileDialog), VidFormat);
+		gtk_file_chooser_set_extra_widget(GTK_FILE_CHOOSER (FileDialog), FBox);
 
 		g_object_set_data (G_OBJECT (VidFormat), "format_combo", GINT_TO_POINTER(1));
 		g_signal_connect (GTK_COMBO_BOX(VidFormat), "changed",
@@ -377,12 +387,14 @@ file_chooser (GtkWidget * FileButt, struct ALL_DATA *all_data)
 			gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(ImgFormat),gettext(get_iformat_desc(iformat_ind)));
 
 		gtk_combo_box_set_active(GTK_COMBO_BOX(ImgFormat), global->imgFormat);
+		gtk_box_pack_start(GTK_BOX(FBox), ImgFormat, FALSE, FALSE, 2);
+		gtk_widget_show(ImgFormat);
 
 		GtkFileFilter *filter = gtk_file_filter_new();
 		gtk_file_filter_add_pattern(filter, get_iformat_pattern(global->imgFormat));
 		gtk_file_chooser_set_filter(GTK_FILE_CHOOSER (FileDialog), filter);
 
-		gtk_file_chooser_set_extra_widget(GTK_FILE_CHOOSER (FileDialog), ImgFormat);
+		gtk_file_chooser_set_extra_widget(GTK_FILE_CHOOSER (FileDialog), FBox);
 
 		g_object_set_data (G_OBJECT (ImgFormat), "format_combo", GINT_TO_POINTER(0));
 		g_signal_connect (GTK_COMBO_BOX(ImgFormat), "changed",

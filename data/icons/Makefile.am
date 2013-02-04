@@ -3,14 +3,9 @@ icons_DATA = \
 		guvcview.png\
 		camera.png\
 		movie.png\
-		save.png\
-		defaults.png\
 		image_controls.png\
 		video_controls.png\
 		audio_controls.png\
-		images_folder.png\
-		videos_folder.png\
-		controls_folder.png\
 		close.png
 
 
