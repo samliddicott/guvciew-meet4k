@@ -350,6 +350,11 @@ file_chooser (GtkWidget * FileButt, struct ALL_DATA *all_data)
 			{
 				uint64_t suffix = get_file_suffix(global->vidFPath[1], global->vidFPath[0]);
 				fprintf(stderr, "Video file suffix detected: %" PRIu64 "\n", suffix);
+				if(suffix >= G_MAXUINT64)
+				{
+					global->vidFPath[0] = add_file_suffix(global->vidFPath[0], suffix);
+					suffix = 0;
+				}
 				if(suffix >= 0)
 					global->vid_inc = suffix + 1;
 			}
@@ -396,6 +401,11 @@ file_chooser (GtkWidget * FileButt, struct ALL_DATA *all_data)
 			{
 				uint64_t suffix = get_file_suffix(global->imgFPath[1], global->imgFPath[0]);
 				fprintf(stderr, "Image file suffix detected: %" PRIu64 "\n", suffix);
+				if(suffix >= G_MAXUINT64)
+				{
+					global->imgFPath[0] = add_file_suffix(global->imgFPath[0], suffix);
+					suffix = 0;
+				}
 				if(suffix >= 0)
 					global->image_inc = suffix + 1;
 			}
@@ -1593,6 +1603,11 @@ image_prefix_toggled(GtkWidget * toggle, struct ALL_DATA *all_data)
 	{
 		uint64_t suffix = get_file_suffix(global->imgFPath[1], global->imgFPath[0]);
 		fprintf(stderr, "Image file suffix detected: %" PRIu64 "\n", suffix);
+		if(suffix >= G_MAXUINT64)
+		{
+			global->imgFPath[0] = add_file_suffix(global->imgFPath[0], suffix);
+			suffix = 0;
+		}
 		if(suffix >= 0)
 			global->image_inc = suffix + 1;
 	}
@@ -1613,6 +1628,11 @@ video_prefix_toggled(GtkWidget * toggle, struct ALL_DATA *all_data)
 	{
 		uint64_t suffix = get_file_suffix(global->vidFPath[1], global->vidFPath[0]);
 		fprintf(stderr, "Video file suffix detected: %" PRIu64 "\n", suffix);
+		if(suffix >= G_MAXUINT64)
+		{
+			global->vidFPath[0] = add_file_suffix(global->vidFPath[0], suffix);
+			suffix = 0;
+		}
 		if(suffix >= 0)
 			global->vid_inc = suffix + 1;
 	}

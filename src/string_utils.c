@@ -23,12 +23,13 @@
 #include <glib.h>
 #include <glib/gprintf.h>
 #include "defs.h"
+#include "string_utils.h"
 #include "video_format.h"
 
 
 /* counts chars needed for n*/
 int
-num_chars (int n)
+int_num_chars (int n)
 {
 	int i = 0;
 
@@ -37,6 +38,19 @@ num_chars (int n)
 		i++;
 		n = -n;
 	}
+
+	while (n != 0)
+	{
+		n /= 10;
+		i++;
+	}
+	return i;
+}
+
+int
+uint64_num_chars (uint64_t n)
+{
+	int i = 0;
 
 	while (n != 0)
 	{
@@ -166,24 +180,22 @@ char *joinPath(char *fullPath, pchar *splited)
 	return (fullPath);
 }
 
-char *incFilename(char *fullPath, pchar *splited, int inc)
+char *incFilename(char *fullPath, pchar *splited, uint64_t inc)
 {
-	int fsize=strlen(splited[0]);
-	char basename[fsize];
-	char extension[5];
-	int inc_n_char = num_chars(inc);
-	gchar *buffer = g_new0(gchar, inc_n_char+1);/*include '\0' terminator*/
-	buffer = g_ascii_dtostr(buffer, inc_n_char+1, inc);
-
-	sscanf(splited[0],"%[^.].%4s", basename, extension);
-	//extension[3]='\0';/*terminate extension string*/
-
-	g_free (fullPath);
-	fullPath=NULL;
-	fullPath = g_strjoin("", splited[1], "/", basename,
-			"-", buffer, ".", extension, NULL);
-	g_free(buffer);
-
+	/** we don't want to change the base filename (splited[0])
+	 * so copy it
+	 */
+	char* filename = g_strdup(splited[0]);
+	filename = add_file_suffix(filename, inc);
+	
+	/*clean existing string allocation*/
+	g_free(fullPath);
+	
+	fullPath = g_strjoin ("/", splited[1], filename, NULL);
+	
+	if(filename)
+		g_free(filename);
+	
 	return(fullPath);
 }
 
@@ -229,6 +241,23 @@ char *setVidExt(char *filename, int format_ind)
 	return (filename);
 }
 
+char *add_file_suffix(char *filename, uint64_t suffix)
+{
+	int fsize=strlen(filename);
+	char basename[fsize+1];
+	char extension[5];
+
+	sscanf(filename, "%[^.].%4s", basename, extension);
+
+	fsize += uint64_num_chars(suffix) + 2;
+	
+	filename = g_renew(char, filename, fsize+1);
+	
+	snprintf(filename, fsize, "%s-%llu.%s", basename, (unsigned long long) suffix, extension);
+	
+	return(filename);
+}
+
 uint64_t get_file_suffix(const char *path, const char* filename)
 {
 	uint64_t suffix = 0;
@@ -247,7 +276,7 @@ uint64_t get_file_suffix(const char *path, const char* filename)
 	sscanf(filename,"%[^.].%4s", basename, extension);
 	fsize += 8;
 	char format_str[fsize];
-	g_snprintf(format_str, fsize-1, "%s-%%18s.%s", basename, extension);
+	g_snprintf(format_str, fsize-1, "%s-%%20s.%s", basename, extension);
 			
 	char* file_name = NULL;
 	while ((file_name = (char *) g_dir_read_name (dir)) != NULL)
@@ -255,7 +284,7 @@ uint64_t get_file_suffix(const char *path, const char* filename)
 		if( g_str_has_prefix (file_name, basename) &&
 		    g_str_has_suffix (file_name, extension))
 		{
-			char sfix_str[19];
+			char sfix_str[21];
 			sscanf(file_name, format_str, sfix_str);
 			uint64_t sfix = g_ascii_strtoull(sfix_str, NULL, 10);
 			

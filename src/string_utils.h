@@ -25,7 +25,10 @@
 #include "defs.h"
 
 int
-num_chars (int n);
+int_num_chars (int n);
+
+int
+uint64_num_chars (uint64_t n);
 
 /* check image file extension and return image type*/
 int 
@@ -45,13 +48,16 @@ joinPath(char *fullPath, pchar * splited);
 
 /*increment file name with inc*/
 char *
-incFilename(char *fullPath, pchar *splited, int inc);
+incFilename(char *fullPath, pchar *splited, uint64_t inc);
 
 char *
 setImgExt(char *filename, int format);
 
 char *
 setVidExt(char *filename, int format_ind);
+
+char *
+add_file_suffix(char *filename, uint64_t suffix);
 
 uint64_t 
 get_file_suffix(const char *path, const char* filename);
