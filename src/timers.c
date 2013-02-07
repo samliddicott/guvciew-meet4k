@@ -98,7 +98,7 @@ Image_capture_timer(gpointer data)
         
     	if(!global->no_display)
     	{
-        	char *message = g_strjoin(" ", "capturing photo to", videoIn->ImageFName, NULL);
+        	char *message = g_strjoin(" ", _("capturing photo to"), videoIn->ImageFName, NULL);
 			gtk_statusbar_pop (GTK_STATUSBAR(gwidget->status_bar), gwidget->status_warning_id);
 			gtk_statusbar_push (GTK_STATUSBAR(gwidget->status_bar), gwidget->status_warning_id, message);
 			g_free(message);

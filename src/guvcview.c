@@ -655,7 +655,7 @@ int main(int argc, char *argv[])
             if(!global->no_display)
             {
                 set_sensitive_img_contrls(FALSE, gwidget);/*disable image controls*/
-                char *message = g_strjoin(" ", "capturing photo to", videoIn->ImageFName, NULL);
+                char *message = g_strjoin(" ", _("capturing photo to"), videoIn->ImageFName, NULL);
 				gtk_statusbar_pop (GTK_STATUSBAR(gwidget->status_bar), gwidget->status_warning_id);
 				gtk_statusbar_push (GTK_STATUSBAR(gwidget->status_bar), gwidget->status_warning_id, message);
 				g_free(message);
@@ -705,7 +705,7 @@ int main(int argc, char *argv[])
 			{
 				/*disabling sound and video compression controls*/
 				set_sensitive_vid_contrls(FALSE, global->Sound_enable, gwidget);
-				char *message = g_strjoin(" ", "capturing video to", videoIn->VidFName, NULL);
+				char *message = g_strjoin(" ", _("capturing video to"), videoIn->VidFName, NULL);
 				gtk_statusbar_pop (GTK_STATUSBAR(gwidget->status_bar), gwidget->status_warning_id);
 				gtk_statusbar_push (GTK_STATUSBAR(gwidget->status_bar), gwidget->status_warning_id, message);
 				g_free(message);
