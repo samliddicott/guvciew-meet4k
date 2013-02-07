@@ -653,7 +653,13 @@ int main(int argc, char *argv[])
 			global->image_timer_id=g_timeout_add(global->image_timer*1000,
 				Image_capture_timer, &all_data);
             if(!global->no_display)
+            {
                 set_sensitive_img_contrls(FALSE, gwidget);/*disable image controls*/
+                char *message = g_strjoin(" ", "capturing photo to", videoIn->ImageFName, NULL);
+				gtk_statusbar_pop (GTK_STATUSBAR(gwidget->status_bar), gwidget->status_warning_id);
+				gtk_statusbar_push (GTK_STATUSBAR(gwidget->status_bar), gwidget->status_warning_id, message);
+				g_free(message);
+            }
 		}
 		/*--------------------- video capture from start ---------------------------*/
 		if(global->vidfile)
@@ -699,6 +705,10 @@ int main(int argc, char *argv[])
 			{
 				/*disabling sound and video compression controls*/
 				set_sensitive_vid_contrls(FALSE, global->Sound_enable, gwidget);
+				char *message = g_strjoin(" ", "capturing video to", videoIn->VidFName, NULL);
+				gtk_statusbar_pop (GTK_STATUSBAR(gwidget->status_bar), gwidget->status_warning_id);
+				gtk_statusbar_push (GTK_STATUSBAR(gwidget->status_bar), gwidget->status_warning_id, message);
+				g_free(message);
 			}
 		}
 

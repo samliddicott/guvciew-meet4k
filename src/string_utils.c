@@ -130,6 +130,8 @@ pchar* splitPath(char *FullPath, char* splited[2])
 	char *basename = g_path_get_basename(FullPath);
 	char *dirname  = g_path_get_dirname(FullPath);
 
+	//fprintf(stderr, "base: '%s' dir: '%s'\n",basename, dirname);
+	
 	int cpysize = 0;
 	int size = strlen(basename)+1;
 
@@ -145,23 +147,21 @@ pchar* splitPath(char *FullPath, char* splited[2])
 			cpysize+1,
 			(unsigned long) size*sizeof(char));
 
-	/*only change stored dirname if one is set*/
-	if(g_strcmp0(".",dirname)!=0)
+	
+	size = strlen(dirname)+1;
+
+	if (size > (strlen(splited[1])+1))
 	{
-		size = strlen(dirname)+1;
-
-		if (size > (strlen(splited[1])+1))
-		{
-			/* strlen doesn't count '/0' so add 1 char*/
-			splited[1]=g_renew(char, splited[1], size);
-		}
-
-		cpysize = g_strlcpy(splited[1], dirname, size*sizeof(char));
-		if ( (cpysize + 1) < (size*sizeof(char)) )
-			g_printerr("dirname copy size error:(%i != %lu)\n",
-				cpysize+1,
-				(unsigned long) size*sizeof(char));
+		/* strlen doesn't count '/0' so add 1 char*/
+		splited[1]=g_renew(char, splited[1], size);
 	}
+
+	cpysize = g_strlcpy(splited[1], dirname, size*sizeof(char));
+	if ( (cpysize + 1) < (size*sizeof(char)) )
+		g_printerr("dirname copy size error:(%i != %lu)\n",
+			cpysize+1,
+			(unsigned long) size*sizeof(char));
+	
 
 	g_free(basename);
 	g_free(dirname);
@@ -172,7 +172,8 @@ pchar* splitPath(char *FullPath, char* splited[2])
 char *joinPath(char *fullPath, pchar *splited)
 {
 	/*clean existing string allocation*/
-	g_free(fullPath);
+	if(fullPath != NULL)
+		g_free(fullPath);
 
 	/*allocate newly formed string*/
 	fullPath = g_strjoin ("/", splited[1], splited[0], NULL);

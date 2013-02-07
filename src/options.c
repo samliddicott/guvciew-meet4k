@@ -931,6 +931,19 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 		/*get the file type*/
 		global->imgFormat = check_image_type(global->imgFPath[0]);
 		global->flg_imgFPath = TRUE;
+		
+		if(global->image_inc>0)
+		{
+			uint64_t suffix = get_file_suffix(global->imgFPath[1], global->imgFPath[0]);
+			fprintf(stderr, "Image file suffix detected: %" PRIu64 "\n", suffix);
+			if(suffix >= G_MAXUINT64)
+			{
+				global->imgFPath[0] = add_file_suffix(global->imgFPath[0], suffix);
+				suffix = 0;
+			}
+			if(suffix > 0)
+				global->image_inc = suffix + 1;
+		}
 	}
 	if(global->image_timer > 0 )
 	{
@@ -938,8 +951,22 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 	}
 	if(video)
 	{
-		global->vidfile = g_strdup(video);
-		global->vidFPath=splitPath(global->vidfile,global->vidFPath);
+		global->vidFPath=splitPath(video, global->vidFPath);
+		if(global->vid_inc>0)
+		{
+			uint64_t suffix = get_file_suffix(global->vidFPath[1], global->vidFPath[0]);
+			fprintf(stderr, "Video file suffix detected: %" PRIu64 "\n", suffix);
+			if(suffix >= G_MAXUINT64)
+			{
+				global->vidFPath[0] = add_file_suffix(global->vidFPath[0], suffix);
+				suffix = 0;
+			}
+			if(suffix > 0)
+				global->vid_inc = suffix + 1;
+		}
+		
+		global->vidfile = joinPath(global->vidfile, global->vidFPath);
+		
 		g_print("capturing video: %s , from start\n",global->vidfile);
 		/*get the file type*/
 		global->VidFormat = check_video_type(global->vidFPath[0]);

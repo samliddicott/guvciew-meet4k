@@ -98,22 +98,20 @@ Image_capture_timer(gpointer data)
         
     	if(!global->no_display)
     	{
-        	//g_snprintf(global->imageinc_str,24,_("File num:%d"),global->image_inc);
-        
-        	//gdk_threads_enter();
-            //gtk_label_set_text(GTK_LABEL(gwidget->ImageIncLabel), global->imageinc_str);
-            //gdk_flush();
-        	//gdk_threads_leave();
+        	char *message = g_strjoin(" ", "capturing photo to", videoIn->ImageFName, NULL);
+			gtk_statusbar_pop (GTK_STATUSBAR(gwidget->status_bar), gwidget->status_warning_id);
+			gtk_statusbar_push (GTK_STATUSBAR(gwidget->status_bar), gwidget->status_warning_id, message);
+			g_free(message);
     	}
     
-    	global->image_inc = global->image_picn;
+    	global->image_inc++;
     }
     else
     	videoIn->ImageFName = joinPath(videoIn->ImageFName, global->imgFPath);
     
     videoIn->capImage = TRUE;
 
-    if(global->image_picn > global->image_npics) 
+    if(global->image_picn >= global->image_npics) 
     {   /*destroy timer*/
         if(!global->no_display)
         {
