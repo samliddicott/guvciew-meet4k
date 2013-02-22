@@ -196,7 +196,6 @@ void *main_loop(void *data)
     struct GLOBAL *global = all_data->global;
     struct focusData *AFdata = all_data->AFdata;
     struct vdIn *videoIn = all_data->videoIn;
-    struct GWIDGET *gwidget = all_data->gwidget;
 
     struct particle* particles = NULL; //for the particles video effect
 
@@ -480,14 +479,10 @@ void *main_loop(void *data)
                         case 220: /*webcam button*/
                             //gdk_threads_enter();
                            	if (all_data->global->default_action == 0)
-                           	{
-                           		gtk_button_clicked (GTK_BUTTON(gwidget->CapImageButt));
-                           	}
+                           		g_main_context_invoke(NULL, image_capture_callback, (gpointer) all_data);
 							else
-							{
-                            	gtk_toggle_button_toggled (GTK_TOGGLE_BUTTON(gwidget->CapVidButt));
-                            }
-                            //gdk_threads_leave();
+                            	g_main_context_invoke(NULL, video_capture_callback, (gpointer) all_data);
+                       
                             break;
                     }
                     switch( event.key.keysym.sym )
@@ -498,11 +493,17 @@ void *main_loop(void *data)
                             g_print("q pressed - Quiting...\n");
                             break;
                         case SDLK_SPACE:
-                        {
+							{
                             if(global->AFcontrol > 0)
                                 setfocus_clicked(NULL, all_data);
-                        }
+							}
                             break;
+                        case SDLK_i:
+							g_main_context_invoke(NULL, image_capture_callback, (gpointer) all_data);
+							break;
+						case SDLK_v:
+							g_main_context_invoke(NULL, video_capture_callback, (gpointer) all_data);
+							break;
                         default:
                             break;
                     }

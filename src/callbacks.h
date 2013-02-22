@@ -168,4 +168,10 @@ Defaults_clicked (GtkWidget *item, struct ALL_DATA *all_data);
 void
 ShowFPS_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data);
 
+gboolean 
+image_capture_callback (gpointer data);
+
+gboolean 
+video_capture_callback (gpointer data);
+
 #endif

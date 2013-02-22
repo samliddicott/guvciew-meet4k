@@ -956,13 +956,24 @@ key_pressed (GtkWidget *win, GdkEventKey *event, struct ALL_DATA *all_data)
     {
         case GDK_KEY_WebCam:
 
-        /* camera button pressed - trigger image capture*/
-        if (all_data->global->default_action == 0) {
-        	gtk_button_clicked (GTK_BUTTON(gwidget->CapImageButt));
-        } else {
-        	gtk_toggle_button_toggled (GTK_TOGGLE_BUTTON(gwidget->CapVidButt));
-        }
-        return TRUE;
+			/* camera button pressed - trigger image capture*/
+			if (all_data->global->default_action == 0) {
+				gtk_button_clicked (GTK_BUTTON(gwidget->CapImageButt));
+			} else {
+				gtk_toggle_button_toggled (GTK_TOGGLE_BUTTON(gwidget->CapVidButt));
+			}
+			return TRUE;
+        
+        case GDK_KEY_V:
+        case GDK_KEY_v:
+			gtk_toggle_button_toggled (GTK_TOGGLE_BUTTON(gwidget->CapVidButt));
+			return TRUE;
+			
+		case GDK_KEY_I:
+		case GDK_KEY_i:
+			gtk_button_clicked (GTK_BUTTON(gwidget->CapImageButt));
+			return TRUE;
+        
     }
 
     return FALSE;
@@ -1691,7 +1702,6 @@ capture_image (GtkButton *ImageButt, struct ALL_DATA *all_data)
 	}
 	else
 	{
-		//printf("fsize=%d bytes fname=%d bytes\n",fsize,sfname);
 		videoIn->ImageFName = joinPath(videoIn->ImageFName, global->imgFPath);
 	}
 
@@ -1715,6 +1725,7 @@ capture_image (GtkButton *ImageButt, struct ALL_DATA *all_data)
 	if(!global->no_display)
     {
 		char *message = g_strjoin(" ", _("capturing photo to"), videoIn->ImageFName, NULL);
+		printf("status message: %s\n", message);
 		gtk_statusbar_pop (GTK_STATUSBAR(gwidget->status_bar), gwidget->status_warning_id);
 		gtk_statusbar_push (GTK_STATUSBAR(gwidget->status_bar), gwidget->status_warning_id, message);
 		g_free(message);
@@ -1948,6 +1959,28 @@ ShowFPS_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data)
 		SDL_WM_SetCaption(global->WVcaption, NULL);
 	}
 	global = NULL;
+}
+
+gboolean 
+image_capture_callback (gpointer data)
+{
+	struct ALL_DATA *all_data = (struct ALL_DATA *) data;
+	struct GWIDGET *gwidget = all_data->gwidget;
+   
+	gtk_button_clicked (GTK_BUTTON(gwidget->CapImageButt));
+   
+	return FALSE;
+}
+
+gboolean 
+video_capture_callback (gpointer data)
+{
+	struct ALL_DATA *all_data = (struct ALL_DATA *) data;
+	struct GWIDGET *gwidget = all_data->gwidget;
+   
+	gtk_toggle_button_toggled (GTK_TOGGLE_BUTTON(gwidget->CapVidButt));
+   
+	return FALSE;
 }
 
 void

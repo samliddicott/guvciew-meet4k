@@ -530,21 +530,21 @@ int main(int argc, char *argv[])
         {
             if(global->image_timer)
             {	/*image auto capture*/
-                gwidget->CapImageButt=gtk_button_new_with_label (_("Stop Auto"));
+                gwidget->CapImageButt=gtk_button_new_with_label (_("Stop Auto (I)"));
             }
             else
             {
-                gwidget->CapImageButt=gtk_button_new_with_label (_("Cap. Image"));
+                gwidget->CapImageButt=gtk_button_new_with_label (_("Cap. Image (I)"));
             }
 
             if (global->vidfile)
             {	/*vid capture enabled from start*/
-                gwidget->CapVidButt=gtk_toggle_button_new_with_label (_("Stop Video"));
+                gwidget->CapVidButt=gtk_toggle_button_new_with_label (_("Stop Video (V)"));
                 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gwidget->CapVidButt), TRUE);
             }
             else
             {
-                gwidget->CapVidButt=gtk_toggle_button_new_with_label (_("Cap. Video"));
+                gwidget->CapVidButt=gtk_toggle_button_new_with_label (_("Cap. Video (V)"));
                 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gwidget->CapVidButt), FALSE);
             }
 
