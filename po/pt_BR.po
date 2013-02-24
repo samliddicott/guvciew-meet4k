@@ -524,7 +524,7 @@ msgstr "Pré-definição de Hardware"
 
 #: ../src/menubar.c:75
 msgid "Camera Button"
-msgstr "Botão da Câmera:"
+msgstr "Botão da Câmera"
 
 #: ../src/menubar.c:79
 msgid "Capture Image"
