@@ -18,7 +18,7 @@ m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
 		  
 AM_INIT_AUTOMAKE([gnu])
 AC_CONFIG_MACRO_DIR([m4])
-AM_CONFIG_HEADER(config.h)
+AC_CONFIG_HEADERS(config.h)
 AM_MAINTAINER_MODE(disable)
 
 # autoconf 2.5x defaults to no cache file; we need the cache file's information
