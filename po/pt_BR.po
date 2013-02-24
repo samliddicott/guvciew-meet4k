@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: pt_BR\n"
 "Report-Msgid-Bugs-To: pj.assis@gmail.com\n"
-"POT-Creation-Date: 2013-02-24 22:36+0000\n"
+"POT-Creation-Date: 2013-02-24 23:16+0000\n"
 "PO-Revision-Date: 2012-01-18 14:02+0000\n"
 "Last-Translator: Giovanni Scafora <giovanni@archlinux.org>\n"
 "Language-Team: Brazilian Portuguese <gnome-pt_br-list@gnome.org>\n"
@@ -294,37 +294,40 @@ msgstr ""
 "lançar novo processo ou recomeçar?.\n"
 "\n"
 
-#. gdk_threads_enter();
-#: ../src/callbacks.c:1716 ../src/timers.c:119
-msgid "Cap. Image"
-msgstr "Cap. imagem"
+#: ../src/callbacks.c:1716 ../src/guvcview.c:537
+msgid "Cap. Image (I)"
+msgstr "Cap. imagem (I)"
 
 #. disable image controls
 #: ../src/callbacks.c:1727 ../src/guvcview.c:658 ../src/timers.c:101
 msgid "capturing photo to"
 msgstr ""
 
-#: ../src/callbacks.c:1786 ../src/create_video.c:1016 ../src/guvcview.c:700
-msgid "Cap. Video"
-msgstr "Cap. vídeo"
+#: ../src/callbacks.c:1786 ../src/guvcview.c:547
+msgid "Cap. Video (V)"
+msgstr "Cap. vídeo (V)"
 
 #: ../src/callbacks.c:1812 ../src/guvcview.c:708
 msgid "capturing video to"
 msgstr ""
 
-#: ../src/callbacks.c:1845
-msgid "Stop Video"
-msgstr "Parar vídeo"
+#. vid capture enabled from start
+#: ../src/callbacks.c:1845 ../src/guvcview.c:542
+msgid "Stop Video (V)"
+msgstr "Parar vídeo (V)"
 
 #: ../src/callbacks.c:1901 ../src/menubar.c:66
 #, fuzzy
 msgid "Save Profile"
-msgstr "Salvar arquivo"
+msgstr "Salvar Perfil"
 
 #: ../src/callbacks.c:1914 ../src/menubar.c:65
-#, fuzzy
 msgid "Load Profile"
-msgstr "Abrir arquivo"
+msgstr "Carregar Perfil"
+
+#: ../src/create_video.c:1016 ../src/guvcview.c:700
+msgid "Cap. Video"
+msgstr "Cap. vídeo"
 
 #: ../src/guvcview.c:279
 msgid "Guvcview Video Capture"
@@ -472,19 +475,6 @@ msgstr "Controles de imagem"
 msgid "Stop Auto (I)"
 msgstr "Parar auto (I):"
 
-#: ../src/guvcview.c:537
-msgid "Cap. Image (I)"
-msgstr "Cap. imagem (I)"
-
-#. vid capture enabled from start
-#: ../src/guvcview.c:542
-msgid "Stop Video (V)"
-msgstr "Parar vídeo (V)"
-
-#: ../src/guvcview.c:547
-msgid "Cap. Video (V)"
-msgstr "Cap. vídeo (V)"
-
 #: ../src/guvcview.c:644
 msgid ""
 "Guvcview error:\n"
@@ -526,68 +516,57 @@ msgstr ""
 #. controls menu
 #: ../src/menubar.c:64
 msgid "Settings"
-msgstr ""
+msgstr "Definições"
 
 #: ../src/menubar.c:67
-#, fuzzy
 msgid "Hardware Defaults"
-msgstr "Padrões"
+msgstr "Pré-definição de Hardware"
 
 #: ../src/menubar.c:75
-#, fuzzy
 msgid "Camera Button"
-msgstr "Saída de câmera:"
+msgstr "Botão da Câmera:"
 
 #: ../src/menubar.c:79
-#, fuzzy
 msgid "Capture Image"
-msgstr "Cap. imagem"
+msgstr "Capturar Imagem"
 
 #: ../src/menubar.c:84
-#, fuzzy
 msgid "Capture Video"
-msgstr "Cap. vídeo"
+msgstr "Capturar Video"
 
 #. video menu
 #: ../src/menubar.c:144 ../src/video_tab.c:87
-#, fuzzy
 msgid "Video"
-msgstr "Parar vídeo"
+msgstr "Video"
 
 #: ../src/menubar.c:145 ../src/menubar.c:231
-#, fuzzy
 msgid "File"
-msgstr "Salvar arquivo"
+msgstr "Ficheiro"
 
 #: ../src/menubar.c:146 ../src/menubar.c:232
-#, fuzzy
 msgid "Increment Filename"
-msgstr "Nome do arquivo de imagem"
+msgstr "Increm. nome do ficheiro"
 
 #: ../src/menubar.c:164
-#, fuzzy
 msgid "Video Codec"
-msgstr "Codec de vídeo:"
+msgstr "Codec de Video"
 
 #: ../src/menubar.c:187
-#, fuzzy
 msgid "Video Codec Properties"
-msgstr "Codec de vídeo:"
+msgstr "Propr. Codec de Video"
 
 #: ../src/menubar.c:194
-#, fuzzy
 msgid "Audio Codec"
-msgstr "Codec de vídeo:"
+msgstr "Codec de Audio"
 
 #: ../src/menubar.c:215
-#, fuzzy
 msgid "Audio Codec Properties"
-msgstr "valores do codec de áudio"
+msgstr "Propr. Codec de Audio"
 
 #. photo menu
 #: ../src/menubar.c:230
 msgid "Photo"
-msgstr ""
+msgstr "Foto"
 
 #: ../src/options.c:752
 msgid "Prints version"
@@ -677,6 +656,11 @@ msgstr "Carrega perfil ao iniciar"
 #: ../src/options.c:777
 msgid "- local options"
 msgstr "- opções locais"
+
+#. gdk_threads_enter();
+#: ../src/timers.c:119
+msgid "Cap. Image"
+msgstr "Cap. imagem"
 
 #: ../src/timers.c:217
 msgid "Guvcview Warning:"
@@ -1111,6 +1095,9 @@ msgstr " Pedaços"
 #: ../src/video_tab.c:378
 msgid " Particles"
 msgstr " Partículas"
+
+#~ msgid "Stop Video"
+#~ msgstr "Parar vídeo"
 
 #~ msgid "Capture:"
 #~ msgstr "Captura:"

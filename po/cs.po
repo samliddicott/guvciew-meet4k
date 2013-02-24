@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: guvcview\n"
 "Report-Msgid-Bugs-To: pj.assis@gmail.com\n"
-"POT-Creation-Date: 2013-02-24 22:36+0000\n"
+"POT-Creation-Date: 2013-02-24 23:16+0000\n"
 "PO-Revision-Date: 2009-11-16 01:36+0000\n"
 "Last-Translator: exxxo45 <exxxo45@gmail.com>\n"
 "Language-Team: Czech <cs@li.org>\n"
@@ -287,27 +287,30 @@ msgstr ""
 "Spustit nový proces nebo restartovat?.\n"
 "\n"
 
-#. gdk_threads_enter();
-#: ../src/callbacks.c:1716 ../src/timers.c:119
-msgid "Cap. Image"
-msgstr "Zazn. Obraz"
+#: ../src/callbacks.c:1716 ../src/guvcview.c:537
+#, fuzzy
+msgid "Cap. Image (I)"
+msgstr "Zazn. Obraz (I)"
 
 #. disable image controls
 #: ../src/callbacks.c:1727 ../src/guvcview.c:658 ../src/timers.c:101
 msgid "capturing photo to"
 msgstr ""
 
-#: ../src/callbacks.c:1786 ../src/create_video.c:1016 ../src/guvcview.c:700
-msgid "Cap. Video"
-msgstr "Zazn. Video"
+#: ../src/callbacks.c:1786 ../src/guvcview.c:547
+#, fuzzy
+msgid "Cap. Video (V)"
+msgstr "Zazn. Video (V)"
 
 #: ../src/callbacks.c:1812 ../src/guvcview.c:708
 msgid "capturing video to"
 msgstr ""
 
-#: ../src/callbacks.c:1845
-msgid "Stop Video"
-msgstr "Zastavit Video"
+#. vid capture enabled from start
+#: ../src/callbacks.c:1845 ../src/guvcview.c:542
+#, fuzzy
+msgid "Stop Video (V)"
+msgstr "Zastavit Video (V)"
 
 #: ../src/callbacks.c:1901 ../src/menubar.c:66
 #, fuzzy
@@ -318,6 +321,10 @@ msgstr "Uložit soubor"
 #, fuzzy
 msgid "Load Profile"
 msgstr "Nahrát soubor"
+
+#: ../src/create_video.c:1016 ../src/guvcview.c:700
+msgid "Cap. Video"
+msgstr "Zazn. Video"
 
 #: ../src/guvcview.c:279
 msgid "Guvcview Video Capture"
@@ -467,22 +474,6 @@ msgstr "Ovládání obrazů"
 #, fuzzy
 msgid "Stop Auto (I)"
 msgstr "Zastavit automat (I)"
-
-#: ../src/guvcview.c:537
-#, fuzzy
-msgid "Cap. Image (I)"
-msgstr "Zazn. Obraz (I)"
-
-#. vid capture enabled from start
-#: ../src/guvcview.c:542
-#, fuzzy
-msgid "Stop Video (V)"
-msgstr "Zastavit Video (V)"
-
-#: ../src/guvcview.c:547
-#, fuzzy
-msgid "Cap. Video (V)"
-msgstr "Zazn. Video (V)"
 
 #: ../src/guvcview.c:644
 msgid ""
@@ -675,6 +666,11 @@ msgstr "Načíst profil při spuštění"
 #: ../src/options.c:777
 msgid "- local options"
 msgstr "- místní nastavení"
+
+#. gdk_threads_enter();
+#: ../src/timers.c:119
+msgid "Cap. Image"
+msgstr "Zazn. Obraz"
 
 #: ../src/timers.c:217
 msgid "Guvcview Warning:"
@@ -1131,6 +1127,9 @@ msgstr ""
 #: ../src/video_tab.c:378
 msgid " Particles"
 msgstr ""
+
+#~ msgid "Stop Video"
+#~ msgstr "Zastavit Video"
 
 #~ msgid "Capture:"
 #~ msgstr "Zaznamenat:"

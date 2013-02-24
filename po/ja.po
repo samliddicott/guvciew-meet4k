@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GUVCView 1.0.2\n"
 "Report-Msgid-Bugs-To: pj.assis@gmail.com\n"
-"POT-Creation-Date: 2013-02-24 22:36+0000\n"
+"POT-Creation-Date: 2013-02-24 23:16+0000\n"
 "PO-Revision-Date: 2009-09-15 02:40+0000\n"
 "Last-Translator: Paulo Assis <pj.assis@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -290,9 +290,9 @@ msgstr ""
 "新しいプロセスを立ち上げるか、再起動しますか?\n"
 "\n"
 
-#. gdk_threads_enter();
-#: ../src/callbacks.c:1716 ../src/timers.c:119
-msgid "Cap. Image"
+#: ../src/callbacks.c:1716 ../src/guvcview.c:537
+#, fuzzy
+msgid "Cap. Image (I)"
 msgstr "キャプチャ.画像"
 
 #. disable image controls
@@ -300,16 +300,18 @@ msgstr "キャプチャ.画像"
 msgid "capturing photo to"
 msgstr ""
 
-#: ../src/callbacks.c:1786 ../src/create_video.c:1016 ../src/guvcview.c:700
-msgid "Cap. Video"
-msgstr ""
+#: ../src/callbacks.c:1786 ../src/guvcview.c:547
+#, fuzzy
+msgid "Cap. Video (V)"
+msgstr "キャプチャ:"
 
 #: ../src/callbacks.c:1812 ../src/guvcview.c:708
 msgid "capturing video to"
 msgstr ""
 
-#: ../src/callbacks.c:1845
-msgid "Stop Video"
+#. vid capture enabled from start
+#: ../src/callbacks.c:1845 ../src/guvcview.c:542
+msgid "Stop Video (V)"
 msgstr ""
 
 #: ../src/callbacks.c:1901 ../src/menubar.c:66
@@ -321,6 +323,10 @@ msgstr "ファイルを保存する"
 #, fuzzy
 msgid "Load Profile"
 msgstr "ファイルを読込む"
+
+#: ../src/create_video.c:1016 ../src/guvcview.c:700
+msgid "Cap. Video"
+msgstr ""
 
 #: ../src/guvcview.c:279
 msgid "Guvcview Video Capture"
@@ -458,21 +464,6 @@ msgstr "イメージコントロール"
 #, fuzzy
 msgid "Stop Auto (I)"
 msgstr "自動停止"
-
-#: ../src/guvcview.c:537
-#, fuzzy
-msgid "Cap. Image (I)"
-msgstr "キャプチャ.画像"
-
-#. vid capture enabled from start
-#: ../src/guvcview.c:542
-msgid "Stop Video (V)"
-msgstr ""
-
-#: ../src/guvcview.c:547
-#, fuzzy
-msgid "Cap. Video (V)"
-msgstr "キャプチャ:"
 
 #: ../src/guvcview.c:644
 msgid ""
@@ -665,6 +656,11 @@ msgstr "開始時にプロファイルを読み込む"
 #: ../src/options.c:777
 msgid "- local options"
 msgstr "- ローカルオプション"
+
+#. gdk_threads_enter();
+#: ../src/timers.c:119
+msgid "Cap. Image"
+msgstr "キャプチャ.画像"
 
 #: ../src/timers.c:217
 msgid "Guvcview Warning:"

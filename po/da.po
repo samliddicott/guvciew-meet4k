@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: guvcview\n"
 "Report-Msgid-Bugs-To: pj.assis@gmail.com\n"
-"POT-Creation-Date: 2013-02-24 22:36+0000\n"
+"POT-Creation-Date: 2013-02-24 23:16+0000\n"
 "PO-Revision-Date: 2009-09-15 03:36+0000\n"
 "Last-Translator: Paulo Assis <pj.assis@gmail.com>\n"
 "Language-Team: Danish <da@li.org>\n"
@@ -286,9 +286,8 @@ msgid ""
 "\n"
 msgstr ""
 
-#. gdk_threads_enter();
-#: ../src/callbacks.c:1716 ../src/timers.c:119
-msgid "Cap. Image"
+#: ../src/callbacks.c:1716 ../src/guvcview.c:537
+msgid "Cap. Image (I)"
 msgstr ""
 
 #. disable image controls
@@ -296,17 +295,20 @@ msgstr ""
 msgid "capturing photo to"
 msgstr ""
 
-#: ../src/callbacks.c:1786 ../src/create_video.c:1016 ../src/guvcview.c:700
-msgid "Cap. Video"
-msgstr ""
+#: ../src/callbacks.c:1786 ../src/guvcview.c:547
+#, fuzzy
+msgid "Cap. Video (V)"
+msgstr "Stop Video (V)"
 
 #: ../src/callbacks.c:1812 ../src/guvcview.c:708
 msgid "capturing video to"
 msgstr ""
 
-#: ../src/callbacks.c:1845
-msgid "Stop Video"
-msgstr "Stop Video"
+#. vid capture enabled from start
+#: ../src/callbacks.c:1845 ../src/guvcview.c:542
+#, fuzzy
+msgid "Stop Video (V)"
+msgstr "Stop Video (V)"
 
 #: ../src/callbacks.c:1901 ../src/menubar.c:66
 #, fuzzy
@@ -317,6 +319,10 @@ msgstr "Gem fil"
 #, fuzzy
 msgid "Load Profile"
 msgstr "Indlæs fil"
+
+#: ../src/create_video.c:1016 ../src/guvcview.c:700
+msgid "Cap. Video"
+msgstr ""
 
 #: ../src/guvcview.c:279
 msgid "Guvcview Video Capture"
@@ -455,21 +461,6 @@ msgstr "Billed kontroller"
 #, fuzzy
 msgid "Stop Auto (I)"
 msgstr "Stop auto (I)"
-
-#: ../src/guvcview.c:537
-msgid "Cap. Image (I)"
-msgstr ""
-
-#. vid capture enabled from start
-#: ../src/guvcview.c:542
-#, fuzzy
-msgid "Stop Video (V)"
-msgstr "Stop Video (V)"
-
-#: ../src/guvcview.c:547
-#, fuzzy
-msgid "Cap. Video (V)"
-msgstr "Stop Video (V)"
 
 #: ../src/guvcview.c:644
 msgid ""
@@ -656,6 +647,11 @@ msgstr "Indlæs profil ved start"
 #: ../src/options.c:777
 msgid "- local options"
 msgstr "- lokale valgmuligheder"
+
+#. gdk_threads_enter();
+#: ../src/timers.c:119
+msgid "Cap. Image"
+msgstr ""
 
 #: ../src/timers.c:217
 msgid "Guvcview Warning:"
@@ -1117,6 +1113,9 @@ msgstr ""
 #: ../src/video_tab.c:378
 msgid " Particles"
 msgstr ""
+
+#~ msgid "Stop Video"
+#~ msgstr "Stop Video"
 
 #~ msgid "Control Profiles:"
 #~ msgstr "Kontrol profiler:"

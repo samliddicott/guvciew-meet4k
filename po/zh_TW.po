@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: guvcview\n"
 "Report-Msgid-Bugs-To: pj.assis@gmail.com\n"
-"POT-Creation-Date: 2013-02-24 22:36+0000\n"
+"POT-Creation-Date: 2013-02-24 23:16+0000\n"
 "PO-Revision-Date: 2010-06-14 22:39+0800\n"
 "Last-Translator: kentxchang <kentxchang@gmail.com>\n"
 "Language-Team: none <kentxchang@gmail.com>\n"
@@ -287,9 +287,9 @@ msgstr ""
 "啟動新的程序或重新啟動?\n"
 "\n"
 
-#. gdk_threads_enter();
-#: ../src/callbacks.c:1716 ../src/timers.c:119
-msgid "Cap. Image"
+#: ../src/callbacks.c:1716 ../src/guvcview.c:537
+#, fuzzy
+msgid "Cap. Image (I)"
 msgstr "拍照"
 
 #. disable image controls
@@ -297,16 +297,19 @@ msgstr "拍照"
 msgid "capturing photo to"
 msgstr ""
 
-#: ../src/callbacks.c:1786 ../src/create_video.c:1016 ../src/guvcview.c:700
-msgid "Cap. Video"
+#: ../src/callbacks.c:1786 ../src/guvcview.c:547
+#, fuzzy
+msgid "Cap. Video (V)"
 msgstr "錄影"
 
 #: ../src/callbacks.c:1812 ../src/guvcview.c:708
 msgid "capturing video to"
 msgstr ""
 
-#: ../src/callbacks.c:1845
-msgid "Stop Video"
+#. vid capture enabled from start
+#: ../src/callbacks.c:1845 ../src/guvcview.c:542
+#, fuzzy
+msgid "Stop Video (V)"
 msgstr "停止錄影"
 
 #: ../src/callbacks.c:1901 ../src/menubar.c:66
@@ -318,6 +321,10 @@ msgstr "存檔"
 #, fuzzy
 msgid "Load Profile"
 msgstr "讀取檔案"
+
+#: ../src/create_video.c:1016 ../src/guvcview.c:700
+msgid "Cap. Video"
+msgstr "錄影"
 
 #: ../src/guvcview.c:279
 msgid "Guvcview Video Capture"
@@ -465,22 +472,6 @@ msgstr "影像設定"
 #, fuzzy
 msgid "Stop Auto (I)"
 msgstr "停止 自動"
-
-#: ../src/guvcview.c:537
-#, fuzzy
-msgid "Cap. Image (I)"
-msgstr "拍照"
-
-#. vid capture enabled from start
-#: ../src/guvcview.c:542
-#, fuzzy
-msgid "Stop Video (V)"
-msgstr "停止錄影"
-
-#: ../src/guvcview.c:547
-#, fuzzy
-msgid "Cap. Video (V)"
-msgstr "錄影"
 
 #: ../src/guvcview.c:644
 msgid ""
@@ -674,6 +665,11 @@ msgstr "在啟動時讀取專案"
 #: ../src/options.c:777
 msgid "- local options"
 msgstr "-本地選項"
+
+#. gdk_threads_enter();
+#: ../src/timers.c:119
+msgid "Cap. Image"
+msgstr "拍照"
 
 #: ../src/timers.c:217
 msgid "Guvcview Warning:"
@@ -1109,6 +1105,9 @@ msgstr "馬賽克"
 #: ../src/video_tab.c:378
 msgid " Particles"
 msgstr "顆粒"
+
+#~ msgid "Stop Video"
+#~ msgstr "停止錄影"
 
 #~ msgid "Capture:"
 #~ msgstr "擷取:"

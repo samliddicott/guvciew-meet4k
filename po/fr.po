@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fr\n"
 "Report-Msgid-Bugs-To: pj.assis@gmail.com\n"
-"POT-Creation-Date: 2013-02-24 22:36+0000\n"
+"POT-Creation-Date: 2013-02-24 23:16+0000\n"
 "PO-Revision-Date: 2012-01-24 18:12+0000\n"
 "Last-Translator: Pixep <Unknown>\n"
 "Language-Team: Portuguese <pt@li.org>\n"
@@ -295,27 +295,27 @@ msgstr ""
 "nouveau processus ou redémarrage?\n"
 "\n"
 
-#. gdk_threads_enter();
-#: ../src/callbacks.c:1716 ../src/timers.c:119
-msgid "Cap. Image"
-msgstr "Enr. Image"
+#: ../src/callbacks.c:1716 ../src/guvcview.c:537
+msgid "Cap. Image (I)"
+msgstr "Enr. Image (I)"
 
 #. disable image controls
 #: ../src/callbacks.c:1727 ../src/guvcview.c:658 ../src/timers.c:101
 msgid "capturing photo to"
 msgstr ""
 
-#: ../src/callbacks.c:1786 ../src/create_video.c:1016 ../src/guvcview.c:700
-msgid "Cap. Video"
-msgstr "Enr. Video"
+#: ../src/callbacks.c:1786 ../src/guvcview.c:547
+msgid "Cap. Video (V)"
+msgstr "Enr. Video (V)"
 
 #: ../src/callbacks.c:1812 ../src/guvcview.c:708
 msgid "capturing video to"
 msgstr ""
 
-#: ../src/callbacks.c:1845
-msgid "Stop Video"
-msgstr "Arrêter la vidéo"
+#. vid capture enabled from start
+#: ../src/callbacks.c:1845 ../src/guvcview.c:542
+msgid "Stop Video (V)"
+msgstr "Arrêter la vidéo (V)"
 
 #: ../src/callbacks.c:1901 ../src/menubar.c:66
 #, fuzzy
@@ -326,6 +326,10 @@ msgstr "Enregistrer le Fichier"
 #, fuzzy
 msgid "Load Profile"
 msgstr "Charger Fichier"
+
+#: ../src/create_video.c:1016 ../src/guvcview.c:700
+msgid "Cap. Video"
+msgstr "Enr. Video"
 
 #: ../src/guvcview.c:279
 msgid "Guvcview Video Capture"
@@ -473,19 +477,6 @@ msgstr "Réglages de l'image"
 #: ../src/guvcview.c:533
 msgid "Stop Auto (I)"
 msgstr "Arrêt Automatique (I)"
-
-#: ../src/guvcview.c:537
-msgid "Cap. Image (I)"
-msgstr "Enr. Image (I)"
-
-#. vid capture enabled from start
-#: ../src/guvcview.c:542
-msgid "Stop Video (V)"
-msgstr "Arrêter la vidéo (V)"
-
-#: ../src/guvcview.c:547
-msgid "Cap. Video (V)"
-msgstr "Enr. Video (V)"
 
 #: ../src/guvcview.c:644
 msgid ""
@@ -680,6 +671,11 @@ msgstr "Charger réglages personnalisés"
 #: ../src/options.c:777
 msgid "- local options"
 msgstr "- options locales"
+
+#. gdk_threads_enter();
+#: ../src/timers.c:119
+msgid "Cap. Image"
+msgstr "Enr. Image"
 
 #: ../src/timers.c:217
 msgid "Guvcview Warning:"
@@ -1114,6 +1110,9 @@ msgstr " Morceaux"
 #: ../src/video_tab.c:378
 msgid " Particles"
 msgstr " Particules"
+
+#~ msgid "Stop Video"
+#~ msgstr "Arrêter la vidéo"
 
 #~ msgid "Capture:"
 #~ msgstr "Enregistrement :"

@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: pj.assis@gmail.com\n"
-"POT-Creation-Date: 2013-02-24 22:36+0000\n"
+"POT-Creation-Date: 2013-02-24 23:16+0000\n"
 "PO-Revision-Date: 2011-01-09 05:42+0000\n"
 "Last-Translator: Fitoschido <fitoschido@gmail.com>\n"
 "Language-Team: Portuguese <pt@li.org>\n"
@@ -290,27 +290,27 @@ msgstr ""
 "nuevo proceso o recomenzar?\n"
 "\n"
 
-#. gdk_threads_enter();
-#: ../src/callbacks.c:1716 ../src/timers.c:119
-msgid "Cap. Image"
-msgstr "Cap. imagen"
+#: ../src/callbacks.c:1716 ../src/guvcview.c:537
+msgid "Cap. Image (I)"
+msgstr "Cap. imagen (I)"
 
 #. disable image controls
 #: ../src/callbacks.c:1727 ../src/guvcview.c:658 ../src/timers.c:101
 msgid "capturing photo to"
 msgstr ""
 
-#: ../src/callbacks.c:1786 ../src/create_video.c:1016 ../src/guvcview.c:700
-msgid "Cap. Video"
-msgstr "Cap. vídeo"
+#: ../src/callbacks.c:1786 ../src/guvcview.c:547
+msgid "Cap. Video (V)"
+msgstr "Cap. vídeo (V)"
 
 #: ../src/callbacks.c:1812 ../src/guvcview.c:708
 msgid "capturing video to"
 msgstr ""
 
-#: ../src/callbacks.c:1845
-msgid "Stop Video"
-msgstr "Detener vídeo"
+#. vid capture enabled from start
+#: ../src/callbacks.c:1845 ../src/guvcview.c:542
+msgid "Stop Video (V)"
+msgstr "Detener vídeo (V)"
 
 #: ../src/callbacks.c:1901 ../src/menubar.c:66
 #, fuzzy
@@ -321,6 +321,10 @@ msgstr "Guardar Archivo"
 #, fuzzy
 msgid "Load Profile"
 msgstr "Cargar Archivo"
+
+#: ../src/create_video.c:1016 ../src/guvcview.c:700
+msgid "Cap. Video"
+msgstr "Cap. vídeo"
 
 #: ../src/guvcview.c:279
 msgid "Guvcview Video Capture"
@@ -467,19 +471,6 @@ msgstr "Controles de la imagen"
 #: ../src/guvcview.c:533
 msgid "Stop Auto (I)"
 msgstr "Detener auto (I)"
-
-#: ../src/guvcview.c:537
-msgid "Cap. Image (I)"
-msgstr "Cap. imagen (I)"
-
-#. vid capture enabled from start
-#: ../src/guvcview.c:542
-msgid "Stop Video (V)"
-msgstr "Detener vídeo (V)"
-
-#: ../src/guvcview.c:547
-msgid "Cap. Video (V)"
-msgstr "Cap. vídeo (V)"
 
 #: ../src/guvcview.c:644
 msgid ""
@@ -673,6 +664,11 @@ msgstr "Cargar perfil al inicio"
 #: ../src/options.c:777
 msgid "- local options"
 msgstr "- opciones locales"
+
+#. gdk_threads_enter();
+#: ../src/timers.c:119
+msgid "Cap. Image"
+msgstr "Cap. imagen"
 
 #: ../src/timers.c:217
 msgid "Guvcview Warning:"
@@ -1119,6 +1115,9 @@ msgstr " Pedazos"
 #: ../src/video_tab.c:378
 msgid " Particles"
 msgstr ""
+
+#~ msgid "Stop Video"
+#~ msgstr "Detener vídeo"
 
 #~ msgid "Capture:"
 #~ msgstr "Captura:"

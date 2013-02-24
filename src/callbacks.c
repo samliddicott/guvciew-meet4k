@@ -1713,7 +1713,7 @@ capture_image (GtkButton *ImageButt, struct ALL_DATA *all_data)
 
         if(!global->no_display)
         {
-            gtk_button_set_label(GTK_BUTTON(gwidget->CapImageButt),_("Cap. Image"));
+            gtk_button_set_label(GTK_BUTTON(gwidget->CapImageButt),_("Cap. Image (I)"));
             set_sensitive_img_contrls(TRUE, gwidget);/*enable image controls*/
         }
 	}
@@ -1783,7 +1783,7 @@ capture_vid (GtkToggleButton *VidButt, struct ALL_DATA *all_data)
             set_sensitive_vid_contrls(TRUE, global->Sound_enable, gwidget);
             if(!(state))
             {
-                gtk_button_set_label(GTK_BUTTON(gwidget->CapVidButt),_("Cap. Video"));
+                gtk_button_set_label(GTK_BUTTON(gwidget->CapVidButt),_("Cap. Video (V)"));
                 gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(gwidget->CapVidButt), FALSE);
                 //gtk_widget_show (gwidget->VidButton_Img);
             }
@@ -1842,7 +1842,7 @@ capture_vid (GtkToggleButton *VidButt, struct ALL_DATA *all_data)
         {
             if(state)
             {
-                gtk_button_set_label(GTK_BUTTON(gwidget->CapVidButt),_("Stop Video"));
+                gtk_button_set_label(GTK_BUTTON(gwidget->CapVidButt),_("Stop Video (V)"));
                 gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(gwidget->CapVidButt), TRUE);
                 //gtk_widget_show (gwidget->VidButton_Img);
             }

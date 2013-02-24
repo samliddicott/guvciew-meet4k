@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: guvcview\n"
 "Report-Msgid-Bugs-To: pj.assis@gmail.com\n"
-"POT-Creation-Date: 2013-02-24 22:36+0000\n"
+"POT-Creation-Date: 2013-02-24 23:16+0000\n"
 "PO-Revision-Date: 2010-08-05 18:25+0000\n"
 "Last-Translator: Gunleif Joensen <Unknown>\n"
 "Language-Team: Faroese <fo@li.org>\n"
@@ -282,9 +282,8 @@ msgid ""
 "\n"
 msgstr ""
 
-#. gdk_threads_enter();
-#: ../src/callbacks.c:1716 ../src/timers.c:119
-msgid "Cap. Image"
+#: ../src/callbacks.c:1716 ../src/guvcview.c:537
+msgid "Cap. Image (I)"
 msgstr ""
 
 #. disable image controls
@@ -292,16 +291,17 @@ msgstr ""
 msgid "capturing photo to"
 msgstr ""
 
-#: ../src/callbacks.c:1786 ../src/create_video.c:1016 ../src/guvcview.c:700
-msgid "Cap. Video"
+#: ../src/callbacks.c:1786 ../src/guvcview.c:547
+msgid "Cap. Video (V)"
 msgstr ""
 
 #: ../src/callbacks.c:1812 ../src/guvcview.c:708
 msgid "capturing video to"
 msgstr ""
 
-#: ../src/callbacks.c:1845
-msgid "Stop Video"
+#. vid capture enabled from start
+#: ../src/callbacks.c:1845 ../src/guvcview.c:542
+msgid "Stop Video (V)"
 msgstr ""
 
 #: ../src/callbacks.c:1901 ../src/menubar.c:66
@@ -310,6 +310,10 @@ msgstr ""
 
 #: ../src/callbacks.c:1914 ../src/menubar.c:65
 msgid "Load Profile"
+msgstr ""
+
+#: ../src/create_video.c:1016 ../src/guvcview.c:700
+msgid "Cap. Video"
 msgstr ""
 
 #: ../src/guvcview.c:279
@@ -448,19 +452,6 @@ msgstr ""
 #. image auto capture
 #: ../src/guvcview.c:533
 msgid "Stop Auto (I)"
-msgstr ""
-
-#: ../src/guvcview.c:537
-msgid "Cap. Image (I)"
-msgstr ""
-
-#. vid capture enabled from start
-#: ../src/guvcview.c:542
-msgid "Stop Video (V)"
-msgstr ""
-
-#: ../src/guvcview.c:547
-msgid "Cap. Video (V)"
 msgstr ""
 
 #: ../src/guvcview.c:644
@@ -641,6 +632,11 @@ msgstr ""
 
 #: ../src/options.c:777
 msgid "- local options"
+msgstr ""
+
+#. gdk_threads_enter();
+#: ../src/timers.c:119
+msgid "Cap. Image"
 msgstr ""
 
 #: ../src/timers.c:217

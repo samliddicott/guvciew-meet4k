@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: guvcview\n"
 "Report-Msgid-Bugs-To: pj.assis@gmail.com\n"
-"POT-Creation-Date: 2013-02-24 22:36+0000\n"
+"POT-Creation-Date: 2013-02-24 23:16+0000\n"
 "PO-Revision-Date: 2011-10-31 21:01+0000\n"
 "Last-Translator: Мирослав Николић <miroslavnikolic@rocketmail.com>\n"
 "Language-Team: Launchpad Serbian Translators\n"
@@ -292,9 +292,9 @@ msgstr ""
 "да покренем нови процес или да се поново покренем?.\n"
 "\n"
 
-#. gdk_threads_enter();
-#: ../src/callbacks.c:1716 ../src/timers.c:119
-msgid "Cap. Image"
+#: ../src/callbacks.c:1716 ../src/guvcview.c:537
+#, fuzzy
+msgid "Cap. Image (I)"
 msgstr "Сними слику"
 
 #. disable image controls
@@ -302,16 +302,19 @@ msgstr "Сними слику"
 msgid "capturing photo to"
 msgstr ""
 
-#: ../src/callbacks.c:1786 ../src/create_video.c:1016 ../src/guvcview.c:700
-msgid "Cap. Video"
+#: ../src/callbacks.c:1786 ../src/guvcview.c:547
+#, fuzzy
+msgid "Cap. Video (V)"
 msgstr "Сними видео"
 
 #: ../src/callbacks.c:1812 ../src/guvcview.c:708
 msgid "capturing video to"
 msgstr ""
 
-#: ../src/callbacks.c:1845
-msgid "Stop Video"
+#. vid capture enabled from start
+#: ../src/callbacks.c:1845 ../src/guvcview.c:542
+#, fuzzy
+msgid "Stop Video (V)"
 msgstr "Заустави видео"
 
 #: ../src/callbacks.c:1901 ../src/menubar.c:66
@@ -323,6 +326,10 @@ msgstr "Сачувајте датотеку"
 #, fuzzy
 msgid "Load Profile"
 msgstr "Учитајте датотеку"
+
+#: ../src/create_video.c:1016 ../src/guvcview.c:700
+msgid "Cap. Video"
+msgstr "Сними видео"
 
 #: ../src/guvcview.c:279
 msgid "Guvcview Video Capture"
@@ -470,22 +477,6 @@ msgstr "Контроле слике"
 #, fuzzy
 msgid "Stop Auto (I)"
 msgstr "Заустави аутоматско"
-
-#: ../src/guvcview.c:537
-#, fuzzy
-msgid "Cap. Image (I)"
-msgstr "Сними слику"
-
-#. vid capture enabled from start
-#: ../src/guvcview.c:542
-#, fuzzy
-msgid "Stop Video (V)"
-msgstr "Заустави видео"
-
-#: ../src/guvcview.c:547
-#, fuzzy
-msgid "Cap. Video (V)"
-msgstr "Сними видео"
 
 #: ../src/guvcview.c:644
 msgid ""
@@ -680,6 +671,11 @@ msgstr "Учитава профил приликом покретања"
 #: ../src/options.c:777
 msgid "- local options"
 msgstr "— локална опција"
+
+#. gdk_threads_enter();
+#: ../src/timers.c:119
+msgid "Cap. Image"
+msgstr "Сними слику"
 
 #: ../src/timers.c:217
 msgid "Guvcview Warning:"
@@ -1114,6 +1110,9 @@ msgstr " Комадићи"
 #: ../src/video_tab.c:378
 msgid " Particles"
 msgstr " Честице"
+
+#~ msgid "Stop Video"
+#~ msgstr "Заустави видео"
 
 #~ msgid "Capture:"
 #~ msgstr "Снимање:"

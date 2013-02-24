@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: guvcview\n"
 "Report-Msgid-Bugs-To: pj.assis@gmail.com\n"
-"POT-Creation-Date: 2013-02-24 22:36+0000\n"
+"POT-Creation-Date: 2013-02-24 23:16+0000\n"
 "PO-Revision-Date: 2010-12-03 18:33+0000\n"
 "Last-Translator: Dino Lovaković <Unknown>\n"
 "Language-Team: Croatian <hr@li.org>\n"
@@ -289,27 +289,27 @@ msgstr ""
 "upalite novi proces ili ponovno pokrenite?.\n"
 "\n"
 
-#. gdk_threads_enter();
-#: ../src/callbacks.c:1716 ../src/timers.c:119
-msgid "Cap. Image"
-msgstr "Snimi Sliku"
+#: ../src/callbacks.c:1716 ../src/guvcview.c:537
+msgid "Cap. Image (I)"
+msgstr "Snimi Sliku (I)"
 
 #. disable image controls
 #: ../src/callbacks.c:1727 ../src/guvcview.c:658 ../src/timers.c:101
 msgid "capturing photo to"
 msgstr ""
 
-#: ../src/callbacks.c:1786 ../src/create_video.c:1016 ../src/guvcview.c:700
-msgid "Cap. Video"
-msgstr "Snimi Video"
+#: ../src/callbacks.c:1786 ../src/guvcview.c:547
+msgid "Cap. Video (V)"
+msgstr "Snimi Video (V)"
 
 #: ../src/callbacks.c:1812 ../src/guvcview.c:708
 msgid "capturing video to"
 msgstr ""
 
-#: ../src/callbacks.c:1845
-msgid "Stop Video"
-msgstr "Zaustavi Video"
+#. vid capture enabled from start
+#: ../src/callbacks.c:1845 ../src/guvcview.c:542
+msgid "Stop Video (V)"
+msgstr "Zaustavi Video (V)"
 
 #: ../src/callbacks.c:1901 ../src/menubar.c:66
 #, fuzzy
@@ -320,6 +320,10 @@ msgstr "Spremi Datoteku"
 #, fuzzy
 msgid "Load Profile"
 msgstr "Učitaj Datoteku"
+
+#: ../src/create_video.c:1016 ../src/guvcview.c:700
+msgid "Cap. Video"
+msgstr "Snimi Video"
 
 #: ../src/guvcview.c:279
 msgid "Guvcview Video Capture"
@@ -468,19 +472,6 @@ msgstr "Kontrole Slike"
 #: ../src/guvcview.c:533
 msgid "Stop Auto (I)"
 msgstr "Zaustavi Automatsko (I)"
-
-#: ../src/guvcview.c:537
-msgid "Cap. Image (I)"
-msgstr "Snimi Sliku (I)"
-
-#. vid capture enabled from start
-#: ../src/guvcview.c:542
-msgid "Stop Video (V)"
-msgstr "Zaustavi Video (V)"
-
-#: ../src/guvcview.c:547
-msgid "Cap. Video (V)"
-msgstr "Snimi Video (V)"
 
 #: ../src/guvcview.c:644
 msgid ""
@@ -671,6 +662,11 @@ msgstr "Učitaj Profil pri pokretanju"
 #: ../src/options.c:777
 msgid "- local options"
 msgstr "- lokalne opcije"
+
+#. gdk_threads_enter();
+#: ../src/timers.c:119
+msgid "Cap. Image"
+msgstr "Snimi Sliku"
 
 #: ../src/timers.c:217
 msgid "Guvcview Warning:"
@@ -1122,6 +1118,9 @@ msgstr " Komadići"
 #: ../src/video_tab.c:378
 msgid " Particles"
 msgstr " Čestice"
+
+#~ msgid "Stop Video"
+#~ msgstr "Zaustavi Video"
 
 #~ msgid "Capture:"
 #~ msgstr "Snimi:"

@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: pj.assis@gmail.com\n"
-"POT-Creation-Date: 2013-02-24 22:36+0000\n"
+"POT-Creation-Date: 2013-02-24 23:16+0000\n"
 "PO-Revision-Date: 2009-09-15 03:30+0000\n"
 "Last-Translator: Paulo Assis <pj.assis@gmail.com>\n"
 "Language-Team: Portuguese <pt@li.org>\n"
@@ -291,27 +291,27 @@ msgstr ""
 "Neuer prozess oder programm neustarten?\n"
 "\n"
 
-#. gdk_threads_enter();
-#: ../src/callbacks.c:1716 ../src/timers.c:119
-msgid "Cap. Image"
-msgstr "Bild aufnehmen"
+#: ../src/callbacks.c:1716 ../src/guvcview.c:537
+msgid "Cap. Image (I)"
+msgstr "Bild aufnehmen (I)"
 
 #. disable image controls
 #: ../src/callbacks.c:1727 ../src/guvcview.c:658 ../src/timers.c:101
 msgid "capturing photo to"
 msgstr ""
 
-#: ../src/callbacks.c:1786 ../src/create_video.c:1016 ../src/guvcview.c:700
-msgid "Cap. Video"
-msgstr "Video aufnehmen"
+#: ../src/callbacks.c:1786 ../src/guvcview.c:547
+msgid "Cap. Video (V)"
+msgstr "Video aufnehmen (V)"
 
 #: ../src/callbacks.c:1812 ../src/guvcview.c:708
 msgid "capturing video to"
 msgstr ""
 
-#: ../src/callbacks.c:1845
-msgid "Stop Video"
-msgstr "Video stoppen"
+#. vid capture enabled from start
+#: ../src/callbacks.c:1845 ../src/guvcview.c:542
+msgid "Stop Video (V)"
+msgstr "Video stoppen (V)"
 
 #: ../src/callbacks.c:1901 ../src/menubar.c:66
 #, fuzzy
@@ -322,6 +322,10 @@ msgstr "Datei speichern"
 #, fuzzy
 msgid "Load Profile"
 msgstr "Datei öffnen"
+
+#: ../src/create_video.c:1016 ../src/guvcview.c:700
+msgid "Cap. Video"
+msgstr "Video aufnehmen"
 
 #: ../src/guvcview.c:279
 msgid "Guvcview Video Capture"
@@ -464,19 +468,6 @@ msgstr "Bildkontrollen"
 #: ../src/guvcview.c:533
 msgid "Stop Auto (I)"
 msgstr "Automatisch anhalten (I)"
-
-#: ../src/guvcview.c:537
-msgid "Cap. Image (I)"
-msgstr "Bild aufnehmen (I)"
-
-#. vid capture enabled from start
-#: ../src/guvcview.c:542
-msgid "Stop Video (V)"
-msgstr "Video stoppen (V)"
-
-#: ../src/guvcview.c:547
-msgid "Cap. Video (V)"
-msgstr "Video aufnehmen (V)"
 
 #: ../src/guvcview.c:644
 msgid ""
@@ -669,6 +660,11 @@ msgstr "kontrollen - Datei öffnen"
 #: ../src/options.c:777
 msgid "- local options"
 msgstr "- lokale Wahlen"
+
+#. gdk_threads_enter();
+#: ../src/timers.c:119
+msgid "Cap. Image"
+msgstr "Bild aufnehmen"
 
 #: ../src/timers.c:217
 msgid "Guvcview Warning:"
@@ -1129,6 +1125,9 @@ msgstr ""
 #: ../src/video_tab.c:378
 msgid " Particles"
 msgstr ""
+
+#~ msgid "Stop Video"
+#~ msgstr "Video stoppen"
 
 #~ msgid "Capture:"
 #~ msgstr "Aufnahme:"
