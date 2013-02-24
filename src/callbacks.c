@@ -788,8 +788,8 @@ lavc_audio_properties(GtkMenuItem * codec_prop, struct ALL_DATA *all_data)
 	struct GWIDGET *gwidget = all_data->gwidget;
 
 	int line = 0;
-	acodecs_data *codec_defaults = get_aud_codec_defaults(get_ind_by4cc(global->Sound_Format));
-
+	acodecs_data *codec_defaults = get_aud_codec_defaults(global->AudCodec);
+	
 	if (!(codec_defaults->avcodec)) return;
 
 	GtkWidget *codec_dialog = gtk_dialog_new_with_buttons (_("audio codec values"),
