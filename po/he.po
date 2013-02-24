@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: guvcview\n"
 "Report-Msgid-Bugs-To: pj.assis@gmail.com\n"
-"POT-Creation-Date: 2013-02-07 18:52+0000\n"
+"POT-Creation-Date: 2013-02-24 22:36+0000\n"
 "PO-Revision-Date: 2009-10-19 04:31+0000\n"
 "Last-Translator: Paulo Assis <pj.assis@gmail.com>\n"
 "Language-Team: Hebrew <he@li.org>\n"
@@ -265,23 +265,23 @@ msgstr "ערכי מקודד"
 msgid "sample format:   "
 msgstr "קצב דגימה"
 
-#: ../src/callbacks.c:1239
+#: ../src/callbacks.c:1250
 msgid "start new"
 msgstr "הפעל עכשיו"
 
-#: ../src/callbacks.c:1242
+#: ../src/callbacks.c:1253
 msgid "restart"
 msgstr "הפעל מחדש"
 
-#: ../src/callbacks.c:1244
+#: ../src/callbacks.c:1255
 msgid "new"
 msgstr "חדש"
 
-#: ../src/callbacks.c:1246
+#: ../src/callbacks.c:1257
 msgid "cancel"
 msgstr "בטל"
 
-#: ../src/callbacks.c:1251
+#: ../src/callbacks.c:1262
 msgid ""
 "launch new process or restart?.\n"
 "\n"
@@ -290,35 +290,33 @@ msgstr ""
 "\n"
 
 #. gdk_threads_enter();
-#: ../src/callbacks.c:1706 ../src/guvcview.c:537 ../src/timers.c:119
+#: ../src/callbacks.c:1716 ../src/timers.c:119
 msgid "Cap. Image"
 msgstr "לכד תמונה"
 
 #. disable image controls
-#: ../src/callbacks.c:1717 ../src/guvcview.c:658 ../src/timers.c:101
+#: ../src/callbacks.c:1727 ../src/guvcview.c:658 ../src/timers.c:101
 msgid "capturing photo to"
 msgstr ""
 
-#: ../src/callbacks.c:1775 ../src/create_video.c:1016 ../src/guvcview.c:547
-#: ../src/guvcview.c:700
+#: ../src/callbacks.c:1786 ../src/create_video.c:1016 ../src/guvcview.c:700
 msgid "Cap. Video"
 msgstr "לכד וידאו"
 
-#: ../src/callbacks.c:1801 ../src/guvcview.c:708
+#: ../src/callbacks.c:1812 ../src/guvcview.c:708
 msgid "capturing video to"
 msgstr ""
 
-#. vid capture enabled from start
-#: ../src/callbacks.c:1834 ../src/guvcview.c:542
+#: ../src/callbacks.c:1845
 msgid "Stop Video"
 msgstr "עצור וידאו"
 
-#: ../src/callbacks.c:1890 ../src/menubar.c:66
+#: ../src/callbacks.c:1901 ../src/menubar.c:66
 #, fuzzy
 msgid "Save Profile"
 msgstr "שמור קובץ"
 
-#: ../src/callbacks.c:1903 ../src/menubar.c:65
+#: ../src/callbacks.c:1914 ../src/menubar.c:65
 #, fuzzy
 msgid "Load Profile"
 msgstr "טען קובץ"
@@ -461,8 +459,25 @@ msgstr "פקדי תמונה"
 
 #. image auto capture
 #: ../src/guvcview.c:533
-msgid "Stop Auto"
+#, fuzzy
+msgid "Stop Auto (I)"
 msgstr "עצור לכידה אוטומטית"
+
+#: ../src/guvcview.c:537
+#, fuzzy
+msgid "Cap. Image (I)"
+msgstr "לכד תמונה"
+
+#. vid capture enabled from start
+#: ../src/guvcview.c:542
+#, fuzzy
+msgid "Stop Video (V)"
+msgstr "עצור וידאו"
+
+#: ../src/guvcview.c:547
+#, fuzzy
+msgid "Cap. Video (V)"
+msgstr "לכד וידאו"
 
 #: ../src/guvcview.c:644
 msgid ""

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: guvcview\n"
 "Report-Msgid-Bugs-To: pj.assis@gmail.com\n"
-"POT-Creation-Date: 2013-02-07 18:52+0000\n"
+"POT-Creation-Date: 2013-02-24 22:36+0000\n"
 "PO-Revision-Date: 2012-04-05 10:00+0100\n"
 "Last-Translator: Giovanni Scafora <giovanni@archlinux.org>\n"
 "Language-Team: Arch Linux Italian Team <giovanni@archlinux.org>\n"
@@ -267,23 +267,23 @@ msgstr "valori del codec audio"
 msgid "sample format:   "
 msgstr "Frequenza di campionamento:"
 
-#: ../src/callbacks.c:1239
+#: ../src/callbacks.c:1250
 msgid "start new"
 msgstr "inizia nuovo"
 
-#: ../src/callbacks.c:1242
+#: ../src/callbacks.c:1253
 msgid "restart"
 msgstr "riavvia"
 
-#: ../src/callbacks.c:1244
+#: ../src/callbacks.c:1255
 msgid "new"
 msgstr "nuovo"
 
-#: ../src/callbacks.c:1246
+#: ../src/callbacks.c:1257
 msgid "cancel"
 msgstr "annulla"
 
-#: ../src/callbacks.c:1251
+#: ../src/callbacks.c:1262
 msgid ""
 "launch new process or restart?.\n"
 "\n"
@@ -292,35 +292,33 @@ msgstr ""
 "\n"
 
 #. gdk_threads_enter();
-#: ../src/callbacks.c:1706 ../src/guvcview.c:537 ../src/timers.c:119
+#: ../src/callbacks.c:1716 ../src/timers.c:119
 msgid "Cap. Image"
 msgstr "Cattura immagine"
 
 #. disable image controls
-#: ../src/callbacks.c:1717 ../src/guvcview.c:658 ../src/timers.c:101
+#: ../src/callbacks.c:1727 ../src/guvcview.c:658 ../src/timers.c:101
 msgid "capturing photo to"
 msgstr ""
 
-#: ../src/callbacks.c:1775 ../src/create_video.c:1016 ../src/guvcview.c:547
-#: ../src/guvcview.c:700
+#: ../src/callbacks.c:1786 ../src/create_video.c:1016 ../src/guvcview.c:700
 msgid "Cap. Video"
 msgstr "Registra video"
 
-#: ../src/callbacks.c:1801 ../src/guvcview.c:708
+#: ../src/callbacks.c:1812 ../src/guvcview.c:708
 msgid "capturing video to"
 msgstr ""
 
-#. vid capture enabled from start
-#: ../src/callbacks.c:1834 ../src/guvcview.c:542
+#: ../src/callbacks.c:1845
 msgid "Stop Video"
 msgstr "Ferma il video"
 
-#: ../src/callbacks.c:1890 ../src/menubar.c:66
+#: ../src/callbacks.c:1901 ../src/menubar.c:66
 #, fuzzy
 msgid "Save Profile"
 msgstr "Salva file"
 
-#: ../src/callbacks.c:1903 ../src/menubar.c:65
+#: ../src/callbacks.c:1914 ../src/menubar.c:65
 #, fuzzy
 msgid "Load Profile"
 msgstr "Carica file"
@@ -468,8 +466,21 @@ msgstr "Controlli dell'immagine"
 
 #. image auto capture
 #: ../src/guvcview.c:533
-msgid "Stop Auto"
-msgstr "Arresto automatico"
+msgid "Stop Auto (I)"
+msgstr "Arresto automatico (I)"
+
+#: ../src/guvcview.c:537
+msgid "Cap. Image (I)"
+msgstr "Cattura immagine (I)"
+
+#. vid capture enabled from start
+#: ../src/guvcview.c:542
+msgid "Stop Video (V)"
+msgstr "Ferma il video (V)"
+
+#: ../src/guvcview.c:547
+msgid "Cap. Video (V)"
+msgstr "Registra video (V)"
 
 #: ../src/guvcview.c:644
 msgid ""

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: guvcview\n"
 "Report-Msgid-Bugs-To: pj.assis@gmail.com\n"
-"POT-Creation-Date: 2013-02-07 18:52+0000\n"
+"POT-Creation-Date: 2013-02-24 22:36+0000\n"
 "PO-Revision-Date: 2010-12-03 18:33+0000\n"
 "Last-Translator: Dino Lovaković <Unknown>\n"
 "Language-Team: Croatian <hr@li.org>\n"
@@ -265,23 +265,23 @@ msgstr "vrijednosti audio codeca"
 msgid "sample format:   "
 msgstr "Format Slike:"
 
-#: ../src/callbacks.c:1239
+#: ../src/callbacks.c:1250
 msgid "start new"
 msgstr "pokreni novo"
 
-#: ../src/callbacks.c:1242
+#: ../src/callbacks.c:1253
 msgid "restart"
 msgstr "ponovo pokreni"
 
-#: ../src/callbacks.c:1244
+#: ../src/callbacks.c:1255
 msgid "new"
 msgstr "novo"
 
-#: ../src/callbacks.c:1246
+#: ../src/callbacks.c:1257
 msgid "cancel"
 msgstr "odustani"
 
-#: ../src/callbacks.c:1251
+#: ../src/callbacks.c:1262
 msgid ""
 "launch new process or restart?.\n"
 "\n"
@@ -290,35 +290,33 @@ msgstr ""
 "\n"
 
 #. gdk_threads_enter();
-#: ../src/callbacks.c:1706 ../src/guvcview.c:537 ../src/timers.c:119
+#: ../src/callbacks.c:1716 ../src/timers.c:119
 msgid "Cap. Image"
 msgstr "Snimi Sliku"
 
 #. disable image controls
-#: ../src/callbacks.c:1717 ../src/guvcview.c:658 ../src/timers.c:101
+#: ../src/callbacks.c:1727 ../src/guvcview.c:658 ../src/timers.c:101
 msgid "capturing photo to"
 msgstr ""
 
-#: ../src/callbacks.c:1775 ../src/create_video.c:1016 ../src/guvcview.c:547
-#: ../src/guvcview.c:700
+#: ../src/callbacks.c:1786 ../src/create_video.c:1016 ../src/guvcview.c:700
 msgid "Cap. Video"
 msgstr "Snimi Video"
 
-#: ../src/callbacks.c:1801 ../src/guvcview.c:708
+#: ../src/callbacks.c:1812 ../src/guvcview.c:708
 msgid "capturing video to"
 msgstr ""
 
-#. vid capture enabled from start
-#: ../src/callbacks.c:1834 ../src/guvcview.c:542
+#: ../src/callbacks.c:1845
 msgid "Stop Video"
 msgstr "Zaustavi Video"
 
-#: ../src/callbacks.c:1890 ../src/menubar.c:66
+#: ../src/callbacks.c:1901 ../src/menubar.c:66
 #, fuzzy
 msgid "Save Profile"
 msgstr "Spremi Datoteku"
 
-#: ../src/callbacks.c:1903 ../src/menubar.c:65
+#: ../src/callbacks.c:1914 ../src/menubar.c:65
 #, fuzzy
 msgid "Load Profile"
 msgstr "Učitaj Datoteku"
@@ -468,11 +466,23 @@ msgstr "Kontrole Slike"
 
 #. image auto capture
 #: ../src/guvcview.c:533
-msgid "Stop Auto"
-msgstr "Zaustavi Automatsko"
+msgid "Stop Auto (I)"
+msgstr "Zaustavi Automatsko (I)"
+
+#: ../src/guvcview.c:537
+msgid "Cap. Image (I)"
+msgstr "Snimi Sliku (I)"
+
+#. vid capture enabled from start
+#: ../src/guvcview.c:542
+msgid "Stop Video (V)"
+msgstr "Zaustavi Video (V)"
+
+#: ../src/guvcview.c:547
+msgid "Cap. Video (V)"
+msgstr "Snimi Video (V)"
 
 #: ../src/guvcview.c:644
-#, fuzzy
 msgid ""
 "Guvcview error:\n"
 "\n"
