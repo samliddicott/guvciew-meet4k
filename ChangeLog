@@ -4,6 +4,8 @@ guvcview (1.7.0)
     * refactor mkv muxer (base it on libav muxer with webm support)
     * Add VP8, Theora and Vorbis codecs
     * Add Webm support
+    * Add a Top Menu
+    * Move all file operations to the Top Menu
 
  -- Paulo Assis <pj.assis@gmail.com>  Sun, 20 Jan 2013 15:44:00 +0000
 
