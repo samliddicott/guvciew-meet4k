@@ -1,7 +1,7 @@
 # Translation of guvcview to the Italian language
 # Copyright (C) 2008 Paulo Assis
 # This file is distributed under the same license as the guvcview package.
-# Giovanni Scafora <giovanni@archlinux.org>, 2012.
+# Giovanni Scafora <giovanni@archlinux.org>, 2013.
 #
 #
 msgid ""
@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: guvcview\n"
 "Report-Msgid-Bugs-To: pj.assis@gmail.com\n"
 "POT-Creation-Date: 2013-02-24 23:16+0000\n"
-"PO-Revision-Date: 2012-04-05 10:00+0100\n"
+"PO-Revision-Date: 2013-03-05 10:00+0100\n"
 "Last-Translator: Giovanni Scafora <giovanni@archlinux.org>\n"
 "Language-Team: Arch Linux Italian Team <giovanni@archlinux.org>\n"
 "Language: it\n"
@@ -30,29 +30,28 @@ msgid "A video viewer and capturer for the linux uvc driver"
 msgstr "Un visualizzatore e catturatore video per il driver uvc di linux"
 
 #: ../src/acodecs.c:59
-#, fuzzy
 msgid "PCM - uncompressed (16 bit)"
-msgstr "MJPG - compresso"
+msgstr "PCM - non compresso (16 bit)"
 
 #: ../src/acodecs.c:76
 msgid "MPEG2 - (lavc)"
-msgstr ""
+msgstr "MPEG2 - (lavc)"
 
 #: ../src/acodecs.c:93
 msgid "MP3 - (lavc)"
-msgstr ""
+msgstr "MP3 - (lavc)"
 
 #: ../src/acodecs.c:110
 msgid "Dolby AC3 - (lavc)"
-msgstr ""
+msgstr "Dolby AC3 - (lavc)"
 
 #: ../src/acodecs.c:127
 msgid "ACC Low - (faac)"
-msgstr ""
+msgstr "ACC Low - (faac)"
 
 #: ../src/acodecs.c:144
 msgid "Vorbis"
-msgstr ""
+msgstr "Vorbis"
 
 #: ../src/audio_tab.c:80
 msgid "Audio"
@@ -156,9 +155,8 @@ msgid "Save File"
 msgstr "Salva file"
 
 #: ../src/callbacks.c:283
-#, fuzzy
 msgid "File Format:"
-msgstr "Formato video:"
+msgstr "Formato del file:"
 
 #: ../src/callbacks.c:454
 msgid "codec values"
@@ -263,9 +261,8 @@ msgstr "valori del codec audio"
 
 #. sample format
 #: ../src/callbacks.c:822
-#, fuzzy
 msgid "sample format:   "
-msgstr "Frequenza di campionamento:"
+msgstr "Formato di campionamento:"
 
 #: ../src/callbacks.c:1250
 msgid "start new"
@@ -298,7 +295,7 @@ msgstr "Cattura immagine (I)"
 #. disable image controls
 #: ../src/callbacks.c:1727 ../src/guvcview.c:658 ../src/timers.c:101
 msgid "capturing photo to"
-msgstr ""
+msgstr "cattura foto da"
 
 #: ../src/callbacks.c:1786 ../src/guvcview.c:547
 msgid "Cap. Video (V)"
@@ -306,7 +303,7 @@ msgstr "Registra video (V)"
 
 #: ../src/callbacks.c:1812 ../src/guvcview.c:708
 msgid "capturing video to"
-msgstr ""
+msgstr "registra video da"
 
 #. vid capture enabled from start
 #: ../src/callbacks.c:1845 ../src/guvcview.c:542
@@ -314,14 +311,12 @@ msgid "Stop Video (V)"
 msgstr "Ferma il video (V)"
 
 #: ../src/callbacks.c:1901 ../src/menubar.c:66
-#, fuzzy
 msgid "Save Profile"
-msgstr "Salva file"
+msgstr "Salva profilo"
 
 #: ../src/callbacks.c:1914 ../src/menubar.c:65
-#, fuzzy
 msgid "Load Profile"
-msgstr "Carica file"
+msgstr "Carica profilo"
 
 #: ../src/create_video.c:1016 ../src/guvcview.c:700
 msgid "Cap. Video"
@@ -498,85 +493,74 @@ msgstr "imposta la messa a fuoco"
 
 #: ../src/image_format.c:35
 msgid "Jpeg (jpg)"
-msgstr ""
+msgstr "Jpeg (jpg)"
 
 #: ../src/image_format.c:41
 msgid "Bitmap (Bmp)"
-msgstr ""
+msgstr "Bitmap (Bmp)"
 
 #: ../src/image_format.c:47
 msgid "Portable Network Graphics (Png)"
-msgstr ""
+msgstr "Portable Network Graphics (Png)"
 
 #: ../src/image_format.c:53
 msgid "Raw Image (raw)"
-msgstr ""
+msgstr "Immagine raw (raw)"
 
 #. controls menu
 #: ../src/menubar.c:64
 msgid "Settings"
-msgstr ""
+msgstr "Impostazioni"
 
 #: ../src/menubar.c:67
-#, fuzzy
 msgid "Hardware Defaults"
-msgstr "Ripristina"
+msgstr "Ripristina l'hardware di default"
 
 #: ../src/menubar.c:75
-#, fuzzy
 msgid "Camera Button"
-msgstr "Uscita della webcam:"
+msgstr "Pulsante della camera"
 
 #: ../src/menubar.c:79
-#, fuzzy
 msgid "Capture Image"
-msgstr "Cattura immagine"
+msgstr "Cattura l'immagine"
 
 #: ../src/menubar.c:84
-#, fuzzy
 msgid "Capture Video"
-msgstr "Registra video"
+msgstr "Registra il video"
 
 #. video menu
 #: ../src/menubar.c:144 ../src/video_tab.c:87
-#, fuzzy
 msgid "Video"
-msgstr "Ferma il video"
+msgstr "Video"
 
 #: ../src/menubar.c:145 ../src/menubar.c:231
-#, fuzzy
 msgid "File"
-msgstr "Salva file"
+msgstr "File"
 
 #: ../src/menubar.c:146 ../src/menubar.c:232
-#, fuzzy
 msgid "Increment Filename"
-msgstr "Nome del file immagine"
+msgstr "Incrementa il nome del file"
 
 #: ../src/menubar.c:164
-#, fuzzy
 msgid "Video Codec"
-msgstr "Codec video:"
+msgstr "Codec video"
 
 #: ../src/menubar.c:187
-#, fuzzy
 msgid "Video Codec Properties"
-msgstr "Codec video:"
+msgstr "Proprietà del codec video"
 
 #: ../src/menubar.c:194
-#, fuzzy
 msgid "Audio Codec"
-msgstr "Codec video:"
+msgstr "Codec audio"
 
 #: ../src/menubar.c:215
-#, fuzzy
 msgid "Audio Codec Properties"
-msgstr "valori del codec audio"
+msgstr "Proprietà del codec audio"
 
 #. photo menu
 #: ../src/menubar.c:230
 msgid "Photo"
-msgstr ""
+msgstr "Foto"
 
 #: ../src/options.c:752
 msgid "Prints version"
@@ -617,13 +601,12 @@ msgid "Hardware accelaration (enable(1) | disable(0))"
 msgstr "Accelerazione hardware (abilita(1) | disabilita(0))"
 
 #: ../src/options.c:761
-#, fuzzy
 msgid ""
 "Pixel format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|"
 "y41p|grey|y10b|y16 |s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
 msgstr ""
-"Formato dei pixel(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|"
-"nv61|y41p|grey|y16 |s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
+"Formato del pixel(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|"
+"y41p|grey|y10b|y16 |s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
 
 #: ../src/options.c:762
 msgid "Frame size, default: 640x480"
@@ -1030,25 +1013,23 @@ msgstr "MPEG4-AVC (H264)"
 
 #: ../src/vcodecs.c:427
 msgid "VP8 (VP8)"
-msgstr ""
+msgstr "VP8 (VP8)"
 
 #: ../src/vcodecs.c:463
 msgid "Theora (ogg theora)"
-msgstr ""
+msgstr "Theora (ogg theora)"
 
 #: ../src/video_format.c:43
 msgid "AVI - avi format"
-msgstr ""
+msgstr "AVI - formato avi"
 
 #: ../src/video_format.c:52
-#, fuzzy
 msgid "MKV - Matroska format"
-msgstr "MPG2 - formato MPG2"
+msgstr "MKV - formato Matroska"
 
 #: ../src/video_format.c:61
-#, fuzzy
 msgid "WEBM - format"
-msgstr "MPG2 - formato MPG2"
+msgstr "WEBM - formato WEBM"
 
 #: ../src/video_tab.c:208
 msgid "Frame Rate:"
@@ -1107,45 +1088,3 @@ msgstr " Pezzi"
 #: ../src/video_tab.c:378
 msgid " Particles"
 msgstr " Particelle"
-
-#~ msgid "Stop Video"
-#~ msgstr "Ferma il video"
-
-#~ msgid "Capture:"
-#~ msgstr "Cattura:"
-
-#~ msgid "Control Profiles:"
-#~ msgstr "Profili di controllo:"
-
-#~ msgid "File num:%d"
-#~ msgstr "File numero: %d"
-
-#~ msgid "Video & Files"
-#~ msgstr "Video e file"
-
-#~ msgid "Image File:"
-#~ msgstr "File immagine:"
-
-#~ msgid "File,Auto"
-#~ msgstr "Numerazione automatica dei file"
-
-#~ msgid "Image Format:"
-#~ msgstr "Formato dell'immagine:"
-
-#~ msgid "Take Picture by Default"
-#~ msgstr "Prendi l'immagine predefinita"
-
-#~ msgid "Video File:"
-#~ msgstr "File video:"
-
-#~ msgid "properties"
-#~ msgstr "proprietà"
-
-#~ msgid "Take Video by Default"
-#~ msgstr "Prendi il video predefinito"
-
-#~ msgid "Audio Format:"
-#~ msgstr "Formato audio:"
-
-#~ msgid "Pan/tilt Reset"
-#~ msgstr "Ripristina panoramica e inclinazione"
