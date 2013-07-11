@@ -15,7 +15,7 @@ m4_define([guvcview_version],
 
 AC_INIT([guvcview],[guvcview_version],[http://guvcview.sourceforge.net/])
 m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
-		  
+
 AM_INIT_AUTOMAKE([gnu])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_HEADERS(config.h)
@@ -144,9 +144,9 @@ if test $enable_pulse = yes; then
 	AC_SUBST(PULSE_LIBS)
 	if test "$has_pulse" = yes; then
 	  AC_DEFINE(PULSEAUDIO,1,[set to 1 if pulseaudio installed])
-	else 
+	else
 	  AC_MSG_WARN(libpulse missing... pulse support will be disabled.);
-	  enable_pulse = no
+	  enable_pulse=no
 	fi
 fi
 
@@ -166,20 +166,20 @@ dnl if all the checks fail we include "libavcodec/avcodec.h"
 AC_CHECK_HEADER([libavcodec/avcodec.h], [has_libavcodec_dir="yes"])
 
 if test "$has_avcodec_h" = yes; then
-  AC_DEFINE(HAS_AVCODEC_H,1,[Define if avcodec.h can be acessed directly]) 
+  AC_DEFINE(HAS_AVCODEC_H,1,[Define if avcodec.h can be acessed directly])
 fi
 if test "$has_ffmpeg_dir" = yes; then
-  AC_DEFINE(HAS_FFMPEG_AVCODEC_H,1,[Define if avcodec.h installed to ffmpeg dir]) 
+  AC_DEFINE(HAS_FFMPEG_AVCODEC_H,1,[Define if avcodec.h installed to ffmpeg dir])
 fi
 if test "$has_libavcodec_dir" = yes; then
   AC_DEFINE(HAS_LIBAVCODEC_AVCODEC_H,1,[Define if avcodec.h installed to libavcodec dir])
 fi
 
 dnl --------------------------------------------------------------------------
-dnl Check if the processor stores words with the most significant byte first 
+dnl Check if the processor stores words with the most significant byte first
 dnl (like Motorola and SPARC, unlike Intel and VAX).
 dnl --------------------------------------------------------------------------
-AC_C_BIGENDIAN 
+AC_C_BIGENDIAN
 
 dnl Create the Makefiles
 AC_CONFIG_FILES([
@@ -202,11 +202,11 @@ AC_MSG_NOTICE([
   Prefix         : ${prefix}
 
   Pulse API      : ${enable_pulse}
-  
+
   Desktop File   : ${enable_desktop}
   Debian Menu    : ${enable_debian_menu}
-  
+
   Debug Symbols  : ${enable_debug}
-  
+
 ])
 
