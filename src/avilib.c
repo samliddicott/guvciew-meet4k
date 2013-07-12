@@ -771,7 +771,7 @@ static int avi_write_ix(avi_Context* AVI)
          pos = io_get_offset(AVI->writer); //current position
 
          /* Updating one entry in the AVI OpenDML master index */
-         io_seek(AVI->writer, indexes->indx_start /*- 8*/);
+         io_seek(AVI->writer, indexes->indx_start);
          io_write_4cc(AVI->writer, "indx");            /* enabling this entry */
          io_skip(AVI->writer, 8);
          io_write_wl32(AVI->writer, riff->id +1);      /* nEntriesInUse */
