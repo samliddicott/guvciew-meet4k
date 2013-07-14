@@ -881,6 +881,8 @@ int avi_write_packet(avi_Context* AVI, int stream_index, BYTE *data, uint32_t si
         avi_close_tag(AVI, riff->riff_start);
 
         avi_add_new_riff(AVI);
+        
+        riff = avi_get_last_riff(AVI); //update riff
     }
 
     avi_stream2fourcc(tag, stream);
