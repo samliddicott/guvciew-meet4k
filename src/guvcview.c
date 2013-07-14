@@ -191,7 +191,7 @@ int main(int argc, char *argv[])
 	/*print package name and version*/
 	g_print("%s\n", PACKAGE_STRING);
 
-	g_type_init ();
+	//g_type_init ();
 	//gdk_threads_init();
 
 #ifdef ENABLE_NLS

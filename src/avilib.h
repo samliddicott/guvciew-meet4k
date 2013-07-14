@@ -74,7 +74,8 @@ typedef struct avi_Index
 struct avi_RIFF
 {
     int64_t riff_start, movi_list;
-    int64_t frames_hdr_all;
+    //int64_t frames_hdr_all;
+    int64_t time_delay_off;
     int id;
 
     struct avi_RIFF *previous, *next;
@@ -88,7 +89,9 @@ struct avi_Context
 	__MUTEX_TYPE mutex;
 
 	int flags; /* 0 - AVI is recordind;   1 - AVI is not recording*/
-
+	
+	uint32_t avi_flags;
+	
 	int32_t time_base_num;       /* video time base numerator */
 	int32_t time_base_den;       /* video time base denominator */
 

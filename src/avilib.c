@@ -82,7 +82,7 @@
 
 #define AVI_MAX_RIFF_SIZE       0x40000000LL    /*1Gb = 0x40000000LL*/
 #define AVI_MASTER_INDEX_SIZE   256
-#define AVI_MAX_STREAM_COUNT    100
+#define AVI_MAX_STREAM_COUNT    10
 
 /* index flags */
 #define AVIIF_INDEX             0x10
@@ -185,15 +185,15 @@ void avi_put_main_header(avi_Context* AVI, avi_RIFF* riff)
 	/*this should prevent bad avi files even if it is not closed properly*/
 	//if(hasIndex) flag |= AVIF_HASINDEX;
 	//if(hasIndex && AVI->must_use_index) flag |= AVIF_MUSTUSEINDEX;
-	uint32_t flags = AVIF_WASCAPTUREFILE;
+	AVI->avi_flags = AVIF_WASCAPTUREFILE;
 
 	int64_t avih = avi_open_tag(AVI, "avih");      // main avi header
-	//AVI->time_delay_off = io_get_offset(AVI->writer);
-	io_write_wl32(AVI->writer, 1000000 / FRAME_RATE_SCALE); // time delay between frames (milisec)
+	riff->time_delay_off = io_get_offset(AVI->writer);
+	io_write_wl32(AVI->writer, 1000000 / FRAME_RATE_SCALE); // time per frame (milisec)
 	io_write_wl32(AVI->writer, data_rate);         // data rate
 	io_write_wl32(AVI->writer, 0);                 // Padding multiple size (2048)
-	io_write_wl32(AVI->writer, flags);			   // parameter Flags
-	riff->frames_hdr_all = io_get_offset(AVI->writer);
+	io_write_wl32(AVI->writer, AVI->avi_flags);    // parameter Flags
+	//riff->frames_hdr_all = io_get_offset(AVI->writer);
 	io_write_wl32(AVI->writer, 0);			       // number of video frames
 	io_write_wl32(AVI->writer, 0);			       // number of preview frames
 	io_write_wl32(AVI->writer, AVI->stream_list_size); // number of data streams (audio + video)*/
@@ -211,7 +211,7 @@ int64_t avi_put_bmp_header(avi_Context* AVI, io_Stream* stream)
 {
 	int frate = 15*FRAME_RATE_SCALE;
 	if(stream->fps > 0.001)
-		frate = (int) (FRAME_RATE_SCALE*(stream->fps + 0.5));
+		frate = (int) ((FRAME_RATE_SCALE*(stream->fps)) + 0.5);
 
 	int64_t strh = avi_open_tag(AVI, "strh");// video stream header
 	io_write_4cc(AVI->writer, "vids");              // stream type
@@ -419,7 +419,7 @@ void avi_create_riff_header(avi_Context* AVI, avi_RIFF* riff)
 		int64_t ix = avi_open_tag(AVI, "JUNK");           // ’ix##’
 		io_write_wl16(AVI->writer, 4);               // wLongsPerEntry must be 4 (size of each entry in aIndex array)
 		io_write_w8(AVI->writer, 0);                 // bIndexSubType must be 0 (frame index) or AVI_INDEX_2FIELD
-		io_write_w8(AVI->writer, 0);                 // bIndexType (0 == AVI_INDEX_OF_INDEXES)
+		io_write_w8(AVI->writer, AVI_INDEX_OF_INDEXES);  // bIndexType (0 == AVI_INDEX_OF_INDEXES)
 		io_write_wl32(AVI->writer, 0);               // nEntriesInUse (will fill out later on)
 		io_write_4cc(AVI->writer, avi_stream2fourcc(tag, stream)); // dwChunkId
 		io_write_wl32(AVI->writer, 0);               // dwReserved[3] must be 0
@@ -677,7 +677,7 @@ static int avi_write_counters(avi_Context* AVI, avi_RIFF* riff)
 
 			if(stream->type == STREAM_TYPE_VIDEO && AVI->fps > 0.001)
 			{
-				uint32_t rate =(uint32_t) FRAME_RATE_SCALE * lrintf(AVI->fps + 0.5);
+				uint32_t rate =(uint32_t) FRAME_RATE_SCALE * lrintf(AVI->fps);
 				fprintf(stderr,"AVI: storing rate(%i)\n",rate);
 				io_write_wl32(AVI->writer, rate);
 			}
@@ -707,39 +707,28 @@ static int avi_write_counters(avi_Context* AVI, avi_RIFF* riff)
     avi_RIFF* riff_1 = avi_get_riff(AVI, 1);
     if(riff_1->id == 1) /*should always be true*/
     {
-        if(riff_1->frames_hdr_all <= 0)
+        if(riff_1->time_delay_off <= 0)
         {
-			fprintf(stderr, "AVI: riff frames header pos not valid\n");
+			fprintf(stderr, "AVI: riff main header pos not valid\n");
         }
         else
         {
-			io_seek(AVI->writer, riff_1->frames_hdr_all);
+			uint32_t us_per_frame = 1000; //us
+			if(AVI->fps > 0.001)
+				us_per_frame=(uint32_t) lrintf(1000000.0 / AVI->fps); 
+		
+			AVI->avi_flags |= AVIF_HASINDEX;
+			
+			io_seek(AVI->writer, riff_1->time_delay_off);
+			io_write_wl32(AVI->writer, us_per_frame);      // time_per_frame
+			io_write_wl32(AVI->writer, 0);                 // data rate
+			io_write_wl32(AVI->writer, 0);                 // Padding multiple size (2048)
+			io_write_wl32(AVI->writer, AVI->avi_flags);    // parameter Flags
+			//io_seek(AVI->writer, riff_1->frames_hdr_all);
 			io_write_wl32(AVI->writer, nb_frames);
 		}
     }
-/*
-    //update frame time delay
-    if(AVI->time_delay_off <= 0)
-    {
-		fprintf(stderr, "AVI: avi frame time pos not valid\n");
-    }
-    else
-    {
-		io_seek(AVI, AVI->time_delay_off);
-		uint32_t us_per_frame = 0;
-		if(AVI->fps > 0.001)
-			us_per_frame=(uint32_t) lrintf(1000000.0 / AVI->fps + 0.5);
-		io_write_wl32(AVI->writer, us_per_frame);
-		fprintf(stderr, "AVI: frame time (%i us)\n", us_per_frame);
-
-		uint32_t data_rate = 0;
-		if(time_base_den > 0 || time_base_num > 0) //these are not set yet so it's always false
-			data_rate = (uint32_t) (INT64_C(1000000) * time_base_num/time_base_den);
-		else
-			fprintf(stderr, "AVI: bad time base (%i/%i)\n", time_base_num, time_base_den);
-		io_write_wl32(AVI->writer, data_rate);
-	}
-*/
+    
 	//return to position (EOF)
     io_seek(AVI->writer, file_size);
 
@@ -774,7 +763,7 @@ static int avi_write_ix(avi_Context* AVI)
                                       /* chunk size */
         io_write_wl16(AVI->writer, 2);           /* wLongsPerEntry */
         io_write_w8(AVI->writer, 0);             /* bIndexSubType (0 == frame index) */
-        io_write_w8(AVI->writer, 1);             /* bIndexType (1 == AVI_INDEX_OF_CHUNKS) */
+        io_write_w8(AVI->writer, AVI_INDEX_OF_CHUNKS); /* bIndexType (1 == AVI_INDEX_OF_CHUNKS) */
         io_write_wl32(AVI->writer, indexes->entry);
                                       /* nEntriesInUse */
         io_write_4cc(AVI->writer, tag);        /* dwChunkId */
