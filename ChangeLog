@@ -1,3 +1,10 @@
+guvcview (1.7.1)
+
+    * Fix avi muxer: fix opendml indexes (>= 1Gb)
+    * Update Italian translation
+    
+ -- Paulo Assis <pj.assis@gmail.com>  Tue, 16 Jul 2013 13:27:00 +0000
+ 
 guvcview (1.7.0)
 
     * refactor avi muxer (base it on libav muxer with opendml support)
