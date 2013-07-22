@@ -75,12 +75,12 @@ be done in data/guvcview.desktop.in.
 
 *configuration files:
 ---------------------
-(~/.guvcviewrc)
+(~/.config/guvciew/video0)
 
 The configuration file is saved into the $HOME dir when 
 exiting guvcview. If a video device with index > 0,
 e.g: /dev/video1 is used then the file stored will be
-named .guvcviewrc-video1
+named ~/.config/guvciew/video1
 
 Executing guvcview
 ================== 
