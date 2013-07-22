@@ -8,17 +8,17 @@ msgid ""
 msgstr ""
 "Project-Id-Version: pt_BR\n"
 "Report-Msgid-Bugs-To: pj.assis@gmail.com\n"
-"POT-Creation-Date: 2013-02-24 23:16+0000\n"
-"PO-Revision-Date: 2012-01-18 14:02+0000\n"
+"POT-Creation-Date: 2013-07-16 12:53+0000\n"
+"PO-Revision-Date: 2013-02-25 05:32+0000\n"
 "Last-Translator: Giovanni Scafora <giovanni@archlinux.org>\n"
 "Language-Team: Brazilian Portuguese <gnome-pt_br-list@gnome.org>\n"
-"Language: pt\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2012-02-27 23:28+0000\n"
-"X-Generator: Launchpad (build 14868)\n"
+"X-Launchpad-Export-Date: 2013-07-22 13:32+0000\n"
+"X-Generator: Launchpad (build 16696)\n"
 "X-Project-Style: default\n"
+"Language: pt\n"
 
 #: ../data/guvcview.desktop.in.in.h:1
 msgid "guvcview"
@@ -30,12 +30,11 @@ msgstr ""
 
 #: ../data/guvcview.desktop.in.in.h:3
 msgid "A video viewer and capturer for the linux uvc driver"
-msgstr ""
+msgstr "Um visualizador de vídeos e captura para o driver linux uvc"
 
 #: ../src/acodecs.c:59
-#, fuzzy
 msgid "PCM - uncompressed (16 bit)"
-msgstr "MJPG - com compressão"
+msgstr ""
 
 #: ../src/acodecs.c:76
 msgid "MPEG2 - (lavc)"
@@ -159,9 +158,8 @@ msgid "Save File"
 msgstr "Salvar arquivo"
 
 #: ../src/callbacks.c:283
-#, fuzzy
 msgid "File Format:"
-msgstr "Formato de vídeo:"
+msgstr ""
 
 #: ../src/callbacks.c:454
 msgid "codec values"
@@ -266,9 +264,8 @@ msgstr "valores do codec de áudio"
 
 #. sample format
 #: ../src/callbacks.c:822
-#, fuzzy
 msgid "sample format:   "
-msgstr "Taxa de amostragem:"
+msgstr ""
 
 #: ../src/callbacks.c:1250
 msgid "start new"
@@ -317,9 +314,8 @@ msgid "Stop Video (V)"
 msgstr "Parar vídeo (V)"
 
 #: ../src/callbacks.c:1901 ../src/menubar.c:66
-#, fuzzy
 msgid "Save Profile"
-msgstr "Salvar Perfil"
+msgstr ""
 
 #: ../src/callbacks.c:1914 ../src/menubar.c:65
 msgid "Load Profile"
@@ -487,7 +483,8 @@ msgstr ""
 
 #: ../src/guvcview.c:645
 msgid "Please report it to http://developer.berlios.de/bugs/?group_id=8179"
-msgstr "Por favor, reporte em http://developer.berlios.de/bugs/?group_id=8179"
+msgstr ""
+"Por favor, reporte em http://developer.berlios.de/bugs/?group_id=8179"
 
 #: ../src/img_controls.c:121
 msgid "Auto Focus (continuous)"
@@ -605,13 +602,11 @@ msgid "Hardware accelaration (enable(1) | disable(0))"
 msgstr "Aceleração de hardware (habilitado(1) | desabilitado(0))"
 
 #: ../src/options.c:761
-#, fuzzy
 msgid ""
-"Pixel format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|"
-"y41p|grey|y10b|y16 |s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
+"Pixel "
+"format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|y41p|grey|"
+"y10b|y16 |s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
 msgstr ""
-"Formato de pixel(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|"
-"y41p|grey|y16 |s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
 
 #: ../src/options.c:762
 msgid "Frame size, default: 640x480"
@@ -1026,17 +1021,15 @@ msgstr ""
 
 #: ../src/video_format.c:43
 msgid "AVI - avi format"
-msgstr ""
+msgstr "AVI - formato avi"
 
 #: ../src/video_format.c:52
-#, fuzzy
 msgid "MKV - Matroska format"
-msgstr "MPG2 - MPEG vídeo 2"
+msgstr ""
 
 #: ../src/video_format.c:61
-#, fuzzy
 msgid "WEBM - format"
-msgstr "MPG2 - MPEG vídeo 2"
+msgstr ""
 
 #: ../src/video_tab.c:208
 msgid "Frame Rate:"
@@ -1095,45 +1088,3 @@ msgstr " Pedaços"
 #: ../src/video_tab.c:378
 msgid " Particles"
 msgstr " Partículas"
-
-#~ msgid "Stop Video"
-#~ msgstr "Parar vídeo"
-
-#~ msgid "Capture:"
-#~ msgstr "Captura:"
-
-#~ msgid "Control Profiles:"
-#~ msgstr "Perfis de controles:"
-
-#~ msgid "File num:%d"
-#~ msgstr "Arquivo num:%d"
-
-#~ msgid "Video & Files"
-#~ msgstr "Vídeo & arquivos"
-
-#~ msgid "Image File:"
-#~ msgstr "Arquivo de imagem:"
-
-#~ msgid "File,Auto"
-#~ msgstr "Arquivo,Auto"
-
-#~ msgid "Image Format:"
-#~ msgstr "Formato de imagem:"
-
-#~ msgid "Take Picture by Default"
-#~ msgstr "Imagem por Defeito"
-
-#~ msgid "Video File:"
-#~ msgstr "Arquivo de vídeo:"
-
-#~ msgid "properties"
-#~ msgstr "propriedades"
-
-#~ msgid "Take Video by Default"
-#~ msgstr "Vídeo por Defeito"
-
-#~ msgid "Audio Format:"
-#~ msgstr "Formato de áudio:"
-
-#~ msgid "Pan/tilt Reset"
-#~ msgstr "Restaurar Des./Incl."

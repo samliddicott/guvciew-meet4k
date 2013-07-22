@@ -1,75 +1,74 @@
-# Ukrainian translation for guvcview
-# Copyright (c) 2010 Rosetta Contributors and Canonical Ltd 2010
+# Sinhalese translation for guvcview
+# Copyright (c) 2013 Rosetta Contributors and Canonical Ltd 2013
 # This file is distributed under the same license as the guvcview package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2010.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2013.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: guvcview\n"
-"Report-Msgid-Bugs-To: pj.assis@gmail.com\n"
+"Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2013-07-16 12:53+0000\n"
-"PO-Revision-Date: 2013-02-25 05:37+0000\n"
-"Last-Translator: Paulo Assis <pj.assis@gmail.com>\n"
-"Language-Team: Ukrainian <uk@li.org>\n"
+"PO-Revision-Date: 2013-06-03 09:59+0000\n"
+"Last-Translator: sajith <wijerathnasajith1@gmail.com>\n"
+"Language-Team: Sinhalese <si@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Launchpad-Export-Date: 2013-07-22 13:32+0000\n"
 "X-Generator: Launchpad (build 16696)\n"
-"Language: uk\n"
 
 #: ../data/guvcview.desktop.in.in.h:1
 msgid "guvcview"
-msgstr ""
+msgstr "guvcview"
 
 #: ../data/guvcview.desktop.in.in.h:2
 msgid "GTK UVC video viewer"
-msgstr ""
+msgstr "GTK UVC වීඩියෝ දකින්නා"
 
 #: ../data/guvcview.desktop.in.in.h:3
 msgid "A video viewer and capturer for the linux uvc driver"
-msgstr ""
+msgstr "ලිනක්ස් uvc ඩ්‍රයිවරය සඳහා වීඩියෝ පෙන්වන්නා සහ ග්‍රහණය කරන්නා"
 
 #: ../src/acodecs.c:59
 msgid "PCM - uncompressed (16 bit)"
-msgstr ""
+msgstr "MJPG - සම්පීඩනය නොකරන ලද"
 
 #: ../src/acodecs.c:76
 msgid "MPEG2 - (lavc)"
-msgstr ""
+msgstr "MPEG2 - (lavc)"
 
 #: ../src/acodecs.c:93
 msgid "MP3 - (lavc)"
-msgstr ""
+msgstr "MP3 - (lavc)"
 
 #: ../src/acodecs.c:110
 msgid "Dolby AC3 - (lavc)"
-msgstr ""
+msgstr "Dolby AC3 - (lavc)"
 
 #: ../src/acodecs.c:127
 msgid "ACC Low - (faac)"
-msgstr ""
+msgstr "ACC Low - (faac)"
 
 #: ../src/acodecs.c:144
 msgid "Vorbis"
-msgstr ""
+msgstr "Vorbis"
 
 #: ../src/audio_tab.c:80
 msgid "Audio"
-msgstr "Аудіо"
+msgstr "ශ්‍රව්‍ය"
 
 #: ../src/audio_tab.c:98
 msgid " Sound"
-msgstr " Звук"
+msgstr " නාදය"
 
 #. VU meter on the image (OSD)
 #: ../src/audio_tab.c:109
 msgid " Show VU meter"
-msgstr ""
+msgstr " VU මීටරය පෙන්වන්න"
 
 #: ../src/audio_tab.c:121
 msgid "Audio API:"
-msgstr "Аудіо API:"
+msgstr "ශ්‍රව්‍ය API:"
 
 #: ../src/audio_tab.c:132
 msgid "PORTAUDIO"
@@ -81,60 +80,60 @@ msgstr "PULSEAUDIO"
 
 #: ../src/audio_tab.c:149 ../src/audio_tab.c:172
 msgid "Input Device:"
-msgstr "Пристрій вводу:"
+msgstr "යෙදවුම් උපකරණය:"
 
 #: ../src/audio_tab.c:182 ../src/audio_tab.c:214
 msgid "Dev. Default"
-msgstr "Пристрій по замовч."
+msgstr "Dev. Default"
 
 #: ../src/audio_tab.c:204
 msgid "Sample Rate:"
-msgstr "Частота дискредитації:"
+msgstr "ආදර්ශ අනුපාතය:"
 
 #: ../src/audio_tab.c:215
 msgid "1 - mono"
-msgstr "1 - моно"
+msgstr "1 - එකක්"
 
 #: ../src/audio_tab.c:216
 msgid "2 - stereo"
-msgstr "2 - стерео"
+msgstr "2 - ත්‍රිමාන"
 
 #: ../src/audio_tab.c:251
 msgid "Channels:"
-msgstr "Канали:"
+msgstr "නාලිකාවන්:"
 
 #: ../src/audio_tab.c:302
 msgid "---- Audio Effects ----"
-msgstr "---- Ефекти аудіо ----"
+msgstr "---- ශ්‍රවණ සැරසිලි ----"
 
 #. Echo
 #: ../src/audio_tab.c:321
 msgid " Echo"
-msgstr " Ехо"
+msgstr " අනුකරණය කරන්න"
 
 #. FUZZ
 #: ../src/audio_tab.c:332
 msgid " Fuzz"
-msgstr " Пух"
+msgstr " Fuzz"
 
 #. Reverb
 #: ../src/audio_tab.c:344
 msgid " Reverb"
-msgstr " Ревербація"
+msgstr " Reverb"
 
 #. WahWah
 #: ../src/audio_tab.c:356
 msgid " WahWah"
-msgstr " ВахВах"
+msgstr " WahWah"
 
 #. Ducky
 #: ../src/audio_tab.c:368
 msgid " Ducky"
-msgstr " Голубка"
+msgstr " Ducky"
 
 #: ../src/callbacks.c:108
 msgid "Error"
-msgstr "Помилка"
+msgstr "දෝෂය"
 
 #: ../src/callbacks.c:132
 msgid ""
@@ -143,42 +142,42 @@ msgid ""
 "Do you want to try another one ?\n"
 msgstr ""
 "\n"
-"Встановлено більше одного відео пристрою.\n"
-"Ви хочете спробувати ще один?\n"
+"ඔබ වීඩියෝ උපකරණ එකකට වඩා වැඩියෙන් සවිකර ඇත.\n"
+"ඔබට වෙනත් එකක් අත්හදා බැලීමට අවශ්‍යද?\n"
 
 #. Devices
 #: ../src/callbacks.c:139 ../src/video_tab.c:103
 msgid "Device:"
-msgstr "Пристрій:"
+msgstr "උපකරණය:"
 
 #: ../src/callbacks.c:271
 msgid "Save File"
-msgstr "Зберегти"
+msgstr "ගොනුව සුරකින්න"
 
 #: ../src/callbacks.c:283
 msgid "File Format:"
-msgstr ""
+msgstr "ගොනු ආකෘතිය:"
 
 #: ../src/callbacks.c:454
 msgid "codec values"
-msgstr "значення кодека"
+msgstr "කොඩෙක් අගයන්"
 
 #: ../src/callbacks.c:465
 msgid ""
 "                              encoder fps:   \n"
 " (0 - use fps combobox value)"
 msgstr ""
-"                              частота кадрів:   \n"
-" (0 - використати значення з випадаючого списку)"
+"                              fps සංකේතකය:   \n"
+" (0 - fps  ලැයිස්තුවක් සහිත රාමුවේ අගය පාවිච්චි කරන්න)"
 
 #: ../src/callbacks.c:478
 msgid " monotonic pts"
-msgstr ""
+msgstr " ඒකවිධ pts"
 
 #. bit rate
 #: ../src/callbacks.c:485 ../src/callbacks.c:808
 msgid "bit rate:   "
-msgstr "бітрейт:   "
+msgstr "බිට් අනුපාතය:   "
 
 #: ../src/callbacks.c:498
 msgid "qmax:   "
@@ -190,7 +189,7 @@ msgstr "qmin:   "
 
 #: ../src/callbacks.c:524
 msgid "max. qdiff:   "
-msgstr "макс. qdiff:   "
+msgstr "උපරිම qdiff:   "
 
 #: ../src/callbacks.c:537
 msgid "dia size:   "
@@ -218,7 +217,7 @@ msgstr "sub cmp:   "
 
 #: ../src/callbacks.c:615
 msgid "last predictor count:   "
-msgstr "значення лічильника прогнозиста:   "
+msgstr "අවසාන අනාවැකි ගණන:   "
 
 #: ../src/callbacks.c:628
 msgid "gop size:   "
@@ -226,7 +225,7 @@ msgstr "gop size:   "
 
 #: ../src/callbacks.c:641
 msgid "qcompress:   "
-msgstr "qcompress   "
+msgstr "qcompress:   "
 
 #: ../src/callbacks.c:654
 msgid "qblur:   "
@@ -250,87 +249,86 @@ msgstr "mb decision:   "
 
 #: ../src/callbacks.c:719
 msgid "max B frames:   "
-msgstr "max B frames:   "
+msgstr "උපරිම B රාමු:   "
 
 #: ../src/callbacks.c:732
 msgid "num threads:   "
-msgstr ""
+msgstr "num සම්බන්ධයන්:   "
 
 #: ../src/callbacks.c:795
 msgid "audio codec values"
-msgstr "значення аудіо-кодека"
+msgstr "ශ්‍රව්‍ය කොඩෙක් අගයන්"
 
 #. sample format
 #: ../src/callbacks.c:822
 msgid "sample format:   "
-msgstr ""
+msgstr "ආදර්ශ ආකෘතිය:   "
 
 #: ../src/callbacks.c:1250
 msgid "start new"
-msgstr "запустити новий"
+msgstr "අලුතින් අරඹන්න"
 
 #: ../src/callbacks.c:1253
 msgid "restart"
-msgstr "перезавантаж."
+msgstr "නැවත අරඹන්න"
 
 #: ../src/callbacks.c:1255
 msgid "new"
-msgstr "новий"
+msgstr "අලුත් එකක්"
 
 #: ../src/callbacks.c:1257
 msgid "cancel"
-msgstr "відмінити"
+msgstr "අවලංගු කරන්න"
 
 #: ../src/callbacks.c:1262
 msgid ""
 "launch new process or restart?.\n"
 "\n"
 msgstr ""
-"запустити новий процес, \n"
-"чи перезавантажити?\n"
+"අලුත් ක්‍රියාවලියක් දියත් කරන්න හෝ නැවත අරඹන්නද?.\n"
 "\n"
 
 #: ../src/callbacks.c:1716 ../src/guvcview.c:537
 msgid "Cap. Image (I)"
-msgstr ""
+msgstr "රූපය ග්‍රහණය කරගන්න (I)"
 
 #. disable image controls
 #: ../src/callbacks.c:1727 ../src/guvcview.c:658 ../src/timers.c:101
 msgid "capturing photo to"
-msgstr ""
+msgstr "ඡායාරූපය ග්‍රහණය කිරීම"
 
 #: ../src/callbacks.c:1786 ../src/guvcview.c:547
 msgid "Cap. Video (V)"
-msgstr ""
+msgstr "වීඩියෝව ග්‍රහණය කරගන්න (V)"
 
 #: ../src/callbacks.c:1812 ../src/guvcview.c:708
 msgid "capturing video to"
-msgstr ""
+msgstr "වීඩියෝව ග්‍රහණය කිරීම"
 
 #. vid capture enabled from start
 #: ../src/callbacks.c:1845 ../src/guvcview.c:542
 msgid "Stop Video (V)"
-msgstr ""
+msgstr "වීඩියෝව නවත්වන්න (V)"
 
 #: ../src/callbacks.c:1901 ../src/menubar.c:66
 msgid "Save Profile"
-msgstr ""
+msgstr "ආකෘතිය සුරකින්න"
 
 #: ../src/callbacks.c:1914 ../src/menubar.c:65
 msgid "Load Profile"
-msgstr ""
+msgstr "ආකෘතිය ප්‍රවේශනය කරන්න"
 
 #: ../src/create_video.c:1016 ../src/guvcview.c:700
 msgid "Cap. Video"
-msgstr "Відео"
+msgstr "වීඩියෝව ග්‍රහණය කරගන්න (V)"
 
 #: ../src/guvcview.c:279
 msgid "Guvcview Video Capture"
-msgstr "Захоплювач відео Guvcview"
+msgstr "Guvcview වීඩියෝ ග්‍රහණය කරගැනීම"
 
 #: ../src/guvcview.c:291
 msgid "GUVCViewer Controls"
-msgstr "Панель налаштувань Guvcview"
+msgstr "GUVCViewer පාලකයන්"
 
 #. can't open device
 #: ../src/guvcview.c:336
@@ -339,17 +337,17 @@ msgid ""
 "\n"
 "Unable to open device"
 msgstr ""
-"Помилка:\n"
+"Guvcview දෝෂය:\n"
 "\n"
-"Не можу відкрити пристрій"
+"උපකරණය විවෘත කිරීමට නොහැක"
 
 #: ../src/guvcview.c:337
 msgid ""
 "Please make sure the camera is connected\n"
 "and that the correct driver is installed."
 msgstr ""
-"Переконайтесь, що камера підключена\n"
-"і встановлено відповідний драйвер."
+"කරැණාකර කැමරාව සම්බන්ධ කර ඇති බව සහ \n"
+"නිවැරදි ඩ්‍රයිවරය පිහිටුවා ඇති බවට සහතික කරගන්න."
 
 #. uvc extension controls OK, give warning and shutdown (called with --add_ctrls)
 #: ../src/guvcview.c:342
@@ -360,11 +358,11 @@ msgid ""
 msgstr ""
 "Guvcview:\n"
 "\n"
-"Елементи керування розширенням UVC"
+"UVC ව්‍යාප්ති පාලක"
 
 #: ../src/guvcview.c:343
 msgid "Extension controls were added to the UVC driver"
-msgstr "Керуючі елементи розширення були додані до драйверу UVC"
+msgstr "UVC ඩ්‍රයිවරයට ව්‍යාප්ති පාලක එක් කර﻿ ඇත"
 
 #. uvc extension controls error - EACCES (needs root user)
 #: ../src/guvcview.c:350
@@ -373,9 +371,9 @@ msgid ""
 "\n"
 "UVC Extension controls"
 msgstr ""
-"Помилка:\n"
+"Guvcview දෝෂය:\n"
 "\n"
-"Керуючі елементи UVC"
+"UVC ව්‍යාප්ති පාලක"
 
 #: ../src/guvcview.c:351
 msgid ""
@@ -383,9 +381,9 @@ msgid ""
 "controls to the UVC driver\n"
 "Make sure you run guvcview as root (or sudo)."
 msgstr ""
-"Виникла помилка в процесі додавання керуючих \n"
-"елементів розширення до драйверу UVC.\n"
-"Переконайтесь що Guvcview запущено від імені root (чи sudo)."
+"UVC ඩ්‍රයිවරයට පාලක ව්‍යාප්තිය එකතු කරන\n"
+"අතරතුර දෝෂයක් හට ගැනිණ\n"
+"ඔබ guvcview root ලෙස (හෝ sudo) වැඩකරන බව සහතික කරගන්න."
 
 #: ../src/guvcview.c:377 ../src/guvcview.c:455
 msgid ""
@@ -393,17 +391,17 @@ msgid ""
 "\n"
 "Can't set a valid video stream for guvcview"
 msgstr ""
-"Помилка:\n"
+"Guvcview දෝෂය:\n"
 "\n"
-"Не можу встановити правильний відео потік для Guvcview"
+"guvcview සඳහා වලංගු වීඩියෝවක් පිහිටුවීමට නොහැක"
 
 #: ../src/guvcview.c:378 ../src/guvcview.c:456
 msgid ""
 "Make sure your device driver is v4l2 compliant\n"
 "and that it is properly installed."
 msgstr ""
-"Переконайтесь, що драйвер сумісний з v4l2\n"
-"і встановлений правильно."
+"ඔබගේ උපකරණ ඩ්‍රයිවරය v4l2ට අනුකූල වන බව \n"
+"සහ එය සුදුසු ලෙස පිහිටුවා ඇති බවට සහතික කරගන්න."
 
 #: ../src/guvcview.c:400 ../src/guvcview.c:422
 msgid ""
@@ -411,13 +409,13 @@ msgid ""
 "\n"
 "Unable to start with minimum setup"
 msgstr ""
-"Помилка:\n"
+"Guvcview දෝෂය:\n"
 "\n"
-"Не можу запуститись з мінімальною установкою"
+"අවම සැලැස්ම සමඟ ඇරඹීමට නොහැක"
 
 #: ../src/guvcview.c:401 ../src/guvcview.c:423
 msgid "Please reconnect your camera."
-msgstr "Будь ласка, повторно підключіть свою камеру."
+msgstr "කරුණාකර ඔබේ කැමරාව නැවත සම්බන්ධ කරන්න."
 
 #: ../src/guvcview.c:430
 msgid ""
@@ -425,13 +423,13 @@ msgid ""
 "\n"
 "Couldn't query device capabilities"
 msgstr ""
-"Помилка:\n"
+"Guvcview දෝෂය:\n"
 "\n"
-"Не можу надіслати запит про можливості пристрою"
+"උපකරණයන්ගේ හැකියාවන් විමසුමට නොහැකි විය"
 
 #: ../src/guvcview.c:431
 msgid "Make sure the device driver supports v4l2."
-msgstr "Переконайтесь, що драйвер пристрою підтримує v4l2"
+msgstr "උපකරණ ඩ්‍රයිවරය v4l2ට අනුග්‍රහය ලබා දෙන බව සහතික කරගන්න."
 
 #: ../src/guvcview.c:435
 msgid ""
@@ -439,13 +437,13 @@ msgid ""
 "\n"
 "Read method error"
 msgstr ""
-"Помилка:\n"
+"Guvcview දෝෂය:\n"
 "\n"
-"Помилка методу зчитування."
+"කියවීම් ක්‍රමයේ දෝෂයකි"
 
 #: ../src/guvcview.c:436
 msgid "Please try mmap instead (--capture_method=1)."
-msgstr "Будь ласка, спробуйте mmap instead (--capture_method=1)."
+msgstr "කරුණාකර mmap වෙනුවට අත්හදා බලන්න (--capture_method=1)."
 
 #: ../src/guvcview.c:444
 msgid ""
@@ -453,24 +451,21 @@ msgid ""
 "\n"
 "Unable to allocate Buffers"
 msgstr ""
-"Помилка:\n"
-"\n"
-"Не можу виділити місце під Буфери."
+"Guvcview දෝෂය:\n"
+"බෆර්ස් වෙන්කිරීමට නොහැක"
 
 #: ../src/guvcview.c:445
 msgid "Please try restarting your system."
-msgstr "Будь ласка, спробуйте перезавантажити систему."
+msgstr "කරුණාකර ඔබේ පද්ධතිය නැවත ඇරඹීමට උත්සාහ දරන්න"
 
 #: ../src/guvcview.c:490
 msgid "Image Controls"
-msgstr ""
-"Керування\n"
-"зображенням"
+msgstr "රූප පාලක"
 
 #. image auto capture
 #: ../src/guvcview.c:533
 msgid "Stop Auto (I)"
-msgstr ""
+msgstr "ස්වයංක්‍රීයව නවත්වන්න (I)"
 
 #: ../src/guvcview.c:644
 msgid ""
@@ -478,132 +473,129 @@ msgid ""
 "\n"
 "Unable to create Video Thread"
 msgstr ""
-"Помилка:\n"
+"Guvcview දෝෂය:\n"
 "\n"
-"Не можу створити потік команд для відео"
+"වීඩියෝ පටයක් නිර්මාණය කිරීමට නොහැක"
 
 #: ../src/guvcview.c:645
 msgid "Please report it to http://developer.berlios.de/bugs/?group_id=8179"
 msgstr ""
-"Будь ласка, повідомте про це тут "
-"http://developer.berlios.de/bugs/?group_id=8179"
+"කරුණාකර එය මෙතනට වාර්තා කරන්න http://developer.berlios.de/bugs/?group_id=8179"
 
 #: ../src/img_controls.c:121
 msgid "Auto Focus (continuous)"
-msgstr "Авто фокус (безперервний)"
+msgstr "ස්වයංක්‍රීයව නාභිගත කරන්න (අඛණ්ඩව)"
 
 #: ../src/img_controls.c:122
 msgid "set Focus"
-msgstr "встановити фокус"
+msgstr "නාභිගත වීම සකස් කරන්න"
 
 #: ../src/image_format.c:35
 msgid "Jpeg (jpg)"
-msgstr ""
+msgstr "Jpeg (jpg)"
 
 #: ../src/image_format.c:41
 msgid "Bitmap (Bmp)"
-msgstr ""
+msgstr "Bitmap (Bmp)"
 
 #: ../src/image_format.c:47
 msgid "Portable Network Graphics (Png)"
-msgstr ""
+msgstr "අතේ ගෙන යාහැකි ජාලික චිත්‍ර (Png)"
 
 #: ../src/image_format.c:53
 msgid "Raw Image (raw)"
-msgstr ""
+msgstr "දළ රූපය (raw)"
 
 #. controls menu
 #: ../src/menubar.c:64
 msgid "Settings"
-msgstr ""
+msgstr "සැකසුම්"
 
 #: ../src/menubar.c:67
 msgid "Hardware Defaults"
-msgstr ""
+msgstr "ස්වභාවික දෘඩාංග"
 
 #: ../src/menubar.c:75
 msgid "Camera Button"
-msgstr ""
+msgstr "කැමරා බොත්තම"
 
 #: ../src/menubar.c:79
 msgid "Capture Image"
-msgstr ""
+msgstr "රූපය ග්‍රහණය කරගන්න"
 
 #: ../src/menubar.c:84
 msgid "Capture Video"
-msgstr ""
+msgstr "වීඩියෝව ග්‍රහණය කරගන්න"
 
 #. video menu
 #: ../src/menubar.c:144 ../src/video_tab.c:87
 msgid "Video"
-msgstr ""
+msgstr "වීඩියෝ"
 
 #: ../src/menubar.c:145 ../src/menubar.c:231
 msgid "File"
-msgstr ""
+msgstr "ගොනුව"
 
 #: ../src/menubar.c:146 ../src/menubar.c:232
 msgid "Increment Filename"
-msgstr ""
+msgstr "වර්ධක ගොනු නාමය"
 
 #: ../src/menubar.c:164
 msgid "Video Codec"
-msgstr ""
+msgstr "වීඩියෝ කොඩෙක්"
 
 #: ../src/menubar.c:187
 msgid "Video Codec Properties"
-msgstr ""
+msgstr "වීඩියෝ කොඩෙක් ගුණාංග"
 
 #: ../src/menubar.c:194
 msgid "Audio Codec"
-msgstr ""
+msgstr "ශ්‍රව්‍ය කොඩෙක්"
 
 #: ../src/menubar.c:215
 msgid "Audio Codec Properties"
-msgstr ""
+msgstr "ශ්‍රව්‍ය කොඩෙක් ගුණාංග"
 
 #. photo menu
 #: ../src/menubar.c:230
 msgid "Photo"
-msgstr ""
+msgstr "ඡායාරූපය"
 
 #: ../src/options.c:752
 msgid "Prints version"
-msgstr "Показує версію"
+msgstr "පිටපත මුද්‍රණය කරන්න"
 
 #: ../src/options.c:753
 msgid "Displays debug information"
-msgstr "Показує інформацію для відлагоджування"
+msgstr "දෝෂ මඟහැරීමේ තොරතුරු පෙන්වන්න"
 
 #: ../src/options.c:754
 msgid "Video Device to use [default: /dev/video0]"
-msgstr "Використаний відео-пристрій [default: /dev/video0]"
+msgstr "පාවිච්චිය සඳහා වීඩියෝ උපකරණය [ස්වභාවික: /dev/video0]"
 
 #: ../src/options.c:755
 msgid "Exit after adding UVC extension controls (needs root/sudo)"
-msgstr ""
-"Вийти після додавання керуючих елементів розширення UVC\n"
-"(потрібні права адміністратора)"
+msgstr "UVC ව්‍යාප්ති පාලක එකතු කිරීමෙන් පසුව පිටවෙන්න (root/sudo අවශ්‍යයි)"
 
 #: ../src/options.c:756
 msgid "Don't stream video (image controls only)"
-msgstr "Не потокове відео (керувати лише зображенням)"
+msgstr "ගලායන වීඩියෝවක් අවශ්‍ය නැත (රූපය පාලක පමණි)"
 
 #: ../src/options.c:757
 msgid "Don't display a GUI"
-msgstr ""
+msgstr "GUI එකක් ප්‍රදර්ශනය කරන්න එපා"
 
 #: ../src/options.c:758
 msgid "Capture method (1-mmap (default)  2-read)"
-msgstr "Метод захоплення (1-mmap (замовч.) 2-read)"
+msgstr "ග්‍රහණය කරගැනීමේ ක්‍රමය (1-mmap (ස්වභාවික)  2-read)"
 
 #: ../src/options.c:759
 msgid "Configuration file"
-msgstr "Файл конфігурації"
+msgstr "ආකෘති ගොනුව"
 
 #: ../src/options.c:760
 msgid "Hardware accelaration (enable(1) | disable(0))"
-msgstr "Апаратне прискорення (увімкн.(1) | вимкн.(0))"
+msgstr "දෘඩාංග අධිවේගීකරණය (හැකියාව(1) | නොහැකියාව(0))"
 
 #: ../src/options.c:761
 msgid ""
@@ -611,397 +603,400 @@ msgid ""
 "format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|y41p|grey|"
 "y10b|y16 |s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
 msgstr ""
+"Pixel "
+"ආකෘතිය(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|y41p|grey|"
+"y10b|y16 |s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
 
 #: ../src/options.c:762
 msgid "Frame size, default: 640x480"
-msgstr "Розмір кадру (замовч. - 640x480)"
+msgstr "රාමුවක ප්‍රමාණය, ස්වභාවික: 640x480"
 
 #: ../src/options.c:763
 msgid "Image File name"
-msgstr "Файл зображення"
+msgstr "රූපයේ ගොනු නාමය"
 
 #: ../src/options.c:764
 msgid "Image capture interval in seconds"
-msgstr "Інтервал між знімками (сек.)"
+msgstr "රූපය ග්‍රහණය කරගැනීම අතර කාලය තත්පර වලින්"
 
 #: ../src/options.c:765
 msgid "Number of Pictures to capture"
-msgstr "Кількість знімків"
+msgstr "ග්‍රහණය කරගැනීමට ඇති පින්තූර ගණන"
 
 #: ../src/options.c:766
 msgid "Video File name (capture from start)"
-msgstr "Файл відео (запис зразу після запуску)"
+msgstr "වීඩියෝවේ ගොනු නාමය (ග්‍රහණය කරගැනීම ආරම්භයේ සිට)"
 
 #: ../src/options.c:767
 msgid "Video capture time (in seconds)"
-msgstr "Тривалість запису (сек.)"
+msgstr "වීඩියෝවේ ග්‍රහණය කරගැනීමේ කාලය තත්පර වලින්"
 
 #: ../src/options.c:768
 msgid "Exits guvcview after closing video"
-msgstr "Вийти з Guvcview після закриття відео"
+msgstr "වීඩියෝව වැසීමෙන් පසුව guvcview එකෙන් පිටවෙන්න"
 
 #: ../src/options.c:769
 msgid "Number of initial frames to skip"
-msgstr "Кількість початкових кадрів для пропуску"
+msgstr "නොසලකා හැරීමට ඇති ආරම්භක රාමු ගණන"
 
 #: ../src/options.c:770
 msgid "Show FPS value (enable(1) | disable (0))"
-msgstr "Відображення частоти кадрів (увімкн.(1) | вимкн. (0))"
+msgstr "FPS අගය පෙන්වන්න (හැකියාව(1) | නොහැකියාව(0))"
 
 #: ../src/options.c:771
 msgid "Load Profile at start"
-msgstr "Завантажити профіль при запуску"
+msgstr "ආරම්භයේදී ආකෘතිය ප්‍රවේශනය කරන්න"
 
 #: ../src/options.c:777
 msgid "- local options"
-msgstr "- локальні параметри"
+msgstr "- ස්ථානීය විකල්ප"
 
 #. gdk_threads_enter();
 #: ../src/timers.c:119
 msgid "Cap. Image"
-msgstr "Знімок"
+msgstr "රූපය ග්‍රහණය කරගන්න"
 
 #: ../src/timers.c:217
 msgid "Guvcview Warning:"
-msgstr "Попередження:"
+msgstr "Guvcview අනතුරු ඇඟවීම:"
 
 #: ../src/timers.c:217
 msgid "Not enough free space left on disk"
-msgstr "Не вистачає вільного місця на диску"
+msgstr "සෑ‍හෙන තරම් හිස් අවකාශයක් තැටිය මත ඉතිරි වී නොමැත"
 
 #: ../src/v4l2_controls.c:711
 msgid "Left"
-msgstr "Лівий"
+msgstr "වම"
 
 #: ../src/v4l2_controls.c:712
 msgid "Right"
-msgstr "Правий"
+msgstr "දකුණ"
 
 #: ../src/v4l2_controls.c:716
 msgid "Down"
-msgstr "Вниз"
+msgstr "පහලට"
 
 #: ../src/v4l2_controls.c:717
 msgid "Up"
-msgstr "Вверх"
+msgstr "ඉහළට"
 
 #: ../src/v4l2_controls.c:762
 msgid "Off"
-msgstr ""
+msgstr "අක්‍රීය"
 
 #: ../src/v4l2_controls.c:762
 msgid "On"
-msgstr ""
+msgstr "සක්‍රීය"
 
 #: ../src/v4l2_controls.c:762
 msgid "Blinking"
-msgstr ""
+msgstr "ක්ෂණික ආලෝකය"
 
 #: ../src/v4l2_controls.c:762
 msgid "Auto"
-msgstr ""
+msgstr "ස්වයංක්‍රීය"
 
 #. turn it into a menu control
 #: ../src/v4l2_controls.c:813
 msgid "8 bit"
-msgstr ""
+msgstr "බිට් 8"
 
 #: ../src/v4l2_controls.c:813
 msgid "12 bit"
-msgstr ""
+msgstr "බිට් 12"
 
 #: ../src/v4l2_dyna_ctrls.c:96
 msgid "Pan (relative)"
-msgstr "Відносний поворот"
+msgstr "තිරස් ලෙස කරකවන්න (සාපේක්ෂව)"
 
 #: ../src/v4l2_dyna_ctrls.c:109
 msgid "Tilt (relative)"
-msgstr "Відносний нахил"
+msgstr "සිරස් ලෙස කරකවන්න (සාපේක්ෂව)"
 
 #: ../src/v4l2_dyna_ctrls.c:122
 msgid "Pan Reset"
-msgstr "Скинути поворот"
+msgstr "තිරස් ලෙස කරකැවීම නැවත සකසන්න"
 
 #: ../src/v4l2_dyna_ctrls.c:135
 msgid "Tilt Reset"
-msgstr "Скинути нахил"
+msgstr "සිරස් ලෙස කරකැවීම නැවත සකසන්න"
 
 #: ../src/v4l2_dyna_ctrls.c:148
 msgid "Focus (absolute)"
-msgstr "Абсолютний фокус"
+msgstr "නාභිගත කරන්න (නිරපේක්ෂව)"
 
 #: ../src/v4l2_dyna_ctrls.c:161
 msgid "LED1 Mode"
-msgstr "Метод світлодіода"
+msgstr "LED1 ක්‍රමය"
 
 #: ../src/v4l2_dyna_ctrls.c:174
 msgid "LED1 Frequency"
-msgstr "Частота світлодіода"
+msgstr "LED1 සංඛ්‍යාතය"
 
 #: ../src/v4l2_dyna_ctrls.c:187
 msgid "Disable video processing"
-msgstr "Відключити обробку відео"
+msgstr "වීඩියෝව සැකසීමට නොහැක"
 
 #: ../src/v4l2_dyna_ctrls.c:200
 msgid "Raw bits per pixel"
-msgstr "Сирі біти на піксель"
+msgstr "පික්සල් එකක් සඳහා දළ බිට් ප්‍රමාණය"
 
 #. needed only for language files (not used)
 #. V4L2 control strings
 #: ../src/v4l2uvc.c:56
 msgid "User Controls"
-msgstr "Керуючі елементи користувача"
+msgstr "පරිශ්‍රීලක පාලකයන්"
 
 #: ../src/v4l2uvc.c:57
 msgid "Brightness"
-msgstr "Яскравість"
+msgstr "දීප්තිය"
 
 #: ../src/v4l2uvc.c:58
 msgid "Contrast"
-msgstr "Контраст"
+msgstr "දීප්ති වෙනස"
 
 #: ../src/v4l2uvc.c:59
 msgid "Hue"
-msgstr "Відтінок"
+msgstr "පැහැය"
 
 #: ../src/v4l2uvc.c:60
 msgid "Saturation"
-msgstr "Насиченість"
+msgstr "පරිපූර්ණබව"
 
 #: ../src/v4l2uvc.c:61
 msgid "Sharpness"
-msgstr "Різкість"
+msgstr "තියුණු බව"
 
 #: ../src/v4l2uvc.c:62
 msgid "Gamma"
-msgstr "Гамма"
+msgstr "ගැමා"
 
 #: ../src/v4l2uvc.c:63
 msgid "Backlight Compensation"
-msgstr "Компенсація підсвітки"
+msgstr "පසු ආලෝකන හානිපූරණය"
 
 #: ../src/v4l2uvc.c:64
 msgid "Power Line Frequency"
-msgstr "Частота електромережі"
+msgstr "බල සැපයුම් සංඛ්‍යාතය"
 
 #: ../src/v4l2uvc.c:65
 msgid "Hue, Automatic"
-msgstr "Авто відтінок"
+msgstr "පැහැය, ස්වයංක්‍රීයව"
 
 #: ../src/v4l2uvc.c:66
 msgid "Focus, Auto"
-msgstr "Авто фокус"
+msgstr "ස්වයංක්‍රීයව නාභිගත කරන්න"
 
 #: ../src/v4l2uvc.c:67
 msgid "Manual Mode"
-msgstr "Ручний режим"
+msgstr "අත්පොත් ක්‍රමය"
 
 #: ../src/v4l2uvc.c:68
 msgid "Auto Mode"
-msgstr "Авторежим"
+msgstr "ස්වයංක්‍රීය ක්‍රමය"
 
 #: ../src/v4l2uvc.c:69
 msgid "Shutter Priority Mode"
-msgstr "Пріоритет затвору"
+msgstr "සංවෘත ප්‍රමුඛතා ක්‍රමය"
 
 #: ../src/v4l2uvc.c:70
 msgid "Aperture Priority Mode"
-msgstr "Пріоритет діафрагми"
+msgstr "විවෘත ප්‍රමුඛතා ක්‍රමය"
 
 #: ../src/v4l2uvc.c:71
 msgid "Black Level"
-msgstr "Рівень чорного"
+msgstr "කළු පාට මට්ටම"
 
 #: ../src/v4l2uvc.c:72
 msgid "White Balance, Automatic"
-msgstr "Авто баланс білого"
+msgstr "සුදු පාට සමබරතාවය, ස්වයංක්‍රීය"
 
 #: ../src/v4l2uvc.c:73
 msgid "Do White Balance"
-msgstr "Збалансувати білий"
+msgstr "සුදු සමබර කරන්න"
 
 #: ../src/v4l2uvc.c:74
 msgid "Red Balance"
-msgstr "Баланс червоного"
+msgstr "රතු සමබරතාවය"
 
 #: ../src/v4l2uvc.c:75
 msgid "Blue Balance"
-msgstr "Баланс синього"
+msgstr "නිල් සමබරතාවය"
 
 #: ../src/v4l2uvc.c:76
 msgid "Exposure"
-msgstr "Експозиція"
+msgstr "අනාවර්ණය"
 
 #: ../src/v4l2uvc.c:77
 msgid "Gain, Automatic"
-msgstr "Авто посилення"
+msgstr "ලබාගන්න, ස්වයංක්‍රීයව"
 
 #: ../src/v4l2uvc.c:78
 msgid "Gain"
-msgstr "Посилення"
+msgstr "ලබාගන්න"
 
 #: ../src/v4l2uvc.c:79
 msgid "Horizontal Flip"
-msgstr "Горизонтальне віддзеркалення"
+msgstr "තිරස් හැරවුම"
 
 #: ../src/v4l2uvc.c:80
 msgid "Vertical Flip"
-msgstr "Вертикальне віддзеркалення"
+msgstr "සිරස් හැරවුම"
 
 #: ../src/v4l2uvc.c:81
 msgid "Horizontal Center"
-msgstr "Горизонтальна середина"
+msgstr "තිරස් මධ්‍යය"
 
 #: ../src/v4l2uvc.c:82
 msgid "Vertical Center"
-msgstr "Вертикальна середина"
+msgstr "සිරස් මධ්‍යය"
 
 #: ../src/v4l2uvc.c:83
 msgid "Chroma AGC"
-msgstr "Chroma AGC"
+msgstr "AGC වර්ණතීව‍්‍රතාව"
 
 #: ../src/v4l2uvc.c:84
 msgid "Color Killer"
-msgstr "Подавлювач кольору"
+msgstr "වර්ණ නැතිකරන්නා"
 
 #: ../src/v4l2uvc.c:85
 msgid "Color Effects"
-msgstr "Ефекти кольору"
+msgstr "වර්ණ සැරසිලි"
 
 #. CAMERA CLASS control strings
 #: ../src/v4l2uvc.c:88
 msgid "Camera Controls"
-msgstr "Керування камерою"
+msgstr "කැමරා පාලකයන්"
 
 #: ../src/v4l2uvc.c:89
 msgid "Auto Exposure"
-msgstr "Авто експозиція"
+msgstr "ස්වයංක්‍රීය අනාවරණය"
 
 #: ../src/v4l2uvc.c:90
 msgid "Exposure Time, Absolute"
-msgstr "Абсолютний час експозиції"
+msgstr "නිරපේක්ෂ කාලය අනාවරණ කරන්න"
 
 #: ../src/v4l2uvc.c:91
 msgid "Exposure, Dynamic Framerate"
-msgstr "Експозиція, динамічна частота кадрів"
+msgstr "වෙනස්වන  රාමු ශ්‍රීඝ‍්‍රතාව අනාවරණ කරන්න"
 
 #: ../src/v4l2uvc.c:92
 msgid "Pan, Relative"
-msgstr "Відносний поворот"
+msgstr "තිරස් ලෙස කරකවන්න, සාපේක්ෂව"
 
 #: ../src/v4l2uvc.c:93
 msgid "Tilt, Relative"
-msgstr "Відносний нахил"
+msgstr "සිරස් ලෙස කරකවන්න, සාපේක්ෂව"
 
 #: ../src/v4l2uvc.c:94
 msgid "Pan, Reset"
-msgstr "Скинути поворот"
+msgstr "තිරස් ලෙස කරකැවීම නැවත අරඹන්න"
 
 #: ../src/v4l2uvc.c:95
 msgid "Tilt, Reset"
-msgstr "Скинути нахил"
+msgstr "සිරස් ලෙස කරකැවීම නැවත අරඹන්න"
 
 #: ../src/v4l2uvc.c:96
 msgid "Pan, Absolute"
-msgstr "Абсолютний поворот"
+msgstr "තිරස් ලෙස කරකවන්න, නිරපේක්ෂ"
 
 #: ../src/v4l2uvc.c:98
 msgid "Focus, Absolute"
-msgstr "Абсолютний фокус"
+msgstr "නිරපේක්ෂව නාභිගත කරන්න"
 
 #: ../src/v4l2uvc.c:99
 msgid "Focus, Relative"
-msgstr "Відносний фокус"
+msgstr "සාපේක්ෂව නාභිගත කරන්න"
 
 #: ../src/v4l2uvc.c:100
 msgid "Focus, Automatic"
-msgstr "Авто фокус"
+msgstr "ස්වයංක්‍රීයව නාභිගත කරන්න"
 
 #: ../src/v4l2uvc.c:101
 msgid "Zoom, Absolute"
-msgstr "Абсолютний зум"
+msgstr "සමීප දුරස්ථ රූප ගැනීම සඳහා කැමරාව හසුරුවන්න, නිරපේක්ෂව"
 
 #: ../src/v4l2uvc.c:102
 msgid "Zoom, Relative"
-msgstr "Відносний зум"
+msgstr "සමීප දුරස්ථ රූප ගැනීම සඳහා කැමරාව හසුරුවන්න, සාපේක්ෂව"
 
 #: ../src/v4l2uvc.c:103
 msgid "Zoom, Continuous"
-msgstr "Безперервний зум"
+msgstr "සමීප දුරස්ථ රූප ගැනීම සඳහා කැමරාව හසුරුවන්න, අඛණ්ඩව"
 
 #: ../src/v4l2uvc.c:104
 msgid "Privacy"
-msgstr "Конфіденційність"
+msgstr "පුද්ගලිකත්වය"
 
 #. UVC specific control strings
 #: ../src/v4l2uvc.c:107
 msgid "Exposure, Auto"
-msgstr "Авто експозиція"
+msgstr "ස්වයංක්‍රීයව අනාවරණය කරන්න"
 
 #: ../src/v4l2uvc.c:108
 msgid "Exposure, Auto Priority"
-msgstr "Пріоритет авто експозиції"
+msgstr "ස්වයංක්‍රීය ප්‍රමුඛතාව අනාවරණය කරන්න"
 
 #: ../src/v4l2uvc.c:109
 msgid "Exposure (Absolute)"
-msgstr "Абсолютна експозиція"
+msgstr "අනාවරණය කරන්න (නිරපේක්ෂව)"
 
 #: ../src/v4l2uvc.c:110
 msgid "White Balance Temperature, Auto"
-msgstr "Авто температура балансу білого"
+msgstr "සුදු පැහැය සැසඳීමේ උෂ්ණත්වය, ස්වයංක්‍රීයව"
 
 #: ../src/v4l2uvc.c:111
 msgid "White Balance Temperature"
-msgstr "Температура балансу білого"
+msgstr "සුදු පැහැය සැසඳීමේ උෂ්ණත්වය"
 
 #: ../src/v4l2uvc.c:112
 msgid "White Balance Component, Auto"
-msgstr "Авто компонент балансу білого"
+msgstr "සුදු පැහැය සැසඳීමේ උපාංගය, ස්වයංක්‍රීයව"
 
 #: ../src/v4l2uvc.c:113
 msgid "White Balance Blue Component"
-msgstr "Синій компонент балансу білого"
+msgstr "සුදු පැහැය සැසඳීමේ නිල් පැහැයේ උපාංගය"
 
 #: ../src/v4l2uvc.c:114
 msgid "White Balance Red Component"
-msgstr "Червоний компонент балансу білого"
+msgstr "සුදු පැහැය සැසඳීමේ රතු පැහැයේ උපාංගය"
 
 #. libwebcam specific control strings
 #: ../src/v4l2uvc.c:117
 msgid "Focus"
-msgstr "Фокус"
+msgstr "නාභාගත කරන්න"
 
 #: ../src/v4l2uvc.c:118
 msgid "Focus (Absolute)"
-msgstr "Абсолютний фокус"
+msgstr "නාභාගත කරන්න (නිරපේක්ෂව)"
 
 #: ../src/vcodecs.c:63
 msgid "MJPG - compressed"
-msgstr "MJPG - стиснено"
+msgstr "MJPG - සම්පීඩන කරන ලද"
 
 #: ../src/vcodecs.c:99
 msgid "YUY2 - uncomp YUV"
-msgstr "YUY2 - не стиснений YUV"
+msgstr "YUY2 - uncomp YUV"
 
 #: ../src/vcodecs.c:135
 msgid "RGB - uncomp BMP"
-msgstr "RGB - не стиснений BMP"
+msgstr "RGB - uncomp BMP"
 
 #: ../src/vcodecs.c:171
 msgid "MPEG video 1"
-msgstr "MPEG-відео 1"
+msgstr "MPEG වීඩියෝ 1"
 
 #: ../src/vcodecs.c:207
 msgid "FLV1 - flash video 1"
-msgstr "FLV1 флеш-відео 1"
+msgstr "FLV1 - ෆ්ලෑෂ් වීඩියෝ 1"
 
 #: ../src/vcodecs.c:243
 msgid "WMV1 - win. med. video 7"
-msgstr "WMV1 - відео Windows Media 7"
+msgstr "WMV1 - win. med. වීඩියෝ 7"
 
 #: ../src/vcodecs.c:279
 msgid "MPG2 - MPG2 format"
-msgstr "MPG2 - формат MPG2"
+msgstr "MPG2 - MPG2 ආකෘතිය"
 
 #: ../src/vcodecs.c:315
 msgid "MS MP4 V3"
@@ -1017,78 +1012,78 @@ msgstr "MPEG4-AVC (H264)"
 
 #: ../src/vcodecs.c:427
 msgid "VP8 (VP8)"
-msgstr ""
+msgstr "VP8 (VP8)"
 
 #: ../src/vcodecs.c:463
 msgid "Theora (ogg theora)"
-msgstr ""
+msgstr "Theora (ogg theora)"
 
 #: ../src/video_format.c:43
 msgid "AVI - avi format"
-msgstr ""
+msgstr "AVI - avi ආකෘතිය"
 
 #: ../src/video_format.c:52
 msgid "MKV - Matroska format"
-msgstr ""
+msgstr "MKV - Matroska ආකෘතිය"
 
 #: ../src/video_format.c:61
 msgid "WEBM - format"
-msgstr ""
+msgstr "WEBM - ආකෘතිය"
 
 #: ../src/video_tab.c:208
 msgid "Frame Rate:"
-msgstr "Частота кадрів:"
+msgstr "රාමු ශීඝ්‍රතාවය:"
 
 #: ../src/video_tab.c:215
 msgid " Show"
-msgstr " Показати"
+msgstr " පෙන්වන්න"
 
 #: ../src/video_tab.c:237
 msgid "Resolution:"
-msgstr "Роздільна здатність:"
+msgstr "තීරණය:"
 
 #: ../src/video_tab.c:263
 msgid "Camera Output:"
-msgstr "Вивід камери:"
+msgstr "කැමරා නිමැවුම:"
 
 #: ../src/video_tab.c:285
 msgid "Apply"
-msgstr "Застосувати"
+msgstr "යොදන්න"
 
 #: ../src/video_tab.c:292
 msgid "Quality:"
-msgstr "Якість:"
+msgstr "ගුණාත්මකබව:"
 
 #: ../src/video_tab.c:302
 msgid "---- Video Filters ----"
-msgstr "---- Відео фільтри ----"
+msgstr "---- වීඩියෝ පෙරනයන්----"
 
 #. Mirror
 #: ../src/video_tab.c:321
 msgid " Mirror"
-msgstr " Гор. віддзеркал."
+msgstr " කැඩපත"
 
 #. Upturn
 #: ../src/video_tab.c:332
 msgid " Invert"
-msgstr " Верт. віддзеркал."
+msgstr " යටිකුරු කරන්න"
 
 #. Negate
 #: ../src/video_tab.c:343
 msgid " Negative"
-msgstr " Негатив"
+msgstr " ප්‍රතික්ෂේප කරන්න"
 
 #. Mono
 #: ../src/video_tab.c:354
 msgid " Mono"
-msgstr " Чорно-біле"
+msgstr " එකක්"
 
 #. Pieces
 #: ../src/video_tab.c:366
 msgid " Pieces"
-msgstr " Мозаїка"
+msgstr " කොටස්"
 
 #. Particles
 #: ../src/video_tab.c:378
 msgid " Particles"
-msgstr " Часточки"
+msgstr " ඉතා කුඩා කොටස්"

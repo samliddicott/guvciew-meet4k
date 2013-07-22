@@ -7,56 +7,58 @@ msgid ""
 msgstr ""
 "Project-Id-Version: guvcview\n"
 "Report-Msgid-Bugs-To: pj.assis@gmail.com\n"
-"POT-Creation-Date: 2013-02-24 23:16+0000\n"
-"PO-Revision-Date: 2009-09-15 02:57+0000\n"
-"Last-Translator: Paulo Assis <pj.assis@gmail.com>\n"
+"POT-Creation-Date: 2013-07-16 12:53+0000\n"
+"PO-Revision-Date: 2013-05-04 16:28+0000\n"
+"Last-Translator: Pjotr12345 <Unknown>\n"
 "Language-Team: Dutch <nl@li.org>\n"
-"Language: nl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-11-15 23:44+0000\n"
-"X-Generator: Launchpad (build Unknown)\n"
+"X-Launchpad-Export-Date: 2013-07-22 13:32+0000\n"
+"X-Generator: Launchpad (build 16696)\n"
+"Language: nl\n"
 
 #: ../data/guvcview.desktop.in.in.h:1
 msgid "guvcview"
-msgstr ""
+msgstr "guvcview"
 
 #: ../data/guvcview.desktop.in.in.h:2
 msgid "GTK UVC video viewer"
-msgstr ""
+msgstr "GTK UVC videokijker"
 
 #: ../data/guvcview.desktop.in.in.h:3
 msgid "A video viewer and capturer for the linux uvc driver"
 msgstr ""
+"Een programma voor het bekijken en opnemen van video, voor het "
+"Linuxstuurprogramma uvc"
 
 #: ../src/acodecs.c:59
 msgid "PCM - uncompressed (16 bit)"
-msgstr ""
+msgstr "PCM - niet-gecomprimeerd (16 bit)"
 
 #: ../src/acodecs.c:76
 msgid "MPEG2 - (lavc)"
-msgstr ""
+msgstr "MPEG2 - (lavc)"
 
 #: ../src/acodecs.c:93
 msgid "MP3 - (lavc)"
-msgstr ""
+msgstr "MP3 - (lavc)"
 
 #: ../src/acodecs.c:110
 msgid "Dolby AC3 - (lavc)"
-msgstr ""
+msgstr "Dolby AC3 - (lavc)"
 
 #: ../src/acodecs.c:127
 msgid "ACC Low - (faac)"
-msgstr ""
+msgstr "ACC Low - (faac)"
 
 #: ../src/acodecs.c:144
 msgid "Vorbis"
-msgstr ""
+msgstr "Vorbis"
 
 #: ../src/audio_tab.c:80
 msgid "Audio"
-msgstr ""
+msgstr "Audio"
 
 #: ../src/audio_tab.c:98
 msgid " Sound"
@@ -65,7 +67,7 @@ msgstr " Geluid"
 #. VU meter on the image (OSD)
 #: ../src/audio_tab.c:109
 msgid " Show VU meter"
-msgstr ""
+msgstr " VU-meter tonen"
 
 #: ../src/audio_tab.c:121
 msgid "Audio API:"
@@ -85,11 +87,11 @@ msgstr "Invoerapparaat:"
 
 #: ../src/audio_tab.c:182 ../src/audio_tab.c:214
 msgid "Dev. Default"
-msgstr ""
+msgstr "Dev. standaard"
 
 #: ../src/audio_tab.c:204
 msgid "Sample Rate:"
-msgstr ""
+msgstr "Samplesnelheid:"
 
 #: ../src/audio_tab.c:215
 msgid "1 - mono"
@@ -105,7 +107,7 @@ msgstr "Kanalen:"
 
 #: ../src/audio_tab.c:302
 msgid "---- Audio Effects ----"
-msgstr "---- Audio Effecten ----"
+msgstr "---- Audio-effecten ----"
 
 #. Echo
 #: ../src/audio_tab.c:321
@@ -115,12 +117,12 @@ msgstr " Echo"
 #. FUZZ
 #: ../src/audio_tab.c:332
 msgid " Fuzz"
-msgstr ""
+msgstr " Fuzz"
 
 #. Reverb
 #: ../src/audio_tab.c:344
 msgid " Reverb"
-msgstr ""
+msgstr " Weergalm"
 
 #. WahWah
 #: ../src/audio_tab.c:356
@@ -130,11 +132,11 @@ msgstr " WahWah"
 #. Ducky
 #: ../src/audio_tab.c:368
 msgid " Ducky"
-msgstr ""
+msgstr " Ducky"
 
 #: ../src/callbacks.c:108
 msgid "Error"
-msgstr ""
+msgstr "Fout"
 
 #: ../src/callbacks.c:132
 msgid ""
@@ -142,34 +144,38 @@ msgid ""
 "You have more than one video device installed.\n"
 "Do you want to try another one ?\n"
 msgstr ""
+"\n"
+"U hebt meer dan één video-apparaat geïnstalleerd.\n"
+"Wilt u een ander proberen?\n"
 
 #. Devices
 #: ../src/callbacks.c:139 ../src/video_tab.c:103
 msgid "Device:"
-msgstr ""
+msgstr "Apparaat:"
 
 #: ../src/callbacks.c:271
 msgid "Save File"
-msgstr "Bestand Opslaan"
+msgstr "Bestand opslaan"
 
 #: ../src/callbacks.c:283
-#, fuzzy
 msgid "File Format:"
-msgstr "Audioformaat"
+msgstr "Bestandtype:"
 
 #: ../src/callbacks.c:454
 msgid "codec values"
-msgstr ""
+msgstr "codecwaarden"
 
 #: ../src/callbacks.c:465
 msgid ""
 "                              encoder fps:   \n"
 " (0 - use fps combobox value)"
 msgstr ""
+"                              encoder fps:   \n"
+" (0 - gebruik fps-comboboxwaarde)"
 
 #: ../src/callbacks.c:478
 msgid " monotonic pts"
-msgstr ""
+msgstr " monotonic pts"
 
 #. bit rate
 #: ../src/callbacks.c:485 ../src/callbacks.c:808
@@ -178,88 +184,88 @@ msgstr "bitrate:   "
 
 #: ../src/callbacks.c:498
 msgid "qmax:   "
-msgstr ""
+msgstr "qmax:   "
 
 #: ../src/callbacks.c:511
 msgid "qmin:   "
-msgstr ""
+msgstr "qmin:   "
 
 #: ../src/callbacks.c:524
 msgid "max. qdiff:   "
-msgstr ""
+msgstr "max. qdiff:   "
 
 #: ../src/callbacks.c:537
 msgid "dia size:   "
-msgstr ""
+msgstr "diagrootte:   "
 
 #: ../src/callbacks.c:550
 msgid "pre dia size:   "
-msgstr ""
+msgstr "pre-diagrootte:   "
 
 #: ../src/callbacks.c:563
 msgid "pre me:   "
-msgstr ""
+msgstr "pre me:   "
 
 #: ../src/callbacks.c:576
 msgid "pre cmp:   "
-msgstr ""
+msgstr "pre cmp:   "
 
 #: ../src/callbacks.c:589
 msgid "cmp:   "
-msgstr ""
+msgstr "cmp:   "
 
 #: ../src/callbacks.c:602
 msgid "sub cmp:   "
-msgstr ""
+msgstr "sub cmp:   "
 
 #: ../src/callbacks.c:615
 msgid "last predictor count:   "
-msgstr ""
+msgstr "laatste telling van voorspeller:   "
 
 #: ../src/callbacks.c:628
 msgid "gop size:   "
-msgstr ""
+msgstr "gop-grootte:   "
 
 #: ../src/callbacks.c:641
 msgid "qcompress:   "
-msgstr ""
+msgstr "qcompress:   "
 
 #: ../src/callbacks.c:654
 msgid "qblur:   "
-msgstr ""
+msgstr "qblur:   "
 
 #: ../src/callbacks.c:667
 msgid "subq:   "
-msgstr ""
+msgstr "subq:   "
 
 #: ../src/callbacks.c:680
 msgid "framerefs:   "
-msgstr ""
+msgstr "framerefs:   "
 
 #: ../src/callbacks.c:693
 msgid "me method:   "
-msgstr ""
+msgstr "me-methode:   "
 
 #: ../src/callbacks.c:706
 msgid "mb decision:   "
-msgstr ""
+msgstr "mb-besluit:   "
 
 #: ../src/callbacks.c:719
 msgid "max B frames:   "
-msgstr ""
+msgstr "max B frames:   "
 
 #: ../src/callbacks.c:732
 msgid "num threads:   "
-msgstr ""
+msgstr "num threads:   "
 
 #: ../src/callbacks.c:795
 msgid "audio codec values"
-msgstr ""
+msgstr "audio codec-waarden"
 
 #. sample format
 #: ../src/callbacks.c:822
 msgid "sample format:   "
-msgstr ""
+msgstr "bestandtype van voorbeeld:   "
 
 #: ../src/callbacks.c:1250
 msgid "start new"
@@ -282,7 +288,7 @@ msgid ""
 "launch new process or restart?.\n"
 "\n"
 msgstr ""
-"nieuw proces starten of herstarten\n"
+"nieuw proces starten of herstarten?\n"
 "\n"
 
 #: ../src/callbacks.c:1716 ../src/guvcview.c:537
@@ -292,7 +298,7 @@ msgstr "Afbeelding vastleggen (I)"
 #. disable image controls
 #: ../src/callbacks.c:1727 ../src/guvcview.c:658 ../src/timers.c:101
 msgid "capturing photo to"
-msgstr ""
+msgstr "foto wordt vastgelegd naar"
 
 #: ../src/callbacks.c:1786 ../src/guvcview.c:547
 msgid "Cap. Video (V)"
@@ -300,7 +306,7 @@ msgstr "Video Vastleggen (V)"
 
 #: ../src/callbacks.c:1812 ../src/guvcview.c:708
 msgid "capturing video to"
-msgstr ""
+msgstr "video wordt vastgelegd naar"
 
 #. vid capture enabled from start
 #: ../src/callbacks.c:1845 ../src/guvcview.c:542
@@ -308,26 +314,24 @@ msgid "Stop Video (V)"
 msgstr "Stop Video (V)"
 
 #: ../src/callbacks.c:1901 ../src/menubar.c:66
-#, fuzzy
 msgid "Save Profile"
-msgstr "Bestand Opslaan"
+msgstr "Profiel opslaan"
 
 #: ../src/callbacks.c:1914 ../src/menubar.c:65
-#, fuzzy
 msgid "Load Profile"
-msgstr "Bestand Openen"
+msgstr "Profiel laden"
 
 #: ../src/create_video.c:1016 ../src/guvcview.c:700
 msgid "Cap. Video"
-msgstr "Video Vastleggen"
+msgstr "Video opn."
 
 #: ../src/guvcview.c:279
 msgid "Guvcview Video Capture"
-msgstr ""
+msgstr "Guvcview video-opname"
 
 #: ../src/guvcview.c:291
 msgid "GUVCViewer Controls"
-msgstr ""
+msgstr "GUVCkijker bedieningsknoppen"
 
 #. can't open device
 #: ../src/guvcview.c:336
@@ -336,12 +340,17 @@ msgid ""
 "\n"
 "Unable to open device"
 msgstr ""
+"Guvcview-fout:\n"
+"\n"
+"Kan apparaat niet openen"
 
 #: ../src/guvcview.c:337
 msgid ""
 "Please make sure the camera is connected\n"
 "and that the correct driver is installed."
 msgstr ""
+"Zorg er a.u.b. voor, dat de camera is verbonden\n"
+"en dat het juiste stuurprogramma is geïnstalleerd."
 
 #. uvc extension controls OK, give warning and shutdown (called with --add_ctrls)
 #: ../src/guvcview.c:342
@@ -350,10 +359,14 @@ msgid ""
 "\n"
 "UVC Extension controls"
 msgstr ""
+"Guvcview:\n"
+"\n"
+"Bedieningsknoppen voor UVC Extensie"
 
 #: ../src/guvcview.c:343
 msgid "Extension controls were added to the UVC driver"
 msgstr ""
+"Bedieningsknoppen voor extensie werden toegevoegd aan het UVC-stuurprogramma"
 
 #. uvc extension controls error - EACCES (needs root user)
 #: ../src/guvcview.c:350
@@ -362,6 +375,9 @@ msgid ""
 "\n"
 "UVC Extension controls"
 msgstr ""
+"Guvcview-fout:\n"
+"\n"
+"Bedieningsknoppen voor UVC Extensie"
 
 #: ../src/guvcview.c:351
 msgid ""
@@ -369,6 +385,11 @@ msgid ""
 "controls to the UVC driver\n"
 "Make sure you run guvcview as root (or sudo)."
 msgstr ""
+"Er is een fout opgetreden tijdens het\n"
+"toevoegen van bedieningsknoppen aan\n"
+"het UVC-stuurprogramma.\n"
+"Zorg ervoor dat u guvcview draait als root\n"
+"(of met sudo)."
 
 #: ../src/guvcview.c:377 ../src/guvcview.c:455
 msgid ""
@@ -376,12 +397,18 @@ msgid ""
 "\n"
 "Can't set a valid video stream for guvcview"
 msgstr ""
+"Guvcview-fout:\n"
+"\n"
+"Kan geen geldige videostroom instellen voor guvcview"
 
 #: ../src/guvcview.c:378 ../src/guvcview.c:456
 msgid ""
 "Make sure your device driver is v4l2 compliant\n"
 "and that it is properly installed."
 msgstr ""
+"Zorg ervoor dat het stuurprogramma van uw\n"
+"apparaat voldoet aan v4l2 en dat het\n"
+"correct is geïnstalleerd."
 
 #: ../src/guvcview.c:400 ../src/guvcview.c:422
 msgid ""
@@ -389,6 +416,10 @@ msgid ""
 "\n"
 "Unable to start with minimum setup"
 msgstr ""
+"Guvcview-fout:\n"
+"\n"
+"Kan niet opstarten met minimale\n"
+"instellingen"
 
 #: ../src/guvcview.c:401 ../src/guvcview.c:423
 msgid "Please reconnect your camera."
@@ -400,10 +431,14 @@ msgid ""
 "\n"
 "Couldn't query device capabilities"
 msgstr ""
+"Guvcview-fout:\n"
+"\n"
+"Kon de capaciteiten van het\n"
+"apparaat niet opvragen"
 
 #: ../src/guvcview.c:431
 msgid "Make sure the device driver supports v4l2."
-msgstr ""
+msgstr "Zorg ervoor dat het stuurprogramma  v4l2 ondersteunt."
 
 #: ../src/guvcview.c:435
 msgid ""
@@ -411,10 +446,13 @@ msgid ""
 "\n"
 "Read method error"
 msgstr ""
+"Guvcview-fout:\n"
+"\n"
+"Leesmethodefout"
 
 #: ../src/guvcview.c:436
 msgid "Please try mmap instead (--capture_method=1)."
-msgstr ""
+msgstr "Probeer in plaats daarvan a.u.b. mmap (--capture_method=1)."
 
 #: ../src/guvcview.c:444
 msgid ""
@@ -422,14 +460,17 @@ msgid ""
 "\n"
 "Unable to allocate Buffers"
 msgstr ""
+"Guvcview-fout:\n"
+"\n"
+"Kan geen buffers toewijzen"
 
 #: ../src/guvcview.c:445
 msgid "Please try restarting your system."
-msgstr ""
+msgstr "Probeer a.u.b. of het helpt wanneer u uw systeem herstart."
 
 #: ../src/guvcview.c:490
 msgid "Image Controls"
-msgstr ""
+msgstr "Fotobedieningsknoppen"
 
 #. image auto capture
 #: ../src/guvcview.c:533
@@ -442,192 +483,197 @@ msgid ""
 "\n"
 "Unable to create Video Thread"
 msgstr ""
+"Guvcview-fout:\n"
+"\n"
+"Kan geen videodraad maken"
 
 #: ../src/guvcview.c:645
 msgid "Please report it to http://developer.berlios.de/bugs/?group_id=8179"
-msgstr ""
+msgstr "Meld het a.u.b. aan http://developer.berlios.de/bugs/?group_id=8179"
 
 #: ../src/img_controls.c:121
 msgid "Auto Focus (continuous)"
-msgstr ""
+msgstr "Automatische scherpstelling (voortdurend)"
 
 #: ../src/img_controls.c:122
 msgid "set Focus"
-msgstr ""
+msgstr "scherpstelling instellen"
 
 #: ../src/image_format.c:35
 msgid "Jpeg (jpg)"
-msgstr ""
+msgstr "Jpeg (jpg)"
 
 #: ../src/image_format.c:41
 msgid "Bitmap (Bmp)"
-msgstr ""
+msgstr "Bitmap (Bmp)"
 
 #: ../src/image_format.c:47
 msgid "Portable Network Graphics (Png)"
-msgstr ""
+msgstr "Portable Network Graphics (Png)"
 
 #: ../src/image_format.c:53
 msgid "Raw Image (raw)"
-msgstr ""
+msgstr "Raw Image (raw)"
 
 #. controls menu
 #: ../src/menubar.c:64
 msgid "Settings"
-msgstr ""
+msgstr "Instellingen"
 
 #: ../src/menubar.c:67
 msgid "Hardware Defaults"
-msgstr ""
+msgstr "Apparatuurstandaarden"
 
 #: ../src/menubar.c:75
 msgid "Camera Button"
-msgstr ""
+msgstr "Cameraknop"
 
 #: ../src/menubar.c:79
-#, fuzzy
 msgid "Capture Image"
 msgstr "Afbeelding vastleggen"
 
 #: ../src/menubar.c:84
-#, fuzzy
 msgid "Capture Video"
-msgstr "Video Vastleggen"
+msgstr "Video vastleggen"
 
 #. video menu
 #: ../src/menubar.c:144 ../src/video_tab.c:87
-#, fuzzy
 msgid "Video"
-msgstr "Stop Video"
+msgstr "Video"
 
 #: ../src/menubar.c:145 ../src/menubar.c:231
-#, fuzzy
 msgid "File"
-msgstr "Bestand Opslaan"
+msgstr "Bestand"
 
 #: ../src/menubar.c:146 ../src/menubar.c:232
 msgid "Increment Filename"
-msgstr ""
+msgstr "Bestandnaam aanvullen"
 
 #: ../src/menubar.c:164
 msgid "Video Codec"
-msgstr ""
+msgstr "Videocodec"
 
 #: ../src/menubar.c:187
 msgid "Video Codec Properties"
-msgstr ""
+msgstr "Eigenschappen van videocodec"
 
 #: ../src/menubar.c:194
 msgid "Audio Codec"
-msgstr ""
+msgstr "Audiocodec"
 
 #: ../src/menubar.c:215
 msgid "Audio Codec Properties"
-msgstr ""
+msgstr "Eigenschappen van audiocodec"
 
 #. photo menu
 #: ../src/menubar.c:230
 msgid "Photo"
-msgstr ""
+msgstr "Foto"
 
 #: ../src/options.c:752
 msgid "Prints version"
-msgstr ""
+msgstr "Drukt versie af"
 
 #: ../src/options.c:753
 msgid "Displays debug information"
-msgstr ""
+msgstr "Toont foutopsporingsinformatie"
 
 #: ../src/options.c:754
 msgid "Video Device to use [default: /dev/video0]"
-msgstr ""
+msgstr "Te gebruiken video-apparaat [standaard: /dev/video0]"
 
 #: ../src/options.c:755
 msgid "Exit after adding UVC extension controls (needs root/sudo)"
 msgstr ""
+"Afsluiten na het toevoegen van bedieningsknoppen voor UVC-extensie (heeft "
+"root/sudo nodig)"
 
 #: ../src/options.c:756
 msgid "Don't stream video (image controls only)"
-msgstr ""
+msgstr "Maak geen videostroom (alleen fotobedieningsknoppen)"
 
 #: ../src/options.c:757
 msgid "Don't display a GUI"
-msgstr ""
+msgstr "Toon geen grafische schil"
 
 #: ../src/options.c:758
 msgid "Capture method (1-mmap (default)  2-read)"
-msgstr ""
+msgstr "Opnamemethode (1-mmap (standaard)  2-read)"
 
 #: ../src/options.c:759
 msgid "Configuration file"
-msgstr ""
+msgstr "Configuratiebestand"
 
 #: ../src/options.c:760
 msgid "Hardware accelaration (enable(1) | disable(0))"
-msgstr ""
+msgstr "Hardwareversnelling (aan(1) | uit(0))"
 
 #: ../src/options.c:761
 msgid ""
-"Pixel format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|"
-"y41p|grey|y10b|y16 |s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
+"Pixel "
+"format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|y41p|grey|"
+"y10b|y16 |s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
 msgstr ""
+"Pixel "
+"format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|y41p|grey|"
+"y10b|y16 |s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
 
 #: ../src/options.c:762
 msgid "Frame size, default: 640x480"
-msgstr ""
+msgstr "Beeldgrootte, standaard: 640x480"
 
 #: ../src/options.c:763
 msgid "Image File name"
-msgstr ""
+msgstr "Naam van fotobestand"
 
 #: ../src/options.c:764
 msgid "Image capture interval in seconds"
-msgstr ""
+msgstr "Tussenpoze tussen foto's maken, in seconden"
 
 #: ../src/options.c:765
 msgid "Number of Pictures to capture"
-msgstr ""
+msgstr "Aantal te maken foto's"
 
 #: ../src/options.c:766
 msgid "Video File name (capture from start)"
-msgstr ""
+msgstr "Naam van videobestand (opnemen vanaf begin)"
 
 #: ../src/options.c:767
 msgid "Video capture time (in seconds)"
-msgstr ""
+msgstr "Video-opnametijd (in seconden)"
 
 #: ../src/options.c:768
 msgid "Exits guvcview after closing video"
-msgstr ""
+msgstr "Sluit guvcview af na sluiten van film"
 
 #: ../src/options.c:769
 msgid "Number of initial frames to skip"
-msgstr ""
+msgstr "Aantal filmbeeldjes dat in het begin moet worden overgeslagen"
 
 #: ../src/options.c:770
 msgid "Show FPS value (enable(1) | disable (0))"
-msgstr ""
+msgstr "Toon FPS-waarde (aan(1) | uit (0))"
 
 #: ../src/options.c:771
 msgid "Load Profile at start"
-msgstr ""
+msgstr "Profiel laden bij start"
 
 #: ../src/options.c:777
 msgid "- local options"
-msgstr ""
+msgstr "- plaatselijke opties"
 
 #. gdk_threads_enter();
 #: ../src/timers.c:119
 msgid "Cap. Image"
-msgstr "Afbeelding vastleggen"
+msgstr "Foto maken"
 
 #: ../src/timers.c:217
 msgid "Guvcview Warning:"
-msgstr ""
+msgstr "Guvcview -waarschuwing:"
 
 #: ../src/timers.c:217
 msgid "Not enough free space left on disk"
-msgstr ""
+msgstr "Niet genoeg vrije ruimte over op schijf"
 
 #: ../src/v4l2_controls.c:711
 msgid "Left"
@@ -639,7 +685,7 @@ msgstr "Rechts"
 
 #: ../src/v4l2_controls.c:716
 msgid "Down"
-msgstr "Beneden"
+msgstr "Omlaag"
 
 #: ../src/v4l2_controls.c:717
 msgid "Up"
@@ -647,75 +693,70 @@ msgstr "Omhoog"
 
 #: ../src/v4l2_controls.c:762
 msgid "Off"
-msgstr ""
+msgstr "Uit"
 
 #: ../src/v4l2_controls.c:762
 msgid "On"
-msgstr ""
+msgstr "Aan"
 
 #: ../src/v4l2_controls.c:762
 msgid "Blinking"
-msgstr ""
+msgstr "Knipperen"
 
 #: ../src/v4l2_controls.c:762
-#, fuzzy
 msgid "Auto"
-msgstr "Stop Auto"
+msgstr "Auto"
 
 #. turn it into a menu control
 #: ../src/v4l2_controls.c:813
 msgid "8 bit"
-msgstr ""
+msgstr "8-bit"
 
 #: ../src/v4l2_controls.c:813
 msgid "12 bit"
-msgstr ""
+msgstr "12-bit"
 
 #: ../src/v4l2_dyna_ctrls.c:96
 msgid "Pan (relative)"
-msgstr ""
+msgstr "Meedraaien (relatief)"
 
 #: ../src/v4l2_dyna_ctrls.c:109
 msgid "Tilt (relative)"
-msgstr ""
+msgstr "Kantelen (relatief)"
 
 #: ../src/v4l2_dyna_ctrls.c:122
-#, fuzzy
 msgid "Pan Reset"
-msgstr "Reset"
+msgstr "Meedraaien terugzetten op standaardwaarden"
 
 #: ../src/v4l2_dyna_ctrls.c:135
-#, fuzzy
 msgid "Tilt Reset"
-msgstr "Reset"
+msgstr "Kantelen terugzetten op standaardwaarden"
 
 #: ../src/v4l2_dyna_ctrls.c:148
-#, fuzzy
 msgid "Focus (absolute)"
-msgstr "Belichting, Auto"
+msgstr "Scherpstellen (absoluut)"
 
 #: ../src/v4l2_dyna_ctrls.c:161
 msgid "LED1 Mode"
-msgstr "LED1 Mode"
+msgstr "LED1-modus"
 
 #: ../src/v4l2_dyna_ctrls.c:174
-#, fuzzy
 msgid "LED1 Frequency"
-msgstr "LED1 Frequentie"
+msgstr "LED1-frequentie"
 
 #: ../src/v4l2_dyna_ctrls.c:187
 msgid "Disable video processing"
-msgstr ""
+msgstr "Videobewerking uitschakelen"
 
 #: ../src/v4l2_dyna_ctrls.c:200
 msgid "Raw bits per pixel"
-msgstr ""
+msgstr "Ruwe bits per pixel"
 
 #. needed only for language files (not used)
 #. V4L2 control strings
 #: ../src/v4l2uvc.c:56
 msgid "User Controls"
-msgstr ""
+msgstr "Bedieningsknoppen voor gebruiker"
 
 #: ../src/v4l2uvc.c:57
 msgid "Brightness"
@@ -723,7 +764,7 @@ msgstr "Helderheid"
 
 #: ../src/v4l2uvc.c:58
 msgid "Contrast"
-msgstr "contrast"
+msgstr "Contrast"
 
 #: ../src/v4l2uvc.c:59
 msgid "Hue"
@@ -743,224 +784,214 @@ msgstr "Gamma"
 
 #: ../src/v4l2uvc.c:63
 msgid "Backlight Compensation"
-msgstr "achtergrondverlichtingscompensatie"
+msgstr "Achtergrondverlichtingscompensatie"
 
 #: ../src/v4l2uvc.c:64
-#, fuzzy
 msgid "Power Line Frequency"
-msgstr "LED1 Frequentie"
+msgstr "Frequentie van de elektrische aansluiting"
 
 #: ../src/v4l2uvc.c:65
-#, fuzzy
 msgid "Hue, Automatic"
-msgstr "Tint, Auto"
+msgstr "Waas, automatisch"
 
 #: ../src/v4l2uvc.c:66
-#, fuzzy
 msgid "Focus, Auto"
-msgstr "Tint, Auto"
+msgstr "Scherpstelling, automatisch"
 
 #: ../src/v4l2uvc.c:67
 msgid "Manual Mode"
-msgstr ""
+msgstr "Handmatige modus"
 
 #: ../src/v4l2uvc.c:68
-#, fuzzy
 msgid "Auto Mode"
-msgstr "Stop Auto"
+msgstr "Automatische modus"
 
 #: ../src/v4l2uvc.c:69
 msgid "Shutter Priority Mode"
-msgstr ""
+msgstr "Voorkeurmodus van sluiter"
 
 #: ../src/v4l2uvc.c:70
 msgid "Aperture Priority Mode"
-msgstr ""
+msgstr "Voorkeurmodus van lensopening"
 
 #: ../src/v4l2uvc.c:71
 msgid "Black Level"
-msgstr ""
+msgstr "Zwartniveau"
 
 #: ../src/v4l2uvc.c:72
 msgid "White Balance, Automatic"
-msgstr ""
+msgstr "Witbalans, automatisch"
 
 #: ../src/v4l2uvc.c:73
 msgid "Do White Balance"
-msgstr ""
+msgstr "Pas witbalans toe"
 
 #: ../src/v4l2uvc.c:74
 msgid "Red Balance"
-msgstr ""
+msgstr "Roodbalans"
 
 #: ../src/v4l2uvc.c:75
 msgid "Blue Balance"
-msgstr ""
+msgstr "Blauwbalans"
 
 #: ../src/v4l2uvc.c:76
-#, fuzzy
 msgid "Exposure"
-msgstr "Belichting, Auto"
+msgstr "Belichting"
 
 #: ../src/v4l2uvc.c:77
 msgid "Gain, Automatic"
-msgstr ""
+msgstr "Versterking, automatisch"
 
 #: ../src/v4l2uvc.c:78
 msgid "Gain"
-msgstr ""
+msgstr "Versterking"
 
 #: ../src/v4l2uvc.c:79
 msgid "Horizontal Flip"
-msgstr ""
+msgstr "Horizontaal spiegelen"
 
 #: ../src/v4l2uvc.c:80
 msgid "Vertical Flip"
-msgstr ""
+msgstr "Verticaal spiegelen"
 
 #: ../src/v4l2uvc.c:81
 msgid "Horizontal Center"
-msgstr ""
+msgstr "Horizontaal centreren"
 
 #: ../src/v4l2uvc.c:82
 msgid "Vertical Center"
-msgstr ""
+msgstr "Verticaal centreren"
 
 #: ../src/v4l2uvc.c:83
 msgid "Chroma AGC"
-msgstr ""
+msgstr "Chroma AGC"
 
 #: ../src/v4l2uvc.c:84
 msgid "Color Killer"
-msgstr ""
+msgstr "Kleurdoder"
 
 #: ../src/v4l2uvc.c:85
 msgid "Color Effects"
-msgstr ""
+msgstr "Kleureffecten"
 
 #. CAMERA CLASS control strings
 #: ../src/v4l2uvc.c:88
 msgid "Camera Controls"
-msgstr ""
+msgstr "Bedieningsknoppen voor camera"
 
 #: ../src/v4l2uvc.c:89
 msgid "Auto Exposure"
-msgstr ""
+msgstr "Autobelichting"
 
 #: ../src/v4l2uvc.c:90
-#, fuzzy
 msgid "Exposure Time, Absolute"
-msgstr "Belichting, Auto"
+msgstr "Belichtingstijd, absoluut"
 
 #: ../src/v4l2uvc.c:91
 msgid "Exposure, Dynamic Framerate"
-msgstr ""
+msgstr "Belichtingstijd, dynamische opnamesnelheid"
 
 #: ../src/v4l2uvc.c:92
 msgid "Pan, Relative"
-msgstr ""
+msgstr "Meedraaien, relatief"
 
 #: ../src/v4l2uvc.c:93
 msgid "Tilt, Relative"
-msgstr ""
+msgstr "Kantelen, relatief"
 
 #: ../src/v4l2uvc.c:94
-#, fuzzy
 msgid "Pan, Reset"
-msgstr "Reset"
+msgstr "Meedraaien, terugzetten op standaardwaarden"
 
 #: ../src/v4l2uvc.c:95
-#, fuzzy
 msgid "Tilt, Reset"
-msgstr "Reset"
+msgstr "Kantelen, terugzetten op standaardwaarden"
 
 #: ../src/v4l2uvc.c:96
 msgid "Pan, Absolute"
-msgstr ""
+msgstr "Meedraaien, absoluut"
 
 #: ../src/v4l2uvc.c:98
 msgid "Focus, Absolute"
-msgstr ""
+msgstr "Scherpstellen, absoluut"
 
 #: ../src/v4l2uvc.c:99
 msgid "Focus, Relative"
-msgstr ""
+msgstr "Scherpstellen, relatief"
 
 #: ../src/v4l2uvc.c:100
 msgid "Focus, Automatic"
-msgstr ""
+msgstr "Scherpstellen, automatisch"
 
 #: ../src/v4l2uvc.c:101
 msgid "Zoom, Absolute"
-msgstr ""
+msgstr "Zoomen, absoluut"
 
 #: ../src/v4l2uvc.c:102
 msgid "Zoom, Relative"
-msgstr ""
+msgstr "Zoomen, relatief"
 
 #: ../src/v4l2uvc.c:103
 msgid "Zoom, Continuous"
-msgstr ""
+msgstr "Zoomen, bij voortduring"
 
 #: ../src/v4l2uvc.c:104
 msgid "Privacy"
-msgstr ""
+msgstr "Privéleven"
 
 #. UVC specific control strings
 #: ../src/v4l2uvc.c:107
 msgid "Exposure, Auto"
-msgstr "Belichting, Auto"
+msgstr "Belichting, auto"
 
 #: ../src/v4l2uvc.c:108
-#, fuzzy
 msgid "Exposure, Auto Priority"
-msgstr "Belichting, Auto"
+msgstr "Belichting, auto-prioriteit"
 
 #: ../src/v4l2uvc.c:109
-#, fuzzy
 msgid "Exposure (Absolute)"
-msgstr "Belichting, Auto"
+msgstr "Belichting (absoluut)"
 
 #: ../src/v4l2uvc.c:110
 msgid "White Balance Temperature, Auto"
-msgstr ""
+msgstr "Witbalanstemperatuur, auto"
 
 #: ../src/v4l2uvc.c:111
 msgid "White Balance Temperature"
-msgstr ""
+msgstr "Witbalanstemperatuur"
 
 #: ../src/v4l2uvc.c:112
 msgid "White Balance Component, Auto"
-msgstr ""
+msgstr "Witbalans-onderdeel, auto"
 
 #: ../src/v4l2uvc.c:113
 msgid "White Balance Blue Component"
-msgstr ""
+msgstr "Blauw witbalansonderdeel"
 
 #: ../src/v4l2uvc.c:114
 msgid "White Balance Red Component"
-msgstr ""
+msgstr "Rood witbalansonderdeel"
 
 #. libwebcam specific control strings
 #: ../src/v4l2uvc.c:117
 msgid "Focus"
-msgstr ""
+msgstr "Scherpstelling"
 
 #: ../src/v4l2uvc.c:118
 msgid "Focus (Absolute)"
-msgstr ""
+msgstr "Scherpstelling (absoluut)"
 
 #: ../src/vcodecs.c:63
 msgid "MJPG - compressed"
-msgstr ""
+msgstr "MJPG - gecomprimeerd"
 
 #: ../src/vcodecs.c:99
 msgid "YUY2 - uncomp YUV"
-msgstr ""
+msgstr "YUY2 - ongecomp YUV"
 
 #: ../src/vcodecs.c:135
 msgid "RGB - uncomp BMP"
-msgstr ""
+msgstr "RGB - ongecomp BMP"
 
 #: ../src/vcodecs.c:171
 msgid "MPEG video 1"
@@ -984,127 +1015,86 @@ msgstr "MS MP4 V3"
 
 #: ../src/vcodecs.c:351
 msgid "MPEG4-ASP"
-msgstr ""
+msgstr "MPEG4-ASP"
 
 #: ../src/vcodecs.c:387
 msgid "MPEG4-AVC (H264)"
-msgstr ""
+msgstr "MPEG4-AVC (H264)"
 
 #: ../src/vcodecs.c:427
 msgid "VP8 (VP8)"
-msgstr ""
+msgstr "VP8 (VP8)"
 
 #: ../src/vcodecs.c:463
 msgid "Theora (ogg theora)"
-msgstr ""
+msgstr "Theora (ogg theora)"
 
 #: ../src/video_format.c:43
 msgid "AVI - avi format"
-msgstr ""
+msgstr "AVI - aviformaat"
 
 #: ../src/video_format.c:52
-#, fuzzy
 msgid "MKV - Matroska format"
-msgstr "MPG2 - MPG2 formaat"
+msgstr "MKV - Matroskaformaat"
 
 #: ../src/video_format.c:61
-#, fuzzy
 msgid "WEBM - format"
-msgstr "MPG2 - MPG2 formaat"
+msgstr "WEBM - formaat"
 
 #: ../src/video_tab.c:208
 msgid "Frame Rate:"
-msgstr ""
+msgstr "Beelden per seconde:"
 
 #: ../src/video_tab.c:215
 msgid " Show"
-msgstr ""
+msgstr " Tonen"
 
 #: ../src/video_tab.c:237
 msgid "Resolution:"
-msgstr ""
+msgstr "Resolutie:"
 
 #: ../src/video_tab.c:263
 msgid "Camera Output:"
-msgstr ""
+msgstr "Camera-uitvoer:"
 
 #: ../src/video_tab.c:285
 msgid "Apply"
-msgstr ""
+msgstr "Toepassen"
 
 #: ../src/video_tab.c:292
 msgid "Quality:"
-msgstr ""
+msgstr "Kwaliteit:"
 
 #: ../src/video_tab.c:302
 msgid "---- Video Filters ----"
-msgstr ""
+msgstr "---- Videofilters ----"
 
 #. Mirror
 #: ../src/video_tab.c:321
 msgid " Mirror"
-msgstr ""
+msgstr " Spiegelen"
 
 #. Upturn
 #: ../src/video_tab.c:332
 msgid " Invert"
-msgstr ""
+msgstr " Omdraaien"
 
 #. Negate
 #: ../src/video_tab.c:343
 msgid " Negative"
-msgstr ""
+msgstr " Negatief"
 
 #. Mono
 #: ../src/video_tab.c:354
 msgid " Mono"
-msgstr ""
+msgstr " Mono"
 
 #. Pieces
 #: ../src/video_tab.c:366
 msgid " Pieces"
-msgstr ""
+msgstr " Delen"
 
 #. Particles
 #: ../src/video_tab.c:378
 msgid " Particles"
-msgstr ""
-
-#~ msgid "Stop Video"
-#~ msgstr "Stop Video"
-
-#~ msgid "Capture:"
-#~ msgstr "Opnemen:"
-
-#, fuzzy
-#~ msgid "Pan/tilt Reset"
-#~ msgstr "Reset"
-
-#~ msgid "PCM"
-#~ msgstr "PCM"
-
-#~ msgid "MP2"
-#~ msgstr "MP2"
-
-#~ msgid "MPEG4 - MPEG4 format"
-#~ msgstr "MPEG4 - MPEG4 formaat"
-
-#~ msgid "Program Restart"
-#~ msgstr "Programma Herstart"
-
-#~ msgid ""
-#~ "Changes will only take effect after guvcview restart.\n"
-#~ "\n"
-#~ "\n"
-#~ "Restart now?\n"
-#~ msgstr ""
-#~ "Aanpassingen worden pas van kracht nadat guvcvieuw opnieuw is opgestart:\n"
-#~ "\n"
-#~ "\n"
-#~ "Wilt u nu herstarten?\n"
-
-#~ msgid "Later"
-#~ msgstr "Later"
-
-#~ msgid "now"
-#~ msgstr "nu"
+msgstr " Deeltjes"

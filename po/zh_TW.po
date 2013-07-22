@@ -2,16 +2,18 @@ msgid ""
 msgstr ""
 "Project-Id-Version: guvcview\n"
 "Report-Msgid-Bugs-To: pj.assis@gmail.com\n"
-"POT-Creation-Date: 2013-02-24 23:16+0000\n"
-"PO-Revision-Date: 2010-06-14 22:39+0800\n"
-"Last-Translator: kentxchang <kentxchang@gmail.com>\n"
+"POT-Creation-Date: 2013-07-16 12:53+0000\n"
+"PO-Revision-Date: 2013-02-25 05:36+0000\n"
+"Last-Translator: kentxchang <Unknown>\n"
 "Language-Team: none <kentxchang@gmail.com>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Poedit-Language: Chinese\n"
+"X-Launchpad-Export-Date: 2013-07-22 13:32+0000\n"
+"X-Generator: Launchpad (build 16696)\n"
 "X-Poedit-Country: TAIWAN\n"
+"Language: \n"
+"X-Poedit-Language: Chinese\n"
 
 #: ../data/guvcview.desktop.in.in.h:1
 msgid "guvcview"
@@ -26,9 +28,8 @@ msgid "A video viewer and capturer for the linux uvc driver"
 msgstr ""
 
 #: ../src/acodecs.c:59
-#, fuzzy
 msgid "PCM - uncompressed (16 bit)"
-msgstr "MJPG - compressed"
+msgstr ""
 
 #: ../src/acodecs.c:76
 msgid "MPEG2 - (lavc)"
@@ -56,7 +57,7 @@ msgstr "音頻"
 
 #: ../src/audio_tab.c:98
 msgid " Sound"
-msgstr "聲音"
+msgstr " 聲音"
 
 #. VU meter on the image (OSD)
 #: ../src/audio_tab.c:109
@@ -106,17 +107,17 @@ msgstr "---音頻效果---"
 #. Echo
 #: ../src/audio_tab.c:321
 msgid " Echo"
-msgstr "迴聲"
+msgstr " 迴聲"
 
 #. FUZZ
 #: ../src/audio_tab.c:332
 msgid " Fuzz"
-msgstr "模糊"
+msgstr " 模糊"
 
 #. Reverb
 #: ../src/audio_tab.c:344
 msgid " Reverb"
-msgstr "Reverb"
+msgstr " Reverb"
 
 #. WahWah
 #: ../src/audio_tab.c:356
@@ -129,9 +130,8 @@ msgid " Ducky"
 msgstr " Ducky"
 
 #: ../src/callbacks.c:108
-#, fuzzy
 msgid "Error"
-msgstr "鏡像(水平翻轉)"
+msgstr ""
 
 #: ../src/callbacks.c:132
 msgid ""
@@ -150,9 +150,8 @@ msgid "Save File"
 msgstr "存檔"
 
 #: ../src/callbacks.c:283
-#, fuzzy
 msgid "File Format:"
-msgstr "影像格式:"
+msgstr ""
 
 #: ../src/callbacks.c:454
 msgid "codec values"
@@ -244,14 +243,12 @@ msgid "mb decision:   "
 msgstr "mb decision:   "
 
 #: ../src/callbacks.c:719
-#, fuzzy
 msgid "max B frames:   "
-msgstr "framerefs:   "
+msgstr ""
 
 #: ../src/callbacks.c:732
-#, fuzzy
 msgid "num threads:   "
-msgstr "me method:   "
+msgstr ""
 
 #: ../src/callbacks.c:795
 msgid "audio codec values"
@@ -259,9 +256,8 @@ msgstr "音頻編碼器數值"
 
 #. sample format
 #: ../src/callbacks.c:822
-#, fuzzy
 msgid "sample format:   "
-msgstr "範例碼率:"
+msgstr ""
 
 #: ../src/callbacks.c:1250
 msgid "start new"
@@ -288,9 +284,8 @@ msgstr ""
 "\n"
 
 #: ../src/callbacks.c:1716 ../src/guvcview.c:537
-#, fuzzy
 msgid "Cap. Image (I)"
-msgstr "拍照"
+msgstr ""
 
 #. disable image controls
 #: ../src/callbacks.c:1727 ../src/guvcview.c:658 ../src/timers.c:101
@@ -298,9 +293,8 @@ msgid "capturing photo to"
 msgstr ""
 
 #: ../src/callbacks.c:1786 ../src/guvcview.c:547
-#, fuzzy
 msgid "Cap. Video (V)"
-msgstr "錄影"
+msgstr ""
 
 #: ../src/callbacks.c:1812 ../src/guvcview.c:708
 msgid "capturing video to"
@@ -308,19 +302,16 @@ msgstr ""
 
 #. vid capture enabled from start
 #: ../src/callbacks.c:1845 ../src/guvcview.c:542
-#, fuzzy
 msgid "Stop Video (V)"
-msgstr "停止錄影"
+msgstr ""
 
 #: ../src/callbacks.c:1901 ../src/menubar.c:66
-#, fuzzy
 msgid "Save Profile"
-msgstr "存檔"
+msgstr ""
 
 #: ../src/callbacks.c:1914 ../src/menubar.c:65
-#, fuzzy
 msgid "Load Profile"
-msgstr "讀取檔案"
+msgstr ""
 
 #: ../src/create_video.c:1016 ../src/guvcview.c:700
 msgid "Cap. Video"
@@ -469,9 +460,8 @@ msgstr "影像設定"
 
 #. image auto capture
 #: ../src/guvcview.c:533
-#, fuzzy
 msgid "Stop Auto (I)"
-msgstr "停止 自動"
+msgstr ""
 
 #: ../src/guvcview.c:644
 msgid ""
@@ -517,60 +507,49 @@ msgid "Settings"
 msgstr ""
 
 #: ../src/menubar.c:67
-#, fuzzy
 msgid "Hardware Defaults"
-msgstr "預設值"
+msgstr ""
 
 #: ../src/menubar.c:75
-#, fuzzy
 msgid "Camera Button"
-msgstr "攝影機輸出:"
+msgstr ""
 
 #: ../src/menubar.c:79
-#, fuzzy
 msgid "Capture Image"
-msgstr "拍照"
+msgstr ""
 
 #: ../src/menubar.c:84
-#, fuzzy
 msgid "Capture Video"
-msgstr "錄影"
+msgstr ""
 
 #. video menu
 #: ../src/menubar.c:144 ../src/video_tab.c:87
-#, fuzzy
 msgid "Video"
-msgstr "停止錄影"
+msgstr ""
 
 #: ../src/menubar.c:145 ../src/menubar.c:231
-#, fuzzy
 msgid "File"
-msgstr "存檔"
+msgstr ""
 
 #: ../src/menubar.c:146 ../src/menubar.c:232
-#, fuzzy
 msgid "Increment Filename"
-msgstr "圖片檔案名稱"
+msgstr ""
 
 #: ../src/menubar.c:164
-#, fuzzy
 msgid "Video Codec"
-msgstr "影像編碼:"
+msgstr ""
 
 #: ../src/menubar.c:187
-#, fuzzy
 msgid "Video Codec Properties"
-msgstr "影像編碼:"
+msgstr ""
 
 #: ../src/menubar.c:194
-#, fuzzy
 msgid "Audio Codec"
-msgstr "影像編碼:"
+msgstr ""
 
 #: ../src/menubar.c:215
-#, fuzzy
 msgid "Audio Codec Properties"
-msgstr "音頻編碼器數值"
+msgstr ""
 
 #. photo menu
 #: ../src/menubar.c:230
@@ -614,13 +593,11 @@ msgid "Hardware accelaration (enable(1) | disable(0))"
 msgstr "硬體加速(啟用(1) | 停用(0))"
 
 #: ../src/options.c:761
-#, fuzzy
 msgid ""
-"Pixel format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|"
-"y41p|grey|y10b|y16 |s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
+"Pixel "
+"format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|y41p|grey|"
+"y10b|y16 |s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
 msgstr ""
-"Pixel format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|"
-"y41p|grey|s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
 
 #: ../src/options.c:762
 msgid "Frame size, default: 640x480"
@@ -708,9 +685,8 @@ msgid "Blinking"
 msgstr ""
 
 #: ../src/v4l2_controls.c:762
-#, fuzzy
 msgid "Auto"
-msgstr "停止 自動"
+msgstr ""
 
 #. turn it into a menu control
 #: ../src/v4l2_controls.c:813
@@ -1039,14 +1015,12 @@ msgid "AVI - avi format"
 msgstr ""
 
 #: ../src/video_format.c:52
-#, fuzzy
 msgid "MKV - Matroska format"
-msgstr "MPG2 - MPG2 format"
+msgstr ""
 
 #: ../src/video_format.c:61
-#, fuzzy
 msgid "WEBM - format"
-msgstr "MPG2 - MPG2 format"
+msgstr ""
 
 #: ../src/video_tab.c:208
 msgid "Frame Rate:"
@@ -1054,7 +1028,7 @@ msgstr "影格率"
 
 #: ../src/video_tab.c:215
 msgid " Show"
-msgstr "顯示"
+msgstr " 顯示"
 
 #: ../src/video_tab.c:237
 msgid "Resolution:"
@@ -1079,65 +1053,29 @@ msgstr "---影像濾波器---"
 #. Mirror
 #: ../src/video_tab.c:321
 msgid " Mirror"
-msgstr "鏡像(水平翻轉)"
+msgstr " 鏡像(水平翻轉)"
 
 #. Upturn
 #: ../src/video_tab.c:332
 msgid " Invert"
-msgstr "倒置(垂直翻轉)"
+msgstr " 倒置(垂直翻轉)"
 
 #. Negate
 #: ../src/video_tab.c:343
 msgid " Negative"
-msgstr "負片效果"
+msgstr " 負片效果"
 
 #. Mono
 #: ../src/video_tab.c:354
 msgid " Mono"
-msgstr "灰階"
+msgstr " 灰階"
 
 #. Pieces
 #: ../src/video_tab.c:366
 msgid " Pieces"
-msgstr "馬賽克"
+msgstr " 馬賽克"
 
 #. Particles
 #: ../src/video_tab.c:378
 msgid " Particles"
-msgstr "顆粒"
-
-#~ msgid "Stop Video"
-#~ msgstr "停止錄影"
-
-#~ msgid "Capture:"
-#~ msgstr "擷取:"
-
-#~ msgid "Control Profiles:"
-#~ msgstr "控制項目:"
-
-#~ msgid "File num:%d"
-#~ msgstr "命名起始值:%d"
-
-#~ msgid "Video & Files"
-#~ msgstr "影像&檔案"
-
-#~ msgid "Image File:"
-#~ msgstr "照片檔名:"
-
-#~ msgid "File,Auto"
-#~ msgstr "檔案,自動"
-
-#~ msgid "Image Format:"
-#~ msgstr "圖片格式:"
-
-#~ msgid "Video File:"
-#~ msgstr "影像檔名:"
-
-#~ msgid "properties"
-#~ msgstr "特性"
-
-#~ msgid "Audio Format:"
-#~ msgstr "音頻格式:"
-
-#~ msgid "Pan/tilt Reset"
-#~ msgstr "Pan/Tilt重設"
+msgstr " 顆粒"

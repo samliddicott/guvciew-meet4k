@@ -7,17 +7,17 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GUVCView 1.0.2\n"
 "Report-Msgid-Bugs-To: pj.assis@gmail.com\n"
-"POT-Creation-Date: 2013-02-24 23:16+0000\n"
-"PO-Revision-Date: 2009-09-15 02:40+0000\n"
+"POT-Creation-Date: 2013-07-16 12:53+0000\n"
+"PO-Revision-Date: 2013-02-25 05:38+0000\n"
 "Last-Translator: Paulo Assis <pj.assis@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-11-15 23:44+0000\n"
-"X-Generator: Launchpad (build Unknown)\n"
+"X-Launchpad-Export-Date: 2013-07-22 13:32+0000\n"
+"X-Generator: Launchpad (build 16696)\n"
 "X-Poedit-Country: JAPAN\n"
+"Language: \n"
 "X-Poedit-Language: Japanese\n"
 
 #: ../data/guvcview.desktop.in.in.h:1
@@ -33,9 +33,8 @@ msgid "A video viewer and capturer for the linux uvc driver"
 msgstr ""
 
 #: ../src/acodecs.c:59
-#, fuzzy
 msgid "PCM - uncompressed (16 bit)"
-msgstr "MJPG - 圧縮"
+msgstr ""
 
 #: ../src/acodecs.c:76
 msgid "MPEG2 - (lavc)"
@@ -136,9 +135,8 @@ msgid " Ducky"
 msgstr " Ducky"
 
 #: ../src/callbacks.c:108
-#, fuzzy
 msgid "Error"
-msgstr " 鏡"
+msgstr ""
 
 #: ../src/callbacks.c:132
 msgid ""
@@ -157,9 +155,8 @@ msgid "Save File"
 msgstr "ファイルを保存する"
 
 #: ../src/callbacks.c:283
-#, fuzzy
 msgid "File Format:"
-msgstr "画像フォーマット:"
+msgstr ""
 
 #: ../src/callbacks.c:454
 msgid "codec values"
@@ -262,9 +259,8 @@ msgstr ""
 
 #. sample format
 #: ../src/callbacks.c:822
-#, fuzzy
 msgid "sample format:   "
-msgstr "サンプルレート:"
+msgstr ""
 
 #: ../src/callbacks.c:1250
 msgid "start new"
@@ -291,9 +287,8 @@ msgstr ""
 "\n"
 
 #: ../src/callbacks.c:1716 ../src/guvcview.c:537
-#, fuzzy
 msgid "Cap. Image (I)"
-msgstr "キャプチャ.画像"
+msgstr ""
 
 #. disable image controls
 #: ../src/callbacks.c:1727 ../src/guvcview.c:658 ../src/timers.c:101
@@ -301,9 +296,8 @@ msgid "capturing photo to"
 msgstr ""
 
 #: ../src/callbacks.c:1786 ../src/guvcview.c:547
-#, fuzzy
 msgid "Cap. Video (V)"
-msgstr "キャプチャ:"
+msgstr ""
 
 #: ../src/callbacks.c:1812 ../src/guvcview.c:708
 msgid "capturing video to"
@@ -315,14 +309,12 @@ msgid "Stop Video (V)"
 msgstr ""
 
 #: ../src/callbacks.c:1901 ../src/menubar.c:66
-#, fuzzy
 msgid "Save Profile"
-msgstr "ファイルを保存する"
+msgstr ""
 
 #: ../src/callbacks.c:1914 ../src/menubar.c:65
-#, fuzzy
 msgid "Load Profile"
-msgstr "ファイルを読込む"
+msgstr ""
 
 #: ../src/create_video.c:1016 ../src/guvcview.c:700
 msgid "Cap. Video"
@@ -367,15 +359,11 @@ msgstr ""
 
 #. uvc extension controls error - EACCES (needs root user)
 #: ../src/guvcview.c:350
-#, fuzzy
 msgid ""
 "Guvcview error:\n"
 "\n"
 "UVC Extension controls"
 msgstr ""
-"Guvcview エラー:\n"
-"\n"
-"バッファを確保できません"
 
 #: ../src/guvcview.c:351
 msgid ""
@@ -412,30 +400,22 @@ msgid "Please reconnect your camera."
 msgstr "カメラを再接続してください。"
 
 #: ../src/guvcview.c:430
-#, fuzzy
 msgid ""
 "Guvcview error:\n"
 "\n"
 "Couldn't query device capabilities"
 msgstr ""
-"Guvcview エラー:\n"
-"\n"
-"デバイスをオープンすることができません"
 
 #: ../src/guvcview.c:431
 msgid "Make sure the device driver supports v4l2."
 msgstr ""
 
 #: ../src/guvcview.c:435
-#, fuzzy
 msgid ""
 "Guvcview error:\n"
 "\n"
 "Read method error"
 msgstr ""
-"Guvcview エラー:\n"
-"\n"
-"デバイスをオープンすることができません"
 
 #: ../src/guvcview.c:436
 msgid "Please try mmap instead (--capture_method=1)."
@@ -461,9 +441,8 @@ msgstr "イメージコントロール"
 
 #. image auto capture
 #: ../src/guvcview.c:533
-#, fuzzy
 msgid "Stop Auto (I)"
-msgstr "自動停止"
+msgstr ""
 
 #: ../src/guvcview.c:644
 msgid ""
@@ -477,8 +456,7 @@ msgstr ""
 
 #: ../src/guvcview.c:645
 msgid "Please report it to http://developer.berlios.de/bugs/?group_id=8179"
-msgstr ""
-"http://developer.berlios.de/bugs/?group_id=8179 にレポートしてください。"
+msgstr "http://developer.berlios.de/bugs/?group_id=8179 にレポートしてください。"
 
 #: ../src/img_controls.c:121
 msgid "Auto Focus (continuous)"
@@ -510,24 +488,20 @@ msgid "Settings"
 msgstr ""
 
 #: ../src/menubar.c:67
-#, fuzzy
 msgid "Hardware Defaults"
-msgstr "デバイス デフォルト"
+msgstr ""
 
 #: ../src/menubar.c:75
-#, fuzzy
 msgid "Camera Button"
-msgstr "カメラ出力:"
+msgstr ""
 
 #: ../src/menubar.c:79
-#, fuzzy
 msgid "Capture Image"
-msgstr "キャプチャ.画像"
+msgstr ""
 
 #: ../src/menubar.c:84
-#, fuzzy
 msgid "Capture Video"
-msgstr "キャプチャ:"
+msgstr ""
 
 #. video menu
 #: ../src/menubar.c:144 ../src/video_tab.c:87
@@ -535,14 +509,12 @@ msgid "Video"
 msgstr ""
 
 #: ../src/menubar.c:145 ../src/menubar.c:231
-#, fuzzy
 msgid "File"
-msgstr "ファイルを保存する"
+msgstr ""
 
 #: ../src/menubar.c:146 ../src/menubar.c:232
-#, fuzzy
 msgid "Increment Filename"
-msgstr "画像ファイル名"
+msgstr ""
 
 #: ../src/menubar.c:164
 msgid "Video Codec"
@@ -553,9 +525,8 @@ msgid "Video Codec Properties"
 msgstr ""
 
 #: ../src/menubar.c:194
-#, fuzzy
 msgid "Audio Codec"
-msgstr "オーディオ"
+msgstr ""
 
 #: ../src/menubar.c:215
 msgid "Audio Codec Properties"
@@ -603,13 +574,11 @@ msgid "Hardware accelaration (enable(1) | disable(0))"
 msgstr "ハードウェアアクセラレーション (有効(1) | 無効(0))"
 
 #: ../src/options.c:761
-#, fuzzy
 msgid ""
-"Pixel format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|"
-"y41p|grey|y10b|y16 |s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
+"Pixel "
+"format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|y41p|grey|"
+"y10b|y16 |s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
 msgstr ""
-"ピクセルフォーマット (mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|"
-"nv61|y41p|grey|s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
 
 #: ../src/options.c:762
 msgid "Frame size, default: 640x480"
@@ -632,18 +601,16 @@ msgid "Video File name (capture from start)"
 msgstr ""
 
 #: ../src/options.c:767
-#, fuzzy
 msgid "Video capture time (in seconds)"
-msgstr "秒単位の画像キャプチャ間隔"
+msgstr ""
 
 #: ../src/options.c:768
 msgid "Exits guvcview after closing video"
 msgstr ""
 
 #: ../src/options.c:769
-#, fuzzy
 msgid "Number of initial frames to skip"
-msgstr "キャプチャする画像数"
+msgstr ""
 
 #: ../src/options.c:770
 msgid "Show FPS value (enable(1) | disable (0))"
@@ -699,9 +666,8 @@ msgid "Blinking"
 msgstr ""
 
 #: ../src/v4l2_controls.c:762
-#, fuzzy
 msgid "Auto"
-msgstr "自動停止"
+msgstr ""
 
 #. turn it into a menu control
 #: ../src/v4l2_controls.c:813
@@ -713,27 +679,22 @@ msgid "12 bit"
 msgstr ""
 
 #: ../src/v4l2_dyna_ctrls.c:96
-#, fuzzy
 msgid "Pan (relative)"
 msgstr "パン (相対)"
 
 #: ../src/v4l2_dyna_ctrls.c:109
-#, fuzzy
 msgid "Tilt (relative)"
 msgstr "チルト (相対)"
 
 #: ../src/v4l2_dyna_ctrls.c:122
-#, fuzzy
 msgid "Pan Reset"
 msgstr "パン リセット"
 
 #: ../src/v4l2_dyna_ctrls.c:135
-#, fuzzy
 msgid "Tilt Reset"
 msgstr "チルト リセット"
 
 #: ../src/v4l2_dyna_ctrls.c:148
-#, fuzzy
 msgid "Focus (absolute)"
 msgstr "フォーカス (完全な)"
 
@@ -756,9 +717,8 @@ msgstr "1画素あたりの生のビット"
 #. needed only for language files (not used)
 #. V4L2 control strings
 #: ../src/v4l2uvc.c:56
-#, fuzzy
 msgid "User Controls"
-msgstr "GUVCViewer コントロール"
+msgstr ""
 
 #: ../src/v4l2uvc.c:57
 msgid "Brightness"
@@ -793,9 +753,8 @@ msgid "Power Line Frequency"
 msgstr "電源ライン周波数"
 
 #: ../src/v4l2uvc.c:65
-#, fuzzy
 msgid "Hue, Automatic"
-msgstr "色相、自動"
+msgstr ""
 
 #: ../src/v4l2uvc.c:66
 msgid "Focus, Auto"
@@ -822,14 +781,12 @@ msgid "Black Level"
 msgstr ""
 
 #: ../src/v4l2uvc.c:72
-#, fuzzy
 msgid "White Balance, Automatic"
-msgstr "ホワイトバランス成分、自動"
+msgstr ""
 
 #: ../src/v4l2uvc.c:73
-#, fuzzy
 msgid "Do White Balance"
-msgstr "ホワイトバランス温度"
+msgstr ""
 
 #: ../src/v4l2uvc.c:74
 msgid "Red Balance"
@@ -840,9 +797,8 @@ msgid "Blue Balance"
 msgstr ""
 
 #: ../src/v4l2uvc.c:76
-#, fuzzy
 msgid "Exposure"
-msgstr "露出:"
+msgstr ""
 
 #: ../src/v4l2uvc.c:77
 msgid "Gain, Automatic"
@@ -882,77 +838,64 @@ msgstr ""
 
 #. CAMERA CLASS control strings
 #: ../src/v4l2uvc.c:88
-#, fuzzy
 msgid "Camera Controls"
-msgstr "イメージコントロール"
+msgstr ""
 
 #: ../src/v4l2uvc.c:89
-#, fuzzy
 msgid "Auto Exposure"
-msgstr "露出:"
+msgstr ""
 
 #: ../src/v4l2uvc.c:90
-#, fuzzy
 msgid "Exposure Time, Absolute"
-msgstr "Exposure (完全な)"
+msgstr ""
 
 #: ../src/v4l2uvc.c:91
 msgid "Exposure, Dynamic Framerate"
 msgstr ""
 
 #: ../src/v4l2uvc.c:92
-#, fuzzy
 msgid "Pan, Relative"
-msgstr "パン (相対)"
+msgstr ""
 
 #: ../src/v4l2uvc.c:93
-#, fuzzy
 msgid "Tilt, Relative"
-msgstr "チルト (相対)"
+msgstr ""
 
 #: ../src/v4l2uvc.c:94
-#, fuzzy
 msgid "Pan, Reset"
-msgstr "パン リセット"
+msgstr ""
 
 #: ../src/v4l2uvc.c:95
-#, fuzzy
 msgid "Tilt, Reset"
-msgstr "チルト リセット"
+msgstr ""
 
 #: ../src/v4l2uvc.c:96
 msgid "Pan, Absolute"
 msgstr ""
 
 #: ../src/v4l2uvc.c:98
-#, fuzzy
 msgid "Focus, Absolute"
-msgstr "フォーカス (完全な)"
+msgstr ""
 
 #: ../src/v4l2uvc.c:99
-#, fuzzy
 msgid "Focus, Relative"
-msgstr "フォーカス,自動"
+msgstr ""
 
 #: ../src/v4l2uvc.c:100
-#, fuzzy
 msgid "Focus, Automatic"
-msgstr "フォーカス,自動"
+msgstr ""
 
 #: ../src/v4l2uvc.c:101
-#, fuzzy
 msgid "Zoom, Absolute"
-msgstr "Exposure (完全な)"
+msgstr ""
 
 #: ../src/v4l2uvc.c:102
-#, fuzzy
 msgid "Zoom, Relative"
-msgstr " ネガ"
+msgstr ""
 
 #: ../src/v4l2uvc.c:103
-#, fuzzy
 msgid "Zoom, Continuous"
-msgstr "オートフォーカス(連続)"
+msgstr ""
 
 #: ../src/v4l2uvc.c:104
 msgid "Privacy"
@@ -993,14 +936,12 @@ msgstr "ホワイトバランス赤成分"
 
 #. libwebcam specific control strings
 #: ../src/v4l2uvc.c:117
-#, fuzzy
 msgid "Focus"
-msgstr "フォーカスを設定する"
+msgstr ""
 
 #: ../src/v4l2uvc.c:118
-#, fuzzy
 msgid "Focus (Absolute)"
-msgstr "フォーカス (完全な)"
+msgstr ""
 
 #: ../src/vcodecs.c:63
 msgid "MJPG - compressed"
@@ -1051,9 +992,8 @@ msgid "Theora (ogg theora)"
 msgstr ""
 
 #: ../src/video_format.c:43
-#, fuzzy
 msgid "AVI - avi format"
-msgstr "AVI フォーマット:"
+msgstr ""
 
 #: ../src/video_format.c:52
 msgid "MKV - Matroska format"
@@ -1118,68 +1058,5 @@ msgstr " 断片"
 
 #. Particles
 #: ../src/video_tab.c:378
-#, fuzzy
 msgid " Particles"
-msgstr " 断片"
-
-#~ msgid "Control Profiles:"
-#~ msgstr "コントロールプロファイル:"
-
-#~ msgid "File num:%d"
-#~ msgstr "ファイル番号:%d"
-
-#~ msgid "Video & Files"
-#~ msgstr "ビデオ & ファイル"
-
-#~ msgid "Image File:"
-#~ msgstr "画像ファイル:"
-
-#~ msgid "File,Auto"
-#~ msgstr "ファイル,自動"
-
-#~ msgid "Audio Format:"
-#~ msgstr "音楽フォーマット:"
-
-#~ msgid "Pan/tilt Reset"
-#~ msgstr "パン/チルト リセット"
-
-#~ msgid "PCM"
-#~ msgstr "PCM"
-
-#~ msgid "MP2"
-#~ msgstr "MP2"
-
-#~ msgid "Invert (Pan)"
-#~ msgstr "反転 (パン)"
-
-#~ msgid "Reset"
-#~ msgstr "リセット"
-
-#~ msgid "raw pixel order:"
-#~ msgstr "raw ピクセルの順序:"
-
-#~ msgid "AVI File:"
-#~ msgstr "AVI ファイル:"
-
-#~ msgid "UYVY - uncomp YUV"
-#~ msgstr "UYVY - 非圧縮 YUV"
-
-#~ msgid "Program Restart"
-#~ msgstr "プログラム再起動"
-
-#~ msgid "now"
-#~ msgstr "今"
-
-#~ msgid "Later"
-#~ msgstr "後で"
-
-#~ msgid ""
-#~ "Changes will only take effect after guvcview restart.\n"
-#~ "\n"
-#~ "\n"
-#~ "Restart now?\n"
-#~ msgstr ""
-#~ "guvcviewを再起動した後のみ、変更が反映されます。\n"
-#~ "\n"
-#~ "\n"
-#~ "今再起動しますか?\n"
+msgstr ""

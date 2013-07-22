@@ -7,16 +7,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: guvcview\n"
 "Report-Msgid-Bugs-To: pj.assis@gmail.com\n"
-"POT-Creation-Date: 2013-02-24 23:16+0000\n"
-"PO-Revision-Date: 2009-10-26 21:43+0000\n"
-"Last-Translator: Pablo Zubiaurre <pablozub89@gmail.com>\n"
+"POT-Creation-Date: 2013-07-16 12:53+0000\n"
+"PO-Revision-Date: 2013-02-25 05:37+0000\n"
+"Last-Translator: Pablo Zubiaurre <pablo.zubiaurre@gmail.com>\n"
 "Language-Team: Basque <eu@li.org>\n"
-"Language: eu\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-11-15 23:44+0000\n"
-"X-Generator: Launchpad (build Unknown)\n"
+"X-Launchpad-Export-Date: 2013-07-22 13:32+0000\n"
+"X-Generator: Launchpad (build 16696)\n"
+"Language: eu\n"
 
 #: ../data/guvcview.desktop.in.in.h:1
 msgid "guvcview"
@@ -311,9 +311,8 @@ msgid "Save Profile"
 msgstr ""
 
 #: ../src/callbacks.c:1914 ../src/menubar.c:65
-#, fuzzy
 msgid "Load Profile"
-msgstr "Kargatu fitxategia"
+msgstr ""
 
 #: ../src/create_video.c:1016 ../src/guvcview.c:700
 msgid "Cap. Video"
@@ -412,7 +411,6 @@ msgid "Please reconnect your camera."
 msgstr "Mesedez, kamera berriro konektatu"
 
 #: ../src/guvcview.c:430
-#, fuzzy
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -420,7 +418,7 @@ msgid ""
 msgstr ""
 "Gucview errorea:\n"
 "\n"
-"Ez da posible gailua zabaltzea"
+"Ezin izan da gailua ireki"
 
 #: ../src/guvcview.c:431
 msgid "Make sure the device driver supports v4l2."
@@ -464,15 +462,11 @@ msgid "Stop Auto (I)"
 msgstr ""
 
 #: ../src/guvcview.c:644
-#, fuzzy
 msgid ""
 "Guvcview error:\n"
 "\n"
 "Unable to create Video Thread"
 msgstr ""
-"Gucview errorea:\n"
-"\n"
-"Ezin izan dira bufferrak esleitu"
 
 #: ../src/guvcview.c:645
 msgid "Please report it to http://developer.berlios.de/bugs/?group_id=8179"
@@ -512,30 +506,25 @@ msgid "Hardware Defaults"
 msgstr ""
 
 #: ../src/menubar.c:75
-#, fuzzy
 msgid "Camera Button"
-msgstr "Irudi kontrolak"
+msgstr ""
 
 #: ../src/menubar.c:79
-#, fuzzy
 msgid "Capture Image"
-msgstr "Kaptura:"
+msgstr ""
 
 #: ../src/menubar.c:84
-#, fuzzy
 msgid "Capture Video"
-msgstr "Kaptura:"
+msgstr ""
 
 #. video menu
 #: ../src/menubar.c:144 ../src/video_tab.c:87
-#, fuzzy
 msgid "Video"
-msgstr "Bideoa gelditu"
+msgstr ""
 
 #: ../src/menubar.c:145 ../src/menubar.c:231
-#, fuzzy
 msgid "File"
-msgstr "Kargatu fitxategia"
+msgstr ""
 
 #: ../src/menubar.c:146 ../src/menubar.c:232
 msgid "Increment Filename"
@@ -600,8 +589,9 @@ msgstr ""
 
 #: ../src/options.c:761
 msgid ""
-"Pixel format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|"
-"y41p|grey|y10b|y16 |s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
+"Pixel "
+"format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|y41p|grey|"
+"y10b|y16 |s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
 msgstr ""
 
 #: ../src/options.c:762
@@ -633,9 +623,8 @@ msgid "Exits guvcview after closing video"
 msgstr ""
 
 #: ../src/options.c:769
-#, fuzzy
 msgid "Number of initial frames to skip"
-msgstr "Kapturatu beharreko argazki kopurua"
+msgstr ""
 
 #: ../src/options.c:770
 msgid "Show FPS value (enable(1) | disable (0))"
@@ -691,9 +680,8 @@ msgid "Blinking"
 msgstr ""
 
 #: ../src/v4l2_controls.c:762
-#, fuzzy
 msgid "Auto"
-msgstr "Modu automatikoa"
+msgstr ""
 
 #. turn it into a menu control
 #: ../src/v4l2_controls.c:813
@@ -713,19 +701,16 @@ msgid "Tilt (relative)"
 msgstr ""
 
 #: ../src/v4l2_dyna_ctrls.c:122
-#, fuzzy
 msgid "Pan Reset"
-msgstr "Berrezarri"
+msgstr ""
 
 #: ../src/v4l2_dyna_ctrls.c:135
-#, fuzzy
 msgid "Tilt Reset"
-msgstr "Berrezarri"
+msgstr ""
 
 #: ../src/v4l2_dyna_ctrls.c:148
-#, fuzzy
 msgid "Focus (absolute)"
-msgstr "Foku automatikoa"
+msgstr ""
 
 #: ../src/v4l2_dyna_ctrls.c:161
 msgid "LED1 Mode"
@@ -746,9 +731,8 @@ msgstr ""
 #. needed only for language files (not used)
 #. V4L2 control strings
 #: ../src/v4l2uvc.c:56
-#, fuzzy
 msgid "User Controls"
-msgstr "GUVCViewer kontrolak"
+msgstr ""
 
 #: ../src/v4l2uvc.c:57
 msgid "Brightness"
@@ -783,9 +767,8 @@ msgid "Power Line Frequency"
 msgstr ""
 
 #: ../src/v4l2uvc.c:65
-#, fuzzy
 msgid "Hue, Automatic"
-msgstr "Irabazia, Automatikoa"
+msgstr ""
 
 #: ../src/v4l2uvc.c:66
 msgid "Focus, Auto"
@@ -804,9 +787,8 @@ msgid "Shutter Priority Mode"
 msgstr "Obturadore lehentasun modua"
 
 #: ../src/v4l2uvc.c:70
-#, fuzzy
 msgid "Aperture Priority Mode"
-msgstr "Obturadore lehentasun modua"
+msgstr ""
 
 #: ../src/v4l2uvc.c:71
 msgid "Black Level"
@@ -849,14 +831,12 @@ msgid "Vertical Flip"
 msgstr "Irauli bertikalki"
 
 #: ../src/v4l2uvc.c:81
-#, fuzzy
 msgid "Horizontal Center"
-msgstr "Irauli horizontalki"
+msgstr ""
 
 #: ../src/v4l2uvc.c:82
-#, fuzzy
 msgid "Vertical Center"
-msgstr "Irauli bertikalki"
+msgstr ""
 
 #: ../src/v4l2uvc.c:83
 msgid "Chroma AGC"
@@ -872,14 +852,12 @@ msgstr ""
 
 #. CAMERA CLASS control strings
 #: ../src/v4l2uvc.c:88
-#, fuzzy
 msgid "Camera Controls"
-msgstr "Irudi kontrolak"
+msgstr ""
 
 #: ../src/v4l2uvc.c:89
-#, fuzzy
 msgid "Auto Exposure"
-msgstr "Esposizioa"
+msgstr ""
 
 #: ../src/v4l2uvc.c:90
 msgid "Exposure Time, Absolute"
@@ -898,33 +876,28 @@ msgid "Tilt, Relative"
 msgstr ""
 
 #: ../src/v4l2uvc.c:94
-#, fuzzy
 msgid "Pan, Reset"
-msgstr "Berrezarri"
+msgstr ""
 
 #: ../src/v4l2uvc.c:95
-#, fuzzy
 msgid "Tilt, Reset"
-msgstr "Berrezarri"
+msgstr ""
 
 #: ../src/v4l2uvc.c:96
 msgid "Pan, Absolute"
 msgstr ""
 
 #: ../src/v4l2uvc.c:98
-#, fuzzy
 msgid "Focus, Absolute"
-msgstr "Foku automatikoa"
+msgstr ""
 
 #: ../src/v4l2uvc.c:99
-#, fuzzy
 msgid "Focus, Relative"
-msgstr "Foku automatikoa"
+msgstr ""
 
 #: ../src/v4l2uvc.c:100
-#, fuzzy
 msgid "Focus, Automatic"
-msgstr "Foku automatikoa"
+msgstr ""
 
 #: ../src/v4l2uvc.c:101
 msgid "Zoom, Absolute"
@@ -944,9 +917,8 @@ msgstr ""
 
 #. UVC specific control strings
 #: ../src/v4l2uvc.c:107
-#, fuzzy
 msgid "Exposure, Auto"
-msgstr "Esposizioa"
+msgstr ""
 
 #: ../src/v4l2uvc.c:108
 msgid "Exposure, Auto Priority"
@@ -957,40 +929,33 @@ msgid "Exposure (Absolute)"
 msgstr ""
 
 #: ../src/v4l2uvc.c:110
-#, fuzzy
 msgid "White Balance Temperature, Auto"
-msgstr "Zuri-balantzea,automatikoa"
+msgstr ""
 
 #: ../src/v4l2uvc.c:111
-#, fuzzy
 msgid "White Balance Temperature"
-msgstr "Zuri-balantzea,automatikoa"
+msgstr ""
 
 #: ../src/v4l2uvc.c:112
-#, fuzzy
 msgid "White Balance Component, Auto"
-msgstr "Zuri-balantzea,automatikoa"
+msgstr ""
 
 #: ../src/v4l2uvc.c:113
-#, fuzzy
 msgid "White Balance Blue Component"
-msgstr "Zuri-balantzea,automatikoa"
+msgstr ""
 
 #: ../src/v4l2uvc.c:114
-#, fuzzy
 msgid "White Balance Red Component"
-msgstr "Zuri-balantzea,automatikoa"
+msgstr ""
 
 #. libwebcam specific control strings
 #: ../src/v4l2uvc.c:117
-#, fuzzy
 msgid "Focus"
-msgstr "Fokatu"
+msgstr ""
 
 #: ../src/v4l2uvc.c:118
-#, fuzzy
 msgid "Focus (Absolute)"
-msgstr "Foku automatikoa"
+msgstr ""
 
 #: ../src/vcodecs.c:63
 msgid "MJPG - compressed"
@@ -1109,16 +1074,3 @@ msgstr ""
 #: ../src/video_tab.c:378
 msgid " Particles"
 msgstr ""
-
-#~ msgid "Stop Video"
-#~ msgstr "Bideoa gelditu"
-
-#~ msgid "Control Profiles:"
-#~ msgstr "Kontrol-Profilak:"
-
-#, fuzzy
-#~ msgid "Pan/tilt Reset"
-#~ msgstr "Berrezarri"
-
-#~ msgid "Invert (Pan)"
-#~ msgstr "Alderantzikatu (Biraketa)"

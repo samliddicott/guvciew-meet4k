@@ -91,7 +91,7 @@ IT_PROG_INTLTOOL([0.40])
 dnl --------------------------------------------------------------------------
 dnl Languages supported by guvcview.
 dnl --------------------------------------------------------------------------
-ALL_LINGUAS="bs cs da de es eu fo fr gl he hr it ja nl pl pt pt_BR ru sr tr uk zh_TW"
+ALL_LINGUAS="bg bs cs da de en_AU es eu fo fr gl he hr it ja lv nl pl pt pt_BR ru si sr tr uk zh_TW"
 AM_GLIB_GNU_GETTEXT([external])
 
 dnl --------------------------------------------------------------------------

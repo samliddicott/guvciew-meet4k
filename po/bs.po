@@ -7,16 +7,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: guvcview\n"
 "Report-Msgid-Bugs-To: pj.assis@gmail.com\n"
-"POT-Creation-Date: 2013-02-24 23:16+0000\n"
+"POT-Creation-Date: 2013-07-16 12:53+0000\n"
 "PO-Revision-Date: 2011-06-27 19:11+0000\n"
 "Last-Translator: Stefan Ivanović <Unknown>\n"
 "Language-Team: Bosnian <bs@li.org>\n"
-"Language: bs\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2012-02-27 23:28+0000\n"
-"X-Generator: Launchpad (build 14868)\n"
+"X-Launchpad-Export-Date: 2013-07-22 13:32+0000\n"
+"X-Generator: Launchpad (build 16696)\n"
+"Language: bs\n"
 
 #: ../data/guvcview.desktop.in.in.h:1
 msgid "guvcview"
@@ -393,60 +393,44 @@ msgid ""
 msgstr ""
 
 #: ../src/guvcview.c:400 ../src/guvcview.c:422
-#, fuzzy
 msgid ""
 "Guvcview error:\n"
 "\n"
 "Unable to start with minimum setup"
 msgstr ""
-"GUVCVju greška:\n"
-"\n"
-"Nije moguće otvoriti uređaj"
 
 #: ../src/guvcview.c:401 ../src/guvcview.c:423
 msgid "Please reconnect your camera."
 msgstr ""
 
 #: ../src/guvcview.c:430
-#, fuzzy
 msgid ""
 "Guvcview error:\n"
 "\n"
 "Couldn't query device capabilities"
 msgstr ""
-"GUVCVju greška:\n"
-"\n"
-"Nije moguće otvoriti uređaj"
 
 #: ../src/guvcview.c:431
 msgid "Make sure the device driver supports v4l2."
 msgstr ""
 
 #: ../src/guvcview.c:435
-#, fuzzy
 msgid ""
 "Guvcview error:\n"
 "\n"
 "Read method error"
 msgstr ""
-"GUVCVju greška:\n"
-"\n"
-"Nije moguće otvoriti uređaj"
 
 #: ../src/guvcview.c:436
 msgid "Please try mmap instead (--capture_method=1)."
 msgstr ""
 
 #: ../src/guvcview.c:444
-#, fuzzy
 msgid ""
 "Guvcview error:\n"
 "\n"
 "Unable to allocate Buffers"
 msgstr ""
-"GUVCVju greška:\n"
-"\n"
-"Nije moguće otvoriti uređaj"
 
 #: ../src/guvcview.c:445
 msgid "Please try restarting your system."
@@ -462,15 +446,11 @@ msgid "Stop Auto (I)"
 msgstr ""
 
 #: ../src/guvcview.c:644
-#, fuzzy
 msgid ""
 "Guvcview error:\n"
 "\n"
 "Unable to create Video Thread"
 msgstr ""
-"GUVCVju greška:\n"
-"\n"
-"Nije moguće otvoriti uređaj"
 
 #: ../src/guvcview.c:645
 msgid "Please report it to http://developer.berlios.de/bugs/?group_id=8179"
@@ -510,9 +490,8 @@ msgid "Hardware Defaults"
 msgstr ""
 
 #: ../src/menubar.c:75
-#, fuzzy
 msgid "Camera Button"
-msgstr "GUVCVjuer Kontrole"
+msgstr ""
 
 #: ../src/menubar.c:79
 msgid "Capture Image"
@@ -594,8 +573,9 @@ msgstr ""
 
 #: ../src/options.c:761
 msgid ""
-"Pixel format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|"
-"y41p|grey|y10b|y16 |s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
+"Pixel "
+"format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|y41p|grey|"
+"y10b|y16 |s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
 msgstr ""
 
 #: ../src/options.c:762
@@ -735,9 +715,8 @@ msgstr ""
 #. needed only for language files (not used)
 #. V4L2 control strings
 #: ../src/v4l2uvc.c:56
-#, fuzzy
 msgid "User Controls"
-msgstr "GUVCVjuer Kontrole"
+msgstr ""
 
 #: ../src/v4l2uvc.c:57
 msgid "Brightness"
@@ -857,9 +836,8 @@ msgstr ""
 
 #. CAMERA CLASS control strings
 #: ../src/v4l2uvc.c:88
-#, fuzzy
 msgid "Camera Controls"
-msgstr "GUVCVjuer Kontrole"
+msgstr ""
 
 #: ../src/v4l2uvc.c:89
 msgid "Auto Exposure"

@@ -8,16 +8,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: guvcview\n"
 "Report-Msgid-Bugs-To: pj.assis@gmail.com\n"
-"POT-Creation-Date: 2013-02-24 23:16+0000\n"
-"PO-Revision-Date: 2010-12-14 02:26+0000\n"
+"POT-Creation-Date: 2013-07-16 12:53+0000\n"
+"PO-Revision-Date: 2013-02-25 05:34+0000\n"
 "Last-Translator: Dario <dario.villar.v@gmail.com>\n"
 "Language-Team: Galician <gl@li.org>\n"
-"Language: gl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-01-19 14:28+0000\n"
-"X-Generator: Launchpad (build 12214)\n"
+"X-Launchpad-Export-Date: 2013-07-22 13:32+0000\n"
+"X-Generator: Launchpad (build 16696)\n"
+"Language: gl\n"
 
 #: ../data/guvcview.desktop.in.in.h:1
 msgid "guvcview"
@@ -154,9 +154,8 @@ msgid "Save File"
 msgstr "Gardar o ficheiro"
 
 #: ../src/callbacks.c:283
-#, fuzzy
 msgid "File Format:"
-msgstr "Formato de vídeo:"
+msgstr ""
 
 #: ../src/callbacks.c:454
 msgid "codec values"
@@ -259,9 +258,8 @@ msgstr ""
 
 #. sample format
 #: ../src/callbacks.c:822
-#, fuzzy
 msgid "sample format:   "
-msgstr "Taxa de mostraxe:"
+msgstr ""
 
 #: ../src/callbacks.c:1250
 msgid "start new"
@@ -308,14 +306,12 @@ msgid "Stop Video (V)"
 msgstr "Deter vídeo (V)"
 
 #: ../src/callbacks.c:1901 ../src/menubar.c:66
-#, fuzzy
 msgid "Save Profile"
-msgstr "Gardar o ficheiro"
+msgstr ""
 
 #: ../src/callbacks.c:1914 ../src/menubar.c:65
-#, fuzzy
 msgid "Load Profile"
-msgstr "Cargar un ficheiro"
+msgstr ""
 
 #: ../src/create_video.c:1016 ../src/guvcview.c:700
 msgid "Cap. Video"
@@ -323,11 +319,11 @@ msgstr "Cap. Video"
 
 #: ../src/guvcview.c:279
 msgid "Guvcview Video Capture"
-msgstr "Capturador de vídeo Guvcview"
+msgstr "Capturador de vídeo GUVCView"
 
 #: ../src/guvcview.c:291
 msgid "GUVCViewer Controls"
-msgstr "Controles de Guvcviewer"
+msgstr "Controles de GUVCViewer"
 
 #. can't open device
 #: ../src/guvcview.c:336
@@ -336,16 +332,16 @@ msgid ""
 "\n"
 "Unable to open device"
 msgstr ""
-"Erro de Guvcview:\n"
+"Erro de GUVCView:\n"
 "\n"
-"Non foi posíbel conectar a camara"
+"Non foi posíbel conectar a cámara"
 
 #: ../src/guvcview.c:337
 msgid ""
 "Please make sure the camera is connected\n"
 "and that the correct driver is installed."
 msgstr ""
-"Asegúrese de que a súa camara está conectada\n"
+"Asegúrese de que a súa cámara está conectada\n"
 "e que o controlador está correctamente instalada."
 
 #. uvc extension controls OK, give warning and shutdown (called with --add_ctrls)
@@ -362,15 +358,11 @@ msgstr ""
 
 #. uvc extension controls error - EACCES (needs root user)
 #: ../src/guvcview.c:350
-#, fuzzy
 msgid ""
 "Guvcview error:\n"
 "\n"
 "UVC Extension controls"
 msgstr ""
-"Erro de Guvcview:\n"
-"\n"
-"Non foi posíbel asignarlle memoria aos búferes"
 
 #: ../src/guvcview.c:351
 msgid ""
@@ -393,19 +385,15 @@ msgid ""
 msgstr ""
 
 #: ../src/guvcview.c:400 ../src/guvcview.c:422
-#, fuzzy
 msgid ""
 "Guvcview error:\n"
 "\n"
 "Unable to start with minimum setup"
 msgstr ""
-"Erro de Guvcview:\n"
-"\n"
-"Non foi posíbel asignarlle memoria aos búferes"
 
 #: ../src/guvcview.c:401 ../src/guvcview.c:423
 msgid "Please reconnect your camera."
-msgstr "Conecte de novo a súa camara."
+msgstr "Conecte de novo a súa cámara."
 
 #: ../src/guvcview.c:430
 msgid ""
@@ -413,7 +401,7 @@ msgid ""
 "\n"
 "Couldn't query device capabilities"
 msgstr ""
-"Erro de Guvcview:\n"
+"Erro de GUVCView:\n"
 "\n"
 "Non se poideron consultar as capacidades do dispositivo"
 
@@ -427,7 +415,7 @@ msgid ""
 "\n"
 "Read method error"
 msgstr ""
-"Erro de Guvcview:\n"
+"Erro de GUVCView:\n"
 "\n"
 "Erro no método de lectura"
 
@@ -441,7 +429,7 @@ msgid ""
 "\n"
 "Unable to allocate Buffers"
 msgstr ""
-"Erro de Guvcview:\n"
+"Erro de GUVCView:\n"
 "\n"
 "Non foi posíbel asignarlle memoria aos búferes"
 
@@ -464,7 +452,7 @@ msgid ""
 "\n"
 "Unable to create Video Thread"
 msgstr ""
-"Erro en Guvcview:\n"
+"Erro en GUVCView:\n"
 "\n"
 "Non foi posíble crear un fío de execución de vídeo"
 
@@ -503,55 +491,45 @@ msgid "Settings"
 msgstr ""
 
 #: ../src/menubar.c:67
-#, fuzzy
 msgid "Hardware Defaults"
-msgstr "Valores predeterminados"
+msgstr ""
 
 #: ../src/menubar.c:75
-#, fuzzy
 msgid "Camera Button"
-msgstr "Saída da cámara:"
+msgstr ""
 
 #: ../src/menubar.c:79
-#, fuzzy
 msgid "Capture Image"
-msgstr "Cap. Imaxe"
+msgstr ""
 
 #: ../src/menubar.c:84
-#, fuzzy
 msgid "Capture Video"
-msgstr "Cap. Video"
+msgstr ""
 
 #. video menu
 #: ../src/menubar.c:144 ../src/video_tab.c:87
-#, fuzzy
 msgid "Video"
-msgstr "Deter vídeo"
+msgstr ""
 
 #: ../src/menubar.c:145 ../src/menubar.c:231
-#, fuzzy
 msgid "File"
-msgstr "Gardar o ficheiro"
+msgstr ""
 
 #: ../src/menubar.c:146 ../src/menubar.c:232
-#, fuzzy
 msgid "Increment Filename"
-msgstr "Nome da imaxe"
+msgstr ""
 
 #: ../src/menubar.c:164
-#, fuzzy
 msgid "Video Codec"
-msgstr "Códec de vídeo:"
+msgstr ""
 
 #: ../src/menubar.c:187
-#, fuzzy
 msgid "Video Codec Properties"
-msgstr "Códec de vídeo:"
+msgstr ""
 
 #: ../src/menubar.c:194
-#, fuzzy
 msgid "Audio Codec"
-msgstr "Códec de vídeo:"
+msgstr ""
 
 #: ../src/menubar.c:215
 msgid "Audio Codec Properties"
@@ -600,8 +578,9 @@ msgstr ""
 
 #: ../src/options.c:761
 msgid ""
-"Pixel format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|"
-"y41p|grey|y10b|y16 |s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
+"Pixel "
+"format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|y41p|grey|"
+"y10b|y16 |s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
 msgstr ""
 
 #: ../src/options.c:762
@@ -690,9 +669,8 @@ msgid "Blinking"
 msgstr ""
 
 #: ../src/v4l2_controls.c:762
-#, fuzzy
 msgid "Auto"
-msgstr "Modo Automático"
+msgstr ""
 
 #. turn it into a menu control
 #: ../src/v4l2_controls.c:813
@@ -704,29 +682,24 @@ msgid "12 bit"
 msgstr ""
 
 #: ../src/v4l2_dyna_ctrls.c:96
-#, fuzzy
 msgid "Pan (relative)"
-msgstr "Inclinación, relativo"
+msgstr ""
 
 #: ../src/v4l2_dyna_ctrls.c:109
-#, fuzzy
 msgid "Tilt (relative)"
-msgstr "Inclinación, relativo"
+msgstr ""
 
 #: ../src/v4l2_dyna_ctrls.c:122
-#, fuzzy
 msgid "Pan Reset"
-msgstr "Inclinación, Restabelecer"
+msgstr ""
 
 #: ../src/v4l2_dyna_ctrls.c:135
-#, fuzzy
 msgid "Tilt Reset"
-msgstr "Inclinación, Restabelecer"
+msgstr ""
 
 #: ../src/v4l2_dyna_ctrls.c:148
-#, fuzzy
 msgid "Focus (absolute)"
-msgstr "Foco(absoluto)"
+msgstr ""
 
 #: ../src/v4l2_dyna_ctrls.c:161
 msgid "LED1 Mode"
@@ -747,9 +720,8 @@ msgstr ""
 #. needed only for language files (not used)
 #. V4L2 control strings
 #: ../src/v4l2uvc.c:56
-#, fuzzy
 msgid "User Controls"
-msgstr "Controles de Guvcviewer"
+msgstr ""
 
 #: ../src/v4l2uvc.c:57
 msgid "Brightness"
@@ -812,14 +784,12 @@ msgid "Black Level"
 msgstr "Nivel de negro"
 
 #: ../src/v4l2uvc.c:72
-#, fuzzy
 msgid "White Balance, Automatic"
-msgstr "Ganancia, Automática"
+msgstr ""
 
 #: ../src/v4l2uvc.c:73
-#, fuzzy
 msgid "Do White Balance"
-msgstr "Balance vermello"
+msgstr ""
 
 #: ../src/v4l2uvc.c:74
 msgid "Red Balance"
@@ -850,14 +820,12 @@ msgid "Vertical Flip"
 msgstr "Xiro vertical"
 
 #: ../src/v4l2uvc.c:81
-#, fuzzy
 msgid "Horizontal Center"
-msgstr "Xiro horizontal"
+msgstr ""
 
 #: ../src/v4l2uvc.c:82
-#, fuzzy
 msgid "Vertical Center"
-msgstr "Xiro vertical"
+msgstr ""
 
 #: ../src/v4l2uvc.c:83
 msgid "Chroma AGC"
@@ -873,9 +841,8 @@ msgstr "Efectos de cor"
 
 #. CAMERA CLASS control strings
 #: ../src/v4l2uvc.c:88
-#, fuzzy
 msgid "Camera Controls"
-msgstr "Controles de Guvcviewer"
+msgstr ""
 
 #: ../src/v4l2uvc.c:89
 msgid "Auto Exposure"
@@ -890,27 +857,24 @@ msgid "Exposure, Dynamic Framerate"
 msgstr ""
 
 #: ../src/v4l2uvc.c:92
-#, fuzzy
 msgid "Pan, Relative"
-msgstr "Inclinación, relativo"
+msgstr ""
 
 #: ../src/v4l2uvc.c:93
 msgid "Tilt, Relative"
 msgstr "Inclinación, relativo"
 
 #: ../src/v4l2uvc.c:94
-#, fuzzy
 msgid "Pan, Reset"
-msgstr "Inclinación, Restabelecer"
+msgstr ""
 
 #: ../src/v4l2uvc.c:95
 msgid "Tilt, Reset"
 msgstr "Inclinación, Restabelecer"
 
 #: ../src/v4l2uvc.c:96
-#, fuzzy
 msgid "Pan, Absolute"
-msgstr "Foco, absoluto"
+msgstr ""
 
 #: ../src/v4l2uvc.c:98
 msgid "Focus, Absolute"
@@ -925,19 +889,16 @@ msgid "Focus, Automatic"
 msgstr "Foco, automático"
 
 #: ../src/v4l2uvc.c:101
-#, fuzzy
 msgid "Zoom, Absolute"
-msgstr "Foco, absoluto"
+msgstr ""
 
 #: ../src/v4l2uvc.c:102
-#, fuzzy
 msgid "Zoom, Relative"
-msgstr "Foco, relativo"
+msgstr ""
 
 #: ../src/v4l2uvc.c:103
-#, fuzzy
 msgid "Zoom, Continuous"
-msgstr "Foco automático(continuo)"
+msgstr ""
 
 #: ../src/v4l2uvc.c:104
 msgid "Privacy"
@@ -1102,28 +1063,3 @@ msgstr ""
 #: ../src/video_tab.c:378
 msgid " Particles"
 msgstr " Partículas"
-
-#~ msgid "Stop Video"
-#~ msgstr "Deter vídeo"
-
-#~ msgid "Capture:"
-#~ msgstr "Capturar:"
-
-#~ msgid "Image File:"
-#~ msgstr "Ficheiro de imaxe:"
-
-#~ msgid "Image Format:"
-#~ msgstr "Formato da imaxe:"
-
-#~ msgid "properties"
-#~ msgstr "propiedades"
-
-#~ msgid "Audio Format:"
-#~ msgstr "Formato do son:"
-
-#, fuzzy
-#~ msgid "Pan/tilt Reset"
-#~ msgstr "Inclinación, Restabelecer"
-
-#~ msgid "Make sure the device driver suports v4l2."
-#~ msgstr "Asegúrese de que o controlador do dispositivo soporta v4l2."

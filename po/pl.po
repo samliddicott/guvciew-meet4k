@@ -7,16 +7,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: guvcview\n"
 "Report-Msgid-Bugs-To: pj.assis@gmail.com\n"
-"POT-Creation-Date: 2013-02-24 23:16+0000\n"
-"PO-Revision-Date: 2011-01-04 16:40+0000\n"
+"POT-Creation-Date: 2013-07-16 12:53+0000\n"
+"PO-Revision-Date: 2013-02-25 05:33+0000\n"
 "Last-Translator: Adam Czabara <kolofaza@o2.pl>\n"
 "Language-Team: Polish <pl@li.org>\n"
-"Language: pl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-01-19 15:36+0000\n"
-"X-Generator: Launchpad (build 12214)\n"
+"X-Launchpad-Export-Date: 2013-07-22 13:32+0000\n"
+"X-Generator: Launchpad (build 16696)\n"
+"Language: pl\n"
 
 #: ../data/guvcview.desktop.in.in.h:1
 msgid "guvcview"
@@ -153,9 +153,8 @@ msgid "Save File"
 msgstr "Zapisz Plik"
 
 #: ../src/callbacks.c:283
-#, fuzzy
 msgid "File Format:"
-msgstr "Format wideo:"
+msgstr ""
 
 #: ../src/callbacks.c:454
 msgid "codec values"
@@ -260,9 +259,8 @@ msgstr "wartości kodeka audio"
 
 #. sample format
 #: ../src/callbacks.c:822
-#, fuzzy
 msgid "sample format:   "
-msgstr "Próbkowanie audio:"
+msgstr ""
 
 #: ../src/callbacks.c:1250
 msgid "start new"
@@ -309,14 +307,12 @@ msgid "Stop Video (V)"
 msgstr "Stop Video (V)"
 
 #: ../src/callbacks.c:1901 ../src/menubar.c:66
-#, fuzzy
 msgid "Save Profile"
-msgstr "Zapisz Plik"
+msgstr ""
 
 #: ../src/callbacks.c:1914 ../src/menubar.c:65
-#, fuzzy
 msgid "Load Profile"
-msgstr "Kontrola profili"
+msgstr ""
 
 #: ../src/create_video.c:1016 ../src/guvcview.c:700
 msgid "Cap. Video"
@@ -511,60 +507,49 @@ msgid "Settings"
 msgstr ""
 
 #: ../src/menubar.c:67
-#, fuzzy
 msgid "Hardware Defaults"
-msgstr "Domyślne"
+msgstr ""
 
 #: ../src/menubar.c:75
-#, fuzzy
 msgid "Camera Button"
-msgstr "Kontrola kamery"
+msgstr ""
 
 #: ../src/menubar.c:79
-#, fuzzy
 msgid "Capture Image"
-msgstr "Przechwycenie obrazu"
+msgstr ""
 
 #: ../src/menubar.c:84
-#, fuzzy
 msgid "Capture Video"
-msgstr "Przechwicenie Wideo"
+msgstr ""
 
 #. video menu
 #: ../src/menubar.c:144 ../src/video_tab.c:87
-#, fuzzy
 msgid "Video"
-msgstr "Stop Video"
+msgstr ""
 
 #: ../src/menubar.c:145 ../src/menubar.c:231
-#, fuzzy
 msgid "File"
-msgstr "Zapisz Plik"
+msgstr ""
 
 #: ../src/menubar.c:146 ../src/menubar.c:232
-#, fuzzy
 msgid "Increment Filename"
-msgstr "Plik obrazu:"
+msgstr ""
 
 #: ../src/menubar.c:164
-#, fuzzy
 msgid "Video Codec"
-msgstr "Kodek wideo:"
+msgstr ""
 
 #: ../src/menubar.c:187
-#, fuzzy
 msgid "Video Codec Properties"
-msgstr "Kodek wideo:"
+msgstr ""
 
 #: ../src/menubar.c:194
-#, fuzzy
 msgid "Audio Codec"
-msgstr "Kodek wideo:"
+msgstr ""
 
 #: ../src/menubar.c:215
-#, fuzzy
 msgid "Audio Codec Properties"
-msgstr "wartości kodeka audio"
+msgstr ""
 
 #. photo menu
 #: ../src/menubar.c:230
@@ -609,8 +594,9 @@ msgstr ""
 
 #: ../src/options.c:761
 msgid ""
-"Pixel format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|"
-"y41p|grey|y10b|y16 |s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
+"Pixel "
+"format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|y41p|grey|"
+"y10b|y16 |s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
 msgstr ""
 
 #: ../src/options.c:762
@@ -618,9 +604,8 @@ msgid "Frame size, default: 640x480"
 msgstr ""
 
 #: ../src/options.c:763
-#, fuzzy
 msgid "Image File name"
-msgstr "Plik obrazu:"
+msgstr ""
 
 #: ../src/options.c:764
 msgid "Image capture interval in seconds"
@@ -700,9 +685,8 @@ msgid "Blinking"
 msgstr ""
 
 #: ../src/v4l2_controls.c:762
-#, fuzzy
 msgid "Auto"
-msgstr "Stop Auto"
+msgstr ""
 
 #. turn it into a menu control
 #: ../src/v4l2_controls.c:813
@@ -714,38 +698,32 @@ msgid "12 bit"
 msgstr ""
 
 #: ../src/v4l2_dyna_ctrls.c:96
-#, fuzzy
 msgid "Pan (relative)"
-msgstr "Względne Pan"
+msgstr ""
 
 #: ../src/v4l2_dyna_ctrls.c:109
-#, fuzzy
 msgid "Tilt (relative)"
-msgstr "Przechylenie względne"
+msgstr ""
 
 #: ../src/v4l2_dyna_ctrls.c:122
-#, fuzzy
 msgid "Pan Reset"
-msgstr "Reset Pan"
+msgstr ""
 
 #: ../src/v4l2_dyna_ctrls.c:135
-#, fuzzy
 msgid "Tilt Reset"
-msgstr "Reset nachylenia"
+msgstr ""
 
 #: ../src/v4l2_dyna_ctrls.c:148
-#, fuzzy
 msgid "Focus (absolute)"
-msgstr "Ostrość (absolutna)"
+msgstr ""
 
 #: ../src/v4l2_dyna_ctrls.c:161
 msgid "LED1 Mode"
 msgstr ""
 
 #: ../src/v4l2_dyna_ctrls.c:174
-#, fuzzy
 msgid "LED1 Frequency"
-msgstr "Częstotliwość lini zasilania"
+msgstr ""
 
 #: ../src/v4l2_dyna_ctrls.c:187
 msgid "Disable video processing"
@@ -1037,14 +1015,12 @@ msgid "AVI - avi format"
 msgstr ""
 
 #: ../src/video_format.c:52
-#, fuzzy
 msgid "MKV - Matroska format"
-msgstr "MPG2 - MPG2 format"
+msgstr ""
 
 #: ../src/video_format.c:61
-#, fuzzy
 msgid "WEBM - format"
-msgstr "MPG2 - MPG2 format"
+msgstr ""
 
 #: ../src/video_tab.c:208
 msgid "Frame Rate:"
@@ -1103,37 +1079,3 @@ msgstr ""
 #: ../src/video_tab.c:378
 msgid " Particles"
 msgstr ""
-
-#~ msgid "Stop Video"
-#~ msgstr "Stop Video"
-
-#~ msgid "Capture:"
-#~ msgstr "Przechwytywanie:"
-
-#~ msgid "File num:%d"
-#~ msgstr "Plik nr:%d"
-
-#~ msgid "Video & Files"
-#~ msgstr "Wideo i pliki"
-
-#~ msgid "Image File:"
-#~ msgstr "Plik obrazu:"
-
-#~ msgid "File,Auto"
-#~ msgstr "Plik,Auto"
-
-#~ msgid "Image Format:"
-#~ msgstr "Format obrazu"
-
-#~ msgid "Video File:"
-#~ msgstr "Plik Wideo:"
-
-#~ msgid "properties"
-#~ msgstr "właściwości"
-
-#~ msgid "Audio Format:"
-#~ msgstr "Format audio:"
-
-#, fuzzy
-#~ msgid "Pan/tilt Reset"
-#~ msgstr "Reset Pan"

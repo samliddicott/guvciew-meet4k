@@ -7,49 +7,48 @@ msgid ""
 msgstr ""
 "Project-Id-Version: guvcview\n"
 "Report-Msgid-Bugs-To: pj.assis@gmail.com\n"
-"POT-Creation-Date: 2013-02-24 23:16+0000\n"
-"PO-Revision-Date: 2009-11-16 01:36+0000\n"
-"Last-Translator: exxxo45 <exxxo45@gmail.com>\n"
+"POT-Creation-Date: 2013-07-16 12:53+0000\n"
+"PO-Revision-Date: 2013-02-25 05:36+0000\n"
+"Last-Translator: Michal Sittek <exxxo45@gmail.com>\n"
 "Language-Team: Czech <cs@li.org>\n"
-"Language: cs\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-01-19 14:28+0000\n"
-"X-Generator: Launchpad (build 12214)\n"
+"X-Launchpad-Export-Date: 2013-07-22 13:32+0000\n"
+"X-Generator: Launchpad (build 16696)\n"
+"Language: cs\n"
 
 #: ../data/guvcview.desktop.in.in.h:1
 msgid "guvcview"
-msgstr ""
+msgstr "guvcview"
 
 #: ../data/guvcview.desktop.in.in.h:2
 msgid "GTK UVC video viewer"
-msgstr ""
+msgstr "Prohlížeč videa GTK UVC"
 
 #: ../data/guvcview.desktop.in.in.h:3
 msgid "A video viewer and capturer for the linux uvc driver"
-msgstr ""
+msgstr "Prohlížení a zachytávání videa z linuxových uvc ovladačů"
 
 #: ../src/acodecs.c:59
-#, fuzzy
 msgid "PCM - uncompressed (16 bit)"
-msgstr "MJPG - komprimovaný"
+msgstr "PCM - bez komprese (16 bitů)"
 
 #: ../src/acodecs.c:76
 msgid "MPEG2 - (lavc)"
-msgstr ""
+msgstr "MPEG2 - (lavc)"
 
 #: ../src/acodecs.c:93
 msgid "MP3 - (lavc)"
-msgstr ""
+msgstr "MP3 - (lavc)"
 
 #: ../src/acodecs.c:110
 msgid "Dolby AC3 - (lavc)"
-msgstr ""
+msgstr "Dolby AC3 - (lavc)"
 
 #: ../src/acodecs.c:127
 msgid "ACC Low - (faac)"
-msgstr ""
+msgstr "Nizké ACC - (faac)"
 
 #: ../src/acodecs.c:144
 msgid "Vorbis"
@@ -66,11 +65,11 @@ msgstr " Zvuk"
 #. VU meter on the image (OSD)
 #: ../src/audio_tab.c:109
 msgid " Show VU meter"
-msgstr ""
+msgstr " Zobrazit metr VU"
 
 #: ../src/audio_tab.c:121
 msgid "Audio API:"
-msgstr ""
+msgstr "API audia:"
 
 #: ../src/audio_tab.c:132
 msgid "PORTAUDIO"
@@ -90,7 +89,7 @@ msgstr "Výchozí zařízení"
 
 #: ../src/audio_tab.c:204
 msgid "Sample Rate:"
-msgstr ""
+msgstr "Vzorkovací frekvence:"
 
 #: ../src/audio_tab.c:215
 msgid "1 - mono"
@@ -116,7 +115,7 @@ msgstr " Zobrazit"
 #. FUZZ
 #: ../src/audio_tab.c:332
 msgid " Fuzz"
-msgstr ""
+msgstr " Fuzz"
 
 #. Reverb
 #: ../src/audio_tab.c:344
@@ -131,11 +130,11 @@ msgstr " WahWah"
 #. Ducky
 #: ../src/audio_tab.c:368
 msgid " Ducky"
-msgstr ""
+msgstr " Ducky"
 
 #: ../src/callbacks.c:108
 msgid "Error"
-msgstr ""
+msgstr "Chyba"
 
 #: ../src/callbacks.c:132
 msgid ""
@@ -143,6 +142,9 @@ msgid ""
 "You have more than one video device installed.\n"
 "Do you want to try another one ?\n"
 msgstr ""
+"\n"
+"Máte nainstalováno více než jedno zařízení pro video.\n"
+"Chcete zkusit další ?\n"
 
 #. Devices
 #: ../src/callbacks.c:139 ../src/video_tab.c:103
@@ -154,114 +156,114 @@ msgid "Save File"
 msgstr "Uložit soubor"
 
 #: ../src/callbacks.c:283
-#, fuzzy
 msgid "File Format:"
-msgstr "Formát videa:"
+msgstr ""
 
 #: ../src/callbacks.c:454
 msgid "codec values"
-msgstr ""
+msgstr "hodnoty kodeku"
 
 #: ../src/callbacks.c:465
 msgid ""
 "                              encoder fps:   \n"
 " (0 - use fps combobox value)"
 msgstr ""
+"                              fps enkodéru:   \n"
+" (0 - použít hodnotu fps z pole)"
 
 #: ../src/callbacks.c:478
 msgid " monotonic pts"
-msgstr ""
+msgstr " monotóních bodů"
 
 #. bit rate
 #: ../src/callbacks.c:485 ../src/callbacks.c:808
 msgid "bit rate:   "
-msgstr ""
+msgstr "přenosová rychlost:   "
 
 #: ../src/callbacks.c:498
 msgid "qmax:   "
-msgstr ""
+msgstr "qmax:   "
 
 #: ../src/callbacks.c:511
 msgid "qmin:   "
-msgstr ""
+msgstr "qmin:   "
 
 #: ../src/callbacks.c:524
 msgid "max. qdiff:   "
-msgstr ""
+msgstr "max. qdiff:   "
 
 #: ../src/callbacks.c:537
 msgid "dia size:   "
-msgstr ""
+msgstr "velikost dia:   "
 
 #: ../src/callbacks.c:550
 msgid "pre dia size:   "
-msgstr ""
+msgstr "velikost pre dia:   "
 
 #: ../src/callbacks.c:563
 msgid "pre me:   "
-msgstr ""
+msgstr "pre me:   "
 
 #: ../src/callbacks.c:576
 msgid "pre cmp:   "
-msgstr ""
+msgstr "pre cmp:   "
 
 #: ../src/callbacks.c:589
 msgid "cmp:   "
-msgstr ""
+msgstr "cmp:   "
 
 #: ../src/callbacks.c:602
 msgid "sub cmp:   "
-msgstr ""
+msgstr "pod cmp:   "
 
 #: ../src/callbacks.c:615
 msgid "last predictor count:   "
-msgstr ""
+msgstr "poslední počet prediktoru:   "
 
 #: ../src/callbacks.c:628
 msgid "gop size:   "
-msgstr ""
+msgstr "velikost gop:   "
 
 #: ../src/callbacks.c:641
 msgid "qcompress:   "
-msgstr ""
+msgstr "qkomprese:   "
 
 #: ../src/callbacks.c:654
 msgid "qblur:   "
-msgstr ""
+msgstr "qrozmazání:   "
 
 #: ../src/callbacks.c:667
 msgid "subq:   "
-msgstr ""
+msgstr "subq:   "
 
 #: ../src/callbacks.c:680
 msgid "framerefs:   "
-msgstr ""
+msgstr "framerefs:   "
 
 #: ../src/callbacks.c:693
 msgid "me method:   "
-msgstr ""
+msgstr "metoda me:   "
 
 #: ../src/callbacks.c:706
 msgid "mb decision:   "
-msgstr ""
+msgstr "rozhodnutí mb:   "
 
 #: ../src/callbacks.c:719
 msgid "max B frames:   "
-msgstr ""
+msgstr "max B rámečků:   "
 
 #: ../src/callbacks.c:732
 msgid "num threads:   "
-msgstr ""
+msgstr "počet vláken:   "
 
 #: ../src/callbacks.c:795
 msgid "audio codec values"
-msgstr ""
+msgstr "hodnoty audio kodeku"
 
 #. sample format
 #: ../src/callbacks.c:822
-#, fuzzy
 msgid "sample format:   "
-msgstr "Formát obrazu:"
+msgstr ""
 
 #: ../src/callbacks.c:1250
 msgid "start new"
@@ -288,9 +290,8 @@ msgstr ""
 "\n"
 
 #: ../src/callbacks.c:1716 ../src/guvcview.c:537
-#, fuzzy
 msgid "Cap. Image (I)"
-msgstr "Zazn. Obraz (I)"
+msgstr ""
 
 #. disable image controls
 #: ../src/callbacks.c:1727 ../src/guvcview.c:658 ../src/timers.c:101
@@ -298,9 +299,8 @@ msgid "capturing photo to"
 msgstr ""
 
 #: ../src/callbacks.c:1786 ../src/guvcview.c:547
-#, fuzzy
 msgid "Cap. Video (V)"
-msgstr "Zazn. Video (V)"
+msgstr ""
 
 #: ../src/callbacks.c:1812 ../src/guvcview.c:708
 msgid "capturing video to"
@@ -308,19 +308,16 @@ msgstr ""
 
 #. vid capture enabled from start
 #: ../src/callbacks.c:1845 ../src/guvcview.c:542
-#, fuzzy
 msgid "Stop Video (V)"
-msgstr "Zastavit Video (V)"
+msgstr ""
 
 #: ../src/callbacks.c:1901 ../src/menubar.c:66
-#, fuzzy
 msgid "Save Profile"
-msgstr "Uložit soubor"
+msgstr ""
 
 #: ../src/callbacks.c:1914 ../src/menubar.c:65
-#, fuzzy
 msgid "Load Profile"
-msgstr "Nahrát soubor"
+msgstr ""
 
 #: ../src/create_video.c:1016 ../src/guvcview.c:700
 msgid "Cap. Video"
@@ -328,7 +325,7 @@ msgstr "Zazn. Video"
 
 #: ../src/guvcview.c:279
 msgid "Guvcview Video Capture"
-msgstr ""
+msgstr "Zachycení videa Gucview"
 
 #: ../src/guvcview.c:291
 msgid "GUVCViewer Controls"
@@ -390,22 +387,21 @@ msgstr ""
 "Ujistěte se, že spouštíte guvcview jako root (či sudo)."
 
 #: ../src/guvcview.c:377 ../src/guvcview.c:455
-#, fuzzy
 msgid ""
 "Guvcview error:\n"
 "\n"
 "Can't set a valid video stream for guvcview"
 msgstr ""
-"ChybaGuvcview:\n"
+"Chyba Gucview:\n"
 "\n"
-"Nelze nastavit MJPG nebo YUV proud pro guvcview"
+"Nelze nastavit platný proud videa pro gucview"
 
 #: ../src/guvcview.c:378 ../src/guvcview.c:456
 msgid ""
 "Make sure your device driver is v4l2 compliant\n"
 "and that it is properly installed."
 msgstr ""
-"Ujistěte se, že ovladač vašeho přístroje je kompatibilní s v4|2\n"
+"Ujistěte se, že ovladač vašeho přístroje je kompatibilní s 4l2\n"
 "a že je správně nainstalován."
 
 #: ../src/guvcview.c:400 ../src/guvcview.c:422
@@ -423,15 +419,14 @@ msgid "Please reconnect your camera."
 msgstr "Prosím připojte znovu kameru."
 
 #: ../src/guvcview.c:430
-#, fuzzy
 msgid ""
 "Guvcview error:\n"
 "\n"
 "Couldn't query device capabilities"
 msgstr ""
-"ChybaGuvcview:\n"
+"Chyba guvcview:\n"
 "\n"
-"Nelze otevřít zařízení"
+"Nelze zjistit funkce zařízení"
 
 #: ../src/guvcview.c:431
 msgid "Make sure the device driver supports v4l2."
@@ -471,9 +466,8 @@ msgstr "Ovládání obrazů"
 
 #. image auto capture
 #: ../src/guvcview.c:533
-#, fuzzy
 msgid "Stop Auto (I)"
-msgstr "Zastavit automat (I)"
+msgstr ""
 
 #: ../src/guvcview.c:644
 msgid ""
@@ -487,7 +481,8 @@ msgstr ""
 
 #: ../src/guvcview.c:645
 msgid "Please report it to http://developer.berlios.de/bugs/?group_id=8179"
-msgstr "Prosím nahlašte to na http://developer.berlios.de/bugs/?group_id=8179"
+msgstr ""
+"Prosím nahlašte to na http://developer.berlios.de/bugs/?group_id=8179"
 
 #: ../src/img_controls.c:121
 msgid "Auto Focus (continuous)"
@@ -519,55 +514,45 @@ msgid "Settings"
 msgstr ""
 
 #: ../src/menubar.c:67
-#, fuzzy
 msgid "Hardware Defaults"
-msgstr "Výchozí zařízení"
+msgstr ""
 
 #: ../src/menubar.c:75
-#, fuzzy
 msgid "Camera Button"
-msgstr "Výstup kamery:"
+msgstr ""
 
 #: ../src/menubar.c:79
-#, fuzzy
 msgid "Capture Image"
-msgstr "Zazn. Obraz"
+msgstr ""
 
 #: ../src/menubar.c:84
-#, fuzzy
 msgid "Capture Video"
-msgstr "Zazn. Video"
+msgstr ""
 
 #. video menu
 #: ../src/menubar.c:144 ../src/video_tab.c:87
-#, fuzzy
 msgid "Video"
-msgstr "Zastavit Video"
+msgstr ""
 
 #: ../src/menubar.c:145 ../src/menubar.c:231
-#, fuzzy
 msgid "File"
-msgstr "Uložit soubor"
+msgstr ""
 
 #: ../src/menubar.c:146 ../src/menubar.c:232
-#, fuzzy
 msgid "Increment Filename"
-msgstr "Název souboru orazu"
+msgstr ""
 
 #: ../src/menubar.c:164
-#, fuzzy
 msgid "Video Codec"
-msgstr "Kodek videa:"
+msgstr ""
 
 #: ../src/menubar.c:187
-#, fuzzy
 msgid "Video Codec Properties"
-msgstr "Kodek videa:"
+msgstr ""
 
 #: ../src/menubar.c:194
-#, fuzzy
 msgid "Audio Codec"
-msgstr "Kodek videa:"
+msgstr ""
 
 #: ../src/menubar.c:215
 msgid "Audio Codec Properties"
@@ -592,19 +577,19 @@ msgstr "Video zařízení [výchozí /dev/video0]"
 
 #: ../src/options.c:755
 msgid "Exit after adding UVC extension controls (needs root/sudo)"
-msgstr ""
+msgstr "Ukončit po přidání kontroly rozšíření UVC (vyžaduje root/sudo)"
 
 #: ../src/options.c:756
 msgid "Don't stream video (image controls only)"
-msgstr ""
+msgstr "Neposílat video (pouze kontroly obrázku)"
 
 #: ../src/options.c:757
 msgid "Don't display a GUI"
-msgstr ""
+msgstr "Nezobrazovat rozhraní"
 
 #: ../src/options.c:758
 msgid "Capture method (1-mmap (default)  2-read)"
-msgstr ""
+msgstr "Metoda zachycení (1-mmap (výchozí) 2-read)"
 
 #: ../src/options.c:759
 msgid "Configuration file"
@@ -615,13 +600,14 @@ msgid "Hardware accelaration (enable(1) | disable(0))"
 msgstr "Hardwarová akcelerace (povolit(1) | zakázat(0))"
 
 #: ../src/options.c:761
-#, fuzzy
 msgid ""
-"Pixel format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|"
-"y41p|grey|y10b|y16 |s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
+"Pixel "
+"format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|y41p|grey|"
+"y10b|y16 |s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
 msgstr ""
-"Formát pixelu (mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|"
-"y41p|grey|y16 |s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
+"Formát "
+"pixelu(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|y41p|grey|"
+"y10b|y16 |s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
 
 #: ../src/options.c:762
 msgid "Frame size, default: 640x480"
@@ -649,7 +635,7 @@ msgstr "Čas Video záznamu (v sekundách)"
 
 #: ../src/options.c:768
 msgid "Exits guvcview after closing video"
-msgstr ""
+msgstr "Po skončení videa ukončit guvcview"
 
 #: ../src/options.c:769
 msgid "Number of initial frames to skip"
@@ -674,7 +660,7 @@ msgstr "Zazn. Obraz"
 
 #: ../src/timers.c:217
 msgid "Guvcview Warning:"
-msgstr ""
+msgstr "Varování Guvcview:"
 
 #: ../src/timers.c:217
 msgid "Not enough free space left on disk"
@@ -698,52 +684,46 @@ msgstr "Nahoru"
 
 #: ../src/v4l2_controls.c:762
 msgid "Off"
-msgstr ""
+msgstr "Vypnuto"
 
 #: ../src/v4l2_controls.c:762
 msgid "On"
-msgstr ""
+msgstr "Zapnuto"
 
 #: ../src/v4l2_controls.c:762
 msgid "Blinking"
-msgstr ""
+msgstr "Blikání"
 
 #: ../src/v4l2_controls.c:762
-#, fuzzy
 msgid "Auto"
-msgstr "Zastavit automat"
+msgstr "Automaticky"
 
 #. turn it into a menu control
 #: ../src/v4l2_controls.c:813
 msgid "8 bit"
-msgstr ""
+msgstr "8 bitů"
 
 #: ../src/v4l2_controls.c:813
 msgid "12 bit"
-msgstr ""
+msgstr "12 bitů"
 
 #: ../src/v4l2_dyna_ctrls.c:96
-#, fuzzy
 msgid "Pan (relative)"
 msgstr "Záběr (relativní)"
 
 #: ../src/v4l2_dyna_ctrls.c:109
-#, fuzzy
 msgid "Tilt (relative)"
 msgstr "Záběr (relativní)"
 
 #: ../src/v4l2_dyna_ctrls.c:122
-#, fuzzy
 msgid "Pan Reset"
 msgstr "Reset záběru"
 
 #: ../src/v4l2_dyna_ctrls.c:135
-#, fuzzy
 msgid "Tilt Reset"
 msgstr "Obnovit"
 
 #: ../src/v4l2_dyna_ctrls.c:148
-#, fuzzy
 msgid "Focus (absolute)"
 msgstr "Ostření (absolutní)"
 
@@ -822,9 +802,8 @@ msgid "Shutter Priority Mode"
 msgstr "Mód priority clony"
 
 #: ../src/v4l2uvc.c:70
-#, fuzzy
 msgid "Aperture Priority Mode"
-msgstr "Mód priority clony"
+msgstr "Režim priority clony"
 
 #: ../src/v4l2uvc.c:71
 msgid "Black Level"
@@ -832,7 +811,7 @@ msgstr "Úroveň černé"
 
 #: ../src/v4l2uvc.c:72
 msgid "White Balance, Automatic"
-msgstr "Vyvážení bílé"
+msgstr "Vyvážení bílé, automatické"
 
 #: ../src/v4l2uvc.c:73
 msgid "Do White Balance"
@@ -851,9 +830,8 @@ msgid "Exposure"
 msgstr "Expozice"
 
 #: ../src/v4l2uvc.c:77
-#, fuzzy
 msgid "Gain, Automatic"
-msgstr "Odstín, Automatický"
+msgstr "Přírůstek, Automatický"
 
 #: ../src/v4l2uvc.c:78
 msgid "Gain"
@@ -877,7 +855,7 @@ msgstr "Vertikální střed"
 
 #: ../src/v4l2uvc.c:83
 msgid "Chroma AGC"
-msgstr ""
+msgstr "AKP Sytosti"
 
 #: ../src/v4l2uvc.c:84
 msgid "Color Killer"
@@ -897,70 +875,60 @@ msgid "Auto Exposure"
 msgstr "Automatická korekce závěrky"
 
 #: ../src/v4l2uvc.c:90
-#, fuzzy
 msgid "Exposure Time, Absolute"
-msgstr "Expozice (Absolutní)"
+msgstr "Expoziční Doba, Absolutní"
 
 #: ../src/v4l2uvc.c:91
 msgid "Exposure, Dynamic Framerate"
-msgstr ""
+msgstr "Expozie, Dynamická rychlost snímků"
 
 #: ../src/v4l2uvc.c:92
-#, fuzzy
 msgid "Pan, Relative"
-msgstr "Záběr (relativní)"
+msgstr "Sledování objektu, Relativní"
 
 #: ../src/v4l2uvc.c:93
-#, fuzzy
 msgid "Tilt, Relative"
-msgstr "Záběr (relativní)"
+msgstr "Náklon, Relativní"
 
 #: ../src/v4l2uvc.c:94
-#, fuzzy
 msgid "Pan, Reset"
-msgstr "Reset záběru"
+msgstr "Sledování objektu, Reset"
 
 #: ../src/v4l2uvc.c:95
-#, fuzzy
 msgid "Tilt, Reset"
-msgstr "Obnovit"
+msgstr "Náklon, Reset"
 
 #: ../src/v4l2uvc.c:96
 msgid "Pan, Absolute"
-msgstr ""
+msgstr "Sledování objektu, Absolutní"
 
 #: ../src/v4l2uvc.c:98
-#, fuzzy
 msgid "Focus, Absolute"
-msgstr "Ostření (absolutní)"
+msgstr "Ohnisko, Absolutní"
 
 #: ../src/v4l2uvc.c:99
-#, fuzzy
 msgid "Focus, Relative"
-msgstr "Zaostření, Automaticky"
+msgstr "Ohnisko, Relativní"
 
 #: ../src/v4l2uvc.c:100
 msgid "Focus, Automatic"
 msgstr "Zaostření, Automaticky"
 
 #: ../src/v4l2uvc.c:101
-#, fuzzy
 msgid "Zoom, Absolute"
-msgstr "Expozice (Absolutní)"
+msgstr "Přiblížení, Absolutní"
 
 #: ../src/v4l2uvc.c:102
-#, fuzzy
 msgid "Zoom, Relative"
-msgstr " Negativ"
+msgstr "Přiblížení, Relativní"
 
 #: ../src/v4l2uvc.c:103
-#, fuzzy
 msgid "Zoom, Continuous"
-msgstr "Automatické ostření (pozvolné)"
+msgstr "Přiblížení, Nepřetržité"
 
 #: ../src/v4l2uvc.c:104
 msgid "Privacy"
-msgstr ""
+msgstr "Ochrana osobních údajů"
 
 #. UVC specific control strings
 #: ../src/v4l2uvc.c:107
@@ -988,14 +956,12 @@ msgid "White Balance Component, Auto"
 msgstr "Komponenta vyvážení bílé, Auto"
 
 #: ../src/v4l2uvc.c:113
-#, fuzzy
 msgid "White Balance Blue Component"
-msgstr "Komponenta vyvážení bílé, Auto"
+msgstr "Modrá složka vyvážení bílé"
 
 #: ../src/v4l2uvc.c:114
-#, fuzzy
 msgid "White Balance Red Component"
-msgstr "Komponenta vyvážení bílé, Auto"
+msgstr "Červená složka vyvážení bílé"
 
 #. libwebcam specific control strings
 #: ../src/v4l2uvc.c:117
@@ -1003,9 +969,8 @@ msgid "Focus"
 msgstr "Zaostření"
 
 #: ../src/v4l2uvc.c:118
-#, fuzzy
 msgid "Focus (Absolute)"
-msgstr "Ostření (absolutní)"
+msgstr "Ohnisko (Absolutní)"
 
 #: ../src/vcodecs.c:63
 msgid "MJPG - compressed"
@@ -1029,7 +994,7 @@ msgstr "FLV1 - flash video 1"
 
 #: ../src/vcodecs.c:243
 msgid "WMV1 - win. med. video 7"
-msgstr ""
+msgstr "WM1 - windows media video 7"
 
 #: ../src/vcodecs.c:279
 msgid "MPG2 - MPG2 format"
@@ -1037,15 +1002,15 @@ msgstr "MPG2 - formát MPG2"
 
 #: ../src/vcodecs.c:315
 msgid "MS MP4 V3"
-msgstr ""
+msgstr "MS MP4 V3"
 
 #: ../src/vcodecs.c:351
 msgid "MPEG4-ASP"
-msgstr ""
+msgstr "MPEG4-ASP"
 
 #: ../src/vcodecs.c:387
 msgid "MPEG4-AVC (H264)"
-msgstr ""
+msgstr "MPEG4-AVC (H264)"
 
 #: ../src/vcodecs.c:427
 msgid "VP8 (VP8)"
@@ -1056,19 +1021,16 @@ msgid "Theora (ogg theora)"
 msgstr ""
 
 #: ../src/video_format.c:43
-#, fuzzy
 msgid "AVI - avi format"
-msgstr "Formát AVI:"
+msgstr "AVI - formát avi"
 
 #: ../src/video_format.c:52
-#, fuzzy
 msgid "MKV - Matroska format"
-msgstr "MPG2 - formát MPG2"
+msgstr "MKV - formát Matroska"
 
 #: ../src/video_format.c:61
-#, fuzzy
 msgid "WEBM - format"
-msgstr "MPG2 - formát MPG2"
+msgstr ""
 
 #: ../src/video_tab.c:208
 msgid "Frame Rate:"
@@ -1121,115 +1083,9 @@ msgstr " Mono"
 #. Pieces
 #: ../src/video_tab.c:366
 msgid " Pieces"
-msgstr ""
+msgstr " Kousků"
 
 #. Particles
 #: ../src/video_tab.c:378
 msgid " Particles"
-msgstr ""
-
-#~ msgid "Stop Video"
-#~ msgstr "Zastavit Video"
-
-#~ msgid "Capture:"
-#~ msgstr "Zaznamenat:"
-
-#~ msgid "Control Profiles:"
-#~ msgstr "Ovládací profily:"
-
-#~ msgid "File num:%d"
-#~ msgstr "Číslo souboru:%d"
-
-#~ msgid "Video & Files"
-#~ msgstr "Video & Soubory"
-
-#~ msgid "Image File:"
-#~ msgstr "Soubor obrazu:"
-
-#~ msgid "File,Auto"
-#~ msgstr "Soubor, Auto"
-
-#~ msgid "Video File:"
-#~ msgstr "Video soubor:"
-
-#~ msgid "properties"
-#~ msgstr "vlastnosti"
-
-#~ msgid "Audio Format:"
-#~ msgstr "Formát zvuku:"
-
-#~ msgid "Pan/tilt Reset"
-#~ msgstr "Reset záběru"
-
-#~ msgid ""
-#~ "Make sure you have a UVC compliant camera\n"
-#~ "and that you have the linux UVC driver installed."
-#~ msgstr ""
-#~ "Ujistěte se, zda máte vhodnou UVC kameru,\n"
-#~ "a že máte nantstalovaný lnux UVC driver."
-
-#~ msgid ""
-#~ "Please make sure the camera is connected\n"
-#~ "and that the linux-UVC driver is installed."
-#~ msgstr ""
-#~ "Prosím usjistěte se, že kamera je připojena\n"
-#~ "a je nainstalován driver linux-UVC."
-
-#~ msgid "Stop AVI"
-#~ msgstr "Zastavit AVI"
-
-#~ msgid "Cap. AVI"
-#~ msgstr "Zazn. AVI"
-
-#~ msgid "AVI File:"
-#~ msgstr "Soubor AVI:"
-
-#~ msgid "UYVY - uncomp YUV"
-#~ msgstr "UYVY - uncomp YUV"
-
-#~ msgid "MP2"
-#~ msgstr "MP2"
-
-#~ msgid "PCM"
-#~ msgstr "PCM"
-
-#~ msgid "Hue, Auto"
-#~ msgstr "Odstín, Auto"
-
-#~ msgid "Exposure:"
-#~ msgstr "Expozice:"
-
-#~ msgid "Invert (Pan)"
-#~ msgstr "Invertovat (Pan)"
-
-#~ msgid "AVI capture time (in seconds)"
-#~ msgstr "Čas AVI záznamu (v sekundách)"
-
-#~ msgid "AVI File name (capture from start)"
-#~ msgstr "Jméno AVI souboru (záznam od začátku)"
-
-#~ msgid "Reset"
-#~ msgstr "Obnovit"
-
-#~ msgid ""
-#~ "Changes will only take effect after guvcview restart.\n"
-#~ "\n"
-#~ "\n"
-#~ "Restart now?\n"
-#~ msgstr ""
-#~ "Změsy se projeví až po restartu guvcview.\n"
-#~ "\n"
-#~ "\n"
-#~ "Restartovat nyní?\n"
-
-#~ msgid "Later"
-#~ msgstr "Později"
-
-#~ msgid "now"
-#~ msgstr "nyní"
-
-#~ msgid "Program Restart"
-#~ msgstr "Restart programu"
-
-#~ msgid "MPEG4 - MPEG4 format"
-#~ msgstr "MPEG4 - formát MPEG4"
+msgstr " Částí"

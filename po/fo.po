@@ -7,16 +7,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: guvcview\n"
 "Report-Msgid-Bugs-To: pj.assis@gmail.com\n"
-"POT-Creation-Date: 2013-02-24 23:16+0000\n"
+"POT-Creation-Date: 2013-07-16 12:53+0000\n"
 "PO-Revision-Date: 2010-08-05 18:25+0000\n"
 "Last-Translator: Gunleif Joensen <Unknown>\n"
 "Language-Team: Faroese <fo@li.org>\n"
-"Language: fo\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2012-02-27 23:28+0000\n"
-"X-Generator: Launchpad (build 14868)\n"
+"X-Launchpad-Export-Date: 2013-07-22 13:32+0000\n"
+"X-Generator: Launchpad (build 16696)\n"
+"Language: fo\n"
 
 #: ../data/guvcview.desktop.in.in.h:1
 msgid "guvcview"
@@ -355,15 +355,11 @@ msgstr ""
 
 #. uvc extension controls error - EACCES (needs root user)
 #: ../src/guvcview.c:350
-#, fuzzy
 msgid ""
 "Guvcview error:\n"
 "\n"
 "UVC Extension controls"
 msgstr ""
-"Guvcview villa:\n"
-"\n"
-"Kundi ikki lata tóleind upp"
 
 #: ../src/guvcview.c:351
 msgid ""
@@ -386,60 +382,44 @@ msgid ""
 msgstr ""
 
 #: ../src/guvcview.c:400 ../src/guvcview.c:422
-#, fuzzy
 msgid ""
 "Guvcview error:\n"
 "\n"
 "Unable to start with minimum setup"
 msgstr ""
-"Guvcview villa:\n"
-"\n"
-"Kundi ikki lata tóleind upp"
 
 #: ../src/guvcview.c:401 ../src/guvcview.c:423
 msgid "Please reconnect your camera."
 msgstr ""
 
 #: ../src/guvcview.c:430
-#, fuzzy
 msgid ""
 "Guvcview error:\n"
 "\n"
 "Couldn't query device capabilities"
 msgstr ""
-"Guvcview villa:\n"
-"\n"
-"Kundi ikki lata tóleind upp"
 
 #: ../src/guvcview.c:431
 msgid "Make sure the device driver supports v4l2."
 msgstr ""
 
 #: ../src/guvcview.c:435
-#, fuzzy
 msgid ""
 "Guvcview error:\n"
 "\n"
 "Read method error"
 msgstr ""
-"Guvcview villa:\n"
-"\n"
-"Kundi ikki lata tóleind upp"
 
 #: ../src/guvcview.c:436
 msgid "Please try mmap instead (--capture_method=1)."
 msgstr ""
 
 #: ../src/guvcview.c:444
-#, fuzzy
 msgid ""
 "Guvcview error:\n"
 "\n"
 "Unable to allocate Buffers"
 msgstr ""
-"Guvcview villa:\n"
-"\n"
-"Kundi ikki lata tóleind upp"
 
 #: ../src/guvcview.c:445
 msgid "Please try restarting your system."
@@ -455,15 +435,11 @@ msgid "Stop Auto (I)"
 msgstr ""
 
 #: ../src/guvcview.c:644
-#, fuzzy
 msgid ""
 "Guvcview error:\n"
 "\n"
 "Unable to create Video Thread"
 msgstr ""
-"Guvcview villa:\n"
-"\n"
-"Kundi ikki lata tóleind upp"
 
 #: ../src/guvcview.c:645
 msgid "Please report it to http://developer.berlios.de/bugs/?group_id=8179"
@@ -586,8 +562,9 @@ msgstr ""
 
 #: ../src/options.c:761
 msgid ""
-"Pixel format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|"
-"y41p|grey|y10b|y16 |s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
+"Pixel "
+"format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|y41p|grey|"
+"y10b|y16 |s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
 msgstr ""
 
 #: ../src/options.c:762

@@ -7,16 +7,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: guvcview\n"
 "Report-Msgid-Bugs-To: pj.assis@gmail.com\n"
-"POT-Creation-Date: 2013-02-24 23:16+0000\n"
-"PO-Revision-Date: 2010-12-03 18:33+0000\n"
-"Last-Translator: Dino Lovaković <Unknown>\n"
+"POT-Creation-Date: 2013-07-16 12:53+0000\n"
+"PO-Revision-Date: 2013-02-25 05:34+0000\n"
+"Last-Translator: Paulo Assis <pj.assis@gmail.com>\n"
 "Language-Team: Croatian <hr@li.org>\n"
-"Language: hr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-01-19 14:28+0000\n"
-"X-Generator: Launchpad (build 12214)\n"
+"X-Launchpad-Export-Date: 2013-07-22 13:32+0000\n"
+"X-Generator: Launchpad (build 16696)\n"
+"Language: hr\n"
 
 #: ../data/guvcview.desktop.in.in.h:1
 msgid "guvcview"
@@ -156,9 +156,8 @@ msgid "Save File"
 msgstr "Spremi Datoteku"
 
 #: ../src/callbacks.c:283
-#, fuzzy
 msgid "File Format:"
-msgstr "Video Format:"
+msgstr ""
 
 #: ../src/callbacks.c:454
 msgid "codec values"
@@ -261,9 +260,8 @@ msgstr "vrijednosti audio codeca"
 
 #. sample format
 #: ../src/callbacks.c:822
-#, fuzzy
 msgid "sample format:   "
-msgstr "Format Slike:"
+msgstr ""
 
 #: ../src/callbacks.c:1250
 msgid "start new"
@@ -312,14 +310,12 @@ msgid "Stop Video (V)"
 msgstr "Zaustavi Video (V)"
 
 #: ../src/callbacks.c:1901 ../src/menubar.c:66
-#, fuzzy
 msgid "Save Profile"
-msgstr "Spremi Datoteku"
+msgstr ""
 
 #: ../src/callbacks.c:1914 ../src/menubar.c:65
-#, fuzzy
 msgid "Load Profile"
-msgstr "Učitaj Datoteku"
+msgstr ""
 
 #: ../src/create_video.c:1016 ../src/guvcview.c:700
 msgid "Cap. Video"
@@ -435,30 +431,22 @@ msgid "Make sure the device driver supports v4l2."
 msgstr "Provjerite da vaš driver ima podršku za v4l2."
 
 #: ../src/guvcview.c:435
-#, fuzzy
 msgid ""
 "Guvcview error:\n"
 "\n"
 "Read method error"
 msgstr ""
-"Guvcview grješka:\n"
-"\n"
-"Nije moguče pokrenuti uređaj"
 
 #: ../src/guvcview.c:436
 msgid "Please try mmap instead (--capture_method=1)."
 msgstr ""
 
 #: ../src/guvcview.c:444
-#, fuzzy
 msgid ""
 "Guvcview error:\n"
 "\n"
 "Unable to allocate Buffers"
 msgstr ""
-"Guvcview grješka:\n"
-"\n"
-"Nije moguče pokrenuti uređaj"
 
 #: ../src/guvcview.c:445
 msgid "Please try restarting your system."
@@ -517,60 +505,49 @@ msgid "Settings"
 msgstr ""
 
 #: ../src/menubar.c:67
-#, fuzzy
 msgid "Hardware Defaults"
-msgstr "Zadano"
+msgstr ""
 
 #: ../src/menubar.c:75
-#, fuzzy
 msgid "Camera Button"
-msgstr "Kontrole Kamere"
+msgstr ""
 
 #: ../src/menubar.c:79
-#, fuzzy
 msgid "Capture Image"
-msgstr "Snimi Sliku"
+msgstr ""
 
 #: ../src/menubar.c:84
-#, fuzzy
 msgid "Capture Video"
-msgstr "Snimi Video"
+msgstr ""
 
 #. video menu
 #: ../src/menubar.c:144 ../src/video_tab.c:87
-#, fuzzy
 msgid "Video"
-msgstr "Zaustavi Video"
+msgstr ""
 
 #: ../src/menubar.c:145 ../src/menubar.c:231
-#, fuzzy
 msgid "File"
-msgstr "Spremi Datoteku"
+msgstr ""
 
 #: ../src/menubar.c:146 ../src/menubar.c:232
-#, fuzzy
 msgid "Increment Filename"
-msgstr "Ime Slikovne Datoteke"
+msgstr ""
 
 #: ../src/menubar.c:164
-#, fuzzy
 msgid "Video Codec"
-msgstr "Video Codec:"
+msgstr ""
 
 #: ../src/menubar.c:187
-#, fuzzy
 msgid "Video Codec Properties"
-msgstr "Video Codec:"
+msgstr ""
 
 #: ../src/menubar.c:194
-#, fuzzy
 msgid "Audio Codec"
-msgstr "Video Codec:"
+msgstr ""
 
 #: ../src/menubar.c:215
-#, fuzzy
 msgid "Audio Codec Properties"
-msgstr "vrijednosti audio codeca"
+msgstr ""
 
 #. photo menu
 #: ../src/menubar.c:230
@@ -615,8 +592,9 @@ msgstr "Hardversko ubrzanje (omoguči(1) | onemoguči(0))"
 
 #: ../src/options.c:761
 msgid ""
-"Pixel format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|"
-"y41p|grey|y10b|y16 |s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
+"Pixel "
+"format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|y41p|grey|"
+"y10b|y16 |s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
 msgstr ""
 
 #: ../src/options.c:762
@@ -705,9 +683,8 @@ msgid "Blinking"
 msgstr ""
 
 #: ../src/v4l2_controls.c:762
-#, fuzzy
 msgid "Auto"
-msgstr "Zaustavi Automatsko"
+msgstr ""
 
 #. turn it into a menu control
 #: ../src/v4l2_controls.c:813
@@ -719,28 +696,24 @@ msgid "12 bit"
 msgstr ""
 
 #: ../src/v4l2_dyna_ctrls.c:96
-#, fuzzy
 msgid "Pan (relative)"
-msgstr "Približavanje, Relativno"
+msgstr ""
 
 #: ../src/v4l2_dyna_ctrls.c:109
-#, fuzzy
 msgid "Tilt (relative)"
-msgstr "Približavanje, Relativno"
+msgstr ""
 
 #: ../src/v4l2_dyna_ctrls.c:122
 msgid "Pan Reset"
 msgstr ""
 
 #: ../src/v4l2_dyna_ctrls.c:135
-#, fuzzy
 msgid "Tilt Reset"
-msgstr "Približavanje, Relativno"
+msgstr ""
 
 #: ../src/v4l2_dyna_ctrls.c:148
-#, fuzzy
 msgid "Focus (absolute)"
-msgstr "Fokusiranje, Apsolutno"
+msgstr ""
 
 #: ../src/v4l2_dyna_ctrls.c:161
 msgid "LED1 Mode"
@@ -797,9 +770,8 @@ msgid "Power Line Frequency"
 msgstr ""
 
 #: ../src/v4l2uvc.c:65
-#, fuzzy
 msgid "Hue, Automatic"
-msgstr "Fokusiranje, Automatsko"
+msgstr ""
 
 #: ../src/v4l2uvc.c:66
 msgid "Focus, Auto"
@@ -846,9 +818,8 @@ msgid "Exposure"
 msgstr "Izloženost"
 
 #: ../src/v4l2uvc.c:77
-#, fuzzy
 msgid "Gain, Automatic"
-msgstr "Fokusiranje, Automatsko"
+msgstr ""
 
 #: ../src/v4l2uvc.c:78
 msgid "Gain"
@@ -900,14 +871,12 @@ msgid "Exposure, Dynamic Framerate"
 msgstr "Izloženost, Broj Slika"
 
 #: ../src/v4l2uvc.c:92
-#, fuzzy
 msgid "Pan, Relative"
-msgstr "Približavanje, Relativno"
+msgstr ""
 
 #: ../src/v4l2uvc.c:93
-#, fuzzy
 msgid "Tilt, Relative"
-msgstr "Približavanje, Relativno"
+msgstr ""
 
 #: ../src/v4l2uvc.c:94
 msgid "Pan, Reset"
@@ -918,9 +887,8 @@ msgid "Tilt, Reset"
 msgstr ""
 
 #: ../src/v4l2uvc.c:96
-#, fuzzy
 msgid "Pan, Absolute"
-msgstr "Približavanje, Apsolutno"
+msgstr ""
 
 #: ../src/v4l2uvc.c:98
 msgid "Focus, Absolute"
@@ -956,38 +924,32 @@ msgid "Exposure, Auto"
 msgstr "Izloženost, Automatsko"
 
 #: ../src/v4l2uvc.c:108
-#, fuzzy
 msgid "Exposure, Auto Priority"
-msgstr "Izloženost, Automatsko"
+msgstr ""
 
 #: ../src/v4l2uvc.c:109
 msgid "Exposure (Absolute)"
 msgstr "Izloženost (Apsolutna)"
 
 #: ../src/v4l2uvc.c:110
-#, fuzzy
 msgid "White Balance Temperature, Auto"
-msgstr "Ravnoteža Bijele, Automatski"
+msgstr ""
 
 #: ../src/v4l2uvc.c:111
-#, fuzzy
 msgid "White Balance Temperature"
-msgstr "Ravnoteža Bijele, Automatski"
+msgstr ""
 
 #: ../src/v4l2uvc.c:112
-#, fuzzy
 msgid "White Balance Component, Auto"
-msgstr "Ravnoteža Bijele, Automatski"
+msgstr ""
 
 #: ../src/v4l2uvc.c:113
-#, fuzzy
 msgid "White Balance Blue Component"
-msgstr "Ravnoteža Bijele, Automatski"
+msgstr ""
 
 #: ../src/v4l2uvc.c:114
-#, fuzzy
 msgid "White Balance Red Component"
-msgstr "Ravnoteža Bijele, Automatski"
+msgstr ""
 
 #. libwebcam specific control strings
 #: ../src/v4l2uvc.c:117
@@ -995,9 +957,8 @@ msgid "Focus"
 msgstr "Fokusiranje"
 
 #: ../src/v4l2uvc.c:118
-#, fuzzy
 msgid "Focus (Absolute)"
-msgstr "Fokusiranje, Apsolutno"
+msgstr ""
 
 #: ../src/vcodecs.c:63
 msgid "MJPG - compressed"
@@ -1052,14 +1013,12 @@ msgid "AVI - avi format"
 msgstr ""
 
 #: ../src/video_format.c:52
-#, fuzzy
 msgid "MKV - Matroska format"
-msgstr "MPG2 - MPG2 format"
+msgstr ""
 
 #: ../src/video_format.c:61
-#, fuzzy
 msgid "WEBM - format"
-msgstr "MPG2 - MPG2 format"
+msgstr ""
 
 #: ../src/video_tab.c:208
 msgid "Frame Rate:"
@@ -1118,33 +1077,3 @@ msgstr " Komadići"
 #: ../src/video_tab.c:378
 msgid " Particles"
 msgstr " Čestice"
-
-#~ msgid "Stop Video"
-#~ msgstr "Zaustavi Video"
-
-#~ msgid "Capture:"
-#~ msgstr "Snimi:"
-
-#~ msgid "Control Profiles:"
-#~ msgstr "Upravljački Profili:"
-
-#~ msgid "properties"
-#~ msgstr "svojstva"
-
-#~ msgid "Audio Format:"
-#~ msgstr "Audio Format:"
-
-#~ msgid ""
-#~ "An error ocurred while adding extension\n"
-#~ "controls to the UVC driver\n"
-#~ "Make sure you run guvcview as root (or sudo)."
-#~ msgstr ""
-#~ "Dogodila se grješka prilikom dodavanja kontrola\n"
-#~ "ekstenzije UVC driveru\n"
-#~ "Pokrenite guvcview kao root (ili sudo)."
-
-#~ msgid "Make sure the device driver suports v4l2."
-#~ msgstr "Provjerite da vaš driver ima podršku za v4l2."
-
-#~ msgid "Number of inital frames to skip"
-#~ msgstr "Broj preskočenih početnih slika"

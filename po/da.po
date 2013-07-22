@@ -7,16 +7,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: guvcview\n"
 "Report-Msgid-Bugs-To: pj.assis@gmail.com\n"
-"POT-Creation-Date: 2013-02-24 23:16+0000\n"
-"PO-Revision-Date: 2009-09-15 03:36+0000\n"
+"POT-Creation-Date: 2013-07-16 12:53+0000\n"
+"PO-Revision-Date: 2013-02-25 05:34+0000\n"
 "Last-Translator: Paulo Assis <pj.assis@gmail.com>\n"
 "Language-Team: Danish <da@li.org>\n"
-"Language: da\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-11-15 23:44+0000\n"
-"X-Generator: Launchpad (build Unknown)\n"
+"X-Launchpad-Export-Date: 2013-07-22 13:32+0000\n"
+"X-Generator: Launchpad (build 16696)\n"
+"Language: da\n"
 
 #: ../data/guvcview.desktop.in.in.h:1
 msgid "guvcview"
@@ -31,9 +31,8 @@ msgid "A video viewer and capturer for the linux uvc driver"
 msgstr ""
 
 #: ../src/acodecs.c:59
-#, fuzzy
 msgid "PCM - uncompressed (16 bit)"
-msgstr "MJPG - komprimeret"
+msgstr ""
 
 #: ../src/acodecs.c:76
 msgid "MPEG2 - (lavc)"
@@ -134,9 +133,8 @@ msgid " Ducky"
 msgstr ""
 
 #: ../src/callbacks.c:108
-#, fuzzy
 msgid "Error"
-msgstr " Spejl"
+msgstr ""
 
 #: ../src/callbacks.c:132
 msgid ""
@@ -155,9 +153,8 @@ msgid "Save File"
 msgstr "Gem fil"
 
 #: ../src/callbacks.c:283
-#, fuzzy
 msgid "File Format:"
-msgstr "Billed format:"
+msgstr ""
 
 #: ../src/callbacks.c:454
 msgid "codec values"
@@ -260,9 +257,8 @@ msgstr ""
 
 #. sample format
 #: ../src/callbacks.c:822
-#, fuzzy
 msgid "sample format:   "
-msgstr "Billed format:"
+msgstr ""
 
 #: ../src/callbacks.c:1250
 msgid "start new"
@@ -296,9 +292,8 @@ msgid "capturing photo to"
 msgstr ""
 
 #: ../src/callbacks.c:1786 ../src/guvcview.c:547
-#, fuzzy
 msgid "Cap. Video (V)"
-msgstr "Stop Video (V)"
+msgstr ""
 
 #: ../src/callbacks.c:1812 ../src/guvcview.c:708
 msgid "capturing video to"
@@ -306,19 +301,16 @@ msgstr ""
 
 #. vid capture enabled from start
 #: ../src/callbacks.c:1845 ../src/guvcview.c:542
-#, fuzzy
 msgid "Stop Video (V)"
-msgstr "Stop Video (V)"
+msgstr ""
 
 #: ../src/callbacks.c:1901 ../src/menubar.c:66
-#, fuzzy
 msgid "Save Profile"
-msgstr "Gem fil"
+msgstr ""
 
 #: ../src/callbacks.c:1914 ../src/menubar.c:65
-#, fuzzy
 msgid "Load Profile"
-msgstr "Indlæs fil"
+msgstr ""
 
 #: ../src/create_video.c:1016 ../src/guvcview.c:700
 msgid "Cap. Video"
@@ -363,15 +355,11 @@ msgstr ""
 
 #. uvc extension controls error - EACCES (needs root user)
 #: ../src/guvcview.c:350
-#, fuzzy
 msgid ""
 "Guvcview error:\n"
 "\n"
 "UVC Extension controls"
 msgstr ""
-"Guvcview fejl:\n"
-"\n"
-"Kunne ikke åbne udstyr"
 
 #: ../src/guvcview.c:351
 msgid ""
@@ -408,45 +396,33 @@ msgid "Please reconnect your camera."
 msgstr "Vær venlig at gentilslutte dit kamera."
 
 #: ../src/guvcview.c:430
-#, fuzzy
 msgid ""
 "Guvcview error:\n"
 "\n"
 "Couldn't query device capabilities"
 msgstr ""
-"Guvcview fejl:\n"
-"\n"
-"Kunne ikke åbne udstyr"
 
 #: ../src/guvcview.c:431
 msgid "Make sure the device driver supports v4l2."
 msgstr ""
 
 #: ../src/guvcview.c:435
-#, fuzzy
 msgid ""
 "Guvcview error:\n"
 "\n"
 "Read method error"
 msgstr ""
-"Guvcview fejl:\n"
-"\n"
-"Kunne ikke åbne udstyr"
 
 #: ../src/guvcview.c:436
 msgid "Please try mmap instead (--capture_method=1)."
 msgstr ""
 
 #: ../src/guvcview.c:444
-#, fuzzy
 msgid ""
 "Guvcview error:\n"
 "\n"
 "Unable to allocate Buffers"
 msgstr ""
-"Guvcview fejl:\n"
-"\n"
-"Kunne ikke åbne udstyr"
 
 #: ../src/guvcview.c:445
 msgid "Please try restarting your system."
@@ -458,9 +434,8 @@ msgstr "Billed kontroller"
 
 #. image auto capture
 #: ../src/guvcview.c:533
-#, fuzzy
 msgid "Stop Auto (I)"
-msgstr "Stop auto (I)"
+msgstr ""
 
 #: ../src/guvcview.c:644
 msgid ""
@@ -511,39 +486,33 @@ msgid "Hardware Defaults"
 msgstr ""
 
 #: ../src/menubar.c:75
-#, fuzzy
 msgid "Camera Button"
-msgstr "Kamera output:"
+msgstr ""
 
 #: ../src/menubar.c:79
 msgid "Capture Image"
 msgstr ""
 
 #: ../src/menubar.c:84
-#, fuzzy
 msgid "Capture Video"
-msgstr "Stop Video"
+msgstr ""
 
 #. video menu
 #: ../src/menubar.c:144 ../src/video_tab.c:87
-#, fuzzy
 msgid "Video"
-msgstr "Stop Video"
+msgstr ""
 
 #: ../src/menubar.c:145 ../src/menubar.c:231
-#, fuzzy
 msgid "File"
-msgstr "Gem fil"
+msgstr ""
 
 #: ../src/menubar.c:146 ../src/menubar.c:232
-#, fuzzy
 msgid "Increment Filename"
-msgstr "Billedfil navn"
+msgstr ""
 
 #: ../src/menubar.c:164
-#, fuzzy
 msgid "Video Codec"
-msgstr "Video filer:"
+msgstr ""
 
 #: ../src/menubar.c:187
 msgid "Video Codec Properties"
@@ -600,8 +569,9 @@ msgstr ""
 
 #: ../src/options.c:761
 msgid ""
-"Pixel format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|"
-"y41p|grey|y10b|y16 |s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
+"Pixel "
+"format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|y41p|grey|"
+"y10b|y16 |s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
 msgstr ""
 
 #: ../src/options.c:762
@@ -690,9 +660,8 @@ msgid "Blinking"
 msgstr ""
 
 #: ../src/v4l2_controls.c:762
-#, fuzzy
 msgid "Auto"
-msgstr "Stop auto"
+msgstr ""
 
 #. turn it into a menu control
 #: ../src/v4l2_controls.c:813
@@ -704,27 +673,22 @@ msgid "12 bit"
 msgstr ""
 
 #: ../src/v4l2_dyna_ctrls.c:96
-#, fuzzy
 msgid "Pan (relative)"
-msgstr " Negativ"
+msgstr ""
 
 #: ../src/v4l2_dyna_ctrls.c:109
-#, fuzzy
 msgid "Tilt (relative)"
-msgstr " Negativ"
+msgstr ""
 
 #: ../src/v4l2_dyna_ctrls.c:122
-#, fuzzy
 msgid "Pan Reset"
-msgstr "Nulstil"
+msgstr ""
 
 #: ../src/v4l2_dyna_ctrls.c:135
-#, fuzzy
 msgid "Tilt Reset"
-msgstr "Nulstil"
+msgstr ""
 
 #: ../src/v4l2_dyna_ctrls.c:148
-#, fuzzy
 msgid "Focus (absolute)"
 msgstr "Fokus (absolut)"
 
@@ -733,7 +697,6 @@ msgid "LED1 Mode"
 msgstr "LED1 tilstand"
 
 #: ../src/v4l2_dyna_ctrls.c:174
-#, fuzzy
 msgid "LED1 Frequency"
 msgstr "LED1 frekvens"
 
@@ -748,9 +711,8 @@ msgstr "Rå bits pr. pixel"
 #. needed only for language files (not used)
 #. V4L2 control strings
 #: ../src/v4l2uvc.c:56
-#, fuzzy
 msgid "User Controls"
-msgstr "GUVCViewer kontroller"
+msgstr ""
 
 #: ../src/v4l2uvc.c:57
 msgid "Brightness"
@@ -781,9 +743,8 @@ msgid "Backlight Compensation"
 msgstr "Baglys kompensation"
 
 #: ../src/v4l2uvc.c:64
-#, fuzzy
 msgid "Power Line Frequency"
-msgstr "LED1 frekvens"
+msgstr ""
 
 #: ../src/v4l2uvc.c:65
 msgid "Hue, Automatic"
@@ -814,14 +775,12 @@ msgid "Black Level"
 msgstr ""
 
 #: ../src/v4l2uvc.c:72
-#, fuzzy
 msgid "White Balance, Automatic"
-msgstr "Hvid balance komponent, auto"
+msgstr ""
 
 #: ../src/v4l2uvc.c:73
-#, fuzzy
 msgid "Do White Balance"
-msgstr "Hvid balance temperatur"
+msgstr ""
 
 #: ../src/v4l2uvc.c:74
 msgid "Red Balance"
@@ -832,9 +791,8 @@ msgid "Blue Balance"
 msgstr ""
 
 #: ../src/v4l2uvc.c:76
-#, fuzzy
 msgid "Exposure"
-msgstr "Eksponering:"
+msgstr ""
 
 #: ../src/v4l2uvc.c:77
 msgid "Gain, Automatic"
@@ -874,14 +832,12 @@ msgstr ""
 
 #. CAMERA CLASS control strings
 #: ../src/v4l2uvc.c:88
-#, fuzzy
 msgid "Camera Controls"
-msgstr "Billed kontroller"
+msgstr ""
 
 #: ../src/v4l2uvc.c:89
-#, fuzzy
 msgid "Auto Exposure"
-msgstr "Eksponering:"
+msgstr ""
 
 #: ../src/v4l2uvc.c:90
 msgid "Exposure Time, Absolute"
@@ -892,58 +848,48 @@ msgid "Exposure, Dynamic Framerate"
 msgstr ""
 
 #: ../src/v4l2uvc.c:92
-#, fuzzy
 msgid "Pan, Relative"
-msgstr " Negativ"
+msgstr ""
 
 #: ../src/v4l2uvc.c:93
-#, fuzzy
 msgid "Tilt, Relative"
-msgstr " Negativ"
+msgstr ""
 
 #: ../src/v4l2uvc.c:94
-#, fuzzy
 msgid "Pan, Reset"
-msgstr "Nulstil"
+msgstr ""
 
 #: ../src/v4l2uvc.c:95
-#, fuzzy
 msgid "Tilt, Reset"
-msgstr "Nulstil"
+msgstr ""
 
 #: ../src/v4l2uvc.c:96
 msgid "Pan, Absolute"
 msgstr ""
 
 #: ../src/v4l2uvc.c:98
-#, fuzzy
 msgid "Focus, Absolute"
-msgstr "Fokus (absolut)"
+msgstr ""
 
 #: ../src/v4l2uvc.c:99
-#, fuzzy
 msgid "Focus, Relative"
-msgstr "Fokus, auto"
+msgstr ""
 
 #: ../src/v4l2uvc.c:100
-#, fuzzy
 msgid "Focus, Automatic"
-msgstr "Fokus, auto"
+msgstr ""
 
 #: ../src/v4l2uvc.c:101
-#, fuzzy
 msgid "Zoom, Absolute"
-msgstr "Fokus (absolut)"
+msgstr ""
 
 #: ../src/v4l2uvc.c:102
-#, fuzzy
 msgid "Zoom, Relative"
-msgstr " Negativ"
+msgstr ""
 
 #: ../src/v4l2uvc.c:103
-#, fuzzy
 msgid "Zoom, Continuous"
-msgstr "Auto fokus (fortsat)"
+msgstr ""
 
 #: ../src/v4l2uvc.c:104
 msgid "Privacy"
@@ -951,18 +897,16 @@ msgstr ""
 
 #. UVC specific control strings
 #: ../src/v4l2uvc.c:107
-#, fuzzy
 msgid "Exposure, Auto"
-msgstr "Eksponering:"
+msgstr ""
 
 #: ../src/v4l2uvc.c:108
 msgid "Exposure, Auto Priority"
 msgstr ""
 
 #: ../src/v4l2uvc.c:109
-#, fuzzy
 msgid "Exposure (Absolute)"
-msgstr "Fokus (absolut)"
+msgstr ""
 
 #: ../src/v4l2uvc.c:110
 msgid "White Balance Temperature, Auto"
@@ -986,14 +930,12 @@ msgstr "Hvid balance rød komponent"
 
 #. libwebcam specific control strings
 #: ../src/v4l2uvc.c:117
-#, fuzzy
 msgid "Focus"
-msgstr "sæt fokus"
+msgstr ""
 
 #: ../src/v4l2uvc.c:118
-#, fuzzy
 msgid "Focus (Absolute)"
-msgstr "Fokus (absolut)"
+msgstr ""
 
 #: ../src/vcodecs.c:63
 msgid "MJPG - compressed"
@@ -1044,9 +986,8 @@ msgid "Theora (ogg theora)"
 msgstr ""
 
 #: ../src/video_format.c:43
-#, fuzzy
 msgid "AVI - avi format"
-msgstr "AVI format:"
+msgstr ""
 
 #: ../src/video_format.c:52
 msgid "MKV - Matroska format"
@@ -1113,60 +1054,3 @@ msgstr ""
 #: ../src/video_tab.c:378
 msgid " Particles"
 msgstr ""
-
-#~ msgid "Stop Video"
-#~ msgstr "Stop Video"
-
-#~ msgid "Control Profiles:"
-#~ msgstr "Kontrol profiler:"
-
-#~ msgid "File num:%d"
-#~ msgstr "Fil nummer:%d"
-
-#~ msgid "Video & Files"
-#~ msgstr "Video & filer"
-
-#~ msgid "Image File:"
-#~ msgstr "Billed fil:"
-
-#~ msgid "File,Auto"
-#~ msgstr "Fil, auto"
-
-#~ msgid "Audio Format:"
-#~ msgstr "Lyd format:"
-
-#, fuzzy
-#~ msgid "Pan/tilt Reset"
-#~ msgstr "Nulstil"
-
-#~ msgid "PCM"
-#~ msgstr "PCM"
-
-#~ msgid "MP2"
-#~ msgstr "MP2"
-
-#~ msgid "AVI File:"
-#~ msgstr "AVI fil:"
-
-#~ msgid "Later"
-#~ msgstr "Senere"
-
-#~ msgid "now"
-#~ msgstr "nu"
-
-#~ msgid "UYVY - uncomp YUV"
-#~ msgstr "UYVY - ukomprimeret YUV"
-
-#~ msgid ""
-#~ "Changes will only take effect after guvcview restart.\n"
-#~ "\n"
-#~ "\n"
-#~ "Restart now?\n"
-#~ msgstr ""
-#~ "Ændringer vil først have effekt efter genstart af  guvcview.\n"
-#~ "\n"
-#~ "\n"
-#~ "Genstart nu?\n"
-
-#~ msgid "Program Restart"
-#~ msgstr "Genstart program"

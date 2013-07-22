@@ -6,57 +6,57 @@ msgid ""
 msgstr ""
 "Project-Id-Version: guvcview\n"
 "Report-Msgid-Bugs-To: pj.assis@gmail.com\n"
-"POT-Creation-Date: 2013-02-24 23:16+0000\n"
-"PO-Revision-Date: 2012-02-24 06:49+0000\n"
-"Last-Translator: Auduf <5097@mail.ru>\n"
+"POT-Creation-Date: 2013-07-16 12:53+0000\n"
+"PO-Revision-Date: 2013-06-06 13:32+0000\n"
+"Last-Translator: Николай Авдеев (NickKolok, Nikolay Avdeev) "
+"<NickKolok@mail.ru>\n"
 "Language-Team: Russian <>\n"
-"Language: ru\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2012-02-27 23:28+0000\n"
-"X-Generator: Launchpad (build 14868)\n"
+"X-Launchpad-Export-Date: 2013-07-22 13:32+0000\n"
+"X-Generator: Launchpad (build 16696)\n"
+"Language: ru\n"
 
 #: ../data/guvcview.desktop.in.in.h:1
 msgid "guvcview"
-msgstr ""
+msgstr "guvcview"
 
 #: ../data/guvcview.desktop.in.in.h:2
 msgid "GTK UVC video viewer"
-msgstr ""
+msgstr "GTK UVC видео обозреватель"
 
 #: ../data/guvcview.desktop.in.in.h:3
 msgid "A video viewer and capturer for the linux uvc driver"
-msgstr ""
+msgstr "Программа просмотра и записи видео для драйвера Linux UVC"
 
 #: ../src/acodecs.c:59
-#, fuzzy
 msgid "PCM - uncompressed (16 bit)"
-msgstr "MJPG - сжатый"
+msgstr "PCM - без сжатия (16-разрядный)"
 
 #: ../src/acodecs.c:76
 msgid "MPEG2 - (lavc)"
-msgstr ""
+msgstr "MPEG2 - (lavc)"
 
 #: ../src/acodecs.c:93
 msgid "MP3 - (lavc)"
-msgstr ""
+msgstr "MP3 - (lavc)"
 
 #: ../src/acodecs.c:110
 msgid "Dolby AC3 - (lavc)"
-msgstr ""
+msgstr "Dolby AC3 - (lavc)"
 
 #: ../src/acodecs.c:127
 msgid "ACC Low - (faac)"
-msgstr ""
+msgstr "ACC Low - (faac)"
 
 #: ../src/acodecs.c:144
 msgid "Vorbis"
-msgstr ""
+msgstr "Vorbis"
 
 #: ../src/audio_tab.c:80
 msgid "Audio"
-msgstr "Аудио"
+msgstr "Звук"
 
 #: ../src/audio_tab.c:98
 msgid " Sound"
@@ -65,7 +65,7 @@ msgstr " Звук"
 #. VU meter on the image (OSD)
 #: ../src/audio_tab.c:109
 msgid " Show VU meter"
-msgstr ""
+msgstr " Отображать значение VU"
 
 #: ../src/audio_tab.c:121
 msgid "Audio API:"
@@ -156,9 +156,8 @@ msgid "Save File"
 msgstr "Сохранить файл"
 
 #: ../src/callbacks.c:283
-#, fuzzy
 msgid "File Format:"
-msgstr "Формат видео:"
+msgstr "Формат файла:"
 
 #: ../src/callbacks.c:454
 msgid "codec values"
@@ -259,13 +258,12 @@ msgstr ""
 
 #: ../src/callbacks.c:795
 msgid "audio codec values"
-msgstr ""
+msgstr "значения звукового кодека"
 
 #. sample format
 #: ../src/callbacks.c:822
-#, fuzzy
 msgid "sample format:   "
-msgstr "Частота дискретизации:"
+msgstr "Формат сэмпла   "
 
 #: ../src/callbacks.c:1250
 msgid "start new"
@@ -292,43 +290,38 @@ msgstr ""
 "\n"
 
 #: ../src/callbacks.c:1716 ../src/guvcview.c:537
-#, fuzzy
 msgid "Cap. Image (I)"
-msgstr "Сделать снимок"
+msgstr "Захв. Изображение (I)"
 
 #. disable image controls
 #: ../src/callbacks.c:1727 ../src/guvcview.c:658 ../src/timers.c:101
 msgid "capturing photo to"
-msgstr ""
+msgstr "захват фото в"
 
 #: ../src/callbacks.c:1786 ../src/guvcview.c:547
-#, fuzzy
 msgid "Cap. Video (V)"
-msgstr "Видео"
+msgstr "Захв. видео (V)"
 
 #: ../src/callbacks.c:1812 ../src/guvcview.c:708
 msgid "capturing video to"
-msgstr ""
+msgstr "захват видео в"
 
 #. vid capture enabled from start
 #: ../src/callbacks.c:1845 ../src/guvcview.c:542
-#, fuzzy
 msgid "Stop Video (V)"
-msgstr "Стоп"
+msgstr "Остановить видео (V)"
 
 #: ../src/callbacks.c:1901 ../src/menubar.c:66
-#, fuzzy
 msgid "Save Profile"
-msgstr "Сохранить файл"
+msgstr "Сохранить профиль"
 
 #: ../src/callbacks.c:1914 ../src/menubar.c:65
-#, fuzzy
 msgid "Load Profile"
-msgstr "Загрузка файла"
+msgstr "Загрузить профиль"
 
 #: ../src/create_video.c:1016 ../src/guvcview.c:700
 msgid "Cap. Video"
-msgstr "Видео"
+msgstr "Захв. видео"
 
 #: ../src/guvcview.c:279
 msgid "Guvcview Video Capture"
@@ -470,7 +463,7 @@ msgstr "Регулировка изображения"
 #. image auto capture
 #: ../src/guvcview.c:533
 msgid "Stop Auto (I)"
-msgstr ""
+msgstr "Прекратить автоматический захват (I)"
 
 #: ../src/guvcview.c:644
 msgid ""
@@ -485,8 +478,8 @@ msgstr ""
 #: ../src/guvcview.c:645
 msgid "Please report it to http://developer.berlios.de/bugs/?group_id=8179"
 msgstr ""
-"Следует сообщить об этом сюда: http://developer.berlios.de/bugs/?"
-"group_id=8179"
+"Следует сообщить об этом сюда: "
+"http://developer.berlios.de/bugs/?group_id=8179"
 
 #: ../src/img_controls.c:121
 msgid "Auto Focus (continuous)"
@@ -498,84 +491,74 @@ msgstr "Установка фокуса"
 
 #: ../src/image_format.c:35
 msgid "Jpeg (jpg)"
-msgstr ""
+msgstr "Jpeg (jpg)"
 
 #: ../src/image_format.c:41
 msgid "Bitmap (Bmp)"
-msgstr ""
+msgstr "Bitmap (Bmp)"
 
 #: ../src/image_format.c:47
 msgid "Portable Network Graphics (Png)"
-msgstr ""
+msgstr "Portable Network Graphics (Png)"
 
 #: ../src/image_format.c:53
 msgid "Raw Image (raw)"
-msgstr ""
+msgstr "Необработанное изображение Raw Image (raw)"
 
 #. controls menu
 #: ../src/menubar.c:64
 msgid "Settings"
-msgstr ""
+msgstr "Настройки"
 
 #: ../src/menubar.c:67
-#, fuzzy
 msgid "Hardware Defaults"
-msgstr "Заводские установки"
+msgstr "Настройки оборудования по умолчанию"
 
 #: ../src/menubar.c:75
-#, fuzzy
 msgid "Camera Button"
-msgstr "Вывод камеры:"
+msgstr "Кнопка камеры"
 
 #: ../src/menubar.c:79
-#, fuzzy
 msgid "Capture Image"
-msgstr "Сделать снимок"
+msgstr "Захватить изображение"
 
 #: ../src/menubar.c:84
-#, fuzzy
 msgid "Capture Video"
-msgstr "Видео"
+msgstr "Захватить видео"
 
 #. video menu
 #: ../src/menubar.c:144 ../src/video_tab.c:87
-#, fuzzy
 msgid "Video"
-msgstr "Стоп"
+msgstr "Видео"
 
 #: ../src/menubar.c:145 ../src/menubar.c:231
-#, fuzzy
 msgid "File"
-msgstr "Сохранить файл"
+msgstr "Файл"
 
 #: ../src/menubar.c:146 ../src/menubar.c:232
-#, fuzzy
 msgid "Increment Filename"
-msgstr "Имя файла изображения"
+msgstr "Увеличить имя файла"
 
 #: ../src/menubar.c:164
-#, fuzzy
 msgid "Video Codec"
-msgstr "Видео-кодек:"
+msgstr "Видеокодек"
 
 #: ../src/menubar.c:187
-#, fuzzy
 msgid "Video Codec Properties"
-msgstr "Видео-кодек:"
+msgstr "Свойства видеокодека"
 
 #: ../src/menubar.c:194
-#, fuzzy
 msgid "Audio Codec"
-msgstr "Видео-кодек:"
+msgstr "Звуковой кодек"
 
 #: ../src/menubar.c:215
 msgid "Audio Codec Properties"
-msgstr ""
+msgstr "Свойства звукового кодека"
 
 #. photo menu
 #: ../src/menubar.c:230
 msgid "Photo"
-msgstr ""
+msgstr "Фото"
 
 #: ../src/options.c:752
 msgid "Prints version"
@@ -592,10 +575,13 @@ msgstr "Используемое видео-устройство (по умол�
 #: ../src/options.c:755
 msgid "Exit after adding UVC extension controls (needs root/sudo)"
 msgstr ""
+"Выход после добавления расширенных элементов управления UVC (требует "
+"root/sudo)"
 
 #: ../src/options.c:756
 msgid "Don't stream video (image controls only)"
 msgstr ""
+"Не работать с потоковым видео (только элементы управления изображением)"
 
 #: ../src/options.c:757
 msgid "Don't display a GUI"
@@ -603,7 +589,7 @@ msgstr "Не отображать графический интерфейс"
 
 #: ../src/options.c:758
 msgid "Capture method (1-mmap (default)  2-read)"
-msgstr ""
+msgstr "Метод захвата (1 - mmap (по умолчанию) 2-читать)"
 
 #: ../src/options.c:759
 msgid "Configuration file"
@@ -614,13 +600,14 @@ msgid "Hardware accelaration (enable(1) | disable(0))"
 msgstr "Аппаратное ускорение (вкл.(1) | выкл.(0))"
 
 #: ../src/options.c:761
-#, fuzzy
 msgid ""
-"Pixel format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|"
-"y41p|grey|y10b|y16 |s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
+"Pixel "
+"format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|y41p|grey|"
+"y10b|y16 |s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
 msgstr ""
-"Формат пикселя(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|"
-"y41p|grey|y16 |s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
+"Формат "
+"пикселей(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|y41p|gre"
+"y|y10b|y16 |s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
 
 #: ../src/options.c:762
 msgid "Frame size, default: 640x480"
@@ -648,7 +635,7 @@ msgstr "Продолжительность видео-записи (сек)"
 
 #: ../src/options.c:768
 msgid "Exits guvcview after closing video"
-msgstr ""
+msgstr "Завершает работу guvcview после закрытия видео"
 
 #: ../src/options.c:769
 msgid "Number of initial frames to skip"
@@ -673,7 +660,7 @@ msgstr "Сделать снимок"
 
 #: ../src/timers.c:217
 msgid "Guvcview Warning:"
-msgstr ""
+msgstr "Guvcview  предупреждение:"
 
 #: ../src/timers.c:217
 msgid "Not enough free space left on disk"
@@ -721,22 +708,18 @@ msgid "12 bit"
 msgstr "12 бит"
 
 #: ../src/v4l2_dyna_ctrls.c:96
-#, fuzzy
 msgid "Pan (relative)"
 msgstr "Гор. поворот (относит.)"
 
 #: ../src/v4l2_dyna_ctrls.c:109
-#, fuzzy
 msgid "Tilt (relative)"
 msgstr "Верт. поворот (относит.)"
 
 #: ../src/v4l2_dyna_ctrls.c:122
-#, fuzzy
 msgid "Pan Reset"
 msgstr "Гор. возврат"
 
 #: ../src/v4l2_dyna_ctrls.c:135
-#, fuzzy
 msgid "Tilt Reset"
 msgstr "Верт. возврат"
 
@@ -831,9 +814,8 @@ msgid "White Balance, Automatic"
 msgstr "Баланс белого, Автоматически"
 
 #: ../src/v4l2uvc.c:73
-#, fuzzy
 msgid "Do White Balance"
-msgstr "Баланс красного"
+msgstr "Сбалансировать белый цвет"
 
 #: ../src/v4l2uvc.c:74
 msgid "Red Balance"
@@ -877,7 +859,7 @@ msgstr ""
 
 #: ../src/v4l2uvc.c:84
 msgid "Color Killer"
-msgstr ""
+msgstr "Обесцвечиватель"
 
 #: ../src/v4l2uvc.c:85
 msgid "Color Effects"
@@ -901,29 +883,24 @@ msgid "Exposure, Dynamic Framerate"
 msgstr "Выдержка, Динамичная частота кадров"
 
 #: ../src/v4l2uvc.c:92
-#, fuzzy
 msgid "Pan, Relative"
-msgstr "Гор. поворот (относит.)"
+msgstr ""
 
 #: ../src/v4l2uvc.c:93
-#, fuzzy
 msgid "Tilt, Relative"
-msgstr "Верт. поворот (относит.)"
+msgstr ""
 
 #: ../src/v4l2uvc.c:94
-#, fuzzy
 msgid "Pan, Reset"
-msgstr "Гор. возврат"
+msgstr ""
 
 #: ../src/v4l2uvc.c:95
-#, fuzzy
 msgid "Tilt, Reset"
-msgstr "Верт. возврат"
+msgstr ""
 
 #: ../src/v4l2uvc.c:96
-#, fuzzy
 msgid "Pan, Absolute"
-msgstr "Увеличение, Совершенное"
+msgstr ""
 
 #: ../src/v4l2uvc.c:98
 msgid "Focus, Absolute"
@@ -1037,7 +1014,7 @@ msgstr "MPEG4-AVC (H264)"
 
 #: ../src/vcodecs.c:427
 msgid "VP8 (VP8)"
-msgstr ""
+msgstr "VP8 (VP8)"
 
 #: ../src/vcodecs.c:463
 msgid "Theora (ogg theora)"
@@ -1045,17 +1022,15 @@ msgstr ""
 
 #: ../src/video_format.c:43
 msgid "AVI - avi format"
-msgstr ""
+msgstr "AVI - формат avi"
 
 #: ../src/video_format.c:52
-#, fuzzy
 msgid "MKV - Matroska format"
-msgstr "MPG2 - формат MPG2"
+msgstr "MKV - формат Matroska"
 
 #: ../src/video_format.c:61
-#, fuzzy
 msgid "WEBM - format"
-msgstr "MPG2 - формат MPG2"
+msgstr "Формат WEBM"
 
 #: ../src/video_tab.c:208
 msgid "Frame Rate:"
@@ -1114,39 +1089,3 @@ msgstr " Мозаика"
 #: ../src/video_tab.c:378
 msgid " Particles"
 msgstr ""
-
-#~ msgid "Stop Video"
-#~ msgstr "Стоп"
-
-#~ msgid "Capture:"
-#~ msgstr "Захват:"
-
-#~ msgid "Control Profiles:"
-#~ msgstr "Профиль регулировки:"
-
-#~ msgid "File num:%d"
-#~ msgstr "№ п/п:%d"
-
-#~ msgid "Video & Files"
-#~ msgstr "Видео и файлы"
-
-#~ msgid "Image File:"
-#~ msgstr "Файл снимка:"
-
-#~ msgid "File,Auto"
-#~ msgstr "автомат."
-
-#~ msgid "Image Format:"
-#~ msgstr "Формат снимка:"
-
-#~ msgid "Video File:"
-#~ msgstr "Файл видео:"
-
-#~ msgid "properties"
-#~ msgstr "Свойства"
-
-#~ msgid "Audio Format:"
-#~ msgstr "Формат аудио:"
-
-#~ msgid "Pan/tilt Reset"
-#~ msgstr "Гор./верт. возврат"
