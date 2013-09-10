@@ -151,7 +151,7 @@ static Control *add_control(int hdevice, struct v4l2_queryctrl *queryctrl, Contr
 
 	if (queryctrl->flags & V4L2_CTRL_FLAG_DISABLED)
 	{
-		printf("Control 0x%08x is disabled: remove it from control list\n", queryctrl->id, ret);
+		printf("Control 0x%08x is disabled: remove it from control list\n", queryctrl->id);
 		return NULL;
 	}
 
