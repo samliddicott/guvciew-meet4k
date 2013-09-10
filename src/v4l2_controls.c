@@ -144,7 +144,7 @@ static void print_control(Control *control, int i)
 	}
 }
 
-static Control *add_control(int hdevice, struct v4l2_queryctrl *queryctrl, Control *current, Control *first)
+static Control *add_control(int hdevice, struct v4l2_queryctrl *queryctrl, Control **current, Control **first)
 {
 	Control *control = NULL;
 	struct v4l2_querymenu *menu = NULL; //menu list
@@ -204,15 +204,15 @@ static Control *add_control(int hdevice, struct v4l2_queryctrl *queryctrl, Contr
 #endif
         control->string = NULL;
 
-    if(first != NULL)
+    if(*first != NULL)
     {
-        current->next = control;
-        current = control;
+        (*current)->next = control;
+        *current = control;
     }
     else
     {
-		first = control;
-        current = first;
+		*first = control;
+        *current = *first;
     }
 
     return control;
@@ -240,7 +240,7 @@ Control *get_control_list(int hdevice, int *num_ctrls, int list_method)
 	{
 		while ((ret=query_ioctl(hdevice, currentctrl, &queryctrl)) == 0)
 		{
-			if(add_control(hdevice, &queryctrl, current, first) != NULL)
+			if(add_control(hdevice, &queryctrl, &current, &first) != NULL)
                 n++;
 
             currentctrl = queryctrl.id;
@@ -267,7 +267,7 @@ Control *get_control_list(int hdevice, int *num_ctrls, int list_method)
 			queryctrl.id = currentctrl;
 			if (xioctl(hdevice, VIDIOC_QUERYCTRL, &queryctrl) == 0)
 			{
-				if(add_control(hdevice, &queryctrl, current, first) != NULL)
+				if(add_control(hdevice, &queryctrl, &current, &first) != NULL)
 					n++;
 			}
 		}
@@ -277,7 +277,7 @@ Control *get_control_list(int hdevice, int *num_ctrls, int list_method)
 			queryctrl.id = currentctrl;
 			if (xioctl(hdevice, VIDIOC_QUERYCTRL, &queryctrl) == 0)
 			{
-				if(add_control(hdevice, &queryctrl, current, first) != NULL)
+				if(add_control(hdevice, &queryctrl, &current, &first) != NULL)
 					n++;
 			}
 		}
@@ -285,7 +285,7 @@ Control *get_control_list(int hdevice, int *num_ctrls, int list_method)
 		for (queryctrl.id = V4L2_CID_PRIVATE_BASE;
 				xioctl(hdevice, VIDIOC_QUERYCTRL, &queryctrl) == 0; queryctrl.id++)
 		{
-			if(add_control(hdevice, &queryctrl, current, first) != NULL)
+			if(add_control(hdevice, &queryctrl, &current, &first) != NULL)
                 n++;
 		}
 	}
@@ -299,7 +299,7 @@ Control *get_control_list(int hdevice, int *num_ctrls, int list_method)
 			queryctrl.id = currentctrl;
 			if (xioctl(hdevice, VIDIOC_QUERYCTRL, &queryctrl) == 0)
 			{
-				if(add_control(hdevice, &queryctrl, current, first) != NULL)
+				if(add_control(hdevice, &queryctrl, &current, &first) != NULL)
 					n++;
 			}
 		}
@@ -309,7 +309,7 @@ Control *get_control_list(int hdevice, int *num_ctrls, int list_method)
 			queryctrl.id = currentctrl;
 			if (xioctl(hdevice, VIDIOC_QUERYCTRL, &queryctrl) == 0)
 			{
-				if(add_control(hdevice, &queryctrl, current, first) != NULL)
+				if(add_control(hdevice, &queryctrl, &current, &first) != NULL)
 					n++;
 			}
 		}
@@ -317,7 +317,7 @@ Control *get_control_list(int hdevice, int *num_ctrls, int list_method)
 		for (queryctrl.id = V4L2_CID_PRIVATE_BASE;
 				xioctl(hdevice, VIDIOC_QUERYCTRL, &queryctrl) == 0; queryctrl.id++)
 		{
-			if(add_control(hdevice, &queryctrl, current, first) != NULL)
+			if(add_control(hdevice, &queryctrl, &current, &first) != NULL)
                 n++;
 		}
 	}
