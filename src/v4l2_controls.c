@@ -80,7 +80,7 @@ gboolean is_special_case_control(int control_id)
     }
 }
 
-static void print_control(Control *control, int index)
+static void print_control(Control *control, int i)
 {
 	int j=0;
 
@@ -141,31 +141,32 @@ static void print_control(Control *control, int index)
 		default:
 			g_print("control[%d]:(unknown) 0x%x  %s\n",i ,control->control.id, control->control.name);
 			break;
+	}
 }
 
-static Control *add_control(int hdevice, struct v4l2_queryctrl &queryctrl, Control *current, Control *first)
+static Control *add_control(int hdevice, struct v4l2_queryctrl *queryctrl, Control *current, Control *first)
 {
 	Control *control = NULL;
 	struct v4l2_querymenu *menu = NULL; //menu list
 
-	if (queryctrl.flags & V4L2_CTRL_FLAG_DISABLED)
+	if (queryctrl->flags & V4L2_CTRL_FLAG_DISABLED)
 	{
-		printf("Control 0x%08x is disabled: remove it from control list\n", queryctrl.id, ret);
+		printf("Control 0x%08x is disabled: remove it from control list\n", queryctrl->id, ret);
 		return NULL;
 	}
 
 	//check menu items if needed
-    if(queryctrl.type == V4L2_CTRL_TYPE_MENU)
+    if(queryctrl->type == V4L2_CTRL_TYPE_MENU)
     {
         int i = 0;
         int ret = 0;
         struct v4l2_querymenu querymenu={0};
 
-        for (querymenu.index = queryctrl.minimum;
-            querymenu.index <= queryctrl.maximum;
+        for (querymenu.index = queryctrl->minimum;
+            querymenu.index <= queryctrl->maximum;
             querymenu.index++)
         {
-            querymenu.id = queryctrl.id;
+            querymenu.id = queryctrl->id;
             ret = xioctl (hdevice, VIDIOC_QUERYMENU, &querymenu);
             if (ret < 0)
                 continue;
@@ -185,13 +186,13 @@ static Control *add_control(int hdevice, struct v4l2_queryctrl &queryctrl, Contr
            	menu = g_renew(struct v4l2_querymenu, menu, i+1);
 
         menu[i].id = querymenu.id;
-        menu[i].index = queryctrl.maximum+1;
+        menu[i].index = queryctrl->maximum+1;
         menu[i].name[0] = 0;
     }
 
     // Add the control to the linked list
     control = calloc (1, sizeof(Control));
-    memcpy(&(control->control), &queryctrl, sizeof(struct v4l2_queryctrl));
+    memcpy(&(control->control), queryctrl, sizeof(struct v4l2_queryctrl));
     control->class = V4L2_CTRL_ID2CLASS(control->control.id);
     //add the menu adress (NULL if not a menu)
     control->menu = menu;
@@ -228,11 +229,9 @@ Control *get_control_list(int hdevice, int *num_ctrls, int list_method)
     int ret=0;
     Control *first   = NULL;
     Control *current = NULL;
-    Control *control = NULL;
 
     int n = 0;
     struct v4l2_queryctrl queryctrl={0};
-    struct v4l2_querymenu querymenu={0};
 
     int currentctrl = 0;
     queryctrl.id = V4L2_CTRL_FLAG_NEXT_CTRL;
@@ -249,7 +248,10 @@ Control *get_control_list(int hdevice, int *num_ctrls, int list_method)
 			queryctrl.id |= V4L2_CTRL_FLAG_NEXT_CTRL;
 		}
 		if (queryctrl.id != V4L2_CTRL_FLAG_NEXT_CTRL)
-			return; //done
+		{
+			*num_ctrls = n;
+			return first; //done
+		}
 
 		if(ret)
 		{
