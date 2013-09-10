@@ -95,7 +95,7 @@ static void print_control(Control *control, int i)
 
 		case V4L2_CTRL_TYPE_INTEGER64:
 			g_print("control[%d]:(int64) 0x%x '%s'\n",i ,control->control.id, control->control.name);
-			g_print ("\tcurr:%lld\n", control->value64);
+			g_print ("\tcurr:%" PRIu64 "\n", control->value64);
 			break;
 
 		case V4L2_CTRL_TYPE_STRING:
@@ -116,10 +116,10 @@ static void print_control(Control *control, int i)
 				control->control.minimum, control->control.maximum,
 				control->control.default_value, control->value);
 			for (j = 0; control->menu[j].index <= control->control.maximum; j++)
-				g_print("\tmenu[%d]: '%s', [%d] -> %lld (0x%llx)\n",j, control->menu[j].name,
+				g_print("\tmenu[%d]: '%s', [%d] -> %" PRId64 " (0x%" PRIx64 ")\n",j, control->menu[j].name,
 					control->menu[j].index,
-					control->menu[j].value,
-					control->menu[j].value);
+					(int64_t) control->menu[j].value,
+					(int64_t) control->menu[j].value);
 			break;
 
 		case V4L2_CTRL_TYPE_INTEGER_MENU:
