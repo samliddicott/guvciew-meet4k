@@ -87,59 +87,59 @@ static void print_control(Control *control, int i)
 	switch (control->control.type)
 	{
 		case V4L2_CTRL_TYPE_INTEGER:
-			g_print("control[%d]:(int) 0x%x",i ,control->control.id);
-			g_print ("  %s, min %d, max %d, step %d, def %d, curr %d\n", control->control.name,
+			g_print("control[%d]:(int) 0x%x '%s'\n",i ,control->control.id, control->control.name);
+			g_print ("\tmin:%d max:%d step:%d def:%d curr:%d\n",
 				control->control.minimum, control->control.maximum, control->control.step,
 				control->control.default_value, control->value);
 			break;
 
 		case V4L2_CTRL_TYPE_INTEGER64:
-			g_print("control[%d]:(int64) 0x%x",i ,control->control.id);
-			g_print ("  %s, current %lld\n", control->control.name, control->value64);
+			g_print("control[%d]:(int64) 0x%x '%s'\n",i ,control->control.id, control->control.name);
+			g_print ("\tcurr:%lld\n", control->value64);
 			break;
 
 		case V4L2_CTRL_TYPE_STRING:
-			g_print("control[%d]:(str) 0x%x",i ,control->control.id);
-			g_print ("  %s, min %d, max %d, step %d\n", control->control.name,
+			g_print("control[%d]:(str) 0x%x '%s'\n",i ,control->control.id, control->control.name);
+			g_print ("\tmin:%d max:%d step:%d\n",
 				control->control.minimum, control->control.maximum, control->control.step);
 			break;
 
 		case V4L2_CTRL_TYPE_BOOLEAN:
-			g_print("control[%d]:(bool) 0x%x",i ,control->control.id);
-			g_print ("  %s, def %d , curr %d\n", control->control.name,
+			g_print("control[%d]:(bool) 0x%x '%s'\n",i ,control->control.id, control->control.name);
+			g_print ("\tdef:%d curr:%d\n",
 				control->control.default_value, control->value);
 			break;
 
 		case V4L2_CTRL_TYPE_MENU:
-			g_print("control[%d]:(menu) 0x%x",i ,control->control.id);
-			g_print("  %s, min %d, max %d, def %d , curr %d\n", control->control.name,
+			g_print("control[%d]:(menu) 0x%x '%s'\n",i ,control->control.id, control->control.name);
+			g_print("\tmin:%d max:%d def:%d curr:%d\n",
 				control->control.minimum, control->control.maximum,
 				control->control.default_value, control->value);
 			for (j = 0; control->menu[j].index <= control->control.maximum; j++)
-				g_print("\t\tmenu[%d]: %s, [%d] -> %lld (0x%llx)\n",j, control->menu[j].name,
+				g_print("\tmenu[%d]: '%s', [%d] -> %lld (0x%llx)\n",j, control->menu[j].name,
 					control->menu[j].index,
 					control->menu[j].value,
 					control->menu[j].value);
 			break;
 
 		case V4L2_CTRL_TYPE_INTEGER_MENU:
-			g_print("control[%d]:(intmenu) 0x%x",i ,control->control.id);
-			g_print("  %s, min %d, max %d, def %d , curr %d\n", control->control.name,
+			g_print("control[%d]:(intmenu) 0x%x '%s'\n",i ,control->control.id, control->control.name);
+			g_print("\tmin:%d max:%d def:%d curr:%d\n",
 				control->control.minimum, control->control.maximum,
 				control->control.default_value, control->value);
 			break;
 
 		case V4L2_CTRL_TYPE_BUTTON:
-			g_print("control[%d]:(button) 0x%x  %s\n",i ,control->control.id, control->control.name);
+			g_print("control[%d]:(button) 0x%x '%s'\n",i ,control->control.id, control->control.name);
 			break;
 
 		case V4L2_CTRL_TYPE_BITMASK:
-			g_print("control[%d]:(bitmask) 0x%x",i ,control->control.id);
-			g_print("  %s, max %d, def %d , curr %d\n", control->control.name,
+			g_print("control[%d]:(bitmask) 0x%x '%s'\n",i ,control->control.id, control->control.name);
+			g_print("\tmax:%d def:%d curr:%d\n",
 				control->control.maximum, control->control.default_value, control->value);
 
 		default:
-			g_print("control[%d]:(unknown) 0x%x  %s\n",i ,control->control.id, control->control.name);
+			g_print("control[%d]:(unknown) 0x%x '%s'\n",i ,control->control.id, control->control.name);
 			break;
 	}
 }
