@@ -120,7 +120,7 @@ struct GLOBAL
 	int width;             //frame width
 	int height;            //frame height
 	int winwidth;          //control windoe width
-	int winheight;         //control window height   
+	int winheight;         //control window height
 	int spinbehave;        //spin: 0-non editable 1-editable
 	int format;            //v4l2 pixel format
 	int Frame_Flags;       //frame filter flags
@@ -129,6 +129,7 @@ struct GLOBAL
 	int w_ind;             //write frame index
 	int r_ind;             //read  frame index
 	int default_action;    // 0 for taking picture, 1 for video
+	int lctl_method;       // 0 for control id loop, 1 for next_ctrl flag method
 
 	float DispFps;         //fps value
 

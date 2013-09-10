@@ -30,6 +30,10 @@
 #include "v4l2_formats.h"
 #include "v4l2_controls.h"
 
+//control list method
+#define LIST_CTL_METHOD_LOOP 0
+#define LIST_CTL_METHOD_NEXT_FLAG 1
+
 #define NB_BUFFER 4
 
 #define VDIN_DYNCTRL_OK            3
@@ -56,10 +60,10 @@
 
 #define HEADERFRAME1 0xaf
 
-//set ioctl retries to 4 - linux uvc as increased timeout from 1000 to 3000 ms  
+//set ioctl retries to 4 - linux uvc as increased timeout from 1000 to 3000 ms
 #define IOCTL_RETRY 4
 
-enum  v4l2_uvc_exposure_auto_type 
+enum  v4l2_uvc_exposure_auto_type
 {
 	V4L2_UVC_EXPOSURE_MANUAL = 1,
 	V4L2_UVC_EXPOSURE_AUTO = 2,
@@ -71,11 +75,11 @@ static const int exp_vals[]=
 {
 	V4L2_UVC_EXPOSURE_MANUAL,
 	V4L2_UVC_EXPOSURE_AUTO,
-	V4L2_UVC_EXPOSURE_SHUTTER_PRIORITY, 
+	V4L2_UVC_EXPOSURE_SHUTTER_PRIORITY,
 	V4L2_UVC_EXPOSURE_APERTURE_PRIORITY
 };
 
-struct vdIn 
+struct vdIn
 {
 	__MUTEX_TYPE mutex;
 
@@ -157,7 +161,7 @@ void close_v4l2(struct vdIn *vd, gboolean control_only);
 /* restarts v4l2 device with new format
  * args:
  * vd: pointer to vdIn struct
- * global: poiter to GLOBAL struct 
+ * global: poiter to GLOBAL struct
  *
  * returns: error code ( 0 - VDIN_OK)
 */

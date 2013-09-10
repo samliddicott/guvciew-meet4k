@@ -41,11 +41,11 @@ typedef struct _Control
     struct _Control *next;
 } Control;
 
-struct VidState 
+struct VidState
 {
     GtkWidget * table;
     Control *control_list;
-    
+
     int num_controls;
     int width_req;
     int height_req;
@@ -57,14 +57,14 @@ struct VidState
  * These are the only ones that we can store/restore.
  * Also sets num_ctrls with the controls count.
  */
-Control *get_control_list(int hdevice, int *num_ctrls);
+Control *get_control_list(int hdevice, int *num_ctrls, int list_method);
 
 /*
  * creates the control associated widgets for all controls in the list
  */
- 
+
 void create_control_widgets(Control *control_list, void *all_data, int control_only, int verbose);
- 
+
 /*
  * Returns the Control structure corresponding to control id,
  * from the control list.
@@ -90,7 +90,7 @@ int get_ctrl(int hdevice, Control *control_list, int id, void *all_data);
 void disable_special_auto (int hdevice, Control *control_list, int id);
 
 /*
- * Goes through the control list and tries to set the controls values 
+ * Goes through the control list and tries to set the controls values
  */
 void set_ctrl_values (int hdevice, Control *control_list, int num_controls);
 

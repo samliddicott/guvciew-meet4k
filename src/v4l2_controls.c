@@ -39,22 +39,22 @@
 #include "v4l2_dyna_ctrls.h"
 #include "callbacks.h"
 
-/* 
+/*
  * don't use xioctl for control query when using V4L2_CTRL_FLAG_NEXT_CTRL
  */
 static int query_ioctl(int hdevice, int current_ctrl, struct v4l2_queryctrl *ctrl)
 {
     int ret = 0;
     int tries = 4;
-    do 
+    do
     {
-        if(ret) 
+        if(ret)
             ctrl->id = current_ctrl | V4L2_CTRL_FLAG_NEXT_CTRL;
         ret = v4l2_ioctl(hdevice, VIDIOC_QUERYCTRL, ctrl);
-    } 
+    }
     while (ret && tries-- &&
         ((errno == EIO || errno == EPIPE || errno == ETIMEDOUT)));
-        
+
     return(ret);
 }
 
@@ -82,33 +82,34 @@ gboolean is_special_case_control(int control_id)
  * These are the only ones that we can store/restore.
  * Also sets num_ctrls with the controls count.
  */
-Control *get_control_list(int hdevice, int *num_ctrls)
+Control *get_control_list(int hdevice, int *num_ctrls, int list_method)
 {
     int ret=0;
     Control *first   = NULL;
     Control *current = NULL;
     Control *control = NULL;
-    
+
     int n = 0;
     struct v4l2_queryctrl queryctrl={0};
     struct v4l2_querymenu querymenu={0};
 
     int currentctrl = 0;
     queryctrl.id = 0 | V4L2_CTRL_FLAG_NEXT_CTRL;
-    
-    if ((ret=query_ioctl (hdevice, currentctrl, &queryctrl)) == 0) 
+
+    if (list_method == LIST_CTL_METHOD_NEXT_FLAG &&
+		(ret=query_ioctl (hdevice, currentctrl, &queryctrl)) == 0)
     {
         // The driver supports the V4L2_CTRL_FLAG_NEXT_CTRL flag
         queryctrl.id = 0;
         currentctrl= queryctrl.id;
         queryctrl.id |= V4L2_CTRL_FLAG_NEXT_CTRL;
 
-        while((ret = query_ioctl(hdevice, currentctrl, &queryctrl)), ret ? errno != EINVAL : 1) 
+        while((ret = query_ioctl(hdevice, currentctrl, &queryctrl)), ret ? errno != EINVAL : 1)
         {
             struct v4l2_querymenu *menu = NULL;
-            
+
             // Prevent infinite loop for buggy V4L2_CTRL_FLAG_NEXT_CTRL implementations
-            if(ret && queryctrl.id <= currentctrl) 
+            if(ret && queryctrl.id <= currentctrl)
             {
                 printf("buggy V4L2_CTRL_FLAG_NEXT_CTRL flag implementation (workaround enabled)\n");
                 // increment the control id manually
@@ -118,13 +119,13 @@ Control *get_control_list(int hdevice, int *num_ctrls)
             }
             else if ((queryctrl.id == V4L2_CTRL_FLAG_NEXT_CTRL) || (!ret && queryctrl.id == currentctrl))
             {
-                printf("buggy V4L2_CTRL_FLAG_NEXT_CTRL flag implementation (failed enumeration for id=0x%08x)\n", 
+                printf("buggy V4L2_CTRL_FLAG_NEXT_CTRL flag implementation (failed enumeration for id=0x%08x)\n",
                     queryctrl.id);
                 // stop control enumeration
                 *num_ctrls = n;
                 return first;
             }
-            
+
             currentctrl = queryctrl.id;
             // skip if control failed
             if (ret)
@@ -132,14 +133,14 @@ Control *get_control_list(int hdevice, int *num_ctrls)
                 printf("Control 0x%08x failed to query\n", queryctrl.id);
                 goto next_control;
             }
-            
+
             // skip if control is disabled
             if (queryctrl.flags & V4L2_CTRL_FLAG_DISABLED)
             {
                 printf("Disabling control 0x%08x\n", queryctrl.id);
                 goto next_control;
             }
-            
+
             //check menu items if needed
             if(queryctrl.type == V4L2_CTRL_TYPE_MENU)
             {
@@ -147,18 +148,18 @@ Control *get_control_list(int hdevice, int *num_ctrls)
                 int ret = 0;
                 for (querymenu.index = queryctrl.minimum;
                     querymenu.index <= queryctrl.maximum;
-                    querymenu.index++) 
+                    querymenu.index++)
                 {
                     querymenu.id = queryctrl.id;
                     ret = xioctl (hdevice, VIDIOC_QUERYMENU, &querymenu);
                     if (ret < 0)
-                    	continue; 
-                    
+                    	continue;
+
                     if(!menu)
                     	menu = g_new0(struct v4l2_querymenu, i+1);
                    	else
-                   		menu = g_renew(struct v4l2_querymenu, menu, i+1);	
-                   		
+                   		menu = g_renew(struct v4l2_querymenu, menu, i+1);
+
                     memcpy(&(menu[i]), &querymenu, sizeof(struct v4l2_querymenu));
                     i++;
                 }
@@ -166,26 +167,26 @@ Control *get_control_list(int hdevice, int *num_ctrls)
                 	menu = g_new0(struct v4l2_querymenu, i+1);
                 else
                 	menu = g_renew(struct v4l2_querymenu, menu, i+1);
-                	
+
                	menu[i].id = querymenu.id;
                	menu[i].index = queryctrl.maximum+1;
                	menu[i].name[0] = 0;
             }
-            
+
             // Add the control to the linked list
             control = calloc (1, sizeof(Control));
             memcpy(&(control->control), &queryctrl, sizeof(struct v4l2_queryctrl));
             control->class = (control->control.id & 0xFFFF0000);
             //add the menu adress (NULL if not a menu)
             control->menu = menu;
-#ifndef DISABLE_STRING_CONTROLS            
+#ifndef DISABLE_STRING_CONTROLS
             //allocate a string with max size if needed
             if(control->control.type == V4L2_CTRL_TYPE_STRING)
                 control->string = calloc(control->control.maximum + 1, sizeof(char));
             else
 #endif
                 control->string = NULL;
-                
+
             if(first != NULL)
             {
                 current->next = control;
@@ -196,26 +197,30 @@ Control *get_control_list(int hdevice, int *num_ctrls)
                 first = control;
                 current = first;
             }
-            
+
             n++;
-    
+
 next_control:
             queryctrl.id |= V4L2_CTRL_FLAG_NEXT_CTRL;
         }
     }
     else
     {
-        printf("NEXT_CTRL flag not supported\n");
+        if(list_method != LIST_CTL_METHOD_LOOP)
+			printf("NEXT_CTRL flag not supported\n");
+
+		printf("using loop control list method\n");
         int currentctrl;
-        for(currentctrl = V4L2_CID_BASE; currentctrl < V4L2_CID_LASTP1; currentctrl++) 
+        //User-class controls
+        for(currentctrl = V4L2_CID_BASE; currentctrl < V4L2_CID_LASTP1; currentctrl++)
         {
             struct v4l2_querymenu *menu = NULL;
             queryctrl.id = currentctrl;
             ret = xioctl(hdevice, VIDIOC_QUERYCTRL, &queryctrl);
-    
+
             if (ret || (queryctrl.flags & V4L2_CTRL_FLAG_DISABLED) )
                 continue;
-                
+
             //check menu items if needed
             if(queryctrl.type == V4L2_CTRL_TYPE_MENU)
             {
@@ -223,18 +228,18 @@ next_control:
                 int ret = 0;
                 for (querymenu.index = queryctrl.minimum;
                     querymenu.index <= queryctrl.maximum;
-                    querymenu.index++) 
+                    querymenu.index++)
                 {
                     querymenu.id = queryctrl.id;
                     ret = xioctl (hdevice, VIDIOC_QUERYMENU, &querymenu);
                     if (ret < 0)
-                    	break; 
-                    
+                    	break;
+
                     if(!menu)
                     	menu = g_new0(struct v4l2_querymenu, i+1);
                    	else
-                   		menu = g_renew(struct v4l2_querymenu, menu, i+1);	
-                   		
+                   		menu = g_renew(struct v4l2_querymenu, menu, i+1);
+
                     memcpy(&(menu[i]), &querymenu, sizeof(struct v4l2_querymenu));
                     i++;
                 }
@@ -242,83 +247,21 @@ next_control:
                 	menu = g_new0(struct v4l2_querymenu, i+1);
                 else
                 	menu = g_renew(struct v4l2_querymenu, menu, i+1);
-                	
+
                	menu[i].id = querymenu.id;
                	menu[i].index = queryctrl.maximum+1;
                	menu[i].name[0] = 0;
-                
+
             }
-            
+
             // Add the control to the linked list
             control = calloc (1, sizeof(Control));
             memcpy(&(control->control), &queryctrl, sizeof(struct v4l2_queryctrl));
-            
-            control->class = 0x00980000;
+
+            control->class = V4L2_CTRL_CLASS_USER;
             //add the menu adress (NULL if not a menu)
             control->menu = menu;
-            
-            if(first != NULL)
-            {
-                current->next = control;
-                current = control;
-            }
-            else
-            {
-                first = control;
-                current = first;
-            }
-            
-            n++;
-        }
-        
-        for (queryctrl.id = V4L2_CID_PRIVATE_BASE;;queryctrl.id++) 
-        {
-            struct v4l2_querymenu *menu = NULL;
-            ret = xioctl(hdevice, VIDIOC_QUERYCTRL, &queryctrl);
-            if(ret)
-                break;
-            else if (queryctrl.flags & V4L2_CTRL_FLAG_DISABLED)
-                continue;
-                
-            //check menu items if needed
-            if(queryctrl.type == V4L2_CTRL_TYPE_MENU)
-            {
-                int i = 0;
-                int ret = 0;
-                for (querymenu.index = queryctrl.minimum;
-                    querymenu.index <= queryctrl.maximum;
-                    querymenu.index++) 
-                {
-                    querymenu.id = queryctrl.id;
-                    ret = xioctl (hdevice, VIDIOC_QUERYMENU, &querymenu);
-                    if (ret < 0)
-                    	break; 
-                    
-                    if(!menu)
-                    	menu = g_new0(struct v4l2_querymenu, i+1);
-                   	else
-                   		menu = g_renew(struct v4l2_querymenu, menu, i+1);	
-                   		
-                    memcpy(&(menu[i]), &querymenu, sizeof(struct v4l2_querymenu));
-                    i++;
-                }
-                if(!menu)
-                	menu = g_new0(struct v4l2_querymenu, i+1);
-                else
-                	menu = g_renew(struct v4l2_querymenu, menu, i+1);
-                	
-               	menu[i].id = querymenu.id;
-               	menu[i].index = queryctrl.maximum+1;
-               	menu[i].name[0] = 0;
-            }
-            
-            // Add the control to the linked list
-            control = calloc (1, sizeof(Control));
-            memcpy(&(control->control), &queryctrl, sizeof(struct v4l2_queryctrl));
-            control->class = 0x00980000;
-            //add the menu adress (NULL if not a menu)
-            control->menu = menu;
-            
+
             if(first != NULL)
             {
                 current->next = control;
@@ -332,8 +275,74 @@ next_control:
 
             n++;
         }
+
+		//Camera class controls
+		for(currentctrl = V4L2_CID_CAMERA_CLASS_BASE; currentctrl < V4L2_CID_CAMERA_CLASS_BASE+31; currentctrl++)
+        {
+            struct v4l2_querymenu *menu = NULL;
+            queryctrl.id = currentctrl;
+            ret = xioctl(hdevice, VIDIOC_QUERYCTRL, &queryctrl);
+
+            if (ret || (queryctrl.flags & V4L2_CTRL_FLAG_DISABLED) )
+                continue;
+
+            //check menu items if needed
+            if(queryctrl.type == V4L2_CTRL_TYPE_MENU)
+            {
+                int i = 0;
+                int ret = 0;
+                for (querymenu.index = queryctrl.minimum;
+                    querymenu.index <= queryctrl.maximum;
+                    querymenu.index++)
+                {
+                    querymenu.id = queryctrl.id;
+                    ret = xioctl (hdevice, VIDIOC_QUERYMENU, &querymenu);
+                    if (ret < 0)
+                    	break;
+
+                    if(!menu)
+                    	menu = g_new0(struct v4l2_querymenu, i+1);
+                   	else
+                   		menu = g_renew(struct v4l2_querymenu, menu, i+1);
+
+                    memcpy(&(menu[i]), &querymenu, sizeof(struct v4l2_querymenu));
+                    i++;
+                }
+                if(!menu)
+                	menu = g_new0(struct v4l2_querymenu, i+1);
+                else
+                	menu = g_renew(struct v4l2_querymenu, menu, i+1);
+
+               	menu[i].id = querymenu.id;
+               	menu[i].index = queryctrl.maximum+1;
+               	menu[i].name[0] = 0;
+
+            }
+
+            // Add the control to the linked list
+            control = calloc (1, sizeof(Control));
+            memcpy(&(control->control), &queryctrl, sizeof(struct v4l2_queryctrl));
+
+            control->class =  V4L2_CTRL_CLASS_CAMERA;
+            //add the menu adress (NULL if not a menu)
+            control->menu = menu;
+
+            if(first != NULL)
+            {
+                current->next = control;
+                current = control;
+            }
+            else
+            {
+                first = control;
+                current = first;
+            }
+
+            n++;
+        }
+
     }
-    
+
     *num_ctrls = n;
     return first;
 }
@@ -342,85 +351,85 @@ next_control:
  * called when setting controls
  */
 static void update_ctrl_flags(Control *control_list, int id)
-{ 
-    switch (id) 
+{
+    switch (id)
     {
         case V4L2_CID_EXPOSURE_AUTO:
             {
                 Control *ctrl_this = get_ctrl_by_id(control_list, id );
                 if(ctrl_this == NULL)
                     break;
-                
-                switch (ctrl_this->value) 
+
+                switch (ctrl_this->value)
                 {
                     case V4L2_EXPOSURE_AUTO:
                         {
                             //printf("auto\n");
-                            Control *ctrl_that = get_ctrl_by_id(control_list, 
+                            Control *ctrl_that = get_ctrl_by_id(control_list,
                                 V4L2_CID_IRIS_ABSOLUTE );
                             if (ctrl_that)
                                 ctrl_that->control.flags |= V4L2_CTRL_FLAG_GRABBED;
-                            
-                            ctrl_that = get_ctrl_by_id(control_list, 
+
+                            ctrl_that = get_ctrl_by_id(control_list,
                                 V4L2_CID_IRIS_RELATIVE );
                             if (ctrl_that)
                                 ctrl_that->control.flags |= V4L2_CTRL_FLAG_GRABBED;
-                            ctrl_that = get_ctrl_by_id(control_list, 
+                            ctrl_that = get_ctrl_by_id(control_list,
                                 V4L2_CID_EXPOSURE_ABSOLUTE );
                             if (ctrl_that)
                                 ctrl_that->control.flags |= V4L2_CTRL_FLAG_GRABBED;
                         }
                         break;
-                        
+
                     case V4L2_EXPOSURE_APERTURE_PRIORITY:
                         {
                             //printf("AP\n");
-                            Control *ctrl_that = get_ctrl_by_id(control_list, 
+                            Control *ctrl_that = get_ctrl_by_id(control_list,
                                 V4L2_CID_EXPOSURE_ABSOLUTE );
                             if (ctrl_that)
                                 ctrl_that->control.flags |= V4L2_CTRL_FLAG_GRABBED;
-                            ctrl_that = get_ctrl_by_id(control_list, 
+                            ctrl_that = get_ctrl_by_id(control_list,
                                 V4L2_CID_IRIS_ABSOLUTE );
                             if (ctrl_that)
                                 ctrl_that->control.flags &= !(V4L2_CTRL_FLAG_GRABBED);
-                            ctrl_that = get_ctrl_by_id(control_list, 
+                            ctrl_that = get_ctrl_by_id(control_list,
                                 V4L2_CID_IRIS_RELATIVE );
                             if (ctrl_that)
                                 ctrl_that->control.flags &= !(V4L2_CTRL_FLAG_GRABBED);
                         }
                         break;
-                        
+
                     case V4L2_EXPOSURE_SHUTTER_PRIORITY:
                         {
                             //printf("SP\n");
-                            Control *ctrl_that = get_ctrl_by_id(control_list, 
+                            Control *ctrl_that = get_ctrl_by_id(control_list,
                                 V4L2_CID_IRIS_ABSOLUTE );
                             if (ctrl_that)
                                 ctrl_that->control.flags |= V4L2_CTRL_FLAG_GRABBED;
-                            
-                            ctrl_that = get_ctrl_by_id(control_list, 
+
+                            ctrl_that = get_ctrl_by_id(control_list,
                                 V4L2_CID_IRIS_RELATIVE );
                             if (ctrl_that)
                                 ctrl_that->control.flags |= V4L2_CTRL_FLAG_GRABBED;
-                            ctrl_that = get_ctrl_by_id(control_list, 
+                            ctrl_that = get_ctrl_by_id(control_list,
                                 V4L2_CID_EXPOSURE_ABSOLUTE );
                             if (ctrl_that)
                                 ctrl_that->control.flags &= !(V4L2_CTRL_FLAG_GRABBED);
                         }
                         break;
-                    
+
                     default:
                         {
                             //printf("manual\n");
-                            Control *ctrl_that = get_ctrl_by_id(control_list, 
+                            Control *ctrl_that = get_ctrl_by_id(control_list,
                                 V4L2_CID_EXPOSURE_ABSOLUTE );
                             if (ctrl_that)
                                 ctrl_that->control.flags &= !(V4L2_CTRL_FLAG_GRABBED);
-                            ctrl_that = get_ctrl_by_id(control_list, 
+                            ctrl_that = get_ctrl_by_id(control_list,
                                 V4L2_CID_IRIS_ABSOLUTE );
                             if (ctrl_that)
                                 ctrl_that->control.flags &= !(V4L2_CTRL_FLAG_GRABBED);
-                            ctrl_that = get_ctrl_by_id(control_list, 
+                            ctrl_that = get_ctrl_by_id(control_list,
                                 V4L2_CID_IRIS_RELATIVE );
                             if (ctrl_that)
                                 ctrl_that->control.flags &= !(V4L2_CTRL_FLAG_GRABBED);
@@ -435,13 +444,13 @@ static void update_ctrl_flags(Control *control_list, int id)
                 Control *ctrl_this = get_ctrl_by_id(control_list, id );
                 if(ctrl_this == NULL)
                     break;
-                if(ctrl_this->value > 0) 
+                if(ctrl_this->value > 0)
                 {
                     Control *ctrl_that = get_ctrl_by_id(control_list,
                         V4L2_CID_FOCUS_ABSOLUTE);
                     if (ctrl_that)
                         ctrl_that->control.flags |= V4L2_CTRL_FLAG_GRABBED;
-                            
+
                     ctrl_that = get_ctrl_by_id(control_list,
                         V4L2_CID_FOCUS_RELATIVE);
                     if (ctrl_that)
@@ -453,7 +462,7 @@ static void update_ctrl_flags(Control *control_list, int id)
                         V4L2_CID_FOCUS_ABSOLUTE);
                     if (ctrl_that)
                         ctrl_that->control.flags &= !(V4L2_CTRL_FLAG_GRABBED);
-                         
+
                     ctrl_that = get_ctrl_by_id(control_list,
                         V4L2_CID_FOCUS_RELATIVE);
                     if (ctrl_that)
@@ -461,13 +470,13 @@ static void update_ctrl_flags(Control *control_list, int id)
                 }
             }
             break;
-            
+
         case V4L2_CID_HUE_AUTO:
             {
                 Control *ctrl_this = get_ctrl_by_id(control_list, id );
                 if(ctrl_this == NULL)
                     break;
-                if(ctrl_this->value > 0) 
+                if(ctrl_this->value > 0)
                 {
                     Control *ctrl_that = get_ctrl_by_id(control_list,
                         V4L2_CID_HUE);
@@ -489,7 +498,7 @@ static void update_ctrl_flags(Control *control_list, int id)
                 Control *ctrl_this = get_ctrl_by_id(control_list, id );
                 if(ctrl_this == NULL)
                     break;
-                            
+
                 if(ctrl_this->value > 0)
                 {
                     Control *ctrl_that = get_ctrl_by_id(control_list,
@@ -532,7 +541,7 @@ static void update_ctrl_list_flags(Control *control_list)
 {
     Control *current = control_list;
     Control *next = current->next;
-    
+
     for(; next != NULL; current = next, next = current->next)
         update_ctrl_flags(control_list, current->control.id);
 }
@@ -567,7 +576,7 @@ static void update_widget_state(Control *control_list, void *all_data)
                     g_signal_handlers_block_by_func(GTK_TOGGLE_BUTTON(current->widget),
                         G_CALLBACK (check_changed), all_data);
                     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (current->widget),
-                        current->value ? TRUE : FALSE);    
+                        current->value ? TRUE : FALSE);
                     //enable widget signals
                     g_signal_handlers_unblock_by_func(GTK_TOGGLE_BUTTON(current->widget),
                         G_CALLBACK (check_changed), all_data);
@@ -576,20 +585,20 @@ static void update_widget_state(Control *control_list, void *all_data)
                     if(!(is_special_case_control(current->control.id)))
                     {
                         //disable widget signals
-                        g_signal_handlers_block_by_func(GTK_SCALE (current->widget), 
+                        g_signal_handlers_block_by_func(GTK_SCALE (current->widget),
                             G_CALLBACK (slider_changed), all_data);
                         gtk_range_set_value (GTK_RANGE (current->widget), current->value);
-                        //enable widget signals    
-                        g_signal_handlers_unblock_by_func(GTK_SCALE (current->widget), 
+                        //enable widget signals
+                        g_signal_handlers_unblock_by_func(GTK_SCALE (current->widget),
                             G_CALLBACK (slider_changed), all_data);
                         if(current->spinbutton)
-                        {   
+                        {
                             //disable widget signals
-                            g_signal_handlers_block_by_func(GTK_SPIN_BUTTON(current->spinbutton), 
-                                G_CALLBACK (spin_changed), all_data); 
+                            g_signal_handlers_block_by_func(GTK_SPIN_BUTTON(current->spinbutton),
+                                G_CALLBACK (spin_changed), all_data);
                             gtk_spin_button_set_value (GTK_SPIN_BUTTON(current->spinbutton), current->value);
                             //enable widget signals
-                            g_signal_handlers_unblock_by_func(GTK_SPIN_BUTTON(current->spinbutton), 
+                            g_signal_handlers_unblock_by_func(GTK_SPIN_BUTTON(current->spinbutton),
                                 G_CALLBACK (spin_changed), all_data);
                         }
                     }
@@ -597,27 +606,27 @@ static void update_widget_state(Control *control_list, void *all_data)
                 case V4L2_CTRL_TYPE_MENU:
                 {
                     //disable widget signals
-                    g_signal_handlers_block_by_func(GTK_COMBO_BOX_TEXT(current->widget), 
+                    g_signal_handlers_block_by_func(GTK_COMBO_BOX_TEXT(current->widget),
                         G_CALLBACK (combo_changed), all_data);
                     //get new index
                     int j = 0;
                     int def = 0;
-                    for (j = 0; current->menu[j].index <= current->control.maximum; j++) 
+                    for (j = 0; current->menu[j].index <= current->control.maximum; j++)
                     {
                     	if(current->value == current->menu[j].index)
                     	   	def = j;
                     }
-                    
+
                     gtk_combo_box_set_active(GTK_COMBO_BOX(current->widget), def);
-                    //enable widget signals    
-                    g_signal_handlers_unblock_by_func(GTK_COMBO_BOX_TEXT(current->widget), 
+                    //enable widget signals
+                    g_signal_handlers_unblock_by_func(GTK_COMBO_BOX_TEXT(current->widget),
                         G_CALLBACK (combo_changed), all_data);
                     break;
                 }
                 default:
                     break;
             }
-        }        
+        }
         if((current->control.flags & V4L2_CTRL_FLAG_GRABBED) ||
             (current->control.flags & V4L2_CTRL_FLAG_DISABLED))
         {
@@ -643,25 +652,25 @@ static void update_widget_state(Control *control_list, void *all_data)
 /*
  * creates the control associated widgets for all controls in the list
  */
- 
+
 void create_control_widgets(Control *control_list, void *all_data, int control_only, int verbose)
-{  
+{
     struct ALL_DATA *data = (struct ALL_DATA *) all_data;
     struct vdIn *videoIn = data->videoIn;
     Control *current;
     int i = 0;
-    
+
     for(current = control_list; current != NULL; current = current->next)
     {
     	get_ctrl(videoIn->fd, control_list, current->control.id, all_data);
-        if (verbose) 
+        if (verbose)
         {
             g_print("control[%d]: 0x%x",i ,current->control.id);
             g_print ("  %s, %d:%d:%d, default %d , current %d\n", current->control.name,
                 current->control.minimum, current->control.maximum, current->control.step,
                 current->control.default_value, current->value);
         }
-        
+
         if(!current->control.step) current->control.step = 1;
         gchar *tmp;
         tmp = g_strdup_printf ("%s:", gettext((char *) current->control.name));
@@ -669,10 +678,10 @@ void create_control_widgets(Control *control_list, void *all_data, int control_o
         g_free(tmp);
         gtk_widget_show (current->label);
         gtk_misc_set_alignment (GTK_MISC (current->label), 1, 0.5);
-        
+
         switch(current->control.type)
         {
-#ifndef DISABLE_STRING_CONTROLS         
+#ifndef DISABLE_STRING_CONTROLS
             case V4L2_CTRL_TYPE_STRING:
                 //text box and set button
                 break;
@@ -680,20 +689,20 @@ void create_control_widgets(Control *control_list, void *all_data, int control_o
             case V4L2_CTRL_TYPE_INTEGER64:
                 //slider
                 break;
-            
+
             case V4L2_CTRL_TYPE_BUTTON:
                 {
                     current->widget = gtk_button_new_with_label(" ");
                     gtk_widget_show (current->widget);
-                    
-                    g_object_set_data (G_OBJECT (current->widget), "control_info", 
+
+                    g_object_set_data (G_OBJECT (current->widget), "control_info",
                         GINT_TO_POINTER(current->control.id));
-                        
+
                     g_signal_connect (GTK_BUTTON(current->widget), "clicked",
                         G_CALLBACK (button_clicked), all_data);
                 }
                 break;
-            
+
             case V4L2_CTRL_TYPE_INTEGER:
                 {
                     switch (current->control.id)
@@ -716,56 +725,56 @@ void create_control_widgets(Control *control_list, void *all_data, int control_o
                                 PanTilt1 = gtk_button_new_with_label(_("Down"));
                                 PanTilt2 = gtk_button_new_with_label(_("Up"));
                             }
-                            
+
                             gtk_widget_show (PanTilt1);
                             gtk_widget_show (PanTilt2);
                             gtk_box_pack_start(GTK_BOX(current->widget),PanTilt1,TRUE,TRUE,2);
                             gtk_box_pack_start(GTK_BOX(current->widget),PanTilt2,TRUE,TRUE,2);
-                            
-                            g_object_set_data (G_OBJECT (PanTilt1), "control_info", 
+
+                            g_object_set_data (G_OBJECT (PanTilt1), "control_info",
                                 GINT_TO_POINTER(current->control.id));
-                            g_object_set_data (G_OBJECT (PanTilt2), "control_info", 
+                            g_object_set_data (G_OBJECT (PanTilt2), "control_info",
                                 GINT_TO_POINTER(current->control.id));
-                            
+
                             g_signal_connect (GTK_BUTTON(PanTilt1), "clicked",
                                 G_CALLBACK (button_PanTilt1_clicked), all_data);
                             g_signal_connect (GTK_BUTTON(PanTilt2), "clicked",
                                 G_CALLBACK (button_PanTilt2_clicked), all_data);
 
                             gtk_widget_show (current->widget);
-                            
+
                             current->spinbutton = gtk_spin_button_new_with_range(-256, 256, 64);
                             /*can't edit the spin value by hand*/
                             gtk_editable_set_editable(GTK_EDITABLE(current->spinbutton),FALSE);
-                        
+
                             gtk_spin_button_set_value (GTK_SPIN_BUTTON(current->spinbutton), 128);
                             gtk_widget_show (current->spinbutton);
                         };
                         break;
-                    
+
                         case V4L2_CID_PAN_RESET:
                         case V4L2_CID_TILT_RESET:
                         {
                             current->widget = gtk_button_new_with_label(" ");
                             gtk_widget_show (current->widget);
-                        
-                            g_object_set_data (G_OBJECT (current->widget), "control_info", 
+
+                            g_object_set_data (G_OBJECT (current->widget), "control_info",
                                 GINT_TO_POINTER(current->control.id));
-                            
+
                             g_signal_connect (GTK_BUTTON(current->widget), "clicked",
                                 G_CALLBACK (button_clicked), all_data);
                         };
                         break;
-                    
+
                         case V4L2_CID_LED1_MODE_LOGITECH:
                         {
-                        	char* LEDMenu[4] = {_("Off"),_("On"),_("Blinking"),_("Auto")}; 
+                        	char* LEDMenu[4] = {_("Off"),_("On"),_("Blinking"),_("Auto")};
                             /*turn it into a menu control*/
                             if(!current->menu)
                     			current->menu = g_new0(struct v4l2_querymenu, 4+1);
                     		else
                     			current->menu = g_renew(struct v4l2_querymenu, current->menu, 4+1);
-                   			 
+
                    			current->menu[0].id = current->control.id;
                    			current->menu[0].index = 0;
                    			current->menu[0].name[0] = 'N'; //just set something here
@@ -781,13 +790,13 @@ void create_control_widgets(Control *control_list, void *all_data, int control_o
                    			current->menu[4].id = current->control.id;
                    			current->menu[4].index = current->control.maximum+1;
                    			current->menu[4].name[0] = '\0';
-                   			
+
                             int j = 0;
                         	int def = 0;
                         	current->widget = gtk_combo_box_text_new ();
-                        	for (j = 0; current->menu[j].index <= current->control.maximum; j++) 
+                        	for (j = 0; current->menu[j].index <= current->control.maximum; j++)
                         	{
-                        		if (verbose) 
+                        		if (verbose)
         	                   		printf("adding menu entry %d: %d, %s\n",j, current->menu[j].index, current->menu[j].name);
                             	gtk_combo_box_text_append_text (
                                 	GTK_COMBO_BOX_TEXT (current->widget),
@@ -795,28 +804,28 @@ void create_control_widgets(Control *control_list, void *all_data, int control_o
                             	if(current->value == current->menu[j].index)
                             		def = j;
                         	}
-                        
+
                         	gtk_combo_box_set_active (GTK_COMBO_BOX(current->widget), def);
                         	gtk_widget_show (current->widget);
-                         
-                        	g_object_set_data (G_OBJECT (current->widget), "control_info", 
+
+                        	g_object_set_data (G_OBJECT (current->widget), "control_info",
                             	GINT_TO_POINTER(current->control.id));
                         	//connect signal
                        	 	g_signal_connect (GTK_COMBO_BOX_TEXT(current->widget), "changed",
                             	G_CALLBACK (combo_changed), all_data);
                         };
                         break;
-                        
+
                         case V4L2_CID_RAW_BITS_PER_PIXEL_LOGITECH:
                         {
                             /*turn it into a menu control*/
-                            char* BITSMenu[2] = {_("8 bit"),_("12 bit")}; 
+                            char* BITSMenu[2] = {_("8 bit"),_("12 bit")};
                             /*turn it into a menu control*/
                             if(!current->menu)
                     			current->menu = g_new0(struct v4l2_querymenu, 2+1);
                     		else
                     			current->menu = g_renew(struct v4l2_querymenu, current->menu, 2+1);
-                   			 
+
                    			current->menu[0].id = current->control.id;
                    			current->menu[0].index = 0;
                    			current->menu[0].name[0] = 'o'; //just set something here
@@ -829,9 +838,9 @@ void create_control_widgets(Control *control_list, void *all_data, int control_o
                             int j = 0;
                         	int def = 0;
                         	current->widget = gtk_combo_box_text_new ();
-                        	for (j = 0; current->menu[j].index <= current->control.maximum; j++) 
+                        	for (j = 0; current->menu[j].index <= current->control.maximum; j++)
                         	{
-                        		if (verbose) 
+                        		if (verbose)
         	                   		printf("adding menu entry %d: %d, %s\n",j, current->menu[j].index, current->menu[j].name);
                             	gtk_combo_box_text_append_text (
                                 	GTK_COMBO_BOX_TEXT (current->widget),
@@ -839,18 +848,18 @@ void create_control_widgets(Control *control_list, void *all_data, int control_o
                             	if(current->value == current->menu[j].index)
                             		def = j;
                         	}
-                        
+
                         	gtk_combo_box_set_active (GTK_COMBO_BOX(current->widget), def);
                         	gtk_widget_show (current->widget);
-                         
-                        	g_object_set_data (G_OBJECT (current->widget), "control_info", 
+
+                        	g_object_set_data (G_OBJECT (current->widget), "control_info",
                             	GINT_TO_POINTER(current->control.id));
                         	//connect signal
                        	 	g_signal_connect (GTK_COMBO_BOX_TEXT(current->widget), "changed",
                             	G_CALLBACK (combo_changed), all_data);
                         };
                         break;
-                    
+
                         default: //standard case - hscale
                         {
                             /* check for valid range */
@@ -863,22 +872,22 @@ void create_control_widgets(Control *control_list, void *all_data, int control_o
                                     current->control.step,
                                     current->control.step*10,
                                     0);
-                                    
+
                                 current->widget = gtk_scale_new (GTK_ORIENTATION_HORIZONTAL, adjustment);
-                                
+
                                 gtk_scale_set_draw_value (GTK_SCALE (current->widget), FALSE);
                                 gtk_range_set_round_digits(GTK_RANGE (current->widget), 0);
-                                
+
                                 gtk_widget_show (current->widget);
-                                	
+
                                 current->spinbutton = gtk_spin_button_new(adjustment,current->control.step, 0);
-                                
+
                                 /*can't edit the spin value by hand*/
                                 gtk_editable_set_editable(GTK_EDITABLE(current->spinbutton),TRUE);
-                                
+
                                 gtk_widget_show (current->spinbutton);
-                             
-                                g_object_set_data (G_OBJECT (current->widget), "control_info", 
+
+                                g_object_set_data (G_OBJECT (current->widget), "control_info",
                                     GINT_TO_POINTER(current->control.id));
                                 g_object_set_data (G_OBJECT (current->spinbutton), "control_info",
                                     GINT_TO_POINTER(current->control.id));
@@ -897,7 +906,7 @@ void create_control_widgets(Control *control_list, void *all_data, int control_o
                     };
                 };
                 break;
-            
+
             case V4L2_CTRL_TYPE_MENU:
                 {
                     if(current->menu)
@@ -905,9 +914,9 @@ void create_control_widgets(Control *control_list, void *all_data, int control_o
                         int j = 0;
                         int def = 0;
                         current->widget = gtk_combo_box_text_new ();
-                        for (j = 0; current->menu[j].index <= current->control.maximum; j++) 
+                        for (j = 0; current->menu[j].index <= current->control.maximum; j++)
                         {
-                        	if (verbose) 
+                        	if (verbose)
         	                   	printf("adding menu entry %d: %d, %s\n",j, current->menu[j].index, current->menu[j].name);
                             gtk_combo_box_text_append_text (
                                 GTK_COMBO_BOX_TEXT (current->widget),
@@ -915,11 +924,11 @@ void create_control_widgets(Control *control_list, void *all_data, int control_o
                             if(current->value == current->menu[j].index)
                             	def = j;
                         }
-                        
+
                         gtk_combo_box_set_active (GTK_COMBO_BOX(current->widget), def);
                         gtk_widget_show (current->widget);
-                         
-                        g_object_set_data (G_OBJECT (current->widget), "control_info", 
+
+                        g_object_set_data (G_OBJECT (current->widget), "control_info",
                             GINT_TO_POINTER(current->control.id));
                         //connect signal
                         g_signal_connect (GTK_COMBO_BOX_TEXT(current->widget), "changed",
@@ -927,11 +936,11 @@ void create_control_widgets(Control *control_list, void *all_data, int control_o
                     }
                 }
                 break;
-            
+
             case V4L2_CTRL_TYPE_BOOLEAN:
                 {
                     if(current->control.id ==V4L2_CID_DISABLE_PROCESSING_LOGITECH)
-                    {       
+                    {
                         //a little hack :D we use the spin widget as a combo
                         current->spinbutton = gtk_combo_box_text_new ();
 			            gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(current->spinbutton),
@@ -942,34 +951,36 @@ void create_control_widgets(Control *control_list, void *all_data, int control_o
 			                "BGBG... | GRGR...");
 			            gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(current->spinbutton),
 			                "RGRG... | GBGB...");
-			        
+
 			            gtk_combo_box_set_active(GTK_COMBO_BOX(current->spinbutton), 0);
 
 			            gtk_widget_show (current->spinbutton);
-			            
+
 			            g_signal_connect (GTK_COMBO_BOX_TEXT (current->spinbutton), "changed",
 				            G_CALLBACK (pix_ord_changed), all_data);
-				        
+
 				        videoIn->isbayer = (current->value ? TRUE : FALSE);
                     }
-                
+
                     current->widget = gtk_check_button_new();
                     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (current->widget),
                         current->value ? TRUE : FALSE);
                     gtk_widget_show (current->widget);
-                    
-                    g_object_set_data (G_OBJECT (current->widget), "control_info", 
+
+                    g_object_set_data (G_OBJECT (current->widget), "control_info",
                         GINT_TO_POINTER(current->control.id));
                     //connect signal
                     g_signal_connect (GTK_TOGGLE_BUTTON(current->widget), "toggled",
                         G_CALLBACK (check_changed), all_data);
                 }
                 break;
-                
+
             default:
                 printf("control type: 0x%08x not supported\n", current->control.type);
                 break;
         }
+
+        i++;//increment control index
     }
     update_widget_state(control_list, all_data);
  }
@@ -1005,23 +1016,23 @@ void get_ctrl_values (int hdevice, Control *control_list, int num_controls, void
     Control *next = current->next;
     int count = 0;
     int i = 0;
-    
+
     for(; next != NULL; current = next, next = current->next)
-    {   
+    {
         if(current->control.flags & V4L2_CTRL_FLAG_WRITE_ONLY)
              continue;
-            
+
         clist[count].id = current->control.id;
-#ifndef DISABLE_STRING_CONTROLS 
+#ifndef DISABLE_STRING_CONTROLS
         clist[count].size = 0;
         if(current->control.type == V4L2_CTRL_TYPE_STRING)
         {
             clist[count].size = current->control.maximum + 1;
-            clist[count].string = current->string; 
+            clist[count].string = current->string;
         }
 #endif
         count++;
-        
+
         if((next == NULL) || (next->class != current->class))
         {
             struct v4l2_ext_controls ctrls = {0};
@@ -1049,7 +1060,7 @@ void get_ctrl_values (int hdevice, Control *control_list, int num_controls, void
                 }
                 else
                 {
-                    printf("   using VIDIOC_G_EXT_CTRLS on single controls for class: 0x%08x\n", 
+                    printf("   using VIDIOC_G_EXT_CTRLS on single controls for class: 0x%08x\n",
                         current->class);
                     for(i=0;i < count; i++)
                     {
@@ -1062,7 +1073,7 @@ void get_ctrl_values (int hdevice, Control *control_list, int num_controls, void
                     }
                 }
             }
-            
+
             //fill in the values on the control list
             for(i=0; i<count; i++)
             {
@@ -1074,7 +1085,7 @@ void get_ctrl_values (int hdevice, Control *control_list, int num_controls, void
                 }
                 switch(ctrl->control.type)
                 {
-#ifndef DISABLE_STRING_CONTROLS 
+#ifndef DISABLE_STRING_CONTROLS
                     case V4L2_CTRL_TYPE_STRING:
                         //string gets set on VIDIOC_G_EXT_CTRLS
                         //add the maximum size to value
@@ -1086,19 +1097,19 @@ void get_ctrl_values (int hdevice, Control *control_list, int num_controls, void
                         break;
                     default:
                         ctrl->value = clist[i].value;
-                        //printf("control %i [0x%08x] = %i\n", 
+                        //printf("control %i [0x%08x] = %i\n",
                         //    i, clist[i].id, clist[i].value);
                         break;
                 }
             }
-            
+
             count = 0;
         }
     }
-    
+
     update_ctrl_list_flags(control_list);
-    update_widget_state(control_list, all_data);    
-    
+    update_widget_state(control_list, all_data);
+
 }
 
 /*
@@ -1109,12 +1120,12 @@ int get_ctrl(int hdevice, Control *control_list, int id, void *all_data)
 {
     Control *control = get_ctrl_by_id(control_list, id );
     int ret = 0;
-    
+
     if(!control)
         return (-1);
     if(control->control.flags & V4L2_CTRL_FLAG_WRITE_ONLY)
         return (-1);
-        
+
     if( control->class == V4L2_CTRL_CLASS_USER)
     {
         struct v4l2_control ctrl;
@@ -1124,23 +1135,23 @@ int get_ctrl(int hdevice, Control *control_list, int id, void *all_data)
         ret = xioctl(hdevice, VIDIOC_G_CTRL, &ctrl);
         if(ret)
             printf("control id: 0x%08x failed to get value (error %i)\n",
-                ctrl.id, ret); 
+                ctrl.id, ret);
         else
             control->value = ctrl.value;
     }
     else
     {
-        //printf("   using VIDIOC_G_EXT_CTRLS on single controls for class: 0x%08x\n", 
+        //printf("   using VIDIOC_G_EXT_CTRLS on single controls for class: 0x%08x\n",
         //    current->class);
         struct v4l2_ext_controls ctrls = {0};
         struct v4l2_ext_control ctrl = {0};
         ctrl.id = control->control.id;
-#ifndef DISABLE_STRING_CONTROLS 
+#ifndef DISABLE_STRING_CONTROLS
         ctrl.size = 0;
         if(control->control.type == V4L2_CTRL_TYPE_STRING)
         {
             ctrl.size = control->control.maximum + 1;
-            ctrl.string = control->string; 
+            ctrl.string = control->string;
         }
 #endif
         ctrls.ctrl_class = control->class;
@@ -1154,7 +1165,7 @@ int get_ctrl(int hdevice, Control *control_list, int id, void *all_data)
         {
             switch(control->control.type)
             {
-#ifndef DISABLE_STRING_CONTROLS 
+#ifndef DISABLE_STRING_CONTROLS
                 case V4L2_CTRL_TYPE_STRING:
                     //string gets set on VIDIOC_G_EXT_CTRLS
                     //add the maximum size to value
@@ -1166,21 +1177,21 @@ int get_ctrl(int hdevice, Control *control_list, int id, void *all_data)
                     break;
                 default:
                     control->value = ctrl.value;
-                    //printf("control %i [0x%08x] = %i\n", 
+                    //printf("control %i [0x%08x] = %i\n",
                     //    i, clist[i].id, clist[i].value);
                     break;
             }
         }
-    } 
-    
+    }
+
     update_ctrl_flags(control_list, id);
     update_widget_state(control_list, all_data);
-    
+
     return (ret);
 }
 
 /*
- * Goes through the control list and tries to set the controls values 
+ * Goes through the control list and tries to set the controls values
  */
 void set_ctrl_values (int hdevice, Control *control_list, int num_controls)
 {
@@ -1190,16 +1201,16 @@ void set_ctrl_values (int hdevice, Control *control_list, int num_controls)
     Control *next = current->next;
     int count = 0;
     int i = 0;
-    
+
     for(; next != NULL; current = next, next = current->next)
     {
         if(current->control.flags & V4L2_CTRL_FLAG_READ_ONLY)
             continue;
-            
+
         clist[count].id = current->control.id;
         switch (current->control.type)
         {
-#ifndef DISABLE_STRING_CONTROLS 
+#ifndef DISABLE_STRING_CONTROLS
             case V4L2_CTRL_TYPE_STRING:
                 clist[count].size = current->value;
                 clist[count].string = current->string;
@@ -1213,7 +1224,7 @@ void set_ctrl_values (int hdevice, Control *control_list, int num_controls)
                 break;
         }
         count++;
-        
+
         if((next == NULL) || (next->class != current->class))
         {
             struct v4l2_ext_controls ctrls = {0};
@@ -1242,13 +1253,13 @@ void set_ctrl_values (int hdevice, Control *control_list, int num_controls)
                                     clist[i].id, ctrl->control.name, ret);
                             else
                               printf("control(0x%08x) failed to set (error %i)\n",
-                                    clist[i].id, ret);  
+                                    clist[i].id, ret);
                         }
                     }
                 }
                 else
                 {
-                    printf("   using VIDIOC_S_EXT_CTRLS on single controls for class: 0x%08x\n", 
+                    printf("   using VIDIOC_S_EXT_CTRLS on single controls for class: 0x%08x\n",
                         current->class);
                     for(i=0;i < count; i++)
                     {
@@ -1267,11 +1278,11 @@ void set_ctrl_values (int hdevice, Control *control_list, int num_controls)
                         }
                     }
                 }
-            } 
-            count = 0;  
+            }
+            count = 0;
         }
     }
-    
+
     //update list with real values
     //get_ctrl_values (hdevice, control_list, num_controls);
 }
@@ -1283,7 +1294,7 @@ void set_default_values(int hdevice, Control *control_list, int num_controls, vo
 {
     Control *current = control_list;
     Control *next = current->next;
-    
+
     for(; next != NULL; current = next, next = current->next)
     {
         if(current->control.flags & V4L2_CTRL_FLAG_READ_ONLY)
@@ -1297,10 +1308,10 @@ void set_default_values(int hdevice, Control *control_list, int num_controls, vo
             }
             continue;
         }
-        //printf("setting 0x%08X to %i\n",current->control.id, current->control.default_value); 
+        //printf("setting 0x%08X to %i\n",current->control.id, current->control.default_value);
         switch (current->control.type)
         {
-#ifndef DISABLE_STRING_CONTROLS 
+#ifndef DISABLE_STRING_CONTROLS
             case V4L2_CTRL_TYPE_STRING:
                 break;
 #endif
@@ -1314,7 +1325,7 @@ void set_default_values(int hdevice, Control *control_list, int num_controls, vo
                 break;
         }
     }
-    
+
     set_ctrl_values (hdevice, control_list, num_controls);
     get_ctrl_values (hdevice, control_list, num_controls, all_data);
 }
@@ -1326,7 +1337,7 @@ int set_ctrl(int hdevice, Control *control_list, int id)
 {
     Control *control = get_ctrl_by_id(control_list, id );
     int ret = 0;
-    
+
     if(!control)
         return (-1);
     if(control->control.flags & V4L2_CTRL_FLAG_READ_ONLY)
@@ -1342,14 +1353,14 @@ int set_ctrl(int hdevice, Control *control_list, int id)
     }
     else
     {
-        //printf("   using VIDIOC_G_EXT_CTRLS on single controls for class: 0x%08x\n", 
+        //printf("   using VIDIOC_G_EXT_CTRLS on single controls for class: 0x%08x\n",
         //    current->class);
         struct v4l2_ext_controls ctrls = {0};
         struct v4l2_ext_control ctrl = {0};
         ctrl.id = control->control.id;
         switch (control->control.type)
         {
-#ifndef DISABLE_STRING_CONTROLS 
+#ifndef DISABLE_STRING_CONTROLS
             case V4L2_CTRL_TYPE_STRING:
                 ctrl.size = control->value;
                 ctrl.string = control->string;
@@ -1370,11 +1381,11 @@ int set_ctrl(int hdevice, Control *control_list, int id)
             printf("control id: 0x%08x failed to set (error %i)\n",
                 ctrl.id, ret);
     }
-    
+
     //update real value
     get_ctrl(hdevice, control_list, id, NULL);
-    
-    return (ret); 
+
+    return (ret);
 }
 
 /*
@@ -1405,19 +1416,19 @@ void uvcPanTilt (int hdevice, Control *control_list, int is_pan, int direction)
 {
     Control *ctrl = NULL;
     int id = V4L2_CID_TILT_RELATIVE;
-    if (is_pan) 
+    if (is_pan)
         id = V4L2_CID_PAN_RELATIVE;
-    
+
     ctrl = get_ctrl_by_id(control_list, id );
-        
+
     if (ctrl && ctrl->spinbutton)
     {
-        
+
         ctrl->value = direction * gtk_spin_button_get_value_as_int (
             GTK_SPIN_BUTTON(ctrl->spinbutton));
         set_ctrl(hdevice, control_list, id);
     }
-    
+
 }
 
 
