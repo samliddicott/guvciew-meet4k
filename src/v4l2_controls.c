@@ -39,6 +39,10 @@
 #include "v4l2_dyna_ctrls.h"
 #include "callbacks.h"
 
+#ifndef V4L2_CTRL_ID2CLASS
+#define V4L2_CTRL_ID2CLASS(id)    ((id) & 0x0fff0000UL)
+#endif
+
 /*
  * don't use xioctl for control query when using V4L2_CTRL_FLAG_NEXT_CTRL
  */
@@ -76,6 +80,143 @@ gboolean is_special_case_control(int control_id)
     }
 }
 
+static void print_control(Control *control, int index)
+{
+	int j=0;
+
+	switch (control->control.type)
+	{
+		case V4L2_CTRL_TYPE_INTEGER:
+			g_print("control[%d]:(int) 0x%x",i ,control->control.id);
+			g_print ("  %s, min %d, max %d, step %d, def %d, curr %d\n", control->control.name,
+				control->control.minimum, control->control.maximum, control->control.step,
+				control->control.default_value, control->value);
+			break;
+
+		case V4L2_CTRL_TYPE_INTEGER64:
+			g_print("control[%d]:(int64) 0x%x",i ,control->control.id);
+			g_print ("  %s, current %lld\n", control->control.name, control->value64);
+			break;
+
+		case V4L2_CTRL_TYPE_STRING:
+			g_print("control[%d]:(str) 0x%x",i ,control->control.id);
+			g_print ("  %s, min %d, max %d, step %d\n", control->control.name,
+				control->control.minimum, control->control.maximum, control->control.step);
+			break;
+
+		case V4L2_CTRL_TYPE_BOOLEAN:
+			g_print("control[%d]:(bool) 0x%x",i ,control->control.id);
+			g_print ("  %s, def %d , curr %d\n", control->control.name,
+				control->control.default_value, control->value);
+			break;
+
+		case V4L2_CTRL_TYPE_MENU:
+			g_print("control[%d]:(menu) 0x%x",i ,control->control.id);
+			g_print("  %s, min %d, max %d, def %d , curr %d\n", control->control.name,
+				control->control.minimum, control->control.maximum,
+				control->control.default_value, control->value);
+			for (j = 0; control->menu[j].index <= control->control.maximum; j++)
+				g_print("\t\tmenu[%d]: %s, [%d] -> %lld (0x%llx)\n",j, control->menu[j].name,
+					control->menu[j].index,
+					control->menu[j].value,
+					control->menu[j].value);
+			break;
+
+		case V4L2_CTRL_TYPE_INTEGER_MENU:
+			g_print("control[%d]:(intmenu) 0x%x",i ,control->control.id);
+			g_print("  %s, min %d, max %d, def %d , curr %d\n", control->control.name,
+				control->control.minimum, control->control.maximum,
+				control->control.default_value, control->value);
+			break;
+
+		case V4L2_CTRL_TYPE_BUTTON:
+			g_print("control[%d]:(button) 0x%x  %s\n",i ,control->control.id, control->control.name);
+			break;
+
+		case V4L2_CTRL_TYPE_BITMASK:
+			g_print("control[%d]:(bitmask) 0x%x",i ,control->control.id);
+			g_print("  %s, max %d, def %d , curr %d\n", control->control.name,
+				control->control.maximum, control->control.default_value, control->value);
+
+		default:
+			g_print("control[%d]:(unknown) 0x%x  %s\n",i ,control->control.id, control->control.name);
+			break;
+}
+
+static Control *add_control(int hdevice, struct v4l2_queryctrl &queryctrl, Control *current, Control *first)
+{
+	Control *control = NULL;
+	struct v4l2_querymenu *menu = NULL; //menu list
+
+	if (queryctrl.flags & V4L2_CTRL_FLAG_DISABLED)
+	{
+		printf("Control 0x%08x is disabled: remove it from control list\n", queryctrl.id, ret);
+		return NULL;
+	}
+
+	//check menu items if needed
+    if(queryctrl.type == V4L2_CTRL_TYPE_MENU)
+    {
+        int i = 0;
+        int ret = 0;
+        struct v4l2_querymenu querymenu={0};
+
+        for (querymenu.index = queryctrl.minimum;
+            querymenu.index <= queryctrl.maximum;
+            querymenu.index++)
+        {
+            querymenu.id = queryctrl.id;
+            ret = xioctl (hdevice, VIDIOC_QUERYMENU, &querymenu);
+            if (ret < 0)
+                continue;
+
+            if(!menu)
+                menu = g_new0(struct v4l2_querymenu, i+1);
+            else
+                menu = g_renew(struct v4l2_querymenu, menu, i+1);
+
+            memcpy(&(menu[i]), &querymenu, sizeof(struct v4l2_querymenu));
+            i++;
+        }
+
+        if(!menu)
+            menu = g_new0(struct v4l2_querymenu, i+1);
+        else
+           	menu = g_renew(struct v4l2_querymenu, menu, i+1);
+
+        menu[i].id = querymenu.id;
+        menu[i].index = queryctrl.maximum+1;
+        menu[i].name[0] = 0;
+    }
+
+    // Add the control to the linked list
+    control = calloc (1, sizeof(Control));
+    memcpy(&(control->control), &queryctrl, sizeof(struct v4l2_queryctrl));
+    control->class = V4L2_CTRL_ID2CLASS(control->control.id);
+    //add the menu adress (NULL if not a menu)
+    control->menu = menu;
+#ifndef DISABLE_STRING_CONTROLS
+    //allocate a string with max size if needed
+    if(control->control.type == V4L2_CTRL_TYPE_STRING)
+        control->string = calloc(control->control.maximum + 1, sizeof(char));
+    else
+#endif
+        control->string = NULL;
+
+    if(first != NULL)
+    {
+        current->next = control;
+        current = control;
+    }
+    else
+    {
+		first = control;
+        current = first;
+    }
+
+    return control;
+}
+
 /*
  * returns a Control structure NULL terminated linked list
  * with all of the device controls with Read/Write permissions.
@@ -94,254 +235,90 @@ Control *get_control_list(int hdevice, int *num_ctrls, int list_method)
     struct v4l2_querymenu querymenu={0};
 
     int currentctrl = 0;
-    queryctrl.id = 0 | V4L2_CTRL_FLAG_NEXT_CTRL;
+    queryctrl.id = V4L2_CTRL_FLAG_NEXT_CTRL;
 
-    if (list_method == LIST_CTL_METHOD_NEXT_FLAG &&
-		(ret=query_ioctl (hdevice, currentctrl, &queryctrl)) == 0)
-    {
-        // The driver supports the V4L2_CTRL_FLAG_NEXT_CTRL flag
-        queryctrl.id = 0;
-        currentctrl= queryctrl.id;
-        queryctrl.id |= V4L2_CTRL_FLAG_NEXT_CTRL;
-
-        while((ret = query_ioctl(hdevice, currentctrl, &queryctrl)), ret ? errno != EINVAL : 1)
-        {
-            struct v4l2_querymenu *menu = NULL;
-
-            // Prevent infinite loop for buggy V4L2_CTRL_FLAG_NEXT_CTRL implementations
-            if(ret && queryctrl.id <= currentctrl)
-            {
-                printf("buggy V4L2_CTRL_FLAG_NEXT_CTRL flag implementation (workaround enabled)\n");
-                // increment the control id manually
-                currentctrl++;
-                queryctrl.id = currentctrl;
-                goto next_control;
-            }
-            else if ((queryctrl.id == V4L2_CTRL_FLAG_NEXT_CTRL) || (!ret && queryctrl.id == currentctrl))
-            {
-                printf("buggy V4L2_CTRL_FLAG_NEXT_CTRL flag implementation (failed enumeration for id=0x%08x)\n",
-                    queryctrl.id);
-                // stop control enumeration
-                *num_ctrls = n;
-                return first;
-            }
+	if(list_method == LIST_CTL_METHOD_NEXT_FLAG) //try the next_flag method first
+	{
+		while ((ret=query_ioctl(hdevice, currentctrl, &queryctrl)) == 0)
+		{
+			if(add_control(hdevice, &queryctrl, current, first) != NULL)
+                n++;
 
             currentctrl = queryctrl.id;
-            // skip if control failed
-            if (ret)
-            {
-                printf("Control 0x%08x failed to query\n", queryctrl.id);
-                goto next_control;
-            }
 
-            // skip if control is disabled
-            if (queryctrl.flags & V4L2_CTRL_FLAG_DISABLED)
-            {
-                printf("Disabling control 0x%08x\n", queryctrl.id);
-                goto next_control;
-            }
+			queryctrl.id |= V4L2_CTRL_FLAG_NEXT_CTRL;
+		}
+		if (queryctrl.id != V4L2_CTRL_FLAG_NEXT_CTRL)
+			return; //done
 
-            //check menu items if needed
-            if(queryctrl.type == V4L2_CTRL_TYPE_MENU)
-            {
-                int i = 0;
-                int ret = 0;
-                for (querymenu.index = queryctrl.minimum;
-                    querymenu.index <= queryctrl.maximum;
-                    querymenu.index++)
-                {
-                    querymenu.id = queryctrl.id;
-                    ret = xioctl (hdevice, VIDIOC_QUERYMENU, &querymenu);
-                    if (ret < 0)
-                    	continue;
+		if(ret)
+		{
+			printf("Control 0x%08x failed to query with error %i\n", queryctrl.id, ret);
+		}
 
-                    if(!menu)
-                    	menu = g_new0(struct v4l2_querymenu, i+1);
-                   	else
-                   		menu = g_renew(struct v4l2_querymenu, menu, i+1);
+		printf("buggy V4L2_CTRL_FLAG_NEXT_CTRL flag implementation (workaround enabled)\n");
 
-                    memcpy(&(menu[i]), &querymenu, sizeof(struct v4l2_querymenu));
-                    i++;
-                }
-                if(!menu)
-                	menu = g_new0(struct v4l2_querymenu, i+1);
-                else
-                	menu = g_renew(struct v4l2_querymenu, menu, i+1);
-
-               	menu[i].id = querymenu.id;
-               	menu[i].index = queryctrl.maximum+1;
-               	menu[i].name[0] = 0;
-            }
-
-            // Add the control to the linked list
-            control = calloc (1, sizeof(Control));
-            memcpy(&(control->control), &queryctrl, sizeof(struct v4l2_queryctrl));
-            control->class = (control->control.id & 0xFFFF0000);
-            //add the menu adress (NULL if not a menu)
-            control->menu = menu;
-#ifndef DISABLE_STRING_CONTROLS
-            //allocate a string with max size if needed
-            if(control->control.type == V4L2_CTRL_TYPE_STRING)
-                control->string = calloc(control->control.maximum + 1, sizeof(char));
-            else
-#endif
-                control->string = NULL;
-
-            if(first != NULL)
-            {
-                current->next = control;
-                current = control;
-            }
-            else
-            {
-                first = control;
-                current = first;
-            }
-
-            n++;
-
-next_control:
-            queryctrl.id |= V4L2_CTRL_FLAG_NEXT_CTRL;
-        }
-    }
-    else
-    {
-        if(list_method != LIST_CTL_METHOD_LOOP)
-			printf("NEXT_CTRL flag not supported\n");
-
-		printf("using loop control list method\n");
-        int currentctrl;
-        //User-class controls
-        for(currentctrl = V4L2_CID_BASE; currentctrl < V4L2_CID_LASTP1; currentctrl++)
-        {
-            struct v4l2_querymenu *menu = NULL;
-            queryctrl.id = currentctrl;
-            ret = xioctl(hdevice, VIDIOC_QUERYCTRL, &queryctrl);
-
-            if (ret || (queryctrl.flags & V4L2_CTRL_FLAG_DISABLED) )
-                continue;
-
-            //check menu items if needed
-            if(queryctrl.type == V4L2_CTRL_TYPE_MENU)
-            {
-                int i = 0;
-                int ret = 0;
-                for (querymenu.index = queryctrl.minimum;
-                    querymenu.index <= queryctrl.maximum;
-                    querymenu.index++)
-                {
-                    querymenu.id = queryctrl.id;
-                    ret = xioctl (hdevice, VIDIOC_QUERYMENU, &querymenu);
-                    if (ret < 0)
-                    	break;
-
-                    if(!menu)
-                    	menu = g_new0(struct v4l2_querymenu, i+1);
-                   	else
-                   		menu = g_renew(struct v4l2_querymenu, menu, i+1);
-
-                    memcpy(&(menu[i]), &querymenu, sizeof(struct v4l2_querymenu));
-                    i++;
-                }
-                if(!menu)
-                	menu = g_new0(struct v4l2_querymenu, i+1);
-                else
-                	menu = g_renew(struct v4l2_querymenu, menu, i+1);
-
-               	menu[i].id = querymenu.id;
-               	menu[i].index = queryctrl.maximum+1;
-               	menu[i].name[0] = 0;
-
-            }
-
-            // Add the control to the linked list
-            control = calloc (1, sizeof(Control));
-            memcpy(&(control->control), &queryctrl, sizeof(struct v4l2_queryctrl));
-
-            control->class = V4L2_CTRL_CLASS_USER;
-            //add the menu adress (NULL if not a menu)
-            control->menu = menu;
-
-            if(first != NULL)
-            {
-                current->next = control;
-                current = control;
-            }
-            else
-            {
-                first = control;
-                current = first;
-            }
-
-            n++;
-        }
-
-		//Camera class controls
-		for(currentctrl = V4L2_CID_CAMERA_CLASS_BASE; currentctrl < V4L2_CID_CAMERA_CLASS_BASE+31; currentctrl++)
-        {
-            struct v4l2_querymenu *menu = NULL;
-            queryctrl.id = currentctrl;
-            ret = xioctl(hdevice, VIDIOC_QUERYCTRL, &queryctrl);
-
-            if (ret || (queryctrl.flags & V4L2_CTRL_FLAG_DISABLED) )
-                continue;
-
-            //check menu items if needed
-            if(queryctrl.type == V4L2_CTRL_TYPE_MENU)
-            {
-                int i = 0;
-                int ret = 0;
-                for (querymenu.index = queryctrl.minimum;
-                    querymenu.index <= queryctrl.maximum;
-                    querymenu.index++)
-                {
-                    querymenu.id = queryctrl.id;
-                    ret = xioctl (hdevice, VIDIOC_QUERYMENU, &querymenu);
-                    if (ret < 0)
-                    	break;
-
-                    if(!menu)
-                    	menu = g_new0(struct v4l2_querymenu, i+1);
-                   	else
-                   		menu = g_renew(struct v4l2_querymenu, menu, i+1);
-
-                    memcpy(&(menu[i]), &querymenu, sizeof(struct v4l2_querymenu));
-                    i++;
-                }
-                if(!menu)
-                	menu = g_new0(struct v4l2_querymenu, i+1);
-                else
-                	menu = g_renew(struct v4l2_querymenu, menu, i+1);
-
-               	menu[i].id = querymenu.id;
-               	menu[i].index = queryctrl.maximum+1;
-               	menu[i].name[0] = 0;
-
-            }
-
-            // Add the control to the linked list
-            control = calloc (1, sizeof(Control));
-            memcpy(&(control->control), &queryctrl, sizeof(struct v4l2_queryctrl));
-
-            control->class =  V4L2_CTRL_CLASS_CAMERA;
-            //add the menu adress (NULL if not a menu)
-            control->menu = menu;
-
-            if(first != NULL)
-            {
-                current->next = control;
-                current = control;
-            }
-            else
-            {
-                first = control;
-                current = first;
-            }
-
-            n++;
-        }
-
-    }
+		//next_flag method failed loop through the ids:
+		// USER CLASS Controls
+		for (currentctrl = V4L2_CID_USER_BASE; currentctrl < V4L2_CID_LASTP1; currentctrl++)
+		{
+			queryctrl.id = currentctrl;
+			if (xioctl(hdevice, VIDIOC_QUERYCTRL, &queryctrl) == 0)
+			{
+				if(add_control(hdevice, &queryctrl, current, first) != NULL)
+					n++;
+			}
+		}
+		//CAMERA CLASS Controls
+		for (currentctrl = V4L2_CID_CAMERA_CLASS_BASE; currentctrl < V4L2_CID_CAMERA_CLASS_BASE+32; currentctrl++)
+		{
+			queryctrl.id = currentctrl;
+			if (xioctl(hdevice, VIDIOC_QUERYCTRL, &queryctrl) == 0)
+			{
+				if(add_control(hdevice, &queryctrl, current, first) != NULL)
+					n++;
+			}
+		}
+		//PRIVATE controls (deprecated)
+		for (queryctrl.id = V4L2_CID_PRIVATE_BASE;
+				xioctl(hdevice, VIDIOC_QUERYCTRL, &queryctrl) == 0; queryctrl.id++)
+		{
+			if(add_control(hdevice, &queryctrl, current, first) != NULL)
+                n++;
+		}
+	}
+	else
+	{
+		printf("using control id loop method for enumeration \n");
+		//next_flag method failed loop through the ids:
+		// USER CLASS Controls
+		for (currentctrl = V4L2_CID_USER_BASE; currentctrl < V4L2_CID_LASTP1; currentctrl++)
+		{
+			queryctrl.id = currentctrl;
+			if (xioctl(hdevice, VIDIOC_QUERYCTRL, &queryctrl) == 0)
+			{
+				if(add_control(hdevice, &queryctrl, current, first) != NULL)
+					n++;
+			}
+		}
+		//CAMERA CLASS Controls
+		for (currentctrl = V4L2_CID_CAMERA_CLASS_BASE; currentctrl < V4L2_CID_CAMERA_CLASS_BASE+32; currentctrl++)
+		{
+			queryctrl.id = currentctrl;
+			if (xioctl(hdevice, VIDIOC_QUERYCTRL, &queryctrl) == 0)
+			{
+				if(add_control(hdevice, &queryctrl, current, first) != NULL)
+					n++;
+			}
+		}
+		//PRIVATE controls (deprecated)
+		for (queryctrl.id = V4L2_CID_PRIVATE_BASE;
+				xioctl(hdevice, VIDIOC_QUERYCTRL, &queryctrl) == 0; queryctrl.id++)
+		{
+			if(add_control(hdevice, &queryctrl, current, first) != NULL)
+                n++;
+		}
+	}
 
     *num_ctrls = n;
     return first;
@@ -649,6 +626,8 @@ static void update_widget_state(Control *control_list, void *all_data)
     }
 }
 
+
+
 /*
  * creates the control associated widgets for all controls in the list
  */
@@ -665,10 +644,7 @@ void create_control_widgets(Control *control_list, void *all_data, int control_o
     	get_ctrl(videoIn->fd, control_list, current->control.id, all_data);
         if (verbose)
         {
-            g_print("control[%d]: 0x%x",i ,current->control.id);
-            g_print ("  %s, %d:%d:%d, default %d , current %d\n", current->control.name,
-                current->control.minimum, current->control.maximum, current->control.step,
-                current->control.default_value, current->value);
+            print_control(current, i);
         }
 
         if(!current->control.step) current->control.step = 1;
@@ -684,6 +660,7 @@ void create_control_widgets(Control *control_list, void *all_data, int control_o
 #ifndef DISABLE_STRING_CONTROLS
             case V4L2_CTRL_TYPE_STRING:
                 //text box and set button
+                printf("control type string not yet fully supported\n");
                 break;
 #endif
             case V4L2_CTRL_TYPE_INTEGER64:
@@ -796,8 +773,6 @@ void create_control_widgets(Control *control_list, void *all_data, int control_o
                         	current->widget = gtk_combo_box_text_new ();
                         	for (j = 0; current->menu[j].index <= current->control.maximum; j++)
                         	{
-                        		if (verbose)
-        	                   		printf("adding menu entry %d: %d, %s\n",j, current->menu[j].index, current->menu[j].name);
                             	gtk_combo_box_text_append_text (
                                 	GTK_COMBO_BOX_TEXT (current->widget),
                                 	(char *) LEDMenu[j]);
@@ -840,8 +815,8 @@ void create_control_widgets(Control *control_list, void *all_data, int control_o
                         	current->widget = gtk_combo_box_text_new ();
                         	for (j = 0; current->menu[j].index <= current->control.maximum; j++)
                         	{
-                        		if (verbose)
-        	                   		printf("adding menu entry %d: %d, %s\n",j, current->menu[j].index, current->menu[j].name);
+                        		//if (verbose)
+        	                   	//	printf("adding menu entry %d: %d, %s\n",j, current->menu[j].index, current->menu[j].name);
                             	gtk_combo_box_text_append_text (
                                 	GTK_COMBO_BOX_TEXT (current->widget),
                                 	(char *) BITSMenu[j]);
@@ -916,8 +891,8 @@ void create_control_widgets(Control *control_list, void *all_data, int control_o
                         current->widget = gtk_combo_box_text_new ();
                         for (j = 0; current->menu[j].index <= current->control.maximum; j++)
                         {
-                        	if (verbose)
-        	                   	printf("adding menu entry %d: %d, %s\n",j, current->menu[j].index, current->menu[j].name);
+                        	//if (verbose)
+        	                //   	printf("adding menu entry %d: %d, %s\n",j, current->menu[j].index, current->menu[j].name);
                             gtk_combo_box_text_append_text (
                                 GTK_COMBO_BOX_TEXT (current->widget),
                                 (char *) current->menu[j].name);
