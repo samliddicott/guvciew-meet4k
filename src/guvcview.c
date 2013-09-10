@@ -481,7 +481,7 @@ int main(int argc, char *argv[])
         gtk_widget_show (gwidget->boxh);
 
         scroll1=gtk_scrolled_window_new(NULL,NULL);
-        gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scroll1),s->table);
+        gtk_container_add(GTK_CONTAINER(scroll1), s->table);
         gtk_scrolled_window_set_placement(GTK_SCROLLED_WINDOW(scroll1), GTK_CORNER_TOP_LEFT);
 
         gtk_widget_show(scroll1);

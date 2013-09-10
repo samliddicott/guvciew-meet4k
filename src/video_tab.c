@@ -78,7 +78,7 @@ void video_tab(struct ALL_DATA *all_data)
 	//SCROLL
 	scroll2 = gtk_scrolled_window_new(NULL,NULL);
 	//ADD TABLE TO SCROLL
-	gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scroll2),table2);
+	gtk_container_add(GTK_CONTAINER(scroll2), table2);
 	gtk_scrolled_window_set_placement(GTK_SCROLLED_WINDOW(scroll2), GTK_CORNER_TOP_LEFT);
 	gtk_widget_show(scroll2);
 
