@@ -93,17 +93,19 @@ static void print_control(Control *control, int i)
 				control->control.default_value, control->value);
 			break;
 
+#ifdef V4L2_CTRL_TYPE_INTEGER64
 		case V4L2_CTRL_TYPE_INTEGER64:
 			g_print("control[%d]:(int64) 0x%x '%s'\n",i ,control->control.id, control->control.name);
 			g_print ("\tcurr:%" PRIu64 "\n", control->value64);
 			break;
-
+#endif
+#ifdef V4L2_CTRL_TYPE_STRING
 		case V4L2_CTRL_TYPE_STRING:
 			g_print("control[%d]:(str) 0x%x '%s'\n",i ,control->control.id, control->control.name);
 			g_print ("\tmin:%d max:%d step:%d\n",
 				control->control.minimum, control->control.maximum, control->control.step);
 			break;
-
+#endif
 		case V4L2_CTRL_TYPE_BOOLEAN:
 			g_print("control[%d]:(bool) 0x%x '%s'\n",i ,control->control.id, control->control.name);
 			g_print ("\tdef:%d curr:%d\n",
@@ -116,30 +118,34 @@ static void print_control(Control *control, int i)
 				control->control.minimum, control->control.maximum,
 				control->control.default_value, control->value);
 			for (j = 0; control->menu[j].index <= control->control.maximum; j++)
-				g_print("\tmenu[%d]: '%s', [%d] -> %" PRId64 " (0x%" PRIx64 ")\n",j, control->menu[j].name,
-					control->menu[j].index,
-					(int64_t) control->menu[j].value,
-					(int64_t) control->menu[j].value);
+				g_print("\tmenu[%d]: [%d] -> '%s'\n", j, control->menu[j].index, control->menu[j].name);
 			break;
 
+#ifdef V4L2_CTRL_TYPE_INTEGER_MENU
 		case V4L2_CTRL_TYPE_INTEGER_MENU:
 			g_print("control[%d]:(intmenu) 0x%x '%s'\n",i ,control->control.id, control->control.name);
 			g_print("\tmin:%d max:%d def:%d curr:%d\n",
 				control->control.minimum, control->control.maximum,
 				control->control.default_value, control->value);
+			for (j = 0; control->menu[j].index <= control->control.maximum; j++)
+				g_print("\tmenu[%d]: [%d] -> %" PRId64 " (0x%" PRIx64 ")", j, control->menu[j].index,
+					(int64_t) control->menu[j].value,
+					(int64_t) control->menu[j].value);
 			break;
-
+#endif
 		case V4L2_CTRL_TYPE_BUTTON:
 			g_print("control[%d]:(button) 0x%x '%s'\n",i ,control->control.id, control->control.name);
 			break;
 
+#ifdef V4L2_CTRL_TYPE_BITMASK
 		case V4L2_CTRL_TYPE_BITMASK:
 			g_print("control[%d]:(bitmask) 0x%x '%s'\n",i ,control->control.id, control->control.name);
 			g_print("\tmax:%d def:%d curr:%d\n",
 				control->control.maximum, control->control.default_value, control->value);
-
+#endif
 		default:
-			g_print("control[%d]:(unknown) 0x%x '%s'\n",i ,control->control.id, control->control.name);
+			g_print("control[%d]:(unknown - 0x%x) 0x%x '%s'\n",i ,control->control.type,
+				control->control.id, control->control.name);
 			break;
 	}
 }
@@ -156,7 +162,11 @@ static Control *add_control(int hdevice, struct v4l2_queryctrl *queryctrl, Contr
 	}
 
 	//check menu items if needed
-    if(queryctrl->type == V4L2_CTRL_TYPE_MENU)
+    if(queryctrl->type == V4L2_CTRL_TYPE_MENU
+#ifdef V4L2_CTRL_TYPE_INTEGER_MENU
+		|| queryctrl->type == V4L2_CTRL_TYPE_INTEGER_MENU
+#endif
+		)
     {
         int i = 0;
         int ret = 0;
@@ -187,7 +197,8 @@ static Control *add_control(int hdevice, struct v4l2_queryctrl *queryctrl, Contr
 
         menu[i].id = querymenu.id;
         menu[i].index = queryctrl->maximum+1;
-        menu[i].name[0] = 0;
+        if(queryctrl->type == V4L2_CTRL_TYPE_MENU)
+			menu[i].name[0] = 0;
     }
 
     // Add the control to the linked list
