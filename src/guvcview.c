@@ -481,9 +481,15 @@ int main(int argc, char *argv[])
         gtk_widget_show (gwidget->boxh);
 
         scroll1=gtk_scrolled_window_new(NULL,NULL);
-        gtk_container_add(GTK_CONTAINER(scroll1), s->table);
         gtk_scrolled_window_set_placement(GTK_SCROLLED_WINDOW(scroll1), GTK_CORNER_TOP_LEFT);
 
+        //viewport is only needed for gtk < 3.8
+        //for 3.8 and above s->table can be directly added to scroll1
+        GtkWidget* viewport = gtk_viewport_new(NULL,NULL);
+        gtk_container_add(GTK_CONTAINER(viewport), s->table);
+        gtk_widget_show(viewport);
+
+        gtk_container_add(GTK_CONTAINER(scroll1), viewport);
         gtk_widget_show(scroll1);
 
         Tab1 = gtk_grid_new();
