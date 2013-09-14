@@ -121,9 +121,5 @@ void uvcPanTilt (int hdevice, Control *control_list, int is_pan, int direction);
 #define V4L2_CID_IRIS_RELATIVE		(V4L2_CID_CAMERA_CLASS_BASE +18)
 #endif
 
-#ifndef V4L2_CTRL_TYPE_STRING
-#define V4L2_CTRL_TYPE_STRING 7
-#define DISABLE_STRING_CONTROLS
-#endif
 
 #endif

@@ -207,7 +207,7 @@ static Control *add_control(int hdevice, struct v4l2_queryctrl *queryctrl, Contr
     control->class = V4L2_CTRL_ID2CLASS(control->control.id);
     //add the menu adress (NULL if not a menu)
     control->menu = menu;
-#ifndef DISABLE_STRING_CONTROLS
+#ifdef V4L2_CTRL_TYPE_STRING
     //allocate a string with max size if needed
     if(control->control.type == V4L2_CTRL_TYPE_STRING)
         control->string = calloc(control->control.maximum + 1, sizeof(char));
@@ -593,6 +593,9 @@ static void update_widget_state(Control *control_list, void *all_data)
                         }
                     }
                     break;
+#ifdef V4L2_CTRL_TYPE_INTEGER_MENU
+				case V4L2_CTRL_TYPE_INTEGER_MENU:
+#endif
                 case V4L2_CTRL_TYPE_MENU:
                 {
                     //disable widget signals
@@ -670,15 +673,15 @@ void create_control_widgets(Control *control_list, void *all_data, int control_o
 
         switch(current->control.type)
         {
-#ifndef DISABLE_STRING_CONTROLS
+#ifdef V4L2_CTRL_TYPE_STRING
             case V4L2_CTRL_TYPE_STRING:
-                //text box and set button
+                //text box and set button with maximum charaters
                 printf("control type string not yet fully supported\n");
                 break;
 #endif
 #ifdef V4L2_CTRL_TYPE_INTEGER64
             case V4L2_CTRL_TYPE_INTEGER64:
-                //slider or text box and set button
+                //text box and set button
                 printf("control type is not yet fully supported\n");
                 break;
 #endif
@@ -899,33 +902,6 @@ void create_control_widgets(Control *control_list, void *all_data, int control_o
 
 #ifdef V4L2_CTRL_TYPE_INTEGER_MENU
 			case V4L2_CTRL_TYPE_INTEGER_MENU:
-				{
-					if(current->menu)
-                    {
-                        int j = 0;
-                        int def = 0;
-                        current->widget = gtk_combo_box_text_new ();
-                        for (j = 0; current->menu[j].index <= current->control.maximum; j++)
-                        {
-							char buffer[30]="0";
-							snprintf(buffer, "%" PRIu64 "", 29, current->menu[j].value);
-                            gtk_combo_box_text_append_text (
-                                GTK_COMBO_BOX_TEXT (current->widget), buffer);
-                            if(current->value64 == current->menu[j].value)
-                            	def = j;
-                        }
-
-                        gtk_combo_box_set_active (GTK_COMBO_BOX(current->widget), def);
-                        gtk_widget_show (current->widget);
-
-                        g_object_set_data (G_OBJECT (current->widget), "control_info",
-                            GINT_TO_POINTER(current->control.id));
-                        //connect signal
-                        g_signal_connect (GTK_COMBO_BOX_TEXT(current->widget), "changed",
-                            G_CALLBACK (combo_changed), all_data);
-                    }
-                }
-                break;
 #endif
             case V4L2_CTRL_TYPE_MENU:
                 {
@@ -936,11 +912,21 @@ void create_control_widgets(Control *control_list, void *all_data, int control_o
                         current->widget = gtk_combo_box_text_new ();
                         for (j = 0; current->menu[j].index <= current->control.maximum; j++)
                         {
-                        	//if (verbose)
-        	                //   	printf("adding menu entry %d: %d, %s\n",j, current->menu[j].index, current->menu[j].name);
-                            gtk_combo_box_text_append_text (
-                                GTK_COMBO_BOX_TEXT (current->widget),
-                                (char *) current->menu[j].name);
+							if(current->control.type == V4L2_CTRL_TYPE_MENU)
+							{
+								gtk_combo_box_text_append_text (
+									GTK_COMBO_BOX_TEXT (current->widget),
+									(char *) current->menu[j].name);
+                            }
+#ifdef V4L2_CTRL_TYPE_INTEGER_MENU                       
+                            else
+                            {
+								char buffer[30]="0";
+								snprintf(buffer, "%" PRIu64 "", 29, current->menu[j].value);
+								gtk_combo_box_text_append_text (
+									GTK_COMBO_BOX_TEXT (current->widget), buffer);
+                            }
+#endif                            
                             if(current->value == current->menu[j].index)
                             	def = j;
                         }
@@ -1043,12 +1029,12 @@ void get_ctrl_values (int hdevice, Control *control_list, int num_controls, void
              continue;
 
         clist[count].id = current->control.id;
-#ifndef DISABLE_STRING_CONTROLS
+#ifdef V4L2_CTRL_TYPE_STRING
         clist[count].size = 0;
         if(current->control.type == V4L2_CTRL_TYPE_STRING)
         {
-            clist[count].size = current->control.maximum + 1;
-            clist[count].string = calloc(clist[count].size, sizeof(char));
+            clist[count].size = current->control.maximum;
+            clist[count].string = calloc(clist[count].size + 1, sizeof(char));
 			clist[count].string[0] = 0;
         }
 #endif
@@ -1067,7 +1053,7 @@ void get_ctrl_values (int hdevice, Control *control_list, int num_controls, void
                 struct v4l2_control ctrl;
                 //get the controls one by one
                 if( current->class == V4L2_CTRL_CLASS_USER
-#ifndef DISABLE_STRING_CONTROLS
+#ifdef V4L2_CTRL_TYPE_STRING
 					&& current->control.type != V4L2_CTRL_TYPE_STRING
 #endif
 #ifdef V4L2_CTRL_TYPE_INTEGER64
@@ -1113,8 +1099,9 @@ void get_ctrl_values (int hdevice, Control *control_list, int num_controls, void
                 }
                 switch(ctrl->control.type)
                 {
-#ifndef DISABLE_STRING_CONTROLS
+#ifdef V4L2_CTRL_TYPE_STRING
                     case V4L2_CTRL_TYPE_STRING:
+                    {
                         //string gets set on VIDIOC_G_EXT_CTRLS
                         //add the maximum size to value
                         unsigned len = clist[i].size;
@@ -1124,7 +1111,7 @@ void get_ctrl_values (int hdevice, Control *control_list, int num_controls, void
 						{
 							ctrl->value = max_len;
 						    memcpy(ctrl->string, clist[i].string, max_len);
-							ctrl->string[maxlen] = 0; //Null terminated
+							ctrl->string[max_len] = 0; //Null terminated
 							printf("control id: 0x%08x returned string size of %d when max is %d\n",
 								ctrl->control.id, len, max_len);
 						}
@@ -1136,6 +1123,7 @@ void get_ctrl_values (int hdevice, Control *control_list, int num_controls, void
 						free(clist[i].string);
 						clist[i].string = NULL;
                         break;
+                    }
 #endif
                     case V4L2_CTRL_TYPE_INTEGER64:
                         ctrl->value64 = clist[i].value64;
@@ -1172,6 +1160,12 @@ int get_ctrl(int hdevice, Control *control_list, int id, void *all_data)
         return (-1);
 
     if( control->class == V4L2_CTRL_CLASS_USER
+#ifdef V4L2_CTRL_TYPE_STRING
+		&& control->control.type != V4L2_CTRL_TYPE_STRING
+#endif
+#ifdef V4L2_CTRL_TYPE_INTEGER64
+		&& control->control.type != V4L2_CTRL_TYPE_INTEGER64
+#endif
         )
     {
         struct v4l2_control ctrl;
@@ -1192,12 +1186,12 @@ int get_ctrl(int hdevice, Control *control_list, int id, void *all_data)
         struct v4l2_ext_controls ctrls = {0};
         struct v4l2_ext_control ctrl = {0};
         ctrl.id = control->control.id;
-#ifndef DISABLE_STRING_CONTROLS
+#ifdef V4L2_CTRL_TYPE_STRING
         ctrl.size = 0;
         if(control->control.type == V4L2_CTRL_TYPE_STRING)
         {
-            ctrl.size = control->control.maximum + 1;
-            ctrl.string = calloc(ctrl.size, sizeof(char));
+            ctrl.size = control->control.maximum;
+            ctrl.string = calloc(ctrl.size + 1, sizeof(char));
             ctrl.string[0] = 0;
         }
 #endif
@@ -1212,29 +1206,30 @@ int get_ctrl(int hdevice, Control *control_list, int id, void *all_data)
         {
             switch(control->control.type)
             {
-#ifndef DISABLE_STRING_CONTROLS
+#ifdef V4L2_CTRL_TYPE_STRING
                 case V4L2_CTRL_TYPE_STRING:
-					{
-						unsigned len = ctrl.size;
-						unsigned max_len = control->control.maximum;
+				{
+					unsigned len = ctrl.size;
+					unsigned max_len = control->control.maximum;
 
-						if(len > max_len)
-						{
-							control->value = max_len;
-						    memcpy(control->string, ctrl.string, max_len);
-							control->string[maxlen] = 0; //Null terminated
-							printf("control id: 0x%08x returned string size of %d when max is %d\n",
-								control->control.id, len, max_len);
-						}
-						else
-						{
-							strcpy(control->string, ctrl.string);
-						}
-						//clean up
-						free(ctrl.string);
-						ctrl.string = NULL;
+					if(len > max_len)
+					{
+						control->value = max_len;
+					    memcpy(control->string, ctrl.string, max_len);
+						control->string[max_len] = 0; //Null terminated
+						printf("control id: 0x%08x returned string size of %d when max is %d\n",
+							control->control.id, len, max_len);
 					}
-                    break;
+					else
+					{
+						strcpy(control->string, ctrl.string);
+					}
+					//clean up
+					free(ctrl.string);
+					ctrl.string = NULL;
+					
+					break;
+				}
 #endif
 #ifdef V4L2_CTRL_TYPE_INTEGER64
                 case V4L2_CTRL_TYPE_INTEGER64:
@@ -1277,11 +1272,29 @@ void set_ctrl_values (int hdevice, Control *control_list, int num_controls)
         clist[count].id = current->control.id;
         switch (current->control.type)
         {
-#ifndef DISABLE_STRING_CONTROLS
+#ifdef V4L2_CTRL_TYPE_STRING
             case V4L2_CTRL_TYPE_STRING:
-                clist[count].size = current->value;
-                clist[count].string = current->string;
+            {
+				unsigned len = strlen(current->string);
+				unsigned max_len = current->control.maximum;
+				
+				if(len > max_len)
+				{
+					clist[count].size = max_len;
+					clist[count].string = calloc(clist[count].size + 1, sizeof(char));
+					memcpy(clist[count].string, current->string, max_len);
+					clist[count].string[max_len] = 0; //Null terminated
+					printf("control id: 0x%08x trying to set string size of %d when max is %d (clip)\n",
+						current->control.id, len, max_len);
+				}
+				else
+				{
+					clist[count].size = len;
+					clist[count].string = calloc(clist[count].size + 1, sizeof(char));
+					strcpy(clist[count].string, current->string);
+				}
                 break;
+            }
 #endif
             case V4L2_CTRL_TYPE_INTEGER64:
                 clist[count].value64 = current->value64;
@@ -1304,7 +1317,14 @@ void set_ctrl_values (int hdevice, Control *control_list, int num_controls)
                 printf("VIDIOC_S_EXT_CTRLS for multiple controls failed (error %i)\n", ret);
                 struct v4l2_control ctrl;
                 //set the controls one by one
-                if( current->class == V4L2_CTRL_CLASS_USER)
+                if( current->class == V4L2_CTRL_CLASS_USER
+#ifdef V4L2_CTRL_TYPE_STRING
+					&& current->control.type != V4L2_CTRL_TYPE_STRING
+#endif
+#ifdef V4L2_CTRL_TYPE_INTEGER64
+					&& current->control.type != V4L2_CTRL_TYPE_INTEGER64
+#endif                
+                )
                 {
                     printf("   using VIDIOC_S_CTRL for user class controls\n");
                     for(i=0;i < count; i++)
@@ -1333,9 +1353,11 @@ void set_ctrl_values (int hdevice, Control *control_list, int num_controls)
                         ctrls.count = 1;
                         ctrls.controls = &clist[i];
                         ret = xioctl(hdevice, VIDIOC_S_EXT_CTRLS, &ctrls);
+                        
+                        Control *ctrl = get_ctrl_by_id(control_list, clist[i].id);
+                        
                         if(ret)
                         {
-                            Control *ctrl = get_ctrl_by_id(control_list, clist[i].id);
                             if(ctrl)
                                 printf("control(0x%08x) \"%s\" failed to set (error %i)\n",
                                     clist[i].id, ctrl->control.name, ret);
@@ -1343,6 +1365,13 @@ void set_ctrl_values (int hdevice, Control *control_list, int num_controls)
                               printf("control(0x%08x) failed to set (error %i)\n",
                                     clist[i].id, ret);
                         }
+#ifdef V4L2_CTRL_TYPE_STRING
+                        if(ctrl && ctrl->control.type == V4L2_CTRL_TYPE_STRING)
+                        {
+							free(clist[i].string); //free allocated string
+							clist[i].string = NULL;
+						}
+#endif
                     }
                 }
             }
@@ -1378,13 +1407,14 @@ void set_default_values(int hdevice, Control *control_list, int num_controls, vo
         //printf("setting 0x%08X to %i\n",current->control.id, current->control.default_value);
         switch (current->control.type)
         {
-#ifndef DISABLE_STRING_CONTROLS
-            case V4L2_CTRL_TYPE_STRING:
+#ifdef V4L2_CTRL_TYPE_STRING
+            case V4L2_CTRL_TYPE_STRING: // do string controls have a default value?
                 break;
 #endif
-            case V4L2_CTRL_TYPE_INTEGER64:
-                current->value64 = current->control.default_value;
+#ifdef V4L2_CTRL_TYPE_INTEGER64
+            case V4L2_CTRL_TYPE_INTEGER64: // do int64 controls have a default value?
                 break;
+#endif
             default:
                 //if its one of the special auto controls disable it first
                 disable_special_auto (hdevice, control_list, current->control.id);
@@ -1411,7 +1441,7 @@ int set_ctrl(int hdevice, Control *control_list, int id)
         return (-1);
 
     if( control->class == V4L2_CTRL_CLASS_USER
-#ifndef DISABLE_STRING_CONTROLS
+#ifdef V4L2_CTRL_TYPE_STRING
     && control->control.type != V4L2_CTRL_TYPE_STRING
 #endif
     && control->control.type != V4L2_CTRL_TYPE_INTEGER64)
@@ -1430,16 +1460,35 @@ int set_ctrl(int hdevice, Control *control_list, int id)
         ctrl.id = control->control.id;
         switch (control->control.type)
         {
-#ifndef DISABLE_STRING_CONTROLS
+#ifdef V4L2_CTRL_TYPE_STRING
             case V4L2_CTRL_TYPE_STRING:
-                ctrl.size = control->value;
-                ctrl.string = (char *)malloc(ctrl.size);
-                ctrl.string = control->string;
+            {
+				unsigned len = strlen(control->string);
+				unsigned max_len = control->control.maximum;
+				
+				if(len > max_len)
+				{
+					ctrl.size = max_len;
+					ctrl.string = calloc(ctrl.size + 1, sizeof(char));
+					memcpy(ctrl.string, control->string, max_len);
+					ctrl.string[max_len] = 0; //Null terminated
+					printf("control id: 0x%08x trying to set string size of %d when max is %d (clip)\n",
+						control->control.id, len, max_len);
+				}
+				else
+				{
+					ctrl.size = len;
+					ctrl.string = calloc(ctrl.size + 1, sizeof(char));
+					strcpy(ctrl.string, control->string);
+				}
                 break;
+            }
 #endif
+#ifdef V4L2_CTRL_TYPE_INTEGER64
             case V4L2_CTRL_TYPE_INTEGER64:
                 ctrl.value64 = control->value64;
                 break;
+#endif
             default:
                 ctrl.value = control->value;
                 break;
@@ -1451,6 +1500,13 @@ int set_ctrl(int hdevice, Control *control_list, int id)
         if(ret)
             printf("control id: 0x%08x failed to set (error %i)\n",
                 ctrl.id, ret);
+#ifdef V4L2_CTRL_TYPE_STRING                
+        if(control->control.type == V4L2_CTRL_TYPE_STRING)
+        {
+			free(ctrl.string); //clean up string allocation
+			ctrl.string = NULL;
+		}
+#endif
     }
 
     //update real value
