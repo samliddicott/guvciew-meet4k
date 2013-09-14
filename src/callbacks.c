@@ -1169,7 +1169,58 @@ button_clicked (GtkButton * Button, struct ALL_DATA *all_data)
     int id = GPOINTER_TO_INT(g_object_get_data (G_OBJECT (Button), "control_info"));
     Control *c = get_ctrl_by_id(s->control_list, id);
 
-    c->value = 1;
+	switch(c->control.type)
+	{
+#ifdef V4L2_CTRL_TYPE_STRING
+		case V4L2_CTRL_TYPE_STRING:
+			char *text_input = g_strescape(gtk_entry_get_text(c->widget), "");
+			strncpy(c->string, text_input, c->control.maximum);
+			g_free(text_input);
+			break;
+#endif
+#ifdef V4L2_CTRL_TYPE_INTEGER64
+		case V4L2_CTRL_TYPE_INTEGER64:
+			{
+				char* text_input = g_strdup(gtk_entry_get_text(c->widget));
+				text_input = g_strstrip(text_input);
+				if( g_str_has_prefix(text_input,"0x")) //hex format
+				{
+					text_input = g_strcanon(text_input,"0123456789ABCDEFabcdef", '');
+					c->value64 = g_ascii_strtoll(text_input, NULL, 16);
+					g_free(text_input);
+					text_input = g_strdup_printf("0x%" PRIx64 "", c->value64);
+					 
+				}
+				else //decimal format
+				{
+					text_input = g_strcanon(text_input,"0123456789", '');
+					c->value64 = g_ascii_strtoll(text_input, NULL, 10);
+					g_free(text_input);
+					text_input = g_strdup_printf("%" PRId64 "", c->value64);
+				}
+				gtk_entry_set_text (c->widget, text_input);
+				g_free(text_input);
+			}
+			break;
+#endif
+#ifdef V4L2_CTRL_TYPE_BITMASK
+		case V4L2_CTRL_TYPE_BITMASK:
+			{
+				char* text_input = g_strdup(gtk_entry_get_text(c->widget));
+				text_input = g_strcanon(text_input,"0123456789ABCDEFabcdef", '');
+				c->value = (int32_t) g_ascii_strtoll(text_input, NULL, 16);
+				g_free(text_input);
+				text_input = g_strdup_printf("0x%x", c->value);
+				gtk_entry_set_text (c->widget, text_input);
+				g_free(text_input);
+			}
+			break; 
+#endif
+		default: //button
+			c->value = 1;
+			break;
+	}
+    
     set_ctrl(videoIn->fd, s->control_list, id);
 }
 

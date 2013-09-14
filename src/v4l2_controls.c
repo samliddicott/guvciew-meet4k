@@ -676,14 +676,63 @@ void create_control_widgets(Control *control_list, void *all_data, int control_o
 #ifdef V4L2_CTRL_TYPE_STRING
             case V4L2_CTRL_TYPE_STRING:
                 //text box and set button with maximum charaters
-                printf("control type string not yet fully supported\n");
+                {
+					current->widget = gtk_entry_new();
+					gtk_entry_set_max_length(current->widget, current->control.maximum);
+					
+					current->spinbutton = gtk_button_new_from_stock(GTK_STOCK_APPLY);
+					
+					gtk_widget_show (current->widget);
+					gtk_widget_show (current->spinbutton);
+					
+					g_object_set_data (G_OBJECT (current->spinbutton), "control_info",
+                        GINT_TO_POINTER(current->control.id));
+
+                    g_signal_connect (GTK_BUTTON(current->spinbutton), "clicked",
+                        G_CALLBACK (button_clicked), all_data);
+					
+				}
                 break;
 #endif
 #ifdef V4L2_CTRL_TYPE_INTEGER64
             case V4L2_CTRL_TYPE_INTEGER64:
                 //text box and set button
-                printf("control type is not yet fully supported\n");
+                {
+					current->widget = gtk_entry_new();
+					
+					current->spinbutton = gtk_button_new_from_stock(GTK_STOCK_APPLY);
+					
+					gtk_widget_show (current->widget);
+					gtk_widget_show (current->spinbutton);
+					
+					g_object_set_data (G_OBJECT (current->spinbutton), "control_info",
+                        GINT_TO_POINTER(current->control.id));
+
+                    g_signal_connect (GTK_BUTTON(current->spinbutton), "clicked",
+                        G_CALLBACK (button_clicked), all_data);
+					
+				}
                 break;
+#endif
+#ifdef V4L2_CTRL_TYPE_BITMASK
+			case V4L2_CTRL_TYPE_BITMASK:
+				//text box and set button
+                {
+					current->widget = gtk_entry_new();
+					
+					current->spinbutton = gtk_button_new_from_stock(GTK_STOCK_APPLY);
+					
+					gtk_widget_show (current->widget);
+					gtk_widget_show (current->spinbutton);
+					
+					g_object_set_data (G_OBJECT (current->spinbutton), "control_info",
+                        GINT_TO_POINTER(current->control.id));
+
+                    g_signal_connect (GTK_BUTTON(current->spinbutton), "clicked",
+                        G_CALLBACK (button_clicked), all_data);
+					
+				}
+				break;
 #endif
             case V4L2_CTRL_TYPE_BUTTON:
                 {
