@@ -210,7 +210,7 @@ static Control *add_control(int hdevice, struct v4l2_queryctrl *queryctrl, Contr
 #ifdef V4L2_CTRL_TYPE_STRING
     //allocate a string with max size if needed
     if(control->control.type == V4L2_CTRL_TYPE_STRING)
-        control->string = calloc(control->control.maximum + 1, sizeof(char));
+        control->string = (char *) g_strnfill(control->control.maximum + 1, 0);
     else
 #endif
         control->string = NULL;
@@ -561,6 +561,15 @@ static void update_widget_state(Control *control_list, void *all_data)
         {
             switch(current->control.type)
             {
+#ifdef V4L2_CTRL_TYPE_STRING
+				case V4L2_CTRL_TYPE_STRING:
+				{
+					char *text_input = g_strescape(current->string, "");
+					gtk_entry_set_text (current->widget, text_input);
+					g_free(text_input);
+					break;
+				}
+#endif
                 case V4L2_CTRL_TYPE_BOOLEAN:
                     //disable widget signals
                     g_signal_handlers_block_by_func(GTK_TOGGLE_BUTTON(current->widget),
@@ -571,6 +580,25 @@ static void update_widget_state(Control *control_list, void *all_data)
                     g_signal_handlers_unblock_by_func(GTK_TOGGLE_BUTTON(current->widget),
                         G_CALLBACK (check_changed), all_data);
                     break;
+
+#ifdef V4L2_CTRL_TYPE_BITMASK
+				case V4L2_CTRL_TYPE_BITMASK:
+				{
+					char *text_input = g_strdup_printf("0x%x", current->value);
+					gtk_entry_set_text (current->widget, text_input);
+					g_free(text_input);
+					break;
+				}
+#endif
+#ifdef V4L2_CTRL_TYPE_INTEGER64
+				case V4L2_CTRL_TYPE_INTEGER64:
+				{
+					char *text_input = g_strdup_printf("0x%" PRIx64 "", c->value64);
+					gtk_entry_set_text (current->widget, text_input);
+					g_free(text_input);
+					break;
+				}
+#endif
                 case V4L2_CTRL_TYPE_INTEGER:
                     if(!(is_special_case_control(current->control.id)))
                     {
@@ -593,6 +621,7 @@ static void update_widget_state(Control *control_list, void *all_data)
                         }
                     }
                     break;
+
 #ifdef V4L2_CTRL_TYPE_INTEGER_MENU
 				case V4L2_CTRL_TYPE_INTEGER_MENU:
 #endif
@@ -616,6 +645,7 @@ static void update_widget_state(Control *control_list, void *all_data)
                         G_CALLBACK (combo_changed), all_data);
                     break;
                 }
+
                 default:
                     break;
             }
@@ -679,18 +709,18 @@ void create_control_widgets(Control *control_list, void *all_data, int control_o
                 {
 					current->widget = gtk_entry_new();
 					gtk_entry_set_max_length(current->widget, current->control.maximum);
-					
+
 					current->spinbutton = gtk_button_new_from_stock(GTK_STOCK_APPLY);
-					
+
 					gtk_widget_show (current->widget);
 					gtk_widget_show (current->spinbutton);
-					
+
 					g_object_set_data (G_OBJECT (current->spinbutton), "control_info",
                         GINT_TO_POINTER(current->control.id));
 
                     g_signal_connect (GTK_BUTTON(current->spinbutton), "clicked",
                         G_CALLBACK (button_clicked), all_data);
-					
+
 				}
                 break;
 #endif
@@ -699,18 +729,18 @@ void create_control_widgets(Control *control_list, void *all_data, int control_o
                 //text box and set button
                 {
 					current->widget = gtk_entry_new();
-					
+
 					current->spinbutton = gtk_button_new_from_stock(GTK_STOCK_APPLY);
-					
+
 					gtk_widget_show (current->widget);
 					gtk_widget_show (current->spinbutton);
-					
+
 					g_object_set_data (G_OBJECT (current->spinbutton), "control_info",
                         GINT_TO_POINTER(current->control.id));
 
                     g_signal_connect (GTK_BUTTON(current->spinbutton), "clicked",
                         G_CALLBACK (button_clicked), all_data);
-					
+
 				}
                 break;
 #endif
@@ -719,18 +749,18 @@ void create_control_widgets(Control *control_list, void *all_data, int control_o
 				//text box and set button
                 {
 					current->widget = gtk_entry_new();
-					
+
 					current->spinbutton = gtk_button_new_from_stock(GTK_STOCK_APPLY);
-					
+
 					gtk_widget_show (current->widget);
 					gtk_widget_show (current->spinbutton);
-					
+
 					g_object_set_data (G_OBJECT (current->spinbutton), "control_info",
                         GINT_TO_POINTER(current->control.id));
 
                     g_signal_connect (GTK_BUTTON(current->spinbutton), "clicked",
                         G_CALLBACK (button_clicked), all_data);
-					
+
 				}
 				break;
 #endif
@@ -967,7 +997,7 @@ void create_control_widgets(Control *control_list, void *all_data, int control_o
 									GTK_COMBO_BOX_TEXT (current->widget),
 									(char *) current->menu[j].name);
                             }
-#ifdef V4L2_CTRL_TYPE_INTEGER_MENU                       
+#ifdef V4L2_CTRL_TYPE_INTEGER_MENU
                             else
                             {
 								char buffer[30]="0";
@@ -975,7 +1005,7 @@ void create_control_widgets(Control *control_list, void *all_data, int control_o
 								gtk_combo_box_text_append_text (
 									GTK_COMBO_BOX_TEXT (current->widget), buffer);
                             }
-#endif                            
+#endif
                             if(current->value == current->menu[j].index)
                             	def = j;
                         }
@@ -1083,8 +1113,7 @@ void get_ctrl_values (int hdevice, Control *control_list, int num_controls, void
         if(current->control.type == V4L2_CTRL_TYPE_STRING)
         {
             clist[count].size = current->control.maximum;
-            clist[count].string = calloc(clist[count].size + 1, sizeof(char));
-			clist[count].string[0] = 0;
+            clist[count].string = (char *) g_strnfill(clist[count].size + 1, 0);
         }
 #endif
         count++;
@@ -1156,20 +1185,16 @@ void get_ctrl_values (int hdevice, Control *control_list, int num_controls, void
                         unsigned len = clist[i].size;
 						unsigned max_len = ctrl->control.maximum;
 
+						strncpy(ctrl->string, clist[i].string, max_len);
 						if(len > max_len)
 						{
-							ctrl->value = max_len;
-						    memcpy(ctrl->string, clist[i].string, max_len);
 							ctrl->string[max_len] = 0; //Null terminated
 							printf("control id: 0x%08x returned string size of %d when max is %d\n",
 								ctrl->control.id, len, max_len);
 						}
-						else
-						{
-							strcpy(ctrl->string, clist[i].string);
-						}
+
 						//clean up
-						free(clist[i].string);
+						g_free(clist[i].string);
 						clist[i].string = NULL;
                         break;
                     }
@@ -1240,8 +1265,7 @@ int get_ctrl(int hdevice, Control *control_list, int id, void *all_data)
         if(control->control.type == V4L2_CTRL_TYPE_STRING)
         {
             ctrl.size = control->control.maximum;
-            ctrl.string = calloc(ctrl.size + 1, sizeof(char));
-            ctrl.string[0] = 0;
+            ctrl.string = (char *) g_strnfill(ctrl.size + 1, 0);
         }
 #endif
         ctrls.ctrl_class = control->class;
@@ -1261,22 +1285,20 @@ int get_ctrl(int hdevice, Control *control_list, int id, void *all_data)
 					unsigned len = ctrl.size;
 					unsigned max_len = control->control.maximum;
 
+					strncpy(control->string, ctrl.string, max_len);
 					if(len > max_len)
 					{
 						control->value = max_len;
-					    memcpy(control->string, ctrl.string, max_len);
 						control->string[max_len] = 0; //Null terminated
 						printf("control id: 0x%08x returned string size of %d when max is %d\n",
 							control->control.id, len, max_len);
 					}
-					else
-					{
-						strcpy(control->string, ctrl.string);
-					}
+
+
 					//clean up
-					free(ctrl.string);
+					g_free(ctrl.string);
 					ctrl.string = NULL;
-					
+
 					break;
 				}
 #endif
@@ -1326,21 +1348,18 @@ void set_ctrl_values (int hdevice, Control *control_list, int num_controls)
             {
 				unsigned len = strlen(current->string);
 				unsigned max_len = current->control.maximum;
-				
+
 				if(len > max_len)
 				{
 					clist[count].size = max_len;
-					clist[count].string = calloc(clist[count].size + 1, sizeof(char));
-					memcpy(clist[count].string, current->string, max_len);
-					clist[count].string[max_len] = 0; //Null terminated
+					clist[count].string = (char *) g_strndup(current->string, max_len);
 					printf("control id: 0x%08x trying to set string size of %d when max is %d (clip)\n",
 						current->control.id, len, max_len);
 				}
 				else
 				{
 					clist[count].size = len;
-					clist[count].string = calloc(clist[count].size + 1, sizeof(char));
-					strcpy(clist[count].string, current->string);
+					clist[count].string = (char *) g_strdup(current->string);
 				}
                 break;
             }
@@ -1372,7 +1391,7 @@ void set_ctrl_values (int hdevice, Control *control_list, int num_controls)
 #endif
 #ifdef V4L2_CTRL_TYPE_INTEGER64
 					&& current->control.type != V4L2_CTRL_TYPE_INTEGER64
-#endif                
+#endif
                 )
                 {
                     printf("   using VIDIOC_S_CTRL for user class controls\n");
@@ -1402,9 +1421,9 @@ void set_ctrl_values (int hdevice, Control *control_list, int num_controls)
                         ctrls.count = 1;
                         ctrls.controls = &clist[i];
                         ret = xioctl(hdevice, VIDIOC_S_EXT_CTRLS, &ctrls);
-                        
+
                         Control *ctrl = get_ctrl_by_id(control_list, clist[i].id);
-                        
+
                         if(ret)
                         {
                             if(ctrl)
@@ -1417,7 +1436,7 @@ void set_ctrl_values (int hdevice, Control *control_list, int num_controls)
 #ifdef V4L2_CTRL_TYPE_STRING
                         if(ctrl && ctrl->control.type == V4L2_CTRL_TYPE_STRING)
                         {
-							free(clist[i].string); //free allocated string
+							g_free(clist[i].string); //free allocated string
 							clist[i].string = NULL;
 						}
 #endif
@@ -1514,21 +1533,18 @@ int set_ctrl(int hdevice, Control *control_list, int id)
             {
 				unsigned len = strlen(control->string);
 				unsigned max_len = control->control.maximum;
-				
+
 				if(len > max_len)
 				{
 					ctrl.size = max_len;
-					ctrl.string = calloc(ctrl.size + 1, sizeof(char));
-					memcpy(ctrl.string, control->string, max_len);
-					ctrl.string[max_len] = 0; //Null terminated
+					ctrl.string = (char *) g_strndup(control->string, max_len);
 					printf("control id: 0x%08x trying to set string size of %d when max is %d (clip)\n",
 						control->control.id, len, max_len);
 				}
 				else
 				{
 					ctrl.size = len;
-					ctrl.string = calloc(ctrl.size + 1, sizeof(char));
-					strcpy(ctrl.string, control->string);
+					ctrl.string = (char *) g_strndup(control->string, max_len);
 				}
                 break;
             }
@@ -1549,10 +1565,10 @@ int set_ctrl(int hdevice, Control *control_list, int id)
         if(ret)
             printf("control id: 0x%08x failed to set (error %i)\n",
                 ctrl.id, ret);
-#ifdef V4L2_CTRL_TYPE_STRING                
+#ifdef V4L2_CTRL_TYPE_STRING
         if(control->control.type == V4L2_CTRL_TYPE_STRING)
         {
-			free(ctrl.string); //clean up string allocation
+			g_free(ctrl.string); //clean up string allocation
 			ctrl.string = NULL;
 		}
 #endif
@@ -1573,14 +1589,14 @@ void free_control_list (Control *control_list)
     Control *next = first->next;
     while (next != NULL)
     {
-        if(first->string) free(first->string);
+        if(first->string) g_free(first->string);
         if(first->menu) g_free(first->menu);
         free(first);
         first = next;
         next = first->next;
     }
     //clean the last one
-    if(first->string) free(first->string);
+    if(first->string) g_free(first->string);
     if(first) free(first);
     control_list = NULL;
 }

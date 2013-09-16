@@ -239,9 +239,9 @@ filename_update_extension (GtkComboBox *chooser, GtkWidget *file_dialog)
 	//GtkFileFilter *filter = gtk_file_chooser_get_filter(GTK_FILE_CHOOSER (file_dialog));
 	//if(G_IS_OBJECT(filter))
 	//	g_object_unref(filter);
-		
+
 	GtkFileFilter *filter = gtk_file_filter_new();
-	
+
 	int flag_vid = GPOINTER_TO_INT(g_object_get_data (G_OBJECT (chooser), "format_combo"));
 	if(flag_vid)
 	{
@@ -255,9 +255,9 @@ filename_update_extension (GtkComboBox *chooser, GtkWidget *file_dialog)
 			setImgExt(basename, index));
 		gtk_file_filter_add_pattern(filter, get_iformat_pattern(index));
 	}
-	
+
 	gtk_file_chooser_set_filter(GTK_FILE_CHOOSER (file_dialog), filter);
-	
+
 	g_free(basename);
 	g_free(filename);
 }
@@ -275,10 +275,10 @@ file_chooser (GtkWidget * FileButt, struct ALL_DATA *all_data)
 		GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
 		NULL);
 	gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (FileDialog), TRUE);
-	
+
 	/** create a file filter */
 	GtkFileFilter *filter = gtk_file_filter_new();
-		
+
 	GtkWidget *FBox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
 	GtkWidget *format_label = gtk_label_new(_("File Format:"));
 	gtk_widget_set_halign (FBox, GTK_ALIGN_FILL);
@@ -287,7 +287,7 @@ file_chooser (GtkWidget * FileButt, struct ALL_DATA *all_data)
 	gtk_widget_show(FBox);
 	gtk_widget_show(format_label);
 	gtk_box_pack_start(GTK_BOX(FBox), format_label, FALSE, FALSE, 2);
-		
+
 	int flag_vid = GPOINTER_TO_INT(g_object_get_data (G_OBJECT (FileButt), "file_butt"));
 	if(flag_vid)
 	{ 	/* video File chooser*/
@@ -295,8 +295,8 @@ file_chooser (GtkWidget * FileButt, struct ALL_DATA *all_data)
 			global->vidFPath[1]);
 		gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (FileDialog),
 			global->vidFPath[0]);
-		
-		/** add format file filters*/	
+
+		/** add format file filters*/
 		GtkWidget *VidFormat = gtk_combo_box_text_new ();
 		gtk_widget_set_halign (VidFormat, GTK_ALIGN_FILL);
 		gtk_widget_set_hexpand (VidFormat, TRUE);
@@ -308,7 +308,7 @@ file_chooser (GtkWidget * FileButt, struct ALL_DATA *all_data)
 		gtk_combo_box_set_active(GTK_COMBO_BOX(VidFormat), global->VidFormat);
 		gtk_box_pack_start(GTK_BOX(FBox), VidFormat, FALSE, FALSE, 2);
 		gtk_widget_show(VidFormat);
-		
+
 		/**add a pattern to the filter*/
 		gtk_file_filter_add_pattern(filter, get_vformat_pattern(global->VidFormat));
 		gtk_file_chooser_set_filter(GTK_FILE_CHOOSER (FileDialog), filter);
@@ -324,7 +324,7 @@ file_chooser (GtkWidget * FileButt, struct ALL_DATA *all_data)
 			gchar *fullname = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (FileDialog));
 			global->vidFPath=splitPath(fullname, global->vidFPath);
 			g_free(fullname);
-			
+
 			/*get the file type*/
 			global->VidFormat = check_video_type(global->vidFPath[0]);
 			/** check for webm and change codecs acordingly */
@@ -402,7 +402,7 @@ file_chooser (GtkWidget * FileButt, struct ALL_DATA *all_data)
 		/**add a pattern to the filter*/
 		gtk_file_filter_add_pattern(filter, get_iformat_pattern(global->imgFormat));
 		gtk_file_chooser_set_filter(GTK_FILE_CHOOSER (FileDialog), filter);
-		
+
 		gtk_file_chooser_set_extra_widget(GTK_FILE_CHOOSER (FileDialog), FBox);
 
 		g_object_set_data (G_OBJECT (ImgFormat), "format_combo", GINT_TO_POINTER(0));
@@ -414,7 +414,7 @@ file_chooser (GtkWidget * FileButt, struct ALL_DATA *all_data)
 			gchar *fullname = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (FileDialog));
 			global->imgFPath=splitPath(fullname, global->imgFPath);
 			g_free(fullname);
-			
+
 			/*get the file type*/
 			global->imgFormat = check_image_type(global->imgFPath[0]);
 
@@ -433,7 +433,7 @@ file_chooser (GtkWidget * FileButt, struct ALL_DATA *all_data)
 
 		}
 	}
-	
+
 	//GtkFileFilter* current_filter = gtk_file_chooser_get_filter(GTK_FILE_CHOOSER (FileDialog));
 	//if(G_IS_OBJECT(current_filter))
 	//	g_object_unref(current_filter);
@@ -789,7 +789,7 @@ lavc_audio_properties(GtkMenuItem * codec_prop, struct ALL_DATA *all_data)
 
 	int line = 0;
 	acodecs_data *codec_defaults = get_aud_codec_defaults(global->AudCodec);
-	
+
 	if (!(codec_defaults->avcodec)) return;
 
 	GtkWidget *codec_dialog = gtk_dialog_new_with_buttons (_("audio codec values"),
@@ -963,17 +963,17 @@ key_pressed (GtkWidget *win, GdkEventKey *event, struct ALL_DATA *all_data)
 				gtk_toggle_button_toggled (GTK_TOGGLE_BUTTON(gwidget->CapVidButt));
 			}
 			return TRUE;
-        
+
         case GDK_KEY_V:
         case GDK_KEY_v:
 			gtk_toggle_button_toggled (GTK_TOGGLE_BUTTON(gwidget->CapVidButt));
 			return TRUE;
-			
+
 		case GDK_KEY_I:
 		case GDK_KEY_i:
 			gtk_button_clicked (GTK_BUTTON(gwidget->CapImageButt));
 			return TRUE;
-        
+
     }
 
     return FALSE;
@@ -1173,9 +1173,7 @@ button_clicked (GtkButton * Button, struct ALL_DATA *all_data)
 	{
 #ifdef V4L2_CTRL_TYPE_STRING
 		case V4L2_CTRL_TYPE_STRING:
-			char *text_input = g_strescape(gtk_entry_get_text(c->widget), "");
-			strncpy(c->string, text_input, c->control.maximum);
-			g_free(text_input);
+			strncpy(c->string, gtk_entry_get_text(c->widget), c->control.maximum);
 			break;
 #endif
 #ifdef V4L2_CTRL_TYPE_INTEGER64
@@ -1187,17 +1185,14 @@ button_clicked (GtkButton * Button, struct ALL_DATA *all_data)
 				{
 					text_input = g_strcanon(text_input,"0123456789ABCDEFabcdef", '');
 					c->value64 = g_ascii_strtoll(text_input, NULL, 16);
-					g_free(text_input);
-					text_input = g_strdup_printf("0x%" PRIx64 "", c->value64);
-					 
 				}
-				else //decimal format
+				else //decimal or hex ?
 				{
-					text_input = g_strcanon(text_input,"0123456789", '');
-					c->value64 = g_ascii_strtoll(text_input, NULL, 10);
-					g_free(text_input);
-					text_input = g_strdup_printf("%" PRId64 "", c->value64);
+					text_input = g_strcanon(text_input,"0123456789ABCDEFabcdef", '');
+					c->value64 = g_ascii_strtoll(text_input, NULL, 0);
 				}
+				g_free(text_input);
+				text_input = g_strdup_printf("0x%" PRIx64 "", c->value64); //print in hex
 				gtk_entry_set_text (c->widget, text_input);
 				g_free(text_input);
 			}
@@ -1211,16 +1206,16 @@ button_clicked (GtkButton * Button, struct ALL_DATA *all_data)
 				c->value = (int32_t) g_ascii_strtoll(text_input, NULL, 16);
 				g_free(text_input);
 				text_input = g_strdup_printf("0x%x", c->value);
-				gtk_entry_set_text (c->widget, text_input);
+				gtk_entry_set_text(c->widget, text_input);
 				g_free(text_input);
 			}
-			break; 
+			break;
 #endif
 		default: //button
 			c->value = 1;
 			break;
 	}
-    
+
     set_ctrl(videoIn->fd, s->control_list, id);
 }
 
@@ -1739,12 +1734,12 @@ capture_image (GtkButton *ImageButt, struct ALL_DATA *all_data)
 
 	/** a previous image hasn't been captured yet
 	 *  no use flaging it again so return
-	 */ 
+	 */
 	if(videoIn->capImage)
 		return;
 
 	if ((global->image_timer == 0) && (global->image_inc>0))
-	{			
+	{
 		videoIn->ImageFName = incFilename(videoIn->ImageFName,
 			global->imgFPath,
 			global->image_inc);
@@ -1772,7 +1767,7 @@ capture_image (GtkButton *ImageButt, struct ALL_DATA *all_data)
 	{
 		videoIn->capImage = TRUE;
 	}
-	
+
 	if(!global->no_display)
     {
 		char *message = g_strjoin(" ", _("capturing photo to"), videoIn->ImageFName, NULL);
@@ -2012,25 +2007,25 @@ ShowFPS_changed(GtkToggleButton * toggle, struct ALL_DATA *all_data)
 	global = NULL;
 }
 
-gboolean 
+gboolean
 image_capture_callback (gpointer data)
 {
 	struct ALL_DATA *all_data = (struct ALL_DATA *) data;
 	struct GWIDGET *gwidget = all_data->gwidget;
-   
+
 	gtk_button_clicked (GTK_BUTTON(gwidget->CapImageButt));
-   
+
 	return FALSE;
 }
 
-gboolean 
+gboolean
 video_capture_callback (gpointer data)
 {
 	struct ALL_DATA *all_data = (struct ALL_DATA *) data;
 	struct GWIDGET *gwidget = all_data->gwidget;
-   
+
 	gtk_toggle_button_toggled (GTK_TOGGLE_BUTTON(gwidget->CapVidButt));
-   
+
 	return FALSE;
 }
 
