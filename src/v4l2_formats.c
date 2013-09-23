@@ -2,7 +2,7 @@
 #           guvcview              http://guvcview.sourceforge.net               #
 #                                                                               #
 #           Paulo Assis <pj.assis@gmail.com>                                    #
-#           Nobuhiro Iwamatsu <iwamatsu@nigauri.org>                            # 
+#           Nobuhiro Iwamatsu <iwamatsu@nigauri.org>                            #
 #                                                                               #
 # This program is free software; you can redistribute it and/or modify          #
 # it under the terms of the GNU General Public License as published by          #
@@ -29,7 +29,7 @@
 #include "v4l2uvc.h"
 #include "v4l2_formats.h"
 
-#define SUP_PIX_FMT 25                //total number of software(guvcview) 
+#define SUP_PIX_FMT 25                //total number of software(guvcview)
                                       //supported formats (list size)
 
 static SupFormats listSupFormats[SUP_PIX_FMT] = //list of software supported formats
@@ -166,7 +166,7 @@ static SupFormats listSupFormats[SUP_PIX_FMT] = //list of software supported for
 /* check if format is supported by guvcview
  * args:
  * pixfmt: V4L2 pixel format
- * return index from supported devices list 
+ * return index from supported devices list
  * or -1 if not supported                    */
 int check_PixFormat(int pixfmt)
 {
@@ -179,7 +179,7 @@ int check_PixFormat(int pixfmt)
 		}
 	}
 	return (-1);
-} 
+}
 
 /* set hardware flag for v4l2 pix format
  * args:
@@ -223,7 +223,7 @@ int check_SupPixFormat(int pixfmt)
  * args:
  * pixfmt: V4L2 pixel format
  * mode: fourcc string (lower case)
- * returns 1 on success 
+ * returns 1 on success
  * and -1 on failure (not supported)         */
 int get_PixMode(int pixfmt, char *mode)
 {
@@ -242,7 +242,7 @@ int get_PixMode(int pixfmt, char *mode)
 /* converts mode (fourcc) to v4l2 pix format
  * args:
  * mode: fourcc string (lower case)
- * returns v4l2 pix format 
+ * returns v4l2 pix format
  * defaults to MJPG if mode not supported    */
 int get_PixFormat(char *mode)
 {
@@ -269,14 +269,14 @@ int get_FormatIndex(LFormats *listFormats, int format)
 	int i=0;
 	for(i=0;i<listFormats->numb_formats;i++)
 	{
-		if(format == listFormats->listVidFormats[i].format) 
+		if(format == listFormats->listVidFormats[i].format)
 			return (i);
 	}
 	return (-1);
 }
 
 /* clean video formats list
- * args: 
+ * args:
  * listFormats: struct containing list of available video formats
  *
  * returns: void  */
@@ -291,9 +291,9 @@ void freeFormats(LFormats *listFormats)
 			//g_free should handle NULL but we check it anyway
 			if(listFormats->listVidFormats[i].listVidCap[j].framerate_num != NULL)
 				g_free(listFormats->listVidFormats[i].listVidCap[j].framerate_num);
-			
+
 			if(listFormats->listVidFormats[i].listVidCap[j].framerate_denom != NULL)
-				g_free(listFormats->listVidFormats[i].listVidCap[j].framerate_denom);		
+				g_free(listFormats->listVidFormats[i].listVidCap[j].framerate_denom);
 		}
 		g_free(listFormats->listVidFormats[i].listVidCap);
 	}
@@ -310,9 +310,9 @@ void freeFormats(LFormats *listFormats)
  * fmtind: current index of format list
  * fsizeind: current index of frame size list
  * fd: device file descriptor
- * 
+ *
  * returns 0 if enumeration succeded or errno otherwise               */
-static int enum_frame_intervals(VidFormats *listVidFormats, __u32 pixfmt, __u32 width, __u32 height, 
+static int enum_frame_intervals(VidFormats *listVidFormats, __u32 pixfmt, __u32 width, __u32 height,
 			int fmtind, int fsizeind, int fd)
 {
 	int ret=0;
@@ -325,32 +325,32 @@ static int enum_frame_intervals(VidFormats *listVidFormats, __u32 pixfmt, __u32 
 	fival.height = height;
 	listVidFormats[fmtind-1].listVidCap[fsizeind-1].framerate_num=NULL;
 	listVidFormats[fmtind-1].listVidCap[fsizeind-1].framerate_denom=NULL;
-	
+
 	g_print("\tTime interval between frame: ");
-	while ((ret = xioctl(fd, VIDIOC_ENUM_FRAMEINTERVALS, &fival)) == 0) 
+	while ((ret = xioctl(fd, VIDIOC_ENUM_FRAMEINTERVALS, &fival)) == 0)
 	{
 		fival.index++;
-		if (fival.type == V4L2_FRMIVAL_TYPE_DISCRETE) 
+		if (fival.type == V4L2_FRMIVAL_TYPE_DISCRETE)
 		{
 			g_print("%u/%u, ", fival.discrete.numerator, fival.discrete.denominator);
-				
+
 			list_fps++;
 			listVidFormats[fmtind-1].listVidCap[fsizeind-1].framerate_num = g_renew(
 				int, listVidFormats[fmtind-1].listVidCap[fsizeind-1].framerate_num, list_fps);
 			listVidFormats[fmtind-1].listVidCap[fsizeind-1].framerate_denom = g_renew(
 				int, listVidFormats[fmtind-1].listVidCap[fsizeind-1].framerate_denom, list_fps);
-			
+
 			listVidFormats[fmtind-1].listVidCap[fsizeind-1].framerate_num[list_fps-1] = fival.discrete.numerator;
 			listVidFormats[fmtind-1].listVidCap[fsizeind-1].framerate_denom[list_fps-1] = fival.discrete.denominator;
-		} 
-		else if (fival.type == V4L2_FRMIVAL_TYPE_CONTINUOUS) 
+		}
+		else if (fival.type == V4L2_FRMIVAL_TYPE_CONTINUOUS)
 		{
 			g_print("{min { %u/%u } .. max { %u/%u } }, ",
 				fival.stepwise.min.numerator, fival.stepwise.min.numerator,
 				fival.stepwise.max.denominator, fival.stepwise.max.denominator);
 			break;
-		} 
-		else if (fival.type == V4L2_FRMIVAL_TYPE_STEPWISE) 
+		}
+		else if (fival.type == V4L2_FRMIVAL_TYPE_STEPWISE)
 		{
 			g_print("{min { %u/%u } .. max { %u/%u } / "
 				"stepsize { %u/%u } }, ",
@@ -368,15 +368,15 @@ static int enum_frame_intervals(VidFormats *listVidFormats, __u32 pixfmt, __u32 
 				int, listVidFormats[fmtind-1].listVidCap[fsizeind-1].framerate_num, 1);
 		listVidFormats[fmtind-1].listVidCap[fsizeind-1].framerate_denom = g_renew(
 				int, listVidFormats[fmtind-1].listVidCap[fsizeind-1].framerate_denom, 1);
-			
+
 		listVidFormats[fmtind-1].listVidCap[fsizeind-1].framerate_num[0] = 1;
 		listVidFormats[fmtind-1].listVidCap[fsizeind-1].framerate_denom[0] = 1;
 	}
 	else
 		listVidFormats[fmtind-1].listVidCap[fsizeind-1].numb_frates = list_fps;
-	
+
 	g_print("\n");
-	if (ret != 0 && errno != EINVAL) 
+	if (ret != 0 && errno != EINVAL)
 	{
 		perror("VIDIOC_ENUM_FRAMEINTERVALS - Error enumerating frame intervals");
 		return errno;
@@ -392,7 +392,7 @@ static int enum_frame_intervals(VidFormats *listVidFormats, __u32 pixfmt, __u32 
  * width: pointer to integer containing the selected video width
  * height: pointer to integer containing the selected video height
  * fd: device file descriptor
- * 
+ *
  * returns 0 if enumeration succeded or errno otherwise               */
 static int enum_frame_sizes(VidFormats *listVidFormats, __u32 pixfmt, int fmtind, int *width, int *height, int fd)
 {
@@ -404,41 +404,41 @@ static int enum_frame_sizes(VidFormats *listVidFormats, __u32 pixfmt, int fmtind
 	memset(&fsize, 0, sizeof(fsize));
 	fsize.index = 0;
 	fsize.pixel_format = pixfmt;
-	while ((ret = xioctl(fd, VIDIOC_ENUM_FRAMESIZES, &fsize)) == 0) 
+	while ((ret = xioctl(fd, VIDIOC_ENUM_FRAMESIZES, &fsize)) == 0)
 	{
 		fsize.index++;
-		if (fsize.type == V4L2_FRMSIZE_TYPE_DISCRETE) 
+		if (fsize.type == V4L2_FRMSIZE_TYPE_DISCRETE)
 		{
 			g_print("{ discrete: width = %u, height = %u }\n",
 				fsize.discrete.width, fsize.discrete.height);
-			
+
 			fsizeind++;
-			listVidFormats[fmtind-1].listVidCap = g_renew(VidCap, 
+			listVidFormats[fmtind-1].listVidCap = g_renew(VidCap,
 				listVidFormats[fmtind-1].listVidCap,
 				fsizeind);
-			
+
 			listVidFormats[fmtind-1].listVidCap[fsizeind-1].width = fsize.discrete.width;
 			listVidFormats[fmtind-1].listVidCap[fsizeind-1].height = fsize.discrete.height;
-			
-			ret = enum_frame_intervals(listVidFormats, 
+
+			ret = enum_frame_intervals(listVidFormats,
 				pixfmt,
-				fsize.discrete.width, 
+				fsize.discrete.width,
 				fsize.discrete.height,
-				fmtind, 
-				fsizeind, 
+				fmtind,
+				fsizeind,
 				fd);
-			
+
 			if (ret != 0) perror("  Unable to enumerate frame sizes");
-		} 
-		else if (fsize.type == V4L2_FRMSIZE_TYPE_CONTINUOUS) 
+		}
+		else if (fsize.type == V4L2_FRMSIZE_TYPE_CONTINUOUS)
 		{
 			g_print("{ continuous: min { width = %u, height = %u } .. "
 				"max { width = %u, height = %u } }\n",
 				fsize.stepwise.min_width, fsize.stepwise.min_height,
 				fsize.stepwise.max_width, fsize.stepwise.max_height);
 			g_print("  will not enumerate frame intervals.\n");
-		} 
-		else if (fsize.type == V4L2_FRMSIZE_TYPE_STEPWISE) 
+		}
+		else if (fsize.type == V4L2_FRMSIZE_TYPE_STEPWISE)
 		{
 			g_print("{ stepwise: min { width = %u, height = %u } .. "
 				"max { width = %u, height = %u } / "
@@ -447,8 +447,8 @@ static int enum_frame_sizes(VidFormats *listVidFormats, __u32 pixfmt, int fmtind
 				fsize.stepwise.max_width, fsize.stepwise.max_height,
 				fsize.stepwise.step_width, fsize.stepwise.step_height);
 			g_print("  will not enumerate frame intervals.\n");
-		} 
-		else 
+		}
+		else
 		{
 			g_printerr("  fsize.type not supported: %d\n", fsize.type);
 			g_printerr("     (Discrete: %d   Continuous: %d  Stepwise: %d)\n",
@@ -457,16 +457,16 @@ static int enum_frame_sizes(VidFormats *listVidFormats, __u32 pixfmt, int fmtind
 				V4L2_FRMSIZE_TYPE_STEPWISE);
 		}
 	}
-	if (ret != 0 && errno != EINVAL) 
+	if (ret != 0 && errno != EINVAL)
 	{
 		perror("VIDIOC_ENUM_FRAMESIZES - Error enumerating frame sizes");
 		return errno;
-	} 
-	else if ((ret != 0) && (fsizeind == 0)) 
-	{		
-		/* ------ gspca doesn't enumerate frame sizes ------ */
-		/*       negotiate with VIDIOC_TRY_FMT instead       */
-		
+	}
+	else if ((ret != 0) && (fsizeind == 0))
+	{
+		/* ------ some drivers don't enumerate frame sizes ------ */
+		/*         negotiate with VIDIOC_TRY_FMT instead          */
+
 		fsizeind++;
 		struct v4l2_format fmt;
 		fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
@@ -478,9 +478,9 @@ static int enum_frame_sizes(VidFormats *listVidFormats, __u32 pixfmt, int fmtind
 		/*use the returned values*/
 		*width = fmt.fmt.pix.width;
 		*height = fmt.fmt.pix.height;
-		g_print("{ ?GSPCA? : width = %u, height = %u }\n", *width, *height);
+		g_print("{ VIDIOC_TRY_FMT : width = %u, height = %u }\n", *width, *height);
 		g_print("fmtind:%i fsizeind: %i\n",fmtind,fsizeind);
-		if(listVidFormats[fmtind-1].listVidCap == NULL) 
+		if(listVidFormats[fmtind-1].listVidCap == NULL)
 		{
 			listVidFormats[fmtind-1].listVidCap = g_renew( VidCap,
 				listVidFormats[fmtind-1].listVidCap,
@@ -493,7 +493,7 @@ static int enum_frame_sizes(VidFormats *listVidFormats, __u32 pixfmt, int fmtind
 			listVidFormats[fmtind-1].listVidCap[0].framerate_denom = g_renew( int,
 				listVidFormats[fmtind-1].listVidCap[0].framerate_denom,
 				1);
-		} 
+		}
 		else
 		{
 			g_printerr("assert failed: listVidCap not Null\n");
@@ -505,7 +505,7 @@ static int enum_frame_sizes(VidFormats *listVidFormats, __u32 pixfmt, int fmtind
 		listVidFormats[fmtind-1].listVidCap[0].framerate_denom[0] = 25;
 		listVidFormats[fmtind-1].listVidCap[0].numb_frates = 1;
 	}
-	
+
 	listVidFormats[fmtind-1].numb_res=fsizeind;
 	return 0;
 }
@@ -529,7 +529,7 @@ LFormats *enum_frame_formats(int *width, int *height, int fd)
 	listFormats = g_new0 ( LFormats, 1);
 	listFormats->listVidFormats = NULL;
 
-	while ((ret = xioctl(fd, VIDIOC_ENUM_FMT, &fmt)) == 0) 
+	while ((ret = xioctl(fd, VIDIOC_ENUM_FMT, &fmt)) == 0)
 	{
 		fmt.index++;
 		g_print("{ pixelformat = '%c%c%c%c', description = '%s' }\n",
@@ -537,7 +537,7 @@ LFormats *enum_frame_formats(int *width, int *height, int fd)
 				(fmt.pixelformat >> 16) & 0xFF, (fmt.pixelformat >> 24) & 0xFF,
 				fmt.description);
 		/*check if format is supported by guvcview, set hardware flag and allocate on device list*/
-		if((ret=set_SupPixFormat(fmt.pixelformat)) >= 0) 
+		if((ret=set_SupPixFormat(fmt.pixelformat)) >= 0)
 		{
 			fmtind++;
 			listFormats->listVidFormats = g_renew(VidFormats, listFormats->listVidFormats, fmtind);

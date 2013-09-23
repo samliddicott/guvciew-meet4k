@@ -214,7 +214,7 @@ int main(int argc, char *argv[])
 	// register all the codecs (you can also register only the codec
 	//you wish to have smaller code)
 	avcodec_register_all();
-	
+
 	/*allocate global variables*/
 	global = g_new0(struct GLOBAL, 1);
 	initGlobals(global);
@@ -364,12 +364,22 @@ int main(int argc, char *argv[])
 					if(get_PixMode(global->format, global->mode) < 0)
 						g_printerr("IMPOSSIBLE: format has no supported mode !?\n");
 					listVidFormats = &videoIn->listFormats->listVidFormats[0];
-					global->width = listVidFormats->listVidCap[0].width;
-					global->width = listVidFormats->listVidCap[0].height;
-					if (listVidFormats->listVidCap[0].framerate_num != NULL)
-						global->fps_num = listVidFormats->listVidCap[0].framerate_num[0];
-					if (listVidFormats->listVidCap[0].framerate_denom != NULL)
-						global->fps = listVidFormats->listVidCap[0].framerate_denom[0];
+					if(listVidFormats->numb_res > 0)
+					{
+						global->width = listVidFormats->listVidCap[0].width;
+						global->width = listVidFormats->listVidCap[0].height;
+						if (listVidFormats->listVidCap[0].framerate_num != NULL)
+							global->fps_num = listVidFormats->listVidCap[0].framerate_num[0];
+						if (listVidFormats->listVidCap[0].framerate_denom != NULL)
+							global->fps = listVidFormats->listVidCap[0].framerate_denom[0];
+					}
+					else
+					{
+						g_printerr("ERROR: Can't set video stream. No supported resolution found for specified format\nExiting...\n");
+						ERR_DIALOG (N_("Guvcview error:\n\nCan't set a valid video stream for guvcview"),
+							N_("Make sure your device driver is v4l2 compliant\nand that it is properly installed."),
+							&all_data);
+					}
 				}
 				else
 				{
@@ -517,7 +527,7 @@ int main(int argc, char *argv[])
         gtk_box_set_homogeneous(GTK_BOX(HButtonBox),TRUE);
 
 		gtk_widget_show(HButtonBox);
-		
+
 		/** Attach the buttons */
 		gtk_box_pack_start(GTK_BOX(gwidget->maintable), HButtonBox, FALSE, TRUE, 2);
 		/** Attach the notebook (tabs) */
@@ -624,7 +634,7 @@ int main(int argc, char *argv[])
 
 		gwidget->status_bar = gtk_statusbar_new();
 		gwidget->status_warning_id = gtk_statusbar_get_context_id (GTK_STATUSBAR(gwidget->status_bar), "warning");
-		
+
         gtk_widget_show(gwidget->status_bar);
        /** add the status bar*/
         gtk_box_pack_start(GTK_BOX(gwidget->maintable), gwidget->status_bar, FALSE, FALSE, 2);
