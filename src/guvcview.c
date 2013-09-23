@@ -325,7 +325,11 @@ int main(int argc, char *argv[])
 
 	/*get format from selected mode*/
 	global->format = get_PixFormat(global->mode);
-	if(global->debug) g_print("%s: setting format to %i\n", global->mode, global->format);
+	if(global->debug) 
+		g_print("%s: setting format to %c%c%c%c\n", 
+			global->mode, 
+			global->format & 0xFF, (global->format >> 8) & 0xFF,
+			(global->format >> 16) & 0xFF, (global->format >> 24) & 0xFF);
 
 	if ( ( ret=init_videoIn (videoIn, global) ) != 0)
 	{
@@ -361,17 +365,23 @@ int main(int argc, char *argv[])
 					VidFormats *listVidFormats;
 					videoIn->listFormats->current_format = 0; //get the first supported format
 					global->format = videoIn->listFormats->listVidFormats[0].format;
+					g_print("\tformat: %c%c%c%c\n",
+						global->format & 0xFF, (global->format >> 8) & 0xFF,
+						(global->format >> 16) & 0xFF, (global->format >> 24) & 0xFF);
+					
 					if(get_PixMode(global->format, global->mode) < 0)
 						g_printerr("IMPOSSIBLE: format has no supported mode !?\n");
 					listVidFormats = &videoIn->listFormats->listVidFormats[0];
 					if(listVidFormats->numb_res > 0)
 					{
 						global->width = listVidFormats->listVidCap[0].width;
-						global->width = listVidFormats->listVidCap[0].height;
+						global->height = listVidFormats->listVidCap[0].height;
+						g_print("\tresolution: %i x %i\n", global->width, global->height);
 						if (listVidFormats->listVidCap[0].framerate_num != NULL)
 							global->fps_num = listVidFormats->listVidCap[0].framerate_num[0];
 						if (listVidFormats->listVidCap[0].framerate_denom != NULL)
 							global->fps = listVidFormats->listVidCap[0].framerate_denom[0];
+						g_print("\tframerate: %i/%i\n", global->fps_num, global->fps);
 					}
 					else
 					{

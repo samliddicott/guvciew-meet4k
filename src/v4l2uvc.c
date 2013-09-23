@@ -458,11 +458,16 @@ static int init_v4l2(struct vdIn *vd, int *format, int *width, int *height, int 
 	int ret = 0;
 	
 	// make sure we set a valid format
-	g_print("checking format: %i\n", *format);
+	g_print("checking format: %c%c%c%c\n",
+		(*format) & 0xFF, ((*format) >> 8) & 0xFF,
+		((*format) >> 16) & 0xFF, ((*format) >> 24) & 0xFF);
+		
 	if ((ret=check_SupPixFormat(*format)) < 0)
 	{
 		// not available - Fail so we can check other formats (don't bother trying it)
-		g_printerr("Format unavailable: %d.\n",*format);
+		g_printerr("Format unavailable: %c%c%c%c\n",
+			(*format) & 0xFF, ((*format) >> 8) & 0xFF,
+			((*format) >> 16) & 0xFF, ((*format) >> 24) & 0xFF);
 		return VDIN_FORMAT_ERR;
 	}
 	
