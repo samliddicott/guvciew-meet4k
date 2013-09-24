@@ -282,20 +282,32 @@ int get_FormatIndex(LFormats *listFormats, int format)
  * returns: void  */
 void freeFormats(LFormats *listFormats)
 {
+	if(listFormats == NULL)
+		return;
+
+	if(listFormats->listVidFormats == NULL)
+	{
+		g_free(listFormats);
+		return;
+	}
+
 	int i=0;
 	int j=0;
 	for(i=0;i<listFormats->numb_formats;i++)
 	{
-		for(j=0;j<listFormats->listVidFormats[i].numb_res;j++)
+		if(listFormats->listVidFormats[i].listVidCap != NULL)
 		{
-			//g_free should handle NULL but we check it anyway
-			if(listFormats->listVidFormats[i].listVidCap[j].framerate_num != NULL)
-				g_free(listFormats->listVidFormats[i].listVidCap[j].framerate_num);
+			for(j=0;j<listFormats->listVidFormats[i].numb_res;j++)
+			{
+				//g_free should handle NULL but we check it anyway
+				if(listFormats->listVidFormats[i].listVidCap[j].framerate_num != NULL)
+					g_free(listFormats->listVidFormats[i].listVidCap[j].framerate_num);
 
-			if(listFormats->listVidFormats[i].listVidCap[j].framerate_denom != NULL)
-				g_free(listFormats->listVidFormats[i].listVidCap[j].framerate_denom);
+				if(listFormats->listVidFormats[i].listVidCap[j].framerate_denom != NULL)
+					g_free(listFormats->listVidFormats[i].listVidCap[j].framerate_denom);
+			}
+			g_free(listFormats->listVidFormats[i].listVidCap);
 		}
-		g_free(listFormats->listVidFormats[i].listVidCap);
 	}
 	g_free(listFormats->listVidFormats);
 	g_free(listFormats);

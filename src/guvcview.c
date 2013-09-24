@@ -325,9 +325,9 @@ int main(int argc, char *argv[])
 
 	/*get format from selected mode*/
 	global->format = get_PixFormat(global->mode);
-	if(global->debug) 
-		g_print("%s: setting format to %c%c%c%c\n", 
-			global->mode, 
+	if(global->debug)
+		g_print("%s: setting format to %c%c%c%c\n",
+			global->mode,
 			global->format & 0xFF, (global->format >> 8) & 0xFF,
 			(global->format >> 16) & 0xFF, (global->format >> 24) & 0xFF);
 
@@ -360,7 +360,7 @@ int main(int argc, char *argv[])
 			case VDIN_FORMAT_ERR://invalid format
 			case VDIN_RESOL_ERR: //invalid resolution
 				g_print("trying minimum setup ...\n");
-				if (videoIn->listFormats->numb_formats > 0) //check for supported formats
+				if (videoIn->listFormats->numb_formats > 0 && videoIn->listFormats->listVidFormats != NULL) //check for supported formats
 				{
 					VidFormats *listVidFormats;
 					videoIn->listFormats->current_format = 0; //get the first supported format
@@ -368,11 +368,11 @@ int main(int argc, char *argv[])
 					g_print("\tformat: %c%c%c%c\n",
 						global->format & 0xFF, (global->format >> 8) & 0xFF,
 						(global->format >> 16) & 0xFF, (global->format >> 24) & 0xFF);
-					
+
 					if(get_PixMode(global->format, global->mode) < 0)
 						g_printerr("IMPOSSIBLE: format has no supported mode !?\n");
 					listVidFormats = &videoIn->listFormats->listVidFormats[0];
-					if(listVidFormats->numb_res > 0)
+					if(listVidFormats->numb_res > 0 && listVidFormats->listVidCap != NULL)
 					{
 						global->width = listVidFormats->listVidCap[0].width;
 						global->height = listVidFormats->listVidCap[0].height;
