@@ -35,7 +35,7 @@
 #define LENGTH_OF_XU_MAP (10)
 
 /*
-static struct uvc_xu_control_info xu_ctrls[] = 
+static struct uvc_xu_control_info xu_ctrls[] =
 {
 	{
 		.entity   = UVC_GUID_LOGITECH_MOTOR_CONTROL,
@@ -79,17 +79,17 @@ static struct uvc_xu_control_info xu_ctrls[] =
 		.size     = 3,
 		.flags    = UVC_CONTROL_SET_CUR | UVC_CONTROL_GET_CUR |UVC_CONTROL_GET_MIN | UVC_CONTROL_GET_MAX | UVC_CONTROL_GET_RES | UVC_CONTROL_GET_DEF | UVC_CONTROL_AUTO_UPDATE
 	},
-	
+
 };
 */
 
-static struct uvc_menu_info led_menu_entry[4] = {{0, "Off"}, 
-												 {1, "On"}, 
-												 {2, "Blinking"}, 
+static struct uvc_menu_info led_menu_entry[4] = {{0, "Off"},
+												 {1, "On"},
+												 {2, "Blinking"},
 												 {3, "Auto"}};
 
 /* mapping for Pan/Tilt/Focus */
-static struct uvc_xu_control_mapping xu_mappings[] = 
+static struct uvc_xu_control_mapping xu_mappings[] =
 {
 	{
 		.id        = V4L2_CID_PAN_RELATIVE,
@@ -208,18 +208,18 @@ static struct uvc_xu_control_mapping xu_mappings[] =
 		.menu_count = 0,
 		.reserved = {0,0,0,0}
 	},
-	
+
 };
 
-int initDynCtrls(int fd) 
+int initDynCtrls(int hdevice)
 {
 	int i=0;
 	int err=0;
 	/* after adding the controls, add the mapping now */
-	for ( i=0; i<LENGTH_OF_XU_MAP; i++ ) 
+	for ( i=0; i<LENGTH_OF_XU_MAP; i++ )
 	{
 		g_print("mapping control for %s\n", xu_mappings[i].name);
-		if ((err=xioctl(fd, UVCIOC_CTRL_MAP, &xu_mappings[i])) < 0) 
+		if ((err=xioctl(fd, UVCIOC_CTRL_MAP, &xu_mappings[i])) < 0)
 		{
 			if ((errno!=EEXIST) || (errno != EACCES))
 			{
@@ -234,6 +234,49 @@ int initDynCtrls(int fd)
 			}
 			else perror("Mapping exists");
 		}
-	} 
+	}
 	return 0;
+}
+
+
+int read_xu_control(int hdevice, uint8_t unit, uint8_t selector, uint16_t size, void *data)
+{
+	int err = 0;
+
+	struct uvc_xu_control_query control =
+	{
+		.unit     = unit,
+		.selector = selector,
+		.query    = UVC_GET_CUR,
+		.size     = size,
+		.data     = data
+	}
+
+	if ((err=xioctl(hdevice, UVCIOC_CTRL_QUERY, &control)) < 0)
+	{
+		perror("UVCIOC_CTRL_QUERY (GET_CUR) - Error");
+	}
+
+	return err;
+}
+
+int write_xu_control(int hdevice, uint8_t unit, uint8_t selector, uint16_t size, void *data)
+{
+	int err = 0;
+
+	struct uvc_xu_control_query control =
+	{
+		.unit     = unit,
+		.selector = selector,
+		.query    = UVC_SET_CUR,
+		.size     = size,
+		.data     = data
+	}
+
+	if ((err=xioctl(hdevice, UVCIOC_CTRL_QUERY, &control)) < 0)
+	{
+		perror("UVCIOC_CTRL_QUERY (SET_CUR) - Error");
+	}
+
+	return err;
 }

@@ -53,6 +53,8 @@
 #define XU_COLOR_PROCESSING_DISABLE		5
 #define XU_RAW_DATA_BITS_PER_PIXEL		8
 
-int initDynCtrls(int fd);
+int initDynCtrls(int hdevice);
+int read_xu_control(int hdevice, uint8_t unit, uint8_t selector, uint16_t size, void *data);
+int write_xu_control(int hdevice, uint8_t unit, uint8_t selector, uint16_t size, void *data)
 
 #endif

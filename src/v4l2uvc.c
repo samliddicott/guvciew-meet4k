@@ -22,7 +22,7 @@
 /*******************************************************************************#
 #                                                                               #
 #  V4L2 interface                                                               #
-#                                                                               # 
+#                                                                               #
 ********************************************************************************/
 
 #include <stdlib.h>
@@ -43,6 +43,7 @@
 
 #include "v4l2uvc.h"
 #include "v4l2_dyna_ctrls.h"
+#include "uvc_h264.h"
 #include "utils.h"
 #include "picture.h"
 #include "colorspaces.h"
@@ -84,7 +85,7 @@
 #define CSTR_CLR_KILL		N_("Color Killer")
 #define CSTR_COLORFX		N_("Color Effects")
 
-// CAMERA CLASS control strings 
+// CAMERA CLASS control strings
 #define CSTR_CAMERA_CLASS	N_("Camera Controls")
 #define CSTR_EXPAUTO		N_("Auto Exposure")
 #define	CSTR_EXPABS		    N_("Exposure Time, Absolute")
@@ -129,17 +130,17 @@ int xioctl(int fd, int IOCTL_X, void *arg)
 {
 	int ret = 0;
 	int tries= IOCTL_RETRY;
-	do 
+	do
 	{
 		ret = v4l2_ioctl(fd, IOCTL_X, arg);
-	} 
+	}
 	while (ret && tries-- &&
 			((errno == EINTR) || (errno == EAGAIN) || (errno == ETIMEDOUT)));
 
 	if (ret && (tries <= 0)) g_printerr("ioctl (%i) retried %i times - giving up: %s)\n", IOCTL_X, IOCTL_RETRY, strerror(errno));
-	
+
 	return (ret);
-} 
+}
 
 /* Query video device capabilities and supported formats
  * args:
@@ -151,43 +152,43 @@ static int check_videoIn(struct vdIn *vd, int *width, int *height)
 {
 	if (vd == NULL)
 		return VDIN_ALLOC_ERR;
-	
+
 	memset(&vd->cap, 0, sizeof(struct v4l2_capability));
-	
-	if ( xioctl(vd->fd, VIDIOC_QUERYCAP, &vd->cap) < 0 ) 
+
+	if ( xioctl(vd->fd, VIDIOC_QUERYCAP, &vd->cap) < 0 )
 	{
 		perror("VIDIOC_QUERYCAP error");
 		return VDIN_QUERYCAP_ERR;
 	}
 
-	if ( ( vd->cap.capabilities & V4L2_CAP_VIDEO_CAPTURE ) == 0) 
+	if ( ( vd->cap.capabilities & V4L2_CAP_VIDEO_CAPTURE ) == 0)
 	{
 		g_printerr("Error opening device %s: video capture not supported.\n",
 				vd->videodevice);
 		return VDIN_QUERYCAP_ERR;
 	}
-	if (!(vd->cap.capabilities & V4L2_CAP_STREAMING)) 
+	if (!(vd->cap.capabilities & V4L2_CAP_STREAMING))
 	{
-		g_printerr("%s does not support streaming i/o\n", 
+		g_printerr("%s does not support streaming i/o\n",
 			vd->videodevice);
 		return VDIN_QUERYCAP_ERR;
 	}
-	
-	if(vd->cap_meth == IO_READ) 
+
+	if(vd->cap_meth == IO_READ)
 	{
-	
+
 		vd->mem[vd->buf.index] = NULL;
-		if (!(vd->cap.capabilities & V4L2_CAP_READWRITE)) 
+		if (!(vd->cap.capabilities & V4L2_CAP_READWRITE))
 		{
-			g_printerr("%s does not support read i/o\n", 
+			g_printerr("%s does not support read i/o\n",
 				vd->videodevice);
 			return VDIN_READ_ERR;
 		}
 	}
 	g_print("Init. %s (location: %s)\n", vd->cap.card, vd->cap.bus_info);
-	
+
 	vd->listFormats = enum_frame_formats( width, height, vd->fd);
-	
+
 	if(!(vd->listFormats->listVidFormats))
 		g_printerr("Couldn't detect any supported formats on your device (%i)\n", vd->listFormats->numb_formats);
 	return VDIN_OK;
@@ -197,14 +198,14 @@ static int unmap_buff(struct vdIn *vd)
 {
 	int i=0;
 	int ret=0;
-	
+
 	switch(vd->cap_meth)
 	{
 		case IO_READ:
 			break;
-			
+
 		case IO_MMAP:
-			for (i = 0; i < NB_BUFFER; i++) 
+			for (i = 0; i < NB_BUFFER; i++)
 			{
 				// unmap old buffer
 				if((vd->mem[i] != MAP_FAILED) && vd->buff_length[i])
@@ -221,21 +222,21 @@ static int map_buff(struct vdIn *vd)
 {
 	int i = 0;
 	// map new buffer
-	for (i = 0; i < NB_BUFFER; i++) 
+	for (i = 0; i < NB_BUFFER; i++)
 	{
 		vd->mem[i] = v4l2_mmap( NULL, // start anywhere
-			vd->buff_length[i], 
-			PROT_READ | PROT_WRITE, 
-			MAP_SHARED, 
+			vd->buff_length[i],
+			PROT_READ | PROT_WRITE,
+			MAP_SHARED,
 			vd->fd,
 			vd->buff_offset[i]);
-		if (vd->mem[i] == MAP_FAILED) 
+		if (vd->mem[i] == MAP_FAILED)
 		{
 			perror("Unable to map buffer");
 			return VDIN_MMAP_ERR;
 		}
 	}
-	
+
 	return (0);
 }
 
@@ -246,18 +247,18 @@ static int map_buff(struct vdIn *vd)
  *
  * returns: error code  (0- OK)
 */
-static int query_buff(struct vdIn *vd) 
+static int query_buff(struct vdIn *vd)
 {
 	int i=0;
 	int ret=0;
-	
+
 	switch(vd->cap_meth)
 	{
 		case IO_READ:
 			break;
-			
+
 		case IO_MMAP:
-			for (i = 0; i < NB_BUFFER; i++) 
+			for (i = 0; i < NB_BUFFER; i++)
 			{
 				memset(&vd->buf, 0, sizeof(struct v4l2_buffer));
 				vd->buf.index = i;
@@ -268,7 +269,7 @@ static int query_buff(struct vdIn *vd)
 				//vd->buf.timestamp.tv_usec = 0;
 				vd->buf.memory = V4L2_MEMORY_MMAP;
 				ret = xioctl(vd->fd, VIDIOC_QUERYBUF, &vd->buf);
-				if (ret < 0) 
+				if (ret < 0)
 				{
 					perror("VIDIOC_QUERYBUF - Unable to query buffer");
 					if(errno == EINVAL)
@@ -278,15 +279,15 @@ static int query_buff(struct vdIn *vd)
 					}
 					return VDIN_QUERYBUF_ERR;
 				}
-				if (vd->buf.length <= 0) 
+				if (vd->buf.length <= 0)
 					g_printerr("WARNING VIDIOC_QUERYBUF - buffer length is %d\n",
 						vd->buf.length);
-				
+
 				vd->buff_length[i] = vd->buf.length;
 				vd->buff_offset[i] = vd->buf.m.offset;
 			}
 			// map the new buffers
-			if(map_buff(vd) != 0) 
+			if(map_buff(vd) != 0)
 				return VDIN_MMAP_ERR;
 	}
 	return VDIN_OK;
@@ -306,10 +307,10 @@ static int queue_buff(struct vdIn *vd)
 	{
 		case IO_READ:
 			break;
-			
+
 		case IO_MMAP:
 		default:
-			for (i = 0; i < NB_BUFFER; ++i) 
+			for (i = 0; i < NB_BUFFER; ++i)
 			{
 				memset(&vd->buf, 0, sizeof(struct v4l2_buffer));
 				vd->buf.index = i;
@@ -320,7 +321,7 @@ static int queue_buff(struct vdIn *vd)
 				//vd->buf.timestamp.tv_usec = 0;
 				vd->buf.memory = V4L2_MEMORY_MMAP;
 				ret = xioctl(vd->fd, VIDIOC_QBUF, &vd->buf);
-				if (ret < 0) 
+				if (ret < 0)
 				{
 					perror("VIDIOC_QBUF - Unable to queue buffer");
 					return VDIN_QBUF_ERR;
@@ -350,7 +351,7 @@ int video_enable(struct vdIn *vd)
 		case IO_MMAP:
 		default:
 			ret = xioctl(vd->fd, VIDIOC_STREAMON, &type);
-			if (ret < 0) 
+			if (ret < 0)
 			{
 				perror("VIDIOC_STREAMON - Unable to start capture");
 				return VDIN_STREAMON_ERR;
@@ -380,7 +381,7 @@ int video_disable(struct vdIn *vd)
 		case IO_MMAP:
 		default:
 			ret = xioctl(vd->fd, VIDIOC_STREAMOFF, &type);
-			if (ret < 0) 
+			if (ret < 0)
 			{
 				perror("VIDIOC_STREAMOFF - Unable to stop capture");
 				if(errno == 9) vd->isstreaming = 0;/*capture as allready stoped*/
@@ -456,12 +457,12 @@ int set_jpegcomp(struct vdIn *vd)
 static int init_v4l2(struct vdIn *vd, int *format, int *width, int *height, int *fps, int *fps_num)
 {
 	int ret = 0;
-	
+
 	// make sure we set a valid format
 	g_print("checking format: %c%c%c%c\n",
 		(*format) & 0xFF, ((*format) >> 8) & 0xFF,
 		((*format) >> 16) & 0xFF, ((*format) >> 24) & 0xFF);
-		
+
 	if ((ret=check_SupPixFormat(*format)) < 0)
 	{
 		// not available - Fail so we can check other formats (don't bother trying it)
@@ -470,7 +471,7 @@ static int init_v4l2(struct vdIn *vd, int *format, int *width, int *height, int 
 			((*format) >> 16) & 0xFF, ((*format) >> 24) & 0xFF);
 		return VDIN_FORMAT_ERR;
 	}
-	
+
 	vd->timestamp = 0;
 	// set format
 	vd->fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
@@ -478,22 +479,22 @@ static int init_v4l2(struct vdIn *vd, int *format, int *width, int *height, int 
 	vd->fmt.fmt.pix.height = *height;
 	vd->fmt.fmt.pix.pixelformat = *format;
 	vd->fmt.fmt.pix.field = V4L2_FIELD_ANY;
-	
+
 	ret = xioctl(vd->fd, VIDIOC_S_FMT, &vd->fmt);
-	if (ret < 0) 
+	if (ret < 0)
 	{
 		perror("VIDIOC_S_FORMAT - Unable to set format");
 		return VDIN_FORMAT_ERR;
 	}
 	if ((vd->fmt.fmt.pix.width != *width) ||
-		(vd->fmt.fmt.pix.height != *height)) 
+		(vd->fmt.fmt.pix.height != *height))
 	{
 		g_printerr("Requested Format unavailable: get width %d height %d \n",
 		vd->fmt.fmt.pix.width, vd->fmt.fmt.pix.height);
 		*width = vd->fmt.fmt.pix.width;
 		*height = vd->fmt.fmt.pix.height;
 	}
-	
+
 	//deprecated in v4l2 - still waiting for new API implementation
 	if(*format == V4L2_PIX_FMT_MJPEG || *format == V4L2_PIX_FMT_JPEG)
 	{
@@ -502,7 +503,7 @@ static int init_v4l2(struct vdIn *vd, int *format, int *width, int *height, int 
 
 	/* ----------- FPS --------------*/
 	input_set_framerate(vd, fps, fps_num);
-	
+
 	switch (vd->cap_meth)
 	{
 		case IO_READ: //allocate buffer for read
@@ -510,23 +511,23 @@ static int init_v4l2(struct vdIn *vd, int *format, int *width, int *height, int 
 			vd->buf.length = (*width) * (*height) * 3; //worst case (rgb)
 			vd->mem[vd->buf.index] = g_new0(BYTE, vd->buf.length);
 			break;
-		
+
 		case IO_MMAP:
 		default:
-			// request buffers 
+			// request buffers
 			memset(&vd->rb, 0, sizeof(struct v4l2_requestbuffers));
 			vd->rb.count = NB_BUFFER;
 			vd->rb.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 			vd->rb.memory = V4L2_MEMORY_MMAP;
 
 			ret = xioctl(vd->fd, VIDIOC_REQBUFS, &vd->rb);
-			if (ret < 0) 
+			if (ret < 0)
 			{
 				perror("VIDIOC_REQBUFS - Unable to allocate buffers");
 				return VDIN_REQBUFS_ERR;
 			}
-			// map the buffers 
-			if (query_buff(vd)) 
+			// map the buffers
+			if (query_buff(vd))
 			{
 				//delete requested buffers
 				//no need to unmap as mmap failed for sure
@@ -539,7 +540,7 @@ static int init_v4l2(struct vdIn *vd, int *format, int *width, int *height, int 
 				return VDIN_QUERYBUF_ERR;
 			}
 			// Queue the buffers
-			if (queue_buff(vd)) 
+			if (queue_buff(vd))
 			{
 				//delete requested buffers
 				unmap_buff(vd);
@@ -552,7 +553,7 @@ static int init_v4l2(struct vdIn *vd, int *format, int *width, int *height, int 
 				return VDIN_QBUF_ERR;
 			}
 	}
-	
+
 	return VDIN_OK;
 }
 
@@ -567,20 +568,20 @@ static int videoIn_frame_alloca(struct vdIn *vd, int format, int width, int heig
 	int ret = VDIN_OK;
 	size_t framebuf_size=0;
 	size_t tmpbuf_size=0;
-	
+
 	int framesizeIn = (width * height << 1); //2 bytes per pixel
-	switch (format) 
+	switch (format)
 	{
 		case V4L2_PIX_FMT_JPEG:
 		case V4L2_PIX_FMT_MJPEG:
 			// alloc a temp buffer to reconstruct the pict (MJPEG)
 			tmpbuf_size= framesizeIn;
 			vd->tmpbuffer = g_new0(unsigned char, tmpbuf_size);
-			
+
 			framebuf_size = width * (height + 8) * 2;
-			vd->framebuffer = g_new0(unsigned char, framebuf_size); 
+			vd->framebuffer = g_new0(unsigned char, framebuf_size);
 			break;
-		
+
 		case V4L2_PIX_FMT_UYVY:
 		case V4L2_PIX_FMT_YVYU:
 		case V4L2_PIX_FMT_YYUV:
@@ -600,7 +601,7 @@ static int videoIn_frame_alloca(struct vdIn *vd, int format, int width, int heig
 			framebuf_size = framesizeIn;
 			vd->framebuffer = g_new0(unsigned char, framebuf_size);
 			break;
-			
+
 		case V4L2_PIX_FMT_GREY:
 			// alloc a temp buffer for converting to YUYV
 			tmpbuf_size= width * height; // 1 byte per pixel
@@ -608,7 +609,7 @@ static int videoIn_frame_alloca(struct vdIn *vd, int format, int width, int heig
 			framebuf_size = framesizeIn;
 			vd->framebuffer = g_new0(unsigned char, framebuf_size);
 			break;
-			
+
 	    case V4L2_PIX_FMT_Y10BPACK:
 	    case V4L2_PIX_FMT_Y16:
 			// alloc a temp buffer for converting to YUYV
@@ -617,29 +618,29 @@ static int videoIn_frame_alloca(struct vdIn *vd, int format, int width, int heig
 			framebuf_size = framesizeIn;
 			vd->framebuffer = g_new0(unsigned char, framebuf_size);
 			break;
-			
+
 		case V4L2_PIX_FMT_YUYV:
 			//  YUYV doesn't need a temp buffer but we will set it if/when
 			//  video processing disable control is checked (bayer processing).
-			//            (logitech cameras only) 
+			//            (logitech cameras only)
 			framebuf_size = framesizeIn;
 			vd->framebuffer = g_new0(unsigned char, framebuf_size);
 			break;
-		
+
 		case V4L2_PIX_FMT_SGBRG8: //0
 		case V4L2_PIX_FMT_SGRBG8: //1
 		case V4L2_PIX_FMT_SBGGR8: //2
 		case V4L2_PIX_FMT_SRGGB8: //3
-			// Raw 8 bit bayer 
+			// Raw 8 bit bayer
 			// when grabbing use:
 			//    bayer_to_rgb24(bayer_data, RGB24_data, width, height, 0..3)
 			//    rgb2yuyv(RGB24_data, vd->framebuffer, width, height)
-	
+
 			// alloc a temp buffer for converting to YUYV
 			// rgb buffer for decoding bayer data
 			tmpbuf_size = width * height * 3;
 			vd->tmpbuffer = g_new0(unsigned char, tmpbuf_size);
-		
+
 			framebuf_size = framesizeIn;
 			vd->framebuffer = g_new0(unsigned char, framebuf_size);
 			break;
@@ -650,11 +651,11 @@ static int videoIn_frame_alloca(struct vdIn *vd, int format, int width, int heig
 			// rgb buffer
 			tmpbuf_size = width * height * 3;
 			vd->tmpbuffer = g_new0(unsigned char, tmpbuf_size);
-			
+
 			framebuf_size = framesizeIn;
 			vd->framebuffer = g_new0(unsigned char, framebuf_size);
 			break;
-			
+
 		default:
 			g_printerr("(v4l2uvc.c) should never arrive (1)- exit fatal !!\n");
 			ret = VDIN_UNKNOWN_ERR;
@@ -664,8 +665,8 @@ static int videoIn_frame_alloca(struct vdIn *vd, int format, int width, int heig
 			vd->tmpbuffer = NULL;
 			return (ret);
 	}
-	
-	if ((!vd->framebuffer) || (framebuf_size <=0)) 
+
+	if ((!vd->framebuffer) || (framebuf_size <=0))
 		{
 			g_printerr("couldn't calloc %lu bytes of memory for frame buffer\n",
 				(unsigned long) framebuf_size);
@@ -675,7 +676,7 @@ static int videoIn_frame_alloca(struct vdIn *vd, int format, int width, int heig
 			g_free(vd->tmpbuffer);
 			vd->tmpbuffer = NULL;
 			return (ret);
-		} 
+		}
 		else
 		{
 			int i = 0;
@@ -731,7 +732,7 @@ int init_videoIn(struct vdIn *videoIn, struct GLOBAL *global)
 {
 	int ret = VDIN_OK;
 	char *device = global->videodevice;
-    
+
     /* Create a udev object */
     videoIn->udev = udev_new();
 
@@ -747,35 +748,35 @@ int init_videoIn(struct vdIn *videoIn, struct GLOBAL *global)
 	videoIn->videodevice = NULL;
 	videoIn->videodevice = g_strdup(device);
 	g_print("video device: %s \n", videoIn->videodevice);
-	
+
 	//flag to video thread
 	videoIn->capVid = FALSE;
 	//flag from video thread
 	videoIn->VidCapStop=TRUE;
-	
+
 	videoIn->VidFName = g_strdup(global->vidFPath[0]);
 	videoIn->signalquit = FALSE;
 	videoIn->PanTilt=0;
 	videoIn->isbayer = 0; //bayer mode off
 	videoIn->pix_order=0; // pix order for bayer mode def: gbgbgb..|rgrgrg..
-	videoIn->setFPS=0; 
+	videoIn->setFPS=0;
 	videoIn->capImage=FALSE;
 	videoIn->cap_raw=0;
-	
+
 	videoIn->ImageFName = g_strdup(global->imgFPath[0]);
-	
+
 	//timestamps not supported by UVC driver
 	//vd->timecode.type = V4L2_TC_TYPE_25FPS;
 	//vd->timecode.flags = V4L2_TC_FLAG_DROPFRAME;
-	
+
 	videoIn->available_exp[0]=-1;
 	videoIn->available_exp[1]=-1;
 	videoIn->available_exp[2]=-1;
 	videoIn->available_exp[3]=-1;
-	
+
 	videoIn->tmpbuffer = NULL;
 	videoIn->framebuffer = NULL;
-	
+
     /*start udev device monitoring*/
     /* Set up a monitor to monitor v4l2 devices */
     if(videoIn->udev)
@@ -788,7 +789,7 @@ int init_videoIn(struct vdIn *videoIn, struct GLOBAL *global)
     }
 
     videoIn->listDevices = enum_devices( videoIn->videodevice, videoIn->udev, (int) global->debug);
-	
+
 	if (videoIn->listDevices != NULL)
 	{
 		if(!(videoIn->listDevices->listVidDevices))
@@ -796,10 +797,10 @@ int init_videoIn(struct vdIn *videoIn, struct GLOBAL *global)
 	}
 	else
 		g_printerr("Unable to detect devices on your system\n");
-	
+
 	if (videoIn->fd <=0 ) //open device
 	{
-		if ((videoIn->fd = v4l2_open(videoIn->videodevice, O_RDWR | O_NONBLOCK, 0)) < 0) 
+		if ((videoIn->fd = v4l2_open(videoIn->videodevice, O_RDWR | O_NONBLOCK, 0)) < 0)
 		{
 			perror("ERROR opening V4L interface");
 			ret = VDIN_DEVICE_ERR;
@@ -807,21 +808,21 @@ int init_videoIn(struct vdIn *videoIn, struct GLOBAL *global)
 			return (ret);
 		}
 	}
-	
+
 	//reset v4l2_format
 	memset(&videoIn->fmt, 0, sizeof(struct v4l2_format));
 	// populate video capabilities structure array
-	// should only be called after all vdIn struct elements 
+	// should only be called after all vdIn struct elements
 	// have been initialized
 	if((ret = check_videoIn(videoIn, &global->width, &global->height)) != VDIN_OK)
 	{
 		clear_v4l2(videoIn);
 		return (ret);
 	}
-	
-	//add dynamic controls
-	//only for uvc logitech cameras
-	//needs admin rights
+
+	//if it's a uvc device
+	//map dynamic controls
+	//and check for h264 support
 	if(videoIn->listDevices->num_devices > 0)
 	{
 		g_print("vid:%04x \npid:%04x \ndriver:%s\n",
@@ -830,6 +831,9 @@ int init_videoIn(struct vdIn *videoIn, struct GLOBAL *global)
 			videoIn->listDevices->listVidDevices[videoIn->listDevices->current_device].driver);
 		if(g_strcmp0(videoIn->listDevices->listVidDevices[videoIn->listDevices->current_device].driver,"uvcvideo") == 0)
 		{
+			//check for uvc H264 support in the device
+			global->has_h264_support = has_h264_support(videoIn->fd);
+
 			if(videoIn->listDevices->listVidDevices[videoIn->listDevices->current_device].vendor != 0)
 			{
 				//check for logitech vid
@@ -840,10 +844,10 @@ int init_videoIn(struct vdIn *videoIn, struct GLOBAL *global)
 			else (ret=initDynCtrls(videoIn->fd));
 		}
 		else ret = VDIN_DYNCTRL_ERR;
-		
+
 	}
-	
-	if(global->add_ctrls) 
+
+	if(global->add_ctrls)
 	{
 		//added extension controls so now we can exit
 		//set a return code for enabling the correct warning window
@@ -852,16 +856,16 @@ int init_videoIn(struct vdIn *videoIn, struct GLOBAL *global)
 		return (ret);
 	}
 	else ret = 0; //clean ret code
-	
+
 	if(!(global->control_only))
 	{
-		if ((ret=init_v4l2(videoIn, &global->format, &global->width, &global->height, &global->fps, &global->fps_num)) < 0) 
+		if ((ret=init_v4l2(videoIn, &global->format, &global->width, &global->height, &global->fps, &global->fps_num)) < 0)
 		{
 			g_printerr("Init v4L2 failed !! \n");
 			clear_v4l2(videoIn);
 			return (ret);
 		}
-		
+
 		g_print("fps is set to %i/%i\n", global->fps_num, global->fps);
 		/*allocations*/
 		if((ret = videoIn_frame_alloca(videoIn, global->format, global->width, global->height)) != VDIN_OK)
@@ -883,11 +887,11 @@ static int frame_decode(struct vdIn *vd, int format, int width, int height)
 {
 	int ret = VDIN_OK;
 	int framesizeIn =(width * height << 1);//2 bytes per pixel
-	switch (format) 
+	switch (format)
 	{
 		case V4L2_PIX_FMT_JPEG:
 		case V4L2_PIX_FMT_MJPEG:
-			if(vd->buf.bytesused <= HEADERFRAME1) 
+			if(vd->buf.bytesused <= HEADERFRAME1)
 			{
 				// Prevent crash on empty image
 				g_print("Ignoring empty buffer ...\n");
@@ -895,108 +899,108 @@ static int frame_decode(struct vdIn *vd, int format, int width, int height)
 			}
 			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
 
-			if (jpeg_decode(&vd->framebuffer, vd->tmpbuffer, width, height) < 0) 
+			if (jpeg_decode(&vd->framebuffer, vd->tmpbuffer, width, height) < 0)
 			{
 				g_printerr("jpeg decode errors\n");
 				ret = VDIN_DECODE_ERR;
 				return ret;
 			}
 			break;
-		
+
 		case V4L2_PIX_FMT_UYVY:
 			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
 			uyvy_to_yuyv(vd->framebuffer, vd->tmpbuffer, width, height);
 			break;
-			
+
 		case V4L2_PIX_FMT_YVYU:
 			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
 			yvyu_to_yuyv(vd->framebuffer, vd->tmpbuffer, width, height);
 			break;
-			
+
 		case V4L2_PIX_FMT_YYUV:
 			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
 			yyuv_to_yuyv(vd->framebuffer, vd->tmpbuffer, width, height);
 			break;
-			
+
 		case V4L2_PIX_FMT_YUV420:
 			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
 			yuv420_to_yuyv(vd->framebuffer, vd->tmpbuffer, width, height);
 			break;
-		
+
 		case V4L2_PIX_FMT_YVU420:
 			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
 			yvu420_to_yuyv(vd->framebuffer, vd->tmpbuffer, width, height);
 			break;
-		
+
 		case V4L2_PIX_FMT_NV12:
 			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
 			nv12_to_yuyv(vd->framebuffer, vd->tmpbuffer, width, height);
 			break;
-			
+
 		case V4L2_PIX_FMT_NV21:
 			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
 			nv21_to_yuyv(vd->framebuffer, vd->tmpbuffer, width, height);
 			break;
-		
+
 		case V4L2_PIX_FMT_NV16:
 			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
 			nv16_to_yuyv(vd->framebuffer, vd->tmpbuffer, width, height);
 			break;
-			
+
 		case V4L2_PIX_FMT_NV61:
 			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
 			nv61_to_yuyv(vd->framebuffer, vd->tmpbuffer, width, height);
 			break;
-			
-		case V4L2_PIX_FMT_Y41P: 
+
+		case V4L2_PIX_FMT_Y41P:
 			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
 			y41p_to_yuyv(vd->framebuffer, vd->tmpbuffer, width, height);
 			break;
-		
+
 		case V4L2_PIX_FMT_GREY:
 			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
 			grey_to_yuyv(vd->framebuffer, vd->tmpbuffer, width, height);
 			break;
-			
+
 		case V4L2_PIX_FMT_Y10BPACK:
 			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
 			y10b_to_yuyv(vd->framebuffer, vd->tmpbuffer, width, height);
 			break;
-		
+
 	    case V4L2_PIX_FMT_Y16:
 			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
 			y16_to_yuyv(vd->framebuffer, vd->tmpbuffer, width, height);
 			break;
-			
+
 		case V4L2_PIX_FMT_SPCA501:
 			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
 			s501_to_yuyv(vd->framebuffer, vd->tmpbuffer, width, height);
 			break;
-		
+
 		case V4L2_PIX_FMT_SPCA505:
 			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
 			s505_to_yuyv(vd->framebuffer, vd->tmpbuffer, width, height);
 			break;
-		
+
 		case V4L2_PIX_FMT_SPCA508:
 			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
 			s508_to_yuyv(vd->framebuffer, vd->tmpbuffer, width, height);
 			break;
-		
+
 		case V4L2_PIX_FMT_YUYV:
-			if(vd->isbayer>0) 
+			if(vd->isbayer>0)
 			{
-				if (!(vd->tmpbuffer)) 
+				if (!(vd->tmpbuffer))
 				{
 					// rgb buffer for decoding bayer data
-					vd->tmpbuffer = g_new0(unsigned char, 
+					vd->tmpbuffer = g_new0(unsigned char,
 						width * height * 3);
 				}
 				bayer_to_rgb24 (vd->mem[vd->buf.index],vd->tmpbuffer, width, height, vd->pix_order);
 				// raw bayer is only available in logitech cameras in yuyv mode
 				rgb2yuyv (vd->tmpbuffer,vd->framebuffer, width, height);
-			} 
-			else 
+			}
+			else
 			{
 				if (vd->buf.bytesused > framesizeIn)
 					memcpy(vd->framebuffer, vd->mem[vd->buf.index],
@@ -1006,17 +1010,17 @@ static int frame_decode(struct vdIn *vd, int format, int width, int height)
 						(size_t) vd->buf.bytesused);
 			}
 			break;
-			
+
 		case V4L2_PIX_FMT_SGBRG8: //0
 			bayer_to_rgb24 (vd->mem[vd->buf.index],vd->tmpbuffer, width, height, 0);
 			rgb2yuyv (vd->tmpbuffer, vd->framebuffer, width, height);
 			break;
-			
+
 		case V4L2_PIX_FMT_SGRBG8: //1
 			bayer_to_rgb24 (vd->mem[vd->buf.index], vd->tmpbuffer, width, height, 1);
 			rgb2yuyv (vd->tmpbuffer, vd->framebuffer, width, height);
 			break;
-			
+
 		case V4L2_PIX_FMT_SBGGR8: //2
 			bayer_to_rgb24 (vd->mem[vd->buf.index], vd->tmpbuffer, width, height, 2);
 			rgb2yuyv (vd->tmpbuffer, vd->framebuffer, width, height);
@@ -1025,7 +1029,7 @@ static int frame_decode(struct vdIn *vd, int format, int width, int height)
 			bayer_to_rgb24 (vd->mem[vd->buf.index], vd->tmpbuffer, width, height, 3);
 			rgb2yuyv (vd->tmpbuffer, vd->framebuffer, width, height);
 			break;
-			
+
 		case V4L2_PIX_FMT_RGB24:
 			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index], vd->buf.bytesused);
 			rgb2yuyv(vd->tmpbuffer, vd->framebuffer, width, height);
@@ -1034,7 +1038,7 @@ static int frame_decode(struct vdIn *vd, int format, int width, int height)
 			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
 			bgr2yuyv(vd->tmpbuffer, vd->framebuffer, width, height);
 			break;
-		
+
 		default:
 			g_printerr("error grabbing (v4l2uvc.c) unknown format: %i\n", format);
 			ret = VDIN_UNKNOWN_ERR;
@@ -1057,31 +1061,31 @@ int uvcGrab(struct vdIn *vd, int format, int width, int height, int *fps, int *f
 	UINT64 ts = 0;
 	//make sure streaming is on
 	if (!vd->isstreaming)
-		if (video_enable(vd)) 
+		if (video_enable(vd))
 		{
 			vd->signalquit = TRUE;
 			return ret;
 		}
-	
+
 	FD_ZERO(&rdset);
 	FD_SET(vd->fd, &rdset);
-	timeout.tv_sec = 1; // 1 sec timeout 
+	timeout.tv_sec = 1; // 1 sec timeout
 	timeout.tv_usec = 0;
 	// select - wait for data or timeout
 	ret = select(vd->fd + 1, &rdset, NULL, NULL, &timeout);
-	if (ret < 0) 
+	if (ret < 0)
 	{
 		perror(" Could not grab image (select error)");
 		vd->timestamp = 0;
 		return VDIN_SELEFAIL_ERR;
-	} 
+	}
 	else if (ret == 0)
 	{
 		perror(" Could not grab image (select timeout)");
 		vd->timestamp = 0;
 		return VDIN_SELETIMEOUT_ERR;
 	}
-	else if ((ret > 0) && (FD_ISSET(vd->fd, &rdset))) 
+	else if ((ret > 0) && (FD_ISSET(vd->fd, &rdset)))
 	{
 		switch(vd->cap_meth)
 		{
@@ -1095,9 +1099,9 @@ int uvcGrab(struct vdIn *vd, int format, int width, int height, int *fps, int *f
 				}
 				vd->buf.bytesused = v4l2_read (vd->fd, vd->mem[vd->buf.index], vd->buf.length);
 				vd->timestamp = ns_time_monotonic();
-				if (-1 == vd->buf.bytesused ) 
+				if (-1 == vd->buf.bytesused )
 				{
-					switch (errno) 
+					switch (errno)
 					{
 						case EAGAIN:
 							g_print("No data available for read\n");
@@ -1119,7 +1123,7 @@ int uvcGrab(struct vdIn *vd, int format, int width, int height, int *fps, int *f
 					vd->timestamp = 0;
 				}
 				break;
-				
+
 			case IO_MMAP:
 			default:
 				/*query and queue buffers since fps or compression as changed*/
@@ -1155,23 +1159,23 @@ int uvcGrab(struct vdIn *vd, int format, int width, int height, int *fps, int *f
 					memset(&vd->buf, 0, sizeof(struct v4l2_buffer));
 					vd->buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 					vd->buf.memory = V4L2_MEMORY_MMAP;
-                    
+
 					ret = xioctl(vd->fd, VIDIOC_DQBUF, &vd->buf);
-					if (ret < 0) 
+					if (ret < 0)
 					{
 						perror("VIDIOC_DQBUF - Unable to dequeue buffer ");
 						ret = VDIN_DEQBUFS_ERR;
 						return ret;
 					}
-					ts = (UINT64) vd->buf.timestamp.tv_sec * G_NSEC_PER_SEC +  
+					ts = (UINT64) vd->buf.timestamp.tv_sec * G_NSEC_PER_SEC +
 					    vd->buf.timestamp.tv_usec * 1000; //in nanosec
-					    
+
 					/* use buffer timestamp if set by the driver, otherwise use current system time */
-					if(ts > 0) vd->timestamp = ts; 
-					else vd->timestamp = ns_time_monotonic(); 
+					if(ts > 0) vd->timestamp = ts;
+					else vd->timestamp = ns_time_monotonic();
 
 					ret = xioctl(vd->fd, VIDIOC_QBUF, &vd->buf);
-					if (ret < 0) 
+					if (ret < 0)
 					{
 						perror("VIDIOC_QBUF - Unable to queue buffer");
 						ret = VDIN_QBUF_ERR;
@@ -1182,18 +1186,18 @@ int uvcGrab(struct vdIn *vd, int format, int width, int height, int *fps, int *f
 	}
 
 	// save raw frame
-	if (vd->cap_raw > 0) 
+	if (vd->cap_raw > 0)
 	{
 		SaveBuff (vd->ImageFName,vd->buf.bytesused,vd->mem[vd->buf.index]);
 		vd->cap_raw=0;
 	}
-	
+
 	if ((ret = frame_decode(vd, format, width, height)) != VDIN_OK)
 	{
 		vd->signalquit = TRUE;
 		return ret;
 	}
-	
+
 	return VDIN_OK;
 }
 
@@ -1208,13 +1212,13 @@ static int close_v4l2_buffers (struct vdIn *vd)
 	switch(vd->cap_meth)
 	{
 		case IO_READ:
-			if(vd->mem[vd->buf.index]!= NULL) 
+			if(vd->mem[vd->buf.index]!= NULL)
 	    		{
 				g_free(vd->mem[vd->buf.index]);
 				vd->mem[vd->buf.index] = NULL;
 			 }
 			break;
-		
+
 		case IO_MMAP:
 		default:
 			//delete requested buffers
@@ -1226,7 +1230,7 @@ static int close_v4l2_buffers (struct vdIn *vd)
 			if(xioctl(vd->fd, VIDIOC_REQBUFS, &vd->rb)<0)
 			{
 				g_printerr("VIDIOC_REQBUFS - Failed to delete buffers: %s (errno %d)\n", strerror(errno), errno);
-				return(VDIN_REQBUFS_ERR);	
+				return(VDIN_REQBUFS_ERR);
 			}
 			break;
 	}
@@ -1239,8 +1243,8 @@ int restart_v4l2(struct vdIn *vd, struct GLOBAL *global)
 	int ret = VDIN_OK;
 	video_disable(vd);
 	close_v4l2_buffers(vd);
-	
-	if ((ret=init_v4l2(vd, &global->format, &global->width, &global->height, &global->fps, &global->fps_num)) < 0) 
+
+	if ((ret=init_v4l2(vd, &global->format, &global->width, &global->height, &global->fps, &global->fps_num)) < 0)
 	{
 		g_printerr("Init v4L2 failed !! \n");
 		vd->signalquit = TRUE;
@@ -1255,8 +1259,8 @@ int restart_v4l2(struct vdIn *vd, struct GLOBAL *global)
 	/*try to start the video stream*/
 	//it's OK if it fails since it is retried in uvcGrab
 	video_enable(vd);
-	
-	return (ret);	
+
+	return (ret);
 }
 
 /* cleans VdIn struct and allocations
@@ -1302,7 +1306,7 @@ void close_v4l2(struct vdIn *videoIn, gboolean control_only)
 */
 int
 input_set_framerate (struct vdIn * device, int *fps, int *fps_num)
-{  
+{
 	int fd;
 	int ret=0;
 
@@ -1318,17 +1322,17 @@ input_set_framerate (struct vdIn * device, int *fps, int *fps_num)
 
 	device->streamparm.parm.capture.timeperframe.numerator = *fps_num;
 	device->streamparm.parm.capture.timeperframe.denominator = *fps;
-	 
+
 	ret = xioctl(fd,VIDIOC_S_PARM,&device->streamparm);
-	if (ret < 0) 
+	if (ret < 0)
 	{
 		g_printerr("Unable to set %d/%d fps\n", *fps_num, *fps);
 		perror("VIDIOC_S_PARM error");
-	} 
-	
+	}
+
 	/*make sure we now have the correct fps*/
 	input_get_framerate (device, fps, fps_num);
-	
+
 	return ret;
 }
 
@@ -1348,11 +1352,11 @@ input_get_framerate (struct vdIn * device, int *fps, int *fps_num)
 
 	device->streamparm.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 	ret = xioctl(fd,VIDIOC_G_PARM,&device->streamparm);
-	if (ret < 0) 
+	if (ret < 0)
 	{
 		perror("VIDIOC_G_PARM - Unable to get timeperframe");
-	} 
-	else 
+	}
+	else
 	{
 		if (device->streamparm.parm.capture.capability & V4L2_CAP_TIMEPERFRAME) {
 			// it seems numerator is allways 1 but we don't do assumptions here :-)
@@ -1360,7 +1364,7 @@ input_get_framerate (struct vdIn * device, int *fps, int *fps_num)
 			*fps_num = device->streamparm.parm.capture.timeperframe.numerator;
 		}
 	}
-	
+
 	if(*fps == 0 )
 		*fps = 1;
 	if(*fps_num == 0)

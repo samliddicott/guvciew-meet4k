@@ -90,6 +90,8 @@ guvcview_SOURCES = \
 	timers.c \
 	utils.h \
 	utils.c \
+	uvc_h264.h \
+	uvc_h264.c \
 	v4l2_controls.h \
 	v4l2_controls.c \
 	v4l2_devices.h \

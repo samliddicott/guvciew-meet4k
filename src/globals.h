@@ -133,6 +133,7 @@ struct GLOBAL
 
 	float DispFps;         //fps value
 
+	gboolean has_h264_support;    //flag the support for uvc h264
     gboolean no_display;   //flag if guvcview will present the gui or not.
 	gboolean exit_on_close;//exit guvcview after closing video when capturing from start
 	gboolean Sound_enable; //Enable/disable Sound (Def. enable)

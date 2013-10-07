@@ -166,6 +166,8 @@ int initGlobals (struct GLOBAL *global)
 	global->exit_on_close = FALSE;
 	global->skip_n=0;
 	global->jpeg=NULL;
+	global->has_h264_support = FALSE;
+
 	/* reset with videoIn parameters */
 	global->autofocus = FALSE;
 	global->AFcontrol = FALSE;
