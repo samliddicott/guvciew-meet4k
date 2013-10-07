@@ -55,6 +55,6 @@
 
 int initDynCtrls(int hdevice);
 int read_xu_control(int hdevice, uint8_t unit, uint8_t selector, uint16_t size, void *data);
-int write_xu_control(int hdevice, uint8_t unit, uint8_t selector, uint16_t size, void *data)
+int write_xu_control(int hdevice, uint8_t unit, uint8_t selector, uint16_t size, void *data);
 
 #endif

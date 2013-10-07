@@ -273,4 +273,4 @@ typedef struct _uvcx_qp_steps_layers_t
 int has_h264_support(int hdevice);
 
 
-#endif
+#endif /*UVC_H264_H*/
