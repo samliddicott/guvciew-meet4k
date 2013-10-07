@@ -35,6 +35,11 @@
 #include "string_utils.h"
 #include "callbacks.h"
 
+
+#define USB_VIDEO_CONTROL		    0x01
+#define USB_VIDEO_CONTROL_INTERFACE	0x24
+#define USB_VIDEO_CONTROL_XU_TYPE	0x06
+
 int has_h264_support(int hdevice)
 {
 	uvcx_version_t uvcx_version;
@@ -92,12 +97,10 @@ static uint8_t xu_get_unit_id (uint64_t busnum, uint64_t devnum)
 	static const uint8_t guid[16] = GUID_UVCX_H264_XU;
 	uint8_t unit = 0;
 
-    GST_DEBUG_OBJECT (self, "XU_FIND_UNIT ioctl failed. Fallback on libusb");
-
     if (usb_ctx == NULL)
-      libusb_init (usb_ctx);
+      libusb_init (&usb_ctx);
 
-    cnt = libusb_get_device_list (self->usb_ctx, &device_list);
+    cnt = libusb_get_device_list (usb_ctx, &device_list);
     for (i = 0; i < cnt; i++)
     {
 		if (busnum == libusb_get_bus_number (device_list[i]) &&

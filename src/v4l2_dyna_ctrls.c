@@ -242,16 +242,16 @@ uint16_t get_length_xu_control(int hdevice, uint8_t unit, uint8_t selector)
 {
 	uint16_t length = 0;
 
-	struct uvc_xu_control_query xu_control_query =
+	struct uvc_xu_control_query xu_ctrl_query =
 	{
 		.unit     = unit,
 		.selector = selector,
 		.query    = UVC_GET_LEN,
 		.size     = sizeof(length),
-		.data     = &length
+		.data     = (uint8_t *) &length
 	};
 
-	if (xioctl(hdevice, UVCIOC_CTRL_QUERY, &xu_control_query) < 0)
+	if (xioctl(hdevice, UVCIOC_CTRL_QUERY, &xu_ctrl_query) < 0)
 	{
 		perror("UVCIOC_CTRL_QUERY (GET_LEN) - Error");
 		return 0;
@@ -264,7 +264,7 @@ uint8_t get_info_xu_control(int hdevice, uint8_t unit, uint8_t selector)
 {
 	uint8_t info = 0;
 
-	struct uvc_xu_control_query xu_control_query =
+	struct uvc_xu_control_query xu_ctrl_query =
 	{
 		.unit     = unit,
 		.selector = selector,
@@ -273,7 +273,7 @@ uint8_t get_info_xu_control(int hdevice, uint8_t unit, uint8_t selector)
 		.data     = &info
 	};
 
-	if (xioctl(hdevice, UVCIOC_CTRL_QUERY, &xu_control_query) < 0)
+	if (xioctl(hdevice, UVCIOC_CTRL_QUERY, &xu_ctrl_query) < 0)
 	{
 		perror("UVCIOC_CTRL_QUERY (GET_INFO) - Error");
 		return 0;
@@ -286,16 +286,16 @@ int query_xu_control(int hdevice, uint8_t unit, uint8_t selector, uint8_t query,
 {
 	int err = 0;
 
-	struct uvc_xu_control_query xu_control_query =
+	struct uvc_xu_control_query xu_ctrl_query =
 	{
 		.unit     = unit,
 		.selector = selector,
 		.query    = query,
 		.size     = size,
-		.data     = data
+		.data     = (uint8_t *) data
 	};
 
-	if ((err=xioctl(hdevice, UVCIOC_CTRL_QUERY, &xu_control_query)) < 0)
+	if ((err=xioctl(hdevice, UVCIOC_CTRL_QUERY, &xu_ctrl_query)) < 0)
 	{
 		perror("UVCIOC_CTRL_QUERY - Error");
 	}
