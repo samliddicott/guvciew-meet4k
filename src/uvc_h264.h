@@ -274,8 +274,9 @@ typedef struct _uvcx_qp_steps_layers_t
 } uvcx_qp_steps_layers_t;
 
 
-int has_h264_support(int hdevice);
-int uvcx_video_probe(int hdevice, uint8_t query, uvcx_video_config_probe_commit_t *uvcx_video_config);
-int uvcx_video_commit(int hdevice, uvcx_video_config_probe_commit_t *uvcx_video_config);
+uint8_t xu_get_unit_id (uint64_t busnum, uint64_t devnum);
+int has_h264_support(int hdevice, uint8_t unit_id);
+int uvcx_video_probe(int hdevice, uint8_t unit_id, uint8_t query, uvcx_video_config_probe_commit_t *uvcx_video_config);
+int uvcx_video_commit(int hdevice, uint8_t unit_id, uvcx_video_config_probe_commit_t *uvcx_video_config);
 
 #endif /*UVC_H264_H*/

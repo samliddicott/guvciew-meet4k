@@ -819,7 +819,7 @@ void create_control_widgets(Control *control_list, void *all_data, int control_o
 
                             current->spinbutton = gtk_spin_button_new_with_range(-256, 256, 64);
                             /*can't edit the spin value by hand*/
-                            gtk_editable_set_editable(GTK_EDITABLE(current->spinbutton),FALSE);
+                            gtk_editable_set_editable(GTK_EDITABLE(current->spinbutton),TRUE);
 
                             gtk_spin_button_set_value (GTK_SPIN_BUTTON(current->spinbutton), 128);
                             gtk_widget_show (current->spinbutton);

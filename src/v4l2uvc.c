@@ -789,7 +789,7 @@ int init_videoIn(struct vdIn *videoIn, struct GLOBAL *global)
     }
 
     videoIn->listDevices = enum_devices( videoIn->videodevice, videoIn->udev, (int) global->debug);
-
+	
 	if (videoIn->listDevices != NULL)
 	{
 		if(!(videoIn->listDevices->listVidDevices))
@@ -832,7 +832,11 @@ int init_videoIn(struct vdIn *videoIn, struct GLOBAL *global)
 		if(g_strcmp0(videoIn->listDevices->listVidDevices[videoIn->listDevices->current_device].driver,"uvcvideo") == 0)
 		{
 			//check for uvc H264 support in the device
-			global->has_h264_support = has_h264_support(videoIn->fd);
+			uint64_t busnum = videoIn->listDevices->listVidDevices[videoIn->listDevices->current_device].busnum;
+			uint64_t devnum = videoIn->listDevices->listVidDevices[videoIn->listDevices->current_device].devnum;
+			uint8_t unit_id = xu_get_unit_id (busnum, devnum);
+			
+			global->has_h264_support = has_h264_support(videoIn->fd, unit_id);
 
 			if(videoIn->listDevices->listVidDevices[videoIn->listDevices->current_device].vendor != 0)
 			{

@@ -29,11 +29,17 @@
 #include "v4l2uvc.h"
 #include "v4l2_formats.h"
 
-#define SUP_PIX_FMT 25                //total number of software(guvcview)
+#define SUP_PIX_FMT 26                //total number of software(guvcview)
                                       //supported formats (list size)
 
 static SupFormats listSupFormats[SUP_PIX_FMT] = //list of software supported formats
 {
+	{
+		.format   = V4L2_PIX_FMT_H264,
+		.mode     = "h264",
+		.hardware = 0
+		//.decoder  = decode_jpeg
+	},
 	{
 		.format   = V4L2_PIX_FMT_MJPEG,
 		.mode     = "mjpg",

@@ -1242,6 +1242,20 @@ button_PanTilt2_clicked (GtkButton * Button, struct ALL_DATA *all_data)
 	struct vdIn *videoIn = all_data->videoIn;
 
     int id = GPOINTER_TO_INT(g_object_get_data (G_OBJECT (Button), "control_info"));
+    
+    if(id == V4L2_CID_PAN_RELATIVE)
+    {
+    	Control *c = get_ctrl_by_id(s->control_list, V4L2_CID_TILT_RELATIVE);
+    	c->value = 0;
+    	set_ctrl(videoIn->fd, s->control_list, V4L2_CID_TILT_RELATIVE);
+    }
+    else
+    {
+    	Control *c = get_ctrl_by_id(s->control_list, V4L2_CID_PAN_RELATIVE);
+    	c->value = 0;
+    	set_ctrl(videoIn->fd, s->control_list, V4L2_CID_PAN_RELATIVE);
+    }
+    
     Control *c = get_ctrl_by_id(s->control_list, id);
 
     int val = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON(c->spinbutton));
