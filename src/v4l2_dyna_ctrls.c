@@ -238,29 +238,51 @@ int initDynCtrls(int hdevice)
 	return err;
 }
 
-
-int read_xu_control(int hdevice, uint8_t unit, uint8_t selector, uint16_t size, void *data)
+uint16_t get_length_xu_control(int hdevice, uint8_t unit, uint8_t selector)
 {
-	int err = 0;
+	uint16_t length = 0;
 
 	struct uvc_xu_control_query xu_control_query =
 	{
 		.unit     = unit,
 		.selector = selector,
-		.query    = UVC_GET_CUR,
-		.size     = size,
-		.data     = data
+		.query    = UVC_GET_LEN,
+		.size     = sizeof(length),
+		.data     = &length
 	};
 
-	if ((err=xioctl(hdevice, UVCIOC_CTRL_QUERY, &xu_control_query)) < 0)
+	if (xioctl(hdevice, UVCIOC_CTRL_QUERY, &xu_control_query) < 0)
 	{
-		perror("UVCIOC_CTRL_QUERY (GET_CUR) - Error");
+		perror("UVCIOC_CTRL_QUERY (GET_LEN) - Error");
+		return 0;
 	}
 
-	return err;
+	return length;
 }
 
-int write_xu_control(int hdevice, uint8_t unit, uint8_t selector, uint16_t size, void *data)
+uint8_t get_info_xu_control(int hdevice, uint8_t unit, uint8_t selector)
+{
+	uint8_t info = 0;
+
+	struct uvc_xu_control_query xu_control_query =
+	{
+		.unit     = unit,
+		.selector = selector,
+		.query    = UVC_GET_INFO,
+		.size     = sizeof(info),
+		.data     = &info
+	};
+
+	if (xioctl(hdevice, UVCIOC_CTRL_QUERY, &xu_control_query) < 0)
+	{
+		perror("UVCIOC_CTRL_QUERY (GET_INFO) - Error");
+		return 0;
+	}
+
+	return info;
+}
+
+int query_xu_control(int hdevice, uint8_t unit, uint8_t selector, uint8_t query, uint16_t size, void *data)
 {
 	int err = 0;
 
@@ -268,14 +290,14 @@ int write_xu_control(int hdevice, uint8_t unit, uint8_t selector, uint16_t size,
 	{
 		.unit     = unit,
 		.selector = selector,
-		.query    = UVC_SET_CUR,
+		.query    = query,
 		.size     = size,
 		.data     = data
 	};
 
 	if ((err=xioctl(hdevice, UVCIOC_CTRL_QUERY, &xu_control_query)) < 0)
 	{
-		perror("UVCIOC_CTRL_QUERY (SET_CUR) - Error");
+		perror("UVCIOC_CTRL_QUERY - Error");
 	}
 
 	return err;

@@ -27,6 +27,7 @@
 #include <glib/gi18n.h>
 
 #include <gtk/gtk.h>
+#include <libusb.h>
 
 #include "uvc_h264.h"
 #include "v4l2_dyna_ctrls.h"
@@ -37,9 +38,9 @@
 int has_h264_support(int hdevice)
 {
 	uvcx_version_t uvcx_version;
-	uint8_t unit = 12; //FIXME: hardcoded should get unit from GUID
+	uint8_t unit = 12; //FIXME: hardcoded should get unit from GUID value
 
-	if(read_xu_control(hdevice, unit, UVCX_VERSION, sizeof(uvcx_version), &uvcx_version) < 0)
+	if(query_xu_control(hdevice, unit, UVCX_VERSION, UVC_GET_CUR, sizeof(uvcx_version), &uvcx_version) < 0)
 	{
 		g_printerr("device doesn't seem to support uvc H264\n");
 		return 0;
@@ -49,6 +50,117 @@ int has_h264_support(int hdevice)
 		g_printerr("device seems to support uvc H264 (version: %d)\n", uvcx_version.wVersion);
 		return 1;
 	}
+}
+
+int uvcx_video_probe(int hdevice, uint8_t query, uvcx_video_config_probe_commit_t *uvcx_video_config)
+{
+	int err = 0;
+	uint8_t unit = 12; //FIXME: hardcoded should get unit from GUID value
+
+	if((err = query_xu_control(hdevice, unit, UVCX_VIDEO_CONFIG_PROBE, query, sizeof(uvcx_video_config_probe_commit_t), uvcx_video_config)) < 0)
+	{
+		perror("UVCX_VIDEO_CONFIG_PROBE error");
+		return err;
+	}
+
+	return err;
+}
+
+int uvcx_video_commit(int hdevice, uvcx_video_config_probe_commit_t *uvcx_video_config)
+{
+	int err = 0;
+	uint8_t unit = 12; //FIXME: hardcoded should get unit from GUID value
+
+	if((err = query_xu_control(hdevice, unit, UVCX_VIDEO_CONFIG_COMMIT, UVC_SET_CUR, sizeof(uvcx_video_config_probe_commit_t), uvcx_video_config)) < 0)
+	{
+		perror("UVCX_VIDEO_CONFIG_COMMIT error");
+		return err;
+	}
+
+	return err;
+}
+
+static uint8_t xu_get_unit_id (uint64_t busnum, uint64_t devnum)
+{
+    /* use libusb */
+	libusb_context *usb_ctx = NULL;
+    libusb_device **device_list = NULL;
+    libusb_device *device = NULL;
+    ssize_t cnt;
+    int i, j, k;
+
+	static const uint8_t guid[16] = GUID_UVCX_H264_XU;
+	uint8_t unit = 0;
+
+    GST_DEBUG_OBJECT (self, "XU_FIND_UNIT ioctl failed. Fallback on libusb");
+
+    if (usb_ctx == NULL)
+      libusb_init (usb_ctx);
+
+    cnt = libusb_get_device_list (self->usb_ctx, &device_list);
+    for (i = 0; i < cnt; i++)
+    {
+		if (busnum == libusb_get_bus_number (device_list[i]) &&
+			devnum == libusb_get_device_address (device_list[i]))
+		{
+			device = libusb_ref_device (device_list[i]);
+			break;
+		}
+
+		libusb_free_device_list (device_list, 1);
+
+		if (device)
+		{
+		  struct libusb_device_descriptor desc;
+
+		  if (libusb_get_device_descriptor (device, &desc) == 0)
+		  {
+			for (i = 0; i < desc.bNumConfigurations; ++i)
+			{
+			  struct libusb_config_descriptor *config = NULL;
+
+			  if (libusb_get_config_descriptor (device, i, &config) == 0)
+			  {
+				for (j = 0; j < config->bNumInterfaces; j++)
+				{
+				  for (k = 0; k < config->interface[j].num_altsetting; k++)
+				  {
+					const struct libusb_interface_descriptor *interface;
+					const guint8 *ptr = NULL;
+
+					interface = &config->interface[j].altsetting[k];
+					if (interface->bInterfaceClass != LIBUSB_CLASS_VIDEO ||
+						interface->bInterfaceSubClass != USB_VIDEO_CONTROL)
+					  continue;
+					ptr = interface->extra;
+					while (ptr - interface->extra +
+						sizeof (xu_descriptor) < interface->extra_length)
+					{
+					  xu_descriptor *desc = (xu_descriptor *) ptr;
+
+					  if (desc->bDescriptorType == USB_VIDEO_CONTROL_INTERFACE &&
+						  desc->bDescriptorSubType == USB_VIDEO_CONTROL_XU_TYPE &&
+						  memcmp (desc->guidExtensionCode, guid, 16) == 0)
+					  {
+						uint8_t unit_id = desc->bUnitID;
+
+						libusb_unref_device (device);
+						return unit_id;
+					  }
+					  ptr += desc->bLength;
+					}
+				  }
+				}
+			  }
+			}
+		  }
+		  libusb_unref_device (device);
+		}
+
+		return 0;
+	}
+
+  return unit;
 }
 
 

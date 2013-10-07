@@ -31,6 +31,15 @@
 // GUID of the UVC H.264 extension unit: {A29E7641-DE04-47E3-8B2B-F4341AFF003B}
 #define GUID_UVCX_H264_XU {0x41, 0x76, 0x9E, 0xA2, 0x04, 0xDE, 0xE3, 0x47, 0x8B, 0x2B, 0xF4, 0x34, 0x1A, 0xFF, 0x00, 0x3B}
 
+typedef struct
+{
+  int8_t bLength;
+  int8_t bDescriptorType;
+  int8_t bDescriptorSubType;
+  int8_t bUnitID;
+  uint8_t guidExtensionCode[16];
+} __attribute__ ((__packed__)) xu_descriptor;
+
 /* UVC H.264 control selectors */
 #define UVCX_VIDEO_CONFIG_PROBE			0x01
 #define	UVCX_VIDEO_CONFIG_COMMIT		0x02
@@ -266,6 +275,7 @@ typedef struct _uvcx_qp_steps_layers_t
 
 
 int has_h264_support(int hdevice);
-
+int uvcx_video_probe(int hdevice, uint8_t query, uvcx_video_config_probe_commit_t *uvcx_video_config);
+int uvcx_video_commit(int hdevice, uvcx_video_config_probe_commit_t *uvcx_video_config);
 
 #endif /*UVC_H264_H*/

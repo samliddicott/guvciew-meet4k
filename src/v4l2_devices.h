@@ -34,6 +34,8 @@ typedef struct _VidDevice
 	guint product;
 	int valid;
 	int current;
+	guint64 busnum;
+	guint64 devnum;
 } VidDevice;
 
 typedef struct _LDevices
@@ -45,9 +47,9 @@ typedef struct _LDevices
 
 /* enumerates system video devices
  * by checking /sys/class/video4linux
- * args: 
+ * args:
  * videodevice: current device string (default "/dev/video0")
- * 
+ *
  * returns: pointer to LDevices struct containing the video devices list */
 LDevices *enum_devices( gchar *videodevice, struct udev *udev, int debug);
 
