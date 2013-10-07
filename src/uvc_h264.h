@@ -26,6 +26,8 @@
 #include <linux/uvcvideo.h>
 #include <linux/media.h>
 
+#include "defs.h"
+
 // GUID of the UVC H.264 extension unit: {A29E7641-DE04-47E3-8B2B-F4341AFF003B}
 #define GUID_UVCX_H264_XU {0x41, 0x76, 0x9E, 0xA2, 0x04, 0xDE, 0xE3, 0x47, 0x8B, 0x2B, 0xF4, 0x34, 0x1A, 0xFF, 0x00, 0x3B}
 
@@ -111,13 +113,6 @@
 /* bPreviewFlipped defines */
 #define PREFLIPPED_DISABLE        0x00
 #define PREFLIPPED_HORIZONTAL     0x01
-
-
-/* size definitions */
-#define BYTE   uint8_t
-#define WORD   uint16_t
-#define DWORD  uint32_t
-
 
 /* wLayerID Macro */
 
