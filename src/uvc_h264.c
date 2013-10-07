@@ -29,7 +29,7 @@
 #include <gtk/gtk.h>
 
 #include "uvc_h264.h"
-#include "v4l2_dyna_ctrls.c"
+#include "v4l2_dyna_ctrls.h"
 #include "globals.h"
 #include "string_utils.h"
 #include "callbacks.h"

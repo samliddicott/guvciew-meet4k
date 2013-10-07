@@ -24,6 +24,18 @@
 
 #include <linux/videodev2.h>
 #include <linux/uvcvideo.h>
+
+/* A.8. Video Class-Specific Request Codes */
+#define UVC_RC_UNDEFINED                                0x00
+#define UVC_SET_CUR                                     0x01
+#define UVC_GET_CUR                                     0x81
+#define UVC_GET_MIN                                     0x82
+#define UVC_GET_MAX                                     0x83
+#define UVC_GET_RES                                     0x84
+#define UVC_GET_LEN                                     0x85
+#define UVC_GET_INFO                                    0x86
+#define UVC_GET_DEF                                     0x87
+
 /*
  * Dynamic controls
  */
@@ -52,6 +64,8 @@
 #define XU_MOTORCONTROL_FOCUS			3
 #define XU_COLOR_PROCESSING_DISABLE		5
 #define XU_RAW_DATA_BITS_PER_PIXEL		8
+
+
 
 int initDynCtrls(int hdevice);
 int read_xu_control(int hdevice, uint8_t unit, uint8_t selector, uint16_t size, void *data);
