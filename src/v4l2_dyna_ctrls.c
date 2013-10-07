@@ -219,7 +219,7 @@ int initDynCtrls(int hdevice)
 	for ( i=0; i<LENGTH_OF_XU_MAP; i++ )
 	{
 		g_print("mapping control for %s\n", xu_mappings[i].name);
-		if ((err=xioctl(fd, UVCIOC_CTRL_MAP, &xu_mappings[i])) < 0)
+		if ((err=xioctl(hdevice, UVCIOC_CTRL_MAP, &xu_mappings[i])) < 0)
 		{
 			if ((errno!=EEXIST) || (errno != EACCES))
 			{
@@ -235,7 +235,7 @@ int initDynCtrls(int hdevice)
 			else perror("Mapping exists");
 		}
 	}
-	return 0;
+	return err;
 }
 
 
@@ -243,16 +243,16 @@ int read_xu_control(int hdevice, uint8_t unit, uint8_t selector, uint16_t size, 
 {
 	int err = 0;
 
-	struct uvc_xu_control_query control =
+	struct uvc_xu_control_query xu_control_query =
 	{
 		.unit     = unit,
 		.selector = selector,
 		.query    = UVC_GET_CUR,
 		.size     = size,
 		.data     = data
-	}
+	};
 
-	if ((err=xioctl(hdevice, UVCIOC_CTRL_QUERY, &control)) < 0)
+	if ((err=xioctl(hdevice, UVCIOC_CTRL_QUERY, &xu_control_query)) < 0)
 	{
 		perror("UVCIOC_CTRL_QUERY (GET_CUR) - Error");
 	}
@@ -264,16 +264,16 @@ int write_xu_control(int hdevice, uint8_t unit, uint8_t selector, uint16_t size,
 {
 	int err = 0;
 
-	struct uvc_xu_control_query control =
+	struct uvc_xu_control_query xu_control_query =
 	{
 		.unit     = unit,
 		.selector = selector,
 		.query    = UVC_SET_CUR,
 		.size     = size,
 		.data     = data
-	}
+	};
 
-	if ((err=xioctl(hdevice, UVCIOC_CTRL_QUERY, &control)) < 0)
+	if ((err=xioctl(hdevice, UVCIOC_CTRL_QUERY, &xu_control_query)) < 0)
 	{
 		perror("UVCIOC_CTRL_QUERY (SET_CUR) - Error");
 	}
