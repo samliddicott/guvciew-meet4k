@@ -29,6 +29,7 @@
 #include "v4l2_devices.h"
 #include "v4l2_formats.h"
 #include "v4l2_controls.h"
+#include "lavc_common.h"
 
 //control list method
 #define LIST_CTL_METHOD_LOOP 0
@@ -121,6 +122,7 @@ struct vdIn
 	gboolean IOfinished;                // Signals that IO thread has finished
 	LFormats *listFormats;              // structure with frame formats list
 	LDevices *listDevices;              // structure with devices list
+	struct h264_decoder_context* h264_ctx; //h264 decoder context
 };
 
 /* ioctl with a number of retries in the case of I/O failure

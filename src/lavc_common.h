@@ -127,6 +127,23 @@ struct lavcAData
 	int monotonic_pts;
 };
 
+// H264 decoder
+struct h264_decoder_context
+{
+	AVCodec *codec;
+	AVCodecContext *context;
+	AVFrame *picture;
+
+	int width;
+	int height;
+	int pic_size;
+	
+};
+
+struct h264_decoder_context* init_h264_decoder(int width, int height);
+int decode_h264(uint8_t *out_buf, uint8_t *in_buf, int buf_size, struct h264_decoder_context* h264_ctx);
+void close_h264_decoder(struct h264_decoder_context* h264_ctx);
+
 //split the private codec data into xiph headers for mkv muxer (vorbis and theora)
 int avpriv_split_xiph_headers(uint8_t *extradata, int extradata_size,
                          int first_header_size, uint8_t *header_start[3],

@@ -637,3 +637,95 @@ struct lavcAData* init_lavc_audio(struct paRecordData *pdata, int codec_ind)
 #endif
 	return(pdata->lavc_data);
 }
+
+
+// H264 decoder
+struct h264_decoder_context* init_h264_decoder(int width, int height)
+{
+	struct h264_decoder_context* h264_ctx = g_new0(struct h264_decoder_context, 1);
+	
+	h264_ctx->codec = avcodec_find_decoder(CODEC_ID_H264);
+	if(!h264_ctx->codec)
+	{
+		fprintf(stderr, "H264 decoder: codec not found (please install libavcodec-extra for H264 support)\n");
+		g_free(h264_ctx);
+		return NULL;
+	}
+
+#if LIBAVCODEC_VER_AT_LEAST(53,6)
+	h264_ctx->context = avcodec_alloc_context3(h264_ctx->codec);
+	avcodec_get_context_defaults3 (h264_ctx->context, h264_ctx->codec); 		
+#else
+	h264_ctx->context = avcodec_alloc_context();
+	avcodec_get_context_defaults(h264_ctx->context);
+#endif
+	
+	
+	h264_ctx->context->flags2 |= CODEC_FLAG2_FAST;
+	h264_ctx->context->pix_fmt = PIX_FMT_YUV420P;
+	h264_ctx->context->width = width;
+	h264_ctx->context->height = height;
+	//h264_ctx->context->dsp_mask = (FF_MM_MMX | FF_MM_MMXEXT | FF_MM_SSE);
+#if LIBAVCODEC_VER_AT_LEAST(53,6)
+	if (avcodec_open2(h264_ctx->context, h264_ctx->codec, NULL) < 0)
+#else
+	if (avcodec_open(h264_ctx->context, h264_ctx->codec) < 0)
+#endif
+	{
+		fprintf(stderr, "H264 decoder: couldn't open codec\n");
+		avcodec_close(h264_ctx->context);
+		g_free(h264_ctx->context);
+		g_free(h264_ctx);
+		return NULL;
+	}
+	
+	h264_ctx->picture = avcodec_alloc_frame();
+	avcodec_get_frame_defaults(h264_ctx->picture);
+	h264_ctx->pic_size = avpicture_get_size(h264_ctx->context->pix_fmt, width, height);
+	h264_ctx->width = width;
+	h264_ctx->height = height;
+	
+	//decodedOut = (uint8_t *)malloc(pic_size);
+
+	return h264_ctx;
+}
+
+int decode_h264(uint8_t *out_buf, uint8_t *in_buf, int buf_size, struct h264_decoder_context* h264_ctx)
+{
+	AVPacket avpkt;
+	
+	avpkt.size = buf_size;
+	avpkt.data = in_buf;
+	
+	int got_picture = 0;
+	int len = avcodec_decode_video2(h264_ctx->context, h264_ctx->picture, &got_picture, &avpkt);
+	
+	if(len < 0)
+	{
+		fprintf(stderr, "H264 decoder: error while decoding frame\n");
+		return len;
+	}
+	
+	if(got_picture)
+	{
+		avpicture_layout((AVPicture *) h264_ctx->picture, h264_ctx->context->pix_fmt
+			, h264_ctx->width, h264_ctx->height, out_buf, h264_ctx->pic_size);
+		return len;
+	}
+	else
+		return 0;
+	
+}
+
+void close_h264_decoder(struct h264_decoder_context* h264_ctx)
+{
+	if(h264_ctx == NULL)
+		return;
+		
+	avcodec_close(h264_ctx->context);
+	
+	g_free(h264_ctx->context);
+	g_free(h264_ctx->picture); 
+	
+	g_free(h264_ctx);
+}

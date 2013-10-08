@@ -573,6 +573,9 @@ static int videoIn_frame_alloca(struct vdIn *vd, int format, int width, int heig
 	switch (format)
 	{
 		case V4L2_PIX_FMT_H264:
+			if(vd->h264_ctx)
+				close_h264_decoder(vd->h264_ctx);
+			vd->h264_ctx = init_h264_decoder(width, height); //init h264 context and fall through
 		case V4L2_PIX_FMT_JPEG:
 		case V4L2_PIX_FMT_MJPEG:
 			// alloc a temp buffer to reconstruct the pict (MJPEG)
@@ -710,6 +713,8 @@ void clear_v4l2(struct vdIn *videoIn)
 	g_free(videoIn->videodevice);
 	g_free(videoIn->VidFName);
 	g_free(videoIn->ImageFName);
+	close_h264_decoder(videoIn->h264_ctx);
+	videoIn->h264_ctx = NULL;
 	videoIn->videodevice = NULL;
 	videoIn->VidFName = NULL;
 	videoIn->ImageFName = NULL;
@@ -770,6 +775,7 @@ int init_videoIn(struct vdIn *videoIn, struct GLOBAL *global)
 
 	videoIn->ImageFName = g_strdup(global->imgFPath[0]);
 
+	videoIn->h264_ctx = NULL;
 	//timestamps not supported by UVC driver
 	//vd->timecode.type = V4L2_TC_TYPE_25FPS;
 	//vd->timecode.flags = V4L2_TC_FLAG_DROPFRAME;
@@ -906,9 +912,10 @@ static int frame_decode(struct vdIn *vd, int format, int width, int height)
 			 * use libavcodec x264 decoder if available
 			 * otherwise return black frame
 			 */
-			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
-			/* decode vd->tmpbuffer (h264) to vd->framebuffer (yuyv)*/
 
+			/* decode (h264) to vd->tmpbuffer (yuv420p)*/
+			decode_h264(vd->tmpbuffer, vd->mem[vd->buf.index], vd->buf.bytesused, vd->h264_ctx);
+			yuv420_to_yuyv (vd->framebuffer, vd->tmpbuffer, width, height);
 			break;
 
 		case V4L2_PIX_FMT_JPEG:
@@ -1306,6 +1313,8 @@ void close_v4l2(struct vdIn *videoIn, gboolean control_only)
 	{
 		close_v4l2_buffers(videoIn);
 	}
+	close_h264_decoder(videoIn->h264_ctx);
+	videoIn->h264_ctx = NULL;
 	videoIn->videodevice = NULL;
 	videoIn->tmpbuffer = NULL;
 	videoIn->framebuffer = NULL;
