@@ -572,6 +572,7 @@ static int videoIn_frame_alloca(struct vdIn *vd, int format, int width, int heig
 	int framesizeIn = (width * height << 1); //2 bytes per pixel
 	switch (format)
 	{
+		case V4L2_PIX_FMT_H264:
 		case V4L2_PIX_FMT_JPEG:
 		case V4L2_PIX_FMT_MJPEG:
 			// alloc a temp buffer to reconstruct the pict (MJPEG)
@@ -659,9 +660,11 @@ static int videoIn_frame_alloca(struct vdIn *vd, int format, int width, int heig
 		default:
 			g_printerr("(v4l2uvc.c) should never arrive (1)- exit fatal !!\n");
 			ret = VDIN_UNKNOWN_ERR;
-			g_free(vd->framebuffer);
+			if(vd->framebuffer)
+				g_free(vd->framebuffer);
 			vd->framebuffer = NULL;
-			g_free(vd->tmpbuffer);
+			if(vd->tmpbuffer)
+				g_free(vd->tmpbuffer);
 			vd->tmpbuffer = NULL;
 			return (ret);
 	}
@@ -671,9 +674,11 @@ static int videoIn_frame_alloca(struct vdIn *vd, int format, int width, int heig
 			g_printerr("couldn't calloc %lu bytes of memory for frame buffer\n",
 				(unsigned long) framebuf_size);
 			ret = VDIN_FBALLOC_ERR;
-			g_free(vd->framebuffer);
+			if(vd->framebuffer)
+				g_free(vd->framebuffer);
 			vd->framebuffer = NULL;
-			g_free(vd->tmpbuffer);
+			if(vd->tmpbuffer)
+				g_free(vd->tmpbuffer);
 			vd->tmpbuffer = NULL;
 			return (ret);
 		}
@@ -789,7 +794,7 @@ int init_videoIn(struct vdIn *videoIn, struct GLOBAL *global)
     }
 
     videoIn->listDevices = enum_devices( videoIn->videodevice, videoIn->udev, (int) global->debug);
-	
+
 	if (videoIn->listDevices != NULL)
 	{
 		if(!(videoIn->listDevices->listVidDevices))
@@ -835,9 +840,12 @@ int init_videoIn(struct vdIn *videoIn, struct GLOBAL *global)
 			uint64_t busnum = videoIn->listDevices->listVidDevices[videoIn->listDevices->current_device].busnum;
 			uint64_t devnum = videoIn->listDevices->listVidDevices[videoIn->listDevices->current_device].devnum;
 			uint8_t unit_id = xu_get_unit_id (busnum, devnum);
-			
-			global->has_h264_support = has_h264_support(videoIn->fd, unit_id);
 
+			if(has_h264_support(videoIn->fd, unit_id))
+			{
+				global->uvc_h264_unit = unit_id;
+				videoIn->uvc_h264_unit = unit_id;
+			}
 			if(videoIn->listDevices->listVidDevices[videoIn->listDevices->current_device].vendor != 0)
 			{
 				//check for logitech vid
@@ -893,6 +901,16 @@ static int frame_decode(struct vdIn *vd, int format, int width, int height)
 	int framesizeIn =(width * height << 1);//2 bytes per pixel
 	switch (format)
 	{
+		case V4L2_PIX_FMT_H264:
+			/*
+			 * use libavcodec x264 decoder if available
+			 * otherwise return black frame
+			 */
+			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
+			/* decode vd->tmpbuffer (h264) to vd->framebuffer (yuyv)*/
+
+			break;
+
 		case V4L2_PIX_FMT_JPEG:
 		case V4L2_PIX_FMT_MJPEG:
 			if(vd->buf.bytesused <= HEADERFRAME1)

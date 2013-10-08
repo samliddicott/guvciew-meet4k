@@ -99,6 +99,7 @@ int initGlobals (struct GLOBAL *global)
 	if(vcodec < 0)
 		vcodec = 0;
 	global->VidCodec= vcodec; /*0-"MJPG"  1-"YUY2" 2-"DIB "(rgb32) 3-...*/
+	global->VidCodec_ID = get_vcodec_id(global->VidCodec);
 	/** try to set audio codec default to mp2*/
 	setAcodecVal();
 	int acodec = get_list_acodec_index(AV_CODEC_ID_MP2);
@@ -166,7 +167,7 @@ int initGlobals (struct GLOBAL *global)
 	global->exit_on_close = FALSE;
 	global->skip_n=0;
 	global->jpeg=NULL;
-	global->has_h264_support = FALSE;
+	global->uvc_h264_unit = 0; //not supported by default
 
 	/* reset with videoIn parameters */
 	global->autofocus = FALSE;

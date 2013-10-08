@@ -114,6 +114,7 @@ struct vdIn
 	int cap_raw;                        // raw frame capture flag
 	int available_exp[4];               //backward compatible (old v4l2 exposure menu interface)
 	int PanTilt;                        //1-if PanTilt Camera 0-otherwise
+	int uvc_h264_unit;     				//uvc h264 unit id, if <= 0 then uvc h264 is not supported
 	gboolean signalquit;                // video loop exit flag
 	gboolean capVid;                    // Video capture flag (raised while capturing)
 	gboolean VidCapStop;                // Video capture stop flag (raised when video capture has stopped)

@@ -89,6 +89,7 @@ struct GLOBAL
 	int Capture_time;      //video capture time passed through argument options with -t
 	int imgFormat;         //image format: 0-"jpg", 1-"png", 2-"bmp"
 	int VidCodec;          //0-"MJPG"  1-"YUY2" 2-"DIB "(rgb32) 3-....
+	int VidCodec_ID;       //lavc codec ID
 	int AudCodec;
 	int VidFormat;         //0-AVI 1-MKV ....
 	int Sound_API;         //audio API: 0-PORTAUDIO 1-PULSEAUDIO
@@ -130,10 +131,10 @@ struct GLOBAL
 	int r_ind;             //read  frame index
 	int default_action;    // 0 for taking picture, 1 for video
 	int lctl_method;       // 0 for control id loop, 1 for next_ctrl flag method
+	int uvc_h264_unit;     //uvc h264 unit id, if <= 0 then uvc h264 is not supported
 
 	float DispFps;         //fps value
 
-	gboolean has_h264_support;    //flag the support for uvc h264
     gboolean no_display;   //flag if guvcview will present the gui or not.
 	gboolean exit_on_close;//exit guvcview after closing video when capturing from start
 	gboolean Sound_enable; //Enable/disable Sound (Def. enable)

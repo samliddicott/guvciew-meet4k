@@ -1242,7 +1242,7 @@ button_PanTilt2_clicked (GtkButton * Button, struct ALL_DATA *all_data)
 	struct vdIn *videoIn = all_data->videoIn;
 
     int id = GPOINTER_TO_INT(g_object_get_data (G_OBJECT (Button), "control_info"));
-    
+
     if(id == V4L2_CID_PAN_RELATIVE)
     {
     	Control *c = get_ctrl_by_id(s->control_list, V4L2_CID_TILT_RELATIVE);
@@ -1255,7 +1255,7 @@ button_PanTilt2_clicked (GtkButton * Button, struct ALL_DATA *all_data)
     	c->value = 0;
     	set_ctrl(videoIn->fd, s->control_list, V4L2_CID_PAN_RELATIVE);
     }
-    
+
     Control *c = get_ctrl_by_id(s->control_list, id);
 
     int val = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON(c->spinbutton));
@@ -1611,10 +1611,11 @@ VidCodec_menu_changed (GtkRadioMenuItem *vcodec_item, struct ALL_DATA *all_data)
 		fprintf(stderr,"DEBUG: video codec changed to %i\n", index);
 
 		global->VidCodec = index;
+		global->VidCodec_ID = get_vcodec_id(global->VidCodec);
 	}
 
 	if( global->VidFormat == WEBM_FORMAT &&
-		get_vcodec_id(global->VidCodec) != CODEC_ID_VP8)
+		global->VidCodec_ID != CODEC_ID_VP8)
 	{
 		//change VidFormat to Matroska
 		fprintf(stderr, "WARN: webm can only use VP8 video codec (0x%x != 0x%x)\n", global->VidCodec, CODEC_ID_VP8);

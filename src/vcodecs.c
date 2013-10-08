@@ -269,7 +269,7 @@ static vcodecs_data listSupVCodecs[] = //list of software supported formats
 		.num_threads  = 1,
 		.flags        = 0
 	},
-	{      
+	{
 		.avcodec      = TRUE,
 		.valid        = TRUE,
 		.compressor   = "MPG2",
@@ -305,7 +305,7 @@ static vcodecs_data listSupVCodecs[] = //list of software supported formats
 		.num_threads  = 1,
 		.flags        = 0
 	},
-	{      
+	{
 		.avcodec      = TRUE,
 		.valid        = TRUE,
 		.compressor   = "MP43",
@@ -341,7 +341,7 @@ static vcodecs_data listSupVCodecs[] = //list of software supported formats
 		.num_threads  = 1,
 		.flags        = 0
 	},
-	{      
+	{
 		.avcodec      = TRUE,
 		.valid        = TRUE,
 		.compressor   = "DX50",
@@ -377,7 +377,7 @@ static vcodecs_data listSupVCodecs[] = //list of software supported formats
 		.num_threads  = 1,
 		.flags        = 0
 	},
-	{      
+	{
 		.avcodec      = TRUE,
 		.valid        = TRUE,
 		.compressor   = "H264",
@@ -417,7 +417,7 @@ static vcodecs_data listSupVCodecs[] = //list of software supported formats
 		.flags        = CODEC_FLAG2_BPYRAMID | CODEC_FLAG2_WPRED | CODEC_FLAG2_FASTPSKIP | CODEC_FLAG2_INTRA_REFRESH
 #endif
 	},
-	{       
+	{
 		.avcodec      = TRUE,
 		.valid        = TRUE,
 		.compressor   = "VP80",
@@ -453,7 +453,7 @@ static vcodecs_data listSupVCodecs[] = //list of software supported formats
 		.num_threads  = 4,
 		.flags        = 0
 	},
-	{       
+	{
 		.avcodec      = TRUE,
 		.valid        = TRUE,
 		.compressor   = "theo",
@@ -899,7 +899,10 @@ int compress_frame(void *data,
 			break;
 
 		default:
-			ret = encode_lavc (lavc_data, all_data, proc_buff);
+			if(global->format == V4L2_PIX_FMT_H264 && lavc_data->codec_id == AV_CODEC_ID_H264)
+				ret = write_video_data (all_data, proc_buff->frame, proc_buff->bytes_used);
+			else
+				ret = encode_lavc (lavc_data, all_data, proc_buff);
 			break;
 	}
 	return (ret);
