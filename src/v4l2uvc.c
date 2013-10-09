@@ -514,7 +514,7 @@ static int init_v4l2(struct vdIn *vd, struct GLOBAL *global)//int *format, int *
 	}
 
 	/* ----------- FPS --------------*/
-	input_set_framerate(vd, fps, fps_num);
+	input_set_framerate(vd, &global->fps, &global->fps_num);
 
 	switch (vd->cap_meth)
 	{
@@ -1285,7 +1285,7 @@ int restart_v4l2(struct vdIn *vd, struct GLOBAL *global)
 	video_disable(vd);
 	close_v4l2_buffers(vd);
 
-	if ((ret=init_v4l2(vd, &global->format, &global->width, &global->height, &global->fps, &global->fps_num)) < 0)
+	if ((ret=init_v4l2(vd, global)) < 0)
 	{
 		g_printerr("Init v4L2 failed !! \n");
 		vd->signalquit = TRUE;

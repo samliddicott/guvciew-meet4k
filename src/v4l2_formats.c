@@ -235,7 +235,7 @@ int get_SupPixFormatUvcH264()
 	{
 		if (V4L2_PIX_FMT_H264 == listSupFormats[i].format)
 		{
-			return listSupFormats[i].hardware
+			return listSupFormats[i].hardware;
 		}
 	}
 	return(-1); /*not supported - should never happen*/

@@ -27,7 +27,7 @@
 #include <linux/media.h>
 
 #include "defs.h"
-#include "uvc_h264.h"
+#include "v4l2uvc.h"
 #include "globals.h"
 
 // GUID of the UVC H.264 extension unit: {A29E7641-DE04-47E3-8B2B-F4341AFF003B}

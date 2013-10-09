@@ -31,6 +31,7 @@
 
 #include "uvc_h264.h"
 #include "v4l2_dyna_ctrls.h"
+#include "v4l2_formats.h"
 #include "string_utils.h"
 #include "callbacks.h"
 
@@ -161,7 +162,7 @@ void check_uvc_h264_format(struct vdIn *vd, struct GLOBAL *global)
 		return; //H264 is already in the list
 
 	//add format to the list
-	int mjpg_index = get_FormatIndex(vd->listFormats, V4L2_PIX_FMT_MJPG);
+	int mjpg_index = get_FormatIndex(vd->listFormats, V4L2_PIX_FMT_MJPEG);
 	if(mjpg_index < 0) //MJPG must be available for uvc H264 streams
 		return;
 
@@ -172,7 +173,7 @@ void check_uvc_h264_format(struct vdIn *vd, struct GLOBAL *global)
 
 	vd->listFormats->listVidFormats = g_renew(VidFormats, vd->listFormats->listVidFormats, fmtind);
 	vd->listFormats->listVidFormats[fmtind-1].format = V4L2_PIX_FMT_H264;
-	vd->listFormats->listVidFormats[fmtind-1].fourcc = "H264";
+	g_snprintf(vd->listFormats->listVidFormats[fmtind-1].fourcc ,5,"H264");
 	vd->listFormats->listVidFormats[fmtind-1].listVidCap = NULL;
 	vd->listFormats->listVidFormats[fmtind-1].numb_res = 0;
 	//enumerate frame sizes with UVCX_VIDEO_CONFIG_PROBE
@@ -201,7 +202,7 @@ void check_uvc_h264_format(struct vdIn *vd, struct GLOBAL *global)
 		int height = vd->listFormats->listVidFormats[mjpg_index].listVidCap[i].height;
 
 		config_probe_test.wWidth = width;
-		config_probe_test.wheight = height;
+		config_probe_test.wHeight = height;
 
 		if(!uvcx_video_probe(vd->fd, global->uvc_h264_unit, UVC_SET_CUR, &config_probe_test))
 			continue;
@@ -209,7 +210,7 @@ void check_uvc_h264_format(struct vdIn *vd, struct GLOBAL *global)
 		if(!uvcx_video_probe(vd->fd, global->uvc_h264_unit, UVC_GET_CUR, &config_probe_test))
 			continue;
 
-		if(config_probe_test.wWidth != width || config_probe_test.wheight != height)
+		if(config_probe_test.wWidth != width || config_probe_test.wHeight != height)
 		{
 			fprintf(stderr, "H264 resolution %ix%i not supported\n", width, height);
 			continue;
