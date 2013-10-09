@@ -234,7 +234,7 @@ void check_uvc_h264_format(struct vdIn *vd, struct GLOBAL *global)
 			int framerate_num = vd->listFormats->listVidFormats[mjpg_index].listVidCap[i].framerate_num[j];
 			int framerate_denom = vd->listFormats->listVidFormats[mjpg_index].listVidCap[i].framerate_denom[j];
 			//in 100ns units
-			uint32_t frame_interval = (framerate_denom * 1000000000LL / framerate_num)/100;
+			uint32_t frame_interval = (framerate_num * 1000000000LL / framerate_denom)/100;
 			config_probe_test.dwFrameInterval = frame_interval;
 
 			if(!uvcx_video_probe(vd->fd, global->uvc_h264_unit, UVC_SET_CUR, &config_probe_test))
@@ -270,7 +270,16 @@ void commit_uvc_h264_format(struct vdIn *vd, struct GLOBAL *global)
 
 	uvcx_video_probe(vd->fd, global->uvc_h264_unit, UVC_GET_CUR, &config_probe_cur);
 
+	config_probe_cur.wWidth = global->width;
+	config_probe_cur.wHeight = global->height;
+	//in 100ns units
+	uint32_t frame_interval = (global->fps_num * 1000000000LL / global->fps)/100;
+	config_probe_test.dwFrameInterval = frame_interval;
 
+	//probe the format
+	uvcx_video_probe(vd->fd, global->uvc_h264_unit, UVC_SET_CUR, &config_probe_cur);
+
+	//commit the format
 	uvcx_video_commit(vd->fd, global->uvc_h264_unit, &config_probe_cur);
 }
 
