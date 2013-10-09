@@ -176,28 +176,28 @@ typedef struct _uvcx_video_config_probe_commit_t
 	BYTE	bStreamID;
 	BYTE	bSpatialLayerRatio;
 	WORD	wLeakyBucketSize;
-} uvcx_video_config_probe_commit_t;
+} __attribute__((__packed__)) uvcx_video_config_probe_commit_t;
 
 /* rate control */
 typedef struct _uvcx_rate_control_mode_t
 {
 	WORD	wLayerID;
 	BYTE	bRateControlMode;
-} uvcx_rate_control_mode_t;
+} __attribute__((__packed__)) uvcx_rate_control_mode_t;
 
 /* temporal scale */
 typedef struct _uvcx_temporal_scale_mode_t
 {
 	WORD	wLayerID;
 	BYTE	bTemporalScaleMode;
-} uvcx_temporal_scale_mode_t;
+} __attribute__((__packed__)) uvcx_temporal_scale_mode_t;
 
 /* spatial scale mode */
 typedef struct _uvcx_spatial_scale_mode_t
 {
 	WORD	wLayerID;
 	BYTE	bSpatialScaleMode;
-} uvcx_spatial_scale_mode_t;
+} __attribute__((__packed__)) uvcx_spatial_scale_mode_t;
 
 /* snr scale mode */
 typedef struct _uvcx_snr_scale_mode_t
@@ -205,7 +205,7 @@ typedef struct _uvcx_snr_scale_mode_t
 	WORD	wLayerID;
 	BYTE	bSNRScaleMode;
 	BYTE	bMGSSublayerMode;
-} uvcx_snr_scale_mode_t;
+} __attribute__((__packed__)) uvcx_snr_scale_mode_t;
 
 /* buffer size control*/
 typedef struct _uvcx_ltr_buffer_size_control_t
@@ -213,7 +213,7 @@ typedef struct _uvcx_ltr_buffer_size_control_t
 	WORD	wLayerID;
 	BYTE	bLTRBufferSize;
 	BYTE	bLTREncoderControl;
-} uvcx_ltr_buffer_size_control_t;
+} __attribute__((__packed__)) uvcx_ltr_buffer_size_control_t;
 
 /* ltr picture control */
 typedef struct _uvcx_ltr_picture_control
@@ -221,33 +221,33 @@ typedef struct _uvcx_ltr_picture_control
 	WORD	wLayerID;
 	BYTE	bPutAtPositionInLTRBuffer;
 	BYTE	bEncodeUsingLTR;
-} uvcx_ltr_picture_control;
+} __attribute__((__packed__)) uvcx_ltr_picture_control;
 
 /* picture type control */
 typedef struct _uvcx_picture_type_control_t
 {
 	WORD	wLayerID;
 	WORD	wPicType;
-} uvcx_picture_type_control_t;
+} __attribute__((__packed__)) uvcx_picture_type_control_t;
 
 /* version */
 typedef struct _uvcx_version_t
 {
 	WORD	wVersion;
-} uvcx_version_t;
+} __attribute__((__packed__)) uvcx_version_t;
 
 /* encoder reset */
 typedef struct _uvcx_encoder_reset
 {
 	WORD	wLayerID;
-} uvcx_encoder_reset;
+} __attribute__((__packed__)) uvcx_encoder_reset;
 
 /* frame rate */
 typedef struct _uvcx_framerate_config_t
 {
 	WORD	wLayerID;
 	DWORD	dwFrameInterval;
-} uvcx_framerate_config_t;
+} __attribute__((__packed__)) uvcx_framerate_config_t;
 
 /* advance config */
 typedef struct _uvcx_video_advance_config_t
@@ -256,7 +256,7 @@ typedef struct _uvcx_video_advance_config_t
 	DWORD	dwMb_max;
 	BYTE	blevel_idc;
 	BYTE	bReserved;
-} uvcx_video_advance_config_t;
+} __attribute__((__packed__)) uvcx_video_advance_config_t;
 
 /* bit rate */
 typedef struct _uvcx_bitrate_layers_t
@@ -264,7 +264,7 @@ typedef struct _uvcx_bitrate_layers_t
 	WORD	wLayerID;
 	DWORD	dwPeakBitrate;
 	DWORD	dwAverageBitrate;
-} uvcx_bitrate_layers_t;
+} __attribute__((__packed__)) uvcx_bitrate_layers_t;
 
 /* qp steps */
 typedef struct _uvcx_qp_steps_layers_t
@@ -273,7 +273,7 @@ typedef struct _uvcx_qp_steps_layers_t
 	BYTE	bFrameType;
 	BYTE	bMinQp;
 	BYTE	bMaxQp;
-} uvcx_qp_steps_layers_t;
+} __attribute__((__packed__)) uvcx_qp_steps_layers_t;
 
 
 uint8_t xu_get_unit_id (uint64_t busnum, uint64_t devnum);

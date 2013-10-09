@@ -40,6 +40,39 @@
 #define USB_VIDEO_CONTROL_INTERFACE	0x24
 #define USB_VIDEO_CONTROL_XU_TYPE	0x06
 
+static void print_probe_commit_data(uvcx_video_config_probe_commit_t *data)
+{
+	printf("uvcx_video_config_probe_commit:\n");
+	printf("\tFrameInterval: %i\n", data->dwFrameInterval);
+	printf("\tBitRate: %i\n", data->dwBitRate);
+	printf("\tHints: 0x%X\n", data->bmHints);
+	printf("\tConfigurationIndex: %i\n", data->wConfigurationIndex);
+	printf("\tWidth: %i\n", data->wWidth);
+	printf("\tHeight: %i\n", data->wHeight);
+	printf("\tSliceUnits: %i\n", data->wSliceUnits);
+	printf("\tSliceMode: %i\n", data->wSliceMode);
+	printf("\tProfile: %i\n", data->wProfile);
+	printf("\tIFramePeriod: %i\n", data->wIFramePeriod);
+	printf("\tEstimatedVideoDelay: %i\n",data->wEstimatedVideoDelay);
+	printf("\tEstimatedMaxConfigDelay: %i\n",data->wEstimatedMaxConfigDelay);
+	printf("\tUsageType: %i\n",data->bUsageType);
+	printf("\tRateControlMode: %i\n",data->bRateControlMode);
+	printf("\tTemporalScaleMode: %i\n",data->bTemporalScaleMode);
+	printf("\tSpatialScaleMode: %i\n",data->bSpatialScaleMode);
+	printf("\tSNRScaleMode: %i\n",data->bSNRScaleMode);
+	printf("\tStreamMuxOption: %i\n",data->bStreamMuxOption);
+	printf("\tStreamFormat: %i\n",data->bStreamFormat);
+	printf("\tEntropyCABAC: %i\n",data->bEntropyCABAC);
+	printf("\tTimestamp: %i\n",data->bTimestamp);
+	printf("\tNumOfReorderFrames: %i\n",data->bNumOfReorderFrames);
+	printf("\tPreviewFlipped: %i\n",data->bPreviewFlipped);
+	printf("\tView: %i\n",data->bView);
+	printf("\tReserved1: %i\n",data->bReserved1);
+	printf("\tReserved2: %i\n",data->bReserved2);
+	printf("\tStreamID: %i\n",data->bStreamID);
+	printf("\tSpatialLayerRatio: %i\n",data->bSpatialLayerRatio);
+	printf("\tLeakyBucketSize: %i\n",data->wLeakyBucketSize);
+}
 
 /* get the unit id for GUID_UVCX_H264_XU by using libusb */
 uint8_t xu_get_unit_id (uint64_t busnum, uint64_t devnum)
@@ -303,6 +336,7 @@ void commit_uvc_h264_format(struct vdIn *vd, struct GLOBAL *global)
 			frame_interval, config_probe_req.dwFrameInterval);
 	}
 	//commit the format
+	print_probe_commit_data(&config_probe_req);
 	uvcx_video_commit(vd->fd, global->uvc_h264_unit, &config_probe_req);
 }
 
