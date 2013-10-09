@@ -267,20 +267,43 @@ void check_uvc_h264_format(struct vdIn *vd, struct GLOBAL *global)
 void commit_uvc_h264_format(struct vdIn *vd, struct GLOBAL *global)
 {
 	uvcx_video_config_probe_commit_t config_probe_cur;
+	uvcx_video_config_probe_commit_t config_probe_req;
 
 	uvcx_video_probe(vd->fd, global->uvc_h264_unit, UVC_GET_CUR, &config_probe_cur);
 
-	config_probe_cur.wWidth = global->width;
-	config_probe_cur.wHeight = global->height;
+	config_probe_req = config_probe_cur;
+
+	config_probe_req.wWidth = global->width;
+	config_probe_req.wHeight = global->height;
 	//in 100ns units
 	uint32_t frame_interval = (global->fps_num * 1000000000LL / global->fps)/100;
-	config_probe_test.dwFrameInterval = frame_interval;
+	config_probe_req.dwFrameInterval = frame_interval;
 
 	//probe the format
-	uvcx_video_probe(vd->fd, global->uvc_h264_unit, UVC_SET_CUR, &config_probe_cur);
+	uvcx_video_probe(vd->fd, global->uvc_h264_unit, UVC_SET_CUR, &config_probe_req);
+	uvcx_video_probe(vd->fd, global->uvc_h264_unit, UVC_GET_CUR, &config_probe_req);
 
+	if(config_probe_req.wWidth != global->width)
+	{
+		fprintf(stderr, "H264 config probe: requested width %i but got %i\n",
+			global->width, config_probe_req.wWidth);
+
+		global->width = config_probe_req.wWidth;
+	}
+	if(config_probe_req.wHeight != global->height)
+	{
+		fprintf(stderr, "H264 config probe: requested height %i but got %i\n",
+			global->height, config_probe_req.wHeight);
+
+		global->height = config_probe_req.wHeight;
+	}
+	if(config_probe_req.dwFrameInterval != frame_interval)
+	{
+		fprintf(stderr, "H264 config probe: requested frame interval %i but got %i\n",
+			frame_interval, config_probe_req.dwFrameInterval);
+	}
 	//commit the format
-	uvcx_video_commit(vd->fd, global->uvc_h264_unit, &config_probe_cur);
+	uvcx_video_commit(vd->fd, global->uvc_h264_unit, &config_probe_req);
 }
 
 int uvcx_video_probe(int hdevice, uint8_t unit_id, uint8_t query, uvcx_video_config_probe_commit_t *uvcx_video_config)
