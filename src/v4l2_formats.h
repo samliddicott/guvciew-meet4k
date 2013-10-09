@@ -19,7 +19,7 @@
 #                                                                               #
 ********************************************************************************/
 #ifndef V4L2_FORMATS_H
-#define V4L2_FORMATS_H 
+#define V4L2_FORMATS_H
 
 #include <linux/videodev2.h>
 
@@ -132,13 +132,13 @@ typedef struct _SupFormats
 {
 	int format;          //v4l2 software(guvcview) supported format
 	char mode[5];        //mode (fourcc - lower case)
-	int hardware;        //hardware supported (1 or 0)
+	int hardware;        //hardware supported (0, 1 or 2 (H264 through MJPG) )
 	//void *decoder;       //function to decode format into YUYV
 } SupFormats;
 
-typedef struct _VidCap 
+typedef struct _VidCap
 {
-	int width;            //width 
+	int width;            //width
 	int height;           //height
 	int *framerate_num;   //list of numerator values - should be 1 in almost all cases
 	int *framerate_denom; //list of denominator values - gives fps
@@ -163,7 +163,7 @@ typedef struct _LFormats
 /* check if format is supported by guvcview
  * args:
  * pixfmt: V4L2 pixel format
- * return index from supported devices list 
+ * return index from supported devices list
  * or -1 if not supported                    */
 int check_PixFormat(int pixfmt);
 
@@ -181,18 +181,30 @@ int check_SupPixFormat(int pixfmt);
  * or -1 if not supported                    */
 int set_SupPixFormat(int pixfmt);
 
+/* set hardware flag for uvc H264
+ * args:
+ * return index from supported devices list
+ * or -1 if not supported                    */
+int set_SupPixFormatUvcH264();
+
+/* get hardware flag for uvc H264
+ * args:
+ * return hardware flag from supported
+ * devices list                              */
+int get_SupPixFormatUvcH264();
+
 /* convert v4l2 pix format to mode (Fourcc)
  * args:
  * pixfmt: V4L2 pixel format
  * mode: fourcc string (lower case)
- * returns 1 on success 
+ * returns 1 on success
  * and -1 on failure (not supported)         */
 int get_PixMode(int pixfmt, char *mode);
 
 /* converts mode (fourcc) to v4l2 pix format
  * args:
  * mode: fourcc string (lower case)
- * returns v4l2 pix format 
+ * returns v4l2 pix format
  * defaults to MJPG if mode not supported    */
 int get_PixFormat(char *mode);
 
@@ -214,7 +226,7 @@ LFormats *enum_frame_formats( int *width, int *height, int fd);
 int get_FormatIndex( LFormats *listFormats, int format);
 
 /* clean video formats list
- * args: 
+ * args:
  * listFormats: struct containing list of available video formats
  *
  * returns: void  */

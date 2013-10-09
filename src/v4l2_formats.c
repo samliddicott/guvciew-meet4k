@@ -206,6 +206,41 @@ int set_SupPixFormat(int pixfmt)
 	return(-1); /*not supported*/
 }
 
+/* set hardware flag for uvc H264
+ * args:
+ * return index from supported devices list
+ * or -1 if not supported                    */
+int set_SupPixFormatUvcH264()
+{
+	int i=0;
+	for (i=0; i<SUP_PIX_FMT; i++)
+	{
+		if (V4L2_PIX_FMT_H264 == listSupFormats[i].format)
+		{
+			listSupFormats[i].hardware = 2; /*supported by hardware through uvc H264*/
+			return (i);
+		}
+	}
+	return(-1); /*not supported - should never happen*/
+}
+
+/* get hardware flag for uvc H264
+ * args:
+ * return hardware flag from supported
+ * devices list                              */
+int get_SupPixFormatUvcH264()
+{
+	int i=0;
+	for (i=0; i<SUP_PIX_FMT; i++)
+	{
+		if (V4L2_PIX_FMT_H264 == listSupFormats[i].format)
+		{
+			return listSupFormats[i].hardware
+		}
+	}
+	return(-1); /*not supported - should never happen*/
+}
+
 /* check if format is supported by hardware
  * args:
  * pixfmt: V4L2 pixel format

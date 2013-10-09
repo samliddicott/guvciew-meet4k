@@ -27,6 +27,8 @@
 #include <linux/media.h>
 
 #include "defs.h"
+#include "uvc_h264.h"
+#include "globals.h"
 
 // GUID of the UVC H.264 extension unit: {A29E7641-DE04-47E3-8B2B-F4341AFF003B}
 #define GUID_UVCX_H264_XU {0x41, 0x76, 0x9E, 0xA2, 0x04, 0xDE, 0xE3, 0x47, 0x8B, 0x2B, 0xF4, 0x34, 0x1A, 0xFF, 0x00, 0x3B}
@@ -276,6 +278,8 @@ typedef struct _uvcx_qp_steps_layers_t
 
 uint8_t xu_get_unit_id (uint64_t busnum, uint64_t devnum);
 int has_h264_support(int hdevice, uint8_t unit_id);
+void check_uvc_h264_format(struct vdIn *vd, struct GLOBAL *global);
+void commit_uvc_h264_format(struct vdIn *vd, struct GLOBAL *global);
 int uvcx_video_probe(int hdevice, uint8_t unit_id, uint8_t query, uvcx_video_config_probe_commit_t *uvcx_video_config);
 int uvcx_video_commit(int hdevice, uint8_t unit_id, uvcx_video_config_probe_commit_t *uvcx_video_config);
 

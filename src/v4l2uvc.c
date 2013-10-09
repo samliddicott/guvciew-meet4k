@@ -148,7 +148,7 @@ int xioctl(int fd, int IOCTL_X, void *arg)
  *
  * returns: error code  (0- OK)
 */
-static int check_videoIn(struct vdIn *vd, int *width, int *height)
+static int check_videoIn(struct vdIn *vd, struct GLOBAL *global)
 {
 	if (vd == NULL)
 		return VDIN_ALLOC_ERR;
@@ -187,7 +187,8 @@ static int check_videoIn(struct vdIn *vd, int *width, int *height)
 	}
 	g_print("Init. %s (location: %s)\n", vd->cap.card, vd->cap.bus_info);
 
-	vd->listFormats = enum_frame_formats( width, height, vd->fd);
+	vd->listFormats = enum_frame_formats( &global->width, &global->height, vd->fd);
+	check_uvc_h264_format(vd, global);
 
 	if(!(vd->listFormats->listVidFormats))
 		g_printerr("Couldn't detect any supported formats on your device (%i)\n", vd->listFormats->numb_formats);
@@ -454,31 +455,36 @@ int set_jpegcomp(struct vdIn *vd)
  *
  * returns: error code ( 0 - VDIN_OK)
 */
-static int init_v4l2(struct vdIn *vd, int *format, int *width, int *height, int *fps, int *fps_num)
+static int init_v4l2(struct vdIn *vd, struct GLOBAL *global)//int *format, int *width, int *height, int *fps, int *fps_num)
 {
 	int ret = 0;
 
 	// make sure we set a valid format
 	g_print("checking format: %c%c%c%c\n",
-		(*format) & 0xFF, ((*format) >> 8) & 0xFF,
-		((*format) >> 16) & 0xFF, ((*format) >> 24) & 0xFF);
+		(global->format) & 0xFF, ((global->format) >> 8) & 0xFF,
+		((global->format) >> 16) & 0xFF, ((global->format) >> 24) & 0xFF);
 
-	if ((ret=check_SupPixFormat(*format)) < 0)
+	if ((ret=check_SupPixFormat(global->format)) < 0)
 	{
 		// not available - Fail so we can check other formats (don't bother trying it)
 		g_printerr("Format unavailable: %c%c%c%c\n",
-			(*format) & 0xFF, ((*format) >> 8) & 0xFF,
-			((*format) >> 16) & 0xFF, ((*format) >> 24) & 0xFF);
+			(global->format) & 0xFF, ((global->format) >> 8) & 0xFF,
+			((global->format) >> 16) & 0xFF, ((global->format) >> 24) & 0xFF);
 		return VDIN_FORMAT_ERR;
 	}
 
 	vd->timestamp = 0;
 	// set format
 	vd->fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-	vd->fmt.fmt.pix.width = *width;
-	vd->fmt.fmt.pix.height = *height;
-	vd->fmt.fmt.pix.pixelformat = *format;
+	vd->fmt.fmt.pix.width = global->width;
+	vd->fmt.fmt.pix.height = global->height;
+	vd->fmt.fmt.pix.pixelformat = global->format;
 	vd->fmt.fmt.pix.field = V4L2_FIELD_ANY;
+
+	//if it's uvc H264 we must use MJPG
+	if(global->format == V4L2_PIX_FMT_H264 && get_SupPixFormatUvcH264() > 1)
+		vd->fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_MJPEG;
+
 
 	ret = xioctl(vd->fd, VIDIOC_S_FMT, &vd->fmt);
 	if (ret < 0)
@@ -486,17 +492,23 @@ static int init_v4l2(struct vdIn *vd, int *format, int *width, int *height, int 
 		perror("VIDIOC_S_FORMAT - Unable to set format");
 		return VDIN_FORMAT_ERR;
 	}
-	if ((vd->fmt.fmt.pix.width != *width) ||
-		(vd->fmt.fmt.pix.height != *height))
+	if ((vd->fmt.fmt.pix.width != global->width) ||
+		(vd->fmt.fmt.pix.height != global->height))
 	{
 		g_printerr("Requested Format unavailable: get width %d height %d \n",
 		vd->fmt.fmt.pix.width, vd->fmt.fmt.pix.height);
-		*width = vd->fmt.fmt.pix.width;
-		*height = vd->fmt.fmt.pix.height;
+		global->width = vd->fmt.fmt.pix.width;
+		global->height = vd->fmt.fmt.pix.height;
+	}
+
+	//if it's uvc H264 we must set UVCX_VIDEO_CONFIG_COMMIT
+	if(global->format == V4L2_PIX_FMT_H264 && get_SupPixFormatUvcH264() > 1)
+	{
+		commit_uvc_h264_format(vd, global);
 	}
 
 	//deprecated in v4l2 - still waiting for new API implementation
-	if(*format == V4L2_PIX_FMT_MJPEG || *format == V4L2_PIX_FMT_JPEG)
+	if(global->format == V4L2_PIX_FMT_MJPEG || global->format == V4L2_PIX_FMT_JPEG)
 	{
 		get_jpegcomp(vd);
 	}
@@ -508,7 +520,7 @@ static int init_v4l2(struct vdIn *vd, int *format, int *width, int *height, int 
 	{
 		case IO_READ: //allocate buffer for read
 			memset(&vd->buf, 0, sizeof(struct v4l2_buffer));
-			vd->buf.length = (*width) * (*height) * 3; //worst case (rgb)
+			vd->buf.length = (global->width) * (global->height) * 3; //worst case (rgb)
 			vd->mem[vd->buf.index] = g_new0(BYTE, vd->buf.length);
 			break;
 
@@ -825,7 +837,7 @@ int init_videoIn(struct vdIn *videoIn, struct GLOBAL *global)
 	// populate video capabilities structure array
 	// should only be called after all vdIn struct elements
 	// have been initialized
-	if((ret = check_videoIn(videoIn, &global->width, &global->height)) != VDIN_OK)
+	if((ret = check_videoIn(videoIn, global)) != VDIN_OK)
 	{
 		clear_v4l2(videoIn);
 		return (ret);
@@ -877,7 +889,7 @@ int init_videoIn(struct vdIn *videoIn, struct GLOBAL *global)
 
 	if(!(global->control_only))
 	{
-		if ((ret=init_v4l2(videoIn, &global->format, &global->width, &global->height, &global->fps, &global->fps_num)) < 0)
+		if ((ret=init_v4l2(videoIn, global)) < 0)
 		{
 			g_printerr("Init v4L2 failed !! \n");
 			clear_v4l2(videoIn);
