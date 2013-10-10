@@ -61,6 +61,7 @@
 #include "menubar.h"
 #include "video_tab.h"
 #include "audio_tab.h"
+#include "uvc_h264.h"
 #include "timers.h"
 
 #define __AMUTEX &pdata->mutex
@@ -632,6 +633,10 @@ int main(int argc, char *argv[])
 
         g_signal_connect (GTK_BUTTON(gwidget->quitButton), "clicked",
             G_CALLBACK (quitButton_clicked), &all_data);
+
+		/*----------------------------H264 Controls Tab --------------------------*/
+		if(global->uvc_h264_unit > 0)
+			add_uvc_h264_controls_tab(&all_data);
 
         if(!control_only) /*control_only exclusion (video and Audio) */
         {

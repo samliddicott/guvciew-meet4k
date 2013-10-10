@@ -94,12 +94,14 @@ void h264_commit_button_clicked(GtkButton * Button, struct ALL_DATA* data)
 }
 
 /*
- * creates the control widgets for uvcx_video_config_probe_commit
+ * creates the control widgets for uvc H264
  */
-video_config_probe_commit_gtkcontrols* get_uvc_h264_controls(struct ALL_DATA* data)
+void add_uvc_h264_controls_tab (struct ALL_DATA* all_data)
 {
-	struct GLOBAL *global = data->global;
-	struct vdIn *videoIn  = data->videoIn;
+	struct GLOBAL *global = all_data->global;
+	struct vdIn *videoIn  = all_data->videoIn;
+	uvc_h264_gtkcontrols* h264_controls = all_data->h264_controls;
+	struct GWIDGET *gwidget = all_data->gwidget;
 	
 	//get current values
 	uvcx_video_config_probe_commit_t config_probe_cur;
@@ -114,11 +116,68 @@ video_config_probe_commit_gtkcontrols* get_uvc_h264_controls(struct ALL_DATA* da
 	uvcx_video_config_probe_commit_t config_probe_min;
 	uvcx_video_probe(videoIn->fd, global->uvc_h264_unit, UVC_GET_MIN, &config_probe_min);
 
-	//alloc the struct
-	video_config_probe_commit_gtkcontrols* h264_controls = g_new0(video_config_probe_commit_gtkcontrols, 1);
+	//alloc the control struct
+	h264_controls = g_new0(uvc_h264_gtkcontrols, 1);
+	
+	int line = 0;
 	//add the controls and associate the callbacks
+	GtkWidget *table;
+	GtkWidget *scroll;
+	GtkWidget *Tab;
+	GtkWidget *TabLabel;
+	GtkWidget *TabIcon;
+	
+	//TABLE
+	table = gtk_grid_new();
+	gtk_grid_set_column_homogeneous (GTK_GRID(table), FALSE);
+	gtk_widget_set_hexpand (table, TRUE);
+	gtk_widget_set_halign (table, GTK_ALIGN_FILL);
 
+	gtk_grid_set_row_spacing (GTK_GRID(table), 4);
+	gtk_grid_set_column_spacing (GTK_GRID (table), 4);
+	gtk_container_set_border_width (GTK_CONTAINER (table), 2);
+	gtk_widget_show (table);
+	//SCROLL
+	scroll = gtk_scrolled_window_new(NULL,NULL);
+    gtk_scrolled_window_set_placement(GTK_SCROLLED_WINDOW(scroll), GTK_CORNER_TOP_LEFT);
+
+    //ADD TABLE TO SCROLL
+
+    //viewport is only needed for gtk < 3.8
+    //for 3.8 and above s->table can be directly added to scroll1
+    GtkWidget* viewport = gtk_viewport_new(NULL,NULL);
+    gtk_container_add(GTK_CONTAINER(viewport), table);
+    gtk_widget_show(viewport);
+
+    gtk_container_add(GTK_CONTAINER(scroll), viewport);
+	gtk_widget_show(scroll);
+
+	//new hbox for tab label and icon
+	Tab = gtk_grid_new();
+	TabLabel = gtk_label_new(_("H264 Controls"));
+	gtk_widget_show (TabLabel);
+
+	gchar* TabIconPath = g_strconcat (PACKAGE_DATA_DIR,"/pixmaps/guvcview/image_controls.png",NULL);
+	//don't test for file - use default empty image if load fails
+	//get icon image
+	TabIcon = gtk_image_new_from_file(TabIconPath);
+	g_free(TabIconPath);
+	gtk_widget_show (TabIcon);
+	gtk_grid_attach (GTK_GRID(Tab), TabIcon, 0, 0, 1, 1);
+	gtk_grid_attach (GTK_GRID(Tab), TabLabel, 1, 0, 1, 1);
+
+	gtk_widget_show (Tab);
+	gtk_notebook_append_page(GTK_NOTEBOOK(gwidget->boxh),scroll,Tab);
+
+
+	//probe_commitcontrols
+	
 	//dwBitRate
+	GtkWidget* label_BitRate = gtk_label_new(_("Bit Rate:"));
+	gtk_misc_set_alignment (GTK_MISC (label_BitRate), 1, 0.5);
+	gtk_grid_attach (GTK_GRID(table), label_BitRate, 0, line, 1, 1);
+	gtk_widget_show (label_BitRate);
+	
 	GtkAdjustment *adjustment =  gtk_adjustment_new (
                                 	config_probe_cur.dwBitRate,
                                 	config_probe_min.dwBitRate,
@@ -129,43 +188,94 @@ video_config_probe_commit_gtkcontrols* get_uvc_h264_controls(struct ALL_DATA* da
 
     h264_controls->BitRate = gtk_spin_button_new(adjustment, 1, 0);
     gtk_editable_set_editable(GTK_EDITABLE(h264_controls->BitRate), TRUE);
+    
+    gtk_grid_attach (GTK_GRID(table), h264_controls->BitRate, 1, line, 1 ,1);
     gtk_widget_show (h264_controls->BitRate);
 
 	//bmHints
+	line++;
+	GtkWidget* hints_table = gtk_grid_new();
+	
+	GtkWidget* label_Hints = gtk_label_new(_("Hints:"));
+	gtk_misc_set_alignment (GTK_MISC (label_Hints), 1, 0.5);
+	gtk_grid_attach (GTK_GRID(hints_table), label_Hints, 0, 1, 2, 1);
+	gtk_widget_show (label_Hints);
+	
 	h264_controls->Hints_res = gtk_check_button_new_with_label ("Resolution");
+	gtk_grid_attach (GTK_GRID(hints_table), h264_controls->Hints_res, 0, 2, 1, 1);
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(h264_controls->Hints_res),((config_probe_cur.bmHints & 0x0001) > 0));
 	gtk_widget_show (h264_controls->Hints_res);
 	h264_controls->Hints_prof = gtk_check_button_new_with_label ("Profile");
+	gtk_grid_attach (GTK_GRID(hints_table),h264_controls->Hints_prof, 1, 2, 1, 1);
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(h264_controls->Hints_prof),((config_probe_cur.bmHints & 0x0002) > 0));
 	gtk_widget_show (h264_controls->Hints_prof);
 	h264_controls->Hints_ratecontrol = gtk_check_button_new_with_label ("Rate Control");
+	gtk_grid_attach (GTK_GRID(hints_table),h264_controls->Hints_ratecontrol, 2, 2, 1, 1);
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(h264_controls->Hints_ratecontrol),((config_probe_cur.bmHints & 0x0004) > 0));
 	gtk_widget_show (h264_controls->Hints_ratecontrol);
 	h264_controls->Hints_usage = gtk_check_button_new_with_label ("Usage Type");
+	gtk_grid_attach (GTK_GRID(hints_table),h264_controls->Hints_usage, 3, 2, 1, 1);
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(h264_controls->Hints_usage),((config_probe_cur.bmHints & 0x0008) > 0));
 	gtk_widget_show (h264_controls->Hints_usage);
 	h264_controls->Hints_slicemode = gtk_check_button_new_with_label ("Slice Mode");
+	gtk_grid_attach (GTK_GRID(hints_table),h264_controls->Hints_slicemode, 0, 3, 1, 1);
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(h264_controls->Hints_slicemode),((config_probe_cur.bmHints & 0x0010) > 0));
 	gtk_widget_show (h264_controls->Hints_slicemode);
 	h264_controls->Hints_sliceunit = gtk_check_button_new_with_label ("Slice Unit");
+	gtk_grid_attach (GTK_GRID(hints_table),h264_controls->Hints_sliceunit, 1, 3, 1, 1);
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(h264_controls->Hints_sliceunit),((config_probe_cur.bmHints & 0x0020) > 0));
 	gtk_widget_show (h264_controls->Hints_sliceunit);
 	h264_controls->Hints_view = gtk_check_button_new_with_label ("MVC View");
+	gtk_grid_attach (GTK_GRID(hints_table),h264_controls->Hints_view, 2, 3, 1, 1);
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(h264_controls->Hints_view),((config_probe_cur.bmHints & 0x0040) > 0));
 	gtk_widget_show (h264_controls->Hints_view);
 	h264_controls->Hints_temporal = gtk_check_button_new_with_label ("Temporal Scale");
+	gtk_grid_attach (GTK_GRID(hints_table),h264_controls->Hints_temporal, 3, 3, 1, 1);
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(h264_controls->Hints_temporal),((config_probe_cur.bmHints & 0x0080) > 0));
 	gtk_widget_show (h264_controls->Hints_temporal);
 	h264_controls->Hints_snr = gtk_check_button_new_with_label ("SNR Scale");
+	gtk_grid_attach (GTK_GRID(hints_table),h264_controls->Hints_snr, 0, 4, 1, 1);
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(h264_controls->Hints_snr),((config_probe_cur.bmHints & 0x0100) > 0));
 	gtk_widget_show (h264_controls->Hints_snr);
 	h264_controls->Hints_spatial = gtk_check_button_new_with_label ("Spatial Scale");
+	gtk_grid_attach (GTK_GRID(hints_table),h264_controls->Hints_spatial, 1, 4, 1, 1);
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(h264_controls->Hints_spatial),((config_probe_cur.bmHints & 0x0200) > 0));
 	gtk_widget_show (h264_controls->Hints_spatial);
 	h264_controls->Hints_spatiallayer = gtk_check_button_new_with_label ("Spatial Layer Ratio");
+	gtk_grid_attach (GTK_GRID(hints_table),h264_controls->Hints_spatiallayer, 2, 4, 1, 1);
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(h264_controls->Hints_spatiallayer),((config_probe_cur.bmHints & 0x0400) > 0));
 	gtk_widget_show (h264_controls->Hints_spatiallayer);
 	h264_controls->Hints_frameinterval = gtk_check_button_new_with_label ("Frame Interval");
+	gtk_grid_attach (GTK_GRID(hints_table),h264_controls->Hints_frameinterval, 3, 4, 1, 1);
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(h264_controls->Hints_frameinterval),((config_probe_cur.bmHints & 0x0800) > 0));
 	gtk_widget_show (h264_controls->Hints_frameinterval);
 	h264_controls->Hints_leakybucket = gtk_check_button_new_with_label ("Leaky Bucket Size");
+	gtk_grid_attach (GTK_GRID(hints_table),h264_controls->Hints_leakybucket, 0, 5, 1, 1);
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(h264_controls->Hints_leakybucket),((config_probe_cur.bmHints & 0x1000) > 0));
 	gtk_widget_show (h264_controls->Hints_leakybucket);
 	h264_controls->Hints_bitrate = gtk_check_button_new_with_label ("Bit Rate");
+	gtk_grid_attach (GTK_GRID(hints_table),h264_controls->Hints_bitrate, 1, 5, 1, 1);
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(h264_controls->Hints_bitrate),((config_probe_cur.bmHints & 0x2000) > 0));
 	gtk_widget_show (h264_controls->Hints_bitrate);
 	h264_controls->Hints_cabac = gtk_check_button_new_with_label ("CABAC");
+	gtk_grid_attach (GTK_GRID(hints_table),h264_controls->Hints_cabac, 2, 5, 1, 1);
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(h264_controls->Hints_cabac),((config_probe_cur.bmHints & 0x4000) > 0));
 	gtk_widget_show (h264_controls->Hints_cabac);
 	h264_controls->Hints_iframe = gtk_check_button_new_with_label ("I FramePeriod");
+	gtk_grid_attach (GTK_GRID(hints_table),h264_controls->Hints_iframe, 3, 5, 1, 1);
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(h264_controls->Hints_iframe),((config_probe_cur.bmHints & 0x8000) > 0));
 	gtk_widget_show (h264_controls->Hints_iframe);
 
+	gtk_grid_attach (GTK_GRID(table), hints_table, 0, line, 2, 1);
+	gtk_widget_show(hints_table);
+	
 	//wSliceMode
+	line++;
+	GtkWidget* label_SliceMode = gtk_label_new(_("Slice Mode:"));
+	gtk_misc_set_alignment (GTK_MISC (label_SliceMode), 1, 0.5);
+	gtk_grid_attach (GTK_GRID(table), label_SliceMode, 0, line, 1, 1);
+	gtk_widget_show (label_SliceMode);
+	
 	h264_controls->SliceMode = gtk_combo_box_text_new();
 	gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(h264_controls->SliceMode),
 								"no multiple slices");
@@ -175,9 +285,19 @@ video_config_probe_commit_gtkcontrols* get_uvc_h264_controls(struct ALL_DATA* da
 								"Mbits/slice");
 	gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(h264_controls->SliceMode),
 								"slices/frame");
+	
+	gtk_combo_box_set_active(GTK_COMBO_BOX(h264_controls->SliceMode), config_probe_cur.wSliceMode); //0 indexed
+	
+	gtk_grid_attach (GTK_GRID(table), h264_controls->SliceMode, 1, line, 1 ,1);
 	gtk_widget_show (h264_controls->SliceMode);
 
 	//wSliceUnits
+	line++;
+	GtkWidget* label_SliceUnits = gtk_label_new(_("Slice Units:"));
+	gtk_misc_set_alignment (GTK_MISC (label_SliceUnits), 1, 0.5);
+	gtk_grid_attach (GTK_GRID(table), label_SliceUnits, 0, line, 1, 1);
+	gtk_widget_show (label_SliceUnits);
+	
 	GtkAdjustment *adjustment1 =  gtk_adjustment_new (
                                 	config_probe_cur.wSliceUnits,
                                 	config_probe_min.wSliceUnits,
@@ -188,9 +308,17 @@ video_config_probe_commit_gtkcontrols* get_uvc_h264_controls(struct ALL_DATA* da
 
     h264_controls->SliceUnits = gtk_spin_button_new(adjustment1, 1, 0);
     gtk_editable_set_editable(GTK_EDITABLE(h264_controls->SliceUnits), TRUE);
+    
+    gtk_grid_attach (GTK_GRID(table), h264_controls->SliceUnits, 1, line, 1 ,1);
     gtk_widget_show (h264_controls->SliceUnits);
 
 	//wProfile
+	line++;
+	GtkWidget* label_Profile = gtk_label_new(_("Profile:"));
+	gtk_misc_set_alignment (GTK_MISC (label_Profile), 1, 0.5);
+	gtk_grid_attach (GTK_GRID(table), label_Profile, 0, line, 1, 1);
+	gtk_widget_show (label_Profile);
+	
 	h264_controls->Profile = gtk_combo_box_text_new();
 	gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(h264_controls->Profile),
 								"Baseline Profile");
@@ -206,9 +334,49 @@ video_config_probe_commit_gtkcontrols* get_uvc_h264_controls(struct ALL_DATA* da
 								"Multiview High Profile");
 	gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(h264_controls->Profile),
 								"Stereo High Profile");
+	
+	uint16_t profile = config_probe_cur.wProfile & 0xFF00;
+	int prof_index = 0;
+	switch(profile)
+	{
+		case 0x4200:
+			prof_index = 0;
+			break;
+		case 0x4D00:
+			prof_index = 1;
+			break;
+		case 0x6400:
+			prof_index = 2;
+			break;
+		case 0x5300:
+			prof_index = 3;
+			break;
+		case 0x5600:
+			prof_index = 4;
+			break;
+		case 0x7600:
+			prof_index = 5;
+			break;
+		case 0x8000:
+			prof_index = 6;
+			break;
+		default:
+			fprintf(stderr, "H264 probe: unknown profile mode 0x%X\n", profile);
+			break;
+			
+	}
+	gtk_combo_box_set_active(GTK_COMBO_BOX(h264_controls->Profile), prof_index);
+	
+	gtk_grid_attach (GTK_GRID(table), h264_controls->Profile, 1, line, 1 ,1);
 	gtk_widget_show (h264_controls->Profile);
 
 	//wProfile (Bits 0-7)
+	line++;
+	GtkWidget* label_Profile_flags = gtk_label_new(_("Profile flags:"));
+	gtk_misc_set_alignment (GTK_MISC (label_Profile_flags), 1, 0.5);
+	gtk_grid_attach (GTK_GRID(table), label_Profile_flags, 0, line, 1, 1);
+	gtk_widget_show (label_Profile_flags);
+	
 	int cur_flags = config_probe_cur.wProfile & 0x000000FF;
 	int max_flags = config_probe_max.wProfile & 0x000000FF;
 	int min_flags = config_probe_min.wProfile & 0x000000FF;
@@ -223,21 +391,32 @@ video_config_probe_commit_gtkcontrols* get_uvc_h264_controls(struct ALL_DATA* da
 
     h264_controls->Profile_flags = gtk_spin_button_new(adjustment2, 1, 0);
     gtk_editable_set_editable(GTK_EDITABLE(h264_controls->Profile_flags), TRUE);
+    
+    gtk_grid_attach (GTK_GRID(table), h264_controls->Profile_flags, 1, line, 1 ,1);
     gtk_widget_show (h264_controls->Profile_flags);
 
 
-
+	//buttons
+	line++;
+	GtkWidget* buttons_table = gtk_grid_new();
+	
 	h264_controls->probe_button = gtk_button_new_with_label("PROBE");
 	g_signal_connect (GTK_BUTTON(h264_controls->probe_button), "clicked",
-                                G_CALLBACK (h264_probe_button_clicked), h264_controls);
+                                G_CALLBACK (h264_probe_button_clicked), all_data);
+                                
+    gtk_grid_attach (GTK_GRID(buttons_table), h264_controls->probe_button, 0, 1, 1 ,1);
 	gtk_widget_show(h264_controls->probe_button);
 
 	h264_controls->commit_button = gtk_button_new_with_label("COMMIT");
 	g_signal_connect (GTK_BUTTON(h264_controls->commit_button), "clicked",
-                                G_CALLBACK (h264_commit_button_clicked), h264_controls);
+                                G_CALLBACK (h264_commit_button_clicked), all_data);
+    gtk_grid_attach (GTK_GRID(buttons_table), h264_controls->commit_button, 1, 1, 1 ,1);
 	gtk_widget_show(h264_controls->commit_button);
+	gtk_widget_show(buttons_table);
 	
-	return h264_controls;
+	gtk_grid_attach (GTK_GRID(table), buttons_table, 0, line, 2 ,1);
+	gtk_widget_show(table);
+
 }
 
 /* get the unit id for GUID_UVCX_H264_XU by using libusb */

@@ -78,6 +78,54 @@ struct GWIDGET
 	int status_warning_id;
 };
 
+/* uvc H264 probe commit control widgets */
+typedef struct _uvc_h264_gtkcontrols
+{
+	GtkWidget* BitRate;
+
+	GtkWidget* Hints_res;
+	GtkWidget* Hints_prof;
+	GtkWidget* Hints_ratecontrol;
+	GtkWidget* Hints_usage;
+	GtkWidget* Hints_slicemode;
+	GtkWidget* Hints_sliceunit;
+	GtkWidget* Hints_view;
+	GtkWidget* Hints_temporal;
+	GtkWidget* Hints_snr;
+	GtkWidget* Hints_spatial;
+	GtkWidget* Hints_spatiallayer;
+	GtkWidget* Hints_frameinterval;
+	GtkWidget* Hints_leakybucket;
+	GtkWidget* Hints_bitrate;
+	GtkWidget* Hints_cabac;
+	GtkWidget* Hints_iframe;
+
+	GtkWidget* SliceUnits;
+	GtkWidget* SliceMode;
+	GtkWidget* Profile;
+	GtkWidget* Profile_flags;
+	GtkWidget* IFramePeriod;
+	GtkWidget* EstimatedVideoDelay;
+	GtkWidget* EstimatedMaxConfigDelay;
+	GtkWidget* UsageType;
+	GtkWidget* RateControlMode;
+	GtkWidget* TemporalScaleMode;
+	GtkWidget* SpatialScaleMode;
+	GtkWidget* SNRScaleMode;
+	GtkWidget* StreamMuxOption;
+	GtkWidget* StreamFormat;
+	GtkWidget* EntropyCABAC;
+	GtkWidget* Timestamp;
+	GtkWidget* NumOfReorderFrames;
+	GtkWidget* PreviewFlipped;
+	GtkWidget* View;
+	GtkWidget* StreamID;
+	GtkWidget* SpatialLayerRatio;
+	GtkWidget* LeakyBucketSize;
+	GtkWidget* probe_button;
+	GtkWidget* commit_button;
+} uvc_h264_gtkcontrols;
+
 struct ALL_DATA
 {
 	struct paRecordData *pdata;
@@ -86,6 +134,7 @@ struct ALL_DATA
 	struct vdIn *videoIn;
 	struct VideoFormatData *videoF;
 	struct GWIDGET *gwidget;
+	uvc_h264_gtkcontrols* h264_controls;
 	struct VidState *s;
 	__THREAD_TYPE video_thread;
 	__THREAD_TYPE audio_thread;
