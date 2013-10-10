@@ -481,6 +481,12 @@ static int init_v4l2(struct vdIn *vd, struct GLOBAL *global)//int *format, int *
 	vd->fmt.fmt.pix.pixelformat = global->format;
 	vd->fmt.fmt.pix.field = V4L2_FIELD_ANY;
 
+	//if it's uvc H264 we must set UVCX_VIDEO_CONFIG_COMMIT
+	if(global->format == V4L2_PIX_FMT_H264 && get_SupPixFormatUvcH264() > 1)
+	{
+		commit_uvc_h264_format(vd, global);
+	}
+
 	//if it's uvc H264 we must use MJPG
 	if(global->format == V4L2_PIX_FMT_H264 && get_SupPixFormatUvcH264() > 1)
 		vd->fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_MJPEG;
@@ -499,12 +505,6 @@ static int init_v4l2(struct vdIn *vd, struct GLOBAL *global)//int *format, int *
 		vd->fmt.fmt.pix.width, vd->fmt.fmt.pix.height);
 		global->width = vd->fmt.fmt.pix.width;
 		global->height = vd->fmt.fmt.pix.height;
-	}
-
-	//if it's uvc H264 we must set UVCX_VIDEO_CONFIG_COMMIT
-	if(global->format == V4L2_PIX_FMT_H264 && get_SupPixFormatUvcH264() > 1)
-	{
-		commit_uvc_h264_format(vd, global);
 	}
 
 	//deprecated in v4l2 - still waiting for new API implementation
@@ -1232,6 +1232,11 @@ int uvcGrab(struct vdIn *vd, int format, int width, int height, int *fps, int *f
 		SaveBuff (vd->ImageFName,vd->buf.bytesused,vd->mem[vd->buf.index]);
 		vd->cap_raw=0;
 	}
+	
+	//char test_filename[20];
+	//snprintf(test_filename, 20, "frame-%i.raw", vd->frame_index);
+	//vd->frame_index++; 
+	//SaveBuff (test_filename,vd->buf.bytesused,vd->mem[vd->buf.index]);
 
 	if ((ret = frame_decode(vd, format, width, height)) != VDIN_OK)
 	{

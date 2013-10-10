@@ -33,6 +33,7 @@
 #include "v4l2_formats.h"
 #include "string_utils.h"
 #include "callbacks.h"
+#include "guvcview.h"
 
 
 #define USB_VIDEO_CONTROL		    0x01
@@ -73,10 +74,13 @@ static void print_probe_commit_data(uvcx_video_config_probe_commit_t *data)
 	printf("\tLeakyBucketSize: %i\n",data->wLeakyBucketSize);
 }
 
-void h264_probe_button_clicked(GtkButton * Button, video_config_probe_commit_gtkcontrols* h264_controls)
+void h264_probe_button_clicked(GtkButton * Button, struct ALL_DATA* data)
 {
+	struct GLOBAL *global = data->global;
+	struct vdIn *videoIn  = data->videoIn;
+	
 	uvcx_video_config_probe_commit_t config_probe_req;
-	uvcx_video_probe(vd->fd, global->uvc_h264_unit, UVC_GET_CUR, &config_probe_req);
+	uvcx_video_probe(videoIn->fd, global->uvc_h264_unit, UVC_GET_CUR, &config_probe_req);
 	print_probe_commit_data(&config_probe_req);
 
 	//get the control data and fill req (need fps and resolution)
@@ -84,7 +88,7 @@ void h264_probe_button_clicked(GtkButton * Button, video_config_probe_commit_gtk
 
 }
 
-void h264_commit_button_clicked(GtkButton * Button, video_config_probe_commit_gtkcontrols* h264_controls)
+void h264_commit_button_clicked(GtkButton * Button, struct ALL_DATA* data)
 {
 
 }
@@ -92,20 +96,23 @@ void h264_commit_button_clicked(GtkButton * Button, video_config_probe_commit_gt
 /*
  * creates the control widgets for uvcx_video_config_probe_commit
  */
-video_config_probe_commit_gtkcontrols* get_uvc_h264_controls(struct vdIn *vd, struct GLOBAL *global)
+video_config_probe_commit_gtkcontrols* get_uvc_h264_controls(struct ALL_DATA* data)
 {
+	struct GLOBAL *global = data->global;
+	struct vdIn *videoIn  = data->videoIn;
+	
 	//get current values
 	uvcx_video_config_probe_commit_t config_probe_cur;
-	uvcx_video_probe(vd->fd, global->uvc_h264_unit, UVC_GET_CUR, &config_probe_cur);
+	uvcx_video_probe(videoIn->fd, global->uvc_h264_unit, UVC_GET_CUR, &config_probe_cur);
 	//print_probe_commit_data(&config_probe_cur);
 
 	//get Max values
 	uvcx_video_config_probe_commit_t config_probe_max;
-	uvcx_video_probe(vd->fd, global->uvc_h264_unit, UVC_GET_MAX, &config_probe_max);
+	uvcx_video_probe(videoIn->fd, global->uvc_h264_unit, UVC_GET_MAX, &config_probe_max);
 
 	//get Min values
 	uvcx_video_config_probe_commit_t config_probe_min;
-	uvcx_video_probe(vd->fd, global->uvc_h264_unit, UVC_GET_MIN, &config_probe_min);
+	uvcx_video_probe(videoIn->fd, global->uvc_h264_unit, UVC_GET_MIN, &config_probe_min);
 
 	//alloc the struct
 	video_config_probe_commit_gtkcontrols* h264_controls = g_new0(video_config_probe_commit_gtkcontrols, 1);
@@ -214,7 +221,7 @@ video_config_probe_commit_gtkcontrols* get_uvc_h264_controls(struct vdIn *vd, st
                                     10,
                                     0);
 
-    h264_controls->Profile_flags = gtk_spin_button_new(adjustment1, 1, 0);
+    h264_controls->Profile_flags = gtk_spin_button_new(adjustment2, 1, 0);
     gtk_editable_set_editable(GTK_EDITABLE(h264_controls->Profile_flags), TRUE);
     gtk_widget_show (h264_controls->Profile_flags);
 
@@ -229,6 +236,8 @@ video_config_probe_commit_gtkcontrols* get_uvc_h264_controls(struct vdIn *vd, st
 	g_signal_connect (GTK_BUTTON(h264_controls->commit_button), "clicked",
                                 G_CALLBACK (h264_commit_button_clicked), h264_controls);
 	gtk_widget_show(h264_controls->commit_button);
+	
+	return h264_controls;
 }
 
 /* get the unit id for GUID_UVCX_H264_XU by using libusb */

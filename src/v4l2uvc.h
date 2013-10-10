@@ -83,7 +83,9 @@ static const int exp_vals[]=
 struct vdIn
 {
 	__MUTEX_TYPE mutex;
-
+	
+	int frame_index;
+	
     struct udev *udev;                  // pointer to a udev struct (lib udev)
     struct udev_monitor *udev_mon;      // udev monitor
     int udev_fd;                        // udev monitor file descriptor
