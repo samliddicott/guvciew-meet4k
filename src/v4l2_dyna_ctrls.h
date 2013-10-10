@@ -69,6 +69,6 @@
 int initDynCtrls(int hdevice);
 uint16_t get_length_xu_control(int hdevice, uint8_t unit, uint8_t selector);
 uint8_t get_info_xu_control(int hdevice, uint8_t unit, uint8_t selector);
-int query_xu_control(int hdevice, uint8_t unit, uint8_t selector, uint8_t query, uint16_t size, void *data);
+int query_xu_control(int hdevice, uint8_t unit, uint8_t selector, uint8_t query, void *data);
 
 #endif

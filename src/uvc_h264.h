@@ -26,6 +26,8 @@
 #include <linux/uvcvideo.h>
 #include <linux/media.h>
 
+#include <gtk/gtk.h>
+
 #include "defs.h"
 #include "v4l2uvc.h"
 #include "globals.h"
@@ -275,6 +277,53 @@ typedef struct _uvcx_qp_steps_layers_t
 	BYTE	bMaxQp;
 } __attribute__((__packed__)) uvcx_qp_steps_layers_t;
 
+/* probe commit control widgets */
+typedef struct _video_config_probe_commit_gtkcontrols
+{
+	GtkWidget* BitRate;
+
+	GtkWidget* Hints_res;
+	GtkWidget* Hints_prof;
+	GtkWidget* Hints_ratecontrol;
+	GtkWidget* Hints_usage;
+	GtkWidget* Hints_slicemode;
+	GtkWidget* Hints_sliceunit;
+	GtkWidget* Hints_view;
+	GtkWidget* Hints_temporal;
+	GtkWidget* Hints_snr;
+	GtkWidget* Hints_spatial;
+	GtkWidget* Hints_spatiallayer;
+	GtkWidget* Hints_frameinterval;
+	GtkWidget* Hints_leakybucket;
+	GtkWidget* Hints_bitrate;
+	GtkWidget* Hints_cabac;
+	GtkWidget* Hints_iframe;
+
+	GtkWidget* SliceUnits;
+	GtkWidget* SliceMode;
+	GtkWidget* Profile;
+	GtkWidget* Profile_flags;
+	GtkWidget* IFramePeriod;
+	GtkWidget* EstimatedVideoDelay;
+	GtkWidget* EstimatedMaxConfigDelay;
+	GtkWidget* UsageType;
+	GtkWidget* RateControlMode;
+	GtkWidget* TemporalScaleMode;
+	GtkWidget* SpatialScaleMode;
+	GtkWidget* SNRScaleMode;
+	GtkWidget* StreamMuxOption;
+	GtkWidget* StreamFormat;
+	GtkWidget* EntropyCABAC;
+	GtkWidget* Timestamp;
+	GtkWidget* NumOfReorderFrames;
+	GtkWidget* PreviewFlipped;
+	GtkWidget* View;
+	GtkWidget* StreamID;
+	GtkWidget* SpatialLayerRatio;
+	GtkWidget* LeakyBucketSize;
+	GtkWidget* probe_button;
+	GtkWidget* commit_button;
+} video_config_probe_commit_gtkcontrols;
 
 uint8_t xu_get_unit_id (uint64_t busnum, uint64_t devnum);
 int has_h264_support(int hdevice, uint8_t unit_id);

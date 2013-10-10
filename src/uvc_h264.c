@@ -26,7 +26,6 @@
 #include <glib/gprintf.h>
 #include <glib/gi18n.h>
 
-#include <gtk/gtk.h>
 #include <libusb.h>
 
 #include "uvc_h264.h"
@@ -72,6 +71,164 @@ static void print_probe_commit_data(uvcx_video_config_probe_commit_t *data)
 	printf("\tStreamID: %i\n",data->bStreamID);
 	printf("\tSpatialLayerRatio: %i\n",data->bSpatialLayerRatio);
 	printf("\tLeakyBucketSize: %i\n",data->wLeakyBucketSize);
+}
+
+void h264_probe_button_clicked(GtkButton * Button, video_config_probe_commit_gtkcontrols* h264_controls)
+{
+	uvcx_video_config_probe_commit_t config_probe_req;
+	uvcx_video_probe(vd->fd, global->uvc_h264_unit, UVC_GET_CUR, &config_probe_req);
+	print_probe_commit_data(&config_probe_req);
+
+	//get the control data and fill req (need fps and resolution)
+
+
+}
+
+void h264_commit_button_clicked(GtkButton * Button, video_config_probe_commit_gtkcontrols* h264_controls)
+{
+
+}
+
+/*
+ * creates the control widgets for uvcx_video_config_probe_commit
+ */
+video_config_probe_commit_gtkcontrols* get_uvc_h264_controls(struct vdIn *vd, struct GLOBAL *global)
+{
+	//get current values
+	uvcx_video_config_probe_commit_t config_probe_cur;
+	uvcx_video_probe(vd->fd, global->uvc_h264_unit, UVC_GET_CUR, &config_probe_cur);
+	//print_probe_commit_data(&config_probe_cur);
+
+	//get Max values
+	uvcx_video_config_probe_commit_t config_probe_max;
+	uvcx_video_probe(vd->fd, global->uvc_h264_unit, UVC_GET_MAX, &config_probe_max);
+
+	//get Min values
+	uvcx_video_config_probe_commit_t config_probe_min;
+	uvcx_video_probe(vd->fd, global->uvc_h264_unit, UVC_GET_MIN, &config_probe_min);
+
+	//alloc the struct
+	video_config_probe_commit_gtkcontrols* h264_controls = g_new0(video_config_probe_commit_gtkcontrols, 1);
+	//add the controls and associate the callbacks
+
+	//dwBitRate
+	GtkAdjustment *adjustment =  gtk_adjustment_new (
+                                	config_probe_cur.dwBitRate,
+                                	config_probe_min.dwBitRate,
+                                    config_probe_max.dwBitRate,
+                                    1,
+                                    10,
+                                    0);
+
+    h264_controls->BitRate = gtk_spin_button_new(adjustment, 1, 0);
+    gtk_editable_set_editable(GTK_EDITABLE(h264_controls->BitRate), TRUE);
+    gtk_widget_show (h264_controls->BitRate);
+
+	//bmHints
+	h264_controls->Hints_res = gtk_check_button_new_with_label ("Resolution");
+	gtk_widget_show (h264_controls->Hints_res);
+	h264_controls->Hints_prof = gtk_check_button_new_with_label ("Profile");
+	gtk_widget_show (h264_controls->Hints_prof);
+	h264_controls->Hints_ratecontrol = gtk_check_button_new_with_label ("Rate Control");
+	gtk_widget_show (h264_controls->Hints_ratecontrol);
+	h264_controls->Hints_usage = gtk_check_button_new_with_label ("Usage Type");
+	gtk_widget_show (h264_controls->Hints_usage);
+	h264_controls->Hints_slicemode = gtk_check_button_new_with_label ("Slice Mode");
+	gtk_widget_show (h264_controls->Hints_slicemode);
+	h264_controls->Hints_sliceunit = gtk_check_button_new_with_label ("Slice Unit");
+	gtk_widget_show (h264_controls->Hints_sliceunit);
+	h264_controls->Hints_view = gtk_check_button_new_with_label ("MVC View");
+	gtk_widget_show (h264_controls->Hints_view);
+	h264_controls->Hints_temporal = gtk_check_button_new_with_label ("Temporal Scale");
+	gtk_widget_show (h264_controls->Hints_temporal);
+	h264_controls->Hints_snr = gtk_check_button_new_with_label ("SNR Scale");
+	gtk_widget_show (h264_controls->Hints_snr);
+	h264_controls->Hints_spatial = gtk_check_button_new_with_label ("Spatial Scale");
+	gtk_widget_show (h264_controls->Hints_spatial);
+	h264_controls->Hints_spatiallayer = gtk_check_button_new_with_label ("Spatial Layer Ratio");
+	gtk_widget_show (h264_controls->Hints_spatiallayer);
+	h264_controls->Hints_frameinterval = gtk_check_button_new_with_label ("Frame Interval");
+	gtk_widget_show (h264_controls->Hints_frameinterval);
+	h264_controls->Hints_leakybucket = gtk_check_button_new_with_label ("Leaky Bucket Size");
+	gtk_widget_show (h264_controls->Hints_leakybucket);
+	h264_controls->Hints_bitrate = gtk_check_button_new_with_label ("Bit Rate");
+	gtk_widget_show (h264_controls->Hints_bitrate);
+	h264_controls->Hints_cabac = gtk_check_button_new_with_label ("CABAC");
+	gtk_widget_show (h264_controls->Hints_cabac);
+	h264_controls->Hints_iframe = gtk_check_button_new_with_label ("I FramePeriod");
+	gtk_widget_show (h264_controls->Hints_iframe);
+
+	//wSliceMode
+	h264_controls->SliceMode = gtk_combo_box_text_new();
+	gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(h264_controls->SliceMode),
+								"no multiple slices");
+	gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(h264_controls->SliceMode),
+								"bits/slice");
+	gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(h264_controls->SliceMode),
+								"Mbits/slice");
+	gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(h264_controls->SliceMode),
+								"slices/frame");
+	gtk_widget_show (h264_controls->SliceMode);
+
+	//wSliceUnits
+	GtkAdjustment *adjustment1 =  gtk_adjustment_new (
+                                	config_probe_cur.wSliceUnits,
+                                	config_probe_min.wSliceUnits,
+                                    config_probe_max.wSliceUnits,
+                                    1,
+                                    10,
+                                    0);
+
+    h264_controls->SliceUnits = gtk_spin_button_new(adjustment1, 1, 0);
+    gtk_editable_set_editable(GTK_EDITABLE(h264_controls->SliceUnits), TRUE);
+    gtk_widget_show (h264_controls->SliceUnits);
+
+	//wProfile
+	h264_controls->Profile = gtk_combo_box_text_new();
+	gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(h264_controls->Profile),
+								"Baseline Profile");
+	gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(h264_controls->Profile),
+								"Main Profile");
+	gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(h264_controls->Profile),
+								"High Profile");
+	gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(h264_controls->Profile),
+								"Scalable Baseline Profile");
+	gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(h264_controls->Profile),
+								"Scalable High Profile");
+	gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(h264_controls->Profile),
+								"Multiview High Profile");
+	gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(h264_controls->Profile),
+								"Stereo High Profile");
+	gtk_widget_show (h264_controls->Profile);
+
+	//wProfile (Bits 0-7)
+	int cur_flags = config_probe_cur.wProfile & 0x000000FF;
+	int max_flags = config_probe_max.wProfile & 0x000000FF;
+	int min_flags = config_probe_min.wProfile & 0x000000FF;
+
+	GtkAdjustment *adjustment2 =  gtk_adjustment_new (
+                                	cur_flags,
+                                	min_flags,
+                                    max_flags,
+                                    1,
+                                    10,
+                                    0);
+
+    h264_controls->Profile_flags = gtk_spin_button_new(adjustment1, 1, 0);
+    gtk_editable_set_editable(GTK_EDITABLE(h264_controls->Profile_flags), TRUE);
+    gtk_widget_show (h264_controls->Profile_flags);
+
+
+
+	h264_controls->probe_button = gtk_button_new_with_label("PROBE");
+	g_signal_connect (GTK_BUTTON(h264_controls->probe_button), "clicked",
+                                G_CALLBACK (h264_probe_button_clicked), h264_controls);
+	gtk_widget_show(h264_controls->probe_button);
+
+	h264_controls->commit_button = gtk_button_new_with_label("COMMIT");
+	g_signal_connect (GTK_BUTTON(h264_controls->commit_button), "clicked",
+                                G_CALLBACK (h264_commit_button_clicked), h264_controls);
+	gtk_widget_show(h264_controls->commit_button);
 }
 
 /* get the unit id for GUID_UVCX_H264_XU by using libusb */
@@ -170,7 +327,7 @@ int has_h264_support(int hdevice, uint8_t unit_id)
 
 	uvcx_version_t uvcx_version;
 
-	if(query_xu_control(hdevice, unit_id, UVCX_VERSION, UVC_GET_CUR, sizeof(uvcx_version), &uvcx_version) < 0)
+	if(query_xu_control(hdevice, unit_id, UVCX_VERSION, UVC_GET_CUR, &uvcx_version) < 0)
 	{
 		g_printerr("device doesn't seem to support uvc H264 in unit_id %d\n", unit_id);
 		return 0;
@@ -344,7 +501,8 @@ int uvcx_video_probe(int hdevice, uint8_t unit_id, uint8_t query, uvcx_video_con
 {
 	int err = 0;
 
-	if((err = query_xu_control(hdevice, unit_id, UVCX_VIDEO_CONFIG_PROBE, query, sizeof(uvcx_video_config_probe_commit_t), uvcx_video_config)) < 0)
+
+	if((err = query_xu_control(hdevice, unit_id, UVCX_VIDEO_CONFIG_PROBE, query, uvcx_video_config)) < 0)
 	{
 		perror("UVCX_VIDEO_CONFIG_PROBE error");
 		return err;
@@ -357,7 +515,7 @@ int uvcx_video_commit(int hdevice, uint8_t unit_id, uvcx_video_config_probe_comm
 {
 	int err = 0;
 
-	if((err = query_xu_control(hdevice, unit_id, UVCX_VIDEO_CONFIG_COMMIT, UVC_SET_CUR, sizeof(uvcx_video_config_probe_commit_t), uvcx_video_config)) < 0)
+	if((err = query_xu_control(hdevice, unit_id, UVCX_VIDEO_CONFIG_COMMIT, UVC_SET_CUR, uvcx_video_config)) < 0)
 	{
 		perror("UVCX_VIDEO_CONFIG_COMMIT error");
 		return err;

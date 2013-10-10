@@ -282,19 +282,21 @@ uint8_t get_info_xu_control(int hdevice, uint8_t unit, uint8_t selector)
 	return info;
 }
 
-int query_xu_control(int hdevice, uint8_t unit, uint8_t selector, uint8_t query, uint16_t size, void *data)
+int query_xu_control(int hdevice, uint8_t unit, uint8_t selector, uint8_t query, void *data)
 {
 	int err = 0;
+	uint16_t len = get_length_xu_control(hdevice, unit, selector);
 
 	struct uvc_xu_control_query xu_ctrl_query =
 	{
 		.unit     = unit,
 		.selector = selector,
 		.query    = query,
-		.size     = size,
+		.size     = len,
 		.data     = (uint8_t *) data
 	};
 
+	//get query data
 	if ((err=xioctl(hdevice, UVCIOC_CTRL_QUERY, &xu_ctrl_query)) < 0)
 	{
 		perror("UVCIOC_CTRL_QUERY - Error");
