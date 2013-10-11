@@ -49,11 +49,11 @@ struct GWIDGET
 	GSList *vgroup;
 	//group list for menu audio codecs
 	GSList *agroup;
-	
+
 	//menu top widgets
 	GtkWidget *menu_photo_top;
 	GtkWidget *menu_video_top;
-	
+
 	GtkWidget *status_bar;
 
 	GtkWidget *label_SndAPI;
@@ -78,11 +78,11 @@ struct GWIDGET
 	int status_warning_id;
 };
 
-/* uvc H264 probe commit control widgets */
+/* uvc H264 control widgets */
 typedef struct _uvc_h264_gtkcontrols
 {
+	GtkWidget* FrameInterval;
 	GtkWidget* BitRate;
-
 	GtkWidget* Hints_res;
 	GtkWidget* Hints_prof;
 	GtkWidget* Hints_ratecontrol;
@@ -99,7 +99,7 @@ typedef struct _uvc_h264_gtkcontrols
 	GtkWidget* Hints_bitrate;
 	GtkWidget* Hints_cabac;
 	GtkWidget* Hints_iframe;
-
+	GtkWidget* Resolution;
 	GtkWidget* SliceUnits;
 	GtkWidget* SliceMode;
 	GtkWidget* Profile;
@@ -108,11 +108,15 @@ typedef struct _uvc_h264_gtkcontrols
 	GtkWidget* EstimatedVideoDelay;
 	GtkWidget* EstimatedMaxConfigDelay;
 	GtkWidget* UsageType;
+	GtkWidget* UCConfig;
 	GtkWidget* RateControlMode;
+	GtkWidget* RateControlMode_cbr_flag;
 	GtkWidget* TemporalScaleMode;
 	GtkWidget* SpatialScaleMode;
 	GtkWidget* SNRScaleMode;
 	GtkWidget* StreamMuxOption;
+	GtkWidget* StreamMuxOption_aux;
+	GtkWidget* StreamMuxOption_mjpgcontainer;
 	GtkWidget* StreamFormat;
 	GtkWidget* EntropyCABAC;
 	GtkWidget* Timestamp;

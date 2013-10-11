@@ -22,9 +22,9 @@
 ********************************************************************************/
 
 /* support for internationalization - i18n */
+#include <glib/gi18n.h>
 #include <glib.h>
 #include <glib/gprintf.h>
-#include <glib/gi18n.h>
 
 #include <libusb.h>
 
@@ -74,18 +74,146 @@ static void print_probe_commit_data(uvcx_video_config_probe_commit_t *data)
 	printf("\tLeakyBucketSize: %i\n",data->wLeakyBucketSize);
 }
 
-void h264_probe_button_clicked(GtkButton * Button, struct ALL_DATA* data)
+static void update_h264_controls(
+	uvcx_video_config_probe_commit_t *config_probe_req,
+	struct ALL_DATA* data)
 {
 	struct GLOBAL *global = data->global;
 	struct vdIn *videoIn  = data->videoIn;
-	
+	uvc_h264_gtkcontrols* h264_controls = data->h264_controls;
+
+	//dwFrameInterval
+	gtk_spin_button_set_value(GTK_SPIN_BUTTON(h264_controls->FrameInterval), config_probe_req->dwFrameInterval);
+	//dwBitRate
+	gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(h264_controls->BitRate), config_probe_req->dwBitRate);
+	//bmHints
+	uint16_t hints = config_probe_req->bmHints;
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_res), ((hints &= 0x0001) > 0));
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_prof)), ((hints &= 0x0002) > 0));
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_ratecontrol)), ((hints &= 0x0004) > 0));
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_usage)), ((hints &= 0x0008) > 0));
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_slicemode)), ((hints &= 0x0010) > 0));
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_sliceunit)), ((hints &= 0x0020) > 0));
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_view)), ((hints &= 0x0040) > 0));
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_temporal)), ((hints &= 0x0080) > 0));
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_snr)), ((hints &= 0x0100) > 0));
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_spatial)), ((hints &= 0x0200) > 0));
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_spatiallayer)), ((hints &= 0x0400) > 0));
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_frameinterval)), ((hints &= 0x0800) > 0));
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_leakybucket)), ((hints &= 0x1000) > 0));
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_bitrate)), ((hints &= 0x2000) > 0));
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_cabac)), ((hints &= 0x4000) > 0));
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_iframe)), ((hints &= 0x8000) > 0));
+}
+
+static void fill_video_config_probe(
+	uvcx_video_config_probe_commit_t *config_probe_req,
+	struct ALL_DATA* data)
+{
+	struct GLOBAL *global = data->global;
+	struct vdIn *videoIn  = data->videoIn;
+	uvc_h264_gtkcontrols* h264_controls = data->h264_controls;
+
+	//dwFrameInterval
+	config_probe_req->dwFrameInterval = (uint32_t) gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(h264_controls->FrameInterval));
+	//dwBitRate
+	config_probe_req->dwBitRate = (uint32_t) gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(h264_controls->BitRate));
+	//bmHints
+	uint16_t hints = 0x0000;
+	gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_res)) ?  hints |= 0x0001: hints |= 0;
+	gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_prof)) ? hints |= 0x0002: hints |= 0;
+	gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_ratecontrol)) ? hints |= 0x0004: hints |= 0;
+	gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_usage)) ? hints |= 0x0008: hints |= 0;
+	gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_slicemode)) ? hints |= 0x0010: hints |= 0;
+	gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_sliceunit)) ? hints |= 0x0020: hints |= 0;
+	gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_view)) ? hints |= 0x0040: hints |= 0;
+	gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_temporal)) ? hints |= 0x0080: hints |= 0;
+	gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_snr)) ? hints |= 0x0100: hints |= 0;
+	gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_spatial)) ? hints |= 0x0200: hints |= 0;
+	gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_spatiallayer)) ? hints |= 0x0400: hints |= 0;
+	gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_frameinterval)) ? hints |= 0x0800: hints |= 0;
+	gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_leakybucket)) ? hints |= 0x1000: hints |= 0;
+	gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_bitrate)) ? hints |= 0x2000: hints |= 0;
+	gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_cabac)) ? hints |= 0x4000: hints |= 0;
+	gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_iframe)) ? hints |= 0x8000: hints |= 0;
+	config_probe_req->bmHints = hints;
+	//wWidth x wHeight
+	int h264_format_ind = get_FormatIndex(videoIn->listFormats,V4L2_PIX_FMT_H264);
+	VidFormats *listVidFormats = &videoIn->listFormats->listVidFormats[h264_format_ind];
+	int def_res = gtk_combo_box_get_active(GTK_COMBO_BOX(h264_controls->Resolution));
+	config_probe_req->wWidth = (uint16_t) listVidFormats->listVidCap[def_res].width;
+	config_probe_req->wHeight = (uint16_t) listVidFormats->listVidCap[def_res].height;
+	//wSliceMode
+	config_probe_req->wSliceMode = (uint16_t) gtk_combo_box_get_active(GTK_COMBO_BOX(h264_controls->SliceMode));
+	//wSliceUnits
+	config_probe_req->wSliceUnits = (uint16_t) gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(h264_controls->SliceUnits));
+	//wProfile
+	int profile_index = gtk_combo_box_get_active(GTK_COMBO_BOX(h264_controls->Profile));
+	uint16_t profile = 0x4200;
+	switch(profile_index)
+	{
+		case 0:
+			profile = 0x4200;
+			break;
+		case 1:
+			profile = 0x4D00;
+			break;
+		case 2:
+			profile = 0x6400;
+			break;
+		case 3:
+			profile = 0x5300;
+			break;
+		case 4:
+			profile = 0x5600;
+			break;
+		case 5:
+			profile = 0x7600;
+			break;
+		case 6:
+			profile = 0x8000;
+			break;
+		default:
+			fprintf(stderr, "H264 probe: unknown profile\n");
+			break;
+	}
+
+	profile |= (uint16_t) (gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(h264_controls->Profile_flags)) & 0x000000FF);
+	config_probe_req->wProfile = profile;
+	//wIFramePeriod
+	config_probe_req->wIFramePeriod = (uint16_t) gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(h264_controls->IFramePeriod));
+	//wEstimatedVideoDelay
+	config_probe_req->wEstimatedVideoDelay = (uint16_t) gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(h264_controls->EstimatedVideoDelay));
+	//wEstimatedMaxConfigDelay
+	config_probe_req->wEstimatedMaxConfigDelay = (uint16_t) gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(h264_controls->EstimatedMaxConfigDelay));
+	//bUsageType
+	config_probe_req->bUsageType = (uint8_t) (gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(h264_controls->UsageType)) + 1);
+	config_probe_req->bUsageType |= (uint8_t) (gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(h264_controls->UCConfig)) + 4);
+
+}
+
+void h264_probe_button_clicked(GtkButton * Button, struct ALL_DATA* data)
+{
+	uvc_h264_gtkcontrols* h264_controls = data->h264_controls;
+	struct GLOBAL *global = data->global;
+	struct vdIn *videoIn  = data->videoIn;
+
 	uvcx_video_config_probe_commit_t config_probe_req;
 	uvcx_video_probe(videoIn->fd, global->uvc_h264_unit, UVC_GET_CUR, &config_probe_req);
+	printf("Probe Current:\n");
 	print_probe_commit_data(&config_probe_req);
 
 	//get the control data and fill req (need fps and resolution)
+	fill_video_config_probe(&config_probe_req, data);
 
+	//Probe the request
+	uvcx_video_probe(videoIn->fd, global->uvc_h264_unit, UVC_SET_CUR, &config_probe_req);
+	uvcx_video_probe(videoIn->fd, global->uvc_h264_unit, UVC_GET_CUR, &config_probe_req);
+	printf("Probing Request:\n");
+	print_probe_commit_data(&config_probe_req);
 
+	//update the control widgets
+	update_h264_controls(&config_probe_req, data);
 }
 
 void h264_commit_button_clicked(GtkButton * Button, struct ALL_DATA* data)
@@ -102,7 +230,7 @@ void add_uvc_h264_controls_tab (struct ALL_DATA* all_data)
 	struct vdIn *videoIn  = all_data->videoIn;
 	uvc_h264_gtkcontrols* h264_controls = all_data->h264_controls;
 	struct GWIDGET *gwidget = all_data->gwidget;
-	
+
 	//get current values
 	uvcx_video_config_probe_commit_t config_probe_cur;
 	uvcx_video_probe(videoIn->fd, global->uvc_h264_unit, UVC_GET_CUR, &config_probe_cur);
@@ -118,7 +246,7 @@ void add_uvc_h264_controls_tab (struct ALL_DATA* all_data)
 
 	//alloc the control struct
 	h264_controls = g_new0(uvc_h264_gtkcontrols, 1);
-	
+
 	int line = 0;
 	//add the controls and associate the callbacks
 	GtkWidget *table;
@@ -126,7 +254,7 @@ void add_uvc_h264_controls_tab (struct ALL_DATA* all_data)
 	GtkWidget *Tab;
 	GtkWidget *TabLabel;
 	GtkWidget *TabIcon;
-	
+
 	//TABLE
 	table = gtk_grid_new();
 	gtk_grid_set_column_homogeneous (GTK_GRID(table), FALSE);
@@ -171,14 +299,38 @@ void add_uvc_h264_controls_tab (struct ALL_DATA* all_data)
 
 
 	//probe_commitcontrols
-	
+
+	//dwFrameInterval (get it from current fps)
+	GtkWidget* label_FrameInterval = gtk_label_new(_("Frame Interval (100ns units):"));
+	gtk_misc_set_alignment (GTK_MISC (label_FrameInterval), 1, 0.5);
+	gtk_grid_attach (GTK_GRID(table), label_FrameInterval, 0, line, 1, 1);
+	gtk_widget_show (label_FrameInterval);
+
+	uint32_t frame_interval = (global->fps_num * 1000000000LL / global->fps)/100;
+
+	GtkAdjustment *adjustment0 = gtk_adjustment_new (
+                                	//config_probe_cur.dwFrameInterval,
+                                	frame_interval,
+                                	config_probe_min.dwFrameInterval,
+                                    config_probe_max.dwFrameInterval,
+                                    1,
+                                    10,
+                                    0);
+
+    h264_controls->FrameInterval = gtk_spin_button_new(adjustment0, 1, 0);
+    gtk_editable_set_editable(GTK_EDITABLE(h264_controls->FrameInterval), TRUE);
+
+    gtk_grid_attach (GTK_GRID(table), h264_controls->FrameInterval, 1, line, 1 ,1);
+    gtk_widget_show (h264_controls->h264_controls->FrameInterval);
+
 	//dwBitRate
+	line++;
 	GtkWidget* label_BitRate = gtk_label_new(_("Bit Rate:"));
 	gtk_misc_set_alignment (GTK_MISC (label_BitRate), 1, 0.5);
 	gtk_grid_attach (GTK_GRID(table), label_BitRate, 0, line, 1, 1);
 	gtk_widget_show (label_BitRate);
-	
-	GtkAdjustment *adjustment =  gtk_adjustment_new (
+
+	GtkAdjustment *adjustment1 = gtk_adjustment_new (
                                 	config_probe_cur.dwBitRate,
                                 	config_probe_min.dwBitRate,
                                     config_probe_max.dwBitRate,
@@ -186,108 +338,140 @@ void add_uvc_h264_controls_tab (struct ALL_DATA* all_data)
                                     10,
                                     0);
 
-    h264_controls->BitRate = gtk_spin_button_new(adjustment, 1, 0);
+    h264_controls->BitRate = gtk_spin_button_new(adjustment1, 1, 0);
     gtk_editable_set_editable(GTK_EDITABLE(h264_controls->BitRate), TRUE);
-    
+
     gtk_grid_attach (GTK_GRID(table), h264_controls->BitRate, 1, line, 1 ,1);
     gtk_widget_show (h264_controls->BitRate);
 
 	//bmHints
 	line++;
 	GtkWidget* hints_table = gtk_grid_new();
-	
+
 	GtkWidget* label_Hints = gtk_label_new(_("Hints:"));
 	gtk_misc_set_alignment (GTK_MISC (label_Hints), 1, 0.5);
 	gtk_grid_attach (GTK_GRID(hints_table), label_Hints, 0, 1, 2, 1);
 	gtk_widget_show (label_Hints);
-	
-	h264_controls->Hints_res = gtk_check_button_new_with_label ("Resolution");
+
+	h264_controls->Hints_res = gtk_check_button_new_with_label (_("Resolution"));
 	gtk_grid_attach (GTK_GRID(hints_table), h264_controls->Hints_res, 0, 2, 1, 1);
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(h264_controls->Hints_res),((config_probe_cur.bmHints & 0x0001) > 0));
 	gtk_widget_show (h264_controls->Hints_res);
-	h264_controls->Hints_prof = gtk_check_button_new_with_label ("Profile");
+	h264_controls->Hints_prof = gtk_check_button_new_with_label (_("Profile"));
 	gtk_grid_attach (GTK_GRID(hints_table),h264_controls->Hints_prof, 1, 2, 1, 1);
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(h264_controls->Hints_prof),((config_probe_cur.bmHints & 0x0002) > 0));
 	gtk_widget_show (h264_controls->Hints_prof);
-	h264_controls->Hints_ratecontrol = gtk_check_button_new_with_label ("Rate Control");
+	h264_controls->Hints_ratecontrol = gtk_check_button_new_with_label (_("Rate Control"));
 	gtk_grid_attach (GTK_GRID(hints_table),h264_controls->Hints_ratecontrol, 2, 2, 1, 1);
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(h264_controls->Hints_ratecontrol),((config_probe_cur.bmHints & 0x0004) > 0));
 	gtk_widget_show (h264_controls->Hints_ratecontrol);
-	h264_controls->Hints_usage = gtk_check_button_new_with_label ("Usage Type");
+	h264_controls->Hints_usage = gtk_check_button_new_with_label (_("Usage Type"));
 	gtk_grid_attach (GTK_GRID(hints_table),h264_controls->Hints_usage, 3, 2, 1, 1);
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(h264_controls->Hints_usage),((config_probe_cur.bmHints & 0x0008) > 0));
 	gtk_widget_show (h264_controls->Hints_usage);
-	h264_controls->Hints_slicemode = gtk_check_button_new_with_label ("Slice Mode");
+	h264_controls->Hints_slicemode = gtk_check_button_new_with_label (_("Slice Mode"));
 	gtk_grid_attach (GTK_GRID(hints_table),h264_controls->Hints_slicemode, 0, 3, 1, 1);
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(h264_controls->Hints_slicemode),((config_probe_cur.bmHints & 0x0010) > 0));
 	gtk_widget_show (h264_controls->Hints_slicemode);
-	h264_controls->Hints_sliceunit = gtk_check_button_new_with_label ("Slice Unit");
+	h264_controls->Hints_sliceunit = gtk_check_button_new_with_label (_("Slice Unit"));
 	gtk_grid_attach (GTK_GRID(hints_table),h264_controls->Hints_sliceunit, 1, 3, 1, 1);
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(h264_controls->Hints_sliceunit),((config_probe_cur.bmHints & 0x0020) > 0));
 	gtk_widget_show (h264_controls->Hints_sliceunit);
-	h264_controls->Hints_view = gtk_check_button_new_with_label ("MVC View");
+	h264_controls->Hints_view = gtk_check_button_new_with_label (_("MVC View"));
 	gtk_grid_attach (GTK_GRID(hints_table),h264_controls->Hints_view, 2, 3, 1, 1);
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(h264_controls->Hints_view),((config_probe_cur.bmHints & 0x0040) > 0));
 	gtk_widget_show (h264_controls->Hints_view);
-	h264_controls->Hints_temporal = gtk_check_button_new_with_label ("Temporal Scale");
+	h264_controls->Hints_temporal = gtk_check_button_new_with_label (_("Temporal Scale"));
 	gtk_grid_attach (GTK_GRID(hints_table),h264_controls->Hints_temporal, 3, 3, 1, 1);
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(h264_controls->Hints_temporal),((config_probe_cur.bmHints & 0x0080) > 0));
 	gtk_widget_show (h264_controls->Hints_temporal);
-	h264_controls->Hints_snr = gtk_check_button_new_with_label ("SNR Scale");
+	h264_controls->Hints_snr = gtk_check_button_new_with_label (_("SNR Scale"));
 	gtk_grid_attach (GTK_GRID(hints_table),h264_controls->Hints_snr, 0, 4, 1, 1);
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(h264_controls->Hints_snr),((config_probe_cur.bmHints & 0x0100) > 0));
 	gtk_widget_show (h264_controls->Hints_snr);
-	h264_controls->Hints_spatial = gtk_check_button_new_with_label ("Spatial Scale");
+	h264_controls->Hints_spatial = gtk_check_button_new_with_label (_("Spatial Scale"));
 	gtk_grid_attach (GTK_GRID(hints_table),h264_controls->Hints_spatial, 1, 4, 1, 1);
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(h264_controls->Hints_spatial),((config_probe_cur.bmHints & 0x0200) > 0));
 	gtk_widget_show (h264_controls->Hints_spatial);
-	h264_controls->Hints_spatiallayer = gtk_check_button_new_with_label ("Spatial Layer Ratio");
+	h264_controls->Hints_spatiallayer = gtk_check_button_new_with_label (_("Spatial Layer Ratio"));
 	gtk_grid_attach (GTK_GRID(hints_table),h264_controls->Hints_spatiallayer, 2, 4, 1, 1);
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(h264_controls->Hints_spatiallayer),((config_probe_cur.bmHints & 0x0400) > 0));
 	gtk_widget_show (h264_controls->Hints_spatiallayer);
-	h264_controls->Hints_frameinterval = gtk_check_button_new_with_label ("Frame Interval");
+	h264_controls->Hints_frameinterval = gtk_check_button_new_with_label (_("Frame Interval"));
 	gtk_grid_attach (GTK_GRID(hints_table),h264_controls->Hints_frameinterval, 3, 4, 1, 1);
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(h264_controls->Hints_frameinterval),((config_probe_cur.bmHints & 0x0800) > 0));
 	gtk_widget_show (h264_controls->Hints_frameinterval);
-	h264_controls->Hints_leakybucket = gtk_check_button_new_with_label ("Leaky Bucket Size");
+	h264_controls->Hints_leakybucket = gtk_check_button_new_with_label (_("Leaky Bucket Size"));
 	gtk_grid_attach (GTK_GRID(hints_table),h264_controls->Hints_leakybucket, 0, 5, 1, 1);
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(h264_controls->Hints_leakybucket),((config_probe_cur.bmHints & 0x1000) > 0));
 	gtk_widget_show (h264_controls->Hints_leakybucket);
-	h264_controls->Hints_bitrate = gtk_check_button_new_with_label ("Bit Rate");
+	h264_controls->Hints_bitrate = gtk_check_button_new_with_label (_("Bit Rate"));
 	gtk_grid_attach (GTK_GRID(hints_table),h264_controls->Hints_bitrate, 1, 5, 1, 1);
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(h264_controls->Hints_bitrate),((config_probe_cur.bmHints & 0x2000) > 0));
 	gtk_widget_show (h264_controls->Hints_bitrate);
-	h264_controls->Hints_cabac = gtk_check_button_new_with_label ("CABAC");
+	h264_controls->Hints_cabac = gtk_check_button_new_with_label (_("CABAC"));
 	gtk_grid_attach (GTK_GRID(hints_table),h264_controls->Hints_cabac, 2, 5, 1, 1);
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(h264_controls->Hints_cabac),((config_probe_cur.bmHints & 0x4000) > 0));
 	gtk_widget_show (h264_controls->Hints_cabac);
-	h264_controls->Hints_iframe = gtk_check_button_new_with_label ("I FramePeriod");
+	h264_controls->Hints_iframe = gtk_check_button_new_with_label (_("(I) Frame Period"));
 	gtk_grid_attach (GTK_GRID(hints_table),h264_controls->Hints_iframe, 3, 5, 1, 1);
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(h264_controls->Hints_iframe),((config_probe_cur.bmHints & 0x8000) > 0));
 	gtk_widget_show (h264_controls->Hints_iframe);
 
 	gtk_grid_attach (GTK_GRID(table), hints_table, 0, line, 2, 1);
 	gtk_widget_show(hints_table);
-	
+
+	//wWidth x wHeight
+	line++;
+	GtkWidget* label_Resolution = gtk_label_new(_("Resolution:"));
+	gtk_misc_set_alignment (GTK_MISC (label_Resolution), 1, 0.5);
+	gtk_grid_attach (GTK_GRID(table), label_Resolution, 0, line, 1, 1);
+	gtk_widget_show (label_Resolution);
+
+	h264_controls->Resolution = gtk_combo_box_text_new ();
+	gtk_widget_set_halign (h264_controls->Resolution, GTK_ALIGN_FILL);
+	gtk_widget_set_hexpand (h264_controls->Resolution, TRUE);
+	char temp_str[20];
+	int defres=0;
+
+	int h264_format_ind = get_FormatIndex(videoIn->listFormats,V4L2_PIX_FMT_H264);
+	VidFormats *listVidFormats = &videoIn->listFormats->listVidFormats[h264_format_ind];
+
+	for(i = 0 ; i < listVidFormats->numb_res ; i++)
+	{
+		if (listVidFormats->listVidCap[i].width>0)
+		{
+			g_snprintf(temp_str,18,"%ix%i", listVidFormats->listVidCap[i].width,
+							 listVidFormats->listVidCap[i].height);
+			gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(h264_controls->Resolution),temp_str);
+
+			if ((global->width == listVidFormats->listVidCap[i].width) &&
+				(global->height == listVidFormats->listVidCap[i].height))
+					defres=i;//set selected resolution index
+		}
+	}
+
+	gtk_combo_box_set_active(GTK_COMBO_BOX(h264_controls->Resolution),defres);
+
 	//wSliceMode
 	line++;
 	GtkWidget* label_SliceMode = gtk_label_new(_("Slice Mode:"));
 	gtk_misc_set_alignment (GTK_MISC (label_SliceMode), 1, 0.5);
 	gtk_grid_attach (GTK_GRID(table), label_SliceMode, 0, line, 1, 1);
 	gtk_widget_show (label_SliceMode);
-	
+
 	h264_controls->SliceMode = gtk_combo_box_text_new();
 	gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(h264_controls->SliceMode),
-								"no multiple slices");
+								_("no multiple slices"));
 	gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(h264_controls->SliceMode),
-								"bits/slice");
+								_("bits/slice"));
 	gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(h264_controls->SliceMode),
-								"Mbits/slice");
+								_("Mbits/slice"));
 	gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(h264_controls->SliceMode),
-								"slices/frame");
-	
+								_("slices/frame"));
+
 	gtk_combo_box_set_active(GTK_COMBO_BOX(h264_controls->SliceMode), config_probe_cur.wSliceMode); //0 indexed
-	
+
 	gtk_grid_attach (GTK_GRID(table), h264_controls->SliceMode, 1, line, 1 ,1);
 	gtk_widget_show (h264_controls->SliceMode);
 
@@ -297,8 +481,8 @@ void add_uvc_h264_controls_tab (struct ALL_DATA* all_data)
 	gtk_misc_set_alignment (GTK_MISC (label_SliceUnits), 1, 0.5);
 	gtk_grid_attach (GTK_GRID(table), label_SliceUnits, 0, line, 1, 1);
 	gtk_widget_show (label_SliceUnits);
-	
-	GtkAdjustment *adjustment1 =  gtk_adjustment_new (
+
+	GtkAdjustment *adjustment2 = gtk_adjustment_new (
                                 	config_probe_cur.wSliceUnits,
                                 	config_probe_min.wSliceUnits,
                                     config_probe_max.wSliceUnits,
@@ -306,9 +490,9 @@ void add_uvc_h264_controls_tab (struct ALL_DATA* all_data)
                                     10,
                                     0);
 
-    h264_controls->SliceUnits = gtk_spin_button_new(adjustment1, 1, 0);
+    h264_controls->SliceUnits = gtk_spin_button_new(adjustment2, 1, 0);
     gtk_editable_set_editable(GTK_EDITABLE(h264_controls->SliceUnits), TRUE);
-    
+
     gtk_grid_attach (GTK_GRID(table), h264_controls->SliceUnits, 1, line, 1 ,1);
     gtk_widget_show (h264_controls->SliceUnits);
 
@@ -318,23 +502,23 @@ void add_uvc_h264_controls_tab (struct ALL_DATA* all_data)
 	gtk_misc_set_alignment (GTK_MISC (label_Profile), 1, 0.5);
 	gtk_grid_attach (GTK_GRID(table), label_Profile, 0, line, 1, 1);
 	gtk_widget_show (label_Profile);
-	
+
 	h264_controls->Profile = gtk_combo_box_text_new();
 	gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(h264_controls->Profile),
-								"Baseline Profile");
+								_("Baseline Profile"));
 	gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(h264_controls->Profile),
-								"Main Profile");
+								_("Main Profile"));
 	gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(h264_controls->Profile),
-								"High Profile");
+								_("High Profile"));
 	gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(h264_controls->Profile),
-								"Scalable Baseline Profile");
+								_("Scalable Baseline Profile"));
 	gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(h264_controls->Profile),
-								"Scalable High Profile");
+								_("Scalable High Profile"));
 	gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(h264_controls->Profile),
-								"Multiview High Profile");
+								_("Multiview High Profile"));
 	gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(h264_controls->Profile),
-								"Stereo High Profile");
-	
+								_("Stereo High Profile"));
+
 	uint16_t profile = config_probe_cur.wProfile & 0xFF00;
 	int prof_index = 0;
 	switch(profile)
@@ -363,10 +547,10 @@ void add_uvc_h264_controls_tab (struct ALL_DATA* all_data)
 		default:
 			fprintf(stderr, "H264 probe: unknown profile mode 0x%X\n", profile);
 			break;
-			
+
 	}
 	gtk_combo_box_set_active(GTK_COMBO_BOX(h264_controls->Profile), prof_index);
-	
+
 	gtk_grid_attach (GTK_GRID(table), h264_controls->Profile, 1, line, 1 ,1);
 	gtk_widget_show (h264_controls->Profile);
 
@@ -376,12 +560,12 @@ void add_uvc_h264_controls_tab (struct ALL_DATA* all_data)
 	gtk_misc_set_alignment (GTK_MISC (label_Profile_flags), 1, 0.5);
 	gtk_grid_attach (GTK_GRID(table), label_Profile_flags, 0, line, 1, 1);
 	gtk_widget_show (label_Profile_flags);
-	
+
 	int cur_flags = config_probe_cur.wProfile & 0x000000FF;
 	int max_flags = config_probe_max.wProfile & 0x000000FF;
 	int min_flags = config_probe_min.wProfile & 0x000000FF;
 
-	GtkAdjustment *adjustment2 =  gtk_adjustment_new (
+	GtkAdjustment *adjustment3 = gtk_adjustment_new (
                                 	cur_flags,
                                 	min_flags,
                                     max_flags,
@@ -389,32 +573,513 @@ void add_uvc_h264_controls_tab (struct ALL_DATA* all_data)
                                     10,
                                     0);
 
-    h264_controls->Profile_flags = gtk_spin_button_new(adjustment2, 1, 0);
+    h264_controls->Profile_flags = gtk_spin_button_new(adjustment3, 1, 0);
     gtk_editable_set_editable(GTK_EDITABLE(h264_controls->Profile_flags), TRUE);
-    
+
     gtk_grid_attach (GTK_GRID(table), h264_controls->Profile_flags, 1, line, 1 ,1);
     gtk_widget_show (h264_controls->Profile_flags);
 
-
-	//buttons
+	//wIFramePeriod
 	line++;
-	GtkWidget* buttons_table = gtk_grid_new();
-	
-	h264_controls->probe_button = gtk_button_new_with_label("PROBE");
+	GtkWidget* label_IFramePeriod = gtk_label_new(_("(I) Frame Period (ms):"));
+	gtk_misc_set_alignment (GTK_MISC (label_IFramePeriod), 1, 0.5);
+	gtk_grid_attach (GTK_GRID(table), label_IFramePeriod, 0, line, 1, 1);
+	gtk_widget_show (label_IFramePeriod);
+
+	GtkAdjustment *adjustment4 = gtk_adjustment_new (
+                                	config_probe_cur.wIFramePeriod,
+                                	config_probe_min.wIFramePeriod,
+                                    config_probe_max.wIFramePeriod,
+                                    1,
+                                    10,
+                                    0);
+
+    h264_controls->IFramePeriod = gtk_spin_button_new(adjustment4, 1, 0);
+    gtk_editable_set_editable(GTK_EDITABLE(h264_controls->IFramePeriod), TRUE);
+
+    gtk_grid_attach (GTK_GRID(table), h264_controls->IFramePeriod, 1, line, 1 ,1);
+    gtk_widget_show (h264_controls->IFramePeriod);
+
+	//wEstimatedVideoDelay
+	line++;
+	GtkWidget* label_EstimatedVideoDelay = gtk_label_new(_("Estimated Video Delay (ms):"));
+	gtk_misc_set_alignment (GTK_MISC (label_EstimatedVideoDelay), 1, 0.5);
+	gtk_grid_attach (GTK_GRID(table), label_EstimatedVideoDelay, 0, line, 1, 1);
+	gtk_widget_show (label_EstimatedVideoDelay);
+
+	GtkAdjustment *adjustment5 = gtk_adjustment_new (
+                                	config_probe_cur.wEstimatedVideoDelay,
+                                	config_probe_min.wEstimatedVideoDelay,
+                                    config_probe_max.wEstimatedVideoDelay,
+                                    1,
+                                    10,
+                                    0);
+
+    h264_controls->EstimatedVideoDelay = gtk_spin_button_new(adjustment5, 1, 0);
+    gtk_editable_set_editable(GTK_EDITABLE(h264_controls->EstimatedVideoDelay), TRUE);
+
+    gtk_grid_attach (GTK_GRID(table), h264_controls->EstimatedVideoDelay, 1, line, 1 ,1);
+    gtk_widget_show (h264_controls->EstimatedVideoDelay);
+
+    //wEstimatedMaxConfigDelay
+	line++;
+	GtkWidget* label_EstimatedMaxConfigDelay = gtk_label_new(_("Estimated Max Config Delay (ms):"));
+	gtk_misc_set_alignment (GTK_MISC (label_EstimatedMaxConfigDelay), 1, 0.5);
+	gtk_grid_attach (GTK_GRID(table), label_EstimatedMaxConfigDelay, 0, line, 1, 1);
+	gtk_widget_show (label_EstimatedMaxConfigDelay);
+
+	GtkAdjustment *adjustment6 = gtk_adjustment_new (
+                                	config_probe_cur.wEstimatedMaxConfigDelay,
+                                	config_probe_min.wEstimatedMaxConfigDelay,
+                                    config_probe_max.wEstimatedMaxConfigDelay,
+                                    1,
+                                    10,
+                                    0);
+
+    h264_controls->EstimatedMaxConfigDelay = gtk_spin_button_new(adjustment6, 1, 0);
+    gtk_editable_set_editable(GTK_EDITABLE(h264_controls->EstimatedMaxConfigDelay), TRUE);
+
+    gtk_grid_attach (GTK_GRID(table), h264_controls->EstimatedMaxConfigDelay, 1, line, 1 ,1);
+    gtk_widget_show (h264_controls->EstimatedMaxConfigDelay);
+
+	//bUsageType
+	line++;
+	GtkWidget* label_UsageType = gtk_label_new(_("Usage Type:"));
+	gtk_misc_set_alignment (GTK_MISC (label_UsageType), 1, 0.5);
+	gtk_grid_attach (GTK_GRID(table), label_UsageType, 0, line, 1, 1);
+	gtk_widget_show (label_UsageType);
+
+	h264_controls->UsageType = gtk_combo_box_text_new();
+	gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(h264_controls->UsageType),
+								_("Real-time"));
+	gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(h264_controls->UsageType),
+								_("Broadcast"));
+	gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(h264_controls->UsageType),
+								_("Storage"));
+
+	uint8_t usage = config_probe_cur.bUsageType & 0x03;
+	int usage_index = usage - 1; // from 0x01 to 0x03
+	if(usage_index < 0)
+		usage_index = 0;
+
+	gtk_combo_box_set_active(GTK_COMBO_BOX(h264_controls->UsageType), usage_index);
+
+	gtk_grid_attach (GTK_GRID(table), h264_controls->UsageType, 1, line, 1 ,1);
+	gtk_widget_show (h264_controls->UsageType);
+
+	//bUsageType UCConfig
+	line++;
+	GtkWidget* label_UCConfig = gtk_label_new(_("Usage Type (UCConfig):"));
+	gtk_misc_set_alignment (GTK_MISC (label_UCConfig), 1, 0.5);
+	gtk_grid_attach (GTK_GRID(table), label_UCConfig, 0, line, 1, 1);
+	gtk_widget_show (label_UCConfig);
+
+	h264_controls->UCConfig = gtk_combo_box_text_new();
+	gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(h264_controls->UCConfig),
+								_("(0) Non-scalable single layer AVC"));
+	gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(h264_controls->UCConfig),
+								_("(1) SVC temporal scalability with hierarchical P"));
+	gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(h264_controls->UCConfig),
+								_("(2q) SVC temporal scalability + Quality/SNR scalability"));
+	gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(h264_controls->UCConfig),
+								_("(2s) SVC temporal scalability + spatial scalability"));
+	gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(h264_controls->UCConfig),
+								_("(3) Full SVC scalability"));
+
+	uint8_t ucconfig = config_probe_cur.bUsageType & 0x0C;
+	int ucconfig_index = ucconfig - 4; // from 0x04 to 0x08
+	if(ucconfig_index < 0 || ucconfig_index > 4)
+		ucconfig_index = 0;
+
+	gtk_combo_box_set_active(GTK_COMBO_BOX(h264_controls->UsageType), ucconfig_index);
+
+	gtk_grid_attach (GTK_GRID(table), h264_controls->UsageType, 1, line, 1 ,1);
+	gtk_widget_show (h264_controls->UsageType);
+
+	//bRateControlMode
+	line++;
+	GtkWidget* label_RateControlMode = gtk_label_new(_("Rate Control Mode:"));
+	gtk_misc_set_alignment (GTK_MISC (label_RateControlMode), 1, 0.5);
+	gtk_grid_attach (GTK_GRID(table), label_RateControlMode, 0, line, 1, 1);
+	gtk_widget_show (label_RateControlMode);
+
+	h264_controls->RateControlMode = gtk_combo_box_text_new();
+	gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(h264_controls->RateControlMode),
+								_("CBR"));
+	gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(h264_controls->RateControlMode),
+								_("VBR"));
+	gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(h264_controls->RateControlMode),
+								_("Constant QP"));
+
+	uint8_t ratecontrolmode = config_probe_cur.bRateControlMode & 0x03;
+	int ratevontrolmode_index = ratecontrolmode - 1; // from 0x01 to 0x03
+	if(ratevontrolmode_index < 0)
+		ratevontrolmode_index = 0;
+
+	gtk_combo_box_set_active(GTK_COMBO_BOX(h264_controls->RateControlMode), ratevontrolmode_index);
+
+	gtk_grid_attach (GTK_GRID(table), h264_controls->RateControlMode, 1, line, 1 ,1);
+	gtk_widget_show (h264_controls->RateControlMode);
+
+	//bRateControlMode flags (Bits 4-8)
+	line++;
+	GtkWidget* label_RateControlMode_flags = gtk_label_new(_("Rate Control Mode flags:"));
+	gtk_misc_set_alignment (GTK_MISC (label_RateControlMode_flags), 1, 0.5);
+	gtk_grid_attach (GTK_GRID(table), label_RateControlMode_flags, 0, line, 1, 1);
+	gtk_widget_show (label_RateControlMode_flags);
+
+	cur_flags = config_probe_cur.bRateControlMode & 0x0000001C;
+	max_flags = config_probe_max.bRateControlMode & 0x0000001C;
+	min_flags = config_probe_min.bRateControlMode & 0x0000001C;
+
+	GtkAdjustment *adjustment7 = gtk_adjustment_new (
+                                	cur_flags,
+                                	min_flags,
+                                    max_flags,
+                                    1,
+                                    10,
+                                    0);
+
+    h264_controls->RateControlMode_flags = gtk_spin_button_new(adjustment7, 1, 0);
+    gtk_editable_set_editable(GTK_EDITABLE(h264_controls->RateControlMode_flags), TRUE);
+
+    gtk_grid_attach (GTK_GRID(table), h264_controls->RateControlMode_flags, 1, line, 1 ,1);
+    gtk_widget_show (h264_controls->RateControlMode_flags);
+
+	//bTemporalScaleMode
+	line++;
+	GtkWidget* label_TemporalScaleMode = gtk_label_new(_("Temporal Scale Mode:"));
+	gtk_misc_set_alignment (GTK_MISC (label_TemporalScaleMode), 1, 0.5);
+	gtk_grid_attach (GTK_GRID(table), label_TemporalScaleMode, 0, line, 1, 1);
+	gtk_widget_show (label_TemporalScaleMode);
+
+	cur_flags = config_probe_cur.bTemporalScaleMode & 0x0000000F;
+	max_flags = config_probe_max.bTemporalScaleMode & 0x0000000F;
+	min_flags = config_probe_min.bTemporalScaleMode & 0x0000000F;
+
+	GtkAdjustment *adjustment8 = gtk_adjustment_new (
+                                	cur_flags,
+                                	min_flags,
+                                    max_flags,
+                                    1,
+                                    10,
+                                    0);
+
+    h264_controls->TemporalScaleMode = gtk_spin_button_new(adjustment8, 1, 0);
+    gtk_editable_set_editable(GTK_EDITABLE(h264_controls->TemporalScaleMode), TRUE);
+
+    gtk_grid_attach (GTK_GRID(table), h264_controls->TemporalScaleMode, 1, line, 1 ,1);
+    gtk_widget_show (h264_controls->TemporalScaleMode);
+
+	//bSpatialScaleMode
+	line++;
+	GtkWidget* label_SpatialScaleMode = gtk_label_new(_("Spatial Scale Mode:"));
+	gtk_misc_set_alignment (GTK_MISC (label_SpatialScaleMode), 1, 0.5);
+	gtk_grid_attach (GTK_GRID(table), label_SpatialScaleMode, 0, line, 1, 1);
+	gtk_widget_show (label_SpatialScaleMode);
+
+	cur_flags = config_probe_cur.bSpatialScaleMode & 0x0000000F;
+	max_flags = config_probe_max.bSpatialScaleMode & 0x0000000F;
+	min_flags = config_probe_min.bSpatialScaleMode & 0x0000000F;
+
+	GtkAdjustment *adjustment9 = gtk_adjustment_new (
+                                	cur_flags,
+                                	min_flags,
+                                    max_flags,
+                                    1,
+                                    10,
+                                    0);
+
+    h264_controls->SpatialScaleMode = gtk_spin_button_new(adjustment9, 1, 0);
+    gtk_editable_set_editable(GTK_EDITABLE(h264_controls->SpatialScaleMode), TRUE);
+
+    gtk_grid_attach (GTK_GRID(table), h264_controls->SpatialScaleMode, 1, line, 1 ,1);
+    gtk_widget_show (h264_controls->SpatialScaleMode);
+
+	//bSNRScaleMode
+	line++;
+	GtkWidget* label_SNRScaleMode = gtk_label_new(_("SNR Control Mode:"));
+	gtk_misc_set_alignment (GTK_MISC (label_SNRScaleMode), 1, 0.5);
+	gtk_grid_attach (GTK_GRID(table), label_SNRScaleMode, 0, line, 1, 1);
+	gtk_widget_show (label_SNRScaleMode);
+
+	h264_controls->SNRScaleMode = gtk_combo_box_text_new();
+	gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(h264_controls->SNRScaleMode),
+								_("No SNR Enhancement Layer"));
+	gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(h264_controls->SNRScaleMode),
+								_("CGS NonRewrite (2 Layer)"));
+	gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(h264_controls->SNRScaleMode),
+								_("CGS NonRewrite (3 Layer)"));
+	gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(h264_controls->SNRScaleMode),
+								_("CGS Rewrite (2 Layer)"));
+	gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(h264_controls->SNRScaleMode),
+								_("CGS Rewrite (3 Layer)"));
+	gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(h264_controls->SNRScaleMode),
+								_("MGS (2 Layer)"));
+
+	uint8_t snrscalemode = config_probe_cur.bSNRScaleMode & 0x0F;
+	int snrscalemode_index = 0;
+	switch(snrscalemode)
+	{
+		case 0:
+			snrscalemode_index = 0;
+			break;
+		case 2:
+		case 3:
+		case 4:
+		case 5:
+		case 6:
+			snrscalemode_index = snrscalemode - 1;
+			break;
+	}
+	gtk_combo_box_set_active(GTK_COMBO_BOX(h264_controls->SNRScaleMode), snrscalemode_index);
+
+	gtk_grid_attach (GTK_GRID(table), h264_controls->SNRScaleMode, 1, line, 1 ,1);
+	gtk_widget_show (h264_controls->SNRScaleMode);
+
+	//bStreamMuxOption
+	line++;
+	GtkWidget* StreamMuxOption_table = gtk_grid_new();
+	h264_controls->StreamMuxOption = gtk_check_button_new_with_label (_("Stream Mux Enable"));
+	gtk_grid_attach (GTK_GRID(StreamMuxOption_table), h264_controls->StreamMuxOption, 0, 1, 1, 1);
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(h264_controls->StreamMuxOption),((config_probe_cur.bStreamMuxOption & 0x01) > 0));
+	gtk_widget_show (h264_controls->StreamMuxOption);
+
+	h264_controls->StreamMuxOption_aux = gtk_combo_box_text_new();
+	gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(h264_controls->StreamMuxOption_aux),
+								_("Embed H.264 aux stream"));
+	gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(h264_controls->StreamMuxOption_aux),
+								_("Embed YUY2 aux stream"));
+	gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(h264_controls->StreamMuxOption_aux),
+								_("Embed NV12 aux stream"));
+
+	uint8_t streammux = config_probe_cur.bStreamMuxOption & 0x0E;
+	int streammux_index = 0;
+	switch(streammux)
+	{
+		case 2:
+			streammux_index = 0;
+			break;
+		case 4:
+			streammux_index = 1;
+			break;
+		case 8:
+			streammux_index = 2;
+			break;
+	}
+	gtk_combo_box_set_active(GTK_COMBO_BOX(h264_controls->StreamMuxOption_aux), streammux_index);
+	gtk_grid_attach (GTK_GRID(StreamMuxOption_table), h264_controls->StreamMuxOption_aux, 1, 1, 1, 1);
+
+	h264_controls->StreamMuxOption_mjpgcontainer = gtk_check_button_new_with_label (_("MJPG payload container"));
+	gtk_grid_attach (GTK_GRID(StreamMuxOption_table), h264_controls->StreamMuxOption_mjpgcontainer, 2, 1, 1, 1);
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(h264_controls->StreamMuxOption_mjpgcontainer),((config_probe_cur.bStreamMuxOption & 0x40) > 0));
+	gtk_widget_show (h264_controls->StreamMuxOption_mjpgcontainer);
+
+	gtk_grid_attach (GTK_GRID(table), StreamMuxOption_table, 0, line, 2, 1);
+	gtk_widget_show(StreamMuxOption_table);
+
+	//bStreamFormat
+	line++;
+	GtkWidget* label_StreamFormat = gtk_label_new(_("Stream Format:"));
+	gtk_misc_set_alignment (GTK_MISC (label_StreamFormat), 1, 0.5);
+	gtk_grid_attach (GTK_GRID(table), label_StreamFormat, 0, line, 1, 1);
+	gtk_widget_show (label_StreamFormat);
+
+	h264_controls->StreamFormat = gtk_combo_box_text_new();
+	//TODO: check for min and max values
+	gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(h264_controls->StreamFormat),
+								_("Byte stream format (H.264 Annex-B)"));
+	gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(h264_controls->StreamFormat),
+								_("NAL stream format"));
+
+	uint8_t streamformat = config_probe_cur.bStreamFormat & 0x01;
+	int streamformat_index = streamformat;
+	gtk_combo_box_set_active(GTK_COMBO_BOX(h264_controls->StreamFormat), streamformat_index);
+
+	gtk_grid_attach (GTK_GRID(table), h264_controls->StreamFormat, 1, line, 1 ,1);
+	gtk_widget_show (h264_controls->StreamFormat);
+
+	//bEntropyCABAC
+	line++;
+	GtkWidget* label_EntropyCABAC = gtk_label_new(_("Entropy CABAC:"));
+	gtk_misc_set_alignment (GTK_MISC (label_EntropyCABAC), 1, 0.5);
+	gtk_grid_attach (GTK_GRID(table), label_EntropyCABAC, 0, line, 1, 1);
+	gtk_widget_show (label_EntropyCABAC);
+
+	h264_controls->EntropyCABAC = gtk_combo_box_text_new();
+	//TODO: check for min and max values
+	gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(h264_controls->EntropyCABAC),
+								_("CAVLC"));
+	gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(h264_controls->EntropyCABAC),
+								_("CABAC"));
+
+	uint8_t entropycabac = config_probe_cur.bEntropyCABAC & 0x01;
+	int entropycabac_index = entropycabac;
+	gtk_combo_box_set_active(GTK_COMBO_BOX(h264_controls->EntropyCABAC), entropycabac_index);
+
+	gtk_grid_attach (GTK_GRID(table), h264_controls->EntropyCABAC, 1, line, 1 ,1);
+	gtk_widget_show (h264_controls->EntropyCABAC);
+
+	//bTimeStamp
+	line++;
+	h264_controls->TimeStamp = gtk_check_button_new_with_label (_("Picture timing SEI"));
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(h264_controls->TimeStamp),((config_probe_cur.bTimeStamp & 0x01) > 0));
+	gtk_grid_attach (GTK_GRID(table), h264_controls->TimeStamp, 1, line, 1 ,1);
+	gtk_widget_show (h264_controls->TimeStamp);
+
+	//bNumOfReorderFrames
+	line++;
+	GtkWidget* label_NumOfReorderFrames = gtk_label_new(_("B Frames:"));
+	gtk_misc_set_alignment (GTK_MISC (label_NumOfReorderFrames), 1, 0.5);
+	gtk_grid_attach (GTK_GRID(table), label_NumOfReorderFrames, 0, line, 1, 1);
+	gtk_widget_show (label_NumOfReorderFrames);
+
+	cur_flags = config_probe_cur.bNumOfReorderFrames & 0x000000FF;
+	max_flags = config_probe_max.bNumOfReorderFrames & 0x000000FF;
+	min_flags = config_probe_min.bNumOfReorderFrames & 0x000000FF;
+
+	GtkAdjustment *adjustment10 = gtk_adjustment_new (
+                                	cur_flags,
+                                	min_flags,
+                                    max_flags,
+                                    1,
+                                    10,
+                                    0);
+
+    h264_controls->NumOfReorderFrames = gtk_spin_button_new(adjustment10, 1, 0);
+    gtk_editable_set_editable(GTK_EDITABLE(h264_controls->NumOfReorderFrames), TRUE);
+
+    gtk_grid_attach (GTK_GRID(table), h264_controls->NumOfReorderFrames, 1, line, 1 ,1);
+    gtk_widget_show (h264_controls->NumOfReorderFrames);
+
+	//bPreviewFlipped
+	line++;
+	h264_controls->PreviewFlipped = gtk_check_button_new_with_label (_("Preview Flipped"));
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(h264_controls->PreviewFlipped),((config_probe_cur.bPreviewFlipped & 0x01) > 0));
+	gtk_grid_attach (GTK_GRID(table), h264_controls->PreviewFlipped, 1, line, 1 ,1);
+	gtk_widget_show (h264_controls->PreviewFlipped);
+
+	//bView
+	line++;
+	GtkWidget* label_View = gtk_label_new(_("Additional MVC Views:"));
+	gtk_misc_set_alignment (GTK_MISC (label_View), 1, 0.5);
+	gtk_grid_attach (GTK_GRID(table), label_View, 0, line, 1, 1);
+	gtk_widget_show (label_View);
+
+	cur_flags = config_probe_cur.bView & 0x000000FF;
+	max_flags = config_probe_max.bView & 0x000000FF;
+	min_flags = config_probe_min.bView & 0x000000FF;
+
+	GtkAdjustment *adjustment11 = gtk_adjustment_new (
+                                	cur_flags,
+                                	min_flags,
+                                    max_flags,
+                                    1,
+                                    10,
+                                    0);
+
+    h264_controls->View = gtk_spin_button_new(adjustment11, 1, 0);
+    gtk_editable_set_editable(GTK_EDITABLE(h264_controls->View), TRUE);
+
+    gtk_grid_attach (GTK_GRID(table), h264_controls->View, 1, line, 1 ,1);
+    gtk_widget_show (h264_controls->View);
+
+    //bStreamID
+	line++;
+	GtkWidget* label_StreamID = gtk_label_new(_("Simulcast stream index:"));
+	gtk_misc_set_alignment (GTK_MISC (label_StreamID), 1, 0.5);
+	gtk_grid_attach (GTK_GRID(table), label_StreamID, 0, line, 1, 1);
+	gtk_widget_show (label_StreamID);
+
+	cur_flags = config_probe_cur.bStreamID & 0x000000FF;
+	max_flags = config_probe_max.bStreamID & 0x000000FF;
+	min_flags = config_probe_min.bStreamID & 0x000000FF;
+
+	GtkAdjustment *adjustment12 = gtk_adjustment_new (
+                                	cur_flags,
+                                	min_flags,
+                                    max_flags,
+                                    1,
+                                    10,
+                                    0);
+
+    h264_controls->StreamID = gtk_spin_button_new(adjustment12, 1, 0);
+    gtk_editable_set_editable(GTK_EDITABLE(h264_controls->StreamID), TRUE);
+
+    gtk_grid_attach (GTK_GRID(table), h264_controls->StreamID, 1, line, 1 ,1);
+    gtk_widget_show (h264_controls->StreamID);
+
+    //bSpatialLayerRatio
+	line++;
+	GtkWidget* label_SpatialLayerRatio = gtk_label_new(_("Spatial Layer Ratio:"));
+	gtk_misc_set_alignment (GTK_MISC (label_SpatialLayerRatio), 1, 0.5);
+	gtk_grid_attach (GTK_GRID(table), label_SpatialLayerRatio, 0, line, 1, 1);
+	gtk_widget_show (label_SpatialLayerRatio);
+
+	cur_flags = config_probe_cur.bSpatialLayerRatio & 0x000000FF;
+	max_flags = config_probe_max.bSpatialLayerRatio & 0x000000FF;
+	min_flags = config_probe_min.bSpatialLayerRatio & 0x000000FF;
+
+	gdouble cur = (gdouble) (cur_flags & 0x000000F0) + (gdouble)((cur_flags & 0x0000000F)/16);
+	gdouble min = (gdouble) (min_flags & 0x000000F0) + (gdouble)((min_flags & 0x0000000F)/16);
+	gdouble max = (gdouble) (max_flags & 0x000000F0) + (gdouble)((max_flags & 0x0000000F)/16);
+
+	GtkAdjustment *adjustment13 = gtk_adjustment_new (
+                                	cur,
+                                	min,
+                                    max,
+                                    0.1,
+                                    1,
+                                    1);
+
+    h264_controls->SpatialLayerRatio = gtk_spin_button_new(adjustment13, 1, 0);
+    gtk_editable_set_editable(GTK_EDITABLE(h264_controls->SpatialLayerRatio), TRUE);
+
+    gtk_grid_attach (GTK_GRID(table), h264_controls->SpatialLayerRatio, 1, line, 1 ,1);
+    gtk_widget_show (h264_controls->SpatialLayerRatio);
+
+	//wLeakyBucketSize
+	line++;
+	GtkWidget* label_LeakyBucketSize = gtk_label_new(_("Leaky Bucket Size (ms):"));
+	gtk_misc_set_alignment (GTK_MISC (label_LeakyBucketSize), 1, 0.5);
+	gtk_grid_attach (GTK_GRID(table), label_LeakyBucketSize, 0, line, 1, 1);
+	gtk_widget_show (label_LeakyBucketSize);
+
+	cur_flags = config_probe_cur.wLeakyBucketSize;
+	max_flags = config_probe_max.wLeakyBucketSize;
+	min_flags = config_probe_min.wLeakyBucketSize;
+
+	GtkAdjustment *adjustment14 = gtk_adjustment_new (
+                                	cur_flags,
+                                	min_flags,
+                                    max_flags,
+                                    1,
+                                    10,
+                                    0);
+
+    h264_controls->LeakyBucketSize = gtk_spin_button_new(adjustment14, 1, 0);
+    gtk_editable_set_editable(GTK_EDITABLE(h264_controls->LeakyBucketSize), TRUE);
+
+    gtk_grid_attach (GTK_GRID(table), h264_controls->LeakyBucketSize, 1, line, 1 ,1);
+    gtk_widget_show (h264_controls->LeakyBucketSize);
+
+	//PROBE COMMIT buttons
+	line++;
+
+	h264_controls->probe_button = gtk_button_new_with_label(_("PROBE"));
 	g_signal_connect (GTK_BUTTON(h264_controls->probe_button), "clicked",
                                 G_CALLBACK (h264_probe_button_clicked), all_data);
-                                
-    gtk_grid_attach (GTK_GRID(buttons_table), h264_controls->probe_button, 0, 1, 1 ,1);
+
+    gtk_grid_attach (GTK_GRID(table), h264_controls->probe_button, 0, 1, 1 ,1);
 	gtk_widget_show(h264_controls->probe_button);
 
-	h264_controls->commit_button = gtk_button_new_with_label("COMMIT");
+	h264_controls->commit_button = gtk_button_new_with_label(_("COMMIT"));
 	g_signal_connect (GTK_BUTTON(h264_controls->commit_button), "clicked",
                                 G_CALLBACK (h264_commit_button_clicked), all_data);
-    gtk_grid_attach (GTK_GRID(buttons_table), h264_controls->commit_button, 1, 1, 1 ,1);
+
+    gtk_grid_attach (GTK_GRID(table), h264_controls->commit_button, 1, 1, 1 ,1);
 	gtk_widget_show(h264_controls->commit_button);
-	gtk_widget_show(buttons_table);
-	
-	gtk_grid_attach (GTK_GRID(table), buttons_table, 0, line, 2 ,1);
+
 	gtk_widget_show(table);
 
 }
