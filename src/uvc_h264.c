@@ -78,8 +78,8 @@ static void update_h264_controls(
 	uvcx_video_config_probe_commit_t *config_probe_req,
 	struct ALL_DATA* data)
 {
-	struct GLOBAL *global = data->global;
-	struct vdIn *videoIn  = data->videoIn;
+	//struct GLOBAL *global = data->global;
+	//struct vdIn *videoIn  = data->videoIn;
 	uvc_h264_gtkcontrols* h264_controls = data->h264_controls;
 
 	//dwFrameInterval
@@ -90,7 +90,7 @@ static void update_h264_controls(
 	uint16_t hints = config_probe_req->bmHints;
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_res), ((hints &= 0x0001) > 0));
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_prof), ((hints &= 0x0002) > 0));
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_ratecontrol)), ((hints &= 0x0004) > 0));
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_ratecontrol), ((hints &= 0x0004) > 0));
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_usage), ((hints &= 0x0008) > 0));
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_slicemode), ((hints &= 0x0010) > 0));
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_sliceunit), ((hints &= 0x0020) > 0));
@@ -110,7 +110,7 @@ static void fill_video_config_probe(
 	uvcx_video_config_probe_commit_t *config_probe_req,
 	struct ALL_DATA* data)
 {
-	struct GLOBAL *global = data->global;
+	//struct GLOBAL *global = data->global;
 	struct vdIn *videoIn  = data->videoIn;
 	uvc_h264_gtkcontrols* h264_controls = data->h264_controls;
 
@@ -194,7 +194,7 @@ static void fill_video_config_probe(
 
 void h264_probe_button_clicked(GtkButton * Button, struct ALL_DATA* data)
 {
-	uvc_h264_gtkcontrols* h264_controls = data->h264_controls;
+	//uvc_h264_gtkcontrols* h264_controls = data->h264_controls;
 	struct GLOBAL *global = data->global;
 	struct vdIn *videoIn  = data->videoIn;
 
