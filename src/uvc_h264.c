@@ -85,25 +85,25 @@ static void update_h264_controls(
 	//dwFrameInterval
 	gtk_spin_button_set_value(GTK_SPIN_BUTTON(h264_controls->FrameInterval), config_probe_req->dwFrameInterval);
 	//dwBitRate
-	gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(h264_controls->BitRate), config_probe_req->dwBitRate);
+	gtk_spin_button_set_value(GTK_SPIN_BUTTON(h264_controls->BitRate), config_probe_req->dwBitRate);
 	//bmHints
 	uint16_t hints = config_probe_req->bmHints;
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_res), ((hints &= 0x0001) > 0));
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_prof)), ((hints &= 0x0002) > 0));
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_prof), ((hints &= 0x0002) > 0));
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_ratecontrol)), ((hints &= 0x0004) > 0));
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_usage)), ((hints &= 0x0008) > 0));
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_slicemode)), ((hints &= 0x0010) > 0));
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_sliceunit)), ((hints &= 0x0020) > 0));
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_view)), ((hints &= 0x0040) > 0));
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_temporal)), ((hints &= 0x0080) > 0));
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_snr)), ((hints &= 0x0100) > 0));
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_spatial)), ((hints &= 0x0200) > 0));
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_spatiallayer)), ((hints &= 0x0400) > 0));
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_frameinterval)), ((hints &= 0x0800) > 0));
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_leakybucket)), ((hints &= 0x1000) > 0));
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_bitrate)), ((hints &= 0x2000) > 0));
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_cabac)), ((hints &= 0x4000) > 0));
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_iframe)), ((hints &= 0x8000) > 0));
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_usage), ((hints &= 0x0008) > 0));
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_slicemode), ((hints &= 0x0010) > 0));
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_sliceunit), ((hints &= 0x0020) > 0));
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_view), ((hints &= 0x0040) > 0));
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_temporal), ((hints &= 0x0080) > 0));
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_snr), ((hints &= 0x0100) > 0));
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_spatial), ((hints &= 0x0200) > 0));
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_spatiallayer), ((hints &= 0x0400) > 0));
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_frameinterval), ((hints &= 0x0800) > 0));
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_leakybucket), ((hints &= 0x1000) > 0));
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_bitrate), ((hints &= 0x2000) > 0));
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_cabac), ((hints &= 0x4000) > 0));
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_iframe), ((hints &= 0x8000) > 0));
 }
 
 static void fill_video_config_probe(
@@ -120,22 +120,22 @@ static void fill_video_config_probe(
 	config_probe_req->dwBitRate = (uint32_t) gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(h264_controls->BitRate));
 	//bmHints
 	uint16_t hints = 0x0000;
-	gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_res)) ?  hints |= 0x0001: hints |= 0;
-	gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_prof)) ? hints |= 0x0002: hints |= 0;
-	gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_ratecontrol)) ? hints |= 0x0004: hints |= 0;
-	gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_usage)) ? hints |= 0x0008: hints |= 0;
-	gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_slicemode)) ? hints |= 0x0010: hints |= 0;
-	gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_sliceunit)) ? hints |= 0x0020: hints |= 0;
-	gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_view)) ? hints |= 0x0040: hints |= 0;
-	gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_temporal)) ? hints |= 0x0080: hints |= 0;
-	gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_snr)) ? hints |= 0x0100: hints |= 0;
-	gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_spatial)) ? hints |= 0x0200: hints |= 0;
-	gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_spatiallayer)) ? hints |= 0x0400: hints |= 0;
-	gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_frameinterval)) ? hints |= 0x0800: hints |= 0;
-	gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_leakybucket)) ? hints |= 0x1000: hints |= 0;
-	gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_bitrate)) ? hints |= 0x2000: hints |= 0;
-	gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_cabac)) ? hints |= 0x4000: hints |= 0;
-	gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_iframe)) ? hints |= 0x8000: hints |= 0;
+	hints |= gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_res)) ?  0x0001 :  0;
+	hints |= gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_prof)) ? 0x0002 : 0;
+	hints |= gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_ratecontrol)) ? 0x0004: 0;
+	hints |= gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_usage)) ? 0x0008: 0;
+	hints |= gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_slicemode)) ? 0x0010: 0;
+	hints |= gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_sliceunit)) ? 0x0020: 0;
+	hints |= gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_view)) ? 0x0040: 0;
+	hints |= gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_temporal)) ? 0x0080: 0;
+	hints |= gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_snr)) ? 0x0100: 0;
+	hints |= gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_spatial)) ? 0x0200: 0;
+	hints |= gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_spatiallayer)) ? 0x0400: 0;
+	hints |= gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_frameinterval)) ? 0x0800: 0;
+	hints |= gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_leakybucket)) ? 0x1000: 0;
+	hints |= gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_bitrate)) ? 0x2000: 0;
+	hints |= gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_cabac)) ? 0x4000: 0;
+	hints |= gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_iframe)) ? 0x8000: 0;
 	config_probe_req->bmHints = hints;
 	//wWidth x wHeight
 	int h264_format_ind = get_FormatIndex(videoIn->listFormats,V4L2_PIX_FMT_H264);
@@ -321,7 +321,7 @@ void add_uvc_h264_controls_tab (struct ALL_DATA* all_data)
     gtk_editable_set_editable(GTK_EDITABLE(h264_controls->FrameInterval), TRUE);
 
     gtk_grid_attach (GTK_GRID(table), h264_controls->FrameInterval, 1, line, 1 ,1);
-    gtk_widget_show (h264_controls->h264_controls->FrameInterval);
+    gtk_widget_show (h264_controls->FrameInterval);
 
 	//dwBitRate
 	line++;
@@ -437,6 +437,7 @@ void add_uvc_h264_controls_tab (struct ALL_DATA* all_data)
 	int h264_format_ind = get_FormatIndex(videoIn->listFormats,V4L2_PIX_FMT_H264);
 	VidFormats *listVidFormats = &videoIn->listFormats->listVidFormats[h264_format_ind];
 
+	int i = 0;
 	for(i = 0 ; i < listVidFormats->numb_res ; i++)
 	{
 		if (listVidFormats->listVidCap[i].width>0)
@@ -723,10 +724,10 @@ void add_uvc_h264_controls_tab (struct ALL_DATA* all_data)
 
 	//bRateControlMode flags (Bits 4-8)
 	line++;
-	GtkWidget* label_RateControlMode_flags = gtk_label_new(_("Rate Control Mode flags:"));
-	gtk_misc_set_alignment (GTK_MISC (label_RateControlMode_flags), 1, 0.5);
-	gtk_grid_attach (GTK_GRID(table), label_RateControlMode_flags, 0, line, 1, 1);
-	gtk_widget_show (label_RateControlMode_flags);
+	GtkWidget* label_RateControlMode_cbr_flag = gtk_label_new(_("Rate Control Mode flags:"));
+	gtk_misc_set_alignment (GTK_MISC (label_RateControlMode_cbr_flag), 1, 0.5);
+	gtk_grid_attach (GTK_GRID(table), label_RateControlMode_cbr_flag, 0, line, 1, 1);
+	gtk_widget_show (label_RateControlMode_cbr_flag);
 
 	cur_flags = config_probe_cur.bRateControlMode & 0x0000001C;
 	max_flags = config_probe_max.bRateControlMode & 0x0000001C;
@@ -740,11 +741,11 @@ void add_uvc_h264_controls_tab (struct ALL_DATA* all_data)
                                     10,
                                     0);
 
-    h264_controls->RateControlMode_flags = gtk_spin_button_new(adjustment7, 1, 0);
-    gtk_editable_set_editable(GTK_EDITABLE(h264_controls->RateControlMode_flags), TRUE);
+    h264_controls->RateControlMode_cbr_flag = gtk_spin_button_new(adjustment7, 1, 0);
+    gtk_editable_set_editable(GTK_EDITABLE(h264_controls->RateControlMode_cbr_flag), TRUE);
 
-    gtk_grid_attach (GTK_GRID(table), h264_controls->RateControlMode_flags, 1, line, 1 ,1);
-    gtk_widget_show (h264_controls->RateControlMode_flags);
+    gtk_grid_attach (GTK_GRID(table), h264_controls->RateControlMode_cbr_flag, 1, line, 1 ,1);
+    gtk_widget_show (h264_controls->RateControlMode_cbr_flag);
 
 	//bTemporalScaleMode
 	line++;
@@ -920,12 +921,12 @@ void add_uvc_h264_controls_tab (struct ALL_DATA* all_data)
 	gtk_grid_attach (GTK_GRID(table), h264_controls->EntropyCABAC, 1, line, 1 ,1);
 	gtk_widget_show (h264_controls->EntropyCABAC);
 
-	//bTimeStamp
+	//bTimestamp
 	line++;
-	h264_controls->TimeStamp = gtk_check_button_new_with_label (_("Picture timing SEI"));
-	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(h264_controls->TimeStamp),((config_probe_cur.bTimeStamp & 0x01) > 0));
-	gtk_grid_attach (GTK_GRID(table), h264_controls->TimeStamp, 1, line, 1 ,1);
-	gtk_widget_show (h264_controls->TimeStamp);
+	h264_controls->Timestamp = gtk_check_button_new_with_label (_("Picture timing SEI"));
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(h264_controls->Timestamp),((config_probe_cur.bTimestamp & 0x01) > 0));
+	gtk_grid_attach (GTK_GRID(table), h264_controls->Timestamp, 1, line, 1 ,1);
+	gtk_widget_show (h264_controls->Timestamp);
 
 	//bNumOfReorderFrames
 	line++;
