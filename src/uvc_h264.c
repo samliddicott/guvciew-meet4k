@@ -174,6 +174,61 @@ static void update_h264_controls(
 	gtk_spin_button_set_value(GTK_SPIN_BUTTON(h264_controls->TemporalScaleMode), config_probe_req->bTemporalScaleMode);
 	//bSpatialScaleMode
 	gtk_spin_button_set_value(GTK_SPIN_BUTTON(h264_controls->SpatialScaleMode), config_probe_req->bSpatialScaleMode);
+	//bSNRScaleMode
+	uint8_t snrscalemode = config_probe_req->bSNRScaleMode & 0x0F;
+	int snrscalemode_index = 0;
+	switch(snrscalemode)
+	{
+		case 0:
+			snrscalemode_index = 0;
+			break;
+		case 2:
+		case 3:
+		case 4:
+		case 5:
+		case 6:
+			snrscalemode_index = snrscalemode - 1;
+			break;
+	}
+	gtk_combo_box_set_active(GTK_COMBO_BOX(h264_controls->SNRScaleMode), snrscalemode_index);
+	//bStreamMuxOption
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(h264_controls->StreamMuxOption),((config_probe_req->bStreamMuxOption & 0x01) != 0));
+	uint8_t streammux = config_probe_req->bStreamMuxOption & 0x0E;
+	int streammux_index = 0;
+	switch(streammux)
+	{
+		case 2:
+			streammux_index = 0;
+			break;
+		case 4:
+			streammux_index = 1;
+			break;
+		case 8:
+			streammux_index = 2;
+			break;
+	}
+	gtk_combo_box_set_active (GTK_COMBO_BOX(h264_controls->StreamMuxOption_aux), streammux_index);
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(h264_controls->StreamMuxOption_mjpgcontainer),((config_probe_req->bStreamMuxOption & 0x40) != 0));
+	//bStreamFormat
+	gtk_combo_box_set_active (GTK_COMBO_BOX(h264_controls->StreamFormat), config_probe_req->bStreamMuxOption & 0x01);
+	//bEntropyCABAC
+	gtk_combo_box_set_active (GTK_COMBO_BOX(h264_controls->EntropyCABAC), config_probe_req->bEntropyCABAC & 0x01);
+	//bTimestamp
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(h264_controls->Timestamp), (config_probe_req->bTimestamp & 0x01) != 0);
+	//bNumOfReorderFrames
+	gtk_spin_button_set_value (GTK_SPIN_BUTTON(h264_controls->NumOfReorderFrames), config_probe_req->bNumOfReorderFrames);
+	//bPreviewFlipped
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(h264_controls->PreviewFlipped), (config_probe_req->bPreviewFlipped & 0x01) != 0);
+	//bView
+	gtk_spin_button_set_value (GTK_SPIN_BUTTON(h264_controls->View), config_probe_req->bView);
+	//bStreamID
+	gtk_spin_button_set_value (GTK_SPIN_BUTTON(h264_controls->StreamID), config_probe_req->bStreamID);
+	//bSpatialLayerRatio
+	int SLRatio = config_probe_req->bSpatialLayerRatio & 0x000000FF;
+	gdouble val = (gdouble) ((SLRatio & 0x000000F0)>>4) + (gdouble)((SLRatio & 0x0000000F)/16);
+	gtk_spin_button_set_value (GTK_SPIN_BUTTON(h264_controls->SpatialLayerRatio), val);
+	//wLeakyBucketSize
+	gtk_spin_button_set_value (GTK_SPIN_BUTTON(h264_controls->LeakyBucketSize), config_probe_req->wLeakyBucketSize);
 }
 
 static void fill_video_config_probe(
@@ -321,22 +376,21 @@ static void fill_video_config_probe(
 
 void h264_probe_button_clicked(GtkButton * Button, struct ALL_DATA* data)
 {
-	//uvc_h264_gtkcontrols* h264_controls = data->h264_controls;
 	struct GLOBAL *global = data->global;
 	struct vdIn *videoIn  = data->videoIn;
 
 	uvcx_video_config_probe_commit_t config_probe_req;
 	uvcx_video_probe(videoIn->fd, global->uvc_h264_unit, UVC_GET_CUR, &config_probe_req);
-	printf("Probe Current:\n");
-	print_probe_commit_data(&config_probe_req);
 
 	//get the control data and fill req (need fps and resolution)
 	fill_video_config_probe(&config_probe_req, data);
+	printf("Probing:\n");
+	print_probe_commit_data(&config_probe_req);
 
 	//Probe the request
 	uvcx_video_probe(videoIn->fd, global->uvc_h264_unit, UVC_SET_CUR, &config_probe_req);
 	uvcx_video_probe(videoIn->fd, global->uvc_h264_unit, UVC_GET_CUR, &config_probe_req);
-	printf("Probing Request:\n");
+	printf("Probe Request:\n");
 	print_probe_commit_data(&config_probe_req);
 
 	//update the control widgets
@@ -345,7 +399,23 @@ void h264_probe_button_clicked(GtkButton * Button, struct ALL_DATA* data)
 
 void h264_commit_button_clicked(GtkButton * Button, struct ALL_DATA* data)
 {
+	struct GLOBAL *global = data->global;
+	struct vdIn *videoIn  = data->videoIn;
 
+	uvcx_video_config_probe_commit_t config_probe_req;
+	uvcx_video_probe(videoIn->fd, global->uvc_h264_unit, UVC_GET_CUR, &config_probe_req);
+
+	//get the control data and fill req (need fps and resolution)
+	fill_video_config_probe(&config_probe_req, data);
+	printf("Commiting:\n");
+	print_probe_commit_data(&config_probe_req);
+	
+	//Commit the request
+	uvcx_video_commit(videoIn->fd, global->uvc_h264_unit, &config_probe_req);
+	
+	uvcx_video_probe(videoIn->fd, global->uvc_h264_unit, UVC_GET_CUR, &config_probe_req);
+	printf("Probe Current:\n");
+	print_probe_commit_data(&config_probe_req);
 }
 
 /*
@@ -950,7 +1020,7 @@ void add_uvc_h264_controls_tab (struct ALL_DATA* all_data)
 	GtkWidget* StreamMuxOption_table = gtk_grid_new();
 	h264_controls->StreamMuxOption = gtk_check_button_new_with_label (_("Stream Mux Enable"));
 	gtk_grid_attach (GTK_GRID(StreamMuxOption_table), h264_controls->StreamMuxOption, 0, 1, 1, 1);
-	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(h264_controls->StreamMuxOption),((config_probe_cur.bStreamMuxOption & 0x01) > 0));
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(h264_controls->StreamMuxOption),((config_probe_cur.bStreamMuxOption & 0x01) != 0));
 	gtk_widget_show (h264_controls->StreamMuxOption);
 
 	h264_controls->StreamMuxOption_aux = gtk_combo_box_text_new();
@@ -980,7 +1050,7 @@ void add_uvc_h264_controls_tab (struct ALL_DATA* all_data)
 
 	h264_controls->StreamMuxOption_mjpgcontainer = gtk_check_button_new_with_label (_("MJPG payload container"));
 	gtk_grid_attach (GTK_GRID(StreamMuxOption_table), h264_controls->StreamMuxOption_mjpgcontainer, 2, 1, 1, 1);
-	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(h264_controls->StreamMuxOption_mjpgcontainer),((config_probe_cur.bStreamMuxOption & 0x40) > 0));
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(h264_controls->StreamMuxOption_mjpgcontainer),((config_probe_cur.bStreamMuxOption & 0x40) != 0));
 	gtk_widget_show (h264_controls->StreamMuxOption_mjpgcontainer);
 
 	gtk_grid_attach (GTK_GRID(table), StreamMuxOption_table, 0, line, 2, 1);
