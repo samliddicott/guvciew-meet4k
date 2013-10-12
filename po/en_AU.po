@@ -6,11 +6,12 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: guvcview\n"
-"Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2013-07-16 12:53+0000\n"
+"Report-Msgid-Bugs-To: pj.assis@gmail.com\n"
+"POT-Creation-Date: 2013-10-12 21:10+0100\n"
 "PO-Revision-Date: 2013-06-18 07:11+0000\n"
 "Last-Translator: Jackson Doak <Doak.jackson@gmail.com>\n"
 "Language-Team: English (Australia) <en_AU@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -53,81 +54,81 @@ msgstr "ACC Low - (faac)"
 msgid "Vorbis"
 msgstr "Vorbis"
 
-#: ../src/audio_tab.c:80
+#: ../src/audio_tab.c:87
 msgid "Audio"
 msgstr "Audio"
 
-#: ../src/audio_tab.c:98
+#: ../src/audio_tab.c:105
 msgid " Sound"
 msgstr " Sound"
 
 #. VU meter on the image (OSD)
-#: ../src/audio_tab.c:109
+#: ../src/audio_tab.c:116
 msgid " Show VU meter"
 msgstr " Show VU meter"
 
-#: ../src/audio_tab.c:121
+#: ../src/audio_tab.c:128
 msgid "Audio API:"
 msgstr "Audio API:"
 
-#: ../src/audio_tab.c:132
+#: ../src/audio_tab.c:139
 msgid "PORTAUDIO"
 msgstr "PORTAUDIO"
 
-#: ../src/audio_tab.c:133
+#: ../src/audio_tab.c:140
 msgid "PULSEAUDIO"
 msgstr "PULSEAUDIO"
 
-#: ../src/audio_tab.c:149 ../src/audio_tab.c:172
+#: ../src/audio_tab.c:156 ../src/audio_tab.c:179
 msgid "Input Device:"
 msgstr "Input Device:"
 
-#: ../src/audio_tab.c:182 ../src/audio_tab.c:214
+#: ../src/audio_tab.c:189 ../src/audio_tab.c:221
 msgid "Dev. Default"
 msgstr "Dev. Default"
 
-#: ../src/audio_tab.c:204
+#: ../src/audio_tab.c:211
 msgid "Sample Rate:"
 msgstr "Sample Rate:"
 
-#: ../src/audio_tab.c:215
+#: ../src/audio_tab.c:222
 msgid "1 - mono"
 msgstr "1 - mono"
 
-#: ../src/audio_tab.c:216
+#: ../src/audio_tab.c:223
 msgid "2 - stereo"
 msgstr "2 - stereo"
 
-#: ../src/audio_tab.c:251
+#: ../src/audio_tab.c:258
 msgid "Channels:"
 msgstr "Channels:"
 
-#: ../src/audio_tab.c:302
+#: ../src/audio_tab.c:309
 msgid "---- Audio Effects ----"
 msgstr "---- Audio Effects ----"
 
 #. Echo
-#: ../src/audio_tab.c:321
+#: ../src/audio_tab.c:328
 msgid " Echo"
 msgstr " Echo"
 
 #. FUZZ
-#: ../src/audio_tab.c:332
+#: ../src/audio_tab.c:339
 msgid " Fuzz"
 msgstr " Fuzz"
 
 #. Reverb
-#: ../src/audio_tab.c:344
+#: ../src/audio_tab.c:351
 msgid " Reverb"
 msgstr " Reverb"
 
 #. WahWah
-#: ../src/audio_tab.c:356
+#: ../src/audio_tab.c:363
 msgid " WahWah"
 msgstr " WahWah"
 
 #. Ducky
-#: ../src/audio_tab.c:368
+#: ../src/audio_tab.c:375
 msgid " Ducky"
 msgstr " Ducky"
 
@@ -146,7 +147,7 @@ msgstr ""
 "Do you want to try another one?\n"
 
 #. Devices
-#: ../src/callbacks.c:139 ../src/video_tab.c:103
+#: ../src/callbacks.c:139 ../src/video_tab.c:111
 msgid "Device:"
 msgstr "Device:"
 
@@ -264,23 +265,23 @@ msgstr "audio codec values"
 msgid "sample format:   "
 msgstr "sample format:   "
 
-#: ../src/callbacks.c:1250
+#: ../src/callbacks.c:1310
 msgid "start new"
 msgstr "start new"
 
-#: ../src/callbacks.c:1253
+#: ../src/callbacks.c:1313
 msgid "restart"
 msgstr "restart"
 
-#: ../src/callbacks.c:1255
+#: ../src/callbacks.c:1315
 msgid "new"
 msgstr "new"
 
-#: ../src/callbacks.c:1257
+#: ../src/callbacks.c:1317
 msgid "cancel"
 msgstr "cancel"
 
-#: ../src/callbacks.c:1262
+#: ../src/callbacks.c:1322
 msgid ""
 "launch new process or restart?.\n"
 "\n"
@@ -288,50 +289,50 @@ msgstr ""
 "launch new process or restart?.\n"
 "\n"
 
-#: ../src/callbacks.c:1716 ../src/guvcview.c:537
+#: ../src/callbacks.c:1777 ../src/guvcview.c:565
 msgid "Cap. Image (I)"
 msgstr "Cap. Image (I)"
 
 #. disable image controls
-#: ../src/callbacks.c:1727 ../src/guvcview.c:658 ../src/timers.c:101
+#: ../src/callbacks.c:1788 ../src/guvcview.c:690 ../src/timers.c:101
 msgid "capturing photo to"
 msgstr "capturing photo to"
 
-#: ../src/callbacks.c:1786 ../src/guvcview.c:547
+#: ../src/callbacks.c:1847 ../src/guvcview.c:575
 msgid "Cap. Video (V)"
 msgstr "Cap. Video (V)"
 
-#: ../src/callbacks.c:1812 ../src/guvcview.c:708
+#: ../src/callbacks.c:1873 ../src/guvcview.c:740
 msgid "capturing video to"
 msgstr "capturing video to"
 
 #. vid capture enabled from start
-#: ../src/callbacks.c:1845 ../src/guvcview.c:542
+#: ../src/callbacks.c:1906 ../src/guvcview.c:570
 msgid "Stop Video (V)"
 msgstr "Stop Video (V)"
 
-#: ../src/callbacks.c:1901 ../src/menubar.c:66
+#: ../src/callbacks.c:1962 ../src/menubar.c:66
 msgid "Save Profile"
 msgstr "Save Profile"
 
-#: ../src/callbacks.c:1914 ../src/menubar.c:65
+#: ../src/callbacks.c:1975 ../src/menubar.c:65
 msgid "Load Profile"
 msgstr "Load Profile"
 
-#: ../src/create_video.c:1016 ../src/guvcview.c:700
+#: ../src/create_video.c:1026 ../src/guvcview.c:732
 msgid "Cap. Video"
 msgstr "Cap. Video"
 
-#: ../src/guvcview.c:279
+#: ../src/guvcview.c:280
 msgid "Guvcview Video Capture"
 msgstr "Guvcview Video Capture"
 
-#: ../src/guvcview.c:291
+#: ../src/guvcview.c:292
 msgid "GUVCViewer Controls"
 msgstr "GUVCViewer Controls"
 
 #. can't open device
-#: ../src/guvcview.c:336
+#: ../src/guvcview.c:342
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -341,7 +342,7 @@ msgstr ""
 "\n"
 "Unable to open device"
 
-#: ../src/guvcview.c:337
+#: ../src/guvcview.c:343
 msgid ""
 "Please make sure the camera is connected\n"
 "and that the correct driver is installed."
@@ -350,7 +351,7 @@ msgstr ""
 "and that the correct driver is installed."
 
 #. uvc extension controls OK, give warning and shutdown (called with --add_ctrls)
-#: ../src/guvcview.c:342
+#: ../src/guvcview.c:348
 msgid ""
 "Guvcview:\n"
 "\n"
@@ -360,12 +361,12 @@ msgstr ""
 "\n"
 "UVC Extension controls"
 
-#: ../src/guvcview.c:343
+#: ../src/guvcview.c:349
 msgid "Extension controls were added to the UVC driver"
 msgstr "Extension controls were added to the UVC driver"
 
 #. uvc extension controls error - EACCES (needs root user)
-#: ../src/guvcview.c:350
+#: ../src/guvcview.c:356
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -375,7 +376,7 @@ msgstr ""
 "\n"
 "UVC Extension controls"
 
-#: ../src/guvcview.c:351
+#: ../src/guvcview.c:357
 msgid ""
 "An error occurred while adding extension\n"
 "controls to the UVC driver\n"
@@ -385,7 +386,7 @@ msgstr ""
 "controls to the UVC driver\n"
 "Make sure you run guvcview as root (or sudo)."
 
-#: ../src/guvcview.c:377 ../src/guvcview.c:455
+#: ../src/guvcview.c:391 ../src/guvcview.c:399 ../src/guvcview.c:477
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -395,7 +396,7 @@ msgstr ""
 "\n"
 "Can't set a valid video stream for guvcview"
 
-#: ../src/guvcview.c:378 ../src/guvcview.c:456
+#: ../src/guvcview.c:392 ../src/guvcview.c:400 ../src/guvcview.c:478
 msgid ""
 "Make sure your device driver is v4l2 compliant\n"
 "and that it is properly installed."
@@ -403,7 +404,7 @@ msgstr ""
 "Make sure your device driver is v4l2 compliant\n"
 "and that it is properly installed."
 
-#: ../src/guvcview.c:400 ../src/guvcview.c:422
+#: ../src/guvcview.c:422 ../src/guvcview.c:444
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -413,11 +414,11 @@ msgstr ""
 "\n"
 "Unable to start with minimum setup"
 
-#: ../src/guvcview.c:401 ../src/guvcview.c:423
+#: ../src/guvcview.c:423 ../src/guvcview.c:445
 msgid "Please reconnect your camera."
 msgstr "Please reconnect your camera."
 
-#: ../src/guvcview.c:430
+#: ../src/guvcview.c:452
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -427,11 +428,11 @@ msgstr ""
 "\n"
 "Couldn't query device capabilities"
 
-#: ../src/guvcview.c:431
+#: ../src/guvcview.c:453
 msgid "Make sure the device driver supports v4l2."
 msgstr "Make sure the device driver supports v4l2."
 
-#: ../src/guvcview.c:435
+#: ../src/guvcview.c:457
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -441,11 +442,11 @@ msgstr ""
 "\n"
 "Read method error"
 
-#: ../src/guvcview.c:436
+#: ../src/guvcview.c:458
 msgid "Please try mmap instead (--capture_method=1)."
 msgstr "Please try mmap instead (--capture_method=1)."
 
-#: ../src/guvcview.c:444
+#: ../src/guvcview.c:466
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -455,20 +456,20 @@ msgstr ""
 "\n"
 "Unable to allocate Buffers"
 
-#: ../src/guvcview.c:445
+#: ../src/guvcview.c:467
 msgid "Please try restarting your system."
 msgstr "Please try restarting your system."
 
-#: ../src/guvcview.c:490
+#: ../src/guvcview.c:518
 msgid "Image Controls"
 msgstr "Image Controls"
 
 #. image auto capture
-#: ../src/guvcview.c:533
+#: ../src/guvcview.c:561
 msgid "Stop Auto (I)"
 msgstr "Stop Auto (I)"
 
-#: ../src/guvcview.c:644
+#: ../src/guvcview.c:676
 msgid ""
 "Guvcview error:\n"
 "\n"
@@ -478,7 +479,7 @@ msgstr ""
 "\n"
 "Unable to create Video Thread"
 
-#: ../src/guvcview.c:645
+#: ../src/guvcview.c:677
 msgid "Please report it to http://developer.berlios.de/bugs/?group_id=8179"
 msgstr "Please report it to http://developer.berlios.de/bugs/?group_id=8179"
 
@@ -528,7 +529,7 @@ msgid "Capture Video"
 msgstr "Capture Video"
 
 #. video menu
-#: ../src/menubar.c:144 ../src/video_tab.c:87
+#: ../src/menubar.c:144 ../src/video_tab.c:95
 msgid "Video"
 msgstr "Video"
 
@@ -599,13 +600,11 @@ msgstr "Hardware accelaration (enable(1) | disable(0))"
 
 #: ../src/options.c:761
 msgid ""
-"Pixel "
-"format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|y41p|grey|"
-"y10b|y16 |s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
+"Pixel format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|"
+"y41p|grey|y10b|y16 |s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
 msgstr ""
-"Pixel "
-"format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|y41p|grey|"
-"y10b|y16 |s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
+"Pixel format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|"
+"y41p|grey|y10b|y16 |s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
 
 #: ../src/options.c:762
 msgid "Frame size, default: 640x480"
@@ -647,7 +646,11 @@ msgstr "Show FPS value (enable(1) | disable (0))"
 msgid "Load Profile at start"
 msgstr "Load Profile at start"
 
-#: ../src/options.c:777
+#: ../src/options.c:772
+msgid "List controls method (0:loop, 1:next_ctrl flag [def])"
+msgstr ""
+
+#: ../src/options.c:778
 msgid "- local options"
 msgstr "- local options"
 
@@ -664,44 +667,44 @@ msgstr "Guvcview Warning:"
 msgid "Not enough free space left on disk"
 msgstr "Not enough free space left on disk"
 
-#: ../src/v4l2_controls.c:711
+#: ../src/v4l2_controls.c:794
 msgid "Left"
 msgstr "Left"
 
-#: ../src/v4l2_controls.c:712
+#: ../src/v4l2_controls.c:795
 msgid "Right"
 msgstr "Right"
 
-#: ../src/v4l2_controls.c:716
+#: ../src/v4l2_controls.c:799
 msgid "Down"
 msgstr "Down"
 
-#: ../src/v4l2_controls.c:717
+#: ../src/v4l2_controls.c:800
 msgid "Up"
 msgstr "Up"
 
-#: ../src/v4l2_controls.c:762
+#: ../src/v4l2_controls.c:845
 msgid "Off"
 msgstr "Off"
 
-#: ../src/v4l2_controls.c:762
+#: ../src/v4l2_controls.c:845
 msgid "On"
 msgstr "On"
 
-#: ../src/v4l2_controls.c:762
+#: ../src/v4l2_controls.c:845
 msgid "Blinking"
 msgstr "Blinking"
 
-#: ../src/v4l2_controls.c:762
+#: ../src/v4l2_controls.c:845
 msgid "Auto"
 msgstr "Auto"
 
 #. turn it into a menu control
-#: ../src/v4l2_controls.c:813
+#: ../src/v4l2_controls.c:894
 msgid "8 bit"
 msgstr "8 bit"
 
-#: ../src/v4l2_controls.c:813
+#: ../src/v4l2_controls.c:894
 msgid "12 bit"
 msgstr "12 bit"
 
@@ -743,230 +746,230 @@ msgstr "Raw bits per pixel"
 
 #. needed only for language files (not used)
 #. V4L2 control strings
-#: ../src/v4l2uvc.c:56
+#: ../src/v4l2uvc.c:57
 msgid "User Controls"
 msgstr "User Controls"
 
-#: ../src/v4l2uvc.c:57
+#: ../src/v4l2uvc.c:58
 msgid "Brightness"
 msgstr "Brightness"
 
-#: ../src/v4l2uvc.c:58
+#: ../src/v4l2uvc.c:59
 msgid "Contrast"
 msgstr "Contrast"
 
-#: ../src/v4l2uvc.c:59
+#: ../src/v4l2uvc.c:60
 msgid "Hue"
 msgstr "Hue"
 
-#: ../src/v4l2uvc.c:60
+#: ../src/v4l2uvc.c:61
 msgid "Saturation"
 msgstr "Saturation"
 
-#: ../src/v4l2uvc.c:61
+#: ../src/v4l2uvc.c:62
 msgid "Sharpness"
 msgstr "Sharpness"
 
-#: ../src/v4l2uvc.c:62
+#: ../src/v4l2uvc.c:63
 msgid "Gamma"
 msgstr "Gamma"
 
-#: ../src/v4l2uvc.c:63
+#: ../src/v4l2uvc.c:64
 msgid "Backlight Compensation"
 msgstr "Backlight Compensation"
 
-#: ../src/v4l2uvc.c:64
+#: ../src/v4l2uvc.c:65
 msgid "Power Line Frequency"
 msgstr "Power Line Frequency"
 
-#: ../src/v4l2uvc.c:65
+#: ../src/v4l2uvc.c:66
 msgid "Hue, Automatic"
 msgstr "Hue, Automatic"
 
-#: ../src/v4l2uvc.c:66
+#: ../src/v4l2uvc.c:67
 msgid "Focus, Auto"
 msgstr "Focus, Auto"
 
-#: ../src/v4l2uvc.c:67
+#: ../src/v4l2uvc.c:68
 msgid "Manual Mode"
 msgstr "Manual Mode"
 
-#: ../src/v4l2uvc.c:68
+#: ../src/v4l2uvc.c:69
 msgid "Auto Mode"
 msgstr "Auto Mode"
 
-#: ../src/v4l2uvc.c:69
+#: ../src/v4l2uvc.c:70
 msgid "Shutter Priority Mode"
 msgstr "Shutter Priority Mode"
 
-#: ../src/v4l2uvc.c:70
+#: ../src/v4l2uvc.c:71
 msgid "Aperture Priority Mode"
 msgstr "Aperture Priority Mode"
 
-#: ../src/v4l2uvc.c:71
+#: ../src/v4l2uvc.c:72
 msgid "Black Level"
 msgstr "Black Level"
 
-#: ../src/v4l2uvc.c:72
+#: ../src/v4l2uvc.c:73
 msgid "White Balance, Automatic"
 msgstr "White Balance, Automatic"
 
-#: ../src/v4l2uvc.c:73
+#: ../src/v4l2uvc.c:74
 msgid "Do White Balance"
 msgstr "Do White Balance"
 
-#: ../src/v4l2uvc.c:74
+#: ../src/v4l2uvc.c:75
 msgid "Red Balance"
 msgstr "Red Balance"
 
-#: ../src/v4l2uvc.c:75
+#: ../src/v4l2uvc.c:76
 msgid "Blue Balance"
 msgstr "Blue Balance"
 
-#: ../src/v4l2uvc.c:76
+#: ../src/v4l2uvc.c:77
 msgid "Exposure"
 msgstr "Exposure"
 
-#: ../src/v4l2uvc.c:77
+#: ../src/v4l2uvc.c:78
 msgid "Gain, Automatic"
 msgstr "Gain, Automatic"
 
-#: ../src/v4l2uvc.c:78
+#: ../src/v4l2uvc.c:79
 msgid "Gain"
 msgstr "Gain"
 
-#: ../src/v4l2uvc.c:79
+#: ../src/v4l2uvc.c:80
 msgid "Horizontal Flip"
 msgstr "Horizontal Flip"
 
-#: ../src/v4l2uvc.c:80
+#: ../src/v4l2uvc.c:81
 msgid "Vertical Flip"
 msgstr "Vertical Flip"
 
-#: ../src/v4l2uvc.c:81
+#: ../src/v4l2uvc.c:82
 msgid "Horizontal Center"
 msgstr "Horizontal Centre"
 
-#: ../src/v4l2uvc.c:82
+#: ../src/v4l2uvc.c:83
 msgid "Vertical Center"
 msgstr "Vertical Centre"
 
-#: ../src/v4l2uvc.c:83
+#: ../src/v4l2uvc.c:84
 msgid "Chroma AGC"
 msgstr "Chroma AGC"
 
-#: ../src/v4l2uvc.c:84
+#: ../src/v4l2uvc.c:85
 msgid "Color Killer"
 msgstr "Colour Killer"
 
-#: ../src/v4l2uvc.c:85
+#: ../src/v4l2uvc.c:86
 msgid "Color Effects"
 msgstr "Colour Effects"
 
 #. CAMERA CLASS control strings
-#: ../src/v4l2uvc.c:88
+#: ../src/v4l2uvc.c:89
 msgid "Camera Controls"
 msgstr "Camera Controls"
 
-#: ../src/v4l2uvc.c:89
+#: ../src/v4l2uvc.c:90
 msgid "Auto Exposure"
 msgstr "Auto Exposure"
 
-#: ../src/v4l2uvc.c:90
+#: ../src/v4l2uvc.c:91
 msgid "Exposure Time, Absolute"
 msgstr "Exposure Time, Absolute"
 
-#: ../src/v4l2uvc.c:91
+#: ../src/v4l2uvc.c:92
 msgid "Exposure, Dynamic Framerate"
 msgstr "Exposure, Dynamic Framerate"
 
-#: ../src/v4l2uvc.c:92
+#: ../src/v4l2uvc.c:93
 msgid "Pan, Relative"
 msgstr "Pan, Relative"
 
-#: ../src/v4l2uvc.c:93
+#: ../src/v4l2uvc.c:94
 msgid "Tilt, Relative"
 msgstr "Tilt, Relative"
 
-#: ../src/v4l2uvc.c:94
+#: ../src/v4l2uvc.c:95
 msgid "Pan, Reset"
 msgstr "Pan, Reset"
 
-#: ../src/v4l2uvc.c:95
+#: ../src/v4l2uvc.c:96
 msgid "Tilt, Reset"
 msgstr "Tilt, Reset"
 
-#: ../src/v4l2uvc.c:96
+#: ../src/v4l2uvc.c:97
 msgid "Pan, Absolute"
 msgstr "Pan, Absolute"
 
-#: ../src/v4l2uvc.c:98
+#: ../src/v4l2uvc.c:99
 msgid "Focus, Absolute"
 msgstr "Focus, Absolute"
 
-#: ../src/v4l2uvc.c:99
+#: ../src/v4l2uvc.c:100
 msgid "Focus, Relative"
 msgstr "Focus, Relative"
 
-#: ../src/v4l2uvc.c:100
+#: ../src/v4l2uvc.c:101
 msgid "Focus, Automatic"
 msgstr "Focus, Automatic"
 
-#: ../src/v4l2uvc.c:101
+#: ../src/v4l2uvc.c:102
 msgid "Zoom, Absolute"
 msgstr "Zoom, Absolute"
 
-#: ../src/v4l2uvc.c:102
+#: ../src/v4l2uvc.c:103
 msgid "Zoom, Relative"
 msgstr "Zoom, Relative"
 
-#: ../src/v4l2uvc.c:103
+#: ../src/v4l2uvc.c:104
 msgid "Zoom, Continuous"
 msgstr "Zoom, Continuous"
 
-#: ../src/v4l2uvc.c:104
+#: ../src/v4l2uvc.c:105
 msgid "Privacy"
 msgstr "Privacy"
 
 #. UVC specific control strings
-#: ../src/v4l2uvc.c:107
+#: ../src/v4l2uvc.c:108
 msgid "Exposure, Auto"
 msgstr "Exposure, Auto"
 
-#: ../src/v4l2uvc.c:108
+#: ../src/v4l2uvc.c:109
 msgid "Exposure, Auto Priority"
 msgstr "Exposure, Auto Priority"
 
-#: ../src/v4l2uvc.c:109
+#: ../src/v4l2uvc.c:110
 msgid "Exposure (Absolute)"
 msgstr "Exposure (Absolute)"
 
-#: ../src/v4l2uvc.c:110
+#: ../src/v4l2uvc.c:111
 msgid "White Balance Temperature, Auto"
 msgstr "White Balance Temperature, Auto"
 
-#: ../src/v4l2uvc.c:111
+#: ../src/v4l2uvc.c:112
 msgid "White Balance Temperature"
 msgstr "White Balance Temperature"
 
-#: ../src/v4l2uvc.c:112
+#: ../src/v4l2uvc.c:113
 msgid "White Balance Component, Auto"
 msgstr "White Balance Component, Auto"
 
-#: ../src/v4l2uvc.c:113
+#: ../src/v4l2uvc.c:114
 msgid "White Balance Blue Component"
 msgstr "White Balance Blue Component"
 
-#: ../src/v4l2uvc.c:114
+#: ../src/v4l2uvc.c:115
 msgid "White Balance Red Component"
 msgstr "White Balance Red Component"
 
 #. libwebcam specific control strings
-#: ../src/v4l2uvc.c:117
+#: ../src/v4l2uvc.c:118
 msgid "Focus"
 msgstr "Focus"
 
-#: ../src/v4l2uvc.c:118
+#: ../src/v4l2uvc.c:119
 msgid "Focus (Absolute)"
 msgstr "Focus (Absolute)"
 
@@ -1030,60 +1033,398 @@ msgstr "MKV - Matroska format"
 msgid "WEBM - format"
 msgstr "WEBM - format"
 
-#: ../src/video_tab.c:208
+#: ../src/video_tab.c:216
 msgid "Frame Rate:"
 msgstr "Frame Rate:"
 
-#: ../src/video_tab.c:215
+#: ../src/video_tab.c:223
 msgid " Show"
 msgstr " Show"
 
-#: ../src/video_tab.c:237
+#: ../src/video_tab.c:245 ../src/uvc_h264.c:620
 msgid "Resolution:"
 msgstr "Resolution:"
 
-#: ../src/video_tab.c:263
+#: ../src/video_tab.c:271
 msgid "Camera Output:"
 msgstr "Camera Output:"
 
-#: ../src/video_tab.c:285
+#: ../src/video_tab.c:293
 msgid "Apply"
 msgstr "Apply"
 
-#: ../src/video_tab.c:292
+#: ../src/video_tab.c:300
 msgid "Quality:"
 msgstr "Quality:"
 
-#: ../src/video_tab.c:302
+#: ../src/video_tab.c:310
 msgid "---- Video Filters ----"
 msgstr "---- Video Filters ----"
 
 #. Mirror
-#: ../src/video_tab.c:321
+#: ../src/video_tab.c:329
 msgid " Mirror"
 msgstr " Mirror"
 
 #. Upturn
-#: ../src/video_tab.c:332
+#: ../src/video_tab.c:340
 msgid " Invert"
 msgstr " Invert"
 
 #. Negate
-#: ../src/video_tab.c:343
+#: ../src/video_tab.c:351
 msgid " Negative"
 msgstr " Negative"
 
 #. Mono
-#: ../src/video_tab.c:354
+#: ../src/video_tab.c:362
 msgid " Mono"
 msgstr " Mono"
 
 #. Pieces
-#: ../src/video_tab.c:366
+#: ../src/video_tab.c:374
 msgid " Pieces"
 msgstr " Pieces"
 
 #. Particles
-#: ../src/video_tab.c:378
+#: ../src/video_tab.c:386
 msgid " Particles"
 msgstr " Particles"
+
+#: ../src/uvc_h264.c:480
+#, fuzzy
+msgid "H264 Controls"
+msgstr "User Controls"
+
+#. probe_commitcontrols
+#. dwFrameInterval (get it from current fps)
+#: ../src/uvc_h264.c:499
+msgid "Frame Interval (100ns units):"
+msgstr ""
+
+#: ../src/uvc_h264.c:522
+#, fuzzy
+msgid "Bit Rate:"
+msgstr "bit rate:   "
+
+#: ../src/uvc_h264.c:545
+msgid "Hints:"
+msgstr ""
+
+#: ../src/uvc_h264.c:550
+#, fuzzy
+msgid "Resolution"
+msgstr "Resolution:"
+
+#: ../src/uvc_h264.c:554
+#, fuzzy
+msgid "Profile"
+msgstr "Save Profile"
+
+#: ../src/uvc_h264.c:558
+#, fuzzy
+msgid "Rate Control"
+msgstr "Image Controls"
+
+#: ../src/uvc_h264.c:562
+msgid "Usage Type"
+msgstr ""
+
+#: ../src/uvc_h264.c:566
+msgid "Slice Mode"
+msgstr ""
+
+#: ../src/uvc_h264.c:570
+msgid "Slice Unit"
+msgstr ""
+
+#: ../src/uvc_h264.c:574
+msgid "MVC View"
+msgstr ""
+
+#: ../src/uvc_h264.c:578
+msgid "Temporal Scale"
+msgstr ""
+
+#: ../src/uvc_h264.c:582
+msgid "SNR Scale"
+msgstr ""
+
+#: ../src/uvc_h264.c:586
+msgid "Spatial Scale"
+msgstr ""
+
+#: ../src/uvc_h264.c:590
+msgid "Spatial Layer Ratio"
+msgstr ""
+
+#: ../src/uvc_h264.c:594
+#, fuzzy
+msgid "Frame Interval"
+msgstr "Frame Rate:"
+
+#: ../src/uvc_h264.c:598
+msgid "Leaky Bucket Size"
+msgstr ""
+
+#: ../src/uvc_h264.c:602
+msgid "Bit Rate"
+msgstr ""
+
+#: ../src/uvc_h264.c:606 ../src/uvc_h264.c:1092
+msgid "CABAC"
+msgstr ""
+
+#: ../src/uvc_h264.c:610
+msgid "(I) Frame Period"
+msgstr ""
+
+#: ../src/uvc_h264.c:655
+msgid "Slice Mode:"
+msgstr ""
+
+#: ../src/uvc_h264.c:662
+msgid "no multiple slices"
+msgstr ""
+
+#: ../src/uvc_h264.c:664
+msgid "bits/slice"
+msgstr ""
+
+#: ../src/uvc_h264.c:666
+msgid "Mbits/slice"
+msgstr ""
+
+#: ../src/uvc_h264.c:668
+msgid "slices/frame"
+msgstr ""
+
+#: ../src/uvc_h264.c:677
+msgid "Slice Units:"
+msgstr ""
+
+#: ../src/uvc_h264.c:698
+#, fuzzy
+msgid "Profile:"
+msgstr "Save Profile"
+
+#: ../src/uvc_h264.c:705
+#, fuzzy
+msgid "Baseline Profile"
+msgstr "Save Profile"
+
+#: ../src/uvc_h264.c:707
+#, fuzzy
+msgid "Main Profile"
+msgstr "Save Profile"
+
+#: ../src/uvc_h264.c:709
+#, fuzzy
+msgid "High Profile"
+msgstr "Save Profile"
+
+#: ../src/uvc_h264.c:711
+msgid "Scalable Baseline Profile"
+msgstr ""
+
+#: ../src/uvc_h264.c:713
+#, fuzzy
+msgid "Scalable High Profile"
+msgstr "Save Profile"
+
+#: ../src/uvc_h264.c:715
+msgid "Multiview High Profile"
+msgstr ""
+
+#: ../src/uvc_h264.c:717
+#, fuzzy
+msgid "Stereo High Profile"
+msgstr "Save Profile"
+
+#: ../src/uvc_h264.c:756
+msgid "Profile flags:"
+msgstr ""
+
+#: ../src/uvc_h264.c:781
+msgid "(I) Frame Period (ms):"
+msgstr ""
+
+#: ../src/uvc_h264.c:802
+msgid "Estimated Video Delay (ms):"
+msgstr ""
+
+#: ../src/uvc_h264.c:823
+msgid "Estimated Max Config Delay (ms):"
+msgstr ""
+
+#: ../src/uvc_h264.c:844
+msgid "Usage Type:"
+msgstr ""
+
+#: ../src/uvc_h264.c:851
+msgid "Real-time"
+msgstr ""
+
+#: ../src/uvc_h264.c:853
+msgid "Broadcast"
+msgstr ""
+
+#: ../src/uvc_h264.c:855
+msgid "Storage"
+msgstr ""
+
+#: ../src/uvc_h264.c:857
+msgid "(0) Non-scalable single layer AVC"
+msgstr ""
+
+#: ../src/uvc_h264.c:859
+msgid "(1) SVC temporal scalability with hierarchical P"
+msgstr ""
+
+#: ../src/uvc_h264.c:861
+msgid "(2q) SVC temporal scalability + Quality/SNR scalability"
+msgstr ""
+
+#: ../src/uvc_h264.c:863
+msgid "(2s) SVC temporal scalability + spatial scalability"
+msgstr ""
+
+#: ../src/uvc_h264.c:865
+msgid "(3) Full SVC scalability"
+msgstr ""
+
+#: ../src/uvc_h264.c:879
+#, fuzzy
+msgid "Rate Control Mode:"
+msgstr "Image Controls"
+
+#: ../src/uvc_h264.c:886
+msgid "CBR"
+msgstr ""
+
+#: ../src/uvc_h264.c:888
+msgid "VBR"
+msgstr ""
+
+#: ../src/uvc_h264.c:890
+msgid "Constant QP"
+msgstr ""
+
+#: ../src/uvc_h264.c:904
+msgid "Rate Control Mode flags:"
+msgstr ""
+
+#: ../src/uvc_h264.c:929
+msgid "Temporal Scale Mode:"
+msgstr ""
+
+#: ../src/uvc_h264.c:954
+msgid "Spatial Scale Mode:"
+msgstr ""
+
+#: ../src/uvc_h264.c:979
+msgid "SNR Control Mode:"
+msgstr ""
+
+#: ../src/uvc_h264.c:986
+msgid "No SNR Enhancement Layer"
+msgstr ""
+
+#: ../src/uvc_h264.c:988
+msgid "CGS NonRewrite (2 Layer)"
+msgstr ""
+
+#: ../src/uvc_h264.c:990
+msgid "CGS NonRewrite (3 Layer)"
+msgstr ""
+
+#: ../src/uvc_h264.c:992
+msgid "CGS Rewrite (2 Layer)"
+msgstr ""
+
+#: ../src/uvc_h264.c:994
+msgid "CGS Rewrite (3 Layer)"
+msgstr ""
+
+#: ../src/uvc_h264.c:996
+msgid "MGS (2 Layer)"
+msgstr ""
+
+#: ../src/uvc_h264.c:1021
+msgid "Stream Mux Enable"
+msgstr ""
+
+#: ../src/uvc_h264.c:1028
+msgid "Embed H.264 aux stream"
+msgstr ""
+
+#: ../src/uvc_h264.c:1030
+msgid "Embed YUY2 aux stream"
+msgstr ""
+
+#: ../src/uvc_h264.c:1032
+msgid "Embed NV12 aux stream"
+msgstr ""
+
+#: ../src/uvc_h264.c:1051
+msgid "MJPG payload container"
+msgstr ""
+
+#: ../src/uvc_h264.c:1061
+#, fuzzy
+msgid "Stream Format:"
+msgstr "File Format:"
+
+#: ../src/uvc_h264.c:1069
+msgid "Byte stream format (H.264 Annex-B)"
+msgstr ""
+
+#: ../src/uvc_h264.c:1071
+#, fuzzy
+msgid "NAL stream format"
+msgstr "AVI - avi format"
+
+#: ../src/uvc_h264.c:1082
+msgid "Entropy CABAC:"
+msgstr ""
+
+#: ../src/uvc_h264.c:1090
+msgid "CAVLC"
+msgstr ""
+
+#: ../src/uvc_h264.c:1103
+msgid "Picture timing SEI"
+msgstr ""
+
+#: ../src/uvc_h264.c:1110
+#, fuzzy
+msgid "B Frames:"
+msgstr "max B frames:   "
+
+#: ../src/uvc_h264.c:1135
+msgid "Preview Flipped"
+msgstr ""
+
+#: ../src/uvc_h264.c:1142
+msgid "Additional MVC Views:"
+msgstr ""
+
+#: ../src/uvc_h264.c:1167
+msgid "Simulcast stream index:"
+msgstr ""
+
+#: ../src/uvc_h264.c:1192
+msgid "Spatial Layer Ratio:"
+msgstr ""
+
+#: ../src/uvc_h264.c:1221
+msgid "Leaky Bucket Size (ms):"
+msgstr ""
+
+#: ../src/uvc_h264.c:1247
+msgid "PROBE"
+msgstr ""
+
+#: ../src/uvc_h264.c:1254
+msgid "COMMIT"
+msgstr ""
