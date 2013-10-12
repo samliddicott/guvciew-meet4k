@@ -322,6 +322,7 @@ int main(int argc, char *argv[])
 	all_data.videoIn = videoIn;
 	all_data.videoF = videoF;
 	all_data.gwidget = gwidget;
+	all_data.h264_controls = NULL; /*filled by add_uvc_h264_controls_tab */
 	all_data.s = s;
 
 	/*get format from selected mode*/
@@ -812,6 +813,11 @@ int main(int argc, char *argv[])
 	gtk_main();
 	//gdk_threads_leave();
 
+	//free all_data allocations
+	free(all_data.gwidget);
+	if(all_data.h264_controls != NULL)
+		free(all_data.h264_controls);
+	
 	//closing portaudio
 	if(!control_only)
 	{

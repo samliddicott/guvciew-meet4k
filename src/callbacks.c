@@ -1354,7 +1354,7 @@ void
 resolution_changed (GtkComboBox * Resolution, struct ALL_DATA *all_data)
 {
 	struct GWIDGET *gwidget = all_data->gwidget;
-	uvc_h264_gtkcontrols *h264_controls = all_data->h264_controls;
+	struct uvc_h264_gtkcontrols *h264_controls = all_data->h264_controls;
 	struct GLOBAL *global = all_data->global;
 	struct vdIn *videoIn = all_data->videoIn;
 
@@ -1489,7 +1489,7 @@ void
 FrameRate_changed (GtkComboBox * FrameRate, struct ALL_DATA *all_data)
 {
 	struct GWIDGET *gwidget = all_data->gwidget;
-	uvc_h264_gtkcontrols *h264_controls = all_data->h264_controls;
+	struct uvc_h264_gtkcontrols *h264_controls = all_data->h264_controls;
 	struct GLOBAL *global = all_data->global;
 	struct vdIn *videoIn = all_data->videoIn;
 

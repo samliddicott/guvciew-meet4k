@@ -79,7 +79,7 @@ struct GWIDGET
 };
 
 /* uvc H264 control widgets */
-typedef struct _uvc_h264_gtkcontrols
+struct uvc_h264_gtkcontrols
 {
 	GtkWidget* FrameInterval;
 	GtkWidget* BitRate;
@@ -108,7 +108,7 @@ typedef struct _uvc_h264_gtkcontrols
 	GtkWidget* EstimatedVideoDelay;
 	GtkWidget* EstimatedMaxConfigDelay;
 	GtkWidget* UsageType;
-	GtkWidget* UCConfig;
+	//GtkWidget* UCConfig;
 	GtkWidget* RateControlMode;
 	GtkWidget* RateControlMode_cbr_flag;
 	GtkWidget* TemporalScaleMode;
@@ -128,7 +128,7 @@ typedef struct _uvc_h264_gtkcontrols
 	GtkWidget* LeakyBucketSize;
 	GtkWidget* probe_button;
 	GtkWidget* commit_button;
-} uvc_h264_gtkcontrols;
+};
 
 struct ALL_DATA
 {
@@ -138,7 +138,7 @@ struct ALL_DATA
 	struct vdIn *videoIn;
 	struct VideoFormatData *videoF;
 	struct GWIDGET *gwidget;
-	uvc_h264_gtkcontrols* h264_controls;
+	struct uvc_h264_gtkcontrols  *h264_controls;
 	struct VidState *s;
 	__THREAD_TYPE video_thread;
 	__THREAD_TYPE audio_thread;
