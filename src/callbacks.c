@@ -1354,7 +1354,6 @@ void
 resolution_changed (GtkComboBox * Resolution, struct ALL_DATA *all_data)
 {
 	struct GWIDGET *gwidget = all_data->gwidget;
-	struct uvc_h264_gtkcontrols *h264_controls = all_data->h264_controls;
 	struct GLOBAL *global = all_data->global;
 	struct vdIn *videoIn = all_data->videoIn;
 
@@ -1403,13 +1402,6 @@ resolution_changed (GtkComboBox * Resolution, struct ALL_DATA *all_data)
 
 	if (listVidCap->framerate_denom)
 		global->fps = listVidCap->framerate_denom[deffps];
-
-	if(global->uvc_h264_unit > 0)
-	{
-		//update h264 FrameInterval
-		uint32_t frame_interval = (global->fps_num * 1000000000LL / global->fps)/100;
-		gtk_spin_button_set_value(GTK_SPIN_BUTTON(h264_controls->FrameInterval), (gdouble) frame_interval);
-	}
 
 	if(capVid)
 	{
@@ -1489,7 +1481,6 @@ void
 FrameRate_changed (GtkComboBox * FrameRate, struct ALL_DATA *all_data)
 {
 	struct GWIDGET *gwidget = all_data->gwidget;
-	struct uvc_h264_gtkcontrols *h264_controls = all_data->h264_controls;
 	struct GLOBAL *global = all_data->global;
 	struct vdIn *videoIn = all_data->videoIn;
 
@@ -1499,13 +1490,6 @@ FrameRate_changed (GtkComboBox * FrameRate, struct ALL_DATA *all_data)
 
 	global->fps=videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[resind].framerate_denom[index];
 	global->fps_num=videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].listVidCap[resind].framerate_num[index];
-
-	if(global->uvc_h264_unit > 0)
-	{
-		//update h264 FrameInterval
-		uint32_t frame_interval = (global->fps_num * 1000000000LL / global->fps)/100;
-		gtk_spin_button_set_value(GTK_SPIN_BUTTON(h264_controls->FrameInterval), (gdouble) frame_interval);
-	}
 
 	/*fps change is done in two fases:
 	 * 1- in video.c we try to change device fps (and set flag to 2)

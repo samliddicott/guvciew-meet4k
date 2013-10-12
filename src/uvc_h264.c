@@ -431,11 +431,10 @@ void add_uvc_h264_controls_tab (struct ALL_DATA* all_data)
 	gtk_grid_attach (GTK_GRID(table), label_FrameInterval, 0, line, 1, 1);
 	gtk_widget_show (label_FrameInterval);
 
-	uint32_t frame_interval = (global->fps_num * 1000000000LL / global->fps)/100;
+	//uint32_t frame_interval = (global->fps_num * 1000000000LL / global->fps)/100;
 
 	GtkAdjustment *adjustment0 = gtk_adjustment_new (
-                                	//config_probe_cur.dwFrameInterval,
-                                	frame_interval,
+                                	config_probe_cur.dwFrameInterval,
                                 	config_probe_min.dwFrameInterval,
                                     config_probe_max.dwFrameInterval,
                                     1,
