@@ -886,6 +886,8 @@ static void store_at_index(void *data)
 			global->videoBuff[global->w_ind].bytes_used);
 	}
 	global->videoBuff[global->w_ind].used = TRUE;
+	
+	//printf("CODECID: %i (%i) format: %i (%i) flags:%i\n",global->VidCodec_ID, AV_CODEC_ID_H264, global->format, V4L2_PIX_FMT_H264, global->Frame_Flags);
 }
 
 /* called from main video loop*

@@ -259,13 +259,15 @@ void *main_loop(void *data)
             signalquit = videoIn->signalquit;
         __UNLOCK_MUTEX(__VMUTEX);
 
+		if(videoIn->frame_index < 1)
+			videoIn->setFPS = 1;
 		if (capVid && !(global->skip_n))
         {
 			// we are storing the first h264 frame
 			// so restart the stream to force a IDR frame
 			if( format == V4L2_PIX_FMT_H264 &&
 				global->VidCodec_ID == AV_CODEC_ID_H264 &&
-				global->framecount == 0)
+				global->framecount < 1)
 				videoIn->setFPS = 1;
 		}
         /*-------------------------- Grab Frame ----------------------------------*/

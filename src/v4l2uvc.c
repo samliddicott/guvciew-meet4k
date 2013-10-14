@@ -340,6 +340,10 @@ static int queue_buff(struct vdIn *vd)
  */
 static int parse_NALU(uint8_t type, uint8_t **NALU, uint8_t *buff, int size)
 {
+	//char test_filename[20];
+	//snprintf(test_filename, 20, "frame_complete.raw");
+	//SaveBuff (test_filename,size, buff);
+	
 	int nal_size = 0;
 	uint8_t *sp = NULL;
 	uint8_t *nal = NULL;
@@ -353,7 +357,7 @@ static int parse_NALU(uint8_t type, uint8_t **NALU, uint8_t *buff, int size)
 		   sp[3] == 0x01 &&
 		   (sp[4] & 0x1F) == type)
 		{
-			nal = sp;
+			nal = sp + 4;
 			break;
 		}
 	}
@@ -362,8 +366,6 @@ static int parse_NALU(uint8_t type, uint8_t **NALU, uint8_t *buff, int size)
 		fprintf(stderr, "uvc H264: could not find NALU of type %i in buffer\n", type);
 		return -1;
 	}
-
-	*NALU = nal;
 
 	//search for end of NALU
 	for(sp = nal; sp < buff + size - 4; ++sp)
@@ -374,12 +376,20 @@ static int parse_NALU(uint8_t type, uint8_t **NALU, uint8_t *buff, int size)
 		   sp[3] == 0x01)
 		{
 			nal_size = sp - nal;
+			break;
 		}
 	}
 
 	if(!nal_size)
 		nal_size = buff + size - nal;
 
+	*NALU = g_new0(uint8_t, nal_size);
+	memcpy(*NALU, nal, nal_size);
+	
+	//char test_filename2[20];
+	//snprintf(test_filename2, 20, "frame_nalu-%i.raw", type);
+	//SaveBuff (test_filename2, nal_size, *NALU);
+	
 	return nal_size;
 }
 /*
@@ -389,20 +399,30 @@ static int parse_NALU(uint8_t type, uint8_t **NALU, uint8_t *buff, int size)
 static int store_extra_data(struct vdIn *vd)
 {
 
-	vd->h264_SPS_size = parse_NALU( 7, &vd->h264_SPS, vd->mem[vd->buf.index], vd->buf.bytesused);
-
-	if(vd->h264_SPS_size < 0 || vd->h264_SPS == NULL)
+	if(vd->h264_SPS == NULL)
 	{
-		fprintf(stderr, "Could not find SPS (NALU type: 7)\n");
-		return -1;
+		vd->h264_SPS_size = parse_NALU( 7, &vd->h264_SPS, vd->mem[vd->buf.index], vd->buf.bytesused);
+
+		if(vd->h264_SPS_size <= 0 || vd->h264_SPS == NULL)
+		{
+			fprintf(stderr, "Could not find SPS (NALU type: 7)\n");
+			return -1;
+		}
+		else
+			printf("stored SPS %i bytes of data\n", vd->h264_SPS_size);
 	}
 
-	vd->h264_PPS_size = parse_NALU( 8, &vd->h264_PPS, vd->mem[vd->buf.index], vd->buf.bytesused);
-
-	if(vd->h264_PPS_size < 0 || vd->h264_PPS == NULL)
+	if(vd->h264_PPS == NULL)
 	{
-		fprintf(stderr, "Could not find PPS (NALU type: 8)\n");
-		return -1;
+		vd->h264_PPS_size = parse_NALU( 8, &vd->h264_PPS, vd->mem[vd->buf.index], vd->buf.bytesused);
+
+		if(vd->h264_PPS_size <= 0 || vd->h264_PPS == NULL)
+		{
+			fprintf(stderr, "Could not find PPS (NALU type: 8)\n");
+			return -1;
+		}
+		else
+			printf("stored PPS %i bytes of data\n", vd->h264_SPS_size);
 	}
 
 	return 0;
@@ -1004,11 +1024,9 @@ static int frame_decode(struct vdIn *vd, int format, int width, int height)
 			 * otherwise return black frame
 			 */
 
-			/* if first frame: store SPS and PPS info (usually the first two NALU) */
-			if(vd->frame_index == 1)
-			{
-				store_extra_data(vd);
-			}
+			/* store SPS and PPS info (usually the first two NALU) */
+			store_extra_data(vd);
+		
 			/* decode (h264) to vd->tmpbuffer (yuv420p)*/
 			decode_h264(vd->tmpbuffer, vd->mem[vd->buf.index], vd->buf.bytesused, vd->h264_ctx);
 			yuv420_to_yuyv (vd->framebuffer, vd->tmpbuffer, width, height);
