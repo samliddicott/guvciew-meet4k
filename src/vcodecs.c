@@ -699,7 +699,7 @@ int set_mkvCodecPriv(struct vdIn *videoIn, struct GLOBAL *global, struct lavcDat
 
 			//write the codec private data
 			uint8_t *tp = data->priv_data;
-			uint16_t* sp = NULL;
+
 			tp[0] = 1; //version
 			tp[1] = videoIn->h264_SPS[1]; /* profile */
 			tp[2] = videoIn->h264_SPS[2]; /* profile compat */

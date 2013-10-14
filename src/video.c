@@ -263,10 +263,10 @@ void *main_loop(void *data)
         {
 			// we are storing the first h264 frame
 			// so restart the stream to force a IDR frame
-			if( format = V4L2_PIX_FMT_H264 &&
+			if( format == V4L2_PIX_FMT_H264 &&
 				global->VidCodec_ID == AV_CODEC_ID_H264 &&
 				global->framecount == 0)
-				vd->setFPS = 1;
+				videoIn->setFPS = 1;
 		}
         /*-------------------------- Grab Frame ----------------------------------*/
         if (uvcGrab(videoIn, global, format, width, height) < 0)
