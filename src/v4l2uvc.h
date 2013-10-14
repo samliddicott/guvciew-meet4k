@@ -83,9 +83,9 @@ static const int exp_vals[]=
 struct vdIn
 {
 	__MUTEX_TYPE mutex;
-	
-	int frame_index;
-	
+
+	uint64_t frame_index;				// captured frame index
+
     struct udev *udev;                  // pointer to a udev struct (lib udev)
     struct udev_monitor *udev_mon;      // udev monitor
     int udev_fd;                        // udev monitor file descriptor
@@ -110,14 +110,14 @@ struct vdIn
 	int setFPS;                         // set FPS flag (0-do nothing, 1-change fps value, 2-query and queue buffer)
 	int setJPEGCOMP;                    // set jpeg compression flag (0-do nothing, 1-change compression value, 2-query and queue buffer)
 	int grabmethod;                     // only mmap available UVC doesn't support read
-	UINT64 timestamp;                   //video frame time stamp
+	UINT64 timestamp;                   // video frame time stamp
 	char *VidFName;                     // Video File name (with full path)
 	int capImage;                       // Image capture flag (raised for capturing a frame)
 	char *ImageFName;                   // Image File name (with full path)
 	int cap_raw;                        // raw frame capture flag
-	int available_exp[4];               //backward compatible (old v4l2 exposure menu interface)
-	int PanTilt;                        //1-if PanTilt Camera 0-otherwise
-	int uvc_h264_unit;     				//uvc h264 unit id, if <= 0 then uvc h264 is not supported
+	int available_exp[4];               // backward compatible (old v4l2 exposure menu interface)
+	int PanTilt;                        // 1-if PanTilt Camera 0-otherwise
+	int uvc_h264_unit;     				// uvc h264 unit id, if <= 0 then uvc h264 is not supported
 	gboolean signalquit;                // video loop exit flag
 	gboolean capVid;                    // Video capture flag (raised while capturing)
 	gboolean VidCapStop;                // Video capture stop flag (raised when video capture has stopped)
@@ -125,6 +125,10 @@ struct vdIn
 	LFormats *listFormats;              // structure with frame formats list
 	LDevices *listDevices;              // structure with devices list
 	struct h264_decoder_context* h264_ctx; //h264 decoder context
+	uint8_t *h264_SPS;                  // h264 SPS info
+	uint16_t h264_SPS_size;                  // SPS size
+	uint8_t *h264_PPS;                  // h264 PPS info
+	uint16_t h264_PPS_size;          // PPS size
 };
 
 /* ioctl with a number of retries in the case of I/O failure
@@ -148,12 +152,13 @@ int init_videoIn(struct vdIn *vd, struct GLOBAL *global);
 /* Grabs video frame and decodes it if necessary
  * args:
  * vd: pointer to a VdIn struct ( must be allready initiated)
- * format: pixel v4l2_format
- * width: frame width
- * height: frame height
+ * global: pointer to a GLOBAL struct ( must be allready initiated)
+ * format: pixel v4l2_format (don't use global format as it may change while capturing)
+ * width: frame width (don't use global width as it may change while capturing)
+ * height: frame height (don't use global height as it may change while capturing)
  * returns: error code ( 0 - VDIN_OK)
 */
-int uvcGrab(struct vdIn *vd, int format, int width, int height, int *fps, int *fps_num);
+int uvcGrab(struct vdIn *vd, struct GLOBAL *global, int format, int width, int height);
 
 /* cleans VdIn struct and allocations
  * args:

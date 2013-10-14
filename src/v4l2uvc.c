@@ -333,6 +333,79 @@ static int queue_buff(struct vdIn *vd)
 	return VDIN_OK;
 }
 
+/*
+ * parses a buff (*buff) of size (size) for NALU type (type),
+ * returns NALU size and sets pointer (NALU) to NALU data
+ * returns -1 if no NALU found
+ */
+static int parse_NALU(uint8_t type, uint8_t **NALU, uint8_t *buff, int size)
+{
+	int nal_size = 0;
+	uint8_t *sp = NULL;
+	uint32_t *wp = NULL;
+
+	uint8_t *nal = NULL;
+	//search for NALU of type
+	for(sp = buff; sp < buff + size - 5; ++sp)
+	{
+		wp = sp;
+		if(*wp == 0x00000001)
+			sp += 4;
+		if(*sp & 0x1F == type)
+		{
+			*nal = sp;
+			break;
+		}
+	}
+	if(nal == NULL)
+	{
+		fprintf(stderr, "uvc H264: could not find NALU of type %i in buffer\n", type);
+		return -1;
+	}
+
+	*NALU = nal;
+
+	//search for end of NALU
+	for(sp = nal; sp < buff + size - 4; ++sp)
+	{
+		wp = sp;
+		if(*wp == 0x00000001)
+		{
+			nal_size = sp - nal;
+		}
+	}
+
+	if(!nal_size)
+		nal_size = buff + size - nal;
+
+	return nal_size;
+}
+/*
+ * Store the SPS and PPS of uvc H264 stream
+ * if available in the frame
+ */
+static int store_extra_data(struct vdIn *vd)
+{
+
+	vd->h264_SPS_size = parse_NALU( 7, &vd->h264_SPS, vd->mem[vd->buf.index], vd->buf.bytesused);
+
+	if(vd->h264_SPS_size < 0 || vd->h264_SPS == NULL)
+	{
+		fprintf(stderr, "Could not find SPS (NALU type: 7)\n");
+		return -1;
+	}
+
+	vd->h264_PPS_size = parse_NALU( 8, &vd->h264_PPS, vd->mem[vd->buf.index], vd->buf.bytesused);
+
+	if(vd->h264_PPS_size < 0 || vd->h264_PPS == NULL)
+	{
+		fprintf(stderr, "Could not find PPS (NALU type: 8)\n");
+		return -1;
+	}
+
+	return 0;
+}
+
 /* Enable video stream
  * args:
  * vd: pointer to a VdIn struct ( must be allready initiated)
@@ -788,6 +861,10 @@ int init_videoIn(struct vdIn *videoIn, struct GLOBAL *global)
 	videoIn->ImageFName = g_strdup(global->imgFPath[0]);
 
 	videoIn->h264_ctx = NULL;
+	videoIn->h264_SPS = NULL;
+	videoIn->h264_SPS_size = 0;
+	videoIn->h264_PPS = NULL;
+	videoIn->h264_PPS_size = 0;
 	//timestamps not supported by UVC driver
 	//vd->timecode.type = V4L2_TC_TYPE_25FPS;
 	//vd->timecode.flags = V4L2_TC_FLAG_DROPFRAME;
@@ -925,6 +1002,11 @@ static int frame_decode(struct vdIn *vd, int format, int width, int height)
 			 * otherwise return black frame
 			 */
 
+			/* if first frame: store SPS and PPS info (usually the first two NALU) */
+			if(vd->frame_index == 1)
+			{
+				store_extra_data(vd);
+			}
 			/* decode (h264) to vd->tmpbuffer (yuv420p)*/
 			decode_h264(vd->tmpbuffer, vd->mem[vd->buf.index], vd->buf.bytesused, vd->h264_ctx);
 			yuv420_to_yuyv (vd->framebuffer, vd->tmpbuffer, width, height);
@@ -1088,24 +1170,17 @@ static int frame_decode(struct vdIn *vd, int format, int width, int height)
 	return ret;
 }
 
-/* Grabs video frame and decodes it if necessary
- * args:
- * vd: pointer to a VdIn struct ( must be allready initiated)
- *
- * returns: error code ( 0 - VDIN_OK)
-*/
-int uvcGrab(struct vdIn *vd, int format, int width, int height, int *fps, int *fps_num)
+static int check_frame_available(struct vdIn *vd)
 {
 	int ret = VDIN_OK;
 	fd_set rdset;
 	struct timeval timeout;
-	UINT64 ts = 0;
 	//make sure streaming is on
 	if (!vd->isstreaming)
 		if (video_enable(vd))
 		{
 			vd->signalquit = TRUE;
-			return ret;
+			return VDIN_STREAMON_ERR;
 		}
 
 	FD_ZERO(&rdset);
@@ -1127,104 +1202,128 @@ int uvcGrab(struct vdIn *vd, int format, int width, int height, int *fps, int *f
 		return VDIN_SELETIMEOUT_ERR;
 	}
 	else if ((ret > 0) && (FD_ISSET(vd->fd, &rdset)))
+		return VDIN_OK;
+	else
+		return VDIN_UNKNOWN_ERR;
+
+}
+
+/* Grabs video frame and decodes it if necessary
+ * args:
+ * vd: pointer to a VdIn struct ( must be allready initiated)
+ *
+ * returns: error code ( 0 - VDIN_OK)
+*/
+int uvcGrab(struct vdIn *vd, struct GLOBAL *global, int format, int width, int height)
+{
+
+	int ret = check_frame_available(vd);
+
+	UINT64 ts = 0;
+
+	if (ret < 0)
+		return ret;
+
+	switch(vd->cap_meth)
 	{
-		switch(vd->cap_meth)
-		{
-			case IO_READ:
-				if(vd->setFPS > 0)
+		case IO_READ:
+			if(vd->setFPS > 0)
+			{
+				video_disable(vd);
+				input_set_framerate (vd, &global->fps, &global->fps_num);
+				video_enable(vd);
+				vd->setFPS = 0; /*no need to query and queue buffers*/
+			}
+			vd->buf.bytesused = v4l2_read (vd->fd, vd->mem[vd->buf.index], vd->buf.length);
+			vd->timestamp = ns_time_monotonic();
+			if (-1 == vd->buf.bytesused )
+			{
+				switch (errno)
+				{
+					case EAGAIN:
+						g_print("No data available for read\n");
+						return VDIN_SELETIMEOUT_ERR;
+						break;
+					case EINVAL:
+						perror("Read method error, try mmap instead");
+						return VDIN_READ_ERR;
+						break;
+					case EIO:
+						perror("read I/O Error");
+						return VDIN_READ_ERR;
+						break;
+					default:
+						perror("read");
+						return VDIN_READ_ERR;
+						break;
+				}
+				vd->timestamp = 0;
+			}
+			break;
+
+		case IO_MMAP:
+		default:
+			/*query and queue buffers since fps or compression as changed*/
+			if((vd->setFPS > 0) || (vd->setJPEGCOMP > 0))
+			{
+				/*------------------------------------------*/
+				/*  change video fps or frame compression   */
+				/*------------------------------------------*/
+				if(vd->setFPS) //change fps
 				{
 					video_disable(vd);
-					input_set_framerate (vd, fps, fps_num);
+					unmap_buff(vd);
+					input_set_framerate (vd, &global->fps, &global->fps_num);
+					vd->setFPS = 0;
+					query_buff(vd);
+					queue_buff(vd);
 					video_enable(vd);
-					vd->setFPS = 0; /*no need to query and queue buffers*/
 				}
-				vd->buf.bytesused = v4l2_read (vd->fd, vd->mem[vd->buf.index], vd->buf.length);
-				vd->timestamp = ns_time_monotonic();
-				if (-1 == vd->buf.bytesused )
+				else if(vd->setJPEGCOMP) //change jpeg quality/compression in video frame
 				{
-					switch (errno)
-					{
-						case EAGAIN:
-							g_print("No data available for read\n");
-							return VDIN_SELETIMEOUT_ERR;
-							break;
-						case EINVAL:
-							perror("Read method error, try mmap instead");
-							return VDIN_READ_ERR;
-							break;
-						case EIO:
-							perror("read I/O Error");
-							return VDIN_READ_ERR;
-							break;
-						default:
-							perror("read");
-							return VDIN_READ_ERR;
-							break;
-					}
-					vd->timestamp = 0;
+					video_disable(vd);
+					unmap_buff(vd);
+					set_jpegcomp(vd);
+					get_jpegcomp(vd);
+					query_buff(vd);
+					queue_buff(vd);
+					video_enable(vd);
+					vd->setJPEGCOMP = 0;
 				}
-				break;
 
-			case IO_MMAP:
-			default:
-				/*query and queue buffers since fps or compression as changed*/
-				if((vd->setFPS > 0) || (vd->setJPEGCOMP > 0))
-				{
-					/*------------------------------------------*/
-					/*  change video fps or frame compression   */
-					/*------------------------------------------*/
-					if(vd->setFPS) //change fps
-					{
-						video_disable(vd);
-						unmap_buff(vd);
-						input_set_framerate (vd, fps, fps_num);
-						vd->setFPS = 0;
-						query_buff(vd);
-						queue_buff(vd);
-						video_enable(vd);
-					}
-					else if(vd->setJPEGCOMP) //change jpeg quality/compression in video frame
-					{
-						video_disable(vd);
-						unmap_buff(vd);
-						set_jpegcomp(vd);
-						get_jpegcomp(vd);
-						query_buff(vd);
-						queue_buff(vd);
-						video_enable(vd);
-						vd->setJPEGCOMP = 0;
-					}
-				}
-				else
-				{
-					memset(&vd->buf, 0, sizeof(struct v4l2_buffer));
-					vd->buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-					vd->buf.memory = V4L2_MEMORY_MMAP;
+				ret = check_frame_available(vd);
 
-					ret = xioctl(vd->fd, VIDIOC_DQBUF, &vd->buf);
-					if (ret < 0)
-					{
-						perror("VIDIOC_DQBUF - Unable to dequeue buffer ");
-						ret = VDIN_DEQBUFS_ERR;
-						return ret;
-					}
-					ts = (UINT64) vd->buf.timestamp.tv_sec * G_NSEC_PER_SEC +
-					    vd->buf.timestamp.tv_usec * 1000; //in nanosec
+				if (ret < 0)
+					return ret;
+			}
 
-					/* use buffer timestamp if set by the driver, otherwise use current system time */
-					if(ts > 0) vd->timestamp = ts;
-					else vd->timestamp = ns_time_monotonic();
+			/* dequeue the buffers */
+			memset(&vd->buf, 0, sizeof(struct v4l2_buffer));
+			vd->buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+			vd->buf.memory = V4L2_MEMORY_MMAP;
 
-					ret = xioctl(vd->fd, VIDIOC_QBUF, &vd->buf);
-					if (ret < 0)
-					{
-						perror("VIDIOC_QBUF - Unable to queue buffer");
-						ret = VDIN_QBUF_ERR;
-						return ret;
-					}
-				}
-		}
+			ret = xioctl(vd->fd, VIDIOC_DQBUF, &vd->buf);
+			if (ret < 0)
+			{
+				perror("VIDIOC_DQBUF - Unable to dequeue buffer ");
+				ret = VDIN_DEQBUFS_ERR;
+				return ret;
+			}
+			ts = (UINT64) vd->buf.timestamp.tv_sec * G_NSEC_PER_SEC +
+			    vd->buf.timestamp.tv_usec * 1000; //in nanosec
+				/* use buffer timestamp if set by the driver, otherwise use current system time */
+			if(ts > 0) vd->timestamp = ts;
+			else vd->timestamp = ns_time_monotonic();
+
+			ret = xioctl(vd->fd, VIDIOC_QBUF, &vd->buf);
+			if (ret < 0)
+			{
+				perror("VIDIOC_QBUF - Unable to queue buffer");
+				ret = VDIN_QBUF_ERR;
+				return ret;
+			}
 	}
+
 
 	// save raw frame
 	if (vd->cap_raw > 0)
@@ -1232,10 +1331,12 @@ int uvcGrab(struct vdIn *vd, int format, int width, int height, int *fps, int *f
 		SaveBuff (vd->ImageFName,vd->buf.bytesused,vd->mem[vd->buf.index]);
 		vd->cap_raw=0;
 	}
-	
+
+	vd->frame_index++;
+
 	//char test_filename[20];
 	//snprintf(test_filename, 20, "frame-%i.raw", vd->frame_index);
-	//vd->frame_index++; 
+	//vd->frame_index++;
 	//SaveBuff (test_filename,vd->buf.bytesused,vd->mem[vd->buf.index]);
 
 	if ((ret = frame_decode(vd, format, width, height)) != VDIN_OK)
@@ -1331,6 +1432,8 @@ void close_v4l2(struct vdIn *videoIn, gboolean control_only)
 		close_v4l2_buffers(videoIn);
 	}
 	close_h264_decoder(videoIn->h264_ctx);
+	if(videoIn->h264_SPS) g_free(h264_SPS);
+	if(videoIn->h264_PPS) g_free(h264_PPS);
 	videoIn->h264_ctx = NULL;
 	videoIn->videodevice = NULL;
 	videoIn->tmpbuffer = NULL;

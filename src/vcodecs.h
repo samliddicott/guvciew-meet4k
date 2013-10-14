@@ -98,7 +98,7 @@ int get_enc_fps(int codec_ind);
 
 void *get_mkvCodecPriv(int codec_ind);
 
-int set_mkvCodecPriv(int codec_ind, int width, int height, struct lavcData* data);
+int set_mkvCodecPriv(/*int codec_ind, int width, int height*/struct ALL_DATA *all_data, struct lavcData* data);
 
 int get_vcodec_id(int codec_ind);
 

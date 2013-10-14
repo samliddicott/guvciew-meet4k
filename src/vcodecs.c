@@ -603,10 +603,13 @@ void *get_mkvCodecPriv(int codec_ind)
 	}
 }
 
-int set_mkvCodecPriv(int codec_ind, int width, int height, struct lavcData* data)
+int set_mkvCodecPriv(struct ALL_DATA *all_data, struct lavcData* data)
 {
+	struct GLOBAL *global = all_data->global;
+	struct vdIn *videoIn = all_data->videoIn;
+
 	int size = 0;
-	int real_index = get_real_index (codec_ind);
+	int real_index = get_real_index (global->VidCodec);
 
 	if(real_index < 0 || real_index >= MAX_VCODECS)
 	{
@@ -670,17 +673,67 @@ int set_mkvCodecPriv(int codec_ind, int width, int height, struct lavcData* data
 
 		listSupVCodecs[real_index].mkv_codecPriv = data->priv_data;
 	}
+	else if(listSupVCodecs[real_index].codec_id == AV_CODEC_ID_H264)
+	{
+		if(global->format == V4L2_PIX_FMT_H264)
+		{
+			//make sure this is only called after first frame is captured
+			//otherwise we will not have SPS and PPS data
+			if(vd->frame_index < 1)
+			{
+				fprintf(stderr,"can't store H264 codec private data: first frame not captured yet\n");
+				return 0;
+			}
+			//do we have SPS and PPS data ?
+			if(videoIn->h264_SPS_size <= 0 || videoIn->h264_SPS == NULL)
+			{
+				fprintf(stderr,"can't store H264 codec private data: No SPS data\n");
+				return 0;
+			}
+			if(videoIn->h264_PPS_size <= 0 || videoIn->h264_PPS == NULL)
+			{
+				fprintf(stderr,"can't store H264 codec private data: No PPS data\n");
+				return 0;
+			}
+
+			//alloc the private data
+			size = 6 + 2 + videoIn->h264_SPS_size + 2 + videoIn->h264_PPS_size;
+			data->priv_data = g_new0(BYTE, size);
+
+			//write the codec private data
+			uint8_t *tp = data->priv_data;
+			uint16_t* sp = NULL;
+			tp[0] = 1; //version
+			tp[1] = videoIn->h264_SPS[1]; /* profile */
+			tp[2] = videoIn->h264_SPS[2]; /* profile compat */
+			tp[3] = videoIn->h264_SPS[3]; /* level */
+			tp[4] = 0xff; /* 6 bits reserved (111111) + 2 bits nal size length - 1 (11) */
+			tp[5] = 0xe1; /* 3 bits reserved (111) + 5 bits number of sps (00001) */
+
+			tp += 6;
+			sp = tp;
+			*sp = videoIn->h264_SPS_size;
+			tp += 2; //SPS size (16 bit)
+			memcpy(tp, videoIn->h264_SPS , videoIn->h264_SPS_size);
+			tp += videoIn->h264_SPS_size;
+			sp = tp;
+			*sp = videoIn->h264_PPS_size;
+			tp += 2; //PPS size (16 bit)
+			memcpy(tp, videoIn->h264_PPS , videoIn->h264_PPS_size);
+		}
+
+	}
 	else if(listSupVCodecs[real_index].mkv_codecPriv != NULL)
 	{
-		mkv_codecPriv.biWidth = width;
-		mkv_codecPriv.biHeight = height;
+		mkv_codecPriv.biWidth = global->width;
+		mkv_codecPriv.biHeight = global->height;
 		mkv_codecPriv.biCompression = listSupVCodecs[real_index].mkv_4cc;
 		if(listSupVCodecs[real_index].codec_id != CODEC_DIB)
 		{
-			mkv_codecPriv.biSizeImage = width*height*2;
-			mkv_codecPriv.biHeight =-height;
+			mkv_codecPriv.biSizeImage = global->width*global->height*2;
+			mkv_codecPriv.biHeight =-global->height;
 		}
-		else mkv_codecPriv.biSizeImage = width*height*3; /*rgb*/
+		else mkv_codecPriv.biSizeImage = global->width*global->height*3; /*rgb*/
 		size = 40; //40 bytes
 	}
 

@@ -106,7 +106,7 @@ static int initVideoFile(struct ALL_DATA *all_data, void* lav_data)
 	io_Stream *vstream, *astream;
 	struct lavcData **lavc_data = (struct lavcData **) lav_data;
 
-	videoF->vcodec = get_vcodec_id(global->VidCodec);
+	videoF->vcodec = get_vcodec_id(global->VidCodec); //global->VidCodec_ID
 	videoF->acodec = get_acodec_id(global->AudCodec);
 	videoF->keyframe = 0;
 	int ret = 0;
@@ -226,7 +226,7 @@ static int initVideoFile(struct ALL_DATA *all_data, void* lav_data)
 									videoF->vcodec);
 
 
-			vstream->extra_data_size = set_mkvCodecPriv(global->VidCodec, global->width, global->height, *lavc_data);
+			vstream->extra_data_size = set_mkvCodecPriv(all_data, *lavc_data);
 			if(vstream->extra_data_size > 0)
 				vstream->extra_data = get_mkvCodecPriv(global->VidCodec);
 
@@ -457,8 +457,6 @@ static int write_video_frame (struct ALL_DATA *all_data,
 
 		case WEBM_FORMAT:
 		case MKV_FORMAT:
-			//global->framecount++;
-
 			ret = compress_frame(all_data, jpeg_struct, lavc_data, proc_buff);
 			break;
 

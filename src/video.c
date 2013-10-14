@@ -259,8 +259,17 @@ void *main_loop(void *data)
             signalquit = videoIn->signalquit;
         __UNLOCK_MUTEX(__VMUTEX);
 
+		if (capVid && !(global->skip_n))
+        {
+			// we are storing the first h264 frame
+			// so restart the stream to force a IDR frame
+			if( format = V4L2_PIX_FMT_H264 &&
+				global->VidCodec_ID == AV_CODEC_ID_H264 &&
+				global->framecount == 0)
+				vd->setFPS = 1;
+		}
         /*-------------------------- Grab Frame ----------------------------------*/
-        if (uvcGrab(videoIn, format, width, height, &global->fps, &global->fps_num) < 0)
+        if (uvcGrab(videoIn, global, format, width, height) < 0)
         {
             g_printerr("Error grabbing image \n");
             continue;
@@ -482,7 +491,7 @@ void *main_loop(void *data)
                            		g_main_context_invoke(NULL, image_capture_callback, (gpointer) all_data);
 							else
                             	g_main_context_invoke(NULL, video_capture_callback, (gpointer) all_data);
-                       
+
                             break;
                     }
                     switch( event.key.keysym.sym )
