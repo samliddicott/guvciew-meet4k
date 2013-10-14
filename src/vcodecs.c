@@ -603,11 +603,8 @@ void *get_mkvCodecPriv(int codec_ind)
 	}
 }
 
-int set_mkvCodecPriv(struct ALL_DATA *all_data, struct lavcData* data)
+int set_mkvCodecPriv(struct vdIn *videoIn, struct GLOBAL *global, struct lavcData* data)
 {
-	struct GLOBAL *global = all_data->global;
-	struct vdIn *videoIn = all_data->videoIn;
-
 	int size = 0;
 	int real_index = get_real_index (global->VidCodec);
 

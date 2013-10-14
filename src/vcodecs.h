@@ -26,6 +26,7 @@
 #include "jpgenc.h"
 #include "lavc_common.h"
 #include "globals.h"
+#include "v4l2uvc.h"
 
 #define MAX_VCODECS 12
 
@@ -98,7 +99,7 @@ int get_enc_fps(int codec_ind);
 
 void *get_mkvCodecPriv(int codec_ind);
 
-int set_mkvCodecPriv(/*int codec_ind, int width, int height*/struct ALL_DATA *all_data, struct lavcData* data);
+int set_mkvCodecPriv(struct vdIn *videoIn, struct GLOBAL *global, struct lavcData* data);
 
 int get_vcodec_id(int codec_ind);
 

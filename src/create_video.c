@@ -226,7 +226,7 @@ static int initVideoFile(struct ALL_DATA *all_data, void* lav_data)
 									videoF->vcodec);
 
 
-			vstream->extra_data_size = set_mkvCodecPriv(all_data, *lavc_data);
+			vstream->extra_data_size = set_mkvCodecPriv(videoIn, global, *lavc_data);
 			if(vstream->extra_data_size > 0)
 				vstream->extra_data = get_mkvCodecPriv(global->VidCodec);
 
