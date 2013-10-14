@@ -342,16 +342,16 @@ static int parse_NALU(uint8_t type, uint8_t **NALU, uint8_t *buff, int size)
 {
 	int nal_size = 0;
 	uint8_t *sp = NULL;
-	uint32_t *wp = NULL;
-
 	uint8_t *nal = NULL;
+
 	//search for NALU of type
 	for(sp = buff; sp < buff + size - 5; ++sp)
 	{
-		wp = sp;
-		if(*wp == 0x00000001)
-			sp += 4;
-		if(*sp & 0x1F == type)
+		if(sp[0] == 0x00 &&
+		   sp[1] == 0x00 &&
+		   sp[2] == 0x00 &&
+		   sp[3] == 0x01 &&
+		   sp[4] & 0x1F == type)
 		{
 			*nal = sp;
 			break;
@@ -368,8 +368,10 @@ static int parse_NALU(uint8_t type, uint8_t **NALU, uint8_t *buff, int size)
 	//search for end of NALU
 	for(sp = nal; sp < buff + size - 4; ++sp)
 	{
-		wp = sp;
-		if(*wp == 0x00000001)
+		if(sp[0] == 0x00 &&
+		   sp[1] == 0x00 &&
+		   sp[2] == 0x00 &&
+		   sp[3] == 0x01)
 		{
 			nal_size = sp - nal;
 		}
@@ -1432,8 +1434,8 @@ void close_v4l2(struct vdIn *videoIn, gboolean control_only)
 		close_v4l2_buffers(videoIn);
 	}
 	close_h264_decoder(videoIn->h264_ctx);
-	if(videoIn->h264_SPS) g_free(h264_SPS);
-	if(videoIn->h264_PPS) g_free(h264_PPS);
+	if(videoIn->h264_SPS) g_free(videoIn->h264_SPS);
+	if(videoIn->h264_PPS) g_free(videoIn->h264_PPS);
 	videoIn->h264_ctx = NULL;
 	videoIn->videodevice = NULL;
 	videoIn->tmpbuffer = NULL;
