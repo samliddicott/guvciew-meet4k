@@ -351,9 +351,9 @@ static int parse_NALU(uint8_t type, uint8_t **NALU, uint8_t *buff, int size)
 		   sp[1] == 0x00 &&
 		   sp[2] == 0x00 &&
 		   sp[3] == 0x01 &&
-		   sp[4] & 0x1F == type)
+		   (sp[4] & 0x1F) == type)
 		{
-			*nal = sp;
+			nal = sp;
 			break;
 		}
 	}
