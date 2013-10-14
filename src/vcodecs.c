@@ -676,7 +676,7 @@ int set_mkvCodecPriv(struct vdIn *videoIn, struct GLOBAL *global, struct lavcDat
 		{
 			//make sure this is only called after first frame is captured
 			//otherwise we will not have SPS and PPS data
-			if(vd->frame_index < 1)
+			if(videoIn->frame_index < 1)
 			{
 				fprintf(stderr,"can't store H264 codec private data: first frame not captured yet\n");
 				return 0;
@@ -708,13 +708,11 @@ int set_mkvCodecPriv(struct vdIn *videoIn, struct GLOBAL *global, struct lavcDat
 			tp[5] = 0xe1; /* 3 bits reserved (111) + 5 bits number of sps (00001) */
 
 			tp += 6;
-			sp = tp;
-			*sp = videoIn->h264_SPS_size;
+			memcpy(tp, &videoIn->h264_SPS_size , 2);
 			tp += 2; //SPS size (16 bit)
 			memcpy(tp, videoIn->h264_SPS , videoIn->h264_SPS_size);
 			tp += videoIn->h264_SPS_size;
-			sp = tp;
-			*sp = videoIn->h264_PPS_size;
+			memcpy(tp, &videoIn->h264_PPS_size , 2);
 			tp += 2; //PPS size (16 bit)
 			memcpy(tp, videoIn->h264_PPS , videoIn->h264_PPS_size);
 		}
