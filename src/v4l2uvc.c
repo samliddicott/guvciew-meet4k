@@ -342,7 +342,7 @@ static int queue_buff(struct vdIn *vd)
 static uint8_t* check_NALU(uint8_t type, uint8_t *buff, int size)
 {
 	uint8_t *sp = buff;
-	uint8_t *nall = NULL;
+	uint8_t *nal = NULL;
 	//search for NALU of type
 	for(sp = buff; sp < buff + size - 5; ++sp)
 	{
@@ -358,7 +358,7 @@ static uint8_t* check_NALU(uint8_t type, uint8_t *buff, int size)
 		}
 	}
 
-	return nall;
+	return nal;
 }
 
 /*
@@ -1065,7 +1065,7 @@ static int frame_decode(struct vdIn *vd, int format, int width, int height)
 			 * store SPS and PPS info (usually the first two NALU)
 			 * and check/store the last IDR frame
 			 */
-			store_extra_data(vd)
+			store_extra_data(vd);
 
 			/*
 			 * check for keyframe
@@ -1424,7 +1424,7 @@ static int close_v4l2_buffers (struct vdIn *vd)
 	vd->tmpbuffer = NULL;
 	if(vd->framebuffer != NULL) g_free(vd->framebuffer);
 	vd->framebuffer = NULL;
-	if(videoIn->h264_last_IDR != NULL) g_free(vd->h264_last_IDR);
+	if(vd->h264_last_IDR != NULL) g_free(vd->h264_last_IDR);
 	vd->h264_last_IDR = NULL;
 	//clean h264 SPS and PPS data buffers
 	if(vd->h264_SPS != NULL) g_free(vd->h264_SPS);
