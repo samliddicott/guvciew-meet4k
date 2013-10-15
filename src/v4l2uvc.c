@@ -417,7 +417,7 @@ static int store_extra_data(struct vdIn *vd)
 
 	if(vd->h264_SPS == NULL)
 	{
-		vd->h264_SPS_size = parse_NALU( 7, &vd->h264_SPS, vd->h264_frame, vd->buf.bytes_used);
+		vd->h264_SPS_size = parse_NALU( 7, &vd->h264_SPS, vd->h264_frame, vd->buf.bytesused);
 
 		if(vd->h264_SPS_size <= 0 || vd->h264_SPS == NULL)
 		{
@@ -430,7 +430,7 @@ static int store_extra_data(struct vdIn *vd)
 
 	if(vd->h264_PPS == NULL)
 	{
-		vd->h264_PPS_size = parse_NALU( 8, &vd->h264_PPS, vd->h264_frame, vd->buf.bytes_used);
+		vd->h264_PPS_size = parse_NALU( 8, &vd->h264_PPS, vd->h264_frame, vd->buf.bytesused);
 
 		if(vd->h264_PPS_size <= 0 || vd->h264_PPS == NULL)
 		{
@@ -452,9 +452,9 @@ static int store_extra_data(struct vdIn *vd)
 static gboolean is_h264_keyframe (struct vdIn *vd)
 {
 	//check for a IDR frame type
-	if(check_NALU(5, vd->h264_frame, vd->buf.bytes_used) != NULL)
+	if(check_NALU(5, vd->h264_frame, vd->buf.bytesused) != NULL)
 	{
-		memcpy(vd->h264_last_IDR, vd->h264_frame, vd->buf.bytes_used);
+		memcpy(vd->h264_last_IDR, vd->h264_frame, vd->buf.bytesused);
 		vd->h264_last_IDR_size = vd->buf.bytesused;
 		return 1;
 	}
