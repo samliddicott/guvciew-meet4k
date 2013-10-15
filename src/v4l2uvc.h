@@ -102,8 +102,9 @@ struct vdIn
 	void *mem[NB_BUFFER];               // memory buffers for mmap driver frames
 	UINT32 buff_length[NB_BUFFER];      // memory buffers length as set by VIDIOC_QUERYBUF
 	UINT32 buff_offset[NB_BUFFER];      // memory buffers offset as set by VIDIOC_QUERYBUF
-	unsigned char *tmpbuffer;           // temp buffer for decoding compressed data
-	unsigned char *framebuffer;         // frame buffer (YUYV), for rendering in SDL overlay
+	uint8_t *tmpbuffer;                 // temp buffer for decoding compressed data
+	uint8_t *framebuffer;               // frame buffer (YUYV), for rendering in SDL overlay
+	gboolean isKeyframe;                // current buffer contains a keyframe (h264 IDR)
 	int isstreaming;                    // video stream flag (1- ON  0- OFF)
 	int isbayer;                        // raw bayer flag
 	int pix_order;                      // raw bayer pixel order (rg/gb, bg/gr, ...)
@@ -125,10 +126,12 @@ struct vdIn
 	LFormats *listFormats;              // structure with frame formats list
 	LDevices *listDevices;              // structure with devices list
 	struct h264_decoder_context* h264_ctx; //h264 decoder context
+	uint8_t *h264_last_IDR;             // last IDR frame retrieved from uvc h264 stream
+	int h264_last_IDR_size;             // last IDR frame size
 	uint8_t *h264_SPS;                  // h264 SPS info
-	uint16_t h264_SPS_size;                  // SPS size
+	uint16_t h264_SPS_size;             // SPS size
 	uint8_t *h264_PPS;                  // h264 PPS info
-	uint16_t h264_PPS_size;          // PPS size
+	uint16_t h264_PPS_size;             // PPS size
 };
 
 /* ioctl with a number of retries in the case of I/O failure

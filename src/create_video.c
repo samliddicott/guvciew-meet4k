@@ -40,7 +40,6 @@
 #include "vcodecs.h"
 #include "video_format.h"
 #include "audio_effects.h"
-#include "globals.h"
 
 
 #define __AMUTEX &pdata->mutex
@@ -876,6 +875,7 @@ static void store_at_index(void *data)
 		memcpy(global->videoBuff[global->w_ind].frame,
 			videoIn->tmpbuffer,
 			global->videoBuff[global->w_ind].bytes_used);
+		global->videoBuff[global->w_ind].keyframe = videoIn->isKeyframe;
 	}
 	else
 	{
@@ -886,7 +886,7 @@ static void store_at_index(void *data)
 			global->videoBuff[global->w_ind].bytes_used);
 	}
 	global->videoBuff[global->w_ind].used = TRUE;
-	
+
 	//printf("CODECID: %i (%i) format: %i (%i) flags:%i\n",global->VidCodec_ID, AV_CODEC_ID_H264, global->format, V4L2_PIX_FMT_H264, global->Frame_Flags);
 }
 
@@ -897,6 +897,7 @@ int store_video_frame(void *data)
 {
 	struct ALL_DATA *all_data = (struct ALL_DATA *) data;
 	struct GLOBAL *global = all_data->global;
+	struct vdIn *videoIn = all_data->videoIn;
 
 	int ret = 0;
 	int producer_sleep = 0;
@@ -908,6 +909,36 @@ int store_video_frame(void *data)
 		g_printerr("WARNING: video ring buffer not allocated yet - dropping frame.");
 		__UNLOCK_MUTEX(__GMUTEX);
 		return(-1);
+	}
+
+	if( global->VidCodec_ID == AV_CODEC_ID_H264 &&
+		global->Frame_Flags == 0 &&
+		global->format == V4L2_PIX_FMT_H264)
+	{
+		if(videoIn->h264_last_IDR_size <= 0)
+		{
+			g_printerr("WARNING: h264 video stream hasn't produce a IDR frame yet - dropping frame.");
+			return (-1);
+		}
+
+		if( global->framecount < 1 &&
+			!videoIn->isKeyframe )
+		{
+			if (!global->videoBuff[global->w_ind].used) //it's the first frame (should allways be true)
+			{
+				//should we add SPS and PPS NALU first??
+				//store the last keyframe first (use current timestamp)
+				global->videoBuff[global->w_ind].time_stamp = global->v_ts - global->av_drift;
+				global->videoBuff[global->w_ind].bytes_used = videoIn->h264_last_IDR_size;
+				memcpy( global->videoBuff[global->w_ind].frame,
+					videoIn->h264_last_IDR,
+					global->videoBuff[global->w_ind].bytes_used);
+				global->videoBuff[global->w_ind].keyframe = TRUE;
+				producer_sleep = buff_scheduler(global->w_ind, global->r_ind, global->video_buff_size);
+				NEXT_IND(global->w_ind, global->video_buff_size);
+				global->framecount++;
+			}
+		}
 	}
 
 	if (!global->videoBuff[global->w_ind].used)

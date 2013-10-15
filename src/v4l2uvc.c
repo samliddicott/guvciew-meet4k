@@ -334,20 +334,15 @@ static int queue_buff(struct vdIn *vd)
 }
 
 /*
- * parses a buff (*buff) of size (size) for NALU type (type),
- * returns NALU size and sets pointer (NALU) to NALU data
- * returns -1 if no NALU found
+ * check buff (*buff) of size (size) for NALU type (type)
+ * returns:
+ *  buffer pointer to NALU type data if found
+ *  NULL if not found
  */
-static int parse_NALU(uint8_t type, uint8_t **NALU, uint8_t *buff, int size)
+static uint8_t* check_NALU(uint8_t type, uint8_t *buff, int size)
 {
-	//char test_filename[20];
-	//snprintf(test_filename, 20, "frame_complete.raw");
-	//SaveBuff (test_filename,size, buff);
-	
-	int nal_size = 0;
-	uint8_t *sp = NULL;
-	uint8_t *nal = NULL;
-
+	uint8_t *sp = buff;
+	uint8_t *nall = NULL;
 	//search for NALU of type
 	for(sp = buff; sp < buff + size - 5; ++sp)
 	{
@@ -357,10 +352,31 @@ static int parse_NALU(uint8_t type, uint8_t **NALU, uint8_t *buff, int size)
 		   sp[3] == 0x01 &&
 		   (sp[4] & 0x1F) == type)
 		{
+			//found it
 			nal = sp + 4;
 			break;
 		}
 	}
+
+	return nall;
+}
+
+/*
+ * parses a buff (*buff) of size (size) for NALU type (type),
+ * returns NALU size and sets pointer (NALU) to NALU data
+ * returns -1 if no NALU found
+ */
+static int parse_NALU(uint8_t type, uint8_t **NALU, uint8_t *buff, int size)
+{
+	//char test_filename[20];
+	//snprintf(test_filename, 20, "frame_complete.raw");
+	//SaveBuff (test_filename,size, buff);
+
+	int nal_size = 0;
+	uint8_t *sp = NULL;
+
+	//search for NALU of type
+	uint8_t *nal = check_NALU(type, buff, size);
 	if(nal == NULL)
 	{
 		fprintf(stderr, "uvc H264: could not find NALU of type %i in buffer\n", type);
@@ -385,11 +401,11 @@ static int parse_NALU(uint8_t type, uint8_t **NALU, uint8_t *buff, int size)
 
 	*NALU = g_new0(uint8_t, nal_size);
 	memcpy(*NALU, nal, nal_size);
-	
+
 	//char test_filename2[20];
 	//snprintf(test_filename2, 20, "frame_nalu-%i.raw", type);
 	//SaveBuff (test_filename2, nal_size, *NALU);
-	
+
 	return nal_size;
 }
 /*
@@ -423,6 +439,24 @@ static int store_extra_data(struct vdIn *vd)
 		}
 		else
 			printf("stored PPS %i bytes of data\n", vd->h264_SPS_size);
+	}
+
+	return 0;
+}
+
+/* check/store the last IDR frame
+ * return:
+ *  1 if IDR frame
+ *  0 if non IDR frame
+ */
+static gboolean is_h264_keyframe (struct vdIn *vd)
+{
+	//check for a IDR frame type
+	if(check_NALU(5, vd->mem[vd->buf.index], vd->buf.bytesused) != NULL)
+	{
+		memcpy(vd->h264_last_IDR, vd->mem[vd->buf.index], vd->buf.bytesused);
+		vd->h264_last_IDR_size = vd->buf.bytesused;
+		return 1;
 	}
 
 	return 0;
@@ -680,6 +714,9 @@ static int videoIn_frame_alloca(struct vdIn *vd, int format, int width, int heig
 	switch (format)
 	{
 		case V4L2_PIX_FMT_H264:
+			vd->h264_last_IDR_size = framesizeIn;
+			vd->h264_last_IDR = g_new0(uint8_t, vd->h264_last_IDR_size);
+			vd->h264_last_IDR_size = 0; //reset (no frame stored)
 			if(vd->h264_ctx)
 				close_h264_decoder(vd->h264_ctx);
 			vd->h264_ctx = init_h264_decoder(width, height); //init h264 context and fall through
@@ -687,10 +724,10 @@ static int videoIn_frame_alloca(struct vdIn *vd, int format, int width, int heig
 		case V4L2_PIX_FMT_MJPEG:
 			// alloc a temp buffer to reconstruct the pict (MJPEG)
 			tmpbuf_size= framesizeIn;
-			vd->tmpbuffer = g_new0(unsigned char, tmpbuf_size);
+			vd->tmpbuffer = g_new0(uint8_t, tmpbuf_size);
 
 			framebuf_size = width * (height + 8) * 2;
-			vd->framebuffer = g_new0(unsigned char, framebuf_size);
+			vd->framebuffer = g_new0(uint8_t, framebuf_size);
 			break;
 
 		case V4L2_PIX_FMT_UYVY:
@@ -825,6 +862,9 @@ void clear_v4l2(struct vdIn *videoIn)
 	videoIn->videodevice = NULL;
 	videoIn->VidFName = NULL;
 	videoIn->ImageFName = NULL;
+	videoIn->h264_last_IDR_size = 0;
+	videoIn->h264_PPS_size = 0;
+	videoIn->h264_SPS_size = 0;
 
 	if(videoIn->cap_meth == IO_READ)
 	{
@@ -887,6 +927,8 @@ int init_videoIn(struct vdIn *videoIn, struct GLOBAL *global)
 	videoIn->h264_SPS_size = 0;
 	videoIn->h264_PPS = NULL;
 	videoIn->h264_PPS_size = 0;
+	videoIn->h264_last_IDR = NULL;
+	videoIn->h264_last_IDR_size = 0;
 	//timestamps not supported by UVC driver
 	//vd->timecode.type = V4L2_TC_TYPE_25FPS;
 	//vd->timecode.flags = V4L2_TC_FLAG_DROPFRAME;
@@ -1020,16 +1062,23 @@ static int frame_decode(struct vdIn *vd, int format, int width, int height)
 	{
 		case V4L2_PIX_FMT_H264:
 			/*
-			 * use libavcodec x264 decoder if available
-			 * otherwise return black frame
+			 * store SPS and PPS info (usually the first two NALU)
+			 * and check/store the last IDR frame
 			 */
+			store_extra_data(vd)
 
-			/* store SPS and PPS info (usually the first two NALU) */
-			store_extra_data(vd);
-		
-			/* decode (h264) to vd->tmpbuffer (yuv420p)*/
-			decode_h264(vd->tmpbuffer, vd->mem[vd->buf.index], vd->buf.bytesused, vd->h264_ctx);
-			yuv420_to_yuyv (vd->framebuffer, vd->tmpbuffer, width, height);
+			/*
+			 * check for keyframe
+			 */
+			vd->isKeyframe = is_h264_keyframe(vd);
+
+			//decode if we already have a IDR frame
+			if(vd->h264_last_IDR_size > 0)
+			{
+				/* decode (h264) to vd->tmpbuffer (yuv420p)*/
+				decode_h264(vd->tmpbuffer, vd->mem[vd->buf.index], vd->buf.bytesused, vd->h264_ctx);
+				yuv420_to_yuyv (vd->framebuffer, vd->tmpbuffer, width, height);
+			}
 			break;
 
 		case V4L2_PIX_FMT_JPEG:
@@ -1375,6 +1424,16 @@ static int close_v4l2_buffers (struct vdIn *vd)
 	vd->tmpbuffer = NULL;
 	if(vd->framebuffer != NULL) g_free(vd->framebuffer);
 	vd->framebuffer = NULL;
+	if(videoIn->h264_last_IDR != NULL) g_free(vd->h264_last_IDR);
+	vd->h264_last_IDR = NULL;
+	//clean h264 SPS and PPS data buffers
+	if(vd->h264_SPS != NULL) g_free(vd->h264_SPS);
+	vd->h264_SPS  = NULL;
+	if(vd->h264_PPS != NULL) g_free(vd->h264_PPS);
+	vd->h264_PPS = NULL;
+	// clean h264 decoder context
+	close_h264_decoder(vd->h264_ctx);
+	vd->h264_ctx = NULL;
 	// unmap queue buffers
 	switch(vd->cap_meth)
 	{
@@ -1451,9 +1510,7 @@ void close_v4l2(struct vdIn *videoIn, gboolean control_only)
 	{
 		close_v4l2_buffers(videoIn);
 	}
-	close_h264_decoder(videoIn->h264_ctx);
-	if(videoIn->h264_SPS) g_free(videoIn->h264_SPS);
-	if(videoIn->h264_PPS) g_free(videoIn->h264_PPS);
+	videoIn->h264_last_IDR = NULL;
 	videoIn->h264_ctx = NULL;
 	videoIn->videodevice = NULL;
 	videoIn->tmpbuffer = NULL;

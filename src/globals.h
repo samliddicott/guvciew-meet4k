@@ -44,6 +44,7 @@ typedef struct _VidBuff
 	QWORD time_stamp;
 	BYTE *frame;
 	int bytes_used;
+	gboolean keyframe;
 } VidBuff;
 
 /*global variables used in guvcview*/
