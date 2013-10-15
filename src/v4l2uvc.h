@@ -128,6 +128,7 @@ struct vdIn
 	struct h264_decoder_context* h264_ctx; //h264 decoder context
 	uint8_t *h264_last_IDR;             // last IDR frame retrieved from uvc h264 stream
 	int h264_last_IDR_size;             // last IDR frame size
+	uint8_t *h264_frame;                // current uvc h264 frame retrieved from video stream
 	uint8_t *h264_SPS;                  // h264 SPS info
 	uint16_t h264_SPS_size;             // SPS size
 	uint8_t *h264_PPS;                  // h264 PPS info

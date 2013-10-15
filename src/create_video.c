@@ -873,7 +873,7 @@ static void store_at_index(void *data)
 		/*store H264 frame*/
 		global->videoBuff[global->w_ind].bytes_used = videoIn->buf.bytesused;
 		memcpy(global->videoBuff[global->w_ind].frame,
-			videoIn->tmpbuffer,
+			videoIn->h264_frame,
 			global->videoBuff[global->w_ind].bytes_used);
 		global->videoBuff[global->w_ind].keyframe = videoIn->isKeyframe;
 	}

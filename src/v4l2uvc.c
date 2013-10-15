@@ -417,7 +417,7 @@ static int store_extra_data(struct vdIn *vd)
 
 	if(vd->h264_SPS == NULL)
 	{
-		vd->h264_SPS_size = parse_NALU( 7, &vd->h264_SPS, vd->mem[vd->buf.index], vd->buf.bytesused);
+		vd->h264_SPS_size = parse_NALU( 7, &vd->h264_SPS, vd->h264_frame, vd->buf.bytes_used);
 
 		if(vd->h264_SPS_size <= 0 || vd->h264_SPS == NULL)
 		{
@@ -430,7 +430,7 @@ static int store_extra_data(struct vdIn *vd)
 
 	if(vd->h264_PPS == NULL)
 	{
-		vd->h264_PPS_size = parse_NALU( 8, &vd->h264_PPS, vd->mem[vd->buf.index], vd->buf.bytesused);
+		vd->h264_PPS_size = parse_NALU( 8, &vd->h264_PPS, vd->h264_frame, vd->buf.bytes_used);
 
 		if(vd->h264_PPS_size <= 0 || vd->h264_PPS == NULL)
 		{
@@ -452,9 +452,9 @@ static int store_extra_data(struct vdIn *vd)
 static gboolean is_h264_keyframe (struct vdIn *vd)
 {
 	//check for a IDR frame type
-	if(check_NALU(5, vd->mem[vd->buf.index], vd->buf.bytesused) != NULL)
+	if(check_NALU(5, vd->h264_frame, vd->buf.bytes_used) != NULL)
 	{
-		memcpy(vd->h264_last_IDR, vd->mem[vd->buf.index], vd->buf.bytesused);
+		memcpy(vd->h264_last_IDR, vd->h264_frame, vd->buf.bytes_used);
 		vd->h264_last_IDR_size = vd->buf.bytesused;
 		return 1;
 	}
@@ -714,8 +714,8 @@ static int videoIn_frame_alloca(struct vdIn *vd, int format, int width, int heig
 	switch (format)
 	{
 		case V4L2_PIX_FMT_H264:
-			vd->h264_last_IDR_size = framesizeIn;
-			vd->h264_last_IDR = g_new0(uint8_t, vd->h264_last_IDR_size);
+			vd->h264_frame = g_new0(uint8_t, framesizeIn);
+			vd->h264_last_IDR = g_new0(uint8_t, framesizeIn);
 			vd->h264_last_IDR_size = 0; //reset (no frame stored)
 			if(vd->h264_ctx)
 				close_h264_decoder(vd->h264_ctx);
@@ -940,6 +940,7 @@ int init_videoIn(struct vdIn *videoIn, struct GLOBAL *global)
 
 	videoIn->tmpbuffer = NULL;
 	videoIn->framebuffer = NULL;
+	videoIn->h264_frame = NULL;
 
     /*start udev device monitoring*/
     /* Set up a monitor to monitor v4l2 devices */
@@ -1061,6 +1062,11 @@ static int frame_decode(struct vdIn *vd, int format, int width, int height)
 	switch (format)
 	{
 		case V4L2_PIX_FMT_H264:
+			/*
+			 * store raw frame in h264 frame buffer
+			 */
+			memcpy(vd->h264_frame, vd->mem[vd->buf.index], vd->buf.bytesused);
+
 			/*
 			 * store SPS and PPS info (usually the first two NALU)
 			 * and check/store the last IDR frame
@@ -1426,6 +1432,8 @@ static int close_v4l2_buffers (struct vdIn *vd)
 	vd->framebuffer = NULL;
 	if(vd->h264_last_IDR != NULL) g_free(vd->h264_last_IDR);
 	vd->h264_last_IDR = NULL;
+	if(vd->h264_frame != NULL) g_free(vd->h264_frame);
+	vd->h264_frame = NULL;
 	//clean h264 SPS and PPS data buffers
 	if(vd->h264_SPS != NULL) g_free(vd->h264_SPS);
 	vd->h264_SPS  = NULL;
@@ -1515,6 +1523,7 @@ void close_v4l2(struct vdIn *videoIn, gboolean control_only)
 	videoIn->videodevice = NULL;
 	videoIn->tmpbuffer = NULL;
 	videoIn->framebuffer = NULL;
+	videoIn->h264_frame = NULL;
 	videoIn->ImageFName = NULL;
 	videoIn->VidFName = NULL;
 	if(videoIn->listDevices != NULL) freeDevices(videoIn->listDevices);
