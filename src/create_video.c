@@ -890,7 +890,7 @@ static void store_at_index(void *data)
 	}
 	global->videoBuff[global->w_ind].used = TRUE;
 
-	//printf("CODECID: %i (%i) format: %i (%i) size:%i\n",global->VidCodec_ID, AV_CODEC_ID_H264, global->format, V4L2_PIX_FMT_H264, videoIn->buf.bytesused);
+	//printf("CODECID: %i (%i) format: %i (%i) size: %i (%i)\n",global->VidCodec_ID, AV_CODEC_ID_H264, global->format, V4L2_PIX_FMT_H264, global->videoBuff[global->w_ind].bytes_used, videoIn->buf.bytesused);
 }
 
 /* called from main video loop*
@@ -929,9 +929,10 @@ int store_video_frame(void *data)
 		{
 			if (!global->videoBuff[global->w_ind].used) //it's the first frame (should allways be true)
 			{
+				//printf("storing last IDR at video buf ind %i\n", global->w_ind);
 				//should we add SPS and PPS NALU first??
 				//store the last keyframe first (use current timestamp)
-				global->videoBuff[global->w_ind].time_stamp = global->v_ts - global->av_drift;
+				global->videoBuff[global->w_ind].time_stamp = 0;
 				global->videoBuff[global->w_ind].bytes_used = videoIn->h264_last_IDR_size;
 				memcpy( global->videoBuff[global->w_ind].frame,
 					videoIn->h264_last_IDR,
@@ -947,7 +948,12 @@ int store_video_frame(void *data)
 	if (!global->videoBuff[global->w_ind].used)
 	{
 		store_at_index(data);
-		producer_sleep = buff_scheduler(global->w_ind, global->r_ind, global->video_buff_size);
+		if( global->VidCodec_ID == AV_CODEC_ID_H264 &&
+		global->Frame_Flags == 0 &&
+		global->format == V4L2_PIX_FMT_H264)
+			producer_sleep = 0;
+		else
+			producer_sleep = buff_scheduler(global->w_ind, global->r_ind, global->video_buff_size);
 		NEXT_IND(global->w_ind, global->video_buff_size);
 	}
 	else
