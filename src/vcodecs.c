@@ -701,11 +701,13 @@ int set_mkvCodecPriv(struct vdIn *videoIn, struct GLOBAL *global, struct lavcDat
 			tp[5] = 0xe1; /* 3 bits reserved (111) + 5 bits number of sps (00001) */
 
 			tp += 6;
-			memcpy(tp, &videoIn->h264_SPS_size , 2);
+			tp[0] = (uint8_t) (videoIn->h264_SPS_size >> 8);
+			tp[1] = (uint8_t) videoIn->h264_SPS_size;
 			tp += 2; //SPS size (16 bit)
 			memcpy(tp, videoIn->h264_SPS , videoIn->h264_SPS_size);
 			tp += videoIn->h264_SPS_size;
-			memcpy(tp, &videoIn->h264_PPS_size , 2);
+			tp[0] = (uint8_t) (videoIn->h264_PPS_size >> 8);
+			tp[1] = (uint8_t) videoIn->h264_PPS_size;
 			tp += 2; //PPS size (16 bit)
 			memcpy(tp, videoIn->h264_PPS , videoIn->h264_PPS_size);
 			
@@ -943,7 +945,12 @@ int compress_frame(void *data,
 
 		default:
 			if(global->format == V4L2_PIX_FMT_H264 && lavc_data->codec_id == AV_CODEC_ID_H264)
+			{
+				if(proc_buff->keyframe)
+					videoF->vflags |= AV_PKT_FLAG_KEY;
 				ret = write_video_data (all_data, proc_buff->frame, proc_buff->bytes_used);
+				videoF->old_vpts = videoF->vpts;
+			}
 			else
 				ret = encode_lavc (lavc_data, all_data, proc_buff);
 			break;

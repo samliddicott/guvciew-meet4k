@@ -368,10 +368,6 @@ static uint8_t* check_NALU(uint8_t type, uint8_t *buff, int size)
  */
 static int parse_NALU(uint8_t type, uint8_t **NALU, uint8_t *buff, int size)
 {
-	//char test_filename[20];
-	//snprintf(test_filename, 20, "frame_complete.raw");
-	//SaveBuff (test_filename,size, buff);
-
 	int nal_size = 0;
 	uint8_t *sp = NULL;
 
@@ -402,9 +398,9 @@ static int parse_NALU(uint8_t type, uint8_t **NALU, uint8_t *buff, int size)
 	*NALU = g_new0(uint8_t, nal_size);
 	memcpy(*NALU, nal, nal_size);
 
-	//char test_filename2[20];
-	//snprintf(test_filename2, 20, "frame_nalu-%i.raw", type);
-	//SaveBuff (test_filename2, nal_size, *NALU);
+	char test_filename2[20];
+	snprintf(test_filename2, 20, "frame_nalu-%i.raw", type);
+	SaveBuff (test_filename2, nal_size, *NALU);
 
 	return nal_size;
 }
@@ -456,6 +452,7 @@ static gboolean is_h264_keyframe (struct vdIn *vd)
 	{
 		memcpy(vd->h264_last_IDR, vd->h264_frame, vd->buf.bytesused);
 		vd->h264_last_IDR_size = vd->buf.bytesused;
+		printf("IDR frame found in frame %i\n", vd->frame_index);
 		return 1;
 	}
 

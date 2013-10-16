@@ -448,6 +448,7 @@ static int write_video_frame (struct ALL_DATA *all_data,
 
 	int ret=0;
 
+	//printf("proc_buff: size: %i, ts:%llu\n", proc_buff->bytes_used, proc_buff->time_stamp);
 	switch (global->VidFormat)
 	{
 		case AVI_FORMAT:
@@ -755,10 +756,11 @@ static gboolean process_video(struct ALL_DATA *all_data,
 			proc_buff->bytes_used = global->videoBuff[global->r_ind].bytes_used;
 			memcpy(proc_buff->frame, global->videoBuff[global->r_ind].frame, proc_buff->bytes_used);
 			proc_buff->time_stamp = global->videoBuff[global->r_ind].time_stamp;
+			proc_buff->keyframe =  global->videoBuff[global->r_ind].keyframe;
 			global->videoBuff[global->r_ind].used = FALSE;
 			/*signals an empty slot in the video buffer*/
 			__COND_BCAST(__GCOND);
-
+			//printf("proc_buff bytes used %i\n", proc_buff->bytes_used);
 			NEXT_IND(global->r_ind,global->video_buff_size);
 			audio_drift -= global->av_drift;
 		__UNLOCK_MUTEX(__GMUTEX);
@@ -887,7 +889,7 @@ static void store_at_index(void *data)
 	}
 	global->videoBuff[global->w_ind].used = TRUE;
 
-	//printf("CODECID: %i (%i) format: %i (%i) flags:%i\n",global->VidCodec_ID, AV_CODEC_ID_H264, global->format, V4L2_PIX_FMT_H264, global->Frame_Flags);
+	//printf("CODECID: %i (%i) format: %i (%i) size:%i\n",global->VidCodec_ID, AV_CODEC_ID_H264, global->format, V4L2_PIX_FMT_H264, videoIn->buf.bytesused);
 }
 
 /* called from main video loop*
