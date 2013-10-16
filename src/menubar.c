@@ -73,7 +73,7 @@ GtkWidget *create_menu(struct ALL_DATA *all_data, int control_only)
 
 	camera_button_menu = gtk_menu_new();
 	camera_button_top = gtk_menu_item_new_with_label(_("Camera Button"));
-	
+
 	GSList *camera_button_group = NULL;
 
 	GtkWidget *def_image = gtk_radio_menu_item_new_with_label(camera_button_group, _("Capture Image"));
@@ -172,8 +172,10 @@ GtkWidget *create_menu(struct ALL_DATA *all_data, int control_only)
 		{
 			item = gtk_radio_menu_item_new_with_label(gwidget->vgroup, gettext(get_desc4cc(vcodec_ind)));
 			if (vcodec_ind == global->VidCodec)
+			{
 				gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (item), TRUE);
-
+				global->VidCodec_ID = get_vcodec_id(global->VidCodec); //sync the index with the codec_id
+			}
 			//NOTE: GSList indexes (g_slist_index) are in reverse order: last inserted has index 0
 			gwidget->vgroup = gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (item));
 

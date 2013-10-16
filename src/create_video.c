@@ -859,7 +859,7 @@ static void store_at_index(void *data)
 			videoIn->tmpbuffer,
 			global->videoBuff[global->w_ind].bytes_used);
 	}
-	else if ((global->VidCodec == CODEC_LAVC) && (global->Frame_Flags==0) &&
+	else if ((global->VidCodec >= CODEC_LAVC) && (global->Frame_Flags==0) &&
 		((global->format==V4L2_PIX_FMT_NV12) || (global->format==V4L2_PIX_FMT_NV21)))
 	{
 		/*store yuv420p frame*/
@@ -868,9 +868,10 @@ static void store_at_index(void *data)
 			videoIn->tmpbuffer,
 			global->videoBuff[global->w_ind].bytes_used);
 	}
-	else if (global->VidCodec_ID == AV_CODEC_ID_H264 &&
-			 global->Frame_Flags == 0 &&
-			 global->format == V4L2_PIX_FMT_H264)
+	else if ( global->format == V4L2_PIX_FMT_H264 &&
+			  global->VidCodec_ID == AV_CODEC_ID_H264 &&
+			  global->Frame_Flags == 0
+			)
 	{
 		/*store H264 frame*/
 		global->videoBuff[global->w_ind].bytes_used = videoIn->buf.bytesused;

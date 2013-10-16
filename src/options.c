@@ -425,6 +425,7 @@ readConf(struct GLOBAL *global)
 						else if (g_strcmp0(name,"vid_codec")==0 || (g_strcmp0(name,"avi_format")==0))
 						{
 							global->VidCodec = scanner->value.v_int;
+							//sync with global->VidCodec_ID when creating the menu entry for the codecs
 						}
 						else if (g_strcmp0(name,"vid_format")==0)
 						{

@@ -99,7 +99,7 @@ int initGlobals (struct GLOBAL *global)
 	if(vcodec < 0)
 		vcodec = 0;
 	global->VidCodec= vcodec; /*0-"MJPG"  1-"YUY2" 2-"DIB "(rgb32) 3-...*/
-	global->VidCodec_ID = get_vcodec_id(global->VidCodec);
+	global->VidCodec_ID = get_vcodec_id(global->VidCodec); // AV_CODEC_ID_MPEG4 or MJPG
 	/** try to set audio codec default to mp2*/
 	setAcodecVal();
 	int acodec = get_list_acodec_index(AV_CODEC_ID_MP2);
