@@ -452,7 +452,7 @@ static gboolean is_h264_keyframe (struct vdIn *vd)
 	{
 		memcpy(vd->h264_last_IDR, vd->h264_frame, vd->buf.bytesused);
 		vd->h264_last_IDR_size = vd->buf.bytesused;
-		printf("IDR frame found in frame %i\n", vd->frame_index);
+		printf("IDR frame found in frame " PRIu64 "\n", vd->frame_index);
 		return 1;
 	}
 
