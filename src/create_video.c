@@ -114,12 +114,13 @@ static int initVideoFile(struct ALL_DATA *all_data, void* lav_data)
 		gboolean capVid = videoIn->capVid;
 	__UNLOCK_MUTEX(__VMUTEX);
 
+	printf("initiating video file context\n");
 	/*alloc video ring buffer*/
 	alloc_videoBuff(all_data);
 
+	//FIXME: don't initate lavc on uvc h264 stream and H264 codec
 	if(isLavcCodec(global->VidCodec))
-		*lavc_data = init_lavc(global->width, global->height, global->fps_num, global->fps, global->VidCodec);
-
+		*lavc_data = init_lavc(global->width, global->height, global->fps_num, global->fps, global->VidCodec, global->format);
 
 	switch (global->VidFormat)
 	{
@@ -283,7 +284,7 @@ static int initVideoFile(struct ALL_DATA *all_data, void* lav_data)
 
 			break;
 	}
-
+	printf("    OK\n");
 	return (ret);
 }
 
@@ -448,7 +449,7 @@ static int write_video_frame (struct ALL_DATA *all_data,
 
 	int ret=0;
 
-	//printf("proc_buff: size: %i, ts:%llu\n", proc_buff->bytes_used, proc_buff->time_stamp);
+	//printf("proc_buff: size: %i, ts:%llu keyframe:%i\n", proc_buff->bytes_used, proc_buff->time_stamp, proc_buff->keyframe);
 	switch (global->VidFormat)
 	{
 		case AVI_FORMAT:
@@ -847,6 +848,9 @@ static void store_at_index(void *data)
 	struct GLOBAL *global = all_data->global;
 	struct vdIn *videoIn = all_data->videoIn;
 
+	if( global->framecount < 2)
+		global->v_ts += 1000;
+	
 	global->videoBuff[global->w_ind].time_stamp = global->v_ts - global->av_drift;
 
 	/*store frame at index*/
@@ -930,15 +934,19 @@ int store_video_frame(void *data)
 			if (!global->videoBuff[global->w_ind].used) //it's the first frame (should allways be true)
 			{
 				//printf("storing last IDR at video buf ind %i\n", global->w_ind);
+				//char test_filename[20];
+				//snprintf(test_filename, 20, "frame_last_IDR.raw");
+				//SaveBuff (test_filename, videoIn->h264_last_IDR_size, videoIn->h264_last_IDR);
+				
 				//should we add SPS and PPS NALU first??
 				//store the last keyframe first (use current timestamp)
-				global->videoBuff[global->w_ind].time_stamp = 0;
+				global->videoBuff[global->w_ind].time_stamp = global->v_ts;
 				global->videoBuff[global->w_ind].bytes_used = videoIn->h264_last_IDR_size;
 				memcpy( global->videoBuff[global->w_ind].frame,
 					videoIn->h264_last_IDR,
 					global->videoBuff[global->w_ind].bytes_used);
 				global->videoBuff[global->w_ind].keyframe = TRUE;
-				producer_sleep = buff_scheduler(global->w_ind, global->r_ind, global->video_buff_size);
+				global->videoBuff[global->w_ind].used = TRUE;
 				NEXT_IND(global->w_ind, global->video_buff_size);
 				global->framecount++;
 			}

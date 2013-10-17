@@ -435,6 +435,7 @@ static int64_t mkv_write_cues(mkv_Context* MKV, mkv_cues *cues, int num_tracks)
             mkv_end_ebml_master(MKV, track_positions);
         }
         i += j - 1;
+        printf("write end cue point for j=%i\n",j);
         mkv_end_ebml_master(MKV, cuepoint);
     }
     mkv_end_ebml_master(MKV, cues_element);
@@ -775,7 +776,7 @@ int mkv_close(mkv_Context* MKV)
 {
     int64_t currentpos, cuespos;
     int ret;
-
+	printf("closing MKV\n");
     // check if we have an audio packet cached
     if (MKV->pkt_size > 0)
     {
@@ -795,17 +796,19 @@ int mkv_close(mkv_Context* MKV)
         }
     }
 
+	printf("closing cluster\n");
 	if(MKV->cluster_pos)
 		mkv_end_ebml_master(MKV, MKV->cluster);
 
 	if (MKV->cues->num_entries)
 	{
+		printf("writing cues\n");
 		cuespos = mkv_write_cues(MKV, MKV->cues, MKV->stream_list_size);
-
+		printf("add seekhead\n");
 		ret = mkv_add_seekhead_entry(MKV->main_seekhead, MATROSKA_ID_CUES, cuespos);
         if (ret < 0) return ret;
 	}
-
+	printf("write seekhead\n");
     mkv_write_seekhead(MKV, MKV->main_seekhead);
 
     // update the duration

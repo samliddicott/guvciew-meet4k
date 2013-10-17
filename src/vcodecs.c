@@ -944,7 +944,7 @@ int compress_frame(void *data,
 			break;
 
 		default:
-			if(global->format == V4L2_PIX_FMT_H264 && lavc_data->codec_id == AV_CODEC_ID_H264)
+			if(global->format == V4L2_PIX_FMT_H264 && global->VidCodec_ID == AV_CODEC_ID_H264)
 			{
 				if(proc_buff->keyframe)
 					videoF->vflags |= AV_PKT_FLAG_KEY;

@@ -398,9 +398,9 @@ static int parse_NALU(uint8_t type, uint8_t **NALU, uint8_t *buff, int size)
 	*NALU = g_new0(uint8_t, nal_size);
 	memcpy(*NALU, nal, nal_size);
 
-	char test_filename2[20];
-	snprintf(test_filename2, 20, "frame_nalu-%i.raw", type);
-	SaveBuff (test_filename2, nal_size, *NALU);
+	//char test_filename2[20];
+	//snprintf(test_filename2, 20, "frame_nalu-%i.raw", type);
+	//SaveBuff (test_filename2, nal_size, *NALU);
 
 	return nal_size;
 }

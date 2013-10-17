@@ -160,7 +160,7 @@ int clean_lavc (void *arg);
 
 int clean_lavc_audio (void* arg);
 
-struct lavcData* init_lavc(int width, int height, int fps_num, int fps_den, int codec_ind);
+struct lavcData* init_lavc(int width, int height, int fps_num, int fps_den, int codec_ind, int format);
 
 struct lavcAData* init_lavc_audio(struct paRecordData *pdata, int codec_ind);
 

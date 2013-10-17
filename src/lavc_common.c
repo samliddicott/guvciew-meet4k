@@ -153,6 +153,11 @@ int encode_lavc_frame (BYTE *picture_buf, struct lavcData* data , int format, st
 {
 	int out_size = 0;
 
+	if(!data->codec_context)
+	{
+		data->flush_done = 1;
+		return out_size;
+	}	
 	videoF->vblock_align = data->codec_context->block_align;
 	//videoF->avi->time_base_num = data->codec_context->time_base.num;
 	//videoF->avi->time_base_den = data->codec_context->time_base.den;
@@ -346,14 +351,16 @@ int clean_lavc (void* arg)
 		if((*data)->priv_data != NULL)
 			g_free((*data)->priv_data);
 
-		//enc_frames = (*data)->codec_context->real_pict_num;
-		if(!(*data)->flushed_buffers)
-		{
-			avcodec_flush_buffers((*data)->codec_context);
-			(*data)->flushed_buffers = 1;
-		}
 		//close codec
-		avcodec_close((*data)->codec_context);
+		if((*data)->codec_context)
+		{
+			//enc_frames = (*data)->codec_context->real_pict_num;
+			if(!(*data)->flushed_buffers)
+			{
+				avcodec_flush_buffers((*data)->codec_context);
+				(*data)->flushed_buffers = 1;
+			}
+			avcodec_close((*data)->codec_context);
 #if LIBAVCODEC_VER_AT_LEAST(53,6)
 		//free private options;
 		struct lavcData *pdata = *data;
@@ -361,10 +368,14 @@ int clean_lavc (void* arg)
 #endif
 		//free codec context
 		g_free((*data)->codec_context);
+	}
 		(*data)->codec_context = NULL;
-		g_free((*data)->tmpbuf);
-		g_free((*data)->outbuf);
-		g_free((*data)->picture);
+		if((*data)->tmpbuf)
+			g_free((*data)->tmpbuf);
+		if((*data)->outbuf)
+			g_free((*data)->outbuf);
+		if((*data)->picture)
+			g_free((*data)->picture);
 		g_free(*data);
 		*data = NULL;
 	}
@@ -394,13 +405,16 @@ int clean_lavc_audio (void* arg)
 	return (0);
 }
 
-struct lavcData* init_lavc(int width, int height, int fps_num, int fps_den, int codec_ind)
+struct lavcData* init_lavc(int width, int height, int fps_num, int fps_den, int codec_ind, int format)
 {
 	//allocate
 	struct lavcData* data = g_new0(struct lavcData, 1);
 
 	data->priv_data = NULL;
 
+	if(format == V4L2_PIX_FMT_H264 && get_vcodec_id(codec_ind) == AV_CODEC_ID_H264)
+		return(data); //we only need the private data in this case
+		
 	data->codec_context = NULL;
 	vcodecs_data *defaults = get_codec_defaults(codec_ind);
 
@@ -414,6 +428,7 @@ struct lavcData* init_lavc(int width, int height, int fps_num, int fps_den, int 
 	if (!data->codec)
 	{
 		fprintf(stderr, "ffmpeg codec not found\n");
+		free(data);
 		return(NULL);
 	}
 #if LIBAVCODEC_VER_AT_LEAST(53,6)
@@ -422,7 +437,7 @@ struct lavcData* init_lavc(int width, int height, int fps_num, int fps_den, int 
 	data->codec_context = avcodec_alloc_context();
 #endif
 	data->codec_id = defaults->codec_id;
-
+	
 	//alloc picture
 	data->picture= avcodec_alloc_frame();
 	data->picture->pts = 0;
@@ -435,7 +450,7 @@ struct lavcData* init_lavc(int width, int height, int fps_num, int fps_den, int 
 	data->codec_context->flags |= defaults->flags;
 	if (defaults->num_threads > 0)
 		data->codec_context->thread_count = defaults->num_threads;
-
+	
 	/*
 	* mb_decision
 	*0 (FF_MB_DECISION_SIMPLE) Use mbcmp (default).
@@ -502,7 +517,7 @@ struct lavcData* init_lavc(int width, int height, int fps_num, int fps_den, int 
         // add rc_lookahead to codec properties and handle it gracefully by
         // fixing the frames timestamps => shift them by rc_lookahead frames
 	}
-
+	printf("here 3\n");
 	// open codec
 #if LIBAVCODEC_VER_AT_LEAST(53,6)
 	if (avcodec_open2(data->codec_context, data->codec, &data->private_options) < 0)
@@ -513,12 +528,13 @@ struct lavcData* init_lavc(int width, int height, int fps_num, int fps_den, int 
 		fprintf(stderr, "could not open codec\n");
 		return(NULL);
 	}
+	printf("here 4\n");
 	//alloc tmpbuff (yuv420p)
 	data->tmpbuf = g_new0(BYTE, (width*height*3)/2);
 	//alloc outbuf
 	data->outbuf_size = 240000;//1792
 	data->outbuf = g_new0(BYTE, data->outbuf_size);
-
+	printf("here 5\n");
 	data->delayed_frames = 0;
 	data->index_of_df = -1;
 
