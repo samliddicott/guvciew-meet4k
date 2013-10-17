@@ -827,7 +827,7 @@ static gboolean process_video(struct ALL_DATA *all_data,
 			/*wait for next frame (sleep 10 ms)*/
 			sleep_ms(10);
 		}
-		else if (lavc_data != NULL) //if we are using a lavc encoder flush the last frames
+		else if (lavc_data != NULL && lavc_data->codec_context != NULL) //if we are using a lavc encoder flush the last frames
 		{
 			//flush video encoder
 			lavc_data->flush_delayed_frames = 1;

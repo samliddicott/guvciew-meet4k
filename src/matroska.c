@@ -435,7 +435,6 @@ static int64_t mkv_write_cues(mkv_Context* MKV, mkv_cues *cues, int num_tracks)
             mkv_end_ebml_master(MKV, track_positions);
         }
         i += j - 1;
-        printf("write end cue point for j=%i\n",j);
         mkv_end_ebml_master(MKV, cuepoint);
     }
     mkv_end_ebml_master(MKV, cues_element);
