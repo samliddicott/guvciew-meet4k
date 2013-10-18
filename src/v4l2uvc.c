@@ -434,7 +434,7 @@ static int store_extra_data(struct vdIn *vd)
 			return -1;
 		}
 		else
-			printf("stored PPS %i bytes of data\n", vd->h264_SPS_size);
+			printf("stored PPS %i bytes of data\n", vd->h264_PPS_size);
 	}
 
 	return 0;

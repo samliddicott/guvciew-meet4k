@@ -707,7 +707,7 @@ int set_mkvCodecPriv(struct vdIn *videoIn, struct GLOBAL *global, struct lavcDat
 			memcpy(tp, videoIn->h264_SPS , videoIn->h264_SPS_size);
 			tp += videoIn->h264_SPS_size;
 			//PPS number of pps (1 byte) + size (2 bytes) + PPS data
-			tp[0] = 0x01: //number of pps
+			tp[0] = 0x01; //number of pps
 			tp[1] = (uint8_t) (videoIn->h264_PPS_size >> 8);
 			tp[2] = (uint8_t) videoIn->h264_PPS_size; //4 for logitech uvc 1.1
 			tp += 3; //PPS size (16 bit)
