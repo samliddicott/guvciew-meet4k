@@ -687,30 +687,32 @@ int set_mkvCodecPriv(struct vdIn *videoIn, struct GLOBAL *global, struct lavcDat
 			}
 
 			//alloc the private data
-			size = 6 + 2 + videoIn->h264_SPS_size + 2 + videoIn->h264_PPS_size;
+			size = 6 + 2 + videoIn->h264_SPS_size + 1 + 2 + videoIn->h264_PPS_size;
 			data->priv_data = g_new0(BYTE, size);
 
 			//write the codec private data
 			uint8_t *tp = data->priv_data;
-
+			//header (6 bytes)
 			tp[0] = 1; //version
 			tp[1] = videoIn->h264_SPS[1]; /* profile */
 			tp[2] = videoIn->h264_SPS[2]; /* profile compat */
 			tp[3] = videoIn->h264_SPS[3]; /* level */
 			tp[4] = 0xff; /* 6 bits reserved (111111) + 2 bits nal size length - 1 (11) */
 			tp[5] = 0xe1; /* 3 bits reserved (111) + 5 bits number of sps (00001) */
-
 			tp += 6;
+			//SPS: size (2 bytes) + SPS data
 			tp[0] = (uint8_t) (videoIn->h264_SPS_size >> 8);
-			tp[1] = (uint8_t) videoIn->h264_SPS_size;
+			tp[1] = (uint8_t) videoIn->h264_SPS_size; //38 for logitech uvc 1.1
 			tp += 2; //SPS size (16 bit)
 			memcpy(tp, videoIn->h264_SPS , videoIn->h264_SPS_size);
 			tp += videoIn->h264_SPS_size;
-			tp[0] = (uint8_t) (videoIn->h264_PPS_size >> 8);
-			tp[1] = (uint8_t) videoIn->h264_PPS_size;
-			tp += 2; //PPS size (16 bit)
+			//PPS number of pps (1 byte) + size (2 bytes) + PPS data
+			tp[0] = 0x01: //number of pps
+			tp[1] = (uint8_t) (videoIn->h264_PPS_size >> 8);
+			tp[2] = (uint8_t) videoIn->h264_PPS_size; //4 for logitech uvc 1.1
+			tp += 3; //PPS size (16 bit)
 			memcpy(tp, videoIn->h264_PPS , videoIn->h264_PPS_size);
-			
+
 			listSupVCodecs[real_index].mkv_codecPriv = data->priv_data;
 		}
 
