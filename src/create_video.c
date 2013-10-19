@@ -223,6 +223,8 @@ static int initVideoFile(struct ALL_DATA *all_data, void* lav_data)
 			vstream = mkv_add_video_stream(videoF->mkv,
 									global->width,
 									global->height,
+									global->fps,
+									global->fps_num,
 									videoF->vcodec);
 
 

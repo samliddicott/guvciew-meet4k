@@ -297,6 +297,8 @@ io_Stream*
 mkv_add_video_stream(mkv_Context *MKV,
 					int32_t width,
 					int32_t height,
+					int32_t fps,
+					int32_t fps_num,
 					int32_t codec_id);
 
 /** add a audio stream to the context */

@@ -448,6 +448,13 @@ static void mkv_write_codecprivate(mkv_Context* MKV, io_Stream* stream)
 		mkv_put_ebml_binary(MKV, MATROSKA_ID_CODECPRIVATE, stream->extra_data, stream->extra_data_size);
 }
 
+static void  mkv_write_trackdefaultduration(mkv_Context* MKV, io_Stream* stream)
+{
+	if(stream->type == STREAM_TYPE_VIDEO)
+	{
+		mkv_put_ebml_uint(MKV, MATROSKA_ID_TRACKDEFAULTDURATION, floor(1E9/stream->fps));
+	}
+}
 
 static int mkv_write_tracks(mkv_Context* MKV)
 {
@@ -536,9 +543,11 @@ static int mkv_write_tracks(mkv_Context* MKV)
         }
 
         mkv_write_codecprivate(MKV, stream);
+        mkv_write_trackdefaultduration(MKV, stream);
 
         mkv_end_ebml_master(MKV, track);
     }
+    mkv_put_ebml_void(MKV, 200); // add some extra space
     mkv_end_ebml_master(MKV, tracks);
     return 0;
 }
@@ -855,6 +864,8 @@ io_Stream*
 mkv_add_video_stream(mkv_Context *MKV,
 					int32_t width,
 					int32_t height,
+					int32_t fps,
+					int32_t fps_num,
 					int32_t codec_id)
 {
 	io_Stream* stream = add_new_stream(&MKV->stream_list, &MKV->stream_list_size);
@@ -863,6 +874,7 @@ mkv_add_video_stream(mkv_Context *MKV,
 	stream->height = height;
 	stream->codec_id = codec_id;
 
+	stream->fps = (double) fps/fps_num;
 	stream->indexes = NULL;
 
 	return stream;
