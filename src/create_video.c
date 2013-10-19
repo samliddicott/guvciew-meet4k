@@ -883,7 +883,7 @@ static void store_at_index(void *data)
 			videoIn->h264_frame,
 			global->videoBuff[global->w_ind].bytes_used);
 		global->videoBuff[global->w_ind].keyframe = videoIn->isKeyframe;
-		//use monotonic timestamp
+		//use monotonic timestamp instead of real timestamp
 		global->videoBuff[global->w_ind].time_stamp = global->framecount * floor(1E9/global->fps);
 	}
 	else

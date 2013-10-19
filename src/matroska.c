@@ -624,6 +624,65 @@ int mkv_write_header(mkv_Context* MKV)
     return 0;
 }
 
+static int mkv_processh264_nalu(BYTE *data, int size)
+{
+	//replace 00 00 00 01 (nalu marker) with nalu size
+	int last_nalu = 0; //marks last nalu in buffer
+	int tot_nal = 0;
+	uint8_t *nal_start = data;
+	uint8_t *sp = data;
+	uint8_t *ep = NULL;
+	uint32_t nal_size = 0;
+	
+	while (!last_nalu)
+	{
+		nal_size = 0;
+		
+		//search for NALU marker
+		for(sp = nal_start; sp < data + size - 4; ++sp)
+		{
+			if(sp[0] == 0x00 &&
+			   sp[1] == 0x00 &&
+			   sp[2] == 0x00 &&
+			   sp[3] == 0x01)
+			{
+				nal_start = sp + 4;
+				break;
+			}
+		}
+
+		//search for end of NALU
+		for(ep = nal_start; ep < data + size - 4; ++ep)
+		{
+			if(ep[0] == 0x00 &&
+			   ep[1] == 0x00 &&
+			   ep[2] == 0x00 &&
+			   ep[3] == 0x01)
+			{
+				nal_size = ep - nal_start;
+				nal_start = ep;//reset for next NALU
+				break;
+			}
+		}
+		
+		if(!nal_size)
+		{
+			last_nalu = 1;
+			nal_size = data + size - nal_start;
+		}
+		
+		sp[0] = (nal_size >> 24) & 0x000000FF;
+		sp[1] = (nal_size >> 16) & 0x000000FF;
+		sp[2] = (nal_size >> 8) & 0x000000FF;
+		sp[3] = (nal_size) & 0x000000FF;
+		
+		tot_nal++;
+
+	}
+	
+	return tot_nal;
+}
+
 static int mkv_blockgroup_size(int pkt_size)
 {
     int size = pkt_size + 4;
@@ -643,6 +702,10 @@ static void mkv_write_block(mkv_Context* MKV,
                             uint64_t pts,
                             int flags)
 {
+	io_Stream* stream = get_stream(MKV->stream_list, stream_index);
+	if(stream->codec_id == AV_CODEC_ID_H264)
+		mkv_processh264_nalu(data, size);
+		
 	uint8_t block_flags = 0x00;
 	
 	if(!!(flags & AV_PKT_FLAG_KEY)) //for simple block
