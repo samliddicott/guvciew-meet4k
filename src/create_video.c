@@ -850,8 +850,6 @@ static void store_at_index(void *data)
 	struct GLOBAL *global = all_data->global;
 	struct vdIn *videoIn = all_data->videoIn;
 
-	if( global->framecount < 2)
-		global->v_ts += 1000;
 	
 	global->videoBuff[global->w_ind].time_stamp = global->v_ts - global->av_drift;
 
@@ -885,6 +883,8 @@ static void store_at_index(void *data)
 			videoIn->h264_frame,
 			global->videoBuff[global->w_ind].bytes_used);
 		global->videoBuff[global->w_ind].keyframe = videoIn->isKeyframe;
+		//use monotonic timestamp
+		global->videoBuff[global->w_ind].time_stamp = global->framecount * floor(1E9/global->fps);
 	}
 	else
 	{

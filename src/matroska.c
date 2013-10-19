@@ -643,11 +643,16 @@ static void mkv_write_block(mkv_Context* MKV,
                             uint64_t pts,
                             int flags)
 {
+	uint8_t block_flags = 0x00;
+	
+	if(!!(flags & AV_PKT_FLAG_KEY)) //for simple block
+		block_flags |= 0x80;
+		
     mkv_put_ebml_id(MKV, blockid);
     mkv_put_ebml_num(MKV, size+4, 0);
     io_write_w8(MKV->writer, 0x80 | (stream_index + 1));// this assumes stream_index is less than 126
     io_write_wb16(MKV->writer, pts - MKV->cluster_pts); //pts and cluster_pts are scaled
-    io_write_w8(MKV->writer, flags);
+    io_write_w8(MKV->writer, block_flags);
     io_write_buf(MKV->writer, data, size);
 }
 
@@ -660,7 +665,9 @@ static int mkv_write_packet_internal(mkv_Context* MKV,
                             int flags)
 {
     int keyframe = !!(flags & AV_PKT_FLAG_KEY);
-
+	
+	int use_simpleblock = 1;
+    
     int ret;
     uint64_t ts = pts / MKV->timescale; //scale the time stamp
 
@@ -675,12 +682,16 @@ static int mkv_write_packet_internal(mkv_Context* MKV,
 		MKV->cluster_pts = MAX(0, ts);
     }
 
-	ebml_master blockgroup = mkv_start_ebml_master(MKV, MATROSKA_ID_BLOCKGROUP, mkv_blockgroup_size(size));
-	mkv_write_block(MKV, MATROSKA_ID_BLOCK, stream_index, data, size, ts, flags);
-	if(duration)
-		mkv_put_ebml_uint(MKV, MATROSKA_ID_BLOCKDURATION, duration);
-	mkv_end_ebml_master(MKV, blockgroup);
-
+	if(use_simpleblock)
+		mkv_write_block(MKV, MATROSKA_ID_SIMPLEBLOCK, stream_index, data, size, ts, flags);
+	else
+	{
+		ebml_master blockgroup = mkv_start_ebml_master(MKV, MATROSKA_ID_BLOCKGROUP, mkv_blockgroup_size(size));
+		mkv_write_block(MKV, MATROSKA_ID_BLOCK, stream_index, data, size, ts, flags);
+		if(duration)
+			mkv_put_ebml_uint(MKV, MATROSKA_ID_BLOCKDURATION, duration);
+		mkv_end_ebml_master(MKV, blockgroup);
+	}
 
     if (get_stream(MKV->stream_list, stream_index)->type == STREAM_TYPE_VIDEO && keyframe)
     {
@@ -742,7 +753,7 @@ int mkv_write_packet(mkv_Context* MKV,
     // start a new cluster every 5 MB or 5 sec, or 32k / 1 sec for streaming or
     // after 4k and on a keyframe
     if (MKV->cluster_pos &&
-        ((cluster_size > 32*1024 && ts > MKV->cluster_pts + 1000) ||
+        (/*(cluster_size > 32*1024 && ts > MKV->cluster_pts + 1000) ||*/
          (cluster_size > 5*1024*1024 && ts > MKV->cluster_pts + 5000) ||
          (stream->type == STREAM_TYPE_VIDEO && keyframe && cluster_size > 4*1024)))
     {
