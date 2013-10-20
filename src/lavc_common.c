@@ -409,16 +409,18 @@ struct lavcData* init_lavc(int width, int height, int fps_num, int fps_den, int 
 {
 	//allocate
 	struct lavcData* data = g_new0(struct lavcData, 1);
-
 	data->priv_data = NULL;
-
+	
+	vcodecs_data *defaults = get_codec_defaults(codec_ind);
+	data->monotonic_pts = defaults->monotonic_pts;
+	
 	if(format == V4L2_PIX_FMT_H264 && get_vcodec_id(codec_ind) == AV_CODEC_ID_H264)
 		return(data); //we only need the private data in this case
 		
 	data->codec_context = NULL;
-	vcodecs_data *defaults = get_codec_defaults(codec_ind);
 
-	// find the audio encoder
+	data->codec = NULL;
+	// find the video encoder
 	//try specific codec (by name)
 	data->codec = avcodec_find_encoder_by_name(defaults->codec_name);
 
@@ -433,6 +435,7 @@ struct lavcData* init_lavc(int width, int height, int fps_num, int fps_den, int 
 	}
 #if LIBAVCODEC_VER_AT_LEAST(53,6)
 	data->codec_context = avcodec_alloc_context3(data->codec);
+	avcodec_get_context_defaults3 (data->codec_context, data->codec);
 #else
 	data->codec_context = avcodec_alloc_context();
 #endif
@@ -484,7 +487,6 @@ struct lavcData* init_lavc(int width, int height, int fps_num, int fps_den, int 
 	data->codec_context->qblur = defaults->qblur;
 	data->codec_context->strict_std_compliance = FF_COMPLIANCE_NORMAL;
 	data->codec_context->codec_id = defaults->codec_id;
-	data->monotonic_pts = defaults->monotonic_pts;
 
 #if !LIBAVCODEC_VER_AT_LEAST(53,0)
 #define AVMEDIA_TYPE_VIDEO CODEC_TYPE_VIDEO
@@ -517,7 +519,7 @@ struct lavcData* init_lavc(int width, int height, int fps_num, int fps_den, int 
         // add rc_lookahead to codec properties and handle it gracefully by
         // fixing the frames timestamps => shift them by rc_lookahead frames
 	}
-	printf("here 3\n");
+	
 	// open codec
 #if LIBAVCODEC_VER_AT_LEAST(53,6)
 	if (avcodec_open2(data->codec_context, data->codec, &data->private_options) < 0)
@@ -575,6 +577,7 @@ struct lavcAData* init_lavc_audio(struct paRecordData *pdata, int codec_ind)
 
 #if LIBAVCODEC_VER_AT_LEAST(53,6)
 	pdata->lavc_data->codec_context = avcodec_alloc_context3(pdata->lavc_data->codec);
+	avcodec_get_context_defaults3 (pdata->lavc_data->codec_context, pdata->lavc_data->codec);
 #else
 	pdata->lavc_data->codec_context = avcodec_alloc_context();
 #endif
@@ -654,8 +657,16 @@ struct lavcAData* init_lavc_audio(struct paRecordData *pdata, int codec_ind)
 	return(pdata->lavc_data);
 }
 
-
 // H264 decoder
+gboolean has_h264_decoder()
+{
+	if(avcodec_find_decoder(CODEC_ID_H264))
+		return TRUE;
+	else
+		return FALSE;
+}
+
+
 struct h264_decoder_context* init_h264_decoder(int width, int height)
 {
 	struct h264_decoder_context* h264_ctx = g_new0(struct h264_decoder_context, 1);

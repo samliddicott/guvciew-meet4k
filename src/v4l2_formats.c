@@ -194,6 +194,12 @@ int check_PixFormat(int pixfmt)
  * or -1 if not supported                    */
 int set_SupPixFormat(int pixfmt)
 {
+	if(pixfmt == V4L2_PIX_FMT_H264 && !has_h264_decoder())
+	{
+		fprintf(stderr,"H264: libavcodec H264 decoder codec not found (disabling support)\n");
+		return(-1);
+	}
+	
 	int i=0;
 	for (i=0; i<SUP_PIX_FMT; i++)
 	{
@@ -215,13 +221,14 @@ int set_SupPixFormatUvcH264()
 	int i=0;
 	for (i=0; i<SUP_PIX_FMT; i++)
 	{
-		if (V4L2_PIX_FMT_H264 == listSupFormats[i].format)
+		if (V4L2_PIX_FMT_H264 == listSupFormats[i].format && has_h264_decoder())
 		{
 			listSupFormats[i].hardware = 2; /*supported by hardware through uvc H264*/
 			return (i);
 		}
 	}
-	return(-1); /*not supported - should never happen*/
+	fprintf(stderr,"H264: libavcodec H264 decoder codec not found (disabling support)\n");
+	return(-1); /*not supported*/
 }
 
 /* get hardware flag for uvc H264

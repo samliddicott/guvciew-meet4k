@@ -123,6 +123,9 @@ static int initVideoFile(struct ALL_DATA *all_data, void* lav_data)
 	if(isLavcCodec(global->VidCodec))
 		*lavc_data = init_lavc(global->width, global->height, global->fps_num, global->fps, global->VidCodec, global->format);
 
+	if((*lavc_data)->monotonic_pts > 0)
+		global->monotonic_pts = TRUE;
+		
 	switch (global->VidFormat)
 	{
 		case AVI_FORMAT:
@@ -885,7 +888,8 @@ static void store_at_index(void *data)
 			global->videoBuff[global->w_ind].bytes_used);
 		global->videoBuff[global->w_ind].keyframe = videoIn->isKeyframe;
 		//use monotonic timestamp instead of real timestamp
-		global->videoBuff[global->w_ind].time_stamp = global->framecount * floor(1E9/global->fps);
+		if(global->monotonic_pts)
+			global->videoBuff[global->w_ind].time_stamp = global->framecount * floor(1E9/global->fps);
 	}
 	else
 	{

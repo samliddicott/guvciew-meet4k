@@ -140,6 +140,7 @@ struct h264_decoder_context
 	
 };
 
+gboolean has_h264_decoder();
 struct h264_decoder_context* init_h264_decoder(int width, int height);
 int decode_h264(uint8_t *out_buf, uint8_t *in_buf, int buf_size, struct h264_decoder_context* h264_ctx);
 void close_h264_decoder(struct h264_decoder_context* h264_ctx);
