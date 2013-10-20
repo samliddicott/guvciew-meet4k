@@ -418,6 +418,37 @@ void h264_commit_button_clicked(GtkButton * Button, struct ALL_DATA* data)
 	print_probe_commit_data(&config_probe_req);
 }
 
+void h264_reset_button_clicked(GtkButton * Button, struct ALL_DATA* data)
+{
+	struct GLOBAL *global = data->global;
+	struct vdIn *videoIn  = data->videoIn;
+	
+	uvcx_video_encoder_reset(videoIn->fd,  global->uvc_h264_unit);
+}
+
+void rate_control_mode_changed(GtkComboBox *combo, struct ALL_DATA *all_data)
+{
+	struct GLOBAL *global = all_data->global;
+	struct vdIn *videoIn  = all_data->videoIn;
+	struct uvc_h264_gtkcontrols  *h264_controls = all_data->h264_controls;
+	
+	uint8_t rate_mode = (uint8_t) (gtk_combo_box_get_active (combo) + 1);
+	
+	rate_mode |= (uint8_t) (gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(h264_controls->RateControlMode_cbr_flag)) & 0x0000001C);
+	
+	uvcx_set_video_rate_control_mode(videoIn->fd, global->uvc_h264_unit, rate_mode);
+	
+	rate_mode = uvcx_get_video_rate_control_mode(videoIn->fd, global->uvc_h264_unit, UVC_GET_CUR);
+	
+	int ratecontrolmode_index = rate_mode - 1; // from 0x01 to 0x03
+	if(ratecontrolmode_index < 0)
+		ratecontrolmode_index = 0;
+		
+	g_signal_handlers_block_by_func(combo, G_CALLBACK (rate_control_mode_changed), all_data);
+	gtk_combo_box_set_active(GTK_COMBO_BOX(h264_controls->RateControlMode), ratecontrolmode_index);
+	g_signal_handlers_unblock_by_func(combo, G_CALLBACK (rate_control_mode_changed), all_data);
+}
+
 /*
  * creates the control widgets for uvc H264
  */
@@ -492,10 +523,82 @@ void add_uvc_h264_controls_tab (struct ALL_DATA* all_data)
 	gtk_widget_show (Tab);
 	gtk_notebook_append_page(GTK_NOTEBOOK(gwidget->boxh),scroll,Tab);
 
+	//streaming controls
+	
+	//encoder reset
+	GtkWidget *reset_button = gtk_button_new_with_label(_("Encoder Reset"));
+	g_signal_connect (GTK_BUTTON(reset_button), "clicked",
+                                G_CALLBACK (h264_reset_button_clicked), all_data);
+
+    gtk_grid_attach (GTK_GRID(table), reset_button, 0, line, 1 ,1);
+	gtk_widget_show(reset_button);
+	
+	//bRateControlMode
+	line++;
+	GtkWidget* label_RateControlMode = gtk_label_new(_("Rate Control Mode:"));
+	gtk_misc_set_alignment (GTK_MISC (label_RateControlMode), 1, 0.5);
+	gtk_grid_attach (GTK_GRID(table), label_RateControlMode, 0, line, 1, 1);
+	gtk_widget_show (label_RateControlMode);
+	
+	uint8_t min_ratecontrolmode = uvcx_get_video_rate_control_mode(videoIn->fd, global->uvc_h264_unit, UVC_GET_MIN) & 0x03;
+	uint8_t max_ratecontrolmode = uvcx_get_video_rate_control_mode(videoIn->fd, global->uvc_h264_unit, UVC_GET_MAX) & 0x03;
+	
+	h264_controls->RateControlMode = gtk_combo_box_text_new();
+	if(max_ratecontrolmode >= 1 && min_ratecontrolmode < 2)
+		gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(h264_controls->RateControlMode),
+										_("CBR"));
+	if(max_ratecontrolmode >= 2 && min_ratecontrolmode < 3)
+		gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(h264_controls->RateControlMode),
+										_("VBR"));
+	
+	if(max_ratecontrolmode >= 3 && min_ratecontrolmode < 4)
+		gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(h264_controls->RateControlMode),
+										_("Constant QP"));
+
+	uint8_t cur_ratecontrolmode = uvcx_get_video_rate_control_mode(videoIn->fd, global->uvc_h264_unit, UVC_GET_CUR) & 0x03;
+	int ratecontrolmode_index = cur_ratecontrolmode - 1; // from 0x01 to 0x03
+	if(ratecontrolmode_index < 0)
+		ratecontrolmode_index = 0;
+
+	gtk_combo_box_set_active(GTK_COMBO_BOX(h264_controls->RateControlMode), ratecontrolmode_index);
+
+	//connect signal
+	g_signal_connect (GTK_COMBO_BOX_TEXT(h264_controls->RateControlMode), "changed",
+			G_CALLBACK (rate_control_mode_changed), all_data);
+                            	
+	gtk_grid_attach (GTK_GRID(table), h264_controls->RateControlMode, 1, line, 1 ,1);
+	gtk_widget_show (h264_controls->RateControlMode);
+
+	//bRateControlMode flags (Bits 4-8)
+	line++;
+	GtkWidget* label_RateControlMode_cbr_flag = gtk_label_new(_("Rate Control Mode flags:"));
+	gtk_misc_set_alignment (GTK_MISC (label_RateControlMode_cbr_flag), 1, 0.5);
+	gtk_grid_attach (GTK_GRID(table), label_RateControlMode_cbr_flag, 0, line, 1, 1);
+	gtk_widget_show (label_RateControlMode_cbr_flag);
+
+	uint8_t cur_vrcflags = uvcx_get_video_rate_control_mode(videoIn->fd, global->uvc_h264_unit, UVC_GET_CUR) & 0x1C;
+	uint8_t max_vrcflags = uvcx_get_video_rate_control_mode(videoIn->fd, global->uvc_h264_unit, UVC_GET_MAX) & 0x1C;
+	uint8_t min_vrcflags = uvcx_get_video_rate_control_mode(videoIn->fd, global->uvc_h264_unit, UVC_GET_MIN) & 0x1C;
+
+	GtkAdjustment *adjustment7 = gtk_adjustment_new (
+                                	cur_vrcflags,
+                                	min_vrcflags,
+                                    max_vrcflags,
+                                    1,
+                                    10,
+                                    0);
+
+    h264_controls->RateControlMode_cbr_flag = gtk_spin_button_new(adjustment7, 1, 0);
+    gtk_editable_set_editable(GTK_EDITABLE(h264_controls->RateControlMode_cbr_flag), TRUE);
+
+    gtk_grid_attach (GTK_GRID(table), h264_controls->RateControlMode_cbr_flag, 1, line, 1 ,1);
+    gtk_widget_show (h264_controls->RateControlMode_cbr_flag);
+
 
 	//probe_commitcontrols
 
 	//dwFrameInterval (get it from current fps)
+	line++;
 	GtkWidget* label_FrameInterval = gtk_label_new(_("Frame Interval (100ns units):"));
 	gtk_misc_set_alignment (GTK_MISC (label_FrameInterval), 1, 0.5);
 	gtk_grid_attach (GTK_GRID(table), label_FrameInterval, 0, line, 1, 1);
@@ -874,56 +977,6 @@ void add_uvc_h264_controls_tab (struct ALL_DATA* all_data)
 	gtk_grid_attach (GTK_GRID(table), h264_controls->UsageType, 1, line, 1 ,1);
 	gtk_widget_show (h264_controls->UsageType);
 	
-	//bRateControlMode
-	line++;
-	GtkWidget* label_RateControlMode = gtk_label_new(_("Rate Control Mode:"));
-	gtk_misc_set_alignment (GTK_MISC (label_RateControlMode), 1, 0.5);
-	gtk_grid_attach (GTK_GRID(table), label_RateControlMode, 0, line, 1, 1);
-	gtk_widget_show (label_RateControlMode);
-
-	h264_controls->RateControlMode = gtk_combo_box_text_new();
-	gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(h264_controls->RateControlMode),
-								_("CBR"));
-	gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(h264_controls->RateControlMode),
-								_("VBR"));
-	gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(h264_controls->RateControlMode),
-								_("Constant QP"));
-
-	uint8_t ratecontrolmode = config_probe_cur.bRateControlMode & 0x03;
-	int ratevontrolmode_index = ratecontrolmode - 1; // from 0x01 to 0x03
-	if(ratevontrolmode_index < 0)
-		ratevontrolmode_index = 0;
-
-	gtk_combo_box_set_active(GTK_COMBO_BOX(h264_controls->RateControlMode), ratevontrolmode_index);
-
-	gtk_grid_attach (GTK_GRID(table), h264_controls->RateControlMode, 1, line, 1 ,1);
-	gtk_widget_show (h264_controls->RateControlMode);
-
-	//bRateControlMode flags (Bits 4-8)
-	line++;
-	GtkWidget* label_RateControlMode_cbr_flag = gtk_label_new(_("Rate Control Mode flags:"));
-	gtk_misc_set_alignment (GTK_MISC (label_RateControlMode_cbr_flag), 1, 0.5);
-	gtk_grid_attach (GTK_GRID(table), label_RateControlMode_cbr_flag, 0, line, 1, 1);
-	gtk_widget_show (label_RateControlMode_cbr_flag);
-
-	cur_flags = config_probe_cur.bRateControlMode & 0x0000001C;
-	max_flags = config_probe_max.bRateControlMode & 0x0000001C;
-	min_flags = config_probe_min.bRateControlMode & 0x0000001C;
-
-	GtkAdjustment *adjustment7 = gtk_adjustment_new (
-                                	cur_flags,
-                                	min_flags,
-                                    max_flags,
-                                    1,
-                                    10,
-                                    0);
-
-    h264_controls->RateControlMode_cbr_flag = gtk_spin_button_new(adjustment7, 1, 0);
-    gtk_editable_set_editable(GTK_EDITABLE(h264_controls->RateControlMode_cbr_flag), TRUE);
-
-    gtk_grid_attach (GTK_GRID(table), h264_controls->RateControlMode_cbr_flag, 1, line, 1 ,1);
-    gtk_widget_show (h264_controls->RateControlMode_cbr_flag);
-
 	//bTemporalScaleMode
 	line++;
 	GtkWidget* label_TemporalScaleMode = gtk_label_new(_("Temporal Scale Mode:"));
@@ -1559,5 +1612,65 @@ int uvcx_video_commit(int hdevice, uint8_t unit_id, uvcx_video_config_probe_comm
 	return err;
 }
 
+int uvcx_video_encoder_reset(int hdevice, uint8_t unit_id)
+{
+	uvcx_encoder_reset encoder_reset_req = {0};
+	
+	int err = 0;
 
+	if((err = query_xu_control(hdevice, unit_id, UVCX_ENCODER_RESET, UVC_SET_CUR, &encoder_reset_req)) < 0)
+	{
+		perror("UVCX_ENCODER_RESET error");
+	}
+	
+	return err;
+}
 
+uint8_t uvcx_get_video_rate_control_mode(int hdevice, uint8_t unit_id, uint8_t query)
+{
+	uvcx_rate_control_mode_t rate_control_mode_req;
+	rate_control_mode_req.wLayerID = 0;
+		 
+	int err = 0;
+
+	if((err = query_xu_control(hdevice, unit_id, UVCX_RATE_CONTROL_MODE, query, &rate_control_mode_req)) < 0)
+	{
+		perror("UVCX_RATE_CONTROL_MODE: query error");
+		return err;
+	}
+	
+	return rate_control_mode_req.bRateControlMode;
+}
+
+int uvcx_set_video_rate_control_mode(int hdevice, uint8_t unit_id, uint8_t rate_mode)
+{
+	uvcx_rate_control_mode_t rate_control_mode_req;
+	rate_control_mode_req.wLayerID = 0;
+	rate_control_mode_req.bRateControlMode = rate_mode;
+	 
+	int err = 0;
+
+	if((err = query_xu_control(hdevice, unit_id, UVCX_RATE_CONTROL_MODE, UVC_SET_CUR, &rate_control_mode_req)) < 0)
+	{
+		perror("UVCX_ENCODER_RESET: SET_CUR error");
+	}
+	
+	return err;
+}
+
+int uvcx_request_frame_type(int hdevice, uint8_t unit_id, uint16_t type)
+{
+	uvcx_picture_type_control_t picture_type_req;
+	picture_type_req.wLayerID = 0;
+	picture_type_req.wPicType = type;
+	
+	int err = 0;
+
+	if((err = query_xu_control(hdevice, unit_id, UVCX_PICTURE_TYPE_CONTROL, UVC_SET_CUR, &picture_type_req)) < 0)
+	{
+		perror("UVCX_PICTURE_TYPE_CONTROL: SET_CUR error");
+	}
+	
+	return err;
+	
+}

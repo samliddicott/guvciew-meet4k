@@ -641,7 +641,7 @@ static int init_v4l2(struct vdIn *vd, struct GLOBAL *global)//int *format, int *
 
 	/* ----------- FPS --------------*/
 	input_set_framerate(vd, &global->fps, &global->fps_num);
-
+	
 	switch (vd->cap_meth)
 	{
 		case IO_READ: //allocate buffer for read
@@ -1288,6 +1288,9 @@ static int check_frame_available(struct vdIn *vd)
 */
 int uvcGrab(struct vdIn *vd, struct GLOBAL *global, int format, int width, int height)
 {
+	//request a IDR frame with SPS and PPS data if it's the first frame
+	if(global->format == V4L2_PIX_FMT_H264 && vd->frame_index < 1)
+		uvcx_request_frame_type(vd->fd, global->uvc_h264_unit, PICTURE_TYPE_IDR_FULL);
 
 	int ret = check_frame_available(vd);
 

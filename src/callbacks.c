@@ -31,6 +31,7 @@
 #include <portaudio.h>
 
 #include "v4l2uvc.h"
+#include "uvc_h264.h"
 #include "v4l2_dyna_ctrls.h"
 #include "avilib.h"
 #include "globals.h"
@@ -1890,7 +1891,9 @@ capture_vid (GtkToggleButton *VidButt, struct ALL_DATA *all_data)
 			/*disabling sound and video compression controls*/
             if(!global->no_display)
                 set_sensitive_vid_contrls(FALSE, global->Sound_enable, gwidget);
-
+			
+			//request a IDR frame with SPS and PPS data
+			uvcx_request_frame_type(videoIn->fd, global->uvc_h264_unit, PICTURE_TYPE_IDR_FULL);
 			/*start IO thread*/
 			if( __THREAD_CREATE(&all_data->IO_thread, IO_loop, (void *) all_data))
 			{

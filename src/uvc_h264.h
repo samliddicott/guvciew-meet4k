@@ -128,6 +128,11 @@ typedef struct
 #define PREFLIPPED_DISABLE        0x00
 #define PREFLIPPED_HORIZONTAL     0x01
 
+/* wPictureType defines */
+#define PICTURE_TYPE_IFRAME 	0x0000 //Generate an IFRAME
+#define PICTURE_TYPE_IDR		0x0001 //Generate an IDR
+#define PICTURE_TYPE_IDR_FULL	0x0002 //Generate an IDR frame with new SPS and PPS
+
 /* wLayerID Macro */
 
 /*                              wLayerID
@@ -290,5 +295,8 @@ void check_uvc_h264_format(struct vdIn *vd, struct GLOBAL *global);
 void commit_uvc_h264_format(struct vdIn *vd, struct GLOBAL *global);
 int uvcx_video_probe(int hdevice, uint8_t unit_id, uint8_t query, uvcx_video_config_probe_commit_t *uvcx_video_config);
 int uvcx_video_commit(int hdevice, uint8_t unit_id, uvcx_video_config_probe_commit_t *uvcx_video_config);
-
+int uvcx_video_encoder_reset(int hdevice, uint8_t unit_id);
+uint8_t uvcx_get_video_rate_control_mode(int hdevice, uint8_t unit_id, uint8_t query);
+int uvcx_set_video_rate_control_mode(int hdevice, uint8_t unit_id, uint8_t rate_mode);
+int uvcx_request_frame_type(int hdevice, uint8_t unit_id, uint16_t type);
 #endif /*UVC_H264_H*/

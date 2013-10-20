@@ -30,6 +30,7 @@
 #include "defs.h"
 #include "create_video.h"
 #include "v4l2uvc.h"
+#include "uvc_h264.h"
 #include "avilib.h"
 #include "globals.h"
 #include "sound.h"
@@ -927,6 +928,8 @@ int store_video_frame(void *data)
 		if(videoIn->h264_last_IDR_size <= 0)
 		{
 			g_printerr("WARNING: h264 video stream hasn't produce a IDR frame yet - dropping frame.");
+			g_printerr("        Requesting a IDR frame\n");
+			uvcx_request_frame_type(videoIn->fd, global->uvc_h264_unit, PICTURE_TYPE_IDR_FULL);
 			return (-1);
 		}
 
