@@ -298,5 +298,11 @@ int uvcx_video_commit(int hdevice, uint8_t unit_id, uvcx_video_config_probe_comm
 int uvcx_video_encoder_reset(int hdevice, uint8_t unit_id);
 uint8_t uvcx_get_video_rate_control_mode(int hdevice, uint8_t unit_id, uint8_t query);
 int uvcx_set_video_rate_control_mode(int hdevice, uint8_t unit_id, uint8_t rate_mode);
+uint8_t uvcx_get_temporal_scale_mode(int hdevice, uint8_t unit_id, uint8_t query);
+int uvcx_set_temporal_scale_mode(int hdevice, uint8_t unit_id, uint8_t scale_mode);
+uint8_t uvcx_get_spatial_scale_mode(int hdevice, uint8_t unit_id, uint8_t query);
+int uvcx_set_spatial_scale_mode(int hdevice, uint8_t unit_id, uint8_t scale_mode);
 int uvcx_request_frame_type(int hdevice, uint8_t unit_id, uint16_t type);
+uint32_t uvcx_get_frame_rate_config(int hdevice, uint8_t unit_id, uint8_t query);
+int uvcx_set_frame_rate_config(int hdevice, uint8_t unit_id, uint32_t framerate);
 #endif /*UVC_H264_H*/
