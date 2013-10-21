@@ -451,6 +451,9 @@ void rate_control_mode_changed(GtkComboBox *combo, struct ALL_DATA *all_data)
 
 void TemporalScaleMode_changed(GtkSpinButton *spin, struct ALL_DATA *all_data)
 {
+	struct GLOBAL *global = all_data->global;
+	struct vdIn *videoIn  = all_data->videoIn;
+
 	uint8_t scale_mode = (uint8_t) gtk_spin_button_get_value_as_int(spin);
 
 	uvcx_set_temporal_scale_mode(videoIn->fd, global->uvc_h264_unit, scale_mode);
@@ -465,6 +468,9 @@ void TemporalScaleMode_changed(GtkSpinButton *spin, struct ALL_DATA *all_data)
 
 void SpatialScaleMode_changed(GtkSpinButton *spin, struct ALL_DATA *all_data)
 {
+	struct GLOBAL *global = all_data->global;
+	struct vdIn *videoIn  = all_data->videoIn;
+
 	uint8_t scale_mode = (uint8_t) gtk_spin_button_get_value_as_int(spin);
 
 	uvcx_set_spatial_scale_mode(videoIn->fd, global->uvc_h264_unit, scale_mode);
@@ -479,6 +485,9 @@ void SpatialScaleMode_changed(GtkSpinButton *spin, struct ALL_DATA *all_data)
 
 void FrameInterval_changed(GtkSpinButton *spin, struct ALL_DATA *all_data)
 {
+	struct GLOBAL *global = all_data->global;
+	struct vdIn *videoIn  = all_data->videoIn;
+
 	uint32_t framerate = (uint32_t) gtk_spin_button_get_value_as_int(spin);
 
 	uvcx_set_frame_rate_config(videoIn->fd, global->uvc_h264_unit, framerate);
