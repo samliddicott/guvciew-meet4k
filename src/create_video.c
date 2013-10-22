@@ -125,7 +125,7 @@ static int initVideoFile(struct ALL_DATA *all_data, void* lav_data)
 
 	if((*lavc_data)->monotonic_pts > 0)
 		global->monotonic_pts = TRUE;
-		
+
 	switch (global->VidFormat)
 	{
 		case AVI_FORMAT:
@@ -854,7 +854,7 @@ static void store_at_index(void *data)
 	struct GLOBAL *global = all_data->global;
 	struct vdIn *videoIn = all_data->videoIn;
 
-	
+
 	global->videoBuff[global->w_ind].time_stamp = global->v_ts - global->av_drift;
 
 	/*store frame at index*/
@@ -946,7 +946,7 @@ int store_video_frame(void *data)
 				//char test_filename[20];
 				//snprintf(test_filename, 20, "frame_last_IDR.raw");
 				//SaveBuff (test_filename, videoIn->h264_last_IDR_size, videoIn->h264_last_IDR);
-				
+
 				//should we add SPS and PPS NALU first??
 				//store the last keyframe first (use current timestamp)
 				global->videoBuff[global->w_ind].time_stamp = global->v_ts;
@@ -965,10 +965,13 @@ int store_video_frame(void *data)
 	if (!global->videoBuff[global->w_ind].used)
 	{
 		store_at_index(data);
-		if( global->VidCodec_ID == AV_CODEC_ID_H264 &&
-		global->Frame_Flags == 0 &&
-		global->format == V4L2_PIX_FMT_H264)
+		if(global->format == V4L2_PIX_FMT_H264)
+		{
+			// for stream based formats reduce frame rate instead of dropping frames
+			// by making the producer thread sleep
 			producer_sleep = 0;
+			//h264_framerate_balance(all_data);
+		}
 		else
 			producer_sleep = buff_scheduler(global->w_ind, global->r_ind, global->video_buff_size);
 		NEXT_IND(global->w_ind, global->video_buff_size);

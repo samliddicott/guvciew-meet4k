@@ -1832,3 +1832,59 @@ int uvcx_set_frame_rate_config(int hdevice, uint8_t unit_id, uint32_t framerate)
 
 	return err;
 }
+
+/*
+ * must be called with the global mutex locked.
+ * called from the consumer loop.
+ */
+int h264_framerate_balance(struct ALL_DATA *all_data)
+{
+	struct GLOBAL *global = all_data->global;
+	struct vdIn *videoIn = all_data->videoIn;
+	struct uvc_h264_gtkcontrols  *h264_controls = data->h264_controls;
+
+	int err = 0;
+	int diff_ind = 0;
+	//get max frame interval from gtk control if available (avoids usb traffic)
+	uint32_t min_frameinterval = 333333; //30 fps
+	uint32_t max_frameinterval = 1000000; //10 fps
+	if(data->h264_controls && h264_controls->FrameInterval)
+	{
+		gtk_spin_button_get_range (GTK_SPIN_BUTTON(h264_controls->FrameInterval), &min_frameinterval, &max_frameinterval);
+	}
+	else
+		min_frameinterval = uvcx_get_frame_rate_config(videoIn->fd, global->uvc_h264_unit, GET_MIN);
+
+	//get current framerate
+	uint32_t frameinterval = uvcx_get_frame_rate_config(videoIn->fd, global->uvc_h264_unit, GET_CUR);
+
+	/* try to balance buffer overrun in read/write operations */
+	if(global->w_ind >= global->r_ind)
+		diff_ind = global->w_ind - global->r_ind;
+	else
+		diff_ind = (global->buff_size - global->r_ind) + global->w_ind;
+
+	//min_treshold = 65%
+	int th_min = (int) lround((double) global->buff_size * 0.65);
+	//max treshold = 85%
+	int th_max = (int) lround((double) global->buff_size * 0.85);
+
+	if(diff_ind > th_max ) /* reduce current fps by 5 */
+	{
+		frameinterval = (uint32_t) lround((double) 1E9 * frameinterval / (1E9 - 5*100*frameinterval));
+		if(frameinterval < min_frameinterval)
+			frameinterval = min_frameinterval;
+
+		err = uvcx_set_frame_rate_config(videoIn->fd, global->uvc_h264_unit, frameinterval);
+	}
+	else if(diff_ind < th_min) /* increase fps by 5 */
+	{
+		frameinterval = (uint32_t) lround((double) 1E9 * frameinterval / (1E9 + 5*100*frameinterval));
+		if(frameinterval > max_frameinterval)
+			frameinterval = max_frameinterval;
+
+		err = uvcx_set_frame_rate_config(videoIn->fd, global->uvc_h264_unit, frameinterval);
+	}
+
+	return err;
+}

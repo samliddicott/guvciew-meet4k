@@ -291,6 +291,13 @@ void add_uvc_h264_controls_tab (struct ALL_DATA* all_data);
 
 uint8_t xu_get_unit_id (uint64_t busnum, uint64_t devnum);
 int has_h264_support(int hdevice, uint8_t unit_id);
+/*
+ * determines and sets a resonable framerate
+ * for the h264 stream depending on the video capture
+ * circular buffer usage
+ */
+int h264_framerate_balance(struct ALL_DATA *all_data);
+
 void check_uvc_h264_format(struct vdIn *vd, struct GLOBAL *global);
 void commit_uvc_h264_format(struct vdIn *vd, struct GLOBAL *global);
 int uvcx_video_probe(int hdevice, uint8_t unit_id, uint8_t query, uvcx_video_config_probe_commit_t *uvcx_video_config);
