@@ -1848,7 +1848,7 @@ int h264_framerate_balance(struct ALL_DATA *all_data)
 	//get max frame interval from gtk control if available (avoids usb traffic)
 	uint32_t min_frameinterval = 333333; //30 fps
 	uint32_t max_frameinterval = 1000000; //10 fps
-	if(data->h264_controls && h264_controls->FrameInterval)
+	if(h264_controls && h264_controls->FrameInterval)
 	{
 		double min = 0, max= 0;
 		gtk_spin_button_get_range(GTK_SPIN_BUTTON(h264_controls->FrameInterval), &min, &max);
