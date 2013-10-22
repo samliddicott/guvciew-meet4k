@@ -1841,7 +1841,7 @@ int h264_framerate_balance(struct ALL_DATA *all_data)
 {
 	struct GLOBAL *global = all_data->global;
 	struct vdIn *videoIn = all_data->videoIn;
-	struct uvc_h264_gtkcontrols  *h264_controls = data->h264_controls;
+	struct uvc_h264_gtkcontrols  *h264_controls = all_data->h264_controls;
 
 	int err = 0;
 	int diff_ind = 0;
@@ -1850,24 +1850,27 @@ int h264_framerate_balance(struct ALL_DATA *all_data)
 	uint32_t max_frameinterval = 1000000; //10 fps
 	if(data->h264_controls && h264_controls->FrameInterval)
 	{
-		gtk_spin_button_get_range (GTK_SPIN_BUTTON(h264_controls->FrameInterval), &min_frameinterval, &max_frameinterval);
+		double min = 0, max= 0;
+		gtk_spin_button_get_range(GTK_SPIN_BUTTON(h264_controls->FrameInterval), &min, &max);
+		if(min > 0)
+			min_frameinterval = (uint32_t) lround(min);
 	}
 	else
-		min_frameinterval = uvcx_get_frame_rate_config(videoIn->fd, global->uvc_h264_unit, GET_MIN);
+		min_frameinterval = uvcx_get_frame_rate_config(videoIn->fd, global->uvc_h264_unit, UVC_GET_MIN);
 
 	//get current framerate
-	uint32_t frameinterval = uvcx_get_frame_rate_config(videoIn->fd, global->uvc_h264_unit, GET_CUR);
+	uint32_t frameinterval = uvcx_get_frame_rate_config(videoIn->fd, global->uvc_h264_unit, UVC_GET_CUR);
 
 	/* try to balance buffer overrun in read/write operations */
 	if(global->w_ind >= global->r_ind)
 		diff_ind = global->w_ind - global->r_ind;
 	else
-		diff_ind = (global->buff_size - global->r_ind) + global->w_ind;
+		diff_ind = (global->video_buff_size - global->r_ind) + global->w_ind;
 
 	//min_treshold = 65%
-	int th_min = (int) lround((double) global->buff_size * 0.65);
+	int th_min = (int) lround((double) global->video_buff_size * 0.65);
 	//max treshold = 85%
-	int th_max = (int) lround((double) global->buff_size * 0.85);
+	int th_max = (int) lround((double) global->video_buff_size * 0.85);
 
 	if(diff_ind > th_max ) /* reduce current fps by 5 */
 	{
