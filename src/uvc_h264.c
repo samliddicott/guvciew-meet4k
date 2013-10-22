@@ -79,7 +79,7 @@ static void update_h264_controls(
 	struct ALL_DATA* data)
 {
 	//struct GLOBAL *global = data->global;
-	struct vdIn *videoIn  = data->videoIn;
+	//struct vdIn *videoIn  = data->videoIn;
 	struct uvc_h264_gtkcontrols  *h264_controls = data->h264_controls;
 
 	//dwFrameInterval
@@ -105,6 +105,7 @@ static void update_h264_controls(
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_cabac), ((hints & 0x4000) != 0));
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_iframe), ((hints & 0x8000) != 0));
 	//wWidth x wHeight
+	/*
 	int h264_format_ind = get_FormatIndex(videoIn->listFormats,V4L2_PIX_FMT_H264);
 	VidFormats *listVidFormats = &videoIn->listFormats->listVidFormats[h264_format_ind];
 	int i=0;
@@ -119,6 +120,8 @@ static void update_h264_controls(
 		}
 	}
 	gtk_combo_box_set_active(GTK_COMBO_BOX(h264_controls->Resolution), defres);//set selected resolution index
+	*/
+	 
 	//wSliceMode
 	gtk_combo_box_set_active(GTK_COMBO_BOX(h264_controls->SliceMode), config_probe_req->wSliceMode);
 	//wSliceUnits
@@ -235,8 +238,8 @@ static void fill_video_config_probe(
 	uvcx_video_config_probe_commit_t *config_probe_req,
 	struct ALL_DATA* data)
 {
-	//struct GLOBAL *global = data->global;
-	struct vdIn *videoIn  = data->videoIn;
+	struct GLOBAL *global = data->global;
+	//struct vdIn *videoIn  = data->videoIn;
 	struct uvc_h264_gtkcontrols  *h264_controls = data->h264_controls;
 
 	//dwFrameInterval
@@ -263,10 +266,14 @@ static void fill_video_config_probe(
 	hints |= gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(h264_controls->Hints_iframe)) ? 0x8000: 0;
 	config_probe_req->bmHints = hints;
 	//wWidth x wHeight
+	/*
 	int h264_format_ind = get_FormatIndex(videoIn->listFormats,V4L2_PIX_FMT_H264);
 	int def_res = gtk_combo_box_get_active(GTK_COMBO_BOX(h264_controls->Resolution));
 	config_probe_req->wWidth = (uint16_t) videoIn->listFormats->listVidFormats[h264_format_ind].listVidCap[def_res].width;
 	config_probe_req->wHeight = (uint16_t)  videoIn->listFormats->listVidFormats[h264_format_ind].listVidCap[def_res].height;
+	*/
+	config_probe_req->wWidth = (uint16_t) global->width;
+	config_probe_req->wHeight = (uint16_t) global->height;
 	//wSliceMode
 	config_probe_req->wSliceMode = (uint16_t) gtk_combo_box_get_active(GTK_COMBO_BOX(h264_controls->SliceMode));
 	//wSliceUnits
@@ -374,48 +381,64 @@ static void fill_video_config_probe(
 	config_probe_req->wLeakyBucketSize = (uint16_t) gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(h264_controls->LeakyBucketSize));
 }
 
-void h264_probe_button_clicked(GtkButton * Button, struct ALL_DATA* data)
+void h264_probe(
+	uvcx_video_config_probe_commit_t *config_probe_req, 
+	struct ALL_DATA *data)
+{
+	struct GLOBAL *global = data->global;
+	struct vdIn *videoIn  = data->videoIn;
+	
+	uvcx_video_probe(videoIn->fd, global->uvc_h264_unit, UVC_GET_CUR, config_probe_req);
+
+	//get the control data and fill req (need fps and resolution)
+	fill_video_config_probe(config_probe_req, data);
+	printf("Probing:\n");
+	print_probe_commit_data(config_probe_req);
+
+	//Probe the request
+	uvcx_video_probe(videoIn->fd, global->uvc_h264_unit, UVC_SET_CUR, config_probe_req);
+	uvcx_video_probe(videoIn->fd, global->uvc_h264_unit, UVC_GET_CUR, config_probe_req);
+	printf("Probe Request:\n");
+	print_probe_commit_data(config_probe_req);
+
+	//update the control widgets
+	update_h264_controls(config_probe_req, data);
+}
+
+void h264_commit(
+	uvcx_video_config_probe_commit_t *config_probe_req, 
+	struct ALL_DATA *data)
 {
 	struct GLOBAL *global = data->global;
 	struct vdIn *videoIn  = data->videoIn;
 
-	uvcx_video_config_probe_commit_t config_probe_req;
-	uvcx_video_probe(videoIn->fd, global->uvc_h264_unit, UVC_GET_CUR, &config_probe_req);
+	uvcx_video_probe(videoIn->fd, global->uvc_h264_unit, UVC_GET_CUR, config_probe_req);
 
 	//get the control data and fill req (need fps and resolution)
-	fill_video_config_probe(&config_probe_req, data);
-	printf("Probing:\n");
-	print_probe_commit_data(&config_probe_req);
+	fill_video_config_probe(config_probe_req, data);
+	printf("Commiting:\n");
+	print_probe_commit_data(config_probe_req);
 
-	//Probe the request
-	uvcx_video_probe(videoIn->fd, global->uvc_h264_unit, UVC_SET_CUR, &config_probe_req);
-	uvcx_video_probe(videoIn->fd, global->uvc_h264_unit, UVC_GET_CUR, &config_probe_req);
-	printf("Probe Request:\n");
-	print_probe_commit_data(&config_probe_req);
+	//Commit the request
+	uvcx_video_commit(videoIn->fd, global->uvc_h264_unit, config_probe_req);
 
-	//update the control widgets
-	update_h264_controls(&config_probe_req, data);
+	uvcx_video_probe(videoIn->fd, global->uvc_h264_unit, UVC_GET_CUR, config_probe_req);
+	printf("Probe Current:\n");
+	print_probe_commit_data(config_probe_req);
+}
+
+void h264_probe_button_clicked(GtkButton * Button, struct ALL_DATA* data)
+{
+	uvcx_video_config_probe_commit_t config_probe_req;
+	
+	h264_probe(&config_probe_req, data);
 }
 
 void h264_commit_button_clicked(GtkButton * Button, struct ALL_DATA* data)
 {
-	struct GLOBAL *global = data->global;
-	struct vdIn *videoIn  = data->videoIn;
-
 	uvcx_video_config_probe_commit_t config_probe_req;
-	uvcx_video_probe(videoIn->fd, global->uvc_h264_unit, UVC_GET_CUR, &config_probe_req);
-
-	//get the control data and fill req (need fps and resolution)
-	fill_video_config_probe(&config_probe_req, data);
-	printf("Commiting:\n");
-	print_probe_commit_data(&config_probe_req);
-
-	//Commit the request
-	uvcx_video_commit(videoIn->fd, global->uvc_h264_unit, &config_probe_req);
-
-	uvcx_video_probe(videoIn->fd, global->uvc_h264_unit, UVC_GET_CUR, &config_probe_req);
-	printf("Probe Current:\n");
-	print_probe_commit_data(&config_probe_req);
+	
+	h264_commit(&config_probe_req, data);
 }
 
 void h264_reset_button_clicked(GtkButton * Button, struct ALL_DATA* data)
@@ -652,9 +675,12 @@ void add_uvc_h264_controls_tab (struct ALL_DATA* all_data)
 	gtk_grid_attach (GTK_GRID(table), label_TemporalScaleMode, 0, line, 1, 1);
 	gtk_widget_show (label_TemporalScaleMode);
 
-	uint8_t cur_tsmflags = uvcx_get_temporal_scale_mode(videoIn->fd, global->uvc_h264_unit, UVC_GET_CUR) & 0x07;
-	uint8_t max_tsmflags = uvcx_get_temporal_scale_mode(videoIn->fd, global->uvc_h264_unit, UVC_GET_MAX) & 0x07;
-	uint8_t min_tsmflags = uvcx_get_temporal_scale_mode(videoIn->fd, global->uvc_h264_unit, UVC_GET_MIN) & 0x07;
+	//uint8_t cur_tsmflags = uvcx_get_temporal_scale_mode(videoIn->fd, global->uvc_h264_unit, UVC_GET_CUR) & 0x07;
+	//uint8_t max_tsmflags = uvcx_get_temporal_scale_mode(videoIn->fd, global->uvc_h264_unit, UVC_GET_MAX) & 0x07;
+	//uint8_t min_tsmflags = uvcx_get_temporal_scale_mode(videoIn->fd, global->uvc_h264_unit, UVC_GET_MIN) & 0x07;
+	uint8_t cur_tsmflags = config_probe_cur.bTemporalScaleMode & 0x07;
+	uint8_t max_tsmflags = config_probe_max.bTemporalScaleMode & 0x07;
+	uint8_t min_tsmflags = config_probe_min.bTemporalScaleMode & 0x07;
 
 	GtkAdjustment *adjustment8 = gtk_adjustment_new (
                                 	cur_tsmflags,
@@ -680,9 +706,12 @@ void add_uvc_h264_controls_tab (struct ALL_DATA* all_data)
 	gtk_grid_attach (GTK_GRID(table), label_SpatialScaleMode, 0, line, 1, 1);
 	gtk_widget_show (label_SpatialScaleMode);
 
-	uint8_t cur_ssmflags = uvcx_get_spatial_scale_mode(videoIn->fd, global->uvc_h264_unit, UVC_GET_CUR) & 0x0F;
-	uint8_t max_ssmflags = uvcx_get_spatial_scale_mode(videoIn->fd, global->uvc_h264_unit, UVC_GET_MAX) & 0x0F;
-	uint8_t min_ssmflags = uvcx_get_spatial_scale_mode(videoIn->fd, global->uvc_h264_unit, UVC_GET_MIN) & 0x0F;
+	//uint8_t cur_ssmflags = uvcx_get_spatial_scale_mode(videoIn->fd, global->uvc_h264_unit, UVC_GET_CUR) & 0x0F;
+	//uint8_t max_ssmflags = uvcx_get_spatial_scale_mode(videoIn->fd, global->uvc_h264_unit, UVC_GET_MAX) & 0x0F;
+	//uint8_t min_ssmflags = uvcx_get_spatial_scale_mode(videoIn->fd, global->uvc_h264_unit, UVC_GET_MIN) & 0x0F;
+	uint8_t cur_ssmflags = config_probe_cur.bSpatialScaleMode & 0x0F;
+	uint8_t max_ssmflags = config_probe_max.bSpatialScaleMode & 0x0F;
+	uint8_t min_ssmflags = config_probe_min.bSpatialScaleMode & 0x0F;
 
 	GtkAdjustment *adjustment9 = gtk_adjustment_new (
                                 	cur_ssmflags,
@@ -731,7 +760,7 @@ void add_uvc_h264_controls_tab (struct ALL_DATA* all_data)
     gtk_widget_show (h264_controls->FrameInterval);
 
 	//probe_commit specific controls
-
+	
 	//dwBitRate
 	line++;
 	GtkWidget* label_BitRate = gtk_label_new(_("Bit Rate:"));
@@ -830,7 +859,8 @@ void add_uvc_h264_controls_tab (struct ALL_DATA* all_data)
 	gtk_grid_attach (GTK_GRID(table), hints_table, 0, line, 2, 1);
 	gtk_widget_show(hints_table);
 
-	//wWidth x wHeight
+	//wWidth x wHeight - use global values
+	/*
 	line++;
 	GtkWidget* label_Resolution = gtk_label_new(_("Resolution:"));
 	gtk_misc_set_alignment (GTK_MISC (label_Resolution), 1, 0.5);
@@ -864,7 +894,8 @@ void add_uvc_h264_controls_tab (struct ALL_DATA* all_data)
 	gtk_combo_box_set_active(GTK_COMBO_BOX(h264_controls->Resolution),defres);
 	gtk_grid_attach (GTK_GRID(table), h264_controls->Resolution, 1, line, 1 ,1);
 	gtk_widget_show (h264_controls->Resolution);
-
+	*/
+	
 	//wSliceMode
 	line++;
 	GtkWidget* label_SliceMode = gtk_label_new(_("Slice Mode:"));

@@ -188,7 +188,7 @@ static int check_videoIn(struct vdIn *vd, struct GLOBAL *global)
 	g_print("Init. %s (location: %s)\n", vd->cap.card, vd->cap.bus_info);
 
 	vd->listFormats = enum_frame_formats( &global->width, &global->height, vd->fd);
-	check_uvc_h264_format(vd, global);
+	//check_uvc_h264_format(vd, global);
 
 	if(!(vd->listFormats->listVidFormats))
 		g_printerr("Couldn't detect any supported formats on your device (%i)\n", vd->listFormats->numb_formats);
@@ -606,9 +606,9 @@ static int init_v4l2(struct vdIn *vd, struct GLOBAL *global)//int *format, int *
 	vd->fmt.fmt.pix.height = global->height;
 	vd->fmt.fmt.pix.pixelformat = global->format;
 	vd->fmt.fmt.pix.field = V4L2_FIELD_ANY;
-
+/*
 	//if it's uvc H264 we must set UVCX_VIDEO_CONFIG_COMMIT
-	if(global->format == V4L2_PIX_FMT_H264 && get_SupPixFormatUvcH264() > 1)
+	if(global->format == V4L2_PIX_FMT_H264 get_SupPixFormatUvcH264() > 1)
 	{
 		commit_uvc_h264_format(vd, global);
 	}
@@ -616,7 +616,7 @@ static int init_v4l2(struct vdIn *vd, struct GLOBAL *global)//int *format, int *
 	//if it's uvc H264 we must use MJPG
 	if(global->format == V4L2_PIX_FMT_H264 && get_SupPixFormatUvcH264() > 1)
 		vd->fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_MJPEG;
-
+*/
 
 	ret = xioctl(vd->fd, VIDIOC_S_FMT, &vd->fmt);
 	if (ret < 0)

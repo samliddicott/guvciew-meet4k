@@ -300,6 +300,15 @@ int h264_framerate_balance(struct ALL_DATA *all_data);
 
 void check_uvc_h264_format(struct vdIn *vd, struct GLOBAL *global);
 void commit_uvc_h264_format(struct vdIn *vd, struct GLOBAL *global);
+/*
+ * probe h264 controls (video stream must be off)
+ */
+void h264_probe(uvcx_video_config_probe_commit_t *config_probe_req, struct ALL_DATA *data);
+/*
+ * commit h264 controls (video stream must be off)
+ */
+void h264_commit(uvcx_video_config_probe_commit_t *config_probe_req, struct ALL_DATA *data);
+
 int uvcx_video_probe(int hdevice, uint8_t unit_id, uint8_t query, uvcx_video_config_probe_commit_t *uvcx_video_config);
 int uvcx_video_commit(int hdevice, uint8_t unit_id, uvcx_video_config_probe_commit_t *uvcx_video_config);
 int uvcx_video_encoder_reset(int hdevice, uint8_t unit_id);

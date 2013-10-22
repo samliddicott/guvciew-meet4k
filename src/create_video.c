@@ -967,10 +967,10 @@ int store_video_frame(void *data)
 		store_at_index(data);
 		if(global->format == V4L2_PIX_FMT_H264)
 		{
-			// for stream based formats reduce frame rate instead of dropping frames
+			// for stream based formats change frame rate instead of dropping frames
 			// by making the producer thread sleep
 			producer_sleep = 0;
-			//h264_framerate_balance(all_data);
+			h264_framerate_balance(all_data);
 		}
 		else
 			producer_sleep = buff_scheduler(global->w_ind, global->r_ind, global->video_buff_size);
@@ -1149,7 +1149,9 @@ void *IO_loop(void *data)
 		/*free proc buffer*/
 		g_free(proc_buff->frame);
 		g_free(proc_buff);
-		//if (global->Sound_enable) close_audio_effects (aud_eff);
+		
+		/* reset fps since it may have changed during capture (stream base formats) */
+		videoIn->setFPS = 1;
 	}
 
 	if(lavc_data != NULL)
