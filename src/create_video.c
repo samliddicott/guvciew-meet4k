@@ -109,7 +109,6 @@ static int initVideoFile(struct ALL_DATA *all_data, void* lav_data)
 	videoF->vcodec = get_vcodec_id(global->VidCodec); //global->VidCodec_ID
 	videoF->acodec = get_acodec_id(global->AudCodec);
 	videoF->keyframe = 0;
-	int ret = 0;
 
 	__LOCK_MUTEX(__VMUTEX);
 		gboolean capVid = videoIn->capVid;
@@ -188,20 +187,6 @@ static int initVideoFile(struct ALL_DATA *all_data, void* lav_data)
 			/* add first riff header */
 			avi_add_new_riff(videoF->avi);
 
-			/* start video capture*/
-			capVid = TRUE;
-			__LOCK_MUTEX(__VMUTEX);
-				videoIn->capVid = capVid;
-			__UNLOCK_MUTEX(__VMUTEX);
-			pdata->capVid = capVid;
-
-			/* start sound capture*/
-			if(global->Sound_enable > 0 && init_sound (pdata))
-			{
-				//FIXME: enable capture button
-				g_printerr("Audio initialization error\n");
-				global->Sound_enable=0;
-			}
 			break;
 
 		case WEBM_FORMAT:
@@ -270,30 +255,32 @@ static int initVideoFile(struct ALL_DATA *all_data, void* lav_data)
 			/** write the file header */
 			mkv_write_header(videoF->mkv);
 
-			/* start video capture*/
-			capVid = TRUE;
-			__LOCK_MUTEX(__VMUTEX);
-				videoIn->capVid = capVid;
-			__UNLOCK_MUTEX(__VMUTEX);
-			pdata->capVid = capVid;
-
-			/* start sound capture*/
-			if(global->Sound_enable > 0 && init_sound (pdata))
-			{
-				//FIXME: enable capture button
-				g_printerr("Audio initialization error\n");
-				global->Sound_enable=0;
-			}
 			break;
 
 		default:
-
+			g_printerr("Init Video File: Unsupported Format(%d)\n", global->VidFormat);
+			return(-2);
 			break;
 	}
-	printf("    OK\n");
-	return (ret);
-}
 
+	/* start video capture*/
+	capVid = TRUE;
+	__LOCK_MUTEX(__VMUTEX);
+		videoIn->capVid = capVid;
+	__UNLOCK_MUTEX(__VMUTEX);
+	pdata->capVid = capVid;
+
+	/* start sound capture*/
+	if(global->Sound_enable > 0 && init_sound (pdata))
+	{
+		//FIXME: enable capture button
+		g_printerr("Audio initialization error\n");
+		global->Sound_enable=0;
+	}
+
+	printf("    OK\n");
+	return (0);
+}
 
 /* Called at avi capture stop       */
 static void
