@@ -1074,6 +1074,26 @@ void *IO_loop(void *data)
 	int frame_size=0;
 	VidBuff *proc_buff = NULL;
 
+	/* make sure we have a IDR frame (and SPS+PPS data) before start capturing */
+	if( global->VidCodec_ID == AV_CODEC_ID_H264 &&
+		global->Frame_Flags == 0 &&
+		global->format == V4L2_PIX_FMT_H264 &&
+		videoIn->h264_last_IDR_size <= 0)
+	{
+		g_printerr("WARNING: h264 video stream hasn't produce a IDR frame yet - waiting\n");
+		g_printerr("        Requesting a IDR frame\n");
+		uvcx_request_frame_type(videoIn->fd, global->uvc_h264_unit, PICTURE_TYPE_IDR_FULL);
+
+		/*waiting at most 3 seconds (30*100 ms)*/
+		int max_loops = 30;
+		while(videoIn->h264_last_IDR_size <= 0 || max_loops > 0)
+		{
+			/*sleep for 100 ms*/
+			sleep_ms(100);
+			max_loops--;
+		}
+	}
+
 	if(initVideoFile(all_data, &(lavc_data))<0)
 	{
 		g_printerr("Cap Video failed\n");
@@ -1149,7 +1169,7 @@ void *IO_loop(void *data)
 		/*free proc buffer*/
 		g_free(proc_buff->frame);
 		g_free(proc_buff);
-		
+
 		/* reset fps since it may have changed during capture (stream base formats) */
 		videoIn->setFPS = 1;
 	}
