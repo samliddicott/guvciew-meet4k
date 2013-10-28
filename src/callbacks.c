@@ -1445,8 +1445,10 @@ InpType_changed(GtkComboBox * InpType, struct ALL_DATA *all_data)
 
 	format = videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].format;
 	get_PixMode(format, global->mode);
-
+	
+	printf("redraw resolution combo for format (%x)\n",format);
 	/*redraw resolution combo for new format*/
+	printf("numb res = %d\n", listVidFormats->numb_res);
 	for(i = 0 ; i < listVidFormats->numb_res ; i++)
 	{
 		if (listVidFormats->listVidCap[i].width>0)

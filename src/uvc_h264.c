@@ -1547,45 +1547,17 @@ void check_uvc_h264_format(struct vdIn *vd, struct GLOBAL *global)
 	g_snprintf(vd->listFormats->listVidFormats[fmtind-1].fourcc ,5,"H264");
 	vd->listFormats->listVidFormats[fmtind-1].listVidCap = NULL;
 	vd->listFormats->listVidFormats[fmtind-1].numb_res = 0;
-	//enumerate frame sizes with UVCX_VIDEO_CONFIG_PROBE
-	//get PROBE info (def, max, min, cur)
-	uvcx_video_config_probe_commit_t config_probe_def;
-	uvcx_video_config_probe_commit_t config_probe_max;
-	uvcx_video_config_probe_commit_t config_probe_min;
-	uvcx_video_config_probe_commit_t config_probe_cur;
-	uvcx_video_config_probe_commit_t config_probe_test;
-
-	uvcx_video_probe(vd->fd, global->uvc_h264_unit, UVC_GET_DEF, &config_probe_def);
-	uvcx_video_probe(vd->fd, global->uvc_h264_unit, UVC_GET_MAX, &config_probe_max);
-	uvcx_video_probe(vd->fd, global->uvc_h264_unit, UVC_GET_MIN, &config_probe_min);
-	uvcx_video_probe(vd->fd, global->uvc_h264_unit, UVC_GET_CUR, &config_probe_cur);
-
-	//check MJPG resolutions and frame rates for H264
+	
+	
+	//add MJPG resolutions and frame rates for H264
 	int numb_res = vd->listFormats->listVidFormats[mjpg_index].numb_res;
 
 	int i=0, j=0;
 	int res_index = 0;
 	for(i=0; i < numb_res; i++)
 	{
-		config_probe_test = config_probe_def;
-
 		int width = vd->listFormats->listVidFormats[mjpg_index].listVidCap[i].width;
 		int height = vd->listFormats->listVidFormats[mjpg_index].listVidCap[i].height;
-
-		config_probe_test.wWidth = width;
-		config_probe_test.wHeight = height;
-
-		if(!uvcx_video_probe(vd->fd, global->uvc_h264_unit, UVC_SET_CUR, &config_probe_test))
-			continue;
-
-		if(!uvcx_video_probe(vd->fd, global->uvc_h264_unit, UVC_GET_CUR, &config_probe_test))
-			continue;
-
-		if(config_probe_test.wWidth != width || config_probe_test.wHeight != height)
-		{
-			fprintf(stderr, "H264 resolution %ix%i not supported\n", width, height);
-			continue;
-		}
 
 		res_index++;
 		vd->listFormats->listVidFormats[fmtind-1].listVidCap = g_renew(VidCap,
@@ -1597,29 +1569,14 @@ void check_uvc_h264_format(struct vdIn *vd, struct GLOBAL *global)
 		vd->listFormats->listVidFormats[fmtind-1].listVidCap[res_index-1].framerate_denom = NULL;
 		vd->listFormats->listVidFormats[fmtind-1].listVidCap[res_index-1].numb_frates = 0;
 
-		//check frates
+		//add frates
 		int numb_frates = vd->listFormats->listVidFormats[mjpg_index].listVidCap[i].numb_frates;
 		int frate_index = 0;
 		for(j=0; j < numb_frates; j++)
 		{
 			int framerate_num = vd->listFormats->listVidFormats[mjpg_index].listVidCap[i].framerate_num[j];
 			int framerate_denom = vd->listFormats->listVidFormats[mjpg_index].listVidCap[i].framerate_denom[j];
-			//in 100ns units
-			uint32_t frame_interval = (framerate_num * 1000000000LL / framerate_denom)/100;
-			config_probe_test.dwFrameInterval = frame_interval;
-
-			if(!uvcx_video_probe(vd->fd, global->uvc_h264_unit, UVC_SET_CUR, &config_probe_test))
-				continue;
-
-			if(!uvcx_video_probe(vd->fd, global->uvc_h264_unit, UVC_GET_CUR, &config_probe_test))
-				continue;
-
-			if(config_probe_test.dwFrameInterval != frame_interval)
-			{
-				fprintf(stderr, "H264 resolution %ix%i with frame_rate %i not supported\n", width, height, frame_interval);
-				continue;
-			}
-
+			
 			frate_index++;
 			vd->listFormats->listVidFormats[fmtind-1].listVidCap[res_index-1].numb_frates = frate_index;
 			vd->listFormats->listVidFormats[fmtind-1].listVidCap[res_index-1].framerate_num = g_renew(int,
@@ -1630,9 +1587,6 @@ void check_uvc_h264_format(struct vdIn *vd, struct GLOBAL *global)
 			vd->listFormats->listVidFormats[fmtind-1].listVidCap[res_index-1].framerate_denom[frate_index-1] = framerate_denom;
 		}
 	}
-
-	//return config video probe to current state
-	uvcx_video_probe(vd->fd, global->uvc_h264_unit, UVC_SET_CUR, &config_probe_cur);
 }
 
 void set_muxed_h264_format(struct vdIn *vd, struct GLOBAL *global)

@@ -223,7 +223,7 @@ int set_SupPixFormatUvcH264()
 	{
 		if (V4L2_PIX_FMT_H264 == listSupFormats[i].format && has_h264_decoder())
 		{
-			listSupFormats[i].hardware = 2; /*supported by hardware through uvc H264*/
+			listSupFormats[i].hardware = 2; /*supported by hardware through muxed H264*/
 			return (i);
 		}
 	}
