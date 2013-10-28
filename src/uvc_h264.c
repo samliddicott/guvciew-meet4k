@@ -121,7 +121,7 @@ static void update_h264_controls(
 	}
 	gtk_combo_box_set_active(GTK_COMBO_BOX(h264_controls->Resolution), defres);//set selected resolution index
 	*/
-	 
+
 	//wSliceMode
 	gtk_combo_box_set_active(GTK_COMBO_BOX(h264_controls->SliceMode), config_probe_req->wSliceMode);
 	//wSliceUnits
@@ -382,12 +382,12 @@ static void fill_video_config_probe(
 }
 
 void h264_probe(
-	uvcx_video_config_probe_commit_t *config_probe_req, 
+	uvcx_video_config_probe_commit_t *config_probe_req,
 	struct ALL_DATA *data)
 {
 	struct GLOBAL *global = data->global;
 	struct vdIn *videoIn  = data->videoIn;
-	
+
 	uvcx_video_probe(videoIn->fd, global->uvc_h264_unit, UVC_GET_CUR, config_probe_req);
 
 	//get the control data and fill req (need fps and resolution)
@@ -406,7 +406,7 @@ void h264_probe(
 }
 
 void h264_commit(
-	uvcx_video_config_probe_commit_t *config_probe_req, 
+	uvcx_video_config_probe_commit_t *config_probe_req,
 	struct ALL_DATA *data)
 {
 	struct GLOBAL *global = data->global;
@@ -430,14 +430,14 @@ void h264_commit(
 void h264_probe_button_clicked(GtkButton * Button, struct ALL_DATA* data)
 {
 	uvcx_video_config_probe_commit_t config_probe_req;
-	
+
 	h264_probe(&config_probe_req, data);
 }
 
 void h264_commit_button_clicked(GtkButton * Button, struct ALL_DATA* data)
 {
 	uvcx_video_config_probe_commit_t config_probe_req;
-	
+
 	h264_commit(&config_probe_req, data);
 }
 
@@ -760,7 +760,7 @@ void add_uvc_h264_controls_tab (struct ALL_DATA* all_data)
     gtk_widget_show (h264_controls->FrameInterval);
 
 	//probe_commit specific controls
-	
+
 	//dwBitRate
 	line++;
 	GtkWidget* label_BitRate = gtk_label_new(_("Bit Rate:"));
@@ -895,7 +895,7 @@ void add_uvc_h264_controls_tab (struct ALL_DATA* all_data)
 	gtk_grid_attach (GTK_GRID(table), h264_controls->Resolution, 1, line, 1 ,1);
 	gtk_widget_show (h264_controls->Resolution);
 	*/
-	
+
 	//wSliceMode
 	line++;
 	GtkWidget* label_SliceMode = gtk_label_new(_("Slice Mode:"));
@@ -1526,13 +1526,13 @@ int has_h264_support(int hdevice, uint8_t unit_id)
  */
 void check_uvc_h264_format(struct vdIn *vd, struct GLOBAL *global)
 {
-	if(global->uvc_h264_unit < 0)
-		return;
-
 	if(get_FormatIndex(vd->listFormats, V4L2_PIX_FMT_H264) >= 0)
 		return; //H264 is already in the list
 
-	//add format to the list
+	if(!has_h264_support(vd->fd, global->uvc_h264_unit)
+		return; //no XU support for H264
+
+	//add the format to the list
 	int mjpg_index = get_FormatIndex(vd->listFormats, V4L2_PIX_FMT_MJPEG);
 	if(mjpg_index < 0) //MJPG must be available for uvc H264 streams
 		return;
@@ -1635,20 +1635,26 @@ void check_uvc_h264_format(struct vdIn *vd, struct GLOBAL *global)
 	uvcx_video_probe(vd->fd, global->uvc_h264_unit, UVC_SET_CUR, &config_probe_cur);
 }
 
-void commit_uvc_h264_format(struct vdIn *vd, struct GLOBAL *global)
+void set_muxed_h264_format(struct vdIn *vd, struct GLOBAL *global)
 {
-	uvcx_video_config_probe_commit_t config_probe_cur;
+	uvcx_video_config_probe_commit_t config_probe_def;
 	uvcx_video_config_probe_commit_t config_probe_req;
 
-	uvcx_video_probe(vd->fd, global->uvc_h264_unit, UVC_GET_CUR, &config_probe_cur);
+	/*
+	 * Get default values (safe)
+	 */
+	uvcx_video_probe(vd->fd, global->uvc_h264_unit, UVC_GET_CUR, &config_probe_def);
 
-	config_probe_req = config_probe_cur;
+	config_probe_req = config_probe_def;
 
+	//set resolution
 	config_probe_req.wWidth = global->width;
 	config_probe_req.wHeight = global->height;
-	//in 100ns units
+	//set frame rate in 100ns units
 	uint32_t frame_interval = (global->fps_num * 1000000000LL / global->fps)/100;
 	config_probe_req.dwFrameInterval = frame_interval;
+	//set the aux stream (h264)
+	config_probe_req.bStreamMuxOption = STREAMMUX_H264;
 
 	//probe the format
 	uvcx_video_probe(vd->fd, global->uvc_h264_unit, UVC_SET_CUR, &config_probe_req);

@@ -188,7 +188,11 @@ static int check_videoIn(struct vdIn *vd, struct GLOBAL *global)
 	g_print("Init. %s (location: %s)\n", vd->cap.card, vd->cap.bus_info);
 
 	vd->listFormats = enum_frame_formats( &global->width, &global->height, vd->fd);
-	//check_uvc_h264_format(vd, global);
+	/*
+	 * logitech c930 camera supports h264 through aux stream multiplexing in the MJPG container
+	 * check if H264 UVCX XU h264 controls exist and add a virtual H264 format entry to the list
+	 */
+	check_uvc_h264_format(vd, global);
 
 	if(!(vd->listFormats->listVidFormats))
 		g_printerr("Couldn't detect any supported formats on your device (%i)\n", vd->listFormats->numb_formats);
@@ -404,6 +408,76 @@ static int parse_NALU(uint8_t type, uint8_t **NALU, uint8_t *buff, int size)
 
 	return nal_size;
 }
+
+/*
+ * demux a buff (*buff) of size (size) for NALU data,
+ * returns data size and copies NALU data to h264 buffer
+ */
+static int demux_NALU(uint8_t *h264_data, uint8_t *buff, int size)
+{
+	int nal_size = 0;
+	uint8_t *sp = NULL;
+	uint8_t *nal = buff;
+	uint8_t *ph264 = h264_data;
+	int nal_size = 0;
+	int total_size = 0;
+	int done = 0;
+
+	while(!done)
+	{
+		//search for NALU start
+		for(sp = nal; sp < buff + size - 4; ++sp)
+		{
+			if(sp[0] == 0x00 &&
+			   sp[1] == 0x00 &&
+			   sp[2] == 0x00 &&
+			   sp[3] == 0x01)
+			{
+				nal = sp; //include NALU marker
+				break;
+			}
+		}
+
+		if(nal == buff)
+		{
+			fprintf(stderr, "uvc H264: could not find a NALU in buffer\n", type);
+			return -1;
+		}
+
+		//search for next NALU (this marks the end of the previous)
+		for(sp = nal+4; sp < buff + size - 4; ++sp)
+		{
+			if(sp[0] == 0x00 &&
+			   sp[1] == 0x00 &&
+			   sp[2] == 0x00 &&
+			   sp[3] == 0x01)
+			{
+				nal_size = sp - nal;
+				break;
+			}
+		}
+
+		if(!nal_size)
+		{
+			nal_size = buff + size - nal;
+			done = 1; //we reached the end of the buffer
+		}
+
+		//copy NALU to h264 data buffer
+		memcpy(ph264, nal, nal_size);
+		nal = sp; //reset to the next NALU marker
+		ph264 += nal_size;
+		total_size += nal_size;
+		nal_size = 0;
+	}
+
+	//char test_filename2[20];
+	//snprintf(test_filename2, 20, "frame.raw");
+	//SaveBuff (test_filename2, total_size, h264_data);
+
+	return total_size;
+}
+
 /*
  * Store the SPS and PPS of uvc H264 stream
  * if available in the frame
@@ -457,6 +531,24 @@ static gboolean is_h264_keyframe (struct vdIn *vd)
 	}
 
 	return 0;
+}
+
+static void demux_h264(uint8_t* h264_data, uint8_t* frame_buffer, int bytesused)
+{
+	/*
+	 * if it's a muxed stream we must demux it first
+	 */
+	if(get_SupPixFormatUvcH264() > 1)
+	{
+		demux_NALU(vd->h264_frame, vd->mem[vd->buf.index], vd->buf.bytesused);
+		return;
+	}
+
+	/*
+	 * store the raw frame in h264 frame buffer
+	 */
+	memcpy(h264_data, frame_buffer, bytesused);
+
 }
 
 /* Enable video stream
@@ -606,17 +698,11 @@ static int init_v4l2(struct vdIn *vd, struct GLOBAL *global)//int *format, int *
 	vd->fmt.fmt.pix.height = global->height;
 	vd->fmt.fmt.pix.pixelformat = global->format;
 	vd->fmt.fmt.pix.field = V4L2_FIELD_ANY;
-/*
-	//if it's uvc H264 we must set UVCX_VIDEO_CONFIG_COMMIT
-	if(global->format == V4L2_PIX_FMT_H264 get_SupPixFormatUvcH264() > 1)
-	{
-		commit_uvc_h264_format(vd, global);
-	}
 
-	//if it's uvc H264 we must use MJPG
+	//if it's uvc muxed H264 we must use MJPG
 	if(global->format == V4L2_PIX_FMT_H264 && get_SupPixFormatUvcH264() > 1)
 		vd->fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_MJPEG;
-*/
+
 
 	ret = xioctl(vd->fd, VIDIOC_S_FMT, &vd->fmt);
 	if (ret < 0)
@@ -633,15 +719,26 @@ static int init_v4l2(struct vdIn *vd, struct GLOBAL *global)//int *format, int *
 		global->height = vd->fmt.fmt.pix.height;
 	}
 
+	/*
+	 * if it's uvc muxed H264 we must now set UVCX_VIDEO_CONFIG_COMMIT
+	 * with bStreamMuxOption =
+	 */
+	if(global->format == V4L2_PIX_FMT_H264 && get_SupPixFormatUvcH264() > 1)
+	{
+		set_muxed_h264_format(vd, global);
+	}
+	else
+	{
+		/* ----------- FPS --------------*/
+		input_set_framerate(vd, &global->fps, &global->fps_num);
+	}
+
 	//deprecated in v4l2 - still waiting for new API implementation
 	if(global->format == V4L2_PIX_FMT_MJPEG || global->format == V4L2_PIX_FMT_JPEG)
 	{
 		get_jpegcomp(vd);
 	}
 
-	/* ----------- FPS --------------*/
-	input_set_framerate(vd, &global->fps, &global->fps_num);
-	
 	switch (vd->cap_meth)
 	{
 		case IO_READ: //allocate buffer for read
@@ -1060,9 +1157,9 @@ static int frame_decode(struct vdIn *vd, int format, int width, int height)
 	{
 		case V4L2_PIX_FMT_H264:
 			/*
-			 * store raw frame in h264 frame buffer
+			 * get the h264 frame
 			 */
-			memcpy(vd->h264_frame, vd->mem[vd->buf.index], vd->buf.bytesused);
+			demux_h264(vd->h264_frame, vd->mem[vd->buf.index], vd->buf.bytesused);
 
 			/*
 			 * store SPS and PPS info (usually the first two NALU)
@@ -1346,13 +1443,25 @@ int uvcGrab(struct vdIn *vd, struct GLOBAL *global, int format, int width, int h
 				/*------------------------------------------*/
 				if(vd->setFPS) //change fps
 				{
-					video_disable(vd);
-					unmap_buff(vd);
-					input_set_framerate (vd, &global->fps, &global->fps_num);
-					vd->setFPS = 0;
-					query_buff(vd);
-					queue_buff(vd);
-					video_enable(vd);
+					/*
+					 * For uvc muxed H264 stream
+					 * don't restart the video stream or codec values will be reset
+					 */
+					if(global->format == V4L2_PIX_FMT_H264 && get_SupPixFormatUvcH264() > 1)
+					{
+						uint32_t frame_interval = (global->fps_num * 1000000000LL / global->fps)/100;
+						uvcx_set_frame_rate_config(cd->fd, global->uvc_h264_unit, frame_interval);
+					}
+					else
+					{
+						video_disable(vd);
+						unmap_buff(vd);
+						input_set_framerate (vd, &global->fps, &global->fps_num);
+						vd->setFPS = 0;
+						query_buff(vd);
+						queue_buff(vd);
+						video_enable(vd);
+					}
 				}
 				else if(vd->setJPEGCOMP) //change jpeg quality/compression in video frame
 				{
@@ -1546,6 +1655,8 @@ input_set_framerate (struct vdIn * device, int *fps, int *fps_num)
 {
 	int fd;
 	int ret=0;
+
+
 
 	fd = device->fd;
 

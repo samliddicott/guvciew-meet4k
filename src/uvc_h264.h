@@ -133,6 +133,12 @@ typedef struct
 #define PICTURE_TYPE_IDR		0x0001 //Generate an IDR
 #define PICTURE_TYPE_IDR_FULL	0x0002 //Generate an IDR frame with new SPS and PPS
 
+/* bStreamMuxOption defines */
+#define STREAMMUX_H264          (1 << 0) | (1 << 1)
+#define STREAMMUX_YUY2          (1 << 0) | (1 << 2)
+#define STREAMMUX_YUYV          (1 << 0) | (1 << 2)
+#define STREAMMUX_NV12          (1 << 0) | (1 << 3)
+
 /* wLayerID Macro */
 
 /*                              wLayerID
@@ -299,7 +305,7 @@ int has_h264_support(int hdevice, uint8_t unit_id);
 int h264_framerate_balance(struct ALL_DATA *all_data);
 
 void check_uvc_h264_format(struct vdIn *vd, struct GLOBAL *global);
-void commit_uvc_h264_format(struct vdIn *vd, struct GLOBAL *global);
+void set_muxed_h264_format(struct vdIn *vd, struct GLOBAL *global);
 /*
  * probe h264 controls (video stream must be off)
  */
