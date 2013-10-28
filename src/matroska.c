@@ -703,7 +703,7 @@ static void mkv_write_block(mkv_Context* MKV,
                             int flags)
 {
 	io_Stream* stream = get_stream(MKV->stream_list, stream_index);
-	if(stream->codec_id == AV_CODEC_ID_H264)
+	if(stream->codec_id == AV_CODEC_ID_H264 && stream->h264_process)
 		mkv_processh264_nalu(data, size);
 		
 	uint8_t block_flags = 0x00;

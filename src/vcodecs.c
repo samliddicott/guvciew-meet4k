@@ -672,7 +672,7 @@ int set_mkvCodecPriv(struct vdIn *videoIn, struct GLOBAL *global, struct lavcDat
 	}
 	else if(listSupVCodecs[real_index].codec_id == AV_CODEC_ID_H264)
 	{
-		if(global->format == V4L2_PIX_FMT_H264)
+		if(global->format == V4L2_PIX_FMT_H264 && global->Frame_Flags==0)
 		{
 			//do we have SPS and PPS data ?
 			if(videoIn->h264_SPS_size <= 0 || videoIn->h264_SPS == NULL)
@@ -946,7 +946,9 @@ int compress_frame(void *data,
 			break;
 
 		default:
-			if(global->format == V4L2_PIX_FMT_H264 && global->VidCodec_ID == AV_CODEC_ID_H264)
+			if( global->format == V4L2_PIX_FMT_H264 && 
+				global->VidCodec_ID == AV_CODEC_ID_H264 &&
+				global->Frame_Flags == 0)
 			{
 				videoF->vflags = 0;
 				if(proc_buff->keyframe)

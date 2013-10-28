@@ -50,6 +50,7 @@ struct io_Stream
 	char   compressor[8];        /* Type of compressor, 4 bytes + padding for 0 byte */
 
 	int32_t codec_id;
+	int32_t h264_process;		/* Set to 1 if codec private data used (NALU marker needs to be processed)*/
 
 	//video
 	int32_t   width;             /* Width  of a video frame */

@@ -219,7 +219,11 @@ static int initVideoFile(struct ALL_DATA *all_data, void* lav_data)
 
 			vstream->extra_data_size = set_mkvCodecPriv(videoIn, global, *lavc_data);
 			if(vstream->extra_data_size > 0)
+			{
 				vstream->extra_data = get_mkvCodecPriv(global->VidCodec);
+				if(global->format == V4L2_PIX_FMT_H264)
+					vstream->h264_process = 1; //we need to process NALU marker
+			}
 
 			if(global->Sound_enable > 0)
 			{
