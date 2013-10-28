@@ -415,7 +415,6 @@ static int parse_NALU(uint8_t type, uint8_t **NALU, uint8_t *buff, int size)
  */
 static int demux_NALU(uint8_t *h264_data, uint8_t *buff, int size)
 {
-	int nal_size = 0;
 	uint8_t *sp = NULL;
 	uint8_t *nal = buff;
 	uint8_t *ph264 = h264_data;
@@ -440,7 +439,7 @@ static int demux_NALU(uint8_t *h264_data, uint8_t *buff, int size)
 
 		if(nal == buff)
 		{
-			fprintf(stderr, "uvc H264: could not find a NALU in buffer\n", type);
+			fprintf(stderr, "uvc H264: could not find a NALU in buffer\n");
 			return -1;
 		}
 
@@ -540,7 +539,7 @@ static void demux_h264(uint8_t* h264_data, uint8_t* frame_buffer, int bytesused)
 	 */
 	if(get_SupPixFormatUvcH264() > 1)
 	{
-		demux_NALU(vd->h264_frame, vd->mem[vd->buf.index], vd->buf.bytesused);
+		demux_NALU(h264_data, frame_buffer, bytesused);
 		return;
 	}
 
@@ -1450,7 +1449,7 @@ int uvcGrab(struct vdIn *vd, struct GLOBAL *global, int format, int width, int h
 					if(global->format == V4L2_PIX_FMT_H264 && get_SupPixFormatUvcH264() > 1)
 					{
 						uint32_t frame_interval = (global->fps_num * 1000000000LL / global->fps)/100;
-						uvcx_set_frame_rate_config(cd->fd, global->uvc_h264_unit, frame_interval);
+						uvcx_set_frame_rate_config(vd->fd, global->uvc_h264_unit, frame_interval);
 					}
 					else
 					{
