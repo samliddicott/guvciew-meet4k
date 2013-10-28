@@ -1529,7 +1529,7 @@ void check_uvc_h264_format(struct vdIn *vd, struct GLOBAL *global)
 	if(get_FormatIndex(vd->listFormats, V4L2_PIX_FMT_H264) >= 0)
 		return; //H264 is already in the list
 
-	if(!has_h264_support(vd->fd, global->uvc_h264_unit)
+	if(!has_h264_support(vd->fd, global->uvc_h264_unit))
 		return; //no XU support for H264
 
 	//add the format to the list
