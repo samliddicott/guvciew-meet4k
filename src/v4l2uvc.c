@@ -560,21 +560,21 @@ static gboolean is_h264_keyframe (struct vdIn *vd)
 	return 0;
 }
 
-static void demux_h264(uint8_t* h264_data, uint8_t* frame_buffer, int bytesused)
+static int demux_h264(uint8_t* h264_data, uint8_t* frame_buffer, int bytesused)
 {
 	/*
 	 * if it's a muxed stream we must demux it first
 	 */
 	if(get_SupPixFormatUvcH264() > 1)
 	{
-		demux_NALU(h264_data, frame_buffer, bytesused);
-		return;
+		return demux_NALU(h264_data, frame_buffer, bytesused);
 	}
 
 	/*
 	 * store the raw frame in h264 frame buffer
 	 */
 	memcpy(h264_data, frame_buffer, bytesused);
+	return bytesused;
 
 }
 
@@ -1187,7 +1187,7 @@ static int frame_decode(struct vdIn *vd, int format, int width, int height)
 			/*
 			 * get the h264 frame
 			 */
-			demux_h264(vd->h264_frame, vd->mem[vd->buf.index], vd->buf.bytesused);
+			vd->buf.bytesused = demux_h264(vd->h264_frame, vd->mem[vd->buf.index], vd->buf.bytesused);
 
 			/*
 			 * store SPS and PPS info (usually the first two NALU)
@@ -1204,7 +1204,7 @@ static int frame_decode(struct vdIn *vd, int format, int width, int height)
 			if(vd->h264_last_IDR_size > 0)
 			{
 				/* decode (h264) to vd->tmpbuffer (yuv420p)*/
-				decode_h264(vd->tmpbuffer, vd->mem[vd->buf.index], vd->buf.bytesused, vd->h264_ctx);
+				decode_h264(vd->tmpbuffer, vd->h264_frame, vd->buf.bytesused, vd->h264_ctx);
 				yuv420_to_yuyv (vd->framebuffer, vd->tmpbuffer, width, height);
 			}
 			break;
