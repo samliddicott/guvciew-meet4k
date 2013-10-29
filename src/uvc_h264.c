@@ -1595,6 +1595,9 @@ void set_muxed_h264_format(struct vdIn *vd, struct GLOBAL *global)
 	uvcx_video_config_probe_commit_t config_probe_def;
 	uvcx_video_config_probe_commit_t config_probe_req;
 
+	/* reset the encoder*/
+	uvcx_video_encoder_reset(vd->fd, global->uvc_h264_unit);
+	
 	/*
 	 * Get default values (safe)
 	 */
@@ -1635,8 +1638,8 @@ void set_muxed_h264_format(struct vdIn *vd, struct GLOBAL *global)
 			frame_interval, config_probe_req.dwFrameInterval);
 	}
 	//commit the format
-	print_probe_commit_data(&config_probe_req);
 	uvcx_video_commit(vd->fd, global->uvc_h264_unit, &config_probe_req);
+	print_probe_commit_data(&config_probe_req);
 }
 
 int uvcx_video_probe(int hdevice, uint8_t unit_id, uint8_t query, uvcx_video_config_probe_commit_t *uvcx_video_config)
