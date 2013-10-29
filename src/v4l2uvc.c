@@ -501,7 +501,7 @@ static int demux_NALU(uint8_t *h264_data, uint8_t *buff, int size)
 	//snprintf(test_filename2, 22, "frame-%u.raw", frame_PTS);
 	//SaveBuff (test_filename2, total_size, h264_data);
 
-	printf("demuxed frame: PTS: %u; payload size: %u, total size: %u\n", frame_PTS, payload_size, total_size);
+	//printf("demuxed frame: PTS: %u; payload size: %u, total size: %u\n", frame_PTS, payload_size, total_size);
 	return total_size;
 }
 
