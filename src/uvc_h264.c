@@ -1513,11 +1513,10 @@ int has_h264_support(int hdevice, uint8_t unit_id)
 		g_printerr("device doesn't seem to support uvc H264 in unit_id %d\n", unit_id);
 		return 0;
 	}
-	else
-	{
-		g_printerr("device seems to support uvc H264 (version: %d) in unit_id %d\n", uvcx_version.wVersion, unit_id);
-		return 1;
-	}
+	
+	printf("device seems to support uvc H264 (version: %d) in unit_id %d\n", uvcx_version.wVersion, unit_id);
+	return 1;
+	
 }
 
 /*
@@ -1526,6 +1525,7 @@ int has_h264_support(int hdevice, uint8_t unit_id)
  */
 void check_uvc_h264_format(struct vdIn *vd, struct GLOBAL *global)
 {
+	printf("checking muxed H264 format support\n");
 	if(get_FormatIndex(vd->listFormats, V4L2_PIX_FMT_H264) >= 0)
 		return; //H264 is already in the list
 
@@ -1536,7 +1536,8 @@ void check_uvc_h264_format(struct vdIn *vd, struct GLOBAL *global)
 	int mjpg_index = get_FormatIndex(vd->listFormats, V4L2_PIX_FMT_MJPEG);
 	if(mjpg_index < 0) //MJPG must be available for uvc H264 streams
 		return;
-
+		
+	printf("adding muxed H264 format\n");
 	set_SupPixFormatUvcH264();
 
 	vd->listFormats->numb_formats++; //increment number of formats

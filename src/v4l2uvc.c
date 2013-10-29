@@ -416,58 +416,70 @@ static int parse_NALU(uint8_t type, uint8_t **NALU, uint8_t *buff, int size)
 static int demux_NALU(uint8_t *h264_data, uint8_t *buff, int size)
 {
 	uint8_t *sp = NULL;
-	uint8_t *nal = buff;
+	uint8_t *pl = buff;
+	uint8_t *epl = NULL;
 	uint8_t *ph264 = h264_data;
-	int nal_size = 0;
+	int seg_size = 0;
 	int total_size = 0;
 	int done = 0;
 
-	while(!done)
+	//search for first APP4 marker
+	for(sp = pl; sp < buff + size - 2; ++sp)
 	{
-		//search for NALU start
-		for(sp = nal; sp < buff + size - 4; ++sp)
+		if(sp[0] == 0xFF &&
+		   sp[1] == 0xE4)
 		{
-			if(sp[0] == 0x00 &&
-			   sp[1] == 0x00 &&
-			   sp[2] == 0x00 &&
-			   sp[3] == 0x01)
+			pl = sp+2;
+			break;
+		}
+	}
+
+	if(pl == buff)
+	{
+		fprintf(stderr, "uvc H264 demux: could not find a APP4 marker in buffer\n");
+		return -1;
+	}
+	
+	pl += 2 + 22; //lenght(2)  + header(22)
+	
+	//get payload size
+	uint32_t payload_size = 0;
+	payload_size = (pl[0] & 0x000000ff);
+	payload_size |= (pl[1] & 0x000000ff) << 8;
+	payload_size |= (pl[2] & 0x000000ff) << 16;
+	payload_size |= (pl[3] & 0x000000ff) << 24; 
+	
+	pl +=4; //start of the payload data
+	epl = pl + payload_size; //end of payload data
+	if(epl > buff + size)
+		epl = buff + size;
+			
+	while(!done)
+	{ 
+		
+		//search for next APP4 
+		for(sp = pl; sp < epl-2; ++sp)
+		{
+			if(sp[0] == 0xFF &&
+			   sp[1] == 0xE4)
 			{
-				nal = sp; //include NALU marker
+				seg_size = sp - pl;
 				break;
 			}
 		}
 
-		if(nal == buff)
+		if(!seg_size)
 		{
-			fprintf(stderr, "uvc H264: could not find a NALU in buffer\n");
-			return -1;
-		}
-
-		//search for next NALU (this marks the end of the previous)
-		for(sp = nal+4; sp < buff + size - 4; ++sp)
-		{
-			if(sp[0] == 0x00 &&
-			   sp[1] == 0x00 &&
-			   sp[2] == 0x00 &&
-			   sp[3] == 0x01)
-			{
-				nal_size = sp - nal;
-				break;
-			}
-		}
-
-		if(!nal_size)
-		{
-			nal_size = buff + size - nal;
+			seg_size = epl - pl;
 			done = 1; //we reached the end of the buffer
 		}
 
-		//copy NALU to h264 data buffer
-		memcpy(ph264, nal, nal_size);
-		nal = sp; //reset to the next NALU marker
-		ph264 += nal_size;
-		total_size += nal_size;
-		nal_size = 0;
+		//copy segment to h264 data buffer
+		memcpy(ph264, pl, seg_size);
+		pl = sp + 4; //reset to the next segment (marker + length)
+		ph264 += seg_size;
+		total_size += seg_size;
+		seg_size = 0;
 	}
 
 	//char test_filename2[20];
@@ -1067,17 +1079,6 @@ int init_videoIn(struct vdIn *videoIn, struct GLOBAL *global)
 		}
 	}
 
-	//reset v4l2_format
-	memset(&videoIn->fmt, 0, sizeof(struct v4l2_format));
-	// populate video capabilities structure array
-	// should only be called after all vdIn struct elements
-	// have been initialized
-	if((ret = check_videoIn(videoIn, global)) != VDIN_OK)
-	{
-		clear_v4l2(videoIn);
-		return (ret);
-	}
-
 	//if it's a uvc device
 	//map dynamic controls
 	//and check for h264 support
@@ -1110,6 +1111,18 @@ int init_videoIn(struct vdIn *videoIn, struct GLOBAL *global)
 		}
 		else ret = VDIN_DYNCTRL_ERR;
 
+	}
+	
+	//For H264 we need to get the unit id before checking video formats
+	//reset v4l2_format
+	memset(&videoIn->fmt, 0, sizeof(struct v4l2_format));
+	// populate video capabilities structure array
+	// should only be called after all vdIn struct elements
+	// have been initialized
+	if((ret = check_videoIn(videoIn, global)) != VDIN_OK)
+	{
+		clear_v4l2(videoIn);
+		return (ret);
 	}
 
 	if(global->add_ctrls)
@@ -1519,7 +1532,6 @@ int uvcGrab(struct vdIn *vd, struct GLOBAL *global, int format, int width, int h
 
 	//char test_filename[20];
 	//snprintf(test_filename, 20, "frame-%i.raw", vd->frame_index);
-	//vd->frame_index++;
 	//SaveBuff (test_filename,vd->buf.bytesused,vd->mem[vd->buf.index]);
 
 	if ((ret = frame_decode(vd, format, width, height)) != VDIN_OK)
