@@ -416,76 +416,92 @@ static int parse_NALU(uint8_t type, uint8_t **NALU, uint8_t *buff, int size)
 static int demux_NALU(uint8_t *h264_data, uint8_t *buff, int size)
 {
 	uint8_t *sp = NULL;
-	uint8_t *pl = buff;
+	uint8_t *pl = NULL;
+	uint8_t *spl = NULL;
 	uint8_t *epl = NULL;
 	uint8_t *ph264 = h264_data;
-	int seg_size = 0;
 	int total_size = 0;
-	int done = 0;
-
+	//segments have a maximum of 64Kb
+	int seg_size = 64*1024;
+	
 	//search for first APP4 marker
-	for(sp = pl; sp < buff + size - 2; ++sp)
+	for(sp = buff; sp < buff + size - 2; ++sp)
 	{
 		if(sp[0] == 0xFF &&
 		   sp[1] == 0xE4)
 		{
-			pl = sp+2;
+			spl = sp; //payload start
 			break;
 		}
 	}
 
-	if(pl == buff)
+	if(spl == buff)
 	{
 		fprintf(stderr, "uvc H264 demux: could not find a APP4 marker in buffer\n");
 		return -1;
 	}
 	
-	pl += 2 + 22; //lenght(2)  + header(22)
+	pl = spl + 4; //marker(2) + length(2)
+	
+	uint32_t frame_PTS = 0;
+	frame_PTS =  ((uint32_t) pl[18]) << 0;
+	frame_PTS |= ((uint32_t) pl[19]) << 8;
+	frame_PTS |= ((uint32_t) pl[20]) << 16;
+	frame_PTS |= ((uint32_t) pl[21]) << 24;
+	
+	pl += 22; //header(22)
 	
 	//get payload size
 	uint32_t payload_size = 0;
-	payload_size = (pl[0] & 0x000000ff);
-	payload_size |= (pl[1] & 0x000000ff) << 8;
-	payload_size |= (pl[2] & 0x000000ff) << 16;
-	payload_size |= (pl[3] & 0x000000ff) << 24; 
+	payload_size =  ((uint32_t) pl[0]) << 0;
+	payload_size |= ((uint32_t) pl[1]) << 8;
+	payload_size |= ((uint32_t) pl[2]) << 16;
+	payload_size |= ((uint32_t) pl[3]) << 24;
 	
-	pl +=4; //start of the payload data
+	pl +=4;                  //start of the payload data
 	epl = pl + payload_size; //end of payload data
 	if(epl > buff + size)
 		epl = buff + size;
+	
+	//for the first segment remove header size 
+	//marker(2) + length(2) + header(22) + payload size(4)
+	seg_size = 64*1024 - (pl-spl);
 			
-	while(!done)
+	while(pl + seg_size <= epl)
 	{ 
-		
-		//search for next APP4 
-		for(sp = pl; sp < epl-2; ++sp)
-		{
-			if(sp[0] == 0xFF &&
-			   sp[1] == 0xE4)
-			{
-				seg_size = sp - pl;
-				break;
-			}
-		}
-
-		if(!seg_size)
-		{
-			seg_size = epl - pl;
-			done = 1; //we reached the end of the buffer
-		}
-
 		//copy segment to h264 data buffer
 		memcpy(ph264, pl, seg_size);
-		pl = sp + 4; //reset to the next segment (marker + length)
 		ph264 += seg_size;
 		total_size += seg_size;
-		seg_size = 0;
+		
+		pl += seg_size; //reset to the next segment data
+		
+		if(pl[0] != 0xFF ||
+		   pl[1] != 0xE4)
+		{
+		   fprintf(stderr, "uvc H264 demux: no APP4 marker at end of 64K segment\n");
+		   break;
+		}
+		else
+			pl += 4; //skip marker(2) + length(2)
+		
+		seg_size = 64*1024 - 4; //skip marker + length
+	}
+	
+	seg_size = epl - pl; //last segment
+	if(seg_size > 0)
+	{
+		//copy segment to h264 data buffer
+		memcpy(ph264, pl, seg_size);
+		ph264 += seg_size;
+		total_size += seg_size;
 	}
 
-	//char test_filename2[20];
-	//snprintf(test_filename2, 20, "frame.raw");
+	//char test_filename2[22];
+	//snprintf(test_filename2, 22, "frame-%u.raw", frame_PTS);
 	//SaveBuff (test_filename2, total_size, h264_data);
 
+	printf("demuxed frame: PTS: %u; payload size: %u, total size: %u\n", frame_PTS, payload_size, total_size);
 	return total_size;
 }
 
@@ -1531,7 +1547,7 @@ int uvcGrab(struct vdIn *vd, struct GLOBAL *global, int format, int width, int h
 	vd->frame_index++;
 
 	//char test_filename[20];
-	//snprintf(test_filename, 20, "frame-%i.raw", vd->frame_index);
+	//snprintf(test_filename, 20, "rawframe-%u.raw", vd->frame_index);
 	//SaveBuff (test_filename,vd->buf.bytesused,vd->mem[vd->buf.index]);
 
 	if ((ret = frame_decode(vd, format, width, height)) != VDIN_OK)
