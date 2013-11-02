@@ -120,7 +120,7 @@ static int initVideoFile(struct ALL_DATA *all_data, void* lav_data)
 
 	//FIXME: don't initate lavc on uvc h264 stream and H264 codec
 	if(isLavcCodec(global->VidCodec))
-		*lavc_data = init_lavc(global->width, global->height, global->fps_num, global->fps, global->VidCodec, global->format);
+		*lavc_data = init_lavc(global->width, global->height, global->fps_num, global->fps, global->VidCodec, global->format, global->Frame_Flags);
 
 	if((*lavc_data)->monotonic_pts > 0)
 		global->monotonic_pts = TRUE;
@@ -777,6 +777,7 @@ static gboolean process_video(struct ALL_DATA *all_data,
 			{
 				case AVI_FORMAT:
 					/* drop frame */
+					/*FIXME: on stream formats we can't drop key frames*/
 					break;
 
 				case WEBM_FORMAT:
@@ -917,8 +918,8 @@ int store_video_frame(void *data)
 	}
 
 	if( global->VidCodec_ID == AV_CODEC_ID_H264 &&
-		global->Frame_Flags == 0 &&
-		global->format == V4L2_PIX_FMT_H264)
+		global->format == V4L2_PIX_FMT_H264 &&
+		global->Frame_Flags == 0)
 	{
 		if(videoIn->h264_last_IDR_size <= 0)
 		{

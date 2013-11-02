@@ -405,7 +405,7 @@ int clean_lavc_audio (void* arg)
 	return (0);
 }
 
-struct lavcData* init_lavc(int width, int height, int fps_num, int fps_den, int codec_ind, int format)
+struct lavcData* init_lavc(int width, int height, int fps_num, int fps_den, int codec_ind, int format, int frame_flags)
 {
 	//allocate
 	struct lavcData* data = g_new0(struct lavcData, 1);
@@ -414,7 +414,9 @@ struct lavcData* init_lavc(int width, int height, int fps_num, int fps_den, int 
 	vcodecs_data *defaults = get_codec_defaults(codec_ind);
 	data->monotonic_pts = defaults->monotonic_pts;
 	
-	if(format == V4L2_PIX_FMT_H264 && get_vcodec_id(codec_ind) == AV_CODEC_ID_H264)
+	if( format == V4L2_PIX_FMT_H264 && 
+		get_vcodec_id(codec_ind) == AV_CODEC_ID_H264 &&
+		frame_flags == 0)
 		return(data); //we only need the private data in this case
 		
 	data->codec_context = NULL;

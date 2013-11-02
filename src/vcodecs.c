@@ -869,6 +869,9 @@ static int encode_lavc (struct lavcData *lavc_data,
 
 		ret = write_video_data (all_data, lavc_data->outbuf, framesize);
 	}
+	else
+		fprintf(stderr, "encode_lavc: encoder not initiated\n");
+		
 	return (ret);
 }
 
