@@ -745,20 +745,16 @@ static int init_v4l2(struct vdIn *vd, struct GLOBAL *global)//int *format, int *
 		global->width = vd->fmt.fmt.pix.width;
 		global->height = vd->fmt.fmt.pix.height;
 	}
-
+	
+	/* ----------- FPS --------------*/
+	input_set_framerate(vd, &global->fps, &global->fps_num);
+	
 	/*
 	 * if it's uvc muxed H264 we must now set UVCX_VIDEO_CONFIG_COMMIT
-	 * with bStreamMuxOption =
+	 * with bStreamMuxOption = STREAMMUX_H264
 	 */
 	if(global->format == V4L2_PIX_FMT_H264 && get_SupPixFormatUvcH264() > 1)
-	{
 		set_muxed_h264_format(vd, global);
-	}
-	else
-	{
-		/* ----------- FPS --------------*/
-		input_set_framerate(vd, &global->fps, &global->fps_num);
-	}
 
 	//deprecated in v4l2 - still waiting for new API implementation
 	if(global->format == V4L2_PIX_FMT_MJPEG || global->format == V4L2_PIX_FMT_JPEG)
@@ -1471,25 +1467,23 @@ int uvcGrab(struct vdIn *vd, struct GLOBAL *global, int format, int width, int h
 				/*------------------------------------------*/
 				if(vd->setFPS) //change fps
 				{
+					video_disable(vd);
+					unmap_buff(vd);
+					
+					input_set_framerate (vd, &global->fps, &global->fps_num);
+					
 					/*
 					 * For uvc muxed H264 stream
-					 * don't restart the video stream or codec values will be reset
+					 * since we are restarting the video stream and codec values will be reset
+					 * commit the codec data again
 					 */
 					if(global->format == V4L2_PIX_FMT_H264 && get_SupPixFormatUvcH264() > 1)
-					{
-						uint32_t frame_interval = (global->fps_num * 1000000000LL / global->fps)/100;
-						uvcx_set_frame_rate_config(vd->fd, global->uvc_h264_unit, frame_interval);
-					}
-					else
-					{
-						video_disable(vd);
-						unmap_buff(vd);
-						input_set_framerate (vd, &global->fps, &global->fps_num);
-						vd->setFPS = 0;
-						query_buff(vd);
-						queue_buff(vd);
-						video_enable(vd);
-					}
+						set_muxed_h264_format(vd, global);
+						
+					vd->setFPS = 0;
+					query_buff(vd);
+					queue_buff(vd);
+					video_enable(vd);
 				}
 				else if(vd->setJPEGCOMP) //change jpeg quality/compression in video frame
 				{

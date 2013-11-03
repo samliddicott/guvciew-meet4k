@@ -1611,6 +1611,7 @@ void set_muxed_h264_format(struct vdIn *vd, struct GLOBAL *global)
 	//set frame rate in 100ns units
 	uint32_t frame_interval = (global->fps_num * 1000000000LL / global->fps)/100;
 	config_probe_req.dwFrameInterval = frame_interval;
+	//printf("requesting frame interval of: %i\n",frame_interval);
 	//set the aux stream (h264)
 	config_probe_req.bStreamMuxOption = STREAMMUX_H264;
 
