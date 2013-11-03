@@ -609,16 +609,6 @@ void add_uvc_h264_controls_tab (struct ALL_DATA* all_data)
 	gtk_notebook_append_page(GTK_NOTEBOOK(gwidget->boxh),scroll,Tab);
 
 	//streaming controls
-
-	//encoder reset
-	/*
-	GtkWidget *reset_button = gtk_button_new_with_label(_("Encoder Reset"));
-	g_signal_connect (GTK_BUTTON(reset_button), "clicked",
-                                G_CALLBACK (h264_reset_button_clicked), all_data);
-
-    gtk_grid_attach (GTK_GRID(table), reset_button, 0, line, 1 ,1);
-	gtk_widget_show(reset_button);
-	*/
 	
 	//bRateControlMode
 	line++;
@@ -688,9 +678,6 @@ void add_uvc_h264_controls_tab (struct ALL_DATA* all_data)
 	gtk_grid_attach (GTK_GRID(table), label_TemporalScaleMode, 0, line, 1, 1);
 	gtk_widget_show (label_TemporalScaleMode);
 
-	//uint8_t cur_tsmflags = uvcx_get_temporal_scale_mode(videoIn->fd, global->uvc_h264_unit, UVC_GET_CUR) & 0x07;
-	//uint8_t max_tsmflags = uvcx_get_temporal_scale_mode(videoIn->fd, global->uvc_h264_unit, UVC_GET_MAX) & 0x07;
-	//uint8_t min_tsmflags = uvcx_get_temporal_scale_mode(videoIn->fd, global->uvc_h264_unit, UVC_GET_MIN) & 0x07;
 	uint8_t cur_tsmflags = config_probe_cur->bTemporalScaleMode & 0x07;
 	uint8_t max_tsmflags = config_probe_max.bTemporalScaleMode & 0x07;
 	uint8_t min_tsmflags = config_probe_min.bTemporalScaleMode & 0x07;
@@ -744,38 +731,42 @@ void add_uvc_h264_controls_tab (struct ALL_DATA* all_data)
     gtk_widget_show (h264_controls->SpatialScaleMode);
 
     //dwFrameInterval
-    /*
-	line++;
-	GtkWidget* label_FrameInterval = gtk_label_new(_("Frame Interval (100ns units):"));
-	gtk_misc_set_alignment (GTK_MISC (label_FrameInterval), 1, 0.5);
-	gtk_grid_attach (GTK_GRID(table), label_FrameInterval, 0, line, 1, 1);
-	gtk_widget_show (label_FrameInterval);
+    if(global->control_only) // if streaming use fps to determine FrameInterval
+    {
+		line++;
+		GtkWidget* label_FrameInterval = gtk_label_new(_("Frame Interval (100ns units):"));
+		gtk_misc_set_alignment (GTK_MISC (label_FrameInterval), 1, 0.5);
+		gtk_grid_attach (GTK_GRID(table), label_FrameInterval, 0, line, 1, 1);
+		gtk_widget_show (label_FrameInterval);
 
-	//uint32_t cur_framerate = (global->fps_num * 1000000000LL / global->fps)/100;
-	uint32_t cur_framerate = uvcx_get_frame_rate_config(videoIn->fd, global->uvc_h264_unit, UVC_GET_CUR);
-	uint32_t max_framerate = uvcx_get_frame_rate_config(videoIn->fd, global->uvc_h264_unit, UVC_GET_MAX);
-	uint32_t min_framerate = uvcx_get_frame_rate_config(videoIn->fd, global->uvc_h264_unit, UVC_GET_MIN);
+		//uint32_t cur_framerate = (global->fps_num * 1000000000LL / global->fps)/100;
+		uint32_t cur_framerate = uvcx_get_frame_rate_config(videoIn->fd, global->uvc_h264_unit, UVC_GET_CUR);
+		uint32_t max_framerate = uvcx_get_frame_rate_config(videoIn->fd, global->uvc_h264_unit, UVC_GET_MAX);
+		uint32_t min_framerate = uvcx_get_frame_rate_config(videoIn->fd, global->uvc_h264_unit, UVC_GET_MIN);
 
-	GtkAdjustment *adjustment0 = gtk_adjustment_new (
-                                	cur_framerate,
-                                	min_framerate,
-                                    max_framerate,
-                                    1,
-                                    10,
-                                    0);
+		GtkAdjustment *adjustment0 = gtk_adjustment_new (
+										cur_framerate,
+										min_framerate,
+										max_framerate,
+										1,
+										10,
+										0);
 
-    h264_controls->FrameInterval = gtk_spin_button_new(adjustment0, 1, 0);
-    gtk_editable_set_editable(GTK_EDITABLE(h264_controls->FrameInterval), TRUE);
+		h264_controls->FrameInterval = gtk_spin_button_new(adjustment0, 1, 0);
+		gtk_editable_set_editable(GTK_EDITABLE(h264_controls->FrameInterval), TRUE);
 
-	g_signal_connect(GTK_SPIN_BUTTON(h264_controls->FrameInterval),"value-changed",
-                                    G_CALLBACK (FrameInterval_changed), all_data);
+		g_signal_connect(GTK_SPIN_BUTTON(h264_controls->FrameInterval),"value-changed",
+										G_CALLBACK (FrameInterval_changed), all_data);
 
-    gtk_grid_attach (GTK_GRID(table), h264_controls->FrameInterval, 1, line, 1 ,1);
-    gtk_widget_show (h264_controls->FrameInterval);
-	*/
+		gtk_grid_attach (GTK_GRID(table), h264_controls->FrameInterval, 1, line, 1 ,1);
+		gtk_widget_show (h264_controls->FrameInterval);
+	}
 	
 	//probe_commit specific controls
-
+	
+	if(global->control_only)
+		return; //don't create probe_commit specific controls if we are in control panel mode
+	
 	//dwBitRate
 	line++;
 	GtkWidget* label_BitRate = gtk_label_new(_("Bit Rate:"));
@@ -1411,6 +1402,14 @@ void add_uvc_h264_controls_tab (struct ALL_DATA* all_data)
 	//PROBE COMMIT buttons
 	line++;
 
+	//encoder reset
+	GtkWidget *reset_button = gtk_button_new_with_label(_("Encoder Reset"));
+	g_signal_connect (GTK_BUTTON(reset_button), "clicked",
+                                G_CALLBACK (h264_reset_button_clicked), all_data);
+
+    gtk_grid_attach (GTK_GRID(table), reset_button, 0, line, 1 ,1);
+	gtk_widget_show(reset_button);
+	
 /*
 	h264_controls->probe_button = gtk_button_new_with_label(_("PROBE"));
 	g_signal_connect (GTK_BUTTON(h264_controls->probe_button), "clicked",
