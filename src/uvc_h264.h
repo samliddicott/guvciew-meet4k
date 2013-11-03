@@ -158,39 +158,7 @@ typedef struct
 #define xDependency_id(layer_id)  (((layer_id)>>3)&15)
 #define xTemporal_id(layer_id)    ((layer_id)&7)
 
-/* probe commit struct */
-typedef struct _uvcx_video_config_probe_commit_t
-{
-	DWORD	dwFrameInterval;
-	DWORD	dwBitRate;
-	WORD	bmHints;
-	WORD	wConfigurationIndex;
-	WORD	wWidth;
-	WORD	wHeight;
-	WORD	wSliceUnits;
-	WORD	wSliceMode;
-	WORD	wProfile;
-	WORD	wIFramePeriod;
-	WORD	wEstimatedVideoDelay;
-	WORD	wEstimatedMaxConfigDelay;
-	BYTE	bUsageType;
-	BYTE	bRateControlMode;
-	BYTE	bTemporalScaleMode;
-	BYTE	bSpatialScaleMode;
-	BYTE	bSNRScaleMode;
-	BYTE	bStreamMuxOption;
-	BYTE	bStreamFormat;
-	BYTE	bEntropyCABAC;
-	BYTE	bTimestamp;
-	BYTE	bNumOfReorderFrames;
-	BYTE	bPreviewFlipped;
-	BYTE	bView;
-	BYTE	bReserved1;
-	BYTE	bReserved2;
-	BYTE	bStreamID;
-	BYTE	bSpatialLayerRatio;
-	WORD	wLeakyBucketSize;
-} __attribute__((__packed__)) uvcx_video_config_probe_commit_t;
+/* h264 probe commit struct (defined in v4l2uvc.h) */
 
 /* rate control */
 typedef struct _uvcx_rate_control_mode_t
@@ -307,13 +275,10 @@ int h264_framerate_balance(struct ALL_DATA *all_data);
 void check_uvc_h264_format(struct vdIn *vd, struct GLOBAL *global);
 void set_muxed_h264_format(struct vdIn *vd, struct GLOBAL *global);
 /*
- * probe h264 controls (video stream must be off)
+ * probe/commit h264 controls (video stream must be off)
  */
-void h264_probe(uvcx_video_config_probe_commit_t *config_probe_req, struct ALL_DATA *data);
-/*
- * commit h264 controls (video stream must be off)
- */
-void h264_commit(uvcx_video_config_probe_commit_t *config_probe_req, struct ALL_DATA *data);
+void h264_probe(struct ALL_DATA *data);
+void h264_commit(struct vdIn *vd, struct GLOBAL *global);
 
 int uvcx_video_probe(int hdevice, uint8_t unit_id, uint8_t query, uvcx_video_config_probe_commit_t *uvcx_video_config);
 int uvcx_video_commit(int hdevice, uint8_t unit_id, uvcx_video_config_probe_commit_t *uvcx_video_config);

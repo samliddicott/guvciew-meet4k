@@ -80,6 +80,40 @@ static const int exp_vals[]=
 	V4L2_UVC_EXPOSURE_APERTURE_PRIORITY
 };
 
+/* h264 probe commit struct */
+typedef struct _uvcx_video_config_probe_commit_t
+{
+	DWORD	dwFrameInterval;
+	DWORD	dwBitRate;
+	WORD	bmHints;
+	WORD	wConfigurationIndex;
+	WORD	wWidth;
+	WORD	wHeight;
+	WORD	wSliceUnits;
+	WORD	wSliceMode;
+	WORD	wProfile;
+	WORD	wIFramePeriod;
+	WORD	wEstimatedVideoDelay;
+	WORD	wEstimatedMaxConfigDelay;
+	BYTE	bUsageType;
+	BYTE	bRateControlMode;
+	BYTE	bTemporalScaleMode;
+	BYTE	bSpatialScaleMode;
+	BYTE	bSNRScaleMode;
+	BYTE	bStreamMuxOption;
+	BYTE	bStreamFormat;
+	BYTE	bEntropyCABAC;
+	BYTE	bTimestamp;
+	BYTE	bNumOfReorderFrames;
+	BYTE	bPreviewFlipped;
+	BYTE	bView;
+	BYTE	bReserved1;
+	BYTE	bReserved2;
+	BYTE	bStreamID;
+	BYTE	bSpatialLayerRatio;
+	WORD	wLeakyBucketSize;
+} __attribute__((__packed__)) uvcx_video_config_probe_commit_t;
+
 struct vdIn
 {
 	__MUTEX_TYPE mutex;
@@ -99,6 +133,7 @@ struct vdIn
 	//struct v4l2_timecode timecode;      // v4l2 timecode struct
 	struct v4l2_streamparm streamparm;  // v4l2 stream parameters struct
 	struct v4l2_jpegcompression jpgcomp;// v4l2 jpeg compression settings
+	uvcx_video_config_probe_commit_t h264_config_probe_req; //probe commit struct for h264 streams
 	void *mem[NB_BUFFER];               // memory buffers for mmap driver frames
 	UINT32 buff_length[NB_BUFFER];      // memory buffers length as set by VIDIOC_QUERYBUF
 	UINT32 buff_offset[NB_BUFFER];      // memory buffers offset as set by VIDIOC_QUERYBUF
@@ -110,6 +145,7 @@ struct vdIn
 	int pix_order;                      // raw bayer pixel order (rg/gb, bg/gr, ...)
 	int setFPS;                         // set FPS flag (0-do nothing, 1-change fps value, 2-query and queue buffer)
 	int setJPEGCOMP;                    // set jpeg compression flag (0-do nothing, 1-change compression value, 2-query and queue buffer)
+	int setH264ConfigProbe;             // set H264 stream Config Probe Commit
 	int grabmethod;                     // only mmap available UVC doesn't support read
 	UINT64 timestamp;                   // video frame time stamp
 	char *VidFName;                     // Video File name (with full path)

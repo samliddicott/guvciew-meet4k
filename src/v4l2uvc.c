@@ -1460,7 +1460,7 @@ int uvcGrab(struct vdIn *vd, struct GLOBAL *global, int format, int width, int h
 		case IO_MMAP:
 		default:
 			/*query and queue buffers since fps or compression as changed*/
-			if((vd->setFPS > 0) || (vd->setJPEGCOMP > 0))
+			if((vd->setFPS > 0) || (vd->setJPEGCOMP > 0) || (vd->setH264ConfigProbe > 0))
 			{
 				/*------------------------------------------*/
 				/*  change video fps or frame compression   */
@@ -1481,6 +1481,18 @@ int uvcGrab(struct vdIn *vd, struct GLOBAL *global, int format, int width, int h
 						set_muxed_h264_format(vd, global);
 						
 					vd->setFPS = 0;
+					query_buff(vd);
+					queue_buff(vd);
+					video_enable(vd);
+				}
+				else if(vd->setH264ConfigProbe)
+				{
+					video_disable(vd);
+					unmap_buff(vd);
+					
+					h264_commit(vd, global);
+					
+					vd->setH264ConfigProbe = 0;
 					query_buff(vd);
 					queue_buff(vd);
 					video_enable(vd);
