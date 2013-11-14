@@ -118,7 +118,7 @@ static int initVideoFile(struct ALL_DATA *all_data, void* lav_data)
 	/*alloc video ring buffer*/
 	alloc_videoBuff(all_data);
 
-	//FIXME: don't initate lavc on uvc h264 stream and H264 codec
+	//FIXME: don't initiate lavc on uvc h264 stream and H264 codec
 	if(isLavcCodec(global->VidCodec))
 		*lavc_data = init_lavc(global->width, global->height, global->fps_num, global->fps, global->VidCodec, global->format, global->Frame_Flags);
 
@@ -879,9 +879,9 @@ static void store_at_index(void *data)
 			videoIn->h264_frame,
 			global->videoBuff[global->w_ind].bytes_used);
 		global->videoBuff[global->w_ind].keyframe = videoIn->isKeyframe;
-		//use monotonic timestamp instead of real timestamp
-		if(global->monotonic_pts)
-			global->videoBuff[global->w_ind].time_stamp = global->framecount * floor(1E9/global->fps);
+		/* use monotonic timestamp instead of real timestamp */
+		//if(global->monotonic_pts)
+		//	global->videoBuff[global->w_ind].time_stamp = global->framecount * floor(1E9/global->fps);
 	}
 	else
 	{
