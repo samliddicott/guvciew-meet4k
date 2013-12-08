@@ -24,6 +24,7 @@
 #include <glib.h>
 #include <glib/gprintf.h>
 #include <glib/gstdio.h>
+#include <string.h>
 #include "lavc_common.h"
 #include "v4l2uvc.h"
 #include "vcodecs.h"

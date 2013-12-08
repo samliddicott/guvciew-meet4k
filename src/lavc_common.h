@@ -35,6 +35,7 @@
 #else
   #ifdef HAS_LIBAVCODEC_AVCODEC_H
     #include <libavcodec/avcodec.h>
+    #include <libavutil/mem.h> //mem functions: av_free; av_malloc; av_realloc
     #include <libavutil/audioconvert.h> //channel_layout definitions
   #else
     #ifdef HAS_FFMPEG_AVCODEC_H
@@ -42,6 +43,7 @@
       #include <ffmpeg/audioconvert.h>
     #else
       #include <libavcodec/avcodec.h>
+      #include <libavutil/mem.h>
       #include <libavutil/audioconvert.h>
     #endif
   #endif

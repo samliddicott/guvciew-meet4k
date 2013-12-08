@@ -25,7 +25,7 @@
 #include <glib/gi18n.h>
 #include <glib.h>
 #include <glib/gprintf.h>
-
+#include <math.h>
 #include <libusb.h>
 
 #include "uvc_h264.h"

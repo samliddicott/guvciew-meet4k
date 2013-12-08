@@ -28,6 +28,7 @@
 #include <glib.h>
 #include <glib/gprintf.h>
 #include <unistd.h>
+#include <math.h>
 
 #include "ms_time.h"
 #include "defs.h"
