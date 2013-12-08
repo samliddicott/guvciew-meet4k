@@ -9,7 +9,7 @@ dnl Package definitions and initialization
 dnl --------------------------------------------------------------------------
 m4_define([guvcview_major], [1])
 m4_define([guvcview_minor], [7])
-m4_define([guvcview_micro], [1])
+m4_define([guvcview_micro], [2])
 m4_define([guvcview_version],
           [guvcview_major.guvcview_minor.guvcview_micro])
 

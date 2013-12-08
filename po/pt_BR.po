@@ -8,25 +8,25 @@ msgid ""
 msgstr ""
 "Project-Id-Version: pt_BR\n"
 "Report-Msgid-Bugs-To: pj.assis@gmail.com\n"
-"POT-Creation-Date: 2013-10-12 21:10+0100\n"
-"PO-Revision-Date: 2013-02-25 05:32+0000\n"
-"Last-Translator: Giovanni Scafora <giovanni@archlinux.org>\n"
+"POT-Creation-Date: 2013-11-14 22:15+0000\n"
+"PO-Revision-Date: 2013-08-25 02:20+0000\n"
+"Last-Translator: Celio Alves <Unknown>\n"
 "Language-Team: Brazilian Portuguese <gnome-pt_br-list@gnome.org>\n"
-"Language: pt\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2013-07-22 13:32+0000\n"
-"X-Generator: Launchpad (build 16696)\n"
+"X-Launchpad-Export-Date: 2013-12-08 10:36+0000\n"
+"X-Generator: Launchpad (build 16869)\n"
 "X-Project-Style: default\n"
+"Language: pt\n"
 
 #: ../data/guvcview.desktop.in.in.h:1
 msgid "guvcview"
-msgstr ""
+msgstr "guvcview"
 
 #: ../data/guvcview.desktop.in.in.h:2
 msgid "GTK UVC video viewer"
-msgstr ""
+msgstr "Visualizador de vídeo GTK UVC"
 
 #: ../data/guvcview.desktop.in.in.h:3
 msgid "A video viewer and capturer for the linux uvc driver"
@@ -38,15 +38,15 @@ msgstr ""
 
 #: ../src/acodecs.c:76
 msgid "MPEG2 - (lavc)"
-msgstr ""
+msgstr "MPEG2 - (lavc)"
 
 #: ../src/acodecs.c:93
 msgid "MP3 - (lavc)"
-msgstr ""
+msgstr "MP3 - (lavc)"
 
 #: ../src/acodecs.c:110
 msgid "Dolby AC3 - (lavc)"
-msgstr ""
+msgstr "Dolby AC3 - (lavc)"
 
 #: ../src/acodecs.c:127
 msgid "ACC Low - (faac)"
@@ -54,7 +54,7 @@ msgstr ""
 
 #: ../src/acodecs.c:144
 msgid "Vorbis"
-msgstr ""
+msgstr "Vorbis"
 
 #: ../src/audio_tab.c:87
 msgid "Audio"
@@ -134,11 +134,11 @@ msgstr " WahWah"
 msgid " Ducky"
 msgstr " Patinho"
 
-#: ../src/callbacks.c:108
+#: ../src/callbacks.c:109
 msgid "Error"
 msgstr "Erro"
 
-#: ../src/callbacks.c:132
+#: ../src/callbacks.c:133
 msgid ""
 "\n"
 "You have more than one video device installed.\n"
@@ -149,23 +149,23 @@ msgstr ""
 "Quer tentar outro?\n"
 
 #. Devices
-#: ../src/callbacks.c:139 ../src/video_tab.c:111
+#: ../src/callbacks.c:140 ../src/video_tab.c:111
 msgid "Device:"
 msgstr "Dispositivo:"
 
-#: ../src/callbacks.c:271
+#: ../src/callbacks.c:272
 msgid "Save File"
 msgstr "Salvar arquivo"
 
-#: ../src/callbacks.c:283
+#: ../src/callbacks.c:284
 msgid "File Format:"
-msgstr ""
+msgstr "Formato do arquivo:"
 
-#: ../src/callbacks.c:454
+#: ../src/callbacks.c:455
 msgid "codec values"
 msgstr "valores do codec"
 
-#: ../src/callbacks.c:465
+#: ../src/callbacks.c:466
 msgid ""
 "                              encoder fps:   \n"
 " (0 - use fps combobox value)"
@@ -173,117 +173,117 @@ msgstr ""
 "                              codificador fps:   \n"
 " (0 - use o valor fps da caixa de marcação)"
 
-#: ../src/callbacks.c:478
+#: ../src/callbacks.c:479
 msgid " monotonic pts"
 msgstr " pts monotonico"
 
 #. bit rate
-#: ../src/callbacks.c:485 ../src/callbacks.c:808
+#: ../src/callbacks.c:486 ../src/callbacks.c:809
 msgid "bit rate:   "
 msgstr "taxa de bits:   "
 
-#: ../src/callbacks.c:498
+#: ../src/callbacks.c:499
 msgid "qmax:   "
 msgstr "qmax:   "
 
-#: ../src/callbacks.c:511
+#: ../src/callbacks.c:512
 msgid "qmin:   "
 msgstr "qmin:   "
 
-#: ../src/callbacks.c:524
+#: ../src/callbacks.c:525
 msgid "max. qdiff:   "
 msgstr "qdiff max:   "
 
-#: ../src/callbacks.c:537
+#: ../src/callbacks.c:538
 msgid "dia size:   "
 msgstr "tamanho do dia:   "
 
-#: ../src/callbacks.c:550
+#: ../src/callbacks.c:551
 msgid "pre dia size:   "
 msgstr "tamanho do diâ pré:   "
 
-#: ../src/callbacks.c:563
+#: ../src/callbacks.c:564
 msgid "pre me:   "
 msgstr "pre me:   "
 
-#: ../src/callbacks.c:576
+#: ../src/callbacks.c:577
 msgid "pre cmp:   "
 msgstr "pre cmp:   "
 
-#: ../src/callbacks.c:589
+#: ../src/callbacks.c:590
 msgid "cmp:   "
 msgstr "cmp:   "
 
-#: ../src/callbacks.c:602
+#: ../src/callbacks.c:603
 msgid "sub cmp:   "
 msgstr "sub cmp:   "
 
-#: ../src/callbacks.c:615
+#: ../src/callbacks.c:616
 msgid "last predictor count:   "
 msgstr "última contagem preditor:   "
 
-#: ../src/callbacks.c:628
+#: ../src/callbacks.c:629
 msgid "gop size:   "
 msgstr "tamanho do gop:   "
 
-#: ../src/callbacks.c:641
+#: ../src/callbacks.c:642
 msgid "qcompress:   "
 msgstr "qcompress:   "
 
-#: ../src/callbacks.c:654
+#: ../src/callbacks.c:655
 msgid "qblur:   "
 msgstr "qblur:   "
 
-#: ../src/callbacks.c:667
+#: ../src/callbacks.c:668
 msgid "subq:   "
 msgstr "subq:   "
 
-#: ../src/callbacks.c:680
+#: ../src/callbacks.c:681
 msgid "framerefs:   "
 msgstr "framerefs:   "
 
-#: ../src/callbacks.c:693
+#: ../src/callbacks.c:694
 msgid "me method:   "
 msgstr "método me:   "
 
-#: ../src/callbacks.c:706
+#: ../src/callbacks.c:707
 msgid "mb decision:   "
 msgstr "decisão mb:   "
 
-#: ../src/callbacks.c:719
+#: ../src/callbacks.c:720
 msgid "max B frames:   "
 msgstr "Max quadros B:   "
 
-#: ../src/callbacks.c:732
+#: ../src/callbacks.c:733
 msgid "num threads:   "
 msgstr "num threads:   "
 
-#: ../src/callbacks.c:795
+#: ../src/callbacks.c:796
 msgid "audio codec values"
 msgstr "valores do codec de áudio"
 
 #. sample format
-#: ../src/callbacks.c:822
+#: ../src/callbacks.c:823
 msgid "sample format:   "
 msgstr ""
 
-#: ../src/callbacks.c:1310
+#: ../src/callbacks.c:1311
 msgid "start new"
 msgstr "iniciar novo"
 
-#: ../src/callbacks.c:1313
+#: ../src/callbacks.c:1314
 msgid "restart"
 msgstr "reiniciar"
 
-#: ../src/callbacks.c:1315
+#: ../src/callbacks.c:1316
 msgid "new"
 msgstr "novo"
 
-#: ../src/callbacks.c:1317
+#: ../src/callbacks.c:1318
 msgid "cancel"
 msgstr "cancelar"
 
-#: ../src/callbacks.c:1322
+#: ../src/callbacks.c:1323
 msgid ""
 "launch new process or restart?.\n"
 "\n"
@@ -291,37 +291,37 @@ msgstr ""
 "lançar novo processo ou recomeçar?.\n"
 "\n"
 
-#: ../src/callbacks.c:1777 ../src/guvcview.c:565
+#: ../src/callbacks.c:1780 ../src/guvcview.c:565
 msgid "Cap. Image (I)"
 msgstr "Cap. imagem (I)"
 
 #. disable image controls
-#: ../src/callbacks.c:1788 ../src/guvcview.c:690 ../src/timers.c:101
+#: ../src/callbacks.c:1791 ../src/guvcview.c:690 ../src/timers.c:101
 msgid "capturing photo to"
 msgstr ""
 
-#: ../src/callbacks.c:1847 ../src/guvcview.c:575
+#: ../src/callbacks.c:1850 ../src/guvcview.c:575
 msgid "Cap. Video (V)"
 msgstr "Cap. vídeo (V)"
 
-#: ../src/callbacks.c:1873 ../src/guvcview.c:740
+#: ../src/callbacks.c:1876 ../src/guvcview.c:740
 msgid "capturing video to"
 msgstr ""
 
 #. vid capture enabled from start
-#: ../src/callbacks.c:1906 ../src/guvcview.c:570
+#: ../src/callbacks.c:1911 ../src/guvcview.c:570
 msgid "Stop Video (V)"
 msgstr "Parar vídeo (V)"
 
-#: ../src/callbacks.c:1962 ../src/menubar.c:66
+#: ../src/callbacks.c:1967 ../src/menubar.c:66
 msgid "Save Profile"
-msgstr ""
+msgstr "Salvar perfil"
 
-#: ../src/callbacks.c:1975 ../src/menubar.c:65
+#: ../src/callbacks.c:1980 ../src/menubar.c:65
 msgid "Load Profile"
 msgstr "Carregar Perfil"
 
-#: ../src/create_video.c:1026 ../src/guvcview.c:732
+#: ../src/create_video.c:1098 ../src/guvcview.c:732
 msgid "Cap. Video"
 msgstr "Cap. vídeo"
 
@@ -483,7 +483,8 @@ msgstr ""
 
 #: ../src/guvcview.c:677
 msgid "Please report it to http://developer.berlios.de/bugs/?group_id=8179"
-msgstr "Por favor, reporte em http://developer.berlios.de/bugs/?group_id=8179"
+msgstr ""
+"Por favor, reporte em http://developer.berlios.de/bugs/?group_id=8179"
 
 #: ../src/img_controls.c:121
 msgid "Auto Focus (continuous)"
@@ -495,11 +496,11 @@ msgstr "Definir foco"
 
 #: ../src/image_format.c:35
 msgid "Jpeg (jpg)"
-msgstr ""
+msgstr "Jpeg (jpg)"
 
 #: ../src/image_format.c:41
 msgid "Bitmap (Bmp)"
-msgstr ""
+msgstr "Bitmap (Bmp)"
 
 #: ../src/image_format.c:47
 msgid "Portable Network Graphics (Png)"
@@ -507,7 +508,7 @@ msgstr ""
 
 #: ../src/image_format.c:53
 msgid "Raw Image (raw)"
-msgstr ""
+msgstr "Imagem Raw (raw)"
 
 #. controls menu
 #: ../src/menubar.c:64
@@ -535,11 +536,11 @@ msgstr "Capturar Video"
 msgid "Video"
 msgstr "Video"
 
-#: ../src/menubar.c:145 ../src/menubar.c:231
+#: ../src/menubar.c:145 ../src/menubar.c:233
 msgid "File"
 msgstr "Ficheiro"
 
-#: ../src/menubar.c:146 ../src/menubar.c:232
+#: ../src/menubar.c:146 ../src/menubar.c:234
 msgid "Increment Filename"
 msgstr "Increm. nome do ficheiro"
 
@@ -547,110 +548,111 @@ msgstr "Increm. nome do ficheiro"
 msgid "Video Codec"
 msgstr "Codec de Video"
 
-#: ../src/menubar.c:187
+#: ../src/menubar.c:189
 msgid "Video Codec Properties"
 msgstr "Propr. Codec de Video"
 
-#: ../src/menubar.c:194
+#: ../src/menubar.c:196
 msgid "Audio Codec"
 msgstr "Codec de Audio"
 
-#: ../src/menubar.c:215
+#: ../src/menubar.c:217
 msgid "Audio Codec Properties"
 msgstr "Propr. Codec de Audio"
 
 #. photo menu
-#: ../src/menubar.c:230
+#: ../src/menubar.c:232
 msgid "Photo"
 msgstr "Foto"
 
-#: ../src/options.c:752
+#: ../src/options.c:753
 msgid "Prints version"
 msgstr "Exibe a versão"
 
-#: ../src/options.c:753
+#: ../src/options.c:754
 msgid "Displays debug information"
 msgstr "Mostra informação de depuração"
 
-#: ../src/options.c:754
+#: ../src/options.c:755
 msgid "Video Device to use [default: /dev/video0]"
 msgstr "Dispositivo de vídeo para usar [padrão: /dev/video0]"
 
-#: ../src/options.c:755
+#: ../src/options.c:756
 msgid "Exit after adding UVC extension controls (needs root/sudo)"
 msgstr "Sair após adicionar extensão de controles UVC (precisa de root/sudo)"
 
-#: ../src/options.c:756
+#: ../src/options.c:757
 msgid "Don't stream video (image controls only)"
 msgstr "Desabilitar o fluxo de vídeo (apenas controles de imagens)"
 
-#: ../src/options.c:757
+#: ../src/options.c:758
 msgid "Don't display a GUI"
 msgstr "Não mostrar GUI"
 
-#: ../src/options.c:758
+#: ../src/options.c:759
 msgid "Capture method (1-mmap (default)  2-read)"
 msgstr "Método de captura (1-mmap (padrão) 2-leitura)"
 
-#: ../src/options.c:759
+#: ../src/options.c:760
 msgid "Configuration file"
 msgstr "Arquivo de configuração"
 
-#: ../src/options.c:760
+#: ../src/options.c:761
 msgid "Hardware accelaration (enable(1) | disable(0))"
 msgstr "Aceleração de hardware (habilitado(1) | desabilitado(0))"
 
-#: ../src/options.c:761
+#: ../src/options.c:762
 msgid ""
-"Pixel format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|"
-"y41p|grey|y10b|y16 |s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
+"Pixel "
+"format(mjpg|jpeg|yuyv|yvyu|uyvy|yyuv|yu12|yv12|nv12|nv21|nv16|nv61|y41p|grey|"
+"y10b|y16 |s501|s505|s508|gbrg|grbg|ba81|rggb|bgr3|rgb3)"
 msgstr ""
 
-#: ../src/options.c:762
+#: ../src/options.c:763
 msgid "Frame size, default: 640x480"
 msgstr "Tamanho do quadro, padrão: 640x480"
 
-#: ../src/options.c:763
+#: ../src/options.c:764
 msgid "Image File name"
 msgstr "Nome do arquivo de imagem"
 
-#: ../src/options.c:764
+#: ../src/options.c:765
 msgid "Image capture interval in seconds"
 msgstr "Intervalo de captura de imagens em segundos"
 
-#: ../src/options.c:765
+#: ../src/options.c:766
 msgid "Number of Pictures to capture"
 msgstr "Numero de imagens a capturar"
 
-#: ../src/options.c:766
+#: ../src/options.c:767
 msgid "Video File name (capture from start)"
 msgstr "Arquivo de vídeo (captura ao iniciar)"
 
-#: ../src/options.c:767
+#: ../src/options.c:768
 msgid "Video capture time (in seconds)"
 msgstr "Tempo de captura de vídeo (em segundos)"
 
-#: ../src/options.c:768
+#: ../src/options.c:769
 msgid "Exits guvcview after closing video"
 msgstr "Termina o guvcview depois de fechar o vídeo"
 
-#: ../src/options.c:769
+#: ../src/options.c:770
 msgid "Number of initial frames to skip"
 msgstr "Numero inicial de quadros a ignorar"
 
-#: ../src/options.c:770
+#: ../src/options.c:771
 msgid "Show FPS value (enable(1) | disable (0))"
 msgstr "Apresentar o valor FPS (habilitado(1) | desabilitado(0))"
 
-#: ../src/options.c:771
+#: ../src/options.c:772
 msgid "Load Profile at start"
 msgstr "Carrega perfil ao iniciar"
 
-#: ../src/options.c:772
+#: ../src/options.c:773
 msgid "List controls method (0:loop, 1:next_ctrl flag [def])"
 msgstr ""
 
-#: ../src/options.c:778
+#: ../src/options.c:779
 msgid "- local options"
 msgstr "- opções locais"
 
@@ -1015,11 +1017,11 @@ msgstr "MPEG4-AVC (H264)"
 
 #: ../src/vcodecs.c:427
 msgid "VP8 (VP8)"
-msgstr ""
+msgstr "VP8 (VP8)"
 
 #: ../src/vcodecs.c:463
 msgid "Theora (ogg theora)"
-msgstr ""
+msgstr "Theora (ogg theora)"
 
 #: ../src/video_format.c:43
 msgid "AVI - avi format"
@@ -1041,7 +1043,7 @@ msgstr "Taxa de quadros:"
 msgid " Show"
 msgstr " Mostrar"
 
-#: ../src/video_tab.c:245 ../src/uvc_h264.c:620
+#: ../src/video_tab.c:245
 msgid "Resolution:"
 msgstr "Resolução:"
 
@@ -1091,337 +1093,331 @@ msgstr " Pedaços"
 msgid " Particles"
 msgstr " Partículas"
 
-#: ../src/uvc_h264.c:480
-#, fuzzy
+#: ../src/uvc_h264.c:596
 msgid "H264 Controls"
-msgstr "Controles do usuário"
-
-#. probe_commitcontrols
-#. dwFrameInterval (get it from current fps)
-#: ../src/uvc_h264.c:499
-msgid "Frame Interval (100ns units):"
 msgstr ""
 
-#: ../src/uvc_h264.c:522
-#, fuzzy
-msgid "Bit Rate:"
-msgstr "taxa de bits:   "
-
-#: ../src/uvc_h264.c:545
-msgid "Hints:"
-msgstr ""
-
-#: ../src/uvc_h264.c:550
-#, fuzzy
-msgid "Resolution"
-msgstr "Resolução:"
-
-#: ../src/uvc_h264.c:554
-#, fuzzy
-msgid "Profile"
-msgstr "Carregar Perfil"
-
-#: ../src/uvc_h264.c:558
-#, fuzzy
-msgid "Rate Control"
-msgstr "Controles de imagem"
-
-#: ../src/uvc_h264.c:562
-msgid "Usage Type"
-msgstr ""
-
-#: ../src/uvc_h264.c:566
-msgid "Slice Mode"
-msgstr ""
-
-#: ../src/uvc_h264.c:570
-msgid "Slice Unit"
-msgstr ""
-
-#: ../src/uvc_h264.c:574
-msgid "MVC View"
-msgstr ""
-
-#: ../src/uvc_h264.c:578
-msgid "Temporal Scale"
-msgstr ""
-
-#: ../src/uvc_h264.c:582
-msgid "SNR Scale"
-msgstr ""
-
-#: ../src/uvc_h264.c:586
-msgid "Spatial Scale"
-msgstr ""
-
-#: ../src/uvc_h264.c:590
-msgid "Spatial Layer Ratio"
-msgstr ""
-
-#: ../src/uvc_h264.c:594
-#, fuzzy
-msgid "Frame Interval"
-msgstr "Taxa de quadros:"
-
-#: ../src/uvc_h264.c:598
-msgid "Leaky Bucket Size"
-msgstr ""
-
-#: ../src/uvc_h264.c:602
-msgid "Bit Rate"
-msgstr ""
-
-#: ../src/uvc_h264.c:606 ../src/uvc_h264.c:1092
-msgid "CABAC"
-msgstr ""
-
-#: ../src/uvc_h264.c:610
-msgid "(I) Frame Period"
-msgstr ""
-
-#: ../src/uvc_h264.c:655
-msgid "Slice Mode:"
-msgstr ""
-
-#: ../src/uvc_h264.c:662
-msgid "no multiple slices"
-msgstr ""
-
-#: ../src/uvc_h264.c:664
-msgid "bits/slice"
-msgstr ""
-
-#: ../src/uvc_h264.c:666
-msgid "Mbits/slice"
-msgstr ""
-
-#: ../src/uvc_h264.c:668
-msgid "slices/frame"
-msgstr ""
-
-#: ../src/uvc_h264.c:677
-msgid "Slice Units:"
-msgstr ""
-
-#: ../src/uvc_h264.c:698
-#, fuzzy
-msgid "Profile:"
-msgstr "Carregar Perfil"
-
-#: ../src/uvc_h264.c:705
-#, fuzzy
-msgid "Baseline Profile"
-msgstr "Carregar Perfil"
-
-#: ../src/uvc_h264.c:707
-#, fuzzy
-msgid "Main Profile"
-msgstr "Carregar Perfil"
-
-#: ../src/uvc_h264.c:709
-#, fuzzy
-msgid "High Profile"
-msgstr "Carregar Perfil"
-
-#: ../src/uvc_h264.c:711
-msgid "Scalable Baseline Profile"
-msgstr ""
-
-#: ../src/uvc_h264.c:713
-msgid "Scalable High Profile"
-msgstr ""
-
-#: ../src/uvc_h264.c:715
-msgid "Multiview High Profile"
-msgstr ""
-
-#: ../src/uvc_h264.c:717
-msgid "Stereo High Profile"
-msgstr ""
-
-#: ../src/uvc_h264.c:756
-msgid "Profile flags:"
-msgstr ""
-
-#: ../src/uvc_h264.c:781
-msgid "(I) Frame Period (ms):"
-msgstr ""
-
-#: ../src/uvc_h264.c:802
-msgid "Estimated Video Delay (ms):"
-msgstr ""
-
-#: ../src/uvc_h264.c:823
-msgid "Estimated Max Config Delay (ms):"
-msgstr ""
-
-#: ../src/uvc_h264.c:844
-msgid "Usage Type:"
-msgstr ""
-
-#: ../src/uvc_h264.c:851
-msgid "Real-time"
-msgstr ""
-
-#: ../src/uvc_h264.c:853
-msgid "Broadcast"
-msgstr ""
-
-#: ../src/uvc_h264.c:855
-msgid "Storage"
-msgstr ""
-
-#: ../src/uvc_h264.c:857
-msgid "(0) Non-scalable single layer AVC"
-msgstr ""
-
-#: ../src/uvc_h264.c:859
-msgid "(1) SVC temporal scalability with hierarchical P"
-msgstr ""
-
-#: ../src/uvc_h264.c:861
-msgid "(2q) SVC temporal scalability + Quality/SNR scalability"
-msgstr ""
-
-#: ../src/uvc_h264.c:863
-msgid "(2s) SVC temporal scalability + spatial scalability"
-msgstr ""
-
-#: ../src/uvc_h264.c:865
-msgid "(3) Full SVC scalability"
-msgstr ""
-
-#: ../src/uvc_h264.c:879
-#, fuzzy
+#: ../src/uvc_h264.c:615
 msgid "Rate Control Mode:"
-msgstr "Controles de imagem"
+msgstr ""
 
-#: ../src/uvc_h264.c:886
+#: ../src/uvc_h264.c:626
 msgid "CBR"
 msgstr ""
 
-#: ../src/uvc_h264.c:888
+#: ../src/uvc_h264.c:629
 msgid "VBR"
 msgstr ""
 
-#: ../src/uvc_h264.c:890
+#: ../src/uvc_h264.c:633
 msgid "Constant QP"
 msgstr ""
 
-#: ../src/uvc_h264.c:904
+#: ../src/uvc_h264.c:651
 msgid "Rate Control Mode flags:"
 msgstr ""
 
-#: ../src/uvc_h264.c:929
+#: ../src/uvc_h264.c:676
 msgid "Temporal Scale Mode:"
 msgstr ""
 
-#: ../src/uvc_h264.c:954
+#: ../src/uvc_h264.c:704
 msgid "Spatial Scale Mode:"
 msgstr ""
 
-#: ../src/uvc_h264.c:979
-msgid "SNR Control Mode:"
+#: ../src/uvc_h264.c:737
+msgid "Frame Interval (100ns units):"
 msgstr ""
 
-#: ../src/uvc_h264.c:986
-msgid "No SNR Enhancement Layer"
+#: ../src/uvc_h264.c:772
+msgid "Bit Rate:"
 msgstr ""
 
-#: ../src/uvc_h264.c:988
-msgid "CGS NonRewrite (2 Layer)"
+#: ../src/uvc_h264.c:795
+msgid "Hints:"
 msgstr ""
 
-#: ../src/uvc_h264.c:990
-msgid "CGS NonRewrite (3 Layer)"
+#: ../src/uvc_h264.c:800
+msgid "Resolution"
 msgstr ""
 
-#: ../src/uvc_h264.c:992
-msgid "CGS Rewrite (2 Layer)"
+#: ../src/uvc_h264.c:804
+msgid "Profile"
 msgstr ""
 
-#: ../src/uvc_h264.c:994
-msgid "CGS Rewrite (3 Layer)"
+#: ../src/uvc_h264.c:808
+msgid "Rate Control"
 msgstr ""
 
-#: ../src/uvc_h264.c:996
-msgid "MGS (2 Layer)"
+#: ../src/uvc_h264.c:812
+msgid "Usage Type"
 msgstr ""
 
-#: ../src/uvc_h264.c:1021
-msgid "Stream Mux Enable"
+#: ../src/uvc_h264.c:816
+msgid "Slice Mode"
 msgstr ""
 
-#: ../src/uvc_h264.c:1028
-msgid "Embed H.264 aux stream"
+#: ../src/uvc_h264.c:820
+msgid "Slice Unit"
 msgstr ""
 
-#: ../src/uvc_h264.c:1030
-msgid "Embed YUY2 aux stream"
+#: ../src/uvc_h264.c:824
+msgid "MVC View"
 msgstr ""
 
-#: ../src/uvc_h264.c:1032
-msgid "Embed NV12 aux stream"
+#: ../src/uvc_h264.c:828
+msgid "Temporal Scale"
 msgstr ""
 
-#: ../src/uvc_h264.c:1051
-msgid "MJPG payload container"
+#: ../src/uvc_h264.c:832
+msgid "SNR Scale"
 msgstr ""
 
-#: ../src/uvc_h264.c:1061
-msgid "Stream Format:"
+#: ../src/uvc_h264.c:836
+msgid "Spatial Scale"
 msgstr ""
 
-#: ../src/uvc_h264.c:1069
-msgid "Byte stream format (H.264 Annex-B)"
+#: ../src/uvc_h264.c:840
+msgid "Spatial Layer Ratio"
 msgstr ""
 
-#: ../src/uvc_h264.c:1071
-#, fuzzy
-msgid "NAL stream format"
-msgstr "AVI - formato avi"
-
-#: ../src/uvc_h264.c:1082
-msgid "Entropy CABAC:"
+#: ../src/uvc_h264.c:844
+msgid "Frame Interval"
 msgstr ""
 
-#: ../src/uvc_h264.c:1090
-msgid "CAVLC"
+#: ../src/uvc_h264.c:848
+msgid "Leaky Bucket Size"
+msgstr ""
+
+#: ../src/uvc_h264.c:852
+msgid "Bit Rate"
+msgstr ""
+
+#: ../src/uvc_h264.c:856 ../src/uvc_h264.c:1250
+msgid "CABAC"
+msgstr ""
+
+#: ../src/uvc_h264.c:860
+msgid "(I) Frame Period"
+msgstr ""
+
+#: ../src/uvc_h264.c:907
+msgid "Slice Mode:"
+msgstr ""
+
+#: ../src/uvc_h264.c:914
+msgid "no multiple slices"
+msgstr ""
+
+#: ../src/uvc_h264.c:916
+msgid "bits/slice"
+msgstr ""
+
+#: ../src/uvc_h264.c:918
+msgid "Mbits/slice"
+msgstr ""
+
+#: ../src/uvc_h264.c:920
+msgid "slices/frame"
+msgstr ""
+
+#: ../src/uvc_h264.c:929
+msgid "Slice Units:"
+msgstr ""
+
+#: ../src/uvc_h264.c:950
+msgid "Profile:"
+msgstr ""
+
+#: ../src/uvc_h264.c:957
+msgid "Baseline Profile"
+msgstr ""
+
+#: ../src/uvc_h264.c:959
+msgid "Main Profile"
+msgstr ""
+
+#: ../src/uvc_h264.c:961
+msgid "High Profile"
+msgstr ""
+
+#: ../src/uvc_h264.c:963
+msgid "Scalable Baseline Profile"
+msgstr ""
+
+#: ../src/uvc_h264.c:965
+msgid "Scalable High Profile"
+msgstr ""
+
+#: ../src/uvc_h264.c:967
+msgid "Multiview High Profile"
+msgstr ""
+
+#: ../src/uvc_h264.c:969
+msgid "Stereo High Profile"
+msgstr ""
+
+#: ../src/uvc_h264.c:1008
+msgid "Profile flags:"
+msgstr ""
+
+#: ../src/uvc_h264.c:1033
+msgid "(I) Frame Period (ms):"
+msgstr ""
+
+#: ../src/uvc_h264.c:1054
+msgid "Estimated Video Delay (ms):"
+msgstr ""
+
+#: ../src/uvc_h264.c:1075
+msgid "Estimated Max Config Delay (ms):"
+msgstr ""
+
+#: ../src/uvc_h264.c:1096
+msgid "Usage Type:"
 msgstr ""
 
 #: ../src/uvc_h264.c:1103
-msgid "Picture timing SEI"
+msgid "Real-time"
 msgstr ""
 
-#: ../src/uvc_h264.c:1110
-#, fuzzy
-msgid "B Frames:"
-msgstr "Max quadros B:   "
+#: ../src/uvc_h264.c:1105
+msgid "Broadcast"
+msgstr ""
 
-#: ../src/uvc_h264.c:1135
-msgid "Preview Flipped"
+#: ../src/uvc_h264.c:1107
+msgid "Storage"
+msgstr ""
+
+#: ../src/uvc_h264.c:1109
+msgid "(0) Non-scalable single layer AVC"
+msgstr ""
+
+#: ../src/uvc_h264.c:1111
+msgid "(1) SVC temporal scalability with hierarchical P"
+msgstr ""
+
+#: ../src/uvc_h264.c:1113
+msgid "(2q) SVC temporal scalability + Quality/SNR scalability"
+msgstr ""
+
+#: ../src/uvc_h264.c:1115
+msgid "(2s) SVC temporal scalability + spatial scalability"
+msgstr ""
+
+#: ../src/uvc_h264.c:1117
+msgid "(3) Full SVC scalability"
+msgstr ""
+
+#: ../src/uvc_h264.c:1131
+msgid "SNR Control Mode:"
+msgstr ""
+
+#: ../src/uvc_h264.c:1138
+msgid "No SNR Enhancement Layer"
+msgstr ""
+
+#: ../src/uvc_h264.c:1140
+msgid "CGS NonRewrite (2 Layer)"
 msgstr ""
 
 #: ../src/uvc_h264.c:1142
+msgid "CGS NonRewrite (3 Layer)"
+msgstr ""
+
+#: ../src/uvc_h264.c:1144
+msgid "CGS Rewrite (2 Layer)"
+msgstr ""
+
+#: ../src/uvc_h264.c:1146
+msgid "CGS Rewrite (3 Layer)"
+msgstr ""
+
+#: ../src/uvc_h264.c:1148
+msgid "MGS (2 Layer)"
+msgstr ""
+
+#: ../src/uvc_h264.c:1173
+msgid "Stream Mux Enable"
+msgstr ""
+
+#: ../src/uvc_h264.c:1180
+msgid "Embed H.264 aux stream"
+msgstr ""
+
+#: ../src/uvc_h264.c:1182
+msgid "Embed YUY2 aux stream"
+msgstr ""
+
+#: ../src/uvc_h264.c:1184
+msgid "Embed NV12 aux stream"
+msgstr ""
+
+#: ../src/uvc_h264.c:1204
+msgid "MJPG payload container"
+msgstr ""
+
+#: ../src/uvc_h264.c:1219
+msgid "Stream Format:"
+msgstr ""
+
+#: ../src/uvc_h264.c:1227
+msgid "Byte stream format (H.264 Annex-B)"
+msgstr ""
+
+#: ../src/uvc_h264.c:1229
+msgid "NAL stream format"
+msgstr ""
+
+#: ../src/uvc_h264.c:1240
+msgid "Entropy CABAC:"
+msgstr ""
+
+#: ../src/uvc_h264.c:1248
+msgid "CAVLC"
+msgstr ""
+
+#: ../src/uvc_h264.c:1261
+msgid "Picture timing SEI"
+msgstr ""
+
+#: ../src/uvc_h264.c:1268
+msgid "B Frames:"
+msgstr ""
+
+#: ../src/uvc_h264.c:1293
+msgid "Preview Flipped"
+msgstr ""
+
+#: ../src/uvc_h264.c:1300
 msgid "Additional MVC Views:"
 msgstr ""
 
-#: ../src/uvc_h264.c:1167
+#: ../src/uvc_h264.c:1325
 msgid "Simulcast stream index:"
 msgstr ""
 
-#: ../src/uvc_h264.c:1192
+#: ../src/uvc_h264.c:1350
 msgid "Spatial Layer Ratio:"
 msgstr ""
 
-#: ../src/uvc_h264.c:1221
+#: ../src/uvc_h264.c:1379
 msgid "Leaky Bucket Size (ms):"
 msgstr ""
 
-#: ../src/uvc_h264.c:1247
-msgid "PROBE"
+#. encoder reset
+#: ../src/uvc_h264.c:1406
+msgid "Encoder Reset"
 msgstr ""
 
-#: ../src/uvc_h264.c:1254
+#. 
+#. h264_controls->probe_button = gtk_button_new_with_label(_("PROBE"));
+#. g_signal_connect (GTK_BUTTON(h264_controls->probe_button), "clicked",
+#. G_CALLBACK (h264_probe_button_clicked), all_data);
+#. 
+#. gtk_grid_attach (GTK_GRID(table), h264_controls->probe_button, 0, line, 1 ,1);
+#. gtk_widget_show(h264_controls->probe_button);
+#. 
+#: ../src/uvc_h264.c:1421
 msgid "COMMIT"
 msgstr ""

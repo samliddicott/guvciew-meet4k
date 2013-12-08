@@ -1,3 +1,10 @@
+guvcview (1.7.2)
+
+    * Add H264 decoding support.
+    * Sync translations.
+    
+ -- Paulo Assis <pj.assis@gmail.com>  Sun, 8 Dec 2013 10:26:00 +0000
+ 
 guvcview (1.7.1)
 
     * Fix avi muxer: fix opendml indexes (>= 1Gb)
