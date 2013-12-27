@@ -26,6 +26,7 @@
 #include <glib.h>
 #include <glib/gprintf.h>
 #include <png.h>
+#include <string.h>
 
 /*----------------------------------- Image Files ----------------------------*/ 
 int 
