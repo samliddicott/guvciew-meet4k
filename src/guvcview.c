@@ -152,6 +152,12 @@ gboolean deliver_signal(GIOChannel *source, GIOCondition cond, gpointer data)
      	case SIGINT:
      		shutd(0, data);//shutDown
      		break;
+     	case SIGUSR1:
+     		capture_vid (NULL, data); /* start/stop video capture */
+     		break;
+     	case SIGUSR2:
+     		capture_image (NULL, data); /* capture a Image */
+     		break;
     	default:
     		printf("guvcview signal %d caught\n", buf.signal);
     		break;
@@ -779,6 +785,7 @@ int main(int argc, char *argv[])
   	/* Install the unix signal handler pipe_signals for the signals of interest */
   	signal(SIGINT, pipe_signals);
   	signal(SIGUSR1, pipe_signals);
+  	signal(SIGUSR2, pipe_signals);
 
   	/* convert the reading end of the pipe into a GIOChannel */
   	g_signal_in = g_io_channel_unix_new(signal_pipe[0]);
