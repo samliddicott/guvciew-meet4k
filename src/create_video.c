@@ -782,7 +782,7 @@ static gboolean process_video(struct ALL_DATA *all_data,
 
 				case WEBM_FORMAT:
 				case MKV_FORMAT:
-					write_video_frame(all_data, (void *) jpeg_struct, lavc_data, proc_buff);
+					//write_video_frame(all_data, (void *) jpeg_struct, lavc_data, proc_buff);
 					break;
 
 				default:
