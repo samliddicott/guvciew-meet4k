@@ -126,8 +126,8 @@ struct paRecordData
 int
 record_sound ( const void *inputBuffer, unsigned long numSamples, void *userData );
 
-int
-fill_audio_buffer(struct paRecordData *pdata, UINT64 ts);
+//int
+//fill_audio_buffer(struct paRecordData *pdata, UINT64 ts);
 
 void
 set_sound (struct GLOBAL *global, struct paRecordData* data);

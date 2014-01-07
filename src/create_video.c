@@ -767,10 +767,10 @@ static gboolean process_video(struct ALL_DATA *all_data,
 		/*process video Frame*/
 		if (audio_drift > max_drift)
 		{
-			/* audio delayed */
+			/* audio is behind (this should have been compensated when capturing audio) */
 			g_print("audio drift: dropping/shifting frame\n");
 			__LOCK_MUTEX(__GMUTEX);
-				global->av_drift += max_drift;
+				global->av_drift += max_drift; /* shift for matroska/webm */
 			__UNLOCK_MUTEX(__GMUTEX);
 
 			switch (global->VidFormat)
@@ -780,33 +780,22 @@ static gboolean process_video(struct ALL_DATA *all_data,
 					/*FIXME: on stream formats we can't drop key frames*/
 					break;
 
-				case WEBM_FORMAT:
-				case MKV_FORMAT:
-					//write_video_frame(all_data, (void *) jpeg_struct, lavc_data, proc_buff);
-					break;
-
 				default:
 					break;
 			}
 		}
 		else if (audio_drift < -1 * max_drift)
 		{
-			/* audio too fast */
+			/* audio is ahead (are we over compensating when capturing audio?) */
 			g_print("audio drift: duplicating/shifting frame\n");
 			__LOCK_MUTEX(__GMUTEX);
-				global->av_drift -= max_drift;
+				global->av_drift -= max_drift; /* shift for matroska/webm */
 			__UNLOCK_MUTEX(__GMUTEX);
 
 			switch (global->VidFormat)
 			{
 				case AVI_FORMAT:
-					/* write frame twice */
-					write_video_frame(all_data, (void *) jpeg_struct, lavc_data, proc_buff);
-					write_video_frame(all_data, (void *) jpeg_struct, lavc_data, proc_buff);
-					break;
-
-				case WEBM_FORMAT:
-				case MKV_FORMAT:
+					/* duplicate the frame */
 					write_video_frame(all_data, (void *) jpeg_struct, lavc_data, proc_buff);
 					break;
 
@@ -814,8 +803,9 @@ static gboolean process_video(struct ALL_DATA *all_data,
 					break;
 			}
 		}
-		else
-			write_video_frame(all_data, (void *) jpeg_struct, lavc_data, proc_buff);
+
+		/*write frame*/
+		write_video_frame(all_data, (void *) jpeg_struct, lavc_data, proc_buff);
 	}
 	else
 	{
@@ -823,6 +813,7 @@ static gboolean process_video(struct ALL_DATA *all_data,
 		{
 			/*video buffer underrun            */
 			/*wait for next frame (sleep 10 ms)*/
+			/*FIXME: this is not good on streaming formats (we can loose key frames)*/
 			sleep_ms(10);
 		}
 		else if (lavc_data != NULL && lavc_data->codec_context != NULL) //if we are using a lavc encoder flush the last frames
