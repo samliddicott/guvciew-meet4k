@@ -30,6 +30,8 @@
 
 #include <errno.h>
 
+#define __AMUTEX &pdata->mutex
+
 static int latency = 20000; // start latency in micro seconds
 static int underflows = 0;
 static int sink_index = 0;

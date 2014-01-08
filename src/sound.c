@@ -34,7 +34,7 @@
 
 #define __AMUTEX &pdata->mutex
 
-#define MAX_FRAME_DRIFT 6000000 //6 ms
+#define MAX_FRAME_DRIFT 26000000 //26 ms
 
 static int64_t
 fill_audio_buffer(struct paRecordData *pdata, int64_t ts)
