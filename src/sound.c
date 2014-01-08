@@ -39,93 +39,91 @@
 static int64_t
 fill_audio_buffer(struct paRecordData *pdata, int64_t ts)
 {
-	int64_t ts_drift = pdata->ts_drift;
-	UINT64 buffer_length;
+	int64_t ts_drift = 0;
+	UINT64 buffer_length = (G_NSEC_PER_SEC * pdata->aud_numSamples)/(pdata->samprate * pdata->channels);
 
-	if(pdata->sampleIndex >= pdata->aud_numSamples)
+	/*first frame time stamp*/
+	if(pdata->a_ts < 0)
 	{
-		buffer_length = (G_NSEC_PER_SEC * pdata->aud_numSamples)/(pdata->samprate * pdata->channels);
+		/* if sound begin time > first video frame ts then sync audio to video
+		 * else set audio ts to aprox. the video ts */
+		if((pdata->ts_ref > 0) && (pdata->ts_ref < pdata->snd_begintime))
+			pdata->a_ts = pdata->snd_begintime - pdata->ts_ref;
+		else
+			pdata->a_ts = 0;
+	}
+	else /*increment time stamp for audio frame*/
+		pdata->a_ts += buffer_length; /*add previous buffer time*/
 
-		/*first frame time stamp*/
-		if(pdata->a_ts < 0)
+	/* check audio drift through timestamps */
+	/* ts is timestamp at end of buffer     */
+	/* convert to begin of buffer           */
+	if (ts > pdata->snd_begintime)
+		ts -= pdata->snd_begintime;
+	else
+		ts = 0;
+
+	if (ts > buffer_length)
+		ts -= buffer_length;
+	else
+		ts = 0;
+
+	ts_drift = ts - pdata->a_ts;
+
+	pdata->sampleIndex = 0; /*reset*/
+
+	__LOCK_MUTEX( __AMUTEX );
+		int flag = pdata->audio_buff_flag[pdata->bw_ind];
+	__UNLOCK_MUTEX( __AMUTEX );
+
+	if(  flag == AUD_READY || flag == AUD_IN_USE )
+	{
+		if(flag == AUD_READY)
 		{
-			/* if sound begin time > first video frame ts then sync audio to video
-			 * else set audio ts to aprox. the video ts */
-			if((pdata->ts_ref > 0) && (pdata->ts_ref < pdata->snd_begintime))
-				pdata->a_ts = pdata->snd_begintime - pdata->ts_ref;
-			else
-				pdata->a_ts = 0;
+			/*flag as IN_USE*/
+			__LOCK_MUTEX( __AMUTEX );
+				pdata->audio_buff_flag[pdata->bw_ind] = AUD_IN_USE;
+			__UNLOCK_MUTEX( __AMUTEX );
 		}
-		else /*increment time stamp for audio frame*/
-			pdata->a_ts += buffer_length;
+		/*copy data to audio buffer*/
+		memcpy(pdata->audio_buff[pdata->bw_ind][pdata->w_ind].frame, pdata->recordedSamples, pdata->aud_numBytes);
+		pdata->audio_buff[pdata->bw_ind][pdata->w_ind].time_stamp = pdata->a_ts + pdata->delay;
+		pdata->audio_buff[pdata->bw_ind][pdata->w_ind].used = TRUE;
 
-		/* check audio drift through timestamps */
-		if (ts > pdata->snd_begintime)
-			ts -= pdata->snd_begintime;
-		else
-			ts = 0;
+		pdata->blast_ind = pdata->bw_ind;
+		pdata->last_ind  = pdata->w_ind;
 
-		if (ts > buffer_length)
-			ts -= buffer_length;
-		else
-			ts = 0;
+		/*doesn't need locking as it's only used in the callback*/
+		NEXT_IND(pdata->w_ind, AUDBUFF_SIZE);
 
-		ts_drift = ts - pdata->a_ts;
-
-		pdata->sampleIndex = 0; /*reset*/
-
-		__LOCK_MUTEX( __AMUTEX );
-			int flag = pdata->audio_buff_flag[pdata->bw_ind];
-		__UNLOCK_MUTEX( __AMUTEX );
-
-		if(  flag == AUD_READY || flag == AUD_IN_USE )
+		if(pdata->w_ind == 0)
 		{
-			if(flag == AUD_READY)
-			{
-				/*flag as IN_USE*/
-				__LOCK_MUTEX( __AMUTEX );
+			/* reached end of current ring buffer
+			 * flag it as AUD_PROCESS
+			 * move to next one and flag it as AUD_IN_USE (if READY)
+			 */
+			pdata->audio_buff_flag[pdata->bw_ind] = AUD_PROCESS;
+
+			__LOCK_MUTEX( __AMUTEX );
+				NEXT_IND(pdata->bw_ind, AUDBUFF_NUM);
+
+				if(pdata->audio_buff_flag[pdata->bw_ind] != AUD_READY)
+				{
+					g_printf("AUDIO: next buffer is not yet ready\n");
+				}
+				else
+				{
 					pdata->audio_buff_flag[pdata->bw_ind] = AUD_IN_USE;
-				__UNLOCK_MUTEX( __AMUTEX );
-			}
-			/*copy data to audio buffer*/
-			memcpy(pdata->audio_buff[pdata->bw_ind][pdata->w_ind].frame, pdata->recordedSamples, pdata->aud_numBytes);
-			pdata->audio_buff[pdata->bw_ind][pdata->w_ind].time_stamp = pdata->a_ts + pdata->delay;
-			pdata->audio_buff[pdata->bw_ind][pdata->w_ind].used = TRUE;
+				}
+			__UNLOCK_MUTEX( __AMUTEX );
 
-			pdata->blast_ind = pdata->bw_ind;
-			pdata->last_ind  = pdata->w_ind;
-
-			/*doesn't need locking as it's only used in the callback*/
-			NEXT_IND(pdata->w_ind, AUDBUFF_SIZE);
-
-			if(pdata->w_ind == 0)
-			{
-				/* reached end of current ring buffer
-				 * flag it as AUD_PROCESS
-				 * move to next one and flag it as AUD_IN_USE (if READY)
-				 */
-				pdata->audio_buff_flag[pdata->bw_ind] = AUD_PROCESS;
-
-				__LOCK_MUTEX( __AMUTEX );
-					NEXT_IND(pdata->bw_ind, AUDBUFF_NUM);
-
-					if(pdata->audio_buff_flag[pdata->bw_ind] != AUD_READY)
-					{
-						g_printf("AUDIO: next buffer is not yet ready\n");
-					}
-					else
-					{
-						pdata->audio_buff_flag[pdata->bw_ind] = AUD_IN_USE;
-					}
-				__UNLOCK_MUTEX( __AMUTEX );
-
-			}
 		}
-		else
-		{
-			/*drop audio data*/
-			g_printerr("AUDIO: dropping audio data\n");
-		}
+	}
+	else
+	{
+		/*drop audio data*/
+		g_printerr("AUDIO: dropping audio data\n");
+		ts_drift = buffer_length;
 	}
 
 	return ts_drift;
@@ -133,7 +131,7 @@ fill_audio_buffer(struct paRecordData *pdata, int64_t ts)
 
 /*--------------------------- sound callback ------------------------------*/
 int
-record_sound ( const void *inputBuffer, unsigned long numSamples, uint64_t timestamp, void *userData )
+record_sound ( const void *inputBuffer, unsigned long numSamples, int64_t timestamp, void *userData )
 {
 	struct paRecordData *pdata = (struct paRecordData*)userData;
 
@@ -148,12 +146,11 @@ record_sound ( const void *inputBuffer, unsigned long numSamples, uint64_t times
     int64_t comp_drift = 0;
     int64_t ts_drift = 0;
 
-
 	UINT64 numFrames = numSamples / channels;
-	/* buffer ends at timestamp "now", calculate beginning timestamp */
     UINT64 nsec_per_frame = G_NSEC_PER_SEC / pdata->samprate;
 
-    int64_t ts = ns_time_monotonic() - numFrames * nsec_per_frame;
+	/*timestamp marks beginning of buffer*/
+    int64_t ts = timestamp;
 
 	if (skip_n > 0) /*skip audio while were skipping video frames*/
 	{
@@ -182,17 +179,19 @@ record_sound ( const void *inputBuffer, unsigned long numSamples, uint64_t times
         pdata->recordedSamples[pdata->sampleIndex] = inputBuffer ? *rptr++ : 0;
         pdata->sampleIndex++;
 
-		ts_drift = fill_audio_buffer(pdata, ts);
-
-        if(ts_drift != pdata->ts_drift)
+        if(pdata->sampleIndex >= pdata->aud_numSamples)
 		{
+			ts += nsec_per_frame * (i/channels); /*timestamp for current frame*/
+			ts_drift = fill_audio_buffer(pdata, ts);
+
 			if(ts_drift > MAX_FRAME_DRIFT) /*audio delayed*/
 			{
 				/* compensate drift (not all, only to MAX/2 ) */
 				int n_samples = ((ts_drift - (MAX_FRAME_DRIFT/2)) / nsec_per_frame) * channels;
 
-				printf("AUDIO: compensating ts drift of %" PRId64 " with %d samples (pa_ts=%" PRId64 " ts=%" PRId64 ")\n",
-					ts_drift, n_samples, timestamp, ts);
+				printf("AUDIO: compensating ts drift of %" PRId64 " with %d samples (pa_ts=%" PRId64 " curr_ts=%" PRId64 ")\n",
+					ts_drift, n_samples, timestamp, ts );
+
 				int j=0;
 				for( j=0; j<n_samples; j++ )
 				{
@@ -200,13 +199,14 @@ record_sound ( const void *inputBuffer, unsigned long numSamples, uint64_t times
 					pdata->recordedSamples[pdata->sampleIndex] = 0;
 					pdata->sampleIndex++;
 
-					comp_drift = fill_audio_buffer(pdata, ts);
-
-					/*break if we flushed the buffer and new drift is acceptable*/
-					if(comp_drift != pdata->ts_drift && comp_drift < MAX_FRAME_DRIFT)
+					if(pdata->sampleIndex >= pdata->aud_numSamples)
 					{
-						ts_drift = comp_drift; /*set the new drift*/
-						break; /* already compensated */
+						ts += nsec_per_frame * (j/channels); /*timestamp for current frame*/
+						ts_drift = fill_audio_buffer(pdata, ts);
+
+						/*break if new drift is acceptable*/
+						if(ts_drift < MAX_FRAME_DRIFT)
+							break; /* already compensated */
 					}
 				}
 
@@ -218,11 +218,8 @@ record_sound ( const void *inputBuffer, unsigned long numSamples, uint64_t times
 			}
 
 			pdata->ts_drift = ts_drift; /*reset*/
-		}
 
-        /* increment timestamp accordingly while copying */
-        if (i % channels == 0)
-            ts += nsec_per_frame;
+		}
     }
 
 

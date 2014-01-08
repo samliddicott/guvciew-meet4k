@@ -27,28 +27,28 @@ portaudio_list_snd_devices(struct GLOBAL *global)
 {
 	int   it, numDevices, defaultDisplayed;
 	const PaDeviceInfo *deviceInfo;
-	
+
 	//reset device count
 	global->Sound_numInputDev = 0;
-	
+
 	numDevices = Pa_GetDeviceCount();
 	if( numDevices < 0 )
 	{
 		g_print( "SOUND DISABLE: Pa_CountDevices returned 0x%x\n", numDevices );
 		//err = numDevices;
 		global->Sound_enable=0;
-	} 
-	else 
+	}
+	else
 	{
 		global->Sound_DefDev = 0;
-			
+
 		for( it=0; it<numDevices; it++ )
 		{
 			deviceInfo = Pa_GetDeviceInfo( it );
 			if (global->debug) g_print( "--------------------------------------- device #%d\n", it );
 			// Mark global and API specific default devices
 			defaultDisplayed = 0;
-			
+
 			// with pulse, ALSA is now listed first and doesn't set a API default- 11-2009
 			if( it == Pa_GetDefaultInputDevice() )
 			{
@@ -66,7 +66,7 @@ portaudio_list_snd_devices(struct GLOBAL *global)
 			// OUTPUT device doesn't matter for capture
 			if( it == Pa_GetDefaultOutputDevice() )
 			{
-			 	if (global->debug) 
+			 	if (global->debug)
 				{
 					g_print( (defaultDisplayed ? "," : "[") );
 					g_print( " Default Output" );
@@ -78,7 +78,7 @@ portaudio_list_snd_devices(struct GLOBAL *global)
 				const PaHostApiInfo *hostInfo = Pa_GetHostApiInfo( deviceInfo->hostApi );
 				if (global->debug)
 				{
-					g_print( (defaultDisplayed ? "," : "[") );                
+					g_print( (defaultDisplayed ? "," : "[") );
 					g_print( " Default %s Output", hostInfo->name );/* OSS ALSA etc*/
 				}
 				defaultDisplayed = 4;
@@ -88,15 +88,15 @@ portaudio_list_snd_devices(struct GLOBAL *global)
 				if (global->debug) g_print( " ]\n" );
 
 			/* print device info fields */
-			if (global->debug) 
+			if (global->debug)
 			{
 				g_print( "Name                     = %s\n", deviceInfo->name );
 				g_print( "Host API                 = %s\n",  Pa_GetHostApiInfo( deviceInfo->hostApi )->name );
 				g_print( "Max inputs = %d", deviceInfo->maxInputChannels  );
 			}
 			// INPUT devices (if it has input channels it's a capture device)
-			if (deviceInfo->maxInputChannels >0) 
-			{ 
+			if (deviceInfo->maxInputChannels >0)
+			{
 				global->Sound_numInputDev++;
 				//allocate new Sound Device Info
 				global->Sound_IndexDev = g_renew(sndDev, global->Sound_IndexDev, global->Sound_numInputDev);
@@ -109,7 +109,7 @@ portaudio_list_snd_devices(struct GLOBAL *global)
 				//Sound_IndexDev[Sound_numInputDev].Hlatency=deviceInfo->defaultHighInputLatency;
 				//Sound_IndexDev[Sound_numInputDev].Llatency=deviceInfo->defaultLowInputLatency;
 			}
-			if (global->debug) 
+			if (global->debug)
 			{
 				g_print( ", Max outputs = %d\n", deviceInfo->maxOutputChannels  );
 				g_print( "Def. low input latency   = %8.3f\n", deviceInfo->defaultLowInputLatency  );
@@ -118,17 +118,17 @@ portaudio_list_snd_devices(struct GLOBAL *global)
 				g_print( "Def. high output latency = %8.3f\n", deviceInfo->defaultHighOutputLatency  );
 				g_print( "Def. sample rate         = %8.2f\n", deviceInfo->defaultSampleRate );
 			}
-			
+
 		}
-		
+
 		if (global->debug) g_print("----------------------------------------------\n");
 	}
-	
+
 	return 0;
 }
 
 /*--------------------------- audio record callback -----------------------*/
-static int 
+static int
 recordCallback (const void *inputBuffer, void *outputBuffer,
 	unsigned long framesPerBuffer,
 	const PaStreamCallbackTimeInfo* timeInfo,
@@ -136,20 +136,20 @@ recordCallback (const void *inputBuffer, void *outputBuffer,
 	void *userData )
 {
 	struct paRecordData *pdata = (struct paRecordData*)userData;
-	
+
 	int channels = pdata->channels;
-	
+
 	unsigned long numSamples = framesPerBuffer * channels;
-	
+
 	PaTime ts_sec = timeInfo->inputBufferAdcTime; /*in seconds (double)*/
-	
-	int64_t ts = (ts_sec * 1000000000) - pdata->api_ts_ref;
-	
+
+	int64_t ts = ts_sec * 1000000000; /*in nanosec (monotonic time)*/
+
 	int res = record_sound ( inputBuffer, numSamples, ts, userData );
 
-	if(res < 0 ) 
+	if(res < 0 )
 		return (paComplete); /*capture stopped*/
-	else 
+	else
 		return (paContinue); /*still capturing*/
 }
 
@@ -159,9 +159,9 @@ port_init_audio(struct paRecordData* pdata)
 {
 	PaError err = paNoError;
 	PaStream *stream = NULL;
-	
+
 	PaStreamParameters inputParameters;
-	
+
 	if(stream)
 	{
 		if( !(Pa_IsStreamStopped( stream )))
@@ -171,19 +171,19 @@ port_init_audio(struct paRecordData* pdata)
 			pdata->stream = NULL;
 		}
 	}
-	
+
 	inputParameters.device = pdata->device_id;
 	inputParameters.channelCount = pdata->channels;
 	inputParameters.sampleFormat = PA_SAMPLE_TYPE;
-	
+
 	if (Pa_GetDeviceInfo( inputParameters.device ))
 		inputParameters.suggestedLatency = Pa_GetDeviceInfo( inputParameters.device )->defaultHighInputLatency;
 	else
 		inputParameters.suggestedLatency = DEFAULT_LATENCY_DURATION/1000.0;
-	inputParameters.hostApiSpecificStreamInfo = NULL; 
-	
+	inputParameters.hostApiSpecificStreamInfo = NULL;
+
 	/*---------------------------- start recording Audio. ----------------------------- */
-	
+
 	err = Pa_OpenStream(
 		&stream,
 		&inputParameters,
@@ -193,26 +193,24 @@ port_init_audio(struct paRecordData* pdata)
 		paNoFlag,              /* PaNoFlag - clip and dhiter*/
 		recordCallback,        /* sound callback     */
 		pdata );                /* callback userData  */
-	
+
 	if( err != paNoError ) goto error;
-	
+
 	err = Pa_StartStream( stream );
 	pdata->stream = (void *) stream; //store stream pointer
-	pdata->api_ts_ref =  Pa_GetStreamTime(stream) * 1000000000; /*ref ts in ns (unsigned)*/
-	printf("AUDIO: portaudio ref ts: %" PRId64 "\n", pdata->api_ts_ref);
-	
+
 	if( err != paNoError ) goto error; /*should close the stream if error ?*/
-	
+
 	return 0;
-	
+
 error:
 	g_printerr("An error occured while starting the audio API\n" );
 	g_printerr("Error number: %d\n", err );
 	g_printerr("Error message: %s\n", Pa_GetErrorText( err ) );
 	pdata->streaming=FALSE;
-	
+
 	if(stream) Pa_AbortStream( stream );
-	
+
 	/*lavc is allways checked and cleaned when finishing worker thread*/
 	return(-1);
 }
@@ -223,7 +221,7 @@ port_close_audio (struct paRecordData *pdata)
 	PaError err = paNoError;
 	PaStream *stream = (PaStream *) pdata->stream;
 	int ret = 0;
-	
+
 	/*stops and closes the audio stream*/
 	if(stream)
 	{
@@ -237,7 +235,7 @@ port_close_audio (struct paRecordData *pdata)
 			g_print("Stoping audio stream\n");
 			err = Pa_StopStream( stream );
 		}
-		
+
 		if( err != paNoError )
 		{
 			g_printerr("An error occured while stoping the audio stream\n" );
@@ -245,12 +243,12 @@ port_close_audio (struct paRecordData *pdata)
 			g_printerr("Error message: %s\n", Pa_GetErrorText( err ) );
 			ret = -1;
 		}
-		
+
 		g_print("Closing audio stream...\n");
 		err = Pa_CloseStream( stream );
-		
+
 		if( err != paNoError )
-		{	
+		{
 			g_printerr("An error occured while closing the audio stream\n" );
 			g_printerr("Error number: %d\n", err );
 			g_printerr("Error message: %s\n", Pa_GetErrorText( err ) );
@@ -259,11 +257,11 @@ port_close_audio (struct paRecordData *pdata)
 	}
 	else
 		g_print("Invalid stream pointer.\n");
-	
-	
+
+
 	pdata->stream = NULL;
-	
+
 	return (ret);
-} 
+}
 
 
