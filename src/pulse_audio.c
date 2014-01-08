@@ -334,7 +334,9 @@ stream_request_cb(pa_stream *s, size_t length, void *userdata)
 
     int numSamples= length / sizeof(SAMPLE);
     
-	record_sound ( inputBuffer, numSamples, userdata );
+    uint64_t ts = 0;
+    
+	record_sound ( inputBuffer, numSamples, ts, userdata );
         
     pa_stream_drop(s);
 }

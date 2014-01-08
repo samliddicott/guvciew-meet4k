@@ -734,7 +734,10 @@ static gboolean process_video(struct ALL_DATA *all_data,
 		__LOCK_MUTEX(__AMUTEX);
 			audio_drift = pdata->ts_drift;
 		__UNLOCK_MUTEX(__AMUTEX);
-		max_drift = 1000000000 / global->fps;	/* one frame */
+		int fps = global->fps;
+		if(fps < 5)
+			fps = 15;
+		max_drift = 1000000000 / fps;	/* one frame */
 	}
 
 	__LOCK_MUTEX(__VMUTEX);

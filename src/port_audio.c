@@ -141,7 +141,11 @@ recordCallback (const void *inputBuffer, void *outputBuffer,
 	
 	unsigned long numSamples = framesPerBuffer * channels;
 	
-	int res = record_sound ( inputBuffer, numSamples, userData );
+	PaTime ts_sec = timeInfo->inputBufferAdcTime; /*in seconds (double)*/
+	
+	int64_t ts = (ts_sec * 1000000000) - pdata->api_ts_ref;
+	
+	int res = record_sound ( inputBuffer, numSamples, ts, userData );
 
 	if(res < 0 ) 
 		return (paComplete); /*capture stopped*/
@@ -194,6 +198,8 @@ port_init_audio(struct paRecordData* pdata)
 	
 	err = Pa_StartStream( stream );
 	pdata->stream = (void *) stream; //store stream pointer
+	pdata->api_ts_ref =  Pa_GetStreamTime(stream) * 1000000000; /*ref ts in ns (unsigned)*/
+	printf("AUDIO: portaudio ref ts: %" PRId64 "\n", pdata->api_ts_ref);
 	
 	if( err != paNoError ) goto error; /*should close the stream if error ?*/
 	

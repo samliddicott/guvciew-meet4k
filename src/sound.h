@@ -92,6 +92,7 @@ struct paRecordData
 	int aud_numBytes;                // bytes copied to out buffer*/
 	int aud_numSamples;              // samples copied to out buffer*/
 	int64_t snd_begintime;           // audio recording start time*/
+	int64_t api_ts_ref;
 	int capVid;                      // video capture flag
 	SAMPLE *recordedSamples;         // callback buffer
 	int sampleIndex;
@@ -124,7 +125,7 @@ struct paRecordData
 };
 
 int
-record_sound ( const void *inputBuffer, unsigned long numSamples, void *userData );
+record_sound ( const void *inputBuffer, unsigned long numSamples, uint64_t timestamp, void *userData );
 
 //int
 //fill_audio_buffer(struct paRecordData *pdata, UINT64 ts);

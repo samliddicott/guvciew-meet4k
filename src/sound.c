@@ -37,7 +37,7 @@
 #define MAX_FRAME_DRIFT 6000000 //6 ms
 
 static int64_t
-fill_audio_buffer(struct paRecordData *pdata, UINT64 ts)
+fill_audio_buffer(struct paRecordData *pdata, int64_t ts)
 {
 	int64_t ts_drift = pdata->ts_drift;
 	UINT64 buffer_length;
@@ -133,7 +133,7 @@ fill_audio_buffer(struct paRecordData *pdata, UINT64 ts)
 
 /*--------------------------- sound callback ------------------------------*/
 int
-record_sound ( const void *inputBuffer, unsigned long numSamples, void *userData )
+record_sound ( const void *inputBuffer, unsigned long numSamples, uint64_t timestamp, void *userData )
 {
 	struct paRecordData *pdata = (struct paRecordData*)userData;
 
@@ -153,7 +153,7 @@ record_sound ( const void *inputBuffer, unsigned long numSamples, void *userData
 	/* buffer ends at timestamp "now", calculate beginning timestamp */
     UINT64 nsec_per_frame = G_NSEC_PER_SEC / pdata->samprate;
 
-    UINT64 ts = ns_time_monotonic() - numFrames * nsec_per_frame;
+    int64_t ts = ns_time_monotonic() - numFrames * nsec_per_frame;
 
 	if (skip_n > 0) /*skip audio while were skipping video frames*/
 	{
@@ -191,8 +191,8 @@ record_sound ( const void *inputBuffer, unsigned long numSamples, void *userData
 				/* compensate drift (not all, only to MAX/2 ) */
 				int n_samples = ((ts_drift - (MAX_FRAME_DRIFT/2)) / nsec_per_frame) * channels;
 
-				//g_printf("AUDIO: compensating ts drift of %" PRIu64 " with %d samples\n",
-				//	ts_drift, n_samples);
+				printf("AUDIO: compensating ts drift of %" PRId64 " with %d samples (pa_ts=%" PRId64 " ts=%" PRId64 ")\n",
+					ts_drift, n_samples, timestamp, ts);
 				int j=0;
 				for( j=0; j<n_samples; j++ )
 				{
@@ -213,7 +213,7 @@ record_sound ( const void *inputBuffer, unsigned long numSamples, void *userData
 				if(j >= n_samples)
 					ts_drift = MAX_FRAME_DRIFT/2; /*set the new drift (MAX/2)*/
 
-				//g_printf("AUDIO: compensated ts drift to %" PRIu64 " \n",
+				//g_printf("AUDIO: compensated ts drift to %" PRId64 " \n",
 				//	pdata->ts_drift);
 			}
 
