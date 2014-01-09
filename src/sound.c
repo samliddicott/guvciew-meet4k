@@ -195,8 +195,8 @@ record_sound ( const void *inputBuffer, unsigned long numSamples, int64_t timest
 		/* compensate drift (not all, only to MAX/2 ) */
 		int n_samples = ((ts_drift - (MAX_FRAME_DRIFT/2)) / nsec_per_frame) * channels;
 
-		printf("AUDIO: compensating ts drift of %" PRId64 " with %d samples (pa_ts=%" PRId64 " curr_ts=%" PRId64 ")\n",
-			ts_drift, n_samples, timestamp, ts );
+		//printf("AUDIO: compensating ts drift of %" PRId64 " with %d samples (pa_ts=%" PRId64 " curr_ts=%" PRId64 ")\n",
+			//ts_drift, n_samples, timestamp, ts );
 
 		int j=0;
 		for( j=0; j<n_samples; j++ )
