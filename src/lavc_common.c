@@ -533,13 +533,12 @@ struct lavcData* init_lavc(int width, int height, int fps_num, int fps_den, int 
 		fprintf(stderr, "could not open codec\n");
 		return(NULL);
 	}
-	printf("here 4\n");
 	//alloc tmpbuff (yuv420p)
 	data->tmpbuf = g_new0(BYTE, (width*height*3)/2);
 	//alloc outbuf
 	data->outbuf_size = 240000;//1792
 	data->outbuf = g_new0(BYTE, data->outbuf_size);
-	printf("here 5\n");
+	
 	data->delayed_frames = 0;
 	data->index_of_df = -1;
 
