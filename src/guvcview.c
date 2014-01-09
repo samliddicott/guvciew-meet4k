@@ -571,7 +571,7 @@ int main(int argc, char *argv[])
                 gwidget->CapImageButt=gtk_button_new_with_label (_("Cap. Image (I)"));
             }
 
-            if (global->vidfile)
+            if (global->vidfile && global->Capture_time > 0)
             {	/*vid capture enabled from start*/
                 gwidget->CapVidButt=gtk_toggle_button_new_with_label (_("Stop Video (V)"));
                 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gwidget->CapVidButt), TRUE);
@@ -700,7 +700,7 @@ int main(int argc, char *argv[])
             }
 		}
 		/*--------------------- video capture from start ---------------------------*/
-		if(global->vidfile)
+		if(global->vidfile && global->Capture_time > 0)
 		{
 			videoIn->VidFName = joinPath(videoIn->VidFName, global->vidFPath);
 
@@ -721,7 +721,7 @@ int main(int argc, char *argv[])
 					g_printerr("IO thread creation failed\n");
 					cap_ok = FALSE;
 				}
-				else if (global->Capture_time)
+				else
 				{
 					/*sets the timer function*/
 					g_timeout_add(global->Capture_time*1000,timer_callback,&all_data);

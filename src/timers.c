@@ -52,8 +52,16 @@ gboolean
 timer_callback(gpointer data)
 {
     struct ALL_DATA * all_data = (struct ALL_DATA *) data;
+    struct vdIn *videoIn = all_data->videoIn;
     struct GLOBAL *global = all_data->global;
     struct GWIDGET *gwidget = all_data->gwidget;
+    
+    __LOCK_MUTEX(__VMUTEX);
+		gboolean capVid = videoIn->capVid;
+	__UNLOCK_MUTEX(__VMUTEX);
+	
+    if(!capVid)
+		return (FALSE);/*destroys the timer*/
     
     /*stop video capture*/
     if(global->debug) g_print("setting video toggle to FALSE\n");

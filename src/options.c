@@ -764,8 +764,8 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 		{ "image", 'i', 0, G_OPTION_ARG_STRING, &image, N_("Image File name"), "FILENAME"},
 		{ "cap_time", 'c', 0, G_OPTION_ARG_INT, &global->image_timer, N_("Image capture interval in seconds"), "TIME"},
 		{ "npics", 'm', 0, G_OPTION_ARG_INT, &global->image_npics, N_("Number of Pictures to capture"), "NUMPIC"},
-		{ "video", 'n', 0, G_OPTION_ARG_STRING, &video, N_("Video File name (capture from start)"), "FILENAME"},
-		{ "vid_time", 't', 0, G_OPTION_ARG_INT, &global->Capture_time,N_("Video capture time (in seconds)"), "TIME"},
+		{ "video", 'n', 0, G_OPTION_ARG_STRING, &video, N_("Video File name"), "FILENAME"},
+		{ "vid_time", 't', 0, G_OPTION_ARG_INT, &global->Capture_time,N_("Video capture time (seconds) - capture from start"), "TIME"},
 		{ "exit_on_close", 0, 0, G_OPTION_ARG_NONE, &global->exit_on_close, N_("Exits guvcview after closing video"), NULL},
 		{ "skip", 'j', 0, G_OPTION_ARG_INT, &global->skip_n, N_("Number of initial frames to skip"), "N_FRAMES"},
 		{ "show_fps", 'p', 0, G_OPTION_ARG_INT, &FpsCount, N_("Show FPS value (enable(1) | disable (0))"), "[1 | 0]"},
@@ -966,7 +966,7 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 			if(suffix > 0)
 				global->vid_inc = suffix + 1;
 		}
-
+	
 		global->vidfile = joinPath(global->vidfile, global->vidFPath);
 
 		g_print("capturing video: %s , from start\n",global->vidfile);
