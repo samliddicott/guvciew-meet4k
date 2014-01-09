@@ -150,7 +150,7 @@ record_sound ( const void *inputBuffer, unsigned long numSamples, int64_t timest
     int i = 0;
     int64_t ts_drift = 0;
 
-	UINT64 numFrames = numSamples / channels;
+	//UINT64 numFrames = numSamples / channels;
     UINT64 nsec_per_frame = G_NSEC_PER_SEC / pdata->samprate;
 
 	/*timestamp marks beginning of buffer*/
@@ -158,7 +158,6 @@ record_sound ( const void *inputBuffer, unsigned long numSamples, int64_t timest
 
 	if (skip_n > 0) /*skip audio while were skipping video frames*/
 	{
-
 		if(capVid)
 		{
 			__LOCK_MUTEX( __AMUTEX );

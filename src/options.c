@@ -969,7 +969,7 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 	
 		global->vidfile = joinPath(global->vidfile, global->vidFPath);
 
-		g_print("capturing video: %s , from start\n",global->vidfile);
+		g_print("set video file: %s \n",global->vidfile);
 		/*get the file type*/
 		global->VidFormat = check_video_type(global->vidFPath[0]);
 	}

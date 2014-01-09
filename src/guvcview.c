@@ -571,7 +571,7 @@ int main(int argc, char *argv[])
                 gwidget->CapImageButt=gtk_button_new_with_label (_("Cap. Image (I)"));
             }
 
-            if (global->vidfile && global->Capture_time > 0)
+            if (global->Capture_time > 0)
             {	/*vid capture enabled from start*/
                 gwidget->CapVidButt=gtk_toggle_button_new_with_label (_("Stop Video (V)"));
                 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gwidget->CapVidButt), TRUE);
@@ -700,9 +700,29 @@ int main(int argc, char *argv[])
             }
 		}
 		/*--------------------- video capture from start ---------------------------*/
-		if(global->vidfile && global->Capture_time > 0)
+		if(global->Capture_time > 0)
 		{
-			videoIn->VidFName = joinPath(videoIn->VidFName, global->vidFPath);
+			
+			if (global->vid_inc>0)
+			{
+				videoIn->VidFName = incFilename(videoIn->VidFName,
+					global->vidFPath,
+					global->vid_inc);
+
+				global->vid_inc++;
+			}
+			else
+			{
+				videoIn->VidFName = joinPath(videoIn->VidFName, global->vidFPath);
+			}
+
+			if(!global->no_display)
+			{
+				char * message = g_strjoin(" ", _("capturing video to"), videoIn->VidFName, NULL);
+				gtk_statusbar_pop (GTK_STATUSBAR(gwidget->status_bar), gwidget->status_warning_id);
+				gtk_statusbar_push (GTK_STATUSBAR(gwidget->status_bar), gwidget->status_warning_id, message);
+				g_free(message);
+			}
 
 			gboolean cap_ok = TRUE;
 			/* check if enough free space is available on disk*/
@@ -715,6 +735,10 @@ int main(int argc, char *argv[])
 				/*start disk check timed callback (every 10 sec)*/
 				if (!global->disk_timer_id)
 					global->disk_timer_id=g_timeout_add(10*1000, FreeDiskCheck_timer, &all_data);
+				
+				//request a IDR frame with SPS and PPS data
+				uvcx_request_frame_type(videoIn->fd, global->uvc_h264_unit, PICTURE_TYPE_IDR_FULL);
+				
 				/*start IO thread*/
 				if( __THREAD_CREATE(&all_data.IO_thread, IO_loop, (void *) &all_data))
 				{
