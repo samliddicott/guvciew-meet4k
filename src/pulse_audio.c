@@ -287,29 +287,38 @@ pulse_list_snd_devices(struct GLOBAL *global)
 }
 
 /*
- * underflow callback
+ * underflow callback: playback only
  */
-static void
-stream_underflow_cb(pa_stream *s, void *userdata)
-{
-    /* We increase the latency by 50% if we get 6 underflows and latency is under 2s */
-    g_print("AUDIO: underflow\n");
-    underflows++;
-    if (underflows >= 6 && latency < 2000000)
-    {
-        latency = (latency*3)/2;
+//static void
+//stream_underflow_cb(pa_stream *s, void *userdata)
+//{
+//    /* We increase the latency by 50% if we get 6 underflows and latency is under 2s */
+//    g_print("AUDIO: pulseaudio underflow\n");
+//    underflows++;
+//    if (underflows >= 6 && latency < 2000000)
+//    {
+//        latency = (latency*3)/2;
 
-        pa_sample_spec *ss = (pa_sample_spec *) pa_stream_get_sample_spec (s);
-        pa_buffer_attr *bufattr = (pa_buffer_attr *) pa_stream_get_buffer_attr    (s);
+//        pa_sample_spec *ss = (pa_sample_spec *) pa_stream_get_sample_spec (s);
+//        pa_buffer_attr *bufattr = (pa_buffer_attr *) pa_stream_get_buffer_attr    (s);
 
-        bufattr->fragsize = pa_usec_to_bytes(latency, ss);
-        bufattr->maxlength = pa_usec_to_bytes(latency, ss) * 2;
-        pa_stream_set_buffer_attr(s, bufattr, NULL, NULL);
+//        bufattr->fragsize = pa_usec_to_bytes(latency, ss);
+//        bufattr->maxlength = pa_usec_to_bytes(latency, ss) * 2;
+//        pa_stream_set_buffer_attr(s, bufattr, NULL, NULL);
 
-        underflows = 0;
-        g_print("AUDIO: latency increased to %d\n", latency);
-    }
-}
+//        underflows = 0;
+//        g_print("AUDIO: latency increased to %d\n", latency);
+//    }
+//}
+
+/*
+ * underflow callback: playback only
+ */
+//static void
+//stream_overflow_cb(pa_stream *s, void *userdata)
+//{
+//    g_print("AUDIO: pulseaudio overflow\n");
+//}
 
 /*
  * audio record callback
@@ -423,7 +432,8 @@ pulse_read_audio(void *userdata)
 
     /* define the callbacks */
     pa_stream_set_read_callback(recordstream, stream_request_cb, (void *) pdata);
-    pa_stream_set_underflow_callback(recordstream, stream_underflow_cb, NULL);
+    //pa_stream_set_underflow_callback(recordstream, stream_underflow_cb, NULL); /*playback only*/
+	//pa_stream_set_overflow_callback(recordstream, stream_overflow_cb, NULL);   /*playback only*/
 
     /* a possible value is (uint32_t)-1   ~= 2 sec */
     bufattr.fragsize = pa_usec_to_bytes(latency, &ss);

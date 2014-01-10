@@ -142,8 +142,12 @@ recordCallback (const void *inputBuffer, void *outputBuffer,
 	unsigned long numSamples = framesPerBuffer * channels;
 
 	PaTime ts_sec = timeInfo->inputBufferAdcTime; /*in seconds (double)*/
-
 	int64_t ts = ts_sec * 1000000000; /*in nanosec (monotonic time)*/
+
+	if(statusFlags & paInputOverflow)
+		g_print( "AUDIO: portaudio buffer overflow\n" );
+	if(statusFlags & paInputUnderflow)
+		g_print( "AUDIO: portaudio buffer underflow\n" );
 
 	int res = record_sound ( inputBuffer, numSamples, ts, userData );
 
