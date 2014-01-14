@@ -772,20 +772,10 @@ static gboolean process_video(struct ALL_DATA *all_data,
 		{
 			/* audio is behind (this should have been compensated when capturing audio) */
 			g_print("audio drift: dropping/shifting frame\n");
-			__LOCK_MUTEX(__GMUTEX);
-				global->av_drift += max_drift; /* shift for matroska/webm */
-			__UNLOCK_MUTEX(__GMUTEX);
+			//__LOCK_MUTEX(__GMUTEX);
+			//	global->av_drift += max_drift; /* shift for matroska/webm */
+			//__UNLOCK_MUTEX(__GMUTEX);
 
-			switch (global->VidFormat)
-			{
-				case AVI_FORMAT:
-					/* drop frame */
-					/*FIXME: on stream formats we can't drop key frames*/
-					break;
-
-				default:
-					break;
-			}
 		}
 		else if (audio_drift < -1 * max_drift)
 		{
