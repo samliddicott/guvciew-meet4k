@@ -34,7 +34,7 @@
 
 #define __AMUTEX &pdata->mutex
 #define MAX_FRAME_DRIFT 20000000 //20 ms
-#defined MAX_N_DRIFTS 6 //max allowed consecutive drifts
+#define MAX_N_DRIFTS 2 //max allowed consecutive drifts
 
 int n_drifts = 0; //number of consecutive delivered buffers with drift
 int64_t last_drift = 0; //last calculated drift
@@ -215,7 +215,7 @@ record_sound ( const void *inputBuffer, unsigned long numSamples, int64_t timest
 
 	}
 	else
-		n_drifts = 0 /*we are good (if audio is faster compensate in video)*/
+		n_drifts = 0; /*we are good (if audio is faster compensate in video)*/
 
 
     if(n_drifts > MAX_N_DRIFTS) /*Drift has been incresing for the last frames*/

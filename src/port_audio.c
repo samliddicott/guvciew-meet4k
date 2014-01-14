@@ -193,7 +193,7 @@ port_init_audio(struct paRecordData* pdata)
 		&inputParameters,
 		NULL,                  /* &outputParameters, */
 		pdata->samprate,        /* sample rate        */
-		MPG_NUM_SAMP,          /* buffer in frames => Mpeg frame size (samples = 1152 samples * channels)*/
+		paFramesPerBufferUnspecified,/* buffer in frames (use API optimal)*/
 		paNoFlag,              /* PaNoFlag - clip and dhiter*/
 		recordCallback,        /* sound callback     */
 		pdata );                /* callback userData  */
