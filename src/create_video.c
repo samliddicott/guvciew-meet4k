@@ -771,7 +771,7 @@ static gboolean process_video(struct ALL_DATA *all_data,
 		if (audio_drift > max_drift)
 		{
 			/* audio is behind (this should be compensated when capturing audio) */
-			g_print("audio drift: but not dropping/shifting frame\n");
+			g_print("audio drift (%lli ms): but not dropping/shifting frame\n", (long long int) audio_drift/1000000);
 			//__LOCK_MUTEX(__GMUTEX);
 			//	global->av_drift += max_drift; /* shift for matroska/webm */
 			//__UNLOCK_MUTEX(__GMUTEX);
