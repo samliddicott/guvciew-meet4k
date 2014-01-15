@@ -32,7 +32,16 @@
 
 #define __AMUTEX &pdata->mutex
 
-static int latency = 20000; // start latency in micro seconds
+#define TIME_EVENT_USEC 50000
+
+// From pulsecore/macro.h
+#define pa_memzero(x,l) (memset((x), 0, (l)))
+#define pa_zero(x) (pa_memzero(&(x), sizeof(x)))
+
+static pa_stream *recordstream = NULL; // pulse audio stream
+static uint32_t latency_ms = 15; // requested initial latency in milisec: 0 use max
+static pa_usec_t latency = 0; //real latency in usec (for timestamping)
+
 static int underflows = 0;
 static int sink_index = 0;
 static int source_index = 0;
@@ -256,7 +265,7 @@ int pa_get_devicelist(struct GLOBAL *global)
                 break;
             default:
                 /* We should never see this state */
-                g_print("in state %d\n", state);
+                g_print("AUDIO: Pulseaudio in state %d\n", state);
                 return -1;
         }
         /*
@@ -279,46 +288,77 @@ pulse_list_snd_devices(struct GLOBAL *global)
 
     if (pa_get_devicelist(global) < 0)
     {
-        g_print("failed to get audio device list from PULSE server\n");
+        g_print("AUDIO: Pulseaudio failed to get audio device list from PULSE server\n");
         return 1;
     }
 
     return 0;
 }
 
-/*
- * underflow callback: playback only
- */
-//static void
-//stream_underflow_cb(pa_stream *s, void *userdata)
-//{
-//    /* We increase the latency by 50% if we get 6 underflows and latency is under 2s */
-//    g_print("AUDIO: pulseaudio underflow\n");
-//    underflows++;
-//    if (underflows >= 6 && latency < 2000000)
-//    {
-//        latency = (latency*3)/2;
+/* --- Timing and latency control --- */
 
-//        pa_sample_spec *ss = (pa_sample_spec *) pa_stream_get_sample_spec (s);
-//        pa_buffer_attr *bufattr = (pa_buffer_attr *) pa_stream_get_buffer_attr    (s);
+/* get the current latency */
+static void stream_update_timing_callback(pa_stream *s, int success, void *userdata)
+{
+    pa_usec_t l, usec;
+    int negative = 0;
 
-//        bufattr->fragsize = pa_usec_to_bytes(latency, ss);
-//        bufattr->maxlength = pa_usec_to_bytes(latency, ss) * 2;
-//        pa_stream_set_buffer_attr(s, bufattr, NULL, NULL);
+    //g_print("Update timing\n");
 
-//        underflows = 0;
-//        g_print("AUDIO: latency increased to %d\n", latency);
-//    }
-//}
+    if (!success ||
+        pa_stream_get_time(s, &usec) < 0 ||
+        pa_stream_get_latency(s, &l, &negative) < 0)
+    {
+        return;
+    }
 
-/*
- * underflow callback: playback only
- */
-//static void
-//stream_overflow_cb(pa_stream *s, void *userdata)
-//{
-//    g_print("AUDIO: pulseaudio overflow\n");
-//}
+	//latency = l * (negative?-1:1);
+	latency = l; /*can only be negative in monitoring streams*/
+
+    //g_print("Time: %0.3f sec; Latency: %0.0f usec.\n",
+    //        (float) usec / 1000000,
+    //        (float) latency);
+
+    /*
+     * pa_stream_set_buffer_attr(); can be used to update fragsize and
+     * minreq buffer attributes
+     */
+
+}
+
+static void time_event_callback(pa_mainloop_api *m,
+				pa_time_event *e, const struct timeval *t,
+				void *userdata)
+{
+    if (recordstream && pa_stream_get_state(recordstream) == PA_STREAM_READY)
+    {
+        pa_operation *o;
+        if (o = pa_stream_update_timing_info(recordstream, stream_update_timing_callback, NULL))
+            pa_operation_unref(o);
+    }
+
+    pa_context_rttime_restart(context, e, pa_rtclock_now() + TIME_EVENT_USEC);
+}
+
+void get_latency(pa_stream *s)
+{
+	pa_usec_t l;
+	int negative;
+	pa_timing_info *timing_info;
+
+	timing_info = pa_stream_get_timing_info(s);
+
+	if (pa_stream_get_latency(s, &l, &negative) != 0)
+	{
+		g_printerr("AUDIO: Pulseaudio pa_stream_get_latency() failed\n");
+		return;
+	}
+
+	//latency = l * (negative?-1:1);
+	latency = l; /*can only be negative in monitoring streams*/
+
+	//g_print("%0.0f usec    \r", (float)latency);
+}
 
 /*
  * audio record callback
@@ -328,10 +368,7 @@ stream_request_cb(pa_stream *s, size_t length, void *userdata)
 {
 
     struct paRecordData *pdata = (struct paRecordData*) userdata;
-    const void *inputBuffer;
     uint8_t *buffer = NULL;
-    //pa_usec_t usec;
-    //int neg;
 
     __LOCK_MUTEX( __AMUTEX );
         int channels = pdata->channels;
@@ -340,36 +377,41 @@ stream_request_cb(pa_stream *s, size_t length, void *userdata)
     //pa_stream_get_latency(s, &usec, &neg);
     //g_print("  latency %8d us\n",(int)usec);
 
-    /*read from stream*/
-    if (pa_stream_peek(s, &inputBuffer, &length) < 0)
-    {
-        g_print( "pa_stream_peek() failed\n");
-        //quit(1);
-        return;
-    }
-
-	if(length <= 0)
-		return; /*buffer is empty*/
-
-	/*timestamp*/
-	int numSamples= length / sizeof(SAMPLE);
-	int numFrames = numSamples / channels;
-
-	int64_t nsec_per_frame = G_NSEC_PER_SEC / pdata->samprate;
-	int64_t timestamp = ns_time_monotonic() - numFrames * nsec_per_frame;
-
-	if(inputBuffer == NULL) /*it's a hole*/
+	while (pa_stream_readable_size(s) > 0)
 	{
-		buffer = pa_xmalloc0(length); /*fill with silence frames*/
-		record_sound ( buffer, numSamples, timestamp, userdata );
-		if(buffer != NULL)
-			pa_xfree(buffer);
+		const void *inputBuffer;
+		size_t length;
+
+		/*read from stream*/
+		if (pa_stream_peek(s, &inputBuffer, &length) < 0)
+		{
+			g_print( "pa_stream_peek() failed\n");
+			//quit(1);
+			return;
+		}
+
+		if(length <= 0)
+			return; /*buffer is empty*/
+
+		/*timestamp*/
+		int numSamples= length / sizeof(SAMPLE);
+		int numFrames = numSamples / channels;
+
+		int64_t nsec_per_frame = G_NSEC_PER_SEC / pdata->samprate;
+		int64_t timestamp = ns_time_monotonic() - numFrames * nsec_per_frame - (latency * 1000);
+
+		if(inputBuffer == NULL) /*it's a hole*/
+		{
+			buffer = pa_xmalloc0(length); /*fill with silence frames*/
+			record_sound ( buffer, numSamples, timestamp, userdata );
+			if(buffer != NULL)
+				pa_xfree(buffer);
+		}
+		else
+			record_sound ( inputBuffer, numSamples, timestamp, userdata );
+
+		pa_stream_drop(s); /*clean the samples*/
 	}
-	else
-		record_sound ( inputBuffer, numSamples, timestamp, userdata );
-
-	pa_stream_drop(s); /*clean the samples*/
-
 }
 
 /*
@@ -386,9 +428,9 @@ pulse_read_audio(void *userdata)
     pa_mainloop *pa_ml;
     pa_mainloop_api *pa_mlapi;
     pa_context *pa_ctx;
-    pa_stream *recordstream;
     pa_buffer_attr bufattr;
     pa_sample_spec ss;
+    pa_stream_flags_t flags = 0;
     int r;
     int pa_ready = 0;
 
@@ -406,6 +448,11 @@ pulse_read_audio(void *userdata)
      * If there's an error, the callback will set pa_ready to 2
 	 */
     pa_context_set_state_callback(pa_ctx, pa_state_cb, &pa_ready);
+
+    /*
+     * This function defines a time event callback (called every TIME_EVENT_USEC)
+     */
+    pa_context_rttime_new(pa_ctx, pa_rtclock_now() + TIME_EVENT_USEC, time_event_callback, NULL);
 
     /*
 	 * We can't do anything until PA is ready, so just iterate the mainloop
@@ -432,24 +479,33 @@ pulse_read_audio(void *userdata)
 
     /* define the callbacks */
     pa_stream_set_read_callback(recordstream, stream_request_cb, (void *) pdata);
-    //pa_stream_set_underflow_callback(recordstream, stream_underflow_cb, NULL); /*playback only*/
-	//pa_stream_set_overflow_callback(recordstream, stream_overflow_cb, NULL);   /*playback only*/
 
-    /* a possible value is (uint32_t)-1   ~= 2 sec */
-    bufattr.fragsize = pa_usec_to_bytes(latency, &ss);
-    bufattr.maxlength = pa_usec_to_bytes(latency, &ss) * 2; /* maximum value supported is (uint32_t)-1 */
-    //bufattr.maxlength =  pdata->aud_numSamples * sizeof(SAMPLE) * 2;
+	// timing info
+    pa_stream_update_timing_info(recordstream, stream_update_timing_callback, NULL);
 
-    //bufattr.minreq = pa_usec_to_bytes(0,&ss);
-    //bufattr.prebuf = (uint32_t)-1;
-    //bufattr.tlength = pa_usec_to_bytes(latency,&ss);
+	// Set properties of the record buffer
+    pa_zero(bufattr);
+    /* optimal value for all is (uint32_t)-1   ~= 2 sec */
+    bufattr.maxlength = (uint32_t) -1;
+    bufattr.prebuf = (uint32_t) -1;
+    bufattr.minreq = (uint32_t) -1;
+
+    if (latency_ms > 0)
+    {
+      bufattr.fragsize = bufattr.tlength = pa_usec_to_bytes(latency_msec * PA_USEC_PER_MSEC, &ss);
+      flags |= PA_STREAM_ADJUST_LATENCY;
+    }
+    else
+      bufattr.fragsize = bufattr.tlength = (uint32_t) -1;
+
+	flags |= PA_STREAM_INTERPOLATE_TIMING;
+    flags |= PA_STREAM_AUTO_TIMING_UPDATE;
+
+    get_latency(recordstream);
 
     char * dev = pdata->device_name;
-    g_print("AUDIO: connecting to pulse audio device %s\n\t (channels %d rate %d)\n", dev, ss.channels, ss.rate);
-    r = pa_stream_connect_record(recordstream, dev, &bufattr,
-                                 PA_STREAM_INTERPOLATE_TIMING
-                                |PA_STREAM_ADJUST_LATENCY
-                                |PA_STREAM_AUTO_TIMING_UPDATE);
+    g_print("AUDIO: Pulseaudio connecting to device %s\n\t (channels %d rate %d)\n", dev, ss.channels, ss.rate);
+    r = pa_stream_connect_record(recordstream, dev, &bufattr, flags);
     if (r < 0)
     {
         g_print("AUDIO: skip latency adjustment\n");
@@ -477,7 +533,6 @@ pulse_read_audio(void *userdata)
     while (pdata->capVid)
     {
         pa_mainloop_iterate(pa_ml, 1, NULL);
-        //sleep_ms(4);
     }
 
     pa_stream_disconnect (recordstream);
