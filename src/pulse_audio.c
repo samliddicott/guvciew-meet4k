@@ -338,7 +338,7 @@ static void time_event_callback(pa_mainloop_api *m,
             pa_operation_unref(o);
     }
 
-    pa_context_rttime_restart(context, e, pa_rtclock_now() + TIME_EVENT_USEC);
+    pa_context_rttime_restart(pa_ctx, e, pa_rtclock_now() + TIME_EVENT_USEC);
 }
 
 void get_latency(pa_stream *s)
