@@ -39,6 +39,8 @@
 #define pa_zero(x) (pa_memzero(&(x), sizeof(x)))
 
 static pa_stream *recordstream = NULL; // pulse audio stream
+static pa_context *pa_ctx = NULL; //pulse context
+
 static uint32_t latency_ms = 15; // requested initial latency in milisec: 0 use max
 static pa_usec_t latency = 0; //real latency in usec (for timestamping)
 
@@ -425,7 +427,6 @@ pulse_read_audio(void *userdata)
     g_print("Pulse audio Thread started\n");
     pa_mainloop *pa_ml;
     pa_mainloop_api *pa_mlapi;
-    pa_context *pa_ctx;
     pa_buffer_attr bufattr;
     pa_sample_spec ss;
     pa_stream_flags_t flags = 0;
