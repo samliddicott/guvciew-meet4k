@@ -42,7 +42,6 @@ static pa_stream *recordstream = NULL; // pulse audio stream
 static uint32_t latency_ms = 15; // requested initial latency in milisec: 0 use max
 static pa_usec_t latency = 0; //real latency in usec (for timestamping)
 
-static int underflows = 0;
 static int sink_index = 0;
 static int source_index = 0;
 
@@ -332,8 +331,8 @@ static void time_event_callback(pa_mainloop_api *m,
 {
     if (recordstream && pa_stream_get_state(recordstream) == PA_STREAM_READY)
     {
-        pa_operation *o;
-        if (o = pa_stream_update_timing_info(recordstream, stream_update_timing_callback, NULL))
+        pa_operation *o = pa_stream_update_timing_info(recordstream, stream_update_timing_callback, NULL);
+        if (o != NULL)
             pa_operation_unref(o);
     }
 
@@ -344,9 +343,8 @@ void get_latency(pa_stream *s)
 {
 	pa_usec_t l;
 	int negative;
-	pa_timing_info *timing_info;
 
-	timing_info = pa_stream_get_timing_info(s);
+	pa_stream_get_timing_info(s);
 
 	if (pa_stream_get_latency(s, &l, &negative) != 0)
 	{
@@ -492,7 +490,7 @@ pulse_read_audio(void *userdata)
 
     if (latency_ms > 0)
     {
-      bufattr.fragsize = bufattr.tlength = pa_usec_to_bytes(latency_msec * PA_USEC_PER_MSEC, &ss);
+      bufattr.fragsize = bufattr.tlength = pa_usec_to_bytes(latency_ms * PA_USEC_PER_MSEC, &ss);
       flags |= PA_STREAM_ADJUST_LATENCY;
     }
     else
