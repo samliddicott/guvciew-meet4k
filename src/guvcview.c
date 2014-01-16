@@ -236,8 +236,8 @@ int main(int argc, char *argv[])
 	control_only = (global->control_only || global->add_ctrls) ;
     if(global->no_display && global->control_only )
     {
-		g_printerr("incompatible options (control_only and no_display): enabling display");
-        global->no_display = FALSE;
+	g_printerr("incompatible options (control_only and no_display): enabling display");
+	global->no_display = FALSE;
     }
 
 	/*---------------------------------- Allocations -------------------------*/
@@ -279,12 +279,14 @@ int main(int argc, char *argv[])
 		lc_dir, lc_all, langs[0], txtdom);
 #endif
 	/*---------------------------- GTK init ----------------------------------*/
-    gtk_init(&argc, &argv);
-    g_set_application_name(_("Guvcview Video Capture"));
-    g_setenv("PULSE_PROP_media.role", "video", TRUE); //needed for Pulse Audio
+    if(!gtk_init_check(&argc, &argv))
+	global->no_display = TRUE; /*if we can't open the display fallback to no_display mode*/
 
     if(!global->no_display)
     {
+	g_set_application_name(_("Guvcview Video Capture"));
+	g_setenv("PULSE_PROP_media.role", "video", TRUE); //needed for Pulse Audio
+
         /* make sure the type is realized so that we can change the properties*/
         g_type_class_unref (g_type_class_ref (GTK_TYPE_BUTTON));
         /* make sure gtk-button-images property is set to true (defaults to false in karmic)*/
@@ -836,10 +838,15 @@ int main(int argc, char *argv[])
   	/* register the reading end with the event loop */
   	g_io_add_watch(g_signal_in, G_IO_IN | G_IO_PRI, deliver_signal, &all_data);
 
-	/* The last thing to get called (gtk loop)*/
-	//gdk_threads_enter();
-	gtk_main();
-	//gdk_threads_leave();
+	/* The last thing to get called (gtk or glib main loop)*/
+	g_print("Starting main loop \n");
+	if(!global->no_display)
+		gtk_main();
+	else
+	{
+		gwidget->main_loop = g_main_loop_new(NULL, TRUE);
+		g_main_loop_run(gwidget->main_loop);
+	}
 
 	//free all_data allocations
 	free(all_data.gwidget);

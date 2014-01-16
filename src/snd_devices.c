@@ -47,11 +47,16 @@ list_snd_devices(struct GLOBAL *global)
 	}
 	/*sound device combo box*/
 	
-	GtkWidget *SndDevice = gtk_combo_box_text_new ();
+	GtkWidget *SndDevice = NULL;
 	
-	for(i=0; i < global->Sound_numInputDev; i++)
+	if(!global->no_display)
 	{
-		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(SndDevice),global->Sound_IndexDev[i].description);
+		SndDevice = gtk_combo_box_text_new ();
+	
+		for(i=0; i < global->Sound_numInputDev; i++)
+		{
+			gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(SndDevice),global->Sound_IndexDev[i].description);
+		}
 	}
 	
 	return (SndDevice);
@@ -78,22 +83,25 @@ update_snd_devices(struct ALL_DATA *all_data)
 			break;
 	}
 	
-	/*disable fps combobox signals*/
-	g_signal_handlers_block_by_func(GTK_COMBO_BOX_TEXT(gwidget->SndDevice), G_CALLBACK (SndDevice_changed), all_data);
-	/* clear out the old device list... */
-	GtkListStore *store = GTK_LIST_STORE(gtk_combo_box_get_model (GTK_COMBO_BOX(gwidget->SndDevice)));
-	gtk_list_store_clear(store);
-	
-	for(i=0; i < global->Sound_numInputDev; i++)
+	if(!global->no_display)
 	{
-		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(gwidget->SndDevice), global->Sound_IndexDev[i].description);
+		/*disable fps combobox signals*/
+		g_signal_handlers_block_by_func(GTK_COMBO_BOX_TEXT(gwidget->SndDevice), G_CALLBACK (SndDevice_changed), all_data);
+		/* clear out the old device list... */
+		GtkListStore *store = GTK_LIST_STORE(gtk_combo_box_get_model (GTK_COMBO_BOX(gwidget->SndDevice)));
+		gtk_list_store_clear(store);
+	
+		for(i=0; i < global->Sound_numInputDev; i++)
+		{
+			gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(gwidget->SndDevice), global->Sound_IndexDev[i].description);
+		}
+	
+		/*set default device in combo*/
+		global->Sound_UseDev = global->Sound_DefDev;
+		gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->SndDevice), global->Sound_UseDev);
+	
+		/*enable fps combobox signals*/ 
+		g_signal_handlers_unblock_by_func(GTK_COMBO_BOX_TEXT(gwidget->SndDevice), G_CALLBACK (SndDevice_changed), all_data);
 	}
-	
-	/*set default device in combo*/
-	global->Sound_UseDev = global->Sound_DefDev;
-	gtk_combo_box_set_active(GTK_COMBO_BOX(gwidget->SndDevice), global->Sound_UseDev);
-	
-	/*enable fps combobox signals*/ 
-	g_signal_handlers_unblock_by_func(GTK_COMBO_BOX_TEXT(gwidget->SndDevice), G_CALLBACK (SndDevice_changed), all_data);
 	
 }

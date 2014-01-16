@@ -37,6 +37,9 @@
 
 struct GWIDGET
 {
+	/*the main loop : only needed for no_display option*/
+	GMainLoop *main_loop;
+
 	/* The main window*/
 	GtkWidget *mainwin;
 	/* A restart Dialog */
