@@ -1075,7 +1075,6 @@ void *IO_loop(void *data)
 		g_printerr("Cap Video failed\n");
 		if(!(global->no_display))
         {
-		    //gdk_threads_enter();
 		    /*disable signals for video capture callback*/
 		    g_signal_handlers_block_by_func(GTK_TOGGLE_BUTTON(gwidget->CapVidButt), G_CALLBACK (capture_vid), all_data);
 		    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(gwidget->CapVidButt), FALSE);
@@ -1083,7 +1082,6 @@ void *IO_loop(void *data)
 		    /*enable signals for video capture callback*/
 		    g_signal_handlers_unblock_by_func(GTK_TOGGLE_BUTTON(gwidget->CapVidButt), G_CALLBACK (capture_vid), all_data);
 		    gdk_flush();
-		    //gdk_threads_leave();
 
 		    /*enabling sound and video compression controls*/
 		    set_sensitive_vid_contrls(TRUE, global->Sound_enable, gwidget);

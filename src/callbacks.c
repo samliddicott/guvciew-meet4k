@@ -1445,7 +1445,7 @@ InpType_changed(GtkComboBox * InpType, struct ALL_DATA *all_data)
 
 	format = videoIn->listFormats->listVidFormats[videoIn->listFormats->current_format].format;
 	get_PixMode(format, global->mode);
-	
+
 	printf("redraw resolution combo for format (%x)\n",format);
 	/*redraw resolution combo for new format*/
 	printf("numb res = %d\n", listVidFormats->numb_res);
@@ -1814,19 +1814,16 @@ capture_vid (GtkToggleButton *VidButt, struct ALL_DATA *all_data)
 		gboolean capVid = videoIn->capVid;
 	__UNLOCK_MUTEX(__VMUTEX);
 
-    //char *fileEntr = NULL;
-    gboolean state=!capVid;
-
     if(!global->no_display)
     {
 
-        //disable signals for this callback
+        /* disable signals for this callback */
         g_signal_handlers_block_by_func(GTK_TOGGLE_BUTTON(gwidget->CapVidButt), G_CALLBACK (capture_vid), all_data);
-        //widgets are enable/disable in create_video.c
+        /* widgets are enable/disable in create_video.c */
     }
-	if(global->debug) g_print("Cap Video toggled: %d\n", state);
+	if(global->debug) g_print("Cap Video toggled: %d\n", !capVid);
 
-	if(capVid || !state)
+	if(capVid) /* we are capturing */
 	{	/****************** Stop Video ************************/
 		capVid = FALSE;
 		__LOCK_MUTEX(__VMUTEX);
@@ -1845,18 +1842,18 @@ capture_vid (GtkToggleButton *VidButt, struct ALL_DATA *all_data)
             if(global->debug) g_print("enabling controls\n");
             /*enabling sound and video compression controls*/
             set_sensitive_vid_contrls(TRUE, global->Sound_enable, gwidget);
-            if(!(state))
-            {
-                gtk_button_set_label(GTK_BUTTON(gwidget->CapVidButt),_("Cap. Video (V)"));
-                gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(gwidget->CapVidButt), FALSE);
-                //gtk_widget_show (gwidget->VidButton_Img);
-            }
+
+            gtk_button_set_label(GTK_BUTTON(gwidget->CapVidButt),_("Cap. Video (V)"));
+            gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(gwidget->CapVidButt), FALSE);
         }
+
 		if(global->disk_timer_id) g_source_remove(global->disk_timer_id);
 		global->disk_timer_id = 0;
 	}
-	else if(!(capVid) /*&& state*/)
+	else if(!capVid) /*we are not capturing*/
 	{	/******************** Start Video *********************/
+
+		capVid = TRUE;
 
 		if (global->vid_inc>0)
 		{
@@ -1878,11 +1875,12 @@ capture_vid (GtkToggleButton *VidButt, struct ALL_DATA *all_data)
 			gtk_statusbar_push (GTK_STATUSBAR(gwidget->status_bar), gwidget->status_warning_id, message);
 			g_free(message);
 		}
+
 		/* check if enough free space is available on disk*/
 		if(!DiskSupervisor(all_data))
 		{
 			g_print("Cap Video failed\n");
-			state = FALSE;
+			capVid = FALSE;
 		}
 		else
 		{
@@ -1893,24 +1891,23 @@ capture_vid (GtkToggleButton *VidButt, struct ALL_DATA *all_data)
 			/*disabling sound and video compression controls*/
             if(!global->no_display)
                 set_sensitive_vid_contrls(FALSE, global->Sound_enable, gwidget);
-			
+
 			//request a IDR frame with SPS and PPS data
 			uvcx_request_frame_type(videoIn->fd, global->uvc_h264_unit, PICTURE_TYPE_IDR_FULL);
 			/*start IO thread*/
 			if( __THREAD_CREATE(&all_data->IO_thread, IO_loop, (void *) all_data))
 			{
 				g_printerr("Thread creation failed\n");
-				state = FALSE;
+				capVid = FALSE;
 			}
 		}
 
         if(!global->no_display)
         {
-            if(state)
+            if(capVid)
             {
                 gtk_button_set_label(GTK_BUTTON(gwidget->CapVidButt),_("Stop Video (V)"));
                 gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(gwidget->CapVidButt), TRUE);
-                //gtk_widget_show (gwidget->VidButton_Img);
             }
             else
             {

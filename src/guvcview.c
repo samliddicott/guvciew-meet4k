@@ -234,12 +234,9 @@ int main(int argc, char *argv[])
 
 	//sets local control_only flag - prevents several initializations/allocations
 	control_only = (global->control_only || global->add_ctrls) ;
-    if(global->no_display && (global->control_only || !(global->exit_on_close && (global->Capture_time || global->image_timer))))
+    if(global->no_display && global->control_only )
     {
-        if(!(global->exit_on_close && (global->Capture_time || global->image_timer)))
-            g_printerr("no_display must be used with exit_on_close and a timed capture: enabling display");
-        else
-            g_printerr("incompatible options (control_only and no_display): enabling display");
+		g_printerr("incompatible options (control_only and no_display): enabling display");
         global->no_display = FALSE;
     }
 
@@ -702,7 +699,7 @@ int main(int argc, char *argv[])
 		/*--------------------- video capture from start ---------------------------*/
 		if(global->Capture_time > 0)
 		{
-			
+
 			if (global->vid_inc>0)
 			{
 				videoIn->VidFName = incFilename(videoIn->VidFName,
@@ -735,10 +732,10 @@ int main(int argc, char *argv[])
 				/*start disk check timed callback (every 10 sec)*/
 				if (!global->disk_timer_id)
 					global->disk_timer_id=g_timeout_add(10*1000, FreeDiskCheck_timer, &all_data);
-				
+
 				//request a IDR frame with SPS and PPS data
 				uvcx_request_frame_type(videoIn->fd, global->uvc_h264_unit, PICTURE_TYPE_IDR_FULL);
-				
+
 				/*start IO thread*/
 				if( __THREAD_CREATE(&all_data.IO_thread, IO_loop, (void *) &all_data))
 				{
@@ -848,7 +845,7 @@ int main(int argc, char *argv[])
 	free(all_data.gwidget);
 	if(all_data.h264_controls != NULL)
 		free(all_data.h264_controls);
-	
+
 	//closing portaudio
 	if(!control_only)
 	{
