@@ -322,16 +322,6 @@ int main(int argc, char *argv[])
         /* Add event handlers */
         g_signal_connect(GTK_WINDOW(gwidget->mainwin), "delete_event", G_CALLBACK(delete_event), &all_data);
     }
-    else
-    {
-		g_print("\nGUVCVIEW No Display Mode signals:\n");
-		g_print("  SIGUSR1: Video stop/start capture\n");
-		g_print("  SIGUSR2: Image capture\n");
-		g_print("  SIGINT (ctrl+c): Exit\n");
-		g_print("examples:\n");
-		g_print("   kill -s SIGUSR1 'pid'\n");
-		g_print("   killall -s USR2 guvcview\n\n");
-	}
 
 	/*----------------------- init videoIn structure --------------------------*/
 	videoIn = g_new0(struct vdIn, 1);
@@ -854,8 +844,19 @@ int main(int argc, char *argv[])
   	/* register the reading end with the event loop */
   	g_io_add_watch(g_signal_in, G_IO_IN | G_IO_PRI, deliver_signal, &all_data);
 
+	g_print("\nGUVCVIEW Signals:\n");
+	g_print("  SIGUSR1: Video stop/start capture\n");
+	g_print("  SIGUSR2: Image capture\n");
+	g_print("  SIGINT (ctrl+c): Exit\n");
+	g_print("examples:\n");
+	g_print("   kill -s SIGUSR1 'pid'\n");
+	g_print("   killall -s USR2 guvcview\n\n");
+
+
 	/* The last thing to get called (gtk or glib main loop)*/
-	g_print("Starting main loop \n");
+	if(global->debug)
+		g_print("Starting main loop \n");
+
 	if(!global->no_display)
 		gtk_main();
 	else
