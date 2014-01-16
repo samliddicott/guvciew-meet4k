@@ -85,7 +85,7 @@ pa_state_cb(pa_context *c, void *userdata)
 }
 
 /*
- * pa_mainloop will call this function when it's ready to tell us about a sink.
+ * pa_mainloop will call this function when it's ready to tell us about a source.
  * Since we're not threading when listing devices, there's no need for mutexes
  * on the devicelist structure
  */
@@ -108,15 +108,18 @@ void pa_sourcelist_cb(pa_context *c, const pa_source_info *l, int eol, void *use
 	else
 		channels = l->sample_spec.channels;
 
-	g_print("=======[ Input Device #%d ]=======\n", source_index);
-	g_print("Description: %s\n", l->description);
-    g_print("Name: %s\n", l->name);
-    g_print("Index: %d\n", l->index);
-	g_print("Channels: %d (default to: %d)\n", l->sample_spec.channels, channels);
-	g_print("SampleRate: %d\n", l->sample_spec.rate);
-	g_print("Latency: %llu (usec)\n", (long long unsigned) l->latency);
-	g_print("Card: %d\n", l->card);
-    g_print("\n");
+	if(global->debug)
+	{
+		g_print("=======[ Input Device #%d ]=======\n", source_index);
+		g_print("Description: %s\n", l->description);
+		g_print("Name: %s\n", l->name);
+		g_print("Index: %d\n", l->index);
+		g_print("Channels: %d (default to: %d)\n", l->sample_spec.channels, channels);
+		g_print("SampleRate: %d\n", l->sample_spec.rate);
+		g_print("Latency: %llu (usec)\n", (long long unsigned) l->latency);
+		g_print("Card: %d\n", l->card);
+		g_print("\n");
+	}
 
 	if(l->monitor_of_sink == PA_INVALID_INDEX)
 	{
@@ -138,6 +141,8 @@ void pa_sourcelist_cb(pa_context *c, const pa_source_info *l, int eol, void *use
  */
 void pa_sinklist_cb(pa_context *c, const pa_sink_info *l, int eol, void *userdata)
 {
+	struct GLOBAL *global = userdata;
+
     /* If eol is set to a positive number, you're at the end of the list */
     if (eol > 0)
 	{
@@ -146,15 +151,18 @@ void pa_sinklist_cb(pa_context *c, const pa_sink_info *l, int eol, void *userdat
 
 	sink_index++;
 
-	g_print("=======[ Output Device #%d ]=======\n", sink_index);
-	g_print("Description: %s\n", l->description);
-	g_print("Name: %s\n", l->name);
-	g_print("Index: %d\n", l->index);
-	g_print("Channels: %d\n", l->channel_map.channels);
-	g_print("SampleRate: %d\n", l->sample_spec.rate);
-	g_print("Latency: %llu (usec)\n", (long long unsigned) l->latency);
-	g_print("Card: %d\n", l->card);
-	g_print("\n");
+	if(global->debug)
+	{
+		g_print("=======[ Output Device #%d ]=======\n", sink_index);
+		g_print("Description: %s\n", l->description);
+		g_print("Name: %s\n", l->name);
+		g_print("Index: %d\n", l->index);
+		g_print("Channels: %d\n", l->channel_map.channels);
+		g_print("SampleRate: %d\n", l->sample_spec.rate);
+		g_print("Latency: %llu (usec)\n", (long long unsigned) l->latency);
+		g_print("Card: %d\n", l->card);
+		g_print("\n");
+	}
 }
 
 /*
@@ -226,7 +234,7 @@ int pa_get_devicelist(struct GLOBAL *global)
 				 */
                 pa_op = pa_context_get_sink_info_list(pa_ctx,
                         pa_sinklist_cb,
-                        NULL //userdata
+                        global //userdata
                         );
 
                 /* Update state for next iteration through the loop */
