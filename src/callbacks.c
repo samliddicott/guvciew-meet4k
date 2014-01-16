@@ -64,7 +64,7 @@ WARN_DIALOG(const char *warn_title, const char* warn_msg, struct ALL_DATA *all_d
 
     if(global->no_display)
     {
-        g_print("WARNING: %s\n", warn_msg);
+        g_print("WARNING: %s : %s\n", warn_title, warn_msg);
     }
     else
     {
@@ -95,7 +95,7 @@ ERR_DIALOG(const char *err_title, const char* err_msg, struct ALL_DATA *all_data
 
     if(global->no_display)
     {
-        g_printerr("ERROR: %s\n", err_msg);
+        g_printerr("ERROR: %s : %s\n", err_title, err_msg);
     }
     else
     {

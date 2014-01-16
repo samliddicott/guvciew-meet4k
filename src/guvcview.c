@@ -279,13 +279,19 @@ int main(int argc, char *argv[])
 		lc_dir, lc_all, langs[0], txtdom);
 #endif
 	/*---------------------------- GTK init ----------------------------------*/
-    if(!gtk_init_check(&argc, &argv))
-	global->no_display = TRUE; /*if we can't open the display fallback to no_display mode*/
+	if(!global->no_display)
+	{
+		if(!gtk_init_check(&argc, &argv))
+		{
+			g_printerr("GUVCVIEW: can't open display: changing to no_display mode\n");
+			global->no_display = TRUE; /*if we can't open the display fallback to no_display mode*/
+		}
+	}
 
     if(!global->no_display)
     {
-	g_set_application_name(_("Guvcview Video Capture"));
-	g_setenv("PULSE_PROP_media.role", "video", TRUE); //needed for Pulse Audio
+		g_set_application_name(_("Guvcview Video Capture"));
+		g_setenv("PULSE_PROP_media.role", "video", TRUE); //needed for Pulse Audio
 
         /* make sure the type is realized so that we can change the properties*/
         g_type_class_unref (g_type_class_ref (GTK_TYPE_BUTTON));
@@ -316,6 +322,16 @@ int main(int argc, char *argv[])
         /* Add event handlers */
         g_signal_connect(GTK_WINDOW(gwidget->mainwin), "delete_event", G_CALLBACK(delete_event), &all_data);
     }
+    else
+    {
+		g_print("\nGUVCVIEW No Display Mode signals:\n");
+		g_print("  SIGUSR1: Video stop/start capture\n");
+		g_print("  SIGUSR2: Image capture\n");
+		g_print("  SIGINT (ctrl+c): Exit\n");
+		g_print("examples:\n");
+		g_print("   kill -s SIGUSR1 'pid'\n");
+		g_print("   killall -s USR2 guvcview\n\n");
+	}
 
 	/*----------------------- init videoIn structure --------------------------*/
 	videoIn = g_new0(struct vdIn, 1);
