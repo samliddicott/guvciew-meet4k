@@ -181,7 +181,8 @@ port_init_audio(struct paRecordData* pdata)
 	inputParameters.sampleFormat = PA_SAMPLE_TYPE;
 
 	if (Pa_GetDeviceInfo( inputParameters.device ))
-		inputParameters.suggestedLatency = Pa_GetDeviceInfo( inputParameters.device )->defaultHighInputLatency;
+		inputParameters.suggestedLatency = Pa_GetDeviceInfo( inputParameters.device )->defaultLowInputLatency;
+		//inputParameters.suggestedLatency = Pa_GetDeviceInfo( inputParameters.device )->defaultHighInputLatency;
 	else
 		inputParameters.suggestedLatency = DEFAULT_LATENCY_DURATION/1000.0;
 	inputParameters.hostApiSpecificStreamInfo = NULL;
@@ -205,12 +206,15 @@ port_init_audio(struct paRecordData* pdata)
 
 	if( err != paNoError ) goto error; /*should close the stream if error ?*/
 
+	const PaStreamInfo* stream_info = Pa_GetStreamInfo (stream);
+	g_print("AUDIO: latency of %8.3f msec\n", 1000 * stream_info->inputLatency);
+
 	return 0;
 
 error:
-	g_printerr("An error occured while starting the audio API\n" );
-	g_printerr("Error number: %d\n", err );
-	g_printerr("Error message: %s\n", Pa_GetErrorText( err ) );
+	g_printerr("AUDIO: An error occured while starting the portaudio API\n" );
+	g_printerr("       Error number: %d\n", err );
+	g_printerr("       Error message: %s\n", Pa_GetErrorText( err ) );
 	pdata->streaming=FALSE;
 
 	if(stream) Pa_AbortStream( stream );

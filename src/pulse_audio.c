@@ -322,6 +322,8 @@ static void stream_update_timing_callback(pa_stream *s, int success, void *userd
     }
 
 	//latency = l * (negative?-1:1);
+	if(latency == 0)
+		g_print("AUDIO: Pulseaudio latency is %0.0f msec at ts:%0.0f usec\n", (float) l / 1000, (float) usec);
 	latency = l; /*can only be negative in monitoring streams*/
 
     //g_print("Time: %0.3f sec; Latency: %0.0f usec.\n",
@@ -508,8 +510,6 @@ pulse_read_audio(void *userdata)
 	flags |= PA_STREAM_INTERPOLATE_TIMING;
     flags |= PA_STREAM_AUTO_TIMING_UPDATE;
 
-    get_latency(recordstream);
-
     char * dev = pdata->device_name;
     g_print("AUDIO: Pulseaudio connecting to device %s\n\t (channels %d rate %d)\n", dev, ss.channels, ss.rate);
     r = pa_stream_connect_record(recordstream, dev, &bufattr, flags);
@@ -529,6 +529,8 @@ pulse_read_audio(void *userdata)
         finish(pa_ctx, pa_ml);
         return -1;
     }
+
+    get_latency(recordstream);
 
     pdata->streaming=TRUE;
 
