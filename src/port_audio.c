@@ -21,6 +21,7 @@
 
 #include <string.h>
 #include "port_audio.h"
+#include "ms_time.h"
 
 int
 portaudio_list_snd_devices(struct GLOBAL *global)
@@ -140,16 +141,28 @@ recordCallback (const void *inputBuffer, void *outputBuffer,
 	int channels = pdata->channels;
 
 	unsigned long numSamples = framesPerBuffer * channels;
+	UINT64 frame_length = G_NSEC_PER_SEC / pdata->samprate; /*in nanosec*/
 
 	PaTime ts_sec = timeInfo->inputBufferAdcTime; /*in seconds (double)*/
-	int64_t ts = ts_sec * 1000000000; /*in nanosec (monotonic time)*/
+	int64_t ts = ts_sec * G_NSEC_PER_SEC; /*in nanosec (monotonic time)*/
 
 	if(statusFlags & paInputOverflow)
+	{
 		g_print( "AUDIO: portaudio buffer overflow\n" );
+		/*determine the number of samples dropped*/
+		if(pdata->a_last_ts <= 0)
+			pdata->a_last_ts = pdata->snd_begintime;
+			
+		int64_t d_ts = ts - pdata->a_last_ts;
+		int n_samples = (d_ts / frame_length) * channels;
+		record_silence (n_samples, userData);
+	}
 	if(statusFlags & paInputUnderflow)
 		g_print( "AUDIO: portaudio buffer underflow\n" );
 
 	int res = record_sound ( inputBuffer, numSamples, ts, userData );
+	
+	pdata->a_last_ts = ts + (framesPerBuffer * frame_length);
 
 	if(res < 0 )
 		return (paComplete); /*capture stopped*/

@@ -100,6 +100,7 @@ struct paRecordData
 	int audio_buff_flag[AUDBUFF_NUM];// process_buffer flags
 	int64_t a_ts;                    // audio frame time stamp
 	int64_t ts_ref;                  // timestamp video reference
+	int64_t a_last_ts;               // last audio frame timestamp
 	int64_t ts_drift;                // time drift between audio device clock and system clock
 	gint16 *pcm_sndBuff;             // buffer for pcm coding with int16
 	float  *float_sndBuff;           // buffer for pcm coding with float
@@ -127,8 +128,8 @@ struct paRecordData
 int
 record_sound ( const void *inputBuffer, unsigned long numSamples, int64_t timestamp, void *userData );
 
-//int
-//fill_audio_buffer(struct paRecordData *pdata, UINT64 ts);
+void
+record_silence ( unsigned long numSamples, void *userData );
 
 void
 set_sound (struct GLOBAL *global, struct paRecordData* data);

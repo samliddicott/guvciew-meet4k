@@ -34,7 +34,7 @@
 
 #define __AMUTEX &pdata->mutex
 #define MAX_FRAME_DRIFT 20000000 //20 ms
-#define MAX_N_DRIFTS 2 //max allowed consecutive drifts
+#define MAX_N_DRIFTS 3 //max allowed consecutive drifts
 
 int n_drifts = 0; //number of consecutive delivered buffers with drift
 int64_t last_drift = 0; //last calculated drift
@@ -64,7 +64,7 @@ fill_audio_buffer(struct paRecordData *pdata, int64_t ts)
 			pdata->a_ts = 0;
 	}
 	else /*increment time stamp for audio frame*/
-		pdata->a_ts += buffer_length; /*add previous buffer time*/
+		pdata->a_ts += buffer_length; /*add buffer time*/
 
 	/* check audio drift through timestamps */
 
@@ -162,7 +162,7 @@ record_sound ( const void *inputBuffer, unsigned long numSamples, int64_t timest
     __UNLOCK_MUTEX( __AMUTEX );
 
 	const SAMPLE *rptr = (const SAMPLE*) inputBuffer;
-    int i = 0;
+    unsigned long i = 0;
     int64_t ts_drift = 0;
 
 	//UINT64 numFrames = numSamples / channels;
@@ -213,6 +213,8 @@ record_sound ( const void *inputBuffer, unsigned long numSamples, int64_t timest
 			}
 			else
 				n_drifts = 0; /*we are good (if audio is faster compensate in video)*/
+		
+			last_drift = ts_drift;
 		}
     }
 
@@ -248,8 +250,6 @@ record_sound ( const void *inputBuffer, unsigned long numSamples, int64_t timest
 
 	pdata->ts_drift = ts_drift; /*reset*/
 
-
-
     if(capVid) return (0); /*still capturing*/
 	else
     {
@@ -261,6 +261,26 @@ record_sound ( const void *inputBuffer, unsigned long numSamples, int64_t timest
     }
 
 	return(-1); /* audio capture stopped*/
+}
+
+void
+record_silence ( unsigned long numSamples, void *userData )
+{
+	struct paRecordData *pdata = (struct paRecordData*)userData;
+    
+    unsigned long i = 0;
+
+    for( i=0; i<numSamples; i++ )
+    {
+        pdata->recordedSamples[pdata->sampleIndex] = 0;
+        pdata->sampleIndex++;
+
+        if(pdata->sampleIndex >= pdata->aud_numSamples)
+		{
+			/*we don't care about drift here*/
+			fill_audio_buffer(pdata, pdata->a_last_ts);
+		}
+    }
 }
 
 void
@@ -330,6 +350,7 @@ set_sound (struct GLOBAL *global, struct paRecordData* pdata)
 	pdata->flush = 0;
 	pdata->a_ts= -1;
 	pdata->ts_ref = 0;
+	pdata->a_last_ts = 0;
 
 	pdata->stream = NULL;
 	/* some drivers, e.g. GSPCA, don't set fps( guvcview sets it to 1/1 )
