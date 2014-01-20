@@ -378,7 +378,6 @@ stream_request_cb(pa_stream *s, size_t length, void *userdata)
 {
 
     struct paRecordData *pdata = (struct paRecordData*) userdata;
-    uint8_t *buffer = NULL;
 
     __LOCK_MUTEX( __AMUTEX );
         int channels = pdata->channels;
@@ -420,7 +419,7 @@ stream_request_cb(pa_stream *s, size_t length, void *userdata)
 
 		if(inputBuffer == NULL) /*it's a hole*/
 		{
-			record_silence (numSamples, userData);
+			record_silence (numSamples, userdata);
 		}
 		else
 			record_sound ( inputBuffer, numSamples, ts, userdata );
