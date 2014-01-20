@@ -384,8 +384,11 @@ stream_request_cb(pa_stream *s, size_t length, void *userdata)
         int channels = pdata->channels;
     __UNLOCK_MUTEX( __AMUTEX );
 
-    //pa_stream_get_latency(s, &usec, &neg);
-    //g_print("  latency %8d us\n",(int)usec);
+	int64_t timestamp = ns_time_monotonic() - (latency * 1000);
+	int64_t totalFrames = 0;
+
+	if(pdata->a_last_ts <= 0)
+		pdata->a_last_ts = pdata->snd_begintime;
 
 	while (pa_stream_readable_size(s) > 0)
 	{
@@ -395,33 +398,37 @@ stream_request_cb(pa_stream *s, size_t length, void *userdata)
 		/*read from stream*/
 		if (pa_stream_peek(s, &inputBuffer, &length) < 0)
 		{
-			g_print( "pa_stream_peek() failed\n");
+			g_print( "AUDIO: pa_stream_peek() failed\n");
 			//quit(1);
 			return;
 		}
 
 		if(length <= 0)
+		{
+			g_print( "AUDIO: empty buffer!\n");
 			return; /*buffer is empty*/
+		}
 
 		/*timestamp*/
 		int numSamples= length / sizeof(SAMPLE);
 		int numFrames = numSamples / channels;
+		totalFrames += numFrames;
 
 		int64_t nsec_per_frame = G_NSEC_PER_SEC / pdata->samprate;
-		int64_t timestamp = ns_time_monotonic() - numFrames * nsec_per_frame - (latency * 1000);
+		/*int64_t ts = timestamp - numFrames * nsec_per_frame;*/
+		int64_t ts = pdata->a_last_ts + totalFrames * nsec_per_frame;
 
 		if(inputBuffer == NULL) /*it's a hole*/
 		{
-			buffer = pa_xmalloc0(length); /*fill with silence frames*/
-			record_sound ( buffer, numSamples, timestamp, userdata );
-			if(buffer != NULL)
-				pa_xfree(buffer);
+			record_silence (numSamples, userData);
 		}
 		else
-			record_sound ( inputBuffer, numSamples, timestamp, userdata );
+			record_sound ( inputBuffer, numSamples, ts, userdata );
 
 		pa_stream_drop(s); /*clean the samples*/
 	}
+
+	pdata->a_last_ts = timestamp;
 }
 
 /*
