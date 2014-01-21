@@ -73,8 +73,6 @@ struct GLOBAL
 	BYTE *jpeg;            // jpeg buffer
 
 	int64_t av_drift;      // amount of A/V time correction
-	DWORD currtime;
-	DWORD lasttime;
 	UINT64 Vidstarttime;   //video start time
 	UINT64 Vidstoptime;    //video stop time
 	QWORD v_ts;            //video time stamp

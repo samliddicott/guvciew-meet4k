@@ -106,8 +106,6 @@ int initGlobals (struct GLOBAL *global)
 	global->AudCodec = acodec; /*0-"PCM"  1-"MPG2" 2-...*/
 
 	global->av_drift=0;
-	global->currtime=0;
-	global->lasttime=0;
 	global->Vidstarttime=0;
 	global->Vidstoptime=0;
 	global->framecount=0;
@@ -124,7 +122,6 @@ int initGlobals (struct GLOBAL *global)
 	global->Sound_UseDev=0;
 	global->Sound_NumChan=NUM_CHANNELS;
 	global->Sound_NumChanInd=0;
-	global->Sound_delay=0;
 	global->Sound_delay=0;     /*sound delay in nanosec*/
 	global->FpsCount=0;
 
