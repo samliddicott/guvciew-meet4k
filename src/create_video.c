@@ -315,7 +315,7 @@ aviClose (struct ALL_DATA *all_data)
 		}
 
 		if (global->debug)
-			g_print("VIDEO: %"PRIu" frames in %f ms = %f fps\n",
+			g_print("VIDEO: %"PRIu64" frames in %f ms = %f fps\n",
 				global->framecount, tottime, videoF->avi->fps);
 		/*------------------- close audio stream and clean up -------------------*/
 		if (global->Sound_enable > 0)
@@ -354,7 +354,7 @@ mkvClose(struct ALL_DATA *all_data)
 			(unsigned long long) global->Vidstoptime, (unsigned long long) global->Vidstarttime);
 
 		if (global->debug)
-			g_print("VIDEO: %"PRIu" frames in %f ms \n", global->framecount, tottime);
+			g_print("VIDEO: %"PRIu64" frames in %f ms \n", global->framecount, tottime);
 		/*------------------- close audio stream and clean up -------------------*/
 		if (global->Sound_enable > 0)
 		{
