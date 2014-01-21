@@ -78,7 +78,7 @@ struct GLOBAL
 	QWORD v_ts;            //video time stamp
 	QWORD a_ts;            //audio time stamp
 	uint64_t vid_inc;      //video name increment
-	DWORD framecount;      //video frame count
+	uint64_t framecount;   //video frame count
 	DWORD frmCount;        //frame count for fps display calc
 	uint64_t image_inc;    //image name increment
 
