@@ -88,7 +88,7 @@ struct GLOBAL
 	int imgFormat;         //image format: 0-"jpg", 1-"png", 2-"bmp"
 	int VidCodec;          //0-"MJPG"  1-"YUY2" 2-"DIB "(rgb32) 3-....
 	int VidCodec_ID;       //lavc codec ID
-	int AudCodec;
+	int AudCodec;          //0-PCM 1-MPG2 3-...
 	int VidFormat;         //0-AVI 1-MKV ....
 	int Sound_API;         //audio API: 0-PORTAUDIO 1-PULSEAUDIO
 	int Sound_SampRate;    //audio sample rate
@@ -99,7 +99,7 @@ struct GLOBAL
 	int Sound_NumChan;     //audio number of channels
 	int Sound_NumChanInd;  //audio number of channels combo index
 	WORD Sound_Format;     //audio codec - fourcc (avilib.h)
-	UINT64 Sound_delay;    //sound delay in nanosec
+	uint64_t Sound_delay;  //added sound delay (in nanosec)
 	int PanStep;           //step angle for Pan
 	int TiltStep;          //step angle for Tilt
 	int FpsCount;          //frames counter for fps calc

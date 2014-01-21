@@ -100,7 +100,7 @@ writeConf(struct GLOBAL *global, char *videodevice)
 		g_fprintf(fp,"snd_delay=%llu\n",(unsigned long long) global->Sound_delay);
 		g_fprintf(fp,"# Audio codec (PCM=0; MPG2=1; ... )\n");
 		g_fprintf(fp,"aud_codec=%i\n",global->AudCodec);
-		g_fprintf(fp,"# video filters: 0 -none 1- flip 2- upturn 4- negate 8- mono (add the ones you want)\n");
+		g_fprintf(fp,"# video filters: 0 -none 1- flip 2- upturn 4- negate 8- mono ...\n");
 		g_fprintf(fp,"frame_flags=%i\n",global->Frame_Flags);
 		g_fprintf(fp,"#on screen display flags (VU meter)\n");
 		g_fprintf(fp,"osd_flags=%i\n",global->osdFlags);
