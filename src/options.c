@@ -63,11 +63,9 @@ writeConf(struct GLOBAL *global, char *videodevice)
 		g_fprintf(fp,"# capture method: 1- mmap 2- read\n");
 		g_fprintf(fp,"cap_meth=%i\n",global->cap_meth);
 		g_fprintf(fp,"# video resolution \n");
-		g_fprintf(fp,"resolution='%ix%i'\n",global->width,global->height);
-		g_fprintf(fp,"# control window size: default %ix%i\n",WINSIZEX,WINSIZEY);
-		g_fprintf(fp,"windowsize='%ix%i'\n",global->winwidth,global->winheight);
-		g_fprintf(fp,"#spin button behavior: 0-non editable 1-editable\n");
-		g_fprintf(fp,"spinbehave=%i\n", global->spinbehave);
+		g_fprintf(fp,"resolution='%ix%i'\n", global->width, global->height);
+		g_fprintf(fp,"# control window size: default %ix%i\n", WINSIZEX, WINSIZEY);
+		g_fprintf(fp,"windowsize='%ix%i'\n",global->winwidth, global->winheight);
 		g_fprintf(fp,"#Default action. 0 for picture, 1 for video.\n");
 		g_fprintf(fp,"default_action=%i\n", global->default_action);
 		g_fprintf(fp,"# mode video format 'yuvy' 'yvyu' 'uyvy' 'yyuv' 'yu12' 'yv12' 'nv12' 'nv21' 'nv16' 'nv61' 'y41p' 'grey' 'y10b' 'y16 ' 's501' 's505' 's508' 'gbrg' 'grbg' 'ba81' 'rggb' 'rgb3' 'bgr3' 'jpeg' 'mjpg'(default)\n");
@@ -92,16 +90,15 @@ writeConf(struct GLOBAL *global, char *videodevice)
 		g_fprintf(fp,"sound=%i\n",global->Sound_enable);
 		g_fprintf(fp,"# sound API: 0- Portaudio  1- Pulseaudio\n");
 		g_fprintf(fp,"snd_api=%i\n", global->Sound_API);
-		g_fprintf(fp,"# snd_device - sound device id as listed by portaudio (pulse uses default device)\n");
+		g_fprintf(fp,"# snd_device - sound device index/id as listed by audio API\n");
 		g_fprintf(fp,"snd_device=%i\n",global->Sound_UseDev);
 		g_fprintf(fp,"# snd_samprate - sound sample rate\n");
 		g_fprintf(fp,"snd_samprate=%i\n",global->Sound_SampRateInd);
 		g_fprintf(fp,"# snd_numchan - sound number of channels 0- dev def 1 - mono 2 -stereo\n");
 		g_fprintf(fp,"snd_numchan=%i\n",global->Sound_NumChanInd);
-		g_fprintf(fp,"#snd_numsec - video audio blocks size in sec: 1,2,3,.. \n");
 		g_fprintf(fp,"# sound delay in nanosec - delays sound by the specified amount when capturing video\n");
 		g_fprintf(fp,"snd_delay=%llu\n",(unsigned long long) global->Sound_delay);
-		g_fprintf(fp,"# Audio codec (PCM=0 MPG2=1 (\n");
+		g_fprintf(fp,"# Audio codec (PCM=0; MPG2=1; ... )\n");
 		g_fprintf(fp,"aud_codec=%i\n",global->AudCodec);
 		g_fprintf(fp,"# video filters: 0 -none 1- flip 2- upturn 4- negate 8- mono (add the ones you want)\n");
 		g_fprintf(fp,"frame_flags=%i\n",global->Frame_Flags);
@@ -354,10 +351,6 @@ readConf(struct GLOBAL *global)
 						{
 							if(!(global->flg_cap_meth))
 								global->cap_meth = scanner->value.v_int;
-						}
-						else if (g_strcmp0(name,"spinbehave")==0)
-						{
-							global->spinbehave = scanner->value.v_int;
 						}
 						else if (g_strcmp0(name,"default_action")==0)
 						{
@@ -691,14 +684,13 @@ readConf(struct GLOBAL *global)
 			g_print("cap_meth: %i\n",global->cap_meth);
 			g_print("resolution: %i x %i\n",global->width,global->height);
 			g_print("windowsize: %i x %i\n",global->winwidth,global->winheight);
-			g_print("spin behavior: %i\n",global->spinbehave);
 			g_print("default action: %i\n",global->default_action);
 			g_print("mode: %s\n",global->mode);
 			g_print("fps: %i/%i\n",global->fps_num,global->fps);
 			g_print("Display Fps: %i\n",global->FpsCount);
 			g_print("bpp: %i\n",global->bpp);
 			g_print("hwaccel: %i\n",global->hwaccel);
-			g_print("avi_format: %i\n",global->VidCodec);
+			g_print("vid_codec: %i\n",global->VidCodec);
 			g_print("sound: %i\n",global->Sound_enable);
 			g_print("sound Device: %i\n",global->Sound_UseDev);
 			g_print("sound samp rate: %i\n",global->Sound_SampRateInd);

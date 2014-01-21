@@ -56,7 +56,7 @@ struct GLOBAL
 	__COND_TYPE  IO_cond;      //IO thread semaphore
 
 	VidBuff *videoBuff;    //video Buffer
-	int video_buff_size;   //size in frmaes of video buffer
+	int video_buff_size;   //size in frames of video buffer
 
 	char *videodevice;     // video device (def. /dev/video0)
 	char *confPath;        //configuration file path
@@ -120,7 +120,6 @@ struct GLOBAL
 	int height;            //frame height
 	int winwidth;          //control windoe width
 	int winheight;         //control window height
-	int spinbehave;        //spin: 0-non editable 1-editable
 	int format;            //v4l2 pixel format
 	int Frame_Flags;       //frame filter flags
 	int osdFlags;          // Flags to control onscreen display
