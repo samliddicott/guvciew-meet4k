@@ -84,7 +84,6 @@ struct GLOBAL
 	DWORD frmCount;        //frame count for fps display calc
 	uint64_t image_inc;    //image name increment
 
-	int stack_size;        //thread stack size
 	int vid_sleep;         //video thread sleep time (0 by default)
 	int cap_meth;          //capture method: 1-mmap 2-read
 	int Capture_time;      //video capture time passed through argument options with -t

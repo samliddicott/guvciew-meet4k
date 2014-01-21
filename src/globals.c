@@ -83,8 +83,6 @@ int initGlobals (struct GLOBAL *global)
 	global->videoBuff = NULL;
 	global->video_buff_size = VIDBUFF_SIZE;
 
-	global->stack_size=TSTACK;
-
 	global->image_inc = 1; //increment filename by default
 	global->vid_inc = 1;   //increment filename by default
 

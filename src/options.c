@@ -57,8 +57,6 @@ writeConf(struct GLOBAL *global, char *videodevice)
 	{
 		g_fprintf(fp,"# guvcview configuration file for %s\n\n",videodevice);
 		g_fprintf(fp,"version='%s'\n",VERSION);
-		g_fprintf(fp,"# Thread stack size: default 128 pages of 64k = 8388608 bytes\n");
-		g_fprintf(fp,"stack_size=%d\n",global->stack_size);
 		g_fprintf(fp,"# video loop sleep time in ms: 0,1,2,3,...\n");
 		g_fprintf(fp,"# increased sleep time -> less cpu load, more droped frames\n");
 		g_fprintf(fp,"vid_sleep=%i\n",global->vid_sleep);
@@ -348,11 +346,7 @@ readConf(struct GLOBAL *global)
 					}
 					else if (ttype==G_TOKEN_INT)
 					{
-						if (g_strcmp0(name,"stack_size")==0)
-						{
-							global->stack_size = scanner->value.v_int;
-						}
-						else if (g_strcmp0(name,"vid_sleep")==0)
+						if (g_strcmp0(name,"vid_sleep")==0)
 						{
 							global->vid_sleep = scanner->value.v_int;
 						}
@@ -966,7 +960,7 @@ readOpts(int argc,char *argv[], struct GLOBAL *global)
 			if(suffix > 0)
 				global->vid_inc = suffix + 1;
 		}
-	
+
 		global->vidfile = joinPath(global->vidfile, global->vidFPath);
 
 		g_print("set video file: %s \n",global->vidfile);

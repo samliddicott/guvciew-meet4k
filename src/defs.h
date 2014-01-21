@@ -51,7 +51,7 @@
 
 #define __INIT_COND(c)  ( pthread_cond_init (c, NULL) )
 #define __CLOSE_COND(c) ( pthread_cond_destroy(c) )
-#define __COND_BCAST(c) ( pthread_cond_broadcast(c) ) 
+#define __COND_BCAST(c) ( pthread_cond_broadcast(c) )
 #define __COND_TIMED_WAIT(c,m,t) ( pthread_cond_timedwait(c,m,t) )
 
 /*next index of ring buffer with size elements*/
@@ -64,7 +64,7 @@
 #define MPG_NUM_SAMP 1152  //number of samples in a audio MPEG frame
 #define AUDBUFF_SIZE 2     //number of audio mpeg frames in each audio buffer
                            // direct impact on latency as buffer is only processed when full
-#define AUDBUFF_NUM  80    //number of audio buffers 
+#define AUDBUFF_NUM  80    //number of audio buffers
 //#define MPG_NUM_FRAMES 2   //number of MPEG frames in a audio frame
 
 typedef uint64_t QWORD;
@@ -91,8 +91,8 @@ typedef uint64_t   UINT64;
 typedef float SAMPLE;
 
 /* 0 is device default*/
-static const int stdSampleRates[] = 
-{ 
+static const int stdSampleRates[] =
+{
 	0, 8000,  9600, 11025, 12000,
 	16000, 22050, 24000,
 	32000, 44100, 48000,
@@ -103,8 +103,6 @@ static const int stdSampleRates[] =
 /*----------- guvcview version ----------------*/
 //#define VERSION ("") /*defined in config.h*/
 #define DEBUG (0)
-/*---------- Thread Stack Size (bytes) --------*/
-#define TSTACK (128*64*1024) /* Debian Default 128 pages of 64k = 8388608 bytes*/
 
 #define INCPANTILT 64 // 1°
 
