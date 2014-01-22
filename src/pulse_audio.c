@@ -44,6 +44,9 @@ static pa_context *pa_ctx = NULL; //pulse context
 static uint32_t latency_ms = 15; // requested initial latency in milisec: 0 use max
 static pa_usec_t latency = 0; //real latency in usec (for timestamping)
 
+//static int64_t timestamp = 0;
+//static int64_t totalFrames = 0;
+
 static int sink_index = 0;
 static int source_index = 0;
 
@@ -324,6 +327,10 @@ static void stream_update_timing_callback(pa_stream *s, int success, void *userd
 	//latency = l * (negative?-1:1);
 	if(latency == 0)
 		g_print("AUDIO: Pulseaudio latency is %0.0f msec at ts:%0.0f usec\n", (float) l / 1000, (float) usec);
+
+	if(negative)
+		g_print("AUDIO: Pulseaudio latency is %0.0f msec at ts:%0.0f usec\n", (float) l / 1000, (float) usec);
+
 	latency = l; /*can only be negative in monitoring streams*/
 
     //g_print("Time: %0.3f sec; Latency: %0.0f usec.\n",
@@ -381,10 +388,13 @@ stream_request_cb(pa_stream *s, size_t length, void *userdata)
 
     __LOCK_MUTEX( __AMUTEX );
         int channels = pdata->channels;
+        int samprate = pdata->samprate;
     __UNLOCK_MUTEX( __AMUTEX );
 
-	int64_t timestamp = ns_time_monotonic() - (latency * 1000);
+	int64_t nsec_per_frame = G_NSEC_PER_SEC / samprate;
+	int64_t timestamp = 0;
 	int64_t totalFrames = 0;
+	int64_t ts = 0;
 
 	if(pdata->a_last_ts <= 0)
 		pdata->a_last_ts = pdata->snd_begintime;
@@ -402,6 +412,8 @@ stream_request_cb(pa_stream *s, size_t length, void *userdata)
 			return;
 		}
 
+		timestamp = ns_time_monotonic() - (latency * 1000);
+
 		if(length <= 0)
 		{
 			g_print( "AUDIO: empty buffer!\n");
@@ -413,9 +425,8 @@ stream_request_cb(pa_stream *s, size_t length, void *userdata)
 		int numFrames = numSamples / channels;
 		totalFrames += numFrames;
 
-		int64_t nsec_per_frame = G_NSEC_PER_SEC / pdata->samprate;
-		/*int64_t ts = timestamp - numFrames * nsec_per_frame;*/
-		int64_t ts = pdata->a_last_ts + totalFrames * nsec_per_frame;
+		ts = timestamp - numFrames * nsec_per_frame;
+		/*ts = pdata->a_last_ts + totalFrames * nsec_per_frame;*/
 
 		if(inputBuffer == NULL) /*it's a hole*/
 		{
@@ -425,6 +436,13 @@ stream_request_cb(pa_stream *s, size_t length, void *userdata)
 			record_sound ( inputBuffer, numSamples, ts, userdata );
 
 		pa_stream_drop(s); /*clean the samples*/
+	}
+
+	int64_t lost_time = ts - pdata->a_last_ts;
+
+	if(lost_time >= latency * 1000)
+	{
+		g_print( "AUDIO: buffer lost %llu us!\n", (long long unsigned) lost_time/1000);
 	}
 
 	pdata->a_last_ts = timestamp;
