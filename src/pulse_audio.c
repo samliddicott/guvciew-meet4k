@@ -394,6 +394,7 @@ stream_request_cb(pa_stream *s, size_t length, void *userdata)
 	int64_t nsec_per_frame = G_NSEC_PER_SEC / samprate;
 	int64_t timestamp = 0;
 	int64_t totalFrames = 0;
+	int64_t buffer_time = 0;
 	int64_t ts = 0;
 
 	if(pdata->a_last_ts <= 0)
@@ -412,6 +413,8 @@ stream_request_cb(pa_stream *s, size_t length, void *userdata)
 			return;
 		}
 
+		get_latency(s);
+		
 		timestamp = ns_time_monotonic() - (latency * 1000);
 
 		if(length <= 0)
@@ -424,8 +427,9 @@ stream_request_cb(pa_stream *s, size_t length, void *userdata)
 		int numSamples= length / sizeof(SAMPLE);
 		int numFrames = numSamples / channels;
 		totalFrames += numFrames;
+		buffer_time = numFrames * nsec_per_frame;
 
-		ts = timestamp - numFrames * nsec_per_frame;
+		ts = timestamp - buffer_time;
 		/*ts = pdata->a_last_ts + totalFrames * nsec_per_frame;*/
 
 		if(inputBuffer == NULL) /*it's a hole*/
@@ -433,18 +437,22 @@ stream_request_cb(pa_stream *s, size_t length, void *userdata)
 			record_silence (numSamples, userdata);
 		}
 		else
-			record_sound ( inputBuffer, numSamples, ts, userdata );
+			record_sound ( inputBuffer, numSamples, timestamp, userdata );
 
 		pa_stream_drop(s); /*clean the samples*/
 	}
 
-	int64_t lost_time = ts - pdata->a_last_ts;
+	/*
+	int64_t diff_time = timestamp - pdata->a_last_ts;
 
-	if(lost_time >= latency * 1000)
+	if(diff_time > buffer_time)
 	{
-		g_print( "AUDIO: buffer lost %llu us!\n", (long long unsigned) lost_time/1000);
+		g_print( "AUDIO: buffer diff %llu us (lat: %llu us; length: %llu ns)!\n", 
+			(long long unsigned) diff_time/1000, 
+			(long long unsigned) latency,
+			(long long unsigned) buffer_time);
 	}
-
+	*/
 	pdata->a_last_ts = timestamp;
 }
 
