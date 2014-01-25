@@ -32,7 +32,7 @@
 
 #define __AMUTEX &pdata->mutex
 
-#define TIME_EVENT_USEC 50000
+//#define TIME_EVENT_USEC 50000
 
 // From pulsecore/macro.h
 #define pa_memzero(x,l) (memset((x), 0, (l)))
@@ -307,57 +307,6 @@ pulse_list_snd_devices(struct GLOBAL *global)
     return 0;
 }
 
-/* --- Timing and latency control --- */
-
-/* get the current latency */
-static void stream_update_timing_callback(pa_stream *s, int success, void *userdata)
-{
-    pa_usec_t l, usec;
-    int negative = 0;
-
-    //g_print("Update timing\n");
-
-    if (!success ||
-        pa_stream_get_time(s, &usec) < 0 ||
-        pa_stream_get_latency(s, &l, &negative) < 0)
-    {
-        return;
-    }
-
-	//latency = l * (negative?-1:1);
-	if(latency == 0)
-		g_print("AUDIO: Pulseaudio latency is %0.0f msec at ts:%0.0f usec\n", (float) l / 1000, (float) usec);
-
-	if(negative)
-		g_print("AUDIO: Pulseaudio latency is %0.0f msec at ts:%0.0f usec\n", (float) l / 1000, (float) usec);
-
-	latency = l; /*can only be negative in monitoring streams*/
-
-    //g_print("Time: %0.3f sec; Latency: %0.0f usec.\n",
-    //        (float) usec / 1000000,
-    //        (float) latency);
-
-    /*
-     * pa_stream_set_buffer_attr(); can be used to update fragsize and
-     * minreq buffer attributes
-     */
-
-}
-
-static void time_event_callback(pa_mainloop_api *m,
-				pa_time_event *e, const struct timeval *t,
-				void *userdata)
-{
-    if (recordstream && pa_stream_get_state(recordstream) == PA_STREAM_READY)
-    {
-        pa_operation *o = pa_stream_update_timing_info(recordstream, stream_update_timing_callback, NULL);
-        if (o != NULL)
-            pa_operation_unref(o);
-    }
-
-    pa_context_rttime_restart(pa_ctx, e, pa_rtclock_now() + TIME_EVENT_USEC);
-}
-
 void get_latency(pa_stream *s)
 {
 	pa_usec_t l;
@@ -384,21 +333,14 @@ static void
 stream_request_cb(pa_stream *s, size_t length, void *userdata)
 {
 
-    struct paRecordData *pdata = (struct paRecordData*) userdata;
+    //struct paRecordData *pdata = (struct paRecordData*) userdata;
 
-    __LOCK_MUTEX( __AMUTEX );
-        int channels = pdata->channels;
-        int samprate = pdata->samprate;
-    __UNLOCK_MUTEX( __AMUTEX );
+    //__LOCK_MUTEX( __AMUTEX );
+    //    int channels = pdata->channels;
+    //    int samprate = pdata->samprate;
+    //__UNLOCK_MUTEX( __AMUTEX );
 
-	int64_t nsec_per_frame = G_NSEC_PER_SEC / samprate;
 	int64_t timestamp = 0;
-	int64_t totalFrames = 0;
-	int64_t buffer_time = 0;
-	int64_t ts = 0;
-
-	if(pdata->a_last_ts <= 0)
-		pdata->a_last_ts = pdata->snd_begintime;
 
 	while (pa_stream_readable_size(s) > 0)
 	{
@@ -409,7 +351,6 @@ stream_request_cb(pa_stream *s, size_t length, void *userdata)
 		if (pa_stream_peek(s, &inputBuffer, &length) < 0)
 		{
 			g_print( "AUDIO: pa_stream_peek() failed\n");
-			//quit(1);
 			return;
 		}
 
@@ -425,12 +366,6 @@ stream_request_cb(pa_stream *s, size_t length, void *userdata)
 
 		/*timestamp*/
 		int numSamples= length / sizeof(SAMPLE);
-		int numFrames = numSamples / channels;
-		totalFrames += numFrames;
-		buffer_time = numFrames * nsec_per_frame;
-
-		ts = timestamp - buffer_time;
-		/*ts = pdata->a_last_ts + totalFrames * nsec_per_frame;*/
 
 		if(inputBuffer == NULL) /*it's a hole*/
 		{
@@ -442,18 +377,6 @@ stream_request_cb(pa_stream *s, size_t length, void *userdata)
 		pa_stream_drop(s); /*clean the samples*/
 	}
 
-	/*
-	int64_t diff_time = timestamp - pdata->a_last_ts;
-
-	if(diff_time > buffer_time)
-	{
-		g_print( "AUDIO: buffer diff %llu us (lat: %llu us; length: %llu ns)!\n", 
-			(long long unsigned) diff_time/1000, 
-			(long long unsigned) latency,
-			(long long unsigned) buffer_time);
-	}
-	*/
-	pdata->a_last_ts = timestamp;
 }
 
 /*
@@ -493,7 +416,7 @@ pulse_read_audio(void *userdata)
     /*
      * This function defines a time event callback (called every TIME_EVENT_USEC)
      */
-    pa_context_rttime_new(pa_ctx, pa_rtclock_now() + TIME_EVENT_USEC, time_event_callback, NULL);
+    //pa_context_rttime_new(pa_ctx, pa_rtclock_now() + TIME_EVENT_USEC, time_event_callback, NULL);
 
     /*
 	 * We can't do anything until PA is ready, so just iterate the mainloop
@@ -520,9 +443,6 @@ pulse_read_audio(void *userdata)
 
     /* define the callbacks */
     pa_stream_set_read_callback(recordstream, stream_request_cb, (void *) pdata);
-
-	// timing info
-    pa_stream_update_timing_info(recordstream, stream_update_timing_callback, NULL);
 
 	// Set properties of the record buffer
     pa_zero(bufattr);

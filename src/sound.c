@@ -351,6 +351,7 @@ set_sound (struct GLOBAL *global, struct paRecordData* pdata)
 	pdata->a_ts= -1;
 	pdata->ts_ref = 0;
 	pdata->a_last_ts = 0;
+	last_drift = 0;
 
 	pdata->stream = NULL;
 	/* some drivers, e.g. GSPCA, don't set fps( guvcview sets it to 1/1 )
