@@ -33,7 +33,7 @@
 #include "ms_time.h"
 
 #define __AMUTEX &pdata->mutex
-#define MAX_FRAME_DRIFT 20000000 //20 ms
+#define MAX_FRAME_DRIFT 15000000 //15 ms
 #define MAX_N_DRIFTS 3 //max allowed consecutive drifts
 
 int n_drifts = 0; //number of consecutive delivered buffers with drift
@@ -195,9 +195,9 @@ record_sound ( const void *inputBuffer, unsigned long numSamples, int64_t timest
 
         if(pdata->sampleIndex >= pdata->aud_numSamples)
 		{
-			ts += nsec_per_frame * (i/channels); /*timestamp for current frame*/
+			ts = timestamp + nsec_per_frame * (i/channels); /*timestamp for current frame*/
 			ts_drift = fill_audio_buffer(pdata, ts);
-			
+
 			if(ts_drift > MAX_FRAME_DRIFT) /*audio delayed*/
 			{
 				/*
@@ -206,14 +206,14 @@ record_sound ( const void *inputBuffer, unsigned long numSamples, int64_t timest
 				 */
 				n_drifts++;
 
-				/*delay has increased, increment n_drifts faster*/
+				/*drift has increased, increment n_drifts faster*/
 				if(last_drift > MAX_FRAME_DRIFT && ts_drift > last_drift)
 					n_drifts +=2;
 
 			}
 			else
 				n_drifts = 0; /*we are good (if audio is faster compensate in video)*/
-		
+
 			last_drift = ts_drift;
 		}
     }
@@ -222,7 +222,7 @@ record_sound ( const void *inputBuffer, unsigned long numSamples, int64_t timest
     if(n_drifts > MAX_N_DRIFTS) /*Drift has been incresing for the last frames*/
 	{
 		n_drifts = 0; /*reset*/
-		
+
 		/* compensate drift (not all, only to MAX/2 ) */
 		int n_samples = ((ts_drift - (MAX_FRAME_DRIFT/2)) / nsec_per_frame) * channels;
 
@@ -267,7 +267,7 @@ void
 record_silence ( unsigned long numSamples, void *userData )
 {
 	struct paRecordData *pdata = (struct paRecordData*)userData;
-    
+
     unsigned long i = 0;
 
     for( i=0; i<numSamples; i++ )
