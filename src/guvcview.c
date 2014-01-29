@@ -185,7 +185,6 @@ gboolean deliver_signal(GIOChannel *source, GIOCondition cond, gpointer data)
 int main(int argc, char *argv[])
 {
 	int ret=0;
-	gboolean control_only = FALSE;
 
 	/*
    	* In order to register the reading end of the pipe with the event loop
@@ -233,7 +232,8 @@ int main(int argc, char *argv[])
 	readConf(global);
 
 	//sets local control_only flag - prevents several initializations/allocations
-	control_only = (global->control_only || global->add_ctrls) ;
+	gboolean control_only = (global->control_only || global->add_ctrls) ;
+
     if(global->no_display && global->control_only )
     {
 	g_printerr("incompatible options (control_only and no_display): enabling display");

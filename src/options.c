@@ -366,7 +366,7 @@ readConf(struct GLOBAL *global)
 							if(ttype=='/')
 							{
 								/*get '/'*/
-								ttype = g_scanner_get_next_token (scanner);
+								g_scanner_get_next_token (scanner);
 								ttype = g_scanner_peek_next_token (scanner);
 								if(ttype==G_TOKEN_INT)
 								{
