@@ -47,7 +47,7 @@
 /*-------------------------- clean up and shut down --------------------------*/
 
 void
-clean_struct (struct ALL_DATA *all_data) 
+clean_struct (struct ALL_DATA *all_data)
 {
 	struct GWIDGET *gwidget = all_data->gwidget;
 	struct VidState *s = all_data->s;
@@ -56,7 +56,7 @@ clean_struct (struct ALL_DATA *all_data)
 	struct focusData *AFdata = all_data->AFdata;
 	struct vdIn *videoIn = all_data->videoIn;
 	struct VideoFormatData *videoF = all_data->videoF;
-	
+
 	gboolean control_only = (global->control_only || global->add_ctrls);
 
 	if((!control_only) && (pdata != NULL))
@@ -71,14 +71,14 @@ clean_struct (struct ALL_DATA *all_data)
 		g_free(videoF);
 		videoF=NULL;
 	}
-	
+
 	if(videoIn) close_v4l2(videoIn, control_only);
 	videoIn=NULL;
 	if (global->debug) g_print("closed v4l2 strutures\n");
 
-	
 
-	if (s->control_list) 
+
+	if (s->control_list)
 	{
 		free_control_list (s->control_list);
 		s->control_list = NULL;
@@ -98,32 +98,32 @@ clean_struct (struct ALL_DATA *all_data)
 	AFdata = NULL;
 	all_data->AFdata = NULL;
 
-	if(global) closeGlobals(global);
+	closeGlobals(global);
 	global=NULL;
 	all_data->global=NULL;
 
 	g_print("cleaned allocations - 100%%\n");
 }
 
-void 
-shutd (gint restart, struct ALL_DATA *all_data) 
+void
+shutd (gint restart, struct ALL_DATA *all_data)
 {
 	int exec_status=0;
 	gchar videodevice[16];
 	struct GWIDGET *gwidget = all_data->gwidget;
 	//gchar *EXEC_CALL = all_data->EXEC_CALL;
-	
+
 	//struct paRecordData *pdata = all_data->pdata;
 	struct GLOBAL *global = all_data->global;
 	struct vdIn *videoIn = all_data->videoIn;
-	
+
 	gboolean control_only = (global->control_only || global->add_ctrls);
 	gboolean no_display = global->no_display;
 	GMainLoop *main_loop = gwidget->main_loop;
 
 	/* wait for the video thread */
 	if(!(control_only))
-	{ 
+	{
 		if (global->debug) g_print("Shuting Down Thread\n");
 		__LOCK_MUTEX(__VMUTEX);
 			videoIn->signalquit=TRUE;
@@ -143,9 +143,9 @@ shutd (gint restart, struct ALL_DATA *all_data)
 	}
 	/*save configuration*/
 	writeConf(global, videoIn->videodevice);
-	
+
 	g_snprintf(videodevice, 15, "%s", global->videodevice);
-	
+
 	clean_struct(all_data);
 	gwidget = NULL;
 	//pdata = NULL;
@@ -157,14 +157,14 @@ shutd (gint restart, struct ALL_DATA *all_data)
 		gtk_main_quit();
 	else
 		g_main_loop_quit(main_loop);
-	
-	if (restart==1) 
-	{	
+
+	if (restart==1)
+	{
 		//closing portaudio
 		if(!control_only)
 		{
 			g_print("Closing portaudio ...");
-			if (Pa_Terminate() != paNoError) 
+			if (Pa_Terminate() != paNoError)
 				g_print("Error\n");
 			else
 				g_print("OK\n");
@@ -173,11 +173,11 @@ shutd (gint restart, struct ALL_DATA *all_data)
 		g_print("Restarting: guvcview -d %s\n", videodevice);
 		exec_status = execlp(g_get_prgname(),
 			g_get_prgname(),
-			"-d", 
+			"-d",
 			videodevice,
 			NULL);
 		if(exec_status < 0) perror("ERROR restarting guvcview");
 	}
 	//if we didn't restart return to main after gtk_main() and close portaudio there
-	//this reduces chances for segfault caused by Pa_Terminate() [probable race condition] 
+	//this reduces chances for segfault caused by Pa_Terminate() [probable race condition]
 }
