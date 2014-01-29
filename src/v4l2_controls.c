@@ -1598,7 +1598,6 @@ void free_control_list (Control *control_list)
     //clean the last one
     if(first->string) g_free(first->string);
     if(first) free(first);
-    control_list = NULL;
 }
 
 /*
