@@ -176,6 +176,9 @@ int initGlobals (struct GLOBAL *global)
 
 int closeGlobals(struct GLOBAL *global)
 {
+	if(!global)
+		return(-1);
+
 	g_free(global->videodevice);
 	g_free(global->confPath);
 	g_free(global->vidFPath[1]);
@@ -202,6 +205,5 @@ int closeGlobals(struct GLOBAL *global)
 	if(global->jpeg) g_free(global->jpeg);
 	global->jpeg=NULL;
 	g_free(global);
-	global=NULL;
 	return (0);
 }
