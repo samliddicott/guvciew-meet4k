@@ -158,7 +158,7 @@ int encode_lavc_frame (BYTE *picture_buf, struct lavcData* data , int format, st
 	{
 		data->flush_done = 1;
 		return out_size;
-	}	
+	}
 	videoF->vblock_align = data->codec_context->block_align;
 	//videoF->avi->time_base_num = data->codec_context->time_base.num;
 	//videoF->avi->time_base_den = data->codec_context->time_base.den;
@@ -411,15 +411,15 @@ struct lavcData* init_lavc(int width, int height, int fps_num, int fps_den, int 
 	//allocate
 	struct lavcData* data = g_new0(struct lavcData, 1);
 	data->priv_data = NULL;
-	
+
 	vcodecs_data *defaults = get_codec_defaults(codec_ind);
 	data->monotonic_pts = defaults->monotonic_pts;
-	
-	if( format == V4L2_PIX_FMT_H264 && 
+
+	if( format == V4L2_PIX_FMT_H264 &&
 		get_vcodec_id(codec_ind) == AV_CODEC_ID_H264 &&
 		frame_flags == 0)
 		return(data); //we only need the private data in this case
-		
+
 	data->codec_context = NULL;
 
 	data->codec = NULL;
@@ -433,7 +433,7 @@ struct lavcData* init_lavc(int width, int height, int fps_num, int fps_den, int 
 	if (!data->codec)
 	{
 		fprintf(stderr, "ffmpeg codec not found\n");
-		free(data);
+		g_free(data);
 		return(NULL);
 	}
 #if LIBAVCODEC_VER_AT_LEAST(53,6)
@@ -443,7 +443,7 @@ struct lavcData* init_lavc(int width, int height, int fps_num, int fps_den, int 
 	data->codec_context = avcodec_alloc_context();
 #endif
 	data->codec_id = defaults->codec_id;
-	
+
 	//alloc picture
 	data->picture= avcodec_alloc_frame();
 	data->picture->pts = 0;
@@ -456,7 +456,7 @@ struct lavcData* init_lavc(int width, int height, int fps_num, int fps_den, int 
 	data->codec_context->flags |= defaults->flags;
 	if (defaults->num_threads > 0)
 		data->codec_context->thread_count = defaults->num_threads;
-	
+
 	/*
 	* mb_decision
 	*0 (FF_MB_DECISION_SIMPLE) Use mbcmp (default).
@@ -522,7 +522,7 @@ struct lavcData* init_lavc(int width, int height, int fps_num, int fps_den, int 
         // add rc_lookahead to codec properties and handle it gracefully by
         // fixing the frames timestamps => shift them by rc_lookahead frames
 	}
-	
+
 	// open codec
 #if LIBAVCODEC_VER_AT_LEAST(53,6)
 	if (avcodec_open2(data->codec_context, data->codec, &data->private_options) < 0)
@@ -531,6 +531,7 @@ struct lavcData* init_lavc(int width, int height, int fps_num, int fps_den, int 
 #endif
 	{
 		fprintf(stderr, "could not open codec\n");
+		g_free(data);
 		return(NULL);
 	}
 	//alloc tmpbuff (yuv420p)
@@ -538,7 +539,7 @@ struct lavcData* init_lavc(int width, int height, int fps_num, int fps_den, int 
 	//alloc outbuf
 	data->outbuf_size = 240000;//1792
 	data->outbuf = g_new0(BYTE, data->outbuf_size);
-	
+
 	data->delayed_frames = 0;
 	data->index_of_df = -1;
 
@@ -573,6 +574,8 @@ struct lavcAData* init_lavc_audio(struct paRecordData *pdata, int codec_ind)
 		if (!pdata->lavc_data->codec)
 		{
 			fprintf(stderr, "ffmpeg no audio codec for ID: %i found\n", defaults->codec_id);
+			g_free(pdata->lavc_data);
+			pdata->lavc_data = NULL;
 			return(NULL);
 		}
 	}
@@ -638,6 +641,8 @@ struct lavcAData* init_lavc_audio(struct paRecordData *pdata, int codec_ind)
 		#endif
 		{
 			fprintf(stderr, "could not open codec...giving up\n");
+			g_free(pdata->lavc_data);
+			pdata->lavc_data = NULL;
 			return(NULL);
 		}
 	}
@@ -672,7 +677,7 @@ gboolean has_h264_decoder()
 struct h264_decoder_context* init_h264_decoder(int width, int height)
 {
 	struct h264_decoder_context* h264_ctx = g_new0(struct h264_decoder_context, 1);
-	
+
 	h264_ctx->codec = avcodec_find_decoder(CODEC_ID_H264);
 	if(!h264_ctx->codec)
 	{
@@ -683,13 +688,13 @@ struct h264_decoder_context* init_h264_decoder(int width, int height)
 
 #if LIBAVCODEC_VER_AT_LEAST(53,6)
 	h264_ctx->context = avcodec_alloc_context3(h264_ctx->codec);
-	avcodec_get_context_defaults3 (h264_ctx->context, h264_ctx->codec); 		
+	avcodec_get_context_defaults3 (h264_ctx->context, h264_ctx->codec);
 #else
 	h264_ctx->context = avcodec_alloc_context();
 	avcodec_get_context_defaults(h264_ctx->context);
 #endif
-	
-	
+
+
 	h264_ctx->context->flags2 |= CODEC_FLAG2_FAST;
 	h264_ctx->context->pix_fmt = PIX_FMT_YUV420P;
 	h264_ctx->context->width = width;
@@ -707,13 +712,13 @@ struct h264_decoder_context* init_h264_decoder(int width, int height)
 		g_free(h264_ctx);
 		return NULL;
 	}
-	
+
 	h264_ctx->picture = avcodec_alloc_frame();
 	avcodec_get_frame_defaults(h264_ctx->picture);
 	h264_ctx->pic_size = avpicture_get_size(h264_ctx->context->pix_fmt, width, height);
 	h264_ctx->width = width;
 	h264_ctx->height = height;
-	
+
 	//decodedOut = (uint8_t *)malloc(pic_size);
 
 	return h264_ctx;
@@ -722,19 +727,19 @@ struct h264_decoder_context* init_h264_decoder(int width, int height)
 int decode_h264(uint8_t *out_buf, uint8_t *in_buf, int buf_size, struct h264_decoder_context* h264_ctx)
 {
 	AVPacket avpkt;
-	
+
 	avpkt.size = buf_size;
 	avpkt.data = in_buf;
-	
+
 	int got_picture = 0;
 	int len = avcodec_decode_video2(h264_ctx->context, h264_ctx->picture, &got_picture, &avpkt);
-	
+
 	if(len < 0)
 	{
 		fprintf(stderr, "H264 decoder: error while decoding frame\n");
 		return len;
 	}
-	
+
 	if(got_picture)
 	{
 		avpicture_layout((AVPicture *) h264_ctx->picture, h264_ctx->context->pix_fmt
@@ -743,18 +748,18 @@ int decode_h264(uint8_t *out_buf, uint8_t *in_buf, int buf_size, struct h264_dec
 	}
 	else
 		return 0;
-	
+
 }
 
 void close_h264_decoder(struct h264_decoder_context* h264_ctx)
 {
 	if(h264_ctx == NULL)
 		return;
-		
+
 	avcodec_close(h264_ctx->context);
-	
+
 	g_free(h264_ctx->context);
-	g_free(h264_ctx->picture); 
-	
+	g_free(h264_ctx->picture);
+
 	g_free(h264_ctx);
 }
