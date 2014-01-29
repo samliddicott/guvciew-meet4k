@@ -355,10 +355,10 @@ stream_request_cb(pa_stream *s, size_t length, void *userdata)
 		}
 
 		get_latency(s);
-		
+
 		timestamp = ns_time_monotonic() - (latency * 1000);
 
-		if(length <= 0)
+		if(length == 0)
 		{
 			g_print( "AUDIO: empty buffer!\n");
 			return; /*buffer is empty*/
