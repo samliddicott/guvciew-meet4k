@@ -1,0 +1,10 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+
+Name: @V4L2CORE_LD_NAME@
+Description: guvcview v4l2 core library.
+Version: @VERSION@
+Libs: -L${libdir} -l@V4L2CORE_LD_NAME@-@V4L2CORE_API_VERSION@
+Cflags: -I${includedir}/@PACKAGE@-@PACKAGE_RELEASE@ -I${libdir}/@PACKAGE@-@PACKAGE_RELEASE@/include

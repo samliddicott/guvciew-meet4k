@@ -1,0 +1,1240 @@
+/*******************************************************************************#
+#           guvcview              http://guvcview.sourceforge.net               #
+#                                                                               #
+#           Paulo Assis <pj.assis@gmail.com>                                    #
+#                                                                               #
+# This program is free software; you can redistribute it and/or modify          #
+# it under the terms of the GNU General Public License as published by          #
+# the Free Software Foundation; either version 2 of the License, or             #
+# (at your option) any later version.                                           #
+#                                                                               #
+# This program is distributed in the hope that it will be useful,               #
+# but WITHOUT ANY WARRANTY; without even the implied warranty of                #
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                 #
+# GNU General Public License for more details.                                  #
+#                                                                               #
+# You should have received a copy of the GNU General Public License             #
+# along with this program; if not, write to the Free Software                   #
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA     #
+#                                                                               #
+********************************************************************************/
+
+#include <stdlib.h>
+#include <stdio.h>
+#include <linux/videodev2.h>
+#include <fcntl.h>
+#include <string.h>
+#include <sys/ioctl.h>
+#include <libv4l2.h>
+#include <errno.h>
+#include <assert.h>
+
+#include "v4l2_core.h"
+
+
+#ifndef V4L2_CTRL_ID2CLASS
+#define V4L2_CTRL_ID2CLASS(id)    ((id) & 0x0fff0000UL)
+#endif
+
+extern int verbosity;
+
+/*
+ * don't use xioctl for control query when using V4L2_CTRL_FLAG_NEXT_CTRL
+ * args:
+ *   vd - pointer to video device data
+ *   current_ctrl - current control id
+ *   ctrl - pointer to v4l2_queryctrl data
+ *
+ * asserts:
+ *   vd is not null
+ *   vd->fd is valid ( > 0 )
+ *   ctrl is not null
+ *
+ * returns: error code
+ */
+static int query_ioctl(v4l2_dev* vd, int current_ctrl, struct v4l2_queryctrl* ctrl)
+{
+	/*assertions*/
+	assert(vd != NULL);
+	assert(vd->fd > 0);
+	assert(ctrl != NULL);
+
+    int ret = 0;
+    int tries = 4;
+    do
+    {
+        if(ret)
+            ctrl->id = current_ctrl | V4L2_CTRL_FLAG_NEXT_CTRL;
+        ret = v4l2_ioctl(vd->fd, VIDIOC_QUERYCTRL, ctrl);
+    }
+    while (ret && tries-- &&
+        ((errno == EIO || errno == EPIPE || errno == ETIMEDOUT)));
+
+    return(ret);
+}
+
+/*
+ * output control data
+ * args:
+ *   control - pointer to control data
+ *   i - control index (from control list)
+ *
+ * asserts:
+ *   control is not null
+ *
+ * returns: void
+ */
+static void print_control(v4l2_ctrl* control, int i)
+{
+	/*assertions*/
+	assert(control != NULL);
+
+	int j=0;
+
+	switch (control->control.type)
+	{
+		case V4L2_CTRL_TYPE_INTEGER:
+			printf("control[%d]:(int) 0x%x '%s'\n",i ,control->control.id, control->control.name);
+			printf("\tmin:%d max:%d step:%d def:%d curr:%d\n",
+				control->control.minimum, control->control.maximum, control->control.step,
+				control->control.default_value, control->value);
+			break;
+
+#ifdef V4L2_CTRL_TYPE_INTEGER64
+		case V4L2_CTRL_TYPE_INTEGER64:
+			printf("control[%d]:(int64) 0x%x '%s'\n",i ,control->control.id, control->control.name);
+			printf ("\tcurr:%" PRIu64 "\n", control->value64);
+			break;
+#endif
+#ifdef V4L2_CTRL_TYPE_STRING
+		case V4L2_CTRL_TYPE_STRING:
+			printf("control[%d]:(str) 0x%x '%s'\n",i ,control->control.id, control->control.name);
+			printf ("\tmin:%d max:%d step:%d\n",
+				control->control.minimum, control->control.maximum, control->control.step);
+			break;
+#endif
+		case V4L2_CTRL_TYPE_BOOLEAN:
+			printf("control[%d]:(bool) 0x%x '%s'\n",i ,control->control.id, control->control.name);
+			printf ("\tdef:%d curr:%d\n",
+				control->control.default_value, control->value);
+			break;
+
+		case V4L2_CTRL_TYPE_MENU:
+			printf("control[%d]:(menu) 0x%x '%s'\n",i ,control->control.id, control->control.name);
+			printf("\tmin:%d max:%d def:%d curr:%d\n",
+				control->control.minimum, control->control.maximum,
+				control->control.default_value, control->value);
+			for (j = 0; control->menu[j].index <= control->control.maximum; j++)
+				printf("\tmenu[%d]: [%d] -> '%s'\n", j, control->menu[j].index, control->menu[j].name);
+			break;
+
+#ifdef V4L2_CTRL_TYPE_INTEGER_MENU
+		case V4L2_CTRL_TYPE_INTEGER_MENU:
+			printf("control[%d]:(intmenu) 0x%x '%s'\n",i ,control->control.id, control->control.name);
+			printf("\tmin:%d max:%d def:%d curr:%d\n",
+				control->control.minimum, control->control.maximum,
+				control->control.default_value, control->value);
+			for (j = 0; control->menu[j].index <= control->control.maximum; j++)
+				printf("\tmenu[%d]: [%d] -> %" PRId64 " (0x%" PRIx64 ")", j, control->menu[j].index,
+					(int64_t) control->menu[j].value,
+					(int64_t) control->menu[j].value);
+			break;
+#endif
+		case V4L2_CTRL_TYPE_BUTTON:
+			printf("control[%d]:(button) 0x%x '%s'\n",i ,control->control.id, control->control.name);
+			break;
+
+#ifdef V4L2_CTRL_TYPE_BITMASK
+		case V4L2_CTRL_TYPE_BITMASK:
+			printf("control[%d]:(bitmask) 0x%x '%s'\n",i ,control->control.id, control->control.name);
+			printf("\tmax:%d def:%d curr:%d\n",
+				control->control.maximum, control->control.default_value, control->value);
+#endif
+		default:
+			printf("control[%d]:(unknown - 0x%x) 0x%x '%s'\n",i ,control->control.type,
+				control->control.id, control->control.name);
+			break;
+	}
+}
+
+/*
+ * prints control list to stdout
+ * args:
+ *   vd - pointer to video device data
+ *
+ * asserts:
+ *   vd is not null
+ *   vd->list_device_controls is not null
+ *
+ * returns: void
+ */
+static void print_control_list(v4l2_dev* vd)
+{
+	/*asserts*/
+	assert(vd != NULL);
+	assert(vd->list_device_controls != NULL);
+
+	int i = 0;
+	v4l2_ctrl* current = vd->list_device_controls;
+    v4l2_ctrl* next = current->next;
+    for(; next != NULL; current = next, next = current->next)
+    {
+        print_control(current, i);
+        i++;
+    }
+    /*last one*/
+   print_control(current, i);
+}
+
+/*
+ * add control to control list
+ * args:
+ *   vd - pointer to video device data
+ *   queryctrl - pointer to v4l2_queryctrl data
+ *   current - pointer to pointer of current control from control list
+ *   first - pointer to pointer of first control from control list
+ *
+ * asserts:
+ *   vd is not null
+ *   vd->fd is valid
+ *   queryctrl is not null
+ *
+ * returns: pointer to newly added control
+ */
+static v4l2_ctrl* add_control(v4l2_dev* vd, struct v4l2_queryctrl* queryctrl, v4l2_ctrl** current, v4l2_ctrl** first)
+{
+	/*assertions*/
+	assert(vd != NULL);
+	assert(vd->fd > 0);
+	assert(queryctrl != NULL);
+
+	v4l2_ctrl* control = NULL;
+	struct v4l2_querymenu* menu = NULL; //menu list
+
+	if (queryctrl->flags & V4L2_CTRL_FLAG_DISABLED)
+	{
+		printf("V4L2_CORE: Control 0x%08x is disabled: remove it from control list\n", queryctrl->id);
+		return NULL;
+	}
+
+	//check menu items if needed
+    if(queryctrl->type == V4L2_CTRL_TYPE_MENU
+#ifdef V4L2_CTRL_TYPE_INTEGER_MENU
+		|| queryctrl->type == V4L2_CTRL_TYPE_INTEGER_MENU
+#endif
+		)
+    {
+        int i = 0;
+        int ret = 0;
+        struct v4l2_querymenu querymenu={0};
+
+        for (querymenu.index = queryctrl->minimum;
+            querymenu.index <= queryctrl->maximum;
+            querymenu.index++)
+        {
+            querymenu.id = queryctrl->id;
+            ret = xioctl (vd->fd, VIDIOC_QUERYMENU, &querymenu);
+            if (ret < 0)
+                continue;
+
+            if(!menu)
+                menu = calloc(i+1, sizeof(struct v4l2_querymenu));
+            else
+                menu = realloc(menu, (i+1) * sizeof(struct v4l2_querymenu));
+
+            memcpy(&(menu[i]), &querymenu, sizeof(struct v4l2_querymenu));
+            i++;
+        }
+
+		/*last entry*/
+        if(!menu)
+            menu = calloc(i+1, sizeof(struct v4l2_querymenu));
+        else
+            menu = realloc(menu, (i+1) * sizeof(struct v4l2_querymenu));
+
+        menu[i].id = querymenu.id;
+        menu[i].index = queryctrl->maximum+1;
+        if(queryctrl->type == V4L2_CTRL_TYPE_MENU)
+			menu[i].name[0] = 0;
+    }
+
+    // Add the control to the linked list
+    control = calloc (1, sizeof(v4l2_ctrl));
+    memcpy(&(control->control), queryctrl, sizeof(struct v4l2_queryctrl));
+    control->class = V4L2_CTRL_ID2CLASS(control->control.id);
+    //add the menu adress (NULL if not a menu)
+    control->menu = menu;
+#ifdef V4L2_CTRL_TYPE_STRING
+    //allocate a string with max size if needed
+    if(control->control.type == V4L2_CTRL_TYPE_STRING)
+        control->string = (char *) g_strnfill(control->control.maximum + 1, 0);
+    else
+#endif
+        control->string = NULL;
+
+    if(*first != NULL)
+    {
+        (*current)->next = control;
+        *current = control;
+    }
+    else
+    {
+		*first = control;
+        *current = *first;
+    }
+
+    return control;
+}
+
+/*
+ * enumerate device (read/write) controls
+ * args:
+ *   vd - pointer to video device data
+ *
+ * asserts:
+ *   vd is not null
+ *   vd->fd is valid ( > 0 )
+ *   vd->list_device_controls is null
+ *
+ * returns: error code
+ */
+int enumerate_v4l2_control(v4l2_dev* vd)
+{
+    /*assertions*/
+    assert(vd != NULL);
+    assert(vd->fd > 0);
+    assert(vd->list_device_controls == NULL);
+
+    int ret=0;
+    v4l2_ctrl* current = NULL;
+
+    int n = 0;
+    struct v4l2_queryctrl queryctrl={0};
+
+    int currentctrl = 0;
+    queryctrl.id = V4L2_CTRL_FLAG_NEXT_CTRL;
+
+	/*try the next_flag method first*/
+	while ((ret=query_ioctl(vd, currentctrl, &queryctrl)) == 0)
+	{
+		if(add_control(vd, &queryctrl, &current, &(vd->list_device_controls)) != NULL)
+            n++;
+
+        currentctrl = queryctrl.id;
+
+		queryctrl.id |= V4L2_CTRL_FLAG_NEXT_CTRL;
+	}
+
+	if (queryctrl.id != V4L2_CTRL_FLAG_NEXT_CTRL)
+	{
+		vd->num_controls = n;
+		if(verbosity > 0)
+			print_control_list(vd);
+		return E_OK;
+	}
+
+	if(ret)
+		fprintf(stderr, "V4L2_CORE: Control 0x%08x failed to query with error %i\n", queryctrl.id, ret);
+
+	printf("buggy V4L2_CTRL_FLAG_NEXT_CTRL flag implementation (workaround enabled)\n");
+
+	/*
+	 * next_flag method failed, loop through the ids:
+	 *
+	 * USER CLASS Controls
+	 */
+	for (currentctrl = V4L2_CID_USER_BASE; currentctrl < V4L2_CID_LASTP1; currentctrl++)
+	{
+		queryctrl.id = currentctrl;
+		if (xioctl(vd->fd, VIDIOC_QUERYCTRL, &queryctrl) == 0)
+		{
+			if(add_control(vd, &queryctrl, &current, &(vd->list_device_controls)) != NULL)
+				n++;
+		}
+	}
+	/* CAMERA CLASS Controls */
+	for (currentctrl = V4L2_CID_CAMERA_CLASS_BASE; currentctrl < V4L2_CID_CAMERA_CLASS_BASE+32; currentctrl++)
+	{
+		queryctrl.id = currentctrl;
+		if (xioctl(vd->fd, VIDIOC_QUERYCTRL, &queryctrl) == 0)
+		{
+			if(add_control(vd, &queryctrl, &current, &(vd->list_device_controls)) != NULL)
+				n++;
+		}
+	}
+	/* PRIVATE controls (deprecated) */
+	for (queryctrl.id = V4L2_CID_PRIVATE_BASE;
+		 xioctl(vd->fd, VIDIOC_QUERYCTRL, &queryctrl) == 0; queryctrl.id++)
+	{
+		if(add_control(vd, &queryctrl, &current, &(vd->list_device_controls)) != NULL)
+            n++;
+	}
+
+    vd->num_controls = n;
+
+    if(verbosity > 0)
+		print_control_list(vd);
+
+	return E_OK;
+}
+
+/*
+ * update the control flags - called when setting controls
+ * FIXME: use control events
+ *
+ * args:
+ *   vd - pointer to video device data
+ *   id - control id
+ *
+ * asserts:
+ *   vd is not null
+ *
+ * returns: error code
+ */
+static void update_ctrl_flags(v4l2_dev* vd, int id)
+{
+	/*asserts*/
+	assert(vd != NULL);
+
+    switch (id)
+    {
+        case V4L2_CID_EXPOSURE_AUTO:
+            {
+                v4l2_ctrl* ctrl_this = get_v4l2_control_by_id(vd, id);
+                if(ctrl_this == NULL)
+                    break;
+
+                switch (ctrl_this->value)
+                {
+                    case V4L2_EXPOSURE_AUTO:
+                        {
+                            v4l2_ctrl* ctrl_that = get_v4l2_control_by_id(vd,
+                                V4L2_CID_IRIS_ABSOLUTE );
+                            if (ctrl_that)
+                                ctrl_that->control.flags |= V4L2_CTRL_FLAG_GRABBED;
+
+                            ctrl_that = get_v4l2_control_by_id(vd,
+                                V4L2_CID_IRIS_RELATIVE );
+                            if (ctrl_that)
+                                ctrl_that->control.flags |= V4L2_CTRL_FLAG_GRABBED;
+                            ctrl_that = get_v4l2_control_by_id(vd,
+                                V4L2_CID_EXPOSURE_ABSOLUTE );
+                            if (ctrl_that)
+                                ctrl_that->control.flags |= V4L2_CTRL_FLAG_GRABBED;
+                        }
+                        break;
+
+                    case V4L2_EXPOSURE_APERTURE_PRIORITY:
+                        {
+                            v4l2_ctrl* ctrl_that = get_v4l2_control_by_id(vd,
+                                V4L2_CID_EXPOSURE_ABSOLUTE );
+                            if (ctrl_that)
+                                ctrl_that->control.flags |= V4L2_CTRL_FLAG_GRABBED;
+                            ctrl_that = get_v4l2_control_by_id(vd,
+                                V4L2_CID_IRIS_ABSOLUTE );
+                            if (ctrl_that)
+                                ctrl_that->control.flags &= !(V4L2_CTRL_FLAG_GRABBED);
+                            ctrl_that = get_v4l2_control_by_id(vd,
+                                V4L2_CID_IRIS_RELATIVE );
+                            if (ctrl_that)
+                                ctrl_that->control.flags &= !(V4L2_CTRL_FLAG_GRABBED);
+                        }
+                        break;
+
+                    case V4L2_EXPOSURE_SHUTTER_PRIORITY:
+                        {
+                            v4l2_ctrl* ctrl_that = get_v4l2_control_by_id(vd,
+                                V4L2_CID_IRIS_ABSOLUTE );
+                            if (ctrl_that)
+                                ctrl_that->control.flags |= V4L2_CTRL_FLAG_GRABBED;
+
+                            ctrl_that = get_v4l2_control_by_id(vd,
+                                V4L2_CID_IRIS_RELATIVE );
+                            if (ctrl_that)
+                                ctrl_that->control.flags |= V4L2_CTRL_FLAG_GRABBED;
+                            ctrl_that = get_v4l2_control_by_id(vd,
+                                V4L2_CID_EXPOSURE_ABSOLUTE );
+                            if (ctrl_that)
+                                ctrl_that->control.flags &= !(V4L2_CTRL_FLAG_GRABBED);
+                        }
+                        break;
+
+                    default:
+                        {
+                            v4l2_ctrl* ctrl_that = get_v4l2_control_by_id(vd,
+                                V4L2_CID_EXPOSURE_ABSOLUTE );
+                            if (ctrl_that)
+                                ctrl_that->control.flags &= !(V4L2_CTRL_FLAG_GRABBED);
+                            ctrl_that = get_v4l2_control_by_id(vd,
+                                V4L2_CID_IRIS_ABSOLUTE );
+                            if (ctrl_that)
+                                ctrl_that->control.flags &= !(V4L2_CTRL_FLAG_GRABBED);
+                            ctrl_that = get_v4l2_control_by_id(vd,
+                                V4L2_CID_IRIS_RELATIVE );
+                            if (ctrl_that)
+                                ctrl_that->control.flags &= !(V4L2_CTRL_FLAG_GRABBED);
+                        }
+                        break;
+                }
+            }
+            break;
+
+        case V4L2_CID_FOCUS_AUTO:
+            {
+                v4l2_ctrl* ctrl_this = get_v4l2_control_by_id(vd, id );
+                if(ctrl_this == NULL)
+                    break;
+                if(ctrl_this->value > 0)
+                {
+                    v4l2_ctrl* ctrl_that = get_v4l2_control_by_id(vd,
+                        V4L2_CID_FOCUS_ABSOLUTE);
+                    if (ctrl_that)
+                        ctrl_that->control.flags |= V4L2_CTRL_FLAG_GRABBED;
+
+                    ctrl_that = get_v4l2_control_by_id(vd,
+                        V4L2_CID_FOCUS_RELATIVE);
+                    if (ctrl_that)
+                        ctrl_that->control.flags |= V4L2_CTRL_FLAG_GRABBED;
+                }
+                else
+                {
+                    v4l2_ctrl* ctrl_that = get_v4l2_control_by_id(vd,
+                        V4L2_CID_FOCUS_ABSOLUTE);
+                    if (ctrl_that)
+                        ctrl_that->control.flags &= !(V4L2_CTRL_FLAG_GRABBED);
+
+                    ctrl_that = get_v4l2_control_by_id(vd,
+                        V4L2_CID_FOCUS_RELATIVE);
+                    if (ctrl_that)
+                        ctrl_that->control.flags &= !(V4L2_CTRL_FLAG_GRABBED);
+                }
+            }
+            break;
+
+        case V4L2_CID_HUE_AUTO:
+            {
+                v4l2_ctrl* ctrl_this = get_v4l2_control_by_id(vd, id );
+                if(ctrl_this == NULL)
+                    break;
+                if(ctrl_this->value > 0)
+                {
+                    v4l2_ctrl* ctrl_that = get_v4l2_control_by_id(vd,
+                        V4L2_CID_HUE);
+                    if (ctrl_that)
+                        ctrl_that->control.flags |= V4L2_CTRL_FLAG_GRABBED;
+                }
+                else
+                {
+                    v4l2_ctrl* ctrl_that = get_v4l2_control_by_id(vd,
+                        V4L2_CID_HUE);
+                    if (ctrl_that)
+                        ctrl_that->control.flags &= !(V4L2_CTRL_FLAG_GRABBED);
+                }
+            }
+            break;
+
+        case V4L2_CID_AUTO_WHITE_BALANCE:
+            {
+                v4l2_ctrl* ctrl_this = get_v4l2_control_by_id(vd, id );
+                if(ctrl_this == NULL)
+                    break;
+
+                if(ctrl_this->value > 0)
+                {
+                    v4l2_ctrl* ctrl_that = get_v4l2_control_by_id(vd,
+                        V4L2_CID_WHITE_BALANCE_TEMPERATURE);
+                    if (ctrl_that)
+                        ctrl_that->control.flags |= V4L2_CTRL_FLAG_GRABBED;
+                    ctrl_that = get_v4l2_control_by_id(vd,
+                        V4L2_CID_BLUE_BALANCE);
+                    if (ctrl_that)
+                        ctrl_that->control.flags |= V4L2_CTRL_FLAG_GRABBED;
+                    ctrl_that = get_v4l2_control_by_id(vd,
+                        V4L2_CID_RED_BALANCE);
+                    if (ctrl_that)
+                        ctrl_that->control.flags |= V4L2_CTRL_FLAG_GRABBED;
+                }
+                else
+                {
+                    v4l2_ctrl* ctrl_that = get_v4l2_control_by_id(vd,
+                        V4L2_CID_WHITE_BALANCE_TEMPERATURE);
+                    if (ctrl_that)
+                        ctrl_that->control.flags &= !(V4L2_CTRL_FLAG_GRABBED);
+                    ctrl_that = get_v4l2_control_by_id(vd,
+                        V4L2_CID_BLUE_BALANCE);
+                    if (ctrl_that)
+                        ctrl_that->control.flags &= !(V4L2_CTRL_FLAG_GRABBED);
+                    ctrl_that = get_v4l2_control_by_id(vd,
+                        V4L2_CID_RED_BALANCE);
+                    if (ctrl_that)
+                        ctrl_that->control.flags &= !(V4L2_CTRL_FLAG_GRABBED);
+                }
+            }
+            break;
+    }
+}
+
+/*
+ * update flags of entire control list
+ * args:
+ *   vd - pointer to video device data
+ *
+ * asserts:
+ *   vd is not null
+ *
+ * returns: void
+ */
+static void update_ctrl_list_flags(v4l2_dev* vd)
+{
+	/*asserts*/
+	assert(vd != NULL);
+
+    v4l2_ctrl* current = vd->list_device_controls;
+    v4l2_ctrl* next = current->next;
+
+    for(; next != NULL; current = next, next = current->next)
+        update_ctrl_flags(vd, current->control.id);
+}
+
+/*
+ * Disables special auto-controls with higher IDs than
+ * their absolute/relative counterparts
+ * this is needed before restoring controls state
+ *
+ * args:
+ *   vd - pointer to video device data
+ *   id - control id
+ *
+ * asserts:
+ *   vd is not null
+ *
+ * returns: void
+ */
+static void disable_special_auto (v4l2_dev* vd, int id)
+{
+	/*asserts*/
+	assert(vd != NULL);
+
+    v4l2_ctrl* current = get_v4l2_control_by_id(vd, id);
+    if(current && ((id == V4L2_CID_FOCUS_AUTO) || (id == V4L2_CID_HUE_AUTO)))
+    {
+        current->value = 0;
+        set_v4l2_control_id_value(vd, id);
+    }
+}
+
+/*
+ * return the control associated to id from device list
+ * args:
+ *   vd - pointer to video device data
+ *
+ * asserts:
+ *   vd is not null
+ *   vd->list_device_controls is not null
+ *
+ * returns: pointer to v4l2_control if succeded or null otherwise
+ */
+v4l2_ctrl* get_v4l2_control_by_id(v4l2_dev* vd, int id)
+{
+	/*asserts*/
+	assert(vd != NULL);
+	assert(vd->list_device_controls != NULL);
+
+    v4l2_ctrl* current = vd->list_device_controls;
+    v4l2_ctrl* next = current->next;
+    for(; next != NULL; current = next, next = current->next)
+    {
+        if(current->control.id == id)
+            return (current);
+    }
+    /*last one*/
+    if(current->control.id == id)
+        return (current);
+    else
+        return(NULL);
+}
+
+/*
+ * goes trough the control list and updates/retrieves current values
+ * args:
+ *   vd - pointer to video device data
+ *
+ * asserts:
+ *   vd is not null
+ *   vd->fd is valid
+ *   vd->list_device_controls is not null
+ *
+ * returns: void
+ */
+void get_v4l2_control_values (v4l2_dev* vd)
+{
+    /*asserts*/
+    assert(vd != NULL);
+    assert(vd->fd > 0);
+    assert(vd->list_device_controls != NULL);
+
+    int ret = 0;
+    struct v4l2_ext_control clist[vd->num_controls];
+    v4l2_ctrl* current = vd->list_device_controls;
+    v4l2_ctrl* next = current->next;
+    int count = 0;
+    int i = 0;
+
+    for(; next != NULL; current = next, next = current->next)
+    {
+        if(current->control.flags & V4L2_CTRL_FLAG_WRITE_ONLY)
+             continue;
+
+        clist[count].id = current->control.id;
+#ifdef V4L2_CTRL_TYPE_STRING
+        clist[count].size = 0;
+        if(current->control.type == V4L2_CTRL_TYPE_STRING)
+        {
+            clist[count].size = current->control.maximum;
+            clist[count].string = (char *) calloc(clist[count].size + 1,  sizeof(char));
+        }
+#endif
+        count++;
+
+        if((next == NULL) || (next->class != current->class))
+        {
+            struct v4l2_ext_controls ctrls = {0};
+            ctrls.ctrl_class = current->class;
+            ctrls.count = count;
+            ctrls.controls = clist;
+            ret = xioctl(vd->fd, VIDIOC_G_EXT_CTRLS, &ctrls);
+            if(ret)
+            {
+                fprintf(stderr, "V4L2_CORE: (VIDIOC_G_EXT_CTRLS) failed\n");
+                struct v4l2_control ctrl;
+                //get the controls one by one
+                if( current->class == V4L2_CTRL_CLASS_USER
+#ifdef V4L2_CTRL_TYPE_STRING
+					&& current->control.type != V4L2_CTRL_TYPE_STRING
+#endif
+#ifdef V4L2_CTRL_TYPE_INTEGER64
+					&& current->control.type != V4L2_CTRL_TYPE_INTEGER64
+#endif
+				  )
+                {
+                    fprintf(stderr, "V4L2_CORE: using VIDIOC_G_CTRL for user class controls\n");
+                    for(i=0; i < count; i++)
+                    {
+                        ctrl.id = clist[i].id;
+                        ctrl.value = 0;
+                        ret = xioctl(vd->fd, VIDIOC_G_CTRL, &ctrl);
+                        if(ret)
+                            continue;
+                        clist[i].value = ctrl.value;
+                    }
+                }
+                else
+                {
+                    fprintf(stderr, "V4L2_CORE: using VIDIOC_G_EXT_CTRLS on single controls for class: 0x%08x\n",
+                        current->class);
+                    for(i=0;i < count; i++)
+                    {
+                        ctrls.count = 1;
+                        ctrls.controls = &clist[i];
+                        ret = xioctl(vd->fd, VIDIOC_G_EXT_CTRLS, &ctrls);
+                        if(ret)
+                            fprintf(stderr, "V4L2_CORE: control id: 0x%08x failed to get (error %i)\n",
+                                clist[i].id, ret);
+                    }
+                }
+            }
+
+            //fill in the values on the control list
+            for(i=0; i<count; i++)
+            {
+                v4l2_ctrl* ctrl = get_v4l2_control_by_id(vd, clist[i].id);
+                if(!ctrl)
+                {
+                    fprintf(stderr, "V4L2_CORE: couldn't get control for id: %i\n", clist[i].id);
+                    continue;
+                }
+                switch(ctrl->control.type)
+                {
+#ifdef V4L2_CTRL_TYPE_STRING
+                    case V4L2_CTRL_TYPE_STRING:
+                    {
+                        /*
+                         * string gets set on VIDIOC_G_EXT_CTRLS
+                         * add the maximum size to value
+                         */
+                        unsigned len = clist[i].size;
+						unsigned max_len = ctrl->control.maximum;
+
+						strncpy(ctrl->string, clist[i].string, max_len);
+						if(len > max_len)
+						{
+							ctrl->string[max_len] = 0; //Null terminated
+							fprintf(stderr, "V4L2_CORE: control (0x%08x) returned string size of %d when max is %d\n",
+								ctrl->control.id, len, max_len);
+						}
+
+						/*clean up*/
+						free(clist[i].string);
+						clist[i].string = NULL;
+                        break;
+                    }
+#endif
+                    case V4L2_CTRL_TYPE_INTEGER64:
+                        ctrl->value64 = clist[i].value64;
+                        break;
+                    default:
+                        ctrl->value = clist[i].value;
+                        //printf("V4L2_CORE: control %i [0x%08x] = %i\n",
+                        //    i, clist[i].id, clist[i].value);
+                        break;
+                }
+            }
+
+            count = 0;
+        }
+    }
+
+    update_ctrl_list_flags(vd);
+}
+
+/*
+ * updates the value for control id from the device
+ * also updates control flags
+ * args:
+ *   vd - pointer to video device data
+ *
+ * asserts:
+ *   vd is not null
+ *   vd->fd is valid
+ *
+ * returns: ioctl result
+ */
+int get_v4l2_control_id_value (v4l2_dev* vd, int id)
+{
+	/*asserts*/
+	assert(vd != NULL);
+	assert(vd->fd > 0);
+
+    v4l2_ctrl* control = get_v4l2_control_by_id(vd, id );
+    int ret = 0;
+
+    if(!control)
+        return (-1);
+    if(control->control.flags & V4L2_CTRL_FLAG_WRITE_ONLY)
+        return (-1);
+
+    if( control->class == V4L2_CTRL_CLASS_USER
+#ifdef V4L2_CTRL_TYPE_STRING
+		&& control->control.type != V4L2_CTRL_TYPE_STRING
+#endif
+#ifdef V4L2_CTRL_TYPE_INTEGER64
+		&& control->control.type != V4L2_CTRL_TYPE_INTEGER64
+#endif
+        )
+    {
+        struct v4l2_control ctrl;
+        ctrl.id = control->control.id;
+        ctrl.value = 0;
+        ret = xioctl(vd->fd, VIDIOC_G_CTRL, &ctrl);
+        if(ret)
+            fprintf(stderr, "V4L2_CORE: control id: 0x%08x failed to get value (error %i)\n",
+                ctrl.id, ret);
+        else
+            control->value = ctrl.value;
+    }
+    else
+    {
+        struct v4l2_ext_controls ctrls = {0};
+        struct v4l2_ext_control ctrl = {0};
+        ctrl.id = control->control.id;
+#ifdef V4L2_CTRL_TYPE_STRING
+        ctrl.size = 0;
+        if(control->control.type == V4L2_CTRL_TYPE_STRING)
+        {
+            ctrl.size = control->control.maximum;
+            ctrl.string = (char *) calloc(ctrl.size + 1, sizeof(char));
+        }
+#endif
+        ctrls.ctrl_class = control->class;
+        ctrls.count = 1;
+        ctrls.controls = &ctrl;
+        ret = xioctl(vd->fd, VIDIOC_G_EXT_CTRLS, &ctrls);
+        if(ret)
+            printf("control id: 0x%08x failed to get value (error %i)\n",
+                ctrl.id, ret);
+        else
+        {
+            switch(control->control.type)
+            {
+#ifdef V4L2_CTRL_TYPE_STRING
+                case V4L2_CTRL_TYPE_STRING:
+				{
+					unsigned len = ctrl.size;
+					unsigned max_len = control->control.maximum;
+
+					strncpy(control->string, ctrl.string, max_len);
+					if(len > max_len)
+					{
+						control->value = max_len;
+						control->string[max_len] = 0; //Null terminated
+						fprintf(stderr, "V4L2_CORE: control (0x%08x) returned string size of %d when max is %d\n",
+							control->control.id, len, max_len);
+					}
+
+
+					//clean up
+					free(ctrl.string);
+					ctrl.string = NULL;
+
+					break;
+				}
+#endif
+#ifdef V4L2_CTRL_TYPE_INTEGER64
+                case V4L2_CTRL_TYPE_INTEGER64:
+                    control->value64 = ctrl.value64;
+                    break;
+#endif
+
+                default:
+                    control->value = ctrl.value;
+                    //printf("V4L2_CORE: control %i [0x%08x] = %i\n",
+                    //    i, clist[i].id, clist[i].value);
+                    break;
+            }
+        }
+    }
+
+    update_ctrl_flags(vd, id);
+
+    return (ret);
+}
+
+/*
+ * goes trough the control list and sets values in device
+ * args:
+ *   vd - pointer to video device data
+ *
+ * asserts:
+ *   vd is not null
+ *   vd->fd is valid
+ *   vd->list_device_controls is not null
+ *
+ * returns: void
+ */
+void set_v4l2_control_values (v4l2_dev* vd)
+{
+	/*asserts*/
+	assert(vd != NULL);
+	assert(vd->fd > 0);
+	assert(vd->list_device_controls != NULL);
+
+    int ret = 0;
+    struct v4l2_ext_control clist[vd->num_controls];
+    v4l2_ctrl* current = vd->list_device_controls;
+    v4l2_ctrl* next = current->next;
+    int count = 0;
+    int i = 0;
+
+    for(; next != NULL; current = next, next = current->next)
+    {
+        if(current->control.flags & V4L2_CTRL_FLAG_READ_ONLY)
+            continue;
+
+        clist[count].id = current->control.id;
+        switch (current->control.type)
+        {
+#ifdef V4L2_CTRL_TYPE_STRING
+            case V4L2_CTRL_TYPE_STRING:
+            {
+				unsigned len = strlen(current->string);
+				unsigned max_len = current->control.maximum;
+
+				if(len > max_len)
+				{
+					clist[count].size = max_len;
+					clist[count].string = (char *) calloc(max_len, sizeof(char));
+					clist[count].string = strncpy(clist[count].string, current->string, max_len);
+					clist[count].string[max_len - 1] = '/0'; /*NULL terminated*/
+					fprintf(stderr, "V4L2_CORE: control (0x%08x) trying to set string size of %d when max is %d (clip)\n",
+						current->control.id, len, max_len);
+				}
+				else
+				{
+					clist[count].size = len;
+					clist[count].string = (char *) strdup(current->string);
+				}
+                break;
+            }
+#endif
+            case V4L2_CTRL_TYPE_INTEGER64:
+                clist[count].value64 = current->value64;
+                break;
+            default:
+                clist[count].value = current->value;
+                break;
+        }
+        count++;
+
+        if((next == NULL) || (next->class != current->class))
+        {
+            struct v4l2_ext_controls ctrls = {0};
+            ctrls.ctrl_class = current->class;
+            ctrls.count = count;
+            ctrls.controls = clist;
+            ret = xioctl(vd->fd, VIDIOC_S_EXT_CTRLS, &ctrls);
+            if(ret)
+            {
+                fprintf(stderr, "V4L2_CORE: VIDIOC_S_EXT_CTRLS for multiple controls failed (error %i)\n", ret);
+                struct v4l2_control ctrl;
+                /*set the controls one by one*/
+                if( current->class == V4L2_CTRL_CLASS_USER
+#ifdef V4L2_CTRL_TYPE_STRING
+					&& current->control.type != V4L2_CTRL_TYPE_STRING
+#endif
+#ifdef V4L2_CTRL_TYPE_INTEGER64
+					&& current->control.type != V4L2_CTRL_TYPE_INTEGER64
+#endif
+                )
+                {
+                    fprintf(stderr, "V4L2_CORE: using VIDIOC_S_CTRL for user class controls\n");
+                    for(i=0;i < count; i++)
+                    {
+                        ctrl.id = clist[i].id;
+                        ctrl.value = clist[i].value;
+                        ret = xioctl(vd->fd, VIDIOC_S_CTRL, &ctrl);
+                        if(ret)
+                        {
+                            v4l2_ctrl* ctrl = get_v4l2_control_by_id(vd, clist[i].id);
+                            if(ctrl)
+                                fprintf(stderr, "V4L2_CORE: control(0x%08x) \"%s\" failed to set (error %i)\n",
+                                    clist[i].id, ctrl->control.name, ret);
+                            else
+								fprintf(stderr, "V4L2_CORE: control(0x%08x) failed to set (error %i)\n",
+                                    clist[i].id, ret);
+                        }
+                    }
+                }
+                else
+                {
+                    fprintf(stderr, "V4L2_CORE: using VIDIOC_S_EXT_CTRLS on single controls for class: 0x%08x\n",
+                        current->class);
+                    for(i=0;i < count; i++)
+                    {
+                        ctrls.count = 1;
+                        ctrls.controls = &clist[i];
+                        ret = xioctl(vd->fd, VIDIOC_S_EXT_CTRLS, &ctrls);
+
+                        v4l2_ctrl* ctrl = get_v4l2_control_by_id(vd, clist[i].id);
+
+                        if(ret)
+                        {
+                            if(ctrl)
+                                fprintf(stderr, "V4L2_CORE: control(0x%08x) \"%s\" failed to set (error %i)\n",
+                                    clist[i].id, ctrl->control.name, ret);
+                            else
+								fprintf(stderr, "V4L2_CORE: control(0x%08x) failed to set (error %i)\n",
+                                    clist[i].id, ret);
+                        }
+#ifdef V4L2_CTRL_TYPE_STRING
+                        if(ctrl && ctrl->control.type == V4L2_CTRL_TYPE_STRING)
+                        {
+							free(clist[i].string); //free allocated string
+							clist[i].string = NULL;
+						}
+#endif
+                    }
+                }
+            }
+            count = 0;
+        }
+    }
+
+}
+
+/*
+ * goes trough the control list and sets values in device to default
+ * args:
+ *   vd - pointer to video device data
+ *
+ * asserts:
+ *   vd is not null
+ *   vd->list_device_controls is not null
+ *
+ * returns: void
+ */
+void set_v4l2_control_defaults(v4l2_dev* vd)
+{
+	/*asserts*/
+	assert(vd != NULL);
+	assert(vd->list_device_controls != NULL);
+
+    v4l2_ctrl* current = vd->list_device_controls;
+    v4l2_ctrl* next = current->next;
+
+    for(; next != NULL; current = next, next = current->next)
+    {
+        if(current->control.flags & V4L2_CTRL_FLAG_READ_ONLY)
+        {
+            if(next == NULL)
+                break;
+            else
+            {
+                current = next;
+                next = current->next;
+            }
+            continue;
+        }
+
+        switch (current->control.type)
+        {
+#ifdef V4L2_CTRL_TYPE_STRING
+            case V4L2_CTRL_TYPE_STRING: /* do string controls have a default value?*/
+                break;
+#endif
+#ifdef V4L2_CTRL_TYPE_INTEGER64
+            case V4L2_CTRL_TYPE_INTEGER64: /* do int64 controls have a default value?*/
+                break;
+#endif
+            default:
+                //if its one of the special auto controls disable it first
+                disable_special_auto (vd, current->control.id);
+                current->value = current->control.default_value;
+                break;
+        }
+    }
+
+    set_v4l2_control_values(vd);
+    get_v4l2_control_values(vd);
+}
+
+/*
+ * sets the value of control id in device
+ * args:
+ *   vd - pointer to video device data
+ *
+ * asserts:
+ *   vd is not null
+ *   vd->fd is valid
+ *
+ * returns: ioctl result
+ */
+int set_v4l2_control_id_value(v4l2_dev* vd, int id)
+{
+	/*asserts*/
+	assert(vd != NULL);
+	assert(vd->fd > 0);
+
+    v4l2_ctrl* control = get_v4l2_control_by_id(vd, id );
+    int ret = 0;
+
+    if(!control)
+        return (-1);
+    if(control->control.flags & V4L2_CTRL_FLAG_READ_ONLY)
+        return (-1);
+
+    if( control->class == V4L2_CTRL_CLASS_USER
+#ifdef V4L2_CTRL_TYPE_STRING
+    && control->control.type != V4L2_CTRL_TYPE_STRING
+#endif
+    && control->control.type != V4L2_CTRL_TYPE_INTEGER64)
+    {
+        //using VIDIOC_G_CTRL for user class controls
+        struct v4l2_control ctrl;
+        ctrl.id = control->control.id;
+        ctrl.value = control->value;
+        ret = xioctl(vd->fd, VIDIOC_S_CTRL, &ctrl);
+    }
+    else
+    {
+        //using VIDIOC_G_EXT_CTRLS on single controls
+        struct v4l2_ext_controls ctrls = {0};
+        struct v4l2_ext_control ctrl = {0};
+        ctrl.id = control->control.id;
+        switch (control->control.type)
+        {
+#ifdef V4L2_CTRL_TYPE_STRING
+            case V4L2_CTRL_TYPE_STRING:
+            {
+				unsigned len = strlen(control->string);
+				unsigned max_len = control->control.maximum;
+
+				if(len > max_len)
+				{
+					ctrl.size = max_len;
+					ctrl.string = (char *) calloc(max_len, sizeof(char));
+					ctrl.string = strncpy(ctrl.string, control->string, max_len);
+					ctrl.string[max_len -1] = '/0'; /*NULL terminated*/
+					fprintf(stderr, "V4L2_CORE: control (0x%08x) trying to set string size of %d when max is %d (clip)\n",
+						control->control.id, len, max_len);
+				}
+				else
+				{
+					ctrl.size = len;
+					ctrl.string = (char *) strdup(control->string);
+				}
+                break;
+            }
+#endif
+#ifdef V4L2_CTRL_TYPE_INTEGER64
+            case V4L2_CTRL_TYPE_INTEGER64:
+                ctrl.value64 = control->value64;
+                break;
+#endif
+            default:
+                ctrl.value = control->value;
+                break;
+        }
+        ctrls.ctrl_class = control->class;
+        ctrls.count = 1;
+        ctrls.controls = &ctrl;
+        ret = xioctl(vd->fd, VIDIOC_S_EXT_CTRLS, &ctrls);
+        if(ret)
+            printf("control id: 0x%08x failed to set (error %i)\n",
+                ctrl.id, ret);
+#ifdef V4L2_CTRL_TYPE_STRING
+        if(control->control.type == V4L2_CTRL_TYPE_STRING)
+        {
+			free(ctrl.string); //clean up string allocation
+			ctrl.string = NULL;
+		}
+#endif
+    }
+
+    //update real value
+    get_v4l2_control_id_value(vd, id);
+
+    return (ret);
+}
+
+/*
+ * free control list
+ * args:
+ *   vd - pointer to video device data
+ *
+ * asserts:
+ *   vd is not null
+ *   vd->list_device_controls is not null
+ *
+ * returns: void
+ */
+void free_v4l2_control_list(v4l2_dev* vd)
+{
+	/*asserts*/
+	assert(vd != NULL);
+	assert(vd->list_device_controls != NULL);
+
+	v4l2_ctrl* first = vd->list_device_controls;
+    v4l2_ctrl* next = first->next;
+    while (next != NULL)
+    {
+        if(first->string) free(first->string);
+        if(first->menu) free(first->menu);
+        free(first);
+        first = next;
+        next = first->next;
+    }
+    //clean the last one
+    if(first->string) free(first->string);
+    if(first) free(first);
+    vd->list_device_controls = NULL;
+}
