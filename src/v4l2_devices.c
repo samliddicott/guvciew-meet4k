@@ -57,6 +57,7 @@ LDevices *list_devices( gchar *videodevice )
 			 error->message);
 		g_error_free ( error );
 		error=NULL;
+		g_free(listDevices);
 		return NULL;
 	}
 	const gchar *v4l2_device;
