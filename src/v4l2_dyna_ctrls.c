@@ -32,7 +32,7 @@
 
 /* some Logitech webcams have pan/tilt/focus controls */
 #define LENGTH_OF_XU_CTR (6)
-#define LENGTH_OF_XU_MAP (10)
+#define LENGTH_OF_XU_MAP (9)
 
 /*
 static struct uvc_xu_control_info xu_ctrls[] =
