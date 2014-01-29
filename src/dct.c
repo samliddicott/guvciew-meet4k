@@ -22,7 +22,7 @@
 /*******************************************************************************#
 #                                                                               #
 #  dct for Jpeg encoder                                                         #
-#                                                                               # 
+#                                                                               #
 #  Adapted for linux, Paulo Assis, 2007 <pj.assis@gmail.com>                    #
 ********************************************************************************/
 
@@ -100,7 +100,7 @@ void DCT (INT16 *data)
 	}
 
 	data = tmp_ptr;/* return to start of mcu */
-	
+
 	/* column pass */
 	for (i=8; i>0; i--)
 	{
@@ -135,5 +135,4 @@ void DCT (INT16 *data)
 
 		data++;
 	}
-	data=tmp_ptr; /* return to start of mcu */
 }
