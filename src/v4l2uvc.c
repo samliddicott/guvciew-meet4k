@@ -423,7 +423,7 @@ static int demux_NALU(uint8_t *h264_data, uint8_t *buff, int size)
 	int total_size = 0;
 	//segments have a maximum of 64Kb
 	int seg_size = 64*1024;
-	
+
 	//search for first APP4 marker
 	for(sp = buff; sp < buff + size - 2; ++sp)
 	{
@@ -440,42 +440,42 @@ static int demux_NALU(uint8_t *h264_data, uint8_t *buff, int size)
 		fprintf(stderr, "uvc H264 demux: could not find a APP4 marker in buffer\n");
 		return -1;
 	}
-	
+
 	pl = spl + 4; //marker(2) + length(2)
-	
+
 	uint32_t frame_PTS = 0;
 	frame_PTS =  ((uint32_t) pl[18]) << 0;
 	frame_PTS |= ((uint32_t) pl[19]) << 8;
 	frame_PTS |= ((uint32_t) pl[20]) << 16;
 	frame_PTS |= ((uint32_t) pl[21]) << 24;
-	
+
 	pl += 22; //header(22)
-	
+
 	//get payload size
 	uint32_t payload_size = 0;
 	payload_size =  ((uint32_t) pl[0]) << 0;
 	payload_size |= ((uint32_t) pl[1]) << 8;
 	payload_size |= ((uint32_t) pl[2]) << 16;
 	payload_size |= ((uint32_t) pl[3]) << 24;
-	
+
 	pl +=4;                  //start of the payload data
 	epl = pl + payload_size; //end of payload data
 	if(epl > buff + size)
 		epl = buff + size;
-	
-	//for the first segment remove header size 
+
+	//for the first segment remove header size
 	//marker(2) + length(2) + header(22) + payload size(4)
 	seg_size = 64*1024 - (pl-spl);
-			
+
 	while(pl + seg_size <= epl)
-	{ 
+	{
 		//copy segment to h264 data buffer
 		memcpy(ph264, pl, seg_size);
 		ph264 += seg_size;
 		total_size += seg_size;
-		
+
 		pl += seg_size; //reset to the next segment data
-		
+
 		if(pl[0] != 0xFF ||
 		   pl[1] != 0xE4)
 		{
@@ -484,10 +484,10 @@ static int demux_NALU(uint8_t *h264_data, uint8_t *buff, int size)
 		}
 		else
 			pl += 4; //skip marker(2) + length(2)
-		
+
 		seg_size = 64*1024 - 4; //skip marker + length
 	}
-	
+
 	seg_size = epl - pl; //last segment
 	if(seg_size > 0)
 	{
@@ -745,10 +745,10 @@ static int init_v4l2(struct vdIn *vd, struct GLOBAL *global)//int *format, int *
 		global->width = vd->fmt.fmt.pix.width;
 		global->height = vd->fmt.fmt.pix.height;
 	}
-	
+
 	/* ----------- FPS --------------*/
 	input_set_framerate(vd, &global->fps, &global->fps_num);
-	
+
 	/*
 	 * if it's uvc muxed H264 we must now set UVCX_VIDEO_CONFIG_COMMIT
 	 * with bStreamMuxOption = STREAMMUX_H264
@@ -933,7 +933,7 @@ static int videoIn_frame_alloca(struct vdIn *vd, int format, int width, int heig
 			return (ret);
 	}
 
-	if ((!vd->framebuffer) || (framebuf_size <=0))
+	if ((!vd->framebuffer) || (framebuf_size ==0))
 		{
 			g_printerr("couldn't calloc %lu bytes of memory for frame buffer\n",
 				(unsigned long) framebuf_size);
@@ -1011,8 +1011,6 @@ int init_videoIn(struct vdIn *videoIn, struct GLOBAL *global)
     videoIn->udev = udev_new();
 
 	__INIT_MUTEX( __VMUTEX );
-	if (videoIn == NULL || device == NULL)
-		return VDIN_ALLOC_ERR;
 	if (global->width == 0 || global->height == 0)
 		return VDIN_RESOL_ERR;
 	if (global->cap_meth < IO_MMAP || global->cap_meth > IO_READ)
@@ -1124,7 +1122,7 @@ int init_videoIn(struct vdIn *videoIn, struct GLOBAL *global)
 		else ret = VDIN_DYNCTRL_ERR;
 
 	}
-	
+
 	//For H264 we need to get the unit id before checking video formats
 	//reset v4l2_format
 	memset(&videoIn->fmt, 0, sizeof(struct v4l2_format));
@@ -1469,9 +1467,9 @@ int uvcGrab(struct vdIn *vd, struct GLOBAL *global, int format, int width, int h
 				{
 					video_disable(vd);
 					unmap_buff(vd);
-					
+
 					input_set_framerate (vd, &global->fps, &global->fps_num);
-					
+
 					/*
 					 * For uvc muxed H264 stream
 					 * since we are restarting the video stream and codec values will be reset
@@ -1479,7 +1477,7 @@ int uvcGrab(struct vdIn *vd, struct GLOBAL *global, int format, int width, int h
 					 */
 					if(global->format == V4L2_PIX_FMT_H264 && get_SupPixFormatUvcH264() > 1)
 						set_muxed_h264_format(vd, global);
-						
+
 					vd->setFPS = 0;
 					query_buff(vd);
 					queue_buff(vd);
@@ -1489,9 +1487,9 @@ int uvcGrab(struct vdIn *vd, struct GLOBAL *global, int format, int width, int h
 				{
 					video_disable(vd);
 					unmap_buff(vd);
-					
+
 					h264_commit(vd, global);
-					
+
 					vd->setH264ConfigProbe = 0;
 					query_buff(vd);
 					queue_buff(vd);
@@ -1674,7 +1672,6 @@ void close_v4l2(struct vdIn *videoIn, gboolean control_only)
 	__CLOSE_MUTEX( __VMUTEX );
 	// free struct allocation
 	if(videoIn) g_free(videoIn);
-	videoIn=NULL;
 }
 
 /* sets video device frame rate
