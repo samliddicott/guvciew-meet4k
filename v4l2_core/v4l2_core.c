@@ -445,8 +445,9 @@ int try_video_stream(v4l2_dev* vd)
 			(vd->format.fmt.pix.pixelformat) & 0xFF, ((vd->format.fmt.pix.pixelformat) >> 8) & 0xFF,
 			((vd->format.fmt.pix.pixelformat) >> 16) & 0xFF, ((vd->format.fmt.pix.pixelformat) >> 24) & 0xFF);
 
-	/*override field entry*/
+	/*override field and type entries*/
 	vd->format.fmt.pix.field = V4L2_FIELD_ANY;
+	vd->format.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 
 	/*store requested format*/
 	int width = vd->format.fmt.pix.width;
