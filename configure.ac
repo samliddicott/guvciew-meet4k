@@ -29,8 +29,8 @@ rm -f config.cache; touch config.cache
 
 AC_PREFIX_DEFAULT(/usr/local)
 
-AC_ISC_POSIX
 AC_PROG_CC
+AM_PROG_CC_C_O
 AC_HEADER_STDC
 
 dnl --------------------------------------------------------------------------

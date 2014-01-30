@@ -3,17 +3,6 @@
 EXTRA_CFLAGS = @PULSE_CFLAGS@
 EXTRA_LIBS = @PULSE_LIBS@
 
-INCLUDES = \
-	-DPACKAGE_LOCALE_DIR=\""$(prefix)/$(DATADIRNAME)/locale"\" \
-	-DPACKAGE_SRC_DIR=\""$(srcdir)"\" \
-	-DPACKAGE_DATA_DIR=\""$(datadir)"\" \
-	$(DEPS_CFLAGS) $(EXTRA_CFLAGS) $(PTHREAD_CFLAGS)
-
-AM_CFLAGS =\
-	 -D_REENTRANT\
-	 -D_FILE_OFFSET_BITS=64\
-	 -Wall
-
 bin_PROGRAMS = guvcview
 
 guvcview_SOURCES = \
@@ -112,6 +101,16 @@ guvcview_SOURCES = \
 	video_format.c \
 	video_tab.h \
 	video_tab.c
+
+guvcview_CFLAGS = -DPACKAGE_LOCALE_DIR=\""$(prefix)/$(DATADIRNAME)/locale"\" \
+				  -DPACKAGE_SRC_DIR=\""$(srcdir)"\" \
+				  -DPACKAGE_DATA_DIR=\""$(datadir)"\" \
+				  $(DEPS_CFLAGS) \
+				  $(EXTRA_CFLAGS) \
+				  $(PTHREAD_CFLAGS) \
+				  -D_REENTRANT \
+	 			  -D_FILE_OFFSET_BITS=64 \
+	 			  -Wall
 
 guvcview_LDFLAGS = $(LIBINTL)
 
