@@ -26,6 +26,7 @@
 ********************************************************************************/
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -443,6 +444,9 @@ int try_video_stream(v4l2_dev* vd)
 		printf("checking format: %c%c%c%c\n",
 			(vd->format.fmt.pix.pixelformat) & 0xFF, ((vd->format.fmt.pix.pixelformat) >> 8) & 0xFF,
 			((vd->format.fmt.pix.pixelformat) >> 16) & 0xFF, ((vd->format.fmt.pix.pixelformat) >> 24) & 0xFF);
+
+	/*override field entry*/
+	vd->format.fmt.pix.field = V4L2_FIELD_ANY;
 
 	/*store requested format*/
 	int width = vd->format.fmt.pix.width;
