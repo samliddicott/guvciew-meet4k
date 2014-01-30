@@ -5,7 +5,10 @@ h_sources = v4l2_core.h
 cpp_sources = v4l2_core.c \
 			  v4l2_formats.c \
 			  v4l2_controls.c \
-			  v4l2_devices.c
+			  v4l2_devices.c \
+			  v4l2_xu_ctrls.c \
+			  uvc_h264.c
+
 
 #Install the headers in a versioned directory - guvcvideo-x.x/libv4l2core:
 library_includedir=$(includedir)/$(PACKAGE)-$(PACKAGE_RELEASE)/$(V4L2CORE_LIBRARY_NAME)
