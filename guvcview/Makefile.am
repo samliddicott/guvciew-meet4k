@@ -1,26 +1,24 @@
 ## Process this file with automake to produce Makefile.in
 
 INCLUDES = \
-           -DPACKAGE_LOCALE_DIR=\""$(prefix)/$(DATADIRNAME)/locale"\" \
-           -DPACKAGE_SRC_DIR=\""$(srcdir)"\" \
-           -DPACKAGE_DATA_DIR=\""$(datadir)"\" \
-           $(EXTRA_CFLAGS) -I$(top_srcdir) -I$(top_srcdir)/includes \
-	   -I$(top_srcdir)/v4l2_core \
-           -D__STDC_CONSTANT_MACROS
+		-DPACKAGE_LOCALE_DIR=\""$(prefix)/$(DATADIRNAME)/locale"\" \
+		-DPACKAGE_SRC_DIR=\""$(srcdir)"\" \
+		-DPACKAGE_DATA_DIR=\""$(datadir)"\" \
+		$(DEPS_CFLAGS) $(EXTRA_CFLAGS) $(PTHREAD_CFLAGS) \
+        $(EXTRA_CFLAGS) -I$(top_srcdir) -I$(top_srcdir)/includes \
+	   -I$(top_srcdir)/v4l2_core
 
 AM_CFLAGS = \
             -D_REENTRANT\
+            -D_FILE_OFFSET_BITS=64\
             -Wall
 
 bin_PROGRAMS = guvcview
 
-h_sources =
+guvcview_SOURCES = \
+			guvcview.c
 
-c_sources = guvcview.c
-
-guvcview_SOURCES = $(h_sources) $(c_sources)
-
-guvcview_CFLAGS = $(GUVCVIEW_APP_CFLAGS)
+guvcview_CFLAGS = $(GUVCVIEW_CFLAGS)
 
 guvcview_LDFLAGS = $(LIBINTL)
 

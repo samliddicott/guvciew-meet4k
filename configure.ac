@@ -7,26 +7,59 @@ ORIGINAL_CFLAGS="$CFLAGS"
 dnl --------------------------------
 dnl Initialization macros (sets PACKAGE and VERSION)
 dnl --------------------------------
+m4_define([guvcview_major], [2])
+m4_define([guvcview_minor], [0])
+m4_define([guvcview_micro], [0])
+m4_define([guvcview_version],
+          [guvcview_major.guvcview_minor.guvcview_micro])
+          
+AC_INIT([guvcview], [guvcview_version], [http://guvcview.sourceforge.net/])
+m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
 
-AC_INIT(guvcvideo, 2.0.0, pj.assis@gmail.com)
-AM_CONFIG_HEADER(config.h)
-AM_MAINTAINER_MODE(disable)
-AM_INIT_AUTOMAKE(gnu dist-bzip2 )
+AM_INIT_AUTOMAKE([gnu])
 AC_CONFIG_MACRO_DIR([m4])
+AC_CONFIG_HEADERS(config.h)
+AM_MAINTAINER_MODE(disable)
 
 dnl -----------------------------------------------
 dnl Package release
 dnl -----------------------------------------------
 
-PACKAGE_MAJOR_VERSION=2
-PACKAGE_MINOR_VERSION=0
-PACKAGE_MICRO_VERSION=0
+# autoconf 2.5x defaults to no cache file; we need the cache file's information
+# for building the config page.  But start with it empty to avoid confusion by
+# people who don't do a "make distclean" after applying patches.
+cache_file=config.cache
+rm -f config.cache; touch config.cache
 
-PACKAGE_VERSION=$PACKAGE_MAJOR_VERSION.$PACKAGE_MINOR_VERSION.$PACKAGE_MICRO_VERSION
-PACKAGE_RELEASE=$PACKAGE_MAJOR_VERSION.$PACKAGE_MINOR_VERSION
-AC_SUBST(PACKAGE_RELEASE)
-AC_SUBST(PACKAGE_VERSION)
+AC_PREFIX_DEFAULT(/usr/local)
 
+AC_ISC_POSIX
+AC_PROG_CC
+AC_HEADER_STDC
+
+dnl --------------------------------------------------------------------------
+dnl set pthread_libs and pthread_cflags
+dnl --------------------------------------------------------------------------
+dnl ACX_PTHREAD([ACTION-IF-FOUND[, ACTION-IF-NOT-FOUND]])
+
+ACX_PTHREAD
+
+dnl --------------------------------------------------------------------------
+dnl Set gettext package name
+dnl --------------------------------------------------------------------------
+
+GETTEXT_PACKAGE=guvcview
+AC_SUBST(GETTEXT_PACKAGE)
+AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE", [guvcview])
+
+IT_PROG_INTLTOOL([0.40])
+
+dnl --------------------------------------------------------------------------
+dnl Languages supported by guvcview.
+dnl --------------------------------------------------------------------------
+
+ALL_LINGUAS="bg bs cs da de en_AU es eu fo fr gl he hr it ja lv nl pl pt pt_BR ru si sr tr uk zh_TW"
+AM_GLIB_GNU_GETTEXT([external])
 
 dnl -----------------------------------------------
 dnl libv4l2core name and version number
@@ -62,21 +95,6 @@ AC_SUBST(V4L2CORE_LIBRARY_VERSION)
 
 
 dnl -----------------------------------------------
-dnl guvcview app
-dnl -----------------------------------------------
-
-GUVCVIEW_APP_NAME=guvcview
-AC_SUBST(GUVCVIEW_APP_NAME)
-
-GUVCVIEW_APP_MAJOR_VERSION=2
-GUVCVIEW_APP_MINOR_VERSION=0
-GUVCVIEW_APP_MICRO_VERSION=0
-
-# app version
-GUVCVIEW_APP_VERSION=$GUVCVIEW_APP_MAJOR_VERSION.$GUVCVIEW_APP_MINOR_VERSION.$GUVCVIEW_APP_MICRO_VERSION
-AC_SUBST(GUVCVIEW_APP_VERSION)
-
-dnl -----------------------------------------------
 dnl Checks for programs.
 dnl -----------------------------------------------
 
@@ -88,20 +106,6 @@ AM_SANITY_CHECK
 AC_PREFIX_DEFAULT(/usr/local)
 AC_SUBST(CFLAGS)
 
-
-dnl --------------------------------------------------------------------------
-dnl Set gettext package name
-dnl --------------------------------------------------------------------------
-GETTEXT_GUVCVIEW = $PACKAGE
-AC_SUBST(GETTEXT_PACKAGE)
-AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE", [$PACKAGE])
-
-dnl --------------------------------------------------------------------------
-dnl Supported Languages
-dnl --------------------------------------------------------------------------
-ALL_LINGUAS="pt pt_BR de es fr da tr cs ja ru nl he eu"
-AM_GLIB_GNU_GETTEXT([external])
-
 dnl --------------------------------------------------------------------------
 dnl check for libv4l2core dependencies
 dnl --------------------------------------------------------------------------
@@ -111,6 +115,14 @@ AC_SUBST(V4L2CORELIB_CFLAGS)
 AC_SUBST(V4L2CORELIB_LIBS)
 
 dnl --------------------------------------------------------------------------
+dnl check for guvcview dependencies
+dnl --------------------------------------------------------------------------
+
+PKG_CHECK_MODULES(GUVCVIEW, [libv4l2])
+AC_SUBST(GUVCVIEW_CFLAGS)
+AC_SUBST(GUVCVIEW_LIBS)
+
+dnl --------------------------------------------------------------------------
 dnl Check if the processor stores words with the most significant byte first
 dnl (like Motorola and SPARC, unlike Intel and VAX).
 dnl --------------------------------------------------------------------------
@@ -118,12 +130,27 @@ dnl --------------------------------------------------------------------------
 AC_C_BIGENDIAN
 
 dnl -----------------------------------------------
-dnl Generates Makefile's, configuration files and scripts
+dnl Generates Makefiles, configuration files and scripts
 dnl -----------------------------------------------
 
-AC_OUTPUT(Makefile \
-          pkgconfig/v4l2core-0.1.pc \
-          v4l2_core/Makefile \
-          guvcview/Makefile \
-          po/Makefile.in
-)
+AC_CONFIG_FILES([
+	Makefile
+    pkgconfig/v4l2core-0.1.pc
+    v4l2_core/Makefile
+    guvcview/Makefile
+    po/Makefile.in
+])
+AC_OUTPUT
+
+dnl Output the results
+AC_MSG_NOTICE([
+
+  guvcview $VERSION
+  ----------------------
+
+  Prefix         : ${prefix}
+
+])
+
+
+
