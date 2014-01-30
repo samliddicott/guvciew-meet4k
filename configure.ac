@@ -37,9 +37,11 @@ rm -f config.cache; touch config.cache
 
 AC_PREFIX_DEFAULT(/usr/local)
 
-AC_ISC_POSIX
 AC_PROG_CC
+AM_PROG_CC_C_O
 AC_HEADER_STDC
+AC_PROG_LIBTOOL
+AM_SANITY_CHECK
 
 dnl --------------------------------------------------------------------------
 dnl set pthread_libs and pthread_cflags
@@ -47,6 +49,8 @@ dnl --------------------------------------------------------------------------
 dnl ACX_PTHREAD([ACTION-IF-FOUND[, ACTION-IF-NOT-FOUND]])
 
 ACX_PTHREAD()
+
+AC_SUBST(CFLAGS)
 
 dnl --------------------------------------------------------------------------
 dnl Set gettext package name
@@ -96,18 +100,6 @@ V4L2CORE_LIBRARY_VERSION=$V4L2CORE_MAJOR_VERSION:$V4L2CORE_MINOR_VERSION:$V4L2CO
 #                +- increment if interfaces have been added, removed or changed
 
 AC_SUBST(V4L2CORE_LIBRARY_VERSION)
-
-
-dnl -----------------------------------------------
-dnl Checks for programs.
-dnl -----------------------------------------------
-
-AC_PROG_CC
-AC_PROG_LIBTOOL
-AM_SANITY_CHECK
-
-AC_PREFIX_DEFAULT(/usr/local)
-AC_SUBST(CFLAGS)
 
 dnl --------------------------------------------------------------------------
 dnl check for libv4l2core dependencies
