@@ -309,7 +309,7 @@ static int query_buff(v4l2_dev* vd)
  *
  * returns: error code  (0- E_OK)
  */
-static int queue_buff(v4l2_dev* vd)
+static int queue_buff(v4l2_dev *vd)
 {
 	/*assertions*/
 	assert(vd != NULL);
@@ -347,6 +347,225 @@ static int queue_buff(v4l2_dev* vd)
 }
 
 /*
+ * checks if frame data is available
+ * args:
+ *   vd - pointer to video device data
+ *
+ * asserts:
+ *   vd is not null
+ *
+ * returns: error code  (0- E_OK)
+ */
+static int check_frame_available(v4l2_dev *vd)
+{
+	/*asserts*/
+	assert(vd != NULL);
+
+	int ret = E_OK;
+	fd_set rdset;
+	struct timeval timeout;
+	/*make sure streaming is on*/
+	if (!vd->isstreaming)
+		if (start_video_stream(vd))
+		{
+			//vd->signalquit = TRUE;
+			return E_STREAMON_ERR;
+		}
+
+	FD_ZERO(&rdset);
+	FD_SET(vd->fd, &rdset);
+	timeout.tv_sec = 1; /* 1 sec timeout*/
+	timeout.tv_usec = 0;
+	/* select - wait for data or timeout*/
+	ret = select(vd->fd + 1, &rdset, NULL, NULL, &timeout);
+	if (ret < 0)
+	{
+		fprintf(stderr, "V4L2_CORE: Could not grab image (select error): %s\n", strerror(errno));
+		vd->timestamp = 0;
+		return E_SELECT_ERR;
+	}
+
+	if (ret == 0)
+	{
+		fprintf(stderr, "V4L2_CORE: Could not grab image (select timeout): %s\n", strerror(errno));
+		vd->timestamp = 0;
+		return E_SELEC_TIMEOUT_ERR;
+	}
+
+	if ((ret > 0) && (FD_ISSET(vd->fd, &rdset)))
+		return E_OK;
+
+	return E_UNKNOWN_ERR;
+}
+
+/*
+ * Alloc image buffers for decoding video stream
+ * args:
+ *   vd - pointer to video device data
+ *
+ * asserts:
+ *   vd is not null
+ *
+ * returns: error code  (0- E_OK)
+ */
+static int alloc_v4l2_frames(v4l2_dev *vd)
+{
+	/*assertions*/
+	assert(vd != NULL);
+
+	int ret = VDIN_OK;
+	size_t framebuf_size=0;
+	size_t tmpbuf_size=0;
+	int width = vd->format.fmt.pix.width;
+	int height = vd->format.fmt.pix.height;
+
+	if(width <= 0 || height <= 0)
+		return E_ALLOC_ERR;
+
+	int framesizeIn = (width * height << 1); //2 bytes per pixel
+	switch (format)
+	{
+		case V4L2_PIX_FMT_H264:
+			vd->h264_frame = calloc(framesizeIn, sizeof(uint8_t));
+			vd->h264_last_IDR = calloc(framesizeIn, sizeof(uint8_t));
+			vd->h264_last_IDR_size = 0; /*reset (no frame stored)*/
+			//if(vd->h264_ctx)
+			//	close_h264_decoder(vd->h264_ctx);
+			//vd->h264_ctx = init_h264_decoder(width, height); //init h264 context and fall through
+		case V4L2_PIX_FMT_JPEG:
+		case V4L2_PIX_FMT_MJPEG:
+			/* alloc a temp buffer to reconstruct the pict (MJPEG)*/
+			tmpbuf_size= framesizeIn;
+			vd->tmpbuffer = calloc(tmpbuf_size, sizeof(uint8_t));
+
+			framebuf_size = width * (height + 8) * 2;
+			vd->framebuffer = calloc(framebuf_size, sizeof(uint8_t));
+			break;
+
+		case V4L2_PIX_FMT_UYVY:
+		case V4L2_PIX_FMT_YVYU:
+		case V4L2_PIX_FMT_YYUV:
+		case V4L2_PIX_FMT_YUV420: /* only needs 3/2 bytes per pixel but we alloc 2 bytes per pixel*/
+		case V4L2_PIX_FMT_YVU420: /* only needs 3/2 bytes per pixel but we alloc 2 bytes per pixel*/
+		case V4L2_PIX_FMT_Y41P:   /* only needs 3/2 bytes per pixel but we alloc 2 bytes per pixel*/
+		case V4L2_PIX_FMT_NV12:
+		case V4L2_PIX_FMT_NV21:
+		case V4L2_PIX_FMT_NV16:
+		case V4L2_PIX_FMT_NV61:
+		case V4L2_PIX_FMT_SPCA501:
+		case V4L2_PIX_FMT_SPCA505:
+		case V4L2_PIX_FMT_SPCA508:
+			/* alloc a temp buffer for converting to YUYV*/
+			tmpbuf_size= framesizeIn;
+			vd->tmpbuffer = calloc(tmpbuf_size, sizeof(uint8_t));
+			framebuf_size = framesizeIn;
+			vd->framebuffer = calloc(framebuf_size, sizeof(uint8_t));
+			break;
+
+		case V4L2_PIX_FMT_GREY:
+			/* alloc a temp buffer for converting to YUYV*/
+			tmpbuf_size= width * height; /* 1 byte per pixel*/
+			vd->tmpbuffer = calloc(tmpbuf_size, sizeof(uint8_t));
+			framebuf_size = framesizeIn;
+			vd->framebuffer = calloc(framebuf_size, sizeof(uint8_t));
+			break;
+
+	    case V4L2_PIX_FMT_Y10BPACK:
+	    case V4L2_PIX_FMT_Y16:
+			/* alloc a temp buffer for converting to YUYV*/
+			tmpbuf_size= width * height * 2; /* 2 byte per pixel*/
+			vd->tmpbuffer = calloc(tmpbuf_size, sizeof(uint8_t));
+			framebuf_size = framesizeIn;
+			vd->framebuffer = calloc(framebuf_size, sizeof(uint8_t));
+			break;
+
+		case V4L2_PIX_FMT_YUYV:
+			/*
+			 * YUYV doesn't need a temp buffer but we will set it if/when
+			 *  video processing disable control is checked (bayer processing).
+			 *            (logitech cameras only)
+			 */
+			framebuf_size = framesizeIn;
+			vd->framebuffer = calloc(framebuf_size, sizeof(uint8_t));
+			break;
+
+		case V4L2_PIX_FMT_SGBRG8: /*0*/
+		case V4L2_PIX_FMT_SGRBG8: /*1*/
+		case V4L2_PIX_FMT_SBGGR8: /*2*/
+		case V4L2_PIX_FMT_SRGGB8: /*3*/
+			/*
+			 * Raw 8 bit bayer
+			 * when grabbing use:
+			 *    bayer_to_rgb24(bayer_data, RGB24_data, width, height, 0..3)
+			 *    rgb2yuyv(RGB24_data, vd->framebuffer, width, height)
+			 */
+
+			/* alloc a temp buffer for converting to YUYV*/
+			/* rgb buffer for decoding bayer data*/
+			tmpbuf_size = width * height * 3;
+			vd->tmpbuffer = calloc(tmpbuf_size, sizeof(uint8_t));
+
+			framebuf_size = framesizeIn;
+			vd->framebuffer = calloc(framebuf_size, sizeof(uint8_t));
+			break;
+		case V4L2_PIX_FMT_RGB24:
+		case V4L2_PIX_FMT_BGR24:
+			/*
+			 * rgb or bgr (8-8-8)
+			 * alloc a temp buffer for converting to YUYV
+			 */
+			tmpbuf_size = width * height * 3;
+			vd->tmpbuffer = calloc(tmpbuf_size, sizeof(uint8_t));
+
+			framebuf_size = framesizeIn;
+			vd->framebuffer = calloc(framebuf_size, sizeof(uint8_t));
+			break;
+
+		default:
+			/*
+			 * we check formats against a support formats list
+			 * so we should never have to alloc for a unknown format
+			 */
+			fprintf(stderr, "V4L2_CORE: (v4l2uvc.c) should never arrive (1)- exit fatal !!\n");
+			ret = E_UNKNOWN_ERR;
+			if(vd->framebuffer)
+				free(vd->framebuffer);
+			vd->framebuffer = NULL;
+			if(vd->tmpbuffer)
+				free(vd->tmpbuffer);
+			vd->tmpbuffer = NULL;
+			return (ret);
+	}
+
+	if ((!vd->framebuffer) || (framebuf_size ==0))
+	{
+		fprintf(stderr, "V4L2_CORE: couldn't calloc %lu bytes of memory for frame buffer\n",
+			(unsigned long) framebuf_size);
+		ret = VDIN_FBALLOC_ERR;
+		if(vd->framebuffer)
+			free(vd->framebuffer);
+		vd->framebuffer = NULL;
+		if(vd->tmpbuffer)
+			free(vd->tmpbuffer);
+		vd->tmpbuffer = NULL;
+		return (ret);
+	}
+	else
+	{
+		int i = 0;
+		/* set framebuffer to black (y=0x00 u=0x80 v=0x80) by default*/
+		for (i=0; i<(framebuf_size-4); i+=4)
+			{
+				vd->framebuffer[i]=0x00;  //Y
+				vd->framebuffer[i+1]=0x80;//U
+				vd->framebuffer[i+2]=0x00;//Y
+				vd->framebuffer[i+3]=0x80;//V
+			}
+	}
+	return (ret);
+}
+
+/*
  * Start video stream
  * args:
  *   vd - pointer to video device data
@@ -380,6 +599,7 @@ int start_video_stream(v4l2_dev* vd)
 			break;
 	}
 
+	vd->streaming = 1;
 	return ret;
 }
 
@@ -411,13 +631,15 @@ int stop_video_stream(v4l2_dev* vd)
 			ret = xioctl(vd->fd, VIDIOC_STREAMOFF, &type);
 			if (ret < 0)
 			{
-				/* if(errno == 9) - stream allready stoped*/
+				if(errno == 9) /* stream allready stoped*/
+					vd->streaming = 0;
 				fprintf(stderr, "V4L2_CORE: (VIDIOC_STREAMOFF) Unable to stop capture: %s\n", strerror(errno));
 				return E_STREAMOFF_ERR;
 			}
 			break;
 	}
 
+	vd->streaming = 0;
 	return ret;
 }
 
@@ -479,7 +701,7 @@ int try_video_stream(v4l2_dev* vd)
 
 		case IO_MMAP:
 		default:
-			// request buffers
+			/* request buffers */
 			memset(&vd->rb, 0, sizeof(struct v4l2_requestbuffers));
 			vd->rb.count = NB_BUFFER;
 			vd->rb.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
@@ -491,11 +713,13 @@ int try_video_stream(v4l2_dev* vd)
 				fprintf(stderr, "V4L2_CORE: (VIDIOC_REQBUFS) Unable to allocate buffers: %s\n", strerror(errno));
 				return E_REQBUFS_ERR;
 			}
-			// map the buffers
+			/* map the buffers */
 			if (query_buff(vd))
 			{
-				//delete requested buffers
-				//no need to unmap as mmap failed for sure
+				/*
+				 * delete requested buffers
+				 * no need to unmap as mmap failed for sure
+				 */
 				memset(&vd->rb, 0, sizeof(struct v4l2_requestbuffers));
 				vd->rb.count = 0;
 				vd->rb.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
@@ -504,10 +728,10 @@ int try_video_stream(v4l2_dev* vd)
 					fprintf(stderr, "V4L2_CORE: (VIDIOC_REQBUFS) Unable to delete buffers: %s\n", strerror(errno));
 				return E_QUERYBUF_ERR;
 			}
-			// Queue the buffers
+			/* Queue the buffers */
 			if (queue_buff(vd))
 			{
-				//delete requested buffers
+				/*delete requested buffers */
 				unmap_buff(vd);
 				memset(&vd->rb, 0, sizeof(struct v4l2_requestbuffers));
 				vd->rb.count = 0;
@@ -645,14 +869,8 @@ v4l2_dev* init_v4l2_dev(const char *device)
 		return (NULL);
 	}
 
-
-
-	//For H264 we need to get the unit id before checking video formats
-
 	memset(&vd->format, 0, sizeof(struct v4l2_format));
-	// populate video capabilities structure array
-	// should only be called after all vdIn struct elements
-	// have been initialized
+
 	if(check_v4l2_dev(vd) != E_OK)
 	{
 		clear_v4l2_dev(vd);

@@ -41,6 +41,8 @@ int main(int argc, char *argv[])
 	if(try_video_stream(device) != 0)
 		printf("could not set the defined stream format\n");
 
+
+
 	if(device)
 		close_v4l2_dev(device);
 

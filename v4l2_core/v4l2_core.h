@@ -157,7 +157,7 @@ typedef struct _v4l2_dev
 	int fd;                             // device file descriptor
 	char *videodevice;                  // video device string (default "/dev/video0)"
 
-	int cap_meth;                     // capture method: IO_READ or IO_MMAP
+	int cap_meth;                       // capture method: IO_READ or IO_MMAP
 	v4l2_stream_formats* list_stream_formats; //list of available stream formats
 	int numb_formats;                   //list size
 	int current_format;                 //index of current stream format
@@ -171,6 +171,8 @@ typedef struct _v4l2_dev
 	int fps_num;                        //fps numerator
 	int fps_denom;                      //fps denominator
 
+	uint8_t streaming;                  // flag if device is streaming (1) or not (0)
+	uint64_t timestamp;                 // captured frame timestamp
 	void *mem[NB_BUFFER];               // memory buffers for mmap driver frames
 	uint32_t buff_length[NB_BUFFER];    // memory buffers length as set by VIDIOC_QUERYBUF
 	uint32_t buff_offset[NB_BUFFER];    // memory buffers offset as set by VIDIOC_QUERYBUF

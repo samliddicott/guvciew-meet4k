@@ -37,18 +37,21 @@
 #  endif
 #endif
 
-#define E_OK             (0)
-#define E_ALLOC_ERR      (-1)
-#define E_QUERYCAP_ERR   (-2)
-#define E_READ_ERR       (-3)
-#define E_MMAP_ERR       (-4)
-#define E_QUERYBUF_ERR   (-5)
-#define E_QBUF_ERR       (-6)
-#define E_STREAMON_ERR   (-7)
-#define E_STREAMOFF_ERR  (-8)
-#define E_FORMAT_ERR     (-9)
-#define E_REQBUFS_ERR    (-10)
-#define E_DEVICE_ERR     (-11)
+#define E_OK					(0)
+#define E_ALLOC_ERR				(-1)
+#define E_QUERYCAP_ERR  		(-2)
+#define E_READ_ERR     		 	(-3)
+#define E_MMAP_ERR      		(-4)
+#define E_QUERYBUF_ERR   		(-5)
+#define E_QBUF_ERR       		(-6)
+#define E_STREAMON_ERR   		(-7)
+#define E_STREAMOFF_ERR  		(-8)
+#define E_FORMAT_ERR    		(-9)
+#define E_REQBUFS_ERR    		(-10)
+#define E_DEVICE_ERR     		(-11)
+#define E_SELECT_ERR     		(-12)
+#define E_SELECT_TIMEOUT_ERR	(-12)
+#define E_UNKNOWN_ERR    		(-20)
 
 
 #define CLEAR_LINE "\x1B[K"
