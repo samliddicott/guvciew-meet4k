@@ -365,7 +365,7 @@ static int check_frame_available(v4l2_dev *vd)
 	fd_set rdset;
 	struct timeval timeout;
 	/*make sure streaming is on*/
-	if (!vd->isstreaming)
+	if (!vd->streaming)
 		if (start_video_stream(vd))
 		{
 			//vd->signalquit = TRUE;
@@ -389,7 +389,7 @@ static int check_frame_available(v4l2_dev *vd)
 	{
 		fprintf(stderr, "V4L2_CORE: Could not grab image (select timeout): %s\n", strerror(errno));
 		vd->timestamp = 0;
-		return E_SELEC_TIMEOUT_ERR;
+		return E_SELECT_TIMEOUT_ERR;
 	}
 
 	if ((ret > 0) && (FD_ISSET(vd->fd, &rdset)))
@@ -413,7 +413,7 @@ static int alloc_v4l2_frames(v4l2_dev *vd)
 	/*assertions*/
 	assert(vd != NULL);
 
-	int ret = VDIN_OK;
+	int ret = E_OK;
 	size_t framebuf_size=0;
 	size_t tmpbuf_size=0;
 	int width = vd->format.fmt.pix.width;
@@ -423,7 +423,7 @@ static int alloc_v4l2_frames(v4l2_dev *vd)
 		return E_ALLOC_ERR;
 
 	int framesizeIn = (width * height << 1); //2 bytes per pixel
-	switch (format)
+	switch (vd->format.fmt.pix.pixelformat)
 	{
 		case V4L2_PIX_FMT_H264:
 			vd->h264_frame = calloc(framesizeIn, sizeof(uint8_t));
@@ -541,7 +541,7 @@ static int alloc_v4l2_frames(v4l2_dev *vd)
 	{
 		fprintf(stderr, "V4L2_CORE: couldn't calloc %lu bytes of memory for frame buffer\n",
 			(unsigned long) framebuf_size);
-		ret = VDIN_FBALLOC_ERR;
+		ret = E_FBALLOC_ERR;
 		if(vd->framebuffer)
 			free(vd->framebuffer);
 		vd->framebuffer = NULL;

@@ -50,7 +50,8 @@
 #define E_REQBUFS_ERR    		(-10)
 #define E_DEVICE_ERR     		(-11)
 #define E_SELECT_ERR     		(-12)
-#define E_SELECT_TIMEOUT_ERR	(-12)
+#define E_SELECT_TIMEOUT_ERR	(-13)
+#define E_FBALLOC_ERR			(-14)
 #define E_UNKNOWN_ERR    		(-20)
 
 
