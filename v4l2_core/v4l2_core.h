@@ -23,10 +23,13 @@
 #define V4L2_CORE_H
 
 #include <linux/videodev2.h>
+#include <linux/uvcvideo.h>
+#include <linux/media.h>
 #include <libudev.h>
 #include <pthread.h>
 #include <inttypes.h>
 #include <sys/types.h>
+
 #include "defs.h"
 
 /*
@@ -41,6 +44,17 @@
  * set ioctl retries to 4
  */
 #define IOCTL_RETRY 4
+
+/* A.8. Video Class-Specific Request Codes */
+#define UVC_RC_UNDEFINED                                0x00
+#define UVC_SET_CUR                                     0x01
+#define UVC_GET_CUR                                     0x81
+#define UVC_GET_MIN                                     0x82
+#define UVC_GET_MAX                                     0x83
+#define UVC_GET_RES                                     0x84
+#define UVC_GET_LEN                                     0x85
+#define UVC_GET_INFO                                    0x86
+#define UVC_GET_DEF                                     0x87
 
 /*
  * h264 probe commit struct (uvc 1.1)
@@ -164,7 +178,7 @@ typedef struct _v4l2_dev
 	uint8_t *framebuffer;               // frame buffer (YUYV), for rendering in SDL overlay
 
 	uint8_t *h264_frame;                // current uvc h264 frame retrieved from video stream
-	int uvc_h264_unit;     				// uvc h264 unit id, if <= 0 then uvc h264 is not supported
+	uint8_t h264_unit_id;  				// uvc h264 unit id, if <= 0 then uvc h264 is not supported
 	uvcx_video_config_probe_commit_t h264_config_probe_req; //probe commit struct for h264 streams
 	//struct h264_decoder_context* h264_ctx; //h264 decoder context
 	uint8_t *h264_last_IDR;             // last IDR frame retrieved from uvc h264 stream
@@ -361,6 +375,57 @@ int get_v4l2_control_id_value (v4l2_dev* vd, int id);
  * returns: void
  */
 void set_v4l2_control_defaults(v4l2_dev* vd);
+
+/*
+ *  ######### XU CONTROLS ##########
+ * /
+
+/*
+ * get lenght of xu control defined by unit id and selector
+ * args:
+ *   vd - pointer to video device data
+ *   unit - unit id of xu control
+ *   selector - selector for control
+ *
+ * asserts:
+ *   vd is not null
+ *   vd->fd is valid ( > 0 )
+ *
+ * returns: length of xu control
+ */
+uint16_t get_length_xu_control(v4l2_dev* vd, uint8_t unit, uint8_t selector);
+
+/*
+ * get uvc info for xu control defined by unit id and selector
+ * args:
+ *   vd - pointer to video device data
+ *   unit - unit id of xu control
+ *   selector - selector for control
+ *
+ * asserts:
+ *   vd is not null
+ *   vd->fd is valid ( > 0 )
+ *
+ * returns: info of xu control
+ */
+uint8_t get_info_xu_control(v4l2_dev* vd, uint8_t unit, uint8_t selector);
+
+/*
+ * runs a query on xu control defined by unit id and selector
+ * args:
+ *   vd - pointer to video device data
+ *   unit - unit id of xu control
+ *   selector - selector for control
+ *   query - query type
+ *   data - pointer to query data
+ *
+ * asserts:
+ *   vd is not null
+ *   vd->fd is valid ( > 0 )
+ *
+ * returns: 0 if query succeded or errno otherwise
+ */
+int query_xu_control(v4l2_dev* vd, uint8_t unit, uint8_t selector, uint8_t query, void *data);
 
 #endif
 

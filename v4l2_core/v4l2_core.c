@@ -53,74 +53,18 @@ static __MUTEX_TYPE mutex;
 /*verbosity (global scope)*/
 int verbosity = 0;
 
-/* needed only for language files (not used)*/
-
-// V4L2 control strings
-#define CSTR_USER_CLASS		N_("User Controls")
-#define	CSTR_BRIGHT 		N_("Brightness")
-#define	CSTR_CONTRAST 		N_("Contrast")
-#define	CSTR_HUE 		N_("Hue")
-#define	CSTR_SATURAT		N_("Saturation")
-#define	CSTR_SHARP		N_("Sharpness")
-#define	CSTR_GAMMA		N_("Gamma")
-#define	CSTR_BLCOMP		N_("Backlight Compensation")
-#define	CSTR_PLFREQ		N_("Power Line Frequency")
-#define CSTR_HUEAUTO		N_("Hue, Automatic")
-#define	CSTR_FOCUSAUTO		N_("Focus, Auto")
-#define CSTR_EXPMENU1		N_("Manual Mode")
-#define CSTR_EXPMENU2		N_("Auto Mode")
-#define CSTR_EXPMENU3		N_("Shutter Priority Mode")
-#define CSTR_EXPMENU4		N_("Aperture Priority Mode")
-#define CSTR_BLACK_LEVEL	N_("Black Level")
-#define CSTR_AUTO_WB		N_("White Balance, Automatic")
-#define CSTR_DO_WB		N_("Do White Balance")
-#define CSTR_RB			N_("Red Balance")
-#define	CSTR_BB			N_("Blue Balance")
-#define CSTR_EXP		N_("Exposure")
-#define CSTR_AUTOGAIN		N_("Gain, Automatic")
-#define	CSTR_GAIN		N_("Gain")
-#define CSTR_HFLIP		N_("Horizontal Flip")
-#define CSTR_VFLIP		N_("Vertical Flip")
-#define CSTR_HCENTER		N_("Horizontal Center")
-#define CSTR_VCENTER		N_("Vertical Center")
-#define CSTR_CHR_AGC		N_("Chroma AGC")
-#define CSTR_CLR_KILL		N_("Color Killer")
-#define CSTR_COLORFX		N_("Color Effects")
-
-// CAMERA CLASS control strings
-#define CSTR_CAMERA_CLASS	N_("Camera Controls")
-#define CSTR_EXPAUTO		N_("Auto Exposure")
-#define	CSTR_EXPABS		    N_("Exposure Time, Absolute")
-#define CSTR_EXPAUTOPRI		N_("Exposure, Dynamic Framerate")
-#define	CSTR_PAN_REL		N_("Pan, Relative")
-#define CSTR_TILT_REL		N_("Tilt, Relative")
-#define CSTR_PAN_RESET		N_("Pan, Reset")
-#define CSTR_TILT_RESET		N_("Tilt, Reset")
-#define CSTR_PAN_ABS		N_("Pan, Absolute")
-#define CSTR_TILT_ABS		N_"Tilt, Absolute")
-#define CSTR_FOCUS_ABS		N_("Focus, Absolute")
-#define CSTR_FOCUS_REL		N_("Focus, Relative")
-#define CSTR_FOCUS_AUTO		N_("Focus, Automatic")
-#define CSTR_ZOOM_ABS		N_("Zoom, Absolute")
-#define CSTR_ZOOM_REL		N_("Zoom, Relative")
-#define CSTR_ZOOM_CONT		N_("Zoom, Continuous")
-#define CSTR_PRIV		N_("Privacy")
-
-//UVC specific control strings
-#define	CSTR_EXPAUTO_UVC	N_("Exposure, Auto")
-#define	CSTR_EXPAUTOPRI_UVC	N_("Exposure, Auto Priority")
-#define	CSTR_EXPABS_UVC		N_("Exposure (Absolute)")
-#define	CSTR_WBTAUTO_UVC	N_("White Balance Temperature, Auto")
-#define	CSTR_WBT_UVC		N_("White Balance Temperature")
-#define CSTR_WBCAUTO_UVC	N_("White Balance Component, Auto")
-#define CSTR_WBCB_UVC		N_("White Balance Blue Component")
-#define	CSTR_WBCR_UVC		N_("White Balance Red Component")
-
-//libwebcam specific control strings
-#define CSTR_FOCUS_LIBWC	N_("Focus")
-#define CSTR_FOCUSABS_LIBWC	N_("Focus (Absolute)")
-
-
+/*
+ * ioctl with a number of retries in the case of I/O failure
+ * args:
+ *   fd - device descriptor
+ *   IOCTL_X - ioctl reference
+ *   arg - pointer to ioctl data
+ *
+ * asserts:
+ *   none
+ *
+ * returns - ioctl result
+ */
 int xioctl(int fd, int IOCTL_X, void *arg)
 {
 	int ret = 0;
@@ -142,9 +86,11 @@ int xioctl(int fd, int IOCTL_X, void *arg)
  * args:
  *   level - verbosity level
  *
+ * asserts:
+ *   none
+ *
  * returns void
  */
-
 void set_v4l2_verbosity(int level)
 {
 	verbosity = level;
@@ -199,10 +145,14 @@ static int check_v4l2_dev(v4l2_dev* vd)
 			return E_READ_ERR;
 		}
 	}
-	fprintf(stderr, "V4L2_CORE: Init. %s (location: %s)\n", vd->cap.card, vd->cap.bus_info);
+	if(verbosity > 0)
+		printf("V4L2_CORE: Init. %s (location: %s)\n", vd->cap.card, vd->cap.bus_info);
 
+	/*enumerate frame formats supported by device*/
 	enum_frame_formats(vd);
-
+	/*add h264 (uvc muxed) to format list if supported by device*/
+	add_h264_format(vd);
+	/*enumerate device controls*/
 	enumerate_v4l2_control(vd);
 
 	/*
@@ -608,7 +558,7 @@ static void clear_v4l2_dev(v4l2_dev* vd)
 
 	if(vd->list_devices)
 		free_v4l2_devices_list(vd);
-		
+
 	if(vd->list_stream_formats)
 		free_frame_formats(vd);
 
@@ -678,7 +628,7 @@ v4l2_dev* init_v4l2_dev(const char *device)
 		udev_monitor_enable_receiving(vd->udev_mon);
 		/* Get the file descriptor (fd) for the monitor */
 		vd->udev_fd = udev_monitor_get_fd(vd->udev_mon);
-		
+
 		enum_v4l2_devices(vd);
 	}
 

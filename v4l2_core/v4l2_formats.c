@@ -27,7 +27,7 @@
 #include <errno.h>
 #include <assert.h>
 
-#include "v4l2_core.h"
+#include "v4l2_formats.h"
 
 extern int verbosity;
 
@@ -186,7 +186,7 @@ static int enum_frame_sizes(v4l2_dev* vd, uint32_t pixfmt, int fmtind)
 			fsizeind++;
 			vd->list_stream_formats[fmtind-1].list_stream_cap = realloc(
 				vd->list_stream_formats[fmtind-1].list_stream_cap,
-				sizeof(v4l2_stream_cap) * fsizeind);
+				fsizeind * sizeof(v4l2_stream_cap));
 
 			assert(vd->list_stream_formats[fmtind-1].list_stream_cap != NULL);
 
@@ -347,7 +347,7 @@ int enum_frame_formats(v4l2_dev* vd)
 
 		vd->list_stream_formats = realloc(
 			vd->list_stream_formats,
-			sizeof(v4l2_stream_formats) * fmtind);
+			fmtind * sizeof(v4l2_stream_formats));
 
 		assert(vd->list_stream_formats != NULL);
 
@@ -368,6 +368,32 @@ int enum_frame_formats(v4l2_dev* vd)
 
 
 	return (ret);
+}
+
+/* get frame format index from format list
+ * args:
+ *   vd - pointer to video device data
+ *   format - v4l2 pixel format
+ *
+ * asserts:
+ *   vd is not null
+ *   vd->list_stream_formats is not null
+ *
+ * returns: format list index or -1 if not available
+ */
+int get_frame_format_index(v4l2_dev* vd, int format)
+{
+	/*asserts*/
+	assert(vd != NULL);
+	assert(vd->list_stream_formats != NULL);
+
+	int i=0;
+	for(i=0; i<vd->numb_formats; i++)
+	{
+		if(format == vd->list_stream_formats[i].format)
+			return (i);
+	}
+	return (-1);
 }
 
 /*

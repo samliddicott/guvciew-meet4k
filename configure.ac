@@ -12,7 +12,7 @@ m4_define([guvcview_minor], [0])
 m4_define([guvcview_micro], [0])
 m4_define([guvcview_version],
           [guvcview_major.guvcview_minor.guvcview_micro])
-          
+
 AC_INIT([guvcview], [guvcview_version], [http://guvcview.sourceforge.net/])
 m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
 
@@ -99,7 +99,6 @@ dnl Checks for programs.
 dnl -----------------------------------------------
 
 AC_PROG_CC
-AC_PROG_CXX
 AC_PROG_LIBTOOL
 AM_SANITY_CHECK
 
@@ -110,7 +109,7 @@ dnl --------------------------------------------------------------------------
 dnl check for libv4l2core dependencies
 dnl --------------------------------------------------------------------------
 
-PKG_CHECK_MODULES(V4L2CORELIB, [libv4l2 libudev])
+PKG_CHECK_MODULES(V4L2CORELIB, [libv4l2 libudev libusb-1.0])
 AC_SUBST(V4L2CORELIB_CFLAGS)
 AC_SUBST(V4L2CORELIB_LIBS)
 
