@@ -239,6 +239,19 @@ void set_v4l2_verbosity(int level);
  */
 v4l2_dev* init_v4l2_dev(const char *device);
 
+
+/*
+ * Try/Set device video stream format
+ * args:
+ *   vd - pointer to video device data
+ *
+ * asserts:
+ *   vd is not null
+ *
+ * returns: error code ( E_OK)
+ */
+int try_video_stream(v4l2_dev* vd);
+
 /*
  * gets the next video frame and decodes it if necessary
  * args:

@@ -29,6 +29,17 @@ int main(int argc, char *argv[])
 
 	v4l2_dev* device = init_v4l2_dev("/dev/video0");
 
+	/*set format*/
+	device->current_format = 0;
+
+	device->format.fmt.pix.pixelformat = device->list_stream_formats[0].format;
+	device->format.fmt.pix.width  = device->list_stream_formats[0].list_stream_cap[0].width;
+	device->format.fmt.pix.height = device->list_stream_formats[0].list_stream_cap[0].height;
+
+	/*try to set the video stream format on the device*/
+	if(try_video_stream(device) != 0)
+		printf("could not set the defined stream format\n");
+
 	if(device)
 		close_v4l2_dev(device);
 

@@ -431,7 +431,7 @@ int stop_video_stream(v4l2_dev* vd)
  *
  * returns: error code ( E_OK)
  */
-static int try_video_stream(v4l2_dev* vd)
+int try_video_stream(v4l2_dev* vd)
 {
 	/*assertions*/
 	assert(vd != NULL);
