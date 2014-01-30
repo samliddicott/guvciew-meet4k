@@ -14,12 +14,19 @@ cpp_sources = v4l2_core.c \
 library_includedir=$(includedir)/$(PACKAGE)-$(PACKAGE_RELEASE)/$(V4L2CORE_LIBRARY_NAME)
 library_include_HEADERS = $(h_sources)
 
-INCLUDES = -I$(top_srcdir) -I$(top_srcdir)/includes
+#AM_CFLAGS =
 
 lib_LTLIBRARIES= libv4l2core.la
+
 libv4l2core_la_SOURCES= $(h_sources) $(cpp_sources)
-libv4l2core_la_CFLAGS = $(V4L2CORELIB_CFLAGS)
-libv4l2core_la_LIBADD= $(V4L2CORELIB_LIBS)
-libv4l2core_la_LDFLAGS= -version-info $(V4L2CORE_LIBRARY_VERSION) -release $(V4L2CORE_API_VERSION) -lpthread
+
+libv4l2core_la_CFLAGS = $(V4L2CORELIB_CFLAGS) \
+			$(PTHREAD_CFLAGS) \
+			-I$(top_srcdir) \
+			-I$(top_srcdir)/includes
+
+libv4l2core_la_LIBADD= $(V4L2CORELIB_LIBS) $(PTHREAD_LIBS)
+
+libv4l2core_la_LDFLAGS= -version-info $(V4L2CORE_LIBRARY_VERSION) -release $(V4L2CORE_API_VERSION)
 
 

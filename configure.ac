@@ -14,6 +14,10 @@ m4_define([guvcview_version],
           [guvcview_major.guvcview_minor.guvcview_micro])
 
 AC_INIT([guvcview], [guvcview_version], [http://guvcview.sourceforge.net/])
+
+dnl ------------------------------------------------
+dnl Pretty output
+dnl ------------------------------------------------
 m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
 
 AM_INIT_AUTOMAKE([gnu])
@@ -42,7 +46,7 @@ dnl set pthread_libs and pthread_cflags
 dnl --------------------------------------------------------------------------
 dnl ACX_PTHREAD([ACTION-IF-FOUND[, ACTION-IF-NOT-FOUND]])
 
-ACX_PTHREAD
+ACX_PTHREAD()
 
 dnl --------------------------------------------------------------------------
 dnl Set gettext package name

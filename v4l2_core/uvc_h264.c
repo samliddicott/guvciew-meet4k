@@ -229,7 +229,7 @@ uint8_t get_uvc_h624_unit_id (v4l2_dev *vd)
 						for (k = 0; k < config->interface[j].num_altsetting; k++)
 						{
 							const struct libusb_interface_descriptor *interface;
-							const guint8 *ptr = NULL;
+							const uint8_t *ptr = NULL;
 
 							interface = &config->interface[j].altsetting[k];
 							if (interface->bInterfaceClass != LIBUSB_CLASS_VIDEO ||
@@ -298,7 +298,7 @@ int check_h264_support(v4l2_dev *vd)
 
 	uvcx_version_t uvcx_version;
 
-	if(query_xu_control(hdevice, unit_id, UVCX_VERSION, UVC_GET_CUR, &uvcx_version) < 0)
+	if(query_xu_control(vd, vd->h264_unit_id, UVCX_VERSION, UVC_GET_CUR, &uvcx_version) < 0)
 	{
 		if(verbosity > 0)
 			fprintf(stderr, "V4L2_CORE: device doesn't seem to support uvc H264 in unit_id %d\n", vd->h264_unit_id);

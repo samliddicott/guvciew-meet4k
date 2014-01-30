@@ -198,7 +198,7 @@ static struct uvc_xu_control_mapping xu_mappings[] =
  *
  * returns: 0 if enumeration succeded or errno otherwise
  */
-int init_xu_ctrls(v4l2_dev* vd);
+int init_xu_ctrls(v4l2_dev *vd)
 {
 	/*assertions*/
 	assert(vd != NULL);

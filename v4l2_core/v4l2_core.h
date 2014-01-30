@@ -321,7 +321,7 @@ int stop_video_stream(v4l2_dev* vd);
 
 /*
  *  ######### CONTROLS ##########
- * /
+ */
 
 /*
  * return the control associated to id from device list
@@ -378,7 +378,7 @@ void set_v4l2_control_defaults(v4l2_dev* vd);
 
 /*
  *  ######### XU CONTROLS ##########
- * /
+ */
 
 /*
  * get lenght of xu control defined by unit id and selector
