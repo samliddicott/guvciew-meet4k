@@ -10,7 +10,8 @@ cpp_sources = v4l2_core.c \
 			  v4l2_devices.c \
 			  v4l2_xu_ctrls.c \
 			  uvc_h264.c \
-			  core_time.c
+			  core_time.c \
+			  core_io.c
 
 
 #Install the headers in a versioned directory - guvcvideo-x.x/libv4l2core:
