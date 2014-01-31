@@ -43,7 +43,18 @@ int main(int argc, char *argv[])
 	if(try_video_stream_format(device, width, height, pixelformat) != 0)
 		printf("could not set the defined stream format\n");
 
+	start_video_stream(device);
 
+	if( get_v4l2_frame(device) == E_OK)
+	{
+		/*debug*/
+		char test_filename[20];
+		snprintf(test_filename, 20, "rawframe-%u.raw", (uint) vd->frame_index);
+
+		save_data_to_file(test_filename, vd->raw_frame, vd->buf.bytesused);
+	}
+
+	stop_video_stream(device);
 
 	if(device)
 		close_v4l2_dev(device);

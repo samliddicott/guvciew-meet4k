@@ -412,10 +412,22 @@ static int alloc_v4l2_frames(v4l2_dev *vd)
 	assert(vd != NULL);
 
 	/*free any allocated buffers*/
-	if(vd->h264_frame)
+	if(vd->raw_frame)
 	{
-		free(vd->h264_frame);
-		vd->h264_frame = NULL;
+		free(vd->raw_frame);
+		vd->raw_frame = NULL;
+	}
+
+	if(vd->tmp_buffer)
+	{
+		free(vd->tmp_buffer);
+		vd->tmp_buffer = NULL;
+	}
+
+	if(vd->frame_buffer)
+	{
+		free(vd->frame_buffer);
+		vd->frame_buffer = NULL;
 	}
 
 	if(vd->h264_last_IDR)
@@ -424,21 +436,13 @@ static int alloc_v4l2_frames(v4l2_dev *vd)
 		vd->h264_last_IDR = NULL;
 	}
 
-	if(vd->tmpbuffer)
-	{
-		free(vd->tmpbuffer);
-		vd->tmpbuffer = NULL;
-	}
-
-	if(vd->framebuffer)
-	{
-		free(vd->framebuffer);
-		vd->framebuffer = NULL;
-	}
 
 	int ret = E_OK;
-	size_t framebuf_size=0;
-	size_t tmpbuf_size=0;
+
+	vd->raw_frame_max_size = 0;
+	size_t framebuf_size = 0;
+	size_t tmpbuf_size = 0;
+
 	int width = vd->format.fmt.pix.width;
 	int height = vd->format.fmt.pix.height;
 
@@ -449,7 +453,9 @@ static int alloc_v4l2_frames(v4l2_dev *vd)
 	switch (vd->format.fmt.pix.pixelformat)
 	{
 		case V4L2_PIX_FMT_H264:
-			vd->h264_frame = calloc(framesizeIn, sizeof(uint8_t));
+			vd->raw_frame_max_size = framesizeIn;
+			vd->raw_frame = calloc(framesizeIn, sizeof(uint8_t));
+
 			vd->h264_last_IDR = calloc(framesizeIn, sizeof(uint8_t));
 			vd->h264_last_IDR_size = 0; /*reset (no frame stored)*/
 			//if(vd->h264_ctx)
@@ -459,10 +465,13 @@ static int alloc_v4l2_frames(v4l2_dev *vd)
 		case V4L2_PIX_FMT_MJPEG:
 			/* alloc a temp buffer to reconstruct the pict (MJPEG)*/
 			tmpbuf_size= framesizeIn;
-			vd->tmpbuffer = calloc(tmpbuf_size, sizeof(uint8_t));
+			vd->raw_frame_max_size = framesizeIn;
+			vd->raw_frame = calloc(framesizeIn, sizeof(uint8_t));
+
+			vd->tmp_buffer = calloc(tmpbuf_size, sizeof(uint8_t));
 
 			framebuf_size = width * (height + 8) * 2;
-			vd->framebuffer = calloc(framebuf_size, sizeof(uint8_t));
+			vd->frame_buffer = calloc(framebuf_size, sizeof(uint8_t));
 			break;
 
 		case V4L2_PIX_FMT_UYVY:
@@ -480,26 +489,32 @@ static int alloc_v4l2_frames(v4l2_dev *vd)
 		case V4L2_PIX_FMT_SPCA508:
 			/* alloc a temp buffer for converting to YUYV*/
 			tmpbuf_size= framesizeIn;
-			vd->tmpbuffer = calloc(tmpbuf_size, sizeof(uint8_t));
+			vd->raw_frame_max_size = framesizeIn;
+			vd->raw_frame = calloc(framesizeIn, sizeof(uint8_t));
+			vd->tmp_buffer = calloc(tmpbuf_size, sizeof(uint8_t));
 			framebuf_size = framesizeIn;
-			vd->framebuffer = calloc(framebuf_size, sizeof(uint8_t));
+			vd->frame_buffer = calloc(framebuf_size, sizeof(uint8_t));
 			break;
 
 		case V4L2_PIX_FMT_GREY:
 			/* alloc a temp buffer for converting to YUYV*/
 			tmpbuf_size= width * height; /* 1 byte per pixel*/
-			vd->tmpbuffer = calloc(tmpbuf_size, sizeof(uint8_t));
+			vd->raw_frame_max_size = tmpbuf_size;
+			vd->raw_frame = calloc(tmpbuf_size, sizeof(uint8_t));
+			vd->tmp_buffer = calloc(tmpbuf_size, sizeof(uint8_t));
 			framebuf_size = framesizeIn;
-			vd->framebuffer = calloc(framebuf_size, sizeof(uint8_t));
+			vd->frame_buffer = calloc(framebuf_size, sizeof(uint8_t));
 			break;
 
 	    case V4L2_PIX_FMT_Y10BPACK:
 	    case V4L2_PIX_FMT_Y16:
 			/* alloc a temp buffer for converting to YUYV*/
 			tmpbuf_size= width * height * 2; /* 2 byte per pixel*/
-			vd->tmpbuffer = calloc(tmpbuf_size, sizeof(uint8_t));
+			vd->raw_frame_max_size = tmpbuf_size;
+			vd->raw_frame = calloc(tmpbuf_size, sizeof(uint8_t));
+			vd->tmp_buffer = calloc(tmpbuf_size, sizeof(uint8_t));
 			framebuf_size = framesizeIn;
-			vd->framebuffer = calloc(framebuf_size, sizeof(uint8_t));
+			vd->frame_buffer = calloc(framebuf_size, sizeof(uint8_t));
 			break;
 
 		case V4L2_PIX_FMT_YUYV:
@@ -509,7 +524,9 @@ static int alloc_v4l2_frames(v4l2_dev *vd)
 			 *            (logitech cameras only)
 			 */
 			framebuf_size = framesizeIn;
-			vd->framebuffer = calloc(framebuf_size, sizeof(uint8_t));
+			vd->raw_frame_max_size = framesizeIn;
+			vd->raw_frame = calloc(framesizeIn, sizeof(uint8_t));
+			vd->frame_buffer = calloc(framebuf_size, sizeof(uint8_t));
 			break;
 
 		case V4L2_PIX_FMT_SGBRG8: /*0*/
@@ -526,10 +543,12 @@ static int alloc_v4l2_frames(v4l2_dev *vd)
 			/* alloc a temp buffer for converting to YUYV*/
 			/* rgb buffer for decoding bayer data*/
 			tmpbuf_size = width * height * 3;
-			vd->tmpbuffer = calloc(tmpbuf_size, sizeof(uint8_t));
+			vd->raw_frame_max_size = tmpbuf_size;
+			vd->raw_frame = calloc(tmpbuf_size, sizeof(uint8_t));
+			vd->tmp_buffer = calloc(tmpbuf_size, sizeof(uint8_t));
 
 			framebuf_size = framesizeIn;
-			vd->framebuffer = calloc(framebuf_size, sizeof(uint8_t));
+			vd->frame_buffer = calloc(framebuf_size, sizeof(uint8_t));
 			break;
 		case V4L2_PIX_FMT_RGB24:
 		case V4L2_PIX_FMT_BGR24:
@@ -538,10 +557,12 @@ static int alloc_v4l2_frames(v4l2_dev *vd)
 			 * alloc a temp buffer for converting to YUYV
 			 */
 			tmpbuf_size = width * height * 3;
-			vd->tmpbuffer = calloc(tmpbuf_size, sizeof(uint8_t));
+			vd->raw_frame_max_size = tmpbuf_size;
+			vd->raw_frame = calloc(tmpbuf_size, sizeof(uint8_t));
+			vd->tmp_buffer = calloc(tmpbuf_size, sizeof(uint8_t));
 
 			framebuf_size = framesizeIn;
-			vd->framebuffer = calloc(framebuf_size, sizeof(uint8_t));
+			vd->frame_buffer = calloc(framebuf_size, sizeof(uint8_t));
 			break;
 
 		default:
@@ -551,46 +572,38 @@ static int alloc_v4l2_frames(v4l2_dev *vd)
 			 */
 			fprintf(stderr, "V4L2_CORE: (v4l2uvc.c) should never arrive (1)- exit fatal !!\n");
 			ret = E_UNKNOWN_ERR;
-			if(vd->h264_frame)
-				free(vd->h264_frame);
-			vd->h264_frame = NULL;
+			vd->raw_frame_max_size = 0;
+			if(vd->raw_frame)
+				free(vd->raw_frame);
+			vd->raw_frame = NULL;
 			if(vd->h264_last_IDR)
 				free(vd->h264_last_IDR);
 			vd->h264_last_IDR = NULL;
-			if(vd->framebuffer)
-				free(vd->framebuffer);
-			vd->framebuffer = NULL;
-			if(vd->tmpbuffer)
-				free(vd->tmpbuffer);
-			vd->tmpbuffer = NULL;
+			if(vd->frame_buffer)
+				free(vd->frame_buffer);
+			vd->frame_buffer = NULL;
+			if(vd->tmp_buffer)
+				free(vd->tmp_buffer);
+			vd->tmp_buffer = NULL;
 			return (ret);
 	}
 
-	if ((!vd->framebuffer) || (framebuf_size ==0))
+	/*assertions*/
+	assert(vd->raw_frame != NULL);
+	assert(vd->raw_frame_max_size > 0);
+	assert(vd->frame_buffer != NULL);
+
+
+	int i = 0;
+	/* set framebuffer to black (y=0x00 u=0x80 v=0x80) by default*/
+	for (i=0; i<(framebuf_size-4); i+=4)
 	{
-		fprintf(stderr, "V4L2_CORE: couldn't calloc %lu bytes of memory for frame buffer\n",
-			(unsigned long) framebuf_size);
-		ret = E_FBALLOC_ERR;
-		if(vd->framebuffer)
-			free(vd->framebuffer);
-		vd->framebuffer = NULL;
-		if(vd->tmpbuffer)
-			free(vd->tmpbuffer);
-		vd->tmpbuffer = NULL;
-		return (ret);
+		vd->frame_buffer[i]=0x00;  //Y
+		vd->frame_buffer[i+1]=0x80;//U
+		vd->frame_buffer[i+2]=0x00;//Y
+		vd->frame_buffer[i+3]=0x80;//V
 	}
-	else
-	{
-		int i = 0;
-		/* set framebuffer to black (y=0x00 u=0x80 v=0x80) by default*/
-		for (i=0; i<(framebuf_size-4); i+=4)
-			{
-				vd->framebuffer[i]=0x00;  //Y
-				vd->framebuffer[i+1]=0x80;//U
-				vd->framebuffer[i+2]=0x00;//Y
-				vd->framebuffer[i+3]=0x80;//V
-			}
-	}
+
 	return (ret);
 }
 
@@ -829,25 +842,29 @@ int get_v4l2_frame(v4l2_dev* vd)
 
 	vd->frame_index++;
 
-	/*debug*/
-	char test_filename[20];
-	snprintf(test_filename, 20, "rawframe-%u.raw", (uint) vd->frame_index);
+
 
 	/*lock the mutex*/
 	__LOCK_MUTEX( __PMUTEX );
 
 	if(vd->streaming)
-		save_data_to_file(test_filename, vd->mem[vd->buf.index], vd->buf.bytesused);
+	{
+		vd->raw_frame_size = vd->buf.bytesused;
+		if(vd->buf.bytesused > 0 && vd->raw_frame_size <= vd->raw_frame_max_size)
+			memcopy(vd->raw_frame, vd->mem[vd->buf.index], vd->buf.bytesused);
+		else
+			ret = -1;
+	}
+	else res = -1;
 
 	/*unlock the mutex*/
 	__UNLOCK_MUTEX( __PMUTEX );
 
-	// save raw frame
-	//if (vd->cap_raw > 0)
-	//{
-		//SaveBuff (vd->ImageFName,vd->buf.bytesused,vd->mem[vd->buf.index]);
-		//vd->cap_raw=0;
-	//}
+	if(res < 0)
+		return E_NO_STREAM_ERR;
+
+	if(ret < 0)
+		return E_NO_DATA;
 
 /*
 	if ((ret = frame_decode(vd, format, width, height)) != VDIN_OK)
@@ -1023,14 +1040,14 @@ static void clear_v4l2_dev(v4l2_dev* vd)
 	if(vd->h264_last_IDR)
 		free(vd->h264_last_IDR);
 
-	if(vd->tmpbuffer)
-		free(vd->tmpbuffer);
+	if(vd->tmp_buffer)
+		free(vd->tmp_buffer);
 
-	if(vd->framebuffer)
-		free(vd->framebuffer);
+	if(vd->frame_buffer)
+		free(vd->frame_buffer);
 
-	if(vd->h264_frame)
-		free(vd->h264_frame);
+	if(vd->raw_frame)
+		free(vd->raw_frame);
 
 	if(vd->list_device_controls)
 		free_v4l2_control_list(vd);
@@ -1090,9 +1107,10 @@ v4l2_dev* init_v4l2_dev(const char *device)
 	vd->h264_last_IDR = NULL;
 	vd->h264_last_IDR_size = 0;
 
-	vd->tmpbuffer = NULL;
-	vd->framebuffer = NULL;
-	vd->h264_frame = NULL;
+	vd->tmp_buffer = NULL;
+	vd->frame_buffer = NULL;
+	vd->raw_frame = NULL;
+	vd->raw_frame_max_size = 0;
 
 	/*set a default*/
 	vd->fps_num = 1;

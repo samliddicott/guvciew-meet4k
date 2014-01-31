@@ -54,6 +54,7 @@
 #define E_SELECT_TIMEOUT_ERR	(-14)
 #define E_FBALLOC_ERR			(-15)
 #define E_NO_STREAM_ERR         (-16)
+#define E_NO_DATA               (-17)
 #define E_UNKNOWN_ERR    		(-20)
 
 

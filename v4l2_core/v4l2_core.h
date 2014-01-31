@@ -171,16 +171,20 @@ typedef struct _v4l2_dev
 	int fps_num;                        //fps numerator
 	int fps_denom;                      //fps denominator
 
+	uint8_t *raw_frame                  // raw frame (as captured from device)
+	size_t raw_frame_size               // size of raw frame (in bytes)
+	size_t raw_frame_max_size           // max size for raw frame (in bytes)
+
+	uint8_t *tmp_buffer;                // temp buffer for decoding compressed data
+	uint8_t *frame_buffer;              // frame buffer (YUYV), for rendering
+
 	uint8_t streaming;                  // flag if device is streaming (1) or not (0)
 	uint64_t frame_index;               // captured frame index from 0 to max(uint64_t)
 	uint64_t timestamp;                 // captured frame timestamp
 	void *mem[NB_BUFFER];               // memory buffers for mmap driver frames
 	uint32_t buff_length[NB_BUFFER];    // memory buffers length as set by VIDIOC_QUERYBUF
 	uint32_t buff_offset[NB_BUFFER];    // memory buffers offset as set by VIDIOC_QUERYBUF
-	uint8_t *tmpbuffer;                 // temp buffer for decoding compressed data
-	uint8_t *framebuffer;               // frame buffer (YUYV), for rendering in SDL overlay
 
-	uint8_t *h264_frame;                // current uvc h264 frame retrieved from video stream
 	uint8_t h264_unit_id;  				// uvc h264 unit id, if <= 0 then uvc h264 is not supported
 	uvcx_video_config_probe_commit_t h264_config_probe_req; //probe commit struct for h264 streams
 	//struct h264_decoder_context* h264_ctx; //h264 decoder context
