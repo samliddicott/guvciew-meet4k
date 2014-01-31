@@ -171,9 +171,9 @@ typedef struct _v4l2_dev
 	int fps_num;                        //fps numerator
 	int fps_denom;                      //fps denominator
 
-	size_t raw_frame_size               // size of raw frame (in bytes)
-	size_t raw_frame_max_size           // max size for raw frame (in bytes)
-	uint8_t *raw_frame                  // raw frame (as captured from device)
+	size_t raw_frame_size;              // size of raw frame (in bytes)
+	size_t raw_frame_max_size;          // max size for raw frame (in bytes)
+	uint8_t *raw_frame;                 // raw frame (as captured from device)
 	uint8_t *tmp_buffer;                // temp buffer for decoding compressed data
 	uint8_t *frame_buffer;              // frame buffer (YUYV), for rendering
 
