@@ -25,6 +25,9 @@
 #include "v4l2_core.h"
 #include "core_time.h"
 
+#include "video_capture.h"
+
+static __THREAD_TYPE capture_thread;
 
 int main(int argc, char *argv[])
 {
@@ -43,18 +46,12 @@ int main(int argc, char *argv[])
 	if(try_video_stream_format(device, width, height, pixelformat) != 0)
 		printf("could not set the defined stream format\n");
 
-	start_video_stream(device);
-
-	if( get_v4l2_frame(device) == E_OK)
+	if( __THREAD_CREATE(&capture_thread, capture_loop, (void *) device))
 	{
-		/*debug*/
-		char test_filename[20];
-		snprintf(test_filename, 20, "rawframe-%u.raw", (uint) device->frame_index);
-
-		save_data_to_file(test_filename, device->raw_frame, device->raw_frame_size);
+		fprintf("GUVCVIEW: Video thread creation failed\n");
 	}
 
-	stop_video_stream(device);
+	__THREAD_JOIN(capture_thread);
 
 	if(device)
 		close_v4l2_dev(device);

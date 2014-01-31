@@ -1,10 +1,11 @@
 ## Process this file with automake to produce Makefile.in
 
-#AM_CFLAGS = 
+#AM_CFLAGS =
 
 bin_PROGRAMS = guvcview
 
-guvcview_SOURCES = guvcview.c
+guvcview_SOURCES = guvcview.c \
+				   video_capture.c
 
 guvcview_CFLAGS = $(GUVCVIEW_CFLAGS) \
 		  $(PTHREAD_CFLAGS) \
@@ -17,7 +18,7 @@ guvcview_CFLAGS = $(GUVCVIEW_CFLAGS) \
 		  $(DEPS_CFLAGS) $(EXTRA_CFLAGS) $(PTHREAD_CFLAGS) \
 		  $(EXTRA_CFLAGS) -I$(top_srcdir) -I$(top_srcdir)/includes \
 		  -I$(top_srcdir)/v4l2_core
-		  
+
 guvcview_LDFLAGS = $(LIBINTL)
 
 guvcview_LDADD = $(GUVCVIEW_LIBS) \

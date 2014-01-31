@@ -19,8 +19,16 @@
 #                                                                               #
 ********************************************************************************/
 
+/*******************************************************************************#
+#                                                                               #
+#  V4L2 core library                                                            #
+#                                                                               #
+********************************************************************************/
+
 #include <stdlib.h>
 #include <stdio.h>
+#include <sys/types.h>
+#include <unistd.h>
 #include <fcntl.h>
 #include <string.h>
 #include <errno.h>
@@ -28,38 +36,51 @@
 
 #include "v4l2_core.h"
 
-extern int verbosity;
+static int render = 0; /*flag if we should render frames*/
+
 /*
- * save data to file
+ * set render flag
  * args:
- *   filename - string with filename
- *   data - pointer to data
- *   size - data size in bytes = sizeof(uint8_t)
+ *    value - flag value
  *
  * asserts:
- *   none
+ *    none
  *
- * returns: error code
+ * returns: none
  */
-int save_data_to_file(const char *filename, uint8_t *data, int size)
+void set_render_flag(int value)
 {
-	FILE *fp;
-	int ret = 0;
+	render = value;
+}
 
-	if ((fp = fopen(filename, "wb")) !=NULL)
+/*
+ * capture loop (should run in a separate thread)
+ * args:
+ *    data - pointer to user data (device data)
+ *
+ * asserts:
+ *    device data is not null
+ *
+ * returns: pointer to return code
+ */
+void *capture_loop(void *data)
+{
+	v4l2_dev* device = (v4l2_dev *) data;
+	/*asserts*/
+	assert(device != NULL);
+
+	start_video_stream(device);
+
+	if( get_v4l2_frame(device) == E_OK)
 	{
-		ret = fwrite(data, size, 1, fp);
+		/*debug*/
+		char test_filename[20];
+		snprintf(test_filename, 20, "rawframe-%u.raw", (uint) device->frame_index);
 
-		if (ret<1) ret=1;/*write error*/
-		else ret=0;
-
-		fflush(fp); /*flush data stream to file system*/
-		if(fsync(fileno(fp)) || fclose(fp))
-			fprintf(stderr, "V4L2_CORE: (save_data_to_file) error - couldn't write buffer to file: %s\n", strerror(errno));
-		else if(verbosity > 0)
-			printf("V4L2_CORE: saved data to %s\n", filename);
+		save_data_to_file(test_filename, device->raw_frame, device->raw_frame_size);
 	}
-	else ret = 1;
 
-	return (ret);
+	stop_video_stream(device);
+
+	return ((void *) 0);
 }
