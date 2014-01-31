@@ -58,7 +58,7 @@ void video_capture_quit();
  *
  * returns: none
  */
-void video_capture_save_image()
+void video_capture_save_image();
 
 /*
  * capture loop (should run in a separate thread)
