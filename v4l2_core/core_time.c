@@ -25,6 +25,7 @@
 #include <sys/time.h>
 #include <unistd.h>
 #include <errno.h>
+#include <string.h>
 #include <assert.h>
 
 #include "core_time.h"
@@ -49,7 +50,7 @@ uint32_t ms_time ()
 		return 0;
 	}
 
-	uint32_t mst = (uint32_t) now.>tv_sec * 1000 + (uint32_t) now.tv_usec / 1000;
+	uint32_t mst = (uint32_t) now.tv_sec * 1000 + (uint32_t) now.tv_usec / 1000;
 
 	return (mst);
 }
