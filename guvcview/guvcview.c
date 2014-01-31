@@ -62,6 +62,7 @@ int main(int argc, char *argv[])
 
 	// Register signal and signal handler
 	signal(SIGINT, signal_callback_handler);
+	signal(SIGUSR2, signal_callback_handler);
 
 	debug_level = 1;
 	set_v4l2_verbosity(debug_level);
