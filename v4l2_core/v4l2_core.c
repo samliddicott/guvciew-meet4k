@@ -851,7 +851,7 @@ int get_v4l2_frame(v4l2_dev* vd)
 	{
 		vd->raw_frame_size = vd->buf.bytesused;
 		if(vd->buf.bytesused > 0 && vd->raw_frame_size <= vd->raw_frame_max_size)
-			memcopy(vd->raw_frame, vd->mem[vd->buf.index], vd->buf.bytesused);
+			memcpy(vd->raw_frame, vd->mem[vd->buf.index], vd->buf.bytesused);
 		else
 			ret = -1;
 	}
