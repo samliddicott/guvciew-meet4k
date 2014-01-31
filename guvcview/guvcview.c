@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
 
 	if( __THREAD_CREATE(&capture_thread, capture_loop, (void *) device))
 	{
-		fprintf("GUVCVIEW: Video thread creation failed\n");
+		fprintf(stderr, "GUVCVIEW: Video thread creation failed\n");
 	}
 
 	__THREAD_JOIN(capture_thread);
