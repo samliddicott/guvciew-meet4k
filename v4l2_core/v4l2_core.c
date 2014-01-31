@@ -710,15 +710,19 @@ int get_v4l2_frame(v4l2_dev* vd)
 		case IO_READ:
 
 			/*lock the mutex*/
-			__LOCK_MUTEX(mutex);
+			__LOCK_MUTEX( __PMUTEX );
 			if(vd->streaming)
 			{
 				vd->buf.bytesused = v4l2_read (vd->fd, vd->mem[vd->buf.index], vd->buf.length);
 				vd->timestamp = ns_time_monotonic();
 				bytes_used = vd->buf.bytesused;
 			}
+			else res = -1;
 			/*unlock the mutex*/
-			__UNLOCK_MUTEX(mutex);
+			__UNLOCK_MUTEX( __PMUTEX );
+
+			if(res < 0)
+				return E_NO_STREAM_ERR;
 
 			if (-1 == bytes_used )
 			{
@@ -771,12 +775,13 @@ int get_v4l2_frame(v4l2_dev* vd)
 
 			/* dequeue the buffers */
 
-			memset(&vd->buf, 0, sizeof(struct v4l2_buffer));
 			/*lock the mutex*/
-			__LOCK_MUTEX(mutex);
+			__LOCK_MUTEX( __PMUTEX );
 
 			if(vd->streaming)
 			{
+				memset(&vd->buf, 0, sizeof(struct v4l2_buffer));
+
 				vd->buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 				vd->buf.memory = V4L2_MEMORY_MMAP;
 
@@ -785,7 +790,7 @@ int get_v4l2_frame(v4l2_dev* vd)
 			else res = -1;
 
 			/*unlock the mutex*/
-			__UNLOCK_MUTEX(mutex);
+			__UNLOCK_MUTEX( __PMUTEX );
 
 			if(res < 0)
 				return E_NO_STREAM_ERR;
@@ -803,20 +808,23 @@ int get_v4l2_frame(v4l2_dev* vd)
 			else vd->timestamp = ns_time_monotonic();
 
 			/*lock the mutex*/
-			__LOCK_MUTEX(mutex);
+			__LOCK_MUTEX( __PMUTEX );
 
 			/* queue the buffers */
 			if(vd->streaming)
 				ret = xioctl(vd->fd, VIDIOC_QBUF, &vd->buf);
+			else res = -1;
 
 			/*unlock the mutex*/
-			__UNLOCK_MUTEX(mutex);
+			__UNLOCK_MUTEX( __PMUTEX );
+
+			if(res < 0)
+				return E_NO_STREAM_ERR;
 
 			if (ret < 0)
 			{
 				fprintf(stderr, "V4L2_CORE: (VIDIOC_QBUF) Unable to queue buffer: %s\n", strerror(errno));
-				ret = E_QBUF_ERR;
-				return ret;
+				return E_QBUF_ERR;
 			}
 	}
 
@@ -827,13 +835,13 @@ int get_v4l2_frame(v4l2_dev* vd)
 	snprintf(test_filename, 20, "rawframe-%u.raw", vd->frame_index);
 
 	/*lock the mutex*/
-	__LOCK_MUTEX(mutex);
+	__LOCK_MUTEX( __PMUTEX );
 
 	if(vd->streaming)
 		save_data_to_file(test_filename, vd->mem[vd->buf.index], vd->buf.bytesused);
 
 	/*unlock the mutex*/
-	__UNLOCK_MUTEX(mutex);
+	__UNLOCK_MUTEX( __PMUTEX );
 
 	// save raw frame
 	//if (vd->cap_raw > 0)
@@ -879,7 +887,7 @@ int try_video_stream_format(v4l2_dev* vd, int width, int height, int pixelformat
 		stop_video_stream(vd);
 
 	/*lock the mutex*/
-	__LOCK_MUTEX(mutex);
+	__LOCK_MUTEX( __PMUTEX );
 
 	vd->format.fmt.pix.pixelformat = pixelformat;
 	vd->format.fmt.pix.width = width;
@@ -898,7 +906,7 @@ int try_video_stream_format(v4l2_dev* vd, int width, int height, int pixelformat
 	ret = xioctl(vd->fd, VIDIOC_S_FMT, &vd->format);
 
 	/*unlock the mutex*/
-	__UNLOCK_MUTEX(mutex);
+	__UNLOCK_MUTEX( __PMUTEX );
 
 	if (ret < 0)
 	{
@@ -919,21 +927,21 @@ int try_video_stream_format(v4l2_dev* vd, int width, int height, int pixelformat
 	{
 		case IO_READ: /*allocate buffer for read*/
 			/*lock the mutex*/
-			__LOCK_MUTEX(mutex);
+			__LOCK_MUTEX( __PMUTEX );
 
 			memset(&vd->buf, 0, sizeof(struct v4l2_buffer));
 			vd->buf.length = (vd->format.fmt.pix.width) * (vd->format.fmt.pix.height) * 3; //worst case (rgb)
 			vd->mem[vd->buf.index] = calloc(vd->buf.length, sizeof(uint8_t));
 
 			/*unlock the mutex*/
-			__UNLOCK_MUTEX(mutex);
+			__UNLOCK_MUTEX( __PMUTEX );
 			break;
 
 		case IO_MMAP:
 		default:
 			/* request buffers */
 			/*lock the mutex*/
-			__LOCK_MUTEX(mutex);
+			__LOCK_MUTEX( __PMUTEX );
 
 			memset(&vd->rb, 0, sizeof(struct v4l2_requestbuffers));
 			vd->rb.count = NB_BUFFER;
@@ -943,7 +951,7 @@ int try_video_stream_format(v4l2_dev* vd, int width, int height, int pixelformat
 			ret = xioctl(vd->fd, VIDIOC_REQBUFS, &vd->rb);
 
 			/*unlock the mutex*/
-			__UNLOCK_MUTEX(mutex);
+			__UNLOCK_MUTEX( __PMUTEX );
 
 			if (ret < 0)
 			{
@@ -1221,7 +1229,7 @@ int set_v4l2_framerate (v4l2_dev* vd)
 	vd->streamparm.parm.capture.timeperframe.denominator = vd->fps_denom;
 
 	/*lock the mutex*/
-	__LOCK_MUTEX(mutex);
+	__LOCK_MUTEX( __PMUTEX );
 
 	/*unmap the buffers*/
 	if(vd->cap_meth == IO_MMAP)
@@ -1245,7 +1253,7 @@ int set_v4l2_framerate (v4l2_dev* vd)
 	}
 
 	/*unlock the mutex*/
-	__UNLOCK_MUTEX(mutex);
+	__UNLOCK_MUTEX( __PMUTEX );
 
 	if (ret < 0)
 	{
