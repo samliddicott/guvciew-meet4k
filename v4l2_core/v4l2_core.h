@@ -172,6 +172,7 @@ typedef struct _v4l2_dev
 	int fps_denom;                      //fps denominator
 
 	uint8_t streaming;                  // flag if device is streaming (1) or not (0)
+	uint64_t frame_index;               // captured frame index from 0 to max(uint64_t)
 	uint64_t timestamp;                 // captured frame timestamp
 	void *mem[NB_BUFFER];               // memory buffers for mmap driver frames
 	uint32_t buff_length[NB_BUFFER];    // memory buffers length as set by VIDIOC_QUERYBUF
@@ -246,22 +247,28 @@ v4l2_dev* init_v4l2_dev(const char *device);
  * Try/Set device video stream format
  * args:
  *   vd - pointer to video device data
+ *   width - requested video frame width
+ *   height - requested video frame height
+ *   pixelformat - requested v4l2 pixelformat
  *
  * asserts:
  *   vd is not null
  *
  * returns: error code ( E_OK)
  */
-int try_video_stream(v4l2_dev* vd);
+int try_video_stream_format(v4l2_dev* vd, int width, int height, int pixelformat);
 
 /*
  * gets the next video frame and decodes it if necessary
  * args:
  * vd: pointer to video device data
  *
+ * asserts:
+ *   vd is not null
+ *
  * returns: error code (E_OK)
  */
-//int get_v4l2_frame(v4l2_dev* vd);
+int get_v4l2_frame(v4l2_dev* vd);
 
 /*
  * cleans video device data and allocations

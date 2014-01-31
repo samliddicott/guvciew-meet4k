@@ -43,6 +43,8 @@
 #include <libintl.h>
 
 #include "v4l2_core.h"
+#include "core_time.h"
+#include "core_io.h"
 #include "v4l2_formats.h"
 #include "v4l2_controls.h"
 #include "v4l2_devices.h"
@@ -155,12 +157,6 @@ static int check_v4l2_dev(v4l2_dev* vd)
 	add_h264_format(vd);
 	/*enumerate device controls*/
 	enumerate_v4l2_control(vd);
-
-	/*
-	 * logitech c930 camera supports h264 through aux stream multiplexing in the MJPG container
-	 * check if H264 UVCX XU h264 controls exist and add a virtual H264 format entry to the list
-	 */
-	//check_uvc_h264_format(vd, global);
 
 	//if(!(vd->listFormats->listVidFormats))
 	//	g_printerr("V4L2_CORE: Couldn't detect any supported formats on your device (%i)\n", vd->listFormats->numb_formats);
@@ -365,12 +361,15 @@ static int check_frame_available(v4l2_dev *vd)
 	fd_set rdset;
 	struct timeval timeout;
 	/*make sure streaming is on*/
-	if (!vd->streaming)
-		if (start_video_stream(vd))
-		{
-			//vd->signalquit = TRUE;
-			return E_STREAMON_ERR;
-		}
+	if(!vd->streaming)
+	{
+		fprintf(stderr, "V4L2_CORE: (get_v4l2_frame) video stream must be started first\n");
+		return E_NO_STREAM_ERR;
+		//if (start_video_stream(vd))
+		//{
+			//return E_STREAMON_ERR;
+		//}
+	}
 
 	FD_ZERO(&rdset);
 	FD_SET(vd->fd, &rdset);
@@ -412,6 +411,31 @@ static int alloc_v4l2_frames(v4l2_dev *vd)
 {
 	/*assertions*/
 	assert(vd != NULL);
+
+	/*free any allocated buffers*/
+	if(vd->h264_frame)
+	{
+		free(vd->h264_frame);
+		vd->h264_frame = NULL;
+	}
+
+	if(vd->h264_last_IDR)
+	{
+		free(vd->h264_last_IDR);
+		vd->h264_last_IDR = NULL;
+	}
+
+	if(vd->tmpbuffer)
+	{
+		free(vd->tmpbuffer);
+		vd->tmpbuffer = NULL;
+	}
+
+	if(vd->framebuffer)
+	{
+		free(vd->framebuffer);
+		vd->framebuffer = NULL;
+	}
 
 	int ret = E_OK;
 	size_t framebuf_size=0;
@@ -528,6 +552,12 @@ static int alloc_v4l2_frames(v4l2_dev *vd)
 			 */
 			fprintf(stderr, "V4L2_CORE: (v4l2uvc.c) should never arrive (1)- exit fatal !!\n");
 			ret = E_UNKNOWN_ERR;
+			if(vd->h264_frame)
+				free(vd->h264_frame);
+			vd->h264_frame = NULL;
+			if(vd->h264_last_IDR)
+				free(vd->h264_last_IDR);
+			vd->h264_last_IDR = NULL;
 			if(vd->framebuffer)
 				free(vd->framebuffer);
 			vd->framebuffer = NULL;
@@ -600,6 +630,10 @@ int start_video_stream(v4l2_dev* vd)
 	}
 
 	vd->streaming = 1;
+
+	/*wait for a frame to be available*/
+	check_frame_available(vd);
+
 	return ret;
 }
 
@@ -643,23 +677,213 @@ int stop_video_stream(v4l2_dev* vd)
 	return ret;
 }
 
+/*
+ * gets the next video frame and decodes it if necessary
+ * args:
+ * vd: pointer to video device data
+ *
+ * asserts:
+ *   vd is not null
+ *
+ * returns: error code (E_OK)
+ */
+int get_v4l2_frame(v4l2_dev* vd)
+{
+	/*asserts*/
+	assert(vd != NULL);
+
+	/*request a IDR frame with SPS and PPS data if it's the first frame*/
+	//if(vd->format.fmt.pix.pixelformat == V4L2_PIX_FMT_H264 && vd->frame_index < 1)
+	//	uvcx_request_frame_type(vd->fd, global->uvc_h264_unit, PICTURE_TYPE_IDR_FULL);
+
+	int res = 0;
+	int ret = check_frame_available(vd);
+
+	if (ret < 0)
+		return ret;
+
+	uint64_t ts = 0;
+	int bytes_used = 0;
+
+	switch(vd->cap_meth)
+	{
+		case IO_READ:
+
+			/*lock the mutex*/
+			__LOCK_MUTEX(mutex);
+			if(vd->streaming)
+			{
+				vd->buf.bytesused = v4l2_read (vd->fd, vd->mem[vd->buf.index], vd->buf.length);
+				vd->timestamp = ns_time_monotonic();
+				bytes_used = vd->buf.bytesused;
+			}
+			/*unlock the mutex*/
+			__UNLOCK_MUTEX(mutex);
+
+			if (-1 == bytes_used )
+			{
+				switch (errno)
+				{
+					case EAGAIN:
+						fprintf(stderr, "V4L2_CORE: No data available for read: %s\n", strerror(errno));
+						return E_SELECT_TIMEOUT_ERR;
+						break;
+					case EINVAL:
+						fprintf(stderr, "V4L2_CORE: Read method error, try mmap instead: %s\n", strerror(errno));
+						return E_READ_ERR;
+						break;
+					case EIO:
+						fprintf(stderr, "V4L2_CORE: read I/O Error: %s\n", strerror(errno));
+						return E_READ_ERR;
+						break;
+					default:
+						fprintf(stderr, "V4L2_CORE: read: %s\n", strerror(errno));
+						return E_READ_ERR;
+						break;
+				}
+				vd->timestamp = 0;
+			}
+			break;
+
+		case IO_MMAP:
+		default:
+			//if((vd->setH264ConfigProbe > 0))
+			//{
+
+				//if(vd->setH264ConfigProbe)
+				//{
+					//video_disable(vd);
+					//unmap_buff(vd);
+
+					//h264_commit(vd, global);
+
+					//vd->setH264ConfigProbe = 0;
+					//query_buff(vd);
+					//queue_buff(vd);
+					//video_enable(vd);
+				//}
+
+				//ret = check_frame_available(vd);
+
+				//if (ret < 0)
+					//return ret;
+			//}
+
+			/* dequeue the buffers */
+
+			memset(&vd->buf, 0, sizeof(struct v4l2_buffer));
+			/*lock the mutex*/
+			__LOCK_MUTEX(mutex);
+
+			if(vd->streaming)
+			{
+				vd->buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+				vd->buf.memory = V4L2_MEMORY_MMAP;
+
+				ret = xioctl(vd->fd, VIDIOC_DQBUF, &vd->buf);
+			}
+			else res = -1;
+
+			/*unlock the mutex*/
+			__UNLOCK_MUTEX(mutex);
+
+			if(res < 0)
+				return E_NO_STREAM_ERR;
+
+			if (ret < 0)
+			{
+				fprintf(stderr, "V4L2_CORE: (VIDIOC_DQBUF) Unable to dequeue buffer: %s\n", strerror(errno));
+				return E_DQBUF_ERR;
+			}
+
+			ts = (uint64_t) vd->buf.timestamp.tv_sec * NSEC_PER_SEC +
+			    vd->buf.timestamp.tv_usec * 1000; //in nanosec
+				/* use buffer timestamp if set by the driver, otherwise use current system time */
+			if(ts > 0) vd->timestamp = ts;
+			else vd->timestamp = ns_time_monotonic();
+
+			/*lock the mutex*/
+			__LOCK_MUTEX(mutex);
+
+			/* queue the buffers */
+			if(vd->streaming)
+				ret = xioctl(vd->fd, VIDIOC_QBUF, &vd->buf);
+
+			/*unlock the mutex*/
+			__UNLOCK_MUTEX(mutex);
+
+			if (ret < 0)
+			{
+				fprintf(stderr, "V4L2_CORE: (VIDIOC_QBUF) Unable to queue buffer: %s\n", strerror(errno));
+				ret = E_QBUF_ERR;
+				return ret;
+			}
+	}
+
+	vd->frame_index++;
+
+	/*debug*/
+	char test_filename[20];
+	snprintf(test_filename, 20, "rawframe-%u.raw", vd->frame_index);
+
+	/*lock the mutex*/
+	__LOCK_MUTEX(mutex);
+
+	if(vd->streaming)
+		save_data_to_file(test_filename, vd->mem[vd->buf.index], vd->buf.bytesused);
+
+	/*unlock the mutex*/
+	__UNLOCK_MUTEX(mutex);
+
+	// save raw frame
+	//if (vd->cap_raw > 0)
+	//{
+		//SaveBuff (vd->ImageFName,vd->buf.bytesused,vd->mem[vd->buf.index]);
+		//vd->cap_raw=0;
+	//}
+
+/*
+	if ((ret = frame_decode(vd, format, width, height)) != VDIN_OK)
+	{
+		vd->signalquit = TRUE;
+		return ret;
+	}
+*/
+	return E_OK;
+}
+
 
 /*
  * Try/Set device video stream format
  * args:
  *   vd - pointer to video device data
+ *   width - requested video frame width
+ *   height - requested video frame height
+ *   pixelformat - requested v4l2 pixelformat
  *
  * asserts:
  *   vd is not null
  *
  * returns: error code ( E_OK)
  */
-int try_video_stream(v4l2_dev* vd)
+int try_video_stream_format(v4l2_dev* vd, int width, int height, int pixelformat)
 {
 	/*assertions*/
 	assert(vd != NULL);
 
 	int ret = E_OK;
+
+	uint8_t is_streaming = vd->streaming;
+
+	if(is_streaming)
+		stop_video_stream(vd);
+
+	/*lock the mutex*/
+	__LOCK_MUTEX(mutex);
+
+	vd->format.fmt.pix.pixelformat = pixelformat;
+	vd->format.fmt.pix.width = width;
+	vd->format.fmt.pix.height = height;
 
 	/* make sure we set a valid format*/
 	if(verbosity > 0)
@@ -671,11 +895,11 @@ int try_video_stream(v4l2_dev* vd)
 	vd->format.fmt.pix.field = V4L2_FIELD_ANY;
 	vd->format.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 
-	/*store requested format*/
-	int width = vd->format.fmt.pix.width;
-	int height = vd->format.fmt.pix.height;
-
 	ret = xioctl(vd->fd, VIDIOC_S_FMT, &vd->format);
+
+	/*unlock the mutex*/
+	__UNLOCK_MUTEX(mutex);
+
 	if (ret < 0)
 	{
 		fprintf(stderr, "V4L2_CORE: (VIDIOC_S_FORMAT) Unable to set format: %s\n", strerror(errno));
@@ -693,21 +917,34 @@ int try_video_stream(v4l2_dev* vd)
 
 	switch (vd->cap_meth)
 	{
-		case IO_READ: //allocate buffer for read
+		case IO_READ: /*allocate buffer for read*/
+			/*lock the mutex*/
+			__LOCK_MUTEX(mutex);
+
 			memset(&vd->buf, 0, sizeof(struct v4l2_buffer));
 			vd->buf.length = (vd->format.fmt.pix.width) * (vd->format.fmt.pix.height) * 3; //worst case (rgb)
 			vd->mem[vd->buf.index] = calloc(vd->buf.length, sizeof(uint8_t));
+
+			/*unlock the mutex*/
+			__UNLOCK_MUTEX(mutex);
 			break;
 
 		case IO_MMAP:
 		default:
 			/* request buffers */
+			/*lock the mutex*/
+			__LOCK_MUTEX(mutex);
+
 			memset(&vd->rb, 0, sizeof(struct v4l2_requestbuffers));
 			vd->rb.count = NB_BUFFER;
 			vd->rb.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 			vd->rb.memory = V4L2_MEMORY_MMAP;
 
 			ret = xioctl(vd->fd, VIDIOC_REQBUFS, &vd->rb);
+
+			/*unlock the mutex*/
+			__UNLOCK_MUTEX(mutex);
+
 			if (ret < 0)
 			{
 				fprintf(stderr, "V4L2_CORE: (VIDIOC_REQBUFS) Unable to allocate buffers: %s\n", strerror(errno));
@@ -742,6 +979,12 @@ int try_video_stream(v4l2_dev* vd)
 				return E_QBUF_ERR;
 			}
 	}
+
+	/*alloc frame buffers based on format*/
+	alloc_v4l2_frames(vd);
+
+	if(is_streaming)
+		start_video_stream(vd);
 
 	return ret;
 }
@@ -794,8 +1037,6 @@ static void clear_v4l2_dev(v4l2_dev* vd)
 	if(vd->list_device_controls)
 		free_v4l2_control_list(vd);
 
-	/*unmap/free request buffers*/
-
 	if (vd->udev)
 		udev_unref(vd->udev);
 
@@ -846,6 +1087,10 @@ v4l2_dev* init_v4l2_dev(const char *device)
 	vd->framebuffer = NULL;
 	vd->h264_frame = NULL;
 
+	/*set a default*/
+	vd->fps_num = 1;
+	vd->fps_denom = 25;
+
 	/* Create a udev object */
 	vd->udev = udev_new();
 	/*start udev device monitoring*/
@@ -869,7 +1114,12 @@ v4l2_dev* init_v4l2_dev(const char *device)
 		return (NULL);
 	}
 
+	/*zero structs*/
+	memset(&vd->cap, 0, sizeof(struct v4l2_capability));
 	memset(&vd->format, 0, sizeof(struct v4l2_format));
+	memset(&vd->buf, 0, sizeof(struct v4l2_buffer));
+	memset(&vd->rb, 0, sizeof(struct v4l2_requestbuffers));
+	memset(&vd->streamparm, 0, sizeof(struct v4l2_streamparm));
 
 	if(check_v4l2_dev(vd) != E_OK)
 	{
@@ -900,6 +1150,9 @@ void close_v4l2_dev(v4l2_dev* vd)
 {
 	/*assertions*/
 	assert(vd != NULL);
+
+	if(vd->streaming)
+		stop_video_stream(vd);
 
 	// unmap queue buffers
 	switch(vd->cap_meth)
@@ -948,6 +1201,14 @@ int set_v4l2_framerate (v4l2_dev* vd)
 
 	int ret = 0;
 
+	/*store streaming flag*/
+	uint8_t is_streaming = vd->streaming;
+
+	/*try to stop the video stream*/
+	if(is_streaming)
+		stop_video_stream(vd);
+
+	/*get the current stream parameters*/
 	vd->streamparm.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 	ret = xioctl(vd->fd, VIDIOC_G_PARM, &vd->streamparm);
 	if (ret < 0)
@@ -959,12 +1220,41 @@ int set_v4l2_framerate (v4l2_dev* vd)
 	vd->streamparm.parm.capture.timeperframe.numerator = vd->fps_num;
 	vd->streamparm.parm.capture.timeperframe.denominator = vd->fps_denom;
 
+	/*lock the mutex*/
+	__LOCK_MUTEX(mutex);
+
+	/*unmap the buffers*/
+	if(vd->cap_meth == IO_MMAP)
+		unmap_buff(vd);
+
+	/*request the new frame rate*/
 	ret = xioctl(vd->fd, VIDIOC_S_PARM, &vd->streamparm);
+	/*
+	 * For uvc muxed H264 stream
+	 * since we are restarting the video stream and codec values will be reset
+	 * commit the codec data again
+	 */
+	if(vd->format.fmt.pix.pixelformat == V4L2_PIX_FMT_H264 /*&& get_SupPixFormatUvcH264() > 1*/)
+		set_h264_muxed_format(vd);
+
+	/*query and queue the buffers*/
+	if(vd->cap_meth == IO_MMAP)
+	{
+		query_buff(vd);
+		queue_buff(vd);
+	}
+
+	/*unlock the mutex*/
+	__UNLOCK_MUTEX(mutex);
+
 	if (ret < 0)
 	{
 		fprintf(stderr, "V4L2_CORE: (VIDIOC_S_PARM) error: %s\n", strerror(errno));
 		fprintf(stderr, "V4L2_CORE: Unable to set %d/%d fps\n", vd->fps_num, vd->fps_denom);
 	}
+
+	if(is_streaming)
+		start_video_stream(vd);
 
 	return ret;
 }

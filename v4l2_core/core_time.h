@@ -18,35 +18,64 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA     #
 #                                                                               #
 ********************************************************************************/
+#ifndef CORE_TIME_H
+#define CORE_TIME_H
 
-#include <stdlib.h>
-#include <stdio.h>
+#ifndef NSEC_PER_SEC
+#define NSEC_PER_SEC 1000000000LL
+#endif
 
-#include "v4l2_core.h"
-#include "core_time.h"
+#ifndef USEC_PER_SEC
+#define USEC_PER_SEC 1000000LL
+#endif
 
+/*
+ * time in miliseconds
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: time of day in miliseconds
+ */
+uint32_t ms_time ();
 
-int main(int argc, char *argv[])
-{
-	set_v4l2_verbosity(1);
+/*
+ * time in microseconds
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: time of day in microseconds
+ */
+uint64_t us_time();
 
-	v4l2_dev* device = init_v4l2_dev("/dev/video0");
+/*
+ * time in nanoseconds
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: time in nanoseconds
+ */
+uint64_t ns_time ();
 
-	/*set format*/
-	device->current_format = 0;
+/*
+ * monotonic time in nanoseconds
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: monotonic time in nanoseconds
+ */
+uint64_t ns_time_monotonic();
 
-	int pixelformat = device->list_stream_formats[0].format;
-	int width  = device->list_stream_formats[0].list_stream_cap[0].width;
-	int height = device->list_stream_formats[0].list_stream_cap[0].height;
+#endif
 
-	/*try to set the video stream format on the device*/
-	if(try_video_stream_format(device, width, height, pixelformat) != 0)
-		printf("could not set the defined stream format\n");
-
-
-
-	if(device)
-		close_v4l2_dev(device);
-
-	return 0;
-}

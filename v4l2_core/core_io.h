@@ -19,34 +19,21 @@
 #                                                                               #
 ********************************************************************************/
 
-#include <stdlib.h>
-#include <stdio.h>
+#ifndef CORE_IO_H
+#define CORE_IO_H
 
-#include "v4l2_core.h"
-#include "core_time.h"
+/*
+ * save data to file
+ * args:
+ *   filename - string with filename
+ *   data - pointer to data
+ *   size - data size in bytes = sizeof(uint8_t)
+ *
+ * asserts:
+ *   none
+ *
+ * returns: error code
+ */
+int save_data_to_file(const char *filename, uint8_t *data, int size);
 
-
-int main(int argc, char *argv[])
-{
-	set_v4l2_verbosity(1);
-
-	v4l2_dev* device = init_v4l2_dev("/dev/video0");
-
-	/*set format*/
-	device->current_format = 0;
-
-	int pixelformat = device->list_stream_formats[0].format;
-	int width  = device->list_stream_formats[0].list_stream_cap[0].width;
-	int height = device->list_stream_formats[0].list_stream_cap[0].height;
-
-	/*try to set the video stream format on the device*/
-	if(try_video_stream_format(device, width, height, pixelformat) != 0)
-		printf("could not set the defined stream format\n");
-
-
-
-	if(device)
-		close_v4l2_dev(device);
-
-	return 0;
-}
+#endif
