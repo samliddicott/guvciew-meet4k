@@ -44,8 +44,17 @@ void signal_callback_handler(int signum)
 	printf("GUVCVIEW Caught signal %d\n", signum);
 	// Cleanup and close up stuff here
 
-	// Terminate program
-	video_capture_quit();
+	switch(signum)
+	{
+		case SIGINT:
+			// Terminate program
+			video_capture_quit();
+			break;
+
+		case SIGUSR2:
+			video_capture_save_image();
+			break;
+	}
 }
 
 int main(int argc, char *argv[])
