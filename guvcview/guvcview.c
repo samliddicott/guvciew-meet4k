@@ -28,7 +28,7 @@
 
 #include "video_capture.h"
 
-static int debug_level = 0;
+int debug_level = 0;
 
 static __THREAD_TYPE capture_thread;
 
