@@ -49,9 +49,9 @@ int main(int argc, char *argv[])
 	{
 		/*debug*/
 		char test_filename[20];
-		snprintf(test_filename, 20, "rawframe-%u.raw", (uint) vd->frame_index);
+		snprintf(test_filename, 20, "rawframe-%u.raw", (uint) device->frame_index);
 
-		save_data_to_file(test_filename, vd->raw_frame, vd->buf.bytesused);
+		save_data_to_file(test_filename, device->raw_frame, device->raw_frame_size);
 	}
 
 	stop_video_stream(device);
