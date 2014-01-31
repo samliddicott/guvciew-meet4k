@@ -21,6 +21,10 @@
 #ifndef CORE_TIME_H
 #define CORE_TIME_H
 
+#include <inttypes.h>
+#include <sys/types.h>
+
+
 #ifndef NSEC_PER_SEC
 #define NSEC_PER_SEC 1000000000LL
 #endif

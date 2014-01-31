@@ -27,7 +27,6 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -832,7 +831,7 @@ int get_v4l2_frame(v4l2_dev* vd)
 
 	/*debug*/
 	char test_filename[20];
-	snprintf(test_filename, 20, "rawframe-%u.raw", vd->frame_index);
+	snprintf(test_filename, 20, "rawframe-%u.raw", (uint) vd->frame_index);
 
 	/*lock the mutex*/
 	__LOCK_MUTEX( __PMUTEX );
