@@ -37,7 +37,10 @@
 #include "v4l2_core.h"
 #include "core_io.h"
 
+extern int verbosity;
+
 static int render = 0; /*flag if we should render frames*/
+static int quit = 0; /*terminate flag*/
 
 /*
  * set render flag
@@ -52,6 +55,21 @@ static int render = 0; /*flag if we should render frames*/
 void set_render_flag(int value)
 {
 	render = value;
+}
+
+/*
+ * terminate capture loop
+ * args:
+ *    none
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void video_capture_quit()
+{
+	quit = 1;
 }
 
 /*
@@ -72,13 +90,16 @@ void *capture_loop(void *data)
 
 	start_video_stream(device);
 
-	if( get_v4l2_frame(device) == E_OK)
+	while(!quit)
 	{
-		/*debug*/
-		char test_filename[20];
-		snprintf(test_filename, 20, "rawframe-%u.raw", (uint) device->frame_index);
+		if( get_v4l2_frame(device) == E_OK)
+		{
+			/*debug*/
+			char test_filename[20];
+			snprintf(test_filename, 20, "rawframe-%u.raw", (uint) device->frame_index);
 
-		save_data_to_file(test_filename, device->raw_frame, device->raw_frame_size);
+			save_data_to_file(test_filename, device->raw_frame, device->raw_frame_size);
+		}
 	}
 
 	stop_video_stream(device);

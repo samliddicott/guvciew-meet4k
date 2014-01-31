@@ -37,6 +37,18 @@
 void set_render_flag(int value);
 
 /*
+ * terminate capture loop
+ * args:
+ *    none
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void video_capture_quit();
+
+/*
  * capture loop (should run in a separate thread)
  * args:
  *    data - pointer to user data (device data)

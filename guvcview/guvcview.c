@@ -21,17 +21,41 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <signal.h>
 
 #include "v4l2_core.h"
 #include "core_time.h"
 
 #include "video_capture.h"
 
+static int verbosity = 0;
+
 static __THREAD_TYPE capture_thread;
+
+/*
+ * signal callback
+ * args:
+ *    signum - signal number
+ *
+ * return: none
+ */
+void signal_callback_handler(int signum)
+{
+	printf("GUVCVIEW Caught signal %d\n", signum);
+	// Cleanup and close up stuff here
+
+	// Terminate program
+	video_capture_quit();
+}
 
 int main(int argc, char *argv[])
 {
-	set_v4l2_verbosity(1);
+
+	// Register signal and signal handler
+	signal(SIGINT, signal_callback_handler);
+
+	verbosity = 1;
+	set_v4l2_verbosity(verbosity);
 
 	v4l2_dev* device = init_v4l2_dev("/dev/video0");
 
