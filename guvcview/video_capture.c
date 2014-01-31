@@ -35,6 +35,7 @@
 #include <assert.h>
 
 #include "v4l2_core.h"
+#include "core_io.h"
 
 static int render = 0; /*flag if we should render frames*/
 
