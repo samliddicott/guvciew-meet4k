@@ -28,7 +28,7 @@
 
 #include "video_capture.h"
 
-static int verbosity = 0;
+static int debug_level = 0;
 
 static __THREAD_TYPE capture_thread;
 
@@ -63,8 +63,8 @@ int main(int argc, char *argv[])
 	// Register signal and signal handler
 	signal(SIGINT, signal_callback_handler);
 
-	verbosity = 1;
-	set_v4l2_verbosity(verbosity);
+	debug_level = 1;
+	set_v4l2_verbosity(debug_level);
 
 	v4l2_dev* device = init_v4l2_dev("/dev/video0");
 

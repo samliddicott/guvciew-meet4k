@@ -38,7 +38,7 @@
 #include "core_io.h"
 
 /*flags*/
-extern int verbosity;
+extern int debug_level;
 
 static int render = 0; /*flag if we should render frames*/
 static int quit = 0; /*terminate flag*/
