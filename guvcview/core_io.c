@@ -22,11 +22,12 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <fcntl.h>
+#include <unistd.h>
 #include <string.h>
 #include <errno.h>
 #include <assert.h>
 
-#include "v4l2_core.h"
+#include "gviewv4l2core.h"
 
 extern int verbosity;
 /*

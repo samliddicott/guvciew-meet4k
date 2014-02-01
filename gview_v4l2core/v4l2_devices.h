@@ -18,50 +18,39 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA     #
 #                                                                               #
 ********************************************************************************/
-#ifndef V4L2_FORMATS_H
-#define V4L2_FORMATS_H
 
-#include "v4l2_core.h"
+#ifndef V4L2_DEVICES_H
+#define V4L2_DEVICES_H
 
-/*
- * enumerate frame formats (pixelformats, resolutions and fps)
- * and creates list in vd->list_stream_formats
- * args:
- *   vd - pointer to video device data
- *
- * asserts:
- *   vd is not null
- *   vd->fd is valid ( > 0 )
- *   vd->list_stream_formats is null
- *
- * returns: 0 if enumeration succeded or errno otherwise
- */
-int enum_frame_formats(v4l2_dev* vd);
-
-/* get frame format index from format list
- * args:
- *   vd - pointer to video device data
- *   format - v4l2 pixel format
- *
- * asserts:
- *   vd is not null
- *   vd->list_stream_formats is not null
- *
- * returns: format list index or -1 if not available
- */
-int get_frame_format_index(v4l2_dev* vd, int format);
+#include "gviewv4l2core.h"
 
 /*
- * free frame formats list
+ * enumerate available v4l2 devices
+ * and creates list in vd->list_devices
  * args:
  *   vd - pointer to video device data
  *
  * asserts:
  *   vd is not null
- *   vd->list_stream_formats is not null
+ *   vd->videodevice is not null
+ *   vd->udev is valid ( > 0 )
+ *   vd->list_devices is null
+ *
+ * returns: error code
+ */
+int enum_v4l2_devices(v4l2_dev* vd);
+
+/*
+ * free v4l2 devices list
+ * args:
+ *   vd - pointer to video device data
+ *
+ * asserts:
+ *   vd is not null
+ *   vd->list_devices is not null
  *
  * returns: void
  */
-void free_frame_formats(v4l2_dev* vd);
+void free_v4l2_devices_list(v4l2_dev* vd);
 
 #endif

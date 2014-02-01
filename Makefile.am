@@ -1,16 +1,19 @@
 ## Process this file with automake to produce Makefile.in
 
-SUBDIRS = v4l2_core \
+SUBDIRS = gview_v4l2core \
+		  gview_render \
           guvcview \
           po
 
 #Distribute these directories:
-DIST_SUBDIRS =  v4l2_core \
-		guvcview \
-		po
+DIST_SUBDIRS =  gview_v4l2core \
+				gview_render \
+				guvcview \
+				po
 
 pkgconfigdir = $(libdir)/pkgconfig
-pkgconfig_DATA = pkgconfig/v4l2core-0.1.pc
+pkgconfig_DATA = pkgconfig/gviewv4l2core-0.1.pc \
+				 pkgconfig/gviewrender-0.1.pc
 
 ACLOCAL_AMFLAGS = -I m4
 

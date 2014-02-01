@@ -22,7 +22,7 @@
 #ifndef UVC_H264_H
 #define UVC_H264_H
 
-#include "v4l2_core.h"
+#include "gviewv4l2core.h"
 
 
 // GUID of the UVC H.264 extension unit: {A29E7641-DE04-47E3-8B2B-F4341AFF003B}

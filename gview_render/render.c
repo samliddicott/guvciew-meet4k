@@ -2,6 +2,10 @@
 #           guvcview              http://guvcview.sourceforge.net               #
 #                                                                               #
 #           Paulo Assis <pj.assis@gmail.com>                                    #
+#           Nobuhiro Iwamatsu <iwamatsu@nigauri.org>                            #
+#                             Add UYVY color support(Macbook iSight)            #
+#           Flemming Frandsen <dren.dk@gmail.com>                               #
+#                             Add VU meter OSD                                  #
 #                                                                               #
 # This program is free software; you can redistribute it and/or modify          #
 # it under the terms of the GNU General Public License as published by          #
@@ -21,7 +25,7 @@
 
 /*******************************************************************************#
 #                                                                               #
-#  V4L2 core library                                                            #
+#  Render library                                                               #
 #                                                                               #
 ********************************************************************************/
 
@@ -33,112 +37,117 @@
 #include <string.h>
 #include <errno.h>
 #include <assert.h>
+/* support for internationalization - i18n */
+#include <locale.h>
+#include <libintl.h>
 
-#include "gviewv4l2core.h"
 #include "gviewrender.h"
-#include "core_io.h"
+#include "render_sdl1.h"
 
-/*flags*/
-extern int debug_level;
+int verbosity = 0;
 
-static int render = 0; /*flag if we should render frames*/
-static int quit = 0; /*terminate flag*/
-static int save_image = 0; /*save image flag*/
+static int render_api = RENDER_SDL1;
 
 /*
- * set render flag
+ * set verbosity
  * args:
- *    value - flag value
- *
+ *   value - verbosity value
+ * 
  * asserts:
  *    none
- *
+ * 
  * returns: none
  */
-void set_render_flag(int value)
+void set_render_verbosity(int value)
 {
-	render = value;
+	verbosity = value;
 }
 
 /*
- * terminate capture loop
+ * render initialization
  * args:
- *    none
- *
+ *   render - render API to use (SDL1, SDL2, ...)
+ *   width - render width
+ *   height - render height
+ * 
  * asserts:
- *    none
- *
- * returns: none
+ *   none
+ * 
+ * returns: error code 
  */
-void video_capture_quit()
+int render_init(int render, int width, int height)
 {
-	quit = 1;
-}
-
-/*
- * sets the save image flag
- * args:
- *    none
- *
- * asserts:
- *    none
- *
- * returns: none
- */
-void video_capture_save_image()
-{
-	save_image = 1;
-}
-
-/*
- * capture loop (should run in a separate thread)
- * args:
- *    data - pointer to user data (device data)
- *
- * asserts:
- *    device data is not null
- *
- * returns: pointer to return code
- */
-void *capture_loop(void *data)
-{
-	v4l2_dev* device = (v4l2_dev *) data;
-	/*asserts*/
-	assert(device != NULL);
-
-	if(render)
-	{
-		set_render_verbosity(debug_level);
-		if(render_init(RENDER_SDL1, device->format.fmt.pix.width, device->format.fmt.pix.height) < 0)
-			render = RENDER_NONE;
-	}
-		
-	start_video_stream(device);
-
-	while(!quit)
-	{
-		if( get_v4l2_frame(device) == E_OK)
-		{
-			if(render)
-				render_frame(device->raw_frame, device->raw_frame_size);
-				
-			if(save_image)
-			{
-				/*debug*/
-				char test_filename[20];
-				snprintf(test_filename, 20, "rawframe-%u.raw", (uint) device->frame_index);
-
-				save_data_to_file(test_filename, device->raw_frame, device->raw_frame_size);
-
-				save_image = 0; /*reset*/
-			}
-		}
-	}
-
-	stop_video_stream(device);
 	
-	if(render)
-		render_clean();
+	int ret = 0;
+	
+	render_api = render;
+	
+	switch(render_api)
+	{
+		case RENDER_NONE:
+			break;
+			
+		case RENDER_SDL1:
+		default:
+			ret = init_render_sdl1(width, height);
+			break;
+	}
+	
+	return ret;
+}
 
-	return ((void *) 0);
+/*
+ * render a frame
+ * args:
+ *   frame - pointer to frame data (yuyv format)
+ *   size - frame size in bytes
+ * 
+ * asserts:
+ *   frame is not null
+ *   size is valid
+ * 
+ * returns: error code 
+ */
+int render_frame(uint8_t *frame, int size)
+{
+	/*asserts*/
+	assert(frame != NULL);
+	
+	int ret = 0;
+	switch(render_api)
+	{
+		case RENDER_NONE:
+			break;
+			
+		case RENDER_SDL1:
+		default:
+			ret = render_sdl1_frame(frame, size);
+			break;
+	}
+	
+	return ret;
+}
+
+/*
+ * clean render data
+ * args:
+ *   none
+ * 
+ * asserts:
+ *   none
+ * 
+ * returns: none 
+ */
+void render_clean()
+{
+	switch(render_api)
+	{
+		case RENDER_NONE:
+			break;
+			
+		case RENDER_SDL1:
+		default:
+			render_sdl1_clean();
+			break;
+	}
 }

@@ -23,7 +23,8 @@
 #include <stdio.h>
 #include <signal.h>
 
-#include "v4l2_core.h"
+#include "gviewv4l2core.h"
+#include "gviewrender.h"
 #include "core_time.h"
 
 #include "video_capture.h"
@@ -68,19 +69,30 @@ int main(int argc, char *argv[])
 	set_v4l2_verbosity(debug_level);
 
 	v4l2_dev* device = init_v4l2_dev("/dev/video0");
+	
+	if(device)
+		set_render_flag(RENDER_SDL1);
+	else
+		return -1;
 
 	/*set format*/
-	device->current_format = 0;
+	device->current_format = get_frame_format_index(device, V4L2_PIX_FMT_YUYV);
 
-	int pixelformat = device->list_stream_formats[0].format;
-	int width  = device->list_stream_formats[0].list_stream_cap[0].width;
-	int height = device->list_stream_formats[0].list_stream_cap[0].height;
+	if(device->current_format < 0)
+	{
+		fprintf(stderr, "GUVCVIEW: requested YUYV format not available (disable render)\n");
+		set_render_flag(RENDER_NONE);
+		device->current_format = 0;
+	}	
+	
+	int pixelformat = device->list_stream_formats[device->current_format].format;
+	int width  = device->list_stream_formats[device->current_format].list_stream_cap[0].width;
+	int height = device->list_stream_formats[device->current_format].list_stream_cap[0].height;
 
 	/*try to set the video stream format on the device*/
-	if(try_video_stream_format(device, width, height, pixelformat) != 0)
-		printf("could not set the defined stream format\n");
-
-	if( __THREAD_CREATE(&capture_thread, capture_loop, (void *) device))
+	if(try_video_stream_format(device, width, height, pixelformat) < 0)
+		fprintf(stderr, "GUCVIEW: could not set the defined stream format\n");
+	else if( __THREAD_CREATE(&capture_thread, capture_loop, (void *) device))
 	{
 		fprintf(stderr, "GUVCVIEW: Video thread creation failed\n");
 	}

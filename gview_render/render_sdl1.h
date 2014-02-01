@@ -2,6 +2,10 @@
 #           guvcview              http://guvcview.sourceforge.net               #
 #                                                                               #
 #           Paulo Assis <pj.assis@gmail.com>                                    #
+#           Nobuhiro Iwamatsu <iwamatsu@nigauri.org>                            #
+#                             Add UYVY color support(Macbook iSight)            #
+#           Flemming Frandsen <dren.dk@gmail.com>                               #
+#                             Add VU meter OSD                                  #
 #                                                                               #
 # This program is free software; you can redistribute it and/or modify          #
 # it under the terms of the GNU General Public License as published by          #
@@ -19,22 +23,38 @@
 #                                                                               #
 ********************************************************************************/
 
-#ifndef V4L2_XU_CTRLS_H
-#define V4L2_XU_CTRLS_H
-
-#include "v4l2_core.h"
+/*
+ * init sdl1 render
+ * args:
+ * 
+ * asserts:
+ * 
+ * returns: error code (0 ok)
+ */ 
+int init_render_sdl1(int width, int height);
 
 /*
- * tries to map available xu controls for supported devices
+ * render a frame
  * args:
- *   vd - pointer to video device data
- *
+ *   frame - pointer to frame data (yuyv format)
+ *   size - frame size in bytes
+ * 
  * asserts:
- *   vd is not null
- *   vd->fd is valid ( > 0 )
- *
- * returns: 0 if map succeded or errno otherwise
- */
-int init_xu_ctrls(v4l2_dev* vd);
+ *   poverlay is not nul
+ *   frame is not null
+ * 
+ * returns: error code 
+ */ 
+int render_sdl1_frame(uint8_t *frame, int size);
 
-#endif
+/*
+ * clean sdl1 render data
+ * args:
+ *   none
+ * 
+ * asserts:
+ *   none
+ * 
+ * returns: none 
+ */
+void render_sdl1_clean();

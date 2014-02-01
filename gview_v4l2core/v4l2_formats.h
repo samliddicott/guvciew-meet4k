@@ -18,63 +18,37 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA     #
 #                                                                               #
 ********************************************************************************/
-#ifndef V4L2_CONTROLS_H
-#define V4L2_CONTROLS_H
+#ifndef V4L2_FORMATS_H
+#define V4L2_FORMATS_H
 
-#include "v4l2_core.h"
+#include "gviewv4l2core.h"
 
 /*
- * enumerate device (read/write) controls
- * and creates list in vd->list_device_controls
+ * enumerate frame formats (pixelformats, resolutions and fps)
+ * and creates list in vd->list_stream_formats
  * args:
  *   vd - pointer to video device data
  *
  * asserts:
  *   vd is not null
  *   vd->fd is valid ( > 0 )
- *   vd->list_device_controls is null
+ *   vd->list_stream_formats is null
  *
- * returns: error code
+ * returns: 0 if enumeration succeded or errno otherwise
  */
-int enumerate_v4l2_control(v4l2_dev* vd);
+int enum_frame_formats(v4l2_dev* vd);
 
 /*
- * goes trough the control list and updates/retrieves current values
+ * free frame formats list
  * args:
  *   vd - pointer to video device data
  *
  * asserts:
  *   vd is not null
- *   vd->list_device_controls is not null
+ *   vd->list_stream_formats is not null
  *
  * returns: void
  */
-void get_v4l2_control_values (v4l2_dev* vd);
-
-/*
- * goes trough the control list and sets values in device
- * args:
- *   vd - pointer to video device data
- *
- * asserts:
- *   vd is not null
- *   vd->list_device_controls is not null
- *
- * returns: void
- */
-void set_v4l2_control_values (v4l2_dev* vd);
-
-/*
- * free control list
- * args:
- *   vd - pointer to video device data
- *
- * asserts:
- *   vd is not null
- *   vd->list_device_controls is not null
- *
- * returns: void
- */
-void free_v4l2_control_list(v4l2_dev* vd);
+void free_frame_formats(v4l2_dev* vd);
 
 #endif

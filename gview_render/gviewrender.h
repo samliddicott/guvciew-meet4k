@@ -2,6 +2,10 @@
 #           guvcview              http://guvcview.sourceforge.net               #
 #                                                                               #
 #           Paulo Assis <pj.assis@gmail.com>                                    #
+#           Nobuhiro Iwamatsu <iwamatsu@nigauri.org>                            #
+#                             Add UYVY color support(Macbook iSight)            #
+#           Flemming Frandsen <dren.dk@gmail.com>                               #
+#                             Add VU meter OSD                                  #
 #                                                                               #
 # This program is free software; you can redistribute it and/or modify          #
 # it under the terms of the GNU General Public License as published by          #
@@ -19,38 +23,70 @@
 #                                                                               #
 ********************************************************************************/
 
-#ifndef V4L2_DEVICES_H
-#define V4L2_DEVICES_H
+/*******************************************************************************#
+#                                                                               #
+#  Render library                                                               #
+#                                                                               #
+********************************************************************************/
 
-#include "v4l2_core.h"
+#ifndef GVIEWRENDER_H
+#define GVIEWRENDER_H
 
-/*
- * enumerate available v4l2 devices
- * and creates list in vd->list_devices
- * args:
- *   vd - pointer to video device data
- *
- * asserts:
- *   vd is not null
- *   vd->videodevice is not null
- *   vd->udev is valid ( > 0 )
- *   vd->list_devices is null
- *
- * returns: error code
- */
-int enum_v4l2_devices(v4l2_dev* vd);
+#include "defs.h"
+
+#define RENDER_NONE     (0)
+#define RENDER_SDL1     (1)
 
 /*
- * free v4l2 devices list
+ * set verbosity
  * args:
- *   vd - pointer to video device data
- *
+ *   value - verbosity value
+ * 
  * asserts:
- *   vd is not null
- *   vd->list_devices is not null
- *
- * returns: void
+ *    none
+ * 
+ * returns: none
  */
-void free_v4l2_devices_list(v4l2_dev* vd);
+void set_render_verbosity(int value);
+
+/*
+ * render initialization
+ * args:
+ *   render - render API to use (SDL1, SDL2, ...)
+ *   width - render width
+ *   height - render height
+ * 
+ * asserts:
+ *   none
+ * 
+ * returns: error code 
+ */
+int render_init(int render, int width, int height);
+
+/*
+ * render a frame
+ * args:
+ *   frame - pointer to frame data (yuyv format)
+ *   size - frame size in bytes
+ * 
+ * asserts:
+ *   frame is not null
+ *   size is valid
+ * 
+ * returns: error code 
+ */
+int render_frame(uint8_t *frame, int size);
+
+/*
+ * clean render data
+ * args:
+ *   none
+ * 
+ * asserts:
+ *   none
+ * 
+ * returns: none 
+ */
+void render_clean();
 
 #endif

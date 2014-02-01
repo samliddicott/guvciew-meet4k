@@ -41,9 +41,8 @@
 #include <locale.h>
 #include <libintl.h>
 
-#include "v4l2_core.h"
+#include "gviewv4l2core.h"
 #include "core_time.h"
-#include "core_io.h"
 #include "v4l2_formats.h"
 #include "v4l2_controls.h"
 #include "v4l2_devices.h"
@@ -270,16 +269,16 @@ static int query_buff(v4l2_dev* vd)
 				//vd->buf.timestamp.tv_usec = 0;
 				vd->buf.memory = V4L2_MEMORY_MMAP;
 				ret = xioctl(vd->fd, VIDIOC_QUERYBUF, &vd->buf);
+				
 				if (ret < 0)
 				{
-					fprintf(stderr, "V4L2_CORE: (VIDIOC_QUERYBUF) Unable to query buffer: %s\n", strerror(errno));
+					fprintf(stderr, "V4L2_CORE: (VIDIOC_QUERYBUF) Unable to query buffer[%i]: %s\n", i, strerror(errno));
 					if(errno == EINVAL)
-					{
-						fprintf(stderr, "  trying with read method instead\n");
-						vd->cap_meth = IO_READ;
-					}
+						fprintf(stderr, "         try with read method instead\n");
+						
 					return E_QUERYBUF_ERR;
 				}
+				
 				if (vd->buf.length <= 0)
 					fprintf(stderr, "V4L2_CORE: (VIDIOC_QUERYBUF) - buffer length is %i\n",
 						vd->buf.length);
@@ -289,7 +288,8 @@ static int query_buff(v4l2_dev* vd)
 			}
 			// map the new buffers
 			if(map_buff(vd) != 0)
-				return E_MMAP_ERR;
+				ret = E_MMAP_ERR;
+			break;
 	}
 	return ret;
 }
@@ -911,7 +911,7 @@ int try_video_stream_format(v4l2_dev* vd, int width, int height, int pixelformat
 
 	/* make sure we set a valid format*/
 	if(verbosity > 0)
-		printf("checking format: %c%c%c%c\n",
+		printf("V4L2_CORE: checking format: %c%c%c%c\n",
 			(vd->format.fmt.pix.pixelformat) & 0xFF, ((vd->format.fmt.pix.pixelformat) >> 8) & 0xFF,
 			((vd->format.fmt.pix.pixelformat) >> 16) & 0xFF, ((vd->format.fmt.pix.pixelformat) >> 24) & 0xFF);
 
@@ -935,9 +935,6 @@ int try_video_stream_format(v4l2_dev* vd, int width, int height, int pixelformat
 		fprintf(stderr, "V4L2_CORE: Requested Format unavailable: got width %d height %d\n",
 		vd->format.fmt.pix.width, vd->format.fmt.pix.height);
 	}
-
-	/* ----------- FPS --------------*/
-	set_v4l2_framerate(vd);
 
 	switch (vd->cap_meth)
 	{
@@ -981,18 +978,24 @@ int try_video_stream_format(v4l2_dev* vd, int width, int height, int pixelformat
 				 * delete requested buffers
 				 * no need to unmap as mmap failed for sure
 				 */
+				if(verbosity > 0)
+					printf("V4L2_CORE: cleaning requestbuffers\n");
 				memset(&vd->rb, 0, sizeof(struct v4l2_requestbuffers));
 				vd->rb.count = 0;
 				vd->rb.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 				vd->rb.memory = V4L2_MEMORY_MMAP;
 				if(xioctl(vd->fd, VIDIOC_REQBUFS, &vd->rb)<0)
 					fprintf(stderr, "V4L2_CORE: (VIDIOC_REQBUFS) Unable to delete buffers: %s\n", strerror(errno));
+					
 				return E_QUERYBUF_ERR;
 			}
+			
 			/* Queue the buffers */
 			if (queue_buff(vd))
 			{
 				/*delete requested buffers */
+				if(verbosity > 0)
+					printf("V4L2_CORE: cleaning requestbuffers\n");
 				unmap_buff(vd);
 				memset(&vd->rb, 0, sizeof(struct v4l2_requestbuffers));
 				vd->rb.count = 0;
@@ -1007,6 +1010,9 @@ int try_video_stream_format(v4l2_dev* vd, int width, int height, int pixelformat
 	/*alloc frame buffers based on format*/
 	alloc_v4l2_frames(vd);
 
+	/* set FPS (must be done after queue_buff)*/
+	set_v4l2_framerate(vd);
+	
 	if(is_streaming)
 		start_video_stream(vd);
 

@@ -19,8 +19,8 @@
 #                                                                               #
 ********************************************************************************/
 
-#ifndef V4L2_CORE_H
-#define V4L2_CORE_H
+#ifndef GVIEWV4L2CORE_H
+#define GVIEWV4L2CORE_H
 
 #include <linux/videodev2.h>
 #include <linux/uvcvideo.h>
@@ -245,6 +245,18 @@ void set_v4l2_verbosity(int level);
  */
 v4l2_dev* init_v4l2_dev(const char *device);
 
+/* get frame format index from format list
+ * args:
+ *   vd - pointer to video device data
+ *   format - v4l2 pixel format
+ *
+ * asserts:
+ *   vd is not null
+ *   vd->list_stream_formats is not null
+ *
+ * returns: format list index or -1 if not available
+ */
+int get_frame_format_index(v4l2_dev* vd, int format);
 
 /*
  * Try/Set device video stream format

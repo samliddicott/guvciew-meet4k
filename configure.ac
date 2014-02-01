@@ -70,25 +70,25 @@ ALL_LINGUAS="bg bs cs da de en_AU es eu fo fr gl he hr it ja lv nl pl pt pt_BR r
 AM_GLIB_GNU_GETTEXT([external])
 
 dnl -----------------------------------------------
-dnl libv4l2core name and version number
+dnl libgviewv4l2core name and version number
 dnl -----------------------------------------------
 
-V4L2CORE_LIBRARY_NAME=libv4l2core
-AC_SUBST(V4L2CORE_LIBRARY_NAME)
-V4L2CORE_LD_NAME=v4l2core
-AC_SUBST(V4L2CORE_LD_NAME)
+GVIEWV4L2CORE_LIBRARY_NAME=libgviewv4l2core
+AC_SUBST(GVIEWV4L2CORE_LIBRARY_NAME)
+GVIEWV4L2CORE_LD_NAME=gviewv4l2core
+AC_SUBST(GVIEWV4L2CORE_LD_NAME)
 
 #release versioning
-V4L2CORE_MAJOR_VERSION=0
-V4L2CORE_MINOR_VERSION=1
-V4L2CORE_MICRO_VERSION=0
+GVIEWV4L2CORE_MAJOR_VERSION=0
+GVIEWV4L2CORE_MINOR_VERSION=1
+GVIEWV4L2CORE_MICRO_VERSION=0
 
 #API version (SONAME)
-V4L2CORE_API_VERSION=$V4L2CORE_MAJOR_VERSION.$V4L2CORE_MINOR_VERSION
-AC_SUBST(V4L2CORE_API_VERSION)
+GVIEWV4L2CORE_API_VERSION=$GVIEWV4L2CORE_MAJOR_VERSION.$GVIEWV4L2CORE_MINOR_VERSION
+AC_SUBST(GVIEWV4L2CORE_API_VERSION)
 
 #shared library versioning
-V4L2CORE_LIBRARY_VERSION=$V4L2CORE_MAJOR_VERSION:$V4L2CORE_MINOR_VERSION:$V4L2CORE_MICRO_VERSION
+GVIEWV4L2CORE_LIBRARY_VERSION=$GVIEWV4L2CORE_MAJOR_VERSION:$GVIEWV4L2CORE_MINOR_VERSION:$GVIEWV4L2CORE_MICRO_VERSION
 #
 #             current:revision:age
 #                |       |     |
@@ -99,15 +99,55 @@ V4L2CORE_LIBRARY_VERSION=$V4L2CORE_MAJOR_VERSION:$V4L2CORE_MINOR_VERSION:$V4L2CO
 #                |          set to zero if current is incremented
 #                +- increment if interfaces have been added, removed or changed
 
-AC_SUBST(V4L2CORE_LIBRARY_VERSION)
+AC_SUBST(GVIEWV4L2CORE_LIBRARY_VERSION)
 
 dnl --------------------------------------------------------------------------
-dnl check for libv4l2core dependencies
+dnl check for libgviewv4l2core dependencies
 dnl --------------------------------------------------------------------------
 
-PKG_CHECK_MODULES(V4L2CORELIB, [libv4l2 libudev libusb-1.0])
-AC_SUBST(V4L2CORELIB_CFLAGS)
-AC_SUBST(V4L2CORELIB_LIBS)
+PKG_CHECK_MODULES(GVIEWV4L2CORE, [libv4l2 libudev libusb-1.0])
+AC_SUBST(GVIEWV4L2CORE_CFLAGS)
+AC_SUBST(GVIEWV4L2CORE_LIBS)
+
+dnl -----------------------------------------------
+dnl libgviewrender name and version number
+dnl -----------------------------------------------
+
+GVIEWRENDER_LIBRARY_NAME=libgviewrender
+AC_SUBST(GVIEWRENDER_LIBRARY_NAME)
+GVIEWRENDER_LD_NAME=gviewrender
+AC_SUBST(GVIEWRENDER_LD_NAME)
+
+#release versioning
+GVIEWRENDER_MAJOR_VERSION=0
+GVIEWRENDER_MINOR_VERSION=1
+GVIEWRENDER_MICRO_VERSION=0
+
+#API version (SONAME)
+GVIEWRENDER_API_VERSION=$GVIEWRENDER_MAJOR_VERSION.$GVIEWRENDER_MINOR_VERSION
+AC_SUBST(GVIEWRENDER_API_VERSION)
+
+#shared library versioning
+GVIEWRENDER_LIBRARY_VERSION=$GVIEWRENDER_MAJOR_VERSION:$GVIEWRENDER_MINOR_VERSION:$GVIEWRENDER_MICRO_VERSION
+#
+#             current:revision:age
+#                |       |     |
+#                |       |     +- increment if interfaces have been added
+#                |       |        set to zero if interfaces have been removed
+#                                  or changed
+#                |       +- increment if source code has changed
+#                |          set to zero if current is incremented
+#                +- increment if interfaces have been added, removed or changed
+
+AC_SUBST(GVIEWRENDER_LIBRARY_VERSION)
+
+dnl --------------------------------------------------------------------------
+dnl check for libgviewrender dependencies
+dnl --------------------------------------------------------------------------
+
+PKG_CHECK_MODULES(GVIEWRENDER, [sdl >= 1.2.10])
+AC_SUBST(GVIEWRENDER_CFLAGS)
+AC_SUBST(GVIEWRENDER_LIBS)
 
 dnl --------------------------------------------------------------------------
 dnl check for guvcview dependencies
@@ -130,8 +170,10 @@ dnl -----------------------------------------------
 
 AC_CONFIG_FILES([
 	Makefile
-    pkgconfig/v4l2core-0.1.pc
-    v4l2_core/Makefile
+    pkgconfig/gviewv4l2core-0.1.pc
+    pkgconfig/gviewrender-0.1.pc
+    gview_v4l2core/Makefile
+    gview_render/Makefile
     guvcview/Makefile
     po/Makefile.in
 ])
