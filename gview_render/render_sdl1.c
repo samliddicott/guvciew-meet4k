@@ -234,6 +234,21 @@ int render_sdl1_frame(uint8_t *frame, int size)
 }
 
 /*
+ * set sdl1 render caption
+ * args:
+ *   caption - string with render window caption
+ * 
+ * asserts:
+ *   none
+ * 
+ * returns: none 
+ */
+void set_render_sdl1_caption(const char* caption)
+{
+	SDL_WM_SetCaption(caption, NULL);
+}
+
+/*
  * clean sdl1 render data
  * args:
  *   none

@@ -54,6 +54,9 @@ static __MUTEX_TYPE mutex;
 /*verbosity (global scope)*/
 int verbosity = 0;
 
+static double real_fps = 0.0;
+static uint64_t fps_ref_ts = 0;
+static uint fps_frame_count = 0;
 /*
  * ioctl with a number of retries in the case of I/O failure
  * args:
@@ -95,6 +98,21 @@ int xioctl(int fd, int IOCTL_X, void *arg)
 void set_v4l2_verbosity(int level)
 {
 	verbosity = level;
+}
+
+/*
+ * get real fps
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: double with real fps value
+ */
+double get_v4l2_realfps()
+{
+	return(real_fps);
 }
 
 /*
@@ -841,7 +859,21 @@ int get_v4l2_frame(v4l2_dev* vd)
 	}
 
 	vd->frame_index++;
-
+	
+	/*determine real fps every 2 sec aprox.*/
+	if(vd->frame_index == 1)
+		fps_ref_ts = vd->timestamp;
+	
+	if(vd->timestamp > fps_ref_ts + (2 * NSEC_PER_SEC))
+	{
+		real_fps = (double) fps_frame_count /((double) (vd->timestamp - fps_ref_ts)/ NSEC_PER_SEC);
+		fps_ref_ts = vd->timestamp;
+		fps_frame_count = 0;
+	}
+	else
+	{
+		fps_frame_count++;
+	}
 
 
 	/*lock the mutex*/

@@ -41,10 +41,11 @@
 /*flags*/
 extern int debug_level;
 
-static int render = 0; /*flag if we should render frames*/
+static int render = RENDER_NONE; /*render API*/
 static int quit = 0; /*terminate flag*/
 static int save_image = 0; /*save image flag*/
 
+static char render_caption[20]; /*render window caption*/
 /*
  * set render flag
  * args:
@@ -120,7 +121,11 @@ void *capture_loop(void *data)
 		if( get_v4l2_frame(device) == E_OK)
 		{
 			if(render)
+			{
+				snprintf(render_caption, 20, "SDL Video - %2.2f", get_v4l2_realfps());
+				set_render_caption(render_caption);
 				render_frame(device->raw_frame, device->raw_frame_size);
+			}
 				
 			if(save_image)
 			{

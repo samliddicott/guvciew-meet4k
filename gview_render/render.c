@@ -129,6 +129,31 @@ int render_frame(uint8_t *frame, int size)
 }
 
 /*
+ * set caption
+ * args:
+ *   caption - string with render window caption
+ * 
+ * asserts:
+ *   none
+ * 
+ * returns: none 
+ */
+void set_render_caption(const char* caption)
+{
+	switch(render_api)
+	{
+		case RENDER_NONE:
+			break;
+			
+		case RENDER_SDL1:
+		default:
+			set_render_sdl1_caption(caption);
+			break;
+	}
+}
+
+
+/*
  * clean render data
  * args:
  *   none

@@ -234,6 +234,18 @@ int xioctl(int fd, int IOCTL_X, void *arg);
 void set_v4l2_verbosity(int level);
 
 /*
+ * get real fps
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: double with real fps value
+ */
+double get_v4l2_realfps();
+
+/*
  * Initiate video device data with default values
  * args:
  *   device - device name (e.g: "/dev/video0")

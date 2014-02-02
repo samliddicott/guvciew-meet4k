@@ -64,6 +64,18 @@ void set_render_verbosity(int value);
 int render_init(int render, int width, int height);
 
 /*
+ * set caption
+ * args:
+ *   caption - string with render window caption
+ * 
+ * asserts:
+ *   none
+ * 
+ * returns: none 
+ */
+void set_render_caption(const char* caption);
+
+/*
  * render a frame
  * args:
  *   frame - pointer to frame data (yuyv format)
