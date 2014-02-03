@@ -105,9 +105,34 @@ dnl --------------------------------------------------------------------------
 dnl check for libgviewv4l2core dependencies
 dnl --------------------------------------------------------------------------
 
-PKG_CHECK_MODULES(GVIEWV4L2CORE, [libv4l2 libudev libusb-1.0])
+PKG_CHECK_MODULES(GVIEWV4L2CORE, [libv4l2 libudev libusb-1.0 libavcodec])
 AC_SUBST(GVIEWV4L2CORE_CFLAGS)
 AC_SUBST(GVIEWV4L2CORE_LIBS)
+
+dnl --------------------------------------------------------------------------
+dnl Check for avcodec.h installation path
+dnl --------------------------------------------------------------------------
+
+dnl Check for avcodec.h directly
+dnl if all tests fail must add avcodec.h path to C_INCLUDE_PATH before running configure
+AC_CHECK_HEADER([avcodec.h], [has_avcodec_h="yes"])
+
+dnl Check old install path for avcodec.h (ffmpeg/avcodec.h)
+AC_CHECK_HEADER([ffmpeg/avcodec.h], [has_ffmpeg_dir="yes"])
+
+dnl Check new install path for avcodec.h (libavcodec/avcodec.h)
+dnl if all the checks fail we include "libavcodec/avcodec.h"
+AC_CHECK_HEADER([libavcodec/avcodec.h], [has_libavcodec_dir="yes"])
+
+if test "$has_avcodec_h" = yes; then
+  AC_DEFINE(HAS_AVCODEC_H,1,[Define if avcodec.h can be acessed directly])
+fi
+if test "$has_ffmpeg_dir" = yes; then
+  AC_DEFINE(HAS_FFMPEG_AVCODEC_H,1,[Define if avcodec.h installed to ffmpeg dir])
+fi
+if test "$has_libavcodec_dir" = yes; then
+  AC_DEFINE(HAS_LIBAVCODEC_AVCODEC_H,1,[Define if avcodec.h installed to libavcodec dir])
+fi
 
 dnl -----------------------------------------------
 dnl libgviewrender name and version number

@@ -55,8 +55,18 @@
 #define E_FBALLOC_ERR			(-15)
 #define E_NO_STREAM_ERR         (-16)
 #define E_NO_DATA               (-17)
+#define E_NO_CODEC              (-18)
+#define E_DECODE_ERR            (-19)
 #define E_UNKNOWN_ERR    		(-20)
 
+
+#ifndef TRUE
+#define TRUE (1)
+#endif
+
+#ifndef FALSE
+#define FALSE (0)
+#endif
 
 #define CLEAR_LINE "\x1B[K"
 
@@ -133,7 +143,7 @@ static const int stdSampleRates[] =
 #define DEFAULT_FPS_NUM 1
 
 /*clip value between 0 and 255*/
-#define CLIP(value) (BYTE)(((value)>0xFF)?0xff:(((value)<0)?0:(value)))
+#define CLIP(value) (uint8_t)(((value)>0xFF)?0xff:(((value)<0)?0:(value)))
 
 /*MAX macro - gets the bigger value*/
 #ifndef MAX

@@ -107,26 +107,38 @@ void *capture_loop(void *data)
 	/*asserts*/
 	assert(device != NULL);
 
+	/*yuyv frame has 2 bytes per pixel*/
+	int yuv_frame_size = device->format.fmt.pix.width * device->format.fmt.pix.height << 1;
+
 	if(render)
 	{
 		set_render_verbosity(debug_level);
 		if(render_init(RENDER_SDL1, device->format.fmt.pix.width, device->format.fmt.pix.height) < 0)
 			render = RENDER_NONE;
 	}
-		
+
 	start_video_stream(device);
 
 	while(!quit)
 	{
 		if( get_v4l2_frame(device) == E_OK)
 		{
+			/*decode the raw frame*/
+			if(frame_decode(vd) != E_OK)
+			{
+				fprintf(stderr, "GUVCIEW: Error - Couldn't decode image\n");
+				video_capture_quit();
+				continue;
+			}
+
+			/*render the decoded frame*/
 			if(render)
 			{
 				snprintf(render_caption, 20, "SDL Video - %2.2f", get_v4l2_realfps());
 				set_render_caption(render_caption);
-				render_frame(device->raw_frame, device->raw_frame_size);
+				render_frame(device->yuv_frame, yuv_frame_size);
 			}
-				
+
 			if(save_image)
 			{
 				/*debug*/
@@ -141,7 +153,7 @@ void *capture_loop(void *data)
 	}
 
 	stop_video_stream(device);
-	
+
 	if(render)
 		render_clean();
 

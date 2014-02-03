@@ -32,6 +32,25 @@
 #include <errno.h>
 #include <assert.h>
 
+/*h264 decoder (libavcodec)*/
+#ifdef HAS_AVCODEC_H
+  #include <avcodec.h>
+#else
+  #ifdef HAS_LIBAVCODEC_AVCODEC_H
+    #include <libavcodec/avcodec.h>
+  #else
+    #ifdef HAS_FFMPEG_AVCODEC_H
+      #include <ffmpeg/avcodec.h>
+    #else
+      #include <libavcodec/avcodec.h>
+    #endif
+  #endif
+#endif
+
+#define LIBAVCODEC_VER_AT_LEAST(major,minor)  (LIBAVCODEC_VERSION_MAJOR > major || \
+                                              (LIBAVCODEC_VERSION_MAJOR == major && \
+                                               LIBAVCODEC_VERSION_MINOR >= minor))
+
 #include "uvc_h264.h"
 #include "v4l2_formats.h"
 
@@ -40,6 +59,38 @@
 #define USB_VIDEO_CONTROL_XU_TYPE	0x06
 
 extern int verbosity;
+
+typedef struct _h264_decoder_context
+{
+	AVCodec *codec;
+	AVCodecContext *context;
+	AVFrame *picture;
+
+	int width;
+	int height;
+	int pic_size;
+
+} h264_decoder_context;
+
+static h264_decoder_context *h264_ctx = NULL;
+
+/*h264 support type*/
+static int h264_support = H264_NONE; /*none by default*/
+
+/*
+ * get h264 support type
+ * args:
+ *    none
+ *
+ * asserts:
+ *    none
+ *
+ * returns: support type (H264_NONE; H264_MUXED; H264_FRAME)
+ */
+int h264_get_support()
+{
+	return h264_support;
+}
 
 /*
  * print probe/commit data
@@ -335,22 +386,33 @@ void add_h264_format(v4l2_dev *vd)
 	{
 		if(verbosity > 0)
 			printf("V4L2_CORE: H264 format already in list\n");
+
+		h264_support = H264_FRAME;
 		return; /*H264 is already in the list*/
 	}
 
 	if(get_uvc_h624_unit_id(vd) <= 0)
+	{
+		h264_support = H264_NONE;
 		return; /*no unit id found for h264*/
+	}
 
 	if(!check_h264_support(vd))
+	{
+		h264_support = H264_NONE;
 		return; /*no XU support for h264*/
+	}
 
-	/*add the format to the list*/
 	int mjpg_index = get_frame_format_index(vd, V4L2_PIX_FMT_MJPEG);
-	if(mjpg_index < 0) /*MJPG must be available for uvc H264 streams*/
+	if(mjpg_index < 0) /*MJPG must be available for muxed uvc H264 streams*/
 		return;
 
+	/*add the format to the list*/
 	if(verbosity > 0)
 		printf("V4L2_CORE: adding muxed H264 format\n");
+
+	/*if we got here then muxed h264 is supported*/
+	h264_support = H264_MUXED;
 
 	vd->numb_formats++; /*increment number of formats*/
 	int fmtind = vd->numb_formats;
@@ -619,3 +681,157 @@ int uvcx_set_frame_rate_config(int hdevice, uint8_t unit_id, uint32_t framerate)
 }
 
 */
+
+/*
+ * ############# H264 decoder ##############
+ */
+
+/*
+ * check if h264 decoder is available from libavcodec
+ * args:
+ *    none
+ *
+ * asserts:
+ *    none
+ *
+ * returns: TRUE (1)
+ *          FALSE(0)
+ */
+uint8_t h264_has_decoder()
+{
+	if(avcodec_find_decoder(CODEC_ID_H264))
+		return TRUE;
+	else
+		return FALSE;
+}
+
+/*
+ * init h264 decoder context
+ * args:
+ *    width - image width
+ *    height - image height
+ *
+ * asserts:
+ *    none
+ *
+ * returns: error code (0 - E_OK)
+ */
+int h264_init_decoder(int width, int height)
+{
+	if(h264_ctx != NULL)
+		close_h264_decoder();
+
+	h264_ctx = calloc(1, sizeof(h264_decoder_context));
+
+	h264_ctx->codec = avcodec_find_decoder(CODEC_ID_H264);
+	if(!h264_ctx->codec)
+	{
+		fprintf(stderr, "V4L2_CORE: (H264 decoder) codec not found (please install libavcodec-extra for H264 support)\n");
+		free(h264_ctx);
+		return E_NO_CODEC;
+	}
+
+#if LIBAVCODEC_VER_AT_LEAST(53,6)
+	h264_ctx->context = avcodec_alloc_context3(h264_ctx->codec);
+	avcodec_get_context_defaults3 (h264_ctx->context, h264_ctx->codec);
+#else
+	h264_ctx->context = avcodec_alloc_context();
+	avcodec_get_context_defaults(h264_ctx->context);
+#endif
+
+
+	h264_ctx->context->flags2 |= CODEC_FLAG2_FAST;
+	h264_ctx->context->pix_fmt = PIX_FMT_YUV420P;
+	h264_ctx->context->width = width;
+	h264_ctx->context->height = height;
+	//h264_ctx->context->dsp_mask = (FF_MM_MMX | FF_MM_MMXEXT | FF_MM_SSE);
+
+#if LIBAVCODEC_VER_AT_LEAST(53,6)
+	if (avcodec_open2(h264_ctx->context, h264_ctx->codec, NULL) < 0)
+#else
+	if (avcodec_open(h264_ctx->context, h264_ctx->codec) < 0)
+#endif
+	{
+		fprintf(stderr, "V4L2_CORE: (H264 decoder) couldn't open codec\n");
+		avcodec_close(h264_ctx->context);
+		free(h264_ctx->context);
+		free(h264_ctx);
+		return E_NO_CODEC;
+	}
+
+	h264_ctx->picture = avcodec_alloc_frame();
+	avcodec_get_frame_defaults(h264_ctx->picture);
+	h264_ctx->pic_size = avpicture_get_size(h264_ctx->context->pix_fmt, width, height);
+	h264_ctx->width = width;
+	h264_ctx->height = height;
+
+	return E_OK;
+}
+
+/*
+ * decode h264 frame
+ * args:
+ *    out_buf - pointer to decoded data
+ *    in_buf - pointer to h264 data
+ *    size - in_buf size
+ *
+ * asserts:
+ *    h264_ctx is not null
+ *
+ * returns: decoded data size
+ */
+int h264_decode(uint8_t *out_buf, uint8_t *in_buf, int size)
+{
+	/*asserts*/
+	assert(h264_ctx != NULL);
+
+	AVPacket avpkt;
+
+	avpkt.size = size;
+	avpkt.data = in_buf;
+
+	int got_picture = 0;
+	int len = avcodec_decode_video2(h264_ctx->context, h264_ctx->picture, &got_picture, &avpkt);
+
+	if(len < 0)
+	{
+		fprintf(stderr, "V4L2_CORE: (H264 decoder) error while decoding frame\n");
+		return len;
+	}
+
+	if(got_picture)
+	{
+		avpicture_layout((AVPicture *) h264_ctx->picture, h264_ctx->context->pix_fmt
+			, h264_ctx->width, h264_ctx->height, out_buf, h264_ctx->pic_size);
+		return len;
+	}
+	else
+		return 0;
+
+}
+
+/*
+ * close h264 decoder context
+ * args:
+ *    none
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void h264_close_decoder()
+{
+	if(h264_ctx == NULL)
+		return;
+
+	avcodec_close(h264_ctx->context);
+
+	free(h264_ctx->context);
+	free(h264_ctx->picture);
+
+	free(h264_ctx);
+
+	h264_ctx = NULL;
+}
+

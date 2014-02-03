@@ -1,15 +1,19 @@
 ## Process this file with automake to produce Makefile.in
 
 # Public headers
-h_sources = gviewv4l2core.h
+h_sources = gviewv4l2core.h \
+			$(top_srcdir)/includes/defs.h
 
 c_sources = v4l2_core.c \
-			  v4l2_formats.c \
-			  v4l2_controls.c \
-			  v4l2_devices.c \
-			  v4l2_xu_ctrls.c \
-			  uvc_h264.c \
-			  core_time.c
+			v4l2_formats.c \
+			v4l2_controls.c \
+			v4l2_devices.c \
+			v4l2_xu_ctrls.c \
+			uvc_h264.c \
+			core_time.c \
+			frame_decoder.c \
+			colorspaces.c \
+			jpeg_decoder.c
 
 
 #Install the headers in a versioned directory - guvcvideo-x.x/libgview_v4l2core:

@@ -171,12 +171,6 @@ typedef struct _v4l2_dev
 	int fps_num;                        //fps numerator
 	int fps_denom;                      //fps denominator
 
-	size_t raw_frame_size;              // size of raw frame (in bytes)
-	size_t raw_frame_max_size;          // max size for raw frame (in bytes)
-	uint8_t *raw_frame;                 // raw frame (as captured from device)
-	uint8_t *tmp_buffer;                // temp buffer for decoding compressed data
-	uint8_t *frame_buffer;              // frame buffer (YUYV), for rendering
-
 	uint8_t streaming;                  // flag if device is streaming (1) or not (0)
 	uint64_t frame_index;               // captured frame index from 0 to max(uint64_t)
 	uint64_t timestamp;                 // captured frame timestamp
@@ -184,9 +178,22 @@ typedef struct _v4l2_dev
 	uint32_t buff_length[NB_BUFFER];    // memory buffers length as set by VIDIOC_QUERYBUF
 	uint32_t buff_offset[NB_BUFFER];    // memory buffers offset as set by VIDIOC_QUERYBUF
 
+	/*
+	 * raw_frame is a pointer to the
+	 * current frame buffer
+	 * (DO NOT FREE)
+	 */
+	uint8_t *raw_frame;                 // pointer to raw frame (as captured from device)
+	size_t raw_frame_size;              // size of raw frame (in bytes)
+
+	uint8_t *tmp_buffer;                // temp buffer for decoding compressed data
+	uint8_t *yuv_frame;                 // frame buffer (YUYV), for rendering
+	uint8_t *h264_frame;                // h264 frame data (after demuxing) can be a copy of raw_frame
+	size_t *h264_frame_size;            // h264 frame data size (in bytes)
+
 	uint8_t h264_unit_id;  				// uvc h264 unit id, if <= 0 then uvc h264 is not supported
 	uvcx_video_config_probe_commit_t h264_config_probe_req; //probe commit struct for h264 streams
-	//struct h264_decoder_context* h264_ctx; //h264 decoder context
+	//h264_decoder_context *h264_ctx;     //h264 decoder context
 	uint8_t *h264_last_IDR;             // last IDR frame retrieved from uvc h264 stream
 	int h264_last_IDR_size;             // last IDR frame size
 	uint8_t *h264_SPS;                  // h264 SPS info
@@ -296,6 +303,18 @@ int try_video_stream_format(v4l2_dev* vd, int width, int height, int pixelformat
  * returns: error code (E_OK)
  */
 int get_v4l2_frame(v4l2_dev* vd);
+
+/*
+ * decode video stream ( from raw_frame to frame buffer (yuyv format))
+ * args:
+ *    vd - pointer to device data
+ *
+ * asserts:
+ *    vd is not null
+ *
+ * returns: error code ( 0 - E_OK)
+*/
+int frame_decode(v4l2_dev* vd);
 
 /*
  * cleans video device data and allocations

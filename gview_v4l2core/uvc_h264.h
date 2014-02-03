@@ -24,6 +24,10 @@
 
 #include "gviewv4l2core.h"
 
+/*H264 support type*/
+#define H264_NONE    (0)
+#define H264_FRAME   (1)
+#define H264_MUXED   (2)
 
 // GUID of the UVC H.264 extension unit: {A29E7641-DE04-47E3-8B2B-F4341AFF003B}
 #define GUID_UVCX_H264_XU {0x41, 0x76, 0x9E, 0xA2, 0x04, 0xDE, 0xE3, 0x47, 0x8B, 0x2B, 0xF4, 0x34, 0x1A, 0xFF, 0x00, 0x3B}
@@ -250,6 +254,18 @@ typedef struct _uvcx_qp_steps_layers_t
 } __attribute__((__packed__)) uvcx_qp_steps_layers_t;
 
 /*
+ * get h264 support type
+ * args:
+ *    none
+ *
+ * asserts:
+ *    none
+ *
+ * returns: support type (H264_NONE; H264_MUXED; H264_FRAME)
+ */
+int h264_get_support();
+
+/*
  * gets the uvc h264 xu control unit id, if any
  * args:
  *   vd - pointer to video device data
@@ -325,4 +341,57 @@ int uvcx_request_frame_type(int hdevice, uint8_t unit_id, uint16_t type);
 uint32_t uvcx_get_frame_rate_config(int hdevice, uint8_t unit_id, uint8_t query);
 int uvcx_set_frame_rate_config(int hdevice, uint8_t unit_id, uint32_t framerate);
 */
+
+/*
+ * check if h264 decoder is available from libavcodec
+ * args:
+ *    none
+ *
+ * asserts:
+ *    none
+ *
+ * returns: TRUE (1)
+ *          FALSE(0)
+ */
+uint8_t h264_has_decoder();
+
+/*
+ * init h264 decoder context
+ * args:
+ *    width - image width
+ *    height - image height
+ *
+ * asserts:
+ *    none
+ *
+ * returns: error code (0 - E_OK)
+ */
+int h264_init_decoder(int width, int height);
+
+/*
+ * decode h264 frame
+ * args:
+ *    out_buf - pointer to decoded data
+ *    in_buf - pointer to h264 data
+ *    size - in_buf size
+ *
+ * asserts:
+ *    h264_ctx is not null
+ *
+ * returns: decoded data size
+ */
+int h264_decode(uint8_t *out_buf, uint8_t *in_buf, int size);
+
+/*
+ * close h264 decoder context
+ * args:
+ *    none
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void h264_close_decoder();
+
 #endif /*UVC_H264_H*/

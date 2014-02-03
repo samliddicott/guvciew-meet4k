@@ -43,6 +43,8 @@
 
 #include "gviewv4l2core.h"
 #include "core_time.h"
+#include "uvc_h264.h"
+#include "frame_decoder.h"
 #include "v4l2_formats.h"
 #include "v4l2_controls.h"
 #include "v4l2_devices.h"
@@ -287,16 +289,16 @@ static int query_buff(v4l2_dev* vd)
 				//vd->buf.timestamp.tv_usec = 0;
 				vd->buf.memory = V4L2_MEMORY_MMAP;
 				ret = xioctl(vd->fd, VIDIOC_QUERYBUF, &vd->buf);
-				
+
 				if (ret < 0)
 				{
 					fprintf(stderr, "V4L2_CORE: (VIDIOC_QUERYBUF) Unable to query buffer[%i]: %s\n", i, strerror(errno));
 					if(errno == EINVAL)
 						fprintf(stderr, "         try with read method instead\n");
-						
+
 					return E_QUERYBUF_ERR;
 				}
-				
+
 				if (vd->buf.length <= 0)
 					fprintf(stderr, "V4L2_CORE: (VIDIOC_QUERYBUF) - buffer length is %i\n",
 						vd->buf.length);
@@ -412,217 +414,6 @@ static int check_frame_available(v4l2_dev *vd)
 		return E_OK;
 
 	return E_UNKNOWN_ERR;
-}
-
-/*
- * Alloc image buffers for decoding video stream
- * args:
- *   vd - pointer to video device data
- *
- * asserts:
- *   vd is not null
- *
- * returns: error code  (0- E_OK)
- */
-static int alloc_v4l2_frames(v4l2_dev *vd)
-{
-	/*assertions*/
-	assert(vd != NULL);
-
-	/*free any allocated buffers*/
-	if(vd->raw_frame)
-	{
-		free(vd->raw_frame);
-		vd->raw_frame = NULL;
-	}
-
-	if(vd->tmp_buffer)
-	{
-		free(vd->tmp_buffer);
-		vd->tmp_buffer = NULL;
-	}
-
-	if(vd->frame_buffer)
-	{
-		free(vd->frame_buffer);
-		vd->frame_buffer = NULL;
-	}
-
-	if(vd->h264_last_IDR)
-	{
-		free(vd->h264_last_IDR);
-		vd->h264_last_IDR = NULL;
-	}
-
-
-	int ret = E_OK;
-
-	vd->raw_frame_max_size = 0;
-	size_t framebuf_size = 0;
-	size_t tmpbuf_size = 0;
-
-	int width = vd->format.fmt.pix.width;
-	int height = vd->format.fmt.pix.height;
-
-	if(width <= 0 || height <= 0)
-		return E_ALLOC_ERR;
-
-	int framesizeIn = (width * height << 1); //2 bytes per pixel
-	switch (vd->format.fmt.pix.pixelformat)
-	{
-		case V4L2_PIX_FMT_H264:
-			vd->raw_frame_max_size = framesizeIn;
-			vd->raw_frame = calloc(framesizeIn, sizeof(uint8_t));
-
-			vd->h264_last_IDR = calloc(framesizeIn, sizeof(uint8_t));
-			vd->h264_last_IDR_size = 0; /*reset (no frame stored)*/
-			//if(vd->h264_ctx)
-			//	close_h264_decoder(vd->h264_ctx);
-			//vd->h264_ctx = init_h264_decoder(width, height); //init h264 context and fall through
-		case V4L2_PIX_FMT_JPEG:
-		case V4L2_PIX_FMT_MJPEG:
-			/* alloc a temp buffer to reconstruct the pict (MJPEG)*/
-			tmpbuf_size= framesizeIn;
-			vd->raw_frame_max_size = framesizeIn;
-			vd->raw_frame = calloc(framesizeIn, sizeof(uint8_t));
-
-			vd->tmp_buffer = calloc(tmpbuf_size, sizeof(uint8_t));
-
-			framebuf_size = width * (height + 8) * 2;
-			vd->frame_buffer = calloc(framebuf_size, sizeof(uint8_t));
-			break;
-
-		case V4L2_PIX_FMT_UYVY:
-		case V4L2_PIX_FMT_YVYU:
-		case V4L2_PIX_FMT_YYUV:
-		case V4L2_PIX_FMT_YUV420: /* only needs 3/2 bytes per pixel but we alloc 2 bytes per pixel*/
-		case V4L2_PIX_FMT_YVU420: /* only needs 3/2 bytes per pixel but we alloc 2 bytes per pixel*/
-		case V4L2_PIX_FMT_Y41P:   /* only needs 3/2 bytes per pixel but we alloc 2 bytes per pixel*/
-		case V4L2_PIX_FMT_NV12:
-		case V4L2_PIX_FMT_NV21:
-		case V4L2_PIX_FMT_NV16:
-		case V4L2_PIX_FMT_NV61:
-		case V4L2_PIX_FMT_SPCA501:
-		case V4L2_PIX_FMT_SPCA505:
-		case V4L2_PIX_FMT_SPCA508:
-			/* alloc a temp buffer for converting to YUYV*/
-			tmpbuf_size= framesizeIn;
-			vd->raw_frame_max_size = framesizeIn;
-			vd->raw_frame = calloc(framesizeIn, sizeof(uint8_t));
-			vd->tmp_buffer = calloc(tmpbuf_size, sizeof(uint8_t));
-			framebuf_size = framesizeIn;
-			vd->frame_buffer = calloc(framebuf_size, sizeof(uint8_t));
-			break;
-
-		case V4L2_PIX_FMT_GREY:
-			/* alloc a temp buffer for converting to YUYV*/
-			tmpbuf_size= width * height; /* 1 byte per pixel*/
-			vd->raw_frame_max_size = tmpbuf_size;
-			vd->raw_frame = calloc(tmpbuf_size, sizeof(uint8_t));
-			vd->tmp_buffer = calloc(tmpbuf_size, sizeof(uint8_t));
-			framebuf_size = framesizeIn;
-			vd->frame_buffer = calloc(framebuf_size, sizeof(uint8_t));
-			break;
-
-	    case V4L2_PIX_FMT_Y10BPACK:
-	    case V4L2_PIX_FMT_Y16:
-			/* alloc a temp buffer for converting to YUYV*/
-			tmpbuf_size= width * height * 2; /* 2 byte per pixel*/
-			vd->raw_frame_max_size = tmpbuf_size;
-			vd->raw_frame = calloc(tmpbuf_size, sizeof(uint8_t));
-			vd->tmp_buffer = calloc(tmpbuf_size, sizeof(uint8_t));
-			framebuf_size = framesizeIn;
-			vd->frame_buffer = calloc(framebuf_size, sizeof(uint8_t));
-			break;
-
-		case V4L2_PIX_FMT_YUYV:
-			/*
-			 * YUYV doesn't need a temp buffer but we will set it if/when
-			 *  video processing disable control is checked (bayer processing).
-			 *            (logitech cameras only)
-			 */
-			framebuf_size = framesizeIn;
-			vd->raw_frame_max_size = framesizeIn;
-			vd->raw_frame = calloc(framesizeIn, sizeof(uint8_t));
-			vd->frame_buffer = calloc(framebuf_size, sizeof(uint8_t));
-			break;
-
-		case V4L2_PIX_FMT_SGBRG8: /*0*/
-		case V4L2_PIX_FMT_SGRBG8: /*1*/
-		case V4L2_PIX_FMT_SBGGR8: /*2*/
-		case V4L2_PIX_FMT_SRGGB8: /*3*/
-			/*
-			 * Raw 8 bit bayer
-			 * when grabbing use:
-			 *    bayer_to_rgb24(bayer_data, RGB24_data, width, height, 0..3)
-			 *    rgb2yuyv(RGB24_data, vd->framebuffer, width, height)
-			 */
-
-			/* alloc a temp buffer for converting to YUYV*/
-			/* rgb buffer for decoding bayer data*/
-			tmpbuf_size = width * height * 3;
-			vd->raw_frame_max_size = tmpbuf_size;
-			vd->raw_frame = calloc(tmpbuf_size, sizeof(uint8_t));
-			vd->tmp_buffer = calloc(tmpbuf_size, sizeof(uint8_t));
-
-			framebuf_size = framesizeIn;
-			vd->frame_buffer = calloc(framebuf_size, sizeof(uint8_t));
-			break;
-		case V4L2_PIX_FMT_RGB24:
-		case V4L2_PIX_FMT_BGR24:
-			/*
-			 * rgb or bgr (8-8-8)
-			 * alloc a temp buffer for converting to YUYV
-			 */
-			tmpbuf_size = width * height * 3;
-			vd->raw_frame_max_size = tmpbuf_size;
-			vd->raw_frame = calloc(tmpbuf_size, sizeof(uint8_t));
-			vd->tmp_buffer = calloc(tmpbuf_size, sizeof(uint8_t));
-
-			framebuf_size = framesizeIn;
-			vd->frame_buffer = calloc(framebuf_size, sizeof(uint8_t));
-			break;
-
-		default:
-			/*
-			 * we check formats against a support formats list
-			 * so we should never have to alloc for a unknown format
-			 */
-			fprintf(stderr, "V4L2_CORE: (v4l2uvc.c) should never arrive (1)- exit fatal !!\n");
-			ret = E_UNKNOWN_ERR;
-			vd->raw_frame_max_size = 0;
-			if(vd->raw_frame)
-				free(vd->raw_frame);
-			vd->raw_frame = NULL;
-			if(vd->h264_last_IDR)
-				free(vd->h264_last_IDR);
-			vd->h264_last_IDR = NULL;
-			if(vd->frame_buffer)
-				free(vd->frame_buffer);
-			vd->frame_buffer = NULL;
-			if(vd->tmp_buffer)
-				free(vd->tmp_buffer);
-			vd->tmp_buffer = NULL;
-			return (ret);
-	}
-
-	/*assertions*/
-	assert(vd->raw_frame != NULL);
-	assert(vd->raw_frame_max_size > 0);
-	assert(vd->frame_buffer != NULL);
-
-
-	int i = 0;
-	/* set framebuffer to black (y=0x00 u=0x80 v=0x80) by default*/
-	for (i=0; i<(framebuf_size-4); i+=4)
-	{
-		vd->frame_buffer[i]=0x00;  //Y
-		vd->frame_buffer[i+1]=0x80;//U
-		vd->frame_buffer[i+2]=0x00;//Y
-		vd->frame_buffer[i+3]=0x80;//V
-	}
-
-	return (ret);
 }
 
 /*
@@ -859,11 +650,11 @@ int get_v4l2_frame(v4l2_dev* vd)
 	}
 
 	vd->frame_index++;
-	
+
 	/*determine real fps every 2 sec aprox.*/
 	if(vd->frame_index == 1)
 		fps_ref_ts = vd->timestamp;
-	
+
 	if(vd->timestamp > fps_ref_ts + (2 * NSEC_PER_SEC))
 	{
 		real_fps = (double) fps_frame_count /((double) (vd->timestamp - fps_ref_ts)/ NSEC_PER_SEC);
@@ -883,7 +674,8 @@ int get_v4l2_frame(v4l2_dev* vd)
 	{
 		vd->raw_frame_size = vd->buf.bytesused;
 		if(vd->buf.bytesused > 0 && vd->raw_frame_size <= vd->raw_frame_max_size)
-			memcpy(vd->raw_frame, vd->mem[vd->buf.index], vd->buf.bytesused);
+			vd->raw_frame = vd->mem[vd->buf.index]; /*point raw_frame to current frame buffer*/
+			//memcpy(vd->raw_frame, vd->mem[vd->buf.index], vd->buf.bytesused);
 		else
 			ret = -1;
 	}
@@ -898,13 +690,6 @@ int get_v4l2_frame(v4l2_dev* vd)
 	if(ret < 0)
 		return E_NO_DATA;
 
-/*
-	if ((ret = frame_decode(vd, format, width, height)) != VDIN_OK)
-	{
-		vd->signalquit = TRUE;
-		return ret;
-	}
-*/
 	return E_OK;
 }
 
@@ -1018,10 +803,10 @@ int try_video_stream_format(v4l2_dev* vd, int width, int height, int pixelformat
 				vd->rb.memory = V4L2_MEMORY_MMAP;
 				if(xioctl(vd->fd, VIDIOC_REQBUFS, &vd->rb)<0)
 					fprintf(stderr, "V4L2_CORE: (VIDIOC_REQBUFS) Unable to delete buffers: %s\n", strerror(errno));
-					
+
 				return E_QUERYBUF_ERR;
 			}
-			
+
 			/* Queue the buffers */
 			if (queue_buff(vd))
 			{
@@ -1044,7 +829,7 @@ int try_video_stream_format(v4l2_dev* vd, int width, int height, int pixelformat
 
 	/* set FPS (must be done after queue_buff)*/
 	set_v4l2_framerate(vd);
-	
+
 	if(is_streaming)
 		start_video_stream(vd);
 
@@ -1069,23 +854,7 @@ static void clear_v4l2_dev(v4l2_dev* vd)
 	if(vd->videodevice)
 		free(vd->videodevice);
 
-	if(vd->h264_SPS)
-		free(vd->h264_SPS);
-
-	if(vd->h264_PPS)
-		free(vd->h264_PPS);
-
-	if(vd->h264_last_IDR)
-		free(vd->h264_last_IDR);
-
-	if(vd->tmp_buffer)
-		free(vd->tmp_buffer);
-
-	if(vd->frame_buffer)
-		free(vd->frame_buffer);
-
-	if(vd->raw_frame)
-		free(vd->raw_frame);
+	clean_v4l2_frames();
 
 	if(vd->list_device_controls)
 		free_v4l2_control_list(vd);
@@ -1138,6 +907,8 @@ v4l2_dev* init_v4l2_dev(const char *device)
 		printf("V4L2_CORE: video device: %s \n", vd->videodevice);
 	}
 
+	vd->raw_frame = NULL;
+
 	vd->h264_SPS = NULL;
 	vd->h264_SPS_size = 0;
 	vd->h264_PPS = NULL;
@@ -1146,9 +917,8 @@ v4l2_dev* init_v4l2_dev(const char *device)
 	vd->h264_last_IDR_size = 0;
 
 	vd->tmp_buffer = NULL;
-	vd->frame_buffer = NULL;
-	vd->raw_frame = NULL;
-	vd->raw_frame_max_size = 0;
+	vd->yuv_frame = NULL;
+	vd->h264_frame = NULL;
 
 	/*set a default*/
 	vd->fps_num = 1;
