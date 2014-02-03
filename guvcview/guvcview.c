@@ -80,8 +80,8 @@ int main(int argc, char *argv[])
 
 	if(device->current_format < 0)
 	{
-		fprintf(stderr, "GUVCVIEW: requested YUYV format not available (disable render)\n");
-		set_render_flag(RENDER_NONE);
+		//fprintf(stderr, "GUVCVIEW: requested YUYV format not available (disable render)\n");
+		//set_render_flag(RENDER_NONE);
 		device->current_format = 0;
 	}	
 	

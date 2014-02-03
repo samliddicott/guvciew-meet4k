@@ -420,6 +420,9 @@ static int fillbits(struct in *inp, int le, unsigned int bi)
 	return le;
 }
 
+static int dec_rec2
+__P((struct in *, struct dec_hufftbl *, int *, int, int));
+
 #define GETBITS(in, n) (					\
   (le < (n) ? le = fillbits(in, le, bi), bi = in->bits : 0),	\
   (le -= (n)),							\
