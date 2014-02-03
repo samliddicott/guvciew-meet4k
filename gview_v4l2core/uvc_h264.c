@@ -719,7 +719,7 @@ uint8_t h264_has_decoder()
 int h264_init_decoder(int width, int height)
 {
 	if(h264_ctx != NULL)
-		close_h264_decoder();
+		h264_close_decoder();
 
 	h264_ctx = calloc(1, sizeof(h264_decoder_context));
 

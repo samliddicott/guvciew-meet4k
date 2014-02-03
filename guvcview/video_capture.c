@@ -124,7 +124,7 @@ void *capture_loop(void *data)
 		if( get_v4l2_frame(device) == E_OK)
 		{
 			/*decode the raw frame*/
-			if(frame_decode(vd) != E_OK)
+			if(frame_decode(device) != E_OK)
 			{
 				fprintf(stderr, "GUVCIEW: Error - Couldn't decode image\n");
 				video_capture_quit();

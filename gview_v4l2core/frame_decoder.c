@@ -81,7 +81,6 @@ int alloc_v4l2_frames(v4l2_dev *vd)
 
 	int ret = E_OK;
 
-	vd->raw_frame_max_size = 0;
 	size_t framebuf_size = 0;
 	size_t tmpbuf_size = 0;
 
@@ -96,7 +95,7 @@ int alloc_v4l2_frames(v4l2_dev *vd)
 	{
 		case V4L2_PIX_FMT_H264:
 			/*init h264 context*/
-			init_h264_decoder(width, height);
+			h264_init_decoder(width, height);
 			vd->h264_last_IDR = calloc(framesizeIn, sizeof(uint8_t));
 			vd->h264_last_IDR_size = 0; /*reset (no frame stored)*/
 
@@ -106,7 +105,7 @@ int alloc_v4l2_frames(v4l2_dev *vd)
 		case V4L2_PIX_FMT_MJPEG:
 			/* alloc a temp buffer to reconstruct the pict (MJPEG)*/
 			tmpbuf_size= framesizeIn;
-			vd->tmp_frame = calloc(tmpbuf_size, sizeof(uint8_t));
+			vd->tmp_buffer = calloc(tmpbuf_size, sizeof(uint8_t));
 			framebuf_size = width * (height + 8) * 2;
 			vd->yuv_frame = calloc(framebuf_size, sizeof(uint8_t));
 			break;
@@ -507,7 +506,7 @@ static int store_extra_data(v4l2_dev* vd)
 
 	if(vd->h264_SPS == NULL)
 	{
-		vd->h264_SPS_size = parse_NALU( 7, &vd->h264_SPS, vd->tmp2_buffer, vd->raw_frame_size);
+		vd->h264_SPS_size = parse_NALU( 7, &vd->h264_SPS, vd->h264_frame, (int) vd->h264_frame_size);
 
 		if(vd->h264_SPS_size <= 0 || vd->h264_SPS == NULL)
 		{
@@ -520,7 +519,7 @@ static int store_extra_data(v4l2_dev* vd)
 
 	if(vd->h264_PPS == NULL)
 	{
-		vd->h264_PPS_size = parse_NALU( 8, &vd->h264_PPS, vd->raw_frame, vd->raw_frame_size);
+		vd->h264_PPS_size = parse_NALU( 8, &vd->h264_PPS, vd->h264_frame, (int) vd->h264_frame_size);
 
 		if(vd->h264_PPS_size <= 0 || vd->h264_PPS == NULL)
 		{
@@ -548,9 +547,9 @@ static int store_extra_data(v4l2_dev* vd)
 static uint8_t is_h264_keyframe (v4l2_dev* vd)
 {
 	//check for a IDR frame type
-	if(check_NALU(5, vd->raw_frame, vd->raw_frame_size) != NULL)
+	if(check_NALU(5, vd->h264_frame, vd->h264_frame_size) != NULL)
 	{
-		memcpy(vd->h264_last_IDR, vd->raw_frame, vd->raw_frame_size);
+		memcpy(vd->h264_last_IDR, vd->h264_frame, vd->h264_frame_size);
 		vd->h264_last_IDR_size = vd->raw_frame_size;
 		//printf("V4L2_CORE: (uvc H264) IDR frame found in frame %" PRIu64 "\n", vd->frame_index);
 		return TRUE;
@@ -644,7 +643,7 @@ int frame_decode(v4l2_dev* vd)
 			//decode if we already have a IDR frame
 			if(vd->h264_last_IDR_size > 0)
 			{
-				/* decode (h264) to vd->tmpbuffer (yuv420p)*/
+				/* decode (h264) to vd->tmp_buffer (yuv420p)*/
 				h264_decode(vd->tmp_buffer, vd->h264_frame, vd->h264_frame_size);
 				/* convert to yuyv*/
 				yuv420_to_yuyv (vd->yuv_frame, vd->tmp_buffer, width, height);
@@ -773,7 +772,7 @@ int frame_decode(v4l2_dev* vd)
 			break;
 
 		case V4L2_PIX_FMT_SGBRG8: //0
-			bayer_to_rgb24 (vd->mem[vd->buf.index],vd->tmpbuffer, width, height, 0);
+			bayer_to_rgb24 (vd->raw_frame, vd->tmp_buffer, width, height, 0);
 			rgb2yuyv (vd->tmp_buffer, vd->yuv_frame, width, height);
 			break;
 
@@ -803,7 +802,7 @@ int frame_decode(v4l2_dev* vd)
 		default:
 			fprintf(stderr, "V4L2_CORE: error decoding frame: unknown format: %i\n", format);
 			ret = E_UNKNOWN_ERR;
-			break:
+			break;
 	}
 
 	return ret;

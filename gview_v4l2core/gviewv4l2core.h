@@ -189,11 +189,10 @@ typedef struct _v4l2_dev
 	uint8_t *tmp_buffer;                // temp buffer for decoding compressed data
 	uint8_t *yuv_frame;                 // frame buffer (YUYV), for rendering
 	uint8_t *h264_frame;                // h264 frame data (after demuxing) can be a copy of raw_frame
-	size_t *h264_frame_size;            // h264 frame data size (in bytes)
+	size_t  h264_frame_size;            // h264 frame data size (in bytes)
 
 	uint8_t h264_unit_id;  				// uvc h264 unit id, if <= 0 then uvc h264 is not supported
 	uvcx_video_config_probe_commit_t h264_config_probe_req; //probe commit struct for h264 streams
-	//h264_decoder_context *h264_ctx;     //h264 decoder context
 	uint8_t *h264_last_IDR;             // last IDR frame retrieved from uvc h264 stream
 	int h264_last_IDR_size;             // last IDR frame size
 	uint8_t *h264_SPS;                  // h264 SPS info
@@ -211,7 +210,9 @@ typedef struct _v4l2_dev
 
     v4l2_ctrl* list_device_controls;    //null terminated linked list of available device controls
     int num_controls;                   //number of controls in list
-    //v4l2_device *list_video_devices;
+    
+    uint8_t isbayer;                    //flag if we are streaming bayer data in yuyv frame (logitech only)
+    uint8_t pix_order;                  //bayer pixel order
 } v4l2_dev;
 
 /*

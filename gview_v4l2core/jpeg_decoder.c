@@ -248,6 +248,18 @@ struct jpginfo
 	int rm;			/* next restart marker */
 };
 
+static struct jpginfo info;
+static struct comp comps[MAXCOMP];
+
+static struct scan dscans[MAXCOMP];
+
+static uint8_t quant[4][64];
+
+static struct dec_hufftbl dhuff[4];
+
+#define dec_huffdc (dhuff + 0)
+#define dec_huffac (dhuff + 2)
+
 /*
  * build huffman data
  * args:
@@ -266,7 +278,7 @@ static void dec_makehuff(struct dec_hufftbl *hu, int *hufflen, uint8_t *huffvals
 {
 	/*assertions*/
 	assert(hu != NULL);
-	assert(gufflen != NULL);
+	assert(hufflen != NULL);
 	assert(huffvals != NULL);
 
 	int code, k, i, j, d, x, c, v;
@@ -345,7 +357,7 @@ static int huffman_init(void)
 		tc >>= 4;
 		tt = tc * 2 + th;
 		if (tc > 1 || th > 1)
-			return -ERR_BAD_TABLES;
+			return E_BAD_TABLES_ERR;
 		for (i = 0; i < 16; i++)
 			hufflen[i] = *ptr++;
 		l -= 1 + 16;
@@ -360,6 +372,81 @@ static int huffman_init(void)
 	}
 	return 0;
 }
+
+/*
+ * fillbits
+ * args:
+ *    inp - pointer to struct in
+ *    le - left
+ *    bi - bits
+ *
+ * asserts:
+ *    inp not null
+ *
+ * returns: error code (0 - OK)
+ */
+static int fillbits(struct in *inp, int le, unsigned int bi)
+{
+	/*asserts*/
+	assert(inp != NULL);
+
+	int b, m;
+
+	if (inp->marker)
+	{
+		if (le <= 16)
+			inp->bits = bi << 16, le += 16;
+		return le;
+	}
+	while (le <= 24)
+	{
+		b = *inp->p++;
+		if (b == 0xff && (m = *inp->p++) != 0)
+		{
+			if (m == M_EOF)
+			{
+				if (inp->func && (m = inp->func(inp->data)) == 0)
+					continue;
+			}
+			inp->marker = m;
+			if (le <= 16)
+				bi = bi << 16, le += 16;
+			break;
+		}
+		bi = bi << 8 | b;
+		le += 8;
+	}
+	inp->bits = bi;		/* tmp... 2 return values needed */
+	return le;
+}
+
+#define GETBITS(in, n) (					\
+  (le < (n) ? le = fillbits(in, le, bi), bi = in->bits : 0),	\
+  (le -= (n)),							\
+  bi >> le & ((1 << (n)) - 1)					\
+)
+
+#define UNGETBITS(in, n) (	\
+  le += (n)			\
+)
+
+#define DEC_REC(in, hu, r, i)	 (	\
+  r = GETBITS(in, DECBITS),		\
+  i = hu->llvals[r],			\
+  i & 128 ?				\
+    (					\
+      UNGETBITS(in, i & 127),		\
+      r = i >> 8 & 15,			\
+      i >> 16				\
+    )					\
+  :					\
+    (					\
+      LEBI_PUT(in),			\
+      i = dec_rec2(in, hu, &r, r, i),	\
+      LEBI_GET(in),			\
+      i					\
+    )					\
+)
 
 /*
  * mcus decoder
@@ -407,53 +494,6 @@ static void decode_mcus(struct in *inp, int *dct, int n, struct scan *sc, int *m
 		sc++;
 	}
 	LEBI_PUT(inp);
-}
-
-/*
- * fillbits
- * args:
- *    inp - pointer to struct in
- *    le - left
- *    bi - bits
- *
- * asserts:
- *    inp not null
- *
- * returns: error code (0 - OK)
- */
-static int fillbits(struct in *inp, int le, unsigned int bi)
-{
-	/*asserts*/
-	assert(inp != NULL),
-
-	int b, m;
-
-	if (inp->marker)
-	{
-		if (le <= 16)
-			inp->bits = bi << 16, le += 16;
-		return le;
-	}
-	while (le <= 24)
-	{
-		b = *inp->p++;
-		if (b == 0xff && (m = *inp->p++) != 0)
-		{
-			if (m == M_EOF)
-			{
-				if (inp->func && (m = inp->func(inp->data)) == 0)
-					continue;
-			}
-			inp->marker = m;
-			if (le <= 16)
-				bi = bi << 16, le += 16;
-			break;
-		}
-		bi = bi << 8 | b;
-		le += 8;
-	}
-	inp->bits = bi;		/* tmp... 2 return values needed */
-	return le;
 }
 
 /*
@@ -685,39 +725,9 @@ inline static void idct(int *inp, int *out, int *quant, long off, int max)
 /*********************************/
 //static void col221111 __P((int *, unsigned char *, int));
 
-typedef void (*ftopict) (int * out, BYTE *pic, int width) ;
+typedef void (*ftopict) (int * out, uint8_t *pic, int width) ;
 
 /*********************************/
-
-#define GETBITS(in, n) (					\
-  (le < (n) ? le = fillbits(in, le, bi), bi = in->bits : 0),	\
-  (le -= (n)),							\
-  bi >> le & ((1 << (n)) - 1)					\
-)
-
-#define UNGETBITS(in, n) (	\
-  le += (n)			\
-)
-
-#define DEC_REC(in, hu, r, i)	 (	\
-  r = GETBITS(in, DECBITS),		\
-  i = hu->llvals[r],			\
-  i & 128 ?				\
-    (					\
-      UNGETBITS(in, i & 127),		\
-      r = i >> 8 & 15,			\
-      i >> 16				\
-    )					\
-  :					\
-    (					\
-      LEBI_PUT(in),			\
-      i = dec_rec2(in, hu, &r, r, i),	\
-      LEBI_GET(in),			\
-      i					\
-    )					\
-)
-
-
 /*
  * pointer to pixel data
  */
@@ -747,18 +757,6 @@ static int getword(void)
 	c2 = *datap++;
 	return c1 << 8 | c2;
 }
-
-static struct jpginfo info;
-static struct comp comps[MAXCOMP];
-
-static struct scan dscans[MAXCOMP];
-
-static unsigned char quant[4][64];
-
-static struct dec_hufftbl dhuff[4];
-
-#define dec_huffdc (dhuff + 0)
-#define dec_huffac (dhuff + 2)
 
 /*
  * read jpeg tables (huffman and quantization)
@@ -954,7 +952,7 @@ static int dec_rec2(struct in *inp, struct dec_hufftbl *hu, int *runp, int c, in
  *
  * returns: error code (0 - OK)
  */
-int jpeg_decode(uint8_t **pic, BYTE *buf, int width, int height)
+int jpeg_decode(uint8_t **pic, uint8_t *buf, int width, int height)
 {
 	/*asserts*/
 	assert(buf != NULL);
@@ -988,25 +986,25 @@ int jpeg_decode(uint8_t **pic, BYTE *buf, int width, int height)
 	/*check SOI (0xFFD8)*/
 	if (getbyte() != 0xff)
 	{
-		err = ERR_NO_SOI;
+		err = E_NO_SOI_ERR;
 		goto error;
 	}
 	if (getbyte() != M_SOI)
 	{
-		err = ERR_NO_SOI;
+		err = E_NO_SOI_ERR;
 		goto error;
 	}
 	/*read tables - if exist, up to start frame marker (0xFFC0)*/
 	if (readtables(M_SOF0, &isInitHuffman))
 	{
-		err = ERR_BAD_TABLES;
+		err = E_BAD_TABLES_ERR;
 		goto error;
 	}
 	getword();     /*header lenght*/
 	i = getbyte(); /*precision (8 bit)*/
 	if (i != 8)
 	{
-		err = ERR_NOT_8BIT;
+		err = E_NOT_8BIT_ERR;
 		goto error;
 	}
 	intheight = getword(); /*height*/
@@ -1014,13 +1012,13 @@ int jpeg_decode(uint8_t **pic, BYTE *buf, int width, int height)
 
 	if ((intheight & 7) || (intwidth & 7)) /*must be even*/
 	{
-		err = ERR_BAD_WIDTH_OR_HEIGHT;
+		err = E_BAD_WIDTH_OR_HEIGHT_ERR;
 		goto error;
 	}
 	info.nc = getbyte(); /*number of components*/
 	if (info.nc > MAXCOMP)
 	{
-		err = ERR_TOO_MANY_COMPPS;
+		err = E_TOO_MANY_COMPPS_ERR;
 		goto error;
 	}
 	/*for each component*/
@@ -1034,19 +1032,19 @@ int jpeg_decode(uint8_t **pic, BYTE *buf, int width, int height)
 		comps[i].tq = getbyte(); /*quantization table used*/
 		if (h > 3 || v > 3)
 		{
-			err = ERR_ILLEGAL_HV;
+			err = E_ILLEGAL_HV_ERR;
 			goto error;
 		}
 		if (comps[i].tq > 3)
 		{
-			err = ERR_QUANT_TABLE_SELECTOR;
+			err = E_QUANT_TBL_SEL_ERR;
 			goto error;
 		}
 	}
 	/*read tables - if exist, up to start of scan marker (0xFFDA)*/
 	if (readtables(M_SOS,&isInitHuffman))
 	{
-		err = ERR_BAD_TABLES;
+		err = E_BAD_TABLES_ERR;
 		goto error;
 	}
 	getword(); /* header lenght */
@@ -1054,7 +1052,7 @@ int jpeg_decode(uint8_t **pic, BYTE *buf, int width, int height)
 	if (!info.ns)
 	{
 		printf("V4L2_CORE: (jpeg decoder) info ns %d/n",info.ns);
-		err = ERR_NOT_YCBCR_221111;
+		err = E_NOT_YCBCR_ERR;
 		goto error;
 	}
 	/*for each scan*/
@@ -1066,7 +1064,7 @@ int jpeg_decode(uint8_t **pic, BYTE *buf, int width, int height)
 		tdc >>= 4;      /*dc table*/
 		if (tdc > 1 || tac > 1)
 		{
-			err = ERR_QUANT_TABLE_SELECTOR;
+			err = E_QUANT_TBL_SEL_ERR;
 			goto error;
 		}
 		for (j = 0; j < info.nc; j++)
@@ -1074,7 +1072,7 @@ int jpeg_decode(uint8_t **pic, BYTE *buf, int width, int height)
 				break;
 		if (j == info.nc)
 		{
-			err = ERR_UNKNOWN_CID_IN_SCAN;
+			err = E_UNKNOWN_CID_ERR;
 			goto error;
 		}
 		dscans[i].hv = comps[j].hv;
@@ -1096,7 +1094,7 @@ int jpeg_decode(uint8_t **pic, BYTE *buf, int width, int height)
 	if(!isInitHuffman)
 	{
 		if(huffman_init() < 0)
-			return -ERR_BAD_TABLES;
+			return E_BAD_TABLES_ERR;
 	}
 	/*
 	if (dscans[0].cid != 1 || dscans[1].cid != 2 || dscans[2].cid != 3)
@@ -1122,8 +1120,7 @@ int jpeg_decode(uint8_t **pic, BYTE *buf, int width, int height)
 		width = intwidth;
 		height = intheight;
 		// BytesperPixel 2 yuyv , 3 rgb24
-		*pic = g_renew(unsigned char, *pic,
-			intwidth * (intheight + 8) * 2);
+		*pic = calloc( intwidth * (intheight + 8) * 2, sizeof(uint8_t));
 	}
 
 	switch (dscans[0].hv)
@@ -1167,7 +1164,7 @@ int jpeg_decode(uint8_t **pic, BYTE *buf, int width, int height)
 			}
 			break;
 		default:
-			err = ERR_NOT_YCBCR_221111;
+			err = E_NOT_YCBCR_ERR;
 			goto error;
 			break;
 	}
@@ -1175,7 +1172,7 @@ int jpeg_decode(uint8_t **pic, BYTE *buf, int width, int height)
 	idctqtab(quant[dscans[0].tq], decdata->dquant[0]);
 	idctqtab(quant[dscans[1].tq], decdata->dquant[1]);
 	idctqtab(quant[dscans[2].tq], decdata->dquant[2]);
-	setinput(&in, datap);
+	setinput(&inp, datap);
 	dec_initscans();
 
 	dscans[0].next = 2;
@@ -1188,13 +1185,13 @@ int jpeg_decode(uint8_t **pic, BYTE *buf, int width, int height)
 			if (info.dri && !--info.nm)
 				if (dec_checkmarker())
 				{
-					err = ERR_WRONG_MARKER;
+					err = E_WRONG_MARKER_ERR;
 					goto error;
 				}
 			switch (mb)
 			{
 				case 6:
-					decode_mcus(&in, decdata->dcts, mb, dscans, max);
+					decode_mcus(&inp, decdata->dcts, mb, dscans, max);
 					idct(decdata->dcts, decdata->out, decdata->dquant[0],
 						IFIX(128.5), max[0]);
 					idct(decdata->dcts + 64, decdata->out + 64,
@@ -1210,7 +1207,7 @@ int jpeg_decode(uint8_t **pic, BYTE *buf, int width, int height)
 					break;
 
 				case 4:
-					decode_mcus(&in, decdata->dcts, mb, dscans, max);
+					decode_mcus(&inp, decdata->dcts, mb, dscans, max);
 					idct(decdata->dcts, decdata->out, decdata->dquant[0],
 						IFIX(128.5), max[0]);
 					idct(decdata->dcts + 64, decdata->out + 64,
@@ -1222,7 +1219,7 @@ int jpeg_decode(uint8_t **pic, BYTE *buf, int width, int height)
 					break;
 
 				case 3:
-					decode_mcus(&in, decdata->dcts, mb, dscans, max);
+					decode_mcus(&inp, decdata->dcts, mb, dscans, max);
 					idct(decdata->dcts, decdata->out, decdata->dquant[0],
 						IFIX(128.5), max[0]);
 					idct(decdata->dcts + 64, decdata->out + 256,
@@ -1232,7 +1229,7 @@ int jpeg_decode(uint8_t **pic, BYTE *buf, int width, int height)
 					break;
 
 				case 1:
-					decode_mcus(&in, decdata->dcts, mb, dscans, max);
+					decode_mcus(&inp, decdata->dcts, mb, dscans, max);
 					idct(decdata->dcts, decdata->out, decdata->dquant[0],
 						IFIX(128.5), max[0]);
 					break;
@@ -1241,10 +1238,10 @@ int jpeg_decode(uint8_t **pic, BYTE *buf, int width, int height)
 		}
 	}
 
-	m = dec_readmarker(&in);
+	m = dec_readmarker(&inp);
 	if (m != M_EOI)
 	{
-		err = ERR_NO_EOI;
+		err = E_NO_EOI_ERR;
 		goto error;
 	}
 	free(decdata);

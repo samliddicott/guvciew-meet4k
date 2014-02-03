@@ -673,11 +673,8 @@ int get_v4l2_frame(v4l2_dev* vd)
 	if(vd->streaming)
 	{
 		vd->raw_frame_size = vd->buf.bytesused;
-		if(vd->buf.bytesused > 0 && vd->raw_frame_size <= vd->raw_frame_max_size)
-			vd->raw_frame = vd->mem[vd->buf.index]; /*point raw_frame to current frame buffer*/
-			//memcpy(vd->raw_frame, vd->mem[vd->buf.index], vd->buf.bytesused);
-		else
-			ret = -1;
+		vd->raw_frame = vd->mem[vd->buf.index]; /*point raw_frame to current frame buffer*/
+		//memcpy(vd->raw_frame, vd->mem[vd->buf.index], vd->buf.bytesused);
 	}
 	else res = -1;
 
@@ -854,7 +851,7 @@ static void clear_v4l2_dev(v4l2_dev* vd)
 	if(vd->videodevice)
 		free(vd->videodevice);
 
-	clean_v4l2_frames();
+	clean_v4l2_frames(vd);
 
 	if(vd->list_device_controls)
 		free_v4l2_control_list(vd);
