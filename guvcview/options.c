@@ -31,10 +31,10 @@
 typedef struct _opt_values_t
 {
 	char opt_short;
-	char[20] opt_long;
+	char opt_long[20];
 	int  req_arg;
-	char[20] opt_help_arg;
-	char[80] opt_help;
+	char opt_help_arg[20];
+	char opt_help[80];
 } opt_values_t;
 
 static opt_values_t opt_values[] =
@@ -43,59 +43,58 @@ static opt_values_t opt_values[] =
 		.opt_short = 'h',
 		.opt_long = "help",
 		.req_arg = 0,
-		.opt_help_arg = "";
-		.opt_help = N_("Print help");
+		.opt_help_arg = "",
+		.opt_help = N_("Print help")
 	},
 	{
 		.opt_short = 'v',
 		.opt_long = "version",
 		.req_arg = 0,
-		.opt_help_arg = "";
-		.opt_help = N_("Print version");
+		.opt_help_arg = "",
+		.opt_help = N_("Print version"),
 	},
 	{
 		.opt_short = 'w',
 		.opt_long = "verbosity",
 		.req_arg = 1,
-		.opt_help_arg = N_("LEVEL");
-		.opt_help = N_("Set Verbosity level (def: 0)");
+		.opt_help_arg = N_("LEVEL"),
+		.opt_help = N_("Set Verbosity level (def: 0)")
 	},
 	{
 		.opt_short = 'd',
 		.opt_long = "device",
 		.req_arg = 1,
-		.opt_help_arg = N_("DEVICE");
-		.opt_help = N_("Set device name (def: /dev/video0)");
+		.opt_help_arg = N_("DEVICE"),
+		.opt_help = N_("Set device name (def: /dev/video0)"),
 	},
 	{
 		.opt_short = 'x',
 		.opt_long = "resolution",
 		.req_arg = 1,
-		.opt_help_arg = N_("WIDTHxHEIGHT");
-		.opt_help = N_("Request resolution (e.g 640x480)");
+		.opt_help_arg = N_("WIDTHxHEIGHT"),
+		.opt_help = N_("Request resolution (e.g 640x480)")
 	},
 	{
 		.opt_short = 'f',
 		.opt_long = "format",
 		.req_arg = 1,
-		.opt_help_arg = N_("FOURCC");
-		.opt_help = N_("Request format (e.g MJPG)");
+		.opt_help_arg = N_("FOURCC"),
+		.opt_help = N_("Request format (e.g MJPG)")
 	},
 	{
 		.opt_short = 0,
 		.opt_long = "",
 		.req_arg = 0,
-		.opt_help_arg = "";
-		.opt_help = "";
+		.opt_help_arg = "",
+		.opt_help = ""
 	},
-}
+};
 
 static int  opt_verbosity = -1;
 static char opt_device[30] = "";
 static int  opt_width  = -1;
 static int  opt_height = -1;
 static char opt_format[5] = "";
-
 
 /*
  * prints the number of command line options
@@ -116,9 +115,43 @@ int opt_get_number()
 	{
 		i++;
 	}
-	while(strlen(opt_values[i].opt_long) > 0)
+	while(strlen(opt_values[i].opt_long) > 0);
 
 	return i;
+}
+
+/*
+ * gets the max length of help string (up to end of opt_help_arg)
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: max lenght
+ */
+static int opt_get_help_max_len()
+{
+	int i = 0;
+	
+	int max_len = 0;
+	int len = 0;
+
+	/*long option must always be set*/
+	do
+	{
+		len = 5 + /*-c, and --*/
+			  strlen(opt_values[i].opt_long);
+		if(strlen(opt_values[i].opt_help_arg) > 0)
+			len += strlen(opt_values[i].opt_help_arg) + 1; /*add =*/
+		if(len > max_len)
+				max_len = len;
+		i++;
+	}
+	while(strlen(opt_values[i].opt_long) > 0);
+	
+
+	return max_len;
 }
 
 /*
@@ -137,25 +170,40 @@ void opt_print_help()
 	printf(_("Usage:\n   guvcview [OPTIONS]\n\n"));
 	printf(_("OPTIONS:\n"));
 
+	int max_len = opt_get_help_max_len();
+	int len = 0;
+	
 	int i = 0;
 
 	/*long option must always be set*/
 	do
 	{
 		if(opt_values[i].opt_short > 0)
-			printf("-%c", opt_values[i].opt_short);
+		{
+			len = 3;
+			printf("-%c,", opt_values[i].opt_short);
+		}
 
 		printf("--%s", opt_values[i].opt_long);
+		len += strlen(opt_values[i].opt_long) + 2;
 
 		if(strlen(opt_values[i].opt_help_arg) > 0)
+		{
+			len += strlen(opt_values[i].opt_help_arg) + 1;
 			printf("=%s", _(opt_values[i].opt_help_arg));
-
+		}
+		
+		int spaces = max_len - len;
+		int j = 0;
+		for(j=0; j < spaces; j++)
+			printf(" ");
+		
 		if(strlen(opt_values[i].opt_help) > 0)
-			printf("\t%s\n", _(opt_values[i].opt_help));
+			printf("\t:%s\n", _(opt_values[i].opt_help));
 
 		i++;
 	}
-	while(strlen(opt_values[i].opt_long) > 0)
+	while(strlen(opt_values[i].opt_long) > 0);
 }
 
 /*
@@ -188,7 +236,7 @@ int options_parse(int argc, char *argv[])
 {
 	int ret = 0;
 	int long_index =0;
-	char* stopstring = NULL;
+	char *stopstring;
 
 	int n_options = opt_get_number();
 
@@ -200,13 +248,10 @@ int options_parse(int argc, char *argv[])
 	int i =0;
 	for(i=0; i < n_options; i++)
 	{
-		long_options[i] =
-		{
-			opt_values[i].opt_long,
-			(opt_values[i].req_arg > 0 ? required_argument: no_argument),
-			0,
-			opt_values[i].opt_short}
-		};
+		long_options[i].name = opt_values[i].opt_long;
+		long_options[i].has_arg = opt_values[i].req_arg > 0 ? required_argument: no_argument;
+		long_options[i].flag = NULL;
+		long_options[i].val = opt_values[i].opt_short;
 
 		/*set opt string (be carefull we don't exceed size)*/
 		if(opt_str_ptr - opt_string < 128 - 3)
@@ -217,11 +262,15 @@ int options_parse(int argc, char *argv[])
 		}
 	}
 
-	long_options[n_options] = {0, 0, 0, 0};
+	long_options[n_options].name = 0; 
+	long_options[n_options].has_arg = 0; 
+	long_options[n_options].flag = NULL; 
+	long_options[n_options].val= 0;
 
 	*opt_str_ptr++='\0'; /*null terminated string*/
 
-	for
+	char opt = 0;
+	
 	while ((opt = getopt_long(argc, argv, opt_string,
 		long_options, &long_index )) != -1)
 	{
@@ -246,15 +295,15 @@ int options_parse(int argc, char *argv[])
 				break;
 			}
 			case 'x':
-				opt_width = (int) strtoul(optarg, stopstring, 10);
-				if( stopstring[0] != 'x')
+				opt_width = (int) strtoul(optarg, &stopstring, 10);
+				if( *stopstring != 'x')
 				{
 					fprintf(stderr, "V4L2_CORE: (options) Error in resolution usage: -x[--resolution] WIDTHxHEIGHT \n");
 				}
 				else
 				{
 					++stopstring;
-					opt_height = (int) strtoul(optarg, stopstring, 10);
+					opt_height = (int) strtoul(optarg, &stopstring, 10);
 				}
 				if(opt_width <= 0)
 					opt_width = -1;

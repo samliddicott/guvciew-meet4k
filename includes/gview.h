@@ -23,6 +23,7 @@
 #define GVIEW_H
 #include <inttypes.h>
 #include <sys/types.h>
+#include <libintl.h>
 
 /* support for internationalization - i18n */
 #ifndef _
