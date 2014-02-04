@@ -246,7 +246,7 @@ int options_parse(int argc, char *argv[])
 				break;
 			}
 			case 'x':
-				opt_width = (int) strtoul(optarg, &stopstring, 10);
+				opt_width = (int) strtoul(optarg, stopstring, 10);
 				if( stopstring[0] != 'x')
 				{
 					fprintf(stderr, "V4L2_CORE: (options) Error in resolution usage: -x[--resolution] WIDTHxHEIGHT \n");
@@ -254,7 +254,7 @@ int options_parse(int argc, char *argv[])
 				else
 				{
 					++stopstring;
-					opt_height = (int) strtoul(optarg, &stopstring, 10);
+					opt_height = (int) strtoul(optarg, stopstring, 10);
 				}
 				if(opt_width <= 0)
 					opt_width = -1;
