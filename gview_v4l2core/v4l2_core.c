@@ -171,13 +171,12 @@ static int check_v4l2_dev(v4l2_dev* vd)
 
 	/*enumerate frame formats supported by device*/
 	enum_frame_formats(vd);
+
 	/*add h264 (uvc muxed) to format list if supported by device*/
 	add_h264_format(vd);
+
 	/*enumerate device controls*/
 	enumerate_v4l2_control(vd);
-
-	//if(!(vd->listFormats->listVidFormats))
-	//	g_printerr("V4L2_CORE: Couldn't detect any supported formats on your device (%i)\n", vd->listFormats->numb_formats);
 
 	return E_OK;
 }
@@ -711,11 +710,19 @@ int try_video_stream_format(v4l2_dev* vd, int width, int height, int pixelformat
 
 	int ret = E_OK;
 
+	vd->requested_fmt = pixelformat;
+
 	uint8_t is_streaming = vd->streaming;
 
 	if(is_streaming)
 		stop_video_stream(vd);
 
+	if(vd->requested_fmt == V4L2_PIX_FMT_H264 && h264_get_support() == H264_MUXED)
+	{
+		if(verbosity > 0)
+			printf("V4L2_CORE: requested H264 stream is supported through muxed MJPG\n");
+		pixelformat = V4L2_PIX_FMT_MJPG;
+	}
 	/*lock the mutex*/
 	__LOCK_MUTEX( __PMUTEX );
 
@@ -735,6 +742,7 @@ int try_video_stream_format(v4l2_dev* vd, int width, int height, int pixelformat
 
 	ret = xioctl(vd->fd, VIDIOC_S_FMT, &vd->format);
 
+
 	/*unlock the mutex*/
 	__UNLOCK_MUTEX( __PMUTEX );
 
@@ -743,10 +751,18 @@ int try_video_stream_format(v4l2_dev* vd, int width, int height, int pixelformat
 		fprintf(stderr, "V4L2_CORE: (VIDIOC_S_FORMAT) Unable to set format: %s\n", strerror(errno));
 		return E_FORMAT_ERR;
 	}
+
+	if(vd->requested_fmt == V4L2_PIX_FMT_H264 && h264_get_support() == H264_MUXED)
+	{
+		if(verbosity > 0)
+			printf("V4L2_CORE: setting muxed H264 stream in MJPG container\n");
+		set_h264_muxed_format(vd);
+	}
+
 	if ((vd->format.fmt.pix.width != width) ||
 		(vd->format.fmt.pix.height != height))
 	{
-		fprintf(stderr, "V4L2_CORE: Requested Format unavailable: got width %d height %d\n",
+		fprintf(stderr, "V4L2_CORE: Requested resolution unavailable: got width %d height %d\n",
 		vd->format.fmt.pix.width, vd->format.fmt.pix.height);
 	}
 
@@ -1064,8 +1080,12 @@ int set_v4l2_framerate (v4l2_dev* vd)
 	 * since we are restarting the video stream and codec values will be reset
 	 * commit the codec data again
 	 */
-	if(vd->format.fmt.pix.pixelformat == V4L2_PIX_FMT_H264 /*&& get_SupPixFormatUvcH264() > 1*/)
+	if(vd->requested_fmt == V4L2_PIX_FMT_H264 && h264_get_support() == H264_MUXED)
+	{
+		if(verbosity > 0)
+			printf("V4L2_CORE: setting muxed H264 stream in MJPG container\n");
 		set_h264_muxed_format(vd);
+	}
 
 	/*query and queue the buffers*/
 	if(vd->cap_meth == IO_MMAP)

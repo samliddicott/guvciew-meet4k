@@ -528,7 +528,8 @@ void set_h264_muxed_format(v4l2_dev *vd)
 	uvcx_video_commit(vd, config_probe_req);
 
 	/*print probe/commit data*/
-	print_probe_commit_data(config_probe_req);
+	if(verbosity > 0)
+		print_probe_commit_data(config_probe_req);
 }
 
 

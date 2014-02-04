@@ -22,7 +22,7 @@
 #ifndef COLORSPACES_H
 #define COLORSPACES_H
 
-#include "defs.h"
+#include "gview.h"
 
 /*convert yuv 420 planar (yu12) to yuv 422
 * args:

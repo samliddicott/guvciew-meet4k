@@ -26,7 +26,7 @@
 #include <SDL/SDL.h>
 #include <assert.h>
 
-#include "defs.h"
+#include "gview.h"
 
 extern int verbosity;
 
@@ -48,17 +48,17 @@ static const SDL_VideoInfo *info;
  * args:
  *   width - video width
  *   height - video height
- * 
+ *
  * asserts:
  *   none
- * 
+ *
  * returns: pointer to SDL_Overlay
- */ 
+ */
 static SDL_Overlay * video_init(int width, int height)
 {
 	if(verbosity > 0)
 		printf("RENDER: Initializing SDL1 render\n");
-		
+
     if (pscreen == NULL) //init SDL
     {
         char driver[128];
@@ -72,7 +72,7 @@ static SDL_Overlay * video_init(int width, int height)
         /*use hardware acceleration as default*/
         if ( ! getenv("SDL_VIDEO_YUV_HWACCEL") ) putenv("SDL_VIDEO_YUV_HWACCEL=1");
         if ( ! getenv("SDL_VIDEO_YUV_DIRECT") ) putenv("SDL_VIDEO_YUV_DIRECT=1");
-        
+
 
         if (SDL_VideoDriverName(driver, sizeof(driver)) && verbosity > 0)
         {
@@ -102,10 +102,10 @@ static SDL_Overlay * video_init(int width, int height)
 
             SDL_VIDEO_Flags |= SDL_ASYNCBLIT;
         }
-		
+
        desktop_w = info->current_w; //get desktop width
        desktop_h = info->current_h; //get desktop height
-       
+
        if(!desktop_w) desktop_w = 800;
        if(!desktop_h) desktop_h = 600;
 
@@ -124,14 +124,14 @@ static SDL_Overlay * video_init(int width, int height)
         /* enable key repeat */
         SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY,SDL_DEFAULT_REPEAT_INTERVAL);
     }
-    
+
     /*------------------------------ SDL init video ---------------------*/
     if(verbosity > 0)
     {
         printf("RENDER: Desktop resolution = %ix%i\n", desktop_w, desktop_h);
         printf("RENDER: Checking video mode %ix%i@32bpp : ", width, height);
     }
-       
+
     int bpp = SDL_VideoModeOK(
         width,
         height,
@@ -182,15 +182,15 @@ static SDL_Overlay * video_init(int width, int height)
 /*
  * init sdl1 render
  * args:
- * 
+ *
  * asserts:
- * 
+ *
  * returns: error code (0 ok)
- */ 
+ */
  int init_render_sdl1(int width, int height)
  {
 	poverlay = video_init(width, height);
-	 
+
 	if(poverlay == NULL)
 	{
 		fprintf(stderr, "RENDER: Couldn't create yuv overlay (try disabling hardware accelaration)\n");
@@ -198,12 +198,12 @@ static SDL_Overlay * video_init(int width, int height)
 	}
 
 	assert(pscreen != NULL);
-	
+
 	drect.x = 0;
 	drect.y = 0;
 	drect.w = pscreen->w;
 	drect.h = pscreen->h;
-	
+
 	return 0;
  }
 
@@ -212,21 +212,21 @@ static SDL_Overlay * video_init(int width, int height)
  * args:
  *   frame - pointer to frame data (yuyv format)
  *   size - frame size in bytes
- * 
+ *
  * asserts:
  *   poverlay is not nul
  *   frame is not null
- * 
- * returns: error code 
- */  
+ *
+ * returns: error code
+ */
 int render_sdl1_frame(uint8_t *frame, int size)
 {
 	/*asserts*/
 	assert(poverlay != NULL);
 	assert(frame != NULL);
-	
+
 	uint8_t *p = (uint8_t *) poverlay->pixels[0];
-	
+
 	 SDL_LockYUVOverlay(poverlay);
      memcpy(p, frame, size);
      SDL_UnlockYUVOverlay(poverlay);
@@ -237,11 +237,11 @@ int render_sdl1_frame(uint8_t *frame, int size)
  * set sdl1 render caption
  * args:
  *   caption - string with render window caption
- * 
+ *
  * asserts:
  *   none
- * 
- * returns: none 
+ *
+ * returns: none
  */
 void set_render_sdl1_caption(const char* caption)
 {
@@ -252,18 +252,18 @@ void set_render_sdl1_caption(const char* caption)
  * clean sdl1 render data
  * args:
  *   none
- * 
+ *
  * asserts:
  *   none
- * 
- * returns: none 
+ *
+ * returns: none
  */
 void render_sdl1_clean()
 {
 	if(poverlay)
 		SDL_FreeYUVOverlay(poverlay);
 	poverlay = NULL;
-	
+
 	SDL_Quit();
 }
- 
+

@@ -32,7 +32,7 @@
 #ifndef GVIEWRENDER_H
 #define GVIEWRENDER_H
 
-#include "defs.h"
+#include "gview.h"
 
 #define RENDER_NONE     (0)
 #define RENDER_SDL1     (1)
@@ -41,10 +41,10 @@
  * set verbosity
  * args:
  *   value - verbosity value
- * 
+ *
  * asserts:
  *    none
- * 
+ *
  * returns: none
  */
 void set_render_verbosity(int value);
@@ -55,11 +55,11 @@ void set_render_verbosity(int value);
  *   render - render API to use (SDL1, SDL2, ...)
  *   width - render width
  *   height - render height
- * 
+ *
  * asserts:
  *   none
- * 
- * returns: error code 
+ *
+ * returns: error code
  */
 int render_init(int render, int width, int height);
 
@@ -67,11 +67,11 @@ int render_init(int render, int width, int height);
  * set caption
  * args:
  *   caption - string with render window caption
- * 
+ *
  * asserts:
  *   none
- * 
- * returns: none 
+ *
+ * returns: none
  */
 void set_render_caption(const char* caption);
 
@@ -80,12 +80,12 @@ void set_render_caption(const char* caption);
  * args:
  *   frame - pointer to frame data (yuyv format)
  *   size - frame size in bytes
- * 
+ *
  * asserts:
  *   frame is not null
  *   size is valid
- * 
- * returns: error code 
+ *
+ * returns: error code
  */
 int render_frame(uint8_t *frame, int size);
 
@@ -93,11 +93,11 @@ int render_frame(uint8_t *frame, int size);
  * clean render data
  * args:
  *   none
- * 
+ *
  * asserts:
  *   none
- * 
- * returns: none 
+ *
+ * returns: none
  */
 void render_clean();
 

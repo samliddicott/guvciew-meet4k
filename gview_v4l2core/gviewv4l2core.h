@@ -30,7 +30,7 @@
 #include <inttypes.h>
 #include <sys/types.h>
 
-#include "defs.h"
+#include "gview.h"
 
 /*
  * buffer number (for driver mmap ops)
@@ -110,6 +110,7 @@ typedef struct _v4l2_stream_cap
  */
 typedef struct _v4l2_stream_format
 {
+	uint8_t dec_support; //decoder support (1-supported; 0-not supported)
 	int format;          //v4l2 pixel format
 	char fourcc[5];      //corresponding fourcc (mode)
 	int numb_res;        //available number of resolutions for format (v4l2_stream_cap list size)
@@ -168,6 +169,8 @@ typedef struct _v4l2_dev
 	struct v4l2_requestbuffers rb;      // v4l2 request buffers struct
 	struct v4l2_streamparm streamparm;  // v4l2 stream parameters struct
 
+	int requested_fmt;                  //requested format (may differ from format.fmt.pix.pixelformat)
+
 	int fps_num;                        //fps numerator
 	int fps_denom;                      //fps denominator
 
@@ -210,7 +213,7 @@ typedef struct _v4l2_dev
 
     v4l2_ctrl* list_device_controls;    //null terminated linked list of available device controls
     int num_controls;                   //number of controls in list
-    
+
     uint8_t isbayer;                    //flag if we are streaming bayer data in yuyv frame (logitech only)
     uint8_t pix_order;                  //bayer pixel order
 } v4l2_dev;

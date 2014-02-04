@@ -2,7 +2,7 @@
 
 # Public headers
 h_sources = gviewv4l2core.h \
-			$(top_srcdir)/includes/defs.h
+			$(top_srcdir)/includes/gview.h
 
 c_sources = v4l2_core.c \
 			v4l2_formats.c \

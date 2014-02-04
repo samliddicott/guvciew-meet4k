@@ -43,16 +43,20 @@ static __THREAD_TYPE capture_thread;
 void signal_callback_handler(int signum)
 {
 	printf("GUVCVIEW Caught signal %d\n", signum);
-	// Cleanup and close up stuff here
 
 	switch(signum)
 	{
 		case SIGINT:
-			// Terminate program
+			/* Terminate program */
 			video_capture_quit();
 			break;
 
+		case SIGUSR1:
+			/* (start/stop) record video */
+			break;
+
 		case SIGUSR2:
+			/* save image */
 			video_capture_save_image();
 			break;
 	}
@@ -62,14 +66,15 @@ int main(int argc, char *argv[])
 {
 
 	// Register signal and signal handler
-	signal(SIGINT, signal_callback_handler);
+	signal(SIGINT,  signal_callback_handler);
+	signal(SIGUSR1, signal_callback_handler);
 	signal(SIGUSR2, signal_callback_handler);
 
 	debug_level = 1;
 	set_v4l2_verbosity(debug_level);
 
 	v4l2_dev* device = init_v4l2_dev("/dev/video0");
-	
+
 	if(device)
 		set_render_flag(RENDER_SDL1);
 	else
@@ -83,8 +88,8 @@ int main(int argc, char *argv[])
 		//fprintf(stderr, "GUVCVIEW: requested YUYV format not available (disable render)\n");
 		//set_render_flag(RENDER_NONE);
 		device->current_format = 0;
-	}	
-	
+	}
+
 	int pixelformat = device->list_stream_formats[device->current_format].format;
 	int width  = device->list_stream_formats[device->current_format].list_stream_cap[0].width;
 	int height = device->list_stream_formats[device->current_format].list_stream_cap[0].height;

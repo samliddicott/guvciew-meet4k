@@ -618,7 +618,12 @@ int frame_decode(v4l2_dev* vd)
 
 	int width = vd->format.fmt.pix.width;
 	int height = vd->format.fmt.pix.height;
-	int format = vd->format.fmt.pix.pixelformat;
+
+	/*
+	 * use the requested format since it may differ
+	 * from format.fmt.pix.pixelformat (muxed H264)
+	 */
+	int format = vd->requested_fmt;
 
 	int framesizeIn =(width * height << 1);//2 bytes per pixel
 	switch (format)

@@ -28,7 +28,7 @@
 #ifndef JPEG_DECODER_H
 #define JPEG_DECODER_H
 
-#include "defs.h"
+#include "gview.h"
 
 #define HEADERFRAME1 0xaf
 

@@ -19,8 +19,8 @@
 #                                                                               #
 ********************************************************************************/
 
-#ifndef DEFS_H
-#define DEFS_H
+#ifndef GVIEW_H
+#define GVIEW_H
 #include <inttypes.h>
 #include <sys/types.h>
 

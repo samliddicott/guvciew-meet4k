@@ -27,9 +27,194 @@
 #include <errno.h>
 #include <assert.h>
 
+#include "gview.h"
 #include "v4l2_formats.h"
 
 extern int verbosity;
+
+typedef struct _v4l2_format_table
+{
+	char fourcc[5];    /*fourcc code*/
+	int pixelformat;   /*v4l2 pixelformat*/
+} v4l2_format_table;
+
+static v4l2_format_table decoder_supported_formats[] =
+{
+	{
+		.fourcc = "YUYV",
+		.pixelformat = V4L2_PIX_FMT_YUYV,
+	},
+	{
+		.fourcc = "MJPG",
+		.pixelformat = V4L2_PIX_FMT_MJPEG,
+	},
+	{
+		.fourcc = "JPEG",
+		.pixelformat = V4L2_PIX_FMT_JPEG,
+	},
+	{
+		.fourcc = "H264",
+		.pixelformat = V4L2_PIX_FMT_H264,
+	},
+	{
+		.fourcc = "YVYU",
+		.pixelformat = V4L2_PIX_FMT_YVYU,
+	},
+	{
+		.fourcc = "UYVY",
+		.pixelformat = V4L2_PIX_FMT_UYVY,
+	},
+	{
+		.fourcc = "YYUV",
+		.pixelformat = V4L2_PIX_FMT_YYUV,
+	},
+	{
+		.fourcc = "Y41P",
+		.pixelformat = V4L2_PIX_FMT_Y41P,
+	},
+	{
+		.fourcc = "GREY",
+		.pixelformat = V4L2_PIX_FMT_GREY,
+	},
+	{
+		.fourcc = "Y10B",
+		.pixelformat = V4L2_PIX_FMT_Y10BPACK,
+	},
+	{
+		.fourcc = "Y16 ",
+		.pixelformat = V4L2_PIX_FMT_Y16,
+	},
+	{
+		.fourcc = "YU12",
+		.pixelformat = V4L2_PIX_FMT_YUV420,
+	},
+	{
+		.fourcc = "YV12",
+		.pixelformat = V4L2_PIX_FMT_YVU420,
+	},
+	{
+		.fourcc = "NV12",
+		.pixelformat = V4L2_PIX_FMT_NV12,
+	},
+	{
+		.fourcc = "NV21",
+		.pixelformat = V4L2_PIX_FMT_NV21,
+	},
+	{
+		.fourcc = "NV16",
+		.pixelformat = V4L2_PIX_FMT_NV16,
+	},
+	{
+		.fourcc = "NV61",
+		.pixelformat = V4L2_PIX_FMT_NV61,
+	},
+	{
+		.fourcc = "S501",
+		.pixelformat = V4L2_PIX_FMT_SPCA501,
+	},
+	{
+		.fourcc = "S505",
+		.pixelformat = V4L2_PIX_FMT_SPCA505,
+	},
+	{
+		.fourcc = "S508",
+		.pixelformat = V4L2_PIX_FMT_SPCA508,
+	},
+	{
+		.fourcc = "GBRG",
+		.pixelformat = V4L2_PIX_FMT_SGBRG8,
+	},
+	{
+		.fourcc = "GRBG",
+		.pixelformat = V4L2_PIX_FMT_SGRBG8,
+	},
+	{
+		.fourcc = "BA81",
+		.pixelformat = V4L2_PIX_FMT_SBGGR8,
+	},
+	{
+		.fourcc = "RGGB",
+		.pixelformat = V4L2_PIX_FMT_SRGGB8,
+	},
+	{
+		.fourcc = "RGB3",
+		.pixelformat = V4L2_PIX_FMT_RGB24,
+	},
+	{
+		.fourcc = "BGR3",
+		.pixelformat = V4L2_PIX_FMT_BGR24,
+	},
+	/*last one (zero terminated)*/
+	{
+		.fourcc = {0,0,0,0,0},
+		.pixelformat = 0,
+	}
+}
+
+/*
+ * check pixelformat against decoder support formats
+ * args:
+ *    pixelformat - v4l2 pixelformat
+ *
+ * asserts:
+ *    none
+ *
+ * returns: TRUE(1) if format is supported
+ *          FALSE(0) if not
+ */
+uint8_t can_decode_format(int pixelformat)
+{
+	int i = 0;
+	int sup_fmt = 0;
+
+	do
+	{
+		sup_fmt = decoder_supported_formats[i].pixelformat;
+
+		if(pixelformat == sup_fmt)
+			return TRUE;
+
+		i++;
+	}
+	while(sup_fmt) /*last format is always 0*/
+
+	return FALSE;
+}
+
+/*
+ * check fourcc against decoder support formats
+ * args:
+ *    fourcc - v4l2 pixelformat fourcc
+ *
+ * asserts:
+ *    none
+ *
+ * returns: TRUE(1) if format is supported
+ *          FALSE(0) if not
+ */
+uint8_t can_decode_fourcc(const char *fourcc)
+{
+	if(!fourcc)
+		return FALSE;
+
+	if(strlen(fourcc) != 4)
+		return FALSE;
+
+	int i = 0;
+	int sup_fmt = 0;
+	do
+	{
+		sup_fmt = decoder_supported_formats[i].pixelformat;
+
+		if(strcmp(fourcc, decoder_supported_formats[i].fourcc) == 0 )
+			return TRUE;
+
+		i++;
+	}
+	while(sup_fmt)
+
+	return FALSE;
+}
 
 /*
  * enumerate frame intervals (fps)
@@ -336,12 +521,19 @@ int enum_frame_formats(v4l2_dev* vd)
 
 	while ((ret = xioctl(vd->fd, VIDIOC_ENUM_FMT, &fmt)) == 0)
 	{
+		uint8_t dec_support = can_decode_format(fmt.pixelformat);
+
 		fmt.index++;
 		if(verbosity > 0)
+		{
 			printf("{ pixelformat = '%c%c%c%c', description = '%s' }\n",
 				fmt.pixelformat & 0xFF, (fmt.pixelformat >> 8) & 0xFF,
 				(fmt.pixelformat >> 16) & 0xFF, (fmt.pixelformat >> 24) & 0xFF,
 				fmt.description);
+
+			if(!dec_support)
+				printf("    - FORMAT NOT SUPPORTED BY DECODER -\n");
+		}
 
 		fmtind++;
 
@@ -353,6 +545,7 @@ int enum_frame_formats(v4l2_dev* vd)
 
 		vd->numb_formats = fmtind;
 
+		vd->list_stream_formats[fmtind-1].dec_support = dec_support;
 		vd->list_stream_formats[fmtind-1].format = fmt.pixelformat;
 		snprintf(vd->list_stream_formats[fmtind-1].fourcc, 5, "%c%c%c%c",
 				fmt.pixelformat & 0xFF, (fmt.pixelformat >> 8) & 0xFF,
