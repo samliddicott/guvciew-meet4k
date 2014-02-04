@@ -721,7 +721,7 @@ int try_video_stream_format(v4l2_dev* vd, int width, int height, int pixelformat
 	{
 		if(verbosity > 0)
 			printf("V4L2_CORE: requested H264 stream is supported through muxed MJPG\n");
-		pixelformat = V4L2_PIX_FMT_MJPG;
+		pixelformat = V4L2_PIX_FMT_MJPEG;
 	}
 	/*lock the mutex*/
 	__LOCK_MUTEX( __PMUTEX );
