@@ -176,7 +176,7 @@ uint8_t can_decode_format(int pixelformat)
 
 		i++;
 	}
-	while(sup_fmt) /*last format is always 0*/
+	while(sup_fmt); /*last format is always 0*/
 
 	return FALSE;
 }
