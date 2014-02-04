@@ -32,6 +32,8 @@
 #include <errno.h>
 #include <assert.h>
 
+#include "../config.h"
+
 /*h264 decoder (libavcodec)*/
 #ifdef HAS_AVCODEC_H
   #include <avcodec.h>
@@ -733,15 +735,15 @@ int h264_init_decoder(int width, int height)
 #if !LIBAVCODEC_VER_AT_LEAST(53,34)
 	avcodec_init();
 #endif
-	/* 
+	/*
 	 * register all the codecs (we can also register only the codec
 	 * we wish to have smaller code)
-	 */ 
-	avcodec_register_all(); 
+	 */
+	avcodec_register_all();
 
 	if(h264_ctx != NULL)
 		h264_close_decoder();
-	
+
 	h264_ctx = calloc(1, sizeof(h264_decoder_context));
 
 	h264_ctx->codec = avcodec_find_decoder(CODEC_ID_H264);
@@ -825,7 +827,7 @@ int h264_decode(uint8_t *out_buf, uint8_t *in_buf, int size)
 		fprintf(stderr, "V4L2_CORE: (H264 decoder) error while decoding frame\n");
 		return len;
 	}
-	
+
 	if(got_picture)
 	{
 		avpicture_layout((AVPicture *) h264_ctx->picture, h264_ctx->context->pix_fmt

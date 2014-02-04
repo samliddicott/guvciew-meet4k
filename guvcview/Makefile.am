@@ -6,7 +6,8 @@ bin_PROGRAMS = guvcview
 
 guvcview_SOURCES = guvcview.c \
 				   video_capture.c \
-				   core_io.c
+				   core_io.c \
+				   options.c
 
 guvcview_CFLAGS = $(GUVCVIEW_CFLAGS) \
 		  $(PTHREAD_CFLAGS) \

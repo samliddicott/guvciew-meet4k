@@ -28,6 +28,7 @@
 #include "core_time.h"
 
 #include "video_capture.h"
+#include "options.h"
 
 int debug_level = 0;
 
@@ -70,6 +71,9 @@ int main(int argc, char *argv[])
 	signal(SIGUSR1, signal_callback_handler);
 	signal(SIGUSR2, signal_callback_handler);
 
+	if(options_parse(argc, argv))
+		return 0;
+
 	debug_level = 1;
 	set_v4l2_verbosity(debug_level);
 
@@ -84,11 +88,7 @@ int main(int argc, char *argv[])
 	device->current_format = get_frame_format_index(device, V4L2_PIX_FMT_H264);
 
 	if(device->current_format < 0)
-	{
-		//fprintf(stderr, "GUVCVIEW: requested YUYV format not available (disable render)\n");
-		//set_render_flag(RENDER_NONE);
 		device->current_format = 0;
-	}
 
 	int pixelformat = device->list_stream_formats[device->current_format].format;
 	int width  = device->list_stream_formats[device->current_format].list_stream_cap[0].width;
@@ -104,19 +104,19 @@ int main(int argc, char *argv[])
 		pixelformat = device->list_stream_formats[device->current_format].format;
 		width  = device->list_stream_formats[device->current_format].list_stream_cap[0].width;
 		height = device->list_stream_formats[device->current_format].list_stream_cap[0].height;
-		
+
 		ret = try_video_stream_format(device, width, height, pixelformat);
 		if(ret != E_OK)
 			fprintf(stderr, "GUCVIEW: also could not set the first listed stream format\n");
-		
+
 	}
-	
+
 	if(ret == E_OK)
 		ret = __THREAD_CREATE(&capture_thread, capture_loop, (void *) device);
-	
+
 	if(ret)
 		fprintf(stderr, "GUVCVIEW: Video thread creation failed\n");
-	
+
 	__THREAD_JOIN(capture_thread);
 
 	if(device)
