@@ -149,7 +149,7 @@ static v4l2_format_table decoder_supported_formats[] =
 		.fourcc = {0,0,0,0,0},
 		.pixelformat = 0,
 	}
-}
+};
 
 /*
  * check pixelformat against decoder support formats
@@ -211,7 +211,7 @@ uint8_t can_decode_fourcc(const char *fourcc)
 
 		i++;
 	}
-	while(sup_fmt)
+	while(sup_fmt);
 
 	return FALSE;
 }
