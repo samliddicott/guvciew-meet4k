@@ -91,11 +91,18 @@ int alloc_v4l2_frames(v4l2_dev *vd)
 		return E_ALLOC_ERR;
 
 	int framesizeIn = (width * height << 1); //2 bytes per pixel
-	switch (vd->format.fmt.pix.pixelformat)
+	switch (vd->requested_fmt)
 	{
 		case V4L2_PIX_FMT_H264:
 			/*init h264 context*/
-			h264_init_decoder(width, height);
+			ret = h264_init_decoder(width, height);
+			
+			if(ret)
+			{
+				fprintf(stderr, "V4L2_CORE: couldn't init h264 decoder\n");
+				return ret;
+			}
+			
 			vd->h264_last_IDR = calloc(framesizeIn, sizeof(uint8_t));
 			vd->h264_last_IDR_size = 0; /*reset (no frame stored)*/
 
@@ -281,7 +288,7 @@ void clean_v4l2_frames(v4l2_dev *vd)
 		vd->h264_PPS = NULL;
 	}
 
-	if(vd->format.fmt.pix.pixelformat == V4L2_PIX_FMT_H264)
+	if(vd->requested_fmt == V4L2_PIX_FMT_H264)
 		h264_close_decoder();
 
 }
@@ -550,8 +557,9 @@ static uint8_t is_h264_keyframe (v4l2_dev* vd)
 	if(check_NALU(5, vd->h264_frame, vd->h264_frame_size) != NULL)
 	{
 		memcpy(vd->h264_last_IDR, vd->h264_frame, vd->h264_frame_size);
-		vd->h264_last_IDR_size = vd->raw_frame_size;
-		//printf("V4L2_CORE: (uvc H264) IDR frame found in frame %" PRIu64 "\n", vd->frame_index);
+		vd->h264_last_IDR_size = vd->h264_frame_size;
+		if(verbosity > 1)
+			printf("V4L2_CORE: (uvc H264) IDR frame found in frame %" PRIu64 "\n", vd->frame_index);
 		return TRUE;
 	}
 

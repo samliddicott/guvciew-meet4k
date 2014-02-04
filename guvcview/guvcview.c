@@ -81,7 +81,7 @@ int main(int argc, char *argv[])
 		return -1;
 
 	/*set format*/
-	device->current_format = get_frame_format_index(device, V4L2_PIX_FMT_YUYV);
+	device->current_format = get_frame_format_index(device, V4L2_PIX_FMT_H264);
 
 	if(device->current_format < 0)
 	{
@@ -94,14 +94,29 @@ int main(int argc, char *argv[])
 	int width  = device->list_stream_formats[device->current_format].list_stream_cap[0].width;
 	int height = device->list_stream_formats[device->current_format].list_stream_cap[0].height;
 
+	int ret = try_video_stream_format(device, width, height, pixelformat);
 	/*try to set the video stream format on the device*/
-	if(try_video_stream_format(device, width, height, pixelformat) < 0)
-		fprintf(stderr, "GUCVIEW: could not set the defined stream format\n");
-	else if( __THREAD_CREATE(&capture_thread, capture_loop, (void *) device))
+	if(ret != E_OK)
 	{
-		fprintf(stderr, "GUVCVIEW: Video thread creation failed\n");
+		fprintf(stderr, "GUCVIEW: could not set the defined stream format\n");
+		fprintf(stderr, "GUCVIEW: trying first listed stream format\n");
+		device->current_format = 0;
+		pixelformat = device->list_stream_formats[device->current_format].format;
+		width  = device->list_stream_formats[device->current_format].list_stream_cap[0].width;
+		height = device->list_stream_formats[device->current_format].list_stream_cap[0].height;
+		
+		ret = try_video_stream_format(device, width, height, pixelformat);
+		if(ret != E_OK)
+			fprintf(stderr, "GUCVIEW: also could not set the first listed stream format\n");
+		
 	}
-
+	
+	if(ret == E_OK)
+		ret = __THREAD_CREATE(&capture_thread, capture_loop, (void *) device);
+	
+	if(ret)
+		fprintf(stderr, "GUVCVIEW: Video thread creation failed\n");
+	
 	__THREAD_JOIN(capture_thread);
 
 	if(device)

@@ -51,12 +51,19 @@
                                               (LIBAVCODEC_VERSION_MAJOR == major && \
                                                LIBAVCODEC_VERSION_MINOR >= minor))
 
+#if !LIBAVCODEC_VER_AT_LEAST(54,25)
+	#define AV_CODEC_ID_H264 CODEC_ID_H264
+#endif
+
 #include "uvc_h264.h"
 #include "v4l2_formats.h"
 
 #define USB_VIDEO_CONTROL		    0x01
 #define USB_VIDEO_CONTROL_INTERFACE	0x24
 #define USB_VIDEO_CONTROL_XU_TYPE	0x06
+
+// GUID of the UVC H.264 extension unit: {A29E7641-DE04-47E3-8B2B-F4341AFF003B}
+#define GUID_UVCX_H264_XU {0x41, 0x76, 0x9E, 0xA2, 0x04, 0xDE, 0xE3, 0x47, 0x8B, 0x2B, 0xF4, 0x34, 0x1A, 0xFF, 0x00, 0x3B}
 
 extern int verbosity;
 
@@ -244,7 +251,7 @@ uint8_t get_uvc_h624_unit_id (v4l2_dev *vd)
     int i, j, k;
 
 	static const uint8_t guid[16] = GUID_UVCX_H264_XU;
-	uint8_t unit = 0;
+	vd->h264_unit_id = 0;/*reset it*/
 
     if (usb_ctx == NULL)
       libusb_init (&usb_ctx);
@@ -265,6 +272,8 @@ uint8_t get_uvc_h624_unit_id (v4l2_dev *vd)
 
 	if (device)
 	{
+		if(verbosity > 1)
+			printf("V4L2_CORE: (libusb) checking for H264 unit id\n");
 		struct libusb_device_descriptor desc;
 
 		 if (libusb_get_device_descriptor (device, &desc) == 0)
@@ -296,12 +305,13 @@ uint8_t get_uvc_h624_unit_id (v4l2_dev *vd)
 									desc->bDescriptorSubType == USB_VIDEO_CONTROL_XU_TYPE &&
 									memcmp (desc->guidExtensionCode, guid, 16) == 0)
 								{
-									uint8_t unit_id = desc->bUnitID;
+									vd->h264_unit_id = desc->bUnitID;
 
 									libusb_unref_device (device);
 									/*it's a match*/
-									vd->h264_unit_id = unit;
-									return unit_id;
+									if(verbosity > 1)
+										printf("V4L2_CORE: (libusb) found H264 unit id %i\n", vd->h264_unit_id);
+									return vd->h264_unit_id;
 								}
 								ptr += desc->bLength;
 							}
@@ -316,9 +326,10 @@ uint8_t get_uvc_h624_unit_id (v4l2_dev *vd)
 			fprintf(stderr, "V4L2_CORE: (libusb) couldn't get device descriptor\n");
 		libusb_unref_device (device);
 	}
+	else
+		fprintf(stderr, "V4L2_CORE: (libusb) couldn't get device\n");
 	/*no match found*/
-	vd->h264_unit_id = unit;
-	return unit;
+	return vd->h264_unit_id;
 }
 
 /*
@@ -343,7 +354,7 @@ int check_h264_support(v4l2_dev *vd)
 	if(vd->h264_unit_id <= 0)
 	{
 		if(verbosity > 0)
-			fprintf(stderr, "V4L2_CORE: device doesn't seem to support uvc H264 (%i)\n", vd->h264_unit_id);
+			printf("V4L2_CORE: device doesn't seem to support uvc H264 (%i)\n", vd->h264_unit_id);
 		return 0;
 	}
 
@@ -352,7 +363,7 @@ int check_h264_support(v4l2_dev *vd)
 	if(query_xu_control(vd, vd->h264_unit_id, UVCX_VERSION, UVC_GET_CUR, &uvcx_version) < 0)
 	{
 		if(verbosity > 0)
-			fprintf(stderr, "V4L2_CORE: device doesn't seem to support uvc H264 in unit_id %d\n", vd->h264_unit_id);
+			printf("V4L2_CORE: device doesn't seem to support uvc H264 in unit_id %d\n", vd->h264_unit_id);
 		return 0;
 	}
 
@@ -719,9 +730,18 @@ uint8_t h264_has_decoder()
  */
 int h264_init_decoder(int width, int height)
 {
+#if !LIBAVCODEC_VER_AT_LEAST(53,34)
+	avcodec_init();
+#endif
+	/* 
+	 * register all the codecs (we can also register only the codec
+	 * we wish to have smaller code)
+	 */ 
+	avcodec_register_all(); 
+
 	if(h264_ctx != NULL)
 		h264_close_decoder();
-
+	
 	h264_ctx = calloc(1, sizeof(h264_decoder_context));
 
 	h264_ctx->codec = avcodec_find_decoder(CODEC_ID_H264);
@@ -729,6 +749,7 @@ int h264_init_decoder(int width, int height)
 	{
 		fprintf(stderr, "V4L2_CORE: (H264 decoder) codec not found (please install libavcodec-extra for H264 support)\n");
 		free(h264_ctx);
+		h264_ctx = NULL;
 		return E_NO_CODEC;
 	}
 
@@ -757,6 +778,7 @@ int h264_init_decoder(int width, int height)
 		avcodec_close(h264_ctx->context);
 		free(h264_ctx->context);
 		free(h264_ctx);
+		h264_ctx = NULL;
 		return E_NO_CODEC;
 	}
 
@@ -778,6 +800,8 @@ int h264_init_decoder(int width, int height)
  *
  * asserts:
  *    h264_ctx is not null
+ *    in_buf is not null
+ *    out_buf is not null
  *
  * returns: decoded data size
  */
@@ -785,6 +809,8 @@ int h264_decode(uint8_t *out_buf, uint8_t *in_buf, int size)
 {
 	/*asserts*/
 	assert(h264_ctx != NULL);
+	assert(in_buf != NULL);
+	assert(out_buf != NULL);
 
 	AVPacket avpkt;
 
@@ -799,7 +825,7 @@ int h264_decode(uint8_t *out_buf, uint8_t *in_buf, int size)
 		fprintf(stderr, "V4L2_CORE: (H264 decoder) error while decoding frame\n");
 		return len;
 	}
-
+	
 	if(got_picture)
 	{
 		avpicture_layout((AVPicture *) h264_ctx->picture, h264_ctx->context->pix_fmt

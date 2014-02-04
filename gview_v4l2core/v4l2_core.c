@@ -513,7 +513,7 @@ int get_v4l2_frame(v4l2_dev* vd)
 	assert(vd != NULL);
 
 	/*request a IDR frame with SPS and PPS data if it's the first frame*/
-	//if(vd->format.fmt.pix.pixelformat == V4L2_PIX_FMT_H264 && vd->frame_index < 1)
+	//if(vd->requested_fmt == V4L2_PIX_FMT_H264 && vd->frame_index < 1)
 	//	uvcx_request_frame_type(vd->fd, global->uvc_h264_unit, PICTURE_TYPE_IDR_FULL);
 
 	int res = 0;
@@ -736,6 +736,17 @@ int try_video_stream_format(v4l2_dev* vd, int width, int height, int pixelformat
 			(vd->format.fmt.pix.pixelformat) & 0xFF, ((vd->format.fmt.pix.pixelformat) >> 8) & 0xFF,
 			((vd->format.fmt.pix.pixelformat) >> 16) & 0xFF, ((vd->format.fmt.pix.pixelformat) >> 24) & 0xFF);
 
+	/*
+	 * try to alloc frame buffers based on requested format
+	 * before setting the format
+	 */ 
+	if(alloc_v4l2_frames(vd) != E_OK)
+	{
+		/*unlock the mutex*/
+		__UNLOCK_MUTEX( __PMUTEX ); 
+		return E_ALLOC_ERR;
+	}
+			
 	/*override field and type entries*/
 	vd->format.fmt.pix.field = V4L2_FIELD_ANY;
 	vd->format.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
@@ -837,16 +848,13 @@ int try_video_stream_format(v4l2_dev* vd, int width, int height, int pixelformat
 			}
 	}
 
-	/*alloc frame buffers based on format*/
-	alloc_v4l2_frames(vd);
-
 	/* set FPS (must be done after queue_buff)*/
 	set_v4l2_framerate(vd);
 
 	if(is_streaming)
 		start_video_stream(vd);
 
-	return ret;
+	return E_OK;
 }
 
 /*
