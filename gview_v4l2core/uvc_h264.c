@@ -32,6 +32,7 @@
 #include <errno.h>
 #include <assert.h>
 
+#include "gview.h"
 #include "../config.h"
 
 /*h264 decoder (libavcodec)*/
