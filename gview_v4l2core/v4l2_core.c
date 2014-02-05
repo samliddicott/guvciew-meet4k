@@ -41,6 +41,7 @@
 #include <locale.h>
 #include <libintl.h>
 
+#include "gview.h"
 #include "gviewv4l2core.h"
 #include "core_time.h"
 #include "uvc_h264.h"
@@ -739,14 +740,14 @@ int try_video_stream_format(v4l2_dev* vd, int width, int height, int pixelformat
 	/*
 	 * try to alloc frame buffers based on requested format
 	 * before setting the format
-	 */ 
+	 */
 	if(alloc_v4l2_frames(vd) != E_OK)
 	{
 		/*unlock the mutex*/
-		__UNLOCK_MUTEX( __PMUTEX ); 
+		__UNLOCK_MUTEX( __PMUTEX );
 		return E_ALLOC_ERR;
 	}
-			
+
 	/*override field and type entries*/
 	vd->format.fmt.pix.field = V4L2_FIELD_ANY;
 	vd->format.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
