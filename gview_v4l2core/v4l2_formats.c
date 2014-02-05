@@ -637,7 +637,7 @@ int get_format_resolution_index(v4l2_dev* vd, int format, int width, int height)
 
 	if(format >= vd->numb_formats)
 	{
-		fprintf(stderr, "V4L2_CORE: [get resolution index] format index (%i) is not valid (max: %i)\n", format, numb_formats - 1);
+		fprintf(stderr, "V4L2_CORE: [get resolution index] format index (%i) is not valid (max: %i)\n", format, vd->numb_formats - 1);
 		return (-1);
 	}
 
