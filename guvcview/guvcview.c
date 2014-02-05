@@ -112,10 +112,15 @@ int main(int argc, char *argv[])
 	{
 		fprintf(stderr, "GUCVIEW: could not set the defined stream format\n");
 		fprintf(stderr, "GUCVIEW: trying first listed stream format\n");
-		device->current_format = 0;
-		pixelformat = device->list_stream_formats[device->current_format].format;
-		width  = device->list_stream_formats[device->current_format].list_stream_cap[0].width;
-		height = device->list_stream_formats[device->current_format].list_stream_cap[0].height;
+
+		format_index = 0;
+		resolution_index = get_format_resolution_index(device, format_index, my_options->width, my_options->height);
+		if(resolution_index < 0)
+			resolution_index = 0;
+
+		pixelformat = device->list_stream_formats[format_index].format;
+		width  = device->list_stream_formats[format_index].list_stream_cap[resolution_index].width;
+		height = device->list_stream_formats[format_index].list_stream_cap[resolution_index].height;
 
 		ret = try_video_stream_format(device, width, height, pixelformat);
 		if(ret != E_OK)
