@@ -289,7 +289,7 @@ void set_v4l2_verbosity(int level);
  *
  * returns: v4l2 pixel format
  */
-int fourcc_2_v4l2_pixelformat(const char *fourcc)(const char fourcc);
+int fourcc_2_v4l2_pixelformat(const char *fourcc);
 
 /*
  * get real fps
