@@ -37,6 +37,7 @@
 #include <errno.h>
 #include <assert.h>
 
+#include "gviewv4l2core.h"
 #include "colorspaces.h"
 
 extern int verbosity;
