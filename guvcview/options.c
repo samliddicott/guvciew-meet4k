@@ -26,16 +26,8 @@
 #include <getopt.h>
 
 #include "gview.h"
+#include "options.h"
 #include "../config.h"
-
-typedef struct _opt_values_t
-{
-	char opt_short;
-	char opt_long[20];
-	int  req_arg;
-	char opt_help_arg[20];
-	char opt_help[80];
-} opt_values_t;
 
 static opt_values_t opt_values[] =
 {
