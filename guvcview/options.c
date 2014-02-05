@@ -94,10 +94,10 @@ static opt_values_t opt_values[] =
 static options_t my_options =
 {
 	.verbosity = 0,
-	.device[30] = "/dev/video0",
+	.device = "/dev/video0",
 	.width = 640,
 	.height = 480,
-	.format[5] = "MJPG"
+	.format = "MJPG"
 };
 
 /*
