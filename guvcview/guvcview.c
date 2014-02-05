@@ -23,6 +23,7 @@
 #include <stdio.h>
 #include <signal.h>
 
+#include "gview.h"
 #include "gviewv4l2core.h"
 #include "gviewrender.h"
 #include "core_time.h"
