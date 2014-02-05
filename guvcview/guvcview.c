@@ -98,7 +98,7 @@ int main(int argc, char *argv[])
 	int pixelformat = device->list_stream_formats[format_index].format;
 
 	/*get width and height*/
-	int resolution_index = get_format_resolution_index(device, format_index, my_options.width, my_options.height);
+	int resolution_index = get_format_resolution_index(device, format_index, my_options->width, my_options->height);
 
 	if(resolution_index < 0)
 		resolution_index = 0;
