@@ -29,6 +29,7 @@ typedef struct _options_t
 	int  width;
 	int  height;
 	char format[5];
+	char render[5];
 } options_t;
 
 /*

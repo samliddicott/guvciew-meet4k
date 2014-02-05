@@ -82,8 +82,18 @@ int main(int argc, char *argv[])
 
 	v4l2_dev* device = init_v4l2_dev(my_options->device);
 
+	/*select render API*/
+	int render = RENDER_SDL1;
+
+	if(strcmp(my_options->render, "none") == 0)
+		render = RENDER_NONE;
+	else if(strcmp(my_options->render, "sdl1") == 0)
+		render = RENDER_SDL1;
+	else
+		render = RENDER_SDL1;
+
 	if(device)
-		set_render_flag(RENDER_SDL1);
+		set_render_flag(render);
 	else
 		return -1;
 

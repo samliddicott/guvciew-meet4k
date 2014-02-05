@@ -83,6 +83,13 @@ static opt_values_t opt_values[] =
 		.opt_help = N_("Request format (e.g MJPG)")
 	},
 	{
+		.opt_short = 'r',
+		.opt_long = "render",
+		.req_arg = 1,
+		.opt_help_arg = N_("RENDER_API"),
+		.opt_help = N_("Select render API (e.g none; sdl1)")
+	},
+	{
 		.opt_short = 0,
 		.opt_long = "",
 		.req_arg = 0,
@@ -97,7 +104,8 @@ static options_t my_options =
 	.device = "/dev/video0",
 	.width = 640,
 	.height = 480,
-	.format = "MJPG"
+	.format = "MJPG",
+	.render = "sdl1"
 };
 
 /*
@@ -335,6 +343,13 @@ int options_parse(int argc, char *argv[])
 				int str_size = strlen(optarg);
 				if(str_size == 4) /*fourcc is 4 chars*/
 					strncpy(my_options.format, optarg, 4);
+				break;
+			}
+			case 'r':
+			{
+				int str_size = strlen(optarg);
+				if(str_size == 4) /*render is 4 chars*/
+					strncpy(my_options.render, optarg, 4);
 				break;
 			}
 			default:
