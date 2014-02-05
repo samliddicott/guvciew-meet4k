@@ -1345,12 +1345,14 @@ static int frame_decode(struct vdIn *vd, int format, int width, int height)
 			break;
 
 		case V4L2_PIX_FMT_RGB24:
-			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index], vd->buf.bytesused);
-			rgb2yuyv(vd->tmpbuffer, vd->framebuffer, width, height);
+			//memcpy(vd->tmpbuffer, vd->mem[vd->buf.index], vd->buf.bytesused);
+			//rgb2yuyv(vd->tmpbuffer, vd->framebuffer, width, height);
+			rgb2yuyv(vd->mem[vd->buf.index], vd->framebuffer, width, height);
 			break;
 		case V4L2_PIX_FMT_BGR24:
-			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
-			bgr2yuyv(vd->tmpbuffer, vd->framebuffer, width, height);
+			//memcpy(vd->tmpbuffer, vd->mem[vd->buf.index], vd->buf.bytesused);
+			//bgr2yuyv(vd->tmpbuffer, vd->framebuffer, width, height);
+			bgr2yuyv(vd->mem[vd->buf.index], vd->framebuffer, width, height);
 			break;
 
 		default:
