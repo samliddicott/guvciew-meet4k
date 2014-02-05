@@ -26,6 +26,7 @@
 #include <getopt.h>
 
 #include "gview.h"
+#include "options.h"
 #include "../config.h"
 
 typedef struct _opt_values_t
