@@ -26,6 +26,7 @@
 #include <errno.h>
 #include <assert.h>
 
+#include "gview.h"
 #include "v4l2_xu_ctrls.h"
 
 extern int verbosity;
