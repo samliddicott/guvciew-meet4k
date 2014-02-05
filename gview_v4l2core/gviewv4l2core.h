@@ -30,7 +30,41 @@
 #include <inttypes.h>
 #include <sys/types.h>
 
-#include "gview.h"
+/*
+ * Error Codes
+ */
+#define E_OK					  (0)
+#define E_ALLOC_ERR				  (-1)
+#define E_QUERYCAP_ERR  		  (-2)
+#define E_READ_ERR     		 	  (-3)
+#define E_MMAP_ERR      		  (-4)
+#define E_QUERYBUF_ERR   		  (-5)
+#define E_QBUF_ERR       		  (-6)
+#define E_DQBUF_ERR				  (-7)
+#define E_STREAMON_ERR   		  (-8)
+#define E_STREAMOFF_ERR  		  (-9)
+#define E_FORMAT_ERR    		  (-10)
+#define E_REQBUFS_ERR    		  (-11)
+#define E_DEVICE_ERR     		  (-12)
+#define E_SELECT_ERR     		  (-13)
+#define E_SELECT_TIMEOUT_ERR	  (-14)
+#define E_FBALLOC_ERR			  (-15)
+#define E_NO_STREAM_ERR           (-16)
+#define E_NO_DATA                 (-17)
+#define E_NO_CODEC                (-18)
+#define E_DECODE_ERR              (-19)
+#define E_BAD_TABLES_ERR          (-20)
+#define E_NO_SOI_ERR              (-21)
+#define E_NOT_8BIT_ERR            (-22)
+#define E_BAD_WIDTH_OR_HEIGHT_ERR (-23)
+#define E_TOO_MANY_COMPPS_ERR     (-24)
+#define E_ILLEGAL_HV_ERR          (-25)
+#define E_QUANT_TBL_SEL_ERR       (-26)
+#define E_NOT_YCBCR_ERR           (-27)
+#define E_UNKNOWN_CID_ERR         (-28)
+#define E_WRONG_MARKER_ERR        (-29)
+#define E_NO_EOI_ERR              (-30)
+#define E_UNKNOWN_ERR    		  (-40)
 
 /*
  * buffer number (for driver mmap ops)
@@ -161,7 +195,8 @@ typedef struct _v4l2_dev
 	int cap_meth;                       // capture method: IO_READ or IO_MMAP
 	v4l2_stream_formats* list_stream_formats; //list of available stream formats
 	int numb_formats;                   //list size
-	int current_format;                 //index of current stream format
+	//int current_format_index;           //index of current stream format
+	//int current_resolution_index;       //index of current resolution for current format
 
 	struct v4l2_capability cap;         // v4l2 capability struct
 	struct v4l2_format format;          // v4l2 format struct
@@ -245,6 +280,18 @@ int xioctl(int fd, int IOCTL_X, void *arg);
 void set_v4l2_verbosity(int level);
 
 /*
+ * get pixelformat from fourcc
+ * args:
+ *    fourcc - fourcc code for format
+ *
+ * asserts:
+ *    none
+ *
+ * returns: v4l2 pixel format
+ */
+int fourcc_2_v4l2_pixelformat(const char *fourcc)(const char fourcc);
+
+/*
  * get real fps
  * args:
  *   none
@@ -280,6 +327,21 @@ v4l2_dev* init_v4l2_dev(const char *device);
  * returns: format list index or -1 if not available
  */
 int get_frame_format_index(v4l2_dev* vd, int format);
+
+/* get resolution index for format index from format list
+ * args:
+ *   vd - pointer to video device data
+ *   format - format index from format list
+ *   width - requested width
+ *   height - requested height
+ *
+ * asserts:
+ *   vd is not null
+ *   vd->list_stream_formats is not null
+ *
+ * returns: resolution list index for format index or -1 if not available
+ */
+int get_format_resolution_index(v4l2_dev* vd, int format, int width, int height);
 
 /*
  * Try/Set device video stream format

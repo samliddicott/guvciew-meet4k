@@ -90,11 +90,29 @@ static opt_values_t opt_values[] =
 	},
 };
 
-static int  opt_verbosity = -1;
-static char opt_device[30] = "";
-static int  opt_width  = -1;
-static int  opt_height = -1;
-static char opt_format[5] = "";
+static options_t my_options =
+{
+	.verbosity = 0,
+	.device[30] = "/dev/video0",
+	.width = 640,
+	.height = 480,
+	.format[5] = "MJPG"
+};
+
+/*
+ * get the internal options data
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: pointer to internal options_t struct
+ */
+options_t *options_get()
+{
+	return &my_options;
+}
 
 /*
  * prints the number of command line options
@@ -133,7 +151,7 @@ int opt_get_number()
 static int opt_get_help_max_len()
 {
 	int i = 0;
-	
+
 	int max_len = 0;
 	int len = 0;
 
@@ -149,7 +167,7 @@ static int opt_get_help_max_len()
 		i++;
 	}
 	while(strlen(opt_values[i].opt_long) > 0);
-	
+
 
 	return max_len;
 }
@@ -172,7 +190,7 @@ void opt_print_help()
 
 	int max_len = opt_get_help_max_len();
 	int len = 0;
-	
+
 	int i = 0;
 
 	/*long option must always be set*/
@@ -192,12 +210,12 @@ void opt_print_help()
 			len += strlen(opt_values[i].opt_help_arg) + 1;
 			printf("=%s", _(opt_values[i].opt_help_arg));
 		}
-		
+
 		int spaces = max_len - len;
 		int j = 0;
 		for(j=0; j < spaces; j++)
 			printf(" ");
-		
+
 		if(strlen(opt_values[i].opt_help) > 0)
 			printf("\t:%s\n", _(opt_values[i].opt_help));
 
@@ -262,15 +280,15 @@ int options_parse(int argc, char *argv[])
 		}
 	}
 
-	long_options[n_options].name = 0; 
-	long_options[n_options].has_arg = 0; 
-	long_options[n_options].flag = NULL; 
+	long_options[n_options].name = 0;
+	long_options[n_options].has_arg = 0;
+	long_options[n_options].flag = NULL;
 	long_options[n_options].val= 0;
 
 	*opt_str_ptr++='\0'; /*null terminated string*/
 
 	char opt = 0;
-	
+
 	while ((opt = getopt_long(argc, argv, opt_string,
 		long_options, &long_index )) != -1)
 	{
@@ -282,20 +300,20 @@ int options_parse(int argc, char *argv[])
 				break;
 
 			case 'w':
-				opt_verbosity = atoi(optarg);
+				my_options.verbosity = atoi(optarg);
 				break;
 
 			case 'd':
 			{
 				int str_size = strlen(optarg);
 				if(str_size > 1) /*device needs at least 2 chars*/
-					strncpy(opt_device, optarg, 29);
+					strncpy(my_options.device, optarg, 29);
 				else
 					fprintf(stderr, "V4L2_CORE: (options) Error in device usage: -d[--device] DEVICENAME \n");
 				break;
 			}
 			case 'x':
-				opt_width = (int) strtoul(optarg, &stopstring, 10);
+				my_options.width = (int) strtoul(optarg, &stopstring, 10);
 				if( *stopstring != 'x')
 				{
 					fprintf(stderr, "V4L2_CORE: (options) Error in resolution usage: -x[--resolution] WIDTHxHEIGHT \n");
@@ -303,19 +321,19 @@ int options_parse(int argc, char *argv[])
 				else
 				{
 					++stopstring;
-					opt_height = (int) strtoul(optarg, &stopstring, 10);
+					my_options.height = (int) strtoul(optarg, &stopstring, 10);
 				}
-				if(opt_width <= 0)
-					opt_width = -1;
-				if(opt_height <= 0)
-					opt_height = -1;
+				if(my_options.width <= 0)
+					my_options.width = 640;
+				if(my_options.height <= 0)
+					my_options.height = 480;
 				break;
 
 			case 'f':
 			{
 				int str_size = strlen(optarg);
 				if(str_size == 4) /*fourcc is 4 chars*/
-					strncpy(opt_format, optarg, 4);
+					strncpy(my_options.format, optarg, 4);
 				break;
 			}
 			default:

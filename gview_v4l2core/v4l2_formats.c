@@ -151,6 +151,33 @@ static v4l2_format_table decoder_supported_formats[] =
 	}
 };
 
+/*  Four-character-code (FOURCC) */
+#ifndef v4l2_fourcc
+#define v4l2_fourcc(a, b, c, d)\
+			((uint32_t)(a) | ((uint32_t)(b) << 8) | ((uint32_t)(c) << 16) | ((uint32_t)(d) << 24))
+#endif
+
+/*
+ * get pixelformat from fourcc
+ * args:
+ *    fourcc - fourcc code for format
+ *
+ * asserts:
+ *    none
+ *
+ * returns: v4l2 pixel format
+ */
+int fourcc_2_v4l2_pixelformat(const char *fourcc)
+{
+	int fmt = 0;
+	if(!fourcc || strlen(fourcc) !=  4)
+		return fmt;
+	else
+		fmt = v4l2_fourcc(toupper(fourcc[0]), toupper(fourcc[1]), toupper(fourcc[2]), toupper(fourcc[3]));
+
+	return fmt;
+}
+
 /*
  * check pixelformat against decoder support formats
  * args:
@@ -586,6 +613,42 @@ int get_frame_format_index(v4l2_dev* vd, int format)
 		if(format == vd->list_stream_formats[i].format)
 			return (i);
 	}
+	return (-1);
+}
+
+/* get resolution index for format index from format list
+ * args:
+ *   vd - pointer to video device data
+ *   format - format index from format list
+ *   width - requested width
+ *   height - requested height
+ *
+ * asserts:
+ *   vd is not null
+ *   vd->list_stream_formats is not null
+ *
+ * returns: resolution list index for format index or -1 if not available
+ */
+int get_format_resolution_index(v4l2_dev* vd, int format, int width, int height)
+{
+	/*asserts*/
+	assert(vd != NULL);
+	assert(vd->list_stream_formats != NULL);
+
+	if(format >= numb_formats)
+	{
+		fprintf(stderr, "V4L2_CORE: [get resolution index] format index (%i) is not valid (max: %i)\n", format, numb_formats - 1);
+		return (-1);
+	}
+
+	int i=0;
+	for(i=0; i < vd->list_stream_formats[format].numb_res; i++)
+	{
+		if( width == vd->list_stream_formats[format].list_stream_cap[i].width &&
+		    height == vd->list_stream_formats[format].list_stream_cap[i].height)
+			return (i);
+	}
+
 	return (-1);
 }
 

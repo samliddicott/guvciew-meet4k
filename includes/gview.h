@@ -38,40 +38,6 @@
 #  endif
 #endif
 
-#define E_OK					  (0)
-#define E_ALLOC_ERR				  (-1)
-#define E_QUERYCAP_ERR  		  (-2)
-#define E_READ_ERR     		 	  (-3)
-#define E_MMAP_ERR      		  (-4)
-#define E_QUERYBUF_ERR   		  (-5)
-#define E_QBUF_ERR       		  (-6)
-#define E_DQBUF_ERR				  (-7)
-#define E_STREAMON_ERR   		  (-8)
-#define E_STREAMOFF_ERR  		  (-9)
-#define E_FORMAT_ERR    		  (-10)
-#define E_REQBUFS_ERR    		  (-11)
-#define E_DEVICE_ERR     		  (-12)
-#define E_SELECT_ERR     		  (-13)
-#define E_SELECT_TIMEOUT_ERR	  (-14)
-#define E_FBALLOC_ERR			  (-15)
-#define E_NO_STREAM_ERR           (-16)
-#define E_NO_DATA                 (-17)
-#define E_NO_CODEC                (-18)
-#define E_DECODE_ERR              (-19)
-#define E_BAD_TABLES_ERR          (-20)
-#define E_NO_SOI_ERR              (-21)
-#define E_NOT_8BIT_ERR            (-22)
-#define E_BAD_WIDTH_OR_HEIGHT_ERR (-23)
-#define E_TOO_MANY_COMPPS_ERR     (-24)
-#define E_ILLEGAL_HV_ERR          (-25)
-#define E_QUANT_TBL_SEL_ERR       (-26)
-#define E_NOT_YCBCR_ERR           (-27)
-#define E_UNKNOWN_CID_ERR         (-28)
-#define E_WRONG_MARKER_ERR        (-29)
-#define E_NO_EOI_ERR              (-30)
-#define E_UNKNOWN_ERR    		  (-40)
-
-
 #ifndef TRUE
 #define TRUE (1)
 #endif

@@ -74,25 +74,36 @@ int main(int argc, char *argv[])
 	if(options_parse(argc, argv))
 		return 0;
 
-	debug_level = 1;
-	set_v4l2_verbosity(debug_level);
+	options_t *my_options = options_get();
 
-	v4l2_dev* device = init_v4l2_dev("/dev/video0");
+
+	set_v4l2_verbosity(my_options->verbosity);
+
+	v4l2_dev* device = init_v4l2_dev(my_options->device);
 
 	if(device)
 		set_render_flag(RENDER_SDL1);
 	else
 		return -1;
 
+	int format = fourcc_2_v4l2_pixelformat(my_options->format);
+
 	/*set format*/
-	device->current_format = get_frame_format_index(device, V4L2_PIX_FMT_H264);
+	int format_index = get_frame_format_index(device, format);
 
-	if(device->current_format < 0)
-		device->current_format = 0;
+	if(format_index < 0)
+		format_index = 0;
 
-	int pixelformat = device->list_stream_formats[device->current_format].format;
-	int width  = device->list_stream_formats[device->current_format].list_stream_cap[0].width;
-	int height = device->list_stream_formats[device->current_format].list_stream_cap[0].height;
+	int pixelformat = device->list_stream_formats[format_index].format;
+
+	/*get width and height*/
+	int resolution_index = get_format_resolution_index(device, format_index, my_options.width, my_options.height);
+
+	if(resolution_index < 0)
+		resolution_index = 0;
+
+	int width  = device->list_stream_formats[format_index].list_stream_cap[resolution_index].width;
+	int height = device->list_stream_formats[format_index].list_stream_cap[resolution_index].height;
 
 	int ret = try_video_stream_format(device, width, height, pixelformat);
 	/*try to set the video stream format on the device*/

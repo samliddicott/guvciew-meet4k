@@ -32,7 +32,8 @@
 #ifndef GVIEWRENDER_H
 #define GVIEWRENDER_H
 
-#include "gview.h"
+#include <inttypes.h>
+#include <sys/types.h>
 
 #define RENDER_NONE     (0)
 #define RENDER_SDL1     (1)

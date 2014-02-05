@@ -22,6 +22,27 @@
 #ifndef OPTIONS_H
 #define OPTIONS_H
 
+typedef struct _options_t
+{
+	int  verbosity;
+	char device[30];
+	int  width;
+	int  height;
+	char format[5];
+} options_t;
+
+/*
+ * get the internal options data
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: pointer to internal options_t struct
+ */
+options_t *options_get();
+
 /*
  * parses the command line options
  * args:
