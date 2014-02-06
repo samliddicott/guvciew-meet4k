@@ -1275,7 +1275,6 @@ static int frame_decode(struct vdIn *vd, int format, int width, int height)
 			if(vd->buf.bytesused < max_size)
 				max_size = vd->buf.bytesused;
 			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index], max_size);
-			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
 			yvu420_to_yuyv(vd->framebuffer, vd->tmpbuffer, width, height);
 			break;
 
