@@ -23,156 +23,131 @@
 #                                                                               #
 ********************************************************************************/
 
-/*******************************************************************************#
-#                                                                               #
-#  Render library                                                               #
-#                                                                               #
-********************************************************************************/
+#ifndef GUI_H
+#define GUI_H
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <sys/types.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <string.h>
-#include <errno.h>
-#include <assert.h>
-/* support for internationalization - i18n */
-#include <locale.h>
-#include <libintl.h>
+#include "gviewv4l2core.h"
 
-#include "gviewrender.h"
-#include "render_sdl1.h"
+#define GUI_NONE   (0)
+#define GUI_GTK3   (1)
 
-int verbosity = 0;
-
-static int render_api = RENDER_SDL1;
+#define DEF_ACTION_IMAGE  (0)
+#define DEF_ACTION_VIDEO  (1)
 
 /*
- * set verbosity
+ * gets the default camera button action
  * args:
- *   value - verbosity value
+ *   none
  *
  * asserts:
- *    none
+ *   none
+ *
+ * returns: default camera button action
+ */
+int get_default_camera_button_action();
+
+/*
+ * sets the default camera button action
+ * args:
+ *   action: camera button default action
+ *
+ * asserts:
+ *   none
  *
  * returns: none
  */
-void set_render_verbosity(int value)
-{
-	verbosity = value;
-}
+void set_default_camera_button_action(int action);
 
 /*
- * render initialization
+ * gets the control profile file name
  * args:
- *   render - render API to use (RENDER_NONE, RENDER_SDL1, ...)
- *   width - render width
- *   height - render height
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: control profile file name
+ */
+const char *get_profile_name();
+
+/*
+ * sets the control profile file name
+ * args:
+ *   name: control profile file name
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void set_profile_name(const char *name);
+
+/*
+ * gets the control profile path (to dir)
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: control profile file name
+ */
+const char *get_profile_path();
+
+/*
+ * sets the control profile path (to dir)
+ * args:
+ *   path: control profile path
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void set_profile_path(const char *path);
+
+/*
+ * GUI initialization
+ * args:
+ *   device - pointer to device data we want to attach the gui for
+ *   gui - gui API to use (GUI_NONE, GUI_GTK3, ...)
+ *   width - window width
+ *   height - window height
+ *
+ * asserts:
+ *   device is not null
+ *
+ * returns: error code
+ */
+int gui_attach(v4l2_dev* device, int gui, int width, int height);
+
+/*
+ * run the GUI loop
+ * args:
+ *   none
  *
  * asserts:
  *   none
  *
  * returns: error code
  */
-int render_init(int render, int width, int height)
+int gui_run()
 {
 
 	int ret = 0;
 
-	render_api = render;
-
-	switch(render_api)
+	switch(gui_api)
 	{
-		case RENDER_NONE:
+		case GUI_NONE:
 			break;
 
-		case RENDER_SDL1:
+		case GUI_GTK3:
 		default:
-			ret = init_render_sdl1(width, height);
+			ret = gui_run_gtk3();
 			break;
 	}
 
 	return ret;
 }
 
-/*
- * render a frame
- * args:
- *   frame - pointer to frame data (yuyv format)
- *   size - frame size in bytes
- *
- * asserts:
- *   frame is not null
- *   size is valid
- *
- * returns: error code
- */
-int render_frame(uint8_t *frame, int size)
-{
-	/*asserts*/
-	assert(frame != NULL);
-
-	int ret = 0;
-	switch(render_api)
-	{
-		case RENDER_NONE:
-			break;
-
-		case RENDER_SDL1:
-		default:
-			ret = render_sdl1_frame(frame, size);
-			break;
-	}
-
-	return ret;
-}
-
-/*
- * set caption
- * args:
- *   caption - string with render window caption
- *
- * asserts:
- *   none
- *
- * returns: none
- */
-void set_render_caption(const char* caption)
-{
-	switch(render_api)
-	{
-		case RENDER_NONE:
-			break;
-
-		case RENDER_SDL1:
-		default:
-			set_render_sdl1_caption(caption);
-			break;
-	}
-}
-
-
-/*
- * clean render data
- * args:
- *   none
- *
- * asserts:
- *   none
- *
- * returns: none
- */
-void render_clean()
-{
-	switch(render_api)
-	{
-		case RENDER_NONE:
-			break;
-
-		case RENDER_SDL1:
-		default:
-			render_sdl1_clean();
-			break;
-	}
-}
+#endif

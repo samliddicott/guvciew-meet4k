@@ -23,156 +23,133 @@
 #                                                                               #
 ********************************************************************************/
 
-/*******************************************************************************#
-#                                                                               #
-#  Render library                                                               #
-#                                                                               #
-********************************************************************************/
+#ifndef GUI_GTK3_CALLBACKS_H
+#define GUI_GTK3_CALLBACKS_H
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <sys/types.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <string.h>
-#include <errno.h>
-#include <assert.h>
+#include <gtk/gtk.h>
+#include <glib.h>
 /* support for internationalization - i18n */
-#include <locale.h>
-#include <libintl.h>
+#include <glib/gi18n.h>
 
-#include "gviewrender.h"
-#include "render_sdl1.h"
-
-int verbosity = 0;
-
-static int render_api = RENDER_SDL1;
+#include "gviewv4l2core.h"
 
 /*
- * set verbosity
+ * delete event (close window)
  * args:
- *   value - verbosity value
+ *   widget - pointer to event widget
+ *   event - pointe to event data
+ *   data - pointer to user data
+ *
+ * asserts:
+ *   none
+ *
+ * returns: error code
+ */
+int delete_event (GtkWidget *widget, GdkEventConfigure *event, void *data);
+
+/*
+ * camera_button_menu toggled event
+ * args:
+ *   widget - pointer to event widget
+ *   data - pointer to user data
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void camera_button_menu_changed (GtkWidget *item, void *data);
+
+/*
+ * control default clicked event
+ * args:
+ *   widget - pointer to event widget
+ *   data - pointer to user data
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void control_defaults_clicked (GtkWidget *item, void *data);
+
+/*
+ * control profile (load/save) clicked event
+ * args:
+ *   widget - pointer to event widget
+ *   data - pointer to user data
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void controls_profile_clicked (GtkWidget *item, void *data);
+
+/*
+ * pan/tilt step changed
+ * args:
+ *    spin - spinbutton that generated the event
+ *    data - pointer to user data
+ *
+ * asserts:
+ *    none
+ *
+ * returns:
+ *    none
+ */
+void pan_tilt_step_changed (GtkSpinButton *spin, void *data);
+
+/*
+ * Pan Tilt button 1 clicked
+ * args:
+ *    button - button that generated the event
+ *    data - pointer to user data
  *
  * asserts:
  *    none
  *
  * returns: none
  */
-void set_render_verbosity(int value)
-{
-	verbosity = value;
-}
+void button_PanTilt1_clicked (GtkButton * Button, void *data);
 
 /*
- * render initialization
+ * Pan Tilt button 2 clicked
  * args:
- *   render - render API to use (RENDER_NONE, RENDER_SDL1, ...)
- *   width - render width
- *   height - render height
+ *    button - button that generated the event
+ *    data - pointer to user data
  *
  * asserts:
- *   none
- *
- * returns: error code
- */
-int render_init(int render, int width, int height)
-{
-
-	int ret = 0;
-
-	render_api = render;
-
-	switch(render_api)
-	{
-		case RENDER_NONE:
-			break;
-
-		case RENDER_SDL1:
-		default:
-			ret = init_render_sdl1(width, height);
-			break;
-	}
-
-	return ret;
-}
-
-/*
- * render a frame
- * args:
- *   frame - pointer to frame data (yuyv format)
- *   size - frame size in bytes
- *
- * asserts:
- *   frame is not null
- *   size is valid
- *
- * returns: error code
- */
-int render_frame(uint8_t *frame, int size)
-{
-	/*asserts*/
-	assert(frame != NULL);
-
-	int ret = 0;
-	switch(render_api)
-	{
-		case RENDER_NONE:
-			break;
-
-		case RENDER_SDL1:
-		default:
-			ret = render_sdl1_frame(frame, size);
-			break;
-	}
-
-	return ret;
-}
-
-/*
- * set caption
- * args:
- *   caption - string with render window caption
- *
- * asserts:
- *   none
+ *    none
  *
  * returns: none
  */
-void set_render_caption(const char* caption)
-{
-	switch(render_api)
-	{
-		case RENDER_NONE:
-			break;
-
-		case RENDER_SDL1:
-		default:
-			set_render_sdl1_caption(caption);
-			break;
-	}
-}
-
+void button_PanTilt2_clicked (GtkButton * Button, void *data);
 
 /*
- * clean render data
+ * generic button clicked
  * args:
- *   none
+ *    button - button that generated the event
+ *    data - pointer to user data
  *
  * asserts:
- *   none
+ *    none
  *
  * returns: none
  */
-void render_clean()
-{
-	switch(render_api)
-	{
-		case RENDER_NONE:
-			break;
+void button_clicked (GtkButton * Button, void *data);
 
-		case RENDER_SDL1:
-		default:
-			render_sdl1_clean();
-			break;
-	}
-}
+/*
+ * combo box chaged event
+ * args:
+ *    combo - widget that generated the event
+ *    data - pointer to user data
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void combo_changed (GtkComboBox * combo, void *data);
+
+#endif

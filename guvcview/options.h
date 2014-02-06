@@ -24,12 +24,13 @@
 
 typedef struct _options_t
 {
-	int  verbosity;
-	char device[30];
-	int  width;
-	int  height;
-	char format[5];
-	char render[5];
+	int  verbosity;  /*verbosity level*/
+	char device[30]; /*device name*/
+	int  width;      /*width*/
+	int  height;     /*height*/
+	char format[5];  /*pixelformat fourcc*/
+	char render[5];  /*render api*/
+	char gui[5];     /*gui api*/
 } options_t;
 
 /*

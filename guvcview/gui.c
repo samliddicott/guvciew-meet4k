@@ -23,12 +23,6 @@
 #                                                                               #
 ********************************************************************************/
 
-/*******************************************************************************#
-#                                                                               #
-#  Render library                                                               #
-#                                                                               #
-********************************************************************************/
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/types.h>
@@ -41,87 +35,149 @@
 #include <locale.h>
 #include <libintl.h>
 
-#include "gviewrender.h"
-#include "render_sdl1.h"
+#include "gui.h"
+#include "gui_gtk3.h"
+#include "video_capture.h"
 
-int verbosity = 0;
+extern int debug_level;
 
-static int render_api = RENDER_SDL1;
+static int gui_api = GUI_GTK3;
 
-/*
- * set verbosity
- * args:
- *   value - verbosity value
- *
- * asserts:
- *    none
- *
- * returns: none
- */
-void set_render_verbosity(int value)
-{
-	verbosity = value;
-}
+/*default camera button action: DEF_ACTION_IMAGE - save image; DEF_ACTION_VIDEO - save video*/
+static int default_camera_button_action = 0;
+
+/*control profile file name*/
+static char *profile_name = NULL;
+
+/*control profile path to dir*/
+static char *profile_path = NULL;
 
 /*
- * render initialization
+ * gets the default camera button action
  * args:
- *   render - render API to use (RENDER_NONE, RENDER_SDL1, ...)
- *   width - render width
- *   height - render height
+ *   none
  *
  * asserts:
  *   none
  *
- * returns: error code
+ * returns: default camera button action
  */
-int render_init(int render, int width, int height)
+int get_default_camera_button_action()
 {
-
-	int ret = 0;
-
-	render_api = render;
-
-	switch(render_api)
-	{
-		case RENDER_NONE:
-			break;
-
-		case RENDER_SDL1:
-		default:
-			ret = init_render_sdl1(width, height);
-			break;
-	}
-
-	return ret;
+	return default_camera_button_action;
 }
 
 /*
- * render a frame
+ * sets the default camera button action
  * args:
- *   frame - pointer to frame data (yuyv format)
- *   size - frame size in bytes
+ *   action: camera button default action
  *
  * asserts:
- *   frame is not null
- *   size is valid
+ *   none
+ *
+ * returns: none
+ */
+void set_default_camera_button_action(int action)
+{
+	default_camera_button_action = action;
+}
+
+/*
+ * gets the control profile file name
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: control profile file name
+ */
+const char *get_profile_name()
+{
+	return profile_name;
+}
+
+/*
+ * sets the control profile file name
+ * args:
+ *   name: control profile file name
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void set_profile_name(const char *name)
+{
+	if(profile_name != NULL)
+		free(profile_name);
+
+	profile_name = strdup(name);
+}
+
+/*
+ * gets the control profile path (to dir)
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: control profile file name
+ */
+const char *get_profile_path()
+{
+	return profile_path;
+}
+
+/*
+ * sets the control profile path (to dir)
+ * args:
+ *   path: control profile path
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void set_profile_path(const char *path)
+{
+	if(profile_path != NULL)
+		free(profile_path);
+
+	profile_path = strdup(path);
+}
+
+/*
+ * GUI initialization
+ * args:
+ *   device - pointer to device data we want to attach the gui for
+ *   gui - gui API to use (GUI_NONE, GUI_GTK3, ...)
+ *   width - window width
+ *   height - window height
+ *
+ * asserts:
+ *   device is not null
  *
  * returns: error code
  */
-int render_frame(uint8_t *frame, int size)
+int gui_attach(v4l2_dev* device, int gui, int width, int height)
 {
 	/*asserts*/
-	assert(frame != NULL);
+	assert(device != NULL);
 
 	int ret = 0;
-	switch(render_api)
+
+	gui_api = gui;
+
+	switch(gui_api)
 	{
-		case RENDER_NONE:
+		case GUI_NONE:
 			break;
 
-		case RENDER_SDL1:
+		case GUI_GTK3:
 		default:
-			ret = render_sdl1_frame(frame, size);
+			ret = gui_attach_gtk3(device, width, height);
 			break;
 	}
 
@@ -129,32 +185,36 @@ int render_frame(uint8_t *frame, int size)
 }
 
 /*
- * set caption
+ * run the GUI loop
  * args:
- *   caption - string with render window caption
+ *   none
  *
  * asserts:
  *   none
  *
- * returns: none
+ * returns: error code
  */
-void set_render_caption(const char* caption)
+int gui_run()
 {
-	switch(render_api)
+
+	int ret = 0;
+
+	switch(gui_api)
 	{
-		case RENDER_NONE:
+		case GUI_NONE:
 			break;
 
-		case RENDER_SDL1:
+		case GUI_GTK3:
 		default:
-			set_render_sdl1_caption(caption);
+			ret = gui_run_gtk3();
 			break;
 	}
+
+	return ret;
 }
 
-
 /*
- * clean render data
+ * closes and cleans the GUI
  * args:
  *   none
  *
@@ -163,16 +223,24 @@ void set_render_caption(const char* caption)
  *
  * returns: none
  */
-void render_clean()
+void gui_close()
 {
-	switch(render_api)
+	if(profile_name != NULL)
+		free(profile_name);
+	profile_name = NULL;
+	if(profile_path != NULL)
+		free(profile_path);
+	profile_path = NULL;
+
+	switch(gui_api)
 	{
-		case RENDER_NONE:
+		case GUI_NONE:
 			break;
 
-		case RENDER_SDL1:
+		case GUI_GTK3:
 		default:
-			render_sdl1_clean();
+			ret = gui_close_gtk3();
 			break;
 	}
+	video_capture_quit();
 }

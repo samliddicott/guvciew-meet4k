@@ -23,156 +23,65 @@
 #                                                                               #
 ********************************************************************************/
 
-/*******************************************************************************#
-#                                                                               #
-#  Render library                                                               #
-#                                                                               #
-********************************************************************************/
+#ifndef GUI_GTK3_H
+#define GUI_GTK3_H
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <sys/types.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <string.h>
-#include <errno.h>
-#include <assert.h>
+#include <gtk/gtk.h>
+#include <glib.h>
 /* support for internationalization - i18n */
-#include <locale.h>
-#include <libintl.h>
+#include <glib/gi18n.h>
 
-#include "gviewrender.h"
-#include "render_sdl1.h"
-
-int verbosity = 0;
-
-static int render_api = RENDER_SDL1;
+#include "gviewv4l2core.h"
 
 /*
- * set verbosity
+ * GUI initialization
  * args:
- *   value - verbosity value
+ *   device - pointer to device data we want to attach the gui for
+ *   gui - gui API to use (GUI_NONE, GUI_GTK3, ...)
+ *   width - window width
+ *   height - window height
+ *
+ * asserts:
+ *   device is not null
+ *
+ * returns: error code
+ */
+int gui_attach_gtk3(v4l2_dev *device, int width, int height);
+
+/*
+ * run the GUI loop
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: error code
+ */
+int gui_run_gtk3();
+
+/*
+ * closes and cleans the GTK3 GUI
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void gui_close_gtk3();
+
+/*
+ * get the main window
+ * args:
+ *    none
  *
  * asserts:
  *    none
  *
- * returns: none
+ * return: pointer to GtkWidget main_window
  */
-void set_render_verbosity(int value)
-{
-	verbosity = value;
-}
+GetkWidget *get_main_window();
 
-/*
- * render initialization
- * args:
- *   render - render API to use (RENDER_NONE, RENDER_SDL1, ...)
- *   width - render width
- *   height - render height
- *
- * asserts:
- *   none
- *
- * returns: error code
- */
-int render_init(int render, int width, int height)
-{
-
-	int ret = 0;
-
-	render_api = render;
-
-	switch(render_api)
-	{
-		case RENDER_NONE:
-			break;
-
-		case RENDER_SDL1:
-		default:
-			ret = init_render_sdl1(width, height);
-			break;
-	}
-
-	return ret;
-}
-
-/*
- * render a frame
- * args:
- *   frame - pointer to frame data (yuyv format)
- *   size - frame size in bytes
- *
- * asserts:
- *   frame is not null
- *   size is valid
- *
- * returns: error code
- */
-int render_frame(uint8_t *frame, int size)
-{
-	/*asserts*/
-	assert(frame != NULL);
-
-	int ret = 0;
-	switch(render_api)
-	{
-		case RENDER_NONE:
-			break;
-
-		case RENDER_SDL1:
-		default:
-			ret = render_sdl1_frame(frame, size);
-			break;
-	}
-
-	return ret;
-}
-
-/*
- * set caption
- * args:
- *   caption - string with render window caption
- *
- * asserts:
- *   none
- *
- * returns: none
- */
-void set_render_caption(const char* caption)
-{
-	switch(render_api)
-	{
-		case RENDER_NONE:
-			break;
-
-		case RENDER_SDL1:
-		default:
-			set_render_sdl1_caption(caption);
-			break;
-	}
-}
-
-
-/*
- * clean render data
- * args:
- *   none
- *
- * asserts:
- *   none
- *
- * returns: none
- */
-void render_clean()
-{
-	switch(render_api)
-	{
-		case RENDER_NONE:
-			break;
-
-		case RENDER_SDL1:
-		default:
-			render_sdl1_clean();
-			break;
-	}
-}
+#endif

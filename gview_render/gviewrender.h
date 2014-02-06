@@ -53,7 +53,7 @@ void set_render_verbosity(int value);
 /*
  * render initialization
  * args:
- *   render - render API to use (SDL1, SDL2, ...)
+ *   render - render API to use (RENDER_NONE, RENDER_SDL1, ...)
  *   width - render width
  *   height - render height
  *
