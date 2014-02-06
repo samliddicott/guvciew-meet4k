@@ -38,6 +38,22 @@
 #define RENDER_NONE     (0)
 #define RENDER_SDL1     (1)
 
+#define EV_QUIT      (0)
+#define EV_KEY_UP    (1)
+#define EV_KEY_DOWN  (2)
+#define EV_KEY_LEFT  (3)
+#define EV_KEY_RIGHT (4)
+#define EV_KEY_SPACE (5)
+
+
+typedef int (*render_event_callback)(void *data);
+
+typedef struct _render_events_t
+{
+	int event_id;
+	render_event_callback event_callback;
+	
+} render_events_t;
 /*
  * set verbosity
  * args:

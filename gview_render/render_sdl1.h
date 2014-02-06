@@ -60,6 +60,18 @@ int render_sdl1_frame(uint8_t *frame, int size);
 void set_render_sdl1_caption(const char* caption);
 
 /*
+ * dispatch sdl1 render events
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void render_sdl1_dispatch_events();
+
+/*
  * clean sdl1 render data
  * args:
  *   none

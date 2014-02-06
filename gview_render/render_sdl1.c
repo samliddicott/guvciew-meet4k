@@ -33,6 +33,8 @@ extern int verbosity;
 static int desktop_w = 0;
 static int desktop_h = 0;
 
+static int bpp = 0;
+
 static SDL_Surface *pscreen = NULL;
 static SDL_Overlay *poverlay = NULL;
 
@@ -132,7 +134,7 @@ static SDL_Overlay * video_init(int width, int height)
         printf("RENDER: Checking video mode %ix%i@32bpp : ", width, height);
     }
 
-    int bpp = SDL_VideoModeOK(
+    bpp = SDL_VideoModeOK(
         width,
         height,
         32,
@@ -248,6 +250,92 @@ void set_render_sdl1_caption(const char* caption)
 	SDL_WM_SetCaption(caption, NULL);
 }
 
+/*
+ * dispatch sdl1 render events
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void render_sdl1_dispatch_events()
+{
+	SDL_Event event;
+	
+	/* Poll for events */
+	while( SDL_PollEvent(&event) )
+	{
+		if(event.type==SDL_KEYDOWN)
+		{
+			switch( event.key.keysym.sym )
+            {
+				/* Keyboard event */
+                /* Pass the event data onto PrintKeyInfo() */
+				case SDLK_DOWN:
+					
+					break;
+
+				case SDLK_UP:
+					
+					break;
+
+				case SDLK_LEFT:
+					
+					break;
+
+				case SDLK_RIGHT:
+					
+					break;
+				
+				case SDLK_q:
+					
+					break
+				
+				case SDLK_SPACE:
+				
+					break;
+				
+				case SDLK_i:
+					
+					break;
+				 
+				case SDLK_v:
+				
+					break;
+					
+				default:
+					break;
+
+			}
+			
+			switch( event.key.keysym.scancode )
+			{
+				case 220: /*webcam button*/
+					break;
+			}
+		}
+
+		if(event.type==SDL_VIDEORESIZE)
+		{
+			pscreen =
+				SDL_SetVideoMode(
+					event.resize.w,
+					event.resize.h,
+					bpp,
+					SDL_VIDEO_Flags);
+					
+			drect.w = event.resize.w;
+			drect.h = event.resize.h;
+		}
+		
+		if(event.type==SDL_QUIT)
+		{
+
+		}
+	}
+}
 /*
  * clean sdl1 render data
  * args:

@@ -78,8 +78,8 @@ int main(int argc, char *argv[])
 
 	options_t *my_options = options_get();
 
-
-	set_v4l2_verbosity(my_options->verbosity);
+	debug_level = my_options->verbosity;
+	set_v4l2_verbosity(debug_level);
 
 	v4l2_dev* device = init_v4l2_dev(my_options->device);
 

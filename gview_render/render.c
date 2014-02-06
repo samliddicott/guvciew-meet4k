@@ -44,9 +44,35 @@
 #include "gviewrender.h"
 #include "render_sdl1.h"
 
+
 int verbosity = 0;
 
 static int render_api = RENDER_SDL1;
+
+static int render_events_t[] =
+{
+	{
+		.id = EV_QUIT;
+		.event_callback = NULL;
+		
+	},
+	{
+		.id = EV_KEY_UP;
+		.event_callback = NULL;
+	},
+	{
+		.id = EV_KEY_DOWN;
+		.event_callback = NULL;
+	},
+	{
+		.id = EV_KEY_LEFT;
+		.event_callback = NULL;
+	},
+	{
+		.id = EV_KEY_RIGHT;
+		.event_callback = NULL;
+	},
+}
 
 /*
  * set verbosity
