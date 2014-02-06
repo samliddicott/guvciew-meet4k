@@ -82,7 +82,6 @@ int alloc_v4l2_frames(v4l2_dev *vd)
 	int ret = E_OK;
 
 	size_t framebuf_size = 0;
-	size_t tmpbuf_size = 0;
 
 	int width = vd->format.fmt.pix.width;
 	int height = vd->format.fmt.pix.height;
@@ -90,30 +89,32 @@ int alloc_v4l2_frames(v4l2_dev *vd)
 	if(width <= 0 || height <= 0)
 		return E_ALLOC_ERR;
 
-	int framesizeIn = (width * height << 1); //2 bytes per pixel
+	int framesizeIn = (width * height * 2); /*2 bytes per pixel*/
 	switch (vd->requested_fmt)
 	{
 		case V4L2_PIX_FMT_H264:
 			/*init h264 context*/
 			ret = h264_init_decoder(width, height);
-			
+
 			if(ret)
 			{
 				fprintf(stderr, "V4L2_CORE: couldn't init h264 decoder\n");
 				return ret;
 			}
-			
-			vd->h264_last_IDR = calloc(framesizeIn, sizeof(uint8_t));
+
+			vd->h264_frame_max_size = width * height; /*1 byte per pixel*/
+
+			vd->h264_last_IDR = calloc(vd->h264_frame_max_size, sizeof(uint8_t));
 			vd->h264_last_IDR_size = 0; /*reset (no frame stored)*/
 
-			vd->h264_frame = calloc(framesizeIn, sizeof(uint8_t));
+			vd->h264_frame = calloc(vd->h264_frame_max_size, sizeof(uint8_t));
 
 		case V4L2_PIX_FMT_JPEG:
 		case V4L2_PIX_FMT_MJPEG:
 			/* alloc a temp buffer to reconstruct the pict (MJPEG)*/
-			tmpbuf_size= framesizeIn;
-			vd->tmp_buffer = calloc(tmpbuf_size, sizeof(uint8_t));
-			framebuf_size = width * (height + 8) * 2;
+			vd->tmp_buffer_max_size = framesizeIn;
+			vd->tmp_buffer = calloc(vd->tmp_buffer_max_size, sizeof(uint8_t));
+			framebuf_size = width * (height + 8) * 2; //FIXME: why 8 more lines ?
 			vd->yuv_frame = calloc(framebuf_size, sizeof(uint8_t));
 			break;
 
@@ -131,16 +132,16 @@ int alloc_v4l2_frames(v4l2_dev *vd)
 		case V4L2_PIX_FMT_SPCA505:
 		case V4L2_PIX_FMT_SPCA508:
 			/* alloc a temp buffer for colorspace conversion*/
-			tmpbuf_size= framesizeIn;
-			vd->tmp_buffer = calloc(tmpbuf_size, sizeof(uint8_t));
+			vd->tmp_buffer_max_size = framesizeIn;
+			vd->tmp_buffer = calloc(vd->tmp_buffer_max_size, sizeof(uint8_t));
 			framebuf_size = framesizeIn;
 			vd->yuv_frame = calloc(framebuf_size, sizeof(uint8_t));
 			break;
 
 		case V4L2_PIX_FMT_GREY:
 			/* alloc a temp buffer for colorspace conversion*/
-			tmpbuf_size= width * height; /* 1 byte per pixel*/
-			vd->tmp_buffer = calloc(tmpbuf_size, sizeof(uint8_t));
+			vd->tmp_buffer_max_size = width * height; /* 1 byte per pixel*/
+			vd->tmp_buffer = calloc(vd->tmp_buffer_max_size, sizeof(uint8_t));
 			framebuf_size = framesizeIn;
 			vd->yuv_frame = calloc(framebuf_size, sizeof(uint8_t));
 			break;
@@ -148,8 +149,8 @@ int alloc_v4l2_frames(v4l2_dev *vd)
 	    case V4L2_PIX_FMT_Y10BPACK:
 	    case V4L2_PIX_FMT_Y16:
 			/* alloc a temp buffer for colorspace conversion*/
-			tmpbuf_size= width * height * 2; /* 2 byte per pixel*/
-			vd->tmp_buffer = calloc(tmpbuf_size, sizeof(uint8_t));
+			vd->tmp_buffer_max_size = framesizeIn; /* 2 byte per pixel*/
+			vd->tmp_buffer = calloc(vd->tmp_buffer_max_size, sizeof(uint8_t));
 			framebuf_size = framesizeIn;
 			vd->yuv_frame = calloc(framebuf_size, sizeof(uint8_t));
 			break;
@@ -177,8 +178,8 @@ int alloc_v4l2_frames(v4l2_dev *vd)
 
 			/* alloc a temp buffer for converting to YUYV*/
 			/* rgb buffer for decoding bayer data*/
-			tmpbuf_size = width * height * 3;
-			vd->tmp_buffer = calloc(tmpbuf_size, sizeof(uint8_t));
+			vd->tmp_buffer_max_size = width * height * 3;
+			vd->tmp_buffer = calloc(vd->tmp_buffer_max_size, sizeof(uint8_t));
 			framebuf_size = framesizeIn;
 			vd->yuv_frame = calloc(framebuf_size, sizeof(uint8_t));
 			break;
@@ -188,8 +189,8 @@ int alloc_v4l2_frames(v4l2_dev *vd)
 			 * rgb or bgr (8-8-8)
 			 * alloc a temp buffer for converting to YUYV
 			 */
-			tmpbuf_size = width * height * 3;
-			vd->tmp_buffer = calloc(tmpbuf_size, sizeof(uint8_t));
+			vd->tmp_buffer_max_size = width * height * 3;
+			vd->tmp_buffer = calloc(vd->tmp_buffer_max_size, sizeof(uint8_t));
 
 			framebuf_size = framesizeIn;
 			vd->yuv_frame = calloc(framebuf_size, sizeof(uint8_t));
@@ -460,10 +461,15 @@ static int demux_NALU(uint8_t *h264_data, uint8_t *buff, int size)
 
 	while(pl + seg_size <= epl)
 	{
+		total_size += seg_size;
+		if(total_size > vd->h264_frame_max_size)
+		{
+			fprintf(stderr, "V4L2_CORE: (uvc H264) h264 data exceeds max of %i\n", (int) vd->h264_frame_max_size);
+			return (total_size - seg_size); /*revert to last size*/
+		}
 		//copy segment to h264 data buffer
 		memcpy(ph264, pl, seg_size);
 		ph264 += seg_size;
-		total_size += seg_size;
 
 		pl += seg_size; //reset to the next segment data
 
@@ -642,6 +648,9 @@ int frame_decode(v4l2_dev* vd)
 			 */
 			vd->h264_frame_size = demux_h264(vd->h264_frame, vd->raw_frame, vd->raw_frame_size);
 
+			/*assert size is within limits*/
+			assert(vd->h264_frame_size <= vd->h264_frame_max_size);
+
 			/*
 			 * store SPS and PPS info (usually the first two NALU)
 			 * and check/store the last IDR frame
@@ -668,10 +677,16 @@ int frame_decode(v4l2_dev* vd)
 			if(vd->raw_frame_size <= HEADERFRAME1)
 			{
 				// Prevent crash on empty image
-				printf("V4L2_CORE: (jpeg decoder) Ignoring empty buffer ...\n");
+				fprintf(stderr, "V4L2_CORE: (jpeg decoder) Ignoring empty buffer ...\n");
 				return (ret);
 			}
-			/*FIXME: do we need this ?*/
+			/*FIXME: do we need the tmp_buffer or can we just use the raw_frame?*/
+			if(vd->raw_frame_size > vd->tmp_buffer_max_size)
+			{
+				// Prevent crash on very large image
+				fprintf(stderr, "V4L2_CORE: (jpeg decoder) Ignoring unexpected large buffer (%i bytes) ...\n", (int) vd->raw_frame_size);
+				return (ret);
+			}
 			memcpy(vd->tmp_buffer, vd->raw_frame, vd->raw_frame_size);
 
 			if (jpeg_decode(&vd->yuv_frame, vd->tmp_buffer, width, height) < 0)
@@ -683,82 +698,210 @@ int frame_decode(v4l2_dev* vd)
 			break;
 
 		case V4L2_PIX_FMT_UYVY:
-			memcpy(vd->tmp_buffer, vd->raw_frame, vd->raw_frame_size);
+			/*FIXME: do we need the tmp_buffer or can we just use the raw_frame?*/
+			if(vd->raw_frame_size > vd->tmp_buffer_max_size)
+			{
+				// Prevent crash on very large image
+				fprintf(stderr, "V4L2_CORE: (uyvy decoder) cliping unexpected large buffer (%i bytes) ...\n", (int) vd->raw_frame_size);
+				memcpy(vd->tmp_buffer, vd->raw_frame, vd->tmp_buffer_max_size);
+			}
+			else
+				memcpy(vd->tmp_buffer, vd->raw_frame, vd->raw_frame_size);
 			uyvy_to_yuyv(vd->yuv_frame, vd->tmp_buffer, width, height);
 			break;
 
 		case V4L2_PIX_FMT_YVYU:
-			memcpy(vd->tmp_buffer, vd->raw_frame, vd->raw_frame_size);
+			/*FIXME: do we need the tmp_buffer or can we just use the raw_frame?*/
+			if(vd->raw_frame_size > vd->tmp_buffer_max_size)
+			{
+				// Prevent crash on very large image
+				fprintf(stderr, "V4L2_CORE: (uyvy decoder) cliping unexpected large buffer (%i bytes) ...\n", (int) vd->raw_frame_size);
+				memcpy(vd->tmp_buffer, vd->raw_frame, vd->tmp_buffer_max_size);
+			}
+			else
+				memcpy(vd->tmp_buffer, vd->raw_frame, vd->raw_frame_size);
 			yvyu_to_yuyv(vd->yuv_frame, vd->tmp_buffer, width, height);
 			break;
 
 		case V4L2_PIX_FMT_YYUV:
-			memcpy(vd->tmp_buffer, vd->raw_frame, vd->raw_frame_size);
+			/*FIXME: do we need the tmp_buffer or can we just use the raw_frame?*/
+			if(vd->raw_frame_size > vd->tmp_buffer_max_size)
+			{
+				// Prevent crash on very large image
+				fprintf(stderr, "V4L2_CORE: (uyvy decoder) cliping unexpected large buffer (%i bytes) ...\n", (int) vd->raw_frame_size);
+				memcpy(vd->tmp_buffer, vd->raw_frame, vd->tmp_buffer_max_size);
+			}
+			else
+				memcpy(vd->tmp_buffer, vd->raw_frame, vd->raw_frame_size);
 			yyuv_to_yuyv(vd->yuv_frame, vd->tmp_buffer, width, height);
 			break;
 
 		case V4L2_PIX_FMT_YUV420:
-			memcpy(vd->tmp_buffer, vd->raw_frame, vd->raw_frame_size);
+			/*FIXME: do we need the tmp_buffer or can we just use the raw_frame?*/
+			if(vd->raw_frame_size > vd->tmp_buffer_max_size)
+			{
+				// Prevent crash on very large image
+				fprintf(stderr, "V4L2_CORE: (uyvy decoder) cliping unexpected large buffer (%i bytes) ...\n", (int) vd->raw_frame_size);
+				memcpy(vd->tmp_buffer, vd->raw_frame, vd->tmp_buffer_max_size);
+			}
+			else
+				memcpy(vd->tmp_buffer, vd->raw_frame, vd->raw_frame_size);
 			yuv420_to_yuyv(vd->yuv_frame, vd->tmp_buffer, width, height);
 			break;
 
 		case V4L2_PIX_FMT_YVU420:
-			memcpy(vd->tmp_buffer, vd->raw_frame, vd->raw_frame_size);
+			/*FIXME: do we need the tmp_buffer or can we just use the raw_frame?*/
+			if(vd->raw_frame_size > vd->tmp_buffer_max_size)
+			{
+				// Prevent crash on very large image
+				fprintf(stderr, "V4L2_CORE: (uyvy decoder) cliping unexpected large buffer (%i bytes) ...\n", (int) vd->raw_frame_size);
+				memcpy(vd->tmp_buffer, vd->raw_frame, vd->tmp_buffer_max_size);
+			}
+			else
+				memcpy(vd->tmp_buffer, vd->raw_frame, vd->raw_frame_size);
 			yvu420_to_yuyv(vd->yuv_frame, vd->tmp_buffer, width, height);
 			break;
 
 		case V4L2_PIX_FMT_NV12:
-			memcpy(vd->tmp_buffer, vd->raw_frame, vd->raw_frame_size);
+			/*FIXME: do we need the tmp_buffer or can we just use the raw_frame?*/
+			if(vd->raw_frame_size > vd->tmp_buffer_max_size)
+			{
+				// Prevent crash on very large image
+				fprintf(stderr, "V4L2_CORE: (uyvy decoder) cliping unexpected large buffer (%i bytes) ...\n", (int) vd->raw_frame_size);
+				memcpy(vd->tmp_buffer, vd->raw_frame, vd->tmp_buffer_max_size);
+			}
+			else
+				memcpy(vd->tmp_buffer, vd->raw_frame, vd->raw_frame_size);
 			nv12_to_yuyv(vd->yuv_frame, vd->tmp_buffer, width, height);
 			break;
 
 		case V4L2_PIX_FMT_NV21:
-			memcpy(vd->tmp_buffer, vd->raw_frame, vd->raw_frame_size);
+			/*FIXME: do we need the tmp_buffer or can we just use the raw_frame?*/
+			if(vd->raw_frame_size > vd->tmp_buffer_max_size)
+			{
+				// Prevent crash on very large image
+				fprintf(stderr, "V4L2_CORE: (uyvy decoder) cliping unexpected large buffer (%i bytes) ...\n", (int) vd->raw_frame_size);
+				memcpy(vd->tmp_buffer, vd->raw_frame, vd->tmp_buffer_max_size);
+			}
+			else
+				memcpy(vd->tmp_buffer, vd->raw_frame, vd->raw_frame_size);
 			nv21_to_yuyv(vd->yuv_frame, vd->tmp_buffer, width, height);
 			break;
 
 		case V4L2_PIX_FMT_NV16:
-			memcpy(vd->tmp_buffer, vd->raw_frame, vd->raw_frame_size);
+			/*FIXME: do we need the tmp_buffer or can we just use the raw_frame?*/
+			if(vd->raw_frame_size > vd->tmp_buffer_max_size)
+			{
+				// Prevent crash on very large image
+				fprintf(stderr, "V4L2_CORE: (uyvy decoder) cliping unexpected large buffer (%i bytes) ...\n", (int) vd->raw_frame_size);
+				memcpy(vd->tmp_buffer, vd->raw_frame, vd->tmp_buffer_max_size);
+			}
+			else
+				memcpy(vd->tmp_buffer, vd->raw_frame, vd->raw_frame_size);
 			nv16_to_yuyv(vd->yuv_frame, vd->tmp_buffer, width, height);
 			break;
 
 		case V4L2_PIX_FMT_NV61:
-			memcpy(vd->tmp_buffer, vd->raw_frame, vd->raw_frame_size);
+			/*FIXME: do we need the tmp_buffer or can we just use the raw_frame?*/
+			if(vd->raw_frame_size > vd->tmp_buffer_max_size)
+			{
+				// Prevent crash on very large image
+				fprintf(stderr, "V4L2_CORE: (uyvy decoder) cliping unexpected large buffer (%i bytes) ...\n", (int) vd->raw_frame_size);
+				memcpy(vd->tmp_buffer, vd->raw_frame, vd->tmp_buffer_max_size);
+			}
+			else
+				memcpy(vd->tmp_buffer, vd->raw_frame, vd->raw_frame_size);
 			nv61_to_yuyv(vd->yuv_frame, vd->tmp_buffer, width, height);
 			break;
 
 		case V4L2_PIX_FMT_Y41P:
-			memcpy(vd->tmp_buffer, vd->raw_frame, vd->raw_frame_size);
+			/*FIXME: do we need the tmp_buffer or can we just use the raw_frame?*/
+			if(vd->raw_frame_size > vd->tmp_buffer_max_size)
+			{
+				// Prevent crash on very large image
+				fprintf(stderr, "V4L2_CORE: (uyvy decoder) cliping unexpected large buffer (%i bytes) ...\n", (int) vd->raw_frame_size);
+				memcpy(vd->tmp_buffer, vd->raw_frame, vd->tmp_buffer_max_size);
+			}
+			else
+				memcpy(vd->tmp_buffer, vd->raw_frame, vd->raw_frame_size);
 			y41p_to_yuyv(vd->yuv_frame, vd->tmp_buffer, width, height);
 			break;
 
 		case V4L2_PIX_FMT_GREY:
-			memcpy(vd->tmp_buffer, vd->raw_frame, vd->raw_frame_size);
+			/*FIXME: do we need the tmp_buffer or can we just use the raw_frame?*/
+			if(vd->raw_frame_size > vd->tmp_buffer_max_size)
+			{
+				// Prevent crash on very large image
+				fprintf(stderr, "V4L2_CORE: (uyvy decoder) cliping unexpected large buffer (%i bytes) ...\n", (int) vd->raw_frame_size);
+				memcpy(vd->tmp_buffer, vd->raw_frame, vd->tmp_buffer_max_size);
+			}
+			else
+				memcpy(vd->tmp_buffer, vd->raw_frame, vd->raw_frame_size);
 			grey_to_yuyv(vd->yuv_frame, vd->tmp_buffer, width, height);
 			break;
 
 		case V4L2_PIX_FMT_Y10BPACK:
-			memcpy(vd->tmp_buffer, vd->raw_frame, vd->raw_frame_size);
+			/*FIXME: do we need the tmp_buffer or can we just use the raw_frame?*/
+			if(vd->raw_frame_size > vd->tmp_buffer_max_size)
+			{
+				// Prevent crash on very large image
+				fprintf(stderr, "V4L2_CORE: (uyvy decoder) cliping unexpected large buffer (%i bytes) ...\n", (int) vd->raw_frame_size);
+				memcpy(vd->tmp_buffer, vd->raw_frame, vd->tmp_buffer_max_size);
+			}
+			else
+				memcpy(vd->tmp_buffer, vd->raw_frame, vd->raw_frame_size);
 			y10b_to_yuyv(vd->yuv_frame, vd->tmp_buffer, width, height);
 			break;
 
 	    case V4L2_PIX_FMT_Y16:
-			memcpy(vd->tmp_buffer, vd->raw_frame, vd->raw_frame_size);
+			/*FIXME: do we need the tmp_buffer or can we just use the raw_frame?*/
+			if(vd->raw_frame_size > vd->tmp_buffer_max_size)
+			{
+				// Prevent crash on very large image
+				fprintf(stderr, "V4L2_CORE: (uyvy decoder) cliping unexpected large buffer (%i bytes) ...\n", (int) vd->raw_frame_size);
+				memcpy(vd->tmp_buffer, vd->raw_frame, vd->tmp_buffer_max_size);
+			}
+			else
+				memcpy(vd->tmp_buffer, vd->raw_frame, vd->raw_frame_size);
 			y16_to_yuyv(vd->yuv_frame, vd->tmp_buffer, width, height);
 			break;
 
 		case V4L2_PIX_FMT_SPCA501:
-			memcpy(vd->tmp_buffer, vd->raw_frame, vd->raw_frame_size);
+			/*FIXME: do we need the tmp_buffer or can we just use the raw_frame?*/
+			if(vd->raw_frame_size > vd->tmp_buffer_max_size)
+			{
+				// Prevent crash on very large image
+				fprintf(stderr, "V4L2_CORE: (uyvy decoder) cliping unexpected large buffer (%i bytes) ...\n", (int) vd->raw_frame_size);
+				memcpy(vd->tmp_buffer, vd->raw_frame, vd->tmp_buffer_max_size);
+			}
+			else
+				memcpy(vd->tmp_buffer, vd->raw_frame, vd->raw_frame_size);
 			s501_to_yuyv(vd->yuv_frame, vd->tmp_buffer, width, height);
 			break;
 
 		case V4L2_PIX_FMT_SPCA505:
-			memcpy(vd->tmp_buffer, vd->raw_frame, vd->raw_frame_size);
+			/*FIXME: do we need the tmp_buffer or can we just use the raw_frame?*/
+			if(vd->raw_frame_size > vd->tmp_buffer_max_size)
+			{
+				// Prevent crash on very large image
+				fprintf(stderr, "V4L2_CORE: (uyvy decoder) cliping unexpected large buffer (%i bytes) ...\n", (int) vd->raw_frame_size);
+				memcpy(vd->tmp_buffer, vd->raw_frame, vd->tmp_buffer_max_size);
+			}
+			else
+				memcpy(vd->tmp_buffer, vd->raw_frame, vd->raw_frame_size);
 			s505_to_yuyv(vd->yuv_frame, vd->tmp_buffer, width, height);
 			break;
 
 		case V4L2_PIX_FMT_SPCA508:
-			memcpy(vd->tmp_buffer, vd->raw_frame, vd->raw_frame_size);
+			/*FIXME: do we need the tmp_buffer or can we just use the raw_frame?*/
+			if(vd->raw_frame_size > vd->tmp_buffer_max_size)
+			{
+				// Prevent crash on very large image
+				fprintf(stderr, "V4L2_CORE: (uyvy decoder) cliping unexpected large buffer (%i bytes) ...\n", (int) vd->raw_frame_size);
+				memcpy(vd->tmp_buffer, vd->raw_frame, vd->tmp_buffer_max_size);
+			}
+			else
+				memcpy(vd->tmp_buffer, vd->raw_frame, vd->raw_frame_size);
 			s508_to_yuyv(vd->yuv_frame, vd->tmp_buffer, width, height);
 			break;
 
@@ -804,11 +947,27 @@ int frame_decode(v4l2_dev* vd)
 			break;
 
 		case V4L2_PIX_FMT_RGB24:
-			memcpy(vd->tmp_buffer, vd->raw_frame, vd->raw_frame_size);
+			/*FIXME: do we need the tmp_buffer or can we just use the raw_frame?*/
+			if(vd->raw_frame_size > vd->tmp_buffer_max_size)
+			{
+				// Prevent crash on very large image
+				fprintf(stderr, "V4L2_CORE: (uyvy decoder) cliping unexpected large buffer (%i bytes) ...\n", (int) vd->raw_frame_size);
+				memcpy(vd->tmp_buffer, vd->raw_frame, vd->tmp_buffer_max_size);
+			}
+			else
+				memcpy(vd->tmp_buffer, vd->raw_frame, vd->raw_frame_size);
 			rgb2yuyv(vd->tmp_buffer, vd->yuv_frame, width, height);
 			break;
 		case V4L2_PIX_FMT_BGR24:
-			memcpy(vd->tmp_buffer, vd->raw_frame, vd->raw_frame_size);
+			/*FIXME: do we need the tmp_buffer or can we just use the raw_frame?*/
+			if(vd->raw_frame_size > vd->tmp_buffer_max_size)
+			{
+				// Prevent crash on very large image
+				fprintf(stderr, "V4L2_CORE: (uyvy decoder) cliping unexpected large buffer (%i bytes) ...\n", (int) vd->raw_frame_size);
+				memcpy(vd->tmp_buffer, vd->raw_frame, vd->tmp_buffer_max_size);
+			}
+			else
+				memcpy(vd->tmp_buffer, vd->raw_frame, vd->raw_frame_size);
 			bgr2yuyv(vd->tmp_buffer, vd->yuv_frame, width, height);
 			break;
 

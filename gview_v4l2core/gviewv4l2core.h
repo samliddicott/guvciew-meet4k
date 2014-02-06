@@ -225,9 +225,11 @@ typedef struct _v4l2_dev
 	size_t raw_frame_size;              // size of raw frame (in bytes)
 
 	uint8_t *tmp_buffer;                // temp buffer for decoding compressed data
+	size_t tmp_buffer_max_size;         // max size (allocated size) for temp buffer
 	uint8_t *yuv_frame;                 // frame buffer (YUYV), for rendering
 	uint8_t *h264_frame;                // h264 frame data (after demuxing) can be a copy of raw_frame
 	size_t  h264_frame_size;            // h264 frame data size (in bytes)
+	size_t  h264_frame_max_size;        // h264 frame max size (allocated size)
 
 	uint8_t h264_unit_id;  				// uvc h264 unit id, if <= 0 then uvc h264 is not supported
 	uvcx_video_config_probe_commit_t h264_config_probe_req; //probe commit struct for h264 streams
