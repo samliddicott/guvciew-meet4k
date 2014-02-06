@@ -914,8 +914,8 @@ static int videoIn_frame_alloca(struct vdIn *vd, int format, int width, int heig
 			//rgb or bgr (8-8-8)
 			// alloc a temp buffer for converting to YUYV
 			// rgb buffer
-			tmpbuf_size = width * height * 3;
-			vd->tmpbuffer = g_new0(unsigned char, tmpbuf_size);
+			//tmpbuf_size = width * height * 3;
+			//vd->tmpbuffer = g_new0(unsigned char, tmpbuf_size);
 
 			framebuf_size = framesizeIn;
 			vd->framebuffer = g_new0(unsigned char, framebuf_size);
@@ -1175,6 +1175,8 @@ static int frame_decode(struct vdIn *vd, int format, int width, int height)
 {
 	int ret = VDIN_OK;
 	int framesizeIn =(width * height << 1);//2 bytes per pixel
+	int max_size = framesizeIn;
+
 	switch (format)
 	{
 		case V4L2_PIX_FMT_H264:
@@ -1222,52 +1224,113 @@ static int frame_decode(struct vdIn *vd, int format, int width, int height)
 			break;
 
 		case V4L2_PIX_FMT_UYVY:
-			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
+			/*
+			 * check vd->buf.bytesused some drivers (or libusb)
+			 * seem to return a bigger value than the format requires
+			 */
+			if(vd->buf.bytesused < max_size)
+				max_size = vd->buf.bytesused;
+			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index], max_size);
 			uyvy_to_yuyv(vd->framebuffer, vd->tmpbuffer, width, height);
 			break;
 
 		case V4L2_PIX_FMT_YVYU:
-			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
+			/*
+			 * check vd->buf.bytesused some drivers (or libusb)
+			 * seem to return a bigger value than the format requires
+			 */
+			if(vd->buf.bytesused < max_size)
+				max_size = vd->buf.bytesused;
+			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index], max_size);
 			yvyu_to_yuyv(vd->framebuffer, vd->tmpbuffer, width, height);
 			break;
 
 		case V4L2_PIX_FMT_YYUV:
-			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
+			/*
+			 * check vd->buf.bytesused some drivers (or libusb)
+			 * seem to return a bigger value than the format requires
+			 */
+			if(vd->buf.bytesused < max_size)
+				max_size = vd->buf.bytesused;
+			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index], max_size);
 			yyuv_to_yuyv(vd->framebuffer, vd->tmpbuffer, width, height);
 			break;
 
 		case V4L2_PIX_FMT_YUV420:
-			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
+			/*
+			 * check vd->buf.bytesused some drivers (or libusb)
+			 * seem to return a bigger value than the format requires
+			 */
+			if(vd->buf.bytesused < max_size)
+				max_size = vd->buf.bytesused;
+			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index], max_size);
 			yuv420_to_yuyv(vd->framebuffer, vd->tmpbuffer, width, height);
 			break;
 
 		case V4L2_PIX_FMT_YVU420:
+			/*
+			 * check vd->buf.bytesused some drivers (or libusb)
+			 * seem to return a bigger value than the format requires
+			 */
+			if(vd->buf.bytesused < max_size)
+				max_size = vd->buf.bytesused;
+			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index], max_size);
 			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
 			yvu420_to_yuyv(vd->framebuffer, vd->tmpbuffer, width, height);
 			break;
 
 		case V4L2_PIX_FMT_NV12:
-			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
+			/*
+			 * check vd->buf.bytesused some drivers (or libusb)
+			 * seem to return a bigger value than the format requires
+			 */
+			if(vd->buf.bytesused < max_size)
+				max_size = vd->buf.bytesused;
+			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index], max_size);
 			nv12_to_yuyv(vd->framebuffer, vd->tmpbuffer, width, height);
 			break;
 
 		case V4L2_PIX_FMT_NV21:
-			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
+			/*
+			 * check vd->buf.bytesused some drivers (or libusb)
+			 * seem to return a bigger value than the format requires
+			 */
+			if(vd->buf.bytesused < max_size)
+				max_size = vd->buf.bytesused;
+			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index], max_size);
 			nv21_to_yuyv(vd->framebuffer, vd->tmpbuffer, width, height);
 			break;
 
 		case V4L2_PIX_FMT_NV16:
-			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
+			/*
+			 * check vd->buf.bytesused some drivers (or libusb)
+			 * seem to return a bigger value than the format requires
+			 */
+			if(vd->buf.bytesused < max_size)
+				max_size = vd->buf.bytesused;
+			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index], max_size);
 			nv16_to_yuyv(vd->framebuffer, vd->tmpbuffer, width, height);
 			break;
 
 		case V4L2_PIX_FMT_NV61:
-			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
+			/*
+			 * check vd->buf.bytesused some drivers (or libusb)
+			 * seem to return a bigger value than the format requires
+			 */
+			if(vd->buf.bytesused < max_size)
+				max_size = vd->buf.bytesused;
+			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index], max_size);
 			nv61_to_yuyv(vd->framebuffer, vd->tmpbuffer, width, height);
 			break;
 
 		case V4L2_PIX_FMT_Y41P:
-			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
+			/*
+			 * check vd->buf.bytesused some drivers (or libusb)
+			 * seem to return a bigger value than the format requires
+			 */
+			if(vd->buf.bytesused < max_size)
+				max_size = vd->buf.bytesused;
+			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index], max_size);
 			y41p_to_yuyv(vd->framebuffer, vd->tmpbuffer, width, height);
 			break;
 
@@ -1287,17 +1350,35 @@ static int frame_decode(struct vdIn *vd, int format, int width, int height)
 			break;
 
 		case V4L2_PIX_FMT_SPCA501:
-			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
+			/*
+			 * check vd->buf.bytesused some drivers (or libusb)
+			 * seem to return a bigger value than the format requires
+			 */
+			if(vd->buf.bytesused < max_size)
+				max_size = vd->buf.bytesused;
+			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index], max_size);
 			s501_to_yuyv(vd->framebuffer, vd->tmpbuffer, width, height);
 			break;
 
 		case V4L2_PIX_FMT_SPCA505:
-			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
+			/*
+			 * check vd->buf.bytesused some drivers (or libusb)
+			 * seem to return a bigger value than the format requires
+			 */
+			if(vd->buf.bytesused < max_size)
+				max_size = vd->buf.bytesused;
+			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index], max_size);
 			s505_to_yuyv(vd->framebuffer, vd->tmpbuffer, width, height);
 			break;
 
 		case V4L2_PIX_FMT_SPCA508:
-			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index],vd->buf.bytesused);
+			/*
+			 * check vd->buf.bytesused some drivers (or libusb)
+			 * seem to return a bigger value than the format requires
+			 */
+			if(vd->buf.bytesused < max_size)
+				max_size = vd->buf.bytesused;
+			memcpy(vd->tmpbuffer, vd->mem[vd->buf.index], max_size);
 			s508_to_yuyv(vd->framebuffer, vd->tmpbuffer, width, height);
 			break;
 
@@ -1345,12 +1426,26 @@ static int frame_decode(struct vdIn *vd, int format, int width, int height)
 			break;
 
 		case V4L2_PIX_FMT_RGB24:
-			//memcpy(vd->tmpbuffer, vd->mem[vd->buf.index], vd->buf.bytesused);
+			/*
+			 * check vd->buf.bytesused some drivers (or libusb)
+			 * seem to return a bigger value than the format requires
+			 */
+			// max_size = width * height * 3;
+			//if(vd->buf.bytesused < max_size)
+			//	max_size = vd->buf.bytesused;
+			//memcpy(vd->tmpbuffer, vd->mem[vd->buf.index], max_size);
 			//rgb2yuyv(vd->tmpbuffer, vd->framebuffer, width, height);
 			rgb2yuyv(vd->mem[vd->buf.index], vd->framebuffer, width, height);
 			break;
 		case V4L2_PIX_FMT_BGR24:
-			//memcpy(vd->tmpbuffer, vd->mem[vd->buf.index], vd->buf.bytesused);
+			/*
+			 * check vd->buf.bytesused some drivers (or libusb)
+			 * seem to return a bigger value than the format requires
+			 */
+			// max_size = width * height * 3;
+			//if(vd->buf.bytesused < max_size)
+			//	max_size = vd->buf.bytesused;
+			//memcpy(vd->tmpbuffer, vd->mem[vd->buf.index], max_size);
 			//bgr2yuyv(vd->tmpbuffer, vd->framebuffer, width, height);
 			bgr2yuyv(vd->mem[vd->buf.index], vd->framebuffer, width, height);
 			break;
