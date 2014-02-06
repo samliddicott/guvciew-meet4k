@@ -77,21 +77,6 @@ int quit_callback(void *data)
 	
 	return 0;
 }
- 
-/*
- * terminate capture loop
- * args:
- *    none
- *
- * asserts:
- *    none
- *
- * returns: none
- */
-void video_capture_quit()
-{
-	quit = 1;
-}
 
 /*
  * sets the save image flag
@@ -148,7 +133,7 @@ void *capture_loop(void *data)
 			if(frame_decode(device) != E_OK)
 			{
 				fprintf(stderr, "GUVCIEW: Error - Couldn't decode image\n");
-				video_capture_quit();
+				quit_callback(NULL);
 				continue;
 			}
 

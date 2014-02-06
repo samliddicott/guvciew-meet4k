@@ -51,7 +51,7 @@ void signal_callback_handler(int signum)
 	{
 		case SIGINT:
 			/* Terminate program */
-			video_capture_quit();
+			quit_callback(NULL);
 			break;
 
 		case SIGUSR1:

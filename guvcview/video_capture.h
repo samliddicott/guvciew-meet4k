@@ -37,16 +37,16 @@
 void set_render_flag(int value);
 
 /*
- * terminate capture loop
+ * quit callback
  * args:
- *    none
+ *    data - pointer to user data
  *
  * asserts:
  *    none
  *
- * returns: none
+ * returns: error code
  */
-void video_capture_quit();
+int quit_callback(void *data);
 
 /*
  * sets the save image flag
