@@ -149,6 +149,8 @@ int main(int argc, char *argv[])
 
 	if(device)
 		close_v4l2_dev(device);
-
+	
+	if(debug_level > 0)
+		printf("GUVCVIEW: good bye\n");
 	return 0;
 }

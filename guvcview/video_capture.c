@@ -62,6 +62,23 @@ void set_render_flag(int value)
 }
 
 /*
+ * quit callback
+ * args:
+ *    data - pointer to user data
+ *
+ * asserts:
+ *    none
+ *
+ * returns: error code
+ */
+int quit_callback(void *data)
+{
+	quit = 1;
+	
+	return 0;
+}
+ 
+/*
  * terminate capture loop
  * args:
  *    none
@@ -115,6 +132,10 @@ void *capture_loop(void *data)
 		set_render_verbosity(debug_level);
 		if(render_init(RENDER_SDL1, device->format.fmt.pix.width, device->format.fmt.pix.height) < 0)
 			render = RENDER_NONE;
+		else
+		{
+			render_set_event_callback(EV_QUIT, &quit_callback, NULL);
+		}
 	}
 
 	start_video_stream(device);

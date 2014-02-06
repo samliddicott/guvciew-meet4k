@@ -49,30 +49,44 @@ int verbosity = 0;
 
 static int render_api = RENDER_SDL1;
 
-static int render_events_t[] =
+static render_events_t render_events_list[] =
 {
 	{
-		.id = EV_QUIT;
-		.event_callback = NULL;
+		.id = EV_QUIT,
+		.callback = NULL,
+		.data = NULL
 		
 	},
 	{
-		.id = EV_KEY_UP;
-		.event_callback = NULL;
+		.id = EV_KEY_UP,
+		.callback = NULL
 	},
 	{
-		.id = EV_KEY_DOWN;
-		.event_callback = NULL;
+		.id = EV_KEY_DOWN,
+		.callback = NULL,
+		.data = NULL
 	},
 	{
-		.id = EV_KEY_LEFT;
-		.event_callback = NULL;
+		.id = EV_KEY_LEFT,
+		.callback = NULL,
+		.data = NULL
 	},
 	{
-		.id = EV_KEY_RIGHT;
-		.event_callback = NULL;
+		.id = EV_KEY_RIGHT,
+		.callback = NULL,
+		.data = NULL
 	},
-}
+	{
+		.id = EV_KEY_SPACE,
+		.callback = NULL,
+		.data = NULL
+	},
+	{
+		.id = -1, /*end of list*/
+		.callback = NULL,
+		.data = NULL
+	}
+};
 
 /*
  * set verbosity
@@ -148,6 +162,7 @@ int render_frame(uint8_t *frame, int size)
 		case RENDER_SDL1:
 		default:
 			ret = render_sdl1_frame(frame, size);
+			render_sdl1_dispatch_events();
 			break;
 	}
 
@@ -202,3 +217,76 @@ void render_clean()
 			break;
 	}
 }
+
+/*
+ * get event index on render_events_list
+ * args:
+ *    id - event id
+ * 
+ * asserts:
+ *    none
+ * 
+ * returns: event index or -1 on error 
+ */ 
+int render_get_event_index(int id)
+{
+	int i = 0;
+	while(render_events_list[i].id >= 0)
+	{
+		if(render_events_list[i].id == id)
+			return i;
+			
+		i++;
+	}
+	return -1;
+}
+
+/*
+ * set event callback
+ * args:
+ *    id - event id
+ *    callback_function - pointer to callback function
+ *    data - pointer to user data (passed to callback)
+ * 
+ * asserts:
+ *    none
+ * 
+ * returns: error code
+ */ 
+int render_set_event_callback(int id, render_event_callback callback_function, void *data)
+{
+	int index = render_get_event_index(id);
+	if(index < 0)
+		return index;
+	
+	render_events_list[index].callback = callback_function;
+	render_events_list[index].data = data;
+		
+	return 0;
+}
+
+/*
+ * call the event callback for event id
+ * args:
+ *    id - event id
+ * 
+ * asserts:
+ *    none
+ * 
+ * returns: error code 
+ */ 
+int render_call_event_callback(int id)
+{
+	int index = render_get_event_index(id);
+	
+	if(index < 0)
+		return index;
+	
+	if(render_events_list[index].callback == NULL)
+		return -1;
+		
+	int ret = render_events_list[index].callback(render_events_list[index].data);
+	
+	return ret;
+}
+

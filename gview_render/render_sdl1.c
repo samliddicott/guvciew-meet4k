@@ -27,6 +27,7 @@
 #include <assert.h>
 
 #include "gview.h"
+#include "gviewrender.h"
 
 extern int verbosity;
 
@@ -131,7 +132,7 @@ static SDL_Overlay * video_init(int width, int height)
     if(verbosity > 0)
     {
         printf("RENDER: Desktop resolution = %ix%i\n", desktop_w, desktop_h);
-        printf("RENDER: Checking video mode %ix%i@32bpp : ", width, height);
+        printf("RENDER: Checking video mode %ix%i@32bpp\n", width, height);
     }
 
     bpp = SDL_VideoModeOK(
@@ -291,7 +292,7 @@ void render_sdl1_dispatch_events()
 				
 				case SDLK_q:
 					
-					break
+					break;
 				
 				case SDLK_SPACE:
 				
@@ -332,7 +333,9 @@ void render_sdl1_dispatch_events()
 		
 		if(event.type==SDL_QUIT)
 		{
-
+			if(verbosity > 0)
+				printf("RENDER: (event) quit\n");
+			render_call_event_callback(EV_QUIT);
 		}
 	}
 }

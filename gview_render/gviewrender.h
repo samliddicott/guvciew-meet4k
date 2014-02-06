@@ -50,8 +50,9 @@ typedef int (*render_event_callback)(void *data);
 
 typedef struct _render_events_t
 {
-	int event_id;
-	render_event_callback event_callback;
+	int id;
+	render_event_callback callback;
+	void *data;
 	
 } render_events_t;
 /*
@@ -105,6 +106,44 @@ void set_render_caption(const char* caption);
  * returns: error code
  */
 int render_frame(uint8_t *frame, int size);
+
+/*
+ * get event index on render_events_list
+ * args:
+ *    id - event id
+ * 
+ * asserts:
+ *    none
+ * 
+ * returns: event index or -1 on error 
+ */ 
+int render_get_event_index(int id);
+
+/*
+ * set event callback
+ * args:
+ *    id - event id
+ *    callback_function - pointer to callback function
+ *    data - pointer to user data (passed to callback)
+ * 
+ * asserts:
+ *    none
+ * 
+ * returns: error code
+ */ 
+int render_set_event_callback(int id, render_event_callback callback_function, void *data);
+
+/*
+ * call the event callback for event id
+ * args:
+ *    id - event id
+ * 
+ * asserts:
+ *    none
+ * 
+ * returns: error code 
+ */ 
+int render_call_event_callback(int id);
 
 /*
  * clean render data
