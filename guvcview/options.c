@@ -330,7 +330,7 @@ int options_parse(int argc, char *argv[])
 				else
 				{
 					++stopstring;
-					my_options.height = (int) strtoul(optarg, &stopstring, 10);
+					my_options.height = (int) strtoul(stopstring, &stopstring, 10);
 				}
 				if(my_options.width <= 0)
 					my_options.width = 640;
