@@ -31,6 +31,7 @@
 
 #include "video_capture.h"
 #include "options.h"
+#include "gui.h"
 
 int debug_level = 0;
 
