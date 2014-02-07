@@ -63,6 +63,7 @@ int gui_attach_gtk3_v4l2ctrls(v4l2_dev_t *device, GtkWidget *parent)
 	assert(parent != NULL);
 
 	GtkWidget *img_controls_grid = gtk_grid_new();
+	gtk_widget_show (img_controls_grid);
 
 	gtk_grid_set_column_homogeneous (GTK_GRID(img_controls_grid), FALSE);
 	gtk_widget_set_hexpand (img_controls_grid, TRUE);
