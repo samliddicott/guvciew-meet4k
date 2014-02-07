@@ -239,8 +239,8 @@ void gui_close()
 
 		case GUI_GTK3:
 		default:
-			ret = gui_close_gtk3();
+			gui_close_gtk3();
 			break;
 	}
-	video_capture_quit();
+	quit_callback(NULL);
 }
