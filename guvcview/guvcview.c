@@ -93,10 +93,21 @@ int main(int argc, char *argv[])
 	else
 		render = RENDER_SDL1;
 
+	int gui = GUI_GTK3;
+
+	if(strcmp(my_options->gui, "none") == 0)
+		gui = GUI_NONE;
+	else if(strcmp(my_options->render, "gtk3") == 0)
+		gui = GUI_GTK3;
+	else
+		gui = GUI_GTK3;
+
 	if(device)
 		set_render_flag(render);
 	else
 		return -1;
+
+	gui_attach(device, gui, 800, 600);
 
 	int format = fourcc_2_v4l2_pixelformat(my_options->format);
 
@@ -144,6 +155,9 @@ int main(int argc, char *argv[])
 
 	if(ret)
 		fprintf(stderr, "GUVCVIEW: Video thread creation failed\n");
+
+	/*run the gui loop*/
+	gui_run();
 
 	__THREAD_JOIN(capture_thread);
 
