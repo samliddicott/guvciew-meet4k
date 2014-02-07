@@ -442,7 +442,7 @@ int gui_attach_gtk3_v4l2ctrls(v4l2_dev_t *device, GtkWidget *parent)
 					gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(widget2),
 						"RGRG... | GBGB...");
 
-					device->bayer_pix_order = 0
+					device->bayer_pix_order = 0;
 					gtk_combo_box_set_active(GTK_COMBO_BOX(widget2), device->bayer_pix_order);
 
 					gtk_widget_show (widget2);
@@ -469,8 +469,8 @@ int gui_attach_gtk3_v4l2ctrls(v4l2_dev_t *device, GtkWidget *parent)
                 break;
 
 			default:
-				printf("control[%d]:(unknown - 0x%x) 0x%x '%s'\n",i ,control->control.type,
-					control->control.id, control->control.name);
+				printf("control[%d]:(unknown - 0x%x) 0x%x '%s'\n",i ,current->control.type,
+					current->control.id, current->control.name);
 				break;
 		}
 
