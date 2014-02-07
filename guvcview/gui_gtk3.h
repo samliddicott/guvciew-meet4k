@@ -73,18 +73,6 @@ int gui_run_gtk3();
 void gui_close_gtk3();
 
 /*
- * get the main window
- * args:
- *    none
- *
- * asserts:
- *    none
- *
- * return: pointer to GtkWidget main_window
- */
-GetkWidget *get_main_window();
-
-/*
  * attach top menu widget
  * args:
  *   device - pointer to device data we want to attach the gui for
@@ -96,7 +84,7 @@ GetkWidget *get_main_window();
  *
  * returns: error code (0 -OK)
  */
-int gui_attach_gtk3_menu(v4l2_dev *device, GtkWidget *parent);
+int gui_attach_gtk3_menu(v4l2_dev_t *device, GtkWidget *parent);
 
 /*
  * attach v4l2 controls tab widget
@@ -110,6 +98,18 @@ int gui_attach_gtk3_menu(v4l2_dev *device, GtkWidget *parent);
  *
  * returns: error code (0 -OK)
  */
-int gui_attach_gtk3_v4l2ctrls(v4l2_dev *device, GtkWidget *parent);
+int gui_attach_gtk3_v4l2ctrls(v4l2_dev_t *device, GtkWidget *parent);
+
+/*
+ * adds a message to the status bar
+ * args:
+ *    message - message string
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void set_status_message_gtk3(const char *message);
 
 #endif
