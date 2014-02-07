@@ -108,7 +108,7 @@ void control_defaults_clicked (GtkWidget *item, void *data)
  */
 void controls_profile_clicked (GtkWidget *item, void *data)
 {
-	v4l2_dev_t *device = (v4l2_dev_t *) data;
+	//v4l2_dev_t *device = (v4l2_dev_t *) data;
 
 	GtkWidget *FileDialog;
 
@@ -117,10 +117,12 @@ void controls_profile_clicked (GtkWidget *item, void *data)
 	if(debug_level > 0)
 		printf("GUVCVIEW: Profile dialog (%d)\n", save);
 
+	GtkWidget *main_window = get_main_window();
+
 	if (save > 0)
 	{
 		FileDialog = gtk_file_chooser_dialog_new (_("Save Profile"),
-			GTK_WINDOW(get_main_window()),
+			GTK_WINDOW(main_window),
 			GTK_FILE_CHOOSER_ACTION_SAVE,
 			GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
 			GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
@@ -133,7 +135,7 @@ void controls_profile_clicked (GtkWidget *item, void *data)
 	else
 	{
 		FileDialog = gtk_file_chooser_dialog_new (_("Load Profile"),
-			GTK_WINDOW(get_main_window()),
+			GTK_WINDOW(main_window),
 			GTK_FILE_CHOOSER_ACTION_OPEN,
 			GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
 			GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
@@ -314,14 +316,14 @@ void int64_button_clicked(GtkButton * Button, void *data)
 
 	char* text_input = g_strdup(gtk_entry_get_text(GTK_ENTRY(entry)));
 	text_input = g_strstrip(text_input);
-	if( g_str_has_prefix(text_input,"0x")) //hex format
+	if( g_str_has_prefix(text_input, "0x")) //hex format
 	{
-		text_input = g_strcanon(text_input,"0123456789ABCDEFabcdef", '');
+		text_input = g_strcanon(text_input, "0123456789ABCDEFabcdef", '\0');
 		control->value64 = g_ascii_strtoll(text_input, NULL, 16);
 	}
 	else //decimal or hex ?
 	{
-		text_input = g_strcanon(text_input,"0123456789ABCDEFabcdef", '');
+		text_input = g_strcanon(text_input, "0123456789ABCDEFabcdef", '\0');
 		control->value64 = g_ascii_strtoll(text_input, NULL, 0);
 	}
 	g_free(text_input);
@@ -352,7 +354,7 @@ void bitmask_button_clicked(GtkButton * Button, void *data)
 	v4l2_ctrl_t *control = get_v4l2_control_by_id(device, id);
 
 	char* text_input = g_strdup(gtk_entry_get_text(GTK_ENTRY(entry)));
-	text_input = g_strcanon(text_input,"0123456789ABCDEFabcdef", '');
+	text_input = g_strcanon(text_input,"0123456789ABCDEFabcdef", '\0');
 	control->value = (int32_t) g_ascii_strtoll(text_input, NULL, 16);
 	g_free(text_input);
 
@@ -414,7 +416,7 @@ void spin_changed (GtkSpinButton * spin, void *data)
 {
 	v4l2_dev_t *device = (v4l2_dev_t *) data;
 
-    int id = GPOINTER_TO_INT(g_object_get_data (G_OBJECT (range), "control_info"));
+    int id = GPOINTER_TO_INT(g_object_get_data (G_OBJECT (spin), "control_info"));
     v4l2_ctrl_t *control = get_v4l2_control_by_id(device, id);
 
 	int val = gtk_spin_button_get_value_as_int (spin);
