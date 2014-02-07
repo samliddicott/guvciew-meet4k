@@ -178,6 +178,8 @@ int gui_attach(v4l2_dev_t *device, int gui, int width, int height)
 		case GUI_GTK3:
 		default:
 			ret = gui_attach_gtk3(device, width, height);
+			if(ret)
+				gui_api = GUI_NONE;
 			break;
 	}
 

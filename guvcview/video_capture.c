@@ -37,6 +37,7 @@
 #include "gviewv4l2core.h"
 #include "gviewrender.h"
 #include "core_io.h"
+#include "gui.h"
 
 /*flags*/
 extern int debug_level;
@@ -74,6 +75,7 @@ void set_render_flag(int value)
 int quit_callback(void *data)
 {
 	quit = 1;
+	gui_close();
 
 	return 0;
 }
