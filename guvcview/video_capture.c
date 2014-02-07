@@ -74,8 +74,11 @@ void set_render_flag(int value)
  */
 int quit_callback(void *data)
 {
+	/*make sure we only call gui_close once*/
+	if(!quit)
+		gui_close();
+
 	quit = 1;
-	gui_close();
 
 	return 0;
 }
@@ -110,6 +113,9 @@ void *capture_loop(void *data)
 	v4l2_dev_t *device = (v4l2_dev_t *) data;
 	/*asserts*/
 	assert(device != NULL);
+
+	/*reset quit flag*/
+	quit = 0;
 
 	/*yuyv frame has 2 bytes per pixel*/
 	int yuv_frame_size = device->format.fmt.pix.width * device->format.fmt.pix.height << 1;
