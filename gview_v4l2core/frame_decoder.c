@@ -943,7 +943,7 @@ int frame_decode(v4l2_dev_t *vd)
 					vd->tmp_buffer_max_size = width * height * 3;
 					vd->tmp_buffer = calloc(vd->tmp_buffer_max_size, sizeof(uint8_t));
 				}
-				bayer_to_rgb24 (vd->raw_frame, vd->tmp_buffer, width, height, vd->pix_order);
+				bayer_to_rgb24 (vd->raw_frame, vd->tmp_buffer, width, height, vd->bayer_pix_order);
 				// raw bayer is only available in logitech cameras in yuyv mode
 				rgb2yuyv (vd->tmp_buffer, vd->yuv_frame, width, height);
 			}
