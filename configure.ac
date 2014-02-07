@@ -178,7 +178,7 @@ dnl --------------------------------------------------------------------------
 dnl check for guvcview dependencies
 dnl --------------------------------------------------------------------------
 
-PKG_CHECK_MODULES(GUVCVIEW, [libv4l2])
+PKG_CHECK_MODULES(GUVCVIEW, [gtk+-3.0 >= 3.0.0 glib-2.0 >= 2.10.0])
 AC_SUBST(GUVCVIEW_CFLAGS)
 AC_SUBST(GUVCVIEW_LIBS)
 
