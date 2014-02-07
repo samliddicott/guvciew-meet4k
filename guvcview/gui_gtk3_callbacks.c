@@ -28,6 +28,7 @@
 
 #include <gtk/gtk.h>
 #include <glib.h>
+#include <assert.h>
 /* support for internationalization - i18n */
 #include <glib/gi18n.h>
 
@@ -311,7 +312,7 @@ void int64_button_clicked(GtkButton * Button, void *data)
 
 	v4l2_ctrl_t *control = get_v4l2_control_by_id(device, id);
 
-	char* text_input = g_strdup(gtk_entry_get_text(entry));
+	char* text_input = g_strdup(gtk_entry_get_text(GTK_ENTRY(entry)));
 	text_input = g_strstrip(text_input);
 	if( g_str_has_prefix(text_input,"0x")) //hex format
 	{
