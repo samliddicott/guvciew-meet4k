@@ -317,7 +317,7 @@ double get_v4l2_realfps();
  *
  * returns: pointer to newly allocated video device data  ( NULL on error)
  */
-v4l2_dev* init_v4l2_dev(const char *device);
+v4l2_dev_t *init_v4l2_dev(const char *device);
 
 /* get frame format index from format list
  * args:
@@ -372,7 +372,7 @@ int try_video_stream_format(v4l2_dev_t *vd, int width, int height, int pixelform
  *
  * returns: error code (E_OK)
  */
-int get_v4l2_frame(v4l2_dev* vd);
+int get_v4l2_frame(v4l2_dev_t *vd);
 
 /*
  * decode video stream ( from raw_frame to frame buffer (yuyv format))
@@ -405,7 +405,7 @@ void close_v4l2_dev(v4l2_dev_t *vd);
  *
  * returns: error code ( 0 - VDIN_OK)
  */
-//int reset_v4l2_dev(v4l2_dev* vd, int format, int width, int height);
+//int reset_v4l2_dev(v4l2_dev_t *vd, int format, int width, int height);
 
 /*
  * sets video device frame rate
