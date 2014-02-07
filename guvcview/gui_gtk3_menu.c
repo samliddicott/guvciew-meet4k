@@ -79,6 +79,8 @@ int gui_attach_gtk3_menu(v4l2_dev_t *device, GtkWidget *parent)
 	GtkWidget *camera_button_menu = gtk_menu_new();
 	GtkWidget *camera_button_top = gtk_menu_item_new_with_label(_("Camera Button"));
 
+	gtk_menu_item_set_submenu(GTK_MENU_ITEM(camera_button_top), camera_button_menu);
+	
 	GSList *camera_button_group = NULL;
 	GtkWidget *def_image = gtk_radio_menu_item_new_with_label(camera_button_group, _("Capture Image"));
 	g_object_set_data (G_OBJECT (def_image), "camera_default", GINT_TO_POINTER(0));
@@ -90,6 +92,7 @@ int gui_attach_gtk3_menu(v4l2_dev_t *device, GtkWidget *parent)
 	gtk_menu_shell_append(GTK_MENU_SHELL(camera_button_menu), def_video);
 
 	gtk_widget_show (camera_button_top);
+	gtk_widget_show (camera_button_menu);
 	gtk_widget_show (def_image);
 	gtk_widget_show (def_video);
 

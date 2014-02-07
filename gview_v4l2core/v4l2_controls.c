@@ -657,9 +657,8 @@ static void update_ctrl_list_flags(v4l2_dev_t *vd)
 	assert(vd != NULL);
 
     v4l2_ctrl_t *current = vd->list_device_controls;
-    v4l2_ctrl_t *next = current->next;
 
-    for(; next != NULL; current = next, next = current->next)
+    for(; current != NULL; current = current->next)
         update_ctrl_flags(vd, current->control.id);
 }
 
@@ -739,11 +738,11 @@ void get_v4l2_control_values (v4l2_dev_t *vd)
     int ret = 0;
     struct v4l2_ext_control clist[vd->num_controls];
     v4l2_ctrl_t *current = vd->list_device_controls;
-    v4l2_ctrl_t *next = current->next;
+ 
     int count = 0;
     int i = 0;
 
-    for(; next != NULL; current = next, next = current->next)
+    for(; current != NULL; current = current->next)
     {
         if(current->control.flags & V4L2_CTRL_FLAG_WRITE_ONLY)
              continue;
@@ -759,7 +758,7 @@ void get_v4l2_control_values (v4l2_dev_t *vd)
 #endif
         count++;
 
-        if((next == NULL) || (next->class != current->class))
+        if((current->next == NULL) || (current->next->class != current->class))
         {
             struct v4l2_ext_controls ctrls = {0};
             ctrls.ctrl_class = current->class;
@@ -994,11 +993,14 @@ void set_v4l2_control_values (v4l2_dev_t *vd)
     int ret = 0;
     struct v4l2_ext_control clist[vd->num_controls];
     v4l2_ctrl_t *current = vd->list_device_controls;
-    v4l2_ctrl_t *next = current->next;
+    
     int count = 0;
     int i = 0;
 
-    for(; next != NULL; current = next, next = current->next)
+	if(verbosity > 0)
+		printf("V4L2_CORE: setting control values\n");
+		
+    for(; current != NULL; current = current->next)
     {
         if(current->control.flags & V4L2_CTRL_FLAG_READ_ONLY)
             continue;
@@ -1033,12 +1035,14 @@ void set_v4l2_control_values (v4l2_dev_t *vd)
                 clist[count].value64 = current->value64;
                 break;
             default:
+				if(verbosity > 0)
+					printf("\tcontrol[%i] = %i\n", count, current->value);
                 clist[count].value = current->value;
                 break;
         }
         count++;
 
-        if((next == NULL) || (next->class != current->class))
+        if((current->next == NULL) || (current->next->class != current->class))
         {
             struct v4l2_ext_controls ctrls = {0};
             ctrls.ctrl_class = current->class;
@@ -1133,20 +1137,16 @@ void set_v4l2_control_defaults(v4l2_dev_t *vd)
 
     v4l2_ctrl_t *current = vd->list_device_controls;
     v4l2_ctrl_t *next = current->next;
-
-    for(; next != NULL; current = next, next = current->next)
+	
+	if(verbosity > 0)
+		printf("V4L2_CORE: loading defaults\n");
+	
+	int i = 0;
+    for(; current != NULL; current = current->next, ++i)
     {
         if(current->control.flags & V4L2_CTRL_FLAG_READ_ONLY)
-        {
-            if(next == NULL)
-                break;
-            else
-            {
-                current = next;
-                next = current->next;
-            }
             continue;
-        }
+
 
         switch (current->control.type)
         {
@@ -1159,14 +1159,17 @@ void set_v4l2_control_defaults(v4l2_dev_t *vd)
                 break;
 #endif
             default:
-                //if its one of the special auto controls disable it first
+                /*if its one of the special auto controls disable it first*/
                 disable_special_auto (vd, current->control.id);
+                if(verbosity > 1)
+					printf("\tdefault[%i] = %i\n", i, current->control.default_value);
                 current->value = current->control.default_value;
                 break;
         }
     }
-
+		
     set_v4l2_control_values(vd);
+    
     get_v4l2_control_values(vd);
 }
 
