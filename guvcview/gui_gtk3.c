@@ -65,6 +65,21 @@ void set_status_message_gtk3(const char *message)
 }
 
 /*
+ * get the main window widget
+ * args:
+ *    none
+ *
+ * asserts:
+ *    none
+ *
+ * returns: pointer to main window (GtkWidget)
+ */
+GtkWidget *get_main_window()
+{
+	return main_window;
+}
+
+/*
  * GUI initialization
  * args:
  *   device - pointer to device data we want to attach the gui for
