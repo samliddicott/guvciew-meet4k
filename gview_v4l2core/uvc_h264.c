@@ -433,7 +433,7 @@ void add_h264_format(v4l2_dev_t *vd)
 
 	vd->list_stream_formats = realloc(
 		vd->list_stream_formats,
-		fmtind * sizeof(v4l2_stream_formats));
+		fmtind * sizeof(v4l2_stream_formats_t));
 	vd->list_stream_formats[fmtind-1].format = V4L2_PIX_FMT_H264;
 	snprintf(vd->list_stream_formats[fmtind-1].fourcc , 5, "H264");
 	vd->list_stream_formats[fmtind-1].list_stream_cap = NULL;
@@ -453,7 +453,7 @@ void add_h264_format(v4l2_dev_t *vd)
 		res_index++;
 		vd->list_stream_formats[fmtind-1].list_stream_cap = realloc(
 			vd->list_stream_formats[fmtind-1].list_stream_cap,
-			res_index * sizeof(v4l2_stream_cap));
+			res_index * sizeof(v4l2_stream_cap_t));
 		vd->list_stream_formats[fmtind-1].numb_res = res_index;
 		vd->list_stream_formats[fmtind-1].list_stream_cap[res_index-1].width = width;
 		vd->list_stream_formats[fmtind-1].list_stream_cap[res_index-1].height = height;
