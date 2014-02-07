@@ -35,10 +35,12 @@
 #include <locale.h>
 #include <libintl.h>
 
-#include "gview.h"
-#include "gui.h"
 #include "gui_gtk3.h"
 #include "gui_gtk3_callbacks.h"
+#include "gui.h"
+/*add this last to avoid redefining _() and N_()*/
+#include "gview.h"
+
 
 extern int debug_level;
 
@@ -136,8 +138,10 @@ int gui_attach_gtk3_v4l2ctrls(v4l2_dev_t *device, GtkWidget *parent)
 						gtk_spin_button_set_value (GTK_SPIN_BUTTON(widget2), 128);
 
 						/*connect signal*/
+						g_object_set_data (G_OBJECT (widget2), "control_info",
+							GINT_TO_POINTER(current->control.id));
 						g_signal_connect(GTK_SPIN_BUTTON(widget2),"value-changed",
-							G_CALLBACK (pantilt_step_changed), device);
+							G_CALLBACK (pan_tilt_step_changed), device);
 
 						gtk_widget_show (widget2);
 

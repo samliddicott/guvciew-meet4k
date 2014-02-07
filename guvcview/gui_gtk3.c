@@ -35,11 +35,11 @@
 #include <locale.h>
 #include <libintl.h>
 
-#include "gview.h"
 #include "gui_gtk3.h"
 #include "gui_gtk3_callbacks.h"
-/*add this last to avoid redefining _() and N_()*/
 #include "gui.h"
+/*add this last to avoid redefining _() and N_()*/
+#include "gview.h"
 
 extern int debug_level;
 
