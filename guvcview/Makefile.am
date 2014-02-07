@@ -7,7 +7,11 @@ bin_PROGRAMS = guvcview
 guvcview_SOURCES = guvcview.c \
 				   video_capture.c \
 				   core_io.c \
-				   options.c
+				   options.c \
+				   gui.c \
+				   gui_gtk3.c \
+				   gui_gtk3_menu.c \
+				   gui_gtk3_v4l2ctrls.c
 
 guvcview_CFLAGS = $(GUVCVIEW_CFLAGS) \
 		  $(PTHREAD_CFLAGS) \
