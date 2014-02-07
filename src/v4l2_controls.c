@@ -530,9 +530,8 @@ static void update_ctrl_flags(Control *control_list, int id)
 static void update_ctrl_list_flags(Control *control_list)
 {
     Control *current = control_list;
-    Control *next = current->next;
-
-    for(; next != NULL; current = next, next = current->next)
+ 
+    for(; current != NULL; current = current->next)
         update_ctrl_flags(control_list, current->control.id);
 }
 
@@ -554,8 +553,8 @@ void disable_special_auto (int hdevice, Control *control_list, int id)
 static void update_widget_state(Control *control_list, void *all_data)
 {
     Control *current = control_list;
-    Control *next = current->next;
-    for(; next != NULL; current = next, next = current->next)
+    
+    for(; current != NULL; current = current->next)
     {
         if(all_data && current->widget)
         {
@@ -1077,8 +1076,8 @@ void create_control_widgets(Control *control_list, void *all_data, int control_o
 Control *get_ctrl_by_id(Control *control_list, int id)
 {
     Control *current = control_list;
-    Control *next = current->next;
-    for(; next != NULL; current = next, next = current->next)
+    
+    for(; current != NULL; current = current->next)
     {
         if(current->control.id == id)
             return (current);
@@ -1098,11 +1097,11 @@ void get_ctrl_values (int hdevice, Control *control_list, int num_controls, void
     int ret = 0;
     struct v4l2_ext_control clist[num_controls];
     Control *current = control_list;
-    Control *next = current->next;
+    
     int count = 0;
     int i = 0;
 
-    for(; next != NULL; current = next, next = current->next)
+    for(; current != NULL; current = current->next)
     {
         if(current->control.flags & V4L2_CTRL_FLAG_WRITE_ONLY)
              continue;
@@ -1118,7 +1117,7 @@ void get_ctrl_values (int hdevice, Control *control_list, int num_controls, void
 #endif
         count++;
 
-        if((next == NULL) || (next->class != current->class))
+        if((current->next == NULL) || (current->next->class != current->class))
         {
             struct v4l2_ext_controls ctrls = {0};
             ctrls.ctrl_class = current->class;
@@ -1331,11 +1330,11 @@ void set_ctrl_values (int hdevice, Control *control_list, int num_controls)
     int ret = 0;
     struct v4l2_ext_control clist[num_controls];
     Control *current = control_list;
-    Control *next = current->next;
+
     int count = 0;
     int i = 0;
 
-    for(; next != NULL; current = next, next = current->next)
+    for(; current != NULL; current = current->next)
     {
         if(current->control.flags & V4L2_CTRL_FLAG_READ_ONLY)
             continue;
@@ -1373,7 +1372,7 @@ void set_ctrl_values (int hdevice, Control *control_list, int num_controls)
         }
         count++;
 
-        if((next == NULL) || (next->class != current->class))
+        if((current->next == NULL) || (current->next->class != current->class))
         {
             struct v4l2_ext_controls ctrls = {0};
             ctrls.ctrl_class = current->class;
@@ -1457,21 +1456,12 @@ void set_ctrl_values (int hdevice, Control *control_list, int num_controls)
 void set_default_values(int hdevice, Control *control_list, int num_controls, void *all_data)
 {
     Control *current = control_list;
-    Control *next = current->next;
 
-    for(; next != NULL; current = next, next = current->next)
+    for(; current != NULL; current = current->next)
     {
         if(current->control.flags & V4L2_CTRL_FLAG_READ_ONLY)
-        {
-            if(next == NULL)
-                break;
-            else
-            {
-                current = next;
-                next = current->next;
-            }
             continue;
-        }
+        
         //printf("setting 0x%08X to %i\n",current->control.id, current->control.default_value);
         switch (current->control.type)
         {
