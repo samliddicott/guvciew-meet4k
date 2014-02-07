@@ -348,6 +348,8 @@ void bitmask_button_clicked(GtkButton * Button, void *data)
 	int id = GPOINTER_TO_INT(g_object_get_data (G_OBJECT (Button), "control_info"));
 	GtkWidget *entry = (GtkWidget *) g_object_get_data (G_OBJECT (Button), "control_entry");
 
+	v4l2_ctrl_t *control = get_v4l2_control_by_id(device, id);
+
 	char* text_input = g_strdup(gtk_entry_get_text(GTK_ENTRY(entry)));
 	text_input = g_strcanon(text_input,"0123456789ABCDEFabcdef", '');
 	control->value = (int32_t) g_ascii_strtoll(text_input, NULL, 16);
@@ -355,6 +357,46 @@ void bitmask_button_clicked(GtkButton * Button, void *data)
 
 	if(set_v4l2_control_id_value(device, id))
 		fprintf(stderr, "GUVCVIEW: error setting string value\n");
+}
+
+/*
+ * slider changed event
+ * args:
+ *    range - widget that generated the event
+ *    data - pointer to user data
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void slider_changed (GtkRange * range, void *data)
+{
+    v4l2_dev_t *device = (v4l2_dev_t *) data;
+
+    int id = GPOINTER_TO_INT(g_object_get_data (G_OBJECT (range), "control_info"));
+    v4l2_ctrl_t *control = get_v4l2_control_by_id(device, id);
+
+    int val = (int) gtk_range_get_value (range);
+
+    control->value = val;
+
+    if(set_v4l2_control_id_value(device, id))
+		fprintf(stderr, "GUVCVIEW: error setting string value\n");
+
+   /*
+    //update spin
+    if(widget2)
+    {
+        //disable widget signals
+        g_signal_handlers_block_by_func(GTK_SPIN_BUTTON(widget2),
+            G_CALLBACK (spin_changed), all_data);
+        gtk_spin_button_set_value (GTK_SPIN_BUTTON(widget2), control->value);
+        //enable widget signals
+        g_signal_handlers_unblock_by_func(GTK_SPIN_BUTTON(widget2),
+            G_CALLBACK (spin_changed), all_data);
+    }
+	*/
 }
 
 /*

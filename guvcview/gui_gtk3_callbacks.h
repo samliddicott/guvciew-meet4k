@@ -179,6 +179,19 @@ void int64_button_clicked(GtkButton * Button, void *data);
 void bitmask_button_clicked(GtkButton * Button, void *data);
 
 /*
+ * slider changed event
+ * args:
+ *    range - widget that generated the event
+ *    data - pointer to user data
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void slider_changed (GtkRange * range, void *data);
+
+/*
  * combo box chaged event
  * args:
  *    combo - widget that generated the event
