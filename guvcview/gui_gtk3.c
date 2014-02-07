@@ -36,9 +36,10 @@
 #include <libintl.h>
 
 #include "gview.h"
-#include "gui.h"
 #include "gui_gtk3.h"
 #include "gui_gtk3_callbacks.h"
+/*add this last to avoid redefining _() and N_()*/
+#include "gui.h"
 
 extern int debug_level;
 
@@ -81,7 +82,7 @@ int gui_attach_gtk3(v4l2_dev_t *device, int width, int height)
 	/*asserts*/
 	assert(device != NULL);
 
-	if(!gtk_init_check(&argc, &argv))
+	if(!gtk_init_check(NULL, NULL))
 	{
 		fprintf(stderr, "GUVCVIEW: (GUI) Gtk3 can't open display\n");
 		return -1;
@@ -95,7 +96,7 @@ int gui_attach_gtk3(v4l2_dev_t *device, int width, int height)
 	g_object_set (gtk_settings_get_default (), "gtk-button-images", TRUE, NULL);
 
 	/* Create a main window */
-	main_windown = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+	main_window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_title (GTK_WINDOW (main_window), _("Guvcview"));
 
 	/* get screen resolution */
@@ -172,7 +173,7 @@ int gui_attach_gtk3(v4l2_dev_t *device, int width, int height)
 	status_bar = gtk_statusbar_new();
 	status_warning_id = gtk_statusbar_get_context_id (GTK_STATUSBAR(status_bar), "warning");
 
-    gtk_widget_show(gwidget->status_bar);
+    gtk_widget_show(status_bar);
 	/** add the status bar*/
 	gtk_box_pack_start(GTK_BOX(maintable), status_bar, FALSE, FALSE, 2);
 
