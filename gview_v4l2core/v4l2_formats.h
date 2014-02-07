@@ -62,7 +62,7 @@ uint8_t can_decode_fourcc(const char *fourcc);
  *
  * returns: 0 if enumeration succeded or errno otherwise
  */
-int enum_frame_formats(v4l2_dev* vd);
+int enum_frame_formats(v4l2_dev_t *vd);
 
 /*
  * free frame formats list
@@ -75,6 +75,6 @@ int enum_frame_formats(v4l2_dev* vd);
  *
  * returns: void
  */
-void free_frame_formats(v4l2_dev* vd);
+void free_frame_formats(v4l2_dev_t *vd);
 
 #endif

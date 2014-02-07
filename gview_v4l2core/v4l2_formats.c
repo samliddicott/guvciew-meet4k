@@ -32,13 +32,13 @@
 
 extern int verbosity;
 
-typedef struct _v4l2_format_table
+typedef struct _v4l2_format_table_t
 {
 	char fourcc[5];    /*fourcc code*/
 	int pixelformat;   /*v4l2 pixelformat*/
-} v4l2_format_table;
+} v4l2_format_table_t;
 
-static v4l2_format_table decoder_supported_formats[] =
+static v4l2_format_table_t decoder_supported_formats[] =
 {
 	{
 		.fourcc = "YUYV",
@@ -263,7 +263,7 @@ uint8_t can_decode_fourcc(const char *fourcc)
  *
  * returns 0 if enumeration succeded or errno otherwise
  */
-static int enum_frame_intervals(v4l2_dev* vd,
+static int enum_frame_intervals(v4l2_dev_t *vd,
 		uint32_t pixfmt, uint32_t width, uint32_t height,
 		int fmtind, int fsizeind)
 {
@@ -369,7 +369,7 @@ static int enum_frame_intervals(v4l2_dev* vd,
  *
  * returns 0 if enumeration succeded or errno otherwise
  */
-static int enum_frame_sizes(v4l2_dev* vd, uint32_t pixfmt, int fmtind)
+static int enum_frame_sizes(v4l2_dev_t *vd, uint32_t pixfmt, int fmtind)
 {
 	/*assertions*/
 	assert(vd != NULL);
@@ -398,7 +398,7 @@ static int enum_frame_sizes(v4l2_dev* vd, uint32_t pixfmt, int fmtind)
 			fsizeind++;
 			vd->list_stream_formats[fmtind-1].list_stream_cap = realloc(
 				vd->list_stream_formats[fmtind-1].list_stream_cap,
-				fsizeind * sizeof(v4l2_stream_cap));
+				fsizeind * sizeof(v4l2_stream_cap_t));
 
 			assert(vd->list_stream_formats[fmtind-1].list_stream_cap != NULL);
 
@@ -488,7 +488,7 @@ static int enum_frame_sizes(v4l2_dev* vd, uint32_t pixfmt, int fmtind)
 
 		vd->list_stream_formats[fmtind-1].list_stream_cap = realloc(
 			vd->list_stream_formats[fmtind-1].list_stream_cap,
-			sizeof(v4l2_stream_cap) * fsizeind);
+			sizeof(v4l2_stream_cap_t) * fsizeind);
 
 		assert(vd->list_stream_formats[fmtind-1].list_stream_cap != NULL);
 
@@ -528,7 +528,7 @@ static int enum_frame_sizes(v4l2_dev* vd, uint32_t pixfmt, int fmtind)
  *
  * returns: 0 if enumeration succeded or errno otherwise
  */
-int enum_frame_formats(v4l2_dev* vd)
+int enum_frame_formats(v4l2_dev_t *vd)
 {
 	/*assertions*/
 	assert(vd != NULL);
@@ -543,7 +543,7 @@ int enum_frame_formats(v4l2_dev* vd)
 	fmt.index = 0;
 	fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 
-	vd->list_stream_formats = calloc ( 1, sizeof(v4l2_stream_formats));
+	vd->list_stream_formats = calloc ( 1, sizeof(v4l2_stream_formats_t));
 	vd->list_stream_formats[0].list_stream_cap = NULL;
 
 	while ((ret = xioctl(vd->fd, VIDIOC_ENUM_FMT, &fmt)) == 0)
@@ -566,7 +566,7 @@ int enum_frame_formats(v4l2_dev* vd)
 
 		vd->list_stream_formats = realloc(
 			vd->list_stream_formats,
-			fmtind * sizeof(v4l2_stream_formats));
+			fmtind * sizeof(v4l2_stream_formats_t));
 
 		assert(vd->list_stream_formats != NULL);
 
@@ -601,7 +601,7 @@ int enum_frame_formats(v4l2_dev* vd)
  *
  * returns: format list index or -1 if not available
  */
-int get_frame_format_index(v4l2_dev* vd, int format)
+int get_frame_format_index(v4l2_dev_t *vd, int format)
 {
 	/*asserts*/
 	assert(vd != NULL);
@@ -629,7 +629,7 @@ int get_frame_format_index(v4l2_dev* vd, int format)
  *
  * returns: resolution list index for format index or -1 if not available
  */
-int get_format_resolution_index(v4l2_dev* vd, int format, int width, int height)
+int get_format_resolution_index(v4l2_dev_t *vd, int format, int width, int height)
 {
 	/*asserts*/
 	assert(vd != NULL);
@@ -663,7 +663,7 @@ int get_format_resolution_index(v4l2_dev* vd, int format, int width, int height)
  *
  * returns: void
  */
-void free_frame_formats(v4l2_dev* vd)
+void free_frame_formats(v4l2_dev_t *vd)
 {
 	/*asserts*/
 	assert(vd != NULL);

@@ -45,7 +45,7 @@ extern int verbosity;
  *
  * returns: error code
  */
-int enum_v4l2_devices(v4l2_dev *vd)
+int enum_v4l2_devices(v4l2_dev_t *vd)
 {
     /*assertions*/
     assert(vd != NULL);
@@ -62,7 +62,7 @@ int enum_v4l2_devices(v4l2_dev *vd)
     int fd = 0;
     struct v4l2_capability v4l2_cap;
 
-    vd->list_devices = calloc(1, sizeof(v4l2_dev_sys_data));
+    vd->list_devices = calloc(1, sizeof(v4l2_dev_sys_data_t));
 
     /* Create a list of the devices in the 'v4l2' subsystem. */
     enumerate = udev_enumerate_new(vd->udev);
@@ -112,7 +112,7 @@ int enum_v4l2_devices(v4l2_dev *vd)
 
         num_dev++;
         /* Update the device list*/
-        vd->list_devices = realloc(vd->list_devices, num_dev * sizeof(v4l2_dev_sys_data));
+        vd->list_devices = realloc(vd->list_devices, num_dev * sizeof(v4l2_dev_sys_data_t));
         vd->list_devices[num_dev-1].device = strdup(v4l2_device);
         vd->list_devices[num_dev-1].name = strdup((char *) v4l2_cap.card);
         vd->list_devices[num_dev-1].driver = strdup((char *) v4l2_cap.driver);
@@ -192,7 +192,7 @@ int enum_v4l2_devices(v4l2_dev *vd)
  *
  * returns: void
  */
-void free_v4l2_devices_list(v4l2_dev* vd)
+void free_v4l2_devices_list(v4l2_dev_t *vd)
 {
 	/*assertions*/
 	assert(vd != NULL);

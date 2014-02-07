@@ -81,7 +81,7 @@ int main(int argc, char *argv[])
 	debug_level = my_options->verbosity;
 	set_v4l2_verbosity(debug_level);
 
-	v4l2_dev* device = init_v4l2_dev(my_options->device);
+	v4l2_dev_t *device = init_v4l2_dev(my_options->device);
 
 	/*select render API*/
 	int render = RENDER_SDL1;
@@ -149,7 +149,7 @@ int main(int argc, char *argv[])
 
 	if(device)
 		close_v4l2_dev(device);
-	
+
 	if(debug_level > 0)
 		printf("GUVCVIEW: good bye\n");
 	return 0;

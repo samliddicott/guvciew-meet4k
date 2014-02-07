@@ -48,7 +48,7 @@ extern int verbosity;
  *
  * returns: error code  (0- E_OK)
  */
-int alloc_v4l2_frames(v4l2_dev *vd)
+int alloc_v4l2_frames(v4l2_dev_t *vd)
 {
 	/*assertions*/
 	assert(vd != NULL);
@@ -240,7 +240,7 @@ int alloc_v4l2_frames(v4l2_dev *vd)
  *
  * returns: none
  */
-void clean_v4l2_frames(v4l2_dev *vd)
+void clean_v4l2_frames(v4l2_dev_t *vd)
 {
 	/*assertions*/
 	assert(vd != NULL);
@@ -509,7 +509,7 @@ static int demux_NALU(uint8_t *h264_data, uint8_t *buff, int size, int h264_max_
  *
  * returns: error code (0 - E_OK)
  */
-static int store_extra_data(v4l2_dev* vd)
+static int store_extra_data(v4l2_dev_t *vd)
 {
 	/*asserts*/
 	assert(vd != NULL);
@@ -560,7 +560,7 @@ static int store_extra_data(v4l2_dev* vd)
  * return: TRUE (1) if IDR frame
  *         FALSE(0) if non IDR frame
  */
-static uint8_t is_h264_keyframe (v4l2_dev* vd)
+static uint8_t is_h264_keyframe (v4l2_dev_t *vd)
 {
 	//check for a IDR frame type
 	if(check_NALU(5, vd->h264_frame, vd->h264_frame_size) != NULL)
@@ -634,7 +634,7 @@ static int demux_h264(uint8_t* h264_data, uint8_t* buffer, int size, int h264_ma
  *
  * returns: error code ( 0 - E_OK)
 */
-int frame_decode(v4l2_dev* vd)
+int frame_decode(v4l2_dev_t *vd)
 {
 	/*asserts*/
 	assert(vd != NULL);

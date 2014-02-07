@@ -274,7 +274,7 @@ int h264_get_support();
  * returns: unit id or 0 if none
  *  (also sets vd->h264_unit_id)
  */
-uint8_t get_uvc_h624_unit_id (v4l2_dev* vd);
+uint8_t get_uvc_h624_unit_id (v4l2_dev_t *vd);
 
 /*
  * check for uvc h264 support by querying UVCX_VERSION
@@ -289,7 +289,7 @@ uint8_t get_uvc_h624_unit_id (v4l2_dev* vd);
  *
  * returns: 1 if support available or 0 otherwise
  */
-int check_h264_support(v4l2_dev* vd);
+int check_h264_support(v4l2_dev_t *vd);
 
 /*
  * adds h264 to the format list, if supported by device
@@ -302,7 +302,7 @@ int check_h264_support(v4l2_dev* vd);
  *
  * returns: void
  */
-void add_h264_format(v4l2_dev* vd);
+void add_h264_format(v4l2_dev_t *vd);
 
 /*
  * sets h264 muxed format (must not be called while streaming)
@@ -314,7 +314,7 @@ void add_h264_format(v4l2_dev* vd);
  *
  * returns: void
  */
-void set_h264_muxed_format(v4l2_dev* vd);
+void set_h264_muxed_format(v4l2_dev_t *vd);
 
 /*
 int h264_framerate_balance(struct ALL_DATA *all_data);

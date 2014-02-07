@@ -159,7 +159,7 @@ static void print_probe_commit_data(uvcx_video_config_probe_commit_t *data)
  *
  * returns: 0 on success or error code on fail
  */
-static int uvcx_video_encoder_reset(v4l2_dev *vd)
+static int uvcx_video_encoder_reset(v4l2_dev_t *vd)
 {
 	/*assertions*/
 	assert(vd != NULL);
@@ -186,7 +186,7 @@ static int uvcx_video_encoder_reset(v4l2_dev *vd)
  *
  * returns: 0 on success or error code on fail
  */
-static int uvcx_video_probe(v4l2_dev* vd, uint8_t query, uvcx_video_config_probe_commit_t *uvcx_video_config)
+static int uvcx_video_probe(v4l2_dev_t *vd, uint8_t query, uvcx_video_config_probe_commit_t *uvcx_video_config)
 {
 	/*assertions*/
 	assert(vd != NULL);
@@ -211,7 +211,7 @@ static int uvcx_video_probe(v4l2_dev* vd, uint8_t query, uvcx_video_config_probe
  *
  * returns: 0 on success or error code on fail
  */
-static int uvcx_video_commit(v4l2_dev* vd, uvcx_video_config_probe_commit_t *uvcx_video_config)
+static int uvcx_video_commit(v4l2_dev_t *vd, uvcx_video_config_probe_commit_t *uvcx_video_config)
 {
 	/*assertions*/
 	assert(vd != NULL);
@@ -237,7 +237,7 @@ static int uvcx_video_commit(v4l2_dev* vd, uvcx_video_config_probe_commit_t *uvc
  * returns: unit id or 0 if none
  *  (also sets vd->h264_unit_id)
  */
-uint8_t get_uvc_h624_unit_id (v4l2_dev *vd)
+uint8_t get_uvc_h624_unit_id (v4l2_dev_t *vd)
 {
 	/*asserts*/
 	assert(vd != NULL);
@@ -348,7 +348,7 @@ uint8_t get_uvc_h624_unit_id (v4l2_dev *vd)
  *
  * returns: 1 if support available or 0 otherwise
  */
-int check_h264_support(v4l2_dev *vd)
+int check_h264_support(v4l2_dev_t *vd)
 {
 	/*assertions*/
 	assert(vd != NULL);
@@ -387,7 +387,7 @@ int check_h264_support(v4l2_dev *vd)
  *
  * returns: void
  */
-void add_h264_format(v4l2_dev *vd)
+void add_h264_format(v4l2_dev_t *vd)
 {
 	/*assertions*/
 	assert(vd != NULL);
@@ -493,7 +493,7 @@ void add_h264_format(v4l2_dev *vd)
  *
  * returns: void
  */
-void set_h264_muxed_format(v4l2_dev *vd)
+void set_h264_muxed_format(v4l2_dev_t *vd)
 {
 	uvcx_video_config_probe_commit_t *config_probe_req = &(vd->h264_config_probe_req);
 

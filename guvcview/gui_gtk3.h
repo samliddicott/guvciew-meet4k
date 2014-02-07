@@ -46,7 +46,7 @@
  *
  * returns: error code
  */
-int gui_attach_gtk3(v4l2_dev *device, int width, int height);
+int gui_attach_gtk3(v4l2_dev_t *device, int width, int height);
 
 /*
  * run the GUI loop
@@ -83,5 +83,33 @@ void gui_close_gtk3();
  * return: pointer to GtkWidget main_window
  */
 GetkWidget *get_main_window();
+
+/*
+ * attach top menu widget
+ * args:
+ *   device - pointer to device data we want to attach the gui for
+ *   parent - menu parent widget
+ *
+ * asserts:
+ *   device is not null
+ *   parent is not null
+ *
+ * returns: error code (0 -OK)
+ */
+int gui_attach_gtk3_menu(v4l2_dev *device, GtkWidget *parent);
+
+/*
+ * attach v4l2 controls tab widget
+ * args:
+ *   device - pointer to device data we want to attach the gui for
+ *   parent - tab parent widget
+ *
+ * asserts:
+ *   device is not null
+ *   parent is not null
+ *
+ * returns: error code (0 -OK)
+ */
+int gui_attach_gtk3_v4l2ctrls(v4l2_dev *device, GtkWidget *parent);
 
 #endif

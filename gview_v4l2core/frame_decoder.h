@@ -38,7 +38,7 @@ extern int verbosity;
  *
  * returns: error code  (0- E_OK)
  */
-int alloc_v4l2_frames(v4l2_dev *vd);
+int alloc_v4l2_frames(v4l2_dev_t *vd);
 
 /*
  * free image buffers for decoding video stream
@@ -50,6 +50,6 @@ int alloc_v4l2_frames(v4l2_dev *vd);
  *
  * returns: none
  */
-void clean_v4l2_frames(v4l2_dev *vd);
+void clean_v4l2_frames(v4l2_dev_t *vd);
 
 #endif

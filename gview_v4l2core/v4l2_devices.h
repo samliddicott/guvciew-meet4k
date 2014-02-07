@@ -38,7 +38,7 @@
  *
  * returns: error code
  */
-int enum_v4l2_devices(v4l2_dev* vd);
+int enum_v4l2_devices(v4l2_dev_t *vd);
 
 /*
  * free v4l2 devices list
@@ -51,6 +51,6 @@ int enum_v4l2_devices(v4l2_dev* vd);
  *
  * returns: void
  */
-void free_v4l2_devices_list(v4l2_dev* vd);
+void free_v4l2_devices_list(v4l2_dev_t *vd);
 
 #endif

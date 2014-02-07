@@ -74,7 +74,7 @@ void set_render_flag(int value)
 int quit_callback(void *data)
 {
 	quit = 1;
-	
+
 	return 0;
 }
 
@@ -105,7 +105,7 @@ void video_capture_save_image()
  */
 void *capture_loop(void *data)
 {
-	v4l2_dev* device = (v4l2_dev *) data;
+	v4l2_dev_t *device = (v4l2_dev_t *) data;
 	/*asserts*/
 	assert(device != NULL);
 

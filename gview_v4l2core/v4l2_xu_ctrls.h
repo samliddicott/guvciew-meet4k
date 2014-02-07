@@ -35,6 +35,6 @@
  *
  * returns: 0 if map succeded or errno otherwise
  */
-int init_xu_ctrls(v4l2_dev* vd);
+int init_xu_ctrls(v4l2_dev_t *vd);
 
 #endif

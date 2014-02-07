@@ -36,7 +36,7 @@
  *
  * returns: error code
  */
-int enumerate_v4l2_control(v4l2_dev* vd);
+int enumerate_v4l2_control(v4l2_dev_t *vd);
 
 /*
  * goes trough the control list and updates/retrieves current values
@@ -49,7 +49,7 @@ int enumerate_v4l2_control(v4l2_dev* vd);
  *
  * returns: void
  */
-void get_v4l2_control_values (v4l2_dev* vd);
+void get_v4l2_control_values (v4l2_dev_t *vd);
 
 /*
  * goes trough the control list and sets values in device
@@ -62,7 +62,7 @@ void get_v4l2_control_values (v4l2_dev* vd);
  *
  * returns: void
  */
-void set_v4l2_control_values (v4l2_dev* vd);
+void set_v4l2_control_values (v4l2_dev_t *vd);
 
 /*
  * free control list
@@ -75,6 +75,6 @@ void set_v4l2_control_values (v4l2_dev* vd);
  *
  * returns: void
  */
-void free_v4l2_control_list(v4l2_dev* vd);
+void free_v4l2_control_list(v4l2_dev_t *vd);
 
 #endif

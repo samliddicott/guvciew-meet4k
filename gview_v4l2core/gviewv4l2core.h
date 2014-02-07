@@ -130,31 +130,31 @@ typedef struct _uvcx_video_config_probe_commit_t
 /*
  * v4l2 stream capability data
  */
-typedef struct _v4l2_stream_cap
+typedef struct _v4l2_stream_cap_t
 {
 	int width;            //width
 	int height;           //height
 	int *framerate_num;   //list of numerator values - should be 1 in almost all cases
 	int *framerate_denom; //list of denominator values - gives fps
 	int numb_frates;      //number of frame rates (numerator and denominator lists size)
-} v4l2_stream_cap;
+} v4l2_stream_cap_t;
 
 /*
  * v4l2 stream format data
  */
-typedef struct _v4l2_stream_format
+typedef struct _v4l2_stream_format_t
 {
 	uint8_t dec_support; //decoder support (1-supported; 0-not supported)
 	int format;          //v4l2 pixel format
 	char fourcc[5];      //corresponding fourcc (mode)
-	int numb_res;        //available number of resolutions for format (v4l2_stream_cap list size)
-	v4l2_stream_cap *list_stream_cap;  //list of stream capabilities for format
-} v4l2_stream_formats;
+	int numb_res;        //available number of resolutions for format (v4l2_stream_cap_t list size)
+	v4l2_stream_cap_t *list_stream_cap;  //list of stream capabilities for format
+} v4l2_stream_formats_t;
 
 /*
  * v4l2 control data
  */
-typedef struct _v4l2_ctrl
+typedef struct _v4l2_ctrl_t
 {
     struct v4l2_queryctrl control;
     struct v4l2_querymenu *menu;
@@ -164,13 +164,13 @@ typedef struct _v4l2_ctrl
     char *string;
 
     //next control in the list
-    struct _v4l2_ctrl *next;
-} v4l2_ctrl;
+    struct _v4l2_ctrl_t *next;
+} v4l2_ctrl_t;
 
 /*
  * v4l2 device system data
  */
-typedef struct _v4l2_dev_sys_data
+typedef struct _v4l2_dev_sys_data_t
 {
 	char *device;
 	char *name;
@@ -182,18 +182,18 @@ typedef struct _v4l2_dev_sys_data
 	int current;
 	uint64_t busnum;
 	uint64_t devnum;
-} v4l2_dev_sys_data;
+} v4l2_dev_sys_data_t;
 
 /*
  * video device data
  */
-typedef struct _v4l2_dev
+typedef struct _v4l2_dev_t
 {
 	int fd;                             // device file descriptor
 	char *videodevice;                  // video device string (default "/dev/video0)"
 
 	int cap_meth;                       // capture method: IO_READ or IO_MMAP
-	v4l2_stream_formats* list_stream_formats; //list of available stream formats
+	v4l2_stream_formats_t* list_stream_formats; //list of available stream formats
 	int numb_formats;                   //list size
 	//int current_format_index;           //index of current stream format
 	//int current_resolution_index;       //index of current resolution for current format
@@ -244,18 +244,18 @@ typedef struct _v4l2_dev
 	struct udev *udev;                  // pointer to a udev struct (lib udev)
     struct udev_monitor *udev_mon;      // udev monitor
     int udev_fd;                        // udev monitor file descriptor
-    v4l2_dev_sys_data* list_devices;    // list of available v4l2 devices
+    v4l2_dev_sys_data_t* list_devices;    // list of available v4l2 devices
     int num_devices;                    // number of available v4l2 devices
     int this_device;                    // index of this device in device list
 
-    v4l2_ctrl* list_device_controls;    //null terminated linked list of available device controls
+    v4l2_ctrl_t* list_device_controls;    //null terminated linked list of available device controls
     int num_controls;                   //number of controls in list
 
     uint8_t isbayer;                    //flag if we are streaming bayer data in yuyv frame (logitech only)
     uint8_t pix_order;                  //bayer pixel order
 
     int pan_tilt_step;                  //pan/tilt step for relative pan tilt controls (logitech sphere/orbit/BCC950)
-} v4l2_dev;
+} v4l2_dev_t;
 
 /*
  * ioctl with a number of retries in the case of I/O failure
@@ -330,7 +330,7 @@ v4l2_dev* init_v4l2_dev(const char *device);
  *
  * returns: format list index or -1 if not available
  */
-int get_frame_format_index(v4l2_dev* vd, int format);
+int get_frame_format_index(v4l2_dev_t *vd, int format);
 
 /* get resolution index for format index from format list
  * args:
@@ -345,7 +345,7 @@ int get_frame_format_index(v4l2_dev* vd, int format);
  *
  * returns: resolution list index for format index or -1 if not available
  */
-int get_format_resolution_index(v4l2_dev* vd, int format, int width, int height);
+int get_format_resolution_index(v4l2_dev_t *vd, int format, int width, int height);
 
 /*
  * Try/Set device video stream format
@@ -360,7 +360,7 @@ int get_format_resolution_index(v4l2_dev* vd, int format, int width, int height)
  *
  * returns: error code ( E_OK)
  */
-int try_video_stream_format(v4l2_dev* vd, int width, int height, int pixelformat);
+int try_video_stream_format(v4l2_dev_t *vd, int width, int height, int pixelformat);
 
 /*
  * gets the next video frame and decodes it if necessary
@@ -384,7 +384,7 @@ int get_v4l2_frame(v4l2_dev* vd);
  *
  * returns: error code ( 0 - E_OK)
 */
-int frame_decode(v4l2_dev* vd);
+int frame_decode(v4l2_dev_t *vd);
 
 /*
  * cleans video device data and allocations
@@ -396,7 +396,7 @@ int frame_decode(v4l2_dev* vd);
  *
  * returns: void
  */
-void close_v4l2_dev(v4l2_dev* vd);
+void close_v4l2_dev(v4l2_dev_t *vd);
 
 /*
  * request v4l2 device with new format
@@ -418,7 +418,7 @@ void close_v4l2_dev(v4l2_dev* vd);
  * returns: VIDIOC_S_PARM ioctl result value
  * (sets vd->fps_denom and vd->fps_num to device value)
  */
-int set_v4l2_framerate (v4l2_dev* vd);
+int set_v4l2_framerate (v4l2_dev_t *vd);
 
 /*
  * gets video device defined frame rate (not real - consider it a maximum value)
@@ -431,7 +431,7 @@ int set_v4l2_framerate (v4l2_dev* vd);
  * returns: VIDIOC_G_PARM ioctl result value
  * (sets vd->fps_denom and vd->fps_num to device value)
  */
-int get_v4l2_framerate (v4l2_dev* vd);
+int get_v4l2_framerate (v4l2_dev_t *vd);
 
 /*
  * Starts the video stream
@@ -443,7 +443,7 @@ int get_v4l2_framerate (v4l2_dev* vd);
  *
  * returns: VIDIOC_STREAMON ioctl result (0- E_OK)
  */
-int start_video_stream(v4l2_dev* vd);
+int start_video_stream(v4l2_dev_t *vd);
 
 /*
  * Stops the video stream
@@ -455,7 +455,7 @@ int start_video_stream(v4l2_dev* vd);
  *
  * returns: VIDIOC_STREAMOFF ioctl result (0- E_OK)
  */
-int stop_video_stream(v4l2_dev* vd);
+int stop_video_stream(v4l2_dev_t *vd);
 
 /*
  *  ######### CONTROLS ##########
@@ -472,7 +472,7 @@ int stop_video_stream(v4l2_dev* vd);
  *
  * returns: pointer to v4l2_control if succeded or null otherwise
  */
-v4l2_ctrl* get_v4l2_control_by_id(v4l2_dev* vd, int id);
+v4l2_ctrl_t* get_v4l2_control_by_id(v4l2_dev_t *vd, int id);
 
 /*
  * sets the value of control id in device
@@ -485,7 +485,7 @@ v4l2_ctrl* get_v4l2_control_by_id(v4l2_dev* vd, int id);
  *
  * returns: ioctl result
  */
-int set_v4l2_control_id_value(v4l2_dev* vd, int id);
+int set_v4l2_control_id_value(v4l2_dev_t *vd, int id);
 
 /*
  * updates the value for control id from the device
@@ -499,7 +499,7 @@ int set_v4l2_control_id_value(v4l2_dev* vd, int id);
  *
  * returns: ioctl result
  */
-int get_v4l2_control_id_value (v4l2_dev* vd, int id);
+int get_v4l2_control_id_value (v4l2_dev_t *vd, int id);
 
 /*
  * goes trough the control list and sets values in device to default
@@ -512,7 +512,7 @@ int get_v4l2_control_id_value (v4l2_dev* vd, int id);
  *
  * returns: void
  */
-void set_v4l2_control_defaults(v4l2_dev* vd);
+void set_v4l2_control_defaults(v4l2_dev_t *vd);
 
 /*
  *  ######### XU CONTROLS ##########
@@ -531,7 +531,7 @@ void set_v4l2_control_defaults(v4l2_dev* vd);
  *
  * returns: length of xu control
  */
-uint16_t get_length_xu_control(v4l2_dev* vd, uint8_t unit, uint8_t selector);
+uint16_t get_length_xu_control(v4l2_dev_t *vd, uint8_t unit, uint8_t selector);
 
 /*
  * get uvc info for xu control defined by unit id and selector
@@ -546,7 +546,7 @@ uint16_t get_length_xu_control(v4l2_dev* vd, uint8_t unit, uint8_t selector);
  *
  * returns: info of xu control
  */
-uint8_t get_info_xu_control(v4l2_dev* vd, uint8_t unit, uint8_t selector);
+uint8_t get_info_xu_control(v4l2_dev_t *vd, uint8_t unit, uint8_t selector);
 
 /*
  * runs a query on xu control defined by unit id and selector
@@ -563,7 +563,7 @@ uint8_t get_info_xu_control(v4l2_dev* vd, uint8_t unit, uint8_t selector);
  *
  * returns: 0 if query succeded or errno otherwise
  */
-int query_xu_control(v4l2_dev* vd, uint8_t unit, uint8_t selector, uint8_t query, void *data);
+int query_xu_control(v4l2_dev_t *vd, uint8_t unit, uint8_t selector, uint8_t query, void *data);
 
 #endif
 

@@ -119,7 +119,7 @@ void set_profile_path(const char *path);
  *
  * returns: error code
  */
-int gui_attach(v4l2_dev* device, int gui, int width, int height);
+int gui_attach(v4l2_dev_t *device, int gui, int width, int height);
 
 /*
  * run the GUI loop

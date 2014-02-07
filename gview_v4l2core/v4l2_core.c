@@ -129,7 +129,7 @@ double get_v4l2_realfps()
  *
  * returns: error code  (E_OK)
  */
-static int check_v4l2_dev(v4l2_dev* vd)
+static int check_v4l2_dev(v4l2_dev_t *vd)
 {
 	/*assertions*/
 	assert(vd != NULL);
@@ -192,7 +192,7 @@ static int check_v4l2_dev(v4l2_dev* vd)
  *
  * returns: error code  (0- E_OK)
  */
-static int unmap_buff(v4l2_dev* vd)
+static int unmap_buff(v4l2_dev_t *vd)
 {
 	/*assertions*/
 	assert(vd != NULL);
@@ -229,7 +229,7 @@ static int unmap_buff(v4l2_dev* vd)
  *
  * returns: error code  (0- E_OK)
  */
-static int map_buff(v4l2_dev* vd)
+static int map_buff(v4l2_dev_t *vd)
 {
 	/*assertions*/
 	assert(vd != NULL);
@@ -264,7 +264,7 @@ static int map_buff(v4l2_dev* vd)
  *
  * returns: error code  (0- E_OK)
  */
-static int query_buff(v4l2_dev* vd)
+static int query_buff(v4l2_dev_t *vd)
 {
 	/*assertions*/
 	assert(vd != NULL);
@@ -324,7 +324,7 @@ static int query_buff(v4l2_dev* vd)
  *
  * returns: error code  (0- E_OK)
  */
-static int queue_buff(v4l2_dev *vd)
+static int queue_buff(v4l2_dev_t *vd)
 {
 	/*assertions*/
 	assert(vd != NULL);
@@ -371,7 +371,7 @@ static int queue_buff(v4l2_dev *vd)
  *
  * returns: error code  (0- E_OK)
  */
-static int check_frame_available(v4l2_dev *vd)
+static int check_frame_available(v4l2_dev_t *vd)
 {
 	/*asserts*/
 	assert(vd != NULL);
@@ -426,7 +426,7 @@ static int check_frame_available(v4l2_dev *vd)
  *
  * returns: VIDIOC_STREAMON ioctl result (E_OK or E_STREAMON_ERR)
 */
-int start_video_stream(v4l2_dev* vd)
+int start_video_stream(v4l2_dev_t *vd)
 {
 	/*assertions*/
 	assert(vd != NULL);
@@ -468,7 +468,7 @@ int start_video_stream(v4l2_dev* vd)
  *
  * returns: VIDIOC_STREAMON ioctl result (E_OK)
 */
-int stop_video_stream(v4l2_dev* vd)
+int stop_video_stream(v4l2_dev_t *vd)
 {
 	/*assertions*/
 	assert(vd != NULL);
@@ -508,7 +508,7 @@ int stop_video_stream(v4l2_dev* vd)
  *
  * returns: error code (E_OK)
  */
-int get_v4l2_frame(v4l2_dev* vd)
+int get_v4l2_frame(v4l2_dev_t *vd)
 {
 	/*asserts*/
 	assert(vd != NULL);
@@ -704,7 +704,7 @@ int get_v4l2_frame(v4l2_dev* vd)
  *
  * returns: error code ( E_OK)
  */
-int try_video_stream_format(v4l2_dev* vd, int width, int height, int pixelformat)
+int try_video_stream_format(v4l2_dev_t *vd, int width, int height, int pixelformat)
 {
 	/*assertions*/
 	assert(vd != NULL);
@@ -868,7 +868,7 @@ int try_video_stream_format(v4l2_dev* vd, int width, int height, int pixelformat
  *
  * returns: void
  */
-static void clear_v4l2_dev(v4l2_dev* vd)
+static void clear_v4l2_dev(v4l2_dev_t *vd)
 {
 	/*assertions*/
 	assert(vd != NULL);
@@ -910,11 +910,11 @@ static void clear_v4l2_dev(v4l2_dev* vd)
  *
  * returns: pointer to newly allocated video device data  ( NULL on error)
  */
-v4l2_dev* init_v4l2_dev(const char *device)
+v4l2_dev_t *init_v4l2_dev(const char *device)
 {
 	assert(device != NULL);
 
-	v4l2_dev* vd = calloc(1, sizeof(v4l2_dev));
+	v4l2_dev_t *vd = calloc(1, sizeof(v4l2_dev_t));
 
 	assert(vd != NULL);
 
@@ -1001,7 +1001,7 @@ v4l2_dev* init_v4l2_dev(const char *device)
  *
  * returns: void
  */
-void close_v4l2_dev(v4l2_dev* vd)
+void close_v4l2_dev(v4l2_dev_t *vd)
 {
 	/*assertions*/
 	assert(vd != NULL);
@@ -1049,7 +1049,7 @@ void close_v4l2_dev(v4l2_dev* vd)
  * returns: VIDIOC_S_PARM ioctl result value
  * (sets vd->fps_denom and vd->fps_num to device value)
  */
-int set_v4l2_framerate (v4l2_dev* vd)
+int set_v4l2_framerate (v4l2_dev_t *vd)
 {
 	/*assertions*/
 	assert(vd != NULL);
@@ -1129,7 +1129,7 @@ int set_v4l2_framerate (v4l2_dev* vd)
  * returns: VIDIOC_G_PARM ioctl result value
  * (sets vd->fps_denom and vd->fps_num to device value)
  */
-int get_v4l2_framerate (v4l2_dev* vd)
+int get_v4l2_framerate (v4l2_dev_t *vd)
 {
 	/*assertions*/
 	assert(vd != NULL);

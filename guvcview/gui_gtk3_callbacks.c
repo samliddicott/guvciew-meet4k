@@ -89,7 +89,7 @@ void camera_button_menu_changed (GtkWidget *item, void *data)
  */
 void control_defaults_clicked (GtkWidget *item, void *data)
 {
-    v4l2_dev *device = (v4l2_dev *) data;
+    v4l2_dev_t *device = (v4l2_dev_t *) data;
 
     set_v4l2_control_defaults(device);
 }
@@ -107,7 +107,7 @@ void control_defaults_clicked (GtkWidget *item, void *data)
  */
 void controls_profile_clicked (GtkWidget *item, void *data)
 {
-	v4l2_dev *device = (v4l2_dev *) data;
+	v4l2_dev_t *device = (v4l2_dev_t *) data;
 
 	GtkWidget *FileDialog;
 
@@ -170,7 +170,7 @@ void controls_profile_clicked (GtkWidget *item, void *data)
  */
 void pan_tilt_step_changed (GtkSpinButton *spin, void *data)
 {
-	v4l2_dev *device = (v4l2_dev *) data;
+	v4l2_dev_t *device = (v4l2_dev_t *) data;
 
 	int val = gtk_spin_button_get_value_as_int (spin);
 
@@ -190,11 +190,11 @@ void pan_tilt_step_changed (GtkSpinButton *spin, void *data)
  */
 void button_PanTilt1_clicked (GtkButton * Button, void *data)
 {
-    v4l2_dev *device = (v4l2_dev *) data;
+    v4l2_dev_t *device = (v4l2_dev_t *) data;
 
     int id = GPOINTER_TO_INT(g_object_get_data (G_OBJECT (Button), "control_info"));
 
-    v4l2_ctrl* control = get_v4l2_control_by_id(device, id);
+    v4l2_ctrl_t *control = get_v4l2_control_by_id(device, id);
 
     control->value =  device->pan_tilt_step;
 
@@ -215,11 +215,11 @@ void button_PanTilt1_clicked (GtkButton * Button, void *data)
  */
 void button_PanTilt2_clicked (GtkButton * Button, void *data)
 {
-    v4l2_dev *device = (v4l2_dev *) data;
+    v4l2_dev_t *device = (v4l2_dev_t *) data;
 
     int id = GPOINTER_TO_INT(g_object_get_data (G_OBJECT (Button), "control_info"));
 
-    v4l2_ctrl* control = get_v4l2_control_by_id(device, id);
+    v4l2_ctrl_t *control = get_v4l2_control_by_id(device, id);
 
     control->value =  - device->pan_tilt_step;
 
@@ -240,16 +240,40 @@ void button_PanTilt2_clicked (GtkButton * Button, void *data)
  */
 void button_clicked (GtkButton * Button, void *data)
 {
-    v4l2_dev *device = (v4l2_dev *) data;
+    v4l2_dev_t *device = (v4l2_dev_t *) data;
 
     int id = GPOINTER_TO_INT(g_object_get_data (G_OBJECT (Button), "control_info"));
 
-    v4l2_ctrl* control = get_v4l2_control_by_id(device, id);
+    v4l2_ctrl_t *control = get_v4l2_control_by_id(device, id);
 
 	control->value = 1;
 
     if(set_v4l2_control_id_value(device, id))
 		fprintf(stderr, "GUVCVIEW: error setting button value\n");
+}
+
+/*
+ * a string control apply button clicked
+ * args:
+ *    button - button that generated the event
+ *    data - pointer to user data
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void string_button_clicked(GtkButton * Button, void *data)
+{
+	v4l2_dev_t *device = (v4l2_dev_t *) data;
+
+	int id = GPOINTER_TO_INT(g_object_get_data (G_OBJECT (Button), "control_info"));
+	GtkWidget *entry = (GtkWidget *) g_object_get_data (G_OBJECT (Button), "control_entry");
+
+	v4l2_ctrl_t *control = get_v4l2_control_by_id(device, id);
+
+
+
 }
 
 /*
@@ -265,10 +289,10 @@ void button_clicked (GtkButton * Button, void *data)
  */
 void combo_changed (GtkComboBox * combo, void *data)
 {
-	v4l2_dev *device = (v4l2_dev *) data;
+	v4l2_dev_t *device = (v4l2_dev_t *) data;
 
     int id = GPOINTER_TO_INT(g_object_get_data (G_OBJECT (combo), "control_info"));
-    v4l2_ctrl* control = get_v4l2_control_by_id(device, id);
+    v4l2_ctrl_t *control = get_v4l2_control_by_id(device, id);
 
     int index = gtk_combo_box_get_active (combo);
     control->value = control->menu[index].index;

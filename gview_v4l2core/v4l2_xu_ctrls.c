@@ -199,7 +199,7 @@ static struct uvc_xu_control_mapping xu_mappings[] =
  *
  * returns: 0 if enumeration succeded or errno otherwise
  */
-int init_xu_ctrls(v4l2_dev *vd)
+int init_xu_ctrls(v4l2_dev_t *vd)
 {
 	/*assertions*/
 	assert(vd != NULL);
@@ -243,7 +243,7 @@ int init_xu_ctrls(v4l2_dev *vd)
  *
  * returns: length of xu control
  */
-uint16_t get_length_xu_control(v4l2_dev* vd, uint8_t unit, uint8_t selector)
+uint16_t get_length_xu_control(v4l2_dev_t *vd, uint8_t unit, uint8_t selector)
 {
 	/*assertions*/
 	assert(vd != NULL);
@@ -282,7 +282,7 @@ uint16_t get_length_xu_control(v4l2_dev* vd, uint8_t unit, uint8_t selector)
  *
  * returns: info of xu control
  */
-uint8_t get_info_xu_control(v4l2_dev* vd, uint8_t unit, uint8_t selector)
+uint8_t get_info_xu_control(v4l2_dev_t *vd, uint8_t unit, uint8_t selector)
 {
 	/*assertions*/
 	assert(vd != NULL);
@@ -323,7 +323,7 @@ uint8_t get_info_xu_control(v4l2_dev* vd, uint8_t unit, uint8_t selector)
  *
  * returns: 0 if query succeded or errno otherwise
  */
-int query_xu_control(v4l2_dev* vd, uint8_t unit, uint8_t selector, uint8_t query, void *data)
+int query_xu_control(v4l2_dev_t *vd, uint8_t unit, uint8_t selector, uint8_t query, void *data)
 {
 	int err = 0;
 	uint16_t len = get_length_xu_control(vd, unit, selector);
