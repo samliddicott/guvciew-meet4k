@@ -23,9 +23,6 @@
 #                                                                               #
 ********************************************************************************/
 
-#ifndef GUI_GTK3_H
-#define GUI_GTK3_H
-
 #include <gtk/gtk.h>
 #include <glib.h>
 #include <assert.h>
@@ -522,5 +519,3 @@ void check_changed (GtkToggleButton *toggle, void *data)
         start_video_stream(device);
     }
 }
-
-#endif
