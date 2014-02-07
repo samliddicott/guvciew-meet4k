@@ -252,7 +252,7 @@ typedef struct _v4l2_dev_t
     int num_controls;                   //number of controls in list
 
     uint8_t isbayer;                    //flag if we are streaming bayer data in yuyv frame (logitech only)
-    uint8_t pix_order;                  //bayer pixel order
+    uint8_t bayer_pix_order;            //bayer pixel order
 
     int pan_tilt_step;                  //pan/tilt step for relative pan tilt controls (logitech sphere/orbit/BCC950)
 } v4l2_dev_t;

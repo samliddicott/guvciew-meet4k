@@ -259,7 +259,7 @@ void button_clicked (GtkButton * Button, void *data)
  *    data - pointer to user data
  *
  * asserts:
- *    none
+ *    control->string not null
  *
  * returns: none
  */
@@ -272,12 +272,82 @@ void string_button_clicked(GtkButton * Button, void *data)
 
 	v4l2_ctrl_t *control = get_v4l2_control_by_id(device, id);
 
+	assert(control->string != NULL);
 
+	strncpy(control->string, gtk_entry_get_text(GTK_ENTRY(entry)), control->control.maximum);
+
+	if(set_v4l2_control_id_value(device, id))
+		fprintf(stderr, "GUVCVIEW: error setting string value\n");
+}
+
+/*
+ * a int64 control apply button clicked
+ * args:
+ *    button - button that generated the event
+ *    data - pointer to user data
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void int64_button_clicked(GtkButton * Button, void *data)
+{
+	v4l2_dev_t *device = (v4l2_dev_t *) data;
+
+	int id = GPOINTER_TO_INT(g_object_get_data (G_OBJECT (Button), "control_info"));
+	GtkWidget *entry = (GtkWidget *) g_object_get_data (G_OBJECT (Button), "control_entry");
+
+	v4l2_ctrl_t *control = get_v4l2_control_by_id(device, id);
+
+	char* text_input = g_strdup(gtk_entry_get_text(entry));
+	text_input = g_strstrip(text_input);
+	if( g_str_has_prefix(text_input,"0x")) //hex format
+	{
+		text_input = g_strcanon(text_input,"0123456789ABCDEFabcdef", '');
+		control->value64 = g_ascii_strtoll(text_input, NULL, 16);
+	}
+	else //decimal or hex ?
+	{
+		text_input = g_strcanon(text_input,"0123456789ABCDEFabcdef", '');
+		control->value64 = g_ascii_strtoll(text_input, NULL, 0);
+	}
+	g_free(text_input);
+
+	if(set_v4l2_control_id_value(device, id))
+		fprintf(stderr, "GUVCVIEW: error setting string value\n");
 
 }
 
 /*
- * combo box chaged event
+ * a bitmask control apply button clicked
+ * args:
+ *    button - button that generated the event
+ *    data - pointer to user data
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void bitmask_button_clicked(GtkButton * Button, void *data)
+{
+	v4l2_dev_t *device = (v4l2_dev_t *) data;
+
+	int id = GPOINTER_TO_INT(g_object_get_data (G_OBJECT (Button), "control_info"));
+	GtkWidget *entry = (GtkWidget *) g_object_get_data (G_OBJECT (Button), "control_entry");
+
+	char* text_input = g_strdup(gtk_entry_get_text(GTK_ENTRY(entry)));
+	text_input = g_strcanon(text_input,"0123456789ABCDEFabcdef", '');
+	control->value = (int32_t) g_ascii_strtoll(text_input, NULL, 16);
+	g_free(text_input);
+
+	if(set_v4l2_control_id_value(device, id))
+		fprintf(stderr, "GUVCVIEW: error setting string value\n");
+}
+
+/*
+ * combo box changed event
  * args:
  *    combo - widget that generated the event
  *    data - pointer to user data
@@ -299,6 +369,65 @@ void combo_changed (GtkComboBox * combo, void *data)
 
 	if(set_v4l2_control_id_value(device, id))
 		fprintf(stderr, "GUVCVIEW: error setting menu value\n");
+}
+
+/*
+ * bayer pixel order combo box changed event
+ * args:
+ *    combo - widget that generated the event
+ *    data - pointer to user data
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void bayer_pix_ord_changed (GtkComboBox * combo, void *data)
+{
+	v4l2_dev_t *device = (v4l2_dev_t *) data;
+
+	//int id = GPOINTER_TO_INT(g_object_get_data (G_OBJECT (combo), "control_info"));
+
+	int index = gtk_combo_box_get_active (combo);
+	device->bayer_pix_order = index;
+}
+
+/*
+ * check box changed event
+ * args:
+ *    toggle - widget that generated the event
+ *    data - pointer to user data
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void check_changed (GtkToggleButton *toggle, void *data)
+{
+    v4l2_dev_t *device = (v4l2_dev_t *) data;
+
+    int id = GPOINTER_TO_INT(g_object_get_data (G_OBJECT (toggle), "control_info"));
+    v4l2_ctrl_t *control = get_v4l2_control_by_id(device, id);
+
+    int val = gtk_toggle_button_get_active (toggle) ? 1 : 0;
+
+    control->value = val;
+
+	if(set_v4l2_control_id_value(device, id))
+		fprintf(stderr, "GUVCVIEW: error setting menu value\n");
+
+    if(id == V4L2_CID_DISABLE_PROCESSING_LOGITECH)
+    {
+        if (control->value > 0)
+			device->isbayer = 1;
+        else
+			device->isbayer = 0;
+
+        /*must restart stream for changes to take effect*/
+        stop_video_stream(device);
+        start_video_stream(device);
+    }
 }
 
 #endif

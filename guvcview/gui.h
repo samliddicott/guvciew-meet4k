@@ -131,23 +131,18 @@ int gui_attach(v4l2_dev_t *device, int gui, int width, int height);
  *
  * returns: error code
  */
-int gui_run()
-{
+int gui_run();
 
-	int ret = 0;
-
-	switch(gui_api)
-	{
-		case GUI_NONE:
-			break;
-
-		case GUI_GTK3:
-		default:
-			ret = gui_run_gtk3();
-			break;
-	}
-
-	return ret;
-}
+/*
+ * closes and cleans the GUI
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void gui_close();
 
 #endif

@@ -140,6 +140,45 @@ void button_PanTilt2_clicked (GtkButton * Button, void *data);
 void button_clicked (GtkButton * Button, void *data);
 
 /*
+ * a string control apply button clicked
+ * args:
+ *    button - button that generated the event
+ *    data - pointer to user data
+ *
+ * asserts:
+ *    control->string is not null
+ *
+ * returns: none
+ */
+void string_button_clicked(GtkButton * Button, void *data);
+
+/*
+ * a int64 control apply button clicked
+ * args:
+ *    button - button that generated the event
+ *    data - pointer to user data
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void int64_button_clicked(GtkButton * Button, void *data);
+
+/*
+ * a bitmask control apply button clicked
+ * args:
+ *    button - button that generated the event
+ *    data - pointer to user data
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void bitmask_button_clicked(GtkButton * Button, void *data);
+
+/*
  * combo box chaged event
  * args:
  *    combo - widget that generated the event
@@ -151,5 +190,31 @@ void button_clicked (GtkButton * Button, void *data);
  * returns: none
  */
 void combo_changed (GtkComboBox * combo, void *data);
+
+/*
+ * bayer pixel order combo box changed event
+ * args:
+ *    combo - widget that generated the event
+ *    data - pointer to user data
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void bayer_pix_ord_changed (GtkComboBox * combo, void *data);
+
+/*
+ * check box changed event
+ * args:
+ *    toggle - widget that generated the event
+ *    data - pointer to user data
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void check_changed (GtkToggleButton *toggle, void *data);
 
 #endif

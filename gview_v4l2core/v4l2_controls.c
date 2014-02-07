@@ -245,14 +245,12 @@ static void print_control_list(v4l2_dev_t *vd)
 
 	int i = 0;
 	v4l2_ctrl_t *current = vd->list_device_controls;
-    v4l2_ctrl_t *next = current->next;
-    for(; next != NULL; current = next, next = current->next)
+
+    for(; current != NULL; current = current->next)
     {
         print_control(current, i);
         i++;
     }
-    /*last one*/
-   print_control(current, i);
 }
 
 /*
@@ -710,17 +708,13 @@ v4l2_ctrl_t *get_v4l2_control_by_id(v4l2_dev_t *vd, int id)
 	assert(vd->list_device_controls != NULL);
 
     v4l2_ctrl_t *current = vd->list_device_controls;
-    v4l2_ctrl_t *next = current->next;
-    for(; next != NULL; current = next, next = current->next)
+    for(; current != NULL; current = current->next)
     {
         if(current->control.id == id)
             return (current);
     }
-    /*last one*/
-    if(current->control.id == id)
-        return (current);
-    else
-        return(NULL);
+
+    return(NULL);
 }
 
 /*
