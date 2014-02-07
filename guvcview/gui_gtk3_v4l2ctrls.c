@@ -475,7 +475,7 @@ int gui_attach_gtk3_v4l2ctrls(v4l2_dev_t *device, GtkWidget *parent)
 				break;
 		}
 
-		/*atach widgets to grid*/
+		/*attach widgets to grid*/
 		gtk_grid_attach(GTK_GRID(img_controls_grid), label, 0, i, 1 , 1);
 
 		if(widget)

@@ -244,5 +244,4 @@ void gui_close()
 			gui_close_gtk3();
 			break;
 	}
-	quit_callback(NULL);
 }

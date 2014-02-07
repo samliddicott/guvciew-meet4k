@@ -113,6 +113,7 @@ int gui_attach_gtk3(v4l2_dev_t *device, int width, int height)
 	/* Create a main window */
 	main_window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_title (GTK_WINDOW (main_window), _("Guvcview"));
+	gtk_widget_show (main_window);
 
 	/* get screen resolution */
 	GdkScreen* screen = NULL;
@@ -163,6 +164,8 @@ int gui_attach_gtk3(v4l2_dev_t *device, int width, int height)
 	gui_attach_gtk3_v4l2ctrls(device, viewport);
 
 	GtkWidget *tab_1 = gtk_grid_new();
+	gtk_widget_show (tab_1);
+
     GtkWidget *tab_1_label = gtk_label_new(_("Image Controls"));
 	gtk_widget_show (tab_1_label);
 	/** check for files */
@@ -170,12 +173,11 @@ int gui_attach_gtk3(v4l2_dev_t *device, int width, int height)
 	/** don't test for file - use default empty image if load fails */
 	/** get icon image*/
 	GtkWidget *tab_1_icon = gtk_image_new_from_file(tab_1_icon_path);
-	g_free(tab_1_icon_path);
 	gtk_widget_show (tab_1_icon);
+
+	g_free(tab_1_icon_path);
 	gtk_grid_attach (GTK_GRID(tab_1), tab_1_icon, 0, 0, 1, 1);
 	gtk_grid_attach (GTK_GRID(tab_1), tab_1_label, 1, 0, 1, 1);
-
-	gtk_widget_show (tab_1);
 
 	gtk_notebook_append_page(GTK_NOTEBOOK(tab_box), scroll_1, tab_1);
 
@@ -195,8 +197,6 @@ int gui_attach_gtk3(v4l2_dev_t *device, int width, int height)
 
 	/* attach to main window container */
 	gtk_container_add (GTK_CONTAINER (main_window), maintable);
-
-	gtk_widget_show (main_window);
 
 	return 0;
 }

@@ -51,7 +51,7 @@ extern int debug_level;
 int delete_event (GtkWidget *widget, GdkEventConfigure *event, void *data)
 {
 	/* Terminate program */
-	gui_close();
+	quit_callback(NULL);
 	return 0;
 }
 
