@@ -411,7 +411,7 @@ int gui_attach_gtk3_v4l2ctrls(v4l2_dev_t *device, GtkWidget *parent)
 
 					/*connect signal*/
 					g_signal_connect (GTK_COMBO_BOX_TEXT(widget), "changed",
-						G_CALLBACK (combo_changed), all_data);
+						G_CALLBACK (combo_changed), device);
 				}
                 break;
 
@@ -424,7 +424,7 @@ int gui_attach_gtk3_v4l2ctrls(v4l2_dev_t *device, GtkWidget *parent)
 					GINT_TO_POINTER(current->control.id));
 
 				g_signal_connect (GTK_BUTTON(widget), "clicked",
-					G_CALLBACK (button_clicked), all_data);
+					G_CALLBACK (button_clicked), device);
                 break;
 
             case V4L2_CTRL_TYPE_BOOLEAN:
@@ -449,7 +449,7 @@ int gui_attach_gtk3_v4l2ctrls(v4l2_dev_t *device, GtkWidget *parent)
 
 					/*connect signal*/
 					g_signal_connect (GTK_COMBO_BOX_TEXT (widget2), "changed",
-						G_CALLBACK (bayer_pix_ord_changed), all_data);
+						G_CALLBACK (bayer_pix_ord_changed), device);
 
 					device->isbayer = (current->value ? TRUE : FALSE);
 				}
@@ -464,7 +464,7 @@ int gui_attach_gtk3_v4l2ctrls(v4l2_dev_t *device, GtkWidget *parent)
 
 				/*connect signal*/
 				g_signal_connect (GTK_TOGGLE_BUTTON(widget), "toggled",
-					G_CALLBACK (check_changed), all_data);
+					G_CALLBACK (check_changed), device);
 
                 break;
 
