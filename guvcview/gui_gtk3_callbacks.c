@@ -382,19 +382,56 @@ void slider_changed (GtkRange * range, void *data)
     control->value = val;
 
     if(set_v4l2_control_id_value(device, id))
-		fprintf(stderr, "GUVCVIEW: error setting string value\n");
+		fprintf(stderr, "GUVCVIEW: error setting slider value\n");
 
    /*
-    //update spin
     if(widget2)
     {
         //disable widget signals
         g_signal_handlers_block_by_func(GTK_SPIN_BUTTON(widget2),
-            G_CALLBACK (spin_changed), all_data);
+            G_CALLBACK (spin_changed), data);
         gtk_spin_button_set_value (GTK_SPIN_BUTTON(widget2), control->value);
         //enable widget signals
         g_signal_handlers_unblock_by_func(GTK_SPIN_BUTTON(widget2),
-            G_CALLBACK (spin_changed), all_data);
+            G_CALLBACK (spin_changed), data);
+    }
+	*/
+}
+
+/*
+ * spin changed event
+ * args:
+ *    spin - widget that generated the event
+ *    data - pointer to user data
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void spin_changed (GtkSpinButton * spin, void *data)
+{
+	v4l2_dev_t *device = (v4l2_dev_t *) data;
+
+    int id = GPOINTER_TO_INT(g_object_get_data (G_OBJECT (range), "control_info"));
+    v4l2_ctrl_t *control = get_v4l2_control_by_id(device, id);
+
+	int val = gtk_spin_button_get_value_as_int (spin);
+    control->value = val;
+
+     if(set_v4l2_control_id_value(device, id))
+		fprintf(stderr, "GUVCVIEW: error setting spin value\n");
+
+	/*
+    if(widget)
+    {
+        //disable widget signals
+        g_signal_handlers_block_by_func(GTK_SCALE (widget),
+            G_CALLBACK (slider_changed), data);
+        gtk_range_set_value (GTK_RANGE (widget), control->value);
+        //enable widget signals
+        g_signal_handlers_unblock_by_func(GTK_SCALE (widget),
+            G_CALLBACK (slider_changed), data);
     }
 	*/
 }

@@ -192,6 +192,19 @@ void bitmask_button_clicked(GtkButton * Button, void *data);
 void slider_changed (GtkRange * range, void *data);
 
 /*
+ * spin changed event
+ * args:
+ *    spin - widget that generated the event
+ *    data - pointer to user data
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void spin_changed (GtkSpinButton * spin, void *data);
+
+/*
  * combo box chaged event
  * args:
  *    combo - widget that generated the event
