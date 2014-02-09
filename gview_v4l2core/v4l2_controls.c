@@ -30,6 +30,7 @@
 #include <assert.h>
 
 #include "gviewv4l2core.h"
+#include "v4l2_controls.h"
 
 
 #ifndef V4L2_CTRL_ID2CLASS
@@ -438,7 +439,7 @@ int enumerate_v4l2_control(v4l2_dev_t *vd)
 	}
 
     vd->num_controls = n;
-
+	
     if(verbosity > 0)
 		print_control_list(vd);
 
@@ -741,9 +742,9 @@ void get_v4l2_control_values (v4l2_dev_t *vd)
  
     int count = 0;
     int i = 0;
-
+	
     for(; current != NULL; current = current->next)
-    {
+    {	
         if(current->control.flags & V4L2_CTRL_FLAG_WRITE_ONLY)
              continue;
 
@@ -769,7 +770,7 @@ void get_v4l2_control_values (v4l2_dev_t *vd)
             {
                 fprintf(stderr, "V4L2_CORE: (VIDIOC_G_EXT_CTRLS) failed\n");
                 struct v4l2_control ctrl;
-                //get the controls one by one
+                /*get the controls one by one*/
                 if( current->class == V4L2_CTRL_CLASS_USER
 #ifdef V4L2_CTRL_TYPE_STRING
 					&& current->control.type != V4L2_CTRL_TYPE_STRING
@@ -805,7 +806,7 @@ void get_v4l2_control_values (v4l2_dev_t *vd)
                     }
                 }
             }
-
+			
             //fill in the values on the control list
             for(i=0; i<count; i++)
             {

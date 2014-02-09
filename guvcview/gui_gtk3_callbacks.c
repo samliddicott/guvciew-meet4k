@@ -90,6 +90,8 @@ void control_defaults_clicked (GtkWidget *item, void *data)
     v4l2_dev_t *device = (v4l2_dev_t *) data;
 
     set_v4l2_control_defaults(device);
+    
+    gui_gtk3_update_controls_state(device);
 }
 
 /*
@@ -261,6 +263,8 @@ void button_clicked (GtkButton * Button, void *data)
 
     if(set_v4l2_control_id_value(device, id))
 		fprintf(stderr, "GUVCVIEW: error setting button value\n");
+		
+	gui_gtk3_update_controls_state(device);
 }
 
 /*
@@ -383,7 +387,7 @@ void slider_changed (GtkRange * range, void *data)
 
     if(set_v4l2_control_id_value(device, id))
 		fprintf(stderr, "GUVCVIEW: error setting slider value\n");
-
+	
    /*
     if(widget2)
     {
@@ -434,6 +438,7 @@ void spin_changed (GtkSpinButton * spin, void *data)
             G_CALLBACK (slider_changed), data);
     }
 	*/
+	
 }
 
 /*
@@ -459,6 +464,8 @@ void combo_changed (GtkComboBox * combo, void *data)
 
 	if(set_v4l2_control_id_value(device, id))
 		fprintf(stderr, "GUVCVIEW: error setting menu value\n");
+	
+	gui_gtk3_update_controls_state(device);
 }
 
 /*
@@ -518,4 +525,6 @@ void check_changed (GtkToggleButton *toggle, void *data)
         stop_video_stream(device);
         start_video_stream(device);
     }
+    
+    gui_gtk3_update_controls_state(device);
 }

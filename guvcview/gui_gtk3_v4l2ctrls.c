@@ -45,6 +45,51 @@
 extern int debug_level;
 
 /*
+ * NULL terminated list won't work here
+ * since we use realloc memory location will change
+ */
+static control_widgets_t *control_widgets_list = NULL; /*control widgets list*/
+static int widget_list_size = 0; /*list size*/
+
+/*
+ * clean gtk3 control widgets list
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void gui_clean_gtk3_control_widgets_list()
+{
+	if(control_widgets_list)
+		free(control_widgets_list);
+}
+
+/*
+ * get gtk control widgets for control id
+ * args:
+ *   id - v4l2 control id
+ *
+ * asserts:
+ *   none
+ *
+ * returns: pointer to control_widgets_t or null
+ */
+control_widgets_t *gui_gtk3_get_widgets_by_id(int id)
+{
+	int i = 0;
+	for(i = 0; i < widget_list_size; ++i )
+    {
+		if(control_widgets_list[i].id == id)
+			return &control_widgets_list[i];
+	}
+	
+	return NULL;
+}
+
+/*
  * attach v4l2 controls tab widget
  * args:
  *   device - pointer to device data we want to attach the gui for
@@ -74,21 +119,26 @@ int gui_attach_gtk3_v4l2ctrls(v4l2_dev_t *device, GtkWidget *parent)
 	gtk_container_set_border_width (GTK_CONTAINER (img_controls_grid), 2);
 
 	int i = 0;
+	int n = 0;
 	v4l2_ctrl_t *current = device->list_device_controls;
 
-    for(; current != NULL; current = current->next)
+    for(; current != NULL; current = current->next, ++n)
     {
+		widget_list_size = n + 1;
+		
+		control_widgets_list = realloc(control_widgets_list, sizeof(control_widgets_t) * widget_list_size);
 		/*label*/
 		char *tmp;
         tmp = g_strdup_printf ("%s:", gettext((char *) current->control.name));
-        GtkWidget *label = gtk_label_new (tmp);
+        control_widgets_list[n].label = gtk_label_new (tmp);
         free(tmp);
-        gtk_widget_show (label);
-        gtk_misc_set_alignment (GTK_MISC (label), 1, 0.5);
-
-        GtkWidget *widget = NULL;
-        GtkWidget *widget2 = NULL; /*usually a spin button*/
-
+        gtk_widget_show (control_widgets_list[n].label);
+        gtk_misc_set_alignment (GTK_MISC (control_widgets_list[n].label), 1, 0.5);
+				
+		control_widgets_list[n].id = current->control.id;
+        control_widgets_list[n].widget = NULL;
+        control_widgets_list[n].widget2 = NULL; /*usually a spin button*/
+		
 		switch (current->control.type)
 		{
 			case V4L2_CTRL_TYPE_INTEGER:
@@ -99,7 +149,7 @@ int gui_attach_gtk3_v4l2ctrls(v4l2_dev_t *device, GtkWidget *parent)
 					case V4L2_CID_PAN_RELATIVE:
 					case V4L2_CID_TILT_RELATIVE:
 					{
-						widget = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 1);
+						control_widgets_list[n].widget = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 1);
 
 						GtkWidget *PanTilt1 = NULL;
 						GtkWidget *PanTilt2 = NULL;
@@ -116,8 +166,8 @@ int gui_attach_gtk3_v4l2ctrls(v4l2_dev_t *device, GtkWidget *parent)
 
 						gtk_widget_show (PanTilt1);
 						gtk_widget_show (PanTilt2);
-						gtk_box_pack_start(GTK_BOX(widget),PanTilt1,TRUE,TRUE,2);
-						gtk_box_pack_start(GTK_BOX(widget),PanTilt2,TRUE,TRUE,2);
+						gtk_box_pack_start(GTK_BOX(control_widgets_list[n].widget),PanTilt1,TRUE,TRUE,2);
+						gtk_box_pack_start(GTK_BOX(control_widgets_list[n].widget),PanTilt2,TRUE,TRUE,2);
 
 						g_object_set_data (G_OBJECT (PanTilt1), "control_info",
 							GINT_TO_POINTER(current->control.id));
@@ -130,21 +180,21 @@ int gui_attach_gtk3_v4l2ctrls(v4l2_dev_t *device, GtkWidget *parent)
 						g_signal_connect (GTK_BUTTON(PanTilt2), "clicked",
 							G_CALLBACK (button_PanTilt2_clicked), device);
 
-						gtk_widget_show (widget);
+						gtk_widget_show (control_widgets_list[n].widget);
 
-						widget2 = gtk_spin_button_new_with_range(-256, 256, 64);
+						control_widgets_list[n].widget2 = gtk_spin_button_new_with_range(-256, 256, 64);
 
-						gtk_editable_set_editable(GTK_EDITABLE(widget2), TRUE);
+						gtk_editable_set_editable(GTK_EDITABLE(control_widgets_list[n].widget2), TRUE);
 
-						gtk_spin_button_set_value (GTK_SPIN_BUTTON(widget2), 128);
+						gtk_spin_button_set_value (GTK_SPIN_BUTTON(control_widgets_list[n].widget2), 128);
 
 						/*connect signal*/
-						g_object_set_data (G_OBJECT (widget2), "control_info",
+						g_object_set_data (G_OBJECT (control_widgets_list[n].widget2), "control_info",
 							GINT_TO_POINTER(current->control.id));
-						g_signal_connect(GTK_SPIN_BUTTON(widget2),"value-changed",
+						g_signal_connect(GTK_SPIN_BUTTON(control_widgets_list[n].widget2),"value-changed",
 							G_CALLBACK (pan_tilt_step_changed), device);
 
-						gtk_widget_show (widget2);
+						gtk_widget_show (control_widgets_list[n].widget2);
 
 						break;
 					}
@@ -152,14 +202,14 @@ int gui_attach_gtk3_v4l2ctrls(v4l2_dev_t *device, GtkWidget *parent)
 					case V4L2_CID_PAN_RESET:
 					case V4L2_CID_TILT_RESET:
 					{
-						widget = gtk_button_new_with_label(" ");
-						gtk_widget_show (widget);
+						control_widgets_list[n].widget = gtk_button_new_with_label(" ");
+						gtk_widget_show (control_widgets_list[n].widget);
 
-						g_object_set_data (G_OBJECT (widget), "control_info",
+						g_object_set_data (G_OBJECT (control_widgets_list[n].widget), "control_info",
 							GINT_TO_POINTER(current->control.id));
 
 						/*connect signal*/
-						g_signal_connect (GTK_BUTTON(widget), "clicked",
+						g_signal_connect (GTK_BUTTON(control_widgets_list[n].widget), "clicked",
 							G_CALLBACK (button_clicked), device);
 
 						break;
@@ -193,24 +243,24 @@ int gui_attach_gtk3_v4l2ctrls(v4l2_dev_t *device, GtkWidget *parent)
 						int j = 0;
 						int def = 0;
 
-						widget = gtk_combo_box_text_new ();
+						control_widgets_list[n].widget = gtk_combo_box_text_new ();
 						for (j = 0; current->menu[j].index <= current->control.maximum; j++)
 						{
 							gtk_combo_box_text_append_text (
-								GTK_COMBO_BOX_TEXT (widget),
+								GTK_COMBO_BOX_TEXT (control_widgets_list[n].widget),
 								(char *) LEDMenu[j]);
 							if(current->value == current->menu[j].index)
 								def = j;
 						}
 
-						gtk_combo_box_set_active (GTK_COMBO_BOX(widget), def);
-						gtk_widget_show (widget);
+						gtk_combo_box_set_active (GTK_COMBO_BOX(control_widgets_list[n].widget), def);
+						gtk_widget_show (control_widgets_list[n].widget);
 
-						g_object_set_data (G_OBJECT (widget), "control_info",
+						g_object_set_data (G_OBJECT (control_widgets_list[n].widget), "control_info",
                            	GINT_TO_POINTER(current->control.id));
 
 						/*connect signal*/
-						g_signal_connect (GTK_COMBO_BOX_TEXT(widget), "changed",
+						g_signal_connect (GTK_COMBO_BOX_TEXT(control_widgets_list[n].widget), "changed",
 							G_CALLBACK (combo_changed), device);
 
 						break;
@@ -238,25 +288,25 @@ int gui_attach_gtk3_v4l2ctrls(v4l2_dev_t *device, GtkWidget *parent)
 
 						int j = 0;
 						int def = 0;
-						widget = gtk_combo_box_text_new ();
+						control_widgets_list[n].widget = gtk_combo_box_text_new ();
 						for (j = 0; current->menu[j].index <= current->control.maximum; j++)
 						{
 							//if (debug_level > 0)
 							//	printf("GUVCVIEW: adding menu entry %d: %d, %s\n",j, current->menu[j].index, current->menu[j].name);
 							gtk_combo_box_text_append_text (
-								GTK_COMBO_BOX_TEXT (widget),
+								GTK_COMBO_BOX_TEXT (control_widgets_list[n].widget),
 								(char *) BITSMenu[j]);
 							if(current->value == current->menu[j].index)
 								def = j;
 						}
 
-						gtk_combo_box_set_active (GTK_COMBO_BOX(widget), def);
-						gtk_widget_show (widget);
+						gtk_combo_box_set_active (GTK_COMBO_BOX(control_widgets_list[n].widget), def);
+						gtk_widget_show (control_widgets_list[n].widget);
 
-						g_object_set_data (G_OBJECT (widget), "control_info",
+						g_object_set_data (G_OBJECT (control_widgets_list[n].widget), "control_info",
 							GINT_TO_POINTER(current->control.id));
 						/*connect signal*/
-						g_signal_connect (GTK_COMBO_BOX_TEXT(widget), "changed",
+						g_signal_connect (GTK_COMBO_BOX_TEXT(control_widgets_list[n].widget), "changed",
 							G_CALLBACK (combo_changed), device);
 						break;
 					}
@@ -274,28 +324,28 @@ int gui_attach_gtk3_v4l2ctrls(v4l2_dev_t *device, GtkWidget *parent)
 								current->control.step*10,
 								0);
 
-							widget = gtk_scale_new (GTK_ORIENTATION_HORIZONTAL, adjustment);
+							control_widgets_list[n].widget = gtk_scale_new (GTK_ORIENTATION_HORIZONTAL, adjustment);
 
-							gtk_scale_set_draw_value (GTK_SCALE (widget), FALSE);
-							gtk_range_set_round_digits(GTK_RANGE (widget), 0);
+							gtk_scale_set_draw_value (GTK_SCALE (control_widgets_list[n].widget), FALSE);
+							gtk_range_set_round_digits(GTK_RANGE (control_widgets_list[n].widget), 0);
 
-							gtk_widget_show (widget);
+							gtk_widget_show (control_widgets_list[n].widget);
 
-							widget2= gtk_spin_button_new(adjustment, current->control.step, 0);
+							control_widgets_list[n].widget2= gtk_spin_button_new(adjustment, current->control.step, 0);
 
-							gtk_editable_set_editable(GTK_EDITABLE(widget2),TRUE);
+							gtk_editable_set_editable(GTK_EDITABLE(control_widgets_list[n].widget2),TRUE);
 
-							gtk_widget_show (widget2);
+							gtk_widget_show (control_widgets_list[n].widget2);
 
-							g_object_set_data (G_OBJECT (widget), "control_info",
+							g_object_set_data (G_OBJECT (control_widgets_list[n].widget), "control_info",
 								GINT_TO_POINTER(current->control.id));
-							g_object_set_data (G_OBJECT (widget2), "control_info",
+							g_object_set_data (G_OBJECT (control_widgets_list[n].widget2), "control_info",
 								GINT_TO_POINTER(current->control.id));
 
 							/*connect signals*/
-							g_signal_connect (GTK_SCALE(widget), "value-changed",
+							g_signal_connect (GTK_SCALE(control_widgets_list[n].widget), "value-changed",
 								G_CALLBACK (slider_changed), device);
-							g_signal_connect(GTK_SPIN_BUTTON(widget2),"value-changed",
+							g_signal_connect(GTK_SPIN_BUTTON(control_widgets_list[n].widget2),"value-changed",
 								G_CALLBACK (spin_changed), device);
 						}
 						else
@@ -310,20 +360,20 @@ int gui_attach_gtk3_v4l2ctrls(v4l2_dev_t *device, GtkWidget *parent)
 			case V4L2_CTRL_TYPE_INTEGER64:
 
 				widget = gtk_entry_new();
-				gtk_entry_set_max_length(widget, current->control.maximum);
+				gtk_entry_set_max_length(control_widgets_list[n].widget, current->control.maximum);
 
-				widget2= gtk_button_new_from_stock(GTK_STOCK_APPLY);
+				control_widgets_list[n].widget2= gtk_button_new_from_stock(GTK_STOCK_APPLY);
 
-				gtk_widget_show (widget);
-				gtk_widget_show (widget2);
+				gtk_widget_show (control_widgets_list[n].widget);
+				gtk_widget_show (control_widgets_list[n].widget2);
 
-				g_object_set_data (G_OBJECT (widget2), "control_info",
+				g_object_set_data (G_OBJECT (control_widgets_list[n].widget2), "control_info",
 					GINT_TO_POINTER(current->control.id));
-				g_object_set_data (G_OBJECT (widget2), "control_entry",
+				g_object_set_data (G_OBJECT (control_widgets_list[n].widget2), "control_entry",
 					widget);
 
 				/*connect signal*/
-				g_signal_connect (GTK_BUTTON(widget2), "clicked",
+				g_signal_connect (GTK_BUTTON(control_widgets_list[n].widget2), "clicked",
 					G_CALLBACK (int64_button_clicked), device);
 
 				break;
@@ -333,21 +383,21 @@ int gui_attach_gtk3_v4l2ctrls(v4l2_dev_t *device, GtkWidget *parent)
 #ifdef V4L2_CTRL_TYPE_STRING
 			case V4L2_CTRL_TYPE_STRING:
 
-				widget = gtk_entry_new();
-				gtk_entry_set_max_length(widget, current->control.maximum);
+				control_widgets_list[n].widget = gtk_entry_new();
+				gtk_entry_set_max_length(control_widgets_list[n].widget, current->control.maximum);
 
-				widget2= gtk_button_new_from_stock(GTK_STOCK_APPLY);
+				control_widgets_list[n].widget2= gtk_button_new_from_stock(GTK_STOCK_APPLY);
 
-				gtk_widget_show (widget);
-				gtk_widget_show (widget2);
+				gtk_widget_show (control_widgets_list[n].widget);
+				gtk_widget_show (control_widgets_list[n].widget2);
 
-				g_object_set_data (G_OBJECT (widget2), "control_info",
+				g_object_set_data (G_OBJECT (control_widgets_list[n].widget2), "control_info",
 					GINT_TO_POINTER(current->control.id));
-				g_object_set_data (G_OBJECT (widget2), "control_entry",
+				g_object_set_data (G_OBJECT (control_widgets_list[n].widget2), "control_entry",
 					widget);
 
 				/*connect signal*/
-				g_signal_connect (GTK_BUTTON(widget2), "clicked",
+				g_signal_connect (GTK_BUTTON(control_widgets_list[n].widget2), "clicked",
 					G_CALLBACK (string_button_clicked), device);
 
 				break;
@@ -355,19 +405,19 @@ int gui_attach_gtk3_v4l2ctrls(v4l2_dev_t *device, GtkWidget *parent)
 #ifdef V4L2_CTRL_TYPE_BITMASK
 			case V4L2_CTRL_TYPE_BITMASK:
 
-					widget = gtk_entry_new();
+					control_widgets_list[n].widget = gtk_entry_new();
 
-					widget2 = gtk_button_new_from_stock(GTK_STOCK_APPLY);
+					control_widgets_list[n].widget2 = gtk_button_new_from_stock(GTK_STOCK_APPLY);
 
-					gtk_widget_show (widget);
-					gtk_widget_show (widget2);
+					gtk_widget_show (control_widgets_list[n].widget);
+					gtk_widget_show (control_widgets_list[n].widget2);
 
-					g_object_set_data (G_OBJECT (widget2), "control_info",
+					g_object_set_data (G_OBJECT (control_widgets_list[n].widget2), "control_info",
                         GINT_TO_POINTER(current->control.id));
-					g_object_set_data (G_OBJECT (widget2), "control_entry",
+					g_object_set_data (G_OBJECT (control_widgets_list[n].widget2), "control_entry",
 						widget);
 
-                    g_signal_connect (GTK_BUTTON(widget2), "clicked",
+                    g_signal_connect (GTK_BUTTON(control_widgets_list[n].widget2), "clicked",
                         G_CALLBACK (bitmask_button_clicked), device);
 
 				break;
@@ -381,14 +431,14 @@ int gui_attach_gtk3_v4l2ctrls(v4l2_dev_t *device, GtkWidget *parent)
 				{
 					int j = 0;
 					int def = 0;
-					widget = gtk_combo_box_text_new ();
+					control_widgets_list[n].widget = gtk_combo_box_text_new ();
 
 					for (j = 0; current->menu[j].index <= current->control.maximum; j++)
 					{
 						if(current->control.type == V4L2_CTRL_TYPE_MENU)
 						{
 							gtk_combo_box_text_append_text (
-								GTK_COMBO_BOX_TEXT (widget),
+								GTK_COMBO_BOX_TEXT (control_widgets_list[n].widget),
 								(char *) current->menu[j].name);
 						}
 #ifdef V4L2_CTRL_TYPE_INTEGER_MENU
@@ -397,34 +447,34 @@ int gui_attach_gtk3_v4l2ctrls(v4l2_dev_t *device, GtkWidget *parent)
 							char buffer[30]="0";
 							snprintf(buffer, "%" PRIu64 "", 29, current->menu[j].value);
 							gtk_combo_box_text_append_text (
-								GTK_COMBO_BOX_TEXT (widget), buffer);
+								GTK_COMBO_BOX_TEXT (control_widgets_list[n].widget), buffer);
 						}
 #endif
 						if(current->value == current->menu[j].index)
 							def = j;
 					}
 
-					gtk_combo_box_set_active (GTK_COMBO_BOX(widget), def);
-					gtk_widget_show (widget);
+					gtk_combo_box_set_active (GTK_COMBO_BOX(control_widgets_list[n].widget), def);
+					gtk_widget_show (control_widgets_list[n].widget);
 
-					g_object_set_data (G_OBJECT (widget), "control_info",
+					g_object_set_data (G_OBJECT (control_widgets_list[n].widget), "control_info",
 						GINT_TO_POINTER(current->control.id));
 
 					/*connect signal*/
-					g_signal_connect (GTK_COMBO_BOX_TEXT(widget), "changed",
+					g_signal_connect (GTK_COMBO_BOX_TEXT(control_widgets_list[n].widget), "changed",
 						G_CALLBACK (combo_changed), device);
 				}
                 break;
 
 			case V4L2_CTRL_TYPE_BUTTON:
 
-				widget = gtk_button_new_with_label(" ");
-				gtk_widget_show (widget);
+				control_widgets_list[n].widget = gtk_button_new_with_label(" ");
+				gtk_widget_show (control_widgets_list[n].widget);
 
-				g_object_set_data (G_OBJECT (widget), "control_info",
+				g_object_set_data (G_OBJECT (control_widgets_list[n].widget), "control_info",
 					GINT_TO_POINTER(current->control.id));
 
-				g_signal_connect (GTK_BUTTON(widget), "clicked",
+				g_signal_connect (GTK_BUTTON(control_widgets_list[n].widget), "clicked",
 					G_CALLBACK (button_clicked), device);
                 break;
 
@@ -432,39 +482,39 @@ int gui_attach_gtk3_v4l2ctrls(v4l2_dev_t *device, GtkWidget *parent)
 
 				if(current->control.id ==V4L2_CID_DISABLE_PROCESSING_LOGITECH)
 				{
-					widget2 = gtk_combo_box_text_new ();
+					control_widgets_list[n].widget2 = gtk_combo_box_text_new ();
 
-					gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(widget2),
+					gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(control_widgets_list[n].widget2),
 						"GBGB... | RGRG...");
-					gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(widget2),
+					gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(control_widgets_list[n].widget2),
 						"GRGR... | BGBG...");
-					gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(widget2),
+					gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(control_widgets_list[n].widget2),
 						"BGBG... | GRGR...");
-					gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(widget2),
+					gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(control_widgets_list[n].widget2),
 						"RGRG... | GBGB...");
 
 					device->bayer_pix_order = 0;
-					gtk_combo_box_set_active(GTK_COMBO_BOX(widget2), device->bayer_pix_order);
+					gtk_combo_box_set_active(GTK_COMBO_BOX(control_widgets_list[n].widget2), device->bayer_pix_order);
 
-					gtk_widget_show (widget2);
+					gtk_widget_show (control_widgets_list[n].widget2);
 
 					/*connect signal*/
-					g_signal_connect (GTK_COMBO_BOX_TEXT (widget2), "changed",
+					g_signal_connect (GTK_COMBO_BOX_TEXT (control_widgets_list[n].widget2), "changed",
 						G_CALLBACK (bayer_pix_ord_changed), device);
 
 					device->isbayer = (current->value ? TRUE : FALSE);
 				}
 
-				widget = gtk_check_button_new();
-				gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget),
+				control_widgets_list[n].widget = gtk_check_button_new();
+				gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (control_widgets_list[n].widget),
 					current->value ? TRUE : FALSE);
-				gtk_widget_show (widget);
+				gtk_widget_show (control_widgets_list[n].widget);
 
-				g_object_set_data (G_OBJECT (widget), "control_info",
+				g_object_set_data (G_OBJECT (control_widgets_list[n].widget), "control_info",
 					GINT_TO_POINTER(current->control.id));
 
 				/*connect signal*/
-				g_signal_connect (GTK_TOGGLE_BUTTON(widget), "toggled",
+				g_signal_connect (GTK_TOGGLE_BUTTON(control_widgets_list[n].widget), "toggled",
 					G_CALLBACK (check_changed), device);
 
                 break;
@@ -474,20 +524,20 @@ int gui_attach_gtk3_v4l2ctrls(v4l2_dev_t *device, GtkWidget *parent)
 					current->control.id, current->control.name);
 				break;
 		}
-
+		
 		/*attach widgets to grid*/
-		gtk_grid_attach(GTK_GRID(img_controls_grid), label, 0, i, 1 , 1);
+		gtk_grid_attach(GTK_GRID(img_controls_grid), control_widgets_list[n].label, 0, i, 1 , 1);
 
-		if(widget)
+		if(control_widgets_list[n].widget)
 		{
-			gtk_grid_attach(GTK_GRID(img_controls_grid), widget, 1, i, 1 , 1);
-            gtk_widget_set_halign (widget, GTK_ALIGN_FILL);
-			gtk_widget_set_hexpand (widget, TRUE);
+			gtk_grid_attach(GTK_GRID(img_controls_grid), control_widgets_list[n].widget, 1, i, 1 , 1);
+            gtk_widget_set_halign (control_widgets_list[n].widget, GTK_ALIGN_FILL);
+			gtk_widget_set_hexpand (control_widgets_list[n].widget, TRUE);
 		}
 
-		if(widget2)
+		if(control_widgets_list[n].widget2)
 		{
-			gtk_grid_attach(GTK_GRID(img_controls_grid), widget2, 2, i, 1 , 1);
+			gtk_grid_attach(GTK_GRID(img_controls_grid), control_widgets_list[n].widget2, 2, i, 1 , 1);
 		}
 
         i++;
@@ -496,5 +546,159 @@ int gui_attach_gtk3_v4l2ctrls(v4l2_dev_t *device, GtkWidget *parent)
 	/*add control grid to parent container*/
 	gtk_container_add(GTK_CONTAINER(parent), img_controls_grid);
 
+	gui_gtk3_update_controls_state(device);
+	
 	return 0;
+}
+
+/*
+ * update the controls widgets state
+ * args:
+ *   device - pointer to device data
+ *
+ * asserts:
+ *   device is not null
+ *
+ * returns: none
+ */
+void gui_gtk3_update_controls_state(v4l2_dev_t *device)
+{
+	/*asserts*/
+	assert(device != NULL);
+	
+	v4l2_ctrl_t *current = device->list_device_controls;
+	control_widgets_t *cur_widget = NULL;
+	
+    for(; current != NULL; current = current->next)
+    {
+		cur_widget = gui_gtk3_get_widgets_by_id(current->control.id);
+		
+		if(!cur_widget)
+		{
+			fprintf(stderr, "GUVCVIEW: (update widget state): control %x doesn't have a widget set\n", current->control.id);
+			continue;
+		}
+
+		/*update controls values*/
+		switch(current->control.type)
+		{
+#ifdef V4L2_CTRL_TYPE_STRING
+			case V4L2_CTRL_TYPE_STRING:
+			{
+				char *text_input = g_strescape(current->string, "");
+				gtk_entry_set_text (GTK_ENTRY(cur_widget->widget), text_input);
+				g_free(text_input);
+				break;
+			}
+#endif
+			case V4L2_CTRL_TYPE_BOOLEAN:
+				/*disable widget signals*/
+				g_signal_handlers_block_by_func(GTK_TOGGLE_BUTTON(cur_widget->widget),
+					G_CALLBACK (check_changed), device);
+				gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (cur_widget->widget),
+					current->value ? TRUE : FALSE);
+				/*enable widget signals*/
+				g_signal_handlers_unblock_by_func(GTK_TOGGLE_BUTTON(cur_widget->widget),
+					G_CALLBACK (check_changed), device);
+				break;
+				
+#ifdef V4L2_CTRL_TYPE_BITMASK
+			case V4L2_CTRL_TYPE_BITMASK:
+			{
+				char *text_input = g_strdup_printf("0x%x", current->value);
+				gtk_entry_set_text (GTK_ENTRY(cur_widget->widget), text_input);
+				g_free(text_input);
+				break;
+			}
+#endif
+
+#ifdef V4L2_CTRL_TYPE_INTEGER64
+			case V4L2_CTRL_TYPE_INTEGER64:
+			{
+				char *text_input = g_strdup_printf("0x%" PRIx64 "", c->value64);
+				gtk_entry_set_text (GTK_ENTRY(cur_widget->widget), text_input);
+				g_free(text_input);
+				break;
+			}
+#endif
+
+			case V4L2_CTRL_TYPE_INTEGER:
+				if( current->control.id != V4L2_CID_PAN_RELATIVE &&
+				    current->control.id != V4L2_CID_TILT_RELATIVE &&
+				    current->control.id != V4L2_CID_PAN_RESET &&
+				    current->control.id != V4L2_CID_TILT_RESET &&
+				    current->control.id != V4L2_CID_LED1_MODE_LOGITECH &&
+				    current->control.id != V4L2_CID_RAW_BITS_PER_PIXEL_LOGITECH )
+				{
+					/*disable widget signals*/
+					g_signal_handlers_block_by_func(GTK_SCALE (cur_widget->widget),
+						G_CALLBACK (slider_changed), device);
+					gtk_range_set_value (GTK_RANGE (cur_widget->widget), current->value);
+					/*enable widget signals*/
+					g_signal_handlers_unblock_by_func(GTK_SCALE (cur_widget->widget),
+						G_CALLBACK (slider_changed), device);
+					
+					if(cur_widget->widget2)
+					{
+						/*disable widget signals*/
+						g_signal_handlers_block_by_func(GTK_SPIN_BUTTON(cur_widget->widget2),
+							G_CALLBACK (spin_changed), device);
+						gtk_spin_button_set_value (GTK_SPIN_BUTTON(cur_widget->widget2), current->value);
+						/*enable widget signals*/
+						g_signal_handlers_unblock_by_func(GTK_SPIN_BUTTON(cur_widget->widget2),
+							G_CALLBACK (spin_changed), device);
+					}
+				}
+				break;
+				
+#ifdef V4L2_CTRL_TYPE_INTEGER_MENU
+			case V4L2_CTRL_TYPE_INTEGER_MENU:
+#endif
+			case V4L2_CTRL_TYPE_MENU:
+			{
+				/*disable widget signals*/
+				g_signal_handlers_block_by_func(GTK_COMBO_BOX_TEXT(cur_widget->widget),
+					G_CALLBACK (combo_changed), device);
+				/*get new index*/
+				int j = 0;
+				int def = 0;
+				for (j = 0; current->menu[j].index <= current->control.maximum; j++)
+				{
+					if(current->value == current->menu[j].index)
+						def = j;
+				}
+
+				gtk_combo_box_set_active(GTK_COMBO_BOX(cur_widget->widget), def);
+				/*enable widget signals*/
+				g_signal_handlers_unblock_by_func(GTK_COMBO_BOX_TEXT(cur_widget->widget),
+					G_CALLBACK (combo_changed), device);
+				break;
+			}
+			
+			default:
+				break;
+			
+		}
+		
+		/*update flags (enable disable)*/
+		if((current->control.flags & V4L2_CTRL_FLAG_GRABBED) ||
+            (current->control.flags & V4L2_CTRL_FLAG_DISABLED))
+        {
+			if(cur_widget->label)
+                gtk_widget_set_sensitive (cur_widget->label, FALSE);
+            if(cur_widget->widget)
+                gtk_widget_set_sensitive (cur_widget->widget, FALSE);
+            if(cur_widget->widget2)
+                gtk_widget_set_sensitive (cur_widget->widget2, FALSE);
+        }
+        else
+        {
+			if(cur_widget->label)
+                gtk_widget_set_sensitive (cur_widget->label, TRUE);
+            if(cur_widget->widget)
+                gtk_widget_set_sensitive (cur_widget->widget, TRUE);
+            if(cur_widget->widget2)
+                gtk_widget_set_sensitive (cur_widget->widget2, TRUE);
+        }
+	}
 }

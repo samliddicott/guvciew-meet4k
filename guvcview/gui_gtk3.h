@@ -33,6 +33,14 @@
 
 #include "gviewv4l2core.h"
 
+typedef struct _control_widgets_t
+{
+	int id;                         /*control id*/
+	GtkWidget *label;               /*control label widget*/
+	GtkWidget *widget;              /*control widget 1*/
+	GtkWidget *widget2;             /*control widget 2*/
+} control_widgets_t;
+
 /*
  * GUI initialization
  * args:
@@ -99,6 +107,42 @@ int gui_attach_gtk3_menu(v4l2_dev_t *device, GtkWidget *parent);
  * returns: error code (0 -OK)
  */
 int gui_attach_gtk3_v4l2ctrls(v4l2_dev_t *device, GtkWidget *parent);
+
+/*
+ * get gtk control widgets for v4l2 control id
+ * args:
+ *   id - v4l2 control id
+ *
+ * asserts:
+ *   none
+ *
+ * returns: pointer to control_widgets_t or null
+ */
+control_widgets_t *gui_gtk3_get_widgets_by_id(int id);
+
+/*
+ * update the controls widgets state
+ * args:
+ *   device - pointer to device data
+ *
+ * asserts:
+ *   device is not null
+ *
+ * returns: none
+ */
+void gui_gtk3_update_controls_state(v4l2_dev_t *device);
+ 
+/*
+ * clean gtk3 control widgets list
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void gui_clean_gtk3_control_widgets_list();
 
 /*
  * adds a message to the status bar

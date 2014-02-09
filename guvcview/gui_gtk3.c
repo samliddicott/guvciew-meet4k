@@ -234,4 +234,5 @@ int gui_run_gtk3()
 void gui_close_gtk3()
 {
 	gtk_main_quit();
+	gui_clean_gtk3_control_widgets_list();
 }
