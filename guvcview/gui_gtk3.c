@@ -196,6 +196,7 @@ int gui_attach_gtk3(v4l2_dev_t *device, int width, int height)
 
 	gtk_container_add(GTK_CONTAINER(scroll_2), viewport2);
 
+	gui_attach_gtk3_videoctrls(device, viewport2);
 
 	GtkWidget *tab_2 = gtk_grid_new();
 	gtk_widget_show (tab_2);

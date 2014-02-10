@@ -109,6 +109,20 @@ int gui_attach_gtk3_menu(v4l2_dev_t *device, GtkWidget *parent);
 int gui_attach_gtk3_v4l2ctrls(v4l2_dev_t *device, GtkWidget *parent);
 
 /*
+ * attach v4l2 video controls tab widget
+ * args:
+ *   device - pointer to device data we want to attach the gui for
+ *   parent - tab parent widget
+ *
+ * asserts:
+ *   device is not null
+ *   parent is not null
+ *
+ * returns: error code (0 -OK)
+ */
+int gui_attach_gtk3_videoctrls(v4l2_dev_t *device, GtkWidget *parent);
+
+/*
  * get gtk control widgets for v4l2 control id
  * args:
  *   id - v4l2 control id
@@ -131,7 +145,7 @@ control_widgets_t *gui_gtk3_get_widgets_by_id(int id);
  * returns: none
  */
 void gui_gtk3_update_controls_state(v4l2_dev_t *device);
- 
+
 /*
  * clean gtk3 control widgets list
  * args:
