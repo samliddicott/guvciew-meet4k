@@ -138,7 +138,7 @@ int gui_attach_gtk3_videoctrls(v4l2_dev_t *device, GtkWidget *parent)
 	int deffps=0;
 
 	if (debug_level > 0)
-		printf("GUVCVIEW: frame rates of resolution index $d = %d \n",
+		printf("GUVCVIEW: frame rates of resolution index %d = %d \n",
 			resolu_index+1,
 			device->list_stream_formats[format_index].list_stream_cap[resolu_index].numb_frates);
 	for ( i = 0 ; i < device->list_stream_formats[format_index].list_stream_cap[resolu_index].numb_frates ; ++i)
