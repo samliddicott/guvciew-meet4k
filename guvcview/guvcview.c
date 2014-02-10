@@ -108,54 +108,17 @@ int main(int argc, char *argv[])
 	else
 		return -1;
 
-	gui_attach(device, gui, 800, 600);
+	capture_loop_data_t cl_data;
+	cl_data.options = (void *) my_options;
+	cl_data.device = (void *) device;
 
-	int format = fourcc_2_v4l2_pixelformat(my_options->format);
-
-	/*set format*/
-	int format_index = get_frame_format_index(device, format);
-
-	if(format_index < 0)
-		format_index = 0;
-
-	int pixelformat = device->list_stream_formats[format_index].format;
-
-	/*get width and height*/
-	int resolution_index = get_format_resolution_index(device, format_index, my_options->width, my_options->height);
-
-	if(resolution_index < 0)
-		resolution_index = 0;
-
-	int width  = device->list_stream_formats[format_index].list_stream_cap[resolution_index].width;
-	int height = device->list_stream_formats[format_index].list_stream_cap[resolution_index].height;
-
-	int ret = try_video_stream_format(device, width, height, pixelformat);
-	/*try to set the video stream format on the device*/
-	if(ret != E_OK)
-	{
-		fprintf(stderr, "GUCVIEW: could not set the defined stream format\n");
-		fprintf(stderr, "GUCVIEW: trying first listed stream format\n");
-
-		format_index = 0;
-		resolution_index = get_format_resolution_index(device, format_index, my_options->width, my_options->height);
-		if(resolution_index < 0)
-			resolution_index = 0;
-
-		pixelformat = device->list_stream_formats[format_index].format;
-		width  = device->list_stream_formats[format_index].list_stream_cap[resolution_index].width;
-		height = device->list_stream_formats[format_index].list_stream_cap[resolution_index].height;
-
-		ret = try_video_stream_format(device, width, height, pixelformat);
-		if(ret != E_OK)
-			fprintf(stderr, "GUCVIEW: also could not set the first listed stream format\n");
-
-	}
-
-	if(ret == E_OK)
-		ret = __THREAD_CREATE(&capture_thread, capture_loop, (void *) device);
+	int ret = __THREAD_CREATE(&capture_thread, capture_loop, (void *) &cl_data);
 
 	if(ret)
 		fprintf(stderr, "GUVCVIEW: Video thread creation failed\n");
+
+
+	gui_attach(device, gui, 800, 600);
 
 	/*run the gui loop*/
 	gui_run();

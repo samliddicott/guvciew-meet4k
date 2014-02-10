@@ -12,6 +12,7 @@ guvcview_SOURCES = guvcview.c \
 				   gui_gtk3.c \
 				   gui_gtk3_menu.c \
 				   gui_gtk3_v4l2ctrls.c \
+				   gui_gtk3_videoctrls.c \
 				   gui_gtk3_callbacks.c
 
 guvcview_CFLAGS = $(GUVCVIEW_CFLAGS) \

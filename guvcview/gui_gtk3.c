@@ -134,13 +134,19 @@ int gui_attach_gtk3(v4l2_dev_t *device, int width, int height)
 	/* Add delete event handler */
 	g_signal_connect(GTK_WINDOW(main_window), "delete_event", G_CALLBACK(delete_event), NULL);
 
-	/*----------------------- Main table --------------------------------------*/
+	/*---------------------------- Main table ---------------------------------*/
 	GtkWidget *maintable = gtk_box_new(GTK_ORIENTATION_VERTICAL, 2);
 	gtk_widget_show (maintable);
 
-	/*tab box container*/
+	/*----------------------------- Top Menu ----------------------------------*/
+
+	gui_attach_gtk3_menu(device, maintable);
+
+	/*--------------------------- Tab container -------------------------------*/
 	GtkWidget *tab_box = gtk_notebook_new();
 	gtk_widget_show (tab_box);
+
+	/*------------------------ Image controls Tab -----------------------------*/
 
 	GtkWidget *scroll_1 = gtk_scrolled_window_new(NULL,NULL);
 	gtk_scrolled_window_set_placement(GTK_SCROLLED_WINDOW(scroll_1), GTK_CORNER_TOP_LEFT);
@@ -154,12 +160,6 @@ int gui_attach_gtk3(v4l2_dev_t *device, int width, int height)
 	gtk_widget_show(viewport);
 
 	gtk_container_add(GTK_CONTAINER(scroll_1), viewport);
-
-	/*----------------------- Top Menu ----------------------------------------*/
-
-	gui_attach_gtk3_menu(device, maintable);
-
-	/*----------------------- Image controls Tab ------------------------------*/
 
 	gui_attach_gtk3_v4l2ctrls(device, viewport);
 
@@ -181,9 +181,44 @@ int gui_attach_gtk3(v4l2_dev_t *device, int width, int height)
 
 	gtk_notebook_append_page(GTK_NOTEBOOK(tab_box), scroll_1, tab_1);
 
+	/*----------------------- Video controls Tab ------------------------------*/
+
+	GtkWidget *scroll_2 = gtk_scrolled_window_new(NULL,NULL);
+	gtk_scrolled_window_set_placement(GTK_SCROLLED_WINDOW(scroll_2), GTK_CORNER_TOP_LEFT);
+	gtk_widget_show(scroll_2);
+
+	/*
+	 * viewport is only needed for gtk < 3.8
+	 * for 3.8 and above controls tab can be directly added to scroll1
+	 */
+	GtkWidget* viewport2 = gtk_viewport_new(NULL,NULL);
+	gtk_widget_show(viewport2);
+
+	gtk_container_add(GTK_CONTAINER(scroll_2), viewport2);
 
 
-	/** Attach the notebook (tabs) */
+	GtkWidget *tab_2 = gtk_grid_new();
+	gtk_widget_show (tab_2);
+
+    GtkWidget *tab_2_label = gtk_label_new(_("Video Controls"));
+	gtk_widget_show (tab_2_label);
+	/** check for files */
+	gchar *tab_2_icon_path = g_strconcat (PACKAGE_DATA_DIR,"/pixmaps/guvcview/video_controls.png",NULL);
+	/** don't test for file - use default empty image if load fails */
+	/** get icon image*/
+	GtkWidget *tab_2_icon = gtk_image_new_from_file(tab_2_icon_path);
+	gtk_widget_show (tab_2_icon);
+
+	g_free(tab_2_icon_path);
+	gtk_grid_attach (GTK_GRID(tab_2), tab_2_icon, 0, 0, 1, 1);
+	gtk_grid_attach (GTK_GRID(tab_2), tab_2_label, 1, 0, 1, 1);
+
+	gtk_notebook_append_page(GTK_NOTEBOOK(tab_box), scroll_2, tab_2);
+
+
+
+
+	/* Attach the notebook (tabs) */
 	gtk_box_pack_start(GTK_BOX(maintable), tab_box, TRUE, TRUE, 2);
 
 	/*-------------------------- Status bar ------------------------------------*/

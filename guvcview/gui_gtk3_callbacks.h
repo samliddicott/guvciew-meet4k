@@ -243,4 +243,56 @@ void bayer_pix_ord_changed (GtkComboBox * combo, void *data);
  */
 void check_changed (GtkToggleButton *toggle, void *data);
 
+/*
+ * device list box changed event
+ * args:
+ *    wgtDevices - widget that generated the event
+ *    data - pointer to user data
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void devices_changed (GtkComboBox *wgtDevices, void *data);
+
+/*
+ * frame rate list box changed event
+ * args:
+ *    wgtFrameRate - widget that generated the event
+ *    data - pointer to user data
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void frame_rate_changed (GtkComboBox *wgtFrameRate, void *data);
+
+/*
+ * resolution list box changed event
+ * args:
+ *    wgtResolution - widget that generated the event
+ *    data - pointer to user data
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void resolution_changed (GtkComboBox *wgtResolution, void *data);
+
+/*
+ * device pixel format list box changed event
+ * args:
+ *    wgtInpType - widget that generated the event
+ *    data - pointer to user data
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void format_changed(GtkComboBox *wgtInpType, void *data);
+
 #endif

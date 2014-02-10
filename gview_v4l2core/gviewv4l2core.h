@@ -85,6 +85,13 @@
 #define E_UNKNOWN_ERR    		  (-40)
 
 /*
+ * stream status codes
+ */
+#define STRM_STOP        (0)
+#define STRM_REQ_STOP    (1)
+#define STRM_OK          (2)
+
+/*
  * buffer number (for driver mmap ops)
  */
 #define NB_BUFFER 8
@@ -227,7 +234,7 @@ typedef struct _v4l2_dev_t
 	int fps_num;                        //fps numerator
 	int fps_denom;                      //fps denominator
 
-	uint8_t streaming;                  // flag if device is streaming (1) or not (0)
+	uint8_t streaming;                  // flag device stream : STRM_STOP ; STRM_REQ_STOP; STRM_OK
 	uint64_t frame_index;               // captured frame index from 0 to max(uint64_t)
 	uint64_t timestamp;                 // captured frame timestamp
 	void *mem[NB_BUFFER];               // memory buffers for mmap driver frames
@@ -427,6 +434,18 @@ void close_v4l2_dev(v4l2_dev_t *vd);
 //int reset_v4l2_dev(v4l2_dev_t *vd, int format, int width, int height);
 
 /*
+ * request a fps update
+ * args:
+ *    vd - pointer to video device data
+ *
+ * asserts:
+ *    vd is not null
+ *
+ * returns: none
+ */
+void request_v4l2_framerate_update(v4l2_dev_t *vd);
+
+/*
  * sets video device frame rate
  * args:
  *   vd: pointer to video device data
@@ -463,6 +482,18 @@ int get_v4l2_framerate (v4l2_dev_t *vd);
  * returns: VIDIOC_STREAMON ioctl result (0- E_OK)
  */
 int start_video_stream(v4l2_dev_t *vd);
+
+/*
+ * request video stream to stop
+ * args:
+ *   vd - pointer to video device data
+ *
+ * asserts:
+ *   vd is not null
+ *
+ * returns: none
+*/
+int request_stop_video_stream(v4l2_dev_t *vd);
 
 /*
  * Stops the video stream

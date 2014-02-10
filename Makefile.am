@@ -3,12 +3,14 @@
 SUBDIRS = gview_v4l2core \
 		  gview_render \
           guvcview \
+          data \
           po
 
 #Distribute these directories:
 DIST_SUBDIRS =  gview_v4l2core \
 				gview_render \
 				guvcview \
+				data \
 				po
 
 pkgconfigdir = $(libdir)/pkgconfig
@@ -16,22 +18,6 @@ pkgconfig_DATA = pkgconfig/gviewv4l2core-0.1.pc \
 				 pkgconfig/gviewrender-0.1.pc
 
 ACLOCAL_AMFLAGS = -I m4
-
-#pixmapsdir = ${datadir}/pixmaps/gvideo
-
-#pixmaps_DATA = \
-#		pixmaps/gvideo.png\
-#		pixmaps/camera.png\
-#		pixmaps/movie.png\
-#		pixmaps/save.png\
-#		pixmaps/image_controls.png\
-#		pixmaps/video_controls.png\
-#		pixmaps/audio_controls.png\
-#		pixmaps/images_folder.png\
-#		pixmaps/videos_folder.png\
-#		pixmaps/controls_folder.png\
-#		pixmaps/close.png
-
 
 EXTRA_DIST = bootstrap.sh
 
@@ -54,13 +40,6 @@ update-gmo: check-gettext
 force-update-gmo: check-gettext
 	touch po/*.po
 	cd po && $(MAKE) $(AM_MAKEFLAGS) update-gmo
-
-#$(gvideoman_DATA):
-#	cd pixmaps && $(MAKE) $(AM_MAKEFLAGS) .manpage
-
-#$(pixmaps_DATA):
-#	cd pixmaps && $(MAKE) $(AM_MAKEFLAGS) .png
-
 
 # Copy all the spec files. Of cource, only one is actually used.
 dist-hook:

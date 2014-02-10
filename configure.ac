@@ -183,6 +183,32 @@ AC_SUBST(GUVCVIEW_CFLAGS)
 AC_SUBST(GUVCVIEW_LIBS)
 
 dnl --------------------------------------------------------------------------
+dnl set/unset debian menu
+dnl --------------------------------------------------------------------------
+AC_MSG_CHECKING(if you want to enable debian menu)
+AC_ARG_ENABLE(debian-menu, AS_HELP_STRING([--disable-debian-menu],
+		[disable debian menu (default: enabled)]),
+	[enable_debian_menu=no],
+	[enable_debian_menu=yes])
+
+AC_MSG_RESULT($enable_debian_menu)
+
+AM_CONDITIONAL(DEBIAN_MENU, test "$enable_debian_menu" = yes)
+
+dnl --------------------------------------------------------------------------
+dnl set/unset desktop file
+dnl --------------------------------------------------------------------------
+AC_MSG_CHECKING(if you want to enable desktop file)
+AC_ARG_ENABLE(desktop, AS_HELP_STRING([--disable-desktop],
+		[disable desktop file (default: enabled)]),
+	[enable_desktop=no],
+	[enable_desktop=yes])
+
+AC_MSG_RESULT($enable_desktop)
+
+AM_CONDITIONAL(DESKTOP, test "$enable_desktop" = yes)
+
+dnl --------------------------------------------------------------------------
 dnl Check if the processor stores words with the most significant byte first
 dnl (like Motorola and SPARC, unlike Intel and VAX).
 dnl --------------------------------------------------------------------------
@@ -200,6 +226,10 @@ AC_CONFIG_FILES([
     gview_v4l2core/Makefile
     gview_render/Makefile
     guvcview/Makefile
+    data/Makefile
+    data/icons/Makefile
+    data/guvcview.desktop.in
+    data/guvcview.in
     po/Makefile.in
 ])
 AC_OUTPUT

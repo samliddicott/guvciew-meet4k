@@ -59,7 +59,9 @@ int verbosity = 0;
 
 static double real_fps = 0.0;
 static uint64_t fps_ref_ts = 0;
-static uint fps_frame_count = 0;
+static uint32_t fps_frame_count = 0;
+
+static uint8_t flag_fps_change = 0; /*set to 1 to request a fps change*/
 /*
  * ioctl with a number of retries in the case of I/O failure
  * args:
@@ -381,15 +383,23 @@ static int check_frame_available(v4l2_dev_t *vd)
 	int ret = E_OK;
 	fd_set rdset;
 	struct timeval timeout;
-	/*make sure streaming is on*/
-	if(!vd->streaming)
+
+	if(flag_fps_change > 0)
 	{
+		set_v4l2_framerate(vd);
+		flag_fps_change = 0;
+	}
+
+	/*make sure streaming is on*/
+	if(vd->streaming != STRM_OK)
+	{
+		if(vd->streaming == STRM_REQ_STOP)
+		{
+			stop_video_stream(vd);
+		}
+
 		fprintf(stderr, "V4L2_CORE: (get_v4l2_frame) video stream must be started first\n");
 		return E_NO_STREAM_ERR;
-		//if (start_video_stream(vd))
-		//{
-			//return E_STREAMON_ERR;
-		//}
 	}
 
 	FD_ZERO(&rdset);
@@ -433,6 +443,12 @@ int start_video_stream(v4l2_dev_t *vd)
 	/*assertions*/
 	assert(vd != NULL);
 
+	if(vd->streaming == STRM_OK)
+	{
+		fprintf(stderr, "V4L2_CORE: (VIDIOC_STREAMON) stream_status = STRM_OK\n");
+		return;
+	}
+
 	int type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 	int ret=E_OK;
 	switch(vd->cap_meth)
@@ -452,12 +468,27 @@ int start_video_stream(v4l2_dev_t *vd)
 			break;
 	}
 
-	vd->streaming = 1;
-
-	/*wait for a frame to be available*/
-	check_frame_available(vd);
+	vd->streaming = STRM_OK;
 
 	return ret;
+}
+
+/*
+ * request video stream to stop
+ * args:
+ *   vd - pointer to video device data
+ *
+ * asserts:
+ *   vd is not null
+ *
+ * returns: none
+*/
+int request_stop_video_stream(v4l2_dev_t *vd)
+{
+	/*assertions*/
+	assert(vd != NULL);
+
+	vd->streaming = STRM_REQ_STOP;
 }
 
 /*
@@ -496,7 +527,7 @@ int stop_video_stream(v4l2_dev_t *vd)
 			break;
 	}
 
-	vd->streaming = 0;
+	vd->streaming = STRM_STOP;
 	return ret;
 }
 
@@ -534,7 +565,7 @@ int get_v4l2_frame(v4l2_dev_t *vd)
 
 			/*lock the mutex*/
 			__LOCK_MUTEX( __PMUTEX );
-			if(vd->streaming)
+			if(vd->streaming == STRM_OK)
 			{
 				vd->buf.bytesused = v4l2_read (vd->fd, vd->mem[vd->buf.index], vd->buf.length);
 				vd->timestamp = ns_time_monotonic();
@@ -601,7 +632,7 @@ int get_v4l2_frame(v4l2_dev_t *vd)
 			/*lock the mutex*/
 			__LOCK_MUTEX( __PMUTEX );
 
-			if(vd->streaming)
+			if(vd->streaming == STRM_OK)
 			{
 				memset(&vd->buf, 0, sizeof(struct v4l2_buffer));
 
@@ -609,6 +640,18 @@ int get_v4l2_frame(v4l2_dev_t *vd)
 				vd->buf.memory = V4L2_MEMORY_MMAP;
 
 				ret = xioctl(vd->fd, VIDIOC_DQBUF, &vd->buf);
+
+				if(!ret)
+				{
+					ts = (uint64_t) vd->buf.timestamp.tv_sec * NSEC_PER_SEC +
+					vd->buf.timestamp.tv_usec * 1000; //in nanosec
+					/* use buffer timestamp if set by the driver, otherwise use current system time */
+					if(ts > 0) vd->timestamp = ts;
+					else vd->timestamp = ns_time_monotonic();
+
+					/* queue the buffers */
+					ret = xioctl(vd->fd, VIDIOC_QBUF, &vd->buf);
+				}
 			}
 			else res = -1;
 
@@ -620,34 +663,8 @@ int get_v4l2_frame(v4l2_dev_t *vd)
 
 			if (ret < 0)
 			{
-				fprintf(stderr, "V4L2_CORE: (VIDIOC_DQBUF) Unable to dequeue buffer: %s\n", strerror(errno));
+				fprintf(stderr, "V4L2_CORE: (VIDIOC_DQBUF) Unable to dequeue/queue buffer: %s\n", strerror(errno));
 				return E_DQBUF_ERR;
-			}
-
-			ts = (uint64_t) vd->buf.timestamp.tv_sec * NSEC_PER_SEC +
-			    vd->buf.timestamp.tv_usec * 1000; //in nanosec
-				/* use buffer timestamp if set by the driver, otherwise use current system time */
-			if(ts > 0) vd->timestamp = ts;
-			else vd->timestamp = ns_time_monotonic();
-
-			/*lock the mutex*/
-			__LOCK_MUTEX( __PMUTEX );
-
-			/* queue the buffers */
-			if(vd->streaming)
-				ret = xioctl(vd->fd, VIDIOC_QBUF, &vd->buf);
-			else res = -1;
-
-			/*unlock the mutex*/
-			__UNLOCK_MUTEX( __PMUTEX );
-
-			if(res < 0)
-				return E_NO_STREAM_ERR;
-
-			if (ret < 0)
-			{
-				fprintf(stderr, "V4L2_CORE: (VIDIOC_QBUF) Unable to queue buffer: %s\n", strerror(errno));
-				return E_QBUF_ERR;
 			}
 	}
 
@@ -669,25 +686,9 @@ int get_v4l2_frame(v4l2_dev_t *vd)
 	}
 
 
-	/*lock the mutex*/
-	__LOCK_MUTEX( __PMUTEX );
-
-	if(vd->streaming)
-	{
-		vd->raw_frame_size = vd->buf.bytesused;
-		vd->raw_frame = vd->mem[vd->buf.index]; /*point raw_frame to current frame buffer*/
-		//memcpy(vd->raw_frame, vd->mem[vd->buf.index], vd->buf.bytesused);
-	}
-	else res = -1;
-
-	/*unlock the mutex*/
-	__UNLOCK_MUTEX( __PMUTEX );
-
-	if(res < 0)
-		return E_NO_STREAM_ERR;
-
-	if(ret < 0)
-		return E_NO_DATA;
+	vd->raw_frame_size = vd->buf.bytesused;
+	vd->raw_frame = vd->mem[vd->buf.index]; /*point raw_frame to current frame buffer*/
+	//memcpy(vd->raw_frame, vd->mem[vd->buf.index], vd->buf.bytesused);
 
 	return E_OK;
 }
@@ -715,9 +716,9 @@ int try_video_stream_format(v4l2_dev_t *vd, int width, int height, int pixelform
 
 	vd->requested_fmt = pixelformat;
 
-	uint8_t is_streaming = vd->streaming;
+	uint8_t stream_status = vd->streaming;
 
-	if(is_streaming)
+	if(stream_status == STRM_OK)
 		stop_video_stream(vd);
 
 	if(vd->requested_fmt == V4L2_PIX_FMT_H264 && h264_get_support() == H264_MUXED)
@@ -854,7 +855,7 @@ int try_video_stream_format(v4l2_dev_t *vd, int width, int height, int pixelform
 	/* set FPS (must be done after queue_buff)*/
 	set_v4l2_framerate(vd);
 
-	if(is_streaming)
+	if(stream_status == STRM_OK)
 		start_video_stream(vd);
 
 	return E_OK;
@@ -1008,7 +1009,7 @@ void close_v4l2_dev(v4l2_dev_t *vd)
 	/*assertions*/
 	assert(vd != NULL);
 
-	if(vd->streaming)
+	if(vd->streaming == STRM_OK)
 		stop_video_stream(vd);
 
 	// unmap queue buffers
@@ -1041,9 +1042,24 @@ void close_v4l2_dev(v4l2_dev_t *vd)
 }
 
 /*
+ * request a fps update
+ * args:
+ *    vd - pointer to video device data
+ *
+ * asserts:
+ *    vd is not null
+ *
+ * returns: none
+ */
+void request_v4l2_framerate_update(v4l2_dev_t *vd)
+{
+	flag_fps_change = 1;
+}
+
+/*
  * sets video device frame rate
  * args:
- *   vd: pointer to video device data
+ *   vd- pointer to video device data
  *
  * asserts:
  *   vd is not null
@@ -1059,10 +1075,10 @@ int set_v4l2_framerate (v4l2_dev_t *vd)
 	int ret = 0;
 
 	/*store streaming flag*/
-	uint8_t is_streaming = vd->streaming;
+	uint8_t stream_status = vd->streaming;
 
 	/*try to stop the video stream*/
-	if(is_streaming)
+	if(stream_status == STRM_OK)
 		stop_video_stream(vd);
 
 	/*get the current stream parameters*/
@@ -1114,7 +1130,7 @@ int set_v4l2_framerate (v4l2_dev_t *vd)
 		fprintf(stderr, "V4L2_CORE: Unable to set %d/%d fps\n", vd->fps_num, vd->fps_denom);
 	}
 
-	if(is_streaming)
+	if(stream_status == STRM_OK)
 		start_video_stream(vd);
 
 	return ret;

@@ -36,6 +36,8 @@
 
 #include "gviewv4l2core.h"
 #include "gviewrender.h"
+#include "video_capture.h"
+#include "options.h"
 #include "core_io.h"
 #include "gui.h"
 
@@ -46,7 +48,87 @@ static int render = RENDER_NONE; /*render API*/
 static int quit = 0; /*terminate flag*/
 static int save_image = 0; /*save image flag*/
 
+
+static int restart = 0; /*restart flag*/
+static int width = 0;
+static int height = 0;
+static int pixelformat = 0;
+
+
 static char render_caption[20]; /*render window caption*/
+
+/*
+ * update the current format (pixelformat, width and height)
+ * args:
+ *    device - pointer to device data
+ *
+ * asserts:
+ *    device is not null
+ *
+ * returns:
+ *    error code
+ */
+static int update_current_format(v4l2_dev_t *device)
+{
+	/*asserts*/
+	assert(device != NULL);
+
+	return(try_video_stream_format(device, width, height, pixelformat));
+}
+
+/*
+ * prepare new format
+ * args:
+ *   device - pointer to device data
+ *   new_format - new format
+ *
+ * asserts:
+ *    device is not null
+ *
+ * returns: none
+ */
+void prepare_new_format(v4l2_dev_t *device, int new_format)
+{
+	/*asserts*/
+	assert(device != NULL);
+
+	int format_index = get_frame_format_index(device, new_format);
+
+	if(format_index < 0)
+		format_index = 0;
+
+	pixelformat = device->list_stream_formats[format_index].format;
+}
+
+/*
+ * prepare new resolution
+ * args:
+ *   device - pointer to device data
+ *   new_width - new width
+ *   new_height - new height
+ *
+ * asserts:
+ *    device is not null
+ *
+ * returns: none
+ */
+void prepare_new_resolution(v4l2_dev_t *device, int new_width, int new_height)
+{
+	/*asserts*/
+	assert(device != NULL);
+
+	int format_index = get_frame_format_index(device, pixelformat);
+
+	/*update to a valid width and height*/
+	int resolution_index = get_format_resolution_index(device, format_index, new_width, new_height);
+
+	if(resolution_index < 0)
+		resolution_index = 0;
+
+	width  = device->list_stream_formats[format_index].list_stream_cap[resolution_index].width;
+	height = device->list_stream_formats[format_index].list_stream_cap[resolution_index].height;
+}
+
 /*
  * set render flag
  * args:
@@ -60,6 +142,21 @@ static char render_caption[20]; /*render window caption*/
 void set_render_flag(int value)
 {
 	render = value;
+}
+
+/*
+ * request format update
+ * args:
+ *    none
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void request_format_update()
+{
+	restart = 1;
 }
 
 /*
@@ -101,7 +198,7 @@ void video_capture_save_image()
 /*
  * capture loop (should run in a separate thread)
  * args:
- *    data - pointer to user data (device data)
+ *    data - pointer to user data (device data + options data)
  *
  * asserts:
  *    device data is not null
@@ -110,17 +207,47 @@ void video_capture_save_image()
  */
 void *capture_loop(void *data)
 {
-	v4l2_dev_t *device = (v4l2_dev_t *) data;
+	capture_loop_data_t *cl_data = (capture_loop_data_t *) data;
+	v4l2_dev_t *device = (v4l2_dev_t *) cl_data->device;
+	options_t *my_options = (options_t *) cl_data->options;
+
 	/*asserts*/
 	assert(device != NULL);
 
 	/*reset quit flag*/
 	quit = 0;
 
+	int format = fourcc_2_v4l2_pixelformat(my_options->format);
+
+	/*prepare format*/
+	prepare_new_format(device, format);
+
+	/*prepare resolution*/
+	prepare_new_resolution(device, my_options->width, my_options->height);
+
+	int ret = update_current_format(device);
+	/*try to set the video stream format on the device*/
+	if(ret != E_OK)
+	{
+		fprintf(stderr, "GUCVIEW: could not set the defined stream format\n");
+		fprintf(stderr, "GUCVIEW: trying first listed stream format\n");
+
+		pixelformat = device->list_stream_formats[0].format;
+
+		prepare_new_resolution(device, my_options->width, my_options->height);
+
+		ret = update_current_format(device);
+		if(ret != E_OK)
+		{
+			fprintf(stderr, "GUCVIEW: also could not set the first listed stream format\n");
+			return ((void *) -1);
+		}
+	}
+
 	/*yuyv frame has 2 bytes per pixel*/
 	int yuv_frame_size = device->format.fmt.pix.width * device->format.fmt.pix.height << 1;
 
-	if(render)
+	if(render != RENDER_NONE)
 	{
 		set_render_verbosity(debug_level);
 		if(render_init(RENDER_SDL1, device->format.fmt.pix.width, device->format.fmt.pix.height) < 0)
@@ -135,6 +262,48 @@ void *capture_loop(void *data)
 
 	while(!quit)
 	{
+		if(restart)
+		{
+			stop_video_stream(device);
+
+			/*close render*/
+			if(render)
+				render_clean();
+
+			/*try new format (values set by a callback)*/
+			ret = update_current_format(device);
+			/*try to set the video stream format on the device*/
+			if(ret != E_OK)
+			{
+				fprintf(stderr, "GUCVIEW: could not set the defined stream format\n");
+				fprintf(stderr, "GUCVIEW: trying first listed stream format\n");
+
+				pixelformat = device->list_stream_formats[0].format;
+
+				prepare_new_resolution(device, my_options->width, my_options->height);
+
+				ret = update_current_format(device);
+				if(ret != E_OK)
+				{
+					fprintf(stderr, "GUCVIEW: also could not set the first listed stream format\n");
+					return ((void *) -1);
+				}
+			}
+
+			/*restart the render with new format*/
+			if(render != RENDER_NONE)
+			{
+				if(render_init(RENDER_SDL1, device->format.fmt.pix.width, device->format.fmt.pix.height) < 0)
+					render = RENDER_NONE;
+				else
+				{
+					render_set_event_callback(EV_QUIT, &quit_callback, NULL);
+				}
+			}
+
+			start_video_stream(device);
+		}
+
 		if( get_v4l2_frame(device) == E_OK)
 		{
 			/*decode the raw frame*/
@@ -146,7 +315,7 @@ void *capture_loop(void *data)
 			}
 
 			/*render the decoded frame*/
-			if(render)
+			if(render != RENDER_NONE)
 			{
 				snprintf(render_caption, 20, "SDL Video - %2.2f", get_v4l2_realfps());
 				set_render_caption(render_caption);
@@ -168,7 +337,7 @@ void *capture_loop(void *data)
 
 	stop_video_stream(device);
 
-	if(render)
+	if(render != RENDER_NONE)
 		render_clean();
 
 	return ((void *) 0);
