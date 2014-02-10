@@ -118,7 +118,9 @@ void prepare_new_resolution(v4l2_dev_t *device, int new_width, int new_height)
 	assert(device != NULL);
 
 	int format_index = get_frame_format_index(device, pixelformat);
-
+	
+	
+	printf("GUVCIEW: restarting with format index %i for format %x\n", format_index, pixelformat);
 	/*update to a valid width and height*/
 	int resolution_index = get_format_resolution_index(device, format_index, new_width, new_height);
 

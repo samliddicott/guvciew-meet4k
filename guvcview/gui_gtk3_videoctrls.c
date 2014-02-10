@@ -66,7 +66,7 @@ int gui_attach_gtk3_videoctrls(v4l2_dev_t *device, GtkWidget *parent)
 
 	int resolu_index = get_format_resolution_index(
 		device,
-		device->list_stream_formats[format_index].format,
+		format_index,
 		device->format.fmt.pix.width,
 		device->format.fmt.pix.height);
 
@@ -230,7 +230,7 @@ int gui_attach_gtk3_videoctrls(v4l2_dev_t *device, GtkWidget *parent)
 
 	gtk_grid_attach (GTK_GRID(video_controls_grid), wgtResolution, 1, line, 1 ,1);
 
-	g_object_set_data (G_OBJECT (wgtFrameRate), "control_fps", wgtResolution);
+	g_object_set_data (G_OBJECT (wgtResolution), "control_fps", wgtFrameRate);
 
 	g_signal_connect (wgtResolution, "changed",
 		G_CALLBACK (resolution_changed), device);
