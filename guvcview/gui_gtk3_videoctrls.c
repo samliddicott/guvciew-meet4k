@@ -263,8 +263,8 @@ int gui_attach_gtk3_videoctrls(v4l2_dev_t *device, GtkWidget *parent)
 
 	gtk_grid_attach (GTK_GRID(video_controls_grid), wgtInpType, 1, line, 1 ,1);
 
-	g_object_set_data (G_OBJECT (wgtFrameRate), "control_fps", wgtInpType);
-	g_object_set_data (G_OBJECT (wgtResolution), "control_resolution", wgtInpType);
+	//g_object_set_data (G_OBJECT (wgtInpType), "control_fps", wgtFrameRate);
+	g_object_set_data (G_OBJECT (wgtInpType), "control_resolution", wgtResolution);
 
 	g_signal_connect (GTK_COMBO_BOX_TEXT(wgtInpType), "changed",
 		G_CALLBACK (format_changed), device);
