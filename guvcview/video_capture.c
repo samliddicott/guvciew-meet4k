@@ -50,86 +50,8 @@ static int save_image = 0; /*save image flag*/
 
 
 static int restart = 0; /*restart flag*/
-static int width = 0;
-static int height = 0;
-static int pixelformat = 0;
-
 
 static char render_caption[20]; /*render window caption*/
-
-/*
- * update the current format (pixelformat, width and height)
- * args:
- *    device - pointer to device data
- *
- * asserts:
- *    device is not null
- *
- * returns:
- *    error code
- */
-static int update_current_format(v4l2_dev_t *device)
-{
-	/*asserts*/
-	assert(device != NULL);
-
-	return(try_video_stream_format(device, width, height, pixelformat));
-}
-
-/*
- * prepare new format
- * args:
- *   device - pointer to device data
- *   new_format - new format
- *
- * asserts:
- *    device is not null
- *
- * returns: none
- */
-void prepare_new_format(v4l2_dev_t *device, int new_format)
-{
-	/*asserts*/
-	assert(device != NULL);
-
-	int format_index = get_frame_format_index(device, new_format);
-
-	if(format_index < 0)
-		format_index = 0;
-
-	pixelformat = device->list_stream_formats[format_index].format;
-}
-
-/*
- * prepare new resolution
- * args:
- *   device - pointer to device data
- *   new_width - new width
- *   new_height - new height
- *
- * asserts:
- *    device is not null
- *
- * returns: none
- */
-void prepare_new_resolution(v4l2_dev_t *device, int new_width, int new_height)
-{
-	/*asserts*/
-	assert(device != NULL);
-
-	int format_index = get_frame_format_index(device, pixelformat);
-	
-	
-	printf("GUVCIEW: restarting with format index %i for format %x\n", format_index, pixelformat);
-	/*update to a valid width and height*/
-	int resolution_index = get_format_resolution_index(device, format_index, new_width, new_height);
-
-	if(resolution_index < 0)
-		resolution_index = 0;
-
-	width  = device->list_stream_formats[format_index].list_stream_cap[resolution_index].width;
-	height = device->list_stream_formats[format_index].list_stream_cap[resolution_index].height;
-}
 
 /*
  * set render flag
@@ -223,22 +145,20 @@ void *capture_loop(void *data)
 
 	/*prepare format*/
 	prepare_new_format(device, format);
-
 	/*prepare resolution*/
 	prepare_new_resolution(device, my_options->width, my_options->height);
-
-	int ret = update_current_format(device);
 	/*try to set the video stream format on the device*/
+	int ret = update_current_format(device);
+
 	if(ret != E_OK)
 	{
 		fprintf(stderr, "GUCVIEW: could not set the defined stream format\n");
 		fprintf(stderr, "GUCVIEW: trying first listed stream format\n");
 
-		pixelformat = device->list_stream_formats[0].format;
-
-		prepare_new_resolution(device, my_options->width, my_options->height);
-
+		prepare_valid_format(device);
+		prepare_valid_resolution(device);
 		ret = update_current_format(device);
+
 		if(ret != E_OK)
 		{
 			fprintf(stderr, "GUCVIEW: also could not set the first listed stream format\n");
@@ -272,10 +192,10 @@ void *capture_loop(void *data)
 			/*close render*/
 			if(render)
 				render_clean();
-			
+
 			clean_v4l2_buffers(device);
 
-			/*try new format (values set by a callback)*/
+			/*try new format (values prepared by the request callback)*/
 			ret = update_current_format(device);
 			/*try to set the video stream format on the device*/
 			if(ret != E_OK)
@@ -283,11 +203,10 @@ void *capture_loop(void *data)
 				fprintf(stderr, "GUCVIEW: could not set the defined stream format\n");
 				fprintf(stderr, "GUCVIEW: trying first listed stream format\n");
 
-				pixelformat = device->list_stream_formats[0].format;
-
-				prepare_new_resolution(device, my_options->width, my_options->height);
-
+				prepare_valid_format(device);
+				prepare_valid_resolution(device);
 				ret = update_current_format(device);
+
 				if(ret != E_OK)
 				{
 					fprintf(stderr, "GUCVIEW: also could not set the first listed stream format\n");
@@ -308,9 +227,9 @@ void *capture_loop(void *data)
 
 			if(debug_level > 0)
 				printf("GUVCVIEW: reset to pixelformat=%x width=%i and height=%i\n", device->requested_fmt, device->format.fmt.pix.width, device->format.fmt.pix.height);
-				
+
 			start_video_stream(device);
-			
+
 		}
 
 		if( get_v4l2_frame(device) == E_OK)

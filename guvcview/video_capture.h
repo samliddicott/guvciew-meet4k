@@ -43,45 +43,6 @@ typedef struct _capture_loop_data_t
 void set_render_flag(int value);
 
 /*
- * prepare new format
- * args:
- *   device - pointer to device data
- *   new_format - new format
- *
- * asserts:
- *    device is not null
- *
- * returns: none
- */
-void prepare_new_format(v4l2_dev_t *device, int new_format);
-
-/*
- * prepare new resolution
- * args:
- *   device - pointer to device data
- *   new_width - new width
- *   new_height - new height
- *
- * asserts:
- *    device is not null
- *
- * returns: none
- */
-void prepare_new_resolution(v4l2_dev_t *device, int new_width, int new_height);
-
-/*
- * request format update
- * args:
- *    none
- *
- * asserts:
- *    none
- *
- * returns: none
- */
-void request_format_update();
-
-/*
  * quit callback
  * args:
  *    data - pointer to user data
@@ -104,6 +65,18 @@ int quit_callback(void *data);
  * returns: none
  */
 void video_capture_save_image();
+
+/*
+ * request format update
+ * args:
+ *    none
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void request_format_update();
 
 /*
  * capture loop (should run in a separate thread)

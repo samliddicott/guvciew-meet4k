@@ -374,19 +374,68 @@ int get_frame_format_index(v4l2_dev_t *vd, int format);
 int get_format_resolution_index(v4l2_dev_t *vd, int format, int width, int height);
 
 /*
- * Try/Set device video stream format
+ * prepare a valid format (first in the format list)
  * args:
- *   vd - pointer to video device data
- *   width - requested video frame width
- *   height - requested video frame height
- *   pixelformat - requested v4l2 pixelformat
+ *   vd - pointer to device data
  *
  * asserts:
- *   vd is not null
+ *    vd is not null
  *
- * returns: error code ( E_OK)
+ * returns: none
  */
-int try_video_stream_format(v4l2_dev_t *vd, int width, int height, int pixelformat);
+void prepare_valid_format(v4l2_dev_t *vd);
+
+/*
+ * prepare new format
+ * args:
+ *   vd - pointer to device data
+ *   new_format - new format
+ *
+ * asserts:
+ *    vd is not null
+ *
+ * returns: none
+ */
+void prepare_new_format(v4l2_dev_t *vd, int new_format);
+
+/*
+ * prepare valid resolution (first in the resolution list for the format)
+ * args:
+ *   vd - pointer to device data
+ *
+ * asserts:
+ *    vd is not null
+ *
+ * returns: none
+ */
+void prepare_valid_resolution(v4l2_dev_t *vd);
+
+/*
+ * prepare new resolution
+ * args:
+ *   vd - pointer to device data
+ *   new_width - new width
+ *   new_height - new height
+ *
+ * asserts:
+ *    vd is not null
+ *
+ * returns: none
+ */
+void prepare_new_resolution(v4l2_dev_t *vd, int new_width, int new_height);
+
+/*
+ * update the current format (pixelformat, width and height)
+ * args:
+ *    device - pointer to device data
+ *
+ * asserts:
+ *    device is not null
+ *
+ * returns:
+ *    error code
+ */
+int update_current_format(v4l2_dev_t *vd);
 
 /*
  * gets the next video frame and decodes it if necessary
@@ -416,10 +465,10 @@ int frame_decode(v4l2_dev_t *vd);
  * clean v4l2 buffers
  * args:
  *    vd -pointer to video device data
- * 
+ *
  * asserts:
  *    vd is not null
- * 
+ *
  * return: none
  */
 void clean_v4l2_buffers(v4l2_dev_t *vd);
@@ -435,15 +484,6 @@ void clean_v4l2_buffers(v4l2_dev_t *vd);
  * returns: void
  */
 void close_v4l2_dev(v4l2_dev_t *vd);
-
-/*
- * request v4l2 device with new format
- * args:
- *   vd: pointer to video device data
- *
- * returns: error code ( 0 - VDIN_OK)
- */
-//int reset_v4l2_dev(v4l2_dev_t *vd, int format, int width, int height);
 
 /*
  * request a fps update
@@ -503,7 +543,7 @@ int start_video_stream(v4l2_dev_t *vd);
  * asserts:
  *   vd is not null
  *
- * returns: none
+ * returns: error code (0 -OK)
 */
 int request_stop_video_stream(v4l2_dev_t *vd);
 

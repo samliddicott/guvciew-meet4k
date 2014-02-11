@@ -661,12 +661,6 @@ void resolution_changed (GtkComboBox *wgtResolution, void *data)
 
 	int format_index = get_frame_format_index(device, device->requested_fmt);
 
-	//int resolu_index = get_format_resolution_index(
-	//	device,
-	//	device->requested_fmt,
-	//	device->format.fmt.pix.width,
-	//	device->format.fmt.pix.height);
-
 	int cmb_index = gtk_combo_box_get_active(wgtResolution);
 
 	GtkWidget *wgtFrameRate = (GtkWidget *) g_object_get_data (G_OBJECT (wgtResolution), "control_fps");
@@ -699,12 +693,12 @@ void resolution_changed (GtkComboBox *wgtResolution, void *data)
 
 		if (( device->fps_num == device->list_stream_formats[format_index].list_stream_cap[cmb_index].framerate_num[i]) &&
 			( device->fps_denom == device->list_stream_formats[format_index].list_stream_cap[cmb_index].framerate_denom[i]))
-				deffps=i;//set selected
+				deffps=i;
 	}
 
 	/*set default fps in combo*/
 	gtk_combo_box_set_active(GTK_COMBO_BOX(wgtFrameRate), deffps);
-	
+
 	/*enable fps combobox signals*/
 	g_signal_handlers_unblock_by_func(GTK_COMBO_BOX_TEXT(wgtFrameRate), G_CALLBACK (frame_rate_changed), device);
 
@@ -751,11 +745,7 @@ void format_changed(GtkComboBox *wgtInpType, void *data)
 	GtkListStore *store = GTK_LIST_STORE(gtk_combo_box_get_model (GTK_COMBO_BOX(wgtResolution)));
 	gtk_list_store_clear(store);
 
-	//int format_index = get_frame_format_index(device, device->requested_fmt);
-
 	int format = device->list_stream_formats[index].format;
-
-	//get_PixMode(format, global->mode);
 
 	/*redraw resolution combo for new format*/
 	for(i = 0 ; i < device->list_stream_formats[index].numb_res ; i++)
@@ -777,16 +767,12 @@ void format_changed(GtkComboBox *wgtInpType, void *data)
 		}
 	}
 
-
-	//int height = device->list_stream_formats[format_index].list_stream_cap[defres].height;
-	//int width = device->list_stream_formats[format_index].list_stream_cap[defres].width;
-
 	/*enable resolution combobox signals*/
 	g_signal_handlers_unblock_by_func(GTK_COMBO_BOX_TEXT(wgtResolution), G_CALLBACK (resolution_changed), device);
 
-	/*reset resolution/format*/
+	/*prepare new format*/
 	prepare_new_format(device, format);
-
+	/*change resolution*/
 	gtk_combo_box_set_active(GTK_COMBO_BOX(wgtResolution), defres);
 
 }
