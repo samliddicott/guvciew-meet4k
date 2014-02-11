@@ -163,6 +163,9 @@ static SDL_Overlay * video_init(int width, int height)
         if ((bpp != 32) && verbosity > 0) printf("RENDER: recomended color depth = %i\n", bpp);
     }
 
+	if(verbosity > 0)
+		printf("RENDER: setting video mode %ix%i@%ibpp\n", width, height, bpp);
+		
     pscreen = SDL_SetVideoMode(
         width,
         height,
@@ -173,6 +176,8 @@ static SDL_Overlay * video_init(int width, int height)
     {
         return (NULL);
     }
+    if(verbosity > 0)
+		printf("RENDER: creating an overlay\n");
     /*use requested resolution for overlay even if not available as video mode*/
     SDL_Overlay* overlay=NULL;
     overlay = SDL_CreateYUVOverlay(width, height,
@@ -356,5 +361,7 @@ void render_sdl1_clean()
 	poverlay = NULL;
 
 	SDL_Quit();
+	
+	pscreen = NULL;
 }
 

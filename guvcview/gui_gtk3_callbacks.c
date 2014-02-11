@@ -702,6 +702,9 @@ void resolution_changed (GtkComboBox *wgtResolution, void *data)
 				deffps=i;//set selected
 	}
 
+	/*set default fps in combo*/
+	gtk_combo_box_set_active(GTK_COMBO_BOX(wgtFrameRate), deffps);
+	
 	/*enable fps combobox signals*/
 	g_signal_handlers_unblock_by_func(GTK_COMBO_BOX_TEXT(wgtFrameRate), G_CALLBACK (frame_rate_changed), device);
 
@@ -715,9 +718,6 @@ void resolution_changed (GtkComboBox *wgtResolution, void *data)
 	prepare_new_resolution(device, width, height);
 
 	request_format_update();
-
-	/*set default fps in combo*/
-	gtk_combo_box_set_active(GTK_COMBO_BOX(wgtFrameRate), deffps);
 }
 
 /*

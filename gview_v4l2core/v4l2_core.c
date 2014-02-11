@@ -862,7 +862,7 @@ int try_video_stream_format(v4l2_dev_t *vd, int width, int height, int pixelform
 }
 
 /*
- * clear video device data allocation
+ * clean video device data allocation
  * args:
  *   vd - pointer to video device data
  *
@@ -871,15 +871,13 @@ int try_video_stream_format(v4l2_dev_t *vd, int width, int height, int pixelform
  *
  * returns: void
  */
-static void clear_v4l2_dev(v4l2_dev_t *vd)
+static void clean_v4l2_dev(v4l2_dev_t *vd)
 {
 	/*assertions*/
 	assert(vd != NULL);
 
 	if(vd->videodevice)
 		free(vd->videodevice);
-
-	clean_v4l2_frames(vd);
 
 	if(vd->list_device_controls)
 		free_v4l2_control_list(vd);
@@ -968,7 +966,7 @@ v4l2_dev_t *init_v4l2_dev(const char *device)
 	if ((vd->fd = v4l2_open(vd->videodevice, O_RDWR | O_NONBLOCK, 0)) < 0)
 	{
 		fprintf(stderr, "V4L2_CORE: ERROR opening V4L interface: %s\n", strerror(errno));
-		clear_v4l2_dev(vd);
+		clean_v4l2_dev(vd);
 		return (NULL);
 	}
 
@@ -981,7 +979,7 @@ v4l2_dev_t *init_v4l2_dev(const char *device)
 
 	if(check_v4l2_dev(vd) != E_OK)
 	{
-		clear_v4l2_dev(vd);
+		clean_v4l2_dev(vd);
 		return (NULL);
 	}
 
@@ -995,16 +993,16 @@ v4l2_dev_t *init_v4l2_dev(const char *device)
 }
 
 /*
- * cleans video device data and allocations
+ * clean v4l2 buffers
  * args:
- *   vd: pointer to video device data
- *
+ *    vd -pointer to video device data
+ * 
  * asserts:
- *   vd is not null
- *
- * returns: void
+ *    vd is not null
+ * 
+ * return: none
  */
-void close_v4l2_dev(v4l2_dev_t *vd)
+void clean_v4l2_buffers(v4l2_dev_t *vd)
 {
 	/*assertions*/
 	assert(vd != NULL);
@@ -1012,6 +1010,8 @@ void close_v4l2_dev(v4l2_dev_t *vd)
 	if(vd->streaming == STRM_OK)
 		stop_video_stream(vd);
 
+	clean_v4l2_frames(vd);
+	
 	// unmap queue buffers
 	switch(vd->cap_meth)
 	{
@@ -1037,8 +1037,24 @@ void close_v4l2_dev(v4l2_dev_t *vd)
 			}
 			break;
 	}
-
-	clear_v4l2_dev(vd);
+} 
+/*
+ * cleans video device data and allocations
+ * args:
+ *   vd: pointer to video device data
+ *
+ * asserts:
+ *   vd is not null
+ *
+ * returns: void
+ */
+void close_v4l2_dev(v4l2_dev_t *vd)
+{
+	/*asserts*/
+	assert(vd != NULL);
+	
+	clean_v4l2_buffers(vd);
+	clean_v4l2_dev(vd);
 }
 
 /*

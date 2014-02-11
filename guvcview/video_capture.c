@@ -266,11 +266,14 @@ void *capture_loop(void *data)
 	{
 		if(restart)
 		{
+			restart = 0; /*reset*/
 			stop_video_stream(device);
 
 			/*close render*/
 			if(render)
 				render_clean();
+			
+			clean_v4l2_buffers(device);
 
 			/*try new format (values set by a callback)*/
 			ret = update_current_format(device);
@@ -303,7 +306,11 @@ void *capture_loop(void *data)
 				}
 			}
 
+			if(debug_level > 0)
+				printf("GUVCVIEW: reset to pixelformat=%x width=%i and height=%i\n", device->requested_fmt, device->format.fmt.pix.width, device->format.fmt.pix.height);
+				
 			start_video_stream(device);
+			
 		}
 
 		if( get_v4l2_frame(device) == E_OK)

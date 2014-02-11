@@ -413,6 +413,18 @@ int get_v4l2_frame(v4l2_dev_t *vd);
 int frame_decode(v4l2_dev_t *vd);
 
 /*
+ * clean v4l2 buffers
+ * args:
+ *    vd -pointer to video device data
+ * 
+ * asserts:
+ *    vd is not null
+ * 
+ * return: none
+ */
+void clean_v4l2_buffers(v4l2_dev_t *vd);
+
+/*
  * cleans video device data and allocations
  * args:
  *   vd: pointer to video device data
