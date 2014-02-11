@@ -978,14 +978,10 @@ int jpeg_decode(uint8_t **pic, uint8_t *buf, int width, int height)
 
 	if (!decdata)
 	{
-		err = -1;
+		err = E_ALLOC_ERR;
 		goto error;
 	}
-	if (buf == NULL)
-	{
-		err = -1;
-		goto error;
-	}
+
 	datap = buf;
 	/*check SOI (0xFFD8)*/
 	if (getbyte() != 0xff)
