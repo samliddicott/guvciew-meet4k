@@ -702,7 +702,7 @@ int frame_decode(v4l2_dev_t *vd)
 			}
 			memcpy(vd->tmp_buffer, vd->raw_frame, vd->raw_frame_size);
 
-			ret = jpeg_decode(&vd->yuv_frame, vd->tmp_buffer, width, height);
+			ret = jpeg_decode(&vd->yuv_frame, vd->raw_frame, width, height);
 			if ( ret < 0)
 			{
 				fprintf(stderr, "V4L2_CORE: jpeg decoder exit with error (%i)\n", ret);
