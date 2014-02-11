@@ -804,17 +804,6 @@ static int try_video_stream_format(v4l2_dev_t *vd, int width, int height, int pi
 			(vd->format.fmt.pix.pixelformat) & 0xFF, ((vd->format.fmt.pix.pixelformat) >> 8) & 0xFF,
 			((vd->format.fmt.pix.pixelformat) >> 16) & 0xFF, ((vd->format.fmt.pix.pixelformat) >> 24) & 0xFF);
 
-	/*
-	 * try to alloc frame buffers based on requested format
-	 * before setting the format
-	 */
-	if(alloc_v4l2_frames(vd) != E_OK)
-	{
-		/*unlock the mutex*/
-		__UNLOCK_MUTEX( __PMUTEX );
-		return E_ALLOC_ERR;
-	}
-
 	/*override field and type entries*/
 	vd->format.fmt.pix.field = V4L2_FIELD_ANY;
 	vd->format.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
@@ -842,6 +831,16 @@ static int try_video_stream_format(v4l2_dev_t *vd, int width, int height, int pi
 	{
 		fprintf(stderr, "V4L2_CORE: Requested resolution unavailable: got width %d height %d\n",
 		vd->format.fmt.pix.width, vd->format.fmt.pix.height);
+	}
+
+	/*
+	 * try to alloc frame buffers based on requested format
+	 */
+	ret = alloc_v4l2_frames(vd);
+	if( ret != E_OK)
+	{
+		fprintf(stderr, "V4L2_CORE: Frame allocation returned error (%i)\n", ret);
+		return E_ALLOC_ERR;
 	}
 
 	switch (vd->cap_meth)
