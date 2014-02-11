@@ -239,7 +239,7 @@ void *capture_loop(void *data)
 			{
 				fprintf(stderr, "GUVCIEW: Error - Couldn't decode image\n");
 				//quit_callback(NULL);
-				continue;
+				//continue;
 			}
 
 			/*render the decoded frame*/
