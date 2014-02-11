@@ -139,7 +139,7 @@ static int check_v4l2_dev(v4l2_dev_t *vd)
 		vd->mem[vd->buf.index] = NULL;
 		if (!(vd->cap.capabilities & V4L2_CAP_READWRITE))
 		{
-			fprintf(stderr, "V4L2_CORE: %s does not support read i/o\n",
+			fprintf(stderr, "V4L2_CORE: %s does not support read, try with mmap\n",
 				vd->videodevice);
 			return E_READ_ERR;
 		}
@@ -176,6 +176,8 @@ static int unmap_buff(v4l2_dev_t *vd)
 	/*assertions*/
 	assert(vd != NULL);
 
+	if(verbosity > 1)
+		printf("V4L2_CORE: unmapping v4l2 buffers\n");
 	int i=0;
 	int ret=E_OK;
 
@@ -213,6 +215,9 @@ static int map_buff(v4l2_dev_t *vd)
 	/*assertions*/
 	assert(vd != NULL);
 
+	if(verbosity > 1)
+		printf("V4L2_CORE: mapping v4l2 buffers\n");
+		
 	int i = 0;
 	// map new buffer
 	for (i = 0; i < NB_BUFFER; i++)
@@ -253,6 +258,9 @@ static int query_buff(v4l2_dev_t *vd)
 	/*assertions*/
 	assert(vd != NULL);
 
+	if(verbosity > 1)
+		printf("V4L2_CORE: query v4l2 buffers\n");
+		
 	int i=0;
 	int ret=E_OK;
 
@@ -313,6 +321,9 @@ static int queue_buff(v4l2_dev_t *vd)
 	/*assertions*/
 	assert(vd != NULL);
 
+	if(verbosity > 1)
+		printf("V4L2_CORE: queue v4l2 buffers\n");
+		
 	int i=0;
 	int ret=E_OK;
 
@@ -737,7 +748,12 @@ int get_v4l2_frame(v4l2_dev_t *vd)
 
 					/* queue the buffers */
 					ret = xioctl(vd->fd, VIDIOC_QBUF, &vd->buf);
+					
+					if(ret)
+						fprintf(stderr, "V4L2_CORE: (VIDIOC_QBUF) Unable to queue buffer: %s\n", strerror(errno));
 				}
+				else
+					fprintf(stderr, "V4L2_CORE: (VIDIOC_DQBUF) Unable to dequeue buffer: %s\n", strerror(errno));
 			}
 			else res = -1;
 
@@ -748,10 +764,7 @@ int get_v4l2_frame(v4l2_dev_t *vd)
 				return E_NO_STREAM_ERR;
 
 			if (ret < 0)
-			{
-				fprintf(stderr, "V4L2_CORE: (VIDIOC_DQBUF) Unable to dequeue/queue buffer: %s\n", strerror(errno));
 				return E_DQBUF_ERR;
-			}
 	}
 
 	vd->frame_index++;
@@ -1211,6 +1224,9 @@ void clean_v4l2_buffers(v4l2_dev_t *vd)
 	/*assertions*/
 	assert(vd != NULL);
 
+	if(verbosity > 1)
+		printf("V4L2_CORE: cleaning v4l2 buffers\n");
+		
 	if(vd->streaming == STRM_OK)
 		stop_video_stream(vd);
 
@@ -1319,8 +1335,11 @@ int set_v4l2_framerate (v4l2_dev_t *vd)
 			break;
 
 		case IO_MMAP:
-			/*unmap the buffers*/
-			unmap_buff(vd);
+			if(stream_status == STRM_OK)
+			{
+				/*unmap the buffers*/
+				unmap_buff(vd);
+			}
 
 			ret = do_v4l2_framerate_update(vd);
 			/*

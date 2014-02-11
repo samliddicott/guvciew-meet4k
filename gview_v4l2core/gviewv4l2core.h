@@ -94,7 +94,7 @@
 /*
  * buffer number (for driver mmap ops)
  */
-#define NB_BUFFER 8
+#define NB_BUFFER 4
 
 /*jpeg header def*/
 #define HEADERFRAME1 0xaf
