@@ -33,6 +33,7 @@
 
 #include "gviewv4l2core.h"
 #include "uvc_h264.h"
+#include "frame_decoder.h"
 #include "jpeg_decoder.h"
 #include "colorspaces.h"
 

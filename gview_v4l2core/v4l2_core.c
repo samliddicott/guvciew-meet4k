@@ -875,6 +875,7 @@ static int try_video_stream_format(v4l2_dev_t *vd, int width, int height, int pi
 			/* map the buffers */
 			if (query_buff(vd))
 			{
+				fprintf(stderr, "V4L2_CORE: (VIDIOC_QBUFS) Unable to query buffers: %s\n", strerror(errno));
 				/*
 				 * delete requested buffers
 				 * no need to unmap as mmap failed for sure
@@ -894,6 +895,7 @@ static int try_video_stream_format(v4l2_dev_t *vd, int width, int height, int pi
 			/* Queue the buffers */
 			if (queue_buff(vd))
 			{
+				fprintf(stderr, "V4L2_CORE: (VIDIOC_QBUFS) Unable to queue buffers: %s\n", strerror(errno));
 				/*delete requested buffers */
 				if(verbosity > 0)
 					printf("V4L2_CORE: cleaning requestbuffers\n");
