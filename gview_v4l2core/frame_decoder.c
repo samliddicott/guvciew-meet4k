@@ -53,31 +53,8 @@ int alloc_v4l2_frames(v4l2_dev_t *vd)
 	/*assertions*/
 	assert(vd != NULL);
 
-	vd->raw_frame = NULL;
-
-	if(vd->tmp_buffer)
-	{
-		free(vd->tmp_buffer);
-		vd->tmp_buffer = NULL;
-	}
-
-	if(vd->h264_frame)
-	{
-		free(vd->h264_frame);
-		vd->h264_frame = NULL;
-	}
-
-	if(vd->yuv_frame)
-	{
-		free(vd->yuv_frame);
-		vd->yuv_frame = NULL;
-	}
-
-	if(vd->h264_last_IDR)
-	{
-		free(vd->h264_last_IDR);
-		vd->h264_last_IDR = NULL;
-	}
+	/*clean any previous frame buffers*/
+	clean_v4l2_frames(vd);
 
 	int ret = E_OK;
 
@@ -285,7 +262,6 @@ void clean_v4l2_frames(v4l2_dev_t *vd)
 
 	if(vd->requested_fmt == V4L2_PIX_FMT_H264)
 		h264_close_decoder();
-
 }
 
 /*

@@ -1055,6 +1055,7 @@ static void clean_v4l2_dev(v4l2_dev_t *vd)
 
 	if(vd->videodevice)
 		free(vd->videodevice);
+	vd->videodevice = NULL;
 
 	if(vd->list_device_controls)
 		free_v4l2_control_list(vd);
@@ -1074,6 +1075,8 @@ static void clean_v4l2_dev(v4l2_dev_t *vd)
 	/*close descriptor*/
 	if(vd->fd > 0)
 		v4l2_close(vd->fd);
+
+	vd->fd = 0;
 
 	free(vd);
 }
