@@ -667,6 +667,7 @@ int frame_decode(v4l2_dev_t *vd)
 			{
 				// Prevent crash on empty image
 				fprintf(stderr, "V4L2_CORE: (jpeg decoder) Ignoring empty buffer\n");
+				ret = E_DECODE_ERR;
 				return (ret);
 			}
 			/*FIXME: do we need the tmp_buffer or can we just use the raw_frame?*/
@@ -675,6 +676,7 @@ int frame_decode(v4l2_dev_t *vd)
 				// Prevent crash on very large image
 				fprintf(stderr, "V4L2_CORE: (jpeg decoder) Ignoring unexpected large buffer (%i bytes)\n",
 					(int) vd->raw_frame_size);
+				ret = E_DECODE_ERR;
 				return (ret);
 			}
 			memcpy(vd->tmp_buffer, vd->raw_frame, vd->raw_frame_size);
@@ -682,7 +684,7 @@ int frame_decode(v4l2_dev_t *vd)
 			ret = jpeg_decode(&vd->yuv_frame, vd->tmp_buffer, width, height);
 			if ( ret < 0)
 			{
-				fprintf(stderr, "V4L2_CORE: jpeg decoder exit with error (%i)\n", ret);
+				fprintf(stderr, "V4L2_CORE: jpeg decoder exit with error (%i) (res: %ix%i - %x)\n", ret, width, height, vd->format.fmt.pix.pixelformat);
 				ret = E_DECODE_ERR;
 				return ret;
 			}
