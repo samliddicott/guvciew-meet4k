@@ -748,9 +748,12 @@ int get_v4l2_frame(v4l2_dev_t *vd)
 		fps_frame_count++;
 	}
 
-
 	vd->raw_frame_size = vd->buf.bytesused;
 	vd->raw_frame = vd->mem[vd->buf.index]; /*point raw_frame to current frame buffer*/
+
+	if(verbosity > 1)
+		printf("V4L2_CORE: got raw frame size of %i at 0x%x\n",
+			vd->raw_frame_size, vd->raw_frame );
 	//memcpy(vd->raw_frame, vd->mem[vd->buf.index], vd->buf.bytesused);
 
 	return E_OK;
