@@ -622,6 +622,10 @@ int frame_decode(v4l2_dev_t *vd)
 		return E_DECODE_ERR;
 	}
 
+	if(verbosity > 1)
+		printf("V4L2_CORE: decoding raw frame of size %i at 0x%p\n",
+			vd->raw_frame_size, vd->raw_frame );
+
 	int ret = E_OK;
 
 	int width = vd->format.fmt.pix.width;
