@@ -228,6 +228,11 @@ static int map_buff(v4l2_dev_t *vd)
 			fprintf(stderr, "V4L2_CORE: Unable to map buffer: %s\n", strerror(errno));
 			return E_MMAP_ERR;
 		}
+		if(verbosity > 1)
+			printf("V4L2_CORE: mapped buffer[%i] with length %i to pos %p\n",
+				i,
+				vd->buff_length[i],
+				vd->mem[i]);
 	}
 
 	return (E_OK);
@@ -472,6 +477,24 @@ static int do_v4l2_framerate_update(v4l2_dev_t *vd)
 void set_v4l2_verbosity(int level)
 {
 	verbosity = level;
+}
+
+/*
+ * Set v4l2 capture method
+ * args:
+ *   vd - pointer to video device data
+ *
+ * asserts:
+ *   vd is not null
+ *
+ * returns: VIDIOC_STREAMON ioctl result (E_OK or E_STREAMON_ERR)
+*/
+void set_v4l2_capture_method(v4l2_dev_t *vd, int method)
+{
+	/*asserts*/
+	assert(vd != NULL);
+	
+	vd->cap_meth = method;
 }
 
 /*
@@ -751,9 +774,6 @@ int get_v4l2_frame(v4l2_dev_t *vd)
 	vd->raw_frame_size = vd->buf.bytesused;
 	vd->raw_frame = vd->mem[vd->buf.index]; /*point raw_frame to current frame buffer*/
 
-	if(verbosity > 1)
-		printf("V4L2_CORE: got raw frame size of %i at 0x%p\n",
-			vd->raw_frame_size, vd->raw_frame );
 	//memcpy(vd->raw_frame, vd->mem[vd->buf.index], vd->buf.bytesused);
 
 	return E_OK;

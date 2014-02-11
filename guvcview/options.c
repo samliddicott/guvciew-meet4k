@@ -69,6 +69,13 @@ static opt_values_t opt_values[] =
 		.opt_help = N_("Set device name (def: /dev/video0)"),
 	},
 	{
+		.opt_short = 'c',
+		.opt_long = "capture",
+		.req_arg = 1,
+		.opt_help_arg = N_("METHOD"),
+		.opt_help = N_("Set capture method [read | mmap (def)]"),
+	},
+	{
 		.opt_short = 'x',
 		.opt_long = "resolution",
 		.req_arg = 1,
@@ -109,6 +116,7 @@ static options_t my_options =
 {
 	.verbosity = 0,
 	.device = "/dev/video0",
+	.capture = "mmap",
 	.width = 640,
 	.height = 480,
 	.format = "MJPG",
@@ -327,6 +335,13 @@ int options_parse(int argc, char *argv[])
 					strncpy(my_options.device, optarg, 29);
 				else
 					fprintf(stderr, "V4L2_CORE: (options) Error in device usage: -d[--device] DEVICENAME \n");
+				break;
+			}
+			case 'c':
+			{
+				int str_size = strlen(optarg);
+				if(str_size == 4) /*render is 4 chars*/
+					strncpy(my_options.capture, optarg, 4);
 				break;
 			}
 			case 'x':

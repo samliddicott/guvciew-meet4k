@@ -695,8 +695,7 @@ int frame_decode(v4l2_dev_t *vd)
 			if ( ret < 0)
 			{
 				fprintf(stderr, "V4L2_CORE: jpeg decoder exit with error (%i) (res: %ix%i - %x)\n", ret, width, height, vd->format.fmt.pix.pixelformat);
-				ret = E_DECODE_ERR;
-				return ret;
+				return E_DECODE_ERR;
 			}
 			break;
 

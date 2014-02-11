@@ -334,6 +334,18 @@ int fourcc_2_v4l2_pixelformat(const char *fourcc);
 double get_v4l2_realfps();
 
 /*
+ * Set v4l2 capture method
+ * args:
+ *   vd - pointer to video device data
+ *
+ * asserts:
+ *   vd is not null
+ *
+ * returns: VIDIOC_STREAMON ioctl result (E_OK or E_STREAMON_ERR)
+*/
+void set_v4l2_capture_method(v4l2_dev_t *vd, int method);
+
+/*
  * Initiate video device data with default values
  * args:
  *   device - device name (e.g: "/dev/video0")

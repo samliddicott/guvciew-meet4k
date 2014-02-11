@@ -83,7 +83,13 @@ int main(int argc, char *argv[])
 	set_v4l2_verbosity(debug_level);
 
 	v4l2_dev_t *device = init_v4l2_dev(my_options->device);
-
+	
+	/*select capture method*/
+	if(strcmp(my_options->capture, "read") == 0)
+		set_v4l2_capture_method(device, IO_READ);
+	else
+		set_v4l2_capture_method(device, IO_MMAP);
+	
 	/*select render API*/
 	int render = RENDER_SDL1;
 

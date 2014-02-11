@@ -31,6 +31,7 @@ typedef struct _options_t
 	char format[5];  /*pixelformat fourcc*/
 	char render[5];  /*render api*/
 	char gui[5];     /*gui api*/
+	char capture[5]; /*capture method: read or mmap*/
 } options_t;
 
 /*
