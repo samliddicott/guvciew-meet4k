@@ -238,7 +238,7 @@ void *capture_loop(void *data)
 			if(frame_decode(device) != E_OK)
 			{
 				fprintf(stderr, "GUVCIEW: Error - Couldn't decode image\n");
-				quit_callback(NULL);
+				//quit_callback(NULL);
 				continue;
 			}
 
