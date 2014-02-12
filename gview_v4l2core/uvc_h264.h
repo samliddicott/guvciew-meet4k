@@ -317,29 +317,6 @@ void add_h264_format(v4l2_dev_t *vd);
 void set_h264_muxed_format(v4l2_dev_t *vd);
 
 /*
-int h264_framerate_balance(struct ALL_DATA *all_data);
-
-void check_uvc_h264_format(struct vdIn *vd, struct GLOBAL *global);
-void set_muxed_h264_format(struct vdIn *vd, struct GLOBAL *global);
-
-void h264_probe(struct ALL_DATA *data);
-void h264_commit(struct vdIn *vd, struct GLOBAL *global);
-
-int uvcx_video_probe(int hdevice, uint8_t unit_id, uint8_t query, uvcx_video_config_probe_commit_t *uvcx_video_config);
-int uvcx_video_commit(int hdevice, uint8_t unit_id, uvcx_video_config_probe_commit_t *uvcx_video_config);
-int uvcx_video_encoder_reset(int hdevice, uint8_t unit_id);
-uint8_t uvcx_get_video_rate_control_mode(int hdevice, uint8_t unit_id, uint8_t query);
-int uvcx_set_video_rate_control_mode(int hdevice, uint8_t unit_id, uint8_t rate_mode);
-uint8_t uvcx_get_temporal_scale_mode(int hdevice, uint8_t unit_id, uint8_t query);
-int uvcx_set_temporal_scale_mode(int hdevice, uint8_t unit_id, uint8_t scale_mode);
-uint8_t uvcx_get_spatial_scale_mode(int hdevice, uint8_t unit_id, uint8_t query);
-int uvcx_set_spatial_scale_mode(int hdevice, uint8_t unit_id, uint8_t scale_mode);
-int uvcx_request_frame_type(int hdevice, uint8_t unit_id, uint16_t type);
-uint32_t uvcx_get_frame_rate_config(int hdevice, uint8_t unit_id, uint8_t query);
-int uvcx_set_frame_rate_config(int hdevice, uint8_t unit_id, uint32_t framerate);
-*/
-
-/*
  * check if h264 decoder is available from libavcodec
  * args:
  *    none
@@ -351,6 +328,123 @@ int uvcx_set_frame_rate_config(int hdevice, uint8_t unit_id, uint32_t framerate)
  *          FALSE(0)
  */
 uint8_t h264_has_decoder();
+
+/*
+ * request a frame of type wPictureType to the h264 encoder
+ * args:
+ *   vd - pointer to video device data
+ *   type - frame type
+ *
+ * asserts:
+ *   vd is not null
+ *
+ * returns: error code
+ */
+int request_h264_frame_type(v4l2_dev_t *vd, uint16_t type);
+
+/*
+ * get the video rate control mode
+ * args:
+ *   vd - pointer to video device data
+ *   query - query type
+ *
+ * asserts:
+ *   vd is not null
+ *
+ * returns: video rate control mode (FIXME: 0xff on error)
+ */
+uint8_t get_h264_video_rate_control_mode(v4l2_dev_t *vd, uint8_t query);
+
+/*
+ * set the video rate control mode
+ * args:
+ *   vd - pointer to video device data
+ *   mode - rate mode
+ *
+ * asserts:
+ *   vd is not null
+ *
+ * returns: error code ( 0 -OK)
+ */
+int set_h264_video_rate_control_mode(v4l2_dev_t *vd, uint8_t mode);
+
+/*
+ * get the temporal scale mode
+ * args:
+ *   vd - pointer to video device data
+ *   query - query type
+ *
+ * asserts:
+ *   vd is not null
+ *
+ * returns: temporal scale mode (FIXME: 0xff on error)
+ */
+uint8_t get_h264_temporal_scale_mode(v4l2_dev_t *vd, uint8_t query);
+
+/*
+ * set the temporal scale mode
+ * args:
+ *   vd - pointer to video device data
+ *   mode - temporal scale mode
+ *
+ * asserts:
+ *   vd is not null
+ *
+ * returns: error code ( 0 -OK)
+ */
+int set_h264_temporal_scale_mode(v4l2_dev_t *vd, uint8_t mode);
+
+/*
+ * get the spatial scale mode
+ * args:
+ *   vd - pointer to video device data
+ *   query - query type
+ *
+ * asserts:
+ *   vd is not null
+ *
+ * returns: temporal scale mode (FIXME: 0xff on error)
+ */
+uint8_t get_h264_spatial_scale_mode(v4l2_dev_t *vd, uint8_t query);
+
+/*
+ * set the spatial scale mode
+ * args:
+ *   vd - pointer to video device data
+ *   mode - spatial scale mode
+ *
+ * asserts:
+ *   vd is not null
+ *
+ * returns: error code ( 0 -OK)
+ */
+int set_h264_spatial_scale_mode(v4l2_dev_t *vd, uint8_t mode);
+
+/*
+ * get the frame rate config
+ * args:
+ *   vd - pointer to video device data
+ *   query - query type
+ *
+ * asserts:
+ *   vd is not null
+ *
+ * returns: temporal scale mode (FIXME: 0xffffffff on error)
+ */
+uint32_t uvcx_get_frame_rate_config(v4l2_dev_t *vd, uint8_t query);
+
+/*
+ * set the frame rate config
+ * args:
+ *   vd - pointer to video device data
+ *   framerate - framerate
+ *
+ * asserts:
+ *   vd is not null
+ *
+ * returns: error code ( 0 -OK)
+ */
+int set_h264_frame_rate_config(v4l2_dev_t *vd, uint32_t framerate);
 
 /*
  * init h264 decoder context

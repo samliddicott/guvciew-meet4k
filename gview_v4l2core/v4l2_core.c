@@ -645,9 +645,9 @@ int get_v4l2_frame(v4l2_dev_t *vd)
 	/*asserts*/
 	assert(vd != NULL);
 
-	/*request a IDR frame with SPS and PPS data if it's the first frame*/
-	//if(vd->requested_fmt == V4L2_PIX_FMT_H264 && vd->frame_index < 1)
-	//	uvcx_request_frame_type(vd->fd, global->uvc_h264_unit, PICTURE_TYPE_IDR_FULL);
+	/*for H264 streams request a IDR frame with SPS and PPS data if it's the first frame*/
+	if(vd->requested_fmt == V4L2_PIX_FMT_H264 && vd->frame_index < 1)
+		request_h264_frame_type(vd, PICTURE_TYPE_IDR_FULL);
 
 	int res = 0;
 	int ret = check_frame_available(vd);
