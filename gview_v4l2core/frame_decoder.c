@@ -622,7 +622,7 @@ int frame_decode(v4l2_dev_t *vd)
 		return E_DECODE_ERR;
 	}
 
-	if(verbosity > 1)
+	if(verbosity > 3)
 		printf("V4L2_CORE: decoding raw frame of size %i at 0x%p\n",
 			vd->raw_frame_size, vd->raw_frame );
 

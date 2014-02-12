@@ -632,7 +632,7 @@ void frame_rate_changed (GtkComboBox *wgtFrameRate, void *data)
 
 	int resolu_index = get_format_resolution_index(
 		device,
-		device->requested_fmt,
+		format_index,
 		device->format.fmt.pix.width,
 		device->format.fmt.pix.height);
 

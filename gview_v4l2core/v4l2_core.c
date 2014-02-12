@@ -176,7 +176,7 @@ static int unmap_buff(v4l2_dev_t *vd)
 	/*assertions*/
 	assert(vd != NULL);
 
-	if(verbosity > 1)
+	if(verbosity > 2)
 		printf("V4L2_CORE: unmapping v4l2 buffers\n");
 	int i=0;
 	int ret=E_OK;
@@ -215,9 +215,9 @@ static int map_buff(v4l2_dev_t *vd)
 	/*assertions*/
 	assert(vd != NULL);
 
-	if(verbosity > 1)
+	if(verbosity > 2)
 		printf("V4L2_CORE: mapping v4l2 buffers\n");
-		
+
 	int i = 0;
 	// map new buffer
 	for (i = 0; i < NB_BUFFER; i++)
@@ -258,9 +258,9 @@ static int query_buff(v4l2_dev_t *vd)
 	/*assertions*/
 	assert(vd != NULL);
 
-	if(verbosity > 1)
+	if(verbosity > 2)
 		printf("V4L2_CORE: query v4l2 buffers\n");
-		
+
 	int i=0;
 	int ret=E_OK;
 
@@ -321,9 +321,9 @@ static int queue_buff(v4l2_dev_t *vd)
 	/*assertions*/
 	assert(vd != NULL);
 
-	if(verbosity > 1)
+	if(verbosity > 2)
 		printf("V4L2_CORE: queue v4l2 buffers\n");
-		
+
 	int i=0;
 	int ret=E_OK;
 
@@ -396,6 +396,8 @@ static int check_frame_available(v4l2_dev_t *vd)
 	/*a fps change was requested while streaming*/
 	if(flag_fps_change > 0)
 	{
+		if(verbosity > 2)
+			printf("V4L2_CORE: fps change request detected\n");
 		set_v4l2_framerate(vd);
 		flag_fps_change = 0;
 	}
@@ -504,7 +506,7 @@ void set_v4l2_capture_method(v4l2_dev_t *vd, int method)
 {
 	/*asserts*/
 	assert(vd != NULL);
-	
+
 	vd->cap_meth = method;
 }
 
@@ -748,7 +750,7 @@ int get_v4l2_frame(v4l2_dev_t *vd)
 
 					/* queue the buffers */
 					ret = xioctl(vd->fd, VIDIOC_QBUF, &vd->buf);
-					
+
 					if(ret)
 						fprintf(stderr, "V4L2_CORE: (VIDIOC_QBUF) Unable to queue buffer: %s\n", strerror(errno));
 				}
@@ -1226,7 +1228,7 @@ void clean_v4l2_buffers(v4l2_dev_t *vd)
 
 	if(verbosity > 1)
 		printf("V4L2_CORE: cleaning v4l2 buffers\n");
-		
+
 	if(vd->streaming == STRM_OK)
 		stop_video_stream(vd);
 
@@ -1315,6 +1317,9 @@ int set_v4l2_framerate (v4l2_dev_t *vd)
 {
 	/*assertions*/
 	assert(vd != NULL);
+
+	if(verbosity > 2)
+		printf("V4L2_CORE: trying to change fps to %i/%i\n", vd->fps_num, vd->fps_denom);
 
 	int ret = 0;
 
