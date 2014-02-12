@@ -85,7 +85,7 @@ control_widgets_t *gui_gtk3_get_widgets_by_id(int id)
 		if(control_widgets_list[i].id == id)
 			return &control_widgets_list[i];
 	}
-	
+
 	return NULL;
 }
 
@@ -125,7 +125,7 @@ int gui_attach_gtk3_v4l2ctrls(v4l2_dev_t *device, GtkWidget *parent)
     for(; current != NULL; current = current->next, ++n)
     {
 		widget_list_size = n + 1;
-		
+
 		control_widgets_list = realloc(control_widgets_list, sizeof(control_widgets_t) * widget_list_size);
 		/*label*/
 		char *tmp;
@@ -134,11 +134,11 @@ int gui_attach_gtk3_v4l2ctrls(v4l2_dev_t *device, GtkWidget *parent)
         free(tmp);
         gtk_widget_show (control_widgets_list[n].label);
         gtk_misc_set_alignment (GTK_MISC (control_widgets_list[n].label), 1, 0.5);
-				
+
 		control_widgets_list[n].id = current->control.id;
         control_widgets_list[n].widget = NULL;
         control_widgets_list[n].widget2 = NULL; /*usually a spin button*/
-		
+
 		switch (current->control.type)
 		{
 			case V4L2_CTRL_TYPE_INTEGER:
@@ -186,7 +186,10 @@ int gui_attach_gtk3_v4l2ctrls(v4l2_dev_t *device, GtkWidget *parent)
 
 						gtk_editable_set_editable(GTK_EDITABLE(control_widgets_list[n].widget2), TRUE);
 
-						gtk_spin_button_set_value (GTK_SPIN_BUTTON(control_widgets_list[n].widget2), 128);
+						if(current->control.id == V4L2_CID_PAN_RELATIVE)
+							gtk_spin_button_set_value (GTK_SPIN_BUTTON(control_widgets_list[n].widget2), device->pan_step);
+						else
+							gtk_spin_button_set_value (GTK_SPIN_BUTTON(control_widgets_list[n].widget2), device->tilt_step);
 
 						/*connect signal*/
 						g_object_set_data (G_OBJECT (control_widgets_list[n].widget2), "control_info",
@@ -524,7 +527,7 @@ int gui_attach_gtk3_v4l2ctrls(v4l2_dev_t *device, GtkWidget *parent)
 					current->control.id, current->control.name);
 				break;
 		}
-		
+
 		/*attach widgets to grid*/
 		gtk_grid_attach(GTK_GRID(img_controls_grid), control_widgets_list[n].label, 0, i, 1 , 1);
 
@@ -547,7 +550,7 @@ int gui_attach_gtk3_v4l2ctrls(v4l2_dev_t *device, GtkWidget *parent)
 	gtk_container_add(GTK_CONTAINER(parent), img_controls_grid);
 
 	gui_gtk3_update_controls_state(device);
-	
+
 	return 0;
 }
 
@@ -565,14 +568,14 @@ void gui_gtk3_update_controls_state(v4l2_dev_t *device)
 {
 	/*asserts*/
 	assert(device != NULL);
-	
+
 	v4l2_ctrl_t *current = device->list_device_controls;
 	control_widgets_t *cur_widget = NULL;
-	
+
     for(; current != NULL; current = current->next)
     {
 		cur_widget = gui_gtk3_get_widgets_by_id(current->control.id);
-		
+
 		if(!cur_widget)
 		{
 			fprintf(stderr, "GUVCVIEW: (update widget state): control %x doesn't have a widget set\n", current->control.id);
@@ -601,7 +604,7 @@ void gui_gtk3_update_controls_state(v4l2_dev_t *device)
 				g_signal_handlers_unblock_by_func(GTK_TOGGLE_BUTTON(cur_widget->widget),
 					G_CALLBACK (check_changed), device);
 				break;
-				
+
 #ifdef V4L2_CTRL_TYPE_BITMASK
 			case V4L2_CTRL_TYPE_BITMASK:
 			{
@@ -637,7 +640,7 @@ void gui_gtk3_update_controls_state(v4l2_dev_t *device)
 					/*enable widget signals*/
 					g_signal_handlers_unblock_by_func(GTK_SCALE (cur_widget->widget),
 						G_CALLBACK (slider_changed), device);
-					
+
 					if(cur_widget->widget2)
 					{
 						/*disable widget signals*/
@@ -650,7 +653,7 @@ void gui_gtk3_update_controls_state(v4l2_dev_t *device)
 					}
 				}
 				break;
-				
+
 #ifdef V4L2_CTRL_TYPE_INTEGER_MENU
 			case V4L2_CTRL_TYPE_INTEGER_MENU:
 #endif
@@ -674,12 +677,12 @@ void gui_gtk3_update_controls_state(v4l2_dev_t *device)
 					G_CALLBACK (combo_changed), device);
 				break;
 			}
-			
+
 			default:
 				break;
-			
+
 		}
-		
+
 		/*update flags (enable disable)*/
 		if((current->control.flags & V4L2_CTRL_FLAG_GRABBED) ||
             (current->control.flags & V4L2_CTRL_FLAG_DISABLED))

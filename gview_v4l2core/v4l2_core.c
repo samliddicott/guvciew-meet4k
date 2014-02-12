@@ -1162,9 +1162,12 @@ v4l2_dev_t *init_v4l2_dev(const char *device)
 	vd->yuv_frame = NULL;
 	vd->h264_frame = NULL;
 
-	/*set a default*/
+	/*set some defaults*/
 	vd->fps_num = 1;
 	vd->fps_denom = 25;
+
+	vd->pan_step = 128;
+	vd->tilt_step = 128;
 
 	/* Create a udev object */
 	vd->udev = udev_new();
