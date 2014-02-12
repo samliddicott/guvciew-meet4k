@@ -214,6 +214,9 @@ void *capture_loop(void *data)
 				}
 			}
 
+			/*reset yuv frame size*/
+			yuv_frame_size = device->format.fmt.pix.width * device->format.fmt.pix.height << 1;
+
 			/*restart the render with new format*/
 			if(render != RENDER_NONE)
 			{
