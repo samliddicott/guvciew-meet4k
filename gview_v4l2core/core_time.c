@@ -29,6 +29,7 @@
 #include <assert.h>
 
 #include "core_time.h"
+#include "gview.h"
 
 /*
  * time in miliseconds

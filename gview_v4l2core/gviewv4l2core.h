@@ -91,6 +91,9 @@
 #define STRM_REQ_STOP    (1)
 #define STRM_OK          (2)
 
+#define IO_MMAP 1
+#define IO_READ 2
+
 /*
  * buffer number (for driver mmap ops)
  */

@@ -174,6 +174,69 @@ PKG_CHECK_MODULES(GVIEWRENDER, [sdl >= 1.2.10])
 AC_SUBST(GVIEWRENDER_CFLAGS)
 AC_SUBST(GVIEWRENDER_LIBS)
 
+dnl -----------------------------------------------
+dnl libgviewaudio name and version number
+dnl -----------------------------------------------
+
+GVIEWAUDIO_LIBRARY_NAME=libgviewaudio
+AC_SUBST(GVIEWAUDIO_LIBRARY_NAME)
+GVIEWAUDIO_LD_NAME=gviewaudio
+AC_SUBST(GVIEWAUDIO_LD_NAME)
+
+#release versioning
+GVIEWAUDIO_MAJOR_VERSION=0
+GVIEWAUDIO_MINOR_VERSION=1
+GVIEWAUDIO_MICRO_VERSION=0
+
+#API version (SONAME)
+GVIEWAUDIO_API_VERSION=$GVIEWAUDIO_MAJOR_VERSION.$GVIEWAUDIO_MINOR_VERSION
+AC_SUBST(GVIEWAUDIO_API_VERSION)
+
+#shared library versioning
+GVIEWAUDIO_LIBRARY_VERSION=$GVIEWAUDIO_MAJOR_VERSION:$GVIEWAUDIO_MINOR_VERSION:$GVIEWAUDIO_MICRO_VERSION
+#
+#             current:revision:age
+#                |       |     |
+#                |       |     +- increment if interfaces have been added
+#                |       |        set to zero if interfaces have been removed
+#                                  or changed
+#                |       +- increment if source code has changed
+#                |          set to zero if current is incremented
+#                +- increment if interfaces have been added, removed or changed
+
+AC_SUBST(GVIEWAUDIO_LIBRARY_VERSION)
+
+dnl --------------------------------------------------------------------------
+dnl check for libgviewaudio dependencies
+dnl --------------------------------------------------------------------------
+
+PKG_CHECK_MODULES(GVIEWAUDIO, [portaudio-2.0])
+AC_SUBST(GVIEWAUDIO_CFLAGS)
+AC_SUBST(GVIEWAUDIO_LIBS)
+
+dnl --------------------------------------------------------------------------
+dnl Check for pulseaudio
+dnl --------------------------------------------------------------------------
+AC_MSG_CHECKING(if you want to enable pulse support)
+AC_ARG_ENABLE(pulse, AS_HELP_STRING([--disable-pulse],
+		[disable pulseaudio support (default: enabled)]),
+	[enable_pulse=no],
+	[enable_pulse=yes])
+
+AC_MSG_RESULT($enable_pulse)
+
+if test $enable_pulse = yes; then
+	PKG_CHECK_MODULES(PULSE, libpulse >= 0.9.15, has_pulse=yes, has_pulse=no)
+	AC_SUBST(PULSE_CFLAGS)
+	AC_SUBST(PULSE_LIBS)
+	if test "$has_pulse" = yes; then
+	  AC_DEFINE(PULSEAUDIO,1,[set to 1 if pulseaudio installed])
+	else
+	  AC_MSG_WARN(libpulse missing... pulse support will be disabled.);
+	  enable_pulse=no
+	fi
+fi
+
 dnl --------------------------------------------------------------------------
 dnl check for guvcview dependencies
 dnl --------------------------------------------------------------------------
@@ -222,8 +285,10 @@ dnl -----------------------------------------------
 AC_CONFIG_FILES([
 	Makefile
     pkgconfig/gviewv4l2core-0.1.pc
+    pkgconfig/gviewaudio-0.1.pc
     pkgconfig/gviewrender-0.1.pc
     gview_v4l2core/Makefile
+    gview_audio/Makefile
     gview_render/Makefile
     guvcview/Makefile
     data/Makefile

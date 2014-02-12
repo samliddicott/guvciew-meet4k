@@ -2,6 +2,10 @@
 #           guvcview              http://guvcview.sourceforge.net               #
 #                                                                               #
 #           Paulo Assis <pj.assis@gmail.com>                                    #
+#           Nobuhiro Iwamatsu <iwamatsu@nigauri.org>                            #
+#                             Add UYVY color support(Macbook iSight)            #
+#           Flemming Frandsen <dren.dk@gmail.com>                               #
+#                             Add VU meter OSD                                  #
 #                                                                               #
 # This program is free software; you can redistribute it and/or modify          #
 # it under the terms of the GNU General Public License as published by          #
@@ -18,59 +22,30 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA     #
 #                                                                               #
 ********************************************************************************/
-#ifndef CORE_TIME_H
-#define CORE_TIME_H
 
-#include <inttypes.h>
-#include <sys/types.h>
+#ifndef GVIEWAUDIO_PORTAUDIO_H
+#define GVIEWAUDIO_PORTAUDIO_H
 
 /*
- * time in miliseconds
+ * init portaudio api
+ * args:
+ *
+ * asserts:
+ *
+ * returns: error code (0 ok)
+ */
+int audio_init_portaudio();
+
+/*
+ * close and clean audio context for portaudio api
  * args:
  *   none
  *
  * asserts:
  *   none
  *
- * returns: time of day in miliseconds
+ * returns: none
  */
-uint32_t ms_time ();
-
-/*
- * time in microseconds
- * args:
- *   none
- *
- * asserts:
- *   none
- *
- * returns: time of day in microseconds
- */
-uint64_t us_time();
-
-/*
- * time in nanoseconds
- * args:
- *   none
- *
- * asserts:
- *   none
- *
- * returns: time in nanoseconds
- */
-uint64_t ns_time ();
-
-/*
- * monotonic time in nanoseconds
- * args:
- *   none
- *
- * asserts:
- *   none
- *
- * returns: monotonic time in nanoseconds
- */
-uint64_t ns_time_monotonic();
+void audio_close_portaudio();
 
 #endif
-
