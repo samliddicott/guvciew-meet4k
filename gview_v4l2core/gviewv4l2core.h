@@ -297,7 +297,7 @@ typedef struct _v4l2_dev_t
     int pan_step;                       //pan step for relative pan tilt controls (logitech sphere/orbit/BCC950)
     int tilt_step;                      //tilt step for relative pan tilt controls (logitech sphere/orbit/BCC950)
 
-	uint8_t has_focus_control_id;       //it's set to control id if a focus control is available (enables software autofocus)
+	int has_focus_control_id;           //it's set to control id if a focus control is available (enables software autofocus)
 
     uint32_t aux_flag;                  //auxiliary flag (used by guvcview to render fx filters)
 } v4l2_dev_t;
@@ -679,9 +679,10 @@ int soft_autofocus_init (v4l2_dev_t *vd);
  * asserts:
  *    vd is not null
  *
- * returns: none
+ * returns: 1 - running  0- focused 
+ * 	(only matters for non-continue focus)
  */
-void soft_autofocus_run(v4l2_dev_t *vd);
+int soft_autofocus_run(v4l2_dev_t *vd);
 
 /*
  * sets a focus loop while autofocus is on

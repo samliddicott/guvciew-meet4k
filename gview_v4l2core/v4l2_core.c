@@ -158,6 +158,13 @@ static int check_v4l2_dev(v4l2_dev_t *vd)
 	enumerate_v4l2_control(vd);
 	/*gets the current control values and sets their flags*/
 	get_v4l2_control_values(vd);
+	
+	/*if we have a focus control initiate the software autofocus*/
+	if(vd->has_focus_control_id)
+	{
+		if(soft_autofocus_init (vd) != E_OK)
+			vd->has_focus_control_id = 0;
+	}
 
 	return E_OK;
 }
@@ -1097,6 +1104,9 @@ static void clean_v4l2_dev(v4l2_dev_t *vd)
 		free(vd->videodevice);
 	vd->videodevice = NULL;
 
+	if(vd->has_focus_control_id)
+		soft_autofocus_close(vd);
+		
 	if(vd->list_device_controls)
 		free_v4l2_control_list(vd);
 

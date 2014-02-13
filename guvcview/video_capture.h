@@ -55,6 +55,31 @@ void set_render_flag(int value);
 void set_render_fx_mask(uint32_t new_mask);
 
 /*
+ * set software autofocus flag
+ * args:
+ *    value - flag value
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void set_soft_autofocus(int value);
+
+/*
+ * set software focus flag
+ * args:
+ *    value - flag value
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void set_soft_focus(int value);
+
+
+/*
  * quit callback
  * args:
  *    data - pointer to user data

@@ -308,4 +308,30 @@ void format_changed(GtkComboBox *wgtInpType, void *data);
  */
 void render_fx_filter_changed(GtkToggleButton *toggle, void *data);
 
+/*
+ * software autofocus checkbox changed event
+ * args:
+ *    toggle - widget that generated the event
+ *    data - pointer to user data
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void autofocus_changed (GtkToggleButton * toggle, void *data);
+
+/*
+ * software autofocus button clicked event
+ * args:
+ *    button - widget that generated the event
+ *    data - pointer to user data
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void setfocus_clicked (GtkButton * button, void *data);
+
 #endif

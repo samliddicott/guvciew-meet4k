@@ -55,7 +55,10 @@ static char render_caption[20]; /*render window caption*/
 
 static uint32_t mask = REND_FX_YUV_NOFILT; /*render fx filter mask*/
 
+/*continues focus*/
 static int do_soft_autofocus = 0;
+/*single time focus (can happen during continues focus)*/
+static int do_soft_focus = 0;
 
 /*
  * set render flag
@@ -87,6 +90,37 @@ void set_render_fx_mask(uint32_t new_mask)
 	mask = new_mask;
 }
 
+/*
+ * set software autofocus flag
+ * args:
+ *    value - flag value
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void set_soft_autofocus(int value)
+{
+	do_soft_autofocus = value;
+}
+
+/*
+ * set software focus flag
+ * args:
+ *    value - flag value
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void set_soft_focus(int value)
+{
+	soft_autofocus_set_focus();
+	
+	do_soft_focus = value;
+}
 /*
  * request format update
  * args:
@@ -258,8 +292,9 @@ void *capture_loop(void *data)
 				//continue;
 			}
 
-			/*run software autofocus*/
-
+			/*run software autofocus (must be called after frame_decode)*/
+			if(do_soft_autofocus || do_soft_focus)
+				do_soft_focus = soft_autofocus_run(device);
 
 			/*render the decoded frame*/
 			if(render != RENDER_NONE)

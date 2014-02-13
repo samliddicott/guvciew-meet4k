@@ -124,20 +124,26 @@ int gui_attach_gtk3_v4l2ctrls(v4l2_dev_t *device, GtkWidget *parent)
 
     for(; current != NULL; current = current->next, ++n)
     {
+		if(current->control.id == V4L2_CID_FOCUS_LOGITECH ||
+		   current->control.id == V4L2_CID_FOCUS_ABSOLUTE)
+		{
+			++n; /*add a virtual software autofocus control*/
+		}
+		
 		widget_list_size = n + 1;
 
 		control_widgets_list = realloc(control_widgets_list, sizeof(control_widgets_t) * widget_list_size);
 		/*label*/
 		char *tmp;
         tmp = g_strdup_printf ("%s:", gettext((char *) current->control.name));
-        control_widgets_list[n].label = gtk_label_new (tmp);
+        control_widgets_list[widget_list_size - 1].label = gtk_label_new (tmp);
         free(tmp);
-        gtk_widget_show (control_widgets_list[n].label);
-        gtk_misc_set_alignment (GTK_MISC (control_widgets_list[n].label), 1, 0.5);
+        gtk_widget_show (control_widgets_list[widget_list_size - 1].label);
+        gtk_misc_set_alignment (GTK_MISC (control_widgets_list[widget_list_size - 1].label), 1, 0.5);
 
-		control_widgets_list[n].id = current->control.id;
-        control_widgets_list[n].widget = NULL;
-        control_widgets_list[n].widget2 = NULL; /*usually a spin button*/
+		control_widgets_list[widget_list_size - 1].id = current->control.id;
+        control_widgets_list[widget_list_size - 1].widget = NULL;
+        control_widgets_list[widget_list_size - 1].widget2 = NULL; /*usually a spin button*/
 
 		switch (current->control.type)
 		{
@@ -314,6 +320,31 @@ int gui_attach_gtk3_v4l2ctrls(v4l2_dev_t *device, GtkWidget *parent)
 						break;
 					}
 
+					case V4L2_CID_FOCUS_LOGITECH:
+					case V4L2_CID_FOCUS_ABSOLUTE:
+						/*add a virtual control for software autofocus*/
+						control_widgets_list[n-1].widget = gtk_check_button_new_with_label (_("Auto Focus (continuous)"));
+						control_widgets_list[n-1].widget2 = gtk_button_new_with_label (_("set Focus"));
+					
+						gtk_widget_show (control_widgets_list[n-1].widget);
+						gtk_widget_show (control_widgets_list[n-1].widget2);
+						
+
+						gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (control_widgets_list[n-1].widget), FALSE);
+							//device->aux_flag2 ? TRUE: FALSE);
+
+						g_signal_connect (G_OBJECT (control_widgets_list[n-1].widget), "toggled",
+							G_CALLBACK (autofocus_changed), device);
+						g_signal_connect (G_OBJECT (control_widgets_list[n-1].widget2), "clicked",
+							G_CALLBACK (setfocus_clicked), device);
+							
+						gtk_grid_attach(GTK_GRID(img_controls_grid), control_widgets_list[n-1].widget, 1, i, 1 , 1);
+						gtk_widget_set_halign (control_widgets_list[n-1].widget, GTK_ALIGN_FILL);
+						gtk_widget_set_hexpand (control_widgets_list[n-1].widget, TRUE);
+						gtk_grid_attach(GTK_GRID(img_controls_grid), control_widgets_list[n-1].widget2, 2, i, 1 , 1);
+						
+						i++;
+												
 					default: /*standard case - hscale + spin*/
 					{
 						/* check for valid range */
@@ -344,6 +375,15 @@ int gui_attach_gtk3_v4l2ctrls(v4l2_dev_t *device, GtkWidget *parent)
 								GINT_TO_POINTER(current->control.id));
 							g_object_set_data (G_OBJECT (control_widgets_list[n].widget2), "control_info",
 								GINT_TO_POINTER(current->control.id));
+								
+							if(current->control.id == V4L2_CID_FOCUS_LOGITECH ||
+							   current->control.id == V4L2_CID_FOCUS_ABSOLUTE)
+							{
+								g_object_set_data (G_OBJECT (control_widgets_list[n-1].widget), "control_entry",
+									control_widgets_list[n].widget);
+								g_object_set_data (G_OBJECT (control_widgets_list[n-1].widget), "control2_entry",
+									control_widgets_list[n].widget2);
+							}	
 
 							/*connect signals*/
 							g_signal_connect (GTK_SCALE(control_widgets_list[n].widget), "value-changed",

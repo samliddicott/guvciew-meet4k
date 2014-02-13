@@ -95,7 +95,6 @@ static int ACweight[64] = {
 /*use insert sort by default - it's the fastest for small and almost sorted arrays (our case)*/
 static int sort_method = AUTOF_SORT_INSERT; /* 1 - Quick sort   2 - Shell sort  3- insert sort  other - bubble sort*/
 
-
 /*
  * sets a focus loop while autofocus is on
  * args:
@@ -112,6 +111,12 @@ void soft_autofocus_set_focus()
 	assert(focus_ctx != NULL);
 
 	focus_ctx->setFocus = 1;
+	
+	focus_ctx->ind = 0;
+	focus_ctx->flag = 0;
+	focus_ctx->right = 255;
+	focus_ctx->left = 8;
+	focus_ctx->focus = -1; /*reset focus*/
 }
 
 /*
@@ -749,9 +754,10 @@ int soft_autofocus_get_focus_value()
  * asserts:
  *    vd is not null
  *
- * returns: none
+ * returns: 1 - running  0- focused 
+ * 	(only matters for non-continue focus)
  */
-void soft_autofocus_run(v4l2_dev_t *vd)
+int soft_autofocus_run(v4l2_dev_t *vd)
 {
 	/*asserts*/
 	assert(vd != NULL);
@@ -813,6 +819,8 @@ void soft_autofocus_run(v4l2_dev_t *vd)
 					focus_ctx->focus_wait);
 		}
 	}
+	
+	return (focus_ctx->setFocus);
 }
 
 /*

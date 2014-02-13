@@ -803,3 +803,46 @@ void render_fx_filter_changed(GtkToggleButton *toggle, void *data)
 
 	set_render_fx_mask(device->aux_flag);
 }
+
+/*
+ * software autofocus checkbox changed event
+ * args:
+ *    toggle - widget that generated the event
+ *    data - pointer to user data
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void autofocus_changed (GtkToggleButton * toggle, void *data)
+{
+    v4l2_dev_t *device = (v4l2_dev_t *) data;
+
+	int val = gtk_toggle_button_get_active (toggle) ? 1 : 0;
+	
+	GtkWidget *wgtFocus_slider = (GtkWidget *) g_object_get_data (G_OBJECT (toggle), "control_entry");
+	GtkWidget *wgtFocus_spin = (GtkWidget *) g_object_get_data (G_OBJECT (toggle), "control2_entry");
+	/*if autofocus disable manual focus control*/
+	gtk_widget_set_sensitive (wgtFocus_slider, !val);
+	gtk_widget_set_sensitive (wgtFocus_spin, !val);
+
+	set_soft_autofocus(val);
+	
+}
+
+/*
+ * software autofocus button clicked event
+ * args:
+ *    button - widget that generated the event
+ *    data - pointer to user data
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void setfocus_clicked (GtkButton * button, void *data)
+{
+	set_soft_focus(1);
+}
