@@ -27,6 +27,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <inttypes.h>
 #include <sys/types.h>
 #include <unistd.h>
 #include <fcntl.h>

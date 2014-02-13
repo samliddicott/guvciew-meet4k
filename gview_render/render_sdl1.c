@@ -165,7 +165,7 @@ static SDL_Overlay * video_init(int width, int height)
 
 	if(verbosity > 0)
 		printf("RENDER: setting video mode %ix%i@%ibpp\n", width, height, bpp);
-		
+
     pscreen = SDL_SetVideoMode(
         width,
         height,
@@ -190,6 +190,8 @@ static SDL_Overlay * video_init(int width, int height)
 /*
  * init sdl1 render
  * args:
+ *    width - overlay width
+ *    height - overlay height
  *
  * asserts:
  *
@@ -219,7 +221,8 @@ static SDL_Overlay * video_init(int width, int height)
  * render a frame
  * args:
  *   frame - pointer to frame data (yuyv format)
- *   size - frame size in bytes
+ *   width - frame width
+ *   height - frame height
  *
  * asserts:
  *   poverlay is not nul
@@ -227,7 +230,7 @@ static SDL_Overlay * video_init(int width, int height)
  *
  * returns: error code
  */
-int render_sdl1_frame(uint8_t *frame, int size)
+int render_sdl1_frame(uint8_t *frame, int width, int height)
 {
 	/*asserts*/
 	assert(poverlay != NULL);
@@ -235,6 +238,7 @@ int render_sdl1_frame(uint8_t *frame, int size)
 
 	uint8_t *p = (uint8_t *) poverlay->pixels[0];
 
+	int size = width * height * 2; /* 2 bytes per pixel for yuyv*/
 	 SDL_LockYUVOverlay(poverlay);
      memcpy(p, frame, size);
      SDL_UnlockYUVOverlay(poverlay);
@@ -269,7 +273,7 @@ void set_render_sdl1_caption(const char* caption)
 void render_sdl1_dispatch_events()
 {
 	SDL_Event event;
-	
+
 	/* Poll for events */
 	while( SDL_PollEvent(&event) )
 	{
@@ -280,42 +284,42 @@ void render_sdl1_dispatch_events()
 				/* Keyboard event */
                 /* Pass the event data onto PrintKeyInfo() */
 				case SDLK_DOWN:
-					
+
 					break;
 
 				case SDLK_UP:
-					
+
 					break;
 
 				case SDLK_LEFT:
-					
+
 					break;
 
 				case SDLK_RIGHT:
-					
+
 					break;
-				
+
 				case SDLK_q:
-					
+
 					break;
-				
+
 				case SDLK_SPACE:
-				
+
 					break;
-				
+
 				case SDLK_i:
-					
+
 					break;
-				 
+
 				case SDLK_v:
-				
+
 					break;
-					
+
 				default:
 					break;
 
 			}
-			
+
 			switch( event.key.keysym.scancode )
 			{
 				case 220: /*webcam button*/
@@ -331,11 +335,11 @@ void render_sdl1_dispatch_events()
 					event.resize.h,
 					bpp,
 					SDL_VIDEO_Flags);
-					
+
 			drect.w = event.resize.w;
 			drect.h = event.resize.h;
 		}
-		
+
 		if(event.type==SDL_QUIT)
 		{
 			if(verbosity > 0)
@@ -361,7 +365,7 @@ void render_sdl1_clean()
 	poverlay = NULL;
 
 	SDL_Quit();
-	
+
 	pscreen = NULL;
 }
 

@@ -45,6 +45,14 @@
 #define EV_KEY_RIGHT (4)
 #define EV_KEY_SPACE (5)
 
+/*FX FILTER FLAGS*/
+#define REND_FX_YUV_NOFILT (0)
+#define REND_FX_YUV_MIRROR (1<<0)
+#define REND_FX_YUV_UPTURN (1<<1)
+#define REND_FX_YUV_NEGATE (1<<2)
+#define REND_FX_YUV_MONOCR (1<<3)
+#define REND_FX_YUV_PIECES (1<<4)
+#define REND_FX_YUV_PARTICLES (1<<5)
 
 typedef int (*render_event_callback)(void *data);
 
@@ -53,7 +61,7 @@ typedef struct _render_events_t
 	int id;
 	render_event_callback callback;
 	void *data;
-	
+
 } render_events_t;
 /*
  * set verbosity
@@ -66,6 +74,30 @@ typedef struct _render_events_t
  * returns: none
  */
 void set_render_verbosity(int value);
+
+/*
+ * get render width
+ * args:
+ *   none
+ *
+ * asserts:
+ *    none
+ *
+ * returns: render width
+ */
+int render_get_width();
+
+/*
+ * get render height
+ * args:
+ *   none
+ *
+ * asserts:
+ *    none
+ *
+ * returns: render height
+ */
+int render_get_height();
 
 /*
  * render initialization
@@ -97,26 +129,25 @@ void set_render_caption(const char* caption);
  * render a frame
  * args:
  *   frame - pointer to frame data (yuyv format)
- *   size - frame size in bytes
+ *   mask - fx filter mask (or'ed)
  *
  * asserts:
  *   frame is not null
- *   size is valid
  *
  * returns: error code
  */
-int render_frame(uint8_t *frame, int size);
+int render_frame(uint8_t *frame, uint32_t mask);
 
 /*
  * get event index on render_events_list
  * args:
  *    id - event id
- * 
+ *
  * asserts:
  *    none
- * 
- * returns: event index or -1 on error 
- */ 
+ *
+ * returns: event index or -1 on error
+ */
 int render_get_event_index(int id);
 
 /*
@@ -125,25 +156,52 @@ int render_get_event_index(int id);
  *    id - event id
  *    callback_function - pointer to callback function
  *    data - pointer to user data (passed to callback)
- * 
+ *
  * asserts:
  *    none
- * 
+ *
  * returns: error code
- */ 
+ */
 int render_set_event_callback(int id, render_event_callback callback_function, void *data);
 
 /*
  * call the event callback for event id
  * args:
  *    id - event id
- * 
+ *
  * asserts:
  *    none
- * 
- * returns: error code 
- */ 
+ *
+ * returns: error code
+ */
 int render_call_event_callback(int id);
+
+/*
+ * Apply fx filters
+ * args:
+ *    frame - pointer to frame buffer (yuyv format)
+ *    width - frame width
+ *    height - frame height
+ *    mask  - or'ed filter mask
+ *
+ * asserts:
+ *    frame is not null
+ *
+ * returns: void
+ */
+void render_apply_fx(uint8_t *frame, int width, int height, uint32_t mask);
+
+/*
+ * clean fx filters
+ * args:
+ *    none
+ *
+ * asserts:
+ *    none
+ *
+ * returns: void
+ */
+void render_clean_fx();
 
 /*
  * clean render data

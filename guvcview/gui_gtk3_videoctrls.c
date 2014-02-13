@@ -40,6 +40,7 @@
 #include "gui.h"
 /*add this last to avoid redefining _() and N_()*/
 #include "gview.h"
+#include "gviewrender.h"
 
 
 extern int debug_level;
@@ -270,6 +271,101 @@ int gui_attach_gtk3_videoctrls(v4l2_dev_t *device, GtkWidget *parent)
 		G_CALLBACK (format_changed), device);
 
 
+	/* ----- Filter controls -----*/
+	line++;
+	GtkWidget *label_videoFilters = gtk_label_new(_("---- Video Filters ----"));
+	gtk_misc_set_alignment (GTK_MISC (label_videoFilters), 0.5, 0.5);
+
+	gtk_grid_attach (GTK_GRID(video_controls_grid), label_videoFilters, 0, line, 3, 1);
+	gtk_widget_show (label_videoFilters);
+
+	/*filters grid*/
+	line++;
+	GtkWidget *table_filt = gtk_grid_new();
+	gtk_grid_set_row_spacing (GTK_GRID (table_filt), 4);
+	gtk_grid_set_column_spacing (GTK_GRID (table_filt), 4);
+	gtk_container_set_border_width (GTK_CONTAINER (table_filt), 4);
+	gtk_widget_set_size_request (table_filt, -1, -1);
+
+	gtk_widget_set_halign (table_filt, GTK_ALIGN_FILL);
+	gtk_widget_set_hexpand (table_filt, TRUE);
+	gtk_grid_attach (GTK_GRID(video_controls_grid), table_filt, 0, line, 3, 1);
+	gtk_widget_show (table_filt);
+
+	/* Mirror FX */
+	GtkWidget *FiltMirrorEnable = gtk_check_button_new_with_label (_(" Mirror"));
+	g_object_set_data (G_OBJECT (FiltMirrorEnable), "filt_info", GINT_TO_POINTER(REND_FX_YUV_MIRROR));
+	gtk_widget_set_halign (FiltMirrorEnable, GTK_ALIGN_FILL);
+	gtk_widget_set_hexpand (FiltMirrorEnable, TRUE);
+	gtk_grid_attach(GTK_GRID(table_filt), FiltMirrorEnable, 0, 0, 1, 1);
+
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(FiltMirrorEnable),
+		(device->aux_flag & REND_FX_YUV_MIRROR) > 0);
+	gtk_widget_show (FiltMirrorEnable);
+	g_signal_connect (GTK_CHECK_BUTTON(FiltMirrorEnable), "toggled",
+		G_CALLBACK (render_fx_filter_changed), device);
+	/* Upturn FX */
+	GtkWidget *FiltUpturnEnable = gtk_check_button_new_with_label (_(" Invert"));
+	g_object_set_data (G_OBJECT (FiltUpturnEnable), "filt_info", GINT_TO_POINTER(REND_FX_YUV_UPTURN));
+	gtk_widget_set_halign (FiltUpturnEnable, GTK_ALIGN_FILL);
+	gtk_widget_set_hexpand (FiltUpturnEnable, TRUE);
+	gtk_grid_attach(GTK_GRID(table_filt), FiltUpturnEnable, 1, 0, 1, 1);
+
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(FiltUpturnEnable),
+		(device->aux_flag & REND_FX_YUV_UPTURN) > 0);
+	gtk_widget_show (FiltUpturnEnable);
+	g_signal_connect (GTK_CHECK_BUTTON(FiltUpturnEnable), "toggled",
+		G_CALLBACK (render_fx_filter_changed), device);
+	/* Negate FX */
+	GtkWidget *FiltNegateEnable = gtk_check_button_new_with_label (_(" Negative"));
+	g_object_set_data (G_OBJECT (FiltNegateEnable), "filt_info", GINT_TO_POINTER(REND_FX_YUV_NEGATE));
+	gtk_widget_set_halign (FiltNegateEnable, GTK_ALIGN_FILL);
+	gtk_widget_set_hexpand (FiltNegateEnable, TRUE);
+	gtk_grid_attach(GTK_GRID(table_filt), FiltNegateEnable, 2, 0, 1, 1);
+
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(FiltNegateEnable),
+		(device->aux_flag & REND_FX_YUV_NEGATE) >0 );
+	gtk_widget_show (FiltNegateEnable);
+	g_signal_connect (GTK_CHECK_BUTTON(FiltNegateEnable), "toggled",
+		G_CALLBACK (render_fx_filter_changed), device);
+	/* Mono FX */
+	GtkWidget *FiltMonoEnable = gtk_check_button_new_with_label (_(" Mono"));
+	g_object_set_data (G_OBJECT (FiltMonoEnable), "filt_info", GINT_TO_POINTER(REND_FX_YUV_MONOCR));
+	gtk_widget_set_halign (FiltMonoEnable, GTK_ALIGN_FILL);
+	gtk_widget_set_hexpand (FiltMonoEnable, TRUE);
+	gtk_grid_attach(GTK_GRID(table_filt), FiltMonoEnable, 3, 0, 1, 1);
+
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(FiltMonoEnable),
+		(device->aux_flag & REND_FX_YUV_MONOCR) > 0);
+	gtk_widget_show (FiltMonoEnable);
+	g_signal_connect (GTK_CHECK_BUTTON(FiltMonoEnable), "toggled",
+		G_CALLBACK (render_fx_filter_changed), device);
+
+	/* Pieces FX */
+	GtkWidget *FiltPiecesEnable = gtk_check_button_new_with_label (_(" Pieces"));
+	g_object_set_data (G_OBJECT (FiltPiecesEnable), "filt_info", GINT_TO_POINTER(REND_FX_YUV_PIECES));
+	gtk_widget_set_halign (FiltPiecesEnable, GTK_ALIGN_FILL);
+	gtk_widget_set_hexpand (FiltPiecesEnable, TRUE);
+	gtk_grid_attach(GTK_GRID(table_filt), FiltPiecesEnable, 4, 0, 1, 1);
+
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(FiltPiecesEnable),
+		(device->aux_flag & REND_FX_YUV_PIECES) > 0);
+	gtk_widget_show (FiltPiecesEnable);
+	g_signal_connect (GTK_CHECK_BUTTON(FiltPiecesEnable), "toggled",
+		G_CALLBACK (render_fx_filter_changed), device);
+
+	/* Particles */
+	GtkWidget *FiltParticlesEnable = gtk_check_button_new_with_label (_(" Particles"));
+	g_object_set_data (G_OBJECT (FiltParticlesEnable), "filt_info", GINT_TO_POINTER(REND_FX_YUV_PARTICLES));
+	gtk_widget_set_halign (FiltParticlesEnable, GTK_ALIGN_FILL);
+	gtk_widget_set_hexpand (FiltParticlesEnable, TRUE);
+	gtk_grid_attach(GTK_GRID(table_filt), FiltParticlesEnable, 5, 0, 1, 1);
+
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(FiltParticlesEnable),
+		(device->aux_flag & REND_FX_YUV_PARTICLES) > 0);
+	gtk_widget_show (FiltParticlesEnable);
+	g_signal_connect (GTK_CHECK_BUTTON(FiltParticlesEnable), "toggled",
+		G_CALLBACK (render_fx_filter_changed), device);
 
 
 	/*add control grid to parent container*/

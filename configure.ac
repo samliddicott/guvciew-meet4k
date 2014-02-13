@@ -174,6 +174,33 @@ PKG_CHECK_MODULES(GVIEWRENDER, [sdl >= 1.2.10])
 AC_SUBST(GVIEWRENDER_CFLAGS)
 AC_SUBST(GVIEWRENDER_LIBS)
 
+dnl --------------------------------------------------------------------------
+dnl Check for gsl (gnu random generator) used by render fx
+dnl --------------------------------------------------------------------------
+AC_MSG_CHECKING(if you want to enable gsl support)
+AC_ARG_ENABLE(gsl, AS_HELP_STRING([--disable-gsl],
+		[disable gsl support (default: enabled)]),
+	[enable_gsl=no],
+	[enable_gsl=yes])
+
+AC_MSG_RESULT($enable_gsl)
+
+if test $enable_gsl = yes; then
+
+	dnl AX_PATH_GSL(
+	dnl			1.15,
+	dnl			AC_DEFINE(HAS_GSL, 1, [set to 1 if gsl is enabled]),
+	dnl			AC_MSG_WARN(libgsl not found... some render fx filters will be disabled.))
+
+	PKG_CHECK_MODULES(GSL, [gsl >= 1.15])
+	AC_SUBST(GSL_CFLAGS)
+	AC_SUBST(GSL_LIBS)
+
+	AC_DEFINE(HAS_GSL, 1, [set to 1 if gsl is enabled])
+else
+	AC_MSG_WARN(libgsl disabled... some render fx filters will be disabled.)
+fi
+
 dnl -----------------------------------------------
 dnl libgviewaudio name and version number
 dnl -----------------------------------------------

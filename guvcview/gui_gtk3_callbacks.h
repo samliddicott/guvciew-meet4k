@@ -295,4 +295,17 @@ void resolution_changed (GtkComboBox *wgtResolution, void *data);
  */
 void format_changed(GtkComboBox *wgtInpType, void *data);
 
+/*
+ * render fx filter changed event
+ * args:
+ *    toggle - widget that generated the event
+ *    data - pointer to user data
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void render_fx_filter_changed(GtkToggleButton *toggle, void *data);
+
 #endif

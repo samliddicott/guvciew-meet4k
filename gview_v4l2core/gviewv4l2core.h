@@ -284,6 +284,8 @@ typedef struct _v4l2_dev_t
 
     int pan_step;                       //pan step for relative pan tilt controls (logitech sphere/orbit/BCC950)
     int tilt_step;                      //tilt step for relative pan tilt controls (logitech sphere/orbit/BCC950)
+
+    uint32_t aux_flag;                  //auxiliary flag (used by guvcview to render fx filters)
 } v4l2_dev_t;
 
 /*

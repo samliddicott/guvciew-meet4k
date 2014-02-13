@@ -26,36 +26,39 @@
 /*
  * init sdl1 render
  * args:
- * 
+ *    width - overlay width
+ *    height - overlay height
+ *
  * asserts:
- * 
+ *
  * returns: error code (0 ok)
- */ 
+ */
 int init_render_sdl1(int width, int height);
 
 /*
  * render a frame
  * args:
  *   frame - pointer to frame data (yuyv format)
- *   size - frame size in bytes
- * 
+ *   width - frame width
+ *   height - frame height
+ *
  * asserts:
  *   poverlay is not nul
  *   frame is not null
- * 
- * returns: error code 
- */ 
-int render_sdl1_frame(uint8_t *frame, int size);
+ *
+ * returns: error code
+ */
+int render_sdl1_frame(uint8_t *frame, int width, int height);
 
 /*
  * set sdl1 render caption
  * args:
  *   caption - string with render window caption
- * 
+ *
  * asserts:
  *   none
- * 
- * returns: none 
+ *
+ * returns: none
  */
 void set_render_sdl1_caption(const char* caption);
 
@@ -75,10 +78,10 @@ void render_sdl1_dispatch_events();
  * clean sdl1 render data
  * args:
  *   none
- * 
+ *
  * asserts:
  *   none
- * 
- * returns: none 
+ *
+ * returns: none
  */
 void render_sdl1_clean();

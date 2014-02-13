@@ -43,6 +43,18 @@ typedef struct _capture_loop_data_t
 void set_render_flag(int value);
 
 /*
+ * set render fx mask
+ * args:
+ *    new_mask - new render fx filter mask
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void set_render_fx_mask(uint32_t new_mask);
+
+/*
  * quit callback
  * args:
  *    data - pointer to user data

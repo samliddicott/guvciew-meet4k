@@ -53,6 +53,8 @@ static int restart = 0; /*restart flag*/
 
 static char render_caption[20]; /*render window caption*/
 
+static uint32_t mask = REND_FX_YUV_NOFILT; /*render fx filter mask*/
+
 /*
  * set render flag
  * args:
@@ -66,6 +68,21 @@ static char render_caption[20]; /*render window caption*/
 void set_render_flag(int value)
 {
 	render = value;
+}
+
+/*
+ * set render flag
+ * args:
+ *    value - flag value
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void set_render_fx_mask(uint32_t new_mask)
+{
+	mask = new_mask;
 }
 
 /*
@@ -166,9 +183,6 @@ void *capture_loop(void *data)
 		}
 	}
 
-	/*yuyv frame has 2 bytes per pixel*/
-	int yuv_frame_size = device->format.fmt.pix.width * device->format.fmt.pix.height << 1;
-
 	if(render != RENDER_NONE)
 	{
 		set_render_verbosity(debug_level);
@@ -214,9 +228,6 @@ void *capture_loop(void *data)
 				}
 			}
 
-			/*reset yuv frame size*/
-			yuv_frame_size = device->format.fmt.pix.width * device->format.fmt.pix.height << 1;
-
 			/*restart the render with new format*/
 			if(render != RENDER_NONE)
 			{
@@ -250,7 +261,7 @@ void *capture_loop(void *data)
 			{
 				snprintf(render_caption, 20, "SDL Video - %2.2f", get_v4l2_realfps());
 				set_render_caption(render_caption);
-				render_frame(device->yuv_frame, yuv_frame_size);
+				render_frame(device->yuv_frame, mask);
 			}
 
 			if(save_image)

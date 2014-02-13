@@ -108,15 +108,6 @@ static const int stdSampleRates[] =
 #define MAX(a,b) (((a) < (b)) ? (b) : (a))
 #endif
 
-/*FILTER FLAGS*/
-#define YUV_NOFILT (0)
-#define YUV_MIRROR (1<<0)
-#define YUV_UPTURN (1<<1)
-#define YUV_NEGATE (1<<2)
-#define YUV_MONOCR (1<<3)
-#define YUV_PIECES (1<<4)
-#define YUV_PARTICLES (1<<5)
-
 /* On Screen Display flags*/
 #define OSD_METER  (1<<0)
 
