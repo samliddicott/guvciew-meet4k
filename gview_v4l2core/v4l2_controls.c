@@ -326,6 +326,10 @@ static v4l2_ctrl_t *add_control(v4l2_dev_t *vd, struct v4l2_queryctrl* queryctrl
 			menu[i].name[0] = 0;
     }
 
+    /*check for focus control to enable software autofocus*/
+    if(queryctrl->id == V4L2_CID_FOCUS_LOGITECH ||
+       queryctrl->id == V4L2_CID_FOCUS_ABSOLUTE)
+		vd->has_focus_control_id = queryctrl->id;
     // Add the control to the linked list
     control = calloc (1, sizeof(v4l2_ctrl_t));
     memcpy(&(control->control), queryctrl, sizeof(struct v4l2_queryctrl));
@@ -335,7 +339,7 @@ static v4l2_ctrl_t *add_control(v4l2_dev_t *vd, struct v4l2_queryctrl* queryctrl
 #ifdef V4L2_CTRL_TYPE_STRING
     //allocate a string with max size if needed
     if(control->control.type == V4L2_CTRL_TYPE_STRING)
-        control->string = (char *) g_strnfill(control->control.maximum + 1, 0);
+        control->string = (char *) calloc (control->control.maximum + 1, sizeof(char));
     else
 #endif
         control->string = NULL;
@@ -439,7 +443,7 @@ int enumerate_v4l2_control(v4l2_dev_t *vd)
 	}
 
     vd->num_controls = n;
-	
+
     if(verbosity > 0)
 		print_control_list(vd);
 
@@ -739,12 +743,12 @@ void get_v4l2_control_values (v4l2_dev_t *vd)
     int ret = 0;
     struct v4l2_ext_control clist[vd->num_controls];
     v4l2_ctrl_t *current = vd->list_device_controls;
- 
+
     int count = 0;
     int i = 0;
-	
+
     for(; current != NULL; current = current->next)
-    {	
+    {
         if(current->control.flags & V4L2_CTRL_FLAG_WRITE_ONLY)
              continue;
 
@@ -806,7 +810,7 @@ void get_v4l2_control_values (v4l2_dev_t *vd)
                     }
                 }
             }
-			
+
             //fill in the values on the control list
             for(i=0; i<count; i++)
             {
@@ -994,13 +998,13 @@ void set_v4l2_control_values (v4l2_dev_t *vd)
     int ret = 0;
     struct v4l2_ext_control clist[vd->num_controls];
     v4l2_ctrl_t *current = vd->list_device_controls;
-    
+
     int count = 0;
     int i = 0;
 
 	if(verbosity > 0)
 		printf("V4L2_CORE: setting control values\n");
-		
+
     for(; current != NULL; current = current->next)
     {
         if(current->control.flags & V4L2_CTRL_FLAG_READ_ONLY)
@@ -1138,10 +1142,10 @@ void set_v4l2_control_defaults(v4l2_dev_t *vd)
 
     v4l2_ctrl_t *current = vd->list_device_controls;
     v4l2_ctrl_t *next = current->next;
-	
+
 	if(verbosity > 0)
 		printf("V4L2_CORE: loading defaults\n");
-	
+
 	int i = 0;
     for(; current != NULL; current = current->next, ++i)
     {
@@ -1168,9 +1172,9 @@ void set_v4l2_control_defaults(v4l2_dev_t *vd)
                 break;
         }
     }
-		
+
     set_v4l2_control_values(vd);
-    
+
     get_v4l2_control_values(vd);
 }
 

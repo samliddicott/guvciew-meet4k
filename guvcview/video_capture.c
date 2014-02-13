@@ -55,6 +55,8 @@ static char render_caption[20]; /*render window caption*/
 
 static uint32_t mask = REND_FX_YUV_NOFILT; /*render fx filter mask*/
 
+static int do_soft_autofocus = 0;
+
 /*
  * set render flag
  * args:
@@ -255,6 +257,9 @@ void *capture_loop(void *data)
 				//quit_callback(NULL);
 				//continue;
 			}
+
+			/*run software autofocus*/
+
 
 			/*render the decoded frame*/
 			if(render != RENDER_NONE)

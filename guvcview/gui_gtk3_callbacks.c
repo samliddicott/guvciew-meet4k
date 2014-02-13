@@ -528,9 +528,12 @@ void check_changed (GtkToggleButton *toggle, void *data)
         else
 			device->isbayer = 0;
 
-        /*must restart stream for changes to take effect*/
-        stop_video_stream(device);
-        start_video_stream(device);
+        /*
+         * must restart stream and requeue
+         * the buffers for changes to take effect
+         * (updating fps provides all that is needed)
+         */
+        request_v4l2_framerate_update (device);
     }
 
     gui_gtk3_update_controls_state(device);
@@ -695,10 +698,10 @@ void resolution_changed (GtkComboBox *wgtResolution, void *data)
 			( device->fps_denom == device->list_stream_formats[format_index].list_stream_cap[cmb_index].framerate_denom[i]))
 				deffps=i;
 	}
-	
+
 	/*set default fps in combo*/
 	gtk_combo_box_set_active(GTK_COMBO_BOX(wgtFrameRate), deffps);
-	
+
 	/*enable fps combobox signals*/
 	g_signal_handlers_unblock_by_func(GTK_COMBO_BOX_TEXT(wgtFrameRate), G_CALLBACK (frame_rate_changed), device);
 

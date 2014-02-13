@@ -13,7 +13,9 @@ c_sources = v4l2_core.c \
 			core_time.c \
 			frame_decoder.c \
 			colorspaces.c \
-			jpeg_decoder.c
+			jpeg_decoder.c \
+			soft_autofocus.c \
+			dct.c
 
 
 #Install the headers in a versioned directory - guvcvideo-x.x/libgview_v4l2core:

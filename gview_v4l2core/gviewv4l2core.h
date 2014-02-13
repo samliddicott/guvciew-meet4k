@@ -95,6 +95,18 @@
 #define IO_READ 2
 
 /*
+ * software autofocus sort method
+ * quick sort
+ * shell sort
+ * insert sort
+ * bubble sort
+ */
+#define AUTOF_SORT_QUICK  1
+#define AUTOF_SORT_SHELL  2
+#define AUTOF_SORT_INSERT 3
+#define AUTOF_SORT_BUBBLE 4
+
+/*
  * buffer number (for driver mmap ops)
  */
 #define NB_BUFFER 4
@@ -284,6 +296,8 @@ typedef struct _v4l2_dev_t
 
     int pan_step;                       //pan step for relative pan tilt controls (logitech sphere/orbit/BCC950)
     int tilt_step;                      //tilt step for relative pan tilt controls (logitech sphere/orbit/BCC950)
+
+	uint8_t has_focus_control_id;       //it's set to control id if a focus control is available (enables software autofocus)
 
     uint32_t aux_flag;                  //auxiliary flag (used by guvcview to render fx filters)
 } v4l2_dev_t;
@@ -632,6 +646,66 @@ int get_v4l2_control_id_value (v4l2_dev_t *vd, int id);
  * returns: void
  */
 void set_v4l2_control_defaults(v4l2_dev_t *vd);
+
+/*
+ * set autofocus sort method
+ * args:
+ *    method - sort method
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void soft_autofocus_set_sort(int method);
+
+/*
+ * initiate software autofocus
+ * args:
+ *    vd - pointer to device data
+ *
+ * asserts:
+ *    vd is not null
+ *
+ * returns: error code (0 - E_OK)
+ */
+int soft_autofocus_init (v4l2_dev_t *vd);
+
+/*
+ * run the software autofocus
+ * args:
+ *    vd - pointer to device data
+ *
+ * asserts:
+ *    vd is not null
+ *
+ * returns: none
+ */
+void soft_autofocus_run(v4l2_dev_t *vd);
+
+/*
+ * sets a focus loop while autofocus is on
+ * args:
+ *    none
+ *
+ * asserts:
+ *    focus_ctx is not null
+ *
+ * returns: none
+ */
+void soft_autofocus_set_focus();
+
+/*
+ * close and clean software autofocus
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void soft_autofocus_close();
 
 /*
  *  ######### XU CONTROLS ##########
