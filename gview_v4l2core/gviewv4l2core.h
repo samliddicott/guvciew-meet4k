@@ -82,6 +82,7 @@
 #define E_UNKNOWN_CID_ERR         (-28)
 #define E_WRONG_MARKER_ERR        (-29)
 #define E_NO_EOI_ERR              (-30)
+#define E_FILE_IO_ERR             (-31)
 #define E_UNKNOWN_ERR    		  (-40)
 
 /*
@@ -694,6 +695,32 @@ void v4l2core_soft_autofocus_set_focus();
  * returns: none
  */
 void v4l2core_soft_autofocus_close();
+
+/*
+ * save the device control values into a profile file
+ * args:
+ *   vd - pointer to video device data
+ *   filename - profile filename
+ *
+ * asserts:
+ *   vd is not null
+ *
+ * returns: error code (0 -E_OK)
+ */
+int v4l2core_save_control_profile(v4l2_dev_t *vd, const char *filename);
+
+/*
+ * load the device control values from a profile file
+ * args:
+ *   vd - pointer to video device data
+ *   filename - profile filename
+ *
+ * asserts:
+ *   vd is not null
+ *
+ * returns: error code (0 -E_OK)
+ */
+int v4l2core_load_control_profile(v4l2_dev_t *vd, const char *filename);
 
 /*
  *  ######### XU CONTROLS ##########

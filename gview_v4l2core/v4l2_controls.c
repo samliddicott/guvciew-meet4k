@@ -681,7 +681,7 @@ static void update_ctrl_list_flags(v4l2_dev_t *vd)
  *
  * returns: void
  */
-static void disable_special_auto (v4l2_dev_t *vd, int id)
+void disable_special_auto (v4l2_dev_t *vd, int id)
 {
 	/*asserts*/
 	assert(vd != NULL);

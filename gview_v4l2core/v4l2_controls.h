@@ -65,6 +65,23 @@ void get_v4l2_control_values (v4l2_dev_t *vd);
 void set_v4l2_control_values (v4l2_dev_t *vd);
 
 /*
+ * Disables special auto-controls with higher IDs than
+ * their absolute/relative counterparts
+ * this is needed before restoring controls state
+ *
+ * args:
+ *   vd - pointer to video device data
+ *   id - control id
+ *
+ * asserts:
+ *   vd is not null
+ *
+ * returns: void
+ */
+void disable_special_auto (v4l2_dev_t *vd, int id);
+
+
+/*
  * free control list
  * args:
  *   vd - pointer to video device data

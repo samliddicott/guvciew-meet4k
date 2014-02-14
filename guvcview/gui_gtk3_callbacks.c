@@ -114,18 +114,18 @@ void control_defaults_clicked (GtkWidget *item, void *data)
  */
 void controls_profile_clicked (GtkWidget *item, void *data)
 {
-	//v4l2_dev_t *device = (v4l2_dev_t *) data;
+	v4l2_dev_t *device = (v4l2_dev_t *) data;
 
 	GtkWidget *FileDialog;
 
-	int save = GPOINTER_TO_INT(g_object_get_data (G_OBJECT (item), "profile_dialog"));
+	int save_or_load = GPOINTER_TO_INT(g_object_get_data (G_OBJECT (item), "profile_dialog"));
 
 	if(debug_level > 0)
-		printf("GUVCVIEW: Profile dialog (%d)\n", save);
+		printf("GUVCVIEW: Profile dialog (%d)\n", save_or_load);
 
 	GtkWidget *main_window = get_main_window();
 
-	if (save > 0)
+	if (save_or_load > 0) /*save*/
 	{
 		FileDialog = gtk_file_chooser_dialog_new (_("Save Profile"),
 			GTK_WINDOW(main_window),
@@ -138,7 +138,7 @@ void controls_profile_clicked (GtkWidget *item, void *data)
 		gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (FileDialog),
 			get_profile_name());
 	}
-	else
+	else /*load*/
 	{
 		FileDialog = gtk_file_chooser_dialog_new (_("Load Profile"),
 			GTK_WINDOW(main_window),
@@ -154,13 +154,12 @@ void controls_profile_clicked (GtkWidget *item, void *data)
 	if (gtk_dialog_run (GTK_DIALOG (FileDialog)) == GTK_RESPONSE_ACCEPT)
 	{
 		/*Save Controls Data*/
-		char *filename= gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (FileDialog));
-		//global->profile_FPath=splitPath(filename,global->profile_FPath);
+		const char *filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (FileDialog));
 
-		//if(save > 0)
-		//	SaveControls(all_data);
-		//else
-		//	LoadControls(all_data);
+		if(save_or_load > 0)
+			v4l2core_save_control_profile(device, filename);
+		else
+			v4l2core_load_control_profile(device, filename);
 	}
 	gtk_widget_destroy (FileDialog);
 }
@@ -817,7 +816,7 @@ void render_fx_filter_changed(GtkToggleButton *toggle, void *data)
  */
 void autofocus_changed (GtkToggleButton * toggle, void *data)
 {
-    v4l2_dev_t *device = (v4l2_dev_t *) data;
+    //v4l2_dev_t *device = (v4l2_dev_t *) data;
 
 	int val = gtk_toggle_button_get_active (toggle) ? 1 : 0;
 
