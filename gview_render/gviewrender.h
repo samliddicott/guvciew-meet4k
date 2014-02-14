@@ -73,7 +73,7 @@ typedef struct _render_events_t
  *
  * returns: none
  */
-void set_render_verbosity(int value);
+void render_set_verbosity(int value);
 
 /*
  * get render width
@@ -123,7 +123,7 @@ int render_init(int render, int width, int height);
  *
  * returns: none
  */
-void set_render_caption(const char* caption);
+void render_set_caption(const char* caption);
 
 /*
  * render a frame
@@ -213,6 +213,6 @@ void render_clean_fx();
  *
  * returns: none
  */
-void render_clean();
+void render_close();
 
 #endif

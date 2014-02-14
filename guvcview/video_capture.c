@@ -221,7 +221,7 @@ void *capture_loop(void *data)
 
 	if(render != RENDER_NONE)
 	{
-		set_render_verbosity(debug_level);
+		render_set_verbosity(debug_level);
 		if(render_init(RENDER_SDL1, device->format.fmt.pix.width, device->format.fmt.pix.height) < 0)
 			render = RENDER_NONE;
 		else
@@ -241,7 +241,7 @@ void *capture_loop(void *data)
 
 			/*close render*/
 			if(render)
-				render_clean();
+				render_close();
 
 			v4l2core_clean_buffers(device);
 
@@ -300,7 +300,7 @@ void *capture_loop(void *data)
 			if(render != RENDER_NONE)
 			{
 				snprintf(render_caption, 20, "SDL Video - %2.2f", v4l2core_get_realfps());
-				set_render_caption(render_caption);
+				render_set_caption(render_caption);
 				render_frame(device->yuv_frame, mask);
 			}
 
@@ -321,7 +321,7 @@ void *capture_loop(void *data)
 	v4l2core_stop_stream(device);
 
 	if(render != RENDER_NONE)
-		render_clean();
+		render_close();
 
 	return ((void *) 0);
 }

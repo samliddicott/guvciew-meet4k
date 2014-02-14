@@ -101,7 +101,7 @@ static render_events_t render_events_list[] =
  *
  * returns: none
  */
-void set_render_verbosity(int value)
+void render_set_verbosity(int value)
 {
 	verbosity = value;
 }
@@ -216,7 +216,7 @@ int render_frame(uint8_t *frame, uint32_t mask)
  *
  * returns: none
  */
-void set_render_caption(const char* caption)
+void render_set_caption(const char* caption)
 {
 	switch(render_api)
 	{
@@ -241,7 +241,7 @@ void set_render_caption(const char* caption)
  *
  * returns: none
  */
-void render_clean()
+void render_close()
 {
 	switch(render_api)
 	{
