@@ -159,7 +159,10 @@ void controls_profile_clicked (GtkWidget *item, void *data)
 		if(save_or_load > 0)
 			v4l2core_save_control_profile(device, filename);
 		else
+		{
 			v4l2core_load_control_profile(device, filename);
+			gui_gtk3_update_controls_state(device);
+		}
 	}
 	gtk_widget_destroy (FileDialog);
 }
