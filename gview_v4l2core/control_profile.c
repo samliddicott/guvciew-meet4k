@@ -33,6 +33,8 @@
 #include "v4l2_controls.h"
 #include "../config.h"
 
+extern int verbosity;
+
 /*
  * save the device control values into a profile file
  * args:
@@ -70,16 +72,20 @@ int v4l2core_save_control_profile(v4l2_dev_t *vd, const char *filename)
 			fprintf(fp, "APP{\"%s\"}\n", PACKAGE_STRING);
             /*write control data*/
 			fprintf(fp, "# control data\n");
-			for( ; current->next != NULL; current = current->next, ++i)
+			for( ; current != NULL; current = current->next, ++i)
 			{
 				if((current->control.flags & V4L2_CTRL_FLAG_WRITE_ONLY) ||
 				   (current->control.flags & V4L2_CTRL_FLAG_READ_ONLY) ||
 				   (current->control.flags & V4L2_CTRL_FLAG_GRABBED))
+				{
+					if(verbosity > 0)
+						printf("V4L2_CORE: (save_control_profile) skiping control 0x%08x\n", current->control.id);
 					continue;
-
+				}
 				fprintf(fp, "#%s\n", current->control.name);
 				switch(current->control.type)
 				{
+#ifdef V4L2_CTRL_TYPE_STRING
 					case V4L2_CTRL_TYPE_STRING :
 						fprintf(fp, "ID{0x%08x};CHK{%i:%i:%i:0}=STR{\"%s\"}\n",
 							current->control.id,
@@ -88,11 +94,14 @@ int v4l2core_save_control_profile(v4l2_dev_t *vd, const char *filename)
 							current->control.step,
 							current->string);
 						break;
+#endif
+#ifdef V4L2_CTRL_TYPE_INTEGER64
 					case V4L2_CTRL_TYPE_INTEGER64 :
 						fprintf(fp, "ID{0x%08x};CHK{0:0:0:0}=VAL64{%" PRId64 "}\n",
 							current->control.id,
 							current->value64);
 						break;
+#endif
 					default :
 						fprintf(fp, "ID{0x%08x};CHK{%i:%i:%i:%i}=VAL{%i}\n",
 							current->control.id,
