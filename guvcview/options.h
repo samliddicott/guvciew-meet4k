@@ -28,6 +28,7 @@ typedef struct _options_t
 	char device[30]; /*device name*/
 	int  width;      /*width*/
 	int  height;     /*height*/
+	int  control_panel; /*flag control panel mode*/
 	char format[5];  /*pixelformat fourcc*/
 	char render[5];  /*render api*/
 	char gui[5];     /*gui api*/

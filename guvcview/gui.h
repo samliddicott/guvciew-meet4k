@@ -113,13 +113,14 @@ void set_profile_path(const char *path);
  *   gui - gui API to use (GUI_NONE, GUI_GTK3, ...)
  *   width - window width
  *   height - window height
+ *   control_panel - flag control panel mode (1 -set; 0 -no)
  *
  * asserts:
  *   device is not null
  *
  * returns: error code
  */
-int gui_attach(v4l2_dev_t *device, int gui, int width, int height);
+int gui_attach(v4l2_dev_t *device, int gui, int width, int height, int control_panel);
 
 /*
  * run the GUI loop

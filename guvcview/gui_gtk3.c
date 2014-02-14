@@ -42,6 +42,7 @@
 #include "gview.h"
 
 extern int debug_level;
+extern int is_control_panel;
 
 /* The main window*/
 static GtkWidget *main_window = NULL;
@@ -181,41 +182,44 @@ int gui_attach_gtk3(v4l2_dev_t *device, int width, int height)
 
 	gtk_notebook_append_page(GTK_NOTEBOOK(tab_box), scroll_1, tab_1);
 
-	/*----------------------- Video controls Tab ------------------------------*/
+	/*exclude video and audio tabs if we are in control panel mode*/
+	if(!is_control_panel)
+	{
+		/*----------------------- Video controls Tab ------------------------------*/
 
-	GtkWidget *scroll_2 = gtk_scrolled_window_new(NULL,NULL);
-	gtk_scrolled_window_set_placement(GTK_SCROLLED_WINDOW(scroll_2), GTK_CORNER_TOP_LEFT);
-	gtk_widget_show(scroll_2);
+		GtkWidget *scroll_2 = gtk_scrolled_window_new(NULL,NULL);
+		gtk_scrolled_window_set_placement(GTK_SCROLLED_WINDOW(scroll_2), GTK_CORNER_TOP_LEFT);
+		gtk_widget_show(scroll_2);
 
-	/*
-	 * viewport is only needed for gtk < 3.8
-	 * for 3.8 and above controls tab can be directly added to scroll1
-	 */
-	GtkWidget* viewport2 = gtk_viewport_new(NULL,NULL);
-	gtk_widget_show(viewport2);
+		/*
+		 * viewport is only needed for gtk < 3.8
+		 * for 3.8 and above controls tab can be directly added to scroll1
+		 */
+		GtkWidget* viewport2 = gtk_viewport_new(NULL,NULL);
+		gtk_widget_show(viewport2);
 
-	gtk_container_add(GTK_CONTAINER(scroll_2), viewport2);
+		gtk_container_add(GTK_CONTAINER(scroll_2), viewport2);
 
-	gui_attach_gtk3_videoctrls(device, viewport2);
+		gui_attach_gtk3_videoctrls(device, viewport2);
 
-	GtkWidget *tab_2 = gtk_grid_new();
-	gtk_widget_show (tab_2);
+		GtkWidget *tab_2 = gtk_grid_new();
+		gtk_widget_show (tab_2);
 
-    GtkWidget *tab_2_label = gtk_label_new(_("Video Controls"));
-	gtk_widget_show (tab_2_label);
-	/** check for files */
-	gchar *tab_2_icon_path = g_strconcat (PACKAGE_DATA_DIR,"/pixmaps/guvcview/video_controls.png",NULL);
-	/** don't test for file - use default empty image if load fails */
-	/** get icon image*/
-	GtkWidget *tab_2_icon = gtk_image_new_from_file(tab_2_icon_path);
-	gtk_widget_show (tab_2_icon);
+		GtkWidget *tab_2_label = gtk_label_new(_("Video Controls"));
+		gtk_widget_show (tab_2_label);
+		/** check for files */
+		gchar *tab_2_icon_path = g_strconcat (PACKAGE_DATA_DIR,"/pixmaps/guvcview/video_controls.png",NULL);
+		/** don't test for file - use default empty image if load fails */
+		/** get icon image*/
+		GtkWidget *tab_2_icon = gtk_image_new_from_file(tab_2_icon_path);
+		gtk_widget_show (tab_2_icon);
 
-	g_free(tab_2_icon_path);
-	gtk_grid_attach (GTK_GRID(tab_2), tab_2_icon, 0, 0, 1, 1);
-	gtk_grid_attach (GTK_GRID(tab_2), tab_2_label, 1, 0, 1, 1);
+		g_free(tab_2_icon_path);
+		gtk_grid_attach (GTK_GRID(tab_2), tab_2_icon, 0, 0, 1, 1);
+		gtk_grid_attach (GTK_GRID(tab_2), tab_2_label, 1, 0, 1, 1);
 
-	gtk_notebook_append_page(GTK_NOTEBOOK(tab_box), scroll_2, tab_2);
-
+		gtk_notebook_append_page(GTK_NOTEBOOK(tab_box), scroll_2, tab_2);
+	}
 
 
 

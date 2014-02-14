@@ -41,6 +41,8 @@
 
 extern int debug_level;
 
+int is_control_panel = 0;
+
 static int gui_api = GUI_GTK3;
 
 /*default camera button action: DEF_ACTION_IMAGE - save image; DEF_ACTION_VIDEO - save video*/
@@ -155,19 +157,21 @@ void set_profile_path(const char *path)
  *   gui - gui API to use (GUI_NONE, GUI_GTK3, ...)
  *   width - window width
  *   height - window height
+ *   control_panel - flag control panel mode (1 -set; 0 -no)
  *
  * asserts:
  *   device is not null
  *
  * returns: error code
  */
-int gui_attach(v4l2_dev_t *device, int gui, int width, int height)
+int gui_attach(v4l2_dev_t *device, int gui, int width, int height, int control_panel)
 {
 	/*asserts*/
 	assert(device != NULL);
 
 	int ret = 0;
 
+	is_control_panel = control_panel;
 	gui_api = gui;
 
 	switch(gui_api)

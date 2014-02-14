@@ -104,6 +104,13 @@ static opt_values_t opt_values[] =
 		.opt_help = N_("Select GUI API (e.g none; gtk3)")
 	},
 	{
+		.opt_short = 'z',
+		.opt_long = "control_panel",
+		.req_arg = 0,
+		.opt_help_arg = "",
+		.opt_help = N_("Set to control panel mode")
+	},
+	{
 		.opt_short = 0,
 		.opt_long = "",
 		.req_arg = 0,
@@ -116,12 +123,13 @@ static options_t my_options =
 {
 	.verbosity = 0,
 	.device = "/dev/video0",
-	.capture = "mmap",
 	.width = 640,
 	.height = 480,
+	.control_panel = 0,
 	.format = "MJPG",
 	.render = "sdl1",
-	.gui = "gtk3"
+	.gui = "gtk3",
+	.capture = "mmap"
 };
 
 /*
@@ -335,6 +343,11 @@ int options_parse(int argc, char *argv[])
 					strncpy(my_options.device, optarg, 29);
 				else
 					fprintf(stderr, "V4L2_CORE: (options) Error in device usage: -d[--device] DEVICENAME \n");
+				break;
+			}
+			case 'z':
+			{
+				my_options.control_panel = 1;
 				break;
 			}
 			case 'c':

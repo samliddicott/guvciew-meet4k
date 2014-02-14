@@ -90,6 +90,7 @@ int main(int argc, char *argv[])
 	else
 		v4l2core_set_capture_method(device, IO_MMAP);
 
+
 	/*select render API*/
 	int render = RENDER_SDL1;
 
@@ -114,22 +115,27 @@ int main(int argc, char *argv[])
 	else
 		return -1;
 
-	capture_loop_data_t cl_data;
-	cl_data.options = (void *) my_options;
-	cl_data.device = (void *) device;
+	/*start capture thread if not in control_panel mode*/
+	if(!my_options->control_panel)
+	{
+		capture_loop_data_t cl_data;
+		cl_data.options = (void *) my_options;
+		cl_data.device = (void *) device;
 
-	int ret = __THREAD_CREATE(&capture_thread, capture_loop, (void *) &cl_data);
+		int ret = __THREAD_CREATE(&capture_thread, capture_loop, (void *) &cl_data);
 
-	if(ret)
-		fprintf(stderr, "GUVCVIEW: Video thread creation failed\n");
+		if(ret)
+			fprintf(stderr, "GUVCVIEW: Video thread creation failed\n");
 
+	}
 
-	gui_attach(device, gui, 800, 600);
+	gui_attach(device, gui, 800, 600, my_options->control_panel);
 
 	/*run the gui loop*/
 	gui_run();
 
-	__THREAD_JOIN(capture_thread);
+	if(!my_options->control_panel)
+		__THREAD_JOIN(capture_thread);
 
 	if(device)
 		v4l2core_close_dev(device);
