@@ -108,7 +108,7 @@ static opt_values_t opt_values[] =
 		.opt_long = "control_panel",
 		.req_arg = 0,
 		.opt_help_arg = "",
-		.opt_help = N_("Set to control panel mode")
+		.opt_help = N_("Start in control panel mode")
 	},
 	{
 		.opt_short = 0,
