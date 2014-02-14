@@ -158,11 +158,11 @@ static int check_v4l2_dev(v4l2_dev_t *vd)
 	enumerate_v4l2_control(vd);
 	/*gets the current control values and sets their flags*/
 	get_v4l2_control_values(vd);
-	
+
 	/*if we have a focus control initiate the software autofocus*/
 	if(vd->has_focus_control_id)
 	{
-		if(soft_autofocus_init (vd) != E_OK)
+		if(v4l2core_soft_autofocus_init (vd) != E_OK)
 			vd->has_focus_control_id = 0;
 	}
 
@@ -365,78 +365,6 @@ static int queue_buff(v4l2_dev_t *vd)
 }
 
 /*
- * checks if frame data is available
- * args:
- *   vd - pointer to video device data
- *
- * asserts:
- *   vd is not null
- *
- * returns: error code  (0- E_OK)
- */
-static int check_frame_available(v4l2_dev_t *vd)
-{
-	/*asserts*/
-	assert(vd != NULL);
-
-	int ret = E_OK;
-	fd_set rdset;
-	struct timeval timeout;
-
-	/*lock the mutex*/
-	__LOCK_MUTEX( __PMUTEX );
-	int stream_state = vd->streaming;
-	/*unlock the mutex*/
-	__UNLOCK_MUTEX( __PMUTEX );
-
-	/*make sure streaming is on*/
-	if(stream_state != STRM_OK)
-	{
-		if(stream_state == STRM_REQ_STOP)
-		{
-			stop_video_stream(vd);
-		}
-
-		fprintf(stderr, "V4L2_CORE: (get_v4l2_frame) video stream must be started first\n");
-		return E_NO_STREAM_ERR;
-	}
-
-	/*a fps change was requested while streaming*/
-	if(flag_fps_change > 0)
-	{
-		if(verbosity > 2)
-			printf("V4L2_CORE: fps change request detected\n");
-		set_v4l2_framerate(vd);
-		flag_fps_change = 0;
-	}
-
-	FD_ZERO(&rdset);
-	FD_SET(vd->fd, &rdset);
-	timeout.tv_sec = 1; /* 1 sec timeout*/
-	timeout.tv_usec = 0;
-	/* select - wait for data or timeout*/
-	ret = select(vd->fd + 1, &rdset, NULL, NULL, &timeout);
-	if (ret < 0)
-	{
-		fprintf(stderr, "V4L2_CORE: Could not grab image (select error): %s\n", strerror(errno));
-		vd->timestamp = 0;
-		return E_SELECT_ERR;
-	}
-
-	if (ret == 0)
-	{
-		fprintf(stderr, "V4L2_CORE: Could not grab image (select timeout): %s\n", strerror(errno));
-		vd->timestamp = 0;
-		return E_SELECT_TIMEOUT_ERR;
-	}
-
-	if ((ret > 0) && (FD_ISSET(vd->fd, &rdset)))
-		return E_OK;
-
-	return E_UNKNOWN_ERR;
-}
-
-/*
  * do a VIDIOC_S_PARM ioctl for setting frame rate
  * args:
  *    vd - pointer to video device data
@@ -486,6 +414,154 @@ static int do_v4l2_framerate_update(v4l2_dev_t *vd)
 }
 
 /*
+ * sets video device frame rate
+ * args:
+ *   vd- pointer to video device data
+ *
+ * asserts:
+ *   vd is not null
+ *
+ * returns: VIDIOC_S_PARM ioctl result value
+ * (sets vd->fps_denom and vd->fps_num to device value)
+ */
+static int set_v4l2_framerate (v4l2_dev_t *vd)
+{
+	/*assertions*/
+	assert(vd != NULL);
+
+	if(verbosity > 2)
+		printf("V4L2_CORE: trying to change fps to %i/%i\n", vd->fps_num, vd->fps_denom);
+
+	int ret = 0;
+
+	/*lock the mutex*/
+	__LOCK_MUTEX( __PMUTEX );
+
+	/*store streaming flag*/
+	uint8_t stream_status = vd->streaming;
+
+	/*try to stop the video stream*/
+	if(stream_status == STRM_OK)
+		v4l2core_stop_stream(vd);
+
+	switch(vd->cap_meth)
+	{
+		case IO_READ:
+			ret = do_v4l2_framerate_update(vd);
+			break;
+
+		case IO_MMAP:
+			if(stream_status == STRM_OK)
+			{
+				/*unmap the buffers*/
+				unmap_buff(vd);
+			}
+
+			ret = do_v4l2_framerate_update(vd);
+			/*
+			 * For uvc muxed H264 stream
+			 * since we are restarting the video stream and codec values will be reset
+			 * commit the codec data again
+			 */
+			if(vd->requested_fmt == V4L2_PIX_FMT_H264 && h264_get_support() == H264_MUXED)
+			{
+				if(verbosity > 0)
+					printf("V4L2_CORE: setting muxed H264 stream in MJPG container\n");
+				set_h264_muxed_format(vd);
+			}
+
+			if(stream_status == STRM_OK)
+			{
+				/*we were already streaming so query and queue the buffers*/
+				query_buff(vd); /*also mmaps the buffers*/
+				queue_buff(vd);
+			}
+			break;
+	}
+
+	/*try to start the video stream*/
+	if(stream_status == STRM_OK)
+		v4l2core_start_stream(vd);
+
+	/*unlock the mutex*/
+	__UNLOCK_MUTEX( __PMUTEX );
+
+	return ret;
+}
+
+/*
+ * checks if frame data is available
+ * args:
+ *   vd - pointer to video device data
+ *
+ * asserts:
+ *   vd is not null
+ *
+ * returns: error code  (0- E_OK)
+ */
+static int check_frame_available(v4l2_dev_t *vd)
+{
+	/*asserts*/
+	assert(vd != NULL);
+
+	int ret = E_OK;
+	fd_set rdset;
+	struct timeval timeout;
+
+	/*lock the mutex*/
+	__LOCK_MUTEX( __PMUTEX );
+	int stream_state = vd->streaming;
+	/*unlock the mutex*/
+	__UNLOCK_MUTEX( __PMUTEX );
+
+	/*make sure streaming is on*/
+	if(stream_state != STRM_OK)
+	{
+		if(stream_state == STRM_REQ_STOP)
+		{
+			v4l2core_stop_stream(vd);
+		}
+
+		fprintf(stderr, "V4L2_CORE: (get_v4l2_frame) video stream must be started first\n");
+		return E_NO_STREAM_ERR;
+	}
+
+	/*a fps change was requested while streaming*/
+	if(flag_fps_change > 0)
+	{
+		if(verbosity > 2)
+			printf("V4L2_CORE: fps change request detected\n");
+		set_v4l2_framerate(vd);
+		flag_fps_change = 0;
+	}
+
+	FD_ZERO(&rdset);
+	FD_SET(vd->fd, &rdset);
+	timeout.tv_sec = 1; /* 1 sec timeout*/
+	timeout.tv_usec = 0;
+	/* select - wait for data or timeout*/
+	ret = select(vd->fd + 1, &rdset, NULL, NULL, &timeout);
+	if (ret < 0)
+	{
+		fprintf(stderr, "V4L2_CORE: Could not grab image (select error): %s\n", strerror(errno));
+		vd->timestamp = 0;
+		return E_SELECT_ERR;
+	}
+
+	if (ret == 0)
+	{
+		fprintf(stderr, "V4L2_CORE: Could not grab image (select timeout): %s\n", strerror(errno));
+		vd->timestamp = 0;
+		return E_SELECT_TIMEOUT_ERR;
+	}
+
+	if ((ret > 0) && (FD_ISSET(vd->fd, &rdset)))
+		return E_OK;
+
+	return E_UNKNOWN_ERR;
+}
+
+/*
  * set verbosity
  * args:
  *   level - verbosity level
@@ -495,7 +571,7 @@ static int do_v4l2_framerate_update(v4l2_dev_t *vd)
  *
  * returns void
  */
-void set_v4l2_verbosity(int level)
+void v4l2core_set_verbosity(int level)
 {
 	verbosity = level;
 }
@@ -510,7 +586,7 @@ void set_v4l2_verbosity(int level)
  *
  * returns: VIDIOC_STREAMON ioctl result (E_OK or E_STREAMON_ERR)
 */
-void set_v4l2_capture_method(v4l2_dev_t *vd, int method)
+void v4l2core_set_capture_method(v4l2_dev_t *vd, int method)
 {
 	/*asserts*/
 	assert(vd != NULL);
@@ -528,7 +604,7 @@ void set_v4l2_capture_method(v4l2_dev_t *vd, int method)
  *
  * returns: double with real fps value
  */
-double get_v4l2_realfps()
+double v4l2core_get_realfps()
 {
 	return(real_fps);
 }
@@ -543,7 +619,7 @@ double get_v4l2_realfps()
  *
  * returns: VIDIOC_STREAMON ioctl result (E_OK or E_STREAMON_ERR)
 */
-int start_video_stream(v4l2_dev_t *vd)
+int v4l2core_start_stream(v4l2_dev_t *vd)
 {
 	/*assertions*/
 	assert(vd != NULL);
@@ -588,7 +664,7 @@ int start_video_stream(v4l2_dev_t *vd)
  *
  * returns: error code (0 -OK)
 */
-int request_stop_video_stream(v4l2_dev_t *vd)
+int v4l2core_request_stop_stream(v4l2_dev_t *vd)
 {
 	/*assertions*/
 	assert(vd != NULL);
@@ -611,7 +687,7 @@ int request_stop_video_stream(v4l2_dev_t *vd)
  *
  * returns: VIDIOC_STREAMON ioctl result (E_OK)
 */
-int stop_video_stream(v4l2_dev_t *vd)
+int v4l2core_stop_stream(v4l2_dev_t *vd)
 {
 	/*assertions*/
 	assert(vd != NULL);
@@ -648,7 +724,7 @@ int stop_video_stream(v4l2_dev_t *vd)
  *
  * returns: error code (E_OK)
  */
-int get_v4l2_frame(v4l2_dev_t *vd)
+int v4l2core_get_frame(v4l2_dev_t *vd)
 {
 	/*asserts*/
 	assert(vd != NULL);
@@ -831,7 +907,7 @@ static int try_video_stream_format(v4l2_dev_t *vd, int width, int height, int pi
 	uint8_t stream_status = vd->streaming;
 
 	if(stream_status == STRM_OK)
-		stop_video_stream(vd);
+		v4l2core_stop_stream(vd);
 
 	if(vd->requested_fmt == V4L2_PIX_FMT_H264 && h264_get_support() == H264_MUXED)
 	{
@@ -957,10 +1033,10 @@ static int try_video_stream_format(v4l2_dev_t *vd, int width, int height, int pi
 	}
 
 	/*this locks the mutex (can't be called while the mutex is being locked)*/
-	request_v4l2_framerate_update(vd);
+	v4l2core_request_framerate_update(vd);
 
 	if(stream_status == STRM_OK)
-		start_video_stream(vd);
+		v4l2core_start_stream(vd);
 
 	return E_OK;
 }
@@ -976,12 +1052,12 @@ static int try_video_stream_format(v4l2_dev_t *vd, int width, int height, int pi
  *
  * returns: none
  */
-void prepare_new_format(v4l2_dev_t *vd, int new_format)
+void v4l2core_prepare_new_format(v4l2_dev_t *vd, int new_format)
 {
 	/*asserts*/
 	assert(vd != NULL);
 
-	int format_index = get_frame_format_index(vd, new_format);
+	int format_index = v4l2core_get_frame_format_index(vd, new_format);
 
 	if(format_index < 0)
 		format_index = 0;
@@ -999,7 +1075,7 @@ void prepare_new_format(v4l2_dev_t *vd, int new_format)
  *
  * returns: none
  */
-void prepare_valid_format(v4l2_dev_t *vd)
+void v4l2core_prepare_valid_format(v4l2_dev_t *vd)
 {
 	/*asserts*/
 	assert(vd != NULL);
@@ -1021,17 +1097,17 @@ void prepare_valid_format(v4l2_dev_t *vd)
  *
  * returns: none
  */
-void prepare_new_resolution(v4l2_dev_t *vd, int new_width, int new_height)
+void v4l2core_prepare_new_resolution(v4l2_dev_t *vd, int new_width, int new_height)
 {
 	/*asserts*/
 	assert(vd != NULL);
 
-	int format_index = get_frame_format_index(vd, my_pixelformat);
+	int format_index = v4l2core_get_frame_format_index(vd, my_pixelformat);
 
 	if(format_index < 0)
 		format_index = 0;
 
-	int resolution_index = get_format_resolution_index(vd, format_index, new_width, new_height);
+	int resolution_index = v4l2core_get_format_resolution_index(vd, format_index, new_width, new_height);
 
 	if(resolution_index < 0)
 		resolution_index = 0;
@@ -1050,12 +1126,12 @@ void prepare_new_resolution(v4l2_dev_t *vd, int new_width, int new_height)
  *
  * returns: none
  */
-void prepare_valid_resolution(v4l2_dev_t *vd)
+void v4l2core_prepare_valid_resolution(v4l2_dev_t *vd)
 {
 	/*asserts*/
 	assert(vd != NULL);
 
-	int format_index = get_frame_format_index(vd, my_pixelformat);
+	int format_index = v4l2core_get_frame_format_index(vd, my_pixelformat);
 
 	if(format_index < 0)
 		format_index = 0;
@@ -1077,7 +1153,7 @@ void prepare_valid_resolution(v4l2_dev_t *vd)
  * returns:
  *    error code
  */
-int update_current_format(v4l2_dev_t *vd)
+int v4l2core_update_current_format(v4l2_dev_t *vd)
 {
 	/*asserts*/
 	assert(vd != NULL);
@@ -1105,8 +1181,8 @@ static void clean_v4l2_dev(v4l2_dev_t *vd)
 	vd->videodevice = NULL;
 
 	if(vd->has_focus_control_id)
-		soft_autofocus_close(vd);
-		
+		v4l2core_soft_autofocus_close(vd);
+
 	if(vd->list_device_controls)
 		free_v4l2_control_list(vd);
 
@@ -1141,7 +1217,7 @@ static void clean_v4l2_dev(v4l2_dev_t *vd)
  *
  * returns: pointer to newly allocated video device data  ( NULL on error)
  */
-v4l2_dev_t *init_v4l2_dev(const char *device)
+v4l2_dev_t *v4l2core_init_dev(const char *device)
 {
 	assert(device != NULL);
 
@@ -1235,7 +1311,7 @@ v4l2_dev_t *init_v4l2_dev(const char *device)
  *
  * return: none
  */
-void clean_v4l2_buffers(v4l2_dev_t *vd)
+void v4l2core_clean_buffers(v4l2_dev_t *vd)
 {
 	/*assertions*/
 	assert(vd != NULL);
@@ -1244,7 +1320,7 @@ void clean_v4l2_buffers(v4l2_dev_t *vd)
 		printf("V4L2_CORE: cleaning v4l2 buffers\n");
 
 	if(vd->streaming == STRM_OK)
-		stop_video_stream(vd);
+		v4l2core_stop_stream(vd);
 
 	clean_v4l2_frames(vd);
 
@@ -1284,12 +1360,12 @@ void clean_v4l2_buffers(v4l2_dev_t *vd)
  *
  * returns: void
  */
-void close_v4l2_dev(v4l2_dev_t *vd)
+void v4l2core_close_dev(v4l2_dev_t *vd)
 {
 	/*asserts*/
 	assert(vd != NULL);
 
-	clean_v4l2_buffers(vd);
+	v4l2core_clean_buffers(vd);
 	clean_v4l2_dev(vd);
 }
 
@@ -1304,7 +1380,7 @@ void close_v4l2_dev(v4l2_dev_t *vd)
  *
  * returns: none
  */
-void request_v4l2_framerate_update(v4l2_dev_t *vd)
+void v4l2core_request_framerate_update(v4l2_dev_t *vd)
 {
 	/*
 	 * if we are streaming flag a fps change when retrieving frame
@@ -1314,82 +1390,6 @@ void request_v4l2_framerate_update(v4l2_dev_t *vd)
 		flag_fps_change = 1;
 	else
 		set_v4l2_framerate(vd);
-}
-
-/*
- * sets video device frame rate
- * args:
- *   vd- pointer to video device data
- *
- * asserts:
- *   vd is not null
- *
- * returns: VIDIOC_S_PARM ioctl result value
- * (sets vd->fps_denom and vd->fps_num to device value)
- */
-int set_v4l2_framerate (v4l2_dev_t *vd)
-{
-	/*assertions*/
-	assert(vd != NULL);
-
-	if(verbosity > 2)
-		printf("V4L2_CORE: trying to change fps to %i/%i\n", vd->fps_num, vd->fps_denom);
-
-	int ret = 0;
-
-	/*lock the mutex*/
-	__LOCK_MUTEX( __PMUTEX );
-
-	/*store streaming flag*/
-	uint8_t stream_status = vd->streaming;
-
-	/*try to stop the video stream*/
-	if(stream_status == STRM_OK)
-		stop_video_stream(vd);
-
-	switch(vd->cap_meth)
-	{
-		case IO_READ:
-			ret = do_v4l2_framerate_update(vd);
-			break;
-
-		case IO_MMAP:
-			if(stream_status == STRM_OK)
-			{
-				/*unmap the buffers*/
-				unmap_buff(vd);
-			}
-
-			ret = do_v4l2_framerate_update(vd);
-			/*
-			 * For uvc muxed H264 stream
-			 * since we are restarting the video stream and codec values will be reset
-			 * commit the codec data again
-			 */
-			if(vd->requested_fmt == V4L2_PIX_FMT_H264 && h264_get_support() == H264_MUXED)
-			{
-				if(verbosity > 0)
-					printf("V4L2_CORE: setting muxed H264 stream in MJPG container\n");
-				set_h264_muxed_format(vd);
-			}
-
-			if(stream_status == STRM_OK)
-			{
-				/*we were already streaming so query and queue the buffers*/
-				query_buff(vd); /*also mmaps the buffers*/
-				queue_buff(vd);
-			}
-			break;
-	}
-
-	/*try to start the video stream*/
-	if(stream_status == STRM_OK)
-		start_video_stream(vd);
-
-	/*unlock the mutex*/
-	__UNLOCK_MUTEX( __PMUTEX );
-
-	return ret;
 }
 
 /*
@@ -1403,7 +1403,7 @@ int set_v4l2_framerate (v4l2_dev_t *vd)
  * returns: VIDIOC_G_PARM ioctl result value
  * (sets vd->fps_denom and vd->fps_num to device value)
  */
-int get_v4l2_framerate (v4l2_dev_t *vd)
+int v4l2core_get_framerate (v4l2_dev_t *vd)
 {
 	/*assertions*/
 	assert(vd != NULL);

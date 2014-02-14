@@ -80,16 +80,16 @@ int main(int argc, char *argv[])
 	options_t *my_options = options_get();
 
 	debug_level = my_options->verbosity;
-	set_v4l2_verbosity(debug_level);
+	v4l2core_set_verbosity(debug_level);
 
-	v4l2_dev_t *device = init_v4l2_dev(my_options->device);
-	
+	v4l2_dev_t *device = v4l2core_init_dev(my_options->device);
+
 	/*select capture method*/
 	if(strcmp(my_options->capture, "read") == 0)
-		set_v4l2_capture_method(device, IO_READ);
+		v4l2core_set_capture_method(device, IO_READ);
 	else
-		set_v4l2_capture_method(device, IO_MMAP);
-	
+		v4l2core_set_capture_method(device, IO_MMAP);
+
 	/*select render API*/
 	int render = RENDER_SDL1;
 
@@ -132,7 +132,7 @@ int main(int argc, char *argv[])
 	__THREAD_JOIN(capture_thread);
 
 	if(device)
-		close_v4l2_dev(device);
+		v4l2core_close_dev(device);
 
 	if(debug_level > 0)
 		printf("GUVCVIEW: good bye\n");

@@ -117,8 +117,8 @@ void set_soft_autofocus(int value)
  */
 void set_soft_focus(int value)
 {
-	soft_autofocus_set_focus();
-	
+	v4l2core_soft_autofocus_set_focus();
+
 	do_soft_focus = value;
 }
 /*
@@ -194,23 +194,23 @@ void *capture_loop(void *data)
 	/*reset quit flag*/
 	quit = 0;
 
-	int format = fourcc_2_v4l2_pixelformat(my_options->format);
+	int format = v4l2core_fourcc_2_v4l2_pixelformat(my_options->format);
 
 	/*prepare format*/
-	prepare_new_format(device, format);
+	v4l2core_prepare_new_format(device, format);
 	/*prepare resolution*/
-	prepare_new_resolution(device, my_options->width, my_options->height);
+	v4l2core_prepare_new_resolution(device, my_options->width, my_options->height);
 	/*try to set the video stream format on the device*/
-	int ret = update_current_format(device);
+	int ret = v4l2core_update_current_format(device);
 
 	if(ret != E_OK)
 	{
 		fprintf(stderr, "GUCVIEW: could not set the defined stream format\n");
 		fprintf(stderr, "GUCVIEW: trying first listed stream format\n");
 
-		prepare_valid_format(device);
-		prepare_valid_resolution(device);
-		ret = update_current_format(device);
+		v4l2core_prepare_valid_format(device);
+		v4l2core_prepare_valid_resolution(device);
+		ret = v4l2core_update_current_format(device);
 
 		if(ret != E_OK)
 		{
@@ -230,32 +230,32 @@ void *capture_loop(void *data)
 		}
 	}
 
-	start_video_stream(device);
+	v4l2core_start_stream(device);
 
 	while(!quit)
 	{
 		if(restart)
 		{
 			restart = 0; /*reset*/
-			stop_video_stream(device);
+			v4l2core_stop_stream(device);
 
 			/*close render*/
 			if(render)
 				render_clean();
 
-			clean_v4l2_buffers(device);
+			v4l2core_clean_buffers(device);
 
 			/*try new format (values prepared by the request callback)*/
-			ret = update_current_format(device);
+			ret = v4l2core_update_current_format(device);
 			/*try to set the video stream format on the device*/
 			if(ret != E_OK)
 			{
 				fprintf(stderr, "GUCVIEW: could not set the defined stream format\n");
 				fprintf(stderr, "GUCVIEW: trying first listed stream format\n");
 
-				prepare_valid_format(device);
-				prepare_valid_resolution(device);
-				ret = update_current_format(device);
+				v4l2core_prepare_valid_format(device);
+				v4l2core_prepare_valid_resolution(device);
+				ret = v4l2core_update_current_format(device);
 
 				if(ret != E_OK)
 				{
@@ -278,14 +278,14 @@ void *capture_loop(void *data)
 			if(debug_level > 0)
 				printf("GUVCVIEW: reset to pixelformat=%x width=%i and height=%i\n", device->requested_fmt, device->format.fmt.pix.width, device->format.fmt.pix.height);
 
-			start_video_stream(device);
+			v4l2core_start_stream(device);
 
 		}
 
-		if( get_v4l2_frame(device) == E_OK)
+		if( v4l2core_get_frame(device) == E_OK)
 		{
 			/*decode the raw frame*/
-			if(frame_decode(device) != E_OK)
+			if(v4l2core_frame_decode(device) != E_OK)
 			{
 				fprintf(stderr, "GUVCIEW: Error - Couldn't decode frame\n");
 				//quit_callback(NULL);
@@ -294,12 +294,12 @@ void *capture_loop(void *data)
 
 			/*run software autofocus (must be called after frame_decode)*/
 			if(do_soft_autofocus || do_soft_focus)
-				do_soft_focus = soft_autofocus_run(device);
+				do_soft_focus = v4l2core_soft_autofocus_run(device);
 
 			/*render the decoded frame*/
 			if(render != RENDER_NONE)
 			{
-				snprintf(render_caption, 20, "SDL Video - %2.2f", get_v4l2_realfps());
+				snprintf(render_caption, 20, "SDL Video - %2.2f", v4l2core_get_realfps());
 				set_render_caption(render_caption);
 				render_frame(device->yuv_frame, mask);
 			}
@@ -318,7 +318,7 @@ void *capture_loop(void *data)
 		}
 	}
 
-	stop_video_stream(device);
+	v4l2core_stop_stream(device);
 
 	if(render != RENDER_NONE)
 		render_clean();

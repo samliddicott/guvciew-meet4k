@@ -105,13 +105,13 @@ static int sort_method = AUTOF_SORT_INSERT; /* 1 - Quick sort   2 - Shell sort  
  *
  * returns: none
  */
-void soft_autofocus_set_focus()
+void v4l2core_soft_autofocus_set_focus()
 {
 	/*asserts*/
 	assert(focus_ctx != NULL);
 
 	focus_ctx->setFocus = 1;
-	
+
 	focus_ctx->ind = 0;
 	focus_ctx->flag = 0;
 	focus_ctx->right = 255;
@@ -129,7 +129,7 @@ void soft_autofocus_set_focus()
  *
  * returns: none
  */
-void soft_autofocus_set_sort(int method)
+void v4l2core_soft_autofocus_set_sort(int method)
 {
 	sort_method = method;
 }
@@ -144,7 +144,7 @@ void soft_autofocus_set_sort(int method)
  *
  * returns: error code (0 - E_OK)
  */
-int soft_autofocus_init (v4l2_dev_t *vd)
+int v4l2core_soft_autofocus_init (v4l2_dev_t *vd)
 {
 	/*asserts*/
 	assert(vd != NULL);
@@ -163,7 +163,7 @@ int soft_autofocus_init (v4l2_dev_t *vd)
 	if(focus_ctx == NULL)
 		return (E_ALLOC_ERR);
 
-    focus_ctx->focus_control = get_v4l2_control_by_id(vd, vd->has_focus_control_id);
+    focus_ctx->focus_control = v4l2core_get_control_by_id(vd, vd->has_focus_control_id);
 
     if(focus_ctx->focus_control == NULL)
 	{
@@ -754,10 +754,10 @@ int soft_autofocus_get_focus_value()
  * asserts:
  *    vd is not null
  *
- * returns: 1 - running  0- focused 
+ * returns: 1 - running  0- focused
  * 	(only matters for non-continue focus)
  */
-int soft_autofocus_run(v4l2_dev_t *vd)
+int v4l2core_soft_autofocus_run(v4l2_dev_t *vd)
 {
 	/*asserts*/
 	assert(vd != NULL);
@@ -768,7 +768,7 @@ int soft_autofocus_run(v4l2_dev_t *vd)
 		focus_ctx->focus = focus_ctx->left; /*start left*/
 
 		focus_ctx->focus_control->value = focus_ctx->focus;
-		if (set_v4l2_control_id_value(vd, focus_ctx->focus_control->control.id) != 0)
+		if (v4l2core_set_control_value_by_id(vd, focus_ctx->focus_control->control.id) != 0)
 			fprintf(stderr, "V4L2_CORE: (sof_autofocus) couldn't set focus to %d\n", focus_ctx->focus);
 
 		/*number of frames until focus is stable*/
@@ -801,7 +801,7 @@ int soft_autofocus_run(v4l2_dev_t *vd)
 			if ((focus_ctx->focus != focus_ctx->last_focus))
 			{
 				focus_ctx->focus_control->value = focus_ctx->focus;
-				if (set_v4l2_control_id_value(vd, focus_ctx->focus_control->control.id) != 0)
+				if (v4l2core_set_control_value_by_id(vd, focus_ctx->focus_control->control.id) != 0)
 					fprintf(stderr, "V4L2_CORE: (sof_autofocus) couldn't set focus to %d\n",
 						focus_ctx->focus);
 
@@ -819,7 +819,7 @@ int soft_autofocus_run(v4l2_dev_t *vd)
 					focus_ctx->focus_wait);
 		}
 	}
-	
+
 	return (focus_ctx->setFocus);
 }
 
@@ -833,7 +833,7 @@ int soft_autofocus_run(v4l2_dev_t *vd)
  *
  * returns: none
  */
-void soft_autofocus_close()
+void v4l2core_soft_autofocus_close()
 {
 	if(focus_ctx != NULL)
 		free(focus_ctx);

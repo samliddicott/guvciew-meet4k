@@ -167,7 +167,7 @@ static v4l2_format_table_t decoder_supported_formats[] =
  *
  * returns: v4l2 pixel format
  */
-int fourcc_2_v4l2_pixelformat(const char *fourcc)
+int v4l2core_fourcc_2_v4l2_pixelformat(const char *fourcc)
 {
 	int fmt = 0;
 	if(!fourcc || strlen(fourcc) !=  4)
@@ -601,7 +601,7 @@ int enum_frame_formats(v4l2_dev_t *vd)
  *
  * returns: format list index or -1 if not available
  */
-int get_frame_format_index(v4l2_dev_t *vd, int format)
+int v4l2core_get_frame_format_index(v4l2_dev_t *vd, int format)
 {
 	/*asserts*/
 	assert(vd != NULL);
@@ -631,7 +631,7 @@ int get_frame_format_index(v4l2_dev_t *vd, int format)
  *
  * returns: resolution list index for format index or -1 if not available
  */
-int get_format_resolution_index(v4l2_dev_t *vd, int format, int width, int height)
+int v4l2core_get_format_resolution_index(v4l2_dev_t *vd, int format, int width, int height)
 {
 	/*asserts*/
 	assert(vd != NULL);

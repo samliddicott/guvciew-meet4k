@@ -611,7 +611,7 @@ static int demux_h264(uint8_t* h264_data, uint8_t* buffer, int size, int h264_ma
  *
  * returns: error code ( 0 - E_OK)
 */
-int frame_decode(v4l2_dev_t *vd)
+int v4l2core_frame_decode(v4l2_dev_t *vd)
 {
 	/*asserts*/
 	assert(vd != NULL);

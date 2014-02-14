@@ -63,9 +63,9 @@ int gui_attach_gtk3_videoctrls(v4l2_dev_t *device, GtkWidget *parent)
 	assert(device != NULL);
 	assert(parent != NULL);
 
-	int format_index = get_frame_format_index(device, device->requested_fmt);
+	int format_index = v4l2core_get_frame_format_index(device, device->requested_fmt);
 
-	int resolu_index = get_format_resolution_index(
+	int resolu_index = v4l2core_get_format_resolution_index(
 		device,
 		format_index,
 		device->format.fmt.pix.width,

@@ -326,7 +326,7 @@ int xioctl(int fd, int IOCTL_X, void *arg);
  *
  * returns - void
  */
-void set_v4l2_verbosity(int level);
+void v4l2core_set_verbosity(int level);
 
 /*
  * get pixelformat from fourcc
@@ -338,7 +338,7 @@ void set_v4l2_verbosity(int level);
  *
  * returns: v4l2 pixel format
  */
-int fourcc_2_v4l2_pixelformat(const char *fourcc);
+int v4l2core_fourcc_2_v4l2_pixelformat(const char *fourcc);
 
 /*
  * get real fps
@@ -350,7 +350,7 @@ int fourcc_2_v4l2_pixelformat(const char *fourcc);
  *
  * returns: double with real fps value
  */
-double get_v4l2_realfps();
+double v4l2core_get_realfps();
 
 /*
  * Set v4l2 capture method
@@ -362,7 +362,7 @@ double get_v4l2_realfps();
  *
  * returns: VIDIOC_STREAMON ioctl result (E_OK or E_STREAMON_ERR)
 */
-void set_v4l2_capture_method(v4l2_dev_t *vd, int method);
+void v4l2core_set_capture_method(v4l2_dev_t *vd, int method);
 
 /*
  * Initiate video device data with default values
@@ -374,7 +374,7 @@ void set_v4l2_capture_method(v4l2_dev_t *vd, int method);
  *
  * returns: pointer to newly allocated video device data  ( NULL on error)
  */
-v4l2_dev_t *init_v4l2_dev(const char *device);
+v4l2_dev_t *v4l2core_init_dev(const char *device);
 
 /* get frame format index from format list
  * args:
@@ -387,7 +387,7 @@ v4l2_dev_t *init_v4l2_dev(const char *device);
  *
  * returns: format list index or -1 if not available
  */
-int get_frame_format_index(v4l2_dev_t *vd, int format);
+int v4l2core_get_frame_format_index(v4l2_dev_t *vd, int format);
 
 /* get resolution index for format index from format list
  * args:
@@ -402,7 +402,7 @@ int get_frame_format_index(v4l2_dev_t *vd, int format);
  *
  * returns: resolution list index for format index or -1 if not available
  */
-int get_format_resolution_index(v4l2_dev_t *vd, int format, int width, int height);
+int v4l2core_get_format_resolution_index(v4l2_dev_t *vd, int format, int width, int height);
 
 /*
  * prepare a valid format (first in the format list)
@@ -414,7 +414,7 @@ int get_format_resolution_index(v4l2_dev_t *vd, int format, int width, int heigh
  *
  * returns: none
  */
-void prepare_valid_format(v4l2_dev_t *vd);
+void v4l2core_prepare_valid_format(v4l2_dev_t *vd);
 
 /*
  * prepare new format
@@ -427,7 +427,7 @@ void prepare_valid_format(v4l2_dev_t *vd);
  *
  * returns: none
  */
-void prepare_new_format(v4l2_dev_t *vd, int new_format);
+void v4l2core_prepare_new_format(v4l2_dev_t *vd, int new_format);
 
 /*
  * prepare valid resolution (first in the resolution list for the format)
@@ -439,7 +439,7 @@ void prepare_new_format(v4l2_dev_t *vd, int new_format);
  *
  * returns: none
  */
-void prepare_valid_resolution(v4l2_dev_t *vd);
+void v4l2core_prepare_valid_resolution(v4l2_dev_t *vd);
 
 /*
  * prepare new resolution
@@ -453,7 +453,7 @@ void prepare_valid_resolution(v4l2_dev_t *vd);
  *
  * returns: none
  */
-void prepare_new_resolution(v4l2_dev_t *vd, int new_width, int new_height);
+void v4l2core_prepare_new_resolution(v4l2_dev_t *vd, int new_width, int new_height);
 
 /*
  * update the current format (pixelformat, width and height)
@@ -466,7 +466,7 @@ void prepare_new_resolution(v4l2_dev_t *vd, int new_width, int new_height);
  * returns:
  *    error code
  */
-int update_current_format(v4l2_dev_t *vd);
+int v4l2core_update_current_format(v4l2_dev_t *vd);
 
 /*
  * gets the next video frame and decodes it if necessary
@@ -478,7 +478,7 @@ int update_current_format(v4l2_dev_t *vd);
  *
  * returns: error code (E_OK)
  */
-int get_v4l2_frame(v4l2_dev_t *vd);
+int v4l2core_get_frame(v4l2_dev_t *vd);
 
 /*
  * decode video stream ( from raw_frame to frame buffer (yuyv format))
@@ -490,7 +490,7 @@ int get_v4l2_frame(v4l2_dev_t *vd);
  *
  * returns: error code ( 0 - E_OK)
 */
-int frame_decode(v4l2_dev_t *vd);
+int v4l2core_frame_decode(v4l2_dev_t *vd);
 
 /*
  * clean v4l2 buffers
@@ -502,7 +502,7 @@ int frame_decode(v4l2_dev_t *vd);
  *
  * return: none
  */
-void clean_v4l2_buffers(v4l2_dev_t *vd);
+void v4l2core_clean_buffers(v4l2_dev_t *vd);
 
 /*
  * cleans video device data and allocations
@@ -514,7 +514,7 @@ void clean_v4l2_buffers(v4l2_dev_t *vd);
  *
  * returns: void
  */
-void close_v4l2_dev(v4l2_dev_t *vd);
+void v4l2core_close_dev(v4l2_dev_t *vd);
 
 /*
  * request a fps update
@@ -526,20 +526,7 @@ void close_v4l2_dev(v4l2_dev_t *vd);
  *
  * returns: none
  */
-void request_v4l2_framerate_update(v4l2_dev_t *vd);
-
-/*
- * sets video device frame rate
- * args:
- *   vd: pointer to video device data
- *
- * asserts:
- *   vd is not null
- *
- * returns: VIDIOC_S_PARM ioctl result value
- * (sets vd->fps_denom and vd->fps_num to device value)
- */
-int set_v4l2_framerate (v4l2_dev_t *vd);
+void v4l2core_request_framerate_update(v4l2_dev_t *vd);
 
 /*
  * gets video device defined frame rate (not real - consider it a maximum value)
@@ -552,7 +539,7 @@ int set_v4l2_framerate (v4l2_dev_t *vd);
  * returns: VIDIOC_G_PARM ioctl result value
  * (sets vd->fps_denom and vd->fps_num to device value)
  */
-int get_v4l2_framerate (v4l2_dev_t *vd);
+int v4l2core_get_framerate (v4l2_dev_t *vd);
 
 /*
  * Starts the video stream
@@ -564,7 +551,7 @@ int get_v4l2_framerate (v4l2_dev_t *vd);
  *
  * returns: VIDIOC_STREAMON ioctl result (0- E_OK)
  */
-int start_video_stream(v4l2_dev_t *vd);
+int v4l2core_start_stream(v4l2_dev_t *vd);
 
 /*
  * request video stream to stop
@@ -576,7 +563,7 @@ int start_video_stream(v4l2_dev_t *vd);
  *
  * returns: error code (0 -OK)
 */
-int request_stop_video_stream(v4l2_dev_t *vd);
+int v4l2core_request_stop_stream(v4l2_dev_t *vd);
 
 /*
  * Stops the video stream
@@ -588,7 +575,7 @@ int request_stop_video_stream(v4l2_dev_t *vd);
  *
  * returns: VIDIOC_STREAMOFF ioctl result (0- E_OK)
  */
-int stop_video_stream(v4l2_dev_t *vd);
+int v4l2core_stop_stream(v4l2_dev_t *vd);
 
 /*
  *  ######### CONTROLS ##########
@@ -605,7 +592,7 @@ int stop_video_stream(v4l2_dev_t *vd);
  *
  * returns: pointer to v4l2_control if succeded or null otherwise
  */
-v4l2_ctrl_t* get_v4l2_control_by_id(v4l2_dev_t *vd, int id);
+v4l2_ctrl_t* v4l2core_get_control_by_id(v4l2_dev_t *vd, int id);
 
 /*
  * sets the value of control id in device
@@ -618,7 +605,7 @@ v4l2_ctrl_t* get_v4l2_control_by_id(v4l2_dev_t *vd, int id);
  *
  * returns: ioctl result
  */
-int set_v4l2_control_id_value(v4l2_dev_t *vd, int id);
+int v4l2core_set_control_value_by_id(v4l2_dev_t *vd, int id);
 
 /*
  * updates the value for control id from the device
@@ -632,7 +619,7 @@ int set_v4l2_control_id_value(v4l2_dev_t *vd, int id);
  *
  * returns: ioctl result
  */
-int get_v4l2_control_id_value (v4l2_dev_t *vd, int id);
+int v4l2core_get_control_value_by_id(v4l2_dev_t *vd, int id);
 
 /*
  * goes trough the control list and sets values in device to default
@@ -645,7 +632,7 @@ int get_v4l2_control_id_value (v4l2_dev_t *vd, int id);
  *
  * returns: void
  */
-void set_v4l2_control_defaults(v4l2_dev_t *vd);
+void v4l2core_set_control_defaults(v4l2_dev_t *vd);
 
 /*
  * set autofocus sort method
@@ -657,7 +644,7 @@ void set_v4l2_control_defaults(v4l2_dev_t *vd);
  *
  * returns: none
  */
-void soft_autofocus_set_sort(int method);
+void v4l2core_soft_autofocus_set_sort(int method);
 
 /*
  * initiate software autofocus
@@ -669,7 +656,7 @@ void soft_autofocus_set_sort(int method);
  *
  * returns: error code (0 - E_OK)
  */
-int soft_autofocus_init (v4l2_dev_t *vd);
+int v4l2core_soft_autofocus_init (v4l2_dev_t *vd);
 
 /*
  * run the software autofocus
@@ -679,10 +666,10 @@ int soft_autofocus_init (v4l2_dev_t *vd);
  * asserts:
  *    vd is not null
  *
- * returns: 1 - running  0- focused 
+ * returns: 1 - running  0- focused
  * 	(only matters for non-continue focus)
  */
-int soft_autofocus_run(v4l2_dev_t *vd);
+int v4l2core_soft_autofocus_run(v4l2_dev_t *vd);
 
 /*
  * sets a focus loop while autofocus is on
@@ -694,7 +681,7 @@ int soft_autofocus_run(v4l2_dev_t *vd);
  *
  * returns: none
  */
-void soft_autofocus_set_focus();
+void v4l2core_soft_autofocus_set_focus();
 
 /*
  * close and clean software autofocus
@@ -706,7 +693,7 @@ void soft_autofocus_set_focus();
  *
  * returns: none
  */
-void soft_autofocus_close();
+void v4l2core_soft_autofocus_close();
 
 /*
  *  ######### XU CONTROLS ##########
@@ -725,7 +712,7 @@ void soft_autofocus_close();
  *
  * returns: length of xu control
  */
-uint16_t get_length_xu_control(v4l2_dev_t *vd, uint8_t unit, uint8_t selector);
+uint16_t v4l2core_get_length_xu_control(v4l2_dev_t *vd, uint8_t unit, uint8_t selector);
 
 /*
  * get uvc info for xu control defined by unit id and selector
@@ -740,7 +727,7 @@ uint16_t get_length_xu_control(v4l2_dev_t *vd, uint8_t unit, uint8_t selector);
  *
  * returns: info of xu control
  */
-uint8_t get_info_xu_control(v4l2_dev_t *vd, uint8_t unit, uint8_t selector);
+uint8_t v4l2core_get_info_xu_control(v4l2_dev_t *vd, uint8_t unit, uint8_t selector);
 
 /*
  * runs a query on xu control defined by unit id and selector
@@ -757,7 +744,7 @@ uint8_t get_info_xu_control(v4l2_dev_t *vd, uint8_t unit, uint8_t selector);
  *
  * returns: 0 if query succeded or errno otherwise
  */
-int query_xu_control(v4l2_dev_t *vd, uint8_t unit, uint8_t selector, uint8_t query, void *data);
+int v4l2core_query_xu_control(v4l2_dev_t *vd, uint8_t unit, uint8_t selector, uint8_t query, void *data);
 
 #endif
 

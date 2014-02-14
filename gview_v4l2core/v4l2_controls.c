@@ -472,7 +472,7 @@ static void update_ctrl_flags(v4l2_dev_t *vd, int id)
     {
         case V4L2_CID_EXPOSURE_AUTO:
             {
-                v4l2_ctrl_t *ctrl_this = get_v4l2_control_by_id(vd, id);
+                v4l2_ctrl_t *ctrl_this = v4l2core_get_control_by_id(vd, id);
                 if(ctrl_this == NULL)
                     break;
 
@@ -480,16 +480,16 @@ static void update_ctrl_flags(v4l2_dev_t *vd, int id)
                 {
                     case V4L2_EXPOSURE_AUTO:
                         {
-                            v4l2_ctrl_t *ctrl_that = get_v4l2_control_by_id(vd,
+                            v4l2_ctrl_t *ctrl_that = v4l2core_get_control_by_id(vd,
                                 V4L2_CID_IRIS_ABSOLUTE );
                             if (ctrl_that)
                                 ctrl_that->control.flags |= V4L2_CTRL_FLAG_GRABBED;
 
-                            ctrl_that = get_v4l2_control_by_id(vd,
+                            ctrl_that = v4l2core_get_control_by_id(vd,
                                 V4L2_CID_IRIS_RELATIVE );
                             if (ctrl_that)
                                 ctrl_that->control.flags |= V4L2_CTRL_FLAG_GRABBED;
-                            ctrl_that = get_v4l2_control_by_id(vd,
+                            ctrl_that = v4l2core_get_control_by_id(vd,
                                 V4L2_CID_EXPOSURE_ABSOLUTE );
                             if (ctrl_that)
                                 ctrl_that->control.flags |= V4L2_CTRL_FLAG_GRABBED;
@@ -498,15 +498,15 @@ static void update_ctrl_flags(v4l2_dev_t *vd, int id)
 
                     case V4L2_EXPOSURE_APERTURE_PRIORITY:
                         {
-                            v4l2_ctrl_t *ctrl_that = get_v4l2_control_by_id(vd,
+                            v4l2_ctrl_t *ctrl_that = v4l2core_get_control_by_id(vd,
                                 V4L2_CID_EXPOSURE_ABSOLUTE );
                             if (ctrl_that)
                                 ctrl_that->control.flags |= V4L2_CTRL_FLAG_GRABBED;
-                            ctrl_that = get_v4l2_control_by_id(vd,
+                            ctrl_that = v4l2core_get_control_by_id(vd,
                                 V4L2_CID_IRIS_ABSOLUTE );
                             if (ctrl_that)
                                 ctrl_that->control.flags &= !(V4L2_CTRL_FLAG_GRABBED);
-                            ctrl_that = get_v4l2_control_by_id(vd,
+                            ctrl_that = v4l2core_get_control_by_id(vd,
                                 V4L2_CID_IRIS_RELATIVE );
                             if (ctrl_that)
                                 ctrl_that->control.flags &= !(V4L2_CTRL_FLAG_GRABBED);
@@ -515,16 +515,16 @@ static void update_ctrl_flags(v4l2_dev_t *vd, int id)
 
                     case V4L2_EXPOSURE_SHUTTER_PRIORITY:
                         {
-                            v4l2_ctrl_t *ctrl_that = get_v4l2_control_by_id(vd,
+                            v4l2_ctrl_t *ctrl_that = v4l2core_get_control_by_id(vd,
                                 V4L2_CID_IRIS_ABSOLUTE );
                             if (ctrl_that)
                                 ctrl_that->control.flags |= V4L2_CTRL_FLAG_GRABBED;
 
-                            ctrl_that = get_v4l2_control_by_id(vd,
+                            ctrl_that = v4l2core_get_control_by_id(vd,
                                 V4L2_CID_IRIS_RELATIVE );
                             if (ctrl_that)
                                 ctrl_that->control.flags |= V4L2_CTRL_FLAG_GRABBED;
-                            ctrl_that = get_v4l2_control_by_id(vd,
+                            ctrl_that = v4l2core_get_control_by_id(vd,
                                 V4L2_CID_EXPOSURE_ABSOLUTE );
                             if (ctrl_that)
                                 ctrl_that->control.flags &= !(V4L2_CTRL_FLAG_GRABBED);
@@ -533,15 +533,15 @@ static void update_ctrl_flags(v4l2_dev_t *vd, int id)
 
                     default:
                         {
-                            v4l2_ctrl_t *ctrl_that = get_v4l2_control_by_id(vd,
+                            v4l2_ctrl_t *ctrl_that = v4l2core_get_control_by_id(vd,
                                 V4L2_CID_EXPOSURE_ABSOLUTE );
                             if (ctrl_that)
                                 ctrl_that->control.flags &= !(V4L2_CTRL_FLAG_GRABBED);
-                            ctrl_that = get_v4l2_control_by_id(vd,
+                            ctrl_that = v4l2core_get_control_by_id(vd,
                                 V4L2_CID_IRIS_ABSOLUTE );
                             if (ctrl_that)
                                 ctrl_that->control.flags &= !(V4L2_CTRL_FLAG_GRABBED);
-                            ctrl_that = get_v4l2_control_by_id(vd,
+                            ctrl_that = v4l2core_get_control_by_id(vd,
                                 V4L2_CID_IRIS_RELATIVE );
                             if (ctrl_that)
                                 ctrl_that->control.flags &= !(V4L2_CTRL_FLAG_GRABBED);
@@ -553,29 +553,29 @@ static void update_ctrl_flags(v4l2_dev_t *vd, int id)
 
         case V4L2_CID_FOCUS_AUTO:
             {
-                v4l2_ctrl_t *ctrl_this = get_v4l2_control_by_id(vd, id );
+                v4l2_ctrl_t *ctrl_this = v4l2core_get_control_by_id(vd, id );
                 if(ctrl_this == NULL)
                     break;
                 if(ctrl_this->value > 0)
                 {
-                    v4l2_ctrl_t *ctrl_that = get_v4l2_control_by_id(vd,
+                    v4l2_ctrl_t *ctrl_that = v4l2core_get_control_by_id(vd,
                         V4L2_CID_FOCUS_ABSOLUTE);
                     if (ctrl_that)
                         ctrl_that->control.flags |= V4L2_CTRL_FLAG_GRABBED;
 
-                    ctrl_that = get_v4l2_control_by_id(vd,
+                    ctrl_that = v4l2core_get_control_by_id(vd,
                         V4L2_CID_FOCUS_RELATIVE);
                     if (ctrl_that)
                         ctrl_that->control.flags |= V4L2_CTRL_FLAG_GRABBED;
                 }
                 else
                 {
-                    v4l2_ctrl_t *ctrl_that = get_v4l2_control_by_id(vd,
+                    v4l2_ctrl_t *ctrl_that = v4l2core_get_control_by_id(vd,
                         V4L2_CID_FOCUS_ABSOLUTE);
                     if (ctrl_that)
                         ctrl_that->control.flags &= !(V4L2_CTRL_FLAG_GRABBED);
 
-                    ctrl_that = get_v4l2_control_by_id(vd,
+                    ctrl_that = v4l2core_get_control_by_id(vd,
                         V4L2_CID_FOCUS_RELATIVE);
                     if (ctrl_that)
                         ctrl_that->control.flags &= !(V4L2_CTRL_FLAG_GRABBED);
@@ -585,19 +585,19 @@ static void update_ctrl_flags(v4l2_dev_t *vd, int id)
 
         case V4L2_CID_HUE_AUTO:
             {
-                v4l2_ctrl_t *ctrl_this = get_v4l2_control_by_id(vd, id );
+                v4l2_ctrl_t *ctrl_this = v4l2core_get_control_by_id(vd, id );
                 if(ctrl_this == NULL)
                     break;
                 if(ctrl_this->value > 0)
                 {
-                    v4l2_ctrl_t *ctrl_that = get_v4l2_control_by_id(vd,
+                    v4l2_ctrl_t *ctrl_that = v4l2core_get_control_by_id(vd,
                         V4L2_CID_HUE);
                     if (ctrl_that)
                         ctrl_that->control.flags |= V4L2_CTRL_FLAG_GRABBED;
                 }
                 else
                 {
-                    v4l2_ctrl_t *ctrl_that = get_v4l2_control_by_id(vd,
+                    v4l2_ctrl_t *ctrl_that = v4l2core_get_control_by_id(vd,
                         V4L2_CID_HUE);
                     if (ctrl_that)
                         ctrl_that->control.flags &= !(V4L2_CTRL_FLAG_GRABBED);
@@ -607,36 +607,36 @@ static void update_ctrl_flags(v4l2_dev_t *vd, int id)
 
         case V4L2_CID_AUTO_WHITE_BALANCE:
             {
-                v4l2_ctrl_t *ctrl_this = get_v4l2_control_by_id(vd, id );
+                v4l2_ctrl_t *ctrl_this = v4l2core_get_control_by_id(vd, id );
                 if(ctrl_this == NULL)
                     break;
 
                 if(ctrl_this->value > 0)
                 {
-                    v4l2_ctrl_t *ctrl_that = get_v4l2_control_by_id(vd,
+                    v4l2_ctrl_t *ctrl_that = v4l2core_get_control_by_id(vd,
                         V4L2_CID_WHITE_BALANCE_TEMPERATURE);
                     if (ctrl_that)
                         ctrl_that->control.flags |= V4L2_CTRL_FLAG_GRABBED;
-                    ctrl_that = get_v4l2_control_by_id(vd,
+                    ctrl_that = v4l2core_get_control_by_id(vd,
                         V4L2_CID_BLUE_BALANCE);
                     if (ctrl_that)
                         ctrl_that->control.flags |= V4L2_CTRL_FLAG_GRABBED;
-                    ctrl_that = get_v4l2_control_by_id(vd,
+                    ctrl_that = v4l2core_get_control_by_id(vd,
                         V4L2_CID_RED_BALANCE);
                     if (ctrl_that)
                         ctrl_that->control.flags |= V4L2_CTRL_FLAG_GRABBED;
                 }
                 else
                 {
-                    v4l2_ctrl_t *ctrl_that = get_v4l2_control_by_id(vd,
+                    v4l2_ctrl_t *ctrl_that = v4l2core_get_control_by_id(vd,
                         V4L2_CID_WHITE_BALANCE_TEMPERATURE);
                     if (ctrl_that)
                         ctrl_that->control.flags &= !(V4L2_CTRL_FLAG_GRABBED);
-                    ctrl_that = get_v4l2_control_by_id(vd,
+                    ctrl_that = v4l2core_get_control_by_id(vd,
                         V4L2_CID_BLUE_BALANCE);
                     if (ctrl_that)
                         ctrl_that->control.flags &= !(V4L2_CTRL_FLAG_GRABBED);
-                    ctrl_that = get_v4l2_control_by_id(vd,
+                    ctrl_that = v4l2core_get_control_by_id(vd,
                         V4L2_CID_RED_BALANCE);
                     if (ctrl_that)
                         ctrl_that->control.flags &= !(V4L2_CTRL_FLAG_GRABBED);
@@ -686,11 +686,11 @@ static void disable_special_auto (v4l2_dev_t *vd, int id)
 	/*asserts*/
 	assert(vd != NULL);
 
-    v4l2_ctrl_t *current = get_v4l2_control_by_id(vd, id);
+    v4l2_ctrl_t *current = v4l2core_get_control_by_id(vd, id);
     if(current && ((id == V4L2_CID_FOCUS_AUTO) || (id == V4L2_CID_HUE_AUTO)))
     {
         current->value = 0;
-        set_v4l2_control_id_value(vd, id);
+        v4l2core_set_control_value_by_id(vd, id);
     }
 }
 
@@ -705,7 +705,7 @@ static void disable_special_auto (v4l2_dev_t *vd, int id)
  *
  * returns: pointer to v4l2_control if succeded or null otherwise
  */
-v4l2_ctrl_t *get_v4l2_control_by_id(v4l2_dev_t *vd, int id)
+v4l2_ctrl_t *v4l2core_get_control_by_id(v4l2_dev_t *vd, int id)
 {
 	/*asserts*/
 	assert(vd != NULL);
@@ -814,7 +814,7 @@ void get_v4l2_control_values (v4l2_dev_t *vd)
             //fill in the values on the control list
             for(i=0; i<count; i++)
             {
-                v4l2_ctrl_t *ctrl = get_v4l2_control_by_id(vd, clist[i].id);
+                v4l2_ctrl_t *ctrl = v4l2core_get_control_by_id(vd, clist[i].id);
                 if(!ctrl)
                 {
                     fprintf(stderr, "V4L2_CORE: couldn't get control for id: %i\n", clist[i].id);
@@ -876,13 +876,13 @@ void get_v4l2_control_values (v4l2_dev_t *vd)
  *
  * returns: ioctl result
  */
-int get_v4l2_control_id_value (v4l2_dev_t *vd, int id)
+int v4l2core_get_control_value_by_id (v4l2_dev_t *vd, int id)
 {
 	/*asserts*/
 	assert(vd != NULL);
 	assert(vd->fd > 0);
 
-    v4l2_ctrl_t *control = get_v4l2_control_by_id(vd, id );
+    v4l2_ctrl_t *control = v4l2core_get_control_by_id(vd, id );
     int ret = 0;
 
     if(!control)
@@ -1076,7 +1076,7 @@ void set_v4l2_control_values (v4l2_dev_t *vd)
                         ret = xioctl(vd->fd, VIDIOC_S_CTRL, &ctrl);
                         if(ret)
                         {
-                            v4l2_ctrl_t *ctrl = get_v4l2_control_by_id(vd, clist[i].id);
+                            v4l2_ctrl_t *ctrl = v4l2core_get_control_by_id(vd, clist[i].id);
                             if(ctrl)
                                 fprintf(stderr, "V4L2_CORE: control(0x%08x) \"%s\" failed to set (error %i)\n",
                                     clist[i].id, ctrl->control.name, ret);
@@ -1096,7 +1096,7 @@ void set_v4l2_control_values (v4l2_dev_t *vd)
                         ctrls.controls = &clist[i];
                         ret = xioctl(vd->fd, VIDIOC_S_EXT_CTRLS, &ctrls);
 
-                        v4l2_ctrl_t *ctrl = get_v4l2_control_by_id(vd, clist[i].id);
+                        v4l2_ctrl_t *ctrl = v4l2core_get_control_by_id(vd, clist[i].id);
 
                         if(ret)
                         {
@@ -1134,7 +1134,7 @@ void set_v4l2_control_values (v4l2_dev_t *vd)
  *
  * returns: void
  */
-void set_v4l2_control_defaults(v4l2_dev_t *vd)
+void v4l2core_set_control_defaults(v4l2_dev_t *vd)
 {
 	/*asserts*/
 	assert(vd != NULL);
@@ -1189,13 +1189,13 @@ void set_v4l2_control_defaults(v4l2_dev_t *vd)
  *
  * returns: ioctl result
  */
-int set_v4l2_control_id_value(v4l2_dev_t *vd, int id)
+int v4l2core_set_control_value_by_id(v4l2_dev_t *vd, int id)
 {
 	/*asserts*/
 	assert(vd != NULL);
 	assert(vd->fd > 0);
 
-    v4l2_ctrl_t *control = get_v4l2_control_by_id(vd, id );
+    v4l2_ctrl_t *control = v4l2core_get_control_by_id(vd, id );
     int ret = 0;
 
     if(!control)
@@ -1272,7 +1272,7 @@ int set_v4l2_control_id_value(v4l2_dev_t *vd, int id)
     }
 
     //update real value
-    get_v4l2_control_id_value(vd, id);
+    v4l2core_get_control_value_by_id(vd, id);
 
     return (ret);
 }
