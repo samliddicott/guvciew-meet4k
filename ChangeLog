@@ -1,3 +1,14 @@
+guvcview (1.7.3)
+
+    * add silence frames to compensate audio drift (delay).
+    * fix possible memory leak
+    * add video and image capture through system signals:
+       SIGUSR1 and SIGUSR2
+    * add true no_display mode (no X required)
+    * small bug fixes
+    
+ -- Paulo Assis <pj.assis@gmail.com>  Sun, 16 Feb 2014 10:24:00 +0000
+ 
 guvcview (1.7.2)
 
     * Add H264 decoding support.
