@@ -773,5 +773,23 @@ uint8_t v4l2core_get_info_xu_control(v4l2_dev_t *vd, uint8_t unit, uint8_t selec
  */
 int v4l2core_query_xu_control(v4l2_dev_t *vd, uint8_t unit, uint8_t selector, uint8_t query, void *data);
 
+/*
+ *  ########### FILE IO ###############
+ */
+/*
+ * save data to file
+ * args:
+ *   filename - string with filename
+ *   data - pointer to data
+ *   size - data size in bytes = sizeof(uint8_t)
+ *
+ * asserts:
+ *   none
+ *
+ * returns: error code
+ */
+int save_data_to_file(const char *filename, uint8_t *data, int size);
+
+
 #endif
 

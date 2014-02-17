@@ -72,7 +72,7 @@ extern int verbosity;
 /* default Huffman table*/
 #define JPG_HUFFMAN_TABLE_LENGTH 0x01A0
 
-static const uint8_t jpeg_huffman_table[JPG_HUFFMAN_TABLE_LENGTH] =
+const uint8_t jpeg_huffman_table[JPG_HUFFMAN_TABLE_LENGTH] =
 {
 	// luminance dc - length bits
 	0x00,
