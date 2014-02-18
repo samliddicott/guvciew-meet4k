@@ -29,6 +29,8 @@
 
 #include "gviewv4l2core.h"
 
+extern int verbosity;
+
 /*
  * get the filename basename
  * args:
@@ -45,10 +47,13 @@ char *get_file_basename(const char *filename)
 
 	char *basename = NULL;
 
-	if(name)
+	if(name != NULL)
 		basename = strdup(name);
 	else
 		basename = strdup(filename);
+
+	if(verbosity > 0)
+		printf("GUVCVIEW: basename for %s is %s\n", filename, basename);
 
 	return basename;
 }
