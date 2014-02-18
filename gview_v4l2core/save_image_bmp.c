@@ -47,15 +47,15 @@ typedef struct _bmp_file_header_t
 
 typedef struct _bmp_info_header_t
 {
-	uint32_t   biSize;
-	uint16_t   biWidth;
-	uint16_t   biHeight;
-	uint16_t   biPlanes;
-	uint16_t   biBitCount;
-	uint32_t   biCompression;
+	uint32_t   biSize;  /*size of this header 40 bytes*/
+	int32_t    biWidth;
+	int32_t    biHeight;
+	uint16_t   biPlanes; /*color planes - set to 1*/
+	uint16_t   biBitCount; /*bits per pixel - color depth (use 24)*/
+	uint32_t   biCompression; /*BI_RGB = 0*/
 	uint32_t   biSizeImage;
-	uint16_t   biXPelsPerMeter;
-	uint16_t   biYPelsPerMeter;
+	uint32_t   biXPelsPerMeter;
+	uint32_t   biYPelsPerMeter;
 	uint32_t   biClrUsed;
 	uint32_t   biClrImportant;
 }  __attribute__ ((packed)) bmp_info_header_t;
