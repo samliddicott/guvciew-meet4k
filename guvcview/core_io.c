@@ -29,7 +29,7 @@
 
 #include "gviewv4l2core.h"
 
-extern int verbosity;
+extern int debug_level;
 
 /*
  * get the filename basename
@@ -43,16 +43,16 @@ extern int verbosity;
  */
 char *get_file_basename(const char *filename)
 {
-	char *name = strrchr(filename, '/') + 1;
+	char *name = strrchr(filename, '/');
 
 	char *basename = NULL;
 
 	if(name != NULL)
-		basename = strdup(name);
+		basename = strdup(name + 1); /*skip '/'*/
 	else
 		basename = strdup(filename);
 
-	if(verbosity > 0)
+	if(debug_level > 0)
 		printf("GUVCVIEW: basename for %s is %s\n", filename, basename);
 
 	return basename;
@@ -81,6 +81,9 @@ char *get_file_pathname(const char *filename)
 		pathname = strndup(filename, strsize);
 	}
 
+	if(debug_level > 0)
+		printf("GUVCVIEW: path for %s is %s\n", filename, pathname);
+
 	return pathname;
 }
 
@@ -107,6 +110,9 @@ char *get_file_extension(const char *filename)
 
 	if(name)
 		extname = strdup(name);
+
+	if(debug_level > 0)
+		printf("GUVCVIEW: extension for %s is %s\n", filename, extname);
 
 	return extname;
 }
