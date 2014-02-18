@@ -87,6 +87,32 @@ void control_defaults_clicked (GtkWidget *item, void *data);
 void controls_profile_clicked (GtkWidget *item, void *data);
 
 /*
+ * photo prefix toggled event
+ * args:
+ *    toggle - widget that generated the event
+ *    data - pointer to user data
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void photo_sufix_toggled (GtkToggleButton *toggle, void *data);
+
+/*
+ * photo file clicked event
+ * args:
+ *   item - pointer to event widget
+ *   data - pointer to user data
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void photo_file_clicked (GtkWidget *item, void *data);
+
+/*
  * pan/tilt step changed
  * args:
  *    spin - spinbutton that generated the event

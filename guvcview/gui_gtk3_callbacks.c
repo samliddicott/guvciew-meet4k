@@ -169,6 +169,100 @@ void controls_profile_clicked (GtkWidget *item, void *data)
 }
 
 /*
+ * photo prefix toggled event
+ * args:
+ *    toggle - widget that generated the event
+ *    data - pointer to user data
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void photo_sufix_toggled (GtkToggleButton *toggle, void *data)
+{
+    //v4l2_dev_t *device = (v4l2_dev_t *) data;
+
+   int flag = gtk_toggle_button_get_active (toggle) ? 1 : 0;
+   
+   set_photo_sufix_flag(flag);
+}
+
+/*
+ * photo file clicked event
+ * args:
+ *   item - pointer to event widget
+ *   data - pointer to user data
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void photo_file_clicked (GtkWidget *item, void *data)
+{
+	//v4l2_dev_t *device = (v4l2_dev_t *) data;
+
+	GtkWidget *FileDialog;
+
+	GtkWidget *main_window = get_main_window();
+
+	FileDialog = gtk_file_chooser_dialog_new (_("Photo file name"),
+			GTK_WINDOW(main_window),
+			GTK_FILE_CHOOSER_ACTION_SAVE,
+			GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+			GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
+			NULL);
+	gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (FileDialog), TRUE);
+
+	gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (FileDialog),
+		get_photo_name());
+
+	gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (FileDialog),
+		get_photo_path());
+
+	if (gtk_dialog_run (GTK_DIALOG (FileDialog)) == GTK_RESPONSE_ACCEPT)
+	{
+		const char *filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (FileDialog));
+
+		char *basename = get_file_basename(filename);
+		if(basename)
+		{
+			set_photo_name(basename);
+			free(basename);
+		}
+		char *pathname = get_file_pathname(filename);
+		if(pathname)
+		{
+			set_photo_path(pathname);
+			free(pathname);
+		}
+		
+		/*get image format*/
+		char *ext = get_file_extension(filename);
+		if(ext)
+		{	
+			if( strcasecmp(ext, "jpg") == 0 ||
+			    strcasecmp(ext, "jpeg") == 0 )
+				set_photo_format(IMG_FMT_JPG);
+			else if ( strcasecmp(ext, "png") == 0 )
+				set_photo_format(IMG_FMT_PNG);
+			else if ( strcasecmp(ext, "bmp") == 0 )
+				set_photo_format(IMG_FMT_BMP);
+			else if ( strcasecmp(ext, "raw") == 0 )
+				set_photo_format(IMG_FMT_RAW);
+			
+			free(ext);
+		}
+		else
+			fprintf(stderr, "GUVCVIEW: no file extension for image file %s\n",
+				filename);
+	}
+	gtk_widget_destroy (FileDialog);
+}
+
+
+/*
  * pan/tilt step changed
  * args:
  *    spin - spinbutton that generated the event

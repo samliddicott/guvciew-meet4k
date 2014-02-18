@@ -54,6 +54,15 @@ static char *profile_name = NULL;
 /*control profile path to dir*/
 static char *profile_path = NULL;
 
+/*photo basename*/
+static char *photo_name = NULL;
+/*photo path*/
+static char *photo_path = NULL;
+/*photo sufix flag*/
+static int photo_sufix_flag = 1;
+/*photo format*/
+static int photo_format = IMG_FMT_JPG;
+
 /*
  * gets the default camera button action
  * args:
@@ -128,7 +137,7 @@ void set_profile_name(const char *name)
  * asserts:
  *   none
  *
- * returns: control profile file name
+ * returns: control profile file path
  */
 const char *get_profile_path()
 {
@@ -154,6 +163,138 @@ void set_profile_path(const char *path)
 		free(profile_path);
 
 	profile_path = strdup(path);
+}
+
+/*
+ * gets photo sufix flag
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: photo sufix flag
+ */
+int get_photo_sufix_flag()
+{
+	return photo_sufix_flag;
+}
+
+/*
+ * sets the photo sufix flag
+ * args:
+ *   flag: photo sufix flag
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void set_photo_sufix_flag(int flag)
+{
+	photo_sufix_flag = flag;
+}
+
+/*
+ * gets photo format
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: photo format
+ */
+int get_photo_format()
+{
+	return photo_format;
+}
+
+/*
+ * sets photo format
+ * args:
+ *   format - photo format (IMG_FMT_[JPG|BMP|PNG|RAW])
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void set_photo_format(int format)
+{
+	photo_format = format;
+}
+
+/*
+ * gets the photo file basename
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: photo file basename
+ */
+const char *get_photo_name()
+{
+	if(!photo_name)
+		photo_name = strdup("my_photo.jpg");
+
+	return photo_name;
+}
+
+/*
+ * sets the photo file basename
+ * args:
+ *   name: photo file basename
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void set_photo_name(const char *name)
+{
+	if(photo_name != NULL)
+		free(photo_name);
+
+	photo_name = strdup(name);
+}
+
+/*
+ * gets the photo file path (to dir)
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: photo file path
+ */
+const char *get_photo_path()
+{
+	if(!photo_path)
+		photo_path = strdup(getenv("HOME"));
+
+	return photo_path;
+}
+
+/*
+ * sets photo path (to dir)
+ * args:
+ *   path: photo file path
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void set_photo_path(const char *path)
+{
+	if(photo_path != NULL)
+		free(photo_path);
+
+	photo_path = strdup(path);
 }
 
 /*
@@ -243,6 +384,13 @@ void gui_close()
 	if(profile_path != NULL)
 		free(profile_path);
 	profile_path = NULL;
+	
+	if(photo_name != NULL)
+		free(photo_name);
+	photo_name = NULL;
+	if(photo_path != NULL)
+		free(photo_path);
+	photo_path = NULL;
 
 	switch(gui_api)
 	{

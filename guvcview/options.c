@@ -441,6 +441,20 @@ int options_parse(int argc, char *argv[])
 				if(my_options.img_filename != NULL)
 					free(my_options.img_filename);
 				my_options.img_filename = strdup(optarg);
+				/*get photo path and basename*/
+				char *basename = get_file_basename(my_options.img_filename);
+				if(basename)
+				{
+					set_photo_name(basename);
+					free(basename);
+				}
+				char *pathname = get_file_pathname(my_options.img_filename);
+				if(pathname)
+				{
+					set_photo_path(pathname);
+					free(pathname);
+				}
+
 				/*get image format*/
 				char *ext = get_file_extension(my_options.img_filename);
 				if(ext == NULL)
@@ -455,7 +469,9 @@ int options_parse(int argc, char *argv[])
 					my_options.img_format = IMG_FMT_BMP;
 				else if ( strcasecmp(ext, "raw") == 0 )
 					my_options.img_format = IMG_FMT_RAW;
-
+				
+				set_photo_format(my_options.img_format);
+				
 				if(ext)
 					free(ext);
 

@@ -107,6 +107,102 @@ const char *get_profile_path();
 void set_profile_path(const char *path);
 
 /*
+ * gets photo sufix flag
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: photo sufix flag
+ */
+int get_photo_sufix_flag();
+
+/*
+ * sets the photo sufix flag
+ * args:
+ *   flag: photo sufix flag
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void set_photo_sufix_flag(int flag);
+
+/*
+ * gets photo format
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: photo format
+ */
+int get_photo_format();
+
+/*
+ * sets photo format
+ * args:
+ *   format - photo format (IMG_FMT_[JPG|BMP|PNG|RAW])
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void set_photo_format(int format);
+
+/*
+ * gets the photo file basename
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: photo file basename
+ */
+const char *get_photo_name();
+
+/*
+ * sets the photo file basename
+ * args:
+ *   name: photo file basename
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void set_photo_name(const char *name);
+
+/*
+ * gets the photo file path (to dir)
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: photo file path
+ */
+const char *get_photo_path();
+
+/*
+ * sets photo path (to dir)
+ * args:
+ *   path: photo file path
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void set_photo_path(const char *path);
+
+/*
  * GUI initialization
  * args:
  *   device - pointer to device data we want to attach the gui for

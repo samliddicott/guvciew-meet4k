@@ -128,7 +128,29 @@ int gui_attach_gtk3_menu(v4l2_dev_t *device, GtkWidget *parent)
 	/*control panel mode exclusions */
 	if(!is_control_panel)
 	{
+		/*photo menu*/
+		GtkWidget *photo_menu = gtk_menu_new();
+		
+		GtkWidget *menu_photo_top = gtk_menu_item_new_with_label(_("Photo"));
+		GtkWidget *photo_file = gtk_menu_item_new_with_label(_("File"));
+		GtkWidget *photo_sufix = gtk_check_menu_item_new_with_label(_("Increment Filename"));
 
+		gtk_widget_show (menu_photo_top);
+		gtk_widget_show (photo_file);
+		gtk_widget_show (photo_sufix);
+
+		g_signal_connect (GTK_MENU_ITEM(photo_file), "activate",
+			G_CALLBACK (photo_file_clicked), device);
+
+		/** add callback to Append sufix */
+		gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (photo_sufix), (get_photo_sufix_flag() > 0));
+		g_signal_connect (GTK_CHECK_MENU_ITEM(photo_sufix), "toggled",
+			G_CALLBACK (photo_sufix_toggled), device);
+
+		gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu_photo_top), photo_menu);
+		gtk_menu_shell_append(GTK_MENU_SHELL(photo_menu), photo_file);
+		gtk_menu_shell_append(GTK_MENU_SHELL(photo_menu), photo_sufix);
+		gtk_menu_shell_append(GTK_MENU_SHELL(menubar), menu_photo_top);
 	}
 
 

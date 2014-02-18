@@ -328,7 +328,17 @@ void *capture_loop(void *data)
 
 			if(save_image)
 			{
-				v4l2core_save_image(device, my_options->img_filename, my_options->img_format);
+				if(my_options->img_filename)
+					free(my_options->img_filename);
+				if(get_photo_path())
+				{	
+					my_options->img_filename = strdup(get_photo_path());
+					size_t pathsize = strlen(my_options->img_filename);
+					if(my_options->img_filename[pathsize] != '/')
+						my_options->img_filename = strcat(my_options->img_filename, "/");
+				}
+				my_options->img_filename = strcat(my_options->img_filename, get_photo_name());
+				v4l2core_save_image(device, my_options->img_filename, get_photo_format());
 
 				save_image = 0; /*reset*/
 			}
