@@ -118,6 +118,10 @@ int main(int argc, char *argv[])
 		return -1;
 	}
 
+	/*check if need to load a profile*/
+	if(my_options->prof_filename)
+		v4l2core_load_control_profile(device, my_options->prof_filename);
+
 	/*start capture thread if not in control_panel mode*/
 	if(!my_options->control_panel)
 	{

@@ -39,6 +39,18 @@
  */
 int save_image_jpeg(v4l2_dev_t *vd, const char *filename);
 
+/*
+ * save frame data to a bmp file
+ * args:
+ *    vd - pointer to device data
+ *    filename - filename string
+ *
+ * asserts:
+ *    vd is not null
+ *
+ * returns: error code
+ */
+int save_image_bmp(v4l2_dev_t *vd, const char *filename);
 
 
 #endif
