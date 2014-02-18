@@ -113,7 +113,10 @@ int main(int argc, char *argv[])
 	if(device)
 		set_render_flag(render);
 	else
+	{
+		options_clean();
 		return -1;
+	}
 
 	/*start capture thread if not in control_panel mode*/
 	if(!my_options->control_panel)
@@ -140,7 +143,10 @@ int main(int argc, char *argv[])
 	if(device)
 		v4l2core_close_dev(device);
 
+	options_clean();
+
 	if(debug_level > 0)
 		printf("GUVCVIEW: good bye\n");
+
 	return 0;
 }

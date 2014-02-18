@@ -25,7 +25,10 @@
 #include <string.h>
 #include <getopt.h>
 
+#include "gviewv4l2core.h"
 #include "gview.h"
+#include "core_io.h"
+#include "gui.h"
 #include "options.h"
 #include "../config.h"
 
@@ -104,6 +107,20 @@ static opt_values_t opt_values[] =
 		.opt_help = N_("Select GUI API (e.g none; gtk3)")
 	},
 	{
+		.opt_short = 'p',
+		.opt_long = "profile",
+		.req_arg = 1,
+		.opt_help_arg = N_("FILENAME"),
+		.opt_help = N_("load control profile")
+	},
+	{
+		.opt_short = 'i',
+		.opt_long = "image",
+		.req_arg = 1,
+		.opt_help_arg = N_("FILENAME"),
+		.opt_help = N_("filename for captured image)")
+	},
+	{
 		.opt_short = 'z',
 		.opt_long = "control_panel",
 		.req_arg = 0,
@@ -129,7 +146,10 @@ static options_t my_options =
 	.format = "MJPG",
 	.render = "sdl1",
 	.gui = "gtk3",
-	.capture = "mmap"
+	.capture = "mmap",
+	.prof_filename = NULL,
+	.img_filename = NULL,
+	.img_format = IMG_FMT_JPG,
 };
 
 /*
@@ -395,6 +415,52 @@ int options_parse(int argc, char *argv[])
 					strncpy(my_options.gui, optarg, 4);
 				break;
 			}
+			case 'p':
+			{
+				if(my_options.prof_filename != NULL)
+					free(my_options.prof_filename);
+				my_options.prof_filename = strdup(optarg);
+				/*get profile path and basename*/
+				char *basename = get_file_basename(my_options.prof_filename);
+				if(basename)
+				{
+					set_profile_name(basename);
+					free(basename);
+				}
+				char *pathname = get_file_pathname(my_options.prof_filename);
+				if(pathname)
+				{
+					set_profile_path(pathname);
+					free(pathname);
+				}
+
+				break;
+			}
+			case 'i':
+			{
+				if(my_options.img_filename != NULL)
+					free(my_options.img_filename);
+				my_options.img_filename = strdup(optarg);
+				/*get image format*/
+				char *ext = get_file_extension(my_options.img_filename);
+				if(ext == NULL)
+					fprintf(stderr, "GUVCVIEW: (options) no file extension for image file %s\n",
+						my_options.img_filename);
+				else if( strcasecmp(ext, "jpg") == 0 ||
+						 strcasecmp(ext, "jpeg") == 0 )
+					my_options.img_format = IMG_FMT_JPG;
+				else if ( strcasecmp(ext, "png") == 0 )
+					my_options.img_format = IMG_FMT_PNG;
+				else if ( strcasecmp(ext, "bmp") == 0 )
+					my_options.img_format = IMG_FMT_BMP;
+				else if ( strcasecmp(ext, "raw") == 0 )
+					my_options.img_format = IMG_FMT_RAW;
+
+				if(ext)
+					free(ext);
+
+				break;
+			}
 			default:
             case 'h':
 				opt_print_help();
@@ -404,4 +470,24 @@ int options_parse(int argc, char *argv[])
     }
 
     return ret;
+}
+
+/*
+ * cleans internal options allocations
+ * args:
+ *    none
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void options_clean()
+{
+	if(my_options.img_filename != NULL)
+		free(my_options.img_filename);
+	my_options.img_filename = NULL;
+	if(my_options.prof_filename != NULL)
+		free(my_options.prof_filename);
+	my_options.prof_filename = NULL;
 }

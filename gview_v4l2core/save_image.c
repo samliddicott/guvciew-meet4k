@@ -46,7 +46,7 @@ extern int verbosity;
  *
  * returns: error code
  */
-int save_data_to_file(const char *filename, uint8_t *data, int size)
+int v4l2core_save_data_to_file(const char *filename, uint8_t *data, int size)
 {
 	FILE *fp;
 	int ret = 0;
@@ -67,4 +67,47 @@ int save_data_to_file(const char *filename, uint8_t *data, int size)
 	else ret = 1;
 
 	return (ret);
+}
+
+/*
+ * save the current frame to file
+ * args:
+ *    vd - pointer to device data
+ *    filename - output file name
+ *    format - image type
+ *           (IMG_FMT_RAW, IMG_FMT_JPG, IMG_FMT_PNG, IMG_FMT_BMP)
+ *
+ * asserts:
+ *    vd is not null
+ *
+ * returns: error code
+ */
+int v4l2core_save_image(v4l2_dev_t *vd, const char *filename, int format)
+{
+	/*assertions*/
+	assert(vd != NULL);
+
+	int ret= E_OK;
+
+	switch(format)
+	{
+		case IMG_FMT_RAW:
+			if(verbosity > 0)
+				printf("V4L2_CORE: saving raw data to %s\n", filename);
+			ret = v4l2core_save_data_to_file(filename, vd->raw_frame, vd->raw_frame_size);
+			break;
+
+		case IMG_FMT_JPG:
+			if(verbosity > 0)
+				printf("V4L2_CORE: saving jpeg frame to %s\n", filename);
+		    ret = save_image_jpeg(vd, filename);
+		    break;
+
+		default:
+			fprintf(stderr, "V4L2_CORE: (save_image) Image format %i not supported\n", format);
+			ret = E_FORMAT_ERR;
+			break;
+	}
+
+	return ret;
 }

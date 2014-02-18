@@ -230,6 +230,28 @@ void *capture_loop(void *data)
 		}
 	}
 
+	/*check image filename*/
+	if(my_options->img_filename == NULL)
+	{
+		switch(my_options->img_format)
+		{
+			case IMG_FMT_RAW:
+				my_options->img_filename = strdup("guvcview_capture.raw");
+				break;
+			case IMG_FMT_PNG:
+				my_options->img_filename = strdup("guvcview_capture.png");
+				break;
+			case IMG_FMT_BMP:
+				my_options->img_filename = strdup("guvcview_capture.bmp");
+				break;
+			default:
+			case IMG_FMT_JPG:
+				my_options->img_filename = strdup("guvcview_capture.jpg");
+				break;
+		}
+
+	}
+
 	v4l2core_start_stream(device);
 
 	while(!quit)
@@ -306,11 +328,7 @@ void *capture_loop(void *data)
 
 			if(save_image)
 			{
-				/*debug*/
-				char test_filename[20];
-				snprintf(test_filename, 20, "rawframe-%u.raw", (uint) device->frame_index);
-
-				save_data_to_file(test_filename, device->raw_frame, device->raw_frame_size);
+				v4l2core_save_image(device, my_options->img_filename, my_options->img_format);
 
 				save_image = 0; /*reset*/
 			}

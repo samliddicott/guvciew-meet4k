@@ -29,38 +29,79 @@
 
 #include "gviewv4l2core.h"
 
-extern int verbosity;
 /*
- * save data to file
+ * get the filename basename
  * args:
- *   filename - string with filename
- *   data - pointer to data
- *   size - data size in bytes = sizeof(uint8_t)
+ *    filename - string with filename (full path)
  *
  * asserts:
- *   none
+ *    none
  *
- * returns: error code
+ * returns: new string with basename (must free it)
  */
-int save_data_to_file(const char *filename, uint8_t *data, int size)
+char *get_file_basename(const char *filename)
 {
-	FILE *fp;
-	int ret = 0;
+	char *name = strrchr(filename, '/') + 1;
 
-	if ((fp = fopen(filename, "wb")) !=NULL)
+	char *basename = NULL;
+
+	if(name)
+		basename = strdup(name);
+	else
+		basename = strdup(filename);
+
+	return basename;
+}
+
+/*
+ * get the filename path
+ * args:
+ *    filename - string with filename (full path)
+ *
+ * asserts:
+ *    none
+ *
+ * returns: new string with path (must free it)
+ *      or NULL if no path found
+ */
+char *get_file_pathname(const char *filename)
+{
+	char *name = strrchr(filename, '/');
+
+	char *pathname = NULL;
+
+	if(name)
 	{
-		ret = fwrite(data, size, 1, fp);
-
-		if (ret<1) ret=1;/*write error*/
-		else ret=0;
-
-		fflush(fp); /*flush data stream to file system*/
-		if(fsync(fileno(fp)) || fclose(fp))
-			fprintf(stderr, "V4L2_CORE: (save_data_to_file) error - couldn't write buffer to file: %s\n", strerror(errno));
-		else if(verbosity > 0)
-			printf("V4L2_CORE: saved data to %s\n", filename);
+		int strsize = filename - name;
+		pathname = strndup(filename, strsize);
 	}
-	else ret = 1;
 
-	return (ret);
+	return pathname;
+}
+
+/*
+ * get the filename extension
+ * args:
+ *    filename - string with filename (full path)
+ *
+ * asserts:
+ *    none
+ *
+ * returns: new string with extension (must free it)
+ *      or NULL if no extension found
+ */
+char *get_file_extension(const char *filename)
+{
+	char *basename = get_file_basename(filename);
+
+	char *name = strrchr(basename, '.') + 1;
+
+	free(basename);
+
+	char *extname = NULL;
+
+	if(name)
+		extname = strdup(name);
+
+	return extname;
 }

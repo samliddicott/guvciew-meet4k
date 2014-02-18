@@ -346,6 +346,59 @@ static uint16_t DSP_Division (uint32_t numer, uint32_t denom)
 	return (uint16_t) numer;
 }
 
+/*
+ * split yuyv data into YCBr planes
+ *   and fill matching encoder context fields
+ * args:
+ *    jpeg_ctx - pointer to jpeg encoder context
+ *    input - pointer to input data
+ *
+ * asserts:
+ *    jpeg_ctx is not null
+ *    input is not null
+ *
+ * returns: none
+ */
+static void read_422_format (jpeg_encoder_ctx_t *jpeg_ctx, uint8_t *input)
+{
+	/*assertions*/
+	assert(jpeg_ctx != NULL);
+	assert(input != NULL);
+
+	int32_t i, j;
+
+	int16_t *Y1 = jpeg_ctx->Y1; /*64 int16 block*/
+	int16_t *Y2 = jpeg_ctx->Y2;
+	int16_t *CB = jpeg_ctx->CB;
+	int16_t *CR = jpeg_ctx->CR;
+
+	uint16_t incr = jpeg_ctx->incr;
+
+	uint8_t *tmp = NULL;
+	tmp = input;
+
+	for (i=8; i>0; i--) /*8 rows*/
+	{
+		for (j=4; j>0; j--) /* 8 cols*/
+		{
+			*Y1++ = *tmp++;
+			*CB++ = *tmp++;
+			*Y1++ = *tmp++;
+			*CR++ = *tmp++;
+		}
+
+		for (j=4; j>0; j--) /* 8 cols*/
+		{
+			*Y2++ = *tmp++;
+			*CB++ = *tmp++;
+			*Y2++ = *tmp++;
+			*CR++ = *tmp++;
+		}
+
+		tmp += incr; /* next row (width - mcu_width)*/
+	}
+}
+
 /* Multiply Quantization table with quality factor to get LQT and CQT
 /*  (Will use constant Quantization tables to make it faster)
  * args:
@@ -391,11 +444,18 @@ static void initialize_quantization_tables (jpeg_encoder_ctx_t *jpeg_ctx)
  *
  * asserts:
  *    jpeg_ctx is not null
+ *    data is not null
+ *    quant_table_ptr is not null
  *
  * returns: none
  */
 static void quantization (jpeg_encoder_ctx_t *jpeg_ctx, int16_t * const data, uint16_t * const quant_table_ptr)
 {
+	/*assertions*/
+	assert(jpeg_ctx != NULL);
+	assert(data != NULL);
+	assert(quant_table_ptr != NULL);
+
 	int16_t i;
 	int32_t value;
 
@@ -417,6 +477,7 @@ static void quantization (jpeg_encoder_ctx_t *jpeg_ctx, int16_t * const data, ui
  *
  * asserts:
  *    jpeg_ctx is not null
+ *    output is not null
  *
  * returns: pointer to output buffer
  */
@@ -424,6 +485,7 @@ static uint8_t *huffman (jpeg_encoder_ctx_t *jpeg_ctx, uint16_t component, uint8
 {
 	/*assertions*/
 	assert(jpeg_ctx != NULL);
+	assert(output != NULL);
 
 	uint16_t i;
 	uint16_t *DcCodeTable, *DcSizeTable, *AcCodeTable, *AcSizeTable;
@@ -543,11 +605,16 @@ static uint8_t *huffman (jpeg_encoder_ctx_t *jpeg_ctx, uint16_t component, uint8
  *
  * asserts:
  *     jpeg_ctx is not null
+ *     output is not null
  *
  * returns: pointer to output buffer
  */
 static uint8_t *close_bitstream (jpeg_encoder_ctx_t *jpeg_ctx, uint8_t *output)
 {
+	/*assertions*/
+	assert(jpeg_ctx != NULL);
+	assert(output != NULL);
+
 	uint16_t i, count;
 	uint8_t *ptr;
 
@@ -650,6 +717,7 @@ static void jpeg_restart (jpeg_encoder_ctx_t *jpeg_ctx)
  *
  * asserts:
  *    jpeg_ctx is not null
+ *    output is not null
  *
  * returns: pointer to ouptut buffer
  */
@@ -657,6 +725,7 @@ static uint8_t* encode_MCU (jpeg_encoder_ctx_t *jpeg_ctx, uint8_t *output)
 {
 	/*assertions*/
 	assert(jpeg_ctx != NULL);
+	assert(output != NULL);
 
 	levelshift (jpeg_ctx->Y1);
 	DCT (jpeg_ctx->Y1);
@@ -700,11 +769,16 @@ static uint8_t* encode_MCU (jpeg_encoder_ctx_t *jpeg_ctx, uint8_t *output)
  *
  * asserts
  *   jpeg_ctx is not null
+ *   ouput is not null
  *
  * returns: pointer to output buffer
  */
 static uint8_t *write_markers(jpeg_encoder_ctx_t *jpeg_ctx, uint8_t *output, int huff)
 {
+	/*assertions*/
+	assert(jpeg_ctx != NULL);
+	assert(output != NULL);
+
 	uint16_t i, header_length;
 	uint8_t number_of_components;
 
@@ -880,6 +954,8 @@ static uint8_t *write_markers(jpeg_encoder_ctx_t *jpeg_ctx, uint8_t *output, int
  *
  *
  * asserts:
+ *    input is not null
+ *    ouput is not null
  *    jpeg_ctx is not null
  *
  * returns: ouput size
@@ -888,6 +964,8 @@ static int encode_jpeg (uint8_t *input, uint8_t *output,
 	jpeg_encoder_ctx_t *jpeg_ctx, int huff)
 {
 	/*assertions*/
+	assert(input != NULL);
+	assert(output != NULL);
 	assert(jpeg_ctx != NULL);
 
 	int size;
@@ -895,8 +973,8 @@ static int encode_jpeg (uint8_t *input, uint8_t *output,
 	uint8_t *tmp_ptr=NULL;
 	uint8_t *tmp_iptr=NULL;
 	uint8_t *tmp_optr=NULL;
-	tmp_iptr=input;
-	tmp_optr=output;
+	tmp_iptr = input;
+	tmp_optr = output;
 
 	/* clean jpeg parameters*/
 	jpeg_restart(jpeg_ctx);
@@ -906,7 +984,7 @@ static int encode_jpeg (uint8_t *input, uint8_t *output,
 
 	for (i=0; i < jpeg_ctx->vertical_mcus; i++) /* height /8 */
 	{
-		tmp_ptr=tmp_iptr;
+		tmp_ptr = tmp_iptr;
 		for (j=0; j< jpeg_ctx->horizontal_mcus; j++) /* width /16 */
 		{
 			/*reads a block*/
@@ -959,10 +1037,6 @@ int save_image_jpeg(v4l2_dev_t *vd, const char *filename)
 
 	uint8_t *jpeg = calloc((vd->format.fmt.pix.width * vd->format.fmt.pix.height) >> 1, sizeof(uint8_t));
 
-	/*assert allocations*/
-	assert(jpeg_ctx != NULL);
-	assert(jpeg != NULL);
-
 	/* Initialization of JPEG control structure */
 	initialization (jpeg_ctx, vd->format.fmt.pix.width, vd->format.fmt.pix.height);
 
@@ -971,7 +1045,7 @@ int save_image_jpeg(v4l2_dev_t *vd, const char *filename)
 
 	int jpeg_size = encode_jpeg(vd->yuv_frame, jpeg, jpeg_ctx, 1);
 
-	if(save_data_to_file(filename, jpeg, jpeg_size))
+	if(v4l2core_save_data_to_file(filename, jpeg, jpeg_size))
 	{
 		fprintf (stderr, "V4L2_CORE: (save_image_jpeg) couldn't capture Image to %s \n",
 					filename);

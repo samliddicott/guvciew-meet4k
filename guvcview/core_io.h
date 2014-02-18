@@ -23,17 +23,41 @@
 #define CORE_IO_H
 
 /*
- * save data to file
+ * get the filename basename
  * args:
- *   filename - string with filename
- *   data - pointer to data
- *   size - data size in bytes = sizeof(uint8_t)
+ *    filename - string with filename (full path)
  *
  * asserts:
- *   none
+ *    none
  *
- * returns: error code
+ * returns: new string with basename (must free it)
  */
-int save_data_to_file(const char *filename, uint8_t *data, int size);
+char *get_file_basename(const char *filename);
+
+/*
+ * get the filename path
+ * args:
+ *    filename - string with filename (full path)
+ *
+ * asserts:
+ *    none
+ *
+ * returns: new string with path (must free it)
+ *      or NULL if no path found
+ */
+char *get_file_pathname(const char *filename);
+
+/*
+ * get the filename extension
+ * args:
+ *    filename - string with filename (full path)
+ *
+ * asserts:
+ *    none
+ *
+ * returns: new string with extension (must free it)
+ *      or NULL if no extension found
+ */
+char *get_file_extension(const char *filename);
 
 #endif

@@ -33,6 +33,9 @@ typedef struct _options_t
 	char render[5];  /*render api*/
 	char gui[5];     /*gui api*/
 	char capture[5]; /*capture method: read or mmap*/
+	char *prof_filename; /*profile_filename */
+	char *img_filename;  /*capture image filename*/
+	int img_format;  /*capture image format*/
 } options_t;
 
 /*
@@ -59,5 +62,17 @@ options_t *options_get();
  * returns: int (if > 0 app should terminate (help, version)
  */
 int options_parse(int argc, char *argv[]);
+
+/*
+ * cleans internal options allocations
+ * args:
+ *    none
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void options_clean();
 
 #endif

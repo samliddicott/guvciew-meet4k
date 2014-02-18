@@ -96,6 +96,9 @@ void set_default_camera_button_action(int action)
  */
 const char *get_profile_name()
 {
+	if(profile_name)
+		profile_name = strdup("default.gpfl");
+
 	return profile_name;
 }
 
@@ -129,6 +132,9 @@ void set_profile_name(const char *name)
  */
 const char *get_profile_path()
 {
+	if(!profile_path)
+		profile_path = strdup(getenv("HOME"));
+
 	return profile_path;
 }
 

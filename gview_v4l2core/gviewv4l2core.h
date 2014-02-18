@@ -92,6 +92,9 @@
 #define STRM_REQ_STOP    (1)
 #define STRM_OK          (2)
 
+/*
+ * IO methods
+ */
 #define IO_MMAP 1
 #define IO_READ 2
 
@@ -106,6 +109,15 @@
 #define AUTOF_SORT_SHELL  2
 #define AUTOF_SORT_INSERT 3
 #define AUTOF_SORT_BUBBLE 4
+
+/*
+ * Image Formats
+ */
+#define IMG_FMT_RAW     (0)
+#define IMG_FMT_JPG     (1)
+#define IMG_FMT_PNG     (2)
+#define IMG_FMT_BMP     (3)
+
 
 /*
  * buffer number (for driver mmap ops)
@@ -788,7 +800,22 @@ int v4l2core_query_xu_control(v4l2_dev_t *vd, uint8_t unit, uint8_t selector, ui
  *
  * returns: error code
  */
-int save_data_to_file(const char *filename, uint8_t *data, int size);
+int v4l2core_save_data_to_file(const char *filename, uint8_t *data, int size);
+
+/*
+ * save the current frame to file
+ * args:
+ *    vd - pointer to device data
+ *    filename - output file name
+ *    format - image type
+ *           (IMG_FMT_RAW, IMG_FMT_JPG, IMG_FMT_PNG, IMG_FMT_BMP)
+ *
+ * asserts:
+ *    vd is not null
+ *
+ * returns: error code
+ */
+int v4l2core_save_image(v4l2_dev_t *vd, const char *filename, int format);
 
 
 #endif

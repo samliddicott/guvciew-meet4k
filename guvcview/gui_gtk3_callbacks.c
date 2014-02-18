@@ -40,6 +40,7 @@
 #include "video_capture.h"
 #include "gui.h"
 #include "gui_gtk3.h"
+#include "core_io.h"
 
 extern int debug_level;
 
