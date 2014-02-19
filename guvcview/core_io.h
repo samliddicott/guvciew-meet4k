@@ -60,4 +60,17 @@ char *get_file_pathname(const char *filename);
  */
 char *get_file_extension(const char *filename);
 
+/*
+ * change the filename extension
+ * args:
+ *    filename - string with filename
+ *    ext - string with new extension
+ *
+ * asserts:
+ *    none
+ *
+ * returns: string with new extension (must free it)
+ */
+char *set_file_extension(const char *filename, const char *ext);
+
 #endif

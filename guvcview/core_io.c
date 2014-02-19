@@ -77,7 +77,7 @@ char *get_file_pathname(const char *filename)
 
 	if(name)
 	{
-		int strsize = filename - name;
+		int strsize = name - filename;
 		pathname = strndup(filename, strsize);
 	}
 
@@ -102,17 +102,46 @@ char *get_file_extension(const char *filename)
 {
 	char *basename = get_file_basename(filename);
 
-	char *name = strrchr(basename, '.') + 1;
-
-	free(basename);
+	char *name = strrchr(basename, '.');
 
 	char *extname = NULL;
 
 	if(name)
-		extname = strdup(name);
+		extname = strdup(name + 1);
 
 	if(debug_level > 0)
 		printf("GUVCVIEW: extension for %s is %s\n", filename, extname);
 
+	free(basename);
+
 	return extname;
+}
+
+/*
+ * change the filename extension
+ * args:
+ *    filename - string with filename
+ *    ext - string with new extension
+ *
+ * asserts:
+ *    none
+ *
+ * returns: string with new extension (must free it)
+ */
+char *set_file_extension(const char *filename, const char *ext)
+{
+	char *name = strrchr(filename, '.');
+
+	char *new_filename = NULL;
+
+	int strsize = strlen(filename);
+	if(name)
+		strsize = name - filename;
+
+	new_filename = strndup(filename, strsize);
+	new_filename = strcat(new_filename, ext);
+
+	if(debug_level > 0)
+		printf("GUVCVIEW: changed file extension to %s\n", new_filename);
+	return new_filename;
 }

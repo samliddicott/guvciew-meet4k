@@ -184,8 +184,60 @@ void photo_sufix_toggled (GtkToggleButton *toggle, void *data)
     //v4l2_dev_t *device = (v4l2_dev_t *) data;
 
    int flag = gtk_toggle_button_get_active (toggle) ? 1 : 0;
-   
+
    set_photo_sufix_flag(flag);
+}
+
+/*
+ * called from photo format combo in file dialog
+ * args:
+ *    chooser - format combo that caused the event
+ *    file_dialog - chooser parent
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+static void photo_update_extension (GtkComboBox *chooser, GtkWidget *file_dialog)
+{
+	int format = gtk_combo_box_get_active (chooser);
+
+	set_photo_format(format);
+
+	char* filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER (file_dialog));
+
+	GtkFileFilter *filter = gtk_file_filter_new();
+
+	switch(format)
+	{
+		case IMG_FMT_RAW:
+			gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (file_dialog),
+				set_file_extension(filename, "raw"));
+			gtk_file_filter_add_pattern(filter, "*.raw");
+			break;
+		case IMG_FMT_PNG:
+			gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (file_dialog),
+				set_file_extension(filename, "png"));
+			gtk_file_filter_add_pattern(filter, "*.png");
+			break;
+		case IMG_FMT_BMP:
+			gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (file_dialog),
+				set_file_extension(filename, "bmp"));
+			gtk_file_filter_add_pattern(filter, "*.bmp");
+			break;
+		default:
+		case IMG_FMT_JPG:
+			gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (file_dialog),
+				set_file_extension(filename, "jpg"));
+			gtk_file_filter_add_pattern(filter, "*.jpg");
+			break;
+	}
+
+	gtk_file_chooser_set_filter(GTK_FILE_CHOOSER (file_dialog), filter);
+
+	if(filename)
+		free(filename);
 }
 
 /*
@@ -215,6 +267,55 @@ void photo_file_clicked (GtkWidget *item, void *data)
 			NULL);
 	gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (FileDialog), TRUE);
 
+	/** create a file filter */
+	GtkFileFilter *filter = gtk_file_filter_new();
+
+	GtkWidget *FBox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
+	GtkWidget *format_label = gtk_label_new(_("File Format:"));
+	gtk_widget_set_halign (FBox, GTK_ALIGN_FILL);
+	gtk_widget_set_hexpand (FBox, TRUE);
+	gtk_widget_set_hexpand (format_label, FALSE);
+	gtk_widget_show(FBox);
+	gtk_widget_show(format_label);
+	gtk_box_pack_start(GTK_BOX(FBox), format_label, FALSE, FALSE, 2);
+
+	GtkWidget *ImgFormat = gtk_combo_box_text_new ();
+	gtk_widget_set_halign (ImgFormat, GTK_ALIGN_FILL);
+	gtk_widget_set_hexpand (ImgFormat, TRUE);
+
+	gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(ImgFormat),_("Raw  (*.raw)"));
+	gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(ImgFormat),_("Jpeg (*.jpg)"));
+	gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(ImgFormat),_("Png  (*.png)"));
+	gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(ImgFormat),_("Bmp  (*.bmp)"));
+
+	gtk_combo_box_set_active(GTK_COMBO_BOX(ImgFormat), get_photo_format());
+	gtk_box_pack_start(GTK_BOX(FBox), ImgFormat, FALSE, FALSE, 2);
+	gtk_widget_show(ImgFormat);
+
+	/**add a pattern to the filter*/
+	switch(get_photo_format())
+	{
+		case IMG_FMT_RAW:
+			gtk_file_filter_add_pattern(filter, "*.raw");
+			break;
+		case IMG_FMT_PNG:
+			gtk_file_filter_add_pattern(filter, "*.png");
+			break;
+		case IMG_FMT_BMP:
+			gtk_file_filter_add_pattern(filter, "*.bmp");
+			break;
+		default:
+		case IMG_FMT_JPG:
+			gtk_file_filter_add_pattern(filter, "*.jpg");
+			break;
+	}
+
+	gtk_file_chooser_set_filter(GTK_FILE_CHOOSER (FileDialog), filter);
+	gtk_file_chooser_set_extra_widget(GTK_FILE_CHOOSER (FileDialog), FBox);
+
+	g_signal_connect (GTK_COMBO_BOX(ImgFormat), "changed",
+		G_CALLBACK (photo_update_extension), FileDialog);
+
 	gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (FileDialog),
 		get_photo_name());
 
@@ -237,11 +338,11 @@ void photo_file_clicked (GtkWidget *item, void *data)
 			set_photo_path(pathname);
 			free(pathname);
 		}
-		
+
 		/*get image format*/
 		char *ext = get_file_extension(filename);
 		if(ext)
-		{	
+		{
 			if( strcasecmp(ext, "jpg") == 0 ||
 			    strcasecmp(ext, "jpeg") == 0 )
 				set_photo_format(IMG_FMT_JPG);
@@ -251,7 +352,7 @@ void photo_file_clicked (GtkWidget *item, void *data)
 				set_photo_format(IMG_FMT_BMP);
 			else if ( strcasecmp(ext, "raw") == 0 )
 				set_photo_format(IMG_FMT_RAW);
-			
+
 			free(ext);
 		}
 		else
