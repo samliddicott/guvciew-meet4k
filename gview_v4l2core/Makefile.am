@@ -19,7 +19,8 @@ c_sources = v4l2_core.c \
 			control_profile.c \
 			save_image.c \
 			save_image_jpeg.c \
-			save_image_bmp.c
+			save_image_bmp.c \
+			save_image_png.c
 
 
 #Install the headers in a versioned directory - guvcvideo-x.x/libgview_v4l2core:
