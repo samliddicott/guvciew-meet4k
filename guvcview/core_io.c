@@ -252,7 +252,7 @@ unsigned long long get_file_suffix(const char *path, const char* filename)
 
 	int fsize = strlen(filename) + 7;
 	char format_str[fsize];
-	snprintf(format_str, fsize-1, "%s-%%20s.%s", noextname, extension);
+	snprintf(format_str, fsize-1, "%s-%%llu.%s", noextname, extension);
 
 	while ((dp = readdir(dir)) != NULL)
 	{
@@ -265,13 +265,11 @@ unsigned long long get_file_suffix(const char *path, const char* filename)
 			char *ext = strrchr(dp->d_name, '.');
 			if(strcmp(ext + 1, extension) == 0)
 			{
-				char sfix_str[21];
-				sscanf(dp->d_name, format_str, sfix_str);
+				unsigned long long sfix = 0;
+				sscanf(dp->d_name, format_str, &sfix);
 
 				if(debug_level > 2)
-					printf("GUVCVIEW: (get_file_suffix) matched with suffix %s\n", sfix_str);
-
-				unsigned long long sfix = strtoull(sfix_str, NULL, 10);
+					printf("GUVCVIEW: (get_file_suffix) matched with suffix %llu\n", sfix);
 
 				if(sfix > suffix)
 					suffix = sfix;
