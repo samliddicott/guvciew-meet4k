@@ -64,6 +64,23 @@ int delete_event (GtkWidget *widget, GdkEventConfigure *event, void *data)
 }
 
 /*
+ * quit button clicked event
+ * args:
+ *    widget - pointer to widget that caused the event
+ *    data - pointer to user data
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void quit_button_clicked(GtkWidget *widget, void *data)
+{
+	/* Terminate program */
+	quit_callback(NULL);
+}
+
+/*
  * camera_button_menu toggled event
  * args:
  *   widget - pointer to event widget
@@ -205,7 +222,8 @@ static void photo_update_extension (GtkComboBox *chooser, GtkWidget *file_dialog
 
 	set_photo_format(format);
 
-	char* filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER (file_dialog));
+	char *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER (file_dialog));
+	char *basename = get_file_basename(filename);
 
 	GtkFileFilter *filter = gtk_file_filter_new();
 
@@ -213,23 +231,23 @@ static void photo_update_extension (GtkComboBox *chooser, GtkWidget *file_dialog
 	{
 		case IMG_FMT_RAW:
 			gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (file_dialog),
-				set_file_extension(filename, "raw"));
+				set_file_extension(basename, "raw"));
 			gtk_file_filter_add_pattern(filter, "*.raw");
 			break;
 		case IMG_FMT_PNG:
 			gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (file_dialog),
-				set_file_extension(filename, "png"));
+				set_file_extension(basename, "png"));
 			gtk_file_filter_add_pattern(filter, "*.png");
 			break;
 		case IMG_FMT_BMP:
 			gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (file_dialog),
-				set_file_extension(filename, "bmp"));
+				set_file_extension(basename, "bmp"));
 			gtk_file_filter_add_pattern(filter, "*.bmp");
 			break;
 		default:
 		case IMG_FMT_JPG:
 			gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (file_dialog),
-				set_file_extension(filename, "jpg"));
+				set_file_extension(basename, "jpg"));
 			gtk_file_filter_add_pattern(filter, "*.jpg");
 			break;
 	}
@@ -238,12 +256,14 @@ static void photo_update_extension (GtkComboBox *chooser, GtkWidget *file_dialog
 
 	if(filename)
 		free(filename);
+	if(basename)
+		free(basename);
 }
 
 /*
  * photo file clicked event
  * args:
- *   item - pointer to event widget
+ *   item - pointer to widget that generated the event
  *   data - pointer to user data
  *
  * asserts:
@@ -362,6 +382,21 @@ void photo_file_clicked (GtkWidget *item, void *data)
 	gtk_widget_destroy (FileDialog);
 }
 
+/*
+ * capture image button clicked event
+ * args:
+ *   button - widget that generated the event
+ *   data - pointer to user data
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void capture_image_clicked (GtkButton *button, void *data)
+{
+	video_capture_save_image();
+}
 
 /*
  * pan/tilt step changed

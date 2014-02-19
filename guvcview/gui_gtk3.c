@@ -135,6 +135,12 @@ int gui_attach_gtk3(v4l2_dev_t *device, int width, int height)
 	/* Add delete event handler */
 	g_signal_connect(GTK_WINDOW(main_window), "delete_event", G_CALLBACK(delete_event), NULL);
 
+	/*window icon*/
+	char* icon1path = g_strconcat (PACKAGE_DATA_DIR, "/pixmaps/guvcview/guvcview.png", NULL);
+	if (g_file_test(icon1path, G_FILE_TEST_EXISTS))
+		gtk_window_set_icon_from_file(GTK_WINDOW (main_window), icon1path, NULL);
+	free(icon1path);
+
 	/*---------------------------- Main table ---------------------------------*/
 	GtkWidget *maintable = gtk_box_new(GTK_ORIENTATION_VERTICAL, 2);
 	gtk_widget_show (maintable);
@@ -142,6 +148,55 @@ int gui_attach_gtk3(v4l2_dev_t *device, int width, int height)
 	/*----------------------------- Top Menu ----------------------------------*/
 
 	gui_attach_gtk3_menu(device, maintable);
+
+	/*----------------------------- Buttons -----------------------------------*/
+	GtkWidget *HButtonBox = gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL);
+	gtk_widget_set_halign (HButtonBox, GTK_ALIGN_FILL);
+	gtk_widget_set_hexpand (HButtonBox, TRUE);
+	gtk_button_box_set_layout(GTK_BUTTON_BOX(HButtonBox),GTK_BUTTONBOX_SPREAD);
+	gtk_box_set_homogeneous(GTK_BOX(HButtonBox),TRUE);
+	gtk_widget_show(HButtonBox);
+
+	/*photo button*/
+	GtkWidget *CapImageButt=gtk_button_new_with_label (_("Cap. Image (I)"));
+	char *pix2path = g_strconcat (PACKAGE_DATA_DIR, "/pixmaps/guvcview/camera.png",NULL);
+	if (g_file_test(pix2path, G_FILE_TEST_EXISTS))
+	{
+		GtkWidget *ImgButton_Img = gtk_image_new_from_file (pix2path);
+
+		gtk_button_set_image(GTK_BUTTON(CapImageButt), ImgButton_Img);
+		gtk_button_set_image_position(GTK_BUTTON(CapImageButt), GTK_POS_TOP);
+	}
+	g_free(pix2path);
+
+	gtk_box_pack_start(GTK_BOX(HButtonBox), CapImageButt, TRUE, TRUE, 2);
+	gtk_widget_show (CapImageButt);
+
+	g_signal_connect (GTK_BUTTON(CapImageButt), "clicked",
+		G_CALLBACK (capture_image_clicked), device);
+
+	/*quit button*/
+	GtkWidget *quitButton = gtk_button_new_from_stock(GTK_STOCK_QUIT);
+
+	char* pix3path = g_strconcat (PACKAGE_DATA_DIR, "/pixmaps/guvcview/close.png", NULL);
+	if (g_file_test(pix3path,G_FILE_TEST_EXISTS))
+	{
+		GtkWidget *QButton_Img = gtk_image_new_from_file (pix3path);
+		gtk_button_set_image(GTK_BUTTON(quitButton), QButton_Img);
+		gtk_button_set_image_position(GTK_BUTTON(quitButton), GTK_POS_TOP);
+
+	}
+	/*must free path strings*/
+	free(pix3path);
+	gtk_box_pack_start(GTK_BOX(HButtonBox), quitButton, TRUE, TRUE, 2);
+	gtk_widget_show_all (quitButton);
+
+	g_signal_connect (GTK_BUTTON(quitButton), "clicked",
+		G_CALLBACK (quit_button_clicked), device);
+
+
+
+	gtk_box_pack_start(GTK_BOX(maintable), HButtonBox, FALSE, TRUE, 2);
 
 	/*--------------------------- Tab container -------------------------------*/
 	GtkWidget *tab_box = gtk_notebook_new();

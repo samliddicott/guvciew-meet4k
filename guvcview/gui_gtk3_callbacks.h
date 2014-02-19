@@ -48,6 +48,19 @@
 int delete_event (GtkWidget *widget, GdkEventConfigure *event, void *data);
 
 /*
+ * quit button clicked event
+ * args:
+ *    widget - pointer to widget that caused the event
+ *    data - pointer to user data
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void quit_button_clicked(GtkWidget *widget, void *data);
+
+/*
  * camera_button_menu toggled event
  * args:
  *   widget - pointer to event widget
@@ -102,7 +115,7 @@ void photo_sufix_toggled (GtkToggleButton *toggle, void *data);
 /*
  * photo file clicked event
  * args:
- *   item - pointer to event widget
+ *   item - pointer to widget that generated the event
  *   data - pointer to user data
  *
  * asserts:
@@ -111,6 +124,19 @@ void photo_sufix_toggled (GtkToggleButton *toggle, void *data);
  * returns: none
  */
 void photo_file_clicked (GtkWidget *item, void *data);
+
+/*
+ * capture image button clicked event
+ * args:
+ *   button - widget that generated the event
+ *   data - pointer to user data
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void capture_image_clicked (GtkButton *button, void *data);
 
 /*
  * pan/tilt step changed
