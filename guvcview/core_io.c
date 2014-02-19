@@ -63,7 +63,7 @@ char *smart_cat(const char *dest, const char c, const char *str1)
 
 	if(size_str1)
 	{
-		my_p += size_dest + size_c + 1;
+		my_p += size_dest + size_c;
 		memcpy(my_p, str1, size_str1);
 	}
 	/*add ending null char*/
