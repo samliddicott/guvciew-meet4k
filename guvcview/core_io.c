@@ -311,17 +311,24 @@ char *add_file_suffix(const char *path, const char *filename)
 	int size_suffix = get_uint64_num_chars(suffix);
 	int size_name = strlen(filename);
 
-	char *basename = get_file_basename(filename);
-	char *extension = get_file_extension(filename);
+	int noextsize = strlen(filename);
+
+	char *pname = strrchr(filename, '.');
+
+	if(pname)
+		noextsize = pname - filename;
+
+	char *noextname = strndup(filename, noextsize);
+	char *extension = strdup(pname + 1);
 
 	/*add '-' suffix and '\0' and an extra char just for safety*/
-	char *name = calloc(size_name + size_suffix + 3, sizeof(char));
-	sprintf(name, "%s-%llu.%s", basename, suffix, extension);
+	char *new_name = calloc(size_name + size_suffix + 3, sizeof(char));
+	sprintf(new_name, "%s-%llu.%s", noextname, suffix, extension);
 
-	if(basename)
-		free(basename);
+	if(noextname)
+		free(noextname);
 	if(extension)
 		free(extension);
 
-	return name;
+	return new_name;
 }
