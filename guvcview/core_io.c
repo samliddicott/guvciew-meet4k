@@ -46,7 +46,7 @@ extern int debug_level;
 char *smart_cat(const char *dest, const char c, const char *str1)
 {
 	int size_c = 0;
-	if(c)
+	if(c != 0)
 		size_c = 1;
 	int size_dest =  strlen(dest);
 	int size_str1 = strlen(str1);
@@ -66,6 +66,8 @@ char *smart_cat(const char *dest, const char c, const char *str1)
 	/*add ending null char*/
 	my_cat[size_dest + size_c + size_str1] = '\0';
 
+	if(debug_level > 1)
+		printf("GUVCVIEW: (smart_cat) returned: %s\n", my_cat);
 	return my_cat;
 }
 
