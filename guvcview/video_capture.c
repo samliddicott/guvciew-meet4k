@@ -230,28 +230,6 @@ void *capture_loop(void *data)
 		}
 	}
 
-	/*check image filename*/
-	if(my_options->img_filename == NULL)
-	{
-		switch(my_options->img_format)
-		{
-			case IMG_FMT_RAW:
-				my_options->img_filename = strdup("guvcview_capture.raw");
-				break;
-			case IMG_FMT_PNG:
-				my_options->img_filename = strdup("guvcview_capture.png");
-				break;
-			case IMG_FMT_BMP:
-				my_options->img_filename = strdup("guvcview_capture.bmp");
-				break;
-			default:
-			case IMG_FMT_JPG:
-				my_options->img_filename = strdup("guvcview_capture.jpg");
-				break;
-		}
-
-	}
-
 	v4l2core_start_stream(device);
 
 	while(!quit)
@@ -330,15 +308,19 @@ void *capture_loop(void *data)
 			{
 				if(my_options->img_filename)
 					free(my_options->img_filename);
+
+				char *name = strdup(get_photo_name());
 				if(get_photo_path())
-				{	
+				{
 					my_options->img_filename = strdup(get_photo_path());
-					size_t pathsize = strlen(my_options->img_filename);
+					int pathsize = strlen(my_options->img_filename);
 					if(my_options->img_filename[pathsize] != '/')
 						my_options->img_filename = strcat(my_options->img_filename, "/");
 				}
-				my_options->img_filename = strcat(my_options->img_filename, get_photo_name());
+				my_options->img_filename = strcat(my_options->img_filename, name);
 				v4l2core_save_image(device, my_options->img_filename, get_photo_format());
+				if(name)
+					free(name);
 
 				save_image = 0; /*reset*/
 			}
