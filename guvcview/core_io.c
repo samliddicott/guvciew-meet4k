@@ -119,7 +119,7 @@ char *get_file_basename(const char *filename)
 	else
 		basename = strdup(filename);
 
-	if(debug_level > 0)
+	if(debug_level > 1)
 		printf("GUVCVIEW: basename for %s is %s\n", filename, basename);
 
 	return basename;
@@ -148,7 +148,7 @@ char *get_file_pathname(const char *filename)
 		pathname = strndup(filename, strsize);
 	}
 
-	if(debug_level > 0)
+	if(debug_level > 1)
 		printf("GUVCVIEW: path for %s is %s\n", filename, pathname);
 
 	return pathname;
@@ -176,7 +176,7 @@ char *get_file_extension(const char *filename)
 	if(name)
 		extname = strdup(name + 1);
 
-	if(debug_level > 0)
+	if(debug_level > 1)
 		printf("GUVCVIEW: extension for %s is %s\n", filename, extname);
 
 	free(basename);
@@ -210,7 +210,7 @@ char *set_file_extension(const char *filename, const char *ext)
 
 	free(noext_filename);
 
-	if(debug_level > 0)
+	if(debug_level > 1)
 		printf("GUVCVIEW: changed file extension to %s\n", new_filename);
 	return new_filename;
 }
@@ -256,11 +256,11 @@ unsigned long long get_file_suffix(const char *path, const char* filename)
 
 	while ((dp = readdir(dir)) != NULL)
 	{
-		if(debug_level > 2)
+		if(debug_level > 3)
 			printf("GUVCVIEW: (get_file_suffix) checking %s\n", dp->d_name);
 		if (strncmp(dp->d_name, noextname, noextsize) == 0)
 		{
-			if(debug_level > 2)
+			if(debug_level > 3)
 					printf("GUVCVIEW: (get_file_suffix) prefix matched (%s)\n", noextname);
 			char *ext = strrchr(dp->d_name, '.');
 			if(strcmp(ext + 1, extension) == 0)
@@ -269,7 +269,7 @@ unsigned long long get_file_suffix(const char *path, const char* filename)
 				unsigned long long sfix = 0;
 				sscanf(dp->d_name, format_str, sfixstr);
 
-				if(debug_level > 2)
+				if(debug_level > 3)
 					printf("GUVCVIEW: (get_file_suffix) matched with suffix %s\n", sfixstr);
 
 				sfix = strtoull(sfixstr, (char **)NULL, 10);
