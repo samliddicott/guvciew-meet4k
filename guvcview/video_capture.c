@@ -309,9 +309,16 @@ void *capture_loop(void *data)
 				if(my_options->img_filename)
 					free(my_options->img_filename);
 
+				/*get_photo_[name|path] always return a non NULL value*/
 				char *name = strdup(get_photo_name());
-
 				char *path = strdup(get_photo_path());
+
+				if(get_photo_sufix_flag())
+				{
+					char *new_name = add_file_suffix(path, name);
+					free(name); /*free old name*/
+					name = new_name; /*replace with suffixed name*/
+				}
 				int pathsize = strlen(path);
 				if(path[pathsize] != '/')
 					my_options->img_filename = smart_cat(path, '/', name);
@@ -322,8 +329,9 @@ void *capture_loop(void *data)
 					printf("GUVCVIEW: saving image to %s\n", my_options->img_filename);
 
 				v4l2core_save_image(device, my_options->img_filename, get_photo_format());
-				if(name)
-					free(name);
+
+				free(path);
+				free(name);
 
 				save_image = 0; /*reset*/
 			}

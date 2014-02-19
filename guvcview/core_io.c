@@ -26,10 +26,33 @@
 #include <string.h>
 #include <errno.h>
 #include <assert.h>
+#include <dirent.h>
 
 #include "gviewv4l2core.h"
 
 extern int debug_level;
+
+/*
+ * gets the number of chars to represent n
+ * args:
+ *    n - uint64_t number to represent
+ *
+ * asserts:
+ *    none
+ *
+ * returns: number of chars needed to represent n
+ */
+int get_uint64_num_chars (uint64_t n)
+{
+	int i = 0;
+
+	while (n != 0)
+	{
+		n /= 10;
+		i++;
+	}
+	return i;
+}
 
 /*
  * smart concatenation
@@ -190,4 +213,106 @@ char *set_file_extension(const char *filename, const char *ext)
 	if(debug_level > 0)
 		printf("GUVCVIEW: changed file extension to %s\n", new_filename);
 	return new_filename;
+}
+
+/*
+ * get the sufix for filename in path (e.g. for file-3.png sufix is 3)
+ * args:
+ *   path - string with file path
+ *   filename - string with file basename
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+unsigned long long get_file_suffix(const char *path, const char* filename)
+{
+	unsigned long long suffix = 0;
+
+	DIR *dir = opendir(path);;
+	struct dirent *dp;
+
+	if(dir == NULL)
+	{
+		fprintf(stderr, "ERROR: Couldn't open %s directory\n", path);
+		return suffix;
+	}
+
+	int noextsize = strlen(filename);
+
+	char *name = strrchr(filename, '.');
+
+	if(name)
+		noextsize = name - filename;
+
+	char *noextname = strndup(filename, noextsize);
+	char *extension = strdup(name + 1);
+
+
+	int fsize = strlen(filename) + 7;
+	char format_str[fsize];
+	snprintf(format_str, fsize-1, "%s-%%20s.%s", noextname, extension);
+
+	while ((dp = readdir(dir)) != NULL)
+	{
+		if (strncmp(dp->d_name, noextname, noextsize) == 0)
+		{
+			char *ext = strrchr(dp->d_name, '.');
+			if(strcmp(ext + 1, extension) == 0)
+			{
+				char sfix_str[21];
+				sscanf(dp->d_name, format_str, sfix_str);
+				unsigned long long sfix = strtoull(sfix_str, NULL, 10);
+
+				if(sfix > suffix)
+					suffix = sfix;
+			}
+		}
+	}
+
+	closedir(dir);
+
+	free(noextname);
+	free(extension);
+
+	if(debug_level > 1)
+		printf("GUVCVIEW: (get_file_suffix) %s has sufix %llu\n", filename, suffix);
+	return suffix;
+}
+
+/*
+ * add a number suffix to filename (e.g. name.ext => name-suffix.ext)
+ *   the suffix depends on the existing values in the path dir
+ * args:
+ * 	  path - string with file path (to dir)
+ *    filename - string with file basename (name.ext)
+ *    suffix - suffix number
+ *
+ * asserts:
+ *    none
+ *
+ * returns: newly allocated string with suffixed file name (must free)
+ */
+char *add_file_suffix(const char *path, const char *filename)
+{
+	unsigned long long suffix = get_file_suffix(path, filename);
+	/*increment existing suffix*/
+	suffix++;
+	int size_suffix = get_uint64_num_chars(suffix);
+	int size_name = strlen(filename);
+
+	char *basename = get_file_basename(filename);
+	char *extension = get_file_extension(filename);
+
+	/*add '-' suffix and '\0' and an extra char just for safety*/
+	char *name = calloc(size_name + size_suffix + 3, sizeof(char));
+	sprintf(name, "%s-%llu.%s", basename, suffix, extension);
+
+	if(basename)
+		free(basename);
+	if(extension)
+		free(extension);
+
+	return name;
 }

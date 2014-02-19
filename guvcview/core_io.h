@@ -23,6 +23,18 @@
 #define CORE_IO_H
 
 /*
+ * gets the number of chars to represent n
+ * args:
+ *    n - uint64_t number to represent
+ *
+ * asserts:
+ *    none
+ *
+ * returns: number of chars needed to represent n
+ */
+int get_uint64_num_chars (uint64_t n);
+
+/*
  * smart concatenation
  * args:
  *    dest - destination string
@@ -86,5 +98,33 @@ char *get_file_extension(const char *filename);
  * returns: string with new extension (must free it)
  */
 char *set_file_extension(const char *filename, const char *ext);
+
+/*
+ * get the sufix for filename in path (e.g. for file-3.png sufix is 3)
+ * args:
+ *   path - string with file path
+ *   filename - string with file basename
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+unsigned long long get_file_suffix(const char *path, const char* filename);
+
+/*
+ * add a number suffix to filename (e.g. name.ext => name-suffix.ext)
+ *   the suffix depends on the existing values in the path dir
+ * args:
+ * 	  path - string with file path (to dir)
+ *    filename - string with file basename (name.ext)
+ *    suffix - suffix number
+ *
+ * asserts:
+ *    none
+ *
+ * returns: newly allocated string with suffixed file name (must free)
+ */
+char *add_file_suffix(const char *path, const char *filename);
 
 #endif
