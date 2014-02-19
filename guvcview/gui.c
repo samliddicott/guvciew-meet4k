@@ -378,20 +378,29 @@ int gui_run()
  */
 void gui_close()
 {
+	if(debug_level > 1)
+		printf("GUVCVIEW: free profile name\n");
 	if(profile_name != NULL)
 		free(profile_name);
 	profile_name = NULL;
+	if(debug_level > 1)
+		printf("GUVCVIEW: free profile path\n");
 	if(profile_path != NULL)
 		free(profile_path);
 	profile_path = NULL;
-	
+	if(debug_level > 1)
+		printf("GUVCVIEW: free photo name\n");
 	if(photo_name != NULL)
 		free(photo_name);
 	photo_name = NULL;
+	if(debug_level > 1)
+		printf("GUVCVIEW: free photo path\n");
 	if(photo_path != NULL)
 		free(photo_path);
 	photo_path = NULL;
 
+	if(debug_level > 1)
+		printf("GUVCVIEW: close GUI API\n");
 	switch(gui_api)
 	{
 		case GUI_NONE:
