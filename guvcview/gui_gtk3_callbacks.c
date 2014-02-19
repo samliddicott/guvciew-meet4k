@@ -188,7 +188,7 @@ void controls_profile_clicked (GtkWidget *item, void *data)
 /*
  * photo prefix toggled event
  * args:
- *    toggle - widget that generated the event
+ *    item - widget that generated the event
  *    data - pointer to user data
  *
  * asserts:
@@ -196,13 +196,12 @@ void controls_profile_clicked (GtkWidget *item, void *data)
  *
  * returns: none
  */
-void photo_sufix_toggled (GtkToggleButton *toggle, void *data)
+void photo_sufix_toggled (GtkWidget *item, void *data)
 {
     //v4l2_dev_t *device = (v4l2_dev_t *) data;
 
-   int flag = gtk_toggle_button_get_active (toggle) ? 1 : 0;
-
-   set_photo_sufix_flag(flag);
+	int flag = gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(item)) ? 1 : 0;
+	set_photo_sufix_flag(flag);
 }
 
 /*

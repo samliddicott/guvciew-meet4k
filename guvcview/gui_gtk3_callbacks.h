@@ -102,7 +102,7 @@ void controls_profile_clicked (GtkWidget *item, void *data);
 /*
  * photo prefix toggled event
  * args:
- *    toggle - widget that generated the event
+ *    item - widget that generated the event
  *    data - pointer to user data
  *
  * asserts:
@@ -110,7 +110,7 @@ void controls_profile_clicked (GtkWidget *item, void *data);
  *
  * returns: none
  */
-void photo_sufix_toggled (GtkToggleButton *toggle, void *data);
+void photo_sufix_toggled (GtkWidget *item, void *data);
 
 /*
  * photo file clicked event
