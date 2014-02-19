@@ -23,6 +23,20 @@
 #define CORE_IO_H
 
 /*
+ * smart concatenation
+ * args:
+ *    dest - destination string
+ *    c - connector char
+ *    str1 - string to concat
+ *
+ * asserts:
+ *    none
+ *
+ * returns: concatenated string (must free)
+ */
+char *smart_cat(const char *dest, char c, const char *str1);
+
+/*
  * get the filename basename
  * args:
  *    filename - string with filename (full path)

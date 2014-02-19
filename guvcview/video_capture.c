@@ -310,14 +310,14 @@ void *capture_loop(void *data)
 					free(my_options->img_filename);
 
 				char *name = strdup(get_photo_name());
-				if(get_photo_path())
-				{
-					my_options->img_filename = strdup(get_photo_path());
-					int pathsize = strlen(my_options->img_filename);
-					if(my_options->img_filename[pathsize] != '/')
-						my_options->img_filename = strcat(my_options->img_filename, "/");
-				}
-				my_options->img_filename = strcat(my_options->img_filename, name);
+
+				char *path = strdup(get_photo_path());
+				int pathsize = strlen(my_options->img_filename);
+				if(path[pathsize] != '/')
+					my_options->img_filename = smart_cat(path, '/', name);
+				else
+					my_options->img_filename = smart_cat(path, 0, name);
+
 				v4l2core_save_image(device, my_options->img_filename, get_photo_format());
 				if(name)
 					free(name);

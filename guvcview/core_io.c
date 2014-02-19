@@ -32,6 +32,44 @@
 extern int debug_level;
 
 /*
+ * smart concatenation
+ * args:
+ *    dest - destination string
+ *    c - connector char
+ *    str1 - string to concat
+ *
+ * asserts:
+ *    none
+ *
+ * returns: concatenated string (must free)
+ */
+char *smart_cat(const char *dest, const char c, const char *str1)
+{
+	int size_c = 0;
+	if(c)
+		size_c = 1;
+	int size_dest =  strlen(dest);
+	int size_str1 = strlen(str1);
+
+	int size = size_dest + size_c + size_str1 + 1; /*add ending null char*/
+	char *my_cat = calloc(size, sizeof(char));
+	char *my_p = my_cat;
+	if(size_dest)
+		memcpy(my_cat, dest, size_dest);
+	if(size_c)
+		my_cat[size_dest] = c;
+	if(size_str1)
+	{
+		my_p += size_dest + size_c + 1;
+		memcpy(my_p, str1, size_str1);
+	}
+	/*add ending null char*/
+	my_cat[size_dest + size_c + size_str1] = '\0';
+
+	return my_cat;
+}
+
+/*
  * get the filename basename
  * args:
  *    filename - string with filename (full path)
@@ -132,14 +170,16 @@ char *set_file_extension(const char *filename, const char *ext)
 {
 	char *name = strrchr(filename, '.');
 
-	char *new_filename = NULL;
+	char *noext_filename = NULL;
 
 	int strsize = strlen(filename);
 	if(name)
 		strsize = name - filename;
 
-	new_filename = strndup(filename, strsize);
-	new_filename = strcat(new_filename, ext);
+	noext_filename = strndup(filename, strsize);
+	char *new_filename = smart_cat(noext_filename, '.', ext);
+
+	free(noext_filename);
 
 	if(debug_level > 0)
 		printf("GUVCVIEW: changed file extension to %s\n", new_filename);

@@ -231,23 +231,23 @@ static void photo_update_extension (GtkComboBox *chooser, GtkWidget *file_dialog
 	{
 		case IMG_FMT_RAW:
 			gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (file_dialog),
-				set_file_extension(basename, ".raw"));
+				set_file_extension(basename, "raw"));
 			gtk_file_filter_add_pattern(filter, "*.raw");
 			break;
 		case IMG_FMT_PNG:
 			gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (file_dialog),
-				set_file_extension(basename, ".png"));
+				set_file_extension(basename, "png"));
 			gtk_file_filter_add_pattern(filter, "*.png");
 			break;
 		case IMG_FMT_BMP:
 			gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (file_dialog),
-				set_file_extension(basename, ".bmp"));
+				set_file_extension(basename, "bmp"));
 			gtk_file_filter_add_pattern(filter, "*.bmp");
 			break;
 		default:
 		case IMG_FMT_JPG:
 			gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (file_dialog),
-				set_file_extension(basename, ".jpg"));
+				set_file_extension(basename, "jpg"));
 			gtk_file_filter_add_pattern(filter, "*.jpg");
 			break;
 	}
