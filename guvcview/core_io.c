@@ -256,13 +256,21 @@ unsigned long long get_file_suffix(const char *path, const char* filename)
 
 	while ((dp = readdir(dir)) != NULL)
 	{
+		if(debug_level > 2)
+			printf("GUVCVIEW: (get_file_suffix) checking %s\n", dp->d_name);
 		if (strncmp(dp->d_name, noextname, noextsize) == 0)
 		{
+			if(debug_level > 2)
+					printf("GUVCVIEW: (get_file_suffix) prefix matched\n");
 			char *ext = strrchr(dp->d_name, '.');
 			if(strcmp(ext + 1, extension) == 0)
 			{
 				char sfix_str[21];
 				sscanf(dp->d_name, format_str, sfix_str);
+
+				if(debug_level > 2)
+					printf("GUVCVIEW: (get_file_suffix) matched with suffix %s\n", sfix_str);
+
 				unsigned long long sfix = strtoull(sfix_str, NULL, 10);
 
 				if(sfix > suffix)
