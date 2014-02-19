@@ -54,10 +54,13 @@ char *smart_cat(const char *dest, const char c, const char *str1)
 	int size = size_dest + size_c + size_str1 + 1; /*add ending null char*/
 	char *my_cat = calloc(size, sizeof(char));
 	char *my_p = my_cat;
+
 	if(size_dest)
 		memcpy(my_cat, dest, size_dest);
+
 	if(size_c)
 		my_cat[size_dest] = c;
+
 	if(size_str1)
 	{
 		my_p += size_dest + size_c + 1;
@@ -67,7 +70,8 @@ char *smart_cat(const char *dest, const char c, const char *str1)
 	my_cat[size_dest + size_c + size_str1] = '\0';
 
 	if(debug_level > 1)
-		printf("GUVCVIEW: (smart_cat) returned: %s\n", my_cat);
+		printf("GUVCVIEW: (smart_cat) dest=%s(%i) len_c=%c(%i) len_str1=%s(%i) => %s\n",
+			dest, size_dest, c, size_c, str1, size_str1, my_cat);
 	return my_cat;
 }
 
