@@ -312,11 +312,14 @@ void *capture_loop(void *data)
 				char *name = strdup(get_photo_name());
 
 				char *path = strdup(get_photo_path());
-				int pathsize = strlen(my_options->img_filename);
+				int pathsize = strlen(path);
 				if(path[pathsize] != '/')
 					my_options->img_filename = smart_cat(path, '/', name);
 				else
 					my_options->img_filename = smart_cat(path, 0, name);
+
+				if(debug_level > 1)
+					printf("GUVCVIEW: saving image to %s\n", my_options->img_filename);
 
 				v4l2core_save_image(device, my_options->img_filename, get_photo_format());
 				if(name)
