@@ -168,6 +168,9 @@ int render_init(int render, int width, int height)
 			break;
 	}
 
+	if(ret)
+		render_api = RENDER_NONE;
+
 	return ret;
 }
 

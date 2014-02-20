@@ -44,7 +44,7 @@
 /*flags*/
 extern int debug_level;
 
-static int render = RENDER_NONE; /*render API*/
+static int render = RENDER_SDL1; /*render API*/
 static int quit = 0; /*terminate flag*/
 static int save_image = 0; /*save image flag*/
 
@@ -219,16 +219,14 @@ void *capture_loop(void *data)
 		}
 	}
 
-	if(render != RENDER_NONE)
-	{
-		render_set_verbosity(debug_level);
-		if(render_init(RENDER_SDL1, device->format.fmt.pix.width, device->format.fmt.pix.height) < 0)
+	render_set_verbosity(debug_level);
+	if(render_init(render, device->format.fmt.pix.width, device->format.fmt.pix.height) < 0)
 			render = RENDER_NONE;
-		else
-		{
-			render_set_event_callback(EV_QUIT, &quit_callback, NULL);
-		}
+	else
+	{
+		render_set_event_callback(EV_QUIT, &quit_callback, NULL);
 	}
+
 
 	v4l2core_start_stream(device);
 
@@ -240,8 +238,7 @@ void *capture_loop(void *data)
 			v4l2core_stop_stream(device);
 
 			/*close render*/
-			if(render)
-				render_close();
+			render_close();
 
 			v4l2core_clean_buffers(device);
 
@@ -265,15 +262,13 @@ void *capture_loop(void *data)
 			}
 
 			/*restart the render with new format*/
-			if(render != RENDER_NONE)
+			if(render_init(render, device->format.fmt.pix.width, device->format.fmt.pix.height) < 0)
+				render = RENDER_NONE;
+			else
 			{
-				if(render_init(RENDER_SDL1, device->format.fmt.pix.width, device->format.fmt.pix.height) < 0)
-					render = RENDER_NONE;
-				else
-				{
-					render_set_event_callback(EV_QUIT, &quit_callback, NULL);
-				}
+				render_set_event_callback(EV_QUIT, &quit_callback, NULL);
 			}
+
 
 			if(debug_level > 0)
 				printf("GUVCVIEW: reset to pixelformat=%x width=%i and height=%i\n", device->requested_fmt, device->format.fmt.pix.width, device->format.fmt.pix.height);
@@ -297,12 +292,9 @@ void *capture_loop(void *data)
 				do_soft_focus = v4l2core_soft_autofocus_run(device);
 
 			/*render the decoded frame*/
-			if(render != RENDER_NONE)
-			{
-				snprintf(render_caption, 20, "SDL Video - %2.2f", v4l2core_get_realfps());
-				render_set_caption(render_caption);
-				render_frame(device->yuv_frame, mask);
-			}
+			snprintf(render_caption, 20, "SDL Video - %2.2f", v4l2core_get_realfps());
+			render_set_caption(render_caption);
+			render_frame(device->yuv_frame, mask);
 
 			if(save_image)
 			{
@@ -341,8 +333,7 @@ void *capture_loop(void *data)
 
 	v4l2core_stop_stream(device);
 
-	if(render != RENDER_NONE)
-		render_close();
+	render_close();
 
 	return ((void *) 0);
 }
