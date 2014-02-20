@@ -125,7 +125,7 @@ static opt_values_t opt_values[] =
 		.opt_long = "photo_timer",
 		.req_arg = 1,
 		.opt_help_arg = N_("TIME_IN_SEC"),
-		.opt_help = N_("time in seconds between captured photos)")
+		.opt_help = N_("time (double) in sec. between captured photos)")
 	},
 	{
 		.opt_short = 'n',
