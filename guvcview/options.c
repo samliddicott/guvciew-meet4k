@@ -121,6 +121,20 @@ static opt_values_t opt_values[] =
 		.opt_help = N_("filename for captured image)")
 	},
 	{
+		.opt_short = 't',
+		.opt_long = "photo_timer",
+		.req_arg = 1,
+		.opt_help_arg = N_("TIME_IN_SEC"),
+		.opt_help = N_("time in seconds between captured photos)")
+	},
+	{
+		.opt_short = 'n',
+		.opt_long = "photo_total",
+		.req_arg = 1,
+		.opt_help_arg = N_("TOTAL"),
+		.opt_help = N_("total number of captured photos)")
+	},
+	{
 		.opt_short = 'z',
 		.opt_long = "control_panel",
 		.req_arg = 0,
@@ -148,8 +162,8 @@ static options_t my_options =
 	.gui = "gtk3",
 	.capture = "mmap",
 	.prof_filename = NULL,
-	.img_filename = NULL,
-	.img_format = IMG_FMT_JPG,
+	.photo_timer = 0,
+	.photo_npics = 0,
 };
 
 /*
@@ -421,13 +435,13 @@ int options_parse(int argc, char *argv[])
 					free(my_options.prof_filename);
 				my_options.prof_filename = strdup(optarg);
 				/*get profile path and basename*/
-				char *basename = get_file_basename(my_options.prof_filename);
+				char *basename = get_file_basename(optarg);
 				if(basename)
 				{
 					set_profile_name(basename);
 					free(basename);
 				}
-				char *pathname = get_file_pathname(my_options.prof_filename);
+				char *pathname = get_file_pathname(optarg);
 				if(pathname)
 				{
 					set_profile_path(pathname);
@@ -438,17 +452,14 @@ int options_parse(int argc, char *argv[])
 			}
 			case 'i':
 			{
-				if(my_options.img_filename != NULL)
-					free(my_options.img_filename);
-				my_options.img_filename = strdup(optarg);
 				/*get photo path and basename*/
-				char *basename = get_file_basename(my_options.img_filename);
+				char *basename = get_file_basename(optarg);
 				if(basename)
 				{
 					set_photo_name(basename);
 					free(basename);
 				}
-				char *pathname = get_file_pathname(my_options.img_filename);
+				char *pathname = get_file_pathname(optarg);
 				if(pathname)
 				{
 					set_photo_path(pathname);
@@ -456,27 +467,31 @@ int options_parse(int argc, char *argv[])
 				}
 
 				/*get image format*/
-				char *ext = get_file_extension(my_options.img_filename);
+				char *ext = get_file_extension(optarg);
 				if(ext == NULL)
 					fprintf(stderr, "GUVCVIEW: (options) no file extension for image file %s\n",
-						my_options.img_filename);
+						optarg);
 				else if( strcasecmp(ext, "jpg") == 0 ||
 						 strcasecmp(ext, "jpeg") == 0 )
-					my_options.img_format = IMG_FMT_JPG;
+					set_photo_format(IMG_FMT_JPG);
 				else if ( strcasecmp(ext, "png") == 0 )
-					my_options.img_format = IMG_FMT_PNG;
+					set_photo_format(IMG_FMT_PNG);
 				else if ( strcasecmp(ext, "bmp") == 0 )
-					my_options.img_format = IMG_FMT_BMP;
+					set_photo_format(IMG_FMT_BMP);
 				else if ( strcasecmp(ext, "raw") == 0 )
-					my_options.img_format = IMG_FMT_RAW;
-				
-				set_photo_format(my_options.img_format);
-				
+					set_photo_format(IMG_FMT_RAW);
+
 				if(ext)
 					free(ext);
 
 				break;
 			}
+			case 't':
+				my_options.photo_timer = strtod(optarg, (char **)NULL);
+				break;
+			case 'n':
+				my_options.photo_npics = atoi(optarg);
+				break;
 			default:
             case 'h':
 				opt_print_help();
@@ -500,9 +515,6 @@ int options_parse(int argc, char *argv[])
  */
 void options_clean()
 {
-	if(my_options.img_filename != NULL)
-		free(my_options.img_filename);
-	my_options.img_filename = NULL;
 	if(my_options.prof_filename != NULL)
 		free(my_options.prof_filename);
 	my_options.prof_filename = NULL;

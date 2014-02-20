@@ -36,6 +36,7 @@
 
 #include "gviewv4l2core.h"
 #include "gviewrender.h"
+#include "gview.h"
 #include "video_capture.h"
 #include "options.h"
 #include "core_io.h"
@@ -48,6 +49,7 @@ static int render = RENDER_SDL1; /*render API*/
 static int quit = 0; /*terminate flag*/
 static int save_image = 0; /*save image flag*/
 
+static uint64_t my_photo_timer = 0; /*timer count*/
 
 static int restart = 0; /*restart flag*/
 
@@ -103,6 +105,36 @@ void set_render_fx_mask(uint32_t new_mask)
 void set_soft_autofocus(int value)
 {
 	do_soft_autofocus = value;
+}
+
+/*
+ * stops the photo timed capture
+ * args:
+ *    none
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void stop_photo_timer()
+{
+	my_photo_timer = 0;
+}
+
+/*
+ * checks if photo timed capture is on
+ * args:
+ *    none
+ *
+ * asserts:
+ *    none
+ *
+ * returns: 1 if on; 0 if off
+ */
+int check_photo_timer()
+{
+	return ( (my_photo_timer > 0) ? 1 : 0 );
 }
 
 /*
@@ -188,6 +220,9 @@ void *capture_loop(void *data)
 	v4l2_dev_t *device = (v4l2_dev_t *) cl_data->device;
 	options_t *my_options = (options_t *) cl_data->options;
 
+	uint64_t my_last_photo_time = 0; /*timer count*/
+	int my_photo_npics = 0;/*no npics*/
+
 	/*asserts*/
 	assert(device != NULL);
 
@@ -227,6 +262,15 @@ void *capture_loop(void *data)
 		render_set_event_callback(EV_QUIT, &quit_callback, NULL);
 	}
 
+	/*add a photo capture timer*/
+	if(my_options->photo_timer > 0)
+	{
+		my_photo_timer = NSEC_PER_SEC * my_options->photo_timer;
+		my_last_photo_time = v4l2core_time_get_timestamp(); /*timer count*/
+	}
+
+	if(my_options->photo_npics > 0)
+		my_photo_npics = my_options->photo_npics;
 
 	v4l2core_start_stream(device);
 
@@ -296,10 +340,26 @@ void *capture_loop(void *data)
 			render_set_caption(render_caption);
 			render_frame(device->yuv_frame, mask);
 
+			if(check_photo_timer())
+			{
+				if(my_options->photo_npics > 0)
+				{
+					if(my_photo_npics > 0)
+						my_photo_npics--;
+					else
+						stop_photo_timer(); /*close timer*/
+				}
+
+				if((device->timestamp - my_last_photo_time) > my_photo_timer)
+				{
+					save_image = 1;
+					my_last_photo_time = device->timestamp;
+				}
+			}
+
 			if(save_image)
 			{
-				if(my_options->img_filename)
-					free(my_options->img_filename);
+				char *img_filename = NULL;
 
 				/*get_photo_[name|path] always return a non NULL value*/
 				char *name = strdup(get_photo_name());
@@ -313,17 +373,18 @@ void *capture_loop(void *data)
 				}
 				int pathsize = strlen(path);
 				if(path[pathsize] != '/')
-					my_options->img_filename = smart_cat(path, '/', name);
+					img_filename = smart_cat(path, '/', name);
 				else
-					my_options->img_filename = smart_cat(path, 0, name);
+					img_filename = smart_cat(path, 0, name);
 
 				if(debug_level > 1)
-					printf("GUVCVIEW: saving image to %s\n", my_options->img_filename);
+					printf("GUVCVIEW: saving image to %s\n", img_filename);
 
-				v4l2core_save_image(device, my_options->img_filename, get_photo_format());
+				v4l2core_save_image(device, img_filename, get_photo_format());
 
 				free(path);
 				free(name);
+				free(img_filename);
 
 				save_image = 0; /*reset*/
 			}

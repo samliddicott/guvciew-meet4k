@@ -40,6 +40,7 @@
 #include "gui.h"
 /*add this last to avoid redefining _() and N_()*/
 #include "gview.h"
+#include "video_capture.h"
 
 extern int debug_level;
 extern int is_control_panel;
@@ -158,7 +159,20 @@ int gui_attach_gtk3(v4l2_dev_t *device, int width, int height)
 	gtk_widget_show(HButtonBox);
 
 	/*photo button*/
-	GtkWidget *CapImageButt=gtk_button_new_with_label (_("Cap. Image (I)"));
+	GtkWidget *CapImageButt = NULL;
+	if(check_photo_timer())
+	{
+		CapImageButt = gtk_button_new_with_label (_("Stop Cap. (I)"));
+		g_object_set_data (G_OBJECT (CapImageButt), "control_info",
+							GINT_TO_POINTER(1));
+	}
+	else
+	{
+		CapImageButt = gtk_button_new_with_label (_("Cap. Image (I)"));
+		g_object_set_data (G_OBJECT (CapImageButt), "control_info",
+							GINT_TO_POINTER(0));
+	}
+
 	char *pix2path = g_strconcat (PACKAGE_DATA_DIR, "/pixmaps/guvcview/camera.png",NULL);
 	if (g_file_test(pix2path, G_FILE_TEST_EXISTS))
 	{

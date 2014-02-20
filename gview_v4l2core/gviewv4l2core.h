@@ -817,6 +817,21 @@ int v4l2core_save_data_to_file(const char *filename, uint8_t *data, int size);
  */
 int v4l2core_save_image(v4l2_dev_t *vd, const char *filename, int format);
 
+/*
+ * ############### TIME DATA ##############
+ */
+
+/*
+ * get current timestamp
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: monotonic time in nanoseconds
+ */
+uint64_t v4l2core_time_get_timestamp();
 
 #endif
 

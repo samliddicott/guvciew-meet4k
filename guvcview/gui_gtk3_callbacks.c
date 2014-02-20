@@ -394,7 +394,15 @@ void photo_file_clicked (GtkWidget *item, void *data)
  */
 void capture_image_clicked (GtkButton *button, void *data)
 {
-	video_capture_save_image();
+	int is_photo_timer = GPOINTER_TO_INT(g_object_get_data (G_OBJECT (button), "control_info"));
+
+	if(is_photo_timer)
+	{
+		stop_photo_timer();
+		gtk_button_set_label(button, _("Cap. Image (I)"));
+	}
+	else
+		video_capture_save_image();
 }
 
 /*

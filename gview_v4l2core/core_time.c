@@ -127,6 +127,21 @@ uint64_t ns_time_monotonic()
 	return ((uint64_t)now.tv_sec * NSEC_PER_SEC + (uint64_t) now.tv_nsec);
 }
 
+/*
+ * get current timestamp
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: monotonic time in nanoseconds
+ */
+uint64_t v4l2core_time_get_timestamp()
+{
+	return ns_time_monotonic();
+}
+
 
 /*
 void sleep_ms(int ms_time)

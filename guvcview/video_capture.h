@@ -78,6 +78,29 @@ void set_soft_autofocus(int value);
  */
 void set_soft_focus(int value);
 
+/*
+ * checks if photo timed capture is on
+ * args:
+ *    none
+ *
+ * asserts:
+ *    none
+ *
+ * returns: 1 if on; 0 if off
+ */
+int check_photo_timer();
+
+/*
+ * stops the photo timed capture
+ * args:
+ *    none
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void stop_photo_timer();
 
 /*
  * quit callback
