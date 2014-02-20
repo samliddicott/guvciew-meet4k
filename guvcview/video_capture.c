@@ -342,18 +342,18 @@ void *capture_loop(void *data)
 
 			if(check_photo_timer())
 			{
-				if(my_options->photo_npics > 0)
-				{
-					if(my_photo_npics > 0)
-						my_photo_npics--;
-					else
-						stop_photo_timer(); /*close timer*/
-				}
-
 				if((device->timestamp - my_last_photo_time) > my_photo_timer)
 				{
 					save_image = 1;
 					my_last_photo_time = device->timestamp;
+					
+					if(my_options->photo_npics > 0)
+					{
+						if(my_photo_npics > 0)
+							my_photo_npics--;
+						else
+							stop_photo_timer(); /*close timer*/
+					}
 				}
 			}
 
