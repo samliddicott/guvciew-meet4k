@@ -37,9 +37,15 @@
 #include <libintl.h>
 
 #include "gview.h"
+#include "audio.h"
+#include "core_time.h"
 #include "gviewaudio.h"
 
 extern int verbosity;
+
+static int sample_index = 0;
+
+#define DEFAULT_LATENCY_DURATION 100.0
 
 /*
  * Portaudio record callback
@@ -69,30 +75,64 @@ recordCallback (const void *inputBuffer, void *outputBuffer,
 	assert(audio_ctx != NULL);
 
 	int res = 0;
+	int i = 0;
+
+	const sample_t *rptr = (const sample_t*) inputBuffer;
 
 	unsigned long numSamples = framesPerBuffer * audio_ctx->channels;
 	uint64_t frame_length = NSEC_PER_SEC / audio_ctx->samprate; /*in nanosec*/
 
 	PaTime ts_sec = timeInfo->inputBufferAdcTime; /*in seconds (double)*/
 	int64_t ts = ts_sec * NSEC_PER_SEC; /*in nanosec (monotonic time)*/
+	int64_t buff_ts = 0;
+
+	/*determine the number of samples dropped*/
+	if(audio_ctx->last_ts <= 0)
+	{
+		audio_ctx->last_ts = ts;
+	}
 
 	if(statusFlags & paInputOverflow)
 	{
-		printf( "AUDIO: portaudio buffer overflow\n" );
-		/*determine the number of samples dropped*/
-		if(audio_ctx->a_last_ts <= 0)
-			audio_ctx->a_last_ts = audio_ctx->snd_begintime;
+		fprintf( stderr, "AUDIO: portaudio buffer overflow\n" );
 
-		int64_t d_ts = ts - audio_ctx->a_last_ts;
+		int64_t d_ts = ts - audio_ctx->last_ts;
 		int n_samples = (d_ts / frame_length) * audio_ctx->channels;
-		//record_silence (n_samples, userData);
+		for( i = 0; i < n_samples; ++i )
+		{
+			audio_ctx->capture_buff[sample_index] = 0;
+			sample_index++;
+
+			if(sample_index >= audio_ctx->capture_buff_size)
+			{
+				audio_fill_buffer(audio_ctx, audio_ctx->last_ts);
+				sample_index = 0;
+			}
+		}
+
+		if(verbosity > 1)
+			printf("AUDIO: compensate overflow with %i silence samples\n", n_samples);
 	}
 	if(statusFlags & paInputUnderflow)
-		print( "AUDIO: portaudio buffer underflow\n" );
+		fprintf( stderr, "AUDIO: portaudio buffer underflow\n" );
 
-	//res = record_sound ( inputBuffer, numSamples, ts, userData );
 
-	audio_ctx->a_last_ts = ts + (framesPerBuffer * frame_length);
+	/*store capture samples*/
+	for( i = 0; i < numSamples; ++i )
+    {
+        audio_ctx->capture_buff[sample_index] = inputBuffer ? *rptr++ : 0;
+        sample_index++;
+
+        if(sample_index >= audio_ctx->capture_buff_size)
+		{
+			buff_ts = ts + ( i / audio_ctx->channels ) * frame_length;
+			audio_fill_buffer(audio_ctx, buff_ts);
+			sample_index = 0;
+		}
+	}
+
+
+	audio_ctx->last_ts = ts + (framesPerBuffer * frame_length);
 
 	if(res < 0 )
 		return (paComplete); /*capture stopped*/
@@ -125,7 +165,7 @@ static int audio_portaudio_list_devices(audio_context_t *audio_ctx)
 	}
 	else
 	{
-		audio_ctx->default_dev = 0;
+		audio_ctx->device = 0;
 
 		for( it=0; it < numDevices; it++ )
 		{
@@ -141,7 +181,7 @@ static int audio_portaudio_list_devices(audio_context_t *audio_ctx)
 				if (verbosity > 0)
 					printf( "[ Default Input" );
 				defaultDisplayed = 1;
-				audio_ctx->default_dev = audio_ctx->num_input_dev;/*default index in array of input devs*/
+				audio_ctx->device = audio_ctx->num_input_dev;/*default index in array of input devs*/
 			}
 			else if( it == Pa_GetHostApiInfo( deviceInfo->hostApi )->defaultInputDevice )
 			{
@@ -213,15 +253,21 @@ static int audio_portaudio_list_devices(audio_context_t *audio_ctx)
 			printf("----------------------------------------------\n");
 	}
 
+	/*set defaults*/
+	audio_ctx->channels = audio_ctx->list_devices[audio_ctx->device].channels;
+	audio_ctx->samprate = audio_ctx->list_devices[audio_ctx->device].samprate;
+
 	return 0;
 }
 
 /*
  * init portaudio api
  * args:
+ *    none
  *
  * asserts:
  *    none
+ *
  * returns: pointer to audio context data
  *     or NULL if error
  */
@@ -232,6 +278,85 @@ audio_context_t *audio_init_portaudio()
 	audio_portaudio_list_devices(audio_ctx);
 
 	return audio_ctx;
+}
+
+/*
+ * start portaudio stream capture
+ * args:
+ *   audio_ctx - pointer to audio context data
+ *   device - device index in devices list
+ *   samprate - sample rate
+ *   channels - channels
+ *
+ * asserts:
+ *   audio_ctx is not null
+ *
+ * returns: error code
+ */
+int audio_start_portaudio(audio_context_t *audio_ctx, int device, int samprate, int channels)
+{
+	/*assertions*/
+	assert(audio_ctx != NULL);
+
+	audio_ctx->device = device;
+	if(channels > audio_ctx->list_devices[audio_ctx->device].channels)
+		audio_ctx->channels = audio_ctx->list_devices[audio_ctx->device].channels;
+
+	audio_ctx->samprate = samprate;
+
+	audio_init_buffers(audio_ctx);
+
+	PaError err = paNoError;
+	PaStream *stream = NULL;
+
+	PaStreamParameters inputParameters;
+
+	inputParameters.device = audio_ctx->list_devices[audio_ctx->device].id;
+	inputParameters.channelCount = audio_ctx->channels;
+	inputParameters.sampleFormat = paFloat32; /*sample_t - float*/
+
+	if (Pa_GetDeviceInfo( inputParameters.device ))
+		inputParameters.suggestedLatency = Pa_GetDeviceInfo( inputParameters.device )->defaultLowInputLatency;
+		//inputParameters.suggestedLatency = Pa_GetDeviceInfo( inputParameters.device )->defaultHighInputLatency;
+	else
+		inputParameters.suggestedLatency = DEFAULT_LATENCY_DURATION/1000.0;
+	inputParameters.hostApiSpecificStreamInfo = NULL;
+
+	/*---------------------------- start recording Audio. ----------------------------- */
+	audio_ctx->snd_begintime = ns_time_monotonic();
+
+	err = Pa_OpenStream(
+		&stream,                     /* stream */
+		&inputParameters,            /* inputParameters    */
+		NULL,                        /* outputParameters   */
+		audio_ctx->samprate,         /* sample rate        */
+		paFramesPerBufferUnspecified,/* buffer in frames (use API optimal)*/
+		paNoFlag,                    /* PaNoFlag - clip and dhiter*/
+		recordCallback,              /* sound callback     */
+		audio_ctx );                 /* callback userData  */
+
+	if( err == paNoError )
+	{
+		err = Pa_StartStream( stream );
+		audio_ctx->stream = (void *) stream; /* store stream pointer*/
+	}
+
+	if( err != paNoError )
+	{
+		fprintf(stderr, "AUDIO: An error occured while starting the portaudio API\n" );
+		fprintf(stderr, "       Error number: %d\n", err );
+		fprintf(stderr, "       Error message: %s\n", Pa_GetErrorText( err ) );
+
+		if(stream) Pa_AbortStream( stream );
+
+		return(-1);
+	}
+
+	const PaStreamInfo* stream_info = Pa_GetStreamInfo (stream);
+	if(verbosity > 1)
+		printf("AUDIO: latency of %8.3f msec\n", 1000 * stream_info->inputLatency);
+
+	return 0;
 }
 
 /*
@@ -252,6 +377,9 @@ void audio_close_portaudio(audio_context_t *audio_ctx)
 	if(audio_ctx->list_devices != NULL);
 		free(audio_ctx->list_devices);
 	audio_ctx->list_devices = NULL;
+
+	if(audio_ctx->capture_buff)
+		free(audio_ctx->capture_buff);
 
 	free(audio_ctx);
 }

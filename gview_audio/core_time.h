@@ -2,10 +2,6 @@
 #           guvcview              http://guvcview.sourceforge.net               #
 #                                                                               #
 #           Paulo Assis <pj.assis@gmail.com>                                    #
-#           Nobuhiro Iwamatsu <iwamatsu@nigauri.org>                            #
-#                             Add UYVY color support(Macbook iSight)            #
-#           Flemming Frandsen <dren.dk@gmail.com>                               #
-#                             Add VU meter OSD                                  #
 #                                                                               #
 # This program is free software; you can redistribute it and/or modify          #
 # it under the terms of the GNU General Public License as published by          #
@@ -23,47 +19,24 @@
 #                                                                               #
 ********************************************************************************/
 
-#ifndef GVIEWAUDIO_PORTAUDIO_H
-#define GVIEWAUDIO_PORTAUDIO_H
+#ifndef CORE_TIME_H
+#define CORE_TIME_H
+
+#include <stdlib.h>
+#include <stdio.h>
+#include <inttypes.h>
+#include <sys/types.h>
 
 /*
- * init portaudio api
- * args:
- *    none
- *
- * asserts:
- *    none
- *
- * returns: pointer to audio context data
- *     or NULL if error
- */
-audio_context_t *audio_init_portaudio();
-
-/*
- * start portaudio stream capture
- * args:
- *   audio_ctx - pointer to audio context data
- *   device - device index in devices list
- *   samprate - sample rate
- *   channels - channels
- *
- * asserts:
- *   audio_ctx is not null
- *
- * returns: error code
- */
-int audio_start_portaudio(audio_context_t *audio_ctx, int device, int samprate, int channels);
-
-/*
- * close and clean audio context for portaudio api
+ * monotonic time in nanoseconds
  * args:
  *   none
  *
  * asserts:
  *   none
  *
- * returns: none
+ * returns: monotonic time in nanoseconds
  */
-void audio_close_portaudio();
+uint64_t ns_time_monotonic();
 
 #endif

@@ -42,10 +42,18 @@
 #include <libintl.h>
 
 #include "gviewaudio.h"
+#include "gview.h"
 #include "audio_portaudio.h"
 
+/*audio device data mutex*/
+static __MUTEX_TYPE mutex;
+#define __PMUTEX &mutex
 
-#define AUDBUFF_NUM  80    //number of audio buffers
+#define AUDBUFF_NUM     80    /*number of audio buffers*/
+#define AUDBUFF_FRAMES  1152  /*number of audio frames per buffer*/
+static audio_buff_t *audio_buffers = NULL; /*pointer to buffers list*/
+static int buffer_read_index = 0; /*current read index of buffer list*/
+static int buffer_write_index = 0;/*current write index of buffer list*/
 
 int verbosity = 0;
 static int audio_api = AUDIO_PORTAUDIO;
@@ -60,9 +68,141 @@ static int audio_api = AUDIO_PORTAUDIO;
  *
  * returns: none
  */
-void set_audio_verbosity(int value)
+void audio_set_verbosity(int value)
 {
 	verbosity = value;
+}
+
+/*
+ * Lock the mutex
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void audio_lock_mutex()
+{
+	__LOCK_MUTEX( __PMUTEX );
+}
+
+/*
+ * Unlock the mutex
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void audio_unlock_mutex()
+{
+	__UNLOCK_MUTEX( __PMUTEX );
+}
+
+/*
+ * free audio buffers
+ * args:
+ *    none
+ *
+ * asserts:
+ *    none
+ *
+ * returns: error code
+ */
+int audio_free_buffers()
+{
+	int i = 0;
+
+	for(i = 0; i < AUDBUFF_NUM; ++i)
+	{
+		free(audio_buffers[i].data);
+	}
+
+	free(audio_buffers);
+	audio_buffers = NULL;
+}
+
+/*
+ * alloc audio buffers
+ * args:
+ *    audio_ctx - pointer to audio context data
+ *
+ * asserts:
+ *    none
+ *
+ * returns: error code
+ */
+int audio_init_buffers(audio_context_t *audio_ctx)
+{
+	if(!audio_ctx)
+		return -1;
+
+	int i = 0;
+
+	audio_ctx->capture_buff_size = audio_ctx->channels * AUDBUFF_FRAMES;
+	audio_ctx->capture_buff = calloc(
+		audio_ctx->capture_buff_size, sizeof(sample_t));
+
+	if(audio_buffers != NULL)
+		audio_free_buffers;
+
+	audio_buffers = calloc(AUDBUFF_NUM, sizeof(audio_buff_t));
+
+	for(i = 0; i < AUDBUFF_NUM; ++i)
+	{
+		audio_buffers[i].data = calloc(
+			audio_ctx->capture_buff_size, sizeof(sample_t));
+		audio_buffers[i].flag = AUDIO_BUFF_FREE;
+	}
+
+	return 0;
+}
+
+/*
+ * fill a audio buffer data and move write index to next one
+ * args:
+ *   audio_ctx - pointer to audio context data
+ *   ts - timestamp for end of data
+ *
+ * asserts:
+ *   audio_ctx is not null
+ *
+ * returns: none
+ */
+void audio_fill_buffer(audio_context_t *audio_ctx, int64_t ts)
+{
+	/*in nanosec*/
+	uint64_t frame_length = NSEC_PER_SEC / audio_ctx->samprate;
+	uint64_t buffer_length = frame_length * (audio_ctx->capture_buff_size / audio_ctx->channels);
+
+	if(audio_ctx->current_ts > 0)
+		audio_ctx->current_ts += buffer_length; /*buffer beggin time*/
+
+	audio_ctx->ts_drift = audio_ctx->current_ts - (ts - buffer_length);
+
+	/*get the current write indexed buffer flag*/
+	audio_lock_mutex();
+	int flag = audio_buffers[buffer_write_index].flag;
+
+	if(flag == AUDIO_BUFF_FREE)
+	{
+		/*write max_frames and fill a buffer*/
+		memcpy(audio_buffers[buffer_write_index].data,
+			audio_ctx->capture_buff, audio_ctx->capture_buff_size);
+		audio_buffers[buffer_write_index].flag = AUDIO_BUFF_USED;
+		audio_buffers[buffer_write_index].timestamp = audio_ctx->current_ts;
+		NEXT_IND(buffer_write_index, AUDBUFF_NUM);
+	}
+	else
+	{
+		fprintf(stderr, "AUDIO: write buffer(%i) is still in use - dropping data\n", buffer_write_index);
+	}
+	audio_unlock_mutex();
+
 }
 
 /*
@@ -74,12 +214,12 @@ void set_audio_verbosity(int value)
  * asserts:
  *   none
  *
- * returns: error code
+ * returns: pointer to audio context
  */
-int audio_init(int api)
+audio_context_t *audio_init(int api)
 {
 
-	int ret = 0;
+	audio_context_t *audio_ctx = NULL;
 
 	audio_api = api;
 
@@ -93,24 +233,61 @@ int audio_init(int api)
 
 		case AUDIO_PORTAUDIO:
 		default:
-			ret = audio_init_portaudio();
+			audio_ctx = audio_init_portaudio();
 			break;
 	}
 
-	return ret;
+	return audio_ctx;
+}
+
+/*
+ * start audio stream capture
+ * args:
+ *   audio_ctx - pointer to audio context data
+ *   device - device index in devices list
+ *   samprate - sample rate
+ *   channels - channels
+ *
+ * asserts:
+ *   audio_ctx is not null
+ *
+ * returns: error code
+ */
+int audio_start(audio_context_t *audio_ctx, int device, int samprate, int channels)
+{
+	/*assertions*/
+	assert(audio_ctx != NULL);
+
+	int err = 0;
+
+	switch(audio_api)
+	{
+		case AUDIO_NONE:
+			break;
+
+		case AUDIO_PULSE:
+			break;
+
+		case AUDIO_PORTAUDIO:
+		default:
+			err = audio_start_portaudio(audio_ctx, device, samprate, channels);
+			break;
+	}
+
+	return err;
 }
 
 /*
  * close and clean audio context
  * args:
- *   none
+ *   audio_ctx - pointer to audio context data
  *
  * asserts:
  *   none
  *
  * returns: none
  */
-void audio_close()
+void audio_close(audio_context_t *audio_ctx)
 {
 	switch(audio_api)
 	{
@@ -122,8 +299,11 @@ void audio_close()
 
 		case AUDIO_PORTAUDIO:
 		default:
-			audio_close_portaudio();
+			audio_close_portaudio(audio_ctx);
 			break;
 	}
+
+	if(audio_buffers != NULL)
+		audio_free_buffers;
 }
 

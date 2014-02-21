@@ -23,47 +23,28 @@
 #                                                                               #
 ********************************************************************************/
 
-#ifndef GVIEWAUDIO_PORTAUDIO_H
-#define GVIEWAUDIO_PORTAUDIO_H
+#ifndef AUDIO_H
+#define AUDIO_H
+
+#include <inttypes.h>
+#include <sys/types.h>
+
+#include "gviewaudio.h"
 
 /*
- * init portaudio api
- * args:
- *    none
- *
- * asserts:
- *    none
- *
- * returns: pointer to audio context data
- *     or NULL if error
- */
-audio_context_t *audio_init_portaudio();
-
-/*
- * start portaudio stream capture
+ * fill a audio buffer data and move write index to next one
  * args:
  *   audio_ctx - pointer to audio context data
- *   device - device index in devices list
- *   samprate - sample rate
- *   channels - channels
+ *   ts - timestamp for end of data
  *
  * asserts:
  *   audio_ctx is not null
  *
- * returns: error code
- */
-int audio_start_portaudio(audio_context_t *audio_ctx, int device, int samprate, int channels);
-
-/*
- * close and clean audio context for portaudio api
- * args:
- *   none
- *
- * asserts:
- *   none
- *
  * returns: none
  */
-void audio_close_portaudio();
+void audio_fill_buffer(audio_context_t *audio_ctx, int64_t ts);
+
+
+
 
 #endif

@@ -35,9 +35,15 @@
 #include <inttypes.h>
 #include <sys/types.h>
 
+/*Audio API*/
 #define AUDIO_NONE          (0)
 #define AUDIO_PORTAUDIO     (1)
 #define AUDIO_PULSE         (2)
+
+/*Audio Buffer flags*/
+#define AUDIO_BUFF_FREE     (0)
+#define AUDIO_BUFF_USED     (1)
+
 
 /*Audio Effects*/
 #define AUD_FX_NOEF   (0)
@@ -48,6 +54,13 @@
 #define AUD_FX_DUCKY  (1<<4)
 
 typedef float sample_t;
+
+typedef struct _audio_buff_t
+{
+	sample_t *data;
+	int64_t timestamp;
+	int flag;
+} audio_buff_t;
 
 typedef struct _audio_device_t
 {
@@ -62,13 +75,20 @@ typedef struct _audio_context_t
 {
 	int num_input_dev;            /*number of audio input devices in list*/
 	audio_device_t *list_devices; /*audio input devices list*/
-	int default_dev;              /*default device list index*/
+	int device;                   /*current device list index*/
 	int channels;                 /*channels*/
 	int samprate;                 /*sample rate*/
-	                              /*circular buffer*/
-	                              /*buffer index*/
-	int64_t a_last_ts;            /*last timestamp (in nanosec)*/
-	int64_t snd_begintime;        /*monotonic sound capture start ref time*/
+
+	/*all ts are monotonic based: both real and generated*/
+	int64_t current_ts;           /*current buffer generated timestamp*/
+	int64_t last_ts;              /*last real timestamp (in nanosec)*/
+	int64_t snd_begintime;        /*sound capture start ref time*/
+	int64_t ts_drift;             /*drift between real and generated ts*/
+
+	sample_t *capture_buff;       /*pointer to capture data*/
+	int capture_buff_size;
+
+	void *stream;                 /*pointer to audio stream (portaudio)*/
 
 } audio_context_t;
 
@@ -93,21 +113,35 @@ void set_audio_verbosity(int value);
  * asserts:
  *   none
  *
+ * returns: pointer to audio context (NULL if AUDIO_NONE)
+ */
+audio_context_t *audio_init(int api);
+
+/*
+ * start audio stream capture
+ * args:
+ *   audio_ctx - pointer to audio context data
+ *   device - device index in devices list
+ *   samprate - sample rate
+ *   channels - channels
+ *
+ * asserts:
+ *   audio_ctx is not null
+ *
  * returns: error code
  */
-int audio_init(int api);
-
+int audio_start(audio_context_t *audio_ctx, int device, int samprate, int channels);
 
 /*
  * close and clean audio context
  * args:
- *   none
+ *   audio_ctx - pointer to audio context data
  *
  * asserts:
  *   none
  *
  * returns: none
  */
-void audio_close();
+void audio_close(audio_context_t *audio_ctx);
 
 #endif
