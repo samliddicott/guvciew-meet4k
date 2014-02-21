@@ -94,6 +94,30 @@ void set_default_camera_button_action(int action)
 }
 
 /*
+ * sets the Image capture button label
+ * args:
+ *   label: Image capture button label
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void gui_set_image_capture_button_label(const char *label)
+{
+	switch(gui_api)
+	{
+		case GUI_NONE:
+			break;
+
+		case GUI_GTK3:
+		default:
+			gui_set_image_capture_button_label_gtk3(label);
+			break;
+	}
+}
+
+/*
  * gets the control profile file name
  * args:
  *   none

@@ -203,6 +203,18 @@ const char *get_photo_path();
 void set_photo_path(const char *path);
 
 /*
+ * sets the Image capture button label
+ * args:
+ *   label: Image capture button label
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void gui_set_image_capture_button_label(const char *label);
+
+/*
  * GUI initialization
  * args:
  *   device - pointer to device data we want to attach the gui for

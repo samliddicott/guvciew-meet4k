@@ -47,9 +47,11 @@ extern int is_control_panel;
 
 /* The main window*/
 static GtkWidget *main_window = NULL;
-
+/* The status bar*/
 static GtkWidget *status_bar = NULL;
 static int status_warning_id = 0;
+/*The photo capture button*/
+static GtkWidget *CapImageButt = NULL;
 
 /*
  * adds a message to the status bar
@@ -79,6 +81,24 @@ void set_status_message_gtk3(const char *message)
 GtkWidget *get_main_window()
 {
 	return main_window;
+}
+
+/*
+ * sets the Image capture button label
+ * args:
+ *   label: Image capture button label
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void gui_set_image_capture_button_label_gtk3(const char *label)
+{
+	if(!CapImageButt)
+		return;
+
+	gtk_button_set_label(GTK_BUTTON(CapImageButt), label);
 }
 
 /*
@@ -159,7 +179,6 @@ int gui_attach_gtk3(v4l2_dev_t *device, int width, int height)
 	gtk_widget_show(HButtonBox);
 
 	/*photo button*/
-	GtkWidget *CapImageButt = NULL;
 	if(check_photo_timer())
 	{
 		CapImageButt = gtk_button_new_with_label (_("Stop Cap. (I)"));

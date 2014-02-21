@@ -19,12 +19,6 @@
 #                                                                               #
 ********************************************************************************/
 
-/*******************************************************************************#
-#                                                                               #
-#  V4L2 core library                                                            #
-#                                                                               #
-********************************************************************************/
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/types.h>
@@ -33,6 +27,9 @@
 #include <string.h>
 #include <errno.h>
 #include <assert.h>
+/* support for internationalization - i18n */
+#include <locale.h>
+#include <libintl.h>
 
 #include "gviewv4l2core.h"
 #include "gviewrender.h"
@@ -120,6 +117,7 @@ void set_soft_autofocus(int value)
 void stop_photo_timer()
 {
 	my_photo_timer = 0;
+	gui_set_image_capture_button_label(_("Cap. Image (I)"));
 }
 
 /*
@@ -346,7 +344,7 @@ void *capture_loop(void *data)
 				{
 					save_image = 1;
 					my_last_photo_time = device->timestamp;
-					
+
 					if(my_options->photo_npics > 0)
 					{
 						if(my_photo_npics > 0)

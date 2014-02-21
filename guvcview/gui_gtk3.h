@@ -171,6 +171,18 @@ void gui_clean_gtk3_control_widgets_list();
 void set_status_message_gtk3(const char *message);
 
 /*
+ * sets the Image capture button label
+ * args:
+ *   label: Image capture button label
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void gui_set_image_capture_button_label_gtk3(const char *label);
+
+/*
  * get the main window widget
  * args:
  *    none

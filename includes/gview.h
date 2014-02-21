@@ -25,6 +25,9 @@
 #include <sys/types.h>
 #include <libintl.h>
 
+/*needed fo PACKAGE definition*/
+#include "../config.h"
+
 /* support for internationalization - i18n */
 #ifndef _
 #  define _(String) dgettext (PACKAGE, String)
