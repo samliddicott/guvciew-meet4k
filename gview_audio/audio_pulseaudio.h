@@ -23,11 +23,11 @@
 #                                                                               #
 ********************************************************************************/
 
-#ifndef GVIEWAUDIO_PORTAUDIO_H
-#define GVIEWAUDIO_PORTAUDIO_H
+#ifndef GVIEWAUDIO_PULSEAUDIO_H
+#define GVIEWAUDIO_PULSEAUDIO_H
 
 /*
- * init portaudio api
+ * init pulseaudio api
  * args:
  *    none
  *
@@ -37,10 +37,10 @@
  * returns: pointer to audio context data
  *     or NULL if error
  */
-audio_context_t *audio_init_portaudio();
+audio_context_t *audio_init_pulseaudio();
 
 /*
- * start portaudio stream capture
+ * start pulseaudio stream capture
  * args:
  *   audio_ctx - pointer to audio context data
  *   device - device index in devices list
@@ -52,10 +52,10 @@ audio_context_t *audio_init_portaudio();
  *
  * returns: error code
  */
-int audio_start_portaudio(audio_context_t *audio_ctx, int device, int samprate, int channels);
+int audio_start_pulseaudio(audio_context_t *audio_ctx, int device, int samprate, int channels);
 
 /*
- * stop portaudio stream capture
+ * stop and join the main loop iteration thread
  * args:
  *   audio_ctx - pointer to audio context data
  *
@@ -64,10 +64,10 @@ int audio_start_portaudio(audio_context_t *audio_ctx, int device, int samprate, 
  *
  * returns: error code
  */
-int audio_stop_portaudio(audio_context_t *audio_ctx);
+int audio_stop_pulseaudio(audio_context_t *audio_ctx);
 
 /*
- * close and clean audio context for portaudio api
+ * close and clean audio context for pulseaudio api
  * args:
  *   audio_ctx - pointer to audio context data
  *
@@ -76,6 +76,6 @@ int audio_stop_portaudio(audio_context_t *audio_ctx);
  *
  * returns: none
  */
-void audio_close_portaudio(audio_context_t *audio_ctx);
+void audio_close_pulseaudio(audio_context_t *audio_ctx);
 
 #endif

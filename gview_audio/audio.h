@@ -44,7 +44,4 @@
  */
 void audio_fill_buffer(audio_context_t *audio_ctx, int64_t ts);
 
-
-
-
 #endif

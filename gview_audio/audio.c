@@ -41,9 +41,13 @@
 #include <locale.h>
 #include <libintl.h>
 
+#include "../config.h"
 #include "gviewaudio.h"
 #include "gview.h"
 #include "audio_portaudio.h"
+#if HAS_PULSEAUDIO
+  #include "audio_pulseaudio.h"
+#endif
 
 /*audio device data mutex*/
 static __MUTEX_TYPE mutex;
@@ -187,21 +191,25 @@ void audio_fill_buffer(audio_context_t *audio_ctx, int64_t ts)
 	/*get the current write indexed buffer flag*/
 	audio_lock_mutex();
 	int flag = audio_buffers[buffer_write_index].flag;
+	audio_unlock_mutex();
 
 	if(flag == AUDIO_BUFF_FREE)
 	{
 		/*write max_frames and fill a buffer*/
 		memcpy(audio_buffers[buffer_write_index].data,
 			audio_ctx->capture_buff, audio_ctx->capture_buff_size);
-		audio_buffers[buffer_write_index].flag = AUDIO_BUFF_USED;
 		audio_buffers[buffer_write_index].timestamp = audio_ctx->current_ts;
+
+		audio_lock_mutex();
+		audio_buffers[buffer_write_index].flag = AUDIO_BUFF_USED;
 		NEXT_IND(buffer_write_index, AUDBUFF_NUM);
+		audio_unlock_mutex();
 	}
 	else
 	{
 		fprintf(stderr, "AUDIO: write buffer(%i) is still in use - dropping data\n", buffer_write_index);
 	}
-	audio_unlock_mutex();
+
 
 }
 
@@ -228,9 +236,11 @@ audio_context_t *audio_init(int api)
 		case AUDIO_NONE:
 			break;
 
+#if HAS_PULSEAUDIO
 		case AUDIO_PULSE:
+			audio_ctx = audio_init_pulseaudio();
 			break;
-
+#endif
 		case AUDIO_PORTAUDIO:
 		default:
 			audio_ctx = audio_init_portaudio();
@@ -265,12 +275,47 @@ int audio_start(audio_context_t *audio_ctx, int device, int samprate, int channe
 		case AUDIO_NONE:
 			break;
 
+#if HAS_PULSEAUDIO
 		case AUDIO_PULSE:
+			err = audio_start_pulseaudio(audio_ctx, device, samprate, channels);
 			break;
-
+#endif
 		case AUDIO_PORTAUDIO:
 		default:
 			err = audio_start_portaudio(audio_ctx, device, samprate, channels);
+			break;
+	}
+
+	return err;
+}
+
+/*
+ * stop audio stream capture
+ * args:
+ *   audio_ctx - pointer to audio context data
+ *
+ * asserts:
+ *   audio_ctx is not null
+ *
+ * returns: error code
+ */
+int audio_stop(audio_context_t *audio_ctx)
+{
+	int err =0;
+
+	switch(audio_api)
+	{
+		case AUDIO_NONE:
+			break;
+
+#if HAS_PULSEAUDIO
+		case AUDIO_PULSE:
+			err = audio_stop_pulseaudio(audio_ctx);
+			break;
+#endif
+		case AUDIO_PORTAUDIO:
+		default:
+			err = audio_stop_portaudio(audio_ctx);
 			break;
 	}
 
@@ -294,9 +339,11 @@ void audio_close(audio_context_t *audio_ctx)
 		case AUDIO_NONE:
 			break;
 
+#if HAS_PULSEAUDIO
 		case AUDIO_PULSE:
+			audio_close_pulseaudio(audio_ctx);
 			break;
-
+#endif
 		case AUDIO_PORTAUDIO:
 		default:
 			audio_close_portaudio(audio_ctx);

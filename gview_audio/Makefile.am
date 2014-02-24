@@ -7,6 +7,10 @@ c_sources = audio.c \
 			core_time.c \
 			audio_portaudio.c
 
+if HAVE_PULSEAUDIO
+c_sources += audio_pulseaudio.c
+endif
+
 
 #Install the headers in a versioned directory - guvcvideo-x.x/libgviewaudio:
 library_includedir=$(includedir)/$(PACKAGE)-$(PACKAGE_RELEASE)/$(GVIEWAUDIO_LIBRARY_NAME)

@@ -62,8 +62,9 @@ static int sample_index = 0;
  *
  * returns: error code (0 ok)
  */
-static int
-recordCallback (const void *inputBuffer, void *outputBuffer,
+static int recordCallback (
+	const void *inputBuffer,
+	void *outputBuffer,
 	unsigned long framesPerBuffer,
 	const PaStreamCallbackTimeInfo* timeInfo,
 	PaStreamCallbackFlags statusFlags,
@@ -74,7 +75,6 @@ recordCallback (const void *inputBuffer, void *outputBuffer,
 	/*asserts*/
 	assert(audio_ctx != NULL);
 
-	int res = 0;
 	int i = 0;
 
 	const sample_t *rptr = (const sample_t*) inputBuffer;
@@ -134,7 +134,7 @@ recordCallback (const void *inputBuffer, void *outputBuffer,
 
 	audio_ctx->last_ts = ts + (framesPerBuffer * frame_length);
 
-	if(res < 0 )
+	if(audio_ctx->stream_flag == AUDIO_STRM_OFF )
 		return (paComplete); /*capture stopped*/
 	else
 		return (paContinue); /*still capturing*/
@@ -298,7 +298,13 @@ int audio_start_portaudio(audio_context_t *audio_ctx, int device, int samprate, 
 	/*assertions*/
 	assert(audio_ctx != NULL);
 
-	audio_ctx->device = device;
+	if(device < 0)
+		audio_ctx->device = 0;
+	else if (device >= audio_ctx->num_input_dev)
+		audio_ctx->device = audio_ctx->num_input_dev - 1;
+	else
+		audio_ctx->device = device;
+
 	if(channels > audio_ctx->list_devices[audio_ctx->device].channels)
 		audio_ctx->channels = audio_ctx->list_devices[audio_ctx->device].channels;
 
@@ -325,6 +331,8 @@ int audio_start_portaudio(audio_context_t *audio_ctx, int device, int samprate, 
 	/*---------------------------- start recording Audio. ----------------------------- */
 	audio_ctx->snd_begintime = ns_time_monotonic();
 
+	audio_ctx->stream_flag = AUDIO_STRM_ON;
+
 	err = Pa_OpenStream(
 		&stream,                     /* stream */
 		&inputParameters,            /* inputParameters    */
@@ -348,6 +356,7 @@ int audio_start_portaudio(audio_context_t *audio_ctx, int device, int samprate, 
 		fprintf(stderr, "       Error message: %s\n", Pa_GetErrorText( err ) );
 
 		if(stream) Pa_AbortStream( stream );
+		audio_ctx->stream_flag = AUDIO_STRM_OFF;
 
 		return(-1);
 	}
@@ -357,6 +366,24 @@ int audio_start_portaudio(audio_context_t *audio_ctx, int device, int samprate, 
 		printf("AUDIO: latency of %8.3f msec\n", 1000 * stream_info->inputLatency);
 
 	return 0;
+}
+
+/*
+ * stop portaudio stream capture
+ * args:
+ *   audio_ctx - pointer to audio context data
+ *
+ * asserts:
+ *   audio_ctx is not null
+ *
+ * returns: error code
+ */
+int audio_stop_portaudio(audio_context_t *audio_ctx)
+{
+	/*assertions*/
+	assert(audio_ctx != NULL);
+
+	audio_ctx->stream_flag = AUDIO_STRM_OFF;
 }
 
 /*

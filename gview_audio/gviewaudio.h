@@ -44,6 +44,9 @@
 #define AUDIO_BUFF_FREE     (0)
 #define AUDIO_BUFF_USED     (1)
 
+/*Audio stream flag*/
+#define AUDIO_STRM_ON       (1)
+#define AUDIO_STRM_OFF      (0)
 
 /*Audio Effects*/
 #define AUD_FX_NOEF   (0)
@@ -90,6 +93,8 @@ typedef struct _audio_context_t
 
 	void *stream;                 /*pointer to audio stream (portaudio)*/
 
+	int stream_flag;             /*stream flag*/
+
 } audio_context_t;
 
 /*
@@ -131,6 +136,18 @@ audio_context_t *audio_init(int api);
  * returns: error code
  */
 int audio_start(audio_context_t *audio_ctx, int device, int samprate, int channels);
+
+/*
+ * stop audio stream capture
+ * args:
+ *   audio_ctx - pointer to audio context data
+ *
+ * asserts:
+ *   audio_ctx is not null
+ *
+ * returns: error code
+ */
+int audio_stop(audio_context_t *audio_ctx);
 
 /*
  * close and clean audio context

@@ -257,11 +257,12 @@ if test $enable_pulse = yes; then
 	AC_SUBST(PULSE_CFLAGS)
 	AC_SUBST(PULSE_LIBS)
 	if test "$has_pulse" = yes; then
-	  AC_DEFINE(PULSEAUDIO,1,[set to 1 if pulseaudio installed])
+	  AC_DEFINE(HAS_PULSEAUDIO, 1, [set to 1 if pulseaudio installed])
 	else
 	  AC_MSG_WARN(libpulse missing... pulse support will be disabled.);
 	  enable_pulse=no
 	fi
+	AM_CONDITIONAL(HAVE_PULSEAUDIO, test $enable_pulse = yes)
 fi
 
 dnl --------------------------------------------------------------------------
@@ -333,6 +334,7 @@ AC_MSG_NOTICE([
   ----------------------
 
   Prefix         : ${prefix}
+  Pulseaudio     : ${enable_pulse}
 
 ])
 
