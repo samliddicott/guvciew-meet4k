@@ -41,6 +41,14 @@ typedef struct _control_widgets_t
 	GtkWidget *widget2;             /*control widget 2*/
 } control_widgets_t;
 
+typedef struct _audio_widgets_t
+{
+	GtkWidget *api;          /* api control      */
+	GtkWidget *device;       /* device control   */
+	GtkWidget *channels;     /* channels control */
+	GtkWidget *samprate;     /* samprate control */
+} audio_widgets_t;
+
 /*
  * GUI initialization
  * args:

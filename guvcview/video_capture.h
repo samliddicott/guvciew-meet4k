@@ -24,6 +24,8 @@
 #include <inttypes.h>
 #include <sys/types.h>
 
+#include "gviewaudio.h"
+
 typedef struct _capture_loop_data_t
 {
 	void *options;
@@ -137,6 +139,30 @@ void video_capture_save_image();
  * returns: none
  */
 void request_format_update();
+
+/*
+ * create an audio context
+ * args:
+ *    api - audio api
+ *
+ * asserts:
+ *    none
+ *
+ * returns: pointer to audio context data
+ */
+audio_context_t *create_audio_context(int api);
+
+/*
+ * get audio context
+ * args:
+ *    none
+ *
+ * asserts:
+ *    none
+ *
+ * returns: pointer to audio context data (or NULL if no audio)
+ */
+audio_context_t *get_audio_context();
 
 /*
  * capture loop (should run in a separate thread)

@@ -39,6 +39,7 @@
 #include "gui_gtk3.h"
 #include "video_capture.h"
 
+
 extern int debug_level;
 
 int is_control_panel = 0;

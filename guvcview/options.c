@@ -100,6 +100,13 @@ static opt_values_t opt_values[] =
 		.opt_help = N_("Select render API (e.g none; sdl1)")
 	},
 	{
+		.opt_short = 'a',
+		.opt_long = "audio",
+		.req_arg = 1,
+		.opt_help_arg = N_("AUDIO_API"),
+		.opt_help = N_("Select audio API (e.g none; port; pulse)")
+	},
+	{
 		.opt_short = 'g',
 		.opt_long = "gui",
 		.req_arg = 1,
@@ -160,6 +167,7 @@ static options_t my_options =
 	.format = "MJPG",
 	.render = "sdl1",
 	.gui = "gtk3",
+	.audio = "port",
 	.capture = "mmap",
 	.prof_filename = NULL,
 	.photo_timer = 0,
@@ -427,6 +435,12 @@ int options_parse(int argc, char *argv[])
 				int str_size = strlen(optarg);
 				if(str_size == 4) /*gui is 4 chars*/
 					strncpy(my_options.gui, optarg, 4);
+				break;
+			}
+			case 'a':
+			{
+				/*audio api is at most 5 chars (p u l s e)*/
+				strncpy(my_options.audio, optarg, 5);
 				break;
 			}
 			case 'p':

@@ -615,6 +615,7 @@ audio_context_t *audio_init_pulseaudio()
         return NULL;
     }
 
+	audio_ctx->api = AUDIO_PULSE;
     return audio_ctx;
 }
 
@@ -700,6 +701,9 @@ void audio_close_pulseaudio(audio_context_t *audio_ctx)
 {
 	if(audio_ctx == NULL)
 		return;
+
+	if(audio_ctx->stream_flag == AUDIO_STRM_ON)
+		audio_stop_pulseaudio(audio_ctx);
 
 	if(audio_ctx->list_devices != NULL);
 		free(audio_ctx->list_devices);

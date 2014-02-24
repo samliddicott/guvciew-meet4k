@@ -13,6 +13,7 @@ guvcview_SOURCES = guvcview.c \
 				   gui_gtk3_menu.c \
 				   gui_gtk3_v4l2ctrls.c \
 				   gui_gtk3_videoctrls.c \
+				   gui_gtk3_audioctrls.c \
 				   gui_gtk3_callbacks.c
 
 guvcview_CFLAGS = $(GUVCVIEW_CFLAGS) \
@@ -26,14 +27,16 @@ guvcview_CFLAGS = $(GUVCVIEW_CFLAGS) \
 		  $(DEPS_CFLAGS) $(EXTRA_CFLAGS) $(PTHREAD_CFLAGS) \
 		  $(EXTRA_CFLAGS) -I$(top_srcdir) -I$(top_srcdir)/includes \
 		  -I$(top_srcdir)/gview_v4l2core \
-		  -I$(top_srcdir)/gview_render
+		  -I$(top_srcdir)/gview_render \
+		  -I$(top_srcdir)/gview_audio
 
 guvcview_LDFLAGS = $(LIBINTL)
 
 guvcview_LDADD = $(GUVCVIEW_LIBS) \
 		 $(PTHREAD_LIBS) \
                    ../gview_v4l2core/$(GVIEWV4L2CORE_LIBRARY_NAME).la \
-                   ../gview_render/$(GVIEWRENDER_LIBRARY_NAME).la
+                   ../gview_render/$(GVIEWRENDER_LIBRARY_NAME).la \
+                   ../gview_audio/$(GVIEWAUDIO_LIBRARY_NAME).la
 
 localedir = $(datadir)/locale
 DEFS = -DLOCALEDIR=\"$(localedir)\" @DEFS@

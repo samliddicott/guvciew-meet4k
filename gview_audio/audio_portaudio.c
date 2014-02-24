@@ -277,6 +277,8 @@ audio_context_t *audio_init_portaudio()
 
 	audio_portaudio_list_devices(audio_ctx);
 
+	audio_ctx->api = AUDIO_PORTAUDIO;
+
 	return audio_ctx;
 }
 

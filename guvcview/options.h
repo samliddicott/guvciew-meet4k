@@ -32,6 +32,7 @@ typedef struct _options_t
 	char format[5];  /*pixelformat fourcc*/
 	char render[5];  /*render api*/
 	char gui[5];     /*gui api*/
+	char audio[6];   /*audio api - none; port; pulse*/
 	char capture[5]; /*capture method: read or mmap*/
 	char *prof_filename; /*profile_filename (if set load it on start)*/
 	double photo_timer; /*photo capture timer interval in seconds (double)*/

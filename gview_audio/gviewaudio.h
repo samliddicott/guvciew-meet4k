@@ -76,6 +76,7 @@ typedef struct _audio_device_t
 
 typedef struct _audio_context_t
 {
+	int api;                      /*audio api for this context*/
 	int num_input_dev;            /*number of audio input devices in list*/
 	audio_device_t *list_devices; /*audio input devices list*/
 	int device;                   /*current device list index*/
@@ -107,7 +108,7 @@ typedef struct _audio_context_t
  *
  * returns: none
  */
-void set_audio_verbosity(int value);
+void audio_set_verbosity(int value);
 
 /*
  * audio initialization

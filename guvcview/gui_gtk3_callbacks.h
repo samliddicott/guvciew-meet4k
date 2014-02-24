@@ -386,4 +386,56 @@ void autofocus_changed (GtkToggleButton * toggle, void *data);
  */
 void setfocus_clicked (GtkButton * button, void *data);
 
+/*
+ * audio api list box changed event
+ * args:
+ *    combo - widget that generated the event
+ *    data - pointer to user data
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void audio_api_changed(GtkComboBox *combo, void *data);
+
+/*
+ * audio device list box changed event
+ * args:
+ *    combo - widget that generated the event
+ *    data - pointer to user data
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void audio_device_changed(GtkComboBox *combo, void *data);
+
+/*
+ * audio samplerate list box changed event
+ * args:
+ *    combo - widget that generated the event
+ *    data - pointer to user data
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void audio_samplerate_changed(GtkComboBox *combo, void *data);
+
+/*
+ * audio channels list box changed event
+ * args:
+ *    combo - widget that generated the event
+ *    data - pointer to user data
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void audio_channels_changed(GtkComboBox *combo, void *data);
+
 #endif

@@ -1017,7 +1017,6 @@ void format_changed(GtkComboBox *wgtInpType, void *data)
 	v4l2core_prepare_new_format(device, format);
 	/*change resolution*/
 	gtk_combo_box_set_active(GTK_COMBO_BOX(wgtResolution), defres);
-
 }
 
 /*
@@ -1085,4 +1084,189 @@ void autofocus_changed (GtkToggleButton * toggle, void *data)
 void setfocus_clicked (GtkButton * button, void *data)
 {
 	set_soft_focus(1);
+}
+
+/******************* AUDIO CALLBACKS *************************/
+
+/*
+ * audio device list box changed event
+ * args:
+ *    combo - widget that generated the event
+ *    data - pointer to user data
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void audio_device_changed(GtkComboBox *combo, void *data)
+{
+	int index = gtk_combo_box_get_active(combo);
+
+	/*update the audio context for the new api*/
+	audio_context_t *audio_ctx = get_audio_context();
+
+	audio_ctx->device = index;
+}
+
+/*
+ * audio samplerate list box changed event
+ * args:
+ *    combo - widget that generated the event
+ *    data - pointer to user data
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void audio_samplerate_changed(GtkComboBox *combo, void *data)
+{
+	int index = gtk_combo_box_get_active(combo);
+
+	/*update the audio context for the new api*/
+	audio_context_t *audio_ctx = get_audio_context();
+
+	switch(index)
+	{
+		case 0:
+			audio_ctx->samprate = audio_ctx->list_devices[audio_ctx->device].samprate;
+			break;
+		case 1:
+			audio_ctx->samprate = 7350;
+			break;
+		case 2:
+			audio_ctx->samprate = 8000;
+			break;
+		case 3:
+			audio_ctx->samprate = 11025;
+			break;
+		case 4:
+			audio_ctx->samprate = 12000;
+			break;
+		case 5:
+			audio_ctx->samprate = 16000;
+			break;
+		case 6:
+			audio_ctx->samprate = 22050;
+			break;
+		case 7:
+			audio_ctx->samprate = 24000;
+			break;
+		case 8:
+			audio_ctx->samprate = 32000;
+			break;
+		case 9:
+			audio_ctx->samprate = 44100;
+			break;
+		case 10:
+			audio_ctx->samprate = 48000;
+			break;
+		case 11:
+			audio_ctx->samprate = 64000;
+			break;
+		case 12:
+			audio_ctx->samprate = 88200;
+			break;
+		case 13:
+			audio_ctx->samprate = 96000;
+			break;
+		default:
+			audio_ctx->samprate = 44100;
+			break;
+	}
+}
+
+/*
+ * audio channels list box changed event
+ * args:
+ *    combo - widget that generated the event
+ *    data - pointer to user data
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void audio_channels_changed(GtkComboBox *combo, void *data)
+{
+	int index = gtk_combo_box_get_active(combo);
+
+	/*update the audio context for the new api*/
+	audio_context_t *audio_ctx = get_audio_context();
+
+	switch(index)
+	{
+		case 0:
+			audio_ctx->channels = audio_ctx->list_devices[audio_ctx->device].channels;
+			break;
+		case 1:
+			audio_ctx->channels =  1;
+			break;
+		default:
+		case 2:
+			audio_ctx->channels = 2;
+			break;
+	}
+
+	if(audio_ctx->channels > 2)
+		audio_ctx->channels = 2; /*limit to stereo*/
+}
+
+/*
+ * audio api list box changed event
+ * args:
+ *    combo - widget that generated the event
+ *    data - pointer to user data
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void audio_api_changed(GtkComboBox *combo, void *data)
+{
+	audio_widgets_t *my_audio_widgets = (audio_widgets_t *) data;
+
+	int api = gtk_combo_box_get_active(combo);
+
+	int i = 0;
+
+	/*update the audio context for the new api*/
+	audio_context_t *audio_ctx = create_audio_context(api);
+
+	if(api == AUDIO_NONE || audio_ctx == NULL)
+	{
+		gtk_widget_set_sensitive(my_audio_widgets->device, FALSE);
+		gtk_widget_set_sensitive(my_audio_widgets->channels, FALSE);
+		gtk_widget_set_sensitive(my_audio_widgets->samprate, FALSE);
+	}
+	else
+	{
+		g_signal_handlers_block_by_func(
+			GTK_COMBO_BOX_TEXT(my_audio_widgets->device),
+			G_CALLBACK (audio_device_changed),
+			my_audio_widgets);
+
+		/* clear out the old device list... */
+		GtkListStore *store = GTK_LIST_STORE(gtk_combo_box_get_model (GTK_COMBO_BOX(my_audio_widgets->device)));
+		gtk_list_store_clear(store);
+
+		for(i = 0; i < audio_ctx->num_input_dev; ++i)
+		{
+			gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(my_audio_widgets->device), audio_ctx->list_devices[i].name);
+		}
+
+		gtk_combo_box_set_active(GTK_COMBO_BOX(my_audio_widgets->device), audio_ctx->device);
+
+		g_signal_handlers_unblock_by_func(
+			GTK_COMBO_BOX_TEXT(my_audio_widgets->device),
+			G_CALLBACK (audio_device_changed),
+			my_audio_widgets);
+
+		gtk_widget_set_sensitive (my_audio_widgets->device, TRUE);
+		gtk_widget_set_sensitive(my_audio_widgets->channels, TRUE);
+		gtk_widget_set_sensitive(my_audio_widgets->samprate, TRUE);
+	}
+
 }

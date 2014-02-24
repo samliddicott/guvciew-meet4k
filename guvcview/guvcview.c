@@ -29,6 +29,7 @@
 #include "gviewrender.h"
 #include "core_time.h"
 
+#include "../config.h"
 #include "video_capture.h"
 #include "options.h"
 #include "gui.h"
@@ -85,7 +86,7 @@ int main(int argc, char *argv[])
 	v4l2_dev_t *device = v4l2core_init_dev(my_options->device);
 
 	/*select capture method*/
-	if(strcmp(my_options->capture, "read") == 0)
+	if(strcasecmp(my_options->capture, "read") == 0)
 		v4l2core_set_capture_method(device, IO_READ);
 	else
 		v4l2core_set_capture_method(device, IO_MMAP);
@@ -94,21 +95,32 @@ int main(int argc, char *argv[])
 	/*select render API*/
 	int render = RENDER_SDL1;
 
-	if(strcmp(my_options->render, "none") == 0)
+	if(strcasecmp(my_options->render, "none") == 0)
 		render = RENDER_NONE;
-	else if(strcmp(my_options->render, "sdl1") == 0)
-		render = RENDER_SDL1;
-	else
+	else if(strcasecmp(my_options->render, "sdl1") == 0)
 		render = RENDER_SDL1;
 
+
+	/*select gui API*/
 	int gui = GUI_GTK3;
 
-	if(strcmp(my_options->gui, "none") == 0)
+	if(strcasecmp(my_options->gui, "none") == 0)
 		gui = GUI_NONE;
-	else if(strcmp(my_options->render, "gtk3") == 0)
+	else if(strcasecmp(my_options->render, "gtk3") == 0)
 		gui = GUI_GTK3;
-	else
-		gui = GUI_GTK3;
+
+
+	/*select audio API*/
+	int audio = AUDIO_PORTAUDIO;
+
+	if(strcasecmp(my_options->audio, "none") == 0)
+		audio = AUDIO_NONE;
+	else if(strcasecmp(my_options->audio, "port") == 0)
+		audio = AUDIO_PORTAUDIO;
+#if HAS_PULSEAUDIO
+	else if(strcasecmp(my_options->audio, "pulse") == 0)
+		audio = AUDIO_PULSE;
+#endif
 
 	if(device)
 		set_render_flag(render);
@@ -121,6 +133,9 @@ int main(int argc, char *argv[])
 	/*check if need to load a profile*/
 	if(my_options->prof_filename)
 		v4l2core_load_control_profile(device, my_options->prof_filename);
+
+	/*create the inital audio context (stored staticly in video_capture)*/
+	create_audio_context(audio);
 
 	/*start capture thread if not in control_panel mode*/
 	if(!my_options->control_panel)

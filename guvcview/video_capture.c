@@ -59,6 +59,9 @@ static int do_soft_autofocus = 0;
 /*single time focus (can happen during continues focus)*/
 static int do_soft_focus = 0;
 
+/*pointer to audio context data*/
+static audio_context_t *my_audio_ctx = NULL;
+
 /*
  * set render flag
  * args:
@@ -200,6 +203,41 @@ int quit_callback(void *data)
 void video_capture_save_image()
 {
 	save_image = 1;
+}
+
+/*
+ * create an audio context
+ * args:
+ *    api - audio api
+ *
+ * asserts:
+ *    none
+ *
+ * returns: pointer to audio context data
+ */
+audio_context_t *create_audio_context(int api)
+{
+	if(my_audio_ctx != NULL)
+		audio_close(my_audio_ctx);
+
+	my_audio_ctx = audio_init(api);
+
+	return my_audio_ctx;
+}
+
+/*
+ * get audio context
+ * args:
+ *    none
+ *
+ * asserts:
+ *    none
+ *
+ * returns: pointer to audio context data (or NULL if no audio)
+ */
+audio_context_t *get_audio_context()
+{
+	return my_audio_ctx;
 }
 
 /*
