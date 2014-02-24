@@ -1254,7 +1254,9 @@ void audio_api_changed(GtkComboBox *combo, void *data)
 
 		for(i = 0; i < audio_ctx->num_input_dev; ++i)
 		{
-			gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(my_audio_widgets->device), audio_ctx->list_devices[i].name);
+			gtk_combo_box_text_append_text(
+				GTK_COMBO_BOX_TEXT(my_audio_widgets->device), 
+				audio_ctx->list_devices[i].description);
 		}
 
 		gtk_combo_box_set_active(GTK_COMBO_BOX(my_audio_widgets->device), audio_ctx->device);

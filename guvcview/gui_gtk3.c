@@ -307,10 +307,43 @@ int gui_attach_gtk3(v4l2_dev_t *device, int width, int height)
 		gtk_grid_attach (GTK_GRID(tab_2), tab_2_label, 1, 0, 1, 1);
 
 		gtk_notebook_append_page(GTK_NOTEBOOK(tab_box), scroll_2, tab_2);
+	
+		/*----------------------- Audio controls Tab ------------------------------*/
+
+		GtkWidget *scroll_3 = gtk_scrolled_window_new(NULL,NULL);
+		gtk_scrolled_window_set_placement(GTK_SCROLLED_WINDOW(scroll_3), GTK_CORNER_TOP_LEFT);
+		gtk_widget_show(scroll_3);
+
+		/*
+		 * viewport is only needed for gtk < 3.8
+		 * for 3.8 and above controls tab can be directly added to scroll1
+		 */
+		GtkWidget* viewport3 = gtk_viewport_new(NULL,NULL);
+		gtk_widget_show(viewport3);
+
+		gtk_container_add(GTK_CONTAINER(scroll_3), viewport3);
+		
+		gui_attach_gtk3_audioctrls(viewport3);
+		
+		GtkWidget *tab_3 = gtk_grid_new();
+		gtk_widget_show (tab_3);
+
+		GtkWidget *tab_3_label = gtk_label_new(_("Audio Controls"));
+		gtk_widget_show (tab_3_label);
+		/** check for files */
+		gchar *tab_3_icon_path = g_strconcat (PACKAGE_DATA_DIR,"/pixmaps/guvcview/audio_controls.png",NULL);
+		/** don't test for file - use default empty image if load fails */
+		/** get icon image*/
+		GtkWidget *tab_3_icon = gtk_image_new_from_file(tab_3_icon_path);
+		gtk_widget_show (tab_3_icon);
+
+		g_free(tab_3_icon_path);
+		gtk_grid_attach (GTK_GRID(tab_3), tab_3_icon, 0, 0, 1, 1);
+		gtk_grid_attach (GTK_GRID(tab_3), tab_3_label, 1, 0, 1, 1);
+
+		gtk_notebook_append_page(GTK_NOTEBOOK(tab_box), scroll_3, tab_3);
 	}
-
-
-
+	
 	/* Attach the notebook (tabs) */
 	gtk_box_pack_start(GTK_BOX(maintable), tab_box, TRUE, TRUE, 2);
 

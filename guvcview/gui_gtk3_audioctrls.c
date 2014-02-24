@@ -137,7 +137,9 @@ int gui_attach_gtk3_audioctrls(GtkWidget *parent)
 	{
 		for(i = 0; i < audio_ctx->num_input_dev; ++i)
 		{
-			gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(my_audio_widgets.device), audio_ctx->list_devices[i].name);
+			gtk_combo_box_text_append_text(
+				GTK_COMBO_BOX_TEXT(my_audio_widgets.device), 
+				audio_ctx->list_devices[i].description);
 		}
 
 		gtk_widget_set_sensitive (my_audio_widgets.device, TRUE);
@@ -215,6 +217,8 @@ int gui_attach_gtk3_audioctrls(GtkWidget *parent)
 	gtk_grid_attach(GTK_GRID(audio_controls_grid), my_audio_widgets.channels, 1, line, 1, 1);
 	gtk_widget_show (my_audio_widgets.channels);
 
+	gtk_combo_box_set_active(GTK_COMBO_BOX(my_audio_widgets.channels), 0); /*device default*/
+	
 	if(audio_ctx != NULL)
 		gtk_widget_set_sensitive (my_audio_widgets.channels, TRUE);
 	else
@@ -223,6 +227,8 @@ int gui_attach_gtk3_audioctrls(GtkWidget *parent)
 	g_signal_connect (GTK_COMBO_BOX_TEXT(my_audio_widgets.channels), "changed",
 		G_CALLBACK (audio_channels_changed), &my_audio_widgets);
 
-
+	/*add control grid to parent container*/
+	gtk_container_add(GTK_CONTAINER(parent), audio_controls_grid);
+	
 	return 0;
 }

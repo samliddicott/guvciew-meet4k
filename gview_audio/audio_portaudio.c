@@ -275,6 +275,8 @@ audio_context_t *audio_init_portaudio()
 {
 	audio_context_t *audio_ctx = calloc(1, sizeof(audio_context_t));
 
+	Pa_Initialize();
+	
 	audio_portaudio_list_devices(audio_ctx);
 
 	audio_ctx->api = AUDIO_PORTAUDIO;
@@ -400,6 +402,8 @@ int audio_stop_portaudio(audio_context_t *audio_ctx)
  */
 void audio_close_portaudio(audio_context_t *audio_ctx)
 {
+	Pa_Terminate();
+	
 	if(audio_ctx == NULL)
 		return;
 
