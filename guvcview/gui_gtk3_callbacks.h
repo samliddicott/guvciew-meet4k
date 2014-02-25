@@ -32,6 +32,7 @@
 #include <glib/gi18n.h>
 
 #include "gviewv4l2core.h"
+#include "gviewencoder.h"
 
 /*
  * delete event (close window)
@@ -100,7 +101,7 @@ void control_defaults_clicked (GtkWidget *item, void *data);
 void controls_profile_clicked (GtkWidget *item, void *data);
 
 /*
- * photo prefix toggled event
+ * photo suffix toggled event
  * args:
  *    item - widget that generated the event
  *    data - pointer to user data
@@ -111,6 +112,19 @@ void controls_profile_clicked (GtkWidget *item, void *data);
  * returns: none
  */
 void photo_sufix_toggled (GtkWidget *item, void *data);
+
+/*
+ * video suffix toggled event
+ * args:
+ *    item - widget that generated the event
+ *    data - pointer to user data
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void video_sufix_toggled (GtkWidget *item, void *data);
 
 /*
  * photo file clicked event
@@ -124,6 +138,19 @@ void photo_sufix_toggled (GtkWidget *item, void *data);
  * returns: none
  */
 void photo_file_clicked (GtkWidget *item, void *data);
+
+/*
+ * video file clicked event
+ * args:
+ *   item - pointer to widget that generated the event
+ *   data - pointer to user data
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void video_file_clicked (GtkWidget *item, void *data);
 
 /*
  * capture image button clicked event

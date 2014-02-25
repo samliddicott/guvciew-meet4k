@@ -138,6 +138,7 @@ int main(int argc, char *argv[])
 	/*create the inital audio context (stored staticly in video_capture)*/
 	create_audio_context(audio);
 
+	encoder_set_verbosity(debug_level);
 	/*init the encoder*/
 	encoder_init();
 

@@ -38,6 +38,7 @@
 #include "gui.h"
 #include "gui_gtk3.h"
 #include "video_capture.h"
+#include "gviewencoder.h"
 
 
 extern int debug_level;
@@ -63,6 +64,15 @@ static char *photo_path = NULL;
 static int photo_sufix_flag = 1;
 /*photo format*/
 static int photo_format = IMG_FMT_JPG;
+
+/*video basename*/
+static char *video_name = NULL;
+/*video path*/
+static char *video_path = NULL;
+/*video sufix flag*/
+static int video_sufix_flag = 1;
+/*photo format*/
+static int video_muxer = ENCODER_MUX_MKV;
 
 /*
  * gets the default camera button action
@@ -188,6 +198,138 @@ void set_profile_path(const char *path)
 		free(profile_path);
 
 	profile_path = strdup(path);
+}
+
+/*
+ * gets video sufix flag
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: video sufix flag
+ */
+int get_video_sufix_flag()
+{
+	return video_sufix_flag;
+}
+
+/*
+ * sets the video sufix flag
+ * args:
+ *   flag: video sufix flag
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void set_video_sufix_flag(int flag)
+{
+	video_sufix_flag = flag;
+}
+
+/*
+ * gets video muxer
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: video muxer
+ */
+int get_video_muxer()
+{
+	return video_muxer;
+}
+
+/*
+ * sets video muxer
+ * args:
+ *   muxer - video muxer (ENCODER_MUX_[MKV|WEBM|AVI])
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void set_video_muxer(int muxer)
+{
+	video_muxer = muxer;
+}
+
+/*
+ * gets the video file basename
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: video file basename
+ */
+const char *get_video_name()
+{
+	if(!video_name)
+		video_name = strdup("my_video.mkv");
+
+	return video_name;
+}
+
+/*
+ * sets the video file basename
+ * args:
+ *   name: video file basename
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void set_video_name(const char *name)
+{
+	if(video_name != NULL)
+		free(video_name);
+
+	video_name = strdup(name);
+}
+
+/*
+ * gets the video file path (to dir)
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: video file path
+ */
+const char *get_video_path()
+{
+	if(!video_path)
+		video_path = strdup(getenv("HOME"));
+
+	return video_path;
+}
+
+/*
+ * sets video path (to dir)
+ * args:
+ *   path: video file path
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void set_video_path(const char *path)
+{
+	if(video_path != NULL)
+		free(video_path);
+
+	video_path = strdup(path);
 }
 
 /*
@@ -413,6 +555,16 @@ void gui_close()
 	if(profile_path != NULL)
 		free(profile_path);
 	profile_path = NULL;
+	if(debug_level > 1)
+		printf("GUVCVIEW: free video name\n");
+	if(video_name != NULL)
+		free(video_name);
+	video_name = NULL;
+	if(debug_level > 1)
+		printf("GUVCVIEW: free video path\n");
+	if(video_path != NULL)
+		free(video_path);
+	video_path = NULL;
 	if(debug_level > 1)
 		printf("GUVCVIEW: free photo name\n");
 	if(photo_name != NULL)

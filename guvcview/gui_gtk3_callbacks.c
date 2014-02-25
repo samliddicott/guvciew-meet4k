@@ -38,6 +38,7 @@
 
 #include "gviewv4l2core.h"
 #include "video_capture.h"
+#include "gviewencoder.h"
 #include "gui.h"
 #include "gui_gtk3.h"
 #include "core_io.h"
@@ -186,7 +187,7 @@ void controls_profile_clicked (GtkWidget *item, void *data)
 }
 
 /*
- * photo prefix toggled event
+ * photo suffix toggled event
  * args:
  *    item - widget that generated the event
  *    data - pointer to user data
@@ -202,6 +203,25 @@ void photo_sufix_toggled (GtkWidget *item, void *data)
 
 	int flag = gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(item)) ? 1 : 0;
 	set_photo_sufix_flag(flag);
+}
+
+/*
+ * video suffix toggled event
+ * args:
+ *    item - widget that generated the event
+ *    data - pointer to user data
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void video_sufix_toggled (GtkWidget *item, void *data)
+{
+    //v4l2_dev_t *device = (v4l2_dev_t *) data;
+
+	int flag = gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(item)) ? 1 : 0;
+	set_video_sufix_flag(flag);
 }
 
 /*
@@ -248,6 +268,56 @@ static void photo_update_extension (GtkComboBox *chooser, GtkWidget *file_dialog
 			gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (file_dialog),
 				set_file_extension(basename, "jpg"));
 			gtk_file_filter_add_pattern(filter, "*.jpg");
+			break;
+	}
+
+	gtk_file_chooser_set_filter(GTK_FILE_CHOOSER (file_dialog), filter);
+
+	if(filename)
+		free(filename);
+	if(basename)
+		free(basename);
+}
+
+/*
+ * called from video muxer format combo in file dialog
+ * args:
+ *    chooser - format combo that caused the event
+ *    file_dialog - chooser parent
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+static void video_update_extension (GtkComboBox *chooser, GtkWidget *file_dialog)
+{
+	int format = gtk_combo_box_get_active (chooser);
+
+	set_video_muxer(format);
+
+	char *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER (file_dialog));
+	char *basename = get_file_basename(filename);
+
+	GtkFileFilter *filter = gtk_file_filter_new();
+
+	switch(format)
+	{
+		case ENCODER_MUX_WEBM:
+			gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (file_dialog),
+				set_file_extension(basename, "webm"));
+			gtk_file_filter_add_pattern(filter, "*.webm");
+			break;
+		case ENCODER_MUX_AVI:
+			gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (file_dialog),
+				set_file_extension(basename, "avi"));
+			gtk_file_filter_add_pattern(filter, "*.avi");
+			break;
+		default:
+		case ENCODER_MUX_MKV:
+			gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (file_dialog),
+				set_file_extension(basename, "mkv"));
+			gtk_file_filter_add_pattern(filter, "*.mkv");
 			break;
 	}
 
@@ -376,6 +446,122 @@ void photo_file_clicked (GtkWidget *item, void *data)
 		}
 		else
 			fprintf(stderr, "GUVCVIEW: no file extension for image file %s\n",
+				filename);
+	}
+	gtk_widget_destroy (FileDialog);
+}
+
+/*
+ * video file clicked event
+ * args:
+ *   item - pointer to widget that generated the event
+ *   data - pointer to user data
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void video_file_clicked (GtkWidget *item, void *data)
+{
+	//v4l2_dev_t *device = (v4l2_dev_t *) data;
+
+	GtkWidget *FileDialog;
+
+	GtkWidget *main_window = get_main_window();
+
+	FileDialog = gtk_file_chooser_dialog_new (_("Video file name"),
+			GTK_WINDOW(main_window),
+			GTK_FILE_CHOOSER_ACTION_SAVE,
+			GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+			GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
+			NULL);
+	gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (FileDialog), TRUE);
+
+	/** create a file filter */
+	GtkFileFilter *filter = gtk_file_filter_new();
+
+	GtkWidget *FBox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
+	GtkWidget *format_label = gtk_label_new(_("File Format:"));
+	gtk_widget_set_halign (FBox, GTK_ALIGN_FILL);
+	gtk_widget_set_hexpand (FBox, TRUE);
+	gtk_widget_set_hexpand (format_label, FALSE);
+	gtk_widget_show(FBox);
+	gtk_widget_show(format_label);
+	gtk_box_pack_start(GTK_BOX(FBox), format_label, FALSE, FALSE, 2);
+
+	GtkWidget *VideoFormat = gtk_combo_box_text_new ();
+	gtk_widget_set_halign (VideoFormat, GTK_ALIGN_FILL);
+	gtk_widget_set_hexpand (VideoFormat, TRUE);
+
+	gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(VideoFormat),_("Matroska  (*.mkv)"));
+	gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(VideoFormat),_("WebM (*.webm)"));
+	gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(VideoFormat),_("Avi  (*.avi)"));
+
+	gtk_combo_box_set_active(GTK_COMBO_BOX(VideoFormat), get_video_muxer());
+	gtk_box_pack_start(GTK_BOX(FBox), VideoFormat, FALSE, FALSE, 2);
+	gtk_widget_show(VideoFormat);
+
+	/**add a pattern to the filter*/
+	switch(get_video_muxer())
+	{
+		case ENCODER_MUX_WEBM:
+			gtk_file_filter_add_pattern(filter, "*.webm");
+			break;
+		case ENCODER_MUX_AVI:
+			gtk_file_filter_add_pattern(filter, "*.avi");
+			break;
+		default:
+		case ENCODER_MUX_MKV:
+			gtk_file_filter_add_pattern(filter, "*.mkv");
+			break;
+		
+	}
+
+	gtk_file_chooser_set_filter(GTK_FILE_CHOOSER (FileDialog), filter);
+	gtk_file_chooser_set_extra_widget(GTK_FILE_CHOOSER (FileDialog), FBox);
+
+	g_signal_connect (GTK_COMBO_BOX(VideoFormat), "changed",
+		G_CALLBACK (video_update_extension), FileDialog);
+
+	gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (FileDialog),
+		get_video_name());
+
+	gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (FileDialog),
+		get_video_path());
+
+	if (gtk_dialog_run (GTK_DIALOG (FileDialog)) == GTK_RESPONSE_ACCEPT)
+	{
+		const char *filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (FileDialog));
+
+		char *basename = get_file_basename(filename);
+		if(basename)
+		{
+			set_video_name(basename);
+			free(basename);
+		}
+		char *pathname = get_file_pathname(filename);
+		if(pathname)
+		{
+			set_video_path(pathname);
+			free(pathname);
+		}
+
+		/*get image format*/
+		char *ext = get_file_extension(filename);
+		if(ext)
+		{
+			if( strcasecmp(ext, "mkv") == 0)
+				set_video_muxer(ENCODER_MUX_MKV);
+			else if ( strcasecmp(ext, "webm") == 0 )
+				set_video_muxer(ENCODER_MUX_WEBM);
+			else if ( strcasecmp(ext, "avi") == 0 )
+				set_video_muxer(ENCODER_MUX_AVI);
+			
+			free(ext);
+		}
+		else
+			fprintf(stderr, "GUVCVIEW: no file extension for video file %s\n",
 				filename);
 	}
 	gtk_widget_destroy (FileDialog);

@@ -151,6 +151,30 @@ int gui_attach_gtk3_menu(v4l2_dev_t *device, GtkWidget *parent)
 		gtk_menu_shell_append(GTK_MENU_SHELL(photo_menu), photo_file);
 		gtk_menu_shell_append(GTK_MENU_SHELL(photo_menu), photo_sufix);
 		gtk_menu_shell_append(GTK_MENU_SHELL(menubar), menu_photo_top);
+		
+		/*video menu*/
+		GtkWidget *video_menu = gtk_menu_new();
+		
+		GtkWidget *menu_video_top = gtk_menu_item_new_with_label(_("Video"));
+		GtkWidget *video_file = gtk_menu_item_new_with_label(_("File"));
+		GtkWidget *video_sufix = gtk_check_menu_item_new_with_label(_("Increment Filename"));
+
+		gtk_widget_show (menu_video_top);
+		gtk_widget_show (video_file);
+		gtk_widget_show (video_sufix);
+
+		g_signal_connect (GTK_MENU_ITEM(video_file), "activate",
+			G_CALLBACK (video_file_clicked), device);
+
+		/** add callback to Append sufix */
+		gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (video_sufix), get_video_sufix_flag() > 0);
+		g_signal_connect (GTK_CHECK_MENU_ITEM(video_sufix), "toggled",
+			G_CALLBACK (video_sufix_toggled), device);
+		
+		gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu_video_top), video_menu);
+		gtk_menu_shell_append(GTK_MENU_SHELL(video_menu), video_file);
+		gtk_menu_shell_append(GTK_MENU_SHELL(video_menu), video_sufix);
+		gtk_menu_shell_append(GTK_MENU_SHELL(menubar), menu_video_top);
 	}
 
 

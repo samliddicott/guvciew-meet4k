@@ -107,6 +107,102 @@ const char *get_profile_path();
 void set_profile_path(const char *path);
 
 /*
+ * gets video sufix flag
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: video sufix flag
+ */
+int get_video_sufix_flag();
+
+/*
+ * sets the video sufix flag
+ * args:
+ *   flag: video sufix flag
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void set_video_sufix_flag(int flag);
+
+/*
+ * gets video muxer
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: video muxer
+ */
+int get_video_muxer();
+
+/*
+ * sets video muxer
+ * args:
+ *   muxer - video muxer (ENCODER_MUX_[MKV|WEBM|AVI])
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void set_video_muxer(int muxer);
+
+/*
+ * gets the video file basename
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: video file basename
+ */
+const char *get_video_name();
+
+/*
+ * sets the video file basename
+ * args:
+ *   name: video file basename
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void set_video_name(const char *name);
+
+/*
+ * gets the video file path (to dir)
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: video file path
+ */
+const char *get_video_path();
+
+/*
+ * sets video path (to dir)
+ * args:
+ *   path: video file path
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void set_video_path(const char *path);
+
+/*
  * gets photo sufix flag
  * args:
  *   none
