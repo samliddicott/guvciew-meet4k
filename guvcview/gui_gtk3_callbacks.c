@@ -146,12 +146,20 @@ void controls_profile_clicked (GtkWidget *item, void *data)
 
 	if (save_or_load > 0) /*save*/
 	{
-		FileDialog = gtk_file_chooser_dialog_new (_("Save Profile"),
+		/*FileDialog = gtk_file_chooser_dialog_new (_("Save Profile"),
 			GTK_WINDOW(main_window),
 			GTK_FILE_CHOOSER_ACTION_SAVE,
 			GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
 			GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
 			NULL);
+		*/
+		FileDialog = gtk_file_chooser_dialog_new (_("Save Profile"),
+			GTK_WINDOW(main_window),
+			GTK_FILE_CHOOSER_ACTION_OPEN,
+			 _("_Cancel"), GTK_RESPONSE_CANCEL,
+			 _("_Save"), GTK_RESPONSE_ACCEPT,
+			NULL);
+		
 		gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (FileDialog), TRUE);
 
 		gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (FileDialog),
@@ -159,11 +167,18 @@ void controls_profile_clicked (GtkWidget *item, void *data)
 	}
 	else /*load*/
 	{
-		FileDialog = gtk_file_chooser_dialog_new (_("Load Profile"),
+		/*FileDialog = gtk_file_chooser_dialog_new (_("Load Profile"),
 			GTK_WINDOW(main_window),
 			GTK_FILE_CHOOSER_ACTION_OPEN,
 			GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
 			GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
+			NULL);
+		*/
+		FileDialog = gtk_file_chooser_dialog_new (_("Load Profile"),
+			GTK_WINDOW(main_window),
+			GTK_FILE_CHOOSER_ACTION_OPEN,
+			 _("_Cancel"), GTK_RESPONSE_CANCEL,
+			 _("_Open"), GTK_RESPONSE_ACCEPT,
 			NULL);
 	}
 
@@ -408,11 +423,18 @@ void photo_file_clicked (GtkWidget *item, void *data)
 
 	GtkWidget *main_window = get_main_window();
 
-	FileDialog = gtk_file_chooser_dialog_new (_("Photo file name"),
+	/*FileDialog = gtk_file_chooser_dialog_new (_("Photo file name"),
 			GTK_WINDOW(main_window),
 			GTK_FILE_CHOOSER_ACTION_SAVE,
 			GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
 			GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
+			NULL);
+	*/
+	FileDialog = gtk_file_chooser_dialog_new (_("Photo file name"),
+			GTK_WINDOW(main_window),
+			GTK_FILE_CHOOSER_ACTION_SAVE,
+			_("_Cancel"), GTK_RESPONSE_CANCEL,
+			_("_Save"), GTK_RESPONSE_ACCEPT,
 			NULL);
 	gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (FileDialog), TRUE);
 
@@ -530,12 +552,20 @@ void video_file_clicked (GtkWidget *item, void *data)
 
 	GtkWidget *main_window = get_main_window();
 
-	FileDialog = gtk_file_chooser_dialog_new (_("Video file name"),
+	/*FileDialog = gtk_file_chooser_dialog_new (_("Video file name"),
 			GTK_WINDOW(main_window),
 			GTK_FILE_CHOOSER_ACTION_SAVE,
 			GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
 			GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
 			NULL);
+	*/
+	FileDialog = gtk_file_chooser_dialog_new (_("Video file name"),
+			GTK_WINDOW(main_window),
+			GTK_FILE_CHOOSER_ACTION_SAVE,
+			_("_Cancel"), GTK_RESPONSE_CANCEL,
+			_("_Save"), GTK_RESPONSE_ACCEPT,
+			NULL);
+			
 	gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (FileDialog), TRUE);
 
 	/** create a file filter */

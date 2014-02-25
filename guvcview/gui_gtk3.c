@@ -209,7 +209,8 @@ int gui_attach_gtk3(v4l2_dev_t *device, int width, int height)
 		G_CALLBACK (capture_image_clicked), device);
 
 	/*quit button*/
-	GtkWidget *quitButton = gtk_button_new_from_stock(GTK_STOCK_QUIT);
+	//GtkWidget *quitButton = gtk_button_new_from_stock(GTK_STOCK_QUIT);
+	GtkWidget *quitButton = gtk_button_new_with_mnemonic (_("_Quit"));
 
 	char* pix3path = g_strconcat (PACKAGE_DATA_DIR, "/pixmaps/guvcview/close.png", NULL);
 	if (g_file_test(pix3path,G_FILE_TEST_EXISTS))

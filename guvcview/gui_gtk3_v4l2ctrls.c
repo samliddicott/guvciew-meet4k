@@ -412,8 +412,9 @@ int gui_attach_gtk3_v4l2ctrls(v4l2_dev_t *device, GtkWidget *parent)
 				widget = gtk_entry_new();
 				gtk_entry_set_max_length(control_widgets_list[n].widget, current->control.maximum);
 
-				control_widgets_list[n].widget2= gtk_button_new_from_stock(GTK_STOCK_APPLY);
-
+				//control_widgets_list[n].widget2 = gtk_button_new_from_stock(GTK_STOCK_APPLY);
+				control_widgets_list[n].widget2 = gtk_button_new_with_mnemonic (_("_Apply"));
+				
 				gtk_widget_show (control_widgets_list[n].widget);
 				gtk_widget_show (control_widgets_list[n].widget2);
 
@@ -436,7 +437,8 @@ int gui_attach_gtk3_v4l2ctrls(v4l2_dev_t *device, GtkWidget *parent)
 				control_widgets_list[n].widget = gtk_entry_new();
 				gtk_entry_set_max_length(control_widgets_list[n].widget, current->control.maximum);
 
-				control_widgets_list[n].widget2= gtk_button_new_from_stock(GTK_STOCK_APPLY);
+				//control_widgets_list[n].widget2= gtk_button_new_from_stock(GTK_STOCK_APPLY);
+				control_widgets_list[n].widget2 = gtk_button_new_with_mnemonic (_("_Apply"));
 
 				gtk_widget_show (control_widgets_list[n].widget);
 				gtk_widget_show (control_widgets_list[n].widget2);
@@ -457,8 +459,9 @@ int gui_attach_gtk3_v4l2ctrls(v4l2_dev_t *device, GtkWidget *parent)
 
 					control_widgets_list[n].widget = gtk_entry_new();
 
-					control_widgets_list[n].widget2 = gtk_button_new_from_stock(GTK_STOCK_APPLY);
-
+					//control_widgets_list[n].widget2 = gtk_button_new_from_stock(GTK_STOCK_APPLY);
+					control_widgets_list[n].widget2 = gtk_button_new_with_mnemonic (_("_Apply"));
+					
 					gtk_widget_show (control_widgets_list[n].widget);
 					gtk_widget_show (control_widgets_list[n].widget2);
 
