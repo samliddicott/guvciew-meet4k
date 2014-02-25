@@ -225,6 +225,66 @@ void video_sufix_toggled (GtkWidget *item, void *data)
 }
 
 /*
+ * video codec changed event
+ * args:
+ *    item - widget that generated the event
+ *    data - pointer to user data
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void video_codec_changed (GtkRadioMenuItem *item, void *data)
+{
+   GSList *vgroup = (GSList *) data;
+
+	if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(item)))
+	{
+		/**GSList indexes (g_slist_index) are in reverse order:
+		 * last inserted has index 0
+		 * so count backwards
+		 */
+		int num_codecs = g_slist_length(vgroup);
+		int index = g_slist_index (vgroup, item);
+		index = num_codecs - (index + 1); //reverse order and 0 indexed
+		fprintf(stderr,"GUVCVIEW: video codec changed to %i\n", index);
+
+		set_video_codec_ind(index);
+	}
+}
+
+/*
+ * audio codec changed event
+ * args:
+ *    item - widget that generated the event
+ *    data - pointer to user data
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void audio_codec_changed (GtkRadioMenuItem *item, void *data)
+{
+   GSList *agroup = (GSList *) data;
+
+	if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(item)))
+	{
+		/**GSList indexes (g_slist_index) are in reverse order:
+		 * last inserted has index 0
+		 * so count backwards
+		 */
+		int num_codecs = g_slist_length(agroup);
+		int index = g_slist_index (agroup, item);
+		index = num_codecs - (index + 1); //reverse order and 0 indexed
+		fprintf(stderr,"GUVCVIEW: audio codec changed to %i\n", index);
+
+		set_audio_codec_ind(index);
+	}
+}
+
+/*
  * called from photo format combo in file dialog
  * args:
  *    chooser - format combo that caused the event

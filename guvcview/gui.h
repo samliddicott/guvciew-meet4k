@@ -35,6 +35,54 @@
 #define DEF_ACTION_VIDEO  (1)
 
 /*
+ * gets the current video codec index
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: current codec index 
+ */
+int get_video_codec_ind();
+
+/*
+ * sets the current video codec index
+ * args:
+ *   index - codec index
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void set_video_codec_ind(int index);
+
+/*
+ * gets the current audio codec index
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: current codec index 
+ */
+int get_audio_codec_ind();
+
+/*
+ * sets the current audio codec index
+ * args:
+ *   index - codec index
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void set_audio_codec_ind(int index);
+
+/*
  * gets the default camera button action
  * args:
  *   none

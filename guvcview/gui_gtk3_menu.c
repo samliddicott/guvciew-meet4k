@@ -170,10 +170,44 @@ int gui_attach_gtk3_menu(v4l2_dev_t *device, GtkWidget *parent)
 		gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (video_sufix), get_video_sufix_flag() > 0);
 		g_signal_connect (GTK_CHECK_MENU_ITEM(video_sufix), "toggled",
 			G_CALLBACK (video_sufix_toggled), device);
+			
+		GtkWidget *video_codec_menu = gtk_menu_new();
+		GtkWidget *video_codec_top = gtk_menu_item_new_with_label(_("Video Codec"));
+		gtk_widget_show (video_codec_top);
+		gtk_menu_item_set_submenu(GTK_MENU_ITEM(video_codec_top), video_codec_menu);
+		/*Add codecs to submenu*/
+		GSList *vgroup = NULL;
+		int num_vcodecs = encoder_get_valid_audio_codecs();
+		int vcodec_ind =0;
+		for (vcodec_ind =0; vcodec_ind < num_vcodecs; vcodec_ind++)
+		{
+			GtkWidget *item = gtk_radio_menu_item_new_with_label(
+				vgroup, 
+				gettext(encoder_get_video_codec_description(vcodec_ind)));
+			if (vcodec_ind == get_video_codec_ind())
+			{
+				gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (item), TRUE);
+			}
+			/*NOTE: GSList indexes (g_slist_index) are in reverse order: last inserted has index 0*/
+			vgroup = gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (item));
+
+			gtk_widget_show (item);
+			gtk_menu_shell_append(GTK_MENU_SHELL(video_codec_menu), item);
+
+			g_signal_connect (GTK_RADIO_MENU_ITEM(item), "toggled",
+                G_CALLBACK (video_codec_changed), vgroup);
+		}
+
+		//video_codec_prop =  gtk_menu_item_new_with_label(_("Video Codec Properties"));
+		//gtk_widget_show (video_codec_prop);
+		//g_signal_connect (GTK_MENU_ITEM(video_codec_prop), "activate",
+		//	G_CALLBACK (lavc_properties), all_data);
 		
+		gtk_menu_item_set_submenu(GTK_MENU_ITEM(video_codec_top), video_codec_menu);
 		gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu_video_top), video_menu);
 		gtk_menu_shell_append(GTK_MENU_SHELL(video_menu), video_file);
 		gtk_menu_shell_append(GTK_MENU_SHELL(video_menu), video_sufix);
+		gtk_menu_shell_append(GTK_MENU_SHELL(video_menu), video_codec_top);
 		gtk_menu_shell_append(GTK_MENU_SHELL(menubar), menu_video_top);
 	}
 

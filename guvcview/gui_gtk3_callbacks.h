@@ -127,6 +127,31 @@ void photo_sufix_toggled (GtkWidget *item, void *data);
 void video_sufix_toggled (GtkWidget *item, void *data);
 
 /*
+ * video codec changed event
+ * args:
+ *    item - widget that generated the event
+ *    data - pointer to user data
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void video_codec_changed (GtkRadioMenuItem *item, void *data);
+
+/*
+ * audio codec changed event
+ * args:
+ *    item - widget that generated the event
+ *    data - pointer to user data
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void audio_codec_changed (GtkRadioMenuItem *item, void *data);
+/*
  * photo file clicked event
  * args:
  *   item - pointer to widget that generated the event
