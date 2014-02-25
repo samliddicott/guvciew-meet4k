@@ -3,6 +3,7 @@
 SUBDIRS = gview_v4l2core \
 		  gview_audio \
 		  gview_render \
+		  gview_encoder \
           guvcview \
           data \
           po
@@ -11,6 +12,7 @@ SUBDIRS = gview_v4l2core \
 DIST_SUBDIRS =  gview_v4l2core \
 				gview_audio \
 				gview_render \
+				gview_encoder \
 				guvcview \
 				data \
 				po
@@ -18,7 +20,8 @@ DIST_SUBDIRS =  gview_v4l2core \
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = pkgconfig/gviewv4l2core-0.1.pc \
 				 pkgconfig/gviewaudio-0.1.pc \
-				 pkgconfig/gviewrender-0.1.pc
+				 pkgconfig/gviewrender-0.1.pc \
+				 pkgconfig/gviewencoder-0.1.pc
 
 ACLOCAL_AMFLAGS = -I m4
 

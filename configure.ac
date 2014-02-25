@@ -265,6 +265,47 @@ if test $enable_pulse = yes; then
 	AM_CONDITIONAL(HAVE_PULSEAUDIO, test $enable_pulse = yes)
 fi
 
+dnl -----------------------------------------------
+dnl libgviewencoder name and version number
+dnl -----------------------------------------------
+
+GVIEWENCODER_LIBRARY_NAME=libgviewencoder
+AC_SUBST(GVIEWENCODER_LIBRARY_NAME)
+GVIEWENCODER_LD_NAME=gviewencoder
+AC_SUBST(GVIEWENCODER_LD_NAME)
+
+#release versioning
+GVIEWENCODER_MAJOR_VERSION=0
+GVIEWENCODER_MINOR_VERSION=1
+GVIEWENCODER_MICRO_VERSION=0
+
+#API version (SONAME)
+GVIEWENCODER_API_VERSION=$GVIEWENCODER_MAJOR_VERSION.$GVIEWENCODER_MINOR_VERSION
+AC_SUBST(GVIEWENCODER_API_VERSION)
+
+#shared library versioning
+GVIEWENCODER_LIBRARY_VERSION=$GVIEWENCODER_MAJOR_VERSION:$GVIEWENCODER_MINOR_VERSION:$GVIEWENCODER_MICRO_VERSION
+#
+#             current:revision:age
+#                |       |     |
+#                |       |     +- increment if interfaces have been added
+#                |       |        set to zero if interfaces have been removed
+#                                  or changed
+#                |       +- increment if source code has changed
+#                |          set to zero if current is incremented
+#                +- increment if interfaces have been added, removed or changed
+
+AC_SUBST(GVIEWENCODER_LIBRARY_VERSION)
+
+dnl --------------------------------------------------------------------------
+dnl check for libgviewencoder dependencies
+dnl --------------------------------------------------------------------------
+
+PKG_CHECK_MODULES(GVIEWENCODER, [libavcodec])
+AC_SUBST(GVIEWENCODER_CFLAGS)
+AC_SUBST(GVIEWENCODER_LIBS)
+
+
 dnl --------------------------------------------------------------------------
 dnl check for guvcview dependencies
 dnl --------------------------------------------------------------------------
@@ -315,9 +356,11 @@ AC_CONFIG_FILES([
     pkgconfig/gviewv4l2core-0.1.pc
     pkgconfig/gviewaudio-0.1.pc
     pkgconfig/gviewrender-0.1.pc
+    pkgconfig/gviewencoder-0.1.pc
     gview_v4l2core/Makefile
     gview_audio/Makefile
     gview_render/Makefile
+    gview_encoder/Makefile
     guvcview/Makefile
     data/Makefile
     data/icons/Makefile

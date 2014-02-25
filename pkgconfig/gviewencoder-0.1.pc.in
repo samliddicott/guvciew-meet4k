@@ -1,0 +1,10 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+
+Name: @GVIEWENCODER_LD_NAME@
+Description: guvcview encoder library.
+Version: @VERSION@
+Libs: -L${libdir} -l@GVIEWENCODER_LD_NAME@-@GVIEWENCODER_API_VERSION@
+Cflags: -I${includedir}/@PACKAGE@-@PACKAGE_RELEASE@ -I${libdir}/@PACKAGE@-@PACKAGE_RELEASE@/include
