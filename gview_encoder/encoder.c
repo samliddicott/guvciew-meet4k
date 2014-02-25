@@ -48,6 +48,9 @@
 
 int verbosity = 0;
 
+static int valid_video_codecs = 0;
+static int valid_audio_codecs = 0;
+
 /*
  * set verbosity
  * args:
@@ -396,8 +399,65 @@ static encoder_audio_context_t *encoder_audio_init(
 
 	return (enc_audio_ctx);
 }
+
 /*
- * encoder initialization
+ * encoder initaliztion
+ * args:
+ *    none
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void encoder_init()
+{
+
+#if !LIBAVCODEC_VER_AT_LEAST(53,34)
+	avcodec_init();
+#endif
+	/* register all the codecs (you can also register only the codec
+	 * you wish to have smaller code)
+	 */
+	avcodec_register_all();
+
+	valid_video_codecs = encoder_set_valid_video_codec_list ();
+	valid_audio_codecs = encoder_set_valid_audio_codec_list ();
+
+}
+
+/*
+ * get valid video codec count
+ * args:
+ *   none
+ *
+ * asserts:
+ *    none
+ *
+ * returns: number of valid video codecs
+ */
+int encoder_get_valid_video_codecs()
+{
+	return valid_video_codecs;
+}
+
+/*
+ * get valid audio codec count
+ * args:
+ *   none
+ *
+ * asserts:
+ *    none
+ *
+ * returns: number of valid audio codecs
+ */
+int encoder_get_valid_audio_codecs()
+{
+	return valid_audio_codecs;
+}
+
+/*
+ * initialize and get the encoder context
  * args:
  *   video_codec_ind - video codec list index
  *   audio_codec_ind - audio codec list index
@@ -415,7 +475,7 @@ static encoder_audio_context_t *encoder_audio_init(
  *
  * returns: pointer to encoder context (NULL on error)
  */
-encoder_context_t *encoder_init(
+encoder_context_t *encoder_get_context(
 	int video_codec_ind,
 	int audio_codec_ind,
 	int muxer_id,

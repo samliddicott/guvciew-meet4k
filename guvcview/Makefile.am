@@ -28,7 +28,8 @@ guvcview_CFLAGS = $(GUVCVIEW_CFLAGS) \
 		  $(EXTRA_CFLAGS) -I$(top_srcdir) -I$(top_srcdir)/includes \
 		  -I$(top_srcdir)/gview_v4l2core \
 		  -I$(top_srcdir)/gview_render \
-		  -I$(top_srcdir)/gview_audio
+		  -I$(top_srcdir)/gview_audio \
+		  -I$(top_srcdir)/gview_encoder
 
 guvcview_LDFLAGS = $(LIBINTL)
 
@@ -36,7 +37,8 @@ guvcview_LDADD = $(GUVCVIEW_LIBS) \
 		 $(PTHREAD_LIBS) \
                    ../gview_v4l2core/$(GVIEWV4L2CORE_LIBRARY_NAME).la \
                    ../gview_render/$(GVIEWRENDER_LIBRARY_NAME).la \
-                   ../gview_audio/$(GVIEWAUDIO_LIBRARY_NAME).la
+                   ../gview_audio/$(GVIEWAUDIO_LIBRARY_NAME).la \
+                   ../gview_encoder/$(GVIEWENCODER_LIBRARY_NAME).la
 
 localedir = $(datadir)/locale
 DEFS = -DLOCALEDIR=\"$(localedir)\" @DEFS@

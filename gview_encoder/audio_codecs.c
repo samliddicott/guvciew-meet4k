@@ -19,6 +19,18 @@
 #                                                                               #
 ********************************************************************************/
 
+#include <stdlib.h>
+#include <stdio.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <string.h>
+#include <errno.h>
+#include <assert.h>
+/* support for internationalization - i18n */
+#include <locale.h>
+#include <libintl.h>
+
 #include "gview.h"
 #include "encoder.h"
 #include "gviewencoder.h"
@@ -148,9 +160,9 @@ static audio_codec_t listSupCodecs[] = //list of software supported formats
  * asserts:
  *    none
  *
- * returns: listSupVCodecs size (number of elements)
+ * returns: listSupCodecs size (number of elements)
  */
-int get_audio_codec_list_size()
+int encoder_get_audio_codec_list_size()
 {
 	int size = sizeof(listSupCodecs)/sizeof(audio_codec_t);
 
@@ -161,6 +173,31 @@ int get_audio_codec_list_size()
 }
 
 /*
+ * get audio codec valid list size
+ * args:
+ *    none
+ *
+ * asserts:
+ *    none
+ *
+ * returns: listSupCodecs valid number of elements
+ */
+int encoder_get_audio_codec_valid_list_size()
+{
+	int valid_size = 0;
+
+	int i = 0;
+	for(i = 0;  i < encoder_get_audio_codec_list_size(); ++i)
+		if(listSupCodecs[i].valid)
+			valid_size++;
+
+	if(verbosity > 0)
+		printf("ENCODER: audio codec valid list size:%i\n", valid_size);
+
+	return valid_size;
+}
+
+/*
  * return the real (valid only) codec index
  * args:
  *   codec_ind - codec list index (with non valid removed)
@@ -168,13 +205,13 @@ int get_audio_codec_list_size()
  * asserts:
  *   none
  *
- * returns: matching listSupVCodecs index
+ * returns: matching listSupCodecs index
  */
 static int get_real_index (int codec_ind)
 {
 	int i = 0;
 	int ind = -1;
-	for (i = 0; i < get_audio_codec_list_size(); ++i)
+	for (i = 0; i < encoder_get_audio_codec_list_size(); ++i)
 	{
 		if(listSupCodecs[i].valid)
 			ind++;
@@ -187,7 +224,7 @@ static int get_real_index (int codec_ind)
 /*
  * return the list codec index
  * args:
- *   real_ind - listSupVCodecs index
+ *   real_ind - listSupCodecs index
  *
  * asserts:
  *   none
@@ -197,7 +234,7 @@ static int get_real_index (int codec_ind)
 static int get_list_index (int real_index)
 {
 	if( real_index < 0 ||
-		real_index >= get_audio_codec_list_size() ||
+		real_index >= encoder_get_audio_codec_list_size() ||
 		!listSupCodecs[real_index].valid )
 		return -1; //error: real index is not valid
 
@@ -225,7 +262,7 @@ static int get_list_index (int real_index)
 int get_audio_codec_index(int codec_id)
 {
 	int i = 0;
-	for(i = 0; i < get_audio_codec_list_size(); ++i )
+	for(i = 0; i < encoder_get_audio_codec_list_size(); ++i )
 	{
 		if(codec_id == listSupCodecs[i].codec_id)
 			return i;
@@ -263,11 +300,62 @@ audio_codec_t *get_audio_codec_defaults(int codec_ind)
 {
 	int real_index = get_real_index (codec_ind);
 
-	if(real_index >= 0 && real_index < get_audio_codec_list_size())
+	if(real_index >= 0 && real_index < encoder_get_audio_codec_list_size())
 		return (&(listSupCodecs[real_index]));
 	else
 	{
 		fprintf(stderr, "ENCODER: (audio codec defaults) bad codec index\n");
+		return NULL;
+	}
+}
+
+/*
+ * sets the valid flag in the audio codecs list
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: number of valid audio codecs in list
+ */
+int encoder_set_valid_audio_codec_list ()
+{
+	AVCodec *codec;
+	int ind = 0;
+	int num_codecs = 0;
+	for ( ind = 0; ind < encoder_get_audio_codec_list_size(); ++ind)
+	{
+		codec = avcodec_find_encoder(listSupCodecs[ind].codec_id);
+		if (!codec)
+		{
+			printf("ENCODER: no audio codec detected for %s\n", listSupCodecs[ind].description);
+			listSupCodecs[ind].valid = 0;
+		}
+		else num_codecs++;
+	}
+
+	return num_codecs;
+}
+
+/*
+ * get audio list codec description
+ * args:
+ *   codec_ind - codec list index
+ *
+ * asserts:
+ *   none
+ *
+ * returns: list codec entry or NULL if none
+ */
+const char *encoder_get_audio_codec_description(int codec_ind)
+{
+	int real_index = get_real_index (codec_ind);
+	if(real_index >= 0 && real_index < encoder_get_audio_codec_list_size())
+		return (listSupCodecs[real_index].description);
+	else
+	{
+		fprintf(stderr, "ENCODER: (video codec description) bad codec index\n");
 		return NULL;
 	}
 }

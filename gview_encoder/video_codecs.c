@@ -18,8 +18,18 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA     #
 #                                                                               #
 ********************************************************************************/
-
+#include <stdlib.h>
+#include <stdio.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <fcntl.h>
 #include <linux/videodev2.h>
+#include <string.h>
+#include <errno.h>
+#include <assert.h>
+/* support for internationalization - i18n */
+#include <locale.h>
+#include <libintl.h>
 
 #include "gview.h"
 #include "encoder.h"
@@ -449,9 +459,9 @@ static video_codec_t listSupCodecs[] =
  * asserts:
  *    none
  *
- * returns: listSupVCodecs size (number of elements)
+ * returns: listSupCodecs size (number of elements)
  */
-int get_video_codec_list_size()
+int encoder_get_video_codec_list_size()
 {
 	int size = sizeof(listSupCodecs)/sizeof(video_codec_t);
 
@@ -462,6 +472,31 @@ int get_video_codec_list_size()
 }
 
 /*
+ * get video codec valid list size
+ * args:
+ *    none
+ *
+ * asserts:
+ *    none
+ *
+ * returns: listSupCodecs valid number of elements
+ */
+int encoder_get_video_codec_valid_list_size()
+{
+	int valid_size = 0;
+
+	int i = 0;
+	for(i = 0;  i < encoder_get_video_codec_list_size(); ++i)
+		if(listSupCodecs[i].valid)
+			valid_size++;
+
+	if(verbosity > 0)
+		printf("ENCODER: video codec valid list size:%i\n", valid_size);
+
+	return valid_size;
+}
+
+/*
  * return the real (valid only) codec index
  * args:
  *   codec_ind - codec list index (with non valid removed)
@@ -469,13 +504,13 @@ int get_video_codec_list_size()
  * asserts:
  *   none
  *
- * returns: matching listSupVCodecs index
+ * returns: matching listSupCodecs index
  */
 static int get_real_index (int codec_ind)
 {
 	int i = 0;
 	int ind = -1;
-	for (i = 0; i < get_video_codec_list_size(); ++i)
+	for (i = 0; i < encoder_get_video_codec_list_size(); ++i)
 	{
 		if(listSupCodecs[i].valid)
 			ind++;
@@ -488,7 +523,7 @@ static int get_real_index (int codec_ind)
 /*
  * return the list codec index
  * args:
- *   real_ind - listSupVCodecs index
+ *   real_ind - listSupCodecs index
  *
  * asserts:
  *   none
@@ -498,7 +533,7 @@ static int get_real_index (int codec_ind)
 static int get_list_index (int real_index)
 {
 	if( real_index < 0 ||
-		real_index >= get_video_codec_list_size() ||
+		real_index >= encoder_get_video_codec_list_size() ||
 		!listSupCodecs[real_index].valid )
 		return -1; //error: real index is not valid
 
@@ -514,6 +549,155 @@ static int get_list_index (int real_index)
 }
 
 /*
+ * set the mkv codec private data
+ * args:
+ *    encoder_ctx - pointer to encoder context
+ *    format - capture format
+ *    h264_pps_size - h264 pps data size (if any)
+ *    h264_pps - pointer to h264 pps data (or null)
+ *    h264_sps_size - h264 sps data size
+ *    h264_sps - pointer to h264 sps data
+ *
+ * asserts:
+ *    encoder_ctx is not null
+ *
+ * returns: mkvCodecPriv size
+ */
+int encoder_set_mkvCodecPriv(encoder_context_t *encoder_ctx,
+	int format,
+	int h264_pps_size,
+	uint8_t *h264_pps,
+	int h264_sps_size,
+	uint8_t *h264_sps)
+{
+	/*assertions*/
+	assert(encoder_ctx != NULL);
+
+	int size = 0;
+
+	int codec_id = encoder_ctx->enc_video_ctx->codec_context->codec_id;
+	int real_index = get_video_codec_index(codec_id);
+
+	if(codec_id == AV_CODEC_ID_THEORA)
+	{
+		/*get the 3 first header packets*/
+		uint8_t *header_start[3];
+		int header_len[3];
+		int first_header_size;
+
+		first_header_size = 42; /*vorbis = 30*/
+    	if (avpriv_split_xiph_headers(
+			encoder_ctx->enc_video_ctx->codec_context->extradata,
+			encoder_ctx->enc_video_ctx->codec_context->extradata_size,
+			first_header_size, header_start, header_len) < 0)
+        {
+			fprintf(stderr, "ENCODER: (theora codec) - Extradata corrupt.\n");
+			return -1;
+		}
+
+		/*get the allocation needed for headers size*/
+		int header_lace_size[2];
+		header_lace_size[0]=0;
+		header_lace_size[1]=0;
+		int i;
+		for (i = 0; i < header_len[0] / 255; i++)
+			header_lace_size[0]++;
+		header_lace_size[0]++;
+		for (i = 0; i < header_len[1] / 255; i++)
+			header_lace_size[1]++;
+		header_lace_size[1]++;
+
+		size = 1 + /*number of packets -1*/
+				header_lace_size[0] +  //first packet size
+				header_lace_size[1] +  //second packet size
+				header_len[0] + //first packet header
+				header_len[1] + //second packet header
+				header_len[2];  //third packet header
+
+		/*should check and clean before allocating ??*/
+		encoder_ctx->enc_video_ctx->codec_context->priv_data = calloc(size, sizeof(uint8_t));
+		/*write header*/
+		uint8_t *tmp = encoder_ctx->enc_video_ctx->codec_context->priv_data;
+		*tmp++ = 0x02; /*number of packets -1*/
+		//size of head 1
+		for (i = 0; i < header_len[0] / 0xff; i++)
+			*tmp++ = 0xff;
+		*tmp++ = header_len[0] % 0xff;
+		//size of head 2
+		for (i = 0; i < header_len[1] / 0xff; i++)
+			*tmp++ = 0xff;
+		*tmp++ = header_len[1] % 0xff;
+		//add headers
+		for(i=0; i<3; i++)
+		{
+			memcpy(tmp, header_start[i] , header_len[i]);
+			tmp += header_len[i];
+		}
+
+		listSupCodecs[real_index].mkv_codecPriv = encoder_ctx->enc_video_ctx->codec_context->priv_data;
+	}
+	else if(listSupCodecs[real_index].codec_id == AV_CODEC_ID_H264)
+	{
+		if(format == V4L2_PIX_FMT_H264)
+		{
+			/*do we have SPS and PPS data ?*/
+			if(h264_sps_size <= 0 || h264_sps == NULL)
+			{
+				fprintf(stderr,"ENCODER: can't store H264 codec private data: No SPS data\n");
+				return 0;
+			}
+			if(h264_pps_size <= 0 || h264_pps == NULL)
+			{
+				fprintf(stderr,"ENCODER: can't store H264 codec private data: No PPS data\n");
+				return 0;
+			}
+
+			/*alloc the private data*/
+			size = 6 + 2 + h264_sps_size + 1 + 2 + h264_pps_size;
+			encoder_ctx->enc_video_ctx->codec_context->priv_data = calloc(size, sizeof(uint8_t));
+
+			/*write the codec private data*/
+			uint8_t *tp = encoder_ctx->enc_video_ctx->codec_context->priv_data;
+			/*header (6 bytes)*/
+			tp[0] = 1; //version
+			tp[1] = h264_sps[1]; /* profile */
+			tp[2] = h264_sps[2]; /* profile compat */
+			tp[3] = h264_sps[3]; /* level */
+			tp[4] = 0xff; /* 6 bits reserved (111111) + 2 bits nal size length - 1 (11) */
+			tp[5] = 0xe1; /* 3 bits reserved (111) + 5 bits number of sps (00001) */
+			tp += 6;
+			/*SPS: size (2 bytes) + SPS data*/
+			tp[0] = (uint8_t) (h264_sps_size >> 8);
+			tp[1] = (uint8_t) h264_sps_size; //38 for logitech uvc 1.1
+			tp += 2; //SPS size (16 bit)
+			memcpy(tp, h264_sps , h264_sps_size);
+			tp += h264_sps_size;
+			/*PPS number of pps (1 byte) + size (2 bytes) + PPS data*/
+			tp[0] = 0x01; //number of pps
+			tp[1] = (uint8_t) (h264_pps_size >> 8);
+			tp[2] = (uint8_t) h264_pps_size; //4 for logitech uvc 1.1
+			tp += 3; //PPS size (16 bit)
+			memcpy(tp, h264_pps , h264_pps_size);
+
+			listSupCodecs[real_index].mkv_codecPriv = encoder_ctx->enc_video_ctx->codec_context->priv_data;
+		}
+
+	}
+	else if(listSupCodecs[real_index].mkv_codecPriv != NULL)
+	{
+		mkv_codecPriv.biWidth = encoder_ctx->video_width;
+		mkv_codecPriv.biHeight =  encoder_ctx->video_height;
+		mkv_codecPriv.biCompression = listSupCodecs[real_index].mkv_4cc;
+		mkv_codecPriv.biSizeImage = mkv_codecPriv.biWidth * mkv_codecPriv.biHeight * 2;
+		mkv_codecPriv.biHeight =-encoder_ctx->video_height; //???
+
+		size = 40; //40 bytes
+	}
+
+	return (size);
+}
+
+/*
  * returns the real codec array index
  * args:
  *   codec_id - codec id
@@ -526,7 +710,7 @@ static int get_list_index (int real_index)
 int get_video_codec_index(int codec_id)
 {
 	int i = 0;
-	for(i = 0; i < get_video_codec_list_size(); ++i )
+	for(i = 0; i < encoder_get_video_codec_list_size(); ++i )
 	{
 		if(codec_id == listSupCodecs[i].codec_id)
 			return i;
@@ -564,11 +748,62 @@ video_codec_t *get_video_codec_defaults(int codec_ind)
 {
 	int real_index = get_real_index (codec_ind);
 
-	if(real_index >= 0 && real_index < get_video_codec_list_size())
+	if(real_index >= 0 && real_index < encoder_get_video_codec_list_size())
 		return (&(listSupCodecs[real_index]));
 	else
 	{
 		fprintf(stderr, "ENCODER: (video codec defaults) bad codec index\n");
+		return NULL;
+	}
+}
+
+/*
+ * sets the valid flag in the video codecs list
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: number of valid video codecs in list
+ */
+int encoder_set_valid_video_codec_list ()
+{
+	AVCodec *codec;
+	int ind = 0;
+	int num_codecs = 0;
+	for ( ind = 0; ind < encoder_get_video_codec_list_size(); ++ind)
+	{
+		codec = avcodec_find_encoder(listSupCodecs[ind].codec_id);
+		if (!codec)
+		{
+			printf("ENCODER: no video codec detected for %s\n", listSupCodecs[ind].description);
+			listSupCodecs[ind].valid = 0;
+		}
+		else num_codecs++;
+	}
+
+	return num_codecs;
+}
+
+/*
+ * get video list codec description
+ * args:
+ *   codec_ind - codec list index
+ *
+ * asserts:
+ *   none
+ *
+ * returns: list codec entry or NULL if none
+ */
+const char *encoder_get_video_codec_description(int codec_ind)
+{
+	int real_index = get_real_index (codec_ind);
+	if(real_index >= 0 && real_index < encoder_get_video_codec_list_size())
+		return (listSupCodecs[real_index].description);
+	else
+	{
+		fprintf(stderr, "ENCODER: (video codec description) bad codec index\n");
 		return NULL;
 	}
 }

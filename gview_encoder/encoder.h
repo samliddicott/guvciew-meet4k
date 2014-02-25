@@ -212,18 +212,6 @@ int get_video_codec_list_index(int codec_id);
 video_codec_t *get_video_codec_defaults(int codec_ind);
 
 /*
- * get audio codec list size
- * args:
- *    none
- *
- * asserts:
- *    none
- *
- * returns: listSupVCodecs size (number of elements)
- */
-int get_audio_codec_list_size();
-
-/*
  * returns the real codec array index
  * args:
  *   codec_id - codec id

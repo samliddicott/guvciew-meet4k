@@ -167,7 +167,91 @@ typedef struct _encoder_context_t
 void encoder_set_verbosity(int value);
 
 /*
- * encoder initialization
+ * encoder initaliztion (first function to get called)
+ * args:
+ *    none
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void encoder_init();
+
+/*
+ * get valid video codec count
+ * args:
+ *   none
+ *
+ * asserts:
+ *    none
+ *
+ * returns: number of valid video codecs
+ */
+int encoder_get_valid_video_codecs();
+
+/*
+ * get valid audio codec count
+ * args:
+ *   none
+ *
+ * asserts:
+ *    none
+ *
+ * returns: number of valid audio codecs
+ */
+int encoder_get_valid_audio_codecs();
+
+/*
+ * sets the valid flag in the video codecs list
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: number of valid video codecs in list
+ */
+int encoder_set_valid_video_codec_list ();
+
+/*
+ * sets the valid flag in the audio codecs list
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: number of valid audio codecs in list
+ */
+int encoder_set_valid_audio_codec_list ();
+
+/*
+ * get video list codec description
+ * args:
+ *   codec_ind - codec list index
+ *
+ * asserts:
+ *   none
+ *
+ * returns: list codec entry or NULL if none
+ */
+const char *encoder_get_video_codec_description(int codec_ind);
+
+/*
+ * get audio list codec description
+ * args:
+ *   codec_ind - codec list index
+ *
+ * asserts:
+ *   none
+ *
+ * returns: list codec entry or NULL if none
+ */
+const char *encoder_get_audio_codec_description(int codec_ind);
+
+/*
+ * initialize and get the encoder context
  * args:
  *   video_codec_ind - video codec list index
  *   audio_codec_ind - audio codec list index
@@ -185,7 +269,7 @@ void encoder_set_verbosity(int value);
  *
  * returns: pointer to encoder context (NULL on error)
  */
-encoder_context_t *encoder_init(
+encoder_context_t *encoder_get_context(
 	int video_codec_ind,
 	int audio_codec_ind,
 	int muxer_id,
@@ -195,6 +279,28 @@ encoder_context_t *encoder_init(
 	int fps_den,
 	int audio_channels,
 	int audio_samprate);
+
+/*
+ * set the mkv codec private data
+ * args:
+ *    encoder_ctx - pointer to encoder context
+ *    format - capture format
+ *    h264_pps_size - h264 pps data size (if any)
+ *    h264_pps - pointer to h264 pps data (or null)
+ *    h264_sps_size - h264 sps data size
+ *    h264_sps - pointer to h264 sps data
+ *
+ * asserts:
+ *    encoder_ctx is not null
+ *
+ * returns: mkvCodecPriv size
+ */
+int encoder_set_mkvCodecPriv(encoder_context_t *encoder_ctx,
+	int format,
+	int h264_pps_size,
+	uint8_t *h264_pps,
+	int h264_sps_size,
+	uint8_t *h264_sps);
 
 /*
  * encode video frame

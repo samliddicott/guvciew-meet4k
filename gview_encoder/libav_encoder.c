@@ -21,6 +21,17 @@
 #                                                                               #
 ********************************************************************************/
 
+#include <stdlib.h>
+#include <stdio.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <string.h>
+#include <errno.h>
+#include <assert.h>
+/* support for internationalization - i18n */
+#include <locale.h>
+#include <libintl.h>
 
 #include "gviewencoder.h"
 #include "encoder.h"

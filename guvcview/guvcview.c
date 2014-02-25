@@ -27,6 +27,7 @@
 #include "gview.h"
 #include "gviewv4l2core.h"
 #include "gviewrender.h"
+#include "gviewencoder.h"
 #include "core_time.h"
 
 #include "../config.h"
@@ -136,6 +137,9 @@ int main(int argc, char *argv[])
 
 	/*create the inital audio context (stored staticly in video_capture)*/
 	create_audio_context(audio);
+
+	/*init the encoder*/
+	encoder_init();
 
 	/*start capture thread if not in control_panel mode*/
 	if(!my_options->control_panel)
