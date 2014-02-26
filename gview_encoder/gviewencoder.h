@@ -90,6 +90,63 @@
 
 #define MAX_DELAYED_FRAMES 50  /*Maximum supported delayed frames*/
 
+/*video codec properties*/
+typedef struct _video_codec_t
+{
+	int valid;                //the encoding codec exists in libav
+	const char *compressor;   //fourcc - upper case
+	int mkv_4cc;              //fourcc WORD value
+	const char *mkv_codec;    //mkv codecID
+	void *mkv_codecPriv;      //mkv codec private data
+	const char *description;  //codec description
+	int fps;                  // encoder frame rate (used for time base)
+	int bit_rate;             //lavc default bit rate
+	int qmax;                 //lavc qmax
+	int qmin;                 //lavc qmin
+	int max_qdiff;            //lavc qmin
+	int dia;                  //lavc dia_size
+	int pre_dia;              //lavc pre_dia_size
+	int pre_me;               //lavc pre_me
+	int me_pre_cmp;           //lavc me_pre_cmp
+	int me_cmp;               //lavc me_cmp
+	int me_sub_cmp;           //lavc me_sub_cmp
+	int last_pred;            //lavc last_predictor_count
+	int gop_size;             //lavc gop_size
+	float qcompress;          //lavc qcompress
+	float qblur;              //lavc qblur
+	int subq;                 //lavc subq
+	int framerefs;            //lavc refs
+	int codec_id;             //lavc codec_id
+	const char* codec_name;   //lavc codec_name
+	int mb_decision;          //lavc mb_decision
+	int trellis;              //lavc trellis quantization
+	int me_method;            //lavc motion estimation method
+	int mpeg_quant;           //lavc mpeg quantization
+	int max_b_frames;         //lavc max b frames
+	int num_threads;          //lavc num threads
+	int flags;                //lavc flags
+	int monotonic_pts;		  //use monotonic pts instead of timestamp based
+} video_codec_t;
+
+/*audio codec properties*/
+typedef struct _audio_codec_t
+{
+	int valid;                //the encoding codec exists in ffmpeg
+	int bits;                 //bits per sample (pcm only)
+	int monotonic_pts;
+	uint16_t avi_4cc;         //fourcc value (4 bytes)
+	const char *mkv_codec;    //mkv codecID
+	const char *description;  //codec description
+	int bit_rate;             //lavc default bit rate
+	int codec_id;             //lavc codec_id
+	const char *codec_name;   //lavc codec name
+	int sample_format;        //lavc sample format
+	int profile;              //for AAC only
+	void *mkv_codpriv;        //pointer for codec private data
+	int codpriv_size;         //size in bytes of private data
+	int flags;                //lavc flags
+} audio_codec_t;
+
 /*video*/
 typedef struct _encoder_video_context_t
 {
@@ -279,6 +336,30 @@ encoder_context_t *encoder_get_context(
 	int fps_den,
 	int audio_channels,
 	int audio_samprate);
+
+/*
+ * get video list codec entry for codec index
+ * args:
+ *   codec_ind - codec list index
+ *
+ * asserts:
+ *   none
+ *
+ * returns: list codec entry or NULL if none
+ */
+video_codec_t *encoder_get_video_codec_defaults(int codec_ind);
+
+/*
+ * get audio list codec entry for codec index
+ * args:
+ *   codec_ind - codec list index
+ *
+ * asserts:
+ *   none
+ *
+ * returns: audio list codec entry or NULL if none
+ */
+audio_codec_t *encoder_get_audio_codec_defaults(int codec_ind);
 
 /*
  * set the mkv codec private data

@@ -744,7 +744,7 @@ int get_video_codec_list_index(int codec_id)
  *
  * returns: list codec entry or NULL if none
  */
-video_codec_t *get_video_codec_defaults(int codec_ind)
+video_codec_t *encoder_get_video_codec_defaults(int codec_ind)
 {
 	int real_index = get_real_index (codec_ind);
 

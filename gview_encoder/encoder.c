@@ -95,7 +95,7 @@ static encoder_video_context_t *encoder_video_init(
 		return NULL;
 	}
 
-	video_codec_t *video_defaults = get_video_codec_defaults(video_codec_ind);
+	video_codec_t *video_defaults = encoder_get_video_codec_defaults(video_codec_ind);
 
 	if(!video_defaults)
 	{
@@ -274,7 +274,7 @@ static encoder_audio_context_t *encoder_audio_init(
 		return NULL;
 	}
 
-	audio_codec_t *audio_defaults = get_audio_codec_defaults(audio_codec_ind);
+	audio_codec_t *audio_defaults = encoder_get_audio_codec_defaults(audio_codec_ind);
 
 	if(!audio_defaults)
 	{

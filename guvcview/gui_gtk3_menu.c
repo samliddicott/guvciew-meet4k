@@ -130,7 +130,7 @@ int gui_attach_gtk3_menu(v4l2_dev_t *device, GtkWidget *parent)
 	{
 		/*photo menu*/
 		GtkWidget *photo_menu = gtk_menu_new();
-		
+
 		GtkWidget *menu_photo_top = gtk_menu_item_new_with_label(_("Photo"));
 		GtkWidget *photo_file = gtk_menu_item_new_with_label(_("File"));
 		GtkWidget *photo_sufix = gtk_check_menu_item_new_with_label(_("Increment Filename"));
@@ -151,10 +151,10 @@ int gui_attach_gtk3_menu(v4l2_dev_t *device, GtkWidget *parent)
 		gtk_menu_shell_append(GTK_MENU_SHELL(photo_menu), photo_file);
 		gtk_menu_shell_append(GTK_MENU_SHELL(photo_menu), photo_sufix);
 		gtk_menu_shell_append(GTK_MENU_SHELL(menubar), menu_photo_top);
-		
+
 		/*video menu*/
 		GtkWidget *video_menu = gtk_menu_new();
-		
+
 		GtkWidget *menu_video_top = gtk_menu_item_new_with_label(_("Video"));
 		GtkWidget *video_file = gtk_menu_item_new_with_label(_("File"));
 		GtkWidget *video_sufix = gtk_check_menu_item_new_with_label(_("Increment Filename"));
@@ -170,7 +170,7 @@ int gui_attach_gtk3_menu(v4l2_dev_t *device, GtkWidget *parent)
 		gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (video_sufix), get_video_sufix_flag() > 0);
 		g_signal_connect (GTK_CHECK_MENU_ITEM(video_sufix), "toggled",
 			G_CALLBACK (video_sufix_toggled), device);
-			
+
 		GtkWidget *video_codec_menu = gtk_menu_new();
 		GtkWidget *video_codec_top = gtk_menu_item_new_with_label(_("Video Codec"));
 		gtk_widget_show (video_codec_top);
@@ -182,7 +182,7 @@ int gui_attach_gtk3_menu(v4l2_dev_t *device, GtkWidget *parent)
 		for (vcodec_ind =0; vcodec_ind < num_vcodecs; vcodec_ind++)
 		{
 			GtkWidget *item = gtk_radio_menu_item_new_with_label(
-				vgroup, 
+				vgroup,
 				gettext(encoder_get_video_codec_description(vcodec_ind)));
 			if (vcodec_ind == get_video_codec_ind())
 			{
@@ -198,11 +198,11 @@ int gui_attach_gtk3_menu(v4l2_dev_t *device, GtkWidget *parent)
                 G_CALLBACK (video_codec_changed), vgroup);
 		}
 
-		//video_codec_prop =  gtk_menu_item_new_with_label(_("Video Codec Properties"));
-		//gtk_widget_show (video_codec_prop);
-		//g_signal_connect (GTK_MENU_ITEM(video_codec_prop), "activate",
-		//	G_CALLBACK (lavc_properties), all_data);
-		
+		GtkWidget *video_codec_prop =  gtk_menu_item_new_with_label(_("Video Codec Properties"));
+		gtk_widget_show (video_codec_prop);
+		g_signal_connect (GTK_MENU_ITEM(video_codec_prop), "activate",
+			G_CALLBACK (encoder_video_properties), NULL);
+
 		GtkWidget *audio_codec_menu = gtk_menu_new();
 		GtkWidget *audio_codec_top = gtk_menu_item_new_with_label(_("Audio Codec"));
 		gtk_widget_show (audio_codec_top);
@@ -214,7 +214,7 @@ int gui_attach_gtk3_menu(v4l2_dev_t *device, GtkWidget *parent)
 		for (acodec_ind = 0; acodec_ind < num_acodecs; acodec_ind++)
 		{
 			GtkWidget *item = gtk_radio_menu_item_new_with_label(
-				agroup, 
+				agroup,
 				gettext(encoder_get_audio_codec_description(acodec_ind)));
 			if (acodec_ind == get_audio_codec_ind())
 			{
@@ -229,17 +229,23 @@ int gui_attach_gtk3_menu(v4l2_dev_t *device, GtkWidget *parent)
 			g_signal_connect (GTK_RADIO_MENU_ITEM(item), "toggled",
                 G_CALLBACK (audio_codec_changed), agroup);
 		}
-		
+
+		GtkWidget *audio_codec_prop =  gtk_menu_item_new_with_label(_("Audio Codec Properties"));
+		gtk_widget_show (audio_codec_prop);
+		g_signal_connect (GTK_MENU_ITEM(audio_codec_prop), "activate",
+			G_CALLBACK (encoder_audio_properties), NULL);
+
 		gtk_menu_item_set_submenu(GTK_MENU_ITEM(video_codec_top), video_codec_menu);
 		gtk_menu_item_set_submenu(GTK_MENU_ITEM(audio_codec_top), audio_codec_menu);
 		gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu_video_top), video_menu);
 		gtk_menu_shell_append(GTK_MENU_SHELL(video_menu), video_file);
 		gtk_menu_shell_append(GTK_MENU_SHELL(video_menu), video_sufix);
 		gtk_menu_shell_append(GTK_MENU_SHELL(video_menu), video_codec_top);
+		gtk_menu_shell_append(GTK_MENU_SHELL(video_menu), video_codec_prop);
 		gtk_menu_shell_append(GTK_MENU_SHELL(video_menu), audio_codec_top);
+		gtk_menu_shell_append(GTK_MENU_SHELL(video_menu), audio_codec_prop);
 		gtk_menu_shell_append(GTK_MENU_SHELL(menubar), menu_video_top);
 	}
-
 
 	/*show the menu*/
 	gtk_widget_show (menubar);
