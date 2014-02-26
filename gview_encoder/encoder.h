@@ -168,4 +168,28 @@ int get_audio_codec_index(int codec_id);
  */
 int get_audio_codec_list_index(int codec_id);
 
+/*
+ * get audio mkv codec
+ * args:
+ *   codec_ind - codec list index
+ *
+ * asserts:
+ *   none
+ *
+ * returns: mkv codec entry or NULL if none
+ */
+const char *encoder_get_audio_mkv_codec(int codec_ind);
+
+/*
+ * get video mkv codec
+ * args:
+ *   codec_ind - codec list index
+ *
+ * asserts:
+ *   none
+ *
+ * returns: mkv codec entry or NULL if none
+ */
+const char *encoder_get_video_mkv_codec(int codec_ind);
+
 #endif

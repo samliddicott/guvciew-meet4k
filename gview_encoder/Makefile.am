@@ -8,7 +8,8 @@ c_sources = encoder.c \
 			audio_codecs.c \
 			libav_encoder.c \
 			stream_io.c \
-			file_io.c
+			file_io.c \
+			matroska.c
 
 
 #Install the headers in a versioned directory - guvcvideo-x.x/libgviewaudio:

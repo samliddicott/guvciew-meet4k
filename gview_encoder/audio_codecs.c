@@ -359,3 +359,26 @@ const char *encoder_get_audio_codec_description(int codec_ind)
 		return NULL;
 	}
 }
+
+/*
+ * get audio mkv codec
+ * args:
+ *   codec_ind - codec list index
+ *
+ * asserts:
+ *   none
+ *
+ * returns: mkv codec entry or NULL if none
+ */
+const char *encoder_get_audio_mkv_codec(int codec_ind)
+{
+	int real_index = get_real_index (codec_ind);
+	if(real_index >= 0 && real_index < encoder_get_audio_codec_list_size())
+		return (listSupCodecs[real_index].mkv_codec);
+	else
+	{
+		fprintf(stderr, "ENCODER: (audio mkv codec) bad codec index\n");
+		return NULL;
+	}
+}
+

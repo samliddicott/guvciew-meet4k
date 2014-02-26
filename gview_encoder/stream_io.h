@@ -73,4 +73,80 @@ typedef struct _stream_io_t
 	struct _stream_io_t *previous, *next;
 } stream_io_t;
 
+/*
+ * get last stream of the list (list tail)
+ * args:
+ *   stream_list - pointer to stream list
+ *
+ * asserts:
+ *   none
+ *
+ * returns: pointer to last stream of the list
+ *          or NULL if none
+ */
+stream_io_t *get_last_stream(stream_io_t *stream_list);
+
+/*
+ * add a new stream to the list
+ * args:
+ *   stream_list - pointer to pointer of stream_list
+ *   list_size - pointer to list size
+ *
+ * asserts:
+ *   none
+ *
+ * returns: pointer to newly allocated stream
+ */
+stream_io_t *add_new_stream(stream_io_t **stream_list, int *list_size);
+
+/*
+ * destroy the sream list (free all streams)
+ * args:
+ *   stream_list - pointer to stream list
+ *   list_size - pointer to list size
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void destroy_stream_list(stream_io_t *stream_list, int *list_size);
+
+/*
+ * get stream with index from list
+ * args:
+ *   stream_list - pointer to pointer of stream_list
+ *   index - stream index in the list
+ *
+ * asserts:
+ *   none
+ *
+ * returns: pointer to stream
+ */
+stream_io_t *get_stream(stream_io_t *stream_list, int index);
+
+/*
+ * get first video stream
+ * args:
+ *   stream_list - pointer to  stream list
+ *
+ * asserts:
+ *   none
+ *
+ * returns: pointer to stream
+ */
+stream_io_t *get_first_video_stream(stream_io_t *stream_list);
+
+/*
+ * get first audio stream
+ * args:
+ *   stream_list - pointer to  stream list
+ *
+ * asserts:
+ *   none
+ *
+ * returns: pointer to stream
+ */
+stream_io_t *get_first_audio_stream(stream_io_t *stream_list);
+
 #endif
