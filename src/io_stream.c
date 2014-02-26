@@ -19,9 +19,6 @@
 #                                                                               #
 ********************************************************************************/
 
-#ifndef STREAM_H
-#define STREAM_H
-
 #include "io_stream.h"
 #include <stdio.h>
 #include <glib/gstdio.h>
@@ -32,7 +29,7 @@
 
 io_Stream* add_new_stream(io_Stream** stream_list, int* list_size)
 {
-	
+
 	io_Stream* stream = g_new0(io_Stream, 1);
 	stream->next = NULL;
 	stream->id = *list_size;
@@ -149,4 +146,3 @@ io_Stream* get_last_stream(io_Stream* stream_list)
 	return stream;
 }
 
-#endif
