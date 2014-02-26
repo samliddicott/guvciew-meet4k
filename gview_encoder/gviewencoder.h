@@ -175,6 +175,13 @@ typedef struct _encoder_video_context_t
 
 	int outbuf_size;
 	uint8_t* outbuf;
+	int outbuf_coded_size;
+
+	int64_t pts;
+	int64_t dts;
+	int flags;
+	int duration;
+
 } encoder_video_context_t;
 
 /*Audio*/
@@ -192,6 +199,9 @@ typedef struct _encoder_audio_context_t
 	uint8_t* outbuf;
 
 	int64_t pts;
+	int64_t dts;
+	int flags;
+	int duration;
 
 } encoder_audio_context_t;
 
@@ -200,14 +210,26 @@ typedef struct _encoder_context_t
 {
 	int muxer_id;
 
+	int input_format;
+
 	int video_width;
 	int video_height;
+
+	int fps_num;
+	int fps_den;
+
 	int audio_channels;
 	int audio_samprate;
 
 	encoder_video_context_t *enc_video_ctx;
 
 	encoder_audio_context_t *enc_audio_ctx;
+
+	/*external h264 encoder data*/
+	int h264_pps_size;
+	uint8_t *h264_pps;
+	int h264_sps_size;
+	uint8_t *h264_sps;
 
 } encoder_context_t;
 
@@ -222,6 +244,20 @@ typedef struct _encoder_context_t
  * returns: none
  */
 void encoder_set_verbosity(int value);
+
+/*
+ * convert yuyv to yuv420p
+ * args:
+ *    encoder_ctx - pointer to encoder context
+ *    inp - input data (yuyv)
+ *
+ * asserts:
+ *    encoder_ctx is not null
+ *    encoder_ctx->enc_video_ctx is not null
+ *
+ * returns: none
+ */
+void yuv422to420p(encoder_context_t *encoder_ctx, uint8_t *inp);
 
 /*
  * encoder initaliztion (first function to get called)
@@ -310,6 +346,7 @@ const char *encoder_get_audio_codec_description(int codec_ind);
 /*
  * initialize and get the encoder context
  * args:
+ *   input_format - input v4l2 format (yuyv for encoding)
  *   video_codec_ind - video codec list index
  *   audio_codec_ind - audio codec list index
  *   muxer_id - file muxer:
@@ -327,6 +364,7 @@ const char *encoder_get_audio_codec_description(int codec_ind);
  * returns: pointer to encoder context (NULL on error)
  */
 encoder_context_t *encoder_get_context(
+	int input_format,
 	int video_codec_ind,
 	int audio_codec_ind,
 	int muxer_id,
@@ -362,26 +400,28 @@ video_codec_t *encoder_get_video_codec_defaults(int codec_ind);
 audio_codec_t *encoder_get_audio_codec_defaults(int codec_ind);
 
 /*
+ * get the mkv codec private data
+ * args:
+ *    codec_ind - codec list index
+ *
+ * asserts:
+ *    none
+ *
+ * returns: pointer to mkvCodecPriv data
+ */
+void *encoder_get_mkvCodecPriv(int codec_ind);
+
+/*
  * set the mkv codec private data
  * args:
  *    encoder_ctx - pointer to encoder context
- *    format - capture format
- *    h264_pps_size - h264 pps data size (if any)
- *    h264_pps - pointer to h264 pps data (or null)
- *    h264_sps_size - h264 sps data size
- *    h264_sps - pointer to h264 sps data
  *
  * asserts:
  *    encoder_ctx is not null
  *
  * returns: mkvCodecPriv size
  */
-int encoder_set_mkvCodecPriv(encoder_context_t *encoder_ctx,
-	int format,
-	int h264_pps_size,
-	uint8_t *h264_pps,
-	int h264_sps_size,
-	uint8_t *h264_sps);
+int encoder_set_mkvCodecPriv(encoder_context_t *encoder_ctx);
 
 /*
  * encode video frame
@@ -392,7 +432,7 @@ int encoder_set_mkvCodecPriv(encoder_context_t *encoder_ctx,
  * asserts:
  *   none
  *
- * returns: error code
+ * returns: encoded buffer size
  */
 int encoder_encode_video(encoder_context_t *encoder_ctx, void *yuv_frame);
 
@@ -400,12 +440,12 @@ int encoder_encode_video(encoder_context_t *encoder_ctx, void *yuv_frame);
  * encode audio
  * args:
  *   encoder_ctx - pointer to encoder context
- *   pcm_data - audio pcm data
+ *   pcm - pointer to audio pcm data
  *
  * asserts:
  *   none
  *
- * returns: error code
+ * returns: encoded buffer size
  */
 int encoder_encode_audio(encoder_context_t *encoder_ctx, void *pcm);
 

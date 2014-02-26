@@ -31,10 +31,6 @@
 #include "stream_io.h"
 #include "file_io.h"
 
-/*MATROSKA modes*/
-#define MATROSKA_MODE_MKV     (0)
-#define MATROSKA_MODE_WEBM    (1)
-
 /* EBML version supported */
 #define EBML_VERSION 1
 
@@ -297,7 +293,7 @@ typedef struct mkv_context_t
 
 /** create a muxer context
  * mode : WEBM_FORMAT or mkv_ctx_FORMAT*/
-mkv_context_t *mkv_create_context(char* filename, int mode);
+mkv_context_t *mkv_create_context(const char* filename, int mode);
 
 /** add a video stream to the context */
 stream_io_t *mkv_add_video_stream(mkv_context_t *mkv_ctx,

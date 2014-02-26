@@ -501,7 +501,7 @@ static int mkv_write_tracks(mkv_context_t *mkv_ctx)
 
         mkv_put_ebml_string(mkv_ctx, MATROSKA_ID_CODECID, mkv_codec_name);
 
-        if (mkv_ctx->mode == MATROSKA_MODE_WEBM && !(stream->codec_id == AV_CODEC_ID_VP8 ||
+        if (mkv_ctx->mode == ENCODER_MUX_WEBM && !(stream->codec_id == AV_CODEC_ID_VP8 ||
                                         stream->codec_id == AV_CODEC_ID_VORBIS))
 		{
             fprintf(stderr, "ENCODER: (matroska) Only VP8 video and Vorbis audio are supported for WebM.\n");
@@ -562,7 +562,7 @@ int mkv_write_header(mkv_context_t *mkv_ctx)
     mkv_put_ebml_uint   (mkv_ctx, EBML_ID_EBMLREADVERSION    ,           1);
     mkv_put_ebml_uint   (mkv_ctx, EBML_ID_EBMLMAXIDLENGTH    ,           4);
     mkv_put_ebml_uint   (mkv_ctx, EBML_ID_EBMLMAXSIZELENGTH  ,           8);
-    if (mkv_ctx->mode == MATROSKA_MODE_WEBM)
+    if (mkv_ctx->mode == ENCODER_MUX_WEBM)
 		mkv_put_ebml_string (mkv_ctx, EBML_ID_DOCTYPE        , "webm");
 	else
 		mkv_put_ebml_string (mkv_ctx, EBML_ID_DOCTYPE        , "matroska");
@@ -922,7 +922,7 @@ int mkv_close(mkv_context_t* mkv_ctx)
     return 0;
 }
 
-mkv_context_t *mkv_create_context(char* filename, int mode)
+mkv_context_t *mkv_create_context(const char* filename, int mode)
 {
 	mkv_context_t *mkv_ctx = calloc(1, sizeof(mkv_context_t));
 

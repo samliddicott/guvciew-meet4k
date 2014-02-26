@@ -53,7 +53,7 @@
  *
  * returns: none
  */
-static void yuv422to420p(encoder_context_t *encoder_ctx, uint8_t *inp)
+void yuv422to420p(encoder_context_t *encoder_ctx, uint8_t *inp)
 {
 	/*assertions*/
 	assert(encoder_ctx != NULL);
