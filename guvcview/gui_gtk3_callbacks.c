@@ -682,6 +682,34 @@ void capture_image_clicked (GtkButton *button, void *data)
 }
 
 /*
+ * capture video button clicked event
+ * args:
+ *   button - widget that generated the event
+ *   data - pointer to user data
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void capture_video_clicked(GtkToggleButton *button, void *data)
+{
+	v4l2_dev_t *device = (v4l2_dev_t *) data;
+
+	if(gtk_toggle_button_get_active (button))
+	{
+		start_encoder_thread(device);
+		gtk_button_set_label(GTK_BUTTON(button), _("Stop Video (V)"));
+
+	}
+	else
+	{
+		stop_encoder_thread();
+		gtk_button_set_label(GTK_BUTTON(button), _("Cap. Video (V)"));
+	}
+}
+
+/*
  * pan/tilt step changed
  * args:
  *    spin - spinbutton that generated the event
@@ -1377,12 +1405,19 @@ void setfocus_clicked (GtkButton * button, void *data)
  */
 void audio_device_changed(GtkComboBox *combo, void *data)
 {
+	//v4l2_dev_t *device = (v4l2_dev_t *) data;
+
 	int index = gtk_combo_box_get_active(combo);
 
 	/*update the audio context for the new api*/
 	audio_context_t *audio_ctx = get_audio_context();
 
-	audio_ctx->device = index;
+	if(index < 0)
+		audio_ctx->device = 0;
+	else if (index >= audio_ctx->num_input_dev)
+		audio_ctx->device = audio_ctx->num_input_dev - 1;
+	else
+		audio_ctx->device = index;
 }
 
 /*
@@ -1471,19 +1506,24 @@ void audio_channels_changed(GtkComboBox *combo, void *data)
 	/*update the audio context for the new api*/
 	audio_context_t *audio_ctx = get_audio_context();
 
+	int channels = 0;
+
 	switch(index)
 	{
 		case 0:
-			audio_ctx->channels = audio_ctx->list_devices[audio_ctx->device].channels;
+			channels = audio_ctx->list_devices[audio_ctx->device].channels;
 			break;
 		case 1:
-			audio_ctx->channels =  1;
+			channels =  1;
 			break;
 		default:
 		case 2:
-			audio_ctx->channels = 2;
+			channels = 2;
 			break;
 	}
+
+	if(channels > audio_ctx->list_devices[audio_ctx->device].channels)
+		audio_ctx->channels = audio_ctx->list_devices[audio_ctx->device].channels;
 
 	if(audio_ctx->channels > 2)
 		audio_ctx->channels = 2; /*limit to stereo*/

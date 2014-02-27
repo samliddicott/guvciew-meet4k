@@ -623,33 +623,16 @@ audio_context_t *audio_init_pulseaudio()
  * Launch the main loop iteration thread
  * args:
  *   audio_ctx - pointer to audio context data
- *   device - device index in audio devices list
- *   samprate - audio sample rate
- *   channels - audio channels
  *
  * asserts:
  *   audio_ctx is not null
  *
  * returns: error code
  */
-int audio_start_pulseaudio(audio_context_t *audio_ctx, int device, int samprate, int channels)
+int audio_start_pulseaudio(audio_context_t *audio_ctx)
 {
 	/*assertions*/
 	assert(audio_ctx != NULL);
-
-	if(device < 0)
-		audio_ctx->device = 0;
-	else if (device >= audio_ctx->num_input_dev)
-		audio_ctx->device = audio_ctx->num_input_dev - 1;
-	else
-		audio_ctx->device = device;
-
-	audio_ctx->samprate = samprate;
-
-	if(channels > audio_ctx->list_devices[audio_ctx->device].channels)
-		audio_ctx->channels = audio_ctx->list_devices[audio_ctx->device].channels;
-
-	audio_init_buffers(audio_ctx);
 
     /* start audio capture thread */
     if(__THREAD_CREATE(&my_read_thread, pulse_read_audio, (void *) audio_ctx))

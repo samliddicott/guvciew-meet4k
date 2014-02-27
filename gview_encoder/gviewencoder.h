@@ -51,6 +51,9 @@
   #endif
 #endif
 
+/*encoder modes*/
+#define ENCODER_MODE_NONE   (0)
+#define ENCODER_MODE_RAW    (1)
 
 /*Muxer defs*/
 #define ENCODER_MUX_MKV        (0)
@@ -89,6 +92,15 @@
 #endif
 
 #define MAX_DELAYED_FRAMES 50  /*Maximum supported delayed frames*/
+
+/*video buffer*/
+typedef struct _video_buffer_t
+{
+	uint8_t *frame;  /*uncompressed*/
+	int frame_size;
+	int64_t timestamp;
+	int flag;      /*VIDEO_BUFF_FREE | VIDEO_BUFF_USED*/
+} video_buffer_t;
 
 /*video codec properties*/
 typedef struct _video_codec_t
@@ -170,7 +182,6 @@ typedef struct _encoder_video_context_t
 	int flush_done;
 
 	uint8_t* tmpbuf;
-
 	uint8_t* priv_data;
 
 	int outbuf_size;
@@ -191,6 +202,8 @@ typedef struct _encoder_audio_context_t
 	AVCodecContext *codec_context;
 	AVFrame *frame;
 	AVPacket *outpkt;
+
+	int avi_4cc;
 
 	int monotonic_pts;
 
@@ -376,6 +389,31 @@ encoder_context_t *encoder_get_context(
 	int audio_samprate);
 
 /*
+ * initialization of the file muxer
+ * args:
+ *   encoder_ctx - pointer to encoder context
+ *   filename - video filename
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void encoder_muxer_init(encoder_context_t *encoder_ctx, const char *filename);
+
+/*
+ * close the file muxer
+ * args:
+ *   encoder_ctx - pointer to encoder context
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void encoder_muxer_close(encoder_context_t *encoder_ctx);
+
+/*
  * get video list codec entry for codec index
  * args:
  *   codec_ind - codec list index
@@ -409,10 +447,10 @@ audio_codec_t *encoder_get_audio_codec_defaults(int codec_ind);
  *
  * returns: pointer to mkvCodecPriv data
  */
-void *encoder_get_mkvCodecPriv(int codec_ind);
+void *encoder_get_video_mkvCodecPriv(int codec_ind);
 
 /*
- * set the mkv codec private data
+ * set the video codec mkv private data
  * args:
  *    encoder_ctx - pointer to encoder context
  *
@@ -421,7 +459,58 @@ void *encoder_get_mkvCodecPriv(int codec_ind);
  *
  * returns: mkvCodecPriv size
  */
-int encoder_set_mkvCodecPriv(encoder_context_t *encoder_ctx);
+int encoder_set_video_mkvCodecPriv(encoder_context_t *encoder_ctx);
+
+/*
+ * get the mkv codec private data
+ * args:
+ *    codec_ind - codec list index
+ *
+ * asserts:
+ *    none
+ *
+ * returns: pointer to mkvCodecPriv data
+ */
+void *encoder_get_audio_mkvCodecPriv(int codec_ind);
+
+/*
+ * set the audio codec mkv private data
+ * args:
+ *    encoder_ctx - pointer to encoder context
+ *
+ * asserts:
+ *    encoder_ctx is not null
+ *
+ * returns: mkvCodecPriv size
+ */
+int encoder_set_audio_mkvCodecPriv(encoder_context_t *encoder_ctx);
+
+/*
+ * store unprocessed input video frame
+ * args:
+ *   frame - pointer to unprocessed frame data
+ *   size - frame size (in bytes)
+ *   timestamp - frame timestamp (in nanosec)
+ *
+ * asserts:
+ *   none
+ *
+ * returns: error code
+ */
+int encoder_store_input_frame(uint8_t *frame, int size, int64_t timestamp);
+
+/*
+ * process next video frame on the ring buffer (encode and mux to file)
+ * args:
+ *   encoder_ctx - pointer to encoder context
+ *   mode - encoder mode (ENCODER_MODE_[NONE | RAW])
+ *
+ * asserts:
+ *   encoder_ctx is not null
+ *
+ * returns: error code
+ */
+int encoder_process_next_video_buffer(encoder_context_t *encoder_ctx, int mode);
 
 /*
  * encode video frame
@@ -460,5 +549,17 @@ int encoder_encode_audio(encoder_context_t *encoder_ctx, void *pcm);
  * returns: none
  */
 void encoder_close(encoder_context_t *encoder_ctx);
+
+/*
+ * mux a video frame
+ * args:
+ *   encoder_ctx - pointer to encoder context
+ *
+ * asserts:
+ *   encoder_ctx is not null;
+ *
+ * returns: none
+ */
+int write_video_data(encoder_context_t *encoder_ctx);
 
 #endif

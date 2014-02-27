@@ -152,6 +152,32 @@ static audio_codec_t listSupCodecs[] = //list of software supported formats
 	}
 };
 
+static int get_aac_obj_ind(int profile)
+{
+	int i = 0;
+
+	for (i=0; i<4; i++)
+	 if(AAC_OBJ_TYPE[i] == profile) break;
+
+	 return i;
+}
+
+static int get_aac_samp_ind(int samprate)
+{
+	int i = 0;
+
+	for (i=0; i<13; i++)
+	 if(AAC_SAMP_FREQ[i] == samprate) break;
+
+	 if (i>12)
+	 {
+		printf("WARNING: invalid sample rate for AAC encoding\n");
+		printf("valid(96000, 88200, 64000, 48000, 44100, 32000, 24000, 22050, 16000, 12000, 11025, 8000, 7350)\n");
+		i=4; /*default 44100*/
+	 }
+	 return i;
+}
+
 /*
  * get audio codec list size
  * args:
@@ -382,3 +408,165 @@ const char *encoder_get_audio_mkv_codec(int codec_ind)
 	}
 }
 
+/*
+ * get audio codec bits
+ * args:
+ *   codec_ind - codec list index
+ *
+ * asserts:
+ *   none
+ *
+ * returns: bits entry from audio codec list
+ */
+int encoder_get_audio_bits(int codec_ind)
+{
+	int real_index = get_real_index (codec_ind);
+	if(real_index >= 0 && real_index < encoder_get_audio_codec_list_size())
+		return (listSupCodecs[real_index].bits);
+	else
+	{
+		fprintf(stderr, "ENCODER: (get_audio_bits) bad codec index\n");
+		return 0;
+	}
+}
+
+/*
+ * get audio codec bit rate
+ * args:
+ *   codec_ind - codec list index
+ *
+ * asserts:
+ *   none
+ *
+ * returns: bit_rate entry from audio codec list
+ */
+int encoder_get_audio_bit_rate(int codec_ind)
+{
+	int real_index = get_real_index (codec_ind);
+	if(real_index >= 0 && real_index < encoder_get_audio_codec_list_size())
+		return (listSupCodecs[real_index].bit_rate);
+	else
+	{
+		fprintf(stderr, "ENCODER: (get_audio_bit_rate) bad codec index\n");
+		return 0;
+	}
+}
+
+/*
+ * get the mkv codec private data
+ * args:
+ *    codec_ind - codec list index
+ *
+ * asserts:
+ *    none
+ *
+ * returns: pointer to mkvCodecPriv data
+ */
+void *encoder_get_audio_mkvCodecPriv(int codec_ind)
+{
+	int real_index = get_real_index (codec_ind);
+	if(real_index >= 0 && real_index < encoder_get_audio_codec_list_size())
+		return ((void *) listSupCodecs[real_index].mkv_codpriv);
+	else
+	{
+		fprintf(stderr, "ENCODER: (mkvCodecPriv) bad codec index\n");
+		return NULL;
+	}
+}
+
+/*
+ * set the audio codec mkv private data
+ * args:
+ *    encoder_ctx - pointer to encoder context
+ *
+ * asserts:
+ *    encoder_ctx is not null
+ *
+ * returns: mkvCodecPriv size
+ */
+int encoder_set_audio_mkvCodecPriv(encoder_context_t *encoder_ctx)
+{
+	/*assertions*/
+	assert(encoder_ctx != NULL);
+
+	int size = 0;
+
+	int codec_id = encoder_ctx->enc_video_ctx->codec_context->codec_id;
+	int real_index = get_video_codec_index(codec_id);
+
+
+	if (codec_id == AV_CODEC_ID_AAC)
+	{
+		int obj_type = get_aac_obj_ind(listSupCodecs[real_index].profile);
+		int sampind  = get_aac_samp_ind(encoder_ctx->audio_samprate);
+		AAC_ESDS[0] = (uint8_t) ((obj_type & 0x1F) << 3 ) + ((sampind & 0x0F) >> 1);
+		AAC_ESDS[1] = (uint8_t) ((sampind & 0x0F) << 7 ) + ((encoder_ctx->audio_channels & 0x0F) << 3);
+
+		return listSupCodecs[real_index].codpriv_size; /*return size = 2 */
+	}
+	else if(codec_id == AV_CODEC_ID_VORBIS)
+	{
+		//get the 3 first header packets
+		uint8_t *header_start[3];
+		int header_len[3];
+		int first_header_size;
+
+		first_header_size = 30; //theora = 42
+    	if (avpriv_split_xiph_headers(
+			encoder_ctx->enc_audio_ctx->codec_context->extradata,
+			encoder_ctx->enc_audio_ctx->codec_context->extradata_size,
+				first_header_size, header_start, header_len) < 0)
+        {
+			fprintf(stderr, "ENCODER: vorbis codec - Extradata corrupt.\n");
+			return -1;
+		}
+
+		//printf("Vorbis: header1: %i  header2: %i  header3:%i \n", header_len[0], header_len[1], header_len[2]);
+
+		//get the allocation needed for headers size
+		int header_lace_size[2];
+		header_lace_size[0]=0;
+		header_lace_size[1]=0;
+		int i;
+		for (i = 0; i < header_len[0] / 255; i++)
+			header_lace_size[0]++;
+		header_lace_size[0]++;
+		for (i = 0; i < header_len[1] / 255; i++)
+			header_lace_size[1]++;
+		header_lace_size[1]++;
+
+		int priv_data_size = 1 + //number of packets -1
+						header_lace_size[0] +  //first packet size
+						header_lace_size[1] +  //second packet size
+						header_len[0] + //first packet header
+						header_len[1] + //second packet header
+						header_len[2];  //third packet header
+
+		//should check and clean before allocating ??
+		encoder_ctx->enc_audio_ctx->priv_data = calloc(priv_data_size, sizeof(uint8_t));
+		//write header
+		uint8_t* tmp = encoder_ctx->enc_audio_ctx->priv_data;
+		*tmp++ = 0x02; //number of packets -1
+		//size of head 1
+		for (i = 0; i < header_len[0] / 0xff; i++)
+			*tmp++ = 0xff;
+		*tmp++ = header_len[0] % 0xff;
+		//size of head 2
+		for (i = 0; i < header_len[1] / 0xff; i++)
+			*tmp++ = 0xff;
+		*tmp++ = header_len[1] % 0xff;
+		//add headers
+		for(i=0; i<3; i++)
+		{
+			memcpy(tmp, header_start[i] , header_len[i]);
+			tmp += header_len[i];
+		}
+
+		listSupCodecs[real_index].mkv_codpriv = encoder_ctx->enc_audio_ctx->priv_data;
+		listSupCodecs[real_index].codpriv_size = priv_data_size;
+		return listSupCodecs[real_index].codpriv_size;
+	}
+
+
+	return 0;
+}

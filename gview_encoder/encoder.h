@@ -84,6 +84,10 @@
 #define MS_FORMAT_WMA9			(0x0163)
 #define MS_FORMAT_WMA9_PRO		(0x0162)
 
+/*video buffer flags*/
+#define VIDEO_BUFF_FREE    (0)
+#define VIDEO_BUFF_USED    (1)
+
 typedef struct _bmp_info_header_t
 {
 	uint32_t   biSize;  /*size of this header 40 bytes*/
@@ -191,5 +195,29 @@ const char *encoder_get_audio_mkv_codec(int codec_ind);
  * returns: mkv codec entry or NULL if none
  */
 const char *encoder_get_video_mkv_codec(int codec_ind);
+
+/*
+ * get audio codec bits
+ * args:
+ *   codec_ind - codec list index
+ *
+ * asserts:
+ *   none
+ *
+ * returns: bits entry from audio codec list
+ */
+int encoder_get_audio_bits(int codec_ind);
+
+/*
+ * get audio codec bit rate
+ * args:
+ *   codec_ind - codec list index
+ *
+ * asserts:
+ *   none
+ *
+ * returns: bit_rate entry from audio codec list
+ */
+int encoder_get_audio_bit_rate(int codec_ind);
 
 #endif

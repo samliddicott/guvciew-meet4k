@@ -164,6 +164,9 @@ int main(int argc, char *argv[])
 	if(!my_options->control_panel)
 		__THREAD_JOIN(capture_thread);
 
+	/*closes the audio context (stored staticly in video_capture)*/
+	close_audio_context();
+
 	if(device)
 		v4l2core_close_dev(device);
 

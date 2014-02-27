@@ -276,7 +276,7 @@ audio_context_t *audio_init_portaudio()
 	audio_context_t *audio_ctx = calloc(1, sizeof(audio_context_t));
 
 	Pa_Initialize();
-	
+
 	audio_portaudio_list_devices(audio_ctx);
 
 	audio_ctx->api = AUDIO_PORTAUDIO;
@@ -288,33 +288,16 @@ audio_context_t *audio_init_portaudio()
  * start portaudio stream capture
  * args:
  *   audio_ctx - pointer to audio context data
- *   device - device index in devices list
- *   samprate - sample rate
- *   channels - channels
  *
  * asserts:
  *   audio_ctx is not null
  *
  * returns: error code
  */
-int audio_start_portaudio(audio_context_t *audio_ctx, int device, int samprate, int channels)
+int audio_start_portaudio(audio_context_t *audio_ctx)
 {
 	/*assertions*/
 	assert(audio_ctx != NULL);
-
-	if(device < 0)
-		audio_ctx->device = 0;
-	else if (device >= audio_ctx->num_input_dev)
-		audio_ctx->device = audio_ctx->num_input_dev - 1;
-	else
-		audio_ctx->device = device;
-
-	if(channels > audio_ctx->list_devices[audio_ctx->device].channels)
-		audio_ctx->channels = audio_ctx->list_devices[audio_ctx->device].channels;
-
-	audio_ctx->samprate = samprate;
-
-	audio_init_buffers(audio_ctx);
 
 	PaError err = paNoError;
 	PaStream *stream = NULL;
@@ -403,7 +386,7 @@ int audio_stop_portaudio(audio_context_t *audio_ctx)
 void audio_close_portaudio(audio_context_t *audio_ctx)
 {
 	Pa_Terminate();
-	
+
 	if(audio_ctx == NULL)
 		return;
 

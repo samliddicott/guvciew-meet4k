@@ -59,14 +59,24 @@ static __MUTEX_TYPE mutex;
 #define __PMUTEX &mutex
 
 /*
+ * mux a video frame
+ * args:
+ *   encoder_ctx - pointer to encoder context
  *
+ * asserts:
+ *   encoder_ctx is not null;
+ *
+ * returns: none
  */
-static int write_video_data(encoder_context_t *encoder_ctx)
+int write_video_data(encoder_context_t *encoder_ctx)
 {
 	/*assertions*/
 	assert(encoder_ctx != NULL);
 
 	encoder_video_context_t *enc_video_ctx = encoder_ctx->enc_video_ctx;
+
+	if(enc_video_ctx->outbuf_coded_size <= 0)
+		return -1;
 
 	int ret =0;
 
@@ -99,7 +109,18 @@ static int write_video_data(encoder_context_t *encoder_ctx)
 	return (ret);
 }
 
-int muxer_init(encoder_context_t *encoder_ctx, const char *filename)
+/*
+ * initialization of the file muxer
+ * args:
+ *   encoder_ctx - pointer to encoder context
+ *   filename - video filename
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void encoder_muxer_init(encoder_context_t *encoder_ctx, const char *filename)
 {
 	switch (encoder_ctx->muxer_id)
 	{
@@ -132,18 +153,36 @@ int muxer_init(encoder_context_t *encoder_ctx, const char *filename)
 
 			}
 
-			video_stream->extra_data_size = encoder_set_mkvCodecPriv(encoder_ctx);
+			video_stream->extra_data_size = encoder_set_video_mkvCodecPriv(encoder_ctx);
 
 			if(video_stream->extra_data_size > 0)
 			{
-				int codec_ind = get_video_codec_list_index(encoder_ctx->enc_video_ctx->codec_context->codec_id);
-				video_stream->extra_data = (uint8_t *) encoder_get_mkvCodecPriv(codec_ind);
+				int vcodec_ind = get_video_codec_list_index(encoder_ctx->enc_video_ctx->codec_context->codec_id);
+				video_stream->extra_data = (uint8_t *) encoder_get_video_mkvCodecPriv(vcodec_ind);
 				if(encoder_ctx->input_format == V4L2_PIX_FMT_H264)
 					video_stream->h264_process = 1; //we need to process NALU marker
 			}
 
 			/*add audio stream*/
+			int acodec_ind = get_video_codec_list_index(encoder_ctx->enc_audio_ctx->codec_context->codec_id);
+			/*sample size - only used for PCM*/
+			int32_t a_bits = encoder_get_audio_bits(acodec_ind);
+			/*bit rate (compressed formats)*/
+			int32_t b_rate = encoder_get_audio_bit_rate(acodec_ind);
 
+			audio_stream = mkv_add_audio_stream(
+							mkv_ctx,
+							encoder_ctx->audio_channels,
+							encoder_ctx->audio_samprate,
+							a_bits,
+							b_rate,
+							encoder_ctx->enc_audio_ctx->codec_context->codec_id,
+							encoder_ctx->enc_audio_ctx->avi_4cc);
+
+			audio_stream->extra_data_size = encoder_set_audio_mkvCodecPriv(encoder_ctx);
+
+			if(audio_stream->extra_data_size > 0)
+				audio_stream->extra_data = encoder_get_audio_mkvCodecPriv(acodec_ind);
 
 			/* write the file header */
 			mkv_write_header(mkv_ctx);
@@ -151,6 +190,34 @@ int muxer_init(encoder_context_t *encoder_ctx, const char *filename)
 			break;
 
 	}
+}
 
-	return 0;
+/*
+ * close the file muxer
+ * args:
+ *   encoder_ctx - pointer to encoder context
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void encoder_muxer_close(encoder_context_t *encoder_ctx)
+{
+	switch (encoder_ctx->muxer_id)
+	{
+		case ENCODER_MUX_AVI:
+
+			break;
+
+		default:
+		case ENCODER_MUX_MKV:
+		case ENCODER_MUX_WEBM:
+			if(mkv_ctx != NULL)
+			{
+				mkv_destroy_context(mkv_ctx);
+				mkv_ctx = NULL;
+			}
+			break;
+	}
 }

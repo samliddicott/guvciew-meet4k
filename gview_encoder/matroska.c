@@ -614,10 +614,10 @@ int mkv_write_header(mkv_context_t *mkv_ctx)
 #endif
     mkv_put_ebml_binary(mkv_ctx, MATROSKA_ID_SEGMENTUID, seg_uid, 16);
 
-    // reserve space for the duration
+    /* reserve space for the duration*/
     mkv_ctx->duration = 0;
     mkv_ctx->duration_offset = io_get_offset(mkv_ctx->writer);
-    mkv_put_ebml_void(mkv_ctx, 11);                  // assumes double-precision float to be written
+    mkv_put_ebml_void(mkv_ctx, 11); /* assumes double-precision float to be written*/
     mkv_end_ebml_master(mkv_ctx, segment_info);
 
     ret = mkv_write_tracks(mkv_ctx);

@@ -43,16 +43,13 @@ audio_context_t *audio_init_pulseaudio();
  * start pulseaudio stream capture
  * args:
  *   audio_ctx - pointer to audio context data
- *   device - device index in devices list
- *   samprate - sample rate
- *   channels - channels
  *
  * asserts:
  *   audio_ctx is not null
  *
  * returns: error code
  */
-int audio_start_pulseaudio(audio_context_t *audio_ctx, int device, int samprate, int channels);
+int audio_start_pulseaudio(audio_context_t *audio_ctx);
 
 /*
  * stop and join the main loop iteration thread

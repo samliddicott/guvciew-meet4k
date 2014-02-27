@@ -52,6 +52,8 @@ static GtkWidget *status_bar = NULL;
 static int status_warning_id = 0;
 /*The photo capture button*/
 static GtkWidget *CapImageButt = NULL;
+/*The video capture button*/
+static GtkWidget *CapVideoButt = NULL;
 
 /*
  * adds a message to the status bar
@@ -99,6 +101,33 @@ void gui_set_image_capture_button_label_gtk3(const char *label)
 		return;
 
 	gtk_button_set_label(GTK_BUTTON(CapImageButt), label);
+}
+
+/*
+ * sets the Video capture button status (on|off)
+ * args:
+ *   flag: video capture button status
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void gui_set_video_capture_button_status_gtk3(int flag)
+{
+	if(!CapVideoButt)
+		return;
+
+	if(flag > 0)
+	{
+		gtk_button_set_label(GTK_BUTTON(CapVideoButt), _("Stop Video (V)"));
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(CapVideoButt), TRUE);
+	}
+	else
+	{
+		gtk_button_set_label(GTK_BUTTON(CapVideoButt), _("Cap. Video (V)"));
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(CapVideoButt), FALSE);
+	}
 }
 
 /*
@@ -181,13 +210,13 @@ int gui_attach_gtk3(v4l2_dev_t *device, int width, int height)
 	/*photo button*/
 	if(check_photo_timer())
 	{
-		CapImageButt = gtk_button_new_with_label (_("Stop Cap. (I)"));
+		CapImageButt = gtk_button_new_with_mnemonic (_("Stop Cap. (I)"));
 		g_object_set_data (G_OBJECT (CapImageButt), "control_info",
 							GINT_TO_POINTER(1));
 	}
 	else
 	{
-		CapImageButt = gtk_button_new_with_label (_("Cap. Image (I)"));
+		CapImageButt = gtk_button_new_with_mnemonic (_("Cap. Image (I)"));
 		g_object_set_data (G_OBJECT (CapImageButt), "control_info",
 							GINT_TO_POINTER(0));
 	}
@@ -208,20 +237,40 @@ int gui_attach_gtk3(v4l2_dev_t *device, int width, int height)
 	g_signal_connect (GTK_BUTTON(CapImageButt), "clicked",
 		G_CALLBACK (capture_image_clicked), device);
 
+	/*video button*/
+	CapVideoButt = gtk_toggle_button_new_with_mnemonic (_("Cap. Video (V)"));
+	gui_set_video_capture_button_status_gtk3(0);
+
+	char *pix3path = g_strconcat (PACKAGE_DATA_DIR, "/pixmaps/guvcview/movie.png",NULL);
+	if (g_file_test(pix3path, G_FILE_TEST_EXISTS))
+	{
+		GtkWidget *VideoButton_Img = gtk_image_new_from_file (pix3path);
+
+		gtk_button_set_image(GTK_BUTTON(CapVideoButt), VideoButton_Img);
+		gtk_button_set_image_position(GTK_BUTTON(CapVideoButt), GTK_POS_TOP);
+	}
+	g_free(pix3path);
+
+	gtk_box_pack_start(GTK_BOX(HButtonBox), CapVideoButt, TRUE, TRUE, 2);
+	gtk_widget_show (CapVideoButt);
+
+	g_signal_connect (GTK_BUTTON(CapVideoButt), "clicked",
+		G_CALLBACK (capture_video_clicked), device);
+
 	/*quit button*/
 	//GtkWidget *quitButton = gtk_button_new_from_stock(GTK_STOCK_QUIT);
 	GtkWidget *quitButton = gtk_button_new_with_mnemonic (_("_Quit"));
 
-	char* pix3path = g_strconcat (PACKAGE_DATA_DIR, "/pixmaps/guvcview/close.png", NULL);
+	char* pix4path = g_strconcat (PACKAGE_DATA_DIR, "/pixmaps/guvcview/close.png", NULL);
 	if (g_file_test(pix3path,G_FILE_TEST_EXISTS))
 	{
-		GtkWidget *QButton_Img = gtk_image_new_from_file (pix3path);
+		GtkWidget *QButton_Img = gtk_image_new_from_file (pix4path);
 		gtk_button_set_image(GTK_BUTTON(quitButton), QButton_Img);
 		gtk_button_set_image_position(GTK_BUTTON(quitButton), GTK_POS_TOP);
 
 	}
 	/*must free path strings*/
-	free(pix3path);
+	free(pix4path);
 	gtk_box_pack_start(GTK_BOX(HButtonBox), quitButton, TRUE, TRUE, 2);
 	gtk_widget_show_all (quitButton);
 
@@ -308,7 +357,7 @@ int gui_attach_gtk3(v4l2_dev_t *device, int width, int height)
 		gtk_grid_attach (GTK_GRID(tab_2), tab_2_label, 1, 0, 1, 1);
 
 		gtk_notebook_append_page(GTK_NOTEBOOK(tab_box), scroll_2, tab_2);
-	
+
 		/*----------------------- Audio controls Tab ------------------------------*/
 
 		GtkWidget *scroll_3 = gtk_scrolled_window_new(NULL,NULL);
@@ -323,9 +372,9 @@ int gui_attach_gtk3(v4l2_dev_t *device, int width, int height)
 		gtk_widget_show(viewport3);
 
 		gtk_container_add(GTK_CONTAINER(scroll_3), viewport3);
-		
+
 		gui_attach_gtk3_audioctrls(viewport3);
-		
+
 		GtkWidget *tab_3 = gtk_grid_new();
 		gtk_widget_show (tab_3);
 
@@ -344,7 +393,7 @@ int gui_attach_gtk3(v4l2_dev_t *device, int width, int height)
 
 		gtk_notebook_append_page(GTK_NOTEBOOK(tab_box), scroll_3, tab_3);
 	}
-	
+
 	/* Attach the notebook (tabs) */
 	gtk_box_pack_start(GTK_BOX(maintable), tab_box, TRUE, TRUE, 2);
 

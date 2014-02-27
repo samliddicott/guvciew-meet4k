@@ -153,6 +153,18 @@ void request_format_update();
 audio_context_t *create_audio_context(int api);
 
 /*
+ * close the audio context
+ * args:
+ *    none
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void close_audio_context();
+
+/*
  * get audio context
  * args:
  *    none
@@ -163,6 +175,30 @@ audio_context_t *create_audio_context(int api);
  * returns: pointer to audio context data (or NULL if no audio)
  */
 audio_context_t *get_audio_context();
+
+/*
+ * start the encoder thread
+ * args:
+ *   data - pointer to user data
+ *
+ * asserts:
+ *   none
+ *
+ * returns: error code
+ */
+int start_encoder_thread(void *data);
+
+/*
+ * stop the encoder thread
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: error code
+ */
+int stop_encoder_thread();
 
 /*
  * capture loop (should run in a separate thread)

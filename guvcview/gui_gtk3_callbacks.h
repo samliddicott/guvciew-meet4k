@@ -191,6 +191,19 @@ void video_file_clicked (GtkWidget *item, void *data);
 void capture_image_clicked (GtkButton *button, void *data);
 
 /*
+ * capture video button clicked event
+ * args:
+ *   button - widget that generated the event
+ *   data - pointer to user data
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void capture_video_clicked(GtkToggleButton *button, void *data);
+
+/*
  * pan/tilt step changed
  * args:
  *    spin - spinbutton that generated the event

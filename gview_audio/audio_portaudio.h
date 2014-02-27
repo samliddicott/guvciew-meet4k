@@ -43,16 +43,13 @@ audio_context_t *audio_init_portaudio();
  * start portaudio stream capture
  * args:
  *   audio_ctx - pointer to audio context data
- *   device - device index in devices list
- *   samprate - sample rate
- *   channels - channels
  *
  * asserts:
  *   audio_ctx is not null
  *
  * returns: error code
  */
-int audio_start_portaudio(audio_context_t *audio_ctx, int device, int samprate, int channels);
+int audio_start_portaudio(audio_context_t *audio_ctx);
 
 /*
  * stop portaudio stream capture

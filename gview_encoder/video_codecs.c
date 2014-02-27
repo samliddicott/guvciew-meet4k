@@ -558,7 +558,7 @@ static int get_list_index (int real_index)
  *
  * returns: pointer to mkvCodecPriv data
  */
-void *encoder_get_mkvCodecPriv(int codec_ind)
+void *encoder_get_video_mkvCodecPriv(int codec_ind)
 {
 	int real_index = get_real_index (codec_ind);
 	if(real_index >= 0 && real_index < encoder_get_video_codec_list_size())
@@ -571,7 +571,7 @@ void *encoder_get_mkvCodecPriv(int codec_ind)
 }
 
 /*
- * set the mkv codec private data
+ * set the video codec mkv private data
  * args:
  *    encoder_ctx - pointer to encoder context
  *
@@ -580,7 +580,7 @@ void *encoder_get_mkvCodecPriv(int codec_ind)
  *
  * returns: mkvCodecPriv size
  */
-int encoder_set_mkvCodecPriv(encoder_context_t *encoder_ctx)
+int encoder_set_video_mkvCodecPriv(encoder_context_t *encoder_ctx)
 {
 	/*assertions*/
 	assert(encoder_ctx != NULL);

@@ -50,11 +50,23 @@
 
 int verbosity = 0;
 
+/*video buffer data mutex*/
+static __MUTEX_TYPE mutex;
+#define __PMUTEX &mutex
+
 static int valid_video_codecs = 0;
 static int valid_audio_codecs = 0;
 
 static int64_t last_video_pts = 0;
 static int64_t last_audio_pts = 0;
+static int64_t reference_pts  = 0;
+
+static int video_frame_max_size = 0;
+
+static int video_ring_buffer_size = 0;
+static video_buffer_t *video_ring_buffer = NULL;
+static int video_read_index = 0;
+static int video_write_index = 0;
 
 /*
  * set verbosity
@@ -69,6 +81,65 @@ static int64_t last_audio_pts = 0;
 void encoder_set_verbosity(int value)
 {
 	verbosity = value;
+}
+
+/*
+ * allocate video ring buffer
+ * args:
+ *   video_width - video frame width (in pixels)
+ *   video_height - video frame height (in pixels)
+ *   fps_den - frames per sec (denominator)
+ *   fps_num - frames per sec (numerator)
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+static void encoder_alloc_video_ring_buffer(
+	int video_width,
+	int video_height,
+	int fps_den,
+	int fps_num)
+{
+	video_ring_buffer_size = (fps_den * 3) / (fps_num * 2); /* 1.5 sec */
+	if(video_ring_buffer_size < 15)
+		video_ring_buffer_size = 15; /*at least 15 frames buffer*/
+	video_ring_buffer = calloc(video_ring_buffer_size, sizeof(video_buffer_t));
+
+	/*Max: (yuyv) 2 bytes per pixel*/
+	video_frame_max_size = video_width * video_height * 2;
+	int i = 0;
+	for(i = 0; i < video_ring_buffer_size; ++i)
+	{
+		video_ring_buffer[i].frame = calloc(video_frame_max_size, sizeof(uint8_t));
+		video_ring_buffer[i].flag = VIDEO_BUFF_FREE;
+	}
+}
+
+/*
+ * clean video ring buffer
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+static void encoder_clean_video_ring_buffer()
+{
+	if(!video_ring_buffer)
+		return;
+
+	int i = 0;
+	for(i = 0; i < video_ring_buffer_size; ++i)
+	{
+		/*Max: (yuyv) 2 bytes per pixel*/
+		free(video_ring_buffer[i].frame);
+	}
+	free(video_ring_buffer);
+	video_ring_buffer = NULL;
 }
 
 /*
@@ -250,6 +321,8 @@ static encoder_video_context_t *encoder_video_init(
 	enc_video_ctx->flush_delayed_frames = 0;
 	enc_video_ctx->flush_done = 0;
 
+	/*allocate the ring buffer*/
+
 	return (enc_video_ctx);
 }
 
@@ -319,6 +392,8 @@ static encoder_audio_context_t *encoder_audio_init(
 	}
 
 	/*defaults*/
+	enc_audio_ctx->avi_4cc = audio_defaults->avi_4cc;
+
 	enc_audio_ctx->codec_context->bit_rate = audio_defaults->bit_rate;
 	enc_audio_ctx->codec_context->profile = audio_defaults->profile; /*for AAC*/
 
@@ -528,14 +603,116 @@ encoder_context_t *encoder_get_context(
 		audio_channels,
 		audio_samprate);
 
+	/****************** ring buffer *****************/
+	encoder_alloc_video_ring_buffer(
+		video_width,
+		video_height,
+		fps_den,
+		fps_num);
+
 	return encoder_ctx;
+}
+
+/*
+ * store unprocessed input video frame
+ * args:
+ *   frame - pointer to unprocessed frame data
+ *   size - frame size (in bytes)
+ *   timestamp - frame timestamp (in nanosec)
+ *
+ * asserts:
+ *   none
+ *
+ * returns: error code
+ */
+int encoder_store_input_frame(uint8_t *frame, int size, int64_t timestamp)
+{
+	if(!video_ring_buffer)
+		return -1;
+
+	int ret = 0;
+
+	if (reference_pts == 0)
+		reference_pts = timestamp; /*first frame ts*/
+
+	int64_t pts = timestamp - reference_pts;
+
+	__LOCK_MUTEX( __PMUTEX );
+	if(video_ring_buffer[video_write_index].flag == VIDEO_BUFF_FREE)
+	{
+		/*clip*/
+		if(size > video_frame_max_size)
+		{
+			fprintf(stderr, "ENCODER: frame (%i bytes) larger than buffer (%i bytes): clipping\n",
+				size, video_frame_max_size);
+
+			size = video_frame_max_size;
+
+			ret = -1;
+		}
+		memcpy(video_ring_buffer[video_write_index].frame, frame, size);
+		video_ring_buffer[video_write_index].timestamp = pts;
+		video_ring_buffer[video_write_index].flag = VIDEO_BUFF_USED;
+
+		NEXT_IND(video_write_index, video_ring_buffer_size);
+	}
+	__UNLOCK_MUTEX( __PMUTEX );
+
+	return ret;
+}
+
+/*
+ * process next video frame on the ring buffer (encode and mux to file)
+ * args:
+ *   encoder_ctx - pointer to encoder context
+ *   mode - encoder mode (ENCODER_MODE_[NONE | RAW])
+ *
+ * asserts:
+ *   encoder_ctx is not null
+ *
+ * returns: error code
+ */
+int encoder_process_next_video_buffer(encoder_context_t *encoder_ctx, int mode)
+{
+	/*assertions*/
+	assert(encoder_ctx != NULL);
+
+	__LOCK_MUTEX( __PMUTEX );
+
+	int flag = video_ring_buffer[video_read_index].flag;
+
+	__UNLOCK_MUTEX ( __PMUTEX );
+
+	if(flag == VIDEO_BUFF_FREE)
+		return 1; /*all done*/
+
+	/*timestamp is zero indexed*/
+	encoder_ctx->enc_video_ctx->pts = video_ring_buffer[video_read_index].timestamp;
+
+	if(mode == ENCODER_MODE_NONE)
+	{
+		/*buffer has a yuyv frame*/
+		encoder_encode_video(encoder_ctx, video_ring_buffer[video_read_index].frame);
+	}
+
+	/*mux the frame*/
+	__LOCK_MUTEX( __PMUTEX );
+
+	video_ring_buffer[video_read_index].flag = VIDEO_BUFF_FREE;
+	NEXT_IND(video_read_index, video_ring_buffer_size);
+
+	__UNLOCK_MUTEX ( __PMUTEX );
+
+	int ret = write_video_data(encoder_ctx);
+
+	return ret;
 }
 
 /*
  * encode video frame
  * args:
  *   encoder_ctx - pointer to encoder context
- *   yuv_frame - yuyv input frame
+ *   yuv_frame - pointer to frame data
  *
  * asserts:
  *   encoder_ctx is not null
@@ -553,6 +730,7 @@ int encoder_encode_video(encoder_context_t *encoder_ctx, void *yuv_frame)
 	{
 		if(verbosity > 1)
 			printf("ENCODER: video encoder not set\n");
+		encoder_ctx->enc_video_ctx->outbuf_coded_size = 0;
 		return 0;
 	}
 
@@ -675,6 +853,8 @@ int encoder_encode_video(encoder_context_t *encoder_ctx, void *yuv_frame)
 				enc_video_ctx->index_of_df = 0;
 		}
 	}
+
+	encoder_ctx->enc_video_ctx->outbuf_coded_size = outsize;
 	return (outsize);
 }
 
@@ -790,11 +970,15 @@ int encoder_encode_audio(encoder_context_t *encoder_ctx, void *pcm)
  */
 void encoder_close(encoder_context_t *encoder_ctx)
 {
+	encoder_clean_video_ring_buffer();
+
 	if(!encoder_ctx);
 		return;
 
 	encoder_video_context_t *enc_video_ctx = encoder_ctx->enc_video_ctx;
 	encoder_audio_context_t *enc_audio_ctx = encoder_ctx->enc_audio_ctx;
+
+	reference_pts = 0;
 
 	/*close video codec*/
 	if(enc_video_ctx)

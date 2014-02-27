@@ -147,7 +147,12 @@ int audio_init_buffers(audio_context_t *audio_ctx)
 
 	int i = 0;
 
+	/*set the buffers size*/
 	audio_ctx->capture_buff_size = audio_ctx->channels * AUDBUFF_FRAMES;
+
+	if(audio_ctx->capture_buff)
+		free(audio_ctx->capture_buff);
+
 	audio_ctx->capture_buff = calloc(
 		audio_ctx->capture_buff_size, sizeof(sample_t));
 
@@ -193,24 +198,59 @@ void audio_fill_buffer(audio_context_t *audio_ctx, int64_t ts)
 	int flag = audio_buffers[buffer_write_index].flag;
 	audio_unlock_mutex();
 
-	if(flag == AUDIO_BUFF_FREE)
-	{
-		/*write max_frames and fill a buffer*/
-		memcpy(audio_buffers[buffer_write_index].data,
-			audio_ctx->capture_buff, audio_ctx->capture_buff_size);
-		audio_buffers[buffer_write_index].timestamp = audio_ctx->current_ts;
-
-		audio_lock_mutex();
-		audio_buffers[buffer_write_index].flag = AUDIO_BUFF_USED;
-		NEXT_IND(buffer_write_index, AUDBUFF_NUM);
-		audio_unlock_mutex();
-	}
-	else
+	if(flag == AUDIO_BUFF_USED)
 	{
 		fprintf(stderr, "AUDIO: write buffer(%i) is still in use - dropping data\n", buffer_write_index);
+		return;
 	}
 
+	/*write max_frames and fill a buffer*/
+	memcpy(audio_buffers[buffer_write_index].data,
+		audio_ctx->capture_buff,
+		audio_ctx->capture_buff_size * sizeof(sample_t));
+	audio_buffers[buffer_write_index].timestamp = audio_ctx->current_ts;
 
+	audio_lock_mutex();
+	audio_buffers[buffer_write_index].flag = AUDIO_BUFF_USED;
+	NEXT_IND(buffer_write_index, AUDBUFF_NUM);
+	audio_unlock_mutex();
+
+
+
+}
+
+/*
+ * get the next used buffer from the ring buffer
+ * args:
+ *   audio_ctx - pointer to audio context
+ *   buff - pointer to an allocated audio buffer
+ *
+ * asserts:
+ *   none
+ *
+ * returns: error code
+ */
+int audio_get_next_buffer(audio_context_t *audio_ctx, audio_buff_t *buff)
+{
+	audio_lock_mutex();
+	int flag = audio_buffers[buffer_read_index].flag;
+	audio_unlock_mutex();
+
+	if(flag == AUDIO_BUFF_FREE)
+		return 1; /*all done*/
+
+	/*copy pcm data*/
+	memcpy( buff->data, audio_buffers[buffer_read_index].data,
+		audio_ctx->capture_buff_size * sizeof(sample_t));
+
+	buff->timestamp = audio_buffers[buffer_read_index].timestamp;
+
+	audio_lock_mutex();
+	audio_buffers[buffer_read_index].flag = AUDIO_BUFF_FREE;
+	NEXT_IND(buffer_read_index, AUDBUFF_NUM);
+	audio_unlock_mutex();
+
+	return 0;
 }
 
 /*
@@ -254,19 +294,19 @@ audio_context_t *audio_init(int api)
  * start audio stream capture
  * args:
  *   audio_ctx - pointer to audio context data
- *   device - device index in devices list
- *   samprate - sample rate
- *   channels - channels
  *
  * asserts:
  *   audio_ctx is not null
  *
  * returns: error code
  */
-int audio_start(audio_context_t *audio_ctx, int device, int samprate, int channels)
+int audio_start(audio_context_t *audio_ctx)
 {
 	/*assertions*/
 	assert(audio_ctx != NULL);
+
+	/*alloc the ring buffer*/
+	audio_init_buffers(audio_ctx);
 
 	int err = 0;
 
@@ -277,12 +317,12 @@ int audio_start(audio_context_t *audio_ctx, int device, int samprate, int channe
 
 #if HAS_PULSEAUDIO
 		case AUDIO_PULSE:
-			err = audio_start_pulseaudio(audio_ctx, device, samprate, channels);
+			err = audio_start_pulseaudio(audio_ctx);
 			break;
 #endif
 		case AUDIO_PORTAUDIO:
 		default:
-			err = audio_start_portaudio(audio_ctx, device, samprate, channels);
+			err = audio_start_portaudio(audio_ctx);
 			break;
 	}
 

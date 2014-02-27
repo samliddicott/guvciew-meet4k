@@ -33,6 +33,7 @@
 
 #include "gviewv4l2core.h"
 #include "gviewrender.h"
+#include "gviewencoder.h"
 #include "gview.h"
 #include "video_capture.h"
 #include "options.h"
@@ -45,6 +46,7 @@ extern int debug_level;
 static int render = RENDER_SDL1; /*render API*/
 static int quit = 0; /*terminate flag*/
 static int save_image = 0; /*save image flag*/
+static int save_video = 0; /*save video flag*/
 
 static uint64_t my_photo_timer = 0; /*timer count*/
 
@@ -61,6 +63,8 @@ static int do_soft_focus = 0;
 
 /*pointer to audio context data*/
 static audio_context_t *my_audio_ctx = NULL;
+
+static __THREAD_TYPE encoder_thread;
 
 /*
  * set render flag
@@ -206,6 +210,37 @@ void video_capture_save_image()
 }
 
 /*
+ * sets the save video flag
+ * args:
+ *    value - save_video flag value
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void video_capture_save_video(int value)
+{
+	save_video = value;
+}
+
+/*
+ * sets the save video flag
+ * args:
+ *    none
+ *
+ * asserts:
+ *    none
+ *
+ * returns: save_video flag
+ */
+int video_capture_get_save_video()
+{
+	return save_video;
+}
+
+
+/*
  * create an audio context
  * args:
  *    api - audio api
@@ -217,8 +252,7 @@ void video_capture_save_image()
  */
 audio_context_t *create_audio_context(int api)
 {
-	if(my_audio_ctx != NULL)
-		audio_close(my_audio_ctx);
+	close_audio_context();
 
 	my_audio_ctx = audio_init(api);
 
@@ -238,6 +272,114 @@ audio_context_t *create_audio_context(int api)
 audio_context_t *get_audio_context()
 {
 	return my_audio_ctx;
+}
+
+/*
+ * close the audio context
+ * args:
+ *    none
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void close_audio_context()
+{
+	if(my_audio_ctx != NULL)
+		audio_close(my_audio_ctx);
+
+	my_audio_ctx = NULL;
+}
+/*
+ * encoder loop (should run in a separate thread)
+ * args:
+ *    data - pointer to user data
+ *
+ * asserts:
+ *   none
+ *
+ * returns: pointer to return code
+ */
+static void *encoder_loop(void *data)
+{
+	v4l2_dev_t *device = (v4l2_dev_t *) data;
+
+	audio_context_t *audio_ctx = get_audio_context();
+
+	encoder_context_t *encoder_ctx = encoder_get_context(
+		device->requested_fmt,
+		get_video_codec_ind(),
+		get_audio_codec_ind(),
+		get_video_muxer(),
+		device->format.fmt.pix.width,
+		device->format.fmt.pix.height,
+		device->fps_num,
+		device->fps_denom,
+		audio_ctx->channels,
+		audio_ctx->samprate);
+
+	char *video_filename = NULL;
+	/*get_video_[name|path] always return a non NULL value*/
+	char *name = strdup(get_video_name());
+	char *path = strdup(get_video_path());
+
+	if(get_video_sufix_flag())
+	{
+		char *new_name = add_file_suffix(path, name);
+		free(name); /*free old name*/
+		name = new_name; /*replace with suffixed name*/
+	}
+	int pathsize = strlen(path);
+	if(path[pathsize] != '/')
+		video_filename = smart_cat(path, '/', name);
+	else
+		video_filename = smart_cat(path, 0, name);
+
+	if(debug_level > 1)
+		printf("GUVCVIEW: saving image to %s\n", video_filename);
+
+	encoder_muxer_init(encoder_ctx, video_filename);
+
+	/*clean string*/
+	free(video_filename);
+
+	/*start video capture*/
+	video_capture_save_video(1);
+	/*start audio capture*/
+	audio_start(audio_ctx);
+	/*
+	 * alloc the buffer after audio_start
+	 * otherwise capture_buff_size may not
+	 * be correct
+	 */
+	audio_buff_t *audio_buff = calloc(1, sizeof(audio_buff_t));
+	audio_buff->data = calloc(audio_ctx->capture_buff_size, sizeof(sample_t));
+
+	while(video_capture_get_save_video())
+	{
+		/*TODO: set video encoder mode to RAW if we only need to mux the video*/
+		encoder_process_next_video_buffer(encoder_ctx, ENCODER_MODE_NONE);
+
+		/*encode audio frames up to video timestamp or error*/
+		int ret = 0;
+		do
+		{
+			ret = audio_get_next_buffer(audio_ctx, audio_buff);
+			encoder_encode_audio(encoder_ctx, audio_buff->data);
+		}
+		while(ret == 0 &&
+			audio_buff->timestamp <= encoder_ctx->enc_video_ctx->pts);
+	}
+
+	/*stop audio capture*/
+	audio_stop(audio_ctx);
+
+	encoder_muxer_close(encoder_ctx);
+
+	encoder_close(encoder_ctx);
+
+	return ((void *) 0);
 }
 
 /*
@@ -425,6 +567,16 @@ void *capture_loop(void *data)
 				save_image = 0; /*reset*/
 			}
 
+			if(video_capture_get_save_video())
+			{
+				/*
+				 * TODO: check codec_id, format and frame flags
+				 * (we may want to store a compressed format
+				 */
+				int size = device->format.fmt.pix.width * device->format.fmt.pix.height * 2;
+				encoder_store_input_frame(device->yuv_frame, size, device->timestamp);
+			}
+
 		}
 	}
 
@@ -433,4 +585,40 @@ void *capture_loop(void *data)
 	render_close();
 
 	return ((void *) 0);
+}
+
+/*
+ * start the encoder thread
+ * args:
+ *   data - pointer to user data
+ *
+ * asserts:
+ *   none
+ *
+ * returns: error code
+ */
+int start_encoder_thread(void *data)
+{
+	int ret = __THREAD_CREATE(&encoder_thread, encoder_loop, data);
+
+	return ret;
+}
+
+/*
+ * stop the encoder thread
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: error code
+ */
+int stop_encoder_thread()
+{
+	video_capture_save_video(0);
+
+	__THREAD_JOIN(encoder_thread);
+
+	return 0;
 }

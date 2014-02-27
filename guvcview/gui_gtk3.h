@@ -203,6 +203,18 @@ void set_status_message_gtk3(const char *message);
 void gui_set_image_capture_button_label_gtk3(const char *label);
 
 /*
+ * sets the Video capture button status (on|off)
+ * args:
+ *   flag: video capture button status
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void gui_set_video_capture_button_status_gtk3(int flag);
+
+/*
  * get the main window widget
  * args:
  *    none
