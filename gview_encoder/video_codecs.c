@@ -465,7 +465,7 @@ int encoder_get_video_codec_list_size()
 {
 	int size = sizeof(listSupCodecs)/sizeof(video_codec_t);
 
-	if(verbosity > 0)
+	if(verbosity > 2)
 		printf("ENCODER: video codec list size:%i\n", size);
 
 	return size;
@@ -490,7 +490,7 @@ int encoder_get_video_codec_valid_list_size()
 		if(listSupCodecs[i].valid)
 			valid_size++;
 
-	if(verbosity > 0)
+	if(verbosity > 2)
 		printf("ENCODER: video codec valid list size:%i\n", valid_size);
 
 	return valid_size;
@@ -764,7 +764,7 @@ video_codec_t *encoder_get_video_codec_defaults(int codec_ind)
 		return (&(listSupCodecs[real_index]));
 	else
 	{
-		fprintf(stderr, "ENCODER: (video codec defaults) bad codec index\n");
+		fprintf(stderr, "ENCODER: (video codec defaults) bad codec index (%i)\n", codec_ind);
 		return NULL;
 	}
 }
@@ -815,7 +815,7 @@ const char *encoder_get_video_codec_description(int codec_ind)
 		return (listSupCodecs[real_index].description);
 	else
 	{
-		fprintf(stderr, "ENCODER: (video codec description) bad codec index\n");
+		fprintf(stderr, "ENCODER: (video codec description) bad codec index (%i)\n", codec_ind);
 		return NULL;
 	}
 }
@@ -833,11 +833,11 @@ const char *encoder_get_video_codec_description(int codec_ind)
 const char *encoder_get_video_mkv_codec(int codec_ind)
 {
 	int real_index = get_real_index (codec_ind);
-	if(real_index >= 0 && real_index < encoder_get_audio_codec_list_size())
+	if(real_index >= 0 && real_index < encoder_get_video_codec_list_size())
 		return (listSupCodecs[real_index].mkv_codec);
 	else
 	{
-		fprintf(stderr, "ENCODER: (audio mkv codec) bad codec index\n");
+		fprintf(stderr, "ENCODER: (video mkv codec) bad codec index (%i)\n", codec_ind);;
 		return NULL;
 	}
 }

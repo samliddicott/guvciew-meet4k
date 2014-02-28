@@ -48,11 +48,13 @@
 #include "encoder.h"
 #include "stream_io.h"
 #include "matroska.h"
+#include "avi.h"
 #include "gview.h"
 
 extern int verbosity;
 
 static mkv_context_t *mkv_ctx = NULL;
+static avi_context_t *avi_ctx = NULL;
 
 static stream_io_t *video_stream = NULL;
 static stream_io_t *audio_stream = NULL;
@@ -87,8 +89,14 @@ int encoder_write_video_data(encoder_context_t *encoder_ctx)
 	switch (encoder_ctx->muxer_id)
 	{
 		case ENCODER_MUX_AVI:
-			//if(size > 0)
-			//	ret = avi_write_packet(videoF->avi, 0, buff, size, videoF->vdts, videoF->vblock_align, videoF->vflags);
+			ret = avi_write_packet(
+					avi_ctx,
+					0,
+					enc_video_ctx->outbuf,
+					enc_video_ctx->outbuf_coded_size,
+					enc_video_ctx->dts,
+					enc_video_ctx->block_align,
+					enc_video_ctx->flags);
 			break;
 
 		case ENCODER_MUX_MKV:
@@ -141,8 +149,14 @@ int encoder_write_audio_data(encoder_context_t *encoder_ctx)
 	switch (encoder_ctx->muxer_id)
 	{
 		case ENCODER_MUX_AVI:
-			//if(size > 0)
-			//	ret = avi_write_packet(videoF->avi, 0, buff, size, videoF->vdts, videoF->vblock_align, videoF->vflags);
+			ret = avi_write_packet(
+					avi_ctx,
+					0,
+					enc_audio_ctx->outbuf,
+					enc_audio_ctx->outbuf_coded_size,
+					enc_audio_ctx->dts,
+					enc_audio_ctx->block_align,
+					enc_audio_ctx->flags);
 			break;
 
 		case ENCODER_MUX_MKV:

@@ -188,6 +188,8 @@ typedef struct _encoder_video_context_t
 	uint8_t* outbuf;
 	int outbuf_coded_size;
 
+	int block_align;
+
 	int64_t pts;
 	int64_t dts;
 	int flags;
@@ -211,6 +213,8 @@ typedef struct _encoder_audio_context_t
 	int outbuf_size;
 	uint8_t* outbuf;
 	int outbuf_coded_size;
+
+	int block_align;
 
 	int64_t pts;
 	int64_t dts;

@@ -192,7 +192,7 @@ int encoder_get_audio_codec_list_size()
 {
 	int size = sizeof(listSupCodecs)/sizeof(audio_codec_t);
 
-	if(verbosity > 0)
+	if(verbosity > 2)
 		printf("ENCODER: audio codec list size:%i\n", size);
 
 	return size;
@@ -217,7 +217,7 @@ int encoder_get_audio_codec_valid_list_size()
 		if(listSupCodecs[i].valid)
 			valid_size++;
 
-	if(verbosity > 0)
+	if(verbosity > 2)
 		printf("ENCODER: audio codec valid list size:%i\n", valid_size);
 
 	return valid_size;
@@ -330,7 +330,7 @@ audio_codec_t *encoder_get_audio_codec_defaults(int codec_ind)
 		return (&(listSupCodecs[real_index]));
 	else
 	{
-		fprintf(stderr, "ENCODER: (audio codec defaults) bad codec index\n");
+		fprintf(stderr, "ENCODER: (audio codec defaults) bad codec index (%i)\n", codec_ind);
 		return NULL;
 	}
 }
@@ -381,7 +381,7 @@ const char *encoder_get_audio_codec_description(int codec_ind)
 		return (listSupCodecs[real_index].description);
 	else
 	{
-		fprintf(stderr, "ENCODER: (video codec description) bad codec index\n");
+		fprintf(stderr, "ENCODER: (audio codec description) bad codec index (%i)\n", codec_ind);
 		return NULL;
 	}
 }
@@ -403,7 +403,7 @@ const char *encoder_get_audio_mkv_codec(int codec_ind)
 		return (listSupCodecs[real_index].mkv_codec);
 	else
 	{
-		fprintf(stderr, "ENCODER: (audio mkv codec) bad codec index\n");
+		fprintf(stderr, "ENCODER: (audio mkv codec) bad codec index (%i)\n", codec_ind);
 		return NULL;
 	}
 }
@@ -425,7 +425,7 @@ int encoder_get_audio_bits(int codec_ind)
 		return (listSupCodecs[real_index].bits);
 	else
 	{
-		fprintf(stderr, "ENCODER: (get_audio_bits) bad codec index\n");
+		fprintf(stderr, "ENCODER: (get_audio_bits) bad codec index (%i)\n", codec_ind);
 		return 0;
 	}
 }
@@ -447,7 +447,7 @@ int encoder_get_audio_bit_rate(int codec_ind)
 		return (listSupCodecs[real_index].bit_rate);
 	else
 	{
-		fprintf(stderr, "ENCODER: (get_audio_bit_rate) bad codec index\n");
+		fprintf(stderr, "ENCODER: (get_audio_bit_rate) bad codec index (%i)\n", codec_ind);
 		return 0;
 	}
 }
@@ -469,7 +469,7 @@ void *encoder_get_audio_mkvCodecPriv(int codec_ind)
 		return ((void *) listSupCodecs[real_index].mkv_codpriv);
 	else
 	{
-		fprintf(stderr, "ENCODER: (mkvCodecPriv) bad codec index\n");
+		fprintf(stderr, "ENCODER: (mkvCodecPriv) bad codec index (%i)\n", codec_ind);
 		return NULL;
 	}
 }
