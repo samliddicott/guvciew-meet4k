@@ -207,7 +207,8 @@ void audio_fill_buffer(audio_context_t *audio_ctx, int64_t ts)
 	memcpy(audio_buffers[buffer_write_index].data,
 		audio_ctx->capture_buff,
 		audio_ctx->capture_buff_size * sizeof(sample_t));
-	audio_buffers[buffer_write_index].timestamp = audio_ctx->current_ts;
+	/*buffer begin time*/
+	audio_buffers[buffer_write_index].timestamp = audio_ctx->current_ts - buffer_length;
 
 	audio_lock_mutex();
 	audio_buffers[buffer_write_index].flag = AUDIO_BUFF_USED;
