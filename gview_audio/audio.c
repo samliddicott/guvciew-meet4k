@@ -188,10 +188,9 @@ void audio_fill_buffer(audio_context_t *audio_ctx, int64_t ts)
 	uint64_t frame_length = NSEC_PER_SEC / audio_ctx->samprate;
 	uint64_t buffer_length = frame_length * (audio_ctx->capture_buff_size / audio_ctx->channels);
 
-	if(audio_ctx->current_ts > 0)
-		audio_ctx->current_ts += buffer_length; /*buffer beggin time*/
+	audio_ctx->current_ts += buffer_length; /*buffer end time*/
 
-	audio_ctx->ts_drift = audio_ctx->current_ts - (ts - buffer_length);
+	audio_ctx->ts_drift = audio_ctx->current_ts - ts;
 
 	/*get the current write indexed buffer flag*/
 	audio_lock_mutex();
