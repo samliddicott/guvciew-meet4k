@@ -1405,7 +1405,7 @@ void setfocus_clicked (GtkButton * button, void *data)
  */
 void audio_device_changed(GtkComboBox *combo, void *data)
 {
-	//v4l2_dev_t *device = (v4l2_dev_t *) data;
+	audio_widgets_t *my_audio_widgets = (audio_widgets_t *) data;
 
 	int index = gtk_combo_box_get_active(combo);
 
@@ -1418,6 +1418,19 @@ void audio_device_changed(GtkComboBox *combo, void *data)
 		audio_ctx->device = audio_ctx->num_input_dev - 1;
 	else
 		audio_ctx->device = index;
+
+	if(debug_level > 0)
+		printf("GUVCVIEW: audio device changed to %i\n", audio_ctx->device);
+
+	index = gtk_combo_box_get_active(GTK_COMBO_BOX(my_audio_widgets->channels));
+
+	if(index == 0)
+		audio_ctx->channels = audio_ctx->list_devices[audio_ctx->device].channels;
+
+	index = gtk_combo_box_get_active(GTK_COMBO_BOX(my_audio_widgets->samprate));
+
+	if(index == 0)
+		audio_ctx->samprate = audio_ctx->list_devices[audio_ctx->device].samprate;
 }
 
 /*
