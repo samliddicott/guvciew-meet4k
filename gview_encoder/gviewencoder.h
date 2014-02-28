@@ -190,6 +190,8 @@ typedef struct _encoder_video_context_t
 
 	int block_align;
 
+	int64_t framecount;
+
 	int64_t pts;
 	int64_t dts;
 	int flags;

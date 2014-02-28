@@ -96,13 +96,15 @@ typedef struct avi_context_t
 
 } avi_context_t;
 
+avi_context_t *avi_create_context(const char *filename);
+
 stream_io_t *avi_add_video_stream(
 		avi_context_t *avi_ctx,
 		int32_t width,
 		int32_t height,
-		double fps,
-		int32_t codec_id,
-		const char* compressor);
+		int32_t fps,
+		int32_t fps_num,
+		int32_t codec_id);
 
 stream_io_t *avi_add_audio_stream(
 		avi_context_t *avi_ctx,

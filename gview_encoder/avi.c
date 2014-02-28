@@ -540,21 +540,21 @@ stream_io_t *avi_add_video_stream(
 		avi_context_t *avi_ctx,
 		int32_t width,
 		int32_t height,
-		double fps,
-		int32_t codec_id,
-		const char* compressor)
+		int32_t fps,
+		int32_t fps_num,
+		int32_t codec_id)
 {
 	stream_io_t *stream = add_new_stream(&avi_ctx->stream_list, &avi_ctx->stream_list_size);
 	stream->type = STREAM_TYPE_VIDEO;
-	stream->fps = fps;
+	stream->fps = (double) fps/fps_num;;
 	stream->width = width;
 	stream->height = height;
 	stream->codec_id = codec_id;
 
 	stream->indexes = (void *) calloc(1, sizeof(avi_index_t));
 
-	if(compressor)
-		strncpy(stream->compressor, compressor, 8);
+	int codec_ind = get_video_codec_list_index(codec_id);
+	strncpy(stream->compressor, encoder_get_video_codec_4cc(codec_ind), 8);
 
 	return stream;
 }

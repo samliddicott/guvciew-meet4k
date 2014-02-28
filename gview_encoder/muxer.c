@@ -83,6 +83,8 @@ int encoder_write_video_data(encoder_context_t *encoder_ctx)
 	if(enc_video_ctx->outbuf_coded_size <= 0)
 		return -1;
 
+	enc_video_ctx->framecount++;
+
 	int ret =0;
 
 	__LOCK_MUTEX( __PMUTEX );
@@ -196,6 +198,56 @@ void encoder_muxer_init(encoder_context_t *encoder_ctx, const char *filename)
 	switch (encoder_ctx->muxer_id)
 	{
 		case ENCODER_MUX_AVI:
+			if(avi_ctx != NULL)
+			{
+				avi_destroy_context(avi_ctx);
+				avi_ctx = NULL;
+			}
+			avi_ctx = avi_create_context(filename);
+
+			double fps = encoder_ctx->fps_den/encoder_ctx->fps_num;
+			/*add video stream*/
+			video_stream = avi_add_video_stream(
+				avi_ctx,
+				encoder_ctx->video_width,
+				encoder_ctx->video_height,
+				encoder_ctx->fps_den,
+				encoder_ctx->fps_num,
+				encoder_ctx->enc_video_ctx->codec_context->codec_id);
+
+			if(encoder_ctx->enc_video_ctx->codec_context->codec_id == AV_CODEC_ID_THEORA)
+			{
+				video_stream->extra_data = (uint8_t *) encoder_ctx->enc_video_ctx->codec_context->extradata;
+				video_stream->extra_data_size = encoder_ctx->enc_video_ctx->codec_context->extradata_size;
+			}
+
+			/*add audio stream*/
+			if(encoder_ctx->audio_channels > 0)
+			{
+				int acodec_ind = get_video_codec_list_index(encoder_ctx->enc_audio_ctx->codec_context->codec_id);
+				/*sample size - only used for PCM*/
+				int32_t a_bits = encoder_get_audio_bits(acodec_ind);
+				/*bit rate (compressed formats)*/
+				int32_t b_rate = encoder_get_audio_bit_rate(acodec_ind);
+
+				audio_stream = avi_add_audio_stream(
+					avi_ctx,
+					encoder_ctx->audio_channels,
+					encoder_ctx->audio_samprate,
+					a_bits,
+					b_rate,
+					encoder_ctx->enc_audio_ctx->codec_context->codec_id,
+					encoder_ctx->enc_audio_ctx->avi_4cc);
+
+				if(encoder_ctx->enc_audio_ctx->codec_context->codec_id == AV_CODEC_ID_VORBIS)
+				{
+					audio_stream->extra_data = (uint8_t *) encoder_ctx->enc_audio_ctx->codec_context->extradata;
+					audio_stream->extra_data_size = encoder_ctx->enc_audio_ctx->codec_context->extradata_size;
+				}
+			}
+
+			/* add first riff header */
+			avi_add_new_riff(avi_ctx);
 
 			break;
 
@@ -244,13 +296,13 @@ void encoder_muxer_init(encoder_context_t *encoder_ctx, const char *filename)
 				int32_t b_rate = encoder_get_audio_bit_rate(acodec_ind);
 
 				audio_stream = mkv_add_audio_stream(
-								mkv_ctx,
-								encoder_ctx->audio_channels,
-								encoder_ctx->audio_samprate,
-								a_bits,
-								b_rate,
-								encoder_ctx->enc_audio_ctx->codec_context->codec_id,
-								encoder_ctx->enc_audio_ctx->avi_4cc);
+					mkv_ctx,
+					encoder_ctx->audio_channels,
+					encoder_ctx->audio_samprate,
+					a_bits,
+					b_rate,
+					encoder_ctx->enc_audio_ctx->codec_context->codec_id,
+					encoder_ctx->enc_audio_ctx->avi_4cc);
 
 				audio_stream->extra_data_size = encoder_set_audio_mkvCodecPriv(encoder_ctx);
 
@@ -281,7 +333,31 @@ void encoder_muxer_close(encoder_context_t *encoder_ctx)
 	switch (encoder_ctx->muxer_id)
 	{
 		case ENCODER_MUX_AVI:
+			if (avi_ctx)
+			{
+				/*last frame pts*/
+				float tottime = (float) ((int64_t) (encoder_ctx->enc_video_ctx->pts) / 1000000); // convert to miliseconds
 
+				if (verbosity > 0)
+					printf("ENCODER: (avi) time = %f\n", tottime);
+
+				if (tottime > 0)
+				{
+					/*try to find the real frame rate*/
+					avi_ctx->fps = (double) (encoder_ctx->enc_video_ctx->framecount * 1000) / tottime;
+				}
+
+				if (verbosity > 0)
+					printf("ENCODER: (avi) %"PRId64" frames in %f ms [ %f fps]\n",
+						encoder_ctx->enc_video_ctx->framecount, tottime, avi_ctx->fps);
+
+				//close sound ??
+
+				avi_close(avi_ctx);
+
+				avi_destroy_context(avi_ctx);
+				avi_ctx = NULL;
+			}
 			break;
 
 		default:

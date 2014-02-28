@@ -197,6 +197,18 @@ const char *encoder_get_audio_mkv_codec(int codec_ind);
 const char *encoder_get_video_mkv_codec(int codec_ind);
 
 /*
+ * get video compressor (avi 4cc code)
+ * args:
+ *   codec_ind - codec list index
+ *
+ * asserts:
+ *   none
+ *
+ * returns: compressor codec entry or NULL if none
+ */
+const char *encoder_get_video_codec_4cc(int codec_ind);
+
+/*
  * get audio codec bits
  * args:
  *   codec_ind - codec list index

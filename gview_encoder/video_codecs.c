@@ -841,3 +841,25 @@ const char *encoder_get_video_mkv_codec(int codec_ind)
 		return NULL;
 	}
 }
+
+/*
+ * get video compressor (avi 4cc code)
+ * args:
+ *   codec_ind - codec list index
+ *
+ * asserts:
+ *   none
+ *
+ * returns: compressor codec entry or NULL if none
+ */
+const char *encoder_get_video_codec_4cc(int codec_ind)
+{
+	int real_index = get_real_index (codec_ind);
+	if(real_index >= 0 && real_index < encoder_get_video_codec_list_size())
+		return (listSupCodecs[real_index].compressor);
+	else
+	{
+		fprintf(stderr, "ENCODER: (video mkv codec) bad codec index (%i)\n", codec_ind);;
+		return NULL;
+	}
+}
