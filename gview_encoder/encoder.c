@@ -643,27 +643,32 @@ int encoder_store_input_frame(uint8_t *frame, int size, int64_t timestamp)
 	int64_t pts = timestamp - reference_pts;
 
 	__LOCK_MUTEX( __PMUTEX );
-	if(video_ring_buffer[video_write_index].flag == VIDEO_BUFF_FREE)
-	{
-		/*clip*/
-		if(size > video_frame_max_size)
-		{
-			fprintf(stderr, "ENCODER: frame (%i bytes) larger than buffer (%i bytes): clipping\n",
-				size, video_frame_max_size);
-
-			size = video_frame_max_size;
-
-			ret = -1;
-		}
-		memcpy(video_ring_buffer[video_write_index].frame, frame, size);
-		video_ring_buffer[video_write_index].timestamp = pts;
-		video_ring_buffer[video_write_index].flag = VIDEO_BUFF_USED;
-
-		NEXT_IND(video_write_index, video_ring_buffer_size);
-	}
+	int flag = video_ring_buffer[video_write_index].flag;
 	__UNLOCK_MUTEX( __PMUTEX );
 
-	return ret;
+	if(flag != VIDEO_BUFF_FREE)
+	{
+		fprintf(stderr, "ENCODER: video ring buffer full - dropping frame\n");
+		return -1;
+	}
+
+	/*clip*/
+	if(size > video_frame_max_size)
+	{
+		fprintf(stderr, "ENCODER: frame (%i bytes) larger than buffer (%i bytes): clipping\n",
+			size, video_frame_max_size);
+
+		size = video_frame_max_size;
+	}
+	memcpy(video_ring_buffer[video_write_index].frame, frame, size);
+	video_ring_buffer[video_write_index].timestamp = pts;
+
+	__LOCK_MUTEX( __PMUTEX );
+	video_ring_buffer[video_write_index].flag = VIDEO_BUFF_USED;
+	NEXT_IND(video_write_index, video_ring_buffer_size);
+	__UNLOCK_MUTEX( __PMUTEX );
+
+	return 0;
 }
 
 /*
@@ -708,9 +713,9 @@ int encoder_process_next_video_buffer(encoder_context_t *encoder_ctx, int mode)
 
 	__UNLOCK_MUTEX ( __PMUTEX );
 
-	int ret = encoder_write_video_data(encoder_ctx);
+	encoder_write_video_data(encoder_ctx);
 
-	return ret;
+	return 0;
 }
 
 /*

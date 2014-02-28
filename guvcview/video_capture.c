@@ -387,9 +387,12 @@ static void *encoder_loop(void *data)
 			do
 			{
 				ret = audio_get_next_buffer(audio_ctx, audio_buff);
-				encoder_ctx->enc_audio_ctx->pts = audio_buff->timestamp;
+				if(ret == 0)
+				{
+					encoder_ctx->enc_audio_ctx->pts = audio_buff->timestamp;
 
-				encoder_process_audio_buffer(encoder_ctx, audio_buff->data, ENCODER_MODE_NONE);
+					encoder_process_audio_buffer(encoder_ctx, audio_buff->data, ENCODER_MODE_NONE);
+				}
 			}
 			while(ret == 0 &&
 				encoder_ctx->enc_audio_ctx->pts <= encoder_ctx->enc_video_ctx->pts);
