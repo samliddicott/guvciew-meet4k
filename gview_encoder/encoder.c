@@ -32,6 +32,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/types.h>
+#include <inttypes.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <string.h>
@@ -633,7 +634,11 @@ int encoder_store_input_frame(uint8_t *frame, int size, int64_t timestamp)
 	int ret = 0;
 
 	if (reference_pts == 0)
+	{
 		reference_pts = timestamp; /*first frame ts*/
+		if(verbosity > 0)
+			printf("ENCODER: ref ts = %" PRId64 "\n", timestamp);
+	}
 
 	int64_t pts = timestamp - reference_pts;
 

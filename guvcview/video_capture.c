@@ -318,6 +318,10 @@ static void *encoder_loop(void *data)
 		samprate = audio_ctx->samprate;
 	}
 
+	if(debug_level > 0)
+		printf("ENCODER: audio [channels= %i; samprate= %i] \n",
+			channels, samprate);
+
 	encoder_context_t *encoder_ctx = encoder_get_context(
 		device->requested_fmt,
 		get_video_codec_ind(),
