@@ -151,7 +151,7 @@ int encoder_write_audio_data(encoder_context_t *encoder_ctx)
 		case ENCODER_MUX_AVI:
 			ret = avi_write_packet(
 					avi_ctx,
-					0,
+					1,
 					enc_audio_ctx->outbuf,
 					enc_audio_ctx->outbuf_coded_size,
 					enc_audio_ctx->dts,
@@ -163,7 +163,7 @@ int encoder_write_audio_data(encoder_context_t *encoder_ctx)
 		case ENCODER_MUX_WEBM:
 			ret = mkv_write_packet(
 					mkv_ctx,
-					0,
+					1,
 					enc_audio_ctx->outbuf,
 					enc_audio_ctx->outbuf_coded_size,
 					enc_audio_ctx->duration,

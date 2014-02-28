@@ -917,7 +917,7 @@ int encoder_encode_audio(encoder_context_t *encoder_ctx, void *pcm)
 	{
 		if(verbosity > 1)
 			printf("ENCODER: audio encoder not set\n");
-		encoder_ctx->enc_audio_ctx->outbuf_coded_size = outsize;
+		enc_audio_ctx->outbuf_coded_size = outsize;
 		return outsize;
 	}
 
@@ -992,7 +992,7 @@ int encoder_encode_audio(encoder_context_t *encoder_ctx, void *pcm)
 
 	last_audio_pts = enc_audio_ctx->pts;
 
-	encoder_ctx->enc_audio_ctx->outbuf_coded_size = outsize;
+	enc_audio_ctx->outbuf_coded_size = outsize;
 	return (outsize);
 }
 
