@@ -42,7 +42,7 @@
  * asserts:
  *   none
  *
- * returns: current codec index 
+ * returns: current codec index
  */
 int get_video_codec_ind();
 
@@ -66,7 +66,7 @@ void set_video_codec_ind(int index);
  * asserts:
  *   none
  *
- * returns: current codec index 
+ * returns: current codec index
  */
 int get_audio_codec_ind();
 
@@ -357,6 +357,18 @@ void set_photo_path(const char *path);
  * returns: none
  */
 void gui_set_image_capture_button_label(const char *label);
+
+/*
+ * sets the Video capture button status (on|off)
+ * args:
+ *   flag: video capture button status
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void gui_set_video_capture_button_status(int flag);
 
 /*
  * GUI initialization

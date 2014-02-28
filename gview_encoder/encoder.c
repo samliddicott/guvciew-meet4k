@@ -703,7 +703,32 @@ int encoder_process_next_video_buffer(encoder_context_t *encoder_ctx, int mode)
 
 	__UNLOCK_MUTEX ( __PMUTEX );
 
-	int ret = write_video_data(encoder_ctx);
+	int ret = encoder_write_video_data(encoder_ctx);
+
+	return ret;
+}
+
+/*
+ * process audio frame (encode and mux to file)
+ * args:
+ *   encoder_ctx - pointer to encoder context
+ *   data - audio buffer
+ *   mode - encoder mode (ENCODER_MODE_[NONE | RAW])
+ *
+ * asserts:
+ *   encoder_ctx is not null
+ *
+ * returns: error code
+ */
+int encoder_process_audio_buffer(encoder_context_t *encoder_ctx, void *data, int mode)
+{
+	/*assertions*/
+	assert(encoder_ctx != NULL);
+
+	if(mode == ENCODER_MODE_NONE)
+		encoder_encode_audio(encoder_ctx, data);
+
+	int ret = encoder_write_audio_data(encoder_ctx);
 
 	return ret;
 }
@@ -726,15 +751,15 @@ int encoder_encode_video(encoder_context_t *encoder_ctx, void *yuv_frame)
 
 	encoder_video_context_t *enc_video_ctx = encoder_ctx->enc_video_ctx;
 
+	int outsize = 0;
+
 	if(!enc_video_ctx)
 	{
 		if(verbosity > 1)
 			printf("ENCODER: video encoder not set\n");
-		encoder_ctx->enc_video_ctx->outbuf_coded_size = 0;
-		return 0;
+		encoder_ctx->enc_video_ctx->outbuf_coded_size = outsize;
+		return outsize;
 	}
-
-	int outsize = 0 ;
 
 	yuv422to420p(encoder_ctx, yuv_frame);
 
@@ -760,12 +785,12 @@ int encoder_encode_video(encoder_context_t *encoder_ctx, void *yuv_frame)
 	pkt.data = enc_video_ctx->outbuf;
 	pkt.size = enc_video_ctx->outbuf_size;
 
+	int ret = 0;
     //if(enc_video_ctx->outbuf_size < FF_MIN_BUFFER_SIZE)
     //{
 	//	av_log(avctx, AV_LOG_ERROR, "buffer smaller than minimum size\n");
     //    return -1;
     //}
- 	int ret = 0;
  	if(!enc_video_ctx->flush_delayed_frames)
     	ret = avcodec_encode_video2(
 			enc_video_ctx->codec_context,
@@ -799,7 +824,7 @@ int encoder_encode_video(encoder_context_t *encoder_ctx, void *yuv_frame)
         pkt.side_data_elems = 0;
     }
 
-    out_size = pkt.size;
+    outsize = pkt.size;
 #else
 	if(!enc_video_ctx->flush_delayed_frames)
 		outsize = avcodec_encode_video(
@@ -876,15 +901,15 @@ int encoder_encode_audio(encoder_context_t *encoder_ctx, void *pcm)
 
 	encoder_audio_context_t *enc_audio_ctx = encoder_ctx->enc_audio_ctx;
 
+	int outsize = 0;
+
 	if(!enc_audio_ctx)
 	{
 		if(verbosity > 1)
 			printf("ENCODER: audio encoder not set\n");
-		return 0;
+		encoder_ctx->enc_audio_ctx->outbuf_coded_size = outsize;
+		return outsize;
 	}
-
-	int out_size = 0;
-	int ret = 0;
 
 	/* encode the audio */
 #if LIBAVCODEC_VER_AT_LEAST(53,34)
@@ -893,6 +918,8 @@ int encoder_encode_audio(encoder_context_t *encoder_ctx, void *pcm)
 	av_init_packet(&pkt);
 	pkt.data = enc_audio_ctx->outbuf;
 	pkt.size = enc_audio_ctx->outbuf_size;
+
+	int ret = 0;
 
 	enc_audio_ctx->frame->nb_samples  = enc_audio_ctx->codec_context->frame_size;
 	int samples_size = av_samples_get_buffer_size(
@@ -937,9 +964,9 @@ int encoder_encode_audio(encoder_context_t *encoder_ctx, void *pcm)
 		enc_audio_ctx->frame->extended_data != enc_audio_ctx->frame->data)
 		av_freep(enc_audio_ctx->frame->extended_data);
 
-	out_size = pkt.size;
+	outsize = pkt.size;
 #else
-	out_size = avcodec_encode_audio(
+	outsize = avcodec_encode_audio(
 			enc_audio_ctx->codec_context,
 			enc_audio_ctx->outbuf,
 			enc_audio_ctx->outbuf_size,
@@ -955,7 +982,8 @@ int encoder_encode_audio(encoder_context_t *encoder_ctx, void *pcm)
 
 	last_audio_pts = enc_audio_ctx->pts;
 
-	return (out_size);
+	encoder_ctx->enc_audio_ctx->outbuf_coded_size = outsize;
+	return (outsize);
 }
 
 /*

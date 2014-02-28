@@ -307,6 +307,17 @@ static void *encoder_loop(void *data)
 
 	audio_context_t *audio_ctx = get_audio_context();
 
+	audio_buff_t *audio_buff = NULL;
+
+	int channels = 0;
+	int samprate = 0;
+
+	if(audio_ctx)
+	{
+		channels = audio_ctx->channels;
+		samprate = audio_ctx->samprate;
+	}
+
 	encoder_context_t *encoder_ctx = encoder_get_context(
 		device->requested_fmt,
 		get_video_codec_ind(),
@@ -316,8 +327,8 @@ static void *encoder_loop(void *data)
 		device->format.fmt.pix.height,
 		device->fps_num,
 		device->fps_denom,
-		audio_ctx->channels,
-		audio_ctx->samprate);
+		channels,
+		samprate);
 
 	char *video_filename = NULL;
 	/*get_video_[name|path] always return a non NULL value*/
@@ -341,20 +352,24 @@ static void *encoder_loop(void *data)
 
 	encoder_muxer_init(encoder_ctx, video_filename);
 
-	/*clean string*/
-	free(video_filename);
-
 	/*start video capture*/
 	video_capture_save_video(1);
+
 	/*start audio capture*/
-	audio_start(audio_ctx);
-	/*
-	 * alloc the buffer after audio_start
-	 * otherwise capture_buff_size may not
-	 * be correct
-	 */
-	audio_buff_t *audio_buff = calloc(1, sizeof(audio_buff_t));
-	audio_buff->data = calloc(audio_ctx->capture_buff_size, sizeof(sample_t));
+	if(channels > 0)
+	{
+		audio_start(audio_ctx);
+		/*
+		 * alloc the buffer after audio_start
+		 * otherwise capture_buff_size may not
+		 * be correct
+		 */
+		audio_buff = calloc(1, sizeof(audio_buff_t));
+		audio_buff->data = calloc(audio_ctx->capture_buff_size, sizeof(sample_t));
+	}
+
+	int treshold = 102400; /*100 Mbytes*/
+	int64_t last_check_pts = 0; /*last pts when disk supervisor called*/
 
 	while(video_capture_get_save_video())
 	{
@@ -362,22 +377,45 @@ static void *encoder_loop(void *data)
 		encoder_process_next_video_buffer(encoder_ctx, ENCODER_MODE_NONE);
 
 		/*encode audio frames up to video timestamp or error*/
-		int ret = 0;
-		do
+		if(channels > 0)
 		{
-			ret = audio_get_next_buffer(audio_ctx, audio_buff);
-			encoder_encode_audio(encoder_ctx, audio_buff->data);
+			int ret = 0;
+			do
+			{
+				ret = audio_get_next_buffer(audio_ctx, audio_buff);
+				encoder_ctx->enc_audio_ctx->pts = audio_buff->timestamp;
+
+				encoder_process_audio_buffer(encoder_ctx, audio_buff->data, ENCODER_MODE_NONE);
+			}
+			while(ret == 0 &&
+				encoder_ctx->enc_audio_ctx->pts <= encoder_ctx->enc_video_ctx->pts);
 		}
-		while(ret == 0 &&
-			audio_buff->timestamp <= encoder_ctx->enc_video_ctx->pts);
+
+		/*disk supervisor*/
+		if(encoder_ctx->enc_video_ctx->pts - last_check_pts > 2 * NSEC_PER_SEC)
+		{
+			last_check_pts = encoder_ctx->enc_video_ctx->pts;
+
+			if(!encoder_disk_supervisor(treshold, path))
+			{
+				/*stop capture*/
+				gui_set_video_capture_button_status(0);
+			}
+		}
 	}
 
 	/*stop audio capture*/
-	audio_stop(audio_ctx);
+	if(channels > 0)
+		audio_stop(audio_ctx);
 
 	encoder_muxer_close(encoder_ctx);
 
 	encoder_close(encoder_ctx);
+
+	/*clean string*/
+	free(video_filename);
+	free(path);
+	free(name);
 
 	return ((void *) 0);
 }

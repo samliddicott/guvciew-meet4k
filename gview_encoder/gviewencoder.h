@@ -210,6 +210,7 @@ typedef struct _encoder_audio_context_t
 	uint8_t* priv_data;
 	int outbuf_size;
 	uint8_t* outbuf;
+	int outbuf_coded_size;
 
 	int64_t pts;
 	int64_t dts;
@@ -513,6 +514,20 @@ int encoder_store_input_frame(uint8_t *frame, int size, int64_t timestamp);
 int encoder_process_next_video_buffer(encoder_context_t *encoder_ctx, int mode);
 
 /*
+ * process audio buffer (encode and mux to file)
+ * args:
+ *   encoder_ctx - pointer to encoder context
+ *   data - audio buffer
+ *   mode - encoder mode (ENCODER_MODE_[NONE | RAW])
+ *
+ * asserts:
+ *   encoder_ctx is not null
+ *
+ * returns: error code
+ */
+int encoder_process_audio_buffer(encoder_context_t *encoder_ctx, void *data, int mode);
+
+/*
  * encode video frame
  * args:
  *   encoder_ctx - pointer to encoder context
@@ -560,6 +575,31 @@ void encoder_close(encoder_context_t *encoder_ctx);
  *
  * returns: none
  */
-int write_video_data(encoder_context_t *encoder_ctx);
+int encoder_write_video_data(encoder_context_t *encoder_ctx);
+
+/*
+ * mux a audio frame
+ * args:
+ *   encoder_ctx - pointer to encoder context
+ *
+ * asserts:
+ *   encoder_ctx is not null;
+ *
+ * returns: none
+ */
+int encoder_write_audio_data(encoder_context_t *encoder_ctx);
+
+/*
+ * function to determine if enought free space is available
+ * args:
+ *   treshold: limit treshold in Kbytes (min. free space)
+ *
+ * asserts:
+ *   none
+ *
+ * returns: 1 if still enough free space left on disk
+ *          0 otherwise
+ */
+int encoder_disk_supervisor(int treshold, const char *path);
 
 #endif

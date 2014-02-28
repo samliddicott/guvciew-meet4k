@@ -38,6 +38,7 @@
 #include <string.h>
 #include <errno.h>
 #include <assert.h>
+#include <sys/statfs.h>
 /* support for internationalization - i18n */
 #include <locale.h>
 #include <libintl.h>
@@ -48,6 +49,8 @@
 #include "stream_io.h"
 #include "matroska.h"
 #include "gview.h"
+
+extern int verbosity;
 
 static mkv_context_t *mkv_ctx = NULL;
 
@@ -66,9 +69,9 @@ static __MUTEX_TYPE mutex;
  * asserts:
  *   encoder_ctx is not null;
  *
- * returns: none
+ * returns: error code
  */
-int write_video_data(encoder_context_t *encoder_ctx)
+int encoder_write_video_data(encoder_context_t *encoder_ctx)
 {
 	/*assertions*/
 	assert(encoder_ctx != NULL);
@@ -98,6 +101,60 @@ int write_video_data(encoder_context_t *encoder_ctx)
 					enc_video_ctx->duration,
 					enc_video_ctx->pts,
 					enc_video_ctx->flags);
+			break;
+
+		default:
+
+			break;
+	}
+	__UNLOCK_MUTEX( __PMUTEX );
+
+	return (ret);
+}
+
+/*
+ * mux a audio frame
+ * args:
+ *   encoder_ctx - pointer to encoder context
+ *
+ * asserts:
+ *   encoder_ctx is not null;
+ *
+ * returns: error code
+ */
+int encoder_write_audio_data(encoder_context_t *encoder_ctx)
+{
+	/*assertions*/
+	assert(encoder_ctx != NULL);
+
+	if(encoder_ctx->audio_channels <= 0)
+		return -1;
+
+	encoder_audio_context_t *enc_audio_ctx = encoder_ctx->enc_audio_ctx;
+
+	if(enc_audio_ctx->outbuf_coded_size <= 0)
+		return -1;
+
+	int ret =0;
+
+	__LOCK_MUTEX( __PMUTEX );
+	switch (encoder_ctx->muxer_id)
+	{
+		case ENCODER_MUX_AVI:
+			//if(size > 0)
+			//	ret = avi_write_packet(videoF->avi, 0, buff, size, videoF->vdts, videoF->vblock_align, videoF->vflags);
+			break;
+
+		case ENCODER_MUX_MKV:
+		case ENCODER_MUX_WEBM:
+			ret = mkv_write_packet(
+					mkv_ctx,
+					0,
+					enc_audio_ctx->outbuf,
+					enc_audio_ctx->outbuf_coded_size,
+					enc_audio_ctx->duration,
+					enc_audio_ctx->pts,
+					enc_audio_ctx->flags);
 			break;
 
 		default:
@@ -164,25 +221,28 @@ void encoder_muxer_init(encoder_context_t *encoder_ctx, const char *filename)
 			}
 
 			/*add audio stream*/
-			int acodec_ind = get_video_codec_list_index(encoder_ctx->enc_audio_ctx->codec_context->codec_id);
-			/*sample size - only used for PCM*/
-			int32_t a_bits = encoder_get_audio_bits(acodec_ind);
-			/*bit rate (compressed formats)*/
-			int32_t b_rate = encoder_get_audio_bit_rate(acodec_ind);
+			if(encoder_ctx->audio_channels > 0)
+			{
+				int acodec_ind = get_video_codec_list_index(encoder_ctx->enc_audio_ctx->codec_context->codec_id);
+				/*sample size - only used for PCM*/
+				int32_t a_bits = encoder_get_audio_bits(acodec_ind);
+				/*bit rate (compressed formats)*/
+				int32_t b_rate = encoder_get_audio_bit_rate(acodec_ind);
 
-			audio_stream = mkv_add_audio_stream(
-							mkv_ctx,
-							encoder_ctx->audio_channels,
-							encoder_ctx->audio_samprate,
-							a_bits,
-							b_rate,
-							encoder_ctx->enc_audio_ctx->codec_context->codec_id,
-							encoder_ctx->enc_audio_ctx->avi_4cc);
+				audio_stream = mkv_add_audio_stream(
+								mkv_ctx,
+								encoder_ctx->audio_channels,
+								encoder_ctx->audio_samprate,
+								a_bits,
+								b_rate,
+								encoder_ctx->enc_audio_ctx->codec_context->codec_id,
+								encoder_ctx->enc_audio_ctx->avi_4cc);
 
-			audio_stream->extra_data_size = encoder_set_audio_mkvCodecPriv(encoder_ctx);
+				audio_stream->extra_data_size = encoder_set_audio_mkvCodecPriv(encoder_ctx);
 
-			if(audio_stream->extra_data_size > 0)
-				audio_stream->extra_data = encoder_get_audio_mkvCodecPriv(acodec_ind);
+				if(audio_stream->extra_data_size > 0)
+					audio_stream->extra_data = encoder_get_audio_mkvCodecPriv(acodec_ind);
+			}
 
 			/* write the file header */
 			mkv_write_header(mkv_ctx);
@@ -221,3 +281,58 @@ void encoder_muxer_close(encoder_context_t *encoder_ctx)
 			break;
 	}
 }
+
+/*
+ * function to determine if enought free space is available
+ * args:
+ *   treshold: limit treshold in Kbytes (min. free space)
+ *
+ * asserts:
+ *   none
+ *
+ * returns: 1 if still enough free space left on disk
+ *          0 otherwise
+ */
+int encoder_disk_supervisor(int treshold, const char *path)
+{
+    /*
+     * treshold:
+     * 51200  = 50Mb
+     * 102400 = 100Mb
+     * 358400 = 300Mb
+     * 512000 = 500Mb
+     */
+    int percent = 0;
+    uint64_t free_kbytes=0;
+    uint64_t total_kbytes=0;
+    struct statfs buf;
+
+
+    statfs(path, &buf);
+
+    total_kbytes= buf.f_blocks * (buf.f_bsize/1024);
+    free_kbytes= buf.f_bavail * (buf.f_bsize/1024);
+
+    if(total_kbytes > 0)
+        percent = (int) ((1.0f-((float)free_kbytes/(float)total_kbytes))*100.0f);
+    else
+    {
+        fprintf(stderr, "ENCODER: couldn't get disk stats for %s\n", path);
+        return (1); /* don't invalidate video capture*/
+    }
+
+    if(verbosity > 0)
+        printf("ENCODER: (%s) %lluK bytes free on a total of %lluK (used: %d %%) treshold=%iK\n",
+            path, (unsigned long long) free_kbytes,
+            (unsigned long long) total_kbytes, percent, treshold);
+
+    if(free_kbytes < treshold)
+    {
+        fprintf(stderr,"ENCODER: Not enough free disk space (%lluKb) left on disk, need > %ik \n",
+            (unsigned long long) free_kbytes, treshold);
+        return(0); /* not enough free space left on disk   */
+    }
+
+    return (1); /* still have enough free space on disk */
+}
+
