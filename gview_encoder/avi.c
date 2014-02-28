@@ -572,6 +572,7 @@ stream_io_t *avi_add_audio_stream(
 	stream_io_t *stream = add_new_stream(&avi_ctx->stream_list, &avi_ctx->stream_list_size);
 	stream->type = STREAM_TYPE_AUDIO;
 
+	stream->a_chans = channels;
 	stream->a_rate = rate;
 	stream->a_bits = bits;
 	stream->mpgrate = mpgrate;

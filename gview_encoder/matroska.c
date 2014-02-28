@@ -978,6 +978,7 @@ stream_io_t *mkv_add_audio_stream(mkv_context_t *mkv_ctx,
 	stream_io_t *stream = add_new_stream(&mkv_ctx->stream_list, &mkv_ctx->stream_list_size);
 	stream->type = STREAM_TYPE_AUDIO;
 
+	stream->a_chans = channels;
 	stream->a_rate = rate;
 	stream->a_bits = bits;
 	stream->mpgrate = mpgrate;
