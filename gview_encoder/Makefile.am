@@ -10,6 +10,7 @@ c_sources = encoder.c \
 			stream_io.c \
 			file_io.c \
 			matroska.c \
+			avi.c \
 			muxer.c
 
 

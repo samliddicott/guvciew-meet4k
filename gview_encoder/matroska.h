@@ -22,8 +22,8 @@
 #                                                                               #
 ********************************************************************************/
 
-#ifndef GUVC_MATROSKA_H
-#define GUVC_MATROSKA_H
+#ifndef MATROSKA_H
+#define MATROSKA_H
 
 #include <inttypes.h>
 #include <sys/types.h>

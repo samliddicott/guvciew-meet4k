@@ -348,7 +348,7 @@ static void *encoder_loop(void *data)
 		video_filename = smart_cat(path, 0, name);
 
 	if(debug_level > 1)
-		printf("GUVCVIEW: saving image to %s\n", video_filename);
+		printf("GUVCVIEW: saving video to %s\n", video_filename);
 
 	encoder_muxer_init(encoder_ctx, video_filename);
 
