@@ -219,18 +219,27 @@ void audio_fill_buffer(audio_context_t *audio_ctx, int64_t ts)
 
 }
 
+/* saturate float samples to int16 limits*/
+static int16_t clip_int16 (float in)
+{
+	in = (in < -32768) ? -32768 : (in > 32767) ? 32767 : in;
+
+	return ((int16_t) in);
+}
+
 /*
  * get the next used buffer from the ring buffer
  * args:
  *   audio_ctx - pointer to audio context
  *   buff - pointer to an allocated audio buffer
+ *   type - type of data (SAMPLE_TYPE_[INT16|FLOAT])
  *
  * asserts:
  *   none
  *
  * returns: error code
  */
-int audio_get_next_buffer(audio_context_t *audio_ctx, audio_buff_t *buff)
+int audio_get_next_buffer(audio_context_t *audio_ctx, audio_buff_t *buff, int type)
 {
 	audio_lock_mutex();
 	int flag = audio_buffers[buffer_read_index].flag;
@@ -239,10 +248,20 @@ int audio_get_next_buffer(audio_context_t *audio_ctx, audio_buff_t *buff)
 	if(flag == AUDIO_BUFF_FREE)
 		return 1; /*all done*/
 
+	int i = 0;
 	/*copy pcm data*/
-	memcpy( buff->data, audio_buffers[buffer_read_index].data,
-		audio_ctx->capture_buff_size * sizeof(sample_t));
-
+	if(type == SAMPLE_TYPE_FLOAT)
+	{
+		float *my_data = (float *) buff->data;
+		memcpy( my_data, audio_buffers[buffer_read_index].data,
+			audio_ctx->capture_buff_size * sizeof(sample_t));
+	}
+	else
+	{
+		int16_t *my_data = (int16_t *) buff->data;
+		for(i = 0; i < audio_ctx->capture_buff_size; ++i)
+			my_data[i] = clip_int16( audio_buffers[buffer_read_index].data[i] * 32767.0);
+	}
 	buff->timestamp = audio_buffers[buffer_read_index].timestamp;
 
 	audio_lock_mutex();
@@ -393,4 +412,3 @@ void audio_close(audio_context_t *audio_ctx)
 	if(audio_buffers != NULL)
 		audio_free_buffers;
 }
-

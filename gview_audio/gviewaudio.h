@@ -56,6 +56,11 @@
 #define AUD_FX_WAHWAH (1<<3)
 #define AUD_FX_DUCKY  (1<<4)
 
+/*sample type int16_t or float for return buffer data*/
+#define SAMPLE_TYPE_INT16  (0)
+#define SAMPLE_TYPE_FLOAT  (1)
+
+/*internally is always float*/
 typedef float sample_t;
 
 typedef struct _audio_buff_t
@@ -140,13 +145,14 @@ int audio_start(audio_context_t *audio_ctx);
  * args:
  *   audio_ctx - pointer to audio context
  *   buff - pointer to an allocated audio buffer
+ *   type - type of data (SAMPLE_TYPE_[INT16|FLOAT])
  *
  * asserts:
  *   none
  *
  * returns: error code
  */
-int audio_get_next_buffer(audio_context_t *audio_ctx, audio_buff_t *buff);
+int audio_get_next_buffer(audio_context_t *audio_ctx, audio_buff_t *buff, int type);
 
 /*
  * stop audio stream capture

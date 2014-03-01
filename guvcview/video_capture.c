@@ -375,6 +375,10 @@ static void *encoder_loop(void *data)
 	int treshold = 102400; /*100 Mbytes*/
 	int64_t last_check_pts = 0; /*last pts when disk supervisor called*/
 
+	int sample_type = SAMPLE_TYPE_INT16;
+	if(encoder_ctx->enc_audio_ctx->codec_context->sample_fmt == AV_SAMPLE_FMT_FLT)
+		sample_type = SAMPLE_TYPE_FLOAT;
+
 	while(video_capture_get_save_video())
 	{
 		/*TODO: set video encoder mode to RAW if we only need to mux the video*/
@@ -385,8 +389,9 @@ static void *encoder_loop(void *data)
 		{
 			int ret = 0;
 			do
-			{
-				ret = audio_get_next_buffer(audio_ctx, audio_buff);
+			{					
+				ret = audio_get_next_buffer(audio_ctx, audio_buff, sample_type);
+				
 				if(ret == 0)
 				{
 					encoder_ctx->enc_audio_ctx->pts = audio_buff->timestamp;

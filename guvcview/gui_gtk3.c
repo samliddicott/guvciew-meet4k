@@ -262,7 +262,7 @@ int gui_attach_gtk3(v4l2_dev_t *device, int width, int height)
 	GtkWidget *quitButton = gtk_button_new_with_mnemonic (_("_Quit"));
 
 	char* pix4path = g_strconcat (PACKAGE_DATA_DIR, "/pixmaps/guvcview/close.png", NULL);
-	if (g_file_test(pix3path,G_FILE_TEST_EXISTS))
+	if (g_file_test(pix4path,G_FILE_TEST_EXISTS))
 	{
 		GtkWidget *QButton_Img = gtk_image_new_from_file (pix4path);
 		gtk_button_set_image(GTK_BUTTON(quitButton), QButton_Img);
