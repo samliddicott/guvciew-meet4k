@@ -223,7 +223,7 @@ int v4l2core_load_control_profile(v4l2_dev_t *vd, const char *filename)
 							if(strlen(str) > max) /*FIXME: should also check (minimum +N*step)*/
 							{
                                 fprintf(stderr, "V4L2_CORE: (load_control_profile) string bigger than maximum buffer size (%i > %i)\n",
-									strlen(str), max);
+									(int) strlen(str), max);
 								if(current->string)
 									free(current->string);
 								current->string = strndup(str, max); /*FIXME: does max includes '\0' ?*/

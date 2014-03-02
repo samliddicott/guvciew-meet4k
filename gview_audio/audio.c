@@ -148,7 +148,8 @@ int audio_init_buffers(audio_context_t *audio_ctx)
 	int i = 0;
 
 	/*set the buffers size*/
-	audio_ctx->capture_buff_size = audio_ctx->channels * AUDBUFF_FRAMES;
+	if(!audio_ctx->capture_buff_size)
+		audio_ctx->capture_buff_size = audio_ctx->channels * AUDBUFF_FRAMES;
 
 	if(audio_ctx->capture_buff)
 		free(audio_ctx->capture_buff);

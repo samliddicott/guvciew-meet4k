@@ -87,6 +87,10 @@ int encoder_write_video_data(encoder_context_t *encoder_ctx)
 
 	int ret =0;
 
+	int block_align = 1;
+	if(enc_video_ctx->codec_context)
+		block_align = enc_video_ctx->codec_context->block_align;
+	
 	__LOCK_MUTEX( __PMUTEX );
 	switch (encoder_ctx->muxer_id)
 	{
@@ -97,7 +101,7 @@ int encoder_write_video_data(encoder_context_t *encoder_ctx)
 					enc_video_ctx->outbuf,
 					enc_video_ctx->outbuf_coded_size,
 					enc_video_ctx->dts,
-					enc_video_ctx->block_align,
+					block_align,
 					enc_video_ctx->flags);
 			break;
 
@@ -146,6 +150,10 @@ int encoder_write_audio_data(encoder_context_t *encoder_ctx)
 		return -1;
 
 	int ret =0;
+	
+	int block_align = 1;
+	if(enc_audio_ctx->codec_context)
+		block_align = enc_audio_ctx->codec_context->block_align;
 
 	__LOCK_MUTEX( __PMUTEX );
 	switch (encoder_ctx->muxer_id)
@@ -157,7 +165,7 @@ int encoder_write_audio_data(encoder_context_t *encoder_ctx)
 					enc_audio_ctx->outbuf,
 					enc_audio_ctx->outbuf_coded_size,
 					enc_audio_ctx->dts,
-					enc_audio_ctx->block_align,
+					block_align,
 					enc_audio_ctx->flags);
 			break;
 
@@ -224,7 +232,7 @@ void encoder_muxer_init(encoder_context_t *encoder_ctx, const char *filename)
 			/*add audio stream*/
 			if(encoder_ctx->audio_channels > 0)
 			{
-				int acodec_ind = get_video_codec_list_index(encoder_ctx->enc_audio_ctx->codec_context->codec_id);
+				int acodec_ind = get_audio_codec_list_index(encoder_ctx->enc_audio_ctx->codec_context->codec_id);
 				/*sample size - only used for PCM*/
 				int32_t a_bits = encoder_get_audio_bits(acodec_ind);
 				/*bit rate (compressed formats)*/
@@ -289,7 +297,7 @@ void encoder_muxer_init(encoder_context_t *encoder_ctx, const char *filename)
 			/*add audio stream*/
 			if(encoder_ctx->audio_channels > 0)
 			{
-				int acodec_ind = get_video_codec_list_index(encoder_ctx->enc_audio_ctx->codec_context->codec_id);
+				int acodec_ind = get_audio_codec_list_index(encoder_ctx->enc_audio_ctx->codec_context->codec_id);
 				/*sample size - only used for PCM*/
 				int32_t a_bits = encoder_get_audio_bits(acodec_ind);
 				/*bit rate (compressed formats)*/

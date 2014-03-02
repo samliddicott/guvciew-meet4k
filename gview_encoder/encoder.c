@@ -465,7 +465,7 @@ static encoder_audio_context_t *encoder_audio_init(
 	/* the codec gives us the frame size, in samples */
 	int frame_size = enc_audio_ctx->codec_context->frame_size;
 	if(verbosity > 0)
-		printf("ENCODER: Audio frame size is %d samples for selected codec\n", frame_size);
+		printf("ENCODER: Audio frame size is %d frames for selected codec\n", frame_size);
 
 	enc_audio_ctx->monotonic_pts = audio_defaults->monotonic_pts;
 

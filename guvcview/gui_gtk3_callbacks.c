@@ -1621,10 +1621,8 @@ void encoder_video_properties(GtkMenuItem *item, void *data)
 	GtkWidget *codec_dialog = gtk_dialog_new_with_buttons (_("video codec values"),
 		GTK_WINDOW(get_main_window()),
 		GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
-		GTK_STOCK_OK,
-		GTK_RESPONSE_ACCEPT,
-		GTK_STOCK_CANCEL,
-		GTK_RESPONSE_REJECT,
+		_("_OK"), GTK_RESPONSE_ACCEPT,
+		_("_Cancel"), GTK_RESPONSE_REJECT,
 		NULL);
 
 	GtkWidget *table = gtk_grid_new();
@@ -1966,10 +1964,8 @@ void encoder_audio_properties(GtkMenuItem *item, void *data)
 	GtkWidget *codec_dialog = gtk_dialog_new_with_buttons (_("audio codec values"),
 		GTK_WINDOW(get_main_window()),
 		GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
-		GTK_STOCK_OK,
-		GTK_RESPONSE_ACCEPT,
-		GTK_STOCK_CANCEL,
-		GTK_RESPONSE_REJECT,
+		_("_Ok"), GTK_RESPONSE_ACCEPT,
+		_("_Cancel"), GTK_RESPONSE_REJECT,
 		NULL);
 
 	GtkWidget *table = gtk_grid_new();

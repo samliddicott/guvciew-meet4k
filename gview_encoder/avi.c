@@ -495,7 +495,7 @@ static void clean_indexes(avi_context_t *avi_ctx)
 
 		avi_index_t *indexes = (avi_index_t *) stream->indexes;
 		for (j=0; j<indexes->ents_allocated/AVI_INDEX_CLUSTER_SIZE; j++)
-             av_free(indexes->cluster[j]);
+             free(indexes->cluster[j]);
         av_freep(&indexes->cluster);
         indexes->ents_allocated = indexes->entry = 0;
     }
@@ -873,8 +873,8 @@ int avi_write_packet(
 
 	avi_riff_t *riff = avi_get_last_riff(avi_ctx);
 	//align
-    while(block_align==0 && dts != AV_NOPTS_VALUE && dts > stream->packet_count)
-        avi_write_packet(avi_ctx, stream_index, NULL, 0, AV_NOPTS_VALUE, 0, 0);
+    //while(block_align==0 && dts != AV_NOPTS_VALUE && dts > stream->packet_count)
+    //    avi_write_packet(avi_ctx, stream_index, NULL, 0, AV_NOPTS_VALUE, 0, 0);
 
     stream->packet_count++;
 
@@ -908,10 +908,10 @@ int avi_write_packet(
     int id = idx->entry % AVI_INDEX_CLUSTER_SIZE;
     if (idx->ents_allocated <= idx->entry)
     {
-        idx->cluster = av_realloc(idx->cluster, (cl+1)*sizeof(void*));
+        idx->cluster = realloc(idx->cluster, (cl+1)*sizeof(void*));
         if (!idx->cluster)
             return -1;
-        idx->cluster[cl] = av_malloc(AVI_INDEX_CLUSTER_SIZE*sizeof(avi_I_entry_t));
+        idx->cluster[cl] = calloc(AVI_INDEX_CLUSTER_SIZE, sizeof(avi_I_entry_t));
         if (!idx->cluster[cl])
             return -1;
         idx->ents_allocated += AVI_INDEX_CLUSTER_SIZE;
