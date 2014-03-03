@@ -197,12 +197,36 @@ int encoder_write_audio_data(encoder_context_t *encoder_ctx)
  *   filename - video filename
  *
  * asserts:
- *   none
+ *   encoder_ctx is not null
  *
  * returns: none
  */
 void encoder_muxer_init(encoder_context_t *encoder_ctx, const char *filename)
 {
+	/*assertions*/
+	assert(encoder_ctx != NULL);
+	
+	int video_codec_id = AV_CODEC_ID_NONE;
+	
+	if(encoder_ctx->video_codec_ind == 0)
+	{
+		switch(encoder_ctx->input_format)
+		{
+			case V4L2_PIX_FMT_MJPEG:
+				video_codec_id = AV_CODEC_ID_MJPEG;
+				break;
+			case V4L2_PIX_FMT_H264:
+				video_codec_id = AV_CODEC_ID_H264;
+				break;
+		}
+	}
+	else if(encoder_ctx->enc_video_ctx->codec_context)
+	{
+		video_codec_id = encoder_ctx->enc_video_ctx->codec_context->codec_id;
+	}
+	
+	if(verbosity > 1)
+		printf("ENCODER: initializing muxer(%i)\n", encoder_ctx->muxer_id);
 	switch (encoder_ctx->muxer_id)
 	{
 		case ENCODER_MUX_AVI:
@@ -221,9 +245,9 @@ void encoder_muxer_init(encoder_context_t *encoder_ctx, const char *filename)
 				encoder_ctx->video_height,
 				encoder_ctx->fps_den,
 				encoder_ctx->fps_num,
-				encoder_ctx->enc_video_ctx->codec_context->codec_id);
+				video_codec_id);
 
-			if(encoder_ctx->enc_video_ctx->codec_context->codec_id == AV_CODEC_ID_THEORA)
+			if(video_codec_id == AV_CODEC_ID_THEORA)
 			{
 				video_stream->extra_data = (uint8_t *) encoder_ctx->enc_video_ctx->codec_context->extradata;
 				video_stream->extra_data_size = encoder_ctx->enc_video_ctx->codec_context->extradata_size;
@@ -276,20 +300,13 @@ void encoder_muxer_init(encoder_context_t *encoder_ctx, const char *filename)
 				encoder_ctx->video_height,
 				encoder_ctx->fps_den,
 				encoder_ctx->fps_num,
-				encoder_ctx->enc_video_ctx->codec_context->codec_id);
-
-			if(encoder_ctx->input_format == V4L2_PIX_FMT_H264)
-			{
-				/*make sure we have sps and pps data*/
-
-			}
+				video_codec_id);
 
 			video_stream->extra_data_size = encoder_set_video_mkvCodecPriv(encoder_ctx);
 
 			if(video_stream->extra_data_size > 0)
 			{
-				int vcodec_ind = get_video_codec_list_index(encoder_ctx->enc_video_ctx->codec_context->codec_id);
-				video_stream->extra_data = (uint8_t *) encoder_get_video_mkvCodecPriv(vcodec_ind);
+				video_stream->extra_data = (uint8_t *) encoder_get_video_mkvCodecPriv(encoder_ctx->video_codec_ind);
 				if(encoder_ctx->input_format == V4L2_PIX_FMT_H264)
 					video_stream->h264_process = 1; //we need to process NALU marker
 			}
@@ -297,11 +314,10 @@ void encoder_muxer_init(encoder_context_t *encoder_ctx, const char *filename)
 			/*add audio stream*/
 			if(encoder_ctx->audio_channels > 0)
 			{
-				int acodec_ind = get_audio_codec_list_index(encoder_ctx->enc_audio_ctx->codec_context->codec_id);
 				/*sample size - only used for PCM*/
-				int32_t a_bits = encoder_get_audio_bits(acodec_ind);
+				int32_t a_bits = encoder_get_audio_bits(encoder_ctx->audio_codec_ind);
 				/*bit rate (compressed formats)*/
-				int32_t b_rate = encoder_get_audio_bit_rate(acodec_ind);
+				int32_t b_rate = encoder_get_audio_bit_rate(encoder_ctx->audio_codec_ind);
 
 				audio_stream = mkv_add_audio_stream(
 					mkv_ctx,
@@ -315,7 +331,7 @@ void encoder_muxer_init(encoder_context_t *encoder_ctx, const char *filename)
 				audio_stream->extra_data_size = encoder_set_audio_mkvCodecPriv(encoder_ctx);
 
 				if(audio_stream->extra_data_size > 0)
-					audio_stream->extra_data = encoder_get_audio_mkvCodecPriv(acodec_ind);
+					audio_stream->extra_data = encoder_get_audio_mkvCodecPriv(encoder_ctx->audio_codec_ind);
 			}
 
 			/* write the file header */

@@ -88,6 +88,21 @@ static h264_decoder_context_t *h264_ctx = NULL;
 static int h264_support = H264_NONE; /*none by default*/
 
 /*
+ * request a IDR frame from the H264 encoder
+ * args:
+ *   vd - pointer to video device data 
+ * 
+ * asserts:
+ *   vd is not null
+ * 
+ * returns: none
+ */
+void v4l2core_h264_request_idr(v4l2_dev_t *vd)
+{
+	request_h264_frame_type(vd, PICTURE_TYPE_IDR_FULL);
+}
+
+/*
  * get h264 support type
  * args:
  *    none
@@ -1044,4 +1059,3 @@ void h264_close_decoder()
 
 	h264_ctx = NULL;
 }
-

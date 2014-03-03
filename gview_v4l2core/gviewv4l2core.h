@@ -735,6 +735,18 @@ int v4l2core_save_control_profile(v4l2_dev_t *vd, const char *filename);
 int v4l2core_load_control_profile(v4l2_dev_t *vd, const char *filename);
 
 /*
+ * request a IDR frame from the H264 encoder
+ * args:
+ *   vd - pointer to video device data 
+ * 
+ * asserts:
+ *   vd is not null
+ * 
+ * returns: none
+ */
+void v4l2core_h264_request_idr(v4l2_dev_t *vd);
+
+/*
  *  ######### XU CONTROLS ##########
  */
 

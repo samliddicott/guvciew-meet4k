@@ -402,7 +402,7 @@ encoder_context_t *encoder_get_context(
  *   filename - video filename
  *
  * asserts:
- *   none
+ *   encoder_ctx is not null
  *
  * returns: none
  */

@@ -630,6 +630,8 @@ int encoder_set_video_mkvCodecPriv(encoder_context_t *encoder_ctx)
 				/*alloc the private data*/
 				size = 6 + 2 + encoder_ctx->h264_sps_size + 1 + 2 + encoder_ctx->h264_pps_size;
 				encoder_ctx->enc_video_ctx->priv_data = calloc(size, sizeof(uint8_t));
+				if(verbosity > 1)
+					printf("ENCODER: (video priv_data) processing %i bytes\n", size);
 
 				/*write the codec private data*/
 				uint8_t *tp = encoder_ctx->enc_video_ctx->priv_data;

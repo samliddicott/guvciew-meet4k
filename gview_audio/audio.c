@@ -322,6 +322,8 @@ audio_context_t *audio_init(int api)
  */
 int audio_start(audio_context_t *audio_ctx)
 {
+	if(verbosity > 1)
+		printf("AUDIO: starting audio capture\n");
 	/*assertions*/
 	assert(audio_ctx != NULL);
 

@@ -339,6 +339,11 @@ static void *encoder_loop(void *data)
 	if(get_video_codec_ind() == 0 && /*raw - direct input*/
 		device->requested_fmt == V4L2_PIX_FMT_H264)
 	{
+		/*request a IDR (key) frame*/
+		v4l2core_h264_request_idr(device);
+		
+		if(debug_level > 0)
+			printf("GUVCVIEW: storing external pps and sps data in encoder context\n");
 		encoder_ctx->h264_pps_size = device->h264_PPS_size;
 		if(encoder_ctx->h264_pps_size > 0)
 		{
@@ -399,7 +404,7 @@ static void *encoder_loop(void *data)
 	int sample_type = SAMPLE_TYPE_INT16;
 	if(encoder_ctx->enc_audio_ctx->codec_context->sample_fmt == AV_SAMPLE_FMT_FLT)
 		sample_type = SAMPLE_TYPE_FLOAT;
-
+	
 	while(video_capture_get_save_video())
 	{
 		encoder_process_next_video_buffer(encoder_ctx);
