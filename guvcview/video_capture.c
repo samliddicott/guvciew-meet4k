@@ -24,6 +24,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <linux/videodev2.h>
 #include <string.h>
 #include <errno.h>
 #include <assert.h>
@@ -334,6 +335,25 @@ static void *encoder_loop(void *data)
 		channels,
 		samprate);
 
+	/*store external SPS and PPS data if needed*/
+	if(get_video_codec_ind() == 0 && /*raw - direct input*/
+		device->requested_fmt == V4L2_PIX_FMT_H264)
+	{
+		encoder_ctx->h264_pps_size = device->h264_PPS_size;
+		if(encoder_ctx->h264_pps_size > 0)
+		{
+			encoder_ctx->h264_pps = calloc(device->h264_PPS_size, sizeof(uint8_t));
+			memcpy(encoder_ctx->h264_pps, device->h264_PPS, device->h264_PPS_size);
+		}
+
+		encoder_ctx->h264_sps_size = device->h264_SPS_size;
+		if(encoder_ctx->h264_sps_size > 0)
+		{
+			encoder_ctx->h264_sps = calloc(device->h264_SPS_size, sizeof(uint8_t));
+			memcpy(encoder_ctx->h264_sps, device->h264_SPS, device->h264_SPS_size);
+		}
+	}
+
 	char *video_filename = NULL;
 	/*get_video_[name|path] always return a non NULL value*/
 	char *name = strdup(get_video_name());
@@ -382,17 +402,16 @@ static void *encoder_loop(void *data)
 
 	while(video_capture_get_save_video())
 	{
-		/*TODO: set video encoder mode to RAW if we only need to mux the video*/
-		encoder_process_next_video_buffer(encoder_ctx, ENCODER_MODE_NONE);
+		encoder_process_next_video_buffer(encoder_ctx);
 
 		/*encode audio frames up to video timestamp or error*/
 		if(channels > 0)
 		{
 			int ret = 0;
 			do
-			{					
+			{
 				ret = audio_get_next_buffer(audio_ctx, audio_buff, sample_type);
-				
+
 				if(ret == 0)
 				{
 					encoder_ctx->enc_audio_ctx->pts = audio_buff->timestamp;
@@ -620,12 +639,28 @@ void *capture_loop(void *data)
 
 			if(video_capture_get_save_video())
 			{
+				int size = device->format.fmt.pix.width * device->format.fmt.pix.height * 2;
+				uint8_t *input_frame = device->yuv_frame;
 				/*
 				 * TODO: check codec_id, format and frame flags
 				 * (we may want to store a compressed format
 				 */
-				int size = device->format.fmt.pix.width * device->format.fmt.pix.height * 2;
-				encoder_store_input_frame(device->yuv_frame, size, device->timestamp);
+				if(get_video_codec_ind() == 0)
+				{
+					switch(device->requested_fmt)
+					{
+						case  V4L2_PIX_FMT_H264:
+							input_frame = device->h264_frame;
+							size = (int) device->h264_frame_size;
+							break;
+						case V4L2_PIX_FMT_MJPEG:
+							input_frame = device->raw_frame;
+							size = (int) device->raw_frame_size;
+							break;
+					}
+
+				}
+				encoder_store_input_frame(input_frame, size, device->timestamp, device->isKeyframe);
 			}
 
 		}

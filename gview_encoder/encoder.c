@@ -159,6 +159,7 @@ static void encoder_clean_video_ring_buffer()
  */
 static encoder_video_context_t *encoder_video_init(
 	int video_codec_ind,
+	int input_format,
 	int video_width,
 	int video_height,
 	int fps_num,
@@ -167,20 +168,61 @@ static encoder_video_context_t *encoder_video_init(
 	if(video_codec_ind < 0)
 	{
 		if(verbosity > 0)
-			printf("ENCODER: no video codec set\n");
+			printf("ENCODER: no video codec set - using raw (direct input)\n");
 
-		return NULL;
+		video_codec_ind = 0;
 	}
 
 	video_codec_t *video_defaults = encoder_get_video_codec_defaults(video_codec_ind);
 
 	if(!video_defaults)
 	{
-		fprintf(stderr, "ENCODER: defaults for video codec index %i not found\n", video_codec_ind);
-		return(NULL);
+		fprintf(stderr, "ENCODER: defaults for video codec index %i not found: using raw (direct input)\n",
+			video_codec_ind);
+		video_codec_ind = 0;
+		video_defaults = encoder_get_video_codec_defaults(video_codec_ind);
+		if(!video_defaults)
+		{
+			/*should never happen*/
+			fprintf(stderr, "ENCODER: defaults for raw video not found\n");
+			return NULL;
+		}
 	}
 
 	encoder_video_context_t *enc_video_ctx = calloc(1, sizeof(encoder_video_context_t));
+
+	/*raw input - don't set a codec but set the proper codec 4cc*/
+	if(video_codec_ind == 0)
+	{
+		switch(input_format)
+		{
+			case V4L2_PIX_FMT_MJPEG:
+				strncpy(video_defaults->compressor, "MJPG", 5);
+				video_defaults->mkv_4cc = v4l2_fourcc('M','J','P','G');
+				strncpy(video_defaults->mkv_codec, "V_MS/VFW/FOURCC", 25);
+				enc_video_ctx->outbuf_size = video_width * video_height / 2;
+				enc_video_ctx->outbuf = calloc(enc_video_ctx->outbuf_size, sizeof(uint8_t));
+				break;
+
+			case V4L2_PIX_FMT_H264:
+				strncpy(video_defaults->compressor, "H264", 5);
+				video_defaults->mkv_4cc = v4l2_fourcc('H','2','6','4');
+				strncpy(video_defaults->mkv_codec, "V_MPEG4/ISO/AVC", 25);
+				enc_video_ctx->outbuf_size = video_width * video_height / 2;
+				enc_video_ctx->outbuf = calloc(enc_video_ctx->outbuf_size, sizeof(uint8_t));
+				break;
+
+			default:
+				strncpy(video_defaults->compressor, "YUY2", 5);
+				video_defaults->mkv_4cc = v4l2_fourcc('Y','U','Y','2');
+				strncpy(video_defaults->mkv_codec, "V_MS/VFW/FOURCC", 25);
+				enc_video_ctx->outbuf_size = video_width * video_height * 2;
+				enc_video_ctx->outbuf = calloc(enc_video_ctx->outbuf_size, sizeof(uint8_t));
+				break;
+		}
+
+		return (enc_video_ctx);
+	}
 
 	/*
 	 * find the video encoder
@@ -321,8 +363,6 @@ static encoder_video_context_t *encoder_video_init(
 	enc_video_ctx->flushed_buffers = 0;
 	enc_video_ctx->flush_delayed_frames = 0;
 	enc_video_ctx->flush_done = 0;
-
-	/*allocate the ring buffer*/
 
 	return (enc_video_ctx);
 }
@@ -579,6 +619,9 @@ encoder_context_t *encoder_get_context(
 
 	encoder_ctx->input_format = input_format;
 
+	encoder_ctx->video_codec_ind = video_codec_ind;
+	encoder_ctx->audio_codec_ind = audio_codec_ind;
+
 	encoder_ctx->muxer_id = muxer_id;
 
 	encoder_ctx->video_width = video_width;
@@ -593,6 +636,7 @@ encoder_context_t *encoder_get_context(
 	/******************* video **********************/
 	encoder_ctx->enc_video_ctx = encoder_video_init(
 		video_codec_ind,
+		input_format,
 		video_width,
 		video_height,
 		fps_num,
@@ -620,13 +664,14 @@ encoder_context_t *encoder_get_context(
  *   frame - pointer to unprocessed frame data
  *   size - frame size (in bytes)
  *   timestamp - frame timestamp (in nanosec)
+ *   isKeyframe - flag if it's a key(IDR) frame
  *
  * asserts:
  *   none
  *
  * returns: error code
  */
-int encoder_store_input_frame(uint8_t *frame, int size, int64_t timestamp)
+int encoder_store_input_frame(uint8_t *frame, int size, int64_t timestamp, int isKeyframe)
 {
 	if(!video_ring_buffer)
 		return -1;
@@ -661,7 +706,9 @@ int encoder_store_input_frame(uint8_t *frame, int size, int64_t timestamp)
 		size = video_frame_max_size;
 	}
 	memcpy(video_ring_buffer[video_write_index].frame, frame, size);
+	video_ring_buffer[video_write_index].frame_size = size;
 	video_ring_buffer[video_write_index].timestamp = pts;
+	video_ring_buffer[video_write_index].keyframe = isKeyframe;
 
 	__LOCK_MUTEX( __PMUTEX );
 	video_ring_buffer[video_write_index].flag = VIDEO_BUFF_USED;
@@ -675,14 +722,13 @@ int encoder_store_input_frame(uint8_t *frame, int size, int64_t timestamp)
  * process next video frame on the ring buffer (encode and mux to file)
  * args:
  *   encoder_ctx - pointer to encoder context
- *   mode - encoder mode (ENCODER_MODE_[NONE | RAW])
  *
  * asserts:
  *   encoder_ctx is not null
  *
  * returns: error code
  */
-int encoder_process_next_video_buffer(encoder_context_t *encoder_ctx, int mode)
+int encoder_process_next_video_buffer(encoder_context_t *encoder_ctx)
 {
 	/*assertions*/
 	assert(encoder_ctx != NULL);
@@ -699,11 +745,17 @@ int encoder_process_next_video_buffer(encoder_context_t *encoder_ctx, int mode)
 	/*timestamp is zero indexed*/
 	encoder_ctx->enc_video_ctx->pts = video_ring_buffer[video_read_index].timestamp;
 
-	if(mode == ENCODER_MODE_NONE)
+	/*raw (direct input)*/
+	if(encoder_ctx->video_codec_ind == 0)
 	{
-		/*buffer has a yuyv frame*/
-		encoder_encode_video(encoder_ctx, video_ring_buffer[video_read_index].frame);
+		/*outbuf_coded_size must already be set*/
+		encoder_ctx->enc_video_ctx->outbuf_coded_size = video_ring_buffer[video_read_index].frame_size;
+		if(video_ring_buffer[video_read_index].keyframe)
+			encoder_ctx->enc_video_ctx->flags |= AV_PKT_FLAG_KEY;
 	}
+
+	encoder_encode_video(encoder_ctx, video_ring_buffer[video_read_index].frame);
+
 
 	/*mux the frame*/
 	__LOCK_MUTEX( __PMUTEX );
@@ -747,14 +799,14 @@ int encoder_process_audio_buffer(encoder_context_t *encoder_ctx, void *data, int
  * encode video frame
  * args:
  *   encoder_ctx - pointer to encoder context
- *   yuv_frame - pointer to frame data
+ *   input_frame - pointer to frame data
  *
  * asserts:
  *   encoder_ctx is not null
  *
  * returns: encoded buffer size
  */
-int encoder_encode_video(encoder_context_t *encoder_ctx, void *yuv_frame)
+int encoder_encode_video(encoder_context_t *encoder_ctx, void *input_frame)
 {
 	/*assertions*/
 	assert(encoder_ctx != NULL);
@@ -771,7 +823,22 @@ int encoder_encode_video(encoder_context_t *encoder_ctx, void *yuv_frame)
 		return outsize;
 	}
 
-	yuv422to420p(encoder_ctx, yuv_frame);
+	/*raw - direct input no software encoding*/
+	if(encoder_ctx->video_codec_ind == 0)
+	{
+		/*outbuf_coded_size must already be set*/
+		outsize = enc_video_ctx->outbuf_coded_size;
+		memcpy(enc_video_ctx->outbuf, input_frame, outsize);
+		enc_video_ctx->flags = 0;
+		/*enc_video_ctx->flags must be set*/
+		enc_video_ctx->dts = AV_NOPTS_VALUE;
+		enc_video_ctx->duration = enc_video_ctx->pts - last_video_pts;
+		last_video_pts = enc_video_ctx->pts;
+		return (outsize);
+	}
+
+	/*convert default yuyv to y420p (libav input format)*/
+	yuv422to420p(encoder_ctx, input_frame);
 
 	if(!enc_video_ctx->monotonic_pts) //generate a real pts based on the frame timestamp
 		enc_video_ctx->picture->pts += ((enc_video_ctx->pts - last_video_pts)/1000) * 90;
@@ -1018,12 +1085,18 @@ void encoder_close(encoder_context_t *encoder_ctx)
 
 	reference_pts = 0;
 
-	/*close video codec*/
-	if(enc_video_ctx)
-	{
-		if(enc_video_ctx->priv_data)
-			free(enc_video_ctx->priv_data);
+	if(encoder_ctx->enc_video_ctx->priv_data)
+		free(encoder_ctx->enc_video_ctx->priv_data);
 
+	if(encoder_ctx->h264_pps)
+		free(encoder_ctx->h264_pps);
+
+	if(encoder_ctx->h264_sps)
+		free(encoder_ctx->h264_sps);
+
+	/*close video codec*/
+	if(enc_video_ctx && encoder_ctx->video_codec_ind > 0)
+	{
 		if(!(enc_video_ctx->flushed_buffers))
 		{
 			avcodec_flush_buffers(enc_video_ctx->codec_context);
@@ -1037,22 +1110,24 @@ void encoder_close(encoder_context_t *encoder_ctx)
 		av_dict_free(&(enc_video_ctx->private_options));
 #endif
 
+		if(enc_video_ctx->picture)
+			free(enc_video_ctx->picture);
+	}
+	if(enc_video_ctx)
+	{
 		if(enc_video_ctx->tmpbuf)
 			free(enc_video_ctx->tmpbuf);
 		if(enc_video_ctx->outbuf)
 			free(enc_video_ctx->outbuf);
-		if(enc_video_ctx->picture)
-			free(enc_video_ctx->picture);
 
 		free(enc_video_ctx);
 	}
 
+	if(encoder_ctx->enc_audio_ctx->priv_data)
+		free(encoder_ctx->enc_audio_ctx->priv_data);
 	/*close audio codec*/
 	if(enc_audio_ctx)
 	{
-		if(enc_audio_ctx->priv_data != NULL)
-			free(enc_audio_ctx->priv_data);
-
 		avcodec_flush_buffers(enc_audio_ctx->codec_context);
 
 		avcodec_close(enc_audio_ctx->codec_context);

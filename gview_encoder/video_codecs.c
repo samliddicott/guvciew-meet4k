@@ -60,6 +60,47 @@ static bmp_info_header_t mkv_codecPriv =
 /*list of software supported formats*/
 static video_codec_t listSupCodecs[] =
 {
+	/*
+	 * Raw camera input (yuvy or mjpg or H264)
+	 *  we will set the correct codec data
+	 *  depending on the V4L2_PIX_FMT_*
+	 *  (this codec entry is always valid - index 0)
+	 */
+	{
+		.valid        = 1,
+		.compressor   = "YUY2",
+		.mkv_4cc      = v4l2_fourcc('Y','U','Y','2'),
+		.mkv_codec    = "V_MS/VFW/FOURCC",
+		.mkv_codecPriv= &mkv_codecPriv,
+		.description = N_("Raw camera input"),
+		.fps          = 0,
+		.monotonic_pts= 0,
+		.bit_rate     = 0,
+		.qmax         = 0,
+		.qmin         = 0,
+		.max_qdiff    = 0,
+		.dia          = 0,
+		.pre_dia      = 0,
+		.pre_me       = 0,
+		.me_pre_cmp   = 0,
+		.me_cmp       = 0,
+		.me_sub_cmp   = 0,
+		.last_pred    = 0,
+		.gop_size     = 0,
+		.qcompress    = 0,
+		.qblur        = 0,
+		.subq         = 0,
+		.framerefs    = 0,
+		.codec_id     = AV_CODEC_ID_NONE,
+		.codec_name   = "none",
+		.mb_decision  = 0,
+		.trellis      = 0,
+		.me_method    = 0,
+		.mpeg_quant   = 0,
+		.max_b_frames = 0,
+		.num_threads  = 0,
+		.flags        = 0
+	},
 	{
 		.valid        = 1,
 		.compressor   = "MJPG",
@@ -87,41 +128,6 @@ static video_codec_t listSupCodecs[] =
 		.framerefs    = 0,
 		.codec_id     = AV_CODEC_ID_MJPEG,
 		.codec_name   = "mjpeg",
-		.mb_decision  = 0,
-		.trellis      = 0,
-		.me_method    = 0,
-		.mpeg_quant   = 0,
-		.max_b_frames = 0,
-		.num_threads  = 0,
-		.flags        = 0
-	},
-	{
-		.valid        = 1,
-		.compressor   = "YUY2",
-		.mkv_4cc      = v4l2_fourcc('Y','U','Y','2'),
-		.mkv_codec    = "V_MS/VFW/FOURCC",
-		.mkv_codecPriv= &mkv_codecPriv,
-		.description = N_("YUY2 - uncomp YUV"),
-		.fps          = 0,
-		.monotonic_pts= 0,
-		.bit_rate     = 0,
-		.qmax         = 0,
-		.qmin         = 0,
-		.max_qdiff    = 0,
-		.dia          = 0,
-		.pre_dia      = 0,
-		.pre_me       = 0,
-		.me_pre_cmp   = 0,
-		.me_cmp       = 0,
-		.me_sub_cmp   = 0,
-		.last_pred    = 0,
-		.gop_size     = 0,
-		.qcompress    = 0,
-		.qblur        = 0,
-		.subq         = 0,
-		.framerefs    = 0,
-		.codec_id     = AV_CODEC_ID_NONE,
-		.codec_name   = "none",
 		.mb_decision  = 0,
 		.trellis      = 0,
 		.me_method    = 0,
@@ -452,6 +458,21 @@ static video_codec_t listSupCodecs[] =
 };
 
 /*
+ * get default mkv_codecPriv
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: pointer to bmp_info_header_t
+ */
+bmp_info_header_t *get_default_mkv_codecPriv()
+{
+	return &mkv_codecPriv;
+}
+
+/*
  * get video codec list size
  * args:
  *    none
@@ -587,6 +608,87 @@ int encoder_set_video_mkvCodecPriv(encoder_context_t *encoder_ctx)
 
 	int size = 0;
 
+	/*raw encoder*/
+	if(encoder_ctx->video_codec_ind == 0)
+	{
+		switch(encoder_ctx->input_format)
+		{
+			case V4L2_PIX_FMT_H264:
+			{
+				/*do we have SPS and PPS data ?*/
+				if(encoder_ctx->h264_sps_size <= 0 || encoder_ctx->h264_sps == NULL)
+				{
+					fprintf(stderr,"ENCODER: can't store H264 codec private data: No SPS data\n");
+					return 0;
+				}
+				if(encoder_ctx->h264_pps_size <= 0 || encoder_ctx->h264_pps == NULL)
+				{
+					fprintf(stderr,"ENCODER: can't store H264 codec private data: No PPS data\n");
+					return 0;
+				}
+
+				/*alloc the private data*/
+				size = 6 + 2 + encoder_ctx->h264_sps_size + 1 + 2 + encoder_ctx->h264_pps_size;
+				encoder_ctx->enc_video_ctx->priv_data = calloc(size, sizeof(uint8_t));
+
+				/*write the codec private data*/
+				uint8_t *tp = encoder_ctx->enc_video_ctx->priv_data;
+				/*header (6 bytes)*/
+				tp[0] = 1; //version
+				tp[1] = encoder_ctx->h264_sps[1]; /* profile */
+				tp[2] = encoder_ctx->h264_sps[2]; /* profile compat */
+				tp[3] = encoder_ctx->h264_sps[3]; /* level */
+				tp[4] = 0xff; /* 6 bits reserved (111111) + 2 bits nal size length - 1 (11) */
+				tp[5] = 0xe1; /* 3 bits reserved (111) + 5 bits number of sps (00001) */
+				tp += 6;
+				/*SPS: size (2 bytes) + SPS data*/
+				tp[0] = (uint8_t) (encoder_ctx->h264_sps_size >> 8);
+				tp[1] = (uint8_t) encoder_ctx->h264_sps_size; //38 for logitech uvc 1.1
+				tp += 2; //SPS size (16 bit)
+				memcpy(tp, encoder_ctx->h264_sps , encoder_ctx->h264_sps_size);
+				tp += encoder_ctx->h264_sps_size;
+				/*PPS number of pps (1 byte) + size (2 bytes) + PPS data*/
+				tp[0] = 0x01; //number of pps
+				tp[1] = (uint8_t) (encoder_ctx->h264_pps_size >> 8);
+				tp[2] = (uint8_t) encoder_ctx->h264_pps_size; //4 for logitech uvc 1.1
+				tp += 3; //PPS size (16 bit)
+				memcpy(tp, encoder_ctx->h264_pps , encoder_ctx->h264_pps_size);
+
+				listSupCodecs[0].mkv_codecPriv = encoder_ctx->enc_video_ctx->priv_data;
+				break;
+			}
+
+			case V4L2_PIX_FMT_MJPEG:
+			{
+				bmp_info_header_t *mkv_codecPriv = get_default_mkv_codecPriv();
+				size = 40;
+				mkv_codecPriv->biWidth = encoder_ctx->video_width;
+				mkv_codecPriv->biHeight = encoder_ctx->video_height;
+				mkv_codecPriv->biCompression = V4L2_PIX_FMT_MJPEG;
+				mkv_codecPriv->biSizeImage = encoder_ctx->video_width*encoder_ctx->video_height*2; /*2 bytes per pixel (max buffer - use x3 for RGB)*/
+				listSupCodecs[0].mkv_codecPriv = (void *) mkv_codecPriv;
+				break;
+			}
+
+			default:
+			{
+				bmp_info_header_t *mkv_codecPriv = get_default_mkv_codecPriv();
+				size = 40;
+				mkv_codecPriv->biWidth = encoder_ctx->video_width;
+				mkv_codecPriv->biHeight = encoder_ctx->video_height;
+				mkv_codecPriv->biCompression = V4L2_PIX_FMT_YUYV;
+				mkv_codecPriv->biSizeImage = encoder_ctx->video_width*encoder_ctx->video_height*2; /*2 bytes per pixel (max buffer - use x3 for RGB)*/
+				listSupCodecs[0].mkv_codecPriv = (void *) mkv_codecPriv;
+				break;
+			}
+		}
+
+		return(size);
+	}
+
+	/*assert video encoder context is not null*/
+	assert( encoder_ctx->enc_video_ctx);
+
 	int codec_id = encoder_ctx->enc_video_ctx->codec_context->codec_id;
 	int real_index = get_video_codec_index(codec_id);
 
@@ -627,9 +729,9 @@ int encoder_set_video_mkvCodecPriv(encoder_context_t *encoder_ctx)
 				header_len[2];  //third packet header
 
 		/*should check and clean before allocating ??*/
-		encoder_ctx->enc_video_ctx->codec_context->priv_data = calloc(size, sizeof(uint8_t));
+		encoder_ctx->enc_video_ctx->priv_data = calloc(size, sizeof(uint8_t));
 		/*write header*/
-		uint8_t *tmp = encoder_ctx->enc_video_ctx->codec_context->priv_data;
+		uint8_t *tmp = encoder_ctx->enc_video_ctx->priv_data;
 		*tmp++ = 0x02; /*number of packets -1*/
 		//size of head 1
 		for (i = 0; i < header_len[0] / 0xff; i++)
@@ -646,62 +748,17 @@ int encoder_set_video_mkvCodecPriv(encoder_context_t *encoder_ctx)
 			tmp += header_len[i];
 		}
 
-		listSupCodecs[real_index].mkv_codecPriv = encoder_ctx->enc_video_ctx->codec_context->priv_data;
-	}
-	else if(listSupCodecs[real_index].codec_id == AV_CODEC_ID_H264)
-	{
-		if(encoder_ctx->input_format == V4L2_PIX_FMT_H264)
-		{
-			/*do we have SPS and PPS data ?*/
-			if(encoder_ctx->h264_sps_size <= 0 || encoder_ctx->h264_sps == NULL)
-			{
-				fprintf(stderr,"ENCODER: can't store H264 codec private data: No SPS data\n");
-				return 0;
-			}
-			if(encoder_ctx->h264_pps_size <= 0 || encoder_ctx->h264_pps == NULL)
-			{
-				fprintf(stderr,"ENCODER: can't store H264 codec private data: No PPS data\n");
-				return 0;
-			}
-
-			/*alloc the private data*/
-			size = 6 + 2 + encoder_ctx->h264_sps_size + 1 + 2 + encoder_ctx->h264_pps_size;
-			encoder_ctx->enc_video_ctx->codec_context->priv_data = calloc(size, sizeof(uint8_t));
-
-			/*write the codec private data*/
-			uint8_t *tp = encoder_ctx->enc_video_ctx->codec_context->priv_data;
-			/*header (6 bytes)*/
-			tp[0] = 1; //version
-			tp[1] = encoder_ctx->h264_sps[1]; /* profile */
-			tp[2] = encoder_ctx->h264_sps[2]; /* profile compat */
-			tp[3] = encoder_ctx->h264_sps[3]; /* level */
-			tp[4] = 0xff; /* 6 bits reserved (111111) + 2 bits nal size length - 1 (11) */
-			tp[5] = 0xe1; /* 3 bits reserved (111) + 5 bits number of sps (00001) */
-			tp += 6;
-			/*SPS: size (2 bytes) + SPS data*/
-			tp[0] = (uint8_t) (encoder_ctx->h264_sps_size >> 8);
-			tp[1] = (uint8_t) encoder_ctx->h264_sps_size; //38 for logitech uvc 1.1
-			tp += 2; //SPS size (16 bit)
-			memcpy(tp, encoder_ctx->h264_sps , encoder_ctx->h264_sps_size);
-			tp += encoder_ctx->h264_sps_size;
-			/*PPS number of pps (1 byte) + size (2 bytes) + PPS data*/
-			tp[0] = 0x01; //number of pps
-			tp[1] = (uint8_t) (encoder_ctx->h264_pps_size >> 8);
-			tp[2] = (uint8_t) encoder_ctx->h264_pps_size; //4 for logitech uvc 1.1
-			tp += 3; //PPS size (16 bit)
-			memcpy(tp, encoder_ctx->h264_pps , encoder_ctx->h264_pps_size);
-
-			listSupCodecs[real_index].mkv_codecPriv = encoder_ctx->enc_video_ctx->codec_context->priv_data;
-		}
-
+		listSupCodecs[real_index].mkv_codecPriv = encoder_ctx->enc_video_ctx->priv_data;
 	}
 	else if(listSupCodecs[real_index].mkv_codecPriv != NULL)
 	{
-		mkv_codecPriv.biWidth = encoder_ctx->video_width;
-		mkv_codecPriv.biHeight =  encoder_ctx->video_height;
-		mkv_codecPriv.biCompression = listSupCodecs[real_index].mkv_4cc;
-		mkv_codecPriv.biSizeImage = mkv_codecPriv.biWidth * mkv_codecPriv.biHeight * 2;
-		mkv_codecPriv.biHeight =-encoder_ctx->video_height; //???
+		bmp_info_header_t *mkv_codecPriv = get_default_mkv_codecPriv();
+
+		mkv_codecPriv->biWidth = encoder_ctx->video_width;
+		mkv_codecPriv->biHeight = encoder_ctx->video_height;
+		mkv_codecPriv->biCompression = listSupCodecs[real_index].mkv_4cc;;
+		mkv_codecPriv->biSizeImage = mkv_codecPriv->biWidth * mkv_codecPriv->biHeight * 2; /*2 bytes per pixel (max buffer - use x3 for RGB)*/
+		listSupCodecs[real_index].mkv_codecPriv = (void *) mkv_codecPriv;
 
 		size = 40; //40 bytes
 	}
@@ -782,9 +839,9 @@ video_codec_t *encoder_get_video_codec_defaults(int codec_ind)
 int encoder_set_valid_video_codec_list ()
 {
 	AVCodec *codec;
-	int ind = 0;
-	int num_codecs = 0;
-	for ( ind = 0; ind < encoder_get_video_codec_list_size(); ++ind)
+	int ind = 1;
+	int num_codecs = 1; /*raw codec (no encoding) is always valid*/
+	for ( ind = 1; ind < encoder_get_video_codec_list_size(); ++ind)
 	{
 		codec = avcodec_find_encoder(listSupCodecs[ind].codec_id);
 		if (!codec)

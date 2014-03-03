@@ -56,7 +56,7 @@ static uint8_t AAC_ESDS[2] = {0x0A,0x10};
 static audio_codec_t listSupCodecs[] = //list of software supported formats
 {
 	{
-		.valid        = TRUE,
+		.valid        = 1,
 		.bits         = 16,
 		.avi_4cc      = WAVE_FORMAT_PCM,
 		.mkv_codec    = "A_PCM/INT/LIT",
@@ -71,7 +71,7 @@ static audio_codec_t listSupCodecs[] = //list of software supported formats
 		.flags        = 0
 	},
 	{
-		.valid        = TRUE,
+		.valid        = 1,
 		.bits         = 0,
 		.monotonic_pts= 1,
 		.avi_4cc      = WAVE_FORMAT_MPEG12,
@@ -87,7 +87,7 @@ static audio_codec_t listSupCodecs[] = //list of software supported formats
 		.flags        = 0
 	},
 	{
-		.valid        = TRUE,
+		.valid        = 1,
 		.bits         = 0,
 		.monotonic_pts= 1,
 		.avi_4cc      = WAVE_FORMAT_MP3,
@@ -103,7 +103,7 @@ static audio_codec_t listSupCodecs[] = //list of software supported formats
 		.flags        = 0
 	},
 	{
-		.valid        = TRUE,
+		.valid        = 1,
 		.bits         = 0,
 		.monotonic_pts= 1,
 		.avi_4cc      = WAVE_FORMAT_AC3,
@@ -119,7 +119,7 @@ static audio_codec_t listSupCodecs[] = //list of software supported formats
 		.flags        = 0
 	},
 	{
-		.valid        = TRUE,
+		.valid        = 1,
 		.bits         = 16,
 		.monotonic_pts= 1,
 		.avi_4cc      = WAVE_FORMAT_AAC,
@@ -135,7 +135,7 @@ static audio_codec_t listSupCodecs[] = //list of software supported formats
 		.flags        = 0
 	},
 	{
-		.valid        = TRUE,
+		.valid        = 1,
 		.bits         = 16,
 		.monotonic_pts= 1,
 		.avi_4cc      = OGG_FORMAT_VORBIS,
@@ -491,8 +491,8 @@ int encoder_set_audio_mkvCodecPriv(encoder_context_t *encoder_ctx)
 
 	int size = 0;
 
-	int codec_id = encoder_ctx->enc_video_ctx->codec_context->codec_id;
-	int real_index = get_video_codec_index(codec_id);
+	int codec_id = encoder_ctx->enc_audio_ctx->codec_context->codec_id;
+	int real_index = get_audio_codec_index(codec_id);
 
 
 	if (codec_id == AV_CODEC_ID_AAC)
@@ -542,7 +542,7 @@ int encoder_set_audio_mkvCodecPriv(encoder_context_t *encoder_ctx)
 						header_len[1] + //second packet header
 						header_len[2];  //third packet header
 
-		//should check and clean before allocating ??
+		/*should check and clean before allocating ??*/
 		encoder_ctx->enc_audio_ctx->priv_data = calloc(priv_data_size, sizeof(uint8_t));
 		//write header
 		uint8_t* tmp = encoder_ctx->enc_audio_ctx->priv_data;

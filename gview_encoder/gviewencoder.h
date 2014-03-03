@@ -99,6 +99,7 @@ typedef struct _video_buffer_t
 	uint8_t *frame;  /*uncompressed*/
 	int frame_size;
 	int64_t timestamp;
+	int keyframe;  /* 1-keyframe; 0-non keyframe (only for direct input)*/
 	int flag;      /*VIDEO_BUFF_FREE | VIDEO_BUFF_USED*/
 } video_buffer_t;
 
@@ -106,11 +107,11 @@ typedef struct _video_buffer_t
 typedef struct _video_codec_t
 {
 	int valid;                //the encoding codec exists in libav
-	const char *compressor;   //fourcc - upper case
+	char compressor[5];       //fourcc - upper case
 	int mkv_4cc;              //fourcc WORD value
-	const char *mkv_codec;    //mkv codecID
+	char mkv_codec[25];       //mkv codecID
 	void *mkv_codecPriv;      //mkv codec private data
-	const char *description;  //codec description
+	char description[30];     //codec description
 	int fps;                  // encoder frame rate (used for time base)
 	int bit_rate;             //lavc default bit rate
 	int qmax;                 //lavc qmax
@@ -129,7 +130,7 @@ typedef struct _video_codec_t
 	int subq;                 //lavc subq
 	int framerefs;            //lavc refs
 	int codec_id;             //lavc codec_id
-	const char* codec_name;   //lavc codec_name
+	char codec_name[20];      //lavc codec_name
 	int mb_decision;          //lavc mb_decision
 	int trellis;              //lavc trellis quantization
 	int me_method;            //lavc motion estimation method
@@ -147,11 +148,11 @@ typedef struct _audio_codec_t
 	int bits;                 //bits per sample (pcm only)
 	int monotonic_pts;
 	uint16_t avi_4cc;         //fourcc value (4 bytes)
-	const char *mkv_codec;    //mkv codecID
-	const char *description;  //codec description
+	char mkv_codec[25];       //mkv codecID
+	char description[30];     //codec description
 	int bit_rate;             //lavc default bit rate
 	int codec_id;             //lavc codec_id
-	const char *codec_name;   //lavc codec name
+	char codec_name[20];      //lavc codec name
 	int sample_format;        //lavc sample format
 	int profile;              //for AAC only
 	void *mkv_codpriv;        //pointer for codec private data
@@ -181,8 +182,9 @@ typedef struct _encoder_video_context_t
 	int flushed_buffers;
 	int flush_done;
 
+	uint8_t *priv_data;
+
 	uint8_t* tmpbuf;
-	uint8_t* priv_data;
 
 	int outbuf_size;
 	uint8_t* outbuf;
@@ -209,7 +211,8 @@ typedef struct _encoder_audio_context_t
 
 	int monotonic_pts;
 
-	uint8_t* priv_data;
+	uint8_t *priv_data;
+
 	int outbuf_size;
 	uint8_t* outbuf;
 	int outbuf_coded_size;
@@ -227,6 +230,8 @@ typedef struct _encoder_context_t
 	int muxer_id;
 
 	int input_format;
+	int video_codec_ind;
+	int audio_codec_ind;
 
 	int video_width;
 	int video_height;
@@ -238,7 +243,6 @@ typedef struct _encoder_context_t
 	int audio_samprate;
 
 	encoder_video_context_t *enc_video_ctx;
-
 	encoder_audio_context_t *enc_audio_ctx;
 
 	/*external h264 encoder data*/
@@ -494,26 +498,26 @@ int encoder_set_audio_mkvCodecPriv(encoder_context_t *encoder_ctx);
  *   frame - pointer to unprocessed frame data
  *   size - frame size (in bytes)
  *   timestamp - frame timestamp (in nanosec)
+ *   isKeyframe - flag if it's a key(IDR) frame
  *
  * asserts:
  *   none
  *
  * returns: error code
  */
-int encoder_store_input_frame(uint8_t *frame, int size, int64_t timestamp);
+int encoder_store_input_frame(uint8_t *frame, int size, int64_t timestamp, int isKeyframe);
 
 /*
  * process next video frame on the ring buffer (encode and mux to file)
  * args:
  *   encoder_ctx - pointer to encoder context
- *   mode - encoder mode (ENCODER_MODE_[NONE | RAW])
  *
  * asserts:
  *   encoder_ctx is not null
  *
  * returns: error code
  */
-int encoder_process_next_video_buffer(encoder_context_t *encoder_ctx, int mode);
+int encoder_process_next_video_buffer(encoder_context_t *encoder_ctx);
 
 /*
  * process audio buffer (encode and mux to file)

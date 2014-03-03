@@ -104,6 +104,18 @@ typedef struct _bmp_info_header_t
 }  __attribute__ ((packed)) bmp_info_header_t;
 
 /*
+ * get default mkv_codecPriv
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: pointer to bmp_info_header_t
+ */
+bmp_info_header_t *get_default_mkv_codecPriv();
+
+/*
  * split xiph headers from libav private data
  * args:
  *    extradata - libav codec private data
