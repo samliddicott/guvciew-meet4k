@@ -146,6 +146,8 @@ int encoder_write_audio_data(encoder_context_t *encoder_ctx)
 
 	encoder_audio_context_t *enc_audio_ctx = encoder_ctx->enc_audio_ctx;
 
+	if(verbosity > 3)
+		printf("ENCODER: writing %i bytes of audio data\n", enc_audio_ctx->outbuf_coded_size);
 	if(enc_audio_ctx->outbuf_coded_size <= 0)
 		return -1;
 
@@ -208,7 +210,7 @@ void encoder_muxer_init(encoder_context_t *encoder_ctx, const char *filename)
 	
 	int video_codec_id = AV_CODEC_ID_NONE;
 	
-	if(encoder_ctx->video_codec_ind == 0)
+	if(encoder_ctx->video_codec_ind == 0) /*no codec_context*/
 	{
 		switch(encoder_ctx->input_format)
 		{
@@ -247,7 +249,7 @@ void encoder_muxer_init(encoder_context_t *encoder_ctx, const char *filename)
 				encoder_ctx->fps_num,
 				video_codec_id);
 
-			if(video_codec_id == AV_CODEC_ID_THEORA)
+			if(video_codec_id == AV_CODEC_ID_THEORA && encoder_ctx->enc_video_ctx->codec_context)
 			{
 				video_stream->extra_data = (uint8_t *) encoder_ctx->enc_video_ctx->codec_context->extradata;
 				video_stream->extra_data_size = encoder_ctx->enc_video_ctx->codec_context->extradata_size;

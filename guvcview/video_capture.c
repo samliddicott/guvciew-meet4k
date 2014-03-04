@@ -387,7 +387,9 @@ static void *encoder_loop(void *data)
 	/*start audio capture*/
 	if(channels > 0)
 	{
-		audio_ctx->capture_buff_size = encoder_ctx->enc_audio_ctx->codec_context->frame_size * channels;
+		int frame_size = encoder_ctx->enc_audio_ctx->codec_context->frame_size;
+			
+		audio_ctx->capture_buff_size = frame_size * channels;
 		audio_start(audio_ctx);
 		/*
 		 * alloc the buffer after audio_start
@@ -421,7 +423,7 @@ static void *encoder_loop(void *data)
 				{
 					encoder_ctx->enc_audio_ctx->pts = audio_buff->timestamp;
 
-					encoder_process_audio_buffer(encoder_ctx, audio_buff->data, ENCODER_MODE_NONE);
+					encoder_process_audio_buffer(encoder_ctx, audio_buff->data);
 				}
 			}
 			while(ret == 0 &&

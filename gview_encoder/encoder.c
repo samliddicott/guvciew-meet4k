@@ -504,6 +504,11 @@ static encoder_audio_context_t *encoder_audio_init(
 
 	/* the codec gives us the frame size, in samples */
 	int frame_size = enc_audio_ctx->codec_context->frame_size;
+	if(frame_size <= 0)
+	{
+		frame_size = 1152; /*default value*/
+		enc_audio_ctx->codec_context->frame_size = frame_size;
+	}
 	if(verbosity > 0)
 		printf("ENCODER: Audio frame size is %d frames for selected codec\n", frame_size);
 
@@ -775,20 +780,18 @@ int encoder_process_next_video_buffer(encoder_context_t *encoder_ctx)
  * args:
  *   encoder_ctx - pointer to encoder context
  *   data - audio buffer
- *   mode - encoder mode (ENCODER_MODE_[NONE | RAW])
  *
  * asserts:
  *   encoder_ctx is not null
  *
  * returns: error code
  */
-int encoder_process_audio_buffer(encoder_context_t *encoder_ctx, void *data, int mode)
+int encoder_process_audio_buffer(encoder_context_t *encoder_ctx, void *data)
 {
 	/*assertions*/
 	assert(encoder_ctx != NULL);
 
-	if(mode == ENCODER_MODE_NONE)
-		encoder_encode_audio(encoder_ctx, data);
+	encoder_encode_audio(encoder_ctx, data);
 
 	int ret = encoder_write_audio_data(encoder_ctx);
 

@@ -524,14 +524,13 @@ int encoder_process_next_video_buffer(encoder_context_t *encoder_ctx);
  * args:
  *   encoder_ctx - pointer to encoder context
  *   data - audio buffer
- *   mode - encoder mode (ENCODER_MODE_[NONE | RAW])
  *
  * asserts:
  *   encoder_ctx is not null
  *
  * returns: error code
  */
-int encoder_process_audio_buffer(encoder_context_t *encoder_ctx, void *data, int mode);
+int encoder_process_audio_buffer(encoder_context_t *encoder_ctx, void *data);
 
 /*
  * encode video frame
