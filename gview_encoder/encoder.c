@@ -68,6 +68,7 @@ static int video_ring_buffer_size = 0;
 static video_buffer_t *video_ring_buffer = NULL;
 static int video_read_index = 0;
 static int video_write_index = 0;
+static int video_scheduler = 0;
 
 /*
  * set verbosity
@@ -524,6 +525,45 @@ static encoder_audio_context_t *encoder_audio_init(
 #endif
 
 	return (enc_audio_ctx);
+}
+
+/*
+ * get an estimated write loop sleep time to avoid a ring buffer overrun
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: estimate sleep time (nanosec)
+ */
+uint32_t encoder_buff_scheduler()
+{
+	int diff_ind = 0;
+	uint32_t sched_time = 0; /*in milisec*/
+
+	__LOCK_MUTEX( __PMUTEX );
+	/* try to balance buffer overrun in read/write operations */
+	if(video_write_index >= video_read_index)
+		diff_ind = video_write_index - video_read_index;
+	else
+		diff_ind = (video_ring_buffer_size - video_read_index) + video_write_index;
+	__UNLOCK_MUTEX( __PMUTEX );
+
+	int th = (int) lround((double) video_ring_buffer_size * 0.7); /*70% full*/
+
+	/**/
+	if(diff_ind <= th) /* from 0 to 50 ms (down below 20 fps)*/
+		sched_time = (uint32_t) lround((double) (diff_ind * 71) / video_ring_buffer_size);
+	else               /*from 50 to 210 ms (down below 5 fps)*/
+		sched_time = (uint32_t) lround((double) ((diff_ind * 320) / video_ring_buffer_size) - 110);
+
+	/*clip*/
+	if(sched_time < 0) sched_time = 0; /*clip to positive values just in case*/
+	if(sched_time > 1000)
+		sched_time = 1000; /*1 sec*/
+
+	return (sched_time * 1E6); /*return in nanosec*/
 }
 
 /*

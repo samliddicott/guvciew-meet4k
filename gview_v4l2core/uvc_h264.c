@@ -90,11 +90,11 @@ static int h264_support = H264_NONE; /*none by default*/
 /*
  * request a IDR frame from the H264 encoder
  * args:
- *   vd - pointer to video device data 
- * 
+ *   vd - pointer to video device data
+ *
  * asserts:
  *   vd is not null
- * 
+ *
  * returns: none
  */
 void v4l2core_h264_request_idr(v4l2_dev_t *vd)
@@ -827,9 +827,9 @@ int set_h264_spatial_scale_mode(v4l2_dev_t *vd, uint8_t mode)
  * asserts:
  *   vd is not null
  *
- * returns: temporal scale mode (FIXME: 0xffffffff on error)
+ * returns: frame rate config (FIXME: 0xffffffff on error)
  */
-uint32_t uvcx_get_frame_rate_config(v4l2_dev_t *vd, uint8_t query)
+uint32_t uvcx_get_h264_frame_rate_config(v4l2_dev_t *vd, uint8_t query)
 {
 	/*asserts*/
 	assert(vd != NULL);
@@ -856,6 +856,21 @@ uint32_t uvcx_get_frame_rate_config(v4l2_dev_t *vd, uint8_t query)
 }
 
 /*
+ * get the frame rate config
+ * args:
+ *   vd - pointer to video device data
+ *
+ * asserts:
+ *   vd is not null
+ *
+ * returns: frame rate config (FIXME: 0xffffffff on error)
+ */
+uint32_t v4l2core_get_h264_frame_rate_config(v4l2_dev_t *vd)
+{
+	return uvcx_get_h264_frame_rate_config(vd, UVC_GET_CUR);
+}
+
+/*
  * set the frame rate config
  * args:
  *   vd - pointer to video device data
@@ -866,7 +881,7 @@ uint32_t uvcx_get_frame_rate_config(v4l2_dev_t *vd, uint8_t query)
  *
  * returns: error code ( 0 -OK)
  */
-int set_h264_frame_rate_config(v4l2_dev_t *vd, uint32_t framerate)
+int v4l2core_set_h264_frame_rate_config(v4l2_dev_t *vd, uint32_t framerate)
 {
 	/*asserts*/
 	assert(vd != NULL);

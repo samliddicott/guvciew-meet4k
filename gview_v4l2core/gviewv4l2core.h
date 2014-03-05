@@ -737,14 +737,39 @@ int v4l2core_load_control_profile(v4l2_dev_t *vd, const char *filename);
 /*
  * request a IDR frame from the H264 encoder
  * args:
- *   vd - pointer to video device data 
- * 
+ *   vd - pointer to video device data
+ *
  * asserts:
  *   vd is not null
- * 
+ *
  * returns: none
  */
 void v4l2core_h264_request_idr(v4l2_dev_t *vd);
+
+/*
+ * get the frame rate config
+ * args:
+ *   vd - pointer to video device data
+ *
+ * asserts:
+ *   vd is not null
+ *
+ * returns: frame rate config (FIXME: 0xffffffff on error)
+ */
+uint32_t v4l2core_get_h264_frame_rate_config(v4l2_dev_t *vd);
+
+/*
+ * set the frame rate config
+ * args:
+ *   vd - pointer to video device data
+ *   framerate - framerate
+ *
+ * asserts:
+ *   vd is not null
+ *
+ * returns: error code ( 0 -OK)
+ */
+int v4l2core_set_h264_frame_rate_config(v4l2_dev_t *vd, uint32_t framerate);
 
 /*
  *  ######### XU CONTROLS ##########

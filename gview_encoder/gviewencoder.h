@@ -493,6 +493,18 @@ void *encoder_get_audio_mkvCodecPriv(int codec_ind);
 int encoder_set_audio_mkvCodecPriv(encoder_context_t *encoder_ctx);
 
 /*
+ * get an estimated write loop sleep time to avoid a ring buffer overrun
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: estimate sleep time (nanosec)
+ */
+uint32_t encoder_buff_scheduler();
+
+/*
  * store unprocessed input video frame
  * args:
  *   frame - pointer to unprocessed frame data

@@ -22,6 +22,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/types.h>
+#include <time.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <linux/videodev2.h>
@@ -359,6 +360,14 @@ static void *encoder_loop(void *data)
 		}
 	}
 
+	uint32_t current_frame = 0;
+	if(device->requested_fmt == V4L2_PIX_FMT_H264)
+	{
+		/* store framerate */
+		current_frame = v4l2core_get_h264_frame_rate_config(device);
+	}
+
+
 	char *video_filename = NULL;
 	/*get_video_[name|path] always return a non NULL value*/
 	char *name = strdup(get_video_name());
@@ -463,6 +472,12 @@ static void *encoder_loop(void *data)
 	encoder_muxer_close(encoder_ctx);
 
 	encoder_close(encoder_ctx);
+
+	if(device->requested_fmt == V4L2_PIX_FMT_H264)
+	{
+		/* restore framerate */
+		v4l2core_set_h264_frame_rate_config(device, current_frame);
+	}
 
 	/*clean string*/
 	free(video_filename);
@@ -681,6 +696,28 @@ void *capture_loop(void *data)
 
 				}
 				encoder_store_input_frame(input_frame, size, device->timestamp, device->isKeyframe);
+
+				int time_sched = encoder_buff_scheduler(); /*nanosec*/
+				if(time_sched > 0)
+				{
+					switch(device->requested_fmt)
+					{
+						case  V4L2_PIX_FMT_H264:
+						{
+							uint32_t framerate = time_sched; /*nanosec*/
+							v4l2core_set_h264_frame_rate_config(device, framerate);
+							break;
+						}
+						default:
+						{
+							struct timespec req = {
+								.tv_sec = 0,
+								.tv_nsec = time_sched};/*nanosec*/
+							nanosleep(&req, NULL);
+							break;
+						}
+					}
+				}
 			}
 
 		}
