@@ -33,6 +33,7 @@
 #include <stdio.h>
 #include <sys/types.h>
 #include <inttypes.h>
+#include <math.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <string.h>
