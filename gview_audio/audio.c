@@ -250,19 +250,59 @@ int audio_get_next_buffer(audio_context_t *audio_ctx, audio_buff_t *buff, int ty
 		return 1; /*all done*/
 
 	int i = 0;
-	/*copy pcm data*/
-	if(type == SAMPLE_TYPE_FLOAT)
+	switch(type)
 	{
-		float *my_data = (float *) buff->data;
-		memcpy( my_data, audio_buffers[buffer_read_index].data,
-			audio_ctx->capture_buff_size * sizeof(sample_t));
+		case SAMPLE_TYPE_FLOAT:
+		{
+			float *my_data = (float *) buff->data;
+			memcpy( my_data, audio_buffers[buffer_read_index].data,
+				audio_ctx->capture_buff_size * sizeof(sample_t));
+			break;
+		}
+		case SAMPLE_TYPE_INT16:
+		{
+			int16_t *my_data = (int16_t *) buff->data;
+			for(i = 0; i < audio_ctx->capture_buff_size; ++i)
+				my_data[i] = clip_int16( audio_buffers[buffer_read_index].data[i] * 32767.0);
+		}
+		case SAMPLE_TYPE_FLOATP:
+		{
+			int j=0;
+
+			float *my_data[audio_ctx->channels];
+			float *buff_p = (float *) audio_buffers[buffer_read_index].data;
+
+			for(j = 0; j < audio_ctx->channels; ++j)
+				my_data[j] = (float *) (buff->data +
+					(j * audio_ctx->capture_buff_size/audio_ctx->channels));
+
+			for(i = 0; i < audio_ctx->capture_buff_size/audio_ctx->channels; ++i)
+				for(j = 0; j < audio_ctx->channels; ++j)
+				{
+					my_data[j][i] = *buff_p++;
+				}
+			break;
+		}
+		case SAMPLE_TYPE_INT16P:
+		{
+			int j=0;
+
+			int16_t *my_data[audio_ctx->channels];
+			float *buff_p = (float *) audio_buffers[buffer_read_index].data;
+
+			for(j = 0; j < audio_ctx->channels; ++j)
+				my_data[j] = (int16_t *) (buff->data +
+					(j * audio_ctx->capture_buff_size/audio_ctx->channels));
+
+			for(i = 0; i < audio_ctx->capture_buff_size/audio_ctx->channels; ++i)
+				for(j = 0; j < audio_ctx->channels; ++j)
+				{
+					my_data[j][i] = clip_int16((*buff_p++) * 32767.0);
+				}
+			break;
+		}
 	}
-	else
-	{
-		int16_t *my_data = (int16_t *) buff->data;
-		for(i = 0; i < audio_ctx->capture_buff_size; ++i)
-			my_data[i] = clip_int16( audio_buffers[buffer_read_index].data[i] * 32767.0);
-	}
+
 	buff->timestamp = audio_buffers[buffer_read_index].timestamp;
 
 	audio_lock_mutex();

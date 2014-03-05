@@ -57,8 +57,10 @@
 #define AUD_FX_DUCKY  (1<<4)
 
 /*sample type int16_t or float for return buffer data*/
-#define SAMPLE_TYPE_INT16  (0)
-#define SAMPLE_TYPE_FLOAT  (1)
+#define SAMPLE_TYPE_INT16  (0) //interleaved
+#define SAMPLE_TYPE_FLOAT  (1) //interleaved
+#define SAMPLE_TYPE_INT16P (2) //planar
+#define SAMPLE_TYPE_FLOATP (3) //planar
 
 /*internally is always float*/
 typedef float sample_t;

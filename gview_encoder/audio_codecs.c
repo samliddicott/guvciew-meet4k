@@ -31,9 +31,9 @@
 #include <locale.h>
 #include <libintl.h>
 
+#include "gviewencoder.h"
 #include "gview.h"
 #include "encoder.h"
-#include "gviewencoder.h"
 
 extern int verbosity;
 
@@ -76,7 +76,7 @@ static audio_codec_t listSupCodecs[] = //list of software supported formats
 		.monotonic_pts= 1,
 		.avi_4cc      = WAVE_FORMAT_MPEG12,
 		.mkv_codec    = "A_MPEG/L2",
-		.description  = N_("MPEG2 - (lavc)"),
+		.description  = N_("MP2 (MPEG audio layer 2)"),
 		.bit_rate     = 160000,
 		.codec_id     = AV_CODEC_ID_MP2,
 		.codec_name   = "mp2",
@@ -92,11 +92,15 @@ static audio_codec_t listSupCodecs[] = //list of software supported formats
 		.monotonic_pts= 1,
 		.avi_4cc      = WAVE_FORMAT_MP3,
 		.mkv_codec    = "A_MPEG/L3",
-		.description  = N_("MP3 - (lavc)"),
+		.description  = N_("MP3 (MPEG audio layer 3)"),
 		.bit_rate     = 160000,
 		.codec_id     = AV_CODEC_ID_MP3,
-		.codec_name   = "mp3",
+		.codec_name   = "libmp3lame",
+#if LIBAVCODEC_VER_AT_LEAST(54,31)
+		.sample_format = AV_SAMPLE_FMT_FLTP,
+#else
 		.sample_format = AV_SAMPLE_FMT_S16,
+#endif
 		.profile      = FF_PROFILE_UNKNOWN,
 		.mkv_codpriv  = NULL,
 		.codpriv_size = 0,
@@ -108,11 +112,15 @@ static audio_codec_t listSupCodecs[] = //list of software supported formats
 		.monotonic_pts= 1,
 		.avi_4cc      = WAVE_FORMAT_AC3,
 		.mkv_codec    = "A_AC3",
-		.description  = N_("Dolby AC3 - (lavc)"),
+		.description  = N_("AC-3 (ATSC A/52A)"),
 		.bit_rate     = 160000,
 		.codec_id     = AV_CODEC_ID_AC3,
 		.codec_name   = "ac3",
+#if LIBAVCODEC_VER_AT_LEAST(54,31)
+		.sample_format = AV_SAMPLE_FMT_FLTP,
+#else
 		.sample_format = AV_SAMPLE_FMT_FLT,
+#endif
 		.profile      = FF_PROFILE_UNKNOWN,
 		.mkv_codpriv  = NULL,
 		.codpriv_size = 0,
@@ -124,11 +132,15 @@ static audio_codec_t listSupCodecs[] = //list of software supported formats
 		.monotonic_pts= 1,
 		.avi_4cc      = WAVE_FORMAT_AAC,
 		.mkv_codec    = "A_AAC",
-		.description  = N_("ACC Low - (faac)"),
+		.description  = N_("AAC (Advanced Audio Coding)"),
 		.bit_rate     = 64000,
 		.codec_id     = AV_CODEC_ID_AAC,
 		.codec_name   = "aac",
+#if LIBAVCODEC_VER_AT_LEAST(54,31)
+		.sample_format = AV_SAMPLE_FMT_FLTP,
+#else
 		.sample_format = AV_SAMPLE_FMT_S16,
+#endif
 		.profile      = FF_PROFILE_AAC_LOW,
 		.mkv_codpriv  = AAC_ESDS,
 		.codpriv_size = 2,
@@ -144,7 +156,11 @@ static audio_codec_t listSupCodecs[] = //list of software supported formats
 		.bit_rate     = 64000,
 		.codec_id     = AV_CODEC_ID_VORBIS,
 		.codec_name   = "libvorbis",
+#if LIBAVCODEC_VER_AT_LEAST(54,31)
+		.sample_format = AV_SAMPLE_FMT_FLTP,
+#else
 		.sample_format = AV_SAMPLE_FMT_S16,
+#endif
 		.profile      = FF_PROFILE_UNKNOWN,
 		.mkv_codpriv  =  NULL,
 		.codpriv_size =  0,

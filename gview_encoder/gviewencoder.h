@@ -111,7 +111,7 @@ typedef struct _video_codec_t
 	int mkv_4cc;              //fourcc WORD value
 	char mkv_codec[25];       //mkv codecID
 	void *mkv_codecPriv;      //mkv codec private data
-	char description[30];     //codec description
+	char description[35];     //codec description
 	int fps;                  // encoder frame rate (used for time base)
 	int bit_rate;             //lavc default bit rate
 	int qmax;                 //lavc qmax
@@ -149,7 +149,7 @@ typedef struct _audio_codec_t
 	int monotonic_pts;
 	uint16_t avi_4cc;         //fourcc value (4 bytes)
 	char mkv_codec[25];       //mkv codecID
-	char description[30];     //codec description
+	char description[35];     //codec description
 	int bit_rate;             //lavc default bit rate
 	int codec_id;             //lavc codec_id
 	char codec_name[20];      //lavc codec name
