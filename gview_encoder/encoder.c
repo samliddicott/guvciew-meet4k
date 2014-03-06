@@ -551,13 +551,15 @@ uint32_t encoder_buff_scheduler()
 		diff_ind = (video_ring_buffer_size - video_read_index) + video_write_index;
 	__UNLOCK_MUTEX( __PMUTEX );
 
-	int th = (int) lround((double) video_ring_buffer_size * 0.7); /*70% full*/
+	int th = (int) lround((double) video_ring_buffer_size * 0.65); /*65% full*/
+	int th1 =(int) lround((double) video_ring_buffer_size * 0.85); /*85% full*/
 
 	/**/
-	if(diff_ind <= th) /* from 0 to 50 ms (down below 20 fps)*/
-		sched_time = (uint32_t) lround((double) (diff_ind * 71) / video_ring_buffer_size);
-	else               /*from 50 to 210 ms (down below 5 fps)*/
-		sched_time = (uint32_t) lround((double) ((diff_ind * 320) / video_ring_buffer_size) - 110);
+	if(diff_ind >= th1)
+		sched_time = (uint32_t) lround((double) ((diff_ind * 320) / video_ring_buffer_size) - 192);
+	else if (diff_ind >= th)
+		sched_time = (uint32_t) lround((double) (diff_ind * 64) / video_ring_buffer_size);
+		
 
 	/*clip*/
 	if(sched_time < 0) sched_time = 0; /*clip to positive values just in case*/
