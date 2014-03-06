@@ -855,25 +855,21 @@ int v4l2core_get_frame(v4l2_dev_t *vd)
 
 	vd->frame_index++;
 
-	/*determine real fps every 2 sec aprox.*/
-	if(vd->frame_index == 1)
+	/*determine real fps every 3 sec aprox.*/
+	if(fps_frame_count == 0)
 		fps_ref_ts = vd->timestamp;
 
-	if(vd->timestamp > fps_ref_ts + (2 * NSEC_PER_SEC))
+	fps_frame_count++;
+
+	if(vd->timestamp - fps_ref_ts >= (3 * NSEC_PER_SEC))
 	{
 		real_fps = (double) fps_frame_count /((double) (vd->timestamp - fps_ref_ts)/ NSEC_PER_SEC);
-		fps_ref_ts = vd->timestamp;
 		fps_frame_count = 0;
 	}
-	else
-	{
-		fps_frame_count++;
-	}
+
 
 	vd->raw_frame_size = vd->buf.bytesused;
 	vd->raw_frame = vd->mem[vd->buf.index]; /*point raw_frame to current frame buffer*/
-
-	//memcpy(vd->raw_frame, vd->mem[vd->buf.index], vd->buf.bytesused);
 
 	return E_OK;
 }

@@ -631,6 +631,8 @@ int v4l2core_frame_decode(v4l2_dev_t *vd)
 	int width = vd->format.fmt.pix.width;
 	int height = vd->format.fmt.pix.height;
 
+	vd->isKeyframe = 0; /*reset*/
+
 	/*
 	 * use the requested format since it may differ
 	 * from format.fmt.pix.pixelformat (muxed H264)
