@@ -3,8 +3,8 @@ GTK UVC VIEWER (guvcview)
 
 Basic Configuration
 ===================
-*Dependencies:
---------------
+Dependencies:
+-------------
 
 Guvcview depends on the following:
  - intltool,
@@ -26,8 +26,8 @@ packages:
  portaudio19-dev, libpng12-dev, libavcodec-dev, libavutil-dev,
  libv4l-dev, libudev-dev, libusb-1.0-0-dev, libpulse-dev
 
-*Build configuration:
----------------------
+Build configuration:
+--------------------
 (./bootstrap.sh; ./configure)
 
 The configure script is generated from configure.ac by autoconf,
@@ -36,7 +36,7 @@ run the generated configure with the command line options passed.
 After configuration a simple 'make && make install' will build and
 install guvcview and all the associated data files.
 
-*Data Files:
+Data Files:
 ------------
 (language files; image files; gnome menu entry)
 
@@ -52,8 +52,8 @@ After running the configure script the normal, make && make install
 should build and install all the necessary files.    
     
  
-*guvcview bin:
---------------
+guvcview bin:
+-------------
 (src/guvcview)
 
 The binarie file installs to the standart location,
@@ -64,8 +64,8 @@ DIR/bin is set in your PATH variable, or the gnome
 menu entry will fail.
 
 
-*guvcview.desktop:
-------------------
+guvcview.desktop:
+-----------------
 
 (data/guvcview.desktop)
 
@@ -74,8 +74,8 @@ data/guvcview.desktop.in definition and is dependent on the
 configure --prefix setting, any changes to this, must 
 be done in data/guvcview.desktop.in.
 
-*configuration files:
----------------------
+configuration files:
+--------------------
 (~/.config/guvcview/video0)
 
 The configuration file is saved into the $HOME dir when 
