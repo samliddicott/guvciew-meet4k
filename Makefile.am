@@ -6,7 +6,7 @@ ACLOCAL_AMFLAGS = -I m4
 
 docdir = ${datadir}/doc/guvcview
 doc_DATA = \
-	README\
+	README.md\
 	COPYING\
 	AUTHORS\
 	ChangeLog\

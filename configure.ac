@@ -16,7 +16,7 @@ m4_define([guvcview_version],
 AC_INIT([guvcview],[guvcview_version],[http://guvcview.sourceforge.net/])
 m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
 
-AM_INIT_AUTOMAKE([gnu])
+AM_INIT_AUTOMAKE([foreign])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_HEADERS(config.h)
 AM_MAINTAINER_MODE(disable)
