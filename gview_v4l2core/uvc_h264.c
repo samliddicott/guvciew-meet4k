@@ -417,6 +417,9 @@ void add_h264_format(v4l2_dev_t *vd)
 			printf("V4L2_CORE: H264 format already in list\n");
 
 		h264_support = H264_FRAME;
+		/*check the h264 unit id (if any) */
+		get_uvc_h624_unit_id(vd);
+
 		return; /*H264 is already in the list*/
 	}
 
