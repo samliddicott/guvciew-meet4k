@@ -694,6 +694,9 @@ encoder_context_t *encoder_get_context(
 		audio_channels,
 		audio_samprate);
 
+	if(!encoder_ctx->enc_audio_ctx)
+		encoder_ctx->audio_channels = 0; /*no audio*/
+
 	/****************** ring buffer *****************/
 	encoder_alloc_video_ring_buffer(
 		video_width,
@@ -705,7 +708,7 @@ encoder_context_t *encoder_get_context(
 }
 
 /*
- * store unprocessed input video frame
+ * store unprocessed input video frame in video ring buffer
  * args:
  *   frame - pointer to unprocessed frame data
  *   size - frame size (in bytes)
@@ -717,7 +720,7 @@ encoder_context_t *encoder_get_context(
  *
  * returns: error code
  */
-int encoder_store_input_frame(uint8_t *frame, int size, int64_t timestamp, int isKeyframe)
+int encoder_add_video_frame(uint8_t *frame, int size, int64_t timestamp, int isKeyframe)
 {
 	if(!video_ring_buffer)
 		return -1;
@@ -831,6 +834,10 @@ int encoder_process_audio_buffer(encoder_context_t *encoder_ctx, void *data)
 {
 	/*assertions*/
 	assert(encoder_ctx != NULL);
+
+	if(encoder_ctx->enc_audio_ctx == NULL ||
+		encoder_ctx->audio_channels <= 0)
+		return -1;
 
 	encoder_encode_audio(encoder_ctx, data);
 

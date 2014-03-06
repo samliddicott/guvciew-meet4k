@@ -505,7 +505,7 @@ int encoder_set_audio_mkvCodecPriv(encoder_context_t *encoder_ctx);
 uint32_t encoder_buff_scheduler();
 
 /*
- * store unprocessed input video frame
+ * store unprocessed input video frame in video ring buffer
  * args:
  *   frame - pointer to unprocessed frame data
  *   size - frame size (in bytes)
@@ -517,7 +517,7 @@ uint32_t encoder_buff_scheduler();
  *
  * returns: error code
  */
-int encoder_store_input_frame(uint8_t *frame, int size, int64_t timestamp, int isKeyframe);
+int encoder_add_video_frame(uint8_t *frame, int size, int64_t timestamp, int isKeyframe);
 
 /*
  * process next video frame on the ring buffer (encode and mux to file)

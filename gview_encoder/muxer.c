@@ -90,7 +90,7 @@ int encoder_write_video_data(encoder_context_t *encoder_ctx)
 	int block_align = 1;
 	if(enc_video_ctx->codec_context)
 		block_align = enc_video_ctx->codec_context->block_align;
-	
+
 	__LOCK_MUTEX( __PMUTEX );
 	switch (encoder_ctx->muxer_id)
 	{
@@ -141,10 +141,10 @@ int encoder_write_audio_data(encoder_context_t *encoder_ctx)
 	/*assertions*/
 	assert(encoder_ctx != NULL);
 
-	if(encoder_ctx->audio_channels <= 0)
-		return -1;
-
 	encoder_audio_context_t *enc_audio_ctx = encoder_ctx->enc_audio_ctx;
+
+	if(!enc_audio_ctx || encoder_ctx->audio_channels <= 0)
+		return -1;
 
 	if(verbosity > 3)
 		printf("ENCODER: writing %i bytes of audio data\n", enc_audio_ctx->outbuf_coded_size);
@@ -152,7 +152,7 @@ int encoder_write_audio_data(encoder_context_t *encoder_ctx)
 		return -1;
 
 	int ret =0;
-	
+
 	int block_align = 1;
 	if(enc_audio_ctx->codec_context)
 		block_align = enc_audio_ctx->codec_context->block_align;
@@ -207,9 +207,9 @@ void encoder_muxer_init(encoder_context_t *encoder_ctx, const char *filename)
 {
 	/*assertions*/
 	assert(encoder_ctx != NULL);
-	
+
 	int video_codec_id = AV_CODEC_ID_NONE;
-	
+
 	if(encoder_ctx->video_codec_ind == 0) /*no codec_context*/
 	{
 		switch(encoder_ctx->input_format)
@@ -226,7 +226,7 @@ void encoder_muxer_init(encoder_context_t *encoder_ctx, const char *filename)
 	{
 		video_codec_id = encoder_ctx->enc_video_ctx->codec_context->codec_id;
 	}
-	
+
 	if(verbosity > 1)
 		printf("ENCODER: initializing muxer(%i)\n", encoder_ctx->muxer_id);
 	switch (encoder_ctx->muxer_id)
@@ -256,7 +256,8 @@ void encoder_muxer_init(encoder_context_t *encoder_ctx, const char *filename)
 			}
 
 			/*add audio stream*/
-			if(encoder_ctx->audio_channels > 0)
+			if(encoder_ctx->enc_audio_ctx != NULL &&
+				encoder_ctx->audio_channels > 0)
 			{
 				int acodec_ind = get_audio_codec_list_index(encoder_ctx->enc_audio_ctx->codec_context->codec_id);
 				/*sample size - only used for PCM*/
@@ -314,7 +315,8 @@ void encoder_muxer_init(encoder_context_t *encoder_ctx, const char *filename)
 			}
 
 			/*add audio stream*/
-			if(encoder_ctx->audio_channels > 0)
+			if(encoder_ctx->enc_audio_ctx != NULL &&
+				encoder_ctx->audio_channels > 0)
 			{
 				/*sample size - only used for PCM*/
 				int32_t a_bits = encoder_get_audio_bits(encoder_ctx->audio_codec_ind);

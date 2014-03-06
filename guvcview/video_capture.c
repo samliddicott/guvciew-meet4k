@@ -394,7 +394,7 @@ static void *encoder_loop(void *data)
 	video_capture_save_video(1);
 
 	/*start audio capture*/
-	if(channels > 0)
+	if(encoder_ctx->enc_audio_ctx != NULL && channels > 0)
 	{
 		int frame_size = encoder_ctx->enc_audio_ctx->codec_context->frame_size;
 
@@ -434,7 +434,7 @@ static void *encoder_loop(void *data)
 		encoder_process_next_video_buffer(encoder_ctx);
 
 		/*encode audio frames up to video timestamp or error*/
-		if(channels > 0)
+		if(encoder_ctx->enc_audio_ctx != NULL && channels > 0)
 		{
 			int ret = 0;
 			do
@@ -466,7 +466,7 @@ static void *encoder_loop(void *data)
 	}
 
 	/*stop audio capture*/
-	if(channels > 0)
+	if(encoder_ctx->enc_audio_ctx != NULL && channels > 0)
 		audio_stop(audio_ctx);
 
 	encoder_muxer_close(encoder_ctx);
@@ -695,7 +695,7 @@ void *capture_loop(void *data)
 					}
 
 				}
-				encoder_store_input_frame(input_frame, size, device->timestamp, device->isKeyframe);
+				encoder_add_video_frame(input_frame, size, device->timestamp, device->isKeyframe);
 
 				int time_sched = encoder_buff_scheduler(); /*nanosec*/
 				if(time_sched > 0)
