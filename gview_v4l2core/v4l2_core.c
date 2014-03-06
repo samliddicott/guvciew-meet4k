@@ -826,11 +826,11 @@ int v4l2core_get_frame(v4l2_dev_t *vd)
 
 				if(!ret)
 				{
-					ts = (uint64_t) vd->buf.timestamp.tv_sec * NSEC_PER_SEC +
-					vd->buf.timestamp.tv_usec * 1000; //in nanosec
-					/* use buffer timestamp if set by the driver, otherwise use current system time */
-					if(ts > 0) vd->timestamp = ts;
-					else vd->timestamp = ns_time_monotonic();
+					/*
+					 * driver timestamp is unreliable
+					 * use monotonic system time
+					 */
+					vd->timestamp = ns_time_monotonic();
 
 					/* queue the buffers */
 					ret = xioctl(vd->fd, VIDIOC_QBUF, &vd->buf);
@@ -856,15 +856,16 @@ int v4l2core_get_frame(v4l2_dev_t *vd)
 	vd->frame_index++;
 
 	/*determine real fps every 3 sec aprox.*/
-	if(fps_frame_count == 0)
-		fps_ref_ts = vd->timestamp;
-
 	fps_frame_count++;
 
 	if(vd->timestamp - fps_ref_ts >= (3 * NSEC_PER_SEC))
 	{
-		real_fps = (double) fps_frame_count /((double) (vd->timestamp - fps_ref_ts)/ NSEC_PER_SEC);
+		if(verbosity > 2)
+			printf("V4L2CORE: (fps) ref:%"PRId64" ts:%"PRId64" frames:%i\n",
+				fps_ref_ts, vd->timestamp, fps_frame_count);
+		real_fps = (double) (fps_frame_count * NSEC_PER_SEC) / (double) (vd->timestamp - fps_ref_ts);
 		fps_frame_count = 0;
+		fps_ref_ts = vd->timestamp;
 	}
 
 
