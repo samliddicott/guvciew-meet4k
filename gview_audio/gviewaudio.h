@@ -49,12 +49,12 @@
 #define AUDIO_STRM_OFF      (0)
 
 /*Audio Effects*/
-#define AUD_FX_NOEF   (0)
-#define AUD_FX_ECHO   (1<<0)
-#define AUD_FX_FUZZ   (1<<1)
-#define AUD_FX_REVERB (1<<2)
-#define AUD_FX_WAHWAH (1<<3)
-#define AUD_FX_DUCKY  (1<<4)
+#define AUDIO_FX_NONE   (0)
+#define AUDIO_FX_ECHO   (1<<0)
+#define AUDIO_FX_FUZZ   (1<<1)
+#define AUDIO_FX_REVERB (1<<2)
+#define AUDIO_FX_WAHWAH (1<<3)
+#define AUDIO_FX_DUCKY  (1<<4)
 
 /*sample type int16_t or float for return buffer data*/
 #define SAMPLE_TYPE_INT16  (0) //interleaved
@@ -143,18 +143,50 @@ audio_context_t *audio_init(int api);
 int audio_start(audio_context_t *audio_ctx);
 
 /*
- * get the next used buffer from the ring buffer
+ * get the next used buffer from the ring buffer and apply fx
  * args:
  *   audio_ctx - pointer to audio context
  *   buff - pointer to an allocated audio buffer
  *   type - type of data (SAMPLE_TYPE_[INT16|FLOAT])
+ *   mask - audio fx mask
  *
  * asserts:
  *   none
  *
  * returns: error code
  */
-int audio_get_next_buffer(audio_context_t *audio_ctx, audio_buff_t *buff, int type);
+int audio_get_next_buffer(audio_context_t *audio_ctx,
+	audio_buff_t *buff,
+	int type,
+	uint32_t mask);
+
+/*
+ * apply audio fx
+ * args:
+ *   audio_ctx - pointer to audio context
+ *   data - pointer to sample buffer to process
+ *   mask - or'ed fx combination
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void audio_fx_apply(audio_context_t *audio_ctx,
+	sample_t *data,
+	uint32_t mask);
+
+/*
+ * clean audio fx data
+ * args:
+ *   none
+ *
+ * asserts:
+ *   aud_fx is not null
+ *
+ * returns: none
+ */
+void audio_fx_close();
 
 /*
  * stop audio stream capture

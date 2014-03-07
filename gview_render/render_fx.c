@@ -402,7 +402,7 @@ static void fx_particles(uint8_t* frame, int width, int height, int trail_size, 
  *
  * returns: void
  */
-void render_apply_fx(uint8_t *frame, int width, int height, uint32_t mask)
+void render_fx_apply(uint8_t *frame, int width, int height, uint32_t mask)
 {
 	if(mask != REND_FX_YUV_NOFILT)
     {

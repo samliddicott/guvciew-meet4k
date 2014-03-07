@@ -146,7 +146,7 @@ static audio_fx_t *aud_fx = NULL;
  *
  * returns: none
  */
-void audio_fx_init ()
+static void audio_fx_init ()
 {
 	aud_fx = calloc(1, sizeof(audio_fx_t));
 	/*Echo effect data */
@@ -239,7 +239,7 @@ static void Butt(fx_filt_data_t *FILT,
  *  b2 = ( 1.0 - r * c + c * c) * a1;
  * args:
  *   audio_ctx - pointer to audio context
- *   proc_buff -pointer to audio buffer to be processed
+ *   data -pointer to audio buffer to be processed
  *   cutoff_freq - filter cut off frequency
  *   res - rez amount
  *
@@ -249,7 +249,7 @@ static void Butt(fx_filt_data_t *FILT,
  * returns: none
  */
 static void HPF(audio_context_t *audio_ctx,
-	audio_buff_t *proc_buff,
+	sample_t *data,
 	int cutoff_freq,
 	float res)
 {
@@ -265,7 +265,7 @@ static void HPF(audio_context_t *audio_ctx,
 		aud_fx->HPF->b2 = (1.0 - (res * aud_fx->HPF->c) + (aud_fx->HPF->c * aud_fx->HPF->c)) * aud_fx->HPF->a1;
 	}
 
-	Butt(aud_fx->HPF, proc_buff->data, audio_ctx->capture_buff_size, audio_ctx->channels);
+	Butt(aud_fx->HPF, data, audio_ctx->capture_buff_size, audio_ctx->channels);
 }
 
 /*
@@ -283,7 +283,7 @@ static void HPF(audio_context_t *audio_ctx,
  *
  * args:
  *   audio_ctx - pointer to audio context
- *   proc_buff -pointer to audio buffer to be processed
+ *   data -pointer to audio buffer to be processed
  *   cutoff_freq - filter cut off frequency
  *   res - rez amount
  *
@@ -293,7 +293,7 @@ static void HPF(audio_context_t *audio_ctx,
  * returns: none
  */
 static void LPF(audio_context_t *audio_ctx,
-	audio_buff_t *proc_buff,
+	sample_t *data,
 	float cutoff_freq,
 	float res)
 {
@@ -308,7 +308,7 @@ static void LPF(audio_context_t *audio_ctx,
 		aud_fx->LPF1->b2 = (1.0 - (res * aud_fx->LPF1->c) + (aud_fx->LPF1->c * aud_fx->LPF1->c)) * aud_fx->LPF1->a1;
 	}
 
-	Butt(aud_fx->LPF1, proc_buff->data, audio_ctx->capture_buff_size, audio_ctx->channels);
+	Butt(aud_fx->LPF1, data, audio_ctx->capture_buff_size, audio_ctx->channels);
 }
 
 /* Non-linear amplifier with soft distortion curve.
@@ -339,10 +339,317 @@ static sample_t CubicAmplifier( sample_t input )
 }
 
 /*
+ * four paralell Comb filters for reverb
+ * args:
+ *   audio_ctx - audio context
+ *   data - audio buffer to be processed
+ *   delay1_ms - delay for filter 1
+ *   delay2_ms - delay for filter 2
+ *   delay3_ms - delay for filter 3
+ *   delay4_ms - delay for filter 4
+ *   gain1 - feed gain for filter 1
+ *   gain2 - feed gain for filter 2
+ *   gain3 - feed gain for filter 3
+ *   gain4 - feed gain for filter 4
+ *   in_gain - input line gain
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+static void CombFilter4 (audio_context_t *audio_ctx,
+	sample_t *data,
+	int delay1_ms,
+	int delay2_ms,
+	int delay3_ms,
+	int delay4_ms,
+	float gain1,
+	float gain2,
+	float gain3,
+	float gain4,
+	float in_gain)
+{
+	int samp=0;
+	sample_t out1, out2, out3, out4;
+	/*buff_size in samples*/
+
+	if (aud_fx->COMB4 == NULL)
+	{
+		aud_fx->COMB4 = calloc(1, sizeof(fx_comb4_data_t));
+		/*buff_size in samples*/
+		aud_fx->COMB4->buff_size1 = (int) delay1_ms * (audio_ctx->samprate * 0.001);
+		aud_fx->COMB4->buff_size2 = (int) delay2_ms * (audio_ctx->samprate * 0.001);
+		aud_fx->COMB4->buff_size3 = (int) delay3_ms * (audio_ctx->samprate * 0.001);
+		aud_fx->COMB4->buff_size4 = (int) delay4_ms * (audio_ctx->samprate * 0.001);
+
+		aud_fx->COMB4->CombBuff10 = calloc(aud_fx->COMB4->buff_size1, sizeof(sample_t));
+		aud_fx->COMB4->CombBuff20 = calloc(aud_fx->COMB4->buff_size2, sizeof(sample_t));
+		aud_fx->COMB4->CombBuff30 = calloc(aud_fx->COMB4->buff_size3, sizeof(sample_t));
+		aud_fx->COMB4->CombBuff40 = calloc(aud_fx->COMB4->buff_size4, sizeof(sample_t));
+		aud_fx->COMB4->CombBuff11 = NULL;
+		aud_fx->COMB4->CombBuff21 = NULL;
+		aud_fx->COMB4->CombBuff31 = NULL;
+		aud_fx->COMB4->CombBuff41 = NULL;
+		if(audio_ctx->channels > 1)
+		{
+			aud_fx->COMB4->CombBuff11 = calloc(aud_fx->COMB4->buff_size1, sizeof(sample_t));
+			aud_fx->COMB4->CombBuff21 = calloc(aud_fx->COMB4->buff_size2, sizeof(sample_t));
+			aud_fx->COMB4->CombBuff31 = calloc(aud_fx->COMB4->buff_size3, sizeof(sample_t));
+			aud_fx->COMB4->CombBuff41 = calloc(aud_fx->COMB4->buff_size4, sizeof(sample_t));
+		}
+	}
+
+	for(samp = 0; samp < audio_ctx->capture_buff_size; samp = samp + audio_ctx->channels)
+	{
+		out1 = in_gain * data[samp] +
+			gain1 * aud_fx->COMB4->CombBuff10[aud_fx->COMB4->CombIndex1];
+		out2 = in_gain * data[samp] +
+			gain2 * aud_fx->COMB4->CombBuff20[aud_fx->COMB4->CombIndex2];
+		out3 = in_gain * data[samp] +
+			gain3 * aud_fx->COMB4->CombBuff30[aud_fx->COMB4->CombIndex3];
+		out4 = in_gain * data[samp] +
+			gain4 * aud_fx->COMB4->CombBuff40[aud_fx->COMB4->CombIndex4];
+
+		aud_fx->COMB4->CombBuff10[aud_fx->COMB4->CombIndex1] = data[samp] +
+			gain1 * aud_fx->COMB4->CombBuff10[aud_fx->COMB4->CombIndex1];
+		aud_fx->COMB4->CombBuff20[aud_fx->COMB4->CombIndex2] = data[samp] +
+			gain2 * aud_fx->COMB4->CombBuff20[aud_fx->COMB4->CombIndex2];
+		aud_fx->COMB4->CombBuff30[aud_fx->COMB4->CombIndex3] = data[samp] +
+			gain3 * aud_fx->COMB4->CombBuff30[aud_fx->COMB4->CombIndex3];
+		aud_fx->COMB4->CombBuff40[aud_fx->COMB4->CombIndex4] = data[samp] +
+			gain4 * aud_fx->COMB4->CombBuff40[aud_fx->COMB4->CombIndex4];
+
+		data[samp] = clip_float(out1 + out2 + out3 + out4);
+
+		/*if stereo process second channel */
+		if(audio_ctx->channels > 1)
+		{
+			out1 = in_gain * data[samp+1] +
+				gain1 * aud_fx->COMB4->CombBuff11[aud_fx->COMB4->CombIndex1];
+			out2 = in_gain * data[samp+1] +
+				gain2 * aud_fx->COMB4->CombBuff21[aud_fx->COMB4->CombIndex2];
+			out3 = in_gain * data[samp+1] +
+				gain3 * aud_fx->COMB4->CombBuff31[aud_fx->COMB4->CombIndex3];
+			out4 = in_gain * data[samp+1] +
+				gain4 * aud_fx->COMB4->CombBuff41[aud_fx->COMB4->CombIndex4];
+
+			aud_fx->COMB4->CombBuff11[aud_fx->COMB4->CombIndex1] = data[samp+1] +
+				gain1 * aud_fx->COMB4->CombBuff11[aud_fx->COMB4->CombIndex1];
+			aud_fx->COMB4->CombBuff21[aud_fx->COMB4->CombIndex2] = data[samp+1] +
+				gain2 * aud_fx->COMB4->CombBuff21[aud_fx->COMB4->CombIndex2];
+			aud_fx->COMB4->CombBuff31[aud_fx->COMB4->CombIndex3] = data[samp+1] +
+				gain3 * aud_fx->COMB4->CombBuff31[aud_fx->COMB4->CombIndex3];
+			aud_fx->COMB4->CombBuff41[aud_fx->COMB4->CombIndex4] = data[samp+1] +
+				gain4 * aud_fx->COMB4->CombBuff41[aud_fx->COMB4->CombIndex4];
+
+			data[samp+1] = clip_float(out1 + out2 + out3 + out4);
+		}
+
+		if(++(aud_fx->COMB4->CombIndex1) >= aud_fx->COMB4->buff_size1) aud_fx->COMB4->CombIndex1=0;
+		if(++(aud_fx->COMB4->CombIndex2) >= aud_fx->COMB4->buff_size2) aud_fx->COMB4->CombIndex2=0;
+		if(++(aud_fx->COMB4->CombIndex3) >= aud_fx->COMB4->buff_size3) aud_fx->COMB4->CombIndex3=0;
+		if(++(aud_fx->COMB4->CombIndex4) >= aud_fx->COMB4->buff_size4) aud_fx->COMB4->CombIndex4=0;
+	}
+}
+
+/*
+ * All pass filter
+ * args:
+ *   AP - pointer to fx_delay_data_t
+ *   Buff -pointer to sample buffer
+ *   NumSamples - number of samples in buffer
+ *   channels -number of audio channels
+ *   gain- filter gain
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+static void all_pass (fx_delay_data_t *AP,
+	sample_t *Buff,
+	int NumSamples,
+	int channels,
+	float gain)
+{
+	int samp = 0;
+	float inv_gain = 1.0 / gain;
+
+	for(samp = 0; samp < NumSamples; samp += channels)
+	{
+		AP->delayBuff1[AP->delayIndex] = Buff[samp] +
+			(gain * AP->delayBuff1[AP->delayIndex]);
+		Buff[samp] = ((AP->delayBuff1[AP->delayIndex] * (1 - gain*gain)) -
+			Buff[samp]) * inv_gain;
+		if(channels > 1)
+		{
+			AP->delayBuff2[AP->delayIndex] = Buff[samp+1] +
+				(gain * AP->delayBuff2[AP->delayIndex]);
+			Buff[samp+1] = ((AP->delayBuff2[AP->delayIndex] * (1 - gain*gain)) -
+				Buff[samp+1]) * inv_gain;
+		}
+
+		if(++(AP->delayIndex) >= AP->buff_size) AP->delayIndex=0;
+	}
+}
+
+/*
+ * All pass for reverb
+ * args:
+ * 	 audio_ctx - audio context
+ *   data - audio buffer to be processed
+ *   delay_ms - delay in ms
+ *   gain - filter gain
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+static void all_pass1 (audio_context_t *audio_ctx,
+	sample_t *data,
+	int delay_ms,
+	float gain)
+{
+	if(aud_fx->AP1 == NULL)
+	{
+		aud_fx->AP1 = calloc(1, sizeof(fx_delay_data_t));
+		aud_fx->AP1->buff_size = (int) delay_ms  * (audio_ctx->samprate * 0.001);
+		aud_fx->AP1->delayBuff1 = calloc(aud_fx->AP1->buff_size, sizeof(sample_t));
+		aud_fx->AP1->delayBuff2 = NULL;
+		if(audio_ctx->channels > 1)
+			aud_fx->AP1->delayBuff2 = calloc(aud_fx->AP1->buff_size, sizeof(sample_t));
+	}
+
+	all_pass (aud_fx->AP1, data,
+		audio_ctx->capture_buff_size, audio_ctx->channels, gain);
+}
+
+/*
+ * reduce number of samples with linear interpolation
+ *    rate - rate of samples to remove [1,...[
+ *    rate = 1-> XXX (splits channels) 2 -> X0X0X  3 -> X00X00X 4 -> X000X000X
+ * args:
+ *   RT - pointer to fx_rate_data_t
+ *   Buff - pointer to sample buffer
+ *   rate - rate of samples to remove
+ *   NumSamples - samples in buffer
+ *   channels - audio channels
+ *
+ * asserts:
+ *
+ * returns: none
+ */
+static void change_rate_less(fx_rate_data_t *RT,
+	sample_t *Buff,
+	int rate,
+	int NumSamples,
+	int channels)
+{
+	int samp = 0;
+	int n = 0, i = 0;
+
+	for (samp = 0; samp < NumSamples; samp += channels)
+	{
+		if (n==0)
+		{
+			RT->rBuff1[i] = Buff[samp];
+			if(channels > 1)
+				RT->rBuff2[i] = Buff[samp + 1];
+
+			i++;
+		}
+		if(++n >= rate) n=0;
+	}
+	RT->numsamples = i;
+}
+
+/*
+ * increase audio tempo by adding audio windows of wtime_ms in given rate
+ *   rate: 2 -> [w1..w2][w1..w2][w2..w3][w2..w3]  3-> [w1..w2][w1..w2][w1..w2][w2..w3][w2..w3][w2..w3]
+ * args:
+ *   audio_ctx - audio context
+ *   data - audio buffer to be processed
+ *   rate -rate of added windows
+ *   wtime_ms - window time in ms
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+static void change_tempo_more(audio_context_t *audio_ctx,
+	sample_t *data,
+	int rate,
+	int	wtime_ms)
+{
+	int samp = 0;
+	int i = 0;
+	int r = 0;
+	int index = 0;
+
+	if(aud_fx->RT1->wBuff1 == NULL)
+	{
+		aud_fx->RT1->wSize  = wtime_ms * audio_ctx->samprate * 0.001;
+		aud_fx->RT1->wBuff1 = calloc(aud_fx->RT1->wSize, sizeof(sample_t));
+		if (audio_ctx->channels >1)
+			aud_fx->RT1->wBuff2 = calloc(aud_fx->RT1->wSize, sizeof(sample_t));
+	}
+
+	//printf("samples  = %i\n", data->RT1->numsamples);
+	for(samp = 0; samp < aud_fx->RT1->numsamples; samp++)
+	{
+		aud_fx->RT1->wBuff1[i] = aud_fx->RT1->rBuff1[samp];
+		if(audio_ctx->channels > 1)
+			aud_fx->RT1->wBuff2[i] = aud_fx->RT1->rBuff2[samp];
+
+		if((++i) > aud_fx->RT1->wSize)
+		{
+			for (r = 0; r < rate; r++)
+			{
+				for(i = 0; i < aud_fx->RT1->wSize; i++)
+				{
+					data[index] = aud_fx->RT1->wBuff1[i];
+					if (audio_ctx->channels > 1)
+						data[index +1] = aud_fx->RT1->wBuff2[i];
+					index += audio_ctx->channels;
+				}
+			}
+			i = 0;
+		}
+	}
+}
+
+#define FUZZ(x) CubicAmplifier(CubicAmplifier(CubicAmplifier(CubicAmplifier(x))))
+
+/*
+ * Fuzz distortion
+ * args:
+ *   audio_ctx - audio context
+ *   data - audio buffer to be processed
+ *
+ * asserts:
+ *    audio_ctx is not null
+ *
+ * returns: none
+ */
+static void audio_fx_fuzz (audio_context_t *audio_ctx, sample_t *data)
+{
+	/*assertions*/
+	assert(audio_ctx != NULL);
+
+	int samp=0;
+	for(samp = 0; samp < audio_ctx->capture_buff_size; samp++)
+		data[samp] = FUZZ(data[samp]);
+	HPF(audio_ctx, data, 1000, 0.9);
+}
+
+/*
  * Echo effect
  * args:
  *   audio_ctx - audio context
- *   proc_buff - audio buffer to be processed
+ *   data - audio buffer to be processed
  *   delay_ms - echo delay in ms
  *   decay - feedback gain (<1)
  *
@@ -351,11 +658,14 @@ static sample_t CubicAmplifier( sample_t input )
  *
  * returns: none
  */
-void audio_fx_echo(audio_context_t *audio_ctx,
-	audio_buff_t *proc_buff,
+static void audio_fx_echo(audio_context_t *audio_ctx,
+	sample_t *data,
 	int delay_ms,
 	float decay)
 {
+	/*assertions*/
+	assert(audio_ctx != NULL);
+
 	int samp=0;
 	sample_t out;
 
@@ -371,26 +681,160 @@ void audio_fx_echo(audio_context_t *audio_ctx,
 
 	for(samp = 0; samp < audio_ctx->capture_buff_size; samp = samp + audio_ctx->channels)
 	{
-		out = (0.7 * proc_buff->data[samp]) +
+		out = (0.7 * data[samp]) +
 			(0.3 * aud_fx->ECHO->delayBuff1[aud_fx->ECHO->delayIndex]);
-		aud_fx->ECHO->delayBuff1[aud_fx->ECHO->delayIndex] = proc_buff->data[samp] +
+		aud_fx->ECHO->delayBuff1[aud_fx->ECHO->delayIndex] = data[samp] +
 			(aud_fx->ECHO->delayBuff1[aud_fx->ECHO->delayIndex] * decay);
-		proc_buff->data[samp] = clip_float(out);
+		data[samp] = clip_float(out);
 		/*if stereo process second channel in separate*/
 		if (audio_ctx->channels > 1)
 		{
-			out = (0.7 * proc_buff->data[samp+1]) +
+			out = (0.7 * data[samp+1]) +
 				(0.3 * aud_fx->ECHO->delayBuff2[aud_fx->ECHO->delayIndex]);
-			aud_fx->ECHO->delayBuff2[aud_fx->ECHO->delayIndex] = proc_buff->data[samp] +
+			aud_fx->ECHO->delayBuff2[aud_fx->ECHO->delayIndex] = data[samp] +
 				(aud_fx->ECHO->delayBuff2[aud_fx->ECHO->delayIndex] * decay);
-			proc_buff->data[samp+1] = clip_float(out);
+			data[samp+1] = clip_float(out);
 		}
 
 		if(++(aud_fx->ECHO->delayIndex) >= aud_fx->ECHO->buff_size) aud_fx->ECHO->delayIndex=0;
 	}
 }
 
+/*
+ * Reverb effect
+ * args:
+ *   audio_ctx - audio context
+ *   data - audio buffer to be processed
+ *   delay_ms - reverb delay in ms
+ *
+ * asserts:
+ *   audio_ctx is not null
+ *
+ * returns: none
+ */
+static void audio_fx_reverb (audio_context_t *audio_ctx,
+	sample_t *data,
+	int delay_ms)
+{
+	/*assertions*/
+	assert(audio_ctx != NULL);
 
+	/*4 parallel comb filters*/
+	CombFilter4 (audio_ctx, data,
+		delay_ms, delay_ms - 5, delay_ms -10, delay_ms -15,
+		0.55, 0.6, 0.5, 0.45, 0.7);
+	/*all pass*/
+	all_pass1 (audio_ctx, data, delay_ms, 0.75);
+}
+
+#define lfoskipsamples 30
+
+/*
+ * WahWah effect
+ * 	  !!!!!!!!!!!!! IMPORTANT!!!!!!!!! :
+ * 	  depth and freqofs should be from 0(min) to 1(max) !
+ * 	  res should be greater than 0 !
+ * args:
+ *   audio_ctx - audio context
+ *   data - audio buffer to be processed
+ *   freq - LFO frequency (1.5)
+ *   startphase - LFO startphase in RADIANS - usefull for stereo WahWah (0)
+ *   depth - Wah depth (0.7)
+ *   freqofs - Wah frequency offset (0.3)
+ *   res - Resonance (2.5)
+ *
+ * asserts:
+ *   audio_ctx is not null
+ *
+ * returns: none
+ */
+static void audio_fx_wahwah (audio_context_t *audio_ctx,
+	sample_t *data,
+	float freq,
+	float startphase,
+	float depth,
+	float freqofs,
+	float res)
+{
+	/*assertions*/
+	assert(audio_ctx != NULL);
+
+	float frequency, omega, sn, cs, alpha;
+	float in, out;
+
+	if(aud_fx->wahData == NULL)
+	{
+		aud_fx->wahData = calloc(1, sizeof(fx_wah_data_t));
+		aud_fx->wahData->lfoskip = freq * 2 * M_PI / audio_ctx->samprate;
+		aud_fx->wahData->phase = startphase;
+		/*if right channel set: phase += (float)M_PI;*/
+	}
+
+	int samp = 0;
+	for(samp = 0; samp < audio_ctx->capture_buff_size; samp++)
+	{
+		in = data[samp];
+
+		if ((aud_fx->wahData->skipcount++) % lfoskipsamples == 0)
+		{
+			frequency = (1 + cos(aud_fx->wahData->skipcount * aud_fx->wahData->lfoskip + aud_fx->wahData->phase)) * 0.5;
+			frequency = frequency * depth * (1 - freqofs) + freqofs;
+			frequency = exp((frequency - 1) * 6);
+			omega = M_PI * frequency;
+			sn = sin(omega);
+			cs = cos(omega);
+			alpha = sn / (2 * res);
+			aud_fx->wahData->b0 = (1 - cs) * 0.5;
+			aud_fx->wahData->b1 = 1 - cs;
+			aud_fx->wahData->b2 = (1 - cs) * 0.5;
+			aud_fx->wahData->a0 = 1 + alpha;
+			aud_fx->wahData->a1 = -2 * cs;
+			aud_fx->wahData->a2 = 1 - alpha;
+		}
+		out = (aud_fx->wahData->b0 * in + aud_fx->wahData->b1 * aud_fx->wahData->xn1 +
+			aud_fx->wahData->b2 * aud_fx->wahData->xn2 - aud_fx->wahData->a1 * aud_fx->wahData->yn1 -
+			aud_fx->wahData->a2 * aud_fx->wahData->yn2) / aud_fx->wahData->a0;
+		aud_fx->wahData->xn2 = aud_fx->wahData->xn1;
+		aud_fx->wahData->xn1 = in;
+		aud_fx->wahData->yn2 = aud_fx->wahData->yn1;
+		aud_fx->wahData->yn1 = out;
+
+		data[samp] = clip_float(out);
+	}
+}
+
+/*
+ * change pitch effect
+ * args:
+ *   audio_ctx - audio context
+ *   data - audio buffer to be processed
+ *   rate - window rate
+ *
+ * asserts:
+ *   audio_ctx is not null
+ *
+ * returns: none
+ */
+static void audio_fx_change_pitch (audio_context_t *audio_ctx,
+	sample_t *data,
+	int rate)
+{
+	if(aud_fx->RT1 == NULL)
+	{
+		aud_fx->RT1 = calloc(1, sizeof(fx_rate_data_t));
+
+		aud_fx->RT1->wBuff1 = NULL;
+		aud_fx->RT1->wBuff2 = NULL;
+		aud_fx->RT1->rBuff1 = calloc(audio_ctx->capture_buff_size/audio_ctx->channels, sizeof(sample_t));
+		aud_fx->RT1->rBuff2 = NULL;
+		if(audio_ctx->channels > 1)
+			aud_fx->RT1->rBuff2 = calloc(audio_ctx->capture_buff_size/audio_ctx->channels, sizeof(sample_t));
+	}
+
+	change_rate_less(aud_fx->RT1, data, rate, audio_ctx->capture_buff_size, audio_ctx->channels);
+	change_tempo_more(audio_ctx, data, rate, 20);
+	LPF(audio_ctx, data, audio_ctx->samprate * 0.25, 0.9);
+}
 
 /*
  * clean fx_delay_data_t
@@ -525,14 +969,14 @@ static void close_pitch ()
  *   none
  *
  * asserts:
- *   aud_fx is not null
+ *   none
  *
  * returns: none
  */
 void audio_fx_close()
 {
-	/*assertions*/
-	assert(aud_fx != NULL);
+	if(aud_fx == NULL)
+		return;
 
 	close_DELAY(aud_fx->ECHO);
 	aud_fx->ECHO = NULL;
@@ -545,4 +989,63 @@ void audio_fx_close()
 
 	free(aud_fx);
 	aud_fx = NULL;
+}
+
+/*
+ * apply audio fx
+ * args:
+ *   audio_ctx - pointer to audio context
+ *   proc_buff - pointer to audio buffer to process
+ *   mask - or'ed fx combination
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void audio_fx_apply(audio_context_t *audio_ctx,
+	sample_t *data,
+	uint32_t mask)
+{
+	if(mask != AUDIO_FX_NONE)
+    {
+		if(aud_fx != NULL)
+			audio_fx_init();
+
+		if(mask & AUDIO_FX_ECHO)
+			audio_fx_change_pitch(audio_ctx, data, 2);
+		else
+		{
+			close_DELAY(aud_fx->ECHO);
+			aud_fx->ECHO = NULL;
+		}
+
+		if(mask & AUDIO_FX_REVERB)
+			audio_fx_reverb(audio_ctx, data, 50);
+		else
+			close_reverb();
+
+		if(mask & AUDIO_FX_FUZZ)
+			audio_fx_fuzz(audio_ctx, data);
+		else
+		{
+			close_FILT(aud_fx->HPF);
+			aud_fx->HPF = NULL;
+		}
+
+		if(mask & AUDIO_FX_WAHWAH)
+			audio_fx_wahwah(audio_ctx, data, 1.5, 0, 0.7, 0.3, 2.5);
+		else
+		{
+			close_WAHWAH(aud_fx->wahData);
+			aud_fx->wahData = NULL;
+		}
+
+		if(mask & AUDIO_FX_DUCKY)
+			audio_fx_change_pitch(audio_ctx, data, 2);
+		else
+			close_pitch();
+	}
+	else
+		audio_fx_close();
 }

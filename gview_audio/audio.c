@@ -234,13 +234,14 @@ static int16_t clip_int16 (float in)
  *   audio_ctx - pointer to audio context
  *   buff - pointer to an allocated audio buffer
  *   type - type of data (SAMPLE_TYPE_[INT16|FLOAT])
+ *   mask - audio fx mask
  *
  * asserts:
  *   none
  *
  * returns: error code
  */
-int audio_get_next_buffer(audio_context_t *audio_ctx, audio_buff_t *buff, int type)
+int audio_get_next_buffer(audio_context_t *audio_ctx, audio_buff_t *buff, int type, uint32_t mask)
 {
 	audio_lock_mutex();
 	int flag = audio_buffers[buffer_read_index].flag;
@@ -249,6 +250,10 @@ int audio_get_next_buffer(audio_context_t *audio_ctx, audio_buff_t *buff, int ty
 	if(flag == AUDIO_BUFF_FREE)
 		return 1; /*all done*/
 
+	/*aplly fx*/
+	audio_fx_apply(audio_ctx, audio_buffers[buffer_read_index].data, mask);
+
+	/*copy data into requested format type*/
 	int i = 0;
 	switch(type)
 	{
@@ -436,6 +441,8 @@ int audio_stop(audio_context_t *audio_ctx)
  */
 void audio_close(audio_context_t *audio_ctx)
 {
+	audio_fx_close();
+
 	switch(audio_api)
 	{
 		case AUDIO_NONE:

@@ -191,7 +191,7 @@ int render_frame(uint8_t *frame, uint32_t mask)
 	assert(frame != NULL);
 
 	/*apply fx filters to frame*/
-	render_apply_fx(frame, my_width, my_height, mask);
+	render_fx_apply(frame, my_width, my_height, mask);
 
 	int ret = 0;
 	switch(render_api)

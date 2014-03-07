@@ -56,7 +56,9 @@ static int restart = 0; /*restart flag*/
 
 static char render_caption[20]; /*render window caption*/
 
-static uint32_t mask = REND_FX_YUV_NOFILT; /*render fx filter mask*/
+static uint32_t my_render_mask = REND_FX_YUV_NOFILT; /*render fx filter mask*/
+
+static uint32_t my_audio_mask = AUDIO_FX_NONE; /*audio fx filter mask*/
 
 /*continues focus*/
 static int do_soft_autofocus = 0;
@@ -95,7 +97,22 @@ void set_render_flag(int value)
  */
 void set_render_fx_mask(uint32_t new_mask)
 {
-	mask = new_mask;
+	my_render_mask = new_mask;
+}
+
+/*
+ * set audio flag
+ * args:
+ *    value - flag value
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void set_audio_fx_mask(uint32_t new_mask)
+{
+	my_audio_mask = new_mask;
 }
 
 /*
@@ -439,7 +456,8 @@ static void *encoder_loop(void *data)
 			int ret = 0;
 			do
 			{
-				ret = audio_get_next_buffer(audio_ctx, audio_buff, sample_type);
+				ret = audio_get_next_buffer(audio_ctx, audio_buff,
+					sample_type, my_audio_mask);
 
 				if(ret == 0)
 				{
@@ -621,7 +639,7 @@ void *capture_loop(void *data)
 			/*render the decoded frame*/
 			snprintf(render_caption, 20, "SDL Video - %2.2f", v4l2core_get_realfps());
 			render_set_caption(render_caption);
-			render_frame(device->yuv_frame, mask);
+			render_frame(device->yuv_frame, my_render_mask);
 
 			if(check_photo_timer())
 			{

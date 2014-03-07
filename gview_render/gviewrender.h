@@ -189,7 +189,7 @@ int render_call_event_callback(int id);
  *
  * returns: void
  */
-void render_apply_fx(uint8_t *frame, int width, int height, uint32_t mask);
+void render_fx_apply(uint8_t *frame, int width, int height, uint32_t mask);
 
 /*
  * clean fx filters
