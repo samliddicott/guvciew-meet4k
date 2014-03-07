@@ -4,6 +4,7 @@
 h_sources = gviewaudio.h
 
 c_sources = audio.c \
+			audio_fx.c \
 			core_time.c \
 			audio_portaudio.c
 
