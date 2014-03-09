@@ -40,6 +40,8 @@
 #define M_PI		3.14159265358979323846
 #endif
 
+extern int verbosity;
+
 /*----------- structs for audio effects ------------*/
 
 /*data for Butterworth filter (LP or HP)*/
@@ -723,6 +725,7 @@ static void audio_fx_reverb (audio_context_t *audio_ctx,
 	CombFilter4 (audio_ctx, data,
 		delay_ms, delay_ms - 5, delay_ms -10, delay_ms -15,
 		0.55, 0.6, 0.5, 0.45, 0.7);
+	
 	/*all pass*/
 	all_pass1 (audio_ctx, data, delay_ms, 0.75);
 }
@@ -1009,9 +1012,12 @@ void audio_fx_apply(audio_context_t *audio_ctx,
 {
 	if(mask != AUDIO_FX_NONE)
     {
-		if(aud_fx != NULL)
+		if(verbosity > 2)
+			printf("AUDIO: Apllying Fx (0x%x)\n", mask);
+			
+		if(aud_fx == NULL)
 			audio_fx_init();
-
+		
 		if(mask & AUDIO_FX_ECHO)
 			audio_fx_change_pitch(audio_ctx, data, 2);
 		else

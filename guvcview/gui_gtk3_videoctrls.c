@@ -41,6 +41,7 @@
 /*add this last to avoid redefining _() and N_()*/
 #include "gview.h"
 #include "gviewrender.h"
+#include "video_capture.h"
 
 
 extern int debug_level;
@@ -300,7 +301,7 @@ int gui_attach_gtk3_videoctrls(v4l2_dev_t *device, GtkWidget *parent)
 	gtk_grid_attach(GTK_GRID(table_filt), FiltMirrorEnable, 0, 0, 1, 1);
 
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(FiltMirrorEnable),
-		(device->aux_flag & REND_FX_YUV_MIRROR) > 0);
+		(get_render_fx_mask() & REND_FX_YUV_MIRROR) > 0);
 	gtk_widget_show (FiltMirrorEnable);
 	g_signal_connect (GTK_CHECK_BUTTON(FiltMirrorEnable), "toggled",
 		G_CALLBACK (render_fx_filter_changed), device);
@@ -312,7 +313,7 @@ int gui_attach_gtk3_videoctrls(v4l2_dev_t *device, GtkWidget *parent)
 	gtk_grid_attach(GTK_GRID(table_filt), FiltUpturnEnable, 1, 0, 1, 1);
 
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(FiltUpturnEnable),
-		(device->aux_flag & REND_FX_YUV_UPTURN) > 0);
+		(get_render_fx_mask() & REND_FX_YUV_UPTURN) > 0);
 	gtk_widget_show (FiltUpturnEnable);
 	g_signal_connect (GTK_CHECK_BUTTON(FiltUpturnEnable), "toggled",
 		G_CALLBACK (render_fx_filter_changed), device);
@@ -324,7 +325,7 @@ int gui_attach_gtk3_videoctrls(v4l2_dev_t *device, GtkWidget *parent)
 	gtk_grid_attach(GTK_GRID(table_filt), FiltNegateEnable, 2, 0, 1, 1);
 
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(FiltNegateEnable),
-		(device->aux_flag & REND_FX_YUV_NEGATE) >0 );
+		(get_render_fx_mask() & REND_FX_YUV_NEGATE) >0 );
 	gtk_widget_show (FiltNegateEnable);
 	g_signal_connect (GTK_CHECK_BUTTON(FiltNegateEnable), "toggled",
 		G_CALLBACK (render_fx_filter_changed), device);
@@ -336,7 +337,7 @@ int gui_attach_gtk3_videoctrls(v4l2_dev_t *device, GtkWidget *parent)
 	gtk_grid_attach(GTK_GRID(table_filt), FiltMonoEnable, 3, 0, 1, 1);
 
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(FiltMonoEnable),
-		(device->aux_flag & REND_FX_YUV_MONOCR) > 0);
+		(get_render_fx_mask() & REND_FX_YUV_MONOCR) > 0);
 	gtk_widget_show (FiltMonoEnable);
 	g_signal_connect (GTK_CHECK_BUTTON(FiltMonoEnable), "toggled",
 		G_CALLBACK (render_fx_filter_changed), device);
@@ -349,7 +350,7 @@ int gui_attach_gtk3_videoctrls(v4l2_dev_t *device, GtkWidget *parent)
 	gtk_grid_attach(GTK_GRID(table_filt), FiltPiecesEnable, 4, 0, 1, 1);
 
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(FiltPiecesEnable),
-		(device->aux_flag & REND_FX_YUV_PIECES) > 0);
+		(get_render_fx_mask() & REND_FX_YUV_PIECES) > 0);
 	gtk_widget_show (FiltPiecesEnable);
 	g_signal_connect (GTK_CHECK_BUTTON(FiltPiecesEnable), "toggled",
 		G_CALLBACK (render_fx_filter_changed), device);
@@ -362,7 +363,7 @@ int gui_attach_gtk3_videoctrls(v4l2_dev_t *device, GtkWidget *parent)
 	gtk_grid_attach(GTK_GRID(table_filt), FiltParticlesEnable, 5, 0, 1, 1);
 
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(FiltParticlesEnable),
-		(device->aux_flag & REND_FX_YUV_PARTICLES) > 0);
+		(get_render_fx_mask() & REND_FX_YUV_PARTICLES) > 0);
 	gtk_widget_show (FiltParticlesEnable);
 	g_signal_connect (GTK_CHECK_BUTTON(FiltParticlesEnable), "toggled",
 		G_CALLBACK (render_fx_filter_changed), device);

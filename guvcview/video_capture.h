@@ -45,6 +45,18 @@ typedef struct _capture_loop_data_t
 void set_render_flag(int value);
 
 /*
+ * get render fx mask
+ * args:
+ *    none
+ *
+ * asserts:
+ *    none
+ *
+ * returns: render fx mask
+ */
+uint32_t get_render_fx_mask();
+
+/*
  * set render fx mask
  * args:
  *    new_mask - new render fx filter mask
@@ -55,6 +67,30 @@ void set_render_flag(int value);
  * returns: none
  */
 void set_render_fx_mask(uint32_t new_mask);
+
+/*
+ * get audio fx mask
+ * args:
+ *    none
+ *
+ * asserts:
+ *    none
+ *
+ * returns: audio fx mask
+ */
+uint32_t get_audio_fx_mask();
+
+/*
+ * set audio fx mask
+ * args:
+ *    new_mask - new audio fx filter mask
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void set_audio_fx_mask(uint32_t new_mask);
 
 /*
  * set software autofocus flag

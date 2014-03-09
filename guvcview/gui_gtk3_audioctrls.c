@@ -226,6 +226,92 @@ int gui_attach_gtk3_audioctrls(GtkWidget *parent)
 
 	g_signal_connect (GTK_COMBO_BOX_TEXT(my_audio_widgets.channels), "changed",
 		G_CALLBACK (audio_channels_changed), &my_audio_widgets);
+	
+	/* ----- Filter controls -----*/
+	line++;
+	GtkWidget *label_audioFilters = gtk_label_new(_("---- Audio Filters ----"));
+	gtk_misc_set_alignment (GTK_MISC (label_audioFilters), 0.5, 0.5);
+
+	gtk_grid_attach (GTK_GRID(audio_controls_grid), label_audioFilters, 0, line, 3, 1);
+	gtk_widget_show (label_audioFilters);
+
+	/*filters grid*/
+	line++;
+	GtkWidget *table_filt = gtk_grid_new();
+	gtk_grid_set_row_spacing (GTK_GRID (table_filt), 4);
+	gtk_grid_set_column_spacing (GTK_GRID (table_filt), 4);
+	gtk_container_set_border_width (GTK_CONTAINER (table_filt), 4);
+	gtk_widget_set_size_request (table_filt, -1, -1);
+
+	gtk_widget_set_halign (table_filt, GTK_ALIGN_FILL);
+	gtk_widget_set_hexpand (table_filt, TRUE);
+	gtk_grid_attach (GTK_GRID(audio_controls_grid), table_filt, 0, line, 3, 1);
+	gtk_widget_show (table_filt);
+
+	/* Echo FX */
+	GtkWidget *FiltEchoEnable = gtk_check_button_new_with_label (_(" Echo"));
+	g_object_set_data (G_OBJECT (FiltEchoEnable), "filt_info", GINT_TO_POINTER(AUDIO_FX_ECHO));
+	gtk_widget_set_halign (FiltEchoEnable, GTK_ALIGN_FILL);
+	gtk_widget_set_hexpand (FiltEchoEnable, TRUE);
+	gtk_grid_attach(GTK_GRID(table_filt), FiltEchoEnable, 0, 0, 1, 1);
+
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(FiltEchoEnable),
+		(get_audio_fx_mask() & AUDIO_FX_ECHO) > 0);
+	gtk_widget_show (FiltEchoEnable);
+	g_signal_connect (GTK_CHECK_BUTTON(FiltEchoEnable), "toggled",
+		G_CALLBACK (audio_fx_filter_changed), NULL);
+	
+	/* Reverb FX */
+	GtkWidget *FiltReverbEnable = gtk_check_button_new_with_label (_(" Reverb"));
+	g_object_set_data (G_OBJECT (FiltReverbEnable), "filt_info", GINT_TO_POINTER(AUDIO_FX_REVERB));
+	gtk_widget_set_halign (FiltReverbEnable, GTK_ALIGN_FILL);
+	gtk_widget_set_hexpand (FiltReverbEnable, TRUE);
+	gtk_grid_attach(GTK_GRID(table_filt), FiltReverbEnable, 1, 0, 1, 1);
+
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(FiltReverbEnable),
+		(get_audio_fx_mask() & AUDIO_FX_REVERB) > 0);
+	gtk_widget_show (FiltReverbEnable);
+	g_signal_connect (GTK_CHECK_BUTTON(FiltReverbEnable), "toggled",
+		G_CALLBACK (audio_fx_filter_changed), NULL);
+		
+	/* Fuzz FX */
+	GtkWidget *FiltFuzzEnable = gtk_check_button_new_with_label (_(" Fuzz"));
+	g_object_set_data (G_OBJECT (FiltFuzzEnable), "filt_info", GINT_TO_POINTER(AUDIO_FX_FUZZ));
+	gtk_widget_set_halign (FiltFuzzEnable, GTK_ALIGN_FILL);
+	gtk_widget_set_hexpand (FiltFuzzEnable, TRUE);
+	gtk_grid_attach(GTK_GRID(table_filt), FiltFuzzEnable, 2, 0, 1, 1);
+
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(FiltFuzzEnable),
+		(get_audio_fx_mask() & AUDIO_FX_FUZZ) > 0);
+	gtk_widget_show (FiltFuzzEnable);
+	g_signal_connect (GTK_CHECK_BUTTON(FiltFuzzEnable), "toggled",
+		G_CALLBACK (audio_fx_filter_changed), NULL);
+	
+	/* WahWah FX */
+	GtkWidget *FiltWahEnable = gtk_check_button_new_with_label (_(" WahWah"));
+	g_object_set_data (G_OBJECT (FiltWahEnable), "filt_info", GINT_TO_POINTER(AUDIO_FX_WAHWAH));
+	gtk_widget_set_halign (FiltWahEnable, GTK_ALIGN_FILL);
+	gtk_widget_set_hexpand (FiltWahEnable, TRUE);
+	gtk_grid_attach(GTK_GRID(table_filt), FiltWahEnable, 3, 0, 1, 1);
+
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(FiltWahEnable),
+		(get_audio_fx_mask() & AUDIO_FX_WAHWAH) > 0);
+	gtk_widget_show (FiltWahEnable);
+	g_signal_connect (GTK_CHECK_BUTTON(FiltWahEnable), "toggled",
+		G_CALLBACK (audio_fx_filter_changed), NULL);
+	
+	/* Ducky FX */
+	GtkWidget *FiltDuckyEnable = gtk_check_button_new_with_label (_(" Ducky"));
+	g_object_set_data (G_OBJECT (FiltDuckyEnable), "filt_info", GINT_TO_POINTER(AUDIO_FX_DUCKY));
+	gtk_widget_set_halign (FiltDuckyEnable, GTK_ALIGN_FILL);
+	gtk_widget_set_hexpand (FiltDuckyEnable, TRUE);
+	gtk_grid_attach(GTK_GRID(table_filt), FiltDuckyEnable, 4, 0, 1, 1);
+
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(FiltDuckyEnable),
+		(get_audio_fx_mask() & AUDIO_FX_DUCKY) > 0);
+	gtk_widget_show (FiltDuckyEnable);
+	g_signal_connect (GTK_CHECK_BUTTON(FiltDuckyEnable), "toggled",
+		G_CALLBACK (audio_fx_filter_changed), NULL);
 
 	/*add control grid to parent container*/
 	gtk_container_add(GTK_CONTAINER(parent), audio_controls_grid);

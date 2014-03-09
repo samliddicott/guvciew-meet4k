@@ -311,8 +311,6 @@ typedef struct _v4l2_dev_t
     int tilt_step;                      //tilt step for relative pan tilt controls (logitech sphere/orbit/BCC950)
 
 	int has_focus_control_id;           //it's set to control id if a focus control is available (enables software autofocus)
-
-    uint32_t aux_flag;                  //auxiliary flag (used by guvcview to render fx filters)
 } v4l2_dev_t;
 
 /*

@@ -86,9 +86,24 @@ void set_render_flag(int value)
 }
 
 /*
- * set render flag
+ * get render fx mask
  * args:
- *    value - flag value
+ *    none
+ *
+ * asserts:
+ *    none
+ *
+ * returns: render fx mask
+ */
+uint32_t get_render_fx_mask()
+{
+	return my_render_mask;
+}
+
+/*
+ * set render fx mask
+ * args:
+ *    new_mask - fx mask value
  *
  * asserts:
  *    none
@@ -101,9 +116,24 @@ void set_render_fx_mask(uint32_t new_mask)
 }
 
 /*
- * set audio flag
+ * get audio fx mask
  * args:
- *    value - flag value
+ *    none
+ *
+ * asserts:
+ *    none
+ *
+ * returns: audio fx mask
+ */
+uint32_t get_audio_fx_mask()
+{
+	return my_audio_mask;
+}
+
+/*
+ * set audio fx mask
+ * args:
+ *    new_mask - new audio fx filter mask
  *
  * asserts:
  *    none
