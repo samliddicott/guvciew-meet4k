@@ -529,7 +529,7 @@ static void *pulse_read_audio(void *data)
 
     recordstream = pa_stream_new(pa_ctx, "Record", &ss, NULL);
     if (!recordstream)
-        printf("AUDIO: (pulseaudio) pa_stream_new failed\n");
+        fprintf(stderr, "AUDIO: (pulseaudio) pa_stream_new failed\n");
 
     /* define the callbacks */
     pa_stream_set_read_callback(recordstream, stream_request_cb, (void *) audio_ctx);
@@ -587,6 +587,9 @@ static void *pulse_read_audio(void *data)
         pa_mainloop_iterate(pa_ml, 1, NULL);
     }
 
+	if(verbosity > 0)
+		printf("AUDIO: (pulseaudio) stream terminated(%i)\n", audio_ctx->stream_flag);
+
     pa_stream_disconnect (recordstream);
     pa_stream_unref (recordstream);
     finish(pa_ctx, pa_ml);
@@ -633,6 +636,8 @@ int audio_start_pulseaudio(audio_context_t *audio_ctx)
 {
 	/*assertions*/
 	assert(audio_ctx != NULL);
+
+	audio_ctx->stream_flag = AUDIO_STRM_ON;
 
     /* start audio capture thread */
     if(__THREAD_CREATE(&my_read_thread, pulse_read_audio, (void *) audio_ctx))

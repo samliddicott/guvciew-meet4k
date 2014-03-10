@@ -1618,6 +1618,19 @@ void audio_api_changed(GtkComboBox *combo, void *data)
 		gtk_widget_set_sensitive (my_audio_widgets->device, TRUE);
 		gtk_widget_set_sensitive(my_audio_widgets->channels, TRUE);
 		gtk_widget_set_sensitive(my_audio_widgets->samprate, TRUE);
+
+		/*update channels*/
+		int index = gtk_combo_box_get_active(GTK_COMBO_BOX(my_audio_widgets->channels));
+
+		if(index == 0)
+			audio_ctx->channels = audio_ctx->list_devices[audio_ctx->device].channels;
+
+		/*update samprate*/
+		index = gtk_combo_box_get_active(GTK_COMBO_BOX(my_audio_widgets->samprate));
+
+		if(index == 0)
+			audio_ctx->samprate = audio_ctx->list_devices[audio_ctx->device].samprate;
+
 	}
 
 }

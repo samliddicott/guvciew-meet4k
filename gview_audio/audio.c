@@ -185,6 +185,11 @@ int audio_init_buffers(audio_context_t *audio_ctx)
  */
 void audio_fill_buffer(audio_context_t *audio_ctx, int64_t ts)
 {
+	/*assertions*/
+	assert(audio_ctx != NULL);
+
+	if(verbosity > 3)
+		printf("AUDIO: filling buffer ts:%" PRId64 "\n", ts);
 	/*in nanosec*/
 	uint64_t frame_length = NSEC_PER_SEC / audio_ctx->samprate;
 	uint64_t buffer_length = frame_length * (audio_ctx->capture_buff_size / audio_ctx->channels);
