@@ -451,6 +451,8 @@ static void *encoder_loop(void *data)
 		 * alloc the buffer after audio_start
 		 * otherwise capture_buff_size may not
 		 * be correct
+		 * make it a float buffer (32 bit) although it may
+		 * contain pcm samples (16 bit)
 		 */
 		audio_buff = calloc(1, sizeof(audio_buff_t));
 		audio_buff->data = calloc(audio_ctx->capture_buff_size, sizeof(sample_t));

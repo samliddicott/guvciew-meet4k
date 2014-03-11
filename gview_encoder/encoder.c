@@ -559,7 +559,7 @@ uint32_t encoder_buff_scheduler()
 		sched_time = (uint32_t) lround((double) ((diff_ind * 320) / video_ring_buffer_size) - 192);
 	else if (diff_ind >= th)
 		sched_time = (uint32_t) lround((double) (diff_ind * 64) / video_ring_buffer_size);
-		
+
 
 	/*clip*/
 	if(sched_time < 0) sched_time = 0; /*clip to positive values just in case*/
@@ -1017,14 +1017,14 @@ int encoder_encode_video(encoder_context_t *encoder_ctx, void *input_frame)
  * encode audio
  * args:
  *   encoder_ctx - pointer to encoder context
- *   pcm - pointer to audio pcm data
+ *   audio_data - pointer to audio pcm data
  *
  * asserts:
  *   encoder_ctx is not null
  *
  * returns: encoded buffer size
  */
-int encoder_encode_audio(encoder_context_t *encoder_ctx, void *pcm)
+int encoder_encode_audio(encoder_context_t *encoder_ctx, void *audio_data)
 {
 	/*assertions*/
 	assert(encoder_ctx != NULL);
@@ -1063,7 +1063,7 @@ int encoder_encode_audio(encoder_context_t *encoder_ctx, void *pcm)
 		enc_audio_ctx->frame,
 		enc_audio_ctx->codec_context->channels,
 		enc_audio_ctx->codec_context->sample_fmt,
-		(const uint8_t *) pcm, samples_size,
+		(const uint8_t *) audio_data, samples_size,
 		1);
 
 	if(!enc_audio_ctx->monotonic_pts) /*generate a real pts based on the frame timestamp*/
@@ -1100,7 +1100,7 @@ int encoder_encode_audio(encoder_context_t *encoder_ctx, void *pcm)
 			enc_audio_ctx->codec_context,
 			enc_audio_ctx->outbuf,
 			enc_audio_ctx->outbuf_size,
-			pcm);
+			audio_data);
 
 	enc_audio_ctx->dts = AV_NOPTS_VALUE;
 	enc_audio_ctx->flags = 0;

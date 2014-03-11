@@ -67,7 +67,7 @@ typedef float sample_t;
 
 typedef struct _audio_buff_t
 {
-	sample_t *data;
+	void *data; /*sample buffer - usually sample_t (float)*/
 	int64_t timestamp;
 	int flag;
 } audio_buff_t;

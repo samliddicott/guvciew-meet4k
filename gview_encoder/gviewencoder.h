@@ -561,14 +561,14 @@ int encoder_encode_video(encoder_context_t *encoder_ctx, void *yuv_frame);
  * encode audio
  * args:
  *   encoder_ctx - pointer to encoder context
- *   pcm - pointer to audio pcm data
+ *   audio_data - pointer to audio pcm data
  *
  * asserts:
  *   none
  *
  * returns: encoded buffer size
  */
-int encoder_encode_audio(encoder_context_t *encoder_ctx, void *pcm);
+int encoder_encode_audio(encoder_context_t *encoder_ctx, void *audio_data);
 
 /*
  * close and clean encoder context

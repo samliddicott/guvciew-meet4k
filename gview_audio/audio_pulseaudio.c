@@ -441,11 +441,12 @@ static void stream_request_cb(pa_stream *s, size_t length, void *data)
 		int numSamples= length / sizeof(sample_t);
 
 		const sample_t *rptr = (const sample_t*) inputBuffer;
+		sample_t *capture_buff = (sample_t *) audio_ctx->capture_buff;
 
 		/*store capture samples or silence if inputBuffer == NULL (hole)*/
 		for( i = 0; i < numSamples; ++i )
 		{
-			audio_ctx->capture_buff[sample_index] = inputBuffer ? *rptr++ : 0;
+			capture_buff[sample_index] = inputBuffer ? *rptr++ : 0;
 			sample_index++;
 
 			if(sample_index >= audio_ctx->capture_buff_size)

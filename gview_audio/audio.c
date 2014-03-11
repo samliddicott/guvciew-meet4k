@@ -256,7 +256,7 @@ int audio_get_next_buffer(audio_context_t *audio_ctx, audio_buff_t *buff, int ty
 		return 1; /*all done*/
 
 	/*aplly fx*/
-	audio_fx_apply(audio_ctx, audio_buffers[buffer_read_index].data, mask);
+	audio_fx_apply(audio_ctx, (sample_t *) audio_buffers[buffer_read_index].data, mask);
 
 	/*copy data into requested format type*/
 	int i = 0;
@@ -264,7 +264,7 @@ int audio_get_next_buffer(audio_context_t *audio_ctx, audio_buff_t *buff, int ty
 	{
 		case SAMPLE_TYPE_FLOAT:
 		{
-			float *my_data = (float *) buff->data;
+			sample_t *my_data = (sample_t *) buff->data;
 			memcpy( my_data, audio_buffers[buffer_read_index].data,
 				audio_ctx->capture_buff_size * sizeof(sample_t));
 			break;
@@ -272,15 +272,16 @@ int audio_get_next_buffer(audio_context_t *audio_ctx, audio_buff_t *buff, int ty
 		case SAMPLE_TYPE_INT16:
 		{
 			int16_t *my_data = (int16_t *) buff->data;
+			sample_t *buff_p = (sample_t *) audio_buffers[buffer_read_index].data;
 			for(i = 0; i < audio_ctx->capture_buff_size; ++i)
-				my_data[i] = clip_int16( audio_buffers[buffer_read_index].data[i] * 32767.0);
+				*my_data++ = clip_int16( (*buff_p++) * 32768.0f);
 		}
 		case SAMPLE_TYPE_FLOATP:
 		{
 			int j=0;
 
 			float *my_data[audio_ctx->channels];
-			float *buff_p = (float *) audio_buffers[buffer_read_index].data;
+			sample_t *buff_p = (sample_t *) audio_buffers[buffer_read_index].data;
 
 			for(j = 0; j < audio_ctx->channels; ++j)
 				my_data[j] = (float *) (buff->data +
@@ -298,7 +299,7 @@ int audio_get_next_buffer(audio_context_t *audio_ctx, audio_buff_t *buff, int ty
 			int j=0;
 
 			int16_t *my_data[audio_ctx->channels];
-			float *buff_p = (float *) audio_buffers[buffer_read_index].data;
+			sample_t *buff_p = (sample_t *) audio_buffers[buffer_read_index].data;
 
 			for(j = 0; j < audio_ctx->channels; ++j)
 				my_data[j] = (int16_t *) (buff->data +
@@ -307,7 +308,7 @@ int audio_get_next_buffer(audio_context_t *audio_ctx, audio_buff_t *buff, int ty
 			for(i = 0; i < audio_ctx->capture_buff_size/audio_ctx->channels; ++i)
 				for(j = 0; j < audio_ctx->channels; ++j)
 				{
-					my_data[j][i] = clip_int16((*buff_p++) * 32767.0);
+					my_data[j][i] = clip_int16((*buff_p++) * 32768.0f);
 				}
 			break;
 		}

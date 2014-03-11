@@ -77,7 +77,8 @@ static int recordCallback (
 
 	int i = 0;
 
-	const sample_t *rptr = (const sample_t*) inputBuffer;
+	sample_t *rptr = (sample_t*) inputBuffer;
+	sample_t *capture_buff = (sample_t *) audio_ctx->capture_buff;
 
 	unsigned long numSamples = framesPerBuffer * audio_ctx->channels;
 	uint64_t frame_length = NSEC_PER_SEC / audio_ctx->samprate; /*in nanosec*/
@@ -100,7 +101,7 @@ static int recordCallback (
 		int n_samples = (d_ts / frame_length) * audio_ctx->channels;
 		for( i = 0; i < n_samples; ++i )
 		{
-			audio_ctx->capture_buff[sample_index] = 0;
+			capture_buff[sample_index] = 0;
 			sample_index++;
 
 			if(sample_index >= audio_ctx->capture_buff_size)
@@ -120,7 +121,7 @@ static int recordCallback (
 	/*store capture samples*/
 	for( i = 0; i < numSamples; ++i )
     {
-        audio_ctx->capture_buff[sample_index] = inputBuffer ? *rptr++ : 0;
+        capture_buff[sample_index] = inputBuffer ? *rptr++ : 0;
         sample_index++;
 
         if(sample_index >= audio_ctx->capture_buff_size)
@@ -130,7 +131,6 @@ static int recordCallback (
 			sample_index = 0;
 		}
 	}
-
 
 	audio_ctx->last_ts = ts + (framesPerBuffer * frame_length);
 
