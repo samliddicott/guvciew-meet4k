@@ -50,6 +50,10 @@
 #include "stream_io.h"
 #include "gview.h"
 
+#if LIBAVCODEC_VER_AT_LEAST(54,0)
+#include <libavutil/channel_layout.h>
+#endif
+
 int verbosity = 0;
 
 /*video buffer data mutex*/
@@ -445,7 +449,7 @@ static encoder_audio_context_t *encoder_audio_init(
 	enc_audio_ctx->codec_context->sample_rate = audio_samprate;
 	enc_audio_ctx->codec_context->channels = audio_channels;
 
-#ifdef AV_CH_LAYOUT_MONO
+#if LIBAVCODEC_VER_AT_LEAST(53,34)
 	if(audio_channels < 2)
 		enc_audio_ctx->codec_context->channel_layout = AV_CH_LAYOUT_MONO;
 	else
@@ -454,14 +458,98 @@ static encoder_audio_context_t *encoder_audio_init(
 
 	enc_audio_ctx->codec_context->cutoff = 0; /*automatic*/
 
-	enc_audio_ctx->codec_context->sample_fmt = audio_defaults->sample_format;
-
     enc_audio_ctx->codec_context->codec_id = audio_defaults->codec_id;
 
 #if !LIBAVCODEC_VER_AT_LEAST(53,0)
 #define AVMEDIA_TYPE_AUDIO CODEC_TYPE_AUDIO
 #endif
 	enc_audio_ctx->codec_context->codec_type = AVMEDIA_TYPE_AUDIO;
+
+#if LIBAVCODEC_VER_AT_LEAST(54,0)
+	/*check if codec supports sample format*/
+	if (!check_sample_fmt(enc_audio_ctx->codec, audio_defaults->sample_format))
+	{
+		switch(audio_defaults->sample_format)
+		{
+			case AV_SAMPLE_FMT_S16:
+				if (check_sample_fmt(enc_audio_ctx->codec, AV_SAMPLE_FMT_S16P))
+				{
+					fprintf(stderr, "ENCODER: changing sample format (S16 -> S16P)\n");
+					audio_defaults->sample_format = AV_SAMPLE_FMT_S16P;
+				}
+				else if (check_sample_fmt(enc_audio_ctx->codec, AV_SAMPLE_FMT_FLT))
+				{
+					fprintf(stderr, "ENCODER: changing sample format (S16 -> FLT)\n");
+					audio_defaults->sample_format = AV_SAMPLE_FMT_FLT;
+				}
+				else if (check_sample_fmt(enc_audio_ctx->codec, AV_SAMPLE_FMT_FLTP))
+				{
+					fprintf(stderr, "ENCODER: changing sample format (S16 -> FLTP)\n");
+					audio_defaults->sample_format = AV_SAMPLE_FMT_FLTP;
+				}
+				else
+				{
+					fprintf(stderr, "ENCODER: could not open audio codec: no supported sample format\n");
+					free(enc_audio_ctx->codec_context);
+					free(enc_audio_ctx);
+					return NULL;
+				}
+				break;
+
+			case AV_SAMPLE_FMT_FLT:
+				if (check_sample_fmt(enc_audio_ctx->codec, AV_SAMPLE_FMT_S16))
+				{
+					fprintf(stderr, "ENCODER: changing sample format (FLT -> S16)\n");
+					audio_defaults->sample_format = AV_SAMPLE_FMT_S16;
+				}
+				else if (check_sample_fmt(enc_audio_ctx->codec, AV_SAMPLE_FMT_S16P))
+				{
+					fprintf(stderr, "ENCODER: changing sample format (FLT -> S16P)\n");
+					audio_defaults->sample_format = AV_SAMPLE_FMT_S16P;
+				}
+				else if (check_sample_fmt(enc_audio_ctx->codec, AV_SAMPLE_FMT_FLTP))
+				{
+					fprintf(stderr, "ENCODER: changing sample format (FLT -> FLTP)\n");
+					audio_defaults->sample_format = AV_SAMPLE_FMT_FLTP;
+				}
+				else
+				{
+					fprintf(stderr, "ENCODER: could not open audio codec: no supported sample format\n");
+					free(enc_audio_ctx->codec_context);
+					free(enc_audio_ctx);
+					return NULL;
+				}
+				break;
+
+			case AV_SAMPLE_FMT_FLTP:
+				if (check_sample_fmt(enc_audio_ctx->codec, AV_SAMPLE_FMT_S16))
+				{
+					fprintf(stderr, "ENCODER: changing sample format (FLTP -> S16)\n");
+					audio_defaults->sample_format = AV_SAMPLE_FMT_S16;
+				}
+				else if (check_sample_fmt(enc_audio_ctx->codec, AV_SAMPLE_FMT_S16P))
+				{
+					fprintf(stderr, "ENCODER: changing sample format (FLTP -> S16P)\n");
+					audio_defaults->sample_format = AV_SAMPLE_FMT_S16P;
+				}
+				else if (check_sample_fmt(enc_audio_ctx->codec, AV_SAMPLE_FMT_FLT))
+				{
+					fprintf(stderr, "ENCODER: changing sample format (FLTP -> FLT)\n");
+					audio_defaults->sample_format = AV_SAMPLE_FMT_FLT;
+				}
+				else
+				{
+					fprintf(stderr, "ENCODER: could not open audio codec: no supported sample format\n");
+					free(enc_audio_ctx->codec_context);
+					free(enc_audio_ctx);
+					return NULL;
+				}
+				break;
+		}
+	}
+#endif
+
+	enc_audio_ctx->codec_context->sample_fmt = audio_defaults->sample_format;
 
 	/* open codec*/
 #if LIBAVCODEC_VER_AT_LEAST(53,6)
@@ -474,34 +562,10 @@ static encoder_audio_context_t *encoder_audio_init(
 		enc_audio_ctx->codec) < 0)
 #endif
 	{
-		switch(audio_defaults->sample_format)
-		{
-			case AV_SAMPLE_FMT_S16:
-				audio_defaults->sample_format = AV_SAMPLE_FMT_FLT;
-				enc_audio_ctx->codec_context->sample_fmt = audio_defaults->sample_format;
-				fprintf(stderr, "ENCODER: could not open audio codec...trying again with float sample format\n");
-				break;
-			case AV_SAMPLE_FMT_FLT:
-				audio_defaults->sample_format = AV_SAMPLE_FMT_S16;
-				enc_audio_ctx->codec_context->sample_fmt = audio_defaults->sample_format;
-				fprintf(stderr, "ENCODER: could not open audio codec...trying again with int16 sample format\n");
-				break;
-		}
-		#if LIBAVCODEC_VER_AT_LEAST(53,6)
-		if (avcodec_open2(
-			enc_audio_ctx->codec_context,
-			enc_audio_ctx->codec, NULL) < 0)
-		#else
-		if (avcodec_open(
-			enc_audio_ctx->codec_context,
-			enc_audio_ctx->codec) < 0)
-		#endif
-		{
-			fprintf(stderr, "ENCODER: could not open audio codec...giving up\n");
-			free(enc_audio_ctx->codec_context);
-			free(enc_audio_ctx);
-			return NULL;
-		}
+		fprintf(stderr, "ENCODER: could not open audio codec\n");
+		free(enc_audio_ctx->codec_context);
+		free(enc_audio_ctx);
+		return NULL;
 	}
 
 	/* the codec gives us the frame size, in samples */
@@ -523,6 +587,13 @@ static encoder_audio_context_t *encoder_audio_init(
 #if LIBAVCODEC_VER_AT_LEAST(53,34)
 	enc_audio_ctx->frame= avcodec_alloc_frame();
 	avcodec_get_frame_defaults(enc_audio_ctx->frame);
+	enc_audio_ctx->frame->nb_samples = frame_size;
+	enc_audio_ctx->frame->format = audio_defaults->sample_format;
+
+#if LIBAVCODEC_VER_AT_LEAST(54,0)
+	enc_audio_ctx->frame->channel_layout = enc_audio_ctx->codec_context->channel_layout;
+#endif
+
 #endif
 
 	return (enc_audio_ctx);
@@ -1051,8 +1122,9 @@ int encoder_encode_audio(encoder_context_t *encoder_ctx, void *audio_data)
 
 	int ret = 0;
 
+	/*number of samples per channel*/
 	enc_audio_ctx->frame->nb_samples  = enc_audio_ctx->codec_context->frame_size;
-	int samples_size = av_samples_get_buffer_size(
+	int buffer_size = av_samples_get_buffer_size(
 		NULL,
 		enc_audio_ctx->codec_context->channels,
 		enc_audio_ctx->frame->nb_samples,
@@ -1063,7 +1135,8 @@ int encoder_encode_audio(encoder_context_t *encoder_ctx, void *audio_data)
 		enc_audio_ctx->frame,
 		enc_audio_ctx->codec_context->channels,
 		enc_audio_ctx->codec_context->sample_fmt,
-		(const uint8_t *) audio_data, samples_size,
+		(const uint8_t *) audio_data,
+		buffer_size,
 		1);
 
 	if(!enc_audio_ctx->monotonic_pts) /*generate a real pts based on the frame timestamp*/
