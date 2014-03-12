@@ -228,9 +228,9 @@ void audio_fill_buffer(audio_context_t *audio_ctx, int64_t ts)
 /* saturate float samples to int16 limits*/
 static int16_t clip_int16 (float in)
 {
-	in = (in < -32768) ? -32768 : (in > 32767) ? 32767 : in;
+	int16_t out = (int16_t) (in < -32768) ? -32768 : (in > 32767) ? 32767 : in;
 
-	return ((int16_t) in);
+	return (out);
 }
 
 /*
@@ -274,7 +274,7 @@ int audio_get_next_buffer(audio_context_t *audio_ctx, audio_buff_t *buff, int ty
 			int16_t *my_data = (int16_t *) buff->data;
 			sample_t *buff_p = (sample_t *) audio_buffers[buffer_read_index].data;
 			for(i = 0; i < audio_ctx->capture_buff_size; ++i)
-				*my_data++ = clip_int16( (*buff_p++) * 32768.0f);
+				my_data[i] = clip_int16( (buff_p[i]) * 32768.0f);
 		}
 		case SAMPLE_TYPE_FLOATP:
 		{

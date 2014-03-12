@@ -172,7 +172,7 @@ static int get_aac_obj_ind(int profile)
 {
 	int i = 0;
 
-	for (i=0; i<4; i++)
+	for (i=0; i<5; i++)
 	 if(AAC_OBJ_TYPE[i] == profile) break;
 
 	 return i;

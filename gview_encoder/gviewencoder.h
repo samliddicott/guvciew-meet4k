@@ -42,11 +42,13 @@
 #else
   #ifdef HAS_LIBAVCODEC_AVCODEC_H
     #include <libavcodec/avcodec.h>
+    #include <libavutil/channel_layout.h>
   #else
     #ifdef HAS_FFMPEG_AVCODEC_H
       #include <ffmpeg/avcodec.h>
     #else
       #include <libavcodec/avcodec.h>
+      #include <libavutil/channel_layout.h>
     #endif
   #endif
 #endif
