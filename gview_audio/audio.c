@@ -280,6 +280,7 @@ int audio_get_next_buffer(audio_context_t *audio_ctx, audio_buff_t *buff, int ty
 			{
 				my_data[i] = clip_int16( (buff_p[i]) * INT16_MAX);
 			}
+			break;
 		}
 		case SAMPLE_TYPE_FLOATP:
 		{

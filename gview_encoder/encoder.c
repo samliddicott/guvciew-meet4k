@@ -1154,6 +1154,7 @@ int encoder_encode_audio(encoder_context_t *encoder_ctx, void *audio_data)
 		enc_audio_ctx->codec_context->sample_fmt,
 		0);
 
+	/*set the data pointers in frame*/
     avcodec_fill_audio_frame(
 		enc_audio_ctx->frame,
 		enc_audio_ctx->codec_context->channels,
