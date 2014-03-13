@@ -587,6 +587,7 @@ static encoder_audio_context_t *encoder_audio_init(
 #if LIBAVCODEC_VER_AT_LEAST(53,34)
 	enc_audio_ctx->frame= avcodec_alloc_frame();
 	avcodec_get_frame_defaults(enc_audio_ctx->frame);
+
 	enc_audio_ctx->frame->nb_samples = frame_size;
 	enc_audio_ctx->frame->format = audio_defaults->sample_format;
 
