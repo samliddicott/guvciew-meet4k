@@ -1129,7 +1129,7 @@ int encoder_encode_audio(encoder_context_t *encoder_ctx, void *audio_data)
 		enc_audio_ctx->codec_context->channels,
 		enc_audio_ctx->frame->nb_samples,
 		enc_audio_ctx->codec_context->sample_fmt,
-		1);
+		0);
 
     avcodec_fill_audio_frame(
 		enc_audio_ctx->frame,
@@ -1137,7 +1137,7 @@ int encoder_encode_audio(encoder_context_t *encoder_ctx, void *audio_data)
 		enc_audio_ctx->codec_context->sample_fmt,
 		(const uint8_t *) audio_data,
 		buffer_size,
-		1);
+		0);
 
 	if(!enc_audio_ctx->monotonic_pts) /*generate a real pts based on the frame timestamp*/
 		enc_audio_ctx->frame->pts += ((enc_audio_ctx->pts - last_audio_pts)/1000) * 90;
