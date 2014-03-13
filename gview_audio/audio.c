@@ -282,7 +282,7 @@ int audio_get_next_buffer(audio_context_t *audio_ctx, audio_buff_t *buff, int ty
 					printf("AUDIO: (FLT->S16) input sample[%i]=%f\n", i,  buff_p[i]);
 				my_data[i] = clip_int16( (buff_p[i]) * INT16_MAX);
 				if(verbosity > 2 && (my_data[i] == INT16_MAX || my_data[i] == INT16_MIN))
-					printf("AUDIO: (FLT->S16) output sample[%i]=%f\n", i,  my_data[i]);
+					printf("AUDIO: (FLT->S16) output sample[%i]=%i\n", i,  my_data[i]);
 
 			}
 		}
