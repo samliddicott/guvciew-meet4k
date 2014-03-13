@@ -277,7 +277,11 @@ int audio_get_next_buffer(audio_context_t *audio_ctx, audio_buff_t *buff, int ty
 			int16_t *my_data = (int16_t *) buff->data;
 			sample_t *buff_p = (sample_t *) audio_buffers[buffer_read_index].data;
 			for(i = 0; i < audio_ctx->capture_buff_size; ++i)
+			{
+				if(verbosity > 2 && (buff_p[i] > 1 || buff_p[i] < -1))
+					printf("AUDIO: sample[%i]=%f\n",i ,  buff_p[i]);
 				my_data[i] = clip_int16( (buff_p[i]) * INT16_MAX);
+			}
 		}
 		case SAMPLE_TYPE_FLOATP:
 		{
