@@ -35,6 +35,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <string.h>
+#include <math.h>
 #include <errno.h>
 #include <assert.h>
 /* support for internationalization - i18n */
@@ -228,8 +229,10 @@ void audio_fill_buffer(audio_context_t *audio_ctx, int64_t ts)
 /* saturate float samples to int16 limits*/
 static int16_t clip_int16 (float in)
 {
-	int16_t out = (int16_t) (in < -32768) ? -32768 : (in > 32767) ? 32767 : in;
+	//int16_t out = (int16_t) (in < -32768) ? -32768 : (in > 32767) ? 32767 : in;
 
+	long lout =  lroundf(in);
+	int16_t out = (lout < INT16_MIN) ? INT16_MIN : (lout > INT16_MAX) ? INT16_MAX: (int16_t) lout;
 	return (out);
 }
 
@@ -274,7 +277,7 @@ int audio_get_next_buffer(audio_context_t *audio_ctx, audio_buff_t *buff, int ty
 			int16_t *my_data = (int16_t *) buff->data;
 			sample_t *buff_p = (sample_t *) audio_buffers[buffer_read_index].data;
 			for(i = 0; i < audio_ctx->capture_buff_size; ++i)
-				my_data[i] = clip_int16( (buff_p[i]) * 32768.0f);
+				my_data[i] = clip_int16( (buff_p[i]) * INT16_MAX);
 		}
 		case SAMPLE_TYPE_FLOATP:
 		{
@@ -308,7 +311,7 @@ int audio_get_next_buffer(audio_context_t *audio_ctx, audio_buff_t *buff, int ty
 			for(i = 0; i < audio_ctx->capture_buff_size/audio_ctx->channels; ++i)
 				for(j = 0; j < audio_ctx->channels; ++j)
 				{
-					my_data[j][i] = clip_int16((*buff_p++) * 32768.0f);
+					my_data[j][i] = clip_int16((*buff_p++) * INT16_MAX);
 				}
 			break;
 		}
