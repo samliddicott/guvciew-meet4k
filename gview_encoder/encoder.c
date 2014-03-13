@@ -90,6 +90,30 @@ void encoder_set_verbosity(int value)
 	verbosity = value;
 }
 
+/* 
+ * check that a given sample format is supported by the encoder 
+ * args:
+ *    codec - pointer to AVCodec
+ *    sample_fmt - audio sample format
+ *
+ * assertions:
+ *    none
+ * 
+ * returns: 1 - sample format is supported; 0 - is not supported
+ */
+static int encoder_check_audio_sample_fmt(AVCodec *codec, enum AVSampleFormat sample_fmt)
+{
+	const enum AVSampleFormat *p = codec->sample_fmts;
+ 
+	while (*p != AV_SAMPLE_FMT_NONE) 
+	{
+		if (*p == sample_fmt)
+			return 1;
+		p++;
+	}
+	return 0;
+}
+
 /*
  * allocate video ring buffer
  * args:
@@ -465,24 +489,23 @@ static encoder_audio_context_t *encoder_audio_init(
 #endif
 	enc_audio_ctx->codec_context->codec_type = AVMEDIA_TYPE_AUDIO;
 
-#if LIBAVCODEC_VER_AT_LEAST(54,0)
 	/*check if codec supports sample format*/
-	if (!check_sample_fmt(enc_audio_ctx->codec, audio_defaults->sample_format))
+	if (!encoder_check_audio_sample_fmt(enc_audio_ctx->codec, audio_defaults->sample_format))
 	{
 		switch(audio_defaults->sample_format)
 		{
 			case AV_SAMPLE_FMT_S16:
-				if (check_sample_fmt(enc_audio_ctx->codec, AV_SAMPLE_FMT_S16P))
+				if (encoder_check_audio_sample_fmt(enc_audio_ctx->codec, AV_SAMPLE_FMT_S16P))
 				{
 					fprintf(stderr, "ENCODER: changing sample format (S16 -> S16P)\n");
 					audio_defaults->sample_format = AV_SAMPLE_FMT_S16P;
 				}
-				else if (check_sample_fmt(enc_audio_ctx->codec, AV_SAMPLE_FMT_FLT))
+				else if (encoder_check_audio_sample_fmt(enc_audio_ctx->codec, AV_SAMPLE_FMT_FLT))
 				{
 					fprintf(stderr, "ENCODER: changing sample format (S16 -> FLT)\n");
 					audio_defaults->sample_format = AV_SAMPLE_FMT_FLT;
 				}
-				else if (check_sample_fmt(enc_audio_ctx->codec, AV_SAMPLE_FMT_FLTP))
+				else if (encoder_check_audio_sample_fmt(enc_audio_ctx->codec, AV_SAMPLE_FMT_FLTP))
 				{
 					fprintf(stderr, "ENCODER: changing sample format (S16 -> FLTP)\n");
 					audio_defaults->sample_format = AV_SAMPLE_FMT_FLTP;
@@ -497,17 +520,17 @@ static encoder_audio_context_t *encoder_audio_init(
 				break;
 
 			case AV_SAMPLE_FMT_FLT:
-				if (check_sample_fmt(enc_audio_ctx->codec, AV_SAMPLE_FMT_S16))
+				if (encoder_check_audio_sample_fmt(enc_audio_ctx->codec, AV_SAMPLE_FMT_S16))
 				{
 					fprintf(stderr, "ENCODER: changing sample format (FLT -> S16)\n");
 					audio_defaults->sample_format = AV_SAMPLE_FMT_S16;
 				}
-				else if (check_sample_fmt(enc_audio_ctx->codec, AV_SAMPLE_FMT_S16P))
+				else if (encoder_check_audio_sample_fmt(enc_audio_ctx->codec, AV_SAMPLE_FMT_S16P))
 				{
 					fprintf(stderr, "ENCODER: changing sample format (FLT -> S16P)\n");
 					audio_defaults->sample_format = AV_SAMPLE_FMT_S16P;
 				}
-				else if (check_sample_fmt(enc_audio_ctx->codec, AV_SAMPLE_FMT_FLTP))
+				else if (encoder_check_audio_sample_fmt(enc_audio_ctx->codec, AV_SAMPLE_FMT_FLTP))
 				{
 					fprintf(stderr, "ENCODER: changing sample format (FLT -> FLTP)\n");
 					audio_defaults->sample_format = AV_SAMPLE_FMT_FLTP;
@@ -522,17 +545,17 @@ static encoder_audio_context_t *encoder_audio_init(
 				break;
 
 			case AV_SAMPLE_FMT_FLTP:
-				if (check_sample_fmt(enc_audio_ctx->codec, AV_SAMPLE_FMT_S16))
+				if (encoder_check_audio_sample_fmt(enc_audio_ctx->codec, AV_SAMPLE_FMT_S16))
 				{
 					fprintf(stderr, "ENCODER: changing sample format (FLTP -> S16)\n");
 					audio_defaults->sample_format = AV_SAMPLE_FMT_S16;
 				}
-				else if (check_sample_fmt(enc_audio_ctx->codec, AV_SAMPLE_FMT_S16P))
+				else if (encoder_check_audio_sample_fmt(enc_audio_ctx->codec, AV_SAMPLE_FMT_S16P))
 				{
 					fprintf(stderr, "ENCODER: changing sample format (FLTP -> S16P)\n");
 					audio_defaults->sample_format = AV_SAMPLE_FMT_S16P;
 				}
-				else if (check_sample_fmt(enc_audio_ctx->codec, AV_SAMPLE_FMT_FLT))
+				else if (encoder_check_audio_sample_fmt(enc_audio_ctx->codec, AV_SAMPLE_FMT_FLT))
 				{
 					fprintf(stderr, "ENCODER: changing sample format (FLTP -> FLT)\n");
 					audio_defaults->sample_format = AV_SAMPLE_FMT_FLT;
@@ -547,7 +570,6 @@ static encoder_audio_context_t *encoder_audio_init(
 				break;
 		}
 	}
-#endif
 
 	enc_audio_ctx->codec_context->sample_fmt = audio_defaults->sample_format;
 
