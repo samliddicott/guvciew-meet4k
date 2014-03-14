@@ -90,22 +90,22 @@ void encoder_set_verbosity(int value)
 	verbosity = value;
 }
 
-/* 
- * check that a given sample format is supported by the encoder 
+/*
+ * check that a given sample format is supported by the encoder
  * args:
  *    codec - pointer to AVCodec
  *    sample_fmt - audio sample format
  *
  * assertions:
  *    none
- * 
+ *
  * returns: 1 - sample format is supported; 0 - is not supported
  */
 static int encoder_check_audio_sample_fmt(AVCodec *codec, enum AVSampleFormat sample_fmt)
 {
 	const enum AVSampleFormat *p = codec->sample_fmts;
- 
-	while (*p != AV_SAMPLE_FMT_NONE) 
+
+	while (*p != AV_SAMPLE_FMT_NONE)
 	{
 		if (*p == sample_fmt)
 			return 1;

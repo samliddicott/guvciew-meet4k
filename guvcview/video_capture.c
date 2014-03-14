@@ -482,12 +482,18 @@ static void *encoder_loop(void *data)
 	{
 		encoder_process_next_video_buffer(encoder_ctx);
 
-		/*encode audio frames up to video timestamp or error*/
+		/*
+		 * encode audio frames up to video timestamp or error
+		 * if we are using delayed video frames only encode
+		 * up to 4 audio buffers
+		 */
 		if(encoder_ctx->enc_audio_ctx != NULL && channels > 0)
 		{
+			int loop_counter = 0;
 			int ret = 0;
 			do
 			{
+				loop_counter++;
 				ret = audio_get_next_buffer(audio_ctx, audio_buff,
 					sample_type, my_audio_mask);
 
@@ -499,7 +505,9 @@ static void *encoder_loop(void *data)
 				}
 			}
 			while(ret == 0 &&
-				encoder_ctx->enc_audio_ctx->pts <= encoder_ctx->enc_video_ctx->pts);
+				((encoder_ctx->enc_video_ctx->delayed_frames > 0 && loop_counter < 4)||
+				 (encoder_ctx->enc_video_ctx->delayed_frames <= 0 &&
+				  encoder_ctx->enc_audio_ctx->pts <= encoder_ctx->enc_video_ctx->pts)));
 		}
 
 		/*disk supervisor*/
