@@ -118,7 +118,7 @@ void audio_unlock_mutex()
  *
  * returns: error code
  */
-int audio_free_buffers()
+static int audio_free_buffers()
 {
 	int i = 0;
 
@@ -132,6 +132,55 @@ int audio_free_buffers()
 }
 
 /*
+ * alloc a single audio buffer
+ * args:
+ *    audio_ctx - pointer to audio context data
+ *
+ * asserts:
+ *    none
+ *
+ * returns: pointer to newly allocate audio buffer or NULL on error
+ *   must be freed with audio_delete_buffer
+ * data is allocated for float(32 bit) samples but can also store
+ * int16 (16 bit) samples
+ */
+audio_buff_t *audio_get_buffer(audio_context_t *audio_ctx)
+{
+	if(audio_ctx->capture_buff_size <= 0)
+	{
+		fprintf(stderr, "AUDIO: (get_buffer) invalid capture_buff_size(%i)\n",
+			audio_ctx->capture_buff_size);
+		return NULL;
+	}
+
+	audio_buff_t *audio_buff = calloc(1, sizeof(audio_buff_t));
+	audio_buff->data = calloc(audio_ctx->capture_buff_size, sizeof(sample_t));
+
+	return audio_buff;
+}
+
+/*
+ * deletes a single audio buffer
+ * args:
+ *    audio_buff - pointer to audio_buff_t data
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void audio_delete_buffer(audio_buff_t *audio_buff)
+{
+	if(!audio_buff)
+		return;
+
+	if(audio_buff->data)
+		free(audio_buff->data);
+
+	free(audio_buff);
+}
+
+/*
  * alloc audio buffers
  * args:
  *    audio_ctx - pointer to audio context data
@@ -141,7 +190,7 @@ int audio_free_buffers()
  *
  * returns: error code
  */
-int audio_init_buffers(audio_context_t *audio_ctx)
+static int audio_init_buffers(audio_context_t *audio_ctx)
 {
 	if(!audio_ctx)
 		return -1;

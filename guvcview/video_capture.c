@@ -340,6 +340,7 @@ void close_audio_context()
 
 	my_audio_ctx = NULL;
 }
+
 /*
  * encoder loop (should run in a separate thread)
  * args:
@@ -451,11 +452,10 @@ static void *encoder_loop(void *data)
 		 * alloc the buffer after audio_start
 		 * otherwise capture_buff_size may not
 		 * be correct
-		 * make big enough for float samples (32 bit) although it may
-		 * contain int16 samples (16 bit)
+		 * allocated data is big enough for float samples (32 bit)
+		 * although it may contain int16 samples (16 bit)
 		 */
-		audio_buff = calloc(1, sizeof(audio_buff_t));
-		audio_buff->data = calloc(audio_ctx->capture_buff_size, sizeof(sample_t));
+		audio_buff = audio_get_buffer(audio_ctx);
 	}
 
 	int treshold = 102400; /*100 Mbytes*/
@@ -536,6 +536,8 @@ static void *encoder_loop(void *data)
 		/* restore framerate */
 		v4l2core_set_h264_frame_rate_config(device, current_frame);
 	}
+
+	audio_delete_buffer(audio_buff);
 
 	/*clean string*/
 	free(video_filename);

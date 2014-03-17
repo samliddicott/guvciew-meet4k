@@ -300,7 +300,18 @@ int audio_start_portaudio(audio_context_t *audio_ctx)
 	assert(audio_ctx != NULL);
 
 	PaError err = paNoError;
-	PaStream *stream = NULL;
+	PaStream *stream = (PaStream *) audio_ctx->stream;
+
+	if(stream)
+	{
+		if( !(Pa_IsStreamStopped( stream )))
+		{
+			Pa_AbortStream( stream );
+			Pa_CloseStream( stream );
+			audio_ctx->stream = NULL;
+			stream = audio_ctx->stream;
+		}
+	}
 
 	PaStreamParameters inputParameters;
 
@@ -370,7 +381,54 @@ int audio_stop_portaudio(audio_context_t *audio_ctx)
 	/*assertions*/
 	assert(audio_ctx != NULL);
 
+	int ret = 0;
+	int err = paNoError;
 	audio_ctx->stream_flag = AUDIO_STRM_OFF;
+
+	PaStream *stream = (PaStream *) audio_ctx->stream;
+
+	/*stops and closes the audio stream*/
+	if(stream)
+	{
+		if(Pa_IsStreamActive( stream ) > 0)
+		{
+			printf("AUDIO: (portaudio) Aborting audio stream\n");
+			err = Pa_AbortStream( stream );
+		}
+		else
+		{
+			printf("AUDIO: (portaudio) Stoping audio stream\n");
+			err = Pa_StopStream( stream );
+		}
+
+		if( err != paNoError )
+		{
+			fprintf(stderr, "AUDIO: (portaudio) An error occured while stoping the audio stream\n" );
+			fprintf(stderr, "       Error number: %d\n", err );
+			fprintf(stderr, "       Error message: %s\n", Pa_GetErrorText( err ) );
+			ret = -1;
+		}
+
+		printf("AUDIO: Closing audio stream...\n");
+		err = Pa_CloseStream( stream );
+
+		if( err != paNoError )
+		{
+			fprintf(stderr, "AUDIO: (portaudio) An error occured while closing the audio stream\n" );
+			fprintf(stderr, "       Error number: %d\n", err );
+			fprintf(stderr, "       Error message: %s\n", Pa_GetErrorText( err ) );
+			ret = -1;
+		}
+	}
+	else
+	{
+		fprintf(stderr, "AUDIO: (portaudio) Invalid stream pointer.\n");
+		ret = -2;
+	}
+
+	audio_ctx->stream = NULL;
+
+	return ret;
 }
 
 /*

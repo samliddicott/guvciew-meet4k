@@ -143,6 +143,31 @@ audio_context_t *audio_init(int api);
 int audio_start(audio_context_t *audio_ctx);
 
 /*
+ * alloc a single audio buffer
+ * args:
+ *    audio_ctx - pointer to audio context data
+ *
+ * asserts:
+ *    none
+ *
+ * returns: pointer to newly allocate audio buffer or NULL on error
+ *   must be freed with audio_delete_buffer
+ */
+audio_buff_t *audio_get_buffer(audio_context_t *audio_ctx);
+
+/*
+ * deletes a single audio buffer
+ * args:
+ *    audio_buff - pointer to audio_buff_t data
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void audio_delete_buffer(audio_buff_t *audio_buff);
+
+/*
  * get the next used buffer from the ring buffer and apply fx
  * args:
  *   audio_ctx - pointer to audio context
