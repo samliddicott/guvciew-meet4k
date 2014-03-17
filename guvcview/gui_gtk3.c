@@ -54,6 +54,10 @@ static int status_warning_id = 0;
 static GtkWidget *CapImageButt = NULL;
 /*The video capture button*/
 static GtkWidget *CapVideoButt = NULL;
+/*group list for menu video codecs*/
+GSList *video_codec_group = NULL;
+/*group list for menu audio codecs*/
+GSList *audio_codec_group = NULL;
 
 /*
  * adds a message to the status bar
@@ -83,6 +87,66 @@ void set_status_message_gtk3(const char *message)
 GtkWidget *get_main_window()
 {
 	return main_window;
+}
+
+/*
+ * get the video codec group list
+ * args:
+ *    none
+ *
+ * asserts:
+ *    none
+ *
+ * returns: pointer to GSList of video codecs
+ */
+GSList *get_video_codec_group_list()
+{
+	return video_codec_group;
+}
+
+/*
+ * set the video codec group list
+ * args:
+ *    list - pointer to GSList
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void set_video_codec_group_list(GSList *list)
+{
+	video_codec_group = list;
+}
+
+/*
+ * get the audio codec group list
+ * args:
+ *    none
+ *
+ * asserts:
+ *    none
+ *
+ * returns: pointer to GSList of audio codecs
+ */
+GSList *get_audio_codec_group_list()
+{
+	return audio_codec_group;
+}
+
+/*
+ * set the audio codec group list
+ * args:
+ *    list - pointer to GSList
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void set_audio_codec_group_list(GSList *list)
+{
+	audio_codec_group = list;
 }
 
 /*

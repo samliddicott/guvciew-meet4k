@@ -50,6 +50,54 @@ typedef struct _audio_widgets_t
 } audio_widgets_t;
 
 /*
+ * get the video codec group list
+ * args:
+ *    none
+ *
+ * asserts:
+ *    none
+ *
+ * returns: pointer to GSList of video codecs
+ */
+GSList *get_video_codec_group_list();
+
+/*
+ * set the video codec group list
+ * args:
+ *    list - pointer to GSList
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void set_video_codec_group_list(GSList *list);
+
+/*
+ * get the audio codec group list
+ * args:
+ *    none
+ *
+ * asserts:
+ *    none
+ *
+ * returns: pointer to GSList of audio codecs
+ */
+GSList *get_audio_codec_group_list();
+
+/*
+ * set the audio codec group list
+ * args:
+ *    list - pointer to GSList
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void set_audio_codec_group_list(GSList *list);
+
+/*
  * GUI initialization
  * args:
  *   device - pointer to device data we want to attach the gui for

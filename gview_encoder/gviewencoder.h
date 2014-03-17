@@ -446,6 +446,54 @@ video_codec_t *encoder_get_video_codec_defaults(int codec_ind);
 audio_codec_t *encoder_get_audio_codec_defaults(int codec_ind);
 
 /*
+ * checks if the video codec index corresponds to VP8 (webm) codec
+ * args:
+ *    codec_ind - video codec list index
+ *
+ * asserts:
+ *    none
+ *
+ * returns: 1 true; 0 false
+ */
+int encoder_check_webm_video_codec(int codec_ind);
+
+/*
+ * get the video codec index for VP8 (webm) codec
+ * args:
+ *    none
+ *
+ * asserts:
+ *    none
+ *
+ * returns: index for VP8 codec or -1 if error
+ */
+int encoder_get_webm_video_codec_index();
+
+/*
+ * checks if the audio codec index corresponds to Vorbis (webm) codec
+ * args:
+ *    codec_ind - audio codec list index
+ *
+ * asserts:
+ *    none
+ *
+ * returns: 1 true; 0 false
+ */
+int encoder_check_webm_audio_codec(int codec_ind);
+
+/*
+ * get the audio codec index for Vorbis (webm) codec
+ * args:
+ *    none
+ *
+ * asserts:
+ *    none
+ *
+ * returns: index for Vorbis codec or -1 if error
+ */
+int encoder_get_webm_audio_codec_index();
+
+/*
  * get the mkv codec private data
  * args:
  *    codec_ind - codec list index

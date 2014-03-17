@@ -197,6 +197,7 @@ int gui_attach_gtk3_menu(v4l2_dev_t *device, GtkWidget *parent)
 			g_signal_connect (GTK_RADIO_MENU_ITEM(item), "toggled",
                 G_CALLBACK (video_codec_changed), vgroup);
 		}
+		set_video_codec_group_list(vgroup);
 
 		GtkWidget *video_codec_prop =  gtk_menu_item_new_with_label(_("Video Codec Properties"));
 		gtk_widget_show (video_codec_prop);
@@ -229,6 +230,7 @@ int gui_attach_gtk3_menu(v4l2_dev_t *device, GtkWidget *parent)
 			g_signal_connect (GTK_RADIO_MENU_ITEM(item), "toggled",
                 G_CALLBACK (audio_codec_changed), agroup);
 		}
+		set_audio_codec_group_list(agroup);
 
 		GtkWidget *audio_codec_prop =  gtk_menu_item_new_with_label(_("Audio Codec Properties"));
 		gtk_widget_show (audio_codec_prop);

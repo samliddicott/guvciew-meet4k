@@ -769,6 +769,27 @@ int encoder_set_video_mkvCodecPriv(encoder_context_t *encoder_ctx)
 }
 
 /*
+ * checks if the video codec index corresponds to VP8 (webm) codec
+ * args:
+ *    codec_ind - video codec list index
+ *
+ * asserts:
+ *    none
+ *
+ * returns: 1 true; 0 false
+ */
+int encoder_check_webm_video_codec(int codec_ind)
+{
+	int real_index = get_real_index (codec_ind);
+
+	int ret = 0;
+	if(real_index >= 0 && real_index < encoder_get_video_codec_list_size())
+		ret = (listSupCodecs[real_index].codec_id == AV_CODEC_ID_VP8) ? 1: 0;
+
+	return ret;
+}
+
+/*
  * returns the real codec array index
  * args:
  *   codec_id - codec id
@@ -803,6 +824,21 @@ int get_video_codec_index(int codec_id)
 int get_video_codec_list_index(int codec_id)
 {
 	return get_list_index(get_video_codec_index(codec_id));
+}
+
+/*
+ * get the video codec index for VP8 (webm) codec
+ * args:
+ *    none
+ *
+ * asserts:
+ *    none
+ *
+ * returns: index for VP8 codec or -1 if error
+ */
+int encoder_get_webm_video_codec_index()
+{
+	return get_video_codec_list_index(AV_CODEC_ID_VP8);
 }
 
 /*

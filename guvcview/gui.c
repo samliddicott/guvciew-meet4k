@@ -227,7 +227,7 @@ void gui_set_video_capture_button_status(int flag)
  */
 const char *get_profile_name()
 {
-	if(profile_name)
+	if(!profile_name)
 		profile_name = strdup("default.gpfl");
 
 	return profile_name;

@@ -62,8 +62,8 @@ static audio_codec_t listSupCodecs[] = //list of software supported formats
 		.mkv_codec    = "A_PCM/FLOAT/IEEE",
 		.description  = N_("PCM - uncompressed (float 32 bit)"),
 		.bit_rate     = 0,
-		.codec_id     = AV_CODEC_ID_PCM_F32LE, 
-		.codec_name   = "pcm_f32le",           
+		.codec_id     = AV_CODEC_ID_PCM_F32LE,
+		.codec_name   = "pcm_f32le",
 		.sample_format = AV_SAMPLE_FMT_FLT,
 		.profile      = FF_PROFILE_UNKNOWN,
 		.mkv_codpriv  = NULL,
@@ -349,6 +349,42 @@ audio_codec_t *encoder_get_audio_codec_defaults(int codec_ind)
 		fprintf(stderr, "ENCODER: (audio codec defaults) bad codec index (%i)\n", codec_ind);
 		return NULL;
 	}
+}
+
+/*
+ * checks if the audio codec index corresponds to Vorbis (webm) codec
+ * args:
+ *    codec_ind - audio codec list index
+ *
+ * asserts:
+ *    none
+ *
+ * returns: 1 true; 0 false
+ */
+int encoder_check_webm_audio_codec(int codec_ind)
+{
+	int real_index = get_real_index (codec_ind);
+
+	int ret = 0;
+	if(real_index >= 0 && real_index < encoder_get_audio_codec_list_size())
+		ret = (listSupCodecs[real_index].codec_id == AV_CODEC_ID_VORBIS) ? 1: 0;
+
+	return ret;
+}
+
+/*
+ * get the audio codec index for Vorbis (webm) codec
+ * args:
+ *    none
+ *
+ * asserts:
+ *    none
+ *
+ * returns: index for Vorbis codec or -1 if error
+ */
+int encoder_get_webm_audio_codec_index()
+{
+	return get_audio_codec_list_index(AV_CODEC_ID_VORBIS);
 }
 
 /*
