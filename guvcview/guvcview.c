@@ -70,7 +70,6 @@ void signal_callback_handler(int signum)
 
 int main(int argc, char *argv[])
 {
-
 	// Register signal and signal handler
 	signal(SIGINT,  signal_callback_handler);
 	signal(SIGUSR1, signal_callback_handler);
@@ -92,7 +91,6 @@ int main(int argc, char *argv[])
 	else
 		v4l2core_set_capture_method(device, IO_MMAP);
 
-
 	/*select render API*/
 	int render = RENDER_SDL1;
 
@@ -101,7 +99,6 @@ int main(int argc, char *argv[])
 	else if(strcasecmp(my_options->render, "sdl1") == 0)
 		render = RENDER_SDL1;
 
-
 	/*select gui API*/
 	int gui = GUI_GTK3;
 
@@ -109,7 +106,6 @@ int main(int argc, char *argv[])
 		gui = GUI_NONE;
 	else if(strcasecmp(my_options->render, "gtk3") == 0)
 		gui = GUI_GTK3;
-
 
 	/*select audio API*/
 	int audio = AUDIO_PORTAUDIO;
@@ -153,7 +149,6 @@ int main(int argc, char *argv[])
 
 		if(ret)
 			fprintf(stderr, "GUVCVIEW: Video thread creation failed\n");
-
 	}
 
 	gui_attach(device, gui, 800, 600, my_options->control_panel);
