@@ -152,7 +152,7 @@ recordCallback (const void *inputBuffer, void *outputBuffer,
 		/*determine the number of samples dropped*/
 		if(pdata->a_last_ts <= 0)
 			pdata->a_last_ts = pdata->snd_begintime;
-			
+
 		int64_t d_ts = ts - pdata->a_last_ts;
 		int n_samples = (d_ts / frame_length) * channels;
 		record_silence (n_samples, userData);
@@ -161,7 +161,7 @@ recordCallback (const void *inputBuffer, void *outputBuffer,
 		g_print( "AUDIO: portaudio buffer underflow\n" );
 
 	int res = record_sound ( inputBuffer, numSamples, ts, userData );
-	
+
 	pdata->a_last_ts = ts + (framesPerBuffer * frame_length);
 
 	if(res < 0 )
@@ -175,7 +175,7 @@ int
 port_init_audio(struct paRecordData* pdata)
 {
 	PaError err = paNoError;
-	PaStream *stream = NULL;
+	PaStream *stream = (PaStream *) pdata->stream;
 
 	PaStreamParameters inputParameters;
 
@@ -183,9 +183,10 @@ port_init_audio(struct paRecordData* pdata)
 	{
 		if( !(Pa_IsStreamStopped( stream )))
 		{
-			Pa_AbortStream( pdata->stream );
-			Pa_CloseStream( pdata->stream );
+			Pa_AbortStream( stream );
+			Pa_CloseStream( stream );
 			pdata->stream = NULL;
+			stream = NULL;
 		}
 	}
 
@@ -231,6 +232,7 @@ error:
 	pdata->streaming=FALSE;
 
 	if(stream) Pa_AbortStream( stream );
+	pdata->stream = NULL;
 
 	/*lavc is allways checked and cleaned when finishing worker thread*/
 	return(-1);

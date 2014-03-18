@@ -73,6 +73,7 @@
 	#define AV_CODEC_ID_THEORA CODEC_ID_THEORA
 
 	#define AV_CODEC_ID_PCM_S16LE CODEC_ID_PCM_S16LE
+	#define AV_CODEC_ID_PCM_F32LE CODEC_ID_PCM_F32LE
 	#define AV_CODEC_ID_MP2 CODEC_ID_MP2
 	#define AV_CODEC_ID_MP3 CODEC_ID_MP3
 	#define AV_CODEC_ID_AC3 CODEC_ID_AC3
@@ -139,7 +140,7 @@ struct h264_decoder_context
 	int width;
 	int height;
 	int pic_size;
-	
+
 };
 
 gboolean has_h264_decoder();

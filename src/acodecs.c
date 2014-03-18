@@ -53,14 +53,14 @@ static acodecs_data listSupACodecs[] = //list of software supported formats
 	{
 		.avcodec      = FALSE,
 		.valid        = TRUE,
-		.bits         = 16,
-		.avi_4cc      = WAVE_FORMAT_PCM,
-		.mkv_codec    = "A_PCM/INT/LIT",
-		.description  = N_("PCM - uncompressed (16 bit)"),
+		.bits         = 32,
+		.avi_4cc      = WAVE_FORMAT_IEEE_FLOAT,
+		.mkv_codec    = "A_PCM/FLOAT/IEEE",
+		.description  = N_("PCM - uncompressed (float 32 bit)"),
 		.bit_rate     = 0,
-		.codec_id     = AV_CODEC_ID_PCM_S16LE,
-		.codec_name   = "pcm_s16le",
-		.sample_format = AV_SAMPLE_FMT_S16,
+		.codec_id     = AV_CODEC_ID_PCM_F32LE,
+		.codec_name   = "pcm_f32le",
+		.sample_format = AV_SAMPLE_FMT_FLT,
 		.profile      = FF_PROFILE_UNKNOWN,
 		.mkv_codpriv  = NULL,
 		.codpriv_size = 0,
@@ -94,7 +94,11 @@ static acodecs_data listSupACodecs[] = //list of software supported formats
 		.bit_rate     = 160000,
 		.codec_id     = AV_CODEC_ID_MP3,
 		.codec_name   = "mp3",
+#if LIBAVCODEC_VER_AT_LEAST(54,31)
+		.sample_format = AV_SAMPLE_FMT_FLTP,
+#else
 		.sample_format = AV_SAMPLE_FMT_S16,
+#endif
 		.profile      = FF_PROFILE_UNKNOWN,
 		.mkv_codpriv  = NULL,
 		.codpriv_size = 0,
@@ -111,7 +115,11 @@ static acodecs_data listSupACodecs[] = //list of software supported formats
 		.bit_rate     = 160000,
 		.codec_id     = AV_CODEC_ID_AC3,
 		.codec_name   = "ac3",
+#if LIBAVCODEC_VER_AT_LEAST(54,31)
+		.sample_format = AV_SAMPLE_FMT_FLTP,
+#else
 		.sample_format = AV_SAMPLE_FMT_FLT,
+#endif
 		.profile      = FF_PROFILE_UNKNOWN,
 		.mkv_codpriv  = NULL,
 		.codpriv_size = 0,
@@ -128,7 +136,11 @@ static acodecs_data listSupACodecs[] = //list of software supported formats
 		.bit_rate     = 64000,
 		.codec_id     = AV_CODEC_ID_AAC,
 		.codec_name   = "aac",
+#if LIBAVCODEC_VER_AT_LEAST(54,31)
+		.sample_format = AV_SAMPLE_FMT_FLTP,
+#else
 		.sample_format = AV_SAMPLE_FMT_S16,
+#endif
 		.profile      = FF_PROFILE_AAC_LOW,
 		.mkv_codpriv  = AAC_ESDS,
 		.codpriv_size = 2,
@@ -145,7 +157,11 @@ static acodecs_data listSupACodecs[] = //list of software supported formats
 		.bit_rate     = 64000,
 		.codec_id     = AV_CODEC_ID_VORBIS,
 		.codec_name   = "libvorbis",
+#if LIBAVCODEC_VER_AT_LEAST(54,31)
+		.sample_format = AV_SAMPLE_FMT_FLTP,
+#else
 		.sample_format = AV_SAMPLE_FMT_S16,
+#endif
 		.profile      = FF_PROFILE_UNKNOWN,
 		.mkv_codpriv  =  NULL,
 		.codpriv_size =  0,
@@ -550,13 +566,38 @@ int compress_audio_frame(void *data)
 		/*write audio chunk*/
 		case PA_FOURCC:
 		{
-			SampleConverter(pdata); /*convert from float sample to 16 bit PCM*/
-			ret = write_audio_data (all_data, (BYTE *) pdata->pcm_sndBuff, pdata->aud_numSamples*2, pdata->audio_buff[pdata->br_ind][pdata->r_ind].time_stamp);
+			int size = 0;
+			BYTE *audio_data = NULL;
+
+			int sample_fmt = AV_SAMPLE_FMT_FLT;
+
+			if(pdata->lavc_data)
+				sample_fmt = pdata->lavc_data->codec_context->sample_fmt;
+
+			switch(sample_fmt)
+			{
+				case AV_SAMPLE_FMT_S16:
+				case AV_SAMPLE_FMT_S16P:
+					size = pdata->aud_numSamples * 2; /*16 bit*/
+					audio_data = (BYTE *) pdata->pcm_sndBuff;
+					break;
+
+				default:
+				case AV_SAMPLE_FMT_FLT:
+				case AV_SAMPLE_FMT_FLTP:
+					size = pdata->aud_numSamples * 4; /*32 bit*/
+					audio_data = (BYTE *) pdata->float_sndBuff;
+					break;
+			}
+
+			SampleConverter(pdata); /*convert from float sample to codec format*/
+			ret = write_audio_data (all_data, audio_data, size, pdata->audio_buff[pdata->br_ind][pdata->r_ind].time_stamp);
 			break;
 		}
+
 		default:
 		{
-			SampleConverter(pdata);
+			SampleConverter(pdata); /*convert from float sample to codec format*/
 			ret = encode_lavc_audio (all_data);
 			break;
 		}

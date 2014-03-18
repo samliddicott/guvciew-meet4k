@@ -39,9 +39,6 @@
 
 #define NUM_CHANNELS    (0) /* 0-device default 1-mono 2-stereo */
 
-#define PA_SAMPLE_TYPE     paFloat32
-#define PA_FOURCC          WAVE_FORMAT_PCM //use PCM 16 bits converted from float
-
 int
 portaudio_list_snd_devices(struct GLOBAL *global);
 

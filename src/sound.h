@@ -42,7 +42,7 @@
 #define NUM_CHANNELS    (0) /* 0-device default 1-mono 2-stereo */
 
 #define PA_SAMPLE_TYPE     paFloat32
-#define PA_FOURCC          WAVE_FORMAT_PCM //use PCM 16 bits converted from float
+#define PA_FOURCC          WAVE_FORMAT_IEEE_FLOAT //use float PCM (32 bit)
 #define PULSE_SAMPLE_TYPE  PA_SAMPLE_FLOAT32LE //for PCM -> PA_SAMPLE_S16LE
 
 

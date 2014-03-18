@@ -522,28 +522,84 @@ static gint16 clip_int16 (float in)
 
 void SampleConverter (struct paRecordData* pdata)
 {
-	if(pdata->lavc_data && pdata->lavc_data->codec_context->sample_fmt == AV_SAMPLE_FMT_FLT)
+	int sample_fmt = AV_SAMPLE_FMT_S16;
+
+	if(pdata->lavc_data)
+		sample_fmt = pdata->lavc_data->codec_context->sample_fmt;
+
+	switch(sample_fmt)
 	{
-		if(!(pdata->float_sndBuff))
-			pdata->float_sndBuff = g_new0(float, pdata->aud_numSamples);
-
-		int samp = 0;
-
-		for(samp=0; samp < pdata->aud_numSamples; samp++)
+		case AV_SAMPLE_FMT_FLT:
 		{
-			pdata->float_sndBuff[samp] = pdata->audio_buff[pdata->br_ind][pdata->r_ind].frame[samp];
+			if(!(pdata->float_sndBuff))
+				pdata->float_sndBuff = g_new0(float, pdata->aud_numSamples);
+
+			int samp = 0;
+
+			for(samp=0; samp < pdata->aud_numSamples; samp++)
+				pdata->float_sndBuff[samp] = pdata->audio_buff[pdata->br_ind][pdata->r_ind].frame[samp];
+
+			break;
 		}
-	}
-	else
-	{
-		if (!(pdata->pcm_sndBuff))
-			pdata->pcm_sndBuff = g_new0(gint16, pdata->aud_numSamples);
 
-		int samp = 0;
-
-		for(samp=0; samp < pdata->aud_numSamples; samp++)
+		case AV_SAMPLE_FMT_FLTP:
 		{
-			pdata->pcm_sndBuff[samp] = clip_int16(pdata->audio_buff[pdata->br_ind][pdata->r_ind].frame[samp] * 32767.0); //* 32768 + 385;
+			if(!(pdata->float_sndBuff))
+				pdata->float_sndBuff = g_new0(float, pdata->aud_numSamples);
+
+			float *my_data[pdata->channels];
+			int j = 0;
+			int samp = 0;
+			float *buff_p = (float *) pdata->audio_buff[pdata->br_ind][pdata->r_ind].frame;
+
+			for(j = 0; j < pdata->channels; ++j)
+				my_data[j] = (float *) (pdata->float_sndBuff +
+					(j * pdata->aud_numSamples/pdata->channels));
+
+			for(samp = 0; samp < pdata->aud_numSamples/pdata->channels; ++samp)
+				for(j = 0; j < pdata->channels; ++j)
+				{
+					my_data[j][samp] = *buff_p++;
+				}
+
+			break;
+		}
+
+		case AV_SAMPLE_FMT_S16P:
+		{
+			if (!(pdata->pcm_sndBuff))
+				pdata->pcm_sndBuff = g_new0(gint16, pdata->aud_numSamples);
+
+			gint16 *my_data[pdata->channels];
+			int j = 0;
+			int samp = 0;
+			float *buff_p = (float *) pdata->audio_buff[pdata->br_ind][pdata->r_ind].frame;
+
+			for(j = 0; j < pdata->channels; ++j)
+				my_data[j] = (gint16 *) (pdata->pcm_sndBuff +
+					(j * pdata->aud_numSamples/pdata->channels));
+
+			for(samp = 0; samp < pdata->aud_numSamples/pdata->channels; ++samp)
+				for(j = 0; j < pdata->channels; ++j)
+				{
+					my_data[j][samp] = clip_int16( (*buff_p++) * 32767.0);
+				}
+
+			break;
+		}
+
+		default:
+		case AV_SAMPLE_FMT_S16:
+		{
+			if (!(pdata->pcm_sndBuff))
+				pdata->pcm_sndBuff = g_new0(gint16, pdata->aud_numSamples);
+
+			int samp = 0;
+
+			for(samp=0; samp < pdata->aud_numSamples; samp++)
+				pdata->pcm_sndBuff[samp] = clip_int16(pdata->audio_buff[pdata->br_ind][pdata->r_ind].frame[samp] * 32767.0); //* 32768 + 385;
+
+			break;
 		}
 	}
 }
