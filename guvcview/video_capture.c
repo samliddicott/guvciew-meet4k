@@ -342,6 +342,76 @@ void close_audio_context()
 }
 
 /*
+ * audio processing loop (should run in a separate thread)
+ * args:
+ *    data - pointer to user data
+ *
+ * asserts:
+ *   none
+ *
+ * returns: pointer to return code
+ */
+static void *audio_processing_loop(void *data)
+{
+	encoder_context_t *encoder_ctx = (encoder_context_t *) data;
+
+	audio_context_t *audio_ctx = get_audio_context();
+
+	audio_buff_t *audio_buff = NULL;
+
+	/*start audio capture*/
+	int frame_size = encoder_ctx->enc_audio_ctx->codec_context->frame_size;
+
+	audio_ctx->capture_buff_size = frame_size * audio_ctx->channels;
+	audio_start(audio_ctx);
+	/*
+	 * alloc the buffer after audio_start
+	 * otherwise capture_buff_size may not
+	 * be correct
+	 * allocated data is big enough for float samples (32 bit)
+	 * although it may contain int16 samples (16 bit)
+	 */
+	audio_buff = audio_get_buffer(audio_ctx);
+
+	int sample_type = SAMPLE_TYPE_INT16;
+	switch(encoder_ctx->enc_audio_ctx->codec_context->sample_fmt)
+	{
+		case AV_SAMPLE_FMT_FLTP:
+			sample_type = SAMPLE_TYPE_FLOATP;
+			break;
+		case AV_SAMPLE_FMT_FLT:
+			sample_type = SAMPLE_TYPE_FLOAT;
+			break;
+		case AV_SAMPLE_FMT_S16P:
+			sample_type = SAMPLE_TYPE_INT16P;
+			break;
+		default:
+			sample_type = SAMPLE_TYPE_INT16;
+			break;
+	}
+
+	int ret = 0;
+
+	while(video_capture_get_save_video())
+	{
+		ret = audio_get_next_buffer(audio_ctx, audio_buff,
+				sample_type, my_audio_mask);
+
+		if(ret == 0)
+		{
+			encoder_ctx->enc_audio_ctx->pts = audio_buff->timestamp;
+
+			encoder_process_audio_buffer(encoder_ctx, audio_buff->data);
+		}
+	}
+
+	audio_stop(audio_ctx);
+	audio_delete_buffer(audio_buff);
+
+	return ((void *) 0);
+}
+
+/*
  * encoder loop (should run in a separate thread)
  * args:
  *    data - pointer to user data
@@ -357,7 +427,7 @@ static void *encoder_loop(void *data)
 
 	audio_context_t *audio_ctx = get_audio_context();
 
-	audio_buff_t *audio_buff = NULL;
+	__THREAD_TYPE encoder_audio_thread;
 
 	int channels = 0;
 	int samprate = 0;
@@ -415,7 +485,6 @@ static void *encoder_loop(void *data)
 		current_frame = v4l2core_get_h264_frame_rate_config(device);
 	}
 
-
 	char *video_filename = NULL;
 	/*get_video_[name|path] always return a non NULL value*/
 	char *name = strdup(get_video_name());
@@ -441,74 +510,22 @@ static void *encoder_loop(void *data)
 	/*start video capture*/
 	video_capture_save_video(1);
 
-	/*start audio capture*/
-	if(encoder_ctx->enc_audio_ctx != NULL && channels > 0)
-	{
-		int frame_size = encoder_ctx->enc_audio_ctx->codec_context->frame_size;
-
-		audio_ctx->capture_buff_size = frame_size * channels;
-		audio_start(audio_ctx);
-		/*
-		 * alloc the buffer after audio_start
-		 * otherwise capture_buff_size may not
-		 * be correct
-		 * allocated data is big enough for float samples (32 bit)
-		 * although it may contain int16 samples (16 bit)
-		 */
-		audio_buff = audio_get_buffer(audio_ctx);
-	}
-
 	int treshold = 102400; /*100 Mbytes*/
 	int64_t last_check_pts = 0; /*last pts when disk supervisor called*/
 
-	int sample_type = SAMPLE_TYPE_INT16;
-	switch(encoder_ctx->enc_audio_ctx->codec_context->sample_fmt)
+	/*start audio processing thread*/
+	if(encoder_ctx->enc_audio_ctx != NULL && audio_ctx->channels > 0)
 	{
-		case AV_SAMPLE_FMT_FLTP:
-			sample_type = SAMPLE_TYPE_FLOATP;
-			break;
-		case AV_SAMPLE_FMT_FLT:
-			sample_type = SAMPLE_TYPE_FLOAT;
-			break;
-		case AV_SAMPLE_FMT_S16P:
-			sample_type = SAMPLE_TYPE_INT16P;
-			break;
-		default:
-			sample_type = SAMPLE_TYPE_INT16;
-			break;
+		if(debug_level > 1)
+			printf("GUVCVIEW: starting encoder audio thread\n");
+		int ret = __THREAD_CREATE(&encoder_audio_thread, audio_processing_loop, (void *) encoder_ctx);
+		if(ret)
+			fprintf(stderr, "GUVCVIEW: encoder audio thread creation failed (%i)\n", ret);
 	}
 
 	while(video_capture_get_save_video())
 	{
 		encoder_process_next_video_buffer(encoder_ctx);
-
-		/*
-		 * encode audio frames up to video timestamp or error
-		 * if we are using delayed video frames only encode
-		 * up to 4 audio buffers
-		 */
-		if(encoder_ctx->enc_audio_ctx != NULL && channels > 0)
-		{
-			int loop_counter = 0;
-			int ret = 0;
-			do
-			{
-				loop_counter++;
-				ret = audio_get_next_buffer(audio_ctx, audio_buff,
-					sample_type, my_audio_mask);
-
-				if(ret == 0)
-				{
-					encoder_ctx->enc_audio_ctx->pts = audio_buff->timestamp;
-
-					encoder_process_audio_buffer(encoder_ctx, audio_buff->data);
-				}
-			}
-			while(ret == 0 &&
-				((encoder_ctx->enc_video_ctx->delayed_frames > 0 && loop_counter < 4)||
-				 (encoder_ctx->enc_video_ctx->delayed_frames <= 0 &&
-				  encoder_ctx->enc_audio_ctx->pts <= encoder_ctx->enc_video_ctx->pts)));
-		}
 
 		/*disk supervisor*/
 		if(encoder_ctx->enc_video_ctx->pts - last_check_pts > 2 * NSEC_PER_SEC)
@@ -523,9 +540,13 @@ static void *encoder_loop(void *data)
 		}
 	}
 
-	/*stop audio capture*/
-	if(encoder_ctx->enc_audio_ctx != NULL && channels > 0)
-		audio_stop(audio_ctx);
+	/*make sure the audio processing thread has stopped*/
+	if(encoder_ctx->enc_audio_ctx != NULL && audio_ctx->channels > 0)
+	{
+		if(debug_level > 1)
+			printf("GUVCVIEW: join encoder audio thread\n");
+		__THREAD_JOIN(encoder_audio_thread);
+	}
 
 	encoder_muxer_close(encoder_ctx);
 
@@ -536,8 +557,6 @@ static void *encoder_loop(void *data)
 		/* restore framerate */
 		v4l2core_set_h264_frame_rate_config(device, current_frame);
 	}
-
-	audio_delete_buffer(audio_buff);
 
 	/*clean string*/
 	free(video_filename);
