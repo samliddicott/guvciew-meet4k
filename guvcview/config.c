@@ -36,6 +36,8 @@
 
 #define MAXLINE 100 /*100 char lines max*/
 
+extern int debug_level;
+
 static config_t my_config =
 {
 	.width = 640,
@@ -155,7 +157,11 @@ int config_load(const char *filename)
 		/*skip empty or commented lines */
 		int size = strlen(bufp);
 		if(size < 1 || *bufp == '#')
+		{
+			if(debug_level > 1)
+				printf("GUVCVIEW: (config) empty or commented line (%i)\n", line);
 			continue;
+		}
 
 		char *token = NULL;
 		char *value = NULL;
@@ -200,18 +206,19 @@ int config_load(const char *filename)
 			strncpy(my_config.gui, value, 4);
 		else if(strcmp(token, "render") == 0)
 			strncpy(my_config.render, value, 4);
+		else
+			fprintf(stderr, "GUVCVIEW: (config) skiping invalid entry at line %i ('%s', '%s')\n", line, token, value);
 
 
 		if(token)
 			free(token);
 		if(value)
 			free(value);
-
 	}
 
 	if(errno)
 	{
-		fprintf(stderr, "GUVCVIEW: couldn't read line %i of config file: %s", line, strerror(errno));
+		fprintf(stderr, "GUVCVIEW: couldn't read line %i of config file: %s\n", line, strerror(errno));
 		fclose(fp);
 		return -1;
 	}
