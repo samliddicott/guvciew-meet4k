@@ -8,6 +8,7 @@ guvcview_SOURCES = guvcview.c \
 				   video_capture.c \
 				   core_io.c \
 				   options.c \
+				   config.c \
 				   gui.c \
 				   gui_gtk3.c \
 				   gui_gtk3_menu.c \

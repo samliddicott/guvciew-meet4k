@@ -39,6 +39,7 @@
 #include "gview.h"
 #include "video_capture.h"
 #include "options.h"
+#include "config.h"
 #include "core_io.h"
 #include "gui.h"
 
@@ -581,6 +582,7 @@ void *capture_loop(void *data)
 	capture_loop_data_t *cl_data = (capture_loop_data_t *) data;
 	v4l2_dev_t *device = (v4l2_dev_t *) cl_data->device;
 	options_t *my_options = (options_t *) cl_data->options;
+	config_t *my_config = (config_t *) cl_data->config;
 
 	uint64_t my_last_photo_time = 0; /*timer count*/
 	int my_photo_npics = 0;/*no npics*/
@@ -591,12 +593,12 @@ void *capture_loop(void *data)
 	/*reset quit flag*/
 	quit = 0;
 
-	int format = v4l2core_fourcc_2_v4l2_pixelformat(my_options->format);
+	int format = v4l2core_fourcc_2_v4l2_pixelformat(my_config->format);
 
 	/*prepare format*/
 	v4l2core_prepare_new_format(device, format);
 	/*prepare resolution*/
-	v4l2core_prepare_new_resolution(device, my_options->width, my_options->height);
+	v4l2core_prepare_new_resolution(device, my_config->width, my_config->height);
 	/*try to set the video stream format on the device*/
 	int ret = v4l2core_update_current_format(device);
 

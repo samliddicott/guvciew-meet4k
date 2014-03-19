@@ -29,6 +29,7 @@
 typedef struct _capture_loop_data_t
 {
 	void *options;
+	void *config;
 	void *device;
 } capture_loop_data_t;
 

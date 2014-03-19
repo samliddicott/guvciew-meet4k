@@ -23,6 +23,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <signal.h>
+#include <sys/stat.h>
 
 #include "gview.h"
 #include "gviewv4l2core.h"
@@ -33,7 +34,9 @@
 #include "../config.h"
 #include "video_capture.h"
 #include "options.h"
+#include "config.h"
 #include "gui.h"
+#include "core_io.h"
 
 int debug_level = 0;
 
@@ -75,10 +78,37 @@ int main(int argc, char *argv[])
 	signal(SIGUSR1, signal_callback_handler);
 	signal(SIGUSR2, signal_callback_handler);
 
+	/*parse command line options*/
 	if(options_parse(argc, argv))
 		return 0;
 
+	/*get command line options*/
 	options_t *my_options = options_get();
+
+	char *config_path = smart_cat(getenv("HOME"), '/', ".config/guvcview2");
+	mkdir(config_path, 0777);
+
+	char *device_name = get_file_basename(my_options->device);
+
+	char *config_file = smart_cat(config_path, '/', device_name);
+
+	/*clean strings*/
+	if(config_path)
+		free(config_path);
+	if(device_name)
+		free(device_name);
+
+	/*load config data*/
+	config_load(config_file);
+
+	/*get config data*/
+	config_t *my_config = config_get();
+
+	/*check for resolution options*/
+	if(my_options->width > 0)
+		my_config->width = my_options->width;
+	if(my_options->height > 0)
+		my_config->height = my_options->height;
 
 	debug_level = my_options->verbosity;
 	v4l2core_set_verbosity(debug_level);
@@ -86,7 +116,10 @@ int main(int argc, char *argv[])
 	v4l2_dev_t *device = v4l2core_init_dev(my_options->device);
 
 	/*select capture method*/
-	if(strcasecmp(my_options->capture, "read") == 0)
+	if(strlen(my_options->capture) > 3)
+		strncpy(my_config->capture, my_options->capture, 4);
+
+	if(strcasecmp(my_config->capture, "read") == 0)
 		v4l2core_set_capture_method(device, IO_READ);
 	else
 		v4l2core_set_capture_method(device, IO_MMAP);
@@ -94,28 +127,37 @@ int main(int argc, char *argv[])
 	/*select render API*/
 	int render = RENDER_SDL1;
 
-	if(strcasecmp(my_options->render, "none") == 0)
+	if(strlen(my_options->render) > 3)
+		strncpy(my_config->render, my_options->render, 4);
+
+	if(strcasecmp(my_config->render, "none") == 0)
 		render = RENDER_NONE;
-	else if(strcasecmp(my_options->render, "sdl1") == 0)
+	else if(strcasecmp(my_config->render, "sdl1") == 0)
 		render = RENDER_SDL1;
 
 	/*select gui API*/
 	int gui = GUI_GTK3;
 
-	if(strcasecmp(my_options->gui, "none") == 0)
+	if(strlen(my_options->gui) > 3)
+		strncpy(my_config->gui, my_options->gui, 4);
+
+	if(strcasecmp(my_config->gui, "none") == 0)
 		gui = GUI_NONE;
-	else if(strcasecmp(my_options->render, "gtk3") == 0)
+	else if(strcasecmp(my_config->gui, "gtk3") == 0)
 		gui = GUI_GTK3;
 
 	/*select audio API*/
 	int audio = AUDIO_PORTAUDIO;
 
-	if(strcasecmp(my_options->audio, "none") == 0)
+	if(strlen(my_options->audio) > 3)
+		strncpy(my_config->audio, my_options->audio, 4);
+
+	if(strcasecmp(my_config->audio, "none") == 0)
 		audio = AUDIO_NONE;
-	else if(strcasecmp(my_options->audio, "port") == 0)
+	else if(strcasecmp(my_config->audio, "port") == 0)
 		audio = AUDIO_PORTAUDIO;
 #if HAS_PULSEAUDIO
-	else if(strcasecmp(my_options->audio, "pulse") == 0)
+	else if(strcasecmp(my_config->audio, "pulse") == 0)
 		audio = AUDIO_PULSE;
 #endif
 
@@ -143,6 +185,7 @@ int main(int argc, char *argv[])
 	{
 		capture_loop_data_t cl_data;
 		cl_data.options = (void *) my_options;
+		cl_data.config = (void *) my_config;
 		cl_data.device = (void *) device;
 
 		int ret = __THREAD_CREATE(&capture_thread, capture_loop, (void *) &cl_data);
@@ -164,6 +207,12 @@ int main(int argc, char *argv[])
 
 	if(device)
 		v4l2core_close_dev(device);
+
+    /*save config before cleaning the options*/
+	config_save(config_file);
+
+	if(config_file)
+		free(config_file);
 
 	options_clean();
 

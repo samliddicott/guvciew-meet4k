@@ -23,6 +23,30 @@
 #define CORE_IO_H
 
 /*
+ * trim leading white spaces from source string
+ * args:
+ *    src - source string
+ *
+ * asserts:
+ *    none
+ *
+ * returns: error code
+ */
+int trim_leading_wspaces(char *src);
+
+/*
+ * trim trailing white spaces from source string
+ * args:
+ *    src - source string
+ *
+ * asserts:
+ *    none
+ *
+ * returns: error code
+ */
+int trim_trailing_wspaces(char *src);
+
+/*
  * gets the number of chars to represent n
  * args:
  *    n - uint64_t number to represent

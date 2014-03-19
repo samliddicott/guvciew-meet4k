@@ -33,6 +33,64 @@
 extern int debug_level;
 
 /*
+ * trim leading white spaces from source string
+ * args:
+ *    src - source string
+ *
+ * asserts:
+ *    none
+ *
+ * returns: error code
+ */
+int trim_leading_wspaces(char *src)
+{
+	if(src == NULL || strlen(src) < 1)
+		return -1;
+
+	char *srcp = src;
+
+	while(isspace(*srcp))
+		srcp++;
+
+	/*move string chars*/
+	if(srcp != src)
+	{
+		char *tmp = strdup(srcp);
+		strcpy(src, tmp);
+		free(tmp);
+	}
+
+	return 0;
+}
+
+/*
+ * trim trailing white spaces from source string
+ * args:
+ *    src - source string
+ *
+ * asserts:
+ *    none
+ *
+ * returns: error code
+ */
+int trim_trailing_wspaces(char *src)
+{
+	if(src == NULL || strlen(src) < 1)
+		return -1;
+
+	/*move to end of string*/
+	char *srcp = src + strlen(src) - 1;
+
+	while(isspace(*srcp) && srcp > src)
+		srcp--;
+
+	/*end string*/
+	*srcp = '/0';
+
+	return 0;
+}
+
+/*
  * gets the number of chars to represent n
  * args:
  *    n - uint64_t number to represent
