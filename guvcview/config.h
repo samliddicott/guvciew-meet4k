@@ -22,6 +22,8 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+#include "options.h"
+
 typedef struct _config_t
 {
 	int  width;      /*width*/
@@ -68,5 +70,17 @@ int config_save(const char *filename);
  * returns: error code
  */
 int config_load(const char *filename);
+
+/*
+ * update config data with options data
+ * args:
+ *    my_options - pointer to options data
+ * 
+ * asserts:
+ *    none
+ * 
+ * returns: none
+ */ 
+void config_update(options_t *my_options);
 
 #endif

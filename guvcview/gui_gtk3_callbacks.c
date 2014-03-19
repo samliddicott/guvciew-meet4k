@@ -42,6 +42,7 @@
 #include "gui.h"
 #include "gui_gtk3.h"
 #include "core_io.h"
+#include "config.h"
 
 extern int debug_level;
 
@@ -1294,8 +1295,14 @@ void resolution_changed (GtkComboBox *wgtResolution, void *data)
 
 	/*change resolution (try new format and reset render)*/
 	v4l2core_prepare_new_resolution(device, width, height);
-
+	
 	request_format_update();
+	
+	/*update the config data*/
+	config_t *my_config = config_get();
+	
+	my_config->width = width;
+	my_config->height= height;
 }
 
 /*
@@ -1620,7 +1627,22 @@ void audio_api_changed(GtkComboBox *combo, void *data)
 
 	/*update the audio context for the new api*/
 	audio_context_t *audio_ctx = create_audio_context(api);
-
+	/*update the config audio entry*/
+	config_t *my_config = config_get();
+	switch(api)
+	{
+		case AUDIO_NONE:
+			strncpy(my_config->audio, "none", 5);
+			break;
+		case AUDIO_PULSE:
+			strncpy(my_config->audio, "pulse", 5);
+			break;
+		default:
+			strncpy(my_config->audio, "port", 5);
+			break;
+	}
+	
+	
 	if(api == AUDIO_NONE || audio_ctx == NULL)
 	{
 		gtk_widget_set_sensitive(my_audio_widgets->device, FALSE);

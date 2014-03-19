@@ -30,7 +30,6 @@
 #include "gview.h"
 #include "core_io.h"
 #include "gui.h"
-#include "options.h"
 #include "config.h"
 #include "../config.h"
 
@@ -225,4 +224,40 @@ int config_load(const char *filename)
 
 	fclose(fp);
 	return 0;
+}
+
+/*
+ * update config data with options data
+ * args:
+ *    my_options - pointer to options data
+ * 
+ * asserts:
+ *    none
+ * 
+ * returns: none
+ */ 
+void config_update(options_t *my_options)
+{
+	/*check for resolution options*/
+	if(my_options->width > 0)
+		my_config.width = my_options->width;
+	if(my_options->height > 0)
+		my_config.height = my_options->height;
+	
+	/*capture method*/
+	if(strlen(my_options->capture) > 3)
+		strncpy(my_config.capture, my_options->capture, 4);
+	
+	/*render API*/
+	if(strlen(my_options->render) > 3)
+		strncpy(my_config.render, my_options->render, 4);
+	
+	/*gui API*/
+	if(strlen(my_options->gui) > 3)
+		strncpy(my_config.gui, my_options->gui, 4);
+	
+	/*audio API*/	
+	if(strlen(my_options->audio) > 3)
+		strncpy(my_config.audio, my_options->audio, 5);
+	
 }

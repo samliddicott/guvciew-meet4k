@@ -101,14 +101,11 @@ int main(int argc, char *argv[])
 	/*load config data*/
 	config_load(config_file);
 
+	/*update config with options*/
+	config_update(my_options);
+	
 	/*get config data*/
 	config_t *my_config = config_get();
-
-	/*check for resolution options*/
-	if(my_options->width > 0)
-		my_config->width = my_options->width;
-	if(my_options->height > 0)
-		my_config->height = my_options->height;
 
 	debug_level = my_options->verbosity;
 	v4l2core_set_verbosity(debug_level);
@@ -116,9 +113,6 @@ int main(int argc, char *argv[])
 	v4l2_dev_t *device = v4l2core_init_dev(my_options->device);
 
 	/*select capture method*/
-	if(strlen(my_options->capture) > 3)
-		strncpy(my_config->capture, my_options->capture, 4);
-
 	if(strcasecmp(my_config->capture, "read") == 0)
 		v4l2core_set_capture_method(device, IO_READ);
 	else
@@ -126,9 +120,6 @@ int main(int argc, char *argv[])
 
 	/*select render API*/
 	int render = RENDER_SDL1;
-
-	if(strlen(my_options->render) > 3)
-		strncpy(my_config->render, my_options->render, 4);
 
 	if(strcasecmp(my_config->render, "none") == 0)
 		render = RENDER_NONE;
@@ -138,9 +129,6 @@ int main(int argc, char *argv[])
 	/*select gui API*/
 	int gui = GUI_GTK3;
 
-	if(strlen(my_options->gui) > 3)
-		strncpy(my_config->gui, my_options->gui, 4);
-
 	if(strcasecmp(my_config->gui, "none") == 0)
 		gui = GUI_NONE;
 	else if(strcasecmp(my_config->gui, "gtk3") == 0)
@@ -148,9 +136,6 @@ int main(int argc, char *argv[])
 
 	/*select audio API*/
 	int audio = AUDIO_PORTAUDIO;
-
-	if(strlen(my_options->audio) > 3)
-		strncpy(my_config->audio, my_options->audio, 5);
 
 	if(strcasecmp(my_config->audio, "none") == 0)
 		audio = AUDIO_NONE;
