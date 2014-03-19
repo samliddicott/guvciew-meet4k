@@ -80,7 +80,7 @@ int trim_trailing_wspaces(char *src)
 		return -1;
 
 	/*move to end of string*/
-	char *srcp = src + strlen(src) - 1;
+	char *srcp = src + strlen(src);
 
 	while(isspace(*srcp) && srcp > src)
 		srcp--;
