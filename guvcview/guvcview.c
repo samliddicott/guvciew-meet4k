@@ -150,7 +150,7 @@ int main(int argc, char *argv[])
 	int audio = AUDIO_PORTAUDIO;
 
 	if(strlen(my_options->audio) > 3)
-		strncpy(my_config->audio, my_options->audio, 4);
+		strncpy(my_config->audio, my_options->audio, 5);
 
 	if(strcasecmp(my_config->audio, "none") == 0)
 		audio = AUDIO_NONE;
