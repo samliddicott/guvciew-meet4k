@@ -24,6 +24,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <string.h>
+#include <ctype.h>
 #include <errno.h>
 #include <assert.h>
 #include <dirent.h>
@@ -85,7 +86,7 @@ int trim_trailing_wspaces(char *src)
 		srcp--;
 
 	/*end string*/
-	*srcp = '/0';
+	*srcp = '\0';
 
 	return 0;
 }
