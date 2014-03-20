@@ -375,8 +375,10 @@ set_sound (struct GLOBAL *global, struct paRecordData* pdata)
 	pdata->br_ind    = 0;
 	pdata->blast_ind = 0;
 	pdata->last_ind  = 0;
-	/*buffer for video PCM 16 bits*/
+	/*buffer for audio PCM 16 bits*/
 	pdata->pcm_sndBuff=NULL;
+	/*buffer for audio float PCM 32 bits*/
+	pdata->float_sndBuff=NULL;
 
 
 	/*set audio device id to use (portaudio)*/
@@ -507,6 +509,8 @@ close_sound (struct paRecordData *pdata)
 		}
 		if(pdata->pcm_sndBuff) g_free(pdata->pcm_sndBuff);
 		pdata->pcm_sndBuff = NULL;
+		if(pdata->float_sndBuff) g_free(pdata->float_sndBuff);
+		pdata->float_sndBuff = NULL;
 	__UNLOCK_MUTEX(__AMUTEX);
 
 	return (err);
@@ -522,7 +526,7 @@ static gint16 clip_int16 (float in)
 
 void SampleConverter (struct paRecordData* pdata)
 {
-	int sample_fmt = AV_SAMPLE_FMT_S16;
+	int sample_fmt = AV_SAMPLE_FMT_FLT;
 
 	if(pdata->lavc_data)
 		sample_fmt = pdata->lavc_data->codec_context->sample_fmt;
@@ -533,7 +537,7 @@ void SampleConverter (struct paRecordData* pdata)
 		{
 			if(!(pdata->float_sndBuff))
 				pdata->float_sndBuff = g_new0(float, pdata->aud_numSamples);
-
+			
 			int samp = 0;
 
 			for(samp=0; samp < pdata->aud_numSamples; samp++)

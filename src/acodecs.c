@@ -584,7 +584,7 @@ int compress_audio_frame(void *data)
 
 			if(pdata->lavc_data)
 				sample_fmt = pdata->lavc_data->codec_context->sample_fmt;
-
+			
 			switch(sample_fmt)
 			{
 				case AV_SAMPLE_FMT_S16:
@@ -600,7 +600,7 @@ int compress_audio_frame(void *data)
 					audio_data = (BYTE *) pdata->float_sndBuff;
 					break;
 			}
-
+			
 			ret = write_audio_data (all_data, audio_data, size, pdata->audio_buff[pdata->br_ind][pdata->r_ind].time_stamp);
 			break;
 		}
