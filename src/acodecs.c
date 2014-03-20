@@ -543,10 +543,19 @@ static int encode_lavc_audio ( struct ALL_DATA *all_data )
 
 	if(pdata->lavc_data)
 	{
-		if(pdata->lavc_data->codec_context->sample_fmt == AV_SAMPLE_FMT_FLT)
-			framesize= encode_lavc_audio_frame (pdata->float_sndBuff, pdata->lavc_data, videoF);
-		else
-			framesize= encode_lavc_audio_frame (pdata->pcm_sndBuff, pdata->lavc_data, videoF);
+		switch(pdata->lavc_data->codec_context->sample_fmt)
+		{
+			case AV_SAMPLE_FMT_S16:
+			case AV_SAMPLE_FMT_S16P:
+				framesize= encode_lavc_audio_frame (pdata->pcm_sndBuff, pdata->lavc_data, videoF);
+				break;
+
+			default:
+			case AV_SAMPLE_FMT_FLT:
+			case AV_SAMPLE_FMT_FLTP:
+				framesize= encode_lavc_audio_frame (pdata->float_sndBuff, pdata->lavc_data, videoF);
+				break;
+		}
 
 		ret = write_audio_data (all_data, pdata->lavc_data->outbuf, framesize, pdata->audio_buff[pdata->br_ind][pdata->r_ind].time_stamp);
 	}
@@ -569,6 +578,8 @@ int compress_audio_frame(void *data)
 			int size = 0;
 			BYTE *audio_data = NULL;
 
+			SampleConverter(pdata); /*convert from float sample to codec format*/
+
 			int sample_fmt = AV_SAMPLE_FMT_FLT;
 
 			if(pdata->lavc_data)
@@ -590,7 +601,6 @@ int compress_audio_frame(void *data)
 					break;
 			}
 
-			SampleConverter(pdata); /*convert from float sample to codec format*/
 			ret = write_audio_data (all_data, audio_data, size, pdata->audio_buff[pdata->br_ind][pdata->r_ind].time_stamp);
 			break;
 		}

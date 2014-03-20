@@ -316,14 +316,14 @@ set_sound (struct GLOBAL *global, struct paRecordData* pdata)
 		case PA_FOURCC:
 		{
 			pdata->aud_numSamples = MPG_NUM_SAMP * pdata->channels;
-			//outbuffer size in bytes (max value is for pcm 2 bytes per sample)
-			pdata->outbuf_size = pdata->aud_numSamples * 2; //a good value is 240000;
+			//outbuffer size in bytes (max value is for float pcm 4 bytes per sample)
+			pdata->outbuf_size = pdata->aud_numSamples * 4; //a good value is 240000;
 			break;
 		}
 		default:
 		{
-			//outbuffer size in bytes (max value is for pcm 2 bytes per sample)
-			pdata->outbuf_size = MPG_NUM_SAMP * pdata->channels * 2; //a good value is 240000;
+			//outbuffer size in bytes (max value is for float pcm 4 bytes per sample)
+			pdata->outbuf_size = MPG_NUM_SAMP * pdata->channels * 4; //a good value is 240000;
 
 			/*initialize lavc data*/
 			if(!(pdata->lavc_data))
