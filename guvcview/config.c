@@ -156,8 +156,9 @@ int config_load(const char *filename)
 		char *bufp = bufr;
 		/*parse config line*/
 
-		/*trim leading spaces*/
+		/*trim leading and trailing spaces and newline*/
 		trim_leading_wspaces(bufp);
+		trim_trailing_wspaces(bufp);
 
 		/*skip empty or commented lines */
 		int size = strlen(bufp);
