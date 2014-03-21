@@ -156,22 +156,22 @@ int main(int argc, char *argv[])
 
 	/*select video codec*/
 	if(debug_level > 1)
-		printf("GUVCVIEW: setting video codec to %s\n", my_config->video_codec);
+		printf("GUVCVIEW: setting video codec to '%s'\n", my_config->video_codec);
 	int vcodec_ind = encoder_get_video_codec_ind_4cc(my_config->video_codec);
 	if(vcodec_ind < 0)
 	{
-		fprintf(stderr, "GUVCVIEW: invalid video codec %s using raw input\n", my_config->video_codec);
+		fprintf(stderr, "GUVCVIEW: invalid video codec '%s' using raw input\n", my_config->video_codec);
 		vcodec_ind = 0;
 	}
 	set_video_codec_ind(vcodec_ind);
 
 	/*select audio codec*/
 	if(debug_level > 1)
-		printf("GUVCVIEW: setting audio codec to %s\n", my_config->audio_codec);
+		printf("GUVCVIEW: setting audio codec to '%s'\n", my_config->audio_codec);
 	int acodec_ind = encoder_get_audio_codec_ind_name(my_config->audio_codec);
 	if(acodec_ind < 0)
 	{
-		fprintf(stderr, "GUVCVIEW: invalid audio codec %s using pcm input\n", my_config->audio_codec);
+		fprintf(stderr, "GUVCVIEW: invalid audio codec '%s' using pcm input\n", my_config->audio_codec);
 		acodec_ind = 0;
 	}
 	set_audio_codec_ind(acodec_ind);
