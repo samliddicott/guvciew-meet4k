@@ -116,7 +116,7 @@ void set_default_camera_button_action(int action);
  *
  * returns: control profile file name
  */
-const char *get_profile_name();
+char *get_profile_name();
 
 /*
  * sets the control profile file name
@@ -140,7 +140,7 @@ void set_profile_name(const char *name);
  *
  * returns: control profile file name
  */
-const char *get_profile_path();
+char *get_profile_path();
 
 /*
  * sets the control profile path (to dir)
@@ -212,7 +212,7 @@ void set_video_muxer(int muxer);
  *
  * returns: video file basename
  */
-const char *get_video_name();
+char *get_video_name();
 
 /*
  * sets the video file basename
@@ -236,7 +236,7 @@ void set_video_name(const char *name);
  *
  * returns: video file path
  */
-const char *get_video_path();
+char *get_video_path();
 
 /*
  * sets video path (to dir)
@@ -308,7 +308,7 @@ void set_photo_format(int format);
  *
  * returns: photo file basename
  */
-const char *get_photo_name();
+char *get_photo_name();
 
 /*
  * sets the photo file basename and image format
@@ -332,7 +332,7 @@ void set_photo_name(const char *name);
  *
  * returns: photo file path
  */
-const char *get_photo_path();
+char *get_photo_path();
 
 /*
  * sets photo path (to dir)

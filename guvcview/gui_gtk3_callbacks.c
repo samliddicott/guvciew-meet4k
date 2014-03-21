@@ -517,18 +517,24 @@ void photo_file_clicked (GtkWidget *item, void *data)
 	if (gtk_dialog_run (GTK_DIALOG (FileDialog)) == GTK_RESPONSE_ACCEPT)
 	{
 		const char *filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (FileDialog));
+		
+		config_t *my_config = config_get();
 
 		char *basename = get_file_basename(filename);
 		if(basename)
 		{
 			set_photo_name(basename);
-			free(basename);
+			if(my_config->photo_name)
+				free(my_config->photo_name);
+			my_config->photo_name = basename;
 		}
 		char *pathname = get_file_pathname(filename);
 		if(pathname)
 		{
 			set_photo_path(pathname);
-			free(pathname);
+			if(my_config->photo_path)
+				free(my_config->photo_path);
+			my_config->photo_path = pathname;
 		}
 	}
 	gtk_widget_destroy (FileDialog);
@@ -625,17 +631,23 @@ void video_file_clicked (GtkWidget *item, void *data)
 	{
 		const char *filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (FileDialog));
 
+		config_t *my_config = config_get();
+		
 		char *basename = get_file_basename(filename);
 		if(basename)
 		{
 			set_video_name(basename);
-			free(basename);
+			if(my_config->video_name)
+				free(my_config->video_name);
+			my_config->video_name = basename;
 		}
 		char *pathname = get_file_pathname(filename);
 		if(pathname)
 		{
 			set_video_path(pathname);
-			free(pathname);
+			if(my_config->video_path)
+				free(my_config->video_path);
+			my_config->video_path = pathname;
 		}
 	}
 	gtk_widget_destroy (FileDialog);

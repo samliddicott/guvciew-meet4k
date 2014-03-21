@@ -251,7 +251,7 @@ void gui_set_video_capture_button_status(int flag)
  *
  * returns: control profile file name
  */
-const char *get_profile_name()
+char *get_profile_name()
 {
 	if(!profile_name)
 		profile_name = strdup("default.gpfl");
@@ -287,7 +287,7 @@ void set_profile_name(const char *name)
  *
  * returns: control profile file path
  */
-const char *get_profile_path()
+char *get_profile_path()
 {
 	if(!profile_path)
 		profile_path = strdup(getenv("HOME"));
@@ -383,7 +383,7 @@ void set_video_muxer(int muxer)
  *
  * returns: video file basename
  */
-const char *get_video_name()
+char *get_video_name()
 {
 	if(!video_name)
 		video_name = strdup("my_video.mkv");
@@ -438,7 +438,7 @@ void set_video_name(const char *name)
  *
  * returns: video file path
  */
-const char *get_video_path()
+char *get_video_path()
 {
 	if(!video_path)
 		video_path = strdup(getenv("HOME"));
@@ -534,7 +534,7 @@ void set_photo_format(int format)
  *
  * returns: photo file basename
  */
-const char *get_photo_name()
+char *get_photo_name()
 {
 	if(!photo_name)
 		photo_name = strdup("my_photo.jpg");
@@ -588,7 +588,7 @@ void set_photo_name(const char *name)
  *
  * returns: photo file path
  */
-const char *get_photo_path()
+char *get_photo_path()
 {
 	if(!photo_path)
 		photo_path = strdup(getenv("HOME"));

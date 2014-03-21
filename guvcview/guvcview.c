@@ -180,11 +180,27 @@ int main(int argc, char *argv[])
 	if(my_options->prof_filename)
 		v4l2core_load_control_profile(device, my_options->prof_filename);
 
+	/*set the profile file*/
+	if(!my_config->profile_name)
+		my_config->profile_name = strdup(get_profile_name());
+	if(!my_config->profile_path)
+		my_config->profile_path = strdup(get_profile_path());
+	set_profile_name(my_config->profile_name);
+	set_profile_path(my_config->profile_path);
+	
 	/*set the video file*/
+	if(!my_config->video_name)
+		my_config->video_name = strdup(get_video_name());
+	if(!my_config->video_path)
+		my_config->video_path = strdup(get_video_path());
 	set_video_name(my_config->video_name);
 	set_video_path(my_config->video_path);
 
 	/*set the photo(image) file*/
+	if(!my_config->photo_name)
+		my_config->photo_name = strdup(get_photo_name());
+	if(!my_config->photo_path)
+		my_config->photo_path = strdup(get_photo_path());
 	set_photo_name(my_config->photo_name);
 	set_photo_path(my_config->photo_path);
 

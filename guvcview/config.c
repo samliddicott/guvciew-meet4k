@@ -48,12 +48,12 @@ static config_t my_config =
 	.capture = "mmap",
 	.video_codec = "dx50",
 	.audio_codec = "mp2",
-	.profile_name = "default.gpfl",
-	.profile_path = "",
-	.video_name = "my_video.mkv",
-	.video_path = "",
-	.photo_name = "my_photo.jpg",
-	.photo_path = ""
+	.profile_name = NULL,
+	.profile_path = NULL,
+	.video_name = NULL,
+	.video_path = NULL,
+	.photo_name = NULL,
+	.photo_path = NULL
 };
 
 /*
