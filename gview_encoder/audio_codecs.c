@@ -68,7 +68,8 @@ static audio_codec_t listSupCodecs[] = //list of software supported formats
 		.profile      = FF_PROFILE_UNKNOWN,
 		.mkv_codpriv  = NULL,
 		.codpriv_size = 0,
-		.flags        = 0
+		.flags        = 0,
+		.name         = "pcm"
 	},
 	{
 		.valid        = 1,
@@ -84,7 +85,8 @@ static audio_codec_t listSupCodecs[] = //list of software supported formats
 		.profile      = FF_PROFILE_UNKNOWN,
 		.mkv_codpriv  = NULL,
 		.codpriv_size = 0,
-		.flags        = 0
+		.flags        = 0,
+		.name         = "mp2"
 	},
 	{
 		.valid        = 1,
@@ -104,7 +106,8 @@ static audio_codec_t listSupCodecs[] = //list of software supported formats
 		.profile      = FF_PROFILE_UNKNOWN,
 		.mkv_codpriv  = NULL,
 		.codpriv_size = 0,
-		.flags        = 0
+		.flags        = 0,
+		.name         = "mp3"
 	},
 	{
 		.valid        = 1,
@@ -124,7 +127,8 @@ static audio_codec_t listSupCodecs[] = //list of software supported formats
 		.profile      = FF_PROFILE_UNKNOWN,
 		.mkv_codpriv  = NULL,
 		.codpriv_size = 0,
-		.flags        = 0
+		.flags        = 0,
+		.name         = "ac3"
 	},
 	{
 		.valid        = 1,
@@ -144,7 +148,8 @@ static audio_codec_t listSupCodecs[] = //list of software supported formats
 		.profile      = FF_PROFILE_AAC_LOW,
 		.mkv_codpriv  = AAC_ESDS,
 		.codpriv_size = 2,
-		.flags        = 0
+		.flags        = 0,
+		.name         = "aac"
 	},
 	{
 		.valid        = 1,
@@ -164,7 +169,8 @@ static audio_codec_t listSupCodecs[] = //list of software supported formats
 		.profile      = FF_PROFILE_UNKNOWN,
 		.mkv_codpriv  =  NULL,
 		.codpriv_size =  0,
-		.flags        = 0
+		.flags        = 0,
+		.name         = "vorb"
 	}
 };
 
@@ -621,4 +627,51 @@ int encoder_set_audio_mkvCodecPriv(encoder_context_t *encoder_ctx)
 
 
 	return 0;
+}
+
+/*
+ * get audio codec name
+ * args:
+ *   codec_ind - codec list index
+ *
+ * asserts:
+ *   none
+ *
+ * returns: codec name entry
+ */
+const char *encoder_get_audio_codec_name(int codec_ind)
+{
+	int real_index = get_real_index (codec_ind);
+	if(real_index >= 0 && real_index < encoder_get_audio_codec_list_size())
+		return (listSupCodecs[real_index].name);
+	else
+	{
+		fprintf(stderr, "ENCODER: (audio codec name) bad codec index (%i)\n", codec_ind);;
+		return NULL;
+	}
+}
+
+/*
+ * get audio codec list index for codec name
+ * args:
+ *   codec_name - codec common name
+ *
+ * asserts:
+ *   none
+ *
+ * returns: codec index or -1 if error
+ */
+int encoder_get_audio_codec_ind_name(const char *codec_name)
+{
+	int real_index = 0;
+	int index = -1;
+	for(real_index = 0; real_index < encoder_get_audio_codec_list_size(); ++real_index)
+	{
+		if(listSupCodecs[real_index].valid)
+			index++;
+		if(strcasecmp(codec_name, listSupCodecs[real_index].name) == 0)
+			return index;
+	}
+
+	return -1;
 }

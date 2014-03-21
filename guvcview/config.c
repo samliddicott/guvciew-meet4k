@@ -46,6 +46,8 @@ static config_t my_config =
 	.gui = "gtk3",
 	.audio = "port",
 	.capture = "mmap",
+	.video_codec = "dx50",
+	.audio_codec = "mp2",
 };
 
 /*
@@ -104,6 +106,10 @@ int config_save(const char *filename)
 	fprintf(fp, "gui=%s\n", my_config.gui);
 	fprintf(fp, "#render api\n");
 	fprintf(fp, "render=%s\n", my_config.render);
+	fprintf(fp, "#video codec [raw mjpg mpeg flv1 wmv1 mpg2 mp43 dx50 h264 vp80 theo]\n");
+	fprintf(fp, "video_codec=%s\n", my_config.video_codec);
+	fprintf(fp, "#audio codec [none pcm mp2 mp3 aac ac3 vorb]\n");
+	fprintf(fp, "audio_codec=%s\n", my_config.audio_codec);
 
 	/* return to system locale */
     setlocale(LC_NUMERIC, "");
@@ -205,6 +211,10 @@ int config_load(const char *filename)
 			strncpy(my_config.gui, value, 4);
 		else if(strcmp(token, "render") == 0)
 			strncpy(my_config.render, value, 4);
+		else if(strcmp(token, "video_codec") == 0)
+			strncpy(my_config.video_codec, value, 4);
+		else if(strcmp(token, "audio_codec") == 0)
+			strncpy(my_config.audio_codec, value, 4);
 		else
 			fprintf(stderr, "GUVCVIEW: (config) skiping invalid entry at line %i ('%s', '%s')\n", line, token, value);
 
@@ -230,12 +240,12 @@ int config_load(const char *filename)
  * update config data with options data
  * args:
  *    my_options - pointer to options data
- * 
+ *
  * asserts:
  *    none
- * 
+ *
  * returns: none
- */ 
+ */
 void config_update(options_t *my_options)
 {
 	/*check for resolution options*/
@@ -243,21 +253,29 @@ void config_update(options_t *my_options)
 		my_config.width = my_options->width;
 	if(my_options->height > 0)
 		my_config.height = my_options->height;
-	
+
 	/*capture method*/
 	if(strlen(my_options->capture) > 3)
 		strncpy(my_config.capture, my_options->capture, 4);
-	
+
 	/*render API*/
 	if(strlen(my_options->render) > 3)
 		strncpy(my_config.render, my_options->render, 4);
-	
+
 	/*gui API*/
 	if(strlen(my_options->gui) > 3)
 		strncpy(my_config.gui, my_options->gui, 4);
-	
-	/*audio API*/	
+
+	/*audio API*/
 	if(strlen(my_options->audio) > 3)
 		strncpy(my_config.audio, my_options->audio, 5);
-	
+
+	/*video codec*/
+	if(strlen(my_options->video_codec) > 2)
+		strncpy(my_config.video_codec, my_options->video_codec, 4);
+
+	/*audio codec*/
+	if(strlen(my_options->audio_codec) > 2)
+		strncpy(my_config.audio_codec, my_options->audio_codec, 4);
+
 }

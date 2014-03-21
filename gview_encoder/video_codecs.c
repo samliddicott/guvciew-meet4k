@@ -68,7 +68,7 @@ static video_codec_t listSupCodecs[] =
 	 */
 	{
 		.valid        = 1,
-		.compressor   = "YUY2",
+		.compressor   = "YUY2", /*these will change according to camera input*/
 		.mkv_4cc      = v4l2_fourcc('Y','U','Y','2'),
 		.mkv_codec    = "V_MS/VFW/FOURCC",
 		.mkv_codecPriv= &mkv_codecPriv,
@@ -957,4 +957,32 @@ const char *encoder_get_video_codec_4cc(int codec_ind)
 		fprintf(stderr, "ENCODER: (video mkv codec) bad codec index (%i)\n", codec_ind);;
 		return NULL;
 	}
+}
+
+/*
+ * get video codec list index for avi 4cc
+ * args:
+ *   codec_4cc - codec 4cc
+ *
+ * asserts:
+ *   none
+ *
+ * returns: codec index or -1 if error
+ */
+int encoder_get_video_codec_ind_4cc(const char *codec_4cc)
+{
+	if(strcasecmp(codec_4cc, "raw") == 0)
+		return 0; /*raw is always 0*/
+
+	int real_index = 1;
+	int index = 0; /*skip raw codec*/
+	for(real_index = 1; real_index < encoder_get_video_codec_list_size(); ++real_index)
+	{
+		if(listSupCodecs[real_index].valid)
+			index++;
+		if(strcasecmp(codec_4cc, listSupCodecs[real_index].compressor) == 0)
+			return index;
+	}
+
+	return -1;
 }

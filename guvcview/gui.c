@@ -35,8 +35,10 @@
 #include <locale.h>
 #include <libintl.h>
 
+#include "core_io.h"
 #include "gui.h"
 #include "gui_gtk3.h"
+#include "config.h"
 #include "video_capture.h"
 #include "gviewencoder.h"
 
@@ -105,6 +107,20 @@ int get_video_codec_ind()
 void set_video_codec_ind(int index)
 {
 	my_video_codec_ind = index;
+
+	/*update config*/
+	config_t *my_config = config_get();
+	if(index == 0)
+		strncpy(my_config->video_codec, "raw", 4);
+	else
+	{
+		const char *codec_4cc = encoder_get_video_codec_4cc(index);
+		if(codec_4cc)
+		{
+			strncpy(my_config->video_codec, codec_4cc, 4);
+			lowercase(my_config->video_codec);
+		}
+	}
 }
 
 /*
@@ -135,6 +151,16 @@ int get_audio_codec_ind()
 void set_audio_codec_ind(int index)
 {
 	my_audio_codec_ind = index;
+
+	/*update config*/
+	config_t *my_config = config_get();
+
+	const char *codec_name = encoder_get_audio_codec_name(index);
+	if(codec_name)
+	{
+		strncpy(my_config->audio_codec, codec_name, 4);
+		lowercase(my_config->video_codec);
+	}
 }
 
 /*

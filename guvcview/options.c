@@ -114,6 +114,20 @@ static opt_values_t opt_values[] =
 		.opt_help = N_("Select GUI API (e.g none; gtk3)")
 	},
 	{
+		.opt_short = 'o',
+		.opt_long = "audio_codec",
+		.req_arg = 1,
+		.opt_help_arg = N_("CODEC"),
+		.opt_help = N_("Audio codec [pcm mp2 mp3 aac ac3 vorb]")
+	},
+	{
+		.opt_short = 'u',
+		.opt_long = "video_codec",
+		.req_arg = 1,
+		.opt_help_arg = N_("CODEC"),
+		.opt_help = N_("Video codec [raw mjpg mpeg flv1 wmv1 mpg2 mp43 dx50 h264 vp80 theo]")
+	},
+	{
 		.opt_short = 'p',
 		.opt_long = "profile",
 		.req_arg = 1,
@@ -169,6 +183,8 @@ static options_t my_options =
 	.gui = "",
 	.audio = "",
 	.capture = "",
+	.video_codec = "",
+	.audio_codec = "",
 	.prof_filename = NULL,
 	.photo_timer = 0,
 	.photo_npics = 0,
@@ -395,7 +411,7 @@ int options_parse(int argc, char *argv[])
 			case 'c':
 			{
 				int str_size = strlen(optarg);
-				if(str_size == 4) /*render is 4 chars*/
+				if(str_size == 4) /*capture method*/
 					strncpy(my_options.capture, optarg, 4);
 				break;
 			}
@@ -441,6 +457,20 @@ int options_parse(int argc, char *argv[])
 			{
 				/*audio api is at most 5 chars (p u l s e)*/
 				strncpy(my_options.audio, optarg, 5);
+				break;
+			}
+			case 'o':
+			{
+				int str_size = strlen(optarg);
+				if(str_size > 2) /*audio codec*/
+					strncpy(my_options.audio_codec, optarg, 4);
+				break;
+			}
+			case 'u':
+			{
+				int str_size = strlen(optarg);
+				if(str_size > 2) /*video codec*/
+					strncpy(my_options.video_codec, optarg, 4);
 				break;
 			}
 			case 'p':

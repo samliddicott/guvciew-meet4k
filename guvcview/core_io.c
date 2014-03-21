@@ -34,6 +34,24 @@
 extern int debug_level;
 
 /*
+ * converts string to lowercase
+ * args:
+ *   str - string pointer
+ *
+ * asserts:
+ *   none
+ *
+ * returns: pointer to converted string
+ */
+char *lowercase(char *str)
+{
+	char *p = str;
+	for ( ; *p; ++p) *p = tolower(*p);
+
+	return str;
+}
+
+/*
  * trim leading white spaces from source string
  * args:
  *    src - source string

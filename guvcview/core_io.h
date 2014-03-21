@@ -22,6 +22,19 @@
 #ifndef CORE_IO_H
 #define CORE_IO_H
 
+#include <inttypes.h>
+/*
+ * converts string to lowercase
+ * args:
+ *   str - string pointer
+ *
+ * asserts:
+ *   none
+ *
+ * returns: pointer to converted string
+ */
+char *lowercase(char *str);
+
 /*
  * trim leading white spaces from source string
  * args:

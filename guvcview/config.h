@@ -33,6 +33,8 @@ typedef struct _config_t
 	char gui[5];     /*gui api*/
 	char audio[6];   /*audio api - none; port; pulse*/
 	char capture[5]; /*capture method: read or mmap*/
+	char video_codec[5]; /*video codec*/
+	char audio_codec[5]; /*video codec*/
 } config_t;
 
 /*
@@ -75,12 +77,12 @@ int config_load(const char *filename);
  * update config data with options data
  * args:
  *    my_options - pointer to options data
- * 
+ *
  * asserts:
  *    none
- * 
+ *
  * returns: none
- */ 
+ */
 void config_update(options_t *my_options);
 
 #endif

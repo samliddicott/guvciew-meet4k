@@ -103,7 +103,7 @@ int main(int argc, char *argv[])
 
 	/*update config with options*/
 	config_update(my_options);
-	
+
 	/*get config data*/
 	config_t *my_config = config_get();
 
@@ -153,6 +153,24 @@ int main(int argc, char *argv[])
 		options_clean();
 		return -1;
 	}
+
+	/*select video codec*/
+	int vcodec_ind = encoder_get_video_codec_ind_4cc(my_config->video_codec);
+	if(vcodec_ind < 0)
+	{
+		fprintf(stderr, "GUVCVIEW: invalid video codec %s using raw input\n", my_config->video_codec);
+		vcodec_ind = 0;
+	}
+	set_video_codec_ind(vcodec_ind);
+
+	/*select audio codec*/
+	int acodec_ind = encoder_get_audio_codec_ind_name(my_config->audio_codec);
+	if(acodec_ind < 0)
+	{
+		fprintf(stderr, "GUVCVIEW: invalid audio codec %s using pcm input\n", my_config->audio_codec);
+		acodec_ind = 0;
+	}
+	set_audio_codec_ind(acodec_ind);
 
 	/*check if need to load a profile*/
 	if(my_options->prof_filename)

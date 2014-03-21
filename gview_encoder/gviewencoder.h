@@ -159,6 +159,7 @@ typedef struct _audio_codec_t
 	void *mkv_codpriv;        //pointer for codec private data
 	int codpriv_size;         //size in bytes of private data
 	int flags;                //lavc flags
+	char name[5];             //common 4cc name (lowercase)
 } audio_codec_t;
 
 /*video*/
@@ -456,6 +457,54 @@ audio_codec_t *encoder_get_audio_codec_defaults(int codec_ind);
  * returns: 1 true; 0 false
  */
 int encoder_check_webm_video_codec(int codec_ind);
+
+/*
+ * get video codec list index for avi 4cc
+ * args:
+ *   codec_4cc - codec 4cc
+ *
+ * asserts:
+ *   none
+ *
+ * returns: codec index or -1 if error
+ */
+int encoder_get_video_codec_ind_4cc(const char *codec_4cc);
+
+/*
+ * get video compressor (avi 4cc code)
+ * args:
+ *   codec_ind - codec list index
+ *
+ * asserts:
+ *   none
+ *
+ * returns: compressor codec entry or NULL if none
+ */
+const char *encoder_get_video_codec_4cc(int codec_ind);
+
+/*
+ * get audio codec name
+ * args:
+ *   codec_ind - codec list index
+ *
+ * asserts:
+ *   none
+ *
+ * returns: codec name entry
+ */
+const char *encoder_get_audio_codec_name(int codec_ind);
+
+/*
+ * get audio codec list index for codec name
+ * args:
+ *   codec_name - codec common name
+ *
+ * asserts:
+ *   none
+ *
+ * returns: codec index or -1 if error
+ */
+int encoder_get_audio_codec_ind_name(const char *codec_name);
 
 /*
  * get the video codec index for VP8 (webm) codec
