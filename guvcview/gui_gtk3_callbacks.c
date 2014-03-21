@@ -530,26 +530,6 @@ void photo_file_clicked (GtkWidget *item, void *data)
 			set_photo_path(pathname);
 			free(pathname);
 		}
-
-		/*get image format*/
-		char *ext = get_file_extension(filename);
-		if(ext)
-		{
-			if( strcasecmp(ext, "jpg") == 0 ||
-			    strcasecmp(ext, "jpeg") == 0 )
-				set_photo_format(IMG_FMT_JPG);
-			else if ( strcasecmp(ext, "png") == 0 )
-				set_photo_format(IMG_FMT_PNG);
-			else if ( strcasecmp(ext, "bmp") == 0 )
-				set_photo_format(IMG_FMT_BMP);
-			else if ( strcasecmp(ext, "raw") == 0 )
-				set_photo_format(IMG_FMT_RAW);
-
-			free(ext);
-		}
-		else
-			fprintf(stderr, "GUVCVIEW: no file extension for image file %s\n",
-				filename);
 	}
 	gtk_widget_destroy (FileDialog);
 }
@@ -657,40 +637,6 @@ void video_file_clicked (GtkWidget *item, void *data)
 			set_video_path(pathname);
 			free(pathname);
 		}
-
-		/*get image format*/
-		char *ext = get_file_extension(filename);
-		if(ext)
-		{
-			if( strcasecmp(ext, "mkv") == 0)
-				set_video_muxer(ENCODER_MUX_MKV);
-			else if ( strcasecmp(ext, "webm") == 0 )
-			{
-				set_video_muxer(ENCODER_MUX_WEBM);
-				/*force webm codecs*/
-				int video_codec_ind = encoder_get_webm_video_codec_index();
-				set_video_codec_ind(video_codec_ind);
-				int audio_codec_ind = encoder_get_webm_audio_codec_index();
-				set_audio_codec_ind(audio_codec_ind);
-				/*widgets*/
-				GSList *vgroup = get_video_codec_group_list();
-				int index = g_slist_length (vgroup) - (get_video_codec_ind() + 1);
-				GtkWidget* video_codec_item = g_slist_nth_data (vgroup, index);
-				gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(video_codec_item), TRUE);
-
-				GSList *agroup = get_audio_codec_group_list();
-				index = g_slist_length (agroup) - (get_audio_codec_ind() + 1);
-				GtkWidget* audio_codec_item = g_slist_nth_data (agroup, index);
-				gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(audio_codec_item), TRUE);
-			}
-			else if ( strcasecmp(ext, "avi") == 0 )
-				set_video_muxer(ENCODER_MUX_AVI);
-
-			free(ext);
-		}
-		else
-			fprintf(stderr, "GUVCVIEW: no file extension for video file %s\n",
-				filename);
 	}
 	gtk_widget_destroy (FileDialog);
 }
@@ -1295,12 +1241,12 @@ void resolution_changed (GtkComboBox *wgtResolution, void *data)
 
 	/*change resolution (try new format and reset render)*/
 	v4l2core_prepare_new_resolution(device, width, height);
-	
+
 	request_format_update();
-	
+
 	/*update the config data*/
 	config_t *my_config = config_get();
-	
+
 	my_config->width = width;
 	my_config->height= height;
 }
@@ -1641,8 +1587,8 @@ void audio_api_changed(GtkComboBox *combo, void *data)
 			strncpy(my_config->audio, "port", 5);
 			break;
 	}
-	
-	
+
+
 	if(api == AUDIO_NONE || audio_ctx == NULL)
 	{
 		gtk_widget_set_sensitive(my_audio_widgets->device, FALSE);

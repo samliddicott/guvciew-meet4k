@@ -311,7 +311,7 @@ void set_photo_format(int format);
 const char *get_photo_name();
 
 /*
- * sets the photo file basename
+ * sets the photo file basename and image format
  * args:
  *   name: photo file basename
  *
@@ -369,6 +369,18 @@ void gui_set_image_capture_button_label(const char *label);
  * returns: none
  */
 void gui_set_video_capture_button_status(int flag);
+
+/*
+ * set webm codecs in codecs list
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void set_webm_codecs();
 
 /*
  * GUI initialization

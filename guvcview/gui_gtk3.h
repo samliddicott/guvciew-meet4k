@@ -98,6 +98,18 @@ GSList *get_audio_codec_group_list();
 void set_audio_codec_group_list(GSList *list);
 
 /*
+ * set webm codecs in codecs list
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void set_webm_codecs_gtk();
+
+/*
  * GUI initialization
  * args:
  *   device - pointer to device data we want to attach the gui for

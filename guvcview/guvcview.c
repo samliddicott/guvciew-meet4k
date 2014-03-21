@@ -180,6 +180,14 @@ int main(int argc, char *argv[])
 	if(my_options->prof_filename)
 		v4l2core_load_control_profile(device, my_options->prof_filename);
 
+	/*set the video file*/
+	set_video_name(my_config->video_name);
+	set_video_path(my_config->video_path);
+
+	/*set the photo(image) file*/
+	set_photo_name(my_config->photo_name);
+	set_photo_path(my_config->photo_path);
+
 	/*create the inital audio context (stored staticly in video_capture)*/
 	create_audio_context(audio);
 
@@ -221,6 +229,7 @@ int main(int argc, char *argv[])
 	if(config_file)
 		free(config_file);
 
+	config_clean();
 	options_clean();
 
 	if(debug_level > 0)

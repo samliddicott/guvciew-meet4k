@@ -407,6 +407,25 @@ void set_video_name(const char *name)
 		free(video_name);
 
 	video_name = strdup(name);
+
+	/*get image format*/
+	char *ext = get_file_extension(name);
+	if(ext == NULL)
+		fprintf(stderr, "GUVCVIEW: no valid file extension for video file %s\n",
+			name);
+	else if( strcasecmp(ext, "mkv") == 0)
+		set_video_muxer(ENCODER_MUX_MKV);
+	else if ( strcasecmp(ext, "webm") == 0 )
+	{
+		set_video_muxer(ENCODER_MUX_WEBM);
+		/*force webm codecs*/
+		set_webm_codecs();
+	}
+	else if ( strcasecmp(ext, "avi") == 0 )
+		set_video_muxer(ENCODER_MUX_AVI);
+
+	if(ext)
+		free(ext);
 }
 
 /*
@@ -524,7 +543,7 @@ const char *get_photo_name()
 }
 
 /*
- * sets the photo file basename
+ * sets the photo file basename and image format
  * args:
  *   name: photo file basename
  *
@@ -539,6 +558,24 @@ void set_photo_name(const char *name)
 		free(photo_name);
 
 	photo_name = strdup(name);
+
+	/*get image format*/
+	char *ext = get_file_extension(name);
+	if(ext == NULL)
+		fprintf(stderr, "GUVCVIEW: no valid file extension for image file %s\n",
+			name);
+	else if( strcasecmp(ext, "jpg") == 0 ||
+			 strcasecmp(ext, "jpeg") == 0 )
+		set_photo_format(IMG_FMT_JPG);
+	else if ( strcasecmp(ext, "png") == 0 )
+		set_photo_format(IMG_FMT_PNG);
+	else if ( strcasecmp(ext, "bmp") == 0 )
+		set_photo_format(IMG_FMT_BMP);
+	else if ( strcasecmp(ext, "raw") == 0 )
+		set_photo_format(IMG_FMT_RAW);
+
+	if(ext)
+		free(ext);
 }
 
 /*
@@ -575,6 +612,30 @@ void set_photo_path(const char *path)
 		free(photo_path);
 
 	photo_path = strdup(path);
+}
+
+/*
+ * set webm codecs in codecs list
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void set_webm_codecs()
+{
+	switch(gui_api)
+	{
+		case GUI_NONE:
+			break;
+
+		case GUI_GTK3:
+		default:
+			set_webm_codecs_gtk();
+			break;
+	}
 }
 
 /*

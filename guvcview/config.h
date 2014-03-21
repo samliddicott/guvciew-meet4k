@@ -35,6 +35,12 @@ typedef struct _config_t
 	char capture[5]; /*capture method: read or mmap*/
 	char video_codec[5]; /*video codec*/
 	char audio_codec[5]; /*video codec*/
+	char *profile_path;
+	char *profile_name;
+	char *video_path;
+	char *video_name;
+	char *photo_path;
+	char *photo_name;
 } config_t;
 
 /*
@@ -84,5 +90,17 @@ int config_load(const char *filename);
  * returns: none
  */
 void config_update(options_t *my_options);
+
+/*
+ * cleans internal config allocations
+ * args:
+ *    none
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void config_clean();
 
 #endif

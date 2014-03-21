@@ -48,6 +48,12 @@ static config_t my_config =
 	.capture = "mmap",
 	.video_codec = "dx50",
 	.audio_codec = "mp2",
+	.profile_name = "default.gpfl",
+	.profile_path = "",
+	.video_name = "my_video.mkv",
+	.video_path = "",
+	.photo_name = "my_photo.jpg",
+	.photo_path = ""
 };
 
 /*
@@ -110,6 +116,18 @@ int config_save(const char *filename)
 	fprintf(fp, "video_codec=%s\n", my_config.video_codec);
 	fprintf(fp, "#audio codec [pcm mp2 mp3 aac ac3 vorb]\n");
 	fprintf(fp, "audio_codec=%s\n", my_config.audio_codec);
+	fprintf(fp, "#profile name\n");
+	fprintf(fp, "profile_name=%s\n", my_config.profile_name);
+	fprintf(fp, "#profile path\n");
+	fprintf(fp, "profile_path=%s\n", my_config.profile_path);
+	fprintf(fp, "#video name\n");
+	fprintf(fp, "video_name=%s\n", my_config.video_name);
+	fprintf(fp, "#video path\n");
+	fprintf(fp, "video_path=%s\n", my_config.video_path);
+	fprintf(fp, "#photo name\n");
+	fprintf(fp, "photo_name=%s\n", my_config.photo_name);
+	fprintf(fp, "#photo path\n");
+	fprintf(fp, "photo_path=%s\n", my_config.photo_path);
 
 	/* return to system locale */
     setlocale(LC_NUMERIC, "");
@@ -216,6 +234,67 @@ int config_load(const char *filename)
 			strncpy(my_config.video_codec, value, 4);
 		else if(strcmp(token, "audio_codec") == 0)
 			strncpy(my_config.audio_codec, value, 4);
+		else if(strcmp(token, "profile_name") == 0)
+		{
+			if(my_config.profile_name)
+				free(my_config.profile_name);
+			my_config.profile_name = strdup(value);
+			set_profile_name(value);
+		}
+		else if(strcmp(token, "profile_path") == 0)
+		{
+			if(my_config.profile_path)
+				free(my_config.profile_path);
+			my_config.profile_path = strdup(value);
+			set_profile_path(value);
+		}
+		else if(strcmp(token, "video_name") == 0)
+		{
+			if(my_config.video_name)
+				free(my_config.video_name);
+			my_config.video_name = strdup(value);
+			set_video_name(value);
+		}
+		else if(strcmp(token, "video_path") == 0)
+		{
+			if(my_config.video_path)
+				free(my_config.video_path);
+			my_config.video_path = strdup(value);
+			set_video_path(value);
+		}
+		else if(strcmp(token, "photo_name") == 0)
+		{
+			if(my_config.photo_name)
+				free(my_config.photo_name);
+			my_config.photo_name = strdup(value);
+
+			/*get image format*/
+			char *ext = get_file_extension(value);
+			if(ext == NULL)
+				fprintf(stderr, "GUVCVIEW: (options) no file extension for image file %s\n",
+						value);
+			else if( strcasecmp(ext, "jpg") == 0 ||
+					 strcasecmp(ext, "jpeg") == 0 )
+				set_photo_format(IMG_FMT_JPG);
+			else if ( strcasecmp(ext, "png") == 0 )
+				set_photo_format(IMG_FMT_PNG);
+			else if ( strcasecmp(ext, "bmp") == 0 )
+				set_photo_format(IMG_FMT_BMP);
+			else if ( strcasecmp(ext, "raw") == 0 )
+				set_photo_format(IMG_FMT_RAW);
+
+			if(ext)
+				free(ext);
+
+			//set_photo_name(value);
+		}
+		else if(strcmp(token, "photo_path") == 0)
+		{
+			if(my_config.photo_path)
+				free(my_config.photo_path);
+			my_config.photo_path = strdup(value);
+			//set_photo_path(value);
+		}
 		else
 			fprintf(stderr, "GUVCVIEW: (config) skiping invalid entry at line %i ('%s', '%s')\n", line, token, value);
 
@@ -279,4 +358,77 @@ void config_update(options_t *my_options)
 	if(strlen(my_options->audio_codec) > 2)
 		strncpy(my_config.audio_codec, my_options->audio_codec, 4);
 
+	/*profile*/
+	if(my_options->profile_name)
+	{
+		if(my_config.profile_name)
+			free(my_config.profile_name);
+		my_config.profile_name = strdup(my_options->profile_name);
+	}
+	if(my_options->profile_path)
+	{
+		if(my_config.profile_path)
+			free(my_config.profile_path);
+		my_config.profile_path = strdup(my_options->profile_path);
+	}
+
+	/*video file*/
+	if(my_options->video_name)
+	{
+		if(my_config.video_name)
+			free(my_config.video_name);
+		my_config.video_name = strdup(my_options->video_name);
+	}
+	if(my_options->video_path)
+	{
+		if(my_config.video_path)
+			free(my_config.video_path);
+		my_config.video_path = strdup(my_options->video_path);
+	}
+
+	/*photo*/
+	if(my_options->photo_name)
+	{
+		if(my_config.photo_name)
+			free(my_config.photo_name);
+		my_config.photo_name = strdup(my_options->photo_name);
+	}
+	if(my_options->photo_path)
+	{
+		if(my_config.photo_path)
+			free(my_config.photo_path);
+		my_config.photo_path = strdup(my_options->photo_path);
+	}
+
+}
+
+/*
+ * cleans internal config allocations
+ * args:
+ *    none
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void config_clean()
+{
+	if(my_config.profile_name != NULL)
+		free(my_config.profile_name);
+
+	if(my_config.profile_path != NULL)
+		free(my_config.profile_path);
+
+	if(my_config.video_name != NULL)
+		free(my_config.video_name);
+
+	if(my_config.video_path != NULL)
+		free(my_config.video_path);
+
+	if(my_config.photo_name != NULL)
+		free(my_config.photo_name);
+
+	if(my_config.photo_path != NULL)
+		free(my_config.photo_path);
 }

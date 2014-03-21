@@ -120,6 +120,36 @@ void set_video_codec_group_list(GSList *list)
 }
 
 /*
+ * set webm codecs in codecs list
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void set_webm_codecs_gtk()
+{
+	/*force webm codecs*/
+	int video_codec_ind = encoder_get_webm_video_codec_index();
+	set_video_codec_ind(video_codec_ind);
+	int audio_codec_ind = encoder_get_webm_audio_codec_index();
+	set_audio_codec_ind(audio_codec_ind);
+
+	/*widgets*/
+	GSList *vgroup = get_video_codec_group_list();
+	int index = g_slist_length (vgroup) - (get_video_codec_ind() + 1);
+	GtkWidget* video_codec_item = g_slist_nth_data (vgroup, index);
+	gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(video_codec_item), TRUE);
+
+	GSList *agroup = get_audio_codec_group_list();
+	index = g_slist_length (agroup) - (get_audio_codec_ind() + 1);
+	GtkWidget* audio_codec_item = g_slist_nth_data (agroup, index);
+	gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(audio_codec_item), TRUE);
+}
+
+/*
  * get the audio codec group list
  * args:
  *    none

@@ -135,6 +135,13 @@ static opt_values_t opt_values[] =
 		.opt_help = N_("load control profile")
 	},
 	{
+		.opt_short = 'j',
+		.opt_long = "video",
+		.req_arg = 1,
+		.opt_help_arg = N_("FILENAME"),
+		.opt_help = N_("filename for captured video)")
+	},
+	{
 		.opt_short = 'i',
 		.opt_long = "image",
 		.req_arg = 1,
@@ -186,6 +193,12 @@ static options_t my_options =
 	.video_codec = "",
 	.audio_codec = "",
 	.prof_filename = NULL,
+	.profile_name = NULL,
+	.profile_path = NULL,
+	.video_name = NULL,
+	.video_path = NULL,
+	.photo_name = NULL,
+	.photo_path = NULL,
 	.photo_timer = 0,
 	.photo_npics = 0,
 };
@@ -482,14 +495,42 @@ int options_parse(int argc, char *argv[])
 				char *basename = get_file_basename(optarg);
 				if(basename)
 				{
-					set_profile_name(basename);
-					free(basename);
+					//set_profile_name(basename);
+					if(my_options.profile_name != NULL)
+						free(my_options.profile_name);
+					my_options.profile_name = basename;
 				}
 				char *pathname = get_file_pathname(optarg);
 				if(pathname)
 				{
-					set_profile_path(pathname);
-					free(pathname);
+					//set_profile_path(pathname);
+					if(my_options.profile_path != NULL)
+						free(my_options.profile_path);
+					my_options.profile_path = pathname;
+				}
+
+				break;
+			}
+			case 'j':
+			{
+				/*get video path and basename*/
+				char *basename = get_file_basename(optarg);
+				if(basename)
+				{
+					//set_video_name(basename);
+					//free(basename);
+					if(my_options.video_name != NULL)
+						free(my_options.video_name);
+					my_options.video_name = basename;
+				}
+				char *pathname = get_file_pathname(optarg);
+				if(pathname)
+				{
+					//set_video_path(pathname);
+					//free(pathname);
+					if(my_options.video_path != NULL)
+						free(my_options.video_path);
+					my_options.video_path = pathname;
 				}
 
 				break;
@@ -500,33 +541,21 @@ int options_parse(int argc, char *argv[])
 				char *basename = get_file_basename(optarg);
 				if(basename)
 				{
-					set_photo_name(basename);
-					free(basename);
+					//set_photo_name(basename);
+					//free(basename);
+					if(my_options.photo_name != NULL)
+						free(my_options.photo_name);
+					my_options.photo_name = basename;
 				}
 				char *pathname = get_file_pathname(optarg);
 				if(pathname)
 				{
-					set_photo_path(pathname);
-					free(pathname);
+					//set_photo_path(pathname);
+					//free(pathname);
+					if(my_options.photo_path != NULL)
+						free(my_options.photo_path);
+					my_options.photo_path = pathname;
 				}
-
-				/*get image format*/
-				char *ext = get_file_extension(optarg);
-				if(ext == NULL)
-					fprintf(stderr, "GUVCVIEW: (options) no file extension for image file %s\n",
-						optarg);
-				else if( strcasecmp(ext, "jpg") == 0 ||
-						 strcasecmp(ext, "jpeg") == 0 )
-					set_photo_format(IMG_FMT_JPG);
-				else if ( strcasecmp(ext, "png") == 0 )
-					set_photo_format(IMG_FMT_PNG);
-				else if ( strcasecmp(ext, "bmp") == 0 )
-					set_photo_format(IMG_FMT_BMP);
-				else if ( strcasecmp(ext, "raw") == 0 )
-					set_photo_format(IMG_FMT_RAW);
-
-				if(ext)
-					free(ext);
 
 				break;
 			}
@@ -562,4 +591,28 @@ void options_clean()
 	if(my_options.prof_filename != NULL)
 		free(my_options.prof_filename);
 	my_options.prof_filename = NULL;
+
+	if(my_options.profile_name != NULL)
+		free(my_options.profile_name);
+	my_options.profile_name = NULL;
+
+	if(my_options.profile_path != NULL)
+		free(my_options.profile_path);
+	my_options.profile_path = NULL;
+
+	if(my_options.video_name != NULL)
+		free(my_options.video_name);
+	my_options.video_name = NULL;
+
+	if(my_options.video_path != NULL)
+		free(my_options.video_path);
+	my_options.video_path = NULL;
+
+	if(my_options.photo_name != NULL)
+		free(my_options.photo_name);
+	my_options.photo_name = NULL;
+
+	if(my_options.photo_path != NULL)
+		free(my_options.photo_path);
+	my_options.photo_path = NULL;
 }

@@ -37,6 +37,12 @@ typedef struct _options_t
 	char audio_codec[5]; /*audio codec*/
 	char video_codec[5]; /*video codec*/
 	char *prof_filename; /*profile_filename (if set load it on start)*/
+	char *profile_name;
+	char *profile_path;
+	char *video_name;
+	char *video_path;
+	char *photo_name;
+	char *photo_path;
 	double photo_timer; /*photo capture timer interval in seconds (double)*/
 	int photo_npics; /*number of photo captures*/
 } options_t;
