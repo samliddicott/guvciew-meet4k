@@ -83,7 +83,7 @@ int trim_leading_wspaces(char *src)
 }
 
 /*
- * trim trailing white spaces from source string
+ * trim trailing white spaces and newlines from source string
  * args:
  *    src - source string
  *
@@ -100,7 +100,7 @@ int trim_trailing_wspaces(char *src)
 	/*move to end of string*/
 	char *srcp = src + strlen(src);
 
-	while(isspace(*srcp) && srcp > src)
+	while((isspace(*srcp) || *srcp=='\n') && srcp > src)
 		srcp--;
 
 	/*end string*/
