@@ -108,7 +108,7 @@ int config_save(const char *filename)
 	fprintf(fp, "render=%s\n", my_config.render);
 	fprintf(fp, "#video codec [raw mjpg mpeg flv1 wmv1 mpg2 mp43 dx50 h264 vp80 theo]\n");
 	fprintf(fp, "video_codec=%s\n", my_config.video_codec);
-	fprintf(fp, "#audio codec [none pcm mp2 mp3 aac ac3 vorb]\n");
+	fprintf(fp, "#audio codec [pcm mp2 mp3 aac ac3 vorb]\n");
 	fprintf(fp, "audio_codec=%s\n", my_config.audio_codec);
 
 	/* return to system locale */
