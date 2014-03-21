@@ -48,7 +48,7 @@ char *lowercase(char *str);
 int trim_leading_wspaces(char *src);
 
 /*
- * trim trailing white spaces from source string
+ * trim trailing white spaces and control chars (\n) from source string
  * args:
  *    src - source string
  *
