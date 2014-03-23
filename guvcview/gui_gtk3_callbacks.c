@@ -122,6 +122,38 @@ void control_defaults_clicked (GtkWidget *item, void *data)
 }
 
 /*
+ * called from profile format combo in file dialog
+ * args:
+ *    chooser - format combo that caused the event
+ *    file_dialog - chooser parent
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+static void profile_update_extension (GtkComboBox *chooser, GtkWidget *file_dialog)
+{
+	int format = gtk_combo_box_get_active (chooser);
+
+	GtkFileFilter *filter = gtk_file_filter_new();
+
+	switch(format)
+	{
+		case 1:
+			gtk_file_filter_add_pattern(filter, "*.*");
+			break;
+			
+		default:
+		case 0:
+			gtk_file_filter_add_pattern(filter, "*.gpfl");
+			break;
+	}
+
+	gtk_file_chooser_set_filter(GTK_FILE_CHOOSER (file_dialog), filter);
+}
+
+/*
  * control profile (load/save) clicked event
  * args:
  *   widget - pointer to event widget
@@ -147,34 +179,20 @@ void controls_profile_clicked (GtkWidget *item, void *data)
 
 	if (save_or_load > 0) /*save*/
 	{
-		/*FileDialog = gtk_file_chooser_dialog_new (_("Save Profile"),
-			GTK_WINDOW(main_window),
-			GTK_FILE_CHOOSER_ACTION_SAVE,
-			GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-			GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
-			NULL);
-		*/
 		FileDialog = gtk_file_chooser_dialog_new (_("Save Profile"),
 			GTK_WINDOW(main_window),
-			GTK_FILE_CHOOSER_ACTION_OPEN,
+			GTK_FILE_CHOOSER_ACTION_SAVE,
 			 _("_Cancel"), GTK_RESPONSE_CANCEL,
 			 _("_Save"), GTK_RESPONSE_ACCEPT,
 			NULL);
 
 		gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (FileDialog), TRUE);
-
+		
 		gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (FileDialog),
 			get_profile_name());
 	}
 	else /*load*/
 	{
-		/*FileDialog = gtk_file_chooser_dialog_new (_("Load Profile"),
-			GTK_WINDOW(main_window),
-			GTK_FILE_CHOOSER_ACTION_OPEN,
-			GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-			GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
-			NULL);
-		*/
 		FileDialog = gtk_file_chooser_dialog_new (_("Load Profile"),
 			GTK_WINDOW(main_window),
 			GTK_FILE_CHOOSER_ACTION_OPEN,
@@ -182,6 +200,38 @@ void controls_profile_clicked (GtkWidget *item, void *data)
 			 _("_Open"), GTK_RESPONSE_ACCEPT,
 			NULL);
 	}
+	
+	/** create a file filter */
+	GtkFileFilter *filter = gtk_file_filter_new();
+
+	GtkWidget *FBox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
+	GtkWidget *format_label = gtk_label_new(_("File Format:"));
+	gtk_widget_set_halign (FBox, GTK_ALIGN_FILL);
+	gtk_widget_set_hexpand (FBox, TRUE);
+	gtk_widget_set_hexpand (format_label, FALSE);
+	gtk_widget_show(FBox);
+	gtk_widget_show(format_label);
+	gtk_box_pack_start(GTK_BOX(FBox), format_label, FALSE, FALSE, 2);
+
+	GtkWidget *FileFormat = gtk_combo_box_text_new ();
+	gtk_widget_set_halign (FileFormat, GTK_ALIGN_FILL);
+	gtk_widget_set_hexpand (FileFormat, TRUE);
+
+	gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(FileFormat),_("gpfl  (*.gpfl)"));
+	gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(FileFormat),_("any (*.*)"));
+
+	gtk_combo_box_set_active(GTK_COMBO_BOX(FileFormat), 0);
+	gtk_box_pack_start(GTK_BOX(FBox), FileFormat, FALSE, FALSE, 2);
+	gtk_widget_show(FileFormat);
+
+	gtk_file_filter_add_pattern(filter, "*.gpfl");
+	
+	gtk_file_chooser_set_filter(GTK_FILE_CHOOSER (FileDialog), filter);
+	gtk_file_chooser_set_extra_widget(GTK_FILE_CHOOSER (FileDialog), FBox);
+
+	g_signal_connect (GTK_COMBO_BOX(FileFormat), "changed",
+		G_CALLBACK (profile_update_extension), FileDialog);
+
 
 	gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (FileDialog),
 		get_profile_path());
@@ -190,13 +240,35 @@ void controls_profile_clicked (GtkWidget *item, void *data)
 	{
 		/*Save Controls Data*/
 		const char *filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (FileDialog));
-
+		
 		if(save_or_load > 0)
+		{
 			v4l2core_save_control_profile(device, filename);
+		}
 		else
 		{
 			v4l2core_load_control_profile(device, filename);
 			gui_gtk3_update_controls_state(device);
+		}
+		
+		/*update config*/
+		config_t *my_config = config_get();
+
+		char *basename = get_file_basename(filename);
+		if(basename)
+		{
+			set_profile_name(basename);
+			if(my_config->profile_name)
+				free(my_config->profile_name);
+			my_config->profile_name = basename;
+		}
+		char *pathname = get_file_pathname(filename);
+		if(pathname)
+		{
+			set_profile_path(pathname);
+			if(my_config->profile_path)
+				free(my_config->profile_path);
+			my_config->profile_path = pathname;
 		}
 	}
 	gtk_widget_destroy (FileDialog);
@@ -444,13 +516,6 @@ void photo_file_clicked (GtkWidget *item, void *data)
 
 	GtkWidget *main_window = get_main_window();
 
-	/*FileDialog = gtk_file_chooser_dialog_new (_("Photo file name"),
-			GTK_WINDOW(main_window),
-			GTK_FILE_CHOOSER_ACTION_SAVE,
-			GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-			GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
-			NULL);
-	*/
 	FileDialog = gtk_file_chooser_dialog_new (_("Photo file name"),
 			GTK_WINDOW(main_window),
 			GTK_FILE_CHOOSER_ACTION_SAVE,
@@ -559,13 +624,6 @@ void video_file_clicked (GtkWidget *item, void *data)
 
 	GtkWidget *main_window = get_main_window();
 
-	/*FileDialog = gtk_file_chooser_dialog_new (_("Video file name"),
-			GTK_WINDOW(main_window),
-			GTK_FILE_CHOOSER_ACTION_SAVE,
-			GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-			GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
-			NULL);
-	*/
 	FileDialog = gtk_file_chooser_dialog_new (_("Video file name"),
 			GTK_WINDOW(main_window),
 			GTK_FILE_CHOOSER_ACTION_SAVE,

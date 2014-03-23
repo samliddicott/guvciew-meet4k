@@ -234,7 +234,7 @@ int config_load(const char *filename)
 			strncpy(my_config.video_codec, value, 4);
 		else if(strcmp(token, "audio_codec") == 0)
 			strncpy(my_config.audio_codec, value, 4);
-		else if(strcmp(token, "profile_name") == 0)
+		else if(strcmp(token, "profile_name") == 0 && strlen(value) > 2)
 		{
 			if(my_config.profile_name)
 				free(my_config.profile_name);
@@ -248,8 +248,9 @@ int config_load(const char *filename)
 			my_config.profile_path = strdup(value);
 			set_profile_path(value);
 		}
-		else if(strcmp(token, "video_name") == 0)
+		else if(strcmp(token, "video_name") == 0  && strlen(value) > 2)
 		{
+			
 			if(my_config.video_name)
 				free(my_config.video_name);
 			my_config.video_name = strdup(value);
@@ -262,7 +263,7 @@ int config_load(const char *filename)
 			my_config.video_path = strdup(value);
 			set_video_path(value);
 		}
-		else if(strcmp(token, "photo_name") == 0)
+		else if(strcmp(token, "photo_name") == 0  && strlen(value) > 2)
 		{
 			if(my_config.photo_name)
 				free(my_config.photo_name);
