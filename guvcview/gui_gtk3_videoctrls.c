@@ -123,6 +123,8 @@ int gui_attach_gtk3_videoctrls(v4l2_dev_t *device, GtkWidget *parent)
 	g_signal_connect (GTK_COMBO_BOX_TEXT(wgtDevices), "changed",
 		G_CALLBACK (devices_changed), device);
 
+	if(debug_level > 1)
+		printf("GUVCVIEW: added video devices list\n");
 	/*---- Frame Rate ----*/
 	line++;
 
