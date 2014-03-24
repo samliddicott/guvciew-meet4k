@@ -135,7 +135,7 @@ void gui_error_gtk3(v4l2_dev_t *device,
  *   height - window height
  *
  * asserts:
- *   device is not null
+ *   none
  *
  * returns: error code
  */

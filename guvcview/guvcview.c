@@ -108,15 +108,6 @@ int main(int argc, char *argv[])
 	config_t *my_config = config_get();
 
 	debug_level = my_options->verbosity;
-	v4l2core_set_verbosity(debug_level);
-
-	v4l2_dev_t *device = v4l2core_init_dev(my_options->device);
-
-	/*select capture method*/
-	if(strcasecmp(my_config->capture, "read") == 0)
-		v4l2core_set_capture_method(device, IO_READ);
-	else
-		v4l2core_set_capture_method(device, IO_MMAP);
 
 	/*select render API*/
 	int render = RENDER_SDL1;
@@ -146,6 +137,14 @@ int main(int argc, char *argv[])
 		audio = AUDIO_PULSE;
 #endif
 
+	/*initialize the v4l2 core*/
+	v4l2core_set_verbosity(debug_level);
+
+	v4l2_dev_t *device = v4l2core_init_dev(my_options->device);
+
+	/*initialize the gui (do it here so that we can call error dialogs)*/
+	gui_attach(device, gui, 800, 600, my_options->control_panel);
+
 	if(device)
 		set_render_flag(render);
 	else
@@ -154,12 +153,22 @@ int main(int argc, char *argv[])
 		return -1;
 	}
 
+	/*select capture method*/
+	if(strcasecmp(my_config->capture, "read") == 0)
+		v4l2core_set_capture_method(device, IO_READ);
+	else
+		v4l2core_set_capture_method(device, IO_MMAP);
+
 	/*select video codec*/
 	if(debug_level > 1)
 		printf("GUVCVIEW: setting video codec to '%s'\n", my_config->video_codec);
 	int vcodec_ind = encoder_get_video_codec_ind_4cc(my_config->video_codec);
 	if(vcodec_ind < 0)
 	{
+		char message[50];
+		snprintf(message, 49, "invalid video codec '%s' using raw input", my_config->video_codec);
+		gui_error(device, "Guvcview warning", message, 0);
+
 		fprintf(stderr, "GUVCVIEW: invalid video codec '%s' using raw input\n", my_config->video_codec);
 		vcodec_ind = 0;
 	}
@@ -171,6 +180,10 @@ int main(int argc, char *argv[])
 	int acodec_ind = encoder_get_audio_codec_ind_name(my_config->audio_codec);
 	if(acodec_ind < 0)
 	{
+		char message[50];
+		snprintf(message, 49, "invalid audio codec '%s' using pcm input", my_config->audio_codec);
+		gui_error(device, "Guvcview warning", message, 0);
+
 		fprintf(stderr, "GUVCVIEW: invalid audio codec '%s' using pcm input\n", my_config->audio_codec);
 		acodec_ind = 0;
 	}
@@ -187,7 +200,7 @@ int main(int argc, char *argv[])
 		my_config->profile_path = strdup(get_profile_path());
 	set_profile_name(my_config->profile_name);
 	set_profile_path(my_config->profile_path);
-	
+
 	/*set the video file*/
 	if(!my_config->video_name)
 		my_config->video_name = strdup(get_video_name());
@@ -224,8 +237,6 @@ int main(int argc, char *argv[])
 		if(ret)
 			fprintf(stderr, "GUVCVIEW: Video thread creation failed\n");
 	}
-
-	gui_attach(device, gui, 800, 600, my_options->control_panel);
 
 	/*run the gui loop*/
 	gui_run();

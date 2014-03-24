@@ -410,7 +410,7 @@ void gui_error(v4l2_dev_t *device,
  *   control_panel - flag control panel mode (1 -set; 0 -no)
  *
  * asserts:
- *   device is not null
+ *   none
  *
  * returns: error code
  */

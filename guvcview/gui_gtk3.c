@@ -58,6 +58,8 @@ static GtkWidget *CapVideoButt = NULL;
 GSList *video_codec_group = NULL;
 /*group list for menu audio codecs*/
 GSList *audio_codec_group = NULL;
+static int gtk_main_called = 0;
+
 
 /*
  * adds a message to the status bar
@@ -233,7 +235,7 @@ void gui_set_video_capture_button_status_gtk3(int flag)
  *   fatal - flag a fatal error (display device list combo box)
  *
  * asserts:
- *   device is not null
+ *   none
  *
  * returns: none
  */
@@ -242,9 +244,6 @@ void gui_error_gtk3(v4l2_dev_t *device,
 	const char *message,
 	int fatal)
 {
-	/*assertions*/
-	assert(device != NULL);
-
 	/*simple warning message - not fatal and no device selection*/
 	if(!fatal)
 	{
@@ -288,7 +287,8 @@ void gui_error_gtk3(v4l2_dev_t *device,
 
 	GtkWidget *wgtDevices = NULL;
 	/*add device list (more than one device)*/
-	if(device->num_devices > 1)
+	int show_dev_list = (device != NULL && device->num_devices > 1) ? 1: 0;
+	if(show_dev_list)
 	{
 		GtkWidget *text2 = gtk_label_new (_("\nYou have more than one video device installed.\n"
 			"Do you want to try another one ?\n"));
@@ -325,7 +325,7 @@ void gui_error_gtk3(v4l2_dev_t *device,
 
 	int result = gtk_dialog_run (GTK_DIALOG (errdialog));
 
-	if(device->num_devices > 1)
+	if(show_dev_list)
 	{
 		switch (result)
 		{
@@ -374,18 +374,22 @@ void gui_error_gtk3(v4l2_dev_t *device,
  *   height - window height
  *
  * asserts:
- *   device is not null
+ *   none
  *
  * returns: error code (0 -OK)
  */
 int gui_attach_gtk3(v4l2_dev_t *device, int width, int height)
 {
-	/*asserts*/
-	assert(device != NULL);
-
 	if(!gtk_init_check(NULL, NULL))
 	{
 		fprintf(stderr, "GUVCVIEW: (GUI) Gtk3 can't open display\n");
+		return -1;
+	}
+
+	/*check for device errors*/
+	if(!device)
+	{
+		gui_error(device, "Guvcview error", "no video device found", 1);
 		return -1;
 	}
 
@@ -662,6 +666,8 @@ int gui_run_gtk3()
 
 	int ret = 0;
 
+	gtk_main_called = 1;
+
 	gtk_main();
 
 	return ret;
@@ -679,6 +685,10 @@ int gui_run_gtk3()
  */
 void gui_close_gtk3()
 {
-	gtk_main_quit();
+	if(gtk_main_called)
+		gtk_main_quit();
+
 	gui_clean_gtk3_control_widgets_list();
+
+	gtk_main_called = 0;
 }

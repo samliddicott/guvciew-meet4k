@@ -678,15 +678,12 @@ void gui_error(v4l2_dev_t *device,
  *   control_panel - flag control panel mode (1 -set; 0 -no)
  *
  * asserts:
- *   device is not null
+ *   none
  *
  * returns: error code
  */
 int gui_attach(v4l2_dev_t *device, int gui, int width, int height, int control_panel)
 {
-	/*asserts*/
-	assert(device != NULL);
-
 	int ret = 0;
 
 	is_control_panel = control_panel;
