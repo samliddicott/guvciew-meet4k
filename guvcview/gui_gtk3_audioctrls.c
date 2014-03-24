@@ -70,6 +70,9 @@ int gui_attach_gtk3_audioctrls(GtkWidget *parent)
 	/*assertions*/
 	assert(parent != NULL);
 
+	if(debug_level > 1)
+		printf("GUVCVIEW: attaching audio controls\n");
+
 	int line = 0;
 	int i = 0;
 	/*get the current audio context*/
@@ -138,7 +141,7 @@ int gui_attach_gtk3_audioctrls(GtkWidget *parent)
 		for(i = 0; i < audio_ctx->num_input_dev; ++i)
 		{
 			gtk_combo_box_text_append_text(
-				GTK_COMBO_BOX_TEXT(my_audio_widgets.device), 
+				GTK_COMBO_BOX_TEXT(my_audio_widgets.device),
 				audio_ctx->list_devices[i].description);
 		}
 
@@ -218,7 +221,7 @@ int gui_attach_gtk3_audioctrls(GtkWidget *parent)
 	gtk_widget_show (my_audio_widgets.channels);
 
 	gtk_combo_box_set_active(GTK_COMBO_BOX(my_audio_widgets.channels), 0); /*device default*/
-	
+
 	if(audio_ctx != NULL)
 		gtk_widget_set_sensitive (my_audio_widgets.channels, TRUE);
 	else
@@ -226,7 +229,7 @@ int gui_attach_gtk3_audioctrls(GtkWidget *parent)
 
 	g_signal_connect (GTK_COMBO_BOX_TEXT(my_audio_widgets.channels), "changed",
 		G_CALLBACK (audio_channels_changed), &my_audio_widgets);
-	
+
 	/* ----- Filter controls -----*/
 	line++;
 	GtkWidget *label_audioFilters = gtk_label_new(_("---- Audio Filters ----"));
@@ -260,7 +263,7 @@ int gui_attach_gtk3_audioctrls(GtkWidget *parent)
 	gtk_widget_show (FiltEchoEnable);
 	g_signal_connect (GTK_CHECK_BUTTON(FiltEchoEnable), "toggled",
 		G_CALLBACK (audio_fx_filter_changed), NULL);
-	
+
 	/* Reverb FX */
 	GtkWidget *FiltReverbEnable = gtk_check_button_new_with_label (_(" Reverb"));
 	g_object_set_data (G_OBJECT (FiltReverbEnable), "filt_info", GINT_TO_POINTER(AUDIO_FX_REVERB));
@@ -273,7 +276,7 @@ int gui_attach_gtk3_audioctrls(GtkWidget *parent)
 	gtk_widget_show (FiltReverbEnable);
 	g_signal_connect (GTK_CHECK_BUTTON(FiltReverbEnable), "toggled",
 		G_CALLBACK (audio_fx_filter_changed), NULL);
-		
+
 	/* Fuzz FX */
 	GtkWidget *FiltFuzzEnable = gtk_check_button_new_with_label (_(" Fuzz"));
 	g_object_set_data (G_OBJECT (FiltFuzzEnable), "filt_info", GINT_TO_POINTER(AUDIO_FX_FUZZ));
@@ -286,7 +289,7 @@ int gui_attach_gtk3_audioctrls(GtkWidget *parent)
 	gtk_widget_show (FiltFuzzEnable);
 	g_signal_connect (GTK_CHECK_BUTTON(FiltFuzzEnable), "toggled",
 		G_CALLBACK (audio_fx_filter_changed), NULL);
-	
+
 	/* WahWah FX */
 	GtkWidget *FiltWahEnable = gtk_check_button_new_with_label (_(" WahWah"));
 	g_object_set_data (G_OBJECT (FiltWahEnable), "filt_info", GINT_TO_POINTER(AUDIO_FX_WAHWAH));
@@ -299,7 +302,7 @@ int gui_attach_gtk3_audioctrls(GtkWidget *parent)
 	gtk_widget_show (FiltWahEnable);
 	g_signal_connect (GTK_CHECK_BUTTON(FiltWahEnable), "toggled",
 		G_CALLBACK (audio_fx_filter_changed), NULL);
-	
+
 	/* Ducky FX */
 	GtkWidget *FiltDuckyEnable = gtk_check_button_new_with_label (_(" Ducky"));
 	g_object_set_data (G_OBJECT (FiltDuckyEnable), "filt_info", GINT_TO_POINTER(AUDIO_FX_DUCKY));
@@ -315,6 +318,6 @@ int gui_attach_gtk3_audioctrls(GtkWidget *parent)
 
 	/*add control grid to parent container*/
 	gtk_container_add(GTK_CONTAINER(parent), audio_controls_grid);
-	
+
 	return 0;
 }
