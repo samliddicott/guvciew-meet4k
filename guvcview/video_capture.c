@@ -582,7 +582,7 @@ void *capture_loop(void *data)
 	capture_loop_data_t *cl_data = (capture_loop_data_t *) data;
 	v4l2_dev_t *device = (v4l2_dev_t *) cl_data->device;
 	options_t *my_options = (options_t *) cl_data->options;
-	config_t *my_config = (config_t *) cl_data->config;
+	//config_t *my_config = (config_t *) cl_data->config;
 
 	uint64_t my_last_photo_time = 0; /*timer count*/
 	int my_photo_npics = 0;/*no npics*/
@@ -593,30 +593,7 @@ void *capture_loop(void *data)
 	/*reset quit flag*/
 	quit = 0;
 
-	int format = v4l2core_fourcc_2_v4l2_pixelformat(my_config->format);
-
-	/*prepare format*/
-	v4l2core_prepare_new_format(device, format);
-	/*prepare resolution*/
-	v4l2core_prepare_new_resolution(device, my_config->width, my_config->height);
-	/*try to set the video stream format on the device*/
-	int ret = v4l2core_update_current_format(device);
-
-	if(ret != E_OK)
-	{
-		fprintf(stderr, "GUCVIEW: could not set the defined stream format\n");
-		fprintf(stderr, "GUCVIEW: trying first listed stream format\n");
-
-		v4l2core_prepare_valid_format(device);
-		v4l2core_prepare_valid_resolution(device);
-		ret = v4l2core_update_current_format(device);
-
-		if(ret != E_OK)
-		{
-			fprintf(stderr, "GUCVIEW: also could not set the first listed stream format\n");
-			return ((void *) -1);
-		}
-	}
+	int ret = 0;
 
 	render_set_verbosity(debug_level);
 	if(render_init(render, device->format.fmt.pix.width, device->format.fmt.pix.height) < 0)

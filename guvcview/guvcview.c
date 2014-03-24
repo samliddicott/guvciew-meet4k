@@ -225,18 +225,56 @@ int main(int argc, char *argv[])
 	/*start capture thread if not in control_panel mode*/
 	if(!my_options->control_panel)
 	{
-		capture_loop_data_t cl_data;
-		cl_data.options = (void *) my_options;
-		cl_data.config = (void *) my_config;
-		cl_data.device = (void *) device;
+		/*
+		 * prepare format:
+		 *   doing this inside the capture thread may create a race
+		 *   condition with gui_attach, as it requires the current
+		 *   format to be set
+		 */
+		int format = v4l2core_fourcc_2_v4l2_pixelformat(my_config->format);
 
-		int ret = __THREAD_CREATE(&capture_thread, capture_loop, (void *) &cl_data);
+		v4l2core_prepare_new_format(device, format);
+		/*prepare resolution*/
+		v4l2core_prepare_new_resolution(device, my_config->width, my_config->height);
+		/*try to set the video stream format on the device*/
+		int ret = v4l2core_update_current_format(device);
 
-		if(ret)
-			fprintf(stderr, "GUVCVIEW: Video thread creation failed\n");
+		if(ret != E_OK)
+		{
+			fprintf(stderr, "GUCVIEW: could not set the defined stream format\n");
+			fprintf(stderr, "GUCVIEW: trying first listed stream format\n");
+
+			v4l2core_prepare_valid_format(device);
+			v4l2core_prepare_valid_resolution(device);
+			ret = v4l2core_update_current_format(device);
+
+			if(ret != E_OK)
+			{
+				fprintf(stderr, "GUCVIEW: also could not set the first listed stream format\n");
+				fprintf(stderr, "GUVCVIEW: Video capture failed\n");
+
+				gui_error(device, "Guvcview error", "could not start a video stream in the device", 1);
+			}
+		}
+
+		if(ret == E_OK)
+		{
+			capture_loop_data_t cl_data;
+			cl_data.options = (void *) my_options;
+			cl_data.config = (void *) my_config;
+			cl_data.device = (void *) device;
+
+			ret = __THREAD_CREATE(&capture_thread, capture_loop, (void *) &cl_data);
+
+			if(ret)
+			{
+				fprintf(stderr, "GUVCVIEW: Video thread creation failed\n");
+				gui_error(device, "Guvcview error", "could not start the video capture thread", 1);
+			}
+		}
 	}
 
-	/*initialize the gui*/
+	/*initialize the gui - do this after setting the video stream*/
 	gui_attach(device, gui, 800, 600, my_options->control_panel);
 
 	/*run the gui loop*/
