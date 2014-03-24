@@ -225,10 +225,151 @@ void gui_set_video_capture_button_status_gtk3(int flag)
 }
 
 /*
+ * GUI warning/error dialog
+ * args:
+ *   device - pointer to device data
+ *   title - dialog title string
+ *   message - error message string
+ *   fatal - flag a fatal error (display device list combo box)
+ *
+ * asserts:
+ *   device is not null
+ *
+ * returns: none
+ */
+void gui_error_gtk3(v4l2_dev_t *device,
+	const char *title,
+	const char *message,
+	int fatal)
+{
+	/*assertions*/
+	assert(device != NULL);
+
+	/*simple warning message - not fatal and no device selection*/
+	if(!fatal)
+	{
+		GtkWidget *warndialog;
+        warndialog = gtk_message_dialog_new (GTK_WINDOW(main_window),
+            GTK_DIALOG_DESTROY_WITH_PARENT,
+            GTK_MESSAGE_WARNING,
+            GTK_BUTTONS_CLOSE,
+            "%s",gettext(title));
+
+        gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(warndialog),
+            "%s",gettext(message));
+
+        gtk_widget_show(warndialog);
+        gtk_dialog_run (GTK_DIALOG (warndialog));
+        gtk_widget_destroy (warndialog);
+        return;
+	}
+
+	/*fatal error message*/
+	GtkWidget *errdialog = gtk_dialog_new_with_buttons (_("Error"),
+		GTK_WINDOW(main_window),
+		GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+		_("_Ok"), GTK_RESPONSE_ACCEPT,
+		_("_Cancel"), GTK_RESPONSE_REJECT,
+		NULL);
+
+	GtkWidget *table = gtk_grid_new();
+
+	GtkWidget *title_lbl = gtk_label_new (gettext(title));
+	gtk_widget_modify_font(title_lbl, pango_font_description_from_string ("Sans bold 10"));
+	gtk_misc_set_alignment (GTK_MISC (title_lbl), 0, 0);
+	gtk_grid_attach (GTK_GRID (table), title_lbl, 0, 0, 2, 1);
+	gtk_widget_show (title_lbl);
+
+	GtkWidget *text = gtk_label_new (gettext(message));
+	gtk_widget_modify_font(text, pango_font_description_from_string ("Sans italic 8"));
+	gtk_misc_set_alignment (GTK_MISC (text), 0, 0);
+	gtk_grid_attach (GTK_GRID (table), text, 0, 1, 2, 1);
+	gtk_widget_show (text);
+
+	GtkWidget *wgtDevices = NULL;
+	/*add device list (more than one device)*/
+	if(device->num_devices > 1)
+	{
+		GtkWidget *text2 = gtk_label_new (_("\nYou have more than one video device installed.\n"
+			"Do you want to try another one ?\n"));
+		gtk_widget_modify_font(text2, pango_font_description_from_string ("Sans 10"));
+		gtk_misc_set_alignment (GTK_MISC (text2), 0, 0);
+		gtk_grid_attach (GTK_GRID (table), text2, 0, 2, 2, 1);
+		gtk_widget_show (text2);
+
+		GtkWidget *dev_lbl = gtk_label_new(_("Device:"));
+		gtk_misc_set_alignment (GTK_MISC (dev_lbl), 0.5, 0.5);
+		gtk_grid_attach (GTK_GRID(table), dev_lbl, 0, 3, 1, 1);
+		gtk_widget_show (dev_lbl);
+
+		wgtDevices = gtk_combo_box_text_new ();
+		gtk_widget_set_halign (wgtDevices, GTK_ALIGN_FILL);
+		gtk_widget_set_hexpand (wgtDevices, TRUE);
+
+		int i = 0;
+		for(i = 0; i < (device->num_devices); i++)
+		{
+			gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(wgtDevices),
+				device->list_devices[i].name);
+		}
+		/*select the last listed device by default*/
+		gtk_combo_box_set_active(GTK_COMBO_BOX(wgtDevices), device->num_devices - 1);
+
+		gtk_grid_attach(GTK_GRID(table), wgtDevices, 1, 3, 1, 1);
+		gtk_widget_show (wgtDevices);
+	}
+
+	GtkWidget *content_area = gtk_dialog_get_content_area (GTK_DIALOG (errdialog));
+	gtk_container_add (GTK_CONTAINER (content_area), table);
+	gtk_widget_show (table);
+
+	int result = gtk_dialog_run (GTK_DIALOG (errdialog));
+
+	if(device->num_devices > 1)
+	{
+		switch (result)
+		{
+			case GTK_RESPONSE_ACCEPT:
+			{
+				/*launch another guvcview instance for the selected device*/
+				int index = gtk_combo_box_get_active(GTK_COMBO_BOX(wgtDevices));
+				if(index == device->this_device)
+					return;
+
+				free(device->videodevice);
+				device->videodevice = g_strdup(device->list_devices[index].device);
+				gchar *command = g_strjoin("",
+					g_get_prgname(),
+					" --device=",
+					device->videodevice,
+					NULL);
+
+				/*spawn new process*/
+				GError *error = NULL;
+				if(!(g_spawn_command_line_async(command, &error)))
+				{
+					fprintf(stderr, "GUVCVIEW: spawn failed: %s\n", error->message);
+					g_error_free( error );
+				}
+			}
+			break;
+
+			default:
+				/* do nothing since dialog was cancelled or closed */
+				break;
+
+		}
+	}
+
+	gtk_widget_destroy (errdialog);
+
+	quit_callback(NULL); /*terminate the program*/
+}
+
+/*
  * GUI initialization
  * args:
  *   device - pointer to device data we want to attach the gui for
- *   gui - gui API to use (GUI_NONE, GUI_GTK3, ...)
  *   width - window width
  *   height - window height
  *

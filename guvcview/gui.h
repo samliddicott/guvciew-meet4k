@@ -383,6 +383,24 @@ void gui_set_video_capture_button_status(int flag);
 void set_webm_codecs();
 
 /*
+ * GUI warning/error dialog
+ * args:
+ *   device - pointer to device data
+ *   title - dialog title string
+ *   message - error message string
+ *   fatal - flag a fatal error (display device list combo box)
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void gui_error(v4l2_dev_t *device,
+	const char *title,
+	const char *message,
+	int fatal);
+
+/*
  * GUI initialization
  * args:
  *   device - pointer to device data we want to attach the gui for

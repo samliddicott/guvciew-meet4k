@@ -110,10 +110,27 @@ void set_audio_codec_group_list(GSList *list);
 void set_webm_codecs_gtk();
 
 /*
+ * GUI warning/error dialog
+ * args:
+ *   device - pointer to device data
+ *   title - dialog title string
+ *   message - error message string
+ *   fatal - flag a fatal error (display device list combo box)
+ *
+ * asserts:
+ *   device is not null
+ *
+ * returns: none
+ */
+void gui_error_gtk3(v4l2_dev_t *device,
+	const char *title,
+	const char *message,
+	int fatal);
+
+/*
  * GUI initialization
  * args:
  *   device - pointer to device data we want to attach the gui for
- *   gui - gui API to use (GUI_NONE, GUI_GTK3, ...)
  *   width - window width
  *   height - window height
  *

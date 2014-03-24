@@ -95,7 +95,6 @@ int gui_attach_gtk3_videoctrls(v4l2_dev_t *device, GtkWidget *parent)
 
 	gtk_widget_show (label_Device);
 
-
 	GtkWidget *wgtDevices = gtk_combo_box_text_new ();
 	gtk_widget_set_halign (wgtDevices, GTK_ALIGN_FILL);
 	gtk_widget_set_hexpand (wgtDevices, TRUE);
