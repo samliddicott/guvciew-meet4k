@@ -142,13 +142,11 @@ int main(int argc, char *argv[])
 
 	v4l2_dev_t *device = v4l2core_init_dev(my_options->device);
 
-	/*initialize the gui (do it here so that we can call error dialogs)*/
-	gui_attach(device, gui, 800, 600, my_options->control_panel);
-
 	if(device)
 		set_render_flag(render);
 	else
 	{
+		gui_error(device, "Guvcview error", "no video device found", 1);
 		options_clean();
 		return -1;
 	}
@@ -237,6 +235,9 @@ int main(int argc, char *argv[])
 		if(ret)
 			fprintf(stderr, "GUVCVIEW: Video thread creation failed\n");
 	}
+
+	/*initialize the gui*/
+	gui_attach(device, gui, 800, 600, my_options->control_panel);
 
 	/*run the gui loop*/
 	gui_run();

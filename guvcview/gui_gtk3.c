@@ -58,8 +58,10 @@ static GtkWidget *CapVideoButt = NULL;
 GSList *video_codec_group = NULL;
 /*group list for menu audio codecs*/
 GSList *audio_codec_group = NULL;
+/*flag gtk3_main call*/
 static int gtk_main_called = 0;
-
+/*flag gtk3_init called*/
+static int gtk_init_called = 0;
 
 /*
  * adds a message to the status bar
@@ -244,6 +246,17 @@ void gui_error_gtk3(v4l2_dev_t *device,
 	const char *message,
 	int fatal)
 {
+	if(!gtk_init_called)
+	{
+		if(!gtk_init_check(NULL, NULL))
+		{
+			fprintf(stderr, "GUVCVIEW: (GUI) Gtk3 can't open display\n");
+			fprintf(stderr, "%s: %s \n", title, message);
+			return;
+		}
+
+		gtk_init_called = 1;
+	}
 	/*simple warning message - not fatal and no device selection*/
 	if(!fatal)
 	{
@@ -380,11 +393,17 @@ void gui_error_gtk3(v4l2_dev_t *device,
  */
 int gui_attach_gtk3(v4l2_dev_t *device, int width, int height)
 {
-	if(!gtk_init_check(NULL, NULL))
+	if(!gtk_init_called)
 	{
-		fprintf(stderr, "GUVCVIEW: (GUI) Gtk3 can't open display\n");
-		return -1;
+		if(!gtk_init_check(NULL, NULL))
+		{
+			fprintf(stderr, "GUVCVIEW: (GUI) Gtk3 can't open display\n");
+			return -1;
+		}
+
+		gtk_init_called = 1;
 	}
+
 
 	/*check for device errors*/
 	if(!device)

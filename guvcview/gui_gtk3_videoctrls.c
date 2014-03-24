@@ -69,8 +69,11 @@ int gui_attach_gtk3_videoctrls(v4l2_dev_t *device, GtkWidget *parent)
 
 	int format_index = v4l2core_get_frame_format_index(device, device->requested_fmt);
 
-	if(debug_level > 1)
-		printf("GUVCVIEW: adding video devices list 1\n");
+	if(format_index < 0)
+	{
+		gui_error(device, "Guvcview error", "invalid pixel format", 0);
+		printf("GUVCVIEW: invalid pixel format\n");
+	}
 
 	int resolu_index = v4l2core_get_format_resolution_index(
 		device,
@@ -78,8 +81,11 @@ int gui_attach_gtk3_videoctrls(v4l2_dev_t *device, GtkWidget *parent)
 		device->format.fmt.pix.width,
 		device->format.fmt.pix.height);
 
-	if(debug_level > 1)
-		printf("GUVCVIEW: adding video devices list 2\n");
+	if(resolu_index < 0)
+	{
+		gui_error(device, "Guvcview error", "invalid resolution index", 0);
+		printf("GUVCVIEW: invalid resolution index\n");
+	}
 
 	GtkWidget *video_controls_grid = gtk_grid_new();
 	gtk_widget_show (video_controls_grid);
