@@ -108,6 +108,9 @@ int gui_attach_gtk3_v4l2ctrls(v4l2_dev_t *device, GtkWidget *parent)
 	assert(device != NULL);
 	assert(parent != NULL);
 
+	if(debug_level > 1)
+		printf("GUVCVIEW: attaching v4l2 controls\n");
+
 	GtkWidget *img_controls_grid = gtk_grid_new();
 	gtk_widget_show (img_controls_grid);
 
@@ -414,7 +417,7 @@ int gui_attach_gtk3_v4l2ctrls(v4l2_dev_t *device, GtkWidget *parent)
 
 				//control_widgets_list[n].widget2 = gtk_button_new_from_stock(GTK_STOCK_APPLY);
 				control_widgets_list[n].widget2 = gtk_button_new_with_mnemonic (_("_Apply"));
-				
+
 				gtk_widget_show (control_widgets_list[n].widget);
 				gtk_widget_show (control_widgets_list[n].widget2);
 
@@ -461,7 +464,7 @@ int gui_attach_gtk3_v4l2ctrls(v4l2_dev_t *device, GtkWidget *parent)
 
 					//control_widgets_list[n].widget2 = gtk_button_new_from_stock(GTK_STOCK_APPLY);
 					control_widgets_list[n].widget2 = gtk_button_new_with_mnemonic (_("_Apply"));
-					
+
 					gtk_widget_show (control_widgets_list[n].widget);
 					gtk_widget_show (control_widgets_list[n].widget2);
 
