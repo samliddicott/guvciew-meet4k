@@ -75,7 +75,6 @@ static int gtk_init_called = 0;
  */
 void gui_status_message_gtk3(const char *message)
 {
-	printf("GUVCVIEW: (status) %s\n", message);
 	if(status_bar)
 	{
 		gtk_statusbar_pop (GTK_STATUSBAR(status_bar), status_warning_id);

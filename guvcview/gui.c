@@ -690,6 +690,8 @@ void gui_status_message(const char *message)
 			gui_status_message_gtk3(message);
 			break;
 	}
+
+	printf("GUVCVIEW: (status) %s\n", message);
 }
 
 /*
