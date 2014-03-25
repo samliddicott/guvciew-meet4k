@@ -78,8 +78,11 @@ void gui_status_message_gtk3(const char *message)
 	printf("GUVCVIEW: (status) %s\n", message);
 	if(status_bar)
 	{
+		printf("pop status bar message\n");
 		gtk_statusbar_pop (GTK_STATUSBAR(status_bar), status_warning_id);
+		printf("push status bar message\n");
 		gtk_statusbar_push (GTK_STATUSBAR(status_bar), status_warning_id, message);
+		printf("all done\n");
 	}
 }
 
