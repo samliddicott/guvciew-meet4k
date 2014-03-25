@@ -53,7 +53,9 @@ static config_t my_config =
 	.video_name = NULL,
 	.video_path = NULL,
 	.photo_name = NULL,
-	.photo_path = NULL
+	.photo_path = NULL,
+	.video_sufix = 1,
+	.photo_sufix = 1
 };
 
 /*
@@ -124,10 +126,14 @@ int config_save(const char *filename)
 	fprintf(fp, "video_name=%s\n", my_config.video_name);
 	fprintf(fp, "#video path\n");
 	fprintf(fp, "video_path=%s\n", my_config.video_path);
+	fprintf(fp, "#video sufix flag\n");
+	fprintf(fp, "video_sufix=%i\n", my_config.video_sufix);
 	fprintf(fp, "#photo name\n");
 	fprintf(fp, "photo_name=%s\n", my_config.photo_name);
 	fprintf(fp, "#photo path\n");
 	fprintf(fp, "photo_path=%s\n", my_config.photo_path);
+	fprintf(fp, "#photo sufix flag\n");
+	fprintf(fp, "photo_sufix=%i\n", my_config.photo_sufix);
 
 	/* return to system locale */
     setlocale(LC_NUMERIC, "");
@@ -250,51 +256,37 @@ int config_load(const char *filename)
 		}
 		else if(strcmp(token, "video_name") == 0  && strlen(value) > 2)
 		{
-			
 			if(my_config.video_name)
 				free(my_config.video_name);
 			my_config.video_name = strdup(value);
-			set_video_name(value);
 		}
 		else if(strcmp(token, "video_path") == 0)
 		{
 			if(my_config.video_path)
 				free(my_config.video_path);
 			my_config.video_path = strdup(value);
-			set_video_path(value);
 		}
 		else if(strcmp(token, "photo_name") == 0  && strlen(value) > 2)
 		{
 			if(my_config.photo_name)
 				free(my_config.photo_name);
 			my_config.photo_name = strdup(value);
-
-			/*get image format*/
-			char *ext = get_file_extension(value);
-			if(ext == NULL)
-				fprintf(stderr, "GUVCVIEW: (options) no file extension for image file %s\n",
-						value);
-			else if( strcasecmp(ext, "jpg") == 0 ||
-					 strcasecmp(ext, "jpeg") == 0 )
-				set_photo_format(IMG_FMT_JPG);
-			else if ( strcasecmp(ext, "png") == 0 )
-				set_photo_format(IMG_FMT_PNG);
-			else if ( strcasecmp(ext, "bmp") == 0 )
-				set_photo_format(IMG_FMT_BMP);
-			else if ( strcasecmp(ext, "raw") == 0 )
-				set_photo_format(IMG_FMT_RAW);
-
-			if(ext)
-				free(ext);
-
-			//set_photo_name(value);
 		}
 		else if(strcmp(token, "photo_path") == 0)
 		{
 			if(my_config.photo_path)
 				free(my_config.photo_path);
 			my_config.photo_path = strdup(value);
-			//set_photo_path(value);
+		}
+		else if(strcmp(token, "video_sufix") == 0)
+		{
+			my_config.video_sufix = (int) strtoul(value, NULL, 10);
+			set_video_sufix_flag(my_config.video_sufix);
+		}
+		else if(strcmp(token, "photo_sufix") == 0)
+		{
+			my_config.photo_sufix = (int) strtoul(value, NULL, 10);
+			set_photo_sufix_flag(my_config.photo_sufix);
 		}
 		else
 			fprintf(stderr, "GUVCVIEW: (config) skiping invalid entry at line %i ('%s', '%s')\n", line, token, value);

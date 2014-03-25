@@ -146,6 +146,8 @@ int main(int argc, char *argv[])
 		set_render_flag(render);
 	else
 	{
+		char message[50];
+		snprintf(message, 49, "no video device (%s) found", my_options->device);
 		gui_error(device, "Guvcview error", "no video device found", 1);
 		options_clean();
 		return -1;

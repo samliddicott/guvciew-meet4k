@@ -143,7 +143,7 @@ static void profile_update_extension (GtkComboBox *chooser, GtkWidget *file_dial
 		case 1:
 			gtk_file_filter_add_pattern(filter, "*.*");
 			break;
-			
+
 		default:
 		case 0:
 			gtk_file_filter_add_pattern(filter, "*.gpfl");
@@ -187,7 +187,7 @@ void controls_profile_clicked (GtkWidget *item, void *data)
 			NULL);
 
 		gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (FileDialog), TRUE);
-		
+
 		gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (FileDialog),
 			get_profile_name());
 	}
@@ -200,7 +200,7 @@ void controls_profile_clicked (GtkWidget *item, void *data)
 			 _("_Open"), GTK_RESPONSE_ACCEPT,
 			NULL);
 	}
-	
+
 	/** create a file filter */
 	GtkFileFilter *filter = gtk_file_filter_new();
 
@@ -225,7 +225,7 @@ void controls_profile_clicked (GtkWidget *item, void *data)
 	gtk_widget_show(FileFormat);
 
 	gtk_file_filter_add_pattern(filter, "*.gpfl");
-	
+
 	gtk_file_chooser_set_filter(GTK_FILE_CHOOSER (FileDialog), filter);
 	gtk_file_chooser_set_extra_widget(GTK_FILE_CHOOSER (FileDialog), FBox);
 
@@ -240,7 +240,7 @@ void controls_profile_clicked (GtkWidget *item, void *data)
 	{
 		/*Save Controls Data*/
 		const char *filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (FileDialog));
-		
+
 		if(save_or_load > 0)
 		{
 			v4l2core_save_control_profile(device, filename);
@@ -250,7 +250,7 @@ void controls_profile_clicked (GtkWidget *item, void *data)
 			v4l2core_load_control_profile(device, filename);
 			gui_gtk3_update_controls_state(device);
 		}
-		
+
 		/*update config*/
 		config_t *my_config = config_get();
 
@@ -287,10 +287,12 @@ void controls_profile_clicked (GtkWidget *item, void *data)
  */
 void photo_sufix_toggled (GtkWidget *item, void *data)
 {
-    //v4l2_dev_t *device = (v4l2_dev_t *) data;
-
-	int flag = gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(item)) ? 1 : 0;
+  	int flag = gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(item)) ? 1 : 0;
 	set_photo_sufix_flag(flag);
+
+	/*update config*/
+	config_t *my_config = config_get();
+	my_config->photo_sufix = flag;
 }
 
 /*
@@ -306,10 +308,12 @@ void photo_sufix_toggled (GtkWidget *item, void *data)
  */
 void video_sufix_toggled (GtkWidget *item, void *data)
 {
-    //v4l2_dev_t *device = (v4l2_dev_t *) data;
-
 	int flag = gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(item)) ? 1 : 0;
 	set_video_sufix_flag(flag);
+
+	/*update config*/
+	config_t *my_config = config_get();
+	my_config->video_sufix = flag;
 }
 
 /*
@@ -329,7 +333,8 @@ void video_codec_changed (GtkRadioMenuItem *item, void *data)
 
 	if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(item)))
 	{
-		/**GSList indexes (g_slist_index) are in reverse order:
+		/*
+		 * GSList indexes (g_slist_index) are in reverse order:
 		 * last inserted has index 0
 		 * so count backwards
 		 */
@@ -369,7 +374,8 @@ void audio_codec_changed (GtkRadioMenuItem *item, void *data)
 
 	if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(item)))
 	{
-		/**GSList indexes (g_slist_index) are in reverse order:
+		/*
+		 * GSList indexes (g_slist_index) are in reverse order:
 		 * last inserted has index 0
 		 * so count backwards
 		 */
@@ -582,7 +588,7 @@ void photo_file_clicked (GtkWidget *item, void *data)
 	if (gtk_dialog_run (GTK_DIALOG (FileDialog)) == GTK_RESPONSE_ACCEPT)
 	{
 		const char *filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (FileDialog));
-		
+
 		config_t *my_config = config_get();
 
 		char *basename = get_file_basename(filename);
@@ -690,7 +696,7 @@ void video_file_clicked (GtkWidget *item, void *data)
 		const char *filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (FileDialog));
 
 		config_t *my_config = config_get();
-		
+
 		char *basename = get_file_basename(filename);
 		if(basename)
 		{

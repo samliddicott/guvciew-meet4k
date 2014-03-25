@@ -41,6 +41,8 @@ typedef struct _config_t
 	char *video_name;
 	char *photo_path;
 	char *photo_name;
+	int video_sufix;
+	int photo_sufix;
 } config_t;
 
 /*
