@@ -71,6 +71,7 @@ static audio_context_t *my_audio_ctx = NULL;
 
 static __THREAD_TYPE encoder_thread;
 
+static char status_message[80];
 /*
  * set render flag
  * args:
@@ -505,9 +506,8 @@ static void *encoder_loop(void *data)
 
 	//if(debug_level > 1)
 	//	printf("GUVCVIEW: saving video to %s\n", video_filename);
-	char message[80];
-	snprintf(message, 79, _("saving video to %s"), video_filename);
-	gui_status_message(message);
+	snprintf(status_message, 79, _("saving video to %s"), video_filename);
+	gui_status_message(status_message);
 
 	encoder_muxer_init(encoder_ctx, video_filename);
 
@@ -725,9 +725,8 @@ void *capture_loop(void *data)
 				//if(debug_level > 1)
 				//	printf("GUVCVIEW: saving image to %s\n", img_filename);
 
-				char message[80];
-				snprintf(message, 79, _("saving image to %s"), img_filename);
-				gui_status_message(message);
+				snprintf(status_message, 79, _("saving image to %s"), img_filename);
+				gui_status_message(status_message);
 
 				v4l2core_save_image(device, img_filename, get_photo_format());
 
