@@ -401,6 +401,18 @@ void gui_error(v4l2_dev_t *device,
 	int fatal);
 
 /*
+ * adds a message to the status bar
+ * args:
+ *    message - message string
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void gui_status_message(const char *message);
+
+/*
  * GUI initialization
  * args:
  *   device - pointer to device data we want to attach the gui for

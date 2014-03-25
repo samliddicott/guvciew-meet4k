@@ -503,8 +503,11 @@ static void *encoder_loop(void *data)
 	else
 		video_filename = smart_cat(path, 0, name);
 
-	if(debug_level > 1)
-		printf("GUVCVIEW: saving video to %s\n", video_filename);
+	//if(debug_level > 1)
+	//	printf("GUVCVIEW: saving video to %s\n", video_filename);
+	char message[50];
+	snprintf(message, 49, "saving video to %s", video_filename);
+	gui_status_message(message);
 
 	encoder_muxer_init(encoder_ctx, video_filename);
 
@@ -718,8 +721,12 @@ void *capture_loop(void *data)
 				else
 					img_filename = smart_cat(path, 0, name);
 
-				if(debug_level > 1)
-					printf("GUVCVIEW: saving image to %s\n", img_filename);
+				//if(debug_level > 1)
+				//	printf("GUVCVIEW: saving image to %s\n", img_filename);
+
+				char message[50];
+				snprintf(message, 49, "saving image to %s", img_filename);
+				gui_status_message(message);
 
 				v4l2core_save_image(device, img_filename, get_photo_format());
 

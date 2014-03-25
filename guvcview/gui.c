@@ -669,6 +669,30 @@ void gui_error(v4l2_dev_t *device,
 }
 
 /*
+ * adds a message to the status bar
+ * args:
+ *    message - message string
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void gui_status_message(const char *message)
+{
+	switch(gui_api)
+	{
+		case GUI_NONE:
+			break;
+
+		case GUI_GTK3:
+		default:
+			gui_status_message_gtk3(message);
+			break;
+	}
+}
+
+/*
  * GUI initialization
  * args:
  *   device - pointer to device data we want to attach the gui for
