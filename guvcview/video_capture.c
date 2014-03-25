@@ -505,8 +505,8 @@ static void *encoder_loop(void *data)
 
 	//if(debug_level > 1)
 	//	printf("GUVCVIEW: saving video to %s\n", video_filename);
-	char message[50];
-	snprintf(message, 49, "saving video to %s", video_filename);
+	char message[80];
+	snprintf(message, 79, _("saving video to %s"), video_filename);
 	gui_status_message(message);
 
 	encoder_muxer_init(encoder_ctx, video_filename);
@@ -645,6 +645,9 @@ void *capture_loop(void *data)
 				if(ret != E_OK)
 				{
 					fprintf(stderr, "GUCVIEW: also could not set the first listed stream format\n");
+
+					gui_error(device, "Guvcview error", "could not start a video stream in the device", 1);
+
 					return ((void *) -1);
 				}
 			}
@@ -671,8 +674,6 @@ void *capture_loop(void *data)
 			if(v4l2core_frame_decode(device) != E_OK)
 			{
 				fprintf(stderr, "GUVCIEW: Error - Couldn't decode frame\n");
-				//quit_callback(NULL);
-				//continue;
 			}
 
 			/*run software autofocus (must be called after frame_decode)*/
@@ -680,7 +681,7 @@ void *capture_loop(void *data)
 				do_soft_focus = v4l2core_soft_autofocus_run(device);
 
 			/*render the decoded frame*/
-			snprintf(render_caption, 20, "SDL Video - %2.2f", v4l2core_get_realfps());
+			snprintf(render_caption, 20, "Guvcview  (%2.2f fps)", v4l2core_get_realfps());
 			render_set_caption(render_caption);
 			render_frame(device->yuv_frame, my_render_mask);
 
@@ -724,8 +725,8 @@ void *capture_loop(void *data)
 				//if(debug_level > 1)
 				//	printf("GUVCVIEW: saving image to %s\n", img_filename);
 
-				char message[50];
-				snprintf(message, 49, "saving image to %s", img_filename);
+				char message[80];
+				snprintf(message, 79, _("saving image to %s"), img_filename);
 				gui_status_message(message);
 
 				v4l2core_save_image(device, img_filename, get_photo_format());
