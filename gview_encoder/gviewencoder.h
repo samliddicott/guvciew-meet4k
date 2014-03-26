@@ -630,6 +630,18 @@ int encoder_add_video_frame(uint8_t *frame, int size, int64_t timestamp, int isK
 int encoder_process_next_video_buffer(encoder_context_t *encoder_ctx);
 
 /*
+ * process all used video frames from buffer
+  * args:
+ *   encoder_ctx - pointer to encoder context
+ *
+ * asserts:
+ *   encoder_ctx is not null
+ *
+ * returns: error code
+ */
+int encoder_flush_video_buffer(encoder_context_t *encoder_ctx);
+
+/*
  * process audio buffer (encode and mux to file)
  * args:
  *   encoder_ctx - pointer to encoder context

@@ -916,6 +916,70 @@ int encoder_process_next_video_buffer(encoder_context_t *encoder_ctx)
 }
 
 /*
+ * process all used video frames from buffer
+  * args:
+ *   encoder_ctx - pointer to encoder context
+ *
+ * asserts:
+ *   encoder_ctx is not null
+ *
+ * returns: error code
+ */
+int encoder_flush_video_buffer(encoder_context_t *encoder_ctx)
+{
+	/*assertions*/
+	assert(encoder_ctx != NULL);
+
+	__LOCK_MUTEX( __PMUTEX );
+	int flag = video_ring_buffer[video_read_index].flag;
+	__UNLOCK_MUTEX ( __PMUTEX );
+
+	int buffer_count = video_ring_buffer_size;
+
+	while(flag != VIDEO_BUFF_FREE && buffer_count > 0)
+	{
+		buffer_count--;
+
+		/*timestamp is zero indexed*/
+		encoder_ctx->enc_video_ctx->pts = video_ring_buffer[video_read_index].timestamp;
+
+		/*raw (direct input)*/
+		if(encoder_ctx->video_codec_ind == 0)
+		{
+			/*outbuf_coded_size must already be set*/
+			encoder_ctx->enc_video_ctx->outbuf_coded_size = video_ring_buffer[video_read_index].frame_size;
+			if(video_ring_buffer[video_read_index].keyframe)
+				encoder_ctx->enc_video_ctx->flags |= AV_PKT_FLAG_KEY;
+		}
+
+		encoder_encode_video(encoder_ctx, video_ring_buffer[video_read_index].frame);
+
+		/*mux the frame*/
+		__LOCK_MUTEX( __PMUTEX );
+
+		video_ring_buffer[video_read_index].flag = VIDEO_BUFF_FREE;
+		NEXT_IND(video_read_index, video_ring_buffer_size);
+
+		__UNLOCK_MUTEX ( __PMUTEX );
+
+		encoder_write_video_data(encoder_ctx);
+
+		/*get next buffer flag*/
+		__LOCK_MUTEX( __PMUTEX );
+		flag = video_ring_buffer[video_read_index].flag;
+		__UNLOCK_MUTEX ( __PMUTEX );
+	}
+
+	if(!buffer_count)
+	{
+		fprintf(stderr, "ENCODER: (flush video buffer) max processed buffers reached\n");
+		return -1;
+	}
+
+	return 0;
+}
+
+/*
  * process audio frame (encode and mux to file)
  * args:
  *   encoder_ctx - pointer to encoder context

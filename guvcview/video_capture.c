@@ -544,6 +544,9 @@ static void *encoder_loop(void *data)
 		}
 	}
 
+	/*flush the buffer*/
+	encoder_flush_video_buffer(encoder_ctx);
+
 	/*make sure the audio processing thread has stopped*/
 	if(encoder_ctx->enc_audio_ctx != NULL && audio_ctx->channels > 0)
 	{
