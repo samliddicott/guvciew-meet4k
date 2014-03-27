@@ -160,6 +160,9 @@ int gui_attach_gtk3_v4l2ctrls(v4l2_dev_t *device, GtkWidget *parent)
 					case V4L2_CID_PAN_RELATIVE:
 					case V4L2_CID_TILT_RELATIVE:
 					{
+						/*flag the mapping of pan_tilt controls*/
+						set_has_pan_tilt(1);
+
 						control_widgets_list[n].widget = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 1);
 
 						GtkWidget *PanTilt1 = NULL;

@@ -83,6 +83,30 @@ int get_audio_codec_ind();
 void set_audio_codec_ind(int index);
 
 /*
+ * checks if device has pan/tilt controls
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: 1 if pan_tilt controls were mapped or 0 otherwise
+ */
+int get_has_pan_tilt();
+
+/*
+ * sets pan/tilt controls flag
+ * args:
+ *   pan_tilt - flag for pan_tilt controls
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void set_has_pan_tilt(int pan_tilt);
+
+/*
  * gets the default camera button action
  * args:
  *   none

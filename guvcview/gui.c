@@ -79,6 +79,8 @@ static int video_muxer = ENCODER_MUX_MKV;
 static int my_video_codec_ind = 0;
 static int my_audio_codec_ind = 0;
 
+static int has_pan_tilt = 0;
+
 /*
  * gets the current video codec index
  * args:
@@ -191,6 +193,36 @@ int get_default_camera_button_action()
 void set_default_camera_button_action(int action)
 {
 	default_camera_button_action = action;
+}
+
+/*
+ * checks if device has pan/tilt controls
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: 1 if pan_tilt controls were mapped or 0 otherwise
+ */
+int get_has_pan_tilt()
+{
+	return has_pan_tilt;
+}
+
+/*
+ * sets pan/tilt controls flag
+ * args:
+ *   pan_tilt - flag for pan_tilt controls
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void set_has_pan_tilt(int pan_tilt)
+{
+	has_pan_tilt = pan_tilt;
 }
 
 /*

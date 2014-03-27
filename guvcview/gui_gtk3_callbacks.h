@@ -542,6 +542,20 @@ void encoder_video_properties(GtkMenuItem *item, void *data);
  */
 void encoder_audio_properties(GtkMenuItem *item, void *data);
 
+/*
+ * gtk3 window key pressed event
+ * args:
+ *   win - pointer to widget (main window) where event ocurred
+ *   event - pointer to GDK key event structure
+ *   data - pointer to user data
+ *
+ * asserts:
+ *   none
+ *
+ * returns: true if we handled the event or false otherwise
+ */
+gboolean window_key_pressed (GtkWidget *win, GdkEventKey *event, void *data);
+
 
 /***** TIMERS *******/
 /*

@@ -268,6 +268,18 @@ void gui_clean_gtk3_control_widgets_list();
 void gui_status_message_gtk3(const char *message);
 
 /*
+ * click image capture button
+ * args:
+ *    data - pointer to user data
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void gui_click_image_capture_button_gtk3(void *data);
+
+/*
  * sets the Image capture button label
  * args:
  *   label: Image capture button label
@@ -278,6 +290,18 @@ void gui_status_message_gtk3(const char *message);
  * returns: none
  */
 void gui_set_image_capture_button_label_gtk3(const char *label);
+
+/*
+ * click video capture button
+ * args:
+ *    data - pointer to user data
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void gui_click_video_capture_button_gtk3(void *data);
 
 /*
  * sets the Video capture button status (on|off)

@@ -232,6 +232,24 @@ void set_audio_codec_group_list_gtk3(GSList *list)
 }
 
 /*
+ * click image capture button
+ * args:
+ *    data - pointer to user data
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void gui_click_image_capture_button_gtk3(void *data)
+{
+	if(!CapImageButt)
+		return;
+
+	capture_image_clicked (GTK_BUTTON(CapImageButt), data);
+}
+
+/*
  * sets the Image capture button label
  * args:
  *   label: Image capture button label
@@ -247,6 +265,24 @@ void gui_set_image_capture_button_label_gtk3(const char *label)
 		return;
 
 	gtk_button_set_label(GTK_BUTTON(CapImageButt), label);
+}
+
+/*
+ * click video capture button
+ * args:
+ *    data - pointer to user data
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void gui_click_video_capture_button_gtk3(void *data)
+{
+	if(!CapVideoButt)
+		return;
+
+	capture_image_clicked (GTK_BUTTON(CapVideoButt), data);
 }
 
 /*
@@ -714,6 +750,10 @@ int gui_attach_gtk3(v4l2_dev_t *device, int width, int height)
 
 	/* attach to main window container */
 	gtk_container_add (GTK_CONTAINER (main_window), maintable);
+
+	/* add key events*/
+	gtk_widget_add_events (GTK_WIDGET (main_window), GDK_KEY_PRESS_MASK | GDK_KEY_RELEASE_MASK);
+	g_signal_connect (GTK_WINDOW(main_window), "key_press_event", G_CALLBACK(window_key_pressed), device);
 
 	/* add update timers:
 	 *  devices

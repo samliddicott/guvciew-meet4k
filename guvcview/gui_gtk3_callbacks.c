@@ -2132,6 +2132,111 @@ void encoder_audio_properties(GtkMenuItem *item, void *data)
 }
 
 /*
+ * gtk3 window key pressed event
+ * args:
+ *   win - pointer to widget (main window) where event ocurred
+ *   event - pointer to GDK key event structure
+ *   data - pointer to user data
+ *
+ * asserts:
+ *   none
+ *
+ * returns: true if we handled the event or false otherwise
+ */
+gboolean window_key_pressed (GtkWidget *win, GdkEventKey *event, void *data)
+{
+	v4l2_dev_t *device = (v4l2_dev_t *) data;
+
+	/* If we have modifiers, and either Ctrl, Mod1 (Alt), or any
+	 * of Mod3 to Mod5 (Mod2 is num-lock...) are pressed, we
+	 * let Gtk+ handle the key */
+	//printf("GUVCVIEW: key pressed (key:%i)\n", event->keyval);
+	if (event->state != 0
+		&& ((event->state & GDK_CONTROL_MASK)
+		|| (event->state & GDK_MOD1_MASK)
+		|| (event->state & GDK_MOD3_MASK)
+		|| (event->state & GDK_MOD4_MASK)
+		|| (event->state & GDK_MOD5_MASK)))
+		return FALSE;
+
+    if(get_has_pan_tilt())
+    {
+		int id = 0;
+		int value = 0;
+
+        switch (event->keyval)
+        {
+            case GDK_KEY_Down:
+            case GDK_KEY_KP_Down:
+				id = V4L2_CID_TILT_RELATIVE;
+				value = device->tilt_step;
+				break;
+
+            case GDK_KEY_Up:
+            case GDK_KEY_KP_Up:
+				id = V4L2_CID_TILT_RELATIVE;
+				value = - device->tilt_step;
+				break;
+
+            case GDK_KEY_Left:
+            case GDK_KEY_KP_Left:
+				id = V4L2_CID_PAN_RELATIVE;
+				value = device->pan_step;
+				break;
+
+            case GDK_KEY_Right:
+            case GDK_KEY_KP_Right:
+                id = V4L2_CID_PAN_RELATIVE;
+				value = - device->pan_step;
+				break;
+
+            default:
+                break;
+        }
+
+        if(id != 0 && value != 0)
+        {
+			v4l2_ctrl_t *control = v4l2core_get_control_by_id(device, id);
+
+			if(control)
+			{
+				control->value =  value;
+
+				if(v4l2core_set_control_value_by_id(device, id))
+					fprintf(stderr, "GUVCVIEW: error setting pan/tilt value\n");
+
+				return TRUE;
+			}
+		}
+    }
+
+    switch (event->keyval)
+    {
+        case GDK_KEY_WebCam:
+
+			/* camera button pressed */
+			if (get_default_camera_button_action() == DEF_ACTION_IMAGE)
+				gui_click_image_capture_button_gtk3(device);
+			else
+				gui_click_video_capture_button_gtk3(device);
+			return TRUE;
+
+		case GDK_KEY_V:
+		case GDK_KEY_v:
+			gui_click_video_capture_button_gtk3(device);
+			return TRUE;
+
+		case GDK_KEY_I:
+		case GDK_KEY_i:
+			gui_click_image_capture_button_gtk3(device);
+			return TRUE;
+
+	}
+
+    return FALSE;
+}
+
+/*
  * device list events timer callback
  * args:
  *   data - pointer to user data
