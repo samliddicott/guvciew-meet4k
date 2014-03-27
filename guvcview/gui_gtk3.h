@@ -315,5 +315,17 @@ GtkWidget *get_main_window();
  */
 GtkWidget *get_wgtDevices();
 
+/*
+ * set the device list widget
+ * args:
+ *    widget - pointer to the device list widget
+ *
+ * asserts:
+ *    none
+ *
+ * returns: void
+ */
+void set_wgtDevices(GtkWidget *widget);
+
 
 #endif
