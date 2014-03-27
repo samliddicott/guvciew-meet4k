@@ -234,19 +234,19 @@ void set_audio_codec_group_list_gtk3(GSList *list)
 /*
  * click image capture button
  * args:
- *    data - pointer to user data
+ *    none
  *
  * asserts:
  *    none
  *
  * returns: none
  */
-void gui_click_image_capture_button_gtk3(void *data)
+void gui_click_image_capture_button_gtk3()
 {
 	if(!CapImageButt)
 		return;
 
-	capture_image_clicked (GTK_BUTTON(CapImageButt), data);
+	gtk_button_clicked(GTK_BUTTON(CapImageButt));
 }
 
 /*
@@ -270,19 +270,24 @@ void gui_set_image_capture_button_label_gtk3(const char *label)
 /*
  * click video capture button
  * args:
- *    data - pointer to user data
+ *    none
  *
  * asserts:
  *    none
  *
  * returns: none
  */
-void gui_click_video_capture_button_gtk3(void *data)
+void gui_click_video_capture_button_gtk3()
 {
 	if(!CapVideoButt)
 		return;
 
-	capture_video_clicked (GTK_TOGGLE_BUTTON(CapVideoButt), data);
+	int active = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(CapVideoButt));
+	/*invert status*/
+	if(active)
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(CapVideoButt), FALSE);
+	else
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(CapVideoButt), TRUE);
 }
 
 /*

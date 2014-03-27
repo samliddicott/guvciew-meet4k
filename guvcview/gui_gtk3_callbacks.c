@@ -2220,19 +2220,19 @@ gboolean window_key_pressed (GtkWidget *win, GdkEventKey *event, void *data)
         case GDK_KEY_WebCam:
 			/* camera button pressed */
 			if (get_default_camera_button_action() == DEF_ACTION_IMAGE)
-				gui_click_image_capture_button_gtk3(device);
+				gui_click_image_capture_button_gtk3();
 			else
-				gui_click_video_capture_button_gtk3(device);
+				gui_click_video_capture_button_gtk3();
 			return TRUE;
 
 		case GDK_KEY_V:
 		case GDK_KEY_v:
-			gui_click_video_capture_button_gtk3(device);
+			gui_click_video_capture_button_gtk3();
 			return TRUE;
 
 		case GDK_KEY_I:
 		case GDK_KEY_i:
-			gui_click_image_capture_button_gtk3(device);
+			gui_click_image_capture_button_gtk3();
 			return TRUE;
 
 	}
