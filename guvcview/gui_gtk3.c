@@ -282,7 +282,7 @@ void gui_click_video_capture_button_gtk3(void *data)
 	if(!CapVideoButt)
 		return;
 
-	capture_image_clicked (GTK_BUTTON(CapVideoButt), data);
+	capture_video_clicked (GTK_BUTTON(CapVideoButt), data);
 }
 
 /*
