@@ -756,10 +756,12 @@ void capture_video_clicked(GtkToggleButton *button, void *data)
 {
 	v4l2_dev_t *device = (v4l2_dev_t *) data;
 
-	if(debug_level > 0)
-		printf("GUVCVIEW: video capture toggled\n");
+	int active = gtk_toggle_button_get_active (button);
 
-	if(gtk_toggle_button_get_active (button))
+	if(debug_level > 0)
+		printf("GUVCVIEW: video capture toggled(%i)\n", active);
+
+	if(active)
 	{
 		start_encoder_thread(device);
 		gtk_button_set_label(GTK_BUTTON(button), _("Stop Video (V)"));
