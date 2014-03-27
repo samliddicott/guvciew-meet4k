@@ -756,6 +756,9 @@ void capture_video_clicked(GtkToggleButton *button, void *data)
 {
 	v4l2_dev_t *device = (v4l2_dev_t *) data;
 
+	if(debug_level > 0)
+		printf("GUVCVIEW: video capture toggled\n");
+
 	if(gtk_toggle_button_get_active (button))
 	{
 		start_encoder_thread(device);
