@@ -175,7 +175,7 @@ void controls_profile_clicked (GtkWidget *item, void *data)
 	if(debug_level > 0)
 		printf("GUVCVIEW: Profile dialog (%d)\n", save_or_load);
 
-	GtkWidget *main_window = get_main_window();
+	GtkWidget *main_window = get_main_window_gtk3();
 
 	if (save_or_load > 0) /*save*/
 	{
@@ -520,7 +520,7 @@ void photo_file_clicked (GtkWidget *item, void *data)
 
 	GtkWidget *FileDialog;
 
-	GtkWidget *main_window = get_main_window();
+	GtkWidget *main_window = get_main_window_gtk3();
 
 	FileDialog = gtk_file_chooser_dialog_new (_("Photo file name"),
 			GTK_WINDOW(main_window),
@@ -628,7 +628,7 @@ void video_file_clicked (GtkWidget *item, void *data)
 
 	GtkWidget *FileDialog;
 
-	GtkWidget *main_window = get_main_window();
+	GtkWidget *main_window = get_main_window_gtk3();
 
 	FileDialog = gtk_file_chooser_dialog_new (_("Video file name"),
 			GTK_WINDOW(main_window),
@@ -1173,7 +1173,7 @@ void devices_changed (GtkComboBox *wgtDevices, void *data)
 		NULL);
 
 	GtkWidget *restartdialog = gtk_dialog_new_with_buttons (_("start new"),
-		GTK_WINDOW(get_main_window()),
+		GTK_WINDOW(get_main_window_gtk3()),
 		GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
 		_("restart"),
 		GTK_RESPONSE_ACCEPT,
@@ -1733,7 +1733,7 @@ void encoder_video_properties(GtkMenuItem *item, void *data)
 	video_codec_t *defaults = encoder_get_video_codec_defaults(get_video_codec_ind());
 
 	GtkWidget *codec_dialog = gtk_dialog_new_with_buttons (_("video codec values"),
-		GTK_WINDOW(get_main_window()),
+		GTK_WINDOW(get_main_window_gtk3()),
 		GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
 		_("_OK"), GTK_RESPONSE_ACCEPT,
 		_("_Cancel"), GTK_RESPONSE_REJECT,
@@ -2076,7 +2076,7 @@ void encoder_audio_properties(GtkMenuItem *item, void *data)
 	audio_codec_t *defaults = encoder_get_audio_codec_defaults(get_audio_codec_ind());
 
 	GtkWidget *codec_dialog = gtk_dialog_new_with_buttons (_("audio codec values"),
-		GTK_WINDOW(get_main_window()),
+		GTK_WINDOW(get_main_window_gtk3()),
 		GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
 		_("_Ok"), GTK_RESPONSE_ACCEPT,
 		_("_Cancel"), GTK_RESPONSE_REJECT,
@@ -2148,22 +2148,22 @@ gboolean check_device_events(gpointer data)
 	if(v4l2core_check_device_list_events(device))
 	{
 		/*update device list*/
-		g_signal_handlers_block_by_func(GTK_COMBO_BOX_TEXT(get_wgtDevices()),
+		g_signal_handlers_block_by_func(GTK_COMBO_BOX_TEXT(get_wgtDevices_gtk3()),
                 G_CALLBACK (devices_changed), device);
 
-		GtkListStore *store = GTK_LIST_STORE(gtk_combo_box_get_model (GTK_COMBO_BOX(get_wgtDevices())));
+		GtkListStore *store = GTK_LIST_STORE(gtk_combo_box_get_model (GTK_COMBO_BOX(get_wgtDevices_gtk3())));
 		gtk_list_store_clear(store);
 
 		int i = 0;
         for(i = 0; i < (device->num_devices); i++)
 		{
-			gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(get_wgtDevices()),
+			gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(get_wgtDevices_gtk3()),
 				device->list_devices[i].name);
 			if(device->list_devices[i].current)
-				gtk_combo_box_set_active(GTK_COMBO_BOX(get_wgtDevices()),i);
+				gtk_combo_box_set_active(GTK_COMBO_BOX(get_wgtDevices_gtk3()),i);
 		}
 
-		g_signal_handlers_unblock_by_func(GTK_COMBO_BOX_TEXT(get_wgtDevices()),
+		g_signal_handlers_unblock_by_func(GTK_COMBO_BOX_TEXT(get_wgtDevices_gtk3()),
                 G_CALLBACK (devices_changed), device);
 	}
 

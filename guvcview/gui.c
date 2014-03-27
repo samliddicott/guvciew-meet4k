@@ -633,7 +633,7 @@ void set_webm_codecs()
 
 		case GUI_GTK3:
 		default:
-			set_webm_codecs_gtk();
+			set_webm_codecs_gtk3();
 			break;
 	}
 }

@@ -59,7 +59,7 @@ typedef struct _audio_widgets_t
  *
  * returns: pointer to GSList of video codecs
  */
-GSList *get_video_codec_group_list();
+GSList *get_video_codec_group_list_gtk3();
 
 /*
  * set the video codec group list
@@ -71,7 +71,7 @@ GSList *get_video_codec_group_list();
  *
  * returns: none
  */
-void set_video_codec_group_list(GSList *list);
+void set_video_codec_group_list_gtk3(GSList *list);
 
 /*
  * get the audio codec group list
@@ -83,7 +83,7 @@ void set_video_codec_group_list(GSList *list);
  *
  * returns: pointer to GSList of audio codecs
  */
-GSList *get_audio_codec_group_list();
+GSList *get_audio_codec_group_list_gtk3();
 
 /*
  * set the audio codec group list
@@ -95,7 +95,7 @@ GSList *get_audio_codec_group_list();
  *
  * returns: none
  */
-void set_audio_codec_group_list(GSList *list);
+void set_audio_codec_group_list_gtk3(GSList *list);
 
 /*
  * set webm codecs in codecs list
@@ -107,7 +107,7 @@ void set_audio_codec_group_list(GSList *list);
  *
  * returns: none
  */
-void set_webm_codecs_gtk();
+void set_webm_codecs_gtk3();
 
 /*
  * GUI warning/error dialog
@@ -301,7 +301,7 @@ void gui_set_video_capture_button_status_gtk3(int flag);
  *
  * returns: pointer to main window (GtkWidget)
  */
-GtkWidget *get_main_window();
+GtkWidget *get_main_window_gtk3();
 
 /*
  * get the device list widget
@@ -313,7 +313,7 @@ GtkWidget *get_main_window();
  *
  * returns: pointer to the device list widget (GtkWidget)
  */
-GtkWidget *get_wgtDevices();
+GtkWidget *get_wgtDevices_gtk3();
 
 /*
  * set the device list widget
@@ -325,7 +325,7 @@ GtkWidget *get_wgtDevices();
  *
  * returns: void
  */
-void set_wgtDevices(GtkWidget *widget);
+void set_wgtDevices_gtk3(GtkWidget *widget);
 
 
 #endif

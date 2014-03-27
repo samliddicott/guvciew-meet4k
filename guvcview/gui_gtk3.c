@@ -106,7 +106,7 @@ void gui_status_message_gtk3(const char *message)
  *
  * returns: pointer to main window (GtkWidget)
  */
-GtkWidget *get_main_window()
+GtkWidget *get_main_window_gtk3()
 {
 	return main_window;
 }
@@ -121,7 +121,7 @@ GtkWidget *get_main_window()
  *
  * returns: pointer to the device list widget (GtkWidget)
  */
-GtkWidget *get_wgtDevices()
+GtkWidget *get_wgtDevices_gtk3()
 {
 	return wgtDevices;
 }
@@ -136,7 +136,7 @@ GtkWidget *get_wgtDevices()
  *
  * returns: void
  */
-void set_wgtDevices(GtkWidget *widget)
+void set_wgtDevices_gtk3(GtkWidget *widget)
 {
 	wgtDevices = widget;
 }
@@ -151,7 +151,7 @@ void set_wgtDevices(GtkWidget *widget)
  *
  * returns: pointer to GSList of video codecs
  */
-GSList *get_video_codec_group_list()
+GSList *get_video_codec_group_list_gtk3()
 {
 	return video_codec_group;
 }
@@ -166,7 +166,7 @@ GSList *get_video_codec_group_list()
  *
  * returns: none
  */
-void set_video_codec_group_list(GSList *list)
+void set_video_codec_group_list_gtk3(GSList *list)
 {
 	video_codec_group = list;
 }
@@ -181,7 +181,7 @@ void set_video_codec_group_list(GSList *list)
  *
  * returns: none
  */
-void set_webm_codecs_gtk()
+void set_webm_codecs_gtk3()
 {
 	/*force webm codecs*/
 	int video_codec_ind = encoder_get_webm_video_codec_index();
@@ -190,12 +190,12 @@ void set_webm_codecs_gtk()
 	set_audio_codec_ind(audio_codec_ind);
 
 	/*widgets*/
-	GSList *vgroup = get_video_codec_group_list();
+	GSList *vgroup = get_video_codec_group_list_gtk3();
 	int index = g_slist_length (vgroup) - (get_video_codec_ind() + 1);
 	GtkWidget* video_codec_item = g_slist_nth_data (vgroup, index);
 	gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(video_codec_item), TRUE);
 
-	GSList *agroup = get_audio_codec_group_list();
+	GSList *agroup = get_audio_codec_group_list_gtk3();
 	index = g_slist_length (agroup) - (get_audio_codec_ind() + 1);
 	GtkWidget* audio_codec_item = g_slist_nth_data (agroup, index);
 	gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(audio_codec_item), TRUE);
@@ -211,7 +211,7 @@ void set_webm_codecs_gtk()
  *
  * returns: pointer to GSList of audio codecs
  */
-GSList *get_audio_codec_group_list()
+GSList *get_audio_codec_group_list_gtk3()
 {
 	return audio_codec_group;
 }
@@ -226,7 +226,7 @@ GSList *get_audio_codec_group_list()
  *
  * returns: none
  */
-void set_audio_codec_group_list(GSList *list)
+void set_audio_codec_group_list_gtk3(GSList *list)
 {
 	audio_codec_group = list;
 }
