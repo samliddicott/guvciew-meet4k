@@ -41,8 +41,11 @@ typedef struct _config_t
 	char *video_name;
 	char *photo_path;
 	char *photo_name;
-	int video_sufix;
-	int photo_sufix;
+	int video_sufix; /*flag if video file has auto suffix enable*/
+	int photo_sufix; /*flag if photo file has auto suffix enable*/
+	int audio_device;/*audio device index*/ 
+	//int audio_channels;/*audio channels index (0 -auto)*/
+	//int audio_samprate;/*audio sample rate index (0 -auto)*/
 } config_t;
 
 /*

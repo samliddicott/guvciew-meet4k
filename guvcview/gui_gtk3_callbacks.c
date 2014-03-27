@@ -1509,6 +1509,10 @@ void audio_device_changed(GtkComboBox *combo, void *data)
 		audio_ctx->device = audio_ctx->num_input_dev - 1;
 	else
 		audio_ctx->device = index;
+	
+	/*update config*/
+	config_t *my_config = config_get();
+	my_config->audio_device = index;
 
 	if(debug_level > 0)
 		printf("GUVCVIEW: audio device changed to %i\n", audio_ctx->device);

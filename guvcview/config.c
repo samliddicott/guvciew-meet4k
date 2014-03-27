@@ -55,7 +55,10 @@ static config_t my_config =
 	.photo_name = NULL,
 	.photo_path = NULL,
 	.video_sufix = 1,
-	.photo_sufix = 1
+	.photo_sufix = 1,
+	.audio_device = -1,/*guvcview will use API default in this case*/
+	//.audio_channels = 0,
+	//.audio_samprate = 0,
 };
 
 /*
@@ -134,6 +137,12 @@ int config_save(const char *filename)
 	fprintf(fp, "photo_path=%s\n", my_config.photo_path);
 	fprintf(fp, "#photo sufix flag\n");
 	fprintf(fp, "photo_sufix=%i\n", my_config.photo_sufix);
+	fprintf(fp, "#audio device index (-1 - api default)\n");
+	fprintf(fp, "audio_device=%i\n", my_config.audio_device);
+	//fprintf(fp, "#audio channels index (0 - auto)\n");
+	//fprintf(fp, "audio_channels=%i\n", my_config.audio_channels);
+	//fprintf(fp, "#audio sample rate index (0 -auto)\n");
+	//fprintf(fp, "audio_samprate=%i\n", my_config.audio_samprate);
 
 	/* return to system locale */
     setlocale(LC_NUMERIC, "");
@@ -147,7 +156,10 @@ int config_save(const char *filename)
 		fprintf(stderr, "GUVCVIEW: error writing configuration data to file: %s\n", strerror(errno));
 		return -1;
 	}
-
+	
+	if(debug_level > 1)
+		printf("GUVCVIEW: saving config to %s\n", filename);
+		
 	return 0;
 }
 
@@ -288,6 +300,12 @@ int config_load(const char *filename)
 			my_config.photo_sufix = (int) strtoul(value, NULL, 10);
 			set_photo_sufix_flag(my_config.photo_sufix);
 		}
+		else if(strcmp(token, "audio_device") == 0)
+			my_config.audio_device = (int) strtoul(value, NULL, 10);
+		//else if(strcmp(token, "audio_channels") == 0)
+		//	my_config.audio_channels = (int) strtoul(value, NULL, 10);
+		//else if(strcmp(token, "audio_samprate") == 0)
+		//	my_config.audio_samprate = (int) strtoul(value, NULL, 10);
 		else
 			fprintf(stderr, "GUVCVIEW: (config) skiping invalid entry at line %i ('%s', '%s')\n", line, token, value);
 

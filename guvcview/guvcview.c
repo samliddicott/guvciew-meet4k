@@ -219,6 +219,15 @@ int main(int argc, char *argv[])
 
 	/*create the inital audio context (stored staticly in video_capture)*/
 	create_audio_context(audio);
+	
+	/*get the audio context*/
+	audio_context_t *audio_ctx = get_audio_context();
+	if(my_config->audio_device < 0)
+		my_config->audio_device = audio_ctx->device; /*api default*/
+	else if (my_config->audio_device >= audio_ctx->num_input_dev)
+		my_config->audio_device = audio_ctx->num_input_dev - 1;
+	/*set the audio device*/
+	audio_ctx->device = my_config->audio_device;
 
 	encoder_set_verbosity(debug_level);
 	/*init the encoder*/
