@@ -2130,3 +2130,42 @@ void encoder_audio_properties(GtkMenuItem *item, void *data)
 	}
 	gtk_widget_destroy (codec_dialog);
 }
+
+/*
+ * device list events timer callback
+ * args:
+ *   data - pointer to user data
+ *
+ * asserts:
+ *   none
+ *
+ * returns: true if timer is to be reset or false otherwise
+ */
+gboolean check_device_events(gpointer data)
+{
+	v4l2_dev_t *device = (v4l2_dev_t *) data;
+
+	if(v4l2core_check_device_list_events(device))
+	{
+		/*update device list*/
+		g_signal_handlers_block_by_func(GTK_COMBO_BOX_TEXT(get_wgtDevices()),
+                G_CALLBACK (devices_changed), device);
+
+		GtkListStore *store = GTK_LIST_STORE(gtk_combo_box_get_model (GTK_COMBO_BOX(get_wgtDevices())));
+		gtk_list_store_clear(store);
+
+		int i = 0;
+        for(i = 0; i < (device->num_devices); i++)
+		{
+			gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(get_wgtDevices()),
+				device->list_devices[i].name);
+			if(device->list_devices[i].current)
+				gtk_combo_box_set_active(GTK_COMBO_BOX(get_wgtDevices()),i);
+		}
+
+		g_signal_handlers_unblock_by_func(GTK_COMBO_BOX_TEXT(get_wgtDevices()),
+                G_CALLBACK (devices_changed), device);
+	}
+
+	return (TRUE);
+}

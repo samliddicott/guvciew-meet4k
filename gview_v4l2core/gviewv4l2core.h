@@ -387,6 +387,21 @@ void v4l2core_set_capture_method(v4l2_dev_t *vd, int method);
  */
 v4l2_dev_t *v4l2core_init_dev(const char *device);
 
+/*
+ * check for new devices
+ * args:
+ *   vd - pointer to device data
+ *
+ * asserts:
+ *   vd is not null
+ *   vd->udev is not null
+ *   vd->udev_fd is valid (> 0)
+ *   vd->udev_mon is not null
+ *
+ * returns: true(1) if device list was updated, false(0) otherwise
+ */
+int v4l2core_check_device_list_events(v4l2_dev_t *vd);
+
 /* get frame format index from format list
  * args:
  *   vd - pointer to video device data

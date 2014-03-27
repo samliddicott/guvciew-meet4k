@@ -542,4 +542,18 @@ void encoder_video_properties(GtkMenuItem *item, void *data);
  */
 void encoder_audio_properties(GtkMenuItem *item, void *data);
 
+
+/***** TIMERS *******/
+/*
+ * device list events timer callback
+ * args:
+ *   data - pointer to user data
+ *
+ * asserts:
+ *   none
+ *
+ * returns: true if timer is to be reset or false otherwise
+ */
+gboolean check_device_events(gpointer data);
+
 #endif

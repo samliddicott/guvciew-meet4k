@@ -28,6 +28,7 @@
 #include <assert.h>
 
 #include "gviewv4l2core.h"
+#include "v4l2_devices.h"
 
 extern int verbosity;
 
@@ -179,6 +180,73 @@ int enum_v4l2_devices(v4l2_dev_t *vd)
     vd->num_devices = num_dev;
 
     return(E_OK);
+}
+
+/*
+ * check for new devices
+ * args:
+ *   vd - pointer to device data
+ *
+ * asserts:
+ *   vd is not null
+ *   vd->udev is not null
+ *   vd->udev_fd is valid (> 0)
+ *   vd->udev_mon is not null
+ *
+ * returns: true(1) if device list was updated, false(0) otherwise
+ */
+int v4l2core_check_device_list_events(v4l2_dev_t *vd)
+{
+	/*assertions*/
+	assert(vd != NULL);
+	assert(vd->udev != NULL);
+	assert(vd->udev_fd > 0);
+	assert(vd->udev_mon != NULL);
+
+    fd_set fds;
+    struct timeval tv;
+    int ret = 0;
+
+    FD_ZERO(&fds);
+    FD_SET(vd->udev_fd, &fds);
+    tv.tv_sec = 0;
+    tv.tv_usec = 0;
+
+    ret = select(vd->udev_fd+1, &fds, NULL, NULL, &tv);
+
+    /* Check if our file descriptor has received data. */
+    if (ret > 0 && FD_ISSET(vd->udev_fd, &fds))
+    {
+        /*
+         * Make the call to receive the device.
+         *   select() ensured that this will not block.
+         */
+        struct udev_device *dev = udev_monitor_receive_device(vd->udev_mon);
+        if (dev)
+        {
+            if (verbosity > 0)
+            {
+                printf("V4L2_CORE: Got Device event\n");
+                printf("          Node: %s\n", udev_device_get_devnode(dev));
+                printf("     Subsystem: %s\n", udev_device_get_subsystem(dev));
+                printf("       Devtype: %s\n", udev_device_get_devtype(dev));
+                printf("        Action: %s\n", udev_device_get_action(dev));
+            }
+
+            /*update device list*/
+            if(vd->list_devices != NULL)
+				free_v4l2_devices_list(vd);
+            enum_v4l2_devices(vd);
+
+            udev_device_unref(dev);
+
+            return(1);
+        }
+        else
+            fprintf(stderr, "V4L2_CORE: No Device from receive_device(). An error occured.\n");
+    }
+
+    return(0);
 }
 
 /*

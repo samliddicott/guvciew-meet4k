@@ -62,6 +62,10 @@ GSList *audio_codec_group = NULL;
 static int gtk_main_called = 0;
 /*flag gtk3_init called*/
 static int gtk_init_called = 0;
+/*device list widget*/
+static GtkWidget *wgtDevices = NULL;
+/*timer id for devce list events check*/
+static int gtk_devices_timer_id = 0;
 
 
 /*
@@ -74,7 +78,7 @@ static void set_status_message(const char *message)
 		gtk_statusbar_pop (GTK_STATUSBAR(status_bar), status_warning_id);
 		gtk_statusbar_push (GTK_STATUSBAR(status_bar), status_warning_id, message);
 	}
-} 
+}
 
 /*
  * adds a message to the status bar
@@ -105,6 +109,36 @@ void gui_status_message_gtk3(const char *message)
 GtkWidget *get_main_window()
 {
 	return main_window;
+}
+
+/*
+ * get the device list widget
+ * args:
+ *    none
+ *
+ * asserts:
+ *    none
+ *
+ * returns: pointer to the device list widget (GtkWidget)
+ */
+GtkWidget *get_wgtDevices()
+{
+	return wgtDevices;
+}
+
+/*
+ * set the device list widget
+ * args:
+ *    widget - pointer to the device list widget
+ *
+ * asserts:
+ *    none
+ *
+ * returns: void
+ */
+void set_wgtDevices(GtkWidget *widget)
+{
+	wgtDevices = widget;
 }
 
 /*
@@ -672,7 +706,7 @@ int gui_attach_gtk3(v4l2_dev_t *device, int width, int height)
 	/*-------------------------- Status bar ------------------------------------*/
 	status_bar = gtk_statusbar_new();
 	status_warning_id = gtk_statusbar_get_context_id (GTK_STATUSBAR(status_bar), "warning");
-	
+
     gtk_widget_show(status_bar);
 	/** add the status bar*/
 	gtk_box_pack_start(GTK_BOX(maintable), status_bar, FALSE, FALSE, 2);
@@ -680,6 +714,11 @@ int gui_attach_gtk3(v4l2_dev_t *device, int width, int height)
 
 	/* attach to main window container */
 	gtk_container_add (GTK_CONTAINER (main_window), maintable);
+
+	/* add update timers:
+	 *  devices
+	 */
+	gtk_devices_timer_id = g_timeout_add( 500, check_device_events, device);
 
 	return 0;
 }

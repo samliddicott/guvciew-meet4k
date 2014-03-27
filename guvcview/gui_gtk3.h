@@ -303,5 +303,17 @@ void gui_set_video_capture_button_status_gtk3(int flag);
  */
 GtkWidget *get_main_window();
 
+/*
+ * get the device list widget
+ * args:
+ *    none
+ *
+ * asserts:
+ *    none
+ *
+ * returns: pointer to the device list widget (GtkWidget)
+ */
+GtkWidget *get_wgtDevices();
+
 
 #endif
