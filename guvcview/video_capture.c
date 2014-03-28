@@ -247,6 +247,7 @@ int quit_callback(void *data)
 	return 0;
 }
 
+/************ RENDER callbacks *******************/
 /*
  * key I pressed callback
  * args:
@@ -279,6 +280,158 @@ int key_V_callback(void *data)
 	gui_click_video_capture_button(data);
 
 	return 0;
+}
+
+/*
+ * key DOWN pressed callback
+ * args:
+ *    data - pointer to user data
+ *
+ * asserts:
+ *    data (device) is not null
+ *
+ * returns: error code
+ */
+int key_DOWN_callback(void *data)
+{
+	v4l2_dev_t *device = (v4l2_dev_t *) data;
+
+	/*assertions*/
+	assert(device != NULL);
+
+	if(device->has_pantilt_control_id)
+    {
+		int id = V4L2_CID_TILT_RELATIVE;
+		int value = device->tilt_step;
+
+		v4l2_ctrl_t *control = v4l2core_get_control_by_id(device, id);
+
+		if(control)
+		{
+			control->value =  value;
+
+			if(v4l2core_set_control_value_by_id(device, id))
+				fprintf(stderr, "GUVCVIEW: error setting pan/tilt value\n");
+
+			return 0;
+		}
+	}
+
+	return -1;
+}
+
+/*
+ * key UP pressed callback
+ * args:
+ *    data - pointer to user data
+ *
+ * asserts:
+ *    data (device) is not null
+ *
+ * returns: error code
+ */
+int key_UP_callback(void *data)
+{
+	v4l2_dev_t *device = (v4l2_dev_t *) data;
+
+	/*assertions*/
+	assert(device != NULL);
+
+	if(device->has_pantilt_control_id)
+    {
+		int id = V4L2_CID_TILT_RELATIVE;
+		int value = - device->tilt_step;
+
+		v4l2_ctrl_t *control = v4l2core_get_control_by_id(device, id);
+
+		if(control)
+		{
+			control->value =  value;
+
+			if(v4l2core_set_control_value_by_id(device, id))
+				fprintf(stderr, "GUVCVIEW: error setting pan/tilt value\n");
+
+			return 0;
+		}
+	}
+
+	return -1;
+}
+
+/*
+ * key LEFT pressed callback
+ * args:
+ *    data - pointer to user data
+ *
+ * asserts:
+ *    data (device) is not null
+ *
+ * returns: error code
+ */
+int key_LEFT_callback(void *data)
+{
+	v4l2_dev_t *device = (v4l2_dev_t *) data;
+
+	/*assertions*/
+	assert(device != NULL);
+
+	if(device->has_pantilt_control_id)
+    {
+		int id = V4L2_CID_PAN_RELATIVE;
+		int value = device->pan_step;
+
+		v4l2_ctrl_t *control = v4l2core_get_control_by_id(device, id);
+
+		if(control)
+		{
+			control->value =  value;
+
+			if(v4l2core_set_control_value_by_id(device, id))
+				fprintf(stderr, "GUVCVIEW: error setting pan/tilt value\n");
+
+			return 0;
+		}
+	}
+
+	return -1;
+}
+
+/*
+ * key RIGHT pressed callback
+ * args:
+ *    data - pointer to user data
+ *
+ * asserts:
+ *    data (device) is not null
+ *
+ * returns: error code
+ */
+int key_RIGHT_callback(void *data)
+{
+	v4l2_dev_t *device = (v4l2_dev_t *) data;
+
+	/*assertions*/
+	assert(device != NULL);
+
+	if(device->has_pantilt_control_id)
+    {
+		int id = V4L2_CID_PAN_RELATIVE;
+		int value = - device->pan_step;
+
+		v4l2_ctrl_t *control = v4l2core_get_control_by_id(device, id);
+
+		if(control)
+		{
+			control->value =  value;
+
+			if(v4l2core_set_control_value_by_id(device, id))
+				fprintf(stderr, "GUVCVIEW: error setting pan/tilt value\n");
+
+			return 0;
+		}
+	}
+
+	return -1;
 }
 
 /*
@@ -717,6 +870,10 @@ void *capture_loop(void *data)
 				render_set_event_callback(EV_QUIT, &quit_callback, NULL);
 				render_set_event_callback(EV_KEY_V, &key_V_callback, device);
 				render_set_event_callback(EV_KEY_I, &key_I_callback, NULL);
+				render_set_event_callback(EV_KEY_UP, &key_UP_callback, device);
+				render_set_event_callback(EV_KEY_DOWN, &key_DOWN_callback, device);
+				render_set_event_callback(EV_KEY_LEFT, &key_LEFT_callback, device);
+				render_set_event_callback(EV_KEY_RIGHT, &key_RIGHT_callback, device);
 			}
 
 

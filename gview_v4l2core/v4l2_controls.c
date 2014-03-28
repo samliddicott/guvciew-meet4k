@@ -330,6 +330,11 @@ static v4l2_ctrl_t *add_control(v4l2_dev_t *vd, struct v4l2_queryctrl* queryctrl
     if(queryctrl->id == V4L2_CID_FOCUS_LOGITECH ||
        queryctrl->id == V4L2_CID_FOCUS_ABSOLUTE)
 		vd->has_focus_control_id = queryctrl->id;
+	/*check for pan/tilt control*/
+	else if(queryctrl->id == V4L2_CID_TILT_RELATIVE ||
+			queryctrl->id == V4L2_CID_PAN_RELATIVE)
+		vd->has_pantilt_control_id = 1;
+
     // Add the control to the linked list
     control = calloc (1, sizeof(v4l2_ctrl_t));
     memcpy(&(control->control), queryctrl, sizeof(struct v4l2_queryctrl));

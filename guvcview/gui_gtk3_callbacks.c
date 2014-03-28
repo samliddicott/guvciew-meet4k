@@ -1509,7 +1509,7 @@ void audio_device_changed(GtkComboBox *combo, void *data)
 		audio_ctx->device = audio_ctx->num_input_dev - 1;
 	else
 		audio_ctx->device = index;
-	
+
 	/*update config*/
 	config_t *my_config = config_get();
 	my_config->audio_device = index;
@@ -2148,13 +2148,16 @@ void encoder_audio_properties(GtkMenuItem *item, void *data)
  *   data - pointer to user data
  *
  * asserts:
- *   none
+ *   data (device) is not NULL
  *
  * returns: true if we handled the event or false otherwise
  */
 gboolean window_key_pressed (GtkWidget *win, GdkEventKey *event, void *data)
 {
 	v4l2_dev_t *device = (v4l2_dev_t *) data;
+
+	/*assertions*/
+	assert(device != NULL);
 
 	/* If we have modifiers, and either Ctrl, Mod1 (Alt), or any
 	 * of Mod3 to Mod5 (Mod2 is num-lock...) are pressed, we
@@ -2168,7 +2171,7 @@ gboolean window_key_pressed (GtkWidget *win, GdkEventKey *event, void *data)
 		|| (event->state & GDK_MOD5_MASK)))
 		return FALSE;
 
-    if(get_has_pan_tilt())
+    if(device->has_pantilt_control_id)
     {
 		int id = 0;
 		int value = 0;
@@ -2250,13 +2253,16 @@ gboolean window_key_pressed (GtkWidget *win, GdkEventKey *event, void *data)
  *   data - pointer to user data
  *
  * asserts:
- *   none
+ *   data (device) is not NULL
  *
  * returns: true if timer is to be reset or false otherwise
  */
 gboolean check_device_events(gpointer data)
 {
 	v4l2_dev_t *device = (v4l2_dev_t *) data;
+
+	/*assertions*/
+	assert(device != NULL);
 
 	if(v4l2core_check_device_list_events(device))
 	{
