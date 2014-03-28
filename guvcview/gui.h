@@ -371,6 +371,30 @@ char *get_photo_path();
 void set_photo_path(const char *path);
 
 /*
+ * click image capture button
+ * args:
+ *    none
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void gui_click_image_capture_button();
+
+/*
+ * click video capture button
+ * args:
+ *   data - pointer to user data
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void gui_click_video_capture_button(void *data);
+
+/*
  * sets the Image capture button label
  * args:
  *   label: Image capture button label

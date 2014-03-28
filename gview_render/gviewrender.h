@@ -44,6 +44,8 @@
 #define EV_KEY_LEFT  (3)
 #define EV_KEY_RIGHT (4)
 #define EV_KEY_SPACE (5)
+#define EV_KEY_I     (6)
+#define EV_KEY_V     (7)
 
 /*FX FILTER FLAGS*/
 #define REND_FX_YUV_NOFILT (0)

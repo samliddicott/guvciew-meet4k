@@ -226,6 +226,60 @@ void set_has_pan_tilt(int pan_tilt)
 }
 
 /*
+ * click image capture button
+ * args:
+ *    none
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void gui_click_image_capture_button()
+{
+	switch(gui_api)
+	{
+		case GUI_NONE:
+			video_capture_save_image();
+			break;
+
+		case GUI_GTK3:
+		default:
+			gui_click_image_capture_button_gtk3();
+			break;
+	}
+}
+
+/*
+ * click video capture button
+ * args:
+ *   data - pointer to user data
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void gui_click_video_capture_button(void *data)
+{
+	v4l2_dev_t *device = (v4l2_dev_t *) data;
+
+	switch(gui_api)
+	{
+		case GUI_NONE:
+			if(!get_encoder_status())
+				start_encoder_thread(device);
+			else
+				stop_encoder_thread();
+			break;
+
+		case GUI_GTK3:
+		default:
+			gui_click_video_capture_button_gtk3();
+			break;
+	}
+}
+/*
  * sets the Image capture button label
  * args:
  *   label: Image capture button label

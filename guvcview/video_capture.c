@@ -71,6 +71,8 @@ static audio_context_t *my_audio_ctx = NULL;
 
 static __THREAD_TYPE encoder_thread;
 
+static int my_encoder_status = 0;
+
 static char status_message[80];
 /*
  * set render flag
@@ -246,6 +248,40 @@ int quit_callback(void *data)
 }
 
 /*
+ * key I pressed callback
+ * args:
+ *    data - pointer to user data
+ *
+ * asserts:
+ *    none
+ *
+ * returns: error code
+ */
+int key_I_callback(void *data)
+{
+	gui_click_image_capture_button();
+
+	return 0;
+}
+
+/*
+ * key V pressed callback
+ * args:
+ *    data - pointer to user data
+ *
+ * asserts:
+ *    none
+ *
+ * returns: error code
+ */
+int key_V_callback(void *data)
+{
+	gui_click_video_capture_button(data);
+
+	return 0;
+}
+
+/*
  * sets the save image flag
  * args:
  *    none
@@ -276,7 +312,7 @@ void video_capture_save_video(int value)
 }
 
 /*
- * sets the save video flag
+ * gets the save video flag
  * args:
  *    none
  *
@@ -290,6 +326,20 @@ int video_capture_get_save_video()
 	return save_video;
 }
 
+/*
+ * get encoder started flag
+ * args:
+ *    none
+ *
+ * asserts:
+ *    none
+ *
+ * returns: encoder started flag (1 -started; 0 -not started)
+ */
+int get_encoder_status()
+{
+	return my_encoder_status;
+}
 
 /*
  * create an audio context
@@ -426,6 +476,8 @@ static void *audio_processing_loop(void *data)
 static void *encoder_loop(void *data)
 {
 	v4l2_dev_t *device = (v4l2_dev_t *) data;
+
+	my_encoder_status = 1;
 
 	audio_context_t *audio_ctx = get_audio_context();
 
@@ -570,6 +622,8 @@ static void *encoder_loop(void *data)
 	free(path);
 	free(name);
 
+	my_encoder_status = 0;
+
 	return ((void *) 0);
 }
 
@@ -661,6 +715,8 @@ void *capture_loop(void *data)
 			else
 			{
 				render_set_event_callback(EV_QUIT, &quit_callback, NULL);
+				render_set_event_callback(EV_KEY_V, &key_V_callback, device);
+				render_set_event_callback(EV_KEY_I, &key_I_callback, NULL);
 			}
 
 

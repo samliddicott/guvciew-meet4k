@@ -166,6 +166,18 @@ int quit_callback(void *data);
 void video_capture_save_image();
 
 /*
+ * get encoder status
+ * args:
+ *    none
+ *
+ * asserts:
+ *    none
+ *
+ * returns: encoder status (1 -running; 0 -not started)
+ */
+int get_encoder_status();
+
+/*
  * request format update
  * args:
  *    none

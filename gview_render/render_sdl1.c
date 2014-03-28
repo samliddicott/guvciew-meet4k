@@ -283,36 +283,32 @@ void render_sdl1_dispatch_events()
             {
 				/* Keyboard event */
                 /* Pass the event data onto PrintKeyInfo() */
-				case SDLK_DOWN:
-
-					break;
-
 				case SDLK_UP:
-
+					render_call_event_callback(EV_KEY_UP);
 					break;
 
-				case SDLK_LEFT:
-
+				case SDLK_DOWN:
+					render_call_event_callback(EV_KEY_DOWN);
 					break;
 
 				case SDLK_RIGHT:
-
+					render_call_event_callback(EV_KEY_RIGHT);
 					break;
 
-				case SDLK_q:
-
+				case SDLK_LEFT:
+					render_call_event_callback(EV_KEY_LEFT);
 					break;
 
 				case SDLK_SPACE:
-
+					render_call_event_callback(EV_KEY_SPACE);
 					break;
 
 				case SDLK_i:
-
+					render_call_event_callback(EV_KEY_I);
 					break;
 
 				case SDLK_v:
-
+					render_call_event_callback(EV_KEY_V);
 					break;
 
 				default:
