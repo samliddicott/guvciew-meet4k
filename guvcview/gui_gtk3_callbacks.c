@@ -1195,12 +1195,14 @@ void devices_changed (GtkComboBox *wgtDevices, void *data)
 	gchar *command = g_strjoin("",
 		g_get_prgname(),
 		" --device=",
-		device->videodevice,
+		videodevice,
 		NULL);
 		
 	switch (result)
 	{
 		case GTK_RESPONSE_ACCEPT: /*FIXME: restart or reset device without closing the app*/
+			if(debug_level > 1)
+				printf("GUVCVIEW: spawning new process: '%s'\n", command);
 			/*spawn new process*/
 			if(!(g_spawn_command_line_async(command, &error)))
 			{
@@ -1211,6 +1213,8 @@ void devices_changed (GtkComboBox *wgtDevices, void *data)
 				quit_callback(NULL);
 			break;
 		case GTK_RESPONSE_REJECT:
+			if(debug_level > 1)
+				printf("GUVCVIEW: spawning new process: '%s'\n", command);
 			/*spawn new process*/
 			if(!(g_spawn_command_line_async(command, &error)))
 			{
