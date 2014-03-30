@@ -28,29 +28,15 @@
  * enumerate available v4l2 devices
  * and creates list in vd->list_devices
  * args:
- *   vd - pointer to video device data
+ *   none
  *
  * asserts:
- *   vd is not null
- *   vd->videodevice is not null
- *   vd->udev is valid ( > 0 )
- *   vd->list_devices is null
+ *   my_device_list.videodevice is not null
+ *   my_device_list.udev is valid ( > 0 )
+ *   my_device_list.list_devices is null
  *
  * returns: error code
  */
-int enum_v4l2_devices(v4l2_dev_t *vd);
-
-/*
- * free v4l2 devices list
- * args:
- *   vd - pointer to video device data
- *
- * asserts:
- *   vd is not null
- *   vd->list_devices is not null
- *
- * returns: void
- */
-void free_v4l2_devices_list(v4l2_dev_t *vd);
+int enum_v4l2_devices();
 
 #endif

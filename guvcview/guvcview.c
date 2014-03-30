@@ -137,9 +137,13 @@ int main(int argc, char *argv[])
 		audio = AUDIO_PULSE;
 #endif
 
-	/*initialize the v4l2 core*/
-	v4l2core_set_verbosity(debug_level);
 
+	/*initialize the v4l2 core*/
+	
+	v4l2core_set_verbosity(debug_level);
+	/*init the device list*/
+	v4l2core_init_device_list();
+	/*get the device data*/
 	v4l2_dev_t *device = v4l2core_init_dev(my_options->device);
 
 	if(device)
@@ -149,6 +153,7 @@ int main(int argc, char *argv[])
 		char message[50];
 		snprintf(message, 49, "no video device (%s) found", my_options->device);
 		gui_error(device, "Guvcview error", "no video device found", 1);
+		v4l2core_close_v4l2_device_list();
 		options_clean();
 		return -1;
 	}
@@ -299,6 +304,8 @@ int main(int argc, char *argv[])
 
 	if(device)
 		v4l2core_close_dev(device);
+	
+	v4l2core_close_v4l2_device_list();
 
     /*save config before cleaning the options*/
 	config_save(config_file);

@@ -32,28 +32,65 @@
 
 extern int verbosity;
 
+/* device list structure */
+static v4l2_device_list my_device_list;
+
+/*
+ * get the device list data
+ * args:
+ *   none
+ * 
+ * asserts:
+ *   none
+ * 
+ * returns: pointer to device list data
+ */
+v4l2_device_list *v4l2core_get_device_list()
+{
+	return &my_device_list;
+}
+
+/*
+ * free v4l2 devices list
+ * args:
+ *   none
+ *
+ * asserts:
+ *   vd->list_devices is not null
+ *
+ * returns: void
+ */
+static void free_device_list()
+{
+	/*assertions*/
+	assert(my_device_list.list_devices != NULL);
+
+	int i=0;
+	for(i=0;i<(my_device_list.num_devices);i++)
+	{
+		free(my_device_list.list_devices[i].device);
+		free(my_device_list.list_devices[i].name);
+		free(my_device_list.list_devices[i].driver);
+		free(my_device_list.list_devices[i].location);
+	}
+	free(my_device_list.list_devices);
+	my_device_list.list_devices = NULL;
+}
+ 
 /*
  * enumerate available v4l2 devices
  * and creates list in vd->list_devices
  * args:
- *   vd - pointer to video device data
+ *   none
  *
  * asserts:
- *   vd is not null
- *   vd->videodevice is not null
- *   vd->udev is not null
- *   vd->list_devices is null
+ *   my_device_list.udev is not null
+ *   my_device_list.list_devices is null
  *
  * returns: error code
  */
-int enum_v4l2_devices(v4l2_dev_t *vd)
+int enum_v4l2_devices()
 {
-    /*assertions*/
-    assert(vd != NULL);
-    assert(vd->videodevice != NULL);
-    assert(vd->udev != NULL);
-    assert(vd->list_devices == NULL);
-
     struct udev_enumerate *enumerate;
     struct udev_list_entry *devices;
     struct udev_list_entry *dev_list_entry;
@@ -63,10 +100,10 @@ int enum_v4l2_devices(v4l2_dev_t *vd)
     int fd = 0;
     struct v4l2_capability v4l2_cap;
 
-    vd->list_devices = calloc(1, sizeof(v4l2_dev_sys_data_t));
+    my_device_list.list_devices = calloc(1, sizeof(v4l2_dev_sys_data_t));
 
     /* Create a list of the devices in the 'v4l2' subsystem. */
-    enumerate = udev_enumerate_new(vd->udev);
+    enumerate = udev_enumerate_new(my_device_list.udev);
     udev_enumerate_add_match_subsystem(enumerate, "video4linux");
     udev_enumerate_scan_devices(enumerate);
     devices = udev_enumerate_get_list_entry(enumerate);
@@ -86,7 +123,7 @@ int enum_v4l2_devices(v4l2_dev_t *vd)
          * and create a udev_device object (dev) representing it
          */
         path = udev_list_entry_get_name(dev_list_entry);
-        dev = udev_device_new_from_syspath(vd->udev, path);
+        dev = udev_device_new_from_syspath(my_device_list.udev, path);
 
         /* usb_device_get_devnode() returns the path to the device node
             itself in /dev. */
@@ -113,21 +150,14 @@ int enum_v4l2_devices(v4l2_dev_t *vd)
 
         num_dev++;
         /* Update the device list*/
-        vd->list_devices = realloc(vd->list_devices, num_dev * sizeof(v4l2_dev_sys_data_t));
-        vd->list_devices[num_dev-1].device = strdup(v4l2_device);
-        vd->list_devices[num_dev-1].name = strdup((char *) v4l2_cap.card);
-        vd->list_devices[num_dev-1].driver = strdup((char *) v4l2_cap.driver);
-        vd->list_devices[num_dev-1].location = strdup((char *) v4l2_cap.bus_info);
-        vd->list_devices[num_dev-1].valid = 1;
-
-        if(strcmp(vd->videodevice, vd->list_devices[num_dev-1].device)==0)
-        {
-            vd->list_devices[num_dev-1].current = 1;
-            vd->this_device = num_dev-1;
-        }
-        else
-            vd->list_devices[num_dev-1].current = 0;
-
+        my_device_list.list_devices = realloc(my_device_list.list_devices, num_dev * sizeof(v4l2_dev_sys_data_t));
+        my_device_list.list_devices[num_dev-1].device = strdup(v4l2_device);
+        my_device_list.list_devices[num_dev-1].name = strdup((char *) v4l2_cap.card);
+        my_device_list.list_devices[num_dev-1].driver = strdup((char *) v4l2_cap.driver);
+        my_device_list.list_devices[num_dev-1].location = strdup((char *) v4l2_cap.bus_info);
+        my_device_list.list_devices[num_dev-1].valid = 1;
+        my_device_list.list_devices[num_dev-1].current = 0;
+				
         /* The device pointed to by dev contains information about
             the v4l2 device. In order to get information about the
             USB device, get the parent device with the
@@ -167,61 +197,117 @@ int enum_v4l2_devices(v4l2_dev_t *vd)
                 udev_device_get_sysattr_value(dev, "devnum"));
         }
 
-        vd->list_devices[num_dev-1].vendor = strtoull(udev_device_get_sysattr_value(dev,"idVendor"), NULL, 16);
-        vd->list_devices[num_dev-1].product = strtoull(udev_device_get_sysattr_value(dev, "idProduct"), NULL, 16);
-        vd->list_devices[num_dev-1].busnum = strtoull(udev_device_get_sysattr_value(dev, "busnum"), NULL, 16);
-		vd->list_devices[num_dev-1].devnum = strtoull(udev_device_get_sysattr_value(dev, "devnum"), NULL, 16);
+        my_device_list.list_devices[num_dev-1].vendor = strtoull(udev_device_get_sysattr_value(dev,"idVendor"), NULL, 10);
+        my_device_list.list_devices[num_dev-1].product = strtoull(udev_device_get_sysattr_value(dev, "idProduct"), NULL, 10);
+        my_device_list.list_devices[num_dev-1].busnum = strtoull(udev_device_get_sysattr_value(dev, "busnum"), NULL, 10);
+		my_device_list.list_devices[num_dev-1].devnum = strtoull(udev_device_get_sysattr_value(dev, "devnum"), NULL, 10);
 
         udev_device_unref(dev);
     }
     /* Free the enumerator object */
     udev_enumerate_unref(enumerate);
 
-    vd->num_devices = num_dev;
+    my_device_list.num_devices = num_dev;
 
     return(E_OK);
 }
 
 /*
+ * Initiate the device list (with udev monitoring)
+ * args:
+ *   none
+ * 
+ * asserts:
+ *   none
+ * 
+ * returns: none
+ */ 
+void v4l2core_init_device_list()
+{
+	/* Create a udev object */
+	my_device_list.udev = udev_new();
+	/*start udev device monitoring*/
+	/* Set up a monitor to monitor v4l2 devices */
+	if(my_device_list.udev)
+	{
+		my_device_list.udev_mon = udev_monitor_new_from_netlink(my_device_list.udev, "udev");
+		udev_monitor_filter_add_match_subsystem_devtype(my_device_list.udev_mon, "video4linux", NULL);
+		udev_monitor_enable_receiving(my_device_list.udev_mon);
+		/* Get the file descriptor (fd) for the monitor */
+		my_device_list.udev_fd = udev_monitor_get_fd(my_device_list.udev_mon);
+
+		enum_v4l2_devices();
+	}
+} 
+
+/*
+ * get the device index in device list
+ * args:
+ *   videodevice - string with videodevice node (e.g: /dev/video0)
+ * 
+ * asserts:
+ *   none
+ * 
+ * returns:
+ *   videodevice index in device list [0 - num_devices[ or -1 on error
+ */ 
+int v4l2core_get_device_index(const char *videodevice)
+{
+	if(my_device_list.num_devices > 0 && my_device_list.list_devices != NULL)
+	{
+		int dev_index = 0;
+		for(dev_index = 0; dev_index < my_device_list.num_devices; ++dev_index)
+		{
+			if(strcmp(videodevice, my_device_list.list_devices[dev_index].device)==0)
+			{
+				my_device_list.list_devices[dev_index].current = 1;
+				return(dev_index);
+			}
+		}
+	}
+	
+	fprintf(stderr,"V4L2CORE: couldn't determine device (%s) list index\n", videodevice);
+	return -1;
+}
+
+/*
  * check for new devices
  * args:
- *   vd - pointer to device data
+ *   vd - pointer to device data (can be null)
  *
  * asserts:
- *   vd is not null
- *   vd->udev is not null
- *   vd->udev_fd is valid (> 0)
- *   vd->udev_mon is not null
+ *   my_device_list.udev is not null
+ *   my_device_list.udev_fd is valid (> 0)
+ *   my_device_list.udev_mon is not null
  *
  * returns: true(1) if device list was updated, false(0) otherwise
  */
 int v4l2core_check_device_list_events(v4l2_dev_t *vd)
 {
 	/*assertions*/
-	assert(vd != NULL);
-	assert(vd->udev != NULL);
-	assert(vd->udev_fd > 0);
-	assert(vd->udev_mon != NULL);
+	assert(my_device_list.udev != NULL);
+	assert(my_device_list.udev_fd > 0);
+	assert(my_device_list.udev_mon != NULL);
 
     fd_set fds;
     struct timeval tv;
     int ret = 0;
 
     FD_ZERO(&fds);
-    FD_SET(vd->udev_fd, &fds);
+    FD_SET(my_device_list.udev_fd, &fds);
     tv.tv_sec = 0;
     tv.tv_usec = 0;
 
-    ret = select(vd->udev_fd+1, &fds, NULL, NULL, &tv);
+    ret = select(my_device_list.udev_fd+1, &fds, NULL, NULL, &tv);
 
     /* Check if our file descriptor has received data. */
-    if (ret > 0 && FD_ISSET(vd->udev_fd, &fds))
+    if (ret > 0 && FD_ISSET(my_device_list.udev_fd, &fds))
     {
         /*
          * Make the call to receive the device.
          *   select() ensured that this will not block.
          */
-        struct udev_device *dev = udev_monitor_receive_device(vd->udev_mon);
+        struct udev_device *dev = udev_monitor_receive_device(my_device_list.udev_mon);
         if (dev)
         {
             if (verbosity > 0)
@@ -234,10 +320,21 @@ int v4l2core_check_device_list_events(v4l2_dev_t *vd)
             }
 
             /*update device list*/
-            if(vd->list_devices != NULL)
-				free_v4l2_devices_list(vd);
-            enum_v4l2_devices(vd);
-
+            if(my_device_list.list_devices != NULL)
+				free_device_list();
+            enum_v4l2_devices();
+            
+            /*update the current device index*/
+            if(vd)
+            {
+				vd->this_device = v4l2core_get_device_index(vd->videodevice);
+				if(vd->this_device < 0)
+					vd->this_device = 0;
+	
+				if(my_device_list.list_devices)
+					my_device_list.list_devices[vd->this_device].current = 1;
+			}
+			
             udev_device_unref(dev);
 
             return(1);
@@ -250,30 +347,19 @@ int v4l2core_check_device_list_events(v4l2_dev_t *vd)
 }
 
 /*
- * free v4l2 devices list
+ * close v4l2 devices list
  * args:
- *   vd - pointer to video device data
+ *   none
  *
  * asserts:
- *   vd is not null
  *   vd->list_devices is not null
  *
  * returns: void
  */
-void free_v4l2_devices_list(v4l2_dev_t *vd)
+void v4l2core_close_v4l2_device_list()
 {
-	/*assertions*/
-	assert(vd != NULL);
-	assert(vd->list_devices != NULL);
-
-	int i=0;
-	for(i=0;i<(vd->num_devices);i++)
-	{
-		free(vd->list_devices[i].device);
-		free(vd->list_devices[i].name);
-		free(vd->list_devices[i].driver);
-		free(vd->list_devices[i].location);
-	}
-	free(vd->list_devices);
-	vd->list_devices = NULL;
+	free_device_list();
+	
+	if (my_device_list.udev)
+		udev_unref(my_device_list.udev);
 }

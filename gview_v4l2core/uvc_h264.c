@@ -22,6 +22,7 @@
 ********************************************************************************/
 
 /* support for internationalization - i18n */
+#include <inttypes.h>
 #include <math.h>
 #include <libusb.h>
 #include <stdlib.h>
@@ -247,20 +248,24 @@ static int uvcx_video_commit(v4l2_dev_t *vd, uvcx_video_config_probe_commit_t *u
  *
  * asserts:
  *   vd is not null
- *   vd->list_devices is not null
+ *   device_list->list_devices is not null
  *
  * returns: unit id or 0 if none
  *  (also sets vd->h264_unit_id)
  */
 uint8_t get_uvc_h624_unit_id (v4l2_dev_t *vd)
 {
+	v4l2_device_list *my_device_list = v4l2core_get_device_list();
+	
 	/*asserts*/
 	assert(vd != NULL);
-	assert(vd->list_devices != NULL);
+	assert(my_device_list->list_devices != NULL);
 
-	uint64_t busnum = vd->list_devices[vd->this_device].busnum;
-	uint64_t devnum = vd->list_devices[vd->this_device].devnum;
-
+	uint64_t busnum = my_device_list->list_devices[vd->this_device].busnum;
+	uint64_t devnum = my_device_list->list_devices[vd->this_device].devnum;
+	
+	if(verbosity > 2)
+		printf("V4L2_CORE: checking h264 unit id for device %i (bus:%"PRId64" dev:%"PRId64")\n", vd->this_device, busnum, devnum);
     /* use libusb */
 	libusb_context *usb_ctx = NULL;
     libusb_device **device_list = NULL;
@@ -279,6 +284,10 @@ uint8_t get_uvc_h624_unit_id (v4l2_dev_t *vd)
     {
 		uint64_t dev_busnum = libusb_get_bus_number (device_list[i]);
 		uint64_t dev_devnum = libusb_get_device_address (device_list[i]);
+		
+		if(verbosity > 2)
+			printf("V4L2_CORE: (libusb) checking bus(%" PRId64 ") dev(%" PRId64 ") for device\n", dev_busnum, dev_devnum);
+		
 		if (busnum == dev_busnum &&	devnum == dev_devnum)
 		{
 			device = libusb_ref_device (device_list[i]);

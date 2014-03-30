@@ -376,25 +376,28 @@ void gui_error_gtk3(v4l2_dev_t *device,
 	GtkWidget *table = gtk_grid_new();
 
 	GtkWidget *title_lbl = gtk_label_new (gettext(title));
-	gtk_widget_modify_font(title_lbl, pango_font_description_from_string ("Sans bold 10"));
+	gtk_widget_override_font(title_lbl, pango_font_description_from_string ("Sans bold 10"));
 	gtk_misc_set_alignment (GTK_MISC (title_lbl), 0, 0);
 	gtk_grid_attach (GTK_GRID (table), title_lbl, 0, 0, 2, 1);
 	gtk_widget_show (title_lbl);
 
 	GtkWidget *text = gtk_label_new (gettext(message));
-	gtk_widget_modify_font(text, pango_font_description_from_string ("Sans italic 8"));
+	gtk_widget_override_font(text, pango_font_description_from_string ("Sans italic 8"));
 	gtk_misc_set_alignment (GTK_MISC (text), 0, 0);
 	gtk_grid_attach (GTK_GRID (table), text, 0, 1, 2, 1);
 	gtk_widget_show (text);
 
 	GtkWidget *wgtDevices = NULL;
+	
+	v4l2_device_list *device_list = v4l2core_get_device_list();
+	
 	/*add device list (more than one device)*/
-	int show_dev_list = (device != NULL && device->num_devices > 1) ? 1: 0;
+	int show_dev_list = (device_list->num_devices > 1) ? 1: 0;
 	if(show_dev_list)
 	{
 		GtkWidget *text2 = gtk_label_new (_("\nYou have more than one video device installed.\n"
 			"Do you want to try another one ?\n"));
-		gtk_widget_modify_font(text2, pango_font_description_from_string ("Sans 10"));
+		gtk_widget_override_font(text2, pango_font_description_from_string ("Sans 10"));
 		gtk_misc_set_alignment (GTK_MISC (text2), 0, 0);
 		gtk_grid_attach (GTK_GRID (table), text2, 0, 2, 2, 1);
 		gtk_widget_show (text2);
@@ -409,13 +412,13 @@ void gui_error_gtk3(v4l2_dev_t *device,
 		gtk_widget_set_hexpand (wgtDevices, TRUE);
 
 		int i = 0;
-		for(i = 0; i < (device->num_devices); i++)
+		for(i = 0; i < (device_list->num_devices); i++)
 		{
 			gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(wgtDevices),
-				device->list_devices[i].name);
+				device_list->list_devices[i].name);
 		}
 		/*select the last listed device by default*/
-		gtk_combo_box_set_active(GTK_COMBO_BOX(wgtDevices), device->num_devices - 1);
+		gtk_combo_box_set_active(GTK_COMBO_BOX(wgtDevices), device_list->num_devices - 1);
 
 		gtk_grid_attach(GTK_GRID(table), wgtDevices, 1, 3, 1, 1);
 		gtk_widget_show (wgtDevices);
@@ -435,15 +438,14 @@ void gui_error_gtk3(v4l2_dev_t *device,
 			{
 				/*launch another guvcview instance for the selected device*/
 				int index = gtk_combo_box_get_active(GTK_COMBO_BOX(wgtDevices));
-				if(index == device->this_device)
-					return;
-
-				free(device->videodevice);
-				device->videodevice = g_strdup(device->list_devices[index].device);
+				
+				char videodevice[30];
+				strncpy(videodevice, device_list->list_devices[index].device, 29);
+				
 				gchar *command = g_strjoin("",
 					g_get_prgname(),
 					" --device=",
-					device->videodevice,
+					videodevice,
 					NULL);
 
 				/*spawn new process*/

@@ -113,7 +113,10 @@ int gui_attach_gtk3_videoctrls(v4l2_dev_t *device, GtkWidget *parent)
 	set_wgtDevices_gtk3(gtk_combo_box_text_new());
 	gtk_widget_set_halign (get_wgtDevices_gtk3(), GTK_ALIGN_FILL);
 	gtk_widget_set_hexpand (get_wgtDevices_gtk3(), TRUE);
-	if (device->num_devices < 1)
+	
+	v4l2_device_list *device_list = v4l2core_get_device_list();
+	
+	if (device_list->num_devices < 1)
 	{
 		/*use current*/
 		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(get_wgtDevices_gtk3()),
@@ -122,11 +125,11 @@ int gui_attach_gtk3_videoctrls(v4l2_dev_t *device, GtkWidget *parent)
 	}
 	else
 	{
-		for(i = 0; i < (device->num_devices); i++)
+		for(i = 0; i < (device_list->num_devices); i++)
 		{
 			gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(get_wgtDevices_gtk3()),
-				device->list_devices[i].name);
-			if(device->list_devices[i].current)
+				device_list->list_devices[i].name);
+			if(device_list->list_devices[i].current)
 				gtk_combo_box_set_active(GTK_COMBO_BOX(get_wgtDevices_gtk3()),i);
 		}
 	}

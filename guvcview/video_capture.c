@@ -55,7 +55,7 @@ static uint64_t my_photo_timer = 0; /*timer count*/
 
 static int restart = 0; /*restart flag*/
 
-static char render_caption[20]; /*render window caption*/
+static char render_caption[30]; /*render window caption*/
 
 static uint32_t my_render_mask = REND_FX_YUV_NOFILT; /*render fx filter mask*/
 
@@ -897,7 +897,7 @@ void *capture_loop(void *data)
 				do_soft_focus = v4l2core_soft_autofocus_run(device);
 
 			/*render the decoded frame*/
-			snprintf(render_caption, 20, "Guvcview  (%2.2f fps)", v4l2core_get_realfps());
+			snprintf(render_caption, 29, "Guvcview  (%2.2f fps)", v4l2core_get_realfps());
 			render_set_caption(render_caption);
 			render_frame(device->yuv_frame, my_render_mask);
 

@@ -1183,17 +1183,11 @@ static void clean_v4l2_dev(v4l2_dev_t *vd)
 	if(vd->list_device_controls)
 		free_v4l2_control_list(vd);
 
-	if(vd->list_devices)
-		free_v4l2_devices_list(vd);
-
 	if(vd->list_stream_formats)
 		free_frame_formats(vd);
 
 	if(vd->list_device_controls)
 		free_v4l2_control_list(vd);
-
-	if (vd->udev)
-		udev_unref(vd->udev);
 
 	/*close descriptor*/
 	if(vd->fd > 0)
@@ -1253,21 +1247,6 @@ v4l2_dev_t *v4l2core_init_dev(const char *device)
 	vd->pan_step = 128;
 	vd->tilt_step = 128;
 
-	/* Create a udev object */
-	vd->udev = udev_new();
-	/*start udev device monitoring*/
-	/* Set up a monitor to monitor v4l2 devices */
-	if(vd->udev)
-	{
-		vd->udev_mon = udev_monitor_new_from_netlink(vd->udev, "udev");
-		udev_monitor_filter_add_match_subsystem_devtype(vd->udev_mon, "video4linux", NULL);
-		udev_monitor_enable_receiving(vd->udev_mon);
-		/* Get the file descriptor (fd) for the monitor */
-		vd->udev_fd = udev_monitor_get_fd(vd->udev_mon);
-
-		enum_v4l2_devices(vd);
-	}
-
 	/*open device*/
 	if ((vd->fd = v4l2_open(vd->videodevice, O_RDWR | O_NONBLOCK, 0)) < 0)
 	{
@@ -1275,6 +1254,14 @@ v4l2_dev_t *v4l2core_init_dev(const char *device)
 		clean_v4l2_dev(vd);
 		return (NULL);
 	}
+	
+	vd->this_device = v4l2core_get_device_index(vd->videodevice);
+	if(vd->this_device < 0)
+		vd->this_device = 0;
+	
+	v4l2_device_list *device_list = v4l2core_get_device_list();
+	if(device_list && device_list->list_devices)
+		device_list->list_devices[vd->this_device].current = 1;
 
 	/*zero structs*/
 	memset(&vd->cap, 0, sizeof(struct v4l2_capability));

@@ -1168,14 +1168,8 @@ void devices_changed (GtkComboBox *wgtDevices, void *data)
 	int index = gtk_combo_box_get_active(wgtDevices);
 	if(index == device->this_device)
 		return;
-
-	free(device->videodevice);
-	device->videodevice = g_strdup(device->list_devices[index].device);
-	gchar *command = g_strjoin("",
-		g_get_prgname(),
-		" --device=",
-		device->videodevice,
-		NULL);
+		
+	v4l2_device_list *device_list = v4l2core_get_device_list();
 
 	GtkWidget *restartdialog = gtk_dialog_new_with_buttons (_("start new"),
 		GTK_WINDOW(get_main_window_gtk3()),
@@ -1194,6 +1188,16 @@ void devices_changed (GtkComboBox *wgtDevices, void *data)
 	gtk_widget_show_all(restartdialog);
 
 	gint result = gtk_dialog_run (GTK_DIALOG (restartdialog));
+	
+	/*check device index only after dialog response*/
+	char videodevice[30];
+	strncpy(videodevice, device_list->list_devices[index].device, 29);
+	gchar *command = g_strjoin("",
+		g_get_prgname(),
+		" --device=",
+		device->videodevice,
+		NULL);
+		
 	switch (result)
 	{
 		case GTK_RESPONSE_ACCEPT: /*FIXME: restart or reset device without closing the app*/
@@ -2265,7 +2269,7 @@ gboolean check_device_events(gpointer data)
 	assert(device != NULL);
 
 	if(v4l2core_check_device_list_events(device))
-	{
+	{	
 		/*update device list*/
 		g_signal_handlers_block_by_func(GTK_COMBO_BOX_TEXT(get_wgtDevices_gtk3()),
                 G_CALLBACK (devices_changed), device);
@@ -2273,12 +2277,13 @@ gboolean check_device_events(gpointer data)
 		GtkListStore *store = GTK_LIST_STORE(gtk_combo_box_get_model (GTK_COMBO_BOX(get_wgtDevices_gtk3())));
 		gtk_list_store_clear(store);
 
+		v4l2_device_list *device_list = v4l2core_get_device_list();
 		int i = 0;
-        for(i = 0; i < (device->num_devices); i++)
+        for(i = 0; i < (device_list->num_devices); i++)
 		{
 			gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(get_wgtDevices_gtk3()),
-				device->list_devices[i].name);
-			if(device->list_devices[i].current)
+				device_list->list_devices[i].name);
+			if(device_list->list_devices[i].current)
 				gtk_combo_box_set_active(GTK_COMBO_BOX(get_wgtDevices_gtk3()),i);
 		}
 

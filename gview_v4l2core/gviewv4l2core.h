@@ -238,6 +238,18 @@ typedef struct _v4l2_dev_sys_data_t
 } v4l2_dev_sys_data_t;
 
 /*
+ * v4l2 devices list data
+ */ 
+typedef struct _v4l2_device_list_t
+{
+	struct udev *udev;                  // pointer to a udev struct (lib udev)
+    struct udev_monitor *udev_mon;      // udev monitor
+    int udev_fd;                        // udev monitor file descriptor
+    v4l2_dev_sys_data_t* list_devices;  // list of available v4l2 devices
+    int num_devices;                    // number of available v4l2 devices
+} v4l2_device_list;
+
+/*
  * video device data
  */
 typedef struct _v4l2_dev_t
@@ -294,11 +306,6 @@ typedef struct _v4l2_dev_t
 	uint16_t h264_PPS_size;             // PPS size
 	uint8_t isKeyframe;                 // current buffer contains a keyframe (h264 IDR)
 
-	struct udev *udev;                  // pointer to a udev struct (lib udev)
-    struct udev_monitor *udev_mon;      // udev monitor
-    int udev_fd;                        // udev monitor file descriptor
-    v4l2_dev_sys_data_t* list_devices;    // list of available v4l2 devices
-    int num_devices;                    // number of available v4l2 devices
     int this_device;                    // index of this device in device list
 
     v4l2_ctrl_t* list_device_controls;    //null terminated linked list of available device controls
@@ -389,19 +396,67 @@ void v4l2core_set_capture_method(v4l2_dev_t *vd, int method);
 v4l2_dev_t *v4l2core_init_dev(const char *device);
 
 /*
+ * Initiate the device list (with udev monitoring)
+ * args:
+ *   none
+ * 
+ * asserts:
+ *   none
+ * 
+ * returns: none
+ */ 
+void v4l2core_init_device_list();
+
+/*
+ * get the device list data
+ * args:
+ *   none
+ * 
+ * asserts:
+ *   none
+ * 
+ * returns: pointer to device list data
+ */
+v4l2_device_list *v4l2core_get_device_list();
+
+/*
+ * get the device index in device list
+ * args:
+ *   videodevice - string with videodevice node (e.g: /dev/video0)
+ * 
+ * asserts:
+ *   none
+ * 
+ * returns:
+ *   videodevice index in device list [0 - num_devices[ or -1 on error
+ */ 
+int v4l2core_get_device_index(const char *videodevice);
+
+/*
  * check for new devices
  * args:
- *   vd - pointer to device data
+ *   vd - pointer to device data (can be null)
  *
  * asserts:
- *   vd is not null
- *   vd->udev is not null
- *   vd->udev_fd is valid (> 0)
- *   vd->udev_mon is not null
+ *   my_device_list.udev is not null
+ *   my_device_list.udev_fd is valid (> 0)
+ *   my_device_list.udev_mon is not null
  *
  * returns: true(1) if device list was updated, false(0) otherwise
  */
 int v4l2core_check_device_list_events(v4l2_dev_t *vd);
+
+/*
+ * free v4l2 devices list
+ * args:
+ *   none
+ *
+ * asserts:
+ *   my_device_list.list_devices is not null
+ *
+ * returns: void
+ */
+void v4l2core_close_v4l2_device_list();
 
 /* get frame format index from format list
  * args:
