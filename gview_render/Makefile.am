@@ -5,7 +5,8 @@ h_sources = gviewrender.h
 
 c_sources = render.c \
 			render_sdl1.c \
-			render_fx.c
+			render_fx.c \
+			render_osd_vu_meter.c
 
 
 #Install the headers in a versioned directory - guvcvideo-x.x/libgviewrender:

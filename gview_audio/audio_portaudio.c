@@ -117,17 +117,36 @@ static int recordCallback (
 	if(statusFlags & paInputUnderflow)
 		fprintf( stderr, "AUDIO: portaudio buffer underflow\n" );
 
+	if(sample_index == 0)
+	{
+		audio_ctx->capture_buff_level[0] = 0;
+		audio_ctx->capture_buff_level[1] = 0;
+	}
 
+	int chan = 0;
 	/*store capture samples*/
 	for( i = 0; i < numSamples; ++i )
     {
         capture_buff[sample_index] = inputBuffer ? *rptr++ : 0;
         sample_index++;
 
+		audio_ctx->capture_buff_level[chan] += capture_buff[sample_index];
+		chan++;
+		if(chan >= audio_ctx->channels - 1)
+			chan = 0;
+
         if(sample_index >= audio_ctx->capture_buff_size)
 		{
 			buff_ts = ts + ( i / audio_ctx->channels ) * frame_length;
+
+			audio_ctx->capture_buff_level[0] /= (sample_index / audio_ctx->channels);
+			audio_ctx->capture_buff_level[1] /= (sample_index / audio_ctx->channels);
+
 			audio_fill_buffer(audio_ctx, buff_ts);
+
+			/*reset*/
+			audio_ctx->capture_buff_level[0] = 0;
+			audio_ctx->capture_buff_level[1] = 0;
 			sample_index = 0;
 		}
 	}

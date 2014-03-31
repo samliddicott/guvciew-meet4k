@@ -194,6 +194,21 @@ int render_call_event_callback(int id);
 void render_fx_apply(uint8_t *frame, int width, int height, uint32_t mask);
 
 /*
+ * render a vu meter
+ * args:
+ *   frame - pointer to yuyv frame data
+ *   width - frame width
+ *   height - frame height
+ *   vu_level - vu level values (array with 2 channels)
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void render_osd_vu_meter(uint8_t *frame, int width, int height, float vu_level[2]);
+
+/*
  * clean fx filters
  * args:
  *    none

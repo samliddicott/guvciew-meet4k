@@ -74,6 +74,8 @@ static __THREAD_TYPE encoder_thread;
 static int my_encoder_status = 0;
 
 static char status_message[80];
+
+static float vu_level[2] = {0, 0};
 /*
  * set render flag
  * args:
@@ -607,6 +609,9 @@ static void *audio_processing_loop(void *data)
 			encoder_ctx->enc_audio_ctx->pts = audio_buff->timestamp;
 
 			encoder_process_audio_buffer(encoder_ctx, audio_buff->data);
+
+			vu_level[0] = audio_buff->level_meter[0];
+			vu_level[1] = audio_buff->level_meter[1];
 		}
 	}
 
@@ -977,6 +982,10 @@ void *capture_loop(void *data)
 
 				}
 				encoder_add_video_frame(input_frame, size, device->timestamp, device->isKeyframe);
+
+				/*vu OSD*/
+				//if(vu_level[0] > 0)
+				//	render_osd_vu_meter(device->yuv_frame, device->format.fmt.pix.width, device->format.fmt.pix.height, vu_level);
 
 				int time_sched = encoder_buff_scheduler(); /*nanosec*/
 				if(time_sched > 0)

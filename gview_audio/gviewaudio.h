@@ -70,6 +70,7 @@ typedef struct _audio_buff_t
 	void *data; /*sample buffer - usually sample_t (float)*/
 	int64_t timestamp;
 	int flag;
+	float level_meter[2]; /*average sample level*/
 } audio_buff_t;
 
 typedef struct _audio_device_t
@@ -98,6 +99,7 @@ typedef struct _audio_context_t
 
 	sample_t *capture_buff;       /*pointer to capture data*/
 	int capture_buff_size;
+	float capture_buff_level[2];  /*capture buffer channels level*/
 
 	void *stream;                 /*pointer to audio stream (portaudio)*/
 
