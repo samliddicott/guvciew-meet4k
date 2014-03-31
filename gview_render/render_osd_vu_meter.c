@@ -61,7 +61,10 @@ void render_osd_vu_meter(uint8_t *frame, int width, int height, float vu_level[2
 	{
 		if(vu_level[channel] == 0)
 			continue;
-
+		if(vu_level[channel] < 0)
+			vu_level[channel] = -vu_level[channel];
+			
+		printf("AUDIO: vu_level %f\n", vu_level[0]);
 		/* Handle peak calculation and falloff */
 		if (vu_peak[channel] < vu_level[channel])
 		{

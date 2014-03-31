@@ -141,7 +141,7 @@ static int recordCallback (
 
 			audio_ctx->capture_buff_level[0] /= (sample_index / audio_ctx->channels);
 			audio_ctx->capture_buff_level[1] /= (sample_index / audio_ctx->channels);
-
+				
 			audio_fill_buffer(audio_ctx, buff_ts);
 
 			/*reset*/

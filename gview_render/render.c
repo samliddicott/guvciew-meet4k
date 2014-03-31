@@ -52,6 +52,8 @@ static int render_api = RENDER_SDL1;
 static int my_width = 0;
 static int my_height = 0;
 
+static float osd_vu_level[2] = {0, 0};
+
 static render_events_t render_events_list[] =
 {
 	{
@@ -104,6 +106,40 @@ static render_events_t render_events_list[] =
 void render_set_verbosity(int value)
 {
 	verbosity = value;
+}
+
+/*
+ * set the vu level for the osd vu meter
+ * args:
+ *   vu_level - vu level value (2 channel array)
+ * 
+ * asserts:
+ *   none
+ * 
+ * returns: none
+ */ 
+void render_set_vu_level(float vu_level[2])
+{
+	printf("render: setting vu_level %f\n", vu_level[0]);
+	
+	osd_vu_level[0] = vu_level[0];
+	osd_vu_level[1] = vu_level[1];
+}
+
+/*
+ * get the vu level for the osd vu meter
+ * args:
+ *   vu_level - two channel array were vu_level is to be copied
+ * 
+ * asserts:
+ *   none
+ * 
+ * returns array with vu meter level
+ */ 
+void render_get_vu_level(float vu_level[2])
+{
+	vu_level[0] = osd_vu_level[0];
+	vu_level[1] = osd_vu_level[1];
 }
 
 /*
@@ -232,7 +268,6 @@ void render_set_caption(const char* caption)
 			break;
 	}
 }
-
 
 /*
  * clean render data

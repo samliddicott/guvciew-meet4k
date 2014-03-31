@@ -608,13 +608,18 @@ static void *audio_processing_loop(void *data)
 		{
 			encoder_ctx->enc_audio_ctx->pts = audio_buff->timestamp;
 
-			encoder_process_audio_buffer(encoder_ctx, audio_buff->data);
-
 			vu_level[0] = audio_buff->level_meter[0];
 			vu_level[1] = audio_buff->level_meter[1];
+			
+			encoder_process_audio_buffer(encoder_ctx, audio_buff->data);
 		}
 	}
 
+	/*reset vu meter*/
+	vu_level[0] = 0;
+	vu_level[1] = 0;
+	render_set_vu_level(vu_level);
+	
 	audio_stop(audio_ctx);
 	audio_delete_buffer(audio_buff);
 
@@ -984,8 +989,7 @@ void *capture_loop(void *data)
 				encoder_add_video_frame(input_frame, size, device->timestamp, device->isKeyframe);
 
 				/*vu OSD*/
-				//if(vu_level[0] > 0)
-				//	render_osd_vu_meter(device->yuv_frame, device->format.fmt.pix.width, device->format.fmt.pix.height, vu_level);
+				render_set_vu_level(vu_level);
 
 				int time_sched = encoder_buff_scheduler(); /*nanosec*/
 				if(time_sched > 0)

@@ -194,19 +194,28 @@ int render_call_event_callback(int id);
 void render_fx_apply(uint8_t *frame, int width, int height, uint32_t mask);
 
 /*
- * render a vu meter
+ * set the vu level for the osd vu meter
  * args:
- *   frame - pointer to yuyv frame data
- *   width - frame width
- *   height - frame height
- *   vu_level - vu level values (array with 2 channels)
- *
+ *   vu_level - vu level value (2 channel array)
+ * 
  * asserts:
  *   none
- *
+ * 
  * returns: none
- */
-void render_osd_vu_meter(uint8_t *frame, int width, int height, float vu_level[2]);
+ */ 
+void render_set_vu_level(float vu_level[2]);
+
+/*
+ * get the vu level for the osd vu meter
+ * args:
+ *   vu_level - two channel array were vu_level is to be copied
+ * 
+ * asserts:
+ *   none
+ * 
+ * returns array with vu meter level
+ */ 
+void render_get_vu_level(float vu_level[2]);
 
 /*
  * clean fx filters
