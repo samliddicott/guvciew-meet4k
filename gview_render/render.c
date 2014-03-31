@@ -119,9 +119,7 @@ void render_set_verbosity(int value)
  * returns: none
  */ 
 void render_set_vu_level(float vu_level[2])
-{
-	printf("render: setting vu_level %f\n", vu_level[0]);
-	
+{	
 	osd_vu_level[0] = vu_level[0];
 	osd_vu_level[1] = vu_level[1];
 }

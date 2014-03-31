@@ -443,16 +443,29 @@ static void stream_request_cb(pa_stream *s, size_t length, void *data)
 		const sample_t *rptr = (const sample_t*) inputBuffer;
 		sample_t *capture_buff = (sample_t *) audio_ctx->capture_buff;
 
+		int chan = 0;
 		/*store capture samples or silence if inputBuffer == NULL (hole)*/
 		for( i = 0; i < numSamples; ++i )
 		{
 			capture_buff[sample_index] = inputBuffer ? *rptr++ : 0;
 			sample_index++;
+			
+			/*store peak value*/
+			if(audio_ctx->capture_buff_level[chan] < capture_buff[sample_index])
+				audio_ctx->capture_buff_level[chan] = capture_buff[sample_index];
+			chan++;
+			if(chan >= audio_ctx->channels)
+				chan = 0;
 
 			if(sample_index >= audio_ctx->capture_buff_size)
 			{
 				buff_ts = ts + ( i / audio_ctx->channels ) * frame_length;
+				
 				audio_fill_buffer(audio_ctx, buff_ts);
+				
+				/*reset*/
+				audio_ctx->capture_buff_level[0] = 0;
+				audio_ctx->capture_buff_level[1] = 0;
 				sample_index = 0;
 			}
 		}

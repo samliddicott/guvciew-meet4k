@@ -53,18 +53,18 @@ static float vu_peak_freeze[2]= {0.0 ,0.0};
  */
 void render_osd_vu_meter(uint8_t *frame, int width, int height, float vu_level[2])
 {
-
+	int bw = 2 * (width  / (VU_BARS * 4)); /*make it a multiple of two*/
 	int bh = height / 24;
-	int bw = width  / (VU_BARS * 4);
+	
 	int channel;
 	for (channel = 0; channel < 2; ++channel)
 	{
 		if(vu_level[channel] == 0)
 			continue;
+			
 		if(vu_level[channel] < 0)
 			vu_level[channel] = -vu_level[channel];
 			
-		printf("AUDIO: vu_level %f\n", vu_level[0]);
 		/* Handle peak calculation and falloff */
 		if (vu_peak[channel] < vu_level[channel])
 		{
@@ -92,30 +92,30 @@ void render_osd_vu_meter(uint8_t *frame, int width, int height, float vu_level[2
 			float db = 2 * box - 32;
 
 			/* start x coordinate for box */
-			int bx = box * (bw + bw/2) + (width / 8);
+			int bx = box * (bw + 4) + (16);
 			/* Start y coordinate for box (box top)*/
-			int by = channel * (bh + 5) + bh;
-
+			int by = channel * (2 * bh) + bh;
+			
 			uint8_t y = 127;
 			uint8_t u = 0;
 			uint8_t v = 0;
 
 			/*green bar*/
-			if (db < -8)
+			if (db < -10)
 			{
-				y = 154;
+				//y = 154;
   				u = 72;
   				v = 57;
 			}
-			else if (db < -4) /*yellow bar*/
+			else if (db < -6) /*yellow bar*/
 			{
-				y = 203;
+				//y = 203;
   				u = 44;
   				v = 142;
 			}
 			else /*red bar*/
 			{
-				y = 107;
+				//y = 107;
 				u = 100;
 				v = 212;
 			}
@@ -129,36 +129,39 @@ void render_osd_vu_meter(uint8_t *frame, int width, int height, float vu_level[2
 
 			if (light)
 			{
-  				int yc = 0;
-  				for (yc = 0; yc < bh; ++yc)
+  				int i = 0;
+  				for (i = 0; i < bh; ++i)
   				{
 					int bi = bx + by * width * 2; /*2 bytes per pixel*/
 					by++; /*next row*/
 
 					int j = 0;
-					for (j = 0; j < bw; j++) /*packed yuyv*/
+					for (j = 0; j < bw/4; ++j) /*packed yuyv*/
 					{
-						frame[bi] = y;
+						frame[bi] = y;   /*bw is always a multiple of two*/
 	  					frame[bi+1] = u;
 	  					frame[bi+2] = y;
 	  					frame[bi+3] = v;
-	 	 				bi += 4;
+	 	 				bi += 4; /*next two pixels*/
 					}
   				}
 
 			}
-			/*
-			else if (bw > 0)
+			else if (bw > 0) /*draw single line*/
 			{
-  				int bi = bx + by + width*2*bh/2;
-  				for (j=0;j<bw;j++)
-  				{
-					vuFrame[bi+1] = u;
-					vuFrame[bi+3] = v;
+				
+				int bi = bx + (by + bh/2) * width * 2;
+				  				
+				int j = 0;
+				for (j = 0; j < bw/4; j++)
+				{
+					frame[bi] = y;
+	  				frame[bi+1] = u;
+	  				frame[bi+2] = y;
+	  				frame[bi+3] = v;
 					bi += 4;
-  				}
+				}
 			}
-			*/
 		}
   	}
 }
