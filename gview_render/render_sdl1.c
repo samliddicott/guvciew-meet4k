@@ -239,17 +239,17 @@ int render_sdl1_frame(uint8_t *frame, int width, int height)
 
 	float vu_level[2];
 	render_get_vu_level(vu_level);
-	
+
 	uint8_t *p = (uint8_t *) poverlay->pixels[0];
 
 	int size = width * height * 2; /* 2 bytes per pixel for yuyv*/
 	 SDL_LockYUVOverlay(poverlay);
      memcpy(p, frame, size);
-     
+
      /*osd vu meter*/
-     if(vu_level[0] != 0)
+     if((render_get_osd_mask() & REND_OSD_VUMETER) != 0)
 		render_osd_vu_meter(p, width, height, vu_level);
-     
+
      SDL_UnlockYUVOverlay(poverlay);
      SDL_DisplayYUVOverlay(poverlay, &drect);
 }

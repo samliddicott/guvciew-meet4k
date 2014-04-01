@@ -75,7 +75,6 @@ static int my_encoder_status = 0;
 
 static char status_message[80];
 
-static float vu_level[2] = {0, 0};
 /*
  * set render flag
  * args:
@@ -599,6 +598,9 @@ static void *audio_processing_loop(void *data)
 
 	int ret = 0;
 
+	/*enable vu meter OSD display*/
+	render_set_osd_mask(REND_OSD_VUMETER);
+
 	while(video_capture_get_save_video())
 	{
 		ret = audio_get_next_buffer(audio_ctx, audio_buff,
@@ -608,18 +610,21 @@ static void *audio_processing_loop(void *data)
 		{
 			encoder_ctx->enc_audio_ctx->pts = audio_buff->timestamp;
 
-			vu_level[0] = audio_buff->level_meter[0];
-			vu_level[1] = audio_buff->level_meter[1];
-			
+			/*OSD vu meter level*/
+			render_set_vu_level(audio_buff->level_meter);
+
 			encoder_process_audio_buffer(encoder_ctx, audio_buff->data);
 		}
 	}
 
 	/*reset vu meter*/
-	vu_level[0] = 0;
-	vu_level[1] = 0;
-	render_set_vu_level(vu_level);
-	
+	audio_buff->level_meter[0] = 0;
+	audio_buff->level_meter[1] = 0;
+	render_set_vu_level(audio_buff->level_meter);
+
+	/*disable OSD*/
+	render_set_osd_mask(REND_OSD_NONE);
+
 	audio_stop(audio_ctx);
 	audio_delete_buffer(audio_buff);
 
@@ -987,9 +992,6 @@ void *capture_loop(void *data)
 
 				}
 				encoder_add_video_frame(input_frame, size, device->timestamp, device->isKeyframe);
-
-				/*vu OSD*/
-				render_set_vu_level(vu_level);
 
 				int time_sched = encoder_buff_scheduler(); /*nanosec*/
 				if(time_sched > 0)

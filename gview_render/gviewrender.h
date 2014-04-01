@@ -56,6 +56,10 @@
 #define REND_FX_YUV_PIECES (1<<4)
 #define REND_FX_YUV_PARTICLES (1<<5)
 
+/*OSD FLAGS*/
+#define REND_OSD_NONE      (0)
+#define REND_OSD_VUMETER   (1<<0)
+
 typedef int (*render_event_callback)(void *data);
 
 typedef struct _render_events_t
@@ -76,6 +80,30 @@ typedef struct _render_events_t
  * returns: none
  */
 void render_set_verbosity(int value);
+
+/*
+ * set the osd mask
+ * args:
+ *   mask - osd mask (ored)
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void render_set_osd_mask(uint32_t mask);
+
+/*
+ * get the osd mask
+ * args:
+ *   none
+ *
+ * asserts:
+ *    none
+ *
+ * returns: osd mask
+ */
+uint32_t render_get_osd_mask();
 
 /*
  * get render width
@@ -197,24 +225,24 @@ void render_fx_apply(uint8_t *frame, int width, int height, uint32_t mask);
  * set the vu level for the osd vu meter
  * args:
  *   vu_level - vu level value (2 channel array)
- * 
+ *
  * asserts:
  *   none
- * 
+ *
  * returns: none
- */ 
+ */
 void render_set_vu_level(float vu_level[2]);
 
 /*
  * get the vu level for the osd vu meter
  * args:
  *   vu_level - two channel array were vu_level is to be copied
- * 
+ *
  * asserts:
  *   none
- * 
+ *
  * returns array with vu meter level
- */ 
+ */
 void render_get_vu_level(float vu_level[2]);
 
 /*

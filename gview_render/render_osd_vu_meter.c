@@ -59,9 +59,7 @@ void render_osd_vu_meter(uint8_t *frame, int width, int height, float vu_level[2
 	int channel;
 	for (channel = 0; channel < 2; ++channel)
 	{
-		if(vu_level[channel] == 0)
-			continue;
-
+		/*make sure we have a positive value (required by log10)*/
 		if(vu_level[channel] < 0)
 			vu_level[channel] = -vu_level[channel];
 
@@ -80,8 +78,15 @@ void render_osd_vu_meter(uint8_t *frame, int width, int height, float vu_level[2
 			vu_peak[channel] -= (vu_peak[channel] - vu_level[channel]) / 10;
   		}
 
-  		float dBuLevel = 10 * log10(vu_level[channel] / REFERENCE_LEVEL);
-  		float dBuPeak  = 10 * log10(vu_peak[channel]  / REFERENCE_LEVEL);
+		/*by default no bar is light (min -32)*/
+		float dBuLevel = -42;
+		float dBuPeak = -42;
+
+		if(vu_level[channel] > 0)
+			dBuLevel = 10 * log10(vu_level[channel] / REFERENCE_LEVEL);
+
+		if(vu_peak[channel] > 0)
+			dBuPeak  = 10 * log10(vu_peak[channel]  / REFERENCE_LEVEL);
 
   		/* draw the bars */
   		int peaked = 0;
@@ -97,17 +102,17 @@ void render_osd_vu_meter(uint8_t *frame, int width, int height, float vu_level[2
 			int by = channel * (bh + 4) + bh;
 
 			uint8_t y = 127;
-			uint8_t u = 0;
-			uint8_t v = 0;
+			uint8_t u = 127;
+			uint8_t v = 127;
 
 			/*green bar*/
-			if (db < -10)
+			if (db < -12)
 			{
 				y = 154;
   				u = 72;
   				v = 57;
 			}
-			else if (db < -6) /*yellow bar*/
+			else if (db < -4) /*yellow bar*/
 			{
 				y = 203;
   				u = 44;

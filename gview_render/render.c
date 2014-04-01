@@ -52,6 +52,8 @@ static int render_api = RENDER_SDL1;
 static int my_width = 0;
 static int my_height = 0;
 
+static uint32_t my_osd_mask = REND_OSD_NONE;
+
 static float osd_vu_level[2] = {0, 0};
 
 static render_events_t render_events_list[] =
@@ -109,17 +111,47 @@ void render_set_verbosity(int value)
 }
 
 /*
+ * set the osd mask
+ * args:
+ *   mask - osd mask (ored)
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void render_set_osd_mask(uint32_t mask)
+{
+	my_osd_mask = mask;
+}
+
+/*
+ * get the osd mask
+ * args:
+ *   none
+ *
+ * asserts:
+ *    none
+ *
+ * returns: osd mask
+ */
+uint32_t render_get_osd_mask()
+{
+	return (my_osd_mask);
+}
+
+/*
  * set the vu level for the osd vu meter
  * args:
  *   vu_level - vu level value (2 channel array)
- * 
+ *
  * asserts:
  *   none
- * 
+ *
  * returns: none
- */ 
+ */
 void render_set_vu_level(float vu_level[2])
-{	
+{
 	osd_vu_level[0] = vu_level[0];
 	osd_vu_level[1] = vu_level[1];
 }
@@ -128,12 +160,12 @@ void render_set_vu_level(float vu_level[2])
  * get the vu level for the osd vu meter
  * args:
  *   vu_level - two channel array were vu_level is to be copied
- * 
+ *
  * asserts:
  *   none
- * 
+ *
  * returns array with vu meter level
- */ 
+ */
 void render_get_vu_level(float vu_level[2])
 {
 	vu_level[0] = osd_vu_level[0];
