@@ -1510,7 +1510,11 @@ void audio_device_changed(GtkComboBox *combo, void *data)
 	index = gtk_combo_box_get_active(GTK_COMBO_BOX(my_audio_widgets->channels));
 
 	if(index == 0)
+	{
 		audio_ctx->channels = audio_ctx->list_devices[audio_ctx->device].channels;
+		if(audio_ctx->channels > 2)
+			audio_ctx->channels = 2;/*limit it to stereo input*/
+	}
 
 	index = gtk_combo_box_get_active(GTK_COMBO_BOX(my_audio_widgets->samprate));
 

@@ -234,6 +234,8 @@ int main(int argc, char *argv[])
 	/*set the audio device defaults*/
 	audio_ctx->device = my_config->audio_device;
 	audio_ctx->channels = audio_ctx->list_devices[audio_ctx->device].channels;
+	if(audio_ctx->channels > 2)
+		audio_ctx->channels = 2;/*limit it to stereo input*/
 	audio_ctx->samprate = audio_ctx->list_devices[audio_ctx->device].samprate;
 
 	encoder_set_verbosity(debug_level);
