@@ -103,19 +103,19 @@ void render_osd_vu_meter(uint8_t *frame, int width, int height, float vu_level[2
 			/*green bar*/
 			if (db < -10)
 			{
-				//y = 154;
+				y = 154;
   				u = 72;
   				v = 57;
 			}
 			else if (db < -6) /*yellow bar*/
 			{
-				//y = 203;
+				y = 203;
   				u = 44;
   				v = 142;
 			}
 			else /*red bar*/
 			{
-				//y = 107;
+				y = 107;
 				u = 100;
 				v = 212;
 			}
@@ -138,7 +138,8 @@ void render_osd_vu_meter(uint8_t *frame, int width, int height, float vu_level[2
 					int j = 0;
 					for (j = 0; j < bw/2; ++j) /*packed yuyv*/
 					{
-						frame[bi] = y;   /*bw is always a multiple of two*/
+						/*we set two pixels in each loop*/
+						frame[bi] = y;
 	  					frame[bi+1] = u;
 	  					frame[bi+2] = y;
 	  					frame[bi+3] = v;
