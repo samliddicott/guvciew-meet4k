@@ -329,6 +329,12 @@ void set_profile_name(const char *name)
 		free(profile_name);
 
 	profile_name = strdup(name);
+
+	/* update the config */
+	config_t *my_config = config_get();
+	if(my_config->profile_name)
+		free(my_config->profile_name);
+	my_config->profile_name = strdup(name);
 }
 
 /*
@@ -365,6 +371,12 @@ void set_profile_path(const char *path)
 		free(profile_path);
 
 	profile_path = strdup(path);
+
+	/* update the config */
+	config_t *my_config = config_get();
+	if(my_config->profile_path)
+		free(my_config->profile_path);
+	my_config->profile_path = strdup(path);
 }
 
 /*
@@ -462,6 +474,12 @@ void set_video_name(const char *name)
 
 	video_name = strdup(name);
 
+	/* update the config */
+	config_t *my_config = config_get();
+	if(my_config->video_name)
+		free(my_config->video_name);
+	my_config->video_name = strdup(name);
+
 	/*get image format*/
 	char *ext = get_file_extension(name);
 	if(ext == NULL)
@@ -516,6 +534,12 @@ void set_video_path(const char *path)
 		free(video_path);
 
 	video_path = strdup(path);
+
+	/* update the config */
+	config_t *my_config = config_get();
+	if(my_config->video_path)
+		free(my_config->video_path);
+	my_config->video_path = strdup(path);
 }
 
 /*
@@ -613,6 +637,12 @@ void set_photo_name(const char *name)
 
 	photo_name = strdup(name);
 
+	/*update the config*/
+	config_t *my_config = config_get();
+	if(my_config->photo_name)
+		free(my_config->photo_name);
+	my_config->photo_name = strdup(name);
+
 	/*get image format*/
 	char *ext = get_file_extension(name);
 	if(ext == NULL)
@@ -666,6 +696,12 @@ void set_photo_path(const char *path)
 		free(photo_path);
 
 	photo_path = strdup(path);
+
+	/*update the config*/
+	config_t *my_config = config_get();
+	if(my_config->photo_path)
+		free(my_config->photo_path);
+	my_config->photo_path = strdup(path);
 }
 
 /*

@@ -251,24 +251,17 @@ void controls_profile_clicked (GtkWidget *item, void *data)
 			gui_gtk3_update_controls_state(device);
 		}
 
-		/*update config*/
-		config_t *my_config = config_get();
-
 		char *basename = get_file_basename(filename);
 		if(basename)
 		{
 			set_profile_name(basename);
-			if(my_config->profile_name)
-				free(my_config->profile_name);
-			my_config->profile_name = basename;
+			free(basename);
 		}
 		char *pathname = get_file_pathname(filename);
 		if(pathname)
 		{
 			set_profile_path(pathname);
-			if(my_config->profile_path)
-				free(my_config->profile_path);
-			my_config->profile_path = pathname;
+			free(pathname);
 		}
 	}
 	gtk_widget_destroy (FileDialog);
@@ -352,6 +345,7 @@ void video_codec_changed (GtkRadioMenuItem *item, void *data)
 			set_video_muxer(ENCODER_MUX_MKV);
 			char *newname = set_file_extension(get_video_name(), "mkv");
 			set_video_name(newname);
+
 			free(newname);
 		}
 	}
@@ -589,23 +583,17 @@ void photo_file_clicked (GtkWidget *item, void *data)
 	{
 		const char *filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (FileDialog));
 
-		config_t *my_config = config_get();
-
 		char *basename = get_file_basename(filename);
 		if(basename)
 		{
 			set_photo_name(basename);
-			if(my_config->photo_name)
-				free(my_config->photo_name);
-			my_config->photo_name = basename;
+			free(basename);
 		}
 		char *pathname = get_file_pathname(filename);
 		if(pathname)
 		{
 			set_photo_path(pathname);
-			if(my_config->photo_path)
-				free(my_config->photo_path);
-			my_config->photo_path = pathname;
+			free(pathname);
 		}
 	}
 	gtk_widget_destroy (FileDialog);
@@ -695,23 +683,17 @@ void video_file_clicked (GtkWidget *item, void *data)
 	{
 		const char *filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (FileDialog));
 
-		config_t *my_config = config_get();
-
 		char *basename = get_file_basename(filename);
 		if(basename)
 		{
 			set_video_name(basename);
-			if(my_config->video_name)
-				free(my_config->video_name);
-			my_config->video_name = basename;
+			free(basename);
 		}
 		char *pathname = get_file_pathname(filename);
 		if(pathname)
 		{
 			set_video_path(pathname);
-			if(my_config->video_path)
-				free(my_config->video_path);
-			my_config->video_path = pathname;
+			free(pathname);
 		}
 	}
 	gtk_widget_destroy (FileDialog);
@@ -1168,7 +1150,7 @@ void devices_changed (GtkComboBox *wgtDevices, void *data)
 	int index = gtk_combo_box_get_active(wgtDevices);
 	if(index == device->this_device)
 		return;
-		
+
 	v4l2_device_list *device_list = v4l2core_get_device_list();
 
 	GtkWidget *restartdialog = gtk_dialog_new_with_buttons (_("start new"),
@@ -1188,7 +1170,7 @@ void devices_changed (GtkComboBox *wgtDevices, void *data)
 	gtk_widget_show_all(restartdialog);
 
 	gint result = gtk_dialog_run (GTK_DIALOG (restartdialog));
-	
+
 	/*check device index only after dialog response*/
 	char videodevice[30];
 	strncpy(videodevice, device_list->list_devices[index].device, 29);
@@ -1197,7 +1179,7 @@ void devices_changed (GtkComboBox *wgtDevices, void *data)
 		" --device=",
 		videodevice,
 		NULL);
-		
+
 	switch (result)
 	{
 		case GTK_RESPONSE_ACCEPT: /*FIXME: restart or reset device without closing the app*/
@@ -2273,7 +2255,7 @@ gboolean check_device_events(gpointer data)
 	assert(device != NULL);
 
 	if(v4l2core_check_device_list_events(device))
-	{	
+	{
 		/*update device list*/
 		g_signal_handlers_block_by_func(GTK_COMBO_BOX_TEXT(get_wgtDevices_gtk3()),
                 G_CALLBACK (devices_changed), device);
