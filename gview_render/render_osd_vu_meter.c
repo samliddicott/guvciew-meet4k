@@ -53,18 +53,18 @@ static float vu_peak_freeze[2]= {0.0 ,0.0};
  */
 void render_osd_vu_meter(uint8_t *frame, int width, int height, float vu_level[2])
 {
-	int bw = 2 * (width  / (VU_BARS * 4)); /*make it a multiple of two*/
+	int bw = 2 * (width  / (VU_BARS * 8)); /*make it at least two pixels*/
 	int bh = height / 24;
-	
+
 	int channel;
 	for (channel = 0; channel < 2; ++channel)
 	{
 		if(vu_level[channel] == 0)
 			continue;
-			
+
 		if(vu_level[channel] < 0)
 			vu_level[channel] = -vu_level[channel];
-			
+
 		/* Handle peak calculation and falloff */
 		if (vu_peak[channel] < vu_level[channel])
 		{
@@ -94,8 +94,8 @@ void render_osd_vu_meter(uint8_t *frame, int width, int height, float vu_level[2
 			/* start x coordinate for box */
 			int bx = box * (bw + 4) + (16);
 			/* Start y coordinate for box (box top)*/
-			int by = channel * (2 * bh) + bh;
-			
+			int by = channel * (bh + 4) + bh;
+
 			uint8_t y = 127;
 			uint8_t u = 0;
 			uint8_t v = 0;
@@ -132,11 +132,11 @@ void render_osd_vu_meter(uint8_t *frame, int width, int height, float vu_level[2
   				int i = 0;
   				for (i = 0; i < bh; ++i)
   				{
-					int bi = bx + by * width * 2; /*2 bytes per pixel*/
+					int bi = 2 * (bx + by * width); /*2 bytes per pixel*/
 					by++; /*next row*/
 
 					int j = 0;
-					for (j = 0; j < bw/4; ++j) /*packed yuyv*/
+					for (j = 0; j < bw/2; ++j) /*packed yuyv*/
 					{
 						frame[bi] = y;   /*bw is always a multiple of two*/
 	  					frame[bi+1] = u;
@@ -149,11 +149,11 @@ void render_osd_vu_meter(uint8_t *frame, int width, int height, float vu_level[2
 			}
 			else if (bw > 0) /*draw single line*/
 			{
-				
-				int bi = bx + (by + bh/2) * width * 2;
-				  				
+
+				int bi = 2 * (bx + (by + bh/2) * width);
+
 				int j = 0;
-				for (j = 0; j < bw/4; j++)
+				for (j = 0; j < bw/2; j++)
 				{
 					frame[bi] = y;
 	  				frame[bi+1] = u;
