@@ -645,17 +645,20 @@ uint32_t encoder_buff_scheduler()
 		diff_ind = (video_ring_buffer_size - video_read_index) + video_write_index;
 	__UNLOCK_MUTEX( __PMUTEX );
 
-	int th1 = (int) lround((double) video_ring_buffer_size * 0.40); /*40% full*/
+	int th1 = (int) lround((double) video_ring_buffer_size * 0.50); /*50% full*/
 	int th2 = (int) lround((double) video_ring_buffer_size * 0.60); /*60% full*/
 	int th3 = (int) lround((double) video_ring_buffer_size * 0.70); /*70% full*/
-	int th4 = (int) lround((double) video_ring_buffer_size * 0.85); /*85% full*/
+	int th4 = (int) lround((double) video_ring_buffer_size * 0.80); /*80% full*/
+	int th5 = (int) lround((double) video_ring_buffer_size * 0.90); /*90% full*/
 
-	if(diff_ind >= th4)
-		sched_time = (uint32_t) lround((double) diff_ind * (1000/(video_ring_buffer_size)));
+	if (diff_ind >= th5)
+		sched_time = (uint32_t) lround((double) diff_ind * (528/(video_ring_buffer_size)));
+	else if(diff_ind >= th4)
+		sched_time = (uint32_t) lround((double) diff_ind * (264/(video_ring_buffer_size)));
 	else if (diff_ind >= th3)
-		sched_time = (uint32_t) lround((double) diff_ind * (500/(video_ring_buffer_size)));
+		sched_time = (uint32_t) lround((double) diff_ind * (132/(video_ring_buffer_size)));
 	else if (diff_ind >= th2)
-		sched_time = (uint32_t) lround((double) diff_ind * (250/(video_ring_buffer_size)));
+		sched_time = (uint32_t) lround((double) diff_ind * (66/(video_ring_buffer_size)));
 	else if (diff_ind >= th1)
 		sched_time = (uint32_t) lround((double) diff_ind * (33/(video_ring_buffer_size)));
 

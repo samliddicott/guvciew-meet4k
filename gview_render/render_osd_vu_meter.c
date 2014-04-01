@@ -32,7 +32,7 @@
 
 extern int verbosity;
 
-#define REFERENCE_LEVEL 0.2
+#define REFERENCE_LEVEL 0.6
 #define VU_BARS         16
 
 static float vu_peak[2] = {0.0, 0.0};

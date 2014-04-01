@@ -824,19 +824,7 @@ int mkv_write_packet(mkv_context_t* mkv_ctx,
     int cluster_size = io_get_offset(mkv_ctx->writer) - mkv_ctx->cluster_pos;
 
 	stream_io_t *stream = get_stream(mkv_ctx->stream_list, stream_index);
-    /*
-     * start a new cluster every 5 MB or 5 sec,
-     * or 32k / 1 sec for streaming or after 4k
-     * and on a keyframe
-     */
-    if (mkv_ctx->cluster_pos &&
-        ((cluster_size > 5*1024*1024 && ts > mkv_ctx->cluster_pts + 5000) ||
-         (stream->type == STREAM_TYPE_VIDEO && keyframe && cluster_size > 4*1024)))
-    {
-        mkv_end_ebml_master(mkv_ctx, mkv_ctx->cluster);
-        mkv_ctx->cluster_pos = 0;
-    }
-
+    
     /* check if we have an audio packet cached */
     if (mkv_ctx->pkt_size > 0)
     {
@@ -854,6 +842,20 @@ int mkv_write_packet(mkv_context_t* mkv_ctx,
             fprintf(stderr, "ENCODER: (matroska) Could not write cached audio packet\n");
             return ret;
         }
+    }
+    
+    /*
+     * start a new cluster every 5 MB and at least 5 sec,
+     * or on a keyframe,
+     * or every 4 MB if it is a video packet
+     */
+    if (mkv_ctx->cluster_pos &&
+        ((cluster_size > 5*1024*1024 && ts > mkv_ctx->cluster_pts + 5000) ||
+         (stream->type == STREAM_TYPE_VIDEO && keyframe) ||
+         (stream->type == STREAM_TYPE_VIDEO && cluster_size > 4*1024*1024)))
+    {
+        mkv_end_ebml_master(mkv_ctx, mkv_ctx->cluster);
+        mkv_ctx->cluster_pos = 0;
     }
 
     /*
