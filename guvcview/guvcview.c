@@ -139,7 +139,7 @@ int main(int argc, char *argv[])
 
 
 	/*initialize the v4l2 core*/
-	
+
 	v4l2core_set_verbosity(debug_level);
 	/*init the device list*/
 	v4l2core_init_device_list();
@@ -224,15 +224,17 @@ int main(int argc, char *argv[])
 
 	/*create the inital audio context (stored staticly in video_capture)*/
 	create_audio_context(audio);
-	
+
 	/*get the audio context*/
 	audio_context_t *audio_ctx = get_audio_context();
 	if(my_config->audio_device < 0)
 		my_config->audio_device = audio_ctx->device; /*api default*/
 	else if (my_config->audio_device >= audio_ctx->num_input_dev)
 		my_config->audio_device = audio_ctx->num_input_dev - 1;
-	/*set the audio device*/
+	/*set the audio device defaults*/
 	audio_ctx->device = my_config->audio_device;
+	audio_ctx->channels = audio_ctx->list_devices[audio_ctx->device].channels;
+	audio_ctx->samprate = audio_ctx->list_devices[audio_ctx->device].samprate;
 
 	encoder_set_verbosity(debug_level);
 	/*init the encoder*/
@@ -304,7 +306,7 @@ int main(int argc, char *argv[])
 
 	if(device)
 		v4l2core_close_dev(device);
-	
+
 	v4l2core_close_v4l2_device_list();
 
     /*save config before cleaning the options*/
