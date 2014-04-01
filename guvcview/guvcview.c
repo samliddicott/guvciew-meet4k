@@ -24,6 +24,7 @@
 #include <string.h>
 #include <signal.h>
 #include <sys/stat.h>
+#include <sys/resource.h>
 
 #include "gview.h"
 #include "gviewv4l2core.h"
@@ -73,6 +74,25 @@ void signal_callback_handler(int signum)
 
 int main(int argc, char *argv[])
 {
+	/*check stack size*/
+	const rlim_t kStackSize = 128L * 1024L * 1024L;   /* min stack size = 128 Mb*/
+    struct rlimit rl;
+    int result;
+
+    result = getrlimit(RLIMIT_STACK, &rl);
+    if (result == 0)
+    {
+        if (rl.rlim_cur < kStackSize)
+        {
+            rl.rlim_cur = kStackSize;
+            result = setrlimit(RLIMIT_STACK, &rl);
+            if (result != 0)
+            {
+                fprintf(stderr, "GUVCVIEW: setrlimit returned result = %d\n", result);
+            }
+        }
+    }
+    
 	// Register signal and signal handler
 	signal(SIGINT,  signal_callback_handler);
 	signal(SIGUSR1, signal_callback_handler);

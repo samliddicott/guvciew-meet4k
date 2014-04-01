@@ -247,7 +247,8 @@ int render_sdl1_frame(uint8_t *frame, int width, int height)
      memcpy(p, frame, size);
 
      /*osd vu meter*/
-     if((render_get_osd_mask() & REND_OSD_VUMETER) != 0)
+     if(((render_get_osd_mask() & 
+		(REND_OSD_VUMETER_MONO | REND_OSD_VUMETER_STEREO))) != 0)
 		render_osd_vu_meter(p, width, height, vu_level);
 
      SDL_UnlockYUVOverlay(poverlay);

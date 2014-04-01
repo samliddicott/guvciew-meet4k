@@ -57,8 +57,9 @@
 #define REND_FX_YUV_PARTICLES (1<<5)
 
 /*OSD FLAGS*/
-#define REND_OSD_NONE      (0)
-#define REND_OSD_VUMETER   (1<<0)
+#define REND_OSD_NONE           (0)
+#define REND_OSD_VUMETER_MONO   (1<<0)
+#define REND_OSD_VUMETER_STEREO (1<<1)
 
 typedef int (*render_event_callback)(void *data);
 

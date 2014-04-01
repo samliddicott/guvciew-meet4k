@@ -599,7 +599,10 @@ static void *audio_processing_loop(void *data)
 	int ret = 0;
 
 	/*enable vu meter OSD display*/
-	render_set_osd_mask(REND_OSD_VUMETER);
+	if(audio_ctx->channels > 1)
+		render_set_osd_mask(REND_OSD_VUMETER_STEREO);
+	else
+		render_set_osd_mask(REND_OSD_VUMETER_MONO);
 
 	while(video_capture_get_save_video())
 	{

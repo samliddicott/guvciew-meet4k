@@ -332,9 +332,13 @@ void set_profile_name(const char *name)
 
 	/* update the config */
 	config_t *my_config = config_get();
+	
+	/*this can be the function arg 'name'*/
 	if(my_config->profile_name)
 		free(my_config->profile_name);
-	my_config->profile_name = strdup(name);
+	
+	/*so here we use the dup string*/
+	my_config->profile_name = strdup(profile_name);
 }
 
 /*
@@ -374,9 +378,13 @@ void set_profile_path(const char *path)
 
 	/* update the config */
 	config_t *my_config = config_get();
+	
+	/*this can be the function arg 'path'*/
 	if(my_config->profile_path)
 		free(my_config->profile_path);
-	my_config->profile_path = strdup(path);
+	
+	/*so here we use the dup string*/
+	my_config->profile_path = strdup(profile_path);
 }
 
 /*
@@ -476,9 +484,13 @@ void set_video_name(const char *name)
 
 	/* update the config */
 	config_t *my_config = config_get();
+	
+	/*this can be the function arg 'name'*/
 	if(my_config->video_name)
 		free(my_config->video_name);
-	my_config->video_name = strdup(name);
+		
+	/*so here we use the dup string*/
+	my_config->video_name = strdup(video_name);
 
 	/*get image format*/
 	char *ext = get_file_extension(name);
@@ -537,9 +549,13 @@ void set_video_path(const char *path)
 
 	/* update the config */
 	config_t *my_config = config_get();
+	
+	/*this can be the function arg 'path'*/
 	if(my_config->video_path)
 		free(my_config->video_path);
-	my_config->video_path = strdup(path);
+	
+	/*so here we use the dup string*/
+	my_config->video_path = strdup(video_path);
 }
 
 /*
@@ -639,9 +655,13 @@ void set_photo_name(const char *name)
 
 	/*update the config*/
 	config_t *my_config = config_get();
+	
+	/*this can be the function arg 'name'*/
 	if(my_config->photo_name)
 		free(my_config->photo_name);
-	my_config->photo_name = strdup(name);
+	
+	/*so here we use the dup string*/
+	my_config->photo_name = strdup(photo_name);
 
 	/*get image format*/
 	char *ext = get_file_extension(name);
@@ -699,9 +719,13 @@ void set_photo_path(const char *path)
 
 	/*update the config*/
 	config_t *my_config = config_get();
+	
+	/*this can be the function arg 'path'*/
 	if(my_config->photo_path)
 		free(my_config->photo_path);
-	my_config->photo_path = strdup(path);
+		
+	/*so here we use the dup string*/
+	my_config->photo_path = strdup(photo_path);
 }
 
 /*

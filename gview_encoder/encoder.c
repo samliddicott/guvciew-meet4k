@@ -134,8 +134,8 @@ static void encoder_alloc_video_ring_buffer(
 	int fps_num)
 {
 	video_ring_buffer_size = (fps_den * 3) / (fps_num * 2); /* 1.5 sec */
-	if(video_ring_buffer_size < 15)
-		video_ring_buffer_size = 15; /*at least 15 frames buffer*/
+	if(video_ring_buffer_size < 20)
+		video_ring_buffer_size = 20; /*at least 20 frames buffer*/
 	video_ring_buffer = calloc(video_ring_buffer_size, sizeof(video_buffer_t));
 
 	/*Max: (yuyv) 2 bytes per pixel*/
@@ -645,20 +645,27 @@ uint32_t encoder_buff_scheduler()
 		diff_ind = (video_ring_buffer_size - video_read_index) + video_write_index;
 	__UNLOCK_MUTEX( __PMUTEX );
 
-	int th = (int) lround((double) video_ring_buffer_size * 0.65); /*65% full*/
-	int th1 =(int) lround((double) video_ring_buffer_size * 0.85); /*85% full*/
+	int th1 = (int) lround((double) video_ring_buffer_size * 0.40); /*40% full*/
+	int th2 = (int) lround((double) video_ring_buffer_size * 0.60); /*60% full*/
+	int th3 = (int) lround((double) video_ring_buffer_size * 0.70); /*70% full*/
+	int th4 = (int) lround((double) video_ring_buffer_size * 0.85); /*85% full*/
 
-	/**/
-	if(diff_ind >= th1)
-		sched_time = (uint32_t) lround((double) ((diff_ind * 320) / video_ring_buffer_size) - 192);
-	else if (diff_ind >= th)
-		sched_time = (uint32_t) lround((double) (diff_ind * 64) / video_ring_buffer_size);
+	if(diff_ind >= th4)
+		sched_time = (uint32_t) lround((double) diff_ind * (1000/(video_ring_buffer_size)));
+	else if (diff_ind >= th3)
+		sched_time = (uint32_t) lround((double) diff_ind * (500/(video_ring_buffer_size)));
+	else if (diff_ind >= th2)
+		sched_time = (uint32_t) lround((double) diff_ind * (250/(video_ring_buffer_size)));
+	else if (diff_ind >= th1)
+		sched_time = (uint32_t) lround((double) diff_ind * (33/(video_ring_buffer_size)));
 
-
+	if(verbosity > 2)
+		printf("ENCODER: scheduler %i ms (index delta %i)\n", sched_time, diff_ind);
+		
 	/*clip*/
 	if(sched_time < 0) sched_time = 0; /*clip to positive values just in case*/
 	if(sched_time > 1000)
-		sched_time = 1000; /*1 sec*/
+		sched_time = 1000; /*1 sec max*/
 
 	return (sched_time * 1E6); /*return in nanosec*/
 }

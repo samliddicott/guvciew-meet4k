@@ -59,6 +59,9 @@ void render_osd_vu_meter(uint8_t *frame, int width, int height, float vu_level[2
 	int channel;
 	for (channel = 0; channel < 2; ++channel)
 	{
+		if((render_get_osd_mask() & REND_OSD_VUMETER_MONO) != 0 && channel > 0)
+			continue; /*if mono mode only render first channel*/
+			
 		/*make sure we have a positive value (required by log10)*/
 		if(vu_level[channel] < 0)
 			vu_level[channel] = -vu_level[channel];
