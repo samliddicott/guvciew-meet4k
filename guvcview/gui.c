@@ -79,6 +79,10 @@ static int video_muxer = ENCODER_MUX_MKV;
 static int my_video_codec_ind = 0;
 static int my_audio_codec_ind = 0;
 
+/*index: 0 numerator; 1 denominator*/
+static int my_fps[2] = {0, 0};
+
+
 /*
  * gets the current video codec index
  * args:
@@ -161,6 +165,58 @@ void set_audio_codec_ind(int index)
 		strncpy(my_config->audio_codec, codec_name, 4);
 		lowercase(my_config->video_codec);
 	}
+}
+
+/*
+ * gets the current fps numerator
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: current fps numerator
+ */
+int gui_get_fps_num()
+{
+	return my_fps[0];
+}
+
+/*
+ * gets the current fps denominator
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: current fps denominator
+ */
+int gui_get_fps_denom()
+{
+	return my_fps[1];
+}
+
+/*
+ * stores the fps
+ * args:
+ *   fps - array with fps numerator and denominator
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void gui_set_fps(int fps[2])
+{
+	my_fps[0] = fps[0];
+	my_fps[1] = fps[1];
+
+	/*update config*/
+	config_t *my_config = config_get();
+
+	my_config->fps_num = my_fps[0];
+	my_config->fps_denom = my_fps[1];
 }
 
 /*
@@ -332,11 +388,11 @@ void set_profile_name(const char *name)
 
 	/* update the config */
 	config_t *my_config = config_get();
-	
+
 	/*this can be the function arg 'name'*/
 	if(my_config->profile_name)
 		free(my_config->profile_name);
-	
+
 	/*so here we use the dup string*/
 	my_config->profile_name = strdup(profile_name);
 }
@@ -378,11 +434,11 @@ void set_profile_path(const char *path)
 
 	/* update the config */
 	config_t *my_config = config_get();
-	
+
 	/*this can be the function arg 'path'*/
 	if(my_config->profile_path)
 		free(my_config->profile_path);
-	
+
 	/*so here we use the dup string*/
 	my_config->profile_path = strdup(profile_path);
 }
@@ -484,11 +540,11 @@ void set_video_name(const char *name)
 
 	/* update the config */
 	config_t *my_config = config_get();
-	
+
 	/*this can be the function arg 'name'*/
 	if(my_config->video_name)
 		free(my_config->video_name);
-		
+
 	/*so here we use the dup string*/
 	my_config->video_name = strdup(video_name);
 
@@ -549,11 +605,11 @@ void set_video_path(const char *path)
 
 	/* update the config */
 	config_t *my_config = config_get();
-	
+
 	/*this can be the function arg 'path'*/
 	if(my_config->video_path)
 		free(my_config->video_path);
-	
+
 	/*so here we use the dup string*/
 	my_config->video_path = strdup(video_path);
 }
@@ -655,11 +711,11 @@ void set_photo_name(const char *name)
 
 	/*update the config*/
 	config_t *my_config = config_get();
-	
+
 	/*this can be the function arg 'name'*/
 	if(my_config->photo_name)
 		free(my_config->photo_name);
-	
+
 	/*so here we use the dup string*/
 	my_config->photo_name = strdup(photo_name);
 
@@ -719,11 +775,11 @@ void set_photo_path(const char *path)
 
 	/*update the config*/
 	config_t *my_config = config_get();
-	
+
 	/*this can be the function arg 'path'*/
 	if(my_config->photo_path)
 		free(my_config->photo_path);
-		
+
 	/*so here we use the dup string*/
 	my_config->photo_path = strdup(photo_path);
 }

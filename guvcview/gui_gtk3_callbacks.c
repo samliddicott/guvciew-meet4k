@@ -1243,6 +1243,9 @@ void frame_rate_changed (GtkComboBox *wgtFrameRate, void *data)
 	device->fps_denom = device->list_stream_formats[format_index].list_stream_cap[resolu_index].framerate_denom[index];
 	device->fps_num = device->list_stream_formats[format_index].list_stream_cap[resolu_index].framerate_num[index];
 
+	int fps[2] = {device->fps_num, device->fps_denom};
+	gui_set_fps(fps);
+
 	v4l2core_request_framerate_update (device);
 }
 

@@ -83,6 +83,42 @@ int get_audio_codec_ind();
 void set_audio_codec_ind(int index);
 
 /*
+ * gets the current fps numerator
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: current fps numerator
+ */
+int gui_get_fps_num();
+
+/*
+ * gets the current fps denominator
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: current fps denominator
+ */
+int gui_get_fps_denom();
+
+/*
+ * stores the fps
+ * args:
+ *   fps - array with fps numerator and denominator
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void gui_set_fps(int fps[2]);
+
+/*
  * gets the default camera button action
  * args:
  *   none

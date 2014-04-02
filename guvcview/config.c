@@ -56,6 +56,8 @@ static config_t my_config =
 	.photo_path = NULL,
 	.video_sufix = 1,
 	.photo_sufix = 1,
+	.fps_num = 1,
+	.fps_denom = 25,
 	.audio_device = -1,/*guvcview will use API default in this case*/
 	//.audio_channels = 0,
 	//.audio_samprate = 0,
@@ -137,6 +139,10 @@ int config_save(const char *filename)
 	fprintf(fp, "photo_path=%s\n", my_config.photo_path);
 	fprintf(fp, "#photo sufix flag\n");
 	fprintf(fp, "photo_sufix=%i\n", my_config.photo_sufix);
+	fprintf(fp, "#fps numerator (def. 1)\n");
+	fprintf(fp, "#fps_num=%i\n", my_config.fps_num);
+	fprintf(fp, "#fps denominator (def. 25)\n");
+	fprintf(fp, "#fps_denom=%i\n", my_config.fps_denom);
 	fprintf(fp, "#audio device index (-1 - api default)\n");
 	fprintf(fp, "audio_device=%i\n", my_config.audio_device);
 	//fprintf(fp, "#audio channels index (0 - auto)\n");
@@ -156,10 +162,10 @@ int config_save(const char *filename)
 		fprintf(stderr, "GUVCVIEW: error writing configuration data to file: %s\n", strerror(errno));
 		return -1;
 	}
-	
+
 	if(debug_level > 1)
 		printf("GUVCVIEW: saving config to %s\n", filename);
-		
+
 	return 0;
 }
 
@@ -300,6 +306,10 @@ int config_load(const char *filename)
 			my_config.photo_sufix = (int) strtoul(value, NULL, 10);
 			set_photo_sufix_flag(my_config.photo_sufix);
 		}
+		else if(strcmp(token, "fps_num") == 0)
+			my_config.fps_num = (int) strtoul(value, NULL, 10);
+		else if(strcmp(token, "fps_denom") == 0)
+			my_config.fps_denom = (int) strtoul(value, NULL, 10);
 		else if(strcmp(token, "audio_device") == 0)
 			my_config.audio_device = (int) strtoul(value, NULL, 10);
 		//else if(strcmp(token, "audio_channels") == 0)

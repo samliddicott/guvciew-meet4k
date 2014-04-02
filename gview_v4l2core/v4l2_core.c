@@ -285,7 +285,7 @@ static int query_buff(v4l2_dev_t *vd)
 				vd->buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 				//vd->buf.flags = V4L2_BUF_FLAG_TIMECODE;
 				//vd->buf.timecode = vd->timecode;
-				//vd->buf.timestamp.tv_sec = 0;//get frame as soon as possible
+				//vd->buf.timestamp.tv_sec = 0;
 				//vd->buf.timestamp.tv_usec = 0;
 				vd->buf.memory = V4L2_MEMORY_MMAP;
 				ret = xioctl(vd->fd, VIDIOC_QUERYBUF, &vd->buf);
@@ -349,7 +349,7 @@ static int queue_buff(v4l2_dev_t *vd)
 				vd->buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 				//vd->buf.flags = V4L2_BUF_FLAG_TIMECODE;
 				//vd->buf.timecode = vd->timecode;
-				//vd->buf.timestamp.tv_sec = 0;//get frame as soon as possible
+				//vd->buf.timestamp.tv_sec = 0;
 				//vd->buf.timestamp.tv_usec = 0;
 				vd->buf.memory = V4L2_MEMORY_MMAP;
 				ret = xioctl(vd->fd, VIDIOC_QBUF, &vd->buf);
@@ -1254,11 +1254,11 @@ v4l2_dev_t *v4l2core_init_dev(const char *device)
 		clean_v4l2_dev(vd);
 		return (NULL);
 	}
-	
+
 	vd->this_device = v4l2core_get_device_index(vd->videodevice);
 	if(vd->this_device < 0)
 		vd->this_device = 0;
-	
+
 	v4l2_device_list *device_list = v4l2core_get_device_list();
 	if(device_list && device_list->list_devices)
 		device_list->list_devices[vd->this_device].current = 1;

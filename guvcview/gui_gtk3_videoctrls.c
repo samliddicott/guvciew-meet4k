@@ -113,9 +113,9 @@ int gui_attach_gtk3_videoctrls(v4l2_dev_t *device, GtkWidget *parent)
 	set_wgtDevices_gtk3(gtk_combo_box_text_new());
 	gtk_widget_set_halign (get_wgtDevices_gtk3(), GTK_ALIGN_FILL);
 	gtk_widget_set_hexpand (get_wgtDevices_gtk3(), TRUE);
-	
+
 	v4l2_device_list *device_list = v4l2core_get_device_list();
-	
+
 	if (device_list->num_devices < 1)
 	{
 		/*use current*/
@@ -195,15 +195,8 @@ int gui_attach_gtk3_videoctrls(v4l2_dev_t *device, GtkWidget *parent)
 	g_signal_connect (GTK_COMBO_BOX_TEXT(wgtFrameRate), "changed",
 		G_CALLBACK (frame_rate_changed), device);
 
-
-	//GtkWidget *ShowFPS=gtk_check_button_new_with_label (_(" Show"));
-	//gtk_grid_attach (GTK_GRID(video_controls_grid), ShowFPS, 2, line, 1, 1);
-
-	//gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ShowFPS),(FpsCount > 0));
-	//gtk_widget_show (ShowFPS);
-	//g_signal_connect (GTK_CHECK_BUTTON(ShowFPS), "toggled",
-	//	G_CALLBACK (show_FPS_changed), device);
-
+	/*try to sync the device fps (capture thread must have started by now)*/
+	v4l2core_request_framerate_update (device);
 
 	/*---- Resolution ----*/
 	line++;

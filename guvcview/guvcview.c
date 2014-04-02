@@ -92,7 +92,7 @@ int main(int argc, char *argv[])
             }
         }
     }
-    
+
 	// Register signal and signal handler
 	signal(SIGINT,  signal_callback_handler);
 	signal(SIGUSR1, signal_callback_handler);
@@ -157,7 +157,6 @@ int main(int argc, char *argv[])
 		audio = AUDIO_PULSE;
 #endif
 
-
 	/*initialize the v4l2 core*/
 
 	v4l2core_set_verbosity(debug_level);
@@ -183,6 +182,10 @@ int main(int argc, char *argv[])
 		v4l2core_set_capture_method(device, IO_READ);
 	else
 		v4l2core_set_capture_method(device, IO_MMAP);
+
+	/*set the intended fps*/
+	device->fps_num = my_config->fps_num;
+	device->fps_denom = my_config->fps_denom;
 
 	/*select video codec*/
 	if(debug_level > 1)
