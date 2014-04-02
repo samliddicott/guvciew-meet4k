@@ -32,8 +32,8 @@
 
 extern int verbosity;
 
-#define REFERENCE_LEVEL 0.6
-#define VU_BARS         16
+#define REFERENCE_LEVEL 0.8
+#define VU_BARS         20
 
 static float vu_peak[2] = {0.0, 0.0};
 static float vu_peak_freeze[2]= {0.0 ,0.0};
@@ -61,7 +61,7 @@ void render_osd_vu_meter(uint8_t *frame, int width, int height, float vu_level[2
 	{
 		if((render_get_osd_mask() & REND_OSD_VUMETER_MONO) != 0 && channel > 0)
 			continue; /*if mono mode only render first channel*/
-			
+
 		/*make sure we have a positive value (required by log10)*/
 		if(vu_level[channel] < 0)
 			vu_level[channel] = -vu_level[channel];
@@ -81,9 +81,9 @@ void render_osd_vu_meter(uint8_t *frame, int width, int height, float vu_level[2
 			vu_peak[channel] -= (vu_peak[channel] - vu_level[channel]) / 10;
   		}
 
-		/*by default no bar is light (min -32)*/
-		float dBuLevel = -42;
-		float dBuPeak = -42;
+		/*by default no bar is light */
+		float dBuLevel = - 4 * (VU_BARS - 1);
+		float dBuPeak = - 4 * (VU_BARS - 1);
 
 		if(vu_level[channel] > 0)
 			dBuLevel = 10 * log10(vu_level[channel] / REFERENCE_LEVEL);
@@ -94,10 +94,13 @@ void render_osd_vu_meter(uint8_t *frame, int width, int height, float vu_level[2
   		/* draw the bars */
   		int peaked = 0;
   		int box = 0;
-  		for (box = 0; box <= (VU_BARS-1); ++box)
+  		for (box = 0; box <= (VU_BARS - 1); ++box)
   		{
-			/* The dB it takes to light the current box */
-			float db = 2 * box - 32;
+			/*
+			 * The dB it takes to light the current box
+			 * step of 2 db between boxes
+			 */
+			float db = 2 * (box - (VU_BARS - 1));
 
 			/* start x coordinate for box */
 			int bx = box * (bw + 4) + (16);
@@ -109,13 +112,13 @@ void render_osd_vu_meter(uint8_t *frame, int width, int height, float vu_level[2
 			uint8_t v = 127;
 
 			/*green bar*/
-			if (db < -12)
+			if (db < -10)
 			{
 				y = 154;
   				u = 72;
   				v = 57;
 			}
-			else if (db < -4) /*yellow bar*/
+			else if (db < -2) /*yellow bar*/
 			{
 				y = 203;
   				u = 44;
