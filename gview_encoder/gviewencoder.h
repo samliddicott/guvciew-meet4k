@@ -60,6 +60,10 @@
 #define ENCODER_MUX_WEBM       (1)
 #define ENCODER_MUX_AVI        (2)
 
+/*Scheduler Modes*/
+#define ENCODER_SCHED_LIN  (0)
+#define ENCODER_SCHED_EXP  (1)
+
 #define LIBAVCODEC_VER_AT_LEAST(major,minor)  (LIBAVCODEC_VERSION_MAJOR > major || \
                                               (LIBAVCODEC_VERSION_MAJOR == major && \
                                                LIBAVCODEC_VERSION_MINOR >= minor))
@@ -593,14 +597,17 @@ int encoder_set_audio_mkvCodecPriv(encoder_context_t *encoder_ctx);
 /*
  * get an estimated write loop sleep time to avoid a ring buffer overrun
  * args:
- *   none
+ *   mode: scheduler mode:
+ *      0 - linear funtion; 1 - exponencial funtion
+ *   thresh: ring buffer threshold in wich scheduler becomes active:
+ *      [0.2 (20%) - 0.9 (90%)]
  *
  * asserts:
  *   none
  *
  * returns: estimate sleep time (nanosec)
  */
-uint32_t encoder_buff_scheduler();
+uint32_t encoder_buff_scheduler(int mode, double thresh);
 
 /*
  * store unprocessed input video frame in video ring buffer

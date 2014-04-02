@@ -1002,7 +1002,8 @@ void *capture_loop(void *data)
 				}
 				encoder_add_video_frame(input_frame, size, device->timestamp, device->isKeyframe);
 
-				int time_sched = encoder_buff_scheduler(); /*nanosec*/
+				/*exponencial scheduler with 50% threshold (nanosec)*/
+				int time_sched = encoder_buff_scheduler(ENCODER_SCHED_EXP, 0.5);
 				if(time_sched > 0)
 				{
 					switch(device->requested_fmt)

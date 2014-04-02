@@ -625,17 +625,21 @@ static encoder_audio_context_t *encoder_audio_init(
 /*
  * get an estimated write loop sleep time to avoid a ring buffer overrun
  * args:
- *   none
+ *   mode: scheduler mode:
+ *      0 - linear funtion; 1 - exponencial funtion
+ *   thresh: ring buffer threshold in wich scheduler becomes active:
+ *      [0.2 (20%) - 0.9 (90%)]
  *
  * asserts:
  *   none
  *
  * returns: estimate sleep time (nanosec)
  */
-uint32_t encoder_buff_scheduler()
+uint32_t encoder_buff_scheduler(int mode, double thresh)
 {
 	int diff_ind = 0;
 	uint32_t sched_time = 0; /*in milisec*/
+	int max_time = 500; /*500 ms max*/
 
 	__LOCK_MUTEX( __PMUTEX );
 	/* try to balance buffer overrun in read/write operations */
@@ -645,26 +649,38 @@ uint32_t encoder_buff_scheduler()
 		diff_ind = (video_ring_buffer_size - video_read_index) + video_write_index;
 	__UNLOCK_MUTEX( __PMUTEX );
 
-	int th1 = (int) lround((double) video_ring_buffer_size * 0.50); /*50% full*/
-	int th2 = (int) lround((double) video_ring_buffer_size * 0.60); /*60% full*/
-	int th3 = (int) lround((double) video_ring_buffer_size * 0.70); /*70% full*/
-	int th4 = (int) lround((double) video_ring_buffer_size * 0.80); /*80% full*/
-	int th5 = (int) lround((double) video_ring_buffer_size * 0.90); /*90% full*/
+	/*clip ring buffer threshold*/
+	if(thresh < 0.2)
+		thresh = 0.2; /*20% full*/
+	if(thresh > 0.9)
+		thresh = 0.9; /*90% full*/
 
-	if (diff_ind >= th5)
-		sched_time = (uint32_t) lround((double) diff_ind * (528/(video_ring_buffer_size)));
-	else if(diff_ind >= th4)
-		sched_time = (uint32_t) lround((double) diff_ind * (264/(video_ring_buffer_size)));
-	else if (diff_ind >= th3)
-		sched_time = (uint32_t) lround((double) diff_ind * (132/(video_ring_buffer_size)));
-	else if (diff_ind >= th2)
-		sched_time = (uint32_t) lround((double) diff_ind * (66/(video_ring_buffer_size)));
-	else if (diff_ind >= th1)
-		sched_time = (uint32_t) lround((double) diff_ind * (33/(video_ring_buffer_size)));
+	int th = (int) lround((double) video_ring_buffer_size * thresh);
+
+	if (diff_ind >= th)
+	{
+		switch(mode)
+		{
+			case ENCODER_SCHED_LIN: /*linear function*/
+				sched_time = (uint32_t) lround((double) (diff_ind - th) * (max_time/(video_ring_buffer_size - th)));
+				break;
+
+			case ENCODER_SCHED_EXP: /*exponencial*/
+			{
+				double exp = (double) log10(max_time)/log10(video_ring_buffer_size - th);
+				if(exp > 0)
+					sched_time = (uint32_t) lround( pow(diff_ind - th, exp));
+				else /*use linear function*/
+					sched_time = (uint32_t) lround((double) (diff_ind - th) * (max_time/(video_ring_buffer_size - th)));
+				break;
+			}
+
+		}
+	}
 
 	if(verbosity > 2)
 		printf("ENCODER: scheduler %i ms (index delta %i)\n", sched_time, diff_ind);
-		
+
 	/*clip*/
 	if(sched_time < 0) sched_time = 0; /*clip to positive values just in case*/
 	if(sched_time > 1000)
