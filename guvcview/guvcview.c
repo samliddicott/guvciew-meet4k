@@ -187,6 +187,10 @@ int main(int argc, char *argv[])
 	device->fps_num = my_config->fps_num;
 	device->fps_denom = my_config->fps_denom;
 
+	/*set fx masks*/
+	set_render_fx_mask(my_config->video_fx);
+	set_audio_fx_mask(my_config->audio_fx);
+
 	/*select video codec*/
 	if(debug_level > 1)
 		printf("GUVCVIEW: setting video codec to '%s'\n", my_config->video_codec);

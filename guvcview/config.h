@@ -46,8 +46,8 @@ typedef struct _config_t
 	int fps_num;
 	int fps_denom;
 	int audio_device;/*audio device index*/
-	//int audio_channels;/*audio channels index (0 -auto)*/
-	//int audio_samprate;/*audio sample rate index (0 -auto)*/
+	uint32_t video_fx;
+	uint32_t audio_fx;
 } config_t;
 
 /*

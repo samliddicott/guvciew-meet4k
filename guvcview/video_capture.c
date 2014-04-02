@@ -118,6 +118,9 @@ uint32_t get_render_fx_mask()
 void set_render_fx_mask(uint32_t new_mask)
 {
 	my_render_mask = new_mask;
+	/* update config */
+	config_t *my_config = config_get();
+	my_config->video_fx = my_render_mask;
 }
 
 /*
@@ -148,6 +151,9 @@ uint32_t get_audio_fx_mask()
 void set_audio_fx_mask(uint32_t new_mask)
 {
 	my_audio_mask = new_mask;
+	/* update config */
+	config_t *my_config = config_get();
+	my_config->audio_fx = my_audio_mask;
 }
 
 /*

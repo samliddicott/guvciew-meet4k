@@ -59,8 +59,8 @@ static config_t my_config =
 	.fps_num = 1,
 	.fps_denom = 25,
 	.audio_device = -1,/*guvcview will use API default in this case*/
-	//.audio_channels = 0,
-	//.audio_samprate = 0,
+	.video_fx = 0, /*no video fx*/
+	.audio_fx = 0, /*no audio fx*/
 };
 
 /*
@@ -145,10 +145,10 @@ int config_save(const char *filename)
 	fprintf(fp, "#fps_denom=%i\n", my_config.fps_denom);
 	fprintf(fp, "#audio device index (-1 - api default)\n");
 	fprintf(fp, "audio_device=%i\n", my_config.audio_device);
-	//fprintf(fp, "#audio channels index (0 - auto)\n");
-	//fprintf(fp, "audio_channels=%i\n", my_config.audio_channels);
-	//fprintf(fp, "#audio sample rate index (0 -auto)\n");
-	//fprintf(fp, "audio_samprate=%i\n", my_config.audio_samprate);
+	fprintf(fp, "#video fx mask \n");
+	fprintf(fp, "video_fx=0x%x\n", my_config.video_fx);
+	fprintf(fp, "#audio fx mask \n");
+	fprintf(fp, "audio_fx=0x%x\n", my_config.audio_fx);
 
 	/* return to system locale */
     setlocale(LC_NUMERIC, "");
@@ -312,10 +312,10 @@ int config_load(const char *filename)
 			my_config.fps_denom = (int) strtoul(value, NULL, 10);
 		else if(strcmp(token, "audio_device") == 0)
 			my_config.audio_device = (int) strtoul(value, NULL, 10);
-		//else if(strcmp(token, "audio_channels") == 0)
-		//	my_config.audio_channels = (int) strtoul(value, NULL, 10);
-		//else if(strcmp(token, "audio_samprate") == 0)
-		//	my_config.audio_samprate = (int) strtoul(value, NULL, 10);
+		else if(strcmp(token, "video_fx") == 0)
+			my_config.video_fx = (uint32_t) strtoul(value, NULL, 16);
+		else if(strcmp(token, "audio_fx") == 0)
+			my_config.audio_fx = (uint32_t) strtoul(value, NULL, 16);
 		else
 			fprintf(stderr, "GUVCVIEW: (config) skiping invalid entry at line %i ('%s', '%s')\n", line, token, value);
 
