@@ -656,6 +656,7 @@ static void *encoder_loop(void *data)
 
 	my_encoder_status = 1;
 
+	/*get the audio context*/
 	audio_context_t *audio_ctx = get_audio_context();
 
 	__THREAD_TYPE encoder_audio_thread;
@@ -673,6 +674,7 @@ static void *encoder_loop(void *data)
 		printf("ENCODER: audio [channels= %i; samprate= %i] \n",
 			channels, samprate);
 
+	/*create the encoder context*/
 	encoder_context_t *encoder_ctx = encoder_get_context(
 		device->requested_fmt,
 		get_video_codec_ind(),
@@ -709,11 +711,11 @@ static void *encoder_loop(void *data)
 		}
 	}
 
-	uint32_t current_frame = 0;
+	uint32_t current_framerate = 0;
 	if(device->requested_fmt == V4L2_PIX_FMT_H264)
 	{
-		/* store framerate */
-		current_frame = v4l2core_get_h264_frame_rate_config(device);
+		/* store framerate since it may change due to scheduler*/
+		current_framerate = v4l2core_get_h264_frame_rate_config(device);
 	}
 
 	char *video_filename = NULL;
@@ -733,11 +735,10 @@ static void *encoder_loop(void *data)
 	else
 		video_filename = smart_cat(path, 0, name);
 
-	//if(debug_level > 1)
-	//	printf("GUVCVIEW: saving video to %s\n", video_filename);
 	snprintf(status_message, 79, _("saving video to %s"), video_filename);
 	gui_status_message(status_message);
 
+	/*muxer initialization*/
 	encoder_muxer_init(encoder_ctx, video_filename);
 
 	/*start video capture*/
@@ -758,6 +759,7 @@ static void *encoder_loop(void *data)
 
 	while(video_capture_get_save_video())
 	{
+		/*process the video buffer*/
 		encoder_process_next_video_buffer(encoder_ctx);
 
 		/*disk supervisor*/
@@ -773,7 +775,7 @@ static void *encoder_loop(void *data)
 		}
 	}
 
-	/*flush the buffer*/
+	/*flush the video buffer*/
 	encoder_flush_video_buffer(encoder_ctx);
 
 	/*make sure the audio processing thread has stopped*/
@@ -784,14 +786,16 @@ static void *encoder_loop(void *data)
 		__THREAD_JOIN(encoder_audio_thread);
 	}
 
+	/*close the muxer*/
 	encoder_muxer_close(encoder_ctx);
 
+	/*close the encoder context (clean up)*/
 	encoder_close(encoder_ctx);
 
 	if(device->requested_fmt == V4L2_PIX_FMT_H264)
 	{
 		/* restore framerate */
-		v4l2core_set_h264_frame_rate_config(device, current_frame);
+		v4l2core_set_h264_frame_rate_config(device, current_framerate);
 	}
 
 	/*clean string*/
