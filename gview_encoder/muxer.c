@@ -393,6 +393,8 @@ void encoder_muxer_close(encoder_context_t *encoder_ctx)
 		case ENCODER_MUX_WEBM:
 			if(mkv_ctx != NULL)
 			{
+				mkv_close(mkv_ctx);
+
 				mkv_destroy_context(mkv_ctx);
 				mkv_ctx = NULL;
 			}

@@ -593,7 +593,7 @@ int mkv_write_header(mkv_context_t *mkv_ctx)
 
     segment_info = mkv_start_ebml_master(mkv_ctx, MATROSKA_ID_INFO, 0);
     mkv_put_ebml_uint(mkv_ctx, MATROSKA_ID_TIMECODESCALE, mkv_ctx->timescale);
-    mkv_put_ebml_string(mkv_ctx, MATROSKA_ID_MUXINGAPP , "Guvcview Muxer-2013.01");
+    mkv_put_ebml_string(mkv_ctx, MATROSKA_ID_MUXINGAPP , "Guvcview Muxer-2014.04");
     mkv_put_ebml_string(mkv_ctx, MATROSKA_ID_WRITINGAPP, "Guvcview");
 
 	int seg_uid[4] = {0,0,0,0};
@@ -824,7 +824,7 @@ int mkv_write_packet(mkv_context_t* mkv_ctx,
     int cluster_size = io_get_offset(mkv_ctx->writer) - mkv_ctx->cluster_pos;
 
 	stream_io_t *stream = get_stream(mkv_ctx->stream_list, stream_index);
-    
+
     /* check if we have an audio packet cached */
     if (mkv_ctx->pkt_size > 0)
     {
@@ -843,7 +843,7 @@ int mkv_write_packet(mkv_context_t* mkv_ctx,
             return ret;
         }
     }
-    
+
     /*
      * start a new cluster every 5 MB and at least 5 sec,
      * or on a keyframe,
