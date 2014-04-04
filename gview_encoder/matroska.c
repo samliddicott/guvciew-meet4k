@@ -850,7 +850,7 @@ static int mkv_cache_packet(mkv_context_t* mkv_ctx,
         return -1;
 	}
 
-	if(verbosity > 1)
+	if(verbosity > 3)
 		printf("ENCODER: (matroska) caching packet [%i]\n", mkv_ctx->pkt_buffer_write_index);
 
 	memcpy(mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_write_index].data, data, size);
@@ -889,7 +889,7 @@ int mkv_write_packet(mkv_context_t* mkv_ctx,
 		while(mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_read_index].pts <= ts &&
 			mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_read_index].data_size > 0)
 		{
-			if(verbosity > 1)
+			if(verbosity > 3)
 				printf("ENCODER: (matroska) writing cached packet[%i]\n", mkv_ctx->pkt_buffer_read_index);
 
 			ret = mkv_write_packet_internal(mkv_ctx,
