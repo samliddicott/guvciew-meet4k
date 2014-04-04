@@ -844,6 +844,10 @@ static int mkv_cache_packet(mkv_context_t* mkv_ctx,
 		fprintf(stderr,"ENCODER: (matroska) couldn't allocate mem for packet\n");
         return -1;
 	}
+
+	if(verbosity > 1)
+		printf("ENCODER: (matroska) caching packet [%i]\n", mkv_ctx->pkt_buffer_write_index);
+
 	memcpy(mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_write_index].data, data, size);
 	mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_write_index].data_size = size;
     mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_write_index].duration = duration;
