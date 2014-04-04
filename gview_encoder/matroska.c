@@ -777,7 +777,7 @@ static int mkv_write_packet_internal(mkv_context_t* mkv_ctx,
         if (ret < 0) return ret;
     }
 
-    mkv_ctx->duration = MAX(mkv_ctx->duration, ts + duration);
+    mkv_ctx->duration = MAX(mkv_ctx->duration, ts /*+ duration*/);
     return 0;
 }
 
