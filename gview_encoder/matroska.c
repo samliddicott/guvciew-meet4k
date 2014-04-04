@@ -795,7 +795,7 @@ static int mkv_cache_packet(mkv_context_t* mkv_ctx,
 		mkv_ctx->pkt_buffer_list_size = PKT_BUFFER_MIN_SIZE;
 		mkv_ctx->pkt_buffer_write_index = 0;
 		mkv_ctx->pkt_buffer_read_index = 0;
-		mkv_ctx->pkt_buffer_list = realloc(mkv_ctx->pkt_buffer_list, mkv_ctx->pkt_buffer_list_size * sizeof(mkv_packet_buff_t));
+		mkv_ctx->pkt_buffer_list = calloc(mkv_ctx->pkt_buffer_list_size, sizeof(mkv_packet_buff_t));
 
 		int i = 0;
 		for(i = 0; i < mkv_ctx->pkt_buffer_list_size; ++i)
