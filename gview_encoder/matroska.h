@@ -261,6 +261,17 @@ typedef struct mkv_cues_t
     int             num_entries;
 } mkv_cues_t;
 
+typedef struct mkv_packet_buff_t
+{
+	uint8_t *data;
+	unsigned int data_size;
+	unsigned int max_size;
+	uint64_t pts;
+	int duration;
+	int flags;
+	int stream_index;
+} mkv_packet_buff_t;
+
 typedef struct mkv_context_t
 {
     int             mode; /*matroska or webm*/
@@ -278,13 +289,18 @@ typedef struct mkv_context_t
 	uint64_t      timescale;
 	uint64_t      first_pts; /*pts of first packet*/
 	/* store one audio packet (webm)*/
-    unsigned int  pkt_buffer_size;
-    uint8_t       *pkt_buffer;
-    unsigned int  pkt_size;
-    uint64_t      pkt_pts;
-    int           pkt_duration;
-    int           pkt_stream_index;
-    int           pkt_flags;
+    //unsigned int  pkt_buffer_size;
+    //uint8_t       *pkt_buffer;
+    //unsigned int  pkt_size;
+    //uint64_t      pkt_pts;
+    //int           pkt_duration;
+    //int           pkt_stream_index;
+    //int           pkt_flags;
+    /*stored audio packets list (ring buffer)*/
+	mkv_packet_buff_t *pkt_buffer_list;
+	int pkt_buffer_list_size;
+	int pkt_buffer_read_index;
+	int pkt_buffer_write_index;
 
     stream_io_t   *stream_list;
     int stream_list_size;

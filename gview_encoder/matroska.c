@@ -50,6 +50,8 @@
 #include "matroska.h"
 #include "gview.h"
 
+/*minimum size of pkt ring buffer (for caching audio frames)*/
+#define PKT_BUFFER_MIN_SIZE 42
 
 /** 2 bytes * 3 for EBML IDs, 3 1-byte EBML lengths, 8 bytes for 64 bit
  * offset, 4 bytes for target EBML ID */
@@ -778,7 +780,7 @@ static int mkv_write_packet_internal(mkv_context_t* mkv_ctx,
     return 0;
 }
 
-static int mkv_copy_packet(mkv_context_t* mkv_ctx,
+static int mkv_cache_packet(mkv_context_t* mkv_ctx,
 							int stream_index,
 							uint8_t *data,
                             int size,
@@ -786,23 +788,60 @@ static int mkv_copy_packet(mkv_context_t* mkv_ctx,
                             uint64_t pts,
                             int flags)
 {
-	if(size > mkv_ctx->pkt_buffer_size)
+
+	if(mkv_ctx->pkt_buffer_list == NULL)
 	{
-		mkv_ctx->pkt_buffer_size = size;
-		mkv_ctx->pkt_buffer = realloc(mkv_ctx->pkt_buffer, mkv_ctx->pkt_buffer_size * sizeof(uint8_t));
+		mkv_ctx->pkt_buffer_list_size = PKT_BUFFER_MIN_SIZE;
+		mkv_ctx->pkt_buffer_write_index = 0;
+		mkv_ctx->pkt_buffer_read_index = 0;
+		mkv_ctx->pkt_buffer_list = realloc(mkv_ctx->pkt_buffer_list, mkv_ctx->pkt_buffer_list_size * sizeof(mkv_packet_buff_t));
+		mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_write_index].max_size = 0;
 	}
 
-    if (!mkv_ctx->pkt_buffer)
+	if(mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_write_index].data_size > 0)
+	{
+		fprintf(stderr,"ENCODER: (matroska) copy packet buffer is in use: flushing cached packet to file\n");
+		int ret = mkv_write_packet_internal(mkv_ctx,
+							mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_write_index].stream_index,
+							mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_write_index].data,
+							mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_write_index].data_size,
+							mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_write_index].duration,
+							mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_write_index].pts,
+							mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_write_index].flags);
+
+        mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_write_index].data_size = 0;
+        /*advance read index*/
+        NEXT_IND(mkv_ctx->pkt_buffer_read_index, mkv_ctx->pkt_buffer_list_size);
+
+        if (ret < 0)
+        {
+            fprintf(stderr, "ENCODER: (matroska) Could not write cached audio packet\n");
+            return ret;
+        }
+
+	}
+
+	if(size > mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_write_index].max_size)
+	{
+		mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_write_index].max_size = size;
+		mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_write_index].data = realloc(
+				mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_write_index].data,
+				mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_write_index].max_size * sizeof(uint8_t));
+	}
+
+    if (!mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_write_index].data)
     {
 		fprintf(stderr,"ENCODER: (matroska) couldn't allocate mem for packet\n");
         return -1;
 	}
-	memcpy(mkv_ctx->pkt_buffer, data, size);
-	mkv_ctx->pkt_size = size;
-    mkv_ctx->pkt_duration = duration;
-    mkv_ctx->pkt_pts = pts;
-    mkv_ctx->pkt_flags = flags;
-    mkv_ctx->pkt_stream_index = stream_index;
+	memcpy(mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_write_index].data, data, size);
+	mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_write_index].data_size = size;
+    mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_write_index].duration = duration;
+    mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_write_index].pts = pts;
+    mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_write_index].flags = flags;
+    mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_write_index].stream_index = stream_index;
+
+    NEXT_IND(mkv_ctx->pkt_buffer_write_index, mkv_ctx->pkt_buffer_list_size);
 
     return 0;
 }
@@ -825,45 +864,52 @@ int mkv_write_packet(mkv_context_t* mkv_ctx,
 
 	stream_io_t *stream = get_stream(mkv_ctx->stream_list, stream_index);
 
-    /* check if we have an audio packet cached */
-    if (mkv_ctx->pkt_size > 0)
+    /* check if we have audio packets cached and write them up to video pts*/
+    if (stream->type == STREAM_TYPE_VIDEO && mkv_ctx->pkt_buffer_list_size > 0)
     {
-        ret = mkv_write_packet_internal(mkv_ctx,
-							mkv_ctx->pkt_stream_index,
-							mkv_ctx->pkt_buffer,
-							mkv_ctx->pkt_size,
-							mkv_ctx->pkt_duration,
-							mkv_ctx->pkt_pts,
-							mkv_ctx->pkt_flags);
+		while(mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_read_index].pts <= pts &&
+			mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_read_index].data_size > 0)
+		{
+			ret = mkv_write_packet_internal(mkv_ctx,
+							mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_read_index].stream_index,
+							mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_read_index].data,
+							mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_read_index].data_size,
+							mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_read_index].duration,
+							mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_read_index].pts,
+							mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_read_index].flags);
 
-        mkv_ctx->pkt_size = 0;
-        if (ret < 0)
-        {
-            fprintf(stderr, "ENCODER: (matroska) Could not write cached audio packet\n");
-            return ret;
-        }
+			mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_list_size-1].data_size = 0;
+			/*advance read index*/
+			NEXT_IND(mkv_ctx->pkt_buffer_read_index, mkv_ctx->pkt_buffer_list_size);
+
+			if (ret < 0)
+			{
+				fprintf(stderr, "ENCODER: (matroska) Could not write cached audio packet\n");
+				return ret;
+			}
+		}
     }
 
     /*
-     * start a new cluster every 5 MB and at least 5 sec,
+     * start a new cluster every 6 MB and at least 5 sec,
      * or on a keyframe,
-     * or every 4 MB if it is a video packet
+     * or every 3 MB if it is a video packet
      */
     if (mkv_ctx->cluster_pos &&
-        ((cluster_size > 5*1024*1024 && ts > mkv_ctx->cluster_pts + 5000) ||
+        ((cluster_size > 6*1024*1024 && ts > mkv_ctx->cluster_pts + 5000) ||
          (stream->type == STREAM_TYPE_VIDEO && keyframe) ||
-         (stream->type == STREAM_TYPE_VIDEO && cluster_size > 4*1024*1024)))
+         (stream->type == STREAM_TYPE_VIDEO && cluster_size > 3*1024*1024)))
     {
         mkv_end_ebml_master(mkv_ctx, mkv_ctx->cluster);
         mkv_ctx->cluster_pos = 0;
     }
 
     /*
-     *  buffer an audio packet to ensure the packet containing the video
-     *  keyframe's timecode is contained in the same cluster for WebM
+     *  buffer audio packets to ensure the packet containing the video
+     *  timecode is contained in the same cluster
      */
     if (stream->type == STREAM_TYPE_AUDIO)
-        ret = mkv_copy_packet(mkv_ctx, stream_index, data, size, duration, ts, flags);
+        ret = mkv_cache_packet(mkv_ctx, stream_index, data, size, duration, ts, flags);
     else
 		ret = mkv_write_packet_internal(mkv_ctx, stream_index, data, size, duration, ts, flags);
 
@@ -875,23 +921,30 @@ int mkv_close(mkv_context_t* mkv_ctx)
     int64_t currentpos, cuespos;
     int ret;
 	printf("ENCODER: (matroska) closing context\n");
-    // check if we have an audio packet cached
-    if (mkv_ctx->pkt_size > 0)
-    {
-        ret = mkv_write_packet_internal(mkv_ctx,
-							mkv_ctx->pkt_stream_index,
-							mkv_ctx->pkt_buffer,
-							mkv_ctx->pkt_size,
-							mkv_ctx->pkt_duration,
-							mkv_ctx->pkt_pts,
-							mkv_ctx->pkt_flags);
 
-        mkv_ctx->pkt_size = 0;
-        if (ret < 0)
-        {
-            fprintf(stderr, "ENCODER: (matroska) could not write cached audio packet\n");
-            return ret;
-        }
+    /* check if we have audio packets cached and write them */
+    if (mkv_ctx->pkt_buffer_list_size > 0)
+    {
+		while(mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_read_index].data_size > 0)
+		{
+			ret = mkv_write_packet_internal(mkv_ctx,
+							mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_read_index].stream_index,
+							mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_read_index].data,
+							mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_read_index].data_size,
+							mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_read_index].duration,
+							mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_read_index].pts,
+							mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_read_index].flags);
+
+			mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_list_size-1].data_size = 0;
+			/*advance read index*/
+			NEXT_IND(mkv_ctx->pkt_buffer_read_index, mkv_ctx->pkt_buffer_list_size);
+
+			if (ret < 0)
+			{
+				fprintf(stderr, "ENCODER: (matroska) Could not write cached audio packet\n");
+				return ret;
+			}
+		}
     }
 
 	printf("ENCODER: (matroska) closing cluster\n");
@@ -932,9 +985,11 @@ mkv_context_t *mkv_create_context(const char* filename, int mode)
 	mkv_ctx->mode = mode;
 	mkv_ctx->main_seekhead = NULL;
 	mkv_ctx->cues = NULL;
-	mkv_ctx->pkt_buffer = NULL;
 	mkv_ctx->stream_list = NULL;
 	mkv_ctx->timescale = 1000000;
+
+	mkv_ctx->pkt_buffer_list = NULL;
+	mkv_ctx->pkt_buffer_list_size = 0;
 
 	return mkv_ctx;
 }
@@ -945,9 +1000,21 @@ void mkv_destroy_context(mkv_context_t *mkv_ctx)
 
 	destroy_stream_list(mkv_ctx->stream_list, &mkv_ctx->stream_list_size);
 
-	if(mkv_ctx->pkt_buffer != NULL)
-		free(mkv_ctx->pkt_buffer);
-	free(mkv_ctx);
+	/*free buffer list*/
+	if(mkv_ctx->pkt_buffer_list)
+	{
+		int i = 0;
+		for(i=0; i<mkv_ctx->pkt_buffer_list_size; ++i)
+		{
+			if(mkv_ctx->pkt_buffer_list[i].data)
+				free(mkv_ctx->pkt_buffer_list[i].data);
+		}
+		free(mkv_ctx->pkt_buffer_list);
+	}
+
+	mkv_ctx->pkt_buffer_list = NULL;
+	mkv_ctx->pkt_buffer_list_size = 0;
+
 }
 
 stream_io_t *mkv_add_video_stream(mkv_context_t *mkv_ctx,
