@@ -1052,9 +1052,6 @@ int encoder_encode_video(encoder_context_t *encoder_ctx, void *input_frame)
 
 	int outsize = 0;
 
-	if(last_video_pts == 0)
-		last_video_pts = enc_video_ctx->pts; /*0 duration for first frame*/
-
 	if(!enc_video_ctx)
 	{
 		if(verbosity > 1)
@@ -1062,6 +1059,9 @@ int encoder_encode_video(encoder_context_t *encoder_ctx, void *input_frame)
 		encoder_ctx->enc_video_ctx->outbuf_coded_size = outsize;
 		return outsize;
 	}
+
+	if(last_video_pts == 0)
+		last_video_pts = enc_video_ctx->pts - 10;
 
 	/*raw - direct input no software encoding*/
 	if(encoder_ctx->video_codec_ind == 0)
@@ -1072,6 +1072,7 @@ int encoder_encode_video(encoder_context_t *encoder_ctx, void *input_frame)
 		enc_video_ctx->flags = 0;
 		/*enc_video_ctx->flags must be set*/
 		enc_video_ctx->dts = AV_NOPTS_VALUE;
+
 		enc_video_ctx->duration = enc_video_ctx->pts - last_video_pts;
 		last_video_pts = enc_video_ctx->pts;
 		return (outsize);
