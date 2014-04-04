@@ -800,7 +800,7 @@ static int mkv_cache_packet(mkv_context_t* mkv_ctx,
 
 	if(mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_write_index].data_size > 0)
 	{
-		fprintf(stderr,"ENCODER: (matroska) copy packet buffer is in use: flushing cached packet to file\n");
+		fprintf(stderr,"ENCODER: (matroska) packet buffer is in use: flushing cached packet\n");
 		int ret = mkv_write_packet_internal(mkv_ctx,
 							mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_write_index].stream_index,
 							mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_write_index].data,
@@ -810,8 +810,9 @@ static int mkv_cache_packet(mkv_context_t* mkv_ctx,
 							mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_write_index].flags);
 
         mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_write_index].data_size = 0;
-        /*advance read index*/
-        NEXT_IND(mkv_ctx->pkt_buffer_read_index, mkv_ctx->pkt_buffer_list_size);
+        /*advance read index to next buffer*/
+        mkv_ctx->pkt_buffer_read_index = mkv_ctx->pkt_buffer_write_index;
+		NEXT_IND(mkv_ctx->pkt_buffer_read_index, mkv_ctx->pkt_buffer_list_size);
 
         if (ret < 0)
         {
@@ -878,7 +879,7 @@ int mkv_write_packet(mkv_context_t* mkv_ctx,
 							mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_read_index].pts,
 							mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_read_index].flags);
 
-			mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_list_size-1].data_size = 0;
+			mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_read_index].data_size = 0;
 			/*advance read index*/
 			NEXT_IND(mkv_ctx->pkt_buffer_read_index, mkv_ctx->pkt_buffer_list_size);
 
