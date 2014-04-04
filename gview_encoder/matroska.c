@@ -796,7 +796,13 @@ static int mkv_cache_packet(mkv_context_t* mkv_ctx,
 		mkv_ctx->pkt_buffer_write_index = 0;
 		mkv_ctx->pkt_buffer_read_index = 0;
 		mkv_ctx->pkt_buffer_list = realloc(mkv_ctx->pkt_buffer_list, mkv_ctx->pkt_buffer_list_size * sizeof(mkv_packet_buff_t));
-		mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_write_index].max_size = 0;
+
+		int i = 0;
+		for(i = 0; i < mkv_ctx->pkt_buffer_list_size; ++i)
+		{
+			mkv_ctx->pkt_buffer_list[i].max_size = 0;
+			mkv_ctx->pkt_buffer_list[i].data_size = 0;
+		}
 	}
 
 	if(mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_write_index].data_size > 0)
