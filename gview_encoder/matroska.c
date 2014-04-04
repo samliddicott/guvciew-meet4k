@@ -64,6 +64,7 @@
 /** per-cuepoint - 2 1-byte EBML IDs, 2 1-byte EBML sizes, 8-byte uint max */
 #define MAX_CUEPOINT_SIZE(num_tracks) 12 + MAX_CUETRACKPOS_SIZE*num_tracks
 
+extern int verbosity;
 
 /** Some utilities for
  *  float and double conversion to/from int */
@@ -800,7 +801,9 @@ static int mkv_cache_packet(mkv_context_t* mkv_ctx,
 
 	if(mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_write_index].data_size > 0)
 	{
-		fprintf(stderr,"ENCODER: (matroska) packet buffer is in use: flushing cached packet\n");
+		fprintf(stderr,"ENCODER: (matroska) packet buffer [%i] is in use: flushing cached data\n",
+			mkv_ctx->pkt_buffer_write_index);
+
 		int ret = mkv_write_packet_internal(mkv_ctx,
 							mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_write_index].stream_index,
 							mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_write_index].data,
@@ -871,6 +874,9 @@ int mkv_write_packet(mkv_context_t* mkv_ctx,
 		while(mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_read_index].pts <= ts &&
 			mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_read_index].data_size > 0)
 		{
+			if(verbosity > 1)
+				printf("ENCODER: (matroska) writing cached packet[%i]\n", mkv_ctx->pkt_buffer_read_index);
+
 			ret = mkv_write_packet_internal(mkv_ctx,
 							mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_read_index].stream_index,
 							mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_read_index].data,
