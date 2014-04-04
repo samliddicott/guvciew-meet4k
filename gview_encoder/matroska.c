@@ -802,6 +802,7 @@ static int mkv_cache_packet(mkv_context_t* mkv_ctx,
 		{
 			mkv_ctx->pkt_buffer_list[i].max_size = 0;
 			mkv_ctx->pkt_buffer_list[i].data_size = 0;
+			mkv_ctx->pkt_buffer_list[i].data = NULL;
 		}
 	}
 
@@ -834,9 +835,13 @@ static int mkv_cache_packet(mkv_context_t* mkv_ctx,
 	if(size > mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_write_index].max_size)
 	{
 		mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_write_index].max_size = size;
-		mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_write_index].data = realloc(
+
+		if(mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_write_index].data == NULL)
+			mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_write_index].data = calloc(size, sizeof(uint8_t));
+		else
+			mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_write_index].data = realloc(
 				mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_write_index].data,
-				mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_write_index].max_size * sizeof(uint8_t));
+				size * sizeof(uint8_t));
 	}
 
     if (!mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_write_index].data)
