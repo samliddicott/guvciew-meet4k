@@ -867,7 +867,7 @@ int mkv_write_packet(mkv_context_t* mkv_ctx,
     /* check if we have audio packets cached and write them up to video pts*/
     if (stream->type == STREAM_TYPE_VIDEO && mkv_ctx->pkt_buffer_list_size > 0)
     {
-		while(mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_read_index].pts <= pts &&
+		while(mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_read_index].pts <= ts &&
 			mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_read_index].data_size > 0)
 		{
 			ret = mkv_write_packet_internal(mkv_ctx,
@@ -990,6 +990,8 @@ mkv_context_t *mkv_create_context(const char* filename, int mode)
 
 	mkv_ctx->pkt_buffer_list = NULL;
 	mkv_ctx->pkt_buffer_list_size = 0;
+	mkv_ctx->pkt_buffer_read_index = 0;
+	mkv_ctx->pkt_buffer_write_index = 0;
 
 	return mkv_ctx;
 }
