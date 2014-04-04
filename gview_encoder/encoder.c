@@ -1052,6 +1052,9 @@ int encoder_encode_video(encoder_context_t *encoder_ctx, void *input_frame)
 
 	int outsize = 0;
 
+	if(last_video_pts == 0)
+		last_video_pts = enc_video_ctx->pts; /*0 duration for first frame*/
+
 	if(!enc_video_ctx)
 	{
 		if(verbosity > 1)
