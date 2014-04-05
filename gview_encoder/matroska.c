@@ -50,8 +50,14 @@
 #include "matroska.h"
 #include "gview.h"
 
-/*minimum size of pkt ring buffer (for caching audio frames)*/
-#define PKT_BUFFER_MIN_SIZE 42
+/*
+ * default size of pkt ring buffer 
+ * for caching audio frames
+ * aprox. 2 sec for 44100 samp/sec with
+ * each buffer containing 1152 samples
+ * vorbis as 64 samples
+ */
+#define PKT_BUFFER_DEF_SIZE 78
 
 /** 2 bytes * 3 for EBML IDs, 3 1-byte EBML lengths, 8 bytes for 64 bit
  * offset, 4 bytes for target EBML ID */
@@ -63,6 +69,9 @@
 
 /** per-cuepoint - 2 1-byte EBML IDs, 2 1-byte EBML sizes, 8-byte uint max */
 #define MAX_CUEPOINT_SIZE(num_tracks) 12 + MAX_CUETRACKPOS_SIZE*num_tracks
+
+/*default audio frames per buffer*/
+#define AUDBUFF_FRAMES  1152
 
 extern int verbosity;
 
@@ -792,7 +801,6 @@ static int mkv_cache_packet(mkv_context_t* mkv_ctx,
 
 	if(mkv_ctx->pkt_buffer_list == NULL)
 	{
-		mkv_ctx->pkt_buffer_list_size = PKT_BUFFER_MIN_SIZE;
 		mkv_ctx->pkt_buffer_write_index = 0;
 		mkv_ctx->pkt_buffer_read_index = 0;
 		mkv_ctx->pkt_buffer_list = calloc(mkv_ctx->pkt_buffer_list_size, sizeof(mkv_packet_buff_t));
@@ -1053,6 +1061,10 @@ stream_io_t *mkv_add_video_stream(mkv_context_t *mkv_ctx,
 	stream->width = width;
 	stream->height = height;
 	stream->codec_id = codec_id;
+	
+	/*we have delayed video frames so increase the cached audio*/
+	if(codec_id == AV_CODEC_ID_H264)
+		mkv_ctx->pkt_buffer_list_size = 3 * PKT_BUFFER_DEF_SIZE;
 
 	stream->fps = (double) fps/fps_num;
 	stream->indexes = NULL;
@@ -1078,6 +1090,17 @@ stream_io_t *mkv_add_audio_stream(mkv_context_t *mkv_ctx,
 	stream->a_vbr = 0;
 	stream->codec_id = codec_id;
 	stream->a_fmt = format;
+	
+	/*aprox. 2 sec cache*/
+	if(!mkv_ctx->audio_frame_size)
+		mkv_ctx->audio_frame_size = 1152;	
+	if(mkv_ctx->pkt_buffer_list_size == 0)
+		mkv_ctx->pkt_buffer_list_size = 2 * (rate/mkv_ctx->audio_frame_size);
+	else if(mkv_ctx->pkt_buffer_list_size == 3 * PKT_BUFFER_DEF_SIZE) /*H264*/
+	{
+		if(3 * (rate/mkv_ctx->audio_frame_size) > mkv_ctx->pkt_buffer_list_size)
+			mkv_ctx->pkt_buffer_list_size = 3 * (rate/mkv_ctx->audio_frame_size);
+	}
 
 	stream->indexes = NULL;
 

@@ -288,20 +288,14 @@ typedef struct mkv_context_t
 
 	uint64_t      timescale;
 	uint64_t      first_pts; /*pts of first packet*/
-	/* store one audio packet (webm)*/
-    //unsigned int  pkt_buffer_size;
-    //uint8_t       *pkt_buffer;
-    //unsigned int  pkt_size;
-    //uint64_t      pkt_pts;
-    //int           pkt_duration;
-    //int           pkt_stream_index;
-    //int           pkt_flags;
+	
     /*stored audio packets list (ring buffer)*/
 	mkv_packet_buff_t *pkt_buffer_list;
 	int pkt_buffer_list_size;
 	int pkt_buffer_read_index;
 	int pkt_buffer_write_index;
-
+	int audio_frame_size;  /*number of audio samples per buffer(frame)*/
+	
     stream_io_t   *stream_list;
     int stream_list_size;
 } mkv_context_t;
