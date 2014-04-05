@@ -995,6 +995,17 @@ int encoder_flush_video_buffer(encoder_context_t *encoder_ctx)
 		flag = video_ring_buffer[video_read_index].flag;
 		__UNLOCK_MUTEX ( __PMUTEX );
 	}
+	
+	/*flush libav*/
+	int flushed_frame_counter = 0;
+	encoder_ctx->enc_video_ctx->flush_delayed_frames  = 1;
+	while(!encoder_ctx->enc_video_ctx->flush_done && 
+		flushed_frame_counter <= encoder_ctx->enc_video_ctx->delayed_frames)
+	{
+		encoder_encode_video(encoder_ctx, NULL);
+		encoder_write_video_data(encoder_ctx);
+		flushed_frame_counter++;
+	}
 
 	if(!buffer_count)
 	{
@@ -1063,6 +1074,11 @@ int encoder_encode_video(encoder_context_t *encoder_ctx, void *input_frame)
 	/*raw - direct input no software encoding*/
 	if(encoder_ctx->video_codec_ind == 0)
 	{
+		if(input_frame == NULL)
+		{
+			encoder_ctx->enc_video_ctx->outbuf_coded_size = outsize;
+			return outsize;
+		}
 		/*outbuf_coded_size must already be set*/
 		outsize = enc_video_ctx->outbuf_coded_size;
 		memcpy(enc_video_ctx->outbuf, input_frame, outsize);
@@ -1079,7 +1095,8 @@ int encoder_encode_video(encoder_context_t *encoder_ctx, void *input_frame)
 	}
 
 	/*convert default yuyv to y420p (libav input format)*/
-	yuv422to420p(encoder_ctx, input_frame);
+	if(input_frame != NULL)
+		yuv422to420p(encoder_ctx, input_frame);
 
 	if(!enc_video_ctx->monotonic_pts) //generate a real pts based on the frame timestamp
 		enc_video_ctx->picture->pts += ((enc_video_ctx->pts - last_video_pts)/1000) * 90;
@@ -1172,8 +1189,7 @@ int encoder_encode_video(encoder_context_t *encoder_ctx, void *input_frame)
 
 	if(enc_video_ctx->flush_delayed_frames && outsize == 0)
     	enc_video_ctx->flush_done = 1;
-
-	if(outsize == 0 && enc_video_ctx->index_of_df < 0)
+	else if(outsize == 0 && enc_video_ctx->index_of_df < 0)
 	{
 	    enc_video_ctx->delayed_pts[enc_video_ctx->delayed_frames] = enc_video_ctx->pts;
 	    enc_video_ctx->delayed_frames++;
