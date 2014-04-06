@@ -625,6 +625,9 @@ static void *audio_processing_loop(void *data)
 			encoder_process_audio_buffer(encoder_ctx, audio_buff->data);
 		}
 	}
+	
+	/*flush any delayed audio frames*/
+	encoder_flush_audio_buffer(encoder_ctx);
 
 	/*reset vu meter*/
 	audio_buff->level_meter[0] = 0;

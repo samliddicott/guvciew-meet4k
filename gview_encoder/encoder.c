@@ -432,6 +432,12 @@ static encoder_audio_context_t *encoder_audio_init(
 	}
 
 	encoder_audio_context_t *enc_audio_ctx = calloc(1, sizeof(encoder_audio_context_t));
+	
+	enc_audio_ctx->index_of_df = -1;
+
+	enc_audio_ctx->flushed_buffers = 0;
+	enc_audio_ctx->flush_delayed_frames = 0;
+	enc_audio_ctx->flush_done = 0;
 	/*
 	 * find the audio encoder
 	 *   try specific codec (by name)
@@ -1017,6 +1023,33 @@ int encoder_flush_video_buffer(encoder_context_t *encoder_ctx)
 }
 
 /*
+ * process all delayed audio frames from libavcodec 
+  * args:
+ *   encoder_ctx - pointer to encoder context
+ *
+ * asserts:
+ *   encoder_ctx is not null
+ *
+ * returns: error code
+ */
+int encoder_flush_audio_buffer(encoder_context_t *encoder_ctx)
+{
+	/*assertions*/
+	assert(encoder_ctx != NULL);
+	
+	/*flush libav*/
+	int flushed_frame_counter = 0;
+	encoder_ctx->enc_audio_ctx->flush_delayed_frames  = 1;
+	while(!encoder_ctx->enc_audio_ctx->flush_done && 
+		flushed_frame_counter <= encoder_ctx->enc_audio_ctx->delayed_frames)
+	{
+		encoder_encode_audio(encoder_ctx, NULL);
+		encoder_write_audio_data(encoder_ctx);
+		flushed_frame_counter++;
+	}
+}
+
+/*
  * process audio frame (encode and mux to file)
  * args:
  *   encoder_ctx - pointer to encoder context
@@ -1248,6 +1281,16 @@ int encoder_encode_audio(encoder_context_t *encoder_ctx, void *audio_data)
 		enc_audio_ctx->outbuf_coded_size = outsize;
 		return outsize;
 	}
+	
+	if(enc_audio_ctx->flush_delayed_frames)
+	{
+		//pkt.size = 0;
+		if(!enc_audio_ctx->flushed_buffers)
+		{
+			avcodec_flush_buffers(enc_audio_ctx->codec_context);
+			enc_audio_ctx->flushed_buffers = 1;
+		}
+ 	}
 
 	/* encode the audio */
 #if LIBAVCODEC_VER_AT_LEAST(53,34)
@@ -1259,35 +1302,46 @@ int encoder_encode_audio(encoder_context_t *encoder_ctx, void *audio_data)
 
 	int ret = 0;
 
-	/*number of samples per channel*/
-	enc_audio_ctx->frame->nb_samples  = enc_audio_ctx->codec_context->frame_size;
-	int buffer_size = av_samples_get_buffer_size(
-		NULL,
-		enc_audio_ctx->codec_context->channels,
-		enc_audio_ctx->frame->nb_samples,
-		enc_audio_ctx->codec_context->sample_fmt,
-		0);
+	if(!enc_audio_ctx->flush_delayed_frames)
+	{
+		/*number of samples per channel*/
+		enc_audio_ctx->frame->nb_samples  = enc_audio_ctx->codec_context->frame_size;
+		int buffer_size = av_samples_get_buffer_size(
+			NULL,
+			enc_audio_ctx->codec_context->channels,
+			enc_audio_ctx->frame->nb_samples,
+			enc_audio_ctx->codec_context->sample_fmt,
+			0);
 
-	/*set the data pointers in frame*/
-    avcodec_fill_audio_frame(
-		enc_audio_ctx->frame,
-		enc_audio_ctx->codec_context->channels,
-		enc_audio_ctx->codec_context->sample_fmt,
-		(const uint8_t *) audio_data,
-		buffer_size,
-		0);
-
-	if(!enc_audio_ctx->monotonic_pts) /*generate a real pts based on the frame timestamp*/
-		enc_audio_ctx->frame->pts += ((enc_audio_ctx->pts - last_audio_pts)/1000) * 90;
-	else  /*generate a true monotonic pts based on the codec fps*/
-		enc_audio_ctx->frame->pts +=
-			(enc_audio_ctx->codec_context->time_base.num*1000/enc_audio_ctx->codec_context->time_base.den) * 90;
-
-	ret = avcodec_encode_audio2(
-			enc_audio_ctx->codec_context,
-			&pkt,
+		/*set the data pointers in frame*/
+		avcodec_fill_audio_frame(
 			enc_audio_ctx->frame,
+			enc_audio_ctx->codec_context->channels,
+			enc_audio_ctx->codec_context->sample_fmt,
+			(const uint8_t *) audio_data,
+			buffer_size,
+			0);
+
+		if(!enc_audio_ctx->monotonic_pts) /*generate a real pts based on the frame timestamp*/
+			enc_audio_ctx->frame->pts += ((enc_audio_ctx->pts - last_audio_pts)/1000) * 90;
+		else  /*generate a true monotonic pts based on the codec fps*/
+			enc_audio_ctx->frame->pts +=
+				(enc_audio_ctx->codec_context->time_base.num*1000/enc_audio_ctx->codec_context->time_base.den) * 90;
+
+		ret = avcodec_encode_audio2(
+				enc_audio_ctx->codec_context,
+				&pkt,
+				enc_audio_ctx->frame,
+				&got_packet);
+	}
+	else
+	{
+		ret = avcodec_encode_audio2(
+			enc_audio_ctx->codec_context,
+			&pkt, 
+			NULL, /*NULL flushes the encoder buffers*/
 			&got_packet);
+	}
 
 	if (!ret && got_packet && enc_audio_ctx->codec_context->coded_frame)
     {
@@ -1307,11 +1361,18 @@ int encoder_encode_audio(encoder_context_t *encoder_ctx, void *audio_data)
 
 	outsize = pkt.size;
 #else
-	outsize = avcodec_encode_audio(
+	if(!enc_video_ctx->flush_delayed_frames)
+		outsize = avcodec_encode_audio(
 			enc_audio_ctx->codec_context,
 			enc_audio_ctx->outbuf,
 			enc_audio_ctx->outbuf_size,
 			audio_data);
+	else
+		outsize = avcodec_encode_audio(
+			enc_audio_ctx->codec_context,
+			enc_audio_ctx->outbuf,
+			enc_audio_ctx->outbuf_size,
+			NULL);
 
 	enc_audio_ctx->dts = AV_NOPTS_VALUE;
 	enc_audio_ctx->flags = 0;
@@ -1322,6 +1383,36 @@ int encoder_encode_audio(encoder_context_t *encoder_ctx, void *audio_data)
 #endif
 
 	last_audio_pts = enc_audio_ctx->pts;
+	
+	if(enc_audio_ctx->flush_delayed_frames && outsize == 0)
+    	enc_audio_ctx->flush_done = 1;
+	else if(outsize == 0 && enc_audio_ctx->index_of_df < 0)
+	{
+	    enc_audio_ctx->delayed_pts[enc_audio_ctx->delayed_frames] = enc_audio_ctx->pts;
+	    enc_audio_ctx->delayed_frames++;
+	    if(enc_audio_ctx->delayed_frames > MAX_DELAYED_FRAMES)
+	    {
+	    	enc_audio_ctx->delayed_frames = MAX_DELAYED_FRAMES;
+	    	printf("ENCODER: Maximum of %i delayed audio frames reached...\n", MAX_DELAYED_FRAMES);
+	    }
+	}
+	else
+	{
+		if(enc_audio_ctx->delayed_frames > 0)
+		{
+			if(enc_audio_ctx->index_of_df < 0)
+			{
+				enc_audio_ctx->index_of_df = 0;
+				printf("ENCODER: audio codec is using %i delayed video frames\n", enc_audio_ctx->delayed_frames);
+			}
+			int64_t my_pts = enc_audio_ctx->pts;
+			enc_audio_ctx->pts = enc_audio_ctx->delayed_pts[enc_audio_ctx->index_of_df];
+			enc_audio_ctx->delayed_pts[enc_audio_ctx->index_of_df] = my_pts;
+			enc_audio_ctx->index_of_df++;
+			if(enc_audio_ctx->index_of_df >= enc_audio_ctx->delayed_frames)
+				enc_audio_ctx->index_of_df = 0;
+		}
+	}
 
 	enc_audio_ctx->outbuf_coded_size = outsize;
 	return (outsize);

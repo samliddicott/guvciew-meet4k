@@ -181,6 +181,7 @@ typedef struct _encoder_video_context_t
 
 	int monotonic_pts;
 
+	/*delayed frames handling*/
 	int delayed_frames;
 	int index_of_df; /*index of delayed frame pts in use;*/
 	int64_t delayed_pts[MAX_DELAYED_FRAMES]; /*delayed frames pts*/
@@ -216,6 +217,14 @@ typedef struct _encoder_audio_context_t
 	int avi_4cc;
 
 	int monotonic_pts;
+	
+	/*delayed frames handling*/
+	int delayed_frames;
+	int index_of_df; /*index of delayed frame pts in use;*/
+	int64_t delayed_pts[MAX_DELAYED_FRAMES]; /*delayed frames pts*/
+	int flush_delayed_frames;
+	int flushed_buffers;
+	int flush_done;
 
 	uint8_t *priv_data;
 
@@ -660,6 +669,18 @@ int encoder_flush_video_buffer(encoder_context_t *encoder_ctx);
  * returns: error code
  */
 int encoder_process_audio_buffer(encoder_context_t *encoder_ctx, void *data);
+
+/*
+ * process all delayed audio frames from libavcodec 
+  * args:
+ *   encoder_ctx - pointer to encoder context
+ *
+ * asserts:
+ *   encoder_ctx is not null
+ *
+ * returns: error code
+ */
+int encoder_flush_audio_buffer(encoder_context_t *encoder_ctx);
 
 /*
  * encode video frame
