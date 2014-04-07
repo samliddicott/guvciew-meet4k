@@ -432,7 +432,7 @@ static encoder_audio_context_t *encoder_audio_init(
 	}
 
 	encoder_audio_context_t *enc_audio_ctx = calloc(1, sizeof(encoder_audio_context_t));
-	
+
 	enc_audio_ctx->index_of_df = -1;
 
 	enc_audio_ctx->flushed_buffers = 0;
@@ -635,17 +635,17 @@ static encoder_audio_context_t *encoder_audio_init(
  *      0 - linear funtion; 1 - exponencial funtion
  *   thresh: ring buffer threshold in wich scheduler becomes active:
  *      [0.2 (20%) - 0.9 (90%)]
+ *   max_time - maximum scheduler time (in ms)
  *
  * asserts:
  *   none
  *
  * returns: estimate sleep time (nanosec)
  */
-uint32_t encoder_buff_scheduler(int mode, double thresh)
+uint32_t encoder_buff_scheduler(int mode, double thresh, int max_time)
 {
 	int diff_ind = 0;
 	uint32_t sched_time = 0; /*in milisec*/
-	int max_time = 500; /*500 ms max*/
 
 	__LOCK_MUTEX( __PMUTEX );
 	/* try to balance buffer overrun in read/write operations */
@@ -1001,11 +1001,11 @@ int encoder_flush_video_buffer(encoder_context_t *encoder_ctx)
 		flag = video_ring_buffer[video_read_index].flag;
 		__UNLOCK_MUTEX ( __PMUTEX );
 	}
-	
+
 	/*flush libav*/
 	int flushed_frame_counter = 0;
 	encoder_ctx->enc_video_ctx->flush_delayed_frames  = 1;
-	while(!encoder_ctx->enc_video_ctx->flush_done && 
+	while(!encoder_ctx->enc_video_ctx->flush_done &&
 		flushed_frame_counter <= encoder_ctx->enc_video_ctx->delayed_frames)
 	{
 		encoder_encode_video(encoder_ctx, NULL);
@@ -1023,7 +1023,7 @@ int encoder_flush_video_buffer(encoder_context_t *encoder_ctx)
 }
 
 /*
- * process all delayed audio frames from libavcodec 
+ * process all delayed audio frames from libavcodec
   * args:
  *   encoder_ctx - pointer to encoder context
  *
@@ -1036,11 +1036,11 @@ int encoder_flush_audio_buffer(encoder_context_t *encoder_ctx)
 {
 	/*assertions*/
 	assert(encoder_ctx != NULL);
-	
+
 	/*flush libav*/
 	int flushed_frame_counter = 0;
 	encoder_ctx->enc_audio_ctx->flush_delayed_frames  = 1;
-	while(!encoder_ctx->enc_audio_ctx->flush_done && 
+	while(!encoder_ctx->enc_audio_ctx->flush_done &&
 		flushed_frame_counter <= encoder_ctx->enc_audio_ctx->delayed_frames)
 	{
 		encoder_encode_audio(encoder_ctx, NULL);
@@ -1281,7 +1281,7 @@ int encoder_encode_audio(encoder_context_t *encoder_ctx, void *audio_data)
 		enc_audio_ctx->outbuf_coded_size = outsize;
 		return outsize;
 	}
-	
+
 	if(enc_audio_ctx->flush_delayed_frames)
 	{
 		//pkt.size = 0;
@@ -1338,7 +1338,7 @@ int encoder_encode_audio(encoder_context_t *encoder_ctx, void *audio_data)
 	{
 		ret = avcodec_encode_audio2(
 			enc_audio_ctx->codec_context,
-			&pkt, 
+			&pkt,
 			NULL, /*NULL flushes the encoder buffers*/
 			&got_packet);
 	}
@@ -1383,7 +1383,7 @@ int encoder_encode_audio(encoder_context_t *encoder_ctx, void *audio_data)
 #endif
 
 	last_audio_pts = enc_audio_ctx->pts;
-	
+
 	if(enc_audio_ctx->flush_delayed_frames && outsize == 0)
     	enc_audio_ctx->flush_done = 1;
 	else if(outsize == 0 && enc_audio_ctx->index_of_df < 0)

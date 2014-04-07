@@ -1083,8 +1083,12 @@ void *capture_loop(void *data)
 				}
 				encoder_add_video_frame(input_frame, size, device->timestamp, device->isKeyframe);
 
-				/*exponencial scheduler with 50% threshold (nanosec)*/
-				int time_sched = encoder_buff_scheduler(ENCODER_SCHED_EXP, 0.5);
+				/*
+				 * exponencial scheduler
+				 *  with 50% threshold (nanosec)
+				 *  and max value of 250 ms (4 fps)
+				 */
+				int time_sched = encoder_buff_scheduler(ENCODER_SCHED_EXP, 0.5, 250);
 				if(time_sched > 0)
 				{
 					switch(device->requested_fmt)

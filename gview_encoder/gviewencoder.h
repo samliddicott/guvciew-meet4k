@@ -217,7 +217,7 @@ typedef struct _encoder_audio_context_t
 	int avi_4cc;
 
 	int monotonic_pts;
-	
+
 	/*delayed frames handling*/
 	int delayed_frames;
 	int index_of_df; /*index of delayed frame pts in use;*/
@@ -610,13 +610,14 @@ int encoder_set_audio_mkvCodecPriv(encoder_context_t *encoder_ctx);
  *      0 - linear funtion; 1 - exponencial funtion
  *   thresh: ring buffer threshold in wich scheduler becomes active:
  *      [0.2 (20%) - 0.9 (90%)]
+ *   max_time - maximum scheduler time (in ms)
  *
  * asserts:
  *   none
  *
  * returns: estimate sleep time (nanosec)
  */
-uint32_t encoder_buff_scheduler(int mode, double thresh);
+uint32_t encoder_buff_scheduler(int mode, double thresh, int max_time);
 
 /*
  * store unprocessed input video frame in video ring buffer
@@ -671,7 +672,7 @@ int encoder_flush_video_buffer(encoder_context_t *encoder_ctx);
 int encoder_process_audio_buffer(encoder_context_t *encoder_ctx, void *data);
 
 /*
- * process all delayed audio frames from libavcodec 
+ * process all delayed audio frames from libavcodec
   * args:
  *   encoder_ctx - pointer to encoder context
  *
