@@ -294,7 +294,11 @@ void gui_click_video_capture_button(void *data)
 			if(!get_encoder_status())
 				start_encoder_thread(device);
 			else
+			{
+				if(check_video_timer())
+					reset_video_timer();
 				stop_encoder_thread();
+			}
 			break;
 
 		case GUI_GTK3:

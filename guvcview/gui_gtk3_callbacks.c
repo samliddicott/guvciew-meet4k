@@ -753,6 +753,8 @@ void capture_video_clicked(GtkToggleButton *button, void *data)
 	{
 		stop_encoder_thread();
 		gtk_button_set_label(GTK_BUTTON(button), _("Cap. Video (V)"));
+		/*make sure video timer is reset*/
+		reset_video_timer();
 	}
 }
 
@@ -1357,7 +1359,7 @@ void format_changed(GtkComboBox *wgtInpType, void *data)
 	gtk_list_store_clear(store);
 
 	int format = device->list_stream_formats[index].format;
-	
+
 	/*update config*/
 	config_t *my_config = config_get();
 	strncpy(my_config->format, device->list_stream_formats[index].fourcc, 4);

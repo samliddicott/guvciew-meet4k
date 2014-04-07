@@ -149,6 +149,13 @@ static opt_values_t opt_values[] =
 		.opt_help = N_("filename for captured image)")
 	},
 	{
+		.opt_short = 'y',
+		.opt_long = "video_timer",
+		.req_arg = 1,
+		.opt_help_arg = N_("TIME_IN_SEC"),
+		.opt_help = N_("time (double) in sec. for video capture)")
+	},
+	{
 		.opt_short = 't',
 		.opt_long = "photo_timer",
 		.req_arg = 1,
@@ -199,6 +206,7 @@ static options_t my_options =
 	.video_path = NULL,
 	.photo_name = NULL,
 	.photo_path = NULL,
+	.video_timer = 0,
 	.photo_timer = 0,
 	.photo_npics = 0,
 };
@@ -559,6 +567,9 @@ int options_parse(int argc, char *argv[])
 
 				break;
 			}
+			case 'y':
+				my_options.video_timer = strtod(optarg, (char **)NULL);
+				break;
 			case 't':
 				my_options.photo_timer = strtod(optarg, (char **)NULL);
 				break;

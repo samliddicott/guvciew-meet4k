@@ -142,6 +142,30 @@ int check_photo_timer();
 void stop_photo_timer();
 
 /*
+ * checks if video timed capture is on
+ * args:
+ *    none
+ *
+ * asserts:
+ *    none
+ *
+ * returns: 1 if on; 0 if off
+ */
+int check_video_timer();
+
+/*
+ * reset video timer
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void reset_video_timer();
+
+/*
  * quit callback
  * args:
  *    data - pointer to user data

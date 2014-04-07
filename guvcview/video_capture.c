@@ -53,6 +53,9 @@ static int save_video = 0; /*save video flag*/
 
 static uint64_t my_photo_timer = 0; /*timer count*/
 
+static uint64_t my_video_timer = 0; /*timer count*/
+static uint64_t my_video_begin_time = 0; /*first video frame ts*/
+
 static int restart = 0; /*restart flag*/
 
 static char render_caption[30]; /*render window caption*/
@@ -172,6 +175,66 @@ void set_soft_autofocus(int value)
 }
 
 /*
+ * sets the save video flag
+ * args:
+ *    value - save_video flag value
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void video_capture_save_video(int value)
+{
+	save_video = value;
+}
+
+/*
+ * gets the save video flag
+ * args:
+ *    none
+ *
+ * asserts:
+ *    none
+ *
+ * returns: save_video flag
+ */
+int video_capture_get_save_video()
+{
+	return save_video;
+}
+
+/*
+ * sets the save image flag
+ * args:
+ *    none
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void video_capture_save_image()
+{
+	save_image = 1;
+}
+
+/*
+ * get encoder started flag
+ * args:
+ *    none
+ *
+ * asserts:
+ *    none
+ *
+ * returns: encoder started flag (1 -started; 0 -not started)
+ */
+int get_encoder_status()
+{
+	return my_encoder_status;
+}
+
+/*
  * stops the photo timed capture
  * args:
  *    none
@@ -200,6 +263,60 @@ void stop_photo_timer()
 int check_photo_timer()
 {
 	return ( (my_photo_timer > 0) ? 1 : 0 );
+}
+
+/*
+ * reset video timer
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void reset_video_timer()
+{
+	my_video_timer = 0;
+	my_video_begin_time = 0;
+}
+
+/*
+ * stops the video timed capture
+ * args:
+ *    data - pointer to user data (device)
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+static void stop_video_timer(void *data)
+{
+	/*
+	 * if we are saving video stop it
+	 * this also calls reset_video_timer
+	 */
+	if(video_capture_get_save_video())
+		gui_click_video_capture_button(data);
+
+	/*make sure the timer is reset*/
+	reset_video_timer();
+}
+
+/*
+ * checks if video timed capture is on
+ * args:
+ *    none
+ *
+ * asserts:
+ *    none
+ *
+ * returns: 1 if on; 0 if off
+ */
+int check_video_timer()
+{
+	return ( (my_video_timer > 0) ? 1 : 0 );
 }
 
 /*
@@ -442,66 +559,6 @@ int key_RIGHT_callback(void *data)
 }
 
 /*
- * sets the save image flag
- * args:
- *    none
- *
- * asserts:
- *    none
- *
- * returns: none
- */
-void video_capture_save_image()
-{
-	save_image = 1;
-}
-
-/*
- * sets the save video flag
- * args:
- *    value - save_video flag value
- *
- * asserts:
- *    none
- *
- * returns: none
- */
-void video_capture_save_video(int value)
-{
-	save_video = value;
-}
-
-/*
- * gets the save video flag
- * args:
- *    none
- *
- * asserts:
- *    none
- *
- * returns: save_video flag
- */
-int video_capture_get_save_video()
-{
-	return save_video;
-}
-
-/*
- * get encoder started flag
- * args:
- *    none
- *
- * asserts:
- *    none
- *
- * returns: encoder started flag (1 -started; 0 -not started)
- */
-int get_encoder_status()
-{
-	return my_encoder_status;
-}
-
-/*
  * create an audio context
  * args:
  *    api - audio api
@@ -625,7 +682,7 @@ static void *audio_processing_loop(void *data)
 			encoder_process_audio_buffer(encoder_ctx, audio_buff->data);
 		}
 	}
-	
+
 	/*flush any delayed audio frames*/
 	encoder_flush_audio_buffer(encoder_ctx);
 
@@ -847,6 +904,13 @@ void *capture_loop(void *data)
 		render_set_event_callback(EV_QUIT, &quit_callback, NULL);
 	}
 
+	/*add a video capture timer*/
+	if(my_options->video_timer > 0)
+	{
+		my_video_timer = NSEC_PER_SEC * my_options->video_timer;
+		my_video_begin_time = v4l2core_time_get_timestamp(); /*timer count*/
+	}
+
 	/*add a photo capture timer*/
 	if(my_options->photo_timer > 0)
 	{
@@ -947,6 +1011,16 @@ void *capture_loop(void *data)
 							stop_photo_timer(); /*close timer*/
 					}
 				}
+			}
+
+			if(check_video_timer())
+			{
+				/*if are not saving video start it*/
+				if(!video_capture_get_save_video())
+					gui_click_video_capture_button(device);
+
+				if((device->timestamp - my_video_begin_time) > my_video_timer)
+					stop_video_timer(device);
 			}
 
 			if(save_image)

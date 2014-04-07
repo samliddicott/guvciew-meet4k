@@ -43,6 +43,7 @@ typedef struct _options_t
 	char *video_path;
 	char *photo_name;
 	char *photo_path;
+	double video_timer; /*video capture time in seconds (double)*/
 	double photo_timer; /*photo capture timer interval in seconds (double)*/
 	int photo_npics; /*number of photo captures*/
 } options_t;
