@@ -588,7 +588,7 @@ int gui_attach_gtk3(v4l2_dev_t *device, int width, int height)
 
 	/*video button*/
 	CapVideoButt = gtk_toggle_button_new_with_mnemonic (_("Cap. Video (V)"));
-	gui_set_video_capture_button_status_gtk3(0);
+	gui_set_video_capture_button_status_gtk3(get_encoder_status());
 
 	char *pix3path = g_strconcat (PACKAGE_DATA_DIR, "/pixmaps/guvcview/movie.png",NULL);
 	if (g_file_test(pix3path, G_FILE_TEST_EXISTS))

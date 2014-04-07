@@ -909,6 +909,9 @@ void *capture_loop(void *data)
 	{
 		my_video_timer = NSEC_PER_SEC * my_options->video_timer;
 		my_video_begin_time = v4l2core_time_get_timestamp(); /*timer count*/
+		/*if are not saving video start it*/
+		if(!get_encoder_status())
+			start_encoder_thread(device);
 	}
 
 	/*add a photo capture timer*/
@@ -1015,10 +1018,6 @@ void *capture_loop(void *data)
 
 			if(check_video_timer())
 			{
-				/*if are not saving video start it*/
-				if(!video_capture_get_save_video())
-					gui_click_video_capture_button(device);
-
 				if((device->timestamp - my_video_begin_time) > my_video_timer)
 					stop_video_timer(device);
 			}
