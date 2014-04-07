@@ -799,21 +799,6 @@ static int mkv_cache_packet(mkv_context_t* mkv_ctx,
                             int flags)
 {
 
-	if(mkv_ctx->pkt_buffer_list == NULL)
-	{
-		mkv_ctx->pkt_buffer_write_index = 0;
-		mkv_ctx->pkt_buffer_read_index = 0;
-		mkv_ctx->pkt_buffer_list = calloc(mkv_ctx->pkt_buffer_list_size, sizeof(mkv_packet_buff_t));
-
-		int i = 0;
-		for(i = 0; i < mkv_ctx->pkt_buffer_list_size; ++i)
-		{
-			mkv_ctx->pkt_buffer_list[i].max_size = 0;
-			mkv_ctx->pkt_buffer_list[i].data_size = 0;
-			mkv_ctx->pkt_buffer_list[i].data = NULL;
-		}
-	}
-
 	if(mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_write_index].data_size > 0)
 	{
 		fprintf(stderr,"ENCODER: (matroska) packet buffer [%i] is in use: flushing cached data\n",
@@ -892,13 +877,16 @@ int mkv_write_packet(mkv_context_t* mkv_ctx,
 	stream_io_t *stream = get_stream(mkv_ctx->stream_list, stream_index);
 
     /* check if we have audio packets cached and write them up to video pts*/
-    if (stream->type == STREAM_TYPE_VIDEO && mkv_ctx->pkt_buffer_list_size > 0)
+    if (stream->type == STREAM_TYPE_VIDEO && 
+		mkv_ctx->pkt_buffer_list_size > 0 &&
+		mkv_ctx->pkt_buffer_list != NULL)
     {
 		while(mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_read_index].pts < ts &&
 			mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_read_index].data_size > 0)
 		{
 			if(verbosity > 3)
-				printf("ENCODER: (matroska) writing cached packet[%i]\n", mkv_ctx->pkt_buffer_read_index);
+				printf("ENCODER: (matroska) writing cached packet[%i] of %i\n", 
+					mkv_ctx->pkt_buffer_read_index, mkv_ctx->pkt_buffer_list_size);
 
 			ret = mkv_write_packet_internal(mkv_ctx,
 							mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_read_index].stream_index,
@@ -965,7 +953,7 @@ int mkv_close(mkv_context_t* mkv_ctx)
 							mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_read_index].pts,
 							mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_read_index].flags);
 
-			mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_list_size-1].data_size = 0;
+			mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_read_index].data_size = 0;
 			/*advance read index*/
 			NEXT_IND(mkv_ctx->pkt_buffer_read_index, mkv_ctx->pkt_buffer_list_size);
 
@@ -1100,6 +1088,21 @@ stream_io_t *mkv_add_audio_stream(mkv_context_t *mkv_ctx,
 	{
 		if(3 * (rate/mkv_ctx->audio_frame_size) > mkv_ctx->pkt_buffer_list_size)
 			mkv_ctx->pkt_buffer_list_size = 3 * (rate/mkv_ctx->audio_frame_size);
+	}
+	
+	if(mkv_ctx->pkt_buffer_list == NULL)
+	{
+		mkv_ctx->pkt_buffer_write_index = 0;
+		mkv_ctx->pkt_buffer_read_index = 0;
+		mkv_ctx->pkt_buffer_list = calloc(mkv_ctx->pkt_buffer_list_size, sizeof(mkv_packet_buff_t));
+
+		int i = 0;
+		for(i = 0; i < mkv_ctx->pkt_buffer_list_size; ++i)
+		{
+			mkv_ctx->pkt_buffer_list[i].max_size = 0;
+			mkv_ctx->pkt_buffer_list[i].data_size = 0;
+			mkv_ctx->pkt_buffer_list[i].data = NULL;
+		}
 	}
 
 	stream->indexes = NULL;
