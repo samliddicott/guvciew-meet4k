@@ -93,6 +93,14 @@ int main(int argc, char *argv[])
         }
     }
 
+    /*localization*/
+	char* lc_all = setlocale (LC_ALL, "");
+	char* lc_dir = bindtextdomain (GETTEXT_PACKAGE, PACKAGE_LOCALE_DIR);
+	bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
+	char* txtdom = textdomain (GETTEXT_PACKAGE);
+	if (debug_level > 1) printf("GUVCVIEW: language catalog=> dir:%s type:%s cat:%s.mo\n",
+		lc_dir, lc_all, txtdom);
+
 	// Register signal and signal handler
 	signal(SIGINT,  signal_callback_handler);
 	signal(SIGUSR1, signal_callback_handler);
