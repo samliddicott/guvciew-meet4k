@@ -56,11 +56,16 @@ dnl --------------------------------------------------------------------------
 dnl Set gettext package name
 dnl --------------------------------------------------------------------------
 
+GETTEXT_PACKAGE_V4L2CORE=gview_v4l2core
+AC_SUBST(GETTEXT_PACKAGE_V4L2CORE)
+AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE_V4L2CORE,"$GETTEXT_PACKAGE_V4L2CORE", [gview_v4l2core])
+
 GETTEXT_PACKAGE=guvcview
 AC_SUBST(GETTEXT_PACKAGE)
 AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE", [guvcview])
 
 IT_PROG_INTLTOOL([0.40])
+IT_PO_SUBDIR(po/gview_v4l2core)
 
 dnl --------------------------------------------------------------------------
 dnl Languages supported by guvcview.
@@ -367,6 +372,7 @@ AC_CONFIG_FILES([
     data/guvcview.desktop.in
     data/guvcview.in
     po/Makefile.in
+    po/gview_v4l2core/Makefile.in
 ])
 AC_OUTPUT
 

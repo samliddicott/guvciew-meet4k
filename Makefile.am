@@ -6,7 +6,8 @@ SUBDIRS = gview_v4l2core \
 		  gview_encoder \
           guvcview \
           data \
-          po
+          po \
+          po/gview_v4l2core
 
 #Distribute these directories:
 DIST_SUBDIRS =  gview_v4l2core \
@@ -15,7 +16,8 @@ DIST_SUBDIRS =  gview_v4l2core \
 				gview_encoder \
 				guvcview \
 				data \
-				po
+				po \
+				po/gview_v4l2core
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = pkgconfig/gviewv4l2core-0.1.pc \
@@ -49,6 +51,15 @@ update-po: check-gettext
 		mv po/POTFILES.in.2 po/POTFILES.in ; \
 	fi
 	cd po && $(MAKE) $(AM_MAKEFLAGS) update-po
+	cd $(srcdir); \
+	echo "#gview_v4l2core lib" >> po/gview_v4l2core/POTFILES.in.2; \
+	grep '_(' `find gview_v4l2core/ -name "*c"` | cut -d: -f1 | sort -u >> po/gview_v4l2core/POTFILES.in.2 ; \
+	if diff po/gview_v4l2core/POTFILES.in po/gview_v4l2core/POTFILES.in.2 >/dev/null 2>&1 ; then \
+		rm -f po/gview_v4l2core/POTFILES.in.2 ; \
+	else \
+		mv po/gview_v4l2core/POTFILES.in.2 po/gview_v4l2core/POTFILES.in ; \
+	fi
+	cd po/gview_v4l2core && $(MAKE) $(AM_MAKEFLAGS) update-po
 
 update-gmo: check-gettext
 	cd po && $(MAKE) $(AM_MAKEFLAGS) update-gmo
