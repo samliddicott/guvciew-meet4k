@@ -32,11 +32,21 @@ check-gettext:
 	"'checking whether to use NLS... yes'!" ; exit 1 ; fi
 
 update-po: check-gettext
-	@find $(srcdir)/src/ -name "*.cpp" -print | sort > $(srcdir)/po/POTFILES.in.2 ; \
-	if diff $(srcdir)/po/POTFILES.in $(srcdir)/po/POTFILES.in.2 >/dev/null 2>&1 ; then \
-		rm -f $(srcdir)/po/POTFILES.in.2 ; \
+	cd $(srcdir); \
+	echo "#gview_v4l2core lib" >> po/POTFILES.in.2; \
+	grep '_(' `find gview_v4l2core/ -name "*c"` | cut -d: -f1 | sort -u >> po/POTFILES.in.2 ; \
+	echo "#gview_render lib" >> po/POTFILES.in.2; \
+	grep '_(' `find gview_render/ -name "*c"` | cut -d: -f1 | sort -u >> po/POTFILES.in.2 ; \
+	echo "#gview_audio lib" >> po/POTFILES.in.2; \
+	grep '_(' `find gview_audio/ -name "*c"` | cut -d: -f1 | sort -u >> po/POTFILES.in.2 ; \
+	echo "#gview_encoder" >> po/POTFILES.in.2; \
+	grep '_(' `find gview_encoder/ -name "*c"` | cut -d: -f1 | sort -u >> po/POTFILES.in.2 ; \
+	echo "#guvcview" >> po/POTFILES.in.2; \
+	grep '_(' `find guvcview/ -name "*c"` | cut -d: -f1 | sort -u >> po/POTFILES.in.2 ; \
+	if diff po/POTFILES.in po/POTFILES.in.2 >/dev/null 2>&1 ; then \
+		rm -f po/POTFILES.in.2 ; \
 	else \
-		mv $(srcdir)/po/POTFILES.in.2 $(srcdir)/po/POTFILES.in ; \
+		mv po/POTFILES.in.2 po/POTFILES.in ; \
 	fi
 	cd po && $(MAKE) $(AM_MAKEFLAGS) update-po
 
@@ -44,7 +54,7 @@ update-gmo: check-gettext
 	cd po && $(MAKE) $(AM_MAKEFLAGS) update-gmo
 
 force-update-gmo: check-gettext
-	touch po/*.po
+	touch $(srcdir)/po/*.po
 	cd po && $(MAKE) $(AM_MAKEFLAGS) update-gmo
 
 # Copy all the spec files. Of cource, only one is actually used.

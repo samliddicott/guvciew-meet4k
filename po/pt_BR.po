@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: pt_BR\n"
 "Report-Msgid-Bugs-To: pj.assis@gmail.com\n"
-"POT-Creation-Date: 2014-04-14 11:12+0100\n"
+"POT-Creation-Date: 2014-04-16 15:33+0100\n"
 "PO-Revision-Date: 2013-08-25 02:20+0000\n"
 "Last-Translator: Celio Alves <Unknown>\n"
 "Language-Team: Brazilian Portuguese <gnome-pt_br-list@gnome.org>\n"
@@ -19,18 +19,6 @@ msgstr ""
 "X-Launchpad-Export-Date: 2013-12-08 10:36+0000\n"
 "X-Generator: Launchpad (build 16869)\n"
 "X-Project-Style: default\n"
-
-#: ../data/guvcview.desktop.in.in.h:1
-msgid "guvcview"
-msgstr "guvcview"
-
-#: ../data/guvcview.desktop.in.in.h:2
-msgid "GTK UVC video viewer"
-msgstr "Visualizador de vídeo GTK UVC"
-
-#: ../data/guvcview.desktop.in.in.h:3
-msgid "A video viewer and capturer for the linux uvc driver"
-msgstr "Um visualizador de vídeos e captura para o driver linux uvc"
 
 #.
 #. * needed only for language files (not used)
@@ -1041,6 +1029,15 @@ msgstr ""
 #, c-format
 msgid "saving image to %s"
 msgstr ""
+
+#~ msgid "guvcview"
+#~ msgstr "guvcview"
+
+#~ msgid "GTK UVC video viewer"
+#~ msgstr "Visualizador de vídeo GTK UVC"
+
+#~ msgid "A video viewer and capturer for the linux uvc driver"
+#~ msgstr "Um visualizador de vídeos e captura para o driver linux uvc"
 
 #~ msgid "MPEG2 - (lavc)"
 #~ msgstr "MPEG2 - (lavc)"

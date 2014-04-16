@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: guvcview\n"
 "Report-Msgid-Bugs-To: pj.assis@gmail.com\n"
-"POT-Creation-Date: 2014-04-14 11:12+0100\n"
+"POT-Creation-Date: 2014-04-16 15:33+0100\n"
 "PO-Revision-Date: 2013-06-03 09:59+0000\n"
 "Last-Translator: sajith <wijerathnasajith1@gmail.com>\n"
 "Language-Team: Sinhalese <si@li.org>\n"
@@ -17,18 +17,6 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Launchpad-Export-Date: 2013-12-08 10:36+0000\n"
 "X-Generator: Launchpad (build 16869)\n"
-
-#: ../data/guvcview.desktop.in.in.h:1
-msgid "guvcview"
-msgstr "guvcview"
-
-#: ../data/guvcview.desktop.in.in.h:2
-msgid "GTK UVC video viewer"
-msgstr "GTK UVC වීඩියෝ දකින්නා"
-
-#: ../data/guvcview.desktop.in.in.h:3
-msgid "A video viewer and capturer for the linux uvc driver"
-msgstr "ලිනක්ස් uvc ඩ්‍රයිවරය සඳහා වීඩියෝ පෙන්වන්නා සහ ග්‍රහණය කරන්නා"
 
 #.
 #. * needed only for language files (not used)
@@ -1040,6 +1028,15 @@ msgstr "වීඩියෝව ග්‍රහණය කිරීම"
 #, c-format
 msgid "saving image to %s"
 msgstr ""
+
+#~ msgid "guvcview"
+#~ msgstr "guvcview"
+
+#~ msgid "GTK UVC video viewer"
+#~ msgstr "GTK UVC වීඩියෝ දකින්නා"
+
+#~ msgid "A video viewer and capturer for the linux uvc driver"
+#~ msgstr "ලිනක්ස් uvc ඩ්‍රයිවරය සඳහා වීඩියෝ පෙන්වන්නා සහ ග්‍රහණය කරන්නා"
 
 #~ msgid "MPEG2 - (lavc)"
 #~ msgstr "MPEG2 - (lavc)"

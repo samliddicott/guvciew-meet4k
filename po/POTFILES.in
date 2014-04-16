@@ -1,44 +1,12 @@
-[encoding: UTF-8]
-
-data/guvcview.desktop.in.in
-gview_v4l2core/colorspaces.c
-gview_v4l2core/control_profile.c
-gview_v4l2core/core_time.c
-gview_v4l2core/dct.c
-gview_v4l2core/frame_decoder.c
-gview_v4l2core/jpeg_decoder.c
-gview_v4l2core/save_image_bmp.c
-gview_v4l2core/save_image.c
-gview_v4l2core/save_image_jpeg.c
-gview_v4l2core/save_image_png.c
-gview_v4l2core/soft_autofocus.c
-gview_v4l2core/uvc_h264.c
+#gview_v4l2core lib
 gview_v4l2core/v4l2_controls.c
-gview_v4l2core/v4l2_core.c
-gview_v4l2core/v4l2_devices.c
-gview_v4l2core/v4l2_formats.c
 gview_v4l2core/v4l2_xu_ctrls.c
-gview_render/render.c
-gview_render/render_fx.c
-gview_render/render_osd_vu_meter.c
-gview_render/render_sdl1.c
+#gview_render lib
+#gview_audio lib
+#gview_encoder
 gview_encoder/audio_codecs.c
-gview_encoder/avi.c
-gview_encoder/encoder.c
-gview_encoder/file_io.c
-gview_encoder/libav_encoder.c
-gview_encoder/matroska.c
-gview_encoder/muxer.c
-gview_encoder/stream_io.c
 gview_encoder/video_codecs.c
-gview_audio/audio.c
-gview_audio/audio_fx.c
-gview_audio/audio_portaudio.c
-gview_audio/audio_pulseaudio.c
-gview_audio/core_time.c
-guvcview/config.c
-guvcview/core_io.c
-guvcview/gui.c
+#guvcview
 guvcview/gui_gtk3_audioctrls.c
 guvcview/gui_gtk3.c
 guvcview/gui_gtk3_callbacks.c
@@ -46,6 +14,5 @@ guvcview/gui_gtk3_h264ctrls.c
 guvcview/gui_gtk3_menu.c
 guvcview/gui_gtk3_v4l2ctrls.c
 guvcview/gui_gtk3_videoctrls.c
-guvcview/guvcview.c
 guvcview/options.c
 guvcview/video_capture.c

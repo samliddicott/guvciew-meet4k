@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: guvcview\n"
 "Report-Msgid-Bugs-To: pj.assis@gmail.com\n"
-"POT-Creation-Date: 2014-04-14 11:12+0100\n"
+"POT-Creation-Date: 2014-04-16 15:33+0100\n"
 "PO-Revision-Date: 2013-05-04 16:28+0000\n"
 "Last-Translator: Pjotr12345 <Unknown>\n"
 "Language-Team: Dutch <nl@li.org>\n"
@@ -17,20 +17,6 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Launchpad-Export-Date: 2013-12-08 10:36+0000\n"
 "X-Generator: Launchpad (build 16869)\n"
-
-#: ../data/guvcview.desktop.in.in.h:1
-msgid "guvcview"
-msgstr "guvcview"
-
-#: ../data/guvcview.desktop.in.in.h:2
-msgid "GTK UVC video viewer"
-msgstr "GTK UVC videokijker"
-
-#: ../data/guvcview.desktop.in.in.h:3
-msgid "A video viewer and capturer for the linux uvc driver"
-msgstr ""
-"Een programma voor het bekijken en opnemen van video, voor het "
-"Linuxstuurprogramma uvc"
 
 #.
 #. * needed only for language files (not used)
@@ -1042,6 +1028,17 @@ msgstr "video wordt vastgelegd naar"
 #, c-format
 msgid "saving image to %s"
 msgstr ""
+
+#~ msgid "guvcview"
+#~ msgstr "guvcview"
+
+#~ msgid "GTK UVC video viewer"
+#~ msgstr "GTK UVC videokijker"
+
+#~ msgid "A video viewer and capturer for the linux uvc driver"
+#~ msgstr ""
+#~ "Een programma voor het bekijken en opnemen van video, voor het "
+#~ "Linuxstuurprogramma uvc"
 
 #~ msgid "MPEG2 - (lavc)"
 #~ msgstr "MPEG2 - (lavc)"

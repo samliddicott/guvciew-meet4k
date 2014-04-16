@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: guvcview\n"
 "Report-Msgid-Bugs-To: pj.assis@gmail.com\n"
-"POT-Creation-Date: 2014-04-14 11:12+0100\n"
+"POT-Creation-Date: 2014-04-16 15:33+0100\n"
 "PO-Revision-Date: 2013-02-25 05:36+0000\n"
 "Last-Translator: kentxchang <Unknown>\n"
 "Language-Team: none <kentxchang@gmail.com>\n"
@@ -14,18 +14,6 @@ msgstr ""
 "X-Generator: Launchpad (build 16869)\n"
 "X-Poedit-Country: TAIWAN\n"
 "X-Poedit-Language: Chinese\n"
-
-#: ../data/guvcview.desktop.in.in.h:1
-msgid "guvcview"
-msgstr ""
-
-#: ../data/guvcview.desktop.in.in.h:2
-msgid "GTK UVC video viewer"
-msgstr ""
-
-#: ../data/guvcview.desktop.in.in.h:3
-msgid "A video viewer and capturer for the linux uvc driver"
-msgstr ""
 
 #.
 #. * needed only for language files (not used)

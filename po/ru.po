@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: guvcview\n"
 "Report-Msgid-Bugs-To: pj.assis@gmail.com\n"
-"POT-Creation-Date: 2014-04-14 11:12+0100\n"
+"POT-Creation-Date: 2014-04-16 15:33+0100\n"
 "PO-Revision-Date: 2013-06-06 13:32+0000\n"
 "Last-Translator: Николай Авдеев (NickKolok, Nikolay Avdeev) <NickKolok@mail."
 "ru>\n"
@@ -17,18 +17,6 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Launchpad-Export-Date: 2013-12-08 10:36+0000\n"
 "X-Generator: Launchpad (build 16869)\n"
-
-#: ../data/guvcview.desktop.in.in.h:1
-msgid "guvcview"
-msgstr "guvcview"
-
-#: ../data/guvcview.desktop.in.in.h:2
-msgid "GTK UVC video viewer"
-msgstr "GTK UVC видео обозреватель"
-
-#: ../data/guvcview.desktop.in.in.h:3
-msgid "A video viewer and capturer for the linux uvc driver"
-msgstr "Программа просмотра и записи видео для драйвера Linux UVC"
 
 #.
 #. * needed only for language files (not used)
@@ -1040,6 +1028,15 @@ msgstr "захват видео в"
 #, c-format
 msgid "saving image to %s"
 msgstr ""
+
+#~ msgid "guvcview"
+#~ msgstr "guvcview"
+
+#~ msgid "GTK UVC video viewer"
+#~ msgstr "GTK UVC видео обозреватель"
+
+#~ msgid "A video viewer and capturer for the linux uvc driver"
+#~ msgstr "Программа просмотра и записи видео для драйвера Linux UVC"
 
 #~ msgid "MPEG2 - (lavc)"
 #~ msgstr "MPEG2 - (lavc)"
