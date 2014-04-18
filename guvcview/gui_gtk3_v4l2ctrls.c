@@ -140,7 +140,7 @@ int gui_attach_gtk3_v4l2ctrls(v4l2_dev_t *device, GtkWidget *parent)
 		control_widgets_list = realloc(control_widgets_list, sizeof(control_widgets_t) * widget_list_size);
 		/*label*/
 		char *tmp;
-        tmp = g_strdup_printf ("%s:", gettext((char *) current->control.name));
+        tmp = g_strdup_printf ("%s:", current->name);
         control_widgets_list[widget_list_size - 1].label = gtk_label_new (tmp);
         free(tmp);
         gtk_widget_show (control_widgets_list[widget_list_size - 1].label);
@@ -495,7 +495,7 @@ int gui_attach_gtk3_v4l2ctrls(v4l2_dev_t *device, GtkWidget *parent)
 						{
 							gtk_combo_box_text_append_text (
 								GTK_COMBO_BOX_TEXT (control_widgets_list[n].widget),
-								(char *) current->menu[j].name);
+								(char *) current->menu_entry[j]);
 						}
 #ifdef V4L2_CTRL_TYPE_INTEGER_MENU
 						else

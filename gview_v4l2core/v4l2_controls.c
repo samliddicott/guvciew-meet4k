@@ -28,10 +28,18 @@
 #include <libv4l2.h>
 #include <errno.h>
 #include <assert.h>
+/* support for internationalization - i18n */
+#include <locale.h>
+#include <libintl.h>
 
 #include "gviewv4l2core.h"
 #include "v4l2_controls.h"
+#include "../config.h"
 
+#ifdef GETTEXT_PACKAGE
+#undef GETTEXT_PACKAGE
+#endif
+#define GETTEXT_PACKAGE GETTEXT_PACKAGE_V4L2CORE
 
 #ifndef V4L2_CTRL_ID2CLASS
 #define V4L2_CTRL_ID2CLASS(id)    ((id) & 0x0fff0000UL)
@@ -164,7 +172,7 @@ static void print_control(v4l2_ctrl_t *control, int i)
 	switch (control->control.type)
 	{
 		case V4L2_CTRL_TYPE_INTEGER:
-			printf("control[%d]:(int) 0x%x '%s'\n",i ,control->control.id, control->control.name);
+			printf("control[%d]:(int) 0x%x '%s'\n",i ,control->control.id, control->name);
 			printf("\tmin:%d max:%d step:%d def:%d curr:%d\n",
 				control->control.minimum, control->control.maximum, control->control.step,
 				control->control.default_value, control->value);
@@ -172,35 +180,35 @@ static void print_control(v4l2_ctrl_t *control, int i)
 
 #ifdef V4L2_CTRL_TYPE_INTEGER64
 		case V4L2_CTRL_TYPE_INTEGER64:
-			printf("control[%d]:(int64) 0x%x '%s'\n",i ,control->control.id, control->control.name);
+			printf("control[%d]:(int64) 0x%x '%s'\n",i ,control->control.id, control->name);
 			printf ("\tcurr:%" PRIu64 "\n", control->value64);
 			break;
 #endif
 #ifdef V4L2_CTRL_TYPE_STRING
 		case V4L2_CTRL_TYPE_STRING:
-			printf("control[%d]:(str) 0x%x '%s'\n",i ,control->control.id, control->control.name);
+			printf("control[%d]:(str) 0x%x '%s'\n",i ,control->control.id, control->name);
 			printf ("\tmin:%d max:%d step:%d\n",
 				control->control.minimum, control->control.maximum, control->control.step);
 			break;
 #endif
 		case V4L2_CTRL_TYPE_BOOLEAN:
-			printf("control[%d]:(bool) 0x%x '%s'\n",i ,control->control.id, control->control.name);
+			printf("control[%d]:(bool) 0x%x '%s'\n",i ,control->control.id, control->name);
 			printf ("\tdef:%d curr:%d\n",
 				control->control.default_value, control->value);
 			break;
 
 		case V4L2_CTRL_TYPE_MENU:
-			printf("control[%d]:(menu) 0x%x '%s'\n",i ,control->control.id, control->control.name);
+			printf("control[%d]:(menu) 0x%x '%s'\n",i ,control->control.id, control->name);
 			printf("\tmin:%d max:%d def:%d curr:%d\n",
 				control->control.minimum, control->control.maximum,
 				control->control.default_value, control->value);
 			for (j = 0; control->menu[j].index <= control->control.maximum; j++)
-				printf("\tmenu[%d]: [%d] -> '%s'\n", j, control->menu[j].index, control->menu[j].name);
+				printf("\tmenu[%d]: [%d] -> '%s'\n", j, control->menu[j].index, control->menu_entry[j]);
 			break;
 
 #ifdef V4L2_CTRL_TYPE_INTEGER_MENU
 		case V4L2_CTRL_TYPE_INTEGER_MENU:
-			printf("control[%d]:(intmenu) 0x%x '%s'\n",i ,control->control.id, control->control.name);
+			printf("control[%d]:(intmenu) 0x%x '%s'\n",i ,control->control.id, control->name);
 			printf("\tmin:%d max:%d def:%d curr:%d\n",
 				control->control.minimum, control->control.maximum,
 				control->control.default_value, control->value);
@@ -211,12 +219,12 @@ static void print_control(v4l2_ctrl_t *control, int i)
 			break;
 #endif
 		case V4L2_CTRL_TYPE_BUTTON:
-			printf("control[%d]:(button) 0x%x '%s'\n",i ,control->control.id, control->control.name);
+			printf("control[%d]:(button) 0x%x '%s'\n",i ,control->control.id, control->name);
 			break;
 
 #ifdef V4L2_CTRL_TYPE_BITMASK
 		case V4L2_CTRL_TYPE_BITMASK:
-			printf("control[%d]:(bitmask) 0x%x '%s'\n",i ,control->control.id, control->control.name);
+			printf("control[%d]:(bitmask) 0x%x '%s'\n",i ,control->control.id, control->name);
 			printf("\tmax:%d def:%d curr:%d\n",
 				control->control.maximum, control->control.default_value, control->value);
 #endif
@@ -275,6 +283,7 @@ static v4l2_ctrl_t *add_control(v4l2_dev_t *vd, struct v4l2_queryctrl* queryctrl
 	assert(vd != NULL);
 	assert(vd->fd > 0);
 	assert(queryctrl != NULL);
+	int menu_entries = 0;
 
 	v4l2_ctrl_t *control = NULL;
 	struct v4l2_querymenu* menu = NULL; //menu list
@@ -313,8 +322,8 @@ static v4l2_ctrl_t *add_control(v4l2_dev_t *vd, struct v4l2_queryctrl* queryctrl
             memcpy(&(menu[i]), &querymenu, sizeof(struct v4l2_querymenu));
             i++;
         }
-
-		/*last entry*/
+		
+		/*last entry (NULL name)*/
         if(!menu)
             menu = calloc(i+1, sizeof(struct v4l2_querymenu));
         else
@@ -324,6 +333,7 @@ static v4l2_ctrl_t *add_control(v4l2_dev_t *vd, struct v4l2_queryctrl* queryctrl
         menu[i].index = queryctrl->maximum+1;
         if(queryctrl->type == V4L2_CTRL_TYPE_MENU)
 			menu[i].name[0] = 0;
+		menu_entries = i;
     }
 
     /*check for focus control to enable software autofocus*/
@@ -339,8 +349,22 @@ static v4l2_ctrl_t *add_control(v4l2_dev_t *vd, struct v4l2_queryctrl* queryctrl
     control = calloc (1, sizeof(v4l2_ctrl_t));
     memcpy(&(control->control), queryctrl, sizeof(struct v4l2_queryctrl));
     control->class = V4L2_CTRL_ID2CLASS(control->control.id);
+    control->name = strdup(dgettext(GETTEXT_PACKAGE, control->control.name));
     //add the menu adress (NULL if not a menu)
     control->menu = menu;
+    if(control->menu != NULL && control->control.type == V4L2_CTRL_TYPE_MENU)
+    {
+		int i = 0;
+		control->menu_entry = calloc(menu_entries, sizeof(char *));
+		for(i = 0; i< menu_entries; i++)
+			control->menu_entry[i] = strdup(dgettext(GETTEXT_PACKAGE, control->menu[i].name));
+		control->menu_entries = menu_entries;
+	}
+	else
+	{
+		control->menu_entries = 0;
+		control->menu_entry = NULL;
+	}
 #ifdef V4L2_CTRL_TYPE_STRING
     //allocate a string with max size if needed
     if(control->control.type == V4L2_CTRL_TYPE_STRING)
@@ -1305,6 +1329,13 @@ void free_v4l2_control_list(v4l2_dev_t *vd)
     {
         if(first->string) free(first->string);
         if(first->menu) free(first->menu);
+        if(first->menu_entry)
+        {
+			int i = 0;
+			for(i = 0; i < first->menu_entries; i++)
+				free(first->menu_entry[i]);
+			free(first->menu_entry);
+		}
         free(first);
         first = next;
         next = first->next;

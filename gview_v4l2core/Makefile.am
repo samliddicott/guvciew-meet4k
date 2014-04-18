@@ -35,6 +35,7 @@ libgviewv4l2core_la_SOURCES= $(h_sources) $(c_sources)
 
 libgviewv4l2core_la_CFLAGS = $(GVIEWV4L2CORE_CFLAGS) \
 			$(PTHREAD_CFLAGS) \
+			-DPACKAGE_LOCALE_DIR=\""$(prefix)/$(DATADIRNAME)/locale"\" \
 			-I$(top_srcdir) \
 			-I$(top_srcdir)/includes
 

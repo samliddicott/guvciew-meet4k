@@ -215,6 +215,11 @@ typedef struct _v4l2_ctrl_t
     int32_t value; //also used for string max size
     int64_t value64;
     char *string;
+    
+    /*localization*/
+    char *name; /*gettext translated name*/
+    int menu_entries;
+    char **menu_entry; /*gettext translated menu entry name*/
 
     //next control in the list
     struct _v4l2_ctrl_t *next;

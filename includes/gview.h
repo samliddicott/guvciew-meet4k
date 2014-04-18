@@ -30,7 +30,7 @@
 
 /* support for internationalization - i18n */
 #ifndef _
-#  define _(String) dgettext (PACKAGE, String)
+#  define _(String) dgettext (GETTEXT_PACKAGE, String)
 #endif
 
 #ifndef N_

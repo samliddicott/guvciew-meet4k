@@ -50,7 +50,12 @@
 #include "v4l2_formats.h"
 #include "v4l2_controls.h"
 #include "v4l2_devices.h"
+#include "../config.h"
 
+#ifdef GETTEXT_PACKAGE
+#undef GETTEXT_PACKAGE
+#endif
+#define GETTEXT_PACKAGE GETTEXT_PACKAGE_V4L2CORE
 /*video device data mutex*/
 static __MUTEX_TYPE mutex;
 #define __PMUTEX &mutex
@@ -1211,6 +1216,14 @@ static void clean_v4l2_dev(v4l2_dev_t *vd)
 v4l2_dev_t *v4l2core_init_dev(const char *device)
 {
 	assert(device != NULL);
+	
+	/*localization*/
+	char* lc_all = setlocale (LC_ALL, "");
+	char* lc_dir = bindtextdomain (GETTEXT_PACKAGE, PACKAGE_LOCALE_DIR);
+	bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
+	char* txtdom = textdomain (GETTEXT_PACKAGE);
+	if (verbosity > 1) printf("V4L2_CORE: language catalog=> dir:%s type:%s cat:%s.mo\n",
+		lc_dir, lc_all, txtdom);
 
 	v4l2_dev_t *vd = calloc(1, sizeof(v4l2_dev_t));
 

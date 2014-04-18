@@ -29,6 +29,7 @@
 
 #include "gviewv4l2core.h"
 #include "v4l2_devices.h"
+#include "../config.h"
 
 extern int verbosity;
 
