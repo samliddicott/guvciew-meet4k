@@ -195,6 +195,10 @@ int render_sdl2_frame(uint8_t *frame, int width, int height)
 	void* texture_pixels;
 	int pitch;
 
+	SDL_SetRenderDrawColor(main_renderer, 0, 0, 0, 255); /*black*/
+	SDL_RenderClear(main_renderer);
+
+
 	if (SDL_LockTexture(rending_texture, NULL, &texture_pixels, &pitch))
 	{
 		fprintf(stderr, "RENDER: couldn't lock texture to write\n");
@@ -242,7 +246,7 @@ void set_render_sdl2_caption(const char* caption)
  */
 void render_sdl2_dispatch_events()
 {
-	/*
+	
 	SDL_Event event;
 
 	while( SDL_PollEvent(&event) )
@@ -291,19 +295,6 @@ void render_sdl2_dispatch_events()
 			}
 		}
 
-		if(event.type==SDL_VIDEORESIZE)
-		{
-			pscreen =
-				SDL_SetVideoMode(
-					event.resize.w,
-					event.resize.h,
-					bpp,
-					SDL_VIDEO_Flags);
-
-			drect.w = event.resize.w;
-			drect.h = event.resize.h;
-		}
-
 		if(event.type==SDL_QUIT)
 		{
 			if(verbosity > 0)
@@ -311,8 +302,6 @@ void render_sdl2_dispatch_events()
 			render_call_event_callback(EV_QUIT);
 		}
 	}
-	*/
-
 }
 /*
  * clean sdl2 render data
