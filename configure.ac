@@ -175,9 +175,30 @@ dnl --------------------------------------------------------------------------
 dnl check for libgviewrender dependencies
 dnl --------------------------------------------------------------------------
 
-PKG_CHECK_MODULES(GVIEWRENDER, [sdl >= 1.2.10])
-AC_SUBST(GVIEWRENDER_CFLAGS)
-AC_SUBST(GVIEWRENDER_LIBS)
+dnl --------------------------------------------------------------------------
+dnl Check for prefered sdl version (1 or 2)
+dnl --------------------------------------------------------------------------
+AC_MSG_CHECKING(if you want to disable sdl2 support)
+AC_ARG_ENABLE(sdl2, AS_HELP_STRING([--disable-sdl2],
+		[disable sdl2 support (default: enabled)]),
+	[enable_sdl2=no],
+	[enable_sdl2=yes])
+
+AC_MSG_RESULT($enable_sdl2)
+
+if test $enable_sdl2 = yes; then
+
+	PKG_CHECK_MODULES(GVIEWRENDER, [sdl2 >= 2.0])
+	AC_SUBST(GVIEWRENDER_CFLAGS)
+	AC_SUBST(GVIEWRENDER_LIBS)
+
+	AC_DEFINE(ENABLE_SDL2, 1, [set to 1 if sdl2 is enabled])
+else
+	AC_MSG_WARN(sdl2 disabled...  sdl1.2 will be used instead.)
+	PKG_CHECK_MODULES(GVIEWRENDER, [sdl >= 1.2.10])
+	AC_SUBST(GVIEWRENDER_CFLAGS)
+	AC_SUBST(GVIEWRENDER_LIBS)
+fi
 
 dnl --------------------------------------------------------------------------
 dnl Check for gsl (gnu random generator) used by render fx

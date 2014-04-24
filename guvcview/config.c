@@ -42,7 +42,7 @@ static config_t my_config =
 	.width = 640,
 	.height = 480,
 	.format = "MJPG",
-	.render = "sdl1",
+	.render = "sdl",
 	.gui = "gtk3",
 	.audio = "port",
 	.capture = "mmap",
@@ -360,7 +360,7 @@ void config_update(options_t *my_options)
 		strncpy(my_config.capture, my_options->capture, 4);
 
 	/*render API*/
-	if(strlen(my_options->render) > 3)
+	if(strlen(my_options->render) > 2)
 		strncpy(my_config.render, my_options->render, 4);
 
 	/*gui API*/

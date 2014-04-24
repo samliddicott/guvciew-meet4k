@@ -42,12 +42,16 @@
 #include <libintl.h>
 
 #include "gviewrender.h"
-#include "render_sdl1.h"
+#if ENABLE_SDL2
+	#include "render_sdl2.h"
+#else
+	#include "render_sdl1.h"
+#endif
 
 
 int verbosity = 0;
 
-static int render_api = RENDER_SDL1;
+static int render_api = RENDER_SDL;
 
 static int my_width = 0;
 static int my_height = 0;
@@ -228,9 +232,13 @@ int render_init(int render, int width, int height)
 		case RENDER_NONE:
 			break;
 
-		case RENDER_SDL1:
+		case RENDER_SDL:
 		default:
+			#if ENABLE_SDL2
+			ret = init_render_sdl2(my_width, my_height);
+			#else
 			ret = init_render_sdl1(my_width, my_height);
+			#endif
 			break;
 	}
 
@@ -265,10 +273,15 @@ int render_frame(uint8_t *frame, uint32_t mask)
 		case RENDER_NONE:
 			break;
 
-		case RENDER_SDL1:
+		case RENDER_SDL:
 		default:
+			#if ENABLE_SDL2
+			ret = render_sdl2_frame(frame, my_width, my_height);
+			render_sdl2_dispatch_events();
+			#else
 			ret = render_sdl1_frame(frame, my_width, my_height);
 			render_sdl1_dispatch_events();
+			#endif
 			break;
 	}
 
@@ -292,9 +305,13 @@ void render_set_caption(const char* caption)
 		case RENDER_NONE:
 			break;
 
-		case RENDER_SDL1:
+		case RENDER_SDL:
 		default:
+			#if ENABLE_SDL2
+			set_render_sdl2_caption(caption);
+			#else
 			set_render_sdl1_caption(caption);
+			#endif
 			break;
 	}
 }
@@ -316,9 +333,13 @@ void render_close()
 		case RENDER_NONE:
 			break;
 
-		case RENDER_SDL1:
+		case RENDER_SDL:
 		default:
+			#if ENABLE_SDL2
+			render_sdl2_clean();
+			#else
 			render_sdl1_clean();
+			#endif
 			break;
 	}
 

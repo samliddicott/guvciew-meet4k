@@ -4,10 +4,14 @@
 h_sources = gviewrender.h
 
 c_sources = render.c \
-			render_sdl1.c \
 			render_fx.c \
 			render_osd_vu_meter.c
 
+if ENABLE_SDL2
+c_sources += render_sdl2.c
+else
+c_sources += render_sdl1.c
+endif
 
 #Install the headers in a versioned directory - guvcvideo-x.x/libgviewrender:
 library_includedir=$(includedir)/$(PACKAGE)-$(PACKAGE_RELEASE)/$(GVIEWRENDER_LIBRARY_NAME)

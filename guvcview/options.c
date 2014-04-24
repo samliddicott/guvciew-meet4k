@@ -97,7 +97,7 @@ static opt_values_t opt_values[] =
 		.opt_long = "render",
 		.req_arg = 1,
 		.opt_help_arg = N_("RENDER_API"),
-		.opt_help = N_("Select render API (e.g none; sdl1)")
+		.opt_help = N_("Select render API (e.g none; sdl)")
 	},
 	{
 		.opt_short = 'a',
@@ -463,7 +463,7 @@ int options_parse(int argc, char *argv[])
 			case 'r':
 			{
 				int str_size = strlen(optarg);
-				if(str_size == 4) /*render is 4 chars*/
+				if(str_size <= 4) /*render is at most 4 chars*/
 					strncpy(my_options.render, optarg, 4);
 				break;
 			}

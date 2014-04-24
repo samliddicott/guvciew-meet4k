@@ -36,7 +36,7 @@
 #include <sys/types.h>
 
 #define RENDER_NONE     (0)
-#define RENDER_SDL1     (1)
+#define RENDER_SDL      (1)
 
 #define EV_QUIT      (0)
 #define EV_KEY_UP    (1)

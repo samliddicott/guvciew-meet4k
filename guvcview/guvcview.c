@@ -138,12 +138,12 @@ int main(int argc, char *argv[])
 	debug_level = my_options->verbosity;
 
 	/*select render API*/
-	int render = RENDER_SDL1;
+	int render = RENDER_SDL;
 
 	if(strcasecmp(my_config->render, "none") == 0)
 		render = RENDER_NONE;
-	else if(strcasecmp(my_config->render, "sdl1") == 0)
-		render = RENDER_SDL1;
+	else if(strcasecmp(my_config->render, "sdl") == 0)
+		render = RENDER_SDL;
 
 	/*select gui API*/
 	int gui = GUI_GTK3;
