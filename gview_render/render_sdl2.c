@@ -29,6 +29,7 @@
 #include "gview.h"
 #include "gviewrender.h"
 #include "render.h"
+#include "render_sdl2.h"
 
 extern int verbosity;
 
@@ -36,7 +37,7 @@ SDL_DisplayMode display_mode;
 
 static SDL_Window*  sdl_window = NULL;
 static SDL_Texture* rending_texture = NULL;
-static SDL_CreateRenderer*  main_renderer = NULL;
+static SDL_Renderer*  main_renderer = NULL;
 
 /*
  * initialize sdl video
@@ -122,11 +123,11 @@ static int video_init(int width, int height)
 	}
 
 	SDL_RenderSetLogicalSize(main_renderer, width, height);
-	SDL_SetRenderDrawBlendMode(main_renderer, SDL_BLENDMODE_BLEND);
+	SDL_SetRenderDrawBlendMode(main_renderer, SDL_BLENDMODE_NONE);
 
     rending_texture = SDL_CreateTexture(main_renderer,
 		SDL_PIXELFORMAT_YUY2,
-		SDL_TEXTUREACCESS_TARGET,
+		SDL_TEXTUREACCESS_STREAMING,
 		width,
 		height);
 
@@ -187,32 +188,25 @@ int render_sdl2_frame(uint8_t *frame, int width, int height)
 	float vu_level[2];
 	render_get_vu_level(vu_level);
 
-	uint8_t *p = (uint8_t *) poverlay->pixels[0];
-
 	int size = width * height * 2; /* 2 bytes per pixel for yuyv*/
 
 	int y = 0;
 	uint8_t *src = frame;
-	void* pixels;
+	void* texture_pixels;
 	int pitch;
 
-	if (SDL_LockTexture(rending_texture, NULL, &pixels, &pitch))
-		abort_program(ERR_UPDATEVIDEO, NULL);
-
-	void* dest = pixels;
-
-	for (y = 0; y < height; y++)
+	if (SDL_LockTexture(rending_texture, NULL, &texture_pixels, &pitch))
 	{
-		memcpy(dest, frame, sizeof(uint8_t) * width * 2);
-		src += width * 2; /*yuyv has 2 bytes per pixel*/
-		dest += pitch;
+		fprintf(stderr, "RENDER: couldn't lock texture to write\n");
+		return -1;
 	}
-
-	dest = pixels;
+	
+	memcpy(texture_pixels, frame, size);
+	
 	/*osd vu meter*/
     if(((render_get_osd_mask() &
 		(REND_OSD_VUMETER_MONO | REND_OSD_VUMETER_STEREO))) != 0)
-		render_osd_vu_meter(dest, width, height, vu_level);
+		render_osd_vu_meter(texture_pixels, width, height, vu_level);
 
 	SDL_UnlockTexture(rending_texture);
 
@@ -338,7 +332,7 @@ void render_sdl2_clean()
 	if(main_renderer)
 		SDL_DestroyRenderer(main_renderer);
 
-	if(window)
+	if(sdl_window)
 		SDL_DestroyWindow(sdl_window);
 
 	SDL_Quit();

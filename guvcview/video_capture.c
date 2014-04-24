@@ -46,7 +46,7 @@
 /*flags*/
 extern int debug_level;
 
-static int render = RENDER_SDL1; /*render API*/
+static int render = RENDER_SDL; /*render API*/
 static int quit = 0; /*terminate flag*/
 static int save_image = 0; /*save image flag*/
 static int save_video = 0; /*save video flag*/

@@ -200,6 +200,8 @@ else
 	AC_SUBST(GVIEWRENDER_LIBS)
 fi
 
+AM_CONDITIONAL(ENABLE_SDL2, test $enable_sdl2 = yes)
+
 dnl --------------------------------------------------------------------------
 dnl Check for gsl (gnu random generator) used by render fx
 dnl --------------------------------------------------------------------------

@@ -42,6 +42,8 @@
 #include <libintl.h>
 
 #include "gviewrender.h"
+#include "../config.h"
+
 #if ENABLE_SDL2
 	#include "render_sdl2.h"
 #else
