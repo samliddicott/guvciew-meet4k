@@ -422,6 +422,14 @@ static encoder_audio_context_t *encoder_audio_init(
 
 		return NULL;
 	}
+	
+	if(audio_channels <= 0)
+	{
+		if(verbosity > 0)
+			printf("ENCODER: no audio channels set\n");
+
+		return NULL;
+	}
 
 	audio_codec_t *audio_defaults = encoder_get_audio_codec_defaults(audio_codec_ind);
 
