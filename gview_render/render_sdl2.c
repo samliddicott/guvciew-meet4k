@@ -318,12 +318,18 @@ void render_sdl2_clean()
 	if(rending_texture)
 		SDL_DestroyTexture(rending_texture);
 
+	rending_texture = NULL;
+	
 	if(main_renderer)
 		SDL_DestroyRenderer(main_renderer);
 
+	main_renderer = NULL;
+	
 	if(sdl_window)
 		SDL_DestroyWindow(sdl_window);
 
+	sdl_window = NULL;
+	
 	SDL_Quit();
 }
 
