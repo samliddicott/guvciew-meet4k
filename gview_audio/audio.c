@@ -440,7 +440,8 @@ int audio_start(audio_context_t *audio_ctx)
 	assert(audio_ctx != NULL);
 
 	/*alloc the ring buffer*/
-	audio_init_buffers(audio_ctx);
+	if(audio_api != AUDIO_NONE)
+		audio_init_buffers(audio_ctx);
 
 	int err = 0;
 
@@ -527,5 +528,5 @@ void audio_close(audio_context_t *audio_ctx)
 	}
 
 	if(audio_buffers != NULL)
-		audio_free_buffers;
+		audio_free_buffers();
 }

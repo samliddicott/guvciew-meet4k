@@ -262,17 +262,20 @@ int main(int argc, char *argv[])
 
 	/*get the audio context*/
 	audio_context_t *audio_ctx = get_audio_context();
-	if(my_config->audio_device < 0)
-		my_config->audio_device = audio_ctx->device; /*api default*/
-	else if (my_config->audio_device >= audio_ctx->num_input_dev)
-		my_config->audio_device = audio_ctx->num_input_dev - 1;
-	/*set the audio device defaults*/
-	audio_ctx->device = my_config->audio_device;
-	audio_ctx->channels = audio_ctx->list_devices[audio_ctx->device].channels;
-	if(audio_ctx->channels > 2)
-		audio_ctx->channels = 2;/*limit it to stereo input*/
-	audio_ctx->samprate = audio_ctx->list_devices[audio_ctx->device].samprate;
-
+	if(audio_ctx != NULL)
+	{
+		if(my_config->audio_device < 0)
+			my_config->audio_device = audio_ctx->device; /*api default*/
+		else if (my_config->audio_device >= audio_ctx->num_input_dev)
+			my_config->audio_device = audio_ctx->num_input_dev - 1;
+		/*set the audio device defaults*/
+		audio_ctx->device = my_config->audio_device;
+		audio_ctx->channels = audio_ctx->list_devices[audio_ctx->device].channels;
+		if(audio_ctx->channels > 2)
+			audio_ctx->channels = 2;/*limit it to stereo input*/
+		audio_ctx->samprate = audio_ctx->list_devices[audio_ctx->device].samprate;
+	}
+	
 	encoder_set_verbosity(debug_level);
 	/*init the encoder*/
 	encoder_init();
