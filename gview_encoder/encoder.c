@@ -422,7 +422,7 @@ static encoder_audio_context_t *encoder_audio_init(
 
 		return NULL;
 	}
-	
+
 	if(audio_channels <= 0)
 	{
 		if(verbosity > 0)
@@ -1446,8 +1446,6 @@ void encoder_close(encoder_context_t *encoder_ctx)
 	encoder_video_context_t *enc_video_ctx = encoder_ctx->enc_video_ctx;
 	encoder_audio_context_t *enc_audio_ctx = encoder_ctx->enc_audio_ctx;
 
-	reference_pts = 0;
-
 	if(encoder_ctx->enc_video_ctx->priv_data)
 		free(encoder_ctx->enc_video_ctx->priv_data);
 
@@ -1505,4 +1503,18 @@ void encoder_close(encoder_context_t *encoder_ctx)
 	}
 
 	free(encoder_ctx);
+
+	/*reset static data*/
+	last_video_pts = 0;
+	last_audio_pts = 0;
+	reference_pts  = 0;
+
+	video_frame_max_size = 0;
+
+	video_ring_buffer_size = 0;
+	video_ring_buffer = NULL;
+	video_read_index = 0;
+	video_write_index = 0;
+	video_scheduler = 0;
+
 }
