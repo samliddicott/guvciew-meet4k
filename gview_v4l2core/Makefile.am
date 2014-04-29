@@ -23,7 +23,7 @@ c_sources = v4l2_core.c \
 			save_image_png.c
 
 
-#Install the headers in a versioned directory - guvcvideo-x.x/libgview_v4l2core:
+#Install the headers in a versioned directory - guvcvideo-x/libgviewv4l2core:
 library_includedir=$(includedir)/$(PACKAGE)-$(PACKAGE_RELEASE)/$(GVIEWV4L2CORE_LIBRARY_NAME)
 library_include_HEADERS = $(h_sources)
 

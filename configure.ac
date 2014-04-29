@@ -15,6 +15,10 @@ m4_define([guvcview_version],
 
 AC_INIT([guvcview], [guvcview_version], [http://guvcview.sourceforge.net/])
 
+PACKAGE_RELEASE=2
+AC_SUBST(PACKAGE_RELEASE)
+AC_DEFINE_UNQUOTED(PACKAGE_RELEASE,"$PACKAGE_RELEASE", 2)
+
 dnl ------------------------------------------------
 dnl Pretty output
 dnl ------------------------------------------------

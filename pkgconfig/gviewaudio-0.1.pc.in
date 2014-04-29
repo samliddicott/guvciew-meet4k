@@ -7,4 +7,4 @@ Name: @GVIEWAUDIO_LD_NAME@
 Description: guvcview audio library.
 Version: @VERSION@
 Libs: -L${libdir} -l@GVIEWAUDIO_LD_NAME@-@GVIEWAUDIO_API_VERSION@
-Cflags: -I${includedir}/@PACKAGE@-@PACKAGE_RELEASE@ -I${libdir}/@PACKAGE@-@PACKAGE_RELEASE@/include
+Cflags: -I${includedir}/@PACKAGE@-@PACKAGE_RELEASE@/@GVIEWAUDIO_LIBRARY_NAME@ -I${libdir}/@PACKAGE@-@PACKAGE_RELEASE@/include

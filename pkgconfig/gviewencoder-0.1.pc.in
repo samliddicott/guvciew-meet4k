@@ -7,4 +7,4 @@ Name: @GVIEWENCODER_LD_NAME@
 Description: guvcview encoder library.
 Version: @VERSION@
 Libs: -L${libdir} -l@GVIEWENCODER_LD_NAME@-@GVIEWENCODER_API_VERSION@
-Cflags: -I${includedir}/@PACKAGE@-@PACKAGE_RELEASE@ -I${libdir}/@PACKAGE@-@PACKAGE_RELEASE@/include
+Cflags: -I${includedir}/@PACKAGE@-@PACKAGE_RELEASE@/@GVIEWENCODER_LIBRARY_NAME@ -I${libdir}/@PACKAGE@-@PACKAGE_RELEASE@/include
