@@ -20,10 +20,10 @@ DIST_SUBDIRS =  gview_v4l2core \
 				po/gview_v4l2core
 
 pkgconfigdir = $(libdir)/pkgconfig
-pkgconfig_DATA = pkgconfig/gviewv4l2core-0.1.pc \
-				 pkgconfig/gviewaudio-0.1.pc \
-				 pkgconfig/gviewrender-0.1.pc \
-				 pkgconfig/gviewencoder-0.1.pc
+pkgconfig_DATA = pkgconfig/libgviewv4l2core.pc \
+				 pkgconfig/libgviewaudio.pc \
+				 pkgconfig/libgviewrender.pc \
+				 pkgconfig/libgviewencoder.pc
 
 ACLOCAL_AMFLAGS = -I m4
 

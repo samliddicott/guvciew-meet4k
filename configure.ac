@@ -385,10 +385,10 @@ dnl -----------------------------------------------
 
 AC_CONFIG_FILES([
 	Makefile
-    pkgconfig/gviewv4l2core-0.1.pc
-    pkgconfig/gviewaudio-0.1.pc
-    pkgconfig/gviewrender-0.1.pc
-    pkgconfig/gviewencoder-0.1.pc
+    pkgconfig/libgviewv4l2core.pc
+    pkgconfig/libgviewaudio.pc
+    pkgconfig/libgviewrender.pc
+    pkgconfig/libgviewencoder.pc
     gview_v4l2core/Makefile
     gview_audio/Makefile
     gview_render/Makefile
