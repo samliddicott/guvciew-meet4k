@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fr\n"
 "Report-Msgid-Bugs-To: pj.assis@gmail.com\n"
-"POT-Creation-Date: 2014-04-16 17:02+0100\n"
+"POT-Creation-Date: 2014-04-30 16:47+0100\n"
 "PO-Revision-Date: 2013-02-25 05:33+0000\n"
 "Last-Translator: Paulo Assis <pj.assis@gmail.com>\n"
 "Language-Team: Portuguese <pt@li.org>\n"
@@ -25,230 +25,230 @@ msgstr ""
 #. * needed only for language files (not used)
 #.
 #. V4L2 control strings
-#: ../gview_v4l2core/v4l2_controls.c:46
+#: ../gview_v4l2core/v4l2_controls.c:54
 msgid "User Controls"
 msgstr "Raccourcis claviers"
 
-#: ../gview_v4l2core/v4l2_controls.c:47
+#: ../gview_v4l2core/v4l2_controls.c:55
 msgid "Brightness"
 msgstr "Luminosité"
 
-#: ../gview_v4l2core/v4l2_controls.c:48
+#: ../gview_v4l2core/v4l2_controls.c:56
 msgid "Contrast"
 msgstr "Contraste"
 
-#: ../gview_v4l2core/v4l2_controls.c:49
+#: ../gview_v4l2core/v4l2_controls.c:57
 msgid "Hue"
 msgstr "Teinte"
 
-#: ../gview_v4l2core/v4l2_controls.c:50
+#: ../gview_v4l2core/v4l2_controls.c:58
 msgid "Saturation"
 msgstr "Saturation"
 
-#: ../gview_v4l2core/v4l2_controls.c:51
+#: ../gview_v4l2core/v4l2_controls.c:59
 msgid "Sharpness"
 msgstr "Netteté"
 
-#: ../gview_v4l2core/v4l2_controls.c:52
+#: ../gview_v4l2core/v4l2_controls.c:60
 msgid "Gamma"
 msgstr "Gamma"
 
-#: ../gview_v4l2core/v4l2_controls.c:53
+#: ../gview_v4l2core/v4l2_controls.c:61
 msgid "Backlight Compensation"
 msgstr "Correction de contre-jour"
 
-#: ../gview_v4l2core/v4l2_controls.c:54
+#: ../gview_v4l2core/v4l2_controls.c:62
 msgid "Power Line Frequency"
 msgstr "Fréquence de rafraîchissement"
 
-#: ../gview_v4l2core/v4l2_controls.c:55
+#: ../gview_v4l2core/v4l2_controls.c:63
 msgid "Hue, Automatic"
 msgstr "Teinte, Automatique"
 
-#: ../gview_v4l2core/v4l2_controls.c:56
+#: ../gview_v4l2core/v4l2_controls.c:64
 msgid "Focus, Auto"
 msgstr "Mise au Point Automatique"
 
-#: ../gview_v4l2core/v4l2_controls.c:57
+#: ../gview_v4l2core/v4l2_controls.c:65
 msgid "Manual Mode"
 msgstr "Mode Manuel"
 
-#: ../gview_v4l2core/v4l2_controls.c:58
+#: ../gview_v4l2core/v4l2_controls.c:66
 msgid "Auto Mode"
 msgstr "Mode Auto"
 
-#: ../gview_v4l2core/v4l2_controls.c:59
+#: ../gview_v4l2core/v4l2_controls.c:67
 msgid "Shutter Priority Mode"
 msgstr "Mode Priorité Vitesse"
 
-#: ../gview_v4l2core/v4l2_controls.c:60
+#: ../gview_v4l2core/v4l2_controls.c:68
 msgid "Aperture Priority Mode"
 msgstr "Mode Priorité Ouverture"
 
-#: ../gview_v4l2core/v4l2_controls.c:61
+#: ../gview_v4l2core/v4l2_controls.c:69
 msgid "Black Level"
 msgstr "Niveau de noir"
 
-#: ../gview_v4l2core/v4l2_controls.c:62
+#: ../gview_v4l2core/v4l2_controls.c:70
 msgid "White Balance, Automatic"
 msgstr "Balance des blancs, Automatique"
 
-#: ../gview_v4l2core/v4l2_controls.c:63
+#: ../gview_v4l2core/v4l2_controls.c:71
 msgid "Do White Balance"
 msgstr "Régler la balance des blancs"
 
-#: ../gview_v4l2core/v4l2_controls.c:64
+#: ../gview_v4l2core/v4l2_controls.c:72
 msgid "Red Balance"
 msgstr "Balance des rouges"
 
-#: ../gview_v4l2core/v4l2_controls.c:65
+#: ../gview_v4l2core/v4l2_controls.c:73
 msgid "Blue Balance"
 msgstr "Balance des bleus"
 
-#: ../gview_v4l2core/v4l2_controls.c:66
+#: ../gview_v4l2core/v4l2_controls.c:74
 msgid "Exposure"
 msgstr "Exposition"
 
-#: ../gview_v4l2core/v4l2_controls.c:67
+#: ../gview_v4l2core/v4l2_controls.c:75
 msgid "Gain, Automatic"
 msgstr "Gain, Automatique"
 
-#: ../gview_v4l2core/v4l2_controls.c:68
+#: ../gview_v4l2core/v4l2_controls.c:76
 msgid "Gain"
 msgstr "Gain"
 
-#: ../gview_v4l2core/v4l2_controls.c:69
+#: ../gview_v4l2core/v4l2_controls.c:77
 msgid "Horizontal Flip"
 msgstr "Miroir horizontal"
 
-#: ../gview_v4l2core/v4l2_controls.c:70
+#: ../gview_v4l2core/v4l2_controls.c:78
 msgid "Vertical Flip"
 msgstr "Miroir vertical"
 
-#: ../gview_v4l2core/v4l2_controls.c:71
+#: ../gview_v4l2core/v4l2_controls.c:79
 msgid "Horizontal Center"
 msgstr "Centré Horizontalement"
 
-#: ../gview_v4l2core/v4l2_controls.c:72
+#: ../gview_v4l2core/v4l2_controls.c:80
 msgid "Vertical Center"
 msgstr "Centrer verticalement"
 
-#: ../gview_v4l2core/v4l2_controls.c:73
+#: ../gview_v4l2core/v4l2_controls.c:81
 msgid "Chroma AGC"
 msgstr "Chroma CAG"
 
-#: ../gview_v4l2core/v4l2_controls.c:74
+#: ../gview_v4l2core/v4l2_controls.c:82
 msgid "Color Killer"
 msgstr "Tueur de couleur"
 
-#: ../gview_v4l2core/v4l2_controls.c:75
+#: ../gview_v4l2core/v4l2_controls.c:83
 msgid "Color Effects"
 msgstr "Effets de couleur"
 
 #. CAMERA CLASS control strings
-#: ../gview_v4l2core/v4l2_controls.c:78
+#: ../gview_v4l2core/v4l2_controls.c:86
 msgid "Camera Controls"
 msgstr "Commande de la caméra"
 
-#: ../gview_v4l2core/v4l2_controls.c:79
+#: ../gview_v4l2core/v4l2_controls.c:87
 msgid "Auto Exposure"
 msgstr "Exposition automatique"
 
-#: ../gview_v4l2core/v4l2_controls.c:80
+#: ../gview_v4l2core/v4l2_controls.c:88
 msgid "Exposure Time, Absolute"
 msgstr "Temps d'exposition, Absolu"
 
-#: ../gview_v4l2core/v4l2_controls.c:81
+#: ../gview_v4l2core/v4l2_controls.c:89
 msgid "Exposure, Dynamic Framerate"
 msgstr "Exposition, Nombre d'images par seconde dynamique"
 
-#: ../gview_v4l2core/v4l2_controls.c:82
+#: ../gview_v4l2core/v4l2_controls.c:90
 msgid "Pan, Relative"
 msgstr "Panoramique, Relatif"
 
-#: ../gview_v4l2core/v4l2_controls.c:83
+#: ../gview_v4l2core/v4l2_controls.c:91
 msgid "Tilt, Relative"
 msgstr "Inclinaison, Relatif"
 
-#: ../gview_v4l2core/v4l2_controls.c:84
+#: ../gview_v4l2core/v4l2_controls.c:92
 msgid "Pan, Reset"
 msgstr "Panoramique, Remise à zéro"
 
-#: ../gview_v4l2core/v4l2_controls.c:85
+#: ../gview_v4l2core/v4l2_controls.c:93
 msgid "Tilt, Reset"
 msgstr "Inclinaison, Remise à zéro"
 
-#: ../gview_v4l2core/v4l2_controls.c:86
+#: ../gview_v4l2core/v4l2_controls.c:94
 msgid "Pan, Absolute"
 msgstr "Panoramique, Absolu"
 
-#: ../gview_v4l2core/v4l2_controls.c:88
+#: ../gview_v4l2core/v4l2_controls.c:96
 msgid "Focus, Absolute"
 msgstr "Focale, Absolu"
 
-#: ../gview_v4l2core/v4l2_controls.c:89
+#: ../gview_v4l2core/v4l2_controls.c:97
 msgid "Focus, Relative"
 msgstr "Focale, Relatif"
 
-#: ../gview_v4l2core/v4l2_controls.c:90
+#: ../gview_v4l2core/v4l2_controls.c:98
 msgid "Focus, Automatic"
 msgstr "Focale, Automatique"
 
-#: ../gview_v4l2core/v4l2_controls.c:91
+#: ../gview_v4l2core/v4l2_controls.c:99
 msgid "Zoom, Absolute"
 msgstr "Zoom, Absolu"
 
-#: ../gview_v4l2core/v4l2_controls.c:92
+#: ../gview_v4l2core/v4l2_controls.c:100
 msgid "Zoom, Relative"
 msgstr "Zoom, Relatif"
 
-#: ../gview_v4l2core/v4l2_controls.c:93
+#: ../gview_v4l2core/v4l2_controls.c:101
 msgid "Zoom, Continuous"
 msgstr "Zoom, Continu"
 
-#: ../gview_v4l2core/v4l2_controls.c:94
+#: ../gview_v4l2core/v4l2_controls.c:102
 msgid "Privacy"
 msgstr "Confidentialité"
 
 #. UVC specific control strings
-#: ../gview_v4l2core/v4l2_controls.c:97
+#: ../gview_v4l2core/v4l2_controls.c:105
 msgid "Exposure, Auto"
 msgstr "Exposition, Auto"
 
-#: ../gview_v4l2core/v4l2_controls.c:98
+#: ../gview_v4l2core/v4l2_controls.c:106
 msgid "Exposure, Auto Priority"
 msgstr "Exposition, mode automatique"
 
-#: ../gview_v4l2core/v4l2_controls.c:99
+#: ../gview_v4l2core/v4l2_controls.c:107
 msgid "Exposure (Absolute)"
 msgstr "Exposition (valeur absolue)"
 
-#: ../gview_v4l2core/v4l2_controls.c:100
+#: ../gview_v4l2core/v4l2_controls.c:108
 msgid "White Balance Temperature, Auto"
 msgstr "Balance des blancs, Auto"
 
-#: ../gview_v4l2core/v4l2_controls.c:101
+#: ../gview_v4l2core/v4l2_controls.c:109
 msgid "White Balance Temperature"
 msgstr "Balance des blancs"
 
-#: ../gview_v4l2core/v4l2_controls.c:102
+#: ../gview_v4l2core/v4l2_controls.c:110
 msgid "White Balance Component, Auto"
 msgstr "Balance des blancs par canal, Auto"
 
-#: ../gview_v4l2core/v4l2_controls.c:103
+#: ../gview_v4l2core/v4l2_controls.c:111
 msgid "White Balance Blue Component"
 msgstr "Balance des Blancs, Canal Bleu"
 
-#: ../gview_v4l2core/v4l2_controls.c:104
+#: ../gview_v4l2core/v4l2_controls.c:112
 msgid "White Balance Red Component"
 msgstr "Balance des Blancs, Canal Rouge"
 
 #. libwebcam specific control strings
-#: ../gview_v4l2core/v4l2_controls.c:107
+#: ../gview_v4l2core/v4l2_controls.c:115
 msgid "Focus"
 msgstr "Mise au point"
 
-#: ../gview_v4l2core/v4l2_controls.c:108
+#: ../gview_v4l2core/v4l2_controls.c:116
 msgid "Focus (Absolute)"
 msgstr "Mise au point (Absolue)"
 
@@ -925,7 +925,7 @@ msgid "RENDER_API"
 msgstr ""
 
 #: ../guvcview/options.c:100
-msgid "Select render API (e.g none; sdl1)"
+msgid "Select render API (e.g none; sdl)"
 msgstr ""
 
 #: ../guvcview/options.c:106

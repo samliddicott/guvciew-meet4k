@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: guvcview\n"
 "Report-Msgid-Bugs-To: pj.assis@gmail.com\n"
-"POT-Creation-Date: 2014-04-16 17:02+0100\n"
+"POT-Creation-Date: 2014-04-30 16:47+0100\n"
 "PO-Revision-Date: 2013-02-25 05:36+0000\n"
 "Last-Translator: Michal Sittek <exxxo45@gmail.com>\n"
 "Language-Team: Czech <cs@li.org>\n"
@@ -22,230 +22,230 @@ msgstr ""
 #. * needed only for language files (not used)
 #.
 #. V4L2 control strings
-#: ../gview_v4l2core/v4l2_controls.c:46
+#: ../gview_v4l2core/v4l2_controls.c:54
 msgid "User Controls"
 msgstr "Uživatelká nastavení"
 
-#: ../gview_v4l2core/v4l2_controls.c:47
+#: ../gview_v4l2core/v4l2_controls.c:55
 msgid "Brightness"
 msgstr "Jas"
 
-#: ../gview_v4l2core/v4l2_controls.c:48
+#: ../gview_v4l2core/v4l2_controls.c:56
 msgid "Contrast"
 msgstr "Kontrast"
 
-#: ../gview_v4l2core/v4l2_controls.c:49
+#: ../gview_v4l2core/v4l2_controls.c:57
 msgid "Hue"
 msgstr "Odstín"
 
-#: ../gview_v4l2core/v4l2_controls.c:50
+#: ../gview_v4l2core/v4l2_controls.c:58
 msgid "Saturation"
 msgstr "Sytost"
 
-#: ../gview_v4l2core/v4l2_controls.c:51
+#: ../gview_v4l2core/v4l2_controls.c:59
 msgid "Sharpness"
 msgstr "Ostrost"
 
-#: ../gview_v4l2core/v4l2_controls.c:52
+#: ../gview_v4l2core/v4l2_controls.c:60
 msgid "Gamma"
 msgstr "Gamma"
 
-#: ../gview_v4l2core/v4l2_controls.c:53
+#: ../gview_v4l2core/v4l2_controls.c:61
 msgid "Backlight Compensation"
 msgstr "Komponzace podsvětlení"
 
-#: ../gview_v4l2core/v4l2_controls.c:54
+#: ../gview_v4l2core/v4l2_controls.c:62
 msgid "Power Line Frequency"
 msgstr "Kmitočet sítě"
 
-#: ../gview_v4l2core/v4l2_controls.c:55
+#: ../gview_v4l2core/v4l2_controls.c:63
 msgid "Hue, Automatic"
 msgstr "Odstín, Automatický"
 
-#: ../gview_v4l2core/v4l2_controls.c:56
+#: ../gview_v4l2core/v4l2_controls.c:64
 msgid "Focus, Auto"
 msgstr "Ostření, Auto"
 
-#: ../gview_v4l2core/v4l2_controls.c:57
+#: ../gview_v4l2core/v4l2_controls.c:65
 msgid "Manual Mode"
 msgstr "Ruční mód"
 
-#: ../gview_v4l2core/v4l2_controls.c:58
+#: ../gview_v4l2core/v4l2_controls.c:66
 msgid "Auto Mode"
 msgstr "Auto. mód"
 
-#: ../gview_v4l2core/v4l2_controls.c:59
+#: ../gview_v4l2core/v4l2_controls.c:67
 msgid "Shutter Priority Mode"
 msgstr "Mód priority clony"
 
-#: ../gview_v4l2core/v4l2_controls.c:60
+#: ../gview_v4l2core/v4l2_controls.c:68
 msgid "Aperture Priority Mode"
 msgstr "Režim priority clony"
 
-#: ../gview_v4l2core/v4l2_controls.c:61
+#: ../gview_v4l2core/v4l2_controls.c:69
 msgid "Black Level"
 msgstr "Úroveň černé"
 
-#: ../gview_v4l2core/v4l2_controls.c:62
+#: ../gview_v4l2core/v4l2_controls.c:70
 msgid "White Balance, Automatic"
 msgstr "Vyvážení bílé, automatické"
 
-#: ../gview_v4l2core/v4l2_controls.c:63
+#: ../gview_v4l2core/v4l2_controls.c:71
 msgid "Do White Balance"
 msgstr "Vyvážit bílou"
 
-#: ../gview_v4l2core/v4l2_controls.c:64
+#: ../gview_v4l2core/v4l2_controls.c:72
 msgid "Red Balance"
 msgstr "Vyvážení červené"
 
-#: ../gview_v4l2core/v4l2_controls.c:65
+#: ../gview_v4l2core/v4l2_controls.c:73
 msgid "Blue Balance"
 msgstr "Vyvážení modré"
 
-#: ../gview_v4l2core/v4l2_controls.c:66
+#: ../gview_v4l2core/v4l2_controls.c:74
 msgid "Exposure"
 msgstr "Expozice"
 
-#: ../gview_v4l2core/v4l2_controls.c:67
+#: ../gview_v4l2core/v4l2_controls.c:75
 msgid "Gain, Automatic"
 msgstr "Přírůstek, Automatický"
 
-#: ../gview_v4l2core/v4l2_controls.c:68
+#: ../gview_v4l2core/v4l2_controls.c:76
 msgid "Gain"
 msgstr "Zisk"
 
-#: ../gview_v4l2core/v4l2_controls.c:69
+#: ../gview_v4l2core/v4l2_controls.c:77
 msgid "Horizontal Flip"
 msgstr "Horizontální překlopení"
 
-#: ../gview_v4l2core/v4l2_controls.c:70
+#: ../gview_v4l2core/v4l2_controls.c:78
 msgid "Vertical Flip"
 msgstr "Vertikální překlopení"
 
-#: ../gview_v4l2core/v4l2_controls.c:71
+#: ../gview_v4l2core/v4l2_controls.c:79
 msgid "Horizontal Center"
 msgstr "Horizontální střed"
 
-#: ../gview_v4l2core/v4l2_controls.c:72
+#: ../gview_v4l2core/v4l2_controls.c:80
 msgid "Vertical Center"
 msgstr "Vertikální střed"
 
-#: ../gview_v4l2core/v4l2_controls.c:73
+#: ../gview_v4l2core/v4l2_controls.c:81
 msgid "Chroma AGC"
 msgstr "AKP Sytosti"
 
-#: ../gview_v4l2core/v4l2_controls.c:74
+#: ../gview_v4l2core/v4l2_controls.c:82
 msgid "Color Killer"
 msgstr "Odstranění barvy"
 
-#: ../gview_v4l2core/v4l2_controls.c:75
+#: ../gview_v4l2core/v4l2_controls.c:83
 msgid "Color Effects"
 msgstr "Barevné efekty"
 
 #. CAMERA CLASS control strings
-#: ../gview_v4l2core/v4l2_controls.c:78
+#: ../gview_v4l2core/v4l2_controls.c:86
 msgid "Camera Controls"
 msgstr "Ovládání kamery"
 
-#: ../gview_v4l2core/v4l2_controls.c:79
+#: ../gview_v4l2core/v4l2_controls.c:87
 msgid "Auto Exposure"
 msgstr "Automatická korekce závěrky"
 
-#: ../gview_v4l2core/v4l2_controls.c:80
+#: ../gview_v4l2core/v4l2_controls.c:88
 msgid "Exposure Time, Absolute"
 msgstr "Expoziční Doba, Absolutní"
 
-#: ../gview_v4l2core/v4l2_controls.c:81
+#: ../gview_v4l2core/v4l2_controls.c:89
 msgid "Exposure, Dynamic Framerate"
 msgstr "Expozie, Dynamická rychlost snímků"
 
-#: ../gview_v4l2core/v4l2_controls.c:82
+#: ../gview_v4l2core/v4l2_controls.c:90
 msgid "Pan, Relative"
 msgstr "Sledování objektu, Relativní"
 
-#: ../gview_v4l2core/v4l2_controls.c:83
+#: ../gview_v4l2core/v4l2_controls.c:91
 msgid "Tilt, Relative"
 msgstr "Náklon, Relativní"
 
-#: ../gview_v4l2core/v4l2_controls.c:84
+#: ../gview_v4l2core/v4l2_controls.c:92
 msgid "Pan, Reset"
 msgstr "Sledování objektu, Reset"
 
-#: ../gview_v4l2core/v4l2_controls.c:85
+#: ../gview_v4l2core/v4l2_controls.c:93
 msgid "Tilt, Reset"
 msgstr "Náklon, Reset"
 
-#: ../gview_v4l2core/v4l2_controls.c:86
+#: ../gview_v4l2core/v4l2_controls.c:94
 msgid "Pan, Absolute"
 msgstr "Sledování objektu, Absolutní"
 
-#: ../gview_v4l2core/v4l2_controls.c:88
+#: ../gview_v4l2core/v4l2_controls.c:96
 msgid "Focus, Absolute"
 msgstr "Ohnisko, Absolutní"
 
-#: ../gview_v4l2core/v4l2_controls.c:89
+#: ../gview_v4l2core/v4l2_controls.c:97
 msgid "Focus, Relative"
 msgstr "Ohnisko, Relativní"
 
-#: ../gview_v4l2core/v4l2_controls.c:90
+#: ../gview_v4l2core/v4l2_controls.c:98
 msgid "Focus, Automatic"
 msgstr "Zaostření, Automaticky"
 
-#: ../gview_v4l2core/v4l2_controls.c:91
+#: ../gview_v4l2core/v4l2_controls.c:99
 msgid "Zoom, Absolute"
 msgstr "Přiblížení, Absolutní"
 
-#: ../gview_v4l2core/v4l2_controls.c:92
+#: ../gview_v4l2core/v4l2_controls.c:100
 msgid "Zoom, Relative"
 msgstr "Přiblížení, Relativní"
 
-#: ../gview_v4l2core/v4l2_controls.c:93
+#: ../gview_v4l2core/v4l2_controls.c:101
 msgid "Zoom, Continuous"
 msgstr "Přiblížení, Nepřetržité"
 
-#: ../gview_v4l2core/v4l2_controls.c:94
+#: ../gview_v4l2core/v4l2_controls.c:102
 msgid "Privacy"
 msgstr "Ochrana osobních údajů"
 
 #. UVC specific control strings
-#: ../gview_v4l2core/v4l2_controls.c:97
+#: ../gview_v4l2core/v4l2_controls.c:105
 msgid "Exposure, Auto"
 msgstr "Expozive, Auto"
 
-#: ../gview_v4l2core/v4l2_controls.c:98
+#: ../gview_v4l2core/v4l2_controls.c:106
 msgid "Exposure, Auto Priority"
 msgstr "Expozice Auto. prorita"
 
-#: ../gview_v4l2core/v4l2_controls.c:99
+#: ../gview_v4l2core/v4l2_controls.c:107
 msgid "Exposure (Absolute)"
 msgstr "Expozice (Absolutní)"
 
-#: ../gview_v4l2core/v4l2_controls.c:100
+#: ../gview_v4l2core/v4l2_controls.c:108
 msgid "White Balance Temperature, Auto"
 msgstr "Vyvážení bílé, Auto"
 
-#: ../gview_v4l2core/v4l2_controls.c:101
+#: ../gview_v4l2core/v4l2_controls.c:109
 msgid "White Balance Temperature"
 msgstr "Vyvážení bílé"
 
-#: ../gview_v4l2core/v4l2_controls.c:102
+#: ../gview_v4l2core/v4l2_controls.c:110
 msgid "White Balance Component, Auto"
 msgstr "Komponenta vyvážení bílé, Auto"
 
-#: ../gview_v4l2core/v4l2_controls.c:103
+#: ../gview_v4l2core/v4l2_controls.c:111
 msgid "White Balance Blue Component"
 msgstr "Modrá složka vyvážení bílé"
 
-#: ../gview_v4l2core/v4l2_controls.c:104
+#: ../gview_v4l2core/v4l2_controls.c:112
 msgid "White Balance Red Component"
 msgstr "Červená složka vyvážení bílé"
 
 #. libwebcam specific control strings
-#: ../gview_v4l2core/v4l2_controls.c:107
+#: ../gview_v4l2core/v4l2_controls.c:115
 msgid "Focus"
 msgstr "Zaostření"
 
-#: ../gview_v4l2core/v4l2_controls.c:108
+#: ../gview_v4l2core/v4l2_controls.c:116
 msgid "Focus (Absolute)"
 msgstr "Ohnisko (Absolutní)"
 
@@ -921,7 +921,7 @@ msgid "RENDER_API"
 msgstr ""
 
 #: ../guvcview/options.c:100
-msgid "Select render API (e.g none; sdl1)"
+msgid "Select render API (e.g none; sdl)"
 msgstr ""
 
 #: ../guvcview/options.c:106

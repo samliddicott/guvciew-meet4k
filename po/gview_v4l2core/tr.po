@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: guvcview\n"
 "Report-Msgid-Bugs-To: pj.assis@gmail.com\n"
-"POT-Creation-Date: 2014-04-16 17:05+0100\n"
+"POT-Creation-Date: 2014-04-30 16:53+0100\n"
 "PO-Revision-Date: 2013-11-06 12:49+0000\n"
 "Last-Translator: Volkan Gezer <Unknown>\n"
 "Language-Team: Turkish <tr@li.org>\n"
@@ -22,1019 +22,664 @@ msgstr ""
 #. * needed only for language files (not used)
 #.
 #. V4L2 control strings
-#: ../../gview_v4l2core/v4l2_controls.c:46
+#: ../gview_v4l2core/v4l2_controls.c:54
 msgid "User Controls"
 msgstr "Kullanıcı Denetimleri"
 
-#: ../../gview_v4l2core/v4l2_controls.c:47
+#: ../gview_v4l2core/v4l2_controls.c:55
 msgid "Brightness"
 msgstr "Parlaklık"
 
-#: ../../gview_v4l2core/v4l2_controls.c:48
+#: ../gview_v4l2core/v4l2_controls.c:56
 msgid "Contrast"
 msgstr "Karşıtlık"
 
-#: ../../gview_v4l2core/v4l2_controls.c:49
+#: ../gview_v4l2core/v4l2_controls.c:57
 msgid "Hue"
 msgstr "Renk"
 
-#: ../../gview_v4l2core/v4l2_controls.c:50
+#: ../gview_v4l2core/v4l2_controls.c:58
 msgid "Saturation"
 msgstr "Doygunluk"
 
-#: ../../gview_v4l2core/v4l2_controls.c:51
+#: ../gview_v4l2core/v4l2_controls.c:59
 msgid "Sharpness"
 msgstr "Keskinlik"
 
-#: ../../gview_v4l2core/v4l2_controls.c:52
+#: ../gview_v4l2core/v4l2_controls.c:60
 msgid "Gamma"
 msgstr "Kontras derecesi (gama)"
 
-#: ../../gview_v4l2core/v4l2_controls.c:53
+#: ../gview_v4l2core/v4l2_controls.c:61
 msgid "Backlight Compensation"
 msgstr "Arka Işık Desteği"
 
-#: ../../gview_v4l2core/v4l2_controls.c:54
+#: ../gview_v4l2core/v4l2_controls.c:62
 msgid "Power Line Frequency"
 msgstr "Güç Hattı Frekansı"
 
-#: ../../gview_v4l2core/v4l2_controls.c:55
+#: ../gview_v4l2core/v4l2_controls.c:63
 msgid "Hue, Automatic"
 msgstr "Renk, Otomatik"
 
-#: ../../gview_v4l2core/v4l2_controls.c:56
+#: ../gview_v4l2core/v4l2_controls.c:64
 msgid "Focus, Auto"
 msgstr "Odak, Otomatik"
 
-#: ../../gview_v4l2core/v4l2_controls.c:57
+#: ../gview_v4l2core/v4l2_controls.c:65
 msgid "Manual Mode"
 msgstr "El Kipi"
 
-#: ../../gview_v4l2core/v4l2_controls.c:58
+#: ../gview_v4l2core/v4l2_controls.c:66
 msgid "Auto Mode"
 msgstr "Otomatik Kip"
 
-#: ../../gview_v4l2core/v4l2_controls.c:59
+#: ../gview_v4l2core/v4l2_controls.c:67
 msgid "Shutter Priority Mode"
 msgstr "Kapak Öncelik Kipi"
 
-#: ../../gview_v4l2core/v4l2_controls.c:60
+#: ../gview_v4l2core/v4l2_controls.c:68
 msgid "Aperture Priority Mode"
 msgstr "Açıklık Öncelik Kipi"
 
-#: ../../gview_v4l2core/v4l2_controls.c:61
+#: ../gview_v4l2core/v4l2_controls.c:69
 msgid "Black Level"
 msgstr "Siyah Seviyesi"
 
-#: ../../gview_v4l2core/v4l2_controls.c:62
+#: ../gview_v4l2core/v4l2_controls.c:70
 msgid "White Balance, Automatic"
 msgstr "Beyaz Dengesi, Otomatik"
 
-#: ../../gview_v4l2core/v4l2_controls.c:63
+#: ../gview_v4l2core/v4l2_controls.c:71
 msgid "Do White Balance"
 msgstr "Beyaz Dengesi Yap"
 
-#: ../../gview_v4l2core/v4l2_controls.c:64
+#: ../gview_v4l2core/v4l2_controls.c:72
 msgid "Red Balance"
 msgstr "Kırmızı Dengesi"
 
-#: ../../gview_v4l2core/v4l2_controls.c:65
+#: ../gview_v4l2core/v4l2_controls.c:73
 msgid "Blue Balance"
 msgstr "Mavi Dengesi"
 
-#: ../../gview_v4l2core/v4l2_controls.c:66
+#: ../gview_v4l2core/v4l2_controls.c:74
 msgid "Exposure"
 msgstr "Pozlandırma"
 
-#: ../../gview_v4l2core/v4l2_controls.c:67
+#: ../gview_v4l2core/v4l2_controls.c:75
 msgid "Gain, Automatic"
 msgstr "Kazanç, Otomatik"
 
-#: ../../gview_v4l2core/v4l2_controls.c:68
+#: ../gview_v4l2core/v4l2_controls.c:76
 msgid "Gain"
 msgstr "Kazanç"
 
-#: ../../gview_v4l2core/v4l2_controls.c:69
+#: ../gview_v4l2core/v4l2_controls.c:77
 msgid "Horizontal Flip"
 msgstr "Yatay Çevir"
 
-#: ../../gview_v4l2core/v4l2_controls.c:70
+#: ../gview_v4l2core/v4l2_controls.c:78
 msgid "Vertical Flip"
 msgstr "Dikey Çevir"
 
-#: ../../gview_v4l2core/v4l2_controls.c:71
+#: ../gview_v4l2core/v4l2_controls.c:79
 msgid "Horizontal Center"
 msgstr "Yatay Merkez"
 
-#: ../../gview_v4l2core/v4l2_controls.c:72
+#: ../gview_v4l2core/v4l2_controls.c:80
 msgid "Vertical Center"
 msgstr "Dikey Merkez"
 
-#: ../../gview_v4l2core/v4l2_controls.c:73
+#: ../gview_v4l2core/v4l2_controls.c:81
 msgid "Chroma AGC"
 msgstr "Kroma Otomatik Kazanç Kontrolü (AGC)"
 
-#: ../../gview_v4l2core/v4l2_controls.c:74
+#: ../gview_v4l2core/v4l2_controls.c:82
 msgid "Color Killer"
 msgstr "Renk Öldürücü"
 
-#: ../../gview_v4l2core/v4l2_controls.c:75
+#: ../gview_v4l2core/v4l2_controls.c:83
 msgid "Color Effects"
 msgstr "Renk Efektleri"
 
 #. CAMERA CLASS control strings
-#: ../../gview_v4l2core/v4l2_controls.c:78
+#: ../gview_v4l2core/v4l2_controls.c:86
 msgid "Camera Controls"
 msgstr "Kamera Denetimleri"
 
-#: ../../gview_v4l2core/v4l2_controls.c:79
+#: ../gview_v4l2core/v4l2_controls.c:87
 msgid "Auto Exposure"
 msgstr "Otomatik Pozlandırma"
 
-#: ../../gview_v4l2core/v4l2_controls.c:80
+#: ../gview_v4l2core/v4l2_controls.c:88
 msgid "Exposure Time, Absolute"
 msgstr "Pozlandırma Süresü, Kesin"
 
-#: ../../gview_v4l2core/v4l2_controls.c:81
+#: ../gview_v4l2core/v4l2_controls.c:89
 msgid "Exposure, Dynamic Framerate"
 msgstr "Pozlandırma, Dinamik Kare Oranı"
 
-#: ../../gview_v4l2core/v4l2_controls.c:82
+#: ../gview_v4l2core/v4l2_controls.c:90
 msgid "Pan, Relative"
 msgstr "Kaydırma, Bağıl"
 
-#: ../../gview_v4l2core/v4l2_controls.c:83
+#: ../gview_v4l2core/v4l2_controls.c:91
 msgid "Tilt, Relative"
 msgstr "Eğme, Bağıl"
 
-#: ../../gview_v4l2core/v4l2_controls.c:84
+#: ../gview_v4l2core/v4l2_controls.c:92
 msgid "Pan, Reset"
 msgstr "Kaydırma, Sıfırla"
 
-#: ../../gview_v4l2core/v4l2_controls.c:85
+#: ../gview_v4l2core/v4l2_controls.c:93
 msgid "Tilt, Reset"
 msgstr "Eğme, Sıfırla"
 
-#: ../../gview_v4l2core/v4l2_controls.c:86
+#: ../gview_v4l2core/v4l2_controls.c:94
 msgid "Pan, Absolute"
 msgstr "Kaydırma, Kesin"
 
-#: ../../gview_v4l2core/v4l2_controls.c:88
+#: ../gview_v4l2core/v4l2_controls.c:96
 msgid "Focus, Absolute"
 msgstr "Odaklama, Kesin"
 
-#: ../../gview_v4l2core/v4l2_controls.c:89
+#: ../gview_v4l2core/v4l2_controls.c:97
 msgid "Focus, Relative"
 msgstr "Odaklama, Bağıl"
 
-#: ../../gview_v4l2core/v4l2_controls.c:90
+#: ../gview_v4l2core/v4l2_controls.c:98
 msgid "Focus, Automatic"
 msgstr "Odaklama, Otomatik"
 
-#: ../../gview_v4l2core/v4l2_controls.c:91
+#: ../gview_v4l2core/v4l2_controls.c:99
 msgid "Zoom, Absolute"
 msgstr "Yakınlaştırma, Kesin"
 
-#: ../../gview_v4l2core/v4l2_controls.c:92
+#: ../gview_v4l2core/v4l2_controls.c:100
 msgid "Zoom, Relative"
 msgstr "Yakınlaştırma, Bağıl"
 
-#: ../../gview_v4l2core/v4l2_controls.c:93
+#: ../gview_v4l2core/v4l2_controls.c:101
 msgid "Zoom, Continuous"
 msgstr "Yakınlaştırma, Sürekli"
 
-#: ../../gview_v4l2core/v4l2_controls.c:94
+#: ../gview_v4l2core/v4l2_controls.c:102
 msgid "Privacy"
 msgstr "Gizlilik"
 
 #. UVC specific control strings
-#: ../../gview_v4l2core/v4l2_controls.c:97
+#: ../gview_v4l2core/v4l2_controls.c:105
 msgid "Exposure, Auto"
 msgstr "Pozlama, Otomatik"
 
-#: ../../gview_v4l2core/v4l2_controls.c:98
+#: ../gview_v4l2core/v4l2_controls.c:106
 msgid "Exposure, Auto Priority"
 msgstr "Pozlama, Otomatik Öncelik"
 
-#: ../../gview_v4l2core/v4l2_controls.c:99
+#: ../gview_v4l2core/v4l2_controls.c:107
 msgid "Exposure (Absolute)"
 msgstr "Pozlama (Kesin)"
 
-#: ../../gview_v4l2core/v4l2_controls.c:100
+#: ../gview_v4l2core/v4l2_controls.c:108
 msgid "White Balance Temperature, Auto"
 msgstr "Beyaz Denge Sıcaklığı, Otomatik"
 
-#: ../../gview_v4l2core/v4l2_controls.c:101
+#: ../gview_v4l2core/v4l2_controls.c:109
 msgid "White Balance Temperature"
 msgstr "Beyaz Dengesi Sıcaklığı"
 
-#: ../../gview_v4l2core/v4l2_controls.c:102
+#: ../gview_v4l2core/v4l2_controls.c:110
 msgid "White Balance Component, Auto"
 msgstr "Beyaz Denge Bileşeni, Otomatik"
 
-#: ../../gview_v4l2core/v4l2_controls.c:103
+#: ../gview_v4l2core/v4l2_controls.c:111
 msgid "White Balance Blue Component"
 msgstr "Beyaz Denge Mavi Bileşeni"
 
-#: ../../gview_v4l2core/v4l2_controls.c:104
+#: ../gview_v4l2core/v4l2_controls.c:112
 msgid "White Balance Red Component"
 msgstr "Beyaz Denge Kırmızı Bileşeni"
 
 #. libwebcam specific control strings
-#: ../../gview_v4l2core/v4l2_controls.c:107
+#: ../gview_v4l2core/v4l2_controls.c:115
 msgid "Focus"
 msgstr "Odaklama"
 
-#: ../../gview_v4l2core/v4l2_controls.c:108
+#: ../gview_v4l2core/v4l2_controls.c:116
 msgid "Focus (Absolute)"
 msgstr "Odaklama (Kesin)"
 
-#: ../../gview_v4l2core/v4l2_xu_ctrls.c:73
+#: ../gview_v4l2core/v4l2_xu_ctrls.c:73
 msgid "Pan (relative)"
 msgstr "Kaydır (bağıl)"
 
-#: ../../gview_v4l2core/v4l2_xu_ctrls.c:86
+#: ../gview_v4l2core/v4l2_xu_ctrls.c:86
 msgid "Tilt (relative)"
 msgstr "Eğ (bağıl)"
 
-#: ../../gview_v4l2core/v4l2_xu_ctrls.c:99
+#: ../gview_v4l2core/v4l2_xu_ctrls.c:99
 msgid "Pan Reset"
 msgstr "Kaydırmayı Sıfırla"
 
-#: ../../gview_v4l2core/v4l2_xu_ctrls.c:112
+#: ../gview_v4l2core/v4l2_xu_ctrls.c:112
 msgid "Tilt Reset"
 msgstr "Eğme Sıfırla"
 
-#: ../../gview_v4l2core/v4l2_xu_ctrls.c:125
+#: ../gview_v4l2core/v4l2_xu_ctrls.c:125
 msgid "Focus (absolute)"
 msgstr "Odaklan (kesin)"
 
-#: ../../gview_v4l2core/v4l2_xu_ctrls.c:138
+#: ../gview_v4l2core/v4l2_xu_ctrls.c:138
 msgid "LED1 Mode"
 msgstr "LED1 Kipi"
 
-#: ../../gview_v4l2core/v4l2_xu_ctrls.c:151
+#: ../gview_v4l2core/v4l2_xu_ctrls.c:151
 msgid "LED1 Frequency"
 msgstr "LED1 Frekansı"
 
-#: ../../gview_v4l2core/v4l2_xu_ctrls.c:164
+#: ../gview_v4l2core/v4l2_xu_ctrls.c:164
 msgid "Disable video processing"
 msgstr "Video işlemeyi devre dışı bırak"
 
-#: ../../gview_v4l2core/v4l2_xu_ctrls.c:177
+#: ../gview_v4l2core/v4l2_xu_ctrls.c:177
 msgid "Raw bits per pixel"
 msgstr "Piksel başına ham bit"
 
-#: ../../gview_encoder/audio_codecs.c:63
 #, fuzzy
-msgid "PCM - uncompressed (float 32 bit)"
-msgstr "PCM - sıkıştırılmamış (16 bit)"
+#~ msgid "PCM - uncompressed (float 32 bit)"
+#~ msgstr "PCM - sıkıştırılmamış (16 bit)"
 
-#: ../../gview_encoder/audio_codecs.c:80
-msgid "MP2 (MPEG audio layer 2)"
-msgstr ""
+#~ msgid "Vorbis"
+#~ msgstr "Vorbis"
 
-#: ../../gview_encoder/audio_codecs.c:97
-msgid "MP3 (MPEG audio layer 3)"
-msgstr ""
-
-#: ../../gview_encoder/audio_codecs.c:118
-msgid "AC-3 (ATSC A/52A)"
-msgstr ""
-
-#: ../../gview_encoder/audio_codecs.c:139
-msgid "AAC (Advanced Audio Coding)"
-msgstr ""
-
-#: ../../gview_encoder/audio_codecs.c:160
-msgid "Vorbis"
-msgstr "Vorbis"
-
-#: ../../gview_encoder/video_codecs.c:75
 #, fuzzy
-msgid "Raw camera input"
-msgstr "Kamera Çıktısı:"
+#~ msgid "Raw camera input"
+#~ msgstr "Kamera Çıktısı:"
 
-#: ../../gview_encoder/video_codecs.c:110
-msgid "MJPG - compressed"
-msgstr "MJPG - sıkıştırılmış"
+#~ msgid "MJPG - compressed"
+#~ msgstr "MJPG - sıkıştırılmış"
 
-#: ../../gview_encoder/video_codecs.c:145
-msgid "MPEG video 1"
-msgstr "MPEG video 1"
+#~ msgid "MPEG video 1"
+#~ msgstr "MPEG video 1"
 
-#: ../../gview_encoder/video_codecs.c:180
-msgid "FLV1 - flash video 1"
-msgstr "FLV1 - flash video 1"
+#~ msgid "FLV1 - flash video 1"
+#~ msgstr "FLV1 - flash video 1"
 
-#: ../../gview_encoder/video_codecs.c:215
-msgid "WMV1 - win. med. video 7"
-msgstr "WMV1 - win. med. video 7"
+#~ msgid "WMV1 - win. med. video 7"
+#~ msgstr "WMV1 - win. med. video 7"
 
-#: ../../gview_encoder/video_codecs.c:250
-msgid "MPG2 - MPG2 format"
-msgstr "MPG2 - MPG2 biçimi"
+#~ msgid "MPG2 - MPG2 format"
+#~ msgstr "MPG2 - MPG2 biçimi"
 
-#: ../../gview_encoder/video_codecs.c:285
-msgid "MS MP4 V3"
-msgstr "MS MP4 V3"
+#~ msgid "MS MP4 V3"
+#~ msgstr "MS MP4 V3"
 
-#: ../../gview_encoder/video_codecs.c:320
-msgid "MPEG4-ASP"
-msgstr "MPEG4-ASP"
+#~ msgid "MPEG4-ASP"
+#~ msgstr "MPEG4-ASP"
 
-#: ../../gview_encoder/video_codecs.c:355
-msgid "MPEG4-AVC (H264)"
-msgstr "MPEG4-AVC (H264)"
+#~ msgid "MPEG4-AVC (H264)"
+#~ msgstr "MPEG4-AVC (H264)"
 
-#: ../../gview_encoder/video_codecs.c:394
-msgid "VP8 (VP8)"
-msgstr "VP8 (VP8)"
+#~ msgid "VP8 (VP8)"
+#~ msgstr "VP8 (VP8)"
 
-#: ../../gview_encoder/video_codecs.c:429
-msgid "Theora (ogg theora)"
-msgstr "Theora (ogg theora)"
+#~ msgid "Theora (ogg theora)"
+#~ msgstr "Theora (ogg theora)"
 
-#: ../../guvcview/gui_gtk3_audioctrls.c:95
-msgid "Audio API:"
-msgstr "SES API'yı:"
+#~ msgid "Audio API:"
+#~ msgstr "SES API'yı:"
 
-#: ../../guvcview/gui_gtk3_audioctrls.c:106
-msgid "NO SOUND"
-msgstr ""
+#~ msgid "PORTAUDIO"
+#~ msgstr "PORTAUDIO"
 
-#: ../../guvcview/gui_gtk3_audioctrls.c:107
-msgid "PORTAUDIO"
-msgstr "PORTAUDIO"
+#~ msgid "PULSEAUDIO"
+#~ msgstr "PULSEAUDIO"
 
-#: ../../guvcview/gui_gtk3_audioctrls.c:110
-msgid "PULSEAUDIO"
-msgstr "PULSEAUDIO"
+#~ msgid "Input Device:"
+#~ msgstr "Girdi Aygıtı:"
 
-#: ../../guvcview/gui_gtk3_audioctrls.c:127
-msgid "Input Device:"
-msgstr "Girdi Aygıtı:"
+#~ msgid "Sample Rate:"
+#~ msgstr "Örnekleme Oranı:"
 
-#: ../../guvcview/gui_gtk3_audioctrls.c:161
-msgid "Sample Rate:"
-msgstr "Örnekleme Oranı:"
+#~ msgid "Dev. Default"
+#~ msgstr "Aygıt Vars."
 
-#: ../../guvcview/gui_gtk3_audioctrls.c:168
-#: ../../guvcview/gui_gtk3_audioctrls.c:214
-msgid "Dev. Default"
-msgstr "Aygıt Vars."
+#~ msgid "Channels:"
+#~ msgstr "Kanallar:"
 
-#: ../../guvcview/gui_gtk3_audioctrls.c:207
-msgid "Channels:"
-msgstr "Kanallar:"
+#~ msgid "1 - mono"
+#~ msgstr "1 - mono"
 
-#: ../../guvcview/gui_gtk3_audioctrls.c:215
-msgid "1 - mono"
-msgstr "1 - mono"
+#~ msgid "2 - stereo"
+#~ msgstr "2 - stereo"
 
-#: ../../guvcview/gui_gtk3_audioctrls.c:216
-msgid "2 - stereo"
-msgstr "2 - stereo"
-
-#: ../../guvcview/gui_gtk3_audioctrls.c:235
 #, fuzzy
-msgid "---- Audio Filters ----"
-msgstr "---- Video Filtreleri----"
+#~ msgid "---- Audio Filters ----"
+#~ msgstr "---- Video Filtreleri----"
 
-#. Echo FX
-#: ../../guvcview/gui_gtk3_audioctrls.c:255
-msgid " Echo"
-msgstr " Göster"
+#~ msgid " Echo"
+#~ msgstr " Göster"
 
-#. Reverb FX
-#: ../../guvcview/gui_gtk3_audioctrls.c:268
-msgid " Reverb"
-msgstr " Yankı"
+#~ msgid " Reverb"
+#~ msgstr " Yankı"
 
-#. Fuzz FX
-#: ../../guvcview/gui_gtk3_audioctrls.c:281
-msgid " Fuzz"
-msgstr " Bulanma"
+#~ msgid " Fuzz"
+#~ msgstr " Bulanma"
 
-#. WahWah FX
-#: ../../guvcview/gui_gtk3_audioctrls.c:294
-msgid " WahWah"
-msgstr " WahWah"
+#~ msgid " WahWah"
+#~ msgstr " WahWah"
 
-#. Ducky FX
-#: ../../guvcview/gui_gtk3_audioctrls.c:307
-msgid " Ducky"
-msgstr " Ördek"
+#~ msgid " Ducky"
+#~ msgstr " Ördek"
 
-#: ../../guvcview/gui_gtk3.c:310 ../../guvcview/gui_gtk3_callbacks.c:749
-msgid "Stop Video (V)"
-msgstr "Videoyu Durdur (V)"
+#~ msgid "Stop Video (V)"
+#~ msgstr "Videoyu Durdur (V)"
 
-#. video button
-#: ../../guvcview/gui_gtk3.c:315 ../../guvcview/gui_gtk3.c:590
-#: ../../guvcview/gui_gtk3_callbacks.c:755
-msgid "Cap. Video (V)"
-msgstr "Video Yakala (V)"
+#~ msgid "Cap. Video (V)"
+#~ msgstr "Video Yakala (V)"
 
-#. fatal error message
-#: ../../guvcview/gui_gtk3.c:369
-msgid "Error"
-msgstr "Hata"
+#~ msgid "Error"
+#~ msgstr "Hata"
 
-#: ../../guvcview/gui_gtk3.c:372 ../../guvcview/gui_gtk3_callbacks.c:2093
-msgid "_Ok"
-msgstr ""
-
-#: ../../guvcview/gui_gtk3.c:373 ../../guvcview/gui_gtk3_callbacks.c:185
-#: ../../guvcview/gui_gtk3_callbacks.c:199
-#: ../../guvcview/gui_gtk3_callbacks.c:522
-#: ../../guvcview/gui_gtk3_callbacks.c:624
-#: ../../guvcview/gui_gtk3_callbacks.c:1751
-#: ../../guvcview/gui_gtk3_callbacks.c:2094
 #, fuzzy
-msgid "_Cancel"
-msgstr "iptal"
+#~ msgid "_Cancel"
+#~ msgstr "iptal"
 
-#: ../../guvcview/gui_gtk3.c:398
-msgid ""
-"\n"
-"You have more than one video device installed.\n"
-"Do you want to try another one ?\n"
-msgstr ""
-"\n"
-"Kurulu birden fazla video aygıtınız var.\n"
-"Bir diğerini denemek ister misiniz?\n"
+#~ msgid ""
+#~ "\n"
+#~ "You have more than one video device installed.\n"
+#~ "Do you want to try another one ?\n"
+#~ msgstr ""
+#~ "\n"
+#~ "Kurulu birden fazla video aygıtınız var.\n"
+#~ "Bir diğerini denemek ister misiniz?\n"
 
-#. ---- Devices ----
-#: ../../guvcview/gui_gtk3.c:405 ../../guvcview/gui_gtk3_videoctrls.c:106
-msgid "Device:"
-msgstr "Aygıt:"
+#~ msgid "Device:"
+#~ msgstr "Aygıt:"
 
-#: ../../guvcview/gui_gtk3.c:506
-msgid "Guvcview Video Capture"
-msgstr "Guvcview Video Yakala"
+#~ msgid "Guvcview Video Capture"
+#~ msgstr "Guvcview Video Yakala"
 
-#: ../../guvcview/gui_gtk3.c:515
 #, fuzzy
-msgid "Guvcview"
-msgstr "guvcview"
+#~ msgid "Guvcview"
+#~ msgstr "guvcview"
 
-#: ../../guvcview/gui_gtk3.c:562
 #, fuzzy
-msgid "Stop Cap. (I)"
-msgstr "Otomatik Durdur (I)"
+#~ msgid "Stop Cap. (I)"
+#~ msgstr "Otomatik Durdur (I)"
 
-#: ../../guvcview/gui_gtk3.c:568 ../../guvcview/gui_gtk3_callbacks.c:720
-#: ../../guvcview/video_capture.c:250
-msgid "Cap. Image (I)"
-msgstr "Görüntü Yakala (I)"
+#~ msgid "Cap. Image (I)"
+#~ msgstr "Görüntü Yakala (I)"
 
-#. quit button
-#. GtkWidget *quitButton = gtk_button_new_from_stock(GTK_STOCK_QUIT);
-#: ../../guvcview/gui_gtk3.c:611
-msgid "_Quit"
-msgstr ""
+#~ msgid "Image Controls"
+#~ msgstr "Resim Denetimleri"
 
-#: ../../guvcview/gui_gtk3.c:657
-msgid "Image Controls"
-msgstr "Resim Denetimleri"
-
-#: ../../guvcview/gui_gtk3.c:695
 #, fuzzy
-msgid "Video Controls"
-msgstr "Kullanıcı Denetimleri"
+#~ msgid "Video Controls"
+#~ msgstr "Kullanıcı Denetimleri"
 
-#: ../../guvcview/gui_gtk3.c:730
 #, fuzzy
-msgid "Audio Controls"
-msgstr "Kullanıcı Denetimleri"
+#~ msgid "Audio Controls"
+#~ msgstr "Kullanıcı Denetimleri"
 
-#: ../../guvcview/gui_gtk3_callbacks.c:182 ../../guvcview/gui_gtk3_menu.c:72
-msgid "Save Profile"
-msgstr "Profili Kaydet"
+#~ msgid "Save Profile"
+#~ msgstr "Profili Kaydet"
 
-#: ../../guvcview/gui_gtk3_callbacks.c:186
-#: ../../guvcview/gui_gtk3_callbacks.c:523
-#: ../../guvcview/gui_gtk3_callbacks.c:625
-msgid "_Save"
-msgstr ""
+#~ msgid "Load Profile"
+#~ msgstr "Profili Yükle"
 
-#: ../../guvcview/gui_gtk3_callbacks.c:196 ../../guvcview/gui_gtk3_menu.c:71
-msgid "Load Profile"
-msgstr "Profili Yükle"
+#~ msgid "File Format:"
+#~ msgstr "Dosya Biçimi:"
 
-#: ../../guvcview/gui_gtk3_callbacks.c:200
-msgid "_Open"
-msgstr ""
-
-#: ../../guvcview/gui_gtk3_callbacks.c:208
-#: ../../guvcview/gui_gtk3_callbacks.c:531
-#: ../../guvcview/gui_gtk3_callbacks.c:634
-msgid "File Format:"
-msgstr "Dosya Biçimi:"
-
-#: ../../guvcview/gui_gtk3_callbacks.c:220
-msgid "gpfl  (*.gpfl)"
-msgstr ""
-
-#: ../../guvcview/gui_gtk3_callbacks.c:221
-msgid "any (*.*)"
-msgstr ""
-
-#: ../../guvcview/gui_gtk3_callbacks.c:519
 #, fuzzy
-msgid "Photo file name"
-msgstr "Resim Dosya adı"
+#~ msgid "Photo file name"
+#~ msgstr "Resim Dosya adı"
 
-#: ../../guvcview/gui_gtk3_callbacks.c:543
 #, fuzzy
-msgid "Raw  (*.raw)"
-msgstr "Ham Görüntü (raw)"
+#~ msgid "Raw  (*.raw)"
+#~ msgstr "Ham Görüntü (raw)"
 
-#: ../../guvcview/gui_gtk3_callbacks.c:544
 #, fuzzy
-msgid "Jpeg (*.jpg)"
-msgstr "Jpeg (jpg)"
+#~ msgid "Jpeg (*.jpg)"
+#~ msgstr "Jpeg (jpg)"
 
-#: ../../guvcview/gui_gtk3_callbacks.c:545
-msgid "Png  (*.png)"
-msgstr ""
-
-#: ../../guvcview/gui_gtk3_callbacks.c:546
-msgid "Bmp  (*.bmp)"
-msgstr ""
-
-#: ../../guvcview/gui_gtk3_callbacks.c:621
 #, fuzzy
-msgid "Video file name"
-msgstr "Resim Dosya adı"
+#~ msgid "Video file name"
+#~ msgstr "Resim Dosya adı"
 
-#: ../../guvcview/gui_gtk3_callbacks.c:646
-msgid "Matroska  (*.mkv)"
-msgstr ""
+#~ msgid "start new"
+#~ msgstr "yeni başlat"
 
-#: ../../guvcview/gui_gtk3_callbacks.c:647
-msgid "WebM (*.webm)"
-msgstr ""
+#~ msgid "restart"
+#~ msgstr "yeniden başlat"
 
-#: ../../guvcview/gui_gtk3_callbacks.c:648
-msgid "Avi  (*.avi)"
-msgstr ""
+#~ msgid "new"
+#~ msgstr "yeni"
 
-#: ../../guvcview/gui_gtk3_callbacks.c:1158
-msgid "start new"
-msgstr "yeni başlat"
+#~ msgid "cancel"
+#~ msgstr "iptal"
 
-#: ../../guvcview/gui_gtk3_callbacks.c:1161
-msgid "restart"
-msgstr "yeniden başlat"
+#~ msgid ""
+#~ "launch new process or restart?.\n"
+#~ "\n"
+#~ msgstr ""
+#~ "yeni süreç başlat veya yeniden başlat?\n"
+#~ "\n"
 
-#: ../../guvcview/gui_gtk3_callbacks.c:1163
-msgid "new"
-msgstr "yeni"
-
-#: ../../guvcview/gui_gtk3_callbacks.c:1165
-msgid "cancel"
-msgstr "iptal"
-
-#: ../../guvcview/gui_gtk3_callbacks.c:1170
-msgid ""
-"launch new process or restart?.\n"
-"\n"
-msgstr ""
-"yeni süreç başlat veya yeniden başlat?\n"
-"\n"
-
-#: ../../guvcview/gui_gtk3_callbacks.c:1747
 #, fuzzy
-msgid "video codec values"
-msgstr "ses çözücü değerleri"
+#~ msgid "video codec values"
+#~ msgstr "ses çözücü değerleri"
 
-#: ../../guvcview/gui_gtk3_callbacks.c:1750
-msgid "_OK"
-msgstr ""
+#~ msgid ""
+#~ "                              encoder fps:   \n"
+#~ " (0 - use fps combobox value)"
+#~ msgstr ""
+#~ "                              kodlayıcı fps:   \n"
+#~ " (0 - fps kutu değerini kullan)"
 
-#: ../../guvcview/gui_gtk3_callbacks.c:1756
-msgid ""
-"                              encoder fps:   \n"
-" (0 - use fps combobox value)"
-msgstr ""
-"                              kodlayıcı fps:   \n"
-" (0 - fps kutu değerini kullan)"
+#~ msgid " monotonic pts"
+#~ msgstr " tek düze puan"
 
-#: ../../guvcview/gui_gtk3_callbacks.c:1769
-msgid " monotonic pts"
-msgstr " tek düze puan"
+#~ msgid "bit rate:   "
+#~ msgstr "bıt oranı:   "
 
-#. bit rate
-#: ../../guvcview/gui_gtk3_callbacks.c:1776
-#: ../../guvcview/gui_gtk3_callbacks.c:2101
-msgid "bit rate:   "
-msgstr "bıt oranı:   "
+#~ msgid "qmax:   "
+#~ msgstr "qmax:   "
 
-#: ../../guvcview/gui_gtk3_callbacks.c:1789
-msgid "qmax:   "
-msgstr "qmax:   "
+#~ msgid "qmin:   "
+#~ msgstr "qmin:   "
 
-#: ../../guvcview/gui_gtk3_callbacks.c:1802
-msgid "qmin:   "
-msgstr "qmin:   "
+#~ msgid "max. qdiff:   "
+#~ msgstr "azami qdiff:   "
 
-#: ../../guvcview/gui_gtk3_callbacks.c:1815
-msgid "max. qdiff:   "
-msgstr "azami qdiff:   "
+#~ msgid "dia size:   "
+#~ msgstr "dia boyutu:   "
 
-#: ../../guvcview/gui_gtk3_callbacks.c:1828
-msgid "dia size:   "
-msgstr "dia boyutu:   "
+#~ msgid "pre dia size:   "
+#~ msgstr "ön dia boyutu:   "
 
-#: ../../guvcview/gui_gtk3_callbacks.c:1841
-msgid "pre dia size:   "
-msgstr "ön dia boyutu:   "
+#~ msgid "pre me:   "
+#~ msgstr "ön me:   "
 
-#: ../../guvcview/gui_gtk3_callbacks.c:1854
-msgid "pre me:   "
-msgstr "ön me:   "
+#~ msgid "pre cmp:   "
+#~ msgstr "ön cmp:   "
 
-#: ../../guvcview/gui_gtk3_callbacks.c:1867
-msgid "pre cmp:   "
-msgstr "ön cmp:   "
+#~ msgid "cmp:   "
+#~ msgstr "cmp:   "
 
-#: ../../guvcview/gui_gtk3_callbacks.c:1880
-msgid "cmp:   "
-msgstr "cmp:   "
+#~ msgid "sub cmp:   "
+#~ msgstr "alt cmp:   "
 
-#: ../../guvcview/gui_gtk3_callbacks.c:1893
-msgid "sub cmp:   "
-msgstr "alt cmp:   "
+#~ msgid "last predictor count:   "
+#~ msgstr "son öngörücü sayısı:   "
 
-#: ../../guvcview/gui_gtk3_callbacks.c:1906
-msgid "last predictor count:   "
-msgstr "son öngörücü sayısı:   "
+#~ msgid "gop size:   "
+#~ msgstr "gop boyutu:   "
 
-#: ../../guvcview/gui_gtk3_callbacks.c:1919
-msgid "gop size:   "
-msgstr "gop boyutu:   "
+#~ msgid "qcompress:   "
+#~ msgstr "qcompress:   "
 
-#: ../../guvcview/gui_gtk3_callbacks.c:1932
-msgid "qcompress:   "
-msgstr "qcompress:   "
+#~ msgid "qblur:   "
+#~ msgstr "qblur:   "
 
-#: ../../guvcview/gui_gtk3_callbacks.c:1945
-msgid "qblur:   "
-msgstr "qblur:   "
+#~ msgid "subq:   "
+#~ msgstr "subq:   "
 
-#: ../../guvcview/gui_gtk3_callbacks.c:1958
-msgid "subq:   "
-msgstr "subq:   "
+#~ msgid "framerefs:   "
+#~ msgstr "framerefs:   "
 
-#: ../../guvcview/gui_gtk3_callbacks.c:1971
-msgid "framerefs:   "
-msgstr "framerefs:   "
+#~ msgid "me method:   "
+#~ msgstr "me yöntemi:   "
 
-#: ../../guvcview/gui_gtk3_callbacks.c:1984
-msgid "me method:   "
-msgstr "me yöntemi:   "
+#~ msgid "mb decision:   "
+#~ msgstr "mb kararı:   "
 
-#: ../../guvcview/gui_gtk3_callbacks.c:1997
-msgid "mb decision:   "
-msgstr "mb kararı:   "
+#~ msgid "max B frames:   "
+#~ msgstr "en yüks. B karesi:   "
 
-#: ../../guvcview/gui_gtk3_callbacks.c:2010
-msgid "max B frames:   "
-msgstr "en yüks. B karesi:   "
+#~ msgid "num threads:   "
+#~ msgstr "işlem sayısı:   "
 
-#: ../../guvcview/gui_gtk3_callbacks.c:2023
-msgid "num threads:   "
-msgstr "işlem sayısı:   "
+#~ msgid "audio codec values"
+#~ msgstr "ses çözücü değerleri"
 
-#: ../../guvcview/gui_gtk3_callbacks.c:2090
-msgid "audio codec values"
-msgstr "ses çözücü değerleri"
+#~ msgid "sample format:   "
+#~ msgstr "örnek biçimi:   "
 
-#. sample format
-#: ../../guvcview/gui_gtk3_callbacks.c:2115
-msgid "sample format:   "
-msgstr "örnek biçimi:   "
+#~ msgid "Settings"
+#~ msgstr "Ayarlar"
 
-#: ../../guvcview/gui_gtk3_menu.c:70
-msgid "Settings"
-msgstr "Ayarlar"
+#~ msgid "Hardware Defaults"
+#~ msgstr "Donanım Varsayılanları"
 
-#: ../../guvcview/gui_gtk3_menu.c:73
-msgid "Hardware Defaults"
-msgstr "Donanım Varsayılanları"
+#~ msgid "Camera Button"
+#~ msgstr "Kamera Düğmesi"
 
-#: ../../guvcview/gui_gtk3_menu.c:81
-msgid "Camera Button"
-msgstr "Kamera Düğmesi"
+#~ msgid "Capture Image"
+#~ msgstr "Resim Yakala"
 
-#: ../../guvcview/gui_gtk3_menu.c:86
-msgid "Capture Image"
-msgstr "Resim Yakala"
+#~ msgid "Capture Video"
+#~ msgstr "Video Yakala"
 
-#: ../../guvcview/gui_gtk3_menu.c:91
-msgid "Capture Video"
-msgstr "Video Yakala"
+#~ msgid "Photo"
+#~ msgstr "Fotoğraf"
 
-#: ../../guvcview/gui_gtk3_menu.c:134
-msgid "Photo"
-msgstr "Fotoğraf"
+#~ msgid "File"
+#~ msgstr "Dosya"
 
-#: ../../guvcview/gui_gtk3_menu.c:135 ../../guvcview/gui_gtk3_menu.c:159
-msgid "File"
-msgstr "Dosya"
+#~ msgid "Increment Filename"
+#~ msgstr "Dosya Adını Arttır"
 
-#: ../../guvcview/gui_gtk3_menu.c:136 ../../guvcview/gui_gtk3_menu.c:160
-msgid "Increment Filename"
-msgstr "Dosya Adını Arttır"
+#~ msgid "Video"
+#~ msgstr "Görüntü"
 
-#: ../../guvcview/gui_gtk3_menu.c:158
-msgid "Video"
-msgstr "Görüntü"
+#~ msgid "Video Codec"
+#~ msgstr "Video Kodlayıcısı"
 
-#: ../../guvcview/gui_gtk3_menu.c:175
-msgid "Video Codec"
-msgstr "Video Kodlayıcısı"
+#~ msgid "Video Codec Properties"
+#~ msgstr "Video Kodlayıcı Özellikleri"
 
-#: ../../guvcview/gui_gtk3_menu.c:202
-msgid "Video Codec Properties"
-msgstr "Video Kodlayıcı Özellikleri"
+#~ msgid "Audio Codec"
+#~ msgstr "Ses Kodlayıcı"
 
-#: ../../guvcview/gui_gtk3_menu.c:208
-msgid "Audio Codec"
-msgstr "Ses Kodlayıcı"
+#~ msgid "Audio Codec Properties"
+#~ msgstr "Ses Kodlayıcı Özellikleri"
 
-#: ../../guvcview/gui_gtk3_menu.c:235
-msgid "Audio Codec Properties"
-msgstr "Ses Kodlayıcı Özellikleri"
+#~ msgid "Left"
+#~ msgstr "Sol"
 
-#: ../../guvcview/gui_gtk3_v4l2ctrls.c:169
-msgid "Left"
-msgstr "Sol"
+#~ msgid "Right"
+#~ msgstr "Sağ"
 
-#: ../../guvcview/gui_gtk3_v4l2ctrls.c:170
-msgid "Right"
-msgstr "Sağ"
+#~ msgid "Down"
+#~ msgstr "Aşağı"
 
-#: ../../guvcview/gui_gtk3_v4l2ctrls.c:174
-msgid "Down"
-msgstr "Aşağı"
+#~ msgid "Up"
+#~ msgstr "Yukarı"
 
-#: ../../guvcview/gui_gtk3_v4l2ctrls.c:175
-msgid "Up"
-msgstr "Yukarı"
+#~ msgid "Off"
+#~ msgstr "Kapalı"
 
-#: ../../guvcview/gui_gtk3_v4l2ctrls.c:234
-msgid "Off"
-msgstr "Kapalı"
+#~ msgid "On"
+#~ msgstr "Açık"
 
-#: ../../guvcview/gui_gtk3_v4l2ctrls.c:234
-msgid "On"
-msgstr "Açık"
+#~ msgid "Blinking"
+#~ msgstr "Yanıp Sönme"
 
-#: ../../guvcview/gui_gtk3_v4l2ctrls.c:234
-msgid "Blinking"
-msgstr "Yanıp Sönme"
+#~ msgid "Auto"
+#~ msgstr "Otomatik"
 
-#: ../../guvcview/gui_gtk3_v4l2ctrls.c:234
-msgid "Auto"
-msgstr "Otomatik"
+#~ msgid "8 bit"
+#~ msgstr "8 bit"
 
-#. turn it into a menu control
-#: ../../guvcview/gui_gtk3_v4l2ctrls.c:286
-msgid "8 bit"
-msgstr "8 bit"
+#~ msgid "12 bit"
+#~ msgstr "12 bit"
 
-#: ../../guvcview/gui_gtk3_v4l2ctrls.c:286
-msgid "12 bit"
-msgstr "12 bit"
+#~ msgid "Auto Focus (continuous)"
+#~ msgstr "Otomatik Odakla (sürekli)"
 
-#. add a virtual control for software autofocus
-#: ../../guvcview/gui_gtk3_v4l2ctrls.c:334
-msgid "Auto Focus (continuous)"
-msgstr "Otomatik Odakla (sürekli)"
+#~ msgid "set Focus"
+#~ msgstr "Odak ayarla"
 
-#: ../../guvcview/gui_gtk3_v4l2ctrls.c:335
-msgid "set Focus"
-msgstr "Odak ayarla"
-
-#. control_widgets_list[n].widget2 = gtk_button_new_from_stock(GTK_STOCK_APPLY);
-#. control_widgets_list[n].widget2= gtk_button_new_from_stock(GTK_STOCK_APPLY);
-#. control_widgets_list[n].widget2 = gtk_button_new_from_stock(GTK_STOCK_APPLY);
-#: ../../guvcview/gui_gtk3_v4l2ctrls.c:419
-#: ../../guvcview/gui_gtk3_v4l2ctrls.c:444
-#: ../../guvcview/gui_gtk3_v4l2ctrls.c:466
 #, fuzzy
-msgid "_Apply"
-msgstr "Uygula"
+#~ msgid "_Apply"
+#~ msgstr "Uygula"
 
-#: ../../guvcview/gui_gtk3_videoctrls.c:144
-msgid "Frame Rate:"
-msgstr "Kare Oranı:"
+#~ msgid "Frame Rate:"
+#~ msgstr "Kare Oranı:"
 
-#: ../../guvcview/gui_gtk3_videoctrls.c:204
-msgid "Resolution:"
-msgstr "Çözünürlük:"
+#~ msgid "Resolution:"
+#~ msgstr "Çözünürlük:"
 
-#: ../../guvcview/gui_gtk3_videoctrls.c:254
-msgid "Camera Output:"
-msgstr "Kamera Çıktısı:"
+#~ msgid "Camera Output:"
+#~ msgstr "Kamera Çıktısı:"
 
-#: ../../guvcview/gui_gtk3_videoctrls.c:287
-msgid "---- Video Filters ----"
-msgstr "---- Video Filtreleri----"
+#~ msgid "---- Video Filters ----"
+#~ msgstr "---- Video Filtreleri----"
 
-#. Mirror FX
-#: ../../guvcview/gui_gtk3_videoctrls.c:307
-msgid " Mirror"
-msgstr " Ayna"
+#~ msgid " Mirror"
+#~ msgstr " Ayna"
 
-#. Upturn FX
-#: ../../guvcview/gui_gtk3_videoctrls.c:319
-msgid " Invert"
-msgstr " Tersine Çevir"
+#~ msgid " Invert"
+#~ msgstr " Tersine Çevir"
 
-#. Negate FX
-#: ../../guvcview/gui_gtk3_videoctrls.c:331
-msgid " Negative"
-msgstr " Negatif"
+#~ msgid " Negative"
+#~ msgstr " Negatif"
 
-#. Mono FX
-#: ../../guvcview/gui_gtk3_videoctrls.c:343
-msgid " Mono"
-msgstr " Mono"
+#~ msgid " Mono"
+#~ msgstr " Mono"
 
-#. Pieces FX
-#: ../../guvcview/gui_gtk3_videoctrls.c:356
-msgid " Pieces"
-msgstr " Parçalar"
+#~ msgid " Pieces"
+#~ msgstr " Parçalar"
 
-#. Particles
-#: ../../guvcview/gui_gtk3_videoctrls.c:369
-msgid " Particles"
-msgstr " Tanecikler"
+#~ msgid " Particles"
+#~ msgstr " Tanecikler"
 
-#: ../../guvcview/options.c:51
-msgid "Print help"
-msgstr ""
-
-#: ../../guvcview/options.c:58
 #, fuzzy
-msgid "Print version"
-msgstr "Sürümü yazdırır"
+#~ msgid "Print version"
+#~ msgstr "Sürümü yazdırır"
 
-#: ../../guvcview/options.c:64
-msgid "LEVEL"
-msgstr ""
-
-#: ../../guvcview/options.c:65
-msgid "Set Verbosity level (def: 0)"
-msgstr ""
-
-#: ../../guvcview/options.c:71
-msgid "DEVICE"
-msgstr ""
-
-#: ../../guvcview/options.c:72
 #, fuzzy
-msgid "Set device name (def: /dev/video0)"
-msgstr "Kullanılacak Video Aygıtı [varsayılan: /dev/video0]"
+#~ msgid "Set device name (def: /dev/video0)"
+#~ msgstr "Kullanılacak Video Aygıtı [varsayılan: /dev/video0]"
 
-#: ../../guvcview/options.c:78
-msgid "METHOD"
-msgstr ""
-
-#: ../../guvcview/options.c:79
 #, fuzzy
-msgid "Set capture method [read | mmap (def)]"
-msgstr "Yakalama yöntemi (1-mmap (varsayılan)  2-read)"
+#~ msgid "Set capture method [read | mmap (def)]"
+#~ msgstr "Yakalama yöntemi (1-mmap (varsayılan)  2-read)"
 
-#: ../../guvcview/options.c:85
-msgid "WIDTHxHEIGHT"
-msgstr ""
-
-#: ../../guvcview/options.c:86
-msgid "Request resolution (e.g 640x480)"
-msgstr ""
-
-#: ../../guvcview/options.c:92
-msgid "FOURCC"
-msgstr ""
-
-#: ../../guvcview/options.c:93
-msgid "Request format (e.g MJPG)"
-msgstr ""
-
-#: ../../guvcview/options.c:99
-msgid "RENDER_API"
-msgstr ""
-
-#: ../../guvcview/options.c:100
-msgid "Select render API (e.g none; sdl1)"
-msgstr ""
-
-#: ../../guvcview/options.c:106
-msgid "AUDIO_API"
-msgstr ""
-
-#: ../../guvcview/options.c:107
-msgid "Select audio API (e.g none; port; pulse)"
-msgstr ""
-
-#: ../../guvcview/options.c:113
-msgid "GUI_API"
-msgstr ""
-
-#: ../../guvcview/options.c:114
-msgid "Select GUI API (e.g none; gtk3)"
-msgstr ""
-
-#: ../../guvcview/options.c:120 ../../guvcview/options.c:127
-msgid "CODEC"
-msgstr ""
-
-#: ../../guvcview/options.c:121
-msgid "Audio codec [pcm mp2 mp3 aac ac3 vorb]"
-msgstr ""
-
-#: ../../guvcview/options.c:128
-msgid "Video codec [raw mjpg mpeg flv1 wmv1 mpg2 mp43 dx50 h264 vp80 theo]"
-msgstr ""
-
-#: ../../guvcview/options.c:134 ../../guvcview/options.c:141
-#: ../../guvcview/options.c:148
-msgid "FILENAME"
-msgstr ""
-
-#: ../../guvcview/options.c:135
 #, fuzzy
-msgid "load control profile"
-msgstr "Profili Yükle"
+#~ msgid "load control profile"
+#~ msgstr "Profili Yükle"
 
-#: ../../guvcview/options.c:142
-msgid "filename for captured video)"
-msgstr ""
+#, fuzzy
+#~ msgid ""
+#~ "Guvcview version %s\n"
+#~ "\n"
+#~ msgstr "Guvcview Uyarısı:"
 
-#: ../../guvcview/options.c:149
-msgid "filename for captured image)"
-msgstr ""
-
-#: ../../guvcview/options.c:155 ../../guvcview/options.c:162
-msgid "TIME_IN_SEC"
-msgstr ""
-
-#: ../../guvcview/options.c:156
-msgid "time (double) in sec. for video capture)"
-msgstr ""
-
-#: ../../guvcview/options.c:163
-msgid "time (double) in sec. between captured photos)"
-msgstr ""
-
-#: ../../guvcview/options.c:169
-msgid "TOTAL"
-msgstr ""
-
-#: ../../guvcview/options.c:170
-msgid "total number of captured photos)"
-msgstr ""
-
-#: ../../guvcview/options.c:177
-msgid "Start in control panel mode"
-msgstr ""
-
-#: ../../guvcview/options.c:299
-#, fuzzy, c-format
-msgid ""
-"Guvcview version %s\n"
-"\n"
-msgstr "Guvcview Uyarısı:"
-
-#: ../../guvcview/options.c:300
-#, c-format
-msgid ""
-"Usage:\n"
-"   guvcview [OPTIONS]\n"
-"\n"
-msgstr ""
-
-#: ../../guvcview/options.c:301
-#, c-format
-msgid "OPTIONS:\n"
-msgstr ""
-
-#: ../../guvcview/video_capture.c:798
-#, fuzzy, c-format
-msgid "saving video to %s"
-msgstr "video yakalanıyor"
-
-#. if(debug_level > 1)
-#. printf("GUVCVIEW: saving image to %s\n", img_filename);
-#: ../../guvcview/video_capture.c:1048
-#, c-format
-msgid "saving image to %s"
-msgstr ""
+#, fuzzy
+#~ msgid "saving video to %s"
+#~ msgstr "video yakalanıyor"
 
 #~ msgid "guvcview"
 #~ msgstr "guvcview"
