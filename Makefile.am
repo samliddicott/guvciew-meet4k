@@ -27,6 +27,14 @@ pkgconfig_DATA = pkgconfig/libgviewv4l2core.pc \
 
 ACLOCAL_AMFLAGS = -I m4
 
+docdir = ${datadir}/doc/guvcview
+doc_DATA = \
+	README.md\
+	COPYING\
+	AUTHORS\
+	ChangeLog\
+	INSTALL
+
 EXTRA_DIST = bootstrap.sh
 
 check-gettext:
