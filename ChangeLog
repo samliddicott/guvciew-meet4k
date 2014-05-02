@@ -1,3 +1,14 @@
+guvcview (2.0.0)
+
+    * new version 2.0.0 (code rewriten from scratch)
+    * move all core functions to 4 shared libs
+    * change options
+    * change config
+    * add sdl2 render
+    * use gsl for random number generation
+
+ -- Paulo Assis <pj.assis@gmail.com> Fri, 2 May 2014 9:54:00 +0100
+
 guvcview (1.7.3)
 
     * add silence frames to compensate audio drift (delay).
