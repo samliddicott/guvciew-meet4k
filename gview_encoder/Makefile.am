@@ -29,6 +29,6 @@ libgviewencoder_la_CFLAGS = $(GVIEWENCODER_CFLAGS) \
 			-I$(top_srcdir) \
 			-I$(top_srcdir)/includes
 
-libgviewencoder_la_LIBADD= $(GVIEWENCODER_LIBS) $(PTHREAD_LIBS)
+libgviewencoder_la_LIBADD= $(GVIEWENCODER_LIBS) $(GSL_LIBS) $(PTHREAD_LIBS) -lm
 
 libgviewencoder_la_LDFLAGS= -version-info $(GVIEWENCODER_LIBRARY_VERSION) -release $(GVIEWENCODER_API_VERSION)

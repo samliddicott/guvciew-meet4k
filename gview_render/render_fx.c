@@ -247,7 +247,7 @@ static void fx_pieces(uint8_t* frame, int width, int height, int piece_size )
 	/*free the random seed generator*/
 	gsl_rng_free (r);
 	/*free the piece buffer*/
-	g_free(piece);
+	free(piece);
 }
 
 /*

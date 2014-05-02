@@ -80,6 +80,15 @@ ALL_LINGUAS="bg bs cs da de en_AU es eu fo fr gl he hr it ja lv nl pl pt pt_BR r
 AM_GLIB_GNU_GETTEXT([external])
 
 dnl -----------------------------------------------
+dnl  check for some required headers
+dnl -----------------------------------------------
+AC_STDC_HEADERS
+AC_HAVE_HEADERS(math.h)
+AC_CHECK_LIB([m],[exp],[AC_DEFINE([HAVE_EXP],[1],[libm includes exp])])
+AC_CHECK_LIB([m],[roundf],[AC_DEFINE([HAVE_ROUNDF],[1],[libm includes roundf])])
+AC_CHECK_LIB([m],[pow],[AC_DEFINE([HAVE_POW],[1],[libm includes pow])])
+
+dnl -----------------------------------------------
 dnl libgviewv4l2core name and version number
 dnl -----------------------------------------------
 
@@ -334,7 +343,7 @@ dnl --------------------------------------------------------------------------
 dnl check for libgviewencoder dependencies
 dnl --------------------------------------------------------------------------
 
-PKG_CHECK_MODULES(GVIEWENCODER, [libavcodec])
+PKG_CHECK_MODULES(GVIEWENCODER, [libavcodec, libavutil])
 AC_SUBST(GVIEWENCODER_CFLAGS)
 AC_SUBST(GVIEWENCODER_LIBS)
 

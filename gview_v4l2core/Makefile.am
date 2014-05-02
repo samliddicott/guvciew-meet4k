@@ -39,7 +39,7 @@ libgviewv4l2core_la_CFLAGS = $(GVIEWV4L2CORE_CFLAGS) \
 			-I$(top_srcdir) \
 			-I$(top_srcdir)/includes
 
-libgviewv4l2core_la_LIBADD= $(GVIEWV4L2CORE_LIBS) $(PTHREAD_LIBS)
+libgviewv4l2core_la_LIBADD= $(GVIEWV4L2CORE_LIBS) $(PTHREAD_LIBS) -lm
 
 libgviewv4l2core_la_LDFLAGS= -version-info $(GVIEWV4L2CORE_LIBRARY_VERSION) -release $(GVIEWV4L2CORE_API_VERSION)
 
