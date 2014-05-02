@@ -4,22 +4,35 @@ dnl Process this file with autoconf to produce a configure script.
 # in the environment, or whether autoconf added -O and -g options:
 ORIGINAL_CFLAGS="$CFLAGS"
 
-dnl --------------------------------------------------------------------------
-dnl Package definitions and initialization
-dnl --------------------------------------------------------------------------
-m4_define([guvcview_major], [1])
-m4_define([guvcview_minor], [7])
-m4_define([guvcview_micro], [3])
+dnl --------------------------------
+dnl Initialization macros (sets PACKAGE and VERSION)
+dnl --------------------------------
+m4_define([guvcview_major], [2])
+m4_define([guvcview_minor], [0])
+m4_define([guvcview_micro], [0])
+
 m4_define([guvcview_version],
           [guvcview_major.guvcview_minor.guvcview_micro])
 
-AC_INIT([guvcview],[guvcview_version],[http://guvcview.sourceforge.net/])
+AC_INIT([guvcview], [guvcview_version], [http://guvcview.sourceforge.net/])
+
+PACKAGE_RELEASE=2
+AC_SUBST(PACKAGE_RELEASE)
+AC_DEFINE_UNQUOTED(PACKAGE_RELEASE,"$PACKAGE_RELEASE", 2)
+
+dnl ------------------------------------------------
+dnl Pretty output
+dnl ------------------------------------------------
 m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
 
 AM_INIT_AUTOMAKE([foreign])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_HEADERS(config.h)
 AM_MAINTAINER_MODE(disable)
+
+dnl -----------------------------------------------
+dnl Package release
+dnl -----------------------------------------------
 
 # autoconf 2.5x defaults to no cache file; we need the cache file's information
 # for building the config page.  But start with it empty to avoid confusion by
@@ -32,74 +45,307 @@ AC_PREFIX_DEFAULT(/usr/local)
 AC_PROG_CC
 AM_PROG_CC_C_O
 AC_HEADER_STDC
+AC_PROG_LIBTOOL
+AM_SANITY_CHECK
 
 dnl --------------------------------------------------------------------------
 dnl set pthread_libs and pthread_cflags
 dnl --------------------------------------------------------------------------
 dnl ACX_PTHREAD([ACTION-IF-FOUND[, ACTION-IF-NOT-FOUND]])
+
 ACX_PTHREAD()
-
-dnl --------------------------------------------------------------------------
-dnl Debug/development/test
-dnl --------------------------------------------------------------------------
-
-dnl ---------------------------------------------------------------------------
-dnl CF_STRIP_G_OPT version: 3 updated: 2002/12/21 19:25:52
-dnl --------------
-dnl	Remove "-g" option from the compiler options
-AC_DEFUN([CF_STRIP_G_OPT],
-[$1=`echo ${$1} | sed -e 's%-g %%' -e 's%-g$%%'`])
-
-dnl ---------------------------------------------------------------------------
-dnl CF_STRIP_O_OPT version: 3 updated: 2001/02/02 19:06:08
-dnl --------------
-dnl	Remove "-O" option from the compiler options
-AC_DEFUN([CF_STRIP_O_OPT],
-[$1=`echo ${$1} | sed -e 's/-O[[1-9]]\? //' -e 's/-O[[1-9]]\?$//'`])
-
-# The comment about adding -g to $CFLAGS is unclear.  Autoconf tries to add
-# a -g flag; we remove it if the user's $CFLAGS was not set and debugging is
-# disabled.
-AC_MSG_CHECKING(if you specifically want to enable debug-code [-g])
-AC_ARG_ENABLE(debug, AS_HELP_STRING([--enable-debug],
-	[enable debug compile w/ debugging - if \$CFLAGS is set, add -g there, too]),
-	[enable_debug=yes],
-	[enable_debug=no])
-
-AC_MSG_RESULT($enable_debug)
-
-if test "x$enable_debug" = "xyes" ; then
-	test -z "$ORIGINAL_CFLAGS" && CF_STRIP_O_OPT(CFLAGS)
-	if test "$CC" = gcc; then
-		CFLAGS="$CFLAGS -g"
-	fi
-#else
-#	CF_STRIP_G_OPT(CFLAGS)
-fi
 
 AC_SUBST(CFLAGS)
 
 dnl --------------------------------------------------------------------------
 dnl Set gettext package name
 dnl --------------------------------------------------------------------------
+
+GETTEXT_PACKAGE_V4L2CORE=gview_v4l2core
+AC_SUBST(GETTEXT_PACKAGE_V4L2CORE)
+AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE_V4L2CORE,"$GETTEXT_PACKAGE_V4L2CORE", [gview_v4l2core])
+
 GETTEXT_PACKAGE=guvcview
 AC_SUBST(GETTEXT_PACKAGE)
 AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE", [guvcview])
 
 IT_PROG_INTLTOOL([0.40])
+IT_PO_SUBDIR(po/gview_v4l2core)
 
 dnl --------------------------------------------------------------------------
 dnl Languages supported by guvcview.
 dnl --------------------------------------------------------------------------
+
 ALL_LINGUAS="bg bs cs da de en_AU es eu fo fr gl he hr it ja lv nl pl pt pt_BR ru si sr tr uk zh_TW"
 AM_GLIB_GNU_GETTEXT([external])
 
+dnl -----------------------------------------------
+dnl libgviewv4l2core name and version number
+dnl -----------------------------------------------
+
+GVIEWV4L2CORE_LIBRARY_NAME=libgviewv4l2core
+AC_SUBST(GVIEWV4L2CORE_LIBRARY_NAME)
+GVIEWV4L2CORE_LD_NAME=gviewv4l2core
+AC_SUBST(GVIEWV4L2CORE_LD_NAME)
+
+#release versioning
+GVIEWV4L2CORE_MAJOR_VERSION=1
+GVIEWV4L2CORE_MINOR_VERSION=0
+GVIEWV4L2CORE_MICRO_VERSION=0
+
+#API version (SONAME)
+GVIEWV4L2CORE_API_VERSION=$GVIEWV4L2CORE_MAJOR_VERSION.$GVIEWV4L2CORE_MINOR_VERSION
+AC_SUBST(GVIEWV4L2CORE_API_VERSION)
+
+#shared library versioning
+GVIEWV4L2CORE_LIBRARY_VERSION=$GVIEWV4L2CORE_MAJOR_VERSION:$GVIEWV4L2CORE_MINOR_VERSION:$GVIEWV4L2CORE_MICRO_VERSION
+#
+#             current:revision:age
+#                |       |     |
+#                |       |     +- increment if interfaces have been added
+#                |       |        set to zero if interfaces have been removed
+#                                  or changed
+#                |       +- increment if source code has changed
+#                |          set to zero if current is incremented
+#                +- increment if interfaces have been added, removed or changed
+
+AC_SUBST(GVIEWV4L2CORE_LIBRARY_VERSION)
+
 dnl --------------------------------------------------------------------------
-dnl check for dependencies
+dnl check for libgviewv4l2core dependencies
 dnl --------------------------------------------------------------------------
-PKG_CHECK_MODULES(DEPS, [gtk+-3.0 >= 3.0.0 glib-2.0 >= 2.10.0 sdl >= 1.2.10 portaudio-2.0 libpng libavcodec libavutil libv4l2 libudev libusb-1.0])
-AC_SUBST(DEPS_CFLAGS)
-AC_SUBST(DEPS_LIBS)
+
+PKG_CHECK_MODULES(GVIEWV4L2CORE, [libv4l2 libudev libusb-1.0 libavcodec libpng])
+AC_SUBST(GVIEWV4L2CORE_CFLAGS)
+AC_SUBST(GVIEWV4L2CORE_LIBS)
+
+dnl --------------------------------------------------------------------------
+dnl Check for avcodec.h installation path
+dnl --------------------------------------------------------------------------
+
+dnl Check for avcodec.h directly
+dnl if all tests fail must add avcodec.h path to C_INCLUDE_PATH before running configure
+AC_CHECK_HEADER([avcodec.h], [has_avcodec_h="yes"])
+
+dnl Check old install path for avcodec.h (ffmpeg/avcodec.h)
+AC_CHECK_HEADER([ffmpeg/avcodec.h], [has_ffmpeg_dir="yes"])
+
+dnl Check new install path for avcodec.h (libavcodec/avcodec.h)
+dnl if all the checks fail we include "libavcodec/avcodec.h"
+AC_CHECK_HEADER([libavcodec/avcodec.h], [has_libavcodec_dir="yes"])
+
+if test "$has_avcodec_h" = yes; then
+  AC_DEFINE(HAS_AVCODEC_H,1,[Define if avcodec.h can be acessed directly])
+fi
+if test "$has_ffmpeg_dir" = yes; then
+  AC_DEFINE(HAS_FFMPEG_AVCODEC_H,1,[Define if avcodec.h installed to ffmpeg dir])
+fi
+if test "$has_libavcodec_dir" = yes; then
+  AC_DEFINE(HAS_LIBAVCODEC_AVCODEC_H,1,[Define if avcodec.h installed to libavcodec dir])
+fi
+
+dnl -----------------------------------------------
+dnl libgviewrender name and version number
+dnl -----------------------------------------------
+
+GVIEWRENDER_LIBRARY_NAME=libgviewrender
+AC_SUBST(GVIEWRENDER_LIBRARY_NAME)
+GVIEWRENDER_LD_NAME=gviewrender
+AC_SUBST(GVIEWRENDER_LD_NAME)
+
+#release versioning
+GVIEWRENDER_MAJOR_VERSION=1
+GVIEWRENDER_MINOR_VERSION=0
+GVIEWRENDER_MICRO_VERSION=0
+
+#API version (SONAME)
+GVIEWRENDER_API_VERSION=$GVIEWRENDER_MAJOR_VERSION.$GVIEWRENDER_MINOR_VERSION
+AC_SUBST(GVIEWRENDER_API_VERSION)
+
+#shared library versioning
+GVIEWRENDER_LIBRARY_VERSION=$GVIEWRENDER_MAJOR_VERSION:$GVIEWRENDER_MINOR_VERSION:$GVIEWRENDER_MICRO_VERSION
+#
+#             current:revision:age
+#                |       |     |
+#                |       |     +- increment if interfaces have been added
+#                |       |        set to zero if interfaces have been removed
+#                                  or changed
+#                |       +- increment if source code has changed
+#                |          set to zero if current is incremented
+#                +- increment if interfaces have been added, removed or changed
+
+AC_SUBST(GVIEWRENDER_LIBRARY_VERSION)
+
+dnl --------------------------------------------------------------------------
+dnl check for libgviewrender dependencies
+dnl --------------------------------------------------------------------------
+
+dnl --------------------------------------------------------------------------
+dnl Check for prefered sdl version (1 or 2)
+dnl --------------------------------------------------------------------------
+AC_MSG_CHECKING(if you want to disable sdl2 support)
+AC_ARG_ENABLE(sdl2, AS_HELP_STRING([--disable-sdl2],
+		[disable sdl2 support (default: enabled)]),
+	[enable_sdl2=no],
+	[enable_sdl2=yes])
+
+AC_MSG_RESULT($enable_sdl2)
+
+if test $enable_sdl2 = yes; then
+
+	PKG_CHECK_MODULES(GVIEWRENDER, [sdl2 >= 2.0])
+	AC_SUBST(GVIEWRENDER_CFLAGS)
+	AC_SUBST(GVIEWRENDER_LIBS)
+
+	AC_DEFINE(ENABLE_SDL2, 1, [set to 1 if sdl2 is enabled])
+else
+	AC_MSG_WARN(sdl2 disabled...  sdl1.2 will be used instead.)
+	PKG_CHECK_MODULES(GVIEWRENDER, [sdl >= 1.2.10])
+	AC_SUBST(GVIEWRENDER_CFLAGS)
+	AC_SUBST(GVIEWRENDER_LIBS)
+fi
+
+AM_CONDITIONAL(ENABLE_SDL2, test $enable_sdl2 = yes)
+
+dnl --------------------------------------------------------------------------
+dnl Check for gsl (gnu random generator) used by render fx
+dnl --------------------------------------------------------------------------
+AC_MSG_CHECKING(if you want to enable gsl support)
+AC_ARG_ENABLE(gsl, AS_HELP_STRING([--disable-gsl],
+		[disable gsl support (default: enabled)]),
+	[enable_gsl=no],
+	[enable_gsl=yes])
+
+AC_MSG_RESULT($enable_gsl)
+
+if test $enable_gsl = yes; then
+
+	dnl AX_PATH_GSL(
+	dnl			1.15,
+	dnl			AC_DEFINE(HAS_GSL, 1, [set to 1 if gsl is enabled]),
+	dnl			AC_MSG_WARN(libgsl not found... some render fx filters will be disabled.))
+
+	PKG_CHECK_MODULES(GSL, [gsl >= 1.15])
+	AC_SUBST(GSL_CFLAGS)
+	AC_SUBST(GSL_LIBS)
+
+	AC_DEFINE(HAS_GSL, 1, [set to 1 if gsl is enabled])
+else
+	AC_MSG_WARN(libgsl disabled... some render fx filters will be disabled.)
+fi
+
+dnl -----------------------------------------------
+dnl libgviewaudio name and version number
+dnl -----------------------------------------------
+
+GVIEWAUDIO_LIBRARY_NAME=libgviewaudio
+AC_SUBST(GVIEWAUDIO_LIBRARY_NAME)
+GVIEWAUDIO_LD_NAME=gviewaudio
+AC_SUBST(GVIEWAUDIO_LD_NAME)
+
+#release versioning
+GVIEWAUDIO_MAJOR_VERSION=1
+GVIEWAUDIO_MINOR_VERSION=0
+GVIEWAUDIO_MICRO_VERSION=0
+
+#API version (SONAME)
+GVIEWAUDIO_API_VERSION=$GVIEWAUDIO_MAJOR_VERSION.$GVIEWAUDIO_MINOR_VERSION
+AC_SUBST(GVIEWAUDIO_API_VERSION)
+
+#shared library versioning
+GVIEWAUDIO_LIBRARY_VERSION=$GVIEWAUDIO_MAJOR_VERSION:$GVIEWAUDIO_MINOR_VERSION:$GVIEWAUDIO_MICRO_VERSION
+#
+#             current:revision:age
+#                |       |     |
+#                |       |     +- increment if interfaces have been added
+#                |       |        set to zero if interfaces have been removed
+#                                  or changed
+#                |       +- increment if source code has changed
+#                |          set to zero if current is incremented
+#                +- increment if interfaces have been added, removed or changed
+
+AC_SUBST(GVIEWAUDIO_LIBRARY_VERSION)
+
+dnl --------------------------------------------------------------------------
+dnl check for libgviewaudio dependencies
+dnl --------------------------------------------------------------------------
+
+PKG_CHECK_MODULES(GVIEWAUDIO, [portaudio-2.0])
+AC_SUBST(GVIEWAUDIO_CFLAGS)
+AC_SUBST(GVIEWAUDIO_LIBS)
+
+dnl --------------------------------------------------------------------------
+dnl Check for pulseaudio
+dnl --------------------------------------------------------------------------
+AC_MSG_CHECKING(if you want to enable pulse support)
+AC_ARG_ENABLE(pulse, AS_HELP_STRING([--disable-pulse],
+		[disable pulseaudio support (default: enabled)]),
+	[enable_pulse=no],
+	[enable_pulse=yes])
+
+AC_MSG_RESULT($enable_pulse)
+
+if test $enable_pulse = yes; then
+	PKG_CHECK_MODULES(PULSE, libpulse >= 0.9.15, has_pulse=yes, has_pulse=no)
+	AC_SUBST(PULSE_CFLAGS)
+	AC_SUBST(PULSE_LIBS)
+	if test "$has_pulse" = yes; then
+	  AC_DEFINE(HAS_PULSEAUDIO, 1, [set to 1 if pulseaudio installed])
+	else
+	  AC_MSG_WARN(libpulse missing... pulse support will be disabled.);
+	  enable_pulse=no
+	fi
+	AM_CONDITIONAL(HAVE_PULSEAUDIO, test $enable_pulse = yes)
+fi
+
+dnl -----------------------------------------------
+dnl libgviewencoder name and version number
+dnl -----------------------------------------------
+
+GVIEWENCODER_LIBRARY_NAME=libgviewencoder
+AC_SUBST(GVIEWENCODER_LIBRARY_NAME)
+GVIEWENCODER_LD_NAME=gviewencoder
+AC_SUBST(GVIEWENCODER_LD_NAME)
+
+#release versioning
+GVIEWENCODER_MAJOR_VERSION=1
+GVIEWENCODER_MINOR_VERSION=0
+GVIEWENCODER_MICRO_VERSION=0
+
+#API version (SONAME)
+GVIEWENCODER_API_VERSION=$GVIEWENCODER_MAJOR_VERSION.$GVIEWENCODER_MINOR_VERSION
+AC_SUBST(GVIEWENCODER_API_VERSION)
+
+#shared library versioning
+GVIEWENCODER_LIBRARY_VERSION=$GVIEWENCODER_MAJOR_VERSION:$GVIEWENCODER_MINOR_VERSION:$GVIEWENCODER_MICRO_VERSION
+#
+#             current:revision:age
+#                |       |     |
+#                |       |     +- increment if interfaces have been added
+#                |       |        set to zero if interfaces have been removed
+#                                  or changed
+#                |       +- increment if source code has changed
+#                |          set to zero if current is incremented
+#                +- increment if interfaces have been added, removed or changed
+
+AC_SUBST(GVIEWENCODER_LIBRARY_VERSION)
+
+dnl --------------------------------------------------------------------------
+dnl check for libgviewencoder dependencies
+dnl --------------------------------------------------------------------------
+
+PKG_CHECK_MODULES(GVIEWENCODER, [libavcodec])
+AC_SUBST(GVIEWENCODER_CFLAGS)
+AC_SUBST(GVIEWENCODER_LIBS)
+
+
+dnl --------------------------------------------------------------------------
+dnl check for guvcview dependencies
+dnl --------------------------------------------------------------------------
+
+PKG_CHECK_MODULES(GUVCVIEW, [gtk+-3.0 >= 3.0.0 glib-2.0 >= 2.10.0])
+AC_SUBST(GUVCVIEW_CFLAGS)
+AC_SUBST(GUVCVIEW_LIBS)
 
 dnl --------------------------------------------------------------------------
 dnl set/unset debian menu
@@ -128,68 +374,33 @@ AC_MSG_RESULT($enable_desktop)
 AM_CONDITIONAL(DESKTOP, test "$enable_desktop" = yes)
 
 dnl --------------------------------------------------------------------------
-dnl Check for pulseaudio
-dnl --------------------------------------------------------------------------
-AC_MSG_CHECKING(if you want to enable pulse support)
-AC_ARG_ENABLE(pulse, AS_HELP_STRING([--disable-pulse],
-		[disable pulseaudio support (default: enabled)]),
-	[enable_pulse=no],
-	[enable_pulse=yes])
-
-AC_MSG_RESULT($enable_pulse)
-
-if test $enable_pulse = yes; then
-	PKG_CHECK_MODULES(PULSE, libpulse >= 0.9.15, has_pulse=yes, has_pulse=no)
-	AC_SUBST(PULSE_CFLAGS)
-	AC_SUBST(PULSE_LIBS)
-	if test "$has_pulse" = yes; then
-	  AC_DEFINE(PULSEAUDIO,1,[set to 1 if pulseaudio installed])
-	else
-	  AC_MSG_WARN(libpulse missing... pulse support will be disabled.);
-	  enable_pulse=no
-	fi
-fi
-
-dnl --------------------------------------------------------------------------
-dnl Check for avcodec.h installation path
-dnl --------------------------------------------------------------------------
-
-dnl Check for avcodec.h directly
-dnl if all tests fail must add avcodec.h path to C_INCLUDE_PATH before running configure
-AC_CHECK_HEADER([avcodec.h], [has_avcodec_h="yes"])
-
-dnl Check old install path for avcodec.h (ffmpeg/avcodec.h)
-AC_CHECK_HEADER([ffmpeg/avcodec.h], [has_ffmpeg_dir="yes"])
-
-dnl Check new install path for avcodec.h (libavcodec/avcodec.h)
-dnl if all the checks fail we include "libavcodec/avcodec.h"
-AC_CHECK_HEADER([libavcodec/avcodec.h], [has_libavcodec_dir="yes"])
-
-if test "$has_avcodec_h" = yes; then
-  AC_DEFINE(HAS_AVCODEC_H,1,[Define if avcodec.h can be acessed directly])
-fi
-if test "$has_ffmpeg_dir" = yes; then
-  AC_DEFINE(HAS_FFMPEG_AVCODEC_H,1,[Define if avcodec.h installed to ffmpeg dir])
-fi
-if test "$has_libavcodec_dir" = yes; then
-  AC_DEFINE(HAS_LIBAVCODEC_AVCODEC_H,1,[Define if avcodec.h installed to libavcodec dir])
-fi
-
-dnl --------------------------------------------------------------------------
 dnl Check if the processor stores words with the most significant byte first
 dnl (like Motorola and SPARC, unlike Intel and VAX).
 dnl --------------------------------------------------------------------------
+
 AC_C_BIGENDIAN
 
-dnl Create the Makefiles
+dnl -----------------------------------------------
+dnl Generates Makefiles, configuration files and scripts
+dnl -----------------------------------------------
+
 AC_CONFIG_FILES([
- Makefile
- data/Makefile
- data/icons/Makefile
- data/guvcview.desktop.in
- data/guvcview.in
- po/Makefile.in
- src/Makefile
+	Makefile
+    pkgconfig/libgviewv4l2core.pc
+    pkgconfig/libgviewaudio.pc
+    pkgconfig/libgviewrender.pc
+    pkgconfig/libgviewencoder.pc
+    gview_v4l2core/Makefile
+    gview_audio/Makefile
+    gview_render/Makefile
+    gview_encoder/Makefile
+    guvcview/Makefile
+    data/Makefile
+    data/icons/Makefile
+    data/guvcview.desktop.in
+    data/guvcview.in
+    po/Makefile.in
+    po/gview_v4l2core/Makefile.in
 ])
 AC_OUTPUT
 
@@ -200,13 +411,13 @@ AC_MSG_NOTICE([
   ----------------------
 
   Prefix         : ${prefix}
-
-  Pulse API      : ${enable_pulse}
-
-  Desktop File   : ${enable_desktop}
-  Debian Menu    : ${enable_debian_menu}
-
-  Debug Symbols  : ${enable_debug}
+  Pulseaudio     : ${enable_pulse}
+  gsl            : ${enable_gsl}
+  sdl2           : ${enable_sdl2}
+  desktop file   : ${enable_desktop}
+  debian menu    : ${enable_debian_menu}
 
 ])
+
+
 

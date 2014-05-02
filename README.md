@@ -9,7 +9,7 @@ Dependencies:
 Guvcview depends on the following:
  - intltool,
  - autotools, 
- - libsdl, 
+ - libsdl2 or libsdl, 
  - libgtk-3, 
  - portaudio19, 
  - libpng, 
@@ -19,12 +19,13 @@ Guvcview depends on the following:
  - libudev,
  - libusb-1.0,
  - libpulse (optional)
+ - libgsl (optional)
 
 On most distributions you can just install the development 
 packages:
- intltool, autotools-dev, libsdl1.2-dev, libgtk-3-dev, 
+ intltool, autotools-dev, libsdl2-dev, libgtk-3-dev, 
  portaudio19-dev, libpng12-dev, libavcodec-dev, libavutil-dev,
- libv4l-dev, libudev-dev, libusb-1.0-0-dev, libpulse-dev
+ libv4l-dev, libudev-dev, libusb-1.0-0-dev, libpulse-dev, libgsl-dev
 
 Build configuration:
 --------------------
@@ -37,7 +38,7 @@ After configuration a simple 'make && make install' will build and
 install guvcview and all the associated data files.
 
 Data Files:
------------
+------------
 (language files; image files; gnome menu entry)
 
 guvcview data files are stored by default to /usr/local/share
@@ -54,7 +55,7 @@ should build and install all the necessary files.
  
 guvcview bin:
 -------------
-(src/guvcview)
+(guvcview)
 
 The binarie file installs to the standart location,
 /usr/local/bin, to change the install path, configure
@@ -62,6 +63,15 @@ must be executed with --prefix=DIR set, this will cause
 the bin file to be installed in DIR/bin, make sure 
 DIR/bin is set in your PATH variable, or the gnome 
 menu entry will fail.
+
+guvcview libraries:
+-------------------
+(libgviewv4l2core, libgviewrender, libgviewaudio, libgviewencoder)
+
+The core functionality of guvcview is now split into 4 libraries
+these will install to ${prefix}/lib and development headers to
+${prefix}/include/guvcview-2/libname. 
+pkg-config should be use to determine the compile flags.
 
 
 guvcview.desktop:
@@ -76,12 +86,12 @@ be done in data/guvcview.desktop.in.
 
 configuration files:
 --------------------
-(~/.config/guvcview/video0)
+(~/.config/guvcview2/video0)
 
 The configuration file is saved into the $HOME dir when 
 exiting guvcview. If a video device with index > 0,
 e.g: /dev/video1 is used then the file stored will be
-named ~/.config/guvcview/video1
+named ~/.config/guvcview2/video1
 
 Executing guvcview
 ================== 
