@@ -1216,7 +1216,7 @@ static void clean_v4l2_dev(v4l2_dev_t *vd)
 v4l2_dev_t *v4l2core_init_dev(const char *device)
 {
 	assert(device != NULL);
-	
+
 	/*localization*/
 	char* lc_all = setlocale (LC_ALL, "");
 	char* lc_dir = bindtextdomain (GETTEXT_PACKAGE, PACKAGE_LOCALE_DIR);
@@ -1242,6 +1242,7 @@ v4l2_dev_t *v4l2core_init_dev(const char *device)
 
 	vd->raw_frame = NULL;
 
+	vd->h264_no_probe_default = 0;
 	vd->h264_SPS = NULL;
 	vd->h264_SPS_size = 0;
 	vd->h264_PPS = NULL;

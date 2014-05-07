@@ -215,7 +215,7 @@ typedef struct _v4l2_ctrl_t
     int32_t value; //also used for string max size
     int64_t value64;
     char *string;
-    
+
     /*localization*/
     char *name; /*gettext translated name*/
     int menu_entries;
@@ -244,7 +244,7 @@ typedef struct _v4l2_dev_sys_data_t
 
 /*
  * v4l2 devices list data
- */ 
+ */
 typedef struct _v4l2_device_list_t
 {
 	struct udev *udev;                  // pointer to a udev struct (lib udev)
@@ -302,6 +302,7 @@ typedef struct _v4l2_dev_t
 	size_t  h264_frame_max_size;        // h264 frame max size (allocated size)
 
 	uint8_t h264_unit_id;  				// uvc h264 unit id, if <= 0 then uvc h264 is not supported
+	uint8_t h264_no_probe_default;      // flag core to use the preset h264_config_probe_req data (don't reset to default before commit)
 	uvcx_video_config_probe_commit_t h264_config_probe_req; //probe commit struct for h264 streams
 	uint8_t *h264_last_IDR;             // last IDR frame retrieved from uvc h264 stream
 	int h264_last_IDR_size;             // last IDR frame size
@@ -404,22 +405,22 @@ v4l2_dev_t *v4l2core_init_dev(const char *device);
  * Initiate the device list (with udev monitoring)
  * args:
  *   none
- * 
+ *
  * asserts:
  *   none
- * 
+ *
  * returns: none
- */ 
+ */
 void v4l2core_init_device_list();
 
 /*
  * get the device list data
  * args:
  *   none
- * 
+ *
  * asserts:
  *   none
- * 
+ *
  * returns: pointer to device list data
  */
 v4l2_device_list *v4l2core_get_device_list();
@@ -428,13 +429,13 @@ v4l2_device_list *v4l2core_get_device_list();
  * get the device index in device list
  * args:
  *   videodevice - string with videodevice node (e.g: /dev/video0)
- * 
+ *
  * asserts:
  *   none
- * 
+ *
  * returns:
  *   videodevice index in device list [0 - num_devices[ or -1 on error
- */ 
+ */
 int v4l2core_get_device_index(const char *videodevice);
 
 /*
@@ -809,6 +810,22 @@ int v4l2core_save_control_profile(v4l2_dev_t *vd, const char *filename);
 int v4l2core_load_control_profile(v4l2_dev_t *vd, const char *filename);
 
 /*
+ * ########### H264 controls ###########
+ */
+
+/*
+ * resets the h264 encoder
+ * args:
+ *   vd - pointer to video device data
+ *
+ * asserts:
+ *   vd is not null
+ *
+ * returns: 0 on success or error code on fail
+ */
+int v4l2core_reset_h264_encoder(v4l2_dev_t *vd);
+
+/*
  * request a IDR frame from the H264 encoder
  * args:
  *   vd - pointer to video device data
@@ -819,6 +836,19 @@ int v4l2core_load_control_profile(v4l2_dev_t *vd, const char *filename);
  * returns: none
  */
 void v4l2core_h264_request_idr(v4l2_dev_t *vd);
+
+/*
+ * query the frame rate config
+ * args:
+ *   vd - pointer to video device data
+ *   query - query type
+ *
+ * asserts:
+ *   vd is not null
+ *
+ * returns: frame rate config (FIXME: 0xffffffff on error)
+ */
+uint32_t v4l2core_query_h264_frame_rate_config(v4l2_dev_t *vd, uint8_t query);
 
 /*
  * get the frame rate config
@@ -844,6 +874,102 @@ uint32_t v4l2core_get_h264_frame_rate_config(v4l2_dev_t *vd);
  * returns: error code ( 0 -OK)
  */
 int v4l2core_set_h264_frame_rate_config(v4l2_dev_t *vd, uint32_t framerate);
+
+/*
+ * updates the h264_probe_commit_req field
+ * args:
+ *   vd - pointer to video device data
+ *   query - (UVC_GET_CUR; UVC_GET_MAX; UVC_GET_MIN)
+ *   config_probe_req - pointer to uvcx_video_config_probe_commit_t:
+ *     if null vd->h264_config_probe_req will be used
+ *
+ * asserts:
+ *   vd is not null
+ *
+ * returns: error code ( 0 -OK)
+ */
+int v4l2core_probe_h264_config_probe_req(
+			v4l2_dev_t *vd,
+			uint8_t query,
+			uvcx_video_config_probe_commit_t *config_probe_req);
+
+/*
+ * get the video rate control mode
+ * args:
+ *   vd - pointer to video device data
+ *   query - query type
+ *
+ * asserts:
+ *   vd is not null
+ *
+ * returns: video rate control mode (FIXME: 0xff on error)
+ */
+uint8_t v4l2core_get_h264_video_rate_control_mode(v4l2_dev_t *vd, uint8_t query);
+
+/*
+ * set the video rate control mode
+ * args:
+ *   vd - pointer to video device data
+ *   mode - rate mode
+ *
+ * asserts:
+ *   vd is not null
+ *
+ * returns: error code ( 0 -OK)
+ */
+int v4l2core_set_h264_video_rate_control_mode(v4l2_dev_t *vd, uint8_t mode);
+
+/*
+ * get the temporal scale mode
+ * args:
+ *   vd - pointer to video device data
+ *   query - query type
+ *
+ * asserts:
+ *   vd is not null
+ *
+ * returns: temporal scale mode (FIXME: 0xff on error)
+ */
+uint8_t v4l2core_get_h264_temporal_scale_mode(v4l2_dev_t *vd, uint8_t query);
+
+/*
+ * set the temporal scale mode
+ * args:
+ *   vd - pointer to video device data
+ *   mode - temporal scale mode
+ *
+ * asserts:
+ *   vd is not null
+ *
+ * returns: error code ( 0 -OK)
+ */
+int v4l2core_set_h264_temporal_scale_mode(v4l2_dev_t *vd, uint8_t mode);
+
+/*
+ * get the spatial scale mode
+ * args:
+ *   vd - pointer to video device data
+ *   query - query type
+ *
+ * asserts:
+ *   vd is not null
+ *
+ * returns: temporal scale mode (FIXME: 0xff on error)
+ */
+uint8_t v4l2core_get_h264_spatial_scale_mode(v4l2_dev_t *vd, uint8_t query);
+
+/*
+ * set the spatial scale mode
+ * args:
+ *   vd - pointer to video device data
+ *   mode - spatial scale mode
+ *
+ * asserts:
+ *   vd is not null
+ *
+ * returns: error code ( 0 -OK)
+ */
+int v4l2core_set_h264_spatial_scale_mode(v4l2_dev_t *vd, uint8_t mode);
 
 /*
  *  ######### XU CONTROLS ##########

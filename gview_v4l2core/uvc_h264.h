@@ -151,7 +151,7 @@ typedef struct
 #define xDependency_id(layer_id)  (((layer_id)>>3)&15)
 #define xTemporal_id(layer_id)    ((layer_id)&7)
 
-/* h264 probe commit struct (defined in v4l2uvc.h) */
+/* h264 probe commit struct (defined in gviewv4l2core.h) */
 
 /* rate control */
 typedef struct _uvcx_rate_control_mode_t
@@ -341,110 +341,6 @@ uint8_t h264_has_decoder();
  * returns: error code
  */
 int request_h264_frame_type(v4l2_dev_t *vd, uint16_t type);
-
-/*
- * get the video rate control mode
- * args:
- *   vd - pointer to video device data
- *   query - query type
- *
- * asserts:
- *   vd is not null
- *
- * returns: video rate control mode (FIXME: 0xff on error)
- */
-uint8_t get_h264_video_rate_control_mode(v4l2_dev_t *vd, uint8_t query);
-
-/*
- * set the video rate control mode
- * args:
- *   vd - pointer to video device data
- *   mode - rate mode
- *
- * asserts:
- *   vd is not null
- *
- * returns: error code ( 0 -OK)
- */
-int set_h264_video_rate_control_mode(v4l2_dev_t *vd, uint8_t mode);
-
-/*
- * get the temporal scale mode
- * args:
- *   vd - pointer to video device data
- *   query - query type
- *
- * asserts:
- *   vd is not null
- *
- * returns: temporal scale mode (FIXME: 0xff on error)
- */
-uint8_t get_h264_temporal_scale_mode(v4l2_dev_t *vd, uint8_t query);
-
-/*
- * set the temporal scale mode
- * args:
- *   vd - pointer to video device data
- *   mode - temporal scale mode
- *
- * asserts:
- *   vd is not null
- *
- * returns: error code ( 0 -OK)
- */
-int set_h264_temporal_scale_mode(v4l2_dev_t *vd, uint8_t mode);
-
-/*
- * get the spatial scale mode
- * args:
- *   vd - pointer to video device data
- *   query - query type
- *
- * asserts:
- *   vd is not null
- *
- * returns: temporal scale mode (FIXME: 0xff on error)
- */
-uint8_t get_h264_spatial_scale_mode(v4l2_dev_t *vd, uint8_t query);
-
-/*
- * set the spatial scale mode
- * args:
- *   vd - pointer to video device data
- *   mode - spatial scale mode
- *
- * asserts:
- *   vd is not null
- *
- * returns: error code ( 0 -OK)
- */
-int set_h264_spatial_scale_mode(v4l2_dev_t *vd, uint8_t mode);
-
-/*
- * get the frame rate config
- * args:
- *   vd - pointer to video device data
- *   query - query type
- *
- * asserts:
- *   vd is not null
- *
- * returns: temporal scale mode (FIXME: 0xffffffff on error)
- */
-uint32_t uvcx_get_frame_rate_config(v4l2_dev_t *vd, uint8_t query);
-
-/*
- * set the frame rate config
- * args:
- *   vd - pointer to video device data
- *   framerate - framerate
- *
- * asserts:
- *   vd is not null
- *
- * returns: error code ( 0 -OK)
- */
-int set_h264_frame_rate_config(v4l2_dev_t *vd, uint32_t framerate);
 
 /*
  * init h264 decoder context

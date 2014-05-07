@@ -256,14 +256,14 @@ static int uvcx_video_commit(v4l2_dev_t *vd, uvcx_video_config_probe_commit_t *u
 uint8_t get_uvc_h624_unit_id (v4l2_dev_t *vd)
 {
 	v4l2_device_list *my_device_list = v4l2core_get_device_list();
-	
+
 	/*asserts*/
 	assert(vd != NULL);
 	assert(my_device_list->list_devices != NULL);
 
 	uint64_t busnum = my_device_list->list_devices[vd->this_device].busnum;
 	uint64_t devnum = my_device_list->list_devices[vd->this_device].devnum;
-	
+
 	if(verbosity > 2)
 		printf("V4L2_CORE: checking h264 unit id for device %i (bus:%"PRId64" dev:%"PRId64")\n", vd->this_device, busnum, devnum);
     /* use libusb */
@@ -284,10 +284,10 @@ uint8_t get_uvc_h624_unit_id (v4l2_dev_t *vd)
     {
 		uint64_t dev_busnum = libusb_get_bus_number (device_list[i]);
 		uint64_t dev_devnum = libusb_get_device_address (device_list[i]);
-		
+
 		if(verbosity > 2)
 			printf("V4L2_CORE: (libusb) checking bus(%" PRId64 ") dev(%" PRId64 ") for device\n", dev_busnum, dev_devnum);
-		
+
 		if (busnum == dev_busnum &&	devnum == dev_devnum)
 		{
 			device = libusb_ref_device (device_list[i]);
@@ -530,7 +530,11 @@ void set_h264_muxed_format(v4l2_dev_t *vd)
 	/*
 	 * Get default values (safe)
 	 */
-	uvcx_video_probe(vd, UVC_GET_DEF, config_probe_req);
+	if(!(vd->h264_no_probe_default))
+		uvcx_video_probe(vd, UVC_GET_DEF, config_probe_req);
+
+	/*reset it - must be set on every call*/
+	vd->h264_no_probe_default = 0;
 
 	/*set resolution*/
 	config_probe_req->wWidth = vd->format.fmt.pix.width;
@@ -611,6 +615,25 @@ int request_h264_frame_type(v4l2_dev_t *vd, uint16_t type)
 }
 
 /*
+ * resets the h264 encoder
+ * args:
+ *   vd - pointer to video device data
+ *
+ * asserts:
+ *   vd is not null
+ *
+ * returns: 0 on success or error code on fail
+ */
+int v4l2core_reset_h264_encoder(v4l2_dev_t *vd)
+{
+	/*asserts*/
+	assert(vd != NULL);
+
+	/* reset the encoder*/
+	return uvcx_video_encoder_reset(vd);
+}
+
+/*
  * get the video rate control mode
  * args:
  *   vd - pointer to video device data
@@ -621,7 +644,7 @@ int request_h264_frame_type(v4l2_dev_t *vd, uint16_t type)
  *
  * returns: video rate control mode (FIXME: 0xff on error)
  */
-uint8_t get_h264_video_rate_control_mode(v4l2_dev_t *vd, uint8_t query)
+uint8_t v4l2core_get_h264_video_rate_control_mode(v4l2_dev_t *vd, uint8_t query)
 {
 	/*asserts*/
 	assert(vd != NULL);
@@ -656,7 +679,7 @@ uint8_t get_h264_video_rate_control_mode(v4l2_dev_t *vd, uint8_t query)
  *
  * returns: error code ( 0 -OK)
  */
-int set_h264_video_rate_control_mode(v4l2_dev_t *vd, uint8_t mode)
+int v4l2core_set_h264_video_rate_control_mode(v4l2_dev_t *vd, uint8_t mode)
 {
 	/*asserts*/
 	assert(vd != NULL);
@@ -693,7 +716,7 @@ int set_h264_video_rate_control_mode(v4l2_dev_t *vd, uint8_t mode)
  *
  * returns: temporal scale mode (FIXME: 0xff on error)
  */
-uint8_t get_h264_temporal_scale_mode(v4l2_dev_t *vd, uint8_t query)
+uint8_t v4l2core_get_h264_temporal_scale_mode(v4l2_dev_t *vd, uint8_t query)
 {
 	/*asserts*/
 	assert(vd != NULL);
@@ -730,7 +753,7 @@ uint8_t get_h264_temporal_scale_mode(v4l2_dev_t *vd, uint8_t query)
  *
  * returns: error code ( 0 -OK)
  */
-int set_h264_temporal_scale_mode(v4l2_dev_t *vd, uint8_t mode)
+int v4l2core_set_h264_temporal_scale_mode(v4l2_dev_t *vd, uint8_t mode)
 {
 	/*asserts*/
 	assert(vd != NULL);
@@ -767,7 +790,7 @@ int set_h264_temporal_scale_mode(v4l2_dev_t *vd, uint8_t mode)
  *
  * returns: temporal scale mode (FIXME: 0xff on error)
  */
-uint8_t get_h264_spatial_scale_mode(v4l2_dev_t *vd, uint8_t query)
+uint8_t v4l2core_get_h264_spatial_scale_mode(v4l2_dev_t *vd, uint8_t query)
 {
 	/*asserts*/
 	assert(vd != NULL);
@@ -804,7 +827,7 @@ uint8_t get_h264_spatial_scale_mode(v4l2_dev_t *vd, uint8_t query)
  *
  * returns: error code ( 0 -OK)
  */
-int set_h264_spatial_scale_mode(v4l2_dev_t *vd, uint8_t mode)
+int v4l2core_set_h264_spatial_scale_mode(v4l2_dev_t *vd, uint8_t mode)
 {
 	/*asserts*/
 	assert(vd != NULL);
@@ -831,7 +854,7 @@ int set_h264_spatial_scale_mode(v4l2_dev_t *vd, uint8_t mode)
 }
 
 /*
- * get the frame rate config
+ * query the frame rate config
  * args:
  *   vd - pointer to video device data
  *   query - query type
@@ -841,7 +864,7 @@ int set_h264_spatial_scale_mode(v4l2_dev_t *vd, uint8_t mode)
  *
  * returns: frame rate config (FIXME: 0xffffffff on error)
  */
-uint32_t uvcx_get_h264_frame_rate_config(v4l2_dev_t *vd, uint8_t query)
+uint32_t v4l2core_query_h264_frame_rate_config(v4l2_dev_t *vd, uint8_t query)
 {
 	/*asserts*/
 	assert(vd != NULL);
@@ -879,7 +902,7 @@ uint32_t uvcx_get_h264_frame_rate_config(v4l2_dev_t *vd, uint8_t query)
  */
 uint32_t v4l2core_get_h264_frame_rate_config(v4l2_dev_t *vd)
 {
-	return uvcx_get_h264_frame_rate_config(vd, UVC_GET_CUR);
+	return v4l2core_query_h264_frame_rate_config(vd, UVC_GET_CUR);
 }
 
 /*
@@ -917,6 +940,40 @@ int v4l2core_set_h264_frame_rate_config(v4l2_dev_t *vd, uint32_t framerate)
 	}
 
 	return err;
+}
+
+/*
+ * updates the h264_probe_commit_req field
+ * args:
+ *   vd - pointer to video device data
+ *   query - (UVC_GET_CUR; UVC_GET_MAX; UVC_GET_MIN)
+ *   config_probe_cur - pointer to uvcx_video_config_probe_commit_t:
+ *     if null vd->h264_config_probe_req will be used
+ *
+ * asserts:
+ *   vd is not null
+ *
+ * returns: error code ( 0 -OK)
+ */
+int v4l2core_probe_h264_config_probe_req(
+			v4l2_dev_t *vd,
+			uint8_t query,
+			uvcx_video_config_probe_commit_t *config_probe_req)
+{
+	/*asserts*/
+	assert(vd != NULL);
+
+	if(vd->h264_unit_id <= 0)
+	{
+		if(verbosity > 0)
+			printf("V4L2_CORE: device doesn't seem to support uvc H264 (%i)\n", vd->h264_unit_id);
+		return E_NO_STREAM_ERR;
+	}
+
+	if(config_probe_req == NULL)
+		config_probe_req = &(vd->h264_config_probe_req);
+
+	return uvcx_video_probe(vd, query, config_probe_req);
 }
 
 /*
