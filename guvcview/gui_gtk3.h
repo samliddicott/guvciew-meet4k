@@ -194,6 +194,20 @@ int gui_attach_gtk3_menu(v4l2_dev_t *device, GtkWidget *parent);
 int gui_attach_gtk3_v4l2ctrls(v4l2_dev_t *device, GtkWidget *parent);
 
 /*
+ * attach h264 controls tab widget
+ * args:
+ *   device - pointer to device data we want to attach the gui for
+ *   parent - tab parent widget
+ *
+ * asserts:
+ *   device is not null
+ *   parent is not null
+ *
+ * returns: error code (0 -OK)
+ */
+int gui_attach_gtk3_h264ctrls (v4l2_dev_t *device, GtkWidget *parent);
+
+/*
  * attach v4l2 video controls tab widget
  * args:
  *   device - pointer to device data we want to attach the gui for
