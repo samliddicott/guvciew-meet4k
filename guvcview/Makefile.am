@@ -35,12 +35,13 @@ guvcview_CFLAGS = $(GUVCVIEW_CFLAGS) \
 
 guvcview_LDFLAGS = $(LIBINTL)
 
-guvcview_LDADD = $(GUVCVIEW_LIBS) \
-		 $(PTHREAD_LIBS) \
-                   ../gview_v4l2core/$(GVIEWV4L2CORE_LIBRARY_NAME).la \
-                   ../gview_render/$(GVIEWRENDER_LIBRARY_NAME).la \
-                   ../gview_audio/$(GVIEWAUDIO_LIBRARY_NAME).la \
-                   ../gview_encoder/$(GVIEWENCODER_LIBRARY_NAME).la
+guvcview_LDADD = ../gview_v4l2core/$(GVIEWV4L2CORE_LIBRARY_NAME).la \
+                 ../gview_render/$(GVIEWRENDER_LIBRARY_NAME).la \
+                 ../gview_audio/$(GVIEWAUDIO_LIBRARY_NAME).la \
+                 ../gview_encoder/$(GVIEWENCODER_LIBRARY_NAME).la \
+                 $(GUVCVIEW_LIBS) \
+				 $(PTHREAD_LIBS) \
+                 -lm
 
 localedir = $(datadir)/locale
 DEFS = -DLOCALEDIR=\"$(localedir)\" @DEFS@
