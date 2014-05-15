@@ -32,8 +32,13 @@
 #ifndef GVIEWAUDIO_H
 #define GVIEWAUDIO_H
 
+#include <features.h>
+
 #include <inttypes.h>
 #include <sys/types.h>
+
+/*make sure we support c++*/
+__BEGIN_DECLS
 
 /*Audio API*/
 #define AUDIO_NONE          (0)
@@ -238,5 +243,7 @@ int audio_stop(audio_context_t *audio_ctx);
  * returns: none
  */
 void audio_close(audio_context_t *audio_ctx);
+
+__END_DECLS
 
 #endif

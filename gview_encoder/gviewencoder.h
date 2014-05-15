@@ -32,6 +32,8 @@
 #ifndef GVIEWENCODER_H
 #define GVIEWENCODER_H
 
+#include <features.h>
+
 #include <inttypes.h>
 #include <sys/types.h>
 
@@ -50,6 +52,9 @@
     #endif
   #endif
 #endif
+
+/*make sure we support c++*/
+__BEGIN_DECLS
 
 /*encoder modes*/
 #define ENCODER_MODE_NONE   (0)
@@ -757,5 +762,7 @@ int encoder_write_audio_data(encoder_context_t *encoder_ctx);
  *          0 otherwise
  */
 int encoder_disk_supervisor(int treshold, const char *path);
+
+__END_DECLS
 
 #endif

@@ -22,6 +22,8 @@
 #ifndef GVIEWV4L2CORE_H
 #define GVIEWV4L2CORE_H
 
+#include <features.h>
+
 #include <linux/videodev2.h>
 #include <linux/uvcvideo.h>
 #include <linux/media.h>
@@ -29,6 +31,9 @@
 #include <pthread.h>
 #include <inttypes.h>
 #include <sys/types.h>
+
+/*make sure we support c++*/
+__BEGIN_DECLS
 
 /*
  * LOGITECH Dynamic controls defs
@@ -178,7 +183,6 @@ typedef struct _uvcx_video_config_probe_commit_t
 	uint8_t   bSpatialLayerRatio;
 	uint16_t  wLeakyBucketSize;
 } __attribute__((__packed__)) uvcx_video_config_probe_commit_t;
-
 
 /*
  * v4l2 stream capability data
@@ -1069,6 +1073,8 @@ int v4l2core_save_image(v4l2_dev_t *vd, const char *filename, int format);
  * returns: monotonic time in nanoseconds
  */
 uint64_t v4l2core_time_get_timestamp();
+
+__END_DECLS
 
 #endif
 

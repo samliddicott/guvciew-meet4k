@@ -32,8 +32,13 @@
 #ifndef GVIEWRENDER_H
 #define GVIEWRENDER_H
 
+#include <features.h>
+
 #include <inttypes.h>
 #include <sys/types.h>
+
+/*make sure we support c++*/
+__BEGIN_DECLS
 
 #define RENDER_NONE     (0)
 #define RENDER_SDL      (1)
@@ -269,5 +274,7 @@ void render_clean_fx();
  * returns: none
  */
 void render_close();
+
+__END_DECLS
 
 #endif
