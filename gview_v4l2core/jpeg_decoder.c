@@ -972,6 +972,11 @@ int jpeg_decode(uint8_t **pic, uint8_t *buf, int width, int height)
 	int err = 0;
 	int isInitHuffman = 0;
 	decdata = calloc(1, sizeof(struct jpeg_decdata));
+	if(decdata == NULL)
+	{
+		fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (jpeg_decode): %s\n", strerror(errno));
+		exit(-1);
+	}
 
 	for(i=0;i<6;i++)
 		max[i]=0;
@@ -1121,6 +1126,11 @@ int jpeg_decode(uint8_t **pic, uint8_t *buf, int width, int height)
 		height = intheight;
 		// BytesperPixel 2 yuyv , 3 rgb24
 		*pic = calloc( intwidth * (intheight + 8) * 2, sizeof(uint8_t));
+		if(*pic == NULL)
+		{
+			fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (alloc_v4l2_frames): %s\n", strerror(errno));
+			exit(-1);
+		}
 	}
 
 	switch (dscans[0].hv)

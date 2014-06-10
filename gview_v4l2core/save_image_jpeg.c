@@ -1034,8 +1034,18 @@ int save_image_jpeg(v4l2_dev_t *vd, const char *filename)
 	int ret = E_OK;
 
 	jpeg_encoder_ctx_t *jpeg_ctx = calloc(1, sizeof(jpeg_encoder_ctx_t));
+	if(jpeg_ctx == NULL)
+	{
+		fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (save_image_jpeg): %s\n", strerror(errno));
+		exit(-1);
+	}
 
 	uint8_t *jpeg = calloc((vd->format.fmt.pix.width * vd->format.fmt.pix.height) >> 1, sizeof(uint8_t));
+	if(jpeg == NULL)
+	{
+		fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (save_image_jpeg): %s\n", strerror(errno));
+		exit(-1);
+	}
 
 	/* Initialization of JPEG control structure */
 	initialization (jpeg_ctx, vd->format.fmt.pix.width, vd->format.fmt.pix.height);

@@ -102,6 +102,11 @@ int enum_v4l2_devices()
     struct v4l2_capability v4l2_cap;
 
     my_device_list.list_devices = calloc(1, sizeof(v4l2_dev_sys_data_t));
+    if(my_device_list.list_devices == NULL)
+	{
+		fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (enum_v4l2_devices): %s\n", strerror(errno));
+		exit(-1);
+	}
 
     /* Create a list of the devices in the 'v4l2' subsystem. */
     enumerate = udev_enumerate_new(my_device_list.udev);
@@ -152,6 +157,11 @@ int enum_v4l2_devices()
         num_dev++;
         /* Update the device list*/
         my_device_list.list_devices = realloc(my_device_list.list_devices, num_dev * sizeof(v4l2_dev_sys_data_t));
+        if(my_device_list.list_devices == NULL)
+		{
+			fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (enum_v4l2_devices): %s\n", strerror(errno));
+			exit(-1);
+		}
         my_device_list.list_devices[num_dev-1].device = strdup(v4l2_device);
         my_device_list.list_devices[num_dev-1].name = strdup((char *) v4l2_cap.card);
         my_device_list.list_devices[num_dev-1].driver = strdup((char *) v4l2_cap.driver);

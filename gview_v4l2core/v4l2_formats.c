@@ -301,9 +301,19 @@ static int enum_frame_intervals(v4l2_dev_t *vd,
 			vd->list_stream_formats[fmtind-1].list_stream_cap[fsizeind-1].framerate_num = realloc(
 				vd->list_stream_formats[fmtind-1].list_stream_cap[fsizeind-1].framerate_num,
 				sizeof(int) * list_fps);
+			if(vd->list_stream_formats[fmtind-1].list_stream_cap[fsizeind-1].framerate_num == NULL)
+			{
+				fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (enum_frame_intervals): %s\n", strerror(errno));
+				exit(-1);
+			}
 			vd->list_stream_formats[fmtind-1].list_stream_cap[fsizeind-1].framerate_denom = realloc(
 				vd->list_stream_formats[fmtind-1].list_stream_cap[fsizeind-1].framerate_denom,
 				sizeof(int) * list_fps);
+			if(vd->list_stream_formats[fmtind-1].list_stream_cap[fsizeind-1].framerate_denom == NULL)
+			{
+				fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (enum_frame_intervals): %s\n", strerror(errno));
+				exit(-1);
+			}
 
 			vd->list_stream_formats[fmtind-1].list_stream_cap[fsizeind-1].framerate_num[list_fps-1] = fival.discrete.numerator;
 			vd->list_stream_formats[fmtind-1].list_stream_cap[fsizeind-1].framerate_denom[list_fps-1] = fival.discrete.denominator;
@@ -334,9 +344,19 @@ static int enum_frame_intervals(v4l2_dev_t *vd,
 		vd->list_stream_formats[fmtind-1].list_stream_cap[fsizeind-1].framerate_num = realloc(
 				vd->list_stream_formats[fmtind-1].list_stream_cap[fsizeind-1].framerate_num,
 				sizeof(int));
+		if(vd->list_stream_formats[fmtind-1].list_stream_cap[fsizeind-1].framerate_num == NULL)
+		{
+			fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (enum_frame_intervals): %s\n", strerror(errno));
+			exit(-1);
+		}
 		vd->list_stream_formats[fmtind-1].list_stream_cap[fsizeind-1].framerate_denom = realloc(
 				vd->list_stream_formats[fmtind-1].list_stream_cap[fsizeind-1].framerate_denom,
 				sizeof(int));
+		if(vd->list_stream_formats[fmtind-1].list_stream_cap[fsizeind-1].framerate_denom == NULL)
+		{
+			fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (enum_frame_intervals): %s\n", strerror(errno));
+			exit(-1);
+		}
 
 		vd->list_stream_formats[fmtind-1].list_stream_cap[fsizeind-1].framerate_num[0] = 1;
 		vd->list_stream_formats[fmtind-1].list_stream_cap[fsizeind-1].framerate_denom[0] = 1;
@@ -499,11 +519,21 @@ static int enum_frame_sizes(v4l2_dev_t *vd, uint32_t pixfmt, int fmtind)
 		vd->list_stream_formats[fmtind-1].list_stream_cap[0].framerate_num = realloc(
 			vd->list_stream_formats[fmtind-1].list_stream_cap[0].framerate_num,
 			sizeof(int));
+		if(vd->list_stream_formats[fmtind-1].list_stream_cap[0].framerate_num == NULL)
+		{
+			fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (enum_frame_intervals): %s\n", strerror(errno));
+			exit(-1);
+		}
 
 		vd->list_stream_formats[fmtind-1].list_stream_cap[0].framerate_denom = NULL;
 		vd->list_stream_formats[fmtind-1].list_stream_cap[0].framerate_denom = realloc(
 			vd->list_stream_formats[fmtind-1].list_stream_cap[0].framerate_denom,
 			sizeof(int));
+		if(vd->list_stream_formats[fmtind-1].list_stream_cap[0].framerate_denom == NULL)
+		{
+			fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (enum_frame_intervals): %s\n", strerror(errno));
+			exit(-1);
+		}
 
 		vd->list_stream_formats[fmtind-1].list_stream_cap[0].width = width;
 		vd->list_stream_formats[fmtind-1].list_stream_cap[0].height = height;
@@ -544,6 +574,11 @@ int enum_frame_formats(v4l2_dev_t *vd)
 	fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 
 	vd->list_stream_formats = calloc ( 1, sizeof(v4l2_stream_formats_t));
+	if(vd->list_stream_formats == NULL)
+	{
+		fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (enum_frame_formats): %s\n", strerror(errno));
+		exit(-1);
+	}
 	vd->list_stream_formats[0].list_stream_cap = NULL;
 
 	while ((ret = xioctl(vd->fd, VIDIOC_ENUM_FMT, &fmt)) == 0)

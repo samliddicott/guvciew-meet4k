@@ -157,14 +157,15 @@ int save_image_bmp(v4l2_dev_t *vd, const char *filename)
 	int height = vd->format.fmt.pix.height;
 
 	uint8_t *bmp = calloc(width * height * 3, sizeof(uint8_t));
-	if(bmp)
+	if(bmp == NULL)
 	{
-		yuyv2bgr(vd->yuv_frame, bmp, width, height);
-		ret = save_bmp(filename, bmp, width, height, 24);
-		free(bmp);
+		fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (save_img_bmp): %s\n", strerror(errno));
+		exit(-1);
 	}
-	else
-		ret = E_ALLOC_ERR;
-
+	
+	yuyv2bgr(vd->yuv_frame, bmp, width, height);
+	ret = save_bmp(filename, bmp, width, height, 24);
+	free(bmp);
+	
 	return ret;
 }

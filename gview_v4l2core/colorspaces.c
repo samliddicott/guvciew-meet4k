@@ -21,7 +21,9 @@
 ********************************************************************************/
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
+#include <errno.h>
 
 #include "gview.h"
 
@@ -216,6 +218,13 @@ void y10b_to_yuyv (uint8_t *framebuffer, uint8_t *tmpbuffer, int width, int heig
 	int w = 0;
 
 	unpacked_buffer = malloc(width * height * sizeof(uint16_t));
+	
+	if (unpacked_buffer == NULL)
+	{
+		fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (y10b_to_yuyv): %s\n", strerror(errno));
+		exit(-1);
+	}
+	
 	convert_packed_to_16bit(tmpbuffer, unpacked_buffer, 10, width * height);
 
 	ptmp = unpacked_buffer;

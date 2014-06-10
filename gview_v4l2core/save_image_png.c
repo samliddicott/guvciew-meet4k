@@ -237,8 +237,11 @@ int save_image_png(v4l2_dev_t *vd, const char *filename)
 	int height = vd->format.fmt.pix.height;
 
 	uint8_t *rgb = calloc( width * height * 3, sizeof(uint8_t));
-	if(!rgb)
-		return(E_ALLOC_ERR);
+	if(rgb == NULL)
+	{
+		fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (save_image_png): %s\n", strerror(errno));
+		exit(-1);
+	}
 
 	yuyv2rgb(vd->yuv_frame, rgb, width, height);
 

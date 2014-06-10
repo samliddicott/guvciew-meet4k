@@ -83,17 +83,39 @@ int alloc_v4l2_frames(v4l2_dev_t *vd)
 			vd->h264_frame_max_size = width * height; /*1 byte per pixel*/
 
 			vd->h264_last_IDR = calloc(vd->h264_frame_max_size, sizeof(uint8_t));
+			if(vd->h264_last_IDR == NULL)
+			{
+				fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (alloc_v4l2_frames): %s\n", strerror(errno));
+				exit(-1);
+			}
+			
 			vd->h264_last_IDR_size = 0; /*reset (no frame stored)*/
 
 			vd->h264_frame = calloc(vd->h264_frame_max_size, sizeof(uint8_t));
+			
+			if(vd->h264_frame == NULL)
+			{
+				fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (alloc_v4l2_frames): %s\n", strerror(errno));
+				exit(-1);
+			}
 
 		case V4L2_PIX_FMT_JPEG:
 		case V4L2_PIX_FMT_MJPEG:
 			/* alloc a temp buffer to reconstruct the pict (MJPEG)*/
 			vd->tmp_buffer_max_size = framesizeIn;
 			vd->tmp_buffer = calloc(vd->tmp_buffer_max_size, sizeof(uint8_t));
+			if(vd->tmp_buffer == NULL)
+			{
+				fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (alloc_v4l2_frames): %s\n", strerror(errno));
+				exit(-1);
+			}
 			framebuf_size = width * (height + 8) * 2; //FIXME: why 8 more lines ?
 			vd->yuv_frame = calloc(framebuf_size, sizeof(uint8_t));
+			if(vd->yuv_frame == NULL)
+			{
+				fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (alloc_v4l2_frames): %s\n", strerror(errno));
+				exit(-1);
+			}
 			break;
 
 		case V4L2_PIX_FMT_UYVY:
@@ -112,16 +134,36 @@ int alloc_v4l2_frames(v4l2_dev_t *vd)
 			/* alloc a temp buffer for colorspace conversion*/
 			vd->tmp_buffer_max_size = framesizeIn;
 			vd->tmp_buffer = calloc(vd->tmp_buffer_max_size, sizeof(uint8_t));
+			if(vd->tmp_buffer == NULL)
+			{
+				fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (alloc_v4l2_frames): %s\n", strerror(errno));
+				exit(-1);
+			}
 			framebuf_size = framesizeIn;
 			vd->yuv_frame = calloc(framebuf_size, sizeof(uint8_t));
+			if(vd->yuv_frame == NULL)
+			{
+				fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (alloc_v4l2_frames): %s\n", strerror(errno));
+				exit(-1);
+			}
 			break;
 
 		case V4L2_PIX_FMT_GREY:
 			/* alloc a temp buffer for colorspace conversion*/
 			vd->tmp_buffer_max_size = width * height; /* 1 byte per pixel*/
 			vd->tmp_buffer = calloc(vd->tmp_buffer_max_size, sizeof(uint8_t));
+			if(vd->tmp_buffer == NULL)
+			{
+				fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (alloc_v4l2_frames): %s\n", strerror(errno));
+				exit(-1);
+			}
 			framebuf_size = framesizeIn;
 			vd->yuv_frame = calloc(framebuf_size, sizeof(uint8_t));
+			if(vd->yuv_frame == NULL)
+			{
+				fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (alloc_v4l2_frames): %s\n", strerror(errno));
+				exit(-1);
+			}
 			break;
 
 	    case V4L2_PIX_FMT_Y10BPACK:
@@ -129,8 +171,18 @@ int alloc_v4l2_frames(v4l2_dev_t *vd)
 			/* alloc a temp buffer for colorspace conversion*/
 			vd->tmp_buffer_max_size = framesizeIn; /* 2 byte per pixel*/
 			vd->tmp_buffer = calloc(vd->tmp_buffer_max_size, sizeof(uint8_t));
+			if(vd->tmp_buffer == NULL)
+			{
+				fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (alloc_v4l2_frames): %s\n", strerror(errno));
+				exit(-1);
+			}
 			framebuf_size = framesizeIn;
 			vd->yuv_frame = calloc(framebuf_size, sizeof(uint8_t));
+			if(vd->yuv_frame == NULL)
+			{
+				fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (alloc_v4l2_frames): %s\n", strerror(errno));
+				exit(-1);
+			}
 			break;
 
 		case V4L2_PIX_FMT_YUYV:
@@ -141,6 +193,11 @@ int alloc_v4l2_frames(v4l2_dev_t *vd)
 			 */
 			framebuf_size = framesizeIn;
 			vd->yuv_frame = calloc(framebuf_size, sizeof(uint8_t));
+			if(vd->yuv_frame == NULL)
+			{
+				fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (alloc_v4l2_frames): %s\n", strerror(errno));
+				exit(-1);
+			}
 			break;
 
 		case V4L2_PIX_FMT_SGBRG8: /*0*/
@@ -158,14 +215,29 @@ int alloc_v4l2_frames(v4l2_dev_t *vd)
 			/* rgb buffer for decoding bayer data*/
 			vd->tmp_buffer_max_size = width * height * 3;
 			vd->tmp_buffer = calloc(vd->tmp_buffer_max_size, sizeof(uint8_t));
+			if(vd->tmp_buffer == NULL)
+			{
+				fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (alloc_v4l2_frames): %s\n", strerror(errno));
+				exit(-1);
+			}
 			framebuf_size = framesizeIn;
 			vd->yuv_frame = calloc(framebuf_size, sizeof(uint8_t));
+			if(vd->yuv_frame == NULL)
+			{
+				fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (alloc_v4l2_frames): %s\n", strerror(errno));
+				exit(-1);
+			}
 			break;
 		case V4L2_PIX_FMT_RGB24:
 		case V4L2_PIX_FMT_BGR24:
 			/*convert directly from raw_frame*/
 			framebuf_size = framesizeIn;
 			vd->yuv_frame = calloc(framebuf_size, sizeof(uint8_t));
+			if(vd->yuv_frame == NULL)
+			{
+				fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (alloc_v4l2_frames): %s\n", strerror(errno));
+				exit(-1);
+			}
 			break;
 
 		default:
@@ -350,6 +422,11 @@ static int parse_NALU(uint8_t type, uint8_t **NALU, uint8_t *buff, int size)
 		nal_size = buff + size - nal;
 
 	*NALU = calloc(nal_size, sizeof(uint8_t));
+	if(*NALU == NULL)
+	{
+		fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (parse_NALU): %s\n", strerror(errno));
+		exit(-1);
+	}
 	memcpy(*NALU, nal, nal_size);
 
 	//char test_filename2[20];
@@ -933,6 +1010,11 @@ int v4l2core_frame_decode(v4l2_dev_t *vd)
 					/* rgb buffer for decoding bayer data*/
 					vd->tmp_buffer_max_size = width * height * 3;
 					vd->tmp_buffer = calloc(vd->tmp_buffer_max_size, sizeof(uint8_t));
+					if(vd->tmp_buffer == NULL)
+					{
+						fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (v4l2core_frame_decode): %s\n", strerror(errno));
+						exit(-1);
+					}
 				}
 				bayer_to_rgb24 (vd->raw_frame, vd->tmp_buffer, width, height, vd->bayer_pix_order);
 				// raw bayer is only available in logitech cameras in yuyv mode

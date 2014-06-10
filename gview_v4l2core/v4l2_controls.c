@@ -318,6 +318,12 @@ static v4l2_ctrl_t *add_control(v4l2_dev_t *vd, struct v4l2_queryctrl* queryctrl
                 menu = calloc(i+1, sizeof(struct v4l2_querymenu));
             else
                 menu = realloc(menu, (i+1) * sizeof(struct v4l2_querymenu));
+            
+            if(menu == NULL)
+			{
+				fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (add_control): %s\n", strerror(errno));
+				exit(-1);
+			}
 
             memcpy(&(menu[i]), &querymenu, sizeof(struct v4l2_querymenu));
             i++;
@@ -328,7 +334,13 @@ static v4l2_ctrl_t *add_control(v4l2_dev_t *vd, struct v4l2_queryctrl* queryctrl
             menu = calloc(i+1, sizeof(struct v4l2_querymenu));
         else
             menu = realloc(menu, (i+1) * sizeof(struct v4l2_querymenu));
-
+		
+		if(menu == NULL)
+		{
+			fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (add_control): %s\n", strerror(errno));
+			exit(-1);
+		}
+		
         menu[i].id = querymenu.id;
         menu[i].index = queryctrl->maximum+1;
         if(queryctrl->type == V4L2_CTRL_TYPE_MENU)
@@ -347,6 +359,11 @@ static v4l2_ctrl_t *add_control(v4l2_dev_t *vd, struct v4l2_queryctrl* queryctrl
 
     // Add the control to the linked list
     control = calloc (1, sizeof(v4l2_ctrl_t));
+    if(control == NULL)
+	{
+		fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (add_control): %s\n", strerror(errno));
+		exit(-1);
+	}
     memcpy(&(control->control), queryctrl, sizeof(struct v4l2_queryctrl));
     control->class = V4L2_CTRL_ID2CLASS(control->control.id);
     control->name = strdup(dgettext(GETTEXT_PACKAGE, control->control.name));
@@ -356,6 +373,11 @@ static v4l2_ctrl_t *add_control(v4l2_dev_t *vd, struct v4l2_queryctrl* queryctrl
     {
 		int i = 0;
 		control->menu_entry = calloc(menu_entries, sizeof(char *));
+		if(control->menu_entry == NULL)
+		{
+			fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (add_control): %s\n", strerror(errno));
+			exit(-1);
+		}
 		for(i = 0; i< menu_entries; i++)
 			control->menu_entry[i] = strdup(dgettext(GETTEXT_PACKAGE, control->menu[i].name));
 		control->menu_entries = menu_entries;
@@ -368,7 +390,14 @@ static v4l2_ctrl_t *add_control(v4l2_dev_t *vd, struct v4l2_queryctrl* queryctrl
 #ifdef V4L2_CTRL_TYPE_STRING
     //allocate a string with max size if needed
     if(control->control.type == V4L2_CTRL_TYPE_STRING)
+    {
         control->string = (char *) calloc (control->control.maximum + 1, sizeof(char));
+        if(control->string == NULL)
+		{
+			fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (add_control): %s\n", strerror(errno));
+			exit(-1);
+		}
+    }
     else
 #endif
         control->string = NULL;
@@ -788,6 +817,11 @@ void get_v4l2_control_values (v4l2_dev_t *vd)
         {
             clist[count].size = current->control.maximum;
             clist[count].string = (char *) calloc(clist[count].size + 1,  sizeof(char));
+            if(clist[count].string == NULL)
+			{
+				fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (get_v4l2_control_values): %s\n", strerror(errno));
+				exit(-1);
+			}
         }
 #endif
         count++;
@@ -949,6 +983,11 @@ int v4l2core_get_control_value_by_id (v4l2_dev_t *vd, int id)
         {
             ctrl.size = control->control.maximum;
             ctrl.string = (char *) calloc(ctrl.size + 1, sizeof(char));
+            if(ctrl.string == NULL)
+			{
+				fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (v4l2core_get_control_value_by_id): %s\n", strerror(errno));
+				exit(-1);
+			}
         }
 #endif
         ctrls.ctrl_class = control->class;
@@ -1052,6 +1091,11 @@ void set_v4l2_control_values (v4l2_dev_t *vd)
 				{
 					clist[count].size = max_len;
 					clist[count].string = (char *) calloc(max_len, sizeof(char));
+					if(clist[count].string == NULL)
+					{
+						fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (set_v4l2_control_values): %s\n", strerror(errno));
+						exit(-1);
+					}
 					clist[count].string = strncpy(clist[count].string, current->string, max_len);
 					clist[count].string[max_len - 1] = '/0'; /*NULL terminated*/
 					fprintf(stderr, "V4L2_CORE: control (0x%08x) trying to set string size of %d when max is %d (clip)\n",
@@ -1262,6 +1306,11 @@ int v4l2core_set_control_value_by_id(v4l2_dev_t *vd, int id)
 				{
 					ctrl.size = max_len;
 					ctrl.string = (char *) calloc(max_len, sizeof(char));
+					if(ctrl.string == NULL)
+					{
+						fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (v4l2core_set_control_value_by_id): %s\n", strerror(errno));
+						exit(-1);
+					}
 					ctrl.string = strncpy(ctrl.string, control->string, max_len);
 					ctrl.string[max_len -1] = '/0'; /*NULL terminated*/
 					fprintf(stderr, "V4L2_CORE: control (0x%08x) trying to set string size of %d when max is %d (clip)\n",

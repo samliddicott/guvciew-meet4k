@@ -31,6 +31,7 @@
 #include <inttypes.h>
 #include <sys/types.h>
 #include <string.h>
+#include <errno.h>
 #include <math.h>
 #include <assert.h>
 
@@ -159,9 +160,11 @@ int v4l2core_soft_autofocus_init (v4l2_dev_t *vd)
 		free(focus_ctx);
 
 	focus_ctx = calloc(1, sizeof(focus_ctx_t));
-
 	if(focus_ctx == NULL)
-		return (E_ALLOC_ERR);
+	{
+		fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (v4l2core_soft_autofocus_init): %s\n", strerror(errno));
+		exit(-1);
+	}
 
     focus_ctx->focus_control = v4l2core_get_control_by_id(vd, vd->has_focus_control_id);
 

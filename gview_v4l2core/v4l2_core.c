@@ -976,6 +976,11 @@ static int try_video_stream_format(v4l2_dev_t *vd, int width, int height, int pi
 			memset(&vd->buf, 0, sizeof(struct v4l2_buffer));
 			vd->buf.length = (vd->format.fmt.pix.width) * (vd->format.fmt.pix.height) * 3; //worst case (rgb)
 			vd->mem[vd->buf.index] = calloc(vd->buf.length, sizeof(uint8_t));
+			if(vd->mem[vd->buf.index] == NULL)
+			{
+				fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (try_video_stream_format): %s\n", strerror(errno));
+				exit(-1);
+			}
 
 			/*unlock the mutex*/
 			__UNLOCK_MUTEX( __PMUTEX );

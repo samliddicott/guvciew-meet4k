@@ -461,6 +461,12 @@ void add_h264_format(v4l2_dev_t *vd)
 	vd->list_stream_formats = realloc(
 		vd->list_stream_formats,
 		fmtind * sizeof(v4l2_stream_formats_t));
+	if(vd->list_stream_formats == NULL)
+	{
+		fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (add_h264_format): %s\n", strerror(errno));
+		exit(-1);
+	}
+	
 	vd->list_stream_formats[fmtind-1].format = V4L2_PIX_FMT_H264;
 	snprintf(vd->list_stream_formats[fmtind-1].fourcc , 5, "H264");
 	vd->list_stream_formats[fmtind-1].list_stream_cap = NULL;
@@ -481,6 +487,11 @@ void add_h264_format(v4l2_dev_t *vd)
 		vd->list_stream_formats[fmtind-1].list_stream_cap = realloc(
 			vd->list_stream_formats[fmtind-1].list_stream_cap,
 			res_index * sizeof(v4l2_stream_cap_t));
+		if(vd->list_stream_formats[fmtind-1].list_stream_cap == NULL)
+		{
+			fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (add_h264_format): %s\n", strerror(errno));
+			exit(-1);
+		}
 		vd->list_stream_formats[fmtind-1].numb_res = res_index;
 		vd->list_stream_formats[fmtind-1].list_stream_cap[res_index-1].width = width;
 		vd->list_stream_formats[fmtind-1].list_stream_cap[res_index-1].height = height;
@@ -501,10 +512,21 @@ void add_h264_format(v4l2_dev_t *vd)
 			vd->list_stream_formats[fmtind-1].list_stream_cap[res_index-1].framerate_num = realloc(
 				vd->list_stream_formats[fmtind-1].list_stream_cap[res_index-1].framerate_num,
 				frate_index * sizeof(int));
+			if(vd->list_stream_formats[fmtind-1].list_stream_cap[res_index-1].framerate_num == NULL)
+			{
+				fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (add_h264_format): %s\n", strerror(errno));
+				exit(-1);
+			}
+			
 			vd->list_stream_formats[fmtind-1].list_stream_cap[res_index-1].framerate_num[frate_index-1] = framerate_num;
 			vd->list_stream_formats[fmtind-1].list_stream_cap[res_index-1].framerate_denom = realloc(
 				vd->list_stream_formats[fmtind-1].list_stream_cap[res_index-1].framerate_denom,
 				frate_index * sizeof(int));
+			if(vd->list_stream_formats[fmtind-1].list_stream_cap[res_index-1].framerate_denom == NULL)
+			{
+				fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (add_h264_format): %s\n", strerror(errno));
+				exit(-1);
+			}
 			vd->list_stream_formats[fmtind-1].list_stream_cap[res_index-1].framerate_denom[frate_index-1] = framerate_denom;
 		}
 	}
@@ -1025,6 +1047,11 @@ int h264_init_decoder(int width, int height)
 		h264_close_decoder();
 
 	h264_ctx = calloc(1, sizeof(h264_decoder_context_t));
+	if(h264_ctx == NULL)
+	{
+		fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (h264_init_decoder): %s\n", strerror(errno));
+		exit(-1);
+	}
 
 	h264_ctx->codec = avcodec_find_decoder(CODEC_ID_H264);
 	if(!h264_ctx->codec)
@@ -1042,7 +1069,11 @@ int h264_init_decoder(int width, int height)
 	h264_ctx->context = avcodec_alloc_context();
 	avcodec_get_context_defaults(h264_ctx->context);
 #endif
-
+	if(h264_ctx->context == NULL)
+	{
+		fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (h264_init_decoder): %s\n", strerror(errno));
+		exit(-1);
+	}
 
 	h264_ctx->context->flags2 |= CODEC_FLAG2_FAST;
 	h264_ctx->context->pix_fmt = PIX_FMT_YUV420P;
