@@ -602,6 +602,11 @@ int encoder_set_audio_mkvCodecPriv(encoder_context_t *encoder_ctx)
 
 		/*should check and clean before allocating ??*/
 		encoder_ctx->enc_audio_ctx->priv_data = calloc(priv_data_size, sizeof(uint8_t));
+		if(encoder_ctx->enc_audio_ctx->priv_data == NULL)
+		{
+			fprintf(stderr, "ENCODER: FATAL memory allocation failure (encoder_set_audio_mkvCodecPriv): %s\n", strerror(errno));
+			exit(-1);
+		}
 		//write header
 		uint8_t* tmp = encoder_ctx->enc_audio_ctx->priv_data;
 		*tmp++ = 0x02; //number of packets -1

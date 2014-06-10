@@ -137,6 +137,11 @@ static void encoder_alloc_video_ring_buffer(
 	if(video_ring_buffer_size < 20)
 		video_ring_buffer_size = 20; /*at least 20 frames buffer*/
 	video_ring_buffer = calloc(video_ring_buffer_size, sizeof(video_buffer_t));
+	if(video_ring_buffer == NULL)
+	{
+		fprintf(stderr, "ENCODER: FATAL memory allocation failure (encoder_alloc_video_ring_buffer): %s\n", strerror(errno));
+		exit(-1);
+	}
 
 	/*Max: (yuyv) 2 bytes per pixel*/
 	video_frame_max_size = video_width * video_height * 2;
@@ -144,6 +149,11 @@ static void encoder_alloc_video_ring_buffer(
 	for(i = 0; i < video_ring_buffer_size; ++i)
 	{
 		video_ring_buffer[i].frame = calloc(video_frame_max_size, sizeof(uint8_t));
+		if(video_ring_buffer[i].frame == NULL)
+		{
+			fprintf(stderr, "ENCODER: FATAL memory allocation failure (encoder_alloc_video_ring_buffer): %s\n", strerror(errno));
+			exit(-1);
+		}
 		video_ring_buffer[i].flag = VIDEO_BUFF_FREE;
 	}
 }
@@ -220,6 +230,11 @@ static encoder_video_context_t *encoder_video_init(
 	}
 
 	encoder_video_context_t *enc_video_ctx = calloc(1, sizeof(encoder_video_context_t));
+	if(enc_video_ctx == NULL)
+	{
+		fprintf(stderr, "ENCODER: FATAL memory allocation failure (encoder_video_init): %s\n", strerror(errno));
+		exit(-1);
+	}
 
 	/*raw input - don't set a codec but set the proper codec 4cc*/
 	if(video_codec_ind == 0)
@@ -232,6 +247,11 @@ static encoder_video_context_t *encoder_video_init(
 				strncpy(video_defaults->mkv_codec, "V_MS/VFW/FOURCC", 25);
 				enc_video_ctx->outbuf_size = video_width * video_height / 2;
 				enc_video_ctx->outbuf = calloc(enc_video_ctx->outbuf_size, sizeof(uint8_t));
+				if(enc_video_ctx->outbuf == NULL)
+				{
+					fprintf(stderr, "ENCODER: FATAL memory allocation failure (encoder_video_init): %s\n", strerror(errno));
+					exit(-1);
+				}
 				break;
 
 			case V4L2_PIX_FMT_H264:
@@ -240,6 +260,11 @@ static encoder_video_context_t *encoder_video_init(
 				strncpy(video_defaults->mkv_codec, "V_MPEG4/ISO/AVC", 25);
 				enc_video_ctx->outbuf_size = video_width * video_height / 2;
 				enc_video_ctx->outbuf = calloc(enc_video_ctx->outbuf_size, sizeof(uint8_t));
+				if(enc_video_ctx->outbuf == NULL)
+				{
+					fprintf(stderr, "ENCODER: FATAL memory allocation failure (encoder_video_init): %s\n", strerror(errno));
+					exit(-1);
+				}
 				break;
 
 			default:
@@ -248,6 +273,11 @@ static encoder_video_context_t *encoder_video_init(
 				strncpy(video_defaults->mkv_codec, "V_MS/VFW/FOURCC", 25);
 				enc_video_ctx->outbuf_size = video_width * video_height * 2;
 				enc_video_ctx->outbuf = calloc(enc_video_ctx->outbuf_size, sizeof(uint8_t));
+				if(enc_video_ctx->outbuf == NULL)
+				{
+					fprintf(stderr, "ENCODER: FATAL memory allocation failure (encoder_video_init): %s\n", strerror(errno));
+					exit(-1);
+				}
 				break;
 		}
 
@@ -281,11 +311,10 @@ static encoder_video_context_t *encoder_video_init(
 	enc_video_ctx->codec_context = avcodec_alloc_context();
 #endif
 
-	if(!enc_video_ctx->codec_context)
+	if(enc_video_ctx->codec_context == NULL)
 	{
-		fprintf(stderr, "ENCODER: couldn't allocate video codec context\n");
-		free(enc_video_ctx);
-		return(NULL);
+		fprintf(stderr, "ENCODER: FATAL memory allocation failure (encoder_video_init): %s\n", strerror(errno));
+		exit(-1);
 	}
 
 	/*set codec defaults*/
@@ -379,13 +408,28 @@ static encoder_video_context_t *encoder_video_init(
 	}
 
 	enc_video_ctx->picture= avcodec_alloc_frame();
+	if(enc_video_ctx->picture == NULL)
+	{
+		fprintf(stderr, "ENCODER: FATAL memory allocation failure (encoder_video_init): %s\n", strerror(errno));
+		exit(-1);
+	}
 	enc_video_ctx->picture->pts = 0;
 
 	//alloc tmpbuff (yuv420p)
 	enc_video_ctx->tmpbuf = calloc((video_width * video_height * 3)/2, sizeof(uint8_t));
+	if(enc_video_ctx->tmpbuf == NULL)
+	{
+		fprintf(stderr, "ENCODER: FATAL memory allocation failure (encoder_video_init): %s\n", strerror(errno));
+		exit(-1);
+	}
 	//alloc outbuf
 	enc_video_ctx->outbuf_size = 240000;//1792
 	enc_video_ctx->outbuf = calloc(enc_video_ctx->outbuf_size, sizeof(uint8_t));
+	if(enc_video_ctx->outbuf == NULL)
+	{
+		fprintf(stderr, "ENCODER: FATAL memory allocation failure (encoder_video_init): %s\n", strerror(errno));
+		exit(-1);
+	}
 
 	enc_video_ctx->delayed_frames = 0;
 	enc_video_ctx->index_of_df = -1;
@@ -440,6 +484,11 @@ static encoder_audio_context_t *encoder_audio_init(
 	}
 
 	encoder_audio_context_t *enc_audio_ctx = calloc(1, sizeof(encoder_audio_context_t));
+	if(enc_audio_ctx == NULL)
+	{
+		fprintf(stderr, "ENCODER: FATAL memory allocation failure (encoder_audio_init): %s\n", strerror(errno));
+		exit(-1);
+	}
 
 	enc_audio_ctx->index_of_df = -1;
 
@@ -469,11 +518,10 @@ static encoder_audio_context_t *encoder_audio_init(
 	enc_audio_ctx->codec_context = avcodec_alloc_context();
 #endif
 
-	if(!enc_audio_ctx->codec_context)
+	if(enc_audio_ctx->codec_context == NULL)
 	{
-		fprintf(stderr, "ENCODER: couldn't allocate audio codec context\n");
-		free(enc_audio_ctx);
-		return(NULL);
+		fprintf(stderr, "ENCODER: FATAL memory allocation failure (encoder_audio_init): %s\n", strerror(errno));
+		exit(-1);
 	}
 
 	/*defaults*/
@@ -619,9 +667,19 @@ static encoder_audio_context_t *encoder_audio_init(
 	/*alloc outbuf*/
 	enc_audio_ctx->outbuf_size = 240000;
 	enc_audio_ctx->outbuf = calloc(enc_audio_ctx->outbuf_size, sizeof(uint8_t));
+	if(enc_audio_ctx->outbuf == NULL)
+	{
+		fprintf(stderr, "ENCODER: FATAL memory allocation failure (encoder_audio_init): %s\n", strerror(errno));
+		exit(-1);
+	}
 
 #if LIBAVCODEC_VER_AT_LEAST(53,34)
 	enc_audio_ctx->frame= avcodec_alloc_frame();
+	if(enc_audio_ctx->frame == NULL)
+	{
+		fprintf(stderr, "ENCODER: FATAL memory allocation failure (encoder_audio_init): %s\n", strerror(errno));
+		exit(-1);
+	}
 	avcodec_get_frame_defaults(enc_audio_ctx->frame);
 
 	enc_audio_ctx->frame->nb_samples = frame_size;
@@ -793,10 +851,10 @@ encoder_context_t *encoder_get_context(
 {
 	encoder_context_t *encoder_ctx = calloc(1, sizeof(encoder_context_t));
 
-	if(!encoder_ctx)
+	if(encoder_ctx == NULL)
 	{
-		fprintf(stderr, "ENCODER: couldn't allocate encoder context\n");
-		return NULL;
+		fprintf(stderr, "ENCODER: FATAL memory allocation failure (encoder_get_context): %s\n", strerror(errno));
+		exit(-1);
 	}
 
 	encoder_ctx->input_format = input_format;

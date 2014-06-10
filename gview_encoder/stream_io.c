@@ -78,6 +78,11 @@ stream_io_t *add_new_stream(stream_io_t **stream_list, int *list_size)
 
 
 	stream_io_t *stream = calloc(1, sizeof(stream_io_t));
+	if (stream == NULL)
+	{
+		fprintf(stderr, "ENCODER: FATAL memory allocation failure (add_new_stream): %s\n", strerror(errno));
+		exit(-1);
+	}
 	stream->next = NULL;
 	stream->id = *list_size;
 

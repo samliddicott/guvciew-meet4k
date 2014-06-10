@@ -507,7 +507,10 @@ avi_riff_t *avi_add_new_riff(avi_context_t *avi_ctx)
 	avi_riff_t *riff = calloc(1, sizeof(avi_riff_t));
 
 	if(riff == NULL)
-		return NULL;
+	{
+		fprintf(stderr, "ENCODER: FATAL memory allocation failure (avi_add_new_riff): %s\n", strerror(errno));
+		exit(-1);
+	}
 
 	riff->next = NULL;
 	riff->id = avi_ctx->riff_list_size + 1;
@@ -552,6 +555,11 @@ stream_io_t *avi_add_video_stream(
 	stream->codec_id = codec_id;
 
 	stream->indexes = (void *) calloc(1, sizeof(avi_index_t));
+	if(stream->indexes == NULL)
+	{
+		fprintf(stderr, "ENCODER: FATAL memory allocation failure (avi_add_video_stream): %s\n", strerror(errno));
+		exit(-1);
+	}
 
 	int codec_ind = get_video_codec_list_index(codec_id);
 	strncpy(stream->compressor, encoder_get_video_codec_4cc(codec_ind), 8);
@@ -581,6 +589,11 @@ stream_io_t *avi_add_audio_stream(
 	stream->a_fmt = format;
 
 	stream->indexes = (void *) calloc(1, sizeof(avi_index_t));
+	if(stream->indexes == NULL)
+	{
+		fprintf(stderr, "ENCODER: FATAL memory allocation failure (avi_add_audio_stream): %s\n", strerror(errno));
+		exit(-1);
+	}
 
 	return stream;
 }
@@ -599,7 +612,10 @@ avi_context_t *avi_create_context(const char *filename)
 	avi_context_t *avi_ctx = calloc(1, sizeof(avi_context_t));
 
 	if(avi_ctx == NULL)
-		return NULL;
+	{
+		fprintf(stderr, "ENCODER: FATAL memory allocation failure (avi_create_context): %s\n", strerror(errno));
+		exit(-1);
+	}
 
 	avi_ctx->writer = io_create_writer(filename, 0);
 
@@ -909,11 +925,18 @@ int avi_write_packet(
     if (idx->ents_allocated <= idx->entry)
     {
         idx->cluster = realloc(idx->cluster, (cl+1)*sizeof(void*));
-        if (!idx->cluster)
-            return -1;
+        if (idx->cluster == NULL)
+        {
+			fprintf(stderr, "ENCODER: FATAL memory allocation failure (avi_write_packet): %s\n", strerror(errno));
+			exit(-1);
+		}
+	
         idx->cluster[cl] = calloc(AVI_INDEX_CLUSTER_SIZE, sizeof(avi_I_entry_t));
-        if (!idx->cluster[cl])
-            return -1;
+        if (idx->cluster[cl] == NULL)
+		{
+			fprintf(stderr, "ENCODER: FATAL memory allocation failure (avi_write_packet): %s\n", strerror(errno));
+			exit(-1);
+		}
         idx->ents_allocated += AVI_INDEX_CLUSTER_SIZE;
     }
 

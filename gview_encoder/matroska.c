@@ -285,7 +285,10 @@ static mkv_seekhead_t *mkv_start_seekhead(mkv_context_t *mkv_ctx,
 {
     mkv_seekhead_t *new_seekhead = calloc(1, sizeof(mkv_seekhead_t));
     if (new_seekhead == NULL)
-        return NULL;
+	{
+		fprintf(stderr, "ENCODER: FATAL memory allocation failure (mkv_start_seekhead): %s\n", strerror(errno));
+		exit(-1);
+	}
 
     new_seekhead->segment_offset = segment_offset;
 
@@ -315,12 +318,12 @@ static int mkv_add_seekhead_entry(mkv_seekhead_t *seekhead,
         return -1;
 
 	entries = realloc(entries, (seekhead->num_entries + 1) * sizeof(mkv_seekhead_entry_t));
-
-    if (entries == NULL)
-    {
-		fprintf(stderr, "ENCODER: (matroska) couldn't allocate memory for seekhead entries\n");
-        return -1;
+	if (entries == NULL)
+	{
+		fprintf(stderr, "ENCODER: FATAL memory allocation failure (mkv_add_seekhead_entry): %s\n", strerror(errno));
+		exit(-1);
 	}
+	
     entries[seekhead->num_entries].elementid = elementid;
     entries[seekhead->num_entries].segmentpos = filepos - seekhead->segment_offset;
 
@@ -391,7 +394,10 @@ static mkv_cues_t *mkv_start_cues(int64_t segment_offset)
 {
     mkv_cues_t *cues = calloc(1, sizeof(mkv_cues_t));
     if (cues == NULL)
-        return NULL;
+	{
+		fprintf(stderr, "ENCODER: FATAL memory allocation failure (mkv_start_cues): %s\n", strerror(errno));
+		exit(-1);
+	}
 
     cues->segment_offset = segment_offset;
     return cues;
@@ -407,7 +413,10 @@ static int mkv_add_cuepoint(mkv_cues_t *cues, int stream, int64_t ts, int64_t cl
 	entries = realloc(entries, (cues->num_entries + 1) * sizeof(mkv_cuepoint_t));
 
     if (entries == NULL)
-        return AVERROR(ENOMEM);
+	{
+		fprintf(stderr, "ENCODER: FATAL memory allocation failure (mkv_add_cuepoint): %s\n", strerror(errno));
+		exit(-1);
+	}
 
     entries[cues->num_entries].pts = ts;
     entries[cues->num_entries].tracknum = stream + 1;
@@ -836,12 +845,13 @@ static int mkv_cache_packet(mkv_context_t* mkv_ctx,
 				mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_write_index].data,
 				size * sizeof(uint8_t));
 	}
-
-    if (!mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_write_index].data)
-    {
-		fprintf(stderr,"ENCODER: (matroska) couldn't allocate mem for packet\n");
-        return -1;
+	
+	if (mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_write_index].data == NULL)
+	{
+		fprintf(stderr, "ENCODER: FATAL memory allocation failure (mkv_cache_packet): %s\n", strerror(errno));
+		exit(-1);
 	}
+
 
 	if(verbosity > 3)
 		printf("ENCODER: (matroska) caching packet [%i]\n", mkv_ctx->pkt_buffer_write_index);
@@ -998,6 +1008,11 @@ int mkv_close(mkv_context_t* mkv_ctx)
 mkv_context_t *mkv_create_context(const char* filename, int mode)
 {
 	mkv_context_t *mkv_ctx = calloc(1, sizeof(mkv_context_t));
+	if (mkv_ctx == NULL)
+	{
+		fprintf(stderr, "ENCODER: FATAL memory allocation failure (mkv_create_context): %s\n", strerror(errno));
+		exit(-1);
+	}
 
 	mkv_ctx->writer = io_create_writer(filename, 0);
 	mkv_ctx->mode = mode;
@@ -1095,6 +1110,11 @@ stream_io_t *mkv_add_audio_stream(mkv_context_t *mkv_ctx,
 		mkv_ctx->pkt_buffer_write_index = 0;
 		mkv_ctx->pkt_buffer_read_index = 0;
 		mkv_ctx->pkt_buffer_list = calloc(mkv_ctx->pkt_buffer_list_size, sizeof(mkv_packet_buff_t));
+		if (mkv_ctx->pkt_buffer_list == NULL)
+		{
+			fprintf(stderr, "ENCODER: FATAL memory allocation failure (mkv_add_audio_stream): %s\n", strerror(errno));
+			exit(-1);
+		}
 
 		int i = 0;
 		for(i = 0; i < mkv_ctx->pkt_buffer_list_size; ++i)

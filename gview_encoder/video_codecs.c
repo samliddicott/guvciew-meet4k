@@ -630,6 +630,12 @@ int encoder_set_video_mkvCodecPriv(encoder_context_t *encoder_ctx)
 				/*alloc the private data*/
 				size = 6 + 2 + encoder_ctx->h264_sps_size + 1 + 2 + encoder_ctx->h264_pps_size;
 				encoder_ctx->enc_video_ctx->priv_data = calloc(size, sizeof(uint8_t));
+				if (encoder_ctx->enc_video_ctx->priv_data == NULL)
+				{
+					fprintf(stderr, "ENCODER: FATAL memory allocation failure (encoder_set_video_mkvCodecPriv): %s\n", strerror(errno));
+					exit(-1);
+				}
+				
 				if(verbosity > 1)
 					printf("ENCODER: (video priv_data) processing %i bytes\n", size);
 
@@ -732,6 +738,11 @@ int encoder_set_video_mkvCodecPriv(encoder_context_t *encoder_ctx)
 
 		/*should check and clean before allocating ??*/
 		encoder_ctx->enc_video_ctx->priv_data = calloc(size, sizeof(uint8_t));
+		if (encoder_ctx->enc_video_ctx->priv_data == NULL)
+		{
+			fprintf(stderr, "ENCODER: FATAL memory allocation failure (encoder_set_video_mkvCodecPriv): %s\n", strerror(errno));
+			exit(-1);
+		}
 		/*write header*/
 		uint8_t *tmp = encoder_ctx->enc_video_ctx->priv_data;
 		*tmp++ = 0x02; /*number of packets -1*/

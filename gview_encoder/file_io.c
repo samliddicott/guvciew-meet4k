@@ -97,7 +97,10 @@ io_writer_t *io_create_writer(const char *filename, int max_size)
 	io_writer_t *writer = calloc(1, sizeof(io_writer_t));
 
 	if(writer == NULL)
-		return NULL;
+	{
+		fprintf(stderr, "ENCODER: FATAL memory allocation failure (io_create_writer): %s\n", strerror(errno));
+		exit(-1);
+	}
 
 	if(max_size > 0)
 		writer->buffer_size = max_size;
@@ -105,6 +108,12 @@ io_writer_t *io_create_writer(const char *filename, int max_size)
 		writer->buffer_size = IO_BUFFER_SIZE;
 
 	writer->buffer = calloc(writer->buffer_size, sizeof(uint8_t));
+	if(writer->buffer == NULL)
+	{
+		fprintf(stderr, "ENCODER: FATAL memory allocation failure (io_create_writer): %s\n", strerror(errno));
+		exit(-1);
+	}
+	
 	writer->buf_ptr = writer->buffer;
 	writer->buf_end = writer->buf_ptr + writer->buffer_size;
 
