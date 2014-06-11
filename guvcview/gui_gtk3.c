@@ -350,28 +350,41 @@ void gui_error_gtk3(v4l2_dev_t *device,
 	if(!fatal)
 	{
 		GtkWidget *warndialog;
-        warndialog = gtk_message_dialog_new (GTK_WINDOW(main_window),
-            GTK_DIALOG_DESTROY_WITH_PARENT,
-            GTK_MESSAGE_WARNING,
-            GTK_BUTTONS_CLOSE,
-            "%s",gettext(title));
+		warndialog = gtk_message_dialog_new (GTK_WINDOW(main_window),
+		    GTK_DIALOG_DESTROY_WITH_PARENT,
+		    GTK_MESSAGE_WARNING,
+		    GTK_BUTTONS_CLOSE,
+		    "%s",gettext(title));
 
-        gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(warndialog),
-            "%s",gettext(message));
+		gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(warndialog),
+		    "%s",gettext(message));
 
-        gtk_widget_show(warndialog);
-        gtk_dialog_run (GTK_DIALOG (warndialog));
-        gtk_widget_destroy (warndialog);
-        return;
+		gtk_widget_show(warndialog);
+		gtk_dialog_run (GTK_DIALOG (warndialog));
+		gtk_widget_destroy (warndialog);
+		return;
 	}
 
 	/*fatal error message*/
-	GtkWidget *errdialog = gtk_dialog_new_with_buttons (_("Error"),
-		GTK_WINDOW(main_window),
-		GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
-		_("_Ok"), GTK_RESPONSE_ACCEPT,
-		_("_Cancel"), GTK_RESPONSE_REJECT,
-		NULL);
+
+	v4l2_device_list *device_list = v4l2core_get_device_list();
+	/*add device list (more than one device)*/
+	int show_dev_list = (device_list->num_devices > 1) ? 1: 0;
+
+	GtkWidget *errdialog = NULL;
+	if(show_dev_list)
+		errdialog = gtk_dialog_new_with_buttons (_("Error"),
+			GTK_WINDOW(main_window),
+			GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+			_("_Ok"), GTK_RESPONSE_ACCEPT,
+			_("_Cancel"), GTK_RESPONSE_REJECT,
+			NULL);
+	else
+		errdialog = gtk_dialog_new_with_buttons (_("Error"),
+			GTK_WINDOW(main_window),
+			GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+			_("_Ok"), GTK_RESPONSE_ACCEPT,
+			NULL);
 
 	GtkWidget *table = gtk_grid_new();
 
@@ -389,10 +402,6 @@ void gui_error_gtk3(v4l2_dev_t *device,
 
 	GtkWidget *wgtDevices = NULL;
 
-	v4l2_device_list *device_list = v4l2core_get_device_list();
-
-	/*add device list (more than one device)*/
-	int show_dev_list = (device_list->num_devices > 1) ? 1: 0;
 	if(show_dev_list)
 	{
 		GtkWidget *text2 = gtk_label_new (_("\nYou have more than one video device installed.\n"
