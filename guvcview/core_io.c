@@ -153,6 +153,11 @@ char *smart_cat(const char *dest, const char c, const char *str1)
 
 	int size = size_dest + size_c + size_str1 + 1; /*add ending null char*/
 	char *my_cat = calloc(size, sizeof(char));
+	if(my_cat == NULL)
+	{
+		fprintf(stderr,"GUVCVIEW: FATAL memory allocation failure (smart_cat): %s\n", strerror(errno));
+		exit(-1);
+	}
 	char *my_p = my_cat;
 
 	if(size_dest)
@@ -400,6 +405,11 @@ char *add_file_suffix(const char *path, const char *filename)
 
 	/*add '-' suffix and '\0' and an extra char just for safety*/
 	char *new_name = calloc(size_name + size_suffix + 3, sizeof(char));
+	if(new_name == NULL)
+	{
+		fprintf(stderr,"GUVCVIEW: FATAL memory allocation failure (add_file_suffix): %s\n", strerror(errno));
+		exit(-1);
+	}
 	sprintf(new_name, "%s-%llu.%s", noextname, suffix, extension);
 
 	if(noextname)

@@ -760,6 +760,11 @@ static void *encoder_loop(void *data)
 		if(encoder_ctx->h264_pps_size > 0)
 		{
 			encoder_ctx->h264_pps = calloc(device->h264_PPS_size, sizeof(uint8_t));
+			if(encoder_ctx->h264_pps == NULL)
+			{
+				fprintf(stderr,"GUVCVIEW: FATAL memory allocation failure (encoder_loop): %s\n", strerror(errno));
+				exit(-1);
+			}
 			memcpy(encoder_ctx->h264_pps, device->h264_PPS, device->h264_PPS_size);
 		}
 
@@ -767,6 +772,11 @@ static void *encoder_loop(void *data)
 		if(encoder_ctx->h264_sps_size > 0)
 		{
 			encoder_ctx->h264_sps = calloc(device->h264_SPS_size, sizeof(uint8_t));
+			if(encoder_ctx->h264_sps == NULL)
+			{
+				fprintf(stderr,"GUVCVIEW: FATAL memory allocation failure (encoder_loop): %s\n", strerror(errno));
+				exit(-1);
+			}
 			memcpy(encoder_ctx->h264_sps, device->h264_SPS, device->h264_SPS_size);
 		}
 	}

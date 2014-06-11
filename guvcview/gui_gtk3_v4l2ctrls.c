@@ -138,6 +138,11 @@ int gui_attach_gtk3_v4l2ctrls(v4l2_dev_t *device, GtkWidget *parent)
 		widget_list_size = n + 1;
 
 		control_widgets_list = realloc(control_widgets_list, sizeof(control_widgets_t) * widget_list_size);
+		if(control_widgets_list == NULL)
+		{
+			fprintf(stderr,"GUVCVIEW: FATAL memory allocation failure (gui_attach_gtk3_v4l2ctrls): %s\n", strerror(errno));
+			exit(-1);
+		}
 		/*label*/
 		char *tmp;
         tmp = g_strdup_printf ("%s:", current->name);
@@ -234,9 +239,14 @@ int gui_attach_gtk3_v4l2ctrls(v4l2_dev_t *device, GtkWidget *parent)
 						char* LEDMenu[4] = {_("Off"),_("On"),_("Blinking"),_("Auto")};
 						/*turn it into a menu control*/
 						if(!current->menu)
-                    		current->menu = calloc(4+1, sizeof(struct v4l2_querymenu));
-                    	else
-                    		current->menu = realloc(current->menu,  (4+1) * sizeof(struct v4l2_querymenu));
+                    					current->menu = calloc(4+1, sizeof(struct v4l2_querymenu));
+                    				else
+                    					current->menu = realloc(current->menu,  (4+1) * sizeof(struct v4l2_querymenu));
+						if(current->menu == NULL)
+						{
+							fprintf(stderr,"GUVCVIEW: FATAL memory allocation failure (gui_attach_gtk3_v4l2ctrls): %s\n", strerror(errno));
+							exit(-1);
+						}
 
 						current->menu[0].id = current->control.id;
 						current->menu[0].index = 0;
@@ -289,7 +299,11 @@ int gui_attach_gtk3_v4l2ctrls(v4l2_dev_t *device, GtkWidget *parent)
 							current->menu = calloc(2+1, sizeof(struct v4l2_querymenu));
 						else
 							current->menu = realloc(current->menu, (2+1) * sizeof(struct v4l2_querymenu));
-
+						if(current->menu == NULL)
+						{
+							fprintf(stderr,"GUVCVIEW: FATAL memory allocation failure (gui_attach_gtk3_v4l2ctrls): %s\n", strerror(errno));
+							exit(-1);
+						}
 						current->menu[0].id = current->control.id;
 						current->menu[0].index = 0;
 						current->menu[0].name[0] = 'o'; /*just set something here*/
