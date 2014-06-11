@@ -154,7 +154,17 @@ audio_buff_t *audio_get_buffer(audio_context_t *audio_ctx)
 	}
 
 	audio_buff_t *audio_buff = calloc(1, sizeof(audio_buff_t));
+	if(audio_buff == NULL)
+	{
+		fprintf(stderr,"AUDIO: FATAL memory allocation failure (audio_get_buffer): %s\n", strerror(errno));
+		exit(-1);
+	}
 	audio_buff->data = calloc(audio_ctx->capture_buff_size, sizeof(sample_t));
+	if(audio_buff->data == NULL)
+	{
+		fprintf(stderr,"AUDIO: FATAL memory allocation failure (audio_get_buffer): %s\n", strerror(errno));
+		exit(-1);
+	}
 
 	return audio_buff;
 }
@@ -206,16 +216,31 @@ static int audio_init_buffers(audio_context_t *audio_ctx)
 
 	audio_ctx->capture_buff = calloc(
 		audio_ctx->capture_buff_size, sizeof(sample_t));
+	if(audio_ctx->capture_buff == NULL)
+	{
+		fprintf(stderr,"AUDIO: FATAL memory allocation failure (audio_init_buffers): %s\n", strerror(errno));
+		exit(-1);
+	}
 
 	if(audio_buffers != NULL)
 		audio_free_buffers;
 
 	audio_buffers = calloc(AUDBUFF_NUM, sizeof(audio_buff_t));
+	if(audio_buffers == NULL)
+	{
+		fprintf(stderr,"AUDIO: FATAL memory allocation failure (audio_init_buffers): %s\n", strerror(errno));
+		exit(-1);
+	}
 
 	for(i = 0; i < AUDBUFF_NUM; ++i)
 	{
 		audio_buffers[i].data = calloc(
 			audio_ctx->capture_buff_size, sizeof(sample_t));
+		if(audio_buffers[i].data == NULL)
+		{
+			fprintf(stderr,"AUDIO: FATAL memory allocation failure (audio_init_buffers): %s\n", strerror(errno));
+			exit(-1);
+		}
 		audio_buffers[i].flag = AUDIO_BUFF_FREE;
 	}
 

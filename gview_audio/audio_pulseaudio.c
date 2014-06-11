@@ -171,6 +171,11 @@ static void pa_sourcelist_cb(pa_context *c, const pa_source_info *l, int eol, vo
 		audio_ctx->num_input_dev++;
 		/*add device to list*/
 		audio_ctx->list_devices = realloc(audio_ctx->list_devices, audio_ctx->num_input_dev * sizeof(audio_device_t));
+		if(audio_ctx->list_devices == NULL)
+		{
+			fprintf(stderr,"AUDIO: FATAL memory allocation failure (pa_sourcelist_cb): %s\n", strerror(errno));
+			exit(-1);
+		}
 		/*fill device data*/
 		audio_ctx->list_devices[audio_ctx->num_input_dev-1].id = l->index; /*saves dev id*/
 		strncpy(audio_ctx->list_devices[audio_ctx->num_input_dev-1].name,  l->name, 511);
@@ -623,17 +628,22 @@ static void *pulse_read_audio(void *data)
  */
 audio_context_t *audio_init_pulseaudio()
 {
-    audio_context_t *audio_ctx = calloc(1, sizeof(audio_context_t));
+	audio_context_t *audio_ctx = calloc(1, sizeof(audio_context_t));
+	if(audio_ctx == NULL)
+	{
+		fprintf(stderr,"AUDIO: FATAL memory allocation failure (audio_init_pulseaudio): %s\n", strerror(errno));
+		exit(-1);
+	}
 
-    if (pa_get_devicelist(audio_ctx) < 0)
-    {
-        fprintf(stderr, "AUDIO: Pulseaudio failed to get audio device list from PULSE server\n");
-        free(audio_ctx);
-        return NULL;
-    }
+	if (pa_get_devicelist(audio_ctx) < 0)
+	{
+		fprintf(stderr, "AUDIO: Pulseaudio failed to get audio device list from PULSE server\n");
+		free(audio_ctx);
+		return NULL;
+	}
 
 	audio_ctx->api = AUDIO_PULSE;
-    return audio_ctx;
+	return audio_ctx;
 }
 
 /*

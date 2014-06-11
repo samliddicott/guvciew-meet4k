@@ -246,6 +246,11 @@ static int audio_portaudio_list_devices(audio_context_t *audio_ctx)
 				audio_ctx->num_input_dev++;
 				/*add device to list*/
 				audio_ctx->list_devices = realloc(audio_ctx->list_devices, audio_ctx->num_input_dev * sizeof(audio_device_t));
+				if(audio_ctx->list_devices == NULL)
+				{
+					fprintf(stderr,"AUDIO: FATAL memory allocation failure (audio_portaudio_list_devices): %s\n", strerror(errno));
+					exit(-1);
+				}
 				/*fill device data*/
 				audio_ctx->list_devices[audio_ctx->num_input_dev-1].id = it;
 				strncpy(audio_ctx->list_devices[audio_ctx->num_input_dev-1].name, deviceInfo->name, 511);
@@ -292,6 +297,11 @@ static int audio_portaudio_list_devices(audio_context_t *audio_ctx)
 audio_context_t *audio_init_portaudio()
 {
 	audio_context_t *audio_ctx = calloc(1, sizeof(audio_context_t));
+	if(audio_ctx == NULL)
+	{
+		fprintf(stderr,"AUDIO: FATAL memory allocation failure (audio_init_portaudio): %s\n", strerror(errno));
+		exit(-1);
+	}
 
 	Pa_Initialize();
 

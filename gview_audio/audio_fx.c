@@ -151,6 +151,11 @@ static audio_fx_t *aud_fx = NULL;
 static void audio_fx_init ()
 {
 	aud_fx = calloc(1, sizeof(audio_fx_t));
+	if(aud_fx == NULL)
+	{
+		fprintf(stderr,"AUDIO: FATAL memory allocation failure (audio_fx_init): %s\n", strerror(errno));
+		exit(-1);
+	}
 	/*Echo effect data */
 	aud_fx->ECHO = NULL;
 	/* 4 parallel comb filters data*/
@@ -259,6 +264,11 @@ static void HPF(audio_context_t *audio_ctx,
 	{
 		float inv_samprate = 1.0 / audio_ctx->samprate;
 		aud_fx->HPF = calloc(1, sizeof(fx_filt_data_t));
+		if(aud_fx->HPF == NULL)
+		{
+			fprintf(stderr,"AUDIO: FATAL memory allocation failure (HPF): %s\n", strerror(errno));
+			exit(-1);
+		}
 		aud_fx->HPF->c = tan(M_PI * cutoff_freq * inv_samprate);
 		aud_fx->HPF->a1 = 1.0 / (1.0 + (res * aud_fx->HPF->c) + (aud_fx->HPF->c * aud_fx->HPF->c));
 		aud_fx->HPF->a2 = -2.0 * aud_fx->HPF->a1;
@@ -302,6 +312,11 @@ static void LPF(audio_context_t *audio_ctx,
 	if(aud_fx->LPF1 == NULL)
 	{
 		aud_fx->LPF1 = calloc(1, sizeof(fx_filt_data_t));
+		if(aud_fx->LPF1 == NULL)
+		{
+			fprintf(stderr,"AUDIO: FATAL memory allocation failure (LPF): %s\n", strerror(errno));
+			exit(-1);
+		}
 		aud_fx->LPF1->c = 1.0 / tan(M_PI * cutoff_freq / audio_ctx->samprate);
 		aud_fx->LPF1->a1 = 1.0 / (1.0 + (res * aud_fx->LPF1->c) + (aud_fx->LPF1->c * aud_fx->LPF1->c));
 		aud_fx->LPF1->a2 = 2.0 * aud_fx->LPF1->a1;
@@ -379,6 +394,11 @@ static void CombFilter4 (audio_context_t *audio_ctx,
 	if (aud_fx->COMB4 == NULL)
 	{
 		aud_fx->COMB4 = calloc(1, sizeof(fx_comb4_data_t));
+		if(aud_fx->COMB4 == NULL)
+		{
+			fprintf(stderr,"AUDIO: FATAL memory allocation failure (CombFilter4): %s\n", strerror(errno));
+			exit(-1);
+		}
 		/*buff_size in samples*/
 		aud_fx->COMB4->buff_size1 = (int) delay1_ms * (audio_ctx->samprate * 0.001);
 		aud_fx->COMB4->buff_size2 = (int) delay2_ms * (audio_ctx->samprate * 0.001);
@@ -386,9 +406,29 @@ static void CombFilter4 (audio_context_t *audio_ctx,
 		aud_fx->COMB4->buff_size4 = (int) delay4_ms * (audio_ctx->samprate * 0.001);
 
 		aud_fx->COMB4->CombBuff10 = calloc(aud_fx->COMB4->buff_size1, sizeof(sample_t));
+		if(aud_fx->COMB4->CombBuff10 == NULL)
+		{
+			fprintf(stderr,"AUDIO: FATAL memory allocation failure (CombFilter4): %s\n", strerror(errno));
+			exit(-1);
+		}
 		aud_fx->COMB4->CombBuff20 = calloc(aud_fx->COMB4->buff_size2, sizeof(sample_t));
+		if(aud_fx->COMB4->CombBuff20 == NULL)
+		{
+			fprintf(stderr,"AUDIO: FATAL memory allocation failure (CombFilter4): %s\n", strerror(errno));
+			exit(-1);
+		}
 		aud_fx->COMB4->CombBuff30 = calloc(aud_fx->COMB4->buff_size3, sizeof(sample_t));
+		if(aud_fx->COMB4->CombBuff30 == NULL)
+		{
+			fprintf(stderr,"AUDIO: FATAL memory allocation failure (CombFilter4): %s\n", strerror(errno));
+			exit(-1);
+		}
 		aud_fx->COMB4->CombBuff40 = calloc(aud_fx->COMB4->buff_size4, sizeof(sample_t));
+		if(aud_fx->COMB4->CombBuff40 == NULL)
+		{
+			fprintf(stderr,"AUDIO: FATAL memory allocation failure (CombFilter4): %s\n", strerror(errno));
+			exit(-1);
+		}
 		aud_fx->COMB4->CombBuff11 = NULL;
 		aud_fx->COMB4->CombBuff21 = NULL;
 		aud_fx->COMB4->CombBuff31 = NULL;
@@ -396,9 +436,29 @@ static void CombFilter4 (audio_context_t *audio_ctx,
 		if(audio_ctx->channels > 1)
 		{
 			aud_fx->COMB4->CombBuff11 = calloc(aud_fx->COMB4->buff_size1, sizeof(sample_t));
+			if(aud_fx->COMB4->CombBuff11 == NULL)
+			{
+				fprintf(stderr,"AUDIO: FATAL memory allocation failure (CombFilter4): %s\n", strerror(errno));
+				exit(-1);
+			}
 			aud_fx->COMB4->CombBuff21 = calloc(aud_fx->COMB4->buff_size2, sizeof(sample_t));
+			if(aud_fx->COMB4->CombBuff21 == NULL)
+			{
+				fprintf(stderr,"AUDIO: FATAL memory allocation failure (CombFilter4): %s\n", strerror(errno));
+				exit(-1);
+			}
 			aud_fx->COMB4->CombBuff31 = calloc(aud_fx->COMB4->buff_size3, sizeof(sample_t));
+			if(aud_fx->COMB4->CombBuff31 == NULL)
+			{
+				fprintf(stderr,"AUDIO: FATAL memory allocation failure (CombFilter4): %s\n", strerror(errno));
+				exit(-1);
+			}
 			aud_fx->COMB4->CombBuff41 = calloc(aud_fx->COMB4->buff_size4, sizeof(sample_t));
+			if(aud_fx->COMB4->CombBuff41 == NULL)
+			{
+				fprintf(stderr,"AUDIO: FATAL memory allocation failure (CombFilter4): %s\n", strerror(errno));
+				exit(-1);
+			}
 		}
 	}
 
@@ -517,11 +577,28 @@ static void all_pass1 (audio_context_t *audio_ctx,
 	if(aud_fx->AP1 == NULL)
 	{
 		aud_fx->AP1 = calloc(1, sizeof(fx_delay_data_t));
+		if(aud_fx->AP1 == NULL)
+		{
+			fprintf(stderr,"AUDIO: FATAL memory allocation failure (all_pass1): %s\n", strerror(errno));
+			exit(-1);
+		}
 		aud_fx->AP1->buff_size = (int) delay_ms  * (audio_ctx->samprate * 0.001);
 		aud_fx->AP1->delayBuff1 = calloc(aud_fx->AP1->buff_size, sizeof(sample_t));
+		if(aud_fx->AP1->delayBuff1 == NULL)
+		{
+			fprintf(stderr,"AUDIO: FATAL memory allocation failure (all_pass1): %s\n", strerror(errno));
+			exit(-1);
+		}
 		aud_fx->AP1->delayBuff2 = NULL;
 		if(audio_ctx->channels > 1)
+		{
 			aud_fx->AP1->delayBuff2 = calloc(aud_fx->AP1->buff_size, sizeof(sample_t));
+			if(aud_fx->AP1->delayBuff2 == NULL)
+			{
+				fprintf(stderr,"AUDIO: FATAL memory allocation failure (all_pass1): %s\n", strerror(errno));
+				exit(-1);
+			}
+		}
 	}
 
 	all_pass (aud_fx->AP1, data,
@@ -595,8 +672,20 @@ static void change_tempo_more(audio_context_t *audio_ctx,
 	{
 		aud_fx->RT1->wSize  = wtime_ms * audio_ctx->samprate * 0.001;
 		aud_fx->RT1->wBuff1 = calloc(aud_fx->RT1->wSize, sizeof(sample_t));
+		if(aud_fx->RT1->wBuff1 == NULL)
+		{
+			fprintf(stderr,"AUDIO: FATAL memory allocation failure (change_tempo_more): %s\n", strerror(errno));
+			exit(-1);
+		}
 		if (audio_ctx->channels >1)
+		{
 			aud_fx->RT1->wBuff2 = calloc(aud_fx->RT1->wSize, sizeof(sample_t));
+			if(aud_fx->RT1->wBuff2 == NULL)
+			{
+				fprintf(stderr,"AUDIO: FATAL memory allocation failure (change_tempo_more): %s\n", strerror(errno));
+				exit(-1);
+			}
+		}
 	}
 
 	//printf("samples  = %i\n", data->RT1->numsamples);
@@ -674,11 +763,28 @@ static void audio_fx_echo(audio_context_t *audio_ctx,
 	if(aud_fx->ECHO == NULL)
 	{
 		aud_fx->ECHO = calloc(1, sizeof(fx_delay_data_t));
+		if(aud_fx->ECHO == NULL)
+		{
+			fprintf(stderr,"AUDIO: FATAL memory allocation failure (audio_fx_echo): %s\n", strerror(errno));
+			exit(-1);
+		}
 		aud_fx->ECHO->buff_size = (int) delay_ms * audio_ctx->samprate * 0.001;
 		aud_fx->ECHO->delayBuff1 = calloc(aud_fx->ECHO->buff_size, sizeof(sample_t));
+		if(aud_fx->ECHO->delayBuff1 == NULL)
+		{
+			fprintf(stderr,"AUDIO: FATAL memory allocation failure (audio_fx_echo): %s\n", strerror(errno));
+			exit(-1);
+		}
 		aud_fx->ECHO->delayBuff2 = NULL;
 		if(audio_ctx->channels > 1)
+		{
 			aud_fx->ECHO->delayBuff2 = calloc(aud_fx->ECHO->buff_size, sizeof(sample_t));
+			if(aud_fx->ECHO->delayBuff2 == NULL)
+			{
+				fprintf(stderr,"AUDIO: FATAL memory allocation failure (audio_fx_echo): %s\n", strerror(errno));
+				exit(-1);
+			}
+		}
 	}
 
 	for(samp = 0; samp < audio_ctx->capture_buff_size; samp = samp + audio_ctx->channels)
@@ -768,6 +874,11 @@ static void audio_fx_wahwah (audio_context_t *audio_ctx,
 	if(aud_fx->wahData == NULL)
 	{
 		aud_fx->wahData = calloc(1, sizeof(fx_wah_data_t));
+		if(aud_fx->wahData == NULL)
+		{
+			fprintf(stderr,"AUDIO: FATAL memory allocation failure (audio_fx_wahwah): %s\n", strerror(errno));
+			exit(-1);
+		}
 		aud_fx->wahData->lfoskip = freq * 2 * M_PI / audio_ctx->samprate;
 		aud_fx->wahData->phase = startphase;
 		/*if right channel set: phase += (float)M_PI;*/
@@ -825,13 +936,29 @@ static void audio_fx_change_pitch (audio_context_t *audio_ctx,
 	if(aud_fx->RT1 == NULL)
 	{
 		aud_fx->RT1 = calloc(1, sizeof(fx_rate_data_t));
-
+		if(aud_fx->RT1 == NULL)
+		{
+			fprintf(stderr,"AUDIO: FATAL memory allocation failure (audio_fx_change_pitch): %s\n", strerror(errno));
+			exit(-1);
+		}
 		aud_fx->RT1->wBuff1 = NULL;
 		aud_fx->RT1->wBuff2 = NULL;
 		aud_fx->RT1->rBuff1 = calloc(audio_ctx->capture_buff_size/audio_ctx->channels, sizeof(sample_t));
+		if(aud_fx->RT1->rBuff1 == NULL)
+		{
+			fprintf(stderr,"AUDIO: FATAL memory allocation failure (audio_fx_change_pitch): %s\n", strerror(errno));
+			exit(-1);
+		}
 		aud_fx->RT1->rBuff2 = NULL;
 		if(audio_ctx->channels > 1)
+		{
 			aud_fx->RT1->rBuff2 = calloc(audio_ctx->capture_buff_size/audio_ctx->channels, sizeof(sample_t));
+			if(aud_fx->RT1->rBuff2 == NULL)
+			{
+				fprintf(stderr,"AUDIO: FATAL memory allocation failure (audio_fx_change_pitch): %s\n", strerror(errno));
+				exit(-1);
+			}
+		}
 	}
 
 	change_rate_less(aud_fx->RT1, data, rate, audio_ctx->capture_buff_size, audio_ctx->channels);

@@ -182,6 +182,11 @@ static void fx_pieces(uint8_t* frame, int width, int height, int piece_size )
 	int numx = width / piece_size;
 	int numy = height / piece_size;
 	uint8_t *piece = calloc (piece_size * piece_size * 2, sizeof(uint8_t));
+	if(piece == NULL)
+	{
+		fprintf(stderr,"RENDER: FATAL memory allocation failure (fx_pieces): %s\n", strerror(errno));
+		exit(-1);
+	}
 	int i = 0, j = 0, row = 0, line = 0, column = 0, linep = 0, px = 0, py = 0;
 
 	/*random generator setup*/
@@ -283,6 +288,11 @@ static void fx_particles(uint8_t* frame, int width, int height, int trail_size, 
 	if (particles == NULL)
 	{
 		particles = calloc(trail_size * part_w * part_h, sizeof(particle_t));
+		if(particles == NULL)
+		{
+			fprintf(stderr,"RENDER: FATAL memory allocation failure (fx_particles): %s\n", strerror(errno));
+			exit(-1);
+		}
 	}
 
 	particle_t *part = particles;
