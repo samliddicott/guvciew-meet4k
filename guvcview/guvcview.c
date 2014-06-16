@@ -121,10 +121,8 @@ int main(int argc, char *argv[])
 	char *config_file = smart_cat(config_path, '/', device_name);
 
 	/*clean strings*/
-	if(config_path)
-		free(config_path);
-	if(device_name)
-		free(device_name);
+	free(config_path);
+	free(device_name);
 
 	/*load config data*/
 	config_load(config_file);

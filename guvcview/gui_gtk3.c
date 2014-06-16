@@ -464,6 +464,7 @@ void gui_error_gtk3(v4l2_dev_t *device,
 					fprintf(stderr, "GUVCVIEW: spawn failed: %s\n", error->message);
 					g_error_free( error );
 				}
+				g_free(command);
 			}
 			break;
 
@@ -547,7 +548,7 @@ int gui_attach_gtk3(v4l2_dev_t *device, int width, int height)
 	char* icon1path = g_strconcat (PACKAGE_DATA_DIR, "/pixmaps/guvcview/guvcview.png", NULL);
 	if (g_file_test(icon1path, G_FILE_TEST_EXISTS))
 		gtk_window_set_icon_from_file(GTK_WINDOW (main_window), icon1path, NULL);
-	free(icon1path);
+	g_free(icon1path);
 
 	/*---------------------------- Main table ---------------------------------*/
 	GtkWidget *maintable = gtk_box_new(GTK_ORIENTATION_VERTICAL, 2);
@@ -628,7 +629,7 @@ int gui_attach_gtk3(v4l2_dev_t *device, int width, int height)
 
 	}
 	/*must free path strings*/
-	free(pix4path);
+	g_free(pix4path);
 	gtk_box_pack_start(GTK_BOX(HButtonBox), quitButton, TRUE, TRUE, 2);
 	gtk_widget_show_all (quitButton);
 

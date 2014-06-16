@@ -194,7 +194,7 @@ int v4l2core_soft_autofocus_init (v4l2_dev_t *vd)
 	if (focus_ctx->last_focus < 0)
 		focus_ctx->last_focus = focus_ctx->f_max;
 
-	memset(sumAC, 0, 64); /*reset array to 0*/
+	memset(sumAC, 0, 64*sizeof(*sumAC)); /*reset array to 0*/
 
 	return (E_OK);
 }
@@ -231,7 +231,7 @@ static void q_sort(int left, int right)
 			focus_ctx->arr_foc[left] = focus_ctx->arr_foc[right];
 			left++;
 		}
-		while((focus_ctx->arr_sharp[left] <= pivot) && (left < right))
+		while((left < right) && (focus_ctx->arr_sharp[left] <= pivot))
 			left++;
 		if (left != right)
 		{

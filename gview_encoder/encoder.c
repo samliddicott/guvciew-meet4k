@@ -1344,7 +1344,7 @@ int encoder_encode_audio(encoder_context_t *encoder_ctx, void *audio_data)
 	{
 		if(verbosity > 1)
 			printf("ENCODER: audio encoder not set\n");
-		enc_audio_ctx->outbuf_coded_size = outsize;
+
 		return outsize;
 	}
 
@@ -1498,7 +1498,7 @@ void encoder_close(encoder_context_t *encoder_ctx)
 {
 	encoder_clean_video_ring_buffer();
 
-	if(!encoder_ctx);
+	if(!encoder_ctx)
 		return;
 
 	encoder_video_context_t *enc_video_ctx = encoder_ctx->enc_video_ctx;

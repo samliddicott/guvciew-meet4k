@@ -361,7 +361,6 @@ static void fx_particles(uint8_t* frame, int width, int height, int trail_size, 
 		if(ODD(part->size)) part->size++;
 
 		part->decay = (float) trail_size;
-		part->decay = (float) trail_size;
 
 		part++; /*next particle*/
 	}

@@ -318,7 +318,7 @@ static v4l2_ctrl_t *add_control(v4l2_dev_t *vd, struct v4l2_queryctrl* queryctrl
                 menu = calloc(i+1, sizeof(struct v4l2_querymenu));
             else
                 menu = realloc(menu, (i+1) * sizeof(struct v4l2_querymenu));
-            
+            /*since we exit on failure no need to free menu on realloc failure*/
             if(menu == NULL)
 			{
 				fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (add_control): %s\n", strerror(errno));

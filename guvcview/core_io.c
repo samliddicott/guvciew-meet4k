@@ -20,6 +20,7 @@
 ********************************************************************************/
 
 #include <stdlib.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -28,6 +29,7 @@
 #include <errno.h>
 #include <assert.h>
 #include <dirent.h>
+#include <unistd.h>
 
 #include "gviewv4l2core.h"
 
@@ -297,6 +299,53 @@ char *set_file_extension(const char *filename, const char *ext)
 	return new_filename;
 }
 
+/* 
+ * Calculate the required buffer size (in bytes) for directory       
+ * entries read from the given directory handle.  Return -1 if this  
+ * this cannot be done.                                              
+ *                                                                   
+ * This code does not trust values of NAME_MAX that are less than    
+ * 255, since some systems (including at least HP-UX) incorrectly    
+ * define it to be a smaller value.                                  
+ *                                                                   
+ * If you use autoconf, include fpathconf and dirfd in your          
+ * AC_CHECK_FUNCS list.  Otherwise use some other method to detect   
+ * and use them where available.
+ * 
+ * args:
+ *    dirp - pointer to DIR struct
+ *
+ * asserts:
+ *    none
+ *
+ * returns: buffer size for directory entries                                     
+ */
+
+size_t dirent_buf_size(DIR * dirp)
+{
+    long name_max;
+    size_t name_end;
+#   if defined(HAVE_FPATHCONF) && defined(HAVE_DIRFD) \
+       && defined(_PC_NAME_MAX)
+        name_max = fpathconf(dirfd(dirp), _PC_NAME_MAX);
+        if (name_max == -1)
+#           if defined(NAME_MAX)
+                name_max = (NAME_MAX > 255) ? NAME_MAX : 255;
+#           else
+                return (size_t)(-1);
+#           endif
+#   else
+#       if defined(NAME_MAX)
+            name_max = (NAME_MAX > 255) ? NAME_MAX : 255;
+#       else
+#           error "buffer size for readdir_r cannot be determined"
+#       endif
+#   endif
+    name_end = (size_t)offsetof(struct dirent, d_name) + name_max + 1;
+    return (name_end > sizeof(struct dirent)
+            ? name_end : sizeof(struct dirent));
+}
+
 /*
  * get the sufix for filename in path (e.g. for file-3.png sufix is 3)
  * args:
@@ -312,15 +361,30 @@ unsigned long long get_file_suffix(const char *path, const char* filename)
 {
 	unsigned long long suffix = 0;
 
-	DIR *dir = opendir(path);;
-	struct dirent *dp;
+	DIR *dirp = opendir(path);
+	size_t size;
+	struct dirent *buf, *ent;
+	int error;
 
-	if(dir == NULL)
+	if(dirp == NULL)
 	{
-		fprintf(stderr, "ERROR: Couldn't open %s directory\n", path);
+		fprintf(stderr, "GUVCVIEW: Error Couldn't open %s directory\n", path);
 		return suffix;
 	}
-
+	size = dirent_buf_size(dirp);
+	if(size < 0)
+	{
+		perror("GUVCVIEW: dirent_buf_size");
+		closedir(dirp);
+		return suffix;
+	}
+	buf = (struct dirent *)malloc(size);
+    if (buf == NULL)
+    {
+        fprintf(stderr,"GUVCVIEW: FATAL memory allocation failure (get_file_suffix): %s\n", strerror(errno));
+		exit(-1);
+    }
+	
 	int noextsize = strlen(filename);
 
 	char *name = strrchr(filename, '.');
@@ -336,20 +400,20 @@ unsigned long long get_file_suffix(const char *path, const char* filename)
 	char format_str[fsize];
 	snprintf(format_str, fsize-1, "%s-%%20s.%s", noextname, extension);
 
-	while ((dp = readdir(dir)) != NULL)
+	while ((error = readdir_r(dirp, buf, &ent)) == 0 && ent != NULL)
 	{
 		if(debug_level > 3)
-			printf("GUVCVIEW: (get_file_suffix) checking %s\n", dp->d_name);
-		if (strncmp(dp->d_name, noextname, noextsize) == 0)
+			printf("GUVCVIEW: (get_file_suffix) checking %s\n", ent->d_name);
+		if (strncmp(ent->d_name, noextname, noextsize) == 0)
 		{
 			if(debug_level > 3)
 					printf("GUVCVIEW: (get_file_suffix) prefix matched (%s)\n", noextname);
-			char *ext = strrchr(dp->d_name, '.');
+			char *ext = strrchr(ent->d_name, '.');
 			if(strcmp(ext + 1, extension) == 0)
 			{
 				char sfixstr[21];
 				unsigned long long sfix = 0;
-				sscanf(dp->d_name, format_str, sfixstr);
+				sscanf(ent->d_name, format_str, sfixstr);
 
 				if(debug_level > 3)
 					printf("GUVCVIEW: (get_file_suffix) matched with suffix %s\n", sfixstr);
@@ -361,11 +425,17 @@ unsigned long long get_file_suffix(const char *path, const char* filename)
 			}
 		}
 	}
+	if(error)
+	{
+		errno = error;
+		fprintf(stderr,"GUVCVIEW: error while reading dir: %s\n", strerror(errno));
+	}
 
-	closedir(dir);
+	closedir(dirp);
 
 	free(noextname);
 	free(extension);
+	free(buf);
 
 	if(debug_level > 1)
 		printf("GUVCVIEW: (get_file_suffix) %s has sufix %llu\n", filename, suffix);
@@ -410,12 +480,14 @@ char *add_file_suffix(const char *path, const char *filename)
 		fprintf(stderr,"GUVCVIEW: FATAL memory allocation failure (add_file_suffix): %s\n", strerror(errno));
 		exit(-1);
 	}
-	sprintf(new_name, "%s-%llu.%s", noextname, suffix, extension);
-
-	if(noextname)
+	if(noextname && extension)
+	{
+		sprintf(new_name, "%s-%llu.%s", noextname, suffix, extension);
 		free(noextname);
-	if(extension)
 		free(extension);
+	}
+	else
+		sprintf(new_name, "%s-%llu", filename, suffix);
 
 	return new_name;
 }

@@ -190,8 +190,6 @@ int render_sdl2_frame(uint8_t *frame, int width, int height)
 
 	int size = width * height * 2; /* 2 bytes per pixel for yuyv*/
 
-	int y = 0;
-	uint8_t *src = frame;
 	void* texture_pixels;
 	int pitch;
 

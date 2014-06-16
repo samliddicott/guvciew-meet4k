@@ -547,8 +547,6 @@ int encoder_set_audio_mkvCodecPriv(encoder_context_t *encoder_ctx)
 	/*assertions*/
 	assert(encoder_ctx != NULL);
 
-	int size = 0;
-
 	int codec_id = encoder_ctx->enc_audio_ctx->codec_context->codec_id;
 	int real_index = get_audio_codec_index(codec_id);
 

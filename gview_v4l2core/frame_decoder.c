@@ -693,7 +693,7 @@ int v4l2core_frame_decode(v4l2_dev_t *vd)
 	/*asserts*/
 	assert(vd != NULL);
 
-	if(!vd->raw_frame || vd->raw_frame_size <= 0)
+	if(!vd->raw_frame || vd->raw_frame_size == 0)
 	{
 		fprintf(stderr, "V4L2_CORE: not decoding empty raw frame\n");
 		return E_DECODE_ERR;

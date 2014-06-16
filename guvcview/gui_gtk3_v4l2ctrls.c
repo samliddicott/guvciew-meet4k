@@ -147,7 +147,7 @@ int gui_attach_gtk3_v4l2ctrls(v4l2_dev_t *device, GtkWidget *parent)
 		char *tmp;
         tmp = g_strdup_printf ("%s:", current->name);
         control_widgets_list[widget_list_size - 1].label = gtk_label_new (tmp);
-        free(tmp);
+        g_free(tmp);
         gtk_widget_show (control_widgets_list[widget_list_size - 1].label);
         gtk_misc_set_alignment (GTK_MISC (control_widgets_list[widget_list_size - 1].label), 1, 0.5);
 
@@ -443,8 +443,6 @@ int gui_attach_gtk3_v4l2ctrls(v4l2_dev_t *device, GtkWidget *parent)
 				/*connect signal*/
 				g_signal_connect (GTK_BUTTON(control_widgets_list[n].widget2), "clicked",
 					G_CALLBACK (int64_button_clicked), device);
-
-				break;
 
 				break;
 #endif
