@@ -625,7 +625,11 @@ static void *audio_processing_loop(void *data)
 	encoder_context_t *encoder_ctx = (encoder_context_t *) data;
 
 	audio_context_t *audio_ctx = get_audio_context();
-
+	if(!audio_ctx)
+	{
+		fprintf(stderr, "GUVCVIEW: no audio context: skiping audio processing\n");
+		return ((void *) -1);
+	}
 	audio_buff_t *audio_buff = NULL;
 
 	/*start audio capture*/
