@@ -140,7 +140,7 @@ static int recordCallback (
         if(sample_index >= audio_ctx->capture_buff_size)
 		{
 			buff_ts = ts + ( i / audio_ctx->channels ) * frame_length;
-				
+
 			audio_fill_buffer(audio_ctx, buff_ts);
 
 			/*reset*/
@@ -296,6 +296,14 @@ static int audio_portaudio_list_devices(audio_context_t *audio_ctx)
  */
 audio_context_t *audio_init_portaudio()
 {
+	int pa_error = Pa_Initialize();
+
+	if(pa_error != paNoError)
+	{
+		fprintf(stderr,"AUDIO: Failed to Initialize Portaudio (Pa_Initialize returned %i)\n", pa_error);
+		return NULL;
+	}
+
 	audio_context_t *audio_ctx = calloc(1, sizeof(audio_context_t));
 	if(audio_ctx == NULL)
 	{
@@ -303,9 +311,12 @@ audio_context_t *audio_init_portaudio()
 		exit(-1);
 	}
 
-	Pa_Initialize();
-
-	audio_portaudio_list_devices(audio_ctx);
+	if(audio_portaudio_list_devices(audio_ctx) != 0)
+	{
+		fprintf(stderr, "AUDIO: Portaudio failed to get audio device list\n");
+		free(audio_ctx);
+		return NULL;
+	}
 
 	audio_ctx->api = AUDIO_PORTAUDIO;
 

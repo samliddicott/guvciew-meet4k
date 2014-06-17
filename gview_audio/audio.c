@@ -290,7 +290,7 @@ void audio_fill_buffer(audio_context_t *audio_ctx, int64_t ts)
 		audio_ctx->capture_buff_size * sizeof(sample_t));
 	/*buffer begin time*/
 	audio_buffers[buffer_write_index].timestamp = audio_ctx->current_ts - buffer_length;
-	
+
 	audio_buffers[buffer_write_index].level_meter[0] = audio_ctx->capture_buff_level[0];
 	audio_buffers[buffer_write_index].level_meter[1] = audio_ctx->capture_buff_level[1];
 
@@ -398,7 +398,7 @@ int audio_get_next_buffer(audio_context_t *audio_ctx, audio_buff_t *buff, int ty
 	}
 
 	buff->timestamp = audio_buffers[buffer_read_index].timestamp;
-	
+
 	buff->level_meter[0] = audio_buffers[buffer_read_index].level_meter[0];
 	buff->level_meter[1] = audio_buffers[buffer_read_index].level_meter[1];
 
@@ -443,6 +443,9 @@ audio_context_t *audio_init(int api)
 			audio_ctx = audio_init_portaudio();
 			break;
 	}
+
+	if(!audio_ctx)
+		audio_api = AUDIO_NONE;
 
 	return audio_ctx;
 }
