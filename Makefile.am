@@ -45,6 +45,8 @@ update-po: check-gettext
 	cd $(srcdir); \
 	echo "#desktop file" >> po/POTFILES.in.2; \
 	echo "data/guvcview.desktop.in.in" >> po/POTFILES.in.2; \
+	echo "#appdata file" >> po/POTFILES.in.2; \
+	echo "data/guvcview.appdata.xml.in.in" >> po/POTFILES.in.2; \
 	echo "#gview_v4l2core lib" >> po/POTFILES.in.2; \
 	grep '_(' `find gview_v4l2core/ -name "*c"` | cut -d: -f1 | sort -u >> po/POTFILES.in.2 ; \
 	echo "#gview_render lib" >> po/POTFILES.in.2; \

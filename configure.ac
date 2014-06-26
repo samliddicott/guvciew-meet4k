@@ -407,6 +407,7 @@ AC_CONFIG_FILES([
     data/Makefile
     data/icons/Makefile
     data/guvcview.desktop.in
+    data/guvcview.appdata.xml.in
     data/guvcview.in
     po/Makefile.in
     po/gview_v4l2core/Makefile.in

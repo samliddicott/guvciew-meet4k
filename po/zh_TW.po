@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: guvcview\n"
 "Report-Msgid-Bugs-To: pj.assis@gmail.com\n"
-"POT-Creation-Date: 2014-04-30 16:47+0100\n"
+"POT-Creation-Date: 2014-06-26 11:44+0100\n"
 "PO-Revision-Date: 2013-02-25 05:36+0000\n"
 "Last-Translator: kentxchang <Unknown>\n"
 "Language-Team: none <kentxchang@gmail.com>\n"
@@ -14,6 +14,32 @@ msgstr ""
 "X-Generator: Launchpad (build 16869)\n"
 "X-Poedit-Country: TAIWAN\n"
 "X-Poedit-Language: Chinese\n"
+
+#: ../data/guvcview.desktop.in.in.h:1
+#, fuzzy
+msgid "guvcview"
+msgstr "Guvcview警告:"
+
+#: ../data/guvcview.desktop.in.in.h:2
+msgid "GTK UVC video viewer"
+msgstr ""
+
+#: ../data/guvcview.desktop.in.in.h:3
+msgid "A video viewer and capturer for the linux uvc driver"
+msgstr ""
+
+#: ../data/guvcview.appdata.xml.in.in.h:1
+msgid "capture video from v4l2 devices"
+msgstr ""
+
+#: ../data/guvcview.appdata.xml.in.in.h:2
+msgid ""
+"Video capture tool for video4linux2 compliant cameras, with special emphasis "
+"on the linux uvc driver. It provides Image (jpg, png, bmp) and Video (mjpeg, "
+"flv1, wmv1, mpg2, mpg4,...) capture with sound in several "
+"formats( currently: avi and matroska). I also supports a control panel "
+"option (--control_only) that is compatible with any other v4l2 app."
+msgstr ""
 
 #.
 #. * needed only for language files (not used)
@@ -426,21 +452,21 @@ msgid "Stop Video (V)"
 msgstr ""
 
 #. video button
-#: ../guvcview/gui_gtk3.c:315 ../guvcview/gui_gtk3.c:590
+#: ../guvcview/gui_gtk3.c:315 ../guvcview/gui_gtk3.c:600
 #: ../guvcview/gui_gtk3_callbacks.c:755
 msgid "Cap. Video (V)"
 msgstr ""
 
-#. fatal error message
-#: ../guvcview/gui_gtk3.c:369
+#: ../guvcview/gui_gtk3.c:376 ../guvcview/gui_gtk3.c:383
 msgid "Error"
 msgstr ""
 
-#: ../guvcview/gui_gtk3.c:372 ../guvcview/gui_gtk3_callbacks.c:2093
+#: ../guvcview/gui_gtk3.c:379 ../guvcview/gui_gtk3.c:386
+#: ../guvcview/gui_gtk3_callbacks.c:2093
 msgid "_Ok"
 msgstr ""
 
-#: ../guvcview/gui_gtk3.c:373 ../guvcview/gui_gtk3_callbacks.c:185
+#: ../guvcview/gui_gtk3.c:380 ../guvcview/gui_gtk3_callbacks.c:185
 #: ../guvcview/gui_gtk3_callbacks.c:199 ../guvcview/gui_gtk3_callbacks.c:522
 #: ../guvcview/gui_gtk3_callbacks.c:624 ../guvcview/gui_gtk3_callbacks.c:1751
 #: ../guvcview/gui_gtk3_callbacks.c:2094
@@ -448,7 +474,7 @@ msgstr ""
 msgid "_Cancel"
 msgstr "取消"
 
-#: ../guvcview/gui_gtk3.c:398
+#: ../guvcview/gui_gtk3.c:407
 msgid ""
 "\n"
 "You have more than one video device installed.\n"
@@ -456,44 +482,49 @@ msgid ""
 msgstr ""
 
 #. ---- Devices ----
-#: ../guvcview/gui_gtk3.c:405 ../guvcview/gui_gtk3_videoctrls.c:106
+#: ../guvcview/gui_gtk3.c:414 ../guvcview/gui_gtk3_videoctrls.c:106
 msgid "Device:"
 msgstr "設備:"
 
-#: ../guvcview/gui_gtk3.c:506
+#: ../guvcview/gui_gtk3.c:516
 msgid "Guvcview Video Capture"
 msgstr "Guvcview Video Capture"
 
-#: ../guvcview/gui_gtk3.c:515
+#: ../guvcview/gui_gtk3.c:525
 #, fuzzy
 msgid "Guvcview"
 msgstr "Guvcview警告:"
 
-#: ../guvcview/gui_gtk3.c:562
+#: ../guvcview/gui_gtk3.c:572
 msgid "Stop Cap. (I)"
 msgstr ""
 
-#: ../guvcview/gui_gtk3.c:568 ../guvcview/gui_gtk3_callbacks.c:720
+#: ../guvcview/gui_gtk3.c:578 ../guvcview/gui_gtk3_callbacks.c:720
 #: ../guvcview/video_capture.c:250
 msgid "Cap. Image (I)"
 msgstr ""
 
 #. quit button
 #. GtkWidget *quitButton = gtk_button_new_from_stock(GTK_STOCK_QUIT);
-#: ../guvcview/gui_gtk3.c:611
+#: ../guvcview/gui_gtk3.c:621
 msgid "_Quit"
 msgstr ""
 
-#: ../guvcview/gui_gtk3.c:657
+#: ../guvcview/gui_gtk3.c:667
 msgid "Image Controls"
 msgstr "影像設定"
 
-#: ../guvcview/gui_gtk3.c:695
+#: ../guvcview/gui_gtk3.c:703
+#, fuzzy
+msgid "H264 Controls"
+msgstr "使用者設定"
+
+#: ../guvcview/gui_gtk3.c:742
 #, fuzzy
 msgid "Video Controls"
 msgstr "使用者設定"
 
-#: ../guvcview/gui_gtk3.c:730
+#: ../guvcview/gui_gtk3.c:777
 #, fuzzy
 msgid "Audio Controls"
 msgstr "使用者設定"
@@ -701,6 +732,338 @@ msgstr "音頻編碼器數值"
 msgid "sample format:   "
 msgstr ""
 
+#: ../guvcview/gui_gtk3_h264ctrls.c:622
+#, fuzzy
+msgid "Rate Control Mode:"
+msgstr "影像設定"
+
+#: ../guvcview/gui_gtk3_h264ctrls.c:633
+msgid "CBR"
+msgstr ""
+
+#: ../guvcview/gui_gtk3_h264ctrls.c:636
+msgid "VBR"
+msgstr ""
+
+#: ../guvcview/gui_gtk3_h264ctrls.c:640
+msgid "Constant QP"
+msgstr ""
+
+#: ../guvcview/gui_gtk3_h264ctrls.c:658
+msgid "Rate Control Mode flags:"
+msgstr ""
+
+#: ../guvcview/gui_gtk3_h264ctrls.c:683
+msgid "Temporal Scale Mode:"
+msgstr ""
+
+#: ../guvcview/gui_gtk3_h264ctrls.c:711
+msgid "Spatial Scale Mode:"
+msgstr ""
+
+#: ../guvcview/gui_gtk3_h264ctrls.c:741
+msgid "Frame Interval (100ns units):"
+msgstr ""
+
+#: ../guvcview/gui_gtk3_h264ctrls.c:778
+#, fuzzy
+msgid "Bit Rate:"
+msgstr "bit rate:   "
+
+#: ../guvcview/gui_gtk3_h264ctrls.c:801
+msgid "Hints:"
+msgstr ""
+
+#: ../guvcview/gui_gtk3_h264ctrls.c:806
+#, fuzzy
+msgid "Resolution"
+msgstr "影像尺寸:"
+
+#: ../guvcview/gui_gtk3_h264ctrls.c:810
+msgid "Profile"
+msgstr ""
+
+#: ../guvcview/gui_gtk3_h264ctrls.c:814
+#, fuzzy
+msgid "Rate Control"
+msgstr "影像設定"
+
+#: ../guvcview/gui_gtk3_h264ctrls.c:818
+msgid "Usage Type"
+msgstr ""
+
+#: ../guvcview/gui_gtk3_h264ctrls.c:822
+msgid "Slice Mode"
+msgstr ""
+
+#: ../guvcview/gui_gtk3_h264ctrls.c:826
+msgid "Slice Unit"
+msgstr ""
+
+#: ../guvcview/gui_gtk3_h264ctrls.c:830
+msgid "MVC View"
+msgstr ""
+
+#: ../guvcview/gui_gtk3_h264ctrls.c:834
+msgid "Temporal Scale"
+msgstr ""
+
+#: ../guvcview/gui_gtk3_h264ctrls.c:838
+msgid "SNR Scale"
+msgstr ""
+
+#: ../guvcview/gui_gtk3_h264ctrls.c:842
+msgid "Spatial Scale"
+msgstr ""
+
+#: ../guvcview/gui_gtk3_h264ctrls.c:846
+msgid "Spatial Layer Ratio"
+msgstr ""
+
+#: ../guvcview/gui_gtk3_h264ctrls.c:850
+#, fuzzy
+msgid "Frame Interval"
+msgstr "影格率"
+
+#: ../guvcview/gui_gtk3_h264ctrls.c:854
+msgid "Leaky Bucket Size"
+msgstr ""
+
+#: ../guvcview/gui_gtk3_h264ctrls.c:858
+msgid "Bit Rate"
+msgstr ""
+
+#: ../guvcview/gui_gtk3_h264ctrls.c:862 ../guvcview/gui_gtk3_h264ctrls.c:1220
+msgid "CABAC"
+msgstr ""
+
+#: ../guvcview/gui_gtk3_h264ctrls.c:866
+msgid "(I) Frame Period"
+msgstr ""
+
+#: ../guvcview/gui_gtk3_h264ctrls.c:878
+msgid "Slice Mode:"
+msgstr ""
+
+#: ../guvcview/gui_gtk3_h264ctrls.c:885
+msgid "no multiple slices"
+msgstr ""
+
+#: ../guvcview/gui_gtk3_h264ctrls.c:887
+msgid "bits/slice"
+msgstr ""
+
+#: ../guvcview/gui_gtk3_h264ctrls.c:889
+msgid "Mbits/slice"
+msgstr ""
+
+#: ../guvcview/gui_gtk3_h264ctrls.c:891
+msgid "slices/frame"
+msgstr ""
+
+#: ../guvcview/gui_gtk3_h264ctrls.c:900
+msgid "Slice Units:"
+msgstr ""
+
+#: ../guvcview/gui_gtk3_h264ctrls.c:921
+msgid "Profile:"
+msgstr ""
+
+#: ../guvcview/gui_gtk3_h264ctrls.c:928
+msgid "Baseline Profile"
+msgstr ""
+
+#: ../guvcview/gui_gtk3_h264ctrls.c:930
+msgid "Main Profile"
+msgstr ""
+
+#: ../guvcview/gui_gtk3_h264ctrls.c:932
+msgid "High Profile"
+msgstr ""
+
+#: ../guvcview/gui_gtk3_h264ctrls.c:934
+msgid "Scalable Baseline Profile"
+msgstr ""
+
+#: ../guvcview/gui_gtk3_h264ctrls.c:936
+msgid "Scalable High Profile"
+msgstr ""
+
+#: ../guvcview/gui_gtk3_h264ctrls.c:938
+msgid "Multiview High Profile"
+msgstr ""
+
+#: ../guvcview/gui_gtk3_h264ctrls.c:940
+msgid "Stereo High Profile"
+msgstr ""
+
+#: ../guvcview/gui_gtk3_h264ctrls.c:979
+msgid "Profile flags:"
+msgstr ""
+
+#: ../guvcview/gui_gtk3_h264ctrls.c:1004
+msgid "(I) Frame Period (ms):"
+msgstr ""
+
+#: ../guvcview/gui_gtk3_h264ctrls.c:1025
+msgid "Estimated Video Delay (ms):"
+msgstr ""
+
+#: ../guvcview/gui_gtk3_h264ctrls.c:1046
+msgid "Estimated Max Config Delay (ms):"
+msgstr ""
+
+#: ../guvcview/gui_gtk3_h264ctrls.c:1067
+msgid "Usage Type:"
+msgstr ""
+
+#: ../guvcview/gui_gtk3_h264ctrls.c:1074
+msgid "Real-time"
+msgstr ""
+
+#: ../guvcview/gui_gtk3_h264ctrls.c:1076
+msgid "Broadcast"
+msgstr ""
+
+#: ../guvcview/gui_gtk3_h264ctrls.c:1078
+msgid "Storage"
+msgstr ""
+
+#: ../guvcview/gui_gtk3_h264ctrls.c:1080
+msgid "(0) Non-scalable single layer AVC"
+msgstr ""
+
+#: ../guvcview/gui_gtk3_h264ctrls.c:1082
+msgid "(1) SVC temporal scalability with hierarchical P"
+msgstr ""
+
+#: ../guvcview/gui_gtk3_h264ctrls.c:1084
+msgid "(2q) SVC temporal scalability + Quality/SNR scalability"
+msgstr ""
+
+#: ../guvcview/gui_gtk3_h264ctrls.c:1086
+msgid "(2s) SVC temporal scalability + spatial scalability"
+msgstr ""
+
+#: ../guvcview/gui_gtk3_h264ctrls.c:1088
+msgid "(3) Full SVC scalability"
+msgstr ""
+
+#: ../guvcview/gui_gtk3_h264ctrls.c:1102
+msgid "SNR Control Mode:"
+msgstr ""
+
+#: ../guvcview/gui_gtk3_h264ctrls.c:1109
+msgid "No SNR Enhancement Layer"
+msgstr ""
+
+#: ../guvcview/gui_gtk3_h264ctrls.c:1111
+msgid "CGS NonRewrite (2 Layer)"
+msgstr ""
+
+#: ../guvcview/gui_gtk3_h264ctrls.c:1113
+msgid "CGS NonRewrite (3 Layer)"
+msgstr ""
+
+#: ../guvcview/gui_gtk3_h264ctrls.c:1115
+msgid "CGS Rewrite (2 Layer)"
+msgstr ""
+
+#: ../guvcview/gui_gtk3_h264ctrls.c:1117
+msgid "CGS Rewrite (3 Layer)"
+msgstr ""
+
+#: ../guvcview/gui_gtk3_h264ctrls.c:1119
+msgid "MGS (2 Layer)"
+msgstr ""
+
+#: ../guvcview/gui_gtk3_h264ctrls.c:1144
+msgid "Stream Mux Enable"
+msgstr ""
+
+#: ../guvcview/gui_gtk3_h264ctrls.c:1151
+msgid "Embed H.264 aux stream"
+msgstr ""
+
+#: ../guvcview/gui_gtk3_h264ctrls.c:1153
+msgid "Embed YUY2 aux stream"
+msgstr ""
+
+#: ../guvcview/gui_gtk3_h264ctrls.c:1155
+msgid "Embed NV12 aux stream"
+msgstr ""
+
+#: ../guvcview/gui_gtk3_h264ctrls.c:1175
+msgid "MJPG payload container"
+msgstr ""
+
+#: ../guvcview/gui_gtk3_h264ctrls.c:1189
+msgid "Stream Format:"
+msgstr ""
+
+#: ../guvcview/gui_gtk3_h264ctrls.c:1197
+msgid "Byte stream format (H.264 Annex-B)"
+msgstr ""
+
+#: ../guvcview/gui_gtk3_h264ctrls.c:1199
+msgid "NAL stream format"
+msgstr ""
+
+#: ../guvcview/gui_gtk3_h264ctrls.c:1210
+msgid "Entropy CABAC:"
+msgstr ""
+
+#: ../guvcview/gui_gtk3_h264ctrls.c:1218
+msgid "CAVLC"
+msgstr ""
+
+#: ../guvcview/gui_gtk3_h264ctrls.c:1231
+msgid "Picture timing SEI"
+msgstr ""
+
+#: ../guvcview/gui_gtk3_h264ctrls.c:1238
+#, fuzzy
+msgid "B Frames:"
+msgstr "影格率"
+
+#: ../guvcview/gui_gtk3_h264ctrls.c:1263
+msgid "Preview Flipped"
+msgstr ""
+
+#: ../guvcview/gui_gtk3_h264ctrls.c:1270
+msgid "Additional MVC Views:"
+msgstr ""
+
+#: ../guvcview/gui_gtk3_h264ctrls.c:1295
+msgid "Simulcast stream index:"
+msgstr ""
+
+#: ../guvcview/gui_gtk3_h264ctrls.c:1320
+msgid "Spatial Layer Ratio:"
+msgstr ""
+
+#: ../guvcview/gui_gtk3_h264ctrls.c:1349
+msgid "Leaky Bucket Size (ms):"
+msgstr ""
+
+#. encoder reset
+#: ../guvcview/gui_gtk3_h264ctrls.c:1376
+#, fuzzy
+msgid "Encoder Reset"
+msgstr "Pan 重設"
+
+#.
+#. GtkWidget *probe_button = gtk_button_new_with_label(_("PROBE"));
+#. g_signal_connect (GTK_BUTTON(probe_button), "clicked",
+#. G_CALLBACK (h264_probe_button_clicked), all_data);
+#.
+#. gtk_grid_attach (GTK_GRID(h264_controls_grid), probe_button, 0, line, 1 ,1);
+#. gtk_widget_show(probe_button);
+#.
+#: ../guvcview/gui_gtk3_h264ctrls.c:1391
+msgid "COMMIT"
+msgstr ""
+
 #: ../guvcview/gui_gtk3_menu.c:70
 msgid "Settings"
 msgstr ""
@@ -753,61 +1116,61 @@ msgstr ""
 msgid "Audio Codec Properties"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_v4l2ctrls.c:169
+#: ../guvcview/gui_gtk3_v4l2ctrls.c:174
 msgid "Left"
 msgstr "左"
 
-#: ../guvcview/gui_gtk3_v4l2ctrls.c:170
+#: ../guvcview/gui_gtk3_v4l2ctrls.c:175
 msgid "Right"
 msgstr "右"
 
-#: ../guvcview/gui_gtk3_v4l2ctrls.c:174
+#: ../guvcview/gui_gtk3_v4l2ctrls.c:179
 msgid "Down"
 msgstr "下"
 
-#: ../guvcview/gui_gtk3_v4l2ctrls.c:175
+#: ../guvcview/gui_gtk3_v4l2ctrls.c:180
 msgid "Up"
 msgstr "上"
 
-#: ../guvcview/gui_gtk3_v4l2ctrls.c:234
+#: ../guvcview/gui_gtk3_v4l2ctrls.c:239
 msgid "Off"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_v4l2ctrls.c:234
+#: ../guvcview/gui_gtk3_v4l2ctrls.c:239
 msgid "On"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_v4l2ctrls.c:234
+#: ../guvcview/gui_gtk3_v4l2ctrls.c:239
 msgid "Blinking"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_v4l2ctrls.c:234
+#: ../guvcview/gui_gtk3_v4l2ctrls.c:239
 msgid "Auto"
 msgstr ""
 
 #. turn it into a menu control
-#: ../guvcview/gui_gtk3_v4l2ctrls.c:286
+#: ../guvcview/gui_gtk3_v4l2ctrls.c:296
 msgid "8 bit"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_v4l2ctrls.c:286
+#: ../guvcview/gui_gtk3_v4l2ctrls.c:296
 msgid "12 bit"
 msgstr ""
 
 #. add a virtual control for software autofocus
-#: ../guvcview/gui_gtk3_v4l2ctrls.c:334
+#: ../guvcview/gui_gtk3_v4l2ctrls.c:348
 msgid "Auto Focus (continuous)"
 msgstr "自動對焦(連續)"
 
-#: ../guvcview/gui_gtk3_v4l2ctrls.c:335
+#: ../guvcview/gui_gtk3_v4l2ctrls.c:349
 msgid "set Focus"
 msgstr "設定焦點"
 
 #. control_widgets_list[n].widget2 = gtk_button_new_from_stock(GTK_STOCK_APPLY);
 #. control_widgets_list[n].widget2= gtk_button_new_from_stock(GTK_STOCK_APPLY);
 #. control_widgets_list[n].widget2 = gtk_button_new_from_stock(GTK_STOCK_APPLY);
-#: ../guvcview/gui_gtk3_v4l2ctrls.c:419 ../guvcview/gui_gtk3_v4l2ctrls.c:444
-#: ../guvcview/gui_gtk3_v4l2ctrls.c:466
+#: ../guvcview/gui_gtk3_v4l2ctrls.c:433 ../guvcview/gui_gtk3_v4l2ctrls.c:456
+#: ../guvcview/gui_gtk3_v4l2ctrls.c:478
 #, fuzzy
 msgid "_Apply"
 msgstr "套用"
@@ -1006,14 +1369,14 @@ msgstr ""
 msgid "OPTIONS:\n"
 msgstr ""
 
-#: ../guvcview/video_capture.c:798
+#: ../guvcview/video_capture.c:812
 #, c-format
 msgid "saving video to %s"
 msgstr ""
 
 #. if(debug_level > 1)
 #. printf("GUVCVIEW: saving image to %s\n", img_filename);
-#: ../guvcview/video_capture.c:1048
+#: ../guvcview/video_capture.c:1062
 #, c-format
 msgid "saving image to %s"
 msgstr ""
