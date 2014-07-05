@@ -120,6 +120,17 @@ void audio_unlock_mutex()
  */
 static int audio_free_buffers()
 {
+	buffer_read_index = 0;
+	buffer_write_index = 0;
+	
+	/*return if no buffers set*/
+	if(!audio_buffers)
+	{
+		if(verbosity > 0)
+			fprintf(stderr,"AUDIO: can't free audio buffers (audio_free_buffers): audio_buffers is null\n");
+		return 0;
+	}
+		
 	int i = 0;
 
 	for(i = 0; i < AUDBUFF_NUM; ++i)
@@ -205,6 +216,13 @@ static int audio_init_buffers(audio_context_t *audio_ctx)
 	if(!audio_ctx)
 		return -1;
 
+	/*don't allocate if no audio*/
+	if(audio_api == AUDIO_NONE)
+	{
+		audio_buffers = NULL;
+		return 0;
+	}
+	
 	int i = 0;
 
 	/*set the buffers size*/
@@ -221,9 +239,9 @@ static int audio_init_buffers(audio_context_t *audio_ctx)
 		fprintf(stderr,"AUDIO: FATAL memory allocation failure (audio_init_buffers): %s\n", strerror(errno));
 		exit(-1);
 	}
-
-	if(audio_buffers != NULL)
-		audio_free_buffers;
+	
+	/*free audio_buffers (if any)*/
+	audio_free_buffers;
 
 	audio_buffers = calloc(AUDBUFF_NUM, sizeof(audio_buff_t));
 	if(audio_buffers == NULL)
@@ -298,8 +316,6 @@ void audio_fill_buffer(audio_context_t *audio_ctx, int64_t ts)
 	audio_buffers[buffer_write_index].flag = AUDIO_BUFF_USED;
 	NEXT_IND(buffer_write_index, AUDBUFF_NUM);
 	audio_unlock_mutex();
-
-
 
 }
 
@@ -468,8 +484,13 @@ int audio_start(audio_context_t *audio_ctx)
 	assert(audio_ctx != NULL);
 
 	/*alloc the ring buffer*/
-	if(audio_api != AUDIO_NONE)
-		audio_init_buffers(audio_ctx);
+	audio_init_buffers(audio_ctx);
+	
+	/*reset timestamp values*/
+	audio_ctx->current_ts = 0;
+	audio_ctx->last_ts = 0;
+	audio_ctx->snd_begintime = 0;
+	audio_ctx->ts_drift = 0;  
 
 	int err = 0;
 
@@ -522,6 +543,9 @@ int audio_stop(audio_context_t *audio_ctx)
 			break;
 	}
 
+	/*free the ring buffer (if any)*/
+	audio_free_buffers();
+		
 	return err;
 }
 

@@ -589,6 +589,10 @@ audio_context_t *create_audio_context(int api)
  */
 audio_context_t *get_audio_context()
 {
+	/*force a valid number of channels*/
+	if(my_audio_ctx->channels > 2)
+		my_audio_ctx->channels = 2;
+		
 	return my_audio_ctx;
 }
 
@@ -735,7 +739,7 @@ static void *encoder_loop(void *data)
 	}
 
 	if(debug_level > 0)
-		printf("ENCODER: audio [channels= %i; samprate= %i] \n",
+		printf("GUVCVIEW: audio [channels= %i; samprate= %i] \n",
 			channels, samprate);
 
 	/*create the encoder context*/
