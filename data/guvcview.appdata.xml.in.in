@@ -18,7 +18,11 @@
   </_p>
  </description>
  <screenshots>
-  <screenshot type="default" width="800" height="600">http://a.fsdn.com/con/app/proj/guvcview/screenshots/gui.png</screenshot>
+  <screenshot type="default" width="643" height="750">https://sourceforge.net/p/guvcview/screenshot/guvcview_image_tab.png</screenshot>
+  <screenshot type="default" width="643" height="750">https://sourceforge.net/p/guvcview/screenshot/guvcview_h264_tab.png</screenshot>
+  <screenshot type="default" width="643" height="750">https://sourceforge.net/p/guvcview/screenshot/guvcview_video_tab.png</screenshot>
+  <screenshot type="default" width="643" height="750">https://sourceforge.net/p/guvcview/screenshot/guvcview_audio_tab.png</screenshot>
+  <screenshot type="default" width="800" height="500">https://a.fsdn.com/con/app/proj/guvcview/screenshots/guvcview_video_preview.png</screenshot>
  </screenshots>
  <url type="homepage">http://guvcview.sourceforge.net/</url>
  <updatecontact>assisp@gmail.com</updatecontact>
