@@ -216,9 +216,6 @@ void encoder_muxer_init(encoder_context_t *encoder_ctx, const char *filename)
 	{
 		switch(encoder_ctx->input_format)
 		{
-			case V4L2_PIX_FMT_MJPEG:
-				video_codec_id = AV_CODEC_ID_MJPEG;
-				break;
 			case V4L2_PIX_FMT_H264:
 				video_codec_id = AV_CODEC_ID_H264;
 				break;
@@ -231,6 +228,7 @@ void encoder_muxer_init(encoder_context_t *encoder_ctx, const char *filename)
 
 	if(verbosity > 1)
 		printf("ENCODER: initializing muxer(%i)\n", encoder_ctx->muxer_id);
+
 	switch (encoder_ctx->muxer_id)
 	{
 		case ENCODER_MUX_AVI:

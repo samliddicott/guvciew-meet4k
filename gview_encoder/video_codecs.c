@@ -646,7 +646,7 @@ int encoder_set_video_mkvCodecPriv(encoder_context_t *encoder_ctx)
 					fprintf(stderr, "ENCODER: FATAL memory allocation failure (encoder_set_video_mkvCodecPriv): %s\n", strerror(errno));
 					exit(-1);
 				}
-				
+
 				if(verbosity > 1)
 					printf("ENCODER: (video priv_data) processing %i bytes\n", size);
 
@@ -677,26 +677,14 @@ int encoder_set_video_mkvCodecPriv(encoder_context_t *encoder_ctx)
 				break;
 			}
 
-			case V4L2_PIX_FMT_MJPEG:
-			{
-				bmp_info_header_t *mkv_codecPriv = get_default_mkv_codecPriv();
-				size = 40;
-				mkv_codecPriv->biWidth = encoder_ctx->video_width;
-				mkv_codecPriv->biHeight = encoder_ctx->video_height;
-				mkv_codecPriv->biCompression = V4L2_PIX_FMT_MJPEG;
-				mkv_codecPriv->biSizeImage = encoder_ctx->video_width*encoder_ctx->video_height*2; /*2 bytes per pixel (max buffer - use x3 for RGB)*/
-				listSupCodecs[0].mkv_codecPriv = (void *) mkv_codecPriv;
-				break;
-			}
-
 			default:
 			{
 				bmp_info_header_t *mkv_codecPriv = get_default_mkv_codecPriv();
 				size = 40;
 				mkv_codecPriv->biWidth = encoder_ctx->video_width;
 				mkv_codecPriv->biHeight = encoder_ctx->video_height;
-				mkv_codecPriv->biCompression = V4L2_PIX_FMT_YUYV;
-				mkv_codecPriv->biSizeImage = encoder_ctx->video_width*encoder_ctx->video_height*2; /*2 bytes per pixel (max buffer - use x3 for RGB)*/
+				mkv_codecPriv->biCompression = encoder_ctx->input_format;
+				mkv_codecPriv->biSizeImage = encoder_ctx->video_width*encoder_ctx->video_height*3; /*3 bytes per pixel (max buffer - use x3 for RGB)*/
 				listSupCodecs[0].mkv_codecPriv = (void *) mkv_codecPriv;
 				break;
 			}
