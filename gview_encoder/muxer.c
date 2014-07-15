@@ -200,6 +200,7 @@ int encoder_write_audio_data(encoder_context_t *encoder_ctx)
  *
  * asserts:
  *   encoder_ctx is not null
+ *   encoder_ctx->enc_video_ctx is not null
  *
  * returns: none
  */
@@ -207,6 +208,7 @@ void encoder_muxer_init(encoder_context_t *encoder_ctx, const char *filename)
 {
 	/*assertions*/
 	assert(encoder_ctx != NULL);
+	assert(encoder_ctx->enc_video_ctx != NULL);
 
 	int video_codec_id = AV_CODEC_ID_NONE;
 
@@ -319,7 +321,7 @@ void encoder_muxer_init(encoder_context_t *encoder_ctx, const char *filename)
 				encoder_ctx->audio_channels > 0)
 			{
 				mkv_ctx->audio_frame_size = encoder_ctx->enc_audio_ctx->codec_context->frame_size;
-				
+
 				/*sample size - only used for PCM*/
 				int32_t a_bits = encoder_get_audio_bits(encoder_ctx->audio_codec_ind);
 				/*bit rate (compressed formats)*/
@@ -333,7 +335,7 @@ void encoder_muxer_init(encoder_context_t *encoder_ctx, const char *filename)
 					b_rate,
 					encoder_ctx->enc_audio_ctx->codec_context->codec_id,
 					encoder_ctx->enc_audio_ctx->avi_4cc);
-				
+
 				audio_stream->extra_data_size = encoder_set_audio_mkvCodecPriv(encoder_ctx);
 
 				if(audio_stream->extra_data_size > 0)

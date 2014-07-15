@@ -184,6 +184,84 @@ static void encoder_clean_video_ring_buffer()
 }
 
 /*
+ * video encoder initialization for raw input
+ *  (don't set a codec but set the proper codec 4cc)
+ * args:
+ *   enc_video_ctx - pointer to video context
+ *   video_defaults - pointer to video codec default data
+ *   video_width - video frame width
+ *   video_height - video frame height
+ *
+ * asserts:
+ *   encoder_ctx is not null
+ *   encoder_ctx->enc_video_ctx is not null
+ *
+ * returns: none
+ */
+static void encoder_set_raw_video_input(
+    encoder_context_t *encoder_ctx,
+    video_codec_t *video_defaults
+    )
+{
+	//assertions
+	assert(encoder_ctx != NULL);
+	assert(encoder_ctx->enc_video_ctx != NULL);
+
+	encoder_ctx->video_codec_ind == 0;
+
+	switch(encoder_ctx->input_format)
+	{
+		case V4L2_PIX_FMT_MJPEG:
+			strncpy(video_defaults->compressor, "MJPG", 5);
+			video_defaults->mkv_4cc = v4l2_fourcc('M','J','P','G');
+			strncpy(video_defaults->mkv_codec, "V_MS/VFW/FOURCC", 25);
+			encoder_ctx->enc_video_ctx->outbuf_size = encoder_ctx->video_width * encoder_ctx->video_height / 2;
+			encoder_ctx->enc_video_ctx->outbuf = calloc(encoder_ctx->enc_video_ctx->outbuf_size, sizeof(uint8_t));
+			if(encoder_ctx->enc_video_ctx->outbuf == NULL)
+			{
+				fprintf(stderr, "ENCODER: FATAL memory allocation failure (encoder_video_init): %s\n", strerror(errno));
+				exit(-1);
+			}
+			break;
+
+		case V4L2_PIX_FMT_H264:
+			strncpy(video_defaults->compressor, "H264", 5);
+			video_defaults->mkv_4cc = v4l2_fourcc('H','2','6','4');
+			strncpy(video_defaults->mkv_codec, "V_MPEG4/ISO/AVC", 25);
+			encoder_ctx->enc_video_ctx->outbuf_size = encoder_ctx->video_width * encoder_ctx->video_height / 2;
+			encoder_ctx->enc_video_ctx->outbuf = calloc(encoder_ctx->enc_video_ctx->outbuf_size, sizeof(uint8_t));
+			if(encoder_ctx->enc_video_ctx->outbuf == NULL)
+			{
+				fprintf(stderr, "ENCODER: FATAL memory allocation failure (encoder_video_init): %s\n", strerror(errno));
+				exit(-1);
+			}
+			break;
+
+		default:
+		{
+			char fourcc[5];
+			fourcc[0]= (char) encoder_ctx->input_format & 0xFF;
+			fourcc[1]= (char) encoder_ctx->input_format & 0xFF00 >> 8;
+			fourcc[2]= (char) encoder_ctx->input_format & 0xFF0000 >> 16;
+			fourcc[3]= (char) encoder_ctx->input_format & 0xFF000000 >> 24;
+			fourcc[4]='\0';
+
+			strncpy(video_defaults->compressor, fourcc, 5);
+			video_defaults->mkv_4cc = encoder_ctx->input_format; //v4l2_fourcc('Y','U','Y','2')
+			strncpy(video_defaults->mkv_codec, "V_MS/VFW/FOURCC", 25);
+			encoder_ctx->enc_video_ctx->outbuf_size = encoder_ctx->video_width * encoder_ctx->video_height * 3; //max of 3 bytes per pixel
+			encoder_ctx->enc_video_ctx->outbuf = calloc(encoder_ctx->enc_video_ctx->outbuf_size, sizeof(uint8_t));
+			if(encoder_ctx->enc_video_ctx->outbuf == NULL)
+			{
+				fprintf(stderr, "ENCODER: FATAL memory allocation failure (encoder_video_init): %s\n", strerror(errno));
+				exit(-1);
+			}
+			break;
+		}
+	}
+}
+
+/*
  * video encoder initialization
  * args:
  *   video_codec_ind - video codec list index
@@ -193,34 +271,31 @@ static void encoder_clean_video_ring_buffer()
  *   fps_den - fps denominator
  *
  * asserts:
- *   none
+ *   encoder_ctx is not null
  *
  * returns: pointer to encoder video context (NULL on none)
  */
-static encoder_video_context_t *encoder_video_init(
-	int video_codec_ind,
-	int input_format,
-	int video_width,
-	int video_height,
-	int fps_num,
-	int fps_den)
+static encoder_video_context_t *encoder_video_init(encoder_context_t *encoder_ctx)
 {
-	if(video_codec_ind < 0)
+	//assertions
+	assert(encoder_ctx != NULL);
+
+	if(encoder_ctx->video_codec_ind < 0)
 	{
 		if(verbosity > 0)
 			printf("ENCODER: no video codec set - using raw (direct input)\n");
 
-		video_codec_ind = 0;
+		encoder_ctx->video_codec_ind = 0;
 	}
 
-	video_codec_t *video_defaults = encoder_get_video_codec_defaults(video_codec_ind);
+	video_codec_t *video_defaults = encoder_get_video_codec_defaults(encoder_ctx->video_codec_ind);
 
 	if(!video_defaults)
 	{
 		fprintf(stderr, "ENCODER: defaults for video codec index %i not found: using raw (direct input)\n",
-			video_codec_ind);
-		video_codec_ind = 0;
-		video_defaults = encoder_get_video_codec_defaults(video_codec_ind);
+			encoder_ctx->video_codec_ind);
+		encoder_ctx->video_codec_ind = 0;
+		video_defaults = encoder_get_video_codec_defaults(encoder_ctx->video_codec_ind);
 		if(!video_defaults)
 		{
 			/*should never happen*/
@@ -236,51 +311,12 @@ static encoder_video_context_t *encoder_video_init(
 		exit(-1);
 	}
 
-	/*raw input - don't set a codec but set the proper codec 4cc*/
-	if(video_codec_ind == 0)
+	//make sure enc_video_ctx is set in encoder_ctx
+	encoder_ctx->enc_video_ctx = enc_video_ctx;
+
+	if(encoder_ctx->video_codec_ind == 0)
 	{
-		switch(input_format)
-		{
-			case V4L2_PIX_FMT_MJPEG:
-				strncpy(video_defaults->compressor, "MJPG", 5);
-				video_defaults->mkv_4cc = v4l2_fourcc('M','J','P','G');
-				strncpy(video_defaults->mkv_codec, "V_MS/VFW/FOURCC", 25);
-				enc_video_ctx->outbuf_size = video_width * video_height / 2;
-				enc_video_ctx->outbuf = calloc(enc_video_ctx->outbuf_size, sizeof(uint8_t));
-				if(enc_video_ctx->outbuf == NULL)
-				{
-					fprintf(stderr, "ENCODER: FATAL memory allocation failure (encoder_video_init): %s\n", strerror(errno));
-					exit(-1);
-				}
-				break;
-
-			case V4L2_PIX_FMT_H264:
-				strncpy(video_defaults->compressor, "H264", 5);
-				video_defaults->mkv_4cc = v4l2_fourcc('H','2','6','4');
-				strncpy(video_defaults->mkv_codec, "V_MPEG4/ISO/AVC", 25);
-				enc_video_ctx->outbuf_size = video_width * video_height / 2;
-				enc_video_ctx->outbuf = calloc(enc_video_ctx->outbuf_size, sizeof(uint8_t));
-				if(enc_video_ctx->outbuf == NULL)
-				{
-					fprintf(stderr, "ENCODER: FATAL memory allocation failure (encoder_video_init): %s\n", strerror(errno));
-					exit(-1);
-				}
-				break;
-
-			default:
-				strncpy(video_defaults->compressor, "YUY2", 5);
-				video_defaults->mkv_4cc = v4l2_fourcc('Y','U','Y','2');
-				strncpy(video_defaults->mkv_codec, "V_MS/VFW/FOURCC", 25);
-				enc_video_ctx->outbuf_size = video_width * video_height * 2;
-				enc_video_ctx->outbuf = calloc(enc_video_ctx->outbuf_size, sizeof(uint8_t));
-				if(enc_video_ctx->outbuf == NULL)
-				{
-					fprintf(stderr, "ENCODER: FATAL memory allocation failure (encoder_video_init): %s\n", strerror(errno));
-					exit(-1);
-				}
-				break;
-		}
-
+		encoder_set_raw_video_input(encoder_ctx, video_defaults);
 		return (enc_video_ctx);
 	}
 
@@ -295,9 +331,10 @@ static encoder_video_context_t *encoder_video_init(
 
 	if(!enc_video_ctx->codec)
 	{
-		fprintf(stderr, "ENCODER: libav video codec (%i) not found\n",video_defaults->codec_id);
-		free(enc_video_ctx);
-		return(NULL);
+		fprintf(stderr, "ENCODER: libav video codec (%i) not found - using raw input\n",video_defaults->codec_id);
+		video_defaults = encoder_get_video_codec_defaults(0);
+		encoder_set_raw_video_input(encoder_ctx, video_defaults);
+		return (enc_video_ctx);
 	}
 
 #if LIBAVCODEC_VER_AT_LEAST(53,6)
@@ -319,8 +356,8 @@ static encoder_video_context_t *encoder_video_init(
 
 	/*set codec defaults*/
 	enc_video_ctx->codec_context->bit_rate = video_defaults->bit_rate;
-	enc_video_ctx->codec_context->width = video_width;
-	enc_video_ctx->codec_context->height = video_height;
+	enc_video_ctx->codec_context->width = encoder_ctx->video_width;
+	enc_video_ctx->codec_context->height = encoder_ctx->video_height;
 
 	enc_video_ctx->codec_context->flags |= video_defaults->flags;
 	if (video_defaults->num_threads > 0)
@@ -367,8 +404,8 @@ static encoder_video_context_t *encoder_video_init(
 	enc_video_ctx->codec_context->pix_fmt = PIX_FMT_YUV420P; //only yuv420p available for mpeg
 	if(video_defaults->fps)
 		enc_video_ctx->codec_context->time_base = (AVRational){1, video_defaults->fps}; //use codec properties fps
-	else if (fps_den >= 5)
-		enc_video_ctx->codec_context->time_base = (AVRational){fps_num, fps_den}; //default fps (for gspca this is 1/1)
+	else if (encoder_ctx->fps_den >= 5)
+		enc_video_ctx->codec_context->time_base = (AVRational){encoder_ctx->fps_num, encoder_ctx->fps_den}; //default fps (for gspca this is 1/1)
 	else
 		enc_video_ctx->codec_context->time_base = (AVRational){1,15}; //fallback to 15 fps (e.g gspca)
 
@@ -401,10 +438,13 @@ static encoder_video_context_t *encoder_video_init(
 		enc_video_ctx->codec) < 0)
 #endif
 	{
-		fprintf(stderr, "ENCODER: could not open video codec (%s)\n", video_defaults->codec_name);
+		fprintf(stderr, "ENCODER: could not open video codec (%s) - using raw input\n", video_defaults->codec_name);
 		free(enc_video_ctx->codec_context);
-		free(enc_video_ctx);
-		return(NULL);
+		enc_video_ctx->codec_context = NULL;
+		enc_video_ctx->codec = 0;
+		video_defaults = encoder_get_video_codec_defaults(0);
+		encoder_set_raw_video_input(encoder_ctx, video_defaults);
+		return (enc_video_ctx);
 	}
 
 	enc_video_ctx->picture= avcodec_alloc_frame();
@@ -416,7 +456,7 @@ static encoder_video_context_t *encoder_video_init(
 	enc_video_ctx->picture->pts = 0;
 
 	//alloc tmpbuff (yuv420p)
-	enc_video_ctx->tmpbuf = calloc((video_width * video_height * 3)/2, sizeof(uint8_t));
+	enc_video_ctx->tmpbuf = calloc((encoder_ctx->video_width * encoder_ctx->video_height * 3)/2, sizeof(uint8_t));
 	if(enc_video_ctx->tmpbuf == NULL)
 	{
 		fprintf(stderr, "ENCODER: FATAL memory allocation failure (encoder_video_init): %s\n", strerror(errno));
@@ -874,13 +914,7 @@ encoder_context_t *encoder_get_context(
 	encoder_ctx->audio_samprate = audio_samprate;
 
 	/******************* video **********************/
-	encoder_ctx->enc_video_ctx = encoder_video_init(
-		video_codec_ind,
-		input_format,
-		video_width,
-		video_height,
-		fps_num,
-		fps_den);
+	encoder_video_init(encoder_ctx);
 
 	/******************* audio **********************/
 	encoder_ctx->enc_audio_ctx = encoder_audio_init(
