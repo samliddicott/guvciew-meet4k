@@ -122,6 +122,7 @@ typedef struct _video_codec_t
 	char mkv_codec[25];       //mkv codecID
 	void *mkv_codecPriv;      //mkv codec private data
 	char description[35];     //codec description
+	int pix_fmt;              //codec input pixel format
 	int fps;                  // encoder frame rate (used for time base)
 	int bit_rate;             //lavc default bit rate
 	int qmax;                 //lavc qmax

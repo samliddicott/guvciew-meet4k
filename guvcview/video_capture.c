@@ -756,7 +756,7 @@ static void *encoder_loop(void *data)
 		samprate);
 
 	/*store external SPS and PPS data if needed*/
-	if(get_video_codec_ind() == 0 && /*raw - direct input*/
+	if(encoder_ctx->video_codec_ind == 0 && /*raw - direct input*/
 		device->requested_fmt == V4L2_PIX_FMT_H264)
 	{
 		/*request a IDR (key) frame*/
@@ -1091,7 +1091,7 @@ void *capture_loop(void *data)
 							input_frame = device->h264_frame;
 							size = (int) device->h264_frame_size;
 							break;
-						case V4L2_PIX_FMT_MJPEG:
+						default:
 							input_frame = device->raw_frame;
 							size = (int) device->raw_frame_size;
 							break;

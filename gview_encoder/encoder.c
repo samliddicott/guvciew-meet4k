@@ -397,7 +397,7 @@ static encoder_video_context_t *encoder_video_init(encoder_context_t *encoder_ct
 #endif
 	enc_video_ctx->codec_context->codec_type = AVMEDIA_TYPE_VIDEO;
 
-	enc_video_ctx->codec_context->pix_fmt = PIX_FMT_YUV420P; //only yuv420p available for mpeg
+	enc_video_ctx->codec_context->pix_fmt =  video_defaults->pix_fmt; //only yuv420p available for mpeg
 	if(video_defaults->fps)
 		enc_video_ctx->codec_context->time_base = (AVRational){1, video_defaults->fps}; //use codec properties fps
 	else if (encoder_ctx->fps_den >= 5)
@@ -1226,8 +1226,19 @@ int encoder_encode_video(encoder_context_t *encoder_ctx, void *input_frame)
 
 	/*convert default yuyv to y420p (libav input format)*/
 	if(input_frame != NULL)
-		yuv422to420p(encoder_ctx, input_frame);
-
+	{
+		switch(enc_video_ctx->codec_context->pix_fmt)
+		{
+			case PIX_FMT_YUVJ420P:
+				yuv422to420p(encoder_ctx, input_frame);
+				break;
+			default:
+				yuv422to420p(encoder_ctx, input_frame);
+				break;
+				break;
+		}
+	}
+	
 	if(!enc_video_ctx->monotonic_pts) //generate a real pts based on the frame timestamp
 		enc_video_ctx->picture->pts += ((enc_video_ctx->pts - last_video_pts)/1000) * 90;
 	else  /*generate a true monotonic pts based on the codec fps*/
@@ -1500,7 +1511,7 @@ int encoder_encode_audio(encoder_context_t *encoder_ctx, void *audio_data)
 			if(enc_audio_ctx->index_of_df < 0)
 			{
 				enc_audio_ctx->index_of_df = 0;
-				printf("ENCODER: audio codec is using %i delayed video frames\n", enc_audio_ctx->delayed_frames);
+				printf("ENCODER: audio codec is using %i delayed audio frames\n", enc_audio_ctx->delayed_frames);
 			}
 			int64_t my_pts = enc_audio_ctx->pts;
 			enc_audio_ctx->pts = enc_audio_ctx->delayed_pts[enc_audio_ctx->index_of_df];
