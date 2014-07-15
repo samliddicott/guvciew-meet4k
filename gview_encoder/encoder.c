@@ -264,11 +264,7 @@ static void encoder_set_raw_video_input(
 /*
  * video encoder initialization
  * args:
- *   video_codec_ind - video codec list index
- *   video_width - video frame width
- *   video_height - video frame height
- *   fps_num - fps numerator
- *   fps_den - fps denominator
+ *   encoder_ctx - pointer to encoder context
  *
  * asserts:
  *   encoder_ctx is not null
@@ -484,22 +480,19 @@ static encoder_video_context_t *encoder_video_init(encoder_context_t *encoder_ct
 /*
  * audio encoder initialization
  * args:
- *   audio_codec_ind - audio codec list index
- *   audio_channels - audio channels
- *   audio_samprate - audio sample rate
+ *   encoder_ctx - pointer to encoder context
  *
  * asserts:
- *   none
+ *   encoder_ctx is not null
  *
  * returns: pointer to encoder audio context (NULL on none)
  */
-static encoder_audio_context_t *encoder_audio_init(
-	int audio_codec_ind,
-	int audio_channels,
-	int audio_samprate)
+static encoder_audio_context_t *encoder_audio_init(encoder_context_t *encoder_ctx)
 {
+	//assertions
+	assert(encoder_ctx != NULL);
 
-	if(audio_codec_ind < 0)
+	if(encoder_ctx->audio_codec_ind < 0)
 	{
 		if(verbosity > 0)
 			printf("ENCODER: no audio codec set\n");
@@ -507,7 +500,7 @@ static encoder_audio_context_t *encoder_audio_init(
 		return NULL;
 	}
 
-	if(audio_channels <= 0)
+	if(encoder_ctx->audio_channels <= 0)
 	{
 		if(verbosity > 0)
 			printf("ENCODER: no audio channels set\n");
@@ -515,11 +508,11 @@ static encoder_audio_context_t *encoder_audio_init(
 		return NULL;
 	}
 
-	audio_codec_t *audio_defaults = encoder_get_audio_codec_defaults(audio_codec_ind);
+	audio_codec_t *audio_defaults = encoder_get_audio_codec_defaults(encoder_ctx->audio_codec_ind);
 
 	if(!audio_defaults)
 	{
-		fprintf(stderr, "ENCODER: defaults for audio codec index %i not found\n", audio_codec_ind);
+		fprintf(stderr, "ENCODER: defaults for audio codec index %i not found\n", encoder_ctx->audio_codec_ind);
 		return NULL;
 	}
 
@@ -529,6 +522,8 @@ static encoder_audio_context_t *encoder_audio_init(
 		fprintf(stderr, "ENCODER: FATAL memory allocation failure (encoder_audio_init): %s\n", strerror(errno));
 		exit(-1);
 	}
+
+	encoder_ctx->enc_audio_ctx = enc_audio_ctx;
 
 	enc_audio_ctx->index_of_df = -1;
 
@@ -548,6 +543,7 @@ static encoder_audio_context_t *encoder_audio_init(
 	{
 		fprintf(stderr, "ENCODER: audio codec (%i) not found\n",audio_defaults->codec_id);
 		free(enc_audio_ctx);
+		encoder_ctx->enc_audio_ctx = NULL;
 		return NULL;
 	}
 
@@ -572,11 +568,11 @@ static encoder_audio_context_t *encoder_audio_init(
 
 	enc_audio_ctx->codec_context->flags |= audio_defaults->flags;
 
-	enc_audio_ctx->codec_context->sample_rate = audio_samprate;
-	enc_audio_ctx->codec_context->channels = audio_channels;
+	enc_audio_ctx->codec_context->sample_rate = encoder_ctx->audio_samprate;
+	enc_audio_ctx->codec_context->channels = encoder_ctx->audio_channels;
 
 #if LIBAVCODEC_VER_AT_LEAST(53,34)
-	if(audio_channels < 2)
+	if(encoder_ctx->audio_channels < 2)
 		enc_audio_ctx->codec_context->channel_layout = AV_CH_LAYOUT_MONO;
 	else
 		enc_audio_ctx->codec_context->channel_layout = AV_CH_LAYOUT_STEREO;
@@ -617,6 +613,7 @@ static encoder_audio_context_t *encoder_audio_init(
 					fprintf(stderr, "ENCODER: could not open audio codec: no supported sample format\n");
 					free(enc_audio_ctx->codec_context);
 					free(enc_audio_ctx);
+					encoder_ctx->enc_audio_ctx = NULL;
 					return NULL;
 				}
 				break;
@@ -642,6 +639,7 @@ static encoder_audio_context_t *encoder_audio_init(
 					fprintf(stderr, "ENCODER: could not open audio codec: no supported sample format\n");
 					free(enc_audio_ctx->codec_context);
 					free(enc_audio_ctx);
+					encoder_ctx->enc_audio_ctx = NULL;
 					return NULL;
 				}
 				break;
@@ -667,6 +665,7 @@ static encoder_audio_context_t *encoder_audio_init(
 					fprintf(stderr, "ENCODER: could not open audio codec: no supported sample format\n");
 					free(enc_audio_ctx->codec_context);
 					free(enc_audio_ctx);
+					encoder_ctx->enc_audio_ctx = NULL;
 					return NULL;
 				}
 				break;
@@ -689,6 +688,7 @@ static encoder_audio_context_t *encoder_audio_init(
 		fprintf(stderr, "ENCODER: could not open audio codec\n");
 		free(enc_audio_ctx->codec_context);
 		free(enc_audio_ctx);
+		encoder_ctx->enc_audio_ctx = NULL;
 		return NULL;
 	}
 
@@ -917,10 +917,7 @@ encoder_context_t *encoder_get_context(
 	encoder_video_init(encoder_ctx);
 
 	/******************* audio **********************/
-	encoder_ctx->enc_audio_ctx = encoder_audio_init(
-		audio_codec_ind,
-		audio_channels,
-		audio_samprate);
+	encoder_audio_init(encoder_ctx);
 
 	if(!encoder_ctx->enc_audio_ctx)
 		encoder_ctx->audio_channels = 0; /*no audio*/
