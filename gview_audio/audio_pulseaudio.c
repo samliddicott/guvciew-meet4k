@@ -259,7 +259,12 @@ static int pa_get_devicelist(audio_context_t *audio_ctx)
     pa_ctx = pa_context_new(pa_mlapi, "getDevices");
 
     /* This function connects to the pulse server */
-    pa_context_connect(pa_ctx, NULL, 0, NULL);
+    if(pa_context_connect(pa_ctx, NULL, 0, NULL) < 0)
+    {
+		fprintf(stderr,"AUDIO: PULSE - unable to connect to server: pa_context_connect failed\n");
+		finish(pa_ctx, pa_ml);
+		return -1;
+	}
 
     /*
 	 * This function defines a callback so the server will tell us
@@ -454,7 +459,7 @@ static void stream_request_cb(pa_stream *s, size_t length, void *data)
 		{
 			capture_buff[sample_index] = inputBuffer ? *rptr++ : 0;
 			sample_index++;
-			
+
 			/*store peak value*/
 			if(audio_ctx->capture_buff_level[chan] < capture_buff[sample_index])
 				audio_ctx->capture_buff_level[chan] = capture_buff[sample_index];
@@ -465,9 +470,9 @@ static void stream_request_cb(pa_stream *s, size_t length, void *data)
 			if(sample_index >= audio_ctx->capture_buff_size)
 			{
 				buff_ts = ts + ( i / audio_ctx->channels ) * frame_length;
-				
+
 				audio_fill_buffer(audio_ctx, buff_ts);
-				
+
 				/*reset*/
 				audio_ctx->capture_buff_level[0] = 0;
 				audio_ctx->capture_buff_level[1] = 0;
@@ -511,7 +516,13 @@ static void *pulse_read_audio(void *data)
     pa_ml = pa_mainloop_new();
     pa_mlapi = pa_mainloop_get_api(pa_ml);
     pa_ctx = pa_context_new(pa_mlapi, "guvcview Pulse API");
-    pa_context_connect(pa_ctx, NULL, 0, NULL);
+
+    if(pa_context_connect(pa_ctx, NULL, 0, NULL) < 0)
+    {
+		fprintf(stderr,"AUDIO: PULSE - unable to connect to server: pa_context_connect failed\n");
+		finish(pa_ctx, pa_ml);
+		return ((void *) -1);
+	}
 
     /*
 	 * This function defines a callback so the server will tell us it's state.
