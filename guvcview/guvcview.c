@@ -273,6 +273,8 @@ int main(int argc, char *argv[])
 			audio_ctx->channels = 2;/*limit it to stereo input*/
 		audio_ctx->samprate = audio_ctx->list_devices[audio_ctx->device].samprate;
 	}
+	else
+		fprintf(stderr, "GUVCVIEW: couldn't get a valid audio context for the selected api - disabling audio\n");
 	
 	encoder_set_verbosity(debug_level);
 	/*init the encoder*/

@@ -589,6 +589,9 @@ audio_context_t *create_audio_context(int api)
  */
 audio_context_t *get_audio_context()
 {
+	if(!my_audio_ctx)
+		return NULL;
+		
 	/*force a valid number of channels*/
 	if(my_audio_ctx->channels > 2)
 		my_audio_ctx->channels = 2;

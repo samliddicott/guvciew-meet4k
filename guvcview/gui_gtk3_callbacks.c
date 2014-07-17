@@ -1661,6 +1661,9 @@ void audio_api_changed(GtkComboBox *combo, void *data)
 
 	/*update the audio context for the new api*/
 	audio_context_t *audio_ctx = create_audio_context(api);
+	if(!audio_ctx)
+		api = AUDIO_NONE;
+		
 	/*update the config audio entry*/
 	config_t *my_config = config_get();
 	switch(api)
@@ -1679,6 +1682,7 @@ void audio_api_changed(GtkComboBox *combo, void *data)
 
 	if(api == AUDIO_NONE || audio_ctx == NULL)
 	{
+		gtk_combo_box_set_active(combo, api);
 		gtk_widget_set_sensitive(my_audio_widgets->device, FALSE);
 		gtk_widget_set_sensitive(my_audio_widgets->channels, FALSE);
 		gtk_widget_set_sensitive(my_audio_widgets->samprate, FALSE);
