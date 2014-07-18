@@ -1546,9 +1546,6 @@ void encoder_close(encoder_context_t *encoder_ctx)
 	encoder_video_context_t *enc_video_ctx = encoder_ctx->enc_video_ctx;
 	encoder_audio_context_t *enc_audio_ctx = encoder_ctx->enc_audio_ctx;
 
-	if(encoder_ctx->enc_video_ctx->priv_data)
-		free(encoder_ctx->enc_video_ctx->priv_data);
-
 	if(encoder_ctx->h264_pps)
 		free(encoder_ctx->h264_pps);
 
@@ -1556,26 +1553,28 @@ void encoder_close(encoder_context_t *encoder_ctx)
 		free(encoder_ctx->h264_sps);
 
 	/*close video codec*/
-	if(enc_video_ctx && encoder_ctx->video_codec_ind > 0)
+	if(enc_video_ctx)
 	{
-		if(!(enc_video_ctx->flushed_buffers))
+		if(encoder_ctx->video_codec_ind > 0)
 		{
-			avcodec_flush_buffers(enc_video_ctx->codec_context);
-			enc_video_ctx->flushed_buffers = 1;
-		}
+			if(!(enc_video_ctx->flushed_buffers))
+			{
+				avcodec_flush_buffers(enc_video_ctx->codec_context);
+				enc_video_ctx->flushed_buffers = 1;
+			}
 
-		avcodec_close(enc_video_ctx->codec_context);
-		free(enc_video_ctx->codec_context);
+			avcodec_close(enc_video_ctx->codec_context);
+			free(enc_video_ctx->codec_context);
 
 #if LIBAVCODEC_VER_AT_LEAST(53,6)
-		av_dict_free(&(enc_video_ctx->private_options));
+			av_dict_free(&(enc_video_ctx->private_options));
 #endif
+		}
 
 		if(enc_video_ctx->picture)
 			free(enc_video_ctx->picture);
-	}
-	if(enc_video_ctx)
-	{
+		if(enc_video_ctx->priv_data)
+			free(enc_video_ctx->priv_data);
 		if(enc_video_ctx->tmpbuf)
 			free(enc_video_ctx->tmpbuf);
 		if(enc_video_ctx->outbuf)
@@ -1584,11 +1583,12 @@ void encoder_close(encoder_context_t *encoder_ctx)
 		free(enc_video_ctx);
 	}
 
-	if(encoder_ctx->enc_audio_ctx->priv_data)
-		free(encoder_ctx->enc_audio_ctx->priv_data);
 	/*close audio codec*/
 	if(enc_audio_ctx)
 	{
+		if(enc_audio_ctx->priv_data)
+			free(enc_audio_ctx->priv_data);
+		
 		avcodec_flush_buffers(enc_audio_ctx->codec_context);
 
 		avcodec_close(enc_audio_ctx->codec_context);
