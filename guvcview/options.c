@@ -107,6 +107,13 @@ static opt_values_t opt_values[] =
 		.opt_help = N_("Select audio API (e.g none; port; pulse)")
 	},
 	{
+		.opt_short = 'k',
+		.opt_long = "audio_device",
+		.req_arg = 1,
+		.opt_help_arg = N_("AUDIO_DEVICE"),
+		.opt_help = N_("Select audio device index for selected api (0..N)")
+	},
+	{
 		.opt_short = 'g',
 		.opt_long = "gui",
 		.req_arg = 1,
@@ -196,6 +203,7 @@ static options_t my_options =
 	.render = "",
 	.gui = "",
 	.audio = "",
+	.audio_device = -1, /*use default*/
 	.capture = "",
 	.video_codec = "",
 	.audio_codec = "",
@@ -480,6 +488,9 @@ int options_parse(int argc, char *argv[])
 				strncpy(my_options.audio, optarg, 5);
 				break;
 			}
+			case 'k':
+				my_options.audio_device = atoi(optarg);
+				break;
 			case 'o':
 			{
 				int str_size = strlen(optarg);

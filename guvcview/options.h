@@ -33,6 +33,7 @@ typedef struct _options_t
 	char render[5];  /*render api*/
 	char gui[5];     /*gui api*/
 	char audio[6];   /*audio api - none; port; pulse*/
+	int audio_device; /*audio device index 0..N (-1 = default)*/
 	char capture[5]; /*capture method: read or mmap*/
 	char audio_codec[5]; /*audio codec*/
 	char video_codec[5]; /*video codec*/

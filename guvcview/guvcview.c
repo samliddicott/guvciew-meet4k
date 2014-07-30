@@ -266,6 +266,7 @@ int main(int argc, char *argv[])
 			my_config->audio_device = audio_ctx->device; /*api default*/
 		else if (my_config->audio_device >= audio_ctx->num_input_dev)
 			my_config->audio_device = audio_ctx->num_input_dev - 1;
+			
 		/*set the audio device defaults*/
 		audio_ctx->device = my_config->audio_device;
 		audio_ctx->channels = audio_ctx->list_devices[audio_ctx->device].channels;

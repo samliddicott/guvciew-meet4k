@@ -370,6 +370,10 @@ void config_update(options_t *my_options)
 	/*audio API*/
 	if(strlen(my_options->audio) > 3)
 		strncpy(my_config.audio, my_options->audio, 5);
+	
+	/*audio device*/
+	if(my_options->audio_device >= 0)
+		my_config.audio_device = my_options->audio_device;
 
 	/*video codec*/
 	if(strlen(my_options->video_codec) > 2)
