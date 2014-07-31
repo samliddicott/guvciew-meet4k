@@ -442,8 +442,12 @@ static encoder_video_context_t *encoder_video_init(encoder_context_t *encoder_ct
 		encoder_set_raw_video_input(encoder_ctx, video_defaults);
 		return (enc_video_ctx);
 	}
-
-	enc_video_ctx->picture= avcodec_alloc_frame();
+	
+#if LIBAVCODEC_VER_AT_LEAST(55,28)
+	enc_video_ctx->picture = av_frame_alloc();
+#else
+	enc_video_ctx->picture = avcodec_alloc_frame();
+#endif
 	if(enc_video_ctx->picture == NULL)
 	{
 		fprintf(stderr, "ENCODER: FATAL memory allocation failure (encoder_video_init): %s\n", strerror(errno));
@@ -714,13 +718,24 @@ static encoder_audio_context_t *encoder_audio_init(encoder_context_t *encoder_ct
 	}
 
 #if LIBAVCODEC_VER_AT_LEAST(53,34)
-	enc_audio_ctx->frame= avcodec_alloc_frame();
+
+#if LIBAVCODEC_VER_AT_LEAST(55,28)
+	enc_audio_ctx->frame = av_frame_alloc();
+#else	
+	enc_audio_ctx->frame = avcodec_alloc_frame();
+#endif
+
 	if(enc_audio_ctx->frame == NULL)
 	{
 		fprintf(stderr, "ENCODER: FATAL memory allocation failure (encoder_audio_init): %s\n", strerror(errno));
 		exit(-1);
 	}
+
+#if LIBAVCODEC_VER_AT_LEAST(55,28)
+	av_frame_unref(enc_audio_ctx->frame);
+#else
 	avcodec_get_frame_defaults(enc_audio_ctx->frame);
+#endif
 
 	enc_audio_ctx->frame->nb_samples = frame_size;
 	enc_audio_ctx->frame->format = audio_defaults->sample_format;
@@ -1572,7 +1587,11 @@ void encoder_close(encoder_context_t *encoder_ctx)
 		}
 
 		if(enc_video_ctx->picture)
-			free(enc_video_ctx->picture);
+#if LIBAVCODEC_VER_AT_LEAST(55,28)	
+			av_frame_free(&enc_video_ctx->picture);
+#else
+			avcodec_free_frame(&enc_video_ctx->picture);
+#endif
 		if(enc_video_ctx->priv_data)
 			free(enc_video_ctx->priv_data);
 		if(enc_video_ctx->tmpbuf)
@@ -1597,7 +1616,11 @@ void encoder_close(encoder_context_t *encoder_ctx)
 		if(enc_audio_ctx->outbuf)
 			free(enc_audio_ctx->outbuf);
 		if(enc_audio_ctx->frame)
-			free(enc_audio_ctx->frame);
+#if LIBAVCODEC_VER_AT_LEAST(55,28)	
+			av_frame_free(&enc_audio_ctx->frame);
+#else
+			avcodec_free_frame(&enc_audio_ctx->frame);
+#endif
 
 		free(enc_audio_ctx);
 	}

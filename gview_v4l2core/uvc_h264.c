@@ -1015,7 +1015,7 @@ int v4l2core_probe_h264_config_probe_req(
  */
 uint8_t h264_has_decoder()
 {
-	if(avcodec_find_decoder(CODEC_ID_H264))
+	if(avcodec_find_decoder(AV_CODEC_ID_H264))
 		return TRUE;
 	else
 		return FALSE;
@@ -1053,7 +1053,7 @@ int h264_init_decoder(int width, int height)
 		exit(-1);
 	}
 
-	h264_ctx->codec = avcodec_find_decoder(CODEC_ID_H264);
+	h264_ctx->codec = avcodec_find_decoder(AV_CODEC_ID_H264);
 	if(!h264_ctx->codec)
 	{
 		fprintf(stderr, "V4L2_CORE: (H264 decoder) codec not found (please install libavcodec-extra for H264 support)\n");
@@ -1095,8 +1095,14 @@ int h264_init_decoder(int width, int height)
 		return E_NO_CODEC;
 	}
 
+#if LIBAVCODEC_VER_AT_LEAST(55,28)
+	h264_ctx->picture = av_frame_alloc();
+	av_frame_unref(h264_ctx->picture);
+#else	
 	h264_ctx->picture = avcodec_alloc_frame();
 	avcodec_get_frame_defaults(h264_ctx->picture);
+#endif	
+	
 	h264_ctx->pic_size = avpicture_get_size(h264_ctx->context->pix_fmt, width, height);
 	h264_ctx->width = width;
 	h264_ctx->height = height;
@@ -1168,7 +1174,12 @@ void h264_close_decoder()
 	avcodec_close(h264_ctx->context);
 
 	free(h264_ctx->context);
-	free(h264_ctx->picture);
+	
+#if LIBAVCODEC_VER_AT_LEAST(55,28)	
+	av_frame_free(&h264_ctx->picture);
+#else
+	avcodec_free_frame(&h264_ctx->picture);
+#endif
 
 	free(h264_ctx);
 
