@@ -93,7 +93,6 @@
 #define AVI_INDEX_2FIELD 0x01 		// when fields within frames
 									// are also indexed
 
-
 extern int verbosity;
 
 int64_t avi_open_tag (avi_context_t *avi_ctx, const char *tag)
@@ -995,7 +994,7 @@ int avi_close(avi_context_t *avi_ctx)
             }
             else
             {
-                if (stream->codec_id == CODEC_ID_MP2 || stream->codec_id == CODEC_ID_MP3)
+                if (stream->codec_id == AV_CODEC_ID_MP2 || stream->codec_id == AV_CODEC_ID_MP3)
                         nb_frames += stream->packet_count;
             }
         }
