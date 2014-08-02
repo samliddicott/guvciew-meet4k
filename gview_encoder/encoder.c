@@ -49,8 +49,8 @@
 #include "encoder.h"
 #include "stream_io.h"
 #include "gview.h"
-
-#if LIBAVCODEC_VER_AT_LEAST(54,0)
+                                               
+#if LIBAVUTIL_VER_AT_LEAST(52,2)
 #include <libavutil/channel_layout.h>
 #endif
 
