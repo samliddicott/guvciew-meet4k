@@ -57,7 +57,7 @@
 int verbosity = 0;
 
 /*video buffer data mutex*/
-static __MUTEX_TYPE mutex;
+static __MUTEX_TYPE mutex = __STATIC_MUTEX_INIT;
 #define __PMUTEX &mutex
 
 static int valid_video_codecs = 0;

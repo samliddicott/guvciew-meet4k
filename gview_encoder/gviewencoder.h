@@ -107,6 +107,12 @@ __BEGIN_DECLS
 	#define AV_CODEC_ID_VORBIS CODEC_ID_VORBIS
 #endif
 
+#if !LIBAVUTIL_VER_AT_LEAST(51,42)
+	#define AV_PIX_FMT_NONE     PIX_FMT_NONE
+	#define AV_PIX_FMT_YUVJ420P PIX_FMT_YUVJ420P
+	#define AV_PIX_FMT_YUV420P  PIX_FMT_YUV420P
+#endif
+
 #define MAX_DELAYED_FRAMES 50  /*Maximum supported delayed frames*/
 
 /*video buffer*/

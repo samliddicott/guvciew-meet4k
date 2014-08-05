@@ -60,7 +60,7 @@ static stream_io_t *video_stream = NULL;
 static stream_io_t *audio_stream = NULL;
 
 /*file mutex*/
-static __MUTEX_TYPE mutex;
+static __MUTEX_TYPE mutex = __STATIC_MUTEX_INIT;
 #define __PMUTEX &mutex
 
 /*

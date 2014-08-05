@@ -57,7 +57,7 @@
 #endif
 #define GETTEXT_PACKAGE GETTEXT_PACKAGE_V4L2CORE
 /*video device data mutex*/
-static __MUTEX_TYPE mutex;
+static __MUTEX_TYPE mutex = __STATIC_MUTEX_INIT;
 #define __PMUTEX &mutex
 
 /*verbosity (global scope)*/

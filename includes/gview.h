@@ -24,6 +24,7 @@
 #include <inttypes.h>
 #include <sys/types.h>
 #include <libintl.h>
+#include <pthread.h>
 
 /*needed fo PACKAGE definition*/
 #include "../config.h"
@@ -74,6 +75,7 @@
 
 #define __MUTEX_TYPE pthread_mutex_t
 #define __COND_TYPE pthread_cond_t
+#define __STATIC_MUTEX_INIT PTHREAD_MUTEX_INITIALIZER
 #define __INIT_MUTEX(m) ( pthread_mutex_init(m, NULL) )
 #define __CLOSE_MUTEX(m) ( pthread_mutex_destroy(m) )
 #define __LOCK_MUTEX(m) ( pthread_mutex_lock(m) )

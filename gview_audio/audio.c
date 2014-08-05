@@ -51,7 +51,7 @@
 #endif
 
 /*audio device data mutex*/
-static __MUTEX_TYPE mutex;
+static __MUTEX_TYPE mutex = __STATIC_MUTEX_INIT;
 #define __PMUTEX &mutex
 
 #define AUDBUFF_NUM     80    /*number of audio buffers*/
