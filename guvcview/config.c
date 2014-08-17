@@ -326,12 +326,12 @@ int config_load(const char *filename)
 			free(value);
 	}
 
-	if(errno)
-	{
-		fprintf(stderr, "GUVCVIEW: couldn't read line %i of config file: %s\n", line, strerror(errno));
-		fclose(fp);
-		return -1;
-	}
+	//if(errno)
+	//{
+	//	fprintf(stderr, "GUVCVIEW: couldn't read line %i of config file: %s\n", line, strerror(errno));
+	//	fclose(fp);
+	//	return -1;
+	//}
 
 	fclose(fp);
 	return 0;
