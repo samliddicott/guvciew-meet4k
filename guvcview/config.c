@@ -375,6 +375,10 @@ void config_update(options_t *my_options)
 	if(my_options->audio_device >= 0)
 		my_config.audio_device = my_options->audio_device;
 
+	/*input format*/
+	if(strlen(my_options->format) > 2)
+		strncpy(my_config.format, my_options->format, 5);
+	
 	/*video codec*/
 	if(strlen(my_options->video_codec) > 2)
 		strncpy(my_config.video_codec, my_options->video_codec, 4);
