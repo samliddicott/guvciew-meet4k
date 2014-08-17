@@ -52,10 +52,9 @@
 #include "v4l2_devices.h"
 #include "../config.h"
 
-#ifdef GETTEXT_PACKAGE
-#undef GETTEXT_PACKAGE
+#ifndef GETTEXT_PACKAGE_V4L2CORE
+#define GETTEXT_PACKAGE_V4L2CORE "gview_v4l2core"
 #endif
-#define GETTEXT_PACKAGE GETTEXT_PACKAGE_V4L2CORE
 /*video device data mutex*/
 static __MUTEX_TYPE mutex = __STATIC_MUTEX_INIT;
 #define __PMUTEX &mutex
@@ -1224,11 +1223,10 @@ v4l2_dev_t *v4l2core_init_dev(const char *device)
 
 	/*localization*/
 	char* lc_all = setlocale (LC_ALL, "");
-	char* lc_dir = bindtextdomain (GETTEXT_PACKAGE, PACKAGE_LOCALE_DIR);
-	bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
-	char* txtdom = textdomain (GETTEXT_PACKAGE);
+	char* lc_dir = bindtextdomain (GETTEXT_PACKAGE_V4L2CORE, PACKAGE_LOCALE_DIR);
+	bind_textdomain_codeset (GETTEXT_PACKAGE_V4L2CORE, "UTF-8");
 	if (verbosity > 1) printf("V4L2_CORE: language catalog=> dir:%s type:%s cat:%s.mo\n",
-		lc_dir, lc_all, txtdom);
+		lc_dir, lc_all, GETTEXT_PACKAGE_V4L2CORE);
 
 	v4l2_dev_t *vd = calloc(1, sizeof(v4l2_dev_t));
 

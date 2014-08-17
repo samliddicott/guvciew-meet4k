@@ -60,10 +60,10 @@ extern int verbosity;
 /* some Logitech webcams have pan/tilt/focus controls */
 #define LENGTH_OF_XU_MAP (9)
 
-static struct uvc_menu_info led_menu_entry[4] = {{0, "Off"},
-												 {1, "On"},
-												 {2, "Blinking"},
-												 {3, "Auto"}};
+static struct uvc_menu_info led_menu_entry[4] = {{0, N_("Off")},
+												 {1, N_("On")},
+												 {2, N_("Blinking")},
+												 {3, N_("Auto")}};
 
 /* known xu control mappings */
 static struct uvc_xu_control_mapping xu_mappings[] =

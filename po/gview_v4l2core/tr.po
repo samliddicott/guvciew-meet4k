@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: guvcview\n"
 "Report-Msgid-Bugs-To: pj.assis@gmail.com\n"
-"POT-Creation-Date: 2014-06-26 11:44+0100\n"
+"POT-Creation-Date: 2014-08-17 22:49+0100\n"
 "PO-Revision-Date: 2013-11-06 12:49+0000\n"
 "Last-Translator: Volkan Gezer <Unknown>\n"
 "Language-Team: Turkish <tr@li.org>\n"
@@ -22,232 +22,248 @@ msgstr ""
 #. * needed only for language files (not used)
 #.
 #. V4L2 control strings
-#: ../gview_v4l2core/v4l2_controls.c:54
+#: ../gview_v4l2core/v4l2_controls.c:49
 msgid "User Controls"
 msgstr "Kullanıcı Denetimleri"
 
-#: ../gview_v4l2core/v4l2_controls.c:55
+#: ../gview_v4l2core/v4l2_controls.c:50
 msgid "Brightness"
 msgstr "Parlaklık"
 
-#: ../gview_v4l2core/v4l2_controls.c:56
+#: ../gview_v4l2core/v4l2_controls.c:51
 msgid "Contrast"
 msgstr "Karşıtlık"
 
-#: ../gview_v4l2core/v4l2_controls.c:57
+#: ../gview_v4l2core/v4l2_controls.c:52
 msgid "Hue"
 msgstr "Renk"
 
-#: ../gview_v4l2core/v4l2_controls.c:58
+#: ../gview_v4l2core/v4l2_controls.c:53
 msgid "Saturation"
 msgstr "Doygunluk"
 
-#: ../gview_v4l2core/v4l2_controls.c:59
+#: ../gview_v4l2core/v4l2_controls.c:54
 msgid "Sharpness"
 msgstr "Keskinlik"
 
-#: ../gview_v4l2core/v4l2_controls.c:60
+#: ../gview_v4l2core/v4l2_controls.c:55
 msgid "Gamma"
 msgstr "Kontras derecesi (gama)"
 
-#: ../gview_v4l2core/v4l2_controls.c:61
+#: ../gview_v4l2core/v4l2_controls.c:56
 msgid "Backlight Compensation"
 msgstr "Arka Işık Desteği"
 
-#: ../gview_v4l2core/v4l2_controls.c:62
+#: ../gview_v4l2core/v4l2_controls.c:57
 msgid "Power Line Frequency"
 msgstr "Güç Hattı Frekansı"
 
-#: ../gview_v4l2core/v4l2_controls.c:63
+#: ../gview_v4l2core/v4l2_controls.c:58
 msgid "Hue, Automatic"
 msgstr "Renk, Otomatik"
 
-#: ../gview_v4l2core/v4l2_controls.c:64
+#: ../gview_v4l2core/v4l2_controls.c:59
 msgid "Focus, Auto"
 msgstr "Odak, Otomatik"
 
-#: ../gview_v4l2core/v4l2_controls.c:65
+#: ../gview_v4l2core/v4l2_controls.c:60
 msgid "Manual Mode"
 msgstr "El Kipi"
 
-#: ../gview_v4l2core/v4l2_controls.c:66
+#: ../gview_v4l2core/v4l2_controls.c:61
 msgid "Auto Mode"
 msgstr "Otomatik Kip"
 
-#: ../gview_v4l2core/v4l2_controls.c:67
+#: ../gview_v4l2core/v4l2_controls.c:62
 msgid "Shutter Priority Mode"
 msgstr "Kapak Öncelik Kipi"
 
-#: ../gview_v4l2core/v4l2_controls.c:68
+#: ../gview_v4l2core/v4l2_controls.c:63
 msgid "Aperture Priority Mode"
 msgstr "Açıklık Öncelik Kipi"
 
-#: ../gview_v4l2core/v4l2_controls.c:69
+#: ../gview_v4l2core/v4l2_controls.c:64
 msgid "Black Level"
 msgstr "Siyah Seviyesi"
 
-#: ../gview_v4l2core/v4l2_controls.c:70
+#: ../gview_v4l2core/v4l2_controls.c:65
 msgid "White Balance, Automatic"
 msgstr "Beyaz Dengesi, Otomatik"
 
-#: ../gview_v4l2core/v4l2_controls.c:71
+#: ../gview_v4l2core/v4l2_controls.c:66
 msgid "Do White Balance"
 msgstr "Beyaz Dengesi Yap"
 
-#: ../gview_v4l2core/v4l2_controls.c:72
+#: ../gview_v4l2core/v4l2_controls.c:67
 msgid "Red Balance"
 msgstr "Kırmızı Dengesi"
 
-#: ../gview_v4l2core/v4l2_controls.c:73
+#: ../gview_v4l2core/v4l2_controls.c:68
 msgid "Blue Balance"
 msgstr "Mavi Dengesi"
 
-#: ../gview_v4l2core/v4l2_controls.c:74
+#: ../gview_v4l2core/v4l2_controls.c:69
 msgid "Exposure"
 msgstr "Pozlandırma"
 
-#: ../gview_v4l2core/v4l2_controls.c:75
+#: ../gview_v4l2core/v4l2_controls.c:70
 msgid "Gain, Automatic"
 msgstr "Kazanç, Otomatik"
 
-#: ../gview_v4l2core/v4l2_controls.c:76
+#: ../gview_v4l2core/v4l2_controls.c:71
 msgid "Gain"
 msgstr "Kazanç"
 
-#: ../gview_v4l2core/v4l2_controls.c:77
+#: ../gview_v4l2core/v4l2_controls.c:72
 msgid "Horizontal Flip"
 msgstr "Yatay Çevir"
 
-#: ../gview_v4l2core/v4l2_controls.c:78
+#: ../gview_v4l2core/v4l2_controls.c:73
 msgid "Vertical Flip"
 msgstr "Dikey Çevir"
 
-#: ../gview_v4l2core/v4l2_controls.c:79
+#: ../gview_v4l2core/v4l2_controls.c:74
 msgid "Horizontal Center"
 msgstr "Yatay Merkez"
 
-#: ../gview_v4l2core/v4l2_controls.c:80
+#: ../gview_v4l2core/v4l2_controls.c:75
 msgid "Vertical Center"
 msgstr "Dikey Merkez"
 
-#: ../gview_v4l2core/v4l2_controls.c:81
+#: ../gview_v4l2core/v4l2_controls.c:76
 msgid "Chroma AGC"
 msgstr "Kroma Otomatik Kazanç Kontrolü (AGC)"
 
-#: ../gview_v4l2core/v4l2_controls.c:82
+#: ../gview_v4l2core/v4l2_controls.c:77
 msgid "Color Killer"
 msgstr "Renk Öldürücü"
 
-#: ../gview_v4l2core/v4l2_controls.c:83
+#: ../gview_v4l2core/v4l2_controls.c:78
 msgid "Color Effects"
 msgstr "Renk Efektleri"
 
 #. CAMERA CLASS control strings
-#: ../gview_v4l2core/v4l2_controls.c:86
+#: ../gview_v4l2core/v4l2_controls.c:81
 msgid "Camera Controls"
 msgstr "Kamera Denetimleri"
 
-#: ../gview_v4l2core/v4l2_controls.c:87
+#: ../gview_v4l2core/v4l2_controls.c:82
 msgid "Auto Exposure"
 msgstr "Otomatik Pozlandırma"
 
-#: ../gview_v4l2core/v4l2_controls.c:88
+#: ../gview_v4l2core/v4l2_controls.c:83
 msgid "Exposure Time, Absolute"
 msgstr "Pozlandırma Süresü, Kesin"
 
-#: ../gview_v4l2core/v4l2_controls.c:89
+#: ../gview_v4l2core/v4l2_controls.c:84
 msgid "Exposure, Dynamic Framerate"
 msgstr "Pozlandırma, Dinamik Kare Oranı"
 
-#: ../gview_v4l2core/v4l2_controls.c:90
+#: ../gview_v4l2core/v4l2_controls.c:85
 msgid "Pan, Relative"
 msgstr "Kaydırma, Bağıl"
 
-#: ../gview_v4l2core/v4l2_controls.c:91
+#: ../gview_v4l2core/v4l2_controls.c:86
 msgid "Tilt, Relative"
 msgstr "Eğme, Bağıl"
 
-#: ../gview_v4l2core/v4l2_controls.c:92
+#: ../gview_v4l2core/v4l2_controls.c:87
 msgid "Pan, Reset"
 msgstr "Kaydırma, Sıfırla"
 
-#: ../gview_v4l2core/v4l2_controls.c:93
+#: ../gview_v4l2core/v4l2_controls.c:88
 msgid "Tilt, Reset"
 msgstr "Eğme, Sıfırla"
 
-#: ../gview_v4l2core/v4l2_controls.c:94
+#: ../gview_v4l2core/v4l2_controls.c:89
 msgid "Pan, Absolute"
 msgstr "Kaydırma, Kesin"
 
-#: ../gview_v4l2core/v4l2_controls.c:96
+#: ../gview_v4l2core/v4l2_controls.c:91
 msgid "Focus, Absolute"
 msgstr "Odaklama, Kesin"
 
-#: ../gview_v4l2core/v4l2_controls.c:97
+#: ../gview_v4l2core/v4l2_controls.c:92
 msgid "Focus, Relative"
 msgstr "Odaklama, Bağıl"
 
-#: ../gview_v4l2core/v4l2_controls.c:98
+#: ../gview_v4l2core/v4l2_controls.c:93
 msgid "Focus, Automatic"
 msgstr "Odaklama, Otomatik"
 
-#: ../gview_v4l2core/v4l2_controls.c:99
+#: ../gview_v4l2core/v4l2_controls.c:94
 msgid "Zoom, Absolute"
 msgstr "Yakınlaştırma, Kesin"
 
-#: ../gview_v4l2core/v4l2_controls.c:100
+#: ../gview_v4l2core/v4l2_controls.c:95
 msgid "Zoom, Relative"
 msgstr "Yakınlaştırma, Bağıl"
 
-#: ../gview_v4l2core/v4l2_controls.c:101
+#: ../gview_v4l2core/v4l2_controls.c:96
 msgid "Zoom, Continuous"
 msgstr "Yakınlaştırma, Sürekli"
 
-#: ../gview_v4l2core/v4l2_controls.c:102
+#: ../gview_v4l2core/v4l2_controls.c:97
 msgid "Privacy"
 msgstr "Gizlilik"
 
 #. UVC specific control strings
-#: ../gview_v4l2core/v4l2_controls.c:105
+#: ../gview_v4l2core/v4l2_controls.c:100
 msgid "Exposure, Auto"
 msgstr "Pozlama, Otomatik"
 
-#: ../gview_v4l2core/v4l2_controls.c:106
+#: ../gview_v4l2core/v4l2_controls.c:101
 msgid "Exposure, Auto Priority"
 msgstr "Pozlama, Otomatik Öncelik"
 
-#: ../gview_v4l2core/v4l2_controls.c:107
+#: ../gview_v4l2core/v4l2_controls.c:102
 msgid "Exposure (Absolute)"
 msgstr "Pozlama (Kesin)"
 
-#: ../gview_v4l2core/v4l2_controls.c:108
+#: ../gview_v4l2core/v4l2_controls.c:103
 msgid "White Balance Temperature, Auto"
 msgstr "Beyaz Denge Sıcaklığı, Otomatik"
 
-#: ../gview_v4l2core/v4l2_controls.c:109
+#: ../gview_v4l2core/v4l2_controls.c:104
 msgid "White Balance Temperature"
 msgstr "Beyaz Dengesi Sıcaklığı"
 
-#: ../gview_v4l2core/v4l2_controls.c:110
+#: ../gview_v4l2core/v4l2_controls.c:105
 msgid "White Balance Component, Auto"
 msgstr "Beyaz Denge Bileşeni, Otomatik"
 
-#: ../gview_v4l2core/v4l2_controls.c:111
+#: ../gview_v4l2core/v4l2_controls.c:106
 msgid "White Balance Blue Component"
 msgstr "Beyaz Denge Mavi Bileşeni"
 
-#: ../gview_v4l2core/v4l2_controls.c:112
+#: ../gview_v4l2core/v4l2_controls.c:107
 msgid "White Balance Red Component"
 msgstr "Beyaz Denge Kırmızı Bileşeni"
 
 #. libwebcam specific control strings
-#: ../gview_v4l2core/v4l2_controls.c:115
+#: ../gview_v4l2core/v4l2_controls.c:110
 msgid "Focus"
 msgstr "Odaklama"
 
-#: ../gview_v4l2core/v4l2_controls.c:116
+#: ../gview_v4l2core/v4l2_controls.c:111
 msgid "Focus (Absolute)"
 msgstr "Odaklama (Kesin)"
+
+#: ../gview_v4l2core/v4l2_xu_ctrls.c:63
+msgid "Off"
+msgstr "Kapalı"
+
+#: ../gview_v4l2core/v4l2_xu_ctrls.c:64
+msgid "On"
+msgstr "Açık"
+
+#: ../gview_v4l2core/v4l2_xu_ctrls.c:65
+msgid "Blinking"
+msgstr "Yanıp Sönme"
+
+#: ../gview_v4l2core/v4l2_xu_ctrls.c:66
+msgid "Auto"
+msgstr "Otomatik"
 
 #: ../gview_v4l2core/v4l2_xu_ctrls.c:73
 msgid "Pan (relative)"
@@ -596,18 +612,6 @@ msgstr "Piksel başına ham bit"
 
 #~ msgid "Up"
 #~ msgstr "Yukarı"
-
-#~ msgid "Off"
-#~ msgstr "Kapalı"
-
-#~ msgid "On"
-#~ msgstr "Açık"
-
-#~ msgid "Blinking"
-#~ msgstr "Yanıp Sönme"
-
-#~ msgid "Auto"
-#~ msgstr "Otomatik"
 
 #~ msgid "8 bit"
 #~ msgstr "8 bit"

@@ -36,11 +36,6 @@
 #include "v4l2_controls.h"
 #include "../config.h"
 
-#ifdef GETTEXT_PACKAGE
-#undef GETTEXT_PACKAGE
-#endif
-#define GETTEXT_PACKAGE GETTEXT_PACKAGE_V4L2CORE
-
 #ifndef V4L2_CTRL_ID2CLASS
 #define V4L2_CTRL_ID2CLASS(id)    ((id) & 0x0fff0000UL)
 #endif
@@ -366,7 +361,7 @@ static v4l2_ctrl_t *add_control(v4l2_dev_t *vd, struct v4l2_queryctrl* queryctrl
 	}
     memcpy(&(control->control), queryctrl, sizeof(struct v4l2_queryctrl));
     control->class = V4L2_CTRL_ID2CLASS(control->control.id);
-    control->name = strdup(dgettext(GETTEXT_PACKAGE, control->control.name));
+    control->name = strdup(dgettext(GETTEXT_PACKAGE_V4L2CORE, control->control.name));
     //add the menu adress (NULL if not a menu)
     control->menu = menu;
     if(control->menu != NULL && control->control.type == V4L2_CTRL_TYPE_MENU)
@@ -379,7 +374,7 @@ static v4l2_ctrl_t *add_control(v4l2_dev_t *vd, struct v4l2_queryctrl* queryctrl
 			exit(-1);
 		}
 		for(i = 0; i< menu_entries; i++)
-			control->menu_entry[i] = strdup(dgettext(GETTEXT_PACKAGE, control->menu[i].name));
+			control->menu_entry[i] = strdup(dgettext(GETTEXT_PACKAGE_V4L2CORE, control->menu[i].name));
 		control->menu_entries = menu_entries;
 	}
 	else

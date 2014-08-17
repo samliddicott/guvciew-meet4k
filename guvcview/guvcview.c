@@ -93,18 +93,16 @@ int main(int argc, char *argv[])
         }
     }
 
-    /*localization*/
-	char* lc_all = setlocale (LC_ALL, "");
-	char* lc_dir = bindtextdomain (GETTEXT_PACKAGE, PACKAGE_LOCALE_DIR);
-	bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
-	char* txtdom = textdomain (GETTEXT_PACKAGE);
-	if (debug_level > 1) printf("GUVCVIEW: language catalog=> dir:%s type:%s cat:%s.mo\n",
-		lc_dir, lc_all, txtdom);
-
 	// Register signal and signal handler
 	signal(SIGINT,  signal_callback_handler);
 	signal(SIGUSR1, signal_callback_handler);
 	signal(SIGUSR2, signal_callback_handler);
+	
+	/*localization*/
+	char* lc_all = setlocale (LC_ALL, "");
+	char* lc_dir = bindtextdomain (GETTEXT_PACKAGE, PACKAGE_LOCALE_DIR);
+	bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
+	char* txtdom = textdomain (GETTEXT_PACKAGE);
 
 	/*parse command line options*/
 	if(options_parse(argc, argv))
@@ -134,6 +132,9 @@ int main(int argc, char *argv[])
 	config_t *my_config = config_get();
 
 	debug_level = my_options->verbosity;
+	
+	if (debug_level > 1) printf("GUVCVIEW: language catalog=> dir:%s type:%s cat:%s.mo\n",
+		lc_dir, lc_all, txtdom);
 
 	/*select render API*/
 	int render = RENDER_SDL;
@@ -164,13 +165,12 @@ int main(int argc, char *argv[])
 #endif
 
 	/*initialize the v4l2 core*/
-
 	v4l2core_set_verbosity(debug_level);
 	/*init the device list*/
 	v4l2core_init_device_list();
-	/*get the device data*/
+	/*get the device data (redefines language catalog)*/
 	v4l2_dev_t *device = v4l2core_init_dev(my_options->device);
-
+		
 	if(device)
 		set_render_flag(render);
 	else
