@@ -100,6 +100,13 @@ static opt_values_t opt_values[] =
 		.opt_help = N_("Select render API (e.g none; sdl)")
 	},
 	{
+		.opt_short = 'm',
+		.opt_long = "render_window",
+		.req_arg = 1,
+		.opt_help_arg = N_("RENDER_WINDOW_FLAGS"),
+		.opt_help = N_("Set render window flags (e.g none; full; max)")
+	},
+	{
 		.opt_short = 'a',
 		.opt_long = "audio",
 		.req_arg = 1,
@@ -217,6 +224,7 @@ static options_t my_options =
 	.video_timer = 0,
 	.photo_timer = 0,
 	.photo_npics = 0,
+	.render_flag = "none",
 };
 
 /*
@@ -473,6 +481,13 @@ int options_parse(int argc, char *argv[])
 				int str_size = strlen(optarg);
 				if(str_size <= 4) /*render is at most 4 chars*/
 					strncpy(my_options.render, optarg, 4);
+				break;
+			}
+			case 'm':
+			{
+				int str_size = strlen(optarg);
+				if(str_size <= 4) /*render is at most 4 chars*/
+					strncpy(my_options.render_flag, optarg, 4);
 				break;
 			}
 			case 'g':

@@ -28,12 +28,16 @@
  * args:
  *    width - overlay width
  *    height - overlay height
+ *    flags - window flags:
+ *              0- none
+ *              1- fullscreen
+ *              2- maximized
  *
  * asserts:
  *
  * returns: error code (0 ok)
  */
-int init_render_sdl1(int width, int height);
+int init_render_sdl1(int width, int height, int flags);
 
 /*
  * render a frame

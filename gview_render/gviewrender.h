@@ -141,13 +141,17 @@ int render_get_height();
  *   render - render API to use (RENDER_NONE, RENDER_SDL1, ...)
  *   width - render width
  *   height - render height
+ *   flags - window flags:
+ *              0- none
+ *              1- fullscreen
+ *              2- maximized
  *
  * asserts:
  *   none
  *
  * returns: error code
  */
-int render_init(int render, int width, int height);
+int render_init(int render, int width, int height, int flags);
 
 /*
  * set caption

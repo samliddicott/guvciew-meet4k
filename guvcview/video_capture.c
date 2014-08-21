@@ -385,6 +385,9 @@ int quit_callback(void *data)
 int key_I_callback(void *data)
 {
 	gui_click_image_capture_button();
+	
+	if(debug_level > 1)
+		printf("GUVCVIEW: I key pressed\n");
 
 	return 0;
 }
@@ -402,6 +405,9 @@ int key_I_callback(void *data)
 int key_V_callback(void *data)
 {
 	gui_click_video_capture_button(data);
+	
+	if(debug_level > 1)
+		printf("GUVCVIEW: V key pressed\n");
 
 	return 0;
 }
@@ -916,13 +922,27 @@ void *capture_loop(void *data)
 	quit = 0;
 
 	int ret = 0;
-
+	
+	int render_flags = 0;
+	
+	if (strcasecmp(my_options->render_flag, "full") == 0)
+		render_flags = 1;
+	else if (strcasecmp(my_options->render_flag, "max") == 0)
+		render_flags = 2;
+	
 	render_set_verbosity(debug_level);
-	if(render_init(render, device->format.fmt.pix.width, device->format.fmt.pix.height) < 0)
-			render = RENDER_NONE;
+	
+	if(render_init(render, device->format.fmt.pix.width, device->format.fmt.pix.height, render_flags) < 0)
+		render = RENDER_NONE;
 	else
 	{
 		render_set_event_callback(EV_QUIT, &quit_callback, NULL);
+		render_set_event_callback(EV_KEY_V, &key_V_callback, device);
+		render_set_event_callback(EV_KEY_I, &key_I_callback, NULL);
+		render_set_event_callback(EV_KEY_UP, &key_UP_callback, device);
+		render_set_event_callback(EV_KEY_DOWN, &key_DOWN_callback, device);
+		render_set_event_callback(EV_KEY_LEFT, &key_LEFT_callback, device);
+		render_set_event_callback(EV_KEY_RIGHT, &key_RIGHT_callback, device);
 	}
 
 	/*add a video capture timer*/
@@ -982,7 +1002,7 @@ void *capture_loop(void *data)
 			}
 
 			/*restart the render with new format*/
-			if(render_init(render, device->format.fmt.pix.width, device->format.fmt.pix.height) < 0)
+			if(render_init(render, device->format.fmt.pix.width, device->format.fmt.pix.height, render_flags) < 0)
 				render = RENDER_NONE;
 			else
 			{

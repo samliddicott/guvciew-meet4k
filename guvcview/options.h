@@ -47,6 +47,7 @@ typedef struct _options_t
 	double video_timer; /*video capture time in seconds (double)*/
 	double photo_timer; /*photo capture timer interval in seconds (double)*/
 	int photo_npics; /*number of photo captures*/
+	char render_flag[5]; /*render window flag => default (none) | FULLSCREEN (full) | MAXIMIZED (max)*/
 } options_t;
 
 /*

@@ -44,17 +44,35 @@ static SDL_Renderer*  main_renderer = NULL;
  * args:
  *   width - video width
  *   height - video height
+ *   flags - window flags:
+ *              0- none
+ *              1- fullscreen
+ *              2- maximized
  *
  * asserts:
  *   none
  *
  * returns: error code
  */
-static int video_init(int width, int height)
+static int video_init(int width, int height, int flags)
 {
 	int w = width;
 	int h = height;
+	int32_t my_flags = SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL;
 
+	switch(flags)
+	{
+		case 2:
+		  my_flags |= SDL_WINDOW_MAXIMIZED;
+		  break;
+		case 1:
+		  my_flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+		  break;
+		case 0:
+		default:
+		  break;
+	}
+	
 	if(verbosity > 0)
 		printf("RENDER: Initializing SDL2 render\n");
 
@@ -74,7 +92,7 @@ static int video_init(int width, int height)
 			SDL_WINDOWPOS_UNDEFINED,           // initial y position
 			w,                               // width, in pixels
 			h,                               // height, in pixels
-			SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL
+			my_flags
 		);
 
 		if(sdl_window == NULL)
@@ -146,14 +164,18 @@ static int video_init(int width, int height)
  * args:
  *    width - overlay width
  *    height - overlay height
+ *    flags - window flags:
+ *              0- none
+ *              1- fullscreen
+ *              2- maximized
  *
  * asserts:
  *
  * returns: error code (0 ok)
  */
- int init_render_sdl2(int width, int height)
+ int init_render_sdl2(int width, int height, int flags)
  {
-	int err = video_init(width, height);
+	int err = video_init(width, height, flags);
 
 	if(err)
 	{
@@ -253,6 +275,10 @@ void render_sdl2_dispatch_events()
 		{
 			switch( event.key.keysym.sym )
             {
+				case SDLK_ESCAPE:
+					render_call_event_callback(EV_QUIT);
+					break;
+					
 				case SDLK_UP:
 					render_call_event_callback(EV_KEY_UP);
 					break;

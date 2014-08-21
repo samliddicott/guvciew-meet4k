@@ -72,7 +72,8 @@ static render_events_t render_events_list[] =
 	},
 	{
 		.id = EV_KEY_UP,
-		.callback = NULL
+		.callback = NULL,
+		.data = NULL
 	},
 	{
 		.id = EV_KEY_DOWN,
@@ -91,6 +92,16 @@ static render_events_t render_events_list[] =
 	},
 	{
 		.id = EV_KEY_SPACE,
+		.callback = NULL,
+		.data = NULL
+	},
+	{
+		.id = EV_KEY_I,
+		.callback = NULL,
+		.data = NULL
+	},
+	{
+		.id = EV_KEY_V,
 		.callback = NULL,
 		.data = NULL
 	},
@@ -214,13 +225,17 @@ int render_get_height()
  *   render - render API to use (RENDER_NONE, RENDER_SDL1, ...)
  *   width - render width
  *   height - render height
+ *   flags - window flags:
+ *              0- none
+ *              1- fullscreen
+ *              2- maximized
  *
  * asserts:
  *   none
  *
  * returns: error code
  */
-int render_init(int render, int width, int height)
+int render_init(int render, int width, int height, int flags)
 {
 
 	int ret = 0;
@@ -237,9 +252,9 @@ int render_init(int render, int width, int height)
 		case RENDER_SDL:
 		default:
 			#if ENABLE_SDL2
-			ret = init_render_sdl2(my_width, my_height);
+			ret = init_render_sdl2(my_width, my_height, flags);
 			#else
-			ret = init_render_sdl1(my_width, my_height);
+			ret = init_render_sdl1(my_width, my_height, flags);
 			#endif
 			break;
 	}
@@ -413,6 +428,9 @@ int render_call_event_callback(int id)
 {
 	int index = render_get_event_index(id);
 
+	if(verbosity > 1)
+		printf("RENDER: event %i -> callback %i\n", id, index);
+		
 	if(index < 0)
 		return index;
 

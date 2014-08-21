@@ -52,17 +52,24 @@ static const SDL_VideoInfo *info;
  * args:
  *   width - video width
  *   height - video height
+ *   flags - window flags:
+ *              0- none
+ *              1- fullscreen
+ *              2- maximized
  *
  * asserts:
  *   none
  *
  * returns: pointer to SDL_Overlay
  */
-static SDL_Overlay * video_init(int width, int height)
+static SDL_Overlay * video_init(int width, int height, int flags)
 {
 	if(verbosity > 0)
 		printf("RENDER: Initializing SDL1 render\n");
 
+	int video_w = width;
+	int video_h = height;
+	
     if (pscreen == NULL) //init SDL
     {
         char driver[128];
@@ -107,11 +114,25 @@ static SDL_Overlay * video_init(int width, int height)
             SDL_VIDEO_Flags |= SDL_ASYNCBLIT;
         }
 
-       desktop_w = info->current_w; //get desktop width
-       desktop_h = info->current_h; //get desktop height
+        desktop_w = info->current_w; //get desktop width
+        desktop_h = info->current_h; //get desktop height
 
-       if(!desktop_w) desktop_w = 800;
-       if(!desktop_h) desktop_h = 600;
+        if(!desktop_w) desktop_w = 800;
+        if(!desktop_h) desktop_h = 600;
+        
+        switch(flags)
+	    {
+		    case 2: /*maximize*/
+		       video_w = desktop_w;
+		       video_h = desktop_h;
+		       break;
+		    case 1: /*fullscreen*/
+		       SDL_VIDEO_Flags |= SDL_FULLSCREEN;
+		       break;
+		    case 0:
+		    default:
+		       break;
+	    }
 
         if (verbosity > 0)
         {
@@ -133,12 +154,12 @@ static SDL_Overlay * video_init(int width, int height)
     if(verbosity > 0)
     {
         printf("RENDER: Desktop resolution = %ix%i\n", desktop_w, desktop_h);
-        printf("RENDER: Checking video mode %ix%i@32bpp\n", width, height);
+        printf("RENDER: Checking video mode %ix%i@32bpp\n", video_w, video_h);
     }
 
     bpp = SDL_VideoModeOK(
-        width,
-        height,
+        video_w,
+        video_h,
         32,
         SDL_VIDEO_Flags);
 
@@ -146,17 +167,17 @@ static SDL_Overlay * video_init(int width, int height)
     {
         fprintf(stderr, "RENDER: resolution not available\n");
         /*resize video mode*/
-        if ((width > desktop_w) || (height > desktop_h))
+        if ((video_w > desktop_w) || (video_h > desktop_h))
         {
-            width = desktop_w; /*use desktop video resolution*/
-            height = desktop_h;
+            video_w = desktop_w; /*use desktop video resolution*/
+            video_h = desktop_h;
         }
         else
         {
-            width = 800;
-            height = 600;
+            video_w = 800;
+            video_h = 600;
         }
-        fprintf(stderr, "RENDER: resizing to %ix%i\n", width, height);
+        fprintf(stderr, "RENDER: resizing to %ix%i\n", video_w, video_h);
 
     }
     else
@@ -168,8 +189,8 @@ static SDL_Overlay * video_init(int width, int height)
 		printf("RENDER: setting video mode %ix%i@%ibpp\n", width, height, bpp);
 
     pscreen = SDL_SetVideoMode(
-        width,
-        height,
+        video_w,
+        video_h,
         bpp,
         SDL_VIDEO_Flags);
 
@@ -193,14 +214,18 @@ static SDL_Overlay * video_init(int width, int height)
  * args:
  *    width - overlay width
  *    height - overlay height
+ *    flags - window flags:
+ *              0- none
+ *              1- fullscreen
+ *              2- maximized
  *
  * asserts:
  *
  * returns: error code (0 ok)
  */
- int init_render_sdl1(int width, int height)
+ int init_render_sdl1(int width, int height, int flags)
  {
-	poverlay = video_init(width, height);
+	poverlay = video_init(width, height, int flags);
 
 	if(poverlay == NULL)
 	{
@@ -293,6 +318,10 @@ void render_sdl1_dispatch_events()
             {
 				/* Keyboard event */
                 /* Pass the event data onto PrintKeyInfo() */
+                case SDLK_ESCAPE:
+					render_call_event_callback(EV_QUIT);
+					break;
+					
 				case SDLK_UP:
 					render_call_event_callback(EV_KEY_UP);
 					break;
