@@ -232,6 +232,26 @@ void set_audio_codec_group_list_gtk3(GSList *list)
 }
 
 /*
+ * sends a click event for image capture button
+ * args:
+ *   pointer to function data
+ *
+ * asserts:
+ *    none
+ *
+ * returns: FALSE
+ */
+static gboolean image_capture_toggle_button(gpointer *data)
+{
+	if(!CapImageButt)
+		return FALSE;
+
+	gtk_button_clicked(GTK_BUTTON(CapImageButt));
+	
+	return FALSE;
+}
+
+/*
  * click image capture button
  * args:
  *    none
@@ -243,10 +263,8 @@ void set_audio_codec_group_list_gtk3(GSList *list)
  */
 void gui_click_image_capture_button_gtk3()
 {
-	if(!CapImageButt)
-		return;
-
-	gtk_button_clicked(GTK_BUTTON(CapImageButt));
+	/*protect the call since it may come from a different thread*/
+	gdk_threads_add_idle ((GSourceFunc) image_capture_toggle_button, NULL);
 }
 
 /*
@@ -268,18 +286,30 @@ void gui_set_image_capture_button_label_gtk3(const char *label)
 }
 
 /*
- * set video capture button status
+ * toggles video capture button status
  * args:
- *    status: TRUE or FALSE
+ *    pointer to function data
  *
  * asserts:
  *    none
  *
- * returns: none
+ * returns: FALSE
  */
-static void set_video_toggle_button(gboolean *status)
+static gboolean video_capture_toggle_button(gpointer *data)
 {
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(CapVideoButt), *status);
+	if(!CapVideoButt)
+		return FALSE;
+
+	int active = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(CapVideoButt));
+	/*invert status*/
+    if(active > 0)
+		active = -1;
+	else
+		active = 1;
+    
+	gui_set_video_capture_button_status_gtk3(active);
+	
+	return FALSE;
 }
 
 /*
@@ -294,14 +324,8 @@ static void set_video_toggle_button(gboolean *status)
  */
 void gui_click_video_capture_button_gtk3()
 {
-	if(!CapVideoButt)
-		return;
-
-	int active = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(CapVideoButt));
-	/*invert status*/
-    active = !active;
-    /*protect the call since it may come from a different thread*/
-	gdk_threads_add_idle ((GSourceFunc)set_video_toggle_button, (gpointer) &active);
+	/*protect the call since it may come from a different thread*/
+	gdk_threads_add_idle ((GSourceFunc) video_capture_toggle_button, NULL);
 }
 
 /*
