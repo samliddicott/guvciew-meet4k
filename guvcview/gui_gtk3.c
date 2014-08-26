@@ -268,6 +268,21 @@ void gui_set_image_capture_button_label_gtk3(const char *label)
 }
 
 /*
+ * set video capture button status
+ * args:
+ *    status: TRUE or FALSE
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+static void set_video_toggle_button(gboolean *status)
+{
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(CapVideoButt), *status);
+}
+
+/*
  * click video capture button
  * args:
  *    none
@@ -284,10 +299,9 @@ void gui_click_video_capture_button_gtk3()
 
 	int active = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(CapVideoButt));
 	/*invert status*/
-	if(active)
-		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(CapVideoButt), FALSE);
-	else
-		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(CapVideoButt), TRUE);
+    active = !active;
+    /*protect the call since it may come from a different thread*/
+	gdk_threads_add_idle ((GSourceFunc)set_video_toggle_button, (gpointer) &active);
 }
 
 /*
