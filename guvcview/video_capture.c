@@ -187,6 +187,9 @@ void set_soft_autofocus(int value)
 void video_capture_save_video(int value)
 {
 	save_video = value;
+	
+	if(debug_level > 1)
+		printf("GUVCVIEW: save video flag changed to %i\n", save_video);
 }
 
 /*
