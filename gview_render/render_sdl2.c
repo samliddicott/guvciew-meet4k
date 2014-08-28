@@ -58,7 +58,7 @@ static int video_init(int width, int height, int flags)
 {
 	int w = width;
 	int h = height;
-	int32_t my_flags = SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL;
+	int32_t my_flags = SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE;
 
 	switch(flags)
 	{

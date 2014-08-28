@@ -22,6 +22,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/types.h>
+#include <sys/syscall.h>
 #include <time.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -640,6 +641,10 @@ static void *audio_processing_loop(void *data)
 {
 	encoder_context_t *encoder_ctx = (encoder_context_t *) data;
 
+	if(debug_level > 1)
+		printf("GUVCVIEW: audio thread (tid: %u)\n",
+			(unsigned int) syscall (SYS_gettid));
+		
 	audio_context_t *audio_ctx = get_audio_context();
 	if(!audio_ctx)
 	{
@@ -735,6 +740,10 @@ static void *encoder_loop(void *data)
 	v4l2_dev_t *device = (v4l2_dev_t *) data;
 
 	my_encoder_status = 1;
+	
+	if(debug_level > 1)
+		printf("GUVCVIEW: encoder thread (tid: %u)\n",
+			(unsigned int) syscall (SYS_gettid));
 
 	/*get the audio context*/
 	audio_context_t *audio_ctx = get_audio_context();
@@ -842,9 +851,14 @@ static void *encoder_loop(void *data)
 	{
 		if(debug_level > 1)
 			printf("GUVCVIEW: starting encoder audio thread\n");
+		
 		int ret = __THREAD_CREATE(&encoder_audio_thread, audio_processing_loop, (void *) encoder_ctx);
+		
 		if(ret)
 			fprintf(stderr, "GUVCVIEW: encoder audio thread creation failed (%i)\n", ret);
+		else if(debug_level > 2)
+			printf("GUVCVIEW: created audio encoder thread with tid: %u\n", 
+				(unsigned int) encoder_audio_thread);
 	}
 
 	while(video_capture_get_save_video())
@@ -923,6 +937,10 @@ void *capture_loop(void *data)
 
 	/*reset quit flag*/
 	quit = 0;
+	
+	if(debug_level > 1)
+		printf("GUVCVIEW: capture thread (tid: %u)\n", 
+			(unsigned int) syscall (SYS_gettid));
 
 	int ret = 0;
 	
@@ -1177,6 +1195,12 @@ void *capture_loop(void *data)
 int start_encoder_thread(void *data)
 {
 	int ret = __THREAD_CREATE(&encoder_thread, encoder_loop, data);
+	
+	if(ret)
+		fprintf(stderr, "GUVCVIEW: encoder thread creation failed (%i)\n", ret);
+	else if(debug_level > 2)
+		printf("GUVCVIEW: created encoder thread with tid: %u\n", 
+			(unsigned int) encoder_thread);
 
 	return ret;
 }

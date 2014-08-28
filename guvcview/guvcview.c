@@ -23,6 +23,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <signal.h>
+#include <unistd.h>
+#include <sys/syscall.h>
 #include <sys/stat.h>
 #include <sys/resource.h>
 
@@ -164,6 +166,10 @@ int main(int argc, char *argv[])
 		audio = AUDIO_PULSE;
 #endif
 
+	if(debug_level > 1)
+		printf("GUVCVIEW: main thread (tid: %u)\n",
+			(unsigned int) syscall (SYS_gettid));
+		
 	/*initialize the v4l2 core*/
 	v4l2core_set_verbosity(debug_level);
 	/*init the device list*/
@@ -200,6 +206,7 @@ int main(int argc, char *argv[])
 	/*select video codec*/
 	if(debug_level > 1)
 		printf("GUVCVIEW: setting video codec to '%s'\n", my_config->video_codec);
+		
 	int vcodec_ind = encoder_get_video_codec_ind_4cc(my_config->video_codec);
 	if(vcodec_ind < 0)
 	{
@@ -330,6 +337,8 @@ int main(int argc, char *argv[])
 				fprintf(stderr, "GUVCVIEW: Video thread creation failed\n");
 				gui_error(device, "Guvcview error", "could not start the video capture thread", 1);
 			}
+			else if(debug_level > 1)
+				printf("GUVCVIEW: created capture thread with tid: %u\n", (unsigned int) capture_thread);
 		}
 	}
 
