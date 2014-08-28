@@ -337,7 +337,7 @@ int main(int argc, char *argv[])
 				fprintf(stderr, "GUVCVIEW: Video thread creation failed\n");
 				gui_error(device, "Guvcview error", "could not start the video capture thread", 1);
 			}
-			else if(debug_level > 1)
+			else if(debug_level > 2)
 				printf("GUVCVIEW: created capture thread with tid: %u\n", (unsigned int) capture_thread);
 		}
 	}

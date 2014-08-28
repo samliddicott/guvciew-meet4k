@@ -70,14 +70,21 @@ static int gtk_devices_timer_id = 0;
 
 /*
  * sets the status message
+ * args:
+ *   message - message string
+ * 
+ * returns: FALSE
  */
-static void set_status_message(const char *message)
+static gboolean set_status_message(const char *message)
 {
 	if(status_bar)
 	{
 		gtk_statusbar_pop (GTK_STATUSBAR(status_bar), status_warning_id);
 		gtk_statusbar_push (GTK_STATUSBAR(status_bar), status_warning_id, message);
 	}
+	
+	/*execute only once*/
+	return FALSE;
 }
 
 /*
