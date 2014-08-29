@@ -417,8 +417,8 @@ int options_parse(int argc, char *argv[])
 
 	char opt = 0;
 
-	while ((opt = getopt_long(argc, argv, opt_string,
-		long_options, &long_index )) != -1)
+	while (((opt = getopt_long(argc, argv, opt_string,
+		long_options, &long_index )) != -1) && (opt != 255))
 	{
 		switch (opt)
 		{

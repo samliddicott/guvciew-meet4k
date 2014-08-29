@@ -466,7 +466,7 @@ void add_h264_format(v4l2_dev_t *vd)
 		fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (add_h264_format): %s\n", strerror(errno));
 		exit(-1);
 	}
-	
+
 	vd->list_stream_formats[fmtind-1].format = V4L2_PIX_FMT_H264;
 	snprintf(vd->list_stream_formats[fmtind-1].fourcc , 5, "H264");
 	vd->list_stream_formats[fmtind-1].list_stream_cap = NULL;
@@ -517,7 +517,7 @@ void add_h264_format(v4l2_dev_t *vd)
 				fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (add_h264_format): %s\n", strerror(errno));
 				exit(-1);
 			}
-			
+
 			vd->list_stream_formats[fmtind-1].list_stream_cap[res_index-1].framerate_num[frate_index-1] = framerate_num;
 			vd->list_stream_formats[fmtind-1].list_stream_cap[res_index-1].framerate_denom = realloc(
 				vd->list_stream_formats[fmtind-1].list_stream_cap[res_index-1].framerate_denom,
@@ -1098,11 +1098,11 @@ int h264_init_decoder(int width, int height)
 #if LIBAVCODEC_VER_AT_LEAST(55,28)
 	h264_ctx->picture = av_frame_alloc();
 	av_frame_unref(h264_ctx->picture);
-#else	
+#else
 	h264_ctx->picture = avcodec_alloc_frame();
 	avcodec_get_frame_defaults(h264_ctx->picture);
-#endif	
-	
+#endif
+
 	h264_ctx->pic_size = avpicture_get_size(h264_ctx->context->pix_fmt, width, height);
 	h264_ctx->width = width;
 	h264_ctx->height = height;
@@ -1174,11 +1174,15 @@ void h264_close_decoder()
 	avcodec_close(h264_ctx->context);
 
 	free(h264_ctx->context);
-	
-#if LIBAVCODEC_VER_AT_LEAST(55,28)	
+
+#if LIBAVCODEC_VER_AT_LEAST(55,28)
 	av_frame_free(&h264_ctx->picture);
 #else
-	avcodec_free_frame(&h264_ctx->picture);
+	#if LIBAVCODEC_VER_AT_LEAST(54,28)
+			avcodec_free_frame(&h264_ctx->picture);
+	#else
+			av_freep(&h264_ctx->picture);
+	#endif
 #endif
 
 	free(h264_ctx);

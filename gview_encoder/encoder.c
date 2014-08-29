@@ -49,7 +49,7 @@
 #include "encoder.h"
 #include "stream_io.h"
 #include "gview.h"
-                                               
+
 #if LIBAVUTIL_VER_AT_LEAST(52,2)
 #include <libavutil/channel_layout.h>
 #endif
@@ -442,7 +442,7 @@ static encoder_video_context_t *encoder_video_init(encoder_context_t *encoder_ct
 		encoder_set_raw_video_input(encoder_ctx, video_defaults);
 		return (enc_video_ctx);
 	}
-	
+
 #if LIBAVCODEC_VER_AT_LEAST(55,28)
 	enc_video_ctx->picture = av_frame_alloc();
 #else
@@ -721,7 +721,7 @@ static encoder_audio_context_t *encoder_audio_init(encoder_context_t *encoder_ct
 
 #if LIBAVCODEC_VER_AT_LEAST(55,28)
 	enc_audio_ctx->frame = av_frame_alloc();
-#else	
+#else
 	enc_audio_ctx->frame = avcodec_alloc_frame();
 #endif
 
@@ -1253,7 +1253,7 @@ int encoder_encode_video(encoder_context_t *encoder_ctx, void *input_frame)
 				break;
 		}
 	}
-	
+
 	if(!enc_video_ctx->monotonic_pts) //generate a real pts based on the frame timestamp
 		enc_video_ctx->picture->pts += ((enc_video_ctx->pts - last_video_pts)/1000) * 90;
 	else  /*generate a true monotonic pts based on the codec fps*/
@@ -1587,10 +1587,14 @@ void encoder_close(encoder_context_t *encoder_ctx)
 		}
 
 		if(enc_video_ctx->picture)
-#if LIBAVCODEC_VER_AT_LEAST(55,28)	
+#if LIBAVCODEC_VER_AT_LEAST(55,28)
 			av_frame_free(&enc_video_ctx->picture);
 #else
+	#if LIBAVCODEC_VER_AT_LEAST(54,28)
 			avcodec_free_frame(&enc_video_ctx->picture);
+	#else
+			av_freep(&enc_video_ctx->picture);
+	#endif
 #endif
 		if(enc_video_ctx->priv_data)
 			free(enc_video_ctx->priv_data);
@@ -1607,7 +1611,7 @@ void encoder_close(encoder_context_t *encoder_ctx)
 	{
 		if(enc_audio_ctx->priv_data)
 			free(enc_audio_ctx->priv_data);
-		
+
 		avcodec_flush_buffers(enc_audio_ctx->codec_context);
 
 		avcodec_close(enc_audio_ctx->codec_context);
@@ -1616,10 +1620,14 @@ void encoder_close(encoder_context_t *encoder_ctx)
 		if(enc_audio_ctx->outbuf)
 			free(enc_audio_ctx->outbuf);
 		if(enc_audio_ctx->frame)
-#if LIBAVCODEC_VER_AT_LEAST(55,28)	
+#if LIBAVCODEC_VER_AT_LEAST(55,28)
 			av_frame_free(&enc_audio_ctx->frame);
 #else
+	#if LIBAVCODEC_VER_AT_LEAST(54,28)
 			avcodec_free_frame(&enc_audio_ctx->frame);
+	#else
+			av_freep(&enc_audio_ctx->frame);
+	#endif
 #endif
 
 		free(enc_audio_ctx);

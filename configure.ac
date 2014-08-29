@@ -347,6 +347,15 @@ PKG_CHECK_MODULES(GVIEWENCODER, [libavcodec, libavutil])
 AC_SUBST(GVIEWENCODER_CFLAGS)
 AC_SUBST(GVIEWENCODER_LIBS)
 
+dnl --------------------------------------------------------------------------
+dnl Check for libavutil/version.h
+dnl --------------------------------------------------------------------------
+
+AC_CHECK_HEADER([libavutil/version.h], [has_libavutil_version_h="yes"])
+
+if test "$has_libavutil_version_h" = yes; then
+  AC_DEFINE(HAS_LIBAVUTIL_VERSION_H,1,[Define if libavutil/version.h can be acessed])
+fi
 
 dnl --------------------------------------------------------------------------
 dnl check for guvcview dependencies

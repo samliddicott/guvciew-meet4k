@@ -44,13 +44,17 @@
 #else
   #ifdef HAS_LIBAVCODEC_AVCODEC_H
     #include <libavcodec/avcodec.h>
-    #include <libavutil/version.h>
+	#ifdef HAS_LIBAVUTIL_VERSION_H
+		#include <libavutil/version.h>
+    #endif
   #else
     #ifdef HAS_FFMPEG_AVCODEC_H
       #include <ffmpeg/avcodec.h>
     #else
       #include <libavcodec/avcodec.h>
-      #include <libavutil/version.h>
+      #ifdef HAS_LIBAVUTIL_VERSION_H
+		#include <libavutil/version.h>
+      #endif
     #endif
   #endif
 #endif
@@ -74,10 +78,14 @@ __BEGIN_DECLS
 #define LIBAVCODEC_VER_AT_LEAST(major,minor)  (LIBAVCODEC_VERSION_MAJOR > major || \
                                               (LIBAVCODEC_VERSION_MAJOR == major && \
                                                LIBAVCODEC_VERSION_MINOR >= minor))
-                                               
+
+#ifdef HAS_LIBAVUTIL_VERSION_H
 #define LIBAVUTIL_VER_AT_LEAST(major,minor)  (LIBAVUTIL_VERSION_MAJOR > major || \
                                               (LIBAVUTIL_VERSION_MAJOR == major && \
                                                LIBAVUTIL_VERSION_MINOR >= minor))
+#else
+#define LIBAVUTIL_VER_AT_LEAST(major,minor) 0
+#endif
 
 #if !LIBAVCODEC_VER_AT_LEAST(53,0)
   #define AV_SAMPLE_FMT_S16 SAMPLE_FMT_S16
