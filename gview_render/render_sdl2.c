@@ -72,7 +72,7 @@ static int video_init(int width, int height, int flags)
 		default:
 		  break;
 	}
-	
+
 	if(verbosity > 0)
 		printf("RENDER: Initializing SDL2 render\n");
 
@@ -135,9 +135,21 @@ static int video_init(int width, int height, int flags)
 
 	if(main_renderer == NULL)
 	{
-		fprintf(stderr, "RENDER: (SDL2) Couldn't get a renderer: %s\n", SDL_GetError());
-		render_sdl2_clean();
-		return -3;
+		fprintf(stderr, "RENDER: (SDL2) Couldn't get a accelerated renderer: %s\n", SDL_GetError());
+		fprintf(stderr, "RENDER: (SDL2) trying a non accelerated renderer\n");
+
+		main_renderer = SDL_CreateRenderer(sdl_window, -1,
+		SDL_RENDERER_TARGETTEXTURE |
+		SDL_RENDERER_PRESENTVSYNC);
+
+
+		if(main_renderer == NULL)
+		{
+			fprintf(stderr, "RENDER: (SDL2) Couldn't get a non accelerated renderer: %s\n", SDL_GetError());
+			fprintf(stderr, "RENDER: (SDL2) giving up...\n");
+			render_sdl2_clean();
+			return -3;
+		}
 	}
 
 	SDL_RenderSetLogicalSize(main_renderer, width, height);
@@ -224,9 +236,9 @@ int render_sdl2_frame(uint8_t *frame, int width, int height)
 		fprintf(stderr, "RENDER: couldn't lock texture to write\n");
 		return -1;
 	}
-	
+
 	memcpy(texture_pixels, frame, size);
-	
+
 	/*osd vu meter*/
     if(((render_get_osd_mask() &
 		(REND_OSD_VUMETER_MONO | REND_OSD_VUMETER_STEREO))) != 0)
@@ -266,7 +278,7 @@ void set_render_sdl2_caption(const char* caption)
  */
 void render_sdl2_dispatch_events()
 {
-	
+
 	SDL_Event event;
 
 	while( SDL_PollEvent(&event) )
@@ -278,7 +290,7 @@ void render_sdl2_dispatch_events()
 				case SDLK_ESCAPE:
 					render_call_event_callback(EV_QUIT);
 					break;
-					
+
 				case SDLK_UP:
 					render_call_event_callback(EV_KEY_UP);
 					break;
@@ -343,17 +355,17 @@ void render_sdl2_clean()
 		SDL_DestroyTexture(rending_texture);
 
 	rending_texture = NULL;
-	
+
 	if(main_renderer)
 		SDL_DestroyRenderer(main_renderer);
 
 	main_renderer = NULL;
-	
+
 	if(sdl_window)
 		SDL_DestroyWindow(sdl_window);
 
 	sdl_window = NULL;
-	
+
 	SDL_Quit();
 }
 
