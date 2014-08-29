@@ -136,16 +136,16 @@ static int video_init(int width, int height, int flags)
 	if(main_renderer == NULL)
 	{
 		fprintf(stderr, "RENDER: (SDL2) Couldn't get a accelerated renderer: %s\n", SDL_GetError());
-		fprintf(stderr, "RENDER: (SDL2) trying a non accelerated renderer\n");
+		fprintf(stderr, "RENDER: (SDL2) trying with a software renderer\n");
 
 		main_renderer = SDL_CreateRenderer(sdl_window, -1,
 		SDL_RENDERER_TARGETTEXTURE |
-		SDL_RENDERER_PRESENTVSYNC);
+		SDL_RENDERER_SOFTWARE);
 
 
 		if(main_renderer == NULL)
 		{
-			fprintf(stderr, "RENDER: (SDL2) Couldn't get a non accelerated renderer: %s\n", SDL_GetError());
+			fprintf(stderr, "RENDER: (SDL2) Couldn't get a software renderer: %s\n", SDL_GetError());
 			fprintf(stderr, "RENDER: (SDL2) giving up...\n");
 			render_sdl2_clean();
 			return -3;
