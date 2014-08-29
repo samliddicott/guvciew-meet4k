@@ -135,16 +135,17 @@ static int video_init(int width, int height, int flags)
         if (!rend_info)
         {
                 fprintf(stderr, "RENDER: Couldn't allocate memory for the renderer info data structure\n");
+                render_sdl2_clean();
                 return -5;
         }
         /* Print the list of the available renderers*/
-        printf("\nRENDER: Available SDL rendering drivers:\n");
+        printf("\nRENDER: Available SDL2 rendering drivers:\n");
         int i = 0;
         for (i = 0; i < SDL_GetNumRenderDrivers(); i++)
         {
             if (SDL_GetRenderDriverInfo(i, rend_info) < 0)
             {
-                fprintf(stderr, " Couldn't get SDL render driver information: %s\n", SDL_GetError());
+                fprintf(stderr, " Couldn't get SDL2 render driver information: %s\n", SDL_GetError());
             }
             else
             {
@@ -181,6 +182,31 @@ static int video_init(int width, int height, int flags)
 			render_sdl2_clean();
 			return -3;
 		}
+	}
+
+	if(verbosity > 2)
+    {
+		/* Allocate a renderer info struct*/
+        SDL_RendererInfo *rend_info = (SDL_RendererInfo *) malloc(sizeof(SDL_RendererInfo));
+        if (!rend_info)
+        {
+                fprintf(stderr, "RENDER: Couldn't allocate memory for the renderer info data structure\n");
+                render_sdl2_clean();
+                return -5;
+        }
+
+		/* Print the name of the current rendering driver */
+		if (SDL_GetRendererInfo(main_renderer, rend_info) < 0)
+		{
+			fprintf(stderr, "Couldn't get SDL2 rendering driver information: %s\n", SDL_GetError());
+		}
+		printf("RENDER: rendering driver in use: %s\n", rend_info->name);
+		printf("    SDL_RENDERER_TARGETTEXTURE [%c]\n", (rend_info->flags & SDL_RENDERER_TARGETTEXTURE) ? 'X' : ' ');
+		printf("    SDL_RENDERER_SOFTWARE      [%c]\n", (rend_info->flags & SDL_RENDERER_SOFTWARE) ? 'X' : ' ');
+		printf("    SDL_RENDERER_ACCELERATED   [%c]\n", (rend_info->flags & SDL_RENDERER_ACCELERATED) ? 'X' : ' ');
+		printf("    SDL_RENDERER_PRESENTVSYNC  [%c]\n", (rend_info->flags & SDL_RENDERER_PRESENTVSYNC) ? 'X' : ' ');
+
+		free(rend_info);
 	}
 
 	SDL_RenderSetLogicalSize(main_renderer, width, height);
