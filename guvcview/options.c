@@ -415,14 +415,14 @@ int options_parse(int argc, char *argv[])
 
 	*opt_str_ptr++='\0'; /*null terminated string*/
 
-	char opt = 0;
+	int opt = 0;
 
-	while (((opt = getopt_long(argc, argv, opt_string,
-		long_options, &long_index )) != -1) && (opt != 255))
+	while ((opt = getopt_long(argc, argv, opt_string,
+		long_options, &long_index )) != -1)
 	{
 		switch (opt)
 		{
-            case 'v' :
+			case 'v' :
 				opt_print_version();
 				ret = 1;
 				break;
@@ -603,7 +603,7 @@ int options_parse(int argc, char *argv[])
 				my_options.photo_npics = atoi(optarg);
 				break;
 			default:
-            case 'h':
+			case 'h':
 				opt_print_help();
 				ret = 1;
 				break;
