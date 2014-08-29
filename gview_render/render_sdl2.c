@@ -128,6 +128,37 @@ static int video_init(int width, int height, int flags)
 		SDL_SetWindowSize(sdl_window, w, h);
     }
 
+    if(verbosity > 2)
+    {
+		/* Allocate a renderer info struct*/
+        SDL_RendererInfo *rend_info = (SDL_RendererInfo *) malloc(sizeof(SDL_RendererInfo));
+        if (!rend_info)
+        {
+                fprintf(stderr, "RENDER: Couldn't allocate memory for the renderer info data structure\n");
+                return -5;
+        }
+        /* Print the list of the available renderers*/
+        printf("\nRENDER: Available SDL rendering drivers:\n");
+        int i = 0;
+        for (i = 0; i < SDL_GetNumRenderDrivers(); i++)
+        {
+            if (SDL_GetRenderDriverInfo(i, rend_info) < 0)
+            {
+                fprintf(stderr, " Couldn't get SDL render driver information: %s\n", SDL_GetError());
+            }
+            else
+            {
+                printf(" %2d: %s\n", i, rend_info->name);
+                printf("    SDL_RENDERER_TARGETTEXTURE [%c]\n", (rend_info->flags & SDL_RENDERER_TARGETTEXTURE) ? 'X' : ' ');
+                printf("    SDL_RENDERER_SOFTWARE      [%c]\n", (rend_info->flags & SDL_RENDERER_SOFTWARE) ? 'X' : ' ');
+                printf("    SDL_RENDERER_ACCELERATED   [%c]\n", (rend_info->flags & SDL_RENDERER_ACCELERATED) ? 'X' : ' ');
+                printf("    SDL_RENDERER_PRESENTVSYNC  [%c]\n", (rend_info->flags & SDL_RENDERER_PRESENTVSYNC) ? 'X' : ' ');
+            }
+        }
+
+        free(rend_info);
+	}
+
     main_renderer = SDL_CreateRenderer(sdl_window, -1,
 		SDL_RENDERER_TARGETTEXTURE |
 		SDL_RENDERER_PRESENTVSYNC  |
