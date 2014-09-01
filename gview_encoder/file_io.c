@@ -72,14 +72,14 @@ static int64_t io_tell(io_writer_t *writer)
  *
  * returns: delta between file and buffer writer positions
  */
-static int io_flush_buf_writer(io_writer_t *file_writer, io_writer_t *buf_writer)
-{
-	int size = (int) (buf_writer->buf_ptr - buf_writer->buffer);
-	io_write_buf(file_writer, buf_writer->buffer, size);
-	buf_writer->buf_ptr = buf_writer->buffer;
-
-	return size;
-}
+//static int io_flush_buf_writer(io_writer_t *file_writer, io_writer_t *buf_writer)
+//{
+//	int size = (int) (buf_writer->buf_ptr - buf_writer->buffer);
+//	io_write_buf(file_writer, buf_writer->buffer, size);
+//	buf_writer->buf_ptr = buf_writer->buffer;
+//
+//	return size;
+//}
 
 /*
  * create a new writer:
@@ -430,11 +430,11 @@ void io_write_wb16(io_writer_t *writer, uint16_t val)
  *
  * returns: none
  */
-void io_write_wl24(io_writer_t *writer, uint32_t val)
-{
-    io_write_wl16(writer, (uint16_t) (val & 0xffff));
-    io_write_w8(writer, (uint8_t) (val >> 16));
-}
+//void io_write_wl24(io_writer_t *writer, uint32_t val)
+//{
+//    io_write_wl16(writer, (uint16_t) (val & 0xffff));
+//    io_write_w8(writer, (uint8_t) (val >> 16));
+//}
 
 /*
  * write 3 octets (bid endian)
@@ -447,11 +447,11 @@ void io_write_wl24(io_writer_t *writer, uint32_t val)
  *
  * returns: none
  */
-void io_write_wb24(io_writer_t *writer, uint32_t val)
-{
-    io_write_wb16(writer, (uint16_t) (val >> 8));
-    io_write_w8(writer, (uint8_t) val);
-}
+//void io_write_wb24(io_writer_t *writer, uint32_t val)
+//{
+//    io_write_wb16(writer, (uint16_t) (val >> 8));
+//    io_write_w8(writer, (uint8_t) val);
+//}
 
 /*
  * write 4 octets (little endian)
@@ -566,13 +566,13 @@ void io_write_4cc(io_writer_t *writer, const char *str)
  *
  * returns: the size writen
  */
-int io_write_str(io_writer_t * writer, const char *str)
-{
-    int len = 1;
-    if (str) {
-        len += strlen(str);
-        io_write_buf(writer, (uint8_t *) str, len);
-    } else
-        io_write_w8(writer, 0);
-    return len;
-}
+//int io_write_str(io_writer_t * writer, const char *str)
+//{
+//    int len = 1;
+//    if (str) {
+//        len += strlen(str);
+//        io_write_buf(writer, (uint8_t *) str, len);
+//    } else
+//        io_write_w8(writer, 0);
+//    return len;
+//}

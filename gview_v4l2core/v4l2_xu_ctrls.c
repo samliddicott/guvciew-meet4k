@@ -39,7 +39,6 @@ extern int verbosity;
 #define V4L2_CID_PANTILT_RESET_LOGITECH		V4L2_CID_BASE_LOGITECH+2
 
 /*this should realy be replaced by V4L2_CID_FOCUS_ABSOLUTE in libwebcam*/
-#define V4L2_CID_FOCUS_LOGITECH					V4L2_CID_BASE_LOGITECH+3
 #define V4L2_CID_LED1_MODE_LOGITECH				V4L2_CID_BASE_LOGITECH+4
 #define V4L2_CID_LED1_FREQUENCY_LOGITECH		V4L2_CID_BASE_LOGITECH+5
 #define V4L2_CID_DISABLE_PROCESSING_LOGITECH	V4L2_CID_BASE_LOGITECH+0x70
@@ -121,8 +120,8 @@ static struct uvc_xu_control_mapping xu_mappings[] =
 		.reserved = {0,0,0,0}
 	},
 	{
-		.id        = V4L2_CID_FOCUS_LOGITECH,
-		.name      = N_("Focus (absolute)"),
+		.id        = V4L2_CID_FOCUS_ABSOLUTE,
+		.name      = N_("Focus"),
 		.entity    = UVC_GUID_LOGITECH_MOTOR_CONTROL,
 		.selector  = XU_MOTORCONTROL_FOCUS,
 		.size      = 8,

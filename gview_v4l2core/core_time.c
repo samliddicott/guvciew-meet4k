@@ -41,20 +41,20 @@
  *
  * returns: time of day in miliseconds
  */
-uint32_t ms_time ()
-{
-	struct timeval now;
-
-	if(gettimeofday(&now, NULL) != 0)
-	{
-		fprintf(stderr, "V4L2_CORE: ms_time (gettimeofday) error: %s\n", strerror(errno));
-		return 0;
-	}
-
-	uint32_t mst = (uint32_t) now.tv_sec * 1000 + (uint32_t) now.tv_usec / 1000;
-
-	return (mst);
-}
+//uint32_t ms_time ()
+//{
+//	struct timeval now;
+//
+//	if(gettimeofday(&now, NULL) != 0)
+//	{
+//		fprintf(stderr, "V4L2_CORE: ms_time (gettimeofday) error: %s\n", strerror(errno));
+//		return 0;
+//	}
+//
+//	uint32_t mst = (uint32_t) now.tv_sec * 1000 + (uint32_t) now.tv_usec / 1000;
+//
+//	return (mst);
+//}
 
 /*
  * time in microseconds
@@ -66,20 +66,20 @@ uint32_t ms_time ()
  *
  * returns: time of day in microseconds
  */
-uint64_t us_time(void)
-{
-	struct timeval now;
-
-	if(gettimeofday(&now, NULL) != 0)
-	{
-		fprintf(stderr, "V4L2_CORE: us_time (gettimeofday) error: %s\n", strerror(errno));
-		return 0;
-	}
-
-	uint64_t ust = (uint64_t) now.tv_sec * USEC_PER_SEC + (uint64_t) now.tv_usec;
-
-	return (ust);
-}
+//uint64_t us_time(void)
+//{
+//	struct timeval now;
+//
+//	if(gettimeofday(&now, NULL) != 0)
+//	{
+//		fprintf(stderr, "V4L2_CORE: us_time (gettimeofday) error: %s\n", strerror(errno));
+//		return 0;
+//	}
+//
+//	uint64_t ust = (uint64_t) now.tv_sec * USEC_PER_SEC + (uint64_t) now.tv_usec;
+//
+//	return (ust);
+//}
 
 /*
  * time in nanoseconds
@@ -91,18 +91,18 @@ uint64_t us_time(void)
  *
  * returns: time in nanoseconds
  */
-uint64_t ns_time (void)
-{
-	struct timespec now;
-
-	if(clock_gettime(CLOCK_REALTIME, &now) != 0)
-	{
-		fprintf(stderr, "V4L2_CORE: ns_time (clock_gettime) error: %s\n", strerror(errno));
-		return 0;
-	}
-
-	return ((uint64_t) now.tv_sec * NSEC_PER_SEC + (uint64_t) now.tv_nsec);
-}
+//uint64_t ns_time (void)
+//{
+//	struct timespec now;
+//
+//	if(clock_gettime(CLOCK_REALTIME, &now) != 0)
+//	{
+//		fprintf(stderr, "V4L2_CORE: ns_time (clock_gettime) error: %s\n", strerror(errno));
+//		return 0;
+//	}
+//
+//	return ((uint64_t) now.tv_sec * NSEC_PER_SEC + (uint64_t) now.tv_nsec);
+//}
 
 /*
  * monotonic time in nanoseconds

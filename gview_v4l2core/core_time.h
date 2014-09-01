@@ -34,7 +34,7 @@
  *
  * returns: time of day in miliseconds
  */
-uint32_t ms_time ();
+//uint32_t ms_time ();
 
 /*
  * time in microseconds
@@ -46,7 +46,7 @@ uint32_t ms_time ();
  *
  * returns: time of day in microseconds
  */
-uint64_t us_time();
+//uint64_t us_time();
 
 /*
  * time in nanoseconds
@@ -58,7 +58,7 @@ uint64_t us_time();
  *
  * returns: time in nanoseconds
  */
-uint64_t ns_time ();
+//uint64_t ns_time ();
 
 /*
  * monotonic time in nanoseconds

@@ -53,7 +53,7 @@ void yuyv2rgb (uint8_t *pyuv, uint8_t *prgb, int width, int height);
  *
  * returns: none
  */
-void yuyv2bgr1 (uint8_t *pyuv, uint8_t *pbgr, int width, int height);
+//void yuyv2bgr1 (uint8_t *pyuv, uint8_t *pbgr, int width, int height);
 
 /*
  * yuv (YUYV) to bgr with lines upsidedown

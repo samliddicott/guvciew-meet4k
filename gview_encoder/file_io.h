@@ -182,7 +182,7 @@ void io_write_wb16(io_writer_t *writer, uint16_t val);
  *
  * returns: none
  */
-void io_write_wl24(io_writer_t *writer, uint32_t val);
+//void io_write_wl24(io_writer_t *writer, uint32_t val);
 
 /*
  * write 3 octets (bid endian)
@@ -195,7 +195,7 @@ void io_write_wl24(io_writer_t *writer, uint32_t val);
  *
  * returns: none
  */
-void io_write_wb24(io_writer_t *writer, uint32_t val);
+//void io_write_wb24(io_writer_t *writer, uint32_t val);
 
 /*
  * write 4 octets (little endian)
@@ -273,7 +273,7 @@ void io_write_4cc(io_writer_t *writer, const char *str);
  *
  * returns: the size writen
  */
-int io_write_str(io_writer_t * writer, const char *str);
+//int io_write_str(io_writer_t * writer, const char *str);
 
 #if BIGENDIAN
 	#define io_write_w16 io_write_wb16
