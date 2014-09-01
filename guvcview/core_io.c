@@ -32,6 +32,7 @@
 #include <unistd.h>
 
 #include "gviewv4l2core.h"
+#include "../config.h"
 
 extern int debug_level;
 

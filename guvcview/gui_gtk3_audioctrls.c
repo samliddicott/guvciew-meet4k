@@ -74,7 +74,7 @@ int gui_attach_gtk3_audioctrls(GtkWidget *parent)
 		printf("GUVCVIEW: attaching audio controls\n");
 
 	int line = 0;
-	int i = 0;
+
 	/*get the current audio context*/
 	audio_context_t *audio_ctx = get_audio_context();
 
@@ -138,6 +138,7 @@ int gui_attach_gtk3_audioctrls(GtkWidget *parent)
 
 	if(audio_ctx != NULL)
 	{
+		int i = 0;
 		for(i = 0; i < audio_ctx->num_input_dev; ++i)
 		{
 			gtk_combo_box_text_append_text(

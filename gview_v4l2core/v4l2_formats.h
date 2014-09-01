@@ -47,7 +47,7 @@ uint8_t can_decode_format(int pixelformat);
  * returns: TRUE(1) if format is supported
  *          FALSE(0) if not
  */
-uint8_t can_decode_fourcc(const char *fourcc);
+//uint8_t can_decode_fourcc(const char *fourcc);
 
 /*
  * enumerate frame formats (pixelformats, resolutions and fps)

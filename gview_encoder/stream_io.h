@@ -147,6 +147,6 @@ stream_io_t *get_first_video_stream(stream_io_t *stream_list);
  *
  * returns: pointer to stream
  */
-stream_io_t *get_first_audio_stream(stream_io_t *stream_list);
+//stream_io_t *get_first_audio_stream(stream_io_t *stream_list);
 
 #endif

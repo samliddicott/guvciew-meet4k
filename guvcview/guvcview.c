@@ -195,6 +195,9 @@ int main(int argc, char *argv[])
 	else
 		v4l2core_set_capture_method(device, IO_MMAP);
 
+	/*set software autofocus sort method*/
+	v4l2core_soft_autofocus_set_sort(AUTOF_SORT_INSERT);
+
 	/*set the intended fps*/
 	device->fps_num = my_config->fps_num;
 	device->fps_denom = my_config->fps_denom;
@@ -261,6 +264,9 @@ int main(int argc, char *argv[])
 		my_config->photo_path = strdup(get_photo_path());
 	set_photo_name(my_config->photo_name);
 	set_photo_path(my_config->photo_path);
+
+	/*set audio interface verbosity*/
+	audio_set_verbosity(debug_level);
 
 	/*create the inital audio context (stored staticly in video_capture)*/
 	create_audio_context(audio);

@@ -959,7 +959,6 @@ int avi_write_packet(
 int avi_close(avi_context_t *avi_ctx)
 {
     int res = 0;
-    int n, nb_frames;
     int64_t file_size;
 
     avi_riff_t *riff = avi_get_last_riff(avi_ctx);
@@ -982,6 +981,9 @@ int avi_close(avi_context_t *avi_ctx)
         io_seek(avi_ctx->writer, avi_ctx->odml_list - 8);
         io_write_4cc(avi_ctx->writer, "LIST"); /* Making this AVI OpenDML one */
         io_skip(avi_ctx->writer, 16);
+
+		int n = 0;
+		int nb_frames = 0;
 
         for (n=nb_frames=0;n<avi_ctx->stream_list_size;n++)
         {

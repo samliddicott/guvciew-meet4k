@@ -365,6 +365,8 @@ PKG_CHECK_MODULES(GUVCVIEW, [gtk+-3.0 >= 3.0.0 glib-2.0 >= 2.10.0])
 AC_SUBST(GUVCVIEW_CFLAGS)
 AC_SUBST(GUVCVIEW_LIBS)
 
+AC_CHECK_FUNCS([fpathconf dirfd])
+
 dnl --------------------------------------------------------------------------
 dnl set/unset debian menu
 dnl --------------------------------------------------------------------------

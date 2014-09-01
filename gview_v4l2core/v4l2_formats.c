@@ -219,29 +219,29 @@ uint8_t can_decode_format(int pixelformat)
  * returns: TRUE(1) if format is supported
  *          FALSE(0) if not
  */
-uint8_t can_decode_fourcc(const char *fourcc)
-{
-	if(!fourcc)
-		return FALSE;
+//uint8_t can_decode_fourcc(const char *fourcc)
+//{
+//	if(!fourcc)
+//		return FALSE;
 
-	if(strlen(fourcc) != 4)
-		return FALSE;
+//	if(strlen(fourcc) != 4)
+//		return FALSE;
 
-	int i = 0;
-	int sup_fmt = 0;
-	do
-	{
-		sup_fmt = decoder_supported_formats[i].pixelformat;
+//	int i = 0;
+//	int sup_fmt = 0;
+//	do
+//	{
+//		sup_fmt = decoder_supported_formats[i].pixelformat;
 
-		if(strcmp(fourcc, decoder_supported_formats[i].fourcc) == 0 )
-			return TRUE;
+//		if(strcmp(fourcc, decoder_supported_formats[i].fourcc) == 0 )
+//			return TRUE;
 
-		i++;
-	}
-	while(sup_fmt);
-
-	return FALSE;
-}
+//		i++;
+//	}
+//	while(sup_fmt);
+//
+//	return FALSE;
+//}
 
 /*
  * enumerate frame intervals (fps)
@@ -492,7 +492,7 @@ static int enum_frame_sizes(v4l2_dev_t *vd, uint32_t pixfmt, int fmtind)
 		fmt.fmt.pix.pixelformat = pixfmt;
 		fmt.fmt.pix.field = V4L2_FIELD_ANY;
 
-		ret = xioctl(vd->fd, VIDIOC_TRY_FMT, &fmt);
+		xioctl(vd->fd, VIDIOC_TRY_FMT, &fmt);
 
 		/*use the returned values*/
 		int width = fmt.fmt.pix.width;

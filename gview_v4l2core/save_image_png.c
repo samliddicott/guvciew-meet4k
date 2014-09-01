@@ -207,12 +207,6 @@ static int save_png(const char *filename, int width, int height, uint8_t *data)
 		return(E_FILE_IO_ERR);
 	}
 
-    /*do we need this???*/
-	for(l=0; l < height; ++l)
-	{
-		row_pointers[l] = NULL;
-	}
-
 	/* that's it */
 	return (E_OK);
 }

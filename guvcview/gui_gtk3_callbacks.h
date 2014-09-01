@@ -256,6 +256,7 @@ void button_PanTilt2_clicked (GtkButton * Button, void *data);
  */
 void button_clicked (GtkButton * Button, void *data);
 
+#ifdef V4L2_CTRL_TYPE_STRING
 /*
  * a string control apply button clicked
  * args:
@@ -268,7 +269,9 @@ void button_clicked (GtkButton * Button, void *data);
  * returns: none
  */
 void string_button_clicked(GtkButton * Button, void *data);
+#endif
 
+#ifdef V4L2_CTRL_TYPE_INTEGER64
 /*
  * a int64 control apply button clicked
  * args:
@@ -281,7 +284,9 @@ void string_button_clicked(GtkButton * Button, void *data);
  * returns: none
  */
 void int64_button_clicked(GtkButton * Button, void *data);
+#endif
 
+#ifdef V4L2_CTRL_TYPE_BITMASK
 /*
  * a bitmask control apply button clicked
  * args:
@@ -294,6 +299,7 @@ void int64_button_clicked(GtkButton * Button, void *data);
  * returns: none
  */
 void bitmask_button_clicked(GtkButton * Button, void *data);
+#endif
 
 /*
  * slider changed event

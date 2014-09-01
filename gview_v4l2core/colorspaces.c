@@ -131,16 +131,15 @@ void yuyv2bgr (uint8_t *pyuv, uint8_t *pbgr, int width, int height)
 {
 
 	int l=0;
-	int k=0;
 	uint8_t *preverse;
-	int bytesUsed;
 	int SizeBGR=height * width * 3; /* 3 bytes per pixel*/
 	/* BMP byte order is bgr and the lines start from last to first*/
 	preverse=pbgr+SizeBGR;/*start at the end and decrement*/
 	for(l=0;l<height;l++)
 	{	/*iterate every 1 line*/
 		preverse-=width*3;/*put pointer at begin of unprocessed line*/
-		bytesUsed=l*width*2;
+		int bytesUsed=l*width*2;
+		int k = 0;
 		for (k=0;k<(width*2);k=k+4)/*iterate every 4 bytes in the line*/
 		{
 			/* standart: b = y0 + 1.772 (u-128) */
@@ -215,7 +214,6 @@ void y10b_to_yuyv (uint8_t *framebuffer, uint8_t *tmpbuffer, int width, int heig
 	uint16_t *unpacked_buffer = NULL;
 	uint16_t *ptmp;
 	int h = 0;
-	int w = 0;
 
 	unpacked_buffer = malloc(width * height * sizeof(uint16_t));
 	
@@ -231,6 +229,7 @@ void y10b_to_yuyv (uint8_t *framebuffer, uint8_t *tmpbuffer, int width, int heig
 
 	for (h = 0; h < height; h++)
 	{
+		int w=0;
 		for (w = 0; w < width; w += 2)
 		{
 			/* Y0 */
@@ -267,10 +266,10 @@ void y16_to_yuyv (uint8_t *framebuffer, uint8_t *tmpbuffer, int width, int heigh
 	uint16_t *ptmp= (uint16_t *) tmpbuffer;
 
 	int h=0;
-	int w=0;
 
 	for(h=0;h<height;h++)
 	{
+		int w=0;
 		for(w=0;w<width;w+=2)
 		{
 			/* Y0 */
@@ -308,10 +307,10 @@ void yyuv_to_yuyv (uint8_t *framebuffer, uint8_t *tmpbuffer, int width, int heig
 	pfmb = framebuffer;
 
 	int h=0;
-	int w=0;
 
 	for(h=0;h<height;h++)
 	{
+		int w=0;
 		for(w=0;w<(width*2);w+=4)
 		{
 			/* Y0 */
@@ -348,10 +347,10 @@ void uyvy_to_yuyv (uint8_t *framebuffer, uint8_t *tmpbuffer, int width, int heig
 	uint8_t *ptmp = tmpbuffer;
 	uint8_t *pfmb = framebuffer;
 	int h=0;
-	int w=0;
 
 	for(h=0;h<height;h++)
 	{
+		int w=0;
 		for(w=0;w<(width*2);w+=4)
 		{
 			/* Y0 */
@@ -391,10 +390,10 @@ void yvyu_to_yuyv (uint8_t *framebuffer, uint8_t *tmpbuffer, int width, int heig
 	pfmb = framebuffer;
 
 	int h=0;
-	int w=0;
 
 	for(h=0;h<height;h++)
 	{
+		int w = 0;
 		for(w=0;w<(width*2);w+=4)
 		{
 			/* Y0 */
@@ -433,32 +432,24 @@ void yuv420_to_yuyv (uint8_t *framebuffer, uint8_t *tmpbuffer, int width, int he
 
 	int linesize = width * 2;
 	int uvlinesize = width / 2;
-	int offset=0;
-	int offset1=0;
-	int offsety=0;
-	int offsety1=0;
-	int offsetuv=0;
 
 	py=tmpbuffer;
 	pu=py+(width*height);
 	pv=pu+(width*height/4);
 
 	int h=0;
-	int w=0;
-
-	int wy=0;
 	int huv=0;
-	int wuv=0;
 
 	for(h=0;h<height;h+=2)
 	{
-		wy=0;
-		wuv=0;
-		offset = h * linesize;
-		offset1 = (h + 1) * linesize;
-		offsety = h * width;
-		offsety1 = (h + 1) * width;
-		offsetuv = huv * uvlinesize;
+		int wy = 0;
+		int wuv = 0;
+		int offset = h * linesize;
+		int offset1 = (h + 1) * linesize;
+		int offsety = h * width;
+		int offsety1 = (h + 1) * width;
+		int offsetuv = huv * uvlinesize;
+		int w = 0;
 
 		for(w=0;w<linesize;w+=4)
 		{
@@ -508,32 +499,24 @@ void yvu420_to_yuyv (uint8_t *framebuffer, uint8_t *tmpbuffer, int width, int he
 
 	int linesize = width * 2;
 	int uvlinesize = width / 2;
-	int offset=0;
-	int offset1=0;
-	int offsety=0;
-	int offsety1=0;
-	int offsetuv=0;
 
 	py=tmpbuffer;
 	pv=py+(width*height);
 	pu=pv+((width*height)/4);
 
 	int h=0;
-	int w=0;
-
-	int wy=0;
 	int huv=0;
-	int wuv=0;
 
 	for(h=0;h<height;h+=2)
 	{
-		wy=0;
-		wuv=0;
-		offset = h * linesize;
-		offset1 = (h + 1) * linesize;
-		offsety = h * width;
-		offsety1 = (h + 1) * width;
-		offsetuv = huv * uvlinesize;
+		int wy=0;
+		int wuv=0;
+		int offset = h * linesize;
+		int offset1 = (h + 1) * linesize;
+		int offsety = h * width;
+		int offsety1 = (h + 1) * width;
+		int offsetuv = huv * uvlinesize;
+		int w = 0;
 
 		for(w=0;w<linesize;w+=4)
 		{
@@ -581,31 +564,24 @@ void nv12_to_yuyv (uint8_t *framebuffer, uint8_t *tmpbuffer, int width, int heig
 	uint8_t *puv;
 
 	int linesize = width * 2;
-	int offset=0;
-	int offset1=0;
-	int offsety=0;
-	int offsety1=0;
-	int offsetuv=0;
 
 	py=tmpbuffer;
 	puv=py+(width*height);
 
 	int h=0;
-	int w=0;
-
-	int wy=0;
 	int huv=0;
-	int wuv=0;
 
 	for(h=0;h<height;h+=2)
 	{
-		wy=0;
-		wuv=0;
-		offset = h * linesize;
-		offset1 = (h+1) * linesize;
-		offsety = h * width;
-		offsety1 = (h+1) * width;
-		offsetuv = huv * width;
+		int wy=0;
+		int wuv=0;
+		int offset = h * linesize;
+		int offset1 = (h+1) * linesize;
+		int offsety = h * width;
+		int offsety1 = (h+1) * width;
+		int offsetuv = huv * width;
+		int w = 0;
+
 		for(w=0;w<linesize;w+=4)
 		{
 			/*y00*/
@@ -652,31 +628,24 @@ void nv21_to_yuyv (uint8_t *framebuffer, uint8_t *tmpbuffer, int width, int heig
 	uint8_t *puv;
 
 	int linesize = width * 2;
-	int offset=0;
-	int offset1=0;
-	int offsety=0;
-	int offsety1=0;
-	int offsetuv=0;
 
 	py=tmpbuffer;
 	puv=py+(width*height);
 
 	int h=0;
-	int w=0;
-
-	int wy=0;
 	int huv=0;
-	int wuv=0;
 
 	for(h=0;h<height;h+=2)
 	{
-		wy=0;
-		wuv=0;
-		offset = h * linesize;
-		offset1 = (h+1) * linesize;
-		offsety = h * width;
-		offsety1 = (h+1) * width;
-		offsetuv = huv * width;
+		int wy=0;
+		int wuv=0;
+		int offset = h * linesize;
+		int offset1 = (h+1) * linesize;
+		int offsety = h * width;
+		int offsety1 = (h+1) * width;
+		int offsetuv = huv * width;
+		int w = 0;
+
 		for(w=0;w<linesize;w+=4)
 		{
 			/*y00*/
@@ -723,27 +692,22 @@ void nv16_to_yuyv (uint8_t *framebuffer, uint8_t *tmpbuffer, int width, int heig
 	uint8_t *puv;
 
 	int linesize = width * 2;
-	int offset=0;
-	int offsety=0;
-	int offsetuv=0;
 
 	py=tmpbuffer;
 	puv=py+(width*height);
 
 	int h=0;
-	int w=0;
-
-	int wy=0;
 	int huv=0;
-	int wuv=0;
 
 	for(h=0;h<height;h++)
 	{
-		wy=0;
-		wuv=0;
-		offset = h * linesize;
-		offsety = h * width;
-		offsetuv = huv * width;
+		int wy=0;
+		int wuv=0;
+		int offset = h * linesize;
+		int offsety = h * width;
+		int offsetuv = huv * width;
+		int w = 0;
+
 		for(w=0;w<linesize;w+=4)
 		{
 			/*y00*/
@@ -781,27 +745,21 @@ void nv61_to_yuyv (uint8_t *framebuffer, uint8_t *tmpbuffer, int width, int heig
 	uint8_t *puv;
 
 	int linesize = width * 2;
-	int offset=0;
-	int offsety=0;
-	int offsetuv=0;
 
 	py=tmpbuffer;
 	puv=py+(width*height);
 
 	int h=0;
-	int w=0;
-
-	int wy=0;
 	int huv=0;
-	int wuv=0;
 
 	for(h=0;h<height;h++)
 	{
-		wy=0;
-		wuv=0;
-		offset = h * linesize;
-		offsety = h * width;
-		offsetuv = huv * width;
+		int wy=0;
+		int wuv=0;
+		int offset = h * linesize;
+		int offsety = h * width;
+		int offsetuv = huv * width;
+		int w = 0;
 		for(w=0;w<linesize;w+=4)
 		{
 			/*y00*/
@@ -836,13 +794,12 @@ void nv61_to_yuyv (uint8_t *framebuffer, uint8_t *tmpbuffer, int width, int heig
 void y41p_to_yuyv (uint8_t *framebuffer, uint8_t *tmpbuffer, int width, int height)
 {
 	int h=0;
-	int w=0;
 	int linesize = width * 3 /2;
-	int offset = 0;
 
 	for(h=0;h<height;h++)
 	{
-		offset = linesize * h;
+		int offset = linesize * h;
+		int w = 0;
 		for(w=0;w<linesize;w+=12)
 		{
 			*framebuffer++=tmpbuffer[w+1 + offset]; //Y0
@@ -881,12 +838,11 @@ void y41p_to_yuyv (uint8_t *framebuffer, uint8_t *tmpbuffer, int width, int heig
 void grey_to_yuyv (uint8_t *framebuffer, uint8_t *tmpbuffer, int width, int height)
 {
 	int h=0;
-	int w=0;
-	int offset = 0;
 
 	for(h=0;h<height;h++)
 	{
-		offset = width * h;
+		int offset = width * h;
+		int w = 0;
 		for(w=0;w<width;w++)
 		{
 			*framebuffer++=tmpbuffer[w + offset]; //Y
@@ -912,17 +868,17 @@ void grey_to_yuyv (uint8_t *framebuffer, uint8_t *tmpbuffer, int width, int heig
  */
 void s501_to_yuyv(uint8_t *framebuffer, uint8_t *tmpbuffer, int width, int height)
 {
-	uint8_t *U, *V, *Y0, *Y1;
-	uint8_t *line2;
-	int h, w;
+	int h = 0;
+	uint8_t *Y0 = tmpbuffer; /*fisrt line*/
 
-	Y0 = tmpbuffer; /*fisrt line*/
 	for (h = 0; h < height/2; h++ )
 	{
-		line2 = framebuffer + width * 2;   /* next line          */
-		U = Y0 + width;
-		Y1 = U + width / 2;
-		V = Y1 + width;
+		uint8_t *line2 = framebuffer + width * 2;   /* next line          */
+		uint8_t *U = Y0 + width;
+		uint8_t *Y1 = U + width / 2;
+		uint8_t *V = Y1 + width;
+		int w = 0;
+
 		for (w = width / 2; --w >= 0; )
 		{
 			*framebuffer++ = 0x80 + *Y0++;
@@ -957,17 +913,17 @@ void s501_to_yuyv(uint8_t *framebuffer, uint8_t *tmpbuffer, int width, int heigh
  */
 void s505_to_yuyv(uint8_t *framebuffer, uint8_t *tmpbuffer, int width, int height)
 {
-	uint8_t *U, *V, *Y0, *Y1;
-	uint8_t *line2;
-	int h, w;
+	int h = 0;
+	uint8_t *Y0 = tmpbuffer; /*fisrt line*/
 
-	Y0 = tmpbuffer; /*fisrt line*/
 	for (h = 0; h < height/2; h++ )
 	{
-		line2 = framebuffer + width * 2;   /* next line          */
-		Y1 = Y0 + width;
-		U  = Y1 + width;
-		V  = U + width/2;
+		uint8_t *line2 = framebuffer + width * 2;   /* next line          */
+		uint8_t *Y1 = Y0 + width;
+		uint8_t *U  = Y1 + width;
+		uint8_t *V  = U + width/2;
+		int w = 0;
+
 		for (w = width / 2; --w >= 0; )
 		{
 			*framebuffer++ = 0x80 + *Y0++;
@@ -1002,17 +958,17 @@ void s505_to_yuyv(uint8_t *framebuffer, uint8_t *tmpbuffer, int width, int heigh
  */
 void s508_to_yuyv(uint8_t *framebuffer, uint8_t *tmpbuffer, int width, int height)
 {
-	uint8_t *U, *V, *Y0, *Y1;
-	uint8_t *line2;
-	int h, w;
+	int h = 0;
+	uint8_t *Y0 = tmpbuffer; /*fisrt line*/
 
-	Y0 = tmpbuffer; /*fisrt line*/
 	for (h = 0; h < height/2; h++ )
 	{
-		line2 = framebuffer + width * 2;   /* next line          */
-		U = Y0 + width;
-		V = U + width/2;
-		Y1= V + width/2;
+		uint8_t *line2 = framebuffer + width * 2;   /* next line          */
+		uint8_t *U = Y0 + width;
+		uint8_t *V = U + width/2;
+		uint8_t *Y1= V + width/2;
+		int w = 0;
+
 		for (w = width / 2; --w >= 0; )
 		{
 			*framebuffer++ = 0x80 + *Y0++;
@@ -1489,20 +1445,19 @@ void bgr2yuyv(uint8_t *pbgr, uint8_t *pyuv, int width, int height)
  */
 void yuv420pto422(int *out, uint8_t *pic, int width)
 {
-	int j, k;
-	uint8_t *pic0, *pic1;
-	int *outy, *outu, *outv;
+	int j = 0;
 	int outy1 = 0;
 	int outy2 = 8;
-
 	//yyyyuv
-	pic0 = pic;
-	pic1 = pic + width;
-	outy = out;
-	outu = out + 64 * 4;
-	outv = out + 64 * 5;
+	uint8_t *pic0 = pic;
+	uint8_t *pic1 = pic + width;
+	int *outy = out;
+	int *outu = out + 64 * 4;
+	int *outv = out + 64 * 5;
+
 	for (j = 0; j < 8; j++)
 	{
+		int k = 0;
 		for (k = 0; k < 8; k++)
 		{
 			if( k == 4)
@@ -1549,22 +1504,21 @@ void yuv420pto422(int *out, uint8_t *pic, int width)
  */
 void yuv422pto422(int *out, uint8_t *pic, int width)
 {
-	int j, k;
-	uint8_t *pic0, *pic1;
-	int *outy, *outu, *outv;
+	int j = 0;
 	int outy1 = 0;
 	int outy2 = 8;
 	int outu1 = 0;
 	int outv1 = 0;
-
 	//yyyyuv
-	pic0 = pic;
-	pic1 = pic + width;
-	outy = out;
-	outu = out + 64 * 4;
-	outv = out + 64 * 5;
+	uint8_t *pic0 = pic;
+	uint8_t *pic1 = pic + width;
+	int *outy = out;
+	int *outu = out + 64 * 4;
+	int *outv = out + 64 * 5;
+
 	for (j = 0; j < 4; j++)
 	{
+		int k = 0;
 		for (k = 0; k < 8; k++)
 		{
 			if( k == 4)
@@ -1606,22 +1560,21 @@ void yuv422pto422(int *out, uint8_t *pic, int width)
  */
 void yuv444pto422(int *out, uint8_t *pic, int width)
 {
-	int j, k;
-	uint8_t *pic0, *pic1;
-	int *outy, *outu, *outv;
+	int j = 0;
 	int outy1 = 0;
 	int outy2 = 8;
 	int outu1 = 0;
 	int outv1 = 0;
-
 	//yyyyuv
-	pic0 = pic;
-	pic1 = pic + width;
-	outy = out;
-	outu = out + 64 * 4; // Ooops where did i invert ??
-	outv = out + 64 * 5;
+	uint8_t *pic0 = pic;
+	uint8_t *pic1 = pic + width;
+	int *outy = out;
+	int *outu = out + 64 * 4; // Ooops where did i invert ??
+	int *outv = out + 64 * 5;
+
 	for (j = 0; j < 4; j++)
 	{
+		int k = 0;
 		for (k = 0; k < 4; k++)
 		{
 			*pic0++ =CLIP( outy[outy1]);        //y1 line 1
@@ -1658,18 +1611,17 @@ void yuv444pto422(int *out, uint8_t *pic, int width)
  */
 void yuv400pto422(int *out, uint8_t *pic, int width)
 {
-	int j, k;
-	uint8_t *pic0, *pic1;
-	int *outy ;
+	int j = 0;
 	int outy1 = 0;
 	int outy2 = 8;
-	pic0 = pic;
-	pic1 = pic + width;
-	outy = out;
+	uint8_t *pic0 = pic;
+	uint8_t *pic1 = pic + width;
+	int *outy = out;
 
 	//yyyy
 	for (j = 0; j < 4; j++)
 	{
+		int k = 0;
 		for (k = 0; k < 4; k++)
 		{
 			*pic0++ = CLIP(outy[outy1]);  //y1 line 1

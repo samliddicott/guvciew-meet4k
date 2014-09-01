@@ -615,15 +615,13 @@ static uint8_t *close_bitstream (jpeg_encoder_ctx_t *jpeg_ctx, uint8_t *output)
 	assert(jpeg_ctx != NULL);
 	assert(output != NULL);
 
-	uint16_t i, count;
-	uint8_t *ptr;
-
 	if (jpeg_ctx->bitindex > 0)
 	{
 		jpeg_ctx->lcode <<= (32 - jpeg_ctx->bitindex);
-		count = (jpeg_ctx->bitindex + 7) >> 3;
+		uint16_t count = (jpeg_ctx->bitindex + 7) >> 3;
+		uint16_t i = 0;
 
-		ptr = (uint8_t *) &jpeg_ctx->lcode + 3;
+		uint8_t *ptr = (uint8_t *) &jpeg_ctx->lcode + 3;
 
 		for (i=count; i>0; i--)
 		{

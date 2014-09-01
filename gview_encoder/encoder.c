@@ -965,8 +965,6 @@ int encoder_add_video_frame(uint8_t *frame, int size, int64_t timestamp, int isK
 	if(!video_ring_buffer)
 		return -1;
 
-	int ret = 0;
-
 	if (reference_pts == 0)
 	{
 		reference_pts = timestamp; /*first frame ts*/
@@ -1249,7 +1247,6 @@ int encoder_encode_video(encoder_context_t *encoder_ctx, void *input_frame)
 				break;
 			default:
 				yuv422to420p(encoder_ctx, input_frame);
-				break;
 				break;
 		}
 	}

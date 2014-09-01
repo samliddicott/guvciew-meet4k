@@ -243,10 +243,9 @@ static void q_sort(int left, int right)
 	focus_ctx->arr_sharp[left] = pivot;
 	focus_ctx->arr_foc[left] = temp;
 	pivot = left;
-	left = l_hold;
-	right = r_hold;
-	if (left < pivot) q_sort(left, pivot-1);
-	if (right > pivot) q_sort(pivot+1, right);
+
+	if (l_hold < pivot) q_sort(l_hold, pivot-1);
+	if (r_hold > pivot) q_sort(pivot+1, r_hold);
 }
 
 /*
@@ -526,12 +525,16 @@ int soft_autofocus_get_sharpness (uint8_t *frame, int width, int height, int t)
 	int numMCUy = height/(8*2); /*covers 1/2 of height- height should be even*/
 	int16_t dataMCU[64];
 	int16_t* data;
-	int16_t dataY[ width * height ];
-	int16_t *Y = dataY;
+	int16_t *Y = calloc(width * height, sizeof(int16_t));
+
+	if(Y == NULL)
+	{
+		fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (soft_autofocus_get_sharpness): %s\n", strerror(errno));
+		exit(-1);
+	}
 
 	double weight;
 	double xp_;
-	double yp_;
 	int ctx = numMCUx >> 1; /*center*/
 	int cty = numMCUy >> 1;
 	double rad=ctx/2;
@@ -541,7 +544,7 @@ int soft_autofocus_get_sharpness (uint8_t *frame, int width, int height, int t)
 
 	data=dataMCU;
 
-	Y = focus_extract_Y (frame, Y, width, height);
+	focus_extract_Y (frame, Y, width, height);
 
 	int i=0;
 	int j=0;
@@ -550,8 +553,8 @@ int soft_autofocus_get_sharpness (uint8_t *frame, int width, int height, int t)
 	/*calculate MCU sharpness*/
 	for (yp=0;yp<numMCUy;yp++)
 	{
-		yp_=yp-cty;
-    		for (xp=0;xp<numMCUx;xp++)
+		double yp_=yp-cty;
+		for (xp=0;xp<numMCUx;xp++)
 		{
 			xp_=xp-ctx;
 			weight = exp(-(xp_*xp_)/rad-(yp_*yp_)/rad);
@@ -568,6 +571,8 @@ int soft_autofocus_get_sharpness (uint8_t *frame, int width, int height, int t)
 			cnt2++;
 		}
 	}
+
+	free(Y);
 
 	for (i=0;i<=t;i++)
 	{

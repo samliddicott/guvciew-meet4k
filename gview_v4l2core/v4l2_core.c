@@ -743,7 +743,6 @@ int v4l2core_get_frame(v4l2_dev_t *vd)
 	if (ret < 0)
 		return ret;
 
-	uint64_t ts = 0;
 	int bytes_used = 0;
 
 	switch(vd->cap_meth)
@@ -1044,6 +1043,9 @@ static int try_video_stream_format(v4l2_dev_t *vd, int width, int height, int pi
 	if(stream_status == STRM_OK)
 		v4l2core_start_stream(vd);
 
+	/*update the current framerate for the device*/
+	v4l2core_get_framerate(vd);
+
 	return E_OK;
 }
 
@@ -1279,6 +1281,9 @@ v4l2_dev_t *v4l2core_init_dev(const char *device)
 	v4l2_device_list *device_list = v4l2core_get_device_list();
 	if(device_list && device_list->list_devices)
 		device_list->list_devices[vd->this_device].current = 1;
+
+	/*try to map known xu controls (we could/should leave this for libwebcam)*/
+	init_xu_ctrls(vd);
 
 	/*zero structs*/
 	memset(&vd->cap, 0, sizeof(struct v4l2_capability));

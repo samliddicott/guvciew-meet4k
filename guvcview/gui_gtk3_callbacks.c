@@ -867,6 +867,7 @@ void button_clicked (GtkButton * Button, void *data)
 	gui_gtk3_update_controls_state(device);
 }
 
+#ifdef V4L2_CTRL_TYPE_STRING
 /*
  * a string control apply button clicked
  * args:
@@ -894,7 +895,9 @@ void string_button_clicked(GtkButton * Button, void *data)
 	if(v4l2core_set_control_value_by_id(device, id))
 		fprintf(stderr, "GUVCVIEW: error setting string value\n");
 }
+#endif
 
+#ifdef V4L2_CTRL_TYPE_INTEGER64
 /*
  * a int64 control apply button clicked
  * args:
@@ -933,7 +936,9 @@ void int64_button_clicked(GtkButton * Button, void *data)
 		fprintf(stderr, "GUVCVIEW: error setting string value\n");
 
 }
+#endif
 
+#ifdef V4L2_CTRL_TYPE_BITMASK
 /*
  * a bitmask control apply button clicked
  * args:
@@ -962,6 +967,7 @@ void bitmask_button_clicked(GtkButton * Button, void *data)
 	if(v4l2core_set_control_value_by_id(device, id))
 		fprintf(stderr, "GUVCVIEW: error setting string value\n");
 }
+#endif
 
 /*
  * slider changed event
@@ -1657,8 +1663,6 @@ void audio_api_changed(GtkComboBox *combo, void *data)
 
 	int api = gtk_combo_box_get_active(combo);
 
-	int i = 0;
-
 	/*update the audio context for the new api*/
 	audio_context_t *audio_ctx = create_audio_context(api);
 	if(!audio_ctx)
@@ -1698,6 +1702,7 @@ void audio_api_changed(GtkComboBox *combo, void *data)
 		GtkListStore *store = GTK_LIST_STORE(gtk_combo_box_get_model (GTK_COMBO_BOX(my_audio_widgets->device)));
 		gtk_list_store_clear(store);
 
+		int i = 0;
 		for(i = 0; i < audio_ctx->num_input_dev; ++i)
 		{
 			gtk_combo_box_text_append_text(

@@ -239,7 +239,6 @@ void encoder_muxer_init(encoder_context_t *encoder_ctx, const char *filename)
 			}
 			avi_ctx = avi_create_context(filename);
 
-			double fps = encoder_ctx->fps_den/encoder_ctx->fps_num;
 			/*add video stream*/
 			video_stream = avi_add_video_stream(
 				avi_ctx,

@@ -327,7 +327,7 @@ void set_h264_muxed_format(v4l2_dev_t *vd);
  * returns: TRUE (1)
  *          FALSE(0)
  */
-uint8_t h264_has_decoder();
+//uint8_t h264_has_decoder();
 
 /*
  * request a frame of type wPictureType to the h264 encoder

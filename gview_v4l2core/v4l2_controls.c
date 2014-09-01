@@ -282,7 +282,8 @@ static v4l2_ctrl_t *add_control(v4l2_dev_t *vd, struct v4l2_queryctrl* queryctrl
 
 	v4l2_ctrl_t *control = NULL;
 	struct v4l2_querymenu* menu = NULL; //menu list
-
+	struct v4l2_querymenu* old_menu = menu; //temp menu list pointer
+	
 	if (queryctrl->flags & V4L2_CTRL_FLAG_DISABLED)
 	{
 		printf("V4L2_CORE: Control 0x%08x is disabled: remove it from control list\n", queryctrl->id);
@@ -297,7 +298,6 @@ static v4l2_ctrl_t *add_control(v4l2_dev_t *vd, struct v4l2_queryctrl* queryctrl
 		)
     {
         int i = 0;
-        int ret = 0;
         struct v4l2_querymenu querymenu={0};
 
         for (querymenu.index = queryctrl->minimum;
@@ -305,17 +305,23 @@ static v4l2_ctrl_t *add_control(v4l2_dev_t *vd, struct v4l2_queryctrl* queryctrl
             querymenu.index++)
         {
             querymenu.id = queryctrl->id;
-            ret = xioctl (vd->fd, VIDIOC_QUERYMENU, &querymenu);
-            if (ret < 0)
+            if (xioctl (vd->fd, VIDIOC_QUERYMENU, &querymenu) < 0)
                 continue;
 
-            if(!menu)
+	        old_menu = menu;
+   
+			if(!menu)
                 menu = calloc(i+1, sizeof(struct v4l2_querymenu));
             else
                 menu = realloc(menu, (i+1) * sizeof(struct v4l2_querymenu));
-            /*since we exit on failure no need to free menu on realloc failure*/
+            
             if(menu == NULL)
 			{
+				/*since we exit on failure there was no need to free any previous */
+				/* menu allocation (realloc), but silence cppcheck anyway */
+				if(old_menu)
+					free(old_menu);
+
 				fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (add_control): %s\n", strerror(errno));
 				exit(-1);
 			}
@@ -324,14 +330,21 @@ static v4l2_ctrl_t *add_control(v4l2_dev_t *vd, struct v4l2_queryctrl* queryctrl
             i++;
         }
 		
+		old_menu = menu;
+
 		/*last entry (NULL name)*/
         if(!menu)
             menu = calloc(i+1, sizeof(struct v4l2_querymenu));
         else
-            menu = realloc(menu, (i+1) * sizeof(struct v4l2_querymenu));
+            menu = realloc(menu, (i+1) * sizeof(struct v4l2_querymenu));	
 		
 		if(menu == NULL)
 		{
+			/*since we exit on failure there was no need to free any previous */
+			/* menu allocation (realloc), but silence cppcheck anyway */
+			if(old_menu)
+				free(old_menu);
+			
 			fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (add_control): %s\n", strerror(errno));
 			exit(-1);
 		}
@@ -1368,9 +1381,11 @@ void free_v4l2_control_list(v4l2_dev_t *vd)
 	assert(vd->list_device_controls != NULL);
 
 	v4l2_ctrl_t *first = vd->list_device_controls;
-    v4l2_ctrl_t *next = first->next;
-    while (next != NULL)
+
+    while (first != NULL)
     {
+		v4l2_ctrl_t *next = first->next;
+
         if(first->string) free(first->string);
         if(first->menu) free(first->menu);
         if(first->menu_entry)
@@ -1382,10 +1397,6 @@ void free_v4l2_control_list(v4l2_dev_t *vd)
 		}
         free(first);
         first = next;
-        next = first->next;
     }
-    //clean the last one
-    if(first->string) free(first->string);
-    if(first) free(first);
     vd->list_device_controls = NULL;
 }

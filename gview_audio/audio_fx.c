@@ -109,11 +109,6 @@ typedef struct _fx_wah_data_t
 	float phase;
 } fx_wah_data_t;
 
-typedef struct _fx_tsd_data_t
-{
-	float tempo;
-} fx_tsd_data_t;
-
 typedef struct _fx_rate_data_t
 {
 	sample_t *rBuff1;
@@ -204,11 +199,10 @@ static void Butt(fx_filt_data_t *FILT,
 	int channels)
 {
 	int index = 0;
-	sample_t out;
 
 	for (index = 0; index < NumSamples; index = index + channels)
 	{
-		out = FILT->a1 * Buff[index] + FILT->a2 * FILT->buff_in1[0] +
+		sample_t out = FILT->a1 * Buff[index] + FILT->a2 * FILT->buff_in1[0] +
 			FILT->a3 * FILT->buff_in1[1] - FILT->b1 * FILT->buff_out1[0] -
 			FILT->b2 * FILT->buff_out1[1];
 		FILT->buff_in1[1] = FILT->buff_in1[0]; //in(n-2) = in(n-1)
@@ -388,7 +382,6 @@ static void CombFilter4 (audio_context_t *audio_ctx,
 	float in_gain)
 {
 	int samp=0;
-	sample_t out1, out2, out3, out4;
 	/*buff_size in samples*/
 
 	if (aud_fx->COMB4 == NULL)
@@ -464,13 +457,13 @@ static void CombFilter4 (audio_context_t *audio_ctx,
 
 	for(samp = 0; samp < audio_ctx->capture_buff_size; samp = samp + audio_ctx->channels)
 	{
-		out1 = in_gain * data[samp] +
+		sample_t out1 = in_gain * data[samp] +
 			gain1 * aud_fx->COMB4->CombBuff10[aud_fx->COMB4->CombIndex1];
-		out2 = in_gain * data[samp] +
+		sample_t out2 = in_gain * data[samp] +
 			gain2 * aud_fx->COMB4->CombBuff20[aud_fx->COMB4->CombIndex2];
-		out3 = in_gain * data[samp] +
+		sample_t out3 = in_gain * data[samp] +
 			gain3 * aud_fx->COMB4->CombBuff30[aud_fx->COMB4->CombIndex3];
-		out4 = in_gain * data[samp] +
+		sample_t out4 = in_gain * data[samp] +
 			gain4 * aud_fx->COMB4->CombBuff40[aud_fx->COMB4->CombIndex4];
 
 		aud_fx->COMB4->CombBuff10[aud_fx->COMB4->CombIndex1] = data[samp] +
@@ -741,8 +734,8 @@ static void audio_fx_fuzz (audio_context_t *audio_ctx, sample_t *data)
  * args:
  *   audio_ctx - audio context
  *   data - audio buffer to be processed
- *   delay_ms - echo delay in ms
- *   decay - feedback gain (<1)
+ *   delay_ms - echo delay in ms (e.g: 300)
+ *   decay - feedback gain (<1)  (e.g: 0.5)
  *
  * asserts:
  *   audio_ctx is not null
@@ -757,8 +750,7 @@ static void audio_fx_echo(audio_context_t *audio_ctx,
 	/*assertions*/
 	assert(audio_ctx != NULL);
 
-	int samp=0;
-	sample_t out;
+	int samp = 0;
 
 	if(aud_fx->ECHO == NULL)
 	{
@@ -789,7 +781,7 @@ static void audio_fx_echo(audio_context_t *audio_ctx,
 
 	for(samp = 0; samp < audio_ctx->capture_buff_size; samp = samp + audio_ctx->channels)
 	{
-		out = (0.7 * data[samp]) +
+		sample_t out = (0.7 * data[samp]) +
 			(0.3 * aud_fx->ECHO->delayBuff1[aud_fx->ECHO->delayIndex]);
 		aud_fx->ECHO->delayBuff1[aud_fx->ECHO->delayIndex] = data[samp] +
 			(aud_fx->ECHO->delayBuff1[aud_fx->ECHO->delayIndex] * decay);
@@ -869,7 +861,6 @@ static void audio_fx_wahwah (audio_context_t *audio_ctx,
 	assert(audio_ctx != NULL);
 
 	float frequency, omega, sn, cs, alpha;
-	float in, out;
 
 	if(aud_fx->wahData == NULL)
 	{
@@ -887,7 +878,7 @@ static void audio_fx_wahwah (audio_context_t *audio_ctx,
 	int samp = 0;
 	for(samp = 0; samp < audio_ctx->capture_buff_size; samp++)
 	{
-		in = data[samp];
+		float in = data[samp];
 
 		if ((aud_fx->wahData->skipcount++) % lfoskipsamples == 0)
 		{
@@ -905,7 +896,7 @@ static void audio_fx_wahwah (audio_context_t *audio_ctx,
 			aud_fx->wahData->a1 = -2 * cs;
 			aud_fx->wahData->a2 = 1 - alpha;
 		}
-		out = (aud_fx->wahData->b0 * in + aud_fx->wahData->b1 * aud_fx->wahData->xn1 +
+		float out = (aud_fx->wahData->b0 * in + aud_fx->wahData->b1 * aud_fx->wahData->xn1 +
 			aud_fx->wahData->b2 * aud_fx->wahData->xn2 - aud_fx->wahData->a1 * aud_fx->wahData->yn1 -
 			aud_fx->wahData->a2 * aud_fx->wahData->yn2) / aud_fx->wahData->a0;
 		aud_fx->wahData->xn2 = aud_fx->wahData->xn1;
@@ -1146,7 +1137,7 @@ void audio_fx_apply(audio_context_t *audio_ctx,
 			audio_fx_init();
 		
 		if(mask & AUDIO_FX_ECHO)
-			audio_fx_change_pitch(audio_ctx, data, 2);
+			audio_fx_echo(audio_ctx, data, 300, 0.5);
 		else
 		{
 			close_DELAY(aud_fx->ECHO);

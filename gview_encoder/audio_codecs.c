@@ -230,20 +230,20 @@ int encoder_get_audio_codec_list_size()
  *
  * returns: listSupCodecs valid number of elements
  */
-int encoder_get_audio_codec_valid_list_size()
-{
-	int valid_size = 0;
-
-	int i = 0;
-	for(i = 0;  i < encoder_get_audio_codec_list_size(); ++i)
-		if(listSupCodecs[i].valid)
-			valid_size++;
-
-	if(verbosity > 2)
-		printf("ENCODER: audio codec valid list size:%i\n", valid_size);
-
-	return valid_size;
-}
+//int encoder_get_audio_codec_valid_list_size()
+//{
+//	int valid_size = 0;
+//
+//	int i = 0;
+//	for(i = 0;  i < encoder_get_audio_codec_list_size(); ++i)
+//		if(listSupCodecs[i].valid)
+//			valid_size++;
+//
+//	if(verbosity > 2)
+//		printf("ENCODER: audio codec valid list size:%i\n", valid_size);
+//
+//	return valid_size;
+//}
 
 /*
  * return the real (valid only) codec index
@@ -405,12 +405,11 @@ int encoder_get_webm_audio_codec_index()
  */
 int encoder_set_valid_audio_codec_list ()
 {
-	AVCodec *codec;
 	int ind = 0;
 	int num_codecs = 0;
 	for ( ind = 0; ind < encoder_get_audio_codec_list_size(); ++ind)
 	{
-		codec = avcodec_find_encoder(listSupCodecs[ind].codec_id);
+		AVCodec *codec = avcodec_find_encoder(listSupCodecs[ind].codec_id);
 		if (!codec)
 		{
 			printf("ENCODER: no audio codec detected for %s\n", listSupCodecs[ind].description);

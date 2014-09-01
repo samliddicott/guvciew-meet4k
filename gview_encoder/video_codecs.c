@@ -513,20 +513,20 @@ int encoder_get_video_codec_list_size()
  *
  * returns: listSupCodecs valid number of elements
  */
-int encoder_get_video_codec_valid_list_size()
-{
-	int valid_size = 0;
-
-	int i = 0;
-	for(i = 0;  i < encoder_get_video_codec_list_size(); ++i)
-		if(listSupCodecs[i].valid)
-			valid_size++;
-
-	if(verbosity > 2)
-		printf("ENCODER: video codec valid list size:%i\n", valid_size);
-
-	return valid_size;
-}
+//int encoder_get_video_codec_valid_list_size()
+//{
+//	int valid_size = 0;
+//
+//	int i = 0;
+//	for(i = 0;  i < encoder_get_video_codec_list_size(); ++i)
+//		if(listSupCodecs[i].valid)
+//			valid_size++;
+//
+//	if(verbosity > 2)
+//		printf("ENCODER: video codec valid list size:%i\n", valid_size);
+//
+//	return valid_size;
+//}
 
 /*
  * return the real (valid only) codec index
@@ -886,12 +886,11 @@ video_codec_t *encoder_get_video_codec_defaults(int codec_ind)
  */
 int encoder_set_valid_video_codec_list ()
 {
-	AVCodec *codec;
 	int ind = 1;
 	int num_codecs = 1; /*raw codec (no encoding) is always valid*/
 	for ( ind = 1; ind < encoder_get_video_codec_list_size(); ++ind)
 	{
-		codec = avcodec_find_encoder(listSupCodecs[ind].codec_id);
+		AVCodec *codec = avcodec_find_encoder(listSupCodecs[ind].codec_id);
 		if (!codec)
 		{
 			printf("ENCODER: no video codec detected for %s\n", listSupCodecs[ind].description);

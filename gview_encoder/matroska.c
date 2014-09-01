@@ -763,7 +763,6 @@ static int mkv_write_packet_internal(mkv_context_t* mkv_ctx,
 
 	int use_simpleblock = 1;
 
-    int ret;
     uint64_t ts = pts / mkv_ctx->timescale; //scale the time stamp
 
 	stream_io_t *stream = get_stream(mkv_ctx->stream_list, stream_index);
@@ -791,8 +790,9 @@ static int mkv_write_packet_internal(mkv_context_t* mkv_ctx,
     if (get_stream(mkv_ctx->stream_list, stream_index)->type == STREAM_TYPE_VIDEO && keyframe)
     {
 		//fprintf(stderr,"mkv_ctx: add a cue point\n");
-        ret = mkv_add_cuepoint(mkv_ctx->cues, stream_index, ts, mkv_ctx->cluster_pos);
-        if (ret < 0) return ret;
+        int ret = mkv_add_cuepoint(mkv_ctx->cues, stream_index, ts, mkv_ctx->cluster_pos);
+        if (ret < 0) 
+			return ret;
     }
 
     mkv_ctx->duration = MAX(mkv_ctx->duration, ts /*+ duration*/);

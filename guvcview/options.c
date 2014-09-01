@@ -281,12 +281,11 @@ static int opt_get_help_max_len()
 	int i = 0;
 
 	int max_len = 0;
-	int len = 0;
 
 	/*long option must always be set*/
 	do
 	{
-		len = 5 + /*-c, and --*/
+		int len = 5 + /*-c, and --*/
 			  strlen(opt_values[i].opt_long);
 		if(strlen(opt_values[i].opt_help_arg) > 0)
 			len += strlen(opt_values[i].opt_help_arg) + 1; /*add =*/

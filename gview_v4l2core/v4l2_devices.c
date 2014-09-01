@@ -95,10 +95,8 @@ int enum_v4l2_devices()
     struct udev_enumerate *enumerate;
     struct udev_list_entry *devices;
     struct udev_list_entry *dev_list_entry;
-    struct udev_device *dev;
 
     int num_dev = 0;
-    int fd = 0;
     struct v4l2_capability v4l2_cap;
 
     my_device_list.list_devices = calloc(1, sizeof(v4l2_dev_sys_data_t));
@@ -129,7 +127,7 @@ int enum_v4l2_devices()
          * and create a udev_device object (dev) representing it
          */
         path = udev_list_entry_get_name(dev_list_entry);
-        dev = udev_device_new_from_syspath(my_device_list.udev, path);
+        struct udev_device *dev = udev_device_new_from_syspath(my_device_list.udev, path);
 
         /* usb_device_get_devnode() returns the path to the device node
             itself in /dev. */
@@ -137,6 +135,7 @@ int enum_v4l2_devices()
         if (verbosity > 0)
             printf("V4L2_CORE: Device Node Path: %s\n", v4l2_device);
 
+		int fd = 0;
         /* open the device and query the capabilities */
         if ((fd = v4l2_open(v4l2_device, O_RDWR | O_NONBLOCK, 0)) < 0)
         {

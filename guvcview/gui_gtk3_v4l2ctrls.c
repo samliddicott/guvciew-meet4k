@@ -635,11 +635,10 @@ void gui_gtk3_update_controls_state(v4l2_dev_t *device)
 	assert(device != NULL);
 
 	v4l2_ctrl_t *current = device->list_device_controls;
-	control_widgets_t *cur_widget = NULL;
 
     for(; current != NULL; current = current->next)
     {
-		cur_widget = gui_gtk3_get_widgets_by_id(current->control.id);
+		control_widgets_t *cur_widget = gui_gtk3_get_widgets_by_id(current->control.id);
 
 		if(!cur_widget)
 		{

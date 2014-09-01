@@ -271,7 +271,7 @@ uint8_t get_uvc_h624_unit_id (v4l2_dev_t *vd)
     libusb_device **device_list = NULL;
     libusb_device *device = NULL;
     ssize_t cnt;
-    int i, j, k;
+    int i;
 
 	static const uint8_t guid[16] = GUID_UVCX_H264_XU;
 	vd->h264_unit_id = 0;/*reset it*/
@@ -311,8 +311,10 @@ uint8_t get_uvc_h624_unit_id (v4l2_dev_t *vd)
 
 				if (libusb_get_config_descriptor (device, i, &config) == 0)
 				{
+					int j = 0;
 					for (j = 0; j < config->bNumInterfaces; j++)
 					{
+						int k = 0;
 						for (k = 0; k < config->interface[j].num_altsetting; k++)
 						{
 							const struct libusb_interface_descriptor *interface;
@@ -753,9 +755,7 @@ uint8_t v4l2core_get_h264_temporal_scale_mode(v4l2_dev_t *vd, uint8_t query)
 	uvcx_temporal_scale_mode_t temporal_scale_mode_req;
 	temporal_scale_mode_req.wLayerID = 0;
 
-	int err = 0;
-
-	if((err = v4l2core_query_xu_control(vd, vd->h264_unit_id, UVCX_TEMPORAL_SCALE_MODE, query, &temporal_scale_mode_req)) < 0)
+	if(v4l2core_query_xu_control(vd, vd->h264_unit_id, UVCX_TEMPORAL_SCALE_MODE, query, &temporal_scale_mode_req) < 0)
 	{
 		fprintf(stderr, "V4L2_CORE: (UVCX_TEMPORAL_SCALE_MODE) query (%u) error: %s\n", query, strerror(errno));
 		return 0xff;
@@ -827,9 +827,7 @@ uint8_t v4l2core_get_h264_spatial_scale_mode(v4l2_dev_t *vd, uint8_t query)
 	uvcx_spatial_scale_mode_t spatial_scale_mode_req;
 	spatial_scale_mode_req.wLayerID = 0;
 
-	int err = 0;
-
-	if((err = v4l2core_query_xu_control(vd, vd->h264_unit_id, UVCX_SPATIAL_SCALE_MODE, query, &spatial_scale_mode_req)) < 0)
+	if(v4l2core_query_xu_control(vd, vd->h264_unit_id, UVCX_SPATIAL_SCALE_MODE, query, &spatial_scale_mode_req) < 0)
 	{
 		fprintf(stderr, "V4L2_CORE: (UVCX_SPATIAL_SCALE_MODE) query (%u) error: %s\n", query, strerror(errno));
 		return 0xff;
@@ -901,9 +899,7 @@ uint32_t v4l2core_query_h264_frame_rate_config(v4l2_dev_t *vd, uint8_t query)
 	uvcx_framerate_config_t framerate_req;
 	framerate_req.wLayerID = 0;
 
-	int err = 0;
-
-	if((err = v4l2core_query_xu_control(vd, vd->h264_unit_id, UVCX_FRAMERATE_CONFIG, query, &framerate_req)) < 0)
+	if(v4l2core_query_xu_control(vd, vd->h264_unit_id, UVCX_FRAMERATE_CONFIG, query, &framerate_req) < 0)
 	{
 		fprintf(stderr, "V4L2_CORE: (UVCX_FRAMERATE_CONFIG) query (%u) error: %s\n", query, strerror(errno));
 		return 0xffffffff;
@@ -1013,13 +1009,13 @@ int v4l2core_probe_h264_config_probe_req(
  * returns: TRUE (1)
  *          FALSE(0)
  */
-uint8_t h264_has_decoder()
-{
-	if(avcodec_find_decoder(AV_CODEC_ID_H264))
-		return TRUE;
-	else
-		return FALSE;
-}
+//uint8_t h264_has_decoder()
+//{
+//	if(avcodec_find_decoder(AV_CODEC_ID_H264))
+//		return TRUE;
+//	else
+//		return FALSE;
+//}
 
 /*
  * init h264 decoder context

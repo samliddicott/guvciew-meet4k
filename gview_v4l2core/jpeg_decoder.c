@@ -344,7 +344,6 @@ static void dec_makehuff(struct dec_hufftbl *hu, int *hufflen, uint8_t *huffvals
  */
 static int huffman_init(void)
 {
-	int tc, th, tt;
 	uint8_t *ptr= (uint8_t *) jpeg_huffman_table ;
 	int i, j, l;
 	l = JPG_HUFFMAN_TABLE_LENGTH ;
@@ -353,10 +352,10 @@ static int huffman_init(void)
 		int hufflen[16], k;
 		uint8_t huffvals[256];
 
-		tc = *ptr++;
-		th = tc & 15;
+		int tc = *ptr++;
+		int th = tc & 15;
 		tc >>= 4;
-		tt = tc * 2 + th;
+		int tt = tc * 2 + th;
 		if (tc > 1 || th > 1)
 			return E_BAD_TABLES_ERR;
 		for (i = 0; i < 16; i++)
@@ -391,8 +390,6 @@ static int fillbits(struct in *inp, int le, unsigned int bi)
 	/*asserts*/
 	assert(inp != NULL);
 
-	int b, m;
-
 	if (inp->marker)
 	{
 		if (le <= 16)
@@ -401,8 +398,10 @@ static int fillbits(struct in *inp, int le, unsigned int bi)
 	}
 	while (le <= 24)
 	{
-		b = *inp->p++;
-		if (b == 0xff && (m = *inp->p++) != 0)
+		int b = *inp->p++;
+		int m = *inp->p++;
+
+		if ((b == 0xff) && (m != 0))
 		{
 			if (m == M_EOF)
 			{
@@ -469,7 +468,7 @@ __P((struct in *, struct dec_hufftbl *, int *, int, int));
 static void decode_mcus(struct in *inp, int *dct, int n, struct scan *sc, int *maxp)
 {
 	struct dec_hufftbl *hu;
-	int i = 0, r = 0, t = 0;
+	int r = 0, t = 0;
 	LEBI_DCL;
 
 	memset(dct, 0, n * 64 * sizeof(*dct));
@@ -480,7 +479,8 @@ static void decode_mcus(struct in *inp, int *dct, int n, struct scan *sc, int *m
 		*dct++ = (sc->dc += DEC_REC(inp, hu, r, t));
 
 		hu = sc->huac.dhuff;
-		i = 63;
+		int i = 63;
+		
 		while (i > 0)
 		{
 			t = DEC_REC(inp, hu, r, t);
@@ -774,13 +774,16 @@ static int getword(void)
  */
 static int readtables(int till, int *isDHT)
 {
-	int m, l, i, j, lq, pq, tq;
+	int l, i, j, lq, pq, tq;
 	int tc, th, tt;
 
 	for (;;)
 	{
 		if (getbyte() != 0xff)
 			return -1;
+		
+		int m = 0;
+
 		if ((m = getbyte()) == till)
 			break;
 

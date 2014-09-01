@@ -401,7 +401,7 @@ int audio_get_next_buffer(audio_context_t *audio_ctx, audio_buff_t *buff, int ty
 			sample_t *buff_p = (sample_t *) audio_buffers[buffer_read_index].data;
 
 			for(j = 0; j < audio_ctx->channels; ++j)
-				my_data[j] = (int16_t *) (buff->data +
+				my_data[j] = (int16_t *) (((int16_t *) buff->data) +
 					(j * audio_ctx->capture_buff_size/audio_ctx->channels));
 
 			for(i = 0; i < audio_ctx->capture_buff_size/audio_ctx->channels; ++i)

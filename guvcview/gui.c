@@ -177,10 +177,10 @@ void set_audio_codec_ind(int index)
  *
  * returns: current fps numerator
  */
-int gui_get_fps_num()
-{
-	return my_fps[0];
-}
+//int gui_get_fps_num()
+//{
+//	return my_fps[0];
+//}
 
 /*
  * gets the current fps denominator
@@ -192,10 +192,10 @@ int gui_get_fps_num()
  *
  * returns: current fps denominator
  */
-int gui_get_fps_denom()
-{
-	return my_fps[1];
-}
+//int gui_get_fps_denom()
+//{
+//	return my_fps[1];
+//}
 
 /*
  * stores the fps

@@ -484,11 +484,11 @@ static int demux_NALU(uint8_t *h264_data, uint8_t *buff, int size, int h264_max_
 
 	pl = spl + 4; //marker(2) + length(2)
 
-	uint32_t frame_PTS = 0;
-	frame_PTS =  ((uint32_t) pl[18]) << 0;
-	frame_PTS |= ((uint32_t) pl[19]) << 8;
-	frame_PTS |= ((uint32_t) pl[20]) << 16;
-	frame_PTS |= ((uint32_t) pl[21]) << 24;
+	//uint32_t frame_PTS = 0;
+	//frame_PTS =  ((uint32_t) pl[18]) << 0;
+	//frame_PTS |= ((uint32_t) pl[19]) << 8;
+	//frame_PTS |= ((uint32_t) pl[20]) << 16;
+	//frame_PTS |= ((uint32_t) pl[21]) << 24;
 
 	pl += 22; //header(22)
 
@@ -540,7 +540,7 @@ static int demux_NALU(uint8_t *h264_data, uint8_t *buff, int size, int h264_max_
 	{
 		//copy segment to h264 data buffer
 		memcpy(ph264, pl, seg_size);
-		ph264 += seg_size;
+		//ph264 += seg_size;
 		total_size += seg_size;
 	}
 

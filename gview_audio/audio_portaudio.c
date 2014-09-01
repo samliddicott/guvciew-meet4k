@@ -170,7 +170,7 @@ static int recordCallback (
  */
 static int audio_portaudio_list_devices(audio_context_t *audio_ctx)
 {
-	int   it, numDevices, defaultDisplayed;
+	int numDevices;
 	const PaDeviceInfo *deviceInfo;
 
 	//reset device count
@@ -185,13 +185,14 @@ static int audio_portaudio_list_devices(audio_context_t *audio_ctx)
 	{
 		audio_ctx->device = 0;
 
+		int it = 0;
 		for( it=0; it < numDevices; it++ )
 		{
 			deviceInfo = Pa_GetDeviceInfo( it );
 			if (verbosity > 0)
 				printf( "--------------------------------------- device #%d\n", it );
 			/* Mark audio_ctx and API specific default devices*/
-			defaultDisplayed = 0;
+			int defaultDisplayed = 0;
 
 			/* with pulse, ALSA is now listed first and doesn't set a API default- 11-2009*/
 			if( it == Pa_GetDefaultInputDevice() )
