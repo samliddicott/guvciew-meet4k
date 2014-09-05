@@ -780,10 +780,9 @@ int v4l2core_frame_decode(v4l2_dev_t *vd)
 				ret = E_DECODE_ERR;
 				return (ret);
 			}
-
-			ret = jpeg_decode(vd->tmp_buffer, vd->raw_frame, vd->raw_frame_size);
-			memcpy(vd->yuv_frame, vd->tmp_buffer, ret);			
-			//yuv420_to_yuyv (vd->yuv_frame, vd->tmp_buffer, width, height);			
+			/* decode (m)jpeg to vd->tmp_buffer (yuv422p)*/
+			ret = jpeg_decode(vd->tmp_buffer, vd->raw_frame, vd->raw_frame_size);			
+			nv16_to_yuyv(vd->yuv_frame, vd->tmp_buffer, width, height);			
 			
 			//memcpy(vd->tmp_buffer, vd->raw_frame, vd->raw_frame_size);
 			//ret = jpeg_decode(&vd->yuv_frame, vd->tmp_buffer, width, height);
