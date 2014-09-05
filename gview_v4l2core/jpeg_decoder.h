@@ -50,6 +50,19 @@
 #define ERR_DEPTH_MISMATCH 15
 
 /*
+ * init (m)jpeg decoder context
+ * args:
+ *    width - image width
+ *    height - image height
+ *
+ * asserts:
+ *    none
+ *
+ * returns: error code (0 - E_OK)
+ */
+int jpeg_init_decoder(int width, int height);
+
+/*
  * jpeg decode
  * args:
  *   pic -  pointer to picture data ( decoded image - yuyv format)
@@ -62,7 +75,20 @@
  *
  * returns: error code (0 - OK)
  */
-int jpeg_decode(uint8_t **pic, uint8_t *buf, int width, int height);
+//int jpeg_decode(uint8_t **pic, uint8_t *buf, int width, int height);
+int jpeg_decode(uint8_t *out_buf, uint8_t *in_buf, int size);
+
+/*
+ * close (m)jpeg decoder context
+ * args:
+ *    none
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void jpeg_close_decoder();
 
 #endif
 

@@ -101,6 +101,14 @@ int alloc_v4l2_frames(v4l2_dev_t *vd)
 
 		case V4L2_PIX_FMT_JPEG:
 		case V4L2_PIX_FMT_MJPEG:
+			/*init jpeg decoder*/
+			ret = jpeg_init_decoder(width, height);
+
+			if(ret)
+			{
+				fprintf(stderr, "V4L2_CORE: couldn't init jpeg decoder\n");
+				return ret;
+			}
 			/* alloc a temp buffer to reconstruct the pict (MJPEG)*/
 			vd->tmp_buffer_max_size = framesizeIn;
 			vd->tmp_buffer = calloc(vd->tmp_buffer_max_size, sizeof(uint8_t));
@@ -335,6 +343,10 @@ void clean_v4l2_frames(v4l2_dev_t *vd)
 
 	if(vd->requested_fmt == V4L2_PIX_FMT_H264)
 		h264_close_decoder();
+
+	if(vd->requested_fmt == V4L2_PIX_FMT_JPEG ||
+	   vd->requested_fmt == V4L2_PIX_FMT_MJPEG)
+		jpeg_close_decoder();
 }
 
 /*
@@ -768,9 +780,12 @@ int v4l2core_frame_decode(v4l2_dev_t *vd)
 				ret = E_DECODE_ERR;
 				return (ret);
 			}
-			memcpy(vd->tmp_buffer, vd->raw_frame, vd->raw_frame_size);
 
-			ret = jpeg_decode(&vd->yuv_frame, vd->tmp_buffer, width, height);
+			ret = jpeg_decode(vd->tmp_buffer, vd->raw_frame, vd->raw_frame_size);
+			yuv420_to_yuyv (vd->yuv_frame, vd->tmp_buffer, width, height);			
+
+			//memcpy(vd->tmp_buffer, vd->raw_frame, vd->raw_frame_size);
+			//ret = jpeg_decode(&vd->yuv_frame, vd->tmp_buffer, width, height);
 			if ( ret < 0)
 			{
 				fprintf(stderr, "V4L2_CORE: jpeg decoder exit with error (%i) (res: %ix%i - %x)\n", ret, width, height, vd->format.fmt.pix.pixelformat);

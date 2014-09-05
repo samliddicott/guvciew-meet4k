@@ -39,35 +39,9 @@
 
 #include "gviewv4l2core.h"
 #include "colorspaces.h"
+#include "jpeg_decoder.h"
 
 extern int verbosity;
-
-#define ISHIFT 11
-
-#define IFIX(a) ((int)((a) * (1 << ISHIFT) + .5))
-
-#ifndef __P
-# define __P(x) x
-#endif
-
-/* special markers */
-#define M_BADHUFF	-1
-#define M_EOF		0x80
-
-#undef PREC
-#define PREC int
-
-/******** Markers *********/
-#define M_SOI   0xd8
-#define M_APP0  0xe0
-#define M_DQT   0xdb
-#define M_SOF0  0xc0
-#define M_DHT   0xc4
-#define M_DRI   0xdd
-#define M_SOS   0xda
-#define M_RST0  0xd0
-#define M_EOI   0xd9
-#define M_COM   0xfe
 
 /* default Huffman table*/
 #define JPG_HUFFMAN_TABLE_LENGTH 0x01A0
@@ -133,6 +107,36 @@ const uint8_t jpeg_huffman_table[JPG_HUFFMAN_TABLE_LENGTH] =
 	0xE8, 0xE9, 0xEA, 0xF2, 0xF3, 0xF4, 0xF5, 0xF6, 0xF7, 0xF8,
 	0xF9, 0xFA
 };
+
+
+#if 0
+
+#define ISHIFT 11
+
+#define IFIX(a) ((int)((a) * (1 << ISHIFT) + .5))
+
+#ifndef __P
+# define __P(x) x
+#endif
+
+/* special markers */
+#define M_BADHUFF	-1
+#define M_EOF		0x80
+
+#undef PREC
+#define PREC int
+
+/******** Markers *********/
+#define M_SOI   0xd8
+#define M_APP0  0xe0
+#define M_DQT   0xdb
+#define M_SOF0  0xc0
+#define M_DHT   0xc4
+#define M_DRI   0xdd
+#define M_SOS   0xda
+#define M_RST0  0xd0
+#define M_EOI   0xd9
+#define M_COM   0xfe
 
 /*
  * IDCT data
@@ -1263,4 +1267,220 @@ error:
 	free(decdata);
 	return err;
 }
+
+
+
+#else
+
+#include "gview.h"
+#include "../config.h"
+
+/*h264 decoder (libavcodec)*/
+#ifdef HAS_AVCODEC_H
+  #include <avcodec.h>
+#else
+  #ifdef HAS_LIBAVCODEC_AVCODEC_H
+    #include <libavcodec/avcodec.h>
+  #else
+    #ifdef HAS_FFMPEG_AVCODEC_H
+      #include <ffmpeg/avcodec.h>
+    #else
+      #include <libavcodec/avcodec.h>
+    #endif
+  #endif
+#endif
+
+#define LIBAVCODEC_VER_AT_LEAST(major,minor)  (LIBAVCODEC_VERSION_MAJOR > major || \
+                                              (LIBAVCODEC_VERSION_MAJOR == major && \
+                                               LIBAVCODEC_VERSION_MINOR >= minor))
+
+#if !LIBAVCODEC_VER_AT_LEAST(54,25)
+	#define AV_CODEC_ID_H264 CODEC_ID_H264
+#endif
+
+typedef struct _jpeg_decoder_context_t
+{
+	AVCodec *codec;
+	AVCodecContext *context;
+	AVFrame *picture;
+
+	int width;
+	int height;
+	int pic_size;
+
+} jpeg_decoder_context_t;
+
+static jpeg_decoder_context_t *jpeg_ctx = NULL;
+
+/*
+ * init (m)jpeg decoder context
+ * args:
+ *    width - image width
+ *    height - image height
+ *
+ * asserts:
+ *    none
+ *
+ * returns: error code (0 - E_OK)
+ */
+int jpeg_init_decoder(int width, int height)
+{
+#if !LIBAVCODEC_VER_AT_LEAST(53,34)
+	avcodec_init();
+#endif
+	/*
+	 * register all the codecs (we can also register only the codec
+	 * we wish to have smaller code)
+	 */
+	avcodec_register_all();
+
+	if(jpeg_ctx != NULL)
+		jpeg_close_decoder();
+
+	jpeg_ctx = calloc(1, sizeof(jpeg_decoder_context_t));
+	if(jpeg_ctx == NULL)
+	{
+		fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (jpeg_init_decoder): %s\n", strerror(errno));
+		exit(-1);
+	}
+
+	jpeg_ctx->codec = avcodec_find_decoder(AV_CODEC_ID_MJPEG);
+	if(!jpeg_ctx->codec)
+	{
+		fprintf(stderr, "V4L2_CORE: (mjpeg decoder) codec not found\n");
+		free(jpeg_ctx);
+		jpeg_ctx = NULL;
+		return E_NO_CODEC;
+	}
+
+#if LIBAVCODEC_VER_AT_LEAST(53,6)
+	jpeg_ctx->context = avcodec_alloc_context3(jpeg_ctx->codec);
+	avcodec_get_context_defaults3 (jpeg_ctx->context, jpeg_ctx->codec);
+#else
+	jpeg_ctx->context = avcodec_alloc_context();
+	avcodec_get_context_defaults(jpeg_ctx->context);
+#endif
+	if(jpeg_ctx->context == NULL)
+	{
+		fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (h264_init_decoder): %s\n", strerror(errno));
+		exit(-1);
+	}
+
+	jpeg_ctx->context->flags2 |= CODEC_FLAG2_FAST;
+	jpeg_ctx->context->pix_fmt = PIX_FMT_YUV420P;
+	jpeg_ctx->context->width = width;
+	jpeg_ctx->context->height = height;
+	//jpeg_ctx->context->dsp_mask = (FF_MM_MMX | FF_MM_MMXEXT | FF_MM_SSE);
+
+#if LIBAVCODEC_VER_AT_LEAST(53,6)
+	if (avcodec_open2(jpeg_ctx->context, jpeg_ctx->codec, NULL) < 0)
+#else
+	if (avcodec_open(jpeg_ctx->context, jpeg_ctx->codec) < 0)
+#endif
+	{
+		fprintf(stderr, "V4L2_CORE: (mjpeg decoder) couldn't open codec\n");
+		avcodec_close(jpeg_ctx->context);
+		free(jpeg_ctx->context);
+		free(jpeg_ctx);
+		jpeg_ctx = NULL;
+		return E_NO_CODEC;
+	}
+
+#if LIBAVCODEC_VER_AT_LEAST(55,28)
+	jpeg_ctx->picture = av_frame_alloc();
+	av_frame_unref(jpeg_ctx->picture);
+#else
+	jpeg_ctx->picture = avcodec_alloc_frame();
+	avcodec_get_frame_defaults(jpeg_ctx->picture);
+#endif
+
+	jpeg_ctx->pic_size = avpicture_get_size(jpeg_ctx->context->pix_fmt, width, height);
+	jpeg_ctx->width = width;
+	jpeg_ctx->height = height;
+
+	return E_OK;
+}
+
+/*
+ * decode (m)jpeg frame
+ * args:
+ *    out_buf - pointer to decoded data
+ *    in_buf - pointer to h264 data
+ *    size - in_buf size
+ *
+ * asserts:
+ *    jpeg_ctx is not null
+ *    in_buf is not null
+ *    out_buf is not null
+ *
+ * returns: decoded data size
+ */
+int jpeg_decode(uint8_t *out_buf, uint8_t *in_buf, int size)
+{
+	/*asserts*/
+	assert(jpeg_ctx != NULL);
+	assert(in_buf != NULL);
+	assert(out_buf != NULL);
+
+	AVPacket avpkt;
+
+	avpkt.size = size;
+	avpkt.data = in_buf;
+
+	int got_picture = 0;
+	int len = avcodec_decode_video2(jpeg_ctx->context, jpeg_ctx->picture, &got_picture, &avpkt);
+
+	if(len < 0)
+	{
+		fprintf(stderr, "V4L2_CORE: (jpeg decoder) error while decoding frame\n");
+		return len;
+	}
+
+	if(got_picture)
+	{
+		avpicture_layout((AVPicture *) jpeg_ctx->picture, jpeg_ctx->context->pix_fmt, 
+			jpeg_ctx->width, jpeg_ctx->height, out_buf, jpeg_ctx->pic_size);
+		return len;
+	}
+	else
+		return 0;
+
+}
+
+/*
+ * close (m)jpeg decoder context
+ * args:
+ *    none
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void jpeg_close_decoder()
+{
+	if(jpeg_ctx == NULL)
+		return;
+
+	avcodec_close(jpeg_ctx->context);
+
+	free(jpeg_ctx->context);
+
+#if LIBAVCODEC_VER_AT_LEAST(55,28)
+	av_frame_free(&jpeg_ctx->picture);
+#else
+	#if LIBAVCODEC_VER_AT_LEAST(54,28)
+			avcodec_free_frame(&jpeg_ctx->picture);
+	#else
+			av_freep(&jpeg_ctx->picture);
+	#endif
+#endif
+
+	free(jpeg_ctx);
+
+	jpeg_ctx = NULL;
+}
+
+#endif
+
 
