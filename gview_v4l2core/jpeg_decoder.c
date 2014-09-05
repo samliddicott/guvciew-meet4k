@@ -1366,8 +1366,8 @@ int jpeg_init_decoder(int width, int height)
 		exit(-1);
 	}
 
-	jpeg_ctx->context->flags2 |= CODEC_FLAG2_FAST;
-	jpeg_ctx->context->pix_fmt = PIX_FMT_YUV420P;
+	//jpeg_ctx->context->flags2 |= CODEC_FLAG2_FAST;
+	jpeg_ctx->context->pix_fmt = PIX_FMT_YUV422P;
 	jpeg_ctx->context->width = width;
 	jpeg_ctx->context->height = height;
 	//jpeg_ctx->context->dsp_mask = (FF_MM_MMX | FF_MM_MMXEXT | FF_MM_SSE);
@@ -1440,7 +1440,7 @@ int jpeg_decode(uint8_t *out_buf, uint8_t *in_buf, int size)
 	{
 		avpicture_layout((AVPicture *) jpeg_ctx->picture, jpeg_ctx->context->pix_fmt, 
 			jpeg_ctx->width, jpeg_ctx->height, out_buf, jpeg_ctx->pic_size);
-		return len;
+		return jpeg_ctx->pic_size;
 	}
 	else
 		return 0;
