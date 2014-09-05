@@ -207,8 +207,8 @@ int enum_v4l2_devices()
                 udev_device_get_sysattr_value(dev, "devnum"));
         }
 
-        my_device_list.list_devices[num_dev-1].vendor = strtoull(udev_device_get_sysattr_value(dev,"idVendor"), NULL, 10);
-        my_device_list.list_devices[num_dev-1].product = strtoull(udev_device_get_sysattr_value(dev, "idProduct"), NULL, 10);
+        my_device_list.list_devices[num_dev-1].vendor = strtoull(udev_device_get_sysattr_value(dev,"idVendor"), NULL, 16);
+        my_device_list.list_devices[num_dev-1].product = strtoull(udev_device_get_sysattr_value(dev, "idProduct"), NULL, 16);
         my_device_list.list_devices[num_dev-1].busnum = strtoull(udev_device_get_sysattr_value(dev, "busnum"), NULL, 10);
 		my_device_list.list_devices[num_dev-1].devnum = strtoull(udev_device_get_sysattr_value(dev, "devnum"), NULL, 10);
 
