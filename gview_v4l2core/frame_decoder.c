@@ -782,17 +782,19 @@ int v4l2core_frame_decode(v4l2_dev_t *vd)
 			}
 
 			ret = jpeg_decode(vd->tmp_buffer, vd->raw_frame, vd->raw_frame_size);
-			yuv420_to_yuyv (vd->yuv_frame, vd->tmp_buffer, width, height);			
-
+			memcpy(vd->yuv_frame, vd->tmp_buffer, ret);			
+			//yuv420_to_yuyv (vd->yuv_frame, vd->tmp_buffer, width, height);			
+			
 			//memcpy(vd->tmp_buffer, vd->raw_frame, vd->raw_frame_size);
 			//ret = jpeg_decode(&vd->yuv_frame, vd->tmp_buffer, width, height);
-			if ( ret < 0)
-			{
-				fprintf(stderr, "V4L2_CORE: jpeg decoder exit with error (%i) (res: %ix%i - %x)\n", ret, width, height, vd->format.fmt.pix.pixelformat);
-				return E_DECODE_ERR;
-			}
+			//if ( ret < 0)
+			//{
+			//	fprintf(stderr, "V4L2_CORE: jpeg decoder exit with error (%i) (res: %ix%i - %x)\n", ret, width, height, vd->format.fmt.pix.pixelformat);
+			//	return E_DECODE_ERR;
+			//}
 			if(verbosity > 3)
-				fprintf(stderr, "V4L2_CORE: jpeg decoder exit with (%i)\n", ret);
+				fprintf(stderr, "V4L2_CORE: (jpeg decoder) decode frame of size %i\n", ret);
+			ret = E_OK;
 			break;
 
 		case V4L2_PIX_FMT_UYVY:
