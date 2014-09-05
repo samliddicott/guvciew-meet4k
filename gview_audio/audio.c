@@ -358,14 +358,14 @@ int audio_get_next_buffer(audio_context_t *audio_ctx, audio_buff_t *buff, int ty
 	int i = 0;
 	switch(type)
 	{
-		case SAMPLE_TYPE_FLOAT:
+		case GV_SAMPLE_TYPE_FLOAT:
 		{
 			sample_t *my_data = (sample_t *) buff->data;
 			memcpy( my_data, audio_buffers[buffer_read_index].data,
 				audio_ctx->capture_buff_size * sizeof(sample_t));
 			break;
 		}
-		case SAMPLE_TYPE_INT16:
+		case GV_SAMPLE_TYPE_INT16:
 		{
 			int16_t *my_data = (int16_t *) buff->data;
 			sample_t *buff_p = (sample_t *) audio_buffers[buffer_read_index].data;
@@ -375,7 +375,7 @@ int audio_get_next_buffer(audio_context_t *audio_ctx, audio_buff_t *buff, int ty
 			}
 			break;
 		}
-		case SAMPLE_TYPE_FLOATP:
+		case GV_SAMPLE_TYPE_FLOATP:
 		{
 			int j=0;
 
@@ -393,7 +393,7 @@ int audio_get_next_buffer(audio_context_t *audio_ctx, audio_buff_t *buff, int ty
 				}
 			break;
 		}
-		case SAMPLE_TYPE_INT16P:
+		case GV_SAMPLE_TYPE_INT16P:
 		{
 			int j=0;
 

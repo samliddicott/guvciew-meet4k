@@ -546,7 +546,13 @@ int encoder_set_audio_mkvCodecPriv(encoder_context_t *encoder_ctx)
 	/*assertions*/
 	assert(encoder_ctx != NULL);
 
-	int codec_id = encoder_ctx->enc_audio_ctx->codec_context->codec_id;
+	/*assert audio encoder context is not null*/
+	assert( encoder_ctx->enc_audio_ctx);
+	encoder_codec_data_t *audio_codec_data = (encoder_codec_data_t *) encoder_ctx->enc_audio_ctx->codec_data;
+	/*assert video codec data is not null*/	
+	assert(audio_codec_data);
+
+	int codec_id = audio_codec_data->codec_context->codec_id;
 	int real_index = get_audio_codec_index(codec_id);
 
 
@@ -568,8 +574,8 @@ int encoder_set_audio_mkvCodecPriv(encoder_context_t *encoder_ctx)
 
 		first_header_size = 30; //theora = 42
     	if (avpriv_split_xiph_headers(
-			encoder_ctx->enc_audio_ctx->codec_context->extradata,
-			encoder_ctx->enc_audio_ctx->codec_context->extradata_size,
+			audio_codec_data->codec_context->extradata,
+			audio_codec_data->codec_context->extradata_size,
 				first_header_size, header_start, header_len) < 0)
         {
 			fprintf(stderr, "ENCODER: vorbis codec - Extradata corrupt.\n");

@@ -61,11 +61,13 @@ __BEGIN_DECLS
 #define AUDIO_FX_WAHWAH (1<<3)
 #define AUDIO_FX_DUCKY  (1<<4)
 
-/*sample type int16_t or float for return buffer data*/
-#define SAMPLE_TYPE_INT16  (0) //interleaved
-#define SAMPLE_TYPE_FLOAT  (1) //interleaved
-#define SAMPLE_TYPE_INT16P (2) //planar
-#define SAMPLE_TYPE_FLOATP (3) //planar
+/*audio sample format (definition also in gview_encoder)*/
+#ifndef GV_SAMPLE_TYPE_INT16
+#define GV_SAMPLE_TYPE_INT16  (0) //interleaved
+#define GV_SAMPLE_TYPE_FLOAT  (1) //interleaved
+#define GV_SAMPLE_TYPE_INT16P (2) //planar
+#define GV_SAMPLE_TYPE_FLOATP (3) //planar
+#endif
 
 /*internally is always float*/
 typedef float sample_t;

@@ -37,28 +37,6 @@
 #include <inttypes.h>
 #include <sys/types.h>
 
-#include "../config.h"
-
-#ifdef HAS_AVCODEC_H
-  #include <avcodec.h>
-#else
-  #ifdef HAS_LIBAVCODEC_AVCODEC_H
-    #include <libavcodec/avcodec.h>
-	#ifdef HAS_LIBAVUTIL_VERSION_H
-		#include <libavutil/version.h>
-    #endif
-  #else
-    #ifdef HAS_FFMPEG_AVCODEC_H
-      #include <ffmpeg/avcodec.h>
-    #else
-      #include <libavcodec/avcodec.h>
-      #ifdef HAS_LIBAVUTIL_VERSION_H
-		#include <libavutil/version.h>
-      #endif
-    #endif
-  #endif
-#endif
-
 /*make sure we support c++*/
 __BEGIN_DECLS
 
@@ -75,50 +53,12 @@ __BEGIN_DECLS
 #define ENCODER_SCHED_LIN  (0)
 #define ENCODER_SCHED_EXP  (1)
 
-#define LIBAVCODEC_VER_AT_LEAST(major,minor)  (LIBAVCODEC_VERSION_MAJOR > major || \
-                                              (LIBAVCODEC_VERSION_MAJOR == major && \
-                                               LIBAVCODEC_VERSION_MINOR >= minor))
-
-#ifdef HAS_LIBAVUTIL_VERSION_H
-#define LIBAVUTIL_VER_AT_LEAST(major,minor)  (LIBAVUTIL_VERSION_MAJOR > major || \
-                                              (LIBAVUTIL_VERSION_MAJOR == major && \
-                                               LIBAVUTIL_VERSION_MINOR >= minor))
-#else
-#define LIBAVUTIL_VER_AT_LEAST(major,minor) 0
-#endif
-
-#if !LIBAVCODEC_VER_AT_LEAST(53,0)
-  #define AV_SAMPLE_FMT_S16 SAMPLE_FMT_S16
-  #define AV_SAMPLE_FMT_FLT SAMPLE_FMT_FLT
-#endif
-
-
-#if !LIBAVCODEC_VER_AT_LEAST(54,25)
-	#define AV_CODEC_ID_NONE CODEC_ID_NONE
-	#define AV_CODEC_ID_MJPEG CODEC_ID_MJPEG
-	#define AV_CODEC_ID_MPEG1VIDEO CODEC_ID_MPEG1VIDEO
-	#define AV_CODEC_ID_FLV1 CODEC_ID_FLV1
-	#define AV_CODEC_ID_WMV1 CODEC_ID_WMV1
-	#define AV_CODEC_ID_MPEG2VIDEO CODEC_ID_MPEG2VIDEO
-	#define AV_CODEC_ID_MSMPEG4V3 CODEC_ID_MSMPEG4V3
-	#define AV_CODEC_ID_MPEG4 CODEC_ID_MPEG4
-	#define AV_CODEC_ID_H264 CODEC_ID_H264
-	#define AV_CODEC_ID_VP8 CODEC_ID_VP8
-	#define AV_CODEC_ID_THEORA CODEC_ID_THEORA
-
-	#define AV_CODEC_ID_PCM_S16LE CODEC_ID_PCM_S16LE
-	#define AV_CODEC_ID_PCM_F32LE CODEC_ID_PCM_F32LE
-	#define AV_CODEC_ID_MP2 CODEC_ID_MP2
-	#define AV_CODEC_ID_MP3 CODEC_ID_MP3
-	#define AV_CODEC_ID_AC3 CODEC_ID_AC3
-	#define AV_CODEC_ID_AAC CODEC_ID_AAC
-	#define AV_CODEC_ID_VORBIS CODEC_ID_VORBIS
-#endif
-
-#if !LIBAVUTIL_VER_AT_LEAST(52,0)
-	#define AV_PIX_FMT_NONE     PIX_FMT_NONE
-	#define AV_PIX_FMT_YUVJ420P PIX_FMT_YUVJ420P
-	#define AV_PIX_FMT_YUV420P  PIX_FMT_YUV420P
+/*audio sample format*/
+#ifndef GV_SAMPLE_TYPE_INT16
+#define GV_SAMPLE_TYPE_INT16  (0) //interleaved
+#define GV_SAMPLE_TYPE_FLOAT  (1) //interleaved
+#define GV_SAMPLE_TYPE_INT16P (2) //planar
+#define GV_SAMPLE_TYPE_FLOATP (3) //planar
 #endif
 
 #define MAX_DELAYED_FRAMES 50  /*Maximum supported delayed frames*/
@@ -195,15 +135,7 @@ typedef struct _audio_codec_t
 /*video*/
 typedef struct _encoder_video_context_t
 {
-	AVCodec *codec;
-
-#if LIBAVCODEC_VER_AT_LEAST(53,6)
-	AVDictionary *private_options;
-#endif
-
-	AVCodecContext *codec_context;
-	AVFrame *picture;
-	AVPacket *outpkt;
+	void *codec_data;
 
 	int monotonic_pts;
 
@@ -235,10 +167,7 @@ typedef struct _encoder_video_context_t
 /*Audio*/
 typedef struct _encoder_audio_context_t
 {
-	AVCodec *codec;
-	AVCodecContext *codec_context;
-	AVFrame *frame;
-	AVPacket *outpkt;
+	void *codec_data;
 
 	int avi_4cc;
 
@@ -534,6 +463,15 @@ const char *encoder_get_video_codec_4cc(int codec_ind);
 const char *encoder_get_audio_codec_name(int codec_ind);
 
 /*
+ * get audio sample format max value
+ * args:
+ *   none
+ * 
+ * returns the maximum audio sample format value
+ */
+int encoder_get_max_audio_sample_fmt();
+
+/*
  * get audio codec list index for codec name
  * args:
  *   codec_name - codec common name
@@ -544,6 +482,30 @@ const char *encoder_get_audio_codec_name(int codec_ind);
  * returns: codec index or -1 if error
  */
 int encoder_get_audio_codec_ind_name(const char *codec_name);
+
+/*
+ * get the audio encoder frame size
+ * args:
+ *   encoder_ctx - pointer to encoder context
+ *
+ * asserts:
+ *   encoder_ctx is not null
+ *
+ * returns: audio encoder frame size
+ */
+int encoder_get_audio_frame_size(encoder_context_t *encoder_ctx);
+
+/*
+ * get the audio encoder input sample format
+ * args:
+ *   encoder_ctx - pointer to encoder context
+ *
+ * asserts:
+ *   encoder_ctx is not null
+ *
+ * returns: audio encoder sample format
+ */
+int encoder_get_audio_sample_fmt(encoder_context_t *encoder_ctx);
 
 /*
  * get the video codec index for VP8 (webm) codec

@@ -59,6 +59,10 @@ void yuv422to420p(encoder_context_t *encoder_ctx, uint8_t *inp)
 	assert(encoder_ctx != NULL);
 	assert(encoder_ctx->enc_video_ctx != NULL);
 
+	encoder_codec_data_t *video_codec_data = (encoder_codec_data_t *) encoder_ctx->enc_video_ctx->codec_data;
+
+	assert(video_codec_data);
+
 	int i,j;
 	int linesize= encoder_ctx->video_width * 2;
 	int size = encoder_ctx->video_width * encoder_ctx->video_height;
@@ -87,12 +91,12 @@ void yuv422to420p(encoder_context_t *encoder_ctx, uint8_t *inp)
 		y1 += encoder_ctx->video_width;//2 lines
 	}
 
-	encoder_ctx->enc_video_ctx->picture->data[0] = encoder_ctx->enc_video_ctx->tmpbuf; //Y
-	encoder_ctx->enc_video_ctx->picture->data[1] = encoder_ctx->enc_video_ctx->tmpbuf + size; //U
-	encoder_ctx->enc_video_ctx->picture->data[2] = encoder_ctx->enc_video_ctx->picture->data[1] + size/4; //V
-	encoder_ctx->enc_video_ctx->picture->linesize[0] = encoder_ctx->video_width;
-	encoder_ctx->enc_video_ctx->picture->linesize[1] = encoder_ctx->video_width / 2;
-	encoder_ctx->enc_video_ctx->picture->linesize[2] = encoder_ctx->video_width / 2;
+	video_codec_data->frame->data[0] = encoder_ctx->enc_video_ctx->tmpbuf; //Y
+	video_codec_data->frame->data[1] = encoder_ctx->enc_video_ctx->tmpbuf + size; //U
+	video_codec_data->frame->data[2] = video_codec_data->frame->data[1] + size/4; //V
+	video_codec_data->frame->linesize[0] = encoder_ctx->video_width;
+	video_codec_data->frame->linesize[1] = encoder_ctx->video_width / 2;
+	video_codec_data->frame->linesize[2] = encoder_ctx->video_width / 2;
 }
 
 /*

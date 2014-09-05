@@ -654,7 +654,7 @@ static void *audio_processing_loop(void *data)
 	audio_buff_t *audio_buff = NULL;
 
 	/*start audio capture*/
-	int frame_size = encoder_ctx->enc_audio_ctx->codec_context->frame_size;
+	int frame_size = encoder_get_audio_frame_size(encoder_ctx);
 
 	audio_ctx->capture_buff_size = frame_size * audio_ctx->channels;
 	audio_start(audio_ctx);
@@ -667,22 +667,8 @@ static void *audio_processing_loop(void *data)
 	 */
 	audio_buff = audio_get_buffer(audio_ctx);
 
-	int sample_type = SAMPLE_TYPE_INT16;
-	switch(encoder_ctx->enc_audio_ctx->codec_context->sample_fmt)
-	{
-		case AV_SAMPLE_FMT_FLTP:
-			sample_type = SAMPLE_TYPE_FLOATP;
-			break;
-		case AV_SAMPLE_FMT_FLT:
-			sample_type = SAMPLE_TYPE_FLOAT;
-			break;
-		case AV_SAMPLE_FMT_S16P:
-			sample_type = SAMPLE_TYPE_INT16P;
-			break;
-		default:
-			sample_type = SAMPLE_TYPE_INT16;
-			break;
-	}
+	int sample_type = encoder_get_audio_sample_fmt(encoder_ctx);
+	
 
 	/*enable vu meter OSD display*/
 	if(audio_ctx->channels > 1)

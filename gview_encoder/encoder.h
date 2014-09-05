@@ -27,6 +27,75 @@
 #include <inttypes.h>
 #include <sys/types.h>
 
+#include "../config.h"
+
+#ifdef HAS_AVCODEC_H
+  #include <avcodec.h>
+#else
+  #ifdef HAS_LIBAVCODEC_AVCODEC_H
+    #include <libavcodec/avcodec.h>
+	#ifdef HAS_LIBAVUTIL_VERSION_H
+		#include <libavutil/version.h>
+    #endif
+  #else
+    #ifdef HAS_FFMPEG_AVCODEC_H
+      #include <ffmpeg/avcodec.h>
+    #else
+      #include <libavcodec/avcodec.h>
+      #ifdef HAS_LIBAVUTIL_VERSION_H
+		#include <libavutil/version.h>
+      #endif
+    #endif
+  #endif
+#endif
+
+#define LIBAVCODEC_VER_AT_LEAST(major,minor)  (LIBAVCODEC_VERSION_MAJOR > major || \
+                                              (LIBAVCODEC_VERSION_MAJOR == major && \
+                                               LIBAVCODEC_VERSION_MINOR >= minor))
+
+#ifdef HAS_LIBAVUTIL_VERSION_H
+#define LIBAVUTIL_VER_AT_LEAST(major,minor)  (LIBAVUTIL_VERSION_MAJOR > major || \
+                                              (LIBAVUTIL_VERSION_MAJOR == major && \
+                                               LIBAVUTIL_VERSION_MINOR >= minor))
+#else
+#define LIBAVUTIL_VER_AT_LEAST(major,minor) 0
+#endif
+
+#if !LIBAVCODEC_VER_AT_LEAST(53,0)
+  #define AV_SAMPLE_FMT_S16 SAMPLE_FMT_S16
+  #define AV_SAMPLE_FMT_FLT SAMPLE_FMT_FLT
+#endif
+
+
+#if !LIBAVCODEC_VER_AT_LEAST(54,25)
+	#define AV_CODEC_ID_NONE CODEC_ID_NONE
+	#define AV_CODEC_ID_MJPEG CODEC_ID_MJPEG
+	#define AV_CODEC_ID_MPEG1VIDEO CODEC_ID_MPEG1VIDEO
+	#define AV_CODEC_ID_FLV1 CODEC_ID_FLV1
+	#define AV_CODEC_ID_WMV1 CODEC_ID_WMV1
+	#define AV_CODEC_ID_MPEG2VIDEO CODEC_ID_MPEG2VIDEO
+	#define AV_CODEC_ID_MSMPEG4V3 CODEC_ID_MSMPEG4V3
+	#define AV_CODEC_ID_MPEG4 CODEC_ID_MPEG4
+	#define AV_CODEC_ID_H264 CODEC_ID_H264
+	#define AV_CODEC_ID_VP8 CODEC_ID_VP8
+	#define AV_CODEC_ID_THEORA CODEC_ID_THEORA
+
+	#define AV_CODEC_ID_PCM_S16LE CODEC_ID_PCM_S16LE
+	#define AV_CODEC_ID_PCM_F32LE CODEC_ID_PCM_F32LE
+	#define AV_CODEC_ID_MP2 CODEC_ID_MP2
+	#define AV_CODEC_ID_MP3 CODEC_ID_MP3
+	#define AV_CODEC_ID_AC3 CODEC_ID_AC3
+	#define AV_CODEC_ID_AAC CODEC_ID_AAC
+	#define AV_CODEC_ID_VORBIS CODEC_ID_VORBIS
+#endif
+
+#if !LIBAVUTIL_VER_AT_LEAST(52,0)
+	#define AV_PIX_FMT_NONE     PIX_FMT_NONE
+	#define AV_PIX_FMT_YUVJ420P PIX_FMT_YUVJ420P
+	#define AV_PIX_FMT_YUV420P  PIX_FMT_YUV420P
+#endif
+
+
 /* Possible Audio formats */
 #define WAVE_FORMAT_UNKNOWN             (0x0000)
 #define WAVE_FORMAT_PCM                 (0x0001)
@@ -87,6 +156,22 @@
 /*video buffer flags*/
 #define VIDEO_BUFF_FREE    (0)
 #define VIDEO_BUFF_USED    (1)
+
+/*
+ * codec data struct used for encoder context
+ * we set all avcodec stuff here so that we don't 
+ * need to export any of it's symbols in the public API
+ */
+typedef struct _encoder_codec_data_t
+{
+	AVCodec *codec;
+#if LIBAVCODEC_VER_AT_LEAST(53,6)
+	AVDictionary *private_options;
+#endif
+	AVCodecContext *codec_context;
+	AVFrame *frame;
+	AVPacket *outpkt;
+} encoder_codec_data_t;
 
 typedef struct _bmp_info_header_t
 {

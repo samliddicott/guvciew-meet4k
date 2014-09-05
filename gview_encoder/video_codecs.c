@@ -695,8 +695,11 @@ int encoder_set_video_mkvCodecPriv(encoder_context_t *encoder_ctx)
 
 	/*assert video encoder context is not null*/
 	assert( encoder_ctx->enc_video_ctx);
-
-	int codec_id = encoder_ctx->enc_video_ctx->codec_context->codec_id;
+	encoder_codec_data_t *video_codec_data = (encoder_codec_data_t *) encoder_ctx->enc_video_ctx->codec_data;
+	/*assert video codec data is not null*/	
+	assert(video_codec_data);
+	
+	int codec_id = video_codec_data->codec_context->codec_id;
 	int real_index = get_video_codec_index(codec_id);
 
 	if(codec_id == AV_CODEC_ID_THEORA)
@@ -708,8 +711,8 @@ int encoder_set_video_mkvCodecPriv(encoder_context_t *encoder_ctx)
 
 		first_header_size = 42; /*vorbis = 30*/
     	if (avpriv_split_xiph_headers(
-			encoder_ctx->enc_video_ctx->codec_context->extradata,
-			encoder_ctx->enc_video_ctx->codec_context->extradata_size,
+			video_codec_data->codec_context->extradata,
+			video_codec_data->codec_context->extradata_size,
 			first_header_size, header_start, header_len) < 0)
         {
 			fprintf(stderr, "ENCODER: (theora codec) - Extradata corrupt.\n");

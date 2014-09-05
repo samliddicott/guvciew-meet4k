@@ -76,9 +76,10 @@ static __MUTEX_TYPE mutex = __STATIC_MUTEX_INIT;
 int encoder_write_video_data(encoder_context_t *encoder_ctx)
 {
 	/*assertions*/
-	assert(encoder_ctx != NULL);
+	assert(encoder_ctx);
 
 	encoder_video_context_t *enc_video_ctx = encoder_ctx->enc_video_ctx;
+	assert(enc_video_ctx);
 
 	if(enc_video_ctx->outbuf_coded_size <= 0)
 		return -1;
@@ -86,10 +87,12 @@ int encoder_write_video_data(encoder_context_t *encoder_ctx)
 	enc_video_ctx->framecount++;
 
 	int ret =0;
-
 	int block_align = 1;
-	if(enc_video_ctx->codec_context)
-		block_align = enc_video_ctx->codec_context->block_align;
+
+	encoder_codec_data_t *video_codec_data = (encoder_codec_data_t *) enc_video_ctx->codec_data;
+
+	if(video_codec_data)
+		block_align = video_codec_data->codec_context->block_align;
 
 	__LOCK_MUTEX( __PMUTEX );
 	switch (encoder_ctx->muxer_id)
@@ -152,10 +155,12 @@ int encoder_write_audio_data(encoder_context_t *encoder_ctx)
 		return -1;
 
 	int ret =0;
-
 	int block_align = 1;
-	if(enc_audio_ctx->codec_context)
-		block_align = enc_audio_ctx->codec_context->block_align;
+
+	encoder_codec_data_t *audio_codec_data = (encoder_codec_data_t *) enc_audio_ctx->codec_data;
+
+	if(audio_codec_data)
+		block_align = audio_codec_data->codec_context->block_align;
 
 	__LOCK_MUTEX( __PMUTEX );
 	switch (encoder_ctx->muxer_id)
@@ -210,6 +215,8 @@ void encoder_muxer_init(encoder_context_t *encoder_ctx, const char *filename)
 	assert(encoder_ctx != NULL);
 	assert(encoder_ctx->enc_video_ctx != NULL);
 
+	encoder_codec_data_t *video_codec_data = (encoder_codec_data_t *) encoder_ctx->enc_video_ctx->codec_data;
+
 	int video_codec_id = AV_CODEC_ID_NONE;
 
 	if(encoder_ctx->video_codec_ind == 0) /*no codec_context*/
@@ -221,9 +228,9 @@ void encoder_muxer_init(encoder_context_t *encoder_ctx, const char *filename)
 				break;
 		}
 	}
-	else if(encoder_ctx->enc_video_ctx->codec_context)
+	else if(video_codec_data)
 	{
-		video_codec_id = encoder_ctx->enc_video_ctx->codec_context->codec_id;
+		video_codec_id = video_codec_data->codec_context->codec_id;
 	}
 
 	if(verbosity > 1)
@@ -248,35 +255,39 @@ void encoder_muxer_init(encoder_context_t *encoder_ctx, const char *filename)
 				encoder_ctx->fps_num,
 				video_codec_id);
 
-			if(video_codec_id == AV_CODEC_ID_THEORA && encoder_ctx->enc_video_ctx->codec_context)
+			if(video_codec_id == AV_CODEC_ID_THEORA && video_codec_data)
 			{
-				video_stream->extra_data = (uint8_t *) encoder_ctx->enc_video_ctx->codec_context->extradata;
-				video_stream->extra_data_size = encoder_ctx->enc_video_ctx->codec_context->extradata_size;
+				video_stream->extra_data = (uint8_t *) video_codec_data->codec_context->extradata;
+				video_stream->extra_data_size = video_codec_data->codec_context->extradata_size;
 			}
 
 			/*add audio stream*/
 			if(encoder_ctx->enc_audio_ctx != NULL &&
 				encoder_ctx->audio_channels > 0)
 			{
-				int acodec_ind = get_audio_codec_list_index(encoder_ctx->enc_audio_ctx->codec_context->codec_id);
-				/*sample size - only used for PCM*/
-				int32_t a_bits = encoder_get_audio_bits(acodec_ind);
-				/*bit rate (compressed formats)*/
-				int32_t b_rate = encoder_get_audio_bit_rate(acodec_ind);
-
-				audio_stream = avi_add_audio_stream(
-					avi_ctx,
-					encoder_ctx->audio_channels,
-					encoder_ctx->audio_samprate,
-					a_bits,
-					b_rate,
-					encoder_ctx->enc_audio_ctx->codec_context->codec_id,
-					encoder_ctx->enc_audio_ctx->avi_4cc);
-
-				if(encoder_ctx->enc_audio_ctx->codec_context->codec_id == AV_CODEC_ID_VORBIS)
+				encoder_codec_data_t *audio_codec_data = (encoder_codec_data_t *) encoder_ctx->enc_audio_ctx->codec_data;
+				if(audio_codec_data)
 				{
-					audio_stream->extra_data = (uint8_t *) encoder_ctx->enc_audio_ctx->codec_context->extradata;
-					audio_stream->extra_data_size = encoder_ctx->enc_audio_ctx->codec_context->extradata_size;
+					int acodec_ind = get_audio_codec_list_index(audio_codec_data->codec_context->codec_id);
+					/*sample size - only used for PCM*/
+					int32_t a_bits = encoder_get_audio_bits(acodec_ind);
+					/*bit rate (compressed formats)*/
+					int32_t b_rate = encoder_get_audio_bit_rate(acodec_ind);
+
+					audio_stream = avi_add_audio_stream(
+						avi_ctx,
+						encoder_ctx->audio_channels,
+						encoder_ctx->audio_samprate,
+						a_bits,
+						b_rate,
+						audio_codec_data->codec_context->codec_id,
+						encoder_ctx->enc_audio_ctx->avi_4cc);
+
+					if(audio_codec_data->codec_context->codec_id == AV_CODEC_ID_VORBIS)
+					{
+						audio_stream->extra_data = (uint8_t *) audio_codec_data->codec_context->extradata;
+						audio_stream->extra_data_size = audio_codec_data->codec_context->extradata_size;
+					}
 				}
 			}
 
@@ -317,26 +328,30 @@ void encoder_muxer_init(encoder_context_t *encoder_ctx, const char *filename)
 			if(encoder_ctx->enc_audio_ctx != NULL &&
 				encoder_ctx->audio_channels > 0)
 			{
-				mkv_ctx->audio_frame_size = encoder_ctx->enc_audio_ctx->codec_context->frame_size;
+				encoder_codec_data_t *audio_codec_data = (encoder_codec_data_t *) encoder_ctx->enc_audio_ctx->codec_data;
+				if(audio_codec_data)
+				{
+					mkv_ctx->audio_frame_size = audio_codec_data->codec_context->frame_size;
 
-				/*sample size - only used for PCM*/
-				int32_t a_bits = encoder_get_audio_bits(encoder_ctx->audio_codec_ind);
-				/*bit rate (compressed formats)*/
-				int32_t b_rate = encoder_get_audio_bit_rate(encoder_ctx->audio_codec_ind);
+					/*sample size - only used for PCM*/
+					int32_t a_bits = encoder_get_audio_bits(encoder_ctx->audio_codec_ind);
+					/*bit rate (compressed formats)*/
+					int32_t b_rate = encoder_get_audio_bit_rate(encoder_ctx->audio_codec_ind);
 
-				audio_stream = mkv_add_audio_stream(
-					mkv_ctx,
-					encoder_ctx->audio_channels,
-					encoder_ctx->audio_samprate,
-					a_bits,
-					b_rate,
-					encoder_ctx->enc_audio_ctx->codec_context->codec_id,
-					encoder_ctx->enc_audio_ctx->avi_4cc);
+					audio_stream = mkv_add_audio_stream(
+						mkv_ctx,
+						encoder_ctx->audio_channels,
+						encoder_ctx->audio_samprate,
+						a_bits,
+						b_rate,
+						audio_codec_data->codec_context->codec_id,
+						encoder_ctx->enc_audio_ctx->avi_4cc);
 
-				audio_stream->extra_data_size = encoder_set_audio_mkvCodecPriv(encoder_ctx);
+					audio_stream->extra_data_size = encoder_set_audio_mkvCodecPriv(encoder_ctx);
 
-				if(audio_stream->extra_data_size > 0)
-					audio_stream->extra_data = encoder_get_audio_mkvCodecPriv(encoder_ctx->audio_codec_ind);
+					if(audio_stream->extra_data_size > 0)
+						audio_stream->extra_data = encoder_get_audio_mkvCodecPriv(encoder_ctx->audio_codec_ind);
+				}
 			}
 
 			/* write the file header */

@@ -2126,7 +2126,7 @@ void encoder_audio_properties(GtkMenuItem *item, void *data)
 	gtk_grid_attach (GTK_GRID(table), lbl_sample_fmt, 0, line, 1, 1);
 	gtk_widget_show (lbl_sample_fmt);
 
-	GtkWidget *sample_fmt = gtk_spin_button_new_with_range(0, AV_SAMPLE_FMT_NB, 1);
+	GtkWidget *sample_fmt = gtk_spin_button_new_with_range(0, encoder_get_max_audio_sample_fmt(), 1);
 	gtk_editable_set_editable(GTK_EDITABLE(sample_fmt),TRUE);
 	gtk_spin_button_set_value (GTK_SPIN_BUTTON(sample_fmt), defaults->sample_format);
 
