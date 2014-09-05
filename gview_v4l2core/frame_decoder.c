@@ -791,6 +791,8 @@ int v4l2core_frame_decode(v4l2_dev_t *vd)
 				fprintf(stderr, "V4L2_CORE: jpeg decoder exit with error (%i) (res: %ix%i - %x)\n", ret, width, height, vd->format.fmt.pix.pixelformat);
 				return E_DECODE_ERR;
 			}
+			if(verbosity > 3)
+				fprintf(stderr, "V4L2_CORE: jpeg decoder exit with (%i)\n", ret);
 			break;
 
 		case V4L2_PIX_FMT_UYVY:
