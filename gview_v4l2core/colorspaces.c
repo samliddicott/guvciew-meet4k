@@ -479,6 +479,61 @@ void yuv420_to_yuyv (uint8_t *framebuffer, uint8_t *tmpbuffer, int width, int he
 }
 
 /*
+ * convert yuv 422 planar (yuv422p) to yuv 422
+ * args:
+ *    output- pointer to output buffer (yuyv)
+ *    input- pointer to input buffer (yuv420 planar data frame)
+ *    width- picture width
+ *    height- picture height
+ *
+ * asserts:
+ *    input not null
+ *
+ * returns: none
+ */
+void yuv422_to_yuyv (uint8_t *framebuffer, uint8_t *tmpbuffer, int width, int height)
+{
+	uint8_t *py;
+	uint8_t *pu;
+	uint8_t *pv;
+
+	int linesize = width * 2;
+	int uvlinesize = width / 2;
+
+	py=tmpbuffer;
+	pu=py+(width*height);
+	pv=pu+(width*height/2);
+
+	int h=0;
+	int huv=0;
+
+	for(h=0;h<height;h++)
+	{
+		int wy = 0;
+		int wuv = 0;
+		int offset = h * linesize;
+		int offsety = h * width;
+		int offsetuv = h * uvlinesize;
+		int w = 0;
+
+		for(w=0;w<linesize;w+=4)
+		{
+			/*y00*/
+			framebuffer[w + offset] = py[wy + offsety];
+			/*u0*/
+			framebuffer[(w + 1) + offset] = pu[wuv + offsetuv];
+			/*y01*/
+			framebuffer[(w + 2) + offset] = py[(wy + 1) + offsety];
+			/*v0*/
+			framebuffer[(w + 3) + offset] = pv[wuv + offsetuv];
+
+			wuv++;
+			wy+=2;
+		}
+	}
+}
+
+/*
  * convert yvu 420 planar (yv12) to yuv 422
  * args:
  *   framebuffer: pointer to frame buffer (yuyv)

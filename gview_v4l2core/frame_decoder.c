@@ -782,7 +782,7 @@ int v4l2core_frame_decode(v4l2_dev_t *vd)
 			}
 			/* decode (m)jpeg to vd->tmp_buffer (yuv422p)*/
 			ret = jpeg_decode(vd->tmp_buffer, vd->raw_frame, vd->raw_frame_size);			
-			nv16_to_yuyv(vd->yuv_frame, vd->tmp_buffer, width, height);			
+			yuv422_to_yuyv(vd->yuv_frame, vd->tmp_buffer, width, height);			
 			
 			//memcpy(vd->tmp_buffer, vd->raw_frame, vd->raw_frame_size);
 			//ret = jpeg_decode(&vd->yuv_frame, vd->tmp_buffer, width, height);

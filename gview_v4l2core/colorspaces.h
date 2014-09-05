@@ -162,6 +162,21 @@ void yvyu_to_yuyv (uint8_t *framebuffer, uint8_t *tmpbuffer, int width, int heig
 void yuv420_to_yuyv (uint8_t *framebuffer, uint8_t *tmpbuffer, int width, int height);
 
 /*
+ * convert yuv 422 planar (yuv422p) to yuv 422
+ * args:
+ *    output- pointer to output buffer (yuyv)
+ *    input- pointer to input buffer (yuv420 planar data frame)
+ *    width- picture width
+ *    height- picture height
+ *
+ * asserts:
+ *    input not null
+ *
+ * returns: none
+ */
+void yuv422_to_yuyv (uint8_t *framebuffer, uint8_t *tmpbuffer, int width, int height);
+
+/*
  * convert yvu 420 planar (yv12) to yuv 422
  * args:
  *   framebuffer: pointer to frame buffer (yuyv)
