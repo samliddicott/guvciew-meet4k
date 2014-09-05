@@ -153,6 +153,23 @@ if test "$has_libavcodec_dir" = yes; then
   AC_DEFINE(HAS_LIBAVCODEC_AVCODEC_H,1,[Define if avcodec.h installed to libavcodec dir])
 fi
 
+dnl --------------------------------------------------------------------------
+dnl Check if we will use libavcodec or the internal decoder for mjpeg decoding
+dnl --------------------------------------------------------------------------
+AC_MSG_CHECKING(if you want to use the internal mjpeg decoder over libavcodec )
+AC_ARG_ENABLE(builtin-mjpg, AS_HELP_STRING([--enable-builtin-mjpg],
+		[enable builtin mjpg decoder support (default: disable)]),
+	[enable_builtin_mjpg=yes mjpg_decoder=builtin],
+	[enable_builtin_mjpg=no  mjpg_decoder=libavcodec])
+
+AC_MSG_RESULT($enable_builtin_mjpg)
+
+
+if test $enable_builtin_mjpg = yes; then
+	AC_DEFINE(MJPG_BUILTIN, 1, [set to 1 if builtin decoder is enabled])
+	AC_MSG_WARN(libavcodec mjpg decoder disabled... the builtin decoder will be used instead.)
+fi
+
 dnl -----------------------------------------------
 dnl libgviewrender name and version number
 dnl -----------------------------------------------
@@ -192,7 +209,7 @@ dnl --------------------------------------------------------------------------
 dnl --------------------------------------------------------------------------
 dnl Check for prefered sdl version (1 or 2)
 dnl --------------------------------------------------------------------------
-AC_MSG_CHECKING(if you want to disable sdl2 support)
+AC_MSG_CHECKING(if you want to enable sdl2 support)
 AC_ARG_ENABLE(sdl2, AS_HELP_STRING([--disable-sdl2],
 		[disable sdl2 support (default: enabled)]),
 	[enable_sdl2=no],
@@ -435,6 +452,7 @@ AC_MSG_NOTICE([
   Pulseaudio     : ${enable_pulse}
   gsl            : ${enable_gsl}
   sdl2           : ${enable_sdl2}
+  mjpg decoder   : ${mjpg_decoder}
   desktop file   : ${enable_desktop}
   debian menu    : ${enable_debian_menu}
 

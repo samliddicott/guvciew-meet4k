@@ -109,14 +109,7 @@ int alloc_v4l2_frames(v4l2_dev_t *vd)
 				fprintf(stderr, "V4L2_CORE: couldn't init jpeg decoder\n");
 				return ret;
 			}
-			/* alloc a temp buffer to reconstruct the pict (MJPEG)*/
-			vd->tmp_buffer_max_size = framesizeIn;
-			vd->tmp_buffer = calloc(vd->tmp_buffer_max_size, sizeof(uint8_t));
-			if(vd->tmp_buffer == NULL)
-			{
-				fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (alloc_v4l2_frames): %s\n", strerror(errno));
-				exit(-1);
-			}
+			
 			framebuf_size = width * (height + 8) * 2; //FIXME: why 8 more lines ?
 			vd->yuv_frame = calloc(framebuf_size, sizeof(uint8_t));
 			if(vd->yuv_frame == NULL)
@@ -771,18 +764,9 @@ int v4l2core_frame_decode(v4l2_dev_t *vd)
 				ret = E_DECODE_ERR;
 				return (ret);
 			}
-			/*FIXME: do we need the tmp_buffer or can we just use the raw_frame?*/
-			if(vd->raw_frame_size > vd->tmp_buffer_max_size)
-			{
-				// Prevent crash on very large image
-				fprintf(stderr, "V4L2_CORE: (jpeg decoder) Ignoring unexpected large buffer (%i bytes)\n",
-					(int) vd->raw_frame_size);
-				ret = E_DECODE_ERR;
-				return (ret);
-			}
-			/* decode (m)jpeg to vd->tmp_buffer (yuv422p)*/
-			ret = jpeg_decode(vd->tmp_buffer, vd->raw_frame, vd->raw_frame_size);			
-			yuv422_to_yuyv(vd->yuv_frame, vd->tmp_buffer, width, height);			
+			
+			
+			ret = jpeg_decode(vd->yuv_frame, vd->raw_frame, vd->raw_frame_size);						
 			
 			//memcpy(vd->tmp_buffer, vd->raw_frame, vd->raw_frame_size);
 			//ret = jpeg_decode(&vd->yuv_frame, vd->tmp_buffer, width, height);

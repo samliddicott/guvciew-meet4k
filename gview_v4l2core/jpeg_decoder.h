@@ -29,6 +29,7 @@
 #define JPEG_DECODER_H
 
 #include "gview.h"
+#include "../config.h"
 
 #define HEADERFRAME1 0xaf
 
@@ -65,17 +66,16 @@ int jpeg_init_decoder(int width, int height);
 /*
  * jpeg decode
  * args:
- *   pic -  pointer to picture data ( decoded image - yuyv format)
- *   buf -  pointer to input data ( compressed jpeg )
- *   with - picture width
- *   height - picture height
+ *   out_buf -  pointer to picture data ( decoded image - yuyv format)
+ *   in_buf -  pointer to input data ( compressed jpeg )
+ *   size - picture size
  *
  * asserts:
- *   buf not null
+ *   out_buf not null
+ *   in_buf not null
  *
  * returns: error code (0 - OK)
  */
-//int jpeg_decode(uint8_t **pic, uint8_t *buf, int width, int height);
 int jpeg_decode(uint8_t *out_buf, uint8_t *in_buf, int size);
 
 /*
