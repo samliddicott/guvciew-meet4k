@@ -187,7 +187,7 @@ static void fx_pieces(uint8_t* frame, int width, int height, int piece_size )
 		fprintf(stderr,"RENDER: FATAL memory allocation failure (fx_pieces): %s\n", strerror(errno));
 		exit(-1);
 	}
-	int i = 0, j = 0, row = 0, line = 0, column = 0, linep = 0, px = 0, py = 0;
+	int i = 0, j = 0, line = 0, column = 0, linep = 0, px = 0, py = 0;
 
 	/*random generator setup*/
 	gsl_rng_env_setup();
@@ -198,7 +198,7 @@ static void fx_pieces(uint8_t* frame, int width, int height, int piece_size )
 
 	for(j = 0; j < numy; j++)
 	{
-		row = j * piece_size;
+		int row = j * piece_size;
 		for(i = 0; i < numx; i++)
 		{
 			column = i * piece_size * 2;

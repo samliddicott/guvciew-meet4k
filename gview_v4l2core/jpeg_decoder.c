@@ -408,7 +408,7 @@ static int fillbits(struct in *inp, int le, unsigned int bi)
 {
 	/*asserts*/
 	assert(inp != NULL);
-
+	
 	if (inp->marker)
 	{
 		if (le <= 16)
@@ -418,9 +418,9 @@ static int fillbits(struct in *inp, int le, unsigned int bi)
 	while (le <= 24)
 	{
 		int b = *inp->p++;
-		int m = *inp->p++;
-
-		if ((b == 0xff) && (m != 0))
+		int m = 0;
+		
+		if (b == 0xff && (m = *inp->p++) != 0)
 		{
 			if (m == M_EOF)
 			{

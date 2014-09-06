@@ -505,7 +505,6 @@ void yuv422_to_yuyv (uint8_t *framebuffer, uint8_t *tmpbuffer, int width, int he
 	pv=pu+(width*height/2);
 
 	int h=0;
-	int huv=0;
 
 	for(h=0;h<height;h++)
 	{

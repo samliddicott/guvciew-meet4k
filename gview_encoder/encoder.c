@@ -1318,7 +1318,6 @@ int encoder_encode_video(encoder_context_t *encoder_ctx, void *input_frame)
 	assert(encoder_ctx != NULL);
 
 	encoder_video_context_t *enc_video_ctx = encoder_ctx->enc_video_ctx;
-	encoder_codec_data_t *video_codec_data = (encoder_codec_data_t *) enc_video_ctx->codec_data;
 
 	int outsize = 0;
 
@@ -1329,6 +1328,8 @@ int encoder_encode_video(encoder_context_t *encoder_ctx, void *input_frame)
 		encoder_ctx->enc_video_ctx->outbuf_coded_size = outsize;
 		return outsize;
 	}
+	
+	encoder_codec_data_t *video_codec_data = (encoder_codec_data_t *) enc_video_ctx->codec_data;
 
 	/*raw - direct input no software encoding*/
 	if(encoder_ctx->video_codec_ind == 0)
@@ -1507,7 +1508,6 @@ int encoder_encode_audio(encoder_context_t *encoder_ctx, void *audio_data)
 	assert(encoder_ctx != NULL);
 
 	encoder_audio_context_t *enc_audio_ctx = encoder_ctx->enc_audio_ctx;
-	encoder_codec_data_t *audio_codec_data = (encoder_codec_data_t *) enc_audio_ctx->codec_data;
 
 	int outsize = 0;
 
@@ -1518,6 +1518,8 @@ int encoder_encode_audio(encoder_context_t *encoder_ctx, void *audio_data)
 
 		return outsize;
 	}
+	
+	encoder_codec_data_t *audio_codec_data = (encoder_codec_data_t *) enc_audio_ctx->codec_data;
 
 	if(enc_audio_ctx->flush_delayed_frames)
 	{
