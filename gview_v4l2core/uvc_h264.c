@@ -37,13 +37,13 @@
 #include "../config.h"
 
 /*h264 decoder (libavcodec)*/
-#ifdef HAS_AVCODEC_H
+#ifdef HAVE_AVCODEC_H
   #include <avcodec.h>
 #else
-  #ifdef HAS_LIBAVCODEC_AVCODEC_H
+  #ifdef HAVE_LIBAVCODEC_AVCODEC_H
     #include <libavcodec/avcodec.h>
   #else
-    #ifdef HAS_FFMPEG_AVCODEC_H
+    #ifdef HAVE_FFMPEG_AVCODEC_H
       #include <ffmpeg/avcodec.h>
     #else
       #include <libavcodec/avcodec.h>

@@ -134,24 +134,8 @@ dnl --------------------------------------------------------------------------
 
 dnl Check for avcodec.h directly
 dnl if all tests fail must add avcodec.h path to C_INCLUDE_PATH before running configure
-AC_CHECK_HEADER([avcodec.h], [has_avcodec_h="yes"])
-
-dnl Check old install path for avcodec.h (ffmpeg/avcodec.h)
-AC_CHECK_HEADER([ffmpeg/avcodec.h], [has_ffmpeg_dir="yes"])
-
-dnl Check new install path for avcodec.h (libavcodec/avcodec.h)
-dnl if all the checks fail we include "libavcodec/avcodec.h"
-AC_CHECK_HEADER([libavcodec/avcodec.h], [has_libavcodec_dir="yes"])
-
-if test "$has_avcodec_h" = yes; then
-  AC_DEFINE(HAS_AVCODEC_H,1,[Define if avcodec.h can be acessed directly])
-fi
-if test "$has_ffmpeg_dir" = yes; then
-  AC_DEFINE(HAS_FFMPEG_AVCODEC_H,1,[Define if avcodec.h installed to ffmpeg dir])
-fi
-if test "$has_libavcodec_dir" = yes; then
-  AC_DEFINE(HAS_LIBAVCODEC_AVCODEC_H,1,[Define if avcodec.h installed to libavcodec dir])
-fi
+CPPFLAGS+="${GVIEWV4L2CORE_CFLAGS}"
+AC_CHECK_HEADERS([avcodec.h libavcodec/avcodec.h ffmpeg/avcodec.h])
 
 dnl --------------------------------------------------------------------------
 dnl Check if we will use libavcodec or the internal decoder for mjpeg decoding
@@ -368,11 +352,7 @@ dnl --------------------------------------------------------------------------
 dnl Check for libavutil/version.h
 dnl --------------------------------------------------------------------------
 
-AC_CHECK_HEADER([libavutil/version.h], [has_libavutil_version_h="yes"])
-
-if test "$has_libavutil_version_h" = yes; then
-  AC_DEFINE(HAS_LIBAVUTIL_VERSION_H,1,[Define if libavutil/version.h can be acessed])
-fi
+AC_CHECK_HEADERS([libavutil/version.h])
 
 dnl --------------------------------------------------------------------------
 dnl check for guvcview dependencies
