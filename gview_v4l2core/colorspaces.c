@@ -26,6 +26,7 @@
 #include <errno.h>
 
 #include "gview.h"
+#include "../config.h"
 
 extern int verbosity;
 
@@ -1485,6 +1486,7 @@ void bgr2yuyv(uint8_t *pbgr, uint8_t *pyuv, int width, int height)
 	}
 }
 
+#if MJPG_BUILTIN //use internal jpeg decoder
 /*
  * used for internal jpeg decoding  420 planar to 422
  * args:
@@ -1696,3 +1698,4 @@ void yuv400pto422(int *out, uint8_t *pic, int width)
 	}
 }
 
+#endif
