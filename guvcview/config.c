@@ -140,9 +140,9 @@ int config_save(const char *filename)
 	fprintf(fp, "#photo sufix flag\n");
 	fprintf(fp, "photo_sufix=%i\n", my_config.photo_sufix);
 	fprintf(fp, "#fps numerator (def. 1)\n");
-	fprintf(fp, "#fps_num=%i\n", my_config.fps_num);
+	fprintf(fp, "fps_num=%i\n", my_config.fps_num);
 	fprintf(fp, "#fps denominator (def. 25)\n");
-	fprintf(fp, "#fps_denom=%i\n", my_config.fps_denom);
+	fprintf(fp, "fps_denom=%i\n", my_config.fps_denom);
 	fprintf(fp, "#audio device index (-1 - api default)\n");
 	fprintf(fp, "audio_device=%i\n", my_config.audio_device);
 	fprintf(fp, "#video fx mask \n");

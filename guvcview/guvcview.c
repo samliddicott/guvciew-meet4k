@@ -201,6 +201,9 @@ int main(int argc, char *argv[])
 	/*set the intended fps*/
 	device->fps_num = my_config->fps_num;
 	device->fps_denom = my_config->fps_denom;
+	
+	if(debug_level > 2)
+		printf("GUVCVIEW: fps configured to %i/%i\n", device->fps_num, device->fps_denom);
 
 	/*set fx masks*/
 	set_render_fx_mask(my_config->video_fx);
