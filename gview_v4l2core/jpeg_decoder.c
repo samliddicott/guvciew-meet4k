@@ -1524,6 +1524,7 @@ int jpeg_decode(uint8_t *out_buf, uint8_t *in_buf, int size)
 		avpicture_layout((AVPicture *) codec_data->picture, codec_data->context->pix_fmt, 
 			jpeg_ctx->width, jpeg_ctx->height, jpeg_ctx->tmp_frame, jpeg_ctx->pic_size);
 		/* libavcodec output is in yuv422p */
+        //yuv422p_to_yuv420p(out_buf, jpeg_ctx->tmp_frame, jpeg_ctx->width, jpeg_ctx->height);
 		yuv422_to_yuyv(out_buf, jpeg_ctx->tmp_frame, jpeg_ctx->width, jpeg_ctx->height);
 		
 		return jpeg_ctx->pic_size;

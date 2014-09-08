@@ -173,18 +173,18 @@ void yuyv2bgr (uint8_t *pyuv, uint8_t *pbgr, int width, int height)
 /*
  *convert from packed 422 yuv (yuyv) to 420 planar (iyuv)
  * args:
- *    in - pointer to input yuyv packed data buffer
  *    out - pointer to output iyuv planar data buffer
+ *    in - pointer to input yuyv packed data buffer
  *    width - frame width
  *    height - frame height
  *
  * asserts:
  *    in is not null
- *    ou is not null
+ *    out is not null
  *
  * returns: none
  */
-void yuyv_to_iyuv(uint8_t *in, uint8_t *out, int width, int height)
+void yuyv_to_yuv420p(uint8_t *out, uint8_t *in, int width, int height)
 {
 	/*assertions*/
 	assert(in);
@@ -217,6 +217,55 @@ void yuyv_to_iyuv(uint8_t *in, uint8_t *out, int width, int height)
 		in2 = in + ((h+1) * width * 2);
 		py1 = out + (h * width);
 		py2 = out + ((h+1) * width); 
+	}
+
+}
+
+/*
+ *convert from 422 planar yuv to 420 planar (iyuv)
+ * args:
+ *    out - pointer to output iyuv planar data buffer
+ *    in - pointer to input 422 planar data buffer
+ *    width - frame width
+ *    height - frame height
+ *
+ * asserts:
+ *    in is not null
+ *    out is not null
+ *
+ * returns: none
+ */
+void yuv422p_to_yuv420p(uint8_t *out, uint8_t *in, int width, int height)
+{
+	/*assertions*/
+	assert(in);
+	assert(out);
+
+    /*copy y data*/
+    memcpy(out, in, width*height);
+
+	int w = 0, h = 0;
+	int c_sizeline = width/2;
+	
+	uint8_t *pu = out + (width * height);
+    uint8_t *inu1 = in + (width * height);
+    uint8_t *inu2 = inu1 + (width/2);
+
+	uint8_t *pv = pu + ((width * height) / 4);
+    uint8_t *inv1 = inu1 + ((width * height) / 2);
+    uint8_t *inv2 = inv1 + (width / 2);
+
+	for(h = 0; h < height; h+=2)
+	{
+		for(w = 0; w < width/2; w++) 
+		{
+			*pu++ = ((*inu1++) + (*inu2++)) /2; //average u sample
+			*pv++ = ((*inv1++) + (*inv2++)) /2; //average v samples
+		}
+        inu1 = in + (width * height) + (h * c_sizeline);
+		inu2 = in + (width * height) + ((h+1) * c_sizeline);
+		inv1 = inu1 + ((width * height) / 2);
+		inv2 = inv1 + (width / 2);
 	}
 
 }

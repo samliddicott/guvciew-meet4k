@@ -74,18 +74,34 @@ void yuyv2bgr (uint8_t *pyuv, uint8_t *pbgr, int width, int height);
 /*
  *convert from packed 422 yuv (yuyv) to 420 planar (iyuv)
  * args:
- *    in - pointer to input yuyv packed data buffer
  *    out - pointer to output iyuv planar data buffer
+ *    in - pointer to input yuyv packed data buffer
  *    width - frame width
  *    height - frame height
  *
  * asserts:
  *    in is not null
- *    ou is not null
+ *    out is not null
  *
  * returns: none
  */
-void yuyv_to_iyuv(uint8_t *in, uint8_t *out, int width, int height);
+void yuyv_to_iyuv(uint8_t *out, uint8_t *in, int width, int height);
+
+/*
+ *convert from 422 planar yuv to 420 planar (iyuv)
+ * args:
+ *    out - pointer to output iyuv planar data buffer
+ *    in - pointer to input 422 planar data buffer
+ *    width - frame width
+ *    height - frame height
+ *
+ * asserts:
+ *    in is not null
+ *    out is not null
+ *
+ * returns: none
+ */
+void yuv422p_to_yuv420p(uint8_t *out, uint8_t *in, int width, int height);
 
 /*
  * convert y10b (bit-packed array greyscale format) to yuyv (packed)

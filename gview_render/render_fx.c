@@ -121,7 +121,7 @@ static void fx_iyuv_mirror (uint8_t *frame, int width, int height)
 	/*mirror y*/
 	for(h = 0; h < height; h++)
 	{
-		end = py + y_sizeline -1;
+		end = py + y_sizeline;
 		for(w = 0; w < y_sizeline/2; w++)
 		{
 			pixel = *py;
@@ -133,8 +133,8 @@ static void fx_iyuv_mirror (uint8_t *frame, int width, int height)
 
 	for(h = 0; h < height/2; h++)
 	{
-		end  = pu + c_sizeline -1;
-		end2 = pv + c_sizeline -1;
+		end  = pu + c_sizeline;
+		end2 = pv + c_sizeline;
 		for(w = 0; w < c_sizeline/2; w++)
 		{
 			pixel  = *pu;
@@ -485,9 +485,11 @@ void render_fx_apply(uint8_t *frame, int width, int height, uint32_t mask)
 		#endif
 
 		if(mask & REND_FX_YUV_MIRROR)
-			//fx_iyuv_mirror(frame, width, height);
+#ifdef USE_PLANAR_YUV
+			fx_iyuv_mirror(frame, width, height);
+#else
 			fx_yuyv_mirror(frame, width, height);
-
+#endif
 		if(mask & REND_FX_YUV_UPTURN)
 			fx_yuyv_upturn(frame, width, height);
 

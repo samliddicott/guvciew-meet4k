@@ -213,8 +213,11 @@ static int video_init(int width, int height, int flags)
 	SDL_SetRenderDrawBlendMode(main_renderer, SDL_BLENDMODE_NONE);
 
     rending_texture = SDL_CreateTexture(main_renderer,
-		//SDL_PIXELFORMAT_IYUV,  /*yuv420p*/
+#ifdef USE_PLANAR_YUV
+		SDL_PIXELFORMAT_IYUV,  /*yuv420p*/
+#else
 		SDL_PIXELFORMAT_YUY2,  /*yuv422*/
+#endif
 		SDL_TEXTUREACCESS_STREAMING,
 		width,
 		height);
@@ -280,8 +283,11 @@ int render_sdl2_frame(uint8_t *frame, int width, int height)
 	float vu_level[2];
 	render_get_vu_level(vu_level);
 
-	//int size = width * height * 3/2 /* for IYUV */
+#ifdef USE_PLANAR_YUV
+	int size = width * height * 3/2; /* for IYUV */
+#else
 	int size = width * height * 2; /* 2 bytes per pixel for YUYV */
+#endif
 
 	void* texture_pixels;
 	int pitch;
