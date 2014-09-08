@@ -195,7 +195,59 @@ void yuyv_to_yuv420p(uint8_t *out, uint8_t *in, int width, int height)
 	int c_sizeline = width/2;
 	
 	uint8_t *in1 = in; //first line
-	uint8_t *in2 = in1 + (width * height * 2); //second line in yuyv buffer
+	uint8_t *in2 = in1 + (width * 2); //second line in yuyv buffer
+
+	uint8_t *py1 = out; // first line
+	uint8_t *py2 = py1 + y_sizeline; //second line
+	uint8_t *pu = py1 + (width * height);
+	uint8_t *pv = pu + ((width * height) / 4);
+
+	for(h = 0; h < height; h+=2)
+	{
+		for(w = 0; w < width; w+=2) //yuyv 2 bytes per sample
+		{
+			//printf("decoding: h:%i w:%i\n", h, w);
+			*py1++ = *in1++;
+			*py2++ = *in2++;
+			*pu++ = ((*in1++) + (*in2++)) /2; //average u samples
+			*py1++ = *in1++;
+			*py2++ = *in2++;
+			*pv++ = ((*in1++) + (*in2++)) /2; //average v samples
+		}
+		in1 = in + (h * width * 2);
+		in2 = in + ((h+1) * width * 2);
+		py1 = out + (h * width);
+		py2 = out + ((h+1) * width); 
+	}
+
+}
+
+/*
+ *convert from packed 422 yuv (yvyu) to 420 planar (iyuv)
+ * args:
+ *    out - pointer to output iyuv planar data buffer
+ *    in - pointer to input yvyu packed data buffer
+ *    width - frame width
+ *    height - frame height
+ *
+ * asserts:
+ *    in is not null
+ *    out is not null
+ *
+ * returns: none
+ */
+void yvyu_to_yuv420p(uint8_t *out, uint8_t *in, int width, int height)
+{
+	/*assertions*/
+	assert(in);
+	assert(out);
+
+	int w = 0, h = 0;
+	int y_sizeline = width;
+	int c_sizeline = width/2;
+	
+	uint8_t *in1 = in; //first line
+	uint8_t *in2 = in1 + (width * 2); //second line in yuyv buffer
 
 	uint8_t *py1 = out; // first line
 	uint8_t *py2 = py1 + y_sizeline; //second line
@@ -208,10 +260,61 @@ void yuyv_to_yuv420p(uint8_t *out, uint8_t *in, int width, int height)
 		{
 			*py1++ = *in1++;
 			*py2++ = *in2++;
+			*pv++ = ((*in1++) + (*in2++)) /2; //average v samples
+			*py1++ = *in1++;
+			*py2++ = *in2++;
+			*pu++ = ((*in1++) + (*in2++)) /2; //average u samples
+		}
+		in1 = in + (h * width * 2);
+		in2 = in + ((h+1) * width * 2);
+		py1 = out + (h * width);
+		py2 = out + ((h+1) * width); 
+	}
+
+}
+
+/*
+ *convert from packed 422 yuv (uyvy) to 420 planar (iyuv)
+ * args:
+ *    out - pointer to output iyuv planar data buffer
+ *    in - pointer to input uyvy packed data buffer
+ *    width - frame width
+ *    height - frame height
+ *
+ * asserts:
+ *    in is not null
+ *    out is not null
+ *
+ * returns: none
+ */
+void uyvy_to_yuv420p(uint8_t *out, uint8_t *in, int width, int height)
+{
+	/*assertions*/
+	assert(in);
+	assert(out);
+
+	int w = 0, h = 0;
+	int y_sizeline = width;
+	int c_sizeline = width/2;
+	
+	uint8_t *in1 = in; //first line
+	uint8_t *in2 = in1 + (width * 2); //second line in yuyv buffer
+
+	uint8_t *py1 = out; // first line
+	uint8_t *py2 = py1 + y_sizeline; //second line
+	uint8_t *pu = py1 + (width * height);
+	uint8_t *pv = pu + ((width * height) / 4);
+
+	for(h = 0; h < height; h+=2)
+	{
+		for(w = 0; w < width; w+=2) //yuyv 2 bytes per sample
+		{
 			*pu++ = ((*in1++) + (*in2++)) /2; //average u samples
 			*py1++ = *in1++;
 			*py2++ = *in2++;
 			*pv++ = ((*in1++) + (*in2++)) /2; //average v samples
+			*py1++ = *in1++;
+			*py2++ = *in2++;
 		}
 		in1 = in + (h * width * 2);
 		in2 = in + ((h+1) * width * 2);
@@ -386,6 +489,57 @@ void y16_to_yuyv (uint8_t *framebuffer, uint8_t *tmpbuffer, int width, int heigh
 			ptmp += 2;
 		}
 	}
+}
+
+/*
+ * convert yyuv (packed) to yuv420 planar (iyuv)
+ * args:
+ *    out: pointer to output buffer (iyuv)
+ *    in: pointer to input buffer containing yyuv packed data frame
+ *    width: picture width
+ *    height: picture height
+ *
+ * asserts:
+ *    out is not null
+ *    in is not null
+ *
+ * returns: none
+ */
+void yyuv_to_yuv420p (uint8_t *out, uint8_t *in, int width, int height)
+{
+	/*assertions*/
+	assert(in);
+	assert(out);
+
+	int w = 0, h = 0;
+	int y_sizeline = width;
+	int c_sizeline = width/2;
+	
+	uint8_t *in1 = in; //first line
+	uint8_t *in2 = in1 + (width * 2); //second line in yyuv buffer
+
+	uint8_t *py1 = out; // first line
+	uint8_t *py2 = py1 + y_sizeline; //second line
+	uint8_t *pu = py1 + (width * height);
+	uint8_t *pv = pu + ((width * height) / 4);
+
+	for(h = 0; h < height; h+=2)
+	{
+		for(w = 0; w < width; w+=2) //yyuv 2 bytes per sample
+		{
+			*py1++ = *in1++;
+			*py1++ = *in1++;
+			*py2++ = *in2++;
+			*py2++ = *in2++;
+			*pu++ = ((*in1++) + (*in2++)) /2; //average v samples
+			*pv++ = ((*in1++) + (*in2++)) /2; //average u samples
+		}
+		in1 = in + (h * width * 2);
+		in2 = in + ((h+1) * width * 2);
+		py1 = out + (h * width);
+		py2 = out + ((h+1) * width); 
+	}
+
 }
 
 /*
@@ -702,6 +856,34 @@ void yvu420_to_yuyv (uint8_t *framebuffer, uint8_t *tmpbuffer, int width, int he
 }
 
 /*
+ *convert from 420 planar yvu to 420 planar (iyuv)
+ * args:
+ *    out - pointer to output iyuv planar data buffer
+ *    in - pointer to input 420 planar data buffer
+ *    width - frame width
+ *    height - frame height
+ *
+ * asserts:
+ *    in is not null
+ *    out is not null
+ *
+ * returns: none
+ */
+void yvu420p_to_yuv420p(uint8_t *out, uint8_t *in, int width, int height)
+{
+	/*assertions*/
+	assert(in);
+	assert(out);
+
+    /*copy y data*/
+    memcpy(out, in, width*height);
+	/*copy u data*/
+	memcpy(out+(width*height), in+((width * height * 5) / 4), width * height / 4);
+	/*copy v data*/
+	memcpy(out+((width * height * 5) / 4), in+(width * height), width * height / 4);
+}
+
+/*
  * convert yuv 420 planar (uv interleaved) (nv12) to yuv 422
  * args:
  *   framebuffer: pointer to frame buffer (yuyv)
@@ -766,6 +948,43 @@ void nv12_to_yuyv (uint8_t *framebuffer, uint8_t *tmpbuffer, int width, int heig
 }
 
 /*
+ * convert nv12 planar (uv interleaved) to yuv420 planar (iyuv)
+ * args:
+ *    out: pointer to output buffer (iyuv)
+ *    in: pointer to input buffer containing nv12 planar data frame
+ *    width: picture width
+ *    height: picture height
+ *
+ * asserts:
+ *    out is not null
+ *    in is not null
+ *
+ * returns: none
+ */
+void nv12_to_yuv420p (uint8_t *out, uint8_t *in, int width, int height)
+{
+	/*assertions*/
+	assert(in);
+	assert(out);
+
+	/*copy y data*/
+    memcpy(out, in, width*height);
+	
+	uint8_t *puv = in + (width * height);
+	uint8_t *pu = out + (width * height);
+	uint8_t *pv = pu + ((width * height) / 4);
+
+	/*uv plane*/
+	int i = 0;
+	for(i=0; i< width * height /2; i+=2)
+	{
+		*pu++ = *puv++;
+		*pv++ = *puv++;
+	}
+
+}
+
+/*
  * convert yuv 420 planar (vu interleaved) (nv21) to yuv 422
  * args:
  *   framebuffer: pointer to frame buffer (yuyv)
@@ -827,6 +1046,43 @@ void nv21_to_yuyv (uint8_t *framebuffer, uint8_t *tmpbuffer, int width, int heig
 		}
 		huv++;
 	}
+}
+
+/*
+ * convert nv21 planar (vu interleaved) to yuv420 planar (iyuv)
+ * args:
+ *    out: pointer to output buffer (iyuv)
+ *    in: pointer to input buffer containing nv21 planar data frame
+ *    width: picture width
+ *    height: picture height
+ *
+ * asserts:
+ *    out is not null
+ *    in is not null
+ *
+ * returns: none
+ */
+void nv21_to_yuv420p (uint8_t *out, uint8_t *in, int width, int height)
+{
+	/*assertions*/
+	assert(in);
+	assert(out);
+
+	/*copy y data*/
+    memcpy(out, in, width*height);
+	
+	uint8_t *puv = in + (width * height);
+	uint8_t *pu = out + (width * height);
+	uint8_t *pv = pu + ((width * height) / 4);
+
+	/*uv plane*/
+	int i = 0;
+	for(i=0; i< width * height /2; i+=2)
+	{
+		*pv++ = *puv++;
+		*pu++ = *puv++;
+	}
+
 }
 
 /*

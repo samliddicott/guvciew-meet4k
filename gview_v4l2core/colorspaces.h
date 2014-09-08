@@ -88,6 +88,38 @@ void yuyv2bgr (uint8_t *pyuv, uint8_t *pbgr, int width, int height);
 void yuyv_to_iyuv(uint8_t *out, uint8_t *in, int width, int height);
 
 /*
+ *convert from packed 422 yuv (yvyu) to 420 planar (iyuv)
+ * args:
+ *    out - pointer to output iyuv planar data buffer
+ *    in - pointer to input yvyu packed data buffer
+ *    width - frame width
+ *    height - frame height
+ *
+ * asserts:
+ *    in is not null
+ *    out is not null
+ *
+ * returns: none
+ */
+void yvyu_to_yuv420p(uint8_t *out, uint8_t *in, int width, int height);
+
+/*
+ *convert from packed 422 yuv (uyvy) to 420 planar (iyuv)
+ * args:
+ *    out - pointer to output iyuv planar data buffer
+ *    in - pointer to input uyvy packed data buffer
+ *    width - frame width
+ *    height - frame height
+ *
+ * asserts:
+ *    in is not null
+ *    out is not null
+ *
+ * returns: none
+ */
+void uyvy_to_yuv420p(uint8_t *out, uint8_t *in, int width, int height);
+
+/*
  *convert from 422 planar yuv to 420 planar (iyuv)
  * args:
  *    out - pointer to output iyuv planar data buffer
@@ -147,6 +179,22 @@ void y16_to_yuyv (uint8_t *framebuffer, uint8_t *tmpbuffer, int width, int heigh
  * returns: none
  */
 void yyuv_to_yuyv (uint8_t *framebuffer, uint8_t *tmpbuffer, int width, int height);
+
+/*
+ * convert yyuv (packed) to yuv420 planar (iyuv)
+ * args:
+ *    out: pointer to output buffer (iyuv)
+ *    in: pointer to input buffer containing yyuv packed data frame
+ *    width: picture width
+ *    height: picture height
+ *
+ * asserts:
+ *    out is not null
+ *    in is not null
+ *
+ * returns: none
+ */
+void yyuv_to_yuv420p (uint8_t *out, uint8_t *in, int width, int height);
 
 /*
  * convert uyvy (packed) to yuyv (packed)
@@ -224,6 +272,22 @@ void yuv422_to_yuyv (uint8_t *framebuffer, uint8_t *tmpbuffer, int width, int he
 void yvu420_to_yuyv (uint8_t *framebuffer, uint8_t *tmpbuffer, int width, int height);
 
 /*
+ *convert from 420 planar yvu to 420 planar (iyuv)
+ * args:
+ *    out - pointer to output iyuv planar data buffer
+ *    in - pointer to input 420 planar data buffer
+ *    width - frame width
+ *    height - frame height
+ *
+ * asserts:
+ *    in is not null
+ *    out is not null
+ *
+ * returns: none
+ */
+void yvu420p_to_yuv420p(uint8_t *out, uint8_t *in, int width, int height);
+
+/*
  * convert yuv 420 planar (uv interleaved) (nv12) to yuv 422
  * args:
  *   framebuffer: pointer to frame buffer (yuyv)
@@ -239,6 +303,22 @@ void yvu420_to_yuyv (uint8_t *framebuffer, uint8_t *tmpbuffer, int width, int he
 void nv12_to_yuyv (uint8_t *framebuffer, uint8_t *tmpbuffer, int width, int height);
 
 /*
+ * convert nv12 planar (uv interleaved) to yuv420 planar (iyuv)
+ * args:
+ *    out: pointer to output buffer (iyuv)
+ *    in: pointer to input buffer containing nv12 planar data frame
+ *    width: picture width
+ *    height: picture height
+ *
+ * asserts:
+ *    out is not null
+ *    in is not null
+ *
+ * returns: none
+ */
+void nv12_to_yuv420p (uint8_t *out, uint8_t *in, int width, int height);
+
+/*
  * convert yuv 420 planar (vu interleaved) (nv21) to yuv 422
  * args:
  *   framebuffer: pointer to frame buffer (yuyv)
@@ -252,6 +332,22 @@ void nv12_to_yuyv (uint8_t *framebuffer, uint8_t *tmpbuffer, int width, int heig
  * returns: none
  */
 void nv21_to_yuyv (uint8_t *framebuffer, uint8_t *tmpbuffer, int width, int height);
+
+/*
+ * convert nv21 planar (vu interleaved) to yuv420 planar (iyuv)
+ * args:
+ *    out: pointer to output buffer (iyuv)
+ *    in: pointer to input buffer containing nv21 planar data frame
+ *    width: picture width
+ *    height: picture height
+ *
+ * asserts:
+ *    out is not null
+ *    in is not null
+ *
+ * returns: none
+ */
+void nv21_to_yuv420p (uint8_t *out, uint8_t *in, int width, int height);
 
 /*
  * convert yuv 422 planar (uv interleaved) (nv16) to yuv 422

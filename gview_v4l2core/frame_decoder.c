@@ -36,6 +36,7 @@
 #include "frame_decoder.h"
 #include "jpeg_decoder.h"
 #include "colorspaces.h"
+#include "../config.h"
 
 extern int verbosity;
 
@@ -54,6 +55,8 @@ int alloc_v4l2_frames(v4l2_dev_t *vd)
 	/*assertions*/
 	assert(vd != NULL);
 
+	if(verbosity > 2)
+		printf("V4L2_CORE: allocating frame buffers\n");
 	/*clean any previous frame buffers*/
 	clean_v4l2_frames(vd);
 
@@ -66,8 +69,11 @@ int alloc_v4l2_frames(v4l2_dev_t *vd)
 
 	if(width <= 0 || height <= 0)
 		return E_ALLOC_ERR;
-
+#ifdef USE_PLANAR_YUV
+	int framesizeIn = (width * height * 3/2); /* 3/2 bytes per pixel*/
+#else
 	int framesizeIn = (width * height * 2); /*2 bytes per pixel*/
+#endif
 	switch (vd->requested_fmt)
 	{
 		case V4L2_PIX_FMT_H264:
@@ -98,6 +104,27 @@ int alloc_v4l2_frames(v4l2_dev_t *vd)
 				fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (alloc_v4l2_frames): %s\n", strerror(errno));
 				exit(-1);
 			}
+			
+			vd->yuv_frame = calloc(framesizeIn, sizeof(uint8_t));
+			if(vd->yuv_frame == NULL)
+			{
+				fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (alloc_v4l2_frames): %s\n", strerror(errno));
+				exit(-1);
+			}
+			
+#ifdef USE_PLANAR_YUV
+			/*no need for a temp buffer*/
+#else
+			/* alloc a temp buffer for colorspace conversion*/
+			vd->tmp_buffer_max_size = width * height * 2;
+			vd->tmp_buffer = calloc(vd->tmp_buffer_max_size, sizeof(uint8_t));
+			if(vd->tmp_buffer == NULL)
+			{
+				fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (alloc_v4l2_frames): %s\n", strerror(errno));
+				exit(-1);
+			}
+#endif			
+			break;
 
 		case V4L2_PIX_FMT_JPEG:
 		case V4L2_PIX_FMT_MJPEG:
@@ -109,9 +136,11 @@ int alloc_v4l2_frames(v4l2_dev_t *vd)
 				fprintf(stderr, "V4L2_CORE: couldn't init jpeg decoder\n");
 				return ret;
 			}
+
+			//framebuf_size = framesizeIn;	
+			//framebuf_size = width * (height + 8) * 2; //FIXME: why 8 more lines ?
 			
-			framebuf_size = width * (height + 8) * 2; //FIXME: why 8 more lines ?
-			vd->yuv_frame = calloc(framebuf_size, sizeof(uint8_t));
+			vd->yuv_frame = calloc(framesizeIn, sizeof(uint8_t));
 			if(vd->yuv_frame == NULL)
 			{
 				fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (alloc_v4l2_frames): %s\n", strerror(errno));
@@ -132,8 +161,9 @@ int alloc_v4l2_frames(v4l2_dev_t *vd)
 		case V4L2_PIX_FMT_SPCA501:
 		case V4L2_PIX_FMT_SPCA505:
 		case V4L2_PIX_FMT_SPCA508:
+			/*FIXME: do we need the temp buffer ?*/
 			/* alloc a temp buffer for colorspace conversion*/
-			vd->tmp_buffer_max_size = framesizeIn;
+			vd->tmp_buffer_max_size = width * height * 2;
 			vd->tmp_buffer = calloc(vd->tmp_buffer_max_size, sizeof(uint8_t));
 			if(vd->tmp_buffer == NULL)
 			{
@@ -270,6 +300,15 @@ int alloc_v4l2_frames(v4l2_dev_t *vd)
 
 	int i = 0;
 	/* set framebuffer to black (y=0x00 u=0x80 v=0x80) by default*/
+#ifdef USE_PLANAR_YUV
+	uint8_t *pframe = vd->yuv_frame;
+	for (i=0; i<width*height; i++)
+		*pframe++=0x00; //Y
+	for(i=0; i<width*height/2; i++)
+	{
+		*pframe++=0x80; //U V
+	}
+#else
 	for (i=0; i<(framebuf_size-4); i+=4)
 	{
 		vd->yuv_frame[i]=0x00;  //Y
@@ -277,7 +316,7 @@ int alloc_v4l2_frames(v4l2_dev_t *vd)
 		vd->yuv_frame[i+2]=0x00;//Y
 		vd->yuv_frame[i+3]=0x80;//V
 	}
-
+#endif
 	return (ret);
 }
 
@@ -748,10 +787,15 @@ int v4l2core_frame_decode(v4l2_dev_t *vd)
 			//decode if we already have a IDR frame
 			if(vd->h264_last_IDR_size > 0)
 			{
+#ifdef USE_PLANAR_YUV
+				/*no need to convert output*/
+				h264_decode(vd->yuv_frame, vd->h264_frame, vd->h264_frame_size);
+#else
 				/* decode (h264) to vd->tmp_buffer (yuv420p)*/
 				h264_decode(vd->tmp_buffer, vd->h264_frame, vd->h264_frame_size);
 				/* convert to yuyv*/
 				yuv420_to_yuyv (vd->yuv_frame, vd->tmp_buffer, width, height);
+#endif
 			}
 			break;
 
@@ -781,6 +825,9 @@ int v4l2core_frame_decode(v4l2_dev_t *vd)
 			break;
 
 		case V4L2_PIX_FMT_UYVY:
+#ifdef USE_PLANAR_YUV
+			uyvy_to_yuv420p(vd->yuv_frame, vd->raw_frame, width, height);
+#else
 			/*FIXME: do we need the tmp_buffer or can we just use the raw_frame?*/
 			if(vd->raw_frame_size > vd->tmp_buffer_max_size)
 			{
@@ -792,9 +839,13 @@ int v4l2core_frame_decode(v4l2_dev_t *vd)
 			else
 				memcpy(vd->tmp_buffer, vd->raw_frame, vd->raw_frame_size);
 			uyvy_to_yuyv(vd->yuv_frame, vd->tmp_buffer, width, height);
+#endif
 			break;
 
 		case V4L2_PIX_FMT_YVYU:
+#ifdef USE_PLANAR_YUV
+			yvyu_to_yuv420p(vd->yuv_frame, vd->raw_frame, width, height);
+#else
 			/*FIXME: do we need the tmp_buffer or can we just use the raw_frame?*/
 			if(vd->raw_frame_size > vd->tmp_buffer_max_size)
 			{
@@ -806,9 +857,13 @@ int v4l2core_frame_decode(v4l2_dev_t *vd)
 			else
 				memcpy(vd->tmp_buffer, vd->raw_frame, vd->raw_frame_size);
 			yvyu_to_yuyv(vd->yuv_frame, vd->tmp_buffer, width, height);
+#endif
 			break;
 
 		case V4L2_PIX_FMT_YYUV:
+#ifdef USE_PLANAR_YUV
+			yyuv_to_yuv420p(vd->yuv_frame, vd->raw_frame, width, height);
+#else
 			/*FIXME: do we need the tmp_buffer or can we just use the raw_frame?*/
 			if(vd->raw_frame_size > vd->tmp_buffer_max_size)
 			{
@@ -820,9 +875,15 @@ int v4l2core_frame_decode(v4l2_dev_t *vd)
 			else
 				memcpy(vd->tmp_buffer, vd->raw_frame, vd->raw_frame_size);
 			yyuv_to_yuyv(vd->yuv_frame, vd->tmp_buffer, width, height);
+#endif
 			break;
 
 		case V4L2_PIX_FMT_YUV420:
+#ifdef USE_PLANAR_YUV
+			if(vd->raw_frame_size > (width * height * 3/2))
+				vd->raw_frame_size = width * height * 3/2;
+			memcpy(vd->yuv_frame, vd->raw_frame, vd->raw_frame_size);
+#else
 			/*FIXME: do we need the tmp_buffer or can we just use the raw_frame?*/
 			if(vd->raw_frame_size > vd->tmp_buffer_max_size)
 			{
@@ -834,9 +895,13 @@ int v4l2core_frame_decode(v4l2_dev_t *vd)
 			else
 				memcpy(vd->tmp_buffer, vd->raw_frame, vd->raw_frame_size);
 			yuv420_to_yuyv(vd->yuv_frame, vd->tmp_buffer, width, height);
+#endif
 			break;
 
 		case V4L2_PIX_FMT_YVU420:
+#ifdef USE_PLANAR_YUV
+			yvu420p_to_yuv420p(vd->yuv_frame, vd->raw_frame, width, height);
+#else
 			/*FIXME: do we need the tmp_buffer or can we just use the raw_frame?*/
 			if(vd->raw_frame_size > vd->tmp_buffer_max_size)
 			{
@@ -848,9 +913,13 @@ int v4l2core_frame_decode(v4l2_dev_t *vd)
 			else
 				memcpy(vd->tmp_buffer, vd->raw_frame, vd->raw_frame_size);
 			yvu420_to_yuyv(vd->yuv_frame, vd->tmp_buffer, width, height);
+#endif
 			break;
 
 		case V4L2_PIX_FMT_NV12:
+#ifdef USE_PLANAR_YUV
+			nv12_to_yuv420p(vd->yuv_frame, vd->raw_frame, width, height);
+#else
 			/*FIXME: do we need the tmp_buffer or can we just use the raw_frame?*/
 			if(vd->raw_frame_size > vd->tmp_buffer_max_size)
 			{
@@ -862,9 +931,13 @@ int v4l2core_frame_decode(v4l2_dev_t *vd)
 			else
 				memcpy(vd->tmp_buffer, vd->raw_frame, vd->raw_frame_size);
 			nv12_to_yuyv(vd->yuv_frame, vd->tmp_buffer, width, height);
+#endif
 			break;
 
 		case V4L2_PIX_FMT_NV21:
+#ifdef USE_PLANAR_YUV
+			nv21_to_yuv420p(vd->yuv_frame, vd->raw_frame, width, height);
+#else
 			/*FIXME: do we need the tmp_buffer or can we just use the raw_frame?*/
 			if(vd->raw_frame_size > vd->tmp_buffer_max_size)
 			{
@@ -876,6 +949,7 @@ int v4l2core_frame_decode(v4l2_dev_t *vd)
 			else
 				memcpy(vd->tmp_buffer, vd->raw_frame, vd->raw_frame_size);
 			nv21_to_yuyv(vd->yuv_frame, vd->tmp_buffer, width, height);
+#endif
 			break;
 
 		case V4L2_PIX_FMT_NV16:
@@ -1005,6 +1079,25 @@ int v4l2core_frame_decode(v4l2_dev_t *vd)
 			break;
 
 		case V4L2_PIX_FMT_YUYV:
+#ifdef USE_PLANAR_YUV
+			if(vd->isbayer>0)
+			{
+				if (!(vd->tmp_buffer))
+				{
+					/* rgb buffer for decoding bayer data*/
+					vd->tmp_buffer_max_size = width * height * 3;
+					vd->tmp_buffer = calloc(vd->tmp_buffer_max_size, sizeof(uint8_t));
+					if(vd->tmp_buffer == NULL)
+					{
+						fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (v4l2core_frame_decode): %s\n", strerror(errno));
+						exit(-1);
+					}
+				}
+				/*convert raw bayer to iyuv*/
+			}
+			else
+				yuyv_to_yuv420p(vd->yuv_frame, vd->raw_frame, width, height);
+#else
 			if(vd->isbayer>0)
 			{
 				if (!(vd->tmp_buffer))
@@ -1030,6 +1123,7 @@ int v4l2core_frame_decode(v4l2_dev_t *vd)
 				else
 					memcpy(vd->yuv_frame, vd->raw_frame, vd->raw_frame_size);
 			}
+#endif
 			break;
 
 		case V4L2_PIX_FMT_SGBRG8: //0

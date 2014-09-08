@@ -1038,10 +1038,10 @@ int h264_init_decoder(int width, int height)
 	 * we wish to have smaller code)
 	 */
 	avcodec_register_all();
-
+	
 	if(h264_ctx != NULL)
 		h264_close_decoder();
-
+	
 	h264_ctx = calloc(1, sizeof(h264_decoder_context_t));
 	if(h264_ctx == NULL)
 	{
@@ -1057,7 +1057,7 @@ int h264_init_decoder(int width, int height)
 		h264_ctx = NULL;
 		return E_NO_CODEC;
 	}
-
+	
 #if LIBAVCODEC_VER_AT_LEAST(53,6)
 	h264_ctx->context = avcodec_alloc_context3(h264_ctx->codec);
 	avcodec_get_context_defaults3 (h264_ctx->context, h264_ctx->codec);
@@ -1070,7 +1070,7 @@ int h264_init_decoder(int width, int height)
 		fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (h264_init_decoder): %s\n", strerror(errno));
 		exit(-1);
 	}
-
+	
 	h264_ctx->context->flags2 |= CODEC_FLAG2_FAST;
 	h264_ctx->context->pix_fmt = PIX_FMT_YUV420P;
 	h264_ctx->context->width = width;
@@ -1090,7 +1090,7 @@ int h264_init_decoder(int width, int height)
 		h264_ctx = NULL;
 		return E_NO_CODEC;
 	}
-
+	
 #if LIBAVCODEC_VER_AT_LEAST(55,28)
 	h264_ctx->picture = av_frame_alloc();
 	av_frame_unref(h264_ctx->picture);
@@ -1098,7 +1098,7 @@ int h264_init_decoder(int width, int height)
 	h264_ctx->picture = avcodec_alloc_frame();
 	avcodec_get_frame_defaults(h264_ctx->picture);
 #endif
-
+	
 	h264_ctx->pic_size = avpicture_get_size(h264_ctx->context->pix_fmt, width, height);
 	h264_ctx->width = width;
 	h264_ctx->height = height;
@@ -1143,8 +1143,8 @@ int h264_decode(uint8_t *out_buf, uint8_t *in_buf, int size)
 
 	if(got_picture)
 	{
-		avpicture_layout((AVPicture *) h264_ctx->picture, h264_ctx->context->pix_fmt
-			, h264_ctx->width, h264_ctx->height, out_buf, h264_ctx->pic_size);
+		avpicture_layout((AVPicture *) h264_ctx->picture, h264_ctx->context->pix_fmt, 
+			h264_ctx->width, h264_ctx->height, out_buf, h264_ctx->pic_size);
 		return len;
 	}
 	else

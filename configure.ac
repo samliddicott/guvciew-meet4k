@@ -129,6 +129,21 @@ AC_SUBST(GVIEWV4L2CORE_CFLAGS)
 AC_SUBST(GVIEWV4L2CORE_LIBS)
 
 dnl --------------------------------------------------------------------------
+dnl check internal yuv format (packed yuyv - default) or planar (iyuv) 
+dnl --------------------------------------------------------------------------
+AC_MSG_CHECKING(if you want to enable iyuv (planar 420) as internal format)
+AC_ARG_ENABLE(iyuv, AS_HELP_STRING([--enable-iyuv],
+		[enable iyuv (planar 420) as internal format (default: disabled)]),
+	[enable_iyuv=yes yuv_format="iyuv (alpha)"],
+	[enable_iyuv=no  yuv_format=yuyv])
+
+AC_MSG_RESULT($enable_iyuv)
+
+if test $enable_iyuv = yes; then
+	AC_DEFINE(USE_PLANAR_YUV, 1, [set to 1 if iyuv is enabled])
+fi
+
+dnl --------------------------------------------------------------------------
 dnl Check for avcodec.h installation path
 dnl --------------------------------------------------------------------------
 
@@ -428,13 +443,14 @@ AC_MSG_NOTICE([
   guvcview $VERSION
   ----------------------
 
-  Prefix         : ${prefix}
-  Pulseaudio     : ${enable_pulse}
-  gsl            : ${enable_gsl}
-  sdl2           : ${enable_sdl2}
-  mjpg decoder   : ${mjpg_decoder}
-  desktop file   : ${enable_desktop}
-  debian menu    : ${enable_debian_menu}
+  Prefix           : ${prefix}
+  Pulseaudio       : ${enable_pulse}
+  internal format  : ${yuv_format}
+  gsl              : ${enable_gsl}
+  sdl2             : ${enable_sdl2}
+  mjpg decoder     : ${mjpg_decoder}
+  desktop file     : ${enable_desktop}
+  debian menu      : ${enable_debian_menu}
 
 ])
 

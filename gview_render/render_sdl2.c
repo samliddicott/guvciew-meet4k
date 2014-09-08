@@ -30,6 +30,7 @@
 #include "gviewrender.h"
 #include "render.h"
 #include "render_sdl2.h"
+#include "../config.h"
 
 extern int verbosity;
 
