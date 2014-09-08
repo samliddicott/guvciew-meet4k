@@ -87,6 +87,70 @@ static void fx_yuyv_mirror (uint8_t *frame, int width, int height)
 }
 
 /*
+ * Flip IYUV frame - horizontal
+ * args:
+ *    frame - pointer to frame buffer (yuyv format)
+ *    width - frame width
+ *    height- frame height
+ *
+ * asserts:
+ *    frame is not null
+ *
+ * returns: void
+ */
+static void fx_iyuv_mirror (uint8_t *frame, int width, int height)
+{
+	/*asserts*/
+	assert(frame != NULL);
+
+	int h=0;
+	int w=0;
+	int y_sizeline = width;
+	int c_sizeline = width/2;
+
+	uint8_t *end = NULL;
+	uint8_t *end2 = NULL;
+
+	uint8_t *py = frame;
+	uint8_t *pu = frame + (width * height);
+	uint8_t *pv = pu + ((width * height) / 4);
+
+	uint8_t pixel =0;
+	uint8_t pixel2=0;
+
+	/*mirror y*/
+	for(h = 0; h < height; h++)
+	{
+		end = py + y_sizeline -1;
+		for(w = 0; w < y_sizeline/2; w++)
+		{
+			pixel = *py;
+			*py++ = *end;
+			*end-- = pixel;
+		}
+		py += y_sizeline;
+	}	
+
+	for(h = 0; h < height/2; h++)
+	{
+		end  = pu + c_sizeline -1;
+		end2 = pv + c_sizeline -1;
+		for(w = 0; w < c_sizeline/2; w++)
+		{
+			pixel  = *pu;
+			pixel2 = *pv;
+			*pu++ = *end;
+			*pv++ = *end2;
+			*end-- = pixel;
+			*end2-- = pixel2;
+		}
+		pu += c_sizeline;
+		pv += c_sizeline;
+	}
+	
+}
+
+/*
  * Invert YUV frame
  * args:
  *    frame - pointer to frame buffer (yuyv format)
@@ -421,6 +485,7 @@ void render_fx_apply(uint8_t *frame, int width, int height, uint32_t mask)
 		#endif
 
 		if(mask & REND_FX_YUV_MIRROR)
+			//fx_iyuv_mirror(frame, width, height);
 			fx_yuyv_mirror(frame, width, height);
 
 		if(mask & REND_FX_YUV_UPTURN)

@@ -24,6 +24,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
+#include <assert.h>
 
 #include "gview.h"
 #include "../config.h"
@@ -167,6 +168,57 @@ void yuyv2bgr (uint8_t *pyuv, uint8_t *pbgr, int width, int height)
 		preverse-=width*3;/*get it back at the begin of processed line*/
 	}
 	preverse=NULL;
+}
+
+/*
+ *convert from packed 422 yuv (yuyv) to 420 planar (iyuv)
+ * args:
+ *    in - pointer to input yuyv packed data buffer
+ *    out - pointer to output iyuv planar data buffer
+ *    width - frame width
+ *    height - frame height
+ *
+ * asserts:
+ *    in is not null
+ *    ou is not null
+ *
+ * returns: none
+ */
+void yuyv_to_iyuv(uint8_t *in, uint8_t *out, int width, int height)
+{
+	/*assertions*/
+	assert(in);
+	assert(out);
+
+	int w = 0, h = 0;
+	int y_sizeline = width;
+	int c_sizeline = width/2;
+	
+	uint8_t *in1 = in; //first line
+	uint8_t *in2 = in1 + (width * height * 2); //second line in yuyv buffer
+
+	uint8_t *py1 = out; // first line
+	uint8_t *py2 = py1 + y_sizeline; //second line
+	uint8_t *pu = py1 + (width * height);
+	uint8_t *pv = pu + ((width * height) / 4);
+
+	for(h = 0; h < height; h+=2)
+	{
+		for(w = 0; w < width*2; w++) //yuyv 2 bytes per sample
+		{
+			*py1++ = *in1++;
+			*py2++ = *in2++;
+			*pu++ = ((*in1++) + (*in2++)) /2; //average u samples
+			*py1++ = *in1++;
+			*py2++ = *in2++;
+			*pv++ = ((*in1++) + (*in2++)) /2; //average v samples
+		}
+		in1 = in + (h * width * 2);
+		in2 = in + ((h+1) * width * 2);
+		py1 = out + (h * width);
+		py2 = out + ((h+1) * width); 
+	}
+
 }
 
 /*
