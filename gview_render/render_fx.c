@@ -89,7 +89,7 @@ static void fx_yuyv_mirror (uint8_t *frame, int width, int height)
 /*
  * Flip IYUV frame - horizontal
  * args:
- *    frame - pointer to frame buffer (yuyv format)
+ *    frame - pointer to frame buffer (yu12=iyuv format)
  *    width - frame width
  *    height- frame height
  *
@@ -98,7 +98,7 @@ static void fx_yuyv_mirror (uint8_t *frame, int width, int height)
  *
  * returns: void
  */
-static void fx_iyuv_mirror (uint8_t *frame, int width, int height)
+static void fx_yu12_mirror (uint8_t *frame, int width, int height)
 {
 	/*asserts*/
 	assert(frame != NULL);
@@ -121,6 +121,7 @@ static void fx_iyuv_mirror (uint8_t *frame, int width, int height)
 	/*mirror y*/
 	for(h = 0; h < height; h++)
 	{
+		py = frame + (h * y_sizeline);
 		end = py + y_sizeline;
 		for(w = 0; w < y_sizeline/2; w++)
 		{
@@ -128,11 +129,12 @@ static void fx_iyuv_mirror (uint8_t *frame, int width, int height)
 			*py++ = *end;
 			*end-- = pixel;
 		}
-		py += y_sizeline;
 	}	
 
 	for(h = 0; h < height/2; h++)
 	{
+		pu = frame + (width * height) + (h * c_sizeline);
+		pv = pu + ((width * height) / 4);
 		end  = pu + c_sizeline;
 		end2 = pv + c_sizeline;
 		for(w = 0; w < c_sizeline/2; w++)
@@ -144,10 +146,7 @@ static void fx_iyuv_mirror (uint8_t *frame, int width, int height)
 			*end-- = pixel;
 			*end2-- = pixel2;
 		}
-		pu += c_sizeline;
-		pv += c_sizeline;
-	}
-	
+	}	
 }
 
 /*
@@ -486,7 +485,7 @@ void render_fx_apply(uint8_t *frame, int width, int height, uint32_t mask)
 
 		if(mask & REND_FX_YUV_MIRROR)
 #ifdef USE_PLANAR_YUV
-			fx_iyuv_mirror(frame, width, height);
+			fx_yu12_mirror(frame, width, height);
 #else
 			fx_yuyv_mirror(frame, width, height);
 #endif

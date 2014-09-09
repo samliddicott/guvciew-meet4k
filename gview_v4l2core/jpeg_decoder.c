@@ -1525,7 +1525,7 @@ int jpeg_decode(uint8_t *out_buf, uint8_t *in_buf, int size)
 			jpeg_ctx->width, jpeg_ctx->height, jpeg_ctx->tmp_frame, jpeg_ctx->pic_size);
 		/* libavcodec output is in yuv422p */
 #ifdef USE_PLANAR_YUV
-        yuv422p_to_yuv420p(out_buf, jpeg_ctx->tmp_frame, jpeg_ctx->width, jpeg_ctx->height);
+        yuv422p_to_yu12(out_buf, jpeg_ctx->tmp_frame, jpeg_ctx->width, jpeg_ctx->height);
 #else
 		yuv422_to_yuyv(out_buf, jpeg_ctx->tmp_frame, jpeg_ctx->width, jpeg_ctx->height);
 #endif		

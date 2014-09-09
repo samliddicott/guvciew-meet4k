@@ -826,7 +826,7 @@ int v4l2core_frame_decode(v4l2_dev_t *vd)
 
 		case V4L2_PIX_FMT_UYVY:
 #ifdef USE_PLANAR_YUV
-			uyvy_to_yuv420p(vd->yuv_frame, vd->raw_frame, width, height);
+			uyvy_to_yu12(vd->yuv_frame, vd->raw_frame, width, height);
 #else
 			/*FIXME: do we need the tmp_buffer or can we just use the raw_frame?*/
 			if(vd->raw_frame_size > vd->tmp_buffer_max_size)
@@ -844,7 +844,7 @@ int v4l2core_frame_decode(v4l2_dev_t *vd)
 
 		case V4L2_PIX_FMT_YVYU:
 #ifdef USE_PLANAR_YUV
-			yvyu_to_yuv420p(vd->yuv_frame, vd->raw_frame, width, height);
+			yvyu_to_yu12(vd->yuv_frame, vd->raw_frame, width, height);
 #else
 			/*FIXME: do we need the tmp_buffer or can we just use the raw_frame?*/
 			if(vd->raw_frame_size > vd->tmp_buffer_max_size)
@@ -862,7 +862,7 @@ int v4l2core_frame_decode(v4l2_dev_t *vd)
 
 		case V4L2_PIX_FMT_YYUV:
 #ifdef USE_PLANAR_YUV
-			yyuv_to_yuv420p(vd->yuv_frame, vd->raw_frame, width, height);
+			yyuv_to_yu12(vd->yuv_frame, vd->raw_frame, width, height);
 #else
 			/*FIXME: do we need the tmp_buffer or can we just use the raw_frame?*/
 			if(vd->raw_frame_size > vd->tmp_buffer_max_size)
@@ -900,7 +900,7 @@ int v4l2core_frame_decode(v4l2_dev_t *vd)
 
 		case V4L2_PIX_FMT_YVU420:
 #ifdef USE_PLANAR_YUV
-			yvu420p_to_yuv420p(vd->yuv_frame, vd->raw_frame, width, height);
+			yv12_to_yu12(vd->yuv_frame, vd->raw_frame, width, height);
 #else
 			/*FIXME: do we need the tmp_buffer or can we just use the raw_frame?*/
 			if(vd->raw_frame_size > vd->tmp_buffer_max_size)
@@ -918,7 +918,7 @@ int v4l2core_frame_decode(v4l2_dev_t *vd)
 
 		case V4L2_PIX_FMT_NV12:
 #ifdef USE_PLANAR_YUV
-			nv12_to_yuv420p(vd->yuv_frame, vd->raw_frame, width, height);
+			nv12_to_yu12(vd->yuv_frame, vd->raw_frame, width, height);
 #else
 			/*FIXME: do we need the tmp_buffer or can we just use the raw_frame?*/
 			if(vd->raw_frame_size > vd->tmp_buffer_max_size)
@@ -936,7 +936,7 @@ int v4l2core_frame_decode(v4l2_dev_t *vd)
 
 		case V4L2_PIX_FMT_NV21:
 #ifdef USE_PLANAR_YUV
-			nv21_to_yuv420p(vd->yuv_frame, vd->raw_frame, width, height);
+			nv21_to_yu12(vd->yuv_frame, vd->raw_frame, width, height);
 #else
 			/*FIXME: do we need the tmp_buffer or can we just use the raw_frame?*/
 			if(vd->raw_frame_size > vd->tmp_buffer_max_size)
@@ -953,6 +953,9 @@ int v4l2core_frame_decode(v4l2_dev_t *vd)
 			break;
 
 		case V4L2_PIX_FMT_NV16:
+#ifdef USE_PLANAR_YUV
+			nv16_to_yu12(vd->yuv_frame, vd->raw_frame, width, height);
+#else
 			/*FIXME: do we need the tmp_buffer or can we just use the raw_frame?*/
 			if(vd->raw_frame_size > vd->tmp_buffer_max_size)
 			{
@@ -964,9 +967,13 @@ int v4l2core_frame_decode(v4l2_dev_t *vd)
 			else
 				memcpy(vd->tmp_buffer, vd->raw_frame, vd->raw_frame_size);
 			nv16_to_yuyv(vd->yuv_frame, vd->tmp_buffer, width, height);
+#endif
 			break;
 
 		case V4L2_PIX_FMT_NV61:
+#ifdef USE_PLANAR_YUV
+			nv61_to_yu12(vd->yuv_frame, vd->raw_frame, width, height);
+#else
 			/*FIXME: do we need the tmp_buffer or can we just use the raw_frame?*/
 			if(vd->raw_frame_size > vd->tmp_buffer_max_size)
 			{
@@ -978,9 +985,13 @@ int v4l2core_frame_decode(v4l2_dev_t *vd)
 			else
 				memcpy(vd->tmp_buffer, vd->raw_frame, vd->raw_frame_size);
 			nv61_to_yuyv(vd->yuv_frame, vd->tmp_buffer, width, height);
+#endif
 			break;
 
 		case V4L2_PIX_FMT_Y41P:
+#ifdef USE_PLANAR_YUV
+			y41p_to_yu12(vd->yuv_frame, vd->raw_frame, width, height);
+#else
 			/*FIXME: do we need the tmp_buffer or can we just use the raw_frame?*/
 			if(vd->raw_frame_size > vd->tmp_buffer_max_size)
 			{
@@ -992,9 +1003,13 @@ int v4l2core_frame_decode(v4l2_dev_t *vd)
 			else
 				memcpy(vd->tmp_buffer, vd->raw_frame, vd->raw_frame_size);
 			y41p_to_yuyv(vd->yuv_frame, vd->tmp_buffer, width, height);
+#endif
 			break;
 
 		case V4L2_PIX_FMT_GREY:
+#ifdef USE_PLANAR_YUV
+			grey_to_yu12(vd->yuv_frame, vd->raw_frame, width, height);
+#else
 			/*FIXME: do we need the tmp_buffer or can we just use the raw_frame?*/
 			if(vd->raw_frame_size > vd->tmp_buffer_max_size)
 			{
@@ -1006,9 +1021,13 @@ int v4l2core_frame_decode(v4l2_dev_t *vd)
 			else
 				memcpy(vd->tmp_buffer, vd->raw_frame, vd->raw_frame_size);
 			grey_to_yuyv(vd->yuv_frame, vd->tmp_buffer, width, height);
+#endif
 			break;
 
 		case V4L2_PIX_FMT_Y10BPACK:
+#ifdef USE_PLANAR_YUV
+			y10b_to_yu12(vd->yuv_frame, vd->raw_frame, width, height);
+#else
 			/*FIXME: do we need the tmp_buffer or can we just use the raw_frame?*/
 			if(vd->raw_frame_size > vd->tmp_buffer_max_size)
 			{
@@ -1020,9 +1039,13 @@ int v4l2core_frame_decode(v4l2_dev_t *vd)
 			else
 				memcpy(vd->tmp_buffer, vd->raw_frame, vd->raw_frame_size);
 			y10b_to_yuyv(vd->yuv_frame, vd->tmp_buffer, width, height);
+#endif
 			break;
 
 	    case V4L2_PIX_FMT_Y16:
+#ifdef USE_PLANAR_YUV
+			y16_to_yu12(vd->yuv_frame, vd->raw_frame, width, height);
+#else
 			/*FIXME: do we need the tmp_buffer or can we just use the raw_frame?*/
 			if(vd->raw_frame_size > vd->tmp_buffer_max_size)
 			{
@@ -1034,9 +1057,13 @@ int v4l2core_frame_decode(v4l2_dev_t *vd)
 			else
 				memcpy(vd->tmp_buffer, vd->raw_frame, vd->raw_frame_size);
 			y16_to_yuyv(vd->yuv_frame, vd->tmp_buffer, width, height);
+#endif
 			break;
 
 		case V4L2_PIX_FMT_SPCA501:
+#ifdef USE_PLANAR_YUV
+			s501_to_yu12(vd->yuv_frame, vd->raw_frame, width, height);
+#else
 			/*FIXME: do we need the tmp_buffer or can we just use the raw_frame?*/
 			if(vd->raw_frame_size > vd->tmp_buffer_max_size)
 			{
@@ -1048,9 +1075,13 @@ int v4l2core_frame_decode(v4l2_dev_t *vd)
 			else
 				memcpy(vd->tmp_buffer, vd->raw_frame, vd->raw_frame_size);
 			s501_to_yuyv(vd->yuv_frame, vd->tmp_buffer, width, height);
+#endif
 			break;
 
 		case V4L2_PIX_FMT_SPCA505:
+#ifdef USE_PLANAR_YUV
+			s505_to_yu12(vd->yuv_frame, vd->raw_frame, width, height);
+#else
 			/*FIXME: do we need the tmp_buffer or can we just use the raw_frame?*/
 			if(vd->raw_frame_size > vd->tmp_buffer_max_size)
 			{
@@ -1062,9 +1093,13 @@ int v4l2core_frame_decode(v4l2_dev_t *vd)
 			else
 				memcpy(vd->tmp_buffer, vd->raw_frame, vd->raw_frame_size);
 			s505_to_yuyv(vd->yuv_frame, vd->tmp_buffer, width, height);
+#endif
 			break;
 
 		case V4L2_PIX_FMT_SPCA508:
+#ifdef USE_PLANAR_YUV
+			s508_to_yu12(vd->yuv_frame, vd->raw_frame, width, height);
+#else
 			/*FIXME: do we need the tmp_buffer or can we just use the raw_frame?*/
 			if(vd->raw_frame_size > vd->tmp_buffer_max_size)
 			{
@@ -1076,6 +1111,7 @@ int v4l2core_frame_decode(v4l2_dev_t *vd)
 			else
 				memcpy(vd->tmp_buffer, vd->raw_frame, vd->raw_frame_size);
 			s508_to_yuyv(vd->yuv_frame, vd->tmp_buffer, width, height);
+#endif
 			break;
 
 		case V4L2_PIX_FMT_YUYV:
@@ -1094,9 +1130,11 @@ int v4l2core_frame_decode(v4l2_dev_t *vd)
 					}
 				}
 				/*convert raw bayer to iyuv*/
+				bayer_to_rgb24 (vd->raw_frame, vd->tmp_buffer, width, height, vd->bayer_pix_order);
+				rgb24_to_yu12(vd->yuv_frame, vd->tmp_buffer, width, height);
 			}
 			else
-				yuyv_to_yuv420p(vd->yuv_frame, vd->raw_frame, width, height);
+				yuyv_to_yu12(vd->yuv_frame, vd->raw_frame, width, height);
 #else
 			if(vd->isbayer>0)
 			{
@@ -1128,28 +1166,52 @@ int v4l2core_frame_decode(v4l2_dev_t *vd)
 
 		case V4L2_PIX_FMT_SGBRG8: //0
 			bayer_to_rgb24 (vd->raw_frame, vd->tmp_buffer, width, height, 0);
+#ifdef USE_PLANAR_YUV
+			rgb24_to_yu12(vd->yuv_frame, vd->tmp_buffer, width, height);
+#else
 			rgb2yuyv (vd->tmp_buffer, vd->yuv_frame, width, height);
+#endif
 			break;
 
 		case V4L2_PIX_FMT_SGRBG8: //1
 			bayer_to_rgb24 (vd->raw_frame, vd->tmp_buffer, width, height, 1);
+#ifdef USE_PLANAR_YUV
+			rgb24_to_yu12(vd->yuv_frame, vd->tmp_buffer, width, height);
+#else
 			rgb2yuyv (vd->tmp_buffer, vd->yuv_frame, width, height);
+#endif
 			break;
 
 		case V4L2_PIX_FMT_SBGGR8: //2
 			bayer_to_rgb24 (vd->raw_frame, vd->tmp_buffer, width, height, 2);
+#ifdef USE_PLANAR_YUV
+			rgb24_to_yu12(vd->yuv_frame, vd->tmp_buffer, width, height);
+#else
 			rgb2yuyv (vd->tmp_buffer, vd->yuv_frame, width, height);
+#endif
 			break;
 		case V4L2_PIX_FMT_SRGGB8: //3
 			bayer_to_rgb24 (vd->raw_frame, vd->tmp_buffer, width, height, 3);
+#ifdef USE_PLANAR_YUV
+			rgb24_to_yu12(vd->yuv_frame, vd->tmp_buffer, width, height);
+#else
 			rgb2yuyv (vd->tmp_buffer, vd->yuv_frame, width, height);
+#endif
 			break;
 
 		case V4L2_PIX_FMT_RGB24:
+#ifdef USE_PLANAR_YUV
+			rgb24_to_yu12(vd->yuv_frame, vd->raw_frame, width, height);
+#else
 			rgb2yuyv(vd->raw_frame, vd->yuv_frame, width, height);
+#endif
 			break;
 		case V4L2_PIX_FMT_BGR24:
+#ifdef USE_PLANAR_YUV
+			bgr24_to_yu12(vd->yuv_frame, vd->raw_frame, width, height);
+#else
 			bgr2yuyv(vd->raw_frame, vd->yuv_frame, width, height);
+#endif
 			break;
 
 		default:
