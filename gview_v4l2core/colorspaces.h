@@ -349,6 +349,22 @@ void bgr24_to_yu12(uint8_t *out, uint8_t *in, int width, int height);
 void yu12_to_rgb24 (uint8_t *out, uint8_t *in, int width, int height);
 
 /*
+ * FIXME:  yu12 to bgr24 with lines upsidedown
+ *   used for bitmap files (DIB24)
+ * args:
+ *    out - pointer to output bgr data buffer
+ *    in - pointer to input yu12 data buffer
+ *    width - buffer width (in pixels)
+ *    height - buffer height (in pixels)
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void yu12_to_dib24 (uint8_t *out, uint8_t *in, int width, int height);
+
+/*
  * regular yuv (YUYV) to rgb24
  * args:
  *    pyuv - pointer to input yuyv data buffer

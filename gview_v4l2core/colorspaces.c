@@ -1452,6 +1452,9 @@ void yu12_to_rgb24 (uint8_t *out, uint8_t *in, int width, int height)
 			/* logitech: b1 = y1 + 1.732446 (u-128) */
 			*pout1++=CLIP(*py1 + 1.772 * (*pu-128));
 			*pout2++=CLIP(*py2 + 1.772 * (*pu-128));
+			
+			pu++;
+			pv++;
 		}
 	}
 }
@@ -1476,21 +1479,27 @@ void yu12_to_dib24 (uint8_t *out, uint8_t *in, int width, int height)
 	assert(out);
 	assert(in);
 	
-	uint8_t *py1 = in + width; //last line
-	uint8_t *py2 = in + width - 1; //last line -1
+	uint8_t *py1 = in + (height * width) - width; //begin of last line
+	uint8_t *py2 = py1 - width; //last line -1
 	
-	uint8_t *pu = in + ((width * height * 3) / 4); //last line
-	uint8_t *pv = in + ((width * height) / 4); //last line
+	uint8_t *pu = in + ((width * height * 5) / 4) - (width/2); //begin of last line
+	uint8_t *pv = pu + ((width * height) / 4); //begin of last line
 	
 	uint8_t *pout1 = out; //first line
 	uint8_t *pout2 = out + (width * 3); //second line
 	
 	int h=0, w=0;
+	int uvline = height/2;
 	
-	for(h=height; h > 0 ; h-=2) //every two lines
+	for(h=height; h >0 ; h-=2) //every two lines
 	{
-		py1 = in + (h * width);
-		py2 = py1 + width;
+		uvline--; //begin of uv line
+		
+		py1 = in + ((h-1) * width);
+		py2 = py1 - width;
+		
+		pu = in + (width * height) + ((uvline * width)/2);
+		pv = pu + ((width * height) / 4);
 		
 		for(w=0; w<width; w+=2) //every 2 pixels
 		{
@@ -1522,6 +1531,9 @@ void yu12_to_dib24 (uint8_t *out, uint8_t *in, int width, int height)
 			/* logitech: r = y0 + 1.370705 (v-128) */
 			*pout1++=CLIP(*py1 + 1.402 * (*pv-128));
 			*pout2++=CLIP(*py2 + 1.402 * (*pv-128));
+			
+			pu++;
+			pv++;
 		}
 	}
 }
