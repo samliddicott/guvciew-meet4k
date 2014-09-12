@@ -32,6 +32,7 @@
 #include "gviewv4l2core.h"
 #include "save_image.h"
 #include "colorspaces.h"
+#include "../config.h"
 
 typedef struct _bmp_file_header_t
 {
@@ -162,8 +163,11 @@ int save_image_bmp(v4l2_dev_t *vd, const char *filename)
 		fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (save_img_bmp): %s\n", strerror(errno));
 		exit(-1);
 	}
-	
+#ifdef USE_PLANAR_YUV	
+	yu12_to_dib24(bmp, vd->yuv_frame, width, height);
+#else
 	yuyv2bgr(vd->yuv_frame, bmp, width, height);
+#endif
 	ret = save_bmp(filename, bmp, width, height, 24);
 	free(bmp);
 	

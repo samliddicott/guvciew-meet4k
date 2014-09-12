@@ -1538,6 +1538,73 @@ void yu12_to_dib24 (uint8_t *out, uint8_t *in, int width, int height)
 	}
 }
 
+/*
+ * convert yuv 420 planar (yu12) to yuv 422
+ * args:
+ *    out- pointer to output buffer (yuyv)
+ *    in- pointer to input buffer (yuv420 planar data frame (yu12))
+ *    width- picture width
+ *    height- picture height
+ *
+ * asserts:
+ *    out is not null
+ *    in is not null
+ *
+ * returns: none
+ */
+void yu12_to_yuyv (uint8_t *out, uint8_t *in, int width, int height)
+{
+	uint8_t *py;
+	uint8_t *pu;
+	uint8_t *pv;
+
+	int linesize = width * 2;
+	int uvlinesize = width / 2;
+
+	py=in;
+	pu=py+(width*height);
+	pv=pu+(width*height/4);
+
+	int h=0;
+	int huv=0;
+
+	for(h=0;h<height;h+=2)
+	{
+		int wy = 0;
+		int wuv = 0;
+		int offset = h * linesize;
+		int offset1 = (h + 1) * linesize;
+		int offsety = h * width;
+		int offsety1 = (h + 1) * width;
+		int offsetuv = huv * uvlinesize;
+		int w = 0;
+
+		for(w=0;w<linesize;w+=4)
+		{
+			/*y00*/
+			out[w + offset] = py[wy + offsety];
+			/*u0*/
+			out[(w + 1) + offset] = pu[wuv + offsetuv];
+			/*y01*/
+			out[(w + 2) + offset] = py[(wy + 1) + offsety];
+			/*v0*/
+			out[(w + 3) + offset] = pv[wuv + offsetuv];
+
+			/*y10*/
+			out[w + offset1] = py[wy + offsety1];
+			/*u0*/
+			out[(w + 1) + offset1] = pu[wuv + offsetuv];
+			/*y11*/
+			out[(w + 2) + offset1] = py[(wy + 1) + offsety1];
+			/*v0*/
+			out[(w + 3) + offset1] = pv[wuv + offsetuv];
+
+			wuv++;
+			wy+=2;
+		}
+		huv++;
+	}
+}
 
 /*------------------- YUYV --------------------*/
 
@@ -1888,73 +1955,6 @@ void yvyu_to_yuyv (uint8_t *framebuffer, uint8_t *tmpbuffer, int width, int heig
 			ptmp += 4;
 			pfmb += 4;
 		}
-	}
-}
-
-/*
- * convert yuv 420 planar (yu12) to yuv 422
- * args:
- *    output- pointer to output buffer (yuyv)
- *    input- pointer to input buffer (yuv420 planar data frame)
- *    width- picture width
- *    height- picture height
- *
- * asserts:
- *    input not null
- *
- * returns: none
- */
-void yuv420_to_yuyv (uint8_t *framebuffer, uint8_t *tmpbuffer, int width, int height)
-{
-	uint8_t *py;
-	uint8_t *pu;
-	uint8_t *pv;
-
-	int linesize = width * 2;
-	int uvlinesize = width / 2;
-
-	py=tmpbuffer;
-	pu=py+(width*height);
-	pv=pu+(width*height/4);
-
-	int h=0;
-	int huv=0;
-
-	for(h=0;h<height;h+=2)
-	{
-		int wy = 0;
-		int wuv = 0;
-		int offset = h * linesize;
-		int offset1 = (h + 1) * linesize;
-		int offsety = h * width;
-		int offsety1 = (h + 1) * width;
-		int offsetuv = huv * uvlinesize;
-		int w = 0;
-
-		for(w=0;w<linesize;w+=4)
-		{
-			/*y00*/
-			framebuffer[w + offset] = py[wy + offsety];
-			/*u0*/
-			framebuffer[(w + 1) + offset] = pu[wuv + offsetuv];
-			/*y01*/
-			framebuffer[(w + 2) + offset] = py[(wy + 1) + offsety];
-			/*v0*/
-			framebuffer[(w + 3) + offset] = pv[wuv + offsetuv];
-
-			/*y10*/
-			framebuffer[w + offset1] = py[wy + offsety1];
-			/*u0*/
-			framebuffer[(w + 1) + offset1] = pu[wuv + offsetuv];
-			/*y11*/
-			framebuffer[(w + 2) + offset1] = py[(wy + 1) + offsety1];
-			/*v0*/
-			framebuffer[(w + 3) + offset1] = pv[wuv + offsetuv];
-
-			wuv++;
-			wy+=2;
-		}
-		huv++;
 	}
 }
 

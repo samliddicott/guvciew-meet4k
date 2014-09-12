@@ -794,7 +794,7 @@ int v4l2core_frame_decode(v4l2_dev_t *vd)
 				/* decode (h264) to vd->tmp_buffer (yuv420p)*/
 				h264_decode(vd->tmp_buffer, vd->h264_frame, vd->h264_frame_size);
 				/* convert to yuyv*/
-				yuv420_to_yuyv (vd->yuv_frame, vd->tmp_buffer, width, height);
+				yu12_to_yuyv (vd->yuv_frame, vd->tmp_buffer, width, height);
 #endif
 			}
 			break;
@@ -894,7 +894,7 @@ int v4l2core_frame_decode(v4l2_dev_t *vd)
 			}
 			else
 				memcpy(vd->tmp_buffer, vd->raw_frame, vd->raw_frame_size);
-			yuv420_to_yuyv(vd->yuv_frame, vd->tmp_buffer, width, height);
+			yu12_to_yuyv(vd->yuv_frame, vd->tmp_buffer, width, height);
 #endif
 			break;
 

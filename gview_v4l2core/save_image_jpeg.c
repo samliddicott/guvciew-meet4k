@@ -33,6 +33,7 @@
 #include "save_image.h"
 #include "colorspaces.h"
 #include "dct.h"
+#include "../config.h"
 
 /*huffman table from jpeg decoder*/
 #define JPG_HUFFMAN_TABLE_LENGTH 0x01A0
@@ -969,16 +970,25 @@ static int encode_jpeg (uint8_t *input, uint8_t *output,
 	int size;
 	uint16_t i, j;
 	uint8_t *tmp_ptr=NULL;
-	uint8_t *tmp_iptr=NULL;
-	uint8_t *tmp_optr=NULL;
-	tmp_iptr = input;
-	tmp_optr = output;
+	uint8_t *tmp_iptr = input;
+	uint8_t *tmp_optr = output;
 
 	/* clean jpeg parameters*/
 	jpeg_restart(jpeg_ctx);
 
 	/* Writing Marker Data */
 	tmp_optr = write_markers (jpeg_ctx, tmp_optr, huff);
+
+#ifdef USE_PLANAR_YUV
+	uint8_t *yuv422 = calloc(jpeg_ctx->image_width * jpeg_ctx->image_height * 2, sizeof(uint8_t));
+	if(yuv422 == NULL)
+	{
+		fprintf(stderr, "V4L2_CORE: couldn't allocate memory for jpeg encoder (fatal)\n");
+		exit(-1);
+	}
+	yu12_to_yuyv(yuv422, input, jpeg_ctx->image_width, jpeg_ctx->image_height);
+	tmp_iptr = yuv422;
+#endif
 
 	for (i=0; i < jpeg_ctx->vertical_mcus; i++) /* height /8 */
 	{
@@ -1005,6 +1015,9 @@ static int encode_jpeg (uint8_t *input, uint8_t *output,
 	}
 
 	/* Close Routine */
+#ifdef USE_PLANAR_YUV
+	free(yuv422);
+#endif
 	tmp_optr = close_bitstream (jpeg_ctx, tmp_optr);
 	size = tmp_optr - output;
 	tmp_iptr = NULL;

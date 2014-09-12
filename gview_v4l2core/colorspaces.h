@@ -365,6 +365,22 @@ void yu12_to_rgb24 (uint8_t *out, uint8_t *in, int width, int height);
 void yu12_to_dib24 (uint8_t *out, uint8_t *in, int width, int height);
 
 /*
+ * convert yuv 420 planar (yu12) to yuv 422
+ * args:
+ *    out- pointer to output buffer (yuyv)
+ *    in- pointer to input buffer (yuv420 planar data frame (yu12))
+ *    width- picture width
+ *    height- picture height
+ *
+ * asserts:
+ *    out is not null
+ *    in is not null
+ *
+ * returns: none
+ */
+void yu12_to_yuyv (uint8_t *out, uint8_t *in, int width, int height);
+
+/*
  * regular yuv (YUYV) to rgb24
  * args:
  *    pyuv - pointer to input yuyv data buffer
@@ -485,36 +501,6 @@ void uyvy_to_yuyv (uint8_t *framebuffer, uint8_t *tmpbuffer, int width, int heig
  * returns: none
  */
 void yvyu_to_yuyv (uint8_t *framebuffer, uint8_t *tmpbuffer, int width, int height);
-
-/*
- * convert yuv 420 planar (yu12) to yuv 422
- * args:
- *    output- pointer to output buffer (yuyv)
- *    input- pointer to input buffer (yuv420 planar data frame)
- *    width- picture width
- *    height- picture height
- *
- * asserts:
- *    input not null
- *
- * returns: none
- */
-void yuv420_to_yuyv (uint8_t *framebuffer, uint8_t *tmpbuffer, int width, int height);
-
-/*
- * convert yuv 422 planar (yuv422p) to yuv 422
- * args:
- *    output- pointer to output buffer (yuyv)
- *    input- pointer to input buffer (yuv420 planar data frame)
- *    width- picture width
- *    height- picture height
- *
- * asserts:
- *    input not null
- *
- * returns: none
- */
-void yuv422_to_yuyv (uint8_t *framebuffer, uint8_t *tmpbuffer, int width, int height);
 
 /*
  * convert yvu 420 planar (yv12) to yuv 422
