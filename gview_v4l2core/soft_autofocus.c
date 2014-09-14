@@ -40,6 +40,7 @@
 #include "dct.h"
 #include "gview.h"
 #include "core_time.h"
+#include "../config.h"
 
 #define _TH_		(80) /* default treshold = 1/80 of focus sharpness value*/
 
@@ -381,9 +382,9 @@ static int focus_sort(int size)
 }
 
 /*
- * extract lum (y) data from image    (YUYV)
+ * extract lum (y) data from image
  * args:
- *    frame - image frame data pointer (yuyv)
+ *    frame - image frame data pointer
  *    dataY - pointer for lum (y) data
  *    width - width of image frame (in pixels)
  *    height - height of image frame (in pixels)
@@ -400,8 +401,11 @@ static int16_t *focus_extract_Y (uint8_t *frame, int16_t *dataY, int width, int 
 
 	for (i = 0; i < (height * width); ++i)
 	{
-		dataY[i]=(int16_t) *pimg++;
-		pimg++;
+		dataY[i]=(int16_t) *pimg++; // luma
+#ifdef USE_PLANAR_YUV
+#else
+		pimg++; //yuyv - jump over chroma samples
+#endif
 	}
 
 	return (dataY);
