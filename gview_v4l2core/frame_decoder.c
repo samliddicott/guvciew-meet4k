@@ -105,7 +105,6 @@ int alloc_v4l2_frames(v4l2_dev_t *vd)
 				exit(-1);
 			}
 			
-			//framebuf_size = framesizeIn;
 			vd->yuv_frame = calloc(framesizeIn, sizeof(uint8_t));
 			if(vd->yuv_frame == NULL)
 			{
@@ -137,9 +136,6 @@ int alloc_v4l2_frames(v4l2_dev_t *vd)
 				fprintf(stderr, "V4L2_CORE: couldn't init jpeg decoder\n");
 				return ret;
 			}
-
-			//framebuf_size = framesizeIn;	
-			//framebuf_size = width * (height + 8) * 2; //FIXME: why 8 more lines ?
 			
 			vd->yuv_frame = calloc(framesizeIn, sizeof(uint8_t));
 			if(vd->yuv_frame == NULL)
