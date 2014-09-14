@@ -105,6 +105,7 @@ int alloc_v4l2_frames(v4l2_dev_t *vd)
 				exit(-1);
 			}
 			
+			//framebuf_size = framesizeIn;
 			vd->yuv_frame = calloc(framesizeIn, sizeof(uint8_t));
 			if(vd->yuv_frame == NULL)
 			{
@@ -309,7 +310,7 @@ int alloc_v4l2_frames(v4l2_dev_t *vd)
 		*pframe++=0x80; //U V
 	}
 #else
-	for (i=0; i<(framebuf_size-4); i+=4)
+	for (i=0; i<((width*height*2)-4); i+=4)
 	{
 		vd->yuv_frame[i]=0x00;  //Y
 		vd->yuv_frame[i+1]=0x80;//U
