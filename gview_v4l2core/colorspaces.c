@@ -1408,9 +1408,9 @@ void yu12_to_rgb24 (uint8_t *out, uint8_t *in, int width, int height)
 	assert(in);
 	
 	uint8_t *py1 = in; //line 1
-	uint8_t *py2 = in + width; //line 2
+	uint8_t *py2 = py1 + width; //line 2
 	uint8_t *pu = in + (width * height);
-	uint8_t *pv = in + ((width * height) / 4);
+	uint8_t *pv = pu + ((width * height) / 4);
 	
 	uint8_t *pout1 = out; //first line
 	uint8_t *pout2 = out + (width * 3); //second line
@@ -1421,6 +1421,9 @@ void yu12_to_rgb24 (uint8_t *out, uint8_t *in, int width, int height)
 	{
 		py1 = in + (h * width);
 		py2 = py1 + width;
+		
+		pout1 = out + (h * width * 3);
+		pout2 = pout1 + (width * 3);
 		
 		for(w=0; w<width; w+=2) //every 2 pixels
 		{
@@ -1453,6 +1456,8 @@ void yu12_to_rgb24 (uint8_t *out, uint8_t *in, int width, int height)
 			*pout1++=CLIP(*py1 + 1.772 * (*pu-128));
 			*pout2++=CLIP(*py2 + 1.772 * (*pu-128));
 			
+			py1++;
+			py2++;
 			pu++;
 			pv++;
 		}
@@ -1486,7 +1491,7 @@ void yu12_to_dib24 (uint8_t *out, uint8_t *in, int width, int height)
 	uint8_t *pv = pu + ((width * height) / 4); //begin of last line
 	
 	uint8_t *pout1 = out; //first line
-	uint8_t *pout2 = out + (width * 3); //second line
+	uint8_t *pout2 = pout1 + (width * 3); //second line
 	
 	int h=0, w=0;
 	int uvline = height/2;
@@ -1500,6 +1505,9 @@ void yu12_to_dib24 (uint8_t *out, uint8_t *in, int width, int height)
 		
 		pu = in + (width * height) + ((uvline * width)/2);
 		pv = pu + ((width * height) / 4);
+		
+		pout1 = out + ((height-h) * width * 3);
+		pout2 = pout1 + (width * 3);
 		
 		for(w=0; w<width; w+=2) //every 2 pixels
 		{
@@ -1532,6 +1540,8 @@ void yu12_to_dib24 (uint8_t *out, uint8_t *in, int width, int height)
 			*pout1++=CLIP(*py1 + 1.402 * (*pv-128));
 			*pout2++=CLIP(*py2 + 1.402 * (*pv-128));
 			
+			py1++;
+			py2++;
 			pu++;
 			pv++;
 		}

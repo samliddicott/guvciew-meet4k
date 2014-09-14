@@ -237,7 +237,7 @@ int save_image_png(v4l2_dev_t *vd, const char *filename)
 		exit(-1);
 	}
 #ifdef USE_PLANAR_YUV
-	yu12_to_rgb24(rgb, yuv->frame, width, height);
+	yu12_to_rgb24(rgb, vd->yuv_frame, width, height);
 #else
 	yuyv2rgb(vd->yuv_frame, rgb, width, height);
 #endif
