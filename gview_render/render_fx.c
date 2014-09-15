@@ -427,7 +427,7 @@ static void fx_yu12_pieces(uint8_t* frame, int width, int height, int piece_size
 {
 	int numx = width / piece_size; //number of pieces in x axis
 	int numy = height / piece_size; //number of pieces in y axis
-	uint8_t *piece = calloc ((piece_size * piece_size * 3) / 4, sizeof(uint8_t));
+	uint8_t piece[(piece_size * piece_size * 3) / 2];
 	uint8_t *ppiece = piece;
 	if(piece == NULL)
 	{
@@ -452,13 +452,15 @@ static void fx_yu12_pieces(uint8_t* frame, int width, int height, int piece_size
 		int row = j * piece_size;
 		for(i = 0; i < numx; i++)
 		{
+			ppiece = piece;
+			
 			int column = i * piece_size;
 			/*get piece y data*/
 			for(py = 0; py < piece_size; py++)
 			{
 				for(px=0 ; px < piece_size; px++)
 				{
-					*ppiece++ = pfy[row * width + column + px];
+					piece[(py * piece_size) + px] = pfy[(row * width) + column + px];
 				}
 			}
 			/*get piece u data*/
@@ -466,19 +468,19 @@ static void fx_yu12_pieces(uint8_t* frame, int width, int height, int piece_size
 			{
 				for(px = 0 ; px < piece_size; px += 2)
 				{
-					*ppiece++ = pfu[(row * width)/4 + (column + px)/2];
+					piece[(piece_size * piece_size) + (py * piece_size)/4] = pfu[((row * width)/4) + ((column + px)/2)];
 				}
 			}
-			
+			printf("RENDER: Fx pieces, processed u: %i,%i\n", i, j);
 			/*get piece v data*/
 			for(py = 0; py < piece_size; py += 2)
 			{
 				for(px = 0 ; px < piece_size; px += 2)
 				{
-					*ppiece++ = pfv[(row * width)/4 + (column + px)/2];
+					piece[((piece_size * piece_size * 5)/4) + (py * piece_size)/4] = pfv[((row * width)/4) + ((column + px)/2)];
 				}
 			}
-			
+			printf("RENDER: Fx pieces, processed v: %i,%i\n", i, j);
 			/*rotate piece and copy it to frame*/
 			//rotation is random
 			rot = (int) lround(8 * gsl_rng_uniform (r)); /*0 to 8*/
@@ -503,6 +505,7 @@ static void fx_yu12_pieces(uint8_t* frame, int width, int height, int piece_size
 				default: //do nothing
 					break;
 			}
+			printf("RENDER: Fx pieces, saving: %i,%i\n", i, j);
 			//write piece back to frame
 			ppiece = piece;
 			/* y */
@@ -534,8 +537,6 @@ static void fx_yu12_pieces(uint8_t* frame, int width, int height, int piece_size
 
 	/*free the random seed generator*/
 	gsl_rng_free (r);
-	/*free the piece buffer*/
-	free(piece);
 }
 
 /*
