@@ -139,6 +139,37 @@ void render_osd_vu_meter(uint8_t *frame, int width, int height, float vu_level[2
 
 			if (light)
 			{
+#ifdef USE_PLANAR_YUV
+				uint8_t *py = frame;
+				uint8_t *pu = frame + (width * height);
+				uint8_t *pv = pu + ((width * height) / 4);
+
+				/*y*/
+				int h = 0;
+				for(h = 0; h < bh; ++h)
+				{
+					py = frame + bx + ((by + h) * width);
+					int w = 0;
+					for(w = 0; w < bw; ++w)
+					{
+						*py++ = y;
+					}
+				}
+				
+				/*u v*/
+				for(h = 0; h < bh; h += 2) /*every two lines*/
+				{
+					pu = frame + (width * height) + (bx/2) + (((by + h) * width) /4)
+					pv = pu + ((width * height) / 4);
+					
+					int w = 0;
+					for(w = 0; w < bw; w += 2) /*every two rows*/
+					{
+						*pu++ = u;
+						*pv++ = v
+					}
+				}
+#else
   				int i = 0;
   				for (i = 0; i < bh; ++i)
   				{
@@ -156,6 +187,7 @@ void render_osd_vu_meter(uint8_t *frame, int width, int height, float vu_level[2
 	 	 				bi += 4; /*next two pixels*/
 					}
   				}
+#endif
 
 			}
 			else if (bw > 0) /*draw single line*/
