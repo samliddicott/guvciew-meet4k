@@ -427,14 +427,11 @@ static void fx_yu12_pieces(uint8_t* frame, int width, int height, int piece_size
 {
 	int numx = width / piece_size; //number of pieces in x axis
 	int numy = height / piece_size; //number of pieces in y axis
+	
 	uint8_t piece[(piece_size * piece_size * 3) / 2];
 	uint8_t *ppiece = piece;
-	if(piece == NULL)
-	{
-		fprintf(stderr,"RENDER: FATAL memory allocation failure (fx_pieces): %s\n", strerror(errno));
-		exit(-1);
-	}
-	int i = 0, j = 0, line = 0, column = 0, linep = 0, px = 0, py = 0;
+	
+	int i = 0, j = 0, w = 0, h = 0;
 
 	/*random generator setup*/
 	gsl_rng_env_setup();
@@ -443,44 +440,44 @@ static void fx_yu12_pieces(uint8_t* frame, int width, int height, int piece_size
 
 	int rot = 0;
 	
-	uint8_t *pfy = frame;
-	uint8_t *pfu = frame + (width * height);
-	uint8_t *pfv = pfu + ((width * height) / 4);
 	
-	for(j = 0; j < numy; j++)
-	{
-		int row = j * piece_size;
-		for(i = 0; i < numx; i++)
-		{
-			ppiece = piece;
+	uint8_t *py = NULL;
+	uint8_t *pu = NULL;
+	uint8_t *pv = NULL;
+	
+	for(h = 0; h < height - piece_size; h += piece_size)
+	{	
+		for(w = 0; w < width - piece_size; w += piece_size)
+		{	
+			uint8_t *ppy = piece;
+			uint8_t *ppu = piece + (piece_size * piece_size);
+			uint8_t *ppv = ppu + ((piece_size * piece_size) / 4);
+	
+			for(i = 0; i < piece_size; ++i)
+			{		
+				py = frame + ((h + i) * width) + w;
+				for (j=0; j < piece_size; ++j)
+				{
+					*ppy++ = *py++; 
+				}	
+			}
 			
-			int column = i * piece_size;
-			/*get piece y data*/
-			for(py = 0; py < piece_size; py++)
-			{
-				for(px=0 ; px < piece_size; px++)
+			for(i = 0; i < piece_size; i += 2)
+			{	
+				uint8_t *pu = frame + (width * height) + (((h + i) * width) / 4) + (w / 2);
+				uint8_t *pv = pu + ((width * height) / 4);
+				
+				for(j = 0; j < piece_size; j += 2)
 				{
-					piece[(py * piece_size) + px] = pfy[(row * width) + column + px];
+					*ppu++ = *pu++;
+					*ppv++ = *pv++;
 				}
 			}
-			/*get piece u data*/
-			for(py = 0; py < piece_size; py += 2)
-			{
-				for(px = 0 ; px < piece_size; px += 2)
-				{
-					piece[(piece_size * piece_size) + (py * piece_size)/4] = pfu[((row * width)/4) + ((column + px)/2)];
-				}
-			}
-			printf("RENDER: Fx pieces, processed u: %i,%i\n", i, j);
-			/*get piece v data*/
-			for(py = 0; py < piece_size; py += 2)
-			{
-				for(px = 0 ; px < piece_size; px += 2)
-				{
-					piece[((piece_size * piece_size * 5)/4) + (py * piece_size)/4] = pfv[((row * width)/4) + ((column + px)/2)];
-				}
-			}
-			printf("RENDER: Fx pieces, processed v: %i,%i\n", i, j);
+			
+			ppy = piece;
+			ppu = piece + (piece_size * piece_size);
+			ppv = ppu + ((piece_size * piece_size) / 4);
+			
 			/*rotate piece and copy it to frame*/
 			//rotation is random
 			rot = (int) lround(8 * gsl_rng_uniform (r)); /*0 to 8*/
@@ -505,35 +502,38 @@ static void fx_yu12_pieces(uint8_t* frame, int width, int height, int piece_size
 				default: //do nothing
 					break;
 			}
-			printf("RENDER: Fx pieces, saving: %i,%i\n", i, j);
-			//write piece back to frame
-			ppiece = piece;
-			/* y */
-			for(py = 0; py < piece_size; py++)
+			
+			ppy = piece;
+			ppu = piece + (piece_size * piece_size);
+			ppv = ppu + ((piece_size * piece_size) / 4);
+		
+			for(i = 0; i < piece_size; ++i)
 			{
-				for(px=0 ; px < piece_size; px++)
+				py = frame + ((h + i) * width) + w;
+				for (j=0; j < piece_size; ++j)
 				{
-					pfy[row * width + column + px] = *ppiece++;
-				}
+					*py++ = *ppy++; 
+				}	
 			}
-			/* u */
-			for(py = 0; py < piece_size; py += 2)
+			
+			for(i = 0; i < piece_size; i += 2)
 			{
-				for(px = 0 ; px < piece_size; px += 2)
+				uint8_t *pu = frame + (width * height) + (((h + i) * width) / 4) + (w / 2);
+				uint8_t *pv = pu + ((width * height) / 4);
+				
+				for(j = 0; j < piece_size; j += 2)
 				{
-					pfu[(row * width)/4 + (column + px)/2] = *ppiece++;
-				}
-			}
-			/* v */
-			for(py = 0; py < piece_size; py += 2)
-			{
-				for(px = 0 ; px < piece_size; px += 2)
-				{
-					pfv[(row * width)/4 + (column + px)/2] = *ppiece++;
+					*pu++ = *ppu++;
+					*pv++ = *ppv++;
 				}
 			}
 		}
 	}
+	
+			
+			
+		
+	
 
 	/*free the random seed generator*/
 	gsl_rng_free (r);
