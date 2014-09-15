@@ -1416,7 +1416,7 @@ int encoder_encode_video(encoder_context_t *encoder_ctx, void *input_frame)
 	if(input_frame != NULL)
 	{
 #ifdef USE_PLANAR_YUV
-		prepare_video_frame(video_codec_data, input_frame);
+		prepare_video_frame(video_codec_data, input_frame, encoder_ctx->video_width, encoder_ctx->video_height);
 #else
 		/*convert default yuyv to y420p (libav input format)*/		
 		switch(video_codec_data->codec_context->pix_fmt)
