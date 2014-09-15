@@ -159,14 +159,14 @@ void render_osd_vu_meter(uint8_t *frame, int width, int height, float vu_level[2
 				/*u v*/
 				for(h = 0; h < bh; h += 2) /*every two lines*/
 				{
-					pu = frame + (width * height) + (bx/2) + (((by + h) * width) /4)
+					pu = frame + (width * height) + (bx/2) + (((by + h) * width) /4);
 					pv = pu + ((width * height) / 4);
 					
 					int w = 0;
 					for(w = 0; w < bw; w += 2) /*every two rows*/
 					{
 						*pu++ = u;
-						*pv++ = v
+						*pv++ = v;
 					}
 				}
 #else
