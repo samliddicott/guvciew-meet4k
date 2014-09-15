@@ -42,61 +42,33 @@
 
 
 /*
- * convert yuyv to yuv420p
+ * set yu12 frame in codec data frame
  * args:
- *    encoder_ctx - pointer to encoder context
- *    inp - input data (yuyv)
+ *    video_codec_data - pointer to video codec data
+ *    inp - input data (yu12)
+ *    width - frame width
+ *    height - frame height 
  *
  * asserts:
- *    encoder_ctx is not null
- *    encoder_ctx->enc_video_ctx is not null
+ *    video_codec_data is not null
+ *    inp is not null
  *
  * returns: none
  */
-void yuv422to420p(encoder_context_t *encoder_ctx, uint8_t *inp)
+void prepare_video_frame(encoder_codec_data_t *video_codec_data, uint8_t *inp, int width, int height)
 {
 	/*assertions*/
-	assert(encoder_ctx != NULL);
-	assert(encoder_ctx->enc_video_ctx != NULL);
-
-	encoder_codec_data_t *video_codec_data = (encoder_codec_data_t *) encoder_ctx->enc_video_ctx->codec_data;
-
 	assert(video_codec_data);
+	assert(inp);
 
-	int i,j;
-	int linesize= encoder_ctx->video_width * 2;
-	int size = encoder_ctx->video_width * encoder_ctx->video_height;
+	int size = width * height;
 
-	uint8_t *y;
-	uint8_t *y1;
-	uint8_t *u;
-	uint8_t *v;
-	y = encoder_ctx->enc_video_ctx->tmpbuf;
-	y1 = encoder_ctx->enc_video_ctx->tmpbuf + encoder_ctx->video_width;
-	u = encoder_ctx->enc_video_ctx->tmpbuf + size;
-	v = u + size/4;
-
-	for(j = 0; j < (encoder_ctx->video_height - 1); j += 2)
-	{
-		for(i = 0; i < (linesize - 3); i += 4)
-		{
-			*y++ = inp[i+j*linesize];
-			*y++ = inp[i+2+j*linesize];
-			*y1++ = inp[i+(j+1)*linesize];
-			*y1++ = inp[i+2+(j+1)*linesize];
-			*u++ = (inp[i+1+j*linesize] + inp[i+1+(j+1)*linesize])>>1; // div by 2
-			*v++ = (inp[i+3+j*linesize] + inp[i+3+(j+1)*linesize])>>1;
-		}
-		y += encoder_ctx->video_width;
-		y1 += encoder_ctx->video_width;//2 lines
-	}
-
-	video_codec_data->frame->data[0] = encoder_ctx->enc_video_ctx->tmpbuf; //Y
-	video_codec_data->frame->data[1] = encoder_ctx->enc_video_ctx->tmpbuf + size; //U
+	video_codec_data->frame->data[0] = inp; //Y
+	video_codec_data->frame->data[1] = inp + size; //U
 	video_codec_data->frame->data[2] = video_codec_data->frame->data[1] + size/4; //V
-	video_codec_data->frame->linesize[0] = encoder_ctx->video_width;
-	video_codec_data->frame->linesize[1] = encoder_ctx->video_width / 2;
-	video_codec_data->frame->linesize[2] = encoder_ctx->video_width / 2;
+	video_codec_data->frame->linesize[0] = width;
+	video_codec_data->frame->linesize[1] = width / 2;
+	video_codec_data->frame->linesize[2] = width / 2;
 }
 
 /*

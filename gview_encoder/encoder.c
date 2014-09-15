@@ -91,6 +91,61 @@ void encoder_set_verbosity(int value)
 }
 
 /*
+ * convert yuyv to yuv420p
+ * args:
+ *    encoder_ctx - pointer to encoder context
+ *    inp - input data (yuyv)
+ *
+ * asserts:
+ *    encoder_ctx is not null
+ *    encoder_ctx->enc_video_ctx is not null
+ *     encoder_ctx->enc_video_ctx->tmpbuf is not null
+ *
+ * returns: none
+ */
+static void yuv422to420p(encoder_context_t *encoder_ctx, uint8_t *inp)
+{
+	/*assertions*/
+	assert(encoder_ctx != NULL);
+	assert(encoder_ctx->enc_video_ctx != NULL);
+	assert( encoder_ctx->enc_video_ctx->tmpbuf != NULL);
+
+	encoder_codec_data_t *video_codec_data = (encoder_codec_data_t *) encoder_ctx->enc_video_ctx->codec_data;
+
+	assert(video_codec_data);
+
+	int i,j;
+	int linesize= encoder_ctx->video_width * 2;
+	int size = encoder_ctx->video_width * encoder_ctx->video_height;
+
+	uint8_t *y;
+	uint8_t *y1;
+	uint8_t *u;
+	uint8_t *v;
+	y = encoder_ctx->enc_video_ctx->tmpbuf;
+	y1 = encoder_ctx->enc_video_ctx->tmpbuf + encoder_ctx->video_width;
+	u = encoder_ctx->enc_video_ctx->tmpbuf + size;
+	v = u + size/4;
+
+	for(j = 0; j < (encoder_ctx->video_height - 1); j += 2)
+	{
+		for(i = 0; i < (linesize - 3); i += 4)
+		{
+			*y++ = inp[i+j*linesize];
+			*y++ = inp[i+2+j*linesize];
+			*y1++ = inp[i+(j+1)*linesize];
+			*y1++ = inp[i+2+(j+1)*linesize];
+			*u++ = (inp[i+1+j*linesize] + inp[i+1+(j+1)*linesize])>>1; // div by 2
+			*v++ = (inp[i+3+j*linesize] + inp[i+3+(j+1)*linesize])>>1;
+		}
+		y += encoder_ctx->video_width;
+		y1 += encoder_ctx->video_width;//2 lines
+	}
+
+	prepare_video_frame(video_codec_data, encoder_ctx->enc_video_ctx->tmpbuf, encoder_ctx->video_width, encoder_ctx->video_height);
+}
+
+/*
  * check that a given sample format is supported by the encoder
  * args:
  *    codec - pointer to AVCodec
@@ -471,6 +526,9 @@ static encoder_video_context_t *encoder_video_init(encoder_context_t *encoder_ct
 	/*set the codec data in codec context*/
 	enc_video_ctx->codec_data = (void *) video_codec_data;
 
+#ifdef USE_PLANAR_YUV
+	enc_video_ctx->tmpbuf = NULL; //no need to temp buffer input already in yu12 (yuv420p)
+#else
 	//alloc tmpbuff (yuv420p)
 	enc_video_ctx->tmpbuf = calloc((encoder_ctx->video_width * encoder_ctx->video_height * 3)/2, sizeof(uint8_t));
 	if(enc_video_ctx->tmpbuf == NULL)
@@ -478,6 +536,7 @@ static encoder_video_context_t *encoder_video_init(encoder_context_t *encoder_ct
 		fprintf(stderr, "ENCODER: FATAL memory allocation failure (encoder_video_init): %s\n", strerror(errno));
 		exit(-1);
 	}
+#endif
 	//alloc outbuf
 	enc_video_ctx->outbuf_size = 240000;//1792
 	enc_video_ctx->outbuf = calloc(enc_video_ctx->outbuf_size, sizeof(uint8_t));
@@ -1354,9 +1413,12 @@ int encoder_encode_video(encoder_context_t *encoder_ctx, void *input_frame)
 		return (outsize);
 	}
 
-	/*convert default yuyv to y420p (libav input format)*/
 	if(input_frame != NULL)
 	{
+#ifdef USE_PLANAR_YUV
+		prepare_video_frame(video_codec_data, input_frame);
+#else
+		/*convert default yuyv to y420p (libav input format)*/		
 		switch(video_codec_data->codec_context->pix_fmt)
 		{
 			case PIX_FMT_YUVJ420P:
@@ -1366,8 +1428,9 @@ int encoder_encode_video(encoder_context_t *encoder_ctx, void *input_frame)
 				yuv422to420p(encoder_ctx, input_frame);
 				break;
 		}
+#endif
 	}
-
+	
 	if(!enc_video_ctx->monotonic_pts) //generate a real pts based on the frame timestamp
 		video_codec_data->frame->pts += ((enc_video_ctx->pts - last_video_pts)/1000) * 90;
 	else  /*generate a true monotonic pts based on the codec fps*/

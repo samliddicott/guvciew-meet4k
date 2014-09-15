@@ -221,6 +221,23 @@ int avpriv_split_xiph_headers(
 		int first_header_size,
 		uint8_t *header_start[3],
         int header_len[3]);
+	
+/*
+ * set yu12 frame in codec data frame
+ * args:
+ *    video_codec_data - pointer to video codec data
+ *    inp - input data (yu12)
+ *    width - frame width
+ *    height - frame height 
+ *
+ * asserts:
+ *    video_codec_data is not null
+ *    inp is not null
+ *
+ * returns: none
+ */
+void prepare_video_frame(encoder_codec_data_t *encoder_ctx, uint8_t *inp, int width, int height);
+
 
 /*
  * returns the real codec array index

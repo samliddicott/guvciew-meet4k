@@ -236,20 +236,6 @@ typedef struct _encoder_context_t
 void encoder_set_verbosity(int value);
 
 /*
- * convert yuyv to yuv420p
- * args:
- *    encoder_ctx - pointer to encoder context
- *    inp - input data (yuyv)
- *
- * asserts:
- *    encoder_ctx is not null
- *    encoder_ctx->enc_video_ctx is not null
- *
- * returns: none
- */
-void yuv422to420p(encoder_context_t *encoder_ctx, uint8_t *inp);
-
-/*
  * encoder initaliztion (first function to get called)
  * args:
  *    none
