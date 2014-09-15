@@ -167,7 +167,11 @@ static void fx_yuv_negative(uint8_t *frame, int width, int height)
 	/*asserts*/
 	assert(frame != NULL);
 
+#ifdef USE_PLANAR_YUV
+	int size = (width * height * 5) / 4;
+#else
 	int size= width * height * 2;
+#endif
 	int i=0;
 	for(i=0; i < size; i++)
 		frame[i] = ~frame[i];
@@ -235,8 +239,8 @@ static void fx_yu12_upturn(uint8_t *frame, int width, int height)
 		memcpy(pi, pf, width);
 		memcpy(pf, line, width);
 		
-		pi++;
-		pf--;
+		pi+=width;
+		pf-=width;
 		
 	}
 	
@@ -249,8 +253,8 @@ static void fx_yu12_upturn(uint8_t *frame, int width, int height)
 		memcpy(pi, pf, width / 2);
 		memcpy(pf, line, width / 2);
 		
-		pi++;
-		pf--;
+		pi+=width/2;
+		pf-=width/2;
 	}
 	
 	/*upturn v*/
@@ -262,8 +266,8 @@ static void fx_yu12_upturn(uint8_t *frame, int width, int height)
 		memcpy(pi, pf, width / 2);
 		memcpy(pf, line, width / 2);
 		
-		pi++;
-		pf--;
+		pi+=width/2;
+		pf-=width/2;
 	}
 	
 }
