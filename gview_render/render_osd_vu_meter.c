@@ -188,11 +188,32 @@ void render_osd_vu_meter(uint8_t *frame, int width, int height, float vu_level[2
 					}
   				}
 #endif
-
 			}
 			else if (bw > 0) /*draw single line*/
 			{
+#ifdef USE_PLANAR_YUV
+				uint8_t *py = frame;
+				uint8_t *pu = frame + (width * height);
+				uint8_t *pv = pu + ((width * height) / 4);
 
+				int w = 0;
+				
+				/*y*/
+				py = frame + bx + ((by + bh/2) * width);
+				for(w = 0; w < bw; ++w)
+				{
+					*py++ = y;
+				}
+				
+				/*u v*/
+				pu = frame + (width * height) + (bx/2) + (((by + bh/2) * width) /4);
+				pv = pu + ((width * height) / 4);
+				for(w = 0; w < bw; w += 2) /*every two rows*/
+				{
+					*pu++ = u;
+					*pv++ = v;
+				}
+#else
 				int bi = 2 * (bx + (by + bh/2) * width);
 
 				int j = 0;
@@ -204,6 +225,7 @@ void render_osd_vu_meter(uint8_t *frame, int width, int height, float vu_level[2
 	  				frame[bi+3] = v;
 					bi += 4;
 				}
+#endif
 			}
 		}
   	}
