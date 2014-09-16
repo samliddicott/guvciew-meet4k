@@ -445,9 +445,9 @@ static void fx_yu12_pieces(uint8_t* frame, int width, int height, int piece_size
 	uint8_t *pu = NULL;
 	uint8_t *pv = NULL;
 	
-	for(h = 0; h < height - piece_size; h += piece_size)
+	for(h = 0; h < height; h += piece_size)
 	{	
-		for(w = 0; w < width - piece_size; w += piece_size)
+		for(w = 0; w < width; w += piece_size)
 		{	
 			uint8_t *ppy = piece;
 			uint8_t *ppu = piece + (piece_size * piece_size);
