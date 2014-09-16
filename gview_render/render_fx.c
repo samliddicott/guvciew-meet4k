@@ -121,9 +121,9 @@ static void fx_yu12_mirror (uint8_t *frame, int width, int height)
 	/*mirror y*/
 	for(h = 0; h < height; h++)
 	{
-		py = frame + (h * y_sizeline);
-		end = py + y_sizeline;
-		for(w = 0; w < y_sizeline/2; w++)
+		py = frame + (h * width);
+		end = py + width - 1;
+		for(w = 0; w < width/2; w++)
 		{
 			pixel = *py;
 			*py++ = *end;
@@ -132,13 +132,13 @@ static void fx_yu12_mirror (uint8_t *frame, int width, int height)
 	}	
 
 	/*mirror u v*/
-	for(h = 0; h < height/2; h++)
+	for(h = 0; h < height; h+=2)
 	{
-		pu = frame + (width * height) + (h * c_sizeline);
+		pu = frame + (width * height) + ((h * width) / 4);
 		pv = pu + ((width * height) / 4);
-		end  = pu + c_sizeline;
-		end2 = pv + c_sizeline;
-		for(w = 0; w < c_sizeline/2; w++)
+		end  = pu + (width / 2) - 1;
+		end2 = pv + (width / 2) -1;
+		for(w = 0; w < width/2; w+=2)
 		{
 			pixel  = *pu;
 			pixel2 = *pv;
