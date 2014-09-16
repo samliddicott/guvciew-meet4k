@@ -440,7 +440,6 @@ static void fx_yu12_pieces(uint8_t* frame, int width, int height, int piece_size
 
 	int rot = 0;
 	
-	
 	uint8_t *py = NULL;
 	uint8_t *pu = NULL;
 	uint8_t *pv = NULL;
@@ -529,11 +528,6 @@ static void fx_yu12_pieces(uint8_t* frame, int width, int height, int piece_size
 			}
 		}
 	}
-	
-			
-			
-		
-	
 
 	/*free the random seed generator*/
 	gsl_rng_free (r);
@@ -561,7 +555,6 @@ static void fx_particles(uint8_t* frame, int width, int height, int trail_size, 
 	int i,j,w,h = 0;
 	int part_w = width>>7;
 	int part_h = height>>6;
-	int y_pos = 0; /*luma position in the frame*/
 
 	/*random generator setup*/
 	gsl_rng_env_setup();
@@ -625,6 +618,7 @@ static void fx_particles(uint8_t* frame, int width, int height, int trail_size, 
 	}
 
 	part = particles; /*reset*/
+	
 	/*get particles from frame (one pixel per particle - make PX allways even)*/
 	for(i =0; i < part_w * part_h; i++)
 	{
@@ -635,12 +629,21 @@ static void fx_particles(uint8_t* frame, int width, int height, int trail_size, 
 
 		if(ODD(part->PX)) part->PX++;
 
-		y_pos = part->PX * 2 + (part->PY * width * 2);
-
+#ifdef USE_PLANAR_YUV
+		int y_pos = part->PX + (part->PY * width);
+		int u_pos = (part->PX + (part->PY * width / 2)) / 2;
+		int v_pos = u_pos + ((width * height) / 4);
+		
+		part->Y = frame[y_pos];
+		part->U = frame[u_pos];
+		part->V = frame[v_pos];
+#else
+		int y_pos = part->PX * 2 + (part->PY * width * 2);
+				
 		part->Y = frame[y_pos];
 		part->U = frame[y_pos +1];
 		part->V = frame[y_pos +3];
-
+#endif
 		part->size = 1 + (int) lround((particle_size -1) * gsl_rng_uniform (r));
 		if(ODD(part->size)) part->size++;
 
@@ -658,7 +661,37 @@ static void fx_particles(uint8_t* frame, int width, int height, int trail_size, 
 	{
 		if(part->decay > 0)
 		{
-			y_pos = part->PX * 2 + (part->PY * width * 2);
+#ifdef USE_PLANAR_YUV
+			int y_pos = part->PX + (part->PY * width);
+			int u_pos = (part->PX + (part->PY * width / 2)) / 2;
+			int v_pos = u_pos + ((width * height) / 4);
+			
+			blend = part->decay/trail_size;
+			blend1= 1 - blend;
+			
+			//y
+			for(h = 0; h <(part->size); h++)
+			{
+				line = h * width;
+				for (w = 0; w <(part->size); w++)
+				{
+					frame[y_pos + line + w] = CLIP((part->Y * blend) + (frame[y_pos + line + w] * blend1));
+				}
+			}
+			
+			//u v
+			for(h = 0; h <(part->size); h+=2)
+			{
+				line = (h * width) / 4;
+				for (w = 0; w <(part->size); w+=2)
+				{
+					frame[u_pos + line + (w / 2)] = CLIP((part->U * blend) + (frame[u_pos + line + (w / 2)] * blend1));
+					frame[v_pos + line + (w / 2)] = CLIP((part->V * blend) + (frame[v_pos + line + (w / 2)] * blend1));
+				}
+			}
+#else
+			int y_pos = part->PX * 2 + (part->PY * width * 2);
+			
 			blend = part->decay/trail_size;
 			blend1= 1 -blend;
 			for(h=0; h<(part->size); h++)
@@ -672,6 +705,7 @@ static void fx_particles(uint8_t* frame, int width, int height, int trail_size, 
 					frame[(y_pos + w + 3) + line] = CLIP(part->V*blend + frame[(y_pos + w + 3) + line]*blend1);
 				}
 			}
+#endif
 		}
 		part++;
 	}
