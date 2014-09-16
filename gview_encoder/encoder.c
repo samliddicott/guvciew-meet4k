@@ -1430,7 +1430,7 @@ int encoder_encode_video(encoder_context_t *encoder_ctx, void *input_frame)
 		}
 #endif
 	}
-	
+
 	if(!enc_video_ctx->monotonic_pts) //generate a real pts based on the frame timestamp
 		video_codec_data->frame->pts += ((enc_video_ctx->pts - last_video_pts)/1000) * 90;
 	else  /*generate a true monotonic pts based on the codec fps*/
@@ -1446,6 +1446,7 @@ int encoder_encode_video(encoder_context_t *encoder_ctx, void *input_frame)
 			enc_video_ctx->flushed_buffers = 1;
 		}
  	}
+
 #if LIBAVCODEC_VER_AT_LEAST(54,01)
 	AVPacket pkt;
     int got_packet = 0;

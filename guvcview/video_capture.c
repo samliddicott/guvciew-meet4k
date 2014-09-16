@@ -43,6 +43,7 @@
 #include "config.h"
 #include "core_io.h"
 #include "gui.h"
+#include "../config.h"
 
 /*flags*/
 extern int debug_level;
@@ -1105,7 +1106,11 @@ void *capture_loop(void *data)
 
 			if(video_capture_get_save_video())
 			{
+#ifdef USE_PLANAR_YUV
+				int size = (device->format.fmt.pix.width * device->format.fmt.pix.height * 3) / 2;
+#else
 				int size = device->format.fmt.pix.width * device->format.fmt.pix.height * 2;
+#endif
 				uint8_t *input_frame = device->yuv_frame;
 				/*
 				 * TODO: check codec_id, format and frame flags
