@@ -176,6 +176,7 @@ static int encoder_check_audio_sample_fmt(AVCodec *codec, enum AVSampleFormat sa
  *   video_height - video frame height (in pixels)
  *   fps_den - frames per sec (denominator)
  *   fps_num - frames per sec (numerator)
+ *   codec_ind - video codec index (0 -raw)
  *
  * asserts:
  *   none
@@ -186,7 +187,8 @@ static void encoder_alloc_video_ring_buffer(
 	int video_width,
 	int video_height,
 	int fps_den,
-	int fps_num)
+	int fps_num,
+	int codec_ind)
 {
 	video_ring_buffer_size = (fps_den * 3) / (fps_num * 2); /* 1.5 sec */
 	if(video_ring_buffer_size < 20)
@@ -198,8 +200,18 @@ static void encoder_alloc_video_ring_buffer(
 		exit(-1);
 	}
 
+	if(codec_ind > 0)
+	{
+#ifdef USE_PLANAR_YUV
+	video_frame_max_size = (video_width * video_height * 3) / 2;
+#else
 	/*Max: (yuyv) 2 bytes per pixel*/
 	video_frame_max_size = video_width * video_height * 2;
+#endif
+	}
+	else
+		video_frame_max_size = video_width * video_height * 3; //RGB formats
+		
 	int i = 0;
 	for(i = 0; i < video_ring_buffer_size; ++i)
 	{
@@ -262,7 +274,7 @@ static void encoder_set_raw_video_input(
 	assert(encoder_ctx != NULL);
 	assert(encoder_ctx->enc_video_ctx != NULL);
 
-	encoder_ctx->video_codec_ind == 0;
+	encoder_ctx->video_codec_ind = 0;
 
 	switch(encoder_ctx->input_format)
 	{
@@ -1116,7 +1128,8 @@ encoder_context_t *encoder_get_context(
 		video_width,
 		video_height,
 		fps_den,
-		fps_num);
+		fps_num,
+		video_codec_ind);
 
 	return encoder_ctx;
 }
@@ -1741,8 +1754,8 @@ void encoder_close(encoder_context_t *encoder_ctx)
 
 	encoder_video_context_t *enc_video_ctx = encoder_ctx->enc_video_ctx;
 	encoder_audio_context_t *enc_audio_ctx = encoder_ctx->enc_audio_ctx;
-	encoder_codec_data_t *video_codec_data = (encoder_codec_data_t *) enc_video_ctx->codec_data;
-	encoder_codec_data_t *audio_codec_data = (encoder_codec_data_t *) enc_audio_ctx->codec_data;
+	encoder_codec_data_t *video_codec_data = NULL;
+	encoder_codec_data_t *audio_codec_data = NULL;
 
 	if(encoder_ctx->h264_pps)
 		free(encoder_ctx->h264_pps);
@@ -1753,6 +1766,7 @@ void encoder_close(encoder_context_t *encoder_ctx)
 	/*close video codec*/
 	if(enc_video_ctx)
 	{
+		video_codec_data = (encoder_codec_data_t *) enc_video_ctx->codec_data;
 		if(video_codec_data)
 		{
 			if(!(enc_video_ctx->flushed_buffers))
@@ -1793,6 +1807,7 @@ void encoder_close(encoder_context_t *encoder_ctx)
 	/*close audio codec*/
 	if(enc_audio_ctx)
 	{
+		audio_codec_data = (encoder_codec_data_t *) enc_audio_ctx->codec_data;
 		if(audio_codec_data)
 		{
 			avcodec_flush_buffers(audio_codec_data->codec_context);

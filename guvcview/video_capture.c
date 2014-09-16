@@ -863,7 +863,7 @@ static void *encoder_loop(void *data)
 			}
 		}
 	}
-
+	
 	/*flush the video buffer*/
 	encoder_flush_video_buffer(encoder_ctx);
 
