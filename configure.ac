@@ -320,8 +320,9 @@ if test $enable_pulse = yes; then
 	  AC_MSG_WARN(libpulse missing... pulse support will be disabled.);
 	  enable_pulse=no
 	fi
-	AM_CONDITIONAL(HAVE_PULSEAUDIO, test $enable_pulse = yes)
 fi
+
+AM_CONDITIONAL(HAVE_PULSEAUDIO, test $enable_pulse = yes)
 
 dnl -----------------------------------------------
 dnl libgviewencoder name and version number
