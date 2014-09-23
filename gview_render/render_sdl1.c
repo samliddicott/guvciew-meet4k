@@ -230,7 +230,7 @@ static SDL_Overlay * video_init(int width, int height, int flags)
  */
  int init_render_sdl1(int width, int height, int flags)
  {
-	poverlay = video_init(width, height, int flags);
+	poverlay = video_init(width, height, flags);
 
 	if(poverlay == NULL)
 	{
