@@ -72,6 +72,9 @@ static uint64_t fps_ref_ts = 0;
 static uint32_t fps_frame_count = 0;
 
 static uint8_t flag_fps_change = 0; /*set to 1 to request a fps change*/
+
+static uint8_t disable_libv4l2 = 0; /*set to 1 to disable libv4l2 calls*/
+
 /*
  * ioctl with a number of retries in the case of I/O failure
  * args:
@@ -90,7 +93,10 @@ int xioctl(int fd, int IOCTL_X, void *arg)
 	int tries= IOCTL_RETRY;
 	do
 	{
-		ret = v4l2_ioctl(fd, IOCTL_X, arg);
+		if(!disable_libv4l2)
+			ret = v4l2_ioctl(fd, IOCTL_X, arg);
+		else
+			ret = ioctl(fd, IOCTL_X, arg);
 	}
 	while (ret && tries-- &&
 			((errno == EINTR) || (errno == EAGAIN) || (errno == ETIMEDOUT)));
@@ -581,9 +587,40 @@ void v4l2core_set_verbosity(int level)
 }
 
 /*
+ * disable libv4l2 calls
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns void
+ */
+void v4l2core_disable_libv4l2()
+{
+	disable_libv4l2 = 1;
+}
+
+/*
+ * enable libv4l2 calls (default)
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns void
+ */
+void v4l2core_enable_libv4l2()
+{
+	disable_libv4l2 = 0;
+}
+
+/*
  * Set v4l2 capture method
  * args:
  *   vd - pointer to video device data
+ *   method - capture method (IO_READ or IO_MMAP)
  *
  * asserts:
  *   vd is not null

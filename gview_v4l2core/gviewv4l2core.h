@@ -358,6 +358,30 @@ int xioctl(int fd, int IOCTL_X, void *arg);
 void v4l2core_set_verbosity(int level);
 
 /*
+ * disable libv4l2 calls
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns void
+ */
+void v4l2core_disable_libv4l2();
+
+/*
+ * enable libv4l2 calls (default)
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns void
+ */
+void v4l2core_enable_libv4l2();
+
+/*
  * get pixelformat from fourcc
  * args:
  *    fourcc - fourcc code for format
@@ -385,6 +409,7 @@ double v4l2core_get_realfps();
  * Set v4l2 capture method
  * args:
  *   vd - pointer to video device data
+ *   method - capture method (IO_READ or IO_MMAP)
  *
  * asserts:
  *   vd is not null
