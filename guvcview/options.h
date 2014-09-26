@@ -29,6 +29,7 @@ typedef struct _options_t
 	int  width;      /*width*/
 	int  height;     /*height*/
 	int  control_panel; /*flag control panel mode*/
+	int  disable_libv4l2; /*set to 1 to disbale libv4l2 calls*/
 	char format[5];  /*pixelformat fourcc*/
 	char render[5];  /*render api*/
 	char gui[5];     /*gui api*/
