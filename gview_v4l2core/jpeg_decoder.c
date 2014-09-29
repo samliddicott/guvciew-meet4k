@@ -1397,6 +1397,7 @@ int jpeg_init_decoder(int width, int height)
 	 * we wish to have smaller code)
 	 */
 	avcodec_register_all();
+	av_log_set_level(AV_LOG_PANIC);
 
 	if(jpeg_ctx != NULL)
 		jpeg_close_decoder();
