@@ -79,6 +79,13 @@ static opt_values_t opt_values[] =
 		.opt_help = N_("Set capture method [read | mmap (def)]"),
 	},
 	{
+		.opt_short = 'b',
+		.opt_long = "disable_libv4l2",
+		.req_arg = 0,
+		.opt_help_arg = "",
+		.opt_help = N_("disable calls to libv4l2"),
+	},
+	{
 		.opt_short = 'x',
 		.opt_long = "resolution",
 		.req_arg = 1,
@@ -206,6 +213,7 @@ static options_t my_options =
 	.width = 0,
 	.height = 0,
 	.control_panel = 0,
+	.disable_libv4l2 = 0,
 	.format = "",
 	.render = "",
 	.gui = "",
@@ -449,6 +457,11 @@ int options_parse(int argc, char *argv[])
 				int str_size = strlen(optarg);
 				if(str_size == 4) /*capture method*/
 					strncpy(my_options.capture, optarg, 4);
+				break;
+			}
+			case 'b':
+			{
+				my_options.disable_libv4l2 = 1;
 				break;
 			}
 			case 'x':

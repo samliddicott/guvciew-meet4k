@@ -172,6 +172,9 @@ int main(int argc, char *argv[])
 		
 	/*initialize the v4l2 core*/
 	v4l2core_set_verbosity(debug_level);
+	
+	if(my_options->disable_libv4l2)
+		v4l2core_disable_libv4l2();
 	/*init the device list*/
 	v4l2core_init_device_list();
 	/*get the device data (redefines language catalog)*/
