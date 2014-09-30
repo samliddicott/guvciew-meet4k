@@ -910,6 +910,12 @@ int v4l2core_get_frame(v4l2_dev_t *vd)
 
 
 	vd->raw_frame_size = vd->buf.bytesused;
+	if(vd->raw_frame_size == 0)
+	{
+		fprintf(stderr, "V4L2_CORE: VIDIOC_QBUF returned buf.bytesused = 0 using %i\n", vd->buf.length);
+		vd->raw_frame_size = vd->buf.length;
+	}
+	
 	vd->raw_frame = vd->mem[vd->buf.index]; /*point raw_frame to current frame buffer*/
 
 	return E_OK;
