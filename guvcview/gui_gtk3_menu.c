@@ -251,7 +251,7 @@ int gui_attach_gtk3_menu(v4l2_dev_t *device, GtkWidget *parent)
 
 	/*show the menu*/
 	gtk_widget_show (menubar);
-	gtk_container_set_resize_mode (GTK_CONTAINER(menubar), GTK_RESIZE_PARENT);
+	//gtk_container_set_resize_mode (GTK_CONTAINER(menubar), GTK_RESIZE_PARENT);
 
 	/* Attach the menu to parent container*/
 	gtk_box_pack_start(GTK_BOX(parent), menubar, FALSE, TRUE, 2);
