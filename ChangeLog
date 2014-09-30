@@ -1,3 +1,12 @@
+guvcview (2.0.1)
+
+    * Fix audio clean bug (segfault when audio=none)
+    * Add --disable_libv4l2 option
+	* Add support for internal yu12 planar format
+    * Workaround uvcvideo bug (buf.bytesused=0 on kernels >=3.16)
+
+ -- Paulo Assis <pj.assis@gmail.com> Tue, 30 Sep 2014 18:05:00 +0100
+ 
 guvcview (2.0.0)
 
     * new version 2.0.0 (code rewriten from scratch)
