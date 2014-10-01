@@ -1129,6 +1129,8 @@ int h264_decode(uint8_t *out_buf, uint8_t *in_buf, int size)
 
 	AVPacket avpkt;
 
+	av_init_packet(&avpkt);
+	
 	avpkt.size = size;
 	avpkt.data = in_buf;
 
