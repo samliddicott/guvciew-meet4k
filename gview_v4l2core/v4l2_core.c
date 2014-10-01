@@ -319,6 +319,14 @@ static int query_buff(v4l2_dev_t *vd)
 			// map the new buffers
 			if(map_buff(vd) != 0)
 				ret = E_MMAP_ERR;
+			
+			if(vd->raw_frame)
+			{
+				free(vd->raw_frame);
+				vd->raw_frame = NULL;
+			}
+			if(vd->buf.length > 0)
+				vd->raw_frame = calloc(vd->buf.length, sizeof(uint8_t));
 			break;
 	}
 	return ret;
@@ -479,14 +487,13 @@ static int set_v4l2_framerate (v4l2_dev_t *vd)
 					printf("V4L2_CORE: setting muxed H264 stream in MJPG container\n");
 				set_h264_muxed_format(vd);
 			}
-
-			if(stream_status == STRM_OK)
-			{
-				/*we were already streaming so query and queue the buffers*/
-				query_buff(vd); /*also mmaps the buffers*/
-				queue_buff(vd);
-			}
 			break;
+	}
+	
+	if(stream_status == STRM_OK)
+	{
+		query_buff(vd); /*also mmaps the buffers*/
+		queue_buff(vd);
 	}
 
 	/*try to start the video stream*/
@@ -755,6 +762,36 @@ int v4l2core_stop_stream(v4l2_dev_t *vd)
 	return ret;
 }
 
+
+/*
+ * process input buffer
+ *
+ */
+static void process_input_buffer(v4l2_dev_t *vd)
+{
+	if(!vd->raw_frame)
+		vd->raw_frame = calloc(vd->buf.length, sizeof(uint8_t));
+	/*
+     * driver timestamp is unreliable
+	 * use monotonic system time
+	 */
+	vd->timestamp = ns_time_monotonic();
+	 
+	vd->frame_index++;
+	
+	vd->raw_frame_size = vd->buf.bytesused;
+	if(vd->raw_frame_size == 0)
+	{
+		if(verbosity > 1)
+			fprintf(stderr, "V4L2_CORE: VIDIOC_QBUF returned buf.bytesused = 0 using %i\n", 
+				vd->buf.length);
+		vd->raw_frame_size = vd->buf.length;
+	}
+	
+	/*copy current frame buffer to vd->raw_frame*/
+	memcpy(vd->raw_frame, vd->mem[vd->buf.index], vd->raw_frame_size);
+} 
+ 
 /*
  * gets the next video frame and decodes it if necessary
  * args:
@@ -824,6 +861,7 @@ int v4l2core_get_frame(v4l2_dev_t *vd)
 				}
 				vd->timestamp = 0;
 			}
+			process_input_buffer(vd);
 			break;
 
 		case IO_MMAP:
@@ -866,12 +904,8 @@ int v4l2core_get_frame(v4l2_dev_t *vd)
 
 				if(!ret)
 				{
-					/*
-					 * driver timestamp is unreliable
-					 * use monotonic system time
-					 */
-					vd->timestamp = ns_time_monotonic();
-
+					process_input_buffer(vd);
+					
 					/* queue the buffers */
 					ret = xioctl(vd->fd, VIDIOC_QBUF, &vd->buf);
 
@@ -893,8 +927,6 @@ int v4l2core_get_frame(v4l2_dev_t *vd)
 				return E_DQBUF_ERR;
 	}
 
-	vd->frame_index++;
-
 	/*determine real fps every 3 sec aprox.*/
 	fps_frame_count++;
 
@@ -907,18 +939,6 @@ int v4l2core_get_frame(v4l2_dev_t *vd)
 		fps_frame_count = 0;
 		fps_ref_ts = vd->timestamp;
 	}
-
-
-	vd->raw_frame_size = vd->buf.bytesused;
-	if(vd->raw_frame_size == 0)
-	{
-		if(verbosity > 1)
-			fprintf(stderr, "V4L2_CORE: VIDIOC_QBUF returned buf.bytesused = 0 using %i\n", 
-				vd->buf.length);
-		vd->raw_frame_size = vd->buf.length;
-	}
-	
-	vd->raw_frame = vd->mem[vd->buf.index]; /*point raw_frame to current frame buffer*/
 
 	return E_OK;
 }
@@ -1245,6 +1265,12 @@ static void clean_v4l2_dev(v4l2_dev_t *vd)
 	if(vd->list_device_controls)
 		free_v4l2_control_list(vd);
 
+	if(vd->raw_frame)
+	{
+		free(vd->raw_frame);
+		vd->raw_frame = NULL;
+	}
+	
 	/*close descriptor*/
 	if(vd->fd > 0)
 		v4l2_close(vd->fd);
