@@ -297,6 +297,7 @@ typedef struct _v4l2_dev_t
 	 */
 	uint8_t *raw_frame;                 // pointer to raw frame (as captured from device)
 	size_t raw_frame_size;              // size of raw frame (in bytes)
+	size_t raw_frame_max_size;          // maximum size for raw frame
 
 	uint8_t *tmp_buffer;                // temp buffer for decoding compressed data
 	size_t tmp_buffer_max_size;         // max size (allocated size) for temp buffer
@@ -596,6 +597,18 @@ int v4l2core_update_current_format(v4l2_dev_t *vd);
  * returns: error code (E_OK)
  */
 int v4l2core_get_frame(v4l2_dev_t *vd);
+
+/*
+ * releases the current video frame (so that it can be reused by the driver)
+ * args:
+ * vd: pointer to video device data
+ *
+ * asserts:
+ *   vd is not null
+ *
+ * returns: error code (E_OK)
+ */
+int v4l2core_release_frame(v4l2_dev_t *vd);
 
 /*
  * decode video stream ( from raw_frame to frame buffer (yuyv format))

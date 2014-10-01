@@ -1160,7 +1160,8 @@ void *capture_loop(void *data)
 					}
 				}
 			}
-
+			/*we are done with the frame buffer release it*/
+			v4l2core_release_frame(device);
 		}
 	}
 

@@ -285,6 +285,7 @@ static int query_buff(v4l2_dev_t *vd)
 	switch(vd->cap_meth)
 	{
 		case IO_READ:
+			vd->raw_frame_max_size = vd->buf.length;
 			break;
 
 		case IO_MMAP:
@@ -319,16 +320,10 @@ static int query_buff(v4l2_dev_t *vd)
 			// map the new buffers
 			if(map_buff(vd) != 0)
 				ret = E_MMAP_ERR;
-			
-			if(vd->raw_frame)
-			{
-				free(vd->raw_frame);
-				vd->raw_frame = NULL;
-			}
-			if(vd->buf.length > 0)
-				vd->raw_frame = calloc(vd->buf.length, sizeof(uint8_t));
+			vd->raw_frame_max_size = vd->buf.length;
 			break;
 	}
+				
 	return ret;
 }
 
@@ -535,9 +530,7 @@ static int check_frame_available(v4l2_dev_t *vd)
 	if(stream_state != STRM_OK)
 	{
 		if(stream_state == STRM_REQ_STOP)
-		{
 			v4l2core_stop_stream(vd);
-		}
 
 		fprintf(stderr, "V4L2_CORE: (get_v4l2_frame) video stream must be started first\n");
 		return E_NO_STREAM_ERR;
@@ -769,8 +762,6 @@ int v4l2core_stop_stream(v4l2_dev_t *vd)
  */
 static void process_input_buffer(v4l2_dev_t *vd)
 {
-	if(!vd->raw_frame)
-		vd->raw_frame = calloc(vd->buf.length, sizeof(uint8_t));
 	/*
      * driver timestamp is unreliable
 	 * use monotonic system time
@@ -783,17 +774,15 @@ static void process_input_buffer(v4l2_dev_t *vd)
 	if(vd->raw_frame_size == 0)
 	{
 		if(verbosity > 1)
-			fprintf(stderr, "V4L2_CORE: VIDIOC_QBUF returned buf.bytesused = 0 using %i\n", 
-				vd->buf.length);
-		vd->raw_frame_size = vd->buf.length;
+			fprintf(stderr, "V4L2_CORE: VIDIOC_QBUF returned buf.bytesused = 0 \n");
 	}
 	
-	/*copy current frame buffer to vd->raw_frame*/
-	memcpy(vd->raw_frame, vd->mem[vd->buf.index], vd->raw_frame_size);
+	/*point vd->raw_frame to current frame buffer*/
+	vd->raw_frame = vd->mem[vd->buf.index];
 } 
  
 /*
- * gets the next video frame and decodes it if necessary
+ * gets the next video frame (must be released after processing)
  * args:
  * vd: pointer to video device data
  *
@@ -828,7 +817,6 @@ int v4l2core_get_frame(v4l2_dev_t *vd)
 			if(vd->streaming == STRM_OK)
 			{
 				vd->buf.bytesused = v4l2_read (vd->fd, vd->mem[vd->buf.index], vd->buf.length);
-				vd->timestamp = ns_time_monotonic();
 				bytes_used = vd->buf.bytesused;
 			}
 			else res = -1;
@@ -861,6 +849,7 @@ int v4l2core_get_frame(v4l2_dev_t *vd)
 				}
 				vd->timestamp = 0;
 			}
+			
 			process_input_buffer(vd);
 			break;
 
@@ -903,15 +892,7 @@ int v4l2core_get_frame(v4l2_dev_t *vd)
 				ret = xioctl(vd->fd, VIDIOC_DQBUF, &vd->buf);
 
 				if(!ret)
-				{
 					process_input_buffer(vd);
-					
-					/* queue the buffers */
-					ret = xioctl(vd->fd, VIDIOC_QBUF, &vd->buf);
-
-					if(ret)
-						fprintf(stderr, "V4L2_CORE: (VIDIOC_QBUF) Unable to queue buffer: %s\n", strerror(errno));
-				}
 				else
 					fprintf(stderr, "V4L2_CORE: (VIDIOC_DQBUF) Unable to dequeue buffer: %s\n", strerror(errno));
 			}
@@ -943,6 +924,43 @@ int v4l2core_get_frame(v4l2_dev_t *vd)
 	return E_OK;
 }
 
+/*
+ * releases the current video frame (so that it can be reused by the driver)
+ * args:
+ * vd: pointer to video device data
+ *
+ * asserts:
+ *   vd is not null
+ *
+ * returns: error code (E_OK)
+ */
+int v4l2core_release_frame(v4l2_dev_t *vd)
+{
+	int ret = 0;
+	
+	switch(vd->cap_meth)
+	{
+		case IO_READ:
+			break;
+		
+		case IO_MMAP:
+		default:
+			/* queue the buffers */
+			ret = xioctl(vd->fd, VIDIOC_QBUF, &vd->buf);
+
+			if(ret)
+				fprintf(stderr, "V4L2_CORE: (VIDIOC_QBUF) Unable to queue buffer: %s\n", strerror(errno));
+			
+			vd->raw_frame = NULL;
+			vd->raw_frame_size = 0;
+			break;	
+	}
+	
+	if (ret < 0)
+		return E_QBUF_ERR;
+	
+	return E_OK;		
+}
 
 /*
  * Try/Set device video stream format
@@ -1264,12 +1282,6 @@ static void clean_v4l2_dev(v4l2_dev_t *vd)
 
 	if(vd->list_device_controls)
 		free_v4l2_control_list(vd);
-
-	if(vd->raw_frame)
-	{
-		free(vd->raw_frame);
-		vd->raw_frame = NULL;
-	}
 	
 	/*close descriptor*/
 	if(vd->fd > 0)
