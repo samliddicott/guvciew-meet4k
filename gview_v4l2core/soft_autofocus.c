@@ -762,6 +762,7 @@ int soft_autofocus_get_focus_value()
  * run the software autofocus
  * args:
  *    vd - pointer to device data
+ *    frame - pointer to frame buffer
  *
  * asserts:
  *    vd is not null
@@ -769,7 +770,7 @@ int soft_autofocus_get_focus_value()
  * returns: 1 - running  0- focused
  * 	(only matters for non-continue focus)
  */
-int v4l2core_soft_autofocus_run(v4l2_dev_t *vd)
+int v4l2core_soft_autofocus_run(v4l2_dev_t *vd, v4l2_frame_buff_t *frame)
 {
 	/*asserts*/
 	assert(vd != NULL);
@@ -793,7 +794,7 @@ int v4l2core_soft_autofocus_run(v4l2_dev_t *vd)
 		if (focus_ctx->focus_wait == 0)
 		{
 			focus_ctx->sharpness = soft_autofocus_get_sharpness (
-				vd->yuv_frame,
+				frame->yuv_frame,
 				vd->format.fmt.pix.width,
 				vd->format.fmt.pix.height,
 				5);

@@ -141,6 +141,7 @@ static int save_bmp(const char *filename, uint8_t *data, int width, int height, 
  * save frame data to a bmp file
  * args:
  *    vd - pointer to device data
+ *    frame - pointer to frame buffer
  *    filename - filename string
  *
  * asserts:
@@ -148,7 +149,7 @@ static int save_bmp(const char *filename, uint8_t *data, int width, int height, 
  *
  * returns: error code
  */
-int save_image_bmp(v4l2_dev_t *vd, const char *filename)
+int save_image_bmp(v4l2_dev_t *vd, v4l2_frame_buff_t *frame, const char *filename)
 {
 	/*assertions*/
 	assert(vd != NULL);
@@ -164,9 +165,9 @@ int save_image_bmp(v4l2_dev_t *vd, const char *filename)
 		exit(-1);
 	}
 #ifdef USE_PLANAR_YUV	
-	yu12_to_dib24(bmp, vd->yuv_frame, width, height);
+	yu12_to_dib24(bmp, frame->yuv_frame, width, height);
 #else
-	yuyv2bgr(vd->yuv_frame, bmp, width, height);
+	yuyv2bgr(frame->yuv_frame, bmp, width, height);
 #endif
 	ret = save_bmp(filename, bmp, width, height, 24);
 	free(bmp);

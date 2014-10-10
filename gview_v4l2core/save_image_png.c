@@ -215,6 +215,7 @@ static int save_png(const char *filename, int width, int height, uint8_t *data)
  * save frame data into a png file
  * args:
  *    vd - pointer to device data
+ *    frame - pointer to frame buffer
  *    filename - string with png filename name
  *
  * asserts:
@@ -222,7 +223,7 @@ static int save_png(const char *filename, int width, int height, uint8_t *data)
  *
  * returns: error code
  */
-int save_image_png(v4l2_dev_t *vd, const char *filename)
+int save_image_png(v4l2_dev_t *vd, v4l2_frame_buff_t *frame, const char *filename)
 {
 	/*assertions*/
 	assert(vd != NULL);
@@ -237,9 +238,9 @@ int save_image_png(v4l2_dev_t *vd, const char *filename)
 		exit(-1);
 	}
 #ifdef USE_PLANAR_YUV
-	yu12_to_rgb24(rgb, vd->yuv_frame, width, height);
+	yu12_to_rgb24(rgb, frame->yuv_frame, width, height);
 #else
-	yuyv2rgb(vd->yuv_frame, rgb, width, height);
+	yuyv2rgb(frame->yuv_frame, rgb, width, height);
 #endif
 
 	int ret = save_png(filename, width, height, rgb);

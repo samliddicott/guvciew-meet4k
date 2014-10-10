@@ -972,6 +972,8 @@ void *capture_loop(void *data)
 		my_photo_npics = my_options->photo_npics;
 
 	v4l2core_start_stream(device);
+	
+	v4l2_frame_buff_t *frame = NULL; //pointer to frame buffer
 
 	while(!quit)
 	{
@@ -1029,29 +1031,24 @@ void *capture_loop(void *data)
 
 		}
 
-		if( v4l2core_get_frame(device) == E_OK)
+		frame = v4l2core_get_decoded_frame(device);
+		if( frame != NULL)
 		{
-			/*decode the raw frame*/
-			if(v4l2core_frame_decode(device) != E_OK)
-			{
-				fprintf(stderr, "GUVCIEW: Error - Couldn't decode frame\n");
-			}
-
-			/*run software autofocus (must be called after frame_decode)*/
+			/*run software autofocus (must be called after frame was grabbed and decoded)*/
 			if(do_soft_autofocus || do_soft_focus)
-				do_soft_focus = v4l2core_soft_autofocus_run(device);
+				do_soft_focus = v4l2core_soft_autofocus_run(device, frame);
 
 			/*render the decoded frame*/
 			snprintf(render_caption, 29, "Guvcview  (%2.2f fps)", v4l2core_get_realfps());
 			render_set_caption(render_caption);
-			render_frame(device->yuv_frame, my_render_mask);
+			render_frame(frame->yuv_frame, my_render_mask);
 
 			if(check_photo_timer())
 			{
-				if((device->timestamp - my_last_photo_time) > my_photo_timer)
+				if((frame->timestamp - my_last_photo_time) > my_photo_timer)
 				{
 					save_image = 1;
-					my_last_photo_time = device->timestamp;
+					my_last_photo_time = frame->timestamp;
 
 					if(my_options->photo_npics > 0)
 					{
@@ -1065,7 +1062,7 @@ void *capture_loop(void *data)
 
 			if(check_video_timer())
 			{
-				if((device->timestamp - my_video_begin_time) > my_video_timer)
+				if((frame->timestamp - my_video_begin_time) > my_video_timer)
 					stop_video_timer(device);
 			}
 
@@ -1095,7 +1092,7 @@ void *capture_loop(void *data)
 				snprintf(status_message, 79, _("saving image to %s"), img_filename);
 				gui_status_message(status_message);
 
-				v4l2core_save_image(device, img_filename, get_photo_format());
+				v4l2core_save_image(device, frame, img_filename, get_photo_format());
 
 				free(path);
 				free(name);
@@ -1111,27 +1108,27 @@ void *capture_loop(void *data)
 #else
 				int size = device->format.fmt.pix.width * device->format.fmt.pix.height * 2;
 #endif
-				uint8_t *input_frame = device->yuv_frame;
+				uint8_t *input_frame = frame->yuv_frame;
 				/*
 				 * TODO: check codec_id, format and frame flags
 				 * (we may want to store a compressed format
 				 */
-				if(get_video_codec_ind() == 0)
+				if(get_video_codec_ind() == 0) //raw frame
 				{
 					switch(device->requested_fmt)
 					{
 						case  V4L2_PIX_FMT_H264:
-							input_frame = device->h264_frame;
-							size = (int) device->h264_frame_size;
+							input_frame = frame->h264_frame;
+							size = (int) frame->h264_frame_size;
 							break;
 						default:
-							input_frame = device->raw_frame;
-							size = (int) device->raw_frame_size;
+							input_frame = frame->raw_frame;
+							size = (int) frame->raw_frame_size;
 							break;
 					}
 
 				}
-				encoder_add_video_frame(input_frame, size, device->timestamp, device->isKeyframe);
+				encoder_add_video_frame(input_frame, size, frame->timestamp, frame->isKeyframe);
 
 				/*
 				 * exponencial scheduler
@@ -1161,7 +1158,7 @@ void *capture_loop(void *data)
 				}
 			}
 			/*we are done with the frame buffer release it*/
-			v4l2core_release_frame(device);
+			v4l2core_release_frame(device, frame);
 		}
 	}
 

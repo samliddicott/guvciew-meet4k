@@ -1030,6 +1030,7 @@ static int encode_jpeg (uint8_t *input, uint8_t *output,
  * save frame data to a jpeg file
  * args:
  *    vd - pointer to device data
+ *    frame - pointer to frame buffer
  *    filename - filename string
  *
  * asserts:
@@ -1037,7 +1038,7 @@ static int encode_jpeg (uint8_t *input, uint8_t *output,
  *
  * returns: error code
  */
-int save_image_jpeg(v4l2_dev_t *vd, const char *filename)
+int save_image_jpeg(v4l2_dev_t *vd, v4l2_frame_buff_t *frame, const char *filename)
 {
 	/*assertions*/
 	assert(vd != NULL);
@@ -1064,7 +1065,7 @@ int save_image_jpeg(v4l2_dev_t *vd, const char *filename)
 	/* Initialization of Quantization Tables  */
 	initialize_quantization_tables (jpeg_ctx);
 
-	int jpeg_size = encode_jpeg(vd->yuv_frame, jpeg, jpeg_ctx, 1);
+	int jpeg_size = encode_jpeg(frame->yuv_frame, jpeg, jpeg_ctx, 1);
 
 	if(v4l2core_save_data_to_file(filename, jpeg, jpeg_size))
 	{

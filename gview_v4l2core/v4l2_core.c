@@ -75,6 +75,8 @@ static uint8_t flag_fps_change = 0; /*set to 1 to request a fps change*/
 
 static uint8_t disable_libv4l2 = 0; /*set to 1 to disable libv4l2 calls*/
 
+static int frame_queue_size = NB_BUFFER / 2; /*frame queue has half the mmap buffers*/
+
 /*
  * ioctl with a number of retries in the case of I/O failure
  * args:
@@ -285,7 +287,8 @@ static int query_buff(v4l2_dev_t *vd)
 	switch(vd->cap_meth)
 	{
 		case IO_READ:
-			vd->raw_frame_max_size = vd->buf.length;
+			for(i = 0; i < vd->frame_queue_size; ++i)
+				vd->frame_queue[i].raw_frame_max_size = vd->buf.length;
 			break;
 
 		case IO_MMAP:
@@ -320,7 +323,8 @@ static int query_buff(v4l2_dev_t *vd)
 			// map the new buffers
 			if(map_buff(vd) != 0)
 				ret = E_MMAP_ERR;
-			vd->raw_frame_max_size = vd->buf.length;
+			for(i = 0; i < vd->frame_queue_size; ++i)
+				vd->frame_queue[i].raw_frame_max_size = vd->buf.length;
 			break;
 	}
 				
@@ -554,14 +558,12 @@ static int check_frame_available(v4l2_dev_t *vd)
 	if (ret < 0)
 	{
 		fprintf(stderr, "V4L2_CORE: Could not grab image (select error): %s\n", strerror(errno));
-		vd->timestamp = 0;
 		return E_SELECT_ERR;
 	}
 
 	if (ret == 0)
 	{
 		fprintf(stderr, "V4L2_CORE: Could not grab image (select timeout): %s\n", strerror(errno));
-		vd->timestamp = 0;
 		return E_SELECT_TIMEOUT_ERR;
 	}
 
@@ -584,6 +586,21 @@ static int check_frame_available(v4l2_dev_t *vd)
 void v4l2core_set_verbosity(int level)
 {
 	verbosity = level;
+}
+
+/*
+ * set frame queue size (set before v4l2core_init_dev)
+ * args:
+ *   size - size in frames of frame queue
+ *
+ * asserts:
+ *   none
+ *
+ * returns void
+ */
+void v4l2core_set_frame_queue_size(int size)
+{
+	frame_queue_size = size;
 }
 
 /*
@@ -755,30 +772,73 @@ int v4l2core_stop_stream(v4l2_dev_t *vd)
 	return ret;
 }
 
+/*
+ * get next ready flaged frame from queue
+ * args:
+ *    vd - pointer to device data
+ *
+ * returns: index of frame queue or -1 if none
+ */
+static int get_next_ready_frame(v4l2_dev_t *vd)
+{
+	int i = 0;
+	for(i=0; i<vd->frame_queue_size; ++i)
+	{
+		if(vd->frame_queue[i].status == FRAME_READY)
+			return (i);
+	}
+	
+	return -1;
+}
 
 /*
  * process input buffer
+ * args:
+ *    vd - pointer to device data
  *
+ * returns: frame_queue index
  */
-static void process_input_buffer(v4l2_dev_t *vd)
+static int process_input_buffer(v4l2_dev_t *vd)
 {
+	/*get next available frame in queue*/
+	int qind = get_next_ready_frame(vd);
+	
+	vd->frame_queue[qind].status = FRAME_DECODING;
+	
 	/*
      * driver timestamp is unreliable
 	 * use monotonic system time
 	 */
-	vd->timestamp = ns_time_monotonic();
+	vd->frame_queue[qind].timestamp = ns_time_monotonic();
+	
+	vd->frame_queue[qind].index = vd->buf.index;
 	 
 	vd->frame_index++;
 	
-	vd->raw_frame_size = vd->buf.bytesused;
-	if(vd->raw_frame_size == 0)
+	vd->frame_queue[qind].raw_frame_size = vd->buf.bytesused;
+	if(vd->frame_queue[qind].raw_frame_size == 0)
 	{
 		if(verbosity > 1)
 			fprintf(stderr, "V4L2_CORE: VIDIOC_QBUF returned buf.bytesused = 0 \n");
 	}
 	
 	/*point vd->raw_frame to current frame buffer*/
-	vd->raw_frame = vd->mem[vd->buf.index];
+	vd->frame_queue[qind].raw_frame = vd->mem[vd->buf.index];
+	
+	/*determine real fps every 3 sec aprox.*/
+	fps_frame_count++;
+
+	if(vd->frame_queue[qind].timestamp - fps_ref_ts >= (3 * NSEC_PER_SEC))
+	{
+		if(verbosity > 2)
+			printf("V4L2CORE: (fps) ref:%"PRId64" ts:%"PRId64" frames:%i\n",
+				fps_ref_ts, vd->frame_queue[qind].timestamp, fps_frame_count);
+		real_fps = (double) (fps_frame_count * NSEC_PER_SEC) / (double) (vd->frame_queue[qind].timestamp - fps_ref_ts);
+		fps_frame_count = 0;
+		fps_ref_ts = vd->frame_queue[qind].timestamp;
+	}
+	
+	return qind;
 } 
  
 /*
@@ -789,9 +849,9 @@ static void process_input_buffer(v4l2_dev_t *vd)
  * asserts:
  *   vd is not null
  *
- * returns: error code (E_OK)
+ * returns: pointer frame buffer (NULL on error)
  */
-int v4l2core_get_frame(v4l2_dev_t *vd)
+v4l2_frame_buff_t *v4l2core_get_frame(v4l2_dev_t *vd)
 {
 	/*asserts*/
 	assert(vd != NULL);
@@ -803,8 +863,10 @@ int v4l2core_get_frame(v4l2_dev_t *vd)
 	int res = 0;
 	int ret = check_frame_available(vd);
 
+	int qind = -1;
+	
 	if (ret < 0)
-		return ret;
+		return NULL;
 
 	int bytes_used = 0;
 
@@ -818,13 +880,16 @@ int v4l2core_get_frame(v4l2_dev_t *vd)
 			{
 				vd->buf.bytesused = v4l2_read (vd->fd, vd->mem[vd->buf.index], vd->buf.length);
 				bytes_used = vd->buf.bytesused;
+				
+				if(bytes_used > 0)
+					qind = process_input_buffer(vd);
 			}
 			else res = -1;
 			/*unlock the mutex*/
 			__UNLOCK_MUTEX( __PMUTEX );
 
 			if(res < 0)
-				return E_NO_STREAM_ERR;
+				return NULL;
 
 			if (-1 == bytes_used )
 			{
@@ -832,25 +897,19 @@ int v4l2core_get_frame(v4l2_dev_t *vd)
 				{
 					case EAGAIN:
 						fprintf(stderr, "V4L2_CORE: No data available for read: %s\n", strerror(errno));
-						return E_SELECT_TIMEOUT_ERR;
 						break;
 					case EINVAL:
 						fprintf(stderr, "V4L2_CORE: Read method error, try mmap instead: %s\n", strerror(errno));
-						return E_READ_ERR;
 						break;
 					case EIO:
 						fprintf(stderr, "V4L2_CORE: read I/O Error: %s\n", strerror(errno));
-						return E_READ_ERR;
 						break;
 					default:
 						fprintf(stderr, "V4L2_CORE: read: %s\n", strerror(errno));
-						return E_READ_ERR;
 						break;
 				}
-				vd->timestamp = 0;
+				return NULL;
 			}
-			
-			process_input_buffer(vd);
 			break;
 
 		case IO_MMAP:
@@ -892,7 +951,7 @@ int v4l2core_get_frame(v4l2_dev_t *vd)
 				ret = xioctl(vd->fd, VIDIOC_DQBUF, &vd->buf);
 
 				if(!ret)
-					process_input_buffer(vd);
+					qind = process_input_buffer(vd);
 				else
 					fprintf(stderr, "V4L2_CORE: (VIDIOC_DQBUF) Unable to dequeue buffer: %s\n", strerror(errno));
 			}
@@ -901,42 +960,33 @@ int v4l2core_get_frame(v4l2_dev_t *vd)
 			/*unlock the mutex*/
 			__UNLOCK_MUTEX( __PMUTEX );
 
-			if(res < 0)
-				return E_NO_STREAM_ERR;
-
-			if (ret < 0)
-				return E_DQBUF_ERR;
+			if(res < 0 || ret < 0)
+				return NULL;
 	}
 
-	/*determine real fps every 3 sec aprox.*/
-	fps_frame_count++;
-
-	if(vd->timestamp - fps_ref_ts >= (3 * NSEC_PER_SEC))
-	{
-		if(verbosity > 2)
-			printf("V4L2CORE: (fps) ref:%"PRId64" ts:%"PRId64" frames:%i\n",
-				fps_ref_ts, vd->timestamp, fps_frame_count);
-		real_fps = (double) (fps_frame_count * NSEC_PER_SEC) / (double) (vd->timestamp - fps_ref_ts);
-		fps_frame_count = 0;
-		fps_ref_ts = vd->timestamp;
-	}
-
-	return E_OK;
+	if(qind > 0)
+		return &vd->frame_queue[qind];
+	else
+		return NULL;
 }
 
 /*
- * releases the current video frame (so that it can be reused by the driver)
+ * releases the video frame (so that it can be reused by the driver)
  * args:
- * vd: pointer to video device data
+ * vd - pointer to video device data
+ * frame - pointer to decoded frame buffer
  *
  * asserts:
  *   vd is not null
  *
  * returns: error code (E_OK)
  */
-int v4l2core_release_frame(v4l2_dev_t *vd)
+int v4l2core_release_frame(v4l2_dev_t *vd, v4l2_frame_buff_t *frame)
 {
 	int ret = 0;
+	
+	//match the v4l2_buffer with the correspondig frame
+	vd->buf.index = frame->index;
 	
 	switch(vd->cap_meth)
 	{
@@ -945,14 +995,19 @@ int v4l2core_release_frame(v4l2_dev_t *vd)
 		
 		case IO_MMAP:
 		default:
-			/* queue the buffers */
+			/* queue the buffer */
 			ret = xioctl(vd->fd, VIDIOC_QBUF, &vd->buf);
 
 			if(ret)
 				fprintf(stderr, "V4L2_CORE: (VIDIOC_QBUF) Unable to queue buffer: %s\n", strerror(errno));
 			
-			vd->raw_frame = NULL;
-			vd->raw_frame_size = 0;
+			/*lock the mutex*/
+			__LOCK_MUTEX( __PMUTEX );
+			frame->raw_frame = NULL;
+			frame->raw_frame_size = 0;
+			frame->status = FRAME_READY;
+			/*unlock the mutex*/
+			__UNLOCK_MUTEX( __PMUTEX );
 			break;	
 	}
 	
@@ -960,6 +1015,28 @@ int v4l2core_release_frame(v4l2_dev_t *vd)
 		return E_QBUF_ERR;
 	
 	return E_OK;		
+}
+
+/*
+ * gets the next video frame and decodes it
+ * args:
+ *    vd - pointer to video device data
+ *
+ * returns: pointer to decoded frame buffer ( NULL on error)
+ */
+v4l2_frame_buff_t *v4l2core_get_decoded_frame(v4l2_dev_t *vd)
+{
+	v4l2_frame_buff_t *frame = v4l2core_get_frame(vd);
+	if(frame != NULL)
+	{
+		/*decode the raw frame*/
+		if(v4l2core_frame_decode(vd, frame) != E_OK)
+		{
+			fprintf(stderr, "V4L2_CORE: Error - Couldn't decode frame\n");
+		}
+	}
+	
+	return frame;
 }
 
 /*
@@ -1283,6 +1360,9 @@ static void clean_v4l2_dev(v4l2_dev_t *vd)
 	if(vd->list_device_controls)
 		free_v4l2_control_list(vd);
 	
+	if(vd->frame_queue)
+		free(vd->frame_queue);
+	
 	/*close descriptor*/
 	if(vd->fd > 0)
 		v4l2_close(vd->fd);
@@ -1328,8 +1408,10 @@ v4l2_dev_t *v4l2core_init_dev(const char *device)
 		printf("V4L2_CORE: video device: %s \n", vd->videodevice);
 	}
 
-	vd->raw_frame = NULL;
-
+	vd->frame_queue_size = frame_queue_size;
+	/*alloc frame buffer queue*/
+	vd->frame_queue = calloc(vd->frame_queue_size, sizeof(v4l2_frame_buff_t));
+	
 	vd->h264_no_probe_default = 0;
 	vd->h264_SPS = NULL;
 	vd->h264_SPS_size = 0;
@@ -1337,10 +1419,6 @@ v4l2_dev_t *v4l2core_init_dev(const char *device)
 	vd->h264_PPS_size = 0;
 	vd->h264_last_IDR = NULL;
 	vd->h264_last_IDR_size = 0;
-
-	vd->tmp_buffer = NULL;
-	vd->yuv_frame = NULL;
-	vd->h264_frame = NULL;
 
 	/*set some defaults*/
 	vd->fps_num = 1;

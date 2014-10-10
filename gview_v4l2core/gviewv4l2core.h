@@ -104,6 +104,13 @@ __BEGIN_DECLS
 #define IO_READ 2
 
 /*
+ * Frame status
+ */
+#define FRAME_READY (0)
+#define FRAME_DECODING (1)
+#define FRAME_DONE (2)
+
+/*
  * software autofocus sort method
  * quick sort
  * shell sort
@@ -247,6 +254,30 @@ typedef struct _v4l2_dev_sys_data_t
 } v4l2_dev_sys_data_t;
 
 /*
+ * frame buffer struct
+ */
+typedef struct _v4l2_frame_buff_t
+{
+	int index; //buffer index
+	int status; //frame status {FRAME_DECODING; FRAME_DONE; FRAME_READY}
+	
+	uint8_t isKeyframe; // current buffer contains a keyframe (h264 IDR)
+	
+	uint8_t *raw_frame; // pointer to raw frame
+	size_t raw_frame_size; // raw frame size (bytes)
+	size_t raw_frame_max_size; //maximum size for raw frame (bytes)
+	uint8_t *yuv_frame; // pointer to decoded yuv frame
+	uint8_t *h264_frame; // pointer to regular or demultiplexed h264 frame
+	size_t h264_frame_size; // h264 frame size (bytes)
+	size_t h264_frame_max_size; //size limit for h264 frame (bytes)
+	
+	uint64_t timestamp; // captured frame timestamp
+	
+	uint8_t *tmp_buffer; //temporary buffer used in decoding
+	size_t tmp_buffer_max_size; //maximum size for temp buffer (bytes)
+} v4l2_frame_buff_t;
+
+/*
  * v4l2 devices list data
  */
 typedef struct _v4l2_device_list_t
@@ -285,26 +316,12 @@ typedef struct _v4l2_dev_t
 
 	uint8_t streaming;                  // flag device stream : STRM_STOP ; STRM_REQ_STOP; STRM_OK
 	uint64_t frame_index;               // captured frame index from 0 to max(uint64_t)
-	uint64_t timestamp;                 // captured frame timestamp
 	void *mem[NB_BUFFER];               // memory buffers for mmap driver frames
 	uint32_t buff_length[NB_BUFFER];    // memory buffers length as set by VIDIOC_QUERYBUF
 	uint32_t buff_offset[NB_BUFFER];    // memory buffers offset as set by VIDIOC_QUERYBUF
 
-	/*
-	 * raw_frame is a pointer to the
-	 * current frame buffer
-	 * (DO NOT FREE)
-	 */
-	uint8_t *raw_frame;                 // pointer to raw frame (as captured from device)
-	size_t raw_frame_size;              // size of raw frame (in bytes)
-	size_t raw_frame_max_size;          // maximum size for raw frame
-
-	uint8_t *tmp_buffer;                // temp buffer for decoding compressed data
-	size_t tmp_buffer_max_size;         // max size (allocated size) for temp buffer
-	uint8_t *yuv_frame;                 // frame buffer (YUYV), for rendering
-	uint8_t *h264_frame;                // h264 frame data (after demuxing) can be a copy of raw_frame
-	size_t  h264_frame_size;            // h264 frame data size (in bytes)
-	size_t  h264_frame_max_size;        // h264 frame max size (allocated size)
+	v4l2_frame_buff_t *frame_queue;     //frame queue
+	int frame_queue_size;               //size of frame queue (in frames)
 
 	uint8_t h264_unit_id;  				// uvc h264 unit id, if <= 0 then uvc h264 is not supported
 	uint8_t h264_no_probe_default;      // flag core to use the preset h264_config_probe_req data (don't reset to default before commit)
@@ -315,7 +332,6 @@ typedef struct _v4l2_dev_t
 	uint16_t h264_SPS_size;             // SPS size
 	uint8_t *h264_PPS;                  // h264 PPS info
 	uint16_t h264_PPS_size;             // PPS size
-	uint8_t isKeyframe;                 // current buffer contains a keyframe (h264 IDR)
 
     int this_device;                    // index of this device in device list
 
@@ -587,28 +603,29 @@ void v4l2core_prepare_new_resolution(v4l2_dev_t *vd, int new_width, int new_heig
 int v4l2core_update_current_format(v4l2_dev_t *vd);
 
 /*
- * gets the next video frame and decodes it if necessary
+ * gets the next video frame (must be released after processing)
  * args:
  * vd: pointer to video device data
  *
  * asserts:
  *   vd is not null
  *
- * returns: error code (E_OK)
+ * returns: pointer frame buffer (NULL on error)
  */
-int v4l2core_get_frame(v4l2_dev_t *vd);
+v4l2_frame_buff_t *v4l2core_get_frame(v4l2_dev_t *vd);
 
 /*
- * releases the current video frame (so that it can be reused by the driver)
+ * releases the video frame (so that it can be reused by the driver)
  * args:
- * vd: pointer to video device data
+ * vd - pointer to video device data
+ * frame - pointer to decoded frame buffer
  *
  * asserts:
  *   vd is not null
  *
  * returns: error code (E_OK)
  */
-int v4l2core_release_frame(v4l2_dev_t *vd);
+int v4l2core_release_frame(v4l2_dev_t *vd, v4l2_frame_buff_t *frame);
 
 /*
  * decode video stream ( from raw_frame to frame buffer (yuyv format))
@@ -618,9 +635,18 @@ int v4l2core_release_frame(v4l2_dev_t *vd);
  * asserts:
  *    vd is not null
  *
- * returns: error code ( 0 - E_OK)
-*/
-int v4l2core_frame_decode(v4l2_dev_t *vd);
+ * returns: error code (E_OK)
+ */
+int v4l2core_frame_decode(v4l2_dev_t *vd, v4l2_frame_buff_t *frame);
+
+/*
+ * gets the next video frame and decodes it
+ * args:
+ *    vd - pointer to video device data
+ *
+ * returns: pointer to decoded frame buffer ( NULL on error)
+ */
+v4l2_frame_buff_t *v4l2core_get_decoded_frame(v4l2_dev_t *vd);
 
 /*
  * clean v4l2 buffers
@@ -792,6 +818,7 @@ int v4l2core_soft_autofocus_init (v4l2_dev_t *vd);
  * run the software autofocus
  * args:
  *    vd - pointer to device data
+ *    frame - pointer to frame buffer
  *
  * asserts:
  *    vd is not null
@@ -799,7 +826,7 @@ int v4l2core_soft_autofocus_init (v4l2_dev_t *vd);
  * returns: 1 - running  0- focused
  * 	(only matters for non-continue focus)
  */
-int v4l2core_soft_autofocus_run(v4l2_dev_t *vd);
+int v4l2core_soft_autofocus_run(v4l2_dev_t *vd, v4l2_frame_buff_t *frame);
 
 /*
  * sets a focus loop while autofocus is on
@@ -1085,6 +1112,7 @@ int v4l2core_save_data_to_file(const char *filename, uint8_t *data, int size);
  * save the current frame to file
  * args:
  *    vd - pointer to device data
+ *    frame - pointer to frame buffer
  *    filename - output file name
  *    format - image type
  *           (IMG_FMT_RAW, IMG_FMT_JPG, IMG_FMT_PNG, IMG_FMT_BMP)
@@ -1094,7 +1122,7 @@ int v4l2core_save_data_to_file(const char *filename, uint8_t *data, int size);
  *
  * returns: error code
  */
-int v4l2core_save_image(v4l2_dev_t *vd, const char *filename, int format);
+int v4l2core_save_image(v4l2_dev_t *vd, v4l2_frame_buff_t *frame, const char *filename, int format);
 
 /*
  * ############### TIME DATA ##############
