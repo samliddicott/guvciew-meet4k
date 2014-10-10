@@ -134,13 +134,16 @@ dnl --------------------------------------------------------------------------
 AC_MSG_CHECKING(if you want to enable iyuv (planar 420) as internal format)
 AC_ARG_ENABLE(iyuv, AS_HELP_STRING([--enable-iyuv],
 		[enable iyuv (planar 420) as internal format (default: disabled)]),
-	[enable_iyuv=yes yuv_format="iyuv (alpha)"],
-	[enable_iyuv=no  yuv_format=yuyv])
+	[enable_iyuv=$enableval],
+	[enable_iyuv=no])
 
 AC_MSG_RESULT($enable_iyuv)
 
 if test $enable_iyuv = yes; then
 	AC_DEFINE(USE_PLANAR_YUV, 1, [set to 1 if iyuv is enabled])
+	yuv_format="iyuv (alpha)"
+else
+	yuv_format=yuyv
 fi
 
 dnl --------------------------------------------------------------------------
@@ -157,16 +160,18 @@ dnl Check if we will use libavcodec or the internal decoder for mjpeg decoding
 dnl --------------------------------------------------------------------------
 AC_MSG_CHECKING(if you want to use the internal mjpeg decoder over libavcodec )
 AC_ARG_ENABLE(builtin-mjpg, AS_HELP_STRING([--enable-builtin-mjpg],
-		[enable builtin mjpg decoder support (default: disable)]),
-	[enable_builtin_mjpg=yes mjpg_decoder=builtin],
-	[enable_builtin_mjpg=no  mjpg_decoder=libavcodec])
+		[enable builtin mjpg decoder support (default: disabled)]),
+	[enable_builtin_mjpg=$enableval],
+	[enable_builtin_mjpg=no])
 
 AC_MSG_RESULT($enable_builtin_mjpg)
-
 
 if test $enable_builtin_mjpg = yes; then
 	AC_DEFINE(MJPG_BUILTIN, 1, [set to 1 if builtin decoder is enabled])
 	AC_MSG_WARN(libavcodec mjpg decoder disabled... the builtin decoder will be used instead.)
+	mjpg_decoder=builtin
+else
+	mjpg_decoder=libavcodec
 fi
 
 dnl -----------------------------------------------
@@ -211,7 +216,7 @@ dnl --------------------------------------------------------------------------
 AC_MSG_CHECKING(if you want to enable sdl2 support)
 AC_ARG_ENABLE(sdl2, AS_HELP_STRING([--disable-sdl2],
 		[disable sdl2 support (default: enabled)]),
-	[enable_sdl2=no],
+	[enable_sdl2=$enableval],
 	[enable_sdl2=yes])
 
 AC_MSG_RESULT($enable_sdl2)
@@ -238,7 +243,7 @@ dnl --------------------------------------------------------------------------
 AC_MSG_CHECKING(if you want to enable gsl support)
 AC_ARG_ENABLE(gsl, AS_HELP_STRING([--disable-gsl],
 		[disable gsl support (default: enabled)]),
-	[enable_gsl=no],
+	[enable_gsl=$enableval],
 	[enable_gsl=yes])
 
 AC_MSG_RESULT($enable_gsl)
@@ -305,7 +310,7 @@ dnl --------------------------------------------------------------------------
 AC_MSG_CHECKING(if you want to enable pulse support)
 AC_ARG_ENABLE(pulse, AS_HELP_STRING([--disable-pulse],
 		[disable pulseaudio support (default: enabled)]),
-	[enable_pulse=no],
+	[enable_pulse=$enableval],
 	[enable_pulse=yes])
 
 AC_MSG_RESULT($enable_pulse)
@@ -386,7 +391,7 @@ dnl --------------------------------------------------------------------------
 AC_MSG_CHECKING(if you want to enable debian menu)
 AC_ARG_ENABLE(debian-menu, AS_HELP_STRING([--disable-debian-menu],
 		[disable debian menu (default: enabled)]),
-	[enable_debian_menu=no],
+	[enable_debian_menu=$enableval],
 	[enable_debian_menu=yes])
 
 AC_MSG_RESULT($enable_debian_menu)
@@ -399,7 +404,7 @@ dnl --------------------------------------------------------------------------
 AC_MSG_CHECKING(if you want to enable desktop file)
 AC_ARG_ENABLE(desktop, AS_HELP_STRING([--disable-desktop],
 		[disable desktop file (default: enabled)]),
-	[enable_desktop=no],
+	[enable_desktop=$enableval],
 	[enable_desktop=yes])
 
 AC_MSG_RESULT($enable_desktop)
