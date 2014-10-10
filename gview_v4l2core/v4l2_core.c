@@ -75,7 +75,7 @@ static uint8_t flag_fps_change = 0; /*set to 1 to request a fps change*/
 
 static uint8_t disable_libv4l2 = 0; /*set to 1 to disable libv4l2 calls*/
 
-static int frame_queue_size = NB_BUFFER / 2; /*frame queue has half the mmap buffers*/
+static int frame_queue_size = 1; /*just one frame in queue (enough for a single thread)*/
 
 /*
  * ioctl with a number of retries in the case of I/O failure
@@ -287,8 +287,6 @@ static int query_buff(v4l2_dev_t *vd)
 	switch(vd->cap_meth)
 	{
 		case IO_READ:
-			for(i = 0; i < vd->frame_queue_size; ++i)
-				vd->frame_queue[i].raw_frame_max_size = vd->buf.length;
 			break;
 
 		case IO_MMAP:
@@ -323,10 +321,10 @@ static int query_buff(v4l2_dev_t *vd)
 			// map the new buffers
 			if(map_buff(vd) != 0)
 				ret = E_MMAP_ERR;
-			for(i = 0; i < vd->frame_queue_size; ++i)
-				vd->frame_queue[i].raw_frame_max_size = vd->buf.length;
 			break;
 	}
+	for(i = 0; i < vd->frame_queue_size; ++i)
+		vd->frame_queue[i].raw_frame_max_size = vd->buf.length;
 				
 	return ret;
 }
@@ -803,6 +801,16 @@ static int process_input_buffer(v4l2_dev_t *vd)
 	/*get next available frame in queue*/
 	int qind = get_next_ready_frame(vd);
 	
+	if(verbosity > 2)
+		printf("V4L2_CORE: process frame queue index %i\n", qind);
+	
+	if(qind < 0 || qind >= vd->frame_queue_size)
+	{
+		if(verbosity > 2)
+		fprintf(stderr,"V4L2_CORE: frame queue index %i is invalid (no free frames in queue?)\n", qind);
+		return -1; 
+	}
+	
 	vd->frame_queue[qind].status = FRAME_DECODING;
 	
 	/*
@@ -964,10 +972,10 @@ v4l2_frame_buff_t *v4l2core_get_frame(v4l2_dev_t *vd)
 				return NULL;
 	}
 
-	if(qind > 0)
-		return &vd->frame_queue[qind];
-	else
+	if(qind < 0 || qind >= vd->frame_queue_size)
 		return NULL;
+		
+	return &vd->frame_queue[qind];
 }
 
 /*
@@ -999,17 +1007,17 @@ int v4l2core_release_frame(v4l2_dev_t *vd, v4l2_frame_buff_t *frame)
 			ret = xioctl(vd->fd, VIDIOC_QBUF, &vd->buf);
 
 			if(ret)
-				fprintf(stderr, "V4L2_CORE: (VIDIOC_QBUF) Unable to queue buffer: %s\n", strerror(errno));
-			
-			/*lock the mutex*/
-			__LOCK_MUTEX( __PMUTEX );
-			frame->raw_frame = NULL;
-			frame->raw_frame_size = 0;
-			frame->status = FRAME_READY;
-			/*unlock the mutex*/
-			__UNLOCK_MUTEX( __PMUTEX );
+				fprintf(stderr, "V4L2_CORE: (VIDIOC_QBUF) Unable to queue buffer %i: %s\n", frame->index, strerror(errno));
 			break;	
 	}
+	
+	/*lock the mutex*/
+	__LOCK_MUTEX( __PMUTEX );
+	frame->raw_frame = NULL;
+	frame->raw_frame_size = 0;
+	frame->status = FRAME_READY;
+	/*unlock the mutex*/
+	__UNLOCK_MUTEX( __PMUTEX );
 	
 	if (ret < 0)
 		return E_QBUF_ERR;
