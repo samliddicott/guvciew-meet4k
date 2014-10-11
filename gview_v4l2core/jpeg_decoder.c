@@ -1369,6 +1369,11 @@ void jpeg_close_decoder()
 #if !LIBAVCODEC_VER_AT_LEAST(54,25)
 	#define AV_CODEC_ID_H264 CODEC_ID_H264
 #endif
+
+#if !LIBAVCODEC_VER_AT_LEAST(54,25)
+	#define AV_CODEC_ID_MJPEG CODEC_ID_MJPEG
+#endif
+
 typedef struct _codec_data_t
 {
 	AVCodec *codec;
