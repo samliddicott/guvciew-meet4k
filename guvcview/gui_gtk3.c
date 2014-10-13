@@ -560,10 +560,12 @@ int gui_attach_gtk3(v4l2_dev_t *device, int width, int height)
 
 	g_set_application_name(_("Guvcview Video Capture"));
 
+#if !GTK_VER_AT_LEAST(3,12)
 	/* make sure the type is realized so that we can change the properties*/
-	//g_type_class_unref (g_type_class_ref (GTK_TYPE_BUTTON));
+	g_type_class_unref (g_type_class_ref (GTK_TYPE_BUTTON));
 	/* make sure gtk-button-images property is set to true (defaults to false in karmic)*/
-	//g_object_set (gtk_settings_get_default (), "gtk-button-images", TRUE, NULL);
+	g_object_set (gtk_settings_get_default (), "gtk-button-images", TRUE, NULL);
+#endif
 
 	/* Create a main window */
 	main_window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
@@ -628,8 +630,9 @@ int gui_attach_gtk3(v4l2_dev_t *device, int width, int height)
 	if (g_file_test(pix2path, G_FILE_TEST_EXISTS))
 	{
 		GtkWidget *ImgButton_Img = gtk_image_new_from_file (pix2path);
-		
+#if GTK_VER_AT_LEAST(3,12)		
 		gtk_button_set_always_show_image(GTK_BUTTON(CapImageButt), TRUE);
+#endif
 		gtk_button_set_image(GTK_BUTTON(CapImageButt), ImgButton_Img);
 		gtk_button_set_image_position(GTK_BUTTON(CapImageButt), GTK_POS_TOP);
 	}
@@ -649,8 +652,9 @@ int gui_attach_gtk3(v4l2_dev_t *device, int width, int height)
 	if (g_file_test(pix3path, G_FILE_TEST_EXISTS))
 	{
 		GtkWidget *VideoButton_Img = gtk_image_new_from_file (pix3path);
-		
+#if GTK_VER_AT_LEAST(3,12)		
 		gtk_button_set_always_show_image(GTK_BUTTON(CapVideoButt), TRUE);
+#endif
 		gtk_button_set_image(GTK_BUTTON(CapVideoButt), VideoButton_Img);
 		gtk_button_set_image_position(GTK_BUTTON(CapVideoButt), GTK_POS_TOP);
 	}
@@ -670,8 +674,9 @@ int gui_attach_gtk3(v4l2_dev_t *device, int width, int height)
 	if (g_file_test(pix4path,G_FILE_TEST_EXISTS))
 	{
 		GtkWidget *QButton_Img = gtk_image_new_from_file (pix4path);
-		
+#if GTK_VER_AT_LEAST(3,12)		
 		gtk_button_set_always_show_image(GTK_BUTTON(quitButton), TRUE);
+#endif
 		gtk_button_set_image(GTK_BUTTON(quitButton), QButton_Img);
 		gtk_button_set_image_position(GTK_BUTTON(quitButton), GTK_POS_TOP);
 

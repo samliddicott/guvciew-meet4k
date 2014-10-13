@@ -31,6 +31,10 @@
 /* support for internationalization - i18n */
 //#include <glib/gi18n.h>
 
+#define GTK_VER_AT_LEAST(major,minor)  ( GTK_MAJOR_VERSION > major || \
+                                        (GTK_MAJOR_VERSION == major && \
+                                         GTK_MINOR_VERSION >= minor))
+
 #include "gviewv4l2core.h"
 
 typedef struct _control_widgets_t
