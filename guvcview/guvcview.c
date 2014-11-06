@@ -45,6 +45,8 @@ int debug_level = 0;
 
 static __THREAD_TYPE capture_thread;
 
+v4l2_dev_t *device = NULL;
+
 /*
  * signal callback
  * args:
@@ -65,6 +67,10 @@ void signal_callback_handler(int signum)
 
 		case SIGUSR1:
 			/* (start/stop) record video */
+			if(!device)
+				fprintf(stderr, "GUVCVIEW: device not set yet\n");
+			else
+				gui_click_video_capture_button(device);
 			break;
 
 		case SIGUSR2:
@@ -178,7 +184,7 @@ int main(int argc, char *argv[])
 	/*init the device list*/
 	v4l2core_init_device_list();
 	/*get the device data (redefines language catalog)*/
-	v4l2_dev_t *device = v4l2core_init_dev(my_options->device);
+	device = v4l2core_init_dev(my_options->device);
 		
 	if(device)
 		set_render_flag(render);
