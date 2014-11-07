@@ -681,8 +681,19 @@ static void *audio_processing_loop(void *data)
 	{
 		int ret = audio_get_next_buffer(audio_ctx, audio_buff,
 				sample_type, my_audio_mask);
-
-		if(ret == 0)
+		
+		if(ret > 0)
+		{
+			/* 
+			 * no buffers to process
+			 * sleep a couple of milisec
+			 */
+			 struct timespec req = {
+				.tv_sec = 0,
+				.tv_nsec = 1000};/*nanosec*/
+			 nanosleep(&req, NULL);
+		}
+		else if(ret == 0)
 		{
 			encoder_ctx->enc_audio_ctx->pts = audio_buff->timestamp;
 
@@ -691,6 +702,7 @@ static void *audio_processing_loop(void *data)
 
 			encoder_process_audio_buffer(encoder_ctx, audio_buff->data);
 		}
+		
 	}
 
 	/*flush any delayed audio frames*/
@@ -849,7 +861,18 @@ static void *encoder_loop(void *data)
 	while(video_capture_get_save_video())
 	{
 		/*process the video buffer*/
-		encoder_process_next_video_buffer(encoder_ctx);
+		if(encoder_process_next_video_buffer(encoder_ctx) > 0)
+		{
+			/* 
+			 * no buffers to process
+			 * sleep a couple of milisec
+			 */
+			 struct timespec req = {
+				.tv_sec = 0,
+				.tv_nsec = 1000};/*nanosec*/
+			 nanosleep(&req, NULL);
+			 
+		}	
 
 		/*disk supervisor*/
 		if(encoder_ctx->enc_video_ctx->pts - last_check_pts > 2 * NSEC_PER_SEC)
