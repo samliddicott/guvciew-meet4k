@@ -690,7 +690,7 @@ static void *audio_processing_loop(void *data)
 			 */
 			 struct timespec req = {
 				.tv_sec = 0,
-				.tv_nsec = 1000};/*nanosec*/
+				.tv_nsec = 1000000};/*nanosec*/
 			 nanosleep(&req, NULL);
 		}
 		else if(ret == 0)
@@ -869,7 +869,7 @@ static void *encoder_loop(void *data)
 			 */
 			 struct timespec req = {
 				.tv_sec = 0,
-				.tv_nsec = 1000};/*nanosec*/
+				.tv_nsec = 1000000};/*nanosec*/
 			 nanosleep(&req, NULL);
 			 
 		}	
