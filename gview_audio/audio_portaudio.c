@@ -258,8 +258,8 @@ static int audio_portaudio_list_devices(audio_context_t *audio_ctx)
 				strncpy(audio_ctx->list_devices[audio_ctx->num_input_dev-1].description, deviceInfo->name, 255);
 				audio_ctx->list_devices[audio_ctx->num_input_dev-1].channels = deviceInfo->maxInputChannels;
 				audio_ctx->list_devices[audio_ctx->num_input_dev-1].samprate = deviceInfo->defaultSampleRate;
-				//audio_ctx->list_devices[audio_ctx->num_input_dev-1].Hlatency = deviceInfo->defaultHighInputLatency;
-				//audio_ctx->list_devices[audio_ctx->num_input_dev-1].Llatency = deviceInfo->defaultLowInputLatency;
+				audio_ctx->list_devices[audio_ctx->num_input_dev-1].high_latency = (double) deviceInfo->defaultHighInputLatency;
+				audio_ctx->list_devices[audio_ctx->num_input_dev-1].low_latency = (double) deviceInfo->defaultLowInputLatency;
 			}
 			if (verbosity > 0)
 			{
@@ -325,6 +325,32 @@ audio_context_t *audio_init_portaudio()
 }
 
 /*
+ * set audio device
+ * args:
+ *   audio_ctx - pointer to audio context data
+ *   index - device index to set
+ *
+ * asserts:
+ *   audio_ctx is not null
+ *
+ * returns: none
+ */
+void audio_set_portaudio_device(audio_context_t *audio_ctx, int index)
+{
+	/*assertions*/
+	assert(audio_ctx != NULL);
+	
+	audio_ctx->device = index;
+		
+	audio_ctx->latency = audio_ctx->list_devices[audio_ctx->device].high_latency;
+	
+	audio_ctx->channels = audio_ctx->list_devices[audio_ctx->device].channels;
+	if(audio_ctx->channels > 2)
+		audio_ctx->channels = 2;/*limit it to stereo input*/
+	audio_ctx->samprate = audio_ctx->list_devices[audio_ctx->device].samprate;
+}
+
+/*
  * start portaudio stream capture
  * args:
  *   audio_ctx - pointer to audio context data
@@ -358,12 +384,9 @@ int audio_start_portaudio(audio_context_t *audio_ctx)
 	inputParameters.device = audio_ctx->list_devices[audio_ctx->device].id;
 	inputParameters.channelCount = audio_ctx->channels;
 	inputParameters.sampleFormat = paFloat32; /*sample_t - float*/
-
-	if (Pa_GetDeviceInfo( inputParameters.device ))
-		inputParameters.suggestedLatency = Pa_GetDeviceInfo( inputParameters.device )->defaultLowInputLatency;
-		//inputParameters.suggestedLatency = Pa_GetDeviceInfo( inputParameters.device )->defaultHighInputLatency;
-	else
-		inputParameters.suggestedLatency = DEFAULT_LATENCY_DURATION/1000.0;
+	
+	inputParameters.suggestedLatency = audio_ctx->latency; /*DEFAULT_LATENCY_DURATION/1000.0;*/
+	
 	inputParameters.hostApiSpecificStreamInfo = NULL;
 
 	/*---------------------------- start recording Audio. ----------------------------- */

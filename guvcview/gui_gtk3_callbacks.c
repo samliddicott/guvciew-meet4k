@@ -1509,15 +1509,16 @@ void audio_device_changed(GtkComboBox *combo, void *data)
 	audio_context_t *audio_ctx = get_audio_context();
 
 	if(index < 0)
-		audio_ctx->device = 0;
+		index = 0;
 	else if (index >= audio_ctx->num_input_dev)
-		audio_ctx->device = audio_ctx->num_input_dev - 1;
-	else
-		audio_ctx->device = index;
-
+		index = audio_ctx->num_input_dev - 1;
+	
 	/*update config*/
 	config_t *my_config = config_get();
 	my_config->audio_device = index;
+	
+	/*set the audio device defaults*/
+	audio_set_device(audio_ctx, my_config->audio_device);
 
 	if(debug_level > 0)
 		printf("GUVCVIEW: audio device changed to %i\n", audio_ctx->device);
@@ -1535,6 +1536,8 @@ void audio_device_changed(GtkComboBox *combo, void *data)
 
 	if(index == 0)
 		audio_ctx->samprate = audio_ctx->list_devices[audio_ctx->device].samprate;
+		
+	gtk_range_set_value(GTK_RANGE(my_audio_widgets->latency), audio_ctx->latency);
 }
 
 /*
@@ -1690,6 +1693,7 @@ void audio_api_changed(GtkComboBox *combo, void *data)
 		gtk_widget_set_sensitive(my_audio_widgets->device, FALSE);
 		gtk_widget_set_sensitive(my_audio_widgets->channels, FALSE);
 		gtk_widget_set_sensitive(my_audio_widgets->samprate, FALSE);
+		gtk_widget_set_sensitive(my_audio_widgets->latency, FALSE);
 	}
 	else
 	{
@@ -1720,21 +1724,43 @@ void audio_api_changed(GtkComboBox *combo, void *data)
 		gtk_widget_set_sensitive (my_audio_widgets->device, TRUE);
 		gtk_widget_set_sensitive(my_audio_widgets->channels, TRUE);
 		gtk_widget_set_sensitive(my_audio_widgets->samprate, TRUE);
+		gtk_widget_set_sensitive(my_audio_widgets->latency, TRUE);
 
 		/*update channels*/
 		int index = gtk_combo_box_get_active(GTK_COMBO_BOX(my_audio_widgets->channels));
 
-		if(index == 0)
+		if(index == 0) /*auto*/
 			audio_ctx->channels = audio_ctx->list_devices[audio_ctx->device].channels;
 
 		/*update samprate*/
 		index = gtk_combo_box_get_active(GTK_COMBO_BOX(my_audio_widgets->samprate));
 
-		if(index == 0)
+		if(index == 0) /*auto*/
 			audio_ctx->samprate = audio_ctx->list_devices[audio_ctx->device].samprate;
-
+		
+		gtk_range_set_value(GTK_RANGE(my_audio_widgets->latency), audio_ctx->latency);	
 	}
 
+}
+
+/*
+ * audio latency changed event
+ * args:
+ *    range - widget that generated the event
+ *    data - pointer to user data
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void audio_latency_changed(GtkRange *range, void *data)
+{
+	/**update the audio context for the new api*/
+	audio_context_t *audio_ctx = get_audio_context();
+
+	if(audio_ctx != NULL)
+		audio_ctx->latency = (double) gtk_range_get_value (range);
 }
 
 /*

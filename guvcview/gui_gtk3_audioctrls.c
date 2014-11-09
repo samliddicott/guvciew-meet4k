@@ -52,6 +52,7 @@ static audio_widgets_t my_audio_widgets =
 	.device = NULL,
 	.channels = NULL,
 	.samprate = NULL,
+	.latency = NULL,
 };
 
 
@@ -230,6 +231,46 @@ int gui_attach_gtk3_audioctrls(GtkWidget *parent)
 
 	g_signal_connect (GTK_COMBO_BOX_TEXT(my_audio_widgets.channels), "changed",
 		G_CALLBACK (audio_channels_changed), &my_audio_widgets);
+
+	/*latency*/
+	line++;
+
+	GtkWidget *label_Latency = gtk_label_new(_("Latency:"));
+	gtk_misc_set_alignment (GTK_MISC (label_Latency), 1, 0.5);
+
+	gtk_grid_attach (GTK_GRID(audio_controls_grid), label_Latency, 0, line, 1, 1);
+	gtk_widget_show (label_Latency);
+	
+	double latency = 0.0;
+	if(audio_ctx != NULL)
+		latency = audio_ctx->latency;
+	
+	if(debug_level > 2)
+		printf("GUVCVIEW: audio latency is set to %f\n", latency);
+	
+	GtkAdjustment *adjustment =  gtk_adjustment_new (
+		latency,
+		0.001,
+		0.1,
+		0.001,
+		0.01,
+		0);
+								
+	my_audio_widgets.latency = gtk_scale_new (GTK_ORIENTATION_HORIZONTAL, adjustment);
+	gtk_scale_set_digits(GTK_SCALE(my_audio_widgets.latency), 3);
+	gtk_scale_set_value_pos(GTK_SCALE(my_audio_widgets.latency), GTK_POS_RIGHT);
+	gtk_widget_set_halign (my_audio_widgets.latency, GTK_ALIGN_FILL);
+	gtk_widget_set_hexpand (my_audio_widgets.latency, TRUE);
+	gtk_grid_attach(GTK_GRID(audio_controls_grid), my_audio_widgets.latency, 1, line, 1, 1);
+	gtk_widget_show (my_audio_widgets.latency);
+
+	if(audio_ctx != NULL)
+		gtk_widget_set_sensitive (my_audio_widgets.latency, TRUE);
+	else
+		gtk_widget_set_sensitive (my_audio_widgets.latency, FALSE);
+
+	g_signal_connect (GTK_SCALE(my_audio_widgets.latency), "value-changed",
+		G_CALLBACK (audio_latency_changed), &my_audio_widgets);
 
 	/* ----- Filter controls -----*/
 	line++;

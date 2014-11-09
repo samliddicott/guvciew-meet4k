@@ -462,8 +462,44 @@ audio_context_t *audio_init(int api)
 
 	if(!audio_ctx)
 		audio_api = AUDIO_NONE;
+	
+	/*set default api device*/
+	audio_set_device(audio_ctx, audio_ctx->device);
 
 	return audio_ctx;
+}
+
+/*
+ * set audio device
+ * args:
+ *   audio_ctx - pointer to audio context data
+ *   index - device index (from device list) to set
+ *
+ * asserts:
+ *   audio_ctx is not null
+ *
+ * returns: none
+ */
+void audio_set_device(audio_context_t *audio_ctx, int index)
+{
+	/*assertions*/
+	assert(audio_ctx != NULL);
+	
+	switch(audio_api)
+	{
+		case AUDIO_NONE:
+			break;
+
+#if HAS_PULSEAUDIO
+		case AUDIO_PULSE:
+			audio_set_pulseaudio_device(audio_ctx, index);
+			break;
+#endif
+		case AUDIO_PORTAUDIO:
+		default:
+			audio_set_portaudio_device(audio_ctx, index);
+			break;
+	}
 }
 
 /*

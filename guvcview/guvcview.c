@@ -293,11 +293,7 @@ int main(int argc, char *argv[])
 			my_config->audio_device = audio_ctx->num_input_dev - 1;
 			
 		/*set the audio device defaults*/
-		audio_ctx->device = my_config->audio_device;
-		audio_ctx->channels = audio_ctx->list_devices[audio_ctx->device].channels;
-		if(audio_ctx->channels > 2)
-			audio_ctx->channels = 2;/*limit it to stereo input*/
-		audio_ctx->samprate = audio_ctx->list_devices[audio_ctx->device].samprate;
+		audio_set_device(audio_ctx, my_config->audio_device);
 	}
 	else
 		fprintf(stderr, "GUVCVIEW: couldn't get a valid audio context for the selected api - disabling audio\n");

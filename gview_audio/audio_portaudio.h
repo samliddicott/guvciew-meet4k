@@ -40,6 +40,19 @@
 audio_context_t *audio_init_portaudio();
 
 /*
+ * set audio device
+ * args:
+ *   audio_ctx - pointer to audio context data
+ *   index - device index to set
+ *
+ * asserts:
+ *   audio_ctx is not null
+ *
+ * returns: none
+ */
+void audio_set_portaudio_device(audio_context_t *audio_ctx, int index);
+
+/*
  * start portaudio stream capture
  * args:
  *   audio_ctx - pointer to audio context data

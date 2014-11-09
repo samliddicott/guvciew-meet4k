@@ -51,6 +51,7 @@ typedef struct _audio_widgets_t
 	GtkWidget *device;       /* device control   */
 	GtkWidget *channels;     /* channels control */
 	GtkWidget *samprate;     /* samprate control */
+	GtkWidget *latency;      /* latency control  */
 } audio_widgets_t;
 
 /*

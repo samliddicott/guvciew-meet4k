@@ -523,6 +523,19 @@ void audio_samplerate_changed(GtkComboBox *combo, void *data);
 void audio_channels_changed(GtkComboBox *combo, void *data);
 
 /*
+ * audio latency changed event
+ * args:
+ *    range - widget that generated the event
+ *    data - pointer to user data
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void audio_latency_changed(GtkRange *range, void *data);
+
+/*
  * video encoder properties clicked event
  * args:
  *    item - widget that generated the event

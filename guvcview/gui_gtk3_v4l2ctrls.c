@@ -384,7 +384,7 @@ int gui_attach_gtk3_v4l2ctrls(v4l2_dev_t *device, GtkWidget *parent)
 							control_widgets_list[n].widget = gtk_scale_new (GTK_ORIENTATION_HORIZONTAL, adjustment);
 
 							gtk_scale_set_draw_value (GTK_SCALE (control_widgets_list[n].widget), FALSE);
-							gtk_range_set_round_digits(GTK_RANGE (control_widgets_list[n].widget), 0);
+							gtk_scale_set_digits(GTK_SCALE(control_widgets_list[n].widget), 0);
 
 							gtk_widget_show (control_widgets_list[n].widget);
 

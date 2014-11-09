@@ -153,6 +153,8 @@ static void pa_sourcelist_cb(pa_context *c, const pa_source_info *l, int eol, vo
 	else
 		channels = l->sample_spec.channels;
 
+	double my_latency = 0.0;
+	
 	if(verbosity > 0)
 	{
 		printf("AUDIO: =======[ Input Device #%d ]=======\n", source_index);
@@ -162,9 +164,13 @@ static void pa_sourcelist_cb(pa_context *c, const pa_source_info *l, int eol, vo
 		printf("       Channels: %d (default to: %d)\n", l->sample_spec.channels, channels);
 		printf("       SampleRate: %d\n", l->sample_spec.rate);
 		printf("       Latency: %llu (usec)\n", (long long unsigned) l->latency);
+		printf("       Configured Latency: %llu (usec)\n", (long long unsigned) l->configured_latency);
 		printf("       Card: %d\n", l->card);
 		printf("\n");
 	}
+	
+	if(my_latency <= 0.0)
+		my_latency = (double) latency_ms / 1000;
 
 	if(l->monitor_of_sink == PA_INVALID_INDEX)
 	{
@@ -182,6 +188,9 @@ static void pa_sourcelist_cb(pa_context *c, const pa_source_info *l, int eol, vo
 		strncpy(audio_ctx->list_devices[audio_ctx->num_input_dev-1].description, l->description, 255);
 		audio_ctx->list_devices[audio_ctx->num_input_dev-1].channels = channels;
 		audio_ctx->list_devices[audio_ctx->num_input_dev-1].samprate = l->sample_spec.rate;
+		audio_ctx->list_devices[audio_ctx->num_input_dev-1].low_latency = my_latency; /*in seconds*/
+		audio_ctx->list_devices[audio_ctx->num_input_dev-1].high_latency = my_latency; /*in seconds*/ 
+		
 	}
 }
 
@@ -223,6 +232,7 @@ static void pa_sinklist_cb(pa_context *c, const pa_sink_info *l, int eol, void *
 		printf("       Channels: %d\n", l->channel_map.channels);
 		printf("       SampleRate: %d\n", l->sample_spec.rate);
 		printf("       Latency: %llu (usec)\n", (long long unsigned) l->latency);
+		printf("       Configured Latency: %llu (usec)\n", (long long unsigned) l->configured_latency);
 		printf("       Card: %d\n", l->card);
 		printf("\n");
 	}
@@ -571,9 +581,9 @@ static void *pulse_read_audio(void *data)
     bufattr.prebuf = (uint32_t) -1;
     bufattr.minreq = (uint32_t) -1;
 
-    if (latency_ms > 0)
+    if (audio_ctx->latency > 0)
     {
-      bufattr.fragsize = bufattr.tlength = pa_usec_to_bytes(latency_ms * PA_USEC_PER_MSEC, &ss);
+      bufattr.fragsize = bufattr.tlength = pa_usec_to_bytes((audio_ctx->latency * 1000) * PA_USEC_PER_MSEC, &ss);
       flags |= PA_STREAM_ADJUST_LATENCY;
     }
     else
@@ -655,6 +665,32 @@ audio_context_t *audio_init_pulseaudio()
 
 	audio_ctx->api = AUDIO_PULSE;
 	return audio_ctx;
+}
+
+/*
+ * set audio device
+ * args:
+ *   audio_ctx - pointer to audio context data
+ *   index - device index to set
+ *
+ * asserts:
+ *   audio_ctx is not null
+ *
+ * returns: none
+ */
+void audio_set_pulseaudio_device(audio_context_t *audio_ctx, int index)
+{
+	/*assertions*/
+	assert(audio_ctx != NULL);
+	
+	audio_ctx->device = index;
+	
+	audio_ctx->latency = audio_ctx->list_devices[audio_ctx->device].high_latency;
+	
+	audio_ctx->channels = audio_ctx->list_devices[audio_ctx->device].channels;
+	if(audio_ctx->channels > 2)
+		audio_ctx->channels = 2;/*limit it to stereo input*/
+	audio_ctx->samprate = audio_ctx->list_devices[audio_ctx->device].samprate;
 }
 
 /*

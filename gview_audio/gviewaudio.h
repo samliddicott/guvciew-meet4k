@@ -85,6 +85,8 @@ typedef struct _audio_device_t
 	int id;                 /*audo device id*/
 	int channels;           /*max channels*/
 	int samprate;           /*default samplerate*/
+	double low_latency;     /*default low latency*/
+	double high_latency;    /*default high latency*/
 	char name[512];         /*device name*/
 	char description[256];  /*device description*/
 } audio_device_t;
@@ -97,6 +99,7 @@ typedef struct _audio_context_t
 	int device;                   /*current device list index*/
 	int channels;                 /*channels*/
 	int samprate;                 /*sample rate*/
+	double latency;               /*current sugested latency*/
 
 	/*all ts are monotonic based: both real and generated*/
 	int64_t current_ts;           /*current buffer generated timestamp*/
@@ -138,6 +141,19 @@ void audio_set_verbosity(int value);
  * returns: pointer to audio context (NULL if AUDIO_NONE)
  */
 audio_context_t *audio_init(int api);
+
+/*
+ * set audio device
+ * args:
+ *   audio_ctx - pointer to audio context data
+ *   index - device index (from device list) to set
+ *
+ * asserts:
+ *   audio_ctx is not null
+ *
+ * returns: none
+ */
+void audio_set_device(audio_context_t *audio_ctx, int index);
 
 /*
  * start audio stream capture
