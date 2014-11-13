@@ -1667,7 +1667,7 @@ void audio_api_changed(GtkComboBox *combo, void *data)
 	int api = gtk_combo_box_get_active(combo);
 
 	/*update the audio context for the new api*/
-	audio_context_t *audio_ctx = create_audio_context(api);
+	audio_context_t *audio_ctx = create_audio_context(api, -1);
 	if(!audio_ctx)
 		api = AUDIO_NONE;
 		

@@ -573,18 +573,23 @@ int key_RIGHT_callback(void *data)
  * create an audio context
  * args:
  *    api - audio api
+ *    device - api device index (-1 use default)
  *
  * asserts:
  *    none
  *
  * returns: pointer to audio context data
  */
-audio_context_t *create_audio_context(int api)
+audio_context_t *create_audio_context(int api, int device)
 {
 	close_audio_context();
 
-	my_audio_ctx = audio_init(api);
-
+	my_audio_ctx = audio_init(api, device);
+	
+	/*force a valid number of channels*/
+	if(my_audio_ctx != NULL && my_audio_ctx->channels > 2)
+		my_audio_ctx->channels = 2;
+		
 	return my_audio_ctx;
 }
 

@@ -217,13 +217,14 @@ void request_format_update();
  * create an audio context
  * args:
  *    api - audio api
+ *    device - api device index (-1 use default)
  *
  * asserts:
  *    none
  *
  * returns: pointer to audio context data
  */
-audio_context_t *create_audio_context(int api);
+audio_context_t *create_audio_context(int api, int device);
 
 /*
  * close the audio context

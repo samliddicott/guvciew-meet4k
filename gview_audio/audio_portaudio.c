@@ -340,7 +340,10 @@ void audio_set_portaudio_device(audio_context_t *audio_ctx, int index)
 	/*assertions*/
 	assert(audio_ctx != NULL);
 	
-	audio_ctx->device = index;
+	if(index >= audio_ctx->num_input_dev)
+		audio_ctx->device = audio_ctx->num_input_dev - 1;
+	else if(index > 0 )
+		audio_ctx->device = index;
 		
 	audio_ctx->latency = audio_ctx->list_devices[audio_ctx->device].high_latency;
 	

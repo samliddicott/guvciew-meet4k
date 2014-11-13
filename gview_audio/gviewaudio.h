@@ -134,13 +134,14 @@ void audio_set_verbosity(int value);
  * args:
  *   api - audio API to use
  *           (AUDIO_NONE, AUDIO_PORTAUDIO, AUDIO_PULSE, ...)
+ *   device - api device index to use (-1 - use api default)
  *
  * asserts:
  *   none
  *
  * returns: pointer to audio context (NULL if AUDIO_NONE)
  */
-audio_context_t *audio_init(int api);
+audio_context_t *audio_init(int api, int device);
 
 /*
  * set audio device

@@ -431,13 +431,14 @@ int audio_get_next_buffer(audio_context_t *audio_ctx, audio_buff_t *buff, int ty
  * args:
  *   api - audio API to use
  *           (AUDIO_NONE, AUDIO_PORTAUDIO, AUDIO_PULSE, ...)
+ *   device - api device index to use (-1 - use api default)
  *
  * asserts:
  *   none
  *
- * returns: pointer to audio context
+ * returns: pointer to audio context (NULL if AUDIO_NONE)
  */
-audio_context_t *audio_init(int api)
+audio_context_t *audio_init(int api, int device)
 {
 
 	audio_context_t *audio_ctx = NULL;
@@ -464,8 +465,8 @@ audio_context_t *audio_init(int api)
 		audio_api = AUDIO_NONE;
 	
 	/*set default api device*/
-	audio_set_device(audio_ctx, audio_ctx->device);
-
+	audio_set_device(audio_ctx, device);
+		
 	return audio_ctx;
 }
 
@@ -482,9 +483,6 @@ audio_context_t *audio_init(int api)
  */
 void audio_set_device(audio_context_t *audio_ctx, int index)
 {
-	/*assertions*/
-	assert(audio_ctx != NULL);
-	
 	switch(audio_api)
 	{
 		case AUDIO_NONE:

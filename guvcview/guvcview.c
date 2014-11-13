@@ -281,20 +281,10 @@ int main(int argc, char *argv[])
 	audio_set_verbosity(debug_level);
 
 	/*create the inital audio context (stored staticly in video_capture)*/
-	create_audio_context(audio);
+	audio_context_t *audio_ctx = create_audio_context(audio, my_config->audio_device);
 
-	/*get the audio context*/
-	audio_context_t *audio_ctx = get_audio_context();
 	if(audio_ctx != NULL)
-	{
-		if(my_config->audio_device < 0)
-			my_config->audio_device = audio_ctx->device; /*api default*/
-		else if (my_config->audio_device >= audio_ctx->num_input_dev)
-			my_config->audio_device = audio_ctx->num_input_dev - 1;
-			
-		/*set the audio device defaults*/
-		audio_set_device(audio_ctx, my_config->audio_device);
-	}
+		my_config->audio_device = audio_ctx->device;
 	else
 		fprintf(stderr, "GUVCVIEW: couldn't get a valid audio context for the selected api - disabling audio\n");
 	
