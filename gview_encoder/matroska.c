@@ -41,8 +41,9 @@
 /*random generator (HAS_GSL is set in ../config.h)*/
 #ifdef HAS_GSL
 	#include <gsl/gsl_rng.h>
+#else
+	#include <time.h>
 #endif
-
 #include "gviewencoder.h"
 #include "encoder.h"
 #include "stream_io.h"
@@ -616,8 +617,8 @@ int mkv_write_header(mkv_context_t *mkv_ctx)
     mkv_put_ebml_uint(mkv_ctx, MATROSKA_ID_TIMECODESCALE, mkv_ctx->timescale);
     mkv_put_ebml_string(mkv_ctx, MATROSKA_ID_MUXINGAPP , "Guvcview Muxer-2014.04");
     mkv_put_ebml_string(mkv_ctx, MATROSKA_ID_WRITINGAPP, "Guvcview");
-
-	int seg_uid[4] = {0,0,0,0};
+	
+	int32_t seg_uid[4] = {0,0,0,0};
 	/*generate seg uid - 16 byte random int*/
 #ifdef HAS_GSL
 	/*random generator setup*/
@@ -625,14 +626,25 @@ int mkv_write_header(mkv_context_t *mkv_ctx)
 	const gsl_rng_type *T = gsl_rng_default;
 	gsl_rng *r = gsl_rng_alloc (T);
 
-	seg_uid[0] = INT_MIN + (int) lround( INT_MAX * gsl_rng_uniform (r));
-	seg_uid[1] = INT_MIN + (int) lround( INT_MAX * gsl_rng_uniform (r));
-	seg_uid[2] = INT_MIN + (int) lround( INT_MAX * gsl_rng_uniform (r));
-	seg_uid[3] = INT_MIN + (int) lround( INT_MAX * gsl_rng_uniform (r));
+	seg_uid[0] = INT_MIN + (int32_t) lround( INT_MAX * gsl_rng_uniform (r));
+	seg_uid[1] = INT_MIN + (int32_t) lround( INT_MAX * gsl_rng_uniform (r));
+	seg_uid[2] = INT_MIN + (int32_t) lround( INT_MAX * gsl_rng_uniform (r));
+	seg_uid[3] = INT_MIN + (int32_t) lround( INT_MAX * gsl_rng_uniform (r));
 
 	/*free the random seed generator*/
 	gsl_rng_free (r);
+#else
+	time_t current_time = time(NULL);
+	if(current_time != (time_t) -1)
+	{
+		struct tm *btime = localtime (&current_time);
+		seg_uid[0] = btime->tm_year + 1900; //year
+		seg_uid[1] = ((btime->tm_mon + 1) << 16) + btime->tm_mday; //month + day
+		seg_uid[2] = (btime->tm_hour << 16) + btime->tm_min;       //hour + min
+		seg_uid[4] = btime->tm_sec; //sec
+	}
 #endif
+
     mkv_put_ebml_binary(mkv_ctx, MATROSKA_ID_SEGMENTUID, seg_uid, 16);
 
     /* reserve space for the duration*/
