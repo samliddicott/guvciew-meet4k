@@ -641,7 +641,7 @@ int mkv_write_header(mkv_context_t *mkv_ctx)
 		seg_uid[0] = btime->tm_year + 1900; //year
 		seg_uid[1] = ((btime->tm_mon + 1) << 16) + btime->tm_mday; //month + day
 		seg_uid[2] = (btime->tm_hour << 16) + btime->tm_min;       //hour + min
-		seg_uid[4] = btime->tm_sec; //sec
+		seg_uid[3] = btime->tm_sec; //sec
 	}
 #endif
 
