@@ -373,7 +373,11 @@ dnl --------------------------------------------------------------------------
 dnl Check for libavutil/version.h
 dnl --------------------------------------------------------------------------
 
-AC_CHECK_HEADERS([libavutil/version.h])
+AC_CHECK_HEADERS([libavutil/version.h], [], [],
+[[#ifdef HAVE_LIBAVUTIL_VERSION_H
+#include <libavutil/version.h>
+#endif
+]])
 
 dnl --------------------------------------------------------------------------
 dnl check for guvcview dependencies
