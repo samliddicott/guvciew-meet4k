@@ -3,6 +3,7 @@ dnl Process this file with autoconf to produce a configure script.
 # Save the original $CFLAGS so we can distinguish whether the user set those
 # in the environment, or whether autoconf added -O and -g options:
 ORIGINAL_CFLAGS="$CFLAGS"
+ORIGINAL_CPPFLAGS="$CPPFLAGS"
 
 dnl --------------------------------
 dnl Initialization macros (sets PACKAGE and VERSION)
@@ -152,8 +153,14 @@ dnl --------------------------------------------------------------------------
 
 dnl Check for avcodec.h directly
 dnl if all tests fail must add avcodec.h path to C_INCLUDE_PATH before running configure
+ORIGINAL_CPPFLAGS="${CPPFLAGS}"
+dnl make sure we search using the CFLAGS includes
 CPPFLAGS+="${GVIEWV4L2CORE_CFLAGS}"
+
 AC_CHECK_HEADERS([avcodec.h libavcodec/avcodec.h ffmpeg/avcodec.h])
+
+dnl restore CCPFLAGS to avoid redefinitions in debian build tree
+CPPFLAGS="${ORIGINAL_CPPFLAGS}"
 
 dnl --------------------------------------------------------------------------
 dnl Check if we will use libavcodec or the internal decoder for mjpeg decoding
