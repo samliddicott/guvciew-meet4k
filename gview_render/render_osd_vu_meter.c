@@ -31,11 +31,176 @@
 
 extern int verbosity;
 
+typedef struct _yuv_color_t
+{
+	int8_t y;
+	int8_t u;
+	int8_t v;
+} yuv_color_t;
+
 #define REFERENCE_LEVEL 0.8
 #define VU_BARS         20
 
 static float vu_peak[2] = {0.0, 0.0};
 static float vu_peak_freeze[2]= {0.0 ,0.0};
+
+/*
+ * plot a rectangular box in a yuyv frame (packed)
+ * args:
+ *   frame - pointer to yuyv frame data
+ *   linesize - frame line size in pixels (width)
+ *   x - box top left x coordinate
+ *   y - box top left y coordinate
+ *   width - box width
+ *   height - box height
+ *   color - box color
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+static plot_box_yuyv(uint8_t *frame, int linesize, int x, int y, int width, int height, yuv_color_t *color)
+{
+	int i = 0;
+	for (i = 0; i < height; ++i)
+  	{
+		int bi = 2 * (x + (y * linesize)); /*2 bytes per pixel*/
+		y++; /*next row*/
+
+		int j = 0;
+		for (j = 0; j < width/2; ++j) /*packed yuyv*/
+		{
+			/*we set two pixels in each loop*/
+			frame[bi] = color->y;
+	  		frame[bi+1] = color->u;
+			frame[bi+2] = color->y;
+	  		frame[bi+3] = color->v;
+	 		bi += 4; /*next two pixels*/
+		}
+	}
+}
+
+/*
+ * plot a line in a yuyv frame (packed)
+ * args:
+ *   frame - pointer to yuyv frame data
+ *   linesize - frame line size in pixels (width)
+ *   x - box top left x coordinate
+ *   y - box top left y coordinate
+ *   width - line width
+ *   color - line color
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+static plot_line_yuyv(uint8_t *frame, int linesize, int x, int y, int width, yuv_color_t *color)
+{
+	int bi = 2 * (x + (y  * linesize));
+
+	int j = 0;
+	for (j = 0; j < width/2; j++)
+	{
+		frame[bi] = color->y;
+		frame[bi+1] = color->u;
+		frame[bi+2] = color->y;
+		frame[bi+3] = color->v;
+		bi += 4;
+	}
+}
+
+/*
+ * plot a rectangular box in a yu12 frame (planar)
+ * args:
+ *   frame - pointer to yu12 frame data
+ *   lines - number of lines in frame (height)
+ *   linesize - frame line size in pixels (width)
+ *   x - box top left x coordinate
+ *   y - box top left y coordinate
+ *   width - box width
+ *   height - box height
+ *   color - box color
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+static plot_box_yu12(uint8_t *frame, int lines, int linesize, int x, int y, int width, int height, yuv_color_t *color)
+{
+	uint8_t *py = frame;
+	uint8_t *pu = frame + (linesize * lines);
+	uint8_t *pv = pu + ((linesize * lines) / 4);
+
+	/*y*/
+	int h = 0;
+	for(h = 0; h < height; ++h)
+	{
+		py = frame + x + ((y + h) * linesize);
+		int w = 0;
+		for(w = 0; w < width; ++w)
+		{
+			*py++ = color->y;
+		}
+	}
+				
+	/*u v*/
+	for(h = 0; h < height; h += 2) /*every two lines*/
+	{
+		pu = frame + (linesize * lines) + (x/2) + (((y + h) * linesize) /4);
+		pv = pu + ((linesize * lines) / 4);
+					
+		int w = 0;
+		for(w = 0; w < width; w += 2) /*every two rows*/
+		{
+			*pu++ = color->u;
+			*pv++ = color->v;
+		}
+	}
+}
+
+/*
+ * plot a line in a yu12 frame (planar)
+ * args:
+ *   frame - pointer to yu12 frame data
+ *   lines - number of lines in frame (height)
+ *   linesize - frame line size in pixels (width)
+ *   x - box top left x coordinate
+ *   y - box top left y coordinate
+ *   width - line width
+ *   color - line color
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+static plot_line_yu12(uint8_t *frame, int lines, int linesize, int x, int y, int width, yuv_color_t *color)
+{
+	uint8_t *py = frame;
+	uint8_t *pu = frame + (linesize * lines);
+	uint8_t *pv = pu + ((linesize * lines) / 4);
+
+	int w = 0;
+				
+	/*y*/
+	py = frame + x + (y * linesize);
+	for(w = 0; w < width; ++w)
+	{
+		*py++ = color->y;
+	}
+				
+	/*u v*/
+	pu = frame + (linesize * lines) + (x/2) + ((y * linesize) /4);
+	pv = pu + ((linesize * lines) / 4);
+	for(w = 0; w < width; w += 2) /*every two rows*/
+	{
+		*pu++ = color->u;
+		*pv++ = color->v;
+	}	
+}
 
 /*
  * render a vu meter
@@ -106,28 +271,29 @@ void render_osd_vu_meter(uint8_t *frame, int width, int height, float vu_level[2
 			/* Start y coordinate for box (box top)*/
 			int by = channel * (bh + 4) + bh;
 
-			uint8_t y = 127;
-			uint8_t u = 127;
-			uint8_t v = 127;
+			yuv_color_t color;
+			color.y = 127;
+			color.u = 127;
+			color.v = 127;
 
 			/*green bar*/
 			if (db < -10)
 			{
-				y = 154;
-  				u = 72;
-  				v = 57;
+				color.y = 154;
+  				color.u = 72;
+  				color.v = 57;
 			}
 			else if (db < -2) /*yellow bar*/
 			{
-				y = 203;
-  				u = 44;
-  				v = 142;
+				color.y = 203;
+  				color.u = 44;
+  				color.v = 142;
 			}
 			else /*red bar*/
 			{
-				y = 107;
-				u = 100;
-				v = 212;
+				color.y = 107;
+				color.u = 100;
+				color.v = 212;
 			}
 
 			int light = dBuLevel > db;
@@ -140,91 +306,17 @@ void render_osd_vu_meter(uint8_t *frame, int width, int height, float vu_level[2
 			if (light)
 			{
 #ifdef USE_PLANAR_YUV
-				uint8_t *py = frame;
-				uint8_t *pu = frame + (width * height);
-				uint8_t *pv = pu + ((width * height) / 4);
-
-				/*y*/
-				int h = 0;
-				for(h = 0; h < bh; ++h)
-				{
-					py = frame + bx + ((by + h) * width);
-					int w = 0;
-					for(w = 0; w < bw; ++w)
-					{
-						*py++ = y;
-					}
-				}
-				
-				/*u v*/
-				for(h = 0; h < bh; h += 2) /*every two lines*/
-				{
-					pu = frame + (width * height) + (bx/2) + (((by + h) * width) /4);
-					pv = pu + ((width * height) / 4);
-					
-					int w = 0;
-					for(w = 0; w < bw; w += 2) /*every two rows*/
-					{
-						*pu++ = u;
-						*pv++ = v;
-					}
-				}
+				plot_box_yu12(frame, height, width, bx, by, bw, bh, &color);
 #else
-  				int i = 0;
-  				for (i = 0; i < bh; ++i)
-  				{
-					int bi = 2 * (bx + by * width); /*2 bytes per pixel*/
-					by++; /*next row*/
-
-					int j = 0;
-					for (j = 0; j < bw/2; ++j) /*packed yuyv*/
-					{
-						/*we set two pixels in each loop*/
-						frame[bi] = y;
-	  					frame[bi+1] = u;
-	  					frame[bi+2] = y;
-	  					frame[bi+3] = v;
-	 	 				bi += 4; /*next two pixels*/
-					}
-  				}
+  				plot_box_yuyv(frame, width, bx, by, bw, bh, &color);
 #endif
 			}
 			else if (bw > 0) /*draw single line*/
 			{
 #ifdef USE_PLANAR_YUV
-				uint8_t *py = frame;
-				uint8_t *pu = frame + (width * height);
-				uint8_t *pv = pu + ((width * height) / 4);
-
-				int w = 0;
-				
-				/*y*/
-				py = frame + bx + ((by + bh/2) * width);
-				for(w = 0; w < bw; ++w)
-				{
-					*py++ = y;
-				}
-				
-				/*u v*/
-				pu = frame + (width * height) + (bx/2) + (((by + bh/2) * width) /4);
-				pv = pu + ((width * height) / 4);
-				for(w = 0; w < bw; w += 2) /*every two rows*/
-				{
-					*pu++ = u;
-					*pv++ = v;
-				}
+				plot_line_yu12(frame, height, width, bx, by + (bh /2), bw, &color);
 #else
-				int bi = 2 * (bx + (by + bh/2) * width);
-
-				int j = 0;
-				for (j = 0; j < bw/2; j++)
-				{
-					frame[bi] = y;
-	  				frame[bi+1] = u;
-	  				frame[bi+2] = y;
-	  				frame[bi+3] = v;
-					bi += 4;
-				}
+				plot_line_yuyv(frame, width, bx, by + (bh/2), bw, &color);
 #endif
 			}
 		}
