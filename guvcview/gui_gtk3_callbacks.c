@@ -779,9 +779,9 @@ void pan_tilt_step_changed (GtkSpinButton *spin, void *data)
 	int val = gtk_spin_button_get_value_as_int (spin);
 
 	if(id == V4L2_CID_PAN_RELATIVE)
-		device->pan_step = val;
+		v4l2core_set_pan_step(device, val);
 	if(id == V4L2_CID_TILT_RELATIVE)
-		device->tilt_step = val;
+		v4l2core_set_tilt_step(device, val);
 }
 
 /*
@@ -804,9 +804,9 @@ void button_PanTilt1_clicked (GtkButton * Button, void *data)
     v4l2_ctrl_t *control = v4l2core_get_control_by_id(device, id);
 
 	if(id == V4L2_CID_PAN_RELATIVE)
-		control->value =  device->pan_step;
+		control->value =  v4l2core_get_pan_step(device);
 	else
-		control->value =  device->tilt_step;
+		control->value =   v4l2core_get_tilt_step(device);
 
     if(v4l2core_set_control_value_by_id(device, id))
 		fprintf(stderr, "GUVCVIEW: error setting pan/tilt\n");
@@ -832,9 +832,9 @@ void button_PanTilt2_clicked (GtkButton * Button, void *data)
     v4l2_ctrl_t *control = v4l2core_get_control_by_id(device, id);
 
     if(id == V4L2_CID_PAN_RELATIVE)
-		control->value =  - device->pan_step;
+		control->value =  - v4l2core_get_pan_step(device);
 	else
-		control->value =  - device->tilt_step;
+		control->value =  - v4l2core_get_tilt_step(device);
 
     if(v4l2core_set_control_value_by_id(device, id))
 		fprintf(stderr, "GUVCVIEW: error setting pan/tilt\n");

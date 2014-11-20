@@ -124,7 +124,7 @@ int gui_attach_gtk3_v4l2ctrls(v4l2_dev_t *device, GtkWidget *parent)
 
 	int i = 0;
 	int n = 0;
-	v4l2_ctrl_t *current = device->list_device_controls;
+	v4l2_ctrl_t *current = v4l2core_get_control_list(device);
 
     for(; current != NULL; current = current->next, ++n)
     {
@@ -203,9 +203,9 @@ int gui_attach_gtk3_v4l2ctrls(v4l2_dev_t *device, GtkWidget *parent)
 						gtk_editable_set_editable(GTK_EDITABLE(control_widgets_list[n].widget2), TRUE);
 
 						if(current->control.id == V4L2_CID_PAN_RELATIVE)
-							gtk_spin_button_set_value (GTK_SPIN_BUTTON(control_widgets_list[n].widget2), device->pan_step);
+							gtk_spin_button_set_value (GTK_SPIN_BUTTON(control_widgets_list[n].widget2), v4l2core_get_pan_step(device));
 						else
-							gtk_spin_button_set_value (GTK_SPIN_BUTTON(control_widgets_list[n].widget2), device->tilt_step);
+							gtk_spin_button_set_value (GTK_SPIN_BUTTON(control_widgets_list[n].widget2),v4l2core_get_tilt_step(device));
 
 						/*connect signal*/
 						g_object_set_data (G_OBJECT (control_widgets_list[n].widget2), "control_info",
@@ -634,7 +634,7 @@ void gui_gtk3_update_controls_state(v4l2_dev_t *device)
 	/*asserts*/
 	assert(device != NULL);
 
-	v4l2_ctrl_t *current = device->list_device_controls;
+	v4l2_ctrl_t *current = v4l2core_get_control_list(device);
 
     for(; current != NULL; current = current->next)
     {

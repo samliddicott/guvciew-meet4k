@@ -448,6 +448,68 @@ void v4l2core_set_capture_method(v4l2_dev_t *vd, int method);
 v4l2_dev_t *v4l2core_init_dev(const char *device);
 
 /*
+ * get device control list
+ * args:
+ *    vd -pointer to video device data
+ *
+ * asserts:
+ *    vd is not null
+ *
+ * return: pointer to first control in the list
+ */
+v4l2_ctrl_t *v4l2core_get_control_list(v4l2_dev_t *vd);
+
+/*
+ * get device pan step value
+ * args:
+ *    vd -pointer to video device data
+ *
+ * asserts:
+ *    vd is not null
+ *
+ * return: pan step value
+ */
+int v4l2core_get_pan_step(v4l2_dev_t *vd);
+
+/*
+ * get device tilt step value
+ * args:
+ *    vd -pointer to video device data
+ *
+ * asserts:
+ *    vd is not null
+ *
+ * return: tilt step value
+ */
+int v4l2core_get_tilt_step(v4l2_dev_t *vd);
+
+/*
+ * set device pan step value
+ * args:
+ *    vd -pointer to video device data
+ *    step - pan step value
+ *
+ * asserts:
+ *    vd is not null
+ *
+ * return: none
+ */
+void v4l2core_set_pan_step(v4l2_dev_t *vd, int step);
+
+/*
+ * set device tilt step value
+ * args:
+ *    vd -pointer to video device data
+ *    step -tilt step value
+ *
+ * asserts:
+ *    vd is not null
+ *
+ * return: none
+ */
+void v4l2core_set_tilt_step(v4l2_dev_t *vd, int step);
+
+/*
  * Initiate the device list (with udev monitoring)
  * args:
  *   none

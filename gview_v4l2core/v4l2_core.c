@@ -1477,6 +1477,98 @@ v4l2_dev_t *v4l2core_init_dev(const char *device)
 }
 
 /*
+ * get device control list
+ * args:
+ *    vd -pointer to video device data
+ *
+ * asserts:
+ *    vd is not null
+ *
+ * return: pointer to first control in the list
+ */
+v4l2_ctrl_t *v4l2core_get_control_list(v4l2_dev_t *vd)
+{
+	/*assertions*/
+	assert(vd != NULL);
+	
+	return vd->list_device_controls;
+}
+
+/*
+ * get device pan step value
+ * args:
+ *    vd -pointer to video device data
+ *
+ * asserts:
+ *    vd is not null
+ *
+ * return: pan step value
+ */
+int v4l2core_get_pan_step(v4l2_dev_t *vd)
+{
+	/*assertions*/
+	assert(vd != NULL);
+	
+	return vd->pan_step;
+}
+
+/*
+ * get device tilt step value
+ * args:
+ *    vd -pointer to video device data
+ *
+ * asserts:
+ *    vd is not null
+ *
+ * return: tilt step value
+ */
+int v4l2core_get_tilt_step(v4l2_dev_t *vd)
+{
+	/*assertions*/
+	assert(vd != NULL);
+	
+	return vd->tilt_step;
+}
+
+/*
+ * set device pan step value
+ * args:
+ *    vd -pointer to video device data
+ *    step - pan step value
+ *
+ * asserts:
+ *    vd is not null
+ *
+ * return: none
+ */
+void v4l2core_set_pan_step(v4l2_dev_t *vd, int step)
+{
+	/*assertions*/
+	assert(vd != NULL);
+	
+	vd->pan_step = step;
+}
+
+/*
+ * set device tilt step value
+ * args:
+ *    vd -pointer to video device data
+ *    step -tilt step value
+ *
+ * asserts:
+ *    vd is not null
+ *
+ * return: none
+ */
+void v4l2core_set_tilt_step(v4l2_dev_t *vd, int step)
+{
+	/*assertions*/
+	assert(vd != NULL);
+	
+	vd->tilt_step = step;
+}
+
+/*
  * clean v4l2 buffers
  * args:
  *    vd -pointer to video device data
