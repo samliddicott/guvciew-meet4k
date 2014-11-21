@@ -22,6 +22,7 @@
 #define V4L2_FORMATS_H
 
 #include "gviewv4l2core.h"
+#include "v4l2_core.h"
 
 /*
  * check pixelformat against decoder support formats
@@ -63,6 +64,34 @@ uint8_t can_decode_format(int pixelformat);
  * returns: 0 if enumeration succeded or errno otherwise
  */
 int enum_frame_formats(v4l2_dev_t *vd);
+
+/* get frame format index from format list
+ * args:
+ *   vd - pointer to video device data
+ *   format - v4l2 pixel format
+ *
+ * asserts:
+ *   vd is not null
+ *   vd->list_stream_formats is not null
+ *
+ * returns: format list index or -1 if not available
+ */
+int get_frame_format_index(v4l2_dev_t *vd, int format);
+
+/* get resolution index for format index from format list
+ * args:
+ *   vd - pointer to video device data
+ *   format - format index from format list
+ *   width - requested width
+ *   height - requested height
+ *
+ * asserts:
+ *   vd is not null
+ *   vd->list_stream_formats is not null
+ *
+ * returns: resolution list index for format index or -1 if not available
+ */
+int get_format_resolution_index(v4l2_dev_t *vd, int format, int width, int height);
 
 /*
  * free frame formats list

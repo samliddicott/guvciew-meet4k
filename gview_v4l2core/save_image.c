@@ -83,7 +83,7 @@ int v4l2core_save_data_to_file(const char *filename, uint8_t *data, int size)
  *
  * returns: error code
  */
-int v4l2core_save_image(v4l2_dev_t *vd, v4l2_frame_buff_t *frame, const char *filename, int format)
+int save_frame_image(v4l2_dev_t *vd, v4l2_frame_buff_t *frame, const char *filename, int format)
 {
 	/*assertions*/
 	assert(vd != NULL);

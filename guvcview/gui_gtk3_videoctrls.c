@@ -49,41 +49,37 @@ extern int debug_level;
 /*
  * attach v4l2 video controls tab widget
  * args:
- *   device - pointer to device data we want to attach the gui for
  *   parent - tab parent widget
  *
  * asserts:
- *   device is not null
  *   parent is not null
  *
  * returns: error code (0 -OK)
  */
-int gui_attach_gtk3_videoctrls(v4l2_dev_t *device, GtkWidget *parent)
+int gui_attach_gtk3_videoctrls(GtkWidget *parent)
 {
 	/*assertions*/
-	assert(device != NULL);
 	assert(parent != NULL);
 
 	if(debug_level > 1)
 		printf("GUVCVIEW: attaching video controls\n");
 
-	int format_index = v4l2core_get_frame_format_index(device, device->requested_fmt);
+	int format_index = v4l2core_get_frame_format_index(v4l2core_get_requested_frame_format());
 
 	if(format_index < 0)
 	{
-		gui_error(device, "Guvcview error", "invalid pixel format", 0);
+		gui_error("Guvcview error", "invalid pixel format", 0);
 		printf("GUVCVIEW: invalid pixel format\n");
 	}
 
 	int resolu_index = v4l2core_get_format_resolution_index(
-		device,
 		format_index,
-		device->format.fmt.pix.width,
-		device->format.fmt.pix.height);
+		v4l2core_get_frame_width(),
+		v4l2core_get_frame_height());
 
 	if(resolu_index < 0)
 	{
-		gui_error(device, "Guvcview error", "invalid resolution index", 0);
+		gui_error("Guvcview error", "invalid resolution index", 0);
 		printf("GUVCVIEW: invalid resolution index\n");
 	}
 
@@ -120,7 +116,7 @@ int gui_attach_gtk3_videoctrls(v4l2_dev_t *device, GtkWidget *parent)
 	{
 		/*use current*/
 		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(get_wgtDevices_gtk3()),
-			device->videodevice);
+			v4l2core_get_videodevice());
 		gtk_combo_box_set_active(GTK_COMBO_BOX(get_wgtDevices_gtk3()),0);
 	}
 	else
@@ -136,7 +132,7 @@ int gui_attach_gtk3_videoctrls(v4l2_dev_t *device, GtkWidget *parent)
 	gtk_grid_attach (GTK_GRID(video_controls_grid), get_wgtDevices_gtk3(), 1, line, 1 ,1);
 	gtk_widget_show (get_wgtDevices_gtk3());
 	g_signal_connect (GTK_COMBO_BOX_TEXT(get_wgtDevices_gtk3()), "changed",
-		G_CALLBACK (devices_changed), device);
+		G_CALLBACK (devices_changed), NULL);
 
 	/*---- Frame Rate ----*/
 	line++;
@@ -156,23 +152,25 @@ int gui_attach_gtk3_videoctrls(v4l2_dev_t *device, GtkWidget *parent)
 
 	int deffps=0;
 
+	v4l2_stream_formats_t *list_stream_formats = v4l2core_get_formats_list();
+	
 	if (debug_level > 0)
 		printf("GUVCVIEW: frame rates of resolution index %d = %d \n",
 			resolu_index+1,
-			device->list_stream_formats[format_index].list_stream_cap[resolu_index].numb_frates);
-	for ( i = 0 ; i < device->list_stream_formats[format_index].list_stream_cap[resolu_index].numb_frates ; ++i)
+			list_stream_formats[format_index].list_stream_cap[resolu_index].numb_frates);
+	for ( i = 0 ; i < list_stream_formats[format_index].list_stream_cap[resolu_index].numb_frates ; ++i)
 	{
 		g_snprintf(
 			temp_str,
 			18,
 			"%i/%i fps",
-			device->list_stream_formats[format_index].list_stream_cap[resolu_index].framerate_denom[i],
-			device->list_stream_formats[format_index].list_stream_cap[resolu_index].framerate_num[i]);
+			list_stream_formats[format_index].list_stream_cap[resolu_index].framerate_denom[i],
+			list_stream_formats[format_index].list_stream_cap[resolu_index].framerate_num[i]);
 
 		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(wgtFrameRate), temp_str);
 
-		if (( device->fps_num == device->list_stream_formats[format_index].list_stream_cap[resolu_index].framerate_num[i]) &&
-			( device->fps_denom == device->list_stream_formats[format_index].list_stream_cap[resolu_index].framerate_denom[i]))
+		if (( v4l2core_get_fps_num() == list_stream_formats[format_index].list_stream_cap[resolu_index].framerate_num[i]) &&
+			( v4l2core_get_fps_denom() == list_stream_formats[format_index].list_stream_cap[resolu_index].framerate_denom[i]))
 				deffps=i;//set selected
 	}
 
@@ -182,21 +180,18 @@ int gui_attach_gtk3_videoctrls(v4l2_dev_t *device, GtkWidget *parent)
 
 	if (deffps==0)
 	{
-		if (device->list_stream_formats[format_index].list_stream_cap[resolu_index].framerate_denom)
-			device->fps_denom = device->list_stream_formats[format_index].list_stream_cap[resolu_index].framerate_denom[0];
+		if (list_stream_formats[format_index].list_stream_cap[resolu_index].framerate_denom)
+			v4l2core_define_fps(-1, list_stream_formats[format_index].list_stream_cap[resolu_index].framerate_denom[0]);
 
-		if (device->list_stream_formats[format_index].list_stream_cap[resolu_index].framerate_num)
-			device->fps_num = device->list_stream_formats[format_index].list_stream_cap[resolu_index].framerate_num[0];
-
-		if(debug_level > 0)
-			printf("GUVCVIEW: fps is set to %i/%i\n", device->fps_num, device->fps_denom);
+		if (list_stream_formats[format_index].list_stream_cap[resolu_index].framerate_num)
+			v4l2core_define_fps(list_stream_formats[format_index].list_stream_cap[resolu_index].framerate_num[0], -1);
 	}
 
 	g_signal_connect (GTK_COMBO_BOX_TEXT(wgtFrameRate), "changed",
-		G_CALLBACK (frame_rate_changed), device);
+		G_CALLBACK (frame_rate_changed), NULL);
 
 	/*try to sync the device fps (capture thread must have started by now)*/
-	v4l2core_request_framerate_update (device);
+	v4l2core_request_framerate_update ();
 
 	/*---- Resolution ----*/
 	line++;
@@ -218,22 +213,22 @@ int gui_attach_gtk3_videoctrls(v4l2_dev_t *device, GtkWidget *parent)
 	if (debug_level > 0)
 		printf("GUVCVIEW: resolutions of format(%d) = %d \n",
 			format_index+1,
-			device->list_stream_formats[format_index].numb_res);
-	for(i = 0 ; i < device->list_stream_formats[format_index].numb_res ; i++)
+			list_stream_formats[format_index].numb_res);
+	for(i = 0 ; i < list_stream_formats[format_index].numb_res ; i++)
 	{
-		if (device->list_stream_formats[format_index].list_stream_cap[i].width > 0)
+		if (list_stream_formats[format_index].list_stream_cap[i].width > 0)
 		{
 			g_snprintf(
 				temp_str,
 				18,
 				"%ix%i",
-				device->list_stream_formats[format_index].list_stream_cap[i].width,
-				device->list_stream_formats[format_index].list_stream_cap[i].height);
+				list_stream_formats[format_index].list_stream_cap[i].width,
+				list_stream_formats[format_index].list_stream_cap[i].height);
 
 			gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(wgtResolution), temp_str);
 
-			if ((device->format.fmt.pix.width == device->list_stream_formats[format_index].list_stream_cap[i].width) &&
-				(device->format.fmt.pix.height == device->list_stream_formats[format_index].list_stream_cap[i].height))
+			if ((v4l2core_get_frame_width() == list_stream_formats[format_index].list_stream_cap[i].width) &&
+				(v4l2core_get_frame_height() == list_stream_formats[format_index].list_stream_cap[i].height))
 					defres=i;//set selected resolution index
 		}
 	}
@@ -245,7 +240,7 @@ int gui_attach_gtk3_videoctrls(v4l2_dev_t *device, GtkWidget *parent)
 	g_object_set_data (G_OBJECT (wgtResolution), "control_fps", wgtFrameRate);
 
 	g_signal_connect (wgtResolution, "changed",
-		G_CALLBACK (resolution_changed), device);
+		G_CALLBACK (resolution_changed), NULL);
 
 
 	/*---- Input Format ----*/
@@ -266,10 +261,10 @@ int gui_attach_gtk3_videoctrls(v4l2_dev_t *device, GtkWidget *parent)
 	gtk_widget_set_sensitive (wgtInpType, TRUE);
 
 	int fmtind=0;
-	for (fmtind=0; fmtind < device->numb_formats; fmtind++)
+	for (fmtind=0; fmtind < v4l2core_get_number_formats(); fmtind++)
 	{
-		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(wgtInpType), device->list_stream_formats[fmtind].fourcc);
-		if(device->requested_fmt == device->list_stream_formats[fmtind].format)
+		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(wgtInpType), list_stream_formats[fmtind].fourcc);
+		if(v4l2core_get_requested_frame_format() == list_stream_formats[fmtind].format)
 			gtk_combo_box_set_active(GTK_COMBO_BOX(wgtInpType), fmtind); /*set active*/
 	}
 
@@ -279,7 +274,7 @@ int gui_attach_gtk3_videoctrls(v4l2_dev_t *device, GtkWidget *parent)
 	g_object_set_data (G_OBJECT (wgtInpType), "control_resolution", wgtResolution);
 
 	g_signal_connect (GTK_COMBO_BOX_TEXT(wgtInpType), "changed",
-		G_CALLBACK (format_changed), device);
+		G_CALLBACK (format_changed), NULL);
 
 
 	/* ----- Filter controls -----*/
@@ -314,7 +309,7 @@ int gui_attach_gtk3_videoctrls(v4l2_dev_t *device, GtkWidget *parent)
 		(get_render_fx_mask() & REND_FX_YUV_MIRROR) > 0);
 	gtk_widget_show (FiltMirrorEnable);
 	g_signal_connect (GTK_CHECK_BUTTON(FiltMirrorEnable), "toggled",
-		G_CALLBACK (render_fx_filter_changed), device);
+		G_CALLBACK (render_fx_filter_changed), NULL);
 	/* Upturn FX */
 	GtkWidget *FiltUpturnEnable = gtk_check_button_new_with_label (_(" Invert"));
 	g_object_set_data (G_OBJECT (FiltUpturnEnable), "filt_info", GINT_TO_POINTER(REND_FX_YUV_UPTURN));
@@ -326,7 +321,7 @@ int gui_attach_gtk3_videoctrls(v4l2_dev_t *device, GtkWidget *parent)
 		(get_render_fx_mask() & REND_FX_YUV_UPTURN) > 0);
 	gtk_widget_show (FiltUpturnEnable);
 	g_signal_connect (GTK_CHECK_BUTTON(FiltUpturnEnable), "toggled",
-		G_CALLBACK (render_fx_filter_changed), device);
+		G_CALLBACK (render_fx_filter_changed), NULL);
 	/* Negate FX */
 	GtkWidget *FiltNegateEnable = gtk_check_button_new_with_label (_(" Negative"));
 	g_object_set_data (G_OBJECT (FiltNegateEnable), "filt_info", GINT_TO_POINTER(REND_FX_YUV_NEGATE));
@@ -338,7 +333,7 @@ int gui_attach_gtk3_videoctrls(v4l2_dev_t *device, GtkWidget *parent)
 		(get_render_fx_mask() & REND_FX_YUV_NEGATE) >0 );
 	gtk_widget_show (FiltNegateEnable);
 	g_signal_connect (GTK_CHECK_BUTTON(FiltNegateEnable), "toggled",
-		G_CALLBACK (render_fx_filter_changed), device);
+		G_CALLBACK (render_fx_filter_changed), NULL);
 	/* Mono FX */
 	GtkWidget *FiltMonoEnable = gtk_check_button_new_with_label (_(" Mono"));
 	g_object_set_data (G_OBJECT (FiltMonoEnable), "filt_info", GINT_TO_POINTER(REND_FX_YUV_MONOCR));
@@ -350,7 +345,7 @@ int gui_attach_gtk3_videoctrls(v4l2_dev_t *device, GtkWidget *parent)
 		(get_render_fx_mask() & REND_FX_YUV_MONOCR) > 0);
 	gtk_widget_show (FiltMonoEnable);
 	g_signal_connect (GTK_CHECK_BUTTON(FiltMonoEnable), "toggled",
-		G_CALLBACK (render_fx_filter_changed), device);
+		G_CALLBACK (render_fx_filter_changed), NULL);
 
 	/* Pieces FX */
 	GtkWidget *FiltPiecesEnable = gtk_check_button_new_with_label (_(" Pieces"));
@@ -363,7 +358,7 @@ int gui_attach_gtk3_videoctrls(v4l2_dev_t *device, GtkWidget *parent)
 		(get_render_fx_mask() & REND_FX_YUV_PIECES) > 0);
 	gtk_widget_show (FiltPiecesEnable);
 	g_signal_connect (GTK_CHECK_BUTTON(FiltPiecesEnable), "toggled",
-		G_CALLBACK (render_fx_filter_changed), device);
+		G_CALLBACK (render_fx_filter_changed), NULL);
 
 	/* Particles */
 	GtkWidget *FiltParticlesEnable = gtk_check_button_new_with_label (_(" Particles"));
@@ -376,7 +371,7 @@ int gui_attach_gtk3_videoctrls(v4l2_dev_t *device, GtkWidget *parent)
 		(get_render_fx_mask() & REND_FX_YUV_PARTICLES) > 0);
 	gtk_widget_show (FiltParticlesEnable);
 	g_signal_connect (GTK_CHECK_BUTTON(FiltParticlesEnable), "toggled",
-		G_CALLBACK (render_fx_filter_changed), device);
+		G_CALLBACK (render_fx_filter_changed), NULL);
 
 
 	/*add control grid to parent container*/

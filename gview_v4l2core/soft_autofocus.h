@@ -32,6 +32,33 @@
 
 #include <inttypes.h>
 #include <sys/types.h>
+#include "v4l2_core.h"
+
+/*
+ * initiate software autofocus
+ * args:
+ *    vd - pointer to device data
+ *
+ * asserts:
+ *    vd is not null
+ *
+ * returns: error code (0 - E_OK)
+ */
+int soft_autofocus_init (v4l2_dev_t *vd);
+
+/*
+ * run the software autofocus
+ * args:
+ *    vd - pointer to device data
+ *    frame - pointer to frame buffer
+ *
+ * asserts:
+ *    vd is not null
+ *
+ * returns: 1 - running  0- focused
+ * 	(only matters for non-continue focus)
+ */
+int soft_autofocus_run(v4l2_dev_t *vd, v4l2_frame_buff_t *frame);
 
 /*
  * sharpness in focus window

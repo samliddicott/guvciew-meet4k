@@ -98,7 +98,7 @@ static int h264_support = H264_NONE; /*none by default*/
  *
  * returns: none
  */
-void v4l2core_h264_request_idr(v4l2_dev_t *vd)
+void h264_request_idr(v4l2_dev_t *vd)
 {
 	request_h264_frame_type(vd, PICTURE_TYPE_IDR_FULL);
 }
@@ -184,7 +184,7 @@ static int uvcx_video_encoder_reset(v4l2_dev_t *vd)
 
 	int err = 0;
 
-	if((err = v4l2core_query_xu_control(vd, vd->h264_unit_id, UVCX_ENCODER_RESET, UVC_SET_CUR, &encoder_reset_req)) < 0)
+	if((err = v4l2core_query_xu_control(vd->h264_unit_id, UVCX_ENCODER_RESET, UVC_SET_CUR, &encoder_reset_req)) < 0)
 		fprintf(stderr, "V4L2_CORE: (UVCX_ENCODER_RESET) error: %s\n", strerror(errno));
 
 	return err;
@@ -210,7 +210,7 @@ static int uvcx_video_probe(v4l2_dev_t *vd, uint8_t query, uvcx_video_config_pro
 	int err = 0;
 
 
-	if((err = v4l2core_query_xu_control(vd, vd->h264_unit_id, UVCX_VIDEO_CONFIG_PROBE, query, uvcx_video_config)) < 0)
+	if((err = v4l2core_query_xu_control(vd->h264_unit_id, UVCX_VIDEO_CONFIG_PROBE, query, uvcx_video_config)) < 0)
 		fprintf(stderr, "V4L2_CORE: (UVCX_VIDEO_CONFIG_PROBE) error: %s\n", strerror(errno));
 
 	return err;
@@ -234,7 +234,7 @@ static int uvcx_video_commit(v4l2_dev_t *vd, uvcx_video_config_probe_commit_t *u
 
 	int err = 0;
 
-	if((err = v4l2core_query_xu_control(vd, vd->h264_unit_id, UVCX_VIDEO_CONFIG_COMMIT, UVC_SET_CUR, uvcx_video_config)) < 0)
+	if((err = v4l2core_query_xu_control(vd->h264_unit_id, UVCX_VIDEO_CONFIG_COMMIT, UVC_SET_CUR, uvcx_video_config)) < 0)
 		fprintf(stderr, "V4L2_CORE: (UVCX_VIDEO_CONFIG_COMMIT) error: %s\n", strerror(errno));
 
 	return err;
@@ -389,7 +389,7 @@ int check_h264_support(v4l2_dev_t *vd)
 
 	uvcx_version_t uvcx_version;
 
-	if(v4l2core_query_xu_control(vd, vd->h264_unit_id, UVCX_VERSION, UVC_GET_CUR, &uvcx_version) < 0)
+	if(v4l2core_query_xu_control(vd->h264_unit_id, UVCX_VERSION, UVC_GET_CUR, &uvcx_version) < 0)
 	{
 		if(verbosity > 0)
 			printf("V4L2_CORE: device doesn't seem to support uvc H264 in unit_id %d\n", vd->h264_unit_id);
@@ -422,7 +422,7 @@ void add_h264_format(v4l2_dev_t *vd)
 	if(verbosity > 0)
 		printf("V4L2_CORE: checking muxed H264 format support\n");
 
-	if(v4l2core_get_frame_format_index(vd, V4L2_PIX_FMT_H264) >= 0)
+	if(v4l2core_get_frame_format_index(V4L2_PIX_FMT_H264) >= 0)
 	{
 		if(verbosity > 0)
 			printf("V4L2_CORE: H264 format already in list\n");
@@ -446,7 +446,7 @@ void add_h264_format(v4l2_dev_t *vd)
 		return; /*no XU support for h264*/
 	}
 
-	int mjpg_index = v4l2core_get_frame_format_index(vd, V4L2_PIX_FMT_MJPEG);
+	int mjpg_index = v4l2core_get_frame_format_index(V4L2_PIX_FMT_MJPEG);
 	if(mjpg_index < 0) /*MJPG must be available for muxed uvc H264 streams*/
 		return;
 
@@ -630,7 +630,7 @@ int request_h264_frame_type(v4l2_dev_t *vd, uint16_t type)
 
 	int err = E_OK;
 
-	if((err = v4l2core_query_xu_control(vd, vd->h264_unit_id, UVCX_PICTURE_TYPE_CONTROL, UVC_SET_CUR, &picture_type_req)) < 0)
+	if((err = v4l2core_query_xu_control(vd->h264_unit_id, UVCX_PICTURE_TYPE_CONTROL, UVC_SET_CUR, &picture_type_req)) < 0)
 	{
 		fprintf(stderr, "V4L2_CORE: (UVCX_PICTURE_TYPE_CONTROL) SET_CUR error: %s\n", strerror(errno));
 	}
@@ -648,7 +648,7 @@ int request_h264_frame_type(v4l2_dev_t *vd, uint16_t type)
  *
  * returns: 0 on success or error code on fail
  */
-int v4l2core_reset_h264_encoder(v4l2_dev_t *vd)
+int h264_reset_encoder(v4l2_dev_t *vd)
 {
 	/*asserts*/
 	assert(vd != NULL);
@@ -668,7 +668,7 @@ int v4l2core_reset_h264_encoder(v4l2_dev_t *vd)
  *
  * returns: video rate control mode (FIXME: 0xff on error)
  */
-uint8_t v4l2core_get_h264_video_rate_control_mode(v4l2_dev_t *vd, uint8_t query)
+uint8_t  h264_get_video_rate_control_mode(v4l2_dev_t *vd, uint8_t query)
 {
 	/*asserts*/
 	assert(vd != NULL);
@@ -683,7 +683,7 @@ uint8_t v4l2core_get_h264_video_rate_control_mode(v4l2_dev_t *vd, uint8_t query)
 	uvcx_rate_control_mode_t rate_control_mode_req;
 	rate_control_mode_req.wLayerID = 0;
 
-	if((v4l2core_query_xu_control(vd, vd->h264_unit_id, UVCX_RATE_CONTROL_MODE, query, &rate_control_mode_req)) < 0)
+	if((v4l2core_query_xu_control(vd->h264_unit_id, UVCX_RATE_CONTROL_MODE, query, &rate_control_mode_req)) < 0)
 	{
 		fprintf(stderr, "V4L2_CORE: (UVCX_RATE_CONTROL_MODE) query (%u) error: %s\n", query, strerror(errno));
 		return 0xff;
@@ -703,7 +703,7 @@ uint8_t v4l2core_get_h264_video_rate_control_mode(v4l2_dev_t *vd, uint8_t query)
  *
  * returns: error code ( 0 -OK)
  */
-int v4l2core_set_h264_video_rate_control_mode(v4l2_dev_t *vd, uint8_t mode)
+int h264_set_video_rate_control_mode(v4l2_dev_t *vd, uint8_t mode)
 {
 	/*asserts*/
 	assert(vd != NULL);
@@ -721,7 +721,7 @@ int v4l2core_set_h264_video_rate_control_mode(v4l2_dev_t *vd, uint8_t mode)
 
 	int err = E_OK;
 
-	if((err = v4l2core_query_xu_control(vd, vd->h264_unit_id, UVCX_RATE_CONTROL_MODE, UVC_SET_CUR, &rate_control_mode_req)) < 0)
+	if((err = v4l2core_query_xu_control(vd->h264_unit_id, UVCX_RATE_CONTROL_MODE, UVC_SET_CUR, &rate_control_mode_req)) < 0)
 	{
 		fprintf(stderr, "V4L2_CORE: (UVCX_RATE_CONTROL_MODE) SET_CUR error: %s\n", strerror(errno));
 	}
@@ -740,7 +740,7 @@ int v4l2core_set_h264_video_rate_control_mode(v4l2_dev_t *vd, uint8_t mode)
  *
  * returns: temporal scale mode (FIXME: 0xff on error)
  */
-uint8_t v4l2core_get_h264_temporal_scale_mode(v4l2_dev_t *vd, uint8_t query)
+uint8_t h264_get_temporal_scale_mode(v4l2_dev_t *vd, uint8_t query)
 {
 	/*asserts*/
 	assert(vd != NULL);
@@ -755,7 +755,7 @@ uint8_t v4l2core_get_h264_temporal_scale_mode(v4l2_dev_t *vd, uint8_t query)
 	uvcx_temporal_scale_mode_t temporal_scale_mode_req;
 	temporal_scale_mode_req.wLayerID = 0;
 
-	if(v4l2core_query_xu_control(vd, vd->h264_unit_id, UVCX_TEMPORAL_SCALE_MODE, query, &temporal_scale_mode_req) < 0)
+	if(v4l2core_query_xu_control(vd->h264_unit_id, UVCX_TEMPORAL_SCALE_MODE, query, &temporal_scale_mode_req) < 0)
 	{
 		fprintf(stderr, "V4L2_CORE: (UVCX_TEMPORAL_SCALE_MODE) query (%u) error: %s\n", query, strerror(errno));
 		return 0xff;
@@ -775,7 +775,7 @@ uint8_t v4l2core_get_h264_temporal_scale_mode(v4l2_dev_t *vd, uint8_t query)
  *
  * returns: error code ( 0 -OK)
  */
-int v4l2core_set_h264_temporal_scale_mode(v4l2_dev_t *vd, uint8_t mode)
+int h264_set_temporal_scale_mode(v4l2_dev_t *vd, uint8_t mode)
 {
 	/*asserts*/
 	assert(vd != NULL);
@@ -793,7 +793,7 @@ int v4l2core_set_h264_temporal_scale_mode(v4l2_dev_t *vd, uint8_t mode)
 
 	int err = 0;
 
-	if((err = v4l2core_query_xu_control(vd, vd->h264_unit_id, UVCX_TEMPORAL_SCALE_MODE, UVC_SET_CUR, &temporal_scale_mode_req)) < 0)
+	if((err = v4l2core_query_xu_control(vd->h264_unit_id, UVCX_TEMPORAL_SCALE_MODE, UVC_SET_CUR, &temporal_scale_mode_req)) < 0)
 	{
 		fprintf(stderr, "V4L2_CORE: (UVCX_TEMPORAL_SCALE_MODE) SET_CUR error: %s\n", strerror(errno));
 	}
@@ -812,7 +812,7 @@ int v4l2core_set_h264_temporal_scale_mode(v4l2_dev_t *vd, uint8_t mode)
  *
  * returns: temporal scale mode (FIXME: 0xff on error)
  */
-uint8_t v4l2core_get_h264_spatial_scale_mode(v4l2_dev_t *vd, uint8_t query)
+uint8_t h264_get_spatial_scale_mode(v4l2_dev_t *vd, uint8_t query)
 {
 	/*asserts*/
 	assert(vd != NULL);
@@ -827,7 +827,7 @@ uint8_t v4l2core_get_h264_spatial_scale_mode(v4l2_dev_t *vd, uint8_t query)
 	uvcx_spatial_scale_mode_t spatial_scale_mode_req;
 	spatial_scale_mode_req.wLayerID = 0;
 
-	if(v4l2core_query_xu_control(vd, vd->h264_unit_id, UVCX_SPATIAL_SCALE_MODE, query, &spatial_scale_mode_req) < 0)
+	if(v4l2core_query_xu_control(vd->h264_unit_id, UVCX_SPATIAL_SCALE_MODE, query, &spatial_scale_mode_req) < 0)
 	{
 		fprintf(stderr, "V4L2_CORE: (UVCX_SPATIAL_SCALE_MODE) query (%u) error: %s\n", query, strerror(errno));
 		return 0xff;
@@ -847,7 +847,7 @@ uint8_t v4l2core_get_h264_spatial_scale_mode(v4l2_dev_t *vd, uint8_t query)
  *
  * returns: error code ( 0 -OK)
  */
-int v4l2core_set_h264_spatial_scale_mode(v4l2_dev_t *vd, uint8_t mode)
+int h264_set_spatial_scale_mode(v4l2_dev_t *vd, uint8_t mode)
 {
 	/*asserts*/
 	assert(vd != NULL);
@@ -865,7 +865,7 @@ int v4l2core_set_h264_spatial_scale_mode(v4l2_dev_t *vd, uint8_t mode)
 
 	int err = 0;
 
-	if((err = v4l2core_query_xu_control(vd, vd->h264_unit_id, UVCX_SPATIAL_SCALE_MODE, UVC_SET_CUR, &spatial_scale_mode_req)) < 0)
+	if((err = v4l2core_query_xu_control(vd->h264_unit_id, UVCX_SPATIAL_SCALE_MODE, UVC_SET_CUR, &spatial_scale_mode_req)) < 0)
 	{
 		fprintf(stderr, "V4L2_CORE: (UVCX_SPATIAL_SCALE_MODE) SET_CUR error: %s\n", strerror(errno));
 	}
@@ -884,7 +884,7 @@ int v4l2core_set_h264_spatial_scale_mode(v4l2_dev_t *vd, uint8_t mode)
  *
  * returns: frame rate config (FIXME: 0xffffffff on error)
  */
-uint32_t v4l2core_query_h264_frame_rate_config(v4l2_dev_t *vd, uint8_t query)
+uint32_t h264_query_frame_rate_config(v4l2_dev_t *vd, uint8_t query)
 {
 	/*asserts*/
 	assert(vd != NULL);
@@ -899,7 +899,7 @@ uint32_t v4l2core_query_h264_frame_rate_config(v4l2_dev_t *vd, uint8_t query)
 	uvcx_framerate_config_t framerate_req;
 	framerate_req.wLayerID = 0;
 
-	if(v4l2core_query_xu_control(vd, vd->h264_unit_id, UVCX_FRAMERATE_CONFIG, query, &framerate_req) < 0)
+	if(v4l2core_query_xu_control(vd->h264_unit_id, UVCX_FRAMERATE_CONFIG, query, &framerate_req) < 0)
 	{
 		fprintf(stderr, "V4L2_CORE: (UVCX_FRAMERATE_CONFIG) query (%u) error: %s\n", query, strerror(errno));
 		return 0xffffffff;
@@ -918,9 +918,9 @@ uint32_t v4l2core_query_h264_frame_rate_config(v4l2_dev_t *vd, uint8_t query)
  *
  * returns: frame rate config (FIXME: 0xffffffff on error)
  */
-uint32_t v4l2core_get_h264_frame_rate_config(v4l2_dev_t *vd)
+uint32_t h264_get_frame_rate_config(v4l2_dev_t *vd)
 {
-	return v4l2core_query_h264_frame_rate_config(vd, UVC_GET_CUR);
+	return h264_query_frame_rate_config(vd, UVC_GET_CUR);
 }
 
 /*
@@ -934,7 +934,7 @@ uint32_t v4l2core_get_h264_frame_rate_config(v4l2_dev_t *vd)
  *
  * returns: error code ( 0 -OK)
  */
-int v4l2core_set_h264_frame_rate_config(v4l2_dev_t *vd, uint32_t framerate)
+int h264_set_frame_rate_config(v4l2_dev_t *vd, uint32_t framerate)
 {
 	/*asserts*/
 	assert(vd != NULL);
@@ -952,7 +952,7 @@ int v4l2core_set_h264_frame_rate_config(v4l2_dev_t *vd, uint32_t framerate)
 
 	int err = 0;
 
-	if((err = v4l2core_query_xu_control(vd, vd->h264_unit_id, UVCX_FRAMERATE_CONFIG, UVC_SET_CUR, &framerate_req)) < 0)
+	if((err = v4l2core_query_xu_control(vd->h264_unit_id, UVCX_FRAMERATE_CONFIG, UVC_SET_CUR, &framerate_req)) < 0)
 	{
 		fprintf(stderr, "V4L2_CORE: (UVCX_FRAMERATE_CONFIG) SET_CUR error: %s\n", strerror(errno));
 	}
@@ -973,7 +973,7 @@ int v4l2core_set_h264_frame_rate_config(v4l2_dev_t *vd, uint32_t framerate)
  *
  * returns: error code ( 0 -OK)
  */
-int v4l2core_probe_h264_config_probe_req(
+int h264_probe_config_probe_req(
 			v4l2_dev_t *vd,
 			uint8_t query,
 			uvcx_video_config_probe_commit_t *config_probe_req)

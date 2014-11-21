@@ -25,8 +25,7 @@
 #define FRAME_DECODER_H
 
 #include "gviewv4l2core.h"
-
-extern int verbosity;
+#include "v4l2_core.h"
 
 /*
  * Alloc image buffers for decoding video stream
@@ -39,6 +38,18 @@ extern int verbosity;
  * returns: error code  (0- E_OK)
  */
 int alloc_v4l2_frames(v4l2_dev_t *vd);
+
+/*
+ * decode video stream ( from raw_frame to frame buffer (yuyv format))
+ * args:
+ *    vd - pointer to device data
+ *
+ * asserts:
+ *    vd is not null
+ *
+ * returns: error code (E_OK)
+ */
+int decode_v4l2_frame(v4l2_dev_t *vd, v4l2_frame_buff_t *frame);
 
 /*
  * free image buffers for decoding video stream

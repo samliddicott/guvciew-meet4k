@@ -22,6 +22,7 @@
 #define V4L2_CONTROLS_H
 
 #include "gviewv4l2core.h"
+#include "v4l2_core.h"
 
 /*
  * enumerate device (read/write) controls
@@ -37,6 +38,49 @@
  * returns: error code
  */
 int enumerate_v4l2_control(v4l2_dev_t *vd);
+
+/*
+ * return the control associated to id from device list
+ * args:
+ *   vd - pointer to video device data
+ *   id - control id
+ *
+ * asserts:
+ *   vd is not null
+ *   vd->list_device_controls is not null
+ *
+ * returns: pointer to v4l2_control if succeded or null otherwise
+ */
+v4l2_ctrl_t *get_control_by_id(v4l2_dev_t *vd, int id);
+
+/*
+ * updates the value for control id from the device
+ * also updates control flags
+ * args:
+ *   vd - pointer to video device data
+ *   id - control id
+ *
+ * asserts:
+ *   vd is not null
+ *   vd->fd is valid
+ *
+ * returns: ioctl result
+ */
+int get_control_value_by_id (v4l2_dev_t *vd, int id);
+
+/*
+ * sets the value of control id in device
+ * args:
+ *   vd - pointer to video device data
+ *   id - control id
+ *
+ * asserts:
+ *   vd is not null
+ *   vd->fd is valid
+ *
+ * returns: ioctl result
+ */
+int set_control_value_by_id(v4l2_dev_t *vd, int id);
 
 /*
  * goes trough the control list and updates/retrieves current values
@@ -63,6 +107,19 @@ void get_v4l2_control_values (v4l2_dev_t *vd);
  * returns: void
  */
 void set_v4l2_control_values (v4l2_dev_t *vd);
+
+/*
+ * goes trough the control list and sets values in device to default
+ * args:
+ *   vd - pointer to video device data
+ *
+ * asserts:
+ *   vd is not null
+ *   vd->list_device_controls is not null
+ *
+ * returns: void
+ */
+void set_control_defaults(v4l2_dev_t *vd);
 
 /*
  * Disables special auto-controls with higher IDs than

@@ -48,19 +48,16 @@ extern int is_control_panel;
 /*
  * attach top menu widget
  * args:
- *   device - pointer to device data we want to attach the gui for
  *   parent - menu parent widget
  *
  * asserts:
- *   device is not null
  *   parent is not null
  *
  * returns: error code (0 -OK)
  */
-int gui_attach_gtk3_menu(v4l2_dev_t *device, GtkWidget *parent)
+int gui_attach_gtk3_menu(GtkWidget *parent)
 {
 	/*assertions*/
-	assert(device != NULL);
 	assert(parent != NULL);
 
 	GtkWidget *menubar = gtk_menu_bar_new();
@@ -111,12 +108,12 @@ int gui_attach_gtk3_menu(v4l2_dev_t *device, GtkWidget *parent)
 	/* profile events*/
 	g_object_set_data (G_OBJECT (controls_save), "profile_dialog", GINT_TO_POINTER(1));
 	g_signal_connect (GTK_MENU_ITEM(controls_save), "activate",
-		G_CALLBACK (controls_profile_clicked), device);
+		G_CALLBACK (controls_profile_clicked), NULL);
 	g_object_set_data (G_OBJECT (controls_load), "profile_dialog", GINT_TO_POINTER(0));
 	g_signal_connect (GTK_MENU_ITEM(controls_load), "activate",
-		G_CALLBACK (controls_profile_clicked), device);
+		G_CALLBACK (controls_profile_clicked), NULL);
 	g_signal_connect (GTK_MENU_ITEM(controls_default), "activate",
-		G_CALLBACK (control_defaults_clicked), device);
+		G_CALLBACK (control_defaults_clicked), NULL);
 
 	gtk_menu_item_set_submenu(GTK_MENU_ITEM(controls_top), controls_menu);
 	gtk_menu_shell_append(GTK_MENU_SHELL(controls_menu), controls_load);
@@ -140,12 +137,12 @@ int gui_attach_gtk3_menu(v4l2_dev_t *device, GtkWidget *parent)
 		gtk_widget_show (photo_sufix);
 
 		g_signal_connect (GTK_MENU_ITEM(photo_file), "activate",
-			G_CALLBACK (photo_file_clicked), device);
+			G_CALLBACK (photo_file_clicked), NULL);
 
 		/** add callback to Append sufix */
 		gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (photo_sufix), (get_photo_sufix_flag() > 0));
 		g_signal_connect (GTK_CHECK_MENU_ITEM(photo_sufix), "toggled",
-			G_CALLBACK (photo_sufix_toggled), device);
+			G_CALLBACK (photo_sufix_toggled), NULL);
 
 		gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu_photo_top), photo_menu);
 		gtk_menu_shell_append(GTK_MENU_SHELL(photo_menu), photo_file);
@@ -164,12 +161,12 @@ int gui_attach_gtk3_menu(v4l2_dev_t *device, GtkWidget *parent)
 		gtk_widget_show (video_sufix);
 
 		g_signal_connect (GTK_MENU_ITEM(video_file), "activate",
-			G_CALLBACK (video_file_clicked), device);
+			G_CALLBACK (video_file_clicked), NULL);
 
 		/** add callback to Append sufix */
 		gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (video_sufix), get_video_sufix_flag() > 0);
 		g_signal_connect (GTK_CHECK_MENU_ITEM(video_sufix), "toggled",
-			G_CALLBACK (video_sufix_toggled), device);
+			G_CALLBACK (video_sufix_toggled), NULL);
 
 		GtkWidget *video_codec_menu = gtk_menu_new();
 		GtkWidget *video_codec_top = gtk_menu_item_new_with_label(_("Video Codec"));

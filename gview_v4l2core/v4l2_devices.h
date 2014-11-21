@@ -23,6 +23,7 @@
 #define V4L2_DEVICES_H
 
 #include "gviewv4l2core.h"
+#include "v4l2_core.h"
 
 /*
  * enumerate available v4l2 devices
@@ -38,5 +39,19 @@
  * returns: error code
  */
 int enum_v4l2_devices();
+
+/*
+ * check for new devices
+ * args:
+ *   vd - pointer to device data (can be null)
+ *
+ * asserts:
+ *   my_device_list.udev is not null
+ *   my_device_list.udev_fd is valid (> 0)
+ *   my_device_list.udev_mon is not null
+ *
+ * returns: true(1) if device list was updated, false(0) otherwise
+ */
+int check_device_list_events(v4l2_dev_t *vd);
 
 #endif

@@ -25,6 +25,23 @@
 #define SAVE_IMAGE_H
 
 #include "gviewv4l2core.h"
+#include "v4l2_core.h"
+
+/*
+ * save the current frame to file
+ * args:
+ *    vd - pointer to device data
+ *    frame - pointer to frame buffer
+ *    filename - output file name
+ *    format - image type
+ *           (IMG_FMT_RAW, IMG_FMT_JPG, IMG_FMT_PNG, IMG_FMT_BMP)
+ *
+ * asserts:
+ *    vd is not null
+ *
+ * returns: error code
+ */
+int save_frame_image(v4l2_dev_t *vd, v4l2_frame_buff_t *frame, const char *filename, int format);
 
 /*
  * save frame data to a jpeg file

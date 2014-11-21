@@ -23,6 +23,7 @@
 #define UVC_H264_H
 
 #include "gviewv4l2core.h"
+#include "v4l2_core.h"
 
 /*H264 support type*/
 #define H264_NONE    (0)
@@ -341,6 +342,164 @@ void set_h264_muxed_format(v4l2_dev_t *vd);
  * returns: error code
  */
 int request_h264_frame_type(v4l2_dev_t *vd, uint16_t type);
+
+/*
+ * request a IDR frame from the H264 encoder
+ * args:
+ *   vd - pointer to video device data
+ *
+ * asserts:
+ *   vd is not null
+ *
+ * returns: none
+ */
+void h264_request_idr(v4l2_dev_t *vd);
+
+/*
+ * resets the h264 encoder
+ * args:
+ *   vd - pointer to video device data
+ *
+ * asserts:
+ *   vd is not null
+ *
+ * returns: 0 on success or error code on fail
+ */
+int h264_reset_encoder(v4l2_dev_t *vd);
+
+/*
+ * get the video rate control mode
+ * args:
+ *   vd - pointer to video device data
+ *   query - query type
+ *
+ * asserts:
+ *   vd is not null
+ *
+ * returns: video rate control mode (FIXME: 0xff on error)
+ */
+uint8_t  h264_get_video_rate_control_mode(v4l2_dev_t *vd, uint8_t query);
+
+/*
+ * set the video rate control mode
+ * args:
+ *   vd - pointer to video device data
+ *   mode - rate mode
+ *
+ * asserts:
+ *   vd is not null
+ *
+ * returns: error code ( 0 -OK)
+ */
+int h264_set_video_rate_control_mode(v4l2_dev_t *vd, uint8_t mode);
+
+/*
+ * get the temporal scale mode
+ * args:
+ *   vd - pointer to video device data
+ *   query - query type
+ *
+ * asserts:
+ *   vd is not null
+ *
+ * returns: temporal scale mode (FIXME: 0xff on error)
+ */
+uint8_t h264_get_temporal_scale_mode(v4l2_dev_t *vd, uint8_t query);
+
+/*
+ * set the temporal scale mode
+ * args:
+ *   vd - pointer to video device data
+ *   mode - temporal scale mode
+ *
+ * asserts:
+ *   vd is not null
+ *
+ * returns: error code ( 0 -OK)
+ */
+int h264_set_temporal_scale_mode(v4l2_dev_t *vd, uint8_t mode);
+
+/*
+ * get the spatial scale mode
+ * args:
+ *   vd - pointer to video device data
+ *   query - query type
+ *
+ * asserts:
+ *   vd is not null
+ *
+ * returns: temporal scale mode (FIXME: 0xff on error)
+ */
+uint8_t h264_get_spatial_scale_mode(v4l2_dev_t *vd, uint8_t query);
+
+/*
+ * set the spatial scale mode
+ * args:
+ *   vd - pointer to video device data
+ *   mode - spatial scale mode
+ *
+ * asserts:
+ *   vd is not null
+ *
+ * returns: error code ( 0 -OK)
+ */
+int h264_set_spatial_scale_mode(v4l2_dev_t *vd, uint8_t mode);
+
+/*
+ * query the frame rate config
+ * args:
+ *   vd - pointer to video device data
+ *   query - query type
+ *
+ * asserts:
+ *   vd is not null
+ *
+ * returns: frame rate config (FIXME: 0xffffffff on error)
+ */
+uint32_t h264_query_frame_rate_config(v4l2_dev_t *vd, uint8_t query);
+
+/*
+ * get the frame rate config
+ * args:
+ *   vd - pointer to video device data
+ *
+ * asserts:
+ *   vd is not null
+ *
+ * returns: frame rate config (FIXME: 0xffffffff on error)
+ */
+uint32_t h264_get_frame_rate_config(v4l2_dev_t *vd);
+
+/*
+ * set the frame rate config
+ * args:
+ *   vd - pointer to video device data
+ *   framerate - framerate
+ *
+ * asserts:
+ *   vd is not null
+ *
+ * returns: error code ( 0 -OK)
+ */
+int h264_set_frame_rate_config(v4l2_dev_t *vd, uint32_t framerate);
+
+/*
+ * updates the h264_probe_commit_req field
+ * args:
+ *   vd - pointer to video device data
+ *   query - (UVC_GET_CUR; UVC_GET_MAX; UVC_GET_MIN)
+ *   config_probe_cur - pointer to uvcx_video_config_probe_commit_t:
+ *     if null vd->h264_config_probe_req will be used
+ *
+ * asserts:
+ *   vd is not null
+ *
+ * returns: error code ( 0 -OK)
+ */
+int h264_probe_config_probe_req(
+			v4l2_dev_t *vd,
+			uint8_t query,
+			uvcx_video_config_probe_commit_t *config_probe_req);
 
 /*
  * init h264 decoder context

@@ -19,70 +19,36 @@
 #                                                                               #
 ********************************************************************************/
 
-#ifndef V4L2_XU_CTRLS_H
-#define V4L2_XU_CTRLS_H
+#ifndef CONTROL_PROFILE_H
+#define CONTROL_PROFILE_H
 
-#include "gviewv4l2core.h"
 #include "v4l2_core.h"
 
 /*
- * tries to map available xu controls for supported devices
+ * save the device control values into a profile file
  * args:
  *   vd - pointer to video device data
+ *   filename - profile filename
  *
  * asserts:
  *   vd is not null
- *   vd->fd is valid ( > 0 )
  *
- * returns: 0 if map succeded or errno otherwise
+ * returns: error code (0 -E_OK)
  */
-int init_xu_ctrls(v4l2_dev_t *vd);
+int save_control_profile(v4l2_dev_t *vd, const char *filename);
 
 /*
- * get lenght of xu control defined by unit id and selector
+ * load the device control values from a profile file
  * args:
  *   vd - pointer to video device data
- *   unit - unit id of xu control
- *   selector - selector for control
+ *   filename - profile filename
  *
  * asserts:
  *   vd is not null
- *   vd->fd is valid ( > 0 )
  *
- * returns: length of xu control
+ * returns: error code (0 -E_OK)
  */
-uint16_t get_length_xu_control(v4l2_dev_t *vd, uint8_t unit, uint8_t selector);
+int load_control_profile(v4l2_dev_t *vd, const char *filename);
 
-/*
- * get uvc info for xu control defined by unit id and selector
- * args:
- *   vd - pointer to video device data
- *   unit - unit id of xu control
- *   selector - selector for control
- *
- * asserts:
- *   vd is not null
- *   vd->fd is valid ( > 0 )
- *
- * returns: info of xu control
- */
-uint8_t get_info_xu_control(v4l2_dev_t *vd, uint8_t unit, uint8_t selector);
-
-/*
- * runs a query on xu control defined by unit id and selector
- * args:
- *   vd - pointer to video device data
- *   unit - unit id of xu control
- *   selector - selector for control
- *   query - query type
- *   data - pointer to query data
- *
- * asserts:
- *   vd is not null
- *   vd->fd is valid ( > 0 )
- *
- * returns: 0 if query succeded or errno otherwise
- */
-int query_xu_control(v4l2_dev_t *vd, uint8_t unit, uint8_t selector, uint8_t query, void *data);
 
 #endif

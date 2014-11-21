@@ -289,7 +289,7 @@ void reset_video_timer()
 /*
  * stops the video timed capture
  * args:
- *    data - pointer to user data (device)
+ *    data - pointer to user data
  *
  * asserts:
  *    none
@@ -423,29 +423,24 @@ int key_V_callback(void *data)
  *    data - pointer to user data
  *
  * asserts:
- *    data (device) is not null
+ *    none
  *
  * returns: error code
  */
 int key_DOWN_callback(void *data)
 {
-	v4l2_dev_t *device = (v4l2_dev_t *) data;
-
-	/*assertions*/
-	assert(device != NULL);
-
-	if(device->has_pantilt_control_id)
+	if(v4l2core_has_pantilt_id())
     {
 		int id = V4L2_CID_TILT_RELATIVE;
-		int value = device->tilt_step;
+		int value = v4l2core_get_tilt_step();
 
-		v4l2_ctrl_t *control = v4l2core_get_control_by_id(device, id);
+		v4l2_ctrl_t *control = v4l2core_get_control_by_id(id);
 
 		if(control)
 		{
 			control->value =  value;
 
-			if(v4l2core_set_control_value_by_id(device, id))
+			if(v4l2core_set_control_value_by_id(id))
 				fprintf(stderr, "GUVCVIEW: error setting pan/tilt value\n");
 
 			return 0;
@@ -461,29 +456,24 @@ int key_DOWN_callback(void *data)
  *    data - pointer to user data
  *
  * asserts:
- *    data (device) is not null
+ *    none
  *
  * returns: error code
  */
 int key_UP_callback(void *data)
 {
-	v4l2_dev_t *device = (v4l2_dev_t *) data;
-
-	/*assertions*/
-	assert(device != NULL);
-
-	if(device->has_pantilt_control_id)
+	if(v4l2core_has_pantilt_id())
     {
 		int id = V4L2_CID_TILT_RELATIVE;
-		int value = - device->tilt_step;
+		int value = - v4l2core_get_tilt_step();
 
-		v4l2_ctrl_t *control = v4l2core_get_control_by_id(device, id);
+		v4l2_ctrl_t *control = v4l2core_get_control_by_id(id);
 
 		if(control)
 		{
 			control->value =  value;
 
-			if(v4l2core_set_control_value_by_id(device, id))
+			if(v4l2core_set_control_value_by_id(id))
 				fprintf(stderr, "GUVCVIEW: error setting pan/tilt value\n");
 
 			return 0;
@@ -499,29 +489,24 @@ int key_UP_callback(void *data)
  *    data - pointer to user data
  *
  * asserts:
- *    data (device) is not null
+ *    none
  *
  * returns: error code
  */
 int key_LEFT_callback(void *data)
 {
-	v4l2_dev_t *device = (v4l2_dev_t *) data;
-
-	/*assertions*/
-	assert(device != NULL);
-
-	if(device->has_pantilt_control_id)
+	if(v4l2core_has_pantilt_id())
     {
 		int id = V4L2_CID_PAN_RELATIVE;
-		int value = device->pan_step;
+		int value = v4l2core_get_pan_step();
 
-		v4l2_ctrl_t *control = v4l2core_get_control_by_id(device, id);
+		v4l2_ctrl_t *control = v4l2core_get_control_by_id(id);
 
 		if(control)
 		{
 			control->value =  value;
 
-			if(v4l2core_set_control_value_by_id(device, id))
+			if(v4l2core_set_control_value_by_id(id))
 				fprintf(stderr, "GUVCVIEW: error setting pan/tilt value\n");
 
 			return 0;
@@ -537,29 +522,24 @@ int key_LEFT_callback(void *data)
  *    data - pointer to user data
  *
  * asserts:
- *    data (device) is not null
+ *    none
  *
  * returns: error code
  */
 int key_RIGHT_callback(void *data)
 {
-	v4l2_dev_t *device = (v4l2_dev_t *) data;
-
-	/*assertions*/
-	assert(device != NULL);
-
-	if(device->has_pantilt_control_id)
+	if(v4l2core_has_pantilt_id())
     {
 		int id = V4L2_CID_PAN_RELATIVE;
-		int value = - device->pan_step;
+		int value = - v4l2core_get_pan_step();
 
-		v4l2_ctrl_t *control = v4l2core_get_control_by_id(device, id);
+		v4l2_ctrl_t *control = v4l2core_get_control_by_id(id);
 
 		if(control)
 		{
 			control->value =  value;
 
-			if(v4l2core_set_control_value_by_id(device, id))
+			if(v4l2core_set_control_value_by_id(id))
 				fprintf(stderr, "GUVCVIEW: error setting pan/tilt value\n");
 
 			return 0;
@@ -739,8 +719,6 @@ static void *audio_processing_loop(void *data)
  */
 static void *encoder_loop(void *data)
 {
-	v4l2_dev_t *device = (v4l2_dev_t *) data;
-
 	my_encoder_status = 1;
 	
 	if(debug_level > 1)
@@ -767,56 +745,56 @@ static void *encoder_loop(void *data)
 
 	/*create the encoder context*/
 	encoder_context_t *encoder_ctx = encoder_get_context(
-		device->requested_fmt,
+		v4l2core_get_requested_frame_format(),
 		get_video_codec_ind(),
 		get_audio_codec_ind(),
 		get_video_muxer(),
-		device->format.fmt.pix.width,
-		device->format.fmt.pix.height,
-		device->fps_num,
-		device->fps_denom,
+		v4l2core_get_frame_width(),
+		v4l2core_get_frame_height(),
+		v4l2core_get_fps_num(),
+		v4l2core_get_fps_denom(),
 		channels,
 		samprate);
 
 	/*store external SPS and PPS data if needed*/
 	if(encoder_ctx->video_codec_ind == 0 && /*raw - direct input*/
-		device->requested_fmt == V4L2_PIX_FMT_H264)
+		v4l2core_get_requested_frame_format() == V4L2_PIX_FMT_H264)
 	{
 		/*request a IDR (key) frame*/
-		v4l2core_h264_request_idr(device);
+		v4l2core_h264_request_idr();
 
 		if(debug_level > 0)
 			printf("GUVCVIEW: storing external pps and sps data in encoder context\n");
-		encoder_ctx->h264_pps_size = device->h264_PPS_size;
+		encoder_ctx->h264_pps_size = v4l2core_get_h264_pps_size();
 		if(encoder_ctx->h264_pps_size > 0)
 		{
-			encoder_ctx->h264_pps = calloc(device->h264_PPS_size, sizeof(uint8_t));
+			encoder_ctx->h264_pps = calloc(encoder_ctx->h264_pps_size, sizeof(uint8_t));
 			if(encoder_ctx->h264_pps == NULL)
 			{
 				fprintf(stderr,"GUVCVIEW: FATAL memory allocation failure (encoder_loop): %s\n", strerror(errno));
 				exit(-1);
 			}
-			memcpy(encoder_ctx->h264_pps, device->h264_PPS, device->h264_PPS_size);
+			memcpy(encoder_ctx->h264_pps, v4l2core_get_h264_pps(), encoder_ctx->h264_pps_size);
 		}
 
-		encoder_ctx->h264_sps_size = device->h264_SPS_size;
+		encoder_ctx->h264_sps_size = v4l2core_get_h264_sps_size();
 		if(encoder_ctx->h264_sps_size > 0)
 		{
-			encoder_ctx->h264_sps = calloc(device->h264_SPS_size, sizeof(uint8_t));
+			encoder_ctx->h264_sps = calloc(encoder_ctx->h264_sps_size, sizeof(uint8_t));
 			if(encoder_ctx->h264_sps == NULL)
 			{
 				fprintf(stderr,"GUVCVIEW: FATAL memory allocation failure (encoder_loop): %s\n", strerror(errno));
 				exit(-1);
 			}
-			memcpy(encoder_ctx->h264_sps, device->h264_SPS, device->h264_SPS_size);
+			memcpy(encoder_ctx->h264_sps, v4l2core_get_h264_sps(), encoder_ctx->h264_sps_size);
 		}
 	}
 
 	uint32_t current_framerate = 0;
-	if(device->requested_fmt == V4L2_PIX_FMT_H264)
+	if(v4l2core_get_requested_frame_format() == V4L2_PIX_FMT_H264)
 	{
 		/* store framerate since it may change due to scheduler*/
-		current_framerate = v4l2core_get_h264_frame_rate_config(device);
+		current_framerate = v4l2core_get_h264_frame_rate_config();
 	}
 
 	char *video_filename = NULL;
@@ -909,10 +887,10 @@ static void *encoder_loop(void *data)
 	/*close the encoder context (clean up)*/
 	encoder_close(encoder_ctx);
 
-	if(device->requested_fmt == V4L2_PIX_FMT_H264)
+	if(v4l2core_get_requested_frame_format() == V4L2_PIX_FMT_H264)
 	{
 		/* restore framerate */
-		v4l2core_set_h264_frame_rate_config(device, current_framerate);
+		v4l2core_set_h264_frame_rate_config(current_framerate);
 	}
 
 	/*clean string*/
@@ -928,25 +906,21 @@ static void *encoder_loop(void *data)
 /*
  * capture loop (should run in a separate thread)
  * args:
- *    data - pointer to user data (device data + options data)
+ *    data - pointer to user data (options data)
  *
  * asserts:
- *    device data is not null
+ *    none
  *
  * returns: pointer to return code
  */
 void *capture_loop(void *data)
 {
 	capture_loop_data_t *cl_data = (capture_loop_data_t *) data;
-	v4l2_dev_t *device = (v4l2_dev_t *) cl_data->device;
 	options_t *my_options = (options_t *) cl_data->options;
 	//config_t *my_config = (config_t *) cl_data->config;
 
 	uint64_t my_last_photo_time = 0; /*timer count*/
 	int my_photo_npics = 0;/*no npics*/
-
-	/*asserts*/
-	assert(device != NULL);
 
 	/*reset quit flag*/
 	quit = 0;
@@ -966,17 +940,17 @@ void *capture_loop(void *data)
 	
 	render_set_verbosity(debug_level);
 	
-	if(render_init(render, device->format.fmt.pix.width, device->format.fmt.pix.height, render_flags) < 0)
+	if(render_init(render, v4l2core_get_frame_width(), v4l2core_get_frame_height(), render_flags) < 0)
 		render = RENDER_NONE;
 	else
 	{
 		render_set_event_callback(EV_QUIT, &quit_callback, NULL);
-		render_set_event_callback(EV_KEY_V, &key_V_callback, device);
+		render_set_event_callback(EV_KEY_V, &key_V_callback, NULL);
 		render_set_event_callback(EV_KEY_I, &key_I_callback, NULL);
-		render_set_event_callback(EV_KEY_UP, &key_UP_callback, device);
-		render_set_event_callback(EV_KEY_DOWN, &key_DOWN_callback, device);
-		render_set_event_callback(EV_KEY_LEFT, &key_LEFT_callback, device);
-		render_set_event_callback(EV_KEY_RIGHT, &key_RIGHT_callback, device);
+		render_set_event_callback(EV_KEY_UP, &key_UP_callback, NULL);
+		render_set_event_callback(EV_KEY_DOWN, &key_DOWN_callback, NULL);
+		render_set_event_callback(EV_KEY_LEFT, &key_LEFT_callback, NULL);
+		render_set_event_callback(EV_KEY_RIGHT, &key_RIGHT_callback, NULL);
 	}
 
 	/*add a video capture timer*/
@@ -986,7 +960,7 @@ void *capture_loop(void *data)
 		my_video_begin_time = v4l2core_time_get_timestamp(); /*timer count*/
 		/*if are not saving video start it*/
 		if(!get_encoder_status())
-			start_encoder_thread(device);
+			start_encoder_thread();
 	}
 
 	/*add a photo capture timer*/
@@ -999,7 +973,7 @@ void *capture_loop(void *data)
 	if(my_options->photo_npics > 0)
 		my_photo_npics = my_options->photo_npics;
 
-	v4l2core_start_stream(device);
+	v4l2core_start_stream();
 	
 	v4l2_frame_buff_t *frame = NULL; //pointer to frame buffer
 
@@ -1008,63 +982,63 @@ void *capture_loop(void *data)
 		if(restart)
 		{
 			restart = 0; /*reset*/
-			v4l2core_stop_stream(device);
+			v4l2core_stop_stream();
 
 			/*close render*/
 			render_close();
 
-			v4l2core_clean_buffers(device);
+			v4l2core_clean_buffers();
 
 			/*try new format (values prepared by the request callback)*/
-			ret = v4l2core_update_current_format(device);
+			ret = v4l2core_update_current_format();
 			/*try to set the video stream format on the device*/
 			if(ret != E_OK)
 			{
 				fprintf(stderr, "GUCVIEW: could not set the defined stream format\n");
 				fprintf(stderr, "GUCVIEW: trying first listed stream format\n");
 
-				v4l2core_prepare_valid_format(device);
-				v4l2core_prepare_valid_resolution(device);
-				ret = v4l2core_update_current_format(device);
+				v4l2core_prepare_valid_format();
+				v4l2core_prepare_valid_resolution();
+				ret = v4l2core_update_current_format();
 
 				if(ret != E_OK)
 				{
 					fprintf(stderr, "GUCVIEW: also could not set the first listed stream format\n");
 
-					gui_error(device, "Guvcview error", "could not start a video stream in the device", 1);
+					gui_error("Guvcview error", "could not start a video stream in the device", 1);
 
 					return ((void *) -1);
 				}
 			}
 
 			/*restart the render with new format*/
-			if(render_init(render, device->format.fmt.pix.width, device->format.fmt.pix.height, render_flags) < 0)
+			if(render_init(render, v4l2core_get_frame_width(), v4l2core_get_frame_height(), render_flags) < 0)
 				render = RENDER_NONE;
 			else
 			{
 				render_set_event_callback(EV_QUIT, &quit_callback, NULL);
-				render_set_event_callback(EV_KEY_V, &key_V_callback, device);
+				render_set_event_callback(EV_KEY_V, &key_V_callback, NULL);
 				render_set_event_callback(EV_KEY_I, &key_I_callback, NULL);
-				render_set_event_callback(EV_KEY_UP, &key_UP_callback, device);
-				render_set_event_callback(EV_KEY_DOWN, &key_DOWN_callback, device);
-				render_set_event_callback(EV_KEY_LEFT, &key_LEFT_callback, device);
-				render_set_event_callback(EV_KEY_RIGHT, &key_RIGHT_callback, device);
+				render_set_event_callback(EV_KEY_UP, &key_UP_callback, NULL);
+				render_set_event_callback(EV_KEY_DOWN, &key_DOWN_callback, NULL);
+				render_set_event_callback(EV_KEY_LEFT, &key_LEFT_callback, NULL);
+				render_set_event_callback(EV_KEY_RIGHT, &key_RIGHT_callback, NULL);
 			}
 
 
 			if(debug_level > 0)
-				printf("GUVCVIEW: reset to pixelformat=%x width=%i and height=%i\n", device->requested_fmt, device->format.fmt.pix.width, device->format.fmt.pix.height);
+				printf("GUVCVIEW: reset to pixelformat=%x width=%i and height=%i\n", v4l2core_get_requested_frame_format(), v4l2core_get_frame_width(), v4l2core_get_frame_height());
 
-			v4l2core_start_stream(device);
+			v4l2core_start_stream();
 
 		}
 
-		frame = v4l2core_get_decoded_frame(device);
+		frame = v4l2core_get_decoded_frame();
 		if( frame != NULL)
 		{
 			/*run software autofocus (must be called after frame was grabbed and decoded)*/
 			if(do_soft_autofocus || do_soft_focus)
-				do_soft_focus = v4l2core_soft_autofocus_run(device, frame);
+				do_soft_focus = v4l2core_soft_autofocus_run(frame);
 
 			/*render the decoded frame*/
 			snprintf(render_caption, 29, "Guvcview  (%2.2f fps)", v4l2core_get_realfps());
@@ -1091,7 +1065,7 @@ void *capture_loop(void *data)
 			if(check_video_timer())
 			{
 				if((frame->timestamp - my_video_begin_time) > my_video_timer)
-					stop_video_timer(device);
+					stop_video_timer();
 			}
 
 			if(save_image)
@@ -1120,7 +1094,7 @@ void *capture_loop(void *data)
 				snprintf(status_message, 79, _("saving image to %s"), img_filename);
 				gui_status_message(status_message);
 
-				v4l2core_save_image(device, frame, img_filename, get_photo_format());
+				v4l2core_save_image(frame, img_filename, get_photo_format());
 
 				free(path);
 				free(name);
@@ -1132,9 +1106,9 @@ void *capture_loop(void *data)
 			if(video_capture_get_save_video())
 			{
 #ifdef USE_PLANAR_YUV
-				int size = (device->format.fmt.pix.width * device->format.fmt.pix.height * 3) / 2;
+				int size = (v4l2core_get_frame_width() * v4l2core_get_frame_height() * 3) / 2;
 #else
-				int size = device->format.fmt.pix.width * device->format.fmt.pix.height * 2;
+				int size = v4l2core_get_frame_width() * v4l2core_get_frame_height() * 2;
 #endif
 				uint8_t *input_frame = frame->yuv_frame;
 				/*
@@ -1143,7 +1117,7 @@ void *capture_loop(void *data)
 				 */
 				if(get_video_codec_ind() == 0) //raw frame
 				{
-					switch(device->requested_fmt)
+					switch(v4l2core_get_requested_frame_format())
 					{
 						case  V4L2_PIX_FMT_H264:
 							input_frame = frame->h264_frame;
@@ -1166,12 +1140,12 @@ void *capture_loop(void *data)
 				int time_sched = encoder_buff_scheduler(ENCODER_SCHED_EXP, 0.5, 250);
 				if(time_sched > 0)
 				{
-					switch(device->requested_fmt)
+					switch(v4l2core_get_requested_frame_format())
 					{
 						case  V4L2_PIX_FMT_H264:
 						{
 							uint32_t framerate = time_sched; /*nanosec*/
-							v4l2core_set_h264_frame_rate_config(device, framerate);
+							v4l2core_set_h264_frame_rate_config(framerate);
 							break;
 						}
 						default:
@@ -1186,11 +1160,11 @@ void *capture_loop(void *data)
 				}
 			}
 			/*we are done with the frame buffer release it*/
-			v4l2core_release_frame(device, frame);
+			v4l2core_release_frame(frame);
 		}
 	}
 
-	v4l2core_stop_stream(device);
+	v4l2core_stop_stream();
 
 	render_close();
 

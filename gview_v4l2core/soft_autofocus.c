@@ -146,7 +146,7 @@ void v4l2core_soft_autofocus_set_sort(int method)
  *
  * returns: error code (0 - E_OK)
  */
-int v4l2core_soft_autofocus_init (v4l2_dev_t *vd)
+int soft_autofocus_init (v4l2_dev_t *vd)
 {
 	/*asserts*/
 	assert(vd != NULL);
@@ -770,7 +770,7 @@ int soft_autofocus_get_focus_value()
  * returns: 1 - running  0- focused
  * 	(only matters for non-continue focus)
  */
-int v4l2core_soft_autofocus_run(v4l2_dev_t *vd, v4l2_frame_buff_t *frame)
+int soft_autofocus_run(v4l2_dev_t *vd, v4l2_frame_buff_t *frame)
 {
 	/*asserts*/
 	assert(vd != NULL);

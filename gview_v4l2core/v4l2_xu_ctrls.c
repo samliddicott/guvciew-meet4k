@@ -242,7 +242,7 @@ int init_xu_ctrls(v4l2_dev_t *vd)
  *
  * returns: length of xu control
  */
-uint16_t v4l2core_get_length_xu_control(v4l2_dev_t *vd, uint8_t unit, uint8_t selector)
+uint16_t get_length_xu_control(v4l2_dev_t *vd, uint8_t unit, uint8_t selector)
 {
 	/*assertions*/
 	assert(vd != NULL);
@@ -281,7 +281,7 @@ uint16_t v4l2core_get_length_xu_control(v4l2_dev_t *vd, uint8_t unit, uint8_t se
  *
  * returns: info of xu control
  */
-uint8_t v4l2core_get_info_xu_control(v4l2_dev_t *vd, uint8_t unit, uint8_t selector)
+uint8_t get_info_xu_control(v4l2_dev_t *vd, uint8_t unit, uint8_t selector)
 {
 	/*assertions*/
 	assert(vd != NULL);
@@ -322,10 +322,10 @@ uint8_t v4l2core_get_info_xu_control(v4l2_dev_t *vd, uint8_t unit, uint8_t selec
  *
  * returns: 0 if query succeded or errno otherwise
  */
-int v4l2core_query_xu_control(v4l2_dev_t *vd, uint8_t unit, uint8_t selector, uint8_t query, void *data)
+int query_xu_control(v4l2_dev_t *vd, uint8_t unit, uint8_t selector, uint8_t query, void *data)
 {
 	int err = 0;
-	uint16_t len = v4l2core_get_length_xu_control(vd, unit, selector);
+	uint16_t len = v4l2core_get_length_xu_control(unit, selector);
 
 	struct uvc_xu_control_query xu_ctrl_query =
 	{

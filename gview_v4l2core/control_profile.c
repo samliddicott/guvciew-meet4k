@@ -31,6 +31,7 @@
 
 #include "gviewv4l2core.h"
 #include "v4l2_controls.h"
+#include "control_profile.h"
 #include "../config.h"
 
 extern int verbosity;
@@ -46,7 +47,7 @@ extern int verbosity;
  *
  * returns: error code (0 -E_OK)
  */
-int v4l2core_save_control_profile(v4l2_dev_t *vd, const char *filename)
+int save_control_profile(v4l2_dev_t *vd, const char *filename)
 {
 	/*assertions*/
 	assert(vd != NULL);
@@ -136,7 +137,7 @@ int v4l2core_save_control_profile(v4l2_dev_t *vd, const char *filename)
  *
  * returns: error code (0 -E_OK)
  */
-int v4l2core_load_control_profile(v4l2_dev_t *vd, const char *filename)
+int load_control_profile(v4l2_dev_t *vd, const char *filename)
 {
 	/*assertions*/
 	assert(vd != NULL);

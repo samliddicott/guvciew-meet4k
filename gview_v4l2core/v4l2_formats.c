@@ -636,7 +636,7 @@ int enum_frame_formats(v4l2_dev_t *vd)
  *
  * returns: format list index or -1 if not available
  */
-int v4l2core_get_frame_format_index(v4l2_dev_t *vd, int format)
+int get_frame_format_index(v4l2_dev_t *vd, int format)
 {
 	/*asserts*/
 	assert(vd != NULL);
@@ -666,7 +666,7 @@ int v4l2core_get_frame_format_index(v4l2_dev_t *vd, int format)
  *
  * returns: resolution list index for format index or -1 if not available
  */
-int v4l2core_get_format_resolution_index(v4l2_dev_t *vd, int format, int width, int height)
+int get_format_resolution_index(v4l2_dev_t *vd, int format, int width, int height)
 {
 	/*asserts*/
 	assert(vd != NULL);

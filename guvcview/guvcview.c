@@ -45,8 +45,6 @@ int debug_level = 0;
 
 static __THREAD_TYPE capture_thread;
 
-v4l2_dev_t *device = NULL;
-
 /*
  * signal callback
  * args:
@@ -66,11 +64,7 @@ void signal_callback_handler(int signum)
 			break;
 
 		case SIGUSR1:
-			/* (start/stop) record video */
-			if(!device)
-				fprintf(stderr, "GUVCVIEW: device not set yet\n");
-			else
-				gui_click_video_capture_button(device);
+			gui_click_video_capture_button();
 			break;
 
 		case SIGUSR2:
@@ -183,12 +177,8 @@ int main(int argc, char *argv[])
 		v4l2core_disable_libv4l2();
 	/*init the device list*/
 	v4l2core_init_device_list();
-	/*get the device data (redefines language catalog)*/
-	device = v4l2core_init_dev(my_options->device);
-		
-	if(device)
-		set_render_flag(render);
-	else
+	/*init the v4l2core (redefines language catalog)*/
+	if(v4l2core_init_dev(my_options->device) < 0)
 	{
 		char message[50];
 		snprintf(message, 49, "no video device (%s) found", my_options->device);
@@ -197,22 +187,21 @@ int main(int argc, char *argv[])
 		options_clean();
 		return -1;
 	}
+	else		
+		set_render_flag(render);
+	
 
 	/*select capture method*/
 	if(strcasecmp(my_config->capture, "read") == 0)
-		v4l2core_set_capture_method(device, IO_READ);
+		v4l2core_set_capture_method(IO_READ);
 	else
-		v4l2core_set_capture_method(device, IO_MMAP);
+		v4l2core_set_capture_method(IO_MMAP);
 
 	/*set software autofocus sort method*/
 	v4l2core_soft_autofocus_set_sort(AUTOF_SORT_INSERT);
 
 	/*set the intended fps*/
-	device->fps_num = my_config->fps_num;
-	device->fps_denom = my_config->fps_denom;
-	
-	if(debug_level > 2)
-		printf("GUVCVIEW: fps configured to %i/%i\n", device->fps_num, device->fps_denom);
+	v4l2core_define_fps(my_config->fps_num,my_config->fps_denom);
 
 	/*set fx masks*/
 	set_render_fx_mask(my_config->video_fx);
@@ -227,7 +216,7 @@ int main(int argc, char *argv[])
 	{
 		char message[50];
 		snprintf(message, 49, "invalid video codec '%s' using raw input", my_config->video_codec);
-		gui_error(device, "Guvcview warning", message, 0);
+		gui_error("Guvcview warning", message, 0);
 
 		fprintf(stderr, "GUVCVIEW: invalid video codec '%s' using raw input\n", my_config->video_codec);
 		vcodec_ind = 0;
@@ -242,7 +231,7 @@ int main(int argc, char *argv[])
 	{
 		char message[50];
 		snprintf(message, 49, "invalid audio codec '%s' using pcm input", my_config->audio_codec);
-		gui_error(device, "Guvcview warning", message, 0);
+		gui_error("Guvcview warning", message, 0);
 
 		fprintf(stderr, "GUVCVIEW: invalid audio codec '%s' using pcm input\n", my_config->audio_codec);
 		acodec_ind = 0;
@@ -251,7 +240,7 @@ int main(int argc, char *argv[])
 
 	/*check if need to load a profile*/
 	if(my_options->prof_filename)
-		v4l2core_load_control_profile(device, my_options->prof_filename);
+		v4l2core_load_control_profile(my_options->prof_filename);
 
 	/*set the profile file*/
 	if(!my_config->profile_name)
@@ -303,27 +292,27 @@ int main(int argc, char *argv[])
 		 */
 		int format = v4l2core_fourcc_2_v4l2_pixelformat(my_config->format);
 
-		v4l2core_prepare_new_format(device, format);
+		v4l2core_prepare_new_format(format);
 		/*prepare resolution*/
-		v4l2core_prepare_new_resolution(device, my_config->width, my_config->height);
+		v4l2core_prepare_new_resolution(my_config->width, my_config->height);
 		/*try to set the video stream format on the device*/
-		int ret = v4l2core_update_current_format(device);
+		int ret = v4l2core_update_current_format();
 
 		if(ret != E_OK)
 		{
 			fprintf(stderr, "GUCVIEW: could not set the defined stream format\n");
 			fprintf(stderr, "GUCVIEW: trying first listed stream format\n");
 
-			v4l2core_prepare_valid_format(device);
-			v4l2core_prepare_valid_resolution(device);
-			ret = v4l2core_update_current_format(device);
+			v4l2core_prepare_valid_format();
+			v4l2core_prepare_valid_resolution();
+			ret = v4l2core_update_current_format();
 
 			if(ret != E_OK)
 			{
 				fprintf(stderr, "GUCVIEW: also could not set the first listed stream format\n");
 				fprintf(stderr, "GUVCVIEW: Video capture failed\n");
 
-				gui_error(device, "Guvcview error", "could not start a video stream in the device", 1);
+				gui_error("Guvcview error", "could not start a video stream in the device", 1);
 			}
 		}
 
@@ -332,14 +321,13 @@ int main(int argc, char *argv[])
 			capture_loop_data_t cl_data;
 			cl_data.options = (void *) my_options;
 			cl_data.config = (void *) my_config;
-			cl_data.device = (void *) device;
 
 			ret = __THREAD_CREATE(&capture_thread, capture_loop, (void *) &cl_data);
 
 			if(ret)
 			{
 				fprintf(stderr, "GUVCVIEW: Video thread creation failed\n");
-				gui_error(device, "Guvcview error", "could not start the video capture thread", 1);
+				gui_error("Guvcview error", "could not start the video capture thread", 1);
 			}
 			else if(debug_level > 2)
 				printf("GUVCVIEW: created capture thread with tid: %u\n", (unsigned int) capture_thread);
@@ -347,7 +335,7 @@ int main(int argc, char *argv[])
 	}
 
 	/*initialize the gui - do this after setting the video stream*/
-	gui_attach(device, gui, 800, 600, my_options->control_panel);
+	gui_attach(gui, 800, 600, my_options->control_panel);
 
 	/*run the gui loop*/
 	gui_run();
@@ -358,8 +346,7 @@ int main(int argc, char *argv[])
 	/*closes the audio context (stored staticly in video_capture)*/
 	close_audio_context();
 
-	if(device)
-		v4l2core_close_dev(device);
+	v4l2core_close_dev();
 
 	v4l2core_close_v4l2_device_list();
 
