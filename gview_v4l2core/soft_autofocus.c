@@ -167,7 +167,7 @@ int soft_autofocus_init (v4l2_dev_t *vd)
 		exit(-1);
 	}
 
-    focus_ctx->focus_control = v4l2core_get_control_by_id(vd, vd->has_focus_control_id);
+    focus_ctx->focus_control = v4l2core_get_control_by_id(vd->has_focus_control_id);
 
     if(focus_ctx->focus_control == NULL)
 	{
@@ -781,7 +781,7 @@ int soft_autofocus_run(v4l2_dev_t *vd, v4l2_frame_buff_t *frame)
 		focus_ctx->focus = focus_ctx->left; /*start left*/
 
 		focus_ctx->focus_control->value = focus_ctx->focus;
-		if (v4l2core_set_control_value_by_id(vd, focus_ctx->focus_control->control.id) != 0)
+		if (v4l2core_set_control_value_by_id(focus_ctx->focus_control->control.id) != 0)
 			fprintf(stderr, "V4L2_CORE: (sof_autofocus) couldn't set focus to %d\n", focus_ctx->focus);
 
 		/*number of frames until focus is stable*/
@@ -814,7 +814,7 @@ int soft_autofocus_run(v4l2_dev_t *vd, v4l2_frame_buff_t *frame)
 			if ((focus_ctx->focus != focus_ctx->last_focus))
 			{
 				focus_ctx->focus_control->value = focus_ctx->focus;
-				if (v4l2core_set_control_value_by_id(vd, focus_ctx->focus_control->control.id) != 0)
+				if (v4l2core_set_control_value_by_id(focus_ctx->focus_control->control.id) != 0)
 					fprintf(stderr, "V4L2_CORE: (sof_autofocus) couldn't set focus to %d\n",
 						focus_ctx->focus);
 

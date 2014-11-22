@@ -253,14 +253,14 @@ audio_context_t *get_audio_context();
 /*
  * start the encoder thread
  * args:
- *   data - pointer to user data
+ *   none
  *
  * asserts:
  *   none
  *
  * returns: error code
  */
-int start_encoder_thread(void *data);
+int start_encoder_thread();
 
 /*
  * stop the encoder thread

@@ -289,21 +289,21 @@ void reset_video_timer()
 /*
  * stops the video timed capture
  * args:
- *    data - pointer to user data
+ *    none
  *
  * asserts:
  *    none
  *
  * returns: none
  */
-static void stop_video_timer(void *data)
+static void stop_video_timer()
 {
 	/*
 	 * if we are saving video stop it
 	 * this also calls reset_video_timer
 	 */
 	if(video_capture_get_save_video())
-		gui_click_video_capture_button(data);
+		gui_click_video_capture_button();
 
 	/*make sure the timer is reset*/
 	reset_video_timer();

@@ -2108,6 +2108,78 @@ int v4l2core_save_image(v4l2_frame_buff_t *frame, const char *filename, int form
 }
 
 /*
+ * get h264 unit id
+ * args:
+ *   none
+ *
+ * asserts:
+ *   vd is not null
+ *
+ * returns: unit id on success or error code ( < 0 ) on fail
+ */
+int v4l2core_get_h264_unit_id()
+{
+	/*assertions*/
+	assert(vd != NULL);
+	
+	return vd->h264_unit_id;
+}
+
+/*
+ * gets the current h264_config_probe_req data struct
+ * args:
+ *   none
+ *
+ * asserts:
+ *   vd is not null
+ *
+ * returns: pointer to current h264_config_probe_req data struct
+ */
+uvcx_video_config_probe_commit_t *v4l2core_get_h264_config_probe_req()
+{
+	/*assertions*/
+	assert(vd != NULL);
+	
+	return  &(vd->h264_config_probe_req);
+}
+
+/*
+ * flag core to use the preset h264_config_probe_req data (don't reset to default before commit)
+ * args:
+ *   flag - value to set
+ *
+ * asserts:
+ *   vd is not null
+ *
+ * returns: none
+ */
+void v4l2core_set_h264_no_probe_default(uint8_t flag)
+{
+	/*assertions*/
+	assert(vd != NULL);
+	
+	vd->h264_no_probe_default = flag;
+}
+
+/*
+ * get h264_no_probe_default flag
+ * args:
+ *   none
+ *
+ * asserts:
+ *   vd is not null
+ *
+ * returns: h264_no_probe_default flag
+ */
+uint8_t v4l2core_get_h264_no_probe_default()
+{
+	/*assertions*/
+	assert(vd != NULL);
+	
+	return vd->h264_no_probe_default;
+}
+
+/*
  * get PPS NALU size
  * args:
  *   none

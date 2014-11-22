@@ -1120,7 +1120,7 @@ void devices_changed (GtkComboBox *wgtDevices, void *data)
 	GError *error = NULL;
 
 	int index = gtk_combo_box_get_active(wgtDevices);
-	if(index == v4l2core_get_device_index())
+	if(index == v4l2core_get_this_device_index())
 		return;
 
 	v4l2_device_list *device_list = v4l2core_get_device_list();
@@ -1181,7 +1181,7 @@ void devices_changed (GtkComboBox *wgtDevices, void *data)
 			break;
 	}
 	/*reset to current device*/
-	gtk_combo_box_set_active(GTK_COMBO_BOX(wgtDevices), v4l2core_get_device_index());
+	gtk_combo_box_set_active(GTK_COMBO_BOX(wgtDevices), v4l2core_get_this_device_index());
 
 	gtk_widget_destroy (restartdialog);
 	g_free(command);

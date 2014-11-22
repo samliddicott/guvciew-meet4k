@@ -182,7 +182,7 @@ int main(int argc, char *argv[])
 	{
 		char message[50];
 		snprintf(message, 49, "no video device (%s) found", my_options->device);
-		gui_error(device, "Guvcview error", "no video device found", 1);
+		gui_error("Guvcview error", "no video device found", 1);
 		v4l2core_close_v4l2_device_list();
 		options_clean();
 		return -1;

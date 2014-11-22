@@ -1061,6 +1061,18 @@ int v4l2core_load_control_profile(const char *filename);
 int v4l2core_reset_h264_encoder();
 
 /*
+ * get h264 unit id
+ * args:
+ *   none
+ *
+ * asserts:
+ *   nonel
+ *
+ * returns: unit id on success or error code ( < 0 ) on fail
+ */
+int v4l2core_get_h264_unit_id();
+
+/*
  * get PPS NALU size
  * args:
  *   none
@@ -1171,6 +1183,43 @@ int v4l2core_set_h264_frame_rate_config(uint32_t framerate);
 int v4l2core_probe_h264_config_probe_req(
 			uint8_t query,
 			uvcx_video_config_probe_commit_t *config_probe_req);
+
+
+/*
+ * gets the current h264_config_probe_req data struct
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: pointer to current h264_config_probe_req data struct
+ */
+uvcx_video_config_probe_commit_t *v4l2core_get_h264_config_probe_req();
+
+/*
+ * flag core to use the preset h264_config_probe_req data (don't reset to default before commit)
+ * args:
+ *   flag - value to set
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void v4l2core_set_h264_no_probe_default(uint8_t flag);
+
+/*
+ * get h264_no_probe_default flag
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: h264_no_probe_default flag
+ */
+uint8_t v4l2core_get_h264_no_probe_default();
 
 /*
  * get the video rate control mode

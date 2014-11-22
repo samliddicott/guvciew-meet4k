@@ -397,14 +397,14 @@ void gui_click_image_capture_button();
 /*
  * click video capture button
  * args:
- *   data - pointer to user data
+ *   none
  *
  * asserts:
  *    none
  *
  * returns: none
  */
-void gui_click_video_capture_button(void *data);
+void gui_click_video_capture_button();
 
 /*
  * sets the Image capture button label
@@ -445,7 +445,6 @@ void set_webm_codecs();
 /*
  * GUI warning/error dialog
  * args:
- *   device - pointer to device data
  *   title - dialog title string
  *   message - error message string
  *   fatal - flag a fatal error (display device list combo box)
@@ -455,7 +454,7 @@ void set_webm_codecs();
  *
  * returns: none
  */
-void gui_error(v4l2_dev_t *device,
+void gui_error(
 	const char *title,
 	const char *message,
 	int fatal);
@@ -475,7 +474,6 @@ void gui_status_message(const char *message);
 /*
  * GUI initialization
  * args:
- *   device - pointer to device data we want to attach the gui for
  *   gui - gui API to use (GUI_NONE, GUI_GTK3, ...)
  *   width - window width
  *   height - window height
@@ -486,7 +484,7 @@ void gui_status_message(const char *message);
  *
  * returns: error code
  */
-int gui_attach(v4l2_dev_t *device, int gui, int width, int height, int control_panel);
+int gui_attach(int gui, int width, int height, int control_panel);
 
 /*
  * run the GUI loop

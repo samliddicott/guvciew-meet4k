@@ -365,7 +365,6 @@ void gui_set_video_capture_button_status_gtk3(int flag)
 /*
  * GUI warning/error dialog
  * args:
- *   device - pointer to device data
  *   title - dialog title string
  *   message - error message string
  *   fatal - flag a fatal error (display device list combo box)
@@ -375,7 +374,7 @@ void gui_set_video_capture_button_status_gtk3(int flag)
  *
  * returns: none
  */
-void gui_error_gtk3(v4l2_dev_t *device,
+void gui_error_gtk3(
 	const char *title,
 	const char *message,
 	int fatal)
@@ -528,7 +527,6 @@ void gui_error_gtk3(v4l2_dev_t *device,
 /*
  * GUI initialization
  * args:
- *   device - pointer to device data we want to attach the gui for
  *   width - window width
  *   height - window height
  *
@@ -537,7 +535,7 @@ void gui_error_gtk3(v4l2_dev_t *device,
  *
  * returns: error code (0 -OK)
  */
-int gui_attach_gtk3(v4l2_dev_t *device, int width, int height)
+int gui_attach_gtk3(int width, int height)
 {
 	if(!gtk_init_called)
 	{
@@ -552,11 +550,11 @@ int gui_attach_gtk3(v4l2_dev_t *device, int width, int height)
 
 
 	/*check for device errors*/
-	if(!device)
-	{
-		gui_error(device, "Guvcview error", "no video device found", 1);
-		return -1;
-	}
+	//if(!device)
+	//{
+	//	gui_error("Guvcview error", "no video device found", 1);
+	//	return -1;
+	//}
 
 	g_set_application_name(_("Guvcview Video Capture"));
 
@@ -602,7 +600,7 @@ int gui_attach_gtk3(v4l2_dev_t *device, int width, int height)
 	gtk_widget_show (maintable);
 
 	/*----------------------------- Top Menu ----------------------------------*/
-	gui_attach_gtk3_menu(device, maintable);
+	gui_attach_gtk3_menu(maintable);
 
 	/*----------------------------- Buttons -----------------------------------*/
 	GtkWidget *HButtonBox = gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL);
@@ -642,7 +640,7 @@ int gui_attach_gtk3(v4l2_dev_t *device, int width, int height)
 	gtk_widget_show (CapImageButt);
 
 	g_signal_connect (GTK_BUTTON(CapImageButt), "clicked",
-		G_CALLBACK (capture_image_clicked), device);
+		G_CALLBACK (capture_image_clicked), NULL);
 
 	/*video button*/
 	CapVideoButt = gtk_toggle_button_new_with_mnemonic (_("Cap. Video (V)"));
@@ -664,7 +662,7 @@ int gui_attach_gtk3(v4l2_dev_t *device, int width, int height)
 	gtk_widget_show (CapVideoButt);
 
 	g_signal_connect (GTK_BUTTON(CapVideoButt), "clicked",
-		G_CALLBACK (capture_video_clicked), device);
+		G_CALLBACK (capture_video_clicked), NULL);
 
 	/*quit button*/
 	//GtkWidget *quitButton = gtk_button_new_from_stock(GTK_STOCK_QUIT);
@@ -687,7 +685,7 @@ int gui_attach_gtk3(v4l2_dev_t *device, int width, int height)
 	gtk_widget_show_all (quitButton);
 
 	g_signal_connect (GTK_BUTTON(quitButton), "clicked",
-		G_CALLBACK (quit_button_clicked), device);
+		G_CALLBACK (quit_button_clicked), NULL);
 
 	gtk_box_pack_start(GTK_BOX(maintable), HButtonBox, FALSE, TRUE, 2);
 
@@ -710,7 +708,7 @@ int gui_attach_gtk3(v4l2_dev_t *device, int width, int height)
 
 	gtk_container_add(GTK_CONTAINER(scroll_1), viewport);
 
-	gui_attach_gtk3_v4l2ctrls(device, viewport);
+	gui_attach_gtk3_v4l2ctrls(viewport);
 
 	GtkWidget *tab_1 = gtk_grid_new();
 	gtk_widget_show (tab_1);
@@ -731,7 +729,7 @@ int gui_attach_gtk3(v4l2_dev_t *device, int width, int height)
 	gtk_notebook_append_page(GTK_NOTEBOOK(tab_box), scroll_1, tab_1);
 
 	/*----------------------------H264 Controls Tab --------------------------*/
-	if(device->h264_unit_id > 0)
+	if(v4l2core_get_h264_unit_id() > 0)
 	{
 		GtkWidget *scroll_2 = gtk_scrolled_window_new(NULL,NULL);
 		gtk_scrolled_window_set_placement(GTK_SCROLLED_WINDOW(scroll_2), GTK_CORNER_TOP_LEFT);
@@ -746,7 +744,7 @@ int gui_attach_gtk3(v4l2_dev_t *device, int width, int height)
 
 		gtk_container_add(GTK_CONTAINER(scroll_2), viewport2);
 
-		gui_attach_gtk3_h264ctrls(device, viewport2);
+		gui_attach_gtk3_h264ctrls(viewport2);
 
 		GtkWidget *tab_2 = gtk_grid_new();
 		gtk_widget_show (tab_2);
@@ -785,7 +783,7 @@ int gui_attach_gtk3(v4l2_dev_t *device, int width, int height)
 
 		gtk_container_add(GTK_CONTAINER(scroll_3), viewport3);
 
-		gui_attach_gtk3_videoctrls(device, viewport3);
+		gui_attach_gtk3_videoctrls(viewport3);
 
 		GtkWidget *tab_3 = gtk_grid_new();
 		gtk_widget_show (tab_3);
@@ -858,12 +856,12 @@ int gui_attach_gtk3(v4l2_dev_t *device, int width, int height)
 
 	/* add key events*/
 	gtk_widget_add_events (GTK_WIDGET (main_window), GDK_KEY_PRESS_MASK | GDK_KEY_RELEASE_MASK);
-	g_signal_connect (GTK_WINDOW(main_window), "key_press_event", G_CALLBACK(window_key_pressed), device);
+	g_signal_connect (GTK_WINDOW(main_window), "key_press_event", G_CALLBACK(window_key_pressed), NULL);
 
 	/* add update timers:
 	 *  devices
 	 */
-	gtk_devices_timer_id = g_timeout_add( 500, check_device_events, device);
+	gtk_devices_timer_id = g_timeout_add( 500, check_device_events, NULL);
 
 	return 0;
 }
