@@ -63,6 +63,7 @@ static float vu_peak_freeze[2]= {0.0 ,0.0};
 static plot_box_yuyv(uint8_t *frame, int linesize, int x, int y, int width, int height, yuv_color_t *color)
 {
 	int i = 0;
+		
 	for (i = 0; i < height; ++i)
   	{
 		int bi = 2 * (x + (y * linesize)); /*2 bytes per pixel*/
@@ -147,13 +148,13 @@ static plot_box_yu12(uint8_t *frame, int lines, int linesize, int x, int y, int 
 	}
 				
 	/*u v*/
-	for(h = 0; h < height; h += 2) /*every two lines*/
+	for(h = 0; h < height/2; h++) /*every two lines*/
 	{
-		pu = frame + (linesize * lines) + (x/2) + (((y + h) * linesize) /4);
-		pv = pu + ((linesize * lines) / 4);
+		pu = frame + (linesize * lines) + (int) floor(x/2) + (( (int) floor(y/2) + h) * (int) floor(linesize/2));
+		pv = pu + (int) floor((linesize * lines) / 4);
 					
 		int w = 0;
-		for(w = 0; w < width; w += 2) /*every two rows*/
+		for(w = 0; w < width/2; w++) /*every two rows*/
 		{
 			*pu++ = color->u;
 			*pv++ = color->v;
@@ -184,7 +185,7 @@ static plot_line_yu12(uint8_t *frame, int lines, int linesize, int x, int y, int
 	uint8_t *pv = pu + ((linesize * lines) / 4);
 
 	int w = 0;
-				
+	
 	/*y*/
 	py = frame + x + (y * linesize);
 	for(w = 0; w < width; ++w)
@@ -193,9 +194,9 @@ static plot_line_yu12(uint8_t *frame, int lines, int linesize, int x, int y, int
 	}
 				
 	/*u v*/
-	pu = frame + (linesize * lines) + (x/2) + ((y * linesize) /4);
-	pv = pu + ((linesize * lines) / 4);
-	for(w = 0; w < width; w += 2) /*every two rows*/
+	pu = frame + (linesize * lines) + (int) floor(x/2) + ((int) floor(y/2) * (int) floor(linesize/2));
+	pv = pu + (int) floor((linesize * lines) / 4);
+	for(w = 0; w < width/2; w ++) /*every two rows*/
 	{
 		*pu++ = color->u;
 		*pv++ = color->v;
