@@ -1165,6 +1165,10 @@ void *capture_loop(void *data)
 	}
 
 	v4l2core_stop_stream();
+	
+	/*if we are still saving video then stop it*/
+	if(video_capture_get_save_video())
+		stop_encoder_thread();
 
 	render_close();
 
