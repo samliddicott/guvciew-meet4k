@@ -910,7 +910,7 @@ int v4l2core_start_stream()
 
 	if(vd->streaming == STRM_OK)
 	{
-		fprintf(stderr, "V4L2_CORE: (VIDIOC_STREAMON) stream_status = STRM_OK\n");
+		fprintf(stderr, "V4L2_CORE: (stream already started) stream_status = STRM_OK\n");
 		return;
 	}
 
@@ -927,13 +927,16 @@ int v4l2core_start_stream()
 			ret = xioctl(vd->fd, VIDIOC_STREAMON, &type);
 			if (ret < 0)
 			{
-				fprintf(stderr, "V4L2_CORE: (VIDIOC_STREAMON) Unable to start capture: %s \n", strerror(errno));
+				fprintf(stderr, "V4L2_CORE: (VIDIOC_STREAMON) Unable to start stream: %s \n", strerror(errno));
 				return E_STREAMON_ERR;
 			}
 			break;
 	}
 
 	vd->streaming = STRM_OK;
+	
+	if(verbosity > 2)
+		printf("V4L2_CORE: (VIDIOC_STREAMON) stream_status = STRM_OK\n");
 
 	return ret;
 }
@@ -957,6 +960,9 @@ int v4l2core_request_stop_stream()
 		return -1;
 
 	vd->streaming = STRM_REQ_STOP;
+	
+	if(verbosity > 2)
+		printf("V4L2_CORE: (request stream stop) stream_status = STRM_REQ_STOP\n");
 
 	return 0;
 }
@@ -988,13 +994,17 @@ int v4l2core_stop_stream()
 			{
 				if(errno == 9) /* stream allready stoped*/
 					vd->streaming = STRM_STOP;
-				fprintf(stderr, "V4L2_CORE: (VIDIOC_STREAMOFF) Unable to stop capture: %s\n", strerror(errno));
+				fprintf(stderr, "V4L2_CORE: (VIDIOC_STREAMOFF) Unable to stop stream: %s\n", strerror(errno));
 				return E_STREAMOFF_ERR;
 			}
 			break;
 	}
 
 	vd->streaming = STRM_STOP;
+	
+	if(verbosity > 2)
+		printf("V4L2_CORE: (VIDIOC_STREAMOFF) stream_status = STRM_STOP\n");
+		
 	return ret;
 }
 

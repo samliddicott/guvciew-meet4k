@@ -214,7 +214,7 @@ int encoder_get_audio_codec_list_size()
 {
 	int size = sizeof(listSupCodecs)/sizeof(audio_codec_t);
 
-	if(verbosity > 2)
+	if(verbosity > 3)
 		printf("ENCODER: audio codec list size:%i\n", size);
 
 	return size;
@@ -239,7 +239,7 @@ int encoder_get_audio_codec_list_size()
 //		if(listSupCodecs[i].valid)
 //			valid_size++;
 //
-//	if(verbosity > 2)
+//	if(verbosity > 3)
 //		printf("ENCODER: audio codec valid list size:%i\n", valid_size);
 //
 //	return valid_size;

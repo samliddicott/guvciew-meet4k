@@ -497,7 +497,7 @@ int encoder_get_video_codec_list_size()
 {
 	int size = sizeof(listSupCodecs)/sizeof(video_codec_t);
 
-	if(verbosity > 2)
+	if(verbosity > 3)
 		printf("ENCODER: video codec list size:%i\n", size);
 
 	return size;
@@ -522,7 +522,7 @@ int encoder_get_video_codec_list_size()
 //		if(listSupCodecs[i].valid)
 //			valid_size++;
 //
-//	if(verbosity > 2)
+//	if(verbosity > 3)
 //		printf("ENCODER: video codec valid list size:%i\n", valid_size);
 //
 //	return valid_size;
