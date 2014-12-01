@@ -74,6 +74,18 @@ static int recordCallback (
 
 	/*asserts*/
 	assert(audio_ctx != NULL);
+	
+	if(audio_ctx->channels == 0)
+	{
+		fprintf(stderr, "AUDIO: (portaudio) recordCallback failed: channels = 0\n");
+		return (paContinue);
+	}
+	
+	if(audio_ctx->samprate == 0)
+	{
+		fprintf(stderr, "AUDIO: (portaudio) recordCallback failed: samprate = 0\n");
+		return (paContinue);
+	}
 
 	int i = 0;
 
