@@ -87,13 +87,13 @@ static int recordCallback (
 		return (paContinue);
 	}
 
-	int i = 0;
+	uint32_t i = 0;
 
 	sample_t *rptr = (sample_t*) inputBuffer;
 	sample_t *capture_buff = (sample_t *) audio_ctx->capture_buff;
 
 	unsigned long numSamples = framesPerBuffer * audio_ctx->channels;
-	uint64_t frame_length = NSEC_PER_SEC / audio_ctx->samprate; /*in nanosec*/
+	uint64_t frame_length = NSEC_PER_SEC / audio_ctx->samprate; /*in nanosec (is never 0)*/
 
 	PaTime ts_sec = timeInfo->inputBufferAdcTime; /*in seconds (double)*/
 	int64_t ts = ts_sec * NSEC_PER_SEC; /*in nanosec (monotonic time)*/
@@ -110,7 +110,7 @@ static int recordCallback (
 		fprintf( stderr, "AUDIO: portaudio buffer overflow\n" );
 
 		int64_t d_ts = ts - audio_ctx->last_ts;
-		int n_samples = (d_ts / frame_length) * audio_ctx->channels;
+		uint32_t n_samples = (d_ts / frame_length) * audio_ctx->channels;
 		for( i = 0; i < n_samples; ++i )
 		{
 			capture_buff[sample_index] = 0;

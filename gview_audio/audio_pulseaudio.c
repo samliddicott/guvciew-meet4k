@@ -442,7 +442,7 @@ static void stream_request_cb(pa_stream *s, size_t length, void *data)
 	uint64_t frame_length = NSEC_PER_SEC / audio_ctx->samprate; /*in nanosec*/
 	int64_t ts = 0;
 	int64_t buff_ts = 0;
-	int i = 0;
+	uint32_t i = 0;
 
 	while (pa_stream_readable_size(s) > 0)
 	{
@@ -470,7 +470,7 @@ static void stream_request_cb(pa_stream *s, size_t length, void *data)
 			audio_ctx->last_ts = ts;
 
 
-		int numSamples= length / sizeof(sample_t);
+		uint32_t numSamples = (uint32_t) length / sizeof(sample_t);
 
 		const sample_t *rptr = (const sample_t*) inputBuffer;
 		sample_t *capture_buff = (sample_t *) audio_ctx->capture_buff;

@@ -1629,6 +1629,17 @@ int encoder_encode_audio(encoder_context_t *encoder_ctx, void *audio_data)
 			audio_codec_data->frame->nb_samples,
 			audio_codec_data->codec_context->sample_fmt,
 			0);
+		
+		if(buffer_size <= 0)
+		{
+			fprintf(stderr, "ENCODER: (encoder_encode_audio) av_samples_get_buffer_size error (%d): chan(%d) nb_samp(%d) samp_fmt(%d)\n", 
+				buffer_size, 
+				audio_codec_data->codec_context->channels, 
+				audio_codec_data->frame->nb_samples, 
+				audio_codec_data->codec_context->sample_fmt);
+			
+			return outsize;
+		}
 
 		/*set the data pointers in frame*/
 		avcodec_fill_audio_frame(
@@ -1641,9 +1652,14 @@ int encoder_encode_audio(encoder_context_t *encoder_ctx, void *audio_data)
 
 		if(!enc_audio_ctx->monotonic_pts) /*generate a real pts based on the frame timestamp*/
 			audio_codec_data->frame->pts += ((enc_audio_ctx->pts - last_audio_pts)/1000) * 90;
-		else  /*generate a true monotonic pts based on the codec fps*/
+		else  if (audio_codec_data->codec_context->time_base.den > 0) /*generate a true monotonic pts based on the codec fps*/
 			audio_codec_data->frame->pts +=
 				(audio_codec_data->codec_context->time_base.num*1000/audio_codec_data->codec_context->time_base.den) * 90;
+		else
+		{
+			fprintf(stderr, "ENCODER: (encoder_encode_audio) couldn't generate a monotonic ts: time_base.den(%d)\n",
+				 audio_codec_data->codec_context->time_base.den);
+		}
 
 		ret = avcodec_encode_audio2(
 				audio_codec_data->codec_context,
