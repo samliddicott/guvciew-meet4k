@@ -1577,19 +1577,15 @@ static int encod_fill_audio_frame(AVFrame *frame, int nb_channels,
 	int buf_size, int align)
 {
 	int ch, planar, needed_size, ret = 0;
- 
-	needed_size = av_samples_get_buffer_size(NULL, nb_channels,
-		frame->nb_samples, sample_fmt,
-		align);
-	if (buf_size < needed_size)
-		return -1;
-
+		
+	needed_size = buf_size;
+		
 	planar = av_sample_fmt_is_planar(sample_fmt);
 	if (planar && nb_channels > ENC_NUM_DATA_POINTERS) 
 	{
 		if (!(frame->extended_data = av_mallocz_array(nb_channels,
 			sizeof(*frame->extended_data))))
-			return -2;
+			return -3;
 	} 
 	else 
 	{
