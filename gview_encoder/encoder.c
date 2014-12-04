@@ -1624,9 +1624,17 @@ int encoder_encode_audio(encoder_context_t *encoder_ctx, void *audio_data)
 		/*number of samples per channel*/
 		audio_codec_data->frame->nb_samples  = audio_codec_data->codec_context->frame_size;
 		
-		int sample_size = sizeof(float); /*default sample format*/
-		if( audio_codec_data->codec_context->sample_fmt == AV_SAMPLE_FMT_S16)
-			sample_size = sizeof(uint16_t);
+		
+		int sample_size = av_get_bytes_per_sample(audio_codec_data->codec_context->sample_fmt);
+		
+		if(sample_size <= 0) 
+		{
+			fprintf(stderr, "ENCODER: (encoder_encode_audio) av_get_bytes_per_sample error (%d): samp_fmt(%d)\n", 
+				sample_size, 
+				audio_codec_data->codec_context->sample_fmt);
+			
+			return outsize;
+		}
 			
 		int buffer_size = audio_codec_data->frame->nb_samples * sample_size * audio_codec_data->codec_context->channels;
 		
@@ -1649,13 +1657,25 @@ int encoder_encode_audio(encoder_context_t *encoder_ctx, void *audio_data)
 		}
 
 		/*set the data pointers in frame*/
-		avcodec_fill_audio_frame(
+		ret = avcodec_fill_audio_frame(
 			audio_codec_data->frame,
 			audio_codec_data->codec_context->channels,
 			audio_codec_data->codec_context->sample_fmt,
 			(const uint8_t *) audio_data,
 			buffer_size,
 			0);
+		
+		if(ret < 0)
+		{
+			fprintf(stderr, "ENCODER: (encoder_encode_audio) avcodec_fill_audio_frame error (%d): chan(%d) nb_samp(%d) samp_fmt(%d) buff(%d bytes)\n", 
+				ret, 
+				audio_codec_data->codec_context->channels, 
+				audio_codec_data->frame->nb_samples, 
+				audio_codec_data->codec_context->sample_fmt,
+				buffer_size);
+			
+			return outsize;
+		}
 
 		if(!enc_audio_ctx->monotonic_pts) /*generate a real pts based on the frame timestamp*/
 			audio_codec_data->frame->pts += ((enc_audio_ctx->pts - last_audio_pts)/1000) * 90;
