@@ -1623,12 +1623,19 @@ int encoder_encode_audio(encoder_context_t *encoder_ctx, void *audio_data)
 	{
 		/*number of samples per channel*/
 		audio_codec_data->frame->nb_samples  = audio_codec_data->codec_context->frame_size;
-		int buffer_size = av_samples_get_buffer_size(
-			NULL,
-			audio_codec_data->codec_context->channels,
-			audio_codec_data->frame->nb_samples,
-			audio_codec_data->codec_context->sample_fmt,
-			0);
+		
+		int sample_size = sizeof(float); /*default sample format*/
+		if( audio_codec_data->codec_context->sample_fmt == AV_SAMPLE_FMT_S16)
+			sample_size = sizeof(uint16_t);
+			
+		int buffer_size = audio_codec_data->frame->nb_samples * sample_size * audio_codec_data->codec_context->channels;
+		
+		//int buffer_size = av_samples_get_buffer_size(
+		//	NULL,
+		//	audio_codec_data->codec_context->channels,
+		//	audio_codec_data->frame->nb_samples,
+		//	audio_codec_data->codec_context->sample_fmt,
+		//	0);
 		
 		if(buffer_size <= 0)
 		{
