@@ -1568,6 +1568,52 @@ int encoder_encode_video(encoder_context_t *encoder_ctx, void *input_frame)
 	return (outsize);
 }
 
+#if LIBAVCODEC_VER_AT_LEAST(53,34)
+
+#define ENC_NUM_DATA_POINTERS 8
+/*replace av_fill_audio_frame*/
+static int encod_fill_audio_frame(AVFrame *frame, int nb_channels,
+	enum AVSampleFormat sample_fmt, const uint8_t *buf,
+	int buf_size, int align)
+{
+	int ch, planar, needed_size, ret = 0;
+ 
+	needed_size = av_samples_get_buffer_size(NULL, nb_channels,
+		frame->nb_samples, sample_fmt,
+		align);
+	if (buf_size < needed_size)
+		return -1;
+
+	planar = av_sample_fmt_is_planar(sample_fmt);
+	if (planar && nb_channels > ENC_NUM_DATA_POINTERS) 
+	{
+		if (!(frame->extended_data = av_mallocz_array(nb_channels,
+			sizeof(*frame->extended_data))))
+			return -2;
+	} 
+	else 
+	{
+		frame->extended_data = frame->data;
+	}
+ 
+	if ((ret = av_samples_fill_arrays(frame->extended_data, &frame->linesize[0],
+		(uint8_t *)(intptr_t)buf, nb_channels, frame->nb_samples,
+		sample_fmt, align)) < 0) 
+	{
+		if (frame->extended_data != frame->data)
+			av_freep(&frame->extended_data);
+		return ret;
+	}
+	if (frame->extended_data != frame->data) 
+	{
+		for (ch = 0; ch < ENC_NUM_DATA_POINTERS; ch++)
+			frame->data[ch] = frame->extended_data[ch];
+	}
+ 
+	return ret;
+}
+#endif
+
 /*
  * encode audio
  * args:
@@ -1657,7 +1703,7 @@ int encoder_encode_audio(encoder_context_t *encoder_ctx, void *audio_data)
 		}
 
 		/*set the data pointers in frame*/
-		ret = avcodec_fill_audio_frame(
+		ret = encod_fill_audio_frame(
 			audio_codec_data->frame,
 			audio_codec_data->codec_context->channels,
 			audio_codec_data->codec_context->sample_fmt,
