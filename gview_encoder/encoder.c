@@ -1568,83 +1568,6 @@ int encoder_encode_video(encoder_context_t *encoder_ctx, void *input_frame)
 	return (outsize);
 }
 
-#if LIBAVCODEC_VER_AT_LEAST(53,34)
-
-#define ENC_NUM_DATA_POINTERS 8
-void *enc_mallocz_array(size_t nmemb, size_t size)
-{
-	if (!size || nmemb >= INT_MAX / size)
-		return NULL;
-	
-	return (void *) calloc(nmemb, size);
-}
-
-int enc_samples_fill_arrays(uint8_t **audio_data, int *linesize,
-	const uint8_t *buf, int nb_channels, int nb_samples,
-	enum AVSampleFormat sample_fmt, int align)
-{
-	int ch, planar, buf_size, line_size;
-
-	planar = av_sample_fmt_is_planar(sample_fmt);
-	//buf_size = av_samples_get_buffer_size(&line_size, nb_channels, nb_samples,
-	//	sample_fmt, align);
-	int sample_size = av_get_bytes_per_sample(sample_fmt);
-	buf_size = nb_samples * sample_size * nb_channels;
-	
-	line_size = planar ? nb_samples * sample_size : nb_samples * sample_size * nb_channels;
-	
-	if (buf_size < 0)
-		return buf_size;
- 
-	audio_data[0] = (uint8_t *)buf;
-	for (ch = 1; planar && ch < nb_channels; ch++)
-		audio_data[ch] = audio_data[ch-1] + line_size;
- 
-	if (linesize)
-		*linesize = line_size;
- 
-	return buf_size;
-}
-
-/*replace av_fill_audio_frame*/
-static int encod_fill_audio_frame(AVFrame *frame, int nb_channels,
-	enum AVSampleFormat sample_fmt, const uint8_t *buf,
-	int buf_size, int align)
-{
-	int ch, planar, needed_size, ret = 0;
-		
-	needed_size = buf_size;
-		
-	planar = av_sample_fmt_is_planar(sample_fmt);
-	if (planar && nb_channels > ENC_NUM_DATA_POINTERS) 
-	{
-		if (!(frame->extended_data = enc_mallocz_array(nb_channels,
-			sizeof(*frame->extended_data))))
-			return -3;
-	} 
-	else 
-	{
-		frame->extended_data = frame->data;
-	}
- 
-	if ((ret = enc_samples_fill_arrays(frame->extended_data, &frame->linesize[0],
-		(uint8_t *)(intptr_t)buf, nb_channels, frame->nb_samples,
-		sample_fmt, align)) < 0) 
-	{
-		if (frame->extended_data != frame->data)
-			av_freep(&frame->extended_data);
-		return ret;
-	}
-	if (frame->extended_data != frame->data) 
-	{
-		for (ch = 0; ch < ENC_NUM_DATA_POINTERS; ch++)
-			frame->data[ch] = frame->extended_data[ch];
-	}
- 
-	return ret;
-}
-#endif
-
 /*
  * encode audio
  * args:
@@ -1700,27 +1623,19 @@ int encoder_encode_audio(encoder_context_t *encoder_ctx, void *audio_data)
 	{
 		/*number of samples per channel*/
 		audio_codec_data->frame->nb_samples  = audio_codec_data->codec_context->frame_size;
+
+#if LIBAVUTIL_VER_AT_LEAST(51,22)
+		int align = 0;
+#else
+		int align = 1; /*otherwise it causes a SIGFPE*/
+#endif
 		
-		
-		int sample_size = av_get_bytes_per_sample(audio_codec_data->codec_context->sample_fmt);
-		
-		if(sample_size <= 0) 
-		{
-			fprintf(stderr, "ENCODER: (encoder_encode_audio) av_get_bytes_per_sample error (%d): samp_fmt(%d)\n", 
-				sample_size, 
-				audio_codec_data->codec_context->sample_fmt);
-			
-			return outsize;
-		}
-			
-		int buffer_size = audio_codec_data->frame->nb_samples * sample_size * audio_codec_data->codec_context->channels;
-		
-		//int buffer_size = av_samples_get_buffer_size(
-		//	NULL,
-		//	audio_codec_data->codec_context->channels,
-		//	audio_codec_data->frame->nb_samples,
-		//	audio_codec_data->codec_context->sample_fmt,
-		//	0);
+		int buffer_size = av_samples_get_buffer_size(
+			NULL,
+			audio_codec_data->codec_context->channels,
+			audio_codec_data->frame->nb_samples,
+			audio_codec_data->codec_context->sample_fmt,
+			align);
 		
 		if(buffer_size <= 0)
 		{
@@ -1732,15 +1647,15 @@ int encoder_encode_audio(encoder_context_t *encoder_ctx, void *audio_data)
 			
 			return outsize;
 		}
-
+		
 		/*set the data pointers in frame*/
-		ret = encod_fill_audio_frame(
+		ret = avcodec_fill_audio_frame(
 			audio_codec_data->frame,
 			audio_codec_data->codec_context->channels,
 			audio_codec_data->codec_context->sample_fmt,
 			(const uint8_t *) audio_data,
 			buffer_size,
-			0);
+			align);
 		
 		if(ret < 0)
 		{
