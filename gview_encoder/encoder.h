@@ -29,28 +29,20 @@
 
 #include "../config.h"
 
-#ifdef HAVE_AVCODEC_H
-  #include <avcodec.h>
-#else
-  #ifdef HAVE_LIBAVCODEC_AVCODEC_H
-    #include <libavcodec/avcodec.h>
+#ifdef HAVE_LIBAVCODEC_AVCODEC_H
+#include <libavcodec/avcodec.h>
 	#ifdef HAVE_LIBAVUTIL_VERSION_H
-		#include <libavutil/version.h>
-    #endif
-  #else
-    #ifdef HAVE_FFMPEG_AVCODEC_H
-      #include <ffmpeg/avcodec.h>
-    #else
-      #include <libavcodec/avcodec.h>
-    #endif
-  #endif
-#endif
-
-#ifdef HAVE_LIBAVUTIL_VERSION_H
-	#include <libavutil/version.h>
+#include <libavutil/version.h>
+	#else
+#include <libavutil/avutil.h>
+	#endif
 #else
-	#include <libavutil/avutil.h>
-#endif
+	#ifdef HAVE_FFMPEG_AVCODEC_H
+#include <ffmpeg/avcodec.h>
+	#else
+#include <avcodec.h>
+	#endif
+#endif 
 
 #define LIBAVCODEC_VER_AT_LEAST(major,minor)  (LIBAVCODEC_VERSION_MAJOR > major || \
                                               (LIBAVCODEC_VERSION_MAJOR == major && \
