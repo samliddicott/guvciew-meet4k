@@ -1571,6 +1571,13 @@ int encoder_encode_video(encoder_context_t *encoder_ctx, void *input_frame)
 #if LIBAVCODEC_VER_AT_LEAST(53,34)
 
 #define ENC_NUM_DATA_POINTERS 8
+void *enc_mallocz_array(size_t nmemb, size_t size)
+{
+	if (!size || nmemb >= INT_MAX / size)
+		return NULL;
+	
+	return (void *) calloc(nmemb, size);
+}
 /*replace av_fill_audio_frame*/
 static int encod_fill_audio_frame(AVFrame *frame, int nb_channels,
 	enum AVSampleFormat sample_fmt, const uint8_t *buf,
@@ -1583,7 +1590,7 @@ static int encod_fill_audio_frame(AVFrame *frame, int nb_channels,
 	planar = av_sample_fmt_is_planar(sample_fmt);
 	if (planar && nb_channels > ENC_NUM_DATA_POINTERS) 
 	{
-		if (!(frame->extended_data = av_mallocz_array(nb_channels,
+		if (!(frame->extended_data = enc_mallocz_array(nb_channels,
 			sizeof(*frame->extended_data))))
 			return -3;
 	} 
