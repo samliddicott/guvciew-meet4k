@@ -1578,6 +1578,34 @@ void *enc_mallocz_array(size_t nmemb, size_t size)
 	
 	return (void *) calloc(nmemb, size);
 }
+
+int enc_samples_fill_arrays(uint8_t **audio_data, int *linesize,
+	const uint8_t *buf, int nb_channels, int nb_samples,
+	enum AVSampleFormat sample_fmt, int align)
+{
+	int ch, planar, buf_size, line_size;
+
+	planar = av_sample_fmt_is_planar(sample_fmt);
+	//buf_size = av_samples_get_buffer_size(&line_size, nb_channels, nb_samples,
+	//	sample_fmt, align);
+	int sample_size = av_get_bytes_per_sample(sample_fmt);
+	buf_size = nb_samples * sample_size * nb_channels;
+	
+	line_size = planar ? nb_samples * sample_size : nb_samples * sample_size * nb_channels;
+	
+	if (buf_size < 0)
+		return buf_size;
+ 
+	audio_data[0] = (uint8_t *)buf;
+	for (ch = 1; planar && ch < nb_channels; ch++)
+		audio_data[ch] = audio_data[ch-1] + line_size;
+ 
+	if (linesize)
+		*linesize = line_size;
+ 
+	return buf_size;
+}
+
 /*replace av_fill_audio_frame*/
 static int encod_fill_audio_frame(AVFrame *frame, int nb_channels,
 	enum AVSampleFormat sample_fmt, const uint8_t *buf,
@@ -1599,7 +1627,7 @@ static int encod_fill_audio_frame(AVFrame *frame, int nb_channels,
 		frame->extended_data = frame->data;
 	}
  
-	if ((ret = av_samples_fill_arrays(frame->extended_data, &frame->linesize[0],
+	if ((ret = enc_samples_fill_arrays(frame->extended_data, &frame->linesize[0],
 		(uint8_t *)(intptr_t)buf, nb_channels, frame->nb_samples,
 		sample_fmt, align)) < 0) 
 	{
