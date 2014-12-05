@@ -48,13 +48,15 @@
 
 #ifdef HAVE_LIBAVUTIL_VERSION_H
 	#include <libavutil/version.h>
+#else
+	#include <libavutil/avutil.h>
 #endif
 
 #define LIBAVCODEC_VER_AT_LEAST(major,minor)  (LIBAVCODEC_VERSION_MAJOR > major || \
                                               (LIBAVCODEC_VERSION_MAJOR == major && \
                                                LIBAVCODEC_VERSION_MINOR >= minor))
 
-#ifdef HAVE_LIBAVUTIL_VERSION_H
+#ifdef LIBAVUTIL_VERSION_MAJOR
 #define LIBAVUTIL_VER_AT_LEAST(major,minor)  (LIBAVUTIL_VERSION_MAJOR > major || \
                                               (LIBAVUTIL_VERSION_MAJOR == major && \
                                                LIBAVUTIL_VERSION_MINOR >= minor))
