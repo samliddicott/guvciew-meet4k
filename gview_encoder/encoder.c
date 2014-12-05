@@ -1624,7 +1624,7 @@ int encoder_encode_audio(encoder_context_t *encoder_ctx, void *audio_data)
 		/*number of samples per channel*/
 		audio_codec_data->frame->nb_samples  = audio_codec_data->codec_context->frame_size;
 
-#if LIBAVUTIL_VER_AT_LEAST(51,22)
+#if LIBAVUTIL_VER_AT_LEAST(51,23)
 		int align = 0;
 #else
 		int align = 1; /*otherwise it causes a SIGFPE*/
