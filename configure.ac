@@ -132,19 +132,19 @@ AC_SUBST(GVIEWV4L2CORE_LIBS)
 dnl --------------------------------------------------------------------------
 dnl check internal yuv format (packed yuyv - default) or planar (iyuv) 
 dnl --------------------------------------------------------------------------
-AC_MSG_CHECKING(if you want to enable iyuv (planar 420) as internal format)
-AC_ARG_ENABLE(iyuv, AS_HELP_STRING([--enable-iyuv],
-		[enable iyuv (planar 420) as internal format (default: disabled)]),
-	[enable_iyuv=$enableval],
-	[enable_iyuv=no])
+AC_MSG_CHECKING(if you want to enable yuyv (packed) as internal format)
+AC_ARG_ENABLE(yuyv, AS_HELP_STRING([--enable-yuyv],
+		[enable yuyv (packed) as internal format (default: iyuv (420 planar))]),
+	[enable_yuyv=$enableval],
+	[enable_yuyv=no])
 
-AC_MSG_RESULT($enable_iyuv)
+AC_MSG_RESULT($enable_yuyv)
 
-if test $enable_iyuv = yes; then
-	AC_DEFINE(USE_PLANAR_YUV, 1, [set to 1 if iyuv is enabled])
-	yuv_format="iyuv (alpha)"
-else
+if test $enable_yuyv = yes; then
 	yuv_format=yuyv
+else
+	AC_DEFINE(USE_PLANAR_YUV, 1, [set to 1 if iyuv is enabled])
+	yuv_format=iyuv
 fi
 
 dnl --------------------------------------------------------------------------
@@ -153,14 +153,14 @@ dnl --------------------------------------------------------------------------
 
 dnl Check for avcodec.h directly
 dnl if all tests fail must add avcodec.h path to C_INCLUDE_PATH before running configure
-ORIGINAL_CPPFLAGS="${CPPFLAGS}"
+dnl ORIGINAL_CPPFLAGS="${CPPFLAGS}"
 dnl make sure we search using the CFLAGS includes
-CPPFLAGS+="${GVIEWV4L2CORE_CFLAGS}"
+dnl CPPFLAGS+="${GVIEWV4L2CORE_CFLAGS}"
 
-AC_CHECK_HEADERS([avcodec.h libavcodec/avcodec.h ffmpeg/avcodec.h])
+AC_CHECK_HEADERS([libavcodec/avcodec.h ffmpeg/avcodec.h])
 
 dnl restore CCPFLAGS to avoid redefinitions in debian build tree
-CPPFLAGS="${ORIGINAL_CPPFLAGS}"
+dnl CPPFLAGS="${ORIGINAL_CPPFLAGS}"
 
 dnl --------------------------------------------------------------------------
 dnl Check if we will use libavcodec or the internal decoder for mjpeg decoding

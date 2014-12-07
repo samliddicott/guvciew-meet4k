@@ -29,18 +29,14 @@
 
 #include "../config.h"
 
-#ifdef HAVE_LIBAVCODEC_AVCODEC_H
+#ifdef HAVE_FFMPEG_AVCODEC_H
+#include <ffmpeg/avcodec.h>
+#else
 #include <libavcodec/avcodec.h>
 	#ifdef HAVE_LIBAVUTIL_VERSION_H
 #include <libavutil/version.h>
 	#else
 #include <libavutil/avutil.h>
-	#endif
-#else
-	#ifdef HAVE_FFMPEG_AVCODEC_H
-#include <ffmpeg/avcodec.h>
-	#else
-#include <avcodec.h>
 	#endif
 #endif 
 
