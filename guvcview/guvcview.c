@@ -94,6 +94,8 @@ int main(int argc, char *argv[])
             }
         }
     }
+	
+	printf("GUVCVIEW: version %s\n", PACKAGE_VERSION);
 
 	// Register signal and signal handler
 	signal(SIGINT,  signal_callback_handler);
