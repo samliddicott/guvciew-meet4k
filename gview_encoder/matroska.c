@@ -822,8 +822,9 @@ static int mkv_cache_packet(mkv_context_t* mkv_ctx,
 
 	if(mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_write_index].data_size > 0)
 	{
-		fprintf(stderr,"ENCODER: (matroska) packet buffer [%i] is in use: flushing cached data\n",
-			mkv_ctx->pkt_buffer_write_index);
+		if(verbosity > 0)
+			fprintf(stderr,"ENCODER: (matroska) packet buffer [%i] is in use: flushing cached data\n",
+				mkv_ctx->pkt_buffer_write_index);
 
 		int ret = mkv_write_packet_internal(mkv_ctx,
 							mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_write_index].stream_index,
