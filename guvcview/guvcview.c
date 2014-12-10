@@ -95,8 +95,6 @@ int main(int argc, char *argv[])
         }
     }
 	
-	printf("GUVCVIEW: version %s\n", PACKAGE_VERSION);
-
 	// Register signal and signal handler
 	signal(SIGINT,  signal_callback_handler);
 	signal(SIGUSR1, signal_callback_handler);
@@ -111,6 +109,8 @@ int main(int argc, char *argv[])
 	/*parse command line options*/
 	if(options_parse(argc, argv))
 		return 0;
+	
+	printf("GUVCVIEW: version %s\n", VERSION);
 
 	/*get command line options*/
 	options_t *my_options = options_get();
