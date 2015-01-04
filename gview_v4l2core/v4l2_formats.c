@@ -498,6 +498,14 @@ static int enum_frame_sizes(v4l2_dev_t *vd, uint32_t pixfmt, int fmtind)
 		int width = fmt.fmt.pix.width;
 		int height = fmt.fmt.pix.height;
 
+		if(width <= 0 || height <= 0)
+		{
+			printf("{ VIDIOC_TRY_FMT (invalid values): width = %u, height = %u }\n",
+				vd->format.fmt.pix.width,
+				vd->format.fmt.pix.height);
+			return EINVAL;
+		}
+		
 		if(verbosity > 0)
 		{
 			printf("{ VIDIOC_TRY_FMT : width = %u, height = %u }\n",
@@ -556,7 +564,7 @@ static int enum_frame_sizes(v4l2_dev_t *vd, uint32_t pixfmt, int fmtind)
  *   vd->fd is valid ( > 0 )
  *   vd->list_stream_formats is null
  *
- * returns: 0 if enumeration succeded or errno otherwise
+ * returns: 0 (E_OK) if enumeration succeded or error otherwise
  */
 int enum_frame_formats(v4l2_dev_t *vd)
 {
@@ -568,6 +576,7 @@ int enum_frame_formats(v4l2_dev_t *vd)
 	int ret=E_OK;
 
 	int fmtind=0;
+	int valid_formats=0; /*number of valid formats found (with valid frame sizes)*/
 	struct v4l2_fmtdesc fmt;
 	memset(&fmt, 0, sizeof(fmt));
 	fmt.index = 0;
@@ -616,13 +625,18 @@ int enum_frame_formats(v4l2_dev_t *vd)
 		ret = enum_frame_sizes(vd, fmt.pixelformat, fmtind);
 		if (ret != 0)
 			fprintf( stderr, "v4L2_CORE: Unable to enumerate frame sizes :%s\n", strerror(ret));
+		
+		if(dec_support && !ret)
+			valid_formats++; /*the format can be decoded and it has valid frame sizes*/
 	}
 
 	if (errno != EINVAL)
 		fprintf( stderr, "v4L2_CORE: (VIDIOC_ENUM_FMT) - Error enumerating frame formats: %s\n", strerror(errno));
 
-
-	return (ret);
+	if(valid_formats > 0)
+		return E_OK;
+	else
+		return E_DEVICE_ERR;
 }
 
 /* get frame format index from format list

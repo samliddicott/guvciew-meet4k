@@ -61,7 +61,7 @@ uint8_t can_decode_format(int pixelformat);
  *   vd->fd is valid ( > 0 )
  *   vd->list_stream_formats is null
  *
- * returns: 0 if enumeration succeded or errno otherwise
+ * returns: 0 (E_OK) if enumeration succeded or error otherwise
  */
 int enum_frame_formats(v4l2_dev_t *vd);
 

@@ -167,7 +167,12 @@ static int check_v4l2_dev()
 		printf("V4L2_CORE: Init. %s (location: %s)\n", vd->cap.card, vd->cap.bus_info);
 
 	/*enumerate frame formats supported by device*/
-	enum_frame_formats(vd);
+	int ret = enum_frame_formats(vd);
+	if(ret != E_OK)
+	{
+		fprintf(stderr, "V4L2_CORE: no valid frame formats (with valid sizes) found for device\n");
+		return ret;
+	}	
 
 	/*add h264 (uvc muxed) to format list if supported by device*/
 	add_h264_format(vd);
