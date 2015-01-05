@@ -437,122 +437,72 @@ static int enum_frame_sizes(v4l2_dev_t *vd, uint32_t pixfmt, int fmtind)
 			if (ret != 0)
 				fprintf(stderr, "V4L2_CORE:  Unable to enumerate frame sizes %s\n", strerror(ret));
 		}
-		else if (fsize.type == V4L2_FRMSIZE_TYPE_CONTINUOUS)
+		else if (fsize.type == V4L2_FRMSIZE_TYPE_CONTINUOUS || fsize.type == V4L2_FRMSIZE_TYPE_STEPWISE)
 		{
 			if(verbosity > 0)
 			{
-				printf("{ continuous: min { width = %u, height = %u } .. "
-					"max { width = %u, height = %u } }\n",
-					fsize.stepwise.min_width, fsize.stepwise.min_height,
-					fsize.stepwise.max_width, fsize.stepwise.max_height);
-				
-				/*add at least min and max values*/
-				fsizeind++; /*min*/
-				
-				vd->list_stream_formats[fmtind-1].list_stream_cap = realloc(
-					vd->list_stream_formats[fmtind-1].list_stream_cap,
-					fsizeind * sizeof(v4l2_stream_cap_t));
-
-				assert(vd->list_stream_formats[fmtind-1].list_stream_cap != NULL);
-				
-				vd->list_stream_formats[fmtind-1].numb_res = fsizeind;
-
-				vd->list_stream_formats[fmtind-1].list_stream_cap[fsizeind-1].width = fsize.stepwise.min_width;
-				vd->list_stream_formats[fmtind-1].list_stream_cap[fsizeind-1].height = fsize.stepwise.min_height;
-
-				ret = enum_frame_intervals(vd,
-					pixfmt,
-					fsize.stepwise.min_width,
-					fsize.stepwise.min_height,
-					fmtind,
-					fsizeind);
-
-				if (ret != 0)
-					fprintf(stderr, "V4L2_CORE:  Unable to enumerate frame sizes %s\n", strerror(ret));
-				
-				fsizeind++; /*max*/
-				
-				vd->list_stream_formats[fmtind-1].list_stream_cap = realloc(
-					vd->list_stream_formats[fmtind-1].list_stream_cap,
-					fsizeind * sizeof(v4l2_stream_cap_t));
-
-				assert(vd->list_stream_formats[fmtind-1].list_stream_cap != NULL);
-				
-				vd->list_stream_formats[fmtind-1].numb_res = fsizeind;
-
-				vd->list_stream_formats[fmtind-1].list_stream_cap[fsizeind-1].width = fsize.stepwise.max_width;
-				vd->list_stream_formats[fmtind-1].list_stream_cap[fsizeind-1].height = fsize.stepwise.max_height;
-
-				ret = enum_frame_intervals(vd,
-					pixfmt,
-					fsize.stepwise.max_width,
-					fsize.stepwise.max_height,
-					fmtind,
-					fsizeind);
-
-				if (ret != 0)
-					fprintf(stderr, "V4L2_CORE:  Unable to enumerate frame sizes %s\n", strerror(ret));	
-				
+				if(fsize.type == V4L2_FRMSIZE_TYPE_CONTINUOUS)
+					printf("{ continuous: min { width = %u, height = %u } .. "
+						"max { width = %u, height = %u } }\n",
+						fsize.stepwise.min_width, fsize.stepwise.min_height,
+						fsize.stepwise.max_width, fsize.stepwise.max_height);
+				else
+					printf("{ stepwise: min { width = %u, height = %u } .. "
+						"max { width = %u, height = %u } / "
+						"stepsize { width = %u, height = %u } }\n",
+						fsize.stepwise.min_width, fsize.stepwise.min_height,
+						fsize.stepwise.max_width, fsize.stepwise.max_height,
+						fsize.stepwise.step_width, fsize.stepwise.step_height);
 			}
-		}
-		else if (fsize.type == V4L2_FRMSIZE_TYPE_STEPWISE)
-		{
-			if(verbosity > 0)
-			{
-				printf("{ stepwise: min { width = %u, height = %u } .. "
-					"max { width = %u, height = %u } / "
-					"stepsize { width = %u, height = %u } }\n",
-					fsize.stepwise.min_width, fsize.stepwise.min_height,
-					fsize.stepwise.max_width, fsize.stepwise.max_height,
-					fsize.stepwise.step_width, fsize.stepwise.step_height);
 				
-				/*add at least min and max values*/
-				fsizeind++; /*min*/
+			/*add at least min and max values*/
+			fsizeind++; /*min*/
 				
-				vd->list_stream_formats[fmtind-1].list_stream_cap = realloc(
-					vd->list_stream_formats[fmtind-1].list_stream_cap,
-					fsizeind * sizeof(v4l2_stream_cap_t));
+			vd->list_stream_formats[fmtind-1].list_stream_cap = realloc(
+				vd->list_stream_formats[fmtind-1].list_stream_cap,
+				fsizeind * sizeof(v4l2_stream_cap_t));
 
-				assert(vd->list_stream_formats[fmtind-1].list_stream_cap != NULL);
+			assert(vd->list_stream_formats[fmtind-1].list_stream_cap != NULL);
 				
-				vd->list_stream_formats[fmtind-1].numb_res = fsizeind;
+			vd->list_stream_formats[fmtind-1].numb_res = fsizeind;
 
-				vd->list_stream_formats[fmtind-1].list_stream_cap[fsizeind-1].width = fsize.stepwise.min_width;
-				vd->list_stream_formats[fmtind-1].list_stream_cap[fsizeind-1].height = fsize.stepwise.min_height;
+			vd->list_stream_formats[fmtind-1].list_stream_cap[fsizeind-1].width = fsize.stepwise.min_width;
+			vd->list_stream_formats[fmtind-1].list_stream_cap[fsizeind-1].height = fsize.stepwise.min_height;
 
-				ret = enum_frame_intervals(vd,
-					pixfmt,
-					fsize.stepwise.min_width,
-					fsize.stepwise.min_height,
-					fmtind,
-					fsizeind);
+			ret = enum_frame_intervals(vd,
+				pixfmt,
+				fsize.stepwise.min_width,
+				fsize.stepwise.min_height,
+				fmtind,
+				fsizeind);
 
-				if (ret != 0)
-					fprintf(stderr, "V4L2_CORE:  Unable to enumerate frame sizes %s\n", strerror(ret));
+			if (ret != 0)
+				fprintf(stderr, "V4L2_CORE:  Unable to enumerate frame sizes %s\n", strerror(ret));
+					
 				
-				fsizeind++; /*max*/
+			fsizeind++; /*max*/
 				
-				vd->list_stream_formats[fmtind-1].list_stream_cap = realloc(
-					vd->list_stream_formats[fmtind-1].list_stream_cap,
-					fsizeind * sizeof(v4l2_stream_cap_t));
+			vd->list_stream_formats[fmtind-1].list_stream_cap = realloc(
+				vd->list_stream_formats[fmtind-1].list_stream_cap,
+				fsizeind * sizeof(v4l2_stream_cap_t));
 
-				assert(vd->list_stream_formats[fmtind-1].list_stream_cap != NULL);
+			assert(vd->list_stream_formats[fmtind-1].list_stream_cap != NULL);
 				
-				vd->list_stream_formats[fmtind-1].numb_res = fsizeind;
+			vd->list_stream_formats[fmtind-1].numb_res = fsizeind;
 
-				vd->list_stream_formats[fmtind-1].list_stream_cap[fsizeind-1].width = fsize.stepwise.max_width;
-				vd->list_stream_formats[fmtind-1].list_stream_cap[fsizeind-1].height = fsize.stepwise.max_height;
+			vd->list_stream_formats[fmtind-1].list_stream_cap[fsizeind-1].width = fsize.stepwise.max_width;
+			vd->list_stream_formats[fmtind-1].list_stream_cap[fsizeind-1].height = fsize.stepwise.max_height;
 
-				ret = enum_frame_intervals(vd,
-					pixfmt,
-					fsize.stepwise.max_width,
-					fsize.stepwise.max_height,
-					fmtind,
-					fsizeind);
+			ret = enum_frame_intervals(vd,
+				pixfmt,
+				fsize.stepwise.max_width,
+				fsize.stepwise.max_height,
+				fmtind,
+				fsizeind);
 
-				if (ret != 0)
-					fprintf(stderr, "V4L2_CORE:  Unable to enumerate frame sizes %s\n", strerror(ret));
-			}
+			if (ret != 0)
+				fprintf(stderr, "V4L2_CORE:  Unable to enumerate frame sizes %s\n", strerror(ret));	
+				
 		}
 		else
 		{
