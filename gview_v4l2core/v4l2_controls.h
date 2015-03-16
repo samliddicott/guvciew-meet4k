@@ -47,7 +47,6 @@ int enumerate_v4l2_control(v4l2_dev_t *vd);
  *
  * asserts:
  *   vd is not null
- *   vd->list_device_controls is not null
  *
  * returns: pointer to v4l2_control if succeded or null otherwise
  */
@@ -89,7 +88,6 @@ int set_control_value_by_id(v4l2_dev_t *vd, int id);
  *
  * asserts:
  *   vd is not null
- *   vd->list_device_controls is not null
  *
  * returns: void
  */
@@ -102,7 +100,6 @@ void get_v4l2_control_values (v4l2_dev_t *vd);
  *
  * asserts:
  *   vd is not null
- *   vd->list_device_controls is not null
  *
  * returns: void
  */
@@ -115,7 +112,6 @@ void set_v4l2_control_values (v4l2_dev_t *vd);
  *
  * asserts:
  *   vd is not null
- *   vd->list_device_controls is not null
  *
  * returns: void
  */
@@ -145,7 +141,6 @@ void disable_special_auto (v4l2_dev_t *vd, int id);
  *
  * asserts:
  *   vd is not null
- *   vd->list_device_controls is not null
  *
  * returns: void
  */

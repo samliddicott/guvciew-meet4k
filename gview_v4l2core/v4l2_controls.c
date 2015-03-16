@@ -240,7 +240,6 @@ static void print_control(v4l2_ctrl_t *control, int i)
  *
  * asserts:
  *   vd is not null
- *   vd->list_device_controls is not null
  *
  * returns: void
  */
@@ -248,7 +247,12 @@ static void print_control_list(v4l2_dev_t *vd)
 {
 	/*asserts*/
 	assert(vd != NULL);
-	assert(vd->list_device_controls != NULL);
+	
+	if(vd->list_device_controls == NULL)
+	{
+		printf("V4L2_CORE: WARNING empty control list\n");
+		return;
+	}
 
 	int i = 0;
 	v4l2_ctrl_t *current = vd->list_device_controls;
@@ -771,7 +775,6 @@ void disable_special_auto (v4l2_dev_t *vd, int id)
  * asserts:
  *   vd is not null
  *   vd->fd is valid
- *   vd->list_device_controls is not null
  *
  * returns: void
  */
@@ -780,7 +783,12 @@ void get_v4l2_control_values (v4l2_dev_t *vd)
     /*asserts*/
     assert(vd != NULL);
     assert(vd->fd > 0);
-    assert(vd->list_device_controls != NULL);
+
+    if(vd->list_device_controls == NULL)
+	{
+		printf("V4L2_CORE: (get control values) empty control list\n");
+		return;
+	}
 
     int ret = 0;
     struct v4l2_ext_control clist[vd->num_controls];
@@ -919,7 +927,6 @@ void get_v4l2_control_values (v4l2_dev_t *vd)
  *
  * asserts:
  *   vd is not null
- *   vd->list_device_controls is not null
  *
  * returns: pointer to v4l2_control if succeded or null otherwise
  */
@@ -927,11 +934,13 @@ v4l2_ctrl_t *get_control_by_id(v4l2_dev_t *vd, int id)
 {
 	/*asserts*/
 	assert(vd != NULL);
-	assert(vd->list_device_controls != NULL);
-
-    v4l2_ctrl_t *current = vd->list_device_controls;
+	
+	v4l2_ctrl_t *current = vd->list_device_controls;
     for(; current != NULL; current = current->next)
     {
+		if(current == NULL)
+			break;
+
         if(current->control.id == id)
             return (current);
     }
@@ -1065,7 +1074,6 @@ int get_control_value_by_id (v4l2_dev_t *vd, int id)
  * asserts:
  *   vd is not null
  *   vd->fd is valid
- *   vd->list_device_controls is not null
  *
  * returns: void
  */
@@ -1074,7 +1082,12 @@ void set_v4l2_control_values (v4l2_dev_t *vd)
 	/*asserts*/
 	assert(vd != NULL);
 	assert(vd->fd > 0);
-	assert(vd->list_device_controls != NULL);
+	
+	if(vd->list_device_controls == NULL)
+	{
+		printf("V4L2_CORE: (set control values) empty control list\n");
+		return;
+	}
 
     int ret = 0;
     struct v4l2_ext_control clist[vd->num_controls];
@@ -1216,7 +1229,6 @@ void set_v4l2_control_values (v4l2_dev_t *vd)
  *
  * asserts:
  *   vd is not null
- *   vd->list_device_controls is not null
  *
  * returns: void
  */
@@ -1224,7 +1236,12 @@ void set_control_defaults(v4l2_dev_t *vd)
 {
 	/*asserts*/
 	assert(vd != NULL);
-	assert(vd->list_device_controls != NULL);
+	
+	if(vd->list_device_controls == NULL)
+	{
+		printf("V4L2_CORE: (set control defaults) empty control list\n");
+		return;
+	}
 
     v4l2_ctrl_t *current = vd->list_device_controls;
     v4l2_ctrl_t *next = current->next;
@@ -1376,7 +1393,6 @@ int set_control_value_by_id(v4l2_dev_t *vd, int id)
  *
  * asserts:
  *   vd is not null
- *   vd->list_device_controls is not null
  *
  * returns: void
  */
@@ -1384,7 +1400,11 @@ void free_v4l2_control_list(v4l2_dev_t *vd)
 {
 	/*asserts*/
 	assert(vd != NULL);
-	assert(vd->list_device_controls != NULL);
+	
+	if(vd->list_device_controls == NULL)
+	{
+		return;
+	}
 
 	v4l2_ctrl_t *first = vd->list_device_controls;
 
