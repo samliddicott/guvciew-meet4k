@@ -153,14 +153,17 @@ static int query_ioctl(v4l2_dev_t *vd, int current_ctrl, struct v4l2_queryctrl* 
  *   i - control index (from control list)
  *
  * asserts:
- *   control is not null
+ *   none
  *
  * returns: void
  */
 static void print_control(v4l2_ctrl_t *control, int i)
 {
-	/*assertions*/
-	assert(control != NULL);
+	if(control == NULL)
+	{
+		printf("V4L2_CORE: null control at index %i\n", i);
+		return;
+	}
 
 	int j=0;
 

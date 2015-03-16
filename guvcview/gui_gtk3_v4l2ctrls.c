@@ -125,6 +125,12 @@ int gui_attach_gtk3_v4l2ctrls(GtkWidget *parent)
 
     for(; current != NULL; current = current->next, ++n)
     {
+		if(current == NULL)
+		{
+			fprintf(stderr, "GUVCVIEW: ERROR (attach gtk3 controls) empty control in list\n");
+			break;
+		}
+
 		if(!is_control_panel &&
 		   (current->control.id == V4L2_CID_FOCUS_LOGITECH ||
 		    current->control.id == V4L2_CID_FOCUS_ABSOLUTE))
@@ -633,6 +639,12 @@ void gui_gtk3_update_controls_state()
 
     for(; current != NULL; current = current->next)
     {
+		if(current == NULL)
+		{
+			fprintf(stderr, "GUVCVIEW: ERROR (update controls state) empty control in list\n");
+			break;
+		}
+
 		control_widgets_t *cur_widget = gui_gtk3_get_widgets_by_id(current->control.id);
 
 		if(!cur_widget)
