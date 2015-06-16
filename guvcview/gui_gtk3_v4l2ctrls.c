@@ -152,7 +152,13 @@ int gui_attach_gtk3_v4l2ctrls(GtkWidget *parent)
         control_widgets_list[widget_list_size - 1].label = gtk_label_new (tmp);
         g_free(tmp);
         gtk_widget_show (control_widgets_list[widget_list_size - 1].label);
-        gtk_misc_set_alignment (GTK_MISC (control_widgets_list[widget_list_size - 1].label), 1, 0.5);
+#if GTK_VER_AT_LEAST(3,15)
+				gtk_label_set_xalign(GTK_LABEL(control_widgets_list[widget_list_size - 1].label), 1);
+				gtk_label_set_yalign(GTK_LABEL(control_widgets_list[widget_list_size - 1].label), 0.5);
+#else
+				gtk_misc_set_alignment (GTK_MISC (control_widgets_list[widget_list_size - 1].label), 1, 0.5);
+#endif
+        
 
 		control_widgets_list[widget_list_size - 1].id = current->control.id;
         control_widgets_list[widget_list_size - 1].widget = NULL;

@@ -100,7 +100,12 @@ int gui_attach_gtk3_videoctrls(GtkWidget *parent)
 
 	/*---- Devices ----*/
 	GtkWidget *label_Device = gtk_label_new(_("Device:"));
+#if GTK_VER_AT_LEAST(3,15)
+	gtk_label_set_xalign(GTK_LABEL(label_Device), 1);
+	gtk_label_set_yalign(GTK_LABEL(label_Device), 0.5);
+#else
 	gtk_misc_set_alignment (GTK_MISC (label_Device), 1, 0.5);
+#endif
 
 	gtk_grid_attach (GTK_GRID(video_controls_grid), label_Device, 0, line, 1, 1);
 
@@ -138,7 +143,12 @@ int gui_attach_gtk3_videoctrls(GtkWidget *parent)
 	line++;
 
 	GtkWidget *label_FPS = gtk_label_new(_("Frame Rate:"));
+#if GTK_VER_AT_LEAST(3,15)
+	gtk_label_set_xalign(GTK_LABEL(label_FPS), 1);
+	gtk_label_set_yalign(GTK_LABEL(label_FPS), 0.5);
+#else
 	gtk_misc_set_alignment (GTK_MISC (label_FPS), 1, 0.5);
+#endif
 	gtk_widget_show (label_FPS);
 
 	gtk_grid_attach (GTK_GRID(video_controls_grid), label_FPS, 0, line, 1, 1);
@@ -197,7 +207,12 @@ int gui_attach_gtk3_videoctrls(GtkWidget *parent)
 	line++;
 
 	GtkWidget *label_Resol = gtk_label_new(_("Resolution:"));
+#if GTK_VER_AT_LEAST(3,15)
+	gtk_label_set_xalign(GTK_LABEL(label_Resol), 1);
+	gtk_label_set_yalign(GTK_LABEL(label_Resol), 0.5);
+#else
 	gtk_misc_set_alignment (GTK_MISC (label_Resol), 1, 0.5);
+#endif
 	gtk_grid_attach (GTK_GRID(video_controls_grid), label_Resol, 0, line, 1, 1);
 	gtk_widget_show (label_Resol);
 
@@ -247,7 +262,12 @@ int gui_attach_gtk3_videoctrls(GtkWidget *parent)
 	line++;
 
 	GtkWidget *label_InpType = gtk_label_new(_("Camera Output:"));
+#if GTK_VER_AT_LEAST(3,15)
+	gtk_label_set_xalign(GTK_LABEL(label_InpType), 1);
+	gtk_label_set_yalign(GTK_LABEL(label_InpType), 0.5);
+#else
 	gtk_misc_set_alignment (GTK_MISC (label_InpType), 1, 0.5);
+#endif
 
 	gtk_widget_show (label_InpType);
 
@@ -280,7 +300,12 @@ int gui_attach_gtk3_videoctrls(GtkWidget *parent)
 	/* ----- Filter controls -----*/
 	line++;
 	GtkWidget *label_videoFilters = gtk_label_new(_("---- Video Filters ----"));
+#if GTK_VER_AT_LEAST(3,15)
+	gtk_label_set_xalign(GTK_LABEL(label_videoFilters), 0.5);
+	gtk_label_set_yalign(GTK_LABEL(label_videoFilters), 0.5);
+#else
 	gtk_misc_set_alignment (GTK_MISC (label_videoFilters), 0.5, 0.5);
+#endif
 
 	gtk_grid_attach (GTK_GRID(video_controls_grid), label_videoFilters, 0, line, 3, 1);
 	gtk_widget_show (label_videoFilters);

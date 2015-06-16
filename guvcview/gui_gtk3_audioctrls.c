@@ -94,8 +94,12 @@ int gui_attach_gtk3_audioctrls(GtkWidget *parent)
 	line++;
 
 	GtkWidget *label_SndAPI = gtk_label_new(_("Audio API:"));
+#if GTK_VER_AT_LEAST(3,15)
+	gtk_label_set_xalign(GTK_LABEL(label_SndAPI), 1);
+	gtk_label_set_yalign(GTK_LABEL(label_SndAPI), 0.5);
+#else
 	gtk_misc_set_alignment (GTK_MISC (label_SndAPI), 1, 0.5);
-
+#endif
 	gtk_grid_attach (GTK_GRID(audio_controls_grid), label_SndAPI, 0, line, 1, 1);
 	gtk_widget_show (label_SndAPI);
 
@@ -126,7 +130,12 @@ int gui_attach_gtk3_audioctrls(GtkWidget *parent)
 	line++;
 
 	GtkWidget *label_SndDevice = gtk_label_new(_("Input Device:"));
+#if GTK_VER_AT_LEAST(3,15)
+	gtk_label_set_xalign(GTK_LABEL(label_SndDevice), 1);
+	gtk_label_set_yalign(GTK_LABEL(label_SndDevice), 0.5);
+#else
 	gtk_misc_set_alignment (GTK_MISC (label_SndDevice), 1, 0.5);
+#endif
 
 	gtk_grid_attach (GTK_GRID(audio_controls_grid), label_SndDevice, 0, line, 1, 1);
 	gtk_widget_show (label_SndDevice);
@@ -161,7 +170,13 @@ int gui_attach_gtk3_audioctrls(GtkWidget *parent)
 	line++;
 
 	GtkWidget *label_SndSampRate = gtk_label_new(_("Sample Rate:"));
+#if GTK_VER_AT_LEAST(3,15)
+	gtk_label_set_xalign(GTK_LABEL(label_SndSampRate), 1);
+	gtk_label_set_yalign(GTK_LABEL(label_SndSampRate), 0.5);
+#else
 	gtk_misc_set_alignment (GTK_MISC (label_SndSampRate), 1, 0.5);
+#endif
+
 
 	gtk_grid_attach (GTK_GRID(audio_controls_grid), label_SndSampRate, 0, line, 1, 1);
 	gtk_widget_show (label_SndSampRate);
@@ -207,7 +222,12 @@ int gui_attach_gtk3_audioctrls(GtkWidget *parent)
 	line++;
 
 	GtkWidget *label_SndNumChan = gtk_label_new(_("Channels:"));
+#if GTK_VER_AT_LEAST(3,15)
+	gtk_label_set_xalign(GTK_LABEL(label_SndNumChan), 1);
+	gtk_label_set_yalign(GTK_LABEL(label_SndNumChan), 0.5);
+#else
 	gtk_misc_set_alignment (GTK_MISC (label_SndNumChan), 1, 0.5);
+#endif
 
 	gtk_grid_attach (GTK_GRID(audio_controls_grid), label_SndNumChan, 0, line, 1, 1);
 	gtk_widget_show (label_SndNumChan);
@@ -236,7 +256,12 @@ int gui_attach_gtk3_audioctrls(GtkWidget *parent)
 	line++;
 
 	GtkWidget *label_Latency = gtk_label_new(_("Latency:"));
+#if GTK_VER_AT_LEAST(3,15)
+	gtk_label_set_xalign(GTK_LABEL(label_Latency), 1);
+	gtk_label_set_yalign(GTK_LABEL(label_Latency), 0.5);
+#else
 	gtk_misc_set_alignment (GTK_MISC (label_Latency), 1, 0.5);
+#endif
 
 	gtk_grid_attach (GTK_GRID(audio_controls_grid), label_Latency, 0, line, 1, 1);
 	gtk_widget_show (label_Latency);
@@ -275,7 +300,12 @@ int gui_attach_gtk3_audioctrls(GtkWidget *parent)
 	/* ----- Filter controls -----*/
 	line++;
 	GtkWidget *label_audioFilters = gtk_label_new(_("---- Audio Filters ----"));
+#if GTK_VER_AT_LEAST(3,15)
+	gtk_label_set_xalign(GTK_LABEL(label_audioFilters), 0.5);
+	gtk_label_set_yalign(GTK_LABEL(label_audioFilters), 0.5);
+#else
 	gtk_misc_set_alignment (GTK_MISC (label_audioFilters), 0.5, 0.5);
+#endif
 
 	gtk_grid_attach (GTK_GRID(audio_controls_grid), label_audioFilters, 0, line, 3, 1);
 	gtk_widget_show (label_audioFilters);

@@ -603,7 +603,12 @@ int gui_attach_gtk3_h264ctrls (GtkWidget *parent)
 	//bRateControlMode
 	line++;
 	GtkWidget* label_RateControlMode = gtk_label_new(_("Rate Control Mode:"));
+#if GTK_VER_AT_LEAST(3,15)
+	gtk_label_set_xalign(GTK_LABEL(label_RateControlMode), 1);
+	gtk_label_set_yalign(GTK_LABEL(label_RateControlMode), 0.5);
+#else
 	gtk_misc_set_alignment (GTK_MISC (label_RateControlMode), 1, 0.5);
+#endif
 	gtk_grid_attach (GTK_GRID(h264_controls_grid), label_RateControlMode, 0, line, 1, 1);
 	gtk_widget_show (label_RateControlMode);
 
@@ -639,7 +644,12 @@ int gui_attach_gtk3_h264ctrls (GtkWidget *parent)
 	//bRateControlMode flags (Bits 4-8)
 	line++;
 	GtkWidget* label_RateControlMode_cbr_flag = gtk_label_new(_("Rate Control Mode flags:"));
+#if GTK_VER_AT_LEAST(3,15)
+	gtk_label_set_xalign(GTK_LABEL(label_RateControlMode_cbr_flag), 1);
+	gtk_label_set_yalign(GTK_LABEL(label_RateControlMode_cbr_flag), 0.5);
+#else
 	gtk_misc_set_alignment (GTK_MISC (label_RateControlMode_cbr_flag), 1, 0.5);
+#endif
 	gtk_grid_attach (GTK_GRID(h264_controls_grid), label_RateControlMode_cbr_flag, 0, line, 1, 1);
 	gtk_widget_show (label_RateControlMode_cbr_flag);
 
@@ -664,7 +674,12 @@ int gui_attach_gtk3_h264ctrls (GtkWidget *parent)
 	//bTemporalScaleMode
 	line++;
 	GtkWidget* label_TemporalScaleMode = gtk_label_new(_("Temporal Scale Mode:"));
+#if GTK_VER_AT_LEAST(3,15)
+	gtk_label_set_xalign(GTK_LABEL(label_TemporalScaleMode), 1);
+	gtk_label_set_yalign(GTK_LABEL(label_TemporalScaleMode), 0.5);
+#else
 	gtk_misc_set_alignment (GTK_MISC (label_TemporalScaleMode), 1, 0.5);
+#endif
 	gtk_grid_attach (GTK_GRID(h264_controls_grid), label_TemporalScaleMode, 0, line, 1, 1);
 	gtk_widget_show (label_TemporalScaleMode);
 
@@ -694,7 +709,13 @@ int gui_attach_gtk3_h264ctrls (GtkWidget *parent)
 	//bSpatialScaleMode
 	line++;
 	GtkWidget* label_SpatialScaleMode = gtk_label_new(_("Spatial Scale Mode:"));
+#if GTK_VER_AT_LEAST(3,15)
+	gtk_label_set_xalign(GTK_LABEL(label_SpatialScaleMode), 1);
+	gtk_label_set_yalign(GTK_LABEL(label_SpatialScaleMode), 0.5);
+#else
 	gtk_misc_set_alignment (GTK_MISC (label_SpatialScaleMode), 1, 0.5);
+#endif
+
 	gtk_grid_attach (GTK_GRID(h264_controls_grid), label_SpatialScaleMode, 0, line, 1, 1);
 	gtk_widget_show (label_SpatialScaleMode);
 
@@ -724,7 +745,12 @@ int gui_attach_gtk3_h264ctrls (GtkWidget *parent)
     {
 		line++;
 		GtkWidget* label_FrameInterval = gtk_label_new(_("Frame Interval (100ns units):"));
-		gtk_misc_set_alignment (GTK_MISC (label_FrameInterval), 1, 0.5);
+#if GTK_VER_AT_LEAST(3,15)
+	gtk_label_set_xalign(GTK_LABEL(label_FrameInterval), 1);
+	gtk_label_set_yalign(GTK_LABEL(label_FrameInterval), 0.5);
+#else
+	gtk_misc_set_alignment (GTK_MISC (label_FrameInterval), 1, 0.5);
+#endif
 		gtk_grid_attach (GTK_GRID(h264_controls_grid), label_FrameInterval, 0, line, 1, 1);
 		gtk_widget_show (label_FrameInterval);
 
@@ -761,7 +787,12 @@ int gui_attach_gtk3_h264ctrls (GtkWidget *parent)
 	//dwBitRate
 	line++;
 	GtkWidget* label_BitRate = gtk_label_new(_("Bit Rate:"));
+#if GTK_VER_AT_LEAST(3,15)
+	gtk_label_set_xalign(GTK_LABEL(label_BitRate), 1);
+	gtk_label_set_yalign(GTK_LABEL(label_BitRate), 0.5);
+#else
 	gtk_misc_set_alignment (GTK_MISC (label_BitRate), 1, 0.5);
+#endif
 	gtk_grid_attach (GTK_GRID(h264_controls_grid), label_BitRate, 0, line, 1, 1);
 	gtk_widget_show (label_BitRate);
 
@@ -784,7 +815,12 @@ int gui_attach_gtk3_h264ctrls (GtkWidget *parent)
 	GtkWidget* hints_table = gtk_grid_new();
 
 	GtkWidget* label_Hints = gtk_label_new(_("Hints:"));
+#if GTK_VER_AT_LEAST(3,15)
+	gtk_label_set_xalign(GTK_LABEL(label_Hints), 1);
+	gtk_label_set_yalign(GTK_LABEL(label_Hints), 0.5);
+#else
 	gtk_misc_set_alignment (GTK_MISC (label_Hints), 1, 0.5);
+#endif
 	gtk_grid_attach (GTK_GRID(hints_table), label_Hints, 0, 1, 2, 1);
 	gtk_widget_show (label_Hints);
 
@@ -861,7 +897,12 @@ int gui_attach_gtk3_h264ctrls (GtkWidget *parent)
 	//wSliceMode
 	line++;
 	GtkWidget* label_SliceMode = gtk_label_new(_("Slice Mode:"));
+#if GTK_VER_AT_LEAST(3,15)
+	gtk_label_set_xalign(GTK_LABEL(label_SliceMode), 1);
+	gtk_label_set_yalign(GTK_LABEL(label_SliceMode), 0.5);
+#else
 	gtk_misc_set_alignment (GTK_MISC (label_SliceMode), 1, 0.5);
+#endif
 	gtk_grid_attach (GTK_GRID(h264_controls_grid), label_SliceMode, 0, line, 1, 1);
 	gtk_widget_show (label_SliceMode);
 
@@ -883,7 +924,12 @@ int gui_attach_gtk3_h264ctrls (GtkWidget *parent)
 	//wSliceUnits
 	line++;
 	GtkWidget* label_SliceUnits = gtk_label_new(_("Slice Units:"));
+#if GTK_VER_AT_LEAST(3,15)
+	gtk_label_set_xalign(GTK_LABEL(label_SliceUnits), 1);
+	gtk_label_set_yalign(GTK_LABEL(label_SliceUnits), 0.5);
+#else
 	gtk_misc_set_alignment (GTK_MISC (label_SliceUnits), 1, 0.5);
+#endif
 	gtk_grid_attach (GTK_GRID(h264_controls_grid), label_SliceUnits, 0, line, 1, 1);
 	gtk_widget_show (label_SliceUnits);
 
@@ -904,7 +950,12 @@ int gui_attach_gtk3_h264ctrls (GtkWidget *parent)
 	//wProfile
 	line++;
 	GtkWidget* label_Profile = gtk_label_new(_("Profile:"));
+#if GTK_VER_AT_LEAST(3,15)
+	gtk_label_set_xalign(GTK_LABEL(label_Profile), 1);
+	gtk_label_set_yalign(GTK_LABEL(label_Profile), 0.5);
+#else
 	gtk_misc_set_alignment (GTK_MISC (label_Profile), 1, 0.5);
+#endif
 	gtk_grid_attach (GTK_GRID(h264_controls_grid), label_Profile, 0, line, 1, 1);
 	gtk_widget_show (label_Profile);
 
@@ -962,7 +1013,12 @@ int gui_attach_gtk3_h264ctrls (GtkWidget *parent)
 	//wProfile (Bits 0-7)
 	line++;
 	GtkWidget* label_Profile_flags = gtk_label_new(_("Profile flags:"));
+#if GTK_VER_AT_LEAST(3,15)
+	gtk_label_set_xalign(GTK_LABEL(label_Profile_flags), 1);
+	gtk_label_set_yalign(GTK_LABEL(label_Profile_flags), 0.5);
+#else
 	gtk_misc_set_alignment (GTK_MISC (label_Profile_flags), 1, 0.5);
+#endif
 	gtk_grid_attach (GTK_GRID(h264_controls_grid), label_Profile_flags, 0, line, 1, 1);
 	gtk_widget_show (label_Profile_flags);
 
@@ -987,7 +1043,12 @@ int gui_attach_gtk3_h264ctrls (GtkWidget *parent)
 	//wIFramePeriod
 	line++;
 	GtkWidget* label_IFramePeriod = gtk_label_new(_("(I) Frame Period (ms):"));
+#if GTK_VER_AT_LEAST(3,15)
+	gtk_label_set_xalign(GTK_LABEL(label_IFramePeriod), 1);
+	gtk_label_set_yalign(GTK_LABEL(label_IFramePeriod), 0.5);
+#else
 	gtk_misc_set_alignment (GTK_MISC (label_IFramePeriod), 1, 0.5);
+#endif
 	gtk_grid_attach (GTK_GRID(h264_controls_grid), label_IFramePeriod, 0, line, 1, 1);
 	gtk_widget_show (label_IFramePeriod);
 
@@ -1008,7 +1069,12 @@ int gui_attach_gtk3_h264ctrls (GtkWidget *parent)
 	//wEstimatedVideoDelay
 	line++;
 	GtkWidget* label_EstimatedVideoDelay = gtk_label_new(_("Estimated Video Delay (ms):"));
+#if GTK_VER_AT_LEAST(3,15)
+	gtk_label_set_xalign(GTK_LABEL(label_EstimatedVideoDelay), 1);
+	gtk_label_set_yalign(GTK_LABEL(label_EstimatedVideoDelay), 0.5);
+#else
 	gtk_misc_set_alignment (GTK_MISC (label_EstimatedVideoDelay), 1, 0.5);
+#endif
 	gtk_grid_attach (GTK_GRID((h264_controls_grid)), label_EstimatedVideoDelay, 0, line, 1, 1);
 	gtk_widget_show (label_EstimatedVideoDelay);
 
@@ -1029,7 +1095,12 @@ int gui_attach_gtk3_h264ctrls (GtkWidget *parent)
     //wEstimatedMaxConfigDelay
 	line++;
 	GtkWidget* label_EstimatedMaxConfigDelay = gtk_label_new(_("Estimated Max Config Delay (ms):"));
+#if GTK_VER_AT_LEAST(3,15)
+	gtk_label_set_xalign(GTK_LABEL(label_EstimatedMaxConfigDelay), 1);
+	gtk_label_set_yalign(GTK_LABEL(label_EstimatedMaxConfigDelay), 0.5);
+#else
 	gtk_misc_set_alignment (GTK_MISC (label_EstimatedMaxConfigDelay), 1, 0.5);
+#endif
 	gtk_grid_attach (GTK_GRID(h264_controls_grid), label_EstimatedMaxConfigDelay, 0, line, 1, 1);
 	gtk_widget_show (label_EstimatedMaxConfigDelay);
 
@@ -1050,7 +1121,12 @@ int gui_attach_gtk3_h264ctrls (GtkWidget *parent)
 	//bUsageType
 	line++;
 	GtkWidget* label_UsageType = gtk_label_new(_("Usage Type:"));
+#if GTK_VER_AT_LEAST(3,15)
+	gtk_label_set_xalign(GTK_LABEL(label_UsageType), 1);
+	gtk_label_set_yalign(GTK_LABEL(label_UsageType), 0.5);
+#else
 	gtk_misc_set_alignment (GTK_MISC (label_UsageType), 1, 0.5);
+#endif
 	gtk_grid_attach (GTK_GRID(h264_controls_grid), label_UsageType, 0, line, 1, 1);
 	gtk_widget_show (label_UsageType);
 
@@ -1085,7 +1161,12 @@ int gui_attach_gtk3_h264ctrls (GtkWidget *parent)
 	//bSNRScaleMode
 	line++;
 	GtkWidget* label_SNRScaleMode = gtk_label_new(_("SNR Control Mode:"));
+#if GTK_VER_AT_LEAST(3,15)
+	gtk_label_set_xalign(GTK_LABEL(label_SNRScaleMode), 1);
+	gtk_label_set_yalign(GTK_LABEL(label_SNRScaleMode), 0.5);
+#else
 	gtk_misc_set_alignment (GTK_MISC (label_SNRScaleMode), 1, 0.5);
+#endif
 	gtk_grid_attach (GTK_GRID(h264_controls_grid), label_SNRScaleMode, 0, line, 1, 1);
 	gtk_widget_show (label_SNRScaleMode);
 
@@ -1172,7 +1253,12 @@ int gui_attach_gtk3_h264ctrls (GtkWidget *parent)
 	//bStreamFormat
 	line++;
 	GtkWidget* label_StreamFormat = gtk_label_new(_("Stream Format:"));
+#if GTK_VER_AT_LEAST(3,15)
+	gtk_label_set_xalign(GTK_LABEL(label_StreamFormat), 1);
+	gtk_label_set_yalign(GTK_LABEL(label_StreamFormat), 0.5);
+#else
 	gtk_misc_set_alignment (GTK_MISC (label_StreamFormat), 1, 0.5);
+#endif
 	gtk_grid_attach (GTK_GRID((h264_controls_grid)), label_StreamFormat, 0, line, 1, 1);
 	gtk_widget_show (label_StreamFormat);
 
@@ -1193,7 +1279,12 @@ int gui_attach_gtk3_h264ctrls (GtkWidget *parent)
 	//bEntropyCABAC
 	line++;
 	GtkWidget* label_EntropyCABAC = gtk_label_new(_("Entropy CABAC:"));
+#if GTK_VER_AT_LEAST(3,15)
+	gtk_label_set_xalign(GTK_LABEL(label_EntropyCABAC), 1);
+	gtk_label_set_yalign(GTK_LABEL(label_EntropyCABAC), 0.5);
+#else
 	gtk_misc_set_alignment (GTK_MISC (label_EntropyCABAC), 1, 0.5);
+#endif
 	gtk_grid_attach (GTK_GRID(h264_controls_grid), label_EntropyCABAC, 0, line, 1, 1);
 	gtk_widget_show (label_EntropyCABAC);
 
@@ -1221,7 +1312,12 @@ int gui_attach_gtk3_h264ctrls (GtkWidget *parent)
 	//bNumOfReorderFrames
 	line++;
 	GtkWidget* label_NumOfReorderFrames = gtk_label_new(_("B Frames:"));
+#if GTK_VER_AT_LEAST(3,15)
+	gtk_label_set_xalign(GTK_LABEL(label_NumOfReorderFrames), 1);
+	gtk_label_set_yalign(GTK_LABEL(label_NumOfReorderFrames), 0.5);
+#else
 	gtk_misc_set_alignment (GTK_MISC (label_NumOfReorderFrames), 1, 0.5);
+#endif
 	gtk_grid_attach (GTK_GRID((h264_controls_grid)), label_NumOfReorderFrames, 0, line, 1, 1);
 	gtk_widget_show (label_NumOfReorderFrames);
 
@@ -1253,7 +1349,12 @@ int gui_attach_gtk3_h264ctrls (GtkWidget *parent)
 	//bView
 	line++;
 	GtkWidget* label_View = gtk_label_new(_("Additional MVC Views:"));
+#if GTK_VER_AT_LEAST(3,15)
+	gtk_label_set_xalign(GTK_LABEL(label_View), 1);
+	gtk_label_set_yalign(GTK_LABEL(label_View), 0.5);
+#else
 	gtk_misc_set_alignment (GTK_MISC (label_View), 1, 0.5);
+#endif
 	gtk_grid_attach (GTK_GRID(h264_controls_grid), label_View, 0, line, 1, 1);
 	gtk_widget_show (label_View);
 
@@ -1278,7 +1379,12 @@ int gui_attach_gtk3_h264ctrls (GtkWidget *parent)
     //bStreamID
 	line++;
 	GtkWidget* label_StreamID = gtk_label_new(_("Simulcast stream index:"));
+#if GTK_VER_AT_LEAST(3,15)
+	gtk_label_set_xalign(GTK_LABEL(label_StreamID), 1);
+	gtk_label_set_yalign(GTK_LABEL(label_StreamID), 0.5);
+#else
 	gtk_misc_set_alignment (GTK_MISC (label_StreamID), 1, 0.5);
+#endif
 	gtk_grid_attach (GTK_GRID(h264_controls_grid), label_StreamID, 0, line, 1, 1);
 	gtk_widget_show (label_StreamID);
 
@@ -1303,7 +1409,12 @@ int gui_attach_gtk3_h264ctrls (GtkWidget *parent)
     //bSpatialLayerRatio
 	line++;
 	GtkWidget* label_SpatialLayerRatio = gtk_label_new(_("Spatial Layer Ratio:"));
+#if GTK_VER_AT_LEAST(3,15)
+	gtk_label_set_xalign(GTK_LABEL(label_SpatialLayerRatio), 1);
+	gtk_label_set_yalign(GTK_LABEL(label_SpatialLayerRatio), 0.5);
+#else
 	gtk_misc_set_alignment (GTK_MISC (label_SpatialLayerRatio), 1, 0.5);
+#endif
 	gtk_grid_attach (GTK_GRID(h264_controls_grid), label_SpatialLayerRatio, 0, line, 1, 1);
 	gtk_widget_show (label_SpatialLayerRatio);
 
@@ -1332,7 +1443,12 @@ int gui_attach_gtk3_h264ctrls (GtkWidget *parent)
 	//wLeakyBucketSize
 	line++;
 	GtkWidget* label_LeakyBucketSize = gtk_label_new(_("Leaky Bucket Size (ms):"));
+#if GTK_VER_AT_LEAST(3,15)
+	gtk_label_set_xalign(GTK_LABEL(label_LeakyBucketSize), 1);
+	gtk_label_set_yalign(GTK_LABEL(label_LeakyBucketSize), 0.5);
+#else
 	gtk_misc_set_alignment (GTK_MISC (label_LeakyBucketSize), 1, 0.5);
+#endif
 	gtk_grid_attach (GTK_GRID(h264_controls_grid), label_LeakyBucketSize, 0, line, 1, 1);
 	gtk_widget_show (label_LeakyBucketSize);
 

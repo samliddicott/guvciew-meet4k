@@ -1752,7 +1752,12 @@ void encoder_video_properties(GtkMenuItem *item, void *data)
 	GtkWidget *table = gtk_grid_new();
 
 	GtkWidget *lbl_fps = gtk_label_new(_("                              encoder fps:   \n (0 - use fps combobox value)"));
+#if GTK_VER_AT_LEAST(3,15)
+	gtk_label_set_xalign(GTK_LABEL(lbl_fps), 1);
+	gtk_label_set_yalign(GTK_LABEL(lbl_fps), 0.5);
+#else
 	gtk_misc_set_alignment (GTK_MISC (lbl_fps), 1, 0.5);
+#endif
 	gtk_grid_attach (GTK_GRID(table), lbl_fps, 0, line, 1, 1);
 	gtk_widget_show (lbl_fps);
 
@@ -1772,7 +1777,12 @@ void encoder_video_properties(GtkMenuItem *item, void *data)
 	line++;
 
 	GtkWidget *lbl_bit_rate = gtk_label_new(_("bit rate:   "));
+#if GTK_VER_AT_LEAST(3,15)
+	gtk_label_set_xalign(GTK_LABEL(lbl_bit_rate), 1);
+	gtk_label_set_yalign(GTK_LABEL(lbl_bit_rate), 0.5);
+#else
 	gtk_misc_set_alignment (GTK_MISC (lbl_bit_rate), 1, 0.5);
+#endif
 	gtk_grid_attach (GTK_GRID(table), lbl_bit_rate, 0, line, 1, 1);
 	gtk_widget_show (lbl_bit_rate);
 
@@ -1785,7 +1795,12 @@ void encoder_video_properties(GtkMenuItem *item, void *data)
 	line++;
 
 	GtkWidget *lbl_qmax = gtk_label_new(_("qmax:   "));
+#if GTK_VER_AT_LEAST(3,15)
+	gtk_label_set_xalign(GTK_LABEL(lbl_qmax), 1);
+	gtk_label_set_yalign(GTK_LABEL(lbl_qmax), 0.5);
+#else
 	gtk_misc_set_alignment (GTK_MISC (lbl_qmax), 1, 0.5);
+#endif
 	gtk_grid_attach (GTK_GRID(table), lbl_qmax, 0, line, 1 ,1);
 	gtk_widget_show (lbl_qmax);
 
@@ -1798,7 +1813,12 @@ void encoder_video_properties(GtkMenuItem *item, void *data)
 	line++;
 
 	GtkWidget *lbl_qmin = gtk_label_new(_("qmin:   "));
+#if GTK_VER_AT_LEAST(3,15)
+	gtk_label_set_xalign(GTK_LABEL(lbl_qmin), 1);
+	gtk_label_set_yalign(GTK_LABEL(lbl_qmin), 0.5);
+#else
 	gtk_misc_set_alignment (GTK_MISC (lbl_qmin), 1, 0.5);
+#endif
 	gtk_grid_attach (GTK_GRID(table), lbl_qmin, 0, line, 1, 1);
 	gtk_widget_show (lbl_qmin);
 
@@ -1811,7 +1831,12 @@ void encoder_video_properties(GtkMenuItem *item, void *data)
 	line++;
 
 	GtkWidget *lbl_max_qdiff = gtk_label_new(_("max. qdiff:   "));
+#if GTK_VER_AT_LEAST(3,15)
+	gtk_label_set_xalign(GTK_LABEL(lbl_max_qdiff), 1);
+	gtk_label_set_yalign(GTK_LABEL(lbl_max_qdiff), 0.5);
+#else
 	gtk_misc_set_alignment (GTK_MISC (lbl_max_qdiff), 1, 0.5);
+#endif
 	gtk_grid_attach (GTK_GRID(table), lbl_max_qdiff, 0, line, 1, 1);
 	gtk_widget_show (lbl_max_qdiff);
 
@@ -1824,7 +1849,12 @@ void encoder_video_properties(GtkMenuItem *item, void *data)
 	line++;
 
 	GtkWidget *lbl_dia = gtk_label_new(_("dia size:   "));
+#if GTK_VER_AT_LEAST(3,15)
+	gtk_label_set_xalign(GTK_LABEL(lbl_dia), 1);
+	gtk_label_set_yalign(GTK_LABEL(lbl_dia), 0.5);
+#else
 	gtk_misc_set_alignment (GTK_MISC (lbl_dia), 1, 0.5);
+#endif
 	gtk_grid_attach (GTK_GRID(table), lbl_dia, 0, line, 1, 1);
 	gtk_widget_show (lbl_dia);
 
@@ -1837,7 +1867,12 @@ void encoder_video_properties(GtkMenuItem *item, void *data)
 	line++;
 
 	GtkWidget *lbl_pre_dia = gtk_label_new(_("pre dia size:   "));
+#if GTK_VER_AT_LEAST(3,15)
+	gtk_label_set_xalign(GTK_LABEL(lbl_pre_dia), 1);
+	gtk_label_set_yalign(GTK_LABEL(lbl_pre_dia), 0.5);
+#else
 	gtk_misc_set_alignment (GTK_MISC (lbl_pre_dia), 1, 0.5);
+#endif
 	gtk_grid_attach (GTK_GRID(table), lbl_pre_dia, 0, line, 1, 1);
 	gtk_widget_show (lbl_pre_dia);
 
