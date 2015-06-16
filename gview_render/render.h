@@ -37,3 +37,17 @@
  * returns: none
  */
 void render_osd_vu_meter(uint8_t *frame, int width, int height, float vu_level[2]);
+
+/*
+ * render a crossair
+ * args:
+ *   frame - pointer to yuyv frame data
+ *   width - frame width
+ *   height - frame height
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void render_crossair(uint8_t *frame, int width, int height);

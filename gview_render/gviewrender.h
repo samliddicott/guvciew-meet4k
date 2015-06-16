@@ -65,6 +65,7 @@ __BEGIN_DECLS
 #define REND_OSD_NONE           (0)
 #define REND_OSD_VUMETER_MONO   (1<<0)
 #define REND_OSD_VUMETER_STEREO (1<<1)
+#define REND_OSD_CROSSAIR       (1<<2)
 
 typedef int (*render_event_callback)(void *data);
 

@@ -113,8 +113,5 @@ static const int stdSampleRates[] =
 #define MAX(a,b) (((a) < (b)) ? (b) : (a))
 #endif
 
-/* On Screen Display flags*/
-#define OSD_METER  (1<<0)
-
 #endif
 

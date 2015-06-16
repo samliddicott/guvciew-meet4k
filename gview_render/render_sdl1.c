@@ -279,10 +279,14 @@ int render_sdl1_frame(uint8_t *frame, int width, int height)
 	 SDL_LockYUVOverlay(poverlay);
      memcpy(p, frame, size);
 
-     /*osd vu meter*/
-     if(((render_get_osd_mask() &
-		(REND_OSD_VUMETER_MONO | REND_OSD_VUMETER_STEREO))) != 0)
-		render_osd_vu_meter(p, width, height, vu_level);
+    /*osd vu meter*/
+    if(((render_get_osd_mask() &
+		  (REND_OSD_VUMETER_MONO | REND_OSD_VUMETER_STEREO))) != 0)
+		  render_osd_vu_meter(p, width, height, vu_level);
+    /*osd cross air*/
+    if(((render_get_osd_mask() &
+      REND_OSD_CROSSAIR)) != 0)
+      render_osd_crossair(texture_pixels, width, height);
 
      SDL_UnlockYUVOverlay(poverlay);
      SDL_DisplayYUVOverlay(poverlay, &drect);

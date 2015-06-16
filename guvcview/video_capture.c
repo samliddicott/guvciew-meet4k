@@ -655,12 +655,15 @@ static void *audio_processing_loop(void *data)
 
 	int sample_type = encoder_get_audio_sample_fmt(encoder_ctx);
 	
+	uint32_t osd_mask = render_get_osd_mask();
 
 	/*enable vu meter OSD display*/
 	if(audio_ctx->channels > 1)
-		render_set_osd_mask(REND_OSD_VUMETER_STEREO);
+		osd_mask |= REND_OSD_VUMETER_STEREO;
 	else
-		render_set_osd_mask(REND_OSD_VUMETER_MONO);
+		osd_mask |= REND_OSD_VUMETER_MONO;
+
+	render_set_osd_mask(osd_mask);
 
 	while(video_capture_get_save_video())
 	{
@@ -698,8 +701,11 @@ static void *audio_processing_loop(void *data)
 	audio_buff->level_meter[1] = 0;
 	render_set_vu_level(audio_buff->level_meter);
 
-	/*disable OSD*/
-	render_set_osd_mask(REND_OSD_NONE);
+	/*disable OSD vumeter*/
+	osd_mask &= ~REND_OSD_VUMETER_STEREO;
+	osd_mask &= ~REND_OSD_VUMETER_MONO;
+
+	render_set_osd_mask(osd_mask);
 
 	audio_stop(audio_ctx);
 	audio_delete_buffer(audio_buff);
