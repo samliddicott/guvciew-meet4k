@@ -1885,7 +1885,12 @@ void encoder_video_properties(GtkMenuItem *item, void *data)
 	line++;
 
 	GtkWidget *lbl_pre_me = gtk_label_new(_("pre me:   "));
+#if GTK_VER_AT_LEAST(3,15)
+	gtk_label_set_xalign(GTK_LABEL(lbl_pre_me), 1);
+	gtk_label_set_yalign(GTK_LABEL(lbl_pre_me), 0.5);
+#else
 	gtk_misc_set_alignment (GTK_MISC (lbl_pre_me), 1, 0.5);
+#endif
 	gtk_grid_attach (GTK_GRID(table), lbl_pre_me, 0, line, 1, 1);
 	gtk_widget_show (lbl_pre_me);
 
@@ -1898,7 +1903,12 @@ void encoder_video_properties(GtkMenuItem *item, void *data)
 	line++;
 
 	GtkWidget *lbl_me_pre_cmp = gtk_label_new(_("pre cmp:   "));
+#if GTK_VER_AT_LEAST(3,15)
+	gtk_label_set_xalign(GTK_LABEL(lbl_me_pre_cmp), 1);
+	gtk_label_set_yalign(GTK_LABEL(lbl_me_pre_cmp), 0.5);
+#else
 	gtk_misc_set_alignment (GTK_MISC (lbl_me_pre_cmp), 1, 0.5);
+#endif
 	gtk_grid_attach (GTK_GRID(table), lbl_me_pre_cmp, 0, line, 1, 1);
 	gtk_widget_show (lbl_me_pre_cmp);
 
@@ -1911,7 +1921,12 @@ void encoder_video_properties(GtkMenuItem *item, void *data)
 	line++;
 
 	GtkWidget *lbl_me_cmp = gtk_label_new(_("cmp:   "));
+#if GTK_VER_AT_LEAST(3,15)
+	gtk_label_set_xalign(GTK_LABEL(lbl_me_cmp), 1);
+	gtk_label_set_yalign(GTK_LABEL(lbl_me_cmp), 0.5);
+#else
 	gtk_misc_set_alignment (GTK_MISC (lbl_me_cmp), 1, 0.5);
+#endif
 	gtk_grid_attach (GTK_GRID(table), lbl_me_cmp, 0, line, 1, 1);
 	gtk_widget_show (lbl_me_cmp);
 
@@ -1924,7 +1939,12 @@ void encoder_video_properties(GtkMenuItem *item, void *data)
 	line++;
 
 	GtkWidget *lbl_me_sub_cmp = gtk_label_new(_("sub cmp:   "));
+#if GTK_VER_AT_LEAST(3,15)
+	gtk_label_set_xalign(GTK_LABEL(lbl_me_sub_cmp), 1);
+	gtk_label_set_yalign(GTK_LABEL(lbl_me_sub_cmp), 0.5);
+#else
 	gtk_misc_set_alignment (GTK_MISC (lbl_me_sub_cmp), 1, 0.5);
+#endif
 	gtk_grid_attach (GTK_GRID(table), lbl_me_sub_cmp, 0, line, 1, 1);
 	gtk_widget_show (lbl_me_sub_cmp);
 
@@ -1937,7 +1957,12 @@ void encoder_video_properties(GtkMenuItem *item, void *data)
 	line++;
 
 	GtkWidget *lbl_last_pred = gtk_label_new(_("last predictor count:   "));
+#if GTK_VER_AT_LEAST(3,15)
+	gtk_label_set_xalign(GTK_LABEL(lbl_last_pred), 1);
+	gtk_label_set_yalign(GTK_LABEL(lbl_last_pred), 0.5);
+#else
 	gtk_misc_set_alignment (GTK_MISC (lbl_last_pred), 1, 0.5);
+#endif
 	gtk_grid_attach (GTK_GRID(table), lbl_last_pred, 0, line, 1, 1);
 	gtk_widget_show (lbl_last_pred);
 
@@ -1950,7 +1975,12 @@ void encoder_video_properties(GtkMenuItem *item, void *data)
 	line++;
 
 	GtkWidget *lbl_gop_size = gtk_label_new(_("gop size:   "));
+#if GTK_VER_AT_LEAST(3,15)
+	gtk_label_set_xalign(GTK_LABEL(lbl_gop_size), 1);
+	gtk_label_set_yalign(GTK_LABEL(lbl_gop_size), 0.5);
+#else
 	gtk_misc_set_alignment (GTK_MISC (lbl_gop_size), 1, 0.5);
+#endif
 	gtk_grid_attach (GTK_GRID(table), lbl_gop_size, 0, line, 1, 1);
 	gtk_widget_show (lbl_gop_size);
 
@@ -1963,7 +1993,12 @@ void encoder_video_properties(GtkMenuItem *item, void *data)
 	line++;
 
 	GtkWidget *lbl_qcompress = gtk_label_new(_("qcompress:   "));
+#if GTK_VER_AT_LEAST(3,15)
+	gtk_label_set_xalign(GTK_LABEL(lbl_qcompress), 1);
+	gtk_label_set_yalign(GTK_LABEL(lbl_qcompress), 0.5);
+#else
 	gtk_misc_set_alignment (GTK_MISC (lbl_qcompress), 1, 0.5);
+#endif
 	gtk_grid_attach (GTK_GRID(table), lbl_qcompress, 0, line, 1, 1);
 	gtk_widget_show (lbl_qcompress);
 
@@ -1976,7 +2011,12 @@ void encoder_video_properties(GtkMenuItem *item, void *data)
 	line++;
 
 	GtkWidget *lbl_qblur = gtk_label_new(_("qblur:   "));
+#if GTK_VER_AT_LEAST(3,15)
+	gtk_label_set_xalign(GTK_LABEL(lbl_qblur), 1);
+	gtk_label_set_yalign(GTK_LABEL(lbl_qblur), 0.5);
+#else
 	gtk_misc_set_alignment (GTK_MISC (lbl_qblur), 1, 0.5);
+#endif
 	gtk_grid_attach (GTK_GRID(table), lbl_qblur, 0, line, 1 ,1);
 	gtk_widget_show (lbl_qblur);
 
@@ -1989,7 +2029,12 @@ void encoder_video_properties(GtkMenuItem *item, void *data)
 	line++;
 
 	GtkWidget *lbl_subq = gtk_label_new(_("subq:   "));
+#if GTK_VER_AT_LEAST(3,15)
+	gtk_label_set_xalign(GTK_LABEL(lbl_subq), 1);
+	gtk_label_set_yalign(GTK_LABEL(lbl_subq), 0.5);
+#else
 	gtk_misc_set_alignment (GTK_MISC (lbl_subq), 1, 0.5);
+#endif
 	gtk_grid_attach (GTK_GRID(table), lbl_subq, 0, line, 1 ,1);
 	gtk_widget_show (lbl_subq);
 
@@ -2002,7 +2047,12 @@ void encoder_video_properties(GtkMenuItem *item, void *data)
 	line++;
 
 	GtkWidget *lbl_framerefs = gtk_label_new(_("framerefs:   "));
+#if GTK_VER_AT_LEAST(3,15)
+	gtk_label_set_xalign(GTK_LABEL(lbl_framerefs), 1);
+	gtk_label_set_yalign(GTK_LABEL(lbl_framerefs), 0.5);
+#else
 	gtk_misc_set_alignment (GTK_MISC (lbl_framerefs), 1, 0.5);
+#endif
 	gtk_grid_attach (GTK_GRID(table), lbl_framerefs, 0, line, 1 ,1);
 	gtk_widget_show (lbl_framerefs);
 
@@ -2015,7 +2065,12 @@ void encoder_video_properties(GtkMenuItem *item, void *data)
 	line++;
 
 	GtkWidget *lbl_me_method = gtk_label_new(_("me method:   "));
+#if GTK_VER_AT_LEAST(3,15)
+	gtk_label_set_xalign(GTK_LABEL(lbl_me_method), 1);
+	gtk_label_set_yalign(GTK_LABEL(lbl_me_method), 0.5);
+#else
 	gtk_misc_set_alignment (GTK_MISC (lbl_me_method), 1, 0.5);
+#endif
 	gtk_grid_attach (GTK_GRID(table), lbl_me_method, 0, line, 1 ,1);
 	gtk_widget_show (lbl_me_method);
 
@@ -2028,7 +2083,12 @@ void encoder_video_properties(GtkMenuItem *item, void *data)
 	line++;
 
 	GtkWidget *lbl_mb_decision = gtk_label_new(_("mb decision:   "));
+#if GTK_VER_AT_LEAST(3,15)
+	gtk_label_set_xalign(GTK_LABEL(lbl_mb_decision), 1);
+	gtk_label_set_yalign(GTK_LABEL(lbl_mb_decision), 0.5);
+#else
 	gtk_misc_set_alignment (GTK_MISC (lbl_mb_decision), 1, 0.5);
+#endif
 	gtk_grid_attach (GTK_GRID(table), lbl_mb_decision, 0, line, 1 ,1);
 	gtk_widget_show (lbl_mb_decision);
 
@@ -2041,7 +2101,12 @@ void encoder_video_properties(GtkMenuItem *item, void *data)
 	line++;
 
 	GtkWidget *lbl_max_b_frames = gtk_label_new(_("max B frames:   "));
+#if GTK_VER_AT_LEAST(3,15)
+	gtk_label_set_xalign(GTK_LABEL(lbl_max_b_frames), 1);
+	gtk_label_set_yalign(GTK_LABEL(lbl_max_b_frames), 0.5);
+#else
 	gtk_misc_set_alignment (GTK_MISC (lbl_max_b_frames), 1, 0.5);
+#endif
 	gtk_grid_attach (GTK_GRID(table), lbl_max_b_frames, 0, line, 1 ,1);
 	gtk_widget_show (lbl_max_b_frames);
 
@@ -2054,7 +2119,12 @@ void encoder_video_properties(GtkMenuItem *item, void *data)
 	line++;
 
 	GtkWidget *lbl_num_threads = gtk_label_new(_("num threads:   "));
+#if GTK_VER_AT_LEAST(3,15)
+	gtk_label_set_xalign(GTK_LABEL(lbl_num_threads), 1);
+	gtk_label_set_yalign(GTK_LABEL(lbl_num_threads), 0.5);
+#else
 	gtk_misc_set_alignment (GTK_MISC (lbl_num_threads), 1, 0.5);
+#endif
 	gtk_grid_attach (GTK_GRID(table), lbl_num_threads, 0, line, 1 ,1);
 	gtk_widget_show (lbl_num_threads);
 
@@ -2132,7 +2202,12 @@ void encoder_audio_properties(GtkMenuItem *item, void *data)
 
 	/*bit rate*/
 	GtkWidget *lbl_bit_rate = gtk_label_new(_("bit rate:   "));
+#if GTK_VER_AT_LEAST(3,15)
+	gtk_label_set_xalign(GTK_LABEL(lbl_bit_rate), 1);
+	gtk_label_set_yalign(GTK_LABEL(lbl_bit_rate), 0.5);
+#else
 	gtk_misc_set_alignment (GTK_MISC (lbl_bit_rate), 1, 0.5);
+#endif
 	gtk_grid_attach (GTK_GRID(table), lbl_bit_rate, 0, line, 1, 1);
 	gtk_widget_show (lbl_bit_rate);
 
@@ -2146,7 +2221,12 @@ void encoder_audio_properties(GtkMenuItem *item, void *data)
 
 	/*sample format*/
 	GtkWidget *lbl_sample_fmt = gtk_label_new(_("sample format:   "));
+#if GTK_VER_AT_LEAST(3,15)
+	gtk_label_set_xalign(GTK_LABEL(lbl_sample_fmt), 1);
+	gtk_label_set_yalign(GTK_LABEL(lbl_sample_fmt), 0.5);
+#else
 	gtk_misc_set_alignment (GTK_MISC (lbl_sample_fmt), 1, 0.5);
+#endif
 	gtk_grid_attach (GTK_GRID(table), lbl_sample_fmt, 0, line, 1, 1);
 	gtk_widget_show (lbl_sample_fmt);
 
