@@ -309,10 +309,10 @@ int render_sdl2_frame(uint8_t *frame, int width, int height)
   if(((render_get_osd_mask() &
 		(REND_OSD_VUMETER_MONO | REND_OSD_VUMETER_STEREO))) != 0)
 		render_osd_vu_meter(texture_pixels, width, height, vu_level);
-  /*osd cross air*/
+  /*osd crosshair*/
   if(((render_get_osd_mask() &
-    REND_OSD_CROSSAIR)) != 0)
-    render_osd_crossair(texture_pixels, width, height);
+    REND_OSD_CROSSHAIR)) != 0)
+    render_osd_crosshair(texture_pixels, width, height);
 
 	SDL_UnlockTexture(rending_texture);
 

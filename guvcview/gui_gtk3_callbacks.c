@@ -1409,6 +1409,28 @@ void audio_fx_filter_changed(GtkToggleButton *toggle, void *data)
 }
 
 /*
+ * render osd changed event
+ * args:
+ *    toggle - widget that generated the event
+ *    data - pointer to user data
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void render_osd_changed(GtkToggleButton *toggle, void *data)
+{
+	int osd = GPOINTER_TO_INT(g_object_get_data (G_OBJECT (toggle), "osd_info"));
+
+	uint32_t mask = gtk_toggle_button_get_active (toggle) ?
+			render_get_osd_mask() | osd :
+			render_get_osd_mask() & ~osd;
+
+	render_set_osd_mask(mask);
+}
+
+/*
  * software autofocus checkbox changed event
  * args:
  *    toggle - widget that generated the event

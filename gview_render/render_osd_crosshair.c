@@ -40,7 +40,7 @@ typedef struct _yuv_color_t
 
 
 /*
- * plot a crossair in a yuyv frame (packed)
+ * plot a crosshair in a yuyv frame (packed)
  * args:
  *   frame - pointer to yuyv frame data
  *   size  - crossair size in pixels (width)
@@ -53,7 +53,7 @@ typedef struct _yuv_color_t
  *
  * returns: none
  */
-static plot_crossair_yuyv(uint8_t *frame, int size, int width, int height, yuv_color_t *color)
+static plot_crosshair_yuyv(uint8_t *frame, int size, int width, int height, yuv_color_t *color)
 {
 	int linesize = width*2; /*two bytes per pixel*/
 	
@@ -113,7 +113,7 @@ static plot_crossair_yuyv(uint8_t *frame, int size, int width, int height, yuv_c
 }
 
 /*
- * plot a crossair in a yu12 frame (planar)
+ * plot a crosshair in a yu12 frame (planar)
  * args:
  *   frame - pointer to yu12 frame data
  *   size  - frame line size in pixels (width)
@@ -126,7 +126,7 @@ static plot_crossair_yuyv(uint8_t *frame, int size, int width, int height, yuv_c
  *
  * returns: none
  */
-static plot_crossair_yu12(uint8_t *frame, int size, int width, int height, yuv_color_t *color)
+static plot_crosshair_yu12(uint8_t *frame, int size, int width, int height, yuv_color_t *color)
 {
 	uint8_t *py = frame;
 	uint8_t *pu = frame + (width * height);
@@ -195,7 +195,7 @@ static plot_crossair_yu12(uint8_t *frame, int size, int width, int height, yuv_c
 }
 
 /*
- * render a crossair
+ * render a crosshair
  * args:
  *   frame - pointer to yuyv frame data
  *   width - frame width
@@ -206,7 +206,7 @@ static plot_crossair_yu12(uint8_t *frame, int size, int width, int height, yuv_c
  *
  * returns: none
  */
-void render_osd_crossair(uint8_t *frame, int width, int height)
+void render_osd_crosshair(uint8_t *frame, int width, int height)
 {
 			yuv_color_t color;
 			color.y = 127;
@@ -215,9 +215,9 @@ void render_osd_crossair(uint8_t *frame, int width, int height)
 
 	
 #ifdef USE_PLANAR_YUV
-				plot_crossair_yu12(frame, 24, width, height, &color);
+				plot_crosshair_yu12(frame, 24, width, height, &color);
 #else
-  			plot_crossair_yuyv(frame, 24, width, height, &color);
+  			plot_crosshair_yuyv(frame, 24, width, height, &color);
 #endif
 			
 }

@@ -6,7 +6,7 @@ h_sources = gviewrender.h
 c_sources = render.c \
 			render_fx.c \
 			render_osd_vu_meter.c \
-      render_osd_crossair.c
+      render_osd_crosshair.c
 
 if ENABLE_SDL2
 c_sources += render_sdl2.c

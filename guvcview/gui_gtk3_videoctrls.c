@@ -398,7 +398,45 @@ int gui_attach_gtk3_videoctrls(GtkWidget *parent)
 	g_signal_connect (GTK_CHECK_BUTTON(FiltParticlesEnable), "toggled",
 		G_CALLBACK (render_fx_filter_changed), NULL);
 
+	/* ----- OSD controls -----*/
+	line++;
+	GtkWidget *label_osd = gtk_label_new(_("---- OSD ----"));
+#if GTK_VER_AT_LEAST(3,15)
+	gtk_label_set_xalign(GTK_LABEL(label_osd), 0.5);
+	gtk_label_set_yalign(GTK_LABEL(label_osd), 0.5);
+#else
+	gtk_misc_set_alignment (GTK_MISC (label_osd), 0.5, 0.5);
+#endif
 
+	gtk_grid_attach (GTK_GRID(video_controls_grid), label_osd, 0, line, 3, 1);
+	gtk_widget_show (label_osd);
+
+	/*osd grid*/
+	line++;
+	GtkWidget *table_osd = gtk_grid_new();
+	gtk_grid_set_row_spacing (GTK_GRID (table_osd), 4);
+	gtk_grid_set_column_spacing (GTK_GRID (table_osd), 4);
+	gtk_container_set_border_width (GTK_CONTAINER (table_osd), 4);
+	gtk_widget_set_size_request (table_osd, -1, -1);
+
+	gtk_widget_set_halign (table_osd, GTK_ALIGN_FILL);
+	gtk_widget_set_hexpand (table_osd, TRUE);
+	gtk_grid_attach (GTK_GRID(video_controls_grid), table_osd, 0, line, 3, 1);
+	gtk_widget_show (table_osd);
+
+	/* Crosshair OSD */
+	GtkWidget *OsdCrosshairEnable = gtk_check_button_new_with_label (_(" Cross-hair"));
+	g_object_set_data (G_OBJECT (OsdCrosshairEnable), "osd_info", GINT_TO_POINTER(REND_OSD_CROSSHAIR));
+	gtk_widget_set_halign (OsdCrosshairEnable, GTK_ALIGN_FILL);
+	gtk_widget_set_hexpand (OsdCrosshairEnable, TRUE);
+	gtk_grid_attach(GTK_GRID(table_osd), OsdCrosshairEnable, 0, 0, 1, 1);
+
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(OsdCrosshairEnable),
+		(render_get_osd_mask() & REND_OSD_CROSSHAIR) > 0);
+	gtk_widget_show (OsdCrosshairEnable);
+	g_signal_connect (GTK_CHECK_BUTTON(OsdCrosshairEnable), "toggled",
+		G_CALLBACK (render_osd_changed), NULL);
+	
 	/*add control grid to parent container*/
 	gtk_container_add(GTK_CONTAINER(parent), video_controls_grid);
 

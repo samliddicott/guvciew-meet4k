@@ -445,6 +445,19 @@ void render_fx_filter_changed(GtkToggleButton *toggle, void *data);
 void audio_fx_filter_changed(GtkToggleButton *toggle, void *data);
 
 /*
+ * render osd changed event
+ * args:
+ *    toggle - widget that generated the event
+ *    data - pointer to user data
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void render_osd_changed(GtkToggleButton *toggle, void *data);
+
+/*
  * software autofocus checkbox changed event
  * args:
  *    toggle - widget that generated the event

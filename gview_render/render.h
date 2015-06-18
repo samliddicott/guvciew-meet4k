@@ -39,7 +39,7 @@
 void render_osd_vu_meter(uint8_t *frame, int width, int height, float vu_level[2]);
 
 /*
- * render a crossair
+ * render a crosshair
  * args:
  *   frame - pointer to yuyv frame data
  *   width - frame width
@@ -50,4 +50,4 @@ void render_osd_vu_meter(uint8_t *frame, int width, int height, float vu_level[2
  *
  * returns: none
  */
-void render_crossair(uint8_t *frame, int width, int height);
+void render_osd_crosshair(uint8_t *frame, int width, int height);
