@@ -177,7 +177,7 @@ static plot_crosshair_yu12(uint8_t *frame, int size, int width, int height, yuv_
 		*pv = color->v;
 	}
 	/*u v - 2nd horizontal line*/
-	for(w = width/4 + 1; w < (width-size)/4; w++) /*every two rows*/
+	for(w = width/4 + 1; w < (width+size)/4; w++) /*every two rows*/
 	{
 		pu = frame + (width * height) + ((height/4) * width/2) + w;
 		*pu = color->u;
@@ -209,9 +209,9 @@ static plot_crosshair_yu12(uint8_t *frame, int size, int width, int height, yuv_
 void render_osd_crosshair(uint8_t *frame, int width, int height)
 {
 			yuv_color_t color;
-			color.y = 127;
-			color.u = 127;
-			color.v = 127;
+			color.y = 154;
+			color.u = 72;
+			color.v = 57;
 
 	
 #ifdef USE_PLANAR_YUV
