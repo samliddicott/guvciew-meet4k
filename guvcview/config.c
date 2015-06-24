@@ -61,6 +61,7 @@ static config_t my_config =
 	.audio_device = -1,/*guvcview will use API default in this case*/
 	.video_fx = 0, /*no video fx*/
 	.audio_fx = 0, /*no audio fx*/
+	.osd_mask = 0, /*REND_OSD_NONE*/
 };
 
 /*
@@ -149,6 +150,8 @@ int config_save(const char *filename)
 	fprintf(fp, "video_fx=0x%x\n", my_config.video_fx);
 	fprintf(fp, "#audio fx mask \n");
 	fprintf(fp, "audio_fx=0x%x\n", my_config.audio_fx);
+	fprintf(fp, "#OSD mask \n");
+	fprintf(fp, "osd_mask=0x%x\n", my_config.osd_mask);
 
 	/* return to system locale */
     setlocale(LC_NUMERIC, "");
@@ -316,9 +319,10 @@ int config_load(const char *filename)
 			my_config.video_fx = (uint32_t) strtoul(value, NULL, 16);
 		else if(strcmp(token, "audio_fx") == 0)
 			my_config.audio_fx = (uint32_t) strtoul(value, NULL, 16);
+		else if(strcmp(token, "osd_mask") == 0)
+			my_config.osd_mask = (uint32_t) strtoul(value, NULL, 16);
 		else
 			fprintf(stderr, "GUVCVIEW: (config) skiping invalid entry at line %i ('%s', '%s')\n", line, token, value);
-
 
 		if(token)
 			free(token);

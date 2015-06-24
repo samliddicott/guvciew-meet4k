@@ -39,6 +39,7 @@
 #include "gviewv4l2core.h"
 #include "video_capture.h"
 #include "gviewencoder.h"
+#include "gviewrender.h"
 #include "gui.h"
 #include "gui_gtk3.h"
 #include "core_io.h"
@@ -1428,6 +1429,13 @@ void render_osd_changed(GtkToggleButton *toggle, void *data)
 			render_get_osd_mask() & ~osd;
 
 	render_set_osd_mask(mask);
+
+	/* update config */
+	config_t *my_config = config_get();
+	my_config->osd_mask = render_get_osd_mask();
+	/*make sure to disable VU meter OSD in config - it's set by audio capture*/
+	my_config->osd_mask &= ~REND_OSD_VUMETER_MONO;
+	my_config->osd_mask &= ~REND_OSD_VUMETER_STEREO;
 }
 
 /*

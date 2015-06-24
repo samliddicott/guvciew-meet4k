@@ -48,6 +48,7 @@ typedef struct _config_t
 	int audio_device;/*audio device index*/
 	uint32_t video_fx;
 	uint32_t audio_fx;
+	uint32_t osd_mask; /*OSD bit mask*/
 } config_t;
 
 /*
