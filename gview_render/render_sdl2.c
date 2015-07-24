@@ -306,13 +306,13 @@ int render_sdl2_frame(uint8_t *frame, int width, int height)
 	memcpy(texture_pixels, frame, size);
 
 	/*osd vu meter*/
-  if(((render_get_osd_mask() &
+	if(((render_get_osd_mask() &
 		(REND_OSD_VUMETER_MONO | REND_OSD_VUMETER_STEREO))) != 0)
 		render_osd_vu_meter(texture_pixels, width, height, vu_level);
-  /*osd crosshair*/
-  if(((render_get_osd_mask() &
-    REND_OSD_CROSSHAIR)) != 0)
-    render_osd_crosshair(texture_pixels, width, height);
+	/*osd crosshair*/
+	if(((render_get_osd_mask() &
+		REND_OSD_CROSSHAIR)) != 0)
+		render_osd_crosshair(texture_pixels, width, height);
 
 	SDL_UnlockTexture(rending_texture);
 
