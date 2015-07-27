@@ -648,123 +648,6 @@ static int demux_uvcH264(uint8_t *h264_data, uint8_t *buff, int size, int h264_m
 }
 
 /*
- * demux a buff (*buff) of size (size) for NALU data
- * args:
- *    h264_data - pointer to h264 data
- *    buff pointer to buffer with h264 muxed in MJPG container
- *    size - buff size
- *    h264_max_size - maximum size allowed by h264_data buffer
- *
- * asserts:
- *    h264_data is not null
- *    buff is not null
- *
- * returns: data size and copies NALU data to h264 buffer
- */
-static int demux_NALU(uint8_t *h264_data, uint8_t *buff, int size, int h264_max_size)
-{
-	/*asserts*/
-	assert(h264_data != NULL);
-	assert(buff != NULL);
-
-	uint8_t *sp = NULL;
-	uint8_t *pl = NULL;
-	uint8_t *spl = NULL;
-	uint8_t *epl = NULL;
-	uint8_t *ph264 = h264_data;
-	int total_size = 0;
-	//segments have a maximum of 64Kb
-	int seg_size = 64*1024;
-
-	//search for first APP4 marker
-	for(sp = buff; sp < buff + size - 2; ++sp)
-	{
-		if(sp[0] == 0xFF &&
-		   sp[1] == 0xE4)
-		{
-			spl = sp; //payload start
-			break;
-		}
-	}
-
-	if(spl == buff)
-	{
-		fprintf(stderr, "V4L2_CORE: (uvc H264) could not find a APP4 marker in buffer\n");
-		return -1;
-	}
-
-	pl = spl + 4; //marker(2) + length(2)
-
-	//uint32_t frame_PTS = 0;
-	//frame_PTS =  ((uint32_t) pl[18]) << 0;
-	//frame_PTS |= ((uint32_t) pl[19]) << 8;
-	//frame_PTS |= ((uint32_t) pl[20]) << 16;
-	//frame_PTS |= ((uint32_t) pl[21]) << 24;
-
-	pl += 22; //header(22)
-
-	//get payload size
-	uint32_t payload_size = 0;
-	payload_size =  ((uint32_t) pl[0]) << 0;
-	payload_size |= ((uint32_t) pl[1]) << 8;
-	payload_size |= ((uint32_t) pl[2]) << 16;
-	payload_size |= ((uint32_t) pl[3]) << 24;
-
-	pl +=4;                  //start of the payload data
-	epl = pl + payload_size; //end of payload data
-	if(epl > buff + size)
-		epl = buff + size;
-
-	//for the first segment remove header size
-	//marker(2) + length(2) + header(22) + payload size(4)
-	seg_size = 64*1024 - (pl-spl);
-
-	while(pl + seg_size <= epl)
-	{
-		total_size += seg_size;
-		if(total_size > h264_max_size)
-		{
-			fprintf(stderr, "V4L2_CORE: (uvc H264) h264 data exceeds max of %i\n",
-				h264_max_size);
-			return (total_size - seg_size); /*revert to last size*/
-		}
-		//copy segment to h264 data buffer
-		memcpy(ph264, pl, seg_size);
-		ph264 += seg_size;
-
-		pl += seg_size; //reset to the next segment data
-
-		if(pl[0] != 0xFF ||
-		   pl[1] != 0xE4)
-		{
-		   fprintf(stderr, "V4L2_CORE: (uvc H264) no APP4 marker at end of 64K segment\n");
-		   break;
-		}
-		else
-			pl += 4; //skip marker(2) + length(2)
-
-		seg_size = 64*1024 - 4; //skip marker + length
-	}
-
-	seg_size = epl - pl; //last segment
-	if(seg_size > 0)
-	{
-		//copy segment to h264 data buffer
-		memcpy(ph264, pl, seg_size);
-		//ph264 += seg_size;
-		total_size += seg_size;
-	}
-
-	//char test_filename2[22];
-	//snprintf(test_filename2, 22, "frame-%u.raw", frame_PTS);
-	//SaveBuff (test_filename2, total_size, h264_data);
-
-	//printf("V4L2_CORE: (uvc H264) PTS: %u; payload size: %u, total size: %u\n",
-		//frame_PTS, payload_size, total_size);
-	return total_size;
-}
-
-/*
  * Store the SPS and PPS NALUs of uvc H264 stream
  * args:
  *    vd - pointer to device data
@@ -874,7 +757,6 @@ static int demux_h264(uint8_t* h264_data, uint8_t* buffer, int size, int h264_ma
 	 */
 	if(h264_get_support() == H264_MUXED)
 	{
-		//return demux_NALU(h264_data, buffer, size, h264_max_size);
 		return demux_uvcH264(h264_data, buffer, size, h264_max_size);
 	}
 

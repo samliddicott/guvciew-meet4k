@@ -1,3 +1,28 @@
+guvcview (2.0.2)
+
+    * fix mjpeg and h264 decoders (libav): init avpacket
+    * fix wrong logic of enable switches (Marvin Schmidt  ticket #12)
+    * create a frame queue and refactor frame grab/decode
+    * fix jpeg decoder for older libavcodec api ( < 54.25)
+    * attach video capture to SIGUSR1 signal
+    * add audio latency control to gui
+    * change default portaudio latency to high latency
+    * set device during initialization
+    * use time for matroska segment uid if gsl is disabled
+    * fix array index causing buffer overflow
+    * restore CPPFLAGS after AC_CHECK_HEADERS
+    * remove direct access to device data in v4l2core lib
+    * make sure to stop encoder thread before exiting capture thread
+    * avoid SIGFPE on bad channels or samprate data inside audio capture callbacks
+    * remove check for avcodec.h (it's needed for very old libavcodec versions); set iyuv as default internal format (over yuyv)
+    * add basic support for continuous and stepwise frame sizes
+    * add support for empty control list
+    * add code for crossair osd
+    * fix h264 demux from mjpg container
+    * fix pan/tilt for logitech peripheral V3 (use raw control instead of v4l2)
+
+ -- Paulo Assis <pj.assis@gmail.com> Mon, 27 Jul 2015 12:00:00 +0100
+ 
 guvcview (2.0.1)
 
     * Fix audio clean bug (segfault when audio=none)
