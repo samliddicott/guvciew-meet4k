@@ -81,6 +81,7 @@ typedef struct _v4l2_dev_t
 
 	int has_focus_control_id;           //it's set to control id if a focus control is available (enables software autofocus)
 	int has_pantilt_control_id;         //it's set to 1 if a pan/tilt control is available
+	uint8_t pantilt_unit_id;            //logitech peripheral V3 unit id (if any)
 } v4l2_dev_t;
 
 #endif

@@ -24,20 +24,12 @@
 
 #include "gviewv4l2core.h"
 #include "v4l2_core.h"
+#include "v4l2_xu_ctrls.h"
 
 /*H264 support type*/
 #define H264_NONE    (0)
 #define H264_FRAME   (1)
 #define H264_MUXED   (2)
-
-typedef struct
-{
-  int8_t bLength;
-  int8_t bDescriptorType;
-  int8_t bDescriptorSubType;
-  int8_t bUnitID;
-  uint8_t guidExtensionCode[16];
-} __attribute__ ((__packed__)) xu_descriptor;
 
 /* UVC H.264 control selectors */
 #define UVCX_VIDEO_CONFIG_PROBE			0x01

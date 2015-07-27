@@ -21,6 +21,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <libusb.h>
 #include <linux/videodev2.h>
 #include <fcntl.h>
 #include <string.h>
@@ -34,6 +35,7 @@
 
 #include "gviewv4l2core.h"
 #include "v4l2_controls.h"
+#include "v4l2_xu_ctrls.h"
 #include "../config.h"
 
 #ifndef V4L2_CTRL_ID2CLASS
@@ -41,6 +43,9 @@
 #endif
 
 extern int verbosity;
+
+// GUID for logitech peripheral (pan/tilt) V3 extension unit: {FFE52D21-8030-4E2C-82d9-f587d00540bd}
+#define GUID_LOGITECH_PERIPHERAL_XU {0x21, 0x2D, 0xE5, 0xFF, 0x30, 0x80, 0x2C, 0x4E, 0x82, 0xD9, 0xF5, 0x87, 0xD0, 0x05, 0x40, 0xBD}
 
 /*
  * needed only for language files (not used)
@@ -264,6 +269,135 @@ static void print_control_list(v4l2_dev_t *vd)
     }
 }
 
+
+/*
+ * gets the logitech peripheral (pan/tilt) V3 xu control unit id, if any
+ * args:
+ *   vd - pointer to video device data
+ *
+ * asserts:
+ *   vd is not null
+ *   device_list->list_devices is not null
+ *
+ * returns: unit id or 0 if none
+ */
+static uint8_t get_logitech_peripheral_unit_id (v4l2_dev_t *vd)
+{
+	v4l2_device_list *my_device_list = v4l2core_get_device_list();
+
+	/*asserts*/
+	assert(vd != NULL);
+	assert(my_device_list->list_devices != NULL);
+	
+	if(my_device_list->list_devices[vd->this_device].vendor != 0x046D)
+	{
+		if(verbosity > 2)
+			printf("V4L2_CORE: not a logitech device (vendor_id=0x%4x): skiping peripheral V3 unit id check\n",
+				my_device_list->list_devices[vd->this_device].vendor);
+		return 0;
+	}
+
+	uint64_t busnum = my_device_list->list_devices[vd->this_device].busnum;
+	uint64_t devnum = my_device_list->list_devices[vd->this_device].devnum;
+
+	if(verbosity > 2)
+		printf("V4L2_CORE: checking pan/tilt unit id for device %i (bus:%"PRId64" dev:%"PRId64")\n", vd->this_device, busnum, devnum);
+    /* use libusb */
+	libusb_context *usb_ctx = NULL;
+    libusb_device **device_list = NULL;
+    libusb_device *device = NULL;
+    ssize_t cnt;
+    int i;
+
+	static const uint8_t guid[16] = GUID_LOGITECH_PERIPHERAL_XU;
+	uint8_t unit_id = 0;/*reset it*/
+
+    if (usb_ctx == NULL)
+      libusb_init (&usb_ctx);
+
+    cnt = libusb_get_device_list (usb_ctx, &device_list);
+    for (i = 0; i < cnt; i++)
+    {
+		uint64_t dev_busnum = libusb_get_bus_number (device_list[i]);
+		uint64_t dev_devnum = libusb_get_device_address (device_list[i]);
+
+		if(verbosity > 2)
+			printf("V4L2_CORE: (libusb) checking bus(%" PRId64 ") dev(%" PRId64 ") for device\n", dev_busnum, dev_devnum);
+
+		if (busnum == dev_busnum &&	devnum == dev_devnum)
+		{
+			device = libusb_ref_device (device_list[i]);
+			break;
+		}
+	}
+
+	libusb_free_device_list (device_list, 1);
+
+	if (device)
+	{
+		if(verbosity > 1)
+			printf("V4L2_CORE: (libusb) checking for H264 unit id\n");
+		struct libusb_device_descriptor desc;
+
+		 if (libusb_get_device_descriptor (device, &desc) == 0)
+		 {
+			for (i = 0; i < desc.bNumConfigurations; ++i)
+			{
+				struct libusb_config_descriptor *config = NULL;
+
+				if (libusb_get_config_descriptor (device, i, &config) == 0)
+				{
+					int j = 0;
+					for (j = 0; j < config->bNumInterfaces; j++)
+					{
+						int k = 0;
+						for (k = 0; k < config->interface[j].num_altsetting; k++)
+						{
+							const struct libusb_interface_descriptor *interface;
+							const uint8_t *ptr = NULL;
+
+							interface = &config->interface[j].altsetting[k];
+							if (interface->bInterfaceClass != LIBUSB_CLASS_VIDEO ||
+								interface->bInterfaceSubClass != USB_VIDEO_CONTROL)
+								continue;
+							ptr = interface->extra;
+							while (ptr - interface->extra +
+								sizeof (xu_descriptor) < interface->extra_length)
+							{
+								xu_descriptor *desc = (xu_descriptor *) ptr;
+
+								if (desc->bDescriptorType == USB_VIDEO_CONTROL_INTERFACE &&
+									desc->bDescriptorSubType == USB_VIDEO_CONTROL_XU_TYPE &&
+									memcmp (desc->guidExtensionCode, guid, 16) == 0)
+								{
+									unit_id = desc->bUnitID;
+
+									libusb_unref_device (device);
+									/*it's a match*/
+									if(verbosity > 1)
+										printf("V4L2_CORE: (libusb) found logitech peripheral V3 unit id %i\n", unit_id);
+									return unit_id;
+								}
+								ptr += desc->bLength;
+							}
+						}
+					}
+				}
+				else
+					fprintf(stderr, "V4L2_CORE: (libusb) couldn't get config descriptor for configuration %i\n", i);
+			}
+		}
+		else
+			fprintf(stderr, "V4L2_CORE: (libusb) couldn't get device descriptor\n");
+		libusb_unref_device (device);
+	}
+	else
+		fprintf(stderr, "V4L2_CORE: (libusb) couldn't get device\n");
+	/*no match found*/
+	return unit_id;
+}
+
+
 /*
  * add control to control list
  * args:
@@ -370,8 +504,11 @@ static v4l2_ctrl_t *add_control(v4l2_dev_t *vd, struct v4l2_queryctrl* queryctrl
 	/*check for pan/tilt control*/
 	else if(queryctrl->id == V4L2_CID_TILT_RELATIVE ||
 			queryctrl->id == V4L2_CID_PAN_RELATIVE)
+	{
+		/*get unit id for logitech pan_tilt V3 if any*/
 		vd->has_pantilt_control_id = 1;
-
+		vd->pantilt_unit_id = get_logitech_peripheral_unit_id(vd);
+	}
     // Add the control to the linked list
     control = calloc (1, sizeof(v4l2_ctrl_t));
     if(control == NULL)
@@ -1306,6 +1443,21 @@ int set_control_value_by_id(v4l2_dev_t *vd, int id)
         return (-1);
     if(control->control.flags & V4L2_CTRL_FLAG_READ_ONLY)
         return (-1);
+        
+    if((id == V4L2_CID_PAN_RELATIVE || id == V4L2_CID_TILT_RELATIVE) &&
+		vd->pantilt_unit_id > 0)
+	{
+		/*use raw control in this case - prevents uvcvideo cache bug*/
+		uint32_t pantilt = 0;
+		if(id == V4L2_CID_PAN_RELATIVE)
+			pantilt |= (int16_t) control->value;
+		else
+			pantilt |= ((int16_t) control->value) << 16;
+			
+		return query_xu_control(vd, vd->pantilt_unit_id, 1, UVC_SET_CUR, &pantilt);
+	}
+
+		
 
     if( control->class == V4L2_CTRL_CLASS_USER
 #ifdef V4L2_CTRL_TYPE_STRING

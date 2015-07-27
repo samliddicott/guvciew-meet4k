@@ -25,6 +25,19 @@
 #include "gviewv4l2core.h"
 #include "v4l2_core.h"
 
+typedef struct
+{
+  int8_t bLength;
+  int8_t bDescriptorType;
+  int8_t bDescriptorSubType;
+  int8_t bUnitID;
+  uint8_t guidExtensionCode[16];
+} __attribute__ ((__packed__)) xu_descriptor;
+
+#define USB_VIDEO_CONTROL		    0x01
+#define USB_VIDEO_CONTROL_INTERFACE	0x24
+#define USB_VIDEO_CONTROL_XU_TYPE	0x06
+
 /*
  * tries to map available xu controls for supported devices
  * args:
