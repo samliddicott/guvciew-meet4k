@@ -24,7 +24,6 @@
 /* support for internationalization - i18n */
 #include <inttypes.h>
 #include <math.h>
-#include <libusb.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <linux/videodev2.h>
@@ -251,109 +250,12 @@ static int uvcx_video_commit(v4l2_dev_t *vd, uvcx_video_config_probe_commit_t *u
  */
 uint8_t get_uvc_h624_unit_id (v4l2_dev_t *vd)
 {
-	v4l2_device_list *my_device_list = v4l2core_get_device_list();
-
-	/*asserts*/
-	assert(vd != NULL);
-	assert(my_device_list->list_devices != NULL);
-
-	uint64_t busnum = my_device_list->list_devices[vd->this_device].busnum;
-	uint64_t devnum = my_device_list->list_devices[vd->this_device].devnum;
-
-	if(verbosity > 2)
-		printf("V4L2_CORE: checking h264 unit id for device %i (bus:%"PRId64" dev:%"PRId64")\n", vd->this_device, busnum, devnum);
-    /* use libusb */
-	libusb_context *usb_ctx = NULL;
-    libusb_device **device_list = NULL;
-    libusb_device *device = NULL;
-    ssize_t cnt;
-    int i;
-
-	static const uint8_t guid[16] = GUID_UVCX_H264_XU;
-	vd->h264_unit_id = 0;/*reset it*/
-
-    if (usb_ctx == NULL)
-      libusb_init (&usb_ctx);
-
-    cnt = libusb_get_device_list (usb_ctx, &device_list);
-    for (i = 0; i < cnt; i++)
-    {
-		uint64_t dev_busnum = libusb_get_bus_number (device_list[i]);
-		uint64_t dev_devnum = libusb_get_device_address (device_list[i]);
-
-		if(verbosity > 2)
-			printf("V4L2_CORE: (libusb) checking bus(%" PRId64 ") dev(%" PRId64 ") for device\n", dev_busnum, dev_devnum);
-
-		if (busnum == dev_busnum &&	devnum == dev_devnum)
-		{
-			device = libusb_ref_device (device_list[i]);
-			break;
-		}
-	}
-
-	libusb_free_device_list (device_list, 1);
-
-	if (device)
-	{
-		if(verbosity > 1)
-			printf("V4L2_CORE: (libusb) checking for H264 unit id\n");
-		struct libusb_device_descriptor desc;
-
-		 if (libusb_get_device_descriptor (device, &desc) == 0)
-		 {
-			for (i = 0; i < desc.bNumConfigurations; ++i)
-			{
-				struct libusb_config_descriptor *config = NULL;
-
-				if (libusb_get_config_descriptor (device, i, &config) == 0)
-				{
-					int j = 0;
-					for (j = 0; j < config->bNumInterfaces; j++)
-					{
-						int k = 0;
-						for (k = 0; k < config->interface[j].num_altsetting; k++)
-						{
-							const struct libusb_interface_descriptor *interface;
-							const uint8_t *ptr = NULL;
-
-							interface = &config->interface[j].altsetting[k];
-							if (interface->bInterfaceClass != LIBUSB_CLASS_VIDEO ||
-								interface->bInterfaceSubClass != USB_VIDEO_CONTROL)
-								continue;
-							ptr = interface->extra;
-							while (ptr - interface->extra +
-								sizeof (xu_descriptor) < interface->extra_length)
-							{
-								xu_descriptor *desc = (xu_descriptor *) ptr;
-
-								if (desc->bDescriptorType == USB_VIDEO_CONTROL_INTERFACE &&
-									desc->bDescriptorSubType == USB_VIDEO_CONTROL_XU_TYPE &&
-									memcmp (desc->guidExtensionCode, guid, 16) == 0)
-								{
-									vd->h264_unit_id = desc->bUnitID;
-
-									libusb_unref_device (device);
-									/*it's a match*/
-									if(verbosity > 1)
-										printf("V4L2_CORE: (libusb) found H264 unit id %i\n", vd->h264_unit_id);
-									return vd->h264_unit_id;
-								}
-								ptr += desc->bLength;
-							}
-						}
-					}
-				}
-				else
-					fprintf(stderr, "V4L2_CORE: (libusb) couldn't get config descriptor for configuration %i\n", i);
-			}
-		}
-		else
-			fprintf(stderr, "V4L2_CORE: (libusb) couldn't get device descriptor\n");
-		libusb_unref_device (device);
-	}
-	else
-		fprintf(stderr, "V4L2_CORE: (libusb) couldn't get device\n");
-	/*no match found*/
+	if(verbosity > 1)
+		printf("V4L2_CORE: checking for UVCX_H264 unit id\n");
+	
+	uint8_t guid[16] = GUID_UVCX_H264_XU;	
+	vd->h264_unit_id = get_guid_unit_id (vd, guid);
+	
 	return vd->h264_unit_id;
 }
 

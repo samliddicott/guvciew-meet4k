@@ -39,6 +39,20 @@ typedef struct
 #define USB_VIDEO_CONTROL_XU_TYPE	0x06
 
 /*
+ * get GUID unit id, if any
+ * args:
+ *   vd - pointer to video device data
+ *   guid - 16 byte xu GUID
+ *
+ * asserts:
+ *   vd is not null
+ *   device_list->list_devices is not null
+ *
+ * returns: unit id for the matching GUID or 0 if none
+ */
+uint8_t get_guid_unit_id (v4l2_dev_t *vd, uint8_t *guid);
+
+/*
  * tries to map available xu controls for supported devices
  * args:
  *   vd - pointer to video device data
