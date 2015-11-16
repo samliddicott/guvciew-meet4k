@@ -26,7 +26,6 @@ libgviewencoder_la_SOURCES= $(h_sources) $(c_sources)
 
 libgviewencoder_la_CFLAGS = $(GVIEWENCODER_CFLAGS) \
 			$(PTHREAD_CFLAGS) \
-			-D_FILE_OFFSET_BITS=64 \
 			-I$(top_srcdir) \
 			-I$(top_srcdir)/includes
 

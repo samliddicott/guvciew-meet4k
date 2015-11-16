@@ -60,7 +60,7 @@ static int64_t io_tell(io_writer_t *writer)
 	fflush(writer->fp);
 
 	/*return the file pointer position*/
-	return ((int64_t) ftello64(writer->fp));
+	return ((int64_t) ftello(writer->fp));
 }
 
 /* flush a mem only writer(buf_writer) into a file writer

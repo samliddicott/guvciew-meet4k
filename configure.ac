@@ -47,6 +47,9 @@ AC_PROG_CC
 AM_PROG_CC_C_O
 AC_HEADER_STDC
 AC_PROG_LIBTOOL
+# enable Large File Support extension (LFS)
+AC_SYS_LARGEFILE
+
 AM_SANITY_CHECK
 
 dnl --------------------------------------------------------------------------
