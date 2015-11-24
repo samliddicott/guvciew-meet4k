@@ -1064,6 +1064,7 @@ void *capture_loop(void *data)
 							my_photo_npics--;
 						else
 						{
+							save_image = 0;
 							stop_photo_timer(); /*close timer*/
 							if(!check_video_timer() && my_options->exit_on_term > 0)
 								quit_callback(NULL); /*close app*/
