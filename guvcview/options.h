@@ -29,7 +29,7 @@ typedef struct _options_t
 	int  width;      /*width*/
 	int  height;     /*height*/
 	int  control_panel; /*flag control panel mode*/
-	int  disable_libv4l2; /*set to 1 to disbale libv4l2 calls*/
+	int  disable_libv4l2; /*set to 1 to disable libv4l2 calls*/
 	char format[5];  /*pixelformat fourcc*/
 	char render[5];  /*render api*/
 	char gui[5];     /*gui api*/
@@ -48,6 +48,7 @@ typedef struct _options_t
 	double video_timer; /*video capture time in seconds (double)*/
 	double photo_timer; /*photo capture timer interval in seconds (double)*/
 	int photo_npics; /*number of photo captures*/
+	int exit_on_term; /*flag if we should exit after video or image capture ends*/ 
 	char render_flag[5]; /*render window flag => default (none) | FULLSCREEN (full) | MAXIMIZED (max)*/
 } options_t;
 

@@ -1063,7 +1063,11 @@ void *capture_loop(void *data)
 						if(my_photo_npics > 0)
 							my_photo_npics--;
 						else
+						{
 							stop_photo_timer(); /*close timer*/
+							if(!check_video_timer() && my_options->exit_on_term > 0)
+								quit_callback(NULL); /*close app*/
+						}
 					}
 				}
 			}
@@ -1071,7 +1075,11 @@ void *capture_loop(void *data)
 			if(check_video_timer())
 			{
 				if((frame->timestamp - my_video_begin_time) > my_video_timer)
+				{
 					stop_video_timer();
+					if(!check_photo_timer() && my_options->exit_on_term > 0)
+						quit_callback(NULL); /*close app*/
+				}
 			}
 
 			if(save_image)

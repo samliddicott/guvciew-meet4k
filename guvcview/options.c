@@ -191,6 +191,13 @@ static opt_values_t opt_values[] =
 		.opt_help = N_("total number of captured photos)")
 	},
 	{
+		.opt_short = 'e',
+		.opt_long = "exit_on_term",
+		.req_arg = 0,
+		.opt_help_arg = "",
+		.opt_help = N_("exit app after video or image capture ends")
+	},
+	{
 		.opt_short = 'z',
 		.opt_long = "control_panel",
 		.req_arg = 0,
@@ -232,6 +239,7 @@ static options_t my_options =
 	.video_timer = 0,
 	.photo_timer = 0,
 	.photo_npics = 0,
+	.exit_on_term = 0,
 	.render_flag = "none",
 };
 
@@ -613,6 +621,9 @@ int options_parse(int argc, char *argv[])
 				break;
 			case 'n':
 				my_options.photo_npics = atoi(optarg);
+				break;
+			case 'e' :
+				my_options.exit_on_term = 1;
 				break;
 			default:
 			case 'h':
