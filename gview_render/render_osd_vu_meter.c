@@ -60,7 +60,7 @@ static float vu_peak_freeze[2]= {0.0 ,0.0};
  *
  * returns: none
  */
-static plot_box_yuyv(uint8_t *frame, int linesize, int x, int y, int width, int height, yuv_color_t *color)
+static void plot_box_yuyv(uint8_t *frame, int linesize, int x, int y, int width, int height, yuv_color_t *color)
 {
 	int i = 0;
 		
@@ -97,7 +97,7 @@ static plot_box_yuyv(uint8_t *frame, int linesize, int x, int y, int width, int 
  *
  * returns: none
  */
-static plot_line_yuyv(uint8_t *frame, int linesize, int x, int y, int width, yuv_color_t *color)
+static void plot_line_yuyv(uint8_t *frame, int linesize, int x, int y, int width, yuv_color_t *color)
 {
 	int bi = 2 * (x + (y  * linesize));
 
@@ -129,7 +129,7 @@ static plot_line_yuyv(uint8_t *frame, int linesize, int x, int y, int width, yuv
  *
  * returns: none
  */
-static plot_box_yu12(uint8_t *frame, int lines, int linesize, int x, int y, int width, int height, yuv_color_t *color)
+static void plot_box_yu12(uint8_t *frame, int lines, int linesize, int x, int y, int width, int height, yuv_color_t *color)
 {
 	uint8_t *py = frame;
 	uint8_t *pu = frame + (linesize * lines);
@@ -178,7 +178,7 @@ static plot_box_yu12(uint8_t *frame, int lines, int linesize, int x, int y, int 
  *
  * returns: none
  */
-static plot_line_yu12(uint8_t *frame, int lines, int linesize, int x, int y, int width, yuv_color_t *color)
+static void plot_line_yu12(uint8_t *frame, int lines, int linesize, int x, int y, int width, yuv_color_t *color)
 {
 	uint8_t *py = frame;
 	uint8_t *pu = frame + (linesize * lines);

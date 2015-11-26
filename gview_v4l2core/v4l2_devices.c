@@ -22,6 +22,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <linux/videodev2.h>
+#include <libv4l2.h>
 #include <fcntl.h>
 #include <string.h>
 #include <errno.h>

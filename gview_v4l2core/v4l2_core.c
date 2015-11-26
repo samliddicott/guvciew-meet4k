@@ -915,7 +915,7 @@ int v4l2core_start_stream()
 	if(vd->streaming == STRM_OK)
 	{
 		fprintf(stderr, "V4L2_CORE: (stream already started) stream_status = STRM_OK\n");
-		return;
+		return E_OK;
 	}
 
 	int type = V4L2_BUF_TYPE_VIDEO_CAPTURE;

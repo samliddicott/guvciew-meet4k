@@ -53,7 +53,7 @@ typedef struct _yuv_color_t
  *
  * returns: none
  */
-static plot_crosshair_yuyv(uint8_t *frame, int size, int width, int height, yuv_color_t *color)
+static void plot_crosshair_yuyv(uint8_t *frame, int size, int width, int height, yuv_color_t *color)
 {
 	int linesize = width*2; /*two bytes per pixel*/
 	
@@ -126,7 +126,7 @@ static plot_crosshair_yuyv(uint8_t *frame, int size, int width, int height, yuv_
  *
  * returns: none
  */
-static plot_crosshair_yu12(uint8_t *frame, int size, int width, int height, yuv_color_t *color)
+static void plot_crosshair_yu12(uint8_t *frame, int size, int width, int height, yuv_color_t *color)
 {
 	uint8_t *py = frame;
 	uint8_t *pu = frame + (width * height);
