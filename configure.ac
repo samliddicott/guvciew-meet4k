@@ -272,6 +272,8 @@ if test $enable_gsl = yes; then
 	AC_DEFINE(HAS_GSL, 1, [set to 1 if gsl is enabled])
 else
 	AC_MSG_WARN(libgsl disabled... some render fx filters will be disabled.)
+	GSL_LIBS=-lm
+	AC_SUBST(GSL_LIBS)
 fi
 
 dnl -----------------------------------------------
