@@ -27,10 +27,6 @@
 #include "gui_qt5.hpp"
 
 extern "C" {
-#include <sys/types.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <string.h>
 #include <errno.h>
 #include <assert.h>
 
@@ -45,6 +41,8 @@ extern "C" {
 #include "gui.h"
 #include "core_io.h"
 #include "config.h"
+/*add this last to avoid redefining _() and N_()*/
+#include "gview.h"
 }
 
 extern int debug_level;
@@ -1106,68 +1104,60 @@ void MainWindow::devices_changed (int index)
 		return;
 
 	v4l2_device_list *device_list = v4l2core_get_device_list();
-/*
-	GtkWidget *restartdialog = gtk_dialog_new_with_buttons (_("start new"),
-		GTK_WINDOW(get_main_window_gtk3()),
-		GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
-		_("restart"),
-		GTK_RESPONSE_ACCEPT,
-		_("new"),
-		GTK_RESPONSE_REJECT,
-		_("cancel"),
-		GTK_RESPONSE_CANCEL,
-		NULL);
+	
+	QMessageBox msgBox;
+	msgBox.setIcon(QMessageBox::Question);
+	msgBox.setWindowTitle(_("start new"));
+	msgBox.setText(_("launch new process or restart?.\n\n"));
+	QPushButton *restartButton = msgBox.addButton(_("restart"), QMessageBox::ActionRole);
+	QPushButton *newButton = msgBox.addButton(_("new"), QMessageBox::ActionRole);
+	msgBox.addButton(QMessageBox::Cancel);
 
-	GtkWidget *content_area = gtk_dialog_get_content_area (GTK_DIALOG (restartdialog));
-	GtkWidget *message = gtk_label_new (_("launch new process or restart?.\n\n"));
-	gtk_container_add (GTK_CONTAINER (content_area), message);
-	gtk_widget_show_all(restartdialog);
+	msgBox.exec();
 
-	gint result = gtk_dialog_run (GTK_DIALOG (restartdialog));
-
-	//check device index only after dialog response
-	char videodevice[30];
-	strncpy(videodevice, device_list->list_devices[index].device, 29);
-	gchar *command = g_strjoin("",
-		g_get_prgname(),
-		" --device=",
-		videodevice,
-		NULL);
-
-	switch (result)
+	if (msgBox.clickedButton() == restartButton) 
 	{
-		case GTK_RESPONSE_ACCEPT: ///FIXME: restart or reset device without closing the app
-			if(debug_level > 1)
-				printf("GUVCVIEW: spawning new process: '%s'\n", command);
-			//spawn new process
-			if(!(g_spawn_command_line_async(command, &error)))
-			{
-				fprintf(stderr, "GUVCVIEW: spawn failed: %s\n", error->message);
-				g_error_free( error );
-			}
-			else
-				quit_callback(NULL);
-			break;
-		case GTK_RESPONSE_REJECT:
-			if(debug_level > 1)
-				printf("GUVCVIEW: spawning new process: '%s'\n", command);
-			//spawn new process
-			if(!(g_spawn_command_line_async(command, &error)))
-			{
-				fprintf(stderr, "GUVCVIEW: spawn failed: %s\n", error->message);
-				g_error_free( error );
-			}
-			break;
-		default:
-			// do nothing since dialog was canceled
-			break;
+		QStringList args;
+		QString dev_arg = "--device=";
+		
+		dev_arg.append(device_list->list_devices[index].device);
+		args << dev_arg;
+		
+		if(debug_level > 1)
+			std::cout << "GUVCVIEW (Qt5): spawning new process: guvcview " 
+					  << dev_arg.toStdString() << std::endl;
+		
+		QProcess process;
+		if(process.startDetached("guvcview", args))
+			quit_callback(NULL); //terminate current process
+		else
+			std::cerr << "GUVCVIEW (Qt5): spawning new process (guvcview " 
+					  << dev_arg.toStdString() << ") failed" << std::endl;
+	} 
+	else if (msgBox.clickedButton() == newButton) 
+	{
+		QStringList args;
+		QString dev_arg = "--device=";
+		
+		dev_arg.append(device_list->list_devices[index].device);
+		args << dev_arg;
+		
+		if(debug_level > 1)
+			std::cout << "GUVCVIEW (Qt5): spawning new process: guvcview " 
+					  << dev_arg.toStdString() << std::endl;
+		
+		QProcess process;
+		if(!process.startDetached("guvcview", args))
+			std::cerr << "GUVCVIEW (Qt5): spawning new process (guvcview " 
+					  << dev_arg.toStdString() << ") failed" << std::endl;
 	}
-*/
+	
 	/*reset to current device*/
-	//gtk_combo_box_set_active(GTK_COMBO_BOX(wgtDevices), v4l2core_get_this_device_index());
-
-	//gtk_widget_destroy (restartdialog);
-	//g_free(command);
+	/*disable device combobox signals*/
+	combobox_video_devices->blockSignals(true);
+	combobox_video_devices->setCurrentIndex(v4l2core_get_this_device_index());
+	/*enable device combobox signals*/
+	combobox_video_devices->blockSignals(false);
 }
 
 /*

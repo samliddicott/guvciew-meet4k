@@ -76,8 +76,6 @@ void signal_callback_handler(int signum)
 
 int main(int argc, char *argv[])
 {
-	printf("argc=%i\n", argc);
-	
 	/*check stack size*/
 	const rlim_t kStackSize = 128L * 1024L * 1024L;   /* min stack size = 128 Mb*/
     struct rlimit rl;
