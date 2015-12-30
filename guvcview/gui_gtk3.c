@@ -413,7 +413,7 @@ void gui_error_gtk3(
 
 	v4l2_device_list *device_list = v4l2core_get_device_list();
 	/*add device list (more than one device)*/
-	int show_dev_list = (device_list->num_devices > 1) ? 1: 0;
+	int show_dev_list = (device_list->num_devices >= 1) ? 1: 0;
 
 	GtkWidget *errdialog = NULL;
 	if(show_dev_list)
@@ -448,8 +448,8 @@ void gui_error_gtk3(
 
 	if(show_dev_list)
 	{
-		GtkWidget *text2 = gtk_label_new (_("\nYou have more than one video device installed.\n"
-			"Do you want to try another one ?\n"));
+		GtkWidget *text2 = gtk_label_new (_("\nYou seem to have video devices installed.\n"
+							                "Do you want to try one ?\n"));
 		gtk_widget_override_font(text2, pango_font_description_from_string ("Sans 10"));
 		gtk_misc_set_alignment (GTK_MISC (text2), 0, 0);
 		gtk_grid_attach (GTK_GRID (table), text2, 0, 2, 2, 1);

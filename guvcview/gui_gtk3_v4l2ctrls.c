@@ -106,7 +106,7 @@ int gui_attach_gtk3_v4l2ctrls(GtkWidget *parent)
 	assert(parent != NULL);
 
 	if(debug_level > 1)
-		printf("GUVCVIEW: attaching v4l2 controls\n");
+		printf("GUVCVIEW (Gtk3): attaching v4l2 controls\n");
 
 	GtkWidget *img_controls_grid = gtk_grid_new();
 	gtk_widget_show (img_controls_grid);

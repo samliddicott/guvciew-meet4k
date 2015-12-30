@@ -30,9 +30,22 @@
 
 #define GUI_NONE   (0)
 #define GUI_GTK3   (1)
+#define GUI_QT5    (2)
 
 #define DEF_ACTION_IMAGE  (0)
 #define DEF_ACTION_VIDEO  (1)
+
+/*
+ * sets the Gui API 
+ * args:
+ *   gui api
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void set_gui_api(int gui);
 
 /*
  * gets the current video codec index
@@ -474,7 +487,6 @@ void gui_status_message(const char *message);
 /*
  * GUI initialization
  * args:
- *   gui - gui API to use (GUI_NONE, GUI_GTK3, ...)
  *   width - window width
  *   height - window height
  *   control_panel - flag control panel mode (1 -set; 0 -no)
@@ -484,7 +496,7 @@ void gui_status_message(const char *message);
  *
  * returns: error code
  */
-int gui_attach(int gui, int width, int height, int control_panel);
+int gui_attach(int width, int height, int control_panel);
 
 /*
  * run the GUI loop

@@ -506,14 +506,14 @@ int options_parse(int argc, char *argv[])
 			case 'm':
 			{
 				int str_size = strlen(optarg);
-				if(str_size <= 4) /*render is at most 4 chars*/
+				if(str_size <= 4) /*render window is at most 4 chars*/
 					strncpy(my_options.render_flag, optarg, 4);
 				break;
 			}
 			case 'g':
 			{
 				int str_size = strlen(optarg);
-				if(str_size == 4) /*gui is 4 chars*/
+				if(str_size <= 4) /*gui is at maximum 4 chars*/
 					strncpy(my_options.gui, optarg, 4);
 				break;
 			}

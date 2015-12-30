@@ -76,6 +76,8 @@ void signal_callback_handler(int signum)
 
 int main(int argc, char *argv[])
 {
+	printf("argc=%i\n", argc);
+	
 	/*check stack size*/
 	const rlim_t kStackSize = 128L * 1024L * 1024L;   /* min stack size = 128 Mb*/
     struct rlimit rl;
@@ -151,11 +153,17 @@ int main(int argc, char *argv[])
 	/*select gui API*/
 	int gui = GUI_GTK3;
 
-	if(strcasecmp(my_config->gui, "none") == 0)
+	if(strncasecmp(my_config->gui, "none", 4) == 0)
 		gui = GUI_NONE;
-	else if(strcasecmp(my_config->gui, "gtk3") == 0)
+	else if(strncasecmp(my_config->gui, "gtk3", 4) == 0)
 		gui = GUI_GTK3;
+	else if(strncasecmp(my_config->gui, "qt5", 3) == 0)
+		gui = GUI_QT5;
+		
+	printf("Guvcview: using GUI %i for option %c%c%c\n", gui, my_config->gui[0], my_config->gui[1],my_config->gui[2]);
 
+	set_gui_api(gui);
+	
 	/*select audio API*/
 	int audio = AUDIO_PORTAUDIO;
 
@@ -343,19 +351,27 @@ int main(int argc, char *argv[])
 	}
 
 	/*initialize the gui - do this after setting the video stream*/
-	gui_attach(gui, 800, 600, my_options->control_panel);
+	gui_attach(800, 600, my_options->control_panel);
 
 	/*run the gui loop*/
 	gui_run();
 
+	if(debug_level > 2)
+		printf("GUVCVIEW: joining capture thread\n");
 	if(!my_options->control_panel)
 		__THREAD_JOIN(capture_thread);
 
+	if(debug_level > 1)
+		printf("GUVCVIEW: closing audio context\n");
 	/*closes the audio context (stored staticly in video_capture)*/
 	close_audio_context();
 
+	if(debug_level > 2)
+		printf("GUVCVIEW: closing v4l2core device\n");
 	v4l2core_close_dev();
 
+	if(debug_level > 2)
+		printf("GUVCVIEW: closing v4l2core device list\n");
 	v4l2core_close_v4l2_device_list();
 
     /*save config before cleaning the options*/

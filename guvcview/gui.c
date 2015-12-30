@@ -35,12 +35,20 @@
 #include <locale.h>
 #include <libintl.h>
 
+#include "../config.h"
+
 #include "core_io.h"
-#include "gui.h"
-#include "gui_gtk3.h"
-#include "config.h"
 #include "video_capture.h"
 #include "gviewencoder.h"
+#include "config.h"
+
+#include "gui.h"
+#if HAS_GTK3
+#include "gui_gtk3.h"
+#endif
+#if HAS_QT5
+#include "gui_qt5.h"
+#endif
 
 
 extern int debug_level;
@@ -82,6 +90,27 @@ static int my_audio_codec_ind = 0;
 /*index: 0 numerator; 1 denominator*/
 static int my_fps[2] = {0, 0};
 
+/*
+ * sets the Gui API 
+ * args:
+ *   gui api
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void set_gui_api(int gui)
+{
+	gui_api = GUI_NONE;
+	
+	if( gui == GUI_NONE || 
+		gui == GUI_GTK3 || 
+		gui == GUI_QT5 )
+	{
+		gui_api = gui;
+	}
+}
 
 /*
  * gets the current video codec index
@@ -263,13 +292,14 @@ void gui_click_image_capture_button()
 {
 	switch(gui_api)
 	{
-		case GUI_NONE:
-			video_capture_save_image();
-			break;
-
+#if HAS_GTK3
 		case GUI_GTK3:
-		default:
 			gui_click_image_capture_button_gtk3();
+			break;
+#endif
+		case GUI_NONE:
+		default:
+			video_capture_save_image();
 			break;
 	}
 }
@@ -288,7 +318,13 @@ void gui_click_video_capture_button()
 {
 	switch(gui_api)
 	{
+#if HAS_GTK3
+		case GUI_GTK3:
+			gui_click_video_capture_button_gtk3();
+			break;
+#endif
 		case GUI_NONE:
+		default:
 			if(!get_encoder_status())
 				start_encoder_thread();
 			else
@@ -298,11 +334,7 @@ void gui_click_video_capture_button()
 				stop_encoder_thread();
 			}
 			break;
-
-		case GUI_GTK3:
-		default:
-			gui_click_video_capture_button_gtk3();
-			break;
+		
 	}
 }
 /*
@@ -319,12 +351,13 @@ void gui_set_image_capture_button_label(const char *label)
 {
 	switch(gui_api)
 	{
-		case GUI_NONE:
-			break;
-
+#if HAS_GTK3
 		case GUI_GTK3:
-		default:
 			gui_set_image_capture_button_label_gtk3(label);
+			break;
+#endif
+		case GUI_NONE:
+		default:
 			break;
 	}
 }
@@ -343,12 +376,13 @@ void gui_set_video_capture_button_status(int flag)
 {
 	switch(gui_api)
 	{
-		case GUI_NONE:
-			break;
-
+#if HAS_GTK3
 		case GUI_GTK3:
-		default:
 			gui_set_video_capture_button_status_gtk3(flag);
+			break;
+#endif
+		case GUI_NONE:
+		default:
 			break;
 	}
 }
@@ -800,12 +834,13 @@ void set_webm_codecs()
 {
 	switch(gui_api)
 	{
-		case GUI_NONE:
-			break;
-
+#if HAS_GTK3
 		case GUI_GTK3:
-		default:
 			set_webm_codecs_gtk3();
+			break;
+#endif
+		case GUI_NONE:
+		default:
 			break;
 	}
 }
@@ -827,14 +862,21 @@ void gui_error(
 	const char *message,
 	int fatal)
 {
+	fprintf(stderr, "GUVCVIEW (%i): %s\n\t %s\n", gui_api, title, message);
 	switch(gui_api)
 	{
-		case GUI_NONE:
+#if HAS_QT5
+		case GUI_QT5:
+			gui_error_qt5(title, message, fatal);
 			break;
-
+#endif
+#if HAS_GTK3
 		case GUI_GTK3:
-		default:
 			gui_error_gtk3(title, message, fatal);
+			break;
+#endif
+		case GUI_NONE:
+		default:
 			break;
 	}
 }
@@ -853,12 +895,13 @@ void gui_status_message(const char *message)
 {
 	switch(gui_api)
 	{
-		case GUI_NONE:
-			break;
-
+#if HAS_GTK3
 		case GUI_GTK3:
-		default:
 			gui_status_message_gtk3(message);
+			break;
+#endif
+		case GUI_NONE:
+		default:
 			break;
 	}
 
@@ -868,7 +911,6 @@ void gui_status_message(const char *message)
 /*
  * GUI initialization
  * args:
- *   gui - gui API to use (GUI_NONE, GUI_GTK3, ...)
  *   width - window width
  *   height - window height
  *   control_panel - flag control panel mode (1 -set; 0 -no)
@@ -878,23 +920,30 @@ void gui_status_message(const char *message)
  *
  * returns: error code
  */
-int gui_attach(int gui, int width, int height, int control_panel)
+int gui_attach(int width, int height, int control_panel)
 {
 	int ret = 0;
 
 	is_control_panel = control_panel;
-	gui_api = gui;
 
 	switch(gui_api)
 	{
-		case GUI_NONE:
+#if HAS_QT5		
+		case GUI_QT5:
+			ret = gui_attach_qt5(width, height);
+			if(ret)
+				gui_api = GUI_NONE;
 			break;
-
+#endif
+#if HAS_GTK3
 		case GUI_GTK3:
-		default:
 			ret = gui_attach_gtk3(width, height);
 			if(ret)
 				gui_api = GUI_NONE;
+			break;
+#endif
+		case GUI_NONE:
+		default:
 			break;
 	}
 
@@ -918,12 +967,18 @@ int gui_run()
 
 	switch(gui_api)
 	{
-		case GUI_NONE:
+#if HAS_QT5
+		case GUI_QT5:
+			ret = gui_run_qt5();
 			break;
-
+#endif
+#if HAS_GTK3		
 		case GUI_GTK3:
-		default:
 			ret = gui_run_gtk3();
+			break;
+#endif
+		case GUI_NONE:
+		default:
 			break;
 	}
 
@@ -977,12 +1032,18 @@ void gui_close()
 		printf("GUVCVIEW: close GUI API\n");
 	switch(gui_api)
 	{
-		case GUI_NONE:
+#if HAS_QT5		
+		case GUI_QT5:
+			gui_close_qt5();
 			break;
-
+#endif
+#if HAS_GTK3
 		case GUI_GTK3:
-		default:
 			gui_close_gtk3();
+			break;
+#endif
+		case GUI_NONE:
+		default:
 			break;
 	}
 }

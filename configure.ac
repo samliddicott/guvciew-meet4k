@@ -45,12 +45,16 @@ AC_PREFIX_DEFAULT(/usr/local)
 
 AC_PROG_CC
 AM_PROG_CC_C_O
+AC_PROG_CXX
 AC_HEADER_STDC
 AC_PROG_LIBTOOL
 # enable Large File Support extension (LFS)
 AC_SYS_LARGEFILE
 
 AM_SANITY_CHECK
+
+# we need this for the Qt GUI
+AC_CHECK_TOOL([MOC], [moc])
 
 dnl --------------------------------------------------------------------------
 dnl set pthread_libs and pthread_cflags
@@ -395,9 +399,57 @@ dnl --------------------------------------------------------------------------
 dnl check for guvcview dependencies
 dnl --------------------------------------------------------------------------
 
-PKG_CHECK_MODULES(GUVCVIEW, [gtk+-3.0 >= 3.0.0 glib-2.0 >= 2.10.0])
-AC_SUBST(GUVCVIEW_CFLAGS)
-AC_SUBST(GUVCVIEW_LIBS)
+dnl --------------------------------------------------------------------------
+dnl Check for GTK3
+dnl --------------------------------------------------------------------------
+AC_MSG_CHECKING(if you want to enable gtk3 support)
+AC_ARG_ENABLE(gtk3, AS_HELP_STRING([--disable-gtk3],
+		[disable gtk3 support (default: enabled)]),
+	[enable_gtk3=$enableval],
+	[enable_gtk3=yes])
+
+AC_MSG_RESULT($enable_gtk3)
+
+if test $enable_gtk3 = yes; then
+	PKG_CHECK_MODULES(GUIGTK3, [gtk+-3.0 >= 3.0.0 glib-2.0 >= 2.10.0], has_gtk3=yes, has_gtk3=no)
+	AC_SUBST(GUIGTK3_CFLAGS)
+	AC_SUBST(GUIGTK3_LIBS)
+	if test "$has_gtk3" = yes; then
+	  AC_DEFINE(HAS_GTK3, 1, [set to 1 if gtk3 installed])
+	else
+	  AC_MSG_WARN(gtk3 missing... gtk3 support will be disabled.);
+	  enable_gtk3=no
+	fi
+fi
+
+AM_CONDITIONAL(HAVE_GTK3, test $enable_gtk3 = yes)
+
+dnl --------------------------------------------------------------------------
+dnl Check for Qt5
+dnl --------------------------------------------------------------------------
+AC_MSG_CHECKING(if you want to enable qt5 support)
+AC_ARG_ENABLE(qt5, AS_HELP_STRING([--enable-qt5],
+		[enable qt5 support (default: disabled)]),
+	[enable_qt5=$enableval],
+	[enable_qt5=no])
+
+AC_MSG_RESULT($enable_qt5)
+
+if test $enable_qt5 = yes; then
+	PKG_CHECK_MODULES(GUIQT5, [Qt5Widgets], has_qt5=yes, has_qt5=no)
+	AC_SUBST(GUIQT5_CFLAGS)
+	AC_SUBST(GUIQT5_LIBS)
+
+	if test "$has_qt5" = yes; then
+	  AC_DEFINE(HAS_QT5, 1, [set to 1 if Qt5 installed])
+	else
+	  AC_MSG_WARN(Qt5 missing... Qt5 support will be disabled.);
+	  enable_qt5=no
+	fi
+fi
+
+AM_CONDITIONAL(HAVE_QT5, test $enable_qt5 = yes)
+
 
 AC_CHECK_FUNCS([fpathconf dirfd])
 
@@ -471,6 +523,8 @@ AC_MSG_NOTICE([
   gsl              : ${enable_gsl}
   sdl2             : ${enable_sdl2}
   mjpg decoder     : ${mjpg_decoder}
+  gtk3             : ${enable_gtk3}
+  Qt5              : ${enable_qt5}
   desktop file     : ${enable_desktop}
   debian menu      : ${enable_debian_menu}
 

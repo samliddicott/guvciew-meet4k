@@ -368,7 +368,7 @@ void config_update(options_t *my_options)
 		strncpy(my_config.render, my_options->render, 4);
 
 	/*gui API*/
-	if(strlen(my_options->gui) > 3)
+	if(strlen(my_options->gui) > 2)
 		strncpy(my_config.gui, my_options->gui, 4);
 
 	/*audio API*/
