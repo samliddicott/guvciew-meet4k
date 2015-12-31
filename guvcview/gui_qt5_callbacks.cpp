@@ -82,20 +82,6 @@ void MainWindow::quit_button_clicked()
 	quit_callback(NULL);
 }
 
-/*
- * camera_button_menu video clicked
- * args:
- *   none
- *
- * asserts:
- *   none
- *
- * returns: none
- */
-void MainWindow::camera_video_clicked()
-{
-	set_default_camera_button_action(DEF_ACTION_VIDEO);
-}
 
 /*
  * camera_button_menu image clicked
@@ -107,9 +93,14 @@ void MainWindow::camera_video_clicked()
  *
  * returns: none
  */
-void MainWindow::camera_image_clicked()
+void MainWindow::menu_camera_button_clicked()
 {
-	set_default_camera_button_action(DEF_ACTION_IMAGE);
+	QObject *sender =  QObject::sender();
+	int def_action = sender->property("camera_button").toInt();
+	
+	if(debug_level > 2)
+		std::cout << "GUVCVIEW (Qt5): camera button set to action " << def_action << std::endl;
+	set_default_camera_button_action(def_action);
 }
 
 /*
@@ -124,46 +115,15 @@ void MainWindow::camera_image_clicked()
  */
 void MainWindow::control_defaults_clicked ()
 {
+	if(debug_level > 2)
+		std::cout << "GUVCVIEW (Qt5): setting control defaults" << std::endl;
+		
     v4l2core_set_control_defaults();
-
     gui_qt5_update_controls_state();
 }
 
-///*
- //* called from profile format combo in file dialog
- //* args:
- //*    chooser - format combo that caused the event
- //*    file_dialog - chooser parent
- //*
- //* asserts:
- //*    none
- //*
- //* returns: none
- //*/
-//static void profile_update_extension (GtkComboBox *chooser, GtkWidget *file_dialog)
-//{
-	//int format = gtk_combo_box_get_active (chooser);
-
-	//GtkFileFilter *filter = gtk_file_filter_new();
-
-	//switch(format)
-	//{
-		//case 1:
-			//gtk_file_filter_add_pattern(filter, "*.*");
-			//break;
-
-		//default:
-		//case 0:
-			//gtk_file_filter_add_pattern(filter, "*.gpfl");
-			//break;
-	//}
-
-	//gtk_file_chooser_set_filter(GTK_FILE_CHOOSER (file_dialog), filter);
-//}
-
-
 /*
- * load control profile clicked event
+ * load/save control profile clicked event
  * args:
  *   none
  *
@@ -172,156 +132,106 @@ void MainWindow::control_defaults_clicked ()
  *
  * returns: none
  */
-void MainWindow::load_profile_clicked()
+void MainWindow::load_save_profile_clicked()
 {
+	QObject *sender =  QObject::sender();
+	int dialog_type = sender->property("profile_dialog").toInt();
+	
+	if(dialog_type == 0) //load
+	{
+		QString filter = _("gpfl  (*.gpfl)");
+		filter.append(";;");
+		filter.append(_("any (*.*)"));
+		QString fileName = QFileDialog::getOpenFileName(this, _("Load Profile"),
+			get_profile_path(), filter);
+		
+		if(!fileName.isEmpty())
+		{
+			if(debug_level > 1)
+				std::cout << "GUVCVIEW (Qt5): load profile " 
+					<< fileName.toStdString() << std::endl;
+			
+			v4l2core_load_control_profile(fileName.toStdString().c_str());
+			gui_qt5_update_controls_state();
+			
+			char *basename = get_file_basename(fileName.toStdString().c_str());
+			if(basename)
+			{
+				set_profile_name(basename);
+				free(basename);
+			}
+			char *pathname = get_file_pathname(fileName.toStdString().c_str());
+			if(pathname)
+			{
+				set_profile_path(pathname);
+				free(pathname);
+			}
+		}	
+	}
+	else
+	{
+		QString filter = _("gpfl  (*.gpfl)");
+		filter.append(";;");
+		filter.append(_("any (*.*)"));
+		
+		QString profile_name = get_profile_path();
+		profile_name.append("/");
+		profile_name.append(get_profile_name());
+		QString fileName = QFileDialog::getSaveFileName(this, _("Save Profile"),
+			profile_name, filter);
+		
+		if(!fileName.isEmpty())
+		{
+			if(debug_level > 1)
+				std::cout << "GUVCVIEW (Qt5): save profile " 
+					<< fileName.toStdString() << std::endl;
+				
+			v4l2core_save_control_profile(fileName.toStdString().c_str());
+			
+			char *basename = get_file_basename(fileName.toStdString().c_str());
+			if(basename)
+			{
+				set_profile_name(basename);
+				free(basename);
+			}
+			char *pathname = get_file_pathname(fileName.toStdString().c_str());
+			if(pathname)
+			{
+				set_profile_path(pathname);
+				free(pathname);
+			}
+
+		}
+	}
 }
 
 /*
- * save control profile clicked event
+ * photo suffix clicked event
  * args:
- *   none
+ *    none
  *
  * asserts:
- *   none
+ *    none
  *
  * returns: none
  */
-void MainWindow::save_profile_clicked()
+void MainWindow::photo_sufix_clicked ()
 {
+	QObject *sender =  QObject::sender();
+	QAction *action = (QAction *) sender;
+	
+	int flag = action->isChecked() ? 1 : 0;
+	
+	if(debug_level > 1)
+		std::cout << "GUVCVIEW (Qt5): photo sufix set to " 
+			<< flag << std::endl;
+					
+	set_photo_sufix_flag(flag);
+
+	/*update config*/
+	config_t *my_config = config_get();
+	my_config->photo_sufix = flag;
 }
-
-///*
- //* control profile (load/save) clicked event
- //* args:
- //*   widget - pointer to event widget
- //*   data - pointer to user data
- //*
- //* asserts:
- //*   none
- //*
- //* returns: none
- //*/
-//void controls_profile_clicked (GtkWidget *item, void *data)
-//{
-	//GtkWidget *FileDialog;
-
-	//int save_or_load = GPOINTER_TO_INT(g_object_get_data (G_OBJECT (item), "profile_dialog"));
-
-	//if(debug_level > 0)
-		//printf("GUVCVIEW: Profile dialog (%d)\n", save_or_load);
-
-	//GtkWidget *main_window = get_main_window_gtk3();
-
-	//if (save_or_load > 0) /*save*/
-	//{
-		//FileDialog = gtk_file_chooser_dialog_new (_("Save Profile"),
-			//GTK_WINDOW(main_window),
-			//GTK_FILE_CHOOSER_ACTION_SAVE,
-			 //_("_Cancel"), GTK_RESPONSE_CANCEL,
-			 //_("_Save"), GTK_RESPONSE_ACCEPT,
-			//NULL);
-
-		//gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (FileDialog), TRUE);
-
-		//gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (FileDialog),
-			//get_profile_name());
-	//}
-	//else /*load*/
-	//{
-		//FileDialog = gtk_file_chooser_dialog_new (_("Load Profile"),
-			//GTK_WINDOW(main_window),
-			//GTK_FILE_CHOOSER_ACTION_OPEN,
-			 //_("_Cancel"), GTK_RESPONSE_CANCEL,
-			 //_("_Open"), GTK_RESPONSE_ACCEPT,
-			//NULL);
-	//}
-
-	///** create a file filter */
-	//GtkFileFilter *filter = gtk_file_filter_new();
-
-	//GtkWidget *FBox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
-	//GtkWidget *format_label = gtk_label_new(_("File Format:"));
-	//gtk_widget_set_halign (FBox, GTK_ALIGN_FILL);
-	//gtk_widget_set_hexpand (FBox, TRUE);
-	//gtk_widget_set_hexpand (format_label, FALSE);
-	//gtk_widget_show(FBox);
-	//gtk_widget_show(format_label);
-	//gtk_box_pack_start(GTK_BOX(FBox), format_label, FALSE, FALSE, 2);
-
-	//GtkWidget *FileFormat = gtk_combo_box_text_new ();
-	//gtk_widget_set_halign (FileFormat, GTK_ALIGN_FILL);
-	//gtk_widget_set_hexpand (FileFormat, TRUE);
-
-	//gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(FileFormat),_("gpfl  (*.gpfl)"));
-	//gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(FileFormat),_("any (*.*)"));
-
-	//gtk_combo_box_set_active(GTK_COMBO_BOX(FileFormat), 0);
-	//gtk_box_pack_start(GTK_BOX(FBox), FileFormat, FALSE, FALSE, 2);
-	//gtk_widget_show(FileFormat);
-
-	//gtk_file_filter_add_pattern(filter, "*.gpfl");
-
-	//gtk_file_chooser_set_filter(GTK_FILE_CHOOSER (FileDialog), filter);
-	//gtk_file_chooser_set_extra_widget(GTK_FILE_CHOOSER (FileDialog), FBox);
-
-	//g_signal_connect (GTK_COMBO_BOX(FileFormat), "changed",
-		//G_CALLBACK (profile_update_extension), FileDialog);
-
-
-	//gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (FileDialog),
-		//get_profile_path());
-
-	//if (gtk_dialog_run (GTK_DIALOG (FileDialog)) == GTK_RESPONSE_ACCEPT)
-	//{
-		///*Save Controls Data*/
-		//const char *filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (FileDialog));
-
-		//if(save_or_load > 0)
-		//{
-			//v4l2core_save_control_profile(filename);
-		//}
-		//else
-		//{
-			//v4l2core_load_control_profile(filename);
-			//gui_gtk3_update_controls_state();
-		//}
-
-		//char *basename = get_file_basename(filename);
-		//if(basename)
-		//{
-			//set_profile_name(basename);
-			//free(basename);
-		//}
-		//char *pathname = get_file_pathname(filename);
-		//if(pathname)
-		//{
-			//set_profile_path(pathname);
-			//free(pathname);
-		//}
-	//}
-	//gtk_widget_destroy (FileDialog);
-//}
-
-///*
- //* photo suffix toggled event
- //* args:
- //*    item - widget that generated the event
- //*    data - pointer to user data
- //*
- //* asserts:
- //*    none
- //*
- //* returns: none
- //*/
-//void photo_sufix_toggled (GtkWidget *item, void *data)
-//{
-  	//int flag = gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(item)) ? 1 : 0;
-	//set_photo_sufix_flag(flag);
-
-	///*update config*/
-	//config_t *my_config = config_get();
-	//my_config->photo_sufix = flag;
-//}
 
 ///*
  //* video suffix toggled event
@@ -532,105 +442,58 @@ void MainWindow::save_profile_clicked()
 		//free(basename);
 //}
 
-///*
- //* photo file clicked event
- //* args:
- //*   item - pointer to widget that generated the event
- //*   data - pointer to user data
- //*
- //* asserts:
- //*   none
- //*
- //* returns: none
- //*/
-//void photo_file_clicked (GtkWidget *item, void *data)
-//{
-	//GtkWidget *FileDialog;
+/*
+ * photo file clicked event
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void MainWindow::photo_file_clicked ()
+{
+	QString filter = _("Jpeg  (*.jpg)");
+	filter.append(";;");
+	filter.append(_("Png (*.png)"));
+	filter.append(";;");
+	filter.append(_("Bmp  (*.bmp)"));
+	filter.append(";;");
+	filter.append(_("Raw  (*.raw)"));
+	filter.append(";;");
+	filter.append(_("Images  (*.jpg *.png *.bmp *.raw)"));
+	
+	
+	QString photo_name = get_photo_path();
+	photo_name.append("/");
+	photo_name.append(get_photo_name());
+	QString fileName = QFileDialog::getSaveFileName(this, _("Photo file name"),
+			photo_name, filter);
+		
+	if(!fileName.isEmpty())
+	{
+		if(debug_level > 1)
+			std::cout << "GUVCVIEW (Qt5): set photo filename to " 
+				<< fileName.toStdString() << std::endl;
+				
+			
+			
+		char *basename = get_file_basename(fileName.toStdString().c_str());
+		if(basename)
+		{
+			set_photo_name(basename);
+			free(basename);
+		}
+		char *pathname = get_file_pathname(fileName.toStdString().c_str());
+		if(pathname)
+		{
+			set_photo_path(pathname);
+			free(pathname);
+		}
 
-	//GtkWidget *main_window = get_main_window_gtk3();
-
-	//FileDialog = gtk_file_chooser_dialog_new (_("Photo file name"),
-			//GTK_WINDOW(main_window),
-			//GTK_FILE_CHOOSER_ACTION_SAVE,
-			//_("_Cancel"), GTK_RESPONSE_CANCEL,
-			//_("_Save"), GTK_RESPONSE_ACCEPT,
-			//NULL);
-	//gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (FileDialog), TRUE);
-
-	///** create a file filter */
-	//GtkFileFilter *filter = gtk_file_filter_new();
-
-	//GtkWidget *FBox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
-	//GtkWidget *format_label = gtk_label_new(_("File Format:"));
-	//gtk_widget_set_halign (FBox, GTK_ALIGN_FILL);
-	//gtk_widget_set_hexpand (FBox, TRUE);
-	//gtk_widget_set_hexpand (format_label, FALSE);
-	//gtk_widget_show(FBox);
-	//gtk_widget_show(format_label);
-	//gtk_box_pack_start(GTK_BOX(FBox), format_label, FALSE, FALSE, 2);
-
-	//GtkWidget *ImgFormat = gtk_combo_box_text_new ();
-	//gtk_widget_set_halign (ImgFormat, GTK_ALIGN_FILL);
-	//gtk_widget_set_hexpand (ImgFormat, TRUE);
-
-	//gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(ImgFormat),_("Raw  (*.raw)"));
-	//gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(ImgFormat),_("Jpeg (*.jpg)"));
-	//gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(ImgFormat),_("Png  (*.png)"));
-	//gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(ImgFormat),_("Bmp  (*.bmp)"));
-
-	//gtk_combo_box_set_active(GTK_COMBO_BOX(ImgFormat), get_photo_format());
-	//gtk_box_pack_start(GTK_BOX(FBox), ImgFormat, FALSE, FALSE, 2);
-	//gtk_widget_show(ImgFormat);
-
-	///**add a pattern to the filter*/
-	//switch(get_photo_format())
-	//{
-		//case IMG_FMT_RAW:
-			//gtk_file_filter_add_pattern(filter, "*.raw");
-			//break;
-		//case IMG_FMT_PNG:
-			//gtk_file_filter_add_pattern(filter, "*.png");
-			//break;
-		//case IMG_FMT_BMP:
-			//gtk_file_filter_add_pattern(filter, "*.bmp");
-			//break;
-		//default:
-		//case IMG_FMT_JPG:
-			//gtk_file_filter_add_pattern(filter, "*.jpg");
-			//break;
-	//}
-
-	//gtk_file_chooser_set_filter(GTK_FILE_CHOOSER (FileDialog), filter);
-	//gtk_file_chooser_set_extra_widget(GTK_FILE_CHOOSER (FileDialog), FBox);
-
-	//g_signal_connect (GTK_COMBO_BOX(ImgFormat), "changed",
-		//G_CALLBACK (photo_update_extension), FileDialog);
-
-	//gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (FileDialog),
-		//get_photo_name());
-
-	//gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (FileDialog),
-		//get_photo_path());
-
-	//if (gtk_dialog_run (GTK_DIALOG (FileDialog)) == GTK_RESPONSE_ACCEPT)
-	//{
-		//const char *filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (FileDialog));
-
-		//char *basename = get_file_basename(filename);
-		//if(basename)
-		//{
-			//set_photo_name(basename);
-			//free(basename);
-		//}
-		//char *pathname = get_file_pathname(filename);
-		//if(pathname)
-		//{
-			//set_photo_path(pathname);
-			//free(pathname);
-		//}
-	//}
-	//gtk_widget_destroy (FileDialog);
-//}
+	}
+}
 
 ///*
  //* video file clicked event

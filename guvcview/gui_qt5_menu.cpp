@@ -64,9 +64,13 @@ int MainWindow::gui_attach_qt5_menu(QWidget *parent)
 	menubar = new QMenuBar(parent);
 	menubar->show();
 
+	QAction *menu_action;
+	
 	QMenu *controls_menu = new QMenu(_("Settings"), menubar);
-	controls_menu->addAction(_("Load Profile"), this,  SLOT(load_profile_clicked()));
-	controls_menu->addAction(_("Save Profile"), this, SLOT(save_profile_clicked()));
+	menu_action = controls_menu->addAction(_("Load Profile"), this,  SLOT(load_save_profile_clicked()));
+	menu_action->setProperty("profile_dialog", 0);
+	menu_action = controls_menu->addAction(_("Save Profile"), this, SLOT(load_save_profile_clicked()));
+	menu_action->setProperty("profile_dialog", 1);
 	controls_menu->addAction(_("Hardware Defaults"), this, SLOT(control_defaults_clicked()));
 	
 	controls_menu->show();
@@ -80,15 +84,15 @@ int MainWindow::gui_attach_qt5_menu(QWidget *parent)
 	QActionGroup* camera_group = new QActionGroup(camera_button_menu);
 	camera_group->setExclusive(true);
 	
-	QAction *menu_action;
-	
-	menu_action = camera_button_menu->addAction(_("Capture Image"), this,  SLOT(camera_image_clicked()));
+	menu_action = camera_button_menu->addAction(_("Capture Image"), this,  SLOT(menu_camera_button_clicked()));
+	menu_action->setProperty("camera_button", DEF_ACTION_IMAGE);
 	menu_action->setCheckable(true);
 	if (get_default_camera_button_action() == DEF_ACTION_IMAGE)
 		menu_action->setChecked(true);
 	camera_group->addAction(menu_action);
 	
-	menu_action = camera_button_menu->addAction(_("Capture Video"), this, SLOT(camera_video_clicked()));
+	menu_action = camera_button_menu->addAction(_("Capture Video"), this, SLOT(menu_camera_button_clicked()));
+	menu_action->setProperty("camera_button", DEF_ACTION_VIDEO);
 	menu_action->setCheckable(true);
 	if (get_default_camera_button_action() == DEF_ACTION_VIDEO)
 		menu_action->setChecked(true);
@@ -96,10 +100,19 @@ int MainWindow::gui_attach_qt5_menu(QWidget *parent)
 	
 	camera_button_menu->show();
 
-	///*control panel mode exclusions */
-	//if(!is_control_panel)
-	//{
-		///*photo menu*/
+	/*control panel mode exclusions */
+	if(!is_control_panel)
+	{
+		/*photo menu*/
+		QMenu *photo_menu = new QMenu(_("Photo"), menubar);
+		
+		menubar->addMenu(photo_menu);
+		
+		photo_menu->addAction(_("File"), this,  SLOT(photo_file_clicked()));
+		menu_action = photo_menu->addAction(_("Increment Filename"), this,  SLOT(photo_sufix_clicked()));
+		menu_action->setCheckable(true);
+		menu_action->setChecked(get_photo_sufix_flag() > 0);
+		
 		//GtkWidget *photo_menu = gtk_menu_new();
 
 		//GtkWidget *menu_photo_top = gtk_menu_item_new_with_label(_("Photo"));
@@ -218,7 +231,7 @@ int MainWindow::gui_attach_qt5_menu(QWidget *parent)
 		//gtk_menu_shell_append(GTK_MENU_SHELL(video_menu), audio_codec_top);
 		//gtk_menu_shell_append(GTK_MENU_SHELL(video_menu), audio_codec_prop);
 		//gtk_menu_shell_append(GTK_MENU_SHELL(menubar), menu_video_top);
-	//}
+	}
 
 	return 0;
 }

@@ -91,11 +91,11 @@ private slots:
     void format_changed(int index);
     void render_fx_filter_changed(int state);
     void render_osd_changed(int state);
-    void load_profile_clicked();
-    void save_profile_clicked();
-    void control_defaults_clicked();
-    void camera_image_clicked();
-    void camera_video_clicked();
+    void control_defaults_clicked ();
+    void load_save_profile_clicked();
+    void menu_camera_button_clicked();
+    void photo_file_clicked();
+    void photo_sufix_clicked();
 
 
 private:
