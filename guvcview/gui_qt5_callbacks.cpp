@@ -233,26 +233,33 @@ void MainWindow::photo_sufix_clicked ()
 	my_config->photo_sufix = flag;
 }
 
-///*
- //* video suffix toggled event
- //* args:
- //*    item - widget that generated the event
- //*    data - pointer to user data
- //*
- //* asserts:
- //*    none
- //*
- //* returns: none
- //*/
-//void video_sufix_toggled (GtkWidget *item, void *data)
-//{
-	//int flag = gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(item)) ? 1 : 0;
-	//set_video_sufix_flag(flag);
+/*
+ * video suffix clicked event
+ * args:
+ *    none
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void MainWindow::video_sufix_clicked ()
+{
+	QObject *sender =  QObject::sender();
+	QAction *action = (QAction *) sender;
+	
+	int flag = action->isChecked() ? 1 : 0;
+	
+	if(debug_level > 1)
+		std::cout << "GUVCVIEW (Qt5): video sufix set to " 
+			<< flag << std::endl;
+			
+	set_video_sufix_flag(flag);
 
-	///*update config*/
-	//config_t *my_config = config_get();
-	//my_config->video_sufix = flag;
-//}
+	/*update config*/
+	config_t *my_config = config_get();
+	my_config->video_sufix = flag;
+}
 
 ///*
  //* video codec changed event
@@ -491,107 +498,57 @@ void MainWindow::photo_file_clicked ()
 			set_photo_path(pathname);
 			free(pathname);
 		}
-
 	}
 }
 
-///*
- //* video file clicked event
- //* args:
- //*   item - pointer to widget that generated the event
- //*   data - pointer to user data
- //*
- //* asserts:
- //*   none
- //*
- //* returns: none
- //*/
-//void video_file_clicked (GtkWidget *item, void *data)
-//{
-	//GtkWidget *FileDialog;
-
-	//GtkWidget *main_window = get_main_window_gtk3();
-
-	//FileDialog = gtk_file_chooser_dialog_new (_("Video file name"),
-			//GTK_WINDOW(main_window),
-			//GTK_FILE_CHOOSER_ACTION_SAVE,
-			//_("_Cancel"), GTK_RESPONSE_CANCEL,
-			//_("_Save"), GTK_RESPONSE_ACCEPT,
-			//NULL);
-
-	//gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (FileDialog), TRUE);
-
-	///** create a file filter */
-	//GtkFileFilter *filter = gtk_file_filter_new();
-
-	//GtkWidget *FBox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
-	//GtkWidget *format_label = gtk_label_new(_("File Format:"));
-	//gtk_widget_set_halign (FBox, GTK_ALIGN_FILL);
-	//gtk_widget_set_hexpand (FBox, TRUE);
-	//gtk_widget_set_hexpand (format_label, FALSE);
-	//gtk_widget_show(FBox);
-	//gtk_widget_show(format_label);
-	//gtk_box_pack_start(GTK_BOX(FBox), format_label, FALSE, FALSE, 2);
-
-	//GtkWidget *VideoFormat = gtk_combo_box_text_new ();
-	//gtk_widget_set_halign (VideoFormat, GTK_ALIGN_FILL);
-	//gtk_widget_set_hexpand (VideoFormat, TRUE);
-
-	//gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(VideoFormat),_("Matroska  (*.mkv)"));
-	//gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(VideoFormat),_("WebM (*.webm)"));
-	//gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(VideoFormat),_("Avi  (*.avi)"));
-
-	//gtk_combo_box_set_active(GTK_COMBO_BOX(VideoFormat), get_video_muxer());
-	//gtk_box_pack_start(GTK_BOX(FBox), VideoFormat, FALSE, FALSE, 2);
-	//gtk_widget_show(VideoFormat);
-
-	///**add a pattern to the filter*/
-	//switch(get_video_muxer())
-	//{
-		//case ENCODER_MUX_WEBM:
-			//gtk_file_filter_add_pattern(filter, "*.webm");
-			//break;
-		//case ENCODER_MUX_AVI:
-			//gtk_file_filter_add_pattern(filter, "*.avi");
-			//break;
-		//default:
-		//case ENCODER_MUX_MKV:
-			//gtk_file_filter_add_pattern(filter, "*.mkv");
-			//break;
-
-	//}
-
-	//gtk_file_chooser_set_filter(GTK_FILE_CHOOSER (FileDialog), filter);
-	//gtk_file_chooser_set_extra_widget(GTK_FILE_CHOOSER (FileDialog), FBox);
-
-	//g_signal_connect (GTK_COMBO_BOX(VideoFormat), "changed",
-		//G_CALLBACK (video_update_extension), FileDialog);
-
-	//gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (FileDialog),
-		//get_video_name());
-
-	//gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (FileDialog),
-		//get_video_path());
-
-	//if (gtk_dialog_run (GTK_DIALOG (FileDialog)) == GTK_RESPONSE_ACCEPT)
-	//{
-		//const char *filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (FileDialog));
-
-		//char *basename = get_file_basename(filename);
-		//if(basename)
-		//{
-			//set_video_name(basename);
-			//free(basename);
-		//}
-		//char *pathname = get_file_pathname(filename);
-		//if(pathname)
-		//{
-			//set_video_path(pathname);
-			//free(pathname);
-		//}
-	//}
-	//gtk_widget_destroy (FileDialog);
-//}
+/*
+ * video file clicked event
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void MainWindow::video_file_clicked ()
+{
+	QString filter = _("Matroska  (*.mkv)");
+	filter.append(";;");
+	filter.append(_("WebM (*.webm)"));
+	filter.append(";;");
+	filter.append(_("Avi  (*.avi)"));
+	filter.append(";;");
+	filter.append(_("Videos  (*.mkv *.webm *.avi)"));
+	
+	QString video_name = get_video_path();
+	video_name.append("/");
+	video_name.append(get_video_name());
+	QString fileName = QFileDialog::getSaveFileName(this, _("Video file name"),
+			video_name, filter);
+		
+	if(!fileName.isEmpty())
+	{
+		if(debug_level > 1)
+			std::cout << "GUVCVIEW (Qt5): set video filename to " 
+				<< fileName.toStdString() << std::endl;
+				
+			
+			
+		char *basename = get_file_basename(fileName.toStdString().c_str());
+		if(basename)
+		{
+			set_video_name(basename);
+			free(basename);
+		}
+		char *pathname = get_file_pathname(fileName.toStdString().c_str());
+		if(pathname)
+		{
+			set_video_path(pathname);
+			free(pathname);
+		}
+	}
+}
 
 ///*
  //* capture image button clicked event

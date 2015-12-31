@@ -112,48 +112,16 @@ int MainWindow::gui_attach_qt5_menu(QWidget *parent)
 		menu_action = photo_menu->addAction(_("Increment Filename"), this,  SLOT(photo_sufix_clicked()));
 		menu_action->setCheckable(true);
 		menu_action->setChecked(get_photo_sufix_flag() > 0);
+
+		/*video menu*/
+		QMenu *video_menu = new QMenu(_("Video"), menubar);
 		
-		//GtkWidget *photo_menu = gtk_menu_new();
-
-		//GtkWidget *menu_photo_top = gtk_menu_item_new_with_label(_("Photo"));
-		//GtkWidget *photo_file = gtk_menu_item_new_with_label(_("File"));
-		//GtkWidget *photo_sufix = gtk_check_menu_item_new_with_label(_("Increment Filename"));
-
-		//gtk_widget_show (menu_photo_top);
-		//gtk_widget_show (photo_file);
-		//gtk_widget_show (photo_sufix);
-
-		//g_signal_connect (GTK_MENU_ITEM(photo_file), "activate",
-			//G_CALLBACK (photo_file_clicked), NULL);
-
-		///** add callback to Append sufix */
-		//gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (photo_sufix), (get_photo_sufix_flag() > 0));
-		//g_signal_connect (GTK_CHECK_MENU_ITEM(photo_sufix), "toggled",
-			//G_CALLBACK (photo_sufix_toggled), NULL);
-
-		//gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu_photo_top), photo_menu);
-		//gtk_menu_shell_append(GTK_MENU_SHELL(photo_menu), photo_file);
-		//gtk_menu_shell_append(GTK_MENU_SHELL(photo_menu), photo_sufix);
-		//gtk_menu_shell_append(GTK_MENU_SHELL(menubar), menu_photo_top);
-
-		///*video menu*/
-		//GtkWidget *video_menu = gtk_menu_new();
-
-		//GtkWidget *menu_video_top = gtk_menu_item_new_with_label(_("Video"));
-		//GtkWidget *video_file = gtk_menu_item_new_with_label(_("File"));
-		//GtkWidget *video_sufix = gtk_check_menu_item_new_with_label(_("Increment Filename"));
-
-		//gtk_widget_show (menu_video_top);
-		//gtk_widget_show (video_file);
-		//gtk_widget_show (video_sufix);
-
-		//g_signal_connect (GTK_MENU_ITEM(video_file), "activate",
-			//G_CALLBACK (video_file_clicked), NULL);
-
-		///** add callback to Append sufix */
-		//gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (video_sufix), get_video_sufix_flag() > 0);
-		//g_signal_connect (GTK_CHECK_MENU_ITEM(video_sufix), "toggled",
-			//G_CALLBACK (video_sufix_toggled), NULL);
+		menubar->addMenu(video_menu);
+		
+		video_menu->addAction(_("File"), this,  SLOT(video_file_clicked()));
+		menu_action = video_menu->addAction(_("Increment Filename"), this,  SLOT(video_sufix_clicked()));
+		menu_action->setCheckable(true);
+		menu_action->setChecked(get_video_sufix_flag() > 0);
 
 		//GtkWidget *video_codec_menu = gtk_menu_new();
 		//GtkWidget *video_codec_top = gtk_menu_item_new_with_label(_("Video Codec"));

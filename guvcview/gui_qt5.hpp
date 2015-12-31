@@ -96,6 +96,8 @@ private slots:
     void menu_camera_button_clicked();
     void photo_file_clicked();
     void photo_sufix_clicked();
+    void video_file_clicked();
+    void video_sufix_clicked();
 
 
 private:
