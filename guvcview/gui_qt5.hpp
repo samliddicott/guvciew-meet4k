@@ -91,6 +91,11 @@ private slots:
     void format_changed(int index);
     void render_fx_filter_changed(int state);
     void render_osd_changed(int state);
+    void load_profile_clicked();
+    void save_profile_clicked();
+    void control_defaults_clicked();
+    void camera_image_clicked();
+    void camera_video_clicked();
 
 
 private:
@@ -98,6 +103,7 @@ private:
    void gui_qt5_update_controls_state();
    int gui_attach_qt5_v4l2ctrls(QWidget *parent);
    int gui_attach_qt5_videoctrls(QWidget *parent);
+   int gui_attach_qt5_menu(QWidget *parent);
 
    QWidget *img_controls_grid;
    QWidget *video_controls_grid;
@@ -106,6 +112,8 @@ private:
    QComboBox *combobox_FrameRate;
    QComboBox *combobox_resolution;
    QComboBox *combobox_InpType;
+   
+   QMenuBar *menubar;
 };
 
 #endif

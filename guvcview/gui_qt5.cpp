@@ -66,8 +66,20 @@ AudioWidgets::AudioWidgets()
 
 MainWindow::MainWindow()
 {
+	QWidget *widget = new QWidget;
+	widget->show();
+    setCentralWidget(widget);
+    
+    QVBoxLayout *layout = new QVBoxLayout;
+    widget->setLayout(layout);
+    
+    /*-----menu-----*/
+    gui_attach_qt5_menu(this);
+    setMenuBar(menubar);
+    
+    /*-----Tabs-----*/
 	QTabWidget *control_tab = new QTabWidget;
-	setCentralWidget(control_tab);
+	layout->addWidget(control_tab);
 	
 	QScrollArea *scroll_ctrls = new QScrollArea(control_tab);
 	
@@ -84,9 +96,6 @@ MainWindow::MainWindow()
 	scroll_video->setWidgetResizable(true);
 	
 	control_tab->addTab(scroll_video, "Video Controls");
-	
-    
-    setUnifiedTitleAndToolBarOnMac(true);
 }
 
 MainWindow::~MainWindow()
@@ -223,7 +232,7 @@ void gui_error_qt5(
 int gui_attach_qt5(int width, int height)
 {
 	if(debug_level > 1)
-		std::cout <<"GUVCVIEW (Qt5): attaching GUI" << std::endl;
+		std::cout << "GUVCVIEW (Qt5): attaching GUI\n" << std::endl;
 	
 	//Q_INIT_RESOURCE(application);
 	if(!QCoreApplication::instance())

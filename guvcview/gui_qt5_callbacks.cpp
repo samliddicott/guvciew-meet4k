@@ -82,44 +82,52 @@ void MainWindow::quit_button_clicked()
 	quit_callback(NULL);
 }
 
+/*
+ * camera_button_menu video clicked
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void MainWindow::camera_video_clicked()
+{
+	set_default_camera_button_action(DEF_ACTION_VIDEO);
+}
 
+/*
+ * camera_button_menu image clicked
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void MainWindow::camera_image_clicked()
+{
+	set_default_camera_button_action(DEF_ACTION_IMAGE);
+}
 
-///*
- //* camera_button_menu toggled event
- //* args:
- //*   widget - pointer to event widget
- //*   data - pointer to user data
- //*
- //* asserts:
- //*   none
- //*
- //* returns: none
- //*/
-//void camera_button_menu_changed (GtkWidget *item, void *data)
-//{
-	//int flag = GPOINTER_TO_INT(g_object_get_data (G_OBJECT (item), "camera_default"));
+/*
+ * control default clicked event
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void MainWindow::control_defaults_clicked ()
+{
+    v4l2core_set_control_defaults();
 
-	//if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(item)))
-		//set_default_camera_button_action(flag);
-//}
-
-///*
- //* control default clicked event
- //* args:
- //*   widget - pointer to event widget
- //*   data - pointer to user data
- //*
- //* asserts:
- //*   none
- //*
- //* returns: none
- //*/
-//void control_defaults_clicked (GtkWidget *item, void *data)
-//{
-    //v4l2core_set_control_defaults();
-
-    //gui_gtk3_update_controls_state();
-//}
+    gui_qt5_update_controls_state();
+}
 
 ///*
  //* called from profile format combo in file dialog
@@ -152,6 +160,35 @@ void MainWindow::quit_button_clicked()
 
 	//gtk_file_chooser_set_filter(GTK_FILE_CHOOSER (file_dialog), filter);
 //}
+
+
+/*
+ * load control profile clicked event
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void MainWindow::load_profile_clicked()
+{
+}
+
+/*
+ * save control profile clicked event
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void MainWindow::save_profile_clicked()
+{
+}
 
 ///*
  //* control profile (load/save) clicked event
