@@ -294,151 +294,39 @@ void MainWindow::video_codec_clicked ()
 	}
 }
 
-///*
- //* audio codec changed event
- //* args:
- //*    item - widget that generated the event
- //*    data - pointer to user data
- //*
- //* asserts:
- //*    none
- //*
- //* returns: none
- //*/
-//void audio_codec_changed (GtkRadioMenuItem *item, void *data)
-//{
-   //GSList *agroup = (GSList *) data;
+/*
+ * audio codec changed event
+ * args:
+ *    item - widget that generated the event
+ *    data - pointer to user data
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void MainWindow::audio_codec_clicked()
+{
+	QObject *sender =  QObject::sender();
+	int acodec_ind = sender->property("audio_codec").toInt();
 
-	//if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(item)))
-	//{
-		///*
-		 //* GSList indexes (g_slist_index) are in reverse order:
-		 //* last inserted has index 0
-		 //* so count backwards
-		 //*/
-		//int num_codecs = g_slist_length(agroup);
-		//int index = g_slist_index (agroup, item);
-		//index = num_codecs - (index + 1); //reverse order and 0 indexed
-		//fprintf(stderr,"GUVCVIEW: audio codec changed to %i\n", index);
+	if(debug_level > 1)
+		std::cout << "GUVCVIEW (Qt5): audio codec changed to " 
+			<< acodec_ind << std::endl;
 
-		//set_audio_codec_ind(index);
+	set_audio_codec_ind(acodec_ind);
 
-		//if( get_video_muxer() == ENCODER_MUX_WEBM &&
-			//!encoder_check_webm_audio_codec(index))
-		//{
-			///*change from webm to matroska*/
-			//set_video_muxer(ENCODER_MUX_MKV);
-			//char *newname = set_file_extension(get_video_name(), "mkv");
-			//set_video_name(newname);
-			//free(newname);
-		//}
-	//}
-//}
+	if( get_video_muxer() == ENCODER_MUX_WEBM &&
+		!encoder_check_webm_audio_codec(acodec_ind))
+	{
+		/*change from webm to matroska*/
+		set_video_muxer(ENCODER_MUX_MKV);
+		char *newname = set_file_extension(get_video_name(), "mkv");
+		set_video_name(newname);
 
-///*
- //* called from photo format combo in file dialog
- //* args:
- //*    chooser - format combo that caused the event
- //*    file_dialog - chooser parent
- //*
- //* asserts:
- //*    none
- //*
- //* returns: none
- //*/
-//static void photo_update_extension (GtkComboBox *chooser, GtkWidget *file_dialog)
-//{
-	//int format = gtk_combo_box_get_active (chooser);
-
-	//set_photo_format(format);
-
-	//char *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER (file_dialog));
-	//char *basename = get_file_basename(filename);
-
-	//GtkFileFilter *filter = gtk_file_filter_new();
-
-	//switch(format)
-	//{
-		//case IMG_FMT_RAW:
-			//gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (file_dialog),
-				//set_file_extension(basename, "raw"));
-			//gtk_file_filter_add_pattern(filter, "*.raw");
-			//break;
-		//case IMG_FMT_PNG:
-			//gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (file_dialog),
-				//set_file_extension(basename, "png"));
-			//gtk_file_filter_add_pattern(filter, "*.png");
-			//break;
-		//case IMG_FMT_BMP:
-			//gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (file_dialog),
-				//set_file_extension(basename, "bmp"));
-			//gtk_file_filter_add_pattern(filter, "*.bmp");
-			//break;
-		//default:
-		//case IMG_FMT_JPG:
-			//gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (file_dialog),
-				//set_file_extension(basename, "jpg"));
-			//gtk_file_filter_add_pattern(filter, "*.jpg");
-			//break;
-	//}
-
-	//gtk_file_chooser_set_filter(GTK_FILE_CHOOSER (file_dialog), filter);
-
-	//if(filename)
-		//free(filename);
-	//if(basename)
-		//free(basename);
-//}
-
-///*
- //* called from video muxer format combo in file dialog
- //* args:
- //*    chooser - format combo that caused the event
- //*    file_dialog - chooser parent
- //*
- //* asserts:
- //*    none
- //*
- //* returns: none
- //*/
-//static void video_update_extension (GtkComboBox *chooser, GtkWidget *file_dialog)
-//{
-	//int format = gtk_combo_box_get_active (chooser);
-
-	//set_video_muxer(format);
-
-	//char *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER (file_dialog));
-	//char *basename = get_file_basename(filename);
-
-	//GtkFileFilter *filter = gtk_file_filter_new();
-
-	//switch(format)
-	//{
-		//case ENCODER_MUX_WEBM:
-			//gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (file_dialog),
-				//set_file_extension(basename, "webm"));
-			//gtk_file_filter_add_pattern(filter, "*.webm");
-			//break;
-		//case ENCODER_MUX_AVI:
-			//gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (file_dialog),
-				//set_file_extension(basename, "avi"));
-			//gtk_file_filter_add_pattern(filter, "*.avi");
-			//break;
-		//default:
-		//case ENCODER_MUX_MKV:
-			//gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (file_dialog),
-				//set_file_extension(basename, "mkv"));
-			//gtk_file_filter_add_pattern(filter, "*.mkv");
-			//break;
-	//}
-
-	//gtk_file_chooser_set_filter(GTK_FILE_CHOOSER (file_dialog), filter);
-
-	//if(filename)
-		//free(filename);
-	//if(basename)
-		//free(basename);
-//}
+		free(newname);
+	}
+}
 
 /*
  * photo file clicked event
@@ -452,22 +340,31 @@ void MainWindow::video_codec_clicked ()
  */
 void MainWindow::photo_file_clicked ()
 {
-	QString filter = _("Jpeg  (*.jpg)");
+	QString filter_jpg = _("Jpeg  (*.jpg)");
+	QString filter_png = _("Png (*.png)");
+	QString filter_bmp = _("Bmp  (*.bmp)");
+	QString filter_raw = _("Raw  (*.raw)");
+	QString filter_all = _("Images  (*.jpg *.png *.bmp *.raw)");
+	
+	QString filter;
+	filter.append(filter_jpg);
 	filter.append(";;");
-	filter.append(_("Png (*.png)"));
+	filter.append(filter_png);
 	filter.append(";;");
-	filter.append(_("Bmp  (*.bmp)"));
+	filter.append(filter_bmp);
 	filter.append(";;");
-	filter.append(_("Raw  (*.raw)"));
+	filter.append(filter_raw);
 	filter.append(";;");
-	filter.append(_("Images  (*.jpg *.png *.bmp *.raw)"));
+	filter.append(filter_all);
 	
 	
 	QString photo_name = get_photo_path();
 	photo_name.append("/");
 	photo_name.append(get_photo_name());
+	
+	
 	QString fileName = QFileDialog::getSaveFileName(this, _("Photo file name"),
-			photo_name, filter);
+			photo_name, filter, &filter_all);
 		
 	if(!fileName.isEmpty())
 	{
@@ -475,8 +372,6 @@ void MainWindow::photo_file_clicked ()
 			std::cout << "GUVCVIEW (Qt5): set photo filename to " 
 				<< fileName.toStdString() << std::endl;
 				
-			
-			
 		char *basename = get_file_basename(fileName.toStdString().c_str());
 		if(basename)
 		{
@@ -504,19 +399,25 @@ void MainWindow::photo_file_clicked ()
  */
 void MainWindow::video_file_clicked ()
 {
-	QString filter = _("Matroska  (*.mkv)");
+	QString filter_mkv = _("Matroska  (*.mkv)");
+	QString filter_webm = _("WebM (*.webm)");
+	QString filter_avi = _("Avi  (*.avi)");
+	QString filter_all = _("Videos  (*.mkv *.webm *.avi)");
+	
+	QString filter;
+	filter.append(filter_mkv);
 	filter.append(";;");
-	filter.append(_("WebM (*.webm)"));
+	filter.append(filter_webm);
 	filter.append(";;");
-	filter.append(_("Avi  (*.avi)"));
+	filter.append(filter_avi);
 	filter.append(";;");
-	filter.append(_("Videos  (*.mkv *.webm *.avi)"));
+	filter.append(filter_all);
 	
 	QString video_name = get_video_path();
 	video_name.append("/");
 	video_name.append(get_video_name());
 	QString fileName = QFileDialog::getSaveFileName(this, _("Video file name"),
-			video_name, filter);
+			video_name, filter, &filter_all);
 		
 	if(!fileName.isEmpty())
 	{
@@ -1765,87 +1666,69 @@ void MainWindow::video_codec_properties()
 
 }
 
-///*
- //* audio encoder properties clicked event
- //* args:
- //*    item - widget that generated the event
- //*    data - pointer to user data
- //*
- //* asserts:
- //*    none
- //*
- //* returns: none
- //*/
-//void encoder_audio_properties(GtkMenuItem *item, void *data)
-//{
-	//int line = 0;
-	//audio_codec_t *defaults = encoder_get_audio_codec_defaults(get_audio_codec_ind());
+/*
+ * audio encoder properties clicked event
+ * args:
+ *    none
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void MainWindow::audio_codec_properties()
+{
+	audio_codec_t *defaults = encoder_get_audio_codec_defaults(get_audio_codec_ind());
 
-	//GtkWidget *codec_dialog = gtk_dialog_new_with_buttons (_("audio codec values"),
-		//GTK_WINDOW(get_main_window_gtk3()),
-		//GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
-		//_("_Ok"), GTK_RESPONSE_ACCEPT,
-		//_("_Cancel"), GTK_RESPONSE_REJECT,
-		//NULL);
+	QDialog dialog(this);
+	dialog.setWindowTitle(_("audio codec values"));
+	QScrollArea *scroll = new QScrollArea(&dialog);
+	
+	QWidget *viewport = new QWidget(&dialog);
+	scroll->setWidget(viewport);
+	scroll->setWidgetResizable(true);
+	
+	// Use a layout allowing to have a label next to each field
+	QFormLayout form(viewport);
+	viewport->setLayout(&form);
+	
+	// Add a layout for QDialog
+	QHBoxLayout *dialog_layout = new QHBoxLayout(&dialog);
+	dialog.setLayout(dialog_layout);
+	dialog.layout()->addWidget(scroll); // add scroll to the QDialog's layout
 
-	//GtkWidget *table = gtk_grid_new();
-	//gtk_grid_set_column_homogeneous (GTK_GRID(table), TRUE);
 
-	///*bit rate*/
-	//GtkWidget *lbl_bit_rate = gtk_label_new(_("bit rate:   "));
-//#if GTK_VER_AT_LEAST(3,15)
-	//gtk_label_set_xalign(GTK_LABEL(lbl_bit_rate), 1);
-	//gtk_label_set_yalign(GTK_LABEL(lbl_bit_rate), 0.5);
-//#else
-	//gtk_misc_set_alignment (GTK_MISC (lbl_bit_rate), 1, 0.5);
-//#endif
-	//gtk_grid_attach (GTK_GRID(table), lbl_bit_rate, 0, line, 1, 1);
-	//gtk_widget_show (lbl_bit_rate);
+	/*bit rate*/
+	QSpinBox *bit_rate = new QSpinBox(&dialog);
+	bit_rate->setRange(48000,384000);
+	bit_rate->setSingleStep(8000);						
+	bit_rate->setValue(defaults->bit_rate);
+	form.addRow(_("bit rate:   "), bit_rate);
+	
+	/*sample format*/
+	QSpinBox *sample_fmt = new QSpinBox(&dialog);
+	sample_fmt->setRange(0,encoder_get_max_audio_sample_fmt());
+	sample_fmt->setSingleStep(1);						
+	sample_fmt->setValue(defaults->sample_format);
+	form.addRow(_("sample format:   "), sample_fmt);
 
-	//GtkWidget *bit_rate = gtk_spin_button_new_with_range(48000,384000,8000);
-	//gtk_editable_set_editable(GTK_EDITABLE(bit_rate),TRUE);
-	//gtk_spin_button_set_value (GTK_SPIN_BUTTON(bit_rate), defaults->bit_rate);
+	// Add some standard buttons (Cancel/Ok) at the bottom of the dialog
+	QDialogButtonBox buttonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
+                           Qt::Horizontal, &dialog);
+	form.addRow(&buttonBox);
+	QObject::connect(&buttonBox, SIGNAL(accepted()), &dialog, SLOT(accept()));
+	QObject::connect(&buttonBox, SIGNAL(rejected()), &dialog, SLOT(reject()));
 
-	//gtk_grid_attach (GTK_GRID(table), bit_rate, 1, line, 1, 1);
-	//gtk_widget_show (bit_rate);
-	//line++;
-
-	///*sample format*/
-	//GtkWidget *lbl_sample_fmt = gtk_label_new(_("sample format:   "));
-//#if GTK_VER_AT_LEAST(3,15)
-	//gtk_label_set_xalign(GTK_LABEL(lbl_sample_fmt), 1);
-	//gtk_label_set_yalign(GTK_LABEL(lbl_sample_fmt), 0.5);
-//#else
-	//gtk_misc_set_alignment (GTK_MISC (lbl_sample_fmt), 1, 0.5);
-//#endif
-	//gtk_grid_attach (GTK_GRID(table), lbl_sample_fmt, 0, line, 1, 1);
-	//gtk_widget_show (lbl_sample_fmt);
-
-	//GtkWidget *sample_fmt = gtk_spin_button_new_with_range(0, encoder_get_max_audio_sample_fmt(), 1);
-	//gtk_editable_set_editable(GTK_EDITABLE(sample_fmt),TRUE);
-	//gtk_spin_button_set_value (GTK_SPIN_BUTTON(sample_fmt), defaults->sample_format);
-
-	//gtk_grid_attach (GTK_GRID(table), sample_fmt, 1, line, 1, 1);
-	//gtk_widget_show (sample_fmt);
-	//line++;
-
-	//GtkWidget *content_area = gtk_dialog_get_content_area (GTK_DIALOG (codec_dialog));
-	//gtk_container_add (GTK_CONTAINER (content_area), table);
-	//gtk_widget_show (table);
-
-	//gint result = gtk_dialog_run (GTK_DIALOG (codec_dialog));
-	//switch (result)
-	//{
-		//case GTK_RESPONSE_ACCEPT:
-			//defaults->bit_rate = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON(bit_rate));
-			//defaults->sample_format = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON(sample_fmt));
-			//break;
-		//default:
-			//// do nothing since dialog was cancelled
-			//break;
-	//}
-	//gtk_widget_destroy (codec_dialog);
-//}
+	if (dialog.exec() == QDialog::Accepted) 
+	{
+		if(debug_level > 1)
+			std::cout << "GUVCVIEW (Qt5): setting audio codec properties"
+				<< std::endl;
+		
+		defaults->bit_rate = bit_rate->value();
+		defaults->sample_format = sample_fmt->value();
+	}
+}
 
 ///*
  //* gtk3 window key pressed event

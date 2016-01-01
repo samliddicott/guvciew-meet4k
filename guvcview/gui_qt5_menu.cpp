@@ -153,54 +153,33 @@ int MainWindow::gui_attach_qt5_menu(QWidget *parent)
 		
 		video_menu->addAction(_("Video Codec Properties"), this,  SLOT(video_codec_properties()));
 
-		//GtkWidget *video_codec_prop =  gtk_menu_item_new_with_label(_("Video Codec Properties"));
-		//gtk_widget_show (video_codec_prop);
-		//g_signal_connect (GTK_MENU_ITEM(video_codec_prop), "activate",
-			//G_CALLBACK (encoder_video_properties), NULL);
-
-		//GtkWidget *audio_codec_menu = gtk_menu_new();
-		//GtkWidget *audio_codec_top = gtk_menu_item_new_with_label(_("Audio Codec"));
-		//gtk_widget_show (audio_codec_top);
-		//gtk_menu_item_set_submenu(GTK_MENU_ITEM(audio_codec_top), audio_codec_menu);
-		///*Add codecs to submenu*/
-		//GSList *agroup = NULL;
-		//int num_acodecs = encoder_get_valid_audio_codecs();
-		//int acodec_ind = 0;
-		//for (acodec_ind = 0; acodec_ind < num_acodecs; acodec_ind++)
-		//{
-			//GtkWidget *item = gtk_radio_menu_item_new_with_label(
-				//agroup,
-				//gettext(encoder_get_audio_codec_description(acodec_ind)));
-			//if (acodec_ind == get_audio_codec_ind())
-			//{
-				//gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (item), TRUE);
-			//}
-			///*NOTE: GSList indexes (g_slist_index) are in reverse order: last inserted has index 0*/
-			//agroup = gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (item));
-
-			//gtk_widget_show (item);
-			//gtk_menu_shell_append(GTK_MENU_SHELL(audio_codec_menu), item);
-
-			//g_signal_connect (GTK_RADIO_MENU_ITEM(item), "toggled",
-                //G_CALLBACK (audio_codec_changed), agroup);
-		//}
-		//set_audio_codec_group_list_gtk3(agroup);
-
-		//GtkWidget *audio_codec_prop =  gtk_menu_item_new_with_label(_("Audio Codec Properties"));
-		//gtk_widget_show (audio_codec_prop);
-		//g_signal_connect (GTK_MENU_ITEM(audio_codec_prop), "activate",
-			//G_CALLBACK (encoder_audio_properties), NULL);
-
-		//gtk_menu_item_set_submenu(GTK_MENU_ITEM(video_codec_top), video_codec_menu);
-		//gtk_menu_item_set_submenu(GTK_MENU_ITEM(audio_codec_top), audio_codec_menu);
-		//gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu_video_top), video_menu);
-		//gtk_menu_shell_append(GTK_MENU_SHELL(video_menu), video_file);
-		//gtk_menu_shell_append(GTK_MENU_SHELL(video_menu), video_sufix);
-		//gtk_menu_shell_append(GTK_MENU_SHELL(video_menu), video_codec_top);
-		//gtk_menu_shell_append(GTK_MENU_SHELL(video_menu), video_codec_prop);
-		//gtk_menu_shell_append(GTK_MENU_SHELL(video_menu), audio_codec_top);
-		//gtk_menu_shell_append(GTK_MENU_SHELL(video_menu), audio_codec_prop);
-		//gtk_menu_shell_append(GTK_MENU_SHELL(menubar), menu_video_top);
+		/*audio codec menu*/
+		QMenu *audio_codec_menu = new QMenu(_("Audio Codec"), video_menu);
+		video_menu->addMenu(audio_codec_menu);
+		audio_codec_menu->show();
+		
+		QActionGroup* audio_codec_group = new QActionGroup(audio_codec_menu);
+		audio_codec_group->setExclusive(true);
+		
+		int num_acodecs = encoder_get_valid_audio_codecs();
+		int acodec_ind = 0;
+		for (acodec_ind = 0; acodec_ind < num_acodecs; acodec_ind++)
+		{
+			menu_action = audio_codec_menu->addAction(
+				gettext(encoder_get_audio_codec_description(acodec_ind)),
+				this,  SLOT(audio_codec_clicked()));
+			menu_action->setProperty("audio_codec", acodec_ind);
+			menu_action->setCheckable(true);
+			if (acodec_ind == get_audio_codec_ind())
+				menu_action->setChecked(true);
+			audio_codec_group->addAction(menu_action);
+			
+			/*store webm audio codec action*/
+			if(encoder_get_webm_audio_codec_index() == acodec_ind)
+				webm_acodec_action = menu_action;
+		}
+		
+		video_menu->addAction(_("Audio Codec Properties"), this,  SLOT(audio_codec_properties()));
 	}
 
 	return 0;

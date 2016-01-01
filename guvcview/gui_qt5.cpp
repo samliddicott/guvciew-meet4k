@@ -89,13 +89,17 @@ MainWindow::MainWindow()
 	
 	control_tab->addTab(scroll_ctrls, "Image Controls");
 	
-	QScrollArea *scroll_video = new QScrollArea(control_tab);
+	/*control panel mode exclusions */
+	if(!is_control_panel)
+	{
+		QScrollArea *scroll_video = new QScrollArea(control_tab);
 	
-	gui_attach_qt5_videoctrls(scroll_video);
-	scroll_video->setWidget(video_controls_grid);
-	scroll_video->setWidgetResizable(true);
+		gui_attach_qt5_videoctrls(scroll_video);
+		scroll_video->setWidget(video_controls_grid);
+		scroll_video->setWidgetResizable(true);
 	
-	control_tab->addTab(scroll_video, "Video Controls");
+		control_tab->addTab(scroll_video, "Video Controls");
+	}
 }
 
 MainWindow::~MainWindow()

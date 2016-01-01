@@ -100,6 +100,8 @@ private slots:
     void video_sufix_clicked();
     void video_codec_clicked();
     void video_codec_properties();
+    void audio_codec_clicked();
+    void audio_codec_properties();
 
 
 private:
