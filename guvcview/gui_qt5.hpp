@@ -102,6 +102,7 @@ private slots:
     void video_codec_properties();
     void audio_codec_clicked();
     void audio_codec_properties();
+    void capture_image_clicked();
 
 
 private:
@@ -113,6 +114,8 @@ private:
 
    QWidget *img_controls_grid;
    QWidget *video_controls_grid;
+   
+   QToolButton *cap_img_button;
    
    QComboBox *combobox_video_devices;
    QComboBox *combobox_FrameRate;

@@ -453,29 +453,28 @@ void MainWindow::video_file_clicked ()
 	}
 }
 
-///*
- //* capture image button clicked event
- //* args:
- //*   button - widget that generated the event
- //*   data - pointer to user data
- //*
- //* asserts:
- //*   none
- //*
- //* returns: none
- //*/
-//void capture_image_clicked (GtkButton *button, void *data)
-//{
-	//int is_photo_timer = GPOINTER_TO_INT(g_object_get_data (G_OBJECT (button), "control_info"));
-
-	//if(is_photo_timer)
-	//{
-		//stop_photo_timer();
-		//gtk_button_set_label(button, _("Cap. Image (I)"));
-	//}
-	//else
-		//video_capture_save_image();
-//}
+/*
+ * capture image button clicked event
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void MainWindow::capture_image_clicked()
+{
+	QObject *sender =  QObject::sender();
+	int is_photo_timer = sender->property("control_info").toInt();
+	if(is_photo_timer)
+	{
+		stop_photo_timer();
+		cap_img_button->setText(_("Cap. Image (I)"));
+	}
+	else
+		video_capture_save_image();
+}
 
 ///*
  //* capture video button clicked event

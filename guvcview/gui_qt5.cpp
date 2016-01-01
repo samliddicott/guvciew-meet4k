@@ -46,6 +46,7 @@ extern "C"{
 }
 
 extern int debug_level;
+extern int is_control_panel;
 
 ControlWidgets::ControlWidgets()
 {
@@ -77,6 +78,37 @@ MainWindow::MainWindow()
     gui_attach_qt5_menu(this);
     setMenuBar(menubar);
     
+    /*----buttons----*/
+    QHBoxLayout *button_box_layout = new QHBoxLayout;
+    QWidget *button_box = new QWidget;
+    button_box->setLayout(button_box_layout);
+    button_box->show();
+    
+    layout->addWidget(button_box);
+    
+    cap_img_button = new QToolButton;
+    QIcon cap_img_icon(QString(PACKAGE_DATA_DIR).append("/pixmaps/guvcview/camera.png"));
+    cap_img_button->setIcon(cap_img_icon);
+    cap_img_button->setIconSize(QSize(64,64));
+    cap_img_button->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+    
+    if(check_photo_timer())
+	{
+		cap_img_button->setText(_("Stop Cap. (I)"));
+		cap_img_button->setProperty("control_info", 1);
+	}
+	else
+	{
+		cap_img_button->setText(_("Cap. Image (I)"));
+		cap_img_button->setProperty("control_info", 0);
+	}
+    cap_img_button->show();
+    
+    /*signals*/
+	connect(cap_img_button, SIGNAL(clicked()), this, SLOT(capture_image_clicked()));	
+    
+    button_box_layout->addWidget(cap_img_button);
+    
     /*-----Tabs-----*/
 	QTabWidget *control_tab = new QTabWidget;
 	layout->addWidget(control_tab);
@@ -87,7 +119,11 @@ MainWindow::MainWindow()
 	scroll_ctrls->setWidget(img_controls_grid);
 	scroll_ctrls->setWidgetResizable(true);
 	
+	int tab_ind = 0;
+	QIcon control_tab_icon(QString(PACKAGE_DATA_DIR).append("/pixmaps/guvcview/image_controls.png"));
 	control_tab->addTab(scroll_ctrls, "Image Controls");
+	control_tab->setTabIcon(tab_ind, control_tab_icon);
+	tab_ind++;
 	
 	/*control panel mode exclusions */
 	if(!is_control_panel)
@@ -97,8 +133,12 @@ MainWindow::MainWindow()
 		gui_attach_qt5_videoctrls(scroll_video);
 		scroll_video->setWidget(video_controls_grid);
 		scroll_video->setWidgetResizable(true);
-	
+		
+		QIcon control_tab_icon(QString(PACKAGE_DATA_DIR).append("/pixmaps/guvcview/video_controls.png"));
 		control_tab->addTab(scroll_video, "Video Controls");
+		control_tab->setTabIcon(tab_ind, control_tab_icon);
+		tab_ind++;
+		
 	}
 }
 
