@@ -1563,453 +1563,207 @@ void MainWindow::setfocus_clicked ()
 		//audio_ctx->latency = (double) gtk_range_get_value (range);
 //}
 
-///*
- //* video encoder properties clicked event
- //* args:
- //*    item - widget that generated the event
- //*    data - pointer to user data
- //*
- //* asserts:
- //*    none
- //*
- //* returns: none
- //*/
-//void encoder_video_properties(GtkMenuItem *item, void *data)
-//{
-	//int line = 0;
-	//video_codec_t *defaults = encoder_get_video_codec_defaults(get_video_codec_ind());
-
-	//GtkWidget *codec_dialog = gtk_dialog_new_with_buttons (_("video codec values"),
-		//GTK_WINDOW(get_main_window_gtk3()),
-		//GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
-		//_("_OK"), GTK_RESPONSE_ACCEPT,
-		//_("_Cancel"), GTK_RESPONSE_REJECT,
-		//NULL);
-
-	//GtkWidget *table = gtk_grid_new();
-
-	//GtkWidget *lbl_fps = gtk_label_new(_("                              encoder fps:   \n (0 - use fps combobox value)"));
-//#if GTK_VER_AT_LEAST(3,15)
-	//gtk_label_set_xalign(GTK_LABEL(lbl_fps), 1);
-	//gtk_label_set_yalign(GTK_LABEL(lbl_fps), 0.5);
-//#else
-	//gtk_misc_set_alignment (GTK_MISC (lbl_fps), 1, 0.5);
-//#endif
-	//gtk_grid_attach (GTK_GRID(table), lbl_fps, 0, line, 1, 1);
-	//gtk_widget_show (lbl_fps);
-
-	//GtkWidget *enc_fps = gtk_spin_button_new_with_range(0,30,5);
-	//gtk_editable_set_editable(GTK_EDITABLE(enc_fps),TRUE);
-	//gtk_spin_button_set_value (GTK_SPIN_BUTTON(enc_fps), defaults->fps);
-
-	//gtk_grid_attach (GTK_GRID(table), enc_fps, 1, line, 1, 1);
-	//gtk_widget_show (enc_fps);
-	//line++;
-
-	//GtkWidget *monotonic_pts = gtk_check_button_new_with_label (_(" monotonic pts"));
-	//gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(monotonic_pts),(defaults->monotonic_pts != 0));
-
-	//gtk_grid_attach (GTK_GRID(table), monotonic_pts, 1, line, 1, 1);
-	//gtk_widget_show (monotonic_pts);
-	//line++;
-
-	//GtkWidget *lbl_bit_rate = gtk_label_new(_("bit rate:   "));
-//#if GTK_VER_AT_LEAST(3,15)
-	//gtk_label_set_xalign(GTK_LABEL(lbl_bit_rate), 1);
-	//gtk_label_set_yalign(GTK_LABEL(lbl_bit_rate), 0.5);
-//#else
-	//gtk_misc_set_alignment (GTK_MISC (lbl_bit_rate), 1, 0.5);
-//#endif
-	//gtk_grid_attach (GTK_GRID(table), lbl_bit_rate, 0, line, 1, 1);
-	//gtk_widget_show (lbl_bit_rate);
-
-	//GtkWidget *bit_rate = gtk_spin_button_new_with_range(160000,4000000,10000);
-	//gtk_editable_set_editable(GTK_EDITABLE(bit_rate),TRUE);
-	//gtk_spin_button_set_value (GTK_SPIN_BUTTON(bit_rate), defaults->bit_rate);
-
-	//gtk_grid_attach (GTK_GRID(table), bit_rate, 1, line, 1, 1);
-	//gtk_widget_show (bit_rate);
-	//line++;
-
-	//GtkWidget *lbl_qmax = gtk_label_new(_("qmax:   "));
-//#if GTK_VER_AT_LEAST(3,15)
-	//gtk_label_set_xalign(GTK_LABEL(lbl_qmax), 1);
-	//gtk_label_set_yalign(GTK_LABEL(lbl_qmax), 0.5);
-//#else
-	//gtk_misc_set_alignment (GTK_MISC (lbl_qmax), 1, 0.5);
-//#endif
-	//gtk_grid_attach (GTK_GRID(table), lbl_qmax, 0, line, 1 ,1);
-	//gtk_widget_show (lbl_qmax);
-
-	//GtkWidget *qmax = gtk_spin_button_new_with_range(1,60,1);
-	//gtk_editable_set_editable(GTK_EDITABLE(qmax),TRUE);
-	//gtk_spin_button_set_value (GTK_SPIN_BUTTON(qmax), defaults->qmax);
-
-	//gtk_grid_attach (GTK_GRID(table), qmax, 1, line, 1, 1);
-	//gtk_widget_show (qmax);
-	//line++;
-
-	//GtkWidget *lbl_qmin = gtk_label_new(_("qmin:   "));
-//#if GTK_VER_AT_LEAST(3,15)
-	//gtk_label_set_xalign(GTK_LABEL(lbl_qmin), 1);
-	//gtk_label_set_yalign(GTK_LABEL(lbl_qmin), 0.5);
-//#else
-	//gtk_misc_set_alignment (GTK_MISC (lbl_qmin), 1, 0.5);
-//#endif
-	//gtk_grid_attach (GTK_GRID(table), lbl_qmin, 0, line, 1, 1);
-	//gtk_widget_show (lbl_qmin);
-
-	//GtkWidget *qmin = gtk_spin_button_new_with_range(1,31,1);
-	//gtk_editable_set_editable(GTK_EDITABLE(qmin),TRUE);
-	//gtk_spin_button_set_value (GTK_SPIN_BUTTON(qmin), defaults->qmin);
-
-	//gtk_grid_attach (GTK_GRID(table), qmin, 1, line, 1, 1);
-	//gtk_widget_show (qmin);
-	//line++;
-
-	//GtkWidget *lbl_max_qdiff = gtk_label_new(_("max. qdiff:   "));
-//#if GTK_VER_AT_LEAST(3,15)
-	//gtk_label_set_xalign(GTK_LABEL(lbl_max_qdiff), 1);
-	//gtk_label_set_yalign(GTK_LABEL(lbl_max_qdiff), 0.5);
-//#else
-	//gtk_misc_set_alignment (GTK_MISC (lbl_max_qdiff), 1, 0.5);
-//#endif
-	//gtk_grid_attach (GTK_GRID(table), lbl_max_qdiff, 0, line, 1, 1);
-	//gtk_widget_show (lbl_max_qdiff);
-
-	//GtkWidget *max_qdiff = gtk_spin_button_new_with_range(1,4,1);
-	//gtk_editable_set_editable(GTK_EDITABLE(max_qdiff),TRUE);
-	//gtk_spin_button_set_value (GTK_SPIN_BUTTON(max_qdiff), defaults->max_qdiff);
-
-	//gtk_grid_attach (GTK_GRID(table), max_qdiff, 1, line, 1, 1);
-	//gtk_widget_show (max_qdiff);
-	//line++;
-
-	//GtkWidget *lbl_dia = gtk_label_new(_("dia size:   "));
-//#if GTK_VER_AT_LEAST(3,15)
-	//gtk_label_set_xalign(GTK_LABEL(lbl_dia), 1);
-	//gtk_label_set_yalign(GTK_LABEL(lbl_dia), 0.5);
-//#else
-	//gtk_misc_set_alignment (GTK_MISC (lbl_dia), 1, 0.5);
-//#endif
-	//gtk_grid_attach (GTK_GRID(table), lbl_dia, 0, line, 1, 1);
-	//gtk_widget_show (lbl_dia);
-
-	//GtkWidget *dia = gtk_spin_button_new_with_range(-1,4,1);
-	//gtk_editable_set_editable(GTK_EDITABLE(dia),TRUE);
-	//gtk_spin_button_set_value (GTK_SPIN_BUTTON(dia), defaults->dia);
-
-	//gtk_grid_attach (GTK_GRID(table), dia, 1, line, 1, 1);
-	//gtk_widget_show (dia);
-	//line++;
-
-	//GtkWidget *lbl_pre_dia = gtk_label_new(_("pre dia size:   "));
-//#if GTK_VER_AT_LEAST(3,15)
-	//gtk_label_set_xalign(GTK_LABEL(lbl_pre_dia), 1);
-	//gtk_label_set_yalign(GTK_LABEL(lbl_pre_dia), 0.5);
-//#else
-	//gtk_misc_set_alignment (GTK_MISC (lbl_pre_dia), 1, 0.5);
-//#endif
-	//gtk_grid_attach (GTK_GRID(table), lbl_pre_dia, 0, line, 1, 1);
-	//gtk_widget_show (lbl_pre_dia);
-
-	//GtkWidget *pre_dia = gtk_spin_button_new_with_range(1,4,1);
-	//gtk_editable_set_editable(GTK_EDITABLE(pre_dia),TRUE);
-	//gtk_spin_button_set_value (GTK_SPIN_BUTTON(pre_dia), defaults->pre_dia);
-
-	//gtk_grid_attach (GTK_GRID(table), pre_dia, 1, line, 1, 1);
-	//gtk_widget_show (pre_dia);
-	//line++;
-
-	//GtkWidget *lbl_pre_me = gtk_label_new(_("pre me:   "));
-//#if GTK_VER_AT_LEAST(3,15)
-	//gtk_label_set_xalign(GTK_LABEL(lbl_pre_me), 1);
-	//gtk_label_set_yalign(GTK_LABEL(lbl_pre_me), 0.5);
-//#else
-	//gtk_misc_set_alignment (GTK_MISC (lbl_pre_me), 1, 0.5);
-//#endif
-	//gtk_grid_attach (GTK_GRID(table), lbl_pre_me, 0, line, 1, 1);
-	//gtk_widget_show (lbl_pre_me);
-
-	//GtkWidget *pre_me = gtk_spin_button_new_with_range(0,2,1);
-	//gtk_editable_set_editable(GTK_EDITABLE(pre_me),TRUE);
-	//gtk_spin_button_set_value (GTK_SPIN_BUTTON(pre_me), defaults->pre_me);
-
-	//gtk_grid_attach (GTK_GRID(table), pre_me, 1, line, 1, 1);
-	//gtk_widget_show (pre_me);
-	//line++;
-
-	//GtkWidget *lbl_me_pre_cmp = gtk_label_new(_("pre cmp:   "));
-//#if GTK_VER_AT_LEAST(3,15)
-	//gtk_label_set_xalign(GTK_LABEL(lbl_me_pre_cmp), 1);
-	//gtk_label_set_yalign(GTK_LABEL(lbl_me_pre_cmp), 0.5);
-//#else
-	//gtk_misc_set_alignment (GTK_MISC (lbl_me_pre_cmp), 1, 0.5);
-//#endif
-	//gtk_grid_attach (GTK_GRID(table), lbl_me_pre_cmp, 0, line, 1, 1);
-	//gtk_widget_show (lbl_me_pre_cmp);
-
-	//GtkWidget *me_pre_cmp = gtk_spin_button_new_with_range(0,6,1);
-	//gtk_editable_set_editable(GTK_EDITABLE(me_pre_cmp),TRUE);
-	//gtk_spin_button_set_value (GTK_SPIN_BUTTON(me_pre_cmp), defaults->me_pre_cmp);
-
-	//gtk_grid_attach (GTK_GRID(table), me_pre_cmp, 1, line, 1, 1);
-	//gtk_widget_show (me_pre_cmp);
-	//line++;
-
-	//GtkWidget *lbl_me_cmp = gtk_label_new(_("cmp:   "));
-//#if GTK_VER_AT_LEAST(3,15)
-	//gtk_label_set_xalign(GTK_LABEL(lbl_me_cmp), 1);
-	//gtk_label_set_yalign(GTK_LABEL(lbl_me_cmp), 0.5);
-//#else
-	//gtk_misc_set_alignment (GTK_MISC (lbl_me_cmp), 1, 0.5);
-//#endif
-	//gtk_grid_attach (GTK_GRID(table), lbl_me_cmp, 0, line, 1, 1);
-	//gtk_widget_show (lbl_me_cmp);
-
-	//GtkWidget *me_cmp = gtk_spin_button_new_with_range(0,6,1);
-	//gtk_editable_set_editable(GTK_EDITABLE(me_cmp),TRUE);
-	//gtk_spin_button_set_value (GTK_SPIN_BUTTON(me_cmp), defaults->me_cmp);
-
-	//gtk_grid_attach (GTK_GRID(table), me_cmp, 1, line, 1, 1);
-	//gtk_widget_show (me_cmp);
-	//line++;
-
-	//GtkWidget *lbl_me_sub_cmp = gtk_label_new(_("sub cmp:   "));
-//#if GTK_VER_AT_LEAST(3,15)
-	//gtk_label_set_xalign(GTK_LABEL(lbl_me_sub_cmp), 1);
-	//gtk_label_set_yalign(GTK_LABEL(lbl_me_sub_cmp), 0.5);
-//#else
-	//gtk_misc_set_alignment (GTK_MISC (lbl_me_sub_cmp), 1, 0.5);
-//#endif
-	//gtk_grid_attach (GTK_GRID(table), lbl_me_sub_cmp, 0, line, 1, 1);
-	//gtk_widget_show (lbl_me_sub_cmp);
-
-	//GtkWidget *me_sub_cmp = gtk_spin_button_new_with_range(0,6,1);
-	//gtk_editable_set_editable(GTK_EDITABLE(me_sub_cmp),TRUE);
-	//gtk_spin_button_set_value (GTK_SPIN_BUTTON(me_sub_cmp), defaults->me_sub_cmp);
-
-	//gtk_grid_attach (GTK_GRID(table), me_sub_cmp, 1, line, 1, 1);
-	//gtk_widget_show (me_sub_cmp);
-	//line++;
-
-	//GtkWidget *lbl_last_pred = gtk_label_new(_("last predictor count:   "));
-//#if GTK_VER_AT_LEAST(3,15)
-	//gtk_label_set_xalign(GTK_LABEL(lbl_last_pred), 1);
-	//gtk_label_set_yalign(GTK_LABEL(lbl_last_pred), 0.5);
-//#else
-	//gtk_misc_set_alignment (GTK_MISC (lbl_last_pred), 1, 0.5);
-//#endif
-	//gtk_grid_attach (GTK_GRID(table), lbl_last_pred, 0, line, 1, 1);
-	//gtk_widget_show (lbl_last_pred);
-
-	//GtkWidget *last_pred = gtk_spin_button_new_with_range(1,3,1);
-	//gtk_editable_set_editable(GTK_EDITABLE(last_pred),TRUE);
-	//gtk_spin_button_set_value (GTK_SPIN_BUTTON(last_pred), defaults->last_pred);
-
-	//gtk_grid_attach (GTK_GRID(table), last_pred, 1, line, 1, 1);
-	//gtk_widget_show (last_pred);
-	//line++;
-
-	//GtkWidget *lbl_gop_size = gtk_label_new(_("gop size:   "));
-//#if GTK_VER_AT_LEAST(3,15)
-	//gtk_label_set_xalign(GTK_LABEL(lbl_gop_size), 1);
-	//gtk_label_set_yalign(GTK_LABEL(lbl_gop_size), 0.5);
-//#else
-	//gtk_misc_set_alignment (GTK_MISC (lbl_gop_size), 1, 0.5);
-//#endif
-	//gtk_grid_attach (GTK_GRID(table), lbl_gop_size, 0, line, 1, 1);
-	//gtk_widget_show (lbl_gop_size);
-
-	//GtkWidget *gop_size = gtk_spin_button_new_with_range(1,250,1);
-	//gtk_editable_set_editable(GTK_EDITABLE(gop_size),TRUE);
-	//gtk_spin_button_set_value (GTK_SPIN_BUTTON(gop_size), defaults->gop_size);
-
-	//gtk_grid_attach (GTK_GRID(table), gop_size, 1, line, 1, 1);
-	//gtk_widget_show (gop_size);
-	//line++;
-
-	//GtkWidget *lbl_qcompress = gtk_label_new(_("qcompress:   "));
-//#if GTK_VER_AT_LEAST(3,15)
-	//gtk_label_set_xalign(GTK_LABEL(lbl_qcompress), 1);
-	//gtk_label_set_yalign(GTK_LABEL(lbl_qcompress), 0.5);
-//#else
-	//gtk_misc_set_alignment (GTK_MISC (lbl_qcompress), 1, 0.5);
-//#endif
-	//gtk_grid_attach (GTK_GRID(table), lbl_qcompress, 0, line, 1, 1);
-	//gtk_widget_show (lbl_qcompress);
-
-	//GtkWidget *qcompress = gtk_spin_button_new_with_range(0,1,0.1);
-	//gtk_editable_set_editable(GTK_EDITABLE(qcompress),TRUE);
-	//gtk_spin_button_set_value (GTK_SPIN_BUTTON(qcompress), defaults->qcompress);
-
-	//gtk_grid_attach (GTK_GRID(table), qcompress, 1, line, 1 ,1);
-	//gtk_widget_show (qcompress);
-	//line++;
-
-	//GtkWidget *lbl_qblur = gtk_label_new(_("qblur:   "));
-//#if GTK_VER_AT_LEAST(3,15)
-	//gtk_label_set_xalign(GTK_LABEL(lbl_qblur), 1);
-	//gtk_label_set_yalign(GTK_LABEL(lbl_qblur), 0.5);
-//#else
-	//gtk_misc_set_alignment (GTK_MISC (lbl_qblur), 1, 0.5);
-//#endif
-	//gtk_grid_attach (GTK_GRID(table), lbl_qblur, 0, line, 1 ,1);
-	//gtk_widget_show (lbl_qblur);
-
-	//GtkWidget *qblur = gtk_spin_button_new_with_range(0,1,0.1);
-	//gtk_editable_set_editable(GTK_EDITABLE(qblur),TRUE);
-	//gtk_spin_button_set_value (GTK_SPIN_BUTTON(qblur), defaults->qblur);
-
-	//gtk_grid_attach (GTK_GRID(table), qblur, 1, line, 1 ,1);
-	//gtk_widget_show (qblur);
-	//line++;
-
-	//GtkWidget *lbl_subq = gtk_label_new(_("subq:   "));
-//#if GTK_VER_AT_LEAST(3,15)
-	//gtk_label_set_xalign(GTK_LABEL(lbl_subq), 1);
-	//gtk_label_set_yalign(GTK_LABEL(lbl_subq), 0.5);
-//#else
-	//gtk_misc_set_alignment (GTK_MISC (lbl_subq), 1, 0.5);
-//#endif
-	//gtk_grid_attach (GTK_GRID(table), lbl_subq, 0, line, 1 ,1);
-	//gtk_widget_show (lbl_subq);
-
-	//GtkWidget *subq = gtk_spin_button_new_with_range(0,8,1);
-	//gtk_editable_set_editable(GTK_EDITABLE(subq),TRUE);
-	//gtk_spin_button_set_value (GTK_SPIN_BUTTON(subq), defaults->subq);
-
-	//gtk_grid_attach (GTK_GRID(table), subq, 1, line, 1 ,1);
-	//gtk_widget_show (subq);
-	//line++;
-
-	//GtkWidget *lbl_framerefs = gtk_label_new(_("framerefs:   "));
-//#if GTK_VER_AT_LEAST(3,15)
-	//gtk_label_set_xalign(GTK_LABEL(lbl_framerefs), 1);
-	//gtk_label_set_yalign(GTK_LABEL(lbl_framerefs), 0.5);
-//#else
-	//gtk_misc_set_alignment (GTK_MISC (lbl_framerefs), 1, 0.5);
-//#endif
-	//gtk_grid_attach (GTK_GRID(table), lbl_framerefs, 0, line, 1 ,1);
-	//gtk_widget_show (lbl_framerefs);
-
-	//GtkWidget *framerefs = gtk_spin_button_new_with_range(0,12,1);
-	//gtk_editable_set_editable(GTK_EDITABLE(framerefs),TRUE);
-	//gtk_spin_button_set_value (GTK_SPIN_BUTTON(framerefs), defaults->framerefs);
-
-	//gtk_grid_attach (GTK_GRID(table), framerefs, 1, line, 1 ,1);
-	//gtk_widget_show (framerefs);
-	//line++;
-
-	//GtkWidget *lbl_me_method = gtk_label_new(_("me method:   "));
-//#if GTK_VER_AT_LEAST(3,15)
-	//gtk_label_set_xalign(GTK_LABEL(lbl_me_method), 1);
-	//gtk_label_set_yalign(GTK_LABEL(lbl_me_method), 0.5);
-//#else
-	//gtk_misc_set_alignment (GTK_MISC (lbl_me_method), 1, 0.5);
-//#endif
-	//gtk_grid_attach (GTK_GRID(table), lbl_me_method, 0, line, 1 ,1);
-	//gtk_widget_show (lbl_me_method);
-
-	//GtkWidget *me_method = gtk_spin_button_new_with_range(1,10,1);
-	//gtk_editable_set_editable(GTK_EDITABLE(me_method),TRUE);
-	//gtk_spin_button_set_value (GTK_SPIN_BUTTON(me_method), defaults->me_method);
-
-	//gtk_grid_attach (GTK_GRID(table), me_method, 1, line, 1 ,1);
-	//gtk_widget_show (me_method);
-	//line++;
-
-	//GtkWidget *lbl_mb_decision = gtk_label_new(_("mb decision:   "));
-//#if GTK_VER_AT_LEAST(3,15)
-	//gtk_label_set_xalign(GTK_LABEL(lbl_mb_decision), 1);
-	//gtk_label_set_yalign(GTK_LABEL(lbl_mb_decision), 0.5);
-//#else
-	//gtk_misc_set_alignment (GTK_MISC (lbl_mb_decision), 1, 0.5);
-//#endif
-	//gtk_grid_attach (GTK_GRID(table), lbl_mb_decision, 0, line, 1 ,1);
-	//gtk_widget_show (lbl_mb_decision);
-
-	//GtkWidget *mb_decision = gtk_spin_button_new_with_range(0,2,1);
-	//gtk_editable_set_editable(GTK_EDITABLE(mb_decision),TRUE);
-	//gtk_spin_button_set_value (GTK_SPIN_BUTTON(mb_decision), defaults->mb_decision);
-
-	//gtk_grid_attach (GTK_GRID(table), mb_decision, 1, line, 1 ,1);
-	//gtk_widget_show (mb_decision);
-	//line++;
-
-	//GtkWidget *lbl_max_b_frames = gtk_label_new(_("max B frames:   "));
-//#if GTK_VER_AT_LEAST(3,15)
-	//gtk_label_set_xalign(GTK_LABEL(lbl_max_b_frames), 1);
-	//gtk_label_set_yalign(GTK_LABEL(lbl_max_b_frames), 0.5);
-//#else
-	//gtk_misc_set_alignment (GTK_MISC (lbl_max_b_frames), 1, 0.5);
-//#endif
-	//gtk_grid_attach (GTK_GRID(table), lbl_max_b_frames, 0, line, 1 ,1);
-	//gtk_widget_show (lbl_max_b_frames);
-
-	//GtkWidget *max_b_frames = gtk_spin_button_new_with_range(0,4,1);
-	//gtk_editable_set_editable(GTK_EDITABLE(max_b_frames),TRUE);
-	//gtk_spin_button_set_value (GTK_SPIN_BUTTON(max_b_frames), defaults->max_b_frames);
-
-	//gtk_grid_attach (GTK_GRID(table), max_b_frames, 1, line, 1 ,1);
-	//gtk_widget_show (max_b_frames);
-	//line++;
-
-	//GtkWidget *lbl_num_threads = gtk_label_new(_("num threads:   "));
-//#if GTK_VER_AT_LEAST(3,15)
-	//gtk_label_set_xalign(GTK_LABEL(lbl_num_threads), 1);
-	//gtk_label_set_yalign(GTK_LABEL(lbl_num_threads), 0.5);
-//#else
-	//gtk_misc_set_alignment (GTK_MISC (lbl_num_threads), 1, 0.5);
-//#endif
-	//gtk_grid_attach (GTK_GRID(table), lbl_num_threads, 0, line, 1 ,1);
-	//gtk_widget_show (lbl_num_threads);
-
-	//GtkWidget *num_threads = gtk_spin_button_new_with_range(0,8,1);
-	//gtk_editable_set_editable(GTK_EDITABLE(num_threads),TRUE);
-	//gtk_spin_button_set_value (GTK_SPIN_BUTTON(num_threads), defaults->num_threads);
-
-	//gtk_grid_attach (GTK_GRID(table), num_threads, 1, line, 1 ,1);
-	//gtk_widget_show (num_threads);
-	//line++;
-
-	//GtkWidget *content_area = gtk_dialog_get_content_area (GTK_DIALOG (codec_dialog));
-	//gtk_container_add (GTK_CONTAINER (content_area), table);
-	//gtk_widget_show (table);
-
-	//gint result = gtk_dialog_run (GTK_DIALOG (codec_dialog));
-	//switch (result)
-	//{
-		//case GTK_RESPONSE_ACCEPT:
-			//defaults->fps = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON(enc_fps));
-			//defaults->monotonic_pts = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(monotonic_pts));
-			//defaults->bit_rate = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON(bit_rate));
-			//defaults->qmax = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON(qmax));
-			//defaults->qmin = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON(qmin));
-			//defaults->max_qdiff = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON(max_qdiff));
-			//defaults->dia = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON(dia));
-			//defaults->pre_dia = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON(pre_dia));
-			//defaults->pre_me = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON(pre_me));
-			//defaults->me_pre_cmp = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON(me_pre_cmp));
-			//defaults->me_cmp = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON(me_cmp));
-			//defaults->me_sub_cmp = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON(me_sub_cmp));
-			//defaults->last_pred = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON(last_pred));
-			//defaults->gop_size = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON(gop_size));
-			//defaults->qcompress = (float) gtk_spin_button_get_value (GTK_SPIN_BUTTON(qcompress));
-			//defaults->qblur = (float) gtk_spin_button_get_value (GTK_SPIN_BUTTON(qblur));
-			//defaults->subq = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON(subq));
-			//defaults->framerefs = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON(framerefs));
-			//defaults->me_method = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON(me_method));
-			//defaults->mb_decision = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON(mb_decision));
-			//defaults->max_b_frames = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON(max_b_frames));
-			//defaults->num_threads = gtk_spin_button_get_value_as_int (GTK_SPIN_BUTTON(num_threads));
-			//break;
-		//default:
-			//// do nothing since dialog was cancelled
-			//break;
-	//}
-	//gtk_widget_destroy (codec_dialog);
-//}
+/*
+ * video encoder properties clicked event
+ * args:
+ *    none
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void MainWindow::video_codec_properties()
+{
+	video_codec_t *defaults = encoder_get_video_codec_defaults(get_video_codec_ind());
+
+	QDialog dialog(this);
+	dialog.setWindowTitle(_("video codec values"));
+	QScrollArea *scroll = new QScrollArea(&dialog);
+	
+	QWidget *viewport = new QWidget(&dialog);
+	scroll->setWidget(viewport);
+	scroll->setWidgetResizable(true);
+	
+	// Use a layout allowing to have a label next to each field
+	QFormLayout form(viewport);
+	viewport->setLayout(&form);
+	
+	// Add a layout for QDialog
+	QHBoxLayout *dialog_layout = new QHBoxLayout(&dialog);
+	dialog.setLayout(dialog_layout);
+	dialog.layout()->addWidget(scroll); // add scroll to the QDialog's layout
+	
+	/*fps*/
+	QSpinBox *enc_fps = new QSpinBox(&dialog);
+	enc_fps->setRange(0, 60);
+	enc_fps->setSingleStep(1);						
+	enc_fps->setValue(defaults->fps);
+	form.addRow(_("                              encoder fps:   \n (0 - use fps combobox value)"),
+		enc_fps);
+	/*monotonic pts*/
+	QCheckBox *monotonic_pts = new QCheckBox(&dialog);
+	monotonic_pts->setChecked(defaults->monotonic_pts != 0);
+	form.addRow(_(" monotonic pts"), monotonic_pts);
+	/*bit rate*/
+	QSpinBox *bit_rate = new QSpinBox(&dialog);
+	bit_rate->setRange(160000, 4000000);
+	bit_rate->setSingleStep(10000);						
+	bit_rate->setValue(defaults->bit_rate);
+	form.addRow(_("bit rate:   "), bit_rate);
+	/*qmax*/
+	QSpinBox *qmax = new QSpinBox(&dialog);
+	qmax->setRange(1, 60);
+	qmax->setSingleStep(1);						
+	qmax->setValue(defaults->qmax);
+	form.addRow(_("qmax:   "), qmax);
+	/*qmin*/
+	QSpinBox *qmin = new QSpinBox(&dialog);
+	qmin->setRange(1, 31);
+	qmin->setSingleStep(1);						
+	qmin->setValue(defaults->qmin);
+	form.addRow(_("qmin:   "), qmin);
+	/*max qdiff*/
+	QSpinBox *max_qdiff = new QSpinBox(&dialog);
+	max_qdiff->setRange(1, 4);
+	max_qdiff->setSingleStep(1);						
+	max_qdiff->setValue(defaults->max_qdiff);
+	form.addRow(_("max. qdiff:   "), max_qdiff);
+	/*dia size*/
+	QSpinBox *dia = new QSpinBox(&dialog);
+	dia->setRange(-1, 4);
+	dia->setSingleStep(1);						
+	dia->setValue(defaults->dia);
+	form.addRow(_("dia size:   "), dia);
+	/*pre dia size*/
+	QSpinBox *pre_dia = new QSpinBox(&dialog);
+	pre_dia->setRange(1, 4);
+	pre_dia->setSingleStep(1);						
+	pre_dia->setValue(defaults->pre_dia);
+	form.addRow(_("pre dia size:   "), pre_dia);
+	/*pre me*/
+	QSpinBox *pre_me = new QSpinBox(&dialog);
+	pre_me->setRange(0, 2);
+	pre_me->setSingleStep(1);						
+	pre_me->setValue(defaults->pre_me);
+	form.addRow(_("pre me:   "), pre_me);
+	/*me pre cmp*/
+	QSpinBox *me_pre_cmp = new QSpinBox(&dialog);
+	me_pre_cmp->setRange(0, 6);
+	me_pre_cmp->setSingleStep(1);						
+	me_pre_cmp->setValue(defaults->me_pre_cmp);
+	form.addRow(_("pre cmp:   "), me_pre_cmp);
+	/*me cmp*/
+	QSpinBox *me_cmp = new QSpinBox(&dialog);
+	me_cmp->setRange(0, 6);
+	me_cmp->setSingleStep(1);						
+	me_cmp->setValue(defaults->me_cmp);
+	form.addRow(_("cmp:   "), me_cmp);
+	/*me sub cmp*/
+	QSpinBox *me_sub_cmp = new QSpinBox(&dialog);
+	me_sub_cmp->setRange(0, 6);
+	me_sub_cmp->setSingleStep(1);						
+	me_sub_cmp->setValue(defaults->me_sub_cmp);
+	form.addRow(_("sub cmp:   "), me_sub_cmp);
+	/*last pred*/
+	QSpinBox *last_pred = new QSpinBox(&dialog);
+	last_pred->setRange(1, 3);
+	last_pred->setSingleStep(1);						
+	last_pred->setValue(defaults->last_pred);
+	form.addRow(_("last predictor count:   "), last_pred);
+	/*gop size*/
+	QSpinBox *gop_size = new QSpinBox(&dialog);
+	gop_size->setRange(1, 250);
+	gop_size->setSingleStep(1);						
+	gop_size->setValue(defaults->gop_size);
+	form.addRow(_("gop size:   "), gop_size);
+	/*qcompress*/
+	QDoubleSpinBox *qcompress = new QDoubleSpinBox(&dialog);
+	qcompress->setRange(0, 1);
+	qcompress->setSingleStep(0.1);						
+	qcompress->setValue(defaults->qcompress);
+	form.addRow(_("qcompress:   "), qcompress);
+	/*qblur*/
+	QDoubleSpinBox *qblur = new QDoubleSpinBox(&dialog);
+	qblur->setRange(0, 1);
+	qblur->setSingleStep(0.1);						
+	qblur->setValue(defaults->qblur);
+	form.addRow(_("qblur:   "), qblur);
+	/*subq*/
+	QSpinBox *subq = new QSpinBox(&dialog);
+	subq->setRange(0, 8);
+	subq->setSingleStep(1);						
+	subq->setValue(defaults->subq);
+	form.addRow(_("subq:   "), subq);
+	/*framerefs*/
+	QSpinBox *framerefs = new QSpinBox(&dialog);
+	framerefs->setRange(0, 12);
+	framerefs->setSingleStep(1);						
+	framerefs->setValue(defaults->framerefs);
+	form.addRow(_("framerefs:   "), framerefs);
+	/*me method*/
+	QSpinBox *me_method = new QSpinBox(&dialog);
+	me_method->setRange(1, 10);
+	me_method->setSingleStep(1);						
+	me_method->setValue(defaults->me_method);
+	form.addRow(_("me method:   "), me_method);
+	/*mb decision*/
+	QSpinBox *mb_decision = new QSpinBox(&dialog);
+	mb_decision->setRange(0, 2);
+	mb_decision->setSingleStep(1);						
+	mb_decision->setValue(defaults->mb_decision);
+	form.addRow(_("mb decision:   "), mb_decision);
+	/*max b frames*/
+	QSpinBox *max_b_frames = new QSpinBox(&dialog);
+	max_b_frames->setRange(0, 4);
+	max_b_frames->setSingleStep(1);						
+	max_b_frames->setValue(defaults->max_b_frames);
+	form.addRow(_("max B frames:   "), max_b_frames);
+	/*num threads*/
+	QSpinBox *num_threads = new QSpinBox(&dialog);
+	num_threads->setRange(0, 8);
+	num_threads->setSingleStep(1);						
+	num_threads->setValue(defaults->num_threads);
+	form.addRow(_("num threads:   "), num_threads);
+
+	// Add some standard buttons (Cancel/Ok) at the bottom of the dialog
+	QDialogButtonBox buttonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
+                           Qt::Horizontal, &dialog);
+	form.addRow(&buttonBox);
+	QObject::connect(&buttonBox, SIGNAL(accepted()), &dialog, SLOT(accept()));
+	QObject::connect(&buttonBox, SIGNAL(rejected()), &dialog, SLOT(reject()));
+
+	if (dialog.exec() == QDialog::Accepted) 
+	{
+		if(debug_level > 1)
+			std::cout << "GUVCVIEW (Qt5): setting video codec properties"
+				<< std::endl;
+		
+		defaults->fps = enc_fps->value();
+		defaults->monotonic_pts = monotonic_pts->isChecked() ? 1: 0;
+		defaults->bit_rate = bit_rate->value();
+		defaults->qmax = qmax->value();
+		defaults->qmin = qmin->value();
+		defaults->max_qdiff = max_qdiff->value();
+		defaults->dia = dia->value();
+		defaults->pre_dia = pre_dia->value();
+		defaults->pre_me = pre_me->value();
+		defaults->me_pre_cmp = me_pre_cmp->value();
+		defaults->me_cmp = me_cmp->value();
+		defaults->me_sub_cmp = me_sub_cmp->value();
+		defaults->last_pred = last_pred->value();
+		defaults->gop_size = gop_size->value();
+		defaults->qcompress = qcompress->value();
+		defaults->qblur = qblur->value();
+		defaults->subq = subq->value();
+		defaults->framerefs = framerefs->value();
+		defaults->me_method = me_method->value();
+		defaults->mb_decision = mb_decision->value();
+		defaults->max_b_frames = max_b_frames->value();
+		defaults->num_threads = num_threads->value();
+    }
+
+}
 
 ///*
  //* audio encoder properties clicked event

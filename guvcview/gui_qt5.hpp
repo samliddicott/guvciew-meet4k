@@ -99,6 +99,7 @@ private slots:
     void video_file_clicked();
     void video_sufix_clicked();
     void video_codec_clicked();
+    void video_codec_properties();
 
 
 private:

@@ -1791,7 +1791,7 @@ void encoder_video_properties(GtkMenuItem *item, void *data)
 	gtk_grid_attach (GTK_GRID(table), lbl_fps, 0, line, 1, 1);
 	gtk_widget_show (lbl_fps);
 
-	GtkWidget *enc_fps = gtk_spin_button_new_with_range(0,30,5);
+	GtkWidget *enc_fps = gtk_spin_button_new_with_range(0,60,5);
 	gtk_editable_set_editable(GTK_EDITABLE(enc_fps),TRUE);
 	gtk_spin_button_set_value (GTK_SPIN_BUTTON(enc_fps), defaults->fps);
 

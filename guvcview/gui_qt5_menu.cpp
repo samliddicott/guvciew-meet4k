@@ -150,6 +150,8 @@ int MainWindow::gui_attach_qt5_menu(QWidget *parent)
 			if(encoder_get_webm_video_codec_index() == vcodec_ind)
 				webm_vcodec_action = menu_action;
 		}
+		
+		video_menu->addAction(_("Video Codec Properties"), this,  SLOT(video_codec_properties()));
 
 		//GtkWidget *video_codec_prop =  gtk_menu_item_new_with_label(_("Video Codec Properties"));
 		//gtk_widget_show (video_codec_prop);
