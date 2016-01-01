@@ -834,6 +834,11 @@ void set_webm_codecs()
 {
 	switch(gui_api)
 	{
+#if HAS_QT5
+		case GUI_QT5:
+			set_webm_codecs_qt5();
+			break;
+#endif		
 #if HAS_GTK3
 		case GUI_GTK3:
 			set_webm_codecs_gtk3();

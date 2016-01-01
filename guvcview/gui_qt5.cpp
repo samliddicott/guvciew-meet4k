@@ -41,9 +41,9 @@ extern "C"{
 #include "gui.h"
 /*add this last to avoid redefining _() and N_()*/
 #include "gview.h"
-}
-
+#include "gviewencoder.h"
 #include "gviewv4l2core.h"
+}
 
 extern int debug_level;
 
@@ -306,4 +306,23 @@ void gui_close_qt5()
 
 	if(debug_level > 2)
 		std::cerr << "GUVCVIEW (Qt5): all done" << std::endl;
+}
+
+/*
+ * set webm codecs in codecs list
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void set_webm_codecs_qt5()
+{
+	/*force webm codecs*/
+	int video_codec_ind = encoder_get_webm_video_codec_index();
+	set_video_codec_ind(video_codec_ind);
+	int audio_codec_ind = encoder_get_webm_audio_codec_index();
+	set_audio_codec_ind(audio_codec_ind);
 }

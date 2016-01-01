@@ -261,47 +261,38 @@ void MainWindow::video_sufix_clicked ()
 	my_config->video_sufix = flag;
 }
 
-///*
- //* video codec changed event
- //* args:
- //*    item - widget that generated the event
- //*    data - pointer to user data
- //*
- //* asserts:
- //*    none
- //*
- //* returns: none
- //*/
-//void video_codec_changed (GtkRadioMenuItem *item, void *data)
-//{
-   //GSList *vgroup = (GSList *) data;
+/*
+ * video codec clicked event
+ * args:
+ *    none
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void MainWindow::video_codec_clicked ()
+{
+	QObject *sender =  QObject::sender();
+	int vcodec_ind = sender->property("video_codec").toInt();
 
-	//if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(item)))
-	//{
-		///*
-		 //* GSList indexes (g_slist_index) are in reverse order:
-		 //* last inserted has index 0
-		 //* so count backwards
-		 //*/
-		//int num_codecs = g_slist_length(vgroup);
-		//int index = g_slist_index (vgroup, item);
-		//index = num_codecs - (index + 1); //reverse order and 0 indexed
-		//fprintf(stderr,"GUVCVIEW: video codec changed to %i\n", index);
+	if(debug_level > 1)
+		std::cout << "GUVCVIEW (Qt5): video codec changed to " 
+			<< vcodec_ind << std::endl;
 
-		//set_video_codec_ind(index);
+	set_video_codec_ind(vcodec_ind);
 
-		//if( get_video_muxer() == ENCODER_MUX_WEBM &&
-			//!encoder_check_webm_video_codec(index))
-		//{
-			///*change from webm to matroska*/
-			//set_video_muxer(ENCODER_MUX_MKV);
-			//char *newname = set_file_extension(get_video_name(), "mkv");
-			//set_video_name(newname);
+	if( get_video_muxer() == ENCODER_MUX_WEBM &&
+		!encoder_check_webm_video_codec(vcodec_ind))
+	{
+		/*change from webm to matroska*/
+		set_video_muxer(ENCODER_MUX_MKV);
+		char *newname = set_file_extension(get_video_name(), "mkv");
+		set_video_name(newname);
 
-			//free(newname);
-		//}
-	//}
-//}
+		free(newname);
+	}
+}
 
 ///*
  //* audio codec changed event
@@ -532,9 +523,7 @@ void MainWindow::video_file_clicked ()
 		if(debug_level > 1)
 			std::cout << "GUVCVIEW (Qt5): set video filename to " 
 				<< fileName.toStdString() << std::endl;
-				
-			
-			
+					
 		char *basename = get_file_basename(fileName.toStdString().c_str());
 		if(basename)
 		{
@@ -547,6 +536,19 @@ void MainWindow::video_file_clicked ()
 			set_video_path(pathname);
 			free(pathname);
 		}
+		
+		/*update codecs for webm special case*/
+		if(get_video_codec_ind() == encoder_get_webm_video_codec_index() and
+			webm_vcodec_action != NULL)
+		{
+			webm_vcodec_action->setChecked(true);
+		}
+		if(get_audio_codec_ind() == encoder_get_webm_audio_codec_index() and
+			webm_acodec_action != NULL)
+		{
+			webm_acodec_action->setChecked(true);
+		}
+		
 	}
 }
 

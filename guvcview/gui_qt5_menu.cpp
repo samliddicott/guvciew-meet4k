@@ -39,6 +39,7 @@ extern "C" {
 /*add this last to avoid redefining _() and N_()*/
 #include "gview.h"
 #include "gviewrender.h"
+#include "gviewencoder.h"
 #include "video_capture.h"
 }
 
@@ -123,33 +124,32 @@ int MainWindow::gui_attach_qt5_menu(QWidget *parent)
 		menu_action->setCheckable(true);
 		menu_action->setChecked(get_video_sufix_flag() > 0);
 
-		//GtkWidget *video_codec_menu = gtk_menu_new();
-		//GtkWidget *video_codec_top = gtk_menu_item_new_with_label(_("Video Codec"));
-		//gtk_widget_show (video_codec_top);
-		//gtk_menu_item_set_submenu(GTK_MENU_ITEM(video_codec_top), video_codec_menu);
-		///*Add codecs to submenu*/
-		//GSList *vgroup = NULL;
-		//int num_vcodecs = encoder_get_valid_video_codecs();
-		//int vcodec_ind =0;
-		//for (vcodec_ind =0; vcodec_ind < num_vcodecs; vcodec_ind++)
-		//{
-			//GtkWidget *item = gtk_radio_menu_item_new_with_label(
-				//vgroup,
-				//gettext(encoder_get_video_codec_description(vcodec_ind)));
-			//if (vcodec_ind == get_video_codec_ind())
-			//{
-				//gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (item), TRUE);
-			//}
-			///*NOTE: GSList indexes (g_slist_index) are in reverse order: last inserted has index 0*/
-			//vgroup = gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (item));
-
-			//gtk_widget_show (item);
-			//gtk_menu_shell_append(GTK_MENU_SHELL(video_codec_menu), item);
-
-			//g_signal_connect (GTK_RADIO_MENU_ITEM(item), "toggled",
-                //G_CALLBACK (video_codec_changed), vgroup);
-		//}
-		//set_video_codec_group_list_gtk3(vgroup);
+		/*video codecs*/
+		QMenu *video_codec_menu = new QMenu(_("Video Codec"), video_menu);
+		
+		QActionGroup* video_codec_group = new QActionGroup(video_codec_menu);
+		video_codec_group->setExclusive(true);
+		
+		video_menu->addMenu(video_codec_menu);
+		video_codec_menu->show();
+		
+		int num_vcodecs = encoder_get_valid_video_codecs();
+		int vcodec_ind =0;
+		for (vcodec_ind =0; vcodec_ind < num_vcodecs; vcodec_ind++)
+		{
+			menu_action = video_codec_menu->addAction(
+				gettext(encoder_get_video_codec_description(vcodec_ind)),
+				this,  SLOT(video_codec_clicked()));
+			menu_action->setProperty("video_codec", vcodec_ind);
+			menu_action->setCheckable(true);
+			if (vcodec_ind == get_video_codec_ind())
+				menu_action->setChecked(true);
+			video_codec_group->addAction(menu_action);
+			
+			/*store webm video codec action*/
+			if(encoder_get_webm_video_codec_index() == vcodec_ind)
+				webm_vcodec_action = menu_action;
+		}
 
 		//GtkWidget *video_codec_prop =  gtk_menu_item_new_with_label(_("Video Codec Properties"));
 		//gtk_widget_show (video_codec_prop);

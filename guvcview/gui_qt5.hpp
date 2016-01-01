@@ -98,6 +98,7 @@ private slots:
     void photo_sufix_clicked();
     void video_file_clicked();
     void video_sufix_clicked();
+    void video_codec_clicked();
 
 
 private:
@@ -116,6 +117,9 @@ private:
    QComboBox *combobox_InpType;
    
    QMenuBar *menubar;
+   
+   QAction *webm_vcodec_action = NULL;
+   QAction *webm_acodec_action = NULL;
 };
 
 #endif

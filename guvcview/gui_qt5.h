@@ -80,4 +80,16 @@ void gui_error_qt5(
 	const char *message,
 	int fatal);
 
+/*
+ * set webm codecs in codecs list
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void set_webm_codecs_qt5();
+
 #endif
