@@ -43,20 +43,6 @@ public:
 	QWidget *widget2;             /*control widget 2*/
 };
 
-class AudioWidgets
-{
-public:
-	AudioWidgets();
-	
-	QWidget *api;           /* api control      */
-	QWidget *device;        /* device control   */
-	QWidget *channels;      /* channels control */
-	QWidget *samprate;     /* samprate control */
-	QWidget *latency;       /* latency control  */
-};
-
-
-
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -71,6 +57,7 @@ protected:
 
 private slots:
 	void quit_button_clicked();
+	/*image*/
 	void slider_value_changed(int value);
 	void spin_value_changed (int value);
 	void button_PanTilt1_clicked();
@@ -85,12 +72,20 @@ private slots:
 #ifdef V4L2_CTRL_TYPE_INTEGER64
 	void int64_button_clicked();
 #endif
+	/*video*/
     void devices_changed (int index);
     void frame_rate_changed (int index);
     void resolution_changed (int index);
     void format_changed(int index);
     void render_fx_filter_changed(int state);
     void render_osd_changed(int state);
+    /*audio*/
+    void audio_api_changed(int index);
+    void audio_devices_changed(int index);
+    void audio_samplerate_changed(int index);
+    void audio_channels_changed(int index);
+    void audio_latency_changed(double value);
+    /*menu*/
     void control_defaults_clicked ();
     void load_save_profile_clicked();
     void menu_camera_button_clicked();
@@ -110,10 +105,12 @@ private:
    void gui_qt5_update_controls_state();
    int gui_attach_qt5_v4l2ctrls(QWidget *parent);
    int gui_attach_qt5_videoctrls(QWidget *parent);
+   int gui_attach_qt5_audioctrls(QWidget *parent);
    int gui_attach_qt5_menu(QWidget *parent);
 
    QWidget *img_controls_grid;
    QWidget *video_controls_grid;
+   QWidget *audio_controls_grid;
    
    QToolButton *cap_img_button;
    
@@ -121,6 +118,12 @@ private:
    QComboBox *combobox_FrameRate;
    QComboBox *combobox_resolution;
    QComboBox *combobox_InpType;
+   
+   QComboBox *combobox_audio_api;        
+   QComboBox *combobox_audio_devices;
+   QComboBox *combobox_audio_channels; 
+   QComboBox *combobox_audio_samprate;
+   QDoubleSpinBox *spinbox_audio_latency;
    
    QMenuBar *menubar;
    

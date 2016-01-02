@@ -1188,280 +1188,219 @@ void MainWindow::setfocus_clicked ()
 
 ///******************* AUDIO CALLBACKS *************************/
 
-///*
- //* audio device list box changed event
- //* args:
- //*    combo - widget that generated the event
- //*    data - pointer to user data
- //*
- //* asserts:
- //*    none
- //*
- //* returns: none
- //*/
-//void audio_device_changed(GtkComboBox *combo, void *data)
-//{
-	//audio_widgets_t *my_audio_widgets = (audio_widgets_t *) data;
+/*
+ * audio device list box changed event
+ * args:
+ *    index - audio device index
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void MainWindow::audio_devices_changed(int index)
+{
+	/*update the audio context for the new api*/
+	audio_context_t *audio_ctx = get_audio_context();
 
-	//int index = gtk_combo_box_get_active(combo);
+	if(index < 0)
+		index = 0;
+	else if (index >= audio_ctx->num_input_dev)
+		index = audio_ctx->num_input_dev - 1;
+			
+	/*update config*/
+	config_t *my_config = config_get();
+	my_config->audio_device = index;
 
-	///*update the audio context for the new api*/
-	//audio_context_t *audio_ctx = get_audio_context();
+	/*set the audio device defaults*/
+	audio_set_device(audio_ctx, my_config->audio_device);
 
-	//if(index < 0)
-		//index = 0;
-	//else if (index >= audio_ctx->num_input_dev)
-		//index = audio_ctx->num_input_dev - 1;
+	if(debug_level > 0)
+		std::cout << "GUVCVIEW (Qt5): audio device changed to "
+			<< audio_ctx->device << std::endl;
+
+	int chan_ind = combobox_audio_channels->currentIndex();
+
+	if(chan_ind == 0)
+	{
+		audio_ctx->channels = audio_ctx->list_devices[audio_ctx->device].channels;
+		if(audio_ctx->channels > 2)
+			audio_ctx->channels = 2;/*limit it to stereo input*/
+	}
+
+	int samprate_ind = combobox_audio_samprate->currentIndex();
+
+	if(samprate_ind == 0)
+		audio_ctx->samprate = audio_ctx->list_devices[audio_ctx->device].samprate;
+		
+	spinbox_audio_latency->setValue(audio_ctx->latency);
+}
+
+/*
+ * audio samplerate list box changed event
+ * args:
+ *    index - sample rate index
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void MainWindow::audio_samplerate_changed(int index)
+{
+	/*update the audio context for the new api*/
+	audio_context_t *audio_ctx = get_audio_context();
+
+	switch(index)
+	{
+		case 0:
+			audio_ctx->samprate = audio_ctx->list_devices[audio_ctx->device].samprate;
+			break;
+		default:
+			audio_ctx->samprate = combobox_audio_samprate->itemData(index).toInt();
+			break;		
+	}
 	
-	///*update config*/
-	//config_t *my_config = config_get();
-	//my_config->audio_device = index;
-	
-	///*set the audio device defaults*/
-	//audio_set_device(audio_ctx, my_config->audio_device);
+	if(debug_level > 1)
+		std::cout << "GUVCVIEW (Qt5): audio sample rate changed to "
+			<< audio_ctx->samprate << std::endl;
+}
 
-	//if(debug_level > 0)
-		//printf("GUVCVIEW: audio device changed to %i\n", audio_ctx->device);
+/*
+ * audio channels list box changed event
+ * args:
+ *    index - audio channels combobox index
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void MainWindow::audio_channels_changed(int index)
+{
+	/*update the audio context for the new api*/
+	audio_context_t *audio_ctx = get_audio_context();
 
-	//index = gtk_combo_box_get_active(GTK_COMBO_BOX(my_audio_widgets->channels));
+	int channels = 0;
 
-	//if(index == 0)
-	//{
-		//audio_ctx->channels = audio_ctx->list_devices[audio_ctx->device].channels;
-		//if(audio_ctx->channels > 2)
-			//audio_ctx->channels = 2;/*limit it to stereo input*/
-	//}
+	switch(index)
+	{
+		case 0:
+			channels = audio_ctx->list_devices[audio_ctx->device].channels;
+			break;
+		default:
+			channels =  combobox_audio_channels->itemData(index).toInt();;
+			break;
+	}
 
-	//index = gtk_combo_box_get_active(GTK_COMBO_BOX(my_audio_widgets->samprate));
+	if(channels > audio_ctx->list_devices[audio_ctx->device].channels)
+		audio_ctx->channels = audio_ctx->list_devices[audio_ctx->device].channels;
 
-	//if(index == 0)
-		//audio_ctx->samprate = audio_ctx->list_devices[audio_ctx->device].samprate;
+	if(audio_ctx->channels > 2)
+		audio_ctx->channels = 2; /*limit to stereo*/
+}
+
+/*
+ * audio api list box changed event
+ * args:
+ *    index - current audio api index
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void MainWindow::audio_api_changed(int index)
+{
+	/*update the audio context for the new api*/
+	audio_context_t *audio_ctx = create_audio_context(index, -1);
+	if(!audio_ctx)
+		index = AUDIO_NONE;
 		
-	//gtk_range_set_value(GTK_RANGE(my_audio_widgets->latency), audio_ctx->latency);
-//}
+	/*update the config audio entry*/
+	config_t *my_config = config_get();
+	switch(index)
+	{
+		case AUDIO_NONE:
+			strncpy(my_config->audio, "none", 5);
+			break;
+		case AUDIO_PULSE:
+			strncpy(my_config->audio, "pulse", 5);
+			break;
+		default:
+			strncpy(my_config->audio, "port", 5);
+			break;
+	}
 
-///*
- //* audio samplerate list box changed event
- //* args:
- //*    combo - widget that generated the event
- //*    data - pointer to user data
- //*
- //* asserts:
- //*    none
- //*
- //* returns: none
- //*/
-//void audio_samplerate_changed(GtkComboBox *combo, void *data)
-//{
-	//int index = gtk_combo_box_get_active(combo);
 
-	///*update the audio context for the new api*/
-	//audio_context_t *audio_ctx = get_audio_context();
-
-	//switch(index)
-	//{
-		//case 0:
-			//audio_ctx->samprate = audio_ctx->list_devices[audio_ctx->device].samprate;
-			//break;
-		//case 1:
-			//audio_ctx->samprate = 7350;
-			//break;
-		//case 2:
-			//audio_ctx->samprate = 8000;
-			//break;
-		//case 3:
-			//audio_ctx->samprate = 11025;
-			//break;
-		//case 4:
-			//audio_ctx->samprate = 12000;
-			//break;
-		//case 5:
-			//audio_ctx->samprate = 16000;
-			//break;
-		//case 6:
-			//audio_ctx->samprate = 22050;
-			//break;
-		//case 7:
-			//audio_ctx->samprate = 24000;
-			//break;
-		//case 8:
-			//audio_ctx->samprate = 32000;
-			//break;
-		//case 9:
-			//audio_ctx->samprate = 44100;
-			//break;
-		//case 10:
-			//audio_ctx->samprate = 48000;
-			//break;
-		//case 11:
-			//audio_ctx->samprate = 64000;
-			//break;
-		//case 12:
-			//audio_ctx->samprate = 88200;
-			//break;
-		//case 13:
-			//audio_ctx->samprate = 96000;
-			//break;
-		//default:
-			//audio_ctx->samprate = 44100;
-			//break;
-	//}
-//}
-
-///*
- //* audio channels list box changed event
- //* args:
- //*    combo - widget that generated the event
- //*    data - pointer to user data
- //*
- //* asserts:
- //*    none
- //*
- //* returns: none
- //*/
-//void audio_channels_changed(GtkComboBox *combo, void *data)
-//{
-	//int index = gtk_combo_box_get_active(combo);
-
-	///*update the audio context for the new api*/
-	//audio_context_t *audio_ctx = get_audio_context();
-
-	//int channels = 0;
-
-	//switch(index)
-	//{
-		//case 0:
-			//channels = audio_ctx->list_devices[audio_ctx->device].channels;
-			//break;
-		//case 1:
-			//channels =  1;
-			//break;
-		//default:
-		//case 2:
-			//channels = 2;
-			//break;
-	//}
-
-	//if(channels > audio_ctx->list_devices[audio_ctx->device].channels)
-		//audio_ctx->channels = audio_ctx->list_devices[audio_ctx->device].channels;
-
-	//if(audio_ctx->channels > 2)
-		//audio_ctx->channels = 2; /*limit to stereo*/
-//}
-
-///*
- //* audio api list box changed event
- //* args:
- //*    combo - widget that generated the event
- //*    data - pointer to user data
- //*
- //* asserts:
- //*    none
- //*
- //* returns: none
- //*/
-//void audio_api_changed(GtkComboBox *combo, void *data)
-//{
-	//audio_widgets_t *my_audio_widgets = (audio_widgets_t *) data;
-
-	//int api = gtk_combo_box_get_active(combo);
-
-	///*update the audio context for the new api*/
-	//audio_context_t *audio_ctx = create_audio_context(api, -1);
-	//if(!audio_ctx)
-		//api = AUDIO_NONE;
+	if(index == AUDIO_NONE || audio_ctx == NULL)
+	{
+		combobox_audio_devices->setDisabled(true);
+		combobox_audio_channels->setDisabled(true);
+		combobox_audio_samprate->setDisabled(true);
+		spinbox_audio_latency->setDisabled(true);
+	}
+	else
+	{
+		combobox_audio_devices->setDisabled(false);
 		
-	///*update the config audio entry*/
-	//config_t *my_config = config_get();
-	//switch(api)
-	//{
-		//case AUDIO_NONE:
-			//strncpy(my_config->audio, "none", 5);
-			//break;
-		//case AUDIO_PULSE:
-			//strncpy(my_config->audio, "pulse", 5);
-			//break;
-		//default:
-			//strncpy(my_config->audio, "port", 5);
-			//break;
-	//}
-
-
-	//if(api == AUDIO_NONE || audio_ctx == NULL)
-	//{
-		//gtk_combo_box_set_active(combo, api);
-		//gtk_widget_set_sensitive(my_audio_widgets->device, FALSE);
-		//gtk_widget_set_sensitive(my_audio_widgets->channels, FALSE);
-		//gtk_widget_set_sensitive(my_audio_widgets->samprate, FALSE);
-		//gtk_widget_set_sensitive(my_audio_widgets->latency, FALSE);
-	//}
-	//else
-	//{
-		//g_signal_handlers_block_by_func(
-			//GTK_COMBO_BOX_TEXT(my_audio_widgets->device),
-			//G_CALLBACK (audio_device_changed),
-			//my_audio_widgets);
-
-		///* clear out the old device list... */
-		//GtkListStore *store = GTK_LIST_STORE(gtk_combo_box_get_model (GTK_COMBO_BOX(my_audio_widgets->device)));
-		//gtk_list_store_clear(store);
-
-		//int i = 0;
-		//for(i = 0; i < audio_ctx->num_input_dev; ++i)
-		//{
-			//gtk_combo_box_text_append_text(
-				//GTK_COMBO_BOX_TEXT(my_audio_widgets->device),
-				//audio_ctx->list_devices[i].description);
-		//}
-
-		//gtk_combo_box_set_active(GTK_COMBO_BOX(my_audio_widgets->device), audio_ctx->device);
-
-		//g_signal_handlers_unblock_by_func(
-			//GTK_COMBO_BOX_TEXT(my_audio_widgets->device),
-			//G_CALLBACK (audio_device_changed),
-			//my_audio_widgets);
-
-		//gtk_widget_set_sensitive (my_audio_widgets->device, TRUE);
-		//gtk_widget_set_sensitive(my_audio_widgets->channels, TRUE);
-		//gtk_widget_set_sensitive(my_audio_widgets->samprate, TRUE);
-		//gtk_widget_set_sensitive(my_audio_widgets->latency, TRUE);
-
-		///*update channels*/
-		//int index = gtk_combo_box_get_active(GTK_COMBO_BOX(my_audio_widgets->channels));
-
-		//if(index == 0) /*auto*/
-			//audio_ctx->channels = audio_ctx->list_devices[audio_ctx->device].channels;
-
-		///*update samprate*/
-		//index = gtk_combo_box_get_active(GTK_COMBO_BOX(my_audio_widgets->samprate));
-
-		//if(index == 0) /*auto*/
-			//audio_ctx->samprate = audio_ctx->list_devices[audio_ctx->device].samprate;
+		/*block audio device combobox signals*/
+		combobox_audio_devices->blockSignals(true);
 		
-		//gtk_range_set_value(GTK_RANGE(my_audio_widgets->latency), audio_ctx->latency);	
-	//}
+		/* clear out the old device list... */
+		combobox_audio_devices->clear();
 
-//}
+		int i = 0;
+		for(i = 0; i < audio_ctx->num_input_dev; ++i)
+		{
+			combobox_audio_devices->addItem(audio_ctx->list_devices[i].description, i);
+		}
+		combobox_audio_devices->setCurrentIndex(audio_ctx->device);
 
-///*
- //* audio latency changed event
- //* args:
- //*    range - widget that generated the event
- //*    data - pointer to user data
- //*
- //* asserts:
- //*    none
- //*
- //* returns: none
- //*/
-//void audio_latency_changed(GtkRange *range, void *data)
-//{
-	///**update the audio context for the new api*/
-	//audio_context_t *audio_ctx = get_audio_context();
+		/*unblock audio device combobox signals*/
+		combobox_audio_devices->blockSignals(false);
 
-	//if(audio_ctx != NULL)
-		//audio_ctx->latency = (double) gtk_range_get_value (range);
-//}
+		combobox_audio_channels->setDisabled(false);
+		combobox_audio_samprate->setDisabled(false);
+		spinbox_audio_latency->setDisabled(false);
+
+		/*update channels*/
+		int chan_ind = combobox_audio_channels->currentIndex();
+
+		if(chan_ind == 0) /*auto*/
+			audio_ctx->channels = audio_ctx->list_devices[audio_ctx->device].channels;
+		
+		/*update samprate*/
+		int samprate_ind = combobox_audio_samprate->currentIndex();
+
+		if(samprate_ind == 0) /*auto*/
+			audio_ctx->samprate = audio_ctx->list_devices[audio_ctx->device].samprate;
+		
+		std::cout << "GUVCVIEW (Qt5): setting default audio latency to " << audio_ctx->latency << std::endl;
+		
+		spinbox_audio_latency->setValue(audio_ctx->latency);	
+	}
+
+}
+
+/*
+ * audio latency changed event
+ * args:
+ *    value - value for audio latency
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void MainWindow::audio_latency_changed(double value)
+{
+	/**update the audio context for the new api*/
+	audio_context_t *audio_ctx = get_audio_context();
+
+	if(audio_ctx != NULL)
+		audio_ctx->latency = value;
+}
 
 /*
  * video encoder properties clicked event

@@ -26,6 +26,7 @@ guvcview_SOURCES += moc_gui_qt5.cpp \
 				   gui_qt5.cpp \
 				   gui_qt5_v4l2ctrls.cpp \
 				   gui_qt5_videoctrls.cpp \
+				   gui_qt5_audioctrls.cpp \
 				   gui_qt5_menu.cpp \
 				   gui_qt5_callbacks.cpp
 endif

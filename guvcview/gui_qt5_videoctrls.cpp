@@ -92,7 +92,7 @@ int MainWindow::gui_attach_qt5_videoctrls(QWidget *parent)
 	int i =0;
 
 	/*---- Devices ----*/
-	QWidget *label_Device = new QLabel(_("Device:"),video_controls_grid);
+	QLabel *label_Device = new QLabel(_("Device:"),video_controls_grid);
 	label_Device->show();
 	
 	grid_layout->addWidget(label_Device, line, 0, Qt::AlignRight);

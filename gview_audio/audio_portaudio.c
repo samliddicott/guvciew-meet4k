@@ -354,9 +354,11 @@ void audio_set_portaudio_device(audio_context_t *audio_ctx, int index)
 	
 	if(index >= audio_ctx->num_input_dev)
 		audio_ctx->device = audio_ctx->num_input_dev - 1;
-	else if(index > 0 )
+	else if(index >= 0 )
 		audio_ctx->device = index;
-		
+
+	printf("AUDIO: Portaudio device changed to %i\n", audio_ctx->device);
+	 
 	audio_ctx->latency = audio_ctx->list_devices[audio_ctx->device].high_latency;
 	
 	audio_ctx->channels = audio_ctx->list_devices[audio_ctx->device].channels;

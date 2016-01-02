@@ -56,15 +56,6 @@ ControlWidgets::ControlWidgets()
 	widget2 = NULL;
 }
 
-AudioWidgets::AudioWidgets()
-{
-	api = NULL;
-	device = NULL;
-	channels = NULL;
-	samprate = NULL;
-	latency = NULL;
-}
-
 MainWindow::MainWindow()
 {
 	QWidget *widget = new QWidget;
@@ -120,9 +111,9 @@ MainWindow::MainWindow()
 	scroll_ctrls->setWidgetResizable(true);
 	
 	int tab_ind = 0;
-	QIcon control_tab_icon(QString(PACKAGE_DATA_DIR).append("/pixmaps/guvcview/image_controls.png"));
-	control_tab->addTab(scroll_ctrls, "Image Controls");
-	control_tab->setTabIcon(tab_ind, control_tab_icon);
+	QIcon image_tab_icon(QString(PACKAGE_DATA_DIR).append("/pixmaps/guvcview/image_controls.png"));
+	control_tab->addTab(scroll_ctrls, _("Image Controls"));
+	control_tab->setTabIcon(tab_ind, image_tab_icon);
 	tab_ind++;
 	
 	/*control panel mode exclusions */
@@ -134,9 +125,20 @@ MainWindow::MainWindow()
 		scroll_video->setWidget(video_controls_grid);
 		scroll_video->setWidgetResizable(true);
 		
-		QIcon control_tab_icon(QString(PACKAGE_DATA_DIR).append("/pixmaps/guvcview/video_controls.png"));
-		control_tab->addTab(scroll_video, "Video Controls");
-		control_tab->setTabIcon(tab_ind, control_tab_icon);
+		QIcon video_tab_icon(QString(PACKAGE_DATA_DIR).append("/pixmaps/guvcview/video_controls.png"));
+		control_tab->addTab(scroll_video, _("Video Controls"));
+		control_tab->setTabIcon(tab_ind, video_tab_icon);
+		tab_ind++;
+		
+		QScrollArea *scroll_audio = new QScrollArea(control_tab);
+	
+		gui_attach_qt5_audioctrls(scroll_audio);
+		scroll_audio->setWidget(audio_controls_grid);
+		scroll_audio->setWidgetResizable(true);
+		
+		QIcon audio_tab_icon(QString(PACKAGE_DATA_DIR).append("/pixmaps/guvcview/audio_controls.png"));
+		control_tab->addTab(scroll_audio, _("Audio Controls"));
+		control_tab->setTabIcon(tab_ind, audio_tab_icon);
 		tab_ind++;
 		
 	}
