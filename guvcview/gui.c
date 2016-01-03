@@ -292,6 +292,11 @@ void gui_click_image_capture_button()
 {
 	switch(gui_api)
 	{
+#if HAS_QT5
+		case GUI_QT5:
+			gui_click_image_capture_button_qt5();
+			break;
+#endif
 #if HAS_GTK3
 		case GUI_GTK3:
 			gui_click_image_capture_button_gtk3();
@@ -318,6 +323,11 @@ void gui_click_video_capture_button()
 {
 	switch(gui_api)
 	{
+#if HAS_QT5
+		case GUI_QT5:
+			gui_click_video_capture_button_qt5();
+			break;
+#endif
 #if HAS_GTK3
 		case GUI_GTK3:
 			gui_click_video_capture_button_gtk3();

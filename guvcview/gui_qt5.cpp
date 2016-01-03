@@ -420,3 +420,35 @@ void set_webm_codecs_qt5()
 	int audio_codec_ind = encoder_get_webm_audio_codec_index();
 	set_audio_codec_ind(audio_codec_ind);
 }
+
+/*
+ * emit a click event for image capture button
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void gui_click_image_capture_button_qt5()
+{
+	if(mainWin)
+		mainWin->capture_image_clicked();
+}
+
+/*
+ * emit a click event for video capture button
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void gui_click_video_capture_button_qt5()
+{
+	if(mainWin)
+		mainWin->capture_video_clicked();
+}

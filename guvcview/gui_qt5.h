@@ -92,4 +92,28 @@ void gui_error_qt5(
  */
 void set_webm_codecs_qt5();
 
+/*
+ * emit a click event for image capture button
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void gui_click_image_capture_button_qt5();
+
+/*
+ * emit a click event for video capture button
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void gui_click_video_capture_button_qt5();
+
 #endif

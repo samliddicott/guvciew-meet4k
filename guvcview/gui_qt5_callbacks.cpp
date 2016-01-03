@@ -465,8 +465,8 @@ void MainWindow::video_file_clicked ()
  */
 void MainWindow::capture_image_clicked()
 {
-	QObject *sender =  QObject::sender();
-	int is_photo_timer = sender->property("control_info").toInt();
+	int is_photo_timer = cap_img_button->property("control_info").toInt();
+	
 	if(is_photo_timer)
 	{
 		stop_photo_timer();
@@ -488,8 +488,7 @@ void MainWindow::capture_image_clicked()
  */
 void MainWindow::capture_video_clicked()
 {
-	QObject *sender =  QObject::sender();
-	int is_active = sender->property("control_info").toInt();
+	int is_active = cap_video_button->property("control_info").toInt();
 
 	if(debug_level > 0)
 		std::cout << "GUVCVIEW (Qt5): video capture cliked: " 
@@ -1096,27 +1095,27 @@ void MainWindow::render_fx_filter_changed(int state)
 	set_render_fx_mask(mask);
 }
 
-///*
- //* audio fx filter changed event
- //* args:
- //*    toggle - widget that generated the event
- //*    data - pointer to user data
- //*
- //* asserts:
- //*    none
- //*
- //* returns: none
- //*/
-//void audio_fx_filter_changed(GtkToggleButton *toggle, void *data)
-//{
-	//int filter = GPOINTER_TO_INT(g_object_get_data (G_OBJECT (toggle), "filt_info"));
+/*
+ * audio fx filter changed event
+ * args:
+ *    state - checkbox state
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void MainWindow::audio_fx_filter_changed(int state)
+{
+	QObject *sender =  QObject::sender();
+	int filter = sender->property("filt_info").toInt();
 
-	//uint32_t mask = gtk_toggle_button_get_active (toggle) ?
-			//get_audio_fx_mask() | filter :
-			//get_audio_fx_mask() & ~filter;
+	uint32_t mask = (state != 0) ?
+			get_audio_fx_mask() | filter :
+			get_audio_fx_mask() & ~filter;
 
-	//set_audio_fx_mask(mask);
-//}
+	set_audio_fx_mask(mask);
+}
 
 /*
  * render osd changed event
@@ -1670,107 +1669,77 @@ void MainWindow::audio_codec_properties()
 	}
 }
 
-///*
- //* gtk3 window key pressed event
- //* args:
- //*   win - pointer to widget (main window) where event ocurred
- //*   event - pointer to GDK key event structure
- //*   data - pointer to user data
- //*
- //* asserts:
- //*   none
- //*
- //* returns: true if we handled the event or false otherwise
- //*/
-//gboolean window_key_pressed (GtkWidget *win, GdkEventKey *event, void *data)
-//{
-	///* If we have modifiers, and either Ctrl, Mod1 (Alt), or any
-	 //* of Mod3 to Mod5 (Mod2 is num-lock...) are pressed, we
-	 //* let Gtk+ handle the key */
-	////printf("GUVCVIEW: key pressed (key:%i)\n", event->keyval);
-	//if (event->state != 0
-		//&& ((event->state & GDK_CONTROL_MASK)
-		//|| (event->state & GDK_MOD1_MASK)
-		//|| (event->state & GDK_MOD3_MASK)
-		//|| (event->state & GDK_MOD4_MASK)
-		//|| (event->state & GDK_MOD5_MASK)))
-		//return FALSE;
+void MainWindow::keyPressEvent(QKeyEvent* e)
+{
+	QString message = QString("You Pressed: ") + e->text();
+	std::cout << "GUVCIVEW (Qt5): " << message.toStdString() 
+		<<"(" << e->key() <<")"<< std::endl;
+	
+	//if(event->key() Qt::NoModifier)
+	//	return;
+		
+	if(v4l2core_has_pantilt_id())
+    {
+		int id = 0;
+		int value = 0;
 
-    //if(v4l2core_has_pantilt_id())
-    //{
-		//int id = 0;
-		//int value = 0;
+        switch (e->key())
+        {
+			case Qt::Key_Down:
+				id = V4L2_CID_TILT_RELATIVE;
+				value = v4l2core_get_tilt_step();
+				break;
+			case Qt::Key_Up:
+				id = V4L2_CID_TILT_RELATIVE;
+				value = - v4l2core_get_tilt_step();
+				break;
+			case Qt::Key_Left:
+				id = V4L2_CID_PAN_RELATIVE;
+				value = v4l2core_get_pan_step();
+				break;
+			case Qt::Key_Right:
+				id = V4L2_CID_PAN_RELATIVE;
+				value = - v4l2core_get_pan_step();
+				break;
+			default:
+				break;
+		}
+		
+		if(id != 0 && value != 0)
+        {
+			v4l2_ctrl_t *control = v4l2core_get_control_by_id(id);
 
-        //switch (event->keyval)
-        //{
-            //case GDK_KEY_Down:
-            //case GDK_KEY_KP_Down:
-				//id = V4L2_CID_TILT_RELATIVE;
-				//value = v4l2core_get_tilt_step();
-				//break;
+			if(control)
+			{
+				control->value =  value;
 
-            //case GDK_KEY_Up:
-            //case GDK_KEY_KP_Up:
-				//id = V4L2_CID_TILT_RELATIVE;
-				//value = - v4l2core_get_tilt_step();
-				//break;
-
-            //case GDK_KEY_Left:
-            //case GDK_KEY_KP_Left:
-				//id = V4L2_CID_PAN_RELATIVE;
-				//value = v4l2core_get_pan_step();
-				//break;
-
-            //case GDK_KEY_Right:
-            //case GDK_KEY_KP_Right:
-                //id = V4L2_CID_PAN_RELATIVE;
-				//value = - v4l2core_get_pan_step();
-				//break;
-
-            //default:
-                //break;
-        //}
-
-        //if(id != 0 && value != 0)
-        //{
-			//v4l2_ctrl_t *control = v4l2core_get_control_by_id(id);
-
-			//if(control)
-			//{
-				//control->value =  value;
-
-				//if(v4l2core_set_control_value_by_id(id))
-					//fprintf(stderr, "GUVCVIEW: error setting pan/tilt value\n");
-
-				//return TRUE;
-			//}
-		//}
-    //}
-
-    //switch (event->keyval)
-    //{
-        //case GDK_KEY_WebCam:
-			///* camera button pressed */
-			//if (get_default_camera_button_action() == DEF_ACTION_IMAGE)
-				//gui_click_image_capture_button_gtk3();
-			//else
-				//gui_click_video_capture_button_gtk3();
-			//return TRUE;
-
-		//case GDK_KEY_V:
-		//case GDK_KEY_v:
-			//gui_click_video_capture_button_gtk3();
-			//return TRUE;
-
-		//case GDK_KEY_I:
-		//case GDK_KEY_i:
-			//gui_click_image_capture_button_gtk3();
-			//return TRUE;
-
-	//}
-
-    //return FALSE;
-//}
+				if(v4l2core_set_control_value_by_id(id))
+					std::cerr << "GUVCVIEW (Qt5): error setting pan/tilt value"
+						<< std::endl;
+				return;
+			}
+		}
+	}
+	
+	switch (e->key())
+    {
+		case Qt::Key_Camera:
+			/* camera button pressed */
+			if (get_default_camera_button_action() == DEF_ACTION_IMAGE)
+				 capture_image_clicked();
+			else
+				 capture_video_clicked();
+			break;
+		case Qt::Key_I:
+			capture_image_clicked();
+			break;
+		case Qt::Key_V:
+			capture_video_clicked();
+			break;
+		default:
+			break;
+	}
+}
 
 ///*
  //* device list events timer callback

@@ -51,14 +51,15 @@ public:
     MainWindow();
     ~MainWindow();
 	std::vector<ControlWidgets *> control_widgets_list;
+	void capture_video_clicked();
+	void capture_image_clicked();
 
 protected:
    void closeEvent(QCloseEvent *event);
+   void keyPressEvent(QKeyEvent* e);
 
 private slots:
 	void quit_button_clicked();
-	void capture_video_clicked();
-	void capture_image_clicked();
 	/*image*/
 	void slider_value_changed(int value);
 	void spin_value_changed (int value);
@@ -87,6 +88,7 @@ private slots:
     void audio_samplerate_changed(int index);
     void audio_channels_changed(int index);
     void audio_latency_changed(double value);
+    void audio_fx_filter_changed(int state);
     /*menu*/
     void control_defaults_clicked ();
     void load_save_profile_clicked();
