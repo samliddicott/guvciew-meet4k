@@ -613,33 +613,35 @@ void MainWindow::button_clicked()
 	gui_qt5_update_controls_state();
 }
 
-//#ifdef V4L2_CTRL_TYPE_STRING
-///*
- //* a string control apply button clicked
- //* args:
- //*    button - button that generated the event
- //*    data - pointer to user data
- //*
- //* asserts:
- //*    control->string not null
- //*
- //* returns: none
- //*/
-//void string_button_clicked(GtkButton * Button, void *data)
-//{
-	//int id = GPOINTER_TO_INT(g_object_get_data (G_OBJECT (Button), "control_info"));
-	//GtkWidget *entry = (GtkWidget *) g_object_get_data (G_OBJECT (Button), "control_entry");
+#ifdef V4L2_CTRL_TYPE_STRING
+/*
+ * a string control apply button clicked
+ * args:
+ *   none
+ *
+ * asserts:
+ *    control->string not null
+ *
+ * returns: none
+ */
+void MainWindow::string_button_clicked()
+{
+	QObject *sender =  QObject::sender();
+	int id = sender->property("control_info").toInt();
+	QLineEdit *entry = (QLineEdit *) sender->property("control_entry").value();
 
-	//v4l2_ctrl_t *control = v4l2core_get_control_by_id(id);
+	v4l2_ctrl_t *control = v4l2core_get_control_by_id(id);
 
-	//assert(control->string != NULL);
+	assert(control->string != NULL);
+	QString text_input = entry->text();
 
-	//strncpy(control->string, gtk_entry_get_text(GTK_ENTRY(entry)), control->control.maximum);
+	strncpy(control->string, text_input.toStdString(), control->control.maximum);
 
-	//if(v4l2core_set_control_value_by_id(id))
-		//fprintf(stderr, "GUVCVIEW: error setting string value\n");
-//}
-//#endif
+	if(v4l2core_set_control_value_by_id(id))
+		std::cerr << "GUVCVIEW (Qt5): error setting string value" 
+			<< std::endl;
+}
+#endif
 
 #ifdef V4L2_CTRL_TYPE_INTEGER64
 /*
@@ -670,49 +672,66 @@ void MainWindow::int64_button_clicked()
 	QString text_input = entry->text();
 	text_input = text_input.remove(" ");
 	bool ok;
+	int64_t value = 0;
 	if(text_input.startsWith("0x")) //hex format
-	{
-		control->value64 = text_input.toLongLong(&ok, 16);
-	}
+		value = text_input.toLongLong(&ok, 16);
 	else //decimal
-	{
-		control->value64 = text_input.toLongLong(&ok, 10);
-	}
+		value = text_input.toLongLong(&ok, 10);
 	
-	if(v4l2core_set_control_value_by_id(id))
-		std:cerr << "GUVCVIEW (Qt5): error setting int64 value" << std::endl;
-
+	if(ok)
+	{
+		control->value64 = value;
+		if(v4l2core_set_control_value_by_id(id))
+			std:cerr << "GUVCVIEW (Qt5): error setting int64 value" 
+				<< std::endl;
+	}
+	else
+		std::cerr << "GUVCVIEW (Qt5): error converting int64 entry value" 
+			<< std::endl;
 }
 #endif
 
-//#ifdef V4L2_CTRL_TYPE_BITMASK
-///*
- //* a bitmask control apply button clicked
- //* args:
- //*    button - button that generated the event
- //*    data - pointer to user data
- //*
- //* asserts:
- //*    none
- //*
- //* returns: none
- //*/
-//void bitmask_button_clicked(GtkButton * Button, void *data)
-//{
-	//int id = GPOINTER_TO_INT(g_object_get_data (G_OBJECT (Button), "control_info"));
-	//GtkWidget *entry = (GtkWidget *) g_object_get_data (G_OBJECT (Button), "control_entry");
+#ifdef V4L2_CTRL_TYPE_BITMASK
+/*
+ * a bitmask control apply button clicked
+ * args:
+ *    none
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void MainWindow::bitmask_button_clicked()
+{
+	QObject *sender =  QObject::sender();
+	int id = sender->property("control_info").toInt();
+	QLineEdit *entry = (QLineEdit *) sender->property("control_entry").value();
 
-	//v4l2_ctrl_t *control = v4l2core_get_control_by_id(id);
+	v4l2_ctrl_t *control = v4l2core_get_control_by_id(id);
 
-	//char* text_input = g_strdup(gtk_entry_get_text(GTK_ENTRY(entry)));
-	//text_input = g_strcanon(text_input,"0123456789ABCDEFabcdef", '\0');
-	//control->value = (int32_t) g_ascii_strtoll(text_input, NULL, 16);
-	//g_free(text_input);
+	assert(control->string != NULL);
+	QString text_input = entry->text();
 
-	//if(v4l2core_set_control_value_by_id(id))
-		//fprintf(stderr, "GUVCVIEW: error setting string value\n");
-//}
-//#endif
+	bool ok;
+	int32_t value = 0;
+	if(text_input.startsWith("0x")) //hex format
+		text_input.toInt(&ok, 16);
+	else
+		text_input.toInt(&ok, 10); //decimal
+		
+	if(ok)
+	{
+		control->value = value;
+		if(v4l2core_set_control_value_by_id(id))
+			std:cerr << "GUVCVIEW (Qt5): error setting bitmask value" 
+				<< std::endl;
+	}
+	else
+		std::cerr << "GUVCVIEW (Qt5): error converting bitmask entry value" 
+			<< std::endl;
+}
+#endif
 
 /*
  * slider changed event
@@ -1741,40 +1760,36 @@ void MainWindow::keyPressEvent(QKeyEvent* e)
 	}
 }
 
-///*
- //* device list events timer callback
- //* args:
- //*   data - pointer to user data
- //*
- //* asserts:
- //*   none
- //*
- //* returns: true if timer is to be reset or false otherwise
- //*/
-//gboolean check_device_events(gpointer data)
-//{
-	//if(v4l2core_check_device_list_events())
-	//{
-		///*update device list*/
-		//g_signal_handlers_block_by_func(GTK_COMBO_BOX_TEXT(get_wgtDevices_gtk3()),
-                //G_CALLBACK (devices_changed), NULL);
+/*
+ * device list events timer callback
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void MainWindow::check_device_events()
+{
+	if(v4l2core_check_device_list_events())
+	{
+		/*block audio device combobox signals*/
+		combobox_video_devices->blockSignals(true);
+		
+		/* clear out the old device list... */
+		combobox_video_devices->clear();
 
-		//GtkListStore *store = GTK_LIST_STORE(gtk_combo_box_get_model (GTK_COMBO_BOX(get_wgtDevices_gtk3())));
-		//gtk_list_store_clear(store);
+		v4l2_device_list *device_list = v4l2core_get_device_list();
+		int i = 0;
+        for(i = 0; i < (device_list->num_devices); i++)
+		{
+			combobox_video_devices->addItem(device_list->list_devices[i].name, i);
+			if(device_list->list_devices[i].current)
+				combobox_video_devices->setCurrentIndex(i);
+		}
 
-		//v4l2_device_list *device_list = v4l2core_get_device_list();
-		//int i = 0;
-        //for(i = 0; i < (device_list->num_devices); i++)
-		//{
-			//gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(get_wgtDevices_gtk3()),
-				//device_list->list_devices[i].name);
-			//if(device_list->list_devices[i].current)
-				//gtk_combo_box_set_active(GTK_COMBO_BOX(get_wgtDevices_gtk3()),i);
-		//}
-
-		//g_signal_handlers_unblock_by_func(GTK_COMBO_BOX_TEXT(get_wgtDevices_gtk3()),
-                //G_CALLBACK (devices_changed), NULL);
-	//}
-
-	//return (TRUE);
-//}
+		/*unblock audio device combobox signals*/
+		combobox_video_devices->blockSignals(false);
+	}
+}

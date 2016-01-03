@@ -190,6 +190,11 @@ MainWindow::MainWindow()
 		tab_ind++;
 		
 	}
+	
+	timer_check_device = new QTimer(this);
+    connect(timer_check_device, SIGNAL(timeout()), 
+		this, SLOT(check_device_events()));
+    timer_check_device->start(1000);
 }
 
 MainWindow::~MainWindow()

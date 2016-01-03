@@ -75,6 +75,12 @@ private slots:
 #ifdef V4L2_CTRL_TYPE_INTEGER64
 	void int64_button_clicked();
 #endif
+#ifdef V4L2_CTRL_TYPE_STRING
+	void string_button_clicked();
+#endif
+#ifdef V4L2_CTRL_TYPE_BITMASK
+	void bitmask_button_clicked();
+#endif	
 	/*video*/
     void devices_changed (int index);
     void frame_rate_changed (int index);
@@ -101,6 +107,8 @@ private slots:
     void video_codec_properties();
     void audio_codec_clicked();
     void audio_codec_properties();
+    /*timer*/
+    void check_device_events();
 
 
 private:
@@ -111,6 +119,8 @@ private:
    int gui_attach_qt5_audioctrls(QWidget *parent);
    int gui_attach_qt5_menu(QWidget *parent);
 
+   QTimer *timer_check_device;
+   
    QWidget *img_controls_grid;
    QWidget *video_controls_grid;
    QWidget *audio_controls_grid;

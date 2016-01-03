@@ -56,7 +56,7 @@ extern int is_control_panel;
  */
 ControlWidgets *MainWindow::gui_qt5_get_widgets_by_id(int id)
 {
-	int i = 0;
+	unsigned int i = 0;
 	for(i = 0; i < control_widgets_list.size(); ++i )
     {
 		if(control_widgets_list[i]->id == id)
@@ -230,11 +230,11 @@ int MainWindow::gui_attach_qt5_v4l2ctrls(QWidget *parent)
 						QComboBox *combobox = new QComboBox(img_controls_grid); 
 						thisone->widget = combobox;
 
-						for (j = 0; current->menu[j].index <= current->control.maximum; j++)
+						for (j = 0; (int) current->menu[j].index <= current->control.maximum; j++)
 						{
 							combobox->addItem(LEDMenu[j].c_str(), current->menu[j].index);
 
-							if(current->value == current->menu[j].index)
+							if(current->value == (int) current->menu[j].index)
 								def = j;
 						}
 
@@ -279,10 +279,10 @@ int MainWindow::gui_attach_qt5_v4l2ctrls(QWidget *parent)
 						QComboBox * combobox = new QComboBox(img_controls_grid);
 						thisone->widget = combobox;
 						
-						for (j = 0; current->menu[j].index <= current->control.maximum; j++)
+						for (j = 0; (int) current->menu[j].index <= current->control.maximum; j++)
 						{
 							combobox->addItem((char *) BITSMenu[j], current->menu[j].index);
-							if(current->value == current->menu[j].index)
+							if(current->value == (int) current->menu[j].index)
 								def = j;
 						}
 
@@ -377,12 +377,13 @@ int MainWindow::gui_attach_qt5_v4l2ctrls(QWidget *parent)
 
 						break;
 					}
+					break;
 				}
 				break;
 
 #ifdef V4L2_CTRL_TYPE_INTEGER64
 			case V4L2_CTRL_TYPE_INTEGER64:
-
+			{
 				QLineEdit *entry = new QLineEdit(img_controls_grid);
 				thisone->widget = entry;
 				entry->setMaxLenght(current->control.maximum);
@@ -398,55 +399,51 @@ int MainWindow::gui_attach_qt5_v4l2ctrls(QWidget *parent)
 
 				/*connect signal*/
 				connect(pushbutton, SIGNAL(clicked), this, SLOT(int64_button_clicked()));
-				
-				break;
+			}	
+			break;
 #endif
-/*
 #ifdef V4L2_CTRL_TYPE_STRING
 			case V4L2_CTRL_TYPE_STRING:
+			{
+				QLineEdit *entry = new QLineEdit(img_controls_grid);
+				thisone->widget = entry;
+				entry->setMaxLenght(current->control.maximum);
 
-				control_widgets_list[n].widget = gtk_entry_new();
-				gtk_entry_set_max_length(control_widgets_list[n].widget, current->control.maximum);
+				QPushButton *pushbutton = new QPushButton(img_controls_grid); 
+				thisone->widget2 = pushbutton;
+				pushbutton->setText(_("Apply"));
+				thisone->widget2->show();
 
-				//control_widgets_list[n].widget2= gtk_button_new_from_stock(GTK_STOCK_APPLY);
-				control_widgets_list[n].widget2 = gtk_button_new_with_mnemonic (_("_Apply"));
-
-				gtk_widget_show (control_widgets_list[n].widget);
-				gtk_widget_show (control_widgets_list[n].widget2);
-
-				g_object_set_data (G_OBJECT (control_widgets_list[n].widget2), "control_info",
-					GINT_TO_POINTER(current->control.id));
-				g_object_set_data (G_OBJECT (control_widgets_list[n].widget2), "control_entry",
-					widget);
-
-				//connect signal
-				g_signal_connect (GTK_BUTTON(control_widgets_list[n].widget2), "clicked",
-					G_CALLBACK (string_button_clicked), NULL);
-
-				break;
+				/*set properties*/
+				pushbutton->setProperty("control_info", current->control.id);
+				pushbutton->setProperty("control_entry", entry);
+				
+				/*connect signal*/
+				connect(pushbutton, SIGNAL(clicked), this, SLOT(string_button_clicked()));
+			}
+			break;
 #endif
 #ifdef V4L2_CTRL_TYPE_BITMASK
 			case V4L2_CTRL_TYPE_BITMASK:
+			{
+				QLineEdit *entry = new QLineEdit(img_controls_grid);
+				thisone->widget = entry;
+				entry->setMaxLenght(current->control.maximum);
 
-					control_widgets_list[n].widget = gtk_entry_new();
+				QPushButton *pushbutton = new QPushButton(img_controls_grid); 
+				thisone->widget2 = pushbutton;
+				pushbutton->setText(_("Apply"));
+				thisone->widget2->show();
 
-					//control_widgets_list[n].widget2 = gtk_button_new_from_stock(GTK_STOCK_APPLY);
-					control_widgets_list[n].widget2 = gtk_button_new_with_mnemonic (_("_Apply"));
-
-					gtk_widget_show (control_widgets_list[n].widget);
-					gtk_widget_show (control_widgets_list[n].widget2);
-
-					g_object_set_data (G_OBJECT (control_widgets_list[n].widget2), "control_info",
-                        GINT_TO_POINTER(current->control.id));
-					g_object_set_data (G_OBJECT (control_widgets_list[n].widget2), "control_entry",
-						widget);
-
-                    g_signal_connect (GTK_BUTTON(control_widgets_list[n].widget2), "clicked",
-                        G_CALLBACK (bitmask_button_clicked), NULL);
-
-				break;
+				/*set properties*/
+				pushbutton->setProperty("control_info", current->control.id);
+				pushbutton->setProperty("control_entry", entry);
+				
+				/*connect signal*/
+				connect(pushbutton, SIGNAL(clicked), this, SLOT(bitmask_button_clicked()));
+			}
+			break;
 #endif
-*/
 #ifdef V4L2_CTRL_TYPE_INTEGER_MENU
 			case V4L2_CTRL_TYPE_INTEGER_MENU:
 #endif
@@ -460,7 +457,7 @@ int MainWindow::gui_attach_qt5_v4l2ctrls(QWidget *parent)
 					QComboBox *combobox = new QComboBox(img_controls_grid); 
 					thisone->widget = combobox;
 					
-					for (j = 0; current->menu[j].index <= current->control.maximum; j++)
+					for (j = 0; (int) current->menu[j].index <= current->control.maximum; j++)
 					{
 						if(current->control.type == V4L2_CTRL_TYPE_MENU)
 						{
@@ -473,7 +470,7 @@ int MainWindow::gui_attach_qt5_v4l2ctrls(QWidget *parent)
 							combobox->addItem(text_input, current->menu[j].value);
 						}
 #endif
-						if(current->value == current->menu[j].index)
+						if(current->value == (int) current->menu[j].index)
 							def = j;
 					}
 
@@ -546,7 +543,6 @@ int MainWindow::gui_attach_qt5_v4l2ctrls(QWidget *parent)
 				break;
 		}
 		
-		//QGridLayout *layout = (QGridLayout *) img_controls_grid->layout();
 		grid_layout->addWidget(thisone->label, n, 0, Qt::AlignRight);	
 		if(thisone->widget)
 			grid_layout->addWidget(thisone->widget, n, 1);
@@ -597,17 +593,17 @@ void MainWindow::gui_qt5_update_controls_state()
 		/*update controls values*/
 		switch(current->control.type)
 		{
-/*
+
 #ifdef V4L2_CTRL_TYPE_STRING
 			case V4L2_CTRL_TYPE_STRING:
 			{
-				char *text_input = g_strescape(current->string, "");
-				gtk_entry_set_text (GTK_ENTRY(cur_widget->widget), text_input);
-				g_free(text_input);
-				break;
+				QString text_input(current->string);
+				QLineEdit *entry = (QLineEdit *) thisone->widget;
+				entry->setText(text_input);
 			}
+			break;
 #endif
-*/			case V4L2_CTRL_TYPE_BOOLEAN:
+			case V4L2_CTRL_TYPE_BOOLEAN:
 			{
 				/*disable widget signals*/
 				thisone->widget->blockSignals(true);
@@ -616,27 +612,29 @@ void MainWindow::gui_qt5_update_controls_state()
 				/*enable widget signals*/
 				thisone->widget->blockSignals(false);
 			}
-				break;
-/*
+			break;
+
 #ifdef V4L2_CTRL_TYPE_BITMASK
 			case V4L2_CTRL_TYPE_BITMASK:
 			{
-				char *text_input = g_strdup_printf("0x%x", current->value);
-				gtk_entry_set_text (GTK_ENTRY(cur_widget->widget), text_input);
-				g_free(text_input);
-				break;
+				QString text_input("0x");
+				text_input.append(QString::number(current->value, 16).toUpper());
+				QLineEdit *entry = (QLineEdit *) thisone->widget;
+				entry->setText(text_input);
 			}
+			break;
 #endif
-*/
+
 
 #ifdef V4L2_CTRL_TYPE_INTEGER64
 			case V4L2_CTRL_TYPE_INTEGER64:
 			{
-				QString text_input = QString("0x%1").arg(c->value64, 4, 16, QChar('0'));
+				QString text_input("0x");
+				text_input.append(QString::number(current->value64, 16).toUpper());
 				QLineEdit *entry = (QLineEdit *) thisone->widget;
 				entry->setText(text_input);
 			}
-				break;
+			break;
 #endif
 
 			case V4L2_CTRL_TYPE_INTEGER:
@@ -667,9 +665,9 @@ void MainWindow::gui_qt5_update_controls_state()
 				/*get new index*/
 				int j = 0;
 				int def = 0;
-				for (j = 0; current->menu[j].index <= current->control.maximum; j++)
+				for (j = 0; (int) current->menu[j].index <= current->control.maximum; j++)
 				{
-					if(current->value == current->menu[j].index)
+					if(current->value == (int) current->menu[j].index)
 						def = j;
 				}
 				QComboBox *combobox = (QComboBox *) thisone->widget;

@@ -847,7 +847,7 @@ int gui_attach_gtk3(int width, int height)
 	status_warning_id = gtk_statusbar_get_context_id (GTK_STATUSBAR(status_bar), "warning");
 
     gtk_widget_show(status_bar);
-	/** add the status bar*/
+	/* add the status bar*/
 	gtk_box_pack_start(GTK_BOX(maintable), status_bar, FALSE, FALSE, 2);
 
 
@@ -861,7 +861,7 @@ int gui_attach_gtk3(int width, int height)
 	/* add update timers:
 	 *  devices
 	 */
-	gtk_devices_timer_id = g_timeout_add( 500, check_device_events, NULL);
+	gtk_devices_timer_id = g_timeout_add( 1000, check_device_events, NULL);
 
 	return 0;
 }
