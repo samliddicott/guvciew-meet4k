@@ -57,6 +57,8 @@ protected:
 
 private slots:
 	void quit_button_clicked();
+	void capture_video_clicked();
+	void capture_image_clicked();
 	/*image*/
 	void slider_value_changed(int value);
 	void spin_value_changed (int value);
@@ -97,7 +99,6 @@ private slots:
     void video_codec_properties();
     void audio_codec_clicked();
     void audio_codec_properties();
-    void capture_image_clicked();
 
 
 private:
@@ -113,6 +114,7 @@ private:
    QWidget *audio_controls_grid;
    
    QToolButton *cap_img_button;
+   QToolButton *cap_video_button;
    
    QComboBox *combobox_video_devices;
    QComboBox *combobox_FrameRate;

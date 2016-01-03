@@ -77,29 +77,77 @@ MainWindow::MainWindow()
     
     layout->addWidget(button_box);
     
-    cap_img_button = new QToolButton;
-    QIcon cap_img_icon(QString(PACKAGE_DATA_DIR).append("/pixmaps/guvcview/camera.png"));
-    cap_img_button->setIcon(cap_img_icon);
-    cap_img_button->setIconSize(QSize(64,64));
-    cap_img_button->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-    
-    if(check_photo_timer())
+    /*control panel mode exclusions */
+	if(!is_control_panel)
 	{
-		cap_img_button->setText(_("Stop Cap. (I)"));
-		cap_img_button->setProperty("control_info", 1);
+		/*Photo capture*/
+		cap_img_button = new QToolButton;
+		QIcon cap_img_icon(QString(PACKAGE_DATA_DIR).append("/pixmaps/guvcview/camera.png"));
+		cap_img_button->setIcon(cap_img_icon);
+		cap_img_button->setIconSize(QSize(64,64));
+		cap_img_button->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+		cap_img_button->setFixedSize(128,80);
+		
+		if(check_photo_timer())
+		{
+			cap_img_button->setText(_("Stop Cap. (I)"));
+			cap_img_button->setProperty("control_info", 1);
+		}
+		else
+		{
+			cap_img_button->setText(_("Cap. Image (I)"));
+			cap_img_button->setProperty("control_info", 0);
+		}
+		cap_img_button->show();
+		
+		/*signals*/
+		connect(cap_img_button, SIGNAL(clicked()), this, SLOT(capture_image_clicked()));	
+		
+		button_box_layout->addWidget(cap_img_button);
+		
+		/*video capture*/
+		cap_video_button = new QToolButton;
+		QIcon cap_video_icon(QString(PACKAGE_DATA_DIR).append("/pixmaps/guvcview/movie.png"));
+		cap_video_button->setIcon(cap_video_icon);
+		cap_video_button->setIconSize(QSize(64,64));
+		cap_video_button->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+		cap_video_button->setFixedSize(128,80);
+		
+		if(check_video_timer())
+		{
+			cap_video_button->setText(_("Stop Video (V)"));
+			cap_video_button->setProperty("control_info", 1);
+		}
+		else
+		{
+			cap_video_button->setText(_("Cap. Video (V)"));
+			cap_video_button->setProperty("control_info", 0);
+		}
+		
+		cap_video_button->show();
+		
+		/*signals*/
+		connect(cap_video_button, SIGNAL(clicked()), this, SLOT(capture_video_clicked()));	
+		
+		button_box_layout->addWidget(cap_video_button);
 	}
-	else
-	{
-		cap_img_button->setText(_("Cap. Image (I)"));
-		cap_img_button->setProperty("control_info", 0);
-	}
-    cap_img_button->show();
-    
-    /*signals*/
-	connect(cap_img_button, SIGNAL(clicked()), this, SLOT(capture_image_clicked()));	
-    
-    button_box_layout->addWidget(cap_img_button);
-    
+	/*quit*/
+	QToolButton *quit_button = new QToolButton;
+	QIcon quit_icon(QString(PACKAGE_DATA_DIR).append("/pixmaps/guvcview/close.png"));
+	quit_button->setIcon(quit_icon);
+	quit_button->setIconSize(QSize(64,64));
+	quit_button->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+	quit_button->setFixedSize(128,80);
+		
+	quit_button->setText(_("Quit"));
+		
+	quit_button->show();
+		
+	/*signals*/
+	connect(quit_button, SIGNAL(clicked()), this, SLOT(quit_button_clicked()));	
+		
+	button_box_layout->addWidget(quit_button);
+	
     /*-----Tabs-----*/
 	QTabWidget *control_tab = new QTabWidget;
 	layout->addWidget(control_tab);

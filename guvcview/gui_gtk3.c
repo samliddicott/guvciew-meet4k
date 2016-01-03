@@ -666,7 +666,7 @@ int gui_attach_gtk3(int width, int height)
 
 	/*quit button*/
 	//GtkWidget *quitButton = gtk_button_new_from_stock(GTK_STOCK_QUIT);
-	GtkWidget *quitButton = gtk_button_new_with_mnemonic (_("_Quit"));
+	GtkWidget *quitButton = gtk_button_new_with_mnemonic (_("Quit"));
 
 	char* pix4path = g_strconcat (PACKAGE_DATA_DIR, "/pixmaps/guvcview/close.png", NULL);
 	if (g_file_test(pix4path,G_FILE_TEST_EXISTS))

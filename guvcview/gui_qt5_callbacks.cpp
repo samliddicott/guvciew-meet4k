@@ -476,38 +476,40 @@ void MainWindow::capture_image_clicked()
 		video_capture_save_image();
 }
 
-///*
- //* capture video button clicked event
- //* args:
- //*   button - widget that generated the event
- //*   data - pointer to user data
- //*
- //* asserts:
- //*   none
- //*
- //* returns: none
- //*/
-//void capture_video_clicked(GtkToggleButton *button, void *data)
-//{
-	//int active = gtk_toggle_button_get_active (button);
+/*
+ * capture video button clicked event
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void MainWindow::capture_video_clicked()
+{
+	QObject *sender =  QObject::sender();
+	int is_active = sender->property("control_info").toInt();
 
-	//if(debug_level > 0)
-		//printf("GUVCVIEW: video capture toggled(%i)\n", active);
+	if(debug_level > 0)
+		std::cout << "GUVCVIEW (Qt5): video capture cliked: " 
+			<<  is_active << std::endl;
 
-	//if(active)
-	//{
-		//start_encoder_thread();
-		//gtk_button_set_label(GTK_BUTTON(button), _("Stop Video (V)"));
-
-	//}
-	//else
-	//{
-		//stop_encoder_thread();
-		//gtk_button_set_label(GTK_BUTTON(button), _("Cap. Video (V)"));
-		///*make sure video timer is reset*/
-		//reset_video_timer();
-	//}
-//}
+	if(is_active)
+	{
+		stop_encoder_thread();
+		cap_video_button->setText(_("Cap. Video (V)"));
+		cap_video_button->setProperty("control_info", 0);
+		/*make sure video timer is reset*/
+		reset_video_timer();
+	}
+	else
+	{
+		start_encoder_thread();
+		cap_video_button->setText(_("Stop Video (V)"));
+		cap_video_button->setProperty("control_info", 1);
+	}
+}
 
 /*
  * pan/tilt step changed
