@@ -1,3 +1,12 @@
+guvcview (2.0.3)
+
+   * Add Qt5 interface (--enable-qt5)
+   * fix '-n' option (don't save frame when photo countdown reaches 0)
+   * restore exit_on_term option
+   * use AC_SYS_LARGEFILE m4 macro for enabling Large File Support (LFS) on 32 bit systems
+
+ -- Paulo Assis <pj.assis@gmail.com> Mon, 4 Jan 2016 23:34:00 +0100
+
 guvcview (2.0.2)
 
     * fix mjpeg and h264 decoders (libav): init avpacket
