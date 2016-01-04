@@ -32,6 +32,12 @@
 #include "options.h"
 #include "../config.h"
 
+
+#define API_HELP_GTK3_QT5		N_("Select GUI API (e.g none; gtk3; qt5)")
+#define API_HELP_GTK3		    N_("Select GUI API (e.g none; gtk3)")
+#define API_HEL_QT5		        N_("Select GUI API (e.g none; qt5)")
+#define API_HELP_NONE		    N_("Select GUI API (e.g none)")
+
 typedef struct _opt_values_t
 {
 	char opt_short;
@@ -132,7 +138,16 @@ static opt_values_t opt_values[] =
 		.opt_long = "gui",
 		.req_arg = 1,
 		.opt_help_arg = N_("GUI_API"),
-		.opt_help = N_("Select GUI API (e.g none; gtk3)")
+#if HAS_QT5 && HAS_GTK3
+		.opt_help = API_HELP_GTK3_QT5
+#elif HAS_GTK3
+		.opt_help = API_HELP_GTK3
+#elif HAS_QT5
+		.opt_help = API_HELP_QT5
+#else
+		.opt_help = API_HELP_NONE
+#endif
+
 	},
 	{
 		.opt_short = 'o',

@@ -43,7 +43,13 @@ static config_t my_config =
 	.height = 480,
 	.format = "MJPG",
 	.render = "sdl",
+#if HAS_GTK3
 	.gui = "gtk3",
+#elif HAS_QT5
+	.gui = "qt5",
+#else
+	.gui = "none",
+#endif
 	.audio = "port",
 	.capture = "mmap",
 	.video_codec = "dx50",

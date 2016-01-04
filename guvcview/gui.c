@@ -55,7 +55,13 @@ extern int debug_level;
 
 int is_control_panel = 0;
 
+#if HAS_GTK3
 static int gui_api = GUI_GTK3;
+#elif HAS_QT5
+static int gui_api = GUI_QT5;
+#else
+static int gui_api = GUI_NONE;
+#endif
 
 /*default camera button action: DEF_ACTION_IMAGE - save image; DEF_ACTION_VIDEO - save video*/
 static int default_camera_button_action = 0;

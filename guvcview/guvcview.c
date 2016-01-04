@@ -149,7 +149,13 @@ int main(int argc, char *argv[])
 		render = RENDER_SDL;
 
 	/*select gui API*/
+#if HAS_GTK3
 	int gui = GUI_GTK3;
+#elif HAS_QT5
+	int gui = GUI_QT5;
+#else
+	int gui = GUI_NONE;
+#endif
 
 	if(strncasecmp(my_config->gui, "none", 4) == 0)
 		gui = GUI_NONE;
