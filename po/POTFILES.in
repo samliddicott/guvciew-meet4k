@@ -25,3 +25,4 @@ guvcview/gui_qt5_callbacks.cpp
 guvcview/gui_qt5_menu.cpp
 guvcview/gui_qt5_v4l2ctrls.cpp
 guvcview/gui_qt5_videoctrls.cpp
+guvcview/gui_qt5_audioctrls.cpp
