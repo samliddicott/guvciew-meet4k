@@ -35,7 +35,7 @@
 
 #define API_HELP_GTK3_QT5		N_("Select GUI API (e.g none; gtk3; qt5)")
 #define API_HELP_GTK3		    N_("Select GUI API (e.g none; gtk3)")
-#define API_HEL_QT5		        N_("Select GUI API (e.g none; qt5)")
+#define API_HELP_QT5	        N_("Select GUI API (e.g none; qt5)")
 #define API_HELP_NONE		    N_("Select GUI API (e.g none)")
 
 typedef struct _opt_values_t
