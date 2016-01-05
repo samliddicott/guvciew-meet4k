@@ -447,8 +447,11 @@ static encoder_video_context_t *encoder_video_init(encoder_context_t *encoder_ct
 	video_codec_data->codec_context->trellis = video_defaults->trellis;
 
 	/*motion estimation method (epzs)*/
+#if !LIBAVCODEC_VER_AT_LEAST(59,0)
 	video_codec_data->codec_context->me_method = video_defaults->me_method;
-
+#else
+	av_dict_set_int(&video_codec_data->private_options, "motion-est", video_defaults->me_method, 0);
+#endif
 	video_codec_data->codec_context->dia_size = video_defaults->dia;
 	video_codec_data->codec_context->pre_dia_size = video_defaults->pre_dia;
 	video_codec_data->codec_context->pre_me = video_defaults->pre_me;
@@ -491,7 +494,8 @@ static encoder_video_context_t *encoder_video_init(encoder_context_t *encoder_ct
 	if(video_defaults->codec_id == AV_CODEC_ID_H264)
 	{
 	   video_codec_data->codec_context->me_range = 16;
-	    //the first compressed frame will be empty (1 frame out of sync)
+
+		//the first compressed frame will be empty (1 frame out of sync)
 	    //but avoids x264 warning on lookaheadless mb-tree
 #if LIBAVCODEC_VER_AT_LEAST(53,6)
 	    av_dict_set(&video_codec_data->private_options, "rc_lookahead", "1", 0);
@@ -1485,12 +1489,14 @@ int encoder_encode_video(encoder_context_t *encoder_ctx, void *input_frame)
 			&pkt, NULL, /*NULL flushes the encoder buffers*/
 			&got_packet);
 
+#if !LIBAVCODEC_VER_AT_LEAST(59,0)
     if (!ret && got_packet && video_codec_data->codec_context->coded_frame)
     {
 		/* Do we really need to set this ???*/
     	video_codec_data->codec_context->coded_frame->pts = pkt.pts;
         video_codec_data->codec_context->coded_frame->key_frame = !!(pkt.flags & AV_PKT_FLAG_KEY);
     }
+#endif
 
 	enc_video_ctx->dts = pkt.dts;
 	enc_video_ctx->flags = pkt.flags;
@@ -1522,8 +1528,10 @@ int encoder_encode_video(encoder_context_t *encoder_ctx, void *input_frame)
 			NULL); /*NULL flushes the encoder buffers*/
 
 	enc_video_ctx->flags = 0;
+
 	if (video_codec_data->codec_context->coded_frame->key_frame)
 		enc_video_ctx->flags |= AV_PKT_FLAG_KEY;
+
 	enc_video_ctx->dts = AV_NOPTS_VALUE;
 
 	if(last_video_pts == 0)
@@ -1695,11 +1703,14 @@ int encoder_encode_audio(encoder_context_t *encoder_ctx, void *audio_data)
 			&got_packet);
 	}
 
+#if !LIBAVCODEC_VER_AT_LEAST(59,0)
 	if (!ret && got_packet && audio_codec_data->codec_context->coded_frame)
     {
+		/*we probably don't need to set this*/
     	audio_codec_data->codec_context->coded_frame->pts = pkt.pts;
         audio_codec_data->codec_context->coded_frame->key_frame = !!(pkt.flags & AV_PKT_FLAG_KEY);
     }
+#endif
 
 	enc_audio_ctx->dts = pkt.dts;
 	enc_audio_ctx->flags = pkt.flags;

@@ -433,14 +433,43 @@ void gui_error_gtk3(
 	GtkWidget *table = gtk_grid_new();
 
 	GtkWidget *title_lbl = gtk_label_new (gettext(title));
+	
+#if GTK_VER_AT_LEAST(3,16)
+	/* Style provider for this label. */
+	GtkCssProvider *providerTitle = gtk_css_provider_new();
+
+	gtk_style_context_add_provider(gtk_widget_get_style_context(title_lbl),
+	        GTK_STYLE_PROVIDER(providerTitle),
+	        GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+	gtk_css_provider_load_from_data(providerTitle,
+	                                "GtkLabel { font: \"Sans bold 10\"; }",
+	                                -1, NULL);
+	g_object_unref(providerTitle);
+#else
 	gtk_widget_override_font(title_lbl, pango_font_description_from_string ("Sans bold 10"));
 	gtk_misc_set_alignment (GTK_MISC (title_lbl), 0, 0);
+#endif
 	gtk_grid_attach (GTK_GRID (table), title_lbl, 0, 0, 2, 1);
 	gtk_widget_show (title_lbl);
 
 	GtkWidget *text = gtk_label_new (gettext(message));
+
+#if GTK_VER_AT_LEAST(3,16)
+	/* Style provider for this label. */
+	GtkCssProvider *providerText = gtk_css_provider_new();
+
+	gtk_style_context_add_provider(gtk_widget_get_style_context(text),
+	        GTK_STYLE_PROVIDER(providerText),
+	        GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+	gtk_css_provider_load_from_data(providerText,
+	                                "GtkLabel { font: \"Sans italic 8\"; }",
+	                                -1, NULL);
+	g_object_unref(providerText);
+#else
 	gtk_widget_override_font(text, pango_font_description_from_string ("Sans italic 8"));
 	gtk_misc_set_alignment (GTK_MISC (text), 0, 0);
+#endif
+	
 	gtk_grid_attach (GTK_GRID (table), text, 0, 1, 2, 1);
 	gtk_widget_show (text);
 
@@ -450,13 +479,33 @@ void gui_error_gtk3(
 	{
 		GtkWidget *text2 = gtk_label_new (_("\nYou seem to have video devices installed.\n"
 							                "Do you want to try one ?\n"));
+
+#if GTK_VER_AT_LEAST(3,16)
+	/* Style provider for this label. */
+	GtkCssProvider *providerText2 = gtk_css_provider_new();
+
+	gtk_style_context_add_provider(gtk_widget_get_style_context(text2),
+	        GTK_STYLE_PROVIDER(providerText2),
+	        GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+	gtk_css_provider_load_from_data(providerText2,
+	                                "GtkLabel { font: \"Sans 10\"; }",
+	                                -1, NULL);
+	g_object_unref(providerText2);
+#else
 		gtk_widget_override_font(text2, pango_font_description_from_string ("Sans 10"));
 		gtk_misc_set_alignment (GTK_MISC (text2), 0, 0);
+#endif
 		gtk_grid_attach (GTK_GRID (table), text2, 0, 2, 2, 1);
 		gtk_widget_show (text2);
 
 		GtkWidget *dev_lbl = gtk_label_new(_("Device:"));
+
+#if GTK_VER_AT_LEAST(3,15)
+		gtk_label_set_xalign(GTK_LABEL(dev_lbl), 0.5);
+		gtk_label_set_yalign(GTK_LABEL(dev_lbl), 0.5);
+#else
 		gtk_misc_set_alignment (GTK_MISC (dev_lbl), 0.5, 0.5);
+#endif
 		gtk_grid_attach (GTK_GRID(table), dev_lbl, 0, 3, 1, 1);
 		gtk_widget_show (dev_lbl);
 
@@ -650,7 +699,7 @@ int gui_attach_gtk3(int width, int height)
 	if (g_file_test(pix3path, G_FILE_TEST_EXISTS))
 	{
 		GtkWidget *VideoButton_Img = gtk_image_new_from_file (pix3path);
-#if GTK_VER_AT_LEAST(3,12)		
+#if GTK_VER_AT_LEAST(3,12)
 		gtk_button_set_always_show_image(GTK_BUTTON(CapVideoButt), TRUE);
 #endif
 		gtk_button_set_image(GTK_BUTTON(CapVideoButt), VideoButton_Img);
