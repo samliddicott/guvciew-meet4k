@@ -182,6 +182,9 @@ static int recordCallback (
  */
 static int audio_portaudio_list_devices(audio_context_t *audio_ctx)
 {
+	/*asserts*/
+	assert(audio_ctx != NULL);
+	
 	int numDevices;
 	const PaDeviceInfo *deviceInfo;
 
