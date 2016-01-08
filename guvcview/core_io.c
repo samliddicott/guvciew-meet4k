@@ -373,9 +373,9 @@ unsigned long long get_file_suffix(const char *path, const char* filename)
 		return suffix;
 	}
 	size = dirent_buf_size(dirp);
-	if(size < 0)
+	if(size == 0)
 	{
-		perror("GUVCVIEW: dirent_buf_size");
+		perror("GUVCVIEW: dirent_buf_size returned 0");
 		closedir(dirp);
 		return suffix;
 	}

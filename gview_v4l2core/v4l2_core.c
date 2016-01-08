@@ -479,7 +479,7 @@ static int set_v4l2_framerate ()
 			if(stream_status == STRM_OK)
 			{
 				/*unmap the buffers*/
-				unmap_buff(vd);
+				unmap_buff();
 			}
 
 			ret = do_v4l2_framerate_update();
@@ -1041,7 +1041,7 @@ static int get_next_ready_frame()
 static int process_input_buffer()
 {
 	/*get next available frame in queue*/
-	int qind = get_next_ready_frame(vd);
+	int qind = get_next_ready_frame();
 	
 	if(verbosity > 2)
 		printf("V4L2_CORE: process frame queue index %i\n", qind);
@@ -1111,7 +1111,7 @@ v4l2_frame_buff_t *v4l2core_get_frame()
 		request_h264_frame_type(vd, PICTURE_TYPE_IDR_FULL);
 
 	int res = 0;
-	int ret = check_frame_available(vd);
+	int ret = check_frame_available();
 
 	int qind = -1;
 	
@@ -1170,7 +1170,7 @@ v4l2_frame_buff_t *v4l2core_get_frame()
 				//if(vd->setH264ConfigProbe)
 				//{
 					//video_disable(vd);
-					//unmap_buff(vd);
+					//unmap_buff();
 
 					//h264_commit(vd, global);
 
@@ -1408,7 +1408,7 @@ static int try_video_stream_format(int width, int height, int pixelformat)
 				return E_REQBUFS_ERR;
 			}
 			/* map the buffers */
-			if (query_buff(vd))
+			if (query_buff())
 			{
 				fprintf(stderr, "V4L2_CORE: (VIDIOC_QBUFS) Unable to query buffers: %s\n", strerror(errno));
 				/*
@@ -1428,13 +1428,13 @@ static int try_video_stream_format(int width, int height, int pixelformat)
 			}
 
 			/* Queue the buffers */
-			if (queue_buff(vd))
+			if (queue_buff())
 			{
 				fprintf(stderr, "V4L2_CORE: (VIDIOC_QBUFS) Unable to queue buffers: %s\n", strerror(errno));
 				/*delete requested buffers */
 				if(verbosity > 0)
 					printf("V4L2_CORE: cleaning requestbuffers\n");
-				unmap_buff(vd);
+				unmap_buff();
 				memset(&vd->rb, 0, sizeof(struct v4l2_requestbuffers));
 				vd->rb.count = 0;
 				vd->rb.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
@@ -1732,7 +1732,7 @@ int v4l2core_init_dev(const char *device)
 	if ((vd->fd = v4l2_open(vd->videodevice, O_RDWR | O_NONBLOCK, 0)) < 0)
 	{
 		fprintf(stderr, "V4L2_CORE: ERROR opening V4L interface: %s\n", strerror(errno));
-		clean_v4l2_dev(vd);
+		clean_v4l2_dev();
 		return (-1);
 	}
 
@@ -1754,9 +1754,9 @@ int v4l2core_init_dev(const char *device)
 	memset(&vd->rb, 0, sizeof(struct v4l2_requestbuffers));
 	memset(&vd->streamparm, 0, sizeof(struct v4l2_streamparm));
 
-	if(check_v4l2_dev(vd) != E_OK)
+	if(check_v4l2_dev() != E_OK)
 	{
-		clean_v4l2_dev(vd);
+		clean_v4l2_dev();
 		return (-2);
 	}
 
@@ -1927,7 +1927,7 @@ void v4l2core_clean_buffers()
 		printf("V4L2_CORE: cleaning v4l2 buffers\n");
 
 	if(vd->streaming == STRM_OK)
-		v4l2core_stop_stream(vd);
+		v4l2core_stop_stream();
 
 	clean_v4l2_frames(vd);
 
@@ -1945,7 +1945,7 @@ void v4l2core_clean_buffers()
 		case IO_MMAP:
 		default:
 			//delete requested buffers
-			unmap_buff(vd);
+			unmap_buff();
 			memset(&vd->rb, 0, sizeof(struct v4l2_requestbuffers));
 			vd->rb.count = 0;
 			vd->rb.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
@@ -2118,7 +2118,7 @@ int v4l2core_set_control_value_by_id(int id)
  */
 int v4l2core_save_image(v4l2_frame_buff_t *frame, const char *filename, int format)
 {
-	save_frame_image(vd, frame, filename, format);
+	return save_frame_image(vd, frame, filename, format);
 }
 
 /*

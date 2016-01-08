@@ -319,6 +319,8 @@ int render_sdl2_frame(uint8_t *frame, int width, int height)
 	SDL_RenderCopy(main_renderer, rending_texture, NULL, NULL);
 
 	SDL_RenderPresent(main_renderer);
+	
+	return 0;
 }
 
 /*
@@ -394,11 +396,13 @@ void render_sdl2_dispatch_events()
 
 			}
 
-			switch( event.key.keysym.scancode )
-			{
-				case 220:
-					break;
-			}
+			//switch( event.key.keysym.scancode )
+			//{
+			//	case 220:
+			//		break;
+			//	default:
+			//		break;
+			//}
 		}
 
 		if(event.type==SDL_QUIT)

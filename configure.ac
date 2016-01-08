@@ -43,9 +43,12 @@ rm -f config.cache; touch config.cache
 
 AC_PREFIX_DEFAULT(/usr/local)
 
-AC_PROG_CC
+# check for clang first
+# gcc will still be used if clang not installed 
+AC_PROG_CC([clang gcc cc)
 AM_PROG_CC_C_O
-AC_PROG_CXX
+AC_PROG_CXX([clang++ g++ cc++ cxx])
+AC_PROG_CXX_C_O
 AC_HEADER_STDC
 AC_PROG_LIBTOOL
 # enable Large File Support extension (LFS)

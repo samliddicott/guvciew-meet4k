@@ -401,7 +401,7 @@ static void read_422_format (jpeg_encoder_ctx_t *jpeg_ctx, uint8_t *input)
 }
 
 /* Multiply Quantization table with quality factor to get LQT and CQT
-/*  (Will use constant Quantization tables to make it faster)
+ *  (Will use constant Quantization tables to make it faster)
  * args:
  *    jpeg_ctx - pointer to jpeg encoder context
  *

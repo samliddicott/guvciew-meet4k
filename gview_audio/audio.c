@@ -118,19 +118,19 @@ void audio_unlock_mutex()
  *
  * returns: error code
  */
-static int audio_free_buffers()
+static void audio_free_buffers()
 {
 	buffer_read_index = 0;
 	buffer_write_index = 0;
-	
+
 	/*return if no buffers set*/
 	if(!audio_buffers)
 	{
 		if(verbosity > 0)
 			fprintf(stderr,"AUDIO: can't free audio buffers (audio_free_buffers): audio_buffers is null\n");
-		return 0;
+		return;
 	}
-		
+
 	int i = 0;
 
 	for(i = 0; i < AUDBUFF_NUM; ++i)
@@ -241,7 +241,7 @@ static int audio_init_buffers(audio_context_t *audio_ctx)
 	}
 	
 	/*free audio_buffers (if any)*/
-	audio_free_buffers;
+	audio_free_buffers();
 
 	audio_buffers = calloc(AUDBUFF_NUM, sizeof(audio_buff_t));
 	if(audio_buffers == NULL)

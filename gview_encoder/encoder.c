@@ -999,7 +999,6 @@ uint32_t encoder_buff_scheduler(int mode, double thresh, int max_time)
 		printf("ENCODER: scheduler %i ms (index delta %i)\n", sched_time, diff_ind);
 
 	/*clip*/
-	if(sched_time < 0) sched_time = 0; /*clip to positive values just in case*/
 	if(sched_time > 1000)
 		sched_time = 1000; /*1 sec max*/
 
@@ -1348,6 +1347,8 @@ int encoder_flush_audio_buffer(encoder_context_t *encoder_ctx)
 		encoder_write_audio_data(encoder_ctx);
 		flushed_frame_counter++;
 	}
+	
+	return 0;
 }
 
 /*
