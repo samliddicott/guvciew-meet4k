@@ -58,6 +58,9 @@ ControlWidgets::ControlWidgets()
 
 MainWindow::MainWindow()
 {
+	webm_vcodec_action = NULL;
+	webm_acodec_action = NULL;
+	
 	QWidget *widget = new QWidget;
 	widget->show();
     setCentralWidget(widget);

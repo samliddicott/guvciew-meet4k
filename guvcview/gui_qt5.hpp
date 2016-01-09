@@ -141,8 +141,8 @@ private:
    
    QMenuBar *menubar;
    
-   QAction *webm_vcodec_action = NULL;
-   QAction *webm_acodec_action = NULL;
+   QAction *webm_vcodec_action;
+   QAction *webm_acodec_action;
 };
 
 #endif
