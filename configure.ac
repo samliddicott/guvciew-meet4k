@@ -45,7 +45,7 @@ AC_PREFIX_DEFAULT(/usr/local)
 
 # check for clang first
 # gcc will still be used if clang not installed 
-AC_PROG_CC([clang gcc cc)
+AC_PROG_CC([clang gcc cc])
 AM_PROG_CC_C_O
 AC_PROG_CXX([clang++ g++ cc++ cxx])
 AC_PROG_CXX_C_O
