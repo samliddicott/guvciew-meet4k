@@ -60,26 +60,26 @@ MainWindow::MainWindow()
 {
 	webm_vcodec_action = NULL;
 	webm_acodec_action = NULL;
-	
+
 	QWidget *widget = new QWidget;
 	widget->show();
     setCentralWidget(widget);
-    
+
     QVBoxLayout *layout = new QVBoxLayout;
     widget->setLayout(layout);
-    
-    /*-----menu-----*/
+
+    /*-------------------------------menu-------------------------------------*/
     gui_attach_qt5_menu(this);
     setMenuBar(menubar);
-    
-    /*----buttons----*/
+
+    /*-----------------------------buttons------------------------------------*/
     QHBoxLayout *button_box_layout = new QHBoxLayout;
     QWidget *button_box = new QWidget;
     button_box->setLayout(button_box_layout);
     button_box->show();
-    
+
     layout->addWidget(button_box);
-    
+
     /*control panel mode exclusions */
 	if(!is_control_panel)
 	{
@@ -90,7 +90,7 @@ MainWindow::MainWindow()
 		cap_img_button->setIconSize(QSize(64,64));
 		cap_img_button->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
 		cap_img_button->setFixedSize(128,80);
-		
+
 		if(check_photo_timer())
 		{
 			cap_img_button->setText(_("Stop Cap. (I)"));
@@ -102,12 +102,12 @@ MainWindow::MainWindow()
 			cap_img_button->setProperty("control_info", 0);
 		}
 		cap_img_button->show();
-		
+
 		/*signals*/
 		connect(cap_img_button, SIGNAL(clicked()), this, SLOT(capture_image_clicked()));	
-		
+
 		button_box_layout->addWidget(cap_img_button);
-		
+
 		/*video capture*/
 		cap_video_button = new QToolButton;
 		QIcon cap_video_icon(QString(PACKAGE_DATA_DIR).append("/pixmaps/guvcview/movie.png"));
@@ -115,7 +115,7 @@ MainWindow::MainWindow()
 		cap_video_button->setIconSize(QSize(64,64));
 		cap_video_button->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
 		cap_video_button->setFixedSize(128,80);
-		
+
 		if(check_video_timer())
 		{
 			cap_video_button->setText(_("Stop Video (V)"));
@@ -126,12 +126,12 @@ MainWindow::MainWindow()
 			cap_video_button->setText(_("Cap. Video (V)"));
 			cap_video_button->setProperty("control_info", 0);
 		}
-		
+
 		cap_video_button->show();
-		
+
 		/*signals*/
 		connect(cap_video_button, SIGNAL(clicked()), this, SLOT(capture_video_clicked()));	
-		
+
 		button_box_layout->addWidget(cap_video_button);
 	}
 	/*quit*/
@@ -141,59 +141,72 @@ MainWindow::MainWindow()
 	quit_button->setIconSize(QSize(64,64));
 	quit_button->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
 	quit_button->setFixedSize(128,80);
-		
+
 	quit_button->setText(_("Quit"));
-		
+
 	quit_button->show();
-		
+
 	/*signals*/
 	connect(quit_button, SIGNAL(clicked()), this, SLOT(quit_button_clicked()));	
-		
+
 	button_box_layout->addWidget(quit_button);
-	
-    /*-----Tabs-----*/
+
+    /*------------------------------------Tabs--------------------------------*/
 	QTabWidget *control_tab = new QTabWidget;
 	layout->addWidget(control_tab);
-	
+	control_tab->setIconSize(QSize(64,64));
+
+	/*----------------------------V4l2 Controls Tab --------------------------*/
 	QScrollArea *scroll_ctrls = new QScrollArea(control_tab);
-	
+
 	gui_attach_qt5_v4l2ctrls(scroll_ctrls);
 	scroll_ctrls->setWidget(img_controls_grid);
 	scroll_ctrls->setWidgetResizable(true);
-	
-	int tab_ind = 0;
+
+	int tab_ind = control_tab->addTab(scroll_ctrls, _("Image Controls"));
 	QIcon image_tab_icon(QString(PACKAGE_DATA_DIR).append("/pixmaps/guvcview/image_controls.png"));
-	control_tab->addTab(scroll_ctrls, _("Image Controls"));
 	control_tab->setTabIcon(tab_ind, image_tab_icon);
-	tab_ind++;
-	
+
+	/*----------------------------H264 Controls Tab --------------------------*/
+	if(v4l2core_get_h264_unit_id() > 0)
+	{
+		QScrollArea *scroll_h264ctrls = new QScrollArea(control_tab);
+
+		gui_attach_qt5_h264ctrls(scroll_h264ctrls);
+		scroll_h264ctrls->setWidget(h264_controls_grid);
+		scroll_h264ctrls->setWidgetResizable(true);
+
+		tab_ind = control_tab->addTab(scroll_h264ctrls, _("H264 Controls"));
+		QIcon h264_tab_icon(QString(PACKAGE_DATA_DIR).append("/pixmaps/guvcview/image_controls.png"));
+		control_tab->setTabIcon(tab_ind, h264_tab_icon);
+
+	}
 	/*control panel mode exclusions */
 	if(!is_control_panel)
 	{
+		/*------------------------Video Controls Tab -------------------------*/
 		QScrollArea *scroll_video = new QScrollArea(control_tab);
-	
+
 		gui_attach_qt5_videoctrls(scroll_video);
 		scroll_video->setWidget(video_controls_grid);
 		scroll_video->setWidgetResizable(true);
-		
+
+		tab_ind = control_tab->addTab(scroll_video, _("Video Controls"));
 		QIcon video_tab_icon(QString(PACKAGE_DATA_DIR).append("/pixmaps/guvcview/video_controls.png"));
-		control_tab->addTab(scroll_video, _("Video Controls"));
 		control_tab->setTabIcon(tab_ind, video_tab_icon);
-		tab_ind++;
-		
+
+		/*------------------------Audio Controls Tab -------------------------*/
 		QScrollArea *scroll_audio = new QScrollArea(control_tab);
-	
+
 		gui_attach_qt5_audioctrls(scroll_audio);
 		scroll_audio->setWidget(audio_controls_grid);
 		scroll_audio->setWidgetResizable(true);
-		
+
+		tab_ind = control_tab->addTab(scroll_audio, _("Audio Controls"));
 		QIcon audio_tab_icon(QString(PACKAGE_DATA_DIR).append("/pixmaps/guvcview/audio_controls.png"));
-		control_tab->addTab(scroll_audio, _("Audio Controls"));
 		control_tab->setTabIcon(tab_ind, audio_tab_icon);
-		tab_ind++;
-		
 	}
-	
+
 	timer_check_device = new QTimer(this);
     connect(timer_check_device, SIGNAL(timeout()), 
 		this, SLOT(check_device_events()));

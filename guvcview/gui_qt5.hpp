@@ -88,6 +88,14 @@ private slots:
     void format_changed(int index);
     void render_fx_filter_changed(int state);
     void render_osd_changed(int state);
+	/*h264*/
+	void h264_rate_control_mode_changed(int index);
+	void h264_TemporalScaleMode_changed(int value);
+	void h264_SpatialScaleMode_changed(int value);
+	void h264_FrameInterval_changed(int value);
+	void h264_commit_button_clicked();
+	void h264_reset_button_clicked();
+
     /*audio*/
     void audio_api_changed(int index);
     void audio_devices_changed(int index);
@@ -118,31 +126,85 @@ private:
    int gui_attach_qt5_videoctrls(QWidget *parent);
    int gui_attach_qt5_audioctrls(QWidget *parent);
    int gui_attach_qt5_menu(QWidget *parent);
+   int gui_attach_qt5_h264ctrls (QWidget *parent);
+
+   //h264
+   void update_h264_controls();
+   void fill_video_config_probe ();
 
    QTimer *timer_check_device;
-   
+
    QWidget *img_controls_grid;
+   QWidget *h264_controls_grid;
    QWidget *video_controls_grid;
    QWidget *audio_controls_grid;
-   
+
    QToolButton *cap_img_button;
    QToolButton *cap_video_button;
-   
+
    QComboBox *combobox_video_devices;
    QComboBox *combobox_FrameRate;
    QComboBox *combobox_resolution;
    QComboBox *combobox_InpType;
-   
-   QComboBox *combobox_audio_api;        
+
+   QComboBox *combobox_audio_api;
    QComboBox *combobox_audio_devices;
    QComboBox *combobox_audio_channels; 
    QComboBox *combobox_audio_samprate;
    QDoubleSpinBox *spinbox_audio_latency;
-   
+
    QMenuBar *menubar;
-   
+
    QAction *webm_vcodec_action;
    QAction *webm_acodec_action;
+
+	//h264 controls
+	QComboBox *RateControlMode;
+	QSpinBox *RateControlMode_cbr_flag;
+	QSpinBox *TemporalScaleMode;
+	QSpinBox *SpatialScaleMode;
+	QSpinBox *FrameInterval;
+	QSpinBox *BitRate;
+	QCheckBox *Hints_res;
+	QCheckBox *Hints_prof;
+	QCheckBox *Hints_ratecontrol;
+	QCheckBox *Hints_usage;
+	QCheckBox *Hints_slicemode;
+	QCheckBox *Hints_sliceunit;
+	QCheckBox *Hints_view;
+	QCheckBox *Hints_temporal;
+	QCheckBox *Hints_snr;
+	QCheckBox *Hints_spatial;
+	QCheckBox *Hints_spatiallayer;
+	QCheckBox *Hints_frameinterval;
+	QCheckBox *Hints_leakybucket;
+	QCheckBox *Hints_bitrate;
+	QCheckBox *Hints_cabac;
+	QCheckBox *Hints_iframe;
+	QComboBox *SliceMode;
+	QSpinBox *SliceUnits;
+	QComboBox *Profile;
+	QSpinBox *Profile_flags;
+	QSpinBox *IFramePeriod;
+	QSpinBox *EstimatedVideoDelay;
+	QSpinBox *EstimatedMaxConfigDelay;
+	QComboBox *UsageType;
+	QComboBox *SNRScaleMode;
+	QComboBox *StreamFormat;
+	QComboBox *EntropyCABAC;
+	QCheckBox *Timestamp;
+	QSpinBox *NumOfReorderFrames;
+	QCheckBox *PreviewFlipped;
+	QSpinBox *View;
+	QSpinBox *StreamID;
+	QDoubleSpinBox *SpatialLayerRatio;
+	QSpinBox *LeakyBucketSize;
+
+	/*disabled*/
+	QCheckBox *StreamMuxOption;
+	QComboBox *StreamMuxOption_aux;
+	QCheckBox *StreamMuxOption_mjpgcontainer;
+
 };
 
 #endif

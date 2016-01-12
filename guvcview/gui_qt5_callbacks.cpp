@@ -660,13 +660,14 @@ void MainWindow::int64_button_clicked()
 	QObject *sender =  QObject::sender();
 	int id = sender->property("control_info").toInt();
 	QLineEdit *entry = (QLineEdit *) sender->property("control_entry").value();
-	
+
 	if(!entry)
 	{
-		std:cerr << "Guvcview (Qt5): couldn't get QLineEdit pointer for int64 control: " << std::hex << id << std::endl;
+		std:cerr << "Guvcview (Qt5): couldn't get QLineEdit pointer for int64 control: " 
+			<< std::hex << id << std::dec << std::endl;
 		return;
 	}
-	
+
 	v4l2_ctrl_t *control = v4l2core_get_control_by_id(id);
 
 	QString text_input = entry->text();

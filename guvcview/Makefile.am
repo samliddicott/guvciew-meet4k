@@ -15,8 +15,8 @@ if HAVE_GTK3
 guvcview_SOURCES += gui_gtk3.c \
 				   gui_gtk3_menu.c \
 				   gui_gtk3_v4l2ctrls.c \
-				   gui_gtk3_videoctrls.c \
 				   gui_gtk3_h264ctrls.c \
+				   gui_gtk3_videoctrls.c \
 				   gui_gtk3_audioctrls.c \
 				   gui_gtk3_callbacks.c
 endif
@@ -24,10 +24,11 @@ endif
 if HAVE_QT5
 guvcview_SOURCES += moc_gui_qt5.cpp \
 				   gui_qt5.cpp \
+				   gui_qt5_menu.cpp \
 				   gui_qt5_v4l2ctrls.cpp \
+				   gui_qt5_h264ctrls.cpp \
 				   gui_qt5_videoctrls.cpp \
 				   gui_qt5_audioctrls.cpp \
-				   gui_qt5_menu.cpp \
 				   gui_qt5_callbacks.cpp
 endif
 

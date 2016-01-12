@@ -240,10 +240,10 @@ int MainWindow::gui_attach_qt5_v4l2ctrls(QWidget *parent)
 
 						combobox->setCurrentIndex(def);
 						thisone->widget->show();
-						
+
 						/*set properties*/
 						combobox->setProperty("control_info", current->control.id);
-						
+
 						/*signals*/
 						connect(combobox, SIGNAL(currentIndexChanged(int)), this, SLOT(combo_changed(int)));
 
@@ -278,7 +278,7 @@ int MainWindow::gui_attach_qt5_v4l2ctrls(QWidget *parent)
 						int def = 0;
 						QComboBox * combobox = new QComboBox(img_controls_grid);
 						thisone->widget = combobox;
-						
+
 						for (j = 0; (int) current->menu[j].index <= current->control.maximum; j++)
 						{
 							combobox->addItem((char *) BITSMenu[j], current->menu[j].index);
@@ -291,7 +291,7 @@ int MainWindow::gui_attach_qt5_v4l2ctrls(QWidget *parent)
 
 						/*set properties*/
 						combobox->setProperty("control_info", current->control.id);
-						
+
 						/*signals*/
 						connect(combobox, SIGNAL(currentIndexChanged(int)), this, SLOT(combo_changed(int)));
 						break;
@@ -305,12 +305,12 @@ int MainWindow::gui_attach_qt5_v4l2ctrls(QWidget *parent)
 							//add a virtual control for software autofocus
 							ControlWidgets *thisto = new ControlWidgets();
 							control_widgets_list.push_back(thisto);
-		
+
 							QCheckBox *checkbox = new QCheckBox(_("Auto Focus (continuous)"), img_controls_grid);
 							thisto->widget = checkbox;
 							checkbox->setChecked(false);
 							thisto->widget->show();
-					
+
 							QPushButton *pushbutton = new QPushButton(img_controls_grid); 
 							thisto->widget2 = pushbutton;
 							pushbutton->setText(_("set Focus"));
@@ -319,14 +319,14 @@ int MainWindow::gui_attach_qt5_v4l2ctrls(QWidget *parent)
 							/*connect signals*/
 							connect(checkbox, SIGNAL(stateChanged(int)), this, SLOT(autofocus_changed(int)));
 							connect(pushbutton, SIGNAL(clicked()), this, SLOT(setfocus_clicked()));
-							
+
 							//QGridLayout *layout = (QGridLayout *) img_controls_grid->layout();	
 							grid_layout->addWidget(thisto->widget, n, 1);
 							grid_layout->addWidget(thisto->widget2, n, 2);
 
 							++n;
 						}
-						
+
 					default: /*standard case - slider + spin*/
 					{
 						/* check for valid range */
@@ -336,30 +336,30 @@ int MainWindow::gui_attach_qt5_v4l2ctrls(QWidget *parent)
 							thisone->widget = slider;
 							slider->setRange(current->control.minimum, current->control.maximum);
 							slider->setSingleStep(current->control.step);
-							slider->setPageStep(current->control.step*10);						
+							slider->setPageStep(current->control.step*10);
 							slider->setValue(current->value);
 							thisone->widget->show();
-							
+
 							QSpinBox *spinbox = new QSpinBox(img_controls_grid);
 							thisone->widget2 = spinbox;
 
 							spinbox->setRange(current->control.minimum, current->control.maximum);
-							spinbox->setSingleStep(current->control.step);					
+							spinbox->setSingleStep(current->control.step);
 							spinbox->setValue(current->value);
 							thisone->widget2->show();
-							
+
 							/*set properties*/
 							slider->setProperty("control_info", current->control.id);
 							spinbox->setProperty("control_info", current->control.id);
-							
+
 							/*connect slider and spinbox*/
 							connect(slider,SIGNAL(valueChanged(int)),spinbox,SLOT(setValue(int)) );
 							connect(spinbox,SIGNAL(valueChanged(int)),slider,SLOT(setValue(int)) );
-						
+
 							/*signals*/
 							connect(slider,SIGNAL(valueChanged(int)),this, SLOT(slider_value_changed(int)));
 							//connect(spinbox,SIGNAL(valueChanged(int)),this, SLOT(spin_value_changed(int)));
-							
+
 
 							//if(!is_control_panel &&
 							//   (current->control.id == V4L2_CID_FOCUS_LOGITECH ||
@@ -373,7 +373,8 @@ int MainWindow::gui_attach_qt5_v4l2ctrls(QWidget *parent)
 
 						}
 						else
-                          std::cerr << "GUVCVIEW (Qt5): (Invalid range) [MAX <= MIN] for control id:" << std::hex << current->control.id << std::endl;
+                          std::cerr << "GUVCVIEW (Qt5): (Invalid range) [MAX <= MIN] for control id:" 
+							<< std::hex << current->control.id << std::dec << std::endl;
 
 						break;
 					}
@@ -417,7 +418,7 @@ int MainWindow::gui_attach_qt5_v4l2ctrls(QWidget *parent)
 				/*set properties*/
 				pushbutton->setProperty("control_info", current->control.id);
 				pushbutton->setProperty("control_entry", entry);
-				
+
 				/*connect signal*/
 				connect(pushbutton, SIGNAL(clicked), this, SLOT(string_button_clicked()));
 			}
@@ -438,7 +439,7 @@ int MainWindow::gui_attach_qt5_v4l2ctrls(QWidget *parent)
 				/*set properties*/
 				pushbutton->setProperty("control_info", current->control.id);
 				pushbutton->setProperty("control_entry", entry);
-				
+
 				/*connect signal*/
 				connect(pushbutton, SIGNAL(clicked), this, SLOT(bitmask_button_clicked()));
 			}
@@ -453,10 +454,10 @@ int MainWindow::gui_attach_qt5_v4l2ctrls(QWidget *parent)
 				{
 					int j = 0;
 					int def = 0;
-					
+
 					QComboBox *combobox = new QComboBox(img_controls_grid); 
 					thisone->widget = combobox;
-					
+
 					for (j = 0; (int) current->menu[j].index <= current->control.maximum; j++)
 					{
 						if(current->control.type == V4L2_CTRL_TYPE_MENU)
@@ -585,7 +586,7 @@ void MainWindow::gui_qt5_update_controls_state()
 		if(!thisone)
 		{
 			std::cerr << "GUVCVIEW (Qt5): (update widget state): control " 
-				<< std::hex << current->control.id 
+				<< std::hex << current->control.id << std::dec
 				<< "doesn't have a widget set" << std::endl;
 			continue;
 		}
