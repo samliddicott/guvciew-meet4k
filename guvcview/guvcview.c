@@ -27,6 +27,7 @@
 #include <sys/syscall.h>
 #include <sys/stat.h>
 #include <sys/resource.h>
+#include <errno.h>
 
 #include "gview.h"
 #include "gviewv4l2core.h"
@@ -44,6 +45,9 @@
 int debug_level = 0;
 
 static __THREAD_TYPE capture_thread;
+
+__MUTEX_TYPE capture_mutex = __STATIC_MUTEX_INIT;
+__COND_TYPE capture_cond;
 
 /*
  * signal callback
@@ -338,6 +342,9 @@ int main(int argc, char *argv[])
 
 		if(ret == E_OK)
 		{
+			__INIT_COND(&capture_cond);
+			__LOCK_MUTEX(&capture_mutex);
+
 			capture_loop_data_t cl_data;
 			cl_data.options = (void *) my_options;
 			cl_data.config = (void *) my_config;
@@ -351,10 +358,22 @@ int main(int argc, char *argv[])
 			}
 			else if(debug_level > 2)
 				printf("GUVCVIEW: created capture thread with tid: %u\n", (unsigned int) capture_thread);
+
+			struct timespec now;
+			clock_gettime(CLOCK_REALTIME, &now);
+			now.tv_sec += 5; /*wait at most 5 seconds for capture_cond*/
+			ret = __COND_TIMED_WAIT(&capture_cond,&capture_mutex, &now);
+			__UNLOCK_MUTEX(&capture_mutex);
+			__CLOSE_COND(&capture_cond);
+
+			if(ret == ETIMEDOUT)
+				fprintf(stderr, "GUVCVIEW: capture_cond wait timedout (5 sec)\n");
+			else if (ret != 0)
+				fprintf(stderr, "GUVCVIEW: capture_cond wait unknown error: %i\n", ret);
 		}
 	}
 
-	/*initialize the gui - do this after setting the video stream*/
+	/*initialize the gui */
 	gui_attach(800, 600, my_options->control_panel);
 
 	/*run the gui loop*/

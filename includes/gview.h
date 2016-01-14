@@ -70,20 +70,26 @@
 
 #define __THREAD_TYPE pthread_t
 #define __THREAD_CREATE(t,f,d) (pthread_create(t,NULL,f,d))
+#define __THREAD_CREATE_ATTRIB(t,a,f,d) (pthread_create(t,a,f,d))
 #define __THREAD_JOIN(t) (pthread_join(t, NULL))
 
+#define __ATTRIB_TYPE pthread_attr_t
+#define __INIT_ATTRIB(t) (pthread_attr_init(t))
+#define __ATTRIB_JOINABLE(t) (pthread_attr_setdetachstate(t, PTHREAD_CREATE_JOINABLE))
+#define __CLOSE_ATTRIB(t) (pthread_attr_destroy(t))
 
 #define __MUTEX_TYPE pthread_mutex_t
-#define __COND_TYPE pthread_cond_t
 #define __STATIC_MUTEX_INIT PTHREAD_MUTEX_INITIALIZER
 #define __INIT_MUTEX(m) ( pthread_mutex_init(m, NULL) )
 #define __CLOSE_MUTEX(m) ( pthread_mutex_destroy(m) )
 #define __LOCK_MUTEX(m) ( pthread_mutex_lock(m) )
 #define __UNLOCK_MUTEX(m) ( pthread_mutex_unlock(m) )
 
+#define __COND_TYPE pthread_cond_t
 #define __INIT_COND(c)  ( pthread_cond_init (c, NULL) )
 #define __CLOSE_COND(c) ( pthread_cond_destroy(c) )
 #define __COND_BCAST(c) ( pthread_cond_broadcast(c) )
+#define __COND_SIGNAL(c) ( pthread_cond_signal(c) ) 
 #define __COND_TIMED_WAIT(c,m,t) ( pthread_cond_timedwait(c,m,t) )
 
 /*next index of ring buffer with size elements*/

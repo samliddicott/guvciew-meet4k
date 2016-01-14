@@ -48,6 +48,9 @@
 /*flags*/
 extern int debug_level;
 
+extern __MUTEX_TYPE capture_mutex;
+extern __COND_TYPE capture_cond;
+
 static int render = RENDER_SDL; /*render API*/
 static int quit = 0; /*terminate flag*/
 static int save_image = 0; /*save image flag*/
@@ -921,6 +924,7 @@ static void *encoder_loop(void *data)
  */
 void *capture_loop(void *data)
 {
+	__LOCK_MUTEX(&capture_mutex);
 	capture_loop_data_t *cl_data = (capture_loop_data_t *) data;
 	options_t *my_options = (options_t *) cl_data->options;
 	//config_t *my_config = (config_t *) cl_data->config;
@@ -980,8 +984,11 @@ void *capture_loop(void *data)
 		my_photo_npics = my_options->photo_npics;
 
 	v4l2core_start_stream();
-	
+
 	v4l2_frame_buff_t *frame = NULL; //pointer to frame buffer
+
+	__COND_SIGNAL(&capture_cond);
+	__UNLOCK_MUTEX(&capture_mutex);
 
 	while(!quit)
 	{
