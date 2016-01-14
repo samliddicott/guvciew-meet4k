@@ -68,6 +68,7 @@ static config_t my_config =
 	.video_fx = 0, /*no video fx*/
 	.audio_fx = 0, /*no audio fx*/
 	.osd_mask = 0, /*REND_OSD_NONE*/
+	.crosshair_color=0x0000FF00, /*osd crosshair rgb color (0x00RRGGBB)*/
 };
 
 /*
@@ -158,6 +159,7 @@ int config_save(const char *filename)
 	fprintf(fp, "audio_fx=0x%x\n", my_config.audio_fx);
 	fprintf(fp, "#OSD mask \n");
 	fprintf(fp, "osd_mask=0x%x\n", my_config.osd_mask);
+	fprintf(fp, "crosshair_color=0x%x\n", my_config.crosshair_color);
 
 	/* return to system locale */
     setlocale(LC_NUMERIC, "");
@@ -327,6 +329,8 @@ int config_load(const char *filename)
 			my_config.audio_fx = (uint32_t) strtoul(value, NULL, 16);
 		else if(strcmp(token, "osd_mask") == 0)
 			my_config.osd_mask = (uint32_t) strtoul(value, NULL, 16);
+		else if(strcmp(token, "crosshair_color") == 0)
+			my_config.crosshair_color = (uint32_t) strtoul(value, NULL, 16);
 		else
 			fprintf(stderr, "GUVCVIEW: (config) skiping invalid entry at line %i ('%s', '%s')\n", line, token, value);
 

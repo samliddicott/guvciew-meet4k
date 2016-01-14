@@ -927,7 +927,7 @@ void *capture_loop(void *data)
 	__LOCK_MUTEX(&capture_mutex);
 	capture_loop_data_t *cl_data = (capture_loop_data_t *) data;
 	options_t *my_options = (options_t *) cl_data->options;
-	//config_t *my_config = (config_t *) cl_data->config;
+	config_t *my_config = (config_t *) cl_data->config;
 
 	uint64_t my_last_photo_time = 0; /*timer count*/
 	int my_photo_npics = 0;/*no npics*/
@@ -949,6 +949,8 @@ void *capture_loop(void *data)
 		render_flags = 2;
 	
 	render_set_verbosity(debug_level);
+
+	render_set_crosshair_color(my_config->crosshair_color);
 	
 	if(render_init(render, v4l2core_get_frame_width(), v4l2core_get_frame_height(), render_flags) < 0)
 		render = RENDER_NONE;

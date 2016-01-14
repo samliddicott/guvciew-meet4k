@@ -59,6 +59,7 @@ static int my_width = 0;
 static int my_height = 0;
 
 static uint32_t my_osd_mask = REND_OSD_NONE;
+static uint32_t my_crosshair_color_rgb = 0x0000FF00;
 
 static float osd_vu_level[2] = {0, 0};
 
@@ -143,6 +144,21 @@ void render_set_osd_mask(uint32_t mask)
 }
 
 /*
+ * set the osd crosshair color
+ * args:
+ *   rgb_color - 0x00RRGGBB 
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void render_set_crosshair_color(uint32_t rgb_color)
+{
+	my_crosshair_color_rgb = rgb_color;
+}
+
+/*
  * get the osd mask
  * args:
  *   none
@@ -155,6 +171,21 @@ void render_set_osd_mask(uint32_t mask)
 uint32_t render_get_osd_mask()
 {
 	return (my_osd_mask);
+}
+
+/*
+ * get the osd crosshair color
+ * args:
+ *   none
+ *
+ * asserts:
+ *    none
+ *
+ * returns: osd rgb color
+ */
+uint32_t render_get_crosshair_color()
+{
+	return (my_crosshair_color_rgb);
 }
 
 /*

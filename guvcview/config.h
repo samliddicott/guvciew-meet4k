@@ -49,6 +49,7 @@ typedef struct _config_t
 	uint32_t video_fx;
 	uint32_t audio_fx;
 	uint32_t osd_mask; /*OSD bit mask*/
+	uint32_t crosshair_color; /*osd crosshair rgb color (0x00RRGGBB)*/
 } config_t;
 
 /*

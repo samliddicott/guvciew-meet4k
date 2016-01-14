@@ -113,6 +113,30 @@ void render_set_osd_mask(uint32_t mask);
 uint32_t render_get_osd_mask();
 
 /*
+ * set the osd crosshair color
+ * args:
+ *   rgb_color - 0x00RRGGBB 
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void render_set_crosshair_color(uint32_t rgb_color);
+
+/*
+ * get the osd crosshair color
+ * args:
+ *   none
+ *
+ * asserts:
+ *    none
+ *
+ * returns: osd rgb color
+ */
+uint32_t render_get_crosshair_color();
+
+/*
  * get render width
  * args:
  *   none
