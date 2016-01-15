@@ -51,6 +51,8 @@ public:
     MainWindow();
     ~MainWindow();
 	std::vector<ControlWidgets *> control_widgets_list;
+
+public slots:
 	void capture_video_clicked();
 	void capture_image_clicked();
 

@@ -25,6 +25,7 @@
 
 #include <SDL.h>
 #include <assert.h>
+#include <math.h>
 
 #include "gview.h"
 #include "gviewrender.h"
@@ -39,6 +40,8 @@ SDL_DisplayMode display_mode;
 static SDL_Window*  sdl_window = NULL;
 static SDL_Texture* rending_texture = NULL;
 static SDL_Renderer*  main_renderer = NULL;
+
+void* frame_buffer = NULL;
 
 /*
  * initialize sdl video
@@ -229,6 +232,20 @@ static int video_init(int width, int height, int flags)
 		render_sdl2_clean();
 		return -4;
 	}
+#ifdef USE_PLANAR_YUV
+	int size = (int) floor((width * height * 3) / 2);
+#else
+	int size = width * height * 2;
+#endif
+
+	frame_buffer = malloc(size);
+
+	if(frame_buffer == NULL)
+	{
+		fprintf(stderr, "RENDER: (SDL2) Couldn't allocate %i bytes for frame buffer\n", size);
+		render_sdl2_clean();
+		return -4;
+	}
 
     return 0;
 }
@@ -284,37 +301,46 @@ int render_sdl2_frame(uint8_t *frame, int width, int height)
 	float vu_level[2];
 	render_get_vu_level(vu_level);
 
-#ifdef USE_PLANAR_YUV
-	int size = width * height * 3/2; /* for IYUV */
-#else
-	int size = width * height * 2; /* 2 bytes per pixel for YUYV */
-#endif
-
-	void* texture_pixels;
-	int pitch;
+	uint8_t* texture_pixels;
 
 	SDL_SetRenderDrawColor(main_renderer, 0, 0, 0, 255); /*black*/
 	SDL_RenderClear(main_renderer);
 
-
-	if (SDL_LockTexture(rending_texture, NULL, &texture_pixels, &pitch))
+	if(!render_get_osd_mask())
+		texture_pixels = frame;
+	else
 	{
-		fprintf(stderr, "RENDER: couldn't lock texture to write\n");
-		return -1;
+#ifdef USE_PLANAR_YUV
+		int size = (int) floor((width * height * 3)/2); /* for IYUV */
+#else
+		int size = width * height * 2; /* 2 bytes per pixel for YUYV */
+#endif
+		/* copy to frame buffer:
+		 * we don't want to to change the original frame
+		 * since it may be needed for encoding/muxing
+		 */
+		memcpy(frame_buffer, frame, size);
+
+		texture_pixels = frame_buffer;
+
+		/*osd vu meter*/
+		if(((render_get_osd_mask() &
+			(REND_OSD_VUMETER_MONO | REND_OSD_VUMETER_STEREO))) != 0)
+			render_osd_vu_meter(texture_pixels, width, height, vu_level);
+		/*osd crosshair*/
+		if(((render_get_osd_mask() &
+			REND_OSD_CROSSHAIR)) != 0)
+			render_osd_crosshair(texture_pixels, width, height);
 	}
-
-	memcpy(texture_pixels, frame, size);
-
-	/*osd vu meter*/
-	if(((render_get_osd_mask() &
-		(REND_OSD_VUMETER_MONO | REND_OSD_VUMETER_STEREO))) != 0)
-		render_osd_vu_meter(texture_pixels, width, height, vu_level);
-	/*osd crosshair*/
-	if(((render_get_osd_mask() &
-		REND_OSD_CROSSHAIR)) != 0)
-		render_osd_crosshair(texture_pixels, width, height);
-
-	SDL_UnlockTexture(rending_texture);
+	/* since data is continuous we can use SDL_UpdateTexture
+	 * instead of SDL_UpdateYUVTexture.
+	 * no need to use SDL_Lock/UnlockTexture (it doesn't seem faster)
+	 */
+#ifdef USE_PLANAR_YUV
+	SDL_UpdateTexture(rending_texture, NULL, texture_pixels, width);
+#else
+	SDL_UpdateTexture(rending_texture, NULL, texture_pixels, width*2);
+#endif
 
 	SDL_RenderCopy(main_renderer, rending_texture, NULL, NULL);
 
@@ -425,6 +451,10 @@ void render_sdl2_dispatch_events()
  */
 void render_sdl2_clean()
 {
+
+	if(frame_buffer != NULL)
+		free(frame_buffer);
+
 	if(rending_texture)
 		SDL_DestroyTexture(rending_texture);
 
