@@ -76,7 +76,6 @@ int MainWindow::gui_attach_qt5_audioctrls(QWidget *parent)
 	audio_controls_grid->setLayout(grid_layout);
 	audio_controls_grid->show();
 
-
 	/*API*/
 
 	QLabel *label_SndAPI = new QLabel(_("Audio API:"), 

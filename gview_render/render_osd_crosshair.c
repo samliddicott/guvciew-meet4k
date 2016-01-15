@@ -34,9 +34,9 @@ extern int verbosity;
 
 typedef struct _yuv_color_t
 {
-	int8_t y;
-	int8_t u;
-	int8_t v;
+	uint8_t y;
+	uint8_t u;
+	uint8_t v;
 } yuv_color_t;
 
 
@@ -210,26 +210,24 @@ static void plot_crosshair_yu12(uint8_t *frame, int size, int width, int height,
 void render_osd_crosshair(uint8_t *frame, int width, int height)
 {
 	yuv_color_t color;
-	color.y = 154;
-	color.u = 72;
-	color.v = 57;
+	color.y = 0;
+	color.u = 0;
+	color.v = 0;
 
 	uint32_t rgb_color = render_get_crosshair_color();
 
-	int r = (int) (rgb_color & 0x00FF0000) >> 16;
-	int g = (int) (rgb_color & 0x0000FF00) >> 8;
-	int b = (int) (rgb_color & 0x000000FF);
-
-	color.y =(int8_t) lround((0.299*r) + (0.587*g) + (0.114*b));
-	color.u =(int8_t) lround((-0.147*r) - (0.289*g) + (0.436*b));
-	color.v =(int8_t) lround((0.615 * r) - (0.515 * g) - (0.100 * b));
-
-	//printf("y: %i u: %i v: %i \n", color.y, color.u, color.v);
+	uint8_t r = (uint8_t) ((rgb_color & 0x00FF0000) >> 16);
+	uint8_t g = (uint8_t) ((rgb_color & 0x0000FF00) >> 8);
+	uint8_t b = (uint8_t) (rgb_color & 0x000000FF);
+	
+	color.y = CLIP(0.299*(r-128) + 0.587*(g-128) + 0.114*(b-128) + 128) ;
+	color.u = CLIP(-0.147*(r-128) - 0.289*(g-128) + 0.436*(b-128) + 128);
+	color.v = CLIP(0.615*(r-128) - 0.515*(g-128) - 0.100*(b-128) + 128);
 	
 #ifdef USE_PLANAR_YUV
-				plot_crosshair_yu12(frame, 24, width, height, &color);
+	plot_crosshair_yu12(frame, 24, width, height, &color);
 #else
-  			plot_crosshair_yuyv(frame, 24, width, height, &color);
+	plot_crosshair_yuyv(frame, 24, width, height, &color);
 #endif
 			
 }

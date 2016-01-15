@@ -569,7 +569,7 @@ int gui_attach_gtk3_h264ctrls (GtkWidget *parent)
 	assert(parent != NULL);
 
 	if(debug_level > 1)
-		printf("GUVCVIEW: attaching video controls\n");
+		printf("GUVCVIEW (Gtk3): attaching H264 controls\n");
 
 
 	//get current values
