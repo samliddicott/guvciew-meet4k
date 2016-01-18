@@ -62,7 +62,7 @@ int MainWindow::gui_attach_qt5_menu(QWidget *parent)
 	/*assertions*/
 	assert(parent != NULL);
 	
-	menubar = new QMenuBar(parent);
+	menubar = menuBar();
 	menubar->show();
 
 	QAction *menu_action;

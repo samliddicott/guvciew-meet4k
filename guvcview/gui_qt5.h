@@ -81,6 +81,18 @@ void gui_error_qt5(
 	int fatal);
 
 /*
+ * adds a message to the status bar
+ * args:
+ *    message - message string
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void gui_status_message_qt5(const char *message);
+
+/*
  * set webm codecs in codecs list
  * args:
  *   none

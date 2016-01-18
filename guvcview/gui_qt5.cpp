@@ -207,6 +207,11 @@ MainWindow::MainWindow()
 		control_tab->setTabIcon(tab_ind, audio_tab_icon);
 	}
 
+	/*-------------------------- Status Bar ----------------------------------*/
+	statusbar = statusBar();
+	statusbar->show();
+
+
 	timer_check_device = new QTimer(this);
     connect(timer_check_device, SIGNAL(timeout()), 
 		this, SLOT(check_device_events()));
@@ -220,6 +225,12 @@ MainWindow::~MainWindow()
 	for (std::vector<ControlWidgets *>::iterator it = control_widgets_list.begin() ; it != control_widgets_list.end(); ++it)
 		delete(*it);
 	control_widgets_list.clear();
+}
+
+void MainWindow::set_statusbar_message(const char *message)
+{
+	//displays the message for 5 seconds
+	statusbar->showMessage(QString(message), 5000);
 }
 
 /******************************* C wrapper functions ********************************/
@@ -312,7 +323,7 @@ void gui_error_qt5(
 					break;
 				i++;
 			}
-			
+
 			dev_arg.append(device_list->list_devices[i].device);
 			args << dev_arg;
 			QProcess process;
@@ -421,6 +432,22 @@ void gui_close_qt5()
 
 	if(debug_level > 2)
 		std::cerr << "GUVCVIEW (Qt5): all done" << std::endl;
+}
+
+/*
+ * adds a message to the status bar
+ * args:
+ *    message - message string
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void gui_status_message_qt5(const char *message)
+{
+	if(mainWin)
+		mainWin->set_statusbar_message(message);
 }
 
 /*

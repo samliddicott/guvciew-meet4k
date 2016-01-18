@@ -51,6 +51,7 @@ public:
     MainWindow();
     ~MainWindow();
 	std::vector<ControlWidgets *> control_widgets_list;
+	void set_statusbar_message(const char *message);
 
 public slots:
 	void capture_video_clicked();
@@ -156,6 +157,7 @@ private:
    QDoubleSpinBox *spinbox_audio_latency;
 
    QMenuBar *menubar;
+   QStatusBar *statusbar;
 
    QAction *webm_vcodec_action;
    QAction *webm_acodec_action;

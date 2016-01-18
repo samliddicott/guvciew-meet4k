@@ -916,6 +916,11 @@ void gui_status_message(const char *message)
 {
 	switch(gui_api)
 	{
+#if HAS_QT5
+		case GUI_QT5:
+			gui_status_message_qt5(message);
+			break;
+#endif
 #if HAS_GTK3
 		case GUI_GTK3:
 			gui_status_message_gtk3(message);
