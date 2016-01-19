@@ -419,8 +419,7 @@ static int do_v4l2_framerate_update()
 
 	if (!(vd->streamparm.parm.capture.capability & V4L2_CAP_TIMEPERFRAME))
 	{
-		fprintf(stderr, "V4L2_CORE: V4L2_CAP_TIMEPERFRAME supported\n");
-		//fprintf(stderr, "V4L2_CORE: Unable to set %d/%d fps\n", vd->fps_num, vd->fps_denom);
+		fprintf(stderr, "V4L2_CORE: V4L2_CAP_TIMEPERFRAME not supported\n");
 	}
 
 	vd->streamparm.parm.capture.timeperframe.numerator = vd->fps_num;

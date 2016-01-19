@@ -701,7 +701,8 @@ void audio_set_pulseaudio_device(audio_context_t *audio_ctx, int index)
 	else if(index >= 0 )
 		audio_ctx->device = index;
 	
-	printf("AUDIO: Pulseaudio device changed to %i\n", audio_ctx->device);
+	if(verbosity > 0)
+		printf("AUDIO: Pulseaudio device changed to %i\n", audio_ctx->device);
 	
 	audio_ctx->latency = audio_ctx->list_devices[audio_ctx->device].high_latency;
 	
