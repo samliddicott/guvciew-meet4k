@@ -170,9 +170,11 @@ int main(int argc, char *argv[])
 #elif HAS_QT5
 		gui = GUI_QT5;
 		fprintf(stderr, "Guvcview was not build with Gtk3 support: using Qt5\n");
+		strncpy(my_config->gui, "qt5", 4);
 #else
 		gui = GUI_NONE;
 		fprintf(stderr, "Guvcview was not build with gui support\n");
+		strncpy(my_config->gui, "none", 4);
 #endif
 	}
 	else if(strncasecmp(my_config->gui, "qt5", 3) == 0)
@@ -182,13 +184,16 @@ int main(int argc, char *argv[])
 #elif HAS_GTK3
 		gui = GUI_GTK3;
 		fprintf(stderr, "Guvcview was not build with Qt5 support: using Gtk3\n");
+		strncpy(my_config->gui, "gtk3", 4);
 #else
 		gui = GUI_NONE;
 		fprintf(stderr, "Guvcview was not build with gui support\n");
+		strncpy(my_config->gui, "none", 4);
 #endif
 	}
 
-	printf("Guvcview: using GUI %i for option %c%c%c\n", gui, my_config->gui[0], my_config->gui[1],my_config->gui[2]);
+	if(debug_level > 0)
+		printf("Guvcview: using GUI %i for option %c%c%c\n", gui, my_config->gui[0], my_config->gui[1],my_config->gui[2]);
 
 	set_gui_api(gui);
 
