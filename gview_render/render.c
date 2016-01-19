@@ -42,6 +42,7 @@
 #include <libintl.h>
 
 #include "gviewrender.h"
+#include "render.h"
 #include "../config.h"
 
 #if ENABLE_SDL2
@@ -297,23 +298,62 @@ int render_init(int render, int width, int height, int flags)
 }
 
 /*
+ * Apply fx filters
+ * args:
+ *    frame - pointer to frame buffer (yuyv format)
+ *    mask  - or'ed filter mask
+ *
+ * asserts:
+ *    frame is not null
+ *
+ * returns: void
+ */
+void render_frame_fx(uint8_t *frame, uint32_t mask)
+{
+	/*asserts*/
+	assert(frame != NULL);
+
+	render_fx_apply(frame, my_width, my_height, mask);
+}
+
+/*
+ * Apply OSD mask
+ * args:
+ *    frame - pointer to frame buffer (yuyv format)
+ *
+ * asserts:
+ *    frame is not null
+ *
+ * returns: void
+ */
+void render_frame_osd(uint8_t *frame)
+{
+	float vu_level[2];
+	render_get_vu_level(vu_level);
+
+	/*osd vu meter*/
+	if(((render_get_osd_mask() & 
+		(REND_OSD_VUMETER_MONO | REND_OSD_VUMETER_STEREO))) != 0)
+		render_osd_vu_meter(frame, my_width, my_height, vu_level);
+	/*osd crosshair*/
+	if(((render_get_osd_mask() & REND_OSD_CROSSHAIR)) != 0)
+		render_osd_crosshair(frame, my_width, my_height);
+}
+
+/*
  * render a frame
  * args:
  *   frame - pointer to frame data (yuyv format)
- *   mask - fx filter mask (or'ed)
  *
  * asserts:
  *   frame is not null
  *
  * returns: error code
  */
-int render_frame(uint8_t *frame, uint32_t mask)
+int render_frame(uint8_t *frame)
 {
 	/*asserts*/
 	assert(frame != NULL);
-
-	/*apply fx filters to frame*/
-	render_fx_apply(frame, my_width, my_height, mask);
 
 	int ret = 0;
 	switch(render_api)

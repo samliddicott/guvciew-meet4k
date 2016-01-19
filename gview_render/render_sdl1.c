@@ -267,9 +267,6 @@ int render_sdl1_frame(uint8_t *frame, int width, int height)
 	assert(poverlay != NULL);
 	assert(frame != NULL);
 
-	float vu_level[2];
-	render_get_vu_level(vu_level);
-
 	uint8_t *p = (uint8_t *) poverlay->pixels[0];
 #ifdef USE_PLANAR_YUV
 	int size = width * height * 3/2; /* for IYUV */
@@ -278,15 +275,6 @@ int render_sdl1_frame(uint8_t *frame, int width, int height)
 #endif
 	 SDL_LockYUVOverlay(poverlay);
      memcpy(p, frame, size);
-
-    /*osd vu meter*/
-    if(((render_get_osd_mask() &
-		  (REND_OSD_VUMETER_MONO | REND_OSD_VUMETER_STEREO))) != 0)
-		  render_osd_vu_meter(p, width, height, vu_level);
-    /*osd crosshair*/
-    if(((render_get_osd_mask() &
-      REND_OSD_CROSSHAIR)) != 0)
-      render_osd_crosshair(texture_pixels, width, height);
 
      SDL_UnlockYUVOverlay(poverlay);
      SDL_DisplayYUVOverlay(poverlay, &drect);
@@ -333,7 +321,7 @@ void render_sdl1_dispatch_events()
                 case SDLK_ESCAPE:
 					render_call_event_callback(EV_QUIT);
 					break;
-					
+
 				case SDLK_UP:
 					render_call_event_callback(EV_KEY_UP);
 					break;

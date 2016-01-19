@@ -51,3 +51,18 @@ void render_osd_vu_meter(uint8_t *frame, int width, int height, float vu_level[2
  * returns: none
  */
 void render_osd_crosshair(uint8_t *frame, int width, int height);
+
+/*
+ * Apply fx filters
+ * args:
+ *    frame - pointer to frame buffer (yuyv format)
+ *    width - frame width
+ *    height - frame height
+ *    mask  - or'ed filter mask
+ *
+ * asserts:
+ *    frame is not null
+ *
+ * returns: void
+ */
+void render_fx_apply(uint8_t *frame, int width, int height, uint32_t mask);

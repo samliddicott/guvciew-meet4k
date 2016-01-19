@@ -1048,6 +1048,7 @@ void *capture_loop(void *data)
 
 		}
 
+		/*get the frame from v4l2 core*/
 		frame = v4l2core_get_decoded_frame();
 		if( frame != NULL)
 		{
@@ -1055,11 +1056,13 @@ void *capture_loop(void *data)
 			if(do_soft_autofocus || do_soft_focus)
 				do_soft_focus = v4l2core_soft_autofocus_run(frame);
 
-			/*render the decoded frame*/
-			snprintf(render_caption, 29, "Guvcview  (%2.2f fps)", v4l2core_get_realfps());
-			render_set_caption(render_caption);
-			render_frame(frame->yuv_frame, my_render_mask);
+			/* apply fx effects to the frame
+			 * do it before saving the frame
+			 * (we want to store the effects)
+			 */
+			render_frame_fx(frame->yuv_frame, my_render_mask);
 
+			/*check the timers*/
 			if(check_photo_timer())
 			{
 				if((frame->timestamp - my_last_photo_time) > my_photo_timer)
@@ -1092,6 +1095,7 @@ void *capture_loop(void *data)
 				}
 			}
 
+			/*save the frame (photo)*/
 			if(save_image)
 			{
 				char *img_filename = NULL;
@@ -1127,6 +1131,7 @@ void *capture_loop(void *data)
 				save_image = 0; /*reset*/
 			}
 
+			/*save the frame (video)*/
 			if(video_capture_get_save_video())
 			{
 #ifdef USE_PLANAR_YUV
@@ -1154,6 +1159,7 @@ void *capture_loop(void *data)
 					}
 
 				}
+				/*add the frame to the encoder buffer*/
 				encoder_add_video_frame(input_frame, size, frame->timestamp, frame->isKeyframe);
 
 				/*
@@ -1183,6 +1189,18 @@ void *capture_loop(void *data)
 					}
 				}
 			}
+
+			/* render the osd
+			 * must be done after saving the frame 
+			 * (we don't want to record the osd effects)
+			 */
+			render_frame_osd(frame->yuv_frame);
+
+			/* finally render the frame */
+			snprintf(render_caption, 29, "Guvcview  (%2.2f fps)", v4l2core_get_realfps());
+			render_set_caption(render_caption);
+			render_frame(frame->yuv_frame);
+
 			/*we are done with the frame buffer release it*/
 			v4l2core_release_frame(frame);
 		}

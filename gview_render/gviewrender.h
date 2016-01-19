@@ -194,14 +194,13 @@ void render_set_caption(const char* caption);
  * render a frame
  * args:
  *   frame - pointer to frame data (yuyv format)
- *   mask - fx filter mask (or'ed)
  *
  * asserts:
  *   frame is not null
  *
  * returns: error code
  */
-int render_frame(uint8_t *frame, uint32_t mask);
+int render_frame(uint8_t *frame);
 
 /*
  * get event index on render_events_list
@@ -245,8 +244,6 @@ int render_call_event_callback(int id);
  * Apply fx filters
  * args:
  *    frame - pointer to frame buffer (yuyv format)
- *    width - frame width
- *    height - frame height
  *    mask  - or'ed filter mask
  *
  * asserts:
@@ -254,7 +251,19 @@ int render_call_event_callback(int id);
  *
  * returns: void
  */
-void render_fx_apply(uint8_t *frame, int width, int height, uint32_t mask);
+void render_frame_fx(uint8_t *frame, uint32_t mask);
+
+/*
+ * Apply OSD mask
+ * args:
+ *    frame - pointer to frame buffer (yuyv format)
+ *
+ * asserts:
+ *    frame is not null
+ *
+ * returns: void
+ */
+void render_frame_osd(uint8_t *frame);
 
 /*
  * set the vu level for the osd vu meter
