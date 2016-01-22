@@ -10,7 +10,7 @@ Guvcview depends on the following:
  - intltool,
  - autotools, 
  - libsdl2 or libsdl, 
- - libgtk-3, 
+ - libgtk-3 or libqt5, 
  - portaudio19, 
  - libpng, 
  - libavcodec, 
@@ -23,7 +23,7 @@ Guvcview depends on the following:
 
 On most distributions you can just install the development 
 packages:
- intltool, autotools-dev, libsdl2-dev, libgtk-3-dev, 
+ intltool, autotools-dev, libsdl2-dev, libgtk-3-dev or qtbase5-dev, 
  portaudio19-dev, libpng12-dev, libavcodec-dev, libavutil-dev,
  libv4l-dev, libudev-dev, libusb-1.0-0-dev, libpulse-dev, libgsl-dev
 
@@ -36,6 +36,8 @@ the helper script ./bootstrap.sh can be used for this, it will also
 run the generated configure with the command line options passed.
 After configuration a simple 'make && make install' will build and
 install guvcview and all the associated data files.
+
+guvcview will build with Gtk3 support by default, if you want to use the Qt5 interface instead, just run ./configure --disable-gtk3 --enable-qt5
 
 Data Files:
 ------------
