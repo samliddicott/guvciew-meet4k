@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: guvcview\n"
 "Report-Msgid-Bugs-To: pj.assis@gmail.com\n"
-"POT-Creation-Date: 2014-08-17 22:49+0100\n"
+"POT-Creation-Date: 2016-01-25 10:14+0000\n"
 "PO-Revision-Date: 2013-02-25 05:34+0000\n"
 "Last-Translator: Dario <dario.villar.v@gmail.com>\n"
 "Language-Team: Galician <gl@li.org>\n"
@@ -48,246 +48,250 @@ msgstr ""
 #. * needed only for language files (not used)
 #.
 #. V4L2 control strings
-#: ../gview_v4l2core/v4l2_controls.c:49
+#: ../gview_v4l2core/v4l2_controls.c:53
 msgid "User Controls"
 msgstr ""
 
-#: ../gview_v4l2core/v4l2_controls.c:50
+#: ../gview_v4l2core/v4l2_controls.c:54
 msgid "Brightness"
 msgstr "Brillo"
 
-#: ../gview_v4l2core/v4l2_controls.c:51
+#: ../gview_v4l2core/v4l2_controls.c:55
 msgid "Contrast"
 msgstr "Contraste"
 
-#: ../gview_v4l2core/v4l2_controls.c:52
+#: ../gview_v4l2core/v4l2_controls.c:56
 msgid "Hue"
 msgstr "Ton"
 
-#: ../gview_v4l2core/v4l2_controls.c:53
+#: ../gview_v4l2core/v4l2_controls.c:57
 msgid "Saturation"
 msgstr "Saturación"
 
-#: ../gview_v4l2core/v4l2_controls.c:54
+#: ../gview_v4l2core/v4l2_controls.c:58
 msgid "Sharpness"
 msgstr "Focalización"
 
-#: ../gview_v4l2core/v4l2_controls.c:55
+#: ../gview_v4l2core/v4l2_controls.c:59
 msgid "Gamma"
 msgstr "Gamma"
 
-#: ../gview_v4l2core/v4l2_controls.c:56
+#: ../gview_v4l2core/v4l2_controls.c:60
 msgid "Backlight Compensation"
 msgstr ""
 
-#: ../gview_v4l2core/v4l2_controls.c:57
+#: ../gview_v4l2core/v4l2_controls.c:61
 msgid "Power Line Frequency"
 msgstr ""
 
-#: ../gview_v4l2core/v4l2_controls.c:58
+#: ../gview_v4l2core/v4l2_controls.c:62
 msgid "Hue, Automatic"
 msgstr "Matiz, Automático"
 
-#: ../gview_v4l2core/v4l2_controls.c:59
+#: ../gview_v4l2core/v4l2_controls.c:63
 msgid "Focus, Auto"
 msgstr "Foco, Automático"
 
-#: ../gview_v4l2core/v4l2_controls.c:60
+#: ../gview_v4l2core/v4l2_controls.c:64
 msgid "Manual Mode"
 msgstr "Modo Manual"
 
-#: ../gview_v4l2core/v4l2_controls.c:61
+#: ../gview_v4l2core/v4l2_controls.c:65
 msgid "Auto Mode"
 msgstr "Modo Automático"
 
-#: ../gview_v4l2core/v4l2_controls.c:62
+#: ../gview_v4l2core/v4l2_controls.c:66
 msgid "Shutter Priority Mode"
 msgstr ""
 
-#: ../gview_v4l2core/v4l2_controls.c:63
+#: ../gview_v4l2core/v4l2_controls.c:67
 msgid "Aperture Priority Mode"
 msgstr ""
 
-#: ../gview_v4l2core/v4l2_controls.c:64
+#: ../gview_v4l2core/v4l2_controls.c:68
 msgid "Black Level"
 msgstr "Nivel de negro"
 
-#: ../gview_v4l2core/v4l2_controls.c:65
+#: ../gview_v4l2core/v4l2_controls.c:69
 msgid "White Balance, Automatic"
 msgstr ""
 
-#: ../gview_v4l2core/v4l2_controls.c:66
+#: ../gview_v4l2core/v4l2_controls.c:70
 msgid "Do White Balance"
 msgstr ""
 
-#: ../gview_v4l2core/v4l2_controls.c:67
+#: ../gview_v4l2core/v4l2_controls.c:71
 msgid "Red Balance"
 msgstr "Balance vermello"
 
-#: ../gview_v4l2core/v4l2_controls.c:68
+#: ../gview_v4l2core/v4l2_controls.c:72
 msgid "Blue Balance"
 msgstr "Balance azul"
 
-#: ../gview_v4l2core/v4l2_controls.c:69
+#: ../gview_v4l2core/v4l2_controls.c:73
 msgid "Exposure"
 msgstr "Exposición"
 
-#: ../gview_v4l2core/v4l2_controls.c:70
+#: ../gview_v4l2core/v4l2_controls.c:74
 msgid "Gain, Automatic"
 msgstr "Ganancia, Automática"
 
-#: ../gview_v4l2core/v4l2_controls.c:71
+#: ../gview_v4l2core/v4l2_controls.c:75
 msgid "Gain"
 msgstr "Ganancia"
 
-#: ../gview_v4l2core/v4l2_controls.c:72
+#: ../gview_v4l2core/v4l2_controls.c:76
 msgid "Horizontal Flip"
 msgstr "Xiro horizontal"
 
-#: ../gview_v4l2core/v4l2_controls.c:73
+#: ../gview_v4l2core/v4l2_controls.c:77
 msgid "Vertical Flip"
 msgstr "Xiro vertical"
 
-#: ../gview_v4l2core/v4l2_controls.c:74
+#: ../gview_v4l2core/v4l2_controls.c:78
 msgid "Horizontal Center"
 msgstr ""
 
-#: ../gview_v4l2core/v4l2_controls.c:75
+#: ../gview_v4l2core/v4l2_controls.c:79
 msgid "Vertical Center"
 msgstr ""
 
-#: ../gview_v4l2core/v4l2_controls.c:76
+#: ../gview_v4l2core/v4l2_controls.c:80
 msgid "Chroma AGC"
 msgstr ""
 
-#: ../gview_v4l2core/v4l2_controls.c:77
+#: ../gview_v4l2core/v4l2_controls.c:81
 msgid "Color Killer"
 msgstr ""
 
-#: ../gview_v4l2core/v4l2_controls.c:78
+#: ../gview_v4l2core/v4l2_controls.c:82
 msgid "Color Effects"
 msgstr "Efectos de cor"
 
 #. CAMERA CLASS control strings
-#: ../gview_v4l2core/v4l2_controls.c:81
+#: ../gview_v4l2core/v4l2_controls.c:85
 msgid "Camera Controls"
 msgstr ""
 
-#: ../gview_v4l2core/v4l2_controls.c:82
+#: ../gview_v4l2core/v4l2_controls.c:86
 msgid "Auto Exposure"
 msgstr "Exposición automática"
 
-#: ../gview_v4l2core/v4l2_controls.c:83
+#: ../gview_v4l2core/v4l2_controls.c:87
 msgid "Exposure Time, Absolute"
 msgstr "Tempo de exposición, Absoluto"
 
-#: ../gview_v4l2core/v4l2_controls.c:84
+#: ../gview_v4l2core/v4l2_controls.c:88
 msgid "Exposure, Dynamic Framerate"
 msgstr ""
 
-#: ../gview_v4l2core/v4l2_controls.c:85
+#: ../gview_v4l2core/v4l2_controls.c:89
 msgid "Pan, Relative"
 msgstr ""
 
-#: ../gview_v4l2core/v4l2_controls.c:86
+#: ../gview_v4l2core/v4l2_controls.c:90
 msgid "Tilt, Relative"
 msgstr "Inclinación, relativo"
 
-#: ../gview_v4l2core/v4l2_controls.c:87
+#: ../gview_v4l2core/v4l2_controls.c:91
 msgid "Pan, Reset"
 msgstr ""
 
-#: ../gview_v4l2core/v4l2_controls.c:88
+#: ../gview_v4l2core/v4l2_controls.c:92
 msgid "Tilt, Reset"
 msgstr "Inclinación, Restabelecer"
 
-#: ../gview_v4l2core/v4l2_controls.c:89
+#: ../gview_v4l2core/v4l2_controls.c:93
 msgid "Pan, Absolute"
 msgstr ""
 
-#: ../gview_v4l2core/v4l2_controls.c:91
+#: ../gview_v4l2core/v4l2_controls.c:95
 msgid "Focus, Absolute"
 msgstr "Foco, absoluto"
 
-#: ../gview_v4l2core/v4l2_controls.c:92
+#: ../gview_v4l2core/v4l2_controls.c:96
 msgid "Focus, Relative"
 msgstr "Foco, relativo"
 
-#: ../gview_v4l2core/v4l2_controls.c:93
+#: ../gview_v4l2core/v4l2_controls.c:97
 msgid "Focus, Automatic"
 msgstr "Foco, automático"
 
-#: ../gview_v4l2core/v4l2_controls.c:94
+#: ../gview_v4l2core/v4l2_controls.c:98
 msgid "Zoom, Absolute"
 msgstr ""
 
-#: ../gview_v4l2core/v4l2_controls.c:95
+#: ../gview_v4l2core/v4l2_controls.c:99
 msgid "Zoom, Relative"
 msgstr ""
 
-#: ../gview_v4l2core/v4l2_controls.c:96
+#: ../gview_v4l2core/v4l2_controls.c:100
 msgid "Zoom, Continuous"
 msgstr ""
 
-#: ../gview_v4l2core/v4l2_controls.c:97
+#: ../gview_v4l2core/v4l2_controls.c:101
 msgid "Privacy"
 msgstr "Privacidade"
 
 #. UVC specific control strings
-#: ../gview_v4l2core/v4l2_controls.c:100
+#: ../gview_v4l2core/v4l2_controls.c:104
 msgid "Exposure, Auto"
 msgstr "Exposición, Automático"
 
-#: ../gview_v4l2core/v4l2_controls.c:101
+#: ../gview_v4l2core/v4l2_controls.c:105
 msgid "Exposure, Auto Priority"
 msgstr "Exposición, Prioridade automática"
 
-#: ../gview_v4l2core/v4l2_controls.c:102
+#: ../gview_v4l2core/v4l2_controls.c:106
 msgid "Exposure (Absolute)"
 msgstr "Exposición (absoluto)"
 
-#: ../gview_v4l2core/v4l2_controls.c:103
+#: ../gview_v4l2core/v4l2_controls.c:107
 msgid "White Balance Temperature, Auto"
 msgstr ""
 
-#: ../gview_v4l2core/v4l2_controls.c:104
+#: ../gview_v4l2core/v4l2_controls.c:108
 msgid "White Balance Temperature"
 msgstr ""
 
-#: ../gview_v4l2core/v4l2_controls.c:105
+#: ../gview_v4l2core/v4l2_controls.c:109
 msgid "White Balance Component, Auto"
 msgstr ""
 
-#: ../gview_v4l2core/v4l2_controls.c:106
+#: ../gview_v4l2core/v4l2_controls.c:110
 msgid "White Balance Blue Component"
 msgstr ""
 
-#: ../gview_v4l2core/v4l2_controls.c:107
+#: ../gview_v4l2core/v4l2_controls.c:111
 msgid "White Balance Red Component"
 msgstr ""
 
 #. libwebcam specific control strings
-#: ../gview_v4l2core/v4l2_controls.c:110
+#: ../gview_v4l2core/v4l2_controls.c:114 ../gview_v4l2core/v4l2_xu_ctrls.c:125
 msgid "Focus"
 msgstr "Foco"
 
-#: ../gview_v4l2core/v4l2_controls.c:111
+#: ../gview_v4l2core/v4l2_controls.c:115
 msgid "Focus (Absolute)"
 msgstr "Foco(absoluto)"
 
-#: ../gview_v4l2core/v4l2_xu_ctrls.c:63 ../guvcview/gui_gtk3_v4l2ctrls.c:239
+#: ../gview_v4l2core/v4l2_xu_ctrls.c:63 ../guvcview/gui_gtk3_v4l2ctrls.c:248
+#: ../guvcview/gui_qt5_v4l2ctrls.cpp:198
 msgid "Off"
 msgstr ""
 
-#: ../gview_v4l2core/v4l2_xu_ctrls.c:64 ../guvcview/gui_gtk3_v4l2ctrls.c:239
+#: ../gview_v4l2core/v4l2_xu_ctrls.c:64 ../guvcview/gui_gtk3_v4l2ctrls.c:248
+#: ../guvcview/gui_qt5_v4l2ctrls.cpp:198
 msgid "On"
 msgstr ""
 
-#: ../gview_v4l2core/v4l2_xu_ctrls.c:65 ../guvcview/gui_gtk3_v4l2ctrls.c:239
+#: ../gview_v4l2core/v4l2_xu_ctrls.c:65 ../guvcview/gui_gtk3_v4l2ctrls.c:248
+#: ../guvcview/gui_qt5_v4l2ctrls.cpp:198
 msgid "Blinking"
 msgstr ""
 
-#: ../gview_v4l2core/v4l2_xu_ctrls.c:66 ../guvcview/gui_gtk3_v4l2ctrls.c:239
+#: ../gview_v4l2core/v4l2_xu_ctrls.c:66 ../guvcview/gui_gtk3_v4l2ctrls.c:248
+#: ../guvcview/gui_qt5_v4l2ctrls.cpp:198
 msgid "Auto"
 msgstr ""
 
@@ -305,10 +309,6 @@ msgstr ""
 
 #: ../gview_v4l2core/v4l2_xu_ctrls.c:112
 msgid "Tilt Reset"
-msgstr ""
-
-#: ../gview_v4l2core/v4l2_xu_ctrls.c:125
-msgid "Focus (absolute)"
 msgstr ""
 
 #: ../gview_v4l2core/v4l2_xu_ctrls.c:138
@@ -396,669 +396,760 @@ msgstr ""
 msgid "Theora (ogg theora)"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_audioctrls.c:95
+#. API
+#: ../guvcview/gui_gtk3_audioctrls.c:96 ../guvcview/gui_qt5_audioctrls.cpp:81
 msgid "Audio API:"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_audioctrls.c:106
+#: ../guvcview/gui_gtk3_audioctrls.c:111 ../guvcview/gui_qt5_audioctrls.cpp:90
 msgid "NO SOUND"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_audioctrls.c:107
+#: ../guvcview/gui_gtk3_audioctrls.c:112 ../guvcview/gui_qt5_audioctrls.cpp:91
 msgid "PORTAUDIO"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_audioctrls.c:110
+#: ../guvcview/gui_gtk3_audioctrls.c:115 ../guvcview/gui_qt5_audioctrls.cpp:93
 msgid "PULSEAUDIO"
 msgstr "PULSEAUDIO"
 
-#: ../guvcview/gui_gtk3_audioctrls.c:127
+#: ../guvcview/gui_gtk3_audioctrls.c:132
+#: ../guvcview/gui_qt5_audioctrls.cpp:109
 msgid "Input Device:"
 msgstr "Dispositivo de entrada:"
 
-#: ../guvcview/gui_gtk3_audioctrls.c:161
+#: ../guvcview/gui_gtk3_audioctrls.c:172
+#: ../guvcview/gui_qt5_audioctrls.cpp:138
 msgid "Sample Rate:"
 msgstr "Taxa de mostraxe:"
 
-#: ../guvcview/gui_gtk3_audioctrls.c:168 ../guvcview/gui_gtk3_audioctrls.c:214
+#: ../guvcview/gui_gtk3_audioctrls.c:185 ../guvcview/gui_gtk3_audioctrls.c:236
+#: ../guvcview/gui_qt5_audioctrls.cpp:147
+#: ../guvcview/gui_qt5_audioctrls.cpp:193
 msgid "Dev. Default"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_audioctrls.c:207
+#: ../guvcview/gui_gtk3_audioctrls.c:224
+#: ../guvcview/gui_qt5_audioctrls.cpp:184
 msgid "Channels:"
 msgstr "Canles:"
 
-#: ../guvcview/gui_gtk3_audioctrls.c:215
+#: ../guvcview/gui_gtk3_audioctrls.c:237
+#: ../guvcview/gui_qt5_audioctrls.cpp:194
 msgid "1 - mono"
 msgstr "1 - mono"
 
-#: ../guvcview/gui_gtk3_audioctrls.c:216
+#: ../guvcview/gui_gtk3_audioctrls.c:238
+#: ../guvcview/gui_qt5_audioctrls.cpp:195
 msgid "2 - stereo"
 msgstr "2 - stereo"
 
-#: ../guvcview/gui_gtk3_audioctrls.c:235
+#: ../guvcview/gui_gtk3_audioctrls.c:258
+#: ../guvcview/gui_qt5_audioctrls.cpp:211
+msgid "Latency:"
+msgstr ""
+
+#: ../guvcview/gui_gtk3_audioctrls.c:302
+#: ../guvcview/gui_qt5_audioctrls.cpp:242
 msgid "---- Audio Filters ----"
 msgstr ""
 
 #. Echo FX
-#: ../guvcview/gui_gtk3_audioctrls.c:255
+#: ../guvcview/gui_gtk3_audioctrls.c:327
+#: ../guvcview/gui_qt5_audioctrls.cpp:256
 msgid " Echo"
 msgstr " Echo"
 
 #. Reverb FX
-#: ../guvcview/gui_gtk3_audioctrls.c:268
+#: ../guvcview/gui_gtk3_audioctrls.c:340
+#: ../guvcview/gui_qt5_audioctrls.cpp:265
 msgid " Reverb"
 msgstr " Reverberar"
 
 #. Fuzz FX
-#: ../guvcview/gui_gtk3_audioctrls.c:281
+#: ../guvcview/gui_gtk3_audioctrls.c:353
+#: ../guvcview/gui_qt5_audioctrls.cpp:274
 msgid " Fuzz"
 msgstr " Difuso"
 
 #. WahWah FX
-#: ../guvcview/gui_gtk3_audioctrls.c:294
+#: ../guvcview/gui_gtk3_audioctrls.c:366
+#: ../guvcview/gui_qt5_audioctrls.cpp:283
 msgid " WahWah"
 msgstr ""
 
 #. Ducky FX
-#: ../guvcview/gui_gtk3_audioctrls.c:307
+#: ../guvcview/gui_gtk3_audioctrls.c:379
+#: ../guvcview/gui_qt5_audioctrls.cpp:292
 msgid " Ducky"
 msgstr ""
 
-#: ../guvcview/gui_gtk3.c:310 ../guvcview/gui_gtk3_callbacks.c:749
+#: ../guvcview/gui_gtk3.c:355 ../guvcview/gui_gtk3_callbacks.c:740
+#: ../guvcview/gui_qt5.cpp:121 ../guvcview/gui_qt5_callbacks.cpp:508
 msgid "Stop Video (V)"
 msgstr "Deter vídeo (V)"
 
 #. video button
-#: ../guvcview/gui_gtk3.c:315 ../guvcview/gui_gtk3.c:600
-#: ../guvcview/gui_gtk3_callbacks.c:755
+#: ../guvcview/gui_gtk3.c:360 ../guvcview/gui_gtk3.c:695
+#: ../guvcview/gui_gtk3_callbacks.c:746 ../guvcview/gui_qt5.cpp:126
+#: ../guvcview/gui_qt5_callbacks.cpp:500
 msgid "Cap. Video (V)"
 msgstr "Cap. Video (V)"
 
-#: ../guvcview/gui_gtk3.c:376 ../guvcview/gui_gtk3.c:383
+#: ../guvcview/gui_gtk3.c:420 ../guvcview/gui_gtk3.c:427
 msgid "Error"
 msgstr "Erro"
 
-#: ../guvcview/gui_gtk3.c:379 ../guvcview/gui_gtk3.c:386
-#: ../guvcview/gui_gtk3_callbacks.c:2097
+#: ../guvcview/gui_gtk3.c:423 ../guvcview/gui_gtk3.c:430
+#: ../guvcview/gui_gtk3_callbacks.c:2226
 msgid "_Ok"
 msgstr ""
 
-#: ../guvcview/gui_gtk3.c:380 ../guvcview/gui_gtk3_callbacks.c:185
-#: ../guvcview/gui_gtk3_callbacks.c:199 ../guvcview/gui_gtk3_callbacks.c:522
-#: ../guvcview/gui_gtk3_callbacks.c:624 ../guvcview/gui_gtk3_callbacks.c:1755
-#: ../guvcview/gui_gtk3_callbacks.c:2098
+#: ../guvcview/gui_gtk3.c:424 ../guvcview/gui_gtk3_callbacks.c:182
+#: ../guvcview/gui_gtk3_callbacks.c:196 ../guvcview/gui_gtk3_callbacks.c:517
+#: ../guvcview/gui_gtk3_callbacks.c:617 ../guvcview/gui_gtk3_callbacks.c:1779
+#: ../guvcview/gui_gtk3_callbacks.c:2227
 #, fuzzy
 msgid "_Cancel"
 msgstr "cancelar"
 
-#: ../guvcview/gui_gtk3.c:407
+#: ../guvcview/gui_gtk3.c:480 ../guvcview/gui_qt5.cpp:309
 msgid ""
 "\n"
-"You have more than one video device installed.\n"
-"Do you want to try another one ?\n"
+"You seem to have video devices installed.\n"
+"Do you want to try one ?\n"
 msgstr ""
 
 #. ---- Devices ----
-#: ../guvcview/gui_gtk3.c:414 ../guvcview/gui_gtk3_videoctrls.c:106
+#: ../guvcview/gui_gtk3.c:501 ../guvcview/gui_gtk3_videoctrls.c:102
+#: ../guvcview/gui_qt5_videoctrls.cpp:95
 msgid "Device:"
 msgstr "Dispositivo:"
 
-#: ../guvcview/gui_gtk3.c:516
+#. check for device errors
+#. if(!device)
+#. {
+#. gui_error("Guvcview error", "no video device found", 1);
+#. return -1;
+#. }
+#: ../guvcview/gui_gtk3.c:608
 msgid "Guvcview Video Capture"
 msgstr "Capturador de vídeo GUVCView"
 
-#: ../guvcview/gui_gtk3.c:525
+#: ../guvcview/gui_gtk3.c:619
 msgid "Guvcview"
 msgstr ""
 
-#: ../guvcview/gui_gtk3.c:572
+#: ../guvcview/gui_gtk3.c:665 ../guvcview/gui_qt5.cpp:96
 msgid "Stop Cap. (I)"
 msgstr ""
 
-#: ../guvcview/gui_gtk3.c:578 ../guvcview/gui_gtk3_callbacks.c:720
-#: ../guvcview/video_capture.c:250
+#: ../guvcview/gui_gtk3.c:671 ../guvcview/gui_gtk3_callbacks.c:713
+#: ../guvcview/video_capture.c:258 ../guvcview/gui_qt5.cpp:101
+#: ../guvcview/gui_qt5_callbacks.cpp:473
 msgid "Cap. Image (I)"
 msgstr "Cap. Imaxe (I)"
 
 #. quit button
 #. GtkWidget *quitButton = gtk_button_new_from_stock(GTK_STOCK_QUIT);
-#: ../guvcview/gui_gtk3.c:621
-msgid "_Quit"
+#: ../guvcview/gui_gtk3.c:718 ../guvcview/gui_qt5.cpp:145
+msgid "Quit"
 msgstr ""
 
-#: ../guvcview/gui_gtk3.c:667
+#: ../guvcview/gui_gtk3.c:765 ../guvcview/gui_qt5.cpp:166
 msgid "Image Controls"
 msgstr ""
 
-#: ../guvcview/gui_gtk3.c:703
+#: ../guvcview/gui_gtk3.c:801 ../guvcview/gui_qt5.cpp:179
 #, fuzzy
 msgid "H264 Controls"
 msgstr "Controles de GUVCViewer"
 
-#: ../guvcview/gui_gtk3.c:742
+#: ../guvcview/gui_gtk3.c:840 ../guvcview/gui_qt5.cpp:194
 #, fuzzy
 msgid "Video Controls"
 msgstr "Controles de GUVCViewer"
 
-#: ../guvcview/gui_gtk3.c:777
+#: ../guvcview/gui_gtk3.c:875 ../guvcview/gui_qt5.cpp:205
 #, fuzzy
 msgid "Audio Controls"
 msgstr "Controles de GUVCViewer"
 
-#: ../guvcview/gui_gtk3_callbacks.c:182 ../guvcview/gui_gtk3_menu.c:72
+#: ../guvcview/gui_gtk3_callbacks.c:179 ../guvcview/gui_gtk3_menu.c:69
+#: ../guvcview/gui_qt5_callbacks.cpp:180 ../guvcview/gui_qt5_menu.cpp:73
 msgid "Save Profile"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_callbacks.c:186 ../guvcview/gui_gtk3_callbacks.c:523
-#: ../guvcview/gui_gtk3_callbacks.c:625
+#: ../guvcview/gui_gtk3_callbacks.c:183 ../guvcview/gui_gtk3_callbacks.c:518
+#: ../guvcview/gui_gtk3_callbacks.c:618
 msgid "_Save"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_callbacks.c:196 ../guvcview/gui_gtk3_menu.c:71
+#: ../guvcview/gui_gtk3_callbacks.c:193 ../guvcview/gui_gtk3_menu.c:68
+#: ../guvcview/gui_qt5_callbacks.cpp:145 ../guvcview/gui_qt5_menu.cpp:71
 msgid "Load Profile"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_callbacks.c:200
+#: ../guvcview/gui_gtk3_callbacks.c:197
 msgid "_Open"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_callbacks.c:208 ../guvcview/gui_gtk3_callbacks.c:531
-#: ../guvcview/gui_gtk3_callbacks.c:634
+#: ../guvcview/gui_gtk3_callbacks.c:205 ../guvcview/gui_gtk3_callbacks.c:526
+#: ../guvcview/gui_gtk3_callbacks.c:627
 msgid "File Format:"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_callbacks.c:220
+#: ../guvcview/gui_gtk3_callbacks.c:217 ../guvcview/gui_qt5_callbacks.cpp:142
+#: ../guvcview/gui_qt5_callbacks.cpp:173
 msgid "gpfl  (*.gpfl)"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_callbacks.c:221
+#: ../guvcview/gui_gtk3_callbacks.c:218 ../guvcview/gui_qt5_callbacks.cpp:144
+#: ../guvcview/gui_qt5_callbacks.cpp:175
 msgid "any (*.*)"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_callbacks.c:519
+#: ../guvcview/gui_gtk3_callbacks.c:514 ../guvcview/gui_qt5_callbacks.cpp:366
 #, fuzzy
 msgid "Photo file name"
 msgstr "Nome da imaxe"
 
-#: ../guvcview/gui_gtk3_callbacks.c:543
+#: ../guvcview/gui_gtk3_callbacks.c:538 ../guvcview/gui_qt5_callbacks.cpp:346
 msgid "Raw  (*.raw)"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_callbacks.c:544
+#: ../guvcview/gui_gtk3_callbacks.c:539
 msgid "Jpeg (*.jpg)"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_callbacks.c:545
+#: ../guvcview/gui_gtk3_callbacks.c:540
 msgid "Png  (*.png)"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_callbacks.c:546
+#: ../guvcview/gui_gtk3_callbacks.c:541 ../guvcview/gui_qt5_callbacks.cpp:345
 msgid "Bmp  (*.bmp)"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_callbacks.c:621
+#: ../guvcview/gui_gtk3_callbacks.c:614 ../guvcview/gui_qt5_callbacks.cpp:419
 #, fuzzy
 msgid "Video file name"
 msgstr "Nome da imaxe"
 
-#: ../guvcview/gui_gtk3_callbacks.c:646
+#: ../guvcview/gui_gtk3_callbacks.c:639 ../guvcview/gui_qt5_callbacks.cpp:402
 msgid "Matroska  (*.mkv)"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_callbacks.c:647
+#: ../guvcview/gui_gtk3_callbacks.c:640 ../guvcview/gui_qt5_callbacks.cpp:403
 msgid "WebM (*.webm)"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_callbacks.c:648
+#: ../guvcview/gui_gtk3_callbacks.c:641 ../guvcview/gui_qt5_callbacks.cpp:404
 msgid "Avi  (*.avi)"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_callbacks.c:1158
+#: ../guvcview/gui_gtk3_callbacks.c:1129 ../guvcview/gui_qt5_callbacks.cpp:890
 msgid "start new"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_callbacks.c:1161
+#: ../guvcview/gui_gtk3_callbacks.c:1132 ../guvcview/gui_qt5_callbacks.cpp:892
 msgid "restart"
 msgstr "reiniciar"
 
-#: ../guvcview/gui_gtk3_callbacks.c:1163
+#: ../guvcview/gui_gtk3_callbacks.c:1134 ../guvcview/gui_qt5_callbacks.cpp:893
 msgid "new"
 msgstr "novo"
 
-#: ../guvcview/gui_gtk3_callbacks.c:1165
+#: ../guvcview/gui_gtk3_callbacks.c:1136
 msgid "cancel"
 msgstr "cancelar"
 
-#: ../guvcview/gui_gtk3_callbacks.c:1170
+#: ../guvcview/gui_gtk3_callbacks.c:1141 ../guvcview/gui_qt5_callbacks.cpp:891
 msgid ""
 "launch new process or restart?.\n"
 "\n"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_callbacks.c:1751
+#: ../guvcview/gui_gtk3_callbacks.c:1775
+#: ../guvcview/gui_qt5_callbacks.cpp:1441
 msgid "video codec values"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_callbacks.c:1754
+#: ../guvcview/gui_gtk3_callbacks.c:1778
 msgid "_OK"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_callbacks.c:1760
+#: ../guvcview/gui_gtk3_callbacks.c:1784
+#: ../guvcview/gui_qt5_callbacks.cpp:1462
 msgid ""
 "                              encoder fps:   \n"
 " (0 - use fps combobox value)"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_callbacks.c:1773
+#: ../guvcview/gui_gtk3_callbacks.c:1802
+#: ../guvcview/gui_qt5_callbacks.cpp:1467
 msgid " monotonic pts"
 msgstr ""
 
 #. bit rate
-#: ../guvcview/gui_gtk3_callbacks.c:1780 ../guvcview/gui_gtk3_callbacks.c:2105
+#: ../guvcview/gui_gtk3_callbacks.c:1809 ../guvcview/gui_gtk3_callbacks.c:2234
+#: ../guvcview/gui_qt5_callbacks.cpp:1473
+#: ../guvcview/gui_qt5_callbacks.cpp:1665
 msgid "bit rate:   "
 msgstr "Taxa de bits:   "
 
-#: ../guvcview/gui_gtk3_callbacks.c:1793
+#: ../guvcview/gui_gtk3_callbacks.c:1827
+#: ../guvcview/gui_qt5_callbacks.cpp:1479
 msgid "qmax:   "
 msgstr "qmax:   "
 
-#: ../guvcview/gui_gtk3_callbacks.c:1806
+#: ../guvcview/gui_gtk3_callbacks.c:1845
+#: ../guvcview/gui_qt5_callbacks.cpp:1485
 msgid "qmin:   "
 msgstr "qmin:   "
 
-#: ../guvcview/gui_gtk3_callbacks.c:1819
+#: ../guvcview/gui_gtk3_callbacks.c:1863
+#: ../guvcview/gui_qt5_callbacks.cpp:1491
 msgid "max. qdiff:   "
 msgstr "max. qdiff:   "
 
-#: ../guvcview/gui_gtk3_callbacks.c:1832
+#: ../guvcview/gui_gtk3_callbacks.c:1881
+#: ../guvcview/gui_qt5_callbacks.cpp:1497
 msgid "dia size:   "
 msgstr ""
 
-#: ../guvcview/gui_gtk3_callbacks.c:1845
+#: ../guvcview/gui_gtk3_callbacks.c:1899
+#: ../guvcview/gui_qt5_callbacks.cpp:1503
 msgid "pre dia size:   "
 msgstr ""
 
-#: ../guvcview/gui_gtk3_callbacks.c:1858
+#: ../guvcview/gui_gtk3_callbacks.c:1917
+#: ../guvcview/gui_qt5_callbacks.cpp:1509
 msgid "pre me:   "
 msgstr "pre me:   "
 
-#: ../guvcview/gui_gtk3_callbacks.c:1871
+#: ../guvcview/gui_gtk3_callbacks.c:1935
+#: ../guvcview/gui_qt5_callbacks.cpp:1515
 msgid "pre cmp:   "
 msgstr "pre cmp:   "
 
-#: ../guvcview/gui_gtk3_callbacks.c:1884
+#: ../guvcview/gui_gtk3_callbacks.c:1953
+#: ../guvcview/gui_qt5_callbacks.cpp:1521
 msgid "cmp:   "
 msgstr "cmp:   "
 
-#: ../guvcview/gui_gtk3_callbacks.c:1897
+#: ../guvcview/gui_gtk3_callbacks.c:1971
+#: ../guvcview/gui_qt5_callbacks.cpp:1527
 msgid "sub cmp:   "
 msgstr "sub cmp:   "
 
-#: ../guvcview/gui_gtk3_callbacks.c:1910
+#: ../guvcview/gui_gtk3_callbacks.c:1989
+#: ../guvcview/gui_qt5_callbacks.cpp:1533
 msgid "last predictor count:   "
 msgstr ""
 
-#: ../guvcview/gui_gtk3_callbacks.c:1923
+#: ../guvcview/gui_gtk3_callbacks.c:2007
+#: ../guvcview/gui_qt5_callbacks.cpp:1539
 msgid "gop size:   "
 msgstr "Tamaño do gop:   "
 
-#: ../guvcview/gui_gtk3_callbacks.c:1936
+#: ../guvcview/gui_gtk3_callbacks.c:2025
+#: ../guvcview/gui_qt5_callbacks.cpp:1545
 msgid "qcompress:   "
 msgstr ""
 
-#: ../guvcview/gui_gtk3_callbacks.c:1949
+#: ../guvcview/gui_gtk3_callbacks.c:2043
+#: ../guvcview/gui_qt5_callbacks.cpp:1551
 msgid "qblur:   "
 msgstr ""
 
-#: ../guvcview/gui_gtk3_callbacks.c:1962
+#: ../guvcview/gui_gtk3_callbacks.c:2061
+#: ../guvcview/gui_qt5_callbacks.cpp:1557
 msgid "subq:   "
 msgstr ""
 
-#: ../guvcview/gui_gtk3_callbacks.c:1975
+#: ../guvcview/gui_gtk3_callbacks.c:2079
+#: ../guvcview/gui_qt5_callbacks.cpp:1563
 msgid "framerefs:   "
 msgstr ""
 
-#: ../guvcview/gui_gtk3_callbacks.c:1988
+#: ../guvcview/gui_gtk3_callbacks.c:2097
+#: ../guvcview/gui_qt5_callbacks.cpp:1569
 msgid "me method:   "
 msgstr ""
 
-#: ../guvcview/gui_gtk3_callbacks.c:2001
+#: ../guvcview/gui_gtk3_callbacks.c:2115
+#: ../guvcview/gui_qt5_callbacks.cpp:1575
 msgid "mb decision:   "
 msgstr ""
 
-#: ../guvcview/gui_gtk3_callbacks.c:2014
+#: ../guvcview/gui_gtk3_callbacks.c:2133
+#: ../guvcview/gui_qt5_callbacks.cpp:1581
 msgid "max B frames:   "
 msgstr ""
 
-#: ../guvcview/gui_gtk3_callbacks.c:2027
+#: ../guvcview/gui_gtk3_callbacks.c:2151
+#: ../guvcview/gui_qt5_callbacks.cpp:1587
 msgid "num threads:   "
 msgstr ""
 
-#: ../guvcview/gui_gtk3_callbacks.c:2094
+#: ../guvcview/gui_gtk3_callbacks.c:2223
+#: ../guvcview/gui_qt5_callbacks.cpp:1643
 msgid "audio codec values"
 msgstr ""
 
 #. sample format
-#: ../guvcview/gui_gtk3_callbacks.c:2119
+#: ../guvcview/gui_gtk3_callbacks.c:2253
+#: ../guvcview/gui_qt5_callbacks.cpp:1672
 msgid "sample format:   "
 msgstr ""
 
-#: ../guvcview/gui_gtk3_h264ctrls.c:622
+#. streaming controls
+#. bRateControlMode
+#: ../guvcview/gui_gtk3_h264ctrls.c:605 ../guvcview/gui_qt5_h264ctrls.cpp:485
 msgid "Rate Control Mode:"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_h264ctrls.c:633
+#: ../guvcview/gui_gtk3_h264ctrls.c:621 ../guvcview/gui_qt5_h264ctrls.cpp:498
 msgid "CBR"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_h264ctrls.c:636
+#: ../guvcview/gui_gtk3_h264ctrls.c:624 ../guvcview/gui_qt5_h264ctrls.cpp:500
 msgid "VBR"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_h264ctrls.c:640
+#: ../guvcview/gui_gtk3_h264ctrls.c:628 ../guvcview/gui_qt5_h264ctrls.cpp:503
 msgid "Constant QP"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_h264ctrls.c:658
+#: ../guvcview/gui_gtk3_h264ctrls.c:646 ../guvcview/gui_qt5_h264ctrls.cpp:518
 msgid "Rate Control Mode flags:"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_h264ctrls.c:683
+#: ../guvcview/gui_gtk3_h264ctrls.c:676 ../guvcview/gui_qt5_h264ctrls.cpp:537
 msgid "Temporal Scale Mode:"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_h264ctrls.c:711
+#: ../guvcview/gui_gtk3_h264ctrls.c:711 ../guvcview/gui_qt5_h264ctrls.cpp:562
 msgid "Spatial Scale Mode:"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_h264ctrls.c:741
+#: ../guvcview/gui_gtk3_h264ctrls.c:747 ../guvcview/gui_qt5_h264ctrls.cpp:583
 msgid "Frame Interval (100ns units):"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_h264ctrls.c:778
+#: ../guvcview/gui_gtk3_h264ctrls.c:789 ../guvcview/gui_qt5_h264ctrls.cpp:615
 #, fuzzy
 msgid "Bit Rate:"
 msgstr "Taxa de bits:   "
 
-#: ../guvcview/gui_gtk3_h264ctrls.c:801
+#: ../guvcview/gui_gtk3_h264ctrls.c:817 ../guvcview/gui_qt5_h264ctrls.cpp:631
 msgid "Hints:"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_h264ctrls.c:806
+#. Hints Resolution
+#: ../guvcview/gui_gtk3_h264ctrls.c:827 ../guvcview/gui_qt5_h264ctrls.cpp:646
 #, fuzzy
 msgid "Resolution"
 msgstr "Resolution:"
 
-#: ../guvcview/gui_gtk3_h264ctrls.c:810
+#. Hints Profile
+#: ../guvcview/gui_gtk3_h264ctrls.c:831 ../guvcview/gui_qt5_h264ctrls.cpp:650
 msgid "Profile"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_h264ctrls.c:814
+#. Hints Ratecontrol
+#: ../guvcview/gui_gtk3_h264ctrls.c:835 ../guvcview/gui_qt5_h264ctrls.cpp:654
 #, fuzzy
 msgid "Rate Control"
 msgstr "Controles de GUVCViewer"
 
-#: ../guvcview/gui_gtk3_h264ctrls.c:818
+#. Hints Usage
+#: ../guvcview/gui_gtk3_h264ctrls.c:839 ../guvcview/gui_qt5_h264ctrls.cpp:658
 msgid "Usage Type"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_h264ctrls.c:822
+#. Hints SliceMode
+#: ../guvcview/gui_gtk3_h264ctrls.c:843 ../guvcview/gui_qt5_h264ctrls.cpp:662
 msgid "Slice Mode"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_h264ctrls.c:826
+#. Hints Sliceunit
+#: ../guvcview/gui_gtk3_h264ctrls.c:847 ../guvcview/gui_qt5_h264ctrls.cpp:666
 msgid "Slice Unit"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_h264ctrls.c:830
+#. Hints View
+#: ../guvcview/gui_gtk3_h264ctrls.c:851 ../guvcview/gui_qt5_h264ctrls.cpp:670
 msgid "MVC View"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_h264ctrls.c:834
+#. Hints View
+#: ../guvcview/gui_gtk3_h264ctrls.c:855 ../guvcview/gui_qt5_h264ctrls.cpp:674
 msgid "Temporal Scale"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_h264ctrls.c:838
+#. Hints View
+#: ../guvcview/gui_gtk3_h264ctrls.c:859 ../guvcview/gui_qt5_h264ctrls.cpp:678
 msgid "SNR Scale"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_h264ctrls.c:842
+#. Hints Spatial
+#: ../guvcview/gui_gtk3_h264ctrls.c:863 ../guvcview/gui_qt5_h264ctrls.cpp:682
 msgid "Spatial Scale"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_h264ctrls.c:846
+#. Hints Spatial layer
+#: ../guvcview/gui_gtk3_h264ctrls.c:867 ../guvcview/gui_qt5_h264ctrls.cpp:686
 msgid "Spatial Layer Ratio"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_h264ctrls.c:850
+#. Hints FrameInterval
+#: ../guvcview/gui_gtk3_h264ctrls.c:871 ../guvcview/gui_qt5_h264ctrls.cpp:690
 #, fuzzy
 msgid "Frame Interval"
 msgstr "Taxa de fotogramas:"
 
-#: ../guvcview/gui_gtk3_h264ctrls.c:854
+#. Hints Leaky bucket
+#: ../guvcview/gui_gtk3_h264ctrls.c:875 ../guvcview/gui_qt5_h264ctrls.cpp:694
 msgid "Leaky Bucket Size"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_h264ctrls.c:858
+#. Hints Bit Rate
+#: ../guvcview/gui_gtk3_h264ctrls.c:879 ../guvcview/gui_qt5_h264ctrls.cpp:698
 msgid "Bit Rate"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_h264ctrls.c:862 ../guvcview/gui_gtk3_h264ctrls.c:1220
+#. Hints Cabac
+#: ../guvcview/gui_gtk3_h264ctrls.c:883 ../guvcview/gui_gtk3_h264ctrls.c:1296
+#: ../guvcview/gui_qt5_h264ctrls.cpp:702
+#: ../guvcview/gui_qt5_h264ctrls.cpp:1017
 msgid "CABAC"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_h264ctrls.c:866
+#. Hints I Frame
+#: ../guvcview/gui_gtk3_h264ctrls.c:887 ../guvcview/gui_qt5_h264ctrls.cpp:706
 msgid "(I) Frame Period"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_h264ctrls.c:878
+#: ../guvcview/gui_gtk3_h264ctrls.c:899 ../guvcview/gui_qt5_h264ctrls.cpp:715
 msgid "Slice Mode:"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_h264ctrls.c:885
+#: ../guvcview/gui_gtk3_h264ctrls.c:911 ../guvcview/gui_qt5_h264ctrls.cpp:724
 msgid "no multiple slices"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_h264ctrls.c:887
+#: ../guvcview/gui_gtk3_h264ctrls.c:913 ../guvcview/gui_qt5_h264ctrls.cpp:725
 msgid "bits/slice"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_h264ctrls.c:889
+#: ../guvcview/gui_gtk3_h264ctrls.c:915 ../guvcview/gui_qt5_h264ctrls.cpp:726
 msgid "Mbits/slice"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_h264ctrls.c:891
+#: ../guvcview/gui_gtk3_h264ctrls.c:917 ../guvcview/gui_qt5_h264ctrls.cpp:727
 msgid "slices/frame"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_h264ctrls.c:900
+#: ../guvcview/gui_gtk3_h264ctrls.c:926 ../guvcview/gui_qt5_h264ctrls.cpp:734
 msgid "Slice Units:"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_h264ctrls.c:921
+#: ../guvcview/gui_gtk3_h264ctrls.c:952 ../guvcview/gui_qt5_h264ctrls.cpp:751
 msgid "Profile:"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_h264ctrls.c:928
+#: ../guvcview/gui_gtk3_h264ctrls.c:964 ../guvcview/gui_qt5_h264ctrls.cpp:760
 msgid "Baseline Profile"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_h264ctrls.c:930
+#: ../guvcview/gui_gtk3_h264ctrls.c:966 ../guvcview/gui_qt5_h264ctrls.cpp:761
 msgid "Main Profile"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_h264ctrls.c:932
+#: ../guvcview/gui_gtk3_h264ctrls.c:968 ../guvcview/gui_qt5_h264ctrls.cpp:762
 msgid "High Profile"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_h264ctrls.c:934
+#: ../guvcview/gui_gtk3_h264ctrls.c:970 ../guvcview/gui_qt5_h264ctrls.cpp:763
 msgid "Scalable Baseline Profile"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_h264ctrls.c:936
+#: ../guvcview/gui_gtk3_h264ctrls.c:972 ../guvcview/gui_qt5_h264ctrls.cpp:764
 msgid "Scalable High Profile"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_h264ctrls.c:938
+#: ../guvcview/gui_gtk3_h264ctrls.c:974 ../guvcview/gui_qt5_h264ctrls.cpp:765
 msgid "Multiview High Profile"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_h264ctrls.c:940
+#: ../guvcview/gui_gtk3_h264ctrls.c:976 ../guvcview/gui_qt5_h264ctrls.cpp:766
 msgid "Stereo High Profile"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_h264ctrls.c:979
+#: ../guvcview/gui_gtk3_h264ctrls.c:1015 ../guvcview/gui_qt5_h264ctrls.cpp:804
 msgid "Profile flags:"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_h264ctrls.c:1004
+#: ../guvcview/gui_gtk3_h264ctrls.c:1045 ../guvcview/gui_qt5_h264ctrls.cpp:824
 msgid "(I) Frame Period (ms):"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_h264ctrls.c:1025
+#: ../guvcview/gui_gtk3_h264ctrls.c:1071 ../guvcview/gui_qt5_h264ctrls.cpp:841
 msgid "Estimated Video Delay (ms):"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_h264ctrls.c:1046
+#: ../guvcview/gui_gtk3_h264ctrls.c:1097 ../guvcview/gui_qt5_h264ctrls.cpp:858
 msgid "Estimated Max Config Delay (ms):"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_h264ctrls.c:1067
+#: ../guvcview/gui_gtk3_h264ctrls.c:1123 ../guvcview/gui_qt5_h264ctrls.cpp:875
 msgid "Usage Type:"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_h264ctrls.c:1074
+#: ../guvcview/gui_gtk3_h264ctrls.c:1135 ../guvcview/gui_qt5_h264ctrls.cpp:884
 msgid "Real-time"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_h264ctrls.c:1076
+#: ../guvcview/gui_gtk3_h264ctrls.c:1137 ../guvcview/gui_qt5_h264ctrls.cpp:885
 msgid "Broadcast"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_h264ctrls.c:1078
+#: ../guvcview/gui_gtk3_h264ctrls.c:1139 ../guvcview/gui_qt5_h264ctrls.cpp:886
 msgid "Storage"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_h264ctrls.c:1080
+#: ../guvcview/gui_gtk3_h264ctrls.c:1141 ../guvcview/gui_qt5_h264ctrls.cpp:887
 msgid "(0) Non-scalable single layer AVC"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_h264ctrls.c:1082
+#: ../guvcview/gui_gtk3_h264ctrls.c:1143 ../guvcview/gui_qt5_h264ctrls.cpp:888
 msgid "(1) SVC temporal scalability with hierarchical P"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_h264ctrls.c:1084
+#: ../guvcview/gui_gtk3_h264ctrls.c:1145 ../guvcview/gui_qt5_h264ctrls.cpp:889
 msgid "(2q) SVC temporal scalability + Quality/SNR scalability"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_h264ctrls.c:1086
+#: ../guvcview/gui_gtk3_h264ctrls.c:1147 ../guvcview/gui_qt5_h264ctrls.cpp:890
 msgid "(2s) SVC temporal scalability + spatial scalability"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_h264ctrls.c:1088
+#: ../guvcview/gui_gtk3_h264ctrls.c:1149 ../guvcview/gui_qt5_h264ctrls.cpp:891
 msgid "(3) Full SVC scalability"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_h264ctrls.c:1102
+#: ../guvcview/gui_gtk3_h264ctrls.c:1163 ../guvcview/gui_qt5_h264ctrls.cpp:905
 msgid "SNR Control Mode:"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_h264ctrls.c:1109
+#: ../guvcview/gui_gtk3_h264ctrls.c:1175 ../guvcview/gui_qt5_h264ctrls.cpp:914
 msgid "No SNR Enhancement Layer"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_h264ctrls.c:1111
+#: ../guvcview/gui_gtk3_h264ctrls.c:1177 ../guvcview/gui_qt5_h264ctrls.cpp:915
 msgid "CGS NonRewrite (2 Layer)"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_h264ctrls.c:1113
+#: ../guvcview/gui_gtk3_h264ctrls.c:1179 ../guvcview/gui_qt5_h264ctrls.cpp:916
 msgid "CGS NonRewrite (3 Layer)"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_h264ctrls.c:1115
+#: ../guvcview/gui_gtk3_h264ctrls.c:1181 ../guvcview/gui_qt5_h264ctrls.cpp:917
 msgid "CGS Rewrite (2 Layer)"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_h264ctrls.c:1117
+#: ../guvcview/gui_gtk3_h264ctrls.c:1183 ../guvcview/gui_qt5_h264ctrls.cpp:918
 msgid "CGS Rewrite (3 Layer)"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_h264ctrls.c:1119
+#: ../guvcview/gui_gtk3_h264ctrls.c:1185 ../guvcview/gui_qt5_h264ctrls.cpp:919
 msgid "MGS (2 Layer)"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_h264ctrls.c:1144
+#. ---enable
+#: ../guvcview/gui_gtk3_h264ctrls.c:1210 ../guvcview/gui_qt5_h264ctrls.cpp:948
 msgid "Stream Mux Enable"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_h264ctrls.c:1151
+#: ../guvcview/gui_gtk3_h264ctrls.c:1217 ../guvcview/gui_qt5_h264ctrls.cpp:957
 msgid "Embed H.264 aux stream"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_h264ctrls.c:1153
+#: ../guvcview/gui_gtk3_h264ctrls.c:1219 ../guvcview/gui_qt5_h264ctrls.cpp:958
 msgid "Embed YUY2 aux stream"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_h264ctrls.c:1155
+#: ../guvcview/gui_gtk3_h264ctrls.c:1221 ../guvcview/gui_qt5_h264ctrls.cpp:959
 msgid "Embed NV12 aux stream"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_h264ctrls.c:1175
+#. ---mjpg payload
+#: ../guvcview/gui_gtk3_h264ctrls.c:1241 ../guvcview/gui_qt5_h264ctrls.cpp:977
 msgid "MJPG payload container"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_h264ctrls.c:1189
+#: ../guvcview/gui_gtk3_h264ctrls.c:1255 ../guvcview/gui_qt5_h264ctrls.cpp:989
 msgid "Stream Format:"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_h264ctrls.c:1197
+#: ../guvcview/gui_gtk3_h264ctrls.c:1268 ../guvcview/gui_qt5_h264ctrls.cpp:998
 msgid "Byte stream format (H.264 Annex-B)"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_h264ctrls.c:1199
+#: ../guvcview/gui_gtk3_h264ctrls.c:1270 ../guvcview/gui_qt5_h264ctrls.cpp:999
 msgid "NAL stream format"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_h264ctrls.c:1210
+#: ../guvcview/gui_gtk3_h264ctrls.c:1281
+#: ../guvcview/gui_qt5_h264ctrls.cpp:1007
 msgid "Entropy CABAC:"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_h264ctrls.c:1218
+#: ../guvcview/gui_gtk3_h264ctrls.c:1294
+#: ../guvcview/gui_qt5_h264ctrls.cpp:1016
 msgid "CAVLC"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_h264ctrls.c:1231
+#: ../guvcview/gui_gtk3_h264ctrls.c:1307
+#: ../guvcview/gui_qt5_h264ctrls.cpp:1025
 msgid "Picture timing SEI"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_h264ctrls.c:1238
+#: ../guvcview/gui_gtk3_h264ctrls.c:1314
+#: ../guvcview/gui_qt5_h264ctrls.cpp:1033
 #, fuzzy
 msgid "B Frames:"
 msgstr "Taxa de fotogramas:"
 
-#: ../guvcview/gui_gtk3_h264ctrls.c:1263
+#: ../guvcview/gui_gtk3_h264ctrls.c:1344
+#: ../guvcview/gui_qt5_h264ctrls.cpp:1053
 msgid "Preview Flipped"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_h264ctrls.c:1270
+#: ../guvcview/gui_gtk3_h264ctrls.c:1351
+#: ../guvcview/gui_qt5_h264ctrls.cpp:1061
 msgid "Additional MVC Views:"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_h264ctrls.c:1295
+#: ../guvcview/gui_gtk3_h264ctrls.c:1381
+#: ../guvcview/gui_qt5_h264ctrls.cpp:1081
 msgid "Simulcast stream index:"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_h264ctrls.c:1320
+#: ../guvcview/gui_gtk3_h264ctrls.c:1411
+#: ../guvcview/gui_qt5_h264ctrls.cpp:1101
 msgid "Spatial Layer Ratio:"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_h264ctrls.c:1349
+#: ../guvcview/gui_gtk3_h264ctrls.c:1445
+#: ../guvcview/gui_qt5_h264ctrls.cpp:1125
 msgid "Leaky Bucket Size (ms):"
 msgstr ""
 
 #. encoder reset
-#: ../guvcview/gui_gtk3_h264ctrls.c:1376
+#: ../guvcview/gui_gtk3_h264ctrls.c:1477
+#: ../guvcview/gui_qt5_h264ctrls.cpp:1146
 msgid "Encoder Reset"
 msgstr ""
 
@@ -1070,293 +1161,350 @@ msgstr ""
 #. gtk_grid_attach (GTK_GRID(h264_controls_grid), probe_button, 0, line, 1 ,1);
 #. gtk_widget_show(probe_button);
 #.
-#: ../guvcview/gui_gtk3_h264ctrls.c:1391
+#. commit button
+#: ../guvcview/gui_gtk3_h264ctrls.c:1492
+#: ../guvcview/gui_qt5_h264ctrls.cpp:1155
 msgid "COMMIT"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_menu.c:70
+#: ../guvcview/gui_gtk3_menu.c:67 ../guvcview/gui_qt5_menu.cpp:70
 msgid "Settings"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_menu.c:73
+#: ../guvcview/gui_gtk3_menu.c:70 ../guvcview/gui_qt5_menu.cpp:75
 msgid "Hardware Defaults"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_menu.c:81
+#: ../guvcview/gui_gtk3_menu.c:78 ../guvcview/gui_qt5_menu.cpp:82
 msgid "Camera Button"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_menu.c:86
+#: ../guvcview/gui_gtk3_menu.c:83 ../guvcview/gui_qt5_menu.cpp:88
 msgid "Capture Image"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_menu.c:91
+#: ../guvcview/gui_gtk3_menu.c:88 ../guvcview/gui_qt5_menu.cpp:95
 msgid "Capture Video"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_menu.c:134
+#. photo menu
+#: ../guvcview/gui_gtk3_menu.c:131 ../guvcview/gui_qt5_menu.cpp:108
 msgid "Photo"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_menu.c:135 ../guvcview/gui_gtk3_menu.c:159
+#: ../guvcview/gui_gtk3_menu.c:132 ../guvcview/gui_gtk3_menu.c:156
+#: ../guvcview/gui_qt5_menu.cpp:112 ../guvcview/gui_qt5_menu.cpp:122
 msgid "File"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_menu.c:136 ../guvcview/gui_gtk3_menu.c:160
+#: ../guvcview/gui_gtk3_menu.c:133 ../guvcview/gui_gtk3_menu.c:157
+#: ../guvcview/gui_qt5_menu.cpp:113 ../guvcview/gui_qt5_menu.cpp:123
 msgid "Increment Filename"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_menu.c:158
+#. video menu
+#: ../guvcview/gui_gtk3_menu.c:155 ../guvcview/gui_qt5_menu.cpp:118
 msgid "Video"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_menu.c:175
+#. video codecs
+#: ../guvcview/gui_gtk3_menu.c:172 ../guvcview/gui_qt5_menu.cpp:128
 msgid "Video Codec"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_menu.c:202
+#: ../guvcview/gui_gtk3_menu.c:199 ../guvcview/gui_qt5_menu.cpp:154
 msgid "Video Codec Properties"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_menu.c:208
+#. audio codec menu
+#: ../guvcview/gui_gtk3_menu.c:205 ../guvcview/gui_qt5_menu.cpp:157
 msgid "Audio Codec"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_menu.c:235
+#: ../guvcview/gui_gtk3_menu.c:232 ../guvcview/gui_qt5_menu.cpp:182
 msgid "Audio Codec Properties"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_v4l2ctrls.c:174
+#: ../guvcview/gui_gtk3_v4l2ctrls.c:183 ../guvcview/gui_qt5_v4l2ctrls.cpp:133
 msgid "Left"
 msgstr "Esquerda"
 
-#: ../guvcview/gui_gtk3_v4l2ctrls.c:175
+#: ../guvcview/gui_gtk3_v4l2ctrls.c:184 ../guvcview/gui_qt5_v4l2ctrls.cpp:134
 msgid "Right"
 msgstr "Dereita"
 
-#: ../guvcview/gui_gtk3_v4l2ctrls.c:179
+#: ../guvcview/gui_gtk3_v4l2ctrls.c:188 ../guvcview/gui_qt5_v4l2ctrls.cpp:138
 msgid "Down"
 msgstr "Abaixo"
 
-#: ../guvcview/gui_gtk3_v4l2ctrls.c:180
+#: ../guvcview/gui_gtk3_v4l2ctrls.c:189 ../guvcview/gui_qt5_v4l2ctrls.cpp:139
 msgid "Up"
 msgstr "Arriba"
 
 #. turn it into a menu control
-#: ../guvcview/gui_gtk3_v4l2ctrls.c:296
+#: ../guvcview/gui_gtk3_v4l2ctrls.c:305 ../guvcview/gui_qt5_v4l2ctrls.cpp:256
 msgid "8 bit"
 msgstr ""
 
-#: ../guvcview/gui_gtk3_v4l2ctrls.c:296
+#: ../guvcview/gui_gtk3_v4l2ctrls.c:305 ../guvcview/gui_qt5_v4l2ctrls.cpp:256
 msgid "12 bit"
 msgstr ""
 
 #. add a virtual control for software autofocus
-#: ../guvcview/gui_gtk3_v4l2ctrls.c:348
+#: ../guvcview/gui_gtk3_v4l2ctrls.c:357 ../guvcview/gui_qt5_v4l2ctrls.cpp:309
 msgid "Auto Focus (continuous)"
 msgstr "Foco automático(continuo)"
 
-#: ../guvcview/gui_gtk3_v4l2ctrls.c:349
+#: ../guvcview/gui_gtk3_v4l2ctrls.c:358 ../guvcview/gui_qt5_v4l2ctrls.cpp:316
 msgid "set Focus"
 msgstr "Definir foco"
 
 #. control_widgets_list[n].widget2 = gtk_button_new_from_stock(GTK_STOCK_APPLY);
 #. control_widgets_list[n].widget2= gtk_button_new_from_stock(GTK_STOCK_APPLY);
 #. control_widgets_list[n].widget2 = gtk_button_new_from_stock(GTK_STOCK_APPLY);
-#: ../guvcview/gui_gtk3_v4l2ctrls.c:433 ../guvcview/gui_gtk3_v4l2ctrls.c:456
-#: ../guvcview/gui_gtk3_v4l2ctrls.c:478
+#: ../guvcview/gui_gtk3_v4l2ctrls.c:441 ../guvcview/gui_gtk3_v4l2ctrls.c:464
+#: ../guvcview/gui_gtk3_v4l2ctrls.c:486
 #, fuzzy
 msgid "_Apply"
 msgstr "Aplicar"
 
-#: ../guvcview/gui_gtk3_videoctrls.c:144
+#: ../guvcview/gui_gtk3_videoctrls.c:145
+#: ../guvcview/gui_qt5_videoctrls.cpp:127
 msgid "Frame Rate:"
 msgstr "Taxa de fotogramas:"
 
-#: ../guvcview/gui_gtk3_videoctrls.c:204
+#: ../guvcview/gui_gtk3_videoctrls.c:209
+#: ../guvcview/gui_qt5_videoctrls.cpp:175
 msgid "Resolution:"
 msgstr "Resolution:"
 
-#: ../guvcview/gui_gtk3_videoctrls.c:254
+#: ../guvcview/gui_gtk3_videoctrls.c:264
+#: ../guvcview/gui_qt5_videoctrls.cpp:213
 msgid "Camera Output:"
 msgstr "Saída da cámara:"
 
-#: ../guvcview/gui_gtk3_videoctrls.c:287
+#: ../guvcview/gui_gtk3_videoctrls.c:302
+#: ../guvcview/gui_qt5_videoctrls.cpp:236
 msgid "---- Video Filters ----"
 msgstr ""
 
 #. Mirror FX
-#: ../guvcview/gui_gtk3_videoctrls.c:307
+#: ../guvcview/gui_gtk3_videoctrls.c:327
+#: ../guvcview/gui_qt5_videoctrls.cpp:250
 msgid " Mirror"
 msgstr " Espello"
 
 #. Upturn FX
-#: ../guvcview/gui_gtk3_videoctrls.c:319
+#: ../guvcview/gui_gtk3_videoctrls.c:339
+#: ../guvcview/gui_qt5_videoctrls.cpp:259
 msgid " Invert"
 msgstr " Inverter"
 
 #. Negate FX
-#: ../guvcview/gui_gtk3_videoctrls.c:331
+#: ../guvcview/gui_gtk3_videoctrls.c:351
+#: ../guvcview/gui_qt5_videoctrls.cpp:269
 msgid " Negative"
 msgstr " Negativo"
 
 #. Mono FX
-#: ../guvcview/gui_gtk3_videoctrls.c:343
+#: ../guvcview/gui_gtk3_videoctrls.c:363
+#: ../guvcview/gui_qt5_videoctrls.cpp:279
 msgid " Mono"
 msgstr " Mono"
 
 #. Pieces FX
-#: ../guvcview/gui_gtk3_videoctrls.c:356
+#: ../guvcview/gui_gtk3_videoctrls.c:376
+#: ../guvcview/gui_qt5_videoctrls.cpp:289
 msgid " Pieces"
 msgstr ""
 
 #. Particles
-#: ../guvcview/gui_gtk3_videoctrls.c:369
+#: ../guvcview/gui_gtk3_videoctrls.c:389
+#: ../guvcview/gui_qt5_videoctrls.cpp:299
 msgid " Particles"
 msgstr " Partículas"
 
-#: ../guvcview/options.c:51
+#: ../guvcview/gui_gtk3_videoctrls.c:403
+#: ../guvcview/gui_qt5_videoctrls.cpp:310
+msgid "---- OSD ----"
+msgstr ""
+
+#. Crosshair OSD
+#: ../guvcview/gui_gtk3_videoctrls.c:428
+#: ../guvcview/gui_qt5_videoctrls.cpp:324
+msgid " Cross-hair"
+msgstr ""
+
+#: ../guvcview/options.c:36
+msgid "Select GUI API (e.g none; gtk3; qt5)"
+msgstr ""
+
+#: ../guvcview/options.c:37
+msgid "Select GUI API (e.g none; gtk3)"
+msgstr ""
+
+#: ../guvcview/options.c:38
+msgid "Select GUI API (e.g none; qt5)"
+msgstr ""
+
+#: ../guvcview/options.c:39
+msgid "Select GUI API (e.g none)"
+msgstr ""
+
+#: ../guvcview/options.c:57
 msgid "Print help"
 msgstr ""
 
-#: ../guvcview/options.c:58
+#: ../guvcview/options.c:64
 #, fuzzy
 msgid "Print version"
 msgstr "Mostrar a versión"
 
-#: ../guvcview/options.c:64
+#: ../guvcview/options.c:70
 msgid "LEVEL"
 msgstr ""
 
-#: ../guvcview/options.c:65
+#: ../guvcview/options.c:71
 msgid "Set Verbosity level (def: 0)"
 msgstr ""
 
-#: ../guvcview/options.c:71
+#: ../guvcview/options.c:77
 msgid "DEVICE"
 msgstr ""
 
-#: ../guvcview/options.c:72
+#: ../guvcview/options.c:78
 msgid "Set device name (def: /dev/video0)"
 msgstr ""
 
-#: ../guvcview/options.c:78
+#: ../guvcview/options.c:84
 msgid "METHOD"
 msgstr ""
 
-#: ../guvcview/options.c:79
+#: ../guvcview/options.c:85
 msgid "Set capture method [read | mmap (def)]"
 msgstr ""
 
-#: ../guvcview/options.c:85
+#: ../guvcview/options.c:92
+msgid "disable calls to libv4l2"
+msgstr ""
+
+#: ../guvcview/options.c:98
 msgid "WIDTHxHEIGHT"
 msgstr ""
 
-#: ../guvcview/options.c:86
+#: ../guvcview/options.c:99
 msgid "Request resolution (e.g 640x480)"
 msgstr ""
 
-#: ../guvcview/options.c:92
+#: ../guvcview/options.c:105
 msgid "FOURCC"
 msgstr ""
 
-#: ../guvcview/options.c:93
+#: ../guvcview/options.c:106
 msgid "Request format (e.g MJPG)"
 msgstr ""
 
-#: ../guvcview/options.c:99
+#: ../guvcview/options.c:112
 msgid "RENDER_API"
 msgstr ""
 
-#: ../guvcview/options.c:100
+#: ../guvcview/options.c:113
 msgid "Select render API (e.g none; sdl)"
 msgstr ""
 
-#: ../guvcview/options.c:106
-msgid "AUDIO_API"
-msgstr ""
-
-#: ../guvcview/options.c:107
-msgid "Select audio API (e.g none; port; pulse)"
-msgstr ""
-
-#: ../guvcview/options.c:113
-msgid "AUDIO_DEVICE"
-msgstr ""
-
-#: ../guvcview/options.c:114
-msgid "Select audio device index for selected api (0..N)"
+#: ../guvcview/options.c:119
+msgid "RENDER_WINDOW_FLAGS"
 msgstr ""
 
 #: ../guvcview/options.c:120
+msgid "Set render window flags (e.g none; full; max)"
+msgstr ""
+
+#: ../guvcview/options.c:126
+msgid "AUDIO_API"
+msgstr ""
+
+#: ../guvcview/options.c:127
+msgid "Select audio API (e.g none; port; pulse)"
+msgstr ""
+
+#: ../guvcview/options.c:133
+msgid "AUDIO_DEVICE"
+msgstr ""
+
+#: ../guvcview/options.c:134
+msgid "Select audio device index for selected api (0..N)"
+msgstr ""
+
+#: ../guvcview/options.c:140
 msgid "GUI_API"
 msgstr ""
 
-#: ../guvcview/options.c:121
-msgid "Select GUI API (e.g none; gtk3)"
-msgstr ""
-
-#: ../guvcview/options.c:127 ../guvcview/options.c:134
+#: ../guvcview/options.c:156 ../guvcview/options.c:163
 msgid "CODEC"
 msgstr ""
 
-#: ../guvcview/options.c:128
+#: ../guvcview/options.c:157
 msgid "Audio codec [pcm mp2 mp3 aac ac3 vorb]"
 msgstr ""
 
-#: ../guvcview/options.c:135
+#: ../guvcview/options.c:164
 msgid "Video codec [raw mjpg mpeg flv1 wmv1 mpg2 mp43 dx50 h264 vp80 theo]"
 msgstr ""
 
-#: ../guvcview/options.c:141 ../guvcview/options.c:148
-#: ../guvcview/options.c:155
+#: ../guvcview/options.c:170 ../guvcview/options.c:177
+#: ../guvcview/options.c:184
 msgid "FILENAME"
 msgstr ""
 
-#: ../guvcview/options.c:142
+#: ../guvcview/options.c:171
 msgid "load control profile"
 msgstr ""
 
-#: ../guvcview/options.c:149
+#: ../guvcview/options.c:178
 msgid "filename for captured video)"
 msgstr ""
 
-#: ../guvcview/options.c:156
+#: ../guvcview/options.c:185
 msgid "filename for captured image)"
 msgstr ""
 
-#: ../guvcview/options.c:162 ../guvcview/options.c:169
+#: ../guvcview/options.c:191 ../guvcview/options.c:198
 msgid "TIME_IN_SEC"
 msgstr ""
 
-#: ../guvcview/options.c:163
+#: ../guvcview/options.c:192
 msgid "time (double) in sec. for video capture)"
 msgstr ""
 
-#: ../guvcview/options.c:170
+#: ../guvcview/options.c:199
 msgid "time (double) in sec. between captured photos)"
 msgstr ""
 
-#: ../guvcview/options.c:176
+#: ../guvcview/options.c:205
 msgid "TOTAL"
 msgstr ""
 
-#: ../guvcview/options.c:177
+#: ../guvcview/options.c:206
 msgid "total number of captured photos)"
 msgstr ""
 
-#: ../guvcview/options.c:184
+#: ../guvcview/options.c:213
+msgid "exit app after video or image capture ends"
+msgstr ""
+
+#: ../guvcview/options.c:220
 msgid "Start in control panel mode"
 msgstr ""
 
-#: ../guvcview/options.c:307
+#: ../guvcview/options.c:345
 #, c-format
 msgid ""
 "Guvcview version %s\n"
 "\n"
 msgstr ""
 
-#: ../guvcview/options.c:308
+#: ../guvcview/options.c:346
 #, c-format
 msgid ""
 "Usage:\n"
@@ -1364,22 +1512,44 @@ msgid ""
 "\n"
 msgstr ""
 
-#: ../guvcview/options.c:309
+#: ../guvcview/options.c:347
 #, c-format
 msgid "OPTIONS:\n"
 msgstr ""
 
-#: ../guvcview/video_capture.c:819
+#: ../guvcview/video_capture.c:826
 #, c-format
 msgid "saving video to %s"
 msgstr ""
 
 #. if(debug_level > 1)
 #. printf("GUVCVIEW: saving image to %s\n", img_filename);
-#: ../guvcview/video_capture.c:1069
+#: ../guvcview/video_capture.c:1122
 #, c-format
 msgid "saving image to %s"
 msgstr ""
+
+#: ../guvcview/gui_qt5_callbacks.cpp:343
+msgid "Jpeg  (*.jpg)"
+msgstr ""
+
+#: ../guvcview/gui_qt5_callbacks.cpp:344
+msgid "Png (*.png)"
+msgstr ""
+
+#: ../guvcview/gui_qt5_callbacks.cpp:347
+msgid "Images  (*.jpg *.png *.bmp *.raw)"
+msgstr ""
+
+#: ../guvcview/gui_qt5_callbacks.cpp:405
+msgid "Videos  (*.mkv *.webm *.avi)"
+msgstr ""
+
+#: ../guvcview/gui_qt5_v4l2ctrls.cpp:394 ../guvcview/gui_qt5_v4l2ctrls.cpp:415
+#: ../guvcview/gui_qt5_v4l2ctrls.cpp:436
+#, fuzzy
+msgid "Apply"
+msgstr "Aplicar"
 
 #~ msgid "Audio"
 #~ msgstr "Son"

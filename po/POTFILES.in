@@ -22,7 +22,7 @@ guvcview/options.c
 guvcview/video_capture.c
 guvcview/gui_qt5.cpp
 guvcview/gui_qt5_callbacks.cpp
-guvcview/gui_gt5_h264ctrls.cpp
+guvcview/gui_qt5_h264ctrls.cpp
 guvcview/gui_qt5_menu.cpp
 guvcview/gui_qt5_v4l2ctrls.cpp
 guvcview/gui_qt5_videoctrls.cpp
