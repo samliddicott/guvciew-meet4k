@@ -236,18 +236,6 @@ typedef struct _encoder_context_t
 void encoder_set_verbosity(int value);
 
 /*
- * encoder initaliztion (first function to get called)
- * args:
- *    none
- *
- * asserts:
- *    none
- *
- * returns: none
- */
-void encoder_init();
-
-/*
  * get valid video codec count
  * args:
  *   none
@@ -320,7 +308,7 @@ const char *encoder_get_video_codec_description(int codec_ind);
 const char *encoder_get_audio_codec_description(int codec_ind);
 
 /*
- * initialize and get the encoder context
+ * encoder initialization
  * args:
  *   input_format - input v4l2 format (yuyv for encoding)
  *   video_codec_ind - video codec list index
@@ -339,7 +327,7 @@ const char *encoder_get_audio_codec_description(int codec_ind);
  *
  * returns: pointer to encoder context (NULL on error)
  */
-encoder_context_t *encoder_get_context(
+encoder_context_t *encoder_init(
 	int input_format,
 	int video_codec_ind,
 	int audio_codec_ind,

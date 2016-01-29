@@ -302,41 +302,35 @@ static int audio_portaudio_list_devices(audio_context_t *audio_ctx)
 /*
  * init portaudio api
  * args:
- *    none
+ *    audio_ctx - pointer to audio context data
  *
  * asserts:
- *    none
+ *    audio_ctx is not null
  *
- * returns: pointer to audio context data
- *     or NULL if error
+ * returns: error code (0 = E_OK)
  */
-audio_context_t *audio_init_portaudio()
+int audio_init_portaudio(audio_context_t* audio_ctx)
 {
+	/*assertions*/
+	assert(audio_ctx != NULL);
+	
 	int pa_error = Pa_Initialize();
 
 	if(pa_error != paNoError)
 	{
 		fprintf(stderr,"AUDIO: Failed to Initialize Portaudio (Pa_Initialize returned %i)\n", pa_error);
-		return NULL;
-	}
-
-	audio_context_t *audio_ctx = calloc(1, sizeof(audio_context_t));
-	if(audio_ctx == NULL)
-	{
-		fprintf(stderr,"AUDIO: FATAL memory allocation failure (audio_init_portaudio): %s\n", strerror(errno));
-		exit(-1);
+		return -1;
 	}
 
 	if(audio_portaudio_list_devices(audio_ctx) != 0)
 	{
 		fprintf(stderr, "AUDIO: Portaudio failed to get audio device list\n");
-		free(audio_ctx);
-		return NULL;
+		return -1;
 	}
 
 	audio_ctx->api = AUDIO_PORTAUDIO;
 
-	return audio_ctx;
+	return 0;
 }
 
 /*

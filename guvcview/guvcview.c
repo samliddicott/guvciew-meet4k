@@ -327,8 +327,6 @@ int main(int argc, char *argv[])
 		fprintf(stderr, "GUVCVIEW: couldn't get a valid audio context for the selected api - disabling audio\n");
 	
 	encoder_set_verbosity(debug_level);
-	/*init the encoder*/
-	encoder_init();
 
 	/*start capture thread if not in control_panel mode*/
 	if(!my_options->control_panel)

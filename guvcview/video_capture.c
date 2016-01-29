@@ -565,14 +565,14 @@ int key_RIGHT_callback(void *data)
  */
 audio_context_t *create_audio_context(int api, int device)
 {
+	
 	close_audio_context();
 
 	my_audio_ctx = audio_init(api, device);
-	
-	/*force a valid number of channels*/
-	if(my_audio_ctx != NULL && my_audio_ctx->channels > 2)
-		my_audio_ctx->channels = 2;
-		
+
+	if(my_audio_ctx == NULL)
+		fprintf(stderr, "GUVCVIEW: couldn't allocate audio context\n");
+
 	return my_audio_ctx;
 }
 
@@ -590,11 +590,11 @@ audio_context_t *get_audio_context()
 {
 	if(!my_audio_ctx)
 		return NULL;
-		
+
 	/*force a valid number of channels*/
 	if(my_audio_ctx->channels > 2)
 		my_audio_ctx->channels = 2;
-		
+
 	return my_audio_ctx;
 }
 
@@ -633,7 +633,7 @@ static void *audio_processing_loop(void *data)
 	if(debug_level > 1)
 		printf("GUVCVIEW: audio thread (tid: %u)\n",
 			(unsigned int) syscall (SYS_gettid));
-		
+
 	audio_context_t *audio_ctx = get_audio_context();
 	if(!audio_ctx)
 	{
@@ -672,7 +672,7 @@ static void *audio_processing_loop(void *data)
 	{
 		int ret = audio_get_next_buffer(audio_ctx, audio_buff,
 				sample_type, my_audio_mask);
-		
+
 		if(ret > 0)
 		{
 			/* 
@@ -753,7 +753,7 @@ static void *encoder_loop(void *data)
 			channels, samprate);
 
 	/*create the encoder context*/
-	encoder_context_t *encoder_ctx = encoder_get_context(
+	encoder_context_t *encoder_ctx = encoder_init(
 		v4l2core_get_requested_frame_format(),
 		get_video_codec_ind(),
 		get_audio_codec_ind(),

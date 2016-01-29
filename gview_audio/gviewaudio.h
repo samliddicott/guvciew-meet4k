@@ -139,7 +139,7 @@ void audio_set_verbosity(int value);
  * asserts:
  *   none
  *
- * returns: pointer to audio context (NULL if AUDIO_NONE)
+ * returns: pointer to audio context data (or NULL on error)
  */
 audio_context_t *audio_init(int api, int device);
 

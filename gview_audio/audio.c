@@ -61,7 +61,6 @@ static int buffer_read_index = 0; /*current read index of buffer list*/
 static int buffer_write_index = 0;/*current write index of buffer list*/
 
 int verbosity = 0;
-static int audio_api = AUDIO_PORTAUDIO;
 
 /*
  * set verbosity
@@ -217,7 +216,7 @@ static int audio_init_buffers(audio_context_t *audio_ctx)
 		return -1;
 
 	/*don't allocate if no audio*/
-	if(audio_api == AUDIO_NONE)
+	if(audio_ctx->api == AUDIO_NONE)
 	{
 		audio_buffers = NULL;
 		return 0;
@@ -436,37 +435,48 @@ int audio_get_next_buffer(audio_context_t *audio_ctx, audio_buff_t *buff, int ty
  * asserts:
  *   none
  *
- * returns: pointer to audio context (NULL if AUDIO_NONE)
+ * returns: pointer to audio context data (or NULL on error)
  */
 audio_context_t *audio_init(int api, int device)
 {
+	audio_context_t *audio_ctx = calloc(1, sizeof(audio_context_t));
 
-	audio_context_t *audio_ctx = NULL;
+	if(audio_ctx == NULL)
+	{
+		fprintf(stderr, "AUDIO: (audio_init) couldn't allocate audio context\n");
+		return NULL;
+	}
 
-	audio_api = api;
+	int ret = 0;
 
-	switch(audio_api)
+	switch(api)
 	{
 		case AUDIO_NONE:
+			audio_ctx->api = AUDIO_NONE;
 			break;
 
 #if HAS_PULSEAUDIO
 		case AUDIO_PULSE:
-			audio_ctx = audio_init_pulseaudio();
+			ret = audio_init_pulseaudio(audio_ctx);
 			break;
 #endif
 		case AUDIO_PORTAUDIO:
 		default:
-			audio_ctx = audio_init_portaudio();
+			ret = audio_init_portaudio(audio_ctx);
 			break;
 	}
 
-	if(!audio_ctx)
-		audio_api = AUDIO_NONE;
-	
+	/*if api couldn't be initialized set audio to none*/
+	if (ret != 0)
+		audio_ctx->api = AUDIO_NONE;
+
 	/*set default api device*/
 	audio_set_device(audio_ctx, device);
-		
+
+	/*force a valid number of channels*/
+	if(audio_ctx->channels > 2)
+		audio_ctx->channels = 2;
+
 	return audio_ctx;
 }
 
@@ -483,7 +493,10 @@ audio_context_t *audio_init(int api, int device)
  */
 void audio_set_device(audio_context_t *audio_ctx, int index)
 {
-	switch(audio_api)
+	/*assertions*/
+	assert(audio_ctx != NULL);
+
+	switch(audio_ctx->api)
 	{
 		case AUDIO_NONE:
 			break;
@@ -528,7 +541,7 @@ int audio_start(audio_context_t *audio_ctx)
 
 	int err = 0;
 
-	switch(audio_api)
+	switch(audio_ctx->api)
 	{
 		case AUDIO_NONE:
 			break;
@@ -559,9 +572,12 @@ int audio_start(audio_context_t *audio_ctx)
  */
 int audio_stop(audio_context_t *audio_ctx)
 {
+	/*assertions*/
+	assert(audio_ctx != NULL);
+
 	int err =0;
 
-	switch(audio_api)
+	switch(audio_ctx->api)
 	{
 		case AUDIO_NONE:
 			break;
@@ -589,15 +605,18 @@ int audio_stop(audio_context_t *audio_ctx)
  *   audio_ctx - pointer to audio context data
  *
  * asserts:
- *   none
+ *   audio_ctx is not null
  *
  * returns: none
  */
 void audio_close(audio_context_t *audio_ctx)
 {
+	/*assertions*/
+	assert(audio_ctx != NULL);
+
 	audio_fx_close();
 
-	switch(audio_api)
+	switch(audio_ctx->api)
 	{
 		case AUDIO_NONE:
 			break;

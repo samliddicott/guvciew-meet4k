@@ -29,15 +29,14 @@
 /*
  * init pulseaudio api
  * args:
- *    none
+ *    audio_ctx - pointer to audio context data
  *
  * asserts:
- *    none
+ *    audio_ctx is not null
  *
- * returns: pointer to audio context data
- *     or NULL if error
+ * returns: error code (0 = E_OK)
  */
-audio_context_t *audio_init_pulseaudio();
+int audio_init_pulseaudio(audio_context_t *audio_ctx);
 
 /*
  * set audio device

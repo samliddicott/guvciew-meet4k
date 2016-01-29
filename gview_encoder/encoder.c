@@ -91,85 +91,6 @@ void encoder_set_verbosity(int value)
 }
 
 /*
- * convert yuyv to yuv420p
- * args:
- *    encoder_ctx - pointer to encoder context
- *    inp - input data (yuyv)
- *
- * asserts:
- *    encoder_ctx is not null
- *    encoder_ctx->enc_video_ctx is not null
- *     encoder_ctx->enc_video_ctx->tmpbuf is not null
- *
- * returns: none
- */
-static void yuv422to420p(encoder_context_t *encoder_ctx, uint8_t *inp)
-{
-	/*assertions*/
-	assert(encoder_ctx != NULL);
-	assert(encoder_ctx->enc_video_ctx != NULL);
-	assert( encoder_ctx->enc_video_ctx->tmpbuf != NULL);
-
-	encoder_codec_data_t *video_codec_data = (encoder_codec_data_t *) encoder_ctx->enc_video_ctx->codec_data;
-
-	assert(video_codec_data);
-
-	int i,j;
-	int linesize= encoder_ctx->video_width * 2;
-	int size = encoder_ctx->video_width * encoder_ctx->video_height;
-
-	uint8_t *y;
-	uint8_t *y1;
-	uint8_t *u;
-	uint8_t *v;
-	y = encoder_ctx->enc_video_ctx->tmpbuf;
-	y1 = encoder_ctx->enc_video_ctx->tmpbuf + encoder_ctx->video_width;
-	u = encoder_ctx->enc_video_ctx->tmpbuf + size;
-	v = u + size/4;
-
-	for(j = 0; j < (encoder_ctx->video_height - 1); j += 2)
-	{
-		for(i = 0; i < (linesize - 3); i += 4)
-		{
-			*y++ = inp[i+j*linesize];
-			*y++ = inp[i+2+j*linesize];
-			*y1++ = inp[i+(j+1)*linesize];
-			*y1++ = inp[i+2+(j+1)*linesize];
-			*u++ = (inp[i+1+j*linesize] + inp[i+1+(j+1)*linesize])>>1; // div by 2
-			*v++ = (inp[i+3+j*linesize] + inp[i+3+(j+1)*linesize])>>1;
-		}
-		y += encoder_ctx->video_width;
-		y1 += encoder_ctx->video_width;//2 lines
-	}
-
-	prepare_video_frame(video_codec_data, encoder_ctx->enc_video_ctx->tmpbuf, encoder_ctx->video_width, encoder_ctx->video_height);
-}
-
-/*
- * check that a given sample format is supported by the encoder
- * args:
- *    codec - pointer to AVCodec
- *    sample_fmt - audio sample format
- *
- * assertions:
- *    none
- *
- * returns: 1 - sample format is supported; 0 - is not supported
- */
-static int encoder_check_audio_sample_fmt(AVCodec *codec, enum AVSampleFormat sample_fmt)
-{
-	const enum AVSampleFormat *p = codec->sample_fmts;
-
-	while (*p != AV_SAMPLE_FMT_NONE)
-	{
-		if (*p == sample_fmt)
-			return 1;
-		p++;
-	}
-	return 0;
-}
-
-/*
  * allocate video ring buffer
  * args:
  *   video_width - video frame width (in pixels)
@@ -248,6 +169,129 @@ static void encoder_clean_video_ring_buffer()
 	}
 	free(video_ring_buffer);
 	video_ring_buffer = NULL;
+}
+
+/*
+ * gviewencoder constructor (called before dlopen or main)
+ * args:
+ *    none
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void __attribute__ ((constructor)) gviewencoder_init()
+{
+	//printf("ENCODER: constructor function called\n");
+#if !LIBAVCODEC_VER_AT_LEAST(53,34)
+	avcodec_init();
+#endif
+	/* register all the codecs (you can also register only the codec
+	 * you wish to have smaller code)
+	 */
+	avcodec_register_all();
+
+	valid_video_codecs = encoder_set_valid_video_codec_list ();
+	valid_audio_codecs = encoder_set_valid_audio_codec_list ();
+
+}
+
+/*
+ * gviewencoder destructor (called before dlclose os exit)
+ * args:
+ *    none
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void __attribute__ ((destructor)) gviewencoder_fini()
+{
+	if(verbosity > 1)
+		printf("ENCODER: destructor function called\n");
+	//make sure to clean the ring buffer
+	encoder_clean_video_ring_buffer();
+}
+
+/*
+ * convert yuyv to yuv420p
+ * args:
+ *    encoder_ctx - pointer to encoder context
+ *    inp - input data (yuyv)
+ *
+ * asserts:
+ *    encoder_ctx is not null
+ *    encoder_ctx->enc_video_ctx is not null
+ *     encoder_ctx->enc_video_ctx->tmpbuf is not null
+ *
+ * returns: none
+ */
+static void yuv422to420p(encoder_context_t *encoder_ctx, uint8_t *inp)
+{
+	/*assertions*/
+	assert(encoder_ctx != NULL);
+	assert(encoder_ctx->enc_video_ctx != NULL);
+	assert( encoder_ctx->enc_video_ctx->tmpbuf != NULL);
+
+	encoder_codec_data_t *video_codec_data = (encoder_codec_data_t *) encoder_ctx->enc_video_ctx->codec_data;
+
+	assert(video_codec_data);
+
+	int i,j;
+	int linesize= encoder_ctx->video_width * 2;
+	int size = encoder_ctx->video_width * encoder_ctx->video_height;
+
+	uint8_t *y;
+	uint8_t *y1;
+	uint8_t *u;
+	uint8_t *v;
+	y = encoder_ctx->enc_video_ctx->tmpbuf;
+	y1 = encoder_ctx->enc_video_ctx->tmpbuf + encoder_ctx->video_width;
+	u = encoder_ctx->enc_video_ctx->tmpbuf + size;
+	v = u + size/4;
+
+	for(j = 0; j < (encoder_ctx->video_height - 1); j += 2)
+	{
+		for(i = 0; i < (linesize - 3); i += 4)
+		{
+			*y++ = inp[i+j*linesize];
+			*y++ = inp[i+2+j*linesize];
+			*y1++ = inp[i+(j+1)*linesize];
+			*y1++ = inp[i+2+(j+1)*linesize];
+			*u++ = (inp[i+1+j*linesize] + inp[i+1+(j+1)*linesize])>>1; // div by 2
+			*v++ = (inp[i+3+j*linesize] + inp[i+3+(j+1)*linesize])>>1;
+		}
+		y += encoder_ctx->video_width;
+		y1 += encoder_ctx->video_width;//2 lines
+	}
+
+	prepare_video_frame(video_codec_data, encoder_ctx->enc_video_ctx->tmpbuf, encoder_ctx->video_width, encoder_ctx->video_height);
+}
+
+/*
+ * check that a given sample format is supported by the encoder
+ * args:
+ *    codec - pointer to AVCodec
+ *    sample_fmt - audio sample format
+ *
+ * assertions:
+ *    none
+ *
+ * returns: 1 - sample format is supported; 0 - is not supported
+ */
+static int encoder_check_audio_sample_fmt(AVCodec *codec, enum AVSampleFormat sample_fmt)
+{
+	const enum AVSampleFormat *p = codec->sample_fmts;
+
+	while (*p != AV_SAMPLE_FMT_NONE)
+	{
+		if (*p == sample_fmt)
+			return 1;
+		p++;
+	}
+	return 0;
 }
 
 /*
@@ -1006,32 +1050,6 @@ uint32_t encoder_buff_scheduler(int mode, double thresh, int max_time)
 }
 
 /*
- * encoder initaliztion
- * args:
- *    none
- *
- * asserts:
- *    none
- *
- * returns: none
- */
-void encoder_init()
-{
-
-#if !LIBAVCODEC_VER_AT_LEAST(53,34)
-	avcodec_init();
-#endif
-	/* register all the codecs (you can also register only the codec
-	 * you wish to have smaller code)
-	 */
-	avcodec_register_all();
-
-	valid_video_codecs = encoder_set_valid_video_codec_list ();
-	valid_audio_codecs = encoder_set_valid_audio_codec_list ();
-
-}
-
-/*
  * get valid video codec count
  * args:
  *   none
@@ -1062,7 +1080,7 @@ int encoder_get_valid_audio_codecs()
 }
 
 /*
- * initialize and get the encoder context
+ * encoder initialization
  * args:
  *   input_format - input v4l2 format (yuyv for encoding)
  *   video_codec_ind - video codec list index
@@ -1081,7 +1099,7 @@ int encoder_get_valid_audio_codecs()
  *
  * returns: pointer to encoder context (NULL on error)
  */
-encoder_context_t *encoder_get_context(
+encoder_context_t *encoder_init(
 	int input_format,
 	int video_codec_ind,
 	int audio_codec_ind,
@@ -1897,5 +1915,4 @@ void encoder_close(encoder_context_t *encoder_ctx)
 	video_read_index = 0;
 	video_write_index = 0;
 	video_scheduler = 0;
-
 }
