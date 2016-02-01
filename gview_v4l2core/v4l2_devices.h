@@ -26,6 +26,30 @@
 #include "v4l2_core.h"
 
 /*
+ * Initiate the device list (with udev monitoring)
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void v4l2core_init_device_list();
+
+/*
+ * free v4l2 devices list
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: void
+ */
+void v4l2core_close_v4l2_device_list();
+
+/*
  * enumerate available v4l2 devices
  * and creates list in vd->list_devices
  * args:

@@ -213,20 +213,18 @@ int main(int argc, char *argv[])
 		printf("GUVCVIEW: main thread (tid: %u)\n",
 			(unsigned int) syscall (SYS_gettid));
 		
-	/*initialize the v4l2 core*/
+	/*set the v4l2 core verbosity*/
 	v4l2core_set_verbosity(debug_level);
 	
 	if(my_options->disable_libv4l2)
 		v4l2core_disable_libv4l2();
-	/*init the device list*/
-	v4l2core_init_device_list();
-	/*init the v4l2core (redefines language catalog)*/
+
+	/*set the v4l2core device (redefines language catalog)*/
 	if(v4l2core_init_dev(my_options->device) < 0)
 	{
 		char message[50];
 		snprintf(message, 49, "no video device (%s) found", my_options->device);
 		gui_error("Guvcview error", "no video device found", 1);
-		v4l2core_close_v4l2_device_list();
 		options_clean();
 		return -1;
 	}
@@ -411,14 +409,6 @@ int main(int argc, char *argv[])
 		printf("GUVCVIEW: closing audio context\n");
 	/*closes the audio context (stored staticly in video_capture)*/
 	close_audio_context();
-
-	if(debug_level > 2)
-		printf("GUVCVIEW: closing v4l2core device\n");
-	v4l2core_close_dev();
-
-	if(debug_level > 2)
-		printf("GUVCVIEW: closing v4l2core device list\n");
-	v4l2core_close_v4l2_device_list();
 
     /*save config before cleaning the options*/
 	config_save(config_file);

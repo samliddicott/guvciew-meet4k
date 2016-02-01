@@ -582,18 +582,6 @@ void v4l2core_set_pan_step(int step);
 void v4l2core_set_tilt_step(int step);
 
 /*
- * Initiate the device list (with udev monitoring)
- * args:
- *   none
- *
- * asserts:
- *   none
- *
- * returns: none
- */
-void v4l2core_init_device_list();
-
-/*
  * get the device list data
  * args:
  *   none
@@ -629,18 +617,6 @@ int v4l2core_get_device_index(const char *videodevice);
  * returns: true(1) if device list was updated, false(0) otherwise
  */
 int v4l2core_check_device_list_events();
-
-/*
- * free v4l2 devices list
- * args:
- *   none
- *
- * asserts:
- *   none
- *
- * returns: void
- */
-void v4l2core_close_v4l2_device_list();
 
 /*
  * get requested frame format

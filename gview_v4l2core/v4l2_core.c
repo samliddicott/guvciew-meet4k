@@ -115,6 +115,45 @@ int xioctl(int fd, int IOCTL_X, void *arg)
 }
 
 /*
+ * v4l2core constructor (called before dlopen or main)
+ * args:
+ *    none
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void __attribute__ ((constructor)) v4l2core_init()
+{
+	//initialize device list (with udev monitoring)
+	v4l2core_init_device_list();
+}
+
+/*
+ * v4l2core destructor (called before dlclose os exit)
+ * args:
+ *    none
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void __attribute__ ((destructor)) v4l2core_fini()
+{
+	//close and free the device list
+	if(verbosity > 2)
+		printf("V4L2_CORE: closing device list\n");
+	v4l2core_close_v4l2_device_list();
+	
+	//make sure to close any allocated device data
+	if(verbosity > 2)
+		printf("V4L2_CORE: closing device\n");
+	v4l2core_close_dev();
+}
+
+/*
  * Query video device capabilities and supported formats
  * args:
  *   none
@@ -1669,6 +1708,7 @@ static void clean_v4l2_dev()
 	vd->fd = 0;
 
 	free(vd);
+	vd = NULL;
 }
 
 /*
@@ -1683,7 +1723,12 @@ static void clean_v4l2_dev()
  */
 int v4l2core_init_dev(const char *device)
 {
+	/*assertions*/
 	assert(device != NULL);
+	
+	/*make sure to close and clean any existing device data*/
+	if(vd != NULL)
+		v4l2core_close_dev();
 
 	/*localization*/
 	char* lc_all = setlocale (LC_ALL, "");
@@ -1962,14 +2007,14 @@ void v4l2core_clean_buffers()
  *   none
  *
  * asserts:
- *   vd is not null
+ *   none
  *
  * returns: void
  */
 void v4l2core_close_dev()
 {
-	/*asserts*/
-	assert(vd != NULL);
+	if(vd == NULL)
+		return;
 
 	v4l2core_clean_buffers();
 	clean_v4l2_dev();

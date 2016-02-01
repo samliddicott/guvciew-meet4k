@@ -334,7 +334,7 @@ int check_device_list_events(v4l2_dev_t *vd)
             if(my_device_list.list_devices != NULL)
 				free_device_list();
             enum_v4l2_devices();
-            
+
             /*update the current device index*/
             if(vd)
             {
