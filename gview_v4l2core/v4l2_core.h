@@ -27,7 +27,7 @@
 /*
  * video device data
  */
-typedef struct _v4l2_dev_t
+struct _v4l2_dev_t
 {
 	int fd;                             // device file descriptor
 	char *videodevice;                  // video device string (default "/dev/video0)"
@@ -38,11 +38,12 @@ typedef struct _v4l2_dev_t
 	//int current_format_index;           //index of current stream format
 	//int current_resolution_index;       //index of current resolution for current format
 
-	struct v4l2_capability cap;         // v4l2 capability struct
-	struct v4l2_format format;          // v4l2 format struct
-	struct v4l2_buffer buf;             // v4l2 buffer struct
-	struct v4l2_requestbuffers rb;      // v4l2 request buffers struct
-	struct v4l2_streamparm streamparm;  // v4l2 stream parameters struct
+	struct v4l2_capability cap;          // v4l2 capability struct
+	struct v4l2_format format;           // v4l2 format struct
+	struct v4l2_buffer buf;              // v4l2 buffer struct
+	struct v4l2_requestbuffers rb;       // v4l2 request buffers struct
+	struct v4l2_streamparm streamparm;   // v4l2 stream parameters struct
+	struct v4l2_event_subscription evsub;// v4l2 event subscription struct
 
 	int requested_fmt;                  //requested format (may differ from format.fmt.pix.pixelformat)
 
@@ -82,6 +83,6 @@ typedef struct _v4l2_dev_t
 	int has_focus_control_id;           //it's set to control id if a focus control is available (enables software autofocus)
 	int has_pantilt_control_id;         //it's set to 1 if a pan/tilt control is available
 	uint8_t pantilt_unit_id;            //logitech peripheral V3 unit id (if any)
-} v4l2_dev_t;
+};
 
 #endif

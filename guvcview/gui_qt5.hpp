@@ -120,6 +120,7 @@ private slots:
     void audio_codec_properties();
     /*timer*/
     void check_device_events();
+	void check_control_events();
 
 
 private:
@@ -136,6 +137,7 @@ private:
    void fill_video_config_probe ();
 
    QTimer *timer_check_device;
+   QTimer *timer_check_control_events;
 
    QWidget *img_controls_grid;
    QWidget *h264_controls_grid;

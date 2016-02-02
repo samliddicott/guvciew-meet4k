@@ -215,12 +215,10 @@ int main(int argc, char *argv[])
 		
 	/*set the v4l2 core verbosity*/
 	v4l2core_set_verbosity(debug_level);
-	
-	if(my_options->disable_libv4l2)
-		v4l2core_disable_libv4l2();
 
 	/*set the v4l2core device (redefines language catalog)*/
-	if(v4l2core_init_dev(my_options->device) < 0)
+	v4l2_dev_t *vd = create_v4l2_device_context(my_options->device);
+	if(!vd)
 	{
 		char message[50];
 		snprintf(message, 49, "no video device (%s) found", my_options->device);
@@ -231,18 +229,20 @@ int main(int argc, char *argv[])
 	else		
 		set_render_flag(render);
 	
+	if(my_options->disable_libv4l2)
+		v4l2core_disable_libv4l2(vd);
 
 	/*select capture method*/
 	if(strcasecmp(my_config->capture, "read") == 0)
-		v4l2core_set_capture_method(IO_READ);
+		v4l2core_set_capture_method(vd, IO_READ);
 	else
-		v4l2core_set_capture_method(IO_MMAP);
+		v4l2core_set_capture_method(vd, IO_MMAP);
 
 	/*set software autofocus sort method*/
 	v4l2core_soft_autofocus_set_sort(AUTOF_SORT_INSERT);
 
 	/*set the intended fps*/
-	v4l2core_define_fps(my_config->fps_num,my_config->fps_denom);
+	v4l2core_define_fps(vd, my_config->fps_num,my_config->fps_denom);
 
 	/*set fx masks*/
 	set_render_fx_mask(my_config->video_fx);
@@ -287,7 +287,7 @@ int main(int argc, char *argv[])
 
 	/*check if need to load a profile*/
 	if(my_options->prof_filename)
-		v4l2core_load_control_profile(my_options->prof_filename);
+		v4l2core_load_control_profile(vd, my_options->prof_filename);
 
 	/*set the profile file*/
 	if(!my_config->profile_name)
@@ -337,20 +337,20 @@ int main(int argc, char *argv[])
 		 */
 		int format = v4l2core_fourcc_2_v4l2_pixelformat(my_config->format);
 
-		v4l2core_prepare_new_format(format);
+		v4l2core_prepare_new_format(vd, format);
 		/*prepare resolution*/
-		v4l2core_prepare_new_resolution(my_config->width, my_config->height);
+		v4l2core_prepare_new_resolution(vd, my_config->width, my_config->height);
 		/*try to set the video stream format on the device*/
-		int ret = v4l2core_update_current_format();
+		int ret = v4l2core_update_current_format(vd);
 
 		if(ret != E_OK)
 		{
 			fprintf(stderr, "GUCVIEW: could not set the defined stream format\n");
 			fprintf(stderr, "GUCVIEW: trying first listed stream format\n");
 
-			v4l2core_prepare_valid_format();
-			v4l2core_prepare_valid_resolution();
-			ret = v4l2core_update_current_format();
+			v4l2core_prepare_valid_format(vd);
+			v4l2core_prepare_valid_resolution(vd);
+			ret = v4l2core_update_current_format(vd);
 
 			if(ret != E_OK)
 			{
@@ -409,6 +409,8 @@ int main(int argc, char *argv[])
 		printf("GUVCVIEW: closing audio context\n");
 	/*closes the audio context (stored staticly in video_capture)*/
 	close_audio_context();
+	/*closes the v4l2 device context (stored staticly in video_capture)*/
+	close_v4l2_device_context();
 
     /*save config before cleaning the options*/
 	config_save(config_file);

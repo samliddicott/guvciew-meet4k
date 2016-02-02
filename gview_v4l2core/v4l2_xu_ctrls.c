@@ -202,7 +202,7 @@ static struct uvc_xu_control_mapping xu_mappings[] =
  */
 uint8_t get_guid_unit_id (v4l2_dev_t *vd, uint8_t *guid)
 {
-	v4l2_device_list *my_device_list = v4l2core_get_device_list();
+	v4l2_device_list *my_device_list = v4l2core_get_device_list(vd);
 
 	/*asserts*/
 	assert(vd != NULL);
@@ -455,7 +455,7 @@ uint8_t get_info_xu_control(v4l2_dev_t *vd, uint8_t unit, uint8_t selector)
 int query_xu_control(v4l2_dev_t *vd, uint8_t unit, uint8_t selector, uint8_t query, void *data)
 {
 	int err = 0;
-	uint16_t len = v4l2core_get_length_xu_control(unit, selector);
+	uint16_t len = v4l2core_get_length_xu_control(vd, unit, selector);
 
 	struct uvc_xu_control_query xu_ctrl_query =
 	{

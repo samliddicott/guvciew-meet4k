@@ -66,6 +66,8 @@ static int gtk_init_called = 0;
 static GtkWidget *wgtDevices = NULL;
 /*timer id for devce list events check*/
 static int gtk_devices_timer_id = 0;
+/*timer id for control events check*/
+static int gtk_control_events_timer_id = 0;
 
 
 /*
@@ -411,7 +413,7 @@ void gui_error_gtk3(
 
 	/*fatal error message*/
 
-	v4l2_device_list *device_list = v4l2core_get_device_list();
+	v4l2_device_list *device_list = v4l2core_get_device_list(get_v4l2_device_context());
 	/*add device list (more than one device)*/
 	int show_dev_list = (device_list->num_devices >= 1) ? 1: 0;
 
@@ -778,7 +780,7 @@ int gui_attach_gtk3(int width, int height)
 	gtk_notebook_append_page(GTK_NOTEBOOK(tab_box), scroll_1, tab_1);
 
 	/*----------------------------H264 Controls Tab --------------------------*/
-	if(v4l2core_get_h264_unit_id() > 0)
+	if(v4l2core_get_h264_unit_id(get_v4l2_device_context()) > 0)
 	{
 		GtkWidget *scroll_2 = gtk_scrolled_window_new(NULL,NULL);
 		gtk_scrolled_window_set_placement(GTK_SCROLLED_WINDOW(scroll_2), GTK_CORNER_TOP_LEFT);
@@ -911,6 +913,8 @@ int gui_attach_gtk3(int width, int height)
 	 *  devices
 	 */
 	gtk_devices_timer_id = g_timeout_add( 1000, check_device_events, NULL);
+	/*controls*/
+	gtk_control_events_timer_id = g_timeout_add(1000, check_control_events, NULL);
 
 	return 0;
 }

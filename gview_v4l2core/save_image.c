@@ -72,22 +72,18 @@ int v4l2core_save_data_to_file(const char *filename, uint8_t *data, int size)
 /*
  * save the current frame to file
  * args:
- *    vd - pointer to device data
  *    frame - pointer to frame buffer
  *    filename - output file name
  *    format - image type
  *           (IMG_FMT_RAW, IMG_FMT_JPG, IMG_FMT_PNG, IMG_FMT_BMP)
  *
  * asserts:
- *    vd is not null
+ *    none
  *
  * returns: error code
  */
-int save_frame_image(v4l2_dev_t *vd, v4l2_frame_buff_t *frame, const char *filename, int format)
+int save_frame_image(v4l2_frame_buff_t *frame, const char *filename, int format)
 {
-	/*assertions*/
-	assert(vd != NULL);
-
 	int ret= E_OK;
 
 	switch(format)
@@ -101,19 +97,19 @@ int save_frame_image(v4l2_dev_t *vd, v4l2_frame_buff_t *frame, const char *filen
 		case IMG_FMT_JPG:
 			if(verbosity > 0)
 				printf("V4L2_CORE: saving jpeg frame to %s\n", filename);
-		    ret = save_image_jpeg(vd, frame, filename);
+		    ret = save_image_jpeg(frame, filename);
 		    break;
 
 		case IMG_FMT_BMP:
 			if(verbosity > 0)
 				printf("V4L2_CORE: saving bmp frame to %s\n", filename);
-			ret = save_image_bmp(vd, frame, filename);
+			ret = save_image_bmp(frame, filename);
 			break;
 
 		case IMG_FMT_PNG:
 			if(verbosity > 0)
 				printf("V4L2_CORE: saving png frame to %s\n", filename);
-			ret = save_image_png(vd, frame, filename);
+			ret = save_image_png(frame, filename);
 			break;
 
 		default:

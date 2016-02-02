@@ -40,6 +40,31 @@
 int enumerate_v4l2_control(v4l2_dev_t *vd);
 
 /*
+ * subscribe for v4l2 control events
+ * args:
+ *  vd - pointer to video device data
+ *  control_id - id of control to subscribe events for
+ *
+ * asserts:
+ *  vd is not null
+ *
+ * return: none
+ */
+void v4l2_subscribe_control_events(v4l2_dev_t *vd, unsigned int control_id);
+
+/*
+ * unsubscribev4l2 control events
+ * args:
+ *  vd - pointer to video device data
+ *
+ * asserts:
+ *  vd is not null
+ *
+ * return: none
+ */
+void v4l2_unsubscribe_control_events(v4l2_dev_t *vd);
+
+/*
  * return the control associated to id from device list
  * args:
  *   vd - pointer to video device data

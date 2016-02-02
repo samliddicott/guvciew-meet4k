@@ -30,7 +30,6 @@
 /*
  * save the current frame to file
  * args:
- *    vd - pointer to device data
  *    frame - pointer to frame buffer
  *    filename - output file name
  *    format - image type
@@ -41,12 +40,11 @@
  *
  * returns: error code
  */
-int save_frame_image(v4l2_dev_t *vd, v4l2_frame_buff_t *frame, const char *filename, int format);
+int save_frame_image(v4l2_frame_buff_t *frame, const char *filename, int format);
 
 /*
  * save frame data to a jpeg file
  * args:
- *    vd - pointer to device data
  *    frame - pointer to frame buffer
  *    filename - filename string
  *
@@ -55,12 +53,11 @@ int save_frame_image(v4l2_dev_t *vd, v4l2_frame_buff_t *frame, const char *filen
  *
  * returns: error code
  */
-int save_image_jpeg(v4l2_dev_t *vd, v4l2_frame_buff_t *frame, const char *filename);
+int save_image_jpeg(v4l2_frame_buff_t *frame, const char *filename);
 
 /*
  * save frame data to a bmp file
  * args:
- *    vd - pointer to device data
  *    frame - pointer to frame buffer
  *    filename - filename string
  *
@@ -69,12 +66,11 @@ int save_image_jpeg(v4l2_dev_t *vd, v4l2_frame_buff_t *frame, const char *filena
  *
  * returns: error code
  */
-int save_image_bmp(v4l2_dev_t *vd, v4l2_frame_buff_t *frame, const char *filename);
+int save_image_bmp(v4l2_frame_buff_t *frame, const char *filename);
 
 /*
  * save frame data into a png file
  * args:
- *    vd - pointer to device data
  *    frame - pointer to frame buffer
  *    filename - string with png filename name
  *
@@ -83,6 +79,6 @@ int save_image_bmp(v4l2_dev_t *vd, v4l2_frame_buff_t *frame, const char *filenam
  *
  * returns: error code
  */
-int save_image_png(v4l2_dev_t *vd, v4l2_frame_buff_t *frame, const char *filename);
+int save_image_png(v4l2_frame_buff_t *frame, const char *filename);
 
 #endif

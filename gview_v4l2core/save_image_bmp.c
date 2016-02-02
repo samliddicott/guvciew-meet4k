@@ -140,23 +140,19 @@ static int save_bmp(const char *filename, uint8_t *data, int width, int height, 
 /*
  * save frame data to a bmp file
  * args:
- *    vd - pointer to device data
  *    frame - pointer to frame buffer
  *    filename - filename string
  *
  * asserts:
- *    vd is not null
+ *    none
  *
  * returns: error code
  */
-int save_image_bmp(v4l2_dev_t *vd, v4l2_frame_buff_t *frame, const char *filename)
+int save_image_bmp(v4l2_frame_buff_t *frame, const char *filename)
 {
-	/*assertions*/
-	assert(vd != NULL);
-
 	int ret = E_OK;
-	int width = vd->format.fmt.pix.width;
-	int height = vd->format.fmt.pix.height;
+	int width = frame->width;
+	int height = frame->height;
 
 	uint8_t *bmp = calloc(width * height * 3, sizeof(uint8_t));
 	if(bmp == NULL)

@@ -81,8 +81,6 @@ static uint8_t disable_libv4l2 = 0; /*set to 1 to disable libv4l2 calls*/
 
 static int frame_queue_size = 1; /*just one frame in queue (enough for a single thread)*/
 
-v4l2_dev_t* vd = NULL; /*pointer to device data*/
-
 /*
  * ioctl with a number of retries in the case of I/O failure
  * args:
@@ -128,6 +126,11 @@ void __attribute__ ((constructor)) v4l2core_init()
 {
 	//initialize device list (with udev monitoring)
 	v4l2core_init_device_list();
+	
+	/*set defaults*/
+	frame_queue_size = 1;
+	disable_libv4l2 = 0;
+	
 }
 
 /*
@@ -146,17 +149,12 @@ void __attribute__ ((destructor)) v4l2core_fini()
 	if(verbosity > 2)
 		printf("V4L2_CORE: closing device list\n");
 	v4l2core_close_v4l2_device_list();
-	
-	//make sure to close any allocated device data
-	if(verbosity > 2)
-		printf("V4L2_CORE: closing device\n");
-	v4l2core_close_dev();
 }
 
 /*
  * Query video device capabilities and supported formats
  * args:
- *   none
+ *   vd - pointer to device data
  *
  * asserts:
  *   vd is not null
@@ -164,7 +162,7 @@ void __attribute__ ((destructor)) v4l2core_fini()
  *
  * returns: error code  (E_OK)
  */
-static int check_v4l2_dev()
+static int check_v4l2_dev(v4l2_dev_t *vd)
 {
 	/*assertions*/
 	assert(vd != NULL);
@@ -234,14 +232,14 @@ static int check_v4l2_dev()
 /*
  * unmaps v4l2 buffers
  * args:
- *   none
+ *   vd - pointer to device data
  *
  * asserts:
  *   vd is not null
  *
  * returns: error code  (0- E_OK)
  */
-static int unmap_buff()
+static int unmap_buff(v4l2_dev_t *vd)
 {
 	/*assertions*/
 	assert(vd != NULL);
@@ -273,14 +271,14 @@ static int unmap_buff()
 /*
  * maps v4l2 buffers
  * args:
- *   none
+ *   vd - pointer to device data
  *
  * asserts:
  *   vd is not null
  *
  * returns: error code  (0- E_OK)
  */
-static int map_buff()
+static int map_buff(v4l2_dev_t *vd)
 {
 	/*assertions*/
 	assert(vd != NULL);
@@ -316,14 +314,14 @@ static int map_buff()
 /*
  * Query and map buffers
  * args:
- *   none
+ *   vd - pointer to device data
  *
  * asserts:
  *   vd is not null
  *
  * returns: error code  (0- E_OK)
  */
-static int query_buff()
+static int query_buff(v4l2_dev_t *vd)
 {
 	/*assertions*/
 	assert(vd != NULL);
@@ -369,27 +367,27 @@ static int query_buff()
 				vd->buff_offset[i] = vd->buf.m.offset;
 			}
 			// map the new buffers
-			if(map_buff() != 0)
+			if(map_buff(vd) != 0)
 				ret = E_MMAP_ERR;
 			break;
 	}
 	for(i = 0; i < vd->frame_queue_size; ++i)
 		vd->frame_queue[i].raw_frame_max_size = vd->buf.length;
-				
+
 	return ret;
 }
 
 /*
  * Queue Buffers
  * args:
- *   none
+ *   vd - pointer to device data
  *
  * asserts:
  *   vd is not null
  *
  * returns: error code  (0- E_OK)
  */
-static int queue_buff()
+static int queue_buff(v4l2_dev_t *vd)
 {
 	/*assertions*/
 	assert(vd != NULL);
@@ -432,14 +430,14 @@ static int queue_buff()
 /*
  * do a VIDIOC_S_PARM ioctl for setting frame rate
  * args:
- *    none
+ *    vd - pointer to device data
  *
  * asserts:
  *    vd is not null
  *
  * returns: error code
  */
-static int do_v4l2_framerate_update()
+static int do_v4l2_framerate_update(v4l2_dev_t *vd)
 {
 	/*asserts*/
 	assert(vd != NULL);
@@ -479,7 +477,7 @@ static int do_v4l2_framerate_update()
 /*
  * sets video device frame rate
  * args:
- *   none
+ *   vd - pointer to device data
  *
  * asserts:
  *   vd is not null
@@ -487,7 +485,7 @@ static int do_v4l2_framerate_update()
  * returns: VIDIOC_S_PARM ioctl result value
  * (sets vd->fps_denom and vd->fps_num to device value)
  */
-static int set_v4l2_framerate ()
+static int set_v4l2_framerate (v4l2_dev_t *vd)
 {
 	/*assertions*/
 	assert(vd != NULL);
@@ -505,22 +503,22 @@ static int set_v4l2_framerate ()
 
 	/*try to stop the video stream*/
 	if(stream_status == STRM_OK)
-		v4l2core_stop_stream();
+		v4l2core_stop_stream(vd);
 
 	switch(vd->cap_meth)
 	{
 		case IO_READ:
-			ret = do_v4l2_framerate_update();
+			ret = do_v4l2_framerate_update(vd);
 			break;
 
 		case IO_MMAP:
 			if(stream_status == STRM_OK)
 			{
 				/*unmap the buffers*/
-				unmap_buff();
+				unmap_buff(vd);
 			}
 
-			ret = do_v4l2_framerate_update();
+			ret = do_v4l2_framerate_update(vd);
 			/*
 			 * For uvc muxed H264 stream
 			 * since we are restarting the video stream and codec values will be reset
@@ -537,13 +535,13 @@ static int set_v4l2_framerate ()
 	
 	if(stream_status == STRM_OK)
 	{
-		query_buff(); /*also mmaps the buffers*/
-		queue_buff();
+		query_buff(vd); /*also mmaps the buffers*/
+		queue_buff(vd);
 	}
 
 	/*try to start the video stream*/
 	if(stream_status == STRM_OK)
-		v4l2core_start_stream();
+		v4l2core_start_stream(vd);
 
 	/*unlock the mutex*/
 	__UNLOCK_MUTEX( __PMUTEX );
@@ -554,14 +552,14 @@ static int set_v4l2_framerate ()
 /*
  * checks if frame data is available
  * args:
- *   none
+ *   vd - pointer to device data
  *
  * asserts:
  *   vd is not null
  *
  * returns: error code  (0- E_OK)
  */
-static int check_frame_available()
+static int check_frame_available(v4l2_dev_t *vd)
 {
 	/*asserts*/
 	assert(vd != NULL);
@@ -580,7 +578,7 @@ static int check_frame_available()
 	if(stream_state != STRM_OK)
 	{
 		if(stream_state == STRM_REQ_STOP)
-			v4l2core_stop_stream();
+			v4l2core_stop_stream(vd);
 
 		fprintf(stderr, "V4L2_CORE: (get_v4l2_frame) video stream must be started first\n");
 		return E_NO_STREAM_ERR;
@@ -591,7 +589,7 @@ static int check_frame_available()
 	{
 		if(verbosity > 2)
 			printf("V4L2_CORE: fps change request detected\n");
-		set_v4l2_framerate();
+		set_v4l2_framerate(vd);
 		flag_fps_change = 0;
 	}
 
@@ -682,6 +680,7 @@ void v4l2core_enable_libv4l2()
 /*
  * Set v4l2 capture method
  * args:
+ *   vd - pointer to device data
  *   method - capture method (IO_READ or IO_MMAP)
  *
  * asserts:
@@ -689,7 +688,7 @@ void v4l2core_enable_libv4l2()
  *
  * returns: VIDIOC_STREAMON ioctl result (E_OK or E_STREAMON_ERR)
 */
-void v4l2core_set_capture_method(int method)
+void v4l2core_set_capture_method(v4l2_dev_t *vd, int method)
 {
 	/*asserts*/
 	assert(vd != NULL);
@@ -700,6 +699,7 @@ void v4l2core_set_capture_method(int method)
 /*
  * define fps values
  * args:
+ *   vd - pointer to device data
  *   num - fps numerator
  *   denom - fps denominator
  *
@@ -708,7 +708,7 @@ void v4l2core_set_capture_method(int method)
  *
  * returns - void
  */
-void v4l2core_define_fps(int num, int denom)
+void v4l2core_define_fps(v4l2_dev_t *vd, int num, int denom)
 {
 	/*assertions*/
 	assert(vd != NULL);
@@ -725,14 +725,14 @@ void v4l2core_define_fps(int num, int denom)
 /*
  * get requested fps numerator
  * args:
- *   none
+ *   vd - pointer to device data
  *
  * asserts:
  *   vd is not null
  *
  * returns - requested fps numerator
  */
-int v4l2core_get_fps_num()
+int v4l2core_get_fps_num(v4l2_dev_t *vd)
 {
 	/*assertions*/
 	assert(vd != NULL);
@@ -743,14 +743,14 @@ int v4l2core_get_fps_num()
 /*
  * get requested fps denominator
  * args:
- *   none
+ *   vd - pointer to device data
  *
  * asserts:
  *   vd is not null
  *
  * returns - requested fps denominator
  */
-int v4l2core_get_fps_denom()
+int v4l2core_get_fps_denom(v4l2_dev_t *vd)
 {
 	/*assertions*/
 	assert(vd != NULL);
@@ -776,14 +776,14 @@ double v4l2core_get_realfps()
 /*
  * get videodevice string
  * args:
- *    none
+ *    vd - pointer to device data
  *
  * asserts:
  *    none
  *
  * return: videodevice string
  */
-const char *v4l2core_get_videodevice()
+const char *v4l2core_get_videodevice(v4l2_dev_t *vd)
 {
 	/*assertions*/
 	assert(vd != NULL);
@@ -794,14 +794,14 @@ const char *v4l2core_get_videodevice()
 /*
  * get device available number of formats
  * args:
- *   none
+ *   vd - pointer to device data
  *
  * asserts:
  *   vd is not null
  *
  * returns - number of formats for device
  */
-int v4l2core_get_number_formats()
+int v4l2core_get_number_formats(v4l2_dev_t *vd)
 {
 	/*assertions*/
 	assert(vd != NULL);
@@ -812,14 +812,14 @@ int v4l2core_get_number_formats()
 /*
  * get has_pantilt_id flag
  * args:
- *   none
+ *   vd - pointer to device data
  *
  * asserts:
  *   vd is not null
  *
  * returns: has_pantilt_id flag
  */
-int v4l2core_has_pantilt_id()
+int v4l2core_has_pantilt_id(v4l2_dev_t *vd)
 {
 	/*assertions*/
 	assert(vd != NULL);
@@ -830,14 +830,14 @@ int v4l2core_has_pantilt_id()
 /*
  * get has_focus_control_id flag
  * args:
- *   none
+ *   vd -pointer to device data
  *
  * asserts:
  *   vd is not null
  *
  * returns: has_focus_control_id flag
  */
-int v4l2core_has_focus_control_id()
+int v4l2core_has_focus_control_id(v4l2_dev_t *vd)
 {
 	/*assertions*/
 	assert(vd != NULL);
@@ -848,6 +848,7 @@ int v4l2core_has_focus_control_id()
 /*
  * sets bayer pixel order
  * args:
+ *   vd - pointer to device data
  *   order - pixel order
  *
  * asserts:
@@ -855,7 +856,7 @@ int v4l2core_has_focus_control_id()
  *
  * returns - void
  */
-void v4l2core_set_bayer_pix_order(uint8_t order)
+void v4l2core_set_bayer_pix_order(v4l2_dev_t *vd, uint8_t order)
 {
 	/*assertions*/
 	assert(vd != NULL);
@@ -866,14 +867,14 @@ void v4l2core_set_bayer_pix_order(uint8_t order)
 /*
  * gets bayer pixel order
  * args:
- *   none
+ *   vd - pointer to device data
  *
  * asserts:
  *   vd is not null
  *
  * returns - bayer pixel order
  */
-uint8_t v4l2core_get_bayer_pix_order()
+uint8_t v4l2core_get_bayer_pix_order(v4l2_dev_t *vd)
 {
 	/*assertions*/
 	assert(vd != NULL);
@@ -884,6 +885,7 @@ uint8_t v4l2core_get_bayer_pix_order()
 /*
  * flags bayer mode
  * args:
+ *   vd -pointer to device data
  *   flag - 1 if we are streaming bayer data (0 otherwise)
  *
  * asserts:
@@ -891,7 +893,7 @@ uint8_t v4l2core_get_bayer_pix_order()
  *
  * returns - void
  */
-void v4l2core_set_isbayer(uint8_t flag)
+void v4l2core_set_isbayer(v4l2_dev_t *vd, uint8_t flag)
 {
 	/*assertions*/
 	assert(vd != NULL);
@@ -902,14 +904,14 @@ void v4l2core_set_isbayer(uint8_t flag)
 /*
  * gets bayer pixel order
  * args:
- *   none
+ *   vd - pointer to device data
  *
  * asserts:
  *   vd is not null
  *
  * returns - isbayer flag
  */
-uint8_t v4l2core_get_isbayer()
+uint8_t v4l2core_get_isbayer(v4l2_dev_t *vd)
 {
 	/*assertions*/
 	assert(vd != NULL);
@@ -920,14 +922,14 @@ uint8_t v4l2core_get_isbayer()
 /*
  * gets current device index
  * args:
- *   none
+ *   vd - pointer to device data
  *
  * asserts:
  *   vd is not null
  *
  * returns - device index
  */
-int v4l2core_get_this_device_index()
+int v4l2core_get_this_device_index(v4l2_dev_t *vd)
 {
 	/*assertions*/
 	assert(vd != NULL);
@@ -938,14 +940,14 @@ int v4l2core_get_this_device_index()
 /*
  * Start video stream
  * args:
- *   none
+ *   vd - pointer to device data
  *
  * asserts:
  *   vd is not null
  *
  * returns: VIDIOC_STREAMON ioctl result (E_OK or E_STREAMON_ERR)
 */
-int v4l2core_start_stream()
+int v4l2core_start_stream(v4l2_dev_t *vd)
 {
 	/*assertions*/
 	assert(vd != NULL);
@@ -986,14 +988,14 @@ int v4l2core_start_stream()
 /*
  * request video stream to stop
  * args:
- *   none
+ *   vd - pointer to device data
  *
  * asserts:
  *   vd is not null
  *
  * returns: error code (0 -OK)
 */
-int v4l2core_request_stop_stream()
+int v4l2core_request_stop_stream(v4l2_dev_t *vd)
 {
 	/*assertions*/
 	assert(vd != NULL);
@@ -1012,14 +1014,14 @@ int v4l2core_request_stop_stream()
 /*
  * Stops the video stream
  * args:
- *   none
+ *   vd - pointer to device data
  *
  * asserts:
  *   vd is not null
  *
  * returns: VIDIOC_STREAMON ioctl result (E_OK)
 */
-int v4l2core_stop_stream()
+int v4l2core_stop_stream(v4l2_dev_t *vd)
 {
 	/*assertions*/
 	assert(vd != NULL);
@@ -1053,11 +1055,11 @@ int v4l2core_stop_stream()
 /*
  * get next ready flaged frame from queue
  * args:
- *    none
+ *    vd - pointer to device data
  *
  * returns: index of frame queue or -1 if none
  */
-static int get_next_ready_frame()
+static int get_next_ready_frame(v4l2_dev_t *vd)
 {
 	int i = 0;
 	for(i=0; i<vd->frame_queue_size; ++i)
@@ -1072,14 +1074,14 @@ static int get_next_ready_frame()
 /*
  * process input buffer
  * args:
- *   none
+ *   vd - pointer to device data
  *
  * returns: frame_queue index
  */
-static int process_input_buffer()
+static int process_input_buffer(v4l2_dev_t *vd)
 {
 	/*get next available frame in queue*/
-	int qind = get_next_ready_frame();
+	int qind = get_next_ready_frame(vd);
 	
 	if(verbosity > 2)
 		printf("V4L2_CORE: process frame queue index %i\n", qind);
@@ -1132,14 +1134,14 @@ static int process_input_buffer()
 /*
  * gets the next video frame (must be released after processing)
  * args:
- *   none
+ *   vd - pointer to device data
  *
  * asserts:
  *   vd is not null
  *
  * returns: pointer frame buffer (NULL on error)
  */
-v4l2_frame_buff_t *v4l2core_get_frame()
+v4l2_frame_buff_t *v4l2core_get_frame(v4l2_dev_t *vd)
 {
 	/*asserts*/
 	assert(vd != NULL);
@@ -1149,7 +1151,7 @@ v4l2_frame_buff_t *v4l2core_get_frame()
 		request_h264_frame_type(vd, PICTURE_TYPE_IDR_FULL);
 
 	int res = 0;
-	int ret = check_frame_available();
+	int ret = check_frame_available(vd);
 
 	int qind = -1;
 	
@@ -1168,9 +1170,9 @@ v4l2_frame_buff_t *v4l2core_get_frame()
 			{
 				vd->buf.bytesused = v4l2_read (vd->fd, vd->mem[vd->buf.index], vd->buf.length);
 				bytes_used = vd->buf.bytesused;
-				
+
 				if(bytes_used > 0)
-					qind = process_input_buffer();
+					qind = process_input_buffer(vd);
 			}
 			else res = -1;
 			/*unlock the mutex*/
@@ -1239,7 +1241,7 @@ v4l2_frame_buff_t *v4l2core_get_frame()
 				ret = xioctl(vd->fd, VIDIOC_DQBUF, &vd->buf);
 
 				if(!ret)
-					qind = process_input_buffer();
+					qind = process_input_buffer(vd);
 				else
 					fprintf(stderr, "V4L2_CORE: (VIDIOC_DQBUF) Unable to dequeue buffer: %s\n", strerror(errno));
 			}
@@ -1254,13 +1256,17 @@ v4l2_frame_buff_t *v4l2core_get_frame()
 
 	if(qind < 0 || qind >= vd->frame_queue_size)
 		return NULL;
-		
+
+	vd->frame_queue[qind].width = vd->format.fmt.pix.width;
+	vd->frame_queue[qind].height = vd->format.fmt.pix.height;
+	
 	return &vd->frame_queue[qind];
 }
 
 /*
  * releases the video frame (so that it can be reused by the driver)
  * args:
+ *   vd - pointer to device data
  *   frame - pointer to decoded frame buffer
  *
  * asserts:
@@ -1268,7 +1274,7 @@ v4l2_frame_buff_t *v4l2core_get_frame()
  *
  * returns: error code (E_OK)
  */
-int v4l2core_release_frame(v4l2_frame_buff_t *frame)
+int v4l2core_release_frame(v4l2_dev_t *vd, v4l2_frame_buff_t *frame)
 {
 	int ret = 0;
 	
@@ -1301,19 +1307,19 @@ int v4l2core_release_frame(v4l2_frame_buff_t *frame)
 	if (ret < 0)
 		return E_QBUF_ERR;
 	
-	return E_OK;		
+	return E_OK;
 }
 
 /*
  * gets the next video frame and decodes it
  * args:
- *    none
+ *    vd - pointer to device data
  *
  * returns: pointer to decoded frame buffer ( NULL on error)
  */
-v4l2_frame_buff_t *v4l2core_get_decoded_frame()
+v4l2_frame_buff_t *v4l2core_get_decoded_frame(v4l2_dev_t *vd)
 {
-	v4l2_frame_buff_t *frame = v4l2core_get_frame();
+	v4l2_frame_buff_t *frame = v4l2core_get_frame(vd);
 	if(frame != NULL)
 	{
 		/*decode the raw frame*/
@@ -1329,6 +1335,7 @@ v4l2_frame_buff_t *v4l2core_get_decoded_frame()
 /*
  * Try/Set device video stream format
  * args:
+ *   vd -pointer to device data
  *   width - requested video frame width
  *   height - requested video frame height
  *   pixelformat - requested v4l2 pixelformat
@@ -1338,7 +1345,8 @@ v4l2_frame_buff_t *v4l2core_get_decoded_frame()
  *
  * returns: error code ( E_OK)
  */
-static int try_video_stream_format(int width, int height, int pixelformat)
+static int try_video_stream_format(v4l2_dev_t *vd, 
+	int width, int height, int pixelformat)
 {
 	/*assertions*/
 	assert(vd != NULL);
@@ -1353,7 +1361,7 @@ static int try_video_stream_format(int width, int height, int pixelformat)
 	uint8_t stream_status = vd->streaming;
 
 	if(stream_status == STRM_OK)
-		v4l2core_stop_stream();
+		v4l2core_stop_stream(vd);
 
 	if(vd->requested_fmt == V4L2_PIX_FMT_H264 && h264_get_support() == H264_MUXED)
 	{
@@ -1446,7 +1454,7 @@ static int try_video_stream_format(int width, int height, int pixelformat)
 				return E_REQBUFS_ERR;
 			}
 			/* map the buffers */
-			if (query_buff())
+			if (query_buff(vd))
 			{
 				fprintf(stderr, "V4L2_CORE: (VIDIOC_QBUFS) Unable to query buffers: %s\n", strerror(errno));
 				/*
@@ -1466,13 +1474,13 @@ static int try_video_stream_format(int width, int height, int pixelformat)
 			}
 
 			/* Queue the buffers */
-			if (queue_buff())
+			if (queue_buff(vd))
 			{
 				fprintf(stderr, "V4L2_CORE: (VIDIOC_QBUFS) Unable to queue buffers: %s\n", strerror(errno));
 				/*delete requested buffers */
 				if(verbosity > 0)
 					printf("V4L2_CORE: cleaning requestbuffers\n");
-				unmap_buff();
+				unmap_buff(vd);
 				memset(&vd->rb, 0, sizeof(struct v4l2_requestbuffers));
 				vd->rb.count = 0;
 				vd->rb.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
@@ -1484,13 +1492,13 @@ static int try_video_stream_format(int width, int height, int pixelformat)
 	}
 
 	/*this locks the mutex (can't be called while the mutex is being locked)*/
-	v4l2core_request_framerate_update();
+	v4l2core_request_framerate_update(vd);
 
 	if(stream_status == STRM_OK)
-		v4l2core_start_stream();
+		v4l2core_start_stream(vd);
 
 	/*update the current framerate for the device*/
-	v4l2core_get_framerate();
+	v4l2core_get_framerate(vd);
 
 	return E_OK;
 }
@@ -1498,14 +1506,14 @@ static int try_video_stream_format(int width, int height, int pixelformat)
 /*
  * get frame width
  * args:
- *   none
+ *   vd - pointer to device data
  *
  * asserts:
  *   vd is not null
  *
  * returns: frame width
  */
-int v4l2core_get_frame_width()
+int v4l2core_get_frame_width(v4l2_dev_t *vd)
 {
 	/*assertions*/
 	assert(vd != NULL);
@@ -1516,14 +1524,14 @@ int v4l2core_get_frame_width()
 /*
  * get frame height
  * args:
- *   none
+ *   vd - pointer to device data
  *
  * asserts:
  *   vd is not null
  *
  * returns: frame height
  */
-int v4l2core_get_frame_height()
+int v4l2core_get_frame_height(v4l2_dev_t *vd)
 {
 	/*assertions*/
 	assert(vd != NULL);
@@ -1534,14 +1542,14 @@ int v4l2core_get_frame_height()
 /*
  * get requested frame format
  * args:
- *   none
+ *   vd - pointer to device data
  *
  * asserts:
  *   vd is not null
  *
  * returns: requested frame format
  */
-int v4l2core_get_requested_frame_format()
+int v4l2core_get_requested_frame_format(v4l2_dev_t *vd)
 {
 	/*asserts*/
 	assert(vd != NULL);
@@ -1552,6 +1560,7 @@ int v4l2core_get_requested_frame_format()
 /*
  * prepare new format
  * args:
+ *   vd - pointer to device data
  *   new_format - new format
  *
  * asserts:
@@ -1559,12 +1568,12 @@ int v4l2core_get_requested_frame_format()
  *
  * returns: none
  */
-void v4l2core_prepare_new_format(int new_format)
+void v4l2core_prepare_new_format(v4l2_dev_t *vd, int new_format)
 {
 	/*asserts*/
 	assert(vd != NULL);
 
-	int format_index = v4l2core_get_frame_format_index(new_format);
+	int format_index = v4l2core_get_frame_format_index(vd, new_format);
 
 	if(format_index < 0)
 		format_index = 0;
@@ -1575,14 +1584,14 @@ void v4l2core_prepare_new_format(int new_format)
 /*
  * prepare a valid format (first in the format list)
  * args:
- *   none
+ *   vd - pointer to device data
  *
  * asserts:
  *    vd is not null
  *
  * returns: none
  */
-void v4l2core_prepare_valid_format()
+void v4l2core_prepare_valid_format(v4l2_dev_t *vd)
 {
 	/*asserts*/
 	assert(vd != NULL);
@@ -1595,6 +1604,7 @@ void v4l2core_prepare_valid_format()
 /*
  * prepare new resolution
  * args:
+ *   vd - pointer to device data
  *   new_width - new width
  *   new_height - new height
  *
@@ -1603,17 +1613,19 @@ void v4l2core_prepare_valid_format()
  *
  * returns: none
  */
-void v4l2core_prepare_new_resolution(int new_width, int new_height)
+void v4l2core_prepare_new_resolution(v4l2_dev_t *vd, 
+	int new_width, int new_height)
 {
 	/*asserts*/
 	assert(vd != NULL);
 
-	int format_index = v4l2core_get_frame_format_index(my_pixelformat);
+	int format_index = v4l2core_get_frame_format_index(vd, my_pixelformat);
 
 	if(format_index < 0)
 		format_index = 0;
 
-	int resolution_index = v4l2core_get_format_resolution_index(format_index, new_width, new_height);
+	int resolution_index = v4l2core_get_format_resolution_index(vd, 
+		format_index, new_width, new_height);
 
 	if(resolution_index < 0)
 		resolution_index = 0;
@@ -1625,19 +1637,19 @@ void v4l2core_prepare_new_resolution(int new_width, int new_height)
 /*
  * prepare valid resolution (first in the resolution list for the format)
  * args:
- *   none
+ *   vd - pointer to device data
  *
  * asserts:
  *    vd is not null
  *
  * returns: none
  */
-void v4l2core_prepare_valid_resolution()
+void v4l2core_prepare_valid_resolution(v4l2_dev_t *vd)
 {
 	/*asserts*/
 	assert(vd != NULL);
 
-	int format_index = v4l2core_get_frame_format_index(my_pixelformat);
+	int format_index = v4l2core_get_frame_format_index(vd, my_pixelformat);
 
 	if(format_index < 0)
 		format_index = 0;
@@ -1651,7 +1663,7 @@ void v4l2core_prepare_valid_resolution()
 /*
  * update the current format (pixelformat, width and height)
  * args:
- *    none
+ *    vd - pointer to device data
  *
  * asserts:
  *    vd is not null
@@ -1659,25 +1671,25 @@ void v4l2core_prepare_valid_resolution()
  * returns:
  *    error code
  */
-int v4l2core_update_current_format()
+int v4l2core_update_current_format(v4l2_dev_t *vd)
 {
 	/*asserts*/
 	assert(vd != NULL);
 
-	return(try_video_stream_format(my_width, my_height, my_pixelformat));
+	return(try_video_stream_format(vd, my_width, my_height, my_pixelformat));
 }
 
 /*
  * clean video device data allocation
  * args:
- *   none
+ *   vd - pointer to device data
  *
  * asserts:
  *   vd is not null
  *
  * returns: void
  */
-static void clean_v4l2_dev()
+static void clean_v4l2_dev(v4l2_dev_t *vd)
 {
 	/*assertions*/
 	assert(vd != NULL);
@@ -1695,12 +1707,9 @@ static void clean_v4l2_dev()
 	if(vd->list_stream_formats)
 		free_frame_formats(vd);
 
-	if(vd->list_device_controls)
-		free_v4l2_control_list(vd);
-	
 	if(vd->frame_queue)
 		free(vd->frame_queue);
-	
+
 	/*close descriptor*/
 	if(vd->fd > 0)
 		v4l2_close(vd->fd);
@@ -1708,7 +1717,6 @@ static void clean_v4l2_dev()
 	vd->fd = 0;
 
 	free(vd);
-	vd = NULL;
 }
 
 /*
@@ -1719,16 +1727,16 @@ static void clean_v4l2_dev()
  * asserts:
  *   device is not null
  *
- * returns: error code  (< 0) on error
+ * returns: pointer to opaque device data ore NULL on error
  */
-int v4l2core_init_dev(const char *device)
+v4l2_dev_t* v4l2core_init_dev(const char *device)
 {
 	/*assertions*/
 	assert(device != NULL);
 	
-	/*make sure to close and clean any existing device data*/
-	if(vd != NULL)
-		v4l2core_close_dev();
+	///*make sure to close and clean any existing device data*/
+	//if(vd != NULL)
+	//	v4l2core_close_dev();
 
 	/*localization*/
 	char* lc_all = setlocale (LC_ALL, "");
@@ -1738,7 +1746,7 @@ int v4l2core_init_dev(const char *device)
 		lc_dir, lc_all, GETTEXT_PACKAGE_V4L2CORE);
 
 	/*alloc the device data*/
-	vd = calloc(1, sizeof(v4l2_dev_t));
+	v4l2_dev_t* vd = calloc(1, sizeof(v4l2_dev_t));
 
 	assert(vd != NULL);
 
@@ -1776,15 +1784,15 @@ int v4l2core_init_dev(const char *device)
 	if ((vd->fd = v4l2_open(vd->videodevice, O_RDWR | O_NONBLOCK, 0)) < 0)
 	{
 		fprintf(stderr, "V4L2_CORE: ERROR opening V4L interface: %s\n", strerror(errno));
-		clean_v4l2_dev();
-		return (-1);
+		clean_v4l2_dev(vd);
+		return (NULL);
 	}
 
 	vd->this_device = v4l2core_get_device_index(vd->videodevice);
 	if(vd->this_device < 0)
 		vd->this_device = 0;
 
-	v4l2_device_list *device_list = v4l2core_get_device_list();
+	v4l2_device_list *device_list = v4l2core_get_device_list(vd);
 	if(device_list && device_list->list_devices)
 		device_list->list_devices[vd->this_device].current = 1;
 
@@ -1797,11 +1805,12 @@ int v4l2core_init_dev(const char *device)
 	memset(&vd->buf, 0, sizeof(struct v4l2_buffer));
 	memset(&vd->rb, 0, sizeof(struct v4l2_requestbuffers));
 	memset(&vd->streamparm, 0, sizeof(struct v4l2_streamparm));
+	memset(&vd->evsub, 0, sizeof(struct v4l2_event_subscription));
 
-	if(check_v4l2_dev() != E_OK)
+	if(check_v4l2_dev(vd) != E_OK)
 	{
-		clean_v4l2_dev();
-		return (-2);
+		clean_v4l2_dev(vd);
+		return (NULL);
 	}
 
 	int i = 0;
@@ -1810,20 +1819,20 @@ int v4l2core_init_dev(const char *device)
 		vd->mem[i] = MAP_FAILED; /*not mmaped yet*/
 	}
 
-	return (0);
+	return (vd);
 }
 
 /*
  * get stream frame format list for device
  * args:
- *    none
+ *    vd - pointer to device data
  *
  * asserts:
  *    vd is not null
  *
  * return: pointer to first format in the list
  */
-v4l2_stream_formats_t *v4l2core_get_formats_list()
+v4l2_stream_formats_t *v4l2core_get_formats_list(v4l2_dev_t *vd)
 {
 	/*assertions*/
 	assert(vd != NULL);
@@ -1834,14 +1843,14 @@ v4l2_stream_formats_t *v4l2core_get_formats_list()
 /*
  * get device control list
  * args:
- *    none
+ *    vd - pointer to device data
  *
  * asserts:
  *    vd is not null
  *
  * return: pointer to first control in the list
  */
-v4l2_ctrl_t *v4l2core_get_control_list()
+v4l2_ctrl_t *v4l2core_get_control_list(v4l2_dev_t *vd)
 {
 	/*assertions*/
 	assert(vd != NULL);
@@ -1850,16 +1859,72 @@ v4l2_ctrl_t *v4l2core_get_control_list()
 }
 
 /*
+ * check for control events
+ * args:
+ *   vd - pointer to devide data
+ *
+ * asserts:
+ *   vd is not null
+ *
+ * returns: number of processed control events
+ */
+int v4l2core_check_control_events(v4l2_dev_t *vd)
+{
+	/*assertions*/
+	assert(vd != NULL);
+	
+	int ret = 0;
+	struct v4l2_event ev;
+
+	while (xioctl(vd->fd, VIDIOC_DQEVENT, &ev) == 0)
+	{
+		if (ev.type != V4L2_EVENT_CTRL)
+			continue;
+
+		ret++;
+		//update control
+		v4l2_ctrl_t *control = v4l2core_get_control_by_id(vd, ev.id);
+		if(control != NULL)
+		{
+			control->control.flags = ev.u.ctrl.flags;
+			if(control->control.flags & V4L2_CTRL_FLAG_DISABLED)
+				continue;
+
+			control->control.minimum = ev.u.ctrl.minimum;
+			control->control.maximum = ev.u.ctrl.maximum;
+			control->control.step = ev.u.ctrl.step;
+			control->control.default_value = ev.u.ctrl.default_value;
+
+			switch (control->control.type)
+			{
+#ifdef V4L2_CTRL_TYPE_INTEGER64
+				case V4L2_CTRL_TYPE_INTEGER64:
+					control->value64 = ev.u.ctrl.value64;
+					break;
+#endif
+#ifdef V4L2_CTRL_TYPE_STRING
+				case V4L2_CTRL_TYPE_STRING:
+					break;
+#endif
+				default:
+					control->value = ev.u.ctrl.value;
+			}
+		}
+	}
+
+	return ret;
+}
+/*
  * get device pan step value
  * args:
- *    none
+ *    vd - pointer to device data
  *
  * asserts:
  *    vd is not null
  *
  * return: pan step value
  */
-int v4l2core_get_pan_step()
+int v4l2core_get_pan_step(v4l2_dev_t *vd)
 {
 	/*assertions*/
 	assert(vd != NULL);
@@ -1870,14 +1935,14 @@ int v4l2core_get_pan_step()
 /*
  * get device tilt step value
  * args:
- *    none
+ *    vd - pointer to device data
  *
  * asserts:
  *    vd is not null
  *
  * return: tilt step value
  */
-int v4l2core_get_tilt_step()
+int v4l2core_get_tilt_step(v4l2_dev_t *vd)
 {
 	/*assertions*/
 	assert(vd != NULL);
@@ -1888,6 +1953,7 @@ int v4l2core_get_tilt_step()
 /*
  * set device pan step value
  * args:
+ *    vd - pointer to device data
  *    step - pan step value
  *
  * asserts:
@@ -1895,7 +1961,7 @@ int v4l2core_get_tilt_step()
  *
  * return: none
  */
-void v4l2core_set_pan_step(int step)
+void v4l2core_set_pan_step(v4l2_dev_t *vd, int step)
 {
 	/*assertions*/
 	assert(vd != NULL);
@@ -1906,6 +1972,7 @@ void v4l2core_set_pan_step(int step)
 /*
  * set device tilt step value
  * args:
+ *    vd - pointer to device data
  *    step -tilt step value
  *
  * asserts:
@@ -1913,7 +1980,7 @@ void v4l2core_set_pan_step(int step)
  *
  * return: none
  */
-void v4l2core_set_tilt_step(int step)
+void v4l2core_set_tilt_step(v4l2_dev_t *vd, int step)
 {
 	/*assertions*/
 	assert(vd != NULL);
@@ -1924,14 +1991,14 @@ void v4l2core_set_tilt_step(int step)
 /*
  * initiate software autofocus
  * args:
- *    none
+ *    vd - pointer to device data
  *
  * asserts:
  *    none
  *
  * returns: error code (0 - E_OK)
  */
-int v4l2core_soft_autofocus_init ()
+int v4l2core_soft_autofocus_init (v4l2_dev_t *vd)
 {
 	return soft_autofocus_init(vd);
 }
@@ -1939,6 +2006,7 @@ int v4l2core_soft_autofocus_init ()
 /*
  * run the software autofocus
  * args:
+ *    vd - pointer to device data
  *    frame - pointer to frame buffer
  *
  * asserts:
@@ -1947,7 +2015,7 @@ int v4l2core_soft_autofocus_init ()
  * returns: 1 - running  0- focused
  * 	(only matters for non-continue focus)
  */
-int v4l2core_soft_autofocus_run(v4l2_frame_buff_t *frame)
+int v4l2core_soft_autofocus_run(v4l2_dev_t *vd, v4l2_frame_buff_t *frame)
 {
 	return soft_autofocus_run(vd, frame);
 }
@@ -1955,14 +2023,14 @@ int v4l2core_soft_autofocus_run(v4l2_frame_buff_t *frame)
 /*
  * clean v4l2 buffers
  * args:
- *    none
+ *    vd - pointer to device data
  *
  * asserts:
  *    vd is not null
  *
  * return: none
  */
-void v4l2core_clean_buffers()
+void v4l2core_clean_buffers(v4l2_dev_t *vd)
 {
 	/*assertions*/
 	assert(vd != NULL);
@@ -1971,7 +2039,7 @@ void v4l2core_clean_buffers()
 		printf("V4L2_CORE: cleaning v4l2 buffers\n");
 
 	if(vd->streaming == STRM_OK)
-		v4l2core_stop_stream();
+		v4l2core_stop_stream(vd);
 
 	clean_v4l2_frames(vd);
 
@@ -1989,7 +2057,7 @@ void v4l2core_clean_buffers()
 		case IO_MMAP:
 		default:
 			//delete requested buffers
-			unmap_buff();
+			unmap_buff(vd);
 			memset(&vd->rb, 0, sizeof(struct v4l2_requestbuffers));
 			vd->rb.count = 0;
 			vd->rb.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
@@ -2004,35 +2072,38 @@ void v4l2core_clean_buffers()
 /*
  * cleans video device data and allocations
  * args:
- *   none
+ *   vd - pointer to device data
  *
  * asserts:
  *   none
  *
  * returns: void
  */
-void v4l2core_close_dev()
+void v4l2core_close_dev(v4l2_dev_t *vd)
 {
 	if(vd == NULL)
 		return;
 
-	v4l2core_clean_buffers();
-	clean_v4l2_dev();
+	v4l2core_clean_buffers(vd);
+	clean_v4l2_dev(vd);
 }
 
 /*
  * request a fps update - this locks the mutex
  *   (can't be called while the mutex is being locked)
  * args:
- *    none
+ *    vd - pointer to device data
  *
  * asserts:
  *    vd is not null
  *
  * returns: none
  */
-void v4l2core_request_framerate_update()
+void v4l2core_request_framerate_update(v4l2_dev_t *vd)
 {
+	/*assertions*/
+	assert(vd != NULL);
+	
 	/*
 	 * if we are streaming flag a fps change when retrieving frame
 	 * else change fps immediatly
@@ -2040,13 +2111,13 @@ void v4l2core_request_framerate_update()
 	if(vd->streaming == STRM_OK)
 		flag_fps_change = 1;
 	else
-		set_v4l2_framerate();
+		set_v4l2_framerate(vd);
 }
 
 /*
  * gets video device defined frame rate (not real - consider it a maximum value)
  * args:
- *   none
+ *   vd - pointer to device data
  *
  * asserts:
  *   vd is not null
@@ -2054,7 +2125,7 @@ void v4l2core_request_framerate_update()
  * returns: VIDIOC_G_PARM ioctl result value
  * (sets vd->fps_denom and vd->fps_num to device value)
  */
-int v4l2core_get_framerate ()
+int v4l2core_get_framerate (v4l2_dev_t *vd)
 {
 	/*assertions*/
 	assert(vd != NULL);
@@ -2088,6 +2159,7 @@ int v4l2core_get_framerate ()
 /*
  * return the control associated to id from device list
  * args:
+ *   vd - pointer to device data
  *   id - control id
  *
  * asserts:
@@ -2096,7 +2168,7 @@ int v4l2core_get_framerate ()
  *
  * returns: pointer to v4l2_control if succeded or null otherwise
  */
-v4l2_ctrl_t *v4l2core_get_control_by_id(int id)
+v4l2_ctrl_t *v4l2core_get_control_by_id(v4l2_dev_t *vd, int id)
 {
 	return get_control_by_id(vd, id);
 }
@@ -2105,6 +2177,7 @@ v4l2_ctrl_t *v4l2core_get_control_by_id(int id)
  * updates the value for control id from the device
  * also updates control flags
  * args:
+ *   vd - pointer to device data
  *   id -control id
  *
  * asserts:
@@ -2112,7 +2185,7 @@ v4l2_ctrl_t *v4l2core_get_control_by_id(int id)
  *
  * returns: ioctl result
  */
-int v4l2core_get_control_value_by_id (int id)
+int v4l2core_get_control_value_by_id (v4l2_dev_t *vd, int id)
 {
 	return get_control_value_by_id (vd, id);
 }
@@ -2120,14 +2193,14 @@ int v4l2core_get_control_value_by_id (int id)
 /*
  * goes trough the control list and sets values in device to default
  * args:
- *   none
+ *   vd - pointer to device data
  *
  * asserts:
  *   none
  *
  * returns: void
  */
-void v4l2core_set_control_defaults()
+void v4l2core_set_control_defaults(v4l2_dev_t *vd)
 {
 	set_control_defaults(vd);
 }
@@ -2135,6 +2208,7 @@ void v4l2core_set_control_defaults()
 /*
  * sets the value of control id in device
  * args:
+ *   vd - pointer to device data
  *   id - control id
  *
  * asserts:
@@ -2142,7 +2216,7 @@ void v4l2core_set_control_defaults()
  *
  * returns: ioctl result
  */
-int v4l2core_set_control_value_by_id(int id)
+int v4l2core_set_control_value_by_id(v4l2_dev_t *vd, int id)
 {
 	return set_control_value_by_id(vd, id);
 }
@@ -2160,22 +2234,25 @@ int v4l2core_set_control_value_by_id(int id)
  *
  * returns: error code
  */
-int v4l2core_save_image(v4l2_frame_buff_t *frame, const char *filename, int format)
+int v4l2core_save_image(
+	v4l2_frame_buff_t *frame, 
+	const char *filename, 
+	int format)
 {
-	return save_frame_image(vd, frame, filename, format);
+	return save_frame_image(frame, filename, format);
 }
 
 /*
  * get h264 unit id
  * args:
- *   none
+ *   vd - pointer to device data
  *
  * asserts:
  *   vd is not null
  *
  * returns: unit id on success or error code ( < 0 ) on fail
  */
-int v4l2core_get_h264_unit_id()
+int v4l2core_get_h264_unit_id(v4l2_dev_t *vd)
 {
 	/*assertions*/
 	assert(vd != NULL);
@@ -2186,14 +2263,14 @@ int v4l2core_get_h264_unit_id()
 /*
  * gets the current h264_config_probe_req data struct
  * args:
- *   none
+ *   vd - pointer to device data
  *
  * asserts:
  *   vd is not null
  *
  * returns: pointer to current h264_config_probe_req data struct
  */
-uvcx_video_config_probe_commit_t *v4l2core_get_h264_config_probe_req()
+uvcx_video_config_probe_commit_t *v4l2core_get_h264_config_probe_req(v4l2_dev_t *vd)
 {
 	/*assertions*/
 	assert(vd != NULL);
@@ -2204,6 +2281,7 @@ uvcx_video_config_probe_commit_t *v4l2core_get_h264_config_probe_req()
 /*
  * flag core to use the preset h264_config_probe_req data (don't reset to default before commit)
  * args:
+ *   vd - pointer to device data
  *   flag - value to set
  *
  * asserts:
@@ -2211,7 +2289,7 @@ uvcx_video_config_probe_commit_t *v4l2core_get_h264_config_probe_req()
  *
  * returns: none
  */
-void v4l2core_set_h264_no_probe_default(uint8_t flag)
+void v4l2core_set_h264_no_probe_default(v4l2_dev_t *vd, uint8_t flag)
 {
 	/*assertions*/
 	assert(vd != NULL);
@@ -2222,14 +2300,14 @@ void v4l2core_set_h264_no_probe_default(uint8_t flag)
 /*
  * get h264_no_probe_default flag
  * args:
- *   none
+ *   vd - pointer to device data
  *
  * asserts:
  *   vd is not null
  *
  * returns: h264_no_probe_default flag
  */
-uint8_t v4l2core_get_h264_no_probe_default()
+uint8_t v4l2core_get_h264_no_probe_default(v4l2_dev_t *vd)
 {
 	/*assertions*/
 	assert(vd != NULL);
@@ -2247,7 +2325,7 @@ uint8_t v4l2core_get_h264_no_probe_default()
  *
  * returns: PPS size
  */
-int v4l2core_get_h264_pps_size()
+int v4l2core_get_h264_pps_size(v4l2_dev_t *vd)
 {
 	/*assertions*/
 	assert(vd != NULL);
@@ -2265,7 +2343,7 @@ int v4l2core_get_h264_pps_size()
  *
  * returns: pointer to PPS data
  */
-uint8_t *v4l2core_get_h264_pps()
+uint8_t *v4l2core_get_h264_pps(v4l2_dev_t *vd)
 {
 	/*assertions*/
 	assert(vd != NULL);
@@ -2283,7 +2361,7 @@ uint8_t *v4l2core_get_h264_pps()
  *
  * returns: SPS size
  */
-int v4l2core_get_h264_sps_size()
+int v4l2core_get_h264_sps_size(v4l2_dev_t *vd)
 {
 	/*assertions*/
 	assert(vd != NULL);
@@ -2301,7 +2379,7 @@ int v4l2core_get_h264_sps_size()
  *
  * returns: pointer to SPS data
  */
-uint8_t *v4l2core_get_h264_sps()
+uint8_t *v4l2core_get_h264_sps(v4l2_dev_t *vd)
 {
 	/*assertions*/
 	assert(vd != NULL);
@@ -2319,7 +2397,7 @@ uint8_t *v4l2core_get_h264_sps()
  *
  * returns: none
  */
-void v4l2core_h264_request_idr()
+void v4l2core_h264_request_idr(v4l2_dev_t *vd)
 {
 	h264_request_idr(vd);
 }
@@ -2334,7 +2412,7 @@ void v4l2core_h264_request_idr()
  *
  * returns: 0 on success or error code on fail
  */
-int v4l2core_reset_h264_encoder()
+int v4l2core_reset_h264_encoder(v4l2_dev_t *vd)
 {
 	return h264_reset_encoder(vd);
 }
@@ -2349,7 +2427,7 @@ int v4l2core_reset_h264_encoder()
  *
  * returns: video rate control mode (FIXME: 0xff on error)
  */
-uint8_t v4l2core_get_h264_video_rate_control_mode(uint8_t query)
+uint8_t v4l2core_get_h264_video_rate_control_mode(v4l2_dev_t *vd, uint8_t query)
 {
 	return h264_get_video_rate_control_mode(vd, query);
 }
@@ -2364,7 +2442,7 @@ uint8_t v4l2core_get_h264_video_rate_control_mode(uint8_t query)
  *
  * returns: error code ( 0 -OK)
  */
-int v4l2core_set_h264_video_rate_control_mode(uint8_t mode)
+int v4l2core_set_h264_video_rate_control_mode(v4l2_dev_t *vd, uint8_t mode)
 {
 	return h264_set_video_rate_control_mode(vd, mode);
 }
@@ -2379,7 +2457,7 @@ int v4l2core_set_h264_video_rate_control_mode(uint8_t mode)
  *
  * returns: temporal scale mode (FIXME: 0xff on error)
  */
-uint8_t v4l2core_get_h264_temporal_scale_mode(uint8_t query)
+uint8_t v4l2core_get_h264_temporal_scale_mode(v4l2_dev_t *vd, uint8_t query)
 {
 	return h264_get_temporal_scale_mode(vd, query);
 }
@@ -2394,7 +2472,7 @@ uint8_t v4l2core_get_h264_temporal_scale_mode(uint8_t query)
  *
  * returns: error code ( 0 -OK)
  */
-int v4l2core_set_h264_temporal_scale_mode(uint8_t mode)
+int v4l2core_set_h264_temporal_scale_mode(v4l2_dev_t *vd, uint8_t mode)
 {
 	return h264_set_temporal_scale_mode(vd, mode);
 }
@@ -2409,7 +2487,7 @@ int v4l2core_set_h264_temporal_scale_mode(uint8_t mode)
  *
  * returns: temporal scale mode (FIXME: 0xff on error)
  */
-uint8_t v4l2core_get_h264_spatial_scale_mode(uint8_t query)
+uint8_t v4l2core_get_h264_spatial_scale_mode(v4l2_dev_t *vd, uint8_t query)
 {
 	return h264_get_spatial_scale_mode(vd, query);
 }
@@ -2417,6 +2495,7 @@ uint8_t v4l2core_get_h264_spatial_scale_mode(uint8_t query)
 /*
  * set the spatial scale mode
  * args:
+ *   vd - pointer to device data
  *   mode - spatial scale mode
  *
  * asserts:
@@ -2424,7 +2503,7 @@ uint8_t v4l2core_get_h264_spatial_scale_mode(uint8_t query)
  *
  * returns: error code ( 0 -OK)
  */
-int v4l2core_set_h264_spatial_scale_mode(uint8_t mode)
+int v4l2core_set_h264_spatial_scale_mode(v4l2_dev_t *vd, uint8_t mode)
 {
 	return h264_set_spatial_scale_mode(vd, mode);
 }
@@ -2432,6 +2511,7 @@ int v4l2core_set_h264_spatial_scale_mode(uint8_t mode)
 /*
  * query the frame rate config
  * args:
+ *   vd - pointer to device data
  *   query - query type
  *
  * asserts:
@@ -2439,7 +2519,7 @@ int v4l2core_set_h264_spatial_scale_mode(uint8_t mode)
  *
  * returns: frame rate config (FIXME: 0xffffffff on error)
  */
-uint32_t v4l2core_query_h264_frame_rate_config(uint8_t query)
+uint32_t v4l2core_query_h264_frame_rate_config(v4l2_dev_t *vd, uint8_t query)
 {
 	return h264_query_frame_rate_config(vd, query);
 }
@@ -2447,14 +2527,14 @@ uint32_t v4l2core_query_h264_frame_rate_config(uint8_t query)
 /*
  * get the frame rate config
  * args:
- *   none
+ *   vd - pointer to device data
  *
  * asserts:
  *   none
  *
  * returns: frame rate config (FIXME: 0xffffffff on error)
  */
-uint32_t v4l2core_get_h264_frame_rate_config()
+uint32_t v4l2core_get_h264_frame_rate_config(v4l2_dev_t *vd)
 {
 	return h264_get_frame_rate_config(vd);
 }
@@ -2462,6 +2542,7 @@ uint32_t v4l2core_get_h264_frame_rate_config()
 /*
  * set the frame rate config
  * args:
+ *   vd - pointer to device data
  *   framerate - framerate
  *
  * asserts:
@@ -2469,7 +2550,7 @@ uint32_t v4l2core_get_h264_frame_rate_config()
  *
  * returns: error code ( 0 -OK)
  */
-int v4l2core_set_h264_frame_rate_config(uint32_t framerate)
+int v4l2core_set_h264_frame_rate_config(v4l2_dev_t *vd, uint32_t framerate)
 {
 	return h264_set_frame_rate_config(vd, framerate);
 }
@@ -2477,6 +2558,7 @@ int v4l2core_set_h264_frame_rate_config(uint32_t framerate)
 /*
  * updates the h264_probe_commit_req field
  * args:
+ *   vd - pointer to device data
  *   query - (UVC_GET_CUR; UVC_GET_MAX; UVC_GET_MIN)
  *   config_probe_cur - pointer to uvcx_video_config_probe_commit_t:
  *     if null vd->h264_config_probe_req will be used
@@ -2487,6 +2569,7 @@ int v4l2core_set_h264_frame_rate_config(uint32_t framerate)
  * returns: error code ( 0 -OK)
  */
 int v4l2core_probe_h264_config_probe_req(
+			v4l2_dev_t *vd,
 			uint8_t query,
 			uvcx_video_config_probe_commit_t *config_probe_req)
 {
@@ -2496,7 +2579,7 @@ int v4l2core_probe_h264_config_probe_req(
 /*
  * check for new devices
  * args:
- *   none
+ *   vd - pointer to device data
  *
  * asserts:
  *   my_device_list.udev is not null
@@ -2505,13 +2588,14 @@ int v4l2core_probe_h264_config_probe_req(
  *
  * returns: true(1) if device list was updated, false(0) otherwise
  */
-int v4l2core_check_device_list_events()
+int v4l2core_check_device_list_events(v4l2_dev_t *vd)
 {
 	return check_device_list_events(vd);
 }
 
 /* get frame format index from format list
  * args:
+ *   vd - pointer to device data
  *   format - v4l2 pixel format
  *
  * asserts:
@@ -2520,13 +2604,14 @@ int v4l2core_check_device_list_events()
  *
  * returns: format list index or -1 if not available
  */
-int v4l2core_get_frame_format_index(int format)
+int v4l2core_get_frame_format_index(v4l2_dev_t *vd, int format)
 {
 	return get_frame_format_index(vd, format);
 }
 
 /* get resolution index for format index from format list
  * args:
+ *   vd - pointer to device data
  *   format - format index from format list
  *   width - requested width
  *   height - requested height
@@ -2537,7 +2622,11 @@ int v4l2core_get_frame_format_index(int format)
  *
  * returns: resolution list index for format index or -1 if not available
  */
-int v4l2core_get_format_resolution_index(int format, int width, int height)
+int v4l2core_get_format_resolution_index(
+	v4l2_dev_t *vd,
+	int format,
+	int width,
+	int height)
 {
 	return get_format_resolution_index(vd, format, width, height);
 }
@@ -2545,6 +2634,7 @@ int v4l2core_get_format_resolution_index(int format, int width, int height)
 /*
  * save the device control values into a profile file
  * args:
+ *   vd - pointer to device data
  *   filename - profile filename
  *
  * asserts:
@@ -2552,7 +2642,7 @@ int v4l2core_get_format_resolution_index(int format, int width, int height)
  *
  * returns: error code (0 -E_OK)
  */
-int v4l2core_save_control_profile(const char *filename)
+int v4l2core_save_control_profile(v4l2_dev_t *vd, const char *filename)
 {
 	return save_control_profile(vd, filename);
 }
@@ -2560,6 +2650,7 @@ int v4l2core_save_control_profile(const char *filename)
 /*
  * load the device control values from a profile file
  * args:
+ *   vd - pointer to device data
  *   filename - profile filename
  *
  * asserts:
@@ -2567,7 +2658,7 @@ int v4l2core_save_control_profile(const char *filename)
  *
  * returns: error code (0 -E_OK)
  */
-int v4l2core_load_control_profile(const char *filename)
+int v4l2core_load_control_profile(v4l2_dev_t *vd, const char *filename)
 {
 	return load_control_profile(vd, filename);
 }
@@ -2575,6 +2666,7 @@ int v4l2core_load_control_profile(const char *filename)
 /*
  * get lenght of xu control defined by unit id and selector
  * args:
+ *   vd - pointer to device data
  *   unit - unit id of xu control
  *   selector - selector for control
  *
@@ -2583,7 +2675,10 @@ int v4l2core_load_control_profile(const char *filename)
  *
  * returns: length of xu control
  */
-uint16_t v4l2core_get_length_xu_control(uint8_t unit, uint8_t selector)
+uint16_t v4l2core_get_length_xu_control(
+	v4l2_dev_t *vd,
+	uint8_t unit,
+	uint8_t selector)
 {
 	return get_length_xu_control(vd, unit, selector);
 }
@@ -2591,6 +2686,7 @@ uint16_t v4l2core_get_length_xu_control(uint8_t unit, uint8_t selector)
 /*
  * get uvc info for xu control defined by unit id and selector
  * args:
+ *   vd - pointer to device data
  *   unit - unit id of xu control
  *   selector - selector for control
  *
@@ -2599,7 +2695,10 @@ uint16_t v4l2core_get_length_xu_control(uint8_t unit, uint8_t selector)
  *
  * returns: info of xu control
  */
-uint8_t v4l2core_get_info_xu_control(uint8_t unit, uint8_t selector)
+uint8_t v4l2core_get_info_xu_control(
+	v4l2_dev_t *vd,
+	uint8_t unit,
+	uint8_t selector)
 {
 	return get_info_xu_control(vd, unit, selector);
 }
@@ -2607,6 +2706,7 @@ uint8_t v4l2core_get_info_xu_control(uint8_t unit, uint8_t selector)
 /*
  * runs a query on xu control defined by unit id and selector
  * args:
+ *   vd - pointer to device data
  *   unit - unit id of xu control
  *   selector - selector for control
  *   query - query type
@@ -2617,7 +2717,12 @@ uint8_t v4l2core_get_info_xu_control(uint8_t unit, uint8_t selector)
  *
  * returns: 0 if query succeded or errno otherwise
  */
-int v4l2core_query_xu_control(uint8_t unit, uint8_t selector, uint8_t query, void *data)
+int v4l2core_query_xu_control(
+	v4l2_dev_t *vd,
+	uint8_t unit,
+	uint8_t selector,
+	uint8_t query,
+	void *data)
 {
 	return query_xu_control(vd, unit, selector, query, data);
 }

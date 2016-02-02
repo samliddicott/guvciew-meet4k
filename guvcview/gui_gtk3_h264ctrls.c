@@ -109,7 +109,7 @@ GtkWidget *StreamMuxOption_mjpgcontainer = NULL;
  */
 static void update_h264_controls()
 {
-	uvcx_video_config_probe_commit_t *config_probe_req = v4l2core_get_h264_config_probe_req();
+	uvcx_video_config_probe_commit_t *config_probe_req = v4l2core_get_h264_config_probe_req(get_v4l2_device_context());
 	//dwFrameInterval
 	//gtk_spin_button_set_value(GTK_SPIN_BUTTON(h264_controls->FrameInterval), config_probe_req->dwFrameInterval);
 	//dwBitRate
@@ -259,10 +259,10 @@ static void update_h264_controls()
 static void fill_video_config_probe ()
 {
 
-	uvcx_video_config_probe_commit_t *config_probe_req = v4l2core_get_h264_config_probe_req();
+	uvcx_video_config_probe_commit_t *config_probe_req = v4l2core_get_h264_config_probe_req(get_v4l2_device_context());
 
 	//dwFrameInterval
-	uint32_t frame_interval = (v4l2core_get_fps_num() * 1000000000LL / v4l2core_get_fps_denom())/100;
+	uint32_t frame_interval = (v4l2core_get_fps_num(get_v4l2_device_context()) * 1000000000LL / v4l2core_get_fps_denom(get_v4l2_device_context()))/100;
 	config_probe_req->dwFrameInterval = frame_interval;//(uint32_t) gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(h264_controls->FrameInterval));
 	//dwBitRate
 	config_probe_req->dwBitRate = (uint32_t) gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(BitRate));
@@ -286,8 +286,8 @@ static void fill_video_config_probe ()
 	hints |= gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(Hints_iframe)) ? 0x8000: 0;
 	config_probe_req->bmHints = hints;
 	//wWidth x wHeight
-	config_probe_req->wWidth = (uint16_t) v4l2core_get_frame_width();
-	config_probe_req->wHeight = (uint16_t) v4l2core_get_frame_height();
+	config_probe_req->wWidth = (uint16_t) v4l2core_get_frame_width(get_v4l2_device_context());
+	config_probe_req->wHeight = (uint16_t) v4l2core_get_frame_height(get_v4l2_device_context());
 	//wSliceMode
 	config_probe_req->wSliceMode = (uint16_t) gtk_combo_box_get_active(GTK_COMBO_BOX(SliceMode));
 	//wSliceUnits
@@ -414,9 +414,9 @@ void h264_rate_control_mode_changed(GtkComboBox *combo, void *data)
 
 	rate_mode |= (uint8_t) (gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(RateControlMode_cbr_flag)) & 0x0000001C);
 
-	v4l2core_set_h264_video_rate_control_mode(rate_mode);
+	v4l2core_set_h264_video_rate_control_mode(get_v4l2_device_context(), rate_mode);
 
-	rate_mode = v4l2core_get_h264_video_rate_control_mode(UVC_GET_CUR);
+	rate_mode = v4l2core_get_h264_video_rate_control_mode(get_v4l2_device_context(), UVC_GET_CUR);
 
 	int ratecontrolmode_index = rate_mode - 1; // from 0x01 to 0x03
 	if(ratecontrolmode_index < 0)
@@ -442,9 +442,9 @@ void h264_TemporalScaleMode_changed(GtkSpinButton *spin, void *data)
 {
 	uint8_t scale_mode = (uint8_t) gtk_spin_button_get_value_as_int(spin);
 
-	v4l2core_set_h264_temporal_scale_mode(scale_mode);
+	v4l2core_set_h264_temporal_scale_mode(get_v4l2_device_context(), scale_mode);
 
-	scale_mode = v4l2core_get_h264_temporal_scale_mode(UVC_GET_CUR) & 0x07;
+	scale_mode = v4l2core_get_h264_temporal_scale_mode(get_v4l2_device_context(), UVC_GET_CUR) & 0x07;
 
 	g_signal_handlers_block_by_func (spin, G_CALLBACK (h264_TemporalScaleMode_changed), data);
 	gtk_spin_button_set_value (spin, scale_mode);
@@ -466,9 +466,9 @@ void h264_SpatialScaleMode_changed(GtkSpinButton *spin, void *data)
 {
 	uint8_t scale_mode = (uint8_t) gtk_spin_button_get_value_as_int(spin);
 
-	v4l2core_set_h264_spatial_scale_mode(scale_mode);
+	v4l2core_set_h264_spatial_scale_mode(get_v4l2_device_context(), scale_mode);
 
-	scale_mode = v4l2core_get_h264_spatial_scale_mode(UVC_GET_CUR) & 0x07;
+	scale_mode = v4l2core_get_h264_spatial_scale_mode(get_v4l2_device_context(), UVC_GET_CUR) & 0x07;
 
 	g_signal_handlers_block_by_func (spin, G_CALLBACK (h264_SpatialScaleMode_changed), data);
 	gtk_spin_button_set_value (spin, scale_mode);
@@ -490,9 +490,9 @@ void h264_FrameInterval_changed(GtkSpinButton *spin, void *data)
 {
 	uint32_t framerate = (uint32_t) gtk_spin_button_get_value_as_int(spin);
 
-	v4l2core_set_h264_frame_rate_config(framerate);
+	v4l2core_set_h264_frame_rate_config(get_v4l2_device_context(), framerate);
 
-	framerate = v4l2core_get_h264_frame_rate_config();
+	framerate = v4l2core_get_h264_frame_rate_config(get_v4l2_device_context());
 
 	g_signal_handlers_block_by_func (spin, G_CALLBACK (h264_FrameInterval_changed), data);
 	gtk_spin_button_set_value (spin, framerate);
@@ -514,7 +514,7 @@ void h264_commit_button_clicked(GtkButton *button, void *data)
 {
 	fill_video_config_probe();
 
-	v4l2core_set_h264_no_probe_default(1);
+	v4l2core_set_h264_no_probe_default(get_v4l2_device_context(), 1);
 
 	request_format_update();
 
@@ -525,14 +525,14 @@ void h264_commit_button_clicked(GtkButton *button, void *data)
 		.tv_sec = 0,
 		.tv_nsec = 50000000};/*nanosec*/
 
-	while(v4l2core_get_h264_no_probe_default() > 0 && counter < 10)
+	while(v4l2core_get_h264_no_probe_default(get_v4l2_device_context()) > 0 && counter < 10)
 	{
 		nanosleep(&req, NULL);
 		counter++;
 	}
 
 	/*make sure we reset this flag, although the core probably handle it already*/
-	v4l2core_set_h264_no_probe_default(0);
+	v4l2core_set_h264_no_probe_default(get_v4l2_device_context(), 0);
 
 	update_h264_controls();
 }
@@ -550,7 +550,7 @@ void h264_commit_button_clicked(GtkButton *button, void *data)
  */
 void h264_reset_button_clicked(GtkButton *button, void *data)
 {
-	v4l2core_reset_h264_encoder();
+	v4l2core_reset_h264_encoder(get_v4l2_device_context());
 }
 
 /*
@@ -573,15 +573,15 @@ int gui_attach_gtk3_h264ctrls (GtkWidget *parent)
 
 
 	//get current values
-	v4l2core_probe_h264_config_probe_req(UVC_GET_CUR, NULL);
+	v4l2core_probe_h264_config_probe_req(get_v4l2_device_context(), UVC_GET_CUR, NULL);
 
 	//get Max values
 	uvcx_video_config_probe_commit_t config_probe_max;
-	v4l2core_probe_h264_config_probe_req(UVC_GET_MAX, &config_probe_max);
+	v4l2core_probe_h264_config_probe_req(get_v4l2_device_context(), UVC_GET_MAX, &config_probe_max);
 
 	//get Min values
 	uvcx_video_config_probe_commit_t config_probe_min;
-	v4l2core_probe_h264_config_probe_req(UVC_GET_MIN, &config_probe_min);
+	v4l2core_probe_h264_config_probe_req(get_v4l2_device_context(), UVC_GET_MIN, &config_probe_min);
 
 
 	GtkWidget *h264_controls_grid = gtk_grid_new();
@@ -612,8 +612,8 @@ int gui_attach_gtk3_h264ctrls (GtkWidget *parent)
 	gtk_grid_attach (GTK_GRID(h264_controls_grid), label_RateControlMode, 0, line, 1, 1);
 	gtk_widget_show (label_RateControlMode);
 
-	uint8_t min_ratecontrolmode = v4l2core_get_h264_video_rate_control_mode(UVC_GET_MIN) & 0x03;
-	uint8_t max_ratecontrolmode = v4l2core_get_h264_video_rate_control_mode(UVC_GET_MAX) & 0x03;
+	uint8_t min_ratecontrolmode = v4l2core_get_h264_video_rate_control_mode(get_v4l2_device_context(), UVC_GET_MIN) & 0x03;
+	uint8_t max_ratecontrolmode = v4l2core_get_h264_video_rate_control_mode(get_v4l2_device_context(), UVC_GET_MAX) & 0x03;
 
 	RateControlMode = gtk_combo_box_text_new();
 	if(max_ratecontrolmode >= 1 && min_ratecontrolmode < 2)
@@ -627,7 +627,7 @@ int gui_attach_gtk3_h264ctrls (GtkWidget *parent)
 		gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(RateControlMode),
 										_("Constant QP"));
 
-	uint8_t cur_ratecontrolmode = v4l2core_get_h264_video_rate_control_mode(UVC_GET_CUR) & 0x03;
+	uint8_t cur_ratecontrolmode = v4l2core_get_h264_video_rate_control_mode(get_v4l2_device_context(), UVC_GET_CUR) & 0x03;
 	int ratecontrolmode_index = cur_ratecontrolmode - 1; // from 0x01 to 0x03
 	if(ratecontrolmode_index < 0)
 		ratecontrolmode_index = 0;
@@ -653,9 +653,9 @@ int gui_attach_gtk3_h264ctrls (GtkWidget *parent)
 	gtk_grid_attach (GTK_GRID(h264_controls_grid), label_RateControlMode_cbr_flag, 0, line, 1, 1);
 	gtk_widget_show (label_RateControlMode_cbr_flag);
 
-	uint8_t cur_vrcflags = v4l2core_get_h264_video_rate_control_mode( UVC_GET_CUR) & 0x1C;
-	uint8_t max_vrcflags = v4l2core_get_h264_video_rate_control_mode( UVC_GET_MAX) & 0x1C;
-	uint8_t min_vrcflags = v4l2core_get_h264_video_rate_control_mode( UVC_GET_MIN) & 0x1C;
+	uint8_t cur_vrcflags = v4l2core_get_h264_video_rate_control_mode(get_v4l2_device_context(), UVC_GET_CUR) & 0x1C;
+	uint8_t max_vrcflags = v4l2core_get_h264_video_rate_control_mode(get_v4l2_device_context(), UVC_GET_MAX) & 0x1C;
+	uint8_t min_vrcflags = v4l2core_get_h264_video_rate_control_mode(get_v4l2_device_context(), UVC_GET_MIN) & 0x1C;
 
 	GtkAdjustment *adjustment7 = gtk_adjustment_new (
                                 	cur_vrcflags,
@@ -683,7 +683,7 @@ int gui_attach_gtk3_h264ctrls (GtkWidget *parent)
 	gtk_grid_attach (GTK_GRID(h264_controls_grid), label_TemporalScaleMode, 0, line, 1, 1);
 	gtk_widget_show (label_TemporalScaleMode);
 
-	uvcx_video_config_probe_commit_t *h264_config_probe_req = v4l2core_get_h264_config_probe_req();
+	uvcx_video_config_probe_commit_t *h264_config_probe_req = v4l2core_get_h264_config_probe_req(get_v4l2_device_context());
 	
 	uint8_t cur_tsmflags = h264_config_probe_req->bTemporalScaleMode & 0x07;
 	uint8_t max_tsmflags = config_probe_max.bTemporalScaleMode & 0x07;
@@ -755,9 +755,9 @@ int gui_attach_gtk3_h264ctrls (GtkWidget *parent)
 		gtk_widget_show (label_FrameInterval);
 
 		//uint32_t cur_framerate = (global->fps_num * 1000000000LL / global->fps)/100;
-		uint32_t cur_framerate = v4l2core_get_h264_frame_rate_config();
-		uint32_t max_framerate = v4l2core_query_h264_frame_rate_config( UVC_GET_MAX);
-		uint32_t min_framerate = v4l2core_query_h264_frame_rate_config( UVC_GET_MIN);
+		uint32_t cur_framerate = v4l2core_get_h264_frame_rate_config(get_v4l2_device_context());
+		uint32_t max_framerate = v4l2core_query_h264_frame_rate_config(get_v4l2_device_context(), UVC_GET_MAX);
+		uint32_t min_framerate = v4l2core_query_h264_frame_rate_config(get_v4l2_device_context(), UVC_GET_MIN);
 
 		GtkAdjustment *adjustment0 = gtk_adjustment_new (
 										cur_framerate,

@@ -25,6 +25,7 @@
 #include <sys/types.h>
 
 #include "gviewaudio.h"
+#include "gviewv4l2core.h"
 
 typedef struct _capture_loop_data_t
 {
@@ -212,6 +213,42 @@ int get_encoder_status();
  * returns: none
  */
 void request_format_update();
+
+/*
+ * create a v4l2 device context
+ * args:
+ *    device - device name
+ *
+ * asserts:
+ *    none
+ *
+ * returns: pointer to opaque v4l2 device type (or null on error)
+ */
+v4l2_dev_t *create_v4l2_device_context(const char *device);
+
+/*
+ * close the audio context
+ * args:
+ *    none
+ *
+ * asserts:
+ *    none
+ *
+ * returns: none
+ */
+void close_v4l2_device_context();
+
+/*
+ * get v4l2 device context
+ * args:
+ *    none
+ *
+ * asserts:
+ *    none
+ *
+ * returns: pointer to opaque v4l2 device type
+ */
+v4l2_dev_t *get_v4l2_device_context();
 
 /*
  * create an audio context

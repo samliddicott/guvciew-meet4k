@@ -1029,20 +1029,16 @@ static int encode_jpeg (uint8_t *input, uint8_t *output,
 /*
  * save frame data to a jpeg file
  * args:
- *    vd - pointer to device data
  *    frame - pointer to frame buffer
  *    filename - filename string
  *
  * asserts:
- *    vd is not null
+ *    none
  *
  * returns: error code
  */
-int save_image_jpeg(v4l2_dev_t *vd, v4l2_frame_buff_t *frame, const char *filename)
+int save_image_jpeg(v4l2_frame_buff_t *frame, const char *filename)
 {
-	/*assertions*/
-	assert(vd != NULL);
-
 	int ret = E_OK;
 
 	jpeg_encoder_ctx_t *jpeg_ctx = calloc(1, sizeof(jpeg_encoder_ctx_t));
@@ -1052,7 +1048,7 @@ int save_image_jpeg(v4l2_dev_t *vd, v4l2_frame_buff_t *frame, const char *filena
 		exit(-1);
 	}
 
-	uint8_t *jpeg = calloc((vd->format.fmt.pix.width * vd->format.fmt.pix.height) >> 1, sizeof(uint8_t));
+	uint8_t *jpeg = calloc((frame->width * frame->height) >> 1, sizeof(uint8_t));
 	if(jpeg == NULL)
 	{
 		fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (save_image_jpeg): %s\n", strerror(errno));
@@ -1060,7 +1056,7 @@ int save_image_jpeg(v4l2_dev_t *vd, v4l2_frame_buff_t *frame, const char *filena
 	}
 
 	/* Initialization of JPEG control structure */
-	initialization (jpeg_ctx, vd->format.fmt.pix.width, vd->format.fmt.pix.height);
+	initialization (jpeg_ctx, frame->width, frame->height);
 
 	/* Initialization of Quantization Tables  */
 	initialize_quantization_tables (jpeg_ctx);

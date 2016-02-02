@@ -602,4 +602,16 @@ gboolean window_key_pressed (GtkWidget *win, GdkEventKey *event, void *data);
  */
 gboolean check_device_events(gpointer data);
 
+/*
+ * control events timer callback
+ * args:
+ *   data - pointer to user data
+ *
+ * asserts:
+ *   none
+ *
+ * returns: true if timer is to be reset or false otherwise
+ */
+gboolean check_control_events(gpointer data);
+
 #endif

@@ -168,7 +168,7 @@ MainWindow::MainWindow()
 	control_tab->setTabIcon(tab_ind, image_tab_icon);
 
 	/*----------------------------H264 Controls Tab --------------------------*/
-	if(v4l2core_get_h264_unit_id() > 0)
+	if(v4l2core_get_h264_unit_id(get_v4l2_device_context()) > 0)
 	{
 		QScrollArea *scroll_h264ctrls = new QScrollArea(control_tab);
 
@@ -216,6 +216,11 @@ MainWindow::MainWindow()
     connect(timer_check_device, SIGNAL(timeout()), 
 		this, SLOT(check_device_events()));
     timer_check_device->start(1000);
+	
+	timer_check_control_events = new QTimer(this);
+	connect(timer_check_control_events, SIGNAL(timeout()), 
+		this, SLOT(check_control_events()));
+	timer_check_control_events->start(1000);
 }
 
 MainWindow::~MainWindow()
@@ -287,7 +292,7 @@ void gui_error_qt5(
 
 	/*fatal error message*/
 	
-	v4l2_device_list *device_list = v4l2core_get_device_list();
+	v4l2_device_list *device_list = v4l2core_get_device_list(get_v4l2_device_context());
 	/*add device list (more than one device)*/
 	int show_dev_list = (device_list->num_devices >= 1) ? 1: 0;
 

@@ -214,22 +214,18 @@ static int save_png(const char *filename, int width, int height, uint8_t *data)
 /*
  * save frame data into a png file
  * args:
- *    vd - pointer to device data
  *    frame - pointer to frame buffer
  *    filename - string with png filename name
  *
  * asserts:
- *   vd is not null
+ *   none
  *
  * returns: error code
  */
-int save_image_png(v4l2_dev_t *vd, v4l2_frame_buff_t *frame, const char *filename)
+int save_image_png(v4l2_frame_buff_t *frame, const char *filename)
 {
-	/*assertions*/
-	assert(vd != NULL);
-
-	int width = vd->format.fmt.pix.width;
-	int height = vd->format.fmt.pix.height;
+	int width = frame->width;
+	int height = frame->height;
 
 	uint8_t *rgb = calloc( width * height * 3, sizeof(uint8_t));
 	if(rgb == NULL)

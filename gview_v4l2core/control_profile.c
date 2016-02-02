@@ -180,7 +180,7 @@ int load_control_profile(v4l2_dev_t *vd, const char *filename)
 				if(sscanf(line,"ID{0x%08x};CHK{%5i:%5i:%5i:%5i}=VAL{%5i}",
 					&id, &min, &max, &step, &def, &val) == 6)
 				{
-					v4l2_ctrl_t *current = v4l2core_get_control_by_id(id);
+					v4l2_ctrl_t *current = v4l2core_get_control_by_id(vd, id);
 
 					if(current)
 					{
@@ -197,7 +197,7 @@ int load_control_profile(v4l2_dev_t *vd, const char *filename)
 				else if(sscanf(line,"ID{0x%08x};CHK{0:0:0:0}=VAL64{%" PRId64 "}",
 					&id, &val64) == 2)
 				{
-					v4l2_ctrl_t *current = v4l2core_get_control_by_id(id);
+					v4l2_ctrl_t *current = v4l2core_get_control_by_id(vd, id);
 
 					if(current)
 					{
@@ -207,7 +207,7 @@ int load_control_profile(v4l2_dev_t *vd, const char *filename)
 				else if(sscanf(line,"ID{0x%08x};CHK{%5i:%5i:%5i:0}=STR{\"%*s\"}",
 					&id, &min, &max, &step) == 5)
 				{
-					v4l2_ctrl_t *current = v4l2core_get_control_by_id(id);
+					v4l2_ctrl_t *current = v4l2core_get_control_by_id(vd, id);
 
 					if(current)
 					{
