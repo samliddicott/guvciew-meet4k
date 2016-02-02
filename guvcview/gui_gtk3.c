@@ -413,7 +413,7 @@ void gui_error_gtk3(
 
 	/*fatal error message*/
 
-	v4l2_device_list *device_list = v4l2core_get_device_list(get_v4l2_device_context());
+	v4l2_device_list *device_list = v4l2core_get_device_list();
 	/*add device list (more than one device)*/
 	int show_dev_list = (device_list->num_devices >= 1) ? 1: 0;
 

@@ -441,7 +441,7 @@ int v4l2core_get_this_device_index(v4l2_dev_t *vd);
  *
  * returns void
  */
-void v4l2core_disable_libv4l2(v4l2_dev_t *vd);
+void v4l2core_disable_libv4l2();
 
 /*
  * enable libv4l2 calls (default)
@@ -453,7 +453,7 @@ void v4l2core_disable_libv4l2(v4l2_dev_t *vd);
  *
  * returns void
  */
-void v4l2core_enable_libv4l2(v4l2_dev_t *vd);
+void v4l2core_enable_libv4l2();
 
 /*
  * get pixelformat from fourcc
@@ -477,7 +477,7 @@ int v4l2core_fourcc_2_v4l2_pixelformat(const char *fourcc);
  *
  * returns: double with real fps value
  */
-double v4l2core_get_realfps(v4l2_dev_t *vd);
+double v4l2core_get_realfps();
 
 /*
  * Set v4l2 capture method
@@ -597,7 +597,7 @@ void v4l2core_set_tilt_step(v4l2_dev_t *vd, int step);
  *
  * returns: pointer to device list data
  */
-v4l2_device_list *v4l2core_get_device_list(v4l2_dev_t *vd);
+v4l2_device_list *v4l2core_get_device_list();
 
 /*
  * get the device index in device list
@@ -1002,7 +1002,7 @@ int v4l2core_soft_autofocus_run(v4l2_dev_t *vd, v4l2_frame_buff_t *frame);
  *
  * returns: none
  */
-void v4l2core_soft_autofocus_set_focus(v4l2_dev_t *vd);
+void v4l2core_soft_autofocus_set_focus();
 
 /*
  * close and clean software autofocus
@@ -1014,7 +1014,7 @@ void v4l2core_soft_autofocus_set_focus(v4l2_dev_t *vd);
  *
  * returns: none
  */
-void v4l2core_soft_autofocus_close(v4l2_dev_t *vd);
+void v4l2core_soft_autofocus_close();
 
 /*
  * save the device control values into a profile file

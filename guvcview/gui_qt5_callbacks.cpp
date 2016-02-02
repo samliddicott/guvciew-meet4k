@@ -883,7 +883,7 @@ void MainWindow::devices_changed (int index)
 	if(index == v4l2core_get_this_device_index(get_v4l2_device_context()))
 		return;
 
-	v4l2_device_list *device_list = v4l2core_get_device_list(get_v4l2_device_context());
+	v4l2_device_list *device_list = v4l2core_get_device_list();
 	
 	QMessageBox msgBox;
 	msgBox.setIcon(QMessageBox::Question);
@@ -1792,7 +1792,7 @@ void MainWindow::check_device_events()
 		/* clear out the old device list... */
 		combobox_video_devices->clear();
 
-		v4l2_device_list *device_list = v4l2core_get_device_list(get_v4l2_device_context());
+		v4l2_device_list *device_list = v4l2core_get_device_list();
 		int i = 0;
         for(i = 0; i < (device_list->num_devices); i++)
 		{

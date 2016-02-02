@@ -342,7 +342,7 @@ int check_video_timer()
  */
 void set_soft_focus(int value)
 {
-	v4l2core_soft_autofocus_set_focus(my_vd_ctx);
+	v4l2core_soft_autofocus_set_focus();
 
 	do_soft_focus = value;
 }

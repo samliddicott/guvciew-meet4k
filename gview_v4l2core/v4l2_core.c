@@ -1699,7 +1699,7 @@ static void clean_v4l2_dev(v4l2_dev_t *vd)
 	vd->videodevice = NULL;
 
 	if(vd->has_focus_control_id)
-		v4l2core_soft_autofocus_close(vd);
+		v4l2core_soft_autofocus_close();
 
 	if(vd->list_device_controls)
 		free_v4l2_control_list(vd);

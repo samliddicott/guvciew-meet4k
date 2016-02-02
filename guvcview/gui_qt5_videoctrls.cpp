@@ -103,7 +103,7 @@ int MainWindow::gui_attach_qt5_videoctrls(QWidget *parent)
 	combobox_video_devices = new QComboBox(video_controls_grid);
 	combobox_video_devices->show();
 	
-	v4l2_device_list *device_list = v4l2core_get_device_list(get_v4l2_device_context());
+	v4l2_device_list *device_list = v4l2core_get_device_list();
 
 	if (device_list->num_devices < 1)
 	{
