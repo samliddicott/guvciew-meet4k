@@ -70,8 +70,8 @@ int MainWindow::gui_attach_qt5_videoctrls(QWidget *parent)
 		std::cout << "GUVCVIEW (Qt5): attaching video controls" << std::endl;
 
 	int format_index = v4l2core_get_frame_format_index(
-		get_v4l2_device_context(), 
-		v4l2core_get_requested_frame_format(get_v4l2_device_context()));
+		get_v4l2_device_handler(), 
+		v4l2core_get_requested_frame_format(get_v4l2_device_handler()));
 
 	if(format_index < 0)
 	{
@@ -80,10 +80,10 @@ int MainWindow::gui_attach_qt5_videoctrls(QWidget *parent)
 	}
 
 	int resolu_index = v4l2core_get_format_resolution_index(
-		get_v4l2_device_context(),
+		get_v4l2_device_handler(),
 		format_index,
-		v4l2core_get_frame_width(get_v4l2_device_context()),
-		v4l2core_get_frame_height(get_v4l2_device_context()));
+		v4l2core_get_frame_width(get_v4l2_device_handler()),
+		v4l2core_get_frame_height(get_v4l2_device_handler()));
 
 	if(resolu_index < 0)
 	{
@@ -108,7 +108,7 @@ int MainWindow::gui_attach_qt5_videoctrls(QWidget *parent)
 	if (device_list->num_devices < 1)
 	{
 		/*use current*/
-		combobox_video_devices->addItem(v4l2core_get_videodevice(get_v4l2_device_context()), 0);
+		combobox_video_devices->addItem(v4l2core_get_videodevice(get_v4l2_device_handler()), 0);
 		combobox_video_devices->setCurrentIndex(0);
 	}
 	else
@@ -137,7 +137,7 @@ int MainWindow::gui_attach_qt5_videoctrls(QWidget *parent)
 	
 	int deffps=0;
 
-	v4l2_stream_formats_t *list_stream_formats = v4l2core_get_formats_list(get_v4l2_device_context());
+	v4l2_stream_formats_t *list_stream_formats = v4l2core_get_formats_list(get_v4l2_device_handler());
 	
 	if (debug_level > 0)
 		std::cout << "GUVCVIEW (Qt5): frame rates of resolution index " 
@@ -150,8 +150,8 @@ int MainWindow::gui_attach_qt5_videoctrls(QWidget *parent)
 
 		combobox_FrameRate->addItem(fps_str, i);
 
-		if (( v4l2core_get_fps_num(get_v4l2_device_context()) == list_stream_formats[format_index].list_stream_cap[resolu_index].framerate_num[i]) &&
-			( v4l2core_get_fps_denom(get_v4l2_device_context()) == list_stream_formats[format_index].list_stream_cap[resolu_index].framerate_denom[i]))
+		if (( v4l2core_get_fps_num(get_v4l2_device_handler()) == list_stream_formats[format_index].list_stream_cap[resolu_index].framerate_num[i]) &&
+			( v4l2core_get_fps_denom(get_v4l2_device_handler()) == list_stream_formats[format_index].list_stream_cap[resolu_index].framerate_denom[i]))
 				deffps=i;//set selected
 	}
 	combobox_FrameRate->setCurrentIndex(deffps);
@@ -162,13 +162,13 @@ int MainWindow::gui_attach_qt5_videoctrls(QWidget *parent)
 	{
 		if (list_stream_formats[format_index].list_stream_cap[resolu_index].framerate_denom)
 			v4l2core_define_fps(
-				get_v4l2_device_context(),
+				get_v4l2_device_handler(),
 				-1,
 				list_stream_formats[format_index].list_stream_cap[resolu_index].framerate_denom[0]);
 
 		if (list_stream_formats[format_index].list_stream_cap[resolu_index].framerate_num)
 			v4l2core_define_fps(
-				get_v4l2_device_context(),
+				get_v4l2_device_handler(),
 				list_stream_formats[format_index].list_stream_cap[resolu_index].framerate_num[0],
 				-1);
 	}
@@ -176,7 +176,7 @@ int MainWindow::gui_attach_qt5_videoctrls(QWidget *parent)
 	connect(combobox_FrameRate, SIGNAL(currentIndexChanged(int)), this, SLOT(frame_rate_changed(int)));
 	
 	/*try to sync the device fps (capture thread must have started by now)*/
-	v4l2core_request_framerate_update (get_v4l2_device_context());
+	v4l2core_request_framerate_update (get_v4l2_device_handler());
 
 	/*---- Resolution ----*/
 	line++;
@@ -203,8 +203,8 @@ int MainWindow::gui_attach_qt5_videoctrls(QWidget *parent)
 			QString res_str = QString( "%1x%2").arg(list_stream_formats[format_index].list_stream_cap[i].width).arg(list_stream_formats[format_index].list_stream_cap[i].height);
 			combobox_resolution->addItem(res_str, i);
 
-			if ((v4l2core_get_frame_width(get_v4l2_device_context()) == list_stream_formats[format_index].list_stream_cap[i].width) &&
-				(v4l2core_get_frame_height(get_v4l2_device_context()) == list_stream_formats[format_index].list_stream_cap[i].height))
+			if ((v4l2core_get_frame_width(get_v4l2_device_handler()) == list_stream_formats[format_index].list_stream_cap[i].width) &&
+				(v4l2core_get_frame_height(get_v4l2_device_handler()) == list_stream_formats[format_index].list_stream_cap[i].height))
 					defres=i;//set selected resolution index
 		}
 	}
@@ -229,10 +229,10 @@ int MainWindow::gui_attach_qt5_videoctrls(QWidget *parent)
 	combobox_InpType->show();
 
 	int fmtind=0;
-	for (fmtind=0; fmtind < v4l2core_get_number_formats(get_v4l2_device_context()); fmtind++)
+	for (fmtind=0; fmtind < v4l2core_get_number_formats(get_v4l2_device_handler()); fmtind++)
 	{
 		combobox_InpType->addItem(list_stream_formats[fmtind].fourcc, fmtind);
-		if(v4l2core_get_requested_frame_format(get_v4l2_device_context()) == list_stream_formats[fmtind].format)
+		if(v4l2core_get_requested_frame_format(get_v4l2_device_handler()) == list_stream_formats[fmtind].format)
 			combobox_InpType->setCurrentIndex(fmtind); /*set active*/
 	}
 

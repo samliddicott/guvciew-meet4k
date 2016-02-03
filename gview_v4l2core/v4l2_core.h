@@ -49,6 +49,8 @@ struct _v4l2_dev_t
 
 	int fps_num;                        //fps numerator
 	int fps_denom;                      //fps denominator
+	
+	double real_fps;                    //real fps (calculated from number of captured frames)
 
 	uint8_t streaming;                  // flag device stream : STRM_STOP ; STRM_REQ_STOP; STRM_OK
 	uint64_t frame_index;               // captured frame index from 0 to max(uint64_t)

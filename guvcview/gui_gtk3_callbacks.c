@@ -115,7 +115,7 @@ void camera_button_menu_changed (GtkWidget *item, void *data)
  */
 void control_defaults_clicked (GtkWidget *item, void *data)
 {
-    v4l2core_set_control_defaults(get_v4l2_device_context());
+    v4l2core_set_control_defaults(get_v4l2_device_handler());
 
     gui_gtk3_update_controls_state();
 }
@@ -240,11 +240,11 @@ void controls_profile_clicked (GtkWidget *item, void *data)
 
 		if(save_or_load > 0)
 		{
-			v4l2core_save_control_profile(get_v4l2_device_context(), filename);
+			v4l2core_save_control_profile(get_v4l2_device_handler(), filename);
 		}
 		else
 		{
-			v4l2core_load_control_profile(get_v4l2_device_context(), filename);
+			v4l2core_load_control_profile(get_v4l2_device_handler(), filename);
 			gui_gtk3_update_controls_state();
 		}
 
@@ -768,9 +768,9 @@ void pan_tilt_step_changed (GtkSpinButton *spin, void *data)
 	int val = gtk_spin_button_get_value_as_int (spin);
 
 	if(id == V4L2_CID_PAN_RELATIVE)
-		v4l2core_set_pan_step(get_v4l2_device_context(), val);
+		v4l2core_set_pan_step(get_v4l2_device_handler(), val);
 	if(id == V4L2_CID_TILT_RELATIVE)
-		v4l2core_set_tilt_step(get_v4l2_device_context(), val);
+		v4l2core_set_tilt_step(get_v4l2_device_handler(), val);
 }
 
 /*
@@ -788,14 +788,14 @@ void button_PanTilt1_clicked (GtkButton * Button, void *data)
 {
     int id = GPOINTER_TO_INT(g_object_get_data (G_OBJECT (Button), "control_info"));
 
-    v4l2_ctrl_t *control = v4l2core_get_control_by_id(get_v4l2_device_context(), id);
+    v4l2_ctrl_t *control = v4l2core_get_control_by_id(get_v4l2_device_handler(), id);
 
 	if(id == V4L2_CID_PAN_RELATIVE)
-		control->value = v4l2core_get_pan_step(get_v4l2_device_context());
+		control->value = v4l2core_get_pan_step(get_v4l2_device_handler());
 	else
-		control->value = v4l2core_get_tilt_step(get_v4l2_device_context());
+		control->value = v4l2core_get_tilt_step(get_v4l2_device_handler());
 
-    if(v4l2core_set_control_value_by_id(get_v4l2_device_context(), id))
+    if(v4l2core_set_control_value_by_id(get_v4l2_device_handler(), id))
 		fprintf(stderr, "GUVCVIEW: error setting pan/tilt\n");
 }
 
@@ -814,14 +814,14 @@ void button_PanTilt2_clicked (GtkButton * Button, void *data)
 {
     int id = GPOINTER_TO_INT(g_object_get_data (G_OBJECT (Button), "control_info"));
 
-    v4l2_ctrl_t *control = v4l2core_get_control_by_id(get_v4l2_device_context(), id);
+    v4l2_ctrl_t *control = v4l2core_get_control_by_id(get_v4l2_device_handler(), id);
 
     if(id == V4L2_CID_PAN_RELATIVE)
-		control->value =  - v4l2core_get_pan_step(get_v4l2_device_context());
+		control->value =  - v4l2core_get_pan_step(get_v4l2_device_handler());
 	else
-		control->value =  - v4l2core_get_tilt_step(get_v4l2_device_context());
+		control->value =  - v4l2core_get_tilt_step(get_v4l2_device_handler());
 
-    if(v4l2core_set_control_value_by_id(get_v4l2_device_context(), id))
+    if(v4l2core_set_control_value_by_id(get_v4l2_device_handler(), id))
 		fprintf(stderr, "GUVCVIEW: error setting pan/tilt\n");
 }
 
@@ -840,11 +840,11 @@ void button_clicked (GtkButton * Button, void *data)
 {
     int id = GPOINTER_TO_INT(g_object_get_data (G_OBJECT (Button), "control_info"));
 
-    v4l2_ctrl_t *control = v4l2core_get_control_by_id(get_v4l2_device_context(), id);
+    v4l2_ctrl_t *control = v4l2core_get_control_by_id(get_v4l2_device_handler(), id);
 
 	control->value = 1;
 
-    if(v4l2core_set_control_value_by_id(get_v4l2_device_context(), id))
+    if(v4l2core_set_control_value_by_id(get_v4l2_device_handler(), id))
 		fprintf(stderr, "GUVCVIEW: error setting button value\n");
 
 	gui_gtk3_update_controls_state();
@@ -867,13 +867,13 @@ void string_button_clicked(GtkButton * Button, void *data)
 	int id = GPOINTER_TO_INT(g_object_get_data (G_OBJECT (Button), "control_info"));
 	GtkWidget *entry = (GtkWidget *) g_object_get_data (G_OBJECT (Button), "control_entry");
 
-	v4l2_ctrl_t *control = v4l2core_get_control_by_id(get_v4l2_device_context(), id);
+	v4l2_ctrl_t *control = v4l2core_get_control_by_id(get_v4l2_device_handler(), id);
 
 	assert(control->string != NULL);
 
 	strncpy(control->string, gtk_entry_get_text(GTK_ENTRY(entry)), control->control.maximum);
 
-	if(v4l2core_set_control_value_by_id(get_v4l2_device_context(), id))
+	if(v4l2core_set_control_value_by_id(get_v4l2_device_handler(), id))
 		fprintf(stderr, "GUVCVIEW: error setting string value\n");
 }
 #endif
@@ -895,7 +895,7 @@ void int64_button_clicked(GtkButton * Button, void *data)
 	int id = GPOINTER_TO_INT(g_object_get_data (G_OBJECT (Button), "control_info"));
 	GtkWidget *entry = (GtkWidget *) g_object_get_data (G_OBJECT (Button), "control_entry");
 
-	v4l2_ctrl_t *control = v4l2core_get_control_by_id(get_v4l2_device_context(), id);
+	v4l2_ctrl_t *control = v4l2core_get_control_by_id(get_v4l2_device_handler(), id);
 
 	char* text_input = g_strdup(gtk_entry_get_text(GTK_ENTRY(entry)));
 	text_input = g_strstrip(text_input);
@@ -911,7 +911,7 @@ void int64_button_clicked(GtkButton * Button, void *data)
 	}
 	g_free(text_input);
 
-	if(v4l2core_set_control_value_by_id(get_v4l2_device_context(), id))
+	if(v4l2core_set_control_value_by_id(get_v4l2_device_handler(), id))
 		fprintf(stderr, "GUVCVIEW: error setting string value\n");
 
 }
@@ -934,14 +934,14 @@ void bitmask_button_clicked(GtkButton * Button, void *data)
 	int id = GPOINTER_TO_INT(g_object_get_data (G_OBJECT (Button), "control_info"));
 	GtkWidget *entry = (GtkWidget *) g_object_get_data (G_OBJECT (Button), "control_entry");
 
-	v4l2_ctrl_t *control = v4l2core_get_control_by_id(get_v4l2_device_context(), id);
+	v4l2_ctrl_t *control = v4l2core_get_control_by_id(get_v4l2_device_handler(), id);
 
 	char* text_input = g_strdup(gtk_entry_get_text(GTK_ENTRY(entry)));
 	text_input = g_strcanon(text_input,"0123456789ABCDEFabcdef", '\0');
 	control->value = (int32_t) g_ascii_strtoll(text_input, NULL, 16);
 	g_free(text_input);
 
-	if(v4l2core_set_control_value_by_id(get_v4l2_device_context(), id))
+	if(v4l2core_set_control_value_by_id(get_v4l2_device_handler(), id))
 		fprintf(stderr, "GUVCVIEW: error setting string value\n");
 }
 #endif
@@ -960,13 +960,13 @@ void bitmask_button_clicked(GtkButton * Button, void *data)
 void slider_changed (GtkRange * range, void *data)
 {
     int id = GPOINTER_TO_INT(g_object_get_data (G_OBJECT (range), "control_info"));
-    v4l2_ctrl_t *control = v4l2core_get_control_by_id(get_v4l2_device_context(), id);
+    v4l2_ctrl_t *control = v4l2core_get_control_by_id(get_v4l2_device_handler(), id);
 
     int val = (int) gtk_range_get_value (range);
 
     control->value = val;
 
-    if(v4l2core_set_control_value_by_id(get_v4l2_device_context(), id))
+    if(v4l2core_set_control_value_by_id(get_v4l2_device_handler(), id))
 		fprintf(stderr, "GUVCVIEW: error setting slider value\n");
 
    /*
@@ -997,12 +997,12 @@ void slider_changed (GtkRange * range, void *data)
 void spin_changed (GtkSpinButton * spin, void *data)
 {
     int id = GPOINTER_TO_INT(g_object_get_data (G_OBJECT (spin), "control_info"));
-    v4l2_ctrl_t *control = v4l2core_get_control_by_id(get_v4l2_device_context(), id);
+    v4l2_ctrl_t *control = v4l2core_get_control_by_id(get_v4l2_device_handler(), id);
 
 	int val = gtk_spin_button_get_value_as_int (spin);
     control->value = val;
 
-     if(v4l2core_set_control_value_by_id(get_v4l2_device_context(), id))
+     if(v4l2core_set_control_value_by_id(get_v4l2_device_handler(), id))
 		fprintf(stderr, "GUVCVIEW: error setting spin value\n");
 
 	/*
@@ -1034,12 +1034,12 @@ void spin_changed (GtkSpinButton * spin, void *data)
 void combo_changed (GtkComboBox * combo, void *data)
 {
     int id = GPOINTER_TO_INT(g_object_get_data (G_OBJECT (combo), "control_info"));
-    v4l2_ctrl_t *control = v4l2core_get_control_by_id(get_v4l2_device_context(), id);
+    v4l2_ctrl_t *control = v4l2core_get_control_by_id(get_v4l2_device_handler(), id);
 
     int index = gtk_combo_box_get_active (combo);
     control->value = control->menu[index].index;
 
-	if(v4l2core_set_control_value_by_id(get_v4l2_device_context(), id))
+	if(v4l2core_set_control_value_by_id(get_v4l2_device_handler(), id))
 		fprintf(stderr, "GUVCVIEW: error setting menu value\n");
 
 	gui_gtk3_update_controls_state();
@@ -1061,7 +1061,7 @@ void bayer_pix_ord_changed (GtkComboBox * combo, void *data)
 	//int id = GPOINTER_TO_INT(g_object_get_data (G_OBJECT (combo), "control_info"));
 
 	int index = gtk_combo_box_get_active (combo);
-	v4l2core_set_bayer_pix_order(get_v4l2_device_context(), index);
+	v4l2core_set_bayer_pix_order(get_v4l2_device_handler(), index);
 }
 
 /*
@@ -1078,28 +1078,28 @@ void bayer_pix_ord_changed (GtkComboBox * combo, void *data)
 void check_changed (GtkToggleButton *toggle, void *data)
 {
     int id = GPOINTER_TO_INT(g_object_get_data (G_OBJECT (toggle), "control_info"));
-    v4l2_ctrl_t *control = v4l2core_get_control_by_id(get_v4l2_device_context(), id);
+    v4l2_ctrl_t *control = v4l2core_get_control_by_id(get_v4l2_device_handler(), id);
 
     int val = gtk_toggle_button_get_active (toggle) ? 1 : 0;
 
     control->value = val;
 
-	if(v4l2core_set_control_value_by_id(get_v4l2_device_context(), id))
+	if(v4l2core_set_control_value_by_id(get_v4l2_device_handler(), id))
 		fprintf(stderr, "GUVCVIEW: error setting menu value\n");
 
     if(id == V4L2_CID_DISABLE_PROCESSING_LOGITECH)
     {
         if (control->value > 0)
-			v4l2core_set_isbayer(get_v4l2_device_context(), 1);
+			v4l2core_set_isbayer(get_v4l2_device_handler(), 1);
         else
-			v4l2core_set_isbayer(get_v4l2_device_context(), 0);
+			v4l2core_set_isbayer(get_v4l2_device_handler(), 0);
 
         /*
          * must restart stream and requeue
          * the buffers for changes to take effect
          * (updating fps provides all that is needed)
          */
-        v4l2core_request_framerate_update (get_v4l2_device_context());
+        v4l2core_request_framerate_update (get_v4l2_device_handler());
     }
 
     gui_gtk3_update_controls_state();
@@ -1121,7 +1121,7 @@ void devices_changed (GtkComboBox *wgtDevices, void *data)
 	GError *error = NULL;
 
 	int index = gtk_combo_box_get_active(wgtDevices);
-	if(index == v4l2core_get_this_device_index(get_v4l2_device_context()))
+	if(index == v4l2core_get_this_device_index(get_v4l2_device_handler()))
 		return;
 
 	v4l2_device_list_t *device_list = v4l2core_get_device_list();
@@ -1183,7 +1183,7 @@ void devices_changed (GtkComboBox *wgtDevices, void *data)
 	}
 	/*reset to current device*/
 	gtk_combo_box_set_active(GTK_COMBO_BOX(wgtDevices), 
-		v4l2core_get_this_device_index(get_v4l2_device_context()));
+		v4l2core_get_this_device_index(get_v4l2_device_handler()));
 
 	gtk_widget_destroy (restartdialog);
 	g_free(command);
@@ -1202,27 +1202,27 @@ void devices_changed (GtkComboBox *wgtDevices, void *data)
  */
 void frame_rate_changed (GtkComboBox *wgtFrameRate, void *data)
 {
-	int format_index = v4l2core_get_frame_format_index(get_v4l2_device_context(), v4l2core_get_requested_frame_format(get_v4l2_device_context()));
+	int format_index = v4l2core_get_frame_format_index(get_v4l2_device_handler(), v4l2core_get_requested_frame_format(get_v4l2_device_handler()));
 
 	int resolu_index = v4l2core_get_format_resolution_index(
-		get_v4l2_device_context(),
+		get_v4l2_device_handler(),
 		format_index,
-		v4l2core_get_frame_width(get_v4l2_device_context()),
-		v4l2core_get_frame_height(get_v4l2_device_context()));
+		v4l2core_get_frame_width(get_v4l2_device_handler()),
+		v4l2core_get_frame_height(get_v4l2_device_handler()));
 
 	int index = gtk_combo_box_get_active (wgtFrameRate);
 
-	v4l2_stream_formats_t *list_stream_formats = v4l2core_get_formats_list(get_v4l2_device_context());
+	v4l2_stream_formats_t *list_stream_formats = v4l2core_get_formats_list(get_v4l2_device_handler());
 	
 	int fps_denom = list_stream_formats[format_index].list_stream_cap[resolu_index].framerate_denom[index];
 	int fps_num = list_stream_formats[format_index].list_stream_cap[resolu_index].framerate_num[index];
 	
-	v4l2core_define_fps(get_v4l2_device_context(), fps_num, fps_denom);
+	v4l2core_define_fps(get_v4l2_device_handler(), fps_num, fps_denom);
 
 	int fps[2] = {fps_num, fps_denom};
 	gui_set_fps(fps);
 
-	v4l2core_request_framerate_update (get_v4l2_device_context());
+	v4l2core_request_framerate_update (get_v4l2_device_handler());
 }
 
 /*
@@ -1239,8 +1239,8 @@ void frame_rate_changed (GtkComboBox *wgtFrameRate, void *data)
 void resolution_changed (GtkComboBox *wgtResolution, void *data)
 {
 	int format_index = v4l2core_get_frame_format_index(
-		get_v4l2_device_context(),
-		v4l2core_get_requested_frame_format(get_v4l2_device_context()));
+		get_v4l2_device_handler(),
+		v4l2core_get_requested_frame_format(get_v4l2_device_handler()));
 
 	int cmb_index = gtk_combo_box_get_active(wgtResolution);
 
@@ -1254,7 +1254,7 @@ void resolution_changed (GtkComboBox *wgtResolution, void *data)
 	GtkListStore *store = GTK_LIST_STORE(gtk_combo_box_get_model (GTK_COMBO_BOX(wgtFrameRate)));
 	gtk_list_store_clear(store);
 
-	v4l2_stream_formats_t *list_stream_formats = v4l2core_get_formats_list(get_v4l2_device_context());
+	v4l2_stream_formats_t *list_stream_formats = v4l2core_get_formats_list(get_v4l2_device_handler());
 	
 	int width = list_stream_formats[format_index].list_stream_cap[cmb_index].width;
 	int height = list_stream_formats[format_index].list_stream_cap[cmb_index].height;
@@ -1274,8 +1274,8 @@ void resolution_changed (GtkComboBox *wgtResolution, void *data)
 
 		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(wgtFrameRate), temp_str);
 
-		if (( v4l2core_get_fps_num(get_v4l2_device_context()) == list_stream_formats[format_index].list_stream_cap[cmb_index].framerate_num[i]) &&
-			( v4l2core_get_fps_denom(get_v4l2_device_context()) == list_stream_formats[format_index].list_stream_cap[cmb_index].framerate_denom[i]))
+		if (( v4l2core_get_fps_num(get_v4l2_device_handler()) == list_stream_formats[format_index].list_stream_cap[cmb_index].framerate_num[i]) &&
+			( v4l2core_get_fps_denom(get_v4l2_device_handler()) == list_stream_formats[format_index].list_stream_cap[cmb_index].framerate_denom[i]))
 				deffps=i;
 	}
 
@@ -1287,17 +1287,17 @@ void resolution_changed (GtkComboBox *wgtResolution, void *data)
 
 	if (list_stream_formats[format_index].list_stream_cap[cmb_index].framerate_num)
 		v4l2core_define_fps(
-			get_v4l2_device_context(),
+			get_v4l2_device_handler(),
 			list_stream_formats[format_index].list_stream_cap[cmb_index].framerate_num[deffps], -1);
 
 	if (list_stream_formats[format_index].list_stream_cap[cmb_index].framerate_denom)
 		v4l2core_define_fps(
-			get_v4l2_device_context(),
+			get_v4l2_device_handler(),
 			-1, 
 			list_stream_formats[format_index].list_stream_cap[cmb_index].framerate_denom[deffps]);
 
 	/*change resolution (try new format and reset render)*/
-	v4l2core_prepare_new_resolution(get_v4l2_device_context(), width, height);
+	v4l2core_prepare_new_resolution(get_v4l2_device_handler(), width, height);
 
 	request_format_update();
 
@@ -1337,7 +1337,7 @@ void format_changed(GtkComboBox *wgtInpType, void *data)
 	GtkListStore *store = GTK_LIST_STORE(gtk_combo_box_get_model (GTK_COMBO_BOX(wgtResolution)));
 	gtk_list_store_clear(store);
 
-	v4l2_stream_formats_t *list_stream_formats = v4l2core_get_formats_list(get_v4l2_device_context());
+	v4l2_stream_formats_t *list_stream_formats = v4l2core_get_formats_list(get_v4l2_device_handler());
 		
 	int format = list_stream_formats[index].format;
 
@@ -1359,8 +1359,8 @@ void format_changed(GtkComboBox *wgtInpType, void *data)
 
 			gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(wgtResolution), temp_str);
 
-			if ((v4l2core_get_frame_width(get_v4l2_device_context()) == list_stream_formats[index].list_stream_cap[i].width) &&
-				(v4l2core_get_frame_height(get_v4l2_device_context()) == list_stream_formats[index].list_stream_cap[i].height))
+			if ((v4l2core_get_frame_width(get_v4l2_device_handler()) == list_stream_formats[index].list_stream_cap[i].width) &&
+				(v4l2core_get_frame_height(get_v4l2_device_handler()) == list_stream_formats[index].list_stream_cap[i].height))
 					defres=i;//set selected resolution index
 		}
 	}
@@ -1369,7 +1369,7 @@ void format_changed(GtkComboBox *wgtInpType, void *data)
 	g_signal_handlers_unblock_by_func(GTK_COMBO_BOX_TEXT(wgtResolution), G_CALLBACK (resolution_changed), NULL);
 
 	/*prepare new format*/
-	v4l2core_prepare_new_format(get_v4l2_device_context(), format);
+	v4l2core_prepare_new_format(get_v4l2_device_handler(), format);
 	/*change resolution*/
 	gtk_combo_box_set_active(GTK_COMBO_BOX(wgtResolution), defres);
 }
@@ -2321,7 +2321,7 @@ gboolean window_key_pressed (GtkWidget *win, GdkEventKey *event, void *data)
 		|| (event->state & GDK_MOD5_MASK)))
 		return FALSE;
 
-    if(v4l2core_has_pantilt_id(get_v4l2_device_context()))
+    if(v4l2core_has_pantilt_id(get_v4l2_device_handler()))
     {
 		int id = 0;
 		int value = 0;
@@ -2331,25 +2331,25 @@ gboolean window_key_pressed (GtkWidget *win, GdkEventKey *event, void *data)
             case GDK_KEY_Down:
             case GDK_KEY_KP_Down:
 				id = V4L2_CID_TILT_RELATIVE;
-				value = v4l2core_get_tilt_step(get_v4l2_device_context());
+				value = v4l2core_get_tilt_step(get_v4l2_device_handler());
 				break;
 
             case GDK_KEY_Up:
             case GDK_KEY_KP_Up:
 				id = V4L2_CID_TILT_RELATIVE;
-				value = - v4l2core_get_tilt_step(get_v4l2_device_context());
+				value = - v4l2core_get_tilt_step(get_v4l2_device_handler());
 				break;
 
             case GDK_KEY_Left:
             case GDK_KEY_KP_Left:
 				id = V4L2_CID_PAN_RELATIVE;
-				value = v4l2core_get_pan_step(get_v4l2_device_context());
+				value = v4l2core_get_pan_step(get_v4l2_device_handler());
 				break;
 
             case GDK_KEY_Right:
             case GDK_KEY_KP_Right:
                 id = V4L2_CID_PAN_RELATIVE;
-				value = - v4l2core_get_pan_step(get_v4l2_device_context());
+				value = - v4l2core_get_pan_step(get_v4l2_device_handler());
 				break;
 
             default:
@@ -2358,13 +2358,13 @@ gboolean window_key_pressed (GtkWidget *win, GdkEventKey *event, void *data)
 
         if(id != 0 && value != 0)
         {
-			v4l2_ctrl_t *control = v4l2core_get_control_by_id(get_v4l2_device_context(), id);
+			v4l2_ctrl_t *control = v4l2core_get_control_by_id(get_v4l2_device_handler(), id);
 
 			if(control)
 			{
 				control->value =  value;
 
-				if(v4l2core_set_control_value_by_id(get_v4l2_device_context(), id))
+				if(v4l2core_set_control_value_by_id(get_v4l2_device_handler(), id))
 					fprintf(stderr, "GUVCVIEW: error setting pan/tilt value\n");
 
 				return TRUE;
@@ -2447,7 +2447,7 @@ gboolean check_device_events(gpointer data)
  */
 gboolean check_control_events(gpointer data)
 {
-	if(v4l2core_check_control_events(get_v4l2_device_context()) > 0)
+	if(v4l2core_check_control_events(get_v4l2_device_handler()) > 0)
 	{
 		/*update the control list*/
 		gui_gtk3_update_controls_state();

@@ -215,19 +215,19 @@ int get_encoder_status();
 void request_format_update();
 
 /*
- * create a v4l2 device context
+ * create a v4l2 device handler
  * args:
  *    device - device name
  *
  * asserts:
  *    none
  *
- * returns: pointer to opaque v4l2 device type (or null on error)
+ * returns: pointer to v4l2 device handler (or null on error)
  */
-v4l2_dev_t *create_v4l2_device_context(const char *device);
+v4l2_dev_t *create_v4l2_device_handler(const char *device);
 
 /*
- * close the audio context
+ * close the v4l2 device handler
  * args:
  *    none
  *
@@ -236,19 +236,19 @@ v4l2_dev_t *create_v4l2_device_context(const char *device);
  *
  * returns: none
  */
-void close_v4l2_device_context();
+void close_v4l2_device_handler();
 
 /*
- * get v4l2 device context
+ * get the v4l2 device handler
  * args:
  *    none
  *
  * asserts:
  *    none
  *
- * returns: pointer to opaque v4l2 device type
+ * returns: pointer to v4l2 device handler
  */
-v4l2_dev_t *get_v4l2_device_context();
+v4l2_dev_t *get_v4l2_device_handler();
 
 /*
  * create an audio context

@@ -93,7 +93,7 @@ int MainWindow::gui_attach_qt5_v4l2ctrls(QWidget *parent)
 
 	int i = 0;
 	int n = 0;
-	v4l2_ctrl_t *current = v4l2core_get_control_list(get_v4l2_device_context());
+	v4l2_ctrl_t *current = v4l2core_get_control_list(get_v4l2_device_handler());
 
     for(; current != NULL; current = current->next, ++n)
     {
@@ -163,9 +163,9 @@ int MainWindow::gui_attach_qt5_v4l2ctrls(QWidget *parent)
 						spinbox->setSingleStep(64);
 
 						if(current->control.id == V4L2_CID_PAN_RELATIVE)
-							spinbox->setValue(v4l2core_get_pan_step(get_v4l2_device_context()));
+							spinbox->setValue(v4l2core_get_pan_step(get_v4l2_device_handler()));
 						else
-							spinbox->setValue(v4l2core_get_tilt_step(get_v4l2_device_context()));
+							spinbox->setValue(v4l2core_get_tilt_step(get_v4l2_device_handler()));
 						
 						/*set properties*/
 						spinbox->setProperty("control_info", current->control.id);
@@ -514,16 +514,16 @@ int MainWindow::gui_attach_qt5_v4l2ctrls(QWidget *parent)
 						combobox->addItem("BGBG... | GRGR...", 2);
 						combobox->addItem("RGRG... | GBGB...", 3);
 
-						v4l2core_set_bayer_pix_order(get_v4l2_device_context(), 0);
+						v4l2core_set_bayer_pix_order(get_v4l2_device_handler(), 0);
 					
-						combobox->setCurrentIndex(v4l2core_get_bayer_pix_order(get_v4l2_device_context()));
+						combobox->setCurrentIndex(v4l2core_get_bayer_pix_order(get_v4l2_device_handler()));
 						thisone->widget2->show();
 
 						/*connect signal*/
 						connect(combobox, SIGNAL(currentIndexChanged(int)), this, SLOT(bayer_pix_ord_changed(int)));
 
 						uint8_t isbayer = (current->value ? true : false);
-						v4l2core_set_isbayer(get_v4l2_device_context(), isbayer);
+						v4l2core_set_isbayer(get_v4l2_device_handler(), isbayer);
 					}
 
 					QCheckBox *checkbox = new QCheckBox(img_controls_grid);
@@ -572,7 +572,7 @@ int MainWindow::gui_attach_qt5_v4l2ctrls(QWidget *parent)
  */
 void MainWindow::gui_qt5_update_controls_state()
 {
-	v4l2_ctrl_t *current = v4l2core_get_control_list(get_v4l2_device_context());
+	v4l2_ctrl_t *current = v4l2core_get_control_list(get_v4l2_device_handler());
 
     for(; current != NULL; current = current->next)
     {

@@ -780,7 +780,7 @@ int gui_attach_gtk3(int width, int height)
 	gtk_notebook_append_page(GTK_NOTEBOOK(tab_box), scroll_1, tab_1);
 
 	/*----------------------------H264 Controls Tab --------------------------*/
-	if(v4l2core_get_h264_unit_id(get_v4l2_device_context()) > 0)
+	if(v4l2core_get_h264_unit_id(get_v4l2_device_handler()) > 0)
 	{
 		GtkWidget *scroll_2 = gtk_scrolled_window_new(NULL,NULL);
 		gtk_scrolled_window_set_placement(GTK_SCROLLED_WINDOW(scroll_2), GTK_CORNER_TOP_LEFT);

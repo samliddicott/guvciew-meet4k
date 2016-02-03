@@ -65,8 +65,8 @@ int gui_attach_gtk3_videoctrls(GtkWidget *parent)
 		printf("GUVCVIEW: attaching video controls\n");
 
 	int format_index = v4l2core_get_frame_format_index(
-		get_v4l2_device_context(),
-		v4l2core_get_requested_frame_format(get_v4l2_device_context()));
+		get_v4l2_device_handler(),
+		v4l2core_get_requested_frame_format(get_v4l2_device_handler()));
 
 	if(format_index < 0)
 	{
@@ -75,10 +75,10 @@ int gui_attach_gtk3_videoctrls(GtkWidget *parent)
 	}
 
 	int resolu_index = v4l2core_get_format_resolution_index(
-		get_v4l2_device_context(),
+		get_v4l2_device_handler(),
 		format_index,
-		v4l2core_get_frame_width(get_v4l2_device_context()),
-		v4l2core_get_frame_height(get_v4l2_device_context()));
+		v4l2core_get_frame_width(get_v4l2_device_handler()),
+		v4l2core_get_frame_height(get_v4l2_device_handler()));
 
 	if(resolu_index < 0)
 	{
@@ -118,13 +118,13 @@ int gui_attach_gtk3_videoctrls(GtkWidget *parent)
 	gtk_widget_set_halign (get_wgtDevices_gtk3(), GTK_ALIGN_FILL);
 	gtk_widget_set_hexpand (get_wgtDevices_gtk3(), TRUE);
 
-	v4l2_device_list_t *device_list = v4l2core_get_device_list(get_v4l2_device_context());
+	v4l2_device_list_t *device_list = v4l2core_get_device_list(get_v4l2_device_handler());
 
 	if (device_list->num_devices < 1)
 	{
 		/*use current*/
 		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(get_wgtDevices_gtk3()),
-			v4l2core_get_videodevice(get_v4l2_device_context()));
+			v4l2core_get_videodevice(get_v4l2_device_handler()));
 		gtk_combo_box_set_active(GTK_COMBO_BOX(get_wgtDevices_gtk3()),0);
 	}
 	else
@@ -165,7 +165,7 @@ int gui_attach_gtk3_videoctrls(GtkWidget *parent)
 
 	int deffps=0;
 
-	v4l2_stream_formats_t *list_stream_formats = v4l2core_get_formats_list(get_v4l2_device_context());
+	v4l2_stream_formats_t *list_stream_formats = v4l2core_get_formats_list(get_v4l2_device_handler());
 	
 	if (debug_level > 0)
 		printf("GUVCVIEW: frame rates of resolution index %d = %d \n",
@@ -182,8 +182,8 @@ int gui_attach_gtk3_videoctrls(GtkWidget *parent)
 
 		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(wgtFrameRate), temp_str);
 
-		if (( v4l2core_get_fps_num(get_v4l2_device_context()) == list_stream_formats[format_index].list_stream_cap[resolu_index].framerate_num[i]) &&
-			( v4l2core_get_fps_denom(get_v4l2_device_context()) == list_stream_formats[format_index].list_stream_cap[resolu_index].framerate_denom[i]))
+		if (( v4l2core_get_fps_num(get_v4l2_device_handler()) == list_stream_formats[format_index].list_stream_cap[resolu_index].framerate_num[i]) &&
+			( v4l2core_get_fps_denom(get_v4l2_device_handler()) == list_stream_formats[format_index].list_stream_cap[resolu_index].framerate_denom[i]))
 				deffps=i;//set selected
 	}
 
@@ -195,13 +195,13 @@ int gui_attach_gtk3_videoctrls(GtkWidget *parent)
 	{
 		if (list_stream_formats[format_index].list_stream_cap[resolu_index].framerate_denom)
 			v4l2core_define_fps(
-				get_v4l2_device_context(),
+				get_v4l2_device_handler(),
 				-1,
 				list_stream_formats[format_index].list_stream_cap[resolu_index].framerate_denom[0]);
 
 		if (list_stream_formats[format_index].list_stream_cap[resolu_index].framerate_num)
 			v4l2core_define_fps(
-				get_v4l2_device_context(),
+				get_v4l2_device_handler(),
 				list_stream_formats[format_index].list_stream_cap[resolu_index].framerate_num[0],
 				-1);
 	}
@@ -210,7 +210,7 @@ int gui_attach_gtk3_videoctrls(GtkWidget *parent)
 		G_CALLBACK (frame_rate_changed), NULL);
 
 	/*try to sync the device fps (capture thread must have started by now)*/
-	v4l2core_request_framerate_update (get_v4l2_device_context());
+	v4l2core_request_framerate_update (get_v4l2_device_handler());
 
 	/*---- Resolution ----*/
 	line++;
@@ -251,8 +251,8 @@ int gui_attach_gtk3_videoctrls(GtkWidget *parent)
 
 			gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(wgtResolution), temp_str);
 
-			if ((v4l2core_get_frame_width(get_v4l2_device_context()) == list_stream_formats[format_index].list_stream_cap[i].width) &&
-				(v4l2core_get_frame_height(get_v4l2_device_context()) == list_stream_formats[format_index].list_stream_cap[i].height))
+			if ((v4l2core_get_frame_width(get_v4l2_device_handler()) == list_stream_formats[format_index].list_stream_cap[i].width) &&
+				(v4l2core_get_frame_height(get_v4l2_device_handler()) == list_stream_formats[format_index].list_stream_cap[i].height))
 					defres=i;//set selected resolution index
 		}
 	}
@@ -290,10 +290,10 @@ int gui_attach_gtk3_videoctrls(GtkWidget *parent)
 	gtk_widget_set_sensitive (wgtInpType, TRUE);
 
 	int fmtind=0;
-	for (fmtind=0; fmtind < v4l2core_get_number_formats(get_v4l2_device_context()); fmtind++)
+	for (fmtind=0; fmtind < v4l2core_get_number_formats(get_v4l2_device_handler()); fmtind++)
 	{
 		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(wgtInpType), list_stream_formats[fmtind].fourcc);
-		if(v4l2core_get_requested_frame_format(get_v4l2_device_context()) == list_stream_formats[fmtind].format)
+		if(v4l2core_get_requested_frame_format(get_v4l2_device_handler()) == list_stream_formats[fmtind].format)
 			gtk_combo_box_set_active(GTK_COMBO_BOX(wgtInpType), fmtind); /*set active*/
 	}
 

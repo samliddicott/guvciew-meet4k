@@ -168,7 +168,7 @@ MainWindow::MainWindow()
 	control_tab->setTabIcon(tab_ind, image_tab_icon);
 
 	/*----------------------------H264 Controls Tab --------------------------*/
-	if(v4l2core_get_h264_unit_id(get_v4l2_device_context()) > 0)
+	if(v4l2core_get_h264_unit_id(get_v4l2_device_handler()) > 0)
 	{
 		QScrollArea *scroll_h264ctrls = new QScrollArea(control_tab);
 

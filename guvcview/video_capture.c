@@ -77,8 +77,8 @@ static int do_soft_focus = 0;
 /*pointer to audio context data*/
 static audio_context_t *my_audio_ctx = NULL;
 
-/*pointer to opaque v4l2 video device type*/
-static v4l2_dev_t *my_vd_ctx = NULL;
+/*pointer to v4l2 device handler*/
+static v4l2_dev_t *my_vd = NULL;
 
 static __THREAD_TYPE encoder_thread;
 
@@ -435,18 +435,18 @@ int key_V_callback(void *data)
  */
 int key_DOWN_callback(void *data)
 {
-	if(v4l2core_has_pantilt_id(my_vd_ctx))
+	if(v4l2core_has_pantilt_id(my_vd))
     {
 		int id = V4L2_CID_TILT_RELATIVE;
-		int value = v4l2core_get_tilt_step(my_vd_ctx);
+		int value = v4l2core_get_tilt_step(my_vd);
 
-		v4l2_ctrl_t *control = v4l2core_get_control_by_id(my_vd_ctx, id);
+		v4l2_ctrl_t *control = v4l2core_get_control_by_id(my_vd, id);
 
 		if(control)
 		{
 			control->value =  value;
 
-			if(v4l2core_set_control_value_by_id(my_vd_ctx, id))
+			if(v4l2core_set_control_value_by_id(my_vd, id))
 				fprintf(stderr, "GUVCVIEW: error setting pan/tilt value\n");
 
 			return 0;
@@ -468,18 +468,18 @@ int key_DOWN_callback(void *data)
  */
 int key_UP_callback(void *data)
 {
-	if(v4l2core_has_pantilt_id(my_vd_ctx))
+	if(v4l2core_has_pantilt_id(my_vd))
     {
 		int id = V4L2_CID_TILT_RELATIVE;
-		int value = - v4l2core_get_tilt_step(my_vd_ctx);
+		int value = - v4l2core_get_tilt_step(my_vd);
 
-		v4l2_ctrl_t *control = v4l2core_get_control_by_id(my_vd_ctx, id);
+		v4l2_ctrl_t *control = v4l2core_get_control_by_id(my_vd, id);
 
 		if(control)
 		{
 			control->value =  value;
 
-			if(v4l2core_set_control_value_by_id(my_vd_ctx, id))
+			if(v4l2core_set_control_value_by_id(my_vd, id))
 				fprintf(stderr, "GUVCVIEW: error setting pan/tilt value\n");
 
 			return 0;
@@ -501,18 +501,18 @@ int key_UP_callback(void *data)
  */
 int key_LEFT_callback(void *data)
 {
-	if(v4l2core_has_pantilt_id(my_vd_ctx))
+	if(v4l2core_has_pantilt_id(my_vd))
     {
 		int id = V4L2_CID_PAN_RELATIVE;
-		int value = v4l2core_get_pan_step(my_vd_ctx);
+		int value = v4l2core_get_pan_step(my_vd);
 
-		v4l2_ctrl_t *control = v4l2core_get_control_by_id(my_vd_ctx, id);
+		v4l2_ctrl_t *control = v4l2core_get_control_by_id(my_vd, id);
 
 		if(control)
 		{
 			control->value =  value;
 
-			if(v4l2core_set_control_value_by_id(my_vd_ctx, id))
+			if(v4l2core_set_control_value_by_id(my_vd, id))
 				fprintf(stderr, "GUVCVIEW: error setting pan/tilt value\n");
 
 			return 0;
@@ -534,18 +534,18 @@ int key_LEFT_callback(void *data)
  */
 int key_RIGHT_callback(void *data)
 {
-	if(v4l2core_has_pantilt_id(my_vd_ctx))
+	if(v4l2core_has_pantilt_id(my_vd))
     {
 		int id = V4L2_CID_PAN_RELATIVE;
-		int value = - v4l2core_get_pan_step(my_vd_ctx);
+		int value = - v4l2core_get_pan_step(my_vd);
 
-		v4l2_ctrl_t *control = v4l2core_get_control_by_id(my_vd_ctx, id);
+		v4l2_ctrl_t *control = v4l2core_get_control_by_id(my_vd, id);
 
 		if(control)
 		{
 			control->value =  value;
 
-			if(v4l2core_set_control_value_by_id(my_vd_ctx, id))
+			if(v4l2core_set_control_value_by_id(my_vd, id))
 				fprintf(stderr, "GUVCVIEW: error setting pan/tilt value\n");
 
 			return 0;
@@ -556,24 +556,24 @@ int key_RIGHT_callback(void *data)
 }
 
 /*
- * create a v4l2 device context
+ * create a v4l2 device handler
  * args:
  *    device - device name
  *
  * asserts:
  *    none
  *
- * returns: pointer to opaque v4l2 device type (or null on error)
+ * returns: pointer to v4l2 device handler (or null on error)
  */
-v4l2_dev_t *create_v4l2_device_context(const char *device)
+v4l2_dev_t *create_v4l2_device_handler(const char *device)
 {
-	my_vd_ctx = v4l2core_init_dev(device);
+	my_vd = v4l2core_init_dev(device);
 	
-	return my_vd_ctx;
+	return my_vd;
 }
 
 /*
- * close the audio context
+ * close the v4l2 device handler
  * args:
  *    none
  *
@@ -582,27 +582,27 @@ v4l2_dev_t *create_v4l2_device_context(const char *device)
  *
  * returns: none
  */
-void close_v4l2_device_context()
+void close_v4l2_device_handler()
 {
 	/*closes the video device*/
-	v4l2core_close_dev(my_vd_ctx);
+	v4l2core_close_dev(my_vd);
 
-	my_vd_ctx = NULL;
+	my_vd = NULL;
 }
 
 /*
- * get v4l2 device context
+ * get the v4l2 device handler
  * args:
  *    none
  *
  * asserts:
  *    none
  *
- * returns: pointer to opaque v4l2 device type
+ * returns: pointer to v4l2 device handler
  */
-v4l2_dev_t *get_v4l2_device_context()
+v4l2_dev_t *get_v4l2_device_handler()
 {
-	return my_vd_ctx;
+	return my_vd;
 }
 
 /*
@@ -807,27 +807,27 @@ static void *encoder_loop(void *data)
 
 	/*create the encoder context*/
 	encoder_context_t *encoder_ctx = encoder_init(
-		v4l2core_get_requested_frame_format(my_vd_ctx),
+		v4l2core_get_requested_frame_format(my_vd),
 		get_video_codec_ind(),
 		get_audio_codec_ind(),
 		get_video_muxer(),
-		v4l2core_get_frame_width(my_vd_ctx),
-		v4l2core_get_frame_height(my_vd_ctx),
-		v4l2core_get_fps_num(my_vd_ctx),
-		v4l2core_get_fps_denom(my_vd_ctx),
+		v4l2core_get_frame_width(my_vd),
+		v4l2core_get_frame_height(my_vd),
+		v4l2core_get_fps_num(my_vd),
+		v4l2core_get_fps_denom(my_vd),
 		channels,
 		samprate);
 
 	/*store external SPS and PPS data if needed*/
 	if(encoder_ctx->video_codec_ind == 0 && /*raw - direct input*/
-		v4l2core_get_requested_frame_format(my_vd_ctx) == V4L2_PIX_FMT_H264)
+		v4l2core_get_requested_frame_format(my_vd) == V4L2_PIX_FMT_H264)
 	{
 		/*request a IDR (key) frame*/
-		v4l2core_h264_request_idr(my_vd_ctx);
+		v4l2core_h264_request_idr(my_vd);
 
 		if(debug_level > 0)
 			printf("GUVCVIEW: storing external pps and sps data in encoder context\n");
-		encoder_ctx->h264_pps_size = v4l2core_get_h264_pps_size(my_vd_ctx);
+		encoder_ctx->h264_pps_size = v4l2core_get_h264_pps_size(my_vd);
 		if(encoder_ctx->h264_pps_size > 0)
 		{
 			encoder_ctx->h264_pps = calloc(encoder_ctx->h264_pps_size, sizeof(uint8_t));
@@ -836,10 +836,10 @@ static void *encoder_loop(void *data)
 				fprintf(stderr,"GUVCVIEW: FATAL memory allocation failure (encoder_loop): %s\n", strerror(errno));
 				exit(-1);
 			}
-			memcpy(encoder_ctx->h264_pps, v4l2core_get_h264_pps(my_vd_ctx), encoder_ctx->h264_pps_size);
+			memcpy(encoder_ctx->h264_pps, v4l2core_get_h264_pps(my_vd), encoder_ctx->h264_pps_size);
 		}
 
-		encoder_ctx->h264_sps_size = v4l2core_get_h264_sps_size(my_vd_ctx);
+		encoder_ctx->h264_sps_size = v4l2core_get_h264_sps_size(my_vd);
 		if(encoder_ctx->h264_sps_size > 0)
 		{
 			encoder_ctx->h264_sps = calloc(encoder_ctx->h264_sps_size, sizeof(uint8_t));
@@ -848,15 +848,15 @@ static void *encoder_loop(void *data)
 				fprintf(stderr,"GUVCVIEW: FATAL memory allocation failure (encoder_loop): %s\n", strerror(errno));
 				exit(-1);
 			}
-			memcpy(encoder_ctx->h264_sps, v4l2core_get_h264_sps(my_vd_ctx), encoder_ctx->h264_sps_size);
+			memcpy(encoder_ctx->h264_sps, v4l2core_get_h264_sps(my_vd), encoder_ctx->h264_sps_size);
 		}
 	}
 
 	uint32_t current_framerate = 0;
-	if(v4l2core_get_requested_frame_format(my_vd_ctx) == V4L2_PIX_FMT_H264)
+	if(v4l2core_get_requested_frame_format(my_vd) == V4L2_PIX_FMT_H264)
 	{
 		/* store framerate since it may change due to scheduler*/
-		current_framerate = v4l2core_get_h264_frame_rate_config(my_vd_ctx);
+		current_framerate = v4l2core_get_h264_frame_rate_config(my_vd);
 	}
 
 	char *video_filename = NULL;
@@ -949,10 +949,10 @@ static void *encoder_loop(void *data)
 	/*close the encoder context (clean up)*/
 	encoder_close(encoder_ctx);
 
-	if(v4l2core_get_requested_frame_format(my_vd_ctx) == V4L2_PIX_FMT_H264)
+	if(v4l2core_get_requested_frame_format(my_vd) == V4L2_PIX_FMT_H264)
 	{
 		/* restore framerate */
-		v4l2core_set_h264_frame_rate_config(my_vd_ctx, current_framerate);
+		v4l2core_set_h264_frame_rate_config(my_vd, current_framerate);
 	}
 
 	/*clean string*/
@@ -1007,8 +1007,8 @@ void *capture_loop(void *data)
 	
 	if(render_init(
 		render,
-		v4l2core_get_frame_width(my_vd_ctx),
-		v4l2core_get_frame_height(my_vd_ctx),
+		v4l2core_get_frame_width(my_vd),
+		v4l2core_get_frame_height(my_vd),
 		render_flags) < 0)
 		render = RENDER_NONE;
 	else
@@ -1036,13 +1036,13 @@ void *capture_loop(void *data)
 	if(my_options->photo_timer > 0)
 	{
 		my_photo_timer = NSEC_PER_SEC * my_options->photo_timer;
-		my_last_photo_time = v4l2core_time_get_timestamp(my_vd_ctx); /*timer count*/
+		my_last_photo_time = v4l2core_time_get_timestamp(my_vd); /*timer count*/
 	}
 
 	if(my_options->photo_npics > 0)
 		my_photo_npics = my_options->photo_npics;
 
-	v4l2core_start_stream(my_vd_ctx);
+	v4l2core_start_stream(my_vd);
 
 	v4l2_frame_buff_t *frame = NULL; //pointer to frame buffer
 
@@ -1054,24 +1054,24 @@ void *capture_loop(void *data)
 		if(restart)
 		{
 			restart = 0; /*reset*/
-			v4l2core_stop_stream(my_vd_ctx);
+			v4l2core_stop_stream(my_vd);
 
 			/*close render*/
 			render_close();
 
-			v4l2core_clean_buffers(my_vd_ctx);
+			v4l2core_clean_buffers(my_vd);
 
 			/*try new format (values prepared by the request callback)*/
-			ret = v4l2core_update_current_format(my_vd_ctx);
+			ret = v4l2core_update_current_format(my_vd);
 			/*try to set the video stream format on the device*/
 			if(ret != E_OK)
 			{
 				fprintf(stderr, "GUCVIEW: could not set the defined stream format\n");
 				fprintf(stderr, "GUCVIEW: trying first listed stream format\n");
 
-				v4l2core_prepare_valid_format(my_vd_ctx);
-				v4l2core_prepare_valid_resolution(my_vd_ctx);
-				ret = v4l2core_update_current_format(my_vd_ctx);
+				v4l2core_prepare_valid_format(my_vd);
+				v4l2core_prepare_valid_resolution(my_vd);
+				ret = v4l2core_update_current_format(my_vd);
 
 				if(ret != E_OK)
 				{
@@ -1086,8 +1086,8 @@ void *capture_loop(void *data)
 			/*restart the render with new format*/
 			if(render_init(
 				render,
-				v4l2core_get_frame_width(my_vd_ctx),
-				v4l2core_get_frame_height(my_vd_ctx),
+				v4l2core_get_frame_width(my_vd),
+				v4l2core_get_frame_height(my_vd),
 				render_flags) < 0)
 				render = RENDER_NONE;
 			else
@@ -1104,21 +1104,21 @@ void *capture_loop(void *data)
 
 			if(debug_level > 0)
 				printf("GUVCVIEW: reset to pixelformat=%x width=%i and height=%i\n",
-					v4l2core_get_requested_frame_format(my_vd_ctx),
-					v4l2core_get_frame_width(my_vd_ctx),
-					v4l2core_get_frame_height(my_vd_ctx));
+					v4l2core_get_requested_frame_format(my_vd),
+					v4l2core_get_frame_width(my_vd),
+					v4l2core_get_frame_height(my_vd));
 
-			v4l2core_start_stream(my_vd_ctx);
+			v4l2core_start_stream(my_vd);
 
 		}
 
 		/*get the frame from v4l2 core*/
-		frame = v4l2core_get_decoded_frame(my_vd_ctx);
+		frame = v4l2core_get_decoded_frame(my_vd);
 		if( frame != NULL)
 		{
 			/*run software autofocus (must be called after frame was grabbed and decoded)*/
 			if(do_soft_autofocus || do_soft_focus)
-				do_soft_focus = v4l2core_soft_autofocus_run(my_vd_ctx, frame);
+				do_soft_focus = v4l2core_soft_autofocus_run(my_vd, frame);
 
 			/* apply fx effects to the frame
 			 * do it before saving the frame
@@ -1210,7 +1210,7 @@ void *capture_loop(void *data)
 				 */
 				if(get_video_codec_ind() == 0) //raw frame
 				{
-					switch(v4l2core_get_requested_frame_format(my_vd_ctx))
+					switch(v4l2core_get_requested_frame_format(my_vd))
 					{
 						case  V4L2_PIX_FMT_H264:
 							input_frame = frame->h264_frame;
@@ -1234,12 +1234,12 @@ void *capture_loop(void *data)
 				int time_sched = encoder_buff_scheduler(ENCODER_SCHED_EXP, 0.5, 250);
 				if(time_sched > 0)
 				{
-					switch(v4l2core_get_requested_frame_format(my_vd_ctx))
+					switch(v4l2core_get_requested_frame_format(my_vd))
 					{
 						case  V4L2_PIX_FMT_H264:
 						{
 							uint32_t framerate = time_sched; /*nanosec*/
-							v4l2core_set_h264_frame_rate_config(my_vd_ctx, framerate);
+							v4l2core_set_h264_frame_rate_config(my_vd, framerate);
 							break;
 						}
 						default:
@@ -1262,16 +1262,16 @@ void *capture_loop(void *data)
 
 			/* finally render the frame */
 			snprintf(render_caption, 29, "Guvcview  (%2.2f fps)", 
-				v4l2core_get_realfps(my_vd_ctx));
+				v4l2core_get_realfps(my_vd));
 			render_set_caption(render_caption);
 			render_frame(frame->yuv_frame);
 
 			/*we are done with the frame buffer release it*/
-			v4l2core_release_frame(my_vd_ctx, frame);
+			v4l2core_release_frame(my_vd, frame);
 		}
 	}
 
-	v4l2core_stop_stream(my_vd_ctx);
+	v4l2core_stop_stream(my_vd);
 	
 	/*if we are still saving video then stop it*/
 	if(video_capture_get_save_video())

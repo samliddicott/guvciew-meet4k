@@ -122,7 +122,7 @@ int gui_attach_gtk3_v4l2ctrls(GtkWidget *parent)
 
 	int i = 0;
 	int n = 0;
-	v4l2_ctrl_t *current = v4l2core_get_control_list(get_v4l2_device_context());
+	v4l2_ctrl_t *current = v4l2core_get_control_list(get_v4l2_device_handler());
 
     for(; current != NULL; current = current->next, ++n)
     {
@@ -213,9 +213,9 @@ int gui_attach_gtk3_v4l2ctrls(GtkWidget *parent)
 						gtk_editable_set_editable(GTK_EDITABLE(control_widgets_list[n].widget2), TRUE);
 
 						if(current->control.id == V4L2_CID_PAN_RELATIVE)
-							gtk_spin_button_set_value (GTK_SPIN_BUTTON(control_widgets_list[n].widget2), v4l2core_get_pan_step(get_v4l2_device_context()));
+							gtk_spin_button_set_value (GTK_SPIN_BUTTON(control_widgets_list[n].widget2), v4l2core_get_pan_step(get_v4l2_device_handler()));
 						else
-							gtk_spin_button_set_value (GTK_SPIN_BUTTON(control_widgets_list[n].widget2), v4l2core_get_tilt_step(get_v4l2_device_context()));
+							gtk_spin_button_set_value (GTK_SPIN_BUTTON(control_widgets_list[n].widget2), v4l2core_get_tilt_step(get_v4l2_device_handler()));
 
 						/*connect signal*/
 						g_object_set_data (G_OBJECT (control_widgets_list[n].widget2), "control_info",
@@ -570,9 +570,9 @@ int gui_attach_gtk3_v4l2ctrls(GtkWidget *parent)
 					gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(control_widgets_list[n].widget2),
 						"RGRG... | GBGB...");
 
-					v4l2core_set_bayer_pix_order(get_v4l2_device_context(), 0);
+					v4l2core_set_bayer_pix_order(get_v4l2_device_handler(), 0);
 
-					gtk_combo_box_set_active(GTK_COMBO_BOX(control_widgets_list[n].widget2), v4l2core_get_bayer_pix_order(get_v4l2_device_context()));
+					gtk_combo_box_set_active(GTK_COMBO_BOX(control_widgets_list[n].widget2), v4l2core_get_bayer_pix_order(get_v4l2_device_handler()));
 
 					gtk_widget_show (control_widgets_list[n].widget2);
 
@@ -581,7 +581,7 @@ int gui_attach_gtk3_v4l2ctrls(GtkWidget *parent)
 						G_CALLBACK (bayer_pix_ord_changed), NULL);
 
 					uint8_t isbayer = (current->value ? TRUE : FALSE);
-					v4l2core_set_isbayer(get_v4l2_device_context(), isbayer);
+					v4l2core_set_isbayer(get_v4l2_device_handler(), isbayer);
 				}
 
 				control_widgets_list[n].widget = gtk_check_button_new();
@@ -642,7 +642,7 @@ int gui_attach_gtk3_v4l2ctrls(GtkWidget *parent)
  */
 void gui_gtk3_update_controls_state()
 {
-	v4l2_ctrl_t *current = v4l2core_get_control_list(get_v4l2_device_context());
+	v4l2_ctrl_t *current = v4l2core_get_control_list(get_v4l2_device_handler());
 
     for(; current != NULL; current = current->next)
     {

@@ -118,7 +118,7 @@ void MainWindow::control_defaults_clicked ()
 	if(debug_level > 2)
 		std::cout << "GUVCVIEW (Qt5): setting control defaults" << std::endl;
 		
-    v4l2core_set_control_defaults(get_v4l2_device_context());
+    v4l2core_set_control_defaults(get_v4l2_device_handler());
     gui_qt5_update_controls_state();
 }
 
@@ -151,7 +151,7 @@ void MainWindow::load_save_profile_clicked()
 				std::cout << "GUVCVIEW (Qt5): load profile " 
 					<< fileName.toStdString() << std::endl;
 			
-			v4l2core_load_control_profile(get_v4l2_device_context(), fileName.toStdString().c_str());
+			v4l2core_load_control_profile(get_v4l2_device_handler(), fileName.toStdString().c_str());
 			gui_qt5_update_controls_state();
 			
 			char *basename = get_file_basename(fileName.toStdString().c_str());
@@ -186,7 +186,7 @@ void MainWindow::load_save_profile_clicked()
 				std::cout << "GUVCVIEW (Qt5): save profile " 
 					<< fileName.toStdString() << std::endl;
 				
-			v4l2core_save_control_profile(get_v4l2_device_context(), fileName.toStdString().c_str());
+			v4l2core_save_control_profile(get_v4l2_device_handler(), fileName.toStdString().c_str());
 			
 			char *basename = get_file_basename(fileName.toStdString().c_str());
 			if(basename)
@@ -528,9 +528,9 @@ void MainWindow::pan_tilt_step_changed (int value)
 	int id = sender->property("control_info").toInt();
 
 	if(id == V4L2_CID_PAN_RELATIVE)
-		v4l2core_set_pan_step(get_v4l2_device_context(), value);
+		v4l2core_set_pan_step(get_v4l2_device_handler(), value);
 	if(id == V4L2_CID_TILT_RELATIVE)
-		v4l2core_set_tilt_step(get_v4l2_device_context(), value);
+		v4l2core_set_tilt_step(get_v4l2_device_handler(), value);
 }
 
 /*
@@ -549,14 +549,14 @@ void MainWindow::button_PanTilt1_clicked()
 	QObject *sender =  QObject::sender();
 	int id = sender->property("control_info").toInt();
 
-    v4l2_ctrl_t *control = v4l2core_get_control_by_id(get_v4l2_device_context(), id);
+    v4l2_ctrl_t *control = v4l2core_get_control_by_id(get_v4l2_device_handler(), id);
 
 	if(id == V4L2_CID_PAN_RELATIVE)
-		control->value = v4l2core_get_pan_step(get_v4l2_device_context());
+		control->value = v4l2core_get_pan_step(get_v4l2_device_handler());
 	else
-		control->value = v4l2core_get_tilt_step(get_v4l2_device_context());
+		control->value = v4l2core_get_tilt_step(get_v4l2_device_handler());
 
-    if(v4l2core_set_control_value_by_id(get_v4l2_device_context(), id))
+    if(v4l2core_set_control_value_by_id(get_v4l2_device_handler(), id))
 		std::cerr << "GUVCVIEW: error setting pan/tilt" << std::endl;
 }
 
@@ -576,14 +576,14 @@ void MainWindow::button_PanTilt2_clicked()
     QObject *sender =  QObject::sender();
 	int id = sender->property("control_info").toInt();
 
-    v4l2_ctrl_t *control = v4l2core_get_control_by_id(get_v4l2_device_context(), id);
+    v4l2_ctrl_t *control = v4l2core_get_control_by_id(get_v4l2_device_handler(), id);
 
     if(id == V4L2_CID_PAN_RELATIVE)
-		control->value =  - v4l2core_get_pan_step(get_v4l2_device_context());
+		control->value =  - v4l2core_get_pan_step(get_v4l2_device_handler());
 	else
-		control->value =  - v4l2core_get_tilt_step(get_v4l2_device_context());
+		control->value =  - v4l2core_get_tilt_step(get_v4l2_device_handler());
 
-    if(v4l2core_set_control_value_by_id(get_v4l2_device_context(), id))
+    if(v4l2core_set_control_value_by_id(get_v4l2_device_handler(), id))
 		std::cerr << "GUVCVIEW: error setting pan/tilt" << std::endl;
 }
 
@@ -603,11 +603,11 @@ void MainWindow::button_clicked()
     QObject *sender =  QObject::sender();
 	int id = sender->property("control_info").toInt();
 
-    v4l2_ctrl_t *control = v4l2core_get_control_by_id(get_v4l2_device_context(), id);
+    v4l2_ctrl_t *control = v4l2core_get_control_by_id(get_v4l2_device_handler(), id);
 
 	control->value = 1;
 
-    if(v4l2core_set_control_value_by_id(get_v4l2_device_context(), id))
+    if(v4l2core_set_control_value_by_id(get_v4l2_device_handler(), id))
 		fprintf(stderr, "GUVCVIEW: error setting button value\n");
 
 	gui_qt5_update_controls_state();
@@ -630,14 +630,14 @@ void MainWindow::string_button_clicked()
 	int id = sender->property("control_info").toInt();
 	QLineEdit *entry = (QLineEdit *) sender->property("control_entry").value();
 
-	v4l2_ctrl_t *control = v4l2core_get_control_by_id(get_v4l2_device_context(), id);
+	v4l2_ctrl_t *control = v4l2core_get_control_by_id(get_v4l2_device_handler(), id);
 
 	assert(control->string != NULL);
 	QString text_input = entry->text();
 
 	strncpy(control->string, text_input.toStdString(), control->control.maximum);
 
-	if(v4l2core_set_control_value_by_id(get_v4l2_device_context(), id))
+	if(v4l2core_set_control_value_by_id(get_v4l2_device_handler(), id))
 		std::cerr << "GUVCVIEW (Qt5): error setting string value" 
 			<< std::endl;
 }
@@ -668,7 +668,7 @@ void MainWindow::int64_button_clicked()
 		return;
 	}
 
-	v4l2_ctrl_t *control = v4l2core_get_control_by_id(get_v4l2_device_context(), id);
+	v4l2_ctrl_t *control = v4l2core_get_control_by_id(get_v4l2_device_handler(), id);
 
 	QString text_input = entry->text();
 	text_input = text_input.remove(" ");
@@ -682,7 +682,7 @@ void MainWindow::int64_button_clicked()
 	if(ok)
 	{
 		control->value64 = value;
-		if(v4l2core_set_control_value_by_id(get_v4l2_device_context(), id))
+		if(v4l2core_set_control_value_by_id(get_v4l2_device_handler(), id))
 			std:cerr << "GUVCVIEW (Qt5): error setting int64 value" 
 				<< std::endl;
 	}
@@ -709,7 +709,7 @@ void MainWindow::bitmask_button_clicked()
 	int id = sender->property("control_info").toInt();
 	QLineEdit *entry = (QLineEdit *) sender->property("control_entry").value();
 
-	v4l2_ctrl_t *control = v4l2core_get_control_by_id(get_v4l2_device_context(), id);
+	v4l2_ctrl_t *control = v4l2core_get_control_by_id(get_v4l2_device_handler(), id);
 
 	assert(control->string != NULL);
 	QString text_input = entry->text();
@@ -724,7 +724,7 @@ void MainWindow::bitmask_button_clicked()
 	if(ok)
 	{
 		control->value = value;
-		if(v4l2core_set_control_value_by_id(get_v4l2_device_context(), id))
+		if(v4l2core_set_control_value_by_id(get_v4l2_device_handler(), id))
 			std:cerr << "GUVCVIEW (Qt5): error setting bitmask value" 
 				<< std::endl;
 	}
@@ -750,11 +750,11 @@ void MainWindow::slider_value_changed(int value)
     QObject *sender =  QObject::sender();
 	int id = sender->property("control_info").toInt();
 	
-    v4l2_ctrl_t *control = v4l2core_get_control_by_id(get_v4l2_device_context(), id);
+    v4l2_ctrl_t *control = v4l2core_get_control_by_id(get_v4l2_device_handler(), id);
 
     control->value = value;
 
-    if(v4l2core_set_control_value_by_id(get_v4l2_device_context(), id))
+    if(v4l2core_set_control_value_by_id(get_v4l2_device_handler(), id))
 		std::cerr << "GUVCVIEW (Qt5): error setting slider value" <<std::endl;
 }
 
@@ -774,11 +774,11 @@ void MainWindow::spin_value_changed (int value)
     QObject *sender =  QObject::sender();
 	int id = sender->property("control_info").toInt();
 	
-    v4l2_ctrl_t *control = v4l2core_get_control_by_id(get_v4l2_device_context(), id);
+    v4l2_ctrl_t *control = v4l2core_get_control_by_id(get_v4l2_device_handler(), id);
 
     control->value = value;
 
-     if(v4l2core_set_control_value_by_id(get_v4l2_device_context(), id))
+     if(v4l2core_set_control_value_by_id(get_v4l2_device_handler(), id))
 		std::cerr << "GUVCVIEW (Qt5): error setting spin value" <<std::endl;
 
 }
@@ -799,11 +799,11 @@ void MainWindow::combo_changed (int index)
 	QObject *sender =  QObject::sender();
 	int id = sender->property("control_info").toInt();
     
-    v4l2_ctrl_t *control = v4l2core_get_control_by_id(get_v4l2_device_context(), id);
+    v4l2_ctrl_t *control = v4l2core_get_control_by_id(get_v4l2_device_handler(), id);
 
     control->value = control->menu[index].index;
 
-	if(v4l2core_set_control_value_by_id(get_v4l2_device_context(), id))
+	if(v4l2core_set_control_value_by_id(get_v4l2_device_handler(), id))
 		std::cerr << "GUVCVIEW (Qt5): error setting menu value" <<std::endl;
 
 	gui_qt5_update_controls_state();
@@ -822,7 +822,7 @@ void MainWindow::combo_changed (int index)
  */
 void MainWindow::bayer_pix_ord_changed (int index)
 {
-	v4l2core_set_bayer_pix_order(get_v4l2_device_context(), index);
+	v4l2core_set_bayer_pix_order(get_v4l2_device_handler(), index);
 }
 
 /*
@@ -841,28 +841,28 @@ void MainWindow::check_changed (int state)
     QObject *sender =  QObject::sender();
 	int id = sender->property("control_info").toInt();
 	
-    v4l2_ctrl_t *control = v4l2core_get_control_by_id(get_v4l2_device_context(), id);
+    v4l2_ctrl_t *control = v4l2core_get_control_by_id(get_v4l2_device_handler(), id);
 
     int val = (state != 0) ? 1 : 0;
 
     control->value = val;
 
-	if(v4l2core_set_control_value_by_id(get_v4l2_device_context(), id))
+	if(v4l2core_set_control_value_by_id(get_v4l2_device_handler(), id))
 		std::cerr << "GUVCVIEW: error setting menu value" << std::endl;
 
     if(id == V4L2_CID_DISABLE_PROCESSING_LOGITECH)
     {
         if (control->value > 0)
-			v4l2core_set_isbayer(get_v4l2_device_context(), 1);
+			v4l2core_set_isbayer(get_v4l2_device_handler(), 1);
         else
-			v4l2core_set_isbayer(get_v4l2_device_context(), 0);
+			v4l2core_set_isbayer(get_v4l2_device_handler(), 0);
 
         /*
          * must restart stream and requeue
          * the buffers for changes to take effect
          * (updating fps provides all that is needed)
          */
-        v4l2core_request_framerate_update (get_v4l2_device_context());
+        v4l2core_request_framerate_update (get_v4l2_device_handler());
     }
 
     gui_qt5_update_controls_state();
@@ -880,7 +880,7 @@ void MainWindow::check_changed (int state)
  */
 void MainWindow::devices_changed (int index)
 {
-	if(index == v4l2core_get_this_device_index(get_v4l2_device_context()))
+	if(index == v4l2core_get_this_device_index(get_v4l2_device_handler()))
 		return;
 
 	v4l2_device_list_t* device_list = v4l2core_get_device_list();
@@ -935,7 +935,7 @@ void MainWindow::devices_changed (int index)
 	/*reset to current device*/
 	/*disable device combobox signals*/
 	combobox_video_devices->blockSignals(true);
-	combobox_video_devices->setCurrentIndex(v4l2core_get_this_device_index(get_v4l2_device_context()));
+	combobox_video_devices->setCurrentIndex(v4l2core_get_this_device_index(get_v4l2_device_handler()));
 	/*enable device combobox signals*/
 	combobox_video_devices->blockSignals(false);
 }
@@ -953,26 +953,26 @@ void MainWindow::devices_changed (int index)
 void MainWindow::frame_rate_changed (int index)
 {
 	int format_index = v4l2core_get_frame_format_index(
-		get_v4l2_device_context(),
-		v4l2core_get_requested_frame_format(get_v4l2_device_context()));
+		get_v4l2_device_handler(),
+		v4l2core_get_requested_frame_format(get_v4l2_device_handler()));
 
 	int resolu_index = v4l2core_get_format_resolution_index(
-		get_v4l2_device_context(),
+		get_v4l2_device_handler(),
 		format_index,
-		v4l2core_get_frame_width(get_v4l2_device_context()),
-		v4l2core_get_frame_height(get_v4l2_device_context()));
+		v4l2core_get_frame_width(get_v4l2_device_handler()),
+		v4l2core_get_frame_height(get_v4l2_device_handler()));
 
-	v4l2_stream_formats_t *list_stream_formats = v4l2core_get_formats_list(get_v4l2_device_context());
+	v4l2_stream_formats_t *list_stream_formats = v4l2core_get_formats_list(get_v4l2_device_handler());
 	
 	int fps_denom = list_stream_formats[format_index].list_stream_cap[resolu_index].framerate_denom[index];
 	int fps_num = list_stream_formats[format_index].list_stream_cap[resolu_index].framerate_num[index];
 	
-	v4l2core_define_fps(get_v4l2_device_context(), fps_num, fps_denom);
+	v4l2core_define_fps(get_v4l2_device_handler(), fps_num, fps_denom);
 
 	int fps[2] = {fps_num, fps_denom};
 	gui_set_fps(fps);
 
-	v4l2core_request_framerate_update (get_v4l2_device_context());
+	v4l2core_request_framerate_update (get_v4l2_device_handler());
 }
 
 /*
@@ -988,15 +988,15 @@ void MainWindow::frame_rate_changed (int index)
 void MainWindow::resolution_changed (int index)
 {
 	int format_index = v4l2core_get_frame_format_index(
-		get_v4l2_device_context(),
-		v4l2core_get_requested_frame_format(get_v4l2_device_context()));
+		get_v4l2_device_handler(),
+		v4l2core_get_requested_frame_format(get_v4l2_device_handler()));
 
 	/*disable fps combobox signals*/
 	combobox_FrameRate->blockSignals(true);
 	/* clear out the old fps list... */
 	combobox_FrameRate->clear();
 
-	v4l2_stream_formats_t *list_stream_formats = v4l2core_get_formats_list(get_v4l2_device_context());
+	v4l2_stream_formats_t *list_stream_formats = v4l2core_get_formats_list(get_v4l2_device_handler());
 	
 	int width = list_stream_formats[format_index].list_stream_cap[index].width;
 	int height = list_stream_formats[format_index].list_stream_cap[index].height;
@@ -1013,8 +1013,8 @@ void MainWindow::resolution_changed (int index)
 
 		combobox_FrameRate->addItem(fps_str, i);
 
-		if (( v4l2core_get_fps_num(get_v4l2_device_context()) == list_stream_formats[format_index].list_stream_cap[index].framerate_num[i]) &&
-			( v4l2core_get_fps_denom(get_v4l2_device_context()) == list_stream_formats[format_index].list_stream_cap[index].framerate_denom[i]))
+		if (( v4l2core_get_fps_num(get_v4l2_device_handler()) == list_stream_formats[format_index].list_stream_cap[index].framerate_num[i]) &&
+			( v4l2core_get_fps_denom(get_v4l2_device_handler()) == list_stream_formats[format_index].list_stream_cap[index].framerate_denom[i]))
 				deffps=i;//set selected
 	}
 
@@ -1026,18 +1026,18 @@ void MainWindow::resolution_changed (int index)
 
 	if (list_stream_formats[format_index].list_stream_cap[index].framerate_num)
 		v4l2core_define_fps(
-			get_v4l2_device_context(),
+			get_v4l2_device_handler(),
 			list_stream_formats[format_index].list_stream_cap[index].framerate_num[deffps],
 			-1);
 
 	if (list_stream_formats[format_index].list_stream_cap[index].framerate_denom)
 		v4l2core_define_fps(
-			get_v4l2_device_context(),
+			get_v4l2_device_handler(),
 			-1,
 			list_stream_formats[format_index].list_stream_cap[index].framerate_denom[deffps]);
 
 	/*change resolution (try new format and reset render)*/
-	v4l2core_prepare_new_resolution(get_v4l2_device_context(), width, height);
+	v4l2core_prepare_new_resolution(get_v4l2_device_handler(), width, height);
 
 	request_format_update();
 
@@ -1070,7 +1070,7 @@ void MainWindow::format_changed(int index)
 	/* clear out the old resolution list... */
 	combobox_resolution->clear();
 
-	v4l2_stream_formats_t *list_stream_formats = v4l2core_get_formats_list(get_v4l2_device_context());
+	v4l2_stream_formats_t *list_stream_formats = v4l2core_get_formats_list(get_v4l2_device_handler());
 		
 	int format = list_stream_formats[index].format;
 
@@ -1086,8 +1086,8 @@ void MainWindow::format_changed(int index)
 			QString res_str = QString( "%1x%2").arg(list_stream_formats[index].list_stream_cap[i].width).arg(list_stream_formats[index].list_stream_cap[i].height);
 			combobox_resolution->addItem(res_str, i);
 
-			if ((v4l2core_get_frame_width(get_v4l2_device_context()) == list_stream_formats[index].list_stream_cap[i].width) &&
-				(v4l2core_get_frame_height(get_v4l2_device_context()) == list_stream_formats[index].list_stream_cap[i].height))
+			if ((v4l2core_get_frame_width(get_v4l2_device_handler()) == list_stream_formats[index].list_stream_cap[i].width) &&
+				(v4l2core_get_frame_height(get_v4l2_device_handler()) == list_stream_formats[index].list_stream_cap[i].height))
 					defres=i;//set selected resolution index
 		}
 	}
@@ -1099,7 +1099,7 @@ void MainWindow::format_changed(int index)
 	combobox_resolution->blockSignals(false);
 
 	/*prepare new format*/
-	v4l2core_prepare_new_format(get_v4l2_device_context(), format);
+	v4l2core_prepare_new_format(get_v4l2_device_handler(), format);
 	
 	resolution_changed (defres);
 }
@@ -1709,7 +1709,7 @@ void MainWindow::keyPressEvent(QKeyEvent* e)
 	//if(event->key() Qt::NoModifier)
 	//	return;
 		
-	if(v4l2core_has_pantilt_id(get_v4l2_device_context()))
+	if(v4l2core_has_pantilt_id(get_v4l2_device_handler()))
     {
 		int id = 0;
 		int value = 0;
@@ -1718,19 +1718,19 @@ void MainWindow::keyPressEvent(QKeyEvent* e)
         {
 			case Qt::Key_Down:
 				id = V4L2_CID_TILT_RELATIVE;
-				value = v4l2core_get_tilt_step(get_v4l2_device_context());
+				value = v4l2core_get_tilt_step(get_v4l2_device_handler());
 				break;
 			case Qt::Key_Up:
 				id = V4L2_CID_TILT_RELATIVE;
-				value = - v4l2core_get_tilt_step(get_v4l2_device_context());
+				value = - v4l2core_get_tilt_step(get_v4l2_device_handler());
 				break;
 			case Qt::Key_Left:
 				id = V4L2_CID_PAN_RELATIVE;
-				value = v4l2core_get_pan_step(get_v4l2_device_context());
+				value = v4l2core_get_pan_step(get_v4l2_device_handler());
 				break;
 			case Qt::Key_Right:
 				id = V4L2_CID_PAN_RELATIVE;
-				value = - v4l2core_get_pan_step(get_v4l2_device_context());
+				value = - v4l2core_get_pan_step(get_v4l2_device_handler());
 				break;
 			default:
 				break;
@@ -1738,13 +1738,13 @@ void MainWindow::keyPressEvent(QKeyEvent* e)
 		
 		if(id != 0 && value != 0)
         {
-			v4l2_ctrl_t *control = v4l2core_get_control_by_id(get_v4l2_device_context(), id);
+			v4l2_ctrl_t *control = v4l2core_get_control_by_id(get_v4l2_device_handler(), id);
 
 			if(control)
 			{
 				control->value =  value;
 
-				if(v4l2core_set_control_value_by_id(get_v4l2_device_context(), id))
+				if(v4l2core_set_control_value_by_id(get_v4l2_device_handler(), id))
 					std::cerr << "GUVCVIEW (Qt5): error setting pan/tilt value"
 						<< std::endl;
 				return;
@@ -1818,7 +1818,7 @@ void MainWindow::check_device_events()
  */
 void MainWindow::check_control_events()
 {
-	if(v4l2core_check_control_events(get_v4l2_device_context()) > 0)
+	if(v4l2core_check_control_events(get_v4l2_device_handler()) > 0)
 	{
 		//update the control list
 		gui_qt5_update_controls_state();

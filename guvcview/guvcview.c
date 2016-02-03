@@ -217,7 +217,7 @@ int main(int argc, char *argv[])
 	v4l2core_set_verbosity(debug_level);
 
 	/*set the v4l2core device (redefines language catalog)*/
-	v4l2_dev_t *vd = create_v4l2_device_context(my_options->device);
+	v4l2_dev_t *vd = create_v4l2_device_handler(my_options->device);
 	if(!vd)
 	{
 		char message[50];
@@ -409,8 +409,8 @@ int main(int argc, char *argv[])
 		printf("GUVCVIEW: closing audio context\n");
 	/*closes the audio context (stored staticly in video_capture)*/
 	close_audio_context();
-	/*closes the v4l2 device context (stored staticly in video_capture)*/
-	close_v4l2_device_context();
+	/*closes the v4l2 device handler (stored staticly in video_capture)*/
+	close_v4l2_device_handler();
 
     /*save config before cleaning the options*/
 	config_save(config_file);
