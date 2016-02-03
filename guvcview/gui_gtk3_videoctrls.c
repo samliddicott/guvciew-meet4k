@@ -118,7 +118,7 @@ int gui_attach_gtk3_videoctrls(GtkWidget *parent)
 	gtk_widget_set_halign (get_wgtDevices_gtk3(), GTK_ALIGN_FILL);
 	gtk_widget_set_hexpand (get_wgtDevices_gtk3(), TRUE);
 
-	v4l2_device_list *device_list = v4l2core_get_device_list(get_v4l2_device_context());
+	v4l2_device_list_t *device_list = v4l2core_get_device_list(get_v4l2_device_context());
 
 	if (device_list->num_devices < 1)
 	{

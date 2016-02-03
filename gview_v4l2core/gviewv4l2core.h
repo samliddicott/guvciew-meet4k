@@ -237,23 +237,6 @@ typedef struct _v4l2_ctrl_t
 } v4l2_ctrl_t;
 
 /*
- * v4l2 device system data
- */
-typedef struct _v4l2_dev_sys_data_t
-{
-	char *device;
-	char *name;
-	char *driver;
-	char *location;
-	uint32_t vendor;
-	uint32_t product;
-	int valid;
-	int current;
-	uint64_t busnum;
-	uint64_t devnum;
-} v4l2_dev_sys_data_t;
-
-/*
  * frame buffer struct
  */
 typedef struct _v4l2_frame_buff_t
@@ -282,6 +265,23 @@ typedef struct _v4l2_frame_buff_t
 } v4l2_frame_buff_t;
 
 /*
+ * v4l2 device system data
+ */
+typedef struct _v4l2_dev_sys_data_t
+{
+	char *device;
+	char *name;
+	char *driver;
+	char *location;
+	uint32_t vendor;
+	uint32_t product;
+	int valid;
+	int current;
+	uint64_t busnum;
+	uint64_t devnum;
+} v4l2_dev_sys_data_t;
+
+/*
  * v4l2 devices list data
  */
 typedef struct _v4l2_device_list_t
@@ -291,7 +291,7 @@ typedef struct _v4l2_device_list_t
     int udev_fd;                        // udev monitor file descriptor
     v4l2_dev_sys_data_t* list_devices;  // list of available v4l2 devices
     int num_devices;                    // number of available v4l2 devices
-} v4l2_device_list;
+} v4l2_device_list_t;
 
 /* opaque v4l2 device type*/
 typedef struct _v4l2_dev_t v4l2_dev_t;
@@ -597,7 +597,7 @@ void v4l2core_set_tilt_step(v4l2_dev_t *vd, int step);
  *
  * returns: pointer to device list data
  */
-v4l2_device_list *v4l2core_get_device_list();
+v4l2_device_list_t* v4l2core_get_device_list();
 
 /*
  * get the device index in device list

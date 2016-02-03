@@ -1792,7 +1792,7 @@ v4l2_dev_t* v4l2core_init_dev(const char *device)
 	if(vd->this_device < 0)
 		vd->this_device = 0;
 
-	v4l2_device_list *device_list = v4l2core_get_device_list(vd);
+	v4l2_device_list_t *device_list = v4l2core_get_device_list(vd);
 	if(device_list && device_list->list_devices)
 		device_list->list_devices[vd->this_device].current = 1;
 

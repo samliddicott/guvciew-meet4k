@@ -1124,7 +1124,7 @@ void devices_changed (GtkComboBox *wgtDevices, void *data)
 	if(index == v4l2core_get_this_device_index(get_v4l2_device_context()))
 		return;
 
-	v4l2_device_list *device_list = v4l2core_get_device_list();
+	v4l2_device_list_t *device_list = v4l2core_get_device_list();
 
 	GtkWidget *restartdialog = gtk_dialog_new_with_buttons (_("start new"),
 		GTK_WINDOW(get_main_window_gtk3()),
@@ -2418,7 +2418,7 @@ gboolean check_device_events(gpointer data)
 		GtkListStore *store = GTK_LIST_STORE(gtk_combo_box_get_model (GTK_COMBO_BOX(get_wgtDevices_gtk3())));
 		gtk_list_store_clear(store);
 
-		v4l2_device_list *device_list = v4l2core_get_device_list();
+		v4l2_device_list_t *device_list = v4l2core_get_device_list();
 		int i = 0;
         for(i = 0; i < (device_list->num_devices); i++)
 		{

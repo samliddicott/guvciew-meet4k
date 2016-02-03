@@ -35,7 +35,7 @@
 extern int verbosity;
 
 /* device list structure */
-static v4l2_device_list my_device_list;
+static v4l2_device_list_t my_device_list;
 
 /*
  * get the device list data
@@ -47,7 +47,7 @@ static v4l2_device_list my_device_list;
  * 
  * returns: pointer to device list data
  */
-v4l2_device_list *v4l2core_get_device_list()
+v4l2_device_list_t* v4l2core_get_device_list()
 {
 	return &my_device_list;
 }
