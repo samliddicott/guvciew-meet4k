@@ -1237,35 +1237,41 @@ void MainWindow::audio_devices_changed(int index)
 
 	if(index < 0)
 		index = 0;
-	else if (index >= audio_ctx->num_input_dev)
-		index = audio_ctx->num_input_dev - 1;
+	else if (index >= audio_get_num_inp_devices(audio_ctx))
+		index = audio_get_num_inp_devices(audio_ctx) - 1;
 			
 	/*update config*/
 	config_t *my_config = config_get();
 	my_config->audio_device = index;
 
-	/*set the audio device defaults*/
-	audio_set_device(audio_ctx, my_config->audio_device);
+	/*set the audio device index default*/
+	audio_set_device_index(audio_ctx, my_config->audio_device);
 
 	if(debug_level > 0)
 		std::cout << "GUVCVIEW (Qt5): audio device changed to "
-			<< audio_ctx->device << std::endl;
+			<< audio_get_device_index(audio_ctx) << std::endl;
 
 	int chan_ind = combobox_audio_channels->currentIndex();
 
 	if(chan_ind == 0)
 	{
-		audio_ctx->channels = audio_ctx->list_devices[audio_ctx->device].channels;
-		if(audio_ctx->channels > 2)
-			audio_ctx->channels = 2;/*limit it to stereo input*/
+		int channels = audio_get_device(audio_ctx,
+			audio_get_device_index(audio_ctx))->channels;
+		if(channels > 2)
+			channels = 2;/*limit it to stereo input*/
+		audio_set_channels(audio_ctx, channels);
 	}
 
 	int samprate_ind = combobox_audio_samprate->currentIndex();
 
 	if(samprate_ind == 0)
-		audio_ctx->samprate = audio_ctx->list_devices[audio_ctx->device].samprate;
+	{
+		int samprate = audio_get_device(audio_ctx,
+			audio_get_device_index(audio_ctx))->samprate;
+		audio_set_samprate(audio_ctx, samprate);
+	}
 		
-	spinbox_audio_latency->setValue(audio_ctx->latency);
+	spinbox_audio_latency->setValue(audio_get_latency(audio_ctx));
 }
 
 /*
@@ -1283,19 +1289,23 @@ void MainWindow::audio_samplerate_changed(int index)
 	/*update the audio context for the new api*/
 	audio_context_t *audio_ctx = get_audio_context();
 
+	int samprate = 44100;
 	switch(index)
 	{
 		case 0:
-			audio_ctx->samprate = audio_ctx->list_devices[audio_ctx->device].samprate;
+			samprate = audio_get_device(audio_ctx,
+				audio_get_device_index(audio_ctx))->samprate;
 			break;
 		default:
-			audio_ctx->samprate = combobox_audio_samprate->itemData(index).toInt();
-			break;		
+			samprate = combobox_audio_samprate->itemData(index).toInt();
+			break;
 	}
-	
+
+	audio_set_samprate(audio_ctx, samprate);
+
 	if(debug_level > 1)
 		std::cout << "GUVCVIEW (Qt5): audio sample rate changed to "
-			<< audio_ctx->samprate << std::endl;
+			<< audio_get_samprate(audio_ctx) << std::endl;
 }
 
 /*
@@ -1318,18 +1328,23 @@ void MainWindow::audio_channels_changed(int index)
 	switch(index)
 	{
 		case 0:
-			channels = audio_ctx->list_devices[audio_ctx->device].channels;
+			channels = audio_get_device(audio_ctx,
+				audio_get_device_index(audio_ctx))->channels;
 			break;
 		default:
 			channels =  combobox_audio_channels->itemData(index).toInt();;
 			break;
 	}
 
-	if(channels > audio_ctx->list_devices[audio_ctx->device].channels)
-		audio_ctx->channels = audio_ctx->list_devices[audio_ctx->device].channels;
+	if(channels > audio_get_device(audio_ctx,
+				audio_get_device_index(audio_ctx))->channels)
+		channels = audio_get_device(audio_ctx,
+				audio_get_device_index(audio_ctx))->channels;
 
-	if(audio_ctx->channels > 2)
-		audio_ctx->channels = 2; /*limit to stereo*/
+	if(channels > 2)
+		channels = 2; /*limit to stereo*/
+	
+	audio_set_channels(audio_ctx, channels);
 }
 
 /*
@@ -1383,11 +1398,11 @@ void MainWindow::audio_api_changed(int index)
 		combobox_audio_devices->clear();
 
 		int i = 0;
-		for(i = 0; i < audio_ctx->num_input_dev; ++i)
+		for(i = 0; i < audio_get_num_inp_devices(audio_ctx); ++i)
 		{
-			combobox_audio_devices->addItem(audio_ctx->list_devices[i].description, i);
+			combobox_audio_devices->addItem(audio_get_device(audio_ctx, i)->description, i);
 		}
-		combobox_audio_devices->setCurrentIndex(audio_ctx->device);
+		combobox_audio_devices->setCurrentIndex(audio_get_device_index(audio_ctx));
 
 		/*unblock audio device combobox signals*/
 		combobox_audio_devices->blockSignals(false);
@@ -1400,17 +1415,27 @@ void MainWindow::audio_api_changed(int index)
 		int chan_ind = combobox_audio_channels->currentIndex();
 
 		if(chan_ind == 0) /*auto*/
-			audio_ctx->channels = audio_ctx->list_devices[audio_ctx->device].channels;
-		
+		{
+			int channels = audio_get_device(audio_ctx,
+				audio_get_device_index(audio_ctx))->channels;
+			if(channels > 2)
+				channels = 2;/*limit it to stereo input*/
+			audio_set_channels(audio_ctx, channels);
+		}
+
 		/*update samprate*/
 		int samprate_ind = combobox_audio_samprate->currentIndex();
 
 		if(samprate_ind == 0) /*auto*/
-			audio_ctx->samprate = audio_ctx->list_devices[audio_ctx->device].samprate;
-		
-		std::cout << "GUVCVIEW (Qt5): setting default audio latency to " << audio_ctx->latency << std::endl;
-		
-		spinbox_audio_latency->setValue(audio_ctx->latency);	
+		{
+			int samprate = audio_get_device(audio_ctx,
+				audio_get_device_index(audio_ctx))->samprate;
+			audio_set_samprate(audio_ctx, samprate);
+		}
+
+		std::cout << "GUVCVIEW (Qt5): setting default audio latency to " << audio_get_latency(audio_ctx) << std::endl;
+
+		spinbox_audio_latency->setValue(audio_get_latency(audio_ctx));	
 	}
 
 }
@@ -1431,7 +1456,7 @@ void MainWindow::audio_latency_changed(double value)
 	audio_context_t *audio_ctx = get_audio_context();
 
 	if(audio_ctx != NULL)
-		audio_ctx->latency = value;
+		audio_set_latency(audio_ctx, value);
 }
 
 /*

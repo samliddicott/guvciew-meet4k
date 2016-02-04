@@ -36,6 +36,7 @@
 
 #include <inttypes.h>
 #include <sys/types.h>
+#include <pthread.h>
 
 /*make sure we support c++*/
 __BEGIN_DECLS
@@ -91,31 +92,8 @@ typedef struct _audio_device_t
 	char description[256];  /*device description*/
 } audio_device_t;
 
-typedef struct _audio_context_t
-{
-	int api;                      /*audio api for this context*/
-	int num_input_dev;            /*number of audio input devices in list*/
-	audio_device_t *list_devices; /*audio input devices list*/
-	int device;                   /*current device list index*/
-	int channels;                 /*channels*/
-	int samprate;                 /*sample rate*/
-	double latency;               /*current sugested latency*/
-
-	/*all ts are monotonic based: both real and generated*/
-	int64_t current_ts;           /*current buffer generated timestamp*/
-	int64_t last_ts;              /*last real timestamp (in nanosec)*/
-	int64_t snd_begintime;        /*sound capture start ref time*/
-	int64_t ts_drift;             /*drift between real and generated ts*/
-
-	sample_t *capture_buff;       /*pointer to capture data*/
-	int capture_buff_size;
-	float capture_buff_level[2];  /*capture buffer channels level*/
-
-	void *stream;                 /*pointer to audio stream (portaudio)*/
-
-	int stream_flag;             /*stream flag*/
-
-} audio_context_t;
+/*audio context - opaque structure*/
+typedef struct _audio_context_t audio_context_t;
 
 /*
  * set verbosity
@@ -144,7 +122,19 @@ void audio_set_verbosity(int value);
 audio_context_t *audio_init(int api, int device);
 
 /*
- * set audio device
+ * get audio api
+ * args:
+ *   audio_ctx - pointer to audio context data
+ *
+ * asserts:
+ *   audio_ctx is not null
+ *
+ * returns: audio API
+ */
+int audio_get_api(audio_context_t *audio_ctx);
+
+/*
+ * set the audio device index to use
  * args:
  *   audio_ctx - pointer to audio context data
  *   index - device index (from device list) to set
@@ -154,7 +144,129 @@ audio_context_t *audio_init(int api, int device);
  *
  * returns: none
  */
-void audio_set_device(audio_context_t *audio_ctx, int index);
+void audio_set_device_index(audio_context_t *audio_ctx, int index);
+
+/*
+ * get the current audio device index
+ * args:
+ *   audio_ctx - pointer to audio context data
+ *
+ * asserts:
+ *   audio_ctx is not null
+ *
+ * returns: current device index (from device list)
+ */
+int audio_get_device_index(audio_context_t *audio_ctx);
+
+/*
+ * get the number of available input audio devices
+ * args:
+ *   audio_ctx - pointer to audio context data
+ *
+ * asserts:
+ *   audio_ctx is not null
+ *
+ * returns: number of listed audio devices
+ */
+int audio_get_num_inp_devices(audio_context_t *audio_ctx);
+
+/*
+ * get the audio device referenced by index
+ * args:
+ *   audio_ctx - pointer to audio context data
+ *   index - index of audio device
+ *
+ * asserts:
+ *   audio_ctx is not null
+ *
+ * returns: audio device referenced by index
+ */
+audio_device_t* audio_get_device(audio_context_t *audio_ctx, int index);
+
+/*
+ * set the current latency
+ * args:
+ *   audio_ctx - pointer to audio context data
+ *
+ * asserts:
+ *   audio_ctx is not null
+ *
+ * returns: none
+ */
+void audio_set_latency(audio_context_t *audio_ctx, double latency);
+
+/*
+ * get the current latency
+ * args:
+ *   audio_ctx - pointer to audio context data
+ *
+ * asserts:
+ *   audio_ctx is not null
+ *
+ * returns: defined lantency
+ */
+double audio_get_latency(audio_context_t *audio_ctx);
+
+/*
+ * set the number of channels
+ * args:
+ *   audio_ctx - pointer to audio context data
+ *
+ * asserts:
+ *   audio_ctx is not null
+ *
+ * returns: none
+ */
+void audio_set_channels(audio_context_t *audio_ctx, int channels);
+
+/*
+ * get the number of channels
+ * args:
+ *   audio_ctx - pointer to audio context data
+ *
+ * asserts:
+ *   audio_ctx is not null
+ *
+ * returns: number of channels
+ */
+int audio_get_channels(audio_context_t *audio_ctx);
+
+/*
+ * set the sample rate
+ * args:
+ *   audio_ctx - pointer to audio context data
+ *
+ * asserts:
+ *   audio_ctx is not null
+ *
+ * returns: none
+ */
+void audio_set_samprate(audio_context_t *audio_ctx, int samprate);
+
+/*
+ * get the sample rate
+ * args:
+ *   audio_ctx - pointer to audio context data
+ *
+ * asserts:
+ *   audio_ctx is not null
+ *
+ * returns: sample rate
+ */
+int audio_get_samprate(audio_context_t *audio_ctx);
+
+/*
+ * set the capture buffer size
+ * args:
+ *   audio_ctx - pointer to audio context data
+ *   size - capture buffer size in bytes
+ *
+ * asserts:
+ *   audio_ctx is not null
+ *
+ * returns: none
+ */
+void audio_set_cap_buffer_size(audio_context_t *audio_ctx, int size);
 
 /*
  * start audio stream capture

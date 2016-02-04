@@ -33,7 +33,7 @@ struct _v4l2_dev_t
 	int fd;                             // device file descriptor
 	char *videodevice;                  // video device string (default "/dev/video0)"
 	
-	__MUTEX_TYPE mutex;                 // device mutex
+	__MUTEX_TYPE *mutex;                // device mutex
 
 	int cap_meth;                       // capture method: IO_READ or IO_MMAP
 	v4l2_stream_formats_t* list_stream_formats; //list of available stream formats

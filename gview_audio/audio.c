@@ -44,15 +44,12 @@
 
 #include "../config.h"
 #include "gviewaudio.h"
+#include "audio.h"
 #include "gview.h"
 #include "audio_portaudio.h"
 #if HAS_PULSEAUDIO
   #include "audio_pulseaudio.h"
 #endif
-
-/*audio device data mutex*/
-static __MUTEX_TYPE mutex = __STATIC_MUTEX_INIT;
-#define __PMUTEX &mutex
 
 #define AUDBUFF_NUM     80    /*number of audio buffers*/
 #define AUDBUFF_FRAMES  1152  /*number of audio frames per buffer*/
@@ -87,9 +84,9 @@ void audio_set_verbosity(int value)
  *
  * returns: none
  */
-void audio_lock_mutex()
+void audio_lock_mutex(audio_context_t *audio_ctx)
 {
-	__LOCK_MUTEX( __PMUTEX );
+	__LOCK_MUTEX(audio_ctx->mutex);
 }
 
 /*
@@ -102,9 +99,9 @@ void audio_lock_mutex()
  *
  * returns: none
  */
-void audio_unlock_mutex()
+void audio_unlock_mutex(audio_context_t *audio_ctx)
 {
-	__UNLOCK_MUTEX( __PMUTEX );
+	__UNLOCK_MUTEX(audio_ctx->mutex);
 }
 
 /*
@@ -291,9 +288,9 @@ void audio_fill_buffer(audio_context_t *audio_ctx, int64_t ts)
 	audio_ctx->ts_drift = audio_ctx->current_ts - ts;
 
 	/*get the current write indexed buffer flag*/
-	audio_lock_mutex();
+	audio_lock_mutex(audio_ctx);
 	int flag = audio_buffers[buffer_write_index].flag;
-	audio_unlock_mutex();
+	audio_unlock_mutex(audio_ctx);
 
 	if(flag == AUDIO_BUFF_USED)
 	{
@@ -311,10 +308,10 @@ void audio_fill_buffer(audio_context_t *audio_ctx, int64_t ts)
 	audio_buffers[buffer_write_index].level_meter[0] = audio_ctx->capture_buff_level[0];
 	audio_buffers[buffer_write_index].level_meter[1] = audio_ctx->capture_buff_level[1];
 
-	audio_lock_mutex();
+	audio_lock_mutex(audio_ctx);
 	audio_buffers[buffer_write_index].flag = AUDIO_BUFF_USED;
 	NEXT_IND(buffer_write_index, AUDBUFF_NUM);
-	audio_unlock_mutex();
+	audio_unlock_mutex(audio_ctx);
 
 }
 
@@ -343,9 +340,9 @@ static int16_t clip_int16 (float in)
  */
 int audio_get_next_buffer(audio_context_t *audio_ctx, audio_buff_t *buff, int type, uint32_t mask)
 {
-	audio_lock_mutex();
+	audio_lock_mutex(audio_ctx);
 	int flag = audio_buffers[buffer_read_index].flag;
-	audio_unlock_mutex();
+	audio_unlock_mutex(audio_ctx);
 
 	if(flag == AUDIO_BUFF_FREE)
 		return 1; /*all done*/
@@ -417,10 +414,10 @@ int audio_get_next_buffer(audio_context_t *audio_ctx, audio_buff_t *buff, int ty
 	buff->level_meter[0] = audio_buffers[buffer_read_index].level_meter[0];
 	buff->level_meter[1] = audio_buffers[buffer_read_index].level_meter[1];
 
-	audio_lock_mutex();
+	audio_lock_mutex(audio_ctx);
 	audio_buffers[buffer_read_index].flag = AUDIO_BUFF_FREE;
 	NEXT_IND(buffer_read_index, AUDBUFF_NUM);
-	audio_unlock_mutex();
+	audio_unlock_mutex(audio_ctx);
 
 	return 0;
 }
@@ -447,6 +444,9 @@ audio_context_t *audio_init(int api, int device)
 		return NULL;
 	}
 
+	/*initialize the mutex*/
+	__INIT_MUTEX(audio_ctx->mutex);
+	
 	int ret = 0;
 
 	switch(api)
@@ -471,7 +471,7 @@ audio_context_t *audio_init(int api, int device)
 		audio_ctx->api = AUDIO_NONE;
 
 	/*set default api device*/
-	audio_set_device(audio_ctx, device);
+	audio_set_device_index(audio_ctx, device);
 
 	/*force a valid number of channels*/
 	if(audio_ctx->channels > 2)
@@ -481,7 +481,25 @@ audio_context_t *audio_init(int api, int device)
 }
 
 /*
- * set audio device
+ * get audio api
+ * args:
+ *   audio_ctx - pointer to audio context data
+ *
+ * asserts:
+ *   audio_ctx is not null
+ *
+ * returns: audio API
+ */
+int audio_get_api(audio_context_t *audio_ctx)
+{
+	/*assertions*/
+	assert(audio_ctx != NULL);
+	
+	return audio_ctx->api;
+}
+
+/*
+ * set the audio device index to use
  * args:
  *   audio_ctx - pointer to audio context data
  *   index - device index (from device list) to set
@@ -491,7 +509,7 @@ audio_context_t *audio_init(int api, int device)
  *
  * returns: none
  */
-void audio_set_device(audio_context_t *audio_ctx, int index)
+void audio_set_device_index(audio_context_t *audio_ctx, int index)
 {
 	/*assertions*/
 	assert(audio_ctx != NULL);
@@ -511,6 +529,201 @@ void audio_set_device(audio_context_t *audio_ctx, int index)
 			audio_set_portaudio_device(audio_ctx, index);
 			break;
 	}
+}
+
+/*
+ * get the current audio device index
+ * args:
+ *   audio_ctx - pointer to audio context data
+ *
+ * asserts:
+ *   audio_ctx is not null
+ *
+ * returns: current device index (from device list)
+ */
+int audio_get_device_index(audio_context_t *audio_ctx)
+{
+	/*assertions*/
+	assert(audio_ctx != NULL);
+
+	return audio_ctx->device;
+}
+
+/*
+ * get the number of available input audio devices
+ * args:
+ *   audio_ctx - pointer to audio context data
+ *
+ * asserts:
+ *   audio_ctx is not null
+ *
+ * returns: number of listed audio devices
+ */
+int audio_get_num_inp_devices(audio_context_t *audio_ctx)
+{
+	/*assertions*/
+	assert(audio_ctx != NULL);
+
+	return audio_ctx->num_input_dev;
+}
+
+/*
+ * get the audio device referenced by index
+ * args:
+ *   audio_ctx - pointer to audio context data
+ *   index - index of audio device
+ *
+ * asserts:
+ *   audio_ctx is not null
+ *
+ * returns: audio device referenced by index
+ */
+audio_device_t* audio_get_device(audio_context_t *audio_ctx, int index)
+{
+	/*assertions*/
+	assert(audio_ctx != NULL);
+
+	if(index >= audio_ctx->num_input_dev)
+	{
+		fprintf(stderr, "AUDIO: (audio_get_device) bad index %i using %i\n",
+			index, audio_ctx->num_input_dev - 1);
+		index = audio_ctx->num_input_dev - 1;
+	}
+
+	if(index < 0)
+	{
+		fprintf(stderr, "AUDIO: (audio_get_device) bad index %i using 0\n", index);
+		index = 0;
+	}
+
+	return &audio_ctx->list_devices[index];
+}
+
+/*
+ * set the current latency
+ * args:
+ *   audio_ctx - pointer to audio context data
+ *
+ * asserts:
+ *   audio_ctx is not null
+ *
+ * returns: none
+ */
+void audio_set_latency(audio_context_t *audio_ctx, double latency)
+{
+	/*assertions*/
+	assert(audio_ctx != NULL);
+
+	audio_ctx->latency = latency;
+}
+
+/*
+ * get the current latency
+ * args:
+ *   audio_ctx - pointer to audio context data
+ *
+ * asserts:
+ *   audio_ctx is not null
+ *
+ * returns: defined lantency
+ */
+double audio_get_latency(audio_context_t *audio_ctx)
+{
+	/*assertions*/
+	assert(audio_ctx != NULL);
+
+	return audio_ctx->latency;
+}
+
+/*
+ * set the number of channels
+ * args:
+ *   audio_ctx - pointer to audio context data
+ *
+ * asserts:
+ *   audio_ctx is not null
+ *
+ * returns: none
+ */
+void audio_set_channels(audio_context_t *audio_ctx, int channels)
+{
+	/*assertions*/
+	assert(audio_ctx != NULL);
+
+	audio_ctx->channels = channels;
+}
+
+/*
+ * get the number of channels
+ * args:
+ *   audio_ctx - pointer to audio context data
+ *
+ * asserts:
+ *   audio_ctx is not null
+ *
+ * returns: number of channels
+ */
+int audio_get_channels(audio_context_t *audio_ctx)
+{
+	/*assertions*/
+	assert(audio_ctx != NULL);
+
+	return audio_ctx->channels;
+}
+
+/*
+ * set the sample rate
+ * args:
+ *   audio_ctx - pointer to audio context data
+ *
+ * asserts:
+ *   audio_ctx is not null
+ *
+ * returns: none
+ */
+void audio_set_samprate(audio_context_t *audio_ctx, int samprate)
+{
+	/*assertions*/
+	assert(audio_ctx != NULL);
+
+	audio_ctx->samprate = samprate;
+}
+
+/*
+ * get the sample rate
+ * args:
+ *   audio_ctx - pointer to audio context data
+ *
+ * asserts:
+ *   audio_ctx is not null
+ *
+ * returns: sample rate
+ */
+int audio_get_samprate(audio_context_t *audio_ctx)
+{
+	/*assertions*/
+	assert(audio_ctx != NULL);
+
+	return audio_ctx->samprate;
+}
+
+/*
+ * set the capture buffer size
+ * args:
+ *   audio_ctx - pointer to audio context data
+ *   size - capture buffer size in bytes
+ *
+ * asserts:
+ *   audio_ctx is not null
+ *
+ * returns: none
+ */
+void audio_set_cap_buffer_size(audio_context_t *audio_ctx, int size)
+{
+	/*assertions*/
+	assert(audio_ctx != NULL);
+	
+	audio_ctx->capture_buff_size = size;
 }
 
 /*
@@ -615,6 +828,11 @@ void audio_close(audio_context_t *audio_ctx)
 	assert(audio_ctx != NULL);
 
 	audio_fx_close();
+	
+	/*make sure we unlock the mutex*/
+	audio_unlock_mutex(audio_ctx);
+	/*destroy the mutex*/
+	__CLOSE_MUTEX(audio_ctx->mutex);
 
 	switch(audio_ctx->api)
 	{

@@ -60,7 +60,7 @@
 #define GETTEXT_PACKAGE_V4L2CORE "gview_v4l2core"
 #endif
 
-#define __PMUTEX &(vd->mutex)
+#define __PMUTEX vd->mutex
 
 /*verbosity (global scope)*/
 int verbosity = 0;

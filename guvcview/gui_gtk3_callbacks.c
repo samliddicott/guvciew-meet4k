@@ -1512,34 +1512,41 @@ void audio_device_changed(GtkComboBox *combo, void *data)
 
 	if(index < 0)
 		index = 0;
-	else if (index >= audio_ctx->num_input_dev)
-		index = audio_ctx->num_input_dev - 1;
+	else if (index >= audio_get_num_inp_devices(audio_ctx))
+		index = audio_get_num_inp_devices(audio_ctx) - 1;
 	
 	/*update config*/
 	config_t *my_config = config_get();
 	my_config->audio_device = index;
 	
 	/*set the audio device defaults*/
-	audio_set_device(audio_ctx, my_config->audio_device);
+	audio_set_device_index(audio_ctx, my_config->audio_device);
 
 	if(debug_level > 0)
-		printf("GUVCVIEW: audio device changed to %i\n", audio_ctx->device);
+		printf("GUVCVIEW: audio device changed to %i\n", 
+			audio_get_device_index(audio_ctx));
 
 	index = gtk_combo_box_get_active(GTK_COMBO_BOX(my_audio_widgets->channels));
 
 	if(index == 0)
 	{
-		audio_ctx->channels = audio_ctx->list_devices[audio_ctx->device].channels;
-		if(audio_ctx->channels > 2)
-			audio_ctx->channels = 2;/*limit it to stereo input*/
+		int channels = audio_get_device(audio_ctx, 
+			audio_get_device_index(audio_ctx))->channels;
+		audio_set_channels(audio_ctx, channels);
+		if(audio_get_channels(audio_ctx) > 2)
+			audio_set_channels(audio_ctx, 2);/*limit it to stereo input*/
 	}
 
 	index = gtk_combo_box_get_active(GTK_COMBO_BOX(my_audio_widgets->samprate));
 
 	if(index == 0)
-		audio_ctx->samprate = audio_ctx->list_devices[audio_ctx->device].samprate;
-		
-	gtk_range_set_value(GTK_RANGE(my_audio_widgets->latency), audio_ctx->latency);
+	{
+		int samprate = audio_get_device(audio_ctx, 
+			audio_get_device_index(audio_ctx))->samprate;
+		audio_set_samprate(audio_ctx, samprate);
+	}	
+	gtk_range_set_value(GTK_RANGE(my_audio_widgets->latency), 
+		audio_get_latency(audio_ctx));
 }
 
 /*
@@ -1560,54 +1567,59 @@ void audio_samplerate_changed(GtkComboBox *combo, void *data)
 	/*update the audio context for the new api*/
 	audio_context_t *audio_ctx = get_audio_context();
 
+	int samprate = 44100;
+
 	switch(index)
 	{
 		case 0:
-			audio_ctx->samprate = audio_ctx->list_devices[audio_ctx->device].samprate;
+			samprate = audio_get_device(audio_ctx, 
+				audio_get_device_index(audio_ctx))->samprate;
 			break;
 		case 1:
-			audio_ctx->samprate = 7350;
+			samprate =  7350;
 			break;
 		case 2:
-			audio_ctx->samprate = 8000;
+			samprate = 8000;
 			break;
 		case 3:
-			audio_ctx->samprate = 11025;
+			samprate = 11025;
 			break;
 		case 4:
-			audio_ctx->samprate = 12000;
+			samprate = 12000;
 			break;
 		case 5:
-			audio_ctx->samprate = 16000;
+			samprate = 16000;
 			break;
 		case 6:
-			audio_ctx->samprate = 22050;
+			samprate = 22050;
 			break;
 		case 7:
-			audio_ctx->samprate = 24000;
+			samprate = 24000;
 			break;
 		case 8:
-			audio_ctx->samprate = 32000;
+			samprate = 32000;
 			break;
 		case 9:
-			audio_ctx->samprate = 44100;
+			samprate = 44100;
 			break;
 		case 10:
-			audio_ctx->samprate = 48000;
+			samprate = 48000;
 			break;
 		case 11:
-			audio_ctx->samprate = 64000;
+			samprate = 64000;
 			break;
 		case 12:
-			audio_ctx->samprate = 88200;
+			samprate = 88200;
 			break;
 		case 13:
-			audio_ctx->samprate = 96000;
+			samprate = 96000;
 			break;
 		default:
-			audio_ctx->samprate = 44100;
+			samprate = 44100;
 			break;
 	}
+
+	audio_set_samprate(audio_ctx, samprate);
 }
 
 /*
@@ -1633,10 +1645,11 @@ void audio_channels_changed(GtkComboBox *combo, void *data)
 	switch(index)
 	{
 		case 0:
-			channels = audio_ctx->list_devices[audio_ctx->device].channels;
+			channels = audio_get_device(audio_ctx, 
+				audio_get_device_index(audio_ctx))->channels;
 			break;
 		case 1:
-			channels =  1;
+			channels = 1;
 			break;
 		default:
 		case 2:
@@ -1644,11 +1657,15 @@ void audio_channels_changed(GtkComboBox *combo, void *data)
 			break;
 	}
 
-	if(channels > audio_ctx->list_devices[audio_ctx->device].channels)
-		audio_ctx->channels = audio_ctx->list_devices[audio_ctx->device].channels;
+	if(channels > audio_get_device(audio_ctx,
+				audio_get_device_index(audio_ctx))->channels)
+		channels = audio_get_device(audio_ctx,
+				audio_get_device_index(audio_ctx))->channels;
 
-	if(audio_ctx->channels > 2)
-		audio_ctx->channels = 2; /*limit to stereo*/
+	if(channels > 2)
+		channels = 2; /*limit to stereo*/
+
+	audio_set_channels(audio_ctx, channels);
 }
 
 /*
@@ -1709,14 +1726,15 @@ void audio_api_changed(GtkComboBox *combo, void *data)
 		gtk_list_store_clear(store);
 
 		int i = 0;
-		for(i = 0; i < audio_ctx->num_input_dev; ++i)
+		for(i = 0; i < audio_get_num_inp_devices(audio_ctx); ++i)
 		{
 			gtk_combo_box_text_append_text(
 				GTK_COMBO_BOX_TEXT(my_audio_widgets->device),
-				audio_ctx->list_devices[i].description);
+				audio_get_device(audio_ctx, i)->description);
 		}
 
-		gtk_combo_box_set_active(GTK_COMBO_BOX(my_audio_widgets->device), audio_ctx->device);
+		gtk_combo_box_set_active(GTK_COMBO_BOX(my_audio_widgets->device), 
+			audio_get_device_index(audio_ctx));
 
 		g_signal_handlers_unblock_by_func(
 			GTK_COMBO_BOX_TEXT(my_audio_widgets->device),
@@ -1732,15 +1750,24 @@ void audio_api_changed(GtkComboBox *combo, void *data)
 		int index = gtk_combo_box_get_active(GTK_COMBO_BOX(my_audio_widgets->channels));
 
 		if(index == 0) /*auto*/
-			audio_ctx->channels = audio_ctx->list_devices[audio_ctx->device].channels;
+		{
+			int channels = audio_get_device(audio_ctx, 
+				audio_get_device_index(audio_ctx))->channels;
+			audio_set_channels(audio_ctx, channels);
+		}
 
 		/*update samprate*/
 		index = gtk_combo_box_get_active(GTK_COMBO_BOX(my_audio_widgets->samprate));
 
 		if(index == 0) /*auto*/
-			audio_ctx->samprate = audio_ctx->list_devices[audio_ctx->device].samprate;
-		
-		gtk_range_set_value(GTK_RANGE(my_audio_widgets->latency), audio_ctx->latency);	
+		{
+			int samprate = audio_get_device(audio_ctx, 
+				audio_get_device_index(audio_ctx))->samprate;
+			audio_set_samprate(audio_ctx, samprate);
+		}
+
+		gtk_range_set_value(GTK_RANGE(my_audio_widgets->latency), 
+			audio_get_latency(audio_ctx));	
 	}
 
 }
@@ -1762,7 +1789,7 @@ void audio_latency_changed(GtkRange *range, void *data)
 	audio_context_t *audio_ctx = get_audio_context();
 
 	if(audio_ctx != NULL)
-		audio_ctx->latency = (double) gtk_range_get_value (range);
+		audio_set_latency(audio_ctx, (double) gtk_range_get_value (range));
 }
 
 /*

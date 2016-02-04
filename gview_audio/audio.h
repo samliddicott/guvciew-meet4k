@@ -31,6 +31,34 @@
 
 #include "gviewaudio.h"
 
+struct _audio_context_t
+{
+	int api;                      /*audio api for this context*/
+	int num_input_dev;            /*number of audio input devices in list*/
+	audio_device_t *list_devices; /*audio input devices list*/
+	int device;                   /*current device list index*/
+	int channels;                 /*channels*/
+	int samprate;                 /*sample rate*/
+	double latency;               /*current sugested latency*/
+
+	/*all ts are monotonic based: both real and generated*/
+	int64_t current_ts;           /*current buffer generated timestamp*/
+	int64_t last_ts;              /*last real timestamp (in nanosec)*/
+	int64_t snd_begintime;        /*sound capture start ref time*/
+	int64_t ts_drift;             /*drift between real and generated ts*/
+
+	sample_t *capture_buff;       /*pointer to capture data*/
+	int capture_buff_size;        /*capture buffer size (bytes)*/
+	float capture_buff_level[2];  /*capture buffer channels level*/
+
+	void *stream;                 /*pointer to audio stream (portaudio)*/
+
+	int stream_flag;              /*stream flag*/
+	
+	pthread_mutex_t* mutex;       /*audio mutex*/
+
+};
+
 /*
  * fill a audio buffer data and move write index to next one
  * args:

@@ -118,7 +118,7 @@ int gui_attach_gtk3_audioctrls(GtkWidget *parent)
 
 	int api = AUDIO_NONE;
 	if(audio_ctx != NULL)
-		api = audio_ctx->api;
+		api = audio_get_api(audio_ctx);
 
 	gtk_combo_box_set_active(GTK_COMBO_BOX(my_audio_widgets.api), api);
 
@@ -149,15 +149,15 @@ int gui_attach_gtk3_audioctrls(GtkWidget *parent)
 	if(audio_ctx != NULL)
 	{
 		int i = 0;
-		for(i = 0; i < audio_ctx->num_input_dev; ++i)
+		for(i = 0; i < audio_get_num_inp_devices(audio_ctx); ++i)
 		{
 			gtk_combo_box_text_append_text(
 				GTK_COMBO_BOX_TEXT(my_audio_widgets.device),
-				audio_ctx->list_devices[i].description);
+				audio_get_device(audio_ctx,i)->description);
 		}
 
 		gtk_widget_set_sensitive (my_audio_widgets.device, TRUE);
-		gtk_combo_box_set_active(GTK_COMBO_BOX(my_audio_widgets.device), audio_ctx->device);
+		gtk_combo_box_set_active(GTK_COMBO_BOX(my_audio_widgets.device), audio_get_device_index(audio_ctx));
 	}
 	else
 		gtk_widget_set_sensitive (my_audio_widgets.device, FALSE);
@@ -268,7 +268,7 @@ int gui_attach_gtk3_audioctrls(GtkWidget *parent)
 	
 	double latency = 0.0;
 	if(audio_ctx != NULL)
-		latency = audio_ctx->latency;
+		latency = audio_get_latency(audio_ctx);
 	
 	if(debug_level > 2)
 		printf("GUVCVIEW: audio latency is set to %f\n", latency);

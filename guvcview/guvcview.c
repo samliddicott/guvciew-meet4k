@@ -320,7 +320,7 @@ int main(int argc, char *argv[])
 	audio_context_t *audio_ctx = create_audio_context(audio, my_config->audio_device);
 
 	if(audio_ctx != NULL)
-		my_config->audio_device = audio_ctx->device;
+		my_config->audio_device = audio_get_device_index(audio_ctx);
 	else
 		fprintf(stderr, "GUVCVIEW: couldn't get a valid audio context for the selected api - disabling audio\n");
 	

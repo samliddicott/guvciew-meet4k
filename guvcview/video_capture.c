@@ -645,8 +645,8 @@ audio_context_t *get_audio_context()
 		return NULL;
 
 	/*force a valid number of channels*/
-	if(my_audio_ctx->channels > 2)
-		my_audio_ctx->channels = 2;
+	if(audio_get_channels(my_audio_ctx) > 2)
+		audio_set_channels(my_audio_ctx, 2);
 
 	return my_audio_ctx;
 }
@@ -698,7 +698,8 @@ static void *audio_processing_loop(void *data)
 	/*start audio capture*/
 	int frame_size = encoder_get_audio_frame_size(encoder_ctx);
 
-	audio_ctx->capture_buff_size = frame_size * audio_ctx->channels;
+	audio_set_cap_buffer_size(audio_ctx, 
+		frame_size * audio_get_channels(audio_ctx));
 	audio_start(audio_ctx);
 	/*
 	 * alloc the buffer after audio_start
@@ -714,7 +715,7 @@ static void *audio_processing_loop(void *data)
 	uint32_t osd_mask = render_get_osd_mask();
 
 	/*enable vu meter OSD display*/
-	if(audio_ctx->channels > 1)
+	if(audio_get_channels(audio_ctx) > 1)
 		osd_mask |= REND_OSD_VUMETER_STEREO;
 	else
 		osd_mask |= REND_OSD_VUMETER_MONO;
@@ -797,8 +798,8 @@ static void *encoder_loop(void *data)
 
 	if(audio_ctx)
 	{
-		channels = audio_ctx->channels;
-		samprate = audio_ctx->samprate;
+		channels = audio_get_channels(audio_ctx);
+		samprate = audio_get_samprate(audio_ctx);
 	}
 
 	if(debug_level > 0)
@@ -889,7 +890,7 @@ static void *encoder_loop(void *data)
 	int64_t last_check_pts = 0; /*last pts when disk supervisor called*/
 
 	/*start audio processing thread*/
-	if(encoder_ctx->enc_audio_ctx != NULL && audio_ctx->channels > 0)
+	if(encoder_ctx->enc_audio_ctx != NULL && audio_get_channels(audio_ctx) > 0)
 	{
 		if(debug_level > 1)
 			printf("GUVCVIEW: starting encoder audio thread\n");
@@ -936,7 +937,7 @@ static void *encoder_loop(void *data)
 	encoder_flush_video_buffer(encoder_ctx);
 
 	/*make sure the audio processing thread has stopped*/
-	if(encoder_ctx->enc_audio_ctx != NULL && audio_ctx->channels > 0)
+	if(encoder_ctx->enc_audio_ctx != NULL && audio_get_channels(audio_ctx) > 0)
 	{
 		if(debug_level > 1)
 			printf("GUVCVIEW: join encoder audio thread\n");

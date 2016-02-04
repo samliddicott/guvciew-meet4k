@@ -34,6 +34,7 @@
 
 #include "../config.h"
 #include "gviewaudio.h"
+#include "audio.h"
 #include "gview.h"
 
 #ifndef M_PI

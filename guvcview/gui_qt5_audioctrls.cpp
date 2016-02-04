@@ -95,7 +95,7 @@ int MainWindow::gui_attach_qt5_audioctrls(QWidget *parent)
 
 	int api = AUDIO_NONE;
 	if(audio_ctx != NULL)
-		api = audio_ctx->api;
+		api = audio_get_api(audio_ctx);
 
 	combobox_audio_api->setCurrentIndex(api);
 
@@ -118,10 +118,10 @@ int MainWindow::gui_attach_qt5_audioctrls(QWidget *parent)
 	if(audio_ctx != NULL)
 	{
 		int i = 0;
-		for(i = 0; i < audio_ctx->num_input_dev; ++i)
-			combobox_audio_devices->addItem(audio_ctx->list_devices[i].description, i);
+		for(i = 0; i < audio_get_num_inp_devices(audio_ctx); ++i)
+			combobox_audio_devices->addItem(audio_get_device(audio_ctx, i)->description, i);
 
-		combobox_audio_devices->setCurrentIndex(audio_ctx->device);
+		combobox_audio_devices->setCurrentIndex(audio_get_device_index(audio_ctx));
 
 	}
 	else
@@ -215,7 +215,7 @@ int MainWindow::gui_attach_qt5_audioctrls(QWidget *parent)
 	
 	double latency = 0.0;
 	if(audio_ctx != NULL)
-		latency = audio_ctx->latency;
+		latency = audio_get_latency(audio_ctx);
 	
 	if(debug_level > 2)
 		std::cout << "GUVCVIEW (Qt5): audio latency is set to " 
