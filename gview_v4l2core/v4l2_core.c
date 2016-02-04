@@ -59,9 +59,8 @@
 #ifndef GETTEXT_PACKAGE_V4L2CORE
 #define GETTEXT_PACKAGE_V4L2CORE "gview_v4l2core"
 #endif
-/*video device data mutex*/
-static __MUTEX_TYPE mutex = __STATIC_MUTEX_INIT;
-#define __PMUTEX &mutex
+
+#define __PMUTEX &(vd->mutex)
 
 /*verbosity (global scope)*/
 int verbosity = 0;
@@ -1751,6 +1750,9 @@ v4l2_dev_t* v4l2core_init_dev(const char *device)
 	v4l2_dev_t* vd = calloc(1, sizeof(v4l2_dev_t));
 
 	assert(vd != NULL);
+	
+	/*init the device mutex*/
+	__INIT_MUTEX(__PMUTEX);
 
 	/*MMAP by default*/
 	vd->cap_meth = IO_MMAP;
@@ -2086,6 +2088,11 @@ void v4l2core_close_dev(v4l2_dev_t *vd)
 {
 	if(vd == NULL)
 		return;
+		
+	/*make sure the mutex is unlocked*/
+	__UNLOCK_MUTEX(__PMUTEX);
+	/*destroy the device mutex*/
+	__CLOSE_MUTEX(__PMUTEX);
 
 	v4l2core_clean_buffers(vd);
 	clean_v4l2_dev(vd);
