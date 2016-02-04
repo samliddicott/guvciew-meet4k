@@ -211,7 +211,6 @@ MainWindow::MainWindow()
 	statusbar = statusBar();
 	statusbar->show();
 
-
 	timer_check_device = new QTimer(this);
     connect(timer_check_device, SIGNAL(timeout()), 
 		this, SLOT(check_device_events()));

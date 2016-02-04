@@ -51,11 +51,11 @@ public:
     MainWindow();
     ~MainWindow();
 	std::vector<ControlWidgets *> control_widgets_list;
-	void set_statusbar_message(const char *message);
 
 public slots:
 	void capture_video_clicked();
 	void capture_image_clicked();
+	void set_statusbar_message(const char *message);
 
 protected:
    void closeEvent(QCloseEvent *event);
@@ -210,7 +210,6 @@ private:
 	QCheckBox *StreamMuxOption;
 	QComboBox *StreamMuxOption_aux;
 	QCheckBox *StreamMuxOption_mjpgcontainer;
-
 };
 
 #endif
