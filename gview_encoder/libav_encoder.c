@@ -63,6 +63,10 @@ void prepare_video_frame(encoder_codec_data_t *video_codec_data, uint8_t *inp, i
 
 	int size = width * height;
 
+	video_codec_data->frame->format = AV_PIX_FMT_YUV420P;
+	video_codec_data->frame->width = width;
+	video_codec_data->frame->height = height;
+	
 	video_codec_data->frame->data[0] = inp; //Y
 	video_codec_data->frame->data[1] = inp + size; //U
 	video_codec_data->frame->data[2] = video_codec_data->frame->data[1] + size/4; //V
