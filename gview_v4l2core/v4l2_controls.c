@@ -33,6 +33,7 @@
 #include <libintl.h>
 
 #include "gviewv4l2core.h"
+#include "v4l2_devices.h"
 #include "v4l2_controls.h"
 #include "v4l2_xu_ctrls.h"
 #include "../config.h"
@@ -275,8 +276,7 @@ static void print_control_list(v4l2_dev_t *vd)
  *   vd - pointer to video device data
  *
  * asserts:
- *   vd is not null
- *   device_list->list_devices is not null
+ *   none
  *
  * returns: unit id or 0 if none
  */

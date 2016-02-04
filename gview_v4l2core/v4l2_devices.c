@@ -38,18 +38,61 @@ extern int verbosity;
 static v4l2_device_list_t my_device_list;
 
 /*
- * get the device list data
+ * get the device list
  * args:
  *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: pointer to statically allocated device list
+ */
+v4l2_device_list_t* get_device_list()
+{
+	return &my_device_list;
+}
+
+/*
+ * get the number of available v4l2 devices
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: number of available v4l2 devices
+ */
+int v4l2core_get_num_devices()
+{
+	return my_device_list.num_devices;
+}
+
+/*
+ * get the device sys data for index
+ * args:
+ *   index - device index
  * 
  * asserts:
  *   none
  * 
- * returns: pointer to device list data
+ * returns: pointer to device sys data
  */
-v4l2_device_list_t* v4l2core_get_device_list()
+v4l2_dev_sys_data_t* v4l2core_get_device_sys_data(int index)
 {
-	return &my_device_list;
+	if(index >= v4l2core_get_num_devices())
+	{
+		fprintf(stderr, "V4L2_CORE: invalid device index %i using %i\n",
+			index, v4l2core_get_num_devices() - 1);
+		index = v4l2core_get_num_devices() - 1;
+	}
+
+	if(index < 0)
+	{
+		fprintf(stderr, "V4L2_CORE: invalid device index %i using 0\n", index);
+		index = 0;
+	}
+
+	return &(my_device_list.list_devices[index]);
 }
 
 /*

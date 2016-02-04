@@ -102,10 +102,8 @@ int MainWindow::gui_attach_qt5_videoctrls(QWidget *parent)
 	
 	combobox_video_devices = new QComboBox(video_controls_grid);
 	combobox_video_devices->show();
-	
-	v4l2_device_list_t *device_list = v4l2core_get_device_list();
 
-	if (device_list->num_devices < 1)
+	if (v4l2core_get_num_devices() < 1)
 	{
 		/*use current*/
 		combobox_video_devices->addItem(v4l2core_get_videodevice(get_v4l2_device_handler()), 0);
@@ -113,10 +111,10 @@ int MainWindow::gui_attach_qt5_videoctrls(QWidget *parent)
 	}
 	else
 	{
-		for(i = 0; i < (device_list->num_devices); i++)
+		for(i = 0; i < v4l2core_get_num_devices(); i++)
 		{
-			combobox_video_devices->addItem(device_list->list_devices[i].name, i);
-			if(device_list->list_devices[i].current)
+			combobox_video_devices->addItem(v4l2core_get_device_sys_data(i)->name, i);
+			if(v4l2core_get_device_sys_data(i)->current)
 				combobox_video_devices->setCurrentIndex(i);
 		}
 	}

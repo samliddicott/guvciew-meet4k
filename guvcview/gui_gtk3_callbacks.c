@@ -1124,8 +1124,6 @@ void devices_changed (GtkComboBox *wgtDevices, void *data)
 	if(index == v4l2core_get_this_device_index(get_v4l2_device_handler()))
 		return;
 
-	v4l2_device_list_t *device_list = v4l2core_get_device_list();
-
 	GtkWidget *restartdialog = gtk_dialog_new_with_buttons (_("start new"),
 		GTK_WINDOW(get_main_window_gtk3()),
 		GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
@@ -1146,7 +1144,7 @@ void devices_changed (GtkComboBox *wgtDevices, void *data)
 
 	/*check device index only after dialog response*/
 	char videodevice[30];
-	strncpy(videodevice, device_list->list_devices[index].device, 29);
+	strncpy(videodevice, v4l2core_get_device_sys_data(index)->device, 29);
 	gchar *command = g_strjoin("",
 		g_get_prgname(),
 		" --device=",
@@ -2445,13 +2443,12 @@ gboolean check_device_events(gpointer data)
 		GtkListStore *store = GTK_LIST_STORE(gtk_combo_box_get_model (GTK_COMBO_BOX(get_wgtDevices_gtk3())));
 		gtk_list_store_clear(store);
 
-		v4l2_device_list_t *device_list = v4l2core_get_device_list();
 		int i = 0;
-        for(i = 0; i < (device_list->num_devices); i++)
+        for(i = 0; i < v4l2core_get_num_devices(); i++)
 		{
 			gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(get_wgtDevices_gtk3()),
-				device_list->list_devices[i].name);
-			if(device_list->list_devices[i].current)
+				v4l2core_get_device_sys_data(i)->name);
+			if(v4l2core_get_device_sys_data(i)->current)
 				gtk_combo_box_set_active(GTK_COMBO_BOX(get_wgtDevices_gtk3()),i);
 		}
 

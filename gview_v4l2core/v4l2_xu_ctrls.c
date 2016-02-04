@@ -28,6 +28,7 @@
 #include <assert.h>
 
 #include "gview.h"
+#include "v4l2_devices.h"
 #include "v4l2_xu_ctrls.h"
 
 extern int verbosity;
@@ -202,7 +203,7 @@ static struct uvc_xu_control_mapping xu_mappings[] =
  */
 uint8_t get_guid_unit_id (v4l2_dev_t *vd, uint8_t *guid)
 {
-	v4l2_device_list_t *my_device_list = v4l2core_get_device_list(vd);
+	v4l2_device_list_t *my_device_list = get_device_list();
 
 	/*asserts*/
 	assert(vd != NULL);

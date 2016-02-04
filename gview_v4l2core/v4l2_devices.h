@@ -26,6 +26,18 @@
 #include "v4l2_core.h"
 
 /*
+ * v4l2 devices list data
+ */
+typedef struct _v4l2_device_list_t
+{
+	struct udev *udev;                  // pointer to a udev struct (lib udev)
+    struct udev_monitor *udev_mon;      // udev monitor
+    int udev_fd;                        // udev monitor file descriptor
+    v4l2_dev_sys_data_t* list_devices;  // list of available v4l2 devices
+    int num_devices;                    // number of available v4l2 devices
+} v4l2_device_list_t;
+
+/*
  * Initiate the device list (with udev monitoring)
  * args:
  *   none
@@ -36,6 +48,18 @@
  * returns: none
  */
 void v4l2core_init_device_list();
+
+/*
+ * get the device list
+ * args:
+ *   none
+ *
+ * asserts:
+ *   none
+ *
+ * returns: pointer to statically allocated device list
+ */
+v4l2_device_list_t* get_device_list();
 
 /*
  * free v4l2 devices list

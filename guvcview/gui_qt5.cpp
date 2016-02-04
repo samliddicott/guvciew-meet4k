@@ -291,12 +291,11 @@ void gui_error_qt5(
 	}
 
 	/*fatal error message*/
-	
-	v4l2_device_list_t *device_list = v4l2core_get_device_list();
-	/*add device list (more than one device)*/
-	int show_dev_list = (device_list->num_devices >= 1) ? 1: 0;
 
-	std::cerr << "GUVCVIEW (Qt5): fatal error (" << device_list->num_devices << " devices detected)" << std::endl;
+	/*add device list (more than one device)*/
+	int show_dev_list = (v4l2core_get_num_devices() >= 1) ? 1: 0;
+
+	std::cerr << "GUVCVIEW (Qt5): fatal error (" << v4l2core_get_num_devices() << " devices detected)" << std::endl;
 	
 	if(show_dev_list)
 	{
@@ -304,9 +303,9 @@ void gui_error_qt5(
 		
 		QStringList items;
 		int i = 0;
-		for(i = 0; i < (device_list->num_devices); i++)
+		for(i = 0; i < v4l2core_get_num_devices(); i++)
 		{
-			items << device_list->list_devices[i].name;
+			items << v4l2core_get_device_sys_data(i)->name;
 		}
 		bool ok;
 		
@@ -314,7 +313,7 @@ void gui_error_qt5(
 		dialog_text.append(_("\nYou seem to have video devices installed.\n"
 							 "Do you want to try one ?\n"));
 		QString item = QInputDialog::getItem(mainWin, gettext(title), dialog_text, 
-			items, device_list->num_devices - 1, 
+			items, v4l2core_get_num_devices() - 1, 
 			false, &ok);
 			
 		if (ok && !item.isEmpty())
@@ -329,7 +328,7 @@ void gui_error_qt5(
 				i++;
 			}
 
-			dev_arg.append(device_list->list_devices[i].device);
+			dev_arg.append(v4l2core_get_device_sys_data(i)->device);
 			args << dev_arg;
 			QProcess process;
 			process.startDetached("guvcview", args);

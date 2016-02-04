@@ -882,8 +882,6 @@ void MainWindow::devices_changed (int index)
 {
 	if(index == v4l2core_get_this_device_index(get_v4l2_device_handler()))
 		return;
-
-	v4l2_device_list_t* device_list = v4l2core_get_device_list();
 	
 	QMessageBox msgBox;
 	msgBox.setIcon(QMessageBox::Question);
@@ -900,7 +898,7 @@ void MainWindow::devices_changed (int index)
 		QStringList args;
 		QString dev_arg = "--device=";
 		
-		dev_arg.append(device_list->list_devices[index].device);
+		dev_arg.append(v4l2core_get_device_sys_data(index)->device);
 		args << dev_arg;
 		
 		if(debug_level > 1)
@@ -919,7 +917,7 @@ void MainWindow::devices_changed (int index)
 		QStringList args;
 		QString dev_arg = "--device=";
 		
-		dev_arg.append(device_list->list_devices[index].device);
+		dev_arg.append(v4l2core_get_device_sys_data(index)->device);
 		args << dev_arg;
 		
 		if(debug_level > 1)
@@ -1817,12 +1815,11 @@ void MainWindow::check_device_events()
 		/* clear out the old device list... */
 		combobox_video_devices->clear();
 
-		v4l2_device_list_t* device_list = v4l2core_get_device_list();
 		int i = 0;
-        for(i = 0; i < (device_list->num_devices); i++)
+        for(i = 0; i < v4l2core_get_num_devices(); i++)
 		{
-			combobox_video_devices->addItem(device_list->list_devices[i].name, i);
-			if(device_list->list_devices[i].current)
+			combobox_video_devices->addItem(v4l2core_get_device_sys_data(i)->name, i);
+			if(v4l2core_get_device_sys_data(i)->current)
 				combobox_video_devices->setCurrentIndex(i);
 		}
 

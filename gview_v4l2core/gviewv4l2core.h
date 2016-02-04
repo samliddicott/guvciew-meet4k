@@ -281,18 +281,6 @@ typedef struct _v4l2_dev_sys_data_t
 	uint64_t devnum;
 } v4l2_dev_sys_data_t;
 
-/*
- * v4l2 devices list data
- */
-typedef struct _v4l2_device_list_t
-{
-	struct udev *udev;                  // pointer to a udev struct (lib udev)
-    struct udev_monitor *udev_mon;      // udev monitor
-    int udev_fd;                        // udev monitor file descriptor
-    v4l2_dev_sys_data_t* list_devices;  // list of available v4l2 devices
-    int num_devices;                    // number of available v4l2 devices
-} v4l2_device_list_t;
-
 /* v4l2 device handler - opaque data structure*/
 typedef struct _v4l2_dev_t v4l2_dev_t;
 
@@ -594,16 +582,28 @@ void v4l2core_set_pan_step(v4l2_dev_t *vd, int step);
 void v4l2core_set_tilt_step(v4l2_dev_t *vd, int step);
 
 /*
- * get the device list data
+ * get the number of available v4l2 devices
  * args:
  *   none
  *
  * asserts:
  *   none
  *
- * returns: pointer to device list data
+ * returns: number of available v4l2 devices
  */
-v4l2_device_list_t* v4l2core_get_device_list();
+int v4l2core_get_num_devices();
+
+/*
+ * get the device sys data for index
+ * args:
+ *   index - device index
+ * 
+ * asserts:
+ *   none
+ * 
+ * returns: pointer to device sys data
+ */
+v4l2_dev_sys_data_t* v4l2core_get_device_sys_data(int index);
 
 /*
  * get the device index in device list
