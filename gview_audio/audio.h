@@ -55,7 +55,7 @@ struct _audio_context_t
 
 	int stream_flag;              /*stream flag*/
 	
-	pthread_mutex_t* mutex;       /*audio mutex*/
+	pthread_mutex_t mutex;       /*audio mutex*/
 
 };
 

@@ -86,7 +86,7 @@ void audio_set_verbosity(int value)
  */
 void audio_lock_mutex(audio_context_t *audio_ctx)
 {
-	__LOCK_MUTEX(audio_ctx->mutex);
+	__LOCK_MUTEX(&(audio_ctx->mutex));
 }
 
 /*
@@ -101,7 +101,7 @@ void audio_lock_mutex(audio_context_t *audio_ctx)
  */
 void audio_unlock_mutex(audio_context_t *audio_ctx)
 {
-	__UNLOCK_MUTEX(audio_ctx->mutex);
+	__UNLOCK_MUTEX(&(audio_ctx->mutex));
 }
 
 /*
@@ -445,7 +445,7 @@ audio_context_t *audio_init(int api, int device)
 	}
 
 	/*initialize the mutex*/
-	__INIT_MUTEX(audio_ctx->mutex);
+	__INIT_MUTEX(&(audio_ctx->mutex));
 	
 	int ret = 0;
 
@@ -832,7 +832,7 @@ void audio_close(audio_context_t *audio_ctx)
 	/*make sure we unlock the mutex*/
 	audio_unlock_mutex(audio_ctx);
 	/*destroy the mutex*/
-	__CLOSE_MUTEX(audio_ctx->mutex);
+	__CLOSE_MUTEX(&(audio_ctx->mutex));
 
 	switch(audio_ctx->api)
 	{
