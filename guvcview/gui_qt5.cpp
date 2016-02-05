@@ -231,10 +231,10 @@ MainWindow::~MainWindow()
 	control_widgets_list.clear();
 }
 
-void MainWindow::set_statusbar_message(const char *message)
+void MainWindow::set_statusbar_message(QString message)
 {
 	//displays the message for 5 seconds
-	statusbar->showMessage(QString(message), 5000);
+	statusbar->showMessage(message, 5000);
 }
 
 /******************************* C wrapper functions ********************************/
@@ -453,7 +453,7 @@ void gui_status_message_qt5(const char *message)
 	{
 		QCoreApplication::postEvent(mainWin, new QEvent(QEvent::UpdateRequest),
                             Qt::LowEventPriority);
-		QMetaObject::invokeMethod(mainWin, "set_statusbar_message", Q_ARG(QString, message));
+		QMetaObject::invokeMethod(mainWin, "set_statusbar_message", Q_ARG(QString, QString(message)));
 
 		//mainWin->set_statusbar_message(message);
 	}

@@ -55,7 +55,7 @@ public:
 public slots:
 	void capture_video_clicked();
 	void capture_image_clicked();
-	void set_statusbar_message(const char *message);
+	void set_statusbar_message(QString message);
 
 protected:
    void closeEvent(QCloseEvent *event);
