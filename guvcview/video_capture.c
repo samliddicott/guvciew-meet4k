@@ -956,7 +956,7 @@ static void *encoder_loop(void *data)
 		v4l2core_set_h264_frame_rate_config(my_vd, current_framerate);
 	}
 
-	/*clean string*/
+	/*clean strings*/
 	free(video_filename);
 	free(path);
 	free(name);

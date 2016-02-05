@@ -450,7 +450,13 @@ void gui_close_qt5()
 void gui_status_message_qt5(const char *message)
 {
 	if(mainWin)
-		mainWin->set_statusbar_message(message);
+	{
+		QCoreApplication::postEvent(mainWin, new QEvent(QEvent::UpdateRequest),
+                            Qt::LowEventPriority);
+		QMetaObject::invokeMethod(mainWin, "set_statusbar_message", Q_ARG(QString, message));
+
+		//mainWin->set_statusbar_message(message);
+	}
 }
 
 /*
