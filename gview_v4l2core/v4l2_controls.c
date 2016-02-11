@@ -181,19 +181,18 @@ static void print_control(v4l2_ctrl_t *control, int i)
 				control->control.default_value, control->value);
 			break;
 
-#ifdef V4L2_CTRL_TYPE_INTEGER64
 		case V4L2_CTRL_TYPE_INTEGER64:
 			printf("control[%d]:(int64) 0x%x '%s'\n",i ,control->control.id, control->name);
-			printf ("\tcurr:%" PRIu64 "\n", control->value64);
+			printf ("\tcurr:%lld\n", control->value64);
 			break;
-#endif
-#ifdef V4L2_CTRL_TYPE_STRING
+
 		case V4L2_CTRL_TYPE_STRING:
 			printf("control[%d]:(str) 0x%x '%s'\n",i ,control->control.id, control->name);
-			printf ("\tmin:%d max:%d step:%d\n",
-				control->control.minimum, control->control.maximum, control->control.step);
+			printf ("\tmin:%d max:%d step:%d curr: %s\n",
+				control->control.minimum, control->control.maximum, 
+				control->control.step, control->string);
 			break;
-#endif
+
 		case V4L2_CTRL_TYPE_BOOLEAN:
 			printf("control[%d]:(bool) 0x%x '%s'\n",i ,control->control.id, control->name);
 			printf ("\tdef:%d curr:%d\n",
@@ -209,28 +208,27 @@ static void print_control(v4l2_ctrl_t *control, int i)
 				printf("\tmenu[%d]: [%d] -> '%s'\n", j, control->menu[j].index, control->menu_entry[j]);
 			break;
 
-#ifdef V4L2_CTRL_TYPE_INTEGER_MENU
 		case V4L2_CTRL_TYPE_INTEGER_MENU:
 			printf("control[%d]:(intmenu) 0x%x '%s'\n",i ,control->control.id, control->name);
 			printf("\tmin:%d max:%d def:%d curr:%d\n",
 				control->control.minimum, control->control.maximum,
 				control->control.default_value, control->value);
 			for (j = 0; control->menu[j].index <= control->control.maximum; j++)
-				printf("\tmenu[%d]: [%d] -> %" PRId64 " (0x%" PRIx64 ")", j, control->menu[j].index,
+				printf("\tmenu[%d]: [%d] -> %lld (0x%llx)\n", j, control->menu[j].index,
 					(int64_t) control->menu[j].value,
 					(int64_t) control->menu[j].value);
 			break;
-#endif
+
 		case V4L2_CTRL_TYPE_BUTTON:
 			printf("control[%d]:(button) 0x%x '%s'\n",i ,control->control.id, control->name);
 			break;
 
-#ifdef V4L2_CTRL_TYPE_BITMASK
 		case V4L2_CTRL_TYPE_BITMASK:
 			printf("control[%d]:(bitmask) 0x%x '%s'\n",i ,control->control.id, control->name);
-			printf("\tmax:%d def:%d curr:%d\n",
-				control->control.maximum, control->control.default_value, control->value);
-#endif
+			printf("\tmin:%x max:%x def:%x curr:%x\n",
+				control->control.minimum, control->control.maximum, 
+				control->control.default_value, control->value);
+
 		default:
 			printf("control[%d]:(unknown - 0x%x) 0x%x '%s'\n",i ,control->control.type,
 				control->control.id, control->control.name);
@@ -369,10 +367,7 @@ static v4l2_ctrl_t *add_control(v4l2_dev_t *vd, struct v4l2_queryctrl* queryctrl
 
 	//check menu items if needed
     if(queryctrl->type == V4L2_CTRL_TYPE_MENU
-#ifdef V4L2_CTRL_TYPE_INTEGER_MENU
-		|| queryctrl->type == V4L2_CTRL_TYPE_INTEGER_MENU
-#endif
-		)
+		|| queryctrl->type == V4L2_CTRL_TYPE_INTEGER_MENU )
     {
         int i = 0;
         struct v4l2_querymenu querymenu={0};
@@ -475,7 +470,6 @@ static v4l2_ctrl_t *add_control(v4l2_dev_t *vd, struct v4l2_queryctrl* queryctrl
 		control->menu_entries = 0;
 		control->menu_entry = NULL;
 	}
-#ifdef V4L2_CTRL_TYPE_STRING
     //allocate a string with max size if needed
     if(control->control.type == V4L2_CTRL_TYPE_STRING)
     {
@@ -487,7 +481,6 @@ static v4l2_ctrl_t *add_control(v4l2_dev_t *vd, struct v4l2_queryctrl* queryctrl
 		}
     }
     else
-#endif
         control->string = NULL;
 
     if(*first != NULL)
@@ -879,19 +872,17 @@ void get_v4l2_control_values (v4l2_dev_t *vd)
              continue;
 
         clist[count].id = current->control.id;
-#ifdef V4L2_CTRL_TYPE_STRING
         clist[count].size = 0;
         if(current->control.type == V4L2_CTRL_TYPE_STRING)
         {
-            clist[count].size = current->control.maximum;
-            clist[count].string = (char *) calloc(clist[count].size + 1,  sizeof(char));
+            clist[count].size = current->control.maximum + 1;
+            clist[count].string = (char *) calloc(clist[count].size,  sizeof(char));
             if(clist[count].string == NULL)
 			{
 				fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (get_v4l2_control_values): %s\n", strerror(errno));
 				exit(-1);
 			}
         }
-#endif
         count++;
 
         if((current->next == NULL) || (current->next->cclass != current->cclass))
@@ -907,13 +898,8 @@ void get_v4l2_control_values (v4l2_dev_t *vd)
                 struct v4l2_control ctrl;
                 /*get the controls one by one*/
                 if( current->cclass == V4L2_CTRL_CLASS_USER
-#ifdef V4L2_CTRL_TYPE_STRING
 					&& current->control.type != V4L2_CTRL_TYPE_STRING
-#endif
-#ifdef V4L2_CTRL_TYPE_INTEGER64
-					&& current->control.type != V4L2_CTRL_TYPE_INTEGER64
-#endif
-				  )
+					&& current->control.type != V4L2_CTRL_TYPE_INTEGER64)
                 {
                     fprintf(stderr, "V4L2_CORE: using VIDIOC_G_CTRL for user class controls\n");
                     for(i=0; i < count; i++)
@@ -953,20 +939,20 @@ void get_v4l2_control_values (v4l2_dev_t *vd)
                 }
                 switch(ctrl->control.type)
                 {
-#ifdef V4L2_CTRL_TYPE_STRING
+
                     case V4L2_CTRL_TYPE_STRING:
                     {
                         /*
                          * string gets set on VIDIOC_G_EXT_CTRLS
                          * add the maximum size to value
                          */
-                        unsigned len = clist[i].size;
+                        unsigned len = strlen(clist[i].string);
 						unsigned max_len = ctrl->control.maximum;
 
-						strncpy(ctrl->string, clist[i].string, max_len);
+						strncpy(ctrl->string, clist[i].string, max_len + 1);
 						if(len > max_len)
 						{
-							ctrl->string[max_len] = 0; //Null terminated
+							ctrl->string[max_len + 1] = 0; //Null terminated
 							fprintf(stderr, "V4L2_CORE: control (0x%08x) returned string size of %d when max is %d\n",
 								ctrl->control.id, len, max_len);
 						}
@@ -976,7 +962,6 @@ void get_v4l2_control_values (v4l2_dev_t *vd)
 						clist[i].string = NULL;
                         break;
                     }
-#endif
                     case V4L2_CTRL_TYPE_INTEGER64:
                         ctrl->value64 = clist[i].value64;
                         break;
@@ -1052,13 +1037,8 @@ int get_control_value_by_id (v4l2_dev_t *vd, int id)
         return (-1);
 
     if( control->cclass == V4L2_CTRL_CLASS_USER
-#ifdef V4L2_CTRL_TYPE_STRING
 		&& control->control.type != V4L2_CTRL_TYPE_STRING
-#endif
-#ifdef V4L2_CTRL_TYPE_INTEGER64
-		&& control->control.type != V4L2_CTRL_TYPE_INTEGER64
-#endif
-        )
+		&& control->control.type != V4L2_CTRL_TYPE_INTEGER64)
     {
         struct v4l2_control ctrl;
         ctrl.id = control->control.id;
@@ -1075,19 +1055,17 @@ int get_control_value_by_id (v4l2_dev_t *vd, int id)
         struct v4l2_ext_controls ctrls = {0};
         struct v4l2_ext_control ctrl = {0};
         ctrl.id = control->control.id;
-#ifdef V4L2_CTRL_TYPE_STRING
         ctrl.size = 0;
         if(control->control.type == V4L2_CTRL_TYPE_STRING)
         {
-            ctrl.size = control->control.maximum;
-            ctrl.string = (char *) calloc(ctrl.size + 1, sizeof(char));
+            ctrl.size = control->control.maximum + 1;
+            ctrl.string = (char *) calloc(ctrl.size, sizeof(char));
             if(ctrl.string == NULL)
 			{
 				fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (v4l2core_get_control_value_by_id): %s\n", strerror(errno));
 				exit(-1);
 			}
         }
-#endif
         ctrls.ctrl_class = control->cclass;
         ctrls.count = 1;
         ctrls.controls = &ctrl;
@@ -1099,21 +1077,9 @@ int get_control_value_by_id (v4l2_dev_t *vd, int id)
         {
             switch(control->control.type)
             {
-#ifdef V4L2_CTRL_TYPE_STRING
                 case V4L2_CTRL_TYPE_STRING:
 				{
-					unsigned len = ctrl.size;
-					unsigned max_len = control->control.maximum;
-
-					strncpy(control->string, ctrl.string, max_len);
-					if(len > max_len)
-					{
-						control->value = max_len;
-						control->string[max_len] = 0; //Null terminated
-						fprintf(stderr, "V4L2_CORE: control (0x%08x) returned string size of %d when max is %d\n",
-							control->control.id, len, max_len);
-					}
-
+					strncpy(control->string, ctrl.string, ctrl.size);
 
 					//clean up
 					free(ctrl.string);
@@ -1121,12 +1087,9 @@ int get_control_value_by_id (v4l2_dev_t *vd, int id)
 
 					break;
 				}
-#endif
-#ifdef V4L2_CTRL_TYPE_INTEGER64
                 case V4L2_CTRL_TYPE_INTEGER64:
                     control->value64 = ctrl.value64;
                     break;
-#endif
 
                 default:
                     control->value = ctrl.value;
@@ -1183,7 +1146,6 @@ void set_v4l2_control_values (v4l2_dev_t *vd)
         clist[count].id = current->control.id;
         switch (current->control.type)
         {
-#ifdef V4L2_CTRL_TYPE_STRING
             case V4L2_CTRL_TYPE_STRING:
             {
 				unsigned len = strlen(current->string);
@@ -1191,26 +1153,25 @@ void set_v4l2_control_values (v4l2_dev_t *vd)
 
 				if(len > max_len)
 				{
-					clist[count].size = max_len;
-					clist[count].string = (char *) calloc(max_len, sizeof(char));
+					clist[count].size = max_len + 1;
+					clist[count].string = (char *) calloc(max_len + 1, sizeof(char));
 					if(clist[count].string == NULL)
 					{
 						fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (set_v4l2_control_values): %s\n", strerror(errno));
 						exit(-1);
 					}
 					clist[count].string = strncpy(clist[count].string, current->string, max_len);
-					clist[count].string[max_len - 1] = '/0'; /*NULL terminated*/
+					clist[count].string[max_len + 1] = 0; /*NULL terminated*/
 					fprintf(stderr, "V4L2_CORE: control (0x%08x) trying to set string size of %d when max is %d (clip)\n",
 						current->control.id, len, max_len);
 				}
 				else
 				{
-					clist[count].size = len;
+					clist[count].size = len + 1;
 					clist[count].string = (char *) strdup(current->string);
 				}
                 break;
             }
-#endif
             case V4L2_CTRL_TYPE_INTEGER64:
                 clist[count].value64 = current->value64;
                 break;
@@ -1235,13 +1196,8 @@ void set_v4l2_control_values (v4l2_dev_t *vd)
                 struct v4l2_control ctrl;
                 /*set the controls one by one*/
                 if( current->cclass == V4L2_CTRL_CLASS_USER
-#ifdef V4L2_CTRL_TYPE_STRING
 					&& current->control.type != V4L2_CTRL_TYPE_STRING
-#endif
-#ifdef V4L2_CTRL_TYPE_INTEGER64
-					&& current->control.type != V4L2_CTRL_TYPE_INTEGER64
-#endif
-                )
+					&& current->control.type != V4L2_CTRL_TYPE_INTEGER64)
                 {
                     fprintf(stderr, "V4L2_CORE: using VIDIOC_S_CTRL for user class controls\n");
                     for(i=0;i < count; i++)
@@ -1282,13 +1238,11 @@ void set_v4l2_control_values (v4l2_dev_t *vd)
 								fprintf(stderr, "V4L2_CORE: control(0x%08x) failed to set (error %i)\n",
                                     clist[i].id, ret);
                         }
-#ifdef V4L2_CTRL_TYPE_STRING
                         if(ctrl && ctrl->control.type == V4L2_CTRL_TYPE_STRING)
                         {
 							free(clist[i].string); //free allocated string
 							clist[i].string = NULL;
 						}
-#endif
                     }
                 }
             }
@@ -1334,14 +1288,10 @@ void set_control_defaults(v4l2_dev_t *vd)
 
         switch (current->control.type)
         {
-#ifdef V4L2_CTRL_TYPE_STRING
             case V4L2_CTRL_TYPE_STRING: /* do string controls have a default value?*/
                 break;
-#endif
-#ifdef V4L2_CTRL_TYPE_INTEGER64
             case V4L2_CTRL_TYPE_INTEGER64: /* do int64 controls have a default value?*/
                 break;
-#endif
             default:
                 /*if its one of the special auto controls disable it first*/
                 disable_special_auto (vd, current->control.id);
@@ -1399,9 +1349,7 @@ int set_control_value_by_id(v4l2_dev_t *vd, int id)
 
 
     if( control->cclass == V4L2_CTRL_CLASS_USER
-#ifdef V4L2_CTRL_TYPE_STRING
     && control->control.type != V4L2_CTRL_TYPE_STRING
-#endif
     && control->control.type != V4L2_CTRL_TYPE_INTEGER64)
     {
         //using VIDIOC_G_CTRL for user class controls
@@ -1418,7 +1366,6 @@ int set_control_value_by_id(v4l2_dev_t *vd, int id)
         ctrl.id = control->control.id;
         switch (control->control.type)
         {
-#ifdef V4L2_CTRL_TYPE_STRING
             case V4L2_CTRL_TYPE_STRING:
             {
 				unsigned len = strlen(control->string);
@@ -1426,31 +1373,28 @@ int set_control_value_by_id(v4l2_dev_t *vd, int id)
 
 				if(len > max_len)
 				{
-					ctrl.size = max_len;
-					ctrl.string = (char *) calloc(max_len, sizeof(char));
+					ctrl.size = max_len + 1;
+					ctrl.string = (char *) calloc(max_len + 1, sizeof(char));
 					if(ctrl.string == NULL)
 					{
 						fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (v4l2core_set_control_value_by_id): %s\n", strerror(errno));
 						exit(-1);
 					}
 					ctrl.string = strncpy(ctrl.string, control->string, max_len);
-					ctrl.string[max_len -1] = '/0'; /*NULL terminated*/
+					ctrl.string[max_len + 1] = 0; /*NULL terminated*/
 					fprintf(stderr, "V4L2_CORE: control (0x%08x) trying to set string size of %d when max is %d (clip)\n",
 						control->control.id, len, max_len);
 				}
 				else
 				{
-					ctrl.size = len;
+					ctrl.size = len + 1;
 					ctrl.string = (char *) strdup(control->string);
 				}
                 break;
             }
-#endif
-#ifdef V4L2_CTRL_TYPE_INTEGER64
             case V4L2_CTRL_TYPE_INTEGER64:
                 ctrl.value64 = control->value64;
                 break;
-#endif
             default:
                 ctrl.value = control->value;
                 break;
@@ -1462,13 +1406,11 @@ int set_control_value_by_id(v4l2_dev_t *vd, int id)
         if(ret)
             printf("control id: 0x%08x failed to set (error %i)\n",
                 ctrl.id, ret);
-#ifdef V4L2_CTRL_TYPE_STRING
         if(control->control.type == V4L2_CTRL_TYPE_STRING)
         {
 			free(ctrl.string); //clean up string allocation
 			ctrl.string = NULL;
 		}
-#endif
     }
 
     //update real value

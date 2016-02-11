@@ -850,7 +850,6 @@ void button_clicked (GtkButton * Button, void *data)
 	gui_gtk3_update_controls_state();
 }
 
-#ifdef V4L2_CTRL_TYPE_STRING
 /*
  * a string control apply button clicked
  * args:
@@ -871,14 +870,12 @@ void string_button_clicked(GtkButton * Button, void *data)
 
 	assert(control->string != NULL);
 
-	strncpy(control->string, gtk_entry_get_text(GTK_ENTRY(entry)), control->control.maximum);
+	strncpy(control->string, gtk_entry_get_text(GTK_ENTRY(entry)), control->control.maximum + 1);
 
 	if(v4l2core_set_control_value_by_id(get_v4l2_device_handler(), id))
 		fprintf(stderr, "GUVCVIEW: error setting string value\n");
 }
-#endif
 
-#ifdef V4L2_CTRL_TYPE_INTEGER64
 /*
  * a int64 control apply button clicked
  * args:
@@ -901,23 +898,24 @@ void int64_button_clicked(GtkButton * Button, void *data)
 	text_input = g_strstrip(text_input);
 	if( g_str_has_prefix(text_input, "0x")) //hex format
 	{
-		text_input = g_strcanon(text_input, "0123456789ABCDEFabcdef", '\0');
+		text_input = g_strcanon(text_input, "0123456789ABCDEFabcdef", '0');
 		control->value64 = g_ascii_strtoll(text_input, NULL, 16);
 	}
 	else //decimal or hex ?
 	{
-		text_input = g_strcanon(text_input, "0123456789ABCDEFabcdef", '\0');
+		text_input = g_strcanon(text_input, "0123456789ABCDEFabcdef", '0');
 		control->value64 = g_ascii_strtoll(text_input, NULL, 0);
 	}
 	g_free(text_input);
+
+	if(debug_level > 1)
+		printf("GUVCVIEW: applying int64 value: %lld\n", control->value64);
 
 	if(v4l2core_set_control_value_by_id(get_v4l2_device_handler(), id))
 		fprintf(stderr, "GUVCVIEW: error setting string value\n");
 
 }
-#endif
 
-#ifdef V4L2_CTRL_TYPE_BITMASK
 /*
  * a bitmask control apply button clicked
  * args:
@@ -937,14 +935,13 @@ void bitmask_button_clicked(GtkButton * Button, void *data)
 	v4l2_ctrl_t *control = v4l2core_get_control_by_id(get_v4l2_device_handler(), id);
 
 	char* text_input = g_strdup(gtk_entry_get_text(GTK_ENTRY(entry)));
-	text_input = g_strcanon(text_input,"0123456789ABCDEFabcdef", '\0');
+	text_input = g_strcanon(text_input,"0123456789ABCDEFabcdef", '0');
 	control->value = (int32_t) g_ascii_strtoll(text_input, NULL, 16);
 	g_free(text_input);
 
 	if(v4l2core_set_control_value_by_id(get_v4l2_device_handler(), id))
 		fprintf(stderr, "GUVCVIEW: error setting string value\n");
 }
-#endif
 
 /*
  * slider changed event
@@ -1322,6 +1319,24 @@ void format_changed(GtkComboBox *wgtInpType, void *data)
 	char temp_str[20];
 	int index = gtk_combo_box_get_active(wgtInpType);
 
+	//check if format is supported
+	v4l2_stream_formats_t *list_stream_formats = v4l2core_get_formats_list(get_v4l2_device_handler());
+	if(!list_stream_formats[index].dec_support)
+	{
+		int fmtind=0;
+		for (fmtind=0; fmtind < v4l2core_get_number_formats(get_v4l2_device_handler()); fmtind++)
+		{
+			//keep current format
+			if(v4l2core_get_requested_frame_format(get_v4l2_device_handler()) == list_stream_formats[fmtind].format)
+			{
+				g_signal_handlers_block_by_func(GTK_COMBO_BOX_TEXT(wgtInpType), G_CALLBACK (format_changed), NULL);
+				gtk_combo_box_set_active(GTK_COMBO_BOX(wgtInpType), fmtind); /*set active*/
+				g_signal_handlers_unblock_by_func(GTK_COMBO_BOX_TEXT(wgtInpType), G_CALLBACK (format_changed), NULL);
+			}
+		}
+		return;
+	}
+
 	//GtkWidget *wgtFrameRate = (GtkWidget *) g_object_get_data (G_OBJECT (wgtInpType), "control_fps");
 	GtkWidget *wgtResolution = (GtkWidget *) g_object_get_data (G_OBJECT (wgtInpType), "control_resolution");
 
@@ -1334,8 +1349,6 @@ void format_changed(GtkComboBox *wgtInpType, void *data)
 	/* clear out the old resolution list... */
 	GtkListStore *store = GTK_LIST_STORE(gtk_combo_box_get_model (GTK_COMBO_BOX(wgtResolution)));
 	gtk_list_store_clear(store);
-
-	v4l2_stream_formats_t *list_stream_formats = v4l2core_get_formats_list(get_v4l2_device_handler());
 		
 	int format = list_stream_formats[index].format;
 

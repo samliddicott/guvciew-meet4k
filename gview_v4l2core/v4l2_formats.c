@@ -646,9 +646,10 @@ int enum_frame_formats(v4l2_dev_t *vd)
 				(fmt.pixelformat >> 16) & 0xFF, (fmt.pixelformat >> 24) & 0xFF,
 				fmt.description);
 
-			if(!dec_support)
-				printf("    - FORMAT NOT SUPPORTED BY DECODER -\n");
 		}
+
+		if(!dec_support)
+			printf("    - FORMAT NOT SUPPORTED BY DECODER -\n");
 
 		fmtind++;
 

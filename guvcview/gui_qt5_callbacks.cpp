@@ -613,7 +613,6 @@ void MainWindow::button_clicked()
 	gui_qt5_update_controls_state();
 }
 
-#ifdef V4L2_CTRL_TYPE_STRING
 /*
  * a string control apply button clicked
  * args:
@@ -628,22 +627,20 @@ void MainWindow::string_button_clicked()
 {
 	QObject *sender =  QObject::sender();
 	int id = sender->property("control_info").toInt();
-	QLineEdit *entry = (QLineEdit *) sender->property("control_entry").value();
+	QLineEdit *entry = (QLineEdit *) sender->property("control_entry").value<QLineEdit *>();
 
 	v4l2_ctrl_t *control = v4l2core_get_control_by_id(get_v4l2_device_handler(), id);
 
 	assert(control->string != NULL);
 	QString text_input = entry->text();
 
-	strncpy(control->string, text_input.toStdString(), control->control.maximum);
+	strncpy(control->string, text_input.toStdString().c_str(), control->control.maximum);
 
 	if(v4l2core_set_control_value_by_id(get_v4l2_device_handler(), id))
 		std::cerr << "GUVCVIEW (Qt5): error setting string value" 
 			<< std::endl;
 }
-#endif
 
-#ifdef V4L2_CTRL_TYPE_INTEGER64
 /*
  * a int64 control apply button clicked
  * args:
@@ -659,11 +656,11 @@ void MainWindow::int64_button_clicked()
 {
 	QObject *sender =  QObject::sender();
 	int id = sender->property("control_info").toInt();
-	QLineEdit *entry = (QLineEdit *) sender->property("control_entry").value();
+	QLineEdit *entry = (QLineEdit *) sender->property("control_entry").value<QLineEdit *>();
 
 	if(!entry)
 	{
-		std:cerr << "Guvcview (Qt5): couldn't get QLineEdit pointer for int64 control: " 
+		std::cerr << "Guvcview (Qt5): couldn't get QLineEdit pointer for int64 control: " 
 			<< std::hex << id << std::dec << std::endl;
 		return;
 	}
@@ -671,8 +668,9 @@ void MainWindow::int64_button_clicked()
 	v4l2_ctrl_t *control = v4l2core_get_control_by_id(get_v4l2_device_handler(), id);
 
 	QString text_input = entry->text();
+	
 	text_input = text_input.remove(" ");
-	bool ok;
+	bool ok = true;
 	int64_t value = 0;
 	if(text_input.startsWith("0x")) //hex format
 		value = text_input.toLongLong(&ok, 16);
@@ -683,16 +681,14 @@ void MainWindow::int64_button_clicked()
 	{
 		control->value64 = value;
 		if(v4l2core_set_control_value_by_id(get_v4l2_device_handler(), id))
-			std:cerr << "GUVCVIEW (Qt5): error setting int64 value" 
+			std::cerr << "GUVCVIEW (Qt5): error setting int64 value" 
 				<< std::endl;
 	}
 	else
 		std::cerr << "GUVCVIEW (Qt5): error converting int64 entry value" 
 			<< std::endl;
 }
-#endif
 
-#ifdef V4L2_CTRL_TYPE_BITMASK
 /*
  * a bitmask control apply button clicked
  * args:
@@ -707,32 +703,30 @@ void MainWindow::bitmask_button_clicked()
 {
 	QObject *sender =  QObject::sender();
 	int id = sender->property("control_info").toInt();
-	QLineEdit *entry = (QLineEdit *) sender->property("control_entry").value();
+	QLineEdit *entry = (QLineEdit *) sender->property("control_entry").value<QLineEdit *>();
 
 	v4l2_ctrl_t *control = v4l2core_get_control_by_id(get_v4l2_device_handler(), id);
 
-	assert(control->string != NULL);
 	QString text_input = entry->text();
 
-	bool ok;
+	bool ok = true;
 	int32_t value = 0;
 	if(text_input.startsWith("0x")) //hex format
-		text_input.toInt(&ok, 16);
+		value = (int32_t) text_input.toLongLong(&ok, 16);
 	else
-		text_input.toInt(&ok, 10); //decimal
+		value = (int32_t) text_input.toLongLong(&ok, 10); //decimal
 		
 	if(ok)
 	{
 		control->value = value;
 		if(v4l2core_set_control_value_by_id(get_v4l2_device_handler(), id))
-			std:cerr << "GUVCVIEW (Qt5): error setting bitmask value" 
+			std::cerr << "GUVCVIEW (Qt5): error setting bitmask value" 
 				<< std::endl;
 	}
 	else
 		std::cerr << "GUVCVIEW (Qt5): error converting bitmask entry value" 
 			<< std::endl;
 }
-#endif
 
 /*
  * slider changed event

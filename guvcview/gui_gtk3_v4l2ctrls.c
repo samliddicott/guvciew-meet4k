@@ -432,11 +432,10 @@ int gui_attach_gtk3_v4l2ctrls(GtkWidget *parent)
 				}
 				break;
 
-#ifdef V4L2_CTRL_TYPE_INTEGER64
 			case V4L2_CTRL_TYPE_INTEGER64:
 
-				widget = gtk_entry_new();
-				gtk_entry_set_max_length(control_widgets_list[n].widget, current->control.maximum);
+				control_widgets_list[n].widget = gtk_entry_new();
+				gtk_entry_set_max_length(GTK_ENTRY(control_widgets_list[n].widget), 19);
 
 				//control_widgets_list[n].widget2 = gtk_button_new_from_stock(GTK_STOCK_APPLY);
 				control_widgets_list[n].widget2 = gtk_button_new_with_mnemonic (_("_Apply"));
@@ -447,19 +446,18 @@ int gui_attach_gtk3_v4l2ctrls(GtkWidget *parent)
 				g_object_set_data (G_OBJECT (control_widgets_list[n].widget2), "control_info",
 					GINT_TO_POINTER(current->control.id));
 				g_object_set_data (G_OBJECT (control_widgets_list[n].widget2), "control_entry",
-					widget);
+					control_widgets_list[n].widget);
 
 				/*connect signal*/
 				g_signal_connect (GTK_BUTTON(control_widgets_list[n].widget2), "clicked",
 					G_CALLBACK (int64_button_clicked), NULL);
 
 				break;
-#endif
-#ifdef V4L2_CTRL_TYPE_STRING
+
 			case V4L2_CTRL_TYPE_STRING:
 
 				control_widgets_list[n].widget = gtk_entry_new();
-				gtk_entry_set_max_length(control_widgets_list[n].widget, current->control.maximum);
+				gtk_entry_set_max_length(GTK_ENTRY(control_widgets_list[n].widget), current->control.maximum);
 
 				//control_widgets_list[n].widget2= gtk_button_new_from_stock(GTK_STOCK_APPLY);
 				control_widgets_list[n].widget2 = gtk_button_new_with_mnemonic (_("_Apply"));
@@ -470,15 +468,14 @@ int gui_attach_gtk3_v4l2ctrls(GtkWidget *parent)
 				g_object_set_data (G_OBJECT (control_widgets_list[n].widget2), "control_info",
 					GINT_TO_POINTER(current->control.id));
 				g_object_set_data (G_OBJECT (control_widgets_list[n].widget2), "control_entry",
-					widget);
+					control_widgets_list[n].widget);
 
 				/*connect signal*/
 				g_signal_connect (GTK_BUTTON(control_widgets_list[n].widget2), "clicked",
 					G_CALLBACK (string_button_clicked), NULL);
 
 				break;
-#endif
-#ifdef V4L2_CTRL_TYPE_BITMASK
+
 			case V4L2_CTRL_TYPE_BITMASK:
 
 					control_widgets_list[n].widget = gtk_entry_new();
@@ -492,16 +489,14 @@ int gui_attach_gtk3_v4l2ctrls(GtkWidget *parent)
 					g_object_set_data (G_OBJECT (control_widgets_list[n].widget2), "control_info",
                         GINT_TO_POINTER(current->control.id));
 					g_object_set_data (G_OBJECT (control_widgets_list[n].widget2), "control_entry",
-						widget);
+						control_widgets_list[n].widget);
 
                     g_signal_connect (GTK_BUTTON(control_widgets_list[n].widget2), "clicked",
                         G_CALLBACK (bitmask_button_clicked), NULL);
 
 				break;
-#endif
-#ifdef V4L2_CTRL_TYPE_INTEGER_MENU
+
 			case V4L2_CTRL_TYPE_INTEGER_MENU:
-#endif
             case V4L2_CTRL_TYPE_MENU:
 
 				if(current->menu)
@@ -518,15 +513,13 @@ int gui_attach_gtk3_v4l2ctrls(GtkWidget *parent)
 								GTK_COMBO_BOX_TEXT (control_widgets_list[n].widget),
 								(char *) current->menu_entry[j]);
 						}
-#ifdef V4L2_CTRL_TYPE_INTEGER_MENU
 						else
 						{
 							char buffer[30]="0";
-							snprintf(buffer, "%" PRIu64 "", 29, current->menu[j].value);
+							snprintf(buffer, 29, "%lld", (int64_t) current->menu[j].value);
 							gtk_combo_box_text_append_text (
 								GTK_COMBO_BOX_TEXT (control_widgets_list[n].widget), buffer);
 						}
-#endif
 						if(current->value == current->menu[j].index)
 							def = j;
 					}
@@ -663,7 +656,6 @@ void gui_gtk3_update_controls_state()
 		/*update controls values*/
 		switch(current->control.type)
 		{
-#ifdef V4L2_CTRL_TYPE_STRING
 			case V4L2_CTRL_TYPE_STRING:
 			{
 				char *text_input = g_strescape(current->string, "");
@@ -671,7 +663,6 @@ void gui_gtk3_update_controls_state()
 				g_free(text_input);
 				break;
 			}
-#endif
 			case V4L2_CTRL_TYPE_BOOLEAN:
 				/*disable widget signals*/
 				g_signal_handlers_block_by_func(GTK_TOGGLE_BUTTON(cur_widget->widget),
@@ -683,7 +674,6 @@ void gui_gtk3_update_controls_state()
 					G_CALLBACK (check_changed), NULL);
 				break;
 
-#ifdef V4L2_CTRL_TYPE_BITMASK
 			case V4L2_CTRL_TYPE_BITMASK:
 			{
 				char *text_input = g_strdup_printf("0x%x", current->value);
@@ -691,17 +681,14 @@ void gui_gtk3_update_controls_state()
 				g_free(text_input);
 				break;
 			}
-#endif
 
-#ifdef V4L2_CTRL_TYPE_INTEGER64
 			case V4L2_CTRL_TYPE_INTEGER64:
 			{
-				char *text_input = g_strdup_printf("0x%" PRIx64 "", c->value64);
+				char *text_input = g_strdup_printf("%lld", current->value64);
 				gtk_entry_set_text (GTK_ENTRY(cur_widget->widget), text_input);
 				g_free(text_input);
 				break;
 			}
-#endif
 
 			case V4L2_CTRL_TYPE_INTEGER:
 				if( current->control.id != V4L2_CID_PAN_RELATIVE &&
@@ -732,9 +719,7 @@ void gui_gtk3_update_controls_state()
 				}
 				break;
 
-#ifdef V4L2_CTRL_TYPE_INTEGER_MENU
 			case V4L2_CTRL_TYPE_INTEGER_MENU:
-#endif
 			case V4L2_CTRL_TYPE_MENU:
 			{
 				/*disable widget signals*/

@@ -224,12 +224,20 @@ int MainWindow::gui_attach_qt5_videoctrls(QWidget *parent)
 	grid_layout->addWidget(label_InpType, line, 0, Qt::AlignRight);
 
 	combobox_InpType = new QComboBox(video_controls_grid);
+	QListWidget *contents = new QListWidget(combobox_InpType);
+	contents->hide();
+	combobox_InpType->setModel(contents->model());
 	combobox_InpType->show();
 
 	int fmtind=0;
 	for (fmtind=0; fmtind < v4l2core_get_number_formats(get_v4l2_device_handler()); fmtind++)
 	{
 		combobox_InpType->addItem(list_stream_formats[fmtind].fourcc, fmtind);
+		if(!list_stream_formats[fmtind].dec_support)
+		{
+			QListWidgetItem *item = contents->item(fmtind);
+			item->setFlags(item->flags() & ~Qt::ItemIsEnabled);
+		}
 		if(v4l2core_get_requested_frame_format(get_v4l2_device_handler()) == list_stream_formats[fmtind].format)
 			combobox_InpType->setCurrentIndex(fmtind); /*set active*/
 	}

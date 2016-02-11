@@ -286,13 +286,23 @@ int gui_attach_gtk3_videoctrls(GtkWidget *parent)
 
 	gtk_widget_show (wgtInpType);
 	gtk_widget_set_sensitive (wgtInpType, TRUE);
+	
 
 	int fmtind=0;
 	for (fmtind=0; fmtind < v4l2core_get_number_formats(get_v4l2_device_handler()); fmtind++)
 	{
-		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(wgtInpType), list_stream_formats[fmtind].fourcc);
-		if(v4l2core_get_requested_frame_format(get_v4l2_device_handler()) == list_stream_formats[fmtind].format)
-			gtk_combo_box_set_active(GTK_COMBO_BOX(wgtInpType), fmtind); /*set active*/
+		if(list_stream_formats[fmtind].dec_support)
+		{
+			gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(wgtInpType), list_stream_formats[fmtind].fourcc);
+			if(v4l2core_get_requested_frame_format(get_v4l2_device_handler()) == list_stream_formats[fmtind].format)
+				gtk_combo_box_set_active(GTK_COMBO_BOX(wgtInpType), fmtind); /*set active*/
+		}
+		else
+		{
+			char *buffer = g_strconcat(list_stream_formats[fmtind].fourcc, " (UNSUPPORTED)", NULL);
+			gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(wgtInpType), buffer);
+			free(buffer);
+		}
 	}
 
 	gtk_grid_attach (GTK_GRID(video_controls_grid), wgtInpType, 1, line, 1 ,1);

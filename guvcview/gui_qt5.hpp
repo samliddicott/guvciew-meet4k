@@ -75,15 +75,9 @@ private slots:
 	void check_changed (int state);
 	void autofocus_changed(int state);
 	void setfocus_clicked();
-#ifdef V4L2_CTRL_TYPE_INTEGER64
 	void int64_button_clicked();
-#endif
-#ifdef V4L2_CTRL_TYPE_STRING
 	void string_button_clicked();
-#endif
-#ifdef V4L2_CTRL_TYPE_BITMASK
 	void bitmask_button_clicked();
-#endif	
 	/*video*/
     void devices_changed (int index);
     void frame_rate_changed (int index);

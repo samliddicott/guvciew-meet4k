@@ -85,7 +85,6 @@ int save_control_profile(v4l2_dev_t *vd, const char *filename)
 				fprintf(fp, "#%s\n", current->control.name);
 				switch(current->control.type)
 				{
-#ifdef V4L2_CTRL_TYPE_STRING
 					case V4L2_CTRL_TYPE_STRING :
 						fprintf(fp, "ID{0x%08x};CHK{%i:%i:%i:0}=STR{\"%s\"}\n",
 							current->control.id,
@@ -94,14 +93,12 @@ int save_control_profile(v4l2_dev_t *vd, const char *filename)
 							current->control.step,
 							current->string);
 						break;
-#endif
-#ifdef V4L2_CTRL_TYPE_INTEGER64
+
 					case V4L2_CTRL_TYPE_INTEGER64 :
 						fprintf(fp, "ID{0x%08x};CHK{0:0:0:0}=VAL64{%" PRId64 "}\n",
 							current->control.id,
 							current->value64);
 						break;
-#endif
 					default :
 						fprintf(fp, "ID{0x%08x};CHK{%i:%i:%i:%i}=VAL{%i}\n",
 							current->control.id,
@@ -220,7 +217,7 @@ int load_control_profile(v4l2_dev_t *vd, const char *filename)
 							char fmt[48];
 							sprintf(fmt,"ID{0x%%*x};CHK{%%*i:%%*i:%%*i:0}==STR{\"%%%is\"}", max);
 							sscanf(line, fmt, str);
-							
+
 							/*we are only scannig for max chars so this should never happen*/
 							if(strlen(str) > max) /*FIXME: should also check (minimum +N*step)*/
 							{

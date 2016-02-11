@@ -153,8 +153,8 @@ int MainWindow::gui_attach_qt5_v4l2ctrls(QWidget *parent)
 						PanTilt2->setProperty("control_info", current->control.id);
 						
 						/*connect signals*/
-						connect(PanTilt1,SIGNAL(clicked()),this, SLOT(button_PanTilt1_clicked ()));
-						connect(PanTilt2,SIGNAL(clicked()),this, SLOT(button_PanTilt2_clicked ()));
+						connect(PanTilt1,SIGNAL(released()),this, SLOT(button_PanTilt1_clicked ()));
+						connect(PanTilt2,SIGNAL(released()),this, SLOT(button_PanTilt2_clicked ()));
 
 						QSpinBox * spinbox = new QSpinBox(img_controls_grid);
 						thisone->widget2 = spinbox;
@@ -190,7 +190,7 @@ int MainWindow::gui_attach_qt5_v4l2ctrls(QWidget *parent)
 						pushbutton->setProperty("control_info", current->control.id);
 
 						/*connect signal*/
-						connect(pushbutton,SIGNAL(clicked),this, SLOT(button_clicked()));
+						connect(pushbutton,SIGNAL(released()),this, SLOT(button_clicked()));
 						break;
 					};
 
@@ -319,7 +319,7 @@ int MainWindow::gui_attach_qt5_v4l2ctrls(QWidget *parent)
 
 							/*connect signals*/
 							connect(checkbox, SIGNAL(stateChanged(int)), this, SLOT(autofocus_changed(int)));
-							connect(pushbutton, SIGNAL(clicked()), this, SLOT(setfocus_clicked()));
+							connect(pushbutton, SIGNAL(released()), this, SLOT(setfocus_clicked()));
 
 							//QGridLayout *layout = (QGridLayout *) img_controls_grid->layout();	
 							grid_layout->addWidget(thisto->widget, n, 1);
@@ -383,12 +383,11 @@ int MainWindow::gui_attach_qt5_v4l2ctrls(QWidget *parent)
 				}
 				break;
 
-#ifdef V4L2_CTRL_TYPE_INTEGER64
 			case V4L2_CTRL_TYPE_INTEGER64:
 			{
 				QLineEdit *entry = new QLineEdit(img_controls_grid);
 				thisone->widget = entry;
-				entry->setMaxLenght(current->control.maximum);
+				entry->setMaxLength(19);
 
 				QPushButton *pushbutton = new QPushButton(img_controls_grid); 
 				thisone->widget2 = pushbutton;
@@ -397,19 +396,18 @@ int MainWindow::gui_attach_qt5_v4l2ctrls(QWidget *parent)
 
 				/*set properties*/
 				pushbutton->setProperty("control_info", current->control.id);
-				pushbutton->setProperty("control_entry", entry);
+				pushbutton->setProperty("control_entry", QVariant::fromValue(entry));
 
 				/*connect signal*/
-				connect(pushbutton, SIGNAL(clicked), this, SLOT(int64_button_clicked()));
+				connect(pushbutton, SIGNAL(released()), this, SLOT(int64_button_clicked()));
 			}	
 			break;
-#endif
-#ifdef V4L2_CTRL_TYPE_STRING
+
 			case V4L2_CTRL_TYPE_STRING:
 			{
 				QLineEdit *entry = new QLineEdit(img_controls_grid);
 				thisone->widget = entry;
-				entry->setMaxLenght(current->control.maximum);
+				entry->setMaxLength(current->control.maximum);
 
 				QPushButton *pushbutton = new QPushButton(img_controls_grid); 
 				thisone->widget2 = pushbutton;
@@ -418,19 +416,18 @@ int MainWindow::gui_attach_qt5_v4l2ctrls(QWidget *parent)
 
 				/*set properties*/
 				pushbutton->setProperty("control_info", current->control.id);
-				pushbutton->setProperty("control_entry", entry);
+				pushbutton->setProperty("control_entry",  QVariant::fromValue(entry));
 
 				/*connect signal*/
-				connect(pushbutton, SIGNAL(clicked), this, SLOT(string_button_clicked()));
+				connect(pushbutton, SIGNAL(released()), this, SLOT(string_button_clicked()));
 			}
 			break;
-#endif
-#ifdef V4L2_CTRL_TYPE_BITMASK
+
 			case V4L2_CTRL_TYPE_BITMASK:
 			{
 				QLineEdit *entry = new QLineEdit(img_controls_grid);
 				thisone->widget = entry;
-				entry->setMaxLenght(current->control.maximum);
+				entry->setMaxLength(current->control.maximum);
 
 				QPushButton *pushbutton = new QPushButton(img_controls_grid); 
 				thisone->widget2 = pushbutton;
@@ -439,16 +436,14 @@ int MainWindow::gui_attach_qt5_v4l2ctrls(QWidget *parent)
 
 				/*set properties*/
 				pushbutton->setProperty("control_info", current->control.id);
-				pushbutton->setProperty("control_entry", entry);
+				pushbutton->setProperty("control_entry",  QVariant::fromValue(entry));
 
 				/*connect signal*/
-				connect(pushbutton, SIGNAL(clicked), this, SLOT(bitmask_button_clicked()));
+				connect(pushbutton, SIGNAL(released()), this, SLOT(bitmask_button_clicked()));
 			}
 			break;
-#endif
-#ifdef V4L2_CTRL_TYPE_INTEGER_MENU
+
 			case V4L2_CTRL_TYPE_INTEGER_MENU:
-#endif
             case V4L2_CTRL_TYPE_MENU:
 
 				if(current->menu)
@@ -465,13 +460,11 @@ int MainWindow::gui_attach_qt5_v4l2ctrls(QWidget *parent)
 						{
 							combobox->addItem((char *) current->menu_entry[j], current->menu[j].index);
 						}
-#ifdef V4L2_CTRL_TYPE_INTEGER_MENU
 						else
 						{
 							QString text_input = QString("%1").arg(current->menu[j].value, 4, 10, QChar('0'));
 							combobox->addItem(text_input, current->menu[j].value);
 						}
-#endif
 						if(current->value == (int) current->menu[j].index)
 							def = j;
 					}
@@ -498,7 +491,7 @@ int MainWindow::gui_attach_qt5_v4l2ctrls(QWidget *parent)
 					pushbutton->setProperty("control_info", current->control.id);
 						
 					/*signals*/
-					connect(pushbutton, SIGNAL(clicked()), this, SLOT(button_clicked()));
+					connect(pushbutton, SIGNAL(released()), this, SLOT(button_clicked()));
 				}
 				break;
 					
@@ -595,16 +588,21 @@ void MainWindow::gui_qt5_update_controls_state()
 		/*update controls values*/
 		switch(current->control.type)
 		{
-
-#ifdef V4L2_CTRL_TYPE_STRING
 			case V4L2_CTRL_TYPE_STRING:
 			{
-				QString text_input(current->string);
-				QLineEdit *entry = (QLineEdit *) thisone->widget;
-				entry->setText(text_input);
+				if(current->string != NULL)
+				{
+					QString text_input(current->string);
+					QLineEdit *entry = (QLineEdit *) thisone->widget;
+					entry->setText(text_input);
+				}
+				else
+					std::cerr << "GUVCVIEW (Qt5): control "
+						<< std::hex << current->control.id << std::dec
+						<<  "of type string has null value" << std::endl;
 			}
 			break;
-#endif
+
 			case V4L2_CTRL_TYPE_BOOLEAN:
 			{
 				/*disable widget signals*/
@@ -616,19 +614,15 @@ void MainWindow::gui_qt5_update_controls_state()
 			}
 			break;
 
-#ifdef V4L2_CTRL_TYPE_BITMASK
 			case V4L2_CTRL_TYPE_BITMASK:
 			{
 				QString text_input("0x");
-				text_input.append(QString::number(current->value, 16).toUpper());
+				text_input.append(QString::number((uint32_t)current->value, 16).toUpper());
 				QLineEdit *entry = (QLineEdit *) thisone->widget;
 				entry->setText(text_input);
 			}
 			break;
-#endif
 
-
-#ifdef V4L2_CTRL_TYPE_INTEGER64
 			case V4L2_CTRL_TYPE_INTEGER64:
 			{
 				QString text_input("0x");
@@ -637,7 +631,6 @@ void MainWindow::gui_qt5_update_controls_state()
 				entry->setText(text_input);
 			}
 			break;
-#endif
 
 			case V4L2_CTRL_TYPE_INTEGER:
 				if( current->control.id != V4L2_CID_PAN_RELATIVE &&
@@ -657,9 +650,7 @@ void MainWindow::gui_qt5_update_controls_state()
 				}
 				break;
 
-#ifdef V4L2_CTRL_TYPE_INTEGER_MENU
 			case V4L2_CTRL_TYPE_INTEGER_MENU:
-#endif
 			case V4L2_CTRL_TYPE_MENU:
 			{
 				/*disable widget signals*/
