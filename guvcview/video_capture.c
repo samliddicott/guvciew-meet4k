@@ -1054,11 +1054,11 @@ void *capture_loop(void *data)
 	{
 		if(restart)
 		{
+			int current_width = v4l2core_get_frame_width(my_vd);
+			int current_height = v4l2core_get_frame_height(my_vd);
+
 			restart = 0; /*reset*/
 			v4l2core_stop_stream(my_vd);
-
-			/*close render*/
-			render_close();
 
 			v4l2core_clean_buffers(my_vd);
 
@@ -1084,24 +1084,33 @@ void *capture_loop(void *data)
 				}
 			}
 
-			/*restart the render with new format*/
-			if(render_init(
-				render,
-				v4l2core_get_frame_width(my_vd),
-				v4l2core_get_frame_height(my_vd),
-				render_flags) < 0)
-				render = RENDER_NONE;
-			else
+			if((current_width != v4l2core_get_frame_width(my_vd)) ||
+				current_height != v4l2core_get_frame_height(my_vd))
 			{
-				render_set_event_callback(EV_QUIT, &quit_callback, NULL);
-				render_set_event_callback(EV_KEY_V, &key_V_callback, NULL);
-				render_set_event_callback(EV_KEY_I, &key_I_callback, NULL);
-				render_set_event_callback(EV_KEY_UP, &key_UP_callback, NULL);
-				render_set_event_callback(EV_KEY_DOWN, &key_DOWN_callback, NULL);
-				render_set_event_callback(EV_KEY_LEFT, &key_LEFT_callback, NULL);
-				render_set_event_callback(EV_KEY_RIGHT, &key_RIGHT_callback, NULL);
-			}
+				if(debug_level > 1)
+					printf("GUVCVIEW: resolution changed, reseting render\n");
 
+				/*close render*/
+				render_close();
+
+				/*restart the render with new format*/
+				if(render_init(
+					render,
+					v4l2core_get_frame_width(my_vd),
+					v4l2core_get_frame_height(my_vd),
+					render_flags) < 0)
+					render = RENDER_NONE;
+				else
+				{
+					render_set_event_callback(EV_QUIT, &quit_callback, NULL);
+					render_set_event_callback(EV_KEY_V, &key_V_callback, NULL);
+					render_set_event_callback(EV_KEY_I, &key_I_callback, NULL);
+					render_set_event_callback(EV_KEY_UP, &key_UP_callback, NULL);
+					render_set_event_callback(EV_KEY_DOWN, &key_DOWN_callback, NULL);
+					render_set_event_callback(EV_KEY_LEFT, &key_LEFT_callback, NULL);
+					render_set_event_callback(EV_KEY_RIGHT, &key_RIGHT_callback, NULL);
+				}
+			}
 
 			if(debug_level > 0)
 				printf("GUVCVIEW: reset to pixelformat=%x width=%i and height=%i\n",

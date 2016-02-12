@@ -232,7 +232,12 @@ int MainWindow::gui_attach_qt5_videoctrls(QWidget *parent)
 	int fmtind=0;
 	for (fmtind=0; fmtind < v4l2core_get_number_formats(get_v4l2_device_handler()); fmtind++)
 	{
-		combobox_InpType->addItem(list_stream_formats[fmtind].fourcc, fmtind);
+		QString fourcc(list_stream_formats[fmtind].fourcc);
+		if((list_stream_formats[fmtind].format & (1<<31)) != 0)
+			fourcc += "_BE";
+
+		combobox_InpType->addItem(fourcc, fmtind);
+
 		if(!list_stream_formats[fmtind].dec_support)
 		{
 			QListWidgetItem *item = contents->item(fmtind);

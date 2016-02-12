@@ -293,13 +293,24 @@ int gui_attach_gtk3_videoctrls(GtkWidget *parent)
 	{
 		if(list_stream_formats[fmtind].dec_support)
 		{
-			gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(wgtInpType), list_stream_formats[fmtind].fourcc);
+			if((list_stream_formats[fmtind].format & (1<<31)) != 0)
+			{
+				char *buffer = g_strconcat(list_stream_formats[fmtind].fourcc, "_BE", NULL);
+				gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(wgtInpType), buffer);
+				free(buffer);
+			}
+			else
+				gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(wgtInpType), list_stream_formats[fmtind].fourcc);
 			if(v4l2core_get_requested_frame_format(get_v4l2_device_handler()) == list_stream_formats[fmtind].format)
 				gtk_combo_box_set_active(GTK_COMBO_BOX(wgtInpType), fmtind); /*set active*/
 		}
 		else
 		{
-			char *buffer = g_strconcat(list_stream_formats[fmtind].fourcc, " (UNSUPPORTED)", NULL);
+			char *buffer = NULL;
+			if((list_stream_formats[fmtind].format & (1<<31)) != 0)
+				buffer = g_strconcat(list_stream_formats[fmtind].fourcc,"_BE", " (UNSUPPORTED)", NULL);
+			else
+				buffer = g_strconcat(list_stream_formats[fmtind].fourcc, " (UNSUPPORTED)", NULL);
 			gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(wgtInpType), buffer);
 			free(buffer);
 		}

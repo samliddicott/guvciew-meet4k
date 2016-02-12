@@ -638,13 +638,24 @@ int enum_frame_formats(v4l2_dev_t *vd)
 	{
 		uint8_t dec_support = can_decode_format(fmt.pixelformat);
 
+		uint32_t pix_format = fmt.pixelformat;
+
 		fmt.index++;
 		if(verbosity > 0)
 		{
-			printf("{ pixelformat = '%c%c%c%c', description = '%s' }\n",
-				fmt.pixelformat & 0xFF, (fmt.pixelformat >> 8) & 0xFF,
-				(fmt.pixelformat >> 16) & 0xFF, (fmt.pixelformat >> 24) & 0xFF,
-				fmt.description);
+			if((fmt.pixelformat & (1<<31)) != 0)
+			{
+				pix_format &= ~(1<<31);//need to fix fourcc string
+				printf("{ pixelformat = '%c%c%c%c'_BE, description = '%s' }\n",
+					pix_format & 0xFF, (pix_format >> 8) & 0xFF,
+					(pix_format >> 16) & 0xFF, (pix_format >> 24) & 0xFF,
+					fmt.description);
+			}
+			else
+				printf("{ pixelformat = '%c%c%c%c', description = '%s' }\n",
+					fmt.pixelformat & 0xFF, (fmt.pixelformat >> 8) & 0xFF,
+					(fmt.pixelformat >> 16) & 0xFF, (fmt.pixelformat >> 24) & 0xFF,
+					fmt.description);
 
 		}
 
@@ -663,9 +674,11 @@ int enum_frame_formats(v4l2_dev_t *vd)
 
 		vd->list_stream_formats[fmtind-1].dec_support = dec_support;
 		vd->list_stream_formats[fmtind-1].format = fmt.pixelformat;
+		if((fmt.pixelformat & (1<<31)) != 0) //be format flag
+			pix_format &= ~(1<<31); //need to fix fourcc string
 		snprintf(vd->list_stream_formats[fmtind-1].fourcc, 5, "%c%c%c%c",
-				fmt.pixelformat & 0xFF, (fmt.pixelformat >> 8) & 0xFF,
-				(fmt.pixelformat >> 16) & 0xFF, (fmt.pixelformat >> 24) & 0xFF);
+				pix_format & 0xFF, (pix_format >> 8) & 0xFF,
+				(pix_format >> 16) & 0xFF, (pix_format >> 24) & 0xFF);
 		//enumerate frame sizes
 		ret = enum_frame_sizes(vd, fmt.pixelformat, fmtind);
 		if (ret != 0)

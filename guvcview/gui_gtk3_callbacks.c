@@ -1340,9 +1340,6 @@ void format_changed(GtkComboBox *wgtInpType, void *data)
 	//GtkWidget *wgtFrameRate = (GtkWidget *) g_object_get_data (G_OBJECT (wgtInpType), "control_fps");
 	GtkWidget *wgtResolution = (GtkWidget *) g_object_get_data (G_OBJECT (wgtInpType), "control_resolution");
 
-	int i=0;
-	int defres = 0;
-
 	/*disable resolution combobox signals*/
 	g_signal_handlers_block_by_func(GTK_COMBO_BOX_TEXT(wgtResolution), G_CALLBACK (resolution_changed), NULL);
 
@@ -1356,6 +1353,8 @@ void format_changed(GtkComboBox *wgtInpType, void *data)
 	config_t *my_config = config_get();
 	strncpy(my_config->format, list_stream_formats[index].fourcc, 4);
 
+	int i=0;
+	int defres = 0;
 	/*redraw resolution combo for new format*/
 	for(i = 0 ; i < list_stream_formats[index].numb_res ; i++)
 	{
@@ -1372,7 +1371,12 @@ void format_changed(GtkComboBox *wgtInpType, void *data)
 
 			if ((v4l2core_get_frame_width(get_v4l2_device_handler()) == list_stream_formats[index].list_stream_cap[i].width) &&
 				(v4l2core_get_frame_height(get_v4l2_device_handler()) == list_stream_formats[index].list_stream_cap[i].height))
-					defres=i;//set selected resolution index
+			{
+				/*current resolution is valid for new format*/
+				defres=i;//set resolution index for new format
+				if(debug_level > 1)
+					printf("GUVCVIEW (Gtk3): selected format (%i) supports current resolution at index %i\n", index, defres);
+			}
 		}
 	}
 
@@ -1381,8 +1385,9 @@ void format_changed(GtkComboBox *wgtInpType, void *data)
 
 	/*prepare new format*/
 	v4l2core_prepare_new_format(get_v4l2_device_handler(), format);
-	/*change resolution*/
-	gtk_combo_box_set_active(GTK_COMBO_BOX(wgtResolution), defres);
+	
+	/*update resolution*/
+	gtk_combo_box_set_active(GTK_COMBO_BOX(wgtResolution), defres); /*reset render*/
 }
 
 /*

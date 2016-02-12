@@ -495,7 +495,7 @@ void yvyu_to_yu12(uint8_t *out, uint8_t *in, int width, int height)
 	int c_sizeline = width/2;
 	
 	uint8_t *in1 = in; //first line
-	uint8_t *in2 = in1 + (width * 2); //second line in yuyv buffer
+	uint8_t *in2 = in1 + (width * 2); //second line in yvyu buffer
 
 	uint8_t *py1 = out; // first line
 	uint8_t *py2 = py1 + y_sizeline; //second line
@@ -504,8 +504,9 @@ void yvyu_to_yu12(uint8_t *out, uint8_t *in, int width, int height)
 
 	for(h = 0; h < height; h+=2)
 	{
-		for(w = 0; w < width*2; w++) //yuyv 2 bytes per sample
+		for(w = 0; w < width; w+=2) //yuyv 2 bytes per sample
 		{
+			//printf("decoding: h:%i w:%i\n", h, w);
 			*py1++ = *in1++;
 			*py2++ = *in2++;
 			*pv++ = ((*in1++) + (*in2++)) /2; //average v samples
@@ -518,7 +519,6 @@ void yvyu_to_yu12(uint8_t *out, uint8_t *in, int width, int height)
 		py1 = out + (h * width);
 		py2 = out + ((h+1) * width); 
 	}
-
 }
 
 /*
@@ -795,8 +795,8 @@ void nv16_to_yu12 (uint8_t *out, uint8_t *in, int width, int height)
 
 	/*copy y data*/
     memcpy(out, in, width*height);
-	
-	/*uv plane*/
+
+	//uv plane
 	uint8_t *puv1 = in + (width * height); //first line
 	uint8_t *puv2 = puv1 + width; //second line
 	uint8_t *pu = out + (width * height);
@@ -806,13 +806,13 @@ void nv16_to_yu12 (uint8_t *out, uint8_t *in, int width, int height)
 	int w = 0;
 	for(h=0; h < height; h+=2)
 	{
+		puv2 = puv1 + width;
 		for(w=0; w < width; w+=2)
 		{
 			*pu++ = ((*puv1++) + (*puv2++)) / 2; //average
 			*pv++ = ((*puv1++) + (*puv2++)) / 2; //average
 		}
-		puv1 = in + (width + height) + (h * width);
-		puv2 = puv1 + width;
+		puv1 = puv2;
 	}
 }
 
@@ -849,13 +849,13 @@ void nv61_to_yu12 (uint8_t *out, uint8_t *in, int width, int height)
 	int w = 0;
 	for(h=0; h < height; h+=2)
 	{
+		puv2 = puv1 + width;
 		for(w=0; w < width; w+=2)
 		{
 			*pv++ = ((*puv1++) + (*puv2++)) / 2; //average
 			*pu++ = ((*puv1++) + (*puv2++)) / 2; //average
 		}
-		puv1 = in + (width + height) + (h * width);
-		puv2 = puv1 + width;
+		puv1 = puv2;
 	}
 }
 
