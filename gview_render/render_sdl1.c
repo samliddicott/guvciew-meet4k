@@ -119,7 +119,7 @@ static SDL_Overlay * video_init(int width, int height, int flags)
 
         if(!desktop_w) desktop_w = 800;
         if(!desktop_h) desktop_h = 600;
-        
+
         switch(flags)
 	    {
 		    case 2: /*maximize*/
@@ -203,11 +203,7 @@ static SDL_Overlay * video_init(int width, int height, int flags)
     /*use requested resolution for overlay even if not available as video mode*/
     SDL_Overlay* overlay=NULL;
     overlay = SDL_CreateYUVOverlay(width, height,
-#ifdef USE_PLANAR_YUV
 		SDL_IYUV_OVERLAY, /*yuv420p*/
-#else
-        SDL_YUY2_OVERLAY, /*yuv422*/
-#endif
 		pscreen);
 
     SDL_ShowCursor(SDL_DISABLE);
@@ -268,11 +264,9 @@ int render_sdl1_frame(uint8_t *frame, int width, int height)
 	assert(frame != NULL);
 
 	uint8_t *p = (uint8_t *) poverlay->pixels[0];
-#ifdef USE_PLANAR_YUV
+
 	int size = width * height * 3/2; /* for IYUV */
-#else
-	int size = width * height * 2; /* 2 bytes per pixel for yuyv*/
-#endif
+
 	 SDL_LockYUVOverlay(poverlay);
      memcpy(p, frame, size);
 

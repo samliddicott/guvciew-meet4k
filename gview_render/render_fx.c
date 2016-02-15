@@ -167,11 +167,8 @@ static void fx_yuv_negative(uint8_t *frame, int width, int height)
 	/*asserts*/
 	assert(frame != NULL);
 
-#ifdef USE_PLANAR_YUV
 	int size = (width * height * 5) / 4;
-#else
-	int size= width * height * 2;
-#endif
+
 	int i=0;
 	for(i=0; i < size; i++)
 		frame[i] = ~frame[i];
@@ -629,21 +626,14 @@ static void fx_particles(uint8_t* frame, int width, int height, int trail_size, 
 
 		if(ODD(part->PX)) part->PX++;
 
-#ifdef USE_PLANAR_YUV
 		int y_pos = part->PX + (part->PY * width);
 		int u_pos = (part->PX + (part->PY * width / 2)) / 2;
 		int v_pos = u_pos + ((width * height) / 4);
-		
+
 		part->Y = frame[y_pos];
 		part->U = frame[u_pos];
 		part->V = frame[v_pos];
-#else
-		int y_pos = part->PX * 2 + (part->PY * width * 2);
-				
-		part->Y = frame[y_pos];
-		part->U = frame[y_pos +1];
-		part->V = frame[y_pos +3];
-#endif
+
 		part->size = 1 + (int) lround((particle_size -1) * gsl_rng_uniform (r));
 		if(ODD(part->size)) part->size++;
 
@@ -661,14 +651,13 @@ static void fx_particles(uint8_t* frame, int width, int height, int trail_size, 
 	{
 		if(part->decay > 0)
 		{
-#ifdef USE_PLANAR_YUV
 			int y_pos = part->PX + (part->PY * width);
 			int u_pos = (part->PX + (part->PY * width / 2)) / 2;
 			int v_pos = u_pos + ((width * height) / 4);
-			
+
 			blend = part->decay/trail_size;
 			blend1= 1 - blend;
-			
+
 			//y
 			for(h = 0; h <(part->size); h++)
 			{
@@ -678,7 +667,7 @@ static void fx_particles(uint8_t* frame, int width, int height, int trail_size, 
 					frame[y_pos + line + w] = CLIP((part->Y * blend) + (frame[y_pos + line + w] * blend1));
 				}
 			}
-			
+
 			//u v
 			for(h = 0; h <(part->size); h+=2)
 			{
@@ -689,23 +678,6 @@ static void fx_particles(uint8_t* frame, int width, int height, int trail_size, 
 					frame[v_pos + line + (w / 2)] = CLIP((part->V * blend) + (frame[v_pos + line + (w / 2)] * blend1));
 				}
 			}
-#else
-			int y_pos = part->PX * 2 + (part->PY * width * 2);
-			
-			blend = part->decay/trail_size;
-			blend1= 1 -blend;
-			for(h=0; h<(part->size); h++)
-			{
-				line = h * width * 2;
-				for (w=0; w<(part->size)*2; w+=4)
-				{
-					frame[y_pos + w + line] = CLIP(part->Y*blend + frame[y_pos + w + line]*blend1);
-					frame[(y_pos + w + 1) + line] = CLIP(part->U*blend + frame[(y_pos + w + 1) + line]*blend1);
-					frame[(y_pos + w + 2) + line] = CLIP(part->Y*blend + frame[(y_pos + w + 2) + line]*blend1);
-					frame[(y_pos + w + 3) + line] = CLIP(part->V*blend + frame[(y_pos + w + 3) + line]*blend1);
-				}
-			}
-#endif
 		}
 		part++;
 	}
@@ -739,35 +711,20 @@ void render_fx_apply(uint8_t *frame, int width, int height, uint32_t mask)
 		#endif
 
 		if(mask & REND_FX_YUV_MIRROR)
-#ifdef USE_PLANAR_YUV
 			fx_yu12_mirror(frame, width, height);
-#else
-			fx_yuyv_mirror(frame, width, height);
-#endif
+
 		if(mask & REND_FX_YUV_UPTURN)
-#ifdef USE_PLANAR_YUV
 			fx_yu12_upturn(frame, width, height);
-#else
-			fx_yuyv_upturn(frame, width, height);
-#endif
 
 		if(mask & REND_FX_YUV_NEGATE)
 			fx_yuv_negative (frame, width, height);
 
 		if(mask & REND_FX_YUV_MONOCR)
-#ifdef USE_PLANAR_YUV
 			fx_yu12_monochrome (frame, width, height);
-#else
-			fx_yuyv_monochrome (frame, width, height);
-#endif
 
 #ifdef HAS_GSL
 		if(mask & REND_FX_YUV_PIECES)
-  #ifdef USE_PLANAR_YUV
 			fx_yu12_pieces(frame, width, height, 16 );
-  #else
-			fx_yuyv_pieces(frame, width, height, 16 );
-  #endif
 #endif
 	}
 	else

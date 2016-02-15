@@ -23,6 +23,7 @@
 #define COLORSPACES_H
 
 #include "gview.h"
+#include "../config.h"
 
 /*
  *convert from packed 422 yuv (yuyv) to 420 planar (yu12)
@@ -71,6 +72,22 @@ void yvyu_to_yu12(uint8_t *out, uint8_t *in, int width, int height);
  * returns: none
  */
 void uyvy_to_yu12(uint8_t *out, uint8_t *in, int width, int height);
+
+/*
+ *convert from packed 422 yuv (vyuy) to 420 planar (yu12)
+ * args:
+ *    out - pointer to output yu12 planar data buffer
+ *    in - pointer to input vyuy packed data buffer
+ *    width - frame width
+ *    height - frame height
+ *
+ * asserts:
+ *    in is not null
+ *    out is not null
+ *
+ * returns: none
+ */
+void vyuy_to_yu12(uint8_t *out, uint8_t *in, int width, int height);
 
 /*
  *convert from 422 planar yuv to 420 planar (yu12)
@@ -365,7 +382,7 @@ void yu12_to_rgb24 (uint8_t *out, uint8_t *in, int width, int height);
 void yu12_to_dib24 (uint8_t *out, uint8_t *in, int width, int height);
 
 /*
- * convert yuv 420 planar (yu12) to yuv 422
+ * convert yuv 420 planar (yu12) to yuv 422 (save_image_jpeg)
  * args:
  *    out- pointer to output buffer (yuyv)
  *    in- pointer to input buffer (yuv420 planar data frame (yu12))
@@ -379,299 +396,6 @@ void yu12_to_dib24 (uint8_t *out, uint8_t *in, int width, int height);
  * returns: none
  */
 void yu12_to_yuyv (uint8_t *out, uint8_t *in, int width, int height);
-
-/*
- * regular yuv (YUYV) to rgb24
- * args:
- *    pyuv - pointer to input yuyv data buffer
- *    prgb - pointer to converted output rgb data buffer
- *    width - buffer width (in pixels)
- *    height - buffer height (in pixels)
- *
- * asserts:
- *    none
- *
- * returns: none
- */
-void yuyv2rgb (uint8_t *pyuv, uint8_t *prgb, int width, int height);
-
-/*
- * used for rgb video (fourcc="RGB ")
- *   lines are on correct order
- * args:
- *    pyuv - pointer to input yuyv data buffer
- *    prgb - pointer to converted output bgr data buffer
- *    width - buffer width (in pixels)
- *    height - buffer height (in pixels)
- *
- * asserts:
- *    none
- *
- * returns: none
- */
-//void yuyv2bgr1 (uint8_t *pyuv, uint8_t *pbgr, int width, int height);
-
-/*
- * yuv (YUYV) to bgr with lines upsidedown
- *   used for bitmap files (DIB24)
- * args:
- *    pyuv - pointer to input yuyv data buffer
- *    prgb - pointer to converted output bgr data buffer
- *    width - buffer width (in pixels)
- *    height - buffer height (in pixels)
- *
- * asserts:
- *    none
- *
- * returns: none
- */
-void yuyv2bgr (uint8_t *pyuv, uint8_t *pbgr, int width, int height);
-
-/*
- * convert y10b (bit-packed array greyscale format) to yuyv (packed)
- * args:
- *   framebuffer: pointer to frame buffer (yuyv)
- *   tmpbuffer: pointer to temp buffer containing y10b (bit-packed array) data frame
- *   width: picture width
- *   height: picture height
- *
- * asserts:
- *    none
- *
- * returns: none
- */
-void y10b_to_yuyv (uint8_t *framebuffer, uint8_t *tmpbuffer, int width, int height);
-
-/*
- * convert y16 (grey) to yuyv (packed)
- * args:
- *   framebuffer: pointer to frame buffer (yuyv)
- *   tmpbuffer: pointer to temp buffer containing y16 (grey) data frame
- *   width: picture width
- *   height: picture height
- *
- * asserts:
- *   none
- *
- * returns: none
- */
-void y16_to_yuyv (uint8_t *framebuffer, uint8_t *tmpbuffer, int width, int height);
-
-/*
- * convert yyuv (packed) to yuyv (packed)
- * args:
- *    framebuffer: pointer to frame buffer (yuyv)
- *    tmpbuffer: pointer to temp buffer containing yyuv packed data frame
- *    width: picture width
- *    height: picture height
- *
- * asserts:
- *    none
- *
- * returns: none
- */
-void yyuv_to_yuyv (uint8_t *framebuffer, uint8_t *tmpbuffer, int width, int height);
-
-/*
- * convert uyvy (packed) to yuyv (packed)
- * args:
- *   framebuffer: pointer to frame buffer (yuyv)
- *   tmpbuffer: pointer to temp buffer containing uyvy packed data frame
- *   width: picture width
- *   height: picture height
- *
- * asserts:
- *    none
- *
- * returns: none
- */
-void uyvy_to_yuyv (uint8_t *framebuffer, uint8_t *tmpbuffer, int width, int height);
-
-/*
- * convert yvyu (packed) to yuyv (packed)
- * args:
- *   framebuffer: pointer to frame buffer (yuyv)
- *   tmpbuffer: pointer to temp buffer containing yvyu packed data frame
- *   width: picture width
- *   height: picture height
- *
- * asserts:
- *    none
- *
- * returns: none
- */
-void yvyu_to_yuyv (uint8_t *framebuffer, uint8_t *tmpbuffer, int width, int height);
-
-/*
- * convert yuv 422 planar (yuv422p) to yuv 422
- * args:
- *    output- pointer to output buffer (yuyv)
- *    input- pointer to input buffer (yuv420 planar data frame)
- *    width- picture width
- *    height- picture height
- *
- * asserts:
- *    input not null
- *
- * returns: none
- */
-void yuv422_to_yuyv (uint8_t *framebuffer, uint8_t *tmpbuffer, int width, int height);
-
-/*
- * convert yvu 420 planar (yv12) to yuv 422
- * args:
- *   framebuffer: pointer to frame buffer (yuyv)
- *   tmpbuffer: pointer to temp buffer containing yuv420 planar data frame
- *   width: picture width
- *   height: picture height
- *
- * asserts:
- *    none
- *
- * returns: none
- */
-void yvu420_to_yuyv (uint8_t *framebuffer, uint8_t *tmpbuffer, int width, int height);
-
-/*
- * convert yuv 420 planar (uv interleaved) (nv12) to yuv 422
- * args:
- *   framebuffer: pointer to frame buffer (yuyv)
- *   tmpbuffer: pointer to temp buffer containing yuv420 (nv12) planar data frame
- *   width: picture width
- *   height: picture height
- *
- * asserts:
- *    none
- *
- * returns: none
- */
-void nv12_to_yuyv (uint8_t *framebuffer, uint8_t *tmpbuffer, int width, int height);
-
-/*
- * convert yuv 420 planar (vu interleaved) (nv21) to yuv 422
- * args:
- *   framebuffer: pointer to frame buffer (yuyv)
- *   tmpbuffer: pointer to temp buffer containing yuv420 (nv21) planar data frame
- *   width: picture width
- *   height: picture height
- *
- * asserts:
- *    none
- *
- * returns: none
- */
-void nv21_to_yuyv (uint8_t *framebuffer, uint8_t *tmpbuffer, int width, int height);
-
-/*
- * convert yuv 422 planar (uv interleaved) (nv16) to yuv 422
- * args:
- *   framebuffer: pointer to frame buffer (yuyv)
- *   tmpbuffer: pointer to temp buffer containing yuv422 (nv16) planar data frame
- *   width: picture width
- *   height: picture height
- *
- * asserts:
- *    none
- *
- * returns: none
- */
-void nv16_to_yuyv (uint8_t *framebuffer, uint8_t *tmpbuffer, int width, int height);
-
-/*
- * convert yuv 422 planar (vu interleaved) (nv61) to yuv 422
- * args:
- *    framebuffer: pointer to frame buffer (yuyv)
- *    tmpbuffer: pointer to temp buffer containing yuv422 (nv61) planar data frame
- *    width: picture width
- *    height: picture height
- *
- * asserts:
- *    none
- *
- * returns: none
- */
-void nv61_to_yuyv (uint8_t *framebuffer, uint8_t *tmpbuffer, int width, int height);
-
-/*
- * convert yuv 411 packed (y41p) to yuv 422
- * args:
- *    framebuffer: pointer to frame buffer (yuyv)
- *    tmpbuffer: pointer to temp buffer containing y41p data frame
- *    width: picture width
- *    height: picture height
- *
- * asserts:
- *    none
- *
- * returns: none
- */
-void y41p_to_yuyv (uint8_t *framebuffer, uint8_t *tmpbuffer, int width, int height);
-
-/*
- * convert yuv mono (grey) to yuv 422
- * args:
- *   framebuffer: pointer to frame buffer (yuyv)
- *   tmpbuffer: pointer to temp buffer containing grey (y only) data frame
- *   width: picture width
- *    height: picture height
- *
- * asserts:
- *    none
- *
- * returns: none
- */
-void grey_to_yuyv (uint8_t *framebuffer, uint8_t *tmpbuffer, int width, int height);
-
-/*
- * convert SPCA501 (s501) to yuv 422
- *   s501  |Y0..width..Y0|U..width/2..U|Y1..width..Y1|V..width/2..V|
- *   signed values (-128;+127) must be converted to unsigned (0; 255)
- * args:
- *   framebuffer: pointer to frame buffer (yuyv)
- *   tmpbuffer: pointer to temp buffer containing s501 data frame
- *   width: picture width
- *   height: picture height
- *
- * asserts:
- *    none
- *
- * returns: none
- */
-void s501_to_yuyv(uint8_t *framebuffer, uint8_t *tmpbuffer, int width, int height);
-
-/*
- * convert SPCA505 (s505) to yuv 422
- *   s505  |Y0..width..Y0|Y1..width..Y1|U..width/2..U|V..width/2..V|
- *   signed values (-128;+127) must be converted to unsigned (0; 255)
- * args:
- *   framebuffer: pointer to frame buffer (yuyv)
- *   tmpbuffer: pointer to temp buffer containing s501 data frame
- *   width: picture width
- *   height: picture height
- *
- * asserts:
- *    none
- *
- * returns: none
- */
-void s505_to_yuyv(uint8_t *framebuffer, uint8_t *tmpbuffer, int width, int height);
-
-/*
- * convert SPCA508 (s508) to yuv 422
- *   s508  |Y0..width..Y0|U..width/2..U|V..width/2..V|Y1..width..Y1|
- *   signed values (-128;+127) must be converted to unsigned (0; 255)
- * args:
- *   framebuffer: pointer to frame buffer (yuyv)
- *   tmpbuffer: pointer to temp buffer containing s501 data frame
- *   width: picture width
- *   height: picture height
- *
- * asserts:
- *    none
- *
- * returns: none
- */
-void s508_to_yuyv(uint8_t *framebuffer, uint8_t *tmpbuffer, int width, int height);
 
 /*
  * convert bayer raw data to rgb24
@@ -689,35 +413,7 @@ void s508_to_yuyv(uint8_t *framebuffer, uint8_t *tmpbuffer, int width, int heigh
  */
 void bayer_to_rgb24(uint8_t *pBay, uint8_t *pRGB24, int width, int height, int pix_order);
 
-/*
- * convert rgb24 to yuyv
- * args:
- *   prgb: pointer to input buffer containing rgb data
- *   pyuv: pointer to output buffer containing converted yuyv data
- *   width: picture width
- *   height: picture height
- *
- * asserts:
- *   none
- *
- * returns: none
- */
-void rgb2yuyv(uint8_t *prgb, uint8_t *pyuv, int width, int height);
-
-/*
- * convert bgr24 to yuyv
- * args:
- *   pbgr: pointer to input buffer containing bgr data
- *   pyuv: pointer to output buffer containing converted yuyv data
- *   width: picture width
- *   height: picture height
- *
- * asserts:
- *   none
- *
- * returns: none
- */
-void bgr2yuyv(uint8_t *pbgr, uint8_t *pyuv, int width, int height);
+#if MJPG_BUILTIN
 
 /*
  * used for internal jpeg decoding  420 planar to 422
@@ -774,6 +470,8 @@ void yuv444pto422(int *out, uint8_t *pic, int width);
  * returns: none
  */
 void yuv400pto422(int *out, uint8_t *pic, int width);
+
+#endif
 
 #endif
 

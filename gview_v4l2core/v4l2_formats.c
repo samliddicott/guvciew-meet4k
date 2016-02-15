@@ -66,6 +66,10 @@ static v4l2_format_table_t decoder_supported_formats[] =
 		.pixelformat = V4L2_PIX_FMT_UYVY,
 	},
 	{
+		.fourcc = "VYUY",
+		.pixelformat = V4L2_PIX_FMT_VYUY,
+	},
+	{
 		.fourcc = "YYUV",
 		.pixelformat = V4L2_PIX_FMT_YYUV,
 	},
@@ -88,6 +92,10 @@ static v4l2_format_table_t decoder_supported_formats[] =
 	{
 		.fourcc = "YU12",
 		.pixelformat = V4L2_PIX_FMT_YUV420,
+	},
+	{
+		.fourcc = "422P",
+		.pixelformat = V4L2_PIX_FMT_YUV422P,
 	},
 	{
 		.fourcc = "YV12",

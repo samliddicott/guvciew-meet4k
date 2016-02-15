@@ -45,74 +45,6 @@ static float vu_peak[2] = {0.0, 0.0};
 static float vu_peak_freeze[2]= {0.0 ,0.0};
 
 /*
- * plot a rectangular box in a yuyv frame (packed)
- * args:
- *   frame - pointer to yuyv frame data
- *   linesize - frame line size in pixels (width)
- *   x - box top left x coordinate
- *   y - box top left y coordinate
- *   width - box width
- *   height - box height
- *   color - box color
- *
- * asserts:
- *   none
- *
- * returns: none
- */
-static void plot_box_yuyv(uint8_t *frame, int linesize, int x, int y, int width, int height, yuv_color_t *color)
-{
-	int i = 0;
-		
-	for (i = 0; i < height; ++i)
-  	{
-		int bi = 2 * (x + (y * linesize)); /*2 bytes per pixel*/
-		y++; /*next row*/
-
-		int j = 0;
-		for (j = 0; j < width/2; ++j) /*packed yuyv*/
-		{
-			/*we set two pixels in each loop*/
-			frame[bi] = color->y;
-	  		frame[bi+1] = color->u;
-			frame[bi+2] = color->y;
-	  		frame[bi+3] = color->v;
-	 		bi += 4; /*next two pixels*/
-		}
-	}
-}
-
-/*
- * plot a line in a yuyv frame (packed)
- * args:
- *   frame - pointer to yuyv frame data
- *   linesize - frame line size in pixels (width)
- *   x - box top left x coordinate
- *   y - box top left y coordinate
- *   width - line width
- *   color - line color
- *
- * asserts:
- *   none
- *
- * returns: none
- */
-static void plot_line_yuyv(uint8_t *frame, int linesize, int x, int y, int width, yuv_color_t *color)
-{
-	int bi = 2 * (x + (y  * linesize));
-
-	int j = 0;
-	for (j = 0; j < width/2; j++)
-	{
-		frame[bi] = color->y;
-		frame[bi+1] = color->u;
-		frame[bi+2] = color->y;
-		frame[bi+3] = color->v;
-		bi += 4;
-	}
-}
-
-/*
  * plot a rectangular box in a yu12 frame (planar)
  * args:
  *   frame - pointer to yu12 frame data
@@ -305,21 +237,9 @@ void render_osd_vu_meter(uint8_t *frame, int width, int height, float vu_level[2
 			}
 
 			if (light)
-			{
-#ifdef USE_PLANAR_YUV
 				plot_box_yu12(frame, height, width, bx, by, bw, bh, &color);
-#else
-  				plot_box_yuyv(frame, width, bx, by, bw, bh, &color);
-#endif
-			}
 			else if (bw > 0) /*draw single line*/
-			{
-#ifdef USE_PLANAR_YUV
 				plot_line_yu12(frame, height, width, bx, by + (bh /2), bw, &color);
-#else
-				plot_line_yuyv(frame, width, bx, by + (bh/2), bw, &color);
-#endif
-			}
 		}
   	}
 }

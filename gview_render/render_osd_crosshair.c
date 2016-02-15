@@ -39,80 +39,6 @@ typedef struct _yuv_color_t
 	uint8_t v;
 } yuv_color_t;
 
-
-/*
- * plot a crosshair in a yuyv frame (packed)
- * args:
- *   frame - pointer to yuyv frame data
- *   size  - crossair size in pixels (width)
- *   width - width
- *   height - height
- *   color - box color
- *
- * asserts:
- *   none
- *
- * returns: none
- */
-static void plot_crosshair_yuyv(uint8_t *frame, int size, int width, int height, yuv_color_t *color)
-{
-	int linesize = width*2; /*two bytes per pixel*/
-	
-	
-	/*1st vertical line*/
-	int y = 0; 
-	/*center - size/2 to center - 2*/	
-	for (y = (height-size)/2; y < (height/2) - 2; y++)
-  {
-		int bi = (y * linesize) + width; /*center (2 bytes per pixel)*/
-
-		/*we set two pixels in each loop*/
-		frame[bi] = color->y;
-	  frame[bi+1] = color->u;
-		frame[bi+2] = color->y;
-	  frame[bi+3] = color->v;
-	}
-	/*1st horizontal line*/
-	int x = (width-size)/2;
-	/*center - size/2 to center -4*/
-	for (x = (width-size)/2; x < (width/2) - 4; x+=2)
-  {
-		int bi = (x * 2) + (height/2)*linesize; /*center (2 bytes per pixel)*/
-
-		/*we set two pixels in each loop*/
-		frame[bi] = color->y;
-	  frame[bi+1] = color->u;
-		frame[bi+2] = color->y;
-	  frame[bi+3] = color->v;
-	}
-	/*2nd horizontal line*/
-	/*center + 2 to center + size/2 -2*/
-	for (x = (width/2) + 2; x < (width + size)/ 2 - 2; x+=2)
-  {
-		int bi = (x * 2) + (height/2)*linesize; /*center (2 bytes per pixel)*/
-
-		/*we set two pixels in each loop*/
-		frame[bi] = color->y;
-	  frame[bi+1] = color->u;
-		frame[bi+2] = color->y;
-	  frame[bi+3] = color->v;
-	}
-
-	/*2st vertical line*/
-	/*center + 2 to center + size/2*/
-	for (y = (height/2) +2; y < (height+size)/2; y++)
-  {
-		int bi = (y * linesize) + width; /*center (2 bytes per pixel)*/
-
-		/*we set two pixels in each loop*/
-		frame[bi] = color->y;
-	  frame[bi+1] = color->u;
-		frame[bi+2] = color->y;
-	  frame[bi+3] = color->v;
-	}
-
-}
-
 /*
  * plot a crosshair in a yu12 frame (planar)
  * args:
@@ -219,15 +145,10 @@ void render_osd_crosshair(uint8_t *frame, int width, int height)
 	uint8_t r = (uint8_t) ((rgb_color & 0x00FF0000) >> 16);
 	uint8_t g = (uint8_t) ((rgb_color & 0x0000FF00) >> 8);
 	uint8_t b = (uint8_t) (rgb_color & 0x000000FF);
-	
+
 	color.y = CLIP(0.299*(r-128) + 0.587*(g-128) + 0.114*(b-128) + 128) ;
 	color.u = CLIP(-0.147*(r-128) - 0.289*(g-128) + 0.436*(b-128) + 128);
 	color.v = CLIP(0.615*(r-128) - 0.515*(g-128) - 0.100*(b-128) + 128);
-	
-#ifdef USE_PLANAR_YUV
+
 	plot_crosshair_yu12(frame, 24, width, height, &color);
-#else
-	plot_crosshair_yuyv(frame, 24, width, height, &color);
-#endif
-			
 }

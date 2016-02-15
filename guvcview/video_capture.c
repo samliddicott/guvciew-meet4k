@@ -1208,11 +1208,8 @@ void *capture_loop(void *data)
 			/*save the frame (video)*/
 			if(video_capture_get_save_video())
 			{
-#ifdef USE_PLANAR_YUV
 				int size = (frame->width * frame->height * 3) / 2;
-#else
-				int size = frame->width * frame->height * 2;
-#endif
+
 				uint8_t *input_frame = frame->yuv_frame;
 				/*
 				 * TODO: check codec_id, format and frame flags

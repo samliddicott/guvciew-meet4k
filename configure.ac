@@ -140,24 +140,6 @@ AC_SUBST(GVIEWV4L2CORE_CFLAGS)
 AC_SUBST(GVIEWV4L2CORE_LIBS)
 
 dnl --------------------------------------------------------------------------
-dnl check internal yuv format (packed yuyv - default) or planar (iyuv) 
-dnl --------------------------------------------------------------------------
-AC_MSG_CHECKING(if you want to enable yuyv (packed) as internal format)
-AC_ARG_ENABLE(yuyv, AS_HELP_STRING([--enable-yuyv],
-		[enable yuyv (packed) as internal format (default: iyuv (420 planar))]),
-	[enable_yuyv=$enableval],
-	[enable_yuyv=no])
-
-AC_MSG_RESULT($enable_yuyv)
-
-if test $enable_yuyv = yes; then
-	yuv_format=yuyv
-else
-	AC_DEFINE(USE_PLANAR_YUV, 1, [set to 1 if iyuv is enabled])
-	yuv_format=iyuv
-fi
-
-dnl --------------------------------------------------------------------------
 dnl Check for avcodec.h installation path
 dnl --------------------------------------------------------------------------
 
@@ -522,7 +504,6 @@ AC_MSG_NOTICE([
 
   Prefix           : ${prefix}
   Pulseaudio       : ${enable_pulse}
-  internal format  : ${yuv_format}
   gsl              : ${enable_gsl}
   sdl2             : ${enable_sdl2}
   mjpg decoder     : ${mjpg_decoder}

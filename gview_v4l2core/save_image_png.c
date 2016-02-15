@@ -233,11 +233,8 @@ int save_image_png(v4l2_frame_buff_t *frame, const char *filename)
 		fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (save_image_png): %s\n", strerror(errno));
 		exit(-1);
 	}
-#ifdef USE_PLANAR_YUV
+
 	yu12_to_rgb24(rgb, frame->yuv_frame, width, height);
-#else
-	yuyv2rgb(frame->yuv_frame, rgb, width, height);
-#endif
 
 	int ret = save_png(filename, width, height, rgb);
 

@@ -215,11 +215,7 @@ static int video_init(int width, int height, int flags)
 	SDL_SetRenderDrawBlendMode(main_renderer, SDL_BLENDMODE_NONE);
 
     rending_texture = SDL_CreateTexture(main_renderer,
-#ifdef USE_PLANAR_YUV
 		SDL_PIXELFORMAT_IYUV,  /*yuv420p*/
-#else
-		SDL_PIXELFORMAT_YUY2,  /*yuv422*/
-#endif
 		SDL_TEXTUREACCESS_STREAMING,
 		width,
 		height);
@@ -289,11 +285,7 @@ int render_sdl2_frame(uint8_t *frame, int width, int height)
 	 * instead of SDL_UpdateYUVTexture.
 	 * no need to use SDL_Lock/UnlockTexture (it doesn't seem faster)
 	 */
-#ifdef USE_PLANAR_YUV
 	SDL_UpdateTexture(rending_texture, NULL, frame, width);
-#else
-	SDL_UpdateTexture(rending_texture, NULL, frame, width*2);
-#endif
 
 	SDL_RenderCopy(main_renderer, rending_texture, NULL, NULL);
 

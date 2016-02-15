@@ -979,7 +979,6 @@ static int encode_jpeg (uint8_t *input, uint8_t *output,
 	/* Writing Marker Data */
 	tmp_optr = write_markers (jpeg_ctx, tmp_optr, huff);
 
-#ifdef USE_PLANAR_YUV
 	uint8_t *yuv422 = calloc(jpeg_ctx->image_width * jpeg_ctx->image_height * 2, sizeof(uint8_t));
 	if(yuv422 == NULL)
 	{
@@ -988,7 +987,6 @@ static int encode_jpeg (uint8_t *input, uint8_t *output,
 	}
 	yu12_to_yuyv(yuv422, input, jpeg_ctx->image_width, jpeg_ctx->image_height);
 	tmp_iptr = yuv422;
-#endif
 
 	for (i=0; i < jpeg_ctx->vertical_mcus; i++) /* height /8 */
 	{
@@ -1015,9 +1013,8 @@ static int encode_jpeg (uint8_t *input, uint8_t *output,
 	}
 
 	/* Close Routine */
-#ifdef USE_PLANAR_YUV
 	free(yuv422);
-#endif
+
 	tmp_optr = close_bitstream (jpeg_ctx, tmp_optr);
 	size = tmp_optr - output;
 	tmp_iptr = NULL;
