@@ -186,6 +186,38 @@ void nv21_to_yu12(uint8_t *out, uint8_t *in, int width, int height);
 void nv16_to_yu12 (uint8_t *out, uint8_t *in, int width, int height);
 
 /*
+ * convert yuv444 planar (uv interleaved) (nv24) to yuv420 planar (yu12)
+ * args:
+ *    out: pointer to output buffer (yu12)
+ *    in: pointer to input buffer containing nv24 planar data frame
+ *    width: picture width
+ *    height: picture height
+ *
+ * asserts:
+ *    out is not null
+ *    in is not null
+ *
+ * returns: none
+ */
+void nv24_to_yu12(uint8_t *out, uint8_t *in, int width, int height);
+
+/*
+ * convert yuv444 planar (uv interleaved) (nv42) to yuv420 planar (yu12)
+ * args:
+ *    out: pointer to output buffer (yu12)
+ *    in: pointer to input buffer containing nv42 planar data frame
+ *    width: picture width
+ *    height: picture height
+ *
+ * asserts:
+ *    out is not null
+ *    in is not null
+ *
+ * returns: none
+ */
+void nv42_to_yu12(uint8_t *out, uint8_t *in, int width, int height);
+
+/*
  * convert yuv 422 planar (vu interleaved) (nv61) to yuv420 planar (yu12)
  * args:
  *   out: pointer to output buffer (yu12)

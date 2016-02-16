@@ -382,6 +382,11 @@ int gui_attach_qt5(int width, int height)
 	if(debug_level > 2)
 		std::cout <<"GUVCVIEW (Qt5): creating window" << std::endl;
 	mainWin = new MainWindow();
+	if(width <=0 || height <= 0)
+	{
+		width = 800;
+		height = 600;
+	}
 	mainWin->resize(width, height);
     mainWin->show();
 

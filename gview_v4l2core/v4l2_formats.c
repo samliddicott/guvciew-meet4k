@@ -118,6 +118,14 @@ static v4l2_format_table_t decoder_supported_formats[] =
 		.pixelformat = V4L2_PIX_FMT_NV61,
 	},
 	{
+		.fourcc = "NV24",
+		.pixelformat = V4L2_PIX_FMT_NV24,
+	},
+	{
+		.fourcc = "NV42",
+		.pixelformat = V4L2_PIX_FMT_NV42,
+	},
+	{
 		.fourcc = "S501",
 		.pixelformat = V4L2_PIX_FMT_SPCA501,
 	},

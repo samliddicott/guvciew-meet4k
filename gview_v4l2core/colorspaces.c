@@ -904,6 +904,106 @@ void nv61_to_yu12 (uint8_t *out, uint8_t *in, int width, int height)
 }
 
 /*
+ * convert yuv444 planar (uv interleaved) (nv24) to yuv420 planar (yu12)
+ * args:
+ *    out: pointer to output buffer (yu12)
+ *    in: pointer to input buffer containing nv24 planar data frame
+ *    width: picture width
+ *    height: picture height
+ *
+ * asserts:
+ *    out is not null
+ *    in is not null
+ *
+ * returns: none
+ */
+void nv24_to_yu12(uint8_t *out, uint8_t *in, int width, int height)
+{
+	/*assertions*/
+	assert(in);
+	assert(out);
+
+	/*copy y data*/
+    memcpy(out, in, width*height);
+
+	//uv plane
+	uint8_t *puv1 = in + (width * height); //first line
+	uint8_t *puv2 = puv1 + (width * 2); //second line
+	uint8_t *pu = out + (width * height);
+	uint8_t *pv = pu + ((width * height) / 4);
+
+	int h = 0;
+	int w = 0;
+	for(h=0; h < height; h+=2)
+	{
+		
+		puv2 = puv1 + (width * 2);
+		for(w=0; w < (width * 2); w+=4)
+		{
+			uint8_t u1 = ((*puv1++) + (*puv2++)) / 2;
+			uint8_t v1 = ((*puv1++) + (*puv2++)) / 2;
+			uint8_t u2 = ((*puv1++) + (*puv2++)) / 2;
+			uint8_t v2 = ((*puv1++) + (*puv2++)) / 2;
+
+			*pu++ = (u1 + u2)/2; //average
+			*pv++ = (v1 + v2)/2; //average
+		}
+		puv1 = puv2;
+	}
+
+}
+
+/*
+ * convert yuv444 planar (uv interleaved) (nv42) to yuv420 planar (yu12)
+ * args:
+ *    out: pointer to output buffer (yu12)
+ *    in: pointer to input buffer containing nv42 planar data frame
+ *    width: picture width
+ *    height: picture height
+ *
+ * asserts:
+ *    out is not null
+ *    in is not null
+ *
+ * returns: none
+ */
+void nv42_to_yu12(uint8_t *out, uint8_t *in, int width, int height)
+{
+	/*assertions*/
+	assert(in);
+	assert(out);
+
+	/*copy y data*/
+    memcpy(out, in, width*height);
+
+	//uv plane
+	uint8_t *puv1 = in + (width * height); //first line
+	uint8_t *puv2 = puv1 + (width * 2); //second line
+	uint8_t *pu = out + (width * height);
+	uint8_t *pv = pu + ((width * height) / 4);
+
+	int h = 0;
+	int w = 0;
+	for(h=0; h < height; h+=2)
+	{
+		
+		puv2 = puv1 + (width * 2);
+		for(w=0; w < (width * 2); w+=4)
+		{
+			uint8_t v1 = ((*puv1++) + (*puv2++)) / 2;
+			uint8_t u1 = ((*puv1++) + (*puv2++)) / 2;
+			uint8_t v2 = ((*puv1++) + (*puv2++)) / 2;
+			uint8_t u2 = ((*puv1++) + (*puv2++)) / 2;
+
+			*pu++ = (u1 + u2)/2; //average
+			*pv++ = (v1 + v2)/2; //average
+		}
+		puv1 = puv2;
+	}
+
+}
+
+/*
  * Unpack buffer of (vw bit) data into padded 16bit buffer.
  * args:
  *    raw - pointer to input raw packed data buffer
