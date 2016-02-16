@@ -106,6 +106,13 @@ static opt_values_t opt_values[] =
 		.opt_help = N_("Request format (e.g MJPG)")
 	},
 	{
+		.opt_short = 'F',
+		.opt_long = "fps",
+		.req_arg = 1,
+		.opt_help_arg = N_("FPS_NUM[/FPS_DENOM]"),
+		.opt_help = N_("Request fps (e.g 25 ; 7/3; ...)")
+	},
+	{
 		.opt_short = 'r',
 		.opt_long = "render",
 		.req_arg = 1,
@@ -511,6 +518,24 @@ int options_parse(int argc, char *argv[])
 					strncpy(my_options.format, optarg, 4);
 				break;
 			}
+
+			case 'F':
+				/* numerator and denominator are reversed 
+				 * since fps here is actually time between frame
+				 */
+				my_options.fps_num = 1;
+				my_options.fps_denom = (int) strtoul(optarg, &stopstring, 10);
+				if( *stopstring == '/')
+				{
+					++stopstring;
+					my_options.fps_num = (int) strtoul(stopstring, &stopstring, 10);
+				}
+				if(my_options.fps_denom <= 0)
+					my_options.fps_denom = 25;
+				if(my_options.fps_num <= 0)
+					my_options.fps_num = 1;
+				break;
+
 			case 'r':
 			{
 				int str_size = strlen(optarg);

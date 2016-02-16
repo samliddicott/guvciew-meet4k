@@ -369,6 +369,12 @@ void config_update(options_t *my_options)
 	if(my_options->height > 0)
 		my_config.height = my_options->height;
 
+	/*check for resolution options*/
+	if(my_options->fps_num > 0)
+		my_config.fps_num = my_options->fps_num;
+	if(my_options->fps_denom > 0)
+		my_config.fps_denom = my_options->fps_denom;
+
 	/*capture method*/
 	if(strlen(my_options->capture) > 3)
 		strncpy(my_config.capture, my_options->capture, 4);

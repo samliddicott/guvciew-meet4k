@@ -28,6 +28,8 @@ typedef struct _options_t
 	char device[30]; /*device name*/
 	int  width;      /*width*/
 	int  height;     /*height*/
+	int fps_num;     /*fps numerator*/
+	int fps_denom;   /*fps denominator*/
 	int  control_panel; /*flag control panel mode*/
 	int  disable_libv4l2; /*set to 1 to disable libv4l2 calls*/
 	char format[5];  /*pixelformat fourcc*/
