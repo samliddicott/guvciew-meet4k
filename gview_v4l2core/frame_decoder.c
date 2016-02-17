@@ -140,14 +140,20 @@ int alloc_v4l2_frames(v4l2_dev_t *vd)
 			}
 			break;
 
+		case V4L2_PIX_FMT_RGB24:
+		case V4L2_PIX_FMT_BGR24:
 		case V4L2_PIX_FMT_UYVY:
 		case V4L2_PIX_FMT_VYUY:
 		case V4L2_PIX_FMT_YVYU:
 		case V4L2_PIX_FMT_YYUV:
-		case V4L2_PIX_FMT_YUV422P: /* only needs 3/2 bytes per pixel but we alloc 2 bytes per pixel*/
-		case V4L2_PIX_FMT_YUV420: /* only needs 3/2 bytes per pixel but we alloc 2 bytes per pixel*/
-		case V4L2_PIX_FMT_YVU420: /* only needs 3/2 bytes per pixel but we alloc 2 bytes per pixel*/
-		case V4L2_PIX_FMT_Y41P:   /* only needs 3/2 bytes per pixel but we alloc 2 bytes per pixel*/
+		case V4L2_PIX_FMT_YUV444:
+		case V4L2_PIX_FMT_YUV555:
+		case V4L2_PIX_FMT_YUV565:
+		case V4L2_PIX_FMT_YUV32:
+		case V4L2_PIX_FMT_YUV422P:
+		case V4L2_PIX_FMT_YUV420:
+		case V4L2_PIX_FMT_YVU420:
+		case V4L2_PIX_FMT_Y41P:
 		case V4L2_PIX_FMT_NV12:
 		case V4L2_PIX_FMT_NV21:
 		case V4L2_PIX_FMT_NV16:
@@ -157,35 +163,8 @@ int alloc_v4l2_frames(v4l2_dev_t *vd)
 		case V4L2_PIX_FMT_SPCA501:
 		case V4L2_PIX_FMT_SPCA505:
 		case V4L2_PIX_FMT_SPCA508:
-			framebuf_size = framesizeIn;
-			/*frame queue*/
-			for(i=0; i<vd->frame_queue_size; ++i)
-			{
-				vd->frame_queue[i].yuv_frame = calloc(framebuf_size, sizeof(uint8_t));
-				if(vd->frame_queue[i].yuv_frame == NULL)
-				{
-					fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (alloc_v4l2_frames): %s\n", strerror(errno));
-					exit(-1);
-				}
-			}
-			break;
-
 		case V4L2_PIX_FMT_GREY:
-			framebuf_size = framesizeIn;
-			/*frame queue*/
-			for(i=0; i<vd->frame_queue_size; ++i)
-			{
-				/* alloc a temp buffer for colorspace conversion*/
-				vd->frame_queue[i].yuv_frame = calloc(framebuf_size, sizeof(uint8_t));
-				if(vd->frame_queue[i].yuv_frame == NULL)
-				{
-					fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (alloc_v4l2_frames): %s\n", strerror(errno));
-					exit(-1);
-				}
-			}
-			break;
-
-	    case V4L2_PIX_FMT_Y10BPACK:
+		case V4L2_PIX_FMT_Y10BPACK:
 	    case V4L2_PIX_FMT_Y16:
 			framebuf_size = framesizeIn;
 			/*frame queue*/
@@ -242,21 +221,6 @@ int alloc_v4l2_frames(v4l2_dev_t *vd)
 					fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (alloc_v4l2_frames): %s\n", strerror(errno));
 					exit(-1);
 				}
-				vd->frame_queue[i].yuv_frame = calloc(framebuf_size, sizeof(uint8_t));
-				if(vd->frame_queue[i].yuv_frame == NULL)
-				{
-					fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (alloc_v4l2_frames): %s\n", strerror(errno));
-					exit(-1);
-				}
-			}
-			break;
-		case V4L2_PIX_FMT_RGB24:
-		case V4L2_PIX_FMT_BGR24:
-			/*convert directly from raw_frame*/
-			framebuf_size = framesizeIn;
-			/*frame queue*/
-			for(i=0; i<vd->frame_queue_size; ++i)
-			{
 				vd->frame_queue[i].yuv_frame = calloc(framebuf_size, sizeof(uint8_t));
 				if(vd->frame_queue[i].yuv_frame == NULL)
 				{
@@ -838,6 +802,22 @@ int decode_v4l2_frame(v4l2_dev_t *vd, v4l2_frame_buff_t *frame)
 
 		case V4L2_PIX_FMT_YYUV:
 			yyuv_to_yu12(frame->yuv_frame, frame->raw_frame, width, height);
+			break;
+
+		case V4L2_PIX_FMT_YUV444:
+			y444_to_yu12(frame->yuv_frame, frame->raw_frame, width, height);
+			break;
+
+		case V4L2_PIX_FMT_YUV555:
+			yuvo_to_yu12(frame->yuv_frame, frame->raw_frame, width, height);
+			break;
+
+		case V4L2_PIX_FMT_YUV565:
+			yuvp_to_yu12(frame->yuv_frame, frame->raw_frame, width, height);
+			break;
+
+		case V4L2_PIX_FMT_YUV32:
+			yuv4_to_yu12(frame->yuv_frame, frame->raw_frame, width, height);
 			break;
 
 		case V4L2_PIX_FMT_YUV420:

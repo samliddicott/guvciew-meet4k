@@ -652,15 +652,15 @@ void yuv422p_to_yu12(uint8_t *out, uint8_t *in, int width, int height)
 
 	for(h = 0; h < height; h+=2)
 	{
+		inu2 = inu1 + (width / 2);
+		inv2 = inv1 + (width / 2);
 		for(w = 0; w < width/2; w++) 
 		{
 			*pu++ = ((*inu1++) + (*inu2++)) /2; //average u sample
 			*pv++ = ((*inv1++) + (*inv2++)) /2; //average v samples
 		}
-        inu1 = in + (width * height) + (h * c_sizeline);
-		inu2 = in + (width * height) + ((h+1) * c_sizeline);
-		inv1 = inu1 + ((width * height) / 2);
-		inv2 = inv1 + (width / 2);
+        inu1 = inu2;
+		inv1 = inv2;
 	}
 
 }
@@ -699,6 +699,8 @@ void yyuv_to_yu12(uint8_t *out, uint8_t *in, int width, int height)
 
 	for(h = 0; h < height; h+=2)
 	{
+		in2 = in1 + (width * 2);
+		py2 = py1 +  width;
 		for(w = 0; w < width; w+=2) //yyuv 2 bytes per sample
 		{
 			*py1++ = *in1++;
@@ -708,12 +710,295 @@ void yyuv_to_yu12(uint8_t *out, uint8_t *in, int width, int height)
 			*pu++ = ((*in1++) + (*in2++)) /2; //average v samples
 			*pv++ = ((*in1++) + (*in2++)) /2; //average u samples
 		}
-		in1 = in + (h * width * 2);
-		in2 = in + ((h+1) * width * 2);
-		py1 = out + (h * width);
-		py2 = out + ((h+1) * width); 
+		in1 = in2;
+		py1 = py2;
 	}
+}
 
+/*
+ * convert y444 (packed) to yuv420 planar (yu12)
+ * args:
+ *    out: pointer to output buffer (yu12)
+ *    in: pointer to input buffer containing y444 (yuv-4-4-4) packed data frame
+ *    width: picture width
+ *    height: picture height
+ *
+ * asserts:
+ *    out is not null
+ *    in is not null
+ *
+ * returns: none
+ */
+void y444_to_yu12(uint8_t *out, uint8_t *in, int width, int height)
+{
+	/*assertions*/
+	assert(in);
+	assert(out);
+
+	int w = 0, h = 0;
+	
+	uint8_t *in1 = in; //first line
+	uint8_t *in2 = in1 + (width * 2); //second line
+
+	uint8_t *py1 = out; // first line
+	uint8_t *py2 = py1 + width; //second line
+	uint8_t *pu = py1 + (width * height);
+	uint8_t *pv = pu + ((width * height) / 4);
+
+	for(h = 0; h < height; h+=2)
+	{
+		in2 = in1 + (width * 2);
+		py2 = py1 +  width;
+		for(w = 0; w < (width*2); w+=4)
+		{
+			uint8_t yuv10 = *in1++;
+			uint8_t yuv11 = *in1++;
+			uint8_t yuv12 = *in1++;
+			uint8_t yuv13 = *in1++;
+
+			uint8_t yuv20 = *in2++;
+			uint8_t yuv21 = *in2++;
+			uint8_t yuv22 = *in2++;
+			uint8_t yuv23 = *in2++;
+
+			*py1++ = (uint8_t) (yuv11 << 4) & 0xF0;
+			*py1++ = (uint8_t) (yuv13 << 4) & 0xF0;
+			*py2++ = (uint8_t) (yuv21 << 4) & 0xF0;
+			*py2++ = (uint8_t) (yuv23 << 4) & 0xF0;
+
+			uint8_t u10 = yuv10 & 0xF0;
+			uint8_t u11 = yuv12 & 0xF0;
+			uint8_t u1 = (u10 + u11) /2;
+			uint8_t v10 = (yuv10 << 4) & 0xF0;
+			uint8_t v11 = (yuv12 << 4) & 0xF0;
+			uint8_t v1 = (v10 + v11) /2;
+
+			uint8_t u20 = yuv20 & 0xF0;
+			uint8_t u21 = yuv22 & 0xF0;
+			uint8_t u2 = (u20 + u21) /2;
+			uint8_t v20 = (yuv20 << 4) & 0xF0;
+			uint8_t v21 = (yuv22 << 4) & 0xF0;
+			uint8_t v2 = (v20 +v21) /2;
+
+			*pu++ = (u1 + u2) /2;
+			*pv++ = (v1 + v2) /2;
+		}
+		in1 = in2;
+		py1 = py2;
+	}
+}
+
+/*
+ * convert yuvo (packed) to yuv420 planar (yu12)
+ * args:
+ *    out: pointer to output buffer (yu12)
+ *    in: pointer to input buffer containing yuvo (yuv-5-5-5) packed data frame
+ *    width: picture width
+ *    height: picture height
+ *
+ * asserts:
+ *    out is not null
+ *    in is not null
+ *
+ * returns: none
+ */
+void yuvo_to_yu12(uint8_t *out, uint8_t *in, int width, int height)
+{
+	/*assertions*/
+	assert(in);
+	assert(out);
+
+	int w = 0, h = 0;
+	
+	uint8_t *in1 = in; //first line
+	uint8_t *in2 = in1 + (width * 2); //second line
+
+	uint8_t *py1 = out; // first line
+	uint8_t *py2 = py1 + width; //second line
+	uint8_t *pu = py1 + (width * height);
+	uint8_t *pv = pu + ((width * height) / 4);
+
+	for(h = 0; h < height; h+=2)
+	{
+		in2 = in1 + (width * 2);
+		py2 = py1 +  width;
+		for(w = 0; w < (width*2); w+=4)
+		{
+			uint8_t yuv10 = *in1++;
+			uint8_t yuv11 = *in1++;
+			uint8_t yuv12 = *in1++;
+			uint8_t yuv13 = *in1++;
+
+			uint8_t yuv20 = *in2++;
+			uint8_t yuv21 = *in2++;
+			uint8_t yuv22 = *in2++;
+			uint8_t yuv23 = *in2++;
+
+			*py1++ = (uint8_t) (yuv11 << 1) & 0xF8;
+			*py1++ = (uint8_t) (yuv13 << 1) & 0xF8;
+			*py2++ = (uint8_t) (yuv21 << 1) & 0xF8;
+			*py2++ = (uint8_t) (yuv23 << 1) & 0xF8;
+
+			uint8_t u10 = ((yuv10 >> 2) & 0x38) | ((yuv11 << 6) & 0xC0);
+			uint8_t u11 = ((yuv12 >> 2) & 0x38) | ((yuv13 << 6) & 0xC0);
+			uint8_t u1 = (u10 + u11) /2;
+			uint8_t v10 = (yuv10 << 3) & 0xF8;
+			uint8_t v11 = (yuv12 << 3) & 0xF8;
+			uint8_t v1 = (v10 + v11) /2;
+
+			uint8_t u20 = ((yuv20 >> 2) & 0x38) | ((yuv21 << 6) & 0xC0);
+			uint8_t u21 = ((yuv22 >> 2) & 0x38) | ((yuv23 << 6) & 0xC0);
+			uint8_t u2 = (u20 + u21) /2;
+			uint8_t v20 = (yuv20 << 3) & 0xF8;
+			uint8_t v21 = (yuv22 << 3) & 0xF8;
+			uint8_t v2 = (v20 +v21) /2;
+
+			*pu++ = (u1 + u2) /2;
+			*pv++ = (v1 + v2) /2;
+		}
+		in1 = in2;
+		py1 = py2;
+	}
+}
+
+/*
+ * convert yuvp (packed) to yuv420 planar (yu12)
+ * args:
+ *    out: pointer to output buffer (yu12)
+ *    in: pointer to input buffer containing yuvp (yuv-5-6-5) packed data frame
+ *    width: picture width
+ *    height: picture height
+ *
+ * asserts:
+ *    out is not null
+ *    in is not null
+ *
+ * returns: none
+ */
+void yuvp_to_yu12(uint8_t *out, uint8_t *in, int width, int height)
+{
+	/*assertions*/
+	assert(in);
+	assert(out);
+
+	int w = 0, h = 0;
+	
+	uint8_t *in1 = in; //first line
+	uint8_t *in2 = in1 + (width * 2); //second line
+
+	uint8_t *py1 = out; // first line
+	uint8_t *py2 = py1 + width; //second line
+	uint8_t *pu = py1 + (width * height);
+	uint8_t *pv = pu + ((width * height) / 4);
+
+	for(h = 0; h < height; h+=2)
+	{
+		in2 = in1 + (width * 2);
+		py2 = py1 +  width;
+		for(w = 0; w < (width*2); w+=4)
+		{
+			uint8_t yuv10 = *in1++;
+			uint8_t yuv11 = *in1++;
+			uint8_t yuv12 = *in1++;
+			uint8_t yuv13 = *in1++;
+
+			uint8_t yuv20 = *in2++;
+			uint8_t yuv21 = *in2++;
+			uint8_t yuv22 = *in2++;
+			uint8_t yuv23 = *in2++;
+
+			*py1++ = (uint8_t) yuv11 & 0xF8;
+			*py1++ = (uint8_t) yuv13 & 0xF8;
+			*py2++ = (uint8_t) yuv21 & 0xF8;
+			*py2++ = (uint8_t) yuv23 & 0xF8;
+
+			uint8_t u10 = ((yuv10 >> 3) & 0x1C) | ((yuv11 << 5) & 0xE0);
+			uint8_t u11 = ((yuv12 >> 3) & 0x1C) | ((yuv13 << 5) & 0xE0);
+			uint8_t u1 = (u10 + u11) /2;
+			uint8_t v10 = (yuv10 << 3) & 0xF8;
+			uint8_t v11 = (yuv12 << 3) & 0xF8;
+			uint8_t v1 = (v10 + v11) /2;
+
+			uint8_t u20 = ((yuv20 >> 3) & 0x1C) | ((yuv21 << 5) & 0xE0);
+			uint8_t u21 = ((yuv22 >> 3) & 0x1C) | ((yuv23 << 5) & 0xE0);
+			uint8_t u2 = (u20 + u21) /2;
+			uint8_t v20 = (yuv20 << 3) & 0xF8;
+			uint8_t v21 = (yuv22 << 3) & 0xF8;
+			uint8_t v2 = (v20 +v21) /2;
+
+			*pu++ = (u1 + u2) /2;
+			*pv++ = (v1 + v2) /2;
+		}
+		in1 = in2;
+		py1 = py2;
+	}
+}
+
+/*
+ * convert yuv4 (packed) to yuv420 planar (yu12)
+ * args:
+ *    out: pointer to output buffer (yu12)
+ *    in: pointer to input buffer containing yuv4 (yuv32) packed data frame
+ *    width: picture width
+ *    height: picture height
+ *
+ * asserts:
+ *    out is not null
+ *    in is not null
+ *
+ * returns: none
+ */
+void yuv4_to_yu12(uint8_t *out, uint8_t *in, int width, int height)
+{
+	/*assertions*/
+	assert(in);
+	assert(out);
+
+	int w = 0, h = 0;
+	
+	uint8_t *in1 = in; //first line
+	uint8_t *in2 = in1 + (width * 4); //second line
+
+	uint8_t *py1 = out; // first line
+	uint8_t *py2 = py1 + width; //second line
+	uint8_t *pu = py1 + (width * height);
+	uint8_t *pv = pu + ((width * height) / 4);
+
+	for(h = 0; h < height; h+=2)
+	{
+		in2 = in1 + (width * 4);
+		py2 = py1 +  width;
+		for(w = 0; w < (width*4); w+=8)
+		{
+			in1++; //alpha 10
+			*py1++ = *in1++; //y10
+			uint8_t u10 = *in1++; //u10
+			uint8_t v10 = *in1++; //v10
+			in1++; //alpha 11
+			*py1++ = *in1++; //y11
+			uint8_t u11 = *in1++; //u11
+			uint8_t v11 = *in1++; //v11
+
+			in2++; //alpha 20
+			*py2++ = *in2++; //y20
+			uint8_t u20 = *in2++; //u20
+			uint8_t v20 = *in2++; //v20
+			in2++; //alpha 21
+			*py2++ = *in2++; //y21
+			uint8_t u21 = *in2++; //u21
+			uint8_t v21 = *in2++; //v21
+
+			uint8_t u1 = (u10 + u11) /2;
+			uint8_t v1 = (v10 + v11) /2;
+			uint8_t u2 = (u20 + u21) /2;
+			uint8_t v2 = (v20 + v21) /2;
+
+			*pu++ = (u1 + u2) /2;
+			*pv++ = (v1 + v2) /2;
+		}
+		in1 = in2;
+		py1 = py2;
+	}
 }
 
 /*
@@ -814,7 +1099,6 @@ void nv21_to_yu12(uint8_t *out, uint8_t *in, int width, int height)
 		*pv++ = *puv++;
 		*pu++ = *puv++;
 	}
-
 }
 
 /*
@@ -936,7 +1220,6 @@ void nv24_to_yu12(uint8_t *out, uint8_t *in, int width, int height)
 	int w = 0;
 	for(h=0; h < height; h+=2)
 	{
-		
 		puv2 = puv1 + (width * 2);
 		for(w=0; w < (width * 2); w+=4)
 		{
@@ -950,7 +1233,6 @@ void nv24_to_yu12(uint8_t *out, uint8_t *in, int width, int height)
 		}
 		puv1 = puv2;
 	}
-
 }
 
 /*
@@ -986,7 +1268,6 @@ void nv42_to_yu12(uint8_t *out, uint8_t *in, int width, int height)
 	int w = 0;
 	for(h=0; h < height; h+=2)
 	{
-		
 		puv2 = puv1 + (width * 2);
 		for(w=0; w < (width * 2); w+=4)
 		{
@@ -1000,7 +1281,6 @@ void nv42_to_yu12(uint8_t *out, uint8_t *in, int width, int height)
 		}
 		puv1 = puv2;
 	}
-
 }
 
 /*

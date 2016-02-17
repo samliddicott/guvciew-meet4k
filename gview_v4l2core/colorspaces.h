@@ -122,6 +122,70 @@ void yuv422p_to_yu12(uint8_t *out, uint8_t *in, int width, int height);
 void yyuv_to_yu12(uint8_t *out, uint8_t *in, int width, int height);
 
 /*
+ * convert y444 (packed) to yuv420 planar (yu12)
+ * args:
+ *    out: pointer to output buffer (yu12)
+ *    in: pointer to input buffer containing y444 (yuv-4-4-4) packed data frame
+ *    width: picture width
+ *    height: picture height
+ *
+ * asserts:
+ *    out is not null
+ *    in is not null
+ *
+ * returns: none
+ */
+void y444_to_yu12(uint8_t *out, uint8_t *in, int width, int height);
+
+/*
+ * convert yuvo (packed) to yuv420 planar (yu12)
+ * args:
+ *    out: pointer to output buffer (yu12)
+ *    in: pointer to input buffer containing yuvo (yuv-5-5-5) packed data frame
+ *    width: picture width
+ *    height: picture height
+ *
+ * asserts:
+ *    out is not null
+ *    in is not null
+ *
+ * returns: none
+ */
+void yuvo_to_yu12(uint8_t *out, uint8_t *in, int width, int height);
+
+/*
+ * convert yuvp (packed) to yuv420 planar (yu12)
+ * args:
+ *    out: pointer to output buffer (yu12)
+ *    in: pointer to input buffer containing yuvp (yuv-5-6-5) packed data frame
+ *    width: picture width
+ *    height: picture height
+ *
+ * asserts:
+ *    out is not null
+ *    in is not null
+ *
+ * returns: none
+ */
+void yuvp_to_yu12(uint8_t *out, uint8_t *in, int width, int height);
+
+/*
+ * convert yuv4 (packed) to yuv420 planar (yu12)
+ * args:
+ *    out: pointer to output buffer (yu12)
+ *    in: pointer to input buffer containing yuv4 (yuv32) packed data frame
+ *    width: picture width
+ *    height: picture height
+ *
+ * asserts:
+ *    out is not null
+ *    in is not null
+ *
+ * returns: none
+ */
+void yuv4_to_yu12(uint8_t *out, uint8_t *in, int width, int height);
+
+/*
  *convert from 420 planar (yv12) to 420 planar (yu12)
  * args:
  *    out - pointer to output yu12 planar data buffer

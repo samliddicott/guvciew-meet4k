@@ -74,6 +74,22 @@ static v4l2_format_table_t decoder_supported_formats[] =
 		.pixelformat = V4L2_PIX_FMT_YYUV,
 	},
 	{
+		.fourcc = "Y444",
+		.pixelformat = V4L2_PIX_FMT_YUV444,
+	},
+	{
+		.fourcc = "YUVO",
+		.pixelformat = V4L2_PIX_FMT_YUV555,
+	},
+	{
+		.fourcc = "YUVP",
+		.pixelformat = V4L2_PIX_FMT_YUV565,
+	},
+	{
+		.fourcc = "YUV4",
+		.pixelformat = V4L2_PIX_FMT_YUV32,
+	},
+	{
 		.fourcc = "Y41P",
 		.pixelformat = V4L2_PIX_FMT_Y41P,
 	},
