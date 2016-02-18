@@ -1723,27 +1723,27 @@ void rgb24_to_yu12(uint8_t *out, uint8_t *in, int width, int height)
 	/*assertions*/
 	assert(out);
 	assert(in);
-	
+
 	uint8_t *py = out;
 	uint8_t *pu = out + (width * height);
 	uint8_t *pv = pu + ((width * height) / 4);
-	
+
 	uint8_t *in1 = in; //first line
 	uint8_t *in2 = in + (width * 3); //second line
-	
+
 	int i=0;
 	for(i = 0; i < (width * height * 3); i += 3)
 	{
 		/* y */
 		*py++ =CLIP(0.299 * (in1[i] - 128) + 0.587 * (in1[i+1] - 128) + 0.114 * (in1[i+2] - 128) + 128);
 	}
-	
+
 	int h = 0;
 	for(h = 0; h < height; h += 2)
 	{
 		in1 = in + (h * width * 3);
 		in2 = in1 + (width * 3);
-		
+
 		for(i = 0; i < (width * 3); i += 6)
 		{
 			/* u v */
@@ -1751,12 +1751,12 @@ void rgb24_to_yu12(uint8_t *out, uint8_t *in, int width, int height)
 				(- 0.147 * (in1[i+3] - 128) - 0.289 * (in1[i+4] - 128) + 0.436 * (in1[i+5] - 128) + 128))/2);
 			uint8_t v1 =CLIP(((0.615 * (in1[i] - 128) - 0.515 * (in1[i+1] - 128) - 0.100 * (in1[i+2] - 128) + 128) +
 				(0.615 * (in1[i+3] - 128) - 0.515 * (in1[i+4] - 128) - 0.100 * (in1[i+5] - 128) + 128))/2);
-				
+
 			uint8_t u2 = CLIP(((- 0.147 * (in2[i] - 128) - 0.289 * (in2[i+1] - 128) + 0.436 * (in2[i+2] - 128) + 128) +
 				(- 0.147 * (in2[i+3] - 128) - 0.289 * (in2[i+4] - 128) + 0.436 * (in2[i+5] - 128) + 128))/2);
 			uint8_t v2 =CLIP(((0.615 * (in2[i] - 128) - 0.515 * (in2[i+1] - 128) - 0.100 * (in2[i+2] - 128) + 128) +
 				(0.615 * (in2[i+3] - 128) - 0.515 * (in2[i+4] - 128) - 0.100 * (in2[i+5] - 128) + 128))/2);	
-				
+
 			*pu++ = (u1 + u2) / 2;
 			*pv++ = (v1 + v2) / 2;
 		}
@@ -1782,27 +1782,27 @@ void bgr24_to_yu12(uint8_t *out, uint8_t *in, int width, int height)
 	/*assertions*/
 	assert(out);
 	assert(in);
-	
+
 	uint8_t *py = out;
 	uint8_t *pu = out + (width * height);
 	uint8_t *pv = pu + ((width * height) / 4);
-	
+
 	uint8_t *in1 = in; //first line
 	uint8_t *in2 = in + (width * 3); //second line
-	
+
 	int i = 0;
 	for(i = 0; i < (width * height * 3); i += 3)
 	{
 		/* y */
 		*py++ =CLIP(0.299 * (in1[i+2] - 128) + 0.587 * (in1[i+1] - 128) + 0.114 * (in1[i] - 128) + 128);
 	}
-	
+
 	int h = 0;
 	for(h = 0; h < height; h += 2)
 	{
 		in1 = in + (h * width * 3);
 		in2 = in1 + (width * 3);
-		
+
 		for(i = 0; i < (width * 3); i += 6)
 		{
 			/* u */
@@ -1810,19 +1810,107 @@ void bgr24_to_yu12(uint8_t *out, uint8_t *in, int width, int height)
 				(- 0.147 * (in1[i+5] - 128) - 0.289 * (in1[i+4] - 128) + 0.436 * (in1[i+3] - 128) + 128))/2);
 			uint8_t u2 = CLIP(((- 0.147 * (in2[i+2] - 128) - 0.289 * (in2[i+1] - 128) + 0.436 * (in2[i] - 128) + 128) +
 				(- 0.147 * (in2[i+5] - 128) - 0.289 * (in2[i+4] - 128) + 0.436 * (in2[i+3] - 128) + 128))/2);
-	
+
 			/* v*/
 			uint8_t v1 =CLIP(((0.615 * (in1[i+2] - 128) - 0.515 * (in1[i+1] - 128) - 0.100 * (in1[i] - 128) + 128) +
 				(0.615 * (in1[i+5] - 128) - 0.515 * (in1[i+4] - 128) - 0.100 * (in1[i+3] - 128) + 128))/2);
 			uint8_t v2 =CLIP(((0.615 * (in2[i+2] - 128) - 0.515 * (in2[i+1] - 128) - 0.100 * (in2[i] - 128) + 128) +
 				(0.615 * (in2[i+5] - 128) - 0.515 * (in2[i+4] - 128) - 0.100 * (in2[i+3] - 128) + 128))/2);
-			
+
 			*pu++ = (u1 + u2) / 2;
 			*pv++ = (v1 + v2) / 2;
 		}
 	}
-	
-	
+}
+
+/*
+ * convert rgb1 (rgb332) to yu12
+ * args:
+ *   out: pointer to output buffer containing yu12 data
+ *   in: pointer to input buffer containing rgb332 data
+ *   width: picture width
+ *   height: picture height
+ *
+ * asserts:
+ *   out is not null
+ *   in is not null
+ *
+ * returns: none
+ */
+void rgb1_to_yu12(uint8_t *out, uint8_t *in, int width, int height)
+{
+	/*assertions*/
+	assert(out);
+	assert(in);
+
+	uint8_t *py1 = out;//first line
+	uint8_t *py2 = py1 + width;//second line
+	uint8_t *pu = out + (width * height);
+	uint8_t *pv = pu + ((width * height) / 4);
+
+	uint8_t *in1 = in; //first line
+	uint8_t *in2 = in + width; //second line (1 byte per pixel)
+
+	int h = 0;
+	int w = 0;
+
+	for(h = 0; h < height; h += 2)
+	{
+		in2 = in1 + width;
+		py2 = py1 + width;
+
+		for(w = 0; w < width; w +=2)
+		{
+			uint8_t px00 = *in1++;
+			uint8_t r00 = px00 & 0xE0;
+			uint8_t g00 = (px00 << 3) & 0xE0;
+			uint8_t b00 = (px00 << 6) & 0xC0;
+
+			/* y */
+			*py1++ = CLIP(0.299 * (r00 - 128) + 0.587 * (g00 - 128) + 0.114 * (b00 - 128) + 128);
+
+			uint8_t px01 = *in1++;
+			uint8_t r01 = px01 & 0xE0;
+			uint8_t g01 = (px01 << 3) & 0xE0;
+			uint8_t b01 = (px01 << 6) & 0xC0;
+
+			/* y */
+			*py1++ = CLIP(0.299 * (r01 - 128) + 0.587 * (g01 - 128) + 0.114 * (b01 - 128) + 128);
+
+			uint8_t px10 = *in2++;
+			uint8_t r10 = px10 & 0xE0;
+			uint8_t g10 = (px10 << 3) & 0xE0;
+			uint8_t b10 = (px10 << 6) & 0xC0;
+
+			/* y */
+			*py2++ = CLIP(0.299 * (r10 - 128) + 0.587 * (g10 - 128) + 0.114 * (b10 - 128) + 128);
+
+			uint8_t px11 = *in2++;
+			uint8_t r11 = px11 & 0xE0;
+			uint8_t g11 = (px11 << 3) & 0xE0;
+			uint8_t b11 = (px11 << 6) & 0xC0;
+
+			/* y */
+			*py2++ = CLIP(0.299 * (r11 - 128) + 0.587 * (g11 - 128) + 0.114 * (b11 - 128) + 128);
+
+			/* u v */
+			uint8_t u1 = CLIP(((- 0.147 * (r00 - 128) - 0.289 * (g00 - 128) + 0.436 * (b00 - 128) + 128) +
+				(- 0.147 * (r01 - 128) - 0.289 * (g01 - 128) + 0.436 * (b01 - 128) + 128))/2);
+			uint8_t v1 =CLIP(((0.615 * (r00 - 128) - 0.515 * (g00 - 128) - 0.100 * (b00 - 128) + 128) +
+				(0.615 * (r01 - 128) - 0.515 * (g01 - 128) - 0.100 * (b01 - 128) + 128))/2);
+
+			uint8_t u2 = CLIP(((- 0.147 * (r10 - 128) - 0.289 * (g10 - 128) + 0.436 * (b10 - 128) + 128) +
+				(- 0.147 * (r11 - 128) - 0.289 * (g11 - 128) + 0.436 * (b11 - 128) + 128))/2);
+			uint8_t v2 =CLIP(((0.615 * (r10 - 128) - 0.515 * (g10 - 128) - 0.100 * (b10 - 128) + 128) +
+				(0.615 * (r11 - 128) - 0.515 * (g11 - 128) - 0.100 * (b11 - 128) + 128))/2);	
+
+			*pu++ = (u1 + u2) / 2;
+			*pv++ = (v1 + v2) / 2;
+		}
+
+		in1 = in2;
+		py1 = py2;
+	}
 }
 
 /*

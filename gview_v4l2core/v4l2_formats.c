@@ -177,6 +177,10 @@ static v4l2_format_table_t decoder_supported_formats[] =
 		.fourcc = "BGR3",
 		.pixelformat = V4L2_PIX_FMT_BGR24,
 	},
+	{
+		.fourcc = "RGB1",
+		.pixelformat = V4L2_PIX_FMT_RGB332,
+	},
 	/*last one (zero terminated)*/
 	{
 		.fourcc = {0,0,0,0,0},

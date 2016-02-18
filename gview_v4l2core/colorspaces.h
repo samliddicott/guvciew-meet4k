@@ -447,6 +447,22 @@ void rgb24_to_yu12(uint8_t *out, uint8_t *in, int width, int height);
 void bgr24_to_yu12(uint8_t *out, uint8_t *in, int width, int height);
 
 /*
+ * convert rgb1 (rgb332) to yu12
+ * args:
+ *   out: pointer to output buffer containing yu12 data
+ *   in: pointer to input buffer containing rgb332 data
+ *   width: picture width
+ *   height: picture height
+ *
+ * asserts:
+ *   out is not null
+ *   in is not null
+ *
+ * returns: none
+ */
+void rgb1_to_yu12(uint8_t *out, uint8_t *in, int width, int height);
+
+/*
  * yu12 to rgb24
  * args:
  *    out - pointer to output rgb data buffer

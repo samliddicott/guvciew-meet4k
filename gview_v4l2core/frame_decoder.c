@@ -142,6 +142,7 @@ int alloc_v4l2_frames(v4l2_dev_t *vd)
 
 		case V4L2_PIX_FMT_RGB24:
 		case V4L2_PIX_FMT_BGR24:
+		case V4L2_PIX_FMT_RGB332:
 		case V4L2_PIX_FMT_UYVY:
 		case V4L2_PIX_FMT_VYUY:
 		case V4L2_PIX_FMT_YVYU:
@@ -933,6 +934,10 @@ int decode_v4l2_frame(v4l2_dev_t *vd, v4l2_frame_buff_t *frame)
 
 		case V4L2_PIX_FMT_BGR24:
 			bgr24_to_yu12(frame->yuv_frame, frame->raw_frame, width, height);
+			break;
+
+		case V4L2_PIX_FMT_RGB332:
+			rgb1_to_yu12(frame->yuv_frame, frame->raw_frame, width, height);
 			break;
 
 		default:
