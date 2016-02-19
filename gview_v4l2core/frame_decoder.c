@@ -142,15 +142,25 @@ int alloc_v4l2_frames(v4l2_dev_t *vd)
 
 		case V4L2_PIX_FMT_RGB24:
 		case V4L2_PIX_FMT_BGR24:
+		case V4L2_PIX_FMT_BGR32:
+		case V4L2_PIX_FMT_ABGR32:
+		case V4L2_PIX_FMT_XBGR32:
+		case V4L2_PIX_FMT_RGB32:
+		case V4L2_PIX_FMT_ARGB32:
+		case V4L2_PIX_FMT_XRGB32:
 		case V4L2_PIX_FMT_RGB332:
 		case V4L2_PIX_FMT_RGB565:
 		case V4L2_PIX_FMT_RGB565X:
+		case V4L2_PIX_FMT_RGB444:
 		case V4L2_PIX_FMT_ARGB444:
 		case V4L2_PIX_FMT_XRGB444:
+		case V4L2_PIX_FMT_RGB555:
 		case V4L2_PIX_FMT_ARGB555:
 		case V4L2_PIX_FMT_XRGB555:
+		case V4L2_PIX_FMT_RGB555X:
 		case V4L2_PIX_FMT_ARGB555X:
 		case V4L2_PIX_FMT_XRGB555X:
+		case V4L2_PIX_FMT_BGR666:
 		case V4L2_PIX_FMT_UYVY:
 		case V4L2_PIX_FMT_VYUY:
 		case V4L2_PIX_FMT_YVYU:
@@ -961,19 +971,38 @@ int decode_v4l2_frame(v4l2_dev_t *vd, v4l2_frame_buff_t *frame)
 			rgbr_to_yu12(frame->yuv_frame, frame->raw_frame, width, height);
 			break;
 
+		case V4L2_PIX_FMT_RGB444:
 		case V4L2_PIX_FMT_ARGB444:
 		case V4L2_PIX_FMT_XRGB444: //same as above but without alpha channel
 			ar12_to_yu12(frame->yuv_frame, frame->raw_frame, width, height);
 			break;
 
+		case V4L2_PIX_FMT_RGB555:
 		case V4L2_PIX_FMT_ARGB555:
 		case V4L2_PIX_FMT_XRGB555: //same as above but without alpha channel
 			ar15_to_yu12(frame->yuv_frame, frame->raw_frame, width, height);
 			break;
 
+		case V4L2_PIX_FMT_RGB555X:
 		case V4L2_PIX_FMT_ARGB555X:
 		case V4L2_PIX_FMT_XRGB555X: //same as above but without alpha channel
 			ar15x_to_yu12(frame->yuv_frame, frame->raw_frame, width, height);
+			break;
+
+		case V4L2_PIX_FMT_BGR666:
+			bgrh_to_yu12(frame->yuv_frame, frame->raw_frame, width, height);
+			break;
+
+		case V4L2_PIX_FMT_BGR32:
+		case V4L2_PIX_FMT_ABGR32:
+		case V4L2_PIX_FMT_XBGR32: //same as above but without alpha channel
+			ar24_to_yu12(frame->yuv_frame, frame->raw_frame, width, height);
+			break;
+
+		case V4L2_PIX_FMT_RGB32:
+		case V4L2_PIX_FMT_ARGB32:
+		case V4L2_PIX_FMT_XRGB32: //same as above but without alpha channel
+			ba24_to_yu12(frame->yuv_frame, frame->raw_frame, width, height);
 			break;
 
 		default:

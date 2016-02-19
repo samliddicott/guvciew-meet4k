@@ -2429,6 +2429,288 @@ void rgbr_to_yu12(uint8_t *out, uint8_t *in, int width, int height)
 }
 
 /*
+ * convert bgrh to yu12
+ * args:
+ *   out: pointer to output buffer containing yu12 data
+ *   in: pointer to input buffer containing bgrh (bgr666) data
+ *   width: picture width
+ *   height: picture height
+ *
+ * asserts:
+ *   out is not null
+ *   in is not null
+ *
+ * returns: none
+ */
+void bgrh_to_yu12(uint8_t *out, uint8_t *in, int width, int height)
+{
+	/*assertions*/
+	assert(out);
+	assert(in);
+
+	uint8_t *py1 = out;//first line
+	uint8_t *py2 = py1 + width;//second line
+	uint8_t *pu = out + (width * height);
+	uint8_t *pv = pu + ((width * height) / 4);
+
+	uint8_t *in1 = in; //first line
+	uint8_t *in2 = in + (width * 4); //second line (4 byte per pixel)
+
+	int h = 0;
+	int w = 0;
+
+	for(h = 0; h < height; h += 2)
+	{
+		in2 = in1 + (width * 4);
+		py2 = py1 + width;
+
+		for(w = 0; w < (width * 4); w +=8)
+		{
+			uint8_t px000 = *in1++;
+			uint8_t px001 = *in1++;
+			uint8_t px002 = *in1++;
+			in1++; //last byte has empty data
+			uint8_t r00 = ((px002 >> 4) & 0x0C) | ((px001 << 4)  & 0xF0);
+			uint8_t g00 = ((px001 >> 2) & 0x3C) | ((px000 << 6) & 0xC0);
+			uint8_t b00 = px000  & 0xFC;
+
+			/* y */
+			*py1++ = CLIP(0.299 * (r00 - 128) + 0.587 * (g00 - 128) + 0.114 * (b00 - 128) + 128);
+
+			uint8_t px010 = *in1++;
+			uint8_t px011 = *in1++;
+			uint8_t px012 = *in1++;
+			in1++; //last byte has empty data
+			uint8_t r01 = ((px012 >> 4) & 0x0C) | ((px011 << 4)  & 0xF0);
+			uint8_t g01 = ((px011 >> 2) & 0x3C) | ((px010 << 6) & 0xC0);
+			uint8_t b01 = px010  & 0xFC;
+
+			/* y */
+			*py1++ = CLIP(0.299 * (r01 - 128) + 0.587 * (g01 - 128) + 0.114 * (b01 - 128) + 128);
+
+			uint8_t px100 = *in2++;
+			uint8_t px101 = *in2++;
+			uint8_t px102 = *in2++;
+			in2++; //last byte has empty data
+			uint8_t r10 = ((px102 >> 4) & 0x0C) | ((px101 << 4)  & 0xF0);
+			uint8_t g10 = ((px101 >> 2) & 0x3C) | ((px100 << 6) & 0xC0);
+			uint8_t b10 = px100  & 0xFC;
+
+			/* y */
+			*py2++ = CLIP(0.299 * (r10 - 128) + 0.587 * (g10 - 128) + 0.114 * (b10 - 128) + 128);
+
+			uint8_t px110 = *in2++;
+			uint8_t px111 = *in2++;
+			uint8_t px112 = *in2++;
+			in2++; //last byte has empty data
+			uint8_t r11 = ((px112 >> 4) & 0x0C) | ((px111 << 4)  & 0xF0);
+			uint8_t g11 = ((px111 >> 2) & 0x3C) | ((px110 << 6) & 0xC0);
+			uint8_t b11 = px110  & 0xFC;
+
+			/* y */
+			*py2++ = CLIP(0.299 * (r11 - 128) + 0.587 * (g11 - 128) + 0.114 * (b11 - 128) + 128);
+
+			/* u v */
+			uint8_t u1 = CLIP(((- 0.147 * (r00 - 128) - 0.289 * (g00 - 128) + 0.436 * (b00 - 128) + 128) +
+				(- 0.147 * (r01 - 128) - 0.289 * (g01 - 128) + 0.436 * (b01 - 128) + 128))/2);
+			uint8_t v1 =CLIP(((0.615 * (r00 - 128) - 0.515 * (g00 - 128) - 0.100 * (b00 - 128) + 128) +
+				(0.615 * (r01 - 128) - 0.515 * (g01 - 128) - 0.100 * (b01 - 128) + 128))/2);
+
+			uint8_t u2 = CLIP(((- 0.147 * (r10 - 128) - 0.289 * (g10 - 128) + 0.436 * (b10 - 128) + 128) +
+				(- 0.147 * (r11 - 128) - 0.289 * (g11 - 128) + 0.436 * (b11 - 128) + 128))/2);
+			uint8_t v2 =CLIP(((0.615 * (r10 - 128) - 0.515 * (g10 - 128) - 0.100 * (b10 - 128) + 128) +
+				(0.615 * (r11 - 128) - 0.515 * (g11 - 128) - 0.100 * (b11 - 128) + 128))/2);	
+
+			*pu++ = (u1 + u2) / 2;
+			*pv++ = (v1 + v2) / 2;
+		}
+
+		in1 = in2;
+		py1 = py2;
+	}
+}
+
+/*
+ * convert ar24 to yu12
+ * args:
+ *   out: pointer to output buffer containing yu12 data
+ *   in: pointer to input buffer containing ar24 (bgr32) data
+ *   width: picture width
+ *   height: picture height
+ *
+ * asserts:
+ *   out is not null
+ *   in is not null
+ *
+ * returns: none
+ */
+void ar24_to_yu12(uint8_t *out, uint8_t *in, int width, int height)
+{
+	/*assertions*/
+	assert(out);
+	assert(in);
+
+	uint8_t *py1 = out;//first line
+	uint8_t *py2 = py1 + width;//second line
+	uint8_t *pu = out + (width * height);
+	uint8_t *pv = pu + ((width * height) / 4);
+
+	uint8_t *in1 = in; //first line
+	uint8_t *in2 = in + (width * 4); //second line (4 byte per pixel)
+
+	int h = 0;
+	int w = 0;
+
+	for(h = 0; h < height; h += 2)
+	{
+		in2 = in1 + (width * 4);
+		py2 = py1 + width;
+
+		for(w = 0; w < (width * 4); w +=8)
+		{
+			uint8_t b00 = *in1++;
+			uint8_t g00 = *in1++;
+			uint8_t r00 = *in1++;
+			in1++; //last byte has alpha data
+
+			/* y */
+			*py1++ = CLIP(0.299 * (r00 - 128) + 0.587 * (g00 - 128) + 0.114 * (b00 - 128) + 128);
+
+			uint8_t b01 = *in1++;
+			uint8_t g01 = *in1++;
+			uint8_t r01 = *in1++;
+			in1++; //last byte has alpha data
+
+			/* y */
+			*py1++ = CLIP(0.299 * (r01 - 128) + 0.587 * (g01 - 128) + 0.114 * (b01 - 128) + 128);
+
+			uint8_t b10 = *in2++;
+			uint8_t g10 = *in2++;
+			uint8_t r10 = *in2++;
+			in2++; //last byte has alpha data
+
+			/* y */
+			*py2++ = CLIP(0.299 * (r10 - 128) + 0.587 * (g10 - 128) + 0.114 * (b10 - 128) + 128);
+
+			uint8_t b11 = *in2++;
+			uint8_t g11 = *in2++;
+			uint8_t r11 = *in2++;
+			in2++; //last byte has alpha data
+
+			/* y */
+			*py2++ = CLIP(0.299 * (r11 - 128) + 0.587 * (g11 - 128) + 0.114 * (b11 - 128) + 128);
+
+			/* u v */
+			uint8_t u1 = CLIP(((- 0.147 * (r00 - 128) - 0.289 * (g00 - 128) + 0.436 * (b00 - 128) + 128) +
+				(- 0.147 * (r01 - 128) - 0.289 * (g01 - 128) + 0.436 * (b01 - 128) + 128))/2);
+			uint8_t v1 =CLIP(((0.615 * (r00 - 128) - 0.515 * (g00 - 128) - 0.100 * (b00 - 128) + 128) +
+				(0.615 * (r01 - 128) - 0.515 * (g01 - 128) - 0.100 * (b01 - 128) + 128))/2);
+
+			uint8_t u2 = CLIP(((- 0.147 * (r10 - 128) - 0.289 * (g10 - 128) + 0.436 * (b10 - 128) + 128) +
+				(- 0.147 * (r11 - 128) - 0.289 * (g11 - 128) + 0.436 * (b11 - 128) + 128))/2);
+			uint8_t v2 =CLIP(((0.615 * (r10 - 128) - 0.515 * (g10 - 128) - 0.100 * (b10 - 128) + 128) +
+				(0.615 * (r11 - 128) - 0.515 * (g11 - 128) - 0.100 * (b11 - 128) + 128))/2);	
+
+			*pu++ = (u1 + u2) / 2;
+			*pv++ = (v1 + v2) / 2;
+		}
+
+		in1 = in2;
+		py1 = py2;
+	}
+}
+
+/*
+ * convert ba24 to yu12
+ * args:
+ *   out: pointer to output buffer containing yu12 data
+ *   in: pointer to input buffer containing ba24 (rgb32) data
+ *   width: picture width
+ *   height: picture height
+ *
+ * asserts:
+ *   out is not null
+ *   in is not null
+ *
+ * returns: none
+ */
+void ba24_to_yu12(uint8_t *out, uint8_t *in, int width, int height)
+{
+	/*assertions*/
+	assert(out);
+	assert(in);
+
+	uint8_t *py1 = out;//first line
+	uint8_t *py2 = py1 + width;//second line
+	uint8_t *pu = out + (width * height);
+	uint8_t *pv = pu + ((width * height) / 4);
+
+	uint8_t *in1 = in; //first line
+	uint8_t *in2 = in + (width * 4); //second line (4 byte per pixel)
+
+	int h = 0;
+	int w = 0;
+
+	for(h = 0; h < height; h += 2)
+	{
+		in2 = in1 + (width * 4);
+		py2 = py1 + width;
+
+		for(w = 0; w < (width * 4); w +=8)
+		{
+			in1++; //first byte has alpha data
+			uint8_t r00 = *in1++;
+			uint8_t g00 = *in1++;
+			uint8_t b00 = *in1++;
+
+			/* y */
+			*py1++ = CLIP(0.299 * (r00 - 128) + 0.587 * (g00 - 128) + 0.114 * (b00 - 128) + 128);
+
+			in1++; //first byte has alpha data
+			uint8_t r01 = *in1++;
+			uint8_t g01 = *in1++;
+			uint8_t b01 = *in1++;
+
+			/* y */
+			*py1++ = CLIP(0.299 * (r01 - 128) + 0.587 * (g01 - 128) + 0.114 * (b01 - 128) + 128);
+
+			in2++; //first byte has alpha data
+			uint8_t r10 = *in2++;
+			uint8_t g10 = *in2++;
+			uint8_t b10 = *in2++;
+
+			/* y */
+			*py2++ = CLIP(0.299 * (r10 - 128) + 0.587 * (g10 - 128) + 0.114 * (b10 - 128) + 128);
+
+			in2++; //first byte has alpha data
+			uint8_t r11 = *in2++;
+			uint8_t g11 = *in2++;
+			uint8_t b11 = *in2++;
+
+			/* y */
+			*py2++ = CLIP(0.299 * (r11 - 128) + 0.587 * (g11 - 128) + 0.114 * (b11 - 128) + 128);
+
+			/* u v */
+			uint8_t u1 = CLIP(((- 0.147 * (r00 - 128) - 0.289 * (g00 - 128) + 0.436 * (b00 - 128) + 128) +
+				(- 0.147 * (r01 - 128) - 0.289 * (g01 - 128) + 0.436 * (b01 - 128) + 128))/2);
+			uint8_t v1 =CLIP(((0.615 * (r00 - 128) - 0.515 * (g00 - 128) - 0.100 * (b00 - 128) + 128) +
+				(0.615 * (r01 - 128) - 0.515 * (g01 - 128) - 0.100 * (b01 - 128) + 128))/2);
+
+			uint8_t u2 = CLIP(((- 0.147 * (r10 - 128) - 0.289 * (g10 - 128) + 0.436 * (b10 - 128) + 128) +
+				(- 0.147 * (r11 - 128) - 0.289 * (g11 - 128) + 0.436 * (b11 - 128) + 128))/2);
+			uint8_t v2 =CLIP(((0.615 * (r10 - 128) - 0.515 * (g10 - 128) - 0.100 * (b10 - 128) + 128) +
+				(0.615 * (r11 - 128) - 0.515 * (g11 - 128) - 0.100 * (b11 - 128) + 128))/2);	
+
+			*pu++ = (u1 + u2) / 2;
+			*pv++ = (v1 + v2) / 2;
+		}
+
+		in1 = in2;
+		py1 = py2;
+	}
+}
+
+/*
  * yu12 to rgb24
  * args:
  *    out - pointer to output rgb data buffer

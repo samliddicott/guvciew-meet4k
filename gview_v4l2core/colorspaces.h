@@ -559,6 +559,54 @@ void rgbp_to_yu12(uint8_t *out, uint8_t *in, int width, int height);
 void rgbr_to_yu12(uint8_t *out, uint8_t *in, int width, int height);
 
 /*
+ * convert bgrh to yu12
+ * args:
+ *   out: pointer to output buffer containing yu12 data
+ *   in: pointer to input buffer containing bgrh (bgr666) data
+ *   width: picture width
+ *   height: picture height
+ *
+ * asserts:
+ *   out is not null
+ *   in is not null
+ *
+ * returns: none
+ */
+void bgrh_to_yu12(uint8_t *out, uint8_t *in, int width, int height);
+
+/*
+ * convert ar24 to yu12
+ * args:
+ *   out: pointer to output buffer containing yu12 data
+ *   in: pointer to input buffer containing ar24 (bgr32) data
+ *   width: picture width
+ *   height: picture height
+ *
+ * asserts:
+ *   out is not null
+ *   in is not null
+ *
+ * returns: none
+ */
+void ar24_to_yu12(uint8_t *out, uint8_t *in, int width, int height);
+
+/*
+ * convert ba24 to yu12
+ * args:
+ *   out: pointer to output buffer containing yu12 data
+ *   in: pointer to input buffer containing ba24 (rgb32) data
+ *   width: picture width
+ *   height: picture height
+ *
+ * asserts:
+ *   out is not null
+ *   in is not null
+ *
+ * returns: none
+ */
+void ba24_to_yu12(uint8_t *out, uint8_t *in, int width, int height);
+
+/*
  * yu12 to rgb24
  * args:
  *    out - pointer to output rgb data buffer
