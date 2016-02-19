@@ -234,7 +234,8 @@ int MainWindow::gui_attach_qt5_videoctrls(QWidget *parent)
 	{
 		QString fourcc(list_stream_formats[fmtind].fourcc);
 		if((list_stream_formats[fmtind].format & (1<<31)) != 0)
-			fourcc += "_BE";
+			fourcc += "(BE)";
+		fourcc += " - " + QString(list_stream_formats[fmtind].description);
 
 		combobox_InpType->addItem(fourcc, fmtind);
 

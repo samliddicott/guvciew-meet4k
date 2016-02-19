@@ -35,20 +35,7 @@
  * returns: TRUE(1) if format is supported
  *          FALSE(0) if not
  */
-uint8_t can_decode_format(int pixelformat);
-
-/*
- * check fourcc against decoder support formats
- * args:
- *    fourcc - v4l2 pixelformat fourcc
- *
- * asserts:
- *    none
- *
- * returns: TRUE(1) if format is supported
- *          FALSE(0) if not
- */
-//uint8_t can_decode_fourcc(const char *fourcc);
+uint8_t can_decode_format(uint32_t pixelformat);
 
 /*
  * enumerate frame formats (pixelformats, resolutions and fps)

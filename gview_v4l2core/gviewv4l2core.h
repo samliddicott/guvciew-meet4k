@@ -211,6 +211,7 @@ typedef struct _v4l2_stream_format_t
 	uint8_t dec_support; //decoder support (1-supported; 0-not supported)
 	int format;          //v4l2 pixel format
 	char fourcc[5];      //corresponding fourcc (mode)
+	char description[32];//format description
 	int numb_res;        //available number of resolutions for format (v4l2_stream_cap_t list size)
 	v4l2_stream_cap_t *list_stream_cap;  //list of stream capabilities for format
 } v4l2_stream_formats_t;
@@ -456,7 +457,7 @@ void v4l2core_enable_libv4l2();
  *
  * returns: v4l2 pixel format
  */
-int v4l2core_fourcc_2_v4l2_pixelformat(const char *fourcc);
+uint32_t v4l2core_fourcc_2_v4l2_pixelformat(const char *fourcc);
 
 /*
  * get real fps

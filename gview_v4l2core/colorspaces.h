@@ -362,6 +362,22 @@ void grey_to_yu12(uint8_t *out, uint8_t *in, int width, int height);
 void y16_to_yu12(uint8_t *out, uint8_t *in, int width, int height);
 
 /*
+ * convert y16x (16 bit greyscale format - be) to yu12
+ * args:
+ *   out: pointer to output buffer (yu12)
+ *   in: pointer to input buffer containing y16x (16 bit greyscale bigendian) data frame
+ *   width: picture width
+ *   height: picture height
+ *
+ * asserts:
+ *    out is not null
+ *    in is not null
+ *
+ * returns: none
+ */
+void y16x_to_yu12(uint8_t *out, uint8_t *in, int width, int height);
+
+/*
  * convert SPCA501 (s501) to yuv 420 planar (yu12)
  *   s501  |Y0..width..Y0|U..width/2..U|Y1..width..Y1|V..width/2..V|
  *   signed values (-128;+127) must be converted to unsigned (0; 255)
@@ -461,6 +477,86 @@ void bgr24_to_yu12(uint8_t *out, uint8_t *in, int width, int height);
  * returns: none
  */
 void rgb1_to_yu12(uint8_t *out, uint8_t *in, int width, int height);
+
+/*
+ * convert ar12 (argb444) to yu12
+ * args:
+ *   out: pointer to output buffer containing yu12 data
+ *   in: pointer to input buffer containing argb444 data
+ *   width: picture width
+ *   height: picture height
+ *
+ * asserts:
+ *   out is not null
+ *   in is not null
+ *
+ * returns: none
+ */
+void ar12_to_yu12(uint8_t *out, uint8_t *in, int width, int height);
+
+/*
+ * convert ar15 (argb555) to yu12
+ * args:
+ *   out: pointer to output buffer containing yu12 data
+ *   in: pointer to input buffer containing argb555 data
+ *   width: picture width
+ *   height: picture height
+ *
+ * asserts:
+ *   out is not null
+ *   in is not null
+ *
+ * returns: none
+ */
+void ar15_to_yu12(uint8_t *out, uint8_t *in, int width, int height);
+
+/*
+ * convert ar15_be (argb555X) to yu12
+ * args:
+ *   out: pointer to output buffer containing yu12 data
+ *   in: pointer to input buffer containing argb555X (be) data
+ *   width: picture width
+ *   height: picture height
+ *
+ * asserts:
+ *   out is not null
+ *   in is not null
+ *
+ * returns: none
+ */
+void ar15x_to_yu12(uint8_t *out, uint8_t *in, int width, int height);
+
+/*
+ * convert rgbp (rgb565) to yu12
+ * args:
+ *   out: pointer to output buffer containing yu12 data
+ *   in: pointer to input buffer containing argb555 data
+ *   width: picture width
+ *   height: picture height
+ *
+ * asserts:
+ *   out is not null
+ *   in is not null
+ *
+ * returns: none
+ */
+void rgbp_to_yu12(uint8_t *out, uint8_t *in, int width, int height);
+
+/*
+ * convert rgbr (rgb565X) to yu12
+ * args:
+ *   out: pointer to output buffer containing yu12 data
+ *   in: pointer to input buffer containing rgb565 bigendian data
+ *   width: picture width
+ *   height: picture height
+ *
+ * asserts:
+ *   out is not null
+ *   in is not null
+ *
+ * returns: none
+ */
+void rgbr_to_yu12(uint8_t *out, uint8_t *in, int width, int height);
 
 /*
  * yu12 to rgb24

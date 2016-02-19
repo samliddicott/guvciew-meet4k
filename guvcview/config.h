@@ -28,7 +28,7 @@ typedef struct _config_t
 {
 	int  width;      /*width*/
 	int  height;     /*height*/
-	char format[5];  /*pixelformat fourcc*/
+	uint32_t format;  /*pixelformat - v4l2 fourcc*/
 	char render[5];  /*render api*/
 	char gui[5];     /*gui api*/
 	char audio[6];   /*audio api - none; port; pulse*/

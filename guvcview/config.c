@@ -41,7 +41,7 @@ static config_t my_config =
 {
 	.width = 640,
 	.height = 480,
-	.format = "MJPG",
+	.format = V4L2_PIX_FMT_MJPEG,
 	.render = "sdl",
 #if HAS_GTK3
 	.gui = "gtk3",
@@ -118,7 +118,7 @@ int config_save(const char *filename)
 	fprintf(fp, "#video input height\n");
 	fprintf(fp, "height=%i\n", my_config.height);
 	fprintf(fp, "#video input format\n");
-	fprintf(fp, "format=%s\n", my_config.format);
+	fprintf(fp, "v4l2_format=%u\n", my_config.format);
 	fprintf(fp, "#video input capture method\n");
 	fprintf(fp, "capture=%s\n", my_config.capture);
 	fprintf(fp, "#audio api\n");
@@ -255,8 +255,8 @@ int config_load(const char *filename)
 			my_config.width = (int) strtoul(value, NULL, 10);
 		else if(strcmp(token, "height") == 0)
 			my_config.height = (int) strtoul(value, NULL, 10);
-		else if(strcmp(token, "format") == 0)
-			strncpy(my_config.format, value, 4);
+		else if(strcmp(token, "v4l2_format") == 0)
+			my_config.format = (uint32_t) strtoul(value, NULL, 10);
 		else if(strcmp(token, "capture") == 0)
 			strncpy(my_config.capture, value, 4);
 		else if(strcmp(token, "audio") == 0)
@@ -397,8 +397,11 @@ void config_update(options_t *my_options)
 
 	/*input format*/
 	if(strlen(my_options->format) > 2)
-		strncpy(my_config.format, my_options->format, 5);
-	
+	{
+		//convert to v4l2_format
+		my_config.format = v4l2core_fourcc_2_v4l2_pixelformat(my_options->format);
+	}
+
 	/*video codec*/
 	if(strlen(my_options->video_codec) > 2)
 		strncpy(my_config.video_codec, my_options->video_codec, 4);

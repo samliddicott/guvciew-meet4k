@@ -1068,7 +1068,7 @@ void MainWindow::format_changed(int index)
 
 	/*update config*/
 	config_t *my_config = config_get();
-	strncpy(my_config->format, list_stream_formats[index].fourcc, 4);
+	my_config->format = list_stream_formats[index].format;
 
 	/*redraw resolution combo for new format*/
 	for(i = 0 ; i < list_stream_formats[index].numb_res ; i++)

@@ -33,168 +33,71 @@
 
 extern int verbosity;
 
-typedef struct _v4l2_format_table_t
-{
-	char fourcc[5];    /*fourcc code*/
-	int pixelformat;   /*v4l2 pixelformat*/
-} v4l2_format_table_t;
-
-static v4l2_format_table_t decoder_supported_formats[] =
-{
-	{
-		.fourcc = "YUYV",
-		.pixelformat = V4L2_PIX_FMT_YUYV,
-	},
-	{
-		.fourcc = "MJPG",
-		.pixelformat = V4L2_PIX_FMT_MJPEG,
-	},
-	{
-		.fourcc = "JPEG",
-		.pixelformat = V4L2_PIX_FMT_JPEG,
-	},
-	{
-		.fourcc = "H264",
-		.pixelformat = V4L2_PIX_FMT_H264,
-	},
-	{
-		.fourcc = "YVYU",
-		.pixelformat = V4L2_PIX_FMT_YVYU,
-	},
-	{
-		.fourcc = "UYVY",
-		.pixelformat = V4L2_PIX_FMT_UYVY,
-	},
-	{
-		.fourcc = "VYUY",
-		.pixelformat = V4L2_PIX_FMT_VYUY,
-	},
-	{
-		.fourcc = "YYUV",
-		.pixelformat = V4L2_PIX_FMT_YYUV,
-	},
-	{
-		.fourcc = "Y444",
-		.pixelformat = V4L2_PIX_FMT_YUV444,
-	},
-	{
-		.fourcc = "YUVO",
-		.pixelformat = V4L2_PIX_FMT_YUV555,
-	},
-	{
-		.fourcc = "YUVP",
-		.pixelformat = V4L2_PIX_FMT_YUV565,
-	},
-	{
-		.fourcc = "YUV4",
-		.pixelformat = V4L2_PIX_FMT_YUV32,
-	},
-	{
-		.fourcc = "Y41P",
-		.pixelformat = V4L2_PIX_FMT_Y41P,
-	},
-	{
-		.fourcc = "GREY",
-		.pixelformat = V4L2_PIX_FMT_GREY,
-	},
-	{
-		.fourcc = "Y10B",
-		.pixelformat = V4L2_PIX_FMT_Y10BPACK,
-	},
-	{
-		.fourcc = "Y16 ",
-		.pixelformat = V4L2_PIX_FMT_Y16,
-	},
-	{
-		.fourcc = "YU12",
-		.pixelformat = V4L2_PIX_FMT_YUV420,
-	},
-	{
-		.fourcc = "422P",
-		.pixelformat = V4L2_PIX_FMT_YUV422P,
-	},
-	{
-		.fourcc = "YV12",
-		.pixelformat = V4L2_PIX_FMT_YVU420,
-	},
-	{
-		.fourcc = "NV12",
-		.pixelformat = V4L2_PIX_FMT_NV12,
-	},
-	{
-		.fourcc = "NV21",
-		.pixelformat = V4L2_PIX_FMT_NV21,
-	},
-	{
-		.fourcc = "NV16",
-		.pixelformat = V4L2_PIX_FMT_NV16,
-	},
-	{
-		.fourcc = "NV61",
-		.pixelformat = V4L2_PIX_FMT_NV61,
-	},
-	{
-		.fourcc = "NV24",
-		.pixelformat = V4L2_PIX_FMT_NV24,
-	},
-	{
-		.fourcc = "NV42",
-		.pixelformat = V4L2_PIX_FMT_NV42,
-	},
-	{
-		.fourcc = "S501",
-		.pixelformat = V4L2_PIX_FMT_SPCA501,
-	},
-	{
-		.fourcc = "S505",
-		.pixelformat = V4L2_PIX_FMT_SPCA505,
-	},
-	{
-		.fourcc = "S508",
-		.pixelformat = V4L2_PIX_FMT_SPCA508,
-	},
-	{
-		.fourcc = "GBRG",
-		.pixelformat = V4L2_PIX_FMT_SGBRG8,
-	},
-	{
-		.fourcc = "GRBG",
-		.pixelformat = V4L2_PIX_FMT_SGRBG8,
-	},
-	{
-		.fourcc = "BA81",
-		.pixelformat = V4L2_PIX_FMT_SBGGR8,
-	},
-	{
-		.fourcc = "RGGB",
-		.pixelformat = V4L2_PIX_FMT_SRGGB8,
-	},
-	{
-		.fourcc = "RGB3",
-		.pixelformat = V4L2_PIX_FMT_RGB24,
-	},
-	{
-		.fourcc = "BGR3",
-		.pixelformat = V4L2_PIX_FMT_BGR24,
-	},
-	{
-		.fourcc = "RGB1",
-		.pixelformat = V4L2_PIX_FMT_RGB332,
-	},
-	/*last one (zero terminated)*/
-	{
-		.fourcc = {0,0,0,0,0},
-		.pixelformat = 0,
-	}
-};
-
 /*  Four-character-code (FOURCC) */
 #ifndef v4l2_fourcc
 #define v4l2_fourcc(a, b, c, d)\
 			((uint32_t)(a) | ((uint32_t)(b) << 8) | ((uint32_t)(c) << 16) | ((uint32_t)(d) << 24))
 #endif
 
-/*
+#define v4l2_pixformat2fourcc(pixelformat)\
+		{  pixelformat & 0x000000FF,\
+		  (pixelformat >> 8) & 0x000000FF,\
+		  (pixelformat >> 16) & 0x000000FF,\
+		  (pixelformat >> 24) & 0x000000FF,\
+		  0\
+		}
+
+static uint32_t decoder_supported_formats[] =
+{
+	V4L2_PIX_FMT_YUYV,
+	V4L2_PIX_FMT_MJPEG,
+	V4L2_PIX_FMT_JPEG,
+	V4L2_PIX_FMT_H264,
+	V4L2_PIX_FMT_YVYU,
+	V4L2_PIX_FMT_UYVY,
+	V4L2_PIX_FMT_VYUY,
+	V4L2_PIX_FMT_YYUV,
+	V4L2_PIX_FMT_YUV444,
+	V4L2_PIX_FMT_YUV555,
+	V4L2_PIX_FMT_YUV565,
+	V4L2_PIX_FMT_YUV32,
+	V4L2_PIX_FMT_Y41P,
+	V4L2_PIX_FMT_GREY,
+	V4L2_PIX_FMT_Y10BPACK,
+	V4L2_PIX_FMT_Y16,
+	V4L2_PIX_FMT_Y16_BE,
+	V4L2_PIX_FMT_YUV420,
+	V4L2_PIX_FMT_YUV422P,
+	V4L2_PIX_FMT_YVU420,
+	V4L2_PIX_FMT_NV12,
+	V4L2_PIX_FMT_NV21,
+	V4L2_PIX_FMT_NV16,
+	V4L2_PIX_FMT_NV61,
+	V4L2_PIX_FMT_NV24,
+	V4L2_PIX_FMT_NV42,
+	V4L2_PIX_FMT_SPCA501,
+	V4L2_PIX_FMT_SPCA505,
+	V4L2_PIX_FMT_SPCA508,
+	V4L2_PIX_FMT_SGBRG8,
+	V4L2_PIX_FMT_SGRBG8,
+	V4L2_PIX_FMT_SBGGR8,
+	V4L2_PIX_FMT_SRGGB8,
+	V4L2_PIX_FMT_RGB24,
+	V4L2_PIX_FMT_BGR24,
+	V4L2_PIX_FMT_RGB332,
+	V4L2_PIX_FMT_RGB565,
+	V4L2_PIX_FMT_RGB565X,
+	V4L2_PIX_FMT_ARGB444,
+	V4L2_PIX_FMT_XRGB444,
+	V4L2_PIX_FMT_ARGB555,
+	V4L2_PIX_FMT_XRGB555,
+	V4L2_PIX_FMT_ARGB555X,
+	V4L2_PIX_FMT_XRGB555X,
+	/*last one (zero terminated)*/
+	0
+};
+
+/* FIXME: doesn't support bigendian formats=> fourcc | (1 << 31)
  * get pixelformat from fourcc
  * args:
  *    fourcc - fourcc code for format
@@ -204,7 +107,7 @@ static v4l2_format_table_t decoder_supported_formats[] =
  *
  * returns: v4l2 pixel format
  */
-int v4l2core_fourcc_2_v4l2_pixelformat(const char *fourcc)
+uint32_t v4l2core_fourcc_2_v4l2_pixelformat(const char *fourcc)
 {
 	int fmt = 0;
 	if(!fourcc || strlen(fourcc) !=  4)
@@ -226,14 +129,14 @@ int v4l2core_fourcc_2_v4l2_pixelformat(const char *fourcc)
  * returns: TRUE(1) if format is supported
  *          FALSE(0) if not
  */
-uint8_t can_decode_format(int pixelformat)
+uint8_t can_decode_format(uint32_t pixelformat)
 {
 	int i = 0;
-	int sup_fmt = 0;
+	uint32_t sup_fmt = 0;
 
 	do
 	{
-		sup_fmt = decoder_supported_formats[i].pixelformat;
+		sup_fmt = decoder_supported_formats[i];
 
 		if(pixelformat == sup_fmt)
 			return TRUE;
@@ -244,41 +147,6 @@ uint8_t can_decode_format(int pixelformat)
 
 	return FALSE;
 }
-
-/*
- * check fourcc against decoder support formats
- * args:
- *    fourcc - v4l2 pixelformat fourcc
- *
- * asserts:
- *    none
- *
- * returns: TRUE(1) if format is supported
- *          FALSE(0) if not
- */
-//uint8_t can_decode_fourcc(const char *fourcc)
-//{
-//	if(!fourcc)
-//		return FALSE;
-
-//	if(strlen(fourcc) != 4)
-//		return FALSE;
-
-//	int i = 0;
-//	int sup_fmt = 0;
-//	do
-//	{
-//		sup_fmt = decoder_supported_formats[i].pixelformat;
-
-//		if(strcmp(fourcc, decoder_supported_formats[i].fourcc) == 0 )
-//			return TRUE;
-
-//		i++;
-//	}
-//	while(sup_fmt);
-//
-//	return FALSE;
-//}
 
 /*
  * enumerate frame intervals (fps)
@@ -682,7 +550,7 @@ int enum_frame_formats(v4l2_dev_t *vd)
 			if((fmt.pixelformat & (1<<31)) != 0)
 			{
 				pix_format &= ~(1<<31);//need to fix fourcc string
-				printf("{ pixelformat = '%c%c%c%c'_BE, description = '%s' }\n",
+				printf("{ pixelformat = '%c%c%c%c'(BE), description = '%s' }\n",
 					pix_format & 0xFF, (pix_format >> 8) & 0xFF,
 					(pix_format >> 16) & 0xFF, (pix_format >> 24) & 0xFF,
 					fmt.description);
@@ -715,6 +583,7 @@ int enum_frame_formats(v4l2_dev_t *vd)
 		snprintf(vd->list_stream_formats[fmtind-1].fourcc, 5, "%c%c%c%c",
 				pix_format & 0xFF, (pix_format >> 8) & 0xFF,
 				(pix_format >> 16) & 0xFF, (pix_format >> 24) & 0xFF);
+		strncpy(vd->list_stream_formats[fmtind-1].description, (char *) fmt.description, 31);
 		//enumerate frame sizes
 		ret = enum_frame_sizes(vd, fmt.pixelformat, fmtind);
 		if (ret != 0)

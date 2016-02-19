@@ -335,9 +335,7 @@ int main(int argc, char *argv[])
 		 *   condition with gui_attach, as it requires the current
 		 *   format to be set
 		 */
-		int format = v4l2core_fourcc_2_v4l2_pixelformat(my_config->format);
-
-		v4l2core_prepare_new_format(vd, format);
+		v4l2core_prepare_new_format(vd, my_config->format);
 		/*prepare resolution*/
 		v4l2core_prepare_new_resolution(vd, my_config->width, my_config->height);
 		/*try to set the video stream format on the device*/

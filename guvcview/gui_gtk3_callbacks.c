@@ -1351,7 +1351,7 @@ void format_changed(GtkComboBox *wgtInpType, void *data)
 
 	/*update config*/
 	config_t *my_config = config_get();
-	strncpy(my_config->format, list_stream_formats[index].fourcc, 4);
+	my_config->format =  list_stream_formats[index].format;
 
 	int i=0;
 	int defres = 0;

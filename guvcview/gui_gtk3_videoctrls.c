@@ -291,29 +291,32 @@ int gui_attach_gtk3_videoctrls(GtkWidget *parent)
 	int fmtind=0;
 	for (fmtind=0; fmtind < v4l2core_get_number_formats(get_v4l2_device_handler()); fmtind++)
 	{
+		char *buffer = NULL;
 		if(list_stream_formats[fmtind].dec_support)
 		{
 			if((list_stream_formats[fmtind].format & (1<<31)) != 0)
-			{
-				char *buffer = g_strconcat(list_stream_formats[fmtind].fourcc, "_BE", NULL);
-				gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(wgtInpType), buffer);
-				free(buffer);
-			}
+				buffer = g_strconcat(list_stream_formats[fmtind].fourcc,
+					"(BE) - ", list_stream_formats[fmtind].description, NULL);
 			else
-				gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(wgtInpType), list_stream_formats[fmtind].fourcc);
+				buffer = g_strconcat(list_stream_formats[fmtind].fourcc,
+					" - ", list_stream_formats[fmtind].description, NULL);
+			gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(wgtInpType), buffer);
+
 			if(v4l2core_get_requested_frame_format(get_v4l2_device_handler()) == list_stream_formats[fmtind].format)
 				gtk_combo_box_set_active(GTK_COMBO_BOX(wgtInpType), fmtind); /*set active*/
 		}
 		else
 		{
-			char *buffer = NULL;
 			if((list_stream_formats[fmtind].format & (1<<31)) != 0)
-				buffer = g_strconcat(list_stream_formats[fmtind].fourcc,"_BE", " (UNSUPPORTED)", NULL);
+				buffer = g_strconcat(list_stream_formats[fmtind].fourcc,
+					"(BE) - ", list_stream_formats[fmtind].description,
+					" (UNSUPPORTED)", NULL);
 			else
-				buffer = g_strconcat(list_stream_formats[fmtind].fourcc, " (UNSUPPORTED)", NULL);
+				buffer = g_strconcat(list_stream_formats[fmtind].fourcc,
+				 " - ", list_stream_formats[fmtind].description, " (UNSUPPORTED)", NULL);
 			gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(wgtInpType), buffer);
-			free(buffer);
 		}
+		free(buffer);
 	}
 
 	gtk_grid_attach (GTK_GRID(video_controls_grid), wgtInpType, 1, line, 1 ,1);
