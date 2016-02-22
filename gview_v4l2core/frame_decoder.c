@@ -143,23 +143,13 @@ int alloc_v4l2_frames(v4l2_dev_t *vd)
 		case V4L2_PIX_FMT_RGB24:
 		case V4L2_PIX_FMT_BGR24:
 		case V4L2_PIX_FMT_BGR32:
-		case V4L2_PIX_FMT_ABGR32:
-		case V4L2_PIX_FMT_XBGR32:
 		case V4L2_PIX_FMT_RGB32:
-		case V4L2_PIX_FMT_ARGB32:
-		case V4L2_PIX_FMT_XRGB32:
 		case V4L2_PIX_FMT_RGB332:
 		case V4L2_PIX_FMT_RGB565:
 		case V4L2_PIX_FMT_RGB565X:
 		case V4L2_PIX_FMT_RGB444:
-		case V4L2_PIX_FMT_ARGB444:
-		case V4L2_PIX_FMT_XRGB444:
 		case V4L2_PIX_FMT_RGB555:
-		case V4L2_PIX_FMT_ARGB555:
-		case V4L2_PIX_FMT_XRGB555:
 		case V4L2_PIX_FMT_RGB555X:
-		case V4L2_PIX_FMT_ARGB555X:
-		case V4L2_PIX_FMT_XRGB555X:
 		case V4L2_PIX_FMT_BGR666:
 		case V4L2_PIX_FMT_UYVY:
 		case V4L2_PIX_FMT_VYUY:
@@ -187,6 +177,26 @@ int alloc_v4l2_frames(v4l2_dev_t *vd)
 	    case V4L2_PIX_FMT_Y16:
 #ifdef V4L2_PIX_FMT_Y16_BE
 		case V4L2_PIX_FMT_Y16_BE:
+#endif
+#ifdef V4L2_PIX_FMT_ABGR32
+		case V4L2_PIX_FMT_ABGR32:
+		case V4L2_PIX_FMT_XBGR32:
+#endif
+#ifdef V4L2_PIX_FMT_ARGB32
+		case V4L2_PIX_FMT_ARGB32:
+		case V4L2_PIX_FMT_XRGB32:
+#endif
+#ifdef V4L2_PIX_FMT_ARGB444
+		case V4L2_PIX_FMT_ARGB444:
+		case V4L2_PIX_FMT_XRGB444:
+#endif
+#ifdef V4L2_PIX_FMT_ARGB555
+		case V4L2_PIX_FMT_ARGB555:
+		case V4L2_PIX_FMT_XRGB555:
+#endif
+#ifdef V4L2_PIX_FMT_ARGB555X
+		case V4L2_PIX_FMT_ARGB555X:
+		case V4L2_PIX_FMT_XRGB555X:
 #endif
 			framebuf_size = framesizeIn;
 			/*frame queue*/
@@ -974,20 +984,26 @@ int decode_v4l2_frame(v4l2_dev_t *vd, v4l2_frame_buff_t *frame)
 			break;
 
 		case V4L2_PIX_FMT_RGB444:
+#ifdef V4L2_PIX_FMT_ARGB444
 		case V4L2_PIX_FMT_ARGB444:
 		case V4L2_PIX_FMT_XRGB444: //same as above but without alpha channel
+#endif
 			ar12_to_yu12(frame->yuv_frame, frame->raw_frame, width, height);
 			break;
 
 		case V4L2_PIX_FMT_RGB555:
+#ifdef V4L2_PIX_FMT_ARGB555
 		case V4L2_PIX_FMT_ARGB555:
 		case V4L2_PIX_FMT_XRGB555: //same as above but without alpha channel
+#endif
 			ar15_to_yu12(frame->yuv_frame, frame->raw_frame, width, height);
 			break;
 
 		case V4L2_PIX_FMT_RGB555X:
+#ifdef V4L2_PIX_FMT_ARGB4555X
 		case V4L2_PIX_FMT_ARGB555X:
 		case V4L2_PIX_FMT_XRGB555X: //same as above but without alpha channel
+#endif
 			ar15x_to_yu12(frame->yuv_frame, frame->raw_frame, width, height);
 			break;
 
@@ -996,14 +1012,18 @@ int decode_v4l2_frame(v4l2_dev_t *vd, v4l2_frame_buff_t *frame)
 			break;
 
 		case V4L2_PIX_FMT_BGR32:
+#ifdef V4L2_PIX_FMT_ABGR32
 		case V4L2_PIX_FMT_ABGR32:
 		case V4L2_PIX_FMT_XBGR32: //same as above but without alpha channel
+#endif
 			ar24_to_yu12(frame->yuv_frame, frame->raw_frame, width, height);
 			break;
 
 		case V4L2_PIX_FMT_RGB32:
+#ifdef V4L2_PIX_FMT_ARGB32
 		case V4L2_PIX_FMT_ARGB32:
 		case V4L2_PIX_FMT_XRGB32: //same as above but without alpha channel
+#endif
 			ba24_to_yu12(frame->yuv_frame, frame->raw_frame, width, height);
 			break;
 
