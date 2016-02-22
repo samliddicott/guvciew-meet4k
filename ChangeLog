@@ -1,3 +1,18 @@
+guvcview (2.0.4)
+
+   * drop support for internal 422 packed format (use only 420 planar)
+   * add support for extra pixel formats, including be formats
+   * add command line option for requesting fps
+   * add support for control events
+   * add support for string, int64, bitmask and integer menu controls
+   * make sure we can't select unsuported pix formats from the gui
+   * fix status message for QT5 interface
+   * move mutexes to device handlers (context)
+   * v4l2core and audio api - don't access device data directly (use opaque structures)
+   * add constructor and destructor functions for v4l2core and encoder
+
+ -- Paulo Assis <pj.assis@gmail.com> Mon, 22 Feb 2016 10:10:00 +0100
+
 guvcview (2.0.3)
 
    * Add Qt5 interface (--enable-qt5)

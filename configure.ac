@@ -10,7 +10,7 @@ dnl Initialization macros (sets PACKAGE and VERSION)
 dnl --------------------------------
 m4_define([guvcview_major], [2])
 m4_define([guvcview_minor], [0])
-m4_define([guvcview_micro], [3])
+m4_define([guvcview_micro], [4])
 
 m4_define([guvcview_version],
           [guvcview_major.guvcview_minor.guvcview_micro])
