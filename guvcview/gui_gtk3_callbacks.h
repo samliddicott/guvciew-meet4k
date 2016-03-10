@@ -569,6 +569,20 @@ void encoder_video_properties(GtkMenuItem *item, void *data);
 void encoder_audio_properties(GtkMenuItem *item, void *data);
 
 /*
+ * gtk3 entry focus in or out event
+ * args:
+ *   entry - pointer to widget that received event
+ *   event - pointer to GDK key event structure
+ *   data - pointer to user data
+ *
+ * asserts:
+ *   none
+ *
+ * returns: true if we handled the event or false otherwise
+ */
+gboolean entry_focus (GtkWidget *entry, GdkEventKey *event, void *data);
+
+/*
  * gtk3 window key pressed event
  * args:
  *   win - pointer to widget (main window) where event ocurred

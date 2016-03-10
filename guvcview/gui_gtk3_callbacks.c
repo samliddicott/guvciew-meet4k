@@ -47,6 +47,8 @@
 
 extern int debug_level;
 
+static int entry_has_focus = 0;
+
 /*
  * delete event (close window)
  * args:
@@ -2339,6 +2341,29 @@ void encoder_audio_properties(GtkMenuItem *item, void *data)
 }
 
 /*
+ * gtk3 entry focus in or out event
+ * args:
+ *   entry - pointer to widget that received event
+ *   event - pointer to GDK key event structure
+ *   data - pointer to user data
+ *
+ * asserts:
+ *   none
+ *
+ * returns: true if we handled the event or false otherwise
+ */
+gboolean entry_focus (GtkWidget *entry, GdkEventKey *event, void *data)
+{
+	int val = GPOINTER_TO_INT(data);
+	//if we have an entry with focus disable window_key_pressed events
+	entry_has_focus = val;
+	if(debug_level > 1)
+	printf("GUVCIVEW: entry focus changed to %i \n", entry_has_focus);
+	
+	return FALSE;
+}
+
+/*
  * gtk3 window key pressed event
  * args:
  *   win - pointer to widget (main window) where event ocurred
@@ -2362,6 +2387,9 @@ gboolean window_key_pressed (GtkWidget *win, GdkEventKey *event, void *data)
 		|| (event->state & GDK_MOD3_MASK)
 		|| (event->state & GDK_MOD4_MASK)
 		|| (event->state & GDK_MOD5_MASK)))
+		return FALSE;
+
+	if(entry_has_focus)
 		return FALSE;
 
     if(v4l2core_has_pantilt_id(get_v4l2_device_handler()))

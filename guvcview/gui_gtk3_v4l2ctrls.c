@@ -159,7 +159,6 @@ int gui_attach_gtk3_v4l2ctrls(GtkWidget *parent)
 #else
 				gtk_misc_set_alignment (GTK_MISC (control_widgets_list[widget_list_size - 1].label), 1, 0.5);
 #endif
-        
 
 		control_widgets_list[widget_list_size - 1].id = current->control.id;
         control_widgets_list[widget_list_size - 1].widget = NULL;
@@ -473,6 +472,10 @@ int gui_attach_gtk3_v4l2ctrls(GtkWidget *parent)
 				/*connect signal*/
 				g_signal_connect (GTK_BUTTON(control_widgets_list[n].widget2), "clicked",
 					G_CALLBACK (string_button_clicked), NULL);
+				g_signal_connect(GTK_ENTRY(control_widgets_list[n].widget),"focus-in-event",
+					G_CALLBACK (entry_focus), GINT_TO_POINTER(1));
+				g_signal_connect(GTK_ENTRY(control_widgets_list[n].widget),"focus-out-event",
+					G_CALLBACK (entry_focus), GINT_TO_POINTER(0));
 
 				break;
 
