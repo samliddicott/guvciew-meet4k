@@ -429,7 +429,7 @@ static encoder_video_context_t *encoder_video_init(encoder_context_t *encoder_ct
 	video_codec_data->codec_context->trellis = video_defaults->trellis;
 
 	/*motion estimation method (epzs)*/
-#if !LIBAVCODEC_VER_AT_LEAST(59,0)
+#if !LIBAVCODEC_VER_AT_LEAST(56,60)
 	video_codec_data->codec_context->me_method = video_defaults->me_method;
 #else
 	av_dict_set_int(&video_codec_data->private_options, "motion-est", video_defaults->me_method, 0);
@@ -1422,7 +1422,7 @@ int encoder_encode_video(encoder_context_t *encoder_ctx, void *input_frame)
 			&pkt, NULL, /*NULL flushes the encoder buffers*/
 			&got_packet);
 
-#if !LIBAVCODEC_VER_AT_LEAST(59,0)
+#if !LIBAVCODEC_VER_AT_LEAST(56,60)
     if (!ret && got_packet && video_codec_data->codec_context->coded_frame)
     {
 		/* Do we really need to set this ???*/
@@ -1636,7 +1636,7 @@ int encoder_encode_audio(encoder_context_t *encoder_ctx, void *audio_data)
 			&got_packet);
 	}
 
-#if !LIBAVCODEC_VER_AT_LEAST(59,0)
+#if !LIBAVCODEC_VER_AT_LEAST(56,60)
 	if (!ret && got_packet && audio_codec_data->codec_context->coded_frame)
     {
 		/*we probably don't need to set this*/
