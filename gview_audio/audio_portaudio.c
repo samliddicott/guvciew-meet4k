@@ -526,7 +526,7 @@ void audio_close_portaudio(audio_context_t *audio_ctx)
 	if(audio_ctx == NULL)
 		return;
 
-	if(audio_ctx->list_devices != NULL);
+	if(audio_ctx->list_devices != NULL)
 		free(audio_ctx->list_devices);
 	audio_ctx->list_devices = NULL;
 

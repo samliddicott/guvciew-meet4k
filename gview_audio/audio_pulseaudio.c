@@ -778,7 +778,7 @@ void audio_close_pulseaudio(audio_context_t *audio_ctx)
 	if(audio_ctx->stream_flag == AUDIO_STRM_ON)
 		audio_stop_pulseaudio(audio_ctx);
 
-	if(audio_ctx->list_devices != NULL);
+	if(audio_ctx->list_devices != NULL)
 		free(audio_ctx->list_devices);
 	audio_ctx->list_devices = NULL;
 
