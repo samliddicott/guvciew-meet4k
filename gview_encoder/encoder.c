@@ -526,6 +526,8 @@ static encoder_video_context_t *encoder_video_init(encoder_context_t *encoder_ct
 
 	enc_video_ctx->tmpbuf = NULL; //no need to temp buffer input already in yu12 (yuv420p)
 
+	enc_video_ctx->monotonic_pts = video_defaults->monotonic_pts;
+
 	//alloc outbuf
 	enc_video_ctx->outbuf_size = 240000;//1792
 	enc_video_ctx->outbuf = calloc(enc_video_ctx->outbuf_size, sizeof(uint8_t));
@@ -1382,7 +1384,10 @@ int encoder_encode_video(encoder_context_t *encoder_ctx, void *input_frame)
 		prepare_video_frame(video_codec_data, input_frame, encoder_ctx->video_width, encoder_ctx->video_height);
 
 	if(!enc_video_ctx->monotonic_pts) //generate a real pts based on the frame timestamp
+	{
 		video_codec_data->frame->pts += ((enc_video_ctx->pts - last_video_pts)/1000) * 90;
+		printf("ENCODER: using non-monotonic pts (this can cause encoding to fail)\n");
+	}
 	else  /*generate a true monotonic pts based on the codec fps*/
 		video_codec_data->frame->pts +=
 			(video_codec_data->codec_context->time_base.num * 1000 / video_codec_data->codec_context->time_base.den) * 90;
@@ -1421,7 +1426,12 @@ int encoder_encode_video(encoder_context_t *encoder_ctx, void *input_frame)
 			video_codec_data->codec_context,
 			&pkt, NULL, /*NULL flushes the encoder buffers*/
 			&got_packet);
-
+			
+	if(ret < 0)
+	{
+		fprintf(stderr, "ENCODER: Error encoding video frame: %i\n", ret);
+		return ret;
+	}
 #if !LIBAVCODEC_VER_AT_LEAST(56,60)
     if (!ret && got_packet && video_codec_data->codec_context->coded_frame)
     {
@@ -1431,21 +1441,24 @@ int encoder_encode_video(encoder_context_t *encoder_ctx, void *input_frame)
     }
 #endif
 
-	enc_video_ctx->dts = pkt.dts;
-	enc_video_ctx->flags = pkt.flags;
-	enc_video_ctx->duration = pkt.duration;
+	if(got_packet)
+	{
+		enc_video_ctx->dts = pkt.dts;
+		enc_video_ctx->flags = pkt.flags;
+		enc_video_ctx->duration = pkt.duration;
 
-    /* free any side data since we cannot return it */
-    if (pkt.side_data_elems > 0)
-    {
-    	int i;
-        for (i = 0; i < pkt.side_data_elems; i++)
-        	av_free(pkt.side_data[i].data);
-        av_freep(&pkt.side_data);
-        pkt.side_data_elems = 0;
+    	/* free any side data since we cannot return it */
+    	if (pkt.side_data_elems > 0)
+    	{
+    		int i;
+        	for (i = 0; i < pkt.side_data_elems; i++)
+        		av_free(pkt.side_data[i].data);
+        	av_freep(&pkt.side_data);
+        	pkt.side_data_elems = 0;
+    	}
+
+    	outsize = pkt.size;
     }
-
-    outsize = pkt.size;
 #else
 	if(!enc_video_ctx->flush_delayed_frames)
 		outsize = avcodec_encode_video(
