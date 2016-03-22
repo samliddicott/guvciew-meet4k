@@ -183,7 +183,7 @@ static void print_control(v4l2_ctrl_t *control, int i)
 
 		case V4L2_CTRL_TYPE_INTEGER64:
 			printf("control[%d]:(int64) 0x%x '%s'\n",i ,control->control.id, control->name);
-			printf ("\tcurr:%lld\n", control->value64);
+			printf ("\tcurr:%" PRId64 "\n", control->value64);
 			break;
 
 		case V4L2_CTRL_TYPE_STRING:
@@ -214,7 +214,7 @@ static void print_control(v4l2_ctrl_t *control, int i)
 				control->control.minimum, control->control.maximum,
 				control->control.default_value, control->value);
 			for (j = 0; control->menu[j].index <= control->control.maximum; j++)
-				printf("\tmenu[%d]: [%d] -> %lld (0x%llx)\n", j, control->menu[j].index,
+				printf("\tmenu[%d]: [%d] -> %" PRId64 " (0x%" PRIx64 ")\n", j, control->menu[j].index,
 					(int64_t) control->menu[j].value,
 					(int64_t) control->menu[j].value);
 			break;
