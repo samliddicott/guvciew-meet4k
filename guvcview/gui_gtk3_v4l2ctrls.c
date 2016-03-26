@@ -519,7 +519,7 @@ int gui_attach_gtk3_v4l2ctrls(GtkWidget *parent)
 						else
 						{
 							char buffer[30]="0";
-							snprintf(buffer, 29, "%lld", (int64_t) current->menu[j].value);
+							snprintf(buffer, 29, "%" PRId64 "", (int64_t) current->menu[j].value);
 							gtk_combo_box_text_append_text (
 								GTK_COMBO_BOX_TEXT (control_widgets_list[n].widget), buffer);
 						}
@@ -687,7 +687,7 @@ void gui_gtk3_update_controls_state()
 
 			case V4L2_CTRL_TYPE_INTEGER64:
 			{
-				char *text_input = g_strdup_printf("%lld", current->value64);
+				char *text_input = g_strdup_printf("%" PRId64 "", current->value64);
 				gtk_entry_set_text (GTK_ENTRY(cur_widget->widget), text_input);
 				g_free(text_input);
 				break;
