@@ -396,6 +396,46 @@ static video_codec_t listSupCodecs[] =
 	},
 	{
 		.valid        = 1,
+		.compressor   = "HEVC", //h265
+		.mkv_4cc      = v4l2_fourcc('H','E','V','C'),
+		.mkv_codec    = "V_MPEGH/ISO/HEVC",
+		.mkv_codecPriv= NULL,
+		.description  = N_("HEVC (H265)"),
+		.pix_fmt      = AV_PIX_FMT_YUV420P,
+		.fps          = 0,
+		.monotonic_pts= 1,
+		.bit_rate     = 1500000,
+		.qmax         = 51,
+		.qmin         = 10,
+		.max_qdiff    = 4,
+		.dia          = 2,
+		.pre_dia      = 2,
+		.pre_me       = 2,
+		.me_pre_cmp   = 0,
+		.me_cmp       = 3,
+		.me_sub_cmp   = 3,
+		.last_pred    = 2,
+		.gop_size     = 100,
+		.qcompress    = 0.6,
+		.qblur        = 0.5,
+		.subq         = 5,
+		.framerefs    = 0,
+		.codec_id     = AV_CODEC_ID_HEVC,
+		.codec_name   = "libx265",
+		.mb_decision  = FF_MB_DECISION_RD,
+		.trellis      = 0,
+		.me_method    = ME_HEX,
+		.mpeg_quant   = 1,
+		.max_b_frames = 0,
+		.num_threads  = 1,
+#if LIBAVCODEC_VER_AT_LEAST(54,01)
+		.flags        = CODEC_FLAG2_INTRA_REFRESH
+#else
+		.flags        = CODEC_FLAG2_BPYRAMID | CODEC_FLAG2_WPRED | CODEC_FLAG2_FASTPSKIP | CODEC_FLAG2_INTRA_REFRESH
+#endif
+	},
+	{
+		.valid        = 1,
 		.compressor   = "VP80",
 		.mkv_4cc      = v4l2_fourcc('V','P','8','0'),
 		.mkv_codec    = "V_VP8",
