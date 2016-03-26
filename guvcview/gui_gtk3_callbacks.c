@@ -911,7 +911,7 @@ void int64_button_clicked(GtkButton * Button, void *data)
 	g_free(text_input);
 
 	if(debug_level > 1)
-		printf("GUVCVIEW: applying int64 value: %lld\n", control->value64);
+		printf("GUVCVIEW: applying int64 value: %" PRId64 "\n", control->value64);
 
 	if(v4l2core_set_control_value_by_id(get_v4l2_device_handler(), id))
 		fprintf(stderr, "GUVCVIEW: error setting string value\n");
