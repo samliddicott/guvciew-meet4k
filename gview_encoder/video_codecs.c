@@ -375,7 +375,7 @@ static video_codec_t listSupCodecs[] =
 		.me_cmp       = 3,
 		.me_sub_cmp   = 3,
 		.last_pred    = 2,
-		.gop_size     = 100,
+		.gop_size     = 25,
 		.qcompress    = 0.6,
 		.qblur        = 0.5,
 		.subq         = 5,
@@ -386,7 +386,7 @@ static video_codec_t listSupCodecs[] =
 		.trellis      = 0,
 		.me_method    = ME_HEX,
 		.mpeg_quant   = 1,
-		.max_b_frames = 0,
+		.max_b_frames = 16,
 		.num_threads  = 1,
 #if LIBAVCODEC_VER_AT_LEAST(54,01)
 		.flags        = CODEC_FLAG2_INTRA_REFRESH

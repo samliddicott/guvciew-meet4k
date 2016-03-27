@@ -390,6 +390,16 @@ static encoder_video_context_t *encoder_video_init(encoder_context_t *encoder_ct
 		fprintf(stderr, "ENCODER: libav video codec (%i) not found - using raw input\n",video_defaults->codec_id);
 		video_defaults = encoder_get_video_codec_defaults(0);
 		encoder_set_raw_video_input(encoder_ctx, video_defaults);
+		
+		//alloc outbuf
+		enc_video_ctx->outbuf_size = 240000;//1792
+		enc_video_ctx->outbuf = calloc(enc_video_ctx->outbuf_size, sizeof(uint8_t));
+		if(enc_video_ctx->outbuf == NULL)
+		{
+			fprintf(stderr, "ENCODER: FATAL memory allocation failure (encoder_video_init): %s\n", strerror(errno));
+			exit(-1);
+		}
+		
 		return (enc_video_ctx);
 	}
 
@@ -468,6 +478,7 @@ static encoder_video_context_t *encoder_video_init(encoder_context_t *encoder_ct
 	else
 		video_codec_data->codec_context->time_base = (AVRational){1,15}; //fallback to 15 fps (e.g gspca)
 
+
     if(video_defaults->gop_size > 0)
         video_codec_data->codec_context->gop_size = video_defaults->gop_size;
     else
@@ -486,19 +497,20 @@ static encoder_video_context_t *encoder_video_init(encoder_context_t *encoder_ct
 #endif
 	}
 
+	int ret = 0;
 	/* open codec*/
 #if LIBAVCODEC_VER_AT_LEAST(53,6)
-	if (avcodec_open2(
+	if ((ret = avcodec_open2(
 		video_codec_data->codec_context,
 		video_codec_data->codec,
-		&video_codec_data->private_options) < 0)
+		&video_codec_data->private_options)) < 0)
 #else
-	if (avcodec_open(
+	if ((ret = avcodec_open(
 		video_codec_data->codec_context,
-		video_codec_data->codec) < 0)
+		video_codec_data->codec)) < 0)
 #endif
 	{
-		fprintf(stderr, "ENCODER: could not open video codec (%s) - using raw input\n", video_defaults->codec_name);
+		fprintf(stderr, "ENCODER: could not open video codec (%s): %i - using raw input\n", video_defaults->codec_name, ret);
 		free(video_codec_data->codec_context);
 		video_codec_data->codec_context = NULL;
 		video_codec_data->codec = 0;
@@ -506,6 +518,16 @@ static encoder_video_context_t *encoder_video_init(encoder_context_t *encoder_ct
 		free(video_codec_data);
 		video_defaults = encoder_get_video_codec_defaults(0);
 		encoder_set_raw_video_input(encoder_ctx, video_defaults);
+		
+		//alloc outbuf
+		enc_video_ctx->outbuf_size = 240000;//1792
+		enc_video_ctx->outbuf = calloc(enc_video_ctx->outbuf_size, sizeof(uint8_t));
+		if(enc_video_ctx->outbuf == NULL)
+		{
+			fprintf(stderr, "ENCODER: FATAL memory allocation failure (encoder_video_init): %s\n", strerror(errno));
+			exit(-1);
+		}
+	
 		return (enc_video_ctx);
 	}
 
@@ -1354,8 +1376,6 @@ int encoder_encode_video(encoder_context_t *encoder_ctx, void *input_frame)
 		encoder_ctx->enc_video_ctx->outbuf_coded_size = outsize;
 		return outsize;
 	}
-	
-	encoder_codec_data_t *video_codec_data = (encoder_codec_data_t *) enc_video_ctx->codec_data;
 
 	/*raw - direct input no software encoding*/
 	if(encoder_ctx->video_codec_ind == 0)
@@ -1367,6 +1387,13 @@ int encoder_encode_video(encoder_context_t *encoder_ctx, void *input_frame)
 		}
 		/*outbuf_coded_size must already be set*/
 		outsize = enc_video_ctx->outbuf_coded_size;
+		if(outsize > enc_video_ctx->outbuf_size)
+		{
+			enc_video_ctx->outbuf_size = outsize;
+			if(enc_video_ctx->outbuf)
+				free(enc_video_ctx->outbuf);
+			enc_video_ctx->outbuf = calloc(enc_video_ctx->outbuf_size, sizeof(uint8_t));
+		}
 		memcpy(enc_video_ctx->outbuf, input_frame, outsize);
 		enc_video_ctx->flags = 0;
 		/*enc_video_ctx->flags must be set*/
@@ -1379,6 +1406,8 @@ int encoder_encode_video(encoder_context_t *encoder_ctx, void *input_frame)
 		last_video_pts = enc_video_ctx->pts;
 		return (outsize);
 	}
+
+	encoder_codec_data_t *video_codec_data = (encoder_codec_data_t *) enc_video_ctx->codec_data;
 
 	if(input_frame != NULL)
 		prepare_video_frame(video_codec_data, input_frame, encoder_ctx->video_width, encoder_ctx->video_height);

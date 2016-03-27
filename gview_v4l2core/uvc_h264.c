@@ -388,6 +388,7 @@ void add_h264_format(v4l2_dev_t *vd)
 	}
 
 	vd->list_stream_formats[fmtind-1].format = V4L2_PIX_FMT_H264;
+	vd->list_stream_formats[fmtind-1].dec_support = 1;
 	snprintf(vd->list_stream_formats[fmtind-1].fourcc , 5, "H264");
 	vd->list_stream_formats[fmtind-1].list_stream_cap = NULL;
 	vd->list_stream_formats[fmtind-1].numb_res = 0;
