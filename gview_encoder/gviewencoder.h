@@ -61,7 +61,7 @@ __BEGIN_DECLS
 #define GV_SAMPLE_TYPE_FLOATP (3) //planar
 #endif
 
-#define MAX_DELAYED_FRAMES 70  /*Maximum supported delayed frames*/
+#define MAX_DELAYED_FRAMES 50  /*Maximum supported delayed frames*/
 
 /*video buffer*/
 typedef struct _video_buffer_t
@@ -174,8 +174,8 @@ typedef struct _encoder_audio_context_t
 	int monotonic_pts;
 
 	/*delayed frames handling*/
-	int delayed_frames;
-	int index_of_df; /*index of delayed frame pts in use;*/
+	int write_df;
+	int read_df; /*index of delayed frame pts in use;*/
 	int64_t delayed_pts[MAX_DELAYED_FRAMES]; /*delayed frames pts*/
 	int flush_delayed_frames;
 	int flushed_buffers;
