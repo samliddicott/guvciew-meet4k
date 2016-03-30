@@ -54,11 +54,11 @@
 /*
  * default size of pkt ring buffer 
  * for caching audio frames
- * aprox. 2 sec for 44100 samp/sec with
+ * aprox. 4 sec for 44100 samp/sec with
  * each buffer containing 1152 samples
- * vorbis as 64 samples
+ * vorbis has 64 samples
  */
-#define PKT_BUFFER_DEF_SIZE 78
+#define PKT_BUFFER_DEF_SIZE 156
 
 /** 2 bytes * 3 for EBML IDs, 3 1-byte EBML lengths, 8 bytes for 64 bit
  * offset, 4 bytes for target EBML ID */
@@ -1080,7 +1080,7 @@ stream_io_t *mkv_add_video_stream(mkv_context_t *mkv_ctx,
 	
 	/*we have delayed video frames so increase the cached audio*/
 	if(codec_id == AV_CODEC_ID_H264)
-		mkv_ctx->pkt_buffer_list_size = 3 * PKT_BUFFER_DEF_SIZE;
+		mkv_ctx->pkt_buffer_list_size = 2 * PKT_BUFFER_DEF_SIZE;
 
 	stream->fps = (double) fps/fps_num;
 	stream->indexes = NULL;
@@ -1107,15 +1107,15 @@ stream_io_t *mkv_add_audio_stream(mkv_context_t *mkv_ctx,
 	stream->codec_id = codec_id;
 	stream->a_fmt = format;
 	
-	/*aprox. 2 sec cache*/
+	/*aprox. 4 sec cache*/
 	if(!mkv_ctx->audio_frame_size)
 		mkv_ctx->audio_frame_size = 1152;	
 	if(mkv_ctx->pkt_buffer_list_size == 0)
-		mkv_ctx->pkt_buffer_list_size = 2 * (rate/mkv_ctx->audio_frame_size);
-	else if(mkv_ctx->pkt_buffer_list_size == 3 * PKT_BUFFER_DEF_SIZE) /*H264*/
+		mkv_ctx->pkt_buffer_list_size = 4 * (rate/mkv_ctx->audio_frame_size);
+	else if(mkv_ctx->pkt_buffer_list_size == 2 * PKT_BUFFER_DEF_SIZE) /*H264*/
 	{
-		if(3 * (rate/mkv_ctx->audio_frame_size) > mkv_ctx->pkt_buffer_list_size)
-			mkv_ctx->pkt_buffer_list_size = 3 * (rate/mkv_ctx->audio_frame_size);
+		if(4 * (rate/mkv_ctx->audio_frame_size) > mkv_ctx->pkt_buffer_list_size)
+			mkv_ctx->pkt_buffer_list_size = 4 * (rate/mkv_ctx->audio_frame_size);
 	}
 	
 	if(mkv_ctx->pkt_buffer_list == NULL)

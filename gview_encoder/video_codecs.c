@@ -394,6 +394,7 @@ static video_codec_t listSupCodecs[] =
 		.flags        = CODEC_FLAG2_BPYRAMID | CODEC_FLAG2_WPRED | CODEC_FLAG2_FASTPSKIP | CODEC_FLAG2_INTRA_REFRESH
 #endif
 	},
+#ifdef AV_CODEC_ID_H265
 	{
 		.valid        = 1,
 		.compressor   = "HEVC", //h265
@@ -420,20 +421,17 @@ static video_codec_t listSupCodecs[] =
 		.qblur        = 0.5,
 		.subq         = 5,
 		.framerefs    = 0,
-		.codec_id     = AV_CODEC_ID_HEVC,
+		.codec_id     = AV_CODEC_ID_H265,
 		.codec_name   = "libx265",
 		.mb_decision  = FF_MB_DECISION_RD,
 		.trellis      = 0,
 		.me_method    = ME_HEX,
 		.mpeg_quant   = 1,
-		.max_b_frames = 0,
+		.max_b_frames = 16,
 		.num_threads  = 1,
-#if LIBAVCODEC_VER_AT_LEAST(54,01)
 		.flags        = CODEC_FLAG2_INTRA_REFRESH
-#else
-		.flags        = CODEC_FLAG2_BPYRAMID | CODEC_FLAG2_WPRED | CODEC_FLAG2_FASTPSKIP | CODEC_FLAG2_INTRA_REFRESH
-#endif
 	},
+#endif
 	{
 		.valid        = 1,
 		.compressor   = "VP80",

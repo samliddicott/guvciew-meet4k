@@ -30,6 +30,7 @@
 #include <string.h>
 #include <errno.h>
 #include <assert.h>
+#include <math.h>
 /* support for internationalization - i18n */
 #include <locale.h>
 #include <libintl.h>
@@ -1235,17 +1236,17 @@ void *capture_loop(void *data)
 
 				/*
 				 * exponencial scheduler
-				 *  with 50% threshold (nanosec)
+				 *  with 50% threshold (milisec)
 				 *  and max value of 250 ms (4 fps)
 				 */
-				int time_sched = encoder_buff_scheduler(ENCODER_SCHED_EXP, 0.5, 250);
+				double time_sched = encoder_buff_scheduler(ENCODER_SCHED_LIN, 0.5, 250);
 				if(time_sched > 0)
 				{
 					switch(v4l2core_get_requested_frame_format(my_vd))
 					{
 						case  V4L2_PIX_FMT_H264:
 						{
-							uint32_t framerate = time_sched; /*nanosec*/
+							uint32_t framerate = lround(time_sched * 1E6); /*nanosec*/
 							v4l2core_set_h264_frame_rate_config(my_vd, framerate);
 							break;
 						}
@@ -1253,7 +1254,7 @@ void *capture_loop(void *data)
 						{
 							struct timespec req = {
 								.tv_sec = 0,
-								.tv_nsec = time_sched};/*nanosec*/
+								.tv_nsec = (uint32_t) time_sched * 1E6};/*nanosec*/
 							nanosleep(&req, NULL);
 							break;
 						}

@@ -61,7 +61,7 @@ __BEGIN_DECLS
 #define GV_SAMPLE_TYPE_FLOATP (3) //planar
 #endif
 
-#define MAX_DELAYED_FRAMES 50  /*Maximum supported delayed frames*/
+#define MAX_DELAYED_FRAMES 70  /*Maximum supported delayed frames*/
 
 /*video buffer*/
 typedef struct _video_buffer_t
@@ -140,8 +140,8 @@ typedef struct _encoder_video_context_t
 	int monotonic_pts;
 
 	/*delayed frames handling*/
-	int delayed_frames;
-	int index_of_df; /*index of delayed frame pts in use;*/
+	int write_df; /*index of delayed frame pts for write;*/
+	int read_df; /*index of delayed frame pts for read;*/
 	int64_t delayed_pts[MAX_DELAYED_FRAMES]; /*delayed frames pts*/
 	int flush_delayed_frames;
 	int flushed_buffers;
@@ -577,9 +577,9 @@ int encoder_set_audio_mkvCodecPriv(encoder_context_t *encoder_ctx);
  * asserts:
  *   none
  *
- * returns: estimate sleep time (nanosec)
+ * returns: estimate sleep time (milisec)
  */
-uint32_t encoder_buff_scheduler(int mode, double thresh, int max_time);
+double encoder_buff_scheduler(int mode, double thresh, double max_time);
 
 /*
  * store unprocessed input video frame in video ring buffer
