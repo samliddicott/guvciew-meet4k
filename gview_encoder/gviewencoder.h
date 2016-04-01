@@ -61,7 +61,7 @@ __BEGIN_DECLS
 #define GV_SAMPLE_TYPE_FLOATP (3) //planar
 #endif
 
-#define MAX_DELAYED_FRAMES 50  /*Maximum supported delayed frames*/
+#define MAX_DELAYED_FRAMES 68  /*Maximum supported delayed frames*/
 
 /*video buffer*/
 typedef struct _video_buffer_t
@@ -174,9 +174,6 @@ typedef struct _encoder_audio_context_t
 	int monotonic_pts;
 
 	/*delayed frames handling*/
-	int write_df;
-	int read_df; /*index of delayed frame pts in use;*/
-	int64_t delayed_pts[MAX_DELAYED_FRAMES]; /*delayed frames pts*/
 	int flush_delayed_frames;
 	int flushed_buffers;
 	int flush_done;
@@ -389,7 +386,7 @@ video_codec_t *encoder_get_video_codec_defaults(int codec_ind);
 audio_codec_t *encoder_get_audio_codec_defaults(int codec_ind);
 
 /*
- * checks if the video codec index corresponds to VP8 (webm) codec
+ * checks if the video codec index corresponds to VP8 or VP9 (webm) codec
  * args:
  *    codec_ind - video codec list index
  *
@@ -482,14 +479,14 @@ int encoder_get_audio_frame_size(encoder_context_t *encoder_ctx);
 int encoder_get_audio_sample_fmt(encoder_context_t *encoder_ctx);
 
 /*
- * get the video codec index for VP8 (webm) codec
+ * get the video codec index for VP9 (webm) codec
  * args:
  *    none
  *
  * asserts:
  *    none
  *
- * returns: index for VP8 codec or -1 if error
+ * returns: index for VP9 codec or -1 if error
  */
 int encoder_get_webm_video_codec_index();
 

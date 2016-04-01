@@ -149,10 +149,11 @@ int encoder_write_audio_data(encoder_context_t *encoder_ctx)
 	if(!enc_audio_ctx || encoder_ctx->audio_channels <= 0)
 		return -1;
 
-	if(verbosity > 3)
-		printf("ENCODER: writing %i bytes of audio data\n", enc_audio_ctx->outbuf_coded_size);
 	if(enc_audio_ctx->outbuf_coded_size <= 0)
 		return -1;
+	
+	if(verbosity > 3)
+		printf("ENCODER: writing %i bytes of audio data\n", enc_audio_ctx->outbuf_coded_size);
 
 	int ret =0;
 	int block_align = 1;

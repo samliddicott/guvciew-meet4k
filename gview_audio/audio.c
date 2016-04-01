@@ -304,6 +304,9 @@ void audio_fill_buffer(audio_context_t *audio_ctx, int64_t ts)
 		audio_ctx->capture_buff_size * sizeof(sample_t));
 	/*buffer begin time*/
 	audio_buffers[buffer_write_index].timestamp = audio_ctx->current_ts - buffer_length;
+	if(audio_buffers[buffer_write_index].timestamp < 0)
+		fprintf(stderr, "AUDIO: write buffer(%i) - invalid timestamp (< 0): cur_ts:%" PRId64 " buf_length:%" PRId64 "\n", 
+			buffer_write_index, audio_ctx->current_ts, buffer_length);
 
 	audio_buffers[buffer_write_index].level_meter[0] = audio_ctx->capture_buff_level[0];
 	audio_buffers[buffer_write_index].level_meter[1] = audio_ctx->capture_buff_level[1];
@@ -722,6 +725,9 @@ void audio_set_cap_buffer_size(audio_context_t *audio_ctx, int size)
 {
 	/*assertions*/
 	assert(audio_ctx != NULL);
+	
+	if(verbosity > 2)
+		printf("AUDIO: set capture buffer size to %i samples\n", size);
 	
 	audio_ctx->capture_buff_size = size;
 }

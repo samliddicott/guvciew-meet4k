@@ -699,6 +699,9 @@ static void *audio_processing_loop(void *data)
 	/*start audio capture*/
 	int frame_size = encoder_get_audio_frame_size(encoder_ctx);
 
+	//if(frame_size < 1024)
+	//	frame_size = 1024;
+
 	audio_set_cap_buffer_size(audio_ctx, 
 		frame_size * audio_get_channels(audio_ctx));
 	audio_start(audio_ctx);

@@ -459,7 +459,43 @@ static video_codec_t listSupCodecs[] =
 		.subq         = 5,
 		.framerefs    = 0,
 		.codec_id     = AV_CODEC_ID_VP8,
-		.codec_name   = "libvpx",
+		.codec_name   = "libvpx_vp8",
+		.mb_decision  = FF_MB_DECISION_RD,
+		.trellis      = 0,
+		.me_method    = ME_HEX,
+		.mpeg_quant   = 1,
+		.max_b_frames = 0,
+		.num_threads  = 4,
+		.flags        = 0
+	},
+	{
+		.valid        = 1,
+		.compressor   = "VP90",
+		.mkv_4cc      = v4l2_fourcc('V','P','9','0'),
+		.mkv_codec    = "V_VP9",
+		.mkv_codecPriv= NULL,
+		.description  = N_("VP9 (VP9)"),
+		.pix_fmt      = AV_PIX_FMT_YUV420P,
+		.fps          = 0,
+		.monotonic_pts= 1,
+		.bit_rate     = 600000,
+		.qmax         = 51,
+		.qmin         = 11,
+		.max_qdiff    = 4,
+		.dia          = 2,
+		.pre_dia      = 2,
+		.pre_me       = 2,
+		.me_pre_cmp   = 0,
+		.me_cmp       = 3,
+		.me_sub_cmp   = 3,
+		.last_pred    = 2,
+		.gop_size     = 120,
+		.qcompress    = 0.8,
+		.qblur        = 0.5,
+		.subq         = 5,
+		.framerefs    = 0,
+		.codec_id     = AV_CODEC_ID_VP9,
+		.codec_name   = "libvpx_vp9",
 		.mb_decision  = FF_MB_DECISION_RD,
 		.trellis      = 0,
 		.me_method    = ME_HEX,
@@ -820,7 +856,7 @@ int encoder_set_video_mkvCodecPriv(encoder_context_t *encoder_ctx)
 }
 
 /*
- * checks if the video codec index corresponds to VP8 (webm) codec
+ * checks if the video codec index corresponds to VP8 or VP9 (webm) codec
  * args:
  *    codec_ind - video codec list index
  *
@@ -835,7 +871,8 @@ int encoder_check_webm_video_codec(int codec_ind)
 
 	int ret = 0;
 	if(real_index >= 0 && real_index < encoder_get_video_codec_list_size())
-		ret = (listSupCodecs[real_index].codec_id == AV_CODEC_ID_VP8) ? 1: 0;
+		ret = ((listSupCodecs[real_index].codec_id == AV_CODEC_ID_VP8) ||
+			(listSupCodecs[real_index].codec_id == AV_CODEC_ID_VP9)) ? 1: 0;
 
 	return ret;
 }
@@ -878,18 +915,18 @@ int get_video_codec_list_index(int codec_id)
 }
 
 /*
- * get the video codec index for VP8 (webm) codec
+ * get the video codec index for VP9 (webm) codec
  * args:
  *    none
  *
  * asserts:
  *    none
  *
- * returns: index for VP8 codec or -1 if error
+ * returns: index for VP9 codec or -1 if error
  */
 int encoder_get_webm_video_codec_index()
 {
-	return get_video_codec_list_index(AV_CODEC_ID_VP8);
+	return get_video_codec_list_index(AV_CODEC_ID_VP9);
 }
 
 /*
