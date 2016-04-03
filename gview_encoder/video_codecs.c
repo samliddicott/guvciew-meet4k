@@ -42,6 +42,10 @@ extern int verbosity;
 #define CODEC_FLAG2_INTRA_REFRESH 0
 #endif
 
+#ifndef X264_ME_HEX
+#define X264_ME_HEX 1
+#endif
+
 static bmp_info_header_t mkv_codecPriv =
 {
 	.biSize = 0x00000028, /*40 bytes*/
@@ -384,7 +388,7 @@ static video_codec_t listSupCodecs[] =
 		.codec_name   = "libx264",
 		.mb_decision  = FF_MB_DECISION_RD,
 		.trellis      = 0,
-		.me_method    = ME_HEX,
+		.me_method    = X264_ME_HEX,
 		.mpeg_quant   = 1,
 		.max_b_frames = 16,
 		.num_threads  = 1,
