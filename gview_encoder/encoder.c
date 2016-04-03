@@ -1391,7 +1391,7 @@ static int read_video_df_pts(encoder_video_context_t *enc_video_ctx)
 	enc_video_ctx->pts = enc_video_ctx->delayed_pts[enc_video_ctx->read_df];
 	
 	if(enc_video_ctx->flush_delayed_frames && verbosity > 1)
-		printf("ENCODER: video codec flushing delayed frame %i ( pts: %llu )\n", 
+		printf("ENCODER: video codec flushing delayed frame %i ( pts: %" PRId64 " )\n", 
 			enc_video_ctx->read_df, enc_video_ctx->pts);
 
 	if(enc_video_ctx->read_df == enc_video_ctx->write_df)
