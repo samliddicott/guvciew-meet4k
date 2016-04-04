@@ -916,18 +916,18 @@ int get_video_codec_list_index(int codec_id)
 }
 
 /*
- * get the video codec index for VP9 (webm) codec
+ * get the video codec index for VP8 (webm) codec
  * args:
  *    none
  *
  * asserts:
  *    none
  *
- * returns: index for VP9 codec or -1 if error
+ * returns: index for VP8 codec or -1 if error
  */
 int encoder_get_webm_video_codec_index()
 {
-	return get_video_codec_list_index(AV_CODEC_ID_VP9);
+	return get_video_codec_list_index(AV_CODEC_ID_VP8);
 }
 
 /*
