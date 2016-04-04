@@ -52,6 +52,10 @@
 #define LIBAVUTIL_VER_AT_LEAST(major,minor) 0
 #endif
 
+#ifndef X264_ME_HEX
+#define X264_ME_HEX 1
+#endif
+
 #if !LIBAVCODEC_VER_AT_LEAST(53,0)
   #define AV_SAMPLE_FMT_S16 SAMPLE_FMT_S16
   #define AV_SAMPLE_FMT_FLT SAMPLE_FMT_FLT

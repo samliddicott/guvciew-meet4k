@@ -42,9 +42,6 @@ extern int verbosity;
 #define CODEC_FLAG2_INTRA_REFRESH 0
 #endif
 
-#ifndef X264_ME_HEX
-#define X264_ME_HEX 1
-#endif
 
 static bmp_info_header_t mkv_codecPriv =
 {

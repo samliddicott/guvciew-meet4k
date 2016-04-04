@@ -438,12 +438,13 @@ static encoder_video_context_t *encoder_video_init(encoder_context_t *encoder_ct
 	/*use trellis quantization*/
 	video_codec_data->codec_context->trellis = video_defaults->trellis;
 
-	if( video_defaults->codec_id == AV_CODEC_ID_H264 && video_defaults->me_method > 4)
-		video_defaults->me_method = 1;
 	/*motion estimation method */
 #if !LIBAVCODEC_VER_AT_LEAST(56,60)
 	video_codec_data->codec_context->me_method = video_defaults->me_method;
 #else
+	if( video_defaults->codec_id == AV_CODEC_ID_H264 && video_defaults->me_method > 4)
+		video_defaults->me_method = X264_ME_HEX;
+
 	av_dict_set_int(&video_codec_data->private_options, "motion-est", video_defaults->me_method, 0);
 #endif
 	video_codec_data->codec_context->dia_size = video_defaults->dia;
