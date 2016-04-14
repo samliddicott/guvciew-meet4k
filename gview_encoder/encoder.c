@@ -265,7 +265,7 @@ static void encoder_set_raw_video_input(
 			strncpy(video_defaults->compressor, "MJPG", 5);
 			video_defaults->mkv_4cc = v4l2_fourcc('M','J','P','G');
 			strncpy(video_defaults->mkv_codec, "V_MS/VFW/FOURCC", 25);
-			encoder_ctx->enc_video_ctx->outbuf_size = encoder_ctx->video_width * encoder_ctx->video_height / 2;
+			encoder_ctx->enc_video_ctx->outbuf_size =  (encoder_ctx->video_width * encoder_ctx->video_height) / 2;
 			encoder_ctx->enc_video_ctx->outbuf = calloc(encoder_ctx->enc_video_ctx->outbuf_size, sizeof(uint8_t));
 			if(encoder_ctx->enc_video_ctx->outbuf == NULL)
 			{
@@ -278,7 +278,7 @@ static void encoder_set_raw_video_input(
 			strncpy(video_defaults->compressor, "H264", 5);
 			video_defaults->mkv_4cc = v4l2_fourcc('H','2','6','4');
 			strncpy(video_defaults->mkv_codec, "V_MPEG4/ISO/AVC", 25);
-			encoder_ctx->enc_video_ctx->outbuf_size = encoder_ctx->video_width * encoder_ctx->video_height / 2;
+			encoder_ctx->enc_video_ctx->outbuf_size = (encoder_ctx->video_width * encoder_ctx->video_height) / 2;
 			encoder_ctx->enc_video_ctx->outbuf = calloc(encoder_ctx->enc_video_ctx->outbuf_size, sizeof(uint8_t));
 			if(encoder_ctx->enc_video_ctx->outbuf == NULL)
 			{
@@ -397,14 +397,17 @@ static encoder_video_context_t *encoder_video_init(encoder_context_t *encoder_ct
 		encoder_set_raw_video_input(encoder_ctx, video_defaults);
 		
 		//alloc outbuf
-		enc_video_ctx->outbuf_size = 240000;//1792
+		if(enc_video_ctx->outbuf_size <= 0)
+			enc_video_ctx->outbuf_size = 240000;//1792
+		if(enc_video_ctx->outbuf != NULL)
+			free(enc_video_ctx->outbuf);
 		enc_video_ctx->outbuf = calloc(enc_video_ctx->outbuf_size, sizeof(uint8_t));
 		if(enc_video_ctx->outbuf == NULL)
 		{
 			fprintf(stderr, "ENCODER: FATAL memory allocation failure (encoder_video_init): %s\n", strerror(errno));
 			exit(-1);
 		}
-		
+
 		return (enc_video_ctx);
 	}
 
@@ -515,7 +518,10 @@ static encoder_video_context_t *encoder_video_init(encoder_context_t *encoder_ct
 		encoder_set_raw_video_input(encoder_ctx, video_defaults);
 		
 		//alloc outbuf
-		enc_video_ctx->outbuf_size = 240000;//1792
+		if(enc_video_ctx->outbuf_size <= 0)
+			enc_video_ctx->outbuf_size = 240000;//1792
+		if(enc_video_ctx->outbuf != NULL)
+			free(enc_video_ctx->outbuf);
 		enc_video_ctx->outbuf = calloc(enc_video_ctx->outbuf_size, sizeof(uint8_t));
 		if(enc_video_ctx->outbuf == NULL)
 		{
@@ -546,7 +552,11 @@ static encoder_video_context_t *encoder_video_init(encoder_context_t *encoder_ct
 	enc_video_ctx->monotonic_pts = video_defaults->monotonic_pts;
 
 	//alloc outbuf
-	enc_video_ctx->outbuf_size = 240000;//1792
+	enc_video_ctx->outbuf_size = (encoder_ctx->video_width * encoder_ctx->video_height) / 2;
+	if(enc_video_ctx->outbuf_size <= 0)
+		enc_video_ctx->outbuf_size = 240000;//1792
+	if(enc_video_ctx->outbuf != NULL)
+		free(enc_video_ctx->outbuf);
 	enc_video_ctx->outbuf = calloc(enc_video_ctx->outbuf_size, sizeof(uint8_t));
 	if(enc_video_ctx->outbuf == NULL)
 	{
