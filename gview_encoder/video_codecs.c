@@ -388,7 +388,7 @@ static video_codec_t listSupCodecs[] =
 		.me_method    = X264_ME_HEX,
 		.mpeg_quant   = 1,
 		.max_b_frames = 16,
-		.num_threads  = 1,
+		.num_threads  = 4,
 #if LIBAVCODEC_VER_AT_LEAST(54,01)
 		.flags        = CODEC_FLAG2_INTRA_REFRESH
 #else
@@ -429,7 +429,7 @@ static video_codec_t listSupCodecs[] =
 		.me_method    = ME_HEX,
 		.mpeg_quant   = 1,
 		.max_b_frames = 16,
-		.num_threads  = 1,
+		.num_threads  = 4,
 		.flags        = CODEC_FLAG2_INTRA_REFRESH
 	},
 #endif
@@ -501,7 +501,7 @@ static video_codec_t listSupCodecs[] =
 		.trellis      = 0,
 		.me_method    = ME_HEX,
 		.mpeg_quant   = 1,
-		.max_b_frames = 0,
+		.max_b_frames = 16,
 		.num_threads  = 4,
 		.flags        = 0
 	},
@@ -515,7 +515,7 @@ static video_codec_t listSupCodecs[] =
 		.pix_fmt      = AV_PIX_FMT_YUV420P,
 		.fps          = 0,
 		.monotonic_pts= 1,
-		.bit_rate     = 600000,
+		.bit_rate     = 1500000,
 		.qmax         = 51,
 		.qmin         = 11,
 		.max_qdiff    = 4,
@@ -538,7 +538,7 @@ static video_codec_t listSupCodecs[] =
 		.me_method    = ME_HEX,
 		.mpeg_quant   = 1,
 		.max_b_frames = 0,
-		.num_threads  = 1,
+		.num_threads  = 4,
 		.flags        = 0
 	}
 };
