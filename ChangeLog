@@ -1,3 +1,9 @@
+guvcview (2.0.5)
+
+   * terminate configure if qt5 is enabled and moc is missing
+
+ -- Paulo Assis <pj.assis@gmail.com> Mon, 2 May 2016 15:50:00 +0100
+
 guvcview (2.0.4)
 
    * drop support for internal 422 packed format (use only 420 planar)
