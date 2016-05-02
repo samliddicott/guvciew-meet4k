@@ -10,7 +10,7 @@ dnl Initialization macros (sets PACKAGE and VERSION)
 dnl --------------------------------
 m4_define([guvcview_major], [2])
 m4_define([guvcview_minor], [0])
-m4_define([guvcview_micro], [4])
+m4_define([guvcview_micro], [5])
 
 m4_define([guvcview_version],
           [guvcview_major.guvcview_minor.guvcview_micro])
@@ -55,9 +55,6 @@ AC_PROG_LIBTOOL
 AC_SYS_LARGEFILE
 
 AM_SANITY_CHECK
-
-# we need this for the Qt GUI
-AC_CHECK_TOOL([MOC], [moc])
 
 dnl --------------------------------------------------------------------------
 dnl set pthread_libs and pthread_cflags
@@ -430,6 +427,13 @@ if test $enable_qt5 = yes; then
 	else
 	  AC_MSG_WARN(Qt5 missing... Qt5 support will be disabled.);
 	  enable_qt5=no
+	fi
+
+	# we need this for building the Qt5 interface
+	AC_CHECK_TOOLS([MOC], [moc moc-qt5])
+
+	if test -z "$MOC" ; then
+        AC_MSG_ERROR([*** moc not found])
 	fi
 fi
 
