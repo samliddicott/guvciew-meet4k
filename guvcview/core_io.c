@@ -388,18 +388,23 @@ unsigned long long get_file_suffix(const char *path, const char* filename)
 	
 	int noextsize = strlen(filename);
 
+	//search for '.' and return pointer to it's position or null if not found
 	char *name = strrchr(filename, '.');
 
+	char *extension = NULL;
 	if(name)
-		noextsize = name - filename;
-
-	char *noextname = strndup(filename, noextsize);
-	char *extension = strdup(name + 1);
-
+	{
+		noextsize = name - filename; // size of the filename up to '.'
+		extension = strdup(name + 1); //extension string
+	}
+	char *noextname = strndup(filename, noextsize); //basename
 
 	int fsize = strlen(filename) + 7;
 	char format_str[fsize];
-	snprintf(format_str, fsize-1, "%s-%%20s.%s", noextname, extension);
+	if(extension != NULL)
+		snprintf(format_str, fsize-1, "%s-%%20s.%s", noextname, extension);
+	else
+		snprintf(format_str, fsize-1, "%s-%%20s", noextname);
 
 	while ((error = readdir_r(dirp, buf, &ent)) == 0 && ent != NULL)
 	{
@@ -408,9 +413,11 @@ unsigned long long get_file_suffix(const char *path, const char* filename)
 		if (strncmp(ent->d_name, noextname, noextsize) == 0)
 		{
 			if(debug_level > 3)
-					printf("GUVCVIEW: (get_file_suffix) prefix matched (%s)\n", noextname);
+				printf("GUVCVIEW: (get_file_suffix) prefix matched (%s)\n", noextname);
+
 			char *ext = strrchr(ent->d_name, '.');
-			if(strcmp(ext + 1, extension) == 0)
+			if (((extension != NULL) && (ext != NULL) && (strcmp(ext + 1, extension) == 0)) ||
+				(extension == NULL && ext == NULL))
 			{
 				char sfixstr[21];
 				unsigned long long sfix = 0;
@@ -468,11 +475,13 @@ char *add_file_suffix(const char *path, const char *filename)
 
 	char *pname = strrchr(filename, '.');
 
+	char *extension = NULL;
 	if(pname)
+	{
 		noextsize = pname - filename;
-
+		extension = strdup(pname + 1);
+	}
 	char *noextname = strndup(filename, noextsize);
-	char *extension = strdup(pname + 1);
 
 	/*add '-' suffix and '\0' and an extra char just for safety*/
 	char *new_name = calloc(size_name + size_suffix + 3, sizeof(char));

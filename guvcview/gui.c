@@ -590,21 +590,29 @@ void set_video_name(const char *name)
 
 	video_name = strdup(name);
 
-	/* update the config */
-	config_t *my_config = config_get();
-
-	/*this can be the function arg 'name'*/
-	if(my_config->video_name)
-		free(my_config->video_name);
-
-	/*so here we use the dup string*/
-	my_config->video_name = strdup(video_name);
-
 	/*get image format*/
 	char *ext = get_file_extension(name);
 	if(ext == NULL)
+	{
+		if(video_name)
+			free(video_name);
+
 		fprintf(stderr, "GUVCVIEW: no valid file extension for video file %s\n",
 			name);
+		fprintf(stderr, "GUVCVIEW: using muxer %i\n", get_video_muxer());
+		switch(get_video_muxer())
+		{
+			case ENCODER_MUX_MKV:
+				video_name = set_file_extension(name, "mkv");
+				break;
+			case ENCODER_MUX_WEBM:
+				video_name = set_file_extension(name, "webm");
+				break;
+			default:
+				video_name = set_file_extension(name, "avi");
+				break;
+		}
+	}
 	else if( strcasecmp(ext, "mkv") == 0)
 		set_video_muxer(ENCODER_MUX_MKV);
 	else if ( strcasecmp(ext, "webm") == 0 )
@@ -618,6 +626,16 @@ void set_video_name(const char *name)
 
 	if(ext)
 		free(ext);
+	
+	/* update the config */
+	config_t *my_config = config_get();
+
+	/*this can be the function arg 'name'*/
+	if(my_config->video_name)
+		free(my_config->video_name);
+
+	/*so here we use the dup string*/
+	my_config->video_name = strdup(video_name);
 }
 
 /*
@@ -756,26 +774,37 @@ char *get_photo_name()
  */
 void set_photo_name(const char *name)
 {
-	if(photo_name != NULL)
+	if(photo_name)
 		free(photo_name);
 
 	photo_name = strdup(name);
 
-	/*update the config*/
-	config_t *my_config = config_get();
-
-	/*this can be the function arg 'name'*/
-	if(my_config->photo_name)
-		free(my_config->photo_name);
-
-	/*so here we use the dup string*/
-	my_config->photo_name = strdup(photo_name);
-
 	/*get image format*/
 	char *ext = get_file_extension(name);
 	if(ext == NULL)
+	{
+		if(photo_name)
+			free(photo_name);
+
 		fprintf(stderr, "GUVCVIEW: no valid file extension for image file %s\n",
 			name);
+		fprintf(stderr, "GUVCVIEW: using format %i\n", get_photo_format());
+		switch(get_photo_format())
+		{
+			case IMG_FMT_JPG:
+				photo_name = set_file_extension(name, "jpg");
+				break;
+			case IMG_FMT_PNG:
+				photo_name = set_file_extension(name, "png");
+				break;
+			case IMG_FMT_BMP:
+				photo_name = set_file_extension(name, "bmp");
+				break;
+			default:
+				photo_name = set_file_extension(name, "raw");
+				break;
+		}
+	}
 	else if( strcasecmp(ext, "jpg") == 0 ||
 			 strcasecmp(ext, "jpeg") == 0 )
 		set_photo_format(IMG_FMT_JPG);
@@ -788,6 +817,16 @@ void set_photo_name(const char *name)
 
 	if(ext)
 		free(ext);
+
+	/*update the config*/
+	config_t *my_config = config_get();
+
+	/*this can be the function arg 'name'*/
+	if(my_config->photo_name)
+		free(my_config->photo_name);
+
+	/*so here we use the dup string*/
+	my_config->photo_name = strdup(photo_name);
 }
 
 /*
