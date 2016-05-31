@@ -51,6 +51,10 @@
 	#include "render_sdl1.h"
 #endif
 
+#if ENABLE_SFML
+	#include "render_sfml.h"
+#endif
+
 
 int verbosity = 0;
 
@@ -280,7 +284,13 @@ int render_init(int render, int width, int height, int flags)
 	{
 		case RENDER_NONE:
 			break;
-
+			
+		#if ENABLE_SFML
+		case RENDER_SFML:
+			ret = init_render_sfml(my_width, my_height, flags);
+			break;
+		#endif
+		
 		case RENDER_SDL:
 		default:
 			#if ENABLE_SDL2
@@ -360,6 +370,13 @@ int render_frame(uint8_t *frame)
 	{
 		case RENDER_NONE:
 			break;
+		
+		#if ENABLE_SFML
+		case RENDER_SFML:
+			ret = render_sfml_frame(frame, my_width, my_height);
+			render_sfml_dispatch_events();
+			break;
+		#endif
 
 		case RENDER_SDL:
 		default:
@@ -392,6 +409,12 @@ void render_set_caption(const char* caption)
 	{
 		case RENDER_NONE:
 			break;
+		
+		#if ENABLE_SFML
+		case RENDER_SFML:
+			set_render_sfml_caption(caption);
+			break;
+		#endif
 
 		case RENDER_SDL:
 		default:
@@ -420,6 +443,12 @@ void render_close()
 	{
 		case RENDER_NONE:
 			break;
+		
+		#if ENABLE_SFML
+		case RENDER_SFML:
+			render_sfml_clean();
+			break;
+		#endif
 
 		case RENDER_SDL:
 		default:

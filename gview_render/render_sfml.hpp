@@ -23,51 +23,31 @@
 #                                                                               #
 ********************************************************************************/
 
+#ifndef GUI_QT5_HPP
+#define GUI_QT5_HPP
 
-#ifndef RENDER_H
-#define RENDER_H
-/*
- * render a vu meter
- * args:
- *   frame - pointer to yuyv frame data
- *   width - frame width
- *   height - frame height
- *   vu_level - vu level values (array with 2 channels)
- *
- * asserts:
- *   none
- *
- * returns: none
- */
-void render_osd_vu_meter(uint8_t *frame, int width, int height, float vu_level[2]);
+#include <SFML/Graphics.hpp>
 
-/*
- * render a crosshair
- * args:
- *   frame - pointer to yuyv frame data
- *   width - frame width
- *   height - frame height
- *
- * asserts:
- *   none
- *
- * returns: none
- */
-void render_osd_crosshair(uint8_t *frame, int width, int height);
+extern "C" {
+#include <stdint.h>
+}
 
-/*
- * Apply fx filters
- * args:
- *    frame - pointer to frame buffer (yuyv format)
- *    width - frame width
- *    height - frame height
- *    mask  - or'ed filter mask
- *
- * asserts:
- *    frame is not null
- *
- * returns: void
- */
-void render_fx_apply(uint8_t *frame, int width, int height, uint32_t mask);
+class SFMLRender {
+	
+	public:
+		SFMLRender(int width, int height, int flags);
+		~SFMLRender();
+		int render_frame(uint8_t *frame, int width, int height);
+		void set_caption(const char* caption);
+		void dispatch_events();
+		bool has_window() {return window.isOpen();};
+	
+	private:
+	sf::RenderWindow window;
+	sf::Texture texture;
+	sf::Sprite sprite;
+	uint8_t *rgba_pixels;
+	
+};
 
 #endif

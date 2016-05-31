@@ -42,6 +42,7 @@ __BEGIN_DECLS
 
 #define RENDER_NONE     (0)
 #define RENDER_SDL      (1)
+#define RENDER_SFML     (2)
 
 #define EV_QUIT      (0)
 #define EV_KEY_UP    (1)

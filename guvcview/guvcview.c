@@ -151,6 +151,8 @@ int main(int argc, char *argv[])
 		render = RENDER_NONE;
 	else if(strcasecmp(my_config->render, "sdl") == 0)
 		render = RENDER_SDL;
+	else if(strcasecmp(my_config->render, "sfml") == 0)
+		render = RENDER_SFML;
 
 	/*select gui API*/
 #if HAS_GTK3

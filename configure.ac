@@ -233,6 +233,25 @@ fi
 
 AM_CONDITIONAL(ENABLE_SDL2, test $enable_sdl2 = yes)
 
+AC_MSG_CHECKING(if you want to enable sfml support)
+AC_ARG_ENABLE(sfml, AS_HELP_STRING([--enable-sfml],
+		[enable sfml support (default: disabled)]),
+	[enable_sfml=$enableval],
+	[enable_sfml=no])
+
+AC_MSG_RESULT($enable_sfml)
+
+if test $enable_sfml = yes; then
+
+	PKG_CHECK_MODULES(SFML, [sfml-graphics >= 2.0])
+	AC_SUBST(SFML_CFLAGS)
+	AC_SUBST(SFML_LIBS)
+
+	AC_DEFINE(ENABLE_SFML, 1, [set to 1 if sfml is enabled])
+fi
+
+AM_CONDITIONAL(ENABLE_SFML, test $enable_sfml = yes)
+
 dnl --------------------------------------------------------------------------
 dnl Check for gsl (gnu random generator) used by render fx
 dnl --------------------------------------------------------------------------
@@ -510,6 +529,7 @@ AC_MSG_NOTICE([
   Pulseaudio       : ${enable_pulse}
   gsl              : ${enable_gsl}
   sdl2             : ${enable_sdl2}
+  sfml             : ${enable_sfml}
   mjpg decoder     : ${mjpg_decoder}
   gtk3             : ${enable_gtk3}
   Qt5              : ${enable_qt5}

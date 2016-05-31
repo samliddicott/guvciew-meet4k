@@ -23,51 +23,74 @@
 #                                                                               #
 ********************************************************************************/
 
+#ifndef RENDER_SFML_H
+#define RENDER_SFML_H
 
-#ifndef RENDER_H
-#define RENDER_H
 /*
- * render a vu meter
+ * init sfml render
  * args:
- *   frame - pointer to yuyv frame data
+ *    width - overlay width
+ *    height - overlay height
+ *    flags - window flags:
+ *              0- none
+ *              1- fullscreen
+ *              2- maximized
+ *
+ * asserts:
+ *
+ * returns: error code (0 ok)
+ */
+int init_render_sfml(int width, int height, int flags);
+
+/*
+ * render a frame
+ * args:
+ *   frame - pointer to frame data (yuyv format)
  *   width - frame width
  *   height - frame height
- *   vu_level - vu level values (array with 2 channels)
+ *
+ * asserts:
+ *   poverlay is not nul
+ *   frame is not null
+ *
+ * returns: error code
+ */
+int render_sfml_frame(uint8_t *frame, int width, int height);
+
+/*
+ * set sdl1 render caption
+ * args:
+ *   caption - string with render window caption
  *
  * asserts:
  *   none
  *
  * returns: none
  */
-void render_osd_vu_meter(uint8_t *frame, int width, int height, float vu_level[2]);
+void set_render_sfml_caption(const char* caption);
 
 /*
- * render a crosshair
+ * dispatch sdl1 render events
  * args:
- *   frame - pointer to yuyv frame data
- *   width - frame width
- *   height - frame height
+ *   none
  *
  * asserts:
  *   none
  *
  * returns: none
  */
-void render_osd_crosshair(uint8_t *frame, int width, int height);
+void render_sfml_dispatch_events();
 
 /*
- * Apply fx filters
+ * clean sdl1 render data
  * args:
- *    frame - pointer to frame buffer (yuyv format)
- *    width - frame width
- *    height - frame height
- *    mask  - or'ed filter mask
+ *   none
  *
  * asserts:
- *    frame is not null
+ *   none
  *
- * returns: void
+ * returns: none
  */
-void render_fx_apply(uint8_t *frame, int width, int height, uint32_t mask);
+void render_sfml_clean();
 
 #endif

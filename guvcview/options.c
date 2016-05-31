@@ -117,7 +117,7 @@ static opt_values_t opt_values[] =
 		.opt_long = "render",
 		.req_arg = 1,
 		.opt_help_arg = N_("RENDER_API"),
-		.opt_help = N_("Select render API (e.g none; sdl)")
+		.opt_help = N_("Select render API (e.g none; sdl; sfml)")
 	},
 	{
 		.opt_short = 'm',
