@@ -46,8 +46,7 @@ class SFMLRender {
 	sf::RenderWindow window;
 	sf::Texture texture;
 	sf::Sprite sprite;
-	uint8_t *rgba_pixels;
-	
+	sf::Image image;
 };
 
 #endif

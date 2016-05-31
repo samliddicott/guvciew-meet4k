@@ -116,8 +116,6 @@ static void yu12_to_rgba (uint8_t *out, uint8_t *in, int width, int height)
 
 SFMLRender::SFMLRender(int width, int height, int flags)
 {
-	rgba_pixels = NULL;
-
 	int w = width;
 	int h = height;
 
@@ -128,7 +126,7 @@ SFMLRender::SFMLRender(int width, int height, int flags)
 		std::cout << "RENDER: (SFML) desktop resolution (" <<
 			display_mode.width << "x" << 
 			display_mode.height << ")" << std::endl;
-			
+
 	if((display_mode.width > 0) && (display_mode.height > 0))
 	{
 		if(w > display_mode.width)
@@ -136,7 +134,7 @@ SFMLRender::SFMLRender(int width, int height, int flags)
 		if(h > display_mode.height)
 			h = display_mode.height;
 	}
-	
+
 	// Create the main window
 	if(flags == 1) //fullscreen
 	{
@@ -155,7 +153,7 @@ SFMLRender::SFMLRender(int width, int height, int flags)
 		std::cerr << "RENDER: (SFML) couldn't open window" << std::endl;
 		return;
 	}
-	
+
 	if(!texture.create(width, height))
 	{
 		std::cerr << "RENDER: (SFML) couldn't create texture" << std::endl;
@@ -163,17 +161,11 @@ SFMLRender::SFMLRender(int width, int height, int flags)
 	}
 
 	texture.setSmooth(true);
-	
+
 	sprite.setTexture(texture);
-	
-	//create rgba buffer
-	rgba_pixels = (uint8_t *) calloc(width * height * 4, sizeof(uint8_t));
-	if(!rgba_pixels)
-	{
-		std::cerr << "RENDER: (SFML) couldn't allocate rgba buffer" << std::endl;
-		return;
-	}
-	
+
+	image.create(width, height, sf::Color::Black);
+
 	window.clear(sf::Color::Black);
 	window.display();
 
@@ -183,23 +175,21 @@ SFMLRender::SFMLRender(int width, int height, int flags)
 
 SFMLRender::~SFMLRender()
 {
-	if(rgba_pixels)
-		free(rgba_pixels);
-
 	window.close();
 }
 
 int SFMLRender::render_frame(uint8_t *frame, int width, int height)
 {
 	//convert yuv to rgba
-	yu12_to_rgba (rgba_pixels, frame, width, height);
+	yu12_to_rgba ((uint8_t *) image.getPixelsPtr(), frame, width, height);
 
 	//update texture
-	texture.update(rgba_pixels);
-	
+	texture.update(image);
+
+	//draw frame
 	window.draw(sprite);
 	window.display();
-	
+
 	return 0;
 }
 
@@ -261,7 +251,6 @@ void SFMLRender::dispatch_events()
 				std::cout<< "RENDER:(SFML) (event) close\n"<< std::endl;
 			render_call_event_callback(EV_QUIT);
 		}
-
 	}
 }
 
@@ -285,6 +274,10 @@ SFMLRender* render = NULL;
  */
  int init_render_sfml(int width, int height, int flags)
  {
+	//clean old render
+	if(render)
+		delete(render);
+		
 	render = new SFMLRender(width, height, flags);
 
 	if(!render)
