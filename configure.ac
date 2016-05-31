@@ -224,11 +224,6 @@ if test $enable_sdl2 = yes; then
 	AC_SUBST(GVIEWRENDER_LIBS)
 
 	AC_DEFINE(ENABLE_SDL2, 1, [set to 1 if sdl2 is enabled])
-else
-	AC_MSG_WARN(sdl2 disabled...  sdl1.2 will be used instead.)
-	PKG_CHECK_MODULES(GVIEWRENDER, [sdl >= 1.2.10])
-	AC_SUBST(GVIEWRENDER_CFLAGS)
-	AC_SUBST(GVIEWRENDER_LIBS)
 fi
 
 AM_CONDITIONAL(ENABLE_SDL2, test $enable_sdl2 = yes)

@@ -150,14 +150,31 @@ int main(int argc, char *argv[])
 	if(strcasecmp(my_config->render, "none") == 0)
 		render = RENDER_NONE;
 	else if(strcasecmp(my_config->render, "sdl") == 0)
+	{
+#if ENABLE_SDL2
 		render = RENDER_SDL;
+#elif ENABLE_SFML
+		render = RENDER_SFML;
+		printf("GUVCVIEW: not build with sdl2 support (rebuild with --enable-sdl2)\n");
+		printf("GUVCVIEW: using sfml render instead\n");
+#else
+		render = RENDER_NONE;
+		printf("GUVCVIEW: not build with sfml or sdl2 support\n");
+		printf("GUVCVIEW: not rendering any video preview\n");
+#endif
+	}
 	else if(strcasecmp(my_config->render, "sfml") == 0)
 	{
 #if ENABLE_SFML
 		render = RENDER_SFML;
-#else
+#elif ENABLE_SDL2
 		render = RENDER_SDL;
-		printf("GUVCVIEW: not build with sfml support: rebuild with --enable-sfml\n");
+		printf("GUVCVIEW: not build with sfml support (rebuild with --enable-sfml)\n");
+		printf("GUVCVIEW: using sdl2 render instead\n");
+#else
+		render = RENDER_NONE;
+		printf("GUVCVIEW: not build with sfml or sdl2 support\n");
+		printf("GUVCVIEW: not rendering any video preview\n");
 #endif
 	}
 

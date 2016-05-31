@@ -10,8 +10,6 @@ c_sources = render.c \
 
 if ENABLE_SDL2
 c_sources += render_sdl2.c
-else
-c_sources += render_sdl1.c
 endif
 
 if ENABLE_SFML

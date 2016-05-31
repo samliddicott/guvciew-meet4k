@@ -284,20 +284,21 @@ int render_init(int render, int width, int height, int flags)
 	{
 		case RENDER_NONE:
 			break;
-			
+
 		#if ENABLE_SFML
 		case RENDER_SFML:
 			ret = init_render_sfml(my_width, my_height, flags);
 			break;
 		#endif
-		
+
+		#if ENABLE_SDL2
 		case RENDER_SDL:
-		default:
-			#if ENABLE_SDL2
 			ret = init_render_sdl2(my_width, my_height, flags);
-			#else
-			ret = init_render_sdl1(my_width, my_height, flags);
-			#endif
+			break;
+		#endif
+
+		default:
+			render_api = RENDER_NONE;
 			break;
 	}
 
@@ -378,15 +379,14 @@ int render_frame(uint8_t *frame)
 			break;
 		#endif
 
+		#if ENABLE_SDL2
 		case RENDER_SDL:
-		default:
-			#if ENABLE_SDL2
 			ret = render_sdl2_frame(frame, my_width, my_height);
 			render_sdl2_dispatch_events();
-			#else
-			ret = render_sdl1_frame(frame, my_width, my_height);
-			render_sdl1_dispatch_events();
-			#endif
+			break;
+		#endif
+
+		default:
 			break;
 	}
 
@@ -409,20 +409,20 @@ void render_set_caption(const char* caption)
 	{
 		case RENDER_NONE:
 			break;
-		
+
 		#if ENABLE_SFML
 		case RENDER_SFML:
 			set_render_sfml_caption(caption);
 			break;
 		#endif
 
+		#if ENABLE_SDL2
 		case RENDER_SDL:
-		default:
-			#if ENABLE_SDL2
 			set_render_sdl2_caption(caption);
-			#else
-			set_render_sdl1_caption(caption);
-			#endif
+			break;
+		#endif
+
+		default:
 			break;
 	}
 }
@@ -443,20 +443,20 @@ void render_close()
 	{
 		case RENDER_NONE:
 			break;
-		
+
 		#if ENABLE_SFML
 		case RENDER_SFML:
 			render_sfml_clean();
 			break;
 		#endif
 
+		#if ENABLE_SDL2
 		case RENDER_SDL:
-		default:
-			#if ENABLE_SDL2
 			render_sdl2_clean();
-			#else
-			render_sdl1_clean();
-			#endif
+			break;
+		#endif
+
+		default:
 			break;
 	}
 
