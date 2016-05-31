@@ -152,7 +152,14 @@ int main(int argc, char *argv[])
 	else if(strcasecmp(my_config->render, "sdl") == 0)
 		render = RENDER_SDL;
 	else if(strcasecmp(my_config->render, "sfml") == 0)
+	{
+#if ENABLE_SFML
 		render = RENDER_SFML;
+#else
+		render = RENDER_SDL;
+		printf("GUVCVIEW: not build with sfml support: rebuild with --enable-sfml\n");
+#endif
+	}
 
 	/*select gui API*/
 #if HAS_GTK3
