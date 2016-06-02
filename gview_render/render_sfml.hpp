@@ -45,6 +45,10 @@ class SFMLRender {
 	private:
 	sf::RenderWindow window;
 	sf::Texture texture;
+	sf::Texture texY;
+	sf::Texture texU;
+	sf::Texture texV;
+	
 	sf::Sprite sprite;
 	sf::Shader conv_yuv2rgb_shd;
 	bool use_shader;
