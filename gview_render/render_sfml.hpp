@@ -54,9 +54,8 @@ class SFMLRender {
 		sf::Shader conv_yuv2rgb_shd;
 		bool use_shader;
 
-		uint8_t *pixY;
-		uint8_t *pixU;
-		uint8_t *pixV;
+		uint8_t *pix;
+
 };
 
 #endif

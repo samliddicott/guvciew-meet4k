@@ -122,9 +122,7 @@ SFMLRender::SFMLRender(int width, int height, int flags)
 
 	use_shader = true;
 
-	pixY = NULL;
-	pixU = NULL;
-	pixV = NULL;
+	pix = NULL;
 
 	//get the current resolution
 	sf::VideoMode display_mode = sf::VideoMode::getDesktopMode();
@@ -213,11 +211,6 @@ SFMLRender::SFMLRender(int width, int height, int flags)
 				return;
 			}
 
-			pixY = (uint8_t *) calloc(width*height, sizeof(uint8_t));
-			pixU = (uint8_t *) calloc(width*height/4, sizeof(uint8_t));
-			pixV = (uint8_t *) calloc(width*height/4, sizeof(uint8_t));
-
-			//conv_yuv2rgb_shd.setParameter("texture", sf::Shader::CurrentTexture);
 			conv_yuv2rgb_shd.setParameter("texY", texY);
 			conv_yuv2rgb_shd.setParameter("texU", texU);
 			conv_yuv2rgb_shd.setParameter("texV", texV);
@@ -229,9 +222,9 @@ SFMLRender::SFMLRender(int width, int height, int flags)
 		use_shader = false;
 	}
 
-	//use pixY buffer for rgba conversion
+	//use pix buffer for rgba conversion
 	if(!use_shader)
-		pixY = (uint8_t *) calloc(width*height*4, sizeof(uint8_t));
+		pix = (uint8_t *) calloc(width*height*4, sizeof(uint8_t));
 
 	sprite.setTexture(texture);
 
@@ -247,14 +240,8 @@ SFMLRender::SFMLRender(int width, int height, int flags)
 SFMLRender::~SFMLRender()
 {
 
-	if(pixY)
-		free(pixY);
-
-	if(pixU)
-		free(pixU);
-
-	if(pixV)
-		free(pixV);
+	if(pix)
+		free(pix);
 
 	window.close();
 }
@@ -267,10 +254,6 @@ int SFMLRender::render_frame(uint8_t *frame, int width, int height)
 	{
 		uint8_t *pu = frame + (width*height);
 		uint8_t *pv = pu + (width*height)/4;
-
-		memcpy((void *) pixY, frame, width*height);
-		memcpy((void *) pixU, pu, width*height/4);
-		memcpy((void *) pixV, pv, width*height/4);
 		
 		GLint textureBinding;
 		// Save the current texture binding, to avoid messing up SFML's OpenGL states
@@ -279,17 +262,17 @@ int SFMLRender::render_frame(uint8_t *frame, int width, int height)
 		// :Y
 		sf::Texture::bind(&texY);
 		
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, width, height, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, pixY);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, width, height, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, frame);
 
 		// :U
 		sf::Texture::bind(&texU);
 		
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, width/2, height/2, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, pixU);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, width/2, height/2, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, pu);
 
 		// :V
 		sf::Texture::bind(&texV);
 		
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, width/2, height/2, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, pixV);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, width/2, height/2, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, pv);
 
 		// Restore the previous texture binding
 		glBindTexture(GL_TEXTURE_2D, textureBinding);
@@ -299,9 +282,9 @@ int SFMLRender::render_frame(uint8_t *frame, int width, int height)
 	}
 	else
 	{
-		yu12_to_rgba ((uint8_t *) pixY, frame, width, height);
+		yu12_to_rgba ((uint8_t *) pix, frame, width, height);
 		//update texture
-		texture.update(pixY);
+		texture.update(pix);
 		//draw frame
 		window.draw(sprite);
 	}
