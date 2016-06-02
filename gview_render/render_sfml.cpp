@@ -24,7 +24,9 @@
 ********************************************************************************/
 
 #include "render_sfml.hpp"
+#include <SFML/OpenGL.hpp>
 #include <iostream>
+#include <cstring>
 
 extern "C" {
 #include "gview.h"
@@ -86,7 +88,7 @@ static void yu12_to_rgba (uint8_t *out, uint8_t *in, int width, int height)
 			/* alpha set to 255*/
 			*pout1++=255;
 			*pout2++=255;
-			
+
 			py1++;
 			py2++;
 			
@@ -118,7 +120,10 @@ SFMLRender::SFMLRender(int width, int height, int flags)
 {
 	int w = width;
 	int h = height;
-
+	
+	use_shader = true;
+	pix_buff = NULL;
+	
 	//get the current resolution
 	sf::VideoMode display_mode = sf::VideoMode::getDesktopMode();
 
@@ -160,11 +165,70 @@ SFMLRender::SFMLRender(int width, int height, int flags)
 		return;
 	}
 
+	if (sf::Shader::isAvailable() )
+	{
+		const std::string fragmentShader = \
+			"uniform sampler2D texture;" \
+			"void main(void)" \
+			"{" \
+				"float nx, ny, r, g, b, y, u, v;" \
+				"float u1,u2,v1,v2;" \
+				"nx = gl_TexCoord[0].x;" \
+				"ny = gl_TexCoord[0].y;" \
+				"y = texture2D(texture, vec2( (nx), (ny)*(4.0/6.0) )).r;" \
+				"u1 = texture2D(texture, vec2( (nx/2.0), (ny+4.0)/6.0 )).r;" \
+				"u2 = texture2D(texture, vec2( (nx/2.0)+0.5, (ny+4.0)/6.0 )).r;" \
+				"v1 = texture2D(texture, vec2( (nx/2.0), (ny+5.0)/6.0 )).r;" \
+				"v2 = texture2D(texture, vec2( (nx/2.0)+0.5, (ny+5.0)/6.0 )).r;" \
+				"y = 1.1643 * (y - 0.0625);" \
+				"u = (u1+u2)/2.0 - 0.5;" \
+				"v = (v1+v2)/2.0 - 0.5;" \
+				"r = y + 1.5958 * v;" \
+				"g = y - 0.39173 * u - 0.8129 * v;" \
+				"b = y + 2.017 * u;" \
+				"gl_FragColor=vec4(b,g,r,1.0);" \
+			"}";
+
+		if(!conv_yuv2rgb_shd.loadFromMemory(fragmentShader, sf::Shader::Fragment))
+		{
+			std::cerr << "RENDER: (SFML) couldn't load fragment shader for yuv conversion" << std::endl;
+			use_shader = false;
+		}
+		else
+		{
+			GLint textureBinding;
+			int texWidth, texHeight;
+
+			// Save the current texture binding, to avoid messing up SFML's OpenGL states
+			glGetIntegerv(GL_TEXTURE_BINDING_2D, &textureBinding);
+
+			// Bind the texture
+			sf::Texture::bind(&texture);
+
+			// Get the actual texture size (can be different, if NPOT textures are not supported)
+			glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &texWidth);
+			glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &texHeight);
+
+			// Change its internal format (something with a single 8-bit component, whatever it is)
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, texWidth, (texHeight*3/2), 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, NULL);
+
+			// Restore the previous texture binding
+			glBindTexture(GL_TEXTURE_2D, textureBinding);
+
+			conv_yuv2rgb_shd.setParameter("texture", sf::Shader::CurrentTexture);
+		}
+	}
+	else
+	{
+		std::cerr << "RENDER: (SFML) shader not available for yuv conversion" << std::endl;
+		use_shader = false;
+	}
+	
 	texture.setSmooth(true);
 
 	sprite.setTexture(texture);
 
-	image.create(width, height, sf::Color::Black);
+	pix_buff = (uint8_t *) calloc(width*height*4, sizeof(uint8_t));
 
 	window.clear(sf::Color::Black);
 	window.display();
@@ -175,19 +239,33 @@ SFMLRender::SFMLRender(int width, int height, int flags)
 
 SFMLRender::~SFMLRender()
 {
+	if(pix_buff)
+		free(pix_buff);
+
 	window.close();
 }
 
 int SFMLRender::render_frame(uint8_t *frame, int width, int height)
 {
 	//convert yuv to rgba
-	yu12_to_rgba ((uint8_t *) image.getPixelsPtr(), frame, width, height);
-
-	//update texture
-	texture.update(image);
-
-	//draw frame
-	window.draw(sprite);
+	
+	if (use_shader)
+	{
+		memcpy((void *) pix_buff, frame, (width*height*3)/2);
+		//update texture
+		texture.update(pix_buff);
+		//draw frame
+		window.draw(sprite, &conv_yuv2rgb_shd);
+	}
+	else
+	{
+		yu12_to_rgba ((uint8_t *) pix_buff, frame, width, height);
+		//update texture
+		texture.update(pix_buff);
+		//draw frame
+		window.draw(sprite);
+	}
+	
 	window.display();
 
 	return 0;

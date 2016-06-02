@@ -46,7 +46,10 @@ class SFMLRender {
 	sf::RenderWindow window;
 	sf::Texture texture;
 	sf::Sprite sprite;
-	sf::Image image;
+	sf::Shader conv_yuv2rgb_shd;
+	bool use_shader;
+	
+	uint8_t *pix_buff;
 };
 
 #endif
