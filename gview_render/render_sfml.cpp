@@ -161,8 +161,6 @@ SFMLRender::SFMLRender(int width, int height, int flags)
 		return;
 	}
 
-	glEnable(GL_TEXTURE_2D);
-
 	if(!texture.create(width, height))
 	{
 		std::cerr << "RENDER: (SFML) couldn't create texture" << std::endl;
@@ -177,19 +175,17 @@ SFMLRender::SFMLRender(int width, int height, int flags)
 			"uniform sampler2D texV;" \
 			"void main(void)" \
 			"{" \
-				"float nx, ny, r, g, b, y, u, v;" \
-				"nx = gl_TexCoord[0].x;" \
-				"ny = gl_TexCoord[0].y;" \
-				"y = texture2D(texY, vec2( nx, ny)).r;" \
-				"u = texture2D(texU, vec2( nx/2.0, ny/2.0 )).r;" \
-				"v = texture2D(texV, vec2( nx/2.0, ny/2.0 )).r;" \
-				"y = 1.1643 * (y - 0.0625);" \
-				"u = u - 0.5;" \
-				"v = v - 0.5;" \
-				"r = y + 1.5958 * v;" \
-				"g = y - 0.39173 * u - 0.8129 * v;" \
-				"b = y + 2.017 * u;" \
-				"gl_FragColor=vec4(r,g,b,1.0);" \
+				"float nx, ny;" \
+				"vec3 yuv;" \
+				"vec3 rgb;" \
+				"vec2 norm_pos = vec2( gl_TexCoord[0].x,gl_TexCoord[0].y);" \
+				"yuv.x = texture2D(texY, norm_pos).r;" \
+				"yuv.y = texture2D(texU, norm_pos).r - 0.5;" \
+				"yuv.z = texture2D(texV, norm_pos).r - 0.5;" \
+				"rgb = mat3(      1,       1,       1," \
+				"                 0, -.21482, 2.12798," \
+				"           1.28033, -.38059,       0) * yuv;" \
+				"gl_FragColor = vec4(rgb, 1.0);" \
 			"}";
 
 		if(!conv_yuv2rgb_shd.loadFromMemory(fragmentShader, sf::Shader::Fragment))
@@ -221,13 +217,10 @@ SFMLRender::SFMLRender(int width, int height, int flags)
 			pixU = (uint8_t *) calloc(width*height/4, sizeof(uint8_t));
 			pixV = (uint8_t *) calloc(width*height/4, sizeof(uint8_t));
 
-			GLint textureBinding;
-
 			//conv_yuv2rgb_shd.setParameter("texture", sf::Shader::CurrentTexture);
 			conv_yuv2rgb_shd.setParameter("texY", texY);
 			conv_yuv2rgb_shd.setParameter("texU", texU);
 			conv_yuv2rgb_shd.setParameter("texV", texV);
-			conv_yuv2rgb_shd.setParameter("height", height);
 		}
 	}
 	else
@@ -278,24 +271,24 @@ int SFMLRender::render_frame(uint8_t *frame, int width, int height)
 		memcpy((void *) pixY, frame, width*height);
 		memcpy((void *) pixU, pu, width*height/4);
 		memcpy((void *) pixV, pv, width*height/4);
-
+		
 		GLint textureBinding;
 		// Save the current texture binding, to avoid messing up SFML's OpenGL states
 		glGetIntegerv(GL_TEXTURE_BINDING_2D, &textureBinding);
 
-		// Bind the texture
+		// :Y
 		sf::Texture::bind(&texY);
-		// Change its internal format (something with a single 8-bit component, whatever it is)
+		
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, width, height, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, pixY);
 
-		// Bind the texture
+		// :U
 		sf::Texture::bind(&texU);
-		// Change its internal format (something with a single 8-bit component, whatever it is)
+		
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, width/2, height/2, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, pixU);
 
-		// Bind the texture
+		// :V
 		sf::Texture::bind(&texV);
-		// Change its internal format (something with a single 8-bit component, whatever it is)
+		
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, width/2, height/2, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, pixV);
 
 		// Restore the previous texture binding
