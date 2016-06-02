@@ -27,6 +27,7 @@
 #define GUI_QT5_HPP
 
 #include <SFML/Graphics.hpp>
+#include <SFML/OpenGL.hpp>
 
 extern "C" {
 #include <stdint.h>
@@ -41,19 +42,21 @@ class SFMLRender {
 		void set_caption(const char* caption);
 		void dispatch_events();
 		bool has_window() {return window.isOpen();};
-	
+
 	private:
-	sf::RenderWindow window;
-	sf::Texture texture;
-	sf::Texture texY;
-	sf::Texture texU;
-	sf::Texture texV;
-	
-	sf::Sprite sprite;
-	sf::Shader conv_yuv2rgb_shd;
-	bool use_shader;
-	
-	uint8_t *pix_buff;
+		sf::RenderWindow window;
+		sf::Texture texture;
+		sf::Texture texY;
+		sf::Texture texU;
+		sf::Texture texV;
+
+		sf::Sprite sprite;
+		sf::Shader conv_yuv2rgb_shd;
+		bool use_shader;
+
+		uint8_t *pixY;
+		uint8_t *pixU;
+		uint8_t *pixV;
 };
 
 #endif
