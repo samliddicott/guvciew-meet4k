@@ -1118,9 +1118,8 @@ int h264_decode(uint8_t *out_buf, uint8_t *in_buf, int size)
 	if(got_picture)
 	{
 #if LIBAVUTIL_VER_AT_LEAST(54,6)
-		const AVPicture *src = (const AVPicture *) h264_ctx->picture;
 		av_image_copy_to_buffer(out_buf, h264_ctx->pic_size,
-                             (const uint8_t * const*) src->data, src->linesize,
+                             (const unsigned char * const*) h264_ctx->picture->data, h264_ctx->picture->linesize,
                              h264_ctx->context->pix_fmt, h264_ctx->width, h264_ctx->height, 1);
 #else
 		avpicture_layout((AVPicture *) h264_ctx->picture, h264_ctx->context->pix_fmt, 

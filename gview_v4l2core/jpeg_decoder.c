@@ -1538,9 +1538,8 @@ int jpeg_decode(uint8_t *out_buf, uint8_t *in_buf, int size)
 	if(got_picture)
 	{
 #if LIBAVUTIL_VER_AT_LEAST(54,6)
-		const AVPicture *src = (const AVPicture *) codec_data->picture;
 		av_image_copy_to_buffer(jpeg_ctx->tmp_frame, jpeg_ctx->pic_size,
-                             (const uint8_t * const*) src->data, src->linesize,
+                             (const uint8_t * const*) codec_data->picture->data, codec_data->picture->linesize,
                              codec_data->context->pix_fmt, jpeg_ctx->width, jpeg_ctx->height, 1);
 #else
 		avpicture_layout((AVPicture *) codec_data->picture, codec_data->context->pix_fmt, 
