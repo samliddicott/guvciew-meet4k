@@ -502,8 +502,8 @@ static encoder_video_context_t *encoder_video_init(encoder_context_t *encoder_ct
 	   //av_dict_set(&video_codec_data->private_options, "rc_lookahead", "1", 0);
 	   av_dict_set(&video_codec_data->private_options, "crf", "23", 0);
 	}
-#ifdef AV_CODEC_ID_H265
-	if(video_defaults->codec_id == AV_CODEC_ID_H265)
+#if LIBAVCODEC_VER_AT_LEAST(55,24)
+	if(video_defaults->codec_id == AV_CODEC_ID_HEVC)
 	{
 	   video_codec_data->codec_context->me_range = 16;
 	   av_dict_set(&video_codec_data->private_options, "crf", "28", 0);

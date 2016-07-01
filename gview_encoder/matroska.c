@@ -524,7 +524,9 @@ static int mkv_write_tracks(mkv_context_t *mkv_ctx)
         mkv_put_ebml_string(mkv_ctx, MATROSKA_ID_CODECID, mkv_codec_name);
 
         if ((mkv_ctx->mode == ENCODER_MUX_WEBM) && !(stream->codec_id == AV_CODEC_ID_VP8 ||
+#if LIBAVCODEC_VER_AT_LEAST(54,42)
 										stream->codec_id == AV_CODEC_ID_VP9 ||
+#endif
                                         stream->codec_id == AV_CODEC_ID_VORBIS))
 		{
             fprintf(stderr, "ENCODER: (matroska) Only VP8 or VP9 video and Vorbis audio are supported for WebM.\n");
