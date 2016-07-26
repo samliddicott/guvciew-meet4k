@@ -139,7 +139,7 @@ static audio_codec_t listSupCodecs[] = //list of software supported formats
 		.description  = N_("AAC (Advanced Audio Coding)"),
 		.bit_rate     = 64000,
 		.codec_id     = AV_CODEC_ID_AAC,
-		.codec_name   = "aac",
+		.codec_name   = "libvo_aacenc",
 #if LIBAVCODEC_VER_AT_LEAST(54,31)
 		.sample_format = AV_SAMPLE_FMT_FLTP,
 #else
