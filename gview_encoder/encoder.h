@@ -35,9 +35,8 @@
 #include <libavcodec/avcodec.h>
 	#ifdef HAVE_LIBAVUTIL_VERSION_H
 #include <libavutil/version.h>
-	#else
-#include <libavutil/avutil.h>
 	#endif
+#include <libavutil/avutil.h>
 #endif 
 
 #define LIBAVCODEC_VER_AT_LEAST(major,minor)  (LIBAVCODEC_VERSION_MAJOR > major || \

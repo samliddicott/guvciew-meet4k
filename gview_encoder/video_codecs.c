@@ -395,7 +395,7 @@ static video_codec_t listSupCodecs[] =
 		.flags        = CODEC_FLAG2_BPYRAMID | CODEC_FLAG2_WPRED | CODEC_FLAG2_FASTPSKIP | CODEC_FLAG2_INTRA_REFRESH
 #endif
 	},
-#ifdef AV_CODEC_ID_H265
+#if LIBAVCODEC_VER_AT_LEAST(55,24)
 	{
 		.valid        = 1,
 		.compressor   = "HEVC", //h265
@@ -422,7 +422,7 @@ static video_codec_t listSupCodecs[] =
 		.qblur        = 0.5,
 		.subq         = 5,
 		.framerefs    = 0,
-		.codec_id     = AV_CODEC_ID_H265,
+		.codec_id     = AV_CODEC_ID_HEVC,
 		.codec_name   = "libx265",
 		.mb_decision  = FF_MB_DECISION_RD,
 		.trellis      = 0,
@@ -469,6 +469,7 @@ static video_codec_t listSupCodecs[] =
 		.num_threads  = 4,
 		.flags        = 0
 	},
+#if LIBAVCODEC_VER_AT_LEAST(54,42)
 	{
 		.valid        = 1,
 		.compressor   = "VP90",
@@ -505,6 +506,7 @@ static video_codec_t listSupCodecs[] =
 		.num_threads  = 4,
 		.flags        = 0
 	},
+#endif
 	{
 		.valid        = 1,
 		.compressor   = "theo",
@@ -872,8 +874,11 @@ int encoder_check_webm_video_codec(int codec_ind)
 
 	int ret = 0;
 	if(real_index >= 0 && real_index < encoder_get_video_codec_list_size())
-		ret = ((listSupCodecs[real_index].codec_id == AV_CODEC_ID_VP8) ||
-			(listSupCodecs[real_index].codec_id == AV_CODEC_ID_VP9)) ? 1: 0;
+		ret = ((listSupCodecs[real_index].codec_id == AV_CODEC_ID_VP8)
+#if LIBAVCODEC_VER_AT_LEAST(54,42)
+				|| (listSupCodecs[real_index].codec_id == AV_CODEC_ID_VP9)
+#endif
+			 ) ? 1: 0;
 
 	return ret;
 }

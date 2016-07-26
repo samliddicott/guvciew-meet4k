@@ -35,24 +35,28 @@
 #include "gview.h"
 #include "../config.h"
 
-/*h264 decoder (libavcodec)*/
-#ifdef HAVE_AVCODEC_H
-  #include <avcodec.h>
+#ifdef HAVE_FFMPEG_AVCODEC_H
+#include <ffmpeg/avcodec.h>
 #else
-  #ifdef HAVE_LIBAVCODEC_AVCODEC_H
-    #include <libavcodec/avcodec.h>
-  #else
-    #ifdef HAVE_FFMPEG_AVCODEC_H
-      #include <ffmpeg/avcodec.h>
-    #else
-      #include <libavcodec/avcodec.h>
-    #endif
-  #endif
-#endif
+#include <libavcodec/avcodec.h>
+	#ifdef HAVE_LIBAVUTIL_VERSION_H
+#include <libavutil/version.h>
+#include <libavutil/imgutils.h>
+	#endif
+#include <libavutil/avutil.h>
+#endif 
 
 #define LIBAVCODEC_VER_AT_LEAST(major,minor)  (LIBAVCODEC_VERSION_MAJOR > major || \
                                               (LIBAVCODEC_VERSION_MAJOR == major && \
                                                LIBAVCODEC_VERSION_MINOR >= minor))
+
+#ifdef LIBAVUTIL_VERSION_MAJOR
+#define LIBAVUTIL_VER_AT_LEAST(major,minor)  (LIBAVUTIL_VERSION_MAJOR > major || \
+                                              (LIBAVUTIL_VERSION_MAJOR == major && \
+                                               LIBAVUTIL_VERSION_MINOR >= minor))
+#else
+#define LIBAVUTIL_VER_AT_LEAST(major,minor) 0
+#endif
 
 #if !LIBAVCODEC_VER_AT_LEAST(54,25)
 	#define AV_CODEC_ID_H264 CODEC_ID_H264
@@ -1036,7 +1040,7 @@ int h264_init_decoder(int width, int height)
 	}
 	
 	h264_ctx->context->flags2 |= CODEC_FLAG2_FAST;
-	h264_ctx->context->pix_fmt = PIX_FMT_YUV420P;
+	h264_ctx->context->pix_fmt = AV_PIX_FMT_YUV420P;
 	h264_ctx->context->width = width;
 	h264_ctx->context->height = height;
 	//h264_ctx->context->dsp_mask = (FF_MM_MMX | FF_MM_MMXEXT | FF_MM_SSE);
@@ -1062,8 +1066,12 @@ int h264_init_decoder(int width, int height)
 	h264_ctx->picture = avcodec_alloc_frame();
 	avcodec_get_frame_defaults(h264_ctx->picture);
 #endif
-	
+
+#if LIBAVUTIL_VER_AT_LEAST(54,6)
+	h264_ctx->pic_size = av_image_get_buffer_size(h264_ctx->context->pix_fmt, width, height, 1);
+#else
 	h264_ctx->pic_size = avpicture_get_size(h264_ctx->context->pix_fmt, width, height);
+#endif
 	h264_ctx->width = width;
 	h264_ctx->height = height;
 
@@ -1109,8 +1117,14 @@ int h264_decode(uint8_t *out_buf, uint8_t *in_buf, int size)
 
 	if(got_picture)
 	{
+#if LIBAVUTIL_VER_AT_LEAST(54,6)
+		av_image_copy_to_buffer(out_buf, h264_ctx->pic_size,
+                             (const unsigned char * const*) h264_ctx->picture->data, h264_ctx->picture->linesize,
+                             h264_ctx->context->pix_fmt, h264_ctx->width, h264_ctx->height, 1);
+#else
 		avpicture_layout((AVPicture *) h264_ctx->picture, h264_ctx->context->pix_fmt, 
 			h264_ctx->width, h264_ctx->height, out_buf, h264_ctx->pic_size);
+#endif
 		return len;
 	}
 	else

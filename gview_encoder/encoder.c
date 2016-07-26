@@ -450,9 +450,18 @@ static encoder_video_context_t *encoder_video_init(encoder_context_t *encoder_ct
 
 	av_dict_set_int(&video_codec_data->private_options, "motion-est", video_defaults->me_method, 0);
 #endif
+
+#if !LIBAVCODEC_VER_AT_LEAST(57,00)
+	video_codec_data->codec_context->pre_me = video_defaults->pre_me;
+	video_codec_data->codec_context->mpeg_quant = video_defaults->mpeg_quant; //h.263
+#else
+	av_dict_set_int(&video_codec_data->private_options, "mpeg_quant", video_defaults->mpeg_quant, 0);
+	av_dict_set_int(&video_codec_data->private_options, "mepre", video_defaults->pre_me, 0);
+#endif
+
 	video_codec_data->codec_context->dia_size = video_defaults->dia;
 	video_codec_data->codec_context->pre_dia_size = video_defaults->pre_dia;
-	video_codec_data->codec_context->pre_me = video_defaults->pre_me;
+	
 	video_codec_data->codec_context->me_pre_cmp = video_defaults->me_pre_cmp;
 	video_codec_data->codec_context->me_cmp = video_defaults->me_cmp;
 	video_codec_data->codec_context->me_sub_cmp = video_defaults->me_sub_cmp;
@@ -460,7 +469,7 @@ static encoder_video_context_t *encoder_video_init(encoder_context_t *encoder_ct
 	video_codec_data->codec_context->refs = video_defaults->framerefs;         //NEW
 	video_codec_data->codec_context->last_predictor_count = video_defaults->last_pred;
 
-	video_codec_data->codec_context->mpeg_quant = video_defaults->mpeg_quant; //h.263
+	
 	video_codec_data->codec_context->qmin = video_defaults->qmin;             // best detail allowed - worst compression
 	video_codec_data->codec_context->qmax = video_defaults->qmax;             // worst detail allowed - best compression
 	video_codec_data->codec_context->max_qdiff = video_defaults->max_qdiff;
@@ -493,8 +502,8 @@ static encoder_video_context_t *encoder_video_init(encoder_context_t *encoder_ct
 	   //av_dict_set(&video_codec_data->private_options, "rc_lookahead", "1", 0);
 	   av_dict_set(&video_codec_data->private_options, "crf", "23", 0);
 	}
-#ifdef AV_CODEC_ID_H265
-	if(video_defaults->codec_id == AV_CODEC_ID_H265)
+#if LIBAVCODEC_VER_AT_LEAST(55,24)
+	if(video_defaults->codec_id == AV_CODEC_ID_HEVC)
 	{
 	   video_codec_data->codec_context->me_range = 16;
 	   av_dict_set(&video_codec_data->private_options, "crf", "28", 0);

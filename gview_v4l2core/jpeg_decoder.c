@@ -1352,11 +1352,24 @@ void jpeg_close_decoder()
 #include <ffmpeg/avcodec.h>
 #else
 #include <libavcodec/avcodec.h>
+	#ifdef HAVE_LIBAVUTIL_VERSION_H
+#include <libavutil/version.h>
+#include <libavutil/imgutils.h>
+	#endif
+#include <libavutil/avutil.h>
 #endif 
 
 #define LIBAVCODEC_VER_AT_LEAST(major,minor)  (LIBAVCODEC_VERSION_MAJOR > major || \
                                               (LIBAVCODEC_VERSION_MAJOR == major && \
                                                LIBAVCODEC_VERSION_MINOR >= minor))
+
+#ifdef LIBAVUTIL_VERSION_MAJOR
+#define LIBAVUTIL_VER_AT_LEAST(major,minor)  (LIBAVUTIL_VERSION_MAJOR > major || \
+                                              (LIBAVUTIL_VERSION_MAJOR == major && \
+                                               LIBAVUTIL_VERSION_MINOR >= minor))
+#else
+#define LIBAVUTIL_VER_AT_LEAST(major,minor) 0
+#endif
 
 #if !LIBAVCODEC_VER_AT_LEAST(54,25)
 	#define AV_CODEC_ID_H264 CODEC_ID_H264
@@ -1436,7 +1449,7 @@ int jpeg_init_decoder(int width, int height)
 		exit(-1);
 	}
 
-	codec_data->context->pix_fmt = PIX_FMT_YUV422P;
+	codec_data->context->pix_fmt = AV_PIX_FMT_YUV422P;
 	codec_data->context->width = width;
 	codec_data->context->height = height;
 	//jpeg_ctx->context->dsp_mask = (FF_MM_MMX | FF_MM_MMXEXT | FF_MM_SSE);
@@ -1471,8 +1484,11 @@ int jpeg_init_decoder(int width, int height)
 		fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (jpeg_init_decoder): %s\n", strerror(errno));
 		exit(-1);
 	}
-	
+#if LIBAVUTIL_VER_AT_LEAST(54,6)
+	jpeg_ctx->pic_size = av_image_get_buffer_size(codec_data->context->pix_fmt, width, height, 1);
+#else
 	jpeg_ctx->pic_size = avpicture_get_size(codec_data->context->pix_fmt, width, height);
+#endif
 	jpeg_ctx->width = width;
 	jpeg_ctx->height = height;
 	jpeg_ctx->codec_data = codec_data;
@@ -1521,8 +1537,14 @@ int jpeg_decode(uint8_t *out_buf, uint8_t *in_buf, int size)
 
 	if(got_picture)
 	{
+#if LIBAVUTIL_VER_AT_LEAST(54,6)
+		av_image_copy_to_buffer(jpeg_ctx->tmp_frame, jpeg_ctx->pic_size,
+                             (const uint8_t * const*) codec_data->picture->data, codec_data->picture->linesize,
+                             codec_data->context->pix_fmt, jpeg_ctx->width, jpeg_ctx->height, 1);
+#else
 		avpicture_layout((AVPicture *) codec_data->picture, codec_data->context->pix_fmt, 
 			jpeg_ctx->width, jpeg_ctx->height, jpeg_ctx->tmp_frame, jpeg_ctx->pic_size);
+#endif
 		/* libavcodec output is in yuv422p */
         yuv422p_to_yu12(out_buf, jpeg_ctx->tmp_frame, jpeg_ctx->width, jpeg_ctx->height);
 	
