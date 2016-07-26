@@ -1239,6 +1239,10 @@ int encoder_flush_video_buffer(encoder_context_t *encoder_ctx)
 	__UNLOCK_MUTEX ( __PMUTEX );
 
 	int buffer_count = video_ring_buffer_size;
+	int flushed_frame_counter = buffer_count;
+	
+	if(verbosity > 1)
+		printf("ENCODER: flushing video buffer with %i frames\n", buffer_count);
 
 	while(flag != VIDEO_BUFF_FREE && buffer_count > 0)
 	{
@@ -1251,9 +1255,12 @@ int encoder_flush_video_buffer(encoder_context_t *encoder_ctx)
 		flag = video_ring_buffer[video_read_index].flag;
 		__UNLOCK_MUTEX ( __PMUTEX );
 	}
+	
+	if(verbosity > 1)
+		printf("ENCODER: processed remaining %i video frames\n", flushed_frame_counter - buffer_count);
 
 	/*flush libav*/
-	int flushed_frame_counter = 0;
+	flushed_frame_counter = 0;
 	encoder_ctx->enc_video_ctx->flush_delayed_frames  = 1;
 
 	while(!encoder_ctx->enc_video_ctx->flush_done)
@@ -1463,6 +1470,12 @@ int encoder_encode_video(encoder_context_t *encoder_ctx, void *input_frame)
 	/*raw - direct input no software encoding*/
 	if(encoder_ctx->video_codec_ind == 0)
 	{
+		if(enc_video_ctx->flush_delayed_frames > 0)
+		{
+			enc_video_ctx->flush_done = 1;
+			encoder_ctx->enc_video_ctx->outbuf_coded_size = outsize;
+			return outsize;
+		}
 		if(input_frame == NULL)
 		{
 			encoder_ctx->enc_video_ctx->outbuf_coded_size = outsize;

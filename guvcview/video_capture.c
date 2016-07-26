@@ -937,8 +937,12 @@ static void *encoder_loop(void *data)
 		}
 	}
 	
+	if(debug_level > 1)
+		printf("GUVCVIEW: video capture terminated - flushing video buffers\n");
 	/*flush the video buffer*/
 	encoder_flush_video_buffer(encoder_ctx);
+	if(debug_level > 1)
+		printf("GUVCVIEW: flushing video buffers - done\n");
 
 	/*make sure the audio processing thread has stopped*/
 	if(encoder_ctx->enc_audio_ctx != NULL && audio_get_channels(audio_ctx) > 0)
@@ -1332,5 +1336,8 @@ int stop_encoder_thread()
 
 	__THREAD_JOIN(encoder_thread);
 
+	if(debug_level > 1)
+		printf("GUVCVIEW: encoder thread terminated and joined\n");
+			
 	return 0;
 }
