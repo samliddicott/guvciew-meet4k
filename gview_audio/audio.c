@@ -835,8 +835,10 @@ void audio_close(audio_context_t *audio_ctx)
 
 	audio_fx_close();
 	
-	/*make sure we unlock the mutex*/
-	audio_unlock_mutex(audio_ctx);
+	/* thread must be joined before destroying the mutex
+         * so no need to unlock before destroying it
+         */
+	
 	/*destroy the mutex*/
 	__CLOSE_MUTEX(&(audio_ctx->mutex));
 

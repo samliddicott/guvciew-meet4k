@@ -2089,9 +2089,11 @@ void v4l2core_close_dev(v4l2_dev_t *vd)
 {
 	if(vd == NULL)
 		return;
-		
-	/*make sure the mutex is unlocked*/
-	__UNLOCK_MUTEX(__PMUTEX);
+
+	/* thread must be joined before destroying the mutex
+         * so no need to unlock before destroying it
+         */
+
 	/*destroy the device mutex*/
 	__CLOSE_MUTEX(__PMUTEX);
 
@@ -2114,7 +2116,7 @@ void v4l2core_request_framerate_update(v4l2_dev_t *vd)
 {
 	/*assertions*/
 	assert(vd != NULL);
-	
+
 	/*
 	 * if we are streaming flag a fps change when retrieving frame
 	 * else change fps immediatly
