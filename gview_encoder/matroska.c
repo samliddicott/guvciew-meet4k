@@ -967,7 +967,7 @@ int mkv_close(mkv_context_t* mkv_ctx)
 	printf("ENCODER: (matroska) closing context\n");
 
     /* check if we have audio packets cached and write them */
-    if (mkv_ctx->pkt_buffer_list_size > 0)
+    if (mkv_ctx->pkt_buffer_list != NULL && mkv_ctx->pkt_buffer_list_size > 0)
     {
 		while(mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_read_index].data_size > 0)
 		{
