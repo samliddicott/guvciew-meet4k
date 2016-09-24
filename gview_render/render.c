@@ -47,8 +47,6 @@
 
 #if ENABLE_SDL2
 	#include "render_sdl2.h"
-#else
-	#include "render_sdl1.h"
 #endif
 
 #if ENABLE_SFML
