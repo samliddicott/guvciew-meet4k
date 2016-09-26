@@ -19,13 +19,13 @@ Guvcview depends on the following:
  - libudev,
  - libusb-1.0,
  - libpulse (optional)
- - libgsl (optional)
+ - libgsl0 (optional)
 
 On most distributions you can just install the development 
 packages:
  intltool, autotools-dev, libsdl2-dev, libsfml-dev, libgtk-3-dev or qtbase5-dev, 
  portaudio19-dev, libpng12-dev, libavcodec-dev, libavutil-dev,
- libv4l-dev, libudev-dev, libusb-1.0-0-dev, libpulse-dev, libgsl-dev
+ libv4l-dev, libudev-dev, libusb-1.0-0-dev, libpulse-dev, libgsl0-dev
 
 Build configuration:
 --------------------
