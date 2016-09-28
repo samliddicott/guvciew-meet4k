@@ -211,9 +211,15 @@ SFMLRender::SFMLRender(int width, int height, int flags)
 				return;
 			}
 
-			conv_yuv2rgb_shd.setParameter("texY", texY);
+#if LIBSFML_VER_AT_LEAST(2,4)
+			conv_yuv2rgb_shd.setUniform("texY", texY);
+			conv_yuv2rgb_shd.setUniform("texU", texU);
+			conv_yuv2rgb_shd.setUniform("texV", texV);
+#else
+                        conv_yuv2rgb_shd.setParameter("texY", texY);
 			conv_yuv2rgb_shd.setParameter("texU", texU);
 			conv_yuv2rgb_shd.setParameter("texV", texV);
+#endif
 		}
 	}
 	else

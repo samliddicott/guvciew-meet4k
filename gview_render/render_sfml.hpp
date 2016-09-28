@@ -28,6 +28,11 @@
 
 #include <SFML/Graphics.hpp>
 #include <SFML/OpenGL.hpp>
+#include <SFML/Config.hpp>
+
+#define LIBSFML_VER_AT_LEAST(major,minor)  (SFML_VERSION_MAJOR > major || \
+                                              (SFML_VERSION_MAJOR == major && \
+                                               SFML_VERSION_MINOR >= minor))
 
 extern "C" {
 #include <stdint.h>
