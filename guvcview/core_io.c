@@ -364,8 +364,7 @@ unsigned long long get_file_suffix(const char *path, const char* filename)
 
 	DIR *dirp = opendir(path);
 	size_t size;
-	struct dirent *buf, *ent;
-	int error;
+	struct dirent *ent;
 
 	if(dirp == NULL)
 	{
@@ -379,13 +378,7 @@ unsigned long long get_file_suffix(const char *path, const char* filename)
 		closedir(dirp);
 		return suffix;
 	}
-	buf = (struct dirent *)malloc(size);
-    if (buf == NULL)
-    {
-        fprintf(stderr,"GUVCVIEW: FATAL memory allocation failure (get_file_suffix): %s\n", strerror(errno));
-		exit(-1);
-    }
-	
+
 	int noextsize = strlen(filename);
 
 	//search for '.' and return pointer to it's position or null if not found
@@ -406,8 +399,11 @@ unsigned long long get_file_suffix(const char *path, const char* filename)
 	else
 		snprintf(format_str, fsize-1, "%s-%%20s", noextname);
 
-	while ((error = readdir_r(dirp, buf, &ent)) == 0 && ent != NULL)
+        while (dirp)
 	{
+            errno = 0;
+            if((ent = readdir(dirp)) != NULL)
+            {
 		if(debug_level > 3)
 			printf("GUVCVIEW: (get_file_suffix) checking %s\n", ent->d_name);
 		if (strncmp(ent->d_name, noextname, noextsize) == 0)
@@ -432,22 +428,33 @@ unsigned long long get_file_suffix(const char *path, const char* filename)
 					suffix = sfix;
 			}
 		}
-	}
-	if(error)
-	{
-		errno = error;
-		fprintf(stderr,"GUVCVIEW: error while reading dir: %s\n", strerror(errno));
-	}
+            }
+            else
+            {
+                if(errno)
+                    fprintf(stderr,"GUVCVIEW: error while reading dir: %s\n", strerror(errno));
 
-	closedir(dirp);
+                closedir(dirp);
 
-	free(noextname);
-	free(extension);
-	free(buf);
+                free(noextname);
+                free(extension);
 
-	if(debug_level > 1)
-		printf("GUVCVIEW: (get_file_suffix) %s has sufix %llu\n", filename, suffix);
-	return suffix;
+                if(debug_level > 1)
+                    printf("GUVCVIEW: (get_file_suffix) %s has sufix %llu\n", filename, suffix);
+                return suffix;
+            }
+        }
+
+        fprintf(stderr,"GUVCVIEW: error while reading dir: null DIR pointer while readind entries\n");
+
+        closedir(dirp);
+
+        free(noextname);
+        free(extension);
+
+        if(debug_level > 1)
+            printf("GUVCVIEW: (get_file_suffix) %s has sufix %llu\n", filename, suffix);
+        return suffix;
 }
 
 /*
