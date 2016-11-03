@@ -61,6 +61,8 @@ __BEGIN_DECLS
 #define REND_FX_YUV_MONOCR (1<<3)
 #define REND_FX_YUV_PIECES (1<<4)
 #define REND_FX_YUV_PARTICLES (1<<5)
+#define REND_FX_YUV_HALF_MIRROR (1<<6)
+#define REND_FX_YUV_HALF_UPTURN (1<<7)
 
 /*OSD FLAGS*/
 #define REND_OSD_NONE           (0)

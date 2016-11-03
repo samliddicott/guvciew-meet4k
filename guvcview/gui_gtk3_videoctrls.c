@@ -366,24 +366,52 @@ int gui_attach_gtk3_videoctrls(GtkWidget *parent)
 	gtk_widget_show (FiltMirrorEnable);
 	g_signal_connect (GTK_CHECK_BUTTON(FiltMirrorEnable), "toggled",
 		G_CALLBACK (render_fx_filter_changed), NULL);
+        
+        /* Half Mirror FX */
+	GtkWidget *FiltHalfMirrorEnable = gtk_check_button_new_with_label (_(" Half Mirror"));
+	g_object_set_data (G_OBJECT (FiltHalfMirrorEnable), "filt_info", GINT_TO_POINTER(REND_FX_YUV_HALF_MIRROR));
+	gtk_widget_set_halign (FiltHalfMirrorEnable, GTK_ALIGN_FILL);
+	gtk_widget_set_hexpand (FiltHalfMirrorEnable, TRUE);
+	gtk_grid_attach(GTK_GRID(table_filt), FiltHalfMirrorEnable, 1, 0, 1, 1);
+
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(FiltHalfMirrorEnable),
+		(get_render_fx_mask() & REND_FX_YUV_HALF_MIRROR) > 0);
+	gtk_widget_show (FiltHalfMirrorEnable);
+	g_signal_connect (GTK_CHECK_BUTTON(FiltHalfMirrorEnable), "toggled",
+		G_CALLBACK (render_fx_filter_changed), NULL);
+        
 	/* Upturn FX */
 	GtkWidget *FiltUpturnEnable = gtk_check_button_new_with_label (_(" Invert"));
 	g_object_set_data (G_OBJECT (FiltUpturnEnable), "filt_info", GINT_TO_POINTER(REND_FX_YUV_UPTURN));
 	gtk_widget_set_halign (FiltUpturnEnable, GTK_ALIGN_FILL);
 	gtk_widget_set_hexpand (FiltUpturnEnable, TRUE);
-	gtk_grid_attach(GTK_GRID(table_filt), FiltUpturnEnable, 1, 0, 1, 1);
+	gtk_grid_attach(GTK_GRID(table_filt), FiltUpturnEnable, 2, 0, 1, 1);
 
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(FiltUpturnEnable),
 		(get_render_fx_mask() & REND_FX_YUV_UPTURN) > 0);
 	gtk_widget_show (FiltUpturnEnable);
 	g_signal_connect (GTK_CHECK_BUTTON(FiltUpturnEnable), "toggled",
 		G_CALLBACK (render_fx_filter_changed), NULL);
+        
+        /* Half Upturn FX */
+	GtkWidget *FiltHalfUpturnEnable = gtk_check_button_new_with_label (_(" Half Invert"));
+	g_object_set_data (G_OBJECT (FiltHalfUpturnEnable), "filt_info", GINT_TO_POINTER(REND_FX_YUV_HALF_UPTURN));
+	gtk_widget_set_halign (FiltHalfUpturnEnable, GTK_ALIGN_FILL);
+	gtk_widget_set_hexpand (FiltHalfUpturnEnable, TRUE);
+	gtk_grid_attach(GTK_GRID(table_filt), FiltHalfUpturnEnable, 3, 0, 1, 1);
+
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(FiltHalfUpturnEnable),
+		(get_render_fx_mask() & REND_FX_YUV_HALF_UPTURN) > 0);
+	gtk_widget_show (FiltHalfUpturnEnable);
+	g_signal_connect (GTK_CHECK_BUTTON(FiltHalfUpturnEnable), "toggled",
+		G_CALLBACK (render_fx_filter_changed), NULL);
+        
 	/* Negate FX */
 	GtkWidget *FiltNegateEnable = gtk_check_button_new_with_label (_(" Negative"));
 	g_object_set_data (G_OBJECT (FiltNegateEnable), "filt_info", GINT_TO_POINTER(REND_FX_YUV_NEGATE));
 	gtk_widget_set_halign (FiltNegateEnable, GTK_ALIGN_FILL);
 	gtk_widget_set_hexpand (FiltNegateEnable, TRUE);
-	gtk_grid_attach(GTK_GRID(table_filt), FiltNegateEnable, 2, 0, 1, 1);
+	gtk_grid_attach(GTK_GRID(table_filt), FiltNegateEnable, 4, 0, 1, 1);
 
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(FiltNegateEnable),
 		(get_render_fx_mask() & REND_FX_YUV_NEGATE) >0 );
@@ -395,7 +423,7 @@ int gui_attach_gtk3_videoctrls(GtkWidget *parent)
 	g_object_set_data (G_OBJECT (FiltMonoEnable), "filt_info", GINT_TO_POINTER(REND_FX_YUV_MONOCR));
 	gtk_widget_set_halign (FiltMonoEnable, GTK_ALIGN_FILL);
 	gtk_widget_set_hexpand (FiltMonoEnable, TRUE);
-	gtk_grid_attach(GTK_GRID(table_filt), FiltMonoEnable, 3, 0, 1, 1);
+	gtk_grid_attach(GTK_GRID(table_filt), FiltMonoEnable, 5, 0, 1, 1);
 
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(FiltMonoEnable),
 		(get_render_fx_mask() & REND_FX_YUV_MONOCR) > 0);
@@ -408,7 +436,7 @@ int gui_attach_gtk3_videoctrls(GtkWidget *parent)
 	g_object_set_data (G_OBJECT (FiltPiecesEnable), "filt_info", GINT_TO_POINTER(REND_FX_YUV_PIECES));
 	gtk_widget_set_halign (FiltPiecesEnable, GTK_ALIGN_FILL);
 	gtk_widget_set_hexpand (FiltPiecesEnable, TRUE);
-	gtk_grid_attach(GTK_GRID(table_filt), FiltPiecesEnable, 4, 0, 1, 1);
+	gtk_grid_attach(GTK_GRID(table_filt), FiltPiecesEnable, 0, 1, 1, 1);
 
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(FiltPiecesEnable),
 		(get_render_fx_mask() & REND_FX_YUV_PIECES) > 0);
@@ -421,7 +449,7 @@ int gui_attach_gtk3_videoctrls(GtkWidget *parent)
 	g_object_set_data (G_OBJECT (FiltParticlesEnable), "filt_info", GINT_TO_POINTER(REND_FX_YUV_PARTICLES));
 	gtk_widget_set_halign (FiltParticlesEnable, GTK_ALIGN_FILL);
 	gtk_widget_set_hexpand (FiltParticlesEnable, TRUE);
-	gtk_grid_attach(GTK_GRID(table_filt), FiltParticlesEnable, 5, 0, 1, 1);
+	gtk_grid_attach(GTK_GRID(table_filt), FiltParticlesEnable, 1, 1, 1, 1);
 
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(FiltParticlesEnable),
 		(get_render_fx_mask() & REND_FX_YUV_PARTICLES) > 0);

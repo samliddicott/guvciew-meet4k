@@ -276,22 +276,41 @@ int MainWindow::gui_attach_qt5_videoctrls(QWidget *parent)
 	/*connect signal*/
 	connect(FiltMirrorEnable, SIGNAL(stateChanged(int)), this, SLOT(render_fx_filter_changed(int)));
 	
+        /* Half Mirror FX */
+	QCheckBox *FiltHalfMirrorEnable = new QCheckBox(_(" Half Mirror"), table_filt);
+	FiltHalfMirrorEnable->setProperty("filt_info", REND_FX_YUV_HALF_MIRROR);
+	FiltHalfMirrorEnable->show();
+	filt_layout->addWidget(FiltHalfMirrorEnable, 0, 1);
+	FiltHalfMirrorEnable->setChecked((get_render_fx_mask() & REND_FX_YUV_HALF_MIRROR) > 0);
+	/*connect signal*/
+	connect(FiltHalfMirrorEnable, SIGNAL(stateChanged(int)), this, SLOT(render_fx_filter_changed(int)));
+        
 	/* Upturn FX */
 	QCheckBox *FiltUpturnEnable = new QCheckBox(_(" Invert"), table_filt);
 	FiltUpturnEnable->setProperty("filt_info", REND_FX_YUV_UPTURN);
 	FiltUpturnEnable->show();
 
-	filt_layout->addWidget(FiltUpturnEnable, 0, 1);
+	filt_layout->addWidget(FiltUpturnEnable, 0, 2);
 	FiltUpturnEnable->setChecked((get_render_fx_mask() & REND_FX_YUV_UPTURN) > 0);
 	/*connect signal*/
 	connect(FiltUpturnEnable, SIGNAL(stateChanged(int)), this, SLOT(render_fx_filter_changed(int)));
 	
+        /* Half Upturn FX */
+	QCheckBox *FiltHalfUpturnEnable = new QCheckBox(_(" Half Invert"), table_filt);
+	FiltHalfUpturnEnable->setProperty("filt_info", REND_FX_YUV_HALF_UPTURN);
+	FiltHalfUpturnEnable->show();
+
+	filt_layout->addWidget(FiltHalfUpturnEnable, 0, 3);
+	FiltHalfUpturnEnable->setChecked((get_render_fx_mask() & REND_FX_YUV_HALF_UPTURN) > 0);
+	/*connect signal*/
+	connect(FiltHalfUpturnEnable, SIGNAL(stateChanged(int)), this, SLOT(render_fx_filter_changed(int)));
+        
 	/* Negate FX */
 	QCheckBox *FiltNegateEnable = new QCheckBox(_(" Negative"), table_filt);
 	FiltNegateEnable->setProperty("filt_info", REND_FX_YUV_NEGATE);
 	FiltNegateEnable->show();
 
-	filt_layout->addWidget(FiltNegateEnable, 0, 2);
+	filt_layout->addWidget(FiltNegateEnable, 0, 4);
 	FiltNegateEnable->setChecked((get_render_fx_mask() & REND_FX_YUV_NEGATE) > 0);
 	/*connect signal*/
 	connect(FiltNegateEnable, SIGNAL(stateChanged(int)), this, SLOT(render_fx_filter_changed(int)));
@@ -301,7 +320,7 @@ int MainWindow::gui_attach_qt5_videoctrls(QWidget *parent)
 	FiltMonoEnable->setProperty("filt_info", REND_FX_YUV_MONOCR);
 	FiltMonoEnable->show();
 
-	filt_layout->addWidget(FiltMonoEnable, 0, 3);
+	filt_layout->addWidget(FiltMonoEnable, 0, 5);
 	FiltMonoEnable->setChecked((get_render_fx_mask() & REND_FX_YUV_MONOCR) > 0);
 	/*connect signal*/
 	connect(FiltMonoEnable, SIGNAL(stateChanged(int)), this, SLOT(render_fx_filter_changed(int)));
@@ -311,7 +330,7 @@ int MainWindow::gui_attach_qt5_videoctrls(QWidget *parent)
 	FiltPiecesEnable->setProperty("filt_info", REND_FX_YUV_PIECES);
 	FiltPiecesEnable->show();
 
-	filt_layout->addWidget(FiltPiecesEnable, 0, 4);
+	filt_layout->addWidget(FiltPiecesEnable, 1, 0);
 	FiltPiecesEnable->setChecked((get_render_fx_mask() & REND_FX_YUV_PIECES) > 0);
 	/*connect signal*/
 	connect(FiltPiecesEnable, SIGNAL(stateChanged(int)), this, SLOT(render_fx_filter_changed(int)));
@@ -321,7 +340,7 @@ int MainWindow::gui_attach_qt5_videoctrls(QWidget *parent)
 	FiltParticlesEnable->setProperty("filt_info", REND_FX_YUV_PARTICLES);
 	FiltParticlesEnable->show();
 
-	filt_layout->addWidget(FiltParticlesEnable, 0, 5);
+	filt_layout->addWidget(FiltParticlesEnable, 1, 1);
 	FiltParticlesEnable->setChecked((get_render_fx_mask() & REND_FX_YUV_PARTICLES) > 0);
 	/*connect signal*/
 	connect(FiltParticlesEnable, SIGNAL(stateChanged(int)), this, SLOT(render_fx_filter_changed(int)));

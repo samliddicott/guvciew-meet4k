@@ -309,7 +309,7 @@ int render_init(int render, int width, int height, int flags)
 /*
  * Apply fx filters
  * args:
- *    frame - pointer to frame buffer (yuyv format)
+ *    frame - pointer to frame buffer (yu12 format)
  *    mask  - or'ed filter mask
  *
  * asserts:
@@ -328,7 +328,7 @@ void render_frame_fx(uint8_t *frame, uint32_t mask)
 /*
  * Apply OSD mask
  * args:
- *    frame - pointer to frame buffer (yuyv format)
+ *    frame - pointer to frame buffer (yu12 format)
  *
  * asserts:
  *    frame is not null
@@ -352,7 +352,7 @@ void render_frame_osd(uint8_t *frame)
 /*
  * render a frame
  * args:
- *   frame - pointer to frame data (yuyv format)
+ *   frame - pointer to frame data (yu12 format)
  *
  * asserts:
  *   frame is not null

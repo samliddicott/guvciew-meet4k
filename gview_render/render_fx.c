@@ -51,42 +51,6 @@ typedef struct _particle_t
 static particle_t *particles = NULL;
 
 /*
- * Flip YUYV frame - horizontal
- * args:
- *    frame - pointer to frame buffer (yuyv format)
- *    width - frame width
- *    height- frame height
- *
- * asserts:
- *    frame is not null
- *
- * returns: void
- */
-static void fx_yuyv_mirror (uint8_t *frame, int width, int height)
-{
-	/*asserts*/
-	assert(frame != NULL);
-
-	int h=0;
-	int w=0;
-	int sizeline = width*2;    /* 2 bytes per pixel*/
-	uint8_t *pframe;
-	pframe=frame;
-	uint8_t line[sizeline-1];  /*line buffer*/
-	for (h=0; h < height; h++)
-	{	/*line iterator*/
-		for(w=sizeline-1; w > 0; w = w - 4)
-		{	/* pixel iterator */
-			line[w-1]=*pframe++;
-			line[w-2]=*pframe++;
-			line[w-3]=*pframe++;
-			line[w]=*pframe++;
-		}
-		memcpy(frame+(h*sizeline), line, sizeline); /*copy reversed line to frame buffer*/
-	}
-}
-
-/*
  * Flip yu12 frame - horizontal
  * args:
  *    frame - pointer to frame buffer (yu12=iyuv format)
@@ -151,6 +115,62 @@ static void fx_yu12_mirror (uint8_t *frame, int width, int height)
 }
 
 /*
+ * Flip half yu12 frame - horizontal
+ * args:
+ *    frame - pointer to frame buffer (yu12=iyuv format)
+ *    width - frame width
+ *    height- frame height
+ *
+ * asserts:
+ *    frame is not null
+ *
+ * returns: void
+ */
+static void fx_yu12_half_mirror (uint8_t *frame, int width, int height)
+{
+	/*asserts*/
+	assert(frame != NULL);
+
+	int h=0;
+	int w=0;
+
+	uint8_t *end = NULL;
+	uint8_t *end2 = NULL;
+
+	uint8_t *py = frame;
+	uint8_t *pu = frame + (width * height);
+	uint8_t *pv = pu + ((width * height) / 4);
+
+	uint8_t pixel =0;
+	uint8_t pixel2=0;
+
+	/*mirror y*/
+	for(h = 0; h < height; h++)
+	{
+		py = frame + (h * width);
+		end = py + width - 1;
+		for(w = 0; w < width/2; w++)
+		{
+			*end-- = *py++;
+		}
+	}	
+
+	/*mirror u v*/
+	for(h = 0; h < height; h+=2)
+	{
+		pu = frame + (width * height) + ((h * width) / 4);
+		pv = pu + ((width * height) / 4);
+		end  = pu + (width / 2) - 1;
+		end2 = pv + (width / 2) -1;
+		for(w = 0; w < width/2; w+=2)
+		{
+			*end-- = *pu++;
+			*end2-- = *pv++;
+		}
+	}	
+}
+
+/*
  * Invert YUV frame
  * args:
  *    frame - pointer to frame buffer (any yuv format)
@@ -172,37 +192,6 @@ static void fx_yuv_negative(uint8_t *frame, int width, int height)
 	int i=0;
 	for(i=0; i < size; i++)
 		frame[i] = ~frame[i];
-}
-
-/*
- * Flip YUV frame - vertical
- * args:
- *    frame - pointer to frame buffer (yuyv format)
- *    width - frame width
- *    height- frame height
- *
- * asserts:
- *    frame is not null
- *
- * returns: void
- */
-static void fx_yuyv_upturn(uint8_t *frame, int width, int height)
-{
-	/*asserts*/
-	assert(frame != NULL);
-
-	int h = 0;
-	int sizeline = width * 2;  /* 2 bytes per pixel*/
-	uint8_t line1[sizeline-1]; /*line1 buffer*/
-	uint8_t line2[sizeline-1]; /*line2 buffer*/
-	for ( h = 0; h < height/2; ++h)
-	{	/*line iterator*/
-		memcpy(line1, frame + h * sizeline, sizeline);
-		memcpy(line2, frame + (height - 1 - h) * sizeline, sizeline);
-
-		memcpy(frame + h * sizeline, line2, sizeline);
-		memcpy(frame + (height - 1 - h) * sizeline, line1, sizeline);
-	}
 }
 
 /*
@@ -270,27 +259,64 @@ static void fx_yu12_upturn(uint8_t *frame, int width, int height)
 }
 
 /*
- * Monochromatic effect for YUYV frame
+ * Flip half yu12 frame - vertical
  * args:
- *     frame - pointer to frame buffer (yuyv format)
- *     width - frame width
- *     height- frame height
+ *    frame - pointer to frame buffer (yu12 format)
+ *    width - frame width
+ *    height- frame height
  *
  * asserts:
- *     frame is not null
+ *    frame is not null
  *
  * returns: void
  */
-static void fx_yuyv_monochrome(uint8_t* frame, int width, int height)
+static void fx_yu12_half_upturn(uint8_t *frame, int width, int height)
 {
-	int size = width * height * 2;
-	int i = 0;
+	/*asserts*/
+	assert(frame != NULL);
 
-	for(i=0; i < size; i = i + 4)
-	{	/* keep Y - luma */
-		frame[i+1]=0x80;/*U - median (half the max value)=128*/
-		frame[i+3]=0x80;/*V - median (half the max value)=128*/
+	int h = 0;
+
+	uint8_t line[width]; /*line1 buffer*/
+	
+	uint8_t *pi = frame; //begin of first y line
+	uint8_t *pf = pi + (width * (height - 1)); //begin of last y line
+	
+	/*upturn y*/
+	for ( h = 0; h < height / 2; ++h)
+	{	/*line iterator*/
+		memcpy(line, pi, width);
+		memcpy(pf, line, width);
+		
+		pi+=width;
+		pf-=width;
+		
 	}
+	
+	/*upturn u*/
+	pi = frame + (width * height); //begin of first u line
+	pf = pi + ((width * height) / 4) - (width / 2); //begin of last u line
+	for ( h = 0; h < height / 2; h += 2) //every two lines = height / 4
+	{	/*line iterator*/
+		memcpy(line, pi, width / 2);
+		memcpy(pf, line, width / 2);
+
+		pi+=width/2;
+		pf-=width/2;
+	}
+	
+	/*upturn v*/
+	pi = frame + ((width * height * 5) / 4); //begin of first v line
+	pf = pi + ((width * height) / 4) - (width / 2); //begin of last v line
+	for ( h = 0; h < height / 2; h += 2) //every two lines = height / 4
+	{	/*line iterator*/
+		memcpy(line, pi, width / 2);
+		memcpy(pf, line, width / 2);
+
+		pi+=width/2;
+		pf-=width/2;
+	}
+	
 }
 
 /*
@@ -320,94 +346,6 @@ static void fx_yu12_monochrome(uint8_t* frame, int width, int height)
 
 
 #ifdef HAS_GSL
-/*
- * Break yuyv image in little square pieces
- * args:
- *    frame  - pointer to frame buffer (yuyv format)
- *    width  - frame width
- *    height - frame height
- *    piece_size - multiple of 2 (we need at least 2 pixels to get the entire pixel information)
- *
- * asserts:
- *    frame is not null
- */
-static void fx_yuyv_pieces(uint8_t* frame, int width, int height, int piece_size )
-{
-	int numx = width / piece_size; //number of pieces in x axis
-	int numy = height / piece_size; //number of pieces in y axis
-	uint8_t *piece = calloc (piece_size * piece_size * 2, sizeof(uint8_t));
-	if(piece == NULL)
-	{
-		fprintf(stderr,"RENDER: FATAL memory allocation failure (fx_pieces): %s\n", strerror(errno));
-		exit(-1);
-	}
-	int i = 0, j = 0, line = 0, column = 0, linep = 0, px = 0, py = 0;
-
-	/*random generator setup*/
-	gsl_rng_env_setup();
-	const gsl_rng_type *T = gsl_rng_default;
-	gsl_rng *r = gsl_rng_alloc (T);
-
-	int rot = 0;
-
-	for(j = 0; j < numy; j++)
-	{
-		int row = j * piece_size;
-		for(i = 0; i < numx; i++)
-		{
-			column = i * piece_size * 2;
-			//get piece
-			for(py = 0; py < piece_size; py++)
-			{
-				linep = py * piece_size * 2;
-				line = (py + row) * width * 2;
-				for(px=0 ; px < piece_size * 2; px++)
-				{
-					piece[px + linep] = frame[(px + column) + line];
-				}
-			}
-			/*rotate piece and copy it to frame*/
-			//rotation is random
-			rot = (int) lround(8 * gsl_rng_uniform (r)); /*0 to 8*/
-
-			switch(rot)
-			{
-				case 0: // do nothing
-					break;
-				case 5:
-				case 1: //mirror
-					fx_yuyv_mirror(piece, piece_size, piece_size);
-					break;
-				case 6:
-				case 2: //upturn
-					fx_yuyv_upturn(piece, piece_size, piece_size);
-					break;
-				case 4:
-				case 3://mirror upturn
-					fx_yuyv_upturn(piece, piece_size, piece_size);
-					fx_yuyv_mirror(piece, piece_size, piece_size);
-					break;
-				default: //do nothing
-					break;
-			}
-			//write piece
-			for(py = 0; py < piece_size; py++)
-			{
-				linep = py * piece_size * 2;
-				line = (py + row) * width * 2;
-				for(px=0 ; px < piece_size * 2; px++)
-				{
-					frame[(px + column) + line] = piece[px + linep];
-				}
-			}
-		}
-	}
-
-	/*free the random seed generator*/
-	gsl_rng_free (r);
-	/*free the piece buffer*/
-	free(piece);
-}
 
 /*
  * Break yu12 image in little square pieces
@@ -691,7 +629,7 @@ static void fx_particles(uint8_t* frame, int width, int height, int trail_size, 
 /*
  * Apply fx filters
  * args:
- *    frame - pointer to frame buffer (yuyv format)
+ *    frame - pointer to frame buffer (yu12 format)
  *    width - frame width
  *    height - frame height
  *    mask  - or'ed filter mask
@@ -707,24 +645,30 @@ void render_fx_apply(uint8_t *frame, int width, int height, uint32_t mask)
     {
 		#ifdef HAS_GSL
 		if(mask & REND_FX_YUV_PARTICLES)
-			fx_particles (frame, width, height, 20, 4);
+                    fx_particles (frame, width, height, 20, 4);
 		#endif
 
 		if(mask & REND_FX_YUV_MIRROR)
-			fx_yu12_mirror(frame, width, height);
+                    fx_yu12_mirror(frame, width, height);
+
+                if(mask & REND_FX_YUV_HALF_MIRROR)
+                    fx_yu12_half_mirror (frame, width, height);
 
 		if(mask & REND_FX_YUV_UPTURN)
-			fx_yu12_upturn(frame, width, height);
+                    fx_yu12_upturn(frame, width, height);
+
+                if(mask & REND_FX_YUV_HALF_UPTURN)
+                    fx_yu12_half_upturn(frame, width, height);
 
 		if(mask & REND_FX_YUV_NEGATE)
-			fx_yuv_negative (frame, width, height);
+                    fx_yuv_negative (frame, width, height);
 
 		if(mask & REND_FX_YUV_MONOCR)
-			fx_yu12_monochrome (frame, width, height);
+                    fx_yu12_monochrome (frame, width, height);
 
 #ifdef HAS_GSL
 		if(mask & REND_FX_YUV_PIECES)
-			fx_yu12_pieces(frame, width, height, 16 );
+                    fx_yu12_pieces(frame, width, height, 16 );
 #endif
 	}
 	else
