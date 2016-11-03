@@ -41,6 +41,7 @@ missing
 # build dir #
 #############
 build
+build-*
 
 # temp files#
 #############
