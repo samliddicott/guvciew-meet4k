@@ -345,6 +345,26 @@ int MainWindow::gui_attach_qt5_videoctrls(QWidget *parent)
 	/*connect signal*/
 	connect(FiltParticlesEnable, SIGNAL(stateChanged(int)), this, SLOT(render_fx_filter_changed(int)));
 
+        /* SQRT Lens Distort */
+	QCheckBox *FiltSqrtLensEnable = new QCheckBox(_(" Sqrt Lens"), table_filt);
+	FiltSqrtLensEnable->setProperty("filt_info", REND_FX_YUV_SQRT_DISTORT);
+	FiltSqrtLensEnable->show();
+
+	filt_layout->addWidget(FiltSqrtLensEnable, 1, 2);
+	FiltSqrtLensEnable->setChecked((get_render_fx_mask() & REND_FX_YUV_SQRT_DISTORT) > 0);
+	/*connect signal*/
+	connect(FiltSqrtLensEnable, SIGNAL(stateChanged(int)), this, SLOT(render_fx_filter_changed(int)));
+        
+        /* POW Lens Distort */
+	QCheckBox *FiltPowLensEnable = new QCheckBox(_(" Pow Lens"), table_filt);
+	FiltPowLensEnable->setProperty("filt_info", REND_FX_YUV_POW_DISTORT);
+	FiltPowLensEnable->show();
+
+	filt_layout->addWidget(FiltPowLensEnable, 1, 3);
+	FiltPowLensEnable->setChecked((get_render_fx_mask() & REND_FX_YUV_POW_DISTORT) > 0);
+	/*connect signal*/
+	connect(FiltPowLensEnable, SIGNAL(stateChanged(int)), this, SLOT(render_fx_filter_changed(int)));
+        
 	/* ----- OSD controls -----*/
 	line++;
 	QLabel *label_osd = new QLabel(_("---- OSD ----"),video_controls_grid);

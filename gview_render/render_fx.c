@@ -26,6 +26,7 @@
 #include <unistd.h>
 #include <assert.h>
 #include <math.h>
+#include <time.h>
 
 #include "gviewrender.h"
 #include "gview.h"
@@ -36,6 +37,8 @@
 	#include <gsl/gsl_rng.h>
 #endif
 
+
+uint8_t *tmpbuffer = NULL;
 
 typedef struct _particle_t
 {
@@ -471,7 +474,7 @@ static void fx_yu12_pieces(uint8_t* frame, int width, int height, int piece_size
 /*
  * Trail of particles obtained from the image frame
  * args:
- *    frame  - pointer to frame buffer (yuyv format)
+ *    frame  - pointer to frame buffer (yu12 format)
  *    width  - frame width
  *    height - frame height
  *    trail_size  - trail size (in frames)
@@ -627,6 +630,266 @@ static void fx_particles(uint8_t* frame, int width, int height, int trail_size, 
 #endif
 
 /*
+ * Normalize X coordinate
+ * args:
+ *      i - pixel position from 0 to width-1
+ *      width - frame width
+ * 
+ * returns:
+ *         normalized x coordinate (-1 to 1))
+ */
+double normX(int i, int width)
+{
+    if(i<0 )
+        return -1.0;
+    if(i>= width)
+        return 1.0;
+    
+    double x = (double) ((2 * (double)(i)) / (double)(width)) -1;
+    
+    if(x < -1)
+        return -1;
+    if(x > 1)
+        return 1;
+    
+    return x;
+}
+
+/*
+ * Normalize Y coordinate
+ * args:
+ *      j - pixel position from 0 to height-1
+ *      height - frame height
+ * 
+ * returns:
+ *         normalized y coordinate (-1 to 1))
+ */
+double normY(int j, int height)
+{
+    if(j<0 )
+        return -1.0;
+    if(j>= height)
+        return 1.0;
+
+    double y = (double) ((2 * (double)(j)) / (double)(height)) -1;
+
+    if(y < -1)
+        return -1;
+    if(y > 1)
+        return 1;
+    
+    return y;
+}
+
+/*
+ * Denormalize X coordinate
+ * args:
+ *      x - normalized pixel position from -1 to 1
+ *      width - frame width
+ * 
+ * returns:
+ *         x coordinate (0 to width -1)
+ */
+int denormX(double x, int width)
+{
+    int i = (int) lround(0.5 * width * (x + 1) -1);
+
+    if(i < 0)
+        return 0;
+    if(i >= width)
+        return (width -1);
+    
+    return i;
+}
+
+/*
+ * denormalize Y coordinate
+ * args:
+ *      y - normalized pixel position from -1 to 1
+ *      height - frame height
+ * 
+ * returns:
+ *         y coordinate (0 to height -1)
+ */
+int denormY(double y, int height)
+{
+
+    int j = (int) lround(0.5 * height * (y + 1) -1);
+    
+    if(j < 0)
+        return 0;
+    if(j >= height)
+        return (height -1);
+    
+    return j;
+}
+
+
+#define PI      3.14159265
+#define DPI     6.28318531
+#define PI2     1.57079632
+
+/*
+ * fast sin replacement
+ */
+double fast_sin(double x)
+{
+    if(x < -PI)
+        x += DPI;
+    else if (x > PI)
+        x -= DPI;
+
+    if(x < 0)
+        return ((1.27323954 * x) + (.405284735 * x * x));
+    else
+        return ((1.27323954 * x) - (.405284735 * x * x));
+}
+
+
+/*
+ * fast cos replacement
+ */
+double fast_cos(double x)
+{
+    x += PI2;
+    if(x > PI)
+        x -= DPI;
+
+    if(x < 0)
+        return ((1.27323954 * x) + (.405284735 * x * x));
+    else
+        return ((1.27323954 * x) - (.405284735 * x * x));
+}
+
+/*
+ * fast atan2 replacement
+ */
+double fast_atan2( double y, double x )
+{
+	if ( x == 0.0f )
+	{
+		if ( y > 0.0f ) return PI2;
+		if ( y == 0.0f ) return 0.0f;
+		return -PI2;
+	}
+	double atan;
+	double z = y/x;
+	if ( fabs( z ) < 1.0f )
+	{
+		atan = z/(1.0f + 0.28f*z*z);
+		if ( x < 0.0f )
+		{
+			if ( y < 0.0f ) return atan - PI;
+			return atan + PI;
+		}
+	}
+	else
+	{
+		atan = PI2- z/(z*z + 0.28f);
+		if ( y < 0.0f ) return atan - PI;
+	}
+	return atan;
+}
+
+
+/*
+ * calculate coordinate in input frame from point in ouptut
+ * (all coordinates are normalized)
+ * args:
+ *      x,y - output cordinates
+ *      xnew, ynew - pointers to input coordinates
+ *      type - type of distortion
+ */
+void eval_coordinates (double x, double y, double *xnew, double *ynew, int type)
+{
+    double phi, radius, radius2;
+
+    radius2 = x*x + y*y;
+    //radius = sqrt(radius2);
+
+    phi = fast_atan2(y,x);
+
+    switch (type)
+    {
+        case REND_FX_YUV_POW_DISTORT:
+            radius = radius2; // pow(radius,2)
+            *xnew = radius * fast_cos(phi);
+            *ynew = radius * fast_sin(phi);
+            break;
+
+        case REND_FX_YUV_SQRT_DISTORT:
+        default:
+            /* square root radial funtion */
+            radius = sqrt(radius2);
+            radius = sqrt(radius);
+            *xnew = radius * fast_cos(phi);
+            *ynew = radius * fast_sin(phi);
+            break;
+
+    }
+}
+
+/*
+ * distort (lens effect)
+ * args:
+ *    frame  - pointer to frame buffer (yu12 format)
+ *    width  - frame width
+ *    height - frame height
+ *
+ * asserts:
+ *    frame is not null
+ *
+ * returns: void
+ */
+void fx_yu12_distort(uint8_t* frame, int width, int height, int type)
+{
+    assert(frame != NULL);
+
+    if(!tmpbuffer)
+        tmpbuffer = malloc(width * height * 3 / 2);
+
+    memcpy(tmpbuffer, frame, width * height * 3 / 2);
+    uint8_t *pu = frame + (width*height);
+    uint8_t *pv = pu + (width*height)/4;
+    uint8_t *tpu = tmpbuffer + (width*height);
+    uint8_t *tpv = tpu + (width*height)/4;
+    int j = 0;
+    int i = 0;
+    double x = 0;
+    double y = 0;
+    double xnew = 0;
+    double ynew = 0;
+
+
+    for (j=0; j< height; j++)
+    {
+        y = normY(j, height);
+
+        for(i=0; i< width; i++)
+        {
+            x = normX(i, width);
+
+            eval_coordinates(x, y, &xnew, &ynew, type);
+
+            //get luma
+            frame[i + (j * width)] = 
+                tmpbuffer[denormX(xnew, width) + (denormY(ynew, height) * width)];
+
+            if((i % 2 == 0) && (j % 2 == 0))
+            {
+                //get U
+                pu[i/2 + (j * width/4)] = 
+                    tpu[denormX(xnew, width/2) + (denormY(ynew, height/2) * (width/2))];
+                //get V
+                pv[i/2 + (j * width/4)] = 
+                    tpv[denormX(xnew, width/2) + (denormY(ynew, height/2) * (width/2))];
+            }
+        }
+    }
+
+}
+
+/*
  * Apply fx filters
  * args:
  *    frame - pointer to frame buffer (yu12 format)
@@ -670,6 +933,11 @@ void render_fx_apply(uint8_t *frame, int width, int height, uint32_t mask)
 		if(mask & REND_FX_YUV_PIECES)
                     fx_yu12_pieces(frame, width, height, 16 );
 #endif
+                if(mask & REND_FX_YUV_SQRT_DISTORT)
+                    fx_yu12_distort(frame, width, height, REND_FX_YUV_SQRT_DISTORT);
+
+                if(mask & REND_FX_YUV_POW_DISTORT)
+                    fx_yu12_distort(frame, width, height, REND_FX_YUV_POW_DISTORT);
 	}
 	else
 		render_clean_fx();
@@ -692,4 +960,10 @@ void render_clean_fx()
 		free(particles);
 		particles = NULL;
 	}
+	
+	if(tmpbuffer != NULL)
+        {
+            free(tmpbuffer);
+            tmpbuffer = NULL;
+        }
 }

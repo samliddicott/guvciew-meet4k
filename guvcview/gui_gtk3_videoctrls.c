@@ -456,6 +456,32 @@ int gui_attach_gtk3_videoctrls(GtkWidget *parent)
 	gtk_widget_show (FiltParticlesEnable);
 	g_signal_connect (GTK_CHECK_BUTTON(FiltParticlesEnable), "toggled",
 		G_CALLBACK (render_fx_filter_changed), NULL);
+        
+        /* Sqrt Lens Distort */
+	GtkWidget *FiltSqrtLensEnable = gtk_check_button_new_with_label (_(" Sqrt Lens"));
+	g_object_set_data (G_OBJECT (FiltSqrtLensEnable), "filt_info", GINT_TO_POINTER(REND_FX_YUV_SQRT_DISTORT));
+	gtk_widget_set_halign (FiltSqrtLensEnable, GTK_ALIGN_FILL);
+	gtk_widget_set_hexpand (FiltSqrtLensEnable, TRUE);
+	gtk_grid_attach(GTK_GRID(table_filt), FiltSqrtLensEnable, 2, 1, 1, 1);
+
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(FiltSqrtLensEnable),
+		(get_render_fx_mask() & REND_FX_YUV_SQRT_DISTORT) > 0);
+	gtk_widget_show (FiltSqrtLensEnable);
+	g_signal_connect (GTK_CHECK_BUTTON(FiltSqrtLensEnable), "toggled",
+		G_CALLBACK (render_fx_filter_changed), NULL);
+        
+        /* Pow Lens Distort */
+	GtkWidget *FiltPowLensEnable = gtk_check_button_new_with_label (_(" Pow Lens"));
+	g_object_set_data (G_OBJECT (FiltPowLensEnable), "filt_info", GINT_TO_POINTER(REND_FX_YUV_POW_DISTORT));
+	gtk_widget_set_halign (FiltPowLensEnable, GTK_ALIGN_FILL);
+	gtk_widget_set_hexpand (FiltPowLensEnable, TRUE);
+	gtk_grid_attach(GTK_GRID(table_filt), FiltPowLensEnable, 3, 1, 1, 1);
+
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(FiltPowLensEnable),
+		(get_render_fx_mask() & REND_FX_YUV_POW_DISTORT) > 0);
+	gtk_widget_show (FiltPowLensEnable);
+	g_signal_connect (GTK_CHECK_BUTTON(FiltPowLensEnable), "toggled",
+		G_CALLBACK (render_fx_filter_changed), NULL);
 
 	/* ----- OSD controls -----*/
 	line++;
