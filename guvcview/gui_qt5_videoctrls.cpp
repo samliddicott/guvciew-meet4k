@@ -365,6 +365,16 @@ int MainWindow::gui_attach_qt5_videoctrls(QWidget *parent)
 	/*connect signal*/
 	connect(FiltPowLensEnable, SIGNAL(stateChanged(int)), this, SLOT(render_fx_filter_changed(int)));
         
+        /* POW2 Lens Distort */
+	QCheckBox *FiltPow2LensEnable = new QCheckBox(_(" Pow2 Lens"), table_filt);
+	FiltPow2LensEnable->setProperty("filt_info", REND_FX_YUV_POW2_DISTORT);
+	FiltPow2LensEnable->show();
+
+	filt_layout->addWidget(FiltPow2LensEnable, 1, 4);
+	FiltPow2LensEnable->setChecked((get_render_fx_mask() & REND_FX_YUV_POW2_DISTORT) > 0);
+	/*connect signal*/
+	connect(FiltPow2LensEnable, SIGNAL(stateChanged(int)), this, SLOT(render_fx_filter_changed(int)));
+        
 	/* ----- OSD controls -----*/
 	line++;
 	QLabel *label_osd = new QLabel(_("---- OSD ----"),video_controls_grid);

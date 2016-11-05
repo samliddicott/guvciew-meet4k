@@ -791,6 +791,7 @@ double fast_atan2( double y, double x )
 	return atan;
 }
 
+#define SIGN(x)     ((x > 0) ? 1: -1)
 
 /*
  * calculate coordinate in input frame from point in ouptut
@@ -804,24 +805,30 @@ void eval_coordinates (double x, double y, double *xnew, double *ynew, int type)
 {
     double phi, radius, radius2;
 
-    radius2 = x*x + y*y;
-    //radius = sqrt(radius2);
-
-    phi = fast_atan2(y,x);
-
     switch (type)
     {
         case REND_FX_YUV_POW_DISTORT:
+            radius2 = x*x + y*y;
             radius = radius2; // pow(radius,2)
+            phi = fast_atan2(y,x);
+
             *xnew = radius * fast_cos(phi);
             *ynew = radius * fast_sin(phi);
+            break;
+
+        case REND_FX_YUV_POW2_DISTORT:
+            *xnew = x * x * SIGN(x);
+            *ynew = y * y * SIGN(y);
             break;
 
         case REND_FX_YUV_SQRT_DISTORT:
         default:
             /* square root radial funtion */
+            radius2 = x*x + y*y;
             radius = sqrt(radius2);
             radius = sqrt(radius);
+            phi = fast_atan2(y,x);
+
             *xnew = radius * fast_cos(phi);
             *ynew = radius * fast_sin(phi);
             break;
@@ -938,6 +945,9 @@ void render_fx_apply(uint8_t *frame, int width, int height, uint32_t mask)
 
                 if(mask & REND_FX_YUV_POW_DISTORT)
                     fx_yu12_distort(frame, width, height, REND_FX_YUV_POW_DISTORT);
+                
+                if(mask & REND_FX_YUV_POW2_DISTORT)
+                    fx_yu12_distort(frame, width, height, REND_FX_YUV_POW2_DISTORT);
 	}
 	else
 		render_clean_fx();

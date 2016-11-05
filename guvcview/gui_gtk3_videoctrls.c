@@ -482,6 +482,19 @@ int gui_attach_gtk3_videoctrls(GtkWidget *parent)
 	gtk_widget_show (FiltPowLensEnable);
 	g_signal_connect (GTK_CHECK_BUTTON(FiltPowLensEnable), "toggled",
 		G_CALLBACK (render_fx_filter_changed), NULL);
+        
+        /* Pow2 Lens Distort */
+	GtkWidget *FiltPow2LensEnable = gtk_check_button_new_with_label (_(" Pow2 Lens"));
+	g_object_set_data (G_OBJECT (FiltPow2LensEnable), "filt_info", GINT_TO_POINTER(REND_FX_YUV_POW2_DISTORT));
+	gtk_widget_set_halign (FiltPow2LensEnable, GTK_ALIGN_FILL);
+	gtk_widget_set_hexpand (FiltPow2LensEnable, TRUE);
+	gtk_grid_attach(GTK_GRID(table_filt), FiltPow2LensEnable, 4, 1, 1, 1);
+
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(FiltPow2LensEnable),
+		(get_render_fx_mask() & REND_FX_YUV_POW2_DISTORT) > 0);
+	gtk_widget_show (FiltPow2LensEnable);
+	g_signal_connect (GTK_CHECK_BUTTON(FiltPow2LensEnable), "toggled",
+		G_CALLBACK (render_fx_filter_changed), NULL);
 
 	/* ----- OSD controls -----*/
 	line++;

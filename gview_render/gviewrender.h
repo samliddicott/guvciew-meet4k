@@ -65,6 +65,7 @@ __BEGIN_DECLS
 #define REND_FX_YUV_HALF_UPTURN (1<<7)
 #define REND_FX_YUV_SQRT_DISTORT (1<<8)
 #define REND_FX_YUV_POW_DISTORT (1<<9)
+#define REND_FX_YUV_POW2_DISTORT (1<<10)
 
 /*OSD FLAGS*/
 #define REND_OSD_NONE           (0)
