@@ -96,7 +96,7 @@ static void fx_yu12_mirror (uint8_t *frame, int width, int height)
 			*py++ = *end;
 			*end-- = pixel;
 		}
-	}	
+	}
 
 	/*mirror u v*/
 	for(h = 0; h < height; h+=2)
@@ -114,7 +114,7 @@ static void fx_yu12_mirror (uint8_t *frame, int width, int height)
 			*end-- = pixel;
 			*end2-- = pixel2;
 		}
-	}	
+	}
 }
 
 /*
@@ -156,7 +156,7 @@ static void fx_yu12_half_mirror (uint8_t *frame, int width, int height)
 		{
 			*end-- = *py++;
 		}
-	}	
+	}
 
 	/*mirror u v*/
 	for(h = 0; h < height; h+=2)
@@ -170,7 +170,7 @@ static void fx_yu12_half_mirror (uint8_t *frame, int width, int height)
 			*end-- = *pu++;
 			*end2-- = *pv++;
 		}
-	}	
+	}
 }
 
 /*
@@ -217,22 +217,22 @@ static void fx_yu12_upturn(uint8_t *frame, int width, int height)
 	int h = 0;
 
 	uint8_t line[width]; /*line1 buffer*/
-	
+
 	uint8_t *pi = frame; //begin of first y line
 	uint8_t *pf = pi + (width * (height - 1)); //begin of last y line
-	
+
 	/*upturn y*/
 	for ( h = 0; h < height / 2; ++h)
 	{	/*line iterator*/
 		memcpy(line, pi, width);
 		memcpy(pi, pf, width);
 		memcpy(pf, line, width);
-		
+
 		pi+=width;
 		pf-=width;
-		
+
 	}
-	
+
 	/*upturn u*/
 	pi = frame + (width * height); //begin of first u line
 	pf = pi + ((width * height) / 4) - (width / 2); //begin of last u line
@@ -241,11 +241,11 @@ static void fx_yu12_upturn(uint8_t *frame, int width, int height)
 		memcpy(line, pi, width / 2);
 		memcpy(pi, pf, width / 2);
 		memcpy(pf, line, width / 2);
-		
+
 		pi+=width/2;
 		pf-=width/2;
 	}
-	
+
 	/*upturn v*/
 	pi = frame + ((width * height * 5) / 4); //begin of first v line
 	pf = pi + ((width * height) / 4) - (width / 2); //begin of last v line
@@ -254,11 +254,11 @@ static void fx_yu12_upturn(uint8_t *frame, int width, int height)
 		memcpy(line, pi, width / 2);
 		memcpy(pi, pf, width / 2);
 		memcpy(pf, line, width / 2);
-		
+
 		pi+=width/2;
 		pf-=width/2;
 	}
-	
+
 }
 
 /*
@@ -281,21 +281,21 @@ static void fx_yu12_half_upturn(uint8_t *frame, int width, int height)
 	int h = 0;
 
 	uint8_t line[width]; /*line1 buffer*/
-	
+
 	uint8_t *pi = frame; //begin of first y line
 	uint8_t *pf = pi + (width * (height - 1)); //begin of last y line
-	
+
 	/*upturn y*/
 	for ( h = 0; h < height / 2; ++h)
 	{	/*line iterator*/
 		memcpy(line, pi, width);
 		memcpy(pf, line, width);
-		
+
 		pi+=width;
 		pf-=width;
-		
+
 	}
-	
+
 	/*upturn u*/
 	pi = frame + (width * height); //begin of first u line
 	pf = pi + ((width * height) / 4) - (width / 2); //begin of last u line
@@ -307,7 +307,7 @@ static void fx_yu12_half_upturn(uint8_t *frame, int width, int height)
 		pi+=width/2;
 		pf-=width/2;
 	}
-	
+
 	/*upturn v*/
 	pi = frame + ((width * height * 5) / 4); //begin of first v line
 	pf = pi + ((width * height) / 4) - (width / 2); //begin of last v line
@@ -319,7 +319,7 @@ static void fx_yu12_half_upturn(uint8_t *frame, int width, int height)
 		pi+=width/2;
 		pf-=width/2;
 	}
-	
+
 }
 
 /*
@@ -336,11 +336,11 @@ static void fx_yu12_half_upturn(uint8_t *frame, int width, int height)
  */
 static void fx_yu12_monochrome(uint8_t* frame, int width, int height)
 {
-	
+
 	uint8_t *puv = frame + (width * height); //skip luma
-	
+
 	int i = 0;
-	
+
 	for(i=0; i < (width * height) / 2; ++i)
 	{	/* keep Y - luma */
 		*puv++=0x80;/*median (half the max value)=128*/
@@ -365,10 +365,10 @@ static void fx_yu12_pieces(uint8_t* frame, int width, int height, int piece_size
 {
 	int numx = width / piece_size; //number of pieces in x axis
 	int numy = height / piece_size; //number of pieces in y axis
-	
+
 	uint8_t piece[(piece_size * piece_size * 3) / 2];
 	uint8_t *ppiece = piece;
-	
+
 	int i = 0, j = 0, w = 0, h = 0;
 
 	/*random generator setup*/
@@ -377,44 +377,44 @@ static void fx_yu12_pieces(uint8_t* frame, int width, int height, int piece_size
 	gsl_rng *r = gsl_rng_alloc (T);
 
 	int rot = 0;
-	
+
 	uint8_t *py = NULL;
 	uint8_t *pu = NULL;
 	uint8_t *pv = NULL;
-	
+
 	for(h = 0; h < height; h += piece_size)
-	{	
+	{
 		for(w = 0; w < width; w += piece_size)
-		{	
+		{
 			uint8_t *ppy = piece;
 			uint8_t *ppu = piece + (piece_size * piece_size);
 			uint8_t *ppv = ppu + ((piece_size * piece_size) / 4);
-	
+
 			for(i = 0; i < piece_size; ++i)
-			{		
+			{
 				py = frame + ((h + i) * width) + w;
 				for (j=0; j < piece_size; ++j)
 				{
-					*ppy++ = *py++; 
-				}	
+					*ppy++ = *py++;
+				}
 			}
-			
+
 			for(i = 0; i < piece_size; i += 2)
-			{	
+			{
 				uint8_t *pu = frame + (width * height) + (((h + i) * width) / 4) + (w / 2);
 				uint8_t *pv = pu + ((width * height) / 4);
-				
+
 				for(j = 0; j < piece_size; j += 2)
 				{
 					*ppu++ = *pu++;
 					*ppv++ = *pv++;
 				}
 			}
-			
+
 			ppy = piece;
 			ppu = piece + (piece_size * piece_size);
 			ppv = ppu + ((piece_size * piece_size) / 4);
-			
+
 			/*rotate piece and copy it to frame*/
 			//rotation is random
 			rot = (int) lround(8 * gsl_rng_uniform (r)); /*0 to 8*/
@@ -439,25 +439,25 @@ static void fx_yu12_pieces(uint8_t* frame, int width, int height, int piece_size
 				default: //do nothing
 					break;
 			}
-			
+
 			ppy = piece;
 			ppu = piece + (piece_size * piece_size);
 			ppv = ppu + ((piece_size * piece_size) / 4);
-		
+
 			for(i = 0; i < piece_size; ++i)
 			{
 				py = frame + ((h + i) * width) + w;
 				for (j=0; j < piece_size; ++j)
 				{
-					*py++ = *ppy++; 
-				}	
+					*py++ = *ppy++;
+				}
 			}
-			
+
 			for(i = 0; i < piece_size; i += 2)
 			{
 				uint8_t *pu = frame + (width * height) + (((h + i) * width) / 4) + (w / 2);
 				uint8_t *pv = pu + ((width * height) / 4);
-				
+
 				for(j = 0; j < piece_size; j += 2)
 				{
 					*pu++ = *ppu++;
@@ -556,7 +556,7 @@ static void fx_particles(uint8_t* frame, int width, int height, int trail_size, 
 	}
 
 	part = particles; /*reset*/
-	
+
 	/*get particles from frame (one pixel per particle - make PX allways even)*/
 	for(i =0; i < part_w * part_h; i++)
 	{
@@ -634,7 +634,7 @@ static void fx_particles(uint8_t* frame, int width, int height, int trail_size, 
  * args:
  *      i - pixel position from 0 to width-1
  *      width - frame width
- * 
+ *
  * returns:
  *         normalized x coordinate (-1 to 1))
  */
@@ -644,14 +644,14 @@ double normX(int i, int width)
         return -1.0;
     if(i>= width)
         return 1.0;
-    
+
     double x = (double) ((2 * (double)(i)) / (double)(width)) -1;
-    
+
     if(x < -1)
         return -1;
     if(x > 1)
         return 1;
-    
+
     return x;
 }
 
@@ -660,7 +660,7 @@ double normX(int i, int width)
  * args:
  *      j - pixel position from 0 to height-1
  *      height - frame height
- * 
+ *
  * returns:
  *         normalized y coordinate (-1 to 1))
  */
@@ -677,7 +677,7 @@ double normY(int j, int height)
         return -1;
     if(y > 1)
         return 1;
-    
+
     return y;
 }
 
@@ -686,7 +686,7 @@ double normY(int j, int height)
  * args:
  *      x - normalized pixel position from -1 to 1
  *      width - frame width
- * 
+ *
  * returns:
  *         x coordinate (0 to width -1)
  */
@@ -698,7 +698,7 @@ int denormX(double x, int width)
         return 0;
     if(i >= width)
         return (width -1);
-    
+
     return i;
 }
 
@@ -707,7 +707,7 @@ int denormX(double x, int width)
  * args:
  *      y - normalized pixel position from -1 to 1
  *      height - frame height
- * 
+ *
  * returns:
  *         y coordinate (0 to height -1)
  */
@@ -715,15 +715,14 @@ int denormY(double y, int height)
 {
 
     int j = (int) lround(0.5 * height * (y + 1) -1);
-    
+
     if(j < 0)
         return 0;
     if(j >= height)
         return (height -1);
-    
+
     return j;
 }
-
 
 #define PI      3.14159265
 #define DPI     6.28318531
@@ -832,7 +831,6 @@ void eval_coordinates (double x, double y, double *xnew, double *ynew, int type)
             *xnew = radius * fast_cos(phi);
             *ynew = radius * fast_sin(phi);
             break;
-
     }
 }
 
@@ -848,7 +846,7 @@ void eval_coordinates (double x, double y, double *xnew, double *ynew, int type)
  *
  * returns: void
  */
-void fx_yu12_distort(uint8_t* frame, int width, int height, int type)
+void fx_yu12_distort(uint8_t* frame, int width, int height, int box_width, int box_height, int type)
 {
     assert(frame != NULL);
 
@@ -867,33 +865,47 @@ void fx_yu12_distort(uint8_t* frame, int width, int height, int type)
     double xnew = 0;
     double ynew = 0;
 
+		int start_x = 0;
+		int start_y = 0;
 
-    for (j=0; j< height; j++)
+		if(box_width > 10 && width > box_width)
+			start_x = (width - box_width)/2;
+		else
+			box_width = width;
+
+		if(box_height > 10 && height > box_height)
+			start_y = (height - box_height)/2;
+		else
+			box_height = height;
+
+    for (j=0; j< box_height; j++)
     {
-        y = normY(j, height);
+        y = normY(j, box_height);
 
-        for(i=0; i< width; i++)
+        for(i=0; i< box_width; i++)
         {
-            x = normX(i, width);
+            x = normX(i, box_width);
 
             eval_coordinates(x, y, &xnew, &ynew, type);
 
-            //get luma
-            frame[i + (j * width)] = 
-                tmpbuffer[denormX(xnew, width) + (denormY(ynew, height) * width)];
+						int bi = i + start_x;
+						int bj = j + start_y;
 
-            if((i % 2 == 0) && (j % 2 == 0))
+            //get luma
+            frame[bi + (bj * width)] =
+                tmpbuffer[(denormX(xnew, box_width) + start_x) + ((denormY(ynew, box_height) + start_y) * width)];
+
+            if((bi % 2 == 0) && (bj % 2 == 0))
             {
                 //get U
-                pu[i/2 + (j * width/4)] = 
-                    tpu[denormX(xnew, width/2) + (denormY(ynew, height/2) * (width/2))];
+                pu[bi/2 + (bj * width/4)] =
+                    tpu[(denormX(xnew, box_width/2) + start_x/2) + ((denormY(ynew, box_height/2) + start_y/2) * (width/2))];
                 //get V
-                pv[i/2 + (j * width/4)] = 
-                    tpv[denormX(xnew, width/2) + (denormY(ynew, height/2) * (width/2))];
+                pv[bi/2 + (bj * width/4)] =
+                    tpv[(denormX(xnew, box_width/2) + start_x/2) + ((denormY(ynew, box_height/2) + start_y/2) * (width/2))];
             }
         }
     }
-
 }
 
 /*
@@ -941,13 +953,13 @@ void render_fx_apply(uint8_t *frame, int width, int height, uint32_t mask)
                     fx_yu12_pieces(frame, width, height, 16 );
 #endif
                 if(mask & REND_FX_YUV_SQRT_DISTORT)
-                    fx_yu12_distort(frame, width, height, REND_FX_YUV_SQRT_DISTORT);
+                    fx_yu12_distort(frame, width, height, 0, 0, REND_FX_YUV_SQRT_DISTORT);
 
                 if(mask & REND_FX_YUV_POW_DISTORT)
-                    fx_yu12_distort(frame, width, height, REND_FX_YUV_POW_DISTORT);
-                
+                    fx_yu12_distort(frame, width, height, 0, 0, REND_FX_YUV_POW_DISTORT);
+
                 if(mask & REND_FX_YUV_POW2_DISTORT)
-                    fx_yu12_distort(frame, width, height, REND_FX_YUV_POW2_DISTORT);
+                    fx_yu12_distort(frame, width, height, 0, 0, REND_FX_YUV_POW2_DISTORT);
 	}
 	else
 		render_clean_fx();
@@ -970,7 +982,7 @@ void render_clean_fx()
 		free(particles);
 		particles = NULL;
 	}
-	
+
 	if(tmpbuffer != NULL)
         {
             free(tmpbuffer);
