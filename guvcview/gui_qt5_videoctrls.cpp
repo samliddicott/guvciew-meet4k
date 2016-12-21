@@ -375,6 +375,25 @@ int MainWindow::gui_attach_qt5_videoctrls(QWidget *parent)
 	/*connect signal*/
 	connect(FiltPow2LensEnable, SIGNAL(stateChanged(int)), this, SLOT(render_fx_filter_changed(int)));
         
+        /* Anti-Aliasing */
+	QCheckBox *FiltAntiAliasEnable = new QCheckBox(_(" Anti-Aliasing (1x)"), table_filt);
+	FiltAntiAliasEnable->setProperty("filt_info", REND_FX_YUV_ANTIALIAS);
+	FiltAntiAliasEnable->show();
+
+	filt_layout->addWidget(FiltAntiAliasEnable, 1, 5);
+	FiltAntiAliasEnable->setChecked((get_render_fx_mask() & REND_FX_YUV_ANTIALIAS) > 0);
+	/*connect signal*/
+	connect(FiltAntiAliasEnable, SIGNAL(stateChanged(int)), this, SLOT(render_fx_filter_changed(int)));
+        /* 2X Anti-Aliasing */
+	QCheckBox *FiltAntiAlias2xEnable = new QCheckBox(_(" Anti-Aliasing (2x)"), table_filt);
+	FiltAntiAlias2xEnable->setProperty("filt_info", REND_FX_YUV_ANTIALIAS_X2);
+	FiltAntiAlias2xEnable->show();
+
+	filt_layout->addWidget(FiltAntiAlias2xEnable, 2, 0);
+	FiltAntiAlias2xEnable->setChecked((get_render_fx_mask() & REND_FX_YUV_ANTIALIAS_X2) > 0);
+	/*connect signal*/
+	connect(FiltAntiAlias2xEnable, SIGNAL(stateChanged(int)), this, SLOT(render_fx_filter_changed(int)));
+        
 	/* ----- OSD controls -----*/
 	line++;
 	QLabel *label_osd = new QLabel(_("---- OSD ----"),video_controls_grid);

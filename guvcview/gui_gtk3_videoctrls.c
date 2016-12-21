@@ -495,6 +495,32 @@ int gui_attach_gtk3_videoctrls(GtkWidget *parent)
 	gtk_widget_show (FiltPow2LensEnable);
 	g_signal_connect (GTK_CHECK_BUTTON(FiltPow2LensEnable), "toggled",
 		G_CALLBACK (render_fx_filter_changed), NULL);
+        
+        /* Anti-Aliasing */
+	GtkWidget *FiltAntiAliasEnable = gtk_check_button_new_with_label (_(" Anti-Aliasing (1x)"));
+	g_object_set_data (G_OBJECT (FiltAntiAliasEnable), "filt_info", GINT_TO_POINTER(REND_FX_YUV_ANTIALIAS));
+	gtk_widget_set_halign (FiltAntiAliasEnable, GTK_ALIGN_FILL);
+	gtk_widget_set_hexpand (FiltAntiAliasEnable, TRUE);
+	gtk_grid_attach(GTK_GRID(table_filt), FiltAntiAliasEnable, 5, 1, 1, 1);
+
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(FiltAntiAliasEnable),
+		(get_render_fx_mask() & REND_FX_YUV_ANTIALIAS) > 0);
+	gtk_widget_show (FiltAntiAliasEnable);
+	g_signal_connect (GTK_CHECK_BUTTON(FiltAntiAliasEnable), "toggled",
+		G_CALLBACK (render_fx_filter_changed), NULL);
+        
+        /* 2X Anti-Aliasing */
+	GtkWidget *FiltAntiAlias2xEnable = gtk_check_button_new_with_label (_(" Anti-Aliasing (2x)"));
+	g_object_set_data (G_OBJECT (FiltAntiAlias2xEnable), "filt_info", GINT_TO_POINTER(REND_FX_YUV_ANTIALIAS_X2));
+	gtk_widget_set_halign (FiltAntiAlias2xEnable, GTK_ALIGN_FILL);
+	gtk_widget_set_hexpand (FiltAntiAlias2xEnable, TRUE);
+	gtk_grid_attach(GTK_GRID(table_filt), FiltAntiAlias2xEnable, 0, 2, 1, 1);
+
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(FiltAntiAlias2xEnable),
+		(get_render_fx_mask() & REND_FX_YUV_ANTIALIAS_X2) > 0);
+	gtk_widget_show (FiltAntiAlias2xEnable);
+	g_signal_connect (GTK_CHECK_BUTTON(FiltAntiAlias2xEnable), "toggled",
+		G_CALLBACK (render_fx_filter_changed), NULL);
 
 	/* ----- OSD controls -----*/
 	line++;

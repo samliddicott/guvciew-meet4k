@@ -835,11 +835,145 @@ void eval_coordinates (double x, double y, double *xnew, double *ynew, int type)
 }
 
 /*
+ * anti-aliasing
+ * args:
+ *    frame  - pointer to frame buffer (yu12 format)
+ *    width  - frame width
+ *    height - frame height
+ *
+ * asserts:
+ *    frame is not null
+ *
+ * returns: void
+ */
+void fx_yu12_antialiasing(uint8_t* frame, int width, int height)
+{
+	assert(frame != NULL);
+
+	uint8_t *pu = frame + (width*height);
+	uint8_t *pv = pu + (width*height)/4;
+
+	int luma = 0;
+	int chroma = 0;
+	int a1 = 0;
+	int a2 = 0;
+	int a3 = 0;
+	int a4 = 0;
+	
+	int ind = 0;
+
+	int i = 0;
+	int j = 0;
+
+	for(j = 0; j < height; ++j)
+	{
+		for(i = 0; i < width; ++i)
+		{
+			ind = i + (j * width);
+
+			luma = frame[ind];
+
+			if(j > 0)
+				a1 = frame[i + ((j-1) * width)];
+			else
+				a1 = luma;
+
+			if(j < height - 1)
+				a2 = frame[i + ((j+1) * width)];
+			else
+				a2 = luma;
+
+			if(i > 0)
+				a3 = frame[(i-1) + (j * width)];
+			else
+				a3 = luma;
+
+			if(i < width -1)
+				a4 = frame[(i+1) + (j * width)];
+			else
+				a4 = luma;
+
+				luma += (a1 + a2 + a3 + a4)/4;
+				luma /= 2;
+
+				frame[ind] = luma;
+		}
+	}
+	
+	for(j = 0; j < height/2; ++j)
+	{
+		for(i = 0; i < width/2; ++i)
+		{
+			ind = i + (j * width/2);
+			//u
+			chroma = pu[ind];
+			
+			if(j > 0)
+				a1 = pu[i + ((j-1) * width/2)];
+			else
+				a1 = chroma;
+
+			if(j < (height/2) - 1)
+				a2 = pu[i + ((j+1) * width/2)];
+			else
+				a2 = chroma;
+
+			if(i > 0)
+				a3 = pu[(i-1) + (j * width/2)];
+			else
+				a3 = chroma;
+
+			if(i < (width/2) -1)
+				a4 = pu[(i+1) + (j * width/2)];
+			else
+				a4 = chroma;
+			
+			chroma += (a1 + a2 + a3 + a4)/4;
+			chroma /= 2;
+			
+			pu[ind] = chroma;
+			
+			//v
+			chroma = pv[ind];
+			
+			if(j > 0)
+				a1 = pv[i + ((j-1) * width/2)];
+			else
+				a1 = chroma;
+
+			if(j < (height/2) - 1)
+				a2 = pv[i + ((j+1) * width/2)];
+			else
+				a2 = chroma;
+
+			if(i > 0)
+				a3 = pv[(i-1) + (j * width/2)];
+			else
+				a3 = chroma;
+
+			if(i < (width/2) -1)
+				a4 = pv[(i+1) + (j * width/2)];
+			else
+				a4 = chroma;
+			
+			chroma += (a1 + a2 + a3 + a4)/4;
+			chroma /= 2;
+
+			pv[ind] = chroma;
+		}
+	}
+
+
+}
+
+/*
  * distort (lens effect)
  * args:
  *    frame  - pointer to frame buffer (yu12 format)
  *    width  - frame width
  *    height - frame height
+ *    box_width - central box width where distort is to be applied (if < 10 use frame width)
+ *    box_height - central box height where distort is to be applied (if < 10 use frame height)
  *
  * asserts:
  *    frame is not null
@@ -858,25 +992,35 @@ void fx_yu12_distort(uint8_t* frame, int width, int height, int box_width, int b
     uint8_t *pv = pu + (width*height)/4;
     uint8_t *tpu = tmpbuffer + (width*height);
     uint8_t *tpv = tpu + (width*height)/4;
+
+	int luma = 0;
+	uint8_t luma_a = 0;
+	int chromaU = 0;
+	uint8_t chromaU_a = 0;
+	int chromaV = 0;
+	uint8_t chromaV_a = 0;
+
     int j = 0;
     int i = 0;
+	int den_x = 0;
+	int den_y = 0;
     double x = 0;
     double y = 0;
     double xnew = 0;
     double ynew = 0;
 
-		int start_x = 0;
-		int start_y = 0;
+	int start_x = 0;
+	int start_y = 0;
 
-		if(box_width > 10 && width > box_width)
-			start_x = (width - box_width)/2;
-		else
-			box_width = width;
+	if(box_width > 10 && width > box_width)
+		start_x = (width - box_width)/2;
+	else
+		box_width = width;
 
-		if(box_height > 10 && height > box_height)
-			start_y = (height - box_height)/2;
-		else
-			box_height = height;
+	if(box_height > 10 && height > box_height)
+		start_y = (height - box_height)/2;
+	else
+		box_height = height;
 
     for (j=0; j< box_height; j++)
     {
@@ -888,21 +1032,27 @@ void fx_yu12_distort(uint8_t* frame, int width, int height, int box_width, int b
 
             eval_coordinates(x, y, &xnew, &ynew, type);
 
-						int bi = i + start_x;
-						int bj = j + start_y;
+			int bi = i + start_x;
+			int bj = j + start_y;
 
+			den_x = denormX(xnew, box_width) + start_x;
+			den_y = denormY(ynew, box_height) + start_y;
             //get luma
-            frame[bi + (bj * width)] =
-                tmpbuffer[(denormX(xnew, box_width) + start_x) + ((denormY(ynew, box_height) + start_y) * width)];
+			luma = tmpbuffer[den_x + (den_y * width)];
+
+            frame[bi + (bj * width)] = luma;
 
             if((bi % 2 == 0) && (bj % 2 == 0))
             {
-                //get U
-                pu[bi/2 + (bj * width/4)] =
-                    tpu[(denormX(xnew, box_width/2) + start_x/2) + ((denormY(ynew, box_height/2) + start_y/2) * (width/2))];
-                //get V
-                pv[bi/2 + (bj * width/4)] =
-                    tpv[(denormX(xnew, box_width/2) + start_x/2) + ((denormY(ynew, box_height/2) + start_y/2) * (width/2))];
+				den_x = denormX(xnew, box_width/2) + start_x/2;
+				den_y = denormY(ynew, box_height/2) + start_y/2;
+				//get U
+				chromaU = tpu[den_x + den_y * (width/2)];
+				//get V
+				chromaV = tpv[den_x + den_y * (width/2)];
+
+				pu[bi/2 + (bj * width/4)] = chromaU;
+				pv[bi/2 + (bj * width/4)] = chromaV;
             }
         }
     }
@@ -959,7 +1109,16 @@ void render_fx_apply(uint8_t *frame, int width, int height, uint32_t mask)
                     fx_yu12_distort(frame, width, height, 0, 0, REND_FX_YUV_POW_DISTORT);
 
                 if(mask & REND_FX_YUV_POW2_DISTORT)
-                    fx_yu12_distort(frame, width, height, 0, 0, REND_FX_YUV_POW2_DISTORT);
+					fx_yu12_distort(frame, width, height, 0, 0, REND_FX_YUV_POW2_DISTORT);
+
+				if(mask & REND_FX_YUV_ANTIALIAS)
+					fx_yu12_antialiasing(frame, width, height);
+
+				if(mask & REND_FX_YUV_ANTIALIAS_X2)
+				{
+					fx_yu12_antialiasing(frame, width, height);
+					fx_yu12_antialiasing(frame, width, height);
+				}
 	}
 	else
 		render_clean_fx();
