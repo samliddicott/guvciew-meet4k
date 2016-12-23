@@ -840,13 +840,14 @@ void eval_coordinates (double x, double y, double *xnew, double *ynew, int type)
  *    frame  - pointer to frame buffer (yu12 format)
  *    width  - frame width
  *    height - frame height
+ *    scale - 2 (Scale2x) or 3 (Scale3x)
  *
  * asserts:
  *    frame is not null
  *
  * returns: void
  */
-void fx_yu12_antialiasing(uint8_t* frame, int width, int height)
+void fx_yu12_antialiasing(uint8_t* frame, int width, int height, int scale)
 {
 	assert(frame != NULL);
 
@@ -855,115 +856,352 @@ void fx_yu12_antialiasing(uint8_t* frame, int width, int height)
 
 	int luma = 0;
 	int chroma = 0;
-	int a1 = 0;
-	int a2 = 0;
-	int a3 = 0;
-	int a4 = 0;
+	
+	uint8_t E = 0;
+	uint8_t A = 0;
+	uint8_t B = 0;
+	uint8_t C = 0;
+	uint8_t D = 0;
+	uint8_t F = 0;
+	uint8_t G = 0;
+	uint8_t H = 0;
+	uint8_t I = 0;
+	
+	uint8_t E0 = 0;
+	uint8_t E1 = 0;
+	uint8_t E2 = 0;
+	uint8_t E3 = 0;
+	uint8_t E4 = 0;
+	uint8_t E5 = 0;
+	uint8_t E6 = 0;
+	uint8_t E7 = 0;
+	uint8_t E8 = 0;
 	
 	int ind = 0;
 
 	int i = 0;
 	int j = 0;
+	
+	int hwidth = width >> 1;   //div by 2
+	int hheight = height >> 1; //div by 2
 
+	/*
+	 *    A...B...C
+	 *    D...E...F
+	 *    G...H...I
+	 */
 	for(j = 0; j < height; ++j)
 	{
 		for(i = 0; i < width; ++i)
 		{
 			ind = i + (j * width);
 
-			luma = frame[ind];
-
+			E = frame[ind];
+			
 			if(j > 0)
-				a1 = frame[i + ((j-1) * width)];
+				B = frame[i + ((j-1) * width)];
 			else
-				a1 = luma;
-
-			if(j < height - 1)
-				a2 = frame[i + ((j+1) * width)];
-			else
-				a2 = luma;
+				B = E;
 
 			if(i > 0)
-				a3 = frame[(i-1) + (j * width)];
+				D = frame[(i-1) + (j * width)];
 			else
-				a3 = luma;
+				D = E;
 
-			if(i < width -1)
-				a4 = frame[(i+1) + (j * width)];
+			if(i < width - 1)
+				F = frame[(i+1) + (j * width)];
 			else
-				a4 = luma;
+				F = E;
+			
+			if(j < (height - 1))
+				H = frame[i + ((j+1) * width)];
+			else
+				H = E;
 
-				luma += (a1 + a2 + a3 + a4)/4;
-				luma /= 2;
+			switch(scale)
+			{
+				case 3:
+				{
+					if(j > 0 && i > 0)
+						A = frame[(i-1) + ((j-1) * width)];
+					else
+						A = E;
+					
+					if(j > 0 && i < (width -1))
+						C = frame[(i+1) + ((j-1) * width)];
+					else
+						C = E;
+					
+					if(j < (height - 1) && i > 0)
+						G = frame[(i-1) + ((j+1) * width)];
+					else
+						G = E;
+					
+					if(j < (height - 1) && i < (width -1))
+						I = frame[(i+1) + ((j+1) * width)];
+					else
+						I = E;
+				
+					if (B != H && D != F) 
+					{
+						E0 = (D == B) ? D : E;
+						E1 = (D == B && E != C) || (B == F && E != A) ? B : E;
+						E2 = (B == F) ? F : E;
+						E3 = (D == B && E != G) || (D == H && E != A) ? D : E;
+						E4 = E;
+						E5 = (B == F && E != I) || (H == F && E != C) ? F : E;
+						E6 = (D == H) ? D : E;
+						E7 = (D == H && E != I) || (H == F && E != G) ? H : E;
+						E8 = (H == F) ? F : E;
+					}
+					else
+					{
+						E0 = E;
+						E1 = E;
+						E2 = E;
+						E3 = E;
+						E4 = E;
+						E5 = E;
+						E6 = E;
+						E7 = E;
+						E8 = E;
+					}
+					
+					luma = (E0 + E1 + E2 + E3 + E4 + E5 + E6 + E7 + E8)/9;
+					frame[ind] = luma;
+				}
+				break;
+				
+				case 2:
+				default:
+				{
+					if( B != H && D != F)
+					{
+						E0 = (D == B) ? D : E;
+						E1 = (B == F) ? F : E;
+						E2 = (D == H) ? D : E;
+						E3 = (H == F) ? F : E;
+					}
+					else
+					{
+						E0 = E;
+						E1 = E;
+						E2 = E;
+						E3 = E;
+					}
+					luma = (E0 + E1 + E2 + E3);
+					frame[ind] = luma >> 2; //div by 4
+				}
+				break;
+			}
+			
+			if(j % 2 == 0 && i % 2 == 0)
+			{
+				int bi = i >> 1;
+				int bj = j >> 1;
+				//chroma U
+				E = pu[bi + (bj * hwidth)];
+				
+				if(j > 0)
+					B = pu[bi + ((bj-1) * hwidth)];
+				else
+					B = E;
 
-				frame[ind] = luma;
+				if(bi > 0)
+					D = pu[(bi-1) + (bj * hwidth)];
+				else
+					D = E;
+
+				if(bi < hwidth - 1)
+					F = pu[(bi+1) + (bj * hwidth)];
+				else
+					F = E;
+			
+				if(j < (hheight - 1))
+					H = pu[bi + ((bj+1) * hwidth)];
+				else
+					H = E;
+				
+				switch(scale)
+				{
+					case 3:
+					{
+						if(bj > 0 && bi > 0)
+							A = pu[(bi-1) + ((bj-1) * hwidth)];
+						else
+							A = E;
+						
+						if(bj > 0 && bi < (hwidth -1))
+							C = pu[(bi+1) + ((bj-1) * hwidth)];
+						else
+							C = E;
+						
+						if(bj < (hheight - 1) && bi > 0)
+							G = pu[(bi-1) + ((bj+1) * hwidth)];
+						else
+							G = E;
+						
+						if(bj < (hheight - 1) && bi < (hwidth -1))
+							I = pu[(bi+1) + ((bj+1) * hwidth)];
+						else
+							I = E;
+					
+						if (B != H && D != F)
+						{
+							E0 = (D == B) ? D : E;
+							E1 = (D == B && E != C) || (B == F && E != A) ? B : E;
+							E2 = (B == F) ? F : E;
+							E3 = (D == B && E != G) || (D == H && E != A) ? D : E;
+							E4 = E;
+							E5 = (B == F && E != I) || (H == F && E != C) ? F : E;
+							E6 = (D == H) ? D : E;
+							E7 = (D == H && E != I) || (H == F && E != G) ? H : E;
+							E8 = (H == F) ? F : E;
+						}
+						else
+						{
+							E0 = E;
+							E1 = E;
+							E2 = E;
+							E3 = E;
+							E4 = E;
+							E5 = E;
+							E6 = E;
+							E7 = E;
+							E8 = E;
+						}
+					
+						chroma = (E0 + E1 + E2 + E3 + E4 + E5 + E6 + E7 + E8)/9;
+						pu[bi + (bj * hwidth)] = chroma;
+					}
+					break;
+				
+					case 2:
+					default:
+					{
+						if( B != H && D != F)
+						{
+							E0 = (D == B) ? D : E;
+							E1 = (B == F) ? F : E;
+							E2 = (D == H) ? D : E;
+							E3 = (H == F) ? F : E;
+						}
+						else
+						{
+							E0 = E;
+							E1 = E;
+							E2 = E;
+							E3 = E;
+						}
+						chroma = (E0 + E1 + E2 + E3);
+						pu[bi + (bj * hwidth)] = chroma >> 2; //div by 4
+					}
+					break;
+				}
+				
+				//chroma V
+				E = pv[bi + (bj * hwidth)];
+				
+				if(j > 0)
+					B = pv[bi + ((bj-1) * hwidth)];
+				else
+					B = E;
+
+				if(bi > 0)
+					D = pv[(bi-1) + (bj * hwidth)];
+				else
+					D = E;
+
+				if(bi < hwidth - 1)
+					F = pv[(bi+1) + (bj * hwidth)];
+				else
+					F = E;
+			
+				if(j < (hheight - 1))
+					H = pv[bi + ((bj+1) * hwidth)];
+				else
+					H = E;
+				
+				switch(scale)
+				{
+					case 3:
+					{
+						if(bj > 0 && bi > 0)
+							A = pv[(bi-1) + ((bj-1) * hwidth)];
+						else
+							A = E;
+						
+						if(bj > 0 && bi < (hwidth -1))
+							C = pv[(bi+1) + ((bj-1) * hwidth)];
+						else
+							C = E;
+						
+						if(bj < (hheight - 1) && bi > 0)
+							G = pv[(bi-1) + ((bj+1) * hwidth)];
+						else
+							G = E;
+						
+						if(bj < (hheight - 1) && bi < (hwidth -1))
+							I = pv[(bi+1) + ((bj+1) * hwidth)];
+						else
+							I = E;
+					
+						if (B != H && D != F)
+						{
+							E0 = (D == B) ? D : E;
+							E1 = (D == B && E != C) || (B == F && E != A) ? B : E;
+							E2 = (B == F) ? F : E;
+							E3 = (D == B && E != G) || (D == H && E != A) ? D : E;
+							E4 = E;
+							E5 = (B == F && E != I) || (H == F && E != C) ? F : E;
+							E6 = (D == H) ? D : E;
+							E7 = (D == H && E != I) || (H == F && E != G) ? H : E;
+							E8 = (H == F) ? F : E;
+						}
+						else
+						{
+							E0 = E;
+							E1 = E;
+							E2 = E;
+							E3 = E;
+							E4 = E;
+							E5 = E;
+							E6 = E;
+							E7 = E;
+							E8 = E;
+						}
+					
+						chroma = (E0 + E1 + E2 + E3 + E4 + E5 + E6 + E7 + E8)/9;
+						pv[bi + (bj * hwidth)] = chroma;
+					}
+					break;
+				
+					case 2:
+					default:
+					{
+						if( B != H && D != F)
+						{
+							E0 = (D == B) ? D : E;
+							E1 = (B == F) ? F : E;
+							E2 = (D == H) ? D : E;
+							E3 = (H == F) ? F : E;
+						}
+						else
+						{
+							E0 = E;
+							E1 = E;
+							E2 = E;
+							E3 = E;
+						}
+						chroma = (E0 + E1 + E2 + E3);
+						pv[bi + (bj * hwidth)] = chroma >> 2; //div by 4
+					}
+					break;
+				}
+			}
+
 		}
 	}
-	
-	for(j = 0; j < height/2; ++j)
-	{
-		for(i = 0; i < width/2; ++i)
-		{
-			ind = i + (j * width/2);
-			//u
-			chroma = pu[ind];
-			
-			if(j > 0)
-				a1 = pu[i + ((j-1) * width/2)];
-			else
-				a1 = chroma;
-
-			if(j < (height/2) - 1)
-				a2 = pu[i + ((j+1) * width/2)];
-			else
-				a2 = chroma;
-
-			if(i > 0)
-				a3 = pu[(i-1) + (j * width/2)];
-			else
-				a3 = chroma;
-
-			if(i < (width/2) -1)
-				a4 = pu[(i+1) + (j * width/2)];
-			else
-				a4 = chroma;
-			
-			chroma += (a1 + a2 + a3 + a4)/4;
-			chroma /= 2;
-			
-			pu[ind] = chroma;
-			
-			//v
-			chroma = pv[ind];
-			
-			if(j > 0)
-				a1 = pv[i + ((j-1) * width/2)];
-			else
-				a1 = chroma;
-
-			if(j < (height/2) - 1)
-				a2 = pv[i + ((j+1) * width/2)];
-			else
-				a2 = chroma;
-
-			if(i > 0)
-				a3 = pv[(i-1) + (j * width/2)];
-			else
-				a3 = chroma;
-
-			if(i < (width/2) -1)
-				a4 = pv[(i+1) + (j * width/2)];
-			else
-				a4 = chroma;
-			
-			chroma += (a1 + a2 + a3 + a4)/4;
-			chroma /= 2;
-
-			pv[ind] = chroma;
-		}
-	}
-
-
 }
 
 /*
@@ -992,13 +1230,6 @@ void fx_yu12_distort(uint8_t* frame, int width, int height, int box_width, int b
     uint8_t *pv = pu + (width*height)/4;
     uint8_t *tpu = tmpbuffer + (width*height);
     uint8_t *tpv = tpu + (width*height)/4;
-
-	int luma = 0;
-	uint8_t luma_a = 0;
-	int chromaU = 0;
-	uint8_t chromaU_a = 0;
-	int chromaV = 0;
-	uint8_t chromaV_a = 0;
 
     int j = 0;
     int i = 0;
@@ -1037,25 +1268,33 @@ void fx_yu12_distort(uint8_t* frame, int width, int height, int box_width, int b
 
 			den_x = denormX(xnew, box_width) + start_x;
 			den_y = denormY(ynew, box_height) + start_y;
+			
             //get luma
-			luma = tmpbuffer[den_x + (den_y * width)];
-
-            frame[bi + (bj * width)] = luma;
-
-            if((bi % 2 == 0) && (bj % 2 == 0))
-            {
-				den_x = denormX(xnew, box_width/2) + start_x/2;
-				den_y = denormY(ynew, box_height/2) + start_y/2;
-				//get U
-				chromaU = tpu[den_x + den_y * (width/2)];
-				//get V
-				chromaV = tpv[den_x + den_y * (width/2)];
-
-				pu[bi/2 + (bj * width/4)] = chromaU;
-				pv[bi/2 + (bj * width/4)] = chromaV;
-            }
+			frame[bi + (bj * box_width)] = tmpbuffer[den_x + (den_y * box_width)];
         }
     }
+	for (j=0; j< box_height/2; j++)
+    {
+        y = normY(j, box_height/2);
+
+        for(i=0; i< box_width/2; i++)
+        {
+			x = normX(i, box_width/2);
+		
+			eval_coordinates(x, y, &xnew, &ynew, type);
+			
+			int bi = i + start_x/2;
+			int bj = j + start_y/2;
+
+			den_x = denormX(xnew, box_width/2) + start_x/2;
+			den_y = denormY(ynew, box_height/2) + start_y/2;
+			
+			//get chroma
+			pu[bi + (bj * box_width/2)] = tpu[den_x + (den_y * box_width/2)];
+			pv[bi + (bj * box_width/2)] = tpv[den_x + (den_y * box_width/2)];
+		}
+	}
+	
 }
 
 /*
@@ -1077,48 +1316,45 @@ void render_fx_apply(uint8_t *frame, int width, int height, uint32_t mask)
     {
 		#ifdef HAS_GSL
 		if(mask & REND_FX_YUV_PARTICLES)
-                    fx_particles (frame, width, height, 20, 4);
+			fx_particles (frame, width, height, 20, 4);
 		#endif
 
 		if(mask & REND_FX_YUV_MIRROR)
-                    fx_yu12_mirror(frame, width, height);
+            fx_yu12_mirror(frame, width, height);
 
-                if(mask & REND_FX_YUV_HALF_MIRROR)
-                    fx_yu12_half_mirror (frame, width, height);
+        if(mask & REND_FX_YUV_HALF_MIRROR)
+			fx_yu12_half_mirror (frame, width, height);
 
 		if(mask & REND_FX_YUV_UPTURN)
-                    fx_yu12_upturn(frame, width, height);
+            fx_yu12_upturn(frame, width, height);
 
-                if(mask & REND_FX_YUV_HALF_UPTURN)
-                    fx_yu12_half_upturn(frame, width, height);
+		if(mask & REND_FX_YUV_HALF_UPTURN)
+			fx_yu12_half_upturn(frame, width, height);
 
 		if(mask & REND_FX_YUV_NEGATE)
-                    fx_yuv_negative (frame, width, height);
+			fx_yuv_negative (frame, width, height);
 
 		if(mask & REND_FX_YUV_MONOCR)
-                    fx_yu12_monochrome (frame, width, height);
+			fx_yu12_monochrome (frame, width, height);
 
 #ifdef HAS_GSL
 		if(mask & REND_FX_YUV_PIECES)
-                    fx_yu12_pieces(frame, width, height, 16 );
+			fx_yu12_pieces(frame, width, height, 16 );
 #endif
-                if(mask & REND_FX_YUV_SQRT_DISTORT)
-                    fx_yu12_distort(frame, width, height, 0, 0, REND_FX_YUV_SQRT_DISTORT);
+        if(mask & REND_FX_YUV_SQRT_DISTORT)
+			fx_yu12_distort(frame, width, height, 0, 0, REND_FX_YUV_SQRT_DISTORT);
 
-                if(mask & REND_FX_YUV_POW_DISTORT)
-                    fx_yu12_distort(frame, width, height, 0, 0, REND_FX_YUV_POW_DISTORT);
+		if(mask & REND_FX_YUV_POW_DISTORT)
+            fx_yu12_distort(frame, width, height, 0, 0, REND_FX_YUV_POW_DISTORT);
 
-                if(mask & REND_FX_YUV_POW2_DISTORT)
-					fx_yu12_distort(frame, width, height, 0, 0, REND_FX_YUV_POW2_DISTORT);
+        if(mask & REND_FX_YUV_POW2_DISTORT)
+			fx_yu12_distort(frame, width, height, 0, 0, REND_FX_YUV_POW2_DISTORT);
 
-				if(mask & REND_FX_YUV_ANTIALIAS)
-					fx_yu12_antialiasing(frame, width, height);
+		if(mask & REND_FX_YUV_ANTIALIAS_SCALE2X)
+			fx_yu12_antialiasing(frame, width, height, 2);
 
-				if(mask & REND_FX_YUV_ANTIALIAS_X2)
-				{
-					fx_yu12_antialiasing(frame, width, height);
-					fx_yu12_antialiasing(frame, width, height);
-				}
+		if(mask & REND_FX_YUV_ANTIALIAS_SCALE3X)
+			fx_yu12_antialiasing(frame, width, height, 3);
 	}
 	else
 		render_clean_fx();

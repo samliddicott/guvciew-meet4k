@@ -119,5 +119,10 @@ static const int stdSampleRates[] =
 #define MAX(a,b) (((a) < (b)) ? (b) : (a))
 #endif
 
+/*MIN macro - gets the smaller value*/
+#ifndef MIN
+#define MIN(a,b) (((a) > (b)) ? (b) : (a))
+#endif
+
 #endif
 
