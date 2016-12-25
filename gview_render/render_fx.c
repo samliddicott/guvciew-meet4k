@@ -39,6 +39,9 @@
 
 
 uint8_t *tmpbuffer = NULL;
+uint32_t *TB_Sqrt_ind = NULL; //look up table for sqrt lens distort indexes
+uint32_t *TB_Pow_ind = NULL; //look up table for pow lens distort indexes
+uint32_t *TB_Pow2_ind = NULL; //look up table for pow2 lens distort indexes
 
 typedef struct _particle_t
 {
@@ -856,7 +859,7 @@ void fx_yu12_antialiasing(uint8_t* frame, int width, int height, int scale)
 
 	int luma = 0;
 	int chroma = 0;
-	
+
 	uint8_t E = 0;
 	uint8_t A = 0;
 	uint8_t B = 0;
@@ -866,7 +869,7 @@ void fx_yu12_antialiasing(uint8_t* frame, int width, int height, int scale)
 	uint8_t G = 0;
 	uint8_t H = 0;
 	uint8_t I = 0;
-	
+
 	uint8_t E0 = 0;
 	uint8_t E1 = 0;
 	uint8_t E2 = 0;
@@ -876,12 +879,12 @@ void fx_yu12_antialiasing(uint8_t* frame, int width, int height, int scale)
 	uint8_t E6 = 0;
 	uint8_t E7 = 0;
 	uint8_t E8 = 0;
-	
+
 	int ind = 0;
 
 	int i = 0;
 	int j = 0;
-	
+
 	int hwidth = width >> 1;   //div by 2
 	int hheight = height >> 1; //div by 2
 
@@ -897,7 +900,7 @@ void fx_yu12_antialiasing(uint8_t* frame, int width, int height, int scale)
 			ind = i + (j * width);
 
 			E = frame[ind];
-			
+
 			if(j > 0)
 				B = frame[i + ((j-1) * width)];
 			else
@@ -912,7 +915,7 @@ void fx_yu12_antialiasing(uint8_t* frame, int width, int height, int scale)
 				F = frame[(i+1) + (j * width)];
 			else
 				F = E;
-			
+
 			if(j < (height - 1))
 				H = frame[i + ((j+1) * width)];
 			else
@@ -926,23 +929,23 @@ void fx_yu12_antialiasing(uint8_t* frame, int width, int height, int scale)
 						A = frame[(i-1) + ((j-1) * width)];
 					else
 						A = E;
-					
+
 					if(j > 0 && i < (width -1))
 						C = frame[(i+1) + ((j-1) * width)];
 					else
 						C = E;
-					
+
 					if(j < (height - 1) && i > 0)
 						G = frame[(i-1) + ((j+1) * width)];
 					else
 						G = E;
-					
+
 					if(j < (height - 1) && i < (width -1))
 						I = frame[(i+1) + ((j+1) * width)];
 					else
 						I = E;
-				
-					if (B != H && D != F) 
+
+					if (B != H && D != F)
 					{
 						E0 = (D == B) ? D : E;
 						E1 = (D == B && E != C) || (B == F && E != A) ? B : E;
@@ -966,12 +969,12 @@ void fx_yu12_antialiasing(uint8_t* frame, int width, int height, int scale)
 						E7 = E;
 						E8 = E;
 					}
-					
+
 					luma = (E0 + E1 + E2 + E3 + E4 + E5 + E6 + E7 + E8)/9;
 					frame[ind] = luma;
 				}
 				break;
-				
+
 				case 2:
 				default:
 				{
@@ -994,14 +997,14 @@ void fx_yu12_antialiasing(uint8_t* frame, int width, int height, int scale)
 				}
 				break;
 			}
-			
+
 			if(j % 2 == 0 && i % 2 == 0)
 			{
 				int bi = i >> 1;
 				int bj = j >> 1;
 				//chroma U
 				E = pu[bi + (bj * hwidth)];
-				
+
 				if(j > 0)
 					B = pu[bi + ((bj-1) * hwidth)];
 				else
@@ -1016,12 +1019,12 @@ void fx_yu12_antialiasing(uint8_t* frame, int width, int height, int scale)
 					F = pu[(bi+1) + (bj * hwidth)];
 				else
 					F = E;
-			
+
 				if(j < (hheight - 1))
 					H = pu[bi + ((bj+1) * hwidth)];
 				else
 					H = E;
-				
+
 				switch(scale)
 				{
 					case 3:
@@ -1030,22 +1033,22 @@ void fx_yu12_antialiasing(uint8_t* frame, int width, int height, int scale)
 							A = pu[(bi-1) + ((bj-1) * hwidth)];
 						else
 							A = E;
-						
+
 						if(bj > 0 && bi < (hwidth -1))
 							C = pu[(bi+1) + ((bj-1) * hwidth)];
 						else
 							C = E;
-						
+
 						if(bj < (hheight - 1) && bi > 0)
 							G = pu[(bi-1) + ((bj+1) * hwidth)];
 						else
 							G = E;
-						
+
 						if(bj < (hheight - 1) && bi < (hwidth -1))
 							I = pu[(bi+1) + ((bj+1) * hwidth)];
 						else
 							I = E;
-					
+
 						if (B != H && D != F)
 						{
 							E0 = (D == B) ? D : E;
@@ -1070,12 +1073,12 @@ void fx_yu12_antialiasing(uint8_t* frame, int width, int height, int scale)
 							E7 = E;
 							E8 = E;
 						}
-					
+
 						chroma = (E0 + E1 + E2 + E3 + E4 + E5 + E6 + E7 + E8)/9;
 						pu[bi + (bj * hwidth)] = chroma;
 					}
 					break;
-				
+
 					case 2:
 					default:
 					{
@@ -1098,10 +1101,10 @@ void fx_yu12_antialiasing(uint8_t* frame, int width, int height, int scale)
 					}
 					break;
 				}
-				
+
 				//chroma V
 				E = pv[bi + (bj * hwidth)];
-				
+
 				if(j > 0)
 					B = pv[bi + ((bj-1) * hwidth)];
 				else
@@ -1116,12 +1119,12 @@ void fx_yu12_antialiasing(uint8_t* frame, int width, int height, int scale)
 					F = pv[(bi+1) + (bj * hwidth)];
 				else
 					F = E;
-			
+
 				if(j < (hheight - 1))
 					H = pv[bi + ((bj+1) * hwidth)];
 				else
 					H = E;
-				
+
 				switch(scale)
 				{
 					case 3:
@@ -1130,22 +1133,22 @@ void fx_yu12_antialiasing(uint8_t* frame, int width, int height, int scale)
 							A = pv[(bi-1) + ((bj-1) * hwidth)];
 						else
 							A = E;
-						
+
 						if(bj > 0 && bi < (hwidth -1))
 							C = pv[(bi+1) + ((bj-1) * hwidth)];
 						else
 							C = E;
-						
+
 						if(bj < (hheight - 1) && bi > 0)
 							G = pv[(bi-1) + ((bj+1) * hwidth)];
 						else
 							G = E;
-						
+
 						if(bj < (hheight - 1) && bi < (hwidth -1))
 							I = pv[(bi+1) + ((bj+1) * hwidth)];
 						else
 							I = E;
-					
+
 						if (B != H && D != F)
 						{
 							E0 = (D == B) ? D : E;
@@ -1170,12 +1173,12 @@ void fx_yu12_antialiasing(uint8_t* frame, int width, int height, int scale)
 							E7 = E;
 							E8 = E;
 						}
-					
+
 						chroma = (E0 + E1 + E2 + E3 + E4 + E5 + E6 + E7 + E8)/9;
 						pv[bi + (bj * hwidth)] = chroma;
 					}
 					break;
-				
+
 					case 2:
 					default:
 					{
@@ -1253,48 +1256,208 @@ void fx_yu12_distort(uint8_t* frame, int width, int height, int box_width, int b
 	else
 		box_height = height;
 
-    for (j=0; j< box_height; j++)
+	//fill lookup table
+	switch(type)
+	{
+		case REND_FX_YUV_POW_DISTORT:
+		{
+			if(TB_Pow_ind == NULL)
+			{
+				TB_Pow_ind = calloc(width * height * 3 / 2, sizeof(uint32_t));
+
+				uint32_t* tb_pu = TB_Pow_ind + (width * height);
+				uint32_t* tb_pv  = tb_pu + (width * height)/4;
+
+				for(j = 0; j < height; ++j)
+				{
+					y = normY(j, height);
+					for(i = 0; i < width; ++i)
+					{
+						x = normX(i, width);
+						eval_coordinates(x, y, &xnew, &ynew, type);
+
+						den_x = denormX(xnew, width);
+						den_y = denormY(ynew, height);
+
+						TB_Pow_ind[i + (j * width)] = den_x + (den_y * width);
+					}
+				}
+
+				for(j = 0; j < height/2; ++j)
+				{
+					y = normY(j, height/2);
+					for(i = 0; i < width/2; ++i)
+					{
+						x = normX(i, width/2);
+						eval_coordinates(x, y, &xnew, &ynew, type);
+
+						den_x = denormX(xnew, width/2);
+						den_y = denormY(ynew, height/2);
+
+						tb_pu[i + (j * width/2)] = den_x + (den_y * width/2);
+						tb_pv[i + (j * width/2)] = den_x + (den_y * width/2);
+					}
+				}
+			}
+		}
+		break;
+
+		case REND_FX_YUV_POW2_DISTORT:
+		{
+			if(TB_Pow2_ind == NULL)
+			{
+				TB_Pow2_ind = calloc(width * height * 3 / 2, sizeof(uint32_t));
+
+				uint32_t* tb_pu = TB_Pow2_ind + (width * height);
+				uint32_t* tb_pv  = tb_pu + (width * height)/4;
+				for(j = 0; j < height; ++j)
+				{
+					y = normY(j, height);
+					for(i = 0; i < width; ++i)
+					{
+						x = normX(i, width);
+						eval_coordinates(x, y, &xnew, &ynew, type);
+
+						den_x = denormX(xnew, width);
+						den_y = denormY(ynew, height);
+
+						TB_Pow2_ind[i + (j * width)] = den_x + (den_y * width);
+					}
+				}
+
+				for(j = 0; j < height/2; ++j)
+				{
+					y = normY(j, height/2);
+					for(i = 0; i < width/2; ++i)
+					{
+						x = normX(i, width/2);
+						eval_coordinates(x, y, &xnew, &ynew, type);
+
+						den_x = denormX(xnew, width/2);
+						den_y = denormY(ynew, height/2);
+
+						tb_pu[i + (j * width/2)] = den_x + (den_y * width/2);
+						tb_pv[i + (j * width/2)] = den_x + (den_y * width/2);
+					}
+				}
+			}
+		}
+		break;
+
+		case REND_FX_YUV_SQRT_DISTORT:
+		default:
+		{
+			if(TB_Sqrt_ind == NULL)
+			{
+				TB_Sqrt_ind = calloc(width * height * 3 / 2, sizeof(uint32_t));
+
+				uint32_t* tb_pu = TB_Sqrt_ind + (width * height);
+				uint32_t* tb_pv  = tb_pu + (width * height)/4;
+				for(j = 0; j < height; ++j)
+				{
+					y = normY(j, height);
+					for(i = 0; i < width; ++i)
+					{
+						x = normX(i, width);
+						eval_coordinates(x, y, &xnew, &ynew, type);
+
+						den_x = denormX(xnew, width);
+						den_y = denormY(ynew, height);
+
+						TB_Sqrt_ind[i + (j * width)] = den_x + (den_y * width);
+					}
+				}
+
+				for(j = 0; j < height/2; ++j)
+				{
+					y = normY(j, height/2);
+					for(i = 0; i < width/2; ++i)
+					{
+						x = normX(i, width/2);
+						eval_coordinates(x, y, &xnew, &ynew, type);
+
+						den_x = denormX(xnew, width/2);
+						den_y = denormY(ynew, height/2);
+
+						tb_pu[i + (j * width/2)] = den_x + (den_y * width/2);
+						tb_pv[i + (j * width/2)] = den_x + (den_y * width/2);
+					}
+				}
+			}
+		}
+		break;
+
+	}
+
+  for (j=0; j< box_height; j++)
+  {
+    for(i=0; i< box_width; i++)
     {
-        y = normY(j, box_height);
-
-        for(i=0; i< box_width; i++)
-        {
-            x = normX(i, box_width);
-
-            eval_coordinates(x, y, &xnew, &ynew, type);
-
 			int bi = i + start_x;
 			int bj = j + start_y;
 
-			den_x = denormX(xnew, box_width) + start_x;
-			den_y = denormY(ynew, box_height) + start_y;
-			
-            //get luma
-			frame[bi + (bj * box_width)] = tmpbuffer[den_x + (den_y * box_width)];
-        }
-    }
-	for (j=0; j< box_height/2; j++)
-    {
-        y = normY(j, box_height/2);
+			uint32_t ind = bi + (bj * box_width);
 
-        for(i=0; i< box_width/2; i++)
-        {
-			x = normX(i, box_width/2);
-		
-			eval_coordinates(x, y, &xnew, &ynew, type);
-			
+    	switch(type)
+			{
+				case REND_FX_YUV_POW_DISTORT:
+					frame[ind] = tmpbuffer[TB_Pow_ind[ind]];
+				break;
+
+				case REND_FX_YUV_POW2_DISTORT:
+					frame[ind] = tmpbuffer[TB_Pow2_ind[ind]];
+				break;
+
+				case REND_FX_YUV_SQRT_DISTORT:
+				default:
+					frame[ind] = tmpbuffer[TB_Sqrt_ind[ind]];
+					break;
+			}
+    }
+	}
+
+	for (j=0; j< box_height/2; j++)
+  {
+  	for(i=0; i< box_width/2; i++)
+    {
 			int bi = i + start_x/2;
 			int bj = j + start_y/2;
 
-			den_x = denormX(xnew, box_width/2) + start_x/2;
-			den_y = denormY(ynew, box_height/2) + start_y/2;
-			
-			//get chroma
-			pu[bi + (bj * box_width/2)] = tpu[den_x + (den_y * box_width/2)];
-			pv[bi + (bj * box_width/2)] = tpv[den_x + (den_y * box_width/2)];
+			uint32_t ind = bi + (bj * box_width/2);
+
+			switch(type)
+			{
+				case REND_FX_YUV_POW_DISTORT:
+				{
+					uint32_t* tb_pu = TB_Pow_ind + (width*height);
+					uint32_t* tb_pv = tb_pu + (width * height)/4;
+					pu[ind] = tpu[tb_pu[ind]];
+					pv[ind] = tpv[tb_pv[ind]];
+				}
+				break;
+
+				case REND_FX_YUV_POW2_DISTORT:
+				{
+					uint32_t* tb_pu = TB_Pow2_ind + (width*height);
+					uint32_t* tb_pv = tb_pu + (width * height)/4;
+					pu[ind] = tpu[tb_pu[ind]];
+					pv[ind] = tpv[tb_pv[ind]];
+				}
+				break;
+
+				case REND_FX_YUV_SQRT_DISTORT:
+				default:
+				{
+					uint32_t* tb_pu = TB_Sqrt_ind + (width*height);
+					uint32_t* tb_pv = tb_pu + (width * height)/4;
+					pu[ind] = tpu[tb_pu[ind]];
+					pv[ind] = tpv[tb_pv[ind]];
+				}
+				break;
+			}
 		}
 	}
-	
+
 }
 
 /*
@@ -1379,8 +1542,26 @@ void render_clean_fx()
 	}
 
 	if(tmpbuffer != NULL)
-        {
-            free(tmpbuffer);
-            tmpbuffer = NULL;
-        }
+  {
+    free(tmpbuffer);
+    tmpbuffer = NULL;
+  }
+
+	if(TB_Sqrt_ind != NULL)
+	{
+		free(TB_Sqrt_ind);
+		TB_Sqrt_ind = NULL;
+	}
+
+	if(TB_Pow_ind != NULL)
+	{
+		free(TB_Pow_ind);
+		TB_Pow_ind = NULL;
+	}
+
+	if(TB_Pow2_ind != NULL)
+	{
+		free(TB_Pow2_ind);
+		TB_Pow2_ind = NULL;
+	}
 }
