@@ -813,9 +813,12 @@ void eval_coordinates (double x, double y, double *xnew, double *ynew, int type)
             radius2 = x*x + y*y;
             radius = radius2; // pow(radius,2)
             phi = fast_atan2(y,x);
+						//phi = atan2(y,x);
 
             *xnew = radius * fast_cos(phi);
             *ynew = radius * fast_sin(phi);
+						//*xnew = radius * cos(phi);
+						//*ynew = radius * sin(phi);
             break;
 
         case REND_FX_YUV_POW2_DISTORT:
@@ -830,9 +833,12 @@ void eval_coordinates (double x, double y, double *xnew, double *ynew, int type)
             radius = sqrt(radius2);
             radius = sqrt(radius);
             phi = fast_atan2(y,x);
+						//phi = atan2(y,x);
 
             *xnew = radius * fast_cos(phi);
             *ynew = radius * fast_sin(phi);
+						//*xnew = radius * cos(phi);
+						//*ynew = radius * sin(phi);
             break;
     }
 }
@@ -1223,25 +1229,31 @@ void fx_yu12_antialiasing(uint8_t* frame, int width, int height, int scale)
  */
 void fx_yu12_distort(uint8_t* frame, int width, int height, int box_width, int box_height, int type)
 {
-    assert(frame != NULL);
+  assert(frame != NULL);
 
-    if(!tmpbuffer)
-        tmpbuffer = malloc(width * height * 3 / 2);
+  if(!tmpbuffer)
+		tmpbuffer = malloc(width * height * 3 / 2);
 
-    memcpy(tmpbuffer, frame, width * height * 3 / 2);
-    uint8_t *pu = frame + (width*height);
-    uint8_t *pv = pu + (width*height)/4;
-    uint8_t *tpu = tmpbuffer + (width*height);
-    uint8_t *tpv = tpu + (width*height)/4;
+  memcpy(tmpbuffer, frame, width * height * 3 / 2);
+  uint8_t *pu = frame + (width*height);
+  uint8_t *pv = pu + (width*height)/4;
+  uint8_t *tpu = tmpbuffer + (width*height);
+  uint8_t *tpv = tpu + (width*height)/4;
 
-    int j = 0;
-    int i = 0;
+	//index table
+	uint32_t *idx_table = NULL;
+	uint32_t* tb_pu = NULL;
+	uint32_t* tb_pv = NULL;
+
+  int j = 0;
+  int i = 0;
 	int den_x = 0;
 	int den_y = 0;
-    double x = 0;
-    double y = 0;
-    double xnew = 0;
-    double ynew = 0;
+  double x = 0;
+  double y = 0;
+  double xnew = 0;
+  double ynew = 0;
+	uint32_t ind = 0;
 
 	int start_x = 0;
 	int start_y = 0;
@@ -1256,139 +1268,80 @@ void fx_yu12_distort(uint8_t* frame, int width, int height, int box_width, int b
 	else
 		box_height = height;
 
-	//fill lookup table
+	//choose lookup table
 	switch(type)
 	{
 		case REND_FX_YUV_POW_DISTORT:
-		{
-			if(TB_Pow_ind == NULL)
-			{
-				TB_Pow_ind = calloc(width * height * 3 / 2, sizeof(uint32_t));
-
-				uint32_t* tb_pu = TB_Pow_ind + (width * height);
-				uint32_t* tb_pv  = tb_pu + (width * height)/4;
-
-				for(j = 0; j < height; ++j)
-				{
-					y = normY(j, height);
-					for(i = 0; i < width; ++i)
-					{
-						x = normX(i, width);
-						eval_coordinates(x, y, &xnew, &ynew, type);
-
-						den_x = denormX(xnew, width);
-						den_y = denormY(ynew, height);
-
-						TB_Pow_ind[i + (j * width)] = den_x + (den_y * width);
-					}
-				}
-
-				for(j = 0; j < height/2; ++j)
-				{
-					y = normY(j, height/2);
-					for(i = 0; i < width/2; ++i)
-					{
-						x = normX(i, width/2);
-						eval_coordinates(x, y, &xnew, &ynew, type);
-
-						den_x = denormX(xnew, width/2);
-						den_y = denormY(ynew, height/2);
-
-						tb_pu[i + (j * width/2)] = den_x + (den_y * width/2);
-						tb_pv[i + (j * width/2)] = den_x + (den_y * width/2);
-					}
-				}
-			}
-		}
-		break;
+			idx_table = TB_Pow_ind;
+			break;
 
 		case REND_FX_YUV_POW2_DISTORT:
-		{
-			if(TB_Pow2_ind == NULL)
-			{
-				TB_Pow2_ind = calloc(width * height * 3 / 2, sizeof(uint32_t));
-
-				uint32_t* tb_pu = TB_Pow2_ind + (width * height);
-				uint32_t* tb_pv  = tb_pu + (width * height)/4;
-				for(j = 0; j < height; ++j)
-				{
-					y = normY(j, height);
-					for(i = 0; i < width; ++i)
-					{
-						x = normX(i, width);
-						eval_coordinates(x, y, &xnew, &ynew, type);
-
-						den_x = denormX(xnew, width);
-						den_y = denormY(ynew, height);
-
-						TB_Pow2_ind[i + (j * width)] = den_x + (den_y * width);
-					}
-				}
-
-				for(j = 0; j < height/2; ++j)
-				{
-					y = normY(j, height/2);
-					for(i = 0; i < width/2; ++i)
-					{
-						x = normX(i, width/2);
-						eval_coordinates(x, y, &xnew, &ynew, type);
-
-						den_x = denormX(xnew, width/2);
-						den_y = denormY(ynew, height/2);
-
-						tb_pu[i + (j * width/2)] = den_x + (den_y * width/2);
-						tb_pv[i + (j * width/2)] = den_x + (den_y * width/2);
-					}
-				}
-			}
-		}
-		break;
+			idx_table = TB_Pow2_ind;
+			break;
 
 		case REND_FX_YUV_SQRT_DISTORT:
 		default:
-		{
-			if(TB_Sqrt_ind == NULL)
-			{
-				TB_Sqrt_ind = calloc(width * height * 3 / 2, sizeof(uint32_t));
-
-				uint32_t* tb_pu = TB_Sqrt_ind + (width * height);
-				uint32_t* tb_pv  = tb_pu + (width * height)/4;
-				for(j = 0; j < height; ++j)
-				{
-					y = normY(j, height);
-					for(i = 0; i < width; ++i)
-					{
-						x = normX(i, width);
-						eval_coordinates(x, y, &xnew, &ynew, type);
-
-						den_x = denormX(xnew, width);
-						den_y = denormY(ynew, height);
-
-						TB_Sqrt_ind[i + (j * width)] = den_x + (den_y * width);
-					}
-				}
-
-				for(j = 0; j < height/2; ++j)
-				{
-					y = normY(j, height/2);
-					for(i = 0; i < width/2; ++i)
-					{
-						x = normX(i, width/2);
-						eval_coordinates(x, y, &xnew, &ynew, type);
-
-						den_x = denormX(xnew, width/2);
-						den_y = denormY(ynew, height/2);
-
-						tb_pu[i + (j * width/2)] = den_x + (den_y * width/2);
-						tb_pv[i + (j * width/2)] = den_x + (den_y * width/2);
-					}
-				}
-			}
-		}
-		break;
-
+			idx_table = TB_Sqrt_ind;
+			break;
 	}
 
+	if(idx_table == NULL) //fill lookup table
+	{
+		idx_table = calloc(width * height * 3 / 2, sizeof(uint32_t));
+
+		tb_pu = idx_table + (width * height);
+		tb_pv  = tb_pu + (width * height)/4;
+
+		for(j = 0; j < height; ++j)
+		{
+			y = normY(j, height);
+			for(i = 0; i < width; ++i)
+			{
+				x = normX(i, width);
+				eval_coordinates(x, y, &xnew, &ynew, type);
+
+				den_x = denormX(xnew, width);
+				den_y = denormY(ynew, height);
+
+				idx_table[i + (j * width)] = den_x + (den_y * width);
+			}
+		}
+
+		for(j = 0; j < height/2; ++j)
+		{
+			y = normY(j, height/2);
+			for(i = 0; i < width/2; ++i)
+			{
+				x = normX(i, width/2);
+				eval_coordinates(x, y, &xnew, &ynew, type);
+
+				den_x = denormX(xnew, width/2);
+				den_y = denormY(ynew, height/2);
+
+				tb_pu[i + (j * width/2)] = den_x + (den_y * width/2);
+				tb_pv[i + (j * width/2)] = den_x + (den_y * width/2);
+			}
+		}
+		//store the table pointer in the matching global
+		switch(type)
+		{
+			case REND_FX_YUV_POW_DISTORT:
+				TB_Pow_ind = idx_table;
+				break;
+
+			case REND_FX_YUV_POW2_DISTORT:
+				TB_Pow2_ind = idx_table;
+				break;
+
+			case REND_FX_YUV_SQRT_DISTORT:
+			default:
+				TB_Sqrt_ind = idx_table;
+				break;
+		}
+	}
+
+	//apply the distortion
+	//(luma)
   for (j=0; j< box_height; j++)
   {
     for(i=0; i< box_width; i++)
@@ -1396,25 +1349,14 @@ void fx_yu12_distort(uint8_t* frame, int width, int height, int box_width, int b
 			int bi = i + start_x;
 			int bj = j + start_y;
 
-			uint32_t ind = bi + (bj * box_width);
+			ind = bi + (bj * box_width);
 
-    	switch(type)
-			{
-				case REND_FX_YUV_POW_DISTORT:
-					frame[ind] = tmpbuffer[TB_Pow_ind[ind]];
-				break;
-
-				case REND_FX_YUV_POW2_DISTORT:
-					frame[ind] = tmpbuffer[TB_Pow2_ind[ind]];
-				break;
-
-				case REND_FX_YUV_SQRT_DISTORT:
-				default:
-					frame[ind] = tmpbuffer[TB_Sqrt_ind[ind]];
-					break;
-			}
+			frame[ind] = tmpbuffer[idx_table[ind]];
     }
 	}
+	//chroma
+	tb_pu = idx_table + (width * height);
+	tb_pv  = tb_pu + (width * height)/4;
 
 	for (j=0; j< box_height/2; j++)
   {
@@ -1423,38 +1365,10 @@ void fx_yu12_distort(uint8_t* frame, int width, int height, int box_width, int b
 			int bi = i + start_x/2;
 			int bj = j + start_y/2;
 
-			uint32_t ind = bi + (bj * box_width/2);
+			ind = bi + (bj * box_width/2);
 
-			switch(type)
-			{
-				case REND_FX_YUV_POW_DISTORT:
-				{
-					uint32_t* tb_pu = TB_Pow_ind + (width*height);
-					uint32_t* tb_pv = tb_pu + (width * height)/4;
-					pu[ind] = tpu[tb_pu[ind]];
-					pv[ind] = tpv[tb_pv[ind]];
-				}
-				break;
-
-				case REND_FX_YUV_POW2_DISTORT:
-				{
-					uint32_t* tb_pu = TB_Pow2_ind + (width*height);
-					uint32_t* tb_pv = tb_pu + (width * height)/4;
-					pu[ind] = tpu[tb_pu[ind]];
-					pv[ind] = tpv[tb_pv[ind]];
-				}
-				break;
-
-				case REND_FX_YUV_SQRT_DISTORT:
-				default:
-				{
-					uint32_t* tb_pu = TB_Sqrt_ind + (width*height);
-					uint32_t* tb_pv = tb_pu + (width * height)/4;
-					pu[ind] = tpu[tb_pu[ind]];
-					pv[ind] = tpv[tb_pv[ind]];
-				}
-				break;
-			}
+			pu[ind] = tpu[tb_pu[ind]];
+			pv[ind] = tpv[tb_pv[ind]];
 		}
 	}
 
