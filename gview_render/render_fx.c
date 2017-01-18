@@ -38,6 +38,8 @@
 #endif
 
 
+double *Gkernel = NULL; //gaussian kernel matrix
+int* bSizes = NULL;
 uint8_t *tmpbuffer = NULL;
 uint32_t *TB_Sqrt_ind = NULL; //look up table for sqrt lens distort indexes
 uint32_t *TB_Pow_ind = NULL; //look up table for pow lens distort indexes
@@ -793,8 +795,6 @@ double fast_atan2( double y, double x )
 	return atan;
 }
 
-#define SIGN(x)     ((x > 0) ? 1: -1)
-
 /*
  * calculate coordinate in input frame from point in ouptut
  * (all coordinates are normalized)
@@ -841,6 +841,269 @@ void eval_coordinates (double x, double y, double *xnew, double *ynew, int type)
 						//*ynew = radius * sin(phi);
             break;
     }
+}
+
+/*
+ * generate gaussian kernel
+ * args:
+ *    radius  - radius for gaussian blur (e.g r=2 -> kernel 5x5)
+ *
+ * asserts:
+ *    none
+ *
+ * returns: void
+ */
+static void generate_gauss_kernel(int radius)
+{
+	if(Gkernel != NULL)
+		return; //kernel already generated
+
+	int msize = 2 * radius + 1; //matrix size (msize * msize)
+	Gkernel = malloc(msize*msize*sizeof(double));
+
+	double r = radius;
+	double s = radius;
+	double sum = 0.0;
+
+	int x = 0;
+	int y = 0;
+
+	for (y = -radius; y <= radius; ++y)
+	{
+		for(x = -radius; x <= radius; ++x)
+		{
+			r = sqrt(x*x + y*y);
+			Gkernel[(y+radius)*msize + (x+radius)] = (exp(-(r*r)/s))/(PI * s);
+			sum += Gkernel[(y+radius)*msize + (x+radius)];
+		}
+	}
+
+	//normalize it
+	for( y = 0; y <= 2 * radius; ++y)
+		for( x = 0; x <= 2 * radius; ++x)
+			Gkernel[(y * msize) + x] /= sum;
+}
+
+/*
+ * gaussian blur
+ * args:
+ *    frame  - pointer to frame buffer (yu12 format)
+ *    width  - frame width
+ *    height - frame height
+ *    radius - blur radius (even value)
+ *
+ * asserts:
+ *    frame is not null
+ *
+ * returns: void
+ */
+void fx_yu12_gauss_blur(uint8_t* frame, int width, int height, int radius)
+{
+	assert(frame != NULL);
+
+	//make sure we have a even radius (matrix size must be odd = radius + 1 )
+	if(radius%2!=0)
+		radius--;
+
+	int msize = 2 * radius + 1;
+	generate_gauss_kernel(radius);
+
+	if(tmpbuffer == NULL)
+		tmpbuffer = malloc(width * height * 3 / 2);
+
+  memcpy(tmpbuffer, frame, width * height * 3 / 2);
+
+	int i = 0;
+	int j = 0;
+	int x = 0;
+	int y = 0;
+
+	for(i = radius; i < height - radius; ++i )
+	{
+		for(j = radius; j < width - radius; ++j)
+		{
+			double sum = 0;
+			for(y = -radius; y <= radius; ++y )
+			{
+				for(x = - radius; x <= radius; ++x)
+				{
+					sum += tmpbuffer[(i + y) * width + (j + x)] * Gkernel[(y + radius) * msize + (x+radius)];
+				}
+			}
+
+			frame[i * width + j] = (uint8_t) lround(sum) & 0xff;
+		}
+	}
+}
+
+/*
+ * generate box sizes for box blur
+ * args:
+ *    sigma - standard deviation
+ *    n - number of boxes
+ *
+ * asserts:
+ *    none
+ *
+ * returns: void
+ */
+static void boxes4gauss(int sigma, int n)
+{
+	if(bSizes != NULL)
+		return; //already calculated
+
+	bSizes = calloc(n, sizeof(int));
+
+	double ideal_width = sqrt((12*sigma*sigma/n) + 1);
+
+	int wl = lround(floor(ideal_width));
+	if(wl%2==0)
+		wl--;
+	int wu = wl+2;
+
+	double ideal_m = (n*wl*wl + 4*n*wl + 3*n - 12*sigma*sigma)/(4*wl + 4);
+
+	int m = lround(ideal_m);
+
+	int i = 0;
+	for(i = 0; i < n; ++i)
+		bSizes[i] = (i < m) ? wl : wu;
+}
+
+/*
+ * box blur horizontal
+ */
+void boxBlurH(uint8_t* scl, uint8_t* tcl, int w, int h, int r)
+{
+	int iarr = r + r + 1;
+
+	int i = 0;
+	int j = 0;
+
+	for(i = 0; i < h; ++i)
+	{
+		int ti = i*w;
+		int li = ti;
+		int ri = ti+r;
+
+    int fv = scl[ti];
+		int lv = scl[ti+w-1];
+		int val = (r+1)*fv;
+
+		for(j = 0; j < r; ++j)
+			val += scl[ti+j];
+
+    for(j = 0; j <= r; ++j)
+		{
+			val += scl[ri++] - fv;
+			tcl[ti++] = (uint8_t) lround(val/iarr) & 0xff;
+		}
+
+		for(j = r+1; j < w-r; ++j)
+		{
+			val += scl[ri++] - scl[li++];
+			tcl[ti++] = (uint8_t) lround(val/iarr) & 0xff;
+		}
+
+		for( j =w-r; j < w; ++j)
+		{
+			val += lv - scl[li++];
+			tcl[ti++] = (uint8_t) lround(val/iarr) & 0xff;
+		}
+  }
+}
+
+/*
+ * box blur total
+ */
+void boxBlurT(uint8_t* scl, uint8_t* tcl, int w, int h, int r)
+{
+	int iarr = r + r + 1;
+
+	int i = 0;
+	int j = 0;
+
+	for(i = 0; i < w; ++i)
+	{
+  	int ti = i;
+		int li = ti;
+		int ri = ti+r*w;
+
+    int fv = scl[ti];
+		int lv = scl[ti+w*(h-1)];
+		int val = (r+1)*fv;
+
+    for(j = 0; j < r; ++j)
+			val += scl[ti+j*w];
+
+    for(j = 0; j <= r; ++j)
+		{
+			val += scl[ri] - fv;
+			tcl[ti] = (uint8_t) lround(val/iarr) & 0xff;
+			ri += w;
+			ti += w;
+		}
+
+		for(j = r+1; j < h-r; ++j)
+		{
+			val += scl[ri] - scl[li];
+			tcl[ti] = (uint8_t) lround(val/iarr) & 0xff;
+			li += w;
+			ri += w;
+			ti += w;
+		}
+
+		for(j = h-r; j < h; ++j)
+		{
+			val += lv - scl[li];
+			tcl[ti] = (uint8_t) lround(val/iarr) & 0xff;
+			li += w;
+			ti += w;
+		}
+  }
+}
+
+/*
+ * box blur
+ */
+void boxBlur(uint8_t* scl, uint8_t* tcl, int width, int height, int r)
+{
+
+	int i = 0;
+	for(i = 0; i < width * height; ++i) //memcpy
+		tcl[i] = scl[i];
+
+	boxBlurH(tcl, scl, width, height, r);
+	boxBlurT(scl, tcl, width, height, r);
+}
+
+/*
+ * gaussian blur aprox with 3 box blur iterations
+ * args:
+ *    frame  - pointer to frame buffer (yu12 format)
+ *    width  - frame width
+ *    height - frame height
+ *    sigma - deviation
+ *
+ * asserts:
+ *    frame is not null
+ *
+ * returns: void
+ */
+void fx_yu12_gauss_blur2(uint8_t* frame, int width, int height, int sigma)
+{
+	assert(frame != NULL);
+
+	if(tmpbuffer == NULL)
+		tmpbuffer = malloc(width * height * 3 / 2);
+
+	//iterate 3 times
+	boxes4gauss(sigma, 3);
+
+	boxBlur(frame, tmpbuffer, width, height, (bSizes[0] - 1)/2);
+	boxBlur(tmpbuffer, frame, width, height, (bSizes[1] - 1)/2);
+	boxBlur(frame, tmpbuffer, width, height, (bSizes[2] - 1)/2);
+
 }
 
 /*
@@ -1427,8 +1690,9 @@ void render_fx_apply(uint8_t *frame, int width, int height, uint32_t mask)
         if(mask & REND_FX_YUV_POW2_DISTORT)
 			fx_yu12_distort(frame, width, height, 0, 0, REND_FX_YUV_POW2_DISTORT);
 
-		if(mask & REND_FX_YUV_ANTIALIAS_SCALE2X)
-			fx_yu12_antialiasing(frame, width, height, 2);
+		if(mask & REND_FX_YUV_BLUR)
+			fx_yu12_gauss_blur2(frame, width, height, 2);
+			//fx_yu12_gauss_blur(frame, width, height, 2);
 
 		if(mask & REND_FX_YUV_ANTIALIAS_SCALE3X)
 			fx_yu12_antialiasing(frame, width, height, 3);
@@ -1453,6 +1717,18 @@ void render_clean_fx()
 	{
 		free(particles);
 		particles = NULL;
+	}
+
+	if(Gkernel != NULL)
+	{
+			free(Gkernel);
+			Gkernel = NULL;
+	}
+
+	if(bSizes != NULL)
+	{
+			free(bSizes);
+			bSizes = NULL;
 	}
 
 	if(tmpbuffer != NULL)

@@ -164,7 +164,7 @@ int gui_attach_gtk3_videoctrls(GtkWidget *parent)
 	int deffps=0;
 
 	v4l2_stream_formats_t *list_stream_formats = v4l2core_get_formats_list(get_v4l2_device_handler());
-	
+
 	if (debug_level > 0)
 		printf("GUVCVIEW: frame rates of resolution index %d = %d \n",
 			resolu_index+1,
@@ -286,7 +286,7 @@ int gui_attach_gtk3_videoctrls(GtkWidget *parent)
 
 	gtk_widget_show (wgtInpType);
 	gtk_widget_set_sensitive (wgtInpType, TRUE);
-	
+
 
 	int fmtind=0;
 	for (fmtind=0; fmtind < v4l2core_get_number_formats(get_v4l2_device_handler()); fmtind++)
@@ -366,7 +366,7 @@ int gui_attach_gtk3_videoctrls(GtkWidget *parent)
 	gtk_widget_show (FiltMirrorEnable);
 	g_signal_connect (GTK_CHECK_BUTTON(FiltMirrorEnable), "toggled",
 		G_CALLBACK (render_fx_filter_changed), NULL);
-        
+
         /* Half Mirror FX */
 	GtkWidget *FiltHalfMirrorEnable = gtk_check_button_new_with_label (_(" Half Mirror"));
 	g_object_set_data (G_OBJECT (FiltHalfMirrorEnable), "filt_info", GINT_TO_POINTER(REND_FX_YUV_HALF_MIRROR));
@@ -379,7 +379,7 @@ int gui_attach_gtk3_videoctrls(GtkWidget *parent)
 	gtk_widget_show (FiltHalfMirrorEnable);
 	g_signal_connect (GTK_CHECK_BUTTON(FiltHalfMirrorEnable), "toggled",
 		G_CALLBACK (render_fx_filter_changed), NULL);
-        
+
 	/* Upturn FX */
 	GtkWidget *FiltUpturnEnable = gtk_check_button_new_with_label (_(" Invert"));
 	g_object_set_data (G_OBJECT (FiltUpturnEnable), "filt_info", GINT_TO_POINTER(REND_FX_YUV_UPTURN));
@@ -392,7 +392,7 @@ int gui_attach_gtk3_videoctrls(GtkWidget *parent)
 	gtk_widget_show (FiltUpturnEnable);
 	g_signal_connect (GTK_CHECK_BUTTON(FiltUpturnEnable), "toggled",
 		G_CALLBACK (render_fx_filter_changed), NULL);
-        
+
         /* Half Upturn FX */
 	GtkWidget *FiltHalfUpturnEnable = gtk_check_button_new_with_label (_(" Half Invert"));
 	g_object_set_data (G_OBJECT (FiltHalfUpturnEnable), "filt_info", GINT_TO_POINTER(REND_FX_YUV_HALF_UPTURN));
@@ -405,7 +405,7 @@ int gui_attach_gtk3_videoctrls(GtkWidget *parent)
 	gtk_widget_show (FiltHalfUpturnEnable);
 	g_signal_connect (GTK_CHECK_BUTTON(FiltHalfUpturnEnable), "toggled",
 		G_CALLBACK (render_fx_filter_changed), NULL);
-        
+
 	/* Negate FX */
 	GtkWidget *FiltNegateEnable = gtk_check_button_new_with_label (_(" Negative"));
 	g_object_set_data (G_OBJECT (FiltNegateEnable), "filt_info", GINT_TO_POINTER(REND_FX_YUV_NEGATE));
@@ -456,7 +456,7 @@ int gui_attach_gtk3_videoctrls(GtkWidget *parent)
 	gtk_widget_show (FiltParticlesEnable);
 	g_signal_connect (GTK_CHECK_BUTTON(FiltParticlesEnable), "toggled",
 		G_CALLBACK (render_fx_filter_changed), NULL);
-        
+
         /* Sqrt Lens Distort */
 	GtkWidget *FiltSqrtLensEnable = gtk_check_button_new_with_label (_(" Sqrt Lens"));
 	g_object_set_data (G_OBJECT (FiltSqrtLensEnable), "filt_info", GINT_TO_POINTER(REND_FX_YUV_SQRT_DISTORT));
@@ -469,7 +469,7 @@ int gui_attach_gtk3_videoctrls(GtkWidget *parent)
 	gtk_widget_show (FiltSqrtLensEnable);
 	g_signal_connect (GTK_CHECK_BUTTON(FiltSqrtLensEnable), "toggled",
 		G_CALLBACK (render_fx_filter_changed), NULL);
-        
+
         /* Pow Lens Distort */
 	GtkWidget *FiltPowLensEnable = gtk_check_button_new_with_label (_(" Pow Lens"));
 	g_object_set_data (G_OBJECT (FiltPowLensEnable), "filt_info", GINT_TO_POINTER(REND_FX_YUV_POW_DISTORT));
@@ -482,7 +482,7 @@ int gui_attach_gtk3_videoctrls(GtkWidget *parent)
 	gtk_widget_show (FiltPowLensEnable);
 	g_signal_connect (GTK_CHECK_BUTTON(FiltPowLensEnable), "toggled",
 		G_CALLBACK (render_fx_filter_changed), NULL);
-        
+
         /* Pow2 Lens Distort */
 	GtkWidget *FiltPow2LensEnable = gtk_check_button_new_with_label (_(" Pow2 Lens"));
 	g_object_set_data (G_OBJECT (FiltPow2LensEnable), "filt_info", GINT_TO_POINTER(REND_FX_YUV_POW2_DISTORT));
@@ -495,20 +495,20 @@ int gui_attach_gtk3_videoctrls(GtkWidget *parent)
 	gtk_widget_show (FiltPow2LensEnable);
 	g_signal_connect (GTK_CHECK_BUTTON(FiltPow2LensEnable), "toggled",
 		G_CALLBACK (render_fx_filter_changed), NULL);
-        
-        /* Anti-Aliasing Scale2x*/
-	GtkWidget *FiltAntiAlias2xEnable = gtk_check_button_new_with_label (_(" Anti-Aliasing (Scale2x)"));
-	g_object_set_data (G_OBJECT (FiltAntiAlias2xEnable), "filt_info", GINT_TO_POINTER(REND_FX_YUV_ANTIALIAS_SCALE2X));
-	gtk_widget_set_halign (FiltAntiAlias2xEnable, GTK_ALIGN_FILL);
-	gtk_widget_set_hexpand (FiltAntiAlias2xEnable, TRUE);
-	gtk_grid_attach(GTK_GRID(table_filt), FiltAntiAlias2xEnable, 5, 1, 1, 1);
 
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(FiltAntiAlias2xEnable),
-		(get_render_fx_mask() & REND_FX_YUV_ANTIALIAS_SCALE2X) > 0);
-	gtk_widget_show (FiltAntiAlias2xEnable);
-	g_signal_connect (GTK_CHECK_BUTTON(FiltAntiAlias2xEnable), "toggled",
+        /* Blur*/
+	GtkWidget *FiltBlurEnable = gtk_check_button_new_with_label (_(" Blur"));
+	g_object_set_data (G_OBJECT (FiltBlurEnable), "filt_info", GINT_TO_POINTER(REND_FX_YUV_BLUR));
+	gtk_widget_set_halign (FiltBlurEnable, GTK_ALIGN_FILL);
+	gtk_widget_set_hexpand (FiltBlurEnable, TRUE);
+	gtk_grid_attach(GTK_GRID(table_filt), FiltBlurEnable, 5, 1, 1, 1);
+
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(FiltBlurEnable),
+		(get_render_fx_mask() & REND_FX_YUV_BLUR) > 0);
+	gtk_widget_show (FiltBlurEnable);
+	g_signal_connect (GTK_CHECK_BUTTON(FiltBlurEnable), "toggled",
 		G_CALLBACK (render_fx_filter_changed), NULL);
-        
+
         /* Anti-Aliasing Scale3x */
 	GtkWidget *FiltAntiAlias3xEnable = gtk_check_button_new_with_label (_(" Anti-Aliasing (Scale3x)"));
 	g_object_set_data (G_OBJECT (FiltAntiAlias3xEnable), "filt_info", GINT_TO_POINTER(REND_FX_YUV_ANTIALIAS_SCALE3X));
@@ -560,7 +560,7 @@ int gui_attach_gtk3_videoctrls(GtkWidget *parent)
 	gtk_widget_show (OsdCrosshairEnable);
 	g_signal_connect (GTK_CHECK_BUTTON(OsdCrosshairEnable), "toggled",
 		G_CALLBACK (render_osd_changed), NULL);
-	
+
 	/*add control grid to parent container*/
 	gtk_container_add(GTK_CONTAINER(parent), video_controls_grid);
 

@@ -66,7 +66,7 @@ __BEGIN_DECLS
 #define REND_FX_YUV_SQRT_DISTORT (1<<8)
 #define REND_FX_YUV_POW_DISTORT (1<<9)
 #define REND_FX_YUV_POW2_DISTORT (1<<10)
-#define REND_FX_YUV_ANTIALIAS_SCALE2X (1<<11)
+#define REND_FX_YUV_BLUR (1<<11)
 #define REND_FX_YUV_ANTIALIAS_SCALE3X (1<<12)
 
 /*OSD FLAGS*/
@@ -123,7 +123,7 @@ uint32_t render_get_osd_mask();
 /*
  * set the osd crosshair color
  * args:
- *   rgb_color - 0x00RRGGBB 
+ *   rgb_color - 0x00RRGGBB
  *
  * asserts:
  *    none

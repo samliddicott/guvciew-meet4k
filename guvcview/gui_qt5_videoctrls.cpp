@@ -59,7 +59,7 @@ int MainWindow::gui_attach_qt5_videoctrls(QWidget *parent)
 {
 	/*assertions*/
 	assert(parent != NULL);
-	
+
 	QGridLayout *grid_layout = new QGridLayout();
 
 	video_controls_grid = new QWidget(parent);
@@ -70,7 +70,7 @@ int MainWindow::gui_attach_qt5_videoctrls(QWidget *parent)
 		std::cout << "GUVCVIEW (Qt5): attaching video controls" << std::endl;
 
 	int format_index = v4l2core_get_frame_format_index(
-		get_v4l2_device_handler(), 
+		get_v4l2_device_handler(),
 		v4l2core_get_requested_frame_format(get_v4l2_device_handler()));
 
 	if(format_index < 0)
@@ -97,9 +97,9 @@ int MainWindow::gui_attach_qt5_videoctrls(QWidget *parent)
 	/*---- Devices ----*/
 	QLabel *label_Device = new QLabel(_("Device:"),video_controls_grid);
 	label_Device->show();
-	
+
 	grid_layout->addWidget(label_Device, line, 0, Qt::AlignRight);
-	
+
 	combobox_video_devices = new QComboBox(video_controls_grid);
 	combobox_video_devices->show();
 
@@ -124,22 +124,22 @@ int MainWindow::gui_attach_qt5_videoctrls(QWidget *parent)
 
 	/*---- Frame Rate ----*/
 	line++;
-	
+
 	QLabel *label_FPS = new QLabel(_("Frame Rate:"),video_controls_grid);
 	label_FPS->show();
-	
+
 	grid_layout->addWidget(label_FPS, line, 0, Qt::AlignRight);
 
 	combobox_FrameRate = new QComboBox(video_controls_grid);
 	combobox_FrameRate->show();
-	
+
 	int deffps=0;
 
 	v4l2_stream_formats_t *list_stream_formats = v4l2core_get_formats_list(get_v4l2_device_handler());
-	
+
 	if (debug_level > 0)
-		std::cout << "GUVCVIEW (Qt5): frame rates of resolution index " 
-			<< resolu_index+1 << " = " 
+		std::cout << "GUVCVIEW (Qt5): frame rates of resolution index "
+			<< resolu_index+1 << " = "
 			<< list_stream_formats[format_index].list_stream_cap[resolu_index].numb_frates
 			<< std::endl;
 	for ( i = 0 ; i < list_stream_formats[format_index].list_stream_cap[resolu_index].numb_frates ; ++i)
@@ -153,7 +153,7 @@ int MainWindow::gui_attach_qt5_videoctrls(QWidget *parent)
 				deffps=i;//set selected
 	}
 	combobox_FrameRate->setCurrentIndex(deffps);
-	
+
 	grid_layout->addWidget(combobox_FrameRate, line, 1);
 
 	if (deffps==0)
@@ -172,7 +172,7 @@ int MainWindow::gui_attach_qt5_videoctrls(QWidget *parent)
 	}
 	/*signals*/
 	connect(combobox_FrameRate, SIGNAL(currentIndexChanged(int)), this, SLOT(frame_rate_changed(int)));
-	
+
 	/*try to sync the device fps (capture thread must have started by now)*/
 	v4l2core_request_framerate_update (get_v4l2_device_handler());
 
@@ -191,7 +191,7 @@ int MainWindow::gui_attach_qt5_videoctrls(QWidget *parent)
 
 	if (debug_level > 0)
 		std::cout << "GUVCVIEW (Qt5): resolutions of format "
-			<< format_index+1 << " = "  
+			<< format_index+1 << " = "
 			<< list_stream_formats[format_index].numb_res
 			<< std::endl;
 	for(i = 0 ; i < list_stream_formats[format_index].numb_res ; i++)
@@ -207,11 +207,11 @@ int MainWindow::gui_attach_qt5_videoctrls(QWidget *parent)
 		}
 	}
 	combobox_resolution->setCurrentIndex(defres);
-	
+
 	grid_layout->addWidget(combobox_resolution, line, 1);
 	/*signals*/
 	connect(combobox_resolution, SIGNAL(currentIndexChanged(int)), this, SLOT(resolution_changed(int)));
-	
+
 
 
 	///*---- Input Format ----*/
@@ -266,7 +266,7 @@ int MainWindow::gui_attach_qt5_videoctrls(QWidget *parent)
 	table_filt->setLayout(filt_layout);
 	table_filt->show();
 	grid_layout->addWidget(table_filt, line, 0, 1, 2);
-	
+
 	/* Mirror FX */
 	QCheckBox *FiltMirrorEnable = new QCheckBox(_(" Mirror"), table_filt);
 	FiltMirrorEnable->setProperty("filt_info", REND_FX_YUV_MIRROR);
@@ -275,7 +275,7 @@ int MainWindow::gui_attach_qt5_videoctrls(QWidget *parent)
 	FiltMirrorEnable->setChecked((get_render_fx_mask() & REND_FX_YUV_MIRROR) > 0);
 	/*connect signal*/
 	connect(FiltMirrorEnable, SIGNAL(stateChanged(int)), this, SLOT(render_fx_filter_changed(int)));
-	
+
         /* Half Mirror FX */
 	QCheckBox *FiltHalfMirrorEnable = new QCheckBox(_(" Half Mirror"), table_filt);
 	FiltHalfMirrorEnable->setProperty("filt_info", REND_FX_YUV_HALF_MIRROR);
@@ -284,7 +284,7 @@ int MainWindow::gui_attach_qt5_videoctrls(QWidget *parent)
 	FiltHalfMirrorEnable->setChecked((get_render_fx_mask() & REND_FX_YUV_HALF_MIRROR) > 0);
 	/*connect signal*/
 	connect(FiltHalfMirrorEnable, SIGNAL(stateChanged(int)), this, SLOT(render_fx_filter_changed(int)));
-        
+
 	/* Upturn FX */
 	QCheckBox *FiltUpturnEnable = new QCheckBox(_(" Invert"), table_filt);
 	FiltUpturnEnable->setProperty("filt_info", REND_FX_YUV_UPTURN);
@@ -294,7 +294,7 @@ int MainWindow::gui_attach_qt5_videoctrls(QWidget *parent)
 	FiltUpturnEnable->setChecked((get_render_fx_mask() & REND_FX_YUV_UPTURN) > 0);
 	/*connect signal*/
 	connect(FiltUpturnEnable, SIGNAL(stateChanged(int)), this, SLOT(render_fx_filter_changed(int)));
-	
+
         /* Half Upturn FX */
 	QCheckBox *FiltHalfUpturnEnable = new QCheckBox(_(" Half Invert"), table_filt);
 	FiltHalfUpturnEnable->setProperty("filt_info", REND_FX_YUV_HALF_UPTURN);
@@ -304,7 +304,7 @@ int MainWindow::gui_attach_qt5_videoctrls(QWidget *parent)
 	FiltHalfUpturnEnable->setChecked((get_render_fx_mask() & REND_FX_YUV_HALF_UPTURN) > 0);
 	/*connect signal*/
 	connect(FiltHalfUpturnEnable, SIGNAL(stateChanged(int)), this, SLOT(render_fx_filter_changed(int)));
-        
+
 	/* Negate FX */
 	QCheckBox *FiltNegateEnable = new QCheckBox(_(" Negative"), table_filt);
 	FiltNegateEnable->setProperty("filt_info", REND_FX_YUV_NEGATE);
@@ -314,7 +314,7 @@ int MainWindow::gui_attach_qt5_videoctrls(QWidget *parent)
 	FiltNegateEnable->setChecked((get_render_fx_mask() & REND_FX_YUV_NEGATE) > 0);
 	/*connect signal*/
 	connect(FiltNegateEnable, SIGNAL(stateChanged(int)), this, SLOT(render_fx_filter_changed(int)));
-	
+
 	/* Mono FX */
 	QCheckBox *FiltMonoEnable = new QCheckBox(_(" Mono"), table_filt);
 	FiltMonoEnable->setProperty("filt_info", REND_FX_YUV_MONOCR);
@@ -354,7 +354,7 @@ int MainWindow::gui_attach_qt5_videoctrls(QWidget *parent)
 	FiltSqrtLensEnable->setChecked((get_render_fx_mask() & REND_FX_YUV_SQRT_DISTORT) > 0);
 	/*connect signal*/
 	connect(FiltSqrtLensEnable, SIGNAL(stateChanged(int)), this, SLOT(render_fx_filter_changed(int)));
-        
+
         /* POW Lens Distort */
 	QCheckBox *FiltPowLensEnable = new QCheckBox(_(" Pow Lens"), table_filt);
 	FiltPowLensEnable->setProperty("filt_info", REND_FX_YUV_POW_DISTORT);
@@ -364,7 +364,7 @@ int MainWindow::gui_attach_qt5_videoctrls(QWidget *parent)
 	FiltPowLensEnable->setChecked((get_render_fx_mask() & REND_FX_YUV_POW_DISTORT) > 0);
 	/*connect signal*/
 	connect(FiltPowLensEnable, SIGNAL(stateChanged(int)), this, SLOT(render_fx_filter_changed(int)));
-        
+
         /* POW2 Lens Distort */
 	QCheckBox *FiltPow2LensEnable = new QCheckBox(_(" Pow2 Lens"), table_filt);
 	FiltPow2LensEnable->setProperty("filt_info", REND_FX_YUV_POW2_DISTORT);
@@ -374,16 +374,17 @@ int MainWindow::gui_attach_qt5_videoctrls(QWidget *parent)
 	FiltPow2LensEnable->setChecked((get_render_fx_mask() & REND_FX_YUV_POW2_DISTORT) > 0);
 	/*connect signal*/
 	connect(FiltPow2LensEnable, SIGNAL(stateChanged(int)), this, SLOT(render_fx_filter_changed(int)));
-        
-        /* Anti-Aliasing Scale2x*/
-	QCheckBox *FiltAntiAlias2xEnable = new QCheckBox(_(" Anti-Aliasing (Scale2x)"), table_filt);
-	FiltAntiAlias2xEnable->setProperty("filt_info", REND_FX_YUV_ANTIALIAS_SCALE2X);
-	FiltAntiAlias2xEnable->show();
 
-	filt_layout->addWidget(FiltAntiAlias2xEnable, 1, 5);
-	FiltAntiAlias2xEnable->setChecked((get_render_fx_mask() & REND_FX_YUV_ANTIALIAS_SCALE2X) > 0);
+        /* Blur*/
+	QCheckBox *FiltBlurEnable = new QCheckBox(_(" Blur"), table_filt);
+	FiltBlurEnable->setProperty("filt_info", REND_FX_YUV_BLUR);
+	FiltBlurEnable->show();
+
+	filt_layout->addWidget(FiltBlurEnable, 1, 5);
+	FiltBlurEnable->setChecked((get_render_fx_mask() & REND_FX_YUV_BLUR) > 0);
 	/*connect signal*/
-	connect(FiltAntiAlias2xEnable, SIGNAL(stateChanged(int)), this, SLOT(render_fx_filter_changed(int)));
+	connect(FiltBlurEnable, SIGNAL(stateChanged(int)), this, SLOT(render_fx_filter_changed(int)));
+
         /* Anti-Aliasing Scale3x*/
 	QCheckBox *FiltAntiAlias3xEnable = new QCheckBox(_(" Anti-Aliasing (Scale3x)"), table_filt);
 	FiltAntiAlias3xEnable->setProperty("filt_info", REND_FX_YUV_ANTIALIAS_SCALE3X);
@@ -393,7 +394,7 @@ int MainWindow::gui_attach_qt5_videoctrls(QWidget *parent)
 	FiltAntiAlias3xEnable->setChecked((get_render_fx_mask() & REND_FX_YUV_ANTIALIAS_SCALE3X) > 0);
 	/*connect signal*/
 	connect(FiltAntiAlias3xEnable, SIGNAL(stateChanged(int)), this, SLOT(render_fx_filter_changed(int)));
-        
+
 	/* ----- OSD controls -----*/
 	line++;
 	QLabel *label_osd = new QLabel(_("---- OSD ----"),video_controls_grid);
@@ -418,13 +419,13 @@ int MainWindow::gui_attach_qt5_videoctrls(QWidget *parent)
 	OsdCrosshairEnable->setChecked((render_get_osd_mask() & REND_OSD_CROSSHAIR) > 0);
 	/*connect signal*/
 	connect(OsdCrosshairEnable, SIGNAL(stateChanged(int)), this, SLOT(render_osd_changed(int)));
-	
-	
+
+
 	line++;
 	QSpacerItem *spacer = new QSpacerItem(40, 20, QSizePolicy::Minimum, QSizePolicy::Expanding);
 	grid_layout->addItem(spacer, line, 0);
 	QSpacerItem *hspacer = new QSpacerItem(40, 20, QSizePolicy::Expanding);
 	grid_layout->addItem(hspacer, line, 1);
-	
+
 	return 0;
 }

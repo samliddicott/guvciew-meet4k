@@ -89,7 +89,7 @@
 #define __INIT_COND(c)  ( pthread_cond_init (c, NULL) )
 #define __CLOSE_COND(c) ( pthread_cond_destroy(c) )
 #define __COND_BCAST(c) ( pthread_cond_broadcast(c) )
-#define __COND_SIGNAL(c) ( pthread_cond_signal(c) ) 
+#define __COND_SIGNAL(c) ( pthread_cond_signal(c) )
 #define __COND_TIMED_WAIT(c,m,t) ( pthread_cond_timedwait(c,m,t) )
 
 /*next index of ring buffer with size elements*/
@@ -124,5 +124,11 @@ static const int stdSampleRates[] =
 #define MIN(a,b) (((a) > (b)) ? (b) : (a))
 #endif
 
+#ifndef SIGN
+#define SIGN(x)     ((x > 0) ? 1: -1)
 #endif
 
+/*array lenght*/
+#define ARRAY_LENGTH(a) (sizeof (a)/ sizeof (a)[0])
+
+#endif
