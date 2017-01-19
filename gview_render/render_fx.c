@@ -938,7 +938,7 @@ void fx_yu12_gauss_blur(uint8_t* frame, int width, int height, int radius)
 }
 
 /*
- * generate box sizes for box blur
+ * generate box sizes for box blur and precalculate all possible division values
  * args:
  *    sigma - standard deviation
  *    n - number of boxes
@@ -1085,6 +1085,8 @@ void boxBlurT(uint8_t* scl, uint8_t* tcl, int w, int h, int r_ind)
  */
 void boxBlur(uint8_t* scl, uint8_t* tcl, int width, int height, int r_ind)
 {
+	memcpy(tcl, scl, width * height);
+
 	boxBlurH(tcl, scl, width, height, r_ind);
 	boxBlurT(scl, tcl, width, height, r_ind);
 }
@@ -1109,10 +1111,7 @@ void fx_yu12_gauss_blur2(uint8_t* frame, int width, int height, int sigma)
 	if(tmpbuffer == NULL)
 		tmpbuffer = malloc(width * height * 3 / 2);
 
-	//int i = 0;
-	//for(i = 0; i < width * height; ++i) //memcpy
-	//	tmpbuffer[i] = frame[i];
-	memcpy(tmpbuffer, frame, width * height);
+	//memcpy(tmpbuffer, frame, width * height);
 
 	//iterate 3 times
 	boxes4gauss(sigma, 3);
