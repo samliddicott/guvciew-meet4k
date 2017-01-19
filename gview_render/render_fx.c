@@ -40,6 +40,7 @@
 
 double *Gkernel = NULL; //gaussian kernel matrix
 int* bSizes = NULL;
+int** divTable = NULL; //division lookup table
 uint8_t *tmpbuffer = NULL;
 uint32_t *TB_Sqrt_ind = NULL; //look up table for sqrt lens distort indexes
 uint32_t *TB_Pow_ind = NULL; //look up table for pow lens distort indexes
@@ -911,7 +912,7 @@ void fx_yu12_gauss_blur(uint8_t* frame, int width, int height, int radius)
 	if(tmpbuffer == NULL)
 		tmpbuffer = malloc(width * height * 3 / 2);
 
-  memcpy(tmpbuffer, frame, width * height * 3 / 2);
+  memcpy(tmpbuffer, frame, width * height);
 
 	int i = 0;
 	int j = 0;
@@ -965,18 +966,33 @@ static void boxes4gauss(int sigma, int n)
 
 	int m = lround(ideal_m);
 
+	//allocate division lookup table
+	divTable = calloc(n, sizeof(int*));
+
 	int i = 0;
+	int j = 0;
 	for(i = 0; i < n; ++i)
+	{
 		bSizes[i] = (i < m) ? wl : wu;
+		bSizes[i] -= 1;
+		bSizes[i] /= 2;
+
+		//precalculate all possible division values for this box size
+		int divider = bSizes[i] + bSizes[i] + 1; // r + r +1
+		divTable[i] = calloc(256 * divider, sizeof(int));
+
+		for(j = 0; j < 256*divider; ++j)
+			divTable[i][j] = j/divider;
+	}
 }
 
 /*
  * box blur horizontal
  */
-void boxBlurH(uint8_t* scl, uint8_t* tcl, int w, int h, int r)
+void boxBlurH(uint8_t* scl, uint8_t* tcl, int w, int h, int r_ind)
 {
-	int iarr = r + r + 1;
-
+	int r = bSizes[r_ind];
+	//int iarr = r + r + 1;
 	int i = 0;
 	int j = 0;
 
@@ -996,19 +1012,19 @@ void boxBlurH(uint8_t* scl, uint8_t* tcl, int w, int h, int r)
     for(j = 0; j <= r; ++j)
 		{
 			val += scl[ri++] - fv;
-			tcl[ti++] = (uint8_t) lround(val/iarr) & 0xff;
+			tcl[ti++] = (uint8_t) divTable[r_ind][val] & 0xff;
 		}
 
 		for(j = r+1; j < w-r; ++j)
 		{
 			val += scl[ri++] - scl[li++];
-			tcl[ti++] = (uint8_t) lround(val/iarr) & 0xff;
+			tcl[ti++] = (uint8_t) divTable[r_ind][val] & 0xff;
 		}
 
 		for( j =w-r; j < w; ++j)
 		{
 			val += lv - scl[li++];
-			tcl[ti++] = (uint8_t) lround(val/iarr) & 0xff;
+			tcl[ti++] = (uint8_t) divTable[r_ind][val] & 0xff;
 		}
   }
 }
@@ -1016,9 +1032,10 @@ void boxBlurH(uint8_t* scl, uint8_t* tcl, int w, int h, int r)
 /*
  * box blur total
  */
-void boxBlurT(uint8_t* scl, uint8_t* tcl, int w, int h, int r)
+void boxBlurT(uint8_t* scl, uint8_t* tcl, int w, int h, int r_ind)
 {
-	int iarr = r + r + 1;
+	int r = bSizes[r_ind];
+	//int iarr = r + r + 1;
 
 	int i = 0;
 	int j = 0;
@@ -1039,7 +1056,7 @@ void boxBlurT(uint8_t* scl, uint8_t* tcl, int w, int h, int r)
     for(j = 0; j <= r; ++j)
 		{
 			val += scl[ri] - fv;
-			tcl[ti] = (uint8_t) lround(val/iarr) & 0xff;
+			tcl[ti] = (uint8_t) divTable[r_ind][val] & 0xff;
 			ri += w;
 			ti += w;
 		}
@@ -1047,7 +1064,7 @@ void boxBlurT(uint8_t* scl, uint8_t* tcl, int w, int h, int r)
 		for(j = r+1; j < h-r; ++j)
 		{
 			val += scl[ri] - scl[li];
-			tcl[ti] = (uint8_t) lround(val/iarr) & 0xff;
+			tcl[ti] = (uint8_t) divTable[r_ind][val] & 0xff;
 			li += w;
 			ri += w;
 			ti += w;
@@ -1056,7 +1073,7 @@ void boxBlurT(uint8_t* scl, uint8_t* tcl, int w, int h, int r)
 		for(j = h-r; j < h; ++j)
 		{
 			val += lv - scl[li];
-			tcl[ti] = (uint8_t) lround(val/iarr) & 0xff;
+			tcl[ti] = (uint8_t) divTable[r_ind][val] & 0xff;
 			li += w;
 			ti += w;
 		}
@@ -1066,15 +1083,10 @@ void boxBlurT(uint8_t* scl, uint8_t* tcl, int w, int h, int r)
 /*
  * box blur
  */
-void boxBlur(uint8_t* scl, uint8_t* tcl, int width, int height, int r)
+void boxBlur(uint8_t* scl, uint8_t* tcl, int width, int height, int r_ind)
 {
-
-	int i = 0;
-	for(i = 0; i < width * height; ++i) //memcpy
-		tcl[i] = scl[i];
-
-	boxBlurH(tcl, scl, width, height, r);
-	boxBlurT(scl, tcl, width, height, r);
+	boxBlurH(tcl, scl, width, height, r_ind);
+	boxBlurT(scl, tcl, width, height, r_ind);
 }
 
 /*
@@ -1097,12 +1109,17 @@ void fx_yu12_gauss_blur2(uint8_t* frame, int width, int height, int sigma)
 	if(tmpbuffer == NULL)
 		tmpbuffer = malloc(width * height * 3 / 2);
 
+	//int i = 0;
+	//for(i = 0; i < width * height; ++i) //memcpy
+	//	tmpbuffer[i] = frame[i];
+	memcpy(tmpbuffer, frame, width * height);
+
 	//iterate 3 times
 	boxes4gauss(sigma, 3);
 
-	boxBlur(frame, tmpbuffer, width, height, (bSizes[0] - 1)/2);
-	boxBlur(tmpbuffer, frame, width, height, (bSizes[1] - 1)/2);
-	boxBlur(frame, tmpbuffer, width, height, (bSizes[2] - 1)/2);
+	boxBlur(frame, tmpbuffer, width, height, 0);
+	boxBlur(tmpbuffer, frame, width, height, 1);
+	boxBlur(frame, tmpbuffer, width, height, 2);
 
 }
 
@@ -1727,6 +1744,14 @@ void render_clean_fx()
 
 	if(bSizes != NULL)
 	{
+			if(divTable != NULL)
+			{
+				int i = 0;
+				for(i = 0; i < ARRAY_LENGTH(bSizes); ++i)
+					free(divTable[i]);
+				free(divTable);
+				divTable = NULL;
+			}
 			free(bSizes);
 			bSizes = NULL;
 	}
