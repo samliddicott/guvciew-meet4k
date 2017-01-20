@@ -240,7 +240,7 @@ msgstr "Balanço de branco componente azul"
 
 #: ../gview_v4l2core/v4l2_controls.c:107
 msgid "White Balance Red Component"
-msgstr "Balando de branco componente vermelho"
+msgstr "Balanço de branco componente vermelho"
 
 #. libwebcam specific control strings
 #: ../gview_v4l2core/v4l2_controls.c:110

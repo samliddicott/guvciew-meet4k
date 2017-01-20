@@ -215,7 +215,7 @@ msgstr "Exposição automática"
 
 #: ../gview_v4l2core/v4l2_controls.c:101
 msgid "Exposure, Auto Priority"
-msgstr "Esxposição com prioridade automática"
+msgstr "Exposição com prioridade automática"
 
 #: ../gview_v4l2core/v4l2_controls.c:102
 msgid "Exposure (Absolute)"
@@ -235,11 +235,11 @@ msgstr "Componente de brancos automática"
 
 #: ../gview_v4l2core/v4l2_controls.c:106
 msgid "White Balance Blue Component"
-msgstr "Componente azul"
+msgstr "Balanço de brancos componente azul"
 
 #: ../gview_v4l2core/v4l2_controls.c:107
 msgid "White Balance Red Component"
-msgstr "Componente vermelho"
+msgstr "Balanço de brancos componente vermelho"
 
 #. libwebcam specific control strings
 #: ../gview_v4l2core/v4l2_controls.c:110

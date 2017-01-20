@@ -509,17 +509,17 @@ int gui_attach_gtk3_videoctrls(GtkWidget *parent)
 	g_signal_connect (GTK_CHECK_BUTTON(FiltBlurEnable), "toggled",
 		G_CALLBACK (render_fx_filter_changed), NULL);
 
-        /* Anti-Aliasing Scale3x */
-	GtkWidget *FiltAntiAlias3xEnable = gtk_check_button_new_with_label (_(" Anti-Aliasing (Scale3x)"));
-	g_object_set_data (G_OBJECT (FiltAntiAlias3xEnable), "filt_info", GINT_TO_POINTER(REND_FX_YUV_ANTIALIAS_SCALE3X));
-	gtk_widget_set_halign (FiltAntiAlias3xEnable, GTK_ALIGN_FILL);
-	gtk_widget_set_hexpand (FiltAntiAlias3xEnable, TRUE);
-	gtk_grid_attach(GTK_GRID(table_filt), FiltAntiAlias3xEnable, 0, 2, 1, 1);
+        /* Blur 2 */
+	GtkWidget *FiltBlur2Enable = gtk_check_button_new_with_label (_(" Blur more"));
+	g_object_set_data (G_OBJECT (FiltBlur2Enable), "filt_info", GINT_TO_POINTER(REND_FX_YUV_BLUR2));
+	gtk_widget_set_halign (FiltBlur2Enable, GTK_ALIGN_FILL);
+	gtk_widget_set_hexpand (FiltBlur2Enable, TRUE);
+	gtk_grid_attach(GTK_GRID(table_filt), FiltBlur2Enable, 0, 2, 1, 1);
 
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(FiltAntiAlias3xEnable),
-		(get_render_fx_mask() & REND_FX_YUV_ANTIALIAS_SCALE3X) > 0);
-	gtk_widget_show (FiltAntiAlias3xEnable);
-	g_signal_connect (GTK_CHECK_BUTTON(FiltAntiAlias3xEnable), "toggled",
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(FiltBlur2Enable),
+		(get_render_fx_mask() & REND_FX_YUV_BLUR2) > 0);
+	gtk_widget_show (FiltBlur2Enable);
+	g_signal_connect (GTK_CHECK_BUTTON(FiltBlur2Enable), "toggled",
 		G_CALLBACK (render_fx_filter_changed), NULL);
 
 	/* ----- OSD controls -----*/

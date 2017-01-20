@@ -385,15 +385,15 @@ int MainWindow::gui_attach_qt5_videoctrls(QWidget *parent)
 	/*connect signal*/
 	connect(FiltBlurEnable, SIGNAL(stateChanged(int)), this, SLOT(render_fx_filter_changed(int)));
 
-        /* Anti-Aliasing Scale3x*/
-	QCheckBox *FiltAntiAlias3xEnable = new QCheckBox(_(" Anti-Aliasing (Scale3x)"), table_filt);
-	FiltAntiAlias3xEnable->setProperty("filt_info", REND_FX_YUV_ANTIALIAS_SCALE3X);
-	FiltAntiAlias3xEnable->show();
+        /* Blur 2*/
+	QCheckBox *FiltBlur2Enable = new QCheckBox(_(" Blur more"), table_filt);
+	FiltBlur2Enable->setProperty("filt_info", REND_FX_YUV_BLUR2);
+	FiltBlur2Enable->show();
 
-	filt_layout->addWidget(FiltAntiAlias3xEnable, 2, 0);
-	FiltAntiAlias3xEnable->setChecked((get_render_fx_mask() & REND_FX_YUV_ANTIALIAS_SCALE3X) > 0);
+	filt_layout->addWidget(FiltBlur2Enable, 2, 0);
+	FiltBlur2Enable->setChecked((get_render_fx_mask() & REND_FX_YUV_BLUR2) > 0);
 	/*connect signal*/
-	connect(FiltAntiAlias3xEnable, SIGNAL(stateChanged(int)), this, SLOT(render_fx_filter_changed(int)));
+	connect(FiltBlur2Enable, SIGNAL(stateChanged(int)), this, SLOT(render_fx_filter_changed(int)));
 
 	/* ----- OSD controls -----*/
 	line++;

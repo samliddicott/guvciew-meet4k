@@ -37,10 +37,16 @@
 	#include <gsl/gsl_rng.h>
 #endif
 
+typedef struct _blur_t
+{
+	int n; //number of iterations
+	int sigma; //deviation
+	int* bSizes; //box sizes array
+	int** divTable; //division lookup table for each box size
+} blur_t;
 
-double *Gkernel = NULL; //gaussian kernel matrix
-int* bSizes = NULL;
-int** divTable = NULL; //division lookup table
+static blur_t* blur[2] = {NULL, NULL};
+
 uint8_t *tmpbuffer = NULL;
 uint32_t *TB_Sqrt_ind = NULL; //look up table for sqrt lens distort indexes
 uint32_t *TB_Pow_ind = NULL; //look up table for pow lens distort indexes
@@ -57,7 +63,7 @@ typedef struct _particle_t
 	float decay;
 } particle_t;
 
-static particle_t *particles = NULL;
+static particle_t* particles = NULL;
 
 /*
  * Flip yu12 frame - horizontal
@@ -845,115 +851,34 @@ void eval_coordinates (double x, double y, double *xnew, double *ynew, int type)
 }
 
 /*
- * generate gaussian kernel
- * args:
- *    radius  - radius for gaussian blur (e.g r=2 -> kernel 5x5)
- *
- * asserts:
- *    none
- *
- * returns: void
- */
-static void generate_gauss_kernel(int radius)
-{
-	if(Gkernel != NULL)
-		return; //kernel already generated
-
-	int msize = 2 * radius + 1; //matrix size (msize * msize)
-	Gkernel = malloc(msize*msize*sizeof(double));
-
-	double r = radius;
-	double s = radius;
-	double sum = 0.0;
-
-	int x = 0;
-	int y = 0;
-
-	for (y = -radius; y <= radius; ++y)
-	{
-		for(x = -radius; x <= radius; ++x)
-		{
-			r = sqrt(x*x + y*y);
-			Gkernel[(y+radius)*msize + (x+radius)] = (exp(-(r*r)/s))/(PI * s);
-			sum += Gkernel[(y+radius)*msize + (x+radius)];
-		}
-	}
-
-	//normalize it
-	for( y = 0; y <= 2 * radius; ++y)
-		for( x = 0; x <= 2 * radius; ++x)
-			Gkernel[(y * msize) + x] /= sum;
-}
-
-/*
- * gaussian blur
- * args:
- *    frame  - pointer to frame buffer (yu12 format)
- *    width  - frame width
- *    height - frame height
- *    radius - blur radius (even value)
- *
- * asserts:
- *    frame is not null
- *
- * returns: void
- */
-void fx_yu12_gauss_blur(uint8_t* frame, int width, int height, int radius)
-{
-	assert(frame != NULL);
-
-	//make sure we have a even radius (matrix size must be odd = radius + 1 )
-	if(radius%2!=0)
-		radius--;
-
-	int msize = 2 * radius + 1;
-	generate_gauss_kernel(radius);
-
-	if(tmpbuffer == NULL)
-		tmpbuffer = malloc(width * height * 3 / 2);
-
-  memcpy(tmpbuffer, frame, width * height);
-
-	int i = 0;
-	int j = 0;
-	int x = 0;
-	int y = 0;
-
-	for(i = radius; i < height - radius; ++i )
-	{
-		for(j = radius; j < width - radius; ++j)
-		{
-			double sum = 0;
-			for(y = -radius; y <= radius; ++y )
-			{
-				for(x = - radius; x <= radius; ++x)
-				{
-					sum += tmpbuffer[(i + y) * width + (j + x)] * Gkernel[(y + radius) * msize + (x+radius)];
-				}
-			}
-
-			frame[i * width + j] = (uint8_t) lround(sum) & 0xff;
-		}
-	}
-}
-
-/*
  * generate box sizes for box blur and precalculate all possible division values
  * args:
  *    sigma - standard deviation
  *    n - number of boxes
+ *    blur - pointer to blur struct
  *
  * asserts:
- *    none
+ *    blur is not NULL
  *
  * returns: void
  */
-static void boxes4gauss(int sigma, int n)
+static void boxes4gauss(int sigma, int n, blur_t* blur)
 {
-	if(bSizes != NULL)
-		return; //already calculated
+	assert(blur != NULL);
 
-	bSizes = calloc(n, sizeof(int));
+	if(blur->n == n && blur->sigma == sigma)
+		return; //already done
+
+	int i = 0;
+	int j = 0;
+
+	blur->n = n;
+	blur->sigma = sigma;
+
+	//allocate box sizes array
+	if(blur->bSizes != NULL)
+		free(blur->bSizes);
+	blur->bSizes = calloc(n, sizeof(int));
 
 	double ideal_width = sqrt((12*sigma*sigma/n) + 1);
 
@@ -967,32 +892,48 @@ static void boxes4gauss(int sigma, int n)
 	int m = lround(ideal_m);
 
 	//allocate division lookup table
-	divTable = calloc(n, sizeof(int*));
+	if(blur->divTable != NULL)
+	{
+		for(i = 0; i < n; ++i)
+			free(blur->divTable[i]);
+		free(blur->divTable);
+	}
+	blur->divTable = calloc(n, sizeof(int*));
 
-	int i = 0;
-	int j = 0;
 	for(i = 0; i < n; ++i)
 	{
-		bSizes[i] = (i < m) ? wl : wu;
-		bSizes[i] -= 1;
-		bSizes[i] /= 2;
+		blur->bSizes[i] = (i < m) ? wl : wu;
+		blur->bSizes[i] -= 1;
+		blur->bSizes[i] /= 2;
 
 		//precalculate all possible division values for this box size
-		int divider = bSizes[i] + bSizes[i] + 1; // r + r +1
-		divTable[i] = calloc(256 * divider, sizeof(int));
+		int divider = blur->bSizes[i] + blur->bSizes[i] + 1; // r + r +1
+		blur->divTable[i] = calloc(256 * divider, sizeof(int));
 
 		for(j = 0; j < 256*divider; ++j)
-			divTable[i][j] = j/divider;
+			blur->divTable[i][j] = j/divider;
 	}
 }
 
 /*
  * box blur horizontal
+ * args:
+ *    scl - source channel (pix buffer)
+ *    tcl - temporary channel (pix buffer)
+ *    w - width
+ *    h - height
+ *    r_ind - size indice in box size array
+ *    blur - pointer to blur struct
+ *
+ * asserts:
+ *    none
+ *
+ * returns: void
  */
-void boxBlurH(uint8_t* scl, uint8_t* tcl, int w, int h, int r_ind)
+void boxBlurH(uint8_t* scl, uint8_t* tcl, int w, int h, int r_ind, blur_t* blur)
 {
-	int r = bSizes[r_ind];
-	//int iarr = r + r + 1;
+	int r = blur->bSizes[r_ind];
+
 	int i = 0;
 	int j = 0;
 
@@ -1012,30 +953,41 @@ void boxBlurH(uint8_t* scl, uint8_t* tcl, int w, int h, int r_ind)
     for(j = 0; j <= r; ++j)
 		{
 			val += scl[ri++] - fv;
-			tcl[ti++] = (uint8_t) divTable[r_ind][val] & 0xff;
+			tcl[ti++] = (uint8_t) blur->divTable[r_ind][val] & 0xff;
 		}
 
 		for(j = r+1; j < w-r; ++j)
 		{
 			val += scl[ri++] - scl[li++];
-			tcl[ti++] = (uint8_t) divTable[r_ind][val] & 0xff;
+			tcl[ti++] = (uint8_t) blur->divTable[r_ind][val] & 0xff;
 		}
 
 		for( j =w-r; j < w; ++j)
 		{
 			val += lv - scl[li++];
-			tcl[ti++] = (uint8_t) divTable[r_ind][val] & 0xff;
+			tcl[ti++] = (uint8_t) blur->divTable[r_ind][val] & 0xff;
 		}
   }
 }
 
 /*
  * box blur total
+ * args:
+ *    scl - source channel (pix buffer)
+ *    tcl - temporary channel (pix buffer)
+ *    w - width
+ *    h - height
+ *    r_ind - iteration index
+ *    blur - pointer to blur struct
+ *
+ * asserts:
+ *    none
+ *
+ * returns: void
  */
-void boxBlurT(uint8_t* scl, uint8_t* tcl, int w, int h, int r_ind)
+void boxBlurT(uint8_t* scl, uint8_t* tcl, int w, int h, int r_ind, blur_t* blur)
 {
-	int r = bSizes[r_ind];
-	//int iarr = r + r + 1;
+	int r = blur->bSizes[r_ind];
 
 	int i = 0;
 	int j = 0;
@@ -1056,7 +1008,7 @@ void boxBlurT(uint8_t* scl, uint8_t* tcl, int w, int h, int r_ind)
     for(j = 0; j <= r; ++j)
 		{
 			val += scl[ri] - fv;
-			tcl[ti] = (uint8_t) divTable[r_ind][val] & 0xff;
+			tcl[ti] = (uint8_t) blur->divTable[r_ind][val] & 0xff;
 			ri += w;
 			ti += w;
 		}
@@ -1064,7 +1016,7 @@ void boxBlurT(uint8_t* scl, uint8_t* tcl, int w, int h, int r_ind)
 		for(j = r+1; j < h-r; ++j)
 		{
 			val += scl[ri] - scl[li];
-			tcl[ti] = (uint8_t) divTable[r_ind][val] & 0xff;
+			tcl[ti] = (uint8_t) blur->divTable[r_ind][val] & 0xff;
 			li += w;
 			ri += w;
 			ti += w;
@@ -1073,7 +1025,7 @@ void boxBlurT(uint8_t* scl, uint8_t* tcl, int w, int h, int r_ind)
 		for(j = h-r; j < h; ++j)
 		{
 			val += lv - scl[li];
-			tcl[ti] = (uint8_t) divTable[r_ind][val] & 0xff;
+			tcl[ti] = (uint8_t) blur->divTable[r_ind][val] & 0xff;
 			li += w;
 			ti += w;
 		}
@@ -1082,13 +1034,25 @@ void boxBlurT(uint8_t* scl, uint8_t* tcl, int w, int h, int r_ind)
 
 /*
  * box blur
+ * args:
+ *    scl - source channel (pix buffer)
+ *    tcl - temporary channel (pix buffer)
+ *    width - channel width
+ *    height - channel height
+ *    r_ind - size indice in box size array
+ *    blur - pointer to blur struct
+ *
+ * asserts:
+ *    none
+ *
+ * returns: void
  */
-void boxBlur(uint8_t* scl, uint8_t* tcl, int width, int height, int r_ind)
+void boxBlur(uint8_t* scl, uint8_t* tcl, int width, int height, int r_ind, blur_t* blur)
 {
 	memcpy(tcl, scl, width * height);
 
-	boxBlurH(tcl, scl, width, height, r_ind);
-	boxBlurT(scl, tcl, width, height, r_ind);
+	boxBlurH(tcl, scl, width, height, r_ind, blur);
+	boxBlurT(scl, tcl, width, height, r_ind, blur);
 }
 
 /*
@@ -1098,398 +1062,32 @@ void boxBlur(uint8_t* scl, uint8_t* tcl, int width, int height, int r_ind)
  *    width  - frame width
  *    height - frame height
  *    sigma - deviation
+ *    ind - blur struct index to use
  *
  * asserts:
  *    frame is not null
+ *    ind is smaller than blur struct array lenght
  *
  * returns: void
  */
-void fx_yu12_gauss_blur2(uint8_t* frame, int width, int height, int sigma)
+void fx_yu12_gauss_blur(uint8_t* frame, int width, int height, int sigma, int ind)
 {
 	assert(frame != NULL);
 
-	if(tmpbuffer == NULL)
+	assert(ind < ARRAY_LENGTH(blur));
+
+	if(!tmpbuffer)
 		tmpbuffer = malloc(width * height * 3 / 2);
 
-	//memcpy(tmpbuffer, frame, width * height);
+	if(!blur[ind])
+		blur[ind] = calloc(1, sizeof(blur_t));
 
 	//iterate 3 times
-	boxes4gauss(sigma, 3);
+	boxes4gauss(sigma, 3, blur[ind]);
 
-	boxBlur(frame, tmpbuffer, width, height, 0);
-	boxBlur(tmpbuffer, frame, width, height, 1);
-	boxBlur(frame, tmpbuffer, width, height, 2);
-
-}
-
-/*
- * anti-aliasing
- * args:
- *    frame  - pointer to frame buffer (yu12 format)
- *    width  - frame width
- *    height - frame height
- *    scale - 2 (Scale2x) or 3 (Scale3x)
- *
- * asserts:
- *    frame is not null
- *
- * returns: void
- */
-void fx_yu12_antialiasing(uint8_t* frame, int width, int height, int scale)
-{
-	assert(frame != NULL);
-
-	uint8_t *pu = frame + (width*height);
-	uint8_t *pv = pu + (width*height)/4;
-
-	int luma = 0;
-	int chroma = 0;
-
-	uint8_t E = 0;
-	uint8_t A = 0;
-	uint8_t B = 0;
-	uint8_t C = 0;
-	uint8_t D = 0;
-	uint8_t F = 0;
-	uint8_t G = 0;
-	uint8_t H = 0;
-	uint8_t I = 0;
-
-	uint8_t E0 = 0;
-	uint8_t E1 = 0;
-	uint8_t E2 = 0;
-	uint8_t E3 = 0;
-	uint8_t E4 = 0;
-	uint8_t E5 = 0;
-	uint8_t E6 = 0;
-	uint8_t E7 = 0;
-	uint8_t E8 = 0;
-
-	int ind = 0;
-
-	int i = 0;
-	int j = 0;
-
-	int hwidth = width >> 1;   //div by 2
-	int hheight = height >> 1; //div by 2
-
-	/*
-	 *    A...B...C
-	 *    D...E...F
-	 *    G...H...I
-	 */
-	for(j = 0; j < height; ++j)
-	{
-		for(i = 0; i < width; ++i)
-		{
-			ind = i + (j * width);
-
-			E = frame[ind];
-
-			if(j > 0)
-				B = frame[i + ((j-1) * width)];
-			else
-				B = E;
-
-			if(i > 0)
-				D = frame[(i-1) + (j * width)];
-			else
-				D = E;
-
-			if(i < width - 1)
-				F = frame[(i+1) + (j * width)];
-			else
-				F = E;
-
-			if(j < (height - 1))
-				H = frame[i + ((j+1) * width)];
-			else
-				H = E;
-
-			switch(scale)
-			{
-				case 3:
-				{
-					if(j > 0 && i > 0)
-						A = frame[(i-1) + ((j-1) * width)];
-					else
-						A = E;
-
-					if(j > 0 && i < (width -1))
-						C = frame[(i+1) + ((j-1) * width)];
-					else
-						C = E;
-
-					if(j < (height - 1) && i > 0)
-						G = frame[(i-1) + ((j+1) * width)];
-					else
-						G = E;
-
-					if(j < (height - 1) && i < (width -1))
-						I = frame[(i+1) + ((j+1) * width)];
-					else
-						I = E;
-
-					if (B != H && D != F)
-					{
-						E0 = (D == B) ? D : E;
-						E1 = (D == B && E != C) || (B == F && E != A) ? B : E;
-						E2 = (B == F) ? F : E;
-						E3 = (D == B && E != G) || (D == H && E != A) ? D : E;
-						E4 = E;
-						E5 = (B == F && E != I) || (H == F && E != C) ? F : E;
-						E6 = (D == H) ? D : E;
-						E7 = (D == H && E != I) || (H == F && E != G) ? H : E;
-						E8 = (H == F) ? F : E;
-					}
-					else
-					{
-						E0 = E;
-						E1 = E;
-						E2 = E;
-						E3 = E;
-						E4 = E;
-						E5 = E;
-						E6 = E;
-						E7 = E;
-						E8 = E;
-					}
-
-					luma = (E0 + E1 + E2 + E3 + E4 + E5 + E6 + E7 + E8)/9;
-					frame[ind] = luma;
-				}
-				break;
-
-				case 2:
-				default:
-				{
-					if( B != H && D != F)
-					{
-						E0 = (D == B) ? D : E;
-						E1 = (B == F) ? F : E;
-						E2 = (D == H) ? D : E;
-						E3 = (H == F) ? F : E;
-					}
-					else
-					{
-						E0 = E;
-						E1 = E;
-						E2 = E;
-						E3 = E;
-					}
-					luma = (E0 + E1 + E2 + E3);
-					frame[ind] = luma >> 2; //div by 4
-				}
-				break;
-			}
-
-			if(j % 2 == 0 && i % 2 == 0)
-			{
-				int bi = i >> 1;
-				int bj = j >> 1;
-				//chroma U
-				E = pu[bi + (bj * hwidth)];
-
-				if(j > 0)
-					B = pu[bi + ((bj-1) * hwidth)];
-				else
-					B = E;
-
-				if(bi > 0)
-					D = pu[(bi-1) + (bj * hwidth)];
-				else
-					D = E;
-
-				if(bi < hwidth - 1)
-					F = pu[(bi+1) + (bj * hwidth)];
-				else
-					F = E;
-
-				if(j < (hheight - 1))
-					H = pu[bi + ((bj+1) * hwidth)];
-				else
-					H = E;
-
-				switch(scale)
-				{
-					case 3:
-					{
-						if(bj > 0 && bi > 0)
-							A = pu[(bi-1) + ((bj-1) * hwidth)];
-						else
-							A = E;
-
-						if(bj > 0 && bi < (hwidth -1))
-							C = pu[(bi+1) + ((bj-1) * hwidth)];
-						else
-							C = E;
-
-						if(bj < (hheight - 1) && bi > 0)
-							G = pu[(bi-1) + ((bj+1) * hwidth)];
-						else
-							G = E;
-
-						if(bj < (hheight - 1) && bi < (hwidth -1))
-							I = pu[(bi+1) + ((bj+1) * hwidth)];
-						else
-							I = E;
-
-						if (B != H && D != F)
-						{
-							E0 = (D == B) ? D : E;
-							E1 = (D == B && E != C) || (B == F && E != A) ? B : E;
-							E2 = (B == F) ? F : E;
-							E3 = (D == B && E != G) || (D == H && E != A) ? D : E;
-							E4 = E;
-							E5 = (B == F && E != I) || (H == F && E != C) ? F : E;
-							E6 = (D == H) ? D : E;
-							E7 = (D == H && E != I) || (H == F && E != G) ? H : E;
-							E8 = (H == F) ? F : E;
-						}
-						else
-						{
-							E0 = E;
-							E1 = E;
-							E2 = E;
-							E3 = E;
-							E4 = E;
-							E5 = E;
-							E6 = E;
-							E7 = E;
-							E8 = E;
-						}
-
-						chroma = (E0 + E1 + E2 + E3 + E4 + E5 + E6 + E7 + E8)/9;
-						pu[bi + (bj * hwidth)] = chroma;
-					}
-					break;
-
-					case 2:
-					default:
-					{
-						if( B != H && D != F)
-						{
-							E0 = (D == B) ? D : E;
-							E1 = (B == F) ? F : E;
-							E2 = (D == H) ? D : E;
-							E3 = (H == F) ? F : E;
-						}
-						else
-						{
-							E0 = E;
-							E1 = E;
-							E2 = E;
-							E3 = E;
-						}
-						chroma = (E0 + E1 + E2 + E3);
-						pu[bi + (bj * hwidth)] = chroma >> 2; //div by 4
-					}
-					break;
-				}
-
-				//chroma V
-				E = pv[bi + (bj * hwidth)];
-
-				if(j > 0)
-					B = pv[bi + ((bj-1) * hwidth)];
-				else
-					B = E;
-
-				if(bi > 0)
-					D = pv[(bi-1) + (bj * hwidth)];
-				else
-					D = E;
-
-				if(bi < hwidth - 1)
-					F = pv[(bi+1) + (bj * hwidth)];
-				else
-					F = E;
-
-				if(j < (hheight - 1))
-					H = pv[bi + ((bj+1) * hwidth)];
-				else
-					H = E;
-
-				switch(scale)
-				{
-					case 3:
-					{
-						if(bj > 0 && bi > 0)
-							A = pv[(bi-1) + ((bj-1) * hwidth)];
-						else
-							A = E;
-
-						if(bj > 0 && bi < (hwidth -1))
-							C = pv[(bi+1) + ((bj-1) * hwidth)];
-						else
-							C = E;
-
-						if(bj < (hheight - 1) && bi > 0)
-							G = pv[(bi-1) + ((bj+1) * hwidth)];
-						else
-							G = E;
-
-						if(bj < (hheight - 1) && bi < (hwidth -1))
-							I = pv[(bi+1) + ((bj+1) * hwidth)];
-						else
-							I = E;
-
-						if (B != H && D != F)
-						{
-							E0 = (D == B) ? D : E;
-							E1 = (D == B && E != C) || (B == F && E != A) ? B : E;
-							E2 = (B == F) ? F : E;
-							E3 = (D == B && E != G) || (D == H && E != A) ? D : E;
-							E4 = E;
-							E5 = (B == F && E != I) || (H == F && E != C) ? F : E;
-							E6 = (D == H) ? D : E;
-							E7 = (D == H && E != I) || (H == F && E != G) ? H : E;
-							E8 = (H == F) ? F : E;
-						}
-						else
-						{
-							E0 = E;
-							E1 = E;
-							E2 = E;
-							E3 = E;
-							E4 = E;
-							E5 = E;
-							E6 = E;
-							E7 = E;
-							E8 = E;
-						}
-
-						chroma = (E0 + E1 + E2 + E3 + E4 + E5 + E6 + E7 + E8)/9;
-						pv[bi + (bj * hwidth)] = chroma;
-					}
-					break;
-
-					case 2:
-					default:
-					{
-						if( B != H && D != F)
-						{
-							E0 = (D == B) ? D : E;
-							E1 = (B == F) ? F : E;
-							E2 = (D == H) ? D : E;
-							E3 = (H == F) ? F : E;
-						}
-						else
-						{
-							E0 = E;
-							E1 = E;
-							E2 = E;
-							E3 = E;
-						}
-						chroma = (E0 + E1 + E2 + E3);
-						pv[bi + (bj * hwidth)] = chroma >> 2; //div by 4
-					}
-					break;
-				}
-			}
-
-		}
-	}
+	boxBlur(frame, tmpbuffer, width, height, 0, blur[ind]);
+	boxBlur(tmpbuffer, frame, width, height, 1, blur[ind]);
+	boxBlur(frame, tmpbuffer, width, height, 2, blur[ind]);
 }
 
 /*
@@ -1707,11 +1305,10 @@ void render_fx_apply(uint8_t *frame, int width, int height, uint32_t mask)
 			fx_yu12_distort(frame, width, height, 0, 0, REND_FX_YUV_POW2_DISTORT);
 
 		if(mask & REND_FX_YUV_BLUR)
-			fx_yu12_gauss_blur2(frame, width, height, 2);
-			//fx_yu12_gauss_blur(frame, width, height, 2);
+			fx_yu12_gauss_blur(frame, width, height, 2, 0);
 
-		if(mask & REND_FX_YUV_ANTIALIAS_SCALE3X)
-			fx_yu12_antialiasing(frame, width, height, 3);
+		if(mask & REND_FX_YUV_BLUR2)
+			fx_yu12_gauss_blur(frame, width, height, 6, 1);
 	}
 	else
 		render_clean_fx();
@@ -1735,24 +1332,24 @@ void render_clean_fx()
 		particles = NULL;
 	}
 
-	if(Gkernel != NULL)
+	int j = 0;
+	for(j = 0; j < 2; ++j)
 	{
-			free(Gkernel);
-			Gkernel = NULL;
-	}
+		if(blur[j] != NULL)
+		{
+			if(blur[j]->bSizes != NULL)
+				free(blur[j]->bSizes);
 
-	if(bSizes != NULL)
-	{
-			if(divTable != NULL)
+			if(blur[j]->divTable != NULL)
 			{
 				int i = 0;
-				for(i = 0; i < ARRAY_LENGTH(bSizes); ++i)
-					free(divTable[i]);
-				free(divTable);
-				divTable = NULL;
+				for(i = 0; i < blur[j]->n; ++i)
+					free(blur[j]->divTable[i]);
+				free(blur[j]->divTable);
 			}
-			free(bSizes);
-			bSizes = NULL;
+			free(blur[j]);
+			blur[j] = NULL;
+		}
 	}
 
 	if(tmpbuffer != NULL)
