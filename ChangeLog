@@ -2,9 +2,26 @@ guvcview (2.0.5)
 
    * terminate configure if qt5 is enabled and moc is missing
    * add sfml render
-   * fix aac encoder (replace experimental aac by libvo_aacenc) 
+   * fix aac encoder (replace experimental aac by libvo_aacenc)
+   * fix build against newer kernels
+   * disable window key pressed events if a string control has focus
+   * fix video monotonic pts flag value in encoder context
+   * fix audio cleanup
+   * add support for HEVC (h265) video codec
+   * fix muxed h264 support; fix raw output (alloc outbuf frame)
+   * add circular buffer for delayed audio frames pts
+   * remove support for older libavcodec vesions (< 54.01)
+   * add support for VP9
+   * fix motion estimation method for x264 [1-4]
+   * fix buggy behaviour for file names without extension
+   * add support for sfml render
+   * drop support for sdl1 based render
+   * Flavio Spagnuolo <flavio.spagnuolo@gmail.com>: fix matroska clean up when audio is disabled
+   * fix segfault when destroying mutexes by unlocking already unlocked mutexes
+   * fix libc readdir_r deprecated warning: replace by readdir
+   * add extra video fx filters
 
- -- Paulo Assis <pj.assis@gmail.com> Mon, 2 May 2016 15:50:00 +0100
+ -- Paulo Assis <pj.assis@gmail.com> Mon, 8 Feb 2017 15:20:00 +0100
 
 guvcview (2.0.4)
 
@@ -57,7 +74,7 @@ guvcview (2.0.2)
     * fix pan/tilt for logitech peripheral V3 (use raw control instead of v4l2)
 
  -- Paulo Assis <pj.assis@gmail.com> Mon, 27 Jul 2015 12:00:00 +0100
- 
+
 guvcview (2.0.1)
 
     * Fix audio clean bug (segfault when audio=none)
@@ -66,7 +83,7 @@ guvcview (2.0.1)
     * Workaround uvcvideo bug (buf.bytesused=0 on kernels >=3.16)
 
  -- Paulo Assis <pj.assis@gmail.com> Tue, 30 Sep 2014 18:05:00 +0100
- 
+
 guvcview (2.0.0)
 
     * new version 2.0.0 (code rewriten from scratch)
@@ -86,23 +103,23 @@ guvcview (1.7.3)
        SIGUSR1 and SIGUSR2
     * add true no_display mode (no X required)
     * small bug fixes
-    
+
  -- Paulo Assis <pj.assis@gmail.com>  Sun, 16 Feb 2014 10:24:00 +0000
- 
+
 guvcview (1.7.2)
 
     * Add H264 decoding support.
     * Sync translations.
-    
+
  -- Paulo Assis <pj.assis@gmail.com>  Sun, 8 Dec 2013 10:26:00 +0000
- 
+
 guvcview (1.7.1)
 
     * Fix avi muxer: fix opendml indexes (>= 1Gb)
     * Update Italian translation
-    
+
  -- Paulo Assis <pj.assis@gmail.com>  Tue, 16 Jul 2013 13:27:00 +0000
- 
+
 guvcview (1.7.0)
 
     * refactor avi muxer (base it on libav muxer with opendml support)
