@@ -124,7 +124,7 @@ static opt_values_t opt_values[] =
 		.opt_long = "render_window",
 		.req_arg = 1,
 		.opt_help_arg = N_("RENDER_WINDOW_FLAGS"),
-		.opt_help = N_("Set render window flags (e.g none; full; max)")
+		.opt_help = N_("Set render window flags (e.g none; full; max; WIDTHxHEIGHT)")
 	},
 	{
 		.opt_short = 'a',
@@ -263,6 +263,8 @@ static options_t my_options =
 	.photo_npics = 0,
 	.exit_on_term = 0,
 	.render_flag = "none",
+	.render_width = 0,
+	.render_height = 0
 };
 
 /*
@@ -520,7 +522,7 @@ int options_parse(int argc, char *argv[])
 			}
 
 			case 'F':
-				/* numerator and denominator are reversed 
+				/* numerator and denominator are reversed
 				 * since fps here is actually time between frame
 				 */
 				my_options.fps_num = 1;
@@ -546,8 +548,25 @@ int options_parse(int argc, char *argv[])
 			case 'm':
 			{
 				int str_size = strlen(optarg);
-				if(str_size <= 4) /*render window is at most 4 chars*/
+				if(str_size <= 4) /*[none, full, max] is at most 4 chars*/
 					strncpy(my_options.render_flag, optarg, 4);
+				else
+				{
+					my_options.render_width = (int) strtoul(optarg, &stopstring, 10);
+					if(my_options.render_width <= 0 || *stopstring != 'x')
+						fprintf(stderr, "V4L2_CORE: (options) Error in render_window usage: -m[--render_window=] none|full|max|WIDTHxHEIGHT \n");
+					else
+					{
+						++stopstring;
+						my_options.render_height = (int) strtoul(stopstring, &stopstring, 10);
+					}
+				}
+
+				if(my_options.render_width < 0)
+					my_options.render_width = 0;
+				if(my_options.render_height < 0)
+					my_options.render_height = 0;
+
 				break;
 			}
 			case 'g':

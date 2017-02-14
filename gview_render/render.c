@@ -149,7 +149,7 @@ void render_set_osd_mask(uint32_t mask)
 /*
  * set the osd crosshair color
  * args:
- *   rgb_color - 0x00RRGGBB 
+ *   rgb_color - 0x00RRGGBB
  *
  * asserts:
  *    none
@@ -263,13 +263,15 @@ int render_get_height()
  *              0- none
  *              1- fullscreen
  *              2- maximized
+ *   win_w - window width (0 use render width)
+ *   win_h - window height (0 use render height)
  *
  * asserts:
  *   none
  *
  * returns: error code
  */
-int render_init(int render, int width, int height, int flags)
+int render_init(int render, int width, int height, int flags, int win_w, int win_h)
 {
 
 	int ret = 0;
@@ -285,13 +287,13 @@ int render_init(int render, int width, int height, int flags)
 
 		#if ENABLE_SFML
 		case RENDER_SFML:
-			ret = init_render_sfml(my_width, my_height, flags);
+			ret = init_render_sfml(my_width, my_height, flags, win_w, win_h);
 			break;
 		#endif
 
 		#if ENABLE_SDL2
 		case RENDER_SDL:
-			ret = init_render_sdl2(my_width, my_height, flags);
+			ret = init_render_sdl2(my_width, my_height, flags, win_w, win_h);
 			break;
 		#endif
 
@@ -341,7 +343,7 @@ void render_frame_osd(uint8_t *frame)
 	render_get_vu_level(vu_level);
 
 	/*osd vu meter*/
-	if(((render_get_osd_mask() & 
+	if(((render_get_osd_mask() &
 		(REND_OSD_VUMETER_MONO | REND_OSD_VUMETER_STEREO))) != 0)
 		render_osd_vu_meter(frame, my_width, my_height, vu_level);
 	/*osd crosshair*/
@@ -369,7 +371,7 @@ int render_frame(uint8_t *frame)
 	{
 		case RENDER_NONE:
 			break;
-		
+
 		#if ENABLE_SFML
 		case RENDER_SFML:
 			ret = render_sfml_frame(frame, my_width, my_height);
@@ -528,7 +530,7 @@ int render_call_event_callback(int id)
 
 	if(verbosity > 1)
 		printf("RENDER: event %i -> callback %i\n", id, index);
-		
+
 	if(index < 0)
 		return index;
 
@@ -539,4 +541,3 @@ int render_call_event_callback(int id)
 
 	return ret;
 }
-

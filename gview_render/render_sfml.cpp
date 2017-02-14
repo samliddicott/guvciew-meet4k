@@ -56,26 +56,26 @@ static void yu12_to_rgba (uint8_t *out, uint8_t *in, int width, int height)
 	uint8_t *py2 = py1 + width; //line 2
 	uint8_t *pu = in + (width * height);
 	uint8_t *pv = pu + ((width * height) / 4);
-	
+
 	uint8_t *pout1 = out; //first line
 	uint8_t *pout2 = out + (width * 4); //second line
-	
+
 	int h=0, w=0;
-	
+
 	for(h=0; h < height; h+=2) //every two lines
 	{
 		py1 = in + (h * width);
 		py2 = py1 + width;
-		
+
 		pout1 = out + (h * width * 4);
 		pout2 = pout1 + (width * 4);
-		
+
 		for(w=0; w<width; w+=2) //every 2 pixels
 		{
 			/* standart: r = y0 + 1.402 (v-128) */
 			/* logitech: r = y0 + 1.370705 (v-128) */
 			*pout1++=CLIP(*py1 + 1.402 * (*pv-128));
-			*pout2++=CLIP(*py2 + 1.402 * (*pv-128));	
+			*pout2++=CLIP(*py2 + 1.402 * (*pv-128));
 			/* standart: g = y0 - 0.34414 (u-128) - 0.71414 (v-128)*/
 			/* logitech: g = y0 - 0.337633 (u-128)- 0.698001 (v-128)*/
 			*pout1++=CLIP(*py1 - 0.34414 * (*pu-128) -0.71414*(*pv-128));
@@ -90,7 +90,7 @@ static void yu12_to_rgba (uint8_t *out, uint8_t *in, int width, int height)
 
 			py1++;
 			py2++;
-			
+
 			/* standart: r1 =y1 + 1.402 (v-128) */
 			/* logitech: r1 = y1 + 1.370705 (v-128) */
 			*pout1++=CLIP(*py1 + 1.402 * (*pv-128));
@@ -115,10 +115,15 @@ static void yu12_to_rgba (uint8_t *out, uint8_t *in, int width, int height)
 	}
 }
 
-SFMLRender::SFMLRender(int width, int height, int flags)
+SFMLRender::SFMLRender(int width, int height, int flags, int win_w, int win_h)
 {
 	int w = width;
 	int h = height;
+
+	if(win_w > 0)
+		w = win_w;
+	if(win_h > 0)
+		h = win_h;
 
 	use_shader = true;
 
@@ -129,7 +134,7 @@ SFMLRender::SFMLRender(int width, int height, int flags)
 
 	if(verbosity > 0)
 		std::cout << "RENDER: (SFML) desktop resolution (" <<
-			display_mode.width << "x" << 
+			display_mode.width << "x" <<
 			display_mode.height << ")" << std::endl;
 
 	if((display_mode.width > 0) && (display_mode.height > 0))
@@ -255,29 +260,29 @@ SFMLRender::~SFMLRender()
 int SFMLRender::render_frame(uint8_t *frame, int width, int height)
 {
 	//convert yuv to rgba
-	
+
 	if (use_shader)
 	{
 		uint8_t *pu = frame + (width*height);
 		uint8_t *pv = pu + (width*height)/4;
-		
+
 		GLint textureBinding;
 		// Save the current texture binding, to avoid messing up SFML's OpenGL states
 		glGetIntegerv(GL_TEXTURE_BINDING_2D, &textureBinding);
 
 		// :Y
 		sf::Texture::bind(&texY);
-		
+
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, width, height, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, frame);
 
 		// :U
 		sf::Texture::bind(&texU);
-		
+
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, width/2, height/2, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, pu);
 
 		// :V
 		sf::Texture::bind(&texV);
-		
+
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, width/2, height/2, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, pv);
 
 		// Restore the previous texture binding
@@ -294,7 +299,7 @@ int SFMLRender::render_frame(uint8_t *frame, int width, int height)
 		//draw frame
 		window.draw(sprite);
 	}
-	
+
 	window.display();
 
 	return 0;
@@ -368,37 +373,39 @@ SFMLRender* render = NULL;
 /*
  * init sfml render
  * args:
- *    width - overlay width
- *    height - overlay height
+ *    width - render width
+ *    height - render height
  *    flags - window flags:
  *              0- none
  *              1- fullscreen
  *              2- maximized
+ *   win_w - window width (0 use render width)
+ *   win_h - window height (0 use render height)
  *
  * asserts:
  *
  * returns: error code (0 ok)
  */
- int init_render_sfml(int width, int height, int flags)
+ int init_render_sfml(int width, int height, int flags, int win_w, int win_h)
  {
 	//clean old render
 	if(render)
 		delete(render);
-		
-	render = new SFMLRender(width, height, flags);
+
+	render = new SFMLRender(width, height, flags, win_w, win_h);
 
 	if(!render)
 	{
 		std::cerr << "RENDER: (SFML) couldn't create render" << std::endl;
 		return -1;
 	}
-	
+
 	if(!render->has_window())
 	{
 		std::cerr << "RENDER: (SFML) couldn't create render window" << std::endl;
 		return -2;
 	}
-	
+
 	return 0;
  }
 
@@ -465,4 +472,3 @@ void render_sfml_clean()
 	delete(render);
 	render = NULL;
 }
-

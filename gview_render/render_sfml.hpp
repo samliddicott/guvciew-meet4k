@@ -39,9 +39,9 @@ extern "C" {
 }
 
 class SFMLRender {
-	
+
 	public:
-		SFMLRender(int width, int height, int flags);
+		SFMLRender(int width, int height, int flags, int win_w, int win_h);
 		~SFMLRender();
 		int render_frame(uint8_t *frame, int width, int height);
 		void set_caption(const char* caption);

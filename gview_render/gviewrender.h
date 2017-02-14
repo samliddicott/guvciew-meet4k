@@ -178,13 +178,15 @@ int render_get_height();
  *              0- none
  *              1- fullscreen
  *              2- maximized
+ *   win_w - window width (0 use render width)
+ *   win_h - window height (0 use render height)
  *
  * asserts:
  *   none
  *
  * returns: error code
  */
-int render_init(int render, int width, int height, int flags);
+int render_init(int render, int width, int height, int flags, int win_w, int win_h);
 
 /*
  * set caption

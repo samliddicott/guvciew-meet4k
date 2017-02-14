@@ -50,8 +50,10 @@ typedef struct _options_t
 	double video_timer; /*video capture time in seconds (double)*/
 	double photo_timer; /*photo capture timer interval in seconds (double)*/
 	int photo_npics; /*number of photo captures*/
-	int exit_on_term; /*flag if we should exit after video or image capture ends*/ 
+	int exit_on_term; /*flag if we should exit after video or image capture ends*/
 	char render_flag[5]; /*render window flag => default (none) | FULLSCREEN (full) | MAXIMIZED (max)*/
+	int render_width; //render window width (default 0), if set, render window flag is none
+	int render_height; //render window height (default 0), if set, render window flag is none
 } options_t;
 
 /*

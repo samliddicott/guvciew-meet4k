@@ -29,18 +29,20 @@
 /*
  * init sfml render
  * args:
- *    width - overlay width
- *    height - overlay height
+ *    width - render width
+ *    height - render height
  *    flags - window flags:
  *              0- none
  *              1- fullscreen
  *              2- maximized
+ *   win_w - window width (0 use render width)
+ *   win_h - window height (0 use render height)
  *
  * asserts:
  *
  * returns: error code (0 ok)
  */
-int init_render_sfml(int width, int height, int flags);
+int init_render_sfml(int width, int height, int flags, int win_w, int win_h);
 
 /*
  * render a frame

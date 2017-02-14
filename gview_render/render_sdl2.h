@@ -32,12 +32,14 @@
  *              0- none
  *              1- fullscreen
  *              2- maximized
+ *   win_w - window width (0 use video width)
+ *   win_h - window height (0 use video height)
  *
  * asserts:
  *
  * returns: error code (0 ok)
  */
-int init_render_sdl2(int width, int height, int flags);
+int init_render_sdl2(int width, int height, int flags, int win_w, int win_h);
 
 /*
  * render a frame

@@ -50,13 +50,15 @@ static SDL_Renderer*  main_renderer = NULL;
  *              0- none
  *              1- fullscreen
  *              2- maximized
+ *   win_w - window width (0 use video width)
+ *   win_h - window height (0 use video height)
  *
  * asserts:
  *   none
  *
  * returns: error code
  */
-static int video_init(int width, int height, int flags)
+static int video_init(int width, int height, int flags, int win_w, int win_h)
 {
 	int w = width;
 	int h = height;
@@ -118,6 +120,11 @@ static int video_init(int width, int height, int flags)
 		}
 		else
 			fprintf(stderr, "RENDER: Couldn't determine display mode for video display %i\n", display_index);
+
+		if(win_w > 0)
+			w = win_w;
+		if(win_h > 0)
+			h = win_h;
 
 		if(w > display_mode.w)
 			w = display_mode.w;
@@ -239,14 +246,16 @@ static int video_init(int width, int height, int flags)
  *              0- none
  *              1- fullscreen
  *              2- maximized
+ *   win_w - window width (0 use render width)
+ *   win_h - window height (0 use render height)
  *
  * asserts:
  *
  * returns: error code (0 ok)
  */
- int init_render_sdl2(int width, int height, int flags)
+ int init_render_sdl2(int width, int height, int flags, int win_w, int win_h)
  {
-	int err = video_init(width, height, flags);
+	int err = video_init(width, height, flags, win_w, win_h);
 
 	if(err)
 	{
@@ -413,4 +422,3 @@ void render_sdl2_clean()
 
 	SDL_Quit();
 }
-

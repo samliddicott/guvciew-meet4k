@@ -196,7 +196,7 @@ void set_soft_autofocus(int value)
 void video_capture_save_video(int value)
 {
 	save_video = value;
-	
+
 	if(debug_level > 1)
 		printf("GUVCVIEW: save video flag changed to %i\n", save_video);
 }
@@ -397,7 +397,7 @@ int quit_callback(void *data)
 int key_I_callback(void *data)
 {
 	gui_click_image_capture_button();
-	
+
 	if(debug_level > 1)
 		printf("GUVCVIEW: I key pressed\n");
 
@@ -417,7 +417,7 @@ int key_I_callback(void *data)
 int key_V_callback(void *data)
 {
 	gui_click_video_capture_button(data);
-	
+
 	if(debug_level > 1)
 		printf("GUVCVIEW: V key pressed\n");
 
@@ -569,7 +569,7 @@ int key_RIGHT_callback(void *data)
 v4l2_dev_t *create_v4l2_device_handler(const char *device)
 {
 	my_vd = v4l2core_init_dev(device);
-	
+
 	return my_vd;
 }
 
@@ -619,7 +619,7 @@ v4l2_dev_t *get_v4l2_device_handler()
  */
 audio_context_t *create_audio_context(int api, int device)
 {
-	
+
 	close_audio_context();
 
 	my_audio_ctx = audio_init(api, device);
@@ -702,7 +702,7 @@ static void *audio_processing_loop(void *data)
 	//if(frame_size < 1024)
 	//	frame_size = 1024;
 
-	audio_set_cap_buffer_size(audio_ctx, 
+	audio_set_cap_buffer_size(audio_ctx,
 		frame_size * audio_get_channels(audio_ctx));
 	audio_start(audio_ctx);
 	/*
@@ -715,7 +715,7 @@ static void *audio_processing_loop(void *data)
 	audio_buff = audio_get_buffer(audio_ctx);
 
 	int sample_type = encoder_get_audio_sample_fmt(encoder_ctx);
-	
+
 	uint32_t osd_mask = render_get_osd_mask();
 
 	/*enable vu meter OSD display*/
@@ -733,7 +733,7 @@ static void *audio_processing_loop(void *data)
 
 		if(ret > 0)
 		{
-			/* 
+			/*
 			 * no buffers to process
 			 * sleep a couple of milisec
 			 */
@@ -751,7 +751,7 @@ static void *audio_processing_loop(void *data)
 
 			encoder_process_audio_buffer(encoder_ctx, audio_buff->data);
 		}
-		
+
 	}
 
 	/*flush any delayed audio frames*/
@@ -787,7 +787,7 @@ static void *audio_processing_loop(void *data)
 static void *encoder_loop(void *data)
 {
 	my_encoder_status = 1;
-	
+
 	if(debug_level > 1)
 		printf("GUVCVIEW: encoder thread (tid: %u)\n",
 			(unsigned int) syscall (SYS_gettid));
@@ -898,13 +898,13 @@ static void *encoder_loop(void *data)
 	{
 		if(debug_level > 1)
 			printf("GUVCVIEW: starting encoder audio thread\n");
-		
+
 		int ret = __THREAD_CREATE(&encoder_audio_thread, audio_processing_loop, (void *) encoder_ctx);
-		
+
 		if(ret)
 			fprintf(stderr, "GUVCVIEW: encoder audio thread creation failed (%i)\n", ret);
 		else if(debug_level > 2)
-			printf("GUVCVIEW: created audio encoder thread with tid: %u\n", 
+			printf("GUVCVIEW: created audio encoder thread with tid: %u\n",
 				(unsigned int) encoder_audio_thread);
 	}
 
@@ -913,7 +913,7 @@ static void *encoder_loop(void *data)
 		/*process the video buffer*/
 		if(encoder_process_next_video_buffer(encoder_ctx) > 0)
 		{
-			/* 
+			/*
 			 * no buffers to process
 			 * sleep a couple of milisec
 			 */
@@ -921,8 +921,8 @@ static void *encoder_loop(void *data)
 				.tv_sec = 0,
 				.tv_nsec = 1000000};/*nanosec*/
 			 nanosleep(&req, NULL);
-			 
-		}	
+
+		}
 
 		/*disk supervisor*/
 		if(encoder_ctx->enc_video_ctx->pts - last_check_pts > 2 * NSEC_PER_SEC)
@@ -936,7 +936,7 @@ static void *encoder_loop(void *data)
 			}
 		}
 	}
-	
+
 	if(debug_level > 1)
 		printf("GUVCVIEW: video capture terminated - flushing video buffers\n");
 	/*flush the video buffer*/
@@ -996,29 +996,31 @@ void *capture_loop(void *data)
 
 	/*reset quit flag*/
 	quit = 0;
-	
+
 	if(debug_level > 1)
-		printf("GUVCVIEW: capture thread (tid: %u)\n", 
+		printf("GUVCVIEW: capture thread (tid: %u)\n",
 			(unsigned int) syscall (SYS_gettid));
 
 	int ret = 0;
-	
+
 	int render_flags = 0;
-	
+
 	if (strcasecmp(my_options->render_flag, "full") == 0)
 		render_flags = 1;
 	else if (strcasecmp(my_options->render_flag, "max") == 0)
 		render_flags = 2;
-	
+
 	render_set_verbosity(debug_level);
 
 	render_set_crosshair_color(my_config->crosshair_color);
-	
+
 	if(render_init(
 		render,
 		v4l2core_get_frame_width(my_vd),
 		v4l2core_get_frame_height(my_vd),
-		render_flags) < 0)
+		render_flags,
+		my_options->render_width,
+		my_options->render_height) < 0)
 		render = RENDER_NONE;
 	else
 	{
@@ -1106,7 +1108,9 @@ void *capture_loop(void *data)
 					render,
 					v4l2core_get_frame_width(my_vd),
 					v4l2core_get_frame_height(my_vd),
-					render_flags) < 0)
+					render_flags,
+					my_options->render_width,
+					my_options->render_height) < 0)
 					render = RENDER_NONE;
 				else
 				{
@@ -1270,13 +1274,13 @@ void *capture_loop(void *data)
 			}
 
 			/* render the osd
-			 * must be done after saving the frame 
+			 * must be done after saving the frame
 			 * (we don't want to record the osd effects)
 			 */
 			render_frame_osd(frame->yuv_frame);
 
 			/* finally render the frame */
-			snprintf(render_caption, 29, "Guvcview  (%2.2f fps)", 
+			snprintf(render_caption, 29, "Guvcview  (%2.2f fps)",
 				v4l2core_get_realfps(my_vd));
 			render_set_caption(render_caption);
 			render_frame(frame->yuv_frame);
@@ -1287,7 +1291,7 @@ void *capture_loop(void *data)
 	}
 
 	v4l2core_stop_stream(my_vd);
-	
+
 	/*if we are still saving video then stop it*/
 	if(video_capture_get_save_video())
 		stop_encoder_thread();
@@ -1310,11 +1314,11 @@ void *capture_loop(void *data)
 int start_encoder_thread(void *data)
 {
 	int ret = __THREAD_CREATE(&encoder_thread, encoder_loop, data);
-	
+
 	if(ret)
 		fprintf(stderr, "GUVCVIEW: encoder thread creation failed (%i)\n", ret);
 	else if(debug_level > 2)
-		printf("GUVCVIEW: created encoder thread with tid: %u\n", 
+		printf("GUVCVIEW: created encoder thread with tid: %u\n",
 			(unsigned int) encoder_thread);
 
 	return ret;
@@ -1338,6 +1342,6 @@ int stop_encoder_thread()
 
 	if(debug_level > 1)
 		printf("GUVCVIEW: encoder thread terminated and joined\n");
-			
+
 	return 0;
 }
