@@ -33,34 +33,8 @@
 #include <assert.h>
 
 #include "gview.h"
+#include "frame_decoder.h"
 #include "../config.h"
-
-#ifdef HAVE_FFMPEG_AVCODEC_H
-#include <ffmpeg/avcodec.h>
-#else
-#include <libavcodec/avcodec.h>
-	#ifdef HAVE_LIBAVUTIL_VERSION_H
-#include <libavutil/version.h>
-#include <libavutil/imgutils.h>
-	#endif
-#include <libavutil/avutil.h>
-#endif 
-
-#define LIBAVCODEC_VER_AT_LEAST(major,minor)  (LIBAVCODEC_VERSION_MAJOR > major || \
-                                              (LIBAVCODEC_VERSION_MAJOR == major && \
-                                               LIBAVCODEC_VERSION_MINOR >= minor))
-
-#ifdef LIBAVUTIL_VERSION_MAJOR
-#define LIBAVUTIL_VER_AT_LEAST(major,minor)  (LIBAVUTIL_VERSION_MAJOR > major || \
-                                              (LIBAVUTIL_VERSION_MAJOR == major && \
-                                               LIBAVUTIL_VERSION_MINOR >= minor))
-#else
-#define LIBAVUTIL_VER_AT_LEAST(major,minor) 0
-#endif
-
-#if !LIBAVCODEC_VER_AT_LEAST(54,25)
-	#define AV_CODEC_ID_H264 CODEC_ID_H264
-#endif
 
 #include "uvc_h264.h"
 #include "v4l2_formats.h"
@@ -185,9 +159,9 @@ static int uvcx_video_encoder_reset(v4l2_dev_t *vd)
 
 	if((err = v4l2core_query_xu_control(
 		vd,
-		vd->h264_unit_id, 
-		UVCX_ENCODER_RESET, 
-		UVC_SET_CUR, 
+		vd->h264_unit_id,
+		UVCX_ENCODER_RESET,
+		UVC_SET_CUR,
 		&encoder_reset_req)) < 0)
 		fprintf(stderr, "V4L2_CORE: (UVCX_ENCODER_RESET) error: %s\n", strerror(errno));
 
@@ -215,10 +189,10 @@ static int uvcx_video_probe(v4l2_dev_t *vd, uint8_t query, uvcx_video_config_pro
 
 
 	if((err = v4l2core_query_xu_control(
-		vd, 
-		vd->h264_unit_id, 
-		UVCX_VIDEO_CONFIG_PROBE, 
-		query, 
+		vd,
+		vd->h264_unit_id,
+		UVCX_VIDEO_CONFIG_PROBE,
+		query,
 		uvcx_video_config)) < 0)
 		fprintf(stderr, "V4L2_CORE: (UVCX_VIDEO_CONFIG_PROBE) error: %s\n", strerror(errno));
 
@@ -244,7 +218,7 @@ static int uvcx_video_commit(v4l2_dev_t *vd, uvcx_video_config_probe_commit_t *u
 	int err = 0;
 
 	if((err = v4l2core_query_xu_control(
-		vd, 
+		vd,
 		vd->h264_unit_id,
 		UVCX_VIDEO_CONFIG_COMMIT,
 		UVC_SET_CUR,
@@ -271,10 +245,10 @@ uint8_t get_uvc_h624_unit_id (v4l2_dev_t *vd)
 {
 	if(verbosity > 1)
 		printf("V4L2_CORE: checking for UVCX_H264 unit id\n");
-	
-	uint8_t guid[16] = GUID_UVCX_H264_XU;	
+
+	uint8_t guid[16] = GUID_UVCX_H264_XU;
 	vd->h264_unit_id = get_guid_unit_id (vd, guid);
-	
+
 	return vd->h264_unit_id;
 }
 
@@ -1006,10 +980,10 @@ int h264_init_decoder(int width, int height)
 	 * we wish to have smaller code)
 	 */
 	avcodec_register_all();
-	
+
 	if(h264_ctx != NULL)
 		h264_close_decoder();
-	
+
 	h264_ctx = calloc(1, sizeof(h264_decoder_context_t));
 	if(h264_ctx == NULL)
 	{
@@ -1025,7 +999,7 @@ int h264_init_decoder(int width, int height)
 		h264_ctx = NULL;
 		return E_NO_CODEC;
 	}
-	
+
 #if LIBAVCODEC_VER_AT_LEAST(53,6)
 	h264_ctx->context = avcodec_alloc_context3(h264_ctx->codec);
 	avcodec_get_context_defaults3 (h264_ctx->context, h264_ctx->codec);
@@ -1038,7 +1012,7 @@ int h264_init_decoder(int width, int height)
 		fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (h264_init_decoder): %s\n", strerror(errno));
 		exit(-1);
 	}
-	
+
 	h264_ctx->context->flags2 |= CODEC_FLAG2_FAST;
 	h264_ctx->context->pix_fmt = AV_PIX_FMT_YUV420P;
 	h264_ctx->context->width = width;
@@ -1058,7 +1032,7 @@ int h264_init_decoder(int width, int height)
 		h264_ctx = NULL;
 		return E_NO_CODEC;
 	}
-	
+
 #if LIBAVCODEC_VER_AT_LEAST(55,28)
 	h264_ctx->picture = av_frame_alloc();
 	av_frame_unref(h264_ctx->picture);
@@ -1102,30 +1076,30 @@ int h264_decode(uint8_t *out_buf, uint8_t *in_buf, int size)
 	AVPacket avpkt;
 
 	av_init_packet(&avpkt);
-	
+
 	avpkt.size = size;
 	avpkt.data = in_buf;
 
-	int got_picture = 0;
-	int len = avcodec_decode_video2(h264_ctx->context, h264_ctx->picture, &got_picture, &avpkt);
+	int got_frame = 0;
+	int ret = libav_decode(h264_ctx->context, h264_ctx->picture, &got_frame, &avpkt);
 
-	if(len < 0)
+	if(ret < 0)
 	{
 		fprintf(stderr, "V4L2_CORE: (H264 decoder) error while decoding frame\n");
-		return len;
+		return ret;
 	}
 
-	if(got_picture)
+	if(got_frame)
 	{
 #if LIBAVUTIL_VER_AT_LEAST(54,6)
 		av_image_copy_to_buffer(out_buf, h264_ctx->pic_size,
                              (const unsigned char * const*) h264_ctx->picture->data, h264_ctx->picture->linesize,
                              h264_ctx->context->pix_fmt, h264_ctx->width, h264_ctx->height, 1);
 #else
-		avpicture_layout((AVPicture *) h264_ctx->picture, h264_ctx->context->pix_fmt, 
+		avpicture_layout((AVPicture *) h264_ctx->picture, h264_ctx->context->pix_fmt,
 			h264_ctx->width, h264_ctx->height, out_buf, h264_ctx->pic_size);
 #endif
-		return len;
+		return ret;
 	}
 	else
 		return 0;

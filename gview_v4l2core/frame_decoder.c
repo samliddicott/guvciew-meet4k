@@ -85,19 +85,19 @@ int alloc_v4l2_frames(v4l2_dev_t *vd)
 				return ret;
 			}
 
-			
+
 			/*frame queue*/
 			for(i=0; i<vd->frame_queue_size; ++i)
 			{
 				vd->frame_queue[i].h264_frame_max_size = width * height; /*1 byte per pixel*/
 				vd->frame_queue[i].h264_frame = calloc(vd->frame_queue[i].h264_frame_max_size, sizeof(uint8_t));
-			
+
 				if(vd->frame_queue[i].h264_frame == NULL)
 				{
 					fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (alloc_v4l2_frames): %s\n", strerror(errno));
 					exit(-1);
 				}
-				
+
 				vd->frame_queue[i].yuv_frame = calloc(framesizeIn, sizeof(uint8_t));
 				if(vd->frame_queue[i].yuv_frame == NULL)
 				{
@@ -106,7 +106,7 @@ int alloc_v4l2_frames(v4l2_dev_t *vd)
 				}
 
 			}
-			
+
 			vd->h264_last_IDR = calloc(width * height, sizeof(uint8_t));
 			if(vd->h264_last_IDR == NULL)
 			{
@@ -114,7 +114,7 @@ int alloc_v4l2_frames(v4l2_dev_t *vd)
 				exit(-1);
 			}
 			vd->h264_last_IDR_size = 0; /*reset (no frame stored)*/
-						
+
 			break;
 
 		case V4L2_PIX_FMT_JPEG:
@@ -127,7 +127,7 @@ int alloc_v4l2_frames(v4l2_dev_t *vd)
 				fprintf(stderr, "V4L2_CORE: couldn't init jpeg decoder\n");
 				return ret;
 			}
-			
+
 			/*frame queue*/
 			for(i=0; i<vd->frame_queue_size; ++i)
 			{
@@ -269,7 +269,7 @@ int alloc_v4l2_frames(v4l2_dev_t *vd)
 			 */
 			fprintf(stderr, "V4L2_CORE: (v4l2uvc.c) should never arrive (1)- exit fatal !!\n");
 			ret = E_UNKNOWN_ERR;
-			
+
 			if(vd->h264_last_IDR)
 				free(vd->h264_last_IDR);
 			vd->h264_last_IDR = NULL;
@@ -321,7 +321,7 @@ void clean_v4l2_frames(v4l2_dev_t *vd)
 	assert(vd != NULL);
 
 	int i = 0;
-	
+
 	for(i=0; i<vd->frame_queue_size; ++i)
 	{
 		vd->frame_queue[i].raw_frame = NULL;
@@ -489,13 +489,13 @@ static int demux_uvcH264(uint8_t *h264_data, uint8_t *buff, int size, int h264_m
 	/*asserts*/
 	assert(h264_data != NULL);
 	assert(buff != NULL);
-	
+
 	uint8_t *sp = NULL;
 	uint8_t *spl= NULL;
 	uint8_t *epl= NULL;
 	uint8_t *header = NULL;
 	uint8_t *ph264 = h264_data;
-	
+
 	//search for first APP4 marker
 	for(sp = buff; sp < buff + size - 2; ++sp)
 	{
@@ -506,19 +506,19 @@ static int demux_uvcH264(uint8_t *h264_data, uint8_t *buff, int size, int h264_m
 			break;
 		}
 	}
-	
-	/*(in big endian) 
+
+	/*(in big endian)
 	 *includes payload size + header + 6 bytes(2 length + 4 payload size)
 	 */
 	uint16_t length = 0;
 	length  = (uint16_t) spl[0] << 8;
 	length |= (uint16_t) spl[1];
-	
+
 	header = spl + 2;
 	/*in litle endian*/
 	uint16_t header_length = header[2];
 	header_length |= header[3] << 8;
-	
+
 	spl = header + header_length;
 	/*in litle endian*/
 	uint32_t payload_size = 0;
@@ -526,23 +526,23 @@ static int demux_uvcH264(uint8_t *h264_data, uint8_t *buff, int size, int h264_m
 	payload_size |= ((uint32_t) spl[1]) << 8;
 	payload_size |= ((uint32_t) spl[2]) << 16;
 	payload_size |= ((uint32_t) spl[3]) << 24;
-	
+
 	spl += 4; /*start of payload*/
 	epl = spl + payload_size; /*end of payload*/
-	
+
 	if(epl > buff + size)
 	{
 		fprintf(stderr, "V4L2_CORE: payload size bigger than buffer, clipped to buffer size (demux_uvcH264)\n");
 		epl = buff + size;
 	}
-	
+
 	sp = spl;
-	
+
 	uint32_t max_seg_size = 64*1024;
-	
+
 	/*copy first segment*/
 	length -= header_length + 6;
-	
+
 	if(length <= max_seg_size)
 	{
 		/*copy the segment to h264 buffer*/
@@ -550,7 +550,7 @@ static int demux_uvcH264(uint8_t *h264_data, uint8_t *buff, int size, int h264_m
 		ph264 += length;
 		sp += length;
 	}
-	
+
 	/*copy other segments*/
 	while( epl > sp)
 	{
@@ -558,35 +558,35 @@ static int demux_uvcH264(uint8_t *h264_data, uint8_t *buff, int size, int h264_m
 		   sp[1] != 0xE4)
 		{
 			fprintf(stderr, "V4L2_CORE: expected APP4 marker but none found (demux_uvcH264)\n");
-			return (ph264 - h264_data);	
+			return (ph264 - h264_data);
 		}
 		else
 		{
 			length  = (uint16_t) sp[2] << 8;
 			length |= (uint16_t) sp[3];
-			
+
 			length -= 2; /*remove the 2 bytes from length*/
 		}
-		
+
 		sp += 4; /*APP4 marker + length*/
-	
+
 		if((length != max_seg_size) && (verbosity > 1))
 		{
 			printf("V4L2_CORE: segment length is %i (demux_uvcH264)\n", length);
 		}
-		
+
 		/*copy the segment to h264 buffer*/
 		memcpy(ph264, sp, length);
 		ph264 += length;
 		sp += length;
-		
+
 		if((epl-sp) > 0 && (epl-sp < 4))
 		{
 			fprintf(stderr, "V4L2_CORE: payload ended unexpectedly (demux_uvcH264)\n");
 			return (ph264 - h264_data);
 		}
 	}
-	
+
 	if(epl-sp > 0)
 	{
 		fprintf(stderr, "V4L2_CORE: copy segment with %i bytes (demux_uvcH264)\n", (int) (epl-sp));
@@ -594,8 +594,8 @@ static int demux_uvcH264(uint8_t *h264_data, uint8_t *buff, int size, int h264_m
 		memcpy(ph264, sp, epl-sp);
 		ph264 += epl-sp;
 	}
-	
-	return (ph264 - h264_data); 
+
+	return (ph264 - h264_data);
 }
 
 /*
@@ -1034,4 +1034,36 @@ int decode_v4l2_frame(v4l2_dev_t *vd, v4l2_frame_buff_t *frame)
 	}
 
 	return ret;
+}
+
+int libav_decode(AVCodecContext *avctx, AVFrame *frame, int *got_frame, AVPacket *pkt)
+{
+#if LIBAVCODEC_VER_AT_LEAST(57,64)
+
+	int ret;
+
+	*got_frame = 0;
+
+	if (pkt)
+	{
+			ret = avcodec_send_packet(avctx, pkt);
+			// In particular, we don't expect AVERROR(EAGAIN), because we read all
+			// decoded frames with avcodec_receive_frame() until done.
+			if (ret < 0)
+					return ret == AVERROR_EOF ? 0 : ret;
+	}
+
+	ret = avcodec_receive_frame(avctx, frame);
+	if (ret < 0 && ret != AVERROR(EAGAIN) && ret != AVERROR_EOF)
+			return ret;
+	if (ret >= 0)
+			*got_frame = 1;
+
+	return 0;
+
+#else
+
+	return avcodec_decode_video2(dec_ctx, frame, got_picture, pkt);
+
+#endif
 }

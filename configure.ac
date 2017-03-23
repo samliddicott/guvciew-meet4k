@@ -10,7 +10,7 @@ dnl Initialization macros (sets PACKAGE and VERSION)
 dnl --------------------------------
 m4_define([guvcview_major], [2])
 m4_define([guvcview_minor], [0])
-m4_define([guvcview_micro], [5])
+m4_define([guvcview_micro], [6])
 
 m4_define([guvcview_version],
           [guvcview_major.guvcview_minor.guvcview_micro])
@@ -44,7 +44,7 @@ rm -f config.cache; touch config.cache
 AC_PREFIX_DEFAULT(/usr/local)
 
 # check for clang first
-# gcc will still be used if clang not installed 
+# gcc will still be used if clang not installed
 AC_PROG_CC([clang gcc cc])
 AM_PROG_CC_C_O
 AC_PROG_CXX([clang++ g++ cc++ cxx])
@@ -132,7 +132,7 @@ dnl --------------------------------------------------------------------------
 dnl check for libgviewv4l2core dependencies
 dnl --------------------------------------------------------------------------
 
-PKG_CHECK_MODULES(GVIEWV4L2CORE, [libv4l2 libudev libusb-1.0 libavcodec libavutil libpng])
+PKG_CHECK_MODULES(GVIEWV4L2CORE, [libv4l2 libudev libusb-1.0 libavcodec >= 57.16 libavutil libpng])
 AC_SUBST(GVIEWV4L2CORE_CFLAGS)
 AC_SUBST(GVIEWV4L2CORE_LIBS)
 
@@ -532,4 +532,3 @@ AC_MSG_NOTICE([
   debian menu      : ${enable_debian_menu}
 
 ])
-

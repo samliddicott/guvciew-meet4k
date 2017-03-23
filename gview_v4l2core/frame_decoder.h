@@ -27,6 +27,32 @@
 #include "gviewv4l2core.h"
 #include "v4l2_core.h"
 
+/*h264 and jpeg decoder (libavcodec)*/
+#ifdef HAVE_FFMPEG_AVCODEC_H
+#include <ffmpeg/avcodec.h>
+#else
+#include <libavcodec/avcodec.h>
+	#ifdef HAVE_LIBAVUTIL_VERSION_H
+#include <libavutil/version.h>
+#include <libavutil/imgutils.h>
+	#endif
+#include <libavutil/avutil.h>
+#endif
+
+#define LIBAVCODEC_VER_AT_LEAST(major,minor)  (LIBAVCODEC_VERSION_MAJOR > major || \
+                                              (LIBAVCODEC_VERSION_MAJOR == major && \
+                                               LIBAVCODEC_VERSION_MINOR >= minor))
+
+#ifdef LIBAVUTIL_VERSION_MAJOR
+#define LIBAVUTIL_VER_AT_LEAST(major,minor)  (LIBAVUTIL_VERSION_MAJOR > major || \
+                                              (LIBAVUTIL_VERSION_MAJOR == major && \
+                                               LIBAVUTIL_VERSION_MINOR >= minor))
+#else
+#define LIBAVUTIL_VER_AT_LEAST(major,minor) 0
+#endif
+
+int libav_decode(AVCodecContext *avctx, AVFrame *frame, int *got_frame, AVPacket *pkt);
+
 /*
  * Alloc image buffers for decoding video stream
  * args:

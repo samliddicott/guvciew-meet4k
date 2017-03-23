@@ -39,6 +39,7 @@
 
 #include "gviewv4l2core.h"
 #include "colorspaces.h"
+#include "frame_decoder.h"
 #include "jpeg_decoder.h"
 #include "gview.h"
 #include "../config.h"
@@ -117,9 +118,9 @@ typedef struct _jpeg_decoder_context_t
 	int width;
 	int height;
 	int pic_size;
-	
+
 	uint8_t *tmp_frame; //temp frame buffer
-	
+
 } jpeg_decoder_context_t;
 
 static jpeg_decoder_context_t *jpeg_ctx = NULL;
@@ -408,7 +409,7 @@ static int fillbits(struct in *inp, int le, unsigned int bi)
 {
 	/*asserts*/
 	assert(inp != NULL);
-	
+
 	if (inp->marker)
 	{
 		if (le <= 16)
@@ -419,7 +420,7 @@ static int fillbits(struct in *inp, int le, unsigned int bi)
 	{
 		int b = *inp->p++;
 		int m = 0;
-		
+
 		if (b == 0xff && (m = *inp->p++) != 0)
 		{
 			if (m == M_EOF)
@@ -499,7 +500,7 @@ static void decode_mcus(struct in *inp, int *dct, int n, struct scan *sc, int *m
 
 		hu = sc->huac.dhuff;
 		int i = 63;
-		
+
 		while (i > 0)
 		{
 			t = DEC_REC(inp, hu, r, t);
@@ -800,7 +801,7 @@ static int readtables(int till, int *isDHT)
 	{
 		if (getbyte() != 0xff)
 			return -1;
-		
+
 		int m = 0;
 
 		if ((m = getbyte()) == till)
@@ -986,19 +987,19 @@ int jpeg_init_decoder(int width, int height)
 		fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (jpeg_init_decoder): %s\n", strerror(errno));
 		exit(-1);
 	}
-	
+
 	jpeg_ctx->width = width;
 	jpeg_ctx->height = height;
 	jpeg_ctx->pic_size = width * height * 2; //yuyv
 	jpeg_ctx->codec_data = NULL;
-	
+
 	jpeg_ctx->tmp_frame = calloc(jpeg_ctx->pic_size, sizeof(uint8_t));
 	if(jpeg_ctx->tmp_frame == NULL)
 	{
 		fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (jpeg_init_decoder): %s\n", strerror(errno));
 		exit(-1);
 	}
-	
+
 	return E_OK;
 }
 
@@ -1021,7 +1022,7 @@ int jpeg_decode(uint8_t *out_buf, uint8_t *in_buf, int size)
 	/*asserts*/
 	assert(in_buf != NULL);
 	assert(out_buf != NULL);
-	
+
 	memcpy(jpeg_ctx->tmp_frame, in_buf, size);
 
 	struct jpeg_decdata *decdata;
@@ -1338,7 +1339,7 @@ void jpeg_close_decoder()
 {
 	if(jpeg_ctx == NULL)
 		return;
-	
+
 	free(jpeg_ctx->tmp_frame);
 	free(jpeg_ctx);
 
@@ -1346,38 +1347,6 @@ void jpeg_close_decoder()
 }
 
 #else  //use libavcodec to decode mjpeg data
-
-/*h264 decoder (libavcodec)*/
-#ifdef HAVE_FFMPEG_AVCODEC_H
-#include <ffmpeg/avcodec.h>
-#else
-#include <libavcodec/avcodec.h>
-	#ifdef HAVE_LIBAVUTIL_VERSION_H
-#include <libavutil/version.h>
-#include <libavutil/imgutils.h>
-	#endif
-#include <libavutil/avutil.h>
-#endif 
-
-#define LIBAVCODEC_VER_AT_LEAST(major,minor)  (LIBAVCODEC_VERSION_MAJOR > major || \
-                                              (LIBAVCODEC_VERSION_MAJOR == major && \
-                                               LIBAVCODEC_VERSION_MINOR >= minor))
-
-#ifdef LIBAVUTIL_VERSION_MAJOR
-#define LIBAVUTIL_VER_AT_LEAST(major,minor)  (LIBAVUTIL_VERSION_MAJOR > major || \
-                                              (LIBAVUTIL_VERSION_MAJOR == major && \
-                                               LIBAVUTIL_VERSION_MINOR >= minor))
-#else
-#define LIBAVUTIL_VER_AT_LEAST(major,minor) 0
-#endif
-
-#if !LIBAVCODEC_VER_AT_LEAST(54,25)
-	#define AV_CODEC_ID_H264 CODEC_ID_H264
-#endif
-
-#if !LIBAVCODEC_VER_AT_LEAST(54,25)
-	#define AV_CODEC_ID_MJPEG CODEC_ID_MJPEG
-#endif
 
 typedef struct _codec_data_t
 {
@@ -1418,14 +1387,14 @@ int jpeg_init_decoder(int width, int height)
 		fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (jpeg_init_decoder): %s\n", strerror(errno));
 		exit(-1);
 	}
-	
+
 	codec_data_t *codec_data = calloc(1, sizeof(codec_data_t));
 	if(codec_data == NULL)
 	{
 		fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (jpeg_init_decoder): %s\n", strerror(errno));
 		exit(-1);
 	}
-	
+
 	codec_data->codec = avcodec_find_decoder(AV_CODEC_ID_MJPEG);
 	if(!codec_data->codec)
 	{
@@ -1520,34 +1489,34 @@ int jpeg_decode(uint8_t *out_buf, uint8_t *in_buf, int size)
 	AVPacket avpkt;
 
 	av_init_packet(&avpkt);
-	 	
+
 	avpkt.size = size;
 	avpkt.data = in_buf;
-	
+
 	codec_data_t *codec_data = (codec_data_t *) jpeg_ctx->codec_data;
 
-	int got_picture = 0;
-	int len = avcodec_decode_video2(codec_data->context, codec_data->picture, &got_picture, &avpkt);
+	int got_frame = 0;
+	int ret = libav_decode(codec_data->context, codec_data->picture, &got_frame, &avpkt);
 
-	if(len < 0)
+	if(ret < 0)
 	{
 		fprintf(stderr, "V4L2_CORE: (jpeg decoder) error while decoding frame\n");
-		return len;
+		return ret;
 	}
 
-	if(got_picture)
+	if(got_frame)
 	{
 #if LIBAVUTIL_VER_AT_LEAST(54,6)
 		av_image_copy_to_buffer(jpeg_ctx->tmp_frame, jpeg_ctx->pic_size,
                              (const uint8_t * const*) codec_data->picture->data, codec_data->picture->linesize,
                              codec_data->context->pix_fmt, jpeg_ctx->width, jpeg_ctx->height, 1);
 #else
-		avpicture_layout((AVPicture *) codec_data->picture, codec_data->context->pix_fmt, 
+		avpicture_layout((AVPicture *) codec_data->picture, codec_data->context->pix_fmt,
 			jpeg_ctx->width, jpeg_ctx->height, jpeg_ctx->tmp_frame, jpeg_ctx->pic_size);
 #endif
 		/* libavcodec output is in yuv422p */
         yuv422p_to_yu12(out_buf, jpeg_ctx->tmp_frame, jpeg_ctx->width, jpeg_ctx->height);
-	
+
 		return jpeg_ctx->pic_size;
 	}
 	else
@@ -1569,7 +1538,7 @@ void jpeg_close_decoder()
 {
 	if(jpeg_ctx == NULL)
 		return;
-		
+
 	codec_data_t *codec_data = (codec_data_t *) jpeg_ctx->codec_data;
 
 	avcodec_close(codec_data->context);
@@ -1588,7 +1557,7 @@ void jpeg_close_decoder()
 
 	if(jpeg_ctx->tmp_frame)
 		free(jpeg_ctx->tmp_frame);
-		
+
 	free(codec_data);
 	free(jpeg_ctx);
 
@@ -1596,5 +1565,3 @@ void jpeg_close_decoder()
 }
 
 #endif
-
-

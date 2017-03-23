@@ -1,6 +1,7 @@
 ## Process this file with automake to produce Makefile.in
 
 #AM_CFLAGS =
+AM_CXXFLAGS = -std=c++11
 
 bin_PROGRAMS = guvcview
 
@@ -54,7 +55,7 @@ if HAVE_QT5
 guvcview_CPPFLAGS = $(guvcview_CFLAGS) \
 					$(GUIQT5_CFLAGS) \
 					-fPIC
-endif		  
+endif
 
 guvcview_LDFLAGS = $(LIBINTL)
 
@@ -77,6 +78,3 @@ moc_%.cpp: %.hpp
 
 localedir = $(datadir)/locale
 DEFS = -DLOCALEDIR=\"$(localedir)\" @DEFS@
-
-
-

@@ -37,7 +37,7 @@
 #include <libavutil/version.h>
 	#endif
 #include <libavutil/avutil.h>
-#endif 
+#endif
 
 #define LIBAVCODEC_VER_AT_LEAST(major,minor)  (LIBAVCODEC_VERSION_MAJOR > major || \
                                               (LIBAVCODEC_VERSION_MAJOR == major && \
@@ -53,34 +53,6 @@
 
 #ifndef X264_ME_HEX
 #define X264_ME_HEX 1
-#endif
-
-#if !LIBAVCODEC_VER_AT_LEAST(53,0)
-  #define AV_SAMPLE_FMT_S16 SAMPLE_FMT_S16
-  #define AV_SAMPLE_FMT_FLT SAMPLE_FMT_FLT
-#endif
-
-
-#if !LIBAVCODEC_VER_AT_LEAST(54,25)
-	#define AV_CODEC_ID_NONE CODEC_ID_NONE
-	#define AV_CODEC_ID_MJPEG CODEC_ID_MJPEG
-	#define AV_CODEC_ID_MPEG1VIDEO CODEC_ID_MPEG1VIDEO
-	#define AV_CODEC_ID_FLV1 CODEC_ID_FLV1
-	#define AV_CODEC_ID_WMV1 CODEC_ID_WMV1
-	#define AV_CODEC_ID_MPEG2VIDEO CODEC_ID_MPEG2VIDEO
-	#define AV_CODEC_ID_MSMPEG4V3 CODEC_ID_MSMPEG4V3
-	#define AV_CODEC_ID_MPEG4 CODEC_ID_MPEG4
-	#define AV_CODEC_ID_H264 CODEC_ID_H264
-	#define AV_CODEC_ID_VP8 CODEC_ID_VP8
-	#define AV_CODEC_ID_THEORA CODEC_ID_THEORA
-
-	#define AV_CODEC_ID_PCM_S16LE CODEC_ID_PCM_S16LE
-	#define AV_CODEC_ID_PCM_F32LE CODEC_ID_PCM_F32LE
-	#define AV_CODEC_ID_MP2 CODEC_ID_MP2
-	#define AV_CODEC_ID_MP3 CODEC_ID_MP3
-	#define AV_CODEC_ID_AC3 CODEC_ID_AC3
-	#define AV_CODEC_ID_AAC CODEC_ID_AAC
-	#define AV_CODEC_ID_VORBIS CODEC_ID_VORBIS
 #endif
 
 #if !LIBAVUTIL_VER_AT_LEAST(52,0)
@@ -153,15 +125,13 @@
 
 /*
  * codec data struct used for encoder context
- * we set all avcodec stuff here so that we don't 
+ * we set all avcodec stuff here so that we don't
  * need to export any of it's symbols in the public API
  */
 typedef struct _encoder_codec_data_t
 {
 	AVCodec *codec;
-#if LIBAVCODEC_VER_AT_LEAST(53,6)
 	AVDictionary *private_options;
-#endif
 	AVCodecContext *codec_context;
 	AVFrame *frame;
 	AVPacket *outpkt;
@@ -214,14 +184,14 @@ int avpriv_split_xiph_headers(
 		int first_header_size,
 		uint8_t *header_start[3],
         int header_len[3]);
-	
+
 /*
  * set yu12 frame in codec data frame
  * args:
  *    video_codec_data - pointer to video codec data
  *    inp - input data (yu12)
  *    width - frame width
- *    height - frame height 
+ *    height - frame height
  *
  * asserts:
  *    video_codec_data is not null

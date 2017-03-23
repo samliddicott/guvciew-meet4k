@@ -33,9 +33,9 @@ extern int verbosity;
 
 typedef struct _yuv_color_t
 {
-	int8_t y;
-	int8_t u;
-	int8_t v;
+	uint8_t y;
+	uint8_t u;
+	uint8_t v;
 } yuv_color_t;
 
 #define REFERENCE_LEVEL 0.8
@@ -78,13 +78,13 @@ static void plot_box_yu12(uint8_t *frame, int lines, int linesize, int x, int y,
 			*py++ = color->y;
 		}
 	}
-				
+
 	/*u v*/
 	for(h = 0; h < height/2; h++) /*every two lines*/
 	{
 		pu = frame + (linesize * lines) + (int) floor(x/2) + (( (int) floor(y/2) + h) * (int) floor(linesize/2));
 		pv = pu + (int) floor((linesize * lines) / 4);
-					
+
 		int w = 0;
 		for(w = 0; w < width/2; w++) /*every two rows*/
 		{
@@ -117,14 +117,14 @@ static void plot_line_yu12(uint8_t *frame, int lines, int linesize, int x, int y
 	uint8_t *pv = pu + ((linesize * lines) / 4);
 
 	int w = 0;
-	
+
 	/*y*/
 	py = frame + x + (y * linesize);
 	for(w = 0; w < width; ++w)
 	{
 		*py++ = color->y;
 	}
-				
+
 	/*u v*/
 	pu = frame + (linesize * lines) + (int) floor(x/2) + ((int) floor(y/2) * (int) floor(linesize/2));
 	pv = pu + (int) floor((linesize * lines) / 4);
@@ -132,7 +132,7 @@ static void plot_line_yu12(uint8_t *frame, int lines, int linesize, int x, int y
 	{
 		*pu++ = color->u;
 		*pv++ = color->v;
-	}	
+	}
 }
 
 /*
@@ -212,13 +212,13 @@ void render_osd_vu_meter(uint8_t *frame, int width, int height, float vu_level[2
 			/*green bar*/
 			if (db < -10)
 			{
-				color.y = 154;
+					color.y = 154;
   				color.u = 72;
   				color.v = 57;
 			}
 			else if (db < -2) /*yellow bar*/
 			{
-				color.y = 203;
+					color.y = 203;
   				color.u = 44;
   				color.v = 142;
 			}
