@@ -876,7 +876,7 @@ static void *encoder_loop(void *data)
 		name = new_name; /*replace with suffixed name*/
 	}
 	int pathsize = strlen(path);
-	if(path[pathsize] != '/')
+	if(path[pathsize - 1] != '/')
 		video_filename = smart_cat(path, '/', name);
 	else
 		video_filename = smart_cat(path, 0, name);
@@ -1197,7 +1197,7 @@ void *capture_loop(void *data)
 					name = new_name; /*replace with suffixed name*/
 				}
 				int pathsize = strlen(path);
-				if(path[pathsize] != '/')
+				if(path[pathsize - 1] != '/')
 					img_filename = smart_cat(path, '/', name);
 				else
 					img_filename = smart_cat(path, 0, name);
