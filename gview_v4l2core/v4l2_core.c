@@ -1357,6 +1357,8 @@ static int try_video_stream_format(v4l2_dev_t *vd,
 	/*lock the mutex*/
 	__LOCK_MUTEX( __PMUTEX );
 
+        int old_format = vd->requested_fmt;
+
 	vd->requested_fmt = pixelformat;
 
 	uint8_t stream_status = vd->streaming;
@@ -1400,8 +1402,14 @@ static int try_video_stream_format(v4l2_dev_t *vd,
 	if (ret != 0)
 	{
 		fprintf(stderr, "V4L2_CORE: (VIDIOC_S_FORMAT) Unable to set format: %s\n", strerror(errno));
+                //reset to old format
+                vd->requested_fmt = old_format;
+                my_pixelformat = vd->requested_fmt;
+
 		return E_FORMAT_ERR;
 	}
+
+	my_pixelformat = vd->requested_fmt;
 
 	if ((vd->format.fmt.pix.width != width) ||
 		(vd->format.fmt.pix.height != height))
@@ -1554,8 +1562,10 @@ int v4l2core_get_requested_frame_format(v4l2_dev_t *vd)
 {
 	/*asserts*/
 	assert(vd != NULL);
-	
-	return vd->requested_fmt;
+
+        return my_pixelformat;
+
+	//return vd->requested_fmt;
 }
 
 /*
