@@ -463,7 +463,7 @@ int MainWindow::gui_attach_qt5_v4l2ctrls(QWidget *parent)
 						else
 						{
 							QString text_input = QString("%1").arg(current->menu[j].value, 4, 10, QChar('0'));
-							combobox->addItem(text_input, current->menu[j].value);
+                                                        combobox->addItem(text_input, QVariant::fromValue(current->menu[j].value));
 						}
 						if(current->value == (int) current->menu[j].index)
 							def = j;
