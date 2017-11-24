@@ -1063,7 +1063,7 @@ int libav_decode(AVCodecContext *avctx, AVFrame *frame, int *got_frame, AVPacket
 
 #else
 
-	return avcodec_decode_video2(dec_ctx, frame, got_picture, pkt);
+	return avcodec_decode_video2(avctx, frame, got_frame, pkt);
 
 #endif
 }
