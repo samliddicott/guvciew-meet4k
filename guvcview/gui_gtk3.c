@@ -620,12 +620,21 @@ int gui_attach_gtk3(int width, int height)
 	gtk_window_set_title (GTK_WINDOW (main_window), _("Guvcview"));
 	gtk_widget_show (main_window);
 
+#if !GTK_VER_AT_LEAST(3,22)
 	/* get screen resolution */
 	GdkScreen* screen = NULL;
 	screen = gtk_window_get_screen(GTK_WINDOW(main_window));
 	int desktop_width = gdk_screen_get_width(screen);
 	int desktop_height = gdk_screen_get_height(screen);
-
+#else
+	GdkDisplay *dpy = gtk_widget_get_display(main_window);
+	GdkWindow *win = gtk_widget_get_window(main_window);
+	GdkMonitor *monitor = gdk_display_get_monitor_at_window(dpy,win);
+	GdkRectangle geometry;
+	gdk_monitor_get_geometry(monitor, &geometry);
+	int desktop_width = geometry.width;
+	int desktop_height = geometry.height;
+#endif
 	if(debug_level > 0)
 		printf("GUVCVIEW: (GUI) Screen resolution is (%d x %d)\n", desktop_width, desktop_height);
 
