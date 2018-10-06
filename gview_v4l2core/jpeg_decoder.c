@@ -1371,11 +1371,13 @@ int jpeg_init_decoder(int width, int height)
 #if !LIBAVCODEC_VER_AT_LEAST(53,34)
 	avcodec_init();
 #endif
+#if !LIBAVCODEC_VER_AT_LEAST(58,9)
 	/*
 	 * register all the codecs (we can also register only the codec
 	 * we wish to have smaller code)
 	 */
 	avcodec_register_all();
+#endif
 	av_log_set_level(AV_LOG_PANIC);
 
 	if(jpeg_ctx != NULL)

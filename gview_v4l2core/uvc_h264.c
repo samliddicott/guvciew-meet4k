@@ -975,12 +975,13 @@ int h264_init_decoder(int width, int height)
 #if !LIBAVCODEC_VER_AT_LEAST(53,34)
 	avcodec_init();
 #endif
+#if !LIBAVCODEC_VER_AT_LEAST(58,9)
 	/*
 	 * register all the codecs (we can also register only the codec
 	 * we wish to have smaller code)
 	 */
 	avcodec_register_all();
-
+#endif
 	if(h264_ctx != NULL)
 		h264_close_decoder();
 
@@ -1012,8 +1013,11 @@ int h264_init_decoder(int width, int height)
 		fprintf(stderr, "V4L2_CORE: FATAL memory allocation failure (h264_init_decoder): %s\n", strerror(errno));
 		exit(-1);
 	}
-
+#if !LIBAVCODEC_VER_AT_LEAST(58,0)
 	h264_ctx->context->flags2 |= CODEC_FLAG2_FAST;
+#else
+	h264_ctx->context->flags2 |= AV_CODEC_FLAG2_FAST;
+#endif
 	h264_ctx->context->pix_fmt = AV_PIX_FMT_YUV420P;
 	h264_ctx->context->width = width;
 	h264_ctx->context->height = height;

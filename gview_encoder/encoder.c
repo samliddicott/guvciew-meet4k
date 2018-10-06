@@ -180,12 +180,13 @@ void __attribute__ ((constructor)) gviewencoder_init()
 	fprintf(stderr, "ENCODER: Error - libavcodec version not supported (minimum 57.16)\n");
 	return;
 #endif
+#if !LIBAVCODEC_VER_AT_LEAST(58,9)
 	//printf("ENCODER: constructor function called\n");
 	/* register all the codecs (you can also register only the codec
 	 * you wish to have smaller code)
 	 */
 	avcodec_register_all();
-
+#endif
 	valid_video_codecs = encoder_set_valid_video_codec_list ();
 	valid_audio_codecs = encoder_set_valid_audio_codec_list ();
 
