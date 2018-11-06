@@ -74,13 +74,13 @@ static int recordCallback (
 
 	/*asserts*/
 	assert(audio_ctx != NULL);
-	
+
 	if(audio_ctx->channels == 0)
 	{
 		fprintf(stderr, "AUDIO: (portaudio) recordCallback failed: channels = 0\n");
 		return (paContinue);
 	}
-	
+
 	if(audio_ctx->samprate == 0)
 	{
 		fprintf(stderr, "AUDIO: (portaudio) recordCallback failed: samprate = 0\n");
@@ -184,7 +184,7 @@ static int audio_portaudio_list_devices(audio_context_t *audio_ctx)
 {
 	/*asserts*/
 	assert(audio_ctx != NULL);
-	
+
 	int numDevices;
 	const PaDeviceInfo *deviceInfo;
 
@@ -292,6 +292,12 @@ static int audio_portaudio_list_devices(audio_context_t *audio_ctx)
 			printf("----------------------------------------------\n");
 	}
 
+	if (audio_ctx->num_input_dev <= 0)
+	{
+		printf( "AUDIO: Audio disabled: no input devices found (%i)\n", audio_ctx->num_input_dev );
+		return -1;
+	}
+
 	/*set defaults*/
 	audio_ctx->channels = audio_ctx->list_devices[audio_ctx->device].channels;
 	audio_ctx->samprate = audio_ctx->list_devices[audio_ctx->device].samprate;
@@ -313,7 +319,7 @@ int audio_init_portaudio(audio_context_t* audio_ctx)
 {
 	/*assertions*/
 	assert(audio_ctx != NULL);
-	
+
 	int pa_error = Pa_Initialize();
 
 	if(pa_error != paNoError)
@@ -348,7 +354,7 @@ void audio_set_portaudio_device(audio_context_t *audio_ctx, int index)
 {
 	/*assertions*/
 	assert(audio_ctx != NULL);
-	
+
 	if(index >= audio_ctx->num_input_dev)
 		audio_ctx->device = audio_ctx->num_input_dev - 1;
 	else if(index >= 0 )
@@ -356,9 +362,9 @@ void audio_set_portaudio_device(audio_context_t *audio_ctx, int index)
 
 	if(verbosity > 1)
 		printf("AUDIO: Portaudio device changed to %i\n", audio_ctx->device);
-	 
+
 	audio_ctx->latency = audio_ctx->list_devices[audio_ctx->device].high_latency;
-	
+
 	audio_ctx->channels = audio_ctx->list_devices[audio_ctx->device].channels;
 	if(audio_ctx->channels > 2)
 		audio_ctx->channels = 2;/*limit it to stereo input*/
@@ -399,7 +405,7 @@ int audio_start_portaudio(audio_context_t *audio_ctx)
 	inputParameters.device = audio_ctx->list_devices[audio_ctx->device].id;
 	inputParameters.channelCount = audio_ctx->channels;
 	inputParameters.sampleFormat = paFloat32; /*sample_t - float*/
-	
+
 	inputParameters.suggestedLatency = audio_ctx->latency; /*DEFAULT_LATENCY_DURATION/1000.0;*/
 	
 	inputParameters.hostApiSpecificStreamInfo = NULL;
@@ -427,7 +433,7 @@ int audio_start_portaudio(audio_context_t *audio_ctx)
 
 	if( err != paNoError )
 	{
-		fprintf(stderr, "AUDIO: An error occured while starting the portaudio API\n" );
+		fprintf(stderr, "AUDIO: An error occurred while starting the portaudio API\n" );
 		fprintf(stderr, "       Error number: %d\n", err );
 		fprintf(stderr, "       Error message: %s\n", Pa_GetErrorText( err ) );
 
