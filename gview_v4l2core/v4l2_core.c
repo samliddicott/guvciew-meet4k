@@ -1588,8 +1588,15 @@ void v4l2core_prepare_new_format(v4l2_dev_t *vd, int new_format)
 
 	if(format_index < 0)
 		format_index = 0;
-
-	my_pixelformat = vd->list_stream_formats[format_index].format;
+	
+	if(vd->list_stream_formats[format_index].dec_support)
+		my_pixelformat = vd->list_stream_formats[format_index].format;
+	else
+	{
+		fprintf (stderr, "V4L2_CORE: format %i is not suported.\n", format_index);
+		fprintf (stderr, "V4L2_CORE: preparing a valid format instead.\n");
+		v4l2core_prepare_valid_format(vd);
+	}
 }
 
 /*
@@ -1608,8 +1615,16 @@ void v4l2core_prepare_valid_format(v4l2_dev_t *vd)
 	assert(vd != NULL);
 
 	int format_index = 0;
+	for(format_index = 0; format_index < vd->numb_formats; ++format_index)
+	{
+		if(vd->list_stream_formats[format_index].dec_support) 
+		{
+			my_pixelformat = vd->list_stream_formats[format_index].format;
+			return;
+		}
+	}
 
-	my_pixelformat = vd->list_stream_formats[format_index].format;
+	fprintf(stderr, "V4L2_CORE: couldn't prepare a valid format for device (no format supported)\n");
 }
 
 /*
