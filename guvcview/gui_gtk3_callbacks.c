@@ -1713,13 +1713,13 @@ void audio_api_changed(GtkComboBox *combo, void *data)
 	switch(api)
 	{
 		case AUDIO_NONE:
-			strncpy(my_config->audio, "none", 5);
+			strncpy(my_config->audio, "none", 6);
 			break;
 		case AUDIO_PULSE:
-			strncpy(my_config->audio, "pulse", 5);
+			strncpy(my_config->audio, "pulse", 6);
 			break;
 		default:
-			strncpy(my_config->audio, "port", 5);
+			strncpy(my_config->audio, "port", 6);
 			break;
 	}
 

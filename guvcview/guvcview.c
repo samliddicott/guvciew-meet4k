@@ -210,11 +210,11 @@ int main(int argc, char *argv[])
 #elif HAS_GTK3
 		gui = GUI_GTK3;
 		fprintf(stderr, "Guvcview was not build with Qt5 support: using Gtk3\n");
-		strncpy(my_config->gui, "gtk3", 4);
+		strncpy(my_config->gui, "gtk3", 5);
 #else
 		gui = GUI_NONE;
 		fprintf(stderr, "Guvcview was not build with gui support\n");
-		strncpy(my_config->gui, "none", 4);
+		strncpy(my_config->gui, "none", 5);
 #endif
 	}
 
@@ -246,9 +246,9 @@ int main(int argc, char *argv[])
 	v4l2_dev_t *vd = create_v4l2_device_handler(my_options->device);
 	if(!vd)
 	{
-		char message[50];
-		snprintf(message, 49, "no video device (%s) found", my_options->device);
-		gui_error("Guvcview error", "no video device found", 1);
+		char message[55];
+		snprintf(message, 54, "no video device (%s) found", my_options->device);
+		gui_error("Guvcview error", message, 1);
 		options_clean();
 		return -1;
 	}

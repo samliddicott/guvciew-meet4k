@@ -602,15 +602,15 @@ int soft_autofocus_get_focus_value()
 	if (step2 <= 0 ) step2 = 1;
 	int focus=0;
 
+	/*--------- first time - run sharpness algorithm -----------------*/
+	if(focus_ctx->ind >= 20)
+	{
+		fprintf (stderr, "V4L2_CORE: (soft_autofocus) ind=%d exceeds 20\n", focus_ctx->ind);
+		focus_ctx->ind = 10;
+	}
+
 	switch (focus_ctx->flag)
 	{
-		/*--------- first time - run sharpness algorithm -----------------*/
-		if(focus_ctx->ind >= 20)
-		{
-			fprintf (stderr, "V4L2_CORE: (soft_autofocus) ind=%d exceeds 20\n", focus_ctx->ind);
-			focus_ctx->ind = 10;
-		}
-
 		case 0: /*sample left to right at higher step*/
 			focus_ctx->arr_sharp[focus_ctx->ind] = focus_ctx->sharpness;
 			focus_ctx->arr_foc[focus_ctx->ind] = focus_ctx->focus;
