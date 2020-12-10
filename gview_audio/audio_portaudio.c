@@ -115,7 +115,6 @@ static int recordCallback (
 		{
 			capture_buff[sample_index] = 0;
 			sample_index++;
-
 			if(sample_index >= audio_ctx->capture_buff_size)
 			{
 				audio_fill_buffer(audio_ctx, audio_ctx->last_ts);
@@ -138,10 +137,9 @@ static int recordCallback (
 	int chan = 0;
 	/*store capture samples*/
 	for( i = 0; i < numSamples; ++i )
-    {
-        capture_buff[sample_index] = inputBuffer ? *rptr++ : 0;
-        sample_index++;
-
+	{
+		capture_buff[sample_index] = inputBuffer ? *rptr++ : 0;
+		
 		/*store peak value*/
 		if(audio_ctx->capture_buff_level[chan] < capture_buff[sample_index])
 			audio_ctx->capture_buff_level[chan] = capture_buff[sample_index];
@@ -149,7 +147,10 @@ static int recordCallback (
 		if(chan >= audio_ctx->channels)
 			chan = 0;
 
-        if(sample_index >= audio_ctx->capture_buff_size)
+		
+		sample_index++;
+		
+		if(sample_index >= audio_ctx->capture_buff_size)
 		{
 			buff_ts = ts + ( i / audio_ctx->channels ) * frame_length;
 
