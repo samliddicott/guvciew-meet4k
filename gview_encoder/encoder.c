@@ -29,6 +29,7 @@
 #                                                                               #
 ********************************************************************************/
 
+#include <libavcodec/codec_id.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/types.h>
@@ -715,6 +716,7 @@ static encoder_audio_context_t *encoder_audio_init(encoder_context_t *encoder_ct
 	/*check if codec supports sample format*/
 	if (!encoder_check_audio_sample_fmt(audio_codec_data->codec, audio_defaults->sample_format))
 	{
+		/*replace by a supported format*/
 		switch(audio_defaults->sample_format)
 		{
 			case AV_SAMPLE_FMT_S16:
@@ -819,6 +821,7 @@ static encoder_audio_context_t *encoder_audio_init(encoder_context_t *encoder_ct
 	int frame_size = audio_codec_data->codec_context->frame_size;
 	if(frame_size <= 0)
 	{
+		fprintf(stderr, "ENCODER: setting default frame size for audio codec\n");
 		frame_size = 1152; /*default value*/
 		audio_codec_data->codec_context->frame_size = frame_size;
 	}
@@ -1453,8 +1456,8 @@ static int libav_encode(AVCodecContext *avctx, AVPacket *pkt, AVFrame *frame, in
 {
 	int ret;
 
-  *got_packet = 0;
-
+	*got_packet = 0;
+ 
 	if(frame)
 	{
 		ret = avcodec_send_frame(avctx, frame);
@@ -1670,6 +1673,53 @@ int encoder_encode_audio(encoder_context_t *encoder_ctx, void *audio_data)
 
 	encoder_codec_data_t *audio_codec_data = (encoder_codec_data_t *) enc_audio_ctx->codec_data;
 
+	/*PCM output: no need for encoding - save samples directly to outbuf*/
+	if(audio_codec_data->codec_context->codec_id == AV_CODEC_ID_PCM_F32LE)
+	{
+		if(enc_audio_ctx->flush_delayed_frames)
+		{
+			/*since we are not encoding we don't have to flush the encoder buffers*/
+			enc_audio_ctx->flushed_buffers = 1;
+			enc_audio_ctx->flush_done = 1;
+		}
+ 	
+		if (audio_data == NULL)
+		{
+			enc_audio_ctx->outbuf_coded_size = outsize;
+			return outsize;
+		}
+
+		int align = 0;
+
+		int buffer_size = av_samples_get_buffer_size(
+			NULL,
+			audio_codec_data->codec_context->channels,
+			audio_codec_data->codec_context->frame_size,
+			audio_codec_data->codec_context->sample_fmt,
+			align);
+
+		if(buffer_size <= 0)
+		{
+			fprintf(stderr, "ENCODER: (encoder_encode_audio) PCM av_samples_get_buffer_size error (%d): chan(%d) nb_samp(%d) samp_fmt(%d)\n",
+				buffer_size,
+				audio_codec_data->codec_context->channels,
+				audio_codec_data->codec_context->frame_size,
+				audio_codec_data->codec_context->sample_fmt);
+
+			return outsize;
+		}
+
+		memcpy(enc_audio_ctx->outbuf, audio_data, buffer_size);
+		enc_audio_ctx->duration = (audio_codec_data->codec_context->time_base.num*1000/audio_codec_data->codec_context->time_base.den) * 90;
+		enc_audio_ctx->pts += enc_audio_ctx->duration;
+		enc_audio_ctx->dts = enc_audio_ctx->pts;
+		enc_audio_ctx->flags = 0;
+		enc_audio_ctx->outbuf_coded_size = buffer_size;
+
+		outsize = buffer_size;
+		return outsize;
+	}
+
 	if(enc_audio_ctx->flush_delayed_frames)
 	{
 		//pkt.size = 0;
@@ -1682,11 +1732,9 @@ int encoder_encode_audio(encoder_context_t *encoder_ctx, void *audio_data)
  	}
 
 	/* encode the audio */
-	/* encode the video */
 	AVPacket *pkt = audio_codec_data->outpkt;
 	int got_packet = 0;
 	int ret = 0;
-
 
 	if(!enc_audio_ctx->flush_delayed_frames)
 	{
