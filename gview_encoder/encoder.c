@@ -1271,8 +1271,6 @@ int encoder_process_next_video_buffer(encoder_context_t *encoder_ctx)
 
 	__UNLOCK_MUTEX ( __PMUTEX );
 
-	encoder_write_video_data(encoder_ctx);
-
 	return 0;
 }
 
@@ -1320,12 +1318,7 @@ int encoder_flush_video_buffer(encoder_context_t *encoder_ctx)
 	flushed_frame_counter = 0;
 	encoder_ctx->enc_video_ctx->flush_delayed_frames  = 1;
 
-	while(!encoder_ctx->enc_video_ctx->flush_done)
-	{
-		encoder_encode_video(encoder_ctx, NULL);
-		encoder_write_video_data(encoder_ctx);
-		flushed_frame_counter++;
-	}
+	encoder_encode_video(encoder_ctx, NULL);
 
 	if(verbosity > 1)
 		printf("ENCODER: flushed %i delayed video frames\n", flushed_frame_counter);
@@ -1358,12 +1351,7 @@ int encoder_flush_audio_buffer(encoder_context_t *encoder_ctx)
 	int flushed_frame_counter = 0;
 	encoder_ctx->enc_audio_ctx->flush_delayed_frames  = 1;
 
-	while(!encoder_ctx->enc_audio_ctx->flush_done)
-	{
-		encoder_encode_audio(encoder_ctx, NULL);
-		encoder_write_audio_data(encoder_ctx);
-		flushed_frame_counter++;
-	}
+	encoder_encode_audio(encoder_ctx, NULL);
 
 	if(verbosity > 1)
 		printf("ENCODER: flushed %i delayed audio frames\n", flushed_frame_counter);
@@ -1391,11 +1379,7 @@ int encoder_process_audio_buffer(encoder_context_t *encoder_ctx, void *data)
 		encoder_ctx->audio_channels <= 0)
 		return -1;
 
-	encoder_encode_audio(encoder_ctx, data);
-
-	int ret = encoder_write_audio_data(encoder_ctx);
-
-	return ret;
+	return encoder_encode_audio(encoder_ctx, data);
 }
 
 /*
@@ -1491,11 +1475,9 @@ static int read_video_df_pts(encoder_video_context_t *enc_video_ctx)
 	return enc_video_ctx->read_df;
 }
 
-static int libav_encode(AVCodecContext *avctx, AVPacket *pkt, AVFrame *frame, int *got_packet)
+static int libav_send_encode(AVCodecContext *avctx, AVFrame *frame)
 {
 	int ret;
-
-	*got_packet = 0;
 
 	if (!avcodec_is_open(avctx))
 		fprintf(stderr, "ENCODER: codec not opened\n"); 
@@ -1519,20 +1501,26 @@ static int libav_encode(AVCodecContext *avctx, AVPacket *pkt, AVFrame *frame, in
   			return ret; //if (ret == AVERROR(EAGAIN)) //input buffer is full
 		}
 	}
-	//else
-	//{
-	//	//flush encode buffers
-	//	avcodec_send_frame(avctx, NULL);
-	//}
+	else
+	{
+		//flush encode buffers
+		avcodec_send_frame(avctx, NULL);
+	}
 	
+
+  return ret;
+}
+
+static int libav_get_encode(AVCodecContext *avctx, AVPacket *pkt, int* got_packet)
+{
+	int ret = 0;
+	*got_packet = 0;
 
 	ret = avcodec_receive_packet(avctx, pkt);
 	if (!ret)
   		*got_packet = 1;
-  	if (ret == AVERROR(EAGAIN)) //output buffer is empty
-  		return 0;
 
-  return ret;
+	return ret;
 }
 
 /*
@@ -1638,25 +1626,25 @@ int encoder_encode_video(encoder_context_t *encoder_ctx, void *input_frame)
 	//	av_log(avctx, AV_LOG_ERROR, "buffer smaller than minimum size\n");
     //    return -1;
     //}
- 	if(!enc_video_ctx->flush_delayed_frames)
-    	ret = libav_encode(
+	ret = libav_send_encode(
 			video_codec_data->codec_context,
-			pkt,
-			video_codec_data->frame,
-			&got_packet);
-   	else
-   		ret = libav_encode(
-			video_codec_data->codec_context,
-			pkt, NULL, /*NULL flushes the encoder buffers*/
-			&got_packet);
-
+			video_codec_data->frame);
+	
 	if(ret < 0)
 	{
 		fprintf(stderr, "ENCODER: Error encoding video frame: %i\n", ret);
 		return ret;
 	}
 
-	if(got_packet)
+	if(enc_video_ctx->flush_delayed_frames)
+	{
+		if(!enc_video_ctx->flushed_buffers)
+    		avcodec_flush_buffers(video_codec_data->codec_context);
+		
+		enc_video_ctx->flushed_buffers = 1;
+	}
+
+	while (libav_get_encode(video_codec_data->codec_context, pkt, &got_packet) >= 0)
 	{
 		//if(pkt.pts != AV_NOPTS_VALUE)
 		//	printf("ENCODER: (video) pts:%" PRId64 " dts:%" PRId64 "\n", pkt.pts, pkt.dts);
@@ -1682,19 +1670,22 @@ int encoder_encode_video(encoder_context_t *encoder_ctx, void *input_frame)
     	}
     	outsize = pkt->size;
 
-			av_packet_unref(pkt);
-    }
+		av_packet_unref(pkt);
 
-	if(enc_video_ctx->flush_delayed_frames && ((outsize == 0) || !got_packet))
-    	enc_video_ctx->flush_done = 1;
-	else if(outsize == 0 || !got_packet) //the frame was delayed
-		store_video_df_pts(enc_video_ctx);
-	else if(enc_video_ctx->write_df >= 0) //we have delayed frames
-		read_video_df_pts(enc_video_ctx);
+		if(enc_video_ctx->flush_delayed_frames && outsize == 0)
+    		enc_video_ctx->flush_done = 1;
+		else if(outsize == 0) //the frame was delayed
+			store_video_df_pts(enc_video_ctx);
+		else if(enc_video_ctx->write_df >= 0) //we have delayed frames
+			read_video_df_pts(enc_video_ctx);
 
-	last_video_pts = enc_video_ctx->pts;
+		last_video_pts = enc_video_ctx->pts;
 
-	encoder_ctx->enc_video_ctx->outbuf_coded_size = outsize;
+		encoder_ctx->enc_video_ctx->outbuf_coded_size = outsize;
+
+		encoder_write_video_data(encoder_ctx);
+	}
+
 	return (outsize);
 #endif
 }
@@ -1781,17 +1772,6 @@ int encoder_encode_audio(encoder_context_t *encoder_ctx, void *audio_data)
 		return outsize;
 	}
 
-	if(enc_audio_ctx->flush_delayed_frames)
-	{
-		//pkt.size = 0;
-		if(!enc_audio_ctx->flushed_buffers)
-		{
-			if(audio_codec_data)
-				avcodec_flush_buffers(audio_codec_data->codec_context);
-			enc_audio_ctx->flushed_buffers = 1;
-		}
- 	}
-
 	/* encode the audio */
 	AVPacket *pkt = audio_codec_data->outpkt;
 	int got_packet = 0;
@@ -1860,24 +1840,20 @@ int encoder_encode_audio(encoder_context_t *encoder_ctx, void *audio_data)
 			fprintf(stderr, "ENCODER: (encoder_encode_audio) couldn't generate a monotonic ts: time_base.den(%d)\n",
 				 audio_codec_data->codec_context->time_base.den);
 		}
-
-
-		ret = libav_encode(
+	}
+	
+	ret = libav_send_encode(
 				audio_codec_data->codec_context,
-				pkt,
-				audio_codec_data->frame,
-				&got_packet);
-	}
-	else
+				audio_codec_data->frame);
+	
+	if(!enc_audio_ctx->flushed_buffers)
 	{
-		ret = libav_encode(
-			audio_codec_data->codec_context,
-			pkt,
-			NULL, /*NULL flushes the encoder buffers*/
-			&got_packet);
+		if(audio_codec_data)
+			avcodec_flush_buffers(audio_codec_data->codec_context);
+		enc_audio_ctx->flushed_buffers = 1;
 	}
 
-	if(got_packet)
+	while (libav_get_encode(audio_codec_data->codec_context, pkt, &got_packet) >= 0)
 	{
 		//if(pkt.pts != AV_NOPTS_VALUE)
 		//	printf("ENCODER: (audio) pts:%" PRId64 " dts:%" PRId64 "\n", pkt.pts, pkt.dts);
@@ -1903,16 +1879,19 @@ int encoder_encode_audio(encoder_context_t *encoder_ctx, void *audio_data)
 			av_freep(audio_codec_data->frame->extended_data);
 
 		outsize = pkt->size;
-		
+			
 		av_packet_unref(pkt);
+
+		last_audio_pts = enc_audio_ctx->pts;
+
+		if(enc_audio_ctx->flush_delayed_frames && outsize == 0)
+    		enc_audio_ctx->flush_done = 1;
+
+		enc_audio_ctx->outbuf_coded_size = outsize;
+
+		encoder_write_audio_data(encoder_ctx);
 	}
 
-	last_audio_pts = enc_audio_ctx->pts;
-
-	if(enc_audio_ctx->flush_delayed_frames && ((outsize == 0) || !got_packet))
-    	enc_audio_ctx->flush_done = 1;
-
-	enc_audio_ctx->outbuf_coded_size = outsize;
 	return (outsize);
 #endif
 }
