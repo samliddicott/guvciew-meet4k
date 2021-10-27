@@ -30,6 +30,7 @@
 ********************************************************************************/
 
 #include <libavcodec/codec_id.h>
+#include <libavutil/error.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/types.h>
@@ -235,6 +236,36 @@ static int encoder_check_audio_sample_fmt(AVCodec *codec, enum AVSampleFormat sa
 	return 0;
 }
 
+/*
+ * check that a given sample rate is supported by the encoder
+ * args:
+ *    codec - pointer to AVCodec
+ *    sample_rate - audio sample rate
+ *
+ * assertions:
+ *    none
+ *
+ * returns: sample_rate if supported or max supported sample rate if not
+ */
+static int select_sample_rate(const AVCodec *codec, int sample_rate)
+{
+	const int *p;
+ 	int best_samplerate = 0;
+
+	if (!codec->supported_samplerates)
+		return sample_rate;
+
+	p = codec->supported_samplerates;
+	while (*p) 
+	{
+		if (*p == sample_rate)
+			return sample_rate;
+
+		best_samplerate = FFMAX(*p, best_samplerate);
+		p++;
+    }
+	return best_samplerate;
+}
 /*
  * video encoder initialization for raw input
  *  (don't set a codec but set the proper codec 4cc)
@@ -711,6 +742,15 @@ static encoder_audio_context_t *encoder_audio_init(encoder_context_t *encoder_ct
 
 	audio_codec_data->codec_context->codec_type = AVMEDIA_TYPE_AUDIO;
 
+	int best_samprate = select_sample_rate(audio_codec_data->codec, encoder_ctx->audio_samprate);
+
+	if(best_samprate != encoder_ctx->audio_samprate)
+	{
+		fprintf(stderr, "ENCODER: audio codec doesn't support sample rate = %i (best is %i)\n", 
+			encoder_ctx->audio_samprate, best_samprate);
+		encoder_ctx->audio_samprate = best_samprate;
+	}
+
 	audio_codec_data->codec_context->time_base = (AVRational){1, encoder_ctx->audio_samprate};
 
 	/*check if codec supports sample format*/
@@ -859,7 +899,7 @@ static encoder_audio_context_t *encoder_audio_init(encoder_context_t *encoder_ct
 
 	audio_codec_data->frame->nb_samples = frame_size;
 	audio_codec_data->frame->format = audio_defaults->sample_format;
-
+	audio_codec_data->frame->channels = audio_codec_data->codec_context->channels;
 	audio_codec_data->frame->channel_layout = audio_codec_data->codec_context->channel_layout;
 
 	/*set codec data in encoder context*/
@@ -1451,25 +1491,46 @@ static int read_video_df_pts(encoder_video_context_t *enc_video_ctx)
 	return enc_video_ctx->read_df;
 }
 
-
 static int libav_encode(AVCodecContext *avctx, AVPacket *pkt, AVFrame *frame, int *got_packet)
 {
 	int ret;
 
 	*got_packet = 0;
+
+	if (!avcodec_is_open(avctx))
+		fprintf(stderr, "ENCODER: codec not opened\n"); 
+	if(!av_codec_is_encoder(avctx->codec))
+		fprintf(stderr, "ENCODER: codec not an encoder\n");
  
 	if(frame)
 	{
-		ret = avcodec_send_frame(avctx, frame);
-  	if (ret < 0)
-  		return ret; //if (ret == AVERROR(EAGAIN)) //input buffer is full
-	}
 
-  ret = avcodec_receive_packet(avctx, pkt);
-  if (!ret)
-  	*got_packet = 1;
-  if (ret == AVERROR(EAGAIN)) //output buffer is empty
-  	return 0;
+		if (avctx->codec_type == AVMEDIA_TYPE_AUDIO && frame->nb_samples != avctx->frame_size) 
+			fprintf(stderr, "ENCODER: audio samples differ from frame size\n");
+		if (avctx->codec_type == AVMEDIA_TYPE_AUDIO && frame->channels <= 0)
+		{ 
+			fprintf(stderr, "ENCODER: no audio channels set in frame\n");
+			frame->channels = avctx->channels;
+		}
+		ret = avcodec_send_frame(avctx, frame);
+  		if (ret < 0)
+		{
+			fprintf(stderr, "ENCODER: avcodec_send_frame error (%i): %s\n", ret, av_err2str(ret));
+  			return ret; //if (ret == AVERROR(EAGAIN)) //input buffer is full
+		}
+	}
+	//else
+	//{
+	//	//flush encode buffers
+	//	avcodec_send_frame(avctx, NULL);
+	//}
+	
+
+	ret = avcodec_receive_packet(avctx, pkt);
+	if (!ret)
+  		*got_packet = 1;
+  	if (ret == AVERROR(EAGAIN)) //output buffer is empty
+  		return 0;
 
   return ret;
 }
@@ -1762,7 +1823,6 @@ int encoder_encode_audio(encoder_context_t *encoder_ctx, void *audio_data)
 			return outsize;
 		}
 
-
 		/*set the data pointers in frame*/
 		ret = avcodec_fill_audio_frame(
 			audio_codec_data->frame,
@@ -1784,6 +1844,12 @@ int encoder_encode_audio(encoder_context_t *encoder_ctx, void *audio_data)
 			return outsize;
 		}
 
+		if(audio_codec_data->frame->nb_samples != audio_codec_data->codec_context->frame_size)
+		{
+			fprintf(stderr, "ENCODER: audio frame->nb_samples(%i) != codec_context->frame_size(%i)", 
+				audio_codec_data->frame->nb_samples, audio_codec_data->codec_context->frame_size);
+		}
+
 		if(!enc_audio_ctx->monotonic_pts) /*generate a real pts based on the frame timestamp*/
 			audio_codec_data->frame->pts += ((enc_audio_ctx->pts - last_audio_pts)/1000) * 90;
 		else  if (audio_codec_data->codec_context->time_base.den > 0) /*generate a true monotonic pts based on the codec fps*/
@@ -1794,6 +1860,7 @@ int encoder_encode_audio(encoder_context_t *encoder_ctx, void *audio_data)
 			fprintf(stderr, "ENCODER: (encoder_encode_audio) couldn't generate a monotonic ts: time_base.den(%d)\n",
 				 audio_codec_data->codec_context->time_base.den);
 		}
+
 
 		ret = libav_encode(
 				audio_codec_data->codec_context,
