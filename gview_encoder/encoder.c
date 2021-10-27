@@ -29,7 +29,7 @@
 #                                                                               #
 ********************************************************************************/
 
-#include <libavcodec/codec_id.h>
+#include <libavcodec/avcodec.h>
 #include <libavutil/error.h>
 #include <stdlib.h>
 #include <stdio.h>
