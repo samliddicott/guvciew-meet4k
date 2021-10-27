@@ -85,11 +85,12 @@ MainWindow::MainWindow()
 	{
 		/*Photo capture*/
 		cap_img_button = new QToolButton;
-		QIcon cap_img_icon(QString(PACKAGE_DATA_DIR).append("/pixmaps/guvcview/camera.png"));
+		//QIcon cap_img_icon(QString(PACKAGE_DATA_DIR).append("/pixmaps/guvcview/camera.png"));
+		QIcon cap_img_icon = QIcon::fromTheme("camera-photo");
 		cap_img_button->setIcon(cap_img_icon);
 		cap_img_button->setIconSize(QSize(64,64));
 		cap_img_button->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-		cap_img_button->setFixedSize(128,80);
+		cap_img_button->setFixedSize(128,100);
 
 		if(check_photo_timer())
 		{
@@ -110,11 +111,12 @@ MainWindow::MainWindow()
 
 		/*video capture*/
 		cap_video_button = new QToolButton;
-		QIcon cap_video_icon(QString(PACKAGE_DATA_DIR).append("/pixmaps/guvcview/movie.png"));
+		//QIcon cap_video_icon(QString(PACKAGE_DATA_DIR).append("/pixmaps/guvcview/movie.png"));
+		QIcon cap_video_icon = QIcon::fromTheme("camera-video");
 		cap_video_button->setIcon(cap_video_icon);
 		cap_video_button->setIconSize(QSize(64,64));
 		cap_video_button->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-		cap_video_button->setFixedSize(128,80);
+		cap_video_button->setFixedSize(128,100);
 
 		if(check_video_timer())
 		{
@@ -136,11 +138,12 @@ MainWindow::MainWindow()
 	}
 	/*quit*/
 	QToolButton *quit_button = new QToolButton;
-	QIcon quit_icon(QString(PACKAGE_DATA_DIR).append("/pixmaps/guvcview/close.png"));
+	//QIcon quit_icon(QString(PACKAGE_DATA_DIR).append("/pixmaps/guvcview/close.png"));
+	QIcon quit_icon = QIcon::fromTheme("process-stop");
 	quit_button->setIcon(quit_icon);
 	quit_button->setIconSize(QSize(64,64));
 	quit_button->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-	quit_button->setFixedSize(128,80);
+	quit_button->setFixedSize(128,100);
 
 	quit_button->setText(_("Quit"));
 
@@ -164,7 +167,8 @@ MainWindow::MainWindow()
 	scroll_ctrls->setWidgetResizable(true);
 
 	int tab_ind = control_tab->addTab(scroll_ctrls, _("Image Controls"));
-	QIcon image_tab_icon(QString(PACKAGE_DATA_DIR).append("/pixmaps/guvcview/image_controls.png"));
+	//QIcon image_tab_icon(QString(PACKAGE_DATA_DIR).append("/pixmaps/guvcview/image_controls.png"));
+	QIcon image_tab_icon = QIcon::fromTheme("video-display");
 	control_tab->setTabIcon(tab_ind, image_tab_icon);
 
 	/*----------------------------H264 Controls Tab --------------------------*/
@@ -177,7 +181,8 @@ MainWindow::MainWindow()
 		scroll_h264ctrls->setWidgetResizable(true);
 
 		tab_ind = control_tab->addTab(scroll_h264ctrls, _("H264 Controls"));
-		QIcon h264_tab_icon(QString(PACKAGE_DATA_DIR).append("/pixmaps/guvcview/image_controls.png"));
+		//QIcon h264_tab_icon(QString(PACKAGE_DATA_DIR).append("/pixmaps/guvcview/image_controls.png"));
+		QIcon h264_tab_icon = QIcon::fromTheme("video-x-generic");
 		control_tab->setTabIcon(tab_ind, h264_tab_icon);
 
 	}
@@ -192,7 +197,8 @@ MainWindow::MainWindow()
 		scroll_video->setWidgetResizable(true);
 
 		tab_ind = control_tab->addTab(scroll_video, _("Video Controls"));
-		QIcon video_tab_icon(QString(PACKAGE_DATA_DIR).append("/pixmaps/guvcview/video_controls.png"));
+		//QIcon video_tab_icon(QString(PACKAGE_DATA_DIR).append("/pixmaps/guvcview/video_controls.png"));
+		QIcon video_tab_icon = QIcon::fromTheme("video-x-generic");
 		control_tab->setTabIcon(tab_ind, video_tab_icon);
 
 		/*------------------------Audio Controls Tab -------------------------*/
@@ -203,7 +209,8 @@ MainWindow::MainWindow()
 		scroll_audio->setWidgetResizable(true);
 
 		tab_ind = control_tab->addTab(scroll_audio, _("Audio Controls"));
-		QIcon audio_tab_icon(QString(PACKAGE_DATA_DIR).append("/pixmaps/guvcview/audio_controls.png"));
+		//QIcon audio_tab_icon(QString(PACKAGE_DATA_DIR).append("/pixmaps/guvcview/audio_controls.png"));
+		QIcon audio_tab_icon = QIcon::fromTheme("audio-input-microphone");
 		control_tab->setTabIcon(tab_ind, audio_tab_icon);
 	}
 
@@ -277,6 +284,9 @@ void gui_error_qt5(
 	
 		my_app->setOrganizationName("Guvcview Video Capture");
 		my_app->setApplicationName("Guvcview");
+		//QIcon app_icon = QIcon::fromTheme("camera-web");
+		QIcon app_icon(QString(PACKAGE_DATA_DIR).append("/pixmaps/guvcview/guvcview.png"));
+		my_app->setWindowIcon(app_icon);
 	}
 	
 	/*simple warning message - not fatal and no device selection*/
@@ -377,6 +387,9 @@ int gui_attach_qt5(int width, int height)
 	
 		my_app->setOrganizationName("Guvcview Video Capture");
 		my_app->setApplicationName("Guvcview");
+		//QIcon app_icon = QIcon::fromTheme("camera-web");
+		QIcon app_icon(QString(PACKAGE_DATA_DIR).append("/pixmaps/guvcview/guvcview.png"));
+		my_app->setWindowIcon(app_icon);
 	}
 
 	if(debug_level > 2)
