@@ -23,6 +23,7 @@
 
 /* support for internationalization - i18n */
 #include <inttypes.h>
+#include <libavcodec/packet.h>
 #include <math.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -1077,15 +1078,30 @@ int h264_decode(uint8_t *out_buf, uint8_t *in_buf, int size)
 	assert(in_buf != NULL);
 	assert(out_buf != NULL);
 
+	int got_frame = 0;
+
+#if LIBAVCODEC_VER_AT_LEAST(58,129)
+	AVPacket *avpkt = av_packet_alloc();
+	if (!avpkt) 
+	{
+        fprintf(stderr, "V4L2_CORE uvc_H264: could not allocate av_packet\n");
+        return -1;
+    }
+
+	avpkt->size = size;
+	avpkt->data = in_buf;
+
+	int ret = libav_decode(h264_ctx->context, h264_ctx->picture, &got_frame, avpkt);
+
+	av_packet_free(&avpkt);
+#else
 	AVPacket avpkt;
-
 	av_init_packet(&avpkt);
-
 	avpkt.size = size;
 	avpkt.data = in_buf;
 
-	int got_frame = 0;
 	int ret = libav_decode(h264_ctx->context, h264_ctx->picture, &got_frame, &avpkt);
+#endif
 
 	if(ret < 0)
 	{

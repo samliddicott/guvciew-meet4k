@@ -245,7 +245,7 @@ MainWindow *mainWin = NULL;
 /*we need global argc and argv for QApplication*/
 int argc = 1;
 QString argv1 = "guvcview";
-char *argv = (char *) argv1.toStdString().c_str();
+char *argv = (char *) argv1.toUtf8().constData();
 
 /*
  * GUI warning/error dialog
