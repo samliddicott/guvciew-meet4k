@@ -23,7 +23,7 @@
 
 /* support for internationalization - i18n */
 #include <inttypes.h>
-#include <libavcodec/packet.h>
+#include <libavcodec/avcodec.h>
 #include <math.h>
 #include <stdlib.h>
 #include <stdio.h>
