@@ -10,7 +10,7 @@ dnl Initialization macros (sets PACKAGE and VERSION)
 dnl --------------------------------
 m4_define([guvcview_major], [2])
 m4_define([guvcview_minor], [0])
-m4_define([guvcview_micro], [6])
+m4_define([guvcview_micro], [7])
 
 m4_define([guvcview_version],
           [guvcview_major.guvcview_minor.guvcview_micro])
@@ -352,7 +352,7 @@ AC_SUBST(GVIEWENCODER_LD_NAME)
 
 #release versioning
 GVIEWENCODER_CURRENT_VERSION=2
-GVIEWENCODER_REVISION_VERSION=0
+GVIEWENCODER_REVISION_VERSION=1
 GVIEWENCODER_AGE_VERSION=0
 
 #API version (SONAME)

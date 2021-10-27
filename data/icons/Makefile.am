@@ -1,12 +1,6 @@
 iconsdir = ${datadir}/pixmaps/guvcview
 icons_DATA = \
-		guvcview.png\
-		camera.png\
-		movie.png\
-		image_controls.png\
-		video_controls.png\
-		audio_controls.png\
-		close.png
+		guvcview.png
 
 
 gtk_update_icon_cache = gtk-update-icon-cache -f -t $(datadir)/pixmaps/guvcview/
