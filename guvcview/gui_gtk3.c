@@ -682,18 +682,20 @@ int gui_attach_gtk3(int width, int height)
 		g_object_set_data (G_OBJECT (CapImageButt), "control_info",
 							GINT_TO_POINTER(0));
 	}
+    
+	//char *pix2path = g_strconcat (PACKAGE_DATA_DIR, "/pixmaps/guvcview/camera.png",NULL);
+	//if (g_file_test(pix2path, G_FILE_TEST_EXISTS))
+	//{
+	//	GtkWidget *ImgButton_Img = gtk_image_new_from_file (pix2path);
+	//}
+	//g_free(pix2path);
 
-	char *pix2path = g_strconcat (PACKAGE_DATA_DIR, "/pixmaps/guvcview/camera.png",NULL);
-	if (g_file_test(pix2path, G_FILE_TEST_EXISTS))
-	{
-		GtkWidget *ImgButton_Img = gtk_image_new_from_file (pix2path);
+	GtkWidget *ImgButton_Img = gtk_image_new_from_icon_name("camera-photo", GTK_ICON_SIZE_BUTTON);
 #if GTK_VER_AT_LEAST(3,12)		
-		gtk_button_set_always_show_image(GTK_BUTTON(CapImageButt), TRUE);
+	gtk_button_set_always_show_image(GTK_BUTTON(CapImageButt), TRUE);
 #endif
-		gtk_button_set_image(GTK_BUTTON(CapImageButt), ImgButton_Img);
-		gtk_button_set_image_position(GTK_BUTTON(CapImageButt), GTK_POS_TOP);
-	}
-	g_free(pix2path);
+	gtk_button_set_image(GTK_BUTTON(CapImageButt), ImgButton_Img);
+	gtk_button_set_image_position(GTK_BUTTON(CapImageButt), GTK_POS_TOP);
 	
 	gtk_box_pack_start(GTK_BOX(HButtonBox), CapImageButt, TRUE, TRUE, 2);
 	gtk_widget_show (CapImageButt);
@@ -705,17 +707,19 @@ int gui_attach_gtk3(int width, int height)
 	CapVideoButt = gtk_toggle_button_new_with_mnemonic (_("Cap. Video (V)"));
 	gui_set_video_capture_button_status_gtk3(get_encoder_status());
 
-	char *pix3path = g_strconcat (PACKAGE_DATA_DIR, "/pixmaps/guvcview/movie.png",NULL);
-	if (g_file_test(pix3path, G_FILE_TEST_EXISTS))
-	{
-		GtkWidget *VideoButton_Img = gtk_image_new_from_file (pix3path);
+	//char *pix3path = g_strconcat (PACKAGE_DATA_DIR, "/pixmaps/guvcview/movie.png",NULL);
+	//if (g_file_test(pix3path, G_FILE_TEST_EXISTS))
+	//{
+	//	GtkWidget *VideoButton_Img = gtk_image_new_from_file (pix3path);
+	//}
+	//g_free(pix3path);
+
+	GtkWidget *VideoButton_Img = gtk_image_new_from_icon_name("camera-video", GTK_ICON_SIZE_BUTTON);
 #if GTK_VER_AT_LEAST(3,12)
-		gtk_button_set_always_show_image(GTK_BUTTON(CapVideoButt), TRUE);
+	gtk_button_set_always_show_image(GTK_BUTTON(CapVideoButt), TRUE);
 #endif
-		gtk_button_set_image(GTK_BUTTON(CapVideoButt), VideoButton_Img);
-		gtk_button_set_image_position(GTK_BUTTON(CapVideoButt), GTK_POS_TOP);
-	}
-	g_free(pix3path);
+	gtk_button_set_image(GTK_BUTTON(CapVideoButt), VideoButton_Img);
+	gtk_button_set_image_position(GTK_BUTTON(CapVideoButt), GTK_POS_TOP);
 
 	gtk_box_pack_start(GTK_BOX(HButtonBox), CapVideoButt, TRUE, TRUE, 2);
 	gtk_widget_show (CapVideoButt);
@@ -727,19 +731,22 @@ int gui_attach_gtk3(int width, int height)
 	//GtkWidget *quitButton = gtk_button_new_from_stock(GTK_STOCK_QUIT);
 	GtkWidget *quitButton = gtk_button_new_with_mnemonic (_("Quit"));
 
-	char* pix4path = g_strconcat (PACKAGE_DATA_DIR, "/pixmaps/guvcview/close.png", NULL);
-	if (g_file_test(pix4path,G_FILE_TEST_EXISTS))
-	{
-		GtkWidget *QButton_Img = gtk_image_new_from_file (pix4path);
-#if GTK_VER_AT_LEAST(3,12)		
-		gtk_button_set_always_show_image(GTK_BUTTON(quitButton), TRUE);
-#endif
-		gtk_button_set_image(GTK_BUTTON(quitButton), QButton_Img);
-		gtk_button_set_image_position(GTK_BUTTON(quitButton), GTK_POS_TOP);
-
-	}
+	//char* pix4path = g_strconcat (PACKAGE_DATA_DIR, "/pixmaps/guvcview/close.png", NULL);
+	//if (g_file_test(pix4path,G_FILE_TEST_EXISTS))
+	//{
+	//	GtkWidget *QButton_Img = gtk_image_new_from_file (pix4path);
+	//}
 	/*must free path strings*/
-	g_free(pix4path);
+	//g_free(pix4path);
+
+	GtkWidget *QButton_Img = gtk_image_new_from_icon_name("process-stop", GTK_ICON_SIZE_BUTTON);
+
+#if GTK_VER_AT_LEAST(3,12)		
+	gtk_button_set_always_show_image(GTK_BUTTON(quitButton), TRUE);
+#endif
+	gtk_button_set_image(GTK_BUTTON(quitButton), QButton_Img);
+	gtk_button_set_image_position(GTK_BUTTON(quitButton), GTK_POS_TOP);
+	
 	gtk_box_pack_start(GTK_BOX(HButtonBox), quitButton, TRUE, TRUE, 2);
 	gtk_widget_show_all (quitButton);
 
@@ -775,13 +782,14 @@ int gui_attach_gtk3(int width, int height)
     GtkWidget *tab_1_label = gtk_label_new(_("Image Controls"));
 	gtk_widget_show (tab_1_label);
 	/** check for files */
-	gchar *tab_1_icon_path = g_strconcat (PACKAGE_DATA_DIR,"/pixmaps/guvcview/image_controls.png",NULL);
+	//gchar *tab_1_icon_path = g_strconcat (PACKAGE_DATA_DIR,"/pixmaps/guvcview/image_controls.png",NULL);
 	/** don't test for file - use default empty image if load fails */
 	/** get icon image*/
-	GtkWidget *tab_1_icon = gtk_image_new_from_file(tab_1_icon_path);
+	//GtkWidget *tab_1_icon = gtk_image_new_from_file(tab_1_icon_path);
+	GtkWidget *tab_1_icon = gtk_image_new_from_icon_name("video-display", GTK_ICON_SIZE_LARGE_TOOLBAR);
 	gtk_widget_show (tab_1_icon);
 
-	g_free(tab_1_icon_path);
+	//g_free(tab_1_icon_path);
 	gtk_grid_attach (GTK_GRID(tab_1), tab_1_icon, 0, 0, 1, 1);
 	gtk_grid_attach (GTK_GRID(tab_1), tab_1_label, 1, 0, 1, 1);
 
@@ -811,13 +819,14 @@ int gui_attach_gtk3(int width, int height)
 		GtkWidget *tab_2_label = gtk_label_new(_("H264 Controls"));
 		gtk_widget_show (tab_2_label);
 		/** check for files */
-		gchar *tab_2_icon_path = g_strconcat (PACKAGE_DATA_DIR,"/pixmaps/guvcview/image_controls.png",NULL);
+		//gchar *tab_2_icon_path = g_strconcat (PACKAGE_DATA_DIR,"/pixmaps/guvcview/image_controls.png",NULL);
 		/** don't test for file - use default empty image if load fails */
 		/** get icon image*/
-		GtkWidget *tab_2_icon = gtk_image_new_from_file(tab_2_icon_path);
+		//GtkWidget *tab_2_icon = gtk_image_new_from_file(tab_2_icon_path);
+		GtkWidget *tab_2_icon = gtk_image_new_from_icon_name("video-x-generic", GTK_ICON_SIZE_LARGE_TOOLBAR);
 		gtk_widget_show (tab_2_icon);
 
-		g_free(tab_2_icon_path);
+		//g_free(tab_2_icon_path);
 		gtk_grid_attach (GTK_GRID(tab_2), tab_2_icon, 0, 0, 1, 1);
 		gtk_grid_attach (GTK_GRID(tab_2), tab_2_label, 1, 0, 1, 1);
 
@@ -850,13 +859,14 @@ int gui_attach_gtk3(int width, int height)
 		GtkWidget *tab_3_label = gtk_label_new(_("Video Controls"));
 		gtk_widget_show (tab_3_label);
 		/** check for files */
-		gchar *tab_3_icon_path = g_strconcat (PACKAGE_DATA_DIR,"/pixmaps/guvcview/video_controls.png",NULL);
+		//gchar *tab_3_icon_path = g_strconcat (PACKAGE_DATA_DIR,"/pixmaps/guvcview/video_controls.png",NULL);
 		/** don't test for file - use default empty image if load fails */
 		/** get icon image*/
-		GtkWidget *tab_3_icon = gtk_image_new_from_file(tab_3_icon_path);
+		//GtkWidget *tab_3_icon = gtk_image_new_from_file(tab_3_icon_path);
+		GtkWidget *tab_3_icon = gtk_image_new_from_icon_name("video-x-generic", GTK_ICON_SIZE_LARGE_TOOLBAR);
 		gtk_widget_show (tab_3_icon);
 
-		g_free(tab_3_icon_path);
+		//g_free(tab_3_icon_path);
 		gtk_grid_attach (GTK_GRID(tab_3), tab_3_icon, 0, 0, 1, 1);
 		gtk_grid_attach (GTK_GRID(tab_3), tab_3_label, 1, 0, 1, 1);
 
@@ -885,13 +895,14 @@ int gui_attach_gtk3(int width, int height)
 		GtkWidget *tab_4_label = gtk_label_new(_("Audio Controls"));
 		gtk_widget_show (tab_4_label);
 		/** check for files */
-		gchar *tab_4_icon_path = g_strconcat (PACKAGE_DATA_DIR,"/pixmaps/guvcview/audio_controls.png",NULL);
+		//gchar *tab_4_icon_path = g_strconcat (PACKAGE_DATA_DIR,"/pixmaps/guvcview/audio_controls.png",NULL);
 		/** don't test for file - use default empty image if load fails */
 		/** get icon image*/
-		GtkWidget *tab_4_icon = gtk_image_new_from_file(tab_4_icon_path);
+		//GtkWidget *tab_4_icon = gtk_image_new_from_file(tab_4_icon_path);
+		GtkWidget *tab_4_icon = gtk_image_new_from_icon_name("audio-input-microphone", GTK_ICON_SIZE_LARGE_TOOLBAR);
 		gtk_widget_show (tab_4_icon);
 
-		g_free(tab_4_icon_path);
+		//g_free(tab_4_icon_path);
 		gtk_grid_attach (GTK_GRID(tab_4), tab_4_icon, 0, 0, 1, 1);
 		gtk_grid_attach (GTK_GRID(tab_4), tab_4_label, 1, 0, 1, 1);
 
