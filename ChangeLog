@@ -1,3 +1,16 @@
+guvcview (2.0.7)
+
+   * Fix audio encoder (tickets #64 and #65)
+   * Use current theme icons (get icon by name)
+
+ -- Paulo Assis <pj.assis@gmail.com> Mon, 27 Oct 2021 18:33:00 +0100
+
+guvcview (2.0.6)
+
+   * multiple bug fixes
+
+ -- Paulo Assis <pj.assis@gmail.com> Mon, 6 Oct 2018 23:21:00 +0100
+
 guvcview (2.0.5)
 
    * terminate configure if qt5 is enabled and moc is missing
