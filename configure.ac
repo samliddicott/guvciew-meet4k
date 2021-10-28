@@ -453,8 +453,16 @@ fi
 
 AM_CONDITIONAL(HAVE_QT5, test $enable_qt5 = yes)
 
-
 AC_CHECK_FUNCS([fpathconf dirfd])
+
+dnl --------------------------------------------------------------------------
+dnl check if shared libs were disabled
+dnl --------------------------------------------------------------------------
+
+if test $enable_shared = yes; then
+	AC_DEFINE(ENABLE_SHARED, 1, [set to 1 if shared libs are enabled])
+fi
+AM_CONDITIONAL(ENABLE_SHARED, test $enable_shared = yes)
 
 dnl --------------------------------------------------------------------------
 dnl set/unset debian menu
@@ -530,5 +538,6 @@ AC_MSG_NOTICE([
   Qt5              : ${enable_qt5}
   desktop file     : ${enable_desktop}
   debian menu      : ${enable_debian_menu}
+  shared libs      : ${enable_shared}
 
 ])

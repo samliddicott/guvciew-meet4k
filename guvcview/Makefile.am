@@ -73,6 +73,16 @@ if HAVE_QT5
 guvcview_LDADD += $(GUIQT5_LIBS)
 endif
 
+if ENABLE_SFML
+
+if ENABLE_SHARED
+ #do nothing
+else
+ guvcview_LDADD += -lGL
+endif
+
+endif
+
 moc_%.cpp: %.hpp
 	$(MOC) $< -o $@
 
