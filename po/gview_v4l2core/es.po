@@ -1,24 +1,17 @@
-# translation of es.po to Portuguese
 # translation of guvcview to Spanish
-# Copyright (C) 2008 Paulo Assis
+# Copyright (C) 2020 Alexis Puente Montiel <miscelaneanatural@yahoo.es>
 # This file is distributed under the same license as the guvcview package.
-# guvcview <pj.assis@gmail.com>, 2008.
 #
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: es\n"
-"Report-Msgid-Bugs-To: pj.assis@gmail.com\n"
-"POT-Creation-Date: 2014-08-17 22:49+0100\n"
-"PO-Revision-Date: 2013-02-25 05:38+0000\n"
-"Last-Translator: Adolfo Jayme <fitoschido@gmail.com>\n"
-"Language-Team: Portuguese <pt@li.org>\n"
-"Language: pt\n"
+"Project-Id-Version: guvcview\n"
+"Language: es\n"
+"Last-Translator: Alexis Puente Montiel <miscelaneanatural@yahoo.es>\n"
+"Report-Msgid-Bugs-To: Alexis Puente Montiel <miscelaneanatural@yahoo.es>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2013-12-08 10:36+0000\n"
-"X-Generator: Launchpad (build 16869)\n"
 
 #.
 #. * needed only for language files (not used)
@@ -58,7 +51,7 @@ msgstr "Compensación de retroiluminación"
 
 #: ../gview_v4l2core/v4l2_controls.c:57
 msgid "Power Line Frequency"
-msgstr "Frecuencia de la línea eléctrica"
+msgstr "Frecuencia"
 
 #: ../gview_v4l2core/v4l2_controls.c:58
 msgid "Hue, Automatic"
@@ -66,7 +59,7 @@ msgstr "Matiz, automático"
 
 #: ../gview_v4l2core/v4l2_controls.c:59
 msgid "Focus, Auto"
-msgstr "Foco, Auto"
+msgstr "Enfoque, automático"
 
 #: ../gview_v4l2core/v4l2_controls.c:60
 msgid "Manual Mode"
@@ -82,7 +75,7 @@ msgstr "Modo prioridad del obturador"
 
 #: ../gview_v4l2core/v4l2_controls.c:63
 msgid "Aperture Priority Mode"
-msgstr "Modo prioridad de la abertura"
+msgstr "Modo prioridad de la apertura"
 
 #: ../gview_v4l2core/v4l2_controls.c:64
 msgid "Black Level"
@@ -134,7 +127,7 @@ msgstr "Centrado vertical"
 
 #: ../gview_v4l2core/v4l2_controls.c:76
 msgid "Chroma AGC"
-msgstr "AGC de croma"
+msgstr "AGC cromático"
 
 #: ../gview_v4l2core/v4l2_controls.c:77
 msgid "Color Killer"
@@ -163,27 +156,27 @@ msgstr "Exposición, tasa de fotogramas dinámica"
 
 #: ../gview_v4l2core/v4l2_controls.c:85
 msgid "Pan, Relative"
-msgstr ""
+msgstr "Rotación horizontal, relativa"
 
 #: ../gview_v4l2core/v4l2_controls.c:86
 msgid "Tilt, Relative"
-msgstr ""
+msgstr "Rotación vertical, relativa"
 
 #: ../gview_v4l2core/v4l2_controls.c:87
 msgid "Pan, Reset"
-msgstr ""
+msgstr "Rotación horizontal, reiniciar"
 
 #: ../gview_v4l2core/v4l2_controls.c:88
 msgid "Tilt, Reset"
-msgstr ""
+msgstr "Rotación vertical, reiniciar"
 
 #: ../gview_v4l2core/v4l2_controls.c:89
 msgid "Pan, Absolute"
-msgstr ""
+msgstr "Rotación horizontal, absoluta"
 
 #: ../gview_v4l2core/v4l2_controls.c:91
 msgid "Focus, Absolute"
-msgstr "Enfoque, Absoluto"
+msgstr "Enfoque, absoluto"
 
 #: ../gview_v4l2core/v4l2_controls.c:92
 msgid "Focus, Relative"
@@ -212,35 +205,35 @@ msgstr "Privacidad"
 #. UVC specific control strings
 #: ../gview_v4l2core/v4l2_controls.c:100
 msgid "Exposure, Auto"
-msgstr "Exposición, auto"
+msgstr "Exposición, automática"
 
 #: ../gview_v4l2core/v4l2_controls.c:101
 msgid "Exposure, Auto Priority"
-msgstr "Exposición, Prioridad Auto"
+msgstr "Exposición, prioridad automática"
 
 #: ../gview_v4l2core/v4l2_controls.c:102
 msgid "Exposure (Absolute)"
-msgstr "Exposición (Absoluta)"
+msgstr "Exposición (absoluta)"
 
 #: ../gview_v4l2core/v4l2_controls.c:103
 msgid "White Balance Temperature, Auto"
-msgstr "Equilibrio blanco, auto"
+msgstr "Temperatura del balance de blancos, automático"
 
 #: ../gview_v4l2core/v4l2_controls.c:104
 msgid "White Balance Temperature"
-msgstr "Blanco (Temp. de color)"
+msgstr "Temperatura del balance de blancos"
 
 #: ../gview_v4l2core/v4l2_controls.c:105
 msgid "White Balance Component, Auto"
-msgstr "Componente de color, Auto"
+msgstr "Componente del balance de blancos, automático"
 
 #: ../gview_v4l2core/v4l2_controls.c:106
 msgid "White Balance Blue Component"
-msgstr "Componente Azul"
+msgstr "Componente azul del balance de blancos"
 
 #: ../gview_v4l2core/v4l2_controls.c:107
 msgid "White Balance Red Component"
-msgstr "Componente Rojo"
+msgstr "Componente rojo del balance de blancos"
 
 #. libwebcam specific control strings
 #: ../gview_v4l2core/v4l2_controls.c:110
@@ -265,27 +258,27 @@ msgstr "Parpadeo"
 
 #: ../gview_v4l2core/v4l2_xu_ctrls.c:66
 msgid "Auto"
-msgstr "Auto"
+msgstr "Automático"
 
 #: ../gview_v4l2core/v4l2_xu_ctrls.c:73
 msgid "Pan (relative)"
-msgstr "Rotación (relativo)"
+msgstr "Rotación horizontal (relativa)"
 
 #: ../gview_v4l2core/v4l2_xu_ctrls.c:86
 msgid "Tilt (relative)"
-msgstr "Inclinación (relativa)"
+msgstr "Rotación vertical (relativa)"
 
 #: ../gview_v4l2core/v4l2_xu_ctrls.c:99
 msgid "Pan Reset"
-msgstr "Rotación (reajuste)"
+msgstr "Reiniciar rotación horizontal"
 
 #: ../gview_v4l2core/v4l2_xu_ctrls.c:112
 msgid "Tilt Reset"
-msgstr "Inclinación (reajuste)"
+msgstr "Reiniciar rotación vertical"
 
 #: ../gview_v4l2core/v4l2_xu_ctrls.c:125
 msgid "Focus (absolute)"
-msgstr "Foco (absoluto)"
+msgstr "Enfoque (absoluto)"
 
 #: ../gview_v4l2core/v4l2_xu_ctrls.c:138
 msgid "LED1 Mode"
@@ -297,17 +290,15 @@ msgstr "Frecuencia LED1"
 
 #: ../gview_v4l2core/v4l2_xu_ctrls.c:164
 msgid "Disable video processing"
-msgstr "Parar el proceso de vídeo"
+msgstr "Desactivar el procesado de vídeo"
 
 #: ../gview_v4l2core/v4l2_xu_ctrls.c:177
 msgid "Raw bits per pixel"
-msgstr "Bits por pixel (Raw)"
+msgstr "Bits crudos por pixel"
 
-#, fuzzy
 #~ msgid "PCM - uncompressed (float 32 bit)"
 #~ msgstr "PCM - sin compresión (16 bit)"
 
-#, fuzzy
 #~ msgid "Raw camera input"
 #~ msgstr "Salida de la cámara:"
 
@@ -362,7 +353,6 @@ msgstr "Bits por pixel (Raw)"
 #~ msgid "2 - stereo"
 #~ msgstr "2 - stereo"
 
-#, fuzzy
 #~ msgid "---- Audio Filters ----"
 #~ msgstr "---- Filtros Video ----"
 
@@ -390,7 +380,6 @@ msgstr "Bits por pixel (Raw)"
 #~ msgid "Error"
 #~ msgstr "Error"
 
-#, fuzzy
 #~ msgid "_Cancel"
 #~ msgstr "cancelar"
 
@@ -400,11 +389,9 @@ msgstr "Bits por pixel (Raw)"
 #~ msgid "Guvcview Video Capture"
 #~ msgstr "Captura de vídeo Guvcview"
 
-#, fuzzy
 #~ msgid "Guvcview"
 #~ msgstr "guvcview"
 
-#, fuzzy
 #~ msgid "Stop Cap. (I)"
 #~ msgstr "Detener auto (I)"
 
@@ -414,19 +401,15 @@ msgstr "Bits por pixel (Raw)"
 #~ msgid "Image Controls"
 #~ msgstr "Controles de la imagen"
 
-#, fuzzy
 #~ msgid "Video Controls"
 #~ msgstr "Controles de usuario"
 
-#, fuzzy
 #~ msgid "Audio Controls"
 #~ msgstr "Controles de usuario"
 
-#, fuzzy
 #~ msgid "Photo file name"
 #~ msgstr "Archivo de Imagen"
 
-#, fuzzy
 #~ msgid "Video file name"
 #~ msgstr "Archivo de Imagen"
 
@@ -449,7 +432,6 @@ msgstr "Bits por pixel (Raw)"
 #~ "nuevo proceso o recomenzar?\n"
 #~ "\n"
 
-#, fuzzy
 #~ msgid "video codec values"
 #~ msgstr "valores de codec de audio"
 
@@ -513,7 +495,6 @@ msgstr "Bits por pixel (Raw)"
 #~ msgid "set Focus"
 #~ msgstr "Focar"
 
-#, fuzzy
 #~ msgid "_Apply"
 #~ msgstr "Aplicar"
 
@@ -547,19 +528,15 @@ msgstr "Bits por pixel (Raw)"
 #~ msgid " Particles"
 #~ msgstr " Partículas"
 
-#, fuzzy
 #~ msgid "Print version"
 #~ msgstr "Imprimir versión"
 
-#, fuzzy
 #~ msgid "Set device name (def: /dev/video0)"
 #~ msgstr "Dispositivo de video [pred: /dev/video0]"
 
-#, fuzzy
 #~ msgid "Set capture method [read | mmap (def)]"
 #~ msgstr "Método de captura (1-mmap (predeterminado) 2-read)"
 
-#, fuzzy
 #~ msgid ""
 #~ "Guvcview version %s\n"
 #~ "\n"
