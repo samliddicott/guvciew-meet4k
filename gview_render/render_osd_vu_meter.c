@@ -29,7 +29,7 @@
 #include "gview.h"
 #include "gviewrender.h"
 
-extern int verbosity;
+extern int render_verbosity;
 
 typedef struct _yuv_color_t
 {

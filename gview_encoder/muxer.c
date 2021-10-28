@@ -51,7 +51,7 @@
 #include "avi.h"
 #include "gview.h"
 
-extern int verbosity;
+extern int enc_verbosity;
 
 static mkv_context_t *mkv_ctx = NULL;
 static avi_context_t *avi_ctx = NULL;
@@ -152,7 +152,7 @@ int encoder_write_audio_data(encoder_context_t *encoder_ctx)
 	if(enc_audio_ctx->outbuf_coded_size <= 0)
 		return -1;
 	
-	if(verbosity > 3)
+	if(enc_verbosity > 3)
 		printf("ENCODER: writing %i bytes of audio data\n", enc_audio_ctx->outbuf_coded_size);
 
 	int ret =0;
@@ -234,7 +234,7 @@ void encoder_muxer_init(encoder_context_t *encoder_ctx, const char *filename)
 		video_codec_id = video_codec_data->codec_context->codec_id;
 	}
 
-	if(verbosity > 1)
+	if(enc_verbosity > 1)
 		printf("ENCODER: initializing muxer(%i)\n", encoder_ctx->muxer_id);
 
 	switch (encoder_ctx->muxer_id)
@@ -383,7 +383,7 @@ void encoder_muxer_close(encoder_context_t *encoder_ctx)
 				/*last frame pts*/
 				float tottime = (float) ((int64_t) (encoder_ctx->enc_video_ctx->pts) / 1000000); // convert to miliseconds
 
-				if (verbosity > 0)
+				if (enc_verbosity > 0)
 					printf("ENCODER: (avi) time = %f\n", tottime);
 
 				if (tottime > 0)
@@ -392,7 +392,7 @@ void encoder_muxer_close(encoder_context_t *encoder_ctx)
 					avi_ctx->fps = (double) (encoder_ctx->enc_video_ctx->framecount * 1000) / tottime;
 				}
 
-				if (verbosity > 0)
+				if (enc_verbosity > 0)
 					printf("ENCODER: (avi) %"PRId64" frames in %f ms [ %f fps]\n",
 						encoder_ctx->enc_video_ctx->framecount, tottime, avi_ctx->fps);
 
@@ -458,7 +458,7 @@ int encoder_disk_supervisor(int treshold, const char *path)
         return (1); /* don't invalidate video capture*/
     }
 
-    if(verbosity > 0)
+    if(enc_verbosity > 0)
         printf("ENCODER: (%s) %lluK bytes free on a total of %lluK (used: %d %%) treshold=%iK\n",
             path, (unsigned long long) free_kbytes,
             (unsigned long long) total_kbytes, percent, treshold);

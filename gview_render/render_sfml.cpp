@@ -35,7 +35,7 @@ extern "C" {
 #include "../config.h"
 }
 
-extern int verbosity;
+extern int render_verbosity;
 
 /*
  * yu12 to rgba (rgb32)
@@ -132,7 +132,7 @@ SFMLRender::SFMLRender(int width, int height, int flags, int win_w, int win_h)
 	//get the current resolution
 	sf::VideoMode display_mode = sf::VideoMode::getDesktopMode();
 
-	if(verbosity > 0)
+	if(render_verbosity > 0)
 		std::cout << "RENDER: (SFML) desktop resolution (" <<
 			display_mode.width << "x" <<
 			display_mode.height << ")" << std::endl;
@@ -244,7 +244,7 @@ SFMLRender::SFMLRender(int width, int height, int flags, int win_w, int win_h)
 	window.clear(sf::Color::Black);
 	window.display();
 
-	if(verbosity > 1)
+	if(render_verbosity > 1)
 		std::cout << "RENDER: (SFML) window created" << std::endl;
 }
 
@@ -359,7 +359,7 @@ void SFMLRender::dispatch_events()
 		// Close window: exit
 		if (event.type == sf::Event::Closed)
 		{
-			if(verbosity > 0)
+			if(render_verbosity > 0)
 				std::cout<< "RENDER:(SFML) (event) close\n"<< std::endl;
 			render_call_event_callback(EV_QUIT);
 		}

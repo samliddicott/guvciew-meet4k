@@ -35,7 +35,7 @@
 #include "encoder.h"
 #include "gviewencoder.h"
 
-extern int verbosity;
+extern int enc_verbosity;
 
 /*if not defined don't set any bits but prevent build error*/
 #ifndef CODEC_FLAG2_INTRA_REFRESH
@@ -574,7 +574,7 @@ int encoder_get_video_codec_list_size()
 {
 	int size = sizeof(listSupCodecs)/sizeof(video_codec_t);
 
-	if(verbosity > 3)
+	if(enc_verbosity > 3)
 		printf("ENCODER: video codec list size:%i\n", size);
 
 	return size;
@@ -599,7 +599,7 @@ int encoder_get_video_codec_list_size()
 //		if(listSupCodecs[i].valid)
 //			valid_size++;
 //
-//	if(verbosity > 3)
+//	if(enc_verbosity > 3)
 //		printf("ENCODER: video codec valid list size:%i\n", valid_size);
 //
 //	return valid_size;
@@ -724,7 +724,7 @@ int encoder_set_video_mkvCodecPriv(encoder_context_t *encoder_ctx)
 					exit(-1);
 				}
 
-				if(verbosity > 1)
+				if(enc_verbosity > 1)
 					printf("ENCODER: (video priv_data) processing %i bytes\n", size);
 
 				/*write the codec private data*/

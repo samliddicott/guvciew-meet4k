@@ -74,7 +74,7 @@
 /*default audio frames per buffer*/
 #define AUDBUFF_FRAMES  1152
 
-extern int verbosity;
+extern int enc_verbosity;
 
 /** Some utilities for
  *  float and double conversion to/from int */
@@ -825,7 +825,7 @@ static int mkv_cache_packet(mkv_context_t* mkv_ctx,
 
 	if(mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_write_index].data_size > 0)
 	{
-		if(verbosity > 0)
+		if(enc_verbosity > 0)
 			fprintf(stderr,"ENCODER: (matroska) packet buffer [%i] is in use: flushing cached data\n",
 				mkv_ctx->pkt_buffer_write_index);
 
@@ -869,7 +869,7 @@ static int mkv_cache_packet(mkv_context_t* mkv_ctx,
 	}
 
 
-	if(verbosity > 3)
+	if(enc_verbosity > 3)
 		printf("ENCODER: (matroska) caching packet [%i]\n", mkv_ctx->pkt_buffer_write_index);
 
 	memcpy(mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_write_index].data, data, size);
@@ -910,7 +910,7 @@ int mkv_write_packet(mkv_context_t* mkv_ctx,
 		while(mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_read_index].pts < ts &&
 			mkv_ctx->pkt_buffer_list[mkv_ctx->pkt_buffer_read_index].data_size > 0)
 		{
-			if(verbosity > 3)
+			if(enc_verbosity > 3)
 				printf("ENCODER: (matroska) writing cached packet[%i] of %i\n", 
 					mkv_ctx->pkt_buffer_read_index, mkv_ctx->pkt_buffer_list_size);
 

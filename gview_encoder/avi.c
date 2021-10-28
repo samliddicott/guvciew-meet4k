@@ -93,7 +93,7 @@
 #define AVI_INDEX_2FIELD 0x01 		// when fields within frames
 									// are also indexed
 
-extern int verbosity;
+extern int enc_verbosity;
 
 int64_t avi_open_tag (avi_context_t *avi_ctx, const char *tag)
 {
@@ -110,7 +110,7 @@ static void avi_close_tag(avi_context_t *avi_ctx, int64_t start_pos)
 	io_write_wl32(avi_ctx->writer, size);
 	io_seek(avi_ctx->writer, current_offset);
 
-	if(verbosity > 0)
+	if(enc_verbosity > 0)
 		printf("ENCODER: (avi) %" PRIu64 " closing tag at %" PRIu64 " with size %i\n",
 			current_offset, start_pos-4, size);
 
@@ -532,7 +532,7 @@ avi_riff_t *avi_add_new_riff(avi_context_t *avi_ctx)
 
 	clean_indexes(avi_ctx);
 
-	if(verbosity > 0)
+	if(enc_verbosity > 0)
 		printf("ENCODER: (avi) adding new RIFF (%i)\n", riff->id);
 	return riff;
 }
@@ -673,7 +673,7 @@ static int avi_write_counters(avi_context_t *avi_ctx, avi_riff_t *riff)
 	//int time_base_den = avi_ctx->time_base_den;
 
     int64_t file_size = io_get_offset(avi_ctx->writer);//avi_tell(avi_ctx);
-    if(verbosity > 0)
+    if(enc_verbosity > 0)
 		printf("ENCODER: (avi) file size = %" PRIu64 "\n", file_size);
 
     for(n = 0; n < avi_ctx->stream_list_size; n++)
@@ -691,7 +691,7 @@ static int avi_write_counters(avi_context_t *avi_ctx, avi_riff_t *riff)
 			if(stream->type == STREAM_TYPE_VIDEO && avi_ctx->fps > 0.001)
 			{
 				uint32_t rate =(uint32_t) FRAME_RATE_SCALE * lrintf(avi_ctx->fps);
-				if(verbosity > 0)
+				if(enc_verbosity > 0)
 					fprintf(stderr,"ENCODER: (avi) storing rate(%i)\n",rate);
 				io_write_wl32(avi_ctx->writer, rate);
 			}
@@ -793,7 +793,7 @@ static int avi_write_ix(avi_context_t *avi_ctx)
          }
          io_flush_buffer(avi_ctx->writer);
          pos = io_get_offset(avi_ctx->writer); //current position
-         if(verbosity > 0)
+         if(enc_verbosity > 0)
 			printf("ENCODER: (avi) wrote ix %s with %i entries\n",
 				tag, indexes->entry);
 
@@ -865,7 +865,7 @@ static int avi_write_idx1(avi_context_t *avi_ctx, avi_riff_t *riff)
     while (!empty);
 
     avi_close_tag(avi_ctx, idx_chunk);
-    if(verbosity > 0)
+    if(enc_verbosity > 0)
 		printf("ENCODER: (avi) wrote idx1\n");
     avi_write_counters(avi_ctx, riff);
 
@@ -966,7 +966,7 @@ int avi_close(avi_context_t *avi_ctx)
     if (riff->id == 1)
     {
         avi_close_tag(avi_ctx, riff->movi_list);
-        if(verbosity > 0)
+        if(enc_verbosity > 0)
 			printf("ENCODER: (avi) %" PRIu64 " close movi tag\n",io_get_offset(avi_ctx->writer));
         res = avi_write_idx1(avi_ctx, riff);
         avi_close_tag(avi_ctx, riff->riff_start);

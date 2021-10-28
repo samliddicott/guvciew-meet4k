@@ -41,7 +41,7 @@
 #include "core_time.h"
 #include "gviewaudio.h"
 
-extern int verbosity;
+extern int audio_verbosity;
 
 static int sample_index = 0;
 
@@ -122,7 +122,7 @@ static int recordCallback (
 			}
 		}
 
-		if(verbosity > 1)
+		if(audio_verbosity > 1)
 			printf("AUDIO: compensate overflow with %i silence samples\n", n_samples);
 	}
 	if(statusFlags & paInputUnderflow)
@@ -205,7 +205,7 @@ static int audio_portaudio_list_devices(audio_context_t *audio_ctx)
 		for( it=0; it < numDevices; it++ )
 		{
 			deviceInfo = Pa_GetDeviceInfo( it );
-			if (verbosity > 0)
+			if (audio_verbosity > 0)
 				printf( "--------------------------------------- device #%d\n", it );
 			/* Mark audio_ctx and API specific default devices*/
 			int defaultDisplayed = 0;
@@ -213,7 +213,7 @@ static int audio_portaudio_list_devices(audio_context_t *audio_ctx)
 			/* with pulse, ALSA is now listed first and doesn't set a API default- 11-2009*/
 			if( it == Pa_GetDefaultInputDevice() )
 			{
-				if (verbosity > 0)
+				if (audio_verbosity > 0)
 					printf( "[ Default Input" );
 				defaultDisplayed = 1;
 				audio_ctx->device = audio_ctx->num_input_dev;/*default index in array of input devs*/
@@ -221,14 +221,14 @@ static int audio_portaudio_list_devices(audio_context_t *audio_ctx)
 			else if( it == Pa_GetHostApiInfo( deviceInfo->hostApi )->defaultInputDevice )
 			{
 				const PaHostApiInfo *hostInfo = Pa_GetHostApiInfo( deviceInfo->hostApi );
-				if (verbosity > 0)
+				if (audio_verbosity > 0)
 					printf( "[ Default %s Input", hostInfo->name );
 				defaultDisplayed = 2;
 			}
 			/* OUTPUT device doesn't matter for capture*/
 			if( it == Pa_GetDefaultOutputDevice() )
 			{
-			 	if (verbosity > 0)
+			 	if (audio_verbosity > 0)
 				{
 					printf( (defaultDisplayed ? "," : "[") );
 					printf( " Default Output" );
@@ -238,7 +238,7 @@ static int audio_portaudio_list_devices(audio_context_t *audio_ctx)
 			else if( it == Pa_GetHostApiInfo( deviceInfo->hostApi )->defaultOutputDevice )
 			{
 				const PaHostApiInfo *hostInfo = Pa_GetHostApiInfo( deviceInfo->hostApi );
-				if (verbosity > 0)
+				if (audio_verbosity > 0)
 				{
 					printf( (defaultDisplayed ? "," : "[") );
 					printf( " Default %s Output", hostInfo->name );/* OSS ALSA etc*/
@@ -247,11 +247,11 @@ static int audio_portaudio_list_devices(audio_context_t *audio_ctx)
 			}
 
 			if( defaultDisplayed!=0 )
-				if (verbosity > 0)
+				if (audio_verbosity > 0)
 					printf( " ]\n" );
 
 			/* print device info fields */
-			if (verbosity > 0)
+			if (audio_verbosity > 0)
 			{
 				printf( "Name                     = %s\n", deviceInfo->name );
 				printf( "Host API                 = %s\n",  Pa_GetHostApiInfo( deviceInfo->hostApi )->name );
@@ -277,7 +277,7 @@ static int audio_portaudio_list_devices(audio_context_t *audio_ctx)
 				audio_ctx->list_devices[audio_ctx->num_input_dev-1].high_latency = (double) deviceInfo->defaultHighInputLatency;
 				audio_ctx->list_devices[audio_ctx->num_input_dev-1].low_latency = (double) deviceInfo->defaultLowInputLatency;
 			}
-			if (verbosity > 0)
+			if (audio_verbosity > 0)
 			{
 				printf( ", Max outputs = %d\n", deviceInfo->maxOutputChannels  );
 				printf( "Def. low input latency   = %8.3f\n", deviceInfo->defaultLowInputLatency  );
@@ -289,7 +289,7 @@ static int audio_portaudio_list_devices(audio_context_t *audio_ctx)
 
 		}
 
-		if (verbosity > 0)
+		if (audio_verbosity > 0)
 			printf("----------------------------------------------\n");
 	}
 
@@ -361,7 +361,7 @@ void audio_set_portaudio_device(audio_context_t *audio_ctx, int index)
 	else if(index >= 0 )
 		audio_ctx->device = index;
 
-	if(verbosity > 1)
+	if(audio_verbosity > 1)
 		printf("AUDIO: Portaudio device changed to %i\n", audio_ctx->device);
 
 	audio_ctx->latency = audio_ctx->list_devices[audio_ctx->device].high_latency;
@@ -445,7 +445,7 @@ int audio_start_portaudio(audio_context_t *audio_ctx)
 	}
 
 	const PaStreamInfo* stream_info = Pa_GetStreamInfo (stream);
-	if(verbosity > 1)
+	if(audio_verbosity > 1)
 		printf("AUDIO: latency of %8.3f msec\n", 1000 * stream_info->inputLatency);
 
 	return 0;

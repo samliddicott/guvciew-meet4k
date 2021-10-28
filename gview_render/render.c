@@ -54,7 +54,7 @@
 #endif
 
 
-int verbosity = 0;
+int render_verbosity = 0;
 
 static int render_api = RENDER_SDL;
 
@@ -128,7 +128,7 @@ static render_events_t render_events_list[] =
  */
 void render_set_verbosity(int value)
 {
-	verbosity = value;
+	render_verbosity = value;
 }
 
 /*
@@ -528,7 +528,7 @@ int render_call_event_callback(int id)
 {
 	int index = render_get_event_index(id);
 
-	if(verbosity > 1)
+	if(render_verbosity > 1)
 		printf("RENDER: event %i -> callback %i\n", id, index);
 
 	if(index < 0)

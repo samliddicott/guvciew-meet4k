@@ -41,7 +41,7 @@
 #define M_PI		3.14159265358979323846
 #endif
 
-extern int verbosity;
+extern int audio_verbosity;
 
 /*----------- structs for audio effects ------------*/
 
@@ -1131,7 +1131,7 @@ void audio_fx_apply(audio_context_t *audio_ctx,
 {
 	if(mask != AUDIO_FX_NONE)
     {
-		if(verbosity > 2)
+		if(audio_verbosity > 2)
 			printf("AUDIO: Apllying Fx (0x%x)\n", mask);
 			
 		if(aud_fx == NULL)

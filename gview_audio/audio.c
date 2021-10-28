@@ -57,10 +57,10 @@ static audio_buff_t *audio_buffers = NULL; /*pointer to buffers list*/
 static int buffer_read_index = 0; /*current read index of buffer list*/
 static int buffer_write_index = 0;/*current write index of buffer list*/
 
-int verbosity = 0;
+int audio_verbosity = 0;
 
 /*
- * set verbosity
+ * set audio_verbosity
  * args:
  *   value - verbosity value
  *
@@ -71,7 +71,7 @@ int verbosity = 0;
  */
 void audio_set_verbosity(int value)
 {
-	verbosity = value;
+	audio_verbosity = value;
 }
 
 /*
@@ -122,7 +122,7 @@ static void audio_free_buffers()
 	/*return if no buffers set*/
 	if(!audio_buffers)
 	{
-		if(verbosity > 0)
+		if(audio_verbosity > 0)
 			fprintf(stderr,"AUDIO: can't free audio buffers (audio_free_buffers): audio_buffers is null\n");
 		return;
 	}
@@ -277,7 +277,7 @@ void audio_fill_buffer(audio_context_t *audio_ctx, int64_t ts)
 	/*assertions*/
 	assert(audio_ctx != NULL);
 
-	if(verbosity > 3)
+	if(audio_verbosity > 3)
 		printf("AUDIO: filling buffer ts:%" PRId64 "\n", ts);
 	/*in nanosec*/
 	uint64_t frame_length = NSEC_PER_SEC / audio_ctx->samprate;
@@ -726,7 +726,7 @@ void audio_set_cap_buffer_size(audio_context_t *audio_ctx, int size)
 	/*assertions*/
 	assert(audio_ctx != NULL);
 	
-	if(verbosity > 2)
+	if(audio_verbosity > 2)
 		printf("AUDIO: set capture buffer size to %i samples\n", size);
 	
 	audio_ctx->capture_buff_size = size;
@@ -744,7 +744,7 @@ void audio_set_cap_buffer_size(audio_context_t *audio_ctx, int size)
  */
 int audio_start(audio_context_t *audio_ctx)
 {
-	if(verbosity > 1)
+	if(audio_verbosity > 1)
 		printf("AUDIO: starting audio capture\n");
 	/*assertions*/
 	assert(audio_ctx != NULL);

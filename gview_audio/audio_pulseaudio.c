@@ -41,7 +41,7 @@
 #include "core_time.h"
 #include "gviewaudio.h"
 
-extern int verbosity;
+extern int audio_verbosity;
 
 static int sample_index = 0;
 
@@ -155,7 +155,7 @@ static void pa_sourcelist_cb(pa_context *c, const pa_source_info *l, int eol, vo
 
 	double my_latency = 0.0;
 	
-	if(verbosity > 0)
+	if(audio_verbosity > 0)
 	{
 		printf("AUDIO: =======[ Input Device #%d ]=======\n", source_index);
 		printf("       Description: %s\n", l->description);
@@ -223,7 +223,7 @@ static void pa_sinklist_cb(pa_context *c, const pa_sink_info *l, int eol, void *
 
 	sink_index++;
 
-	if(verbosity > 0)
+	if(audio_verbosity > 0)
 	{
 		printf("AUDIO: =======[ Output Device #%d ]=======\n", sink_index);
 		printf("       Description: %s\n", l->description);
@@ -524,7 +524,7 @@ static void *pulse_read_audio(void *data)
 	/*assertions*/
 	assert(audio_ctx != NULL);
 
-    if(verbosity > 0)
+    if(audio_verbosity > 0)
 		printf("AUDIO: (pulseaudio) read thread started\n");
     pa_mainloop *pa_ml;
     pa_mainloop_api *pa_mlapi;
@@ -606,7 +606,7 @@ static void *pulse_read_audio(void *data)
     flags |= PA_STREAM_AUTO_TIMING_UPDATE;
 
     char * dev = audio_ctx->list_devices[audio_ctx->device].name;
-    if(verbosity > 0)
+    if(audio_verbosity > 0)
 		printf("AUDIO: (pulseaudio) connecting to device %s\n\t (channels %d rate %d)\n",
 			dev, ss.channels, ss.rate);
     r = pa_stream_connect_record(recordstream, dev, &bufattr, flags);
@@ -640,7 +640,7 @@ static void *pulse_read_audio(void *data)
         pa_mainloop_iterate(pa_ml, 1, NULL);
     }
 
-	if(verbosity > 0)
+	if(audio_verbosity > 0)
 		printf("AUDIO: (pulseaudio) stream terminated(%i)\n", audio_ctx->stream_flag);
 
     pa_stream_disconnect (recordstream);
@@ -696,7 +696,7 @@ void audio_set_pulseaudio_device(audio_context_t *audio_ctx, int index)
 	else if(index >= 0 )
 		audio_ctx->device = index;
 	
-	if(verbosity > 0)
+	if(audio_verbosity > 0)
 		printf("AUDIO: Pulseaudio device changed to %i\n", audio_ctx->device);
 	
 	audio_ctx->latency = audio_ctx->list_devices[audio_ctx->device].high_latency;
@@ -754,7 +754,7 @@ int audio_stop_pulseaudio(audio_context_t *audio_ctx)
 
 	__THREAD_JOIN( my_read_thread );
 
-	if(verbosity > 0)
+	if(audio_verbosity > 0)
 		printf("AUDIO: (pulseaudio) read thread joined\n");
 
     return 0;

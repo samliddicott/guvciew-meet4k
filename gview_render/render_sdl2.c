@@ -33,7 +33,7 @@
 #include "render_sdl2.h"
 #include "../config.h"
 
-extern int verbosity;
+extern int render_verbosity;
 
 SDL_DisplayMode display_mode;
 
@@ -77,7 +77,7 @@ static int video_init(int width, int height, int flags, int win_w, int win_h)
 		  break;
 	}
 
-	if(verbosity > 0)
+	if(render_verbosity > 0)
 		printf("RENDER: Initializing SDL2 render\n");
 
     if (sdl_window == NULL) /*init SDL*/
@@ -111,7 +111,7 @@ static int video_init(int width, int height, int flags, int win_w, int win_h)
 		int err = SDL_GetDesktopDisplayMode(display_index, &display_mode);
 		if(!err)
 		{
-			if(verbosity > 0)
+			if(render_verbosity > 0)
 				printf("RENDER: video display %i ->  %dx%dpx @ %dhz\n",
 					display_index,
 					display_mode.w,
@@ -131,13 +131,13 @@ static int video_init(int width, int height, int flags, int win_w, int win_h)
 		if(h > display_mode.h)
 			h = display_mode.h;
 
-		if(verbosity > 0)
+		if(render_verbosity > 0)
 			printf("RENDER: setting window size to %ix%i\n", w, h);
 
 		SDL_SetWindowSize(sdl_window, w, h);
     }
 
-    if(verbosity > 2)
+    if(render_verbosity > 2)
     {
 		/* Allocate a renderer info struct*/
         SDL_RendererInfo *rend_info = (SDL_RendererInfo *) malloc(sizeof(SDL_RendererInfo));
@@ -193,7 +193,7 @@ static int video_init(int width, int height, int flags, int win_w, int win_h)
 		}
 	}
 
-	if(verbosity > 2)
+	if(render_verbosity > 2)
     {
 		/* Allocate a renderer info struct*/
         SDL_RendererInfo *rend_info = (SDL_RendererInfo *) malloc(sizeof(SDL_RendererInfo));
@@ -387,7 +387,7 @@ void render_sdl2_dispatch_events()
 
 		if(event.type==SDL_QUIT)
 		{
-			if(verbosity > 0)
+			if(render_verbosity > 0)
 				printf("RENDER: (event) quit\n");
 			render_call_event_callback(EV_QUIT);
 		}

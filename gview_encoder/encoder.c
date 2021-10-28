@@ -56,7 +56,7 @@
 #include <libavutil/channel_layout.h>
 #endif
 
-int verbosity = 0;
+int enc_verbosity = 0;
 
 /*video buffer data mutex*/
 static __MUTEX_TYPE mutex = __STATIC_MUTEX_INIT;
@@ -89,7 +89,7 @@ static int video_scheduler = 0;
  */
 void encoder_set_verbosity(int value)
 {
-	verbosity = value;
+	enc_verbosity = value;
 }
 
 /*
@@ -206,7 +206,7 @@ void __attribute__ ((constructor)) gviewencoder_init()
  */
 void __attribute__ ((destructor)) gviewencoder_fini()
 {
-	if(verbosity > 1)
+	if(enc_verbosity > 1)
 		printf("ENCODER: destructor function called\n");
 	//make sure to clean the ring buffer
 	encoder_clean_video_ring_buffer();
@@ -365,7 +365,7 @@ static encoder_video_context_t *encoder_video_init(encoder_context_t *encoder_ct
 #else
 	if(encoder_ctx->video_codec_ind < 0)
 	{
-		if(verbosity > 0)
+		if(enc_verbosity > 0)
 			printf("ENCODER: no video codec set - using raw (direct input)\n");
 
 		encoder_ctx->video_codec_ind = 0;
@@ -652,7 +652,7 @@ static encoder_audio_context_t *encoder_audio_init(encoder_context_t *encoder_ct
 
 	if(encoder_ctx->audio_codec_ind < 0)
 	{
-		if(verbosity > 0)
+		if(enc_verbosity > 0)
 			printf("ENCODER: no audio codec set\n");
 
 		return NULL;
@@ -660,7 +660,7 @@ static encoder_audio_context_t *encoder_audio_init(encoder_context_t *encoder_ct
 
 	if(encoder_ctx->audio_channels <= 0)
 	{
-		if(verbosity > 0)
+		if(enc_verbosity > 0)
 			printf("ENCODER: no audio channels set\n");
 
 		return NULL;
@@ -865,7 +865,7 @@ static encoder_audio_context_t *encoder_audio_init(encoder_context_t *encoder_ct
 		frame_size = 1152; /*default value*/
 		audio_codec_data->codec_context->frame_size = frame_size;
 	}
-	if(verbosity > 0)
+	if(enc_verbosity > 0)
 		printf("ENCODER: Audio frame size is %d frames for selected codec\n", frame_size);
 
 	enc_audio_ctx->monotonic_pts = audio_defaults->monotonic_pts;
@@ -1049,7 +1049,7 @@ double encoder_buff_scheduler(int mode, double thresh, double max_time)
 		}
 	}
 
-	if(verbosity > 2)
+	if(enc_verbosity > 2)
 		printf("ENCODER: scheduler %.2f ms (index delta %i)\n", sched_time, diff_ind);
 
 	/*clip*/
@@ -1188,7 +1188,7 @@ int encoder_add_video_frame(uint8_t *frame, int size, int64_t timestamp, int isK
 	if (reference_pts == 0)
 	{
 		reference_pts = timestamp; /*first frame ts*/
-		if(verbosity > 0)
+		if(enc_verbosity > 0)
 			printf("ENCODER: ref ts = %" PRId64 "\n", timestamp);
 	}
 
@@ -1296,7 +1296,7 @@ int encoder_flush_video_buffer(encoder_context_t *encoder_ctx)
 	int buffer_count = video_ring_buffer_size;
 	int flushed_frame_counter = buffer_count;
 
-	if(verbosity > 1)
+	if(enc_verbosity > 1)
 		printf("ENCODER: flushing video buffer with %i frames\n", buffer_count);
 
 	while(flag != VIDEO_BUFF_FREE && buffer_count > 0)
@@ -1311,7 +1311,7 @@ int encoder_flush_video_buffer(encoder_context_t *encoder_ctx)
 		__UNLOCK_MUTEX ( __PMUTEX );
 	}
 
-	if(verbosity > 1)
+	if(enc_verbosity > 1)
 		printf("ENCODER: processed remaining %i video frames\n", flushed_frame_counter - buffer_count);
 
 	/*flush libav*/
@@ -1320,7 +1320,7 @@ int encoder_flush_video_buffer(encoder_context_t *encoder_ctx)
 
 	encoder_encode_video(encoder_ctx, NULL);
 
-	if(verbosity > 1)
+	if(enc_verbosity > 1)
 		printf("ENCODER: flushed %i delayed video frames\n", flushed_frame_counter);
 
 	if(!buffer_count)
@@ -1353,7 +1353,7 @@ int encoder_flush_audio_buffer(encoder_context_t *encoder_ctx)
 
 	encoder_encode_audio(encoder_ctx, NULL);
 
-	if(verbosity > 1)
+	if(enc_verbosity > 1)
 		printf("ENCODER: flushed %i delayed audio frames\n", flushed_frame_counter);
 
 	return 0;
@@ -1460,7 +1460,7 @@ static int read_video_df_pts(encoder_video_context_t *enc_video_ctx)
 	//read the delayed frame pts
 	enc_video_ctx->pts = enc_video_ctx->delayed_pts[enc_video_ctx->read_df];
 
-	if(enc_video_ctx->flush_delayed_frames && verbosity > 1)
+	if(enc_video_ctx->flush_delayed_frames && enc_verbosity > 1)
 		printf("ENCODER: video codec flushing delayed frame %i ( pts: %" PRId64 " )\n",
 			enc_video_ctx->read_df, enc_video_ctx->pts);
 
@@ -1550,7 +1550,7 @@ int encoder_encode_video(encoder_context_t *encoder_ctx, void *input_frame)
 
 	if(!enc_video_ctx)
 	{
-		if(verbosity > 1)
+		if(enc_verbosity > 1)
 			printf("ENCODER: video encoder not set\n");
 		encoder_ctx->enc_video_ctx->outbuf_coded_size = outsize;
 		return outsize;
@@ -1717,7 +1717,7 @@ int encoder_encode_audio(encoder_context_t *encoder_ctx, void *audio_data)
 
 	if(!enc_audio_ctx)
 	{
-		if(verbosity > 1)
+		if(enc_verbosity > 1)
 			printf("ENCODER: audio encoder not set\n");
 
 		return outsize;
