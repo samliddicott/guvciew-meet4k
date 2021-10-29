@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Copyright 2014 Paulo Assis <pj.assis@gmail.com> -->
-<application>
- <id type="desktop">guvcview.desktop</id>
+<component type="desktop-application">
+ <id>net.sourceforge.guvcview</id>
+ <launchable type="desktop-id">guvcview.desktop</launchable>
  <metadata_license>CC0-1.0</metadata_license>
  <project_license>GPL-2.0+</project_license>
  <name>Simple UVC Viewer</name>
@@ -16,12 +17,22 @@
      that is compatible with any other v4l2 app.</_p>
  </description>
  <screenshots>
-  <screenshot>https://sourceforge.net/p/guvcview/screenshot/guvcview_image_tab.png</screenshot>
-  <screenshot>https://sourceforge.net/p/guvcview/screenshot/guvcview_h264_tab.png</screenshot>
-  <screenshot>https://sourceforge.net/p/guvcview/screenshot/guvcview_video_tab.png</screenshot>
-  <screenshot>https://sourceforge.net/p/guvcview/screenshot/guvcview_audio_tab.png</screenshot>
-  <screenshot>https://a.fsdn.com/con/app/proj/guvcview/screenshots/guvcview_video_preview.png</screenshot>
+  <screenshot>
+   <image>https://sourceforge.net/p/guvcview/screenshot/guvcview_image_tab.png</image>
+  </screenshot>
+  <screenshot>
+   <image>https://sourceforge.net/p/guvcview/screenshot/guvcview_h264_tab.png</image>
+  </screenshot>
+  <screenshot>
+   <image>https://sourceforge.net/p/guvcview/screenshot/guvcview_video_tab.png</image>
+  </screenshot>
+  <screenshot>
+   <image>https://sourceforge.net/p/guvcview/screenshot/guvcview_audio_tab.png</image>
+  </screenshot>
+  <screenshot>
+   <image>https://a.fsdn.com/con/app/proj/guvcview/screenshots/guvcview_video_preview.png</image>
+  </screenshot>
  </screenshots>
  <url type="homepage">http://guvcview.sourceforge.net/</url>
- <updatecontact>assisp@gmail.com</updatecontact>
-</application>
+ <update_contact>assisp@gmail.com</update_contact>
+</component>

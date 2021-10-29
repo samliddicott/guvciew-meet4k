@@ -28,7 +28,7 @@ desktop_DATA = $(DESKTOP_FILES)
 APPDATA_IN_FILES= guvcview.appdata.xml.in
 APPDATA_FILES= $(APPDATA_IN_FILES:.xml.in=.xml)
 
-appdatadir = $(datadir)/appdata
+appdatadir = $(datadir)/metainfo
 appdata_DATA = $(APPDATA_FILES)
 
 endif
