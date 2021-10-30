@@ -53,15 +53,21 @@ int v4l2core_save_data_to_file(const char *filename, uint8_t *data, int size)
 
 	if ((fp = fopen(filename, "wb")) !=NULL)
 	{
+		/* allocate internal buffer
+		 * and make fwrite full buffered */
+		setvbuf(fp, NULL, _IOFBF, size);
 		ret = fwrite(data, size, 1, fp);
 
 		if (ret<1) ret=1;/*write error*/
 		else ret=0;
 
-		fflush(fp); /*flush data stream to file system*/
-		if(fsync(fileno(fp)) || fclose(fp))
-			fprintf(stderr, "V4L2_CORE: (save_data_to_file) error - couldn't write buffer to file: %s\n", strerror(errno));
-		else if(verbosity > 0)
+		//fflush(fp); /*flush data stream to file system*/
+		//if(fsync(fileno(fp)) || fclose(fp))
+		//	fprintf(stderr, "V4L2_CORE: (save_data_to_file) error - couldn't write buffer to file: %s\n", strerror(errno));
+		//else if(verbosity > 0)
+		//	printf("V4L2_CORE: saved data to %s\n", filename);
+		fclose(fp);
+		if(verbosity > 0)
 			printf("V4L2_CORE: saved data to %s\n", filename);
 	}
 	else ret = 1;
