@@ -1350,7 +1350,7 @@ void jpeg_close_decoder()
 
 typedef struct _codec_data_t
 {
-	AVCodec *codec;
+	const AVCodec *codec;
 	AVCodecContext *context;
 	AVFrame *picture;
 } codec_data_t;
@@ -1407,7 +1407,9 @@ int jpeg_init_decoder(int width, int height)
 		return E_NO_CODEC;
 	}
 
-#if LIBAVCODEC_VER_AT_LEAST(53,6)
+#if LIBAVCODEC_VER_AT_LEAST(57, 107)
+	codec_data->context = avcodec_alloc_context3(codec_data->codec);
+#elif LIBAVCODEC_VER_AT_LEAST(53,6)
 	codec_data->context = avcodec_alloc_context3(codec_data->codec);
 	avcodec_get_context_defaults3 (codec_data->context, codec_data->codec);
 #else

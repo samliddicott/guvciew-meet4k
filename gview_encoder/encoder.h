@@ -130,7 +130,7 @@
  */
 typedef struct _encoder_codec_data_t
 {
-	AVCodec *codec;
+	const AVCodec *codec;
 	AVDictionary *private_options;
 	AVCodecContext *codec_context;
 	AVFrame *frame;

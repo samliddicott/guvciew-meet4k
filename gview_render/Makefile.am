@@ -28,11 +28,10 @@ libgviewrender_la_SOURCES = $(h_sources) $(c_sources) $(cpp_sources)
 
 libgviewrender_la_CFLAGS = $(GVIEWRENDER_CFLAGS) \
 			$(GSL_CFLAGS) \
-			$(PTHREAD_CFLAGS) \
 			-I$(top_srcdir) \
 			-I$(top_srcdir)/includes
 
-libgviewrender_la_LIBADD = $(GVIEWRENDER_LIBS) $(GSL_LIBS)
+libgviewrender_la_LIBADD = $(GVIEWRENDER_LIBS) $(GSL_LIBS) $(PTHREAD_LIBS)
 
 if ENABLE_SFML
 libgviewrender_la_CPPFLAGS = $(libgviewrender_la_CFLAGS) \

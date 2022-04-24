@@ -47,7 +47,7 @@ extern int verbosity;
 
 typedef struct _h264_decoder_context_t
 {
-	AVCodec *codec;
+	const AVCodec *codec;
 	AVCodecContext *context;
 	AVFrame *picture;
 
@@ -1001,8 +1001,9 @@ int h264_init_decoder(int width, int height)
 		h264_ctx = NULL;
 		return E_NO_CODEC;
 	}
-
-#if LIBAVCODEC_VER_AT_LEAST(53,6)
+#if LIBAVCODEC_VER_AT_LEAST(57, 107)
+	h264_ctx->context = avcodec_alloc_context3(h264_ctx->codec);
+#elif LIBAVCODEC_VER_AT_LEAST(53,6)
 	h264_ctx->context = avcodec_alloc_context3(h264_ctx->codec);
 	avcodec_get_context_defaults3 (h264_ctx->context, h264_ctx->codec);
 #else

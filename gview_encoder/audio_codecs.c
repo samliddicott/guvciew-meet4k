@@ -409,7 +409,7 @@ int encoder_set_valid_audio_codec_list ()
 	int num_codecs = 0;
 	for ( ind = 0; ind < encoder_get_audio_codec_list_size(); ++ind)
 	{
-		AVCodec *codec = avcodec_find_encoder(listSupCodecs[ind].codec_id);
+		const AVCodec *codec = avcodec_find_encoder(listSupCodecs[ind].codec_id);
 		if (!codec)
 		{
 			printf("ENCODER: no audio codec detected for %s\n", listSupCodecs[ind].description);

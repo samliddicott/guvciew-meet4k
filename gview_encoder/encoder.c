@@ -223,7 +223,7 @@ void __attribute__ ((destructor)) gviewencoder_fini()
  *
  * returns: 1 - sample format is supported; 0 - is not supported
  */
-static int encoder_check_audio_sample_fmt(AVCodec *codec, enum AVSampleFormat sample_fmt)
+static int encoder_check_audio_sample_fmt(const AVCodec *codec, enum AVSampleFormat sample_fmt)
 {
 	const enum AVSampleFormat *p = codec->sample_fmts;
 
@@ -444,11 +444,17 @@ static encoder_video_context_t *encoder_video_init(encoder_context_t *encoder_ct
 		return (enc_video_ctx);
 	}
 
+#if LIBAVCODEC_VER_AT_LEAST(57, 107)
 	video_codec_data->codec_context = avcodec_alloc_context3(video_codec_data->codec);
-
+#elif LIBAVCODEC_VER_AT_LEAST(53,6)
+	video_codec_data->codec_context = avcodec_alloc_context3(video_codec_data->codec);
 	avcodec_get_context_defaults3 (
 			video_codec_data->codec_context,
 			video_codec_data->codec);
+#else
+	video_codec_data->codec_context = avcodec_alloc_context();
+	avcodec_get_context_defaults(video_codec_data->codec_context);
+#endif
 
 	if(video_codec_data->codec_context == NULL)
 	{
@@ -710,9 +716,17 @@ static encoder_audio_context_t *encoder_audio_init(encoder_context_t *encoder_ct
 		encoder_ctx->enc_audio_ctx = NULL;
 		return NULL;
 	}
-
+#if LIBAVCODEC_VER_AT_LEAST(57, 107)
 	audio_codec_data->codec_context = avcodec_alloc_context3(audio_codec_data->codec);
-	avcodec_get_context_defaults3 (audio_codec_data->codec_context, audio_codec_data->codec);
+#elif LIBAVCODEC_VER_AT_LEAST(53,6)
+	audio_codec_data->codec_context = avcodec_alloc_context3(audio_codec_data->codec);
+	avcodec_get_context_defaults3 (
+			audio_codec_data->codec_context,
+			audio_codec_data->codec);
+#else
+	audio_codec_data->codec_context = avcodec_alloc_context();
+	avcodec_get_context_defaults(audio_codec_data->codec_context);
+#endif
 
 	if(audio_codec_data->codec_context == NULL)
 	{
