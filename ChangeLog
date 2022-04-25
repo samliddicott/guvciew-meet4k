@@ -1,5 +1,12 @@
 guvcview (2.0.7)
 
+   * Fix libav API break (ticket #70)
+   * Update autoconf scripts
+
+ -- Paulo Assis <pj.assis@gmail.com> Mon, 25 Apr 2022 19:30:00 +0100
+
+guvcview (2.0.7)
+
    * Fix audio encoder (tickets #64 and #65)
    * Use current theme icons (get icon by name)
 
