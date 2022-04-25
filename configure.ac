@@ -59,9 +59,9 @@ AM_SANITY_CHECK
 dnl --------------------------------------------------------------------------
 dnl set pthread_libs and pthread_cflags
 dnl --------------------------------------------------------------------------
-dnl ACX_PTHREAD([ACTION-IF-FOUND[, ACTION-IF-NOT-FOUND]])
+dnl AX_PTHREAD([ACTION-IF-FOUND[, ACTION-IF-NOT-FOUND]])
 
-ACX_PTHREAD()
+AX_PTHREAD()
 
 AC_SUBST(CFLAGS)
 

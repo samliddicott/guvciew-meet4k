@@ -28,6 +28,7 @@ libgviewrender_la_SOURCES = $(h_sources) $(c_sources) $(cpp_sources)
 
 libgviewrender_la_CFLAGS = $(GVIEWRENDER_CFLAGS) \
 			$(GSL_CFLAGS) \
+			$(PTHREAD_CFLAGS) \
 			-I$(top_srcdir) \
 			-I$(top_srcdir)/includes
 

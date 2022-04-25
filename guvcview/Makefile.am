@@ -40,7 +40,7 @@ guvcview_CFLAGS = $(PTHREAD_CFLAGS) \
 		  -DPACKAGE_LOCALE_DIR=\""$(prefix)/$(DATADIRNAME)/locale"\" \
 		  -DPACKAGE_SRC_DIR=\""$(srcdir)"\" \
 		  -DPACKAGE_DATA_DIR=\""$(datadir)"\" \
-		  $(DEPS_CFLAGS) $(EXTRA_CFLAGS) $(PTHREAD_CFLAGS) \
+		  $(DEPS_CFLAGS) $(EXTRA_CFLAGS) \
 		  $(EXTRA_CFLAGS) -I$(top_srcdir) -I$(top_srcdir)/includes \
 		  -I$(top_srcdir)/gview_v4l2core \
 		  -I$(top_srcdir)/gview_render \
