@@ -795,6 +795,44 @@ int gui_attach_gtk3(int width, int height)
 
 	gtk_notebook_append_page(GTK_NOTEBOOK(tab_box), scroll_1, tab_1);
 
+	/*-------------------------- OBSBOT MEet 4K tab --------------------------*/
+    if (1)
+    {
+		GtkWidget *scroll = gtk_scrolled_window_new(NULL,NULL);
+		gtk_scrolled_window_set_placement(GTK_SCROLLED_WINDOW(scroll), GTK_CORNER_TOP_LEFT);
+		gtk_widget_show(scroll);
+
+		/*
+		 * viewport is only needed for gtk < 3.8
+		 * for 3.8 and above controls tab can be directly added to scroll1
+		 */
+		GtkWidget* viewport = gtk_viewport_new(NULL,NULL);
+		gtk_widget_show(viewport);
+
+		gtk_container_add(GTK_CONTAINER(scroll), viewport);
+
+		gui_attach_gtk3_meet4kctrls(viewport);
+
+		GtkWidget *tab = gtk_grid_new();
+		gtk_widget_show (tab);
+
+		GtkWidget *tab_label = gtk_label_new(_("OBSBOT Meet4K"));
+		gtk_widget_show (tab_label);
+		/** check for files */
+		//gchar *tab_2_icon_path = g_strconcat (PACKAGE_DATA_DIR,"/pixmaps/guvcview/image_controls.png",NULL);
+		/** don't test for file - use default empty image if load fails */
+		/** get icon image*/
+		//GtkWidget *tab_2_icon = gtk_image_new_from_file(tab_2_icon_path);
+		GtkWidget *tab_icon = gtk_image_new_from_icon_name("video-x-generic", GTK_ICON_SIZE_LARGE_TOOLBAR);
+		gtk_widget_show (tab_icon);
+
+		//g_free(tab_icon_path);
+		gtk_grid_attach (GTK_GRID(tab), tab_icon, 0, 0, 1, 1);
+		gtk_grid_attach (GTK_GRID(tab), tab_label, 1, 0, 1, 1);
+
+		gtk_notebook_append_page(GTK_NOTEBOOK(tab_box), scroll, tab);
+    }
+
 	/*----------------------------H264 Controls Tab --------------------------*/
 	if(v4l2core_get_h264_unit_id(get_v4l2_device_handler()) > 0)
 	{
