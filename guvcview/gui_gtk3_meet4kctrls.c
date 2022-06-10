@@ -1,11 +1,8 @@
 /*******************************************************************************#
-#           guvcview              http://guvcview.sourceforge.net               #
+#           uvc Meet4K support for OBSBOT Meet 4K                               #
+#       for guvcview              http://guvcview.sourceforge.net               #
 #                                                                               #
-#           Paulo Assis <pj.assis@gmail.com>                                    #
-#           Nobuhiro Iwamatsu <iwamatsu@nigauri.org>                            #
-#                             Add UYVY color support(Macbook iSight)            #
-#           Flemming Frandsen <dren.dk@gmail.com>                               #
-#                             Add VU meter OSD                                  #
+#           Sam Liddicott <sam@liddicott.com>                                   #
 #                                                                               #
 # This program is free software; you can redistribute it and/or modify          #
 # it under the terms of the GNU General Public License as published by          #
@@ -44,12 +41,14 @@
 #include "gviewrender.h"
 #include "video_capture.h"
 
+#include "uvc_meet4k.h"
+
 
 extern int debug_level;
 extern int is_control_panel;
 
 /*
- * H264 control widgets
+ * Meet4k control widgets
  */
 GtkWidget *BackgroundMode = NULL;
 
@@ -64,23 +63,22 @@ GtkWidget *BackgroundMode = NULL;
  *
  * returns: none
  */
-void h264_background_mode_changed(GtkComboBox *combo, void *data)
+void meet4k_background_mode_changed(GtkComboBox *combo, void *data)
 {
-	uint8_t background_mode = (uint8_t) (gtk_combo_box_get_active (combo) + 0);
+	uint8_t background_mode = (uint8_t) (gtk_combo_box_get_active (combo));
 
-	// v4l2core_set_h264_video_rate_control_mode(get_v4l2_device_handler(), background_mode);
+	meet4kcore_set_background_mode(get_v4l2_device_handler(), background_mode);
 
-	// background_mode = v4l2core_get_h264_video_rate_control_mode(get_v4l2_device_handler(), UVC_GET_CUR);
+    // Not safe to immediately read, it hasn't changed yet, we need to poll and update all
+	// background_mode = meet4kcore_get_background_mode(get_v4l2_device_handler());
 
-	int backgroundmode_index = background_mode - 0;
+	int backgroundmode_index = background_mode;
 	if(backgroundmode_index < 0)
 		backgroundmode_index = 0;
 
-	g_signal_handlers_block_by_func(combo, G_CALLBACK (h264_background_mode_changed), data);
-
+	g_signal_handlers_block_by_func(combo, G_CALLBACK (meet4k_background_mode_changed), data);
 	gtk_combo_box_set_active(GTK_COMBO_BOX(BackgroundMode), backgroundmode_index);
-
-	g_signal_handlers_unblock_by_func(combo, G_CALLBACK (h264_background_mode_changed), data);
+	g_signal_handlers_unblock_by_func(combo, G_CALLBACK (meet4k_background_mode_changed), data);
 }
 
 /*
@@ -93,7 +91,7 @@ void h264_background_mode_changed(GtkComboBox *combo, void *data)
  *
  * returns: none
  */
-//static void update_h264_controls()
+//static void update_meet4k_controls()
 
 int gui_attach_gtk3_meet4kctrls (GtkWidget *parent)
 {
@@ -144,8 +142,8 @@ int gui_attach_gtk3_meet4kctrls (GtkWidget *parent)
 		gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(BackgroundMode),
 										_("Track"));
 
-	uint8_t cur_BackgroundMode = v4l2core_get_h264_video_rate_control_mode(get_v4l2_device_handler(), UVC_GET_CUR) & 0x03;
-	int BackgroundMode_index = cur_BackgroundMode - 1; // from 0x01 to 0x03
+	uint8_t cur_BackgroundMode = meet4kcore_get_background_mode(get_v4l2_device_handler());
+	int BackgroundMode_index = cur_BackgroundMode;
 	if(BackgroundMode_index < 0)
 		BackgroundMode_index = 0;
 
@@ -153,7 +151,7 @@ int gui_attach_gtk3_meet4kctrls (GtkWidget *parent)
 
 	//connect signal
 	g_signal_connect (GTK_COMBO_BOX_TEXT(BackgroundMode), "changed",
-			G_CALLBACK (h264_background_mode_changed), NULL);
+			G_CALLBACK (meet4k_background_mode_changed), NULL);
 
 	gtk_grid_attach (GTK_GRID(meet4k_controls_grid), BackgroundMode, 1, line, 1 ,1);
 	gtk_widget_show (BackgroundMode);

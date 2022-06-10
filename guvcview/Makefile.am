@@ -46,7 +46,8 @@ guvcview_CFLAGS = $(PTHREAD_CFLAGS) \
 		  -I$(top_srcdir)/gview_v4l2core \
 		  -I$(top_srcdir)/gview_render \
 		  -I$(top_srcdir)/gview_audio \
-		  -I$(top_srcdir)/gview_encoder
+		  -I$(top_srcdir)/gview_encoder \
+		  -I$(top_srcdir)/gview_meet4k
 
 if HAVE_GTK3
 guvcview_CFLAGS += $(GUIGTK3_CFLAGS)
