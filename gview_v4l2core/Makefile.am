@@ -10,6 +10,7 @@ c_sources = v4l2_core.c \
 			v4l2_devices.c \
 			v4l2_xu_ctrls.c \
 			uvc_h264.c \
+			uvc_meet4k.c \
 			core_time.c \
 			frame_decoder.c \
 			colorspaces.c \
