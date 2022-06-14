@@ -545,8 +545,15 @@ void gui_error_gtk3(
 				char videodevice[30];
 				strncpy(videodevice, v4l2core_get_device_sys_data(index)->device, 29);
 
+				char progname[PATH_MAX + 1] = { 0 };
+				int n = readlink("/proc/self/exe", progname, sizeof(progname) - 1);
+				if (n<0)
+				{
+					strncpy(progname, g_get_prgname(), sizeof(progname) - 1);
+				}
+
 				gchar *command = g_strjoin("",
-					g_get_prgname(),
+					progname,
 					" --device=",
 					videodevice,
 					NULL);
