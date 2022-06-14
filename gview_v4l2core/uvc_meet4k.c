@@ -84,6 +84,82 @@ uint8_t get_uvc_meet4k_unit_id (v4l2_dev_t *vd)
     return vd->meet4k_unit_id;
 }
 
+/*
+ * send 0x6 command
+ * args:
+ *   vd - pointer to video device data
+ *   mode - camera mode
+ *
+ * asserts:
+ *   vd is not null
+ *
+ * returns: error code ( 0 -OK)
+ */
+int meet4kcore_cmd6(v4l2_dev_t *vd, uvcx_obsbot_meet4k_configuration_t *command)
+{
+	/*asserts*/
+	assert(vd != NULL);
+
+	if(vd->meet4k_unit_id <= 0)
+	{
+		if(verbosity > 0)
+			printf("V4L2_CORE: device doesn't seem to support uvc meet4k (%i)\n", vd->meet4k_unit_id);
+		return E_NO_STREAM_ERR;
+	}
+
+	int err = E_OK;
+
+	if((err = v4l2core_query_xu_control(
+		vd,
+		vd->meet4k_unit_id,
+		UVCX_MEET4K_SETTINGS_6,
+		UVC_SET_CUR,
+		command)) < 0)
+	{
+		fprintf(stderr, "V4L2_CORE: (Meet4k) SET_CUR error: %s\n", strerror(errno));
+    }
+
+	return err;
+}
+
+
+/*
+ * get the camera mode
+ * args:
+ *   vd - pointer to video device data
+ *
+ * asserts:
+ *   vd is not null
+ *
+ * returns: returns meet4k camera mode
+ */
+int meet4kcore_get6(v4l2_dev_t *vd, uvcx_obsbot_meet4k_configuration_t *configuration)
+{
+	/*asserts*/
+	assert(vd != NULL);
+
+	if(vd->meet4k_unit_id <= 0)
+	{
+		if(verbosity > 0)
+			printf("V4L2_CORE: device doesn't seem to support uvc meet4k (%i)\n", vd->meet4k_unit_id);
+		return 0xff;
+	}
+
+	int err = E_OK;
+
+	if(err = (v4l2core_query_xu_control(
+		vd,
+		vd->meet4k_unit_id,
+		UVCX_MEET4K_SETTINGS_6,
+		UVC_GET_CUR,
+		configuration)) < 0)
+	{
+		fprintf(stderr, "V4L2_CORE: (Meet4k) query (%u) error: %s\n", UVC_GET_CUR, strerror(errno));
+		return 0xff;
+    }
+
+	return err;
+}
 
 /*
  * get the camera mode
@@ -97,30 +173,10 @@ uint8_t get_uvc_meet4k_unit_id (v4l2_dev_t *vd)
  */
 uint8_t meet4kcore_get_background_mode(v4l2_dev_t *vd)
 {
-	/*asserts*/
-	assert(vd != NULL);
-
-	if(vd->meet4k_unit_id <= 0)
-	{
-		if(verbosity > 0)
-			printf("V4L2_CORE: device doesn't seem to support uvc meet4k (%i)\n", vd->meet4k_unit_id);
+	uvcx_obsbot_meet4k_configuration_t configuration;
+	if (E_OK != meet4kcore_get6(vd, &configuration)) {
 		return 0xff;
 	}
-
-	uvcx_obsbot_meet4k_configuration_t configuration;
-
-	if((v4l2core_query_xu_control(
-		vd,
-		vd->meet4k_unit_id,
-		UVCX_MEET4K_SETTINGS_6,
-		UVC_GET_CUR,
-		&configuration)) < 0)
-	{
-		fprintf(stderr, "V4L2_CORE: (UVCX_RATE_CONTROL_MODE) query (%u) error: %s\n", UVC_GET_CUR, strerror(errno));
-		return 0xff;
-	} else {
-		fprintf(stderr, "V4L2_CORE: (UVCX_RATE_CONTROL_MODE) query (%u) got: %d\n", UVC_GET_CUR, configuration.effect);
-    }
 
 	return configuration.effect;
 }
@@ -138,32 +194,46 @@ uint8_t meet4kcore_get_background_mode(v4l2_dev_t *vd)
  */
 int meet4kcore_set_background_mode(v4l2_dev_t *vd, uint8_t mode)
 {
-	/*asserts*/
-	assert(vd != NULL);
+	uvcx_obsbot_meet4k_configuration_t command = { 0, 1, mode };
+	return meet4kcore_cmd6(vd, &command);
+}
 
-	if(vd->meet4k_unit_id <= 0)
-	{
-		if(verbosity > 0)
-			printf("V4L2_CORE: device doesn't seem to support uvc meet4k (%i)\n", vd->meet4k_unit_id);
-		return E_NO_STREAM_ERR;
+/*
+ * get the hdr mode
+ * args:
+ *   vd - pointer to video device data
+ *
+ * asserts:
+ *   vd is not null
+ *
+ * returns: returns meet4k hdr mode
+ */
+uint8_t meet4kcore_get_hdr_mode(v4l2_dev_t *vd)
+{
+	uvcx_obsbot_meet4k_configuration_t configuration;
+	if (E_OK != meet4kcore_get6(vd, &configuration)) {
+		return 0xff;
 	}
 
-	uvcx_obsbot_meet4k_configuration_t command = { 0, 1, mode };
+	fprintf(stderr, "V4L2_CORE: HDR Mode: %d\n", configuration.hdr);
+	return configuration.hdr;
+}
 
-	int err = E_OK;
 
-	if((err = v4l2core_query_xu_control(
-		vd,
-		vd->meet4k_unit_id,
-		UVCX_MEET4K_SETTINGS_6,
-		UVC_SET_CUR,
-		&command)) < 0)
-	{
-		fprintf(stderr, "V4L2_CORE: (UVCX_RATE_CONTROL_MODE) SET_CUR error: %s\n", strerror(errno));
-	} else {
-		fprintf(stderr, "V4L2_CORE: (UVCX_RATE_CONTROL_MODE) set (%u) got: %d\n", UVC_GET_CUR, mode);
-    }
-
-	return err;
+/*
+ * set the hdr mode
+ * args:
+ *   vd - pointer to video device data
+ *   mode - hdr mode
+ *
+ * asserts:
+ *   vd is not null
+ *
+ * returns: error code ( 0 -OK)
+ */
+int meet4kcore_set_hdr_mode(v4l2_dev_t *vd, uint8_t mode)
+{
+	uvcx_obsbot_meet4k_configuration_t command = { 1, 1, mode };
+	return meet4kcore_cmd6(vd, &command);
 }
 
