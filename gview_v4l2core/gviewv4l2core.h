@@ -280,6 +280,7 @@ typedef struct _v4l2_dev_sys_data_t
 	int current;
 	uint64_t busnum;
 	uint64_t devnum;
+	uint32_t device_caps;
 } v4l2_dev_sys_data_t;
 
 /* v4l2 device handler - opaque data structure*/
