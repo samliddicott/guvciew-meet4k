@@ -55,9 +55,9 @@ typedef struct _uvcx_obsbot_meet4k_configuration_t
       uint8_t blur_level;        // 6
       uint8_t button_mode;       // 7
       uint16_t dummy1;           // 8,9
-      uint8_t  noise_reduction;   // a
+      uint8_t  dummy_x;   // a
       uint16_t dummy2;           // b,c
-      uint8_t frame_model;       // d
+      uint8_t noise_reduction; //set in position 0xa frame_model;       // d
       uint16_t dummy4;           // e,f
       uint8_t bg_color;          // 10
     };
@@ -82,6 +82,19 @@ uint8_t get_uvc_meet4k_unit_id (v4l2_dev_t *vd)
 	assert(vd != NULL);
 
     return vd->meet4k_unit_id;
+}
+
+void meet4kcore_dump6(uvcx_obsbot_meet4k_configuration_t *configuration)
+{
+	int i=0;
+	fprintf(stderr, "%04x %02x %02x %02x %02x %02x %02x %02x %02x\n", i, configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++]);
+	fprintf(stderr, "%04x %02x %02x %02x %02x %02x %02x %02x %02x\n", i, configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++]);
+	fprintf(stderr, "%04x %02x %02x %02x %02x %02x %02x %02x %02x\n", i, configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++]);
+	fprintf(stderr, "%04x %02x %02x %02x %02x %02x %02x %02x %02x\n", i, configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++]);
+	fprintf(stderr, "%04x %02x %02x %02x %02x %02x %02x %02x %02x\n", i, configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++]);
+	fprintf(stderr, "%04x %02x %02x %02x %02x %02x %02x %02x %02x\n", i, configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++]);
+	fprintf(stderr, "%04x %02x %02x %02x %02x %02x %02x %02x %02x\n", i, configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++]);
+	fprintf(stderr, "%04x %02x %02x %02x %02x\n", i, configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++]);
 }
 
 /*
@@ -117,7 +130,9 @@ int meet4kcore_cmd6(v4l2_dev_t *vd, uvcx_obsbot_meet4k_configuration_t *command)
 		command)) < 0)
 	{
 		fprintf(stderr, "V4L2_CORE: (Meet4k) SET_CUR error: %s\n", strerror(errno));
-    }
+    } else {
+		fprintf(stderr, "V4L2_CORE: (Meet4k) SET_CUR %02x %02x %02x %02x %02x %02x\n", command->bytes[0], command->bytes[1], command->bytes[2], command->bytes[3], command->bytes[4], command->bytes[5]);
+	}
 
 	return err;
 }
@@ -156,7 +171,9 @@ int meet4kcore_get6(v4l2_dev_t *vd, uvcx_obsbot_meet4k_configuration_t *configur
 	{
 		fprintf(stderr, "V4L2_CORE: (Meet4k) query (%u) error: %s\n", UVC_GET_CUR, strerror(errno));
 		return 0xff;
-    }
+    } else {
+		meet4kcore_dump6(configuration);
+	}
 
 	return err;
 }
@@ -203,9 +220,6 @@ int meet4kcore_set_background_mode(v4l2_dev_t *vd, uint8_t mode)
  * args:
  *   vd - pointer to video device data
  *
- * asserts:
- *   vd is not null
- *
  * returns: returns meet4k hdr mode
  */
 uint8_t meet4kcore_get_hdr_mode(v4l2_dev_t *vd)
@@ -226,14 +240,76 @@ uint8_t meet4kcore_get_hdr_mode(v4l2_dev_t *vd)
  *   vd - pointer to video device data
  *   mode - hdr mode
  *
- * asserts:
- *   vd is not null
- *
- * returns: error code ( 0 -OK)
+ * returns hdr mode code or 0xFF for error
  */
 int meet4kcore_set_hdr_mode(v4l2_dev_t *vd, uint8_t mode)
 {
 	uvcx_obsbot_meet4k_configuration_t command = { 1, 1, mode };
+	return meet4kcore_cmd6(vd, &command);
+}
+
+/*
+ * get the face ae mode
+ * args:
+ *   vd - pointer to video device data
+ *
+ * returns: returns meet4k face ae mode
+ */
+uint8_t meet4kcore_get_face_ae_mode(v4l2_dev_t *vd)
+{
+	uvcx_obsbot_meet4k_configuration_t configuration;
+	if (E_OK != meet4kcore_get6(vd, &configuration)) {
+		return 0xff;
+	}
+
+	fprintf(stderr, "V4L2_CORE: AE Mode: %d\n", configuration.hdr);
+	return configuration.face_ae;
+}
+
+/*
+ * set the face ae mode
+ * args:
+ *   vd - pointer to video device data
+ *   mode - nr mode
+ *
+ * returns hd mode code or 0xFF for error
+ */
+int meet4kcore_set_face_ae_mode(v4l2_dev_t *vd, uint8_t mode)
+{
+	uvcx_obsbot_meet4k_configuration_t command = { 0x3, 1, mode };
+	return meet4kcore_cmd6(vd, &command);
+}
+
+/*
+ * get the nr mode
+ * args:
+ *   vd - pointer to video device data
+ *
+ * returns: returns meet4k nr mode
+ */
+uint8_t meet4kcore_get_nr_mode(v4l2_dev_t *vd)
+{
+	uvcx_obsbot_meet4k_configuration_t configuration;
+	if (E_OK != meet4kcore_get6(vd, &configuration)) {
+		return 0xff;
+	}
+
+	fprintf(stderr, "V4L2_CORE: NR Mode: %d\n", configuration.hdr);
+	return configuration.noise_reduction;
+}
+
+
+/*
+ * set the nr mode
+ * args:
+ *   vd - pointer to video device data
+ *   mode - nr mode
+ *
+ * returns hd mode code or 0xFF for error
+ */
+int meet4kcore_set_nr_mode(v4l2_dev_t *vd, uint8_t mode)
+{
+	uvcx_obsbot_meet4k_configuration_t command = { 0xa, 1, mode };
 	return meet4kcore_cmd6(vd, &command);
 }
 
