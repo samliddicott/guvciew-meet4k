@@ -71,7 +71,7 @@ void meet4k_background_mode_changed(GtkComboBox *combo, void *data)
 }
 
 /*
- * meet4K background mode mode callback
+ * meet4K hdr mode callback
  * args:
  *   combo - widget that caused the event
  *   data  - user data
@@ -87,6 +87,41 @@ void meet4k_hdr_mode_changed(GtkToggleButton *toggle, void *data)
 	uint8_t hdr_mode = gtk_toggle_button_get_active(toggle)?1:0;
 	meet4kcore_set_hdr_mode(get_v4l2_device_handler(), hdr_mode);
 }
+
+/*
+ * meet4K face ae mode mode callback
+ * args:
+ *   combo - widget that caused the event
+ *   data  - user data
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void meet4k_face_ae_mode_changed(GtkToggleButton *toggle, void *data)
+{
+	uint8_t ae_mode = gtk_toggle_button_get_active(toggle)?1:0;
+	meet4kcore_set_face_ae_mode(get_v4l2_device_handler(), ae_mode);
+}
+
+/*
+ * meet4K face nr mode mode callback
+ * args:
+ *   combo - widget that caused the event
+ *   data  - user data
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void meet4k_nr_mode_changed(GtkToggleButton *toggle, void *data)
+{
+	uint8_t nr_mode = gtk_toggle_button_get_active(toggle)?1:0;
+	meet4kcore_set_nr_mode(get_v4l2_device_handler(), nr_mode);
+}
+
 
 /*
  * update controls from commit probe data
@@ -164,7 +199,6 @@ int gui_attach_gtk3_meet4kctrls (GtkWidget *parent)
 	gtk_grid_attach (GTK_GRID(meet4k_controls_grid), BackgroundMode, 1, line, 1 ,1);
 	gtk_widget_show (BackgroundMode);
 
-#if 1
 	/* modes grid*/
 	line++;
 	GtkWidget *table_modes = gtk_grid_new();
@@ -188,7 +222,30 @@ int gui_attach_gtk3_meet4kctrls (GtkWidget *parent)
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(HDRModeEnable), meet4kcore_get_hdr_mode(get_v4l2_device_handler()));
 	gtk_widget_show (HDRModeEnable);
 	g_signal_connect (GTK_CHECK_BUTTON(HDRModeEnable), "toggled", G_CALLBACK (meet4k_hdr_mode_changed), NULL);
-#endif
+
+	/* AE Mode */
+	GtkWidget *AEModeEnable = gtk_check_button_new_with_label (_("Face Enhance"));
+	g_object_set_data (G_OBJECT (AEModeEnable), "meet4k_ae_mode", GINT_TO_POINTER(1));
+	gtk_widget_set_halign (AEModeEnable, GTK_ALIGN_FILL);
+	gtk_widget_set_hexpand (AEModeEnable, TRUE);
+	gtk_grid_attach(GTK_GRID(table_modes), AEModeEnable, 2, 0, 1, 1);
+
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(AEModeEnable), meet4kcore_get_face_ae_mode(get_v4l2_device_handler()));
+	gtk_widget_show (AEModeEnable);
+	g_signal_connect (GTK_CHECK_BUTTON(AEModeEnable), "toggled", G_CALLBACK (meet4k_face_ae_mode_changed), NULL);
+
+	/* NR Mode */
+	GtkWidget *NRModeEnable = gtk_check_button_new_with_label (_("Noise Reduction (audio)"));
+	g_object_set_data (G_OBJECT (NRModeEnable), "meet4k_nr_mode", GINT_TO_POINTER(1));
+	gtk_widget_set_halign (NRModeEnable, GTK_ALIGN_FILL);
+	gtk_widget_set_hexpand (NRModeEnable, TRUE);
+	gtk_grid_attach(GTK_GRID(table_modes), NRModeEnable, 3, 0, 2, 1);
+
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(NRModeEnable), meet4kcore_get_nr_mode(get_v4l2_device_handler()));
+	gtk_widget_show (NRModeEnable);
+	g_signal_connect (GTK_CHECK_BUTTON(NRModeEnable), "toggled", G_CALLBACK (meet4k_nr_mode_changed), NULL);
+
+
 
 	gtk_widget_show(meet4k_controls_grid);
 
