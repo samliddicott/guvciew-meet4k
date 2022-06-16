@@ -53,14 +53,14 @@ int meet4kcore_set_##name(v4l2_dev_t *vd, uint8_t mode) \
 
 #endif
 
-meet4kcore_get_set_1(background_mode, effect, 0x0, 1)
+meet4kcore_get_set_1(camera_effect, effect, 0x0, 1)
 meet4kcore_get_set_1(hdr_mode, hdr, 0x1, 1)
 meet4kcore_get_set_1(face_ae_mode, face_ae, 0x3, 1)
 meet4kcore_get_set_1(nr_mode, noise_reduction, 0xa, 1)
-
 meet4kcore_get_set_1(camera_angle, camera_angle, 0x4, 1)
 meet4kcore_get_set_1(bg_mode, bg_mode, 0x5, 1)
 meet4kcore_get_set_1(blur_level, blur_level, 0x6, 1)
+
 meet4kcore_get_set_1(button_mode, button_mode, 0x7, 1)
 meet4kcore_get_set_1(bg_color, bg_color, 0x10, 1)
 
