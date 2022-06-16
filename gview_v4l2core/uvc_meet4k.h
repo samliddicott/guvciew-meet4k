@@ -20,7 +20,6 @@
 #                                                                               #
 ********************************************************************************/
 
-
 #ifndef UVC_MEET4K_H
 #define UVC_MEET4K_H
 
@@ -31,7 +30,6 @@
 void add_meet4k(v4l2_dev_t *vd);
 uint8_t get_uvc_meet4k_unit_id (v4l2_dev_t *vd);
 
-#include "uvc_meet4k.chp"
 #include "uvc_meet4k.ch"
 
 #endif /*UVC_MEET4K_H*/
