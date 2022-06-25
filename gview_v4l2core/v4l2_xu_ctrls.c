@@ -214,7 +214,7 @@ uint8_t get_guid_unit_id (v4l2_dev_t *vd, uint8_t *guid)
 		if(verbosity > 2)
 			printf("V4L2_CORE: not a logitech device (vendor_id=0x%4x): skiping peripheral V3 unit id check\n",
 				my_device_list->list_devices[vd->this_device].vendor);
-		return 0;
+//		return 0;
 	}
 
 	uint64_t busnum = my_device_list->list_devices[vd->this_device].busnum;
