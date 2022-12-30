@@ -107,32 +107,32 @@ void encoder_set_verbosity(int value)
  * returns: none
  */
 static void encoder_alloc_video_ring_buffer(
-	int video_width,
-	int video_height,
-	int fps_den,
-	int fps_num,
-	int codec_ind)
+    int video_width,
+    int video_height,
+    int fps_den,
+    int fps_num,
+    int codec_ind)
 {
 	video_ring_buffer_size = (fps_den * 3) / (fps_num * 2); /* 1.5 sec */
-	if(video_ring_buffer_size < 20)
+	if (video_ring_buffer_size < 20)
 		video_ring_buffer_size = 20; /*at least 20 frames buffer*/
 	video_ring_buffer = calloc(video_ring_buffer_size, sizeof(video_buffer_t));
-	if(video_ring_buffer == NULL)
+	if (video_ring_buffer == NULL)
 	{
 		fprintf(stderr, "ENCODER: FATAL memory allocation failure (encoder_alloc_video_ring_buffer): %s\n", strerror(errno));
 		exit(-1);
 	}
 
-	if(codec_ind > 0)
+	if (codec_ind > 0)
 		video_frame_max_size = (video_width * video_height * 3) / 2;
 	else
 		video_frame_max_size = video_width * video_height * 3; //RGB formats
 
 	int i = 0;
-	for(i = 0; i < video_ring_buffer_size; ++i)
+	for (i = 0; i < video_ring_buffer_size; ++i)
 	{
 		video_ring_buffer[i].frame = calloc(video_frame_max_size, sizeof(uint8_t));
-		if(video_ring_buffer[i].frame == NULL)
+		if (video_ring_buffer[i].frame == NULL)
 		{
 			fprintf(stderr, "ENCODER: FATAL memory allocation failure (encoder_alloc_video_ring_buffer): %s\n", strerror(errno));
 			exit(-1);
@@ -153,11 +153,11 @@ static void encoder_alloc_video_ring_buffer(
  */
 static void encoder_clean_video_ring_buffer()
 {
-	if(!video_ring_buffer)
+	if (!video_ring_buffer)
 		return;
 
 	int i = 0;
-	for(i = 0; i < video_ring_buffer_size; ++i)
+	for (i = 0; i < video_ring_buffer_size; ++i)
 	{
 		/*Max: (yuyv) 2 bytes per pixel*/
 		free(video_ring_buffer[i].frame);
@@ -206,7 +206,7 @@ void __attribute__ ((constructor)) gviewencoder_init()
  */
 void __attribute__ ((destructor)) gviewencoder_fini()
 {
-	if(enc_verbosity > 1)
+	if (enc_verbosity > 1)
 		printf("ENCODER: destructor function called\n");
 	//make sure to clean the ring buffer
 	encoder_clean_video_ring_buffer();
@@ -250,20 +250,20 @@ static int encoder_check_audio_sample_fmt(const AVCodec *codec, enum AVSampleFor
 static int select_sample_rate(const AVCodec *codec, int sample_rate)
 {
 	const int *p;
- 	int best_samplerate = 0;
+	int best_samplerate = 0;
 
 	if (!codec->supported_samplerates)
 		return sample_rate;
 
 	p = codec->supported_samplerates;
-	while (*p) 
+	while (*p)
 	{
 		if (*p == sample_rate)
 			return sample_rate;
 
 		best_samplerate = FFMAX(*p, best_samplerate);
 		p++;
-    }
+	}
 	return best_samplerate;
 }
 /*
@@ -284,7 +284,7 @@ static int select_sample_rate(const AVCodec *codec, int sample_rate)
 static void encoder_set_raw_video_input(
     encoder_context_t *encoder_ctx,
     video_codec_t *video_defaults
-    )
+)
 {
 	//assertions
 	assert(encoder_ctx != NULL);
@@ -292,55 +292,55 @@ static void encoder_set_raw_video_input(
 
 	encoder_ctx->video_codec_ind = 0;
 
-	switch(encoder_ctx->input_format)
+	switch (encoder_ctx->input_format)
 	{
-		case V4L2_PIX_FMT_MJPEG:
-			strncpy(video_defaults->compressor, "MJPG", 5);
-			video_defaults->mkv_4cc = v4l2_fourcc('M','J','P','G');
-			strncpy(video_defaults->mkv_codec, "V_MS/VFW/FOURCC", 25);
-			encoder_ctx->enc_video_ctx->outbuf_size =  (encoder_ctx->video_width * encoder_ctx->video_height) / 2;
-			encoder_ctx->enc_video_ctx->outbuf = calloc(encoder_ctx->enc_video_ctx->outbuf_size, sizeof(uint8_t));
-			if(encoder_ctx->enc_video_ctx->outbuf == NULL)
-			{
-				fprintf(stderr, "ENCODER: FATAL memory allocation failure (encoder_video_init): %s\n", strerror(errno));
-				exit(-1);
-			}
-			break;
-
-		case V4L2_PIX_FMT_H264:
-			strncpy(video_defaults->compressor, "H264", 5);
-			video_defaults->mkv_4cc = v4l2_fourcc('H','2','6','4');
-			strncpy(video_defaults->mkv_codec, "V_MPEG4/ISO/AVC", 25);
-			encoder_ctx->enc_video_ctx->outbuf_size = (encoder_ctx->video_width * encoder_ctx->video_height) / 2;
-			encoder_ctx->enc_video_ctx->outbuf = calloc(encoder_ctx->enc_video_ctx->outbuf_size, sizeof(uint8_t));
-			if(encoder_ctx->enc_video_ctx->outbuf == NULL)
-			{
-				fprintf(stderr, "ENCODER: FATAL memory allocation failure (encoder_video_init): %s\n", strerror(errno));
-				exit(-1);
-			}
-			break;
-
-		default:
+	case V4L2_PIX_FMT_MJPEG:
+		strncpy(video_defaults->compressor, "MJPG", 5);
+		video_defaults->mkv_4cc = v4l2_fourcc('M', 'J', 'P', 'G');
+		strncpy(video_defaults->mkv_codec, "V_MS/VFW/FOURCC", 25);
+		encoder_ctx->enc_video_ctx->outbuf_size =  (encoder_ctx->video_width * encoder_ctx->video_height) / 2;
+		encoder_ctx->enc_video_ctx->outbuf = calloc(encoder_ctx->enc_video_ctx->outbuf_size, sizeof(uint8_t));
+		if (encoder_ctx->enc_video_ctx->outbuf == NULL)
 		{
-			char fourcc[5];
-			fourcc[0]= (char) encoder_ctx->input_format & 0xFF;
-			fourcc[1]= (char) encoder_ctx->input_format & 0xFF00 >> 8;
-			fourcc[2]= (char) encoder_ctx->input_format & 0xFF0000 >> 16;
-			fourcc[3]= (char) encoder_ctx->input_format & 0xFF000000 >> 24;
-			fourcc[4]='\0';
-
-			strncpy(video_defaults->compressor, fourcc, 5);
-			video_defaults->mkv_4cc = encoder_ctx->input_format; //v4l2_fourcc('Y','U','Y','2')
-			strncpy(video_defaults->mkv_codec, "V_MS/VFW/FOURCC", 25);
-			encoder_ctx->enc_video_ctx->outbuf_size = encoder_ctx->video_width * encoder_ctx->video_height * 3; //max of 3 bytes per pixel
-			encoder_ctx->enc_video_ctx->outbuf = calloc(encoder_ctx->enc_video_ctx->outbuf_size, sizeof(uint8_t));
-			if(encoder_ctx->enc_video_ctx->outbuf == NULL)
-			{
-				fprintf(stderr, "ENCODER: FATAL memory allocation failure (encoder_video_init): %s\n", strerror(errno));
-				exit(-1);
-			}
-			break;
+			fprintf(stderr, "ENCODER: FATAL memory allocation failure (encoder_video_init): %s\n", strerror(errno));
+			exit(-1);
 		}
+		break;
+
+	case V4L2_PIX_FMT_H264:
+		strncpy(video_defaults->compressor, "H264", 5);
+		video_defaults->mkv_4cc = v4l2_fourcc('H', '2', '6', '4');
+		strncpy(video_defaults->mkv_codec, "V_MPEG4/ISO/AVC", 25);
+		encoder_ctx->enc_video_ctx->outbuf_size = (encoder_ctx->video_width * encoder_ctx->video_height) / 2;
+		encoder_ctx->enc_video_ctx->outbuf = calloc(encoder_ctx->enc_video_ctx->outbuf_size, sizeof(uint8_t));
+		if (encoder_ctx->enc_video_ctx->outbuf == NULL)
+		{
+			fprintf(stderr, "ENCODER: FATAL memory allocation failure (encoder_video_init): %s\n", strerror(errno));
+			exit(-1);
+		}
+		break;
+
+	default:
+	{
+		char fourcc[5];
+		fourcc[0] = (char) encoder_ctx->input_format & 0xFF;
+		fourcc[1] = (char) encoder_ctx->input_format & 0xFF00 >> 8;
+		fourcc[2] = (char) encoder_ctx->input_format & 0xFF0000 >> 16;
+		fourcc[3] = (char) encoder_ctx->input_format & 0xFF000000 >> 24;
+		fourcc[4] = '\0';
+
+		strncpy(video_defaults->compressor, fourcc, 5);
+		video_defaults->mkv_4cc = encoder_ctx->input_format; //v4l2_fourcc('Y','U','Y','2')
+		strncpy(video_defaults->mkv_codec, "V_MS/VFW/FOURCC", 25);
+		encoder_ctx->enc_video_ctx->outbuf_size = encoder_ctx->video_width * encoder_ctx->video_height * 3; //max of 3 bytes per pixel
+		encoder_ctx->enc_video_ctx->outbuf = calloc(encoder_ctx->enc_video_ctx->outbuf_size, sizeof(uint8_t));
+		if (encoder_ctx->enc_video_ctx->outbuf == NULL)
+		{
+			fprintf(stderr, "ENCODER: FATAL memory allocation failure (encoder_video_init): %s\n", strerror(errno));
+			exit(-1);
+		}
+		break;
+	}
 	}
 }
 
@@ -363,9 +363,9 @@ static encoder_video_context_t *encoder_video_init(encoder_context_t *encoder_ct
 	fprintf(stderr, "ENCODER: Error - libavcodec version not supported (minimum 57.16)\n");
 	return NULL;
 #else
-	if(encoder_ctx->video_codec_ind < 0)
+	if (encoder_ctx->video_codec_ind < 0)
 	{
-		if(enc_verbosity > 0)
+		if (enc_verbosity > 0)
 			printf("ENCODER: no video codec set - using raw (direct input)\n");
 
 		encoder_ctx->video_codec_ind = 0;
@@ -373,13 +373,13 @@ static encoder_video_context_t *encoder_video_init(encoder_context_t *encoder_ct
 
 	video_codec_t *video_defaults = encoder_get_video_codec_defaults(encoder_ctx->video_codec_ind);
 
-	if(!video_defaults)
+	if (!video_defaults)
 	{
 		fprintf(stderr, "ENCODER: defaults for video codec index %i not found: using raw (direct input)\n",
-			encoder_ctx->video_codec_ind);
+		        encoder_ctx->video_codec_ind);
 		encoder_ctx->video_codec_ind = 0;
 		video_defaults = encoder_get_video_codec_defaults(encoder_ctx->video_codec_ind);
-		if(!video_defaults)
+		if (!video_defaults)
 		{
 			/*should never happen*/
 			fprintf(stderr, "ENCODER: defaults for raw video not found\n");
@@ -388,7 +388,7 @@ static encoder_video_context_t *encoder_video_init(encoder_context_t *encoder_ct
 	}
 
 	encoder_video_context_t *enc_video_ctx = calloc(1, sizeof(encoder_video_context_t));
-	if(enc_video_ctx == NULL)
+	if (enc_video_ctx == NULL)
 	{
 		fprintf(stderr, "ENCODER: FATAL memory allocation failure (encoder_video_init): %s\n", strerror(errno));
 		exit(-1);
@@ -397,7 +397,7 @@ static encoder_video_context_t *encoder_video_init(encoder_context_t *encoder_ct
 	/* make sure enc_video_ctx is set in encoder_ctx */
 	encoder_ctx->enc_video_ctx = enc_video_ctx;
 
-	if(encoder_ctx->video_codec_ind == 0)
+	if (encoder_ctx->video_codec_ind == 0)
 	{
 		encoder_set_raw_video_input(encoder_ctx, video_defaults);
 		return (enc_video_ctx);
@@ -407,7 +407,7 @@ static encoder_video_context_t *encoder_video_init(encoder_context_t *encoder_ct
 	 * alloc the video codec data
 	 */
 	encoder_codec_data_t *video_codec_data = calloc(1, sizeof(encoder_codec_data_t));
-	if(video_codec_data == NULL)
+	if (video_codec_data == NULL)
 	{
 		fprintf(stderr, "ENCODER: FATAL memory allocation failure (encoder_video_init): %s\n", strerror(errno));
 		exit(-1);
@@ -418,24 +418,24 @@ static encoder_video_context_t *encoder_video_init(encoder_context_t *encoder_ct
 	 */
 	video_codec_data->codec = avcodec_find_encoder_by_name(video_defaults->codec_name);
 	/*if it fails try any codec with matching AV_CODEC_ID*/
-	if(!video_codec_data->codec)
+	if (!video_codec_data->codec)
 		video_codec_data->codec = avcodec_find_encoder(video_defaults->codec_id);
 
-	if(!video_codec_data->codec)
+	if (!video_codec_data->codec)
 	{
 		/*we will use raw data so free the codec data*/
 		free(video_codec_data);
-		fprintf(stderr, "ENCODER: libav video codec (%i) not found - using raw input\n",video_defaults->codec_id);
+		fprintf(stderr, "ENCODER: libav video codec (%i) not found - using raw input\n", video_defaults->codec_id);
 		video_defaults = encoder_get_video_codec_defaults(0);
 		encoder_set_raw_video_input(encoder_ctx, video_defaults);
 
 		//alloc outbuf
-		if(enc_video_ctx->outbuf_size <= 0)
+		if (enc_video_ctx->outbuf_size <= 0)
 			enc_video_ctx->outbuf_size = 240000;//1792
-		if(enc_video_ctx->outbuf != NULL)
+		if (enc_video_ctx->outbuf != NULL)
 			free(enc_video_ctx->outbuf);
 		enc_video_ctx->outbuf = calloc(enc_video_ctx->outbuf_size, sizeof(uint8_t));
-		if(enc_video_ctx->outbuf == NULL)
+		if (enc_video_ctx->outbuf == NULL)
 		{
 			fprintf(stderr, "ENCODER: FATAL memory allocation failure (encoder_video_init): %s\n", strerror(errno));
 			exit(-1);
@@ -449,14 +449,14 @@ static encoder_video_context_t *encoder_video_init(encoder_context_t *encoder_ct
 #elif LIBAVCODEC_VER_AT_LEAST(53,6)
 	video_codec_data->codec_context = avcodec_alloc_context3(video_codec_data->codec);
 	avcodec_get_context_defaults3 (
-			video_codec_data->codec_context,
-			video_codec_data->codec);
+	    video_codec_data->codec_context,
+	    video_codec_data->codec);
 #else
 	video_codec_data->codec_context = avcodec_alloc_context();
 	avcodec_get_context_defaults(video_codec_data->codec_context);
 #endif
 
-	if(video_codec_data->codec_context == NULL)
+	if (video_codec_data->codec_context == NULL)
 	{
 		fprintf(stderr, "ENCODER: FATAL memory allocation failure (encoder_video_init): %s\n", strerror(errno));
 		exit(-1);
@@ -481,7 +481,7 @@ static encoder_video_context_t *encoder_video_init(encoder_context_t *encoder_ct
 	video_codec_data->codec_context->trellis = video_defaults->trellis;
 
 	/*motion estimation method */
-	if( video_defaults->codec_id == AV_CODEC_ID_H264 && video_defaults->me_method > 4)
+	if ( video_defaults->codec_id == AV_CODEC_ID_H264 && video_defaults->me_method > 4)
 		video_defaults->me_method = X264_ME_HEX;
 
 	av_dict_set_int(&video_codec_data->private_options, "motion-est", video_defaults->me_method, 0);
@@ -513,56 +513,56 @@ static encoder_video_context_t *encoder_video_init(encoder_context_t *encoder_ct
 	video_codec_data->codec_context->codec_type = AVMEDIA_TYPE_VIDEO;
 
 	video_codec_data->codec_context->pix_fmt =  video_defaults->pix_fmt; //only yuv420p available for mpeg
-	if(video_defaults->fps)
-		video_codec_data->codec_context->time_base = (AVRational){1, video_defaults->fps}; //use codec properties fps
+	if (video_defaults->fps)
+		video_codec_data->codec_context->time_base = (AVRational) {1, video_defaults->fps}; //use codec properties fps
 	else if (encoder_ctx->fps_den >= 5)
-		video_codec_data->codec_context->time_base = (AVRational){encoder_ctx->fps_num, encoder_ctx->fps_den}; //default fps (for gspca this is 1/1)
+		video_codec_data->codec_context->time_base = (AVRational) {encoder_ctx->fps_num, encoder_ctx->fps_den}; //default fps (for gspca this is 1/1)
 	else
-		video_codec_data->codec_context->time_base = (AVRational){1,15}; //fallback to 15 fps (e.g gspca)
+		video_codec_data->codec_context->time_base = (AVRational) {1, 15}; //fallback to 15 fps (e.g gspca)
 
 
-    if(video_defaults->gop_size > 0)
-        video_codec_data->codec_context->gop_size = video_defaults->gop_size;
-    else
-        video_codec_data->codec_context->gop_size = video_codec_data->codec_context->time_base.den;
+	if (video_defaults->gop_size > 0)
+		video_codec_data->codec_context->gop_size = video_defaults->gop_size;
+	else
+		video_codec_data->codec_context->gop_size = video_codec_data->codec_context->time_base.den;
 
 
 	switch (video_defaults->codec_id)
-    {
-        case AV_CODEC_ID_H264:
-        {
-			/**/
-           video_codec_data->codec_context->me_range = 16;
-           //av_dict_set(&video_codec_data->private_options, "rc_lookahead", "1", 0);
-           av_dict_set(&video_codec_data->private_options, "crf", "23", 0);
-           av_dict_set(&video_codec_data->private_options, "preset", "ultrafast", 0);
-           av_dict_set(&video_codec_data->private_options,"tune", "zerolatency", 0);
-        }
-        break;
-    case AV_CODEC_ID_HEVC:
-        {
-           video_codec_data->codec_context->me_range = 16;
-           av_dict_set(&video_codec_data->private_options, "crf", "28", 0);
-           av_dict_set(&video_codec_data->private_options, "preset", "ultrafast", 0);
-        }
-        break;
-    case AV_CODEC_ID_VP8:
-        {
-            av_dict_set(&video_codec_data->private_options, "quality", "good", 0);
-            av_dict_set(&video_codec_data->private_options, "cpu-used","-10",0);
-            av_dict_set(&video_codec_data->private_options, "speed","10",0);
-        }
-        break;
-    default:
-        break;
-    }
+	{
+	case AV_CODEC_ID_H264:
+	{
+		/**/
+		video_codec_data->codec_context->me_range = 16;
+		//av_dict_set(&video_codec_data->private_options, "rc_lookahead", "1", 0);
+		av_dict_set(&video_codec_data->private_options, "crf", "23", 0);
+		av_dict_set(&video_codec_data->private_options, "preset", "ultrafast", 0);
+		av_dict_set(&video_codec_data->private_options, "tune", "zerolatency", 0);
+	}
+	break;
+	case AV_CODEC_ID_HEVC:
+	{
+		video_codec_data->codec_context->me_range = 16;
+		av_dict_set(&video_codec_data->private_options, "crf", "28", 0);
+		av_dict_set(&video_codec_data->private_options, "preset", "ultrafast", 0);
+	}
+	break;
+	case AV_CODEC_ID_VP8:
+	{
+		av_dict_set(&video_codec_data->private_options, "quality", "good", 0);
+		av_dict_set(&video_codec_data->private_options, "cpu-used", "-10", 0);
+		av_dict_set(&video_codec_data->private_options, "speed", "10", 0);
+	}
+	break;
+	default:
+		break;
+	}
 
 	int ret = 0;
 	/* open codec*/
 	if ((ret = avcodec_open2(
-		video_codec_data->codec_context,
-		video_codec_data->codec,
-		&video_codec_data->private_options)) < 0)
+	               video_codec_data->codec_context,
+	               video_codec_data->codec,
+	               &video_codec_data->private_options)) < 0)
 	{
 		fprintf(stderr, "ENCODER: could not open video codec (%s): %i - using raw input\n", video_defaults->codec_name, ret);
 		free(video_codec_data->codec_context);
@@ -574,12 +574,12 @@ static encoder_video_context_t *encoder_video_init(encoder_context_t *encoder_ct
 		encoder_set_raw_video_input(encoder_ctx, video_defaults);
 
 		//alloc outbuf
-		if(enc_video_ctx->outbuf_size <= 0)
+		if (enc_video_ctx->outbuf_size <= 0)
 			enc_video_ctx->outbuf_size = 240000;//1792
-		if(enc_video_ctx->outbuf != NULL)
+		if (enc_video_ctx->outbuf != NULL)
 			free(enc_video_ctx->outbuf);
 		enc_video_ctx->outbuf = calloc(enc_video_ctx->outbuf_size, sizeof(uint8_t));
-		if(enc_video_ctx->outbuf == NULL)
+		if (enc_video_ctx->outbuf == NULL)
 		{
 			fprintf(stderr, "ENCODER: FATAL memory allocation failure (encoder_video_init): %s\n", strerror(errno));
 			exit(-1);
@@ -590,7 +590,7 @@ static encoder_video_context_t *encoder_video_init(encoder_context_t *encoder_ct
 
 	video_codec_data->frame = av_frame_alloc();
 
-	if(video_codec_data->frame == NULL)
+	if (video_codec_data->frame == NULL)
 	{
 		fprintf(stderr, "ENCODER: FATAL memory allocation failure (encoder_video_init): %s\n", strerror(errno));
 		exit(-1);
@@ -599,7 +599,7 @@ static encoder_video_context_t *encoder_video_init(encoder_context_t *encoder_ct
 
 	video_codec_data->outpkt = av_packet_alloc();
 
-	if(video_codec_data->outpkt == NULL)
+	if (video_codec_data->outpkt == NULL)
 	{
 		fprintf(stderr, "ENCODER: FATAL memory allocation failure (encoder_video_init): %s\n", strerror(errno));
 		exit(-1);
@@ -614,12 +614,12 @@ static encoder_video_context_t *encoder_video_init(encoder_context_t *encoder_ct
 
 	//alloc outbuf
 	enc_video_ctx->outbuf_size = (encoder_ctx->video_width * encoder_ctx->video_height) / 2;
-	if(enc_video_ctx->outbuf_size <= 0)
+	if (enc_video_ctx->outbuf_size <= 0)
 		enc_video_ctx->outbuf_size = 240000;//1792
-	if(enc_video_ctx->outbuf != NULL)
+	if (enc_video_ctx->outbuf != NULL)
 		free(enc_video_ctx->outbuf);
 	enc_video_ctx->outbuf = calloc(enc_video_ctx->outbuf_size, sizeof(uint8_t));
-	if(enc_video_ctx->outbuf == NULL)
+	if (enc_video_ctx->outbuf == NULL)
 	{
 		fprintf(stderr, "ENCODER: FATAL memory allocation failure (encoder_video_init): %s\n", strerror(errno));
 		exit(-1);
@@ -656,17 +656,17 @@ static encoder_audio_context_t *encoder_audio_init(encoder_context_t *encoder_ct
 	return NULL;
 #else
 
-	if(encoder_ctx->audio_codec_ind < 0)
+	if (encoder_ctx->audio_codec_ind < 0)
 	{
-		if(enc_verbosity > 0)
+		if (enc_verbosity > 0)
 			printf("ENCODER: no audio codec set\n");
 
 		return NULL;
 	}
 
-	if(encoder_ctx->audio_channels <= 0)
+	if (encoder_ctx->audio_channels <= 0)
 	{
-		if(enc_verbosity > 0)
+		if (enc_verbosity > 0)
 			printf("ENCODER: no audio channels set\n");
 
 		return NULL;
@@ -674,7 +674,7 @@ static encoder_audio_context_t *encoder_audio_init(encoder_context_t *encoder_ct
 
 	audio_codec_t *audio_defaults = encoder_get_audio_codec_defaults(encoder_ctx->audio_codec_ind);
 
-	if(!audio_defaults)
+	if (!audio_defaults)
 	{
 		fprintf(stderr, "ENCODER: defaults for audio codec index %i not found\n", encoder_ctx->audio_codec_ind);
 		return NULL;
@@ -682,7 +682,7 @@ static encoder_audio_context_t *encoder_audio_init(encoder_context_t *encoder_ct
 
 	/*alloc the encoder audio context*/
 	encoder_audio_context_t *enc_audio_ctx = calloc(1, sizeof(encoder_audio_context_t));
-	if(enc_audio_ctx == NULL)
+	if (enc_audio_ctx == NULL)
 	{
 		fprintf(stderr, "ENCODER: FATAL memory allocation failure (encoder_audio_init): %s\n", strerror(errno));
 		exit(-1);
@@ -705,12 +705,12 @@ static encoder_audio_context_t *encoder_audio_init(encoder_context_t *encoder_ct
 	 */
 	audio_codec_data->codec = avcodec_find_encoder_by_name(audio_defaults->codec_name);
 	/*if it fails try any codec with matching AV_CODEC_ID*/
-	if(!audio_codec_data->codec)
+	if (!audio_codec_data->codec)
 		audio_codec_data->codec = avcodec_find_encoder(audio_defaults->codec_id);
 
-	if(!audio_codec_data->codec)
+	if (!audio_codec_data->codec)
 	{
-		fprintf(stderr, "ENCODER: audio codec (%i) not found\n",audio_defaults->codec_id);
+		fprintf(stderr, "ENCODER: audio codec (%i) not found\n", audio_defaults->codec_id);
 		free(audio_codec_data);
 		free(enc_audio_ctx);
 		encoder_ctx->enc_audio_ctx = NULL;
@@ -721,14 +721,14 @@ static encoder_audio_context_t *encoder_audio_init(encoder_context_t *encoder_ct
 #elif LIBAVCODEC_VER_AT_LEAST(53,6)
 	audio_codec_data->codec_context = avcodec_alloc_context3(audio_codec_data->codec);
 	avcodec_get_context_defaults3 (
-			audio_codec_data->codec_context,
-			audio_codec_data->codec);
+	    audio_codec_data->codec_context,
+	    audio_codec_data->codec);
 #else
 	audio_codec_data->codec_context = avcodec_alloc_context();
 	avcodec_get_context_defaults(audio_codec_data->codec_context);
 #endif
 
-	if(audio_codec_data->codec_context == NULL)
+	if (audio_codec_data->codec_context == NULL)
 	{
 		fprintf(stderr, "ENCODER: FATAL memory allocation failure (encoder_audio_init): %s\n", strerror(errno));
 		exit(-1);
@@ -743,116 +743,122 @@ static encoder_audio_context_t *encoder_audio_init(encoder_context_t *encoder_ct
 	audio_codec_data->codec_context->flags |= audio_defaults->flags;
 
 	audio_codec_data->codec_context->sample_rate = encoder_ctx->audio_samprate;
+#if LIBAVCODEC_VER_AT_LEAST(58, 0)
+	if (encoder_ctx->audio_channels < 2)
+		av_channel_layout_copy(&(audio_codec_data->codec_context->ch_layout), &(AVChannelLayout)AV_CHANNEL_LAYOUT_MONO);
+	else
+		av_channel_layout_copy(&(audio_codec_data->codec_context->ch_layout), &(AVChannelLayout)AV_CHANNEL_LAYOUT_STEREO);
+#else
 	audio_codec_data->codec_context->channels = encoder_ctx->audio_channels;
 
-	if(encoder_ctx->audio_channels < 2)
+	if (encoder_ctx->audio_channels < 2)
 		audio_codec_data->codec_context->channel_layout = AV_CH_LAYOUT_MONO;
 	else
 		audio_codec_data->codec_context->channel_layout = AV_CH_LAYOUT_STEREO;
-
+#endif
 	audio_codec_data->codec_context->cutoff = 0; /*automatic*/
 
-    audio_codec_data->codec_context->codec_id = audio_defaults->codec_id;
+	audio_codec_data->codec_context->codec_id = audio_defaults->codec_id;
 
 	audio_codec_data->codec_context->codec_type = AVMEDIA_TYPE_AUDIO;
 
 	int best_samprate = select_sample_rate(audio_codec_data->codec, encoder_ctx->audio_samprate);
 
-	if(best_samprate != encoder_ctx->audio_samprate)
+	if (best_samprate != encoder_ctx->audio_samprate)
 	{
-		fprintf(stderr, "ENCODER: audio codec doesn't support sample rate = %i (best is %i)\n", 
-			encoder_ctx->audio_samprate, best_samprate);
+		fprintf(stderr, "ENCODER: audio codec doesn't support sample rate = %i (best is %i)\n",
+		        encoder_ctx->audio_samprate, best_samprate);
 		encoder_ctx->audio_samprate = best_samprate;
 	}
 
-	audio_codec_data->codec_context->time_base = (AVRational){1, encoder_ctx->audio_samprate};
+	audio_codec_data->codec_context->time_base = (AVRational) {1, encoder_ctx->audio_samprate};
 
 	/*check if codec supports sample format*/
 	if (!encoder_check_audio_sample_fmt(audio_codec_data->codec, audio_defaults->sample_format))
 	{
 		/*replace by a supported format*/
-		switch(audio_defaults->sample_format)
+		switch (audio_defaults->sample_format)
 		{
-			case AV_SAMPLE_FMT_S16:
-				if (encoder_check_audio_sample_fmt(audio_codec_data->codec, AV_SAMPLE_FMT_S16P))
-				{
-					fprintf(stderr, "ENCODER: changing sample format (S16 -> S16P)\n");
-					audio_defaults->sample_format = AV_SAMPLE_FMT_S16P;
-				}
-				else if (encoder_check_audio_sample_fmt(audio_codec_data->codec, AV_SAMPLE_FMT_FLT))
-				{
-					fprintf(stderr, "ENCODER: changing sample format (S16 -> FLT)\n");
-					audio_defaults->sample_format = AV_SAMPLE_FMT_FLT;
-				}
-				else if (encoder_check_audio_sample_fmt(audio_codec_data->codec, AV_SAMPLE_FMT_FLTP))
-				{
-					fprintf(stderr, "ENCODER: changing sample format (S16 -> FLTP)\n");
-					audio_defaults->sample_format = AV_SAMPLE_FMT_FLTP;
-				}
-				else
-				{
-					fprintf(stderr, "ENCODER: could not open audio codec: no supported sample format\n");
-					free(audio_codec_data->codec_context);
-					free(audio_codec_data);
-					free(enc_audio_ctx);
-					encoder_ctx->enc_audio_ctx = NULL;
-					return NULL;
-				}
-				break;
+		case AV_SAMPLE_FMT_S16:
+			if (encoder_check_audio_sample_fmt(audio_codec_data->codec, AV_SAMPLE_FMT_S16P))
+			{
+				fprintf(stderr, "ENCODER: changing sample format (S16 -> S16P)\n");
+				audio_defaults->sample_format = AV_SAMPLE_FMT_S16P;
+			}
+			else if (encoder_check_audio_sample_fmt(audio_codec_data->codec, AV_SAMPLE_FMT_FLT))
+			{
+				fprintf(stderr, "ENCODER: changing sample format (S16 -> FLT)\n");
+				audio_defaults->sample_format = AV_SAMPLE_FMT_FLT;
+			}
+			else if (encoder_check_audio_sample_fmt(audio_codec_data->codec, AV_SAMPLE_FMT_FLTP))
+			{
+				fprintf(stderr, "ENCODER: changing sample format (S16 -> FLTP)\n");
+				audio_defaults->sample_format = AV_SAMPLE_FMT_FLTP;
+			}
+			else
+			{
+				fprintf(stderr, "ENCODER: could not open audio codec: no supported sample format\n");
+				free(audio_codec_data->codec_context);
+				free(audio_codec_data);
+				free(enc_audio_ctx);
+				encoder_ctx->enc_audio_ctx = NULL;
+				return NULL;
+			}
+			break;
 
-			case AV_SAMPLE_FMT_FLT:
-				if (encoder_check_audio_sample_fmt(audio_codec_data->codec, AV_SAMPLE_FMT_S16))
-				{
-					fprintf(stderr, "ENCODER: changing sample format (FLT -> S16)\n");
-					audio_defaults->sample_format = AV_SAMPLE_FMT_S16;
-				}
-				else if (encoder_check_audio_sample_fmt(audio_codec_data->codec, AV_SAMPLE_FMT_S16P))
-				{
-					fprintf(stderr, "ENCODER: changing sample format (FLT -> S16P)\n");
-					audio_defaults->sample_format = AV_SAMPLE_FMT_S16P;
-				}
-				else if (encoder_check_audio_sample_fmt(audio_codec_data->codec, AV_SAMPLE_FMT_FLTP))
-				{
-					fprintf(stderr, "ENCODER: changing sample format (FLT -> FLTP)\n");
-					audio_defaults->sample_format = AV_SAMPLE_FMT_FLTP;
-				}
-				else
-				{
-					fprintf(stderr, "ENCODER: could not open audio codec: no supported sample format\n");
-					free(audio_codec_data->codec_context);
-					free(audio_codec_data);
-					free(enc_audio_ctx);
-					encoder_ctx->enc_audio_ctx = NULL;
-					return NULL;
-				}
-				break;
+		case AV_SAMPLE_FMT_FLT:
+			if (encoder_check_audio_sample_fmt(audio_codec_data->codec, AV_SAMPLE_FMT_S16))
+			{
+				fprintf(stderr, "ENCODER: changing sample format (FLT -> S16)\n");
+				audio_defaults->sample_format = AV_SAMPLE_FMT_S16;
+			}
+			else if (encoder_check_audio_sample_fmt(audio_codec_data->codec, AV_SAMPLE_FMT_S16P))
+			{
+				fprintf(stderr, "ENCODER: changing sample format (FLT -> S16P)\n");
+				audio_defaults->sample_format = AV_SAMPLE_FMT_S16P;
+			}
+			else if (encoder_check_audio_sample_fmt(audio_codec_data->codec, AV_SAMPLE_FMT_FLTP))
+			{
+				fprintf(stderr, "ENCODER: changing sample format (FLT -> FLTP)\n");
+				audio_defaults->sample_format = AV_SAMPLE_FMT_FLTP;
+			}
+			else
+			{
+				fprintf(stderr, "ENCODER: could not open audio codec: no supported sample format\n");
+				free(audio_codec_data->codec_context);
+				free(audio_codec_data);
+				free(enc_audio_ctx);
+				encoder_ctx->enc_audio_ctx = NULL;
+				return NULL;
+			}
+			break;
 
-			case AV_SAMPLE_FMT_FLTP:
-				if (encoder_check_audio_sample_fmt(audio_codec_data->codec, AV_SAMPLE_FMT_S16))
-				{
-					fprintf(stderr, "ENCODER: changing sample format (FLTP -> S16)\n");
-					audio_defaults->sample_format = AV_SAMPLE_FMT_S16;
-				}
-				else if (encoder_check_audio_sample_fmt(audio_codec_data->codec, AV_SAMPLE_FMT_S16P))
-				{
-					fprintf(stderr, "ENCODER: changing sample format (FLTP -> S16P)\n");
-					audio_defaults->sample_format = AV_SAMPLE_FMT_S16P;
-				}
-				else if (encoder_check_audio_sample_fmt(audio_codec_data->codec, AV_SAMPLE_FMT_FLT))
-				{
-					fprintf(stderr, "ENCODER: changing sample format (FLTP -> FLT)\n");
-					audio_defaults->sample_format = AV_SAMPLE_FMT_FLT;
-				}
-				else
-				{
-					fprintf(stderr, "ENCODER: could not open audio codec: no supported sample format\n");
-					free(audio_codec_data->codec_context);
-					free(audio_codec_data);
-					free(enc_audio_ctx);
-					encoder_ctx->enc_audio_ctx = NULL;
-					return NULL;
-				}
-				break;
+		case AV_SAMPLE_FMT_FLTP:
+			if (encoder_check_audio_sample_fmt(audio_codec_data->codec, AV_SAMPLE_FMT_S16))
+			{
+				fprintf(stderr, "ENCODER: changing sample format (FLTP -> S16)\n");
+				audio_defaults->sample_format = AV_SAMPLE_FMT_S16;
+			}
+			else if (encoder_check_audio_sample_fmt(audio_codec_data->codec, AV_SAMPLE_FMT_S16P))
+			{
+				fprintf(stderr, "ENCODER: changing sample format (FLTP -> S16P)\n");
+				audio_defaults->sample_format = AV_SAMPLE_FMT_S16P;
+			}
+			else if (encoder_check_audio_sample_fmt(audio_codec_data->codec, AV_SAMPLE_FMT_FLT))
+			{
+				fprintf(stderr, "ENCODER: changing sample format (FLTP -> FLT)\n");
+				audio_defaults->sample_format = AV_SAMPLE_FMT_FLT;
+			}
+			else
+			{
+				fprintf(stderr, "ENCODER: could not open audio codec: no supported sample format\n");
+				free(audio_codec_data->codec_context);
+				free(audio_codec_data);
+				free(enc_audio_ctx);
+				encoder_ctx->enc_audio_ctx = NULL;
+				return NULL;
+			}
+			break;
 		}
 	}
 
@@ -860,8 +866,8 @@ static encoder_audio_context_t *encoder_audio_init(encoder_context_t *encoder_ct
 
 	/* open codec*/
 	if (avcodec_open2(
-		audio_codec_data->codec_context,
-		audio_codec_data->codec, NULL) < 0)
+	            audio_codec_data->codec_context,
+	            audio_codec_data->codec, NULL) < 0)
 	{
 		fprintf(stderr, "ENCODER: could not open audio codec\n");
 		free(audio_codec_data->codec_context);
@@ -873,13 +879,13 @@ static encoder_audio_context_t *encoder_audio_init(encoder_context_t *encoder_ct
 
 	/* the codec gives us the frame size, in samples */
 	int frame_size = audio_codec_data->codec_context->frame_size;
-	if(frame_size <= 0)
+	if (frame_size <= 0)
 	{
 		fprintf(stderr, "ENCODER: setting default frame size for audio codec\n");
 		frame_size = 1152; /*default value*/
 		audio_codec_data->codec_context->frame_size = frame_size;
 	}
-	if(enc_verbosity > 0)
+	if (enc_verbosity > 0)
 		printf("ENCODER: Audio frame size is %d frames for selected codec\n", frame_size);
 
 	enc_audio_ctx->monotonic_pts = audio_defaults->monotonic_pts;
@@ -887,7 +893,7 @@ static encoder_audio_context_t *encoder_audio_init(encoder_context_t *encoder_ct
 	/*alloc outbuf*/
 	enc_audio_ctx->outbuf_size = 240000;
 	enc_audio_ctx->outbuf = calloc(enc_audio_ctx->outbuf_size, sizeof(uint8_t));
-	if(enc_audio_ctx->outbuf == NULL)
+	if (enc_audio_ctx->outbuf == NULL)
 	{
 		fprintf(stderr, "ENCODER: FATAL memory allocation failure (encoder_audio_init): %s\n", strerror(errno));
 		exit(-1);
@@ -895,7 +901,7 @@ static encoder_audio_context_t *encoder_audio_init(encoder_context_t *encoder_ct
 
 	audio_codec_data->frame = av_frame_alloc();
 
-	if(audio_codec_data->frame == NULL)
+	if (audio_codec_data->frame == NULL)
 	{
 		fprintf(stderr, "ENCODER: FATAL memory allocation failure (encoder_audio_init): %s\n", strerror(errno));
 		exit(-1);
@@ -905,7 +911,7 @@ static encoder_audio_context_t *encoder_audio_init(encoder_context_t *encoder_ct
 
 	audio_codec_data->outpkt = av_packet_alloc();
 
-	if(audio_codec_data->outpkt == NULL)
+	if (audio_codec_data->outpkt == NULL)
 	{
 		fprintf(stderr, "ENCODER: FATAL memory allocation failure (encoder_audio_init): %s\n", strerror(errno));
 		exit(-1);
@@ -913,8 +919,13 @@ static encoder_audio_context_t *encoder_audio_init(encoder_context_t *encoder_ct
 
 	audio_codec_data->frame->nb_samples = frame_size;
 	audio_codec_data->frame->format = audio_defaults->sample_format;
+
+#if LIBAVCODEC_VER_AT_LEAST(58, 0)
+	av_channel_layout_copy(&audio_codec_data->frame->ch_layout, &audio_codec_data->codec_context->ch_layout);
+#else
 	audio_codec_data->frame->channels = audio_codec_data->codec_context->channels;
 	audio_codec_data->frame->channel_layout = audio_codec_data->codec_context->channel_layout;
+#endif
 
 	/*set codec data in encoder context*/
 	enc_audio_ctx->codec_data = (void *) audio_codec_data;
@@ -938,12 +949,12 @@ int encoder_get_audio_frame_size(encoder_context_t *encoder_ctx)
 {
 	/*assertions*/
 	assert(encoder_ctx);
-	if(encoder_ctx->enc_audio_ctx == NULL)
+	if (encoder_ctx->enc_audio_ctx == NULL)
 		return -1;
 
 	encoder_codec_data_t *audio_codec_data = (encoder_codec_data_t *) encoder_ctx->enc_audio_ctx->codec_data;
 
-	if(audio_codec_data == NULL)
+	if (audio_codec_data == NULL)
 		return -1;
 
 	return audio_codec_data->codec_context->frame_size;
@@ -968,28 +979,28 @@ int encoder_get_audio_sample_fmt(encoder_context_t *encoder_ctx)
 	/*default*/
 	int sample_type = GV_SAMPLE_TYPE_INT16;
 
-	if(encoder_ctx->enc_audio_ctx == NULL)
+	if (encoder_ctx->enc_audio_ctx == NULL)
 		return sample_type;
 
 	encoder_codec_data_t *audio_codec_data = (encoder_codec_data_t *) encoder_ctx->enc_audio_ctx->codec_data;
 
-	if(audio_codec_data == NULL)
+	if (audio_codec_data == NULL)
 		return sample_type;
 
-	switch(audio_codec_data->codec_context->sample_fmt)
+	switch (audio_codec_data->codec_context->sample_fmt)
 	{
-		case AV_SAMPLE_FMT_FLTP:
-			sample_type = GV_SAMPLE_TYPE_FLOATP;
-			break;
-		case AV_SAMPLE_FMT_FLT:
-			sample_type = GV_SAMPLE_TYPE_FLOAT;
-			break;
-		case AV_SAMPLE_FMT_S16P:
-			sample_type = GV_SAMPLE_TYPE_INT16P;
-			break;
-		default:
-			sample_type = GV_SAMPLE_TYPE_INT16;
-			break;
+	case AV_SAMPLE_FMT_FLTP:
+		sample_type = GV_SAMPLE_TYPE_FLOATP;
+		break;
+	case AV_SAMPLE_FMT_FLT:
+		sample_type = GV_SAMPLE_TYPE_FLOAT;
+		break;
+	case AV_SAMPLE_FMT_S16P:
+		sample_type = GV_SAMPLE_TYPE_INT16P;
+		break;
+	default:
+		sample_type = GV_SAMPLE_TYPE_INT16;
+		break;
 	}
 
 	return sample_type;
@@ -1004,7 +1015,7 @@ int encoder_get_audio_sample_fmt(encoder_context_t *encoder_ctx)
  */
 int encoder_get_max_audio_sample_fmt()
 {
-	return AV_SAMPLE_FMT_NB-1;
+	return AV_SAMPLE_FMT_NB - 1;
 }
 
 /*
@@ -1028,48 +1039,48 @@ double encoder_buff_scheduler(int mode, double thresh, double max_time)
 
 	__LOCK_MUTEX( __PMUTEX );
 	/* try to balance buffer overrun in read/write operations */
-	if(video_write_index >= video_read_index)
+	if (video_write_index >= video_read_index)
 		diff_ind = video_write_index - video_read_index;
 	else
 		diff_ind = (video_ring_buffer_size - video_read_index) + video_write_index;
 	__UNLOCK_MUTEX( __PMUTEX );
 
 	/*clip ring buffer threshold*/
-	if(thresh < 0.2)
+	if (thresh < 0.2)
 		thresh = 0.2; /*20% full*/
-	if(thresh > 0.9)
+	if (thresh > 0.9)
 		thresh = 0.9; /*90% full*/
 
 	int th = (int) lround((double) video_ring_buffer_size * thresh);
 
 	if (diff_ind >= th)
 	{
-		switch(mode)
+		switch (mode)
 		{
-			case ENCODER_SCHED_LIN: /*linear function*/
-				sched_time = (double) (diff_ind - th) * (max_time/(video_ring_buffer_size - th));
-				break;
+		case ENCODER_SCHED_LIN: /*linear function*/
+			sched_time = (double) (diff_ind - th) * (max_time / (video_ring_buffer_size - th));
+			break;
 
-			case ENCODER_SCHED_EXP: /*exponencial*/
-			{
-				double exp = (double) log10(max_time)/log10(video_ring_buffer_size - th);
-				if(exp > 0)
-					sched_time = pow(diff_ind - th, exp);
-				else /*use linear function*/
-					sched_time = (double) (diff_ind - th) * (max_time/(video_ring_buffer_size - th));
-				break;
-			}
+		case ENCODER_SCHED_EXP: /*exponencial*/
+		{
+			double exp = (double) log10(max_time) / log10(video_ring_buffer_size - th);
+			if (exp > 0)
+				sched_time = pow(diff_ind - th, exp);
+			else /*use linear function*/
+				sched_time = (double) (diff_ind - th) * (max_time / (video_ring_buffer_size - th));
+			break;
+		}
 
 		}
 	}
 
-	if(enc_verbosity > 2)
+	if (enc_verbosity > 2)
 		printf("ENCODER: scheduler %.2f ms (index delta %i)\n", sched_time, diff_ind);
 
 	/*clip*/
-	if(sched_time > max_time)
+	if (sched_time > max_time)
 		sched_time = max_time;
-	if(sched_time < 0)
+	if (sched_time < 0)
 		sched_time = 0;
 
 	return (sched_time);
@@ -1126,20 +1137,20 @@ int encoder_get_valid_audio_codecs()
  * returns: pointer to encoder context (NULL on error)
  */
 encoder_context_t *encoder_init(
-	int input_format,
-	int video_codec_ind,
-	int audio_codec_ind,
-	int muxer_id,
-	int video_width,
-	int video_height,
-	int fps_num,
-	int fps_den,
-	int audio_channels,
-	int audio_samprate)
+    int input_format,
+    int video_codec_ind,
+    int audio_codec_ind,
+    int muxer_id,
+    int video_width,
+    int video_height,
+    int fps_num,
+    int fps_den,
+    int audio_channels,
+    int audio_samprate)
 {
 	encoder_context_t *encoder_ctx = calloc(1, sizeof(encoder_context_t));
 
-	if(encoder_ctx == NULL)
+	if (encoder_ctx == NULL)
 	{
 		fprintf(stderr, "ENCODER: FATAL memory allocation failure (encoder_get_context): %s\n", strerror(errno));
 		exit(-1);
@@ -1167,16 +1178,16 @@ encoder_context_t *encoder_init(
 	/******************* audio **********************/
 	encoder_audio_init(encoder_ctx);
 
-	if(!encoder_ctx->enc_audio_ctx)
+	if (!encoder_ctx->enc_audio_ctx)
 		encoder_ctx->audio_channels = 0; /*no audio*/
 
 	/****************** ring buffer *****************/
 	encoder_alloc_video_ring_buffer(
-		video_width,
-		video_height,
-		fps_den,
-		fps_num,
-		video_codec_ind);
+	    video_width,
+	    video_height,
+	    fps_den,
+	    fps_num,
+	    video_codec_ind);
 
 	return encoder_ctx;
 }
@@ -1196,13 +1207,13 @@ encoder_context_t *encoder_init(
  */
 int encoder_add_video_frame(uint8_t *frame, int size, int64_t timestamp, int isKeyframe)
 {
-	if(!video_ring_buffer)
+	if (!video_ring_buffer)
 		return -1;
 
 	if (reference_pts == 0)
 	{
 		reference_pts = timestamp; /*first frame ts*/
-		if(enc_verbosity > 0)
+		if (enc_verbosity > 0)
 			printf("ENCODER: ref ts = %" PRId64 "\n", timestamp);
 	}
 
@@ -1212,17 +1223,17 @@ int encoder_add_video_frame(uint8_t *frame, int size, int64_t timestamp, int isK
 	int flag = video_ring_buffer[video_write_index].flag;
 	__UNLOCK_MUTEX( __PMUTEX );
 
-	if(flag != VIDEO_BUFF_FREE)
+	if (flag != VIDEO_BUFF_FREE)
 	{
 		fprintf(stderr, "ENCODER: video ring buffer full - dropping frame\n");
 		return -1;
 	}
 
 	/*clip*/
-	if(size > video_frame_max_size)
+	if (size > video_frame_max_size)
 	{
 		fprintf(stderr, "ENCODER: frame (%i bytes) larger than buffer (%i bytes): clipping\n",
-			size, video_frame_max_size);
+		        size, video_frame_max_size);
 
 		size = video_frame_max_size;
 	}
@@ -1260,18 +1271,18 @@ int encoder_process_next_video_buffer(encoder_context_t *encoder_ctx)
 
 	__UNLOCK_MUTEX ( __PMUTEX );
 
-	if(flag == VIDEO_BUFF_FREE)
+	if (flag == VIDEO_BUFF_FREE)
 		return 1; /*all done*/
 
 	/*timestamp is zero indexed*/
 	encoder_ctx->enc_video_ctx->pts = video_ring_buffer[video_read_index].timestamp;
 
 	/*raw (direct input)*/
-	if(encoder_ctx->video_codec_ind == 0)
+	if (encoder_ctx->video_codec_ind == 0)
 	{
 		/*outbuf_coded_size must already be set*/
 		encoder_ctx->enc_video_ctx->outbuf_coded_size = video_ring_buffer[video_read_index].frame_size;
-		if(video_ring_buffer[video_read_index].keyframe)
+		if (video_ring_buffer[video_read_index].keyframe)
 			encoder_ctx->enc_video_ctx->flags |= AV_PKT_FLAG_KEY;
 	}
 
@@ -1310,10 +1321,10 @@ int encoder_flush_video_buffer(encoder_context_t *encoder_ctx)
 	int buffer_count = video_ring_buffer_size;
 	int flushed_frame_counter = buffer_count;
 
-	if(enc_verbosity > 1)
+	if (enc_verbosity > 1)
 		printf("ENCODER: flushing video buffer with %i frames\n", buffer_count);
 
-	while(flag != VIDEO_BUFF_FREE && buffer_count > 0)
+	while (flag != VIDEO_BUFF_FREE && buffer_count > 0)
 	{
 		buffer_count--;
 
@@ -1325,7 +1336,7 @@ int encoder_flush_video_buffer(encoder_context_t *encoder_ctx)
 		__UNLOCK_MUTEX ( __PMUTEX );
 	}
 
-	if(enc_verbosity > 1)
+	if (enc_verbosity > 1)
 		printf("ENCODER: processed remaining %i video frames\n", flushed_frame_counter - buffer_count);
 
 	/*flush libav*/
@@ -1334,10 +1345,10 @@ int encoder_flush_video_buffer(encoder_context_t *encoder_ctx)
 
 	encoder_encode_video(encoder_ctx, NULL);
 
-	if(enc_verbosity > 1)
+	if (enc_verbosity > 1)
 		printf("ENCODER: flushed %i delayed video frames\n", flushed_frame_counter);
 
-	if(!buffer_count)
+	if (!buffer_count)
 	{
 		fprintf(stderr, "ENCODER: (flush video buffer) max processed buffers reached\n");
 		return -1;
@@ -1367,7 +1378,7 @@ int encoder_flush_audio_buffer(encoder_context_t *encoder_ctx)
 
 	encoder_encode_audio(encoder_ctx, NULL);
 
-	if(enc_verbosity > 1)
+	if (enc_verbosity > 1)
 		printf("ENCODER: flushed %i delayed audio frames\n", flushed_frame_counter);
 
 	return 0;
@@ -1389,8 +1400,8 @@ int encoder_process_audio_buffer(encoder_context_t *encoder_ctx, void *data)
 	/*assertions*/
 	assert(encoder_ctx != NULL);
 
-	if(encoder_ctx->enc_audio_ctx == NULL ||
-		encoder_ctx->audio_channels <= 0)
+	if (encoder_ctx->enc_audio_ctx == NULL ||
+	        encoder_ctx->audio_channels <= 0)
 		return -1;
 
 	return encoder_encode_audio(encoder_ctx, data);
@@ -1411,27 +1422,27 @@ static int store_video_df_pts(encoder_video_context_t *enc_video_ctx)
 	/*assertions*/
 	assert(enc_video_ctx != NULL);
 
-	if(enc_video_ctx->write_df < 0)
+	if (enc_video_ctx->write_df < 0)
 		enc_video_ctx->write_df = 0;
 	else
 		enc_video_ctx->write_df++;
 
-	if(enc_video_ctx->write_df == enc_video_ctx->read_df)
+	if (enc_video_ctx->write_df == enc_video_ctx->read_df)
 	{
 		fprintf(stderr, "ENCODER: Maximum of %i delayed video frames reached...\n", MAX_DELAYED_FRAMES);
 		fprintf(stderr, "         write: %i read: %i\n", enc_video_ctx->write_df, enc_video_ctx->read_df);
 		return -1;
 	}
 
-	if(enc_video_ctx->write_df >= MAX_DELAYED_FRAMES)
+	if (enc_video_ctx->write_df >= MAX_DELAYED_FRAMES)
 	{
-		if(enc_video_ctx->read_df > 0)
+		if (enc_video_ctx->read_df > 0)
 			enc_video_ctx->write_df = 0; //go to start
 		else
 		{
 			fprintf(stderr, "ENCODER: Maximum of %i delayed video frames reached...\n", MAX_DELAYED_FRAMES);
 			fprintf(stderr, "         write: %i read: %i\n", enc_video_ctx->write_df, enc_video_ctx->read_df);
-			enc_video_ctx->write_df = MAX_DELAYED_FRAMES -1;
+			enc_video_ctx->write_df = MAX_DELAYED_FRAMES - 1;
 			return -1;
 		}
 	}
@@ -1457,10 +1468,10 @@ static int read_video_df_pts(encoder_video_context_t *enc_video_ctx)
 	assert(enc_video_ctx != NULL);
 
 	//store the current frame pts
-	if(!enc_video_ctx->flush_delayed_frames)
+	if (!enc_video_ctx->flush_delayed_frames)
 		store_video_df_pts(enc_video_ctx);
 
-	if(enc_video_ctx->read_df < 0)
+	if (enc_video_ctx->read_df < 0)
 	{
 		printf("ENCODER: video codec is using %i delayed frames\n", enc_video_ctx->write_df);
 		enc_video_ctx->read_df = 0;
@@ -1468,20 +1479,20 @@ static int read_video_df_pts(encoder_video_context_t *enc_video_ctx)
 	else
 		enc_video_ctx->read_df++;
 
-	if(enc_video_ctx->read_df >= MAX_DELAYED_FRAMES)
+	if (enc_video_ctx->read_df >= MAX_DELAYED_FRAMES)
 		enc_video_ctx->read_df = 0;
 
 	//read the delayed frame pts
 	enc_video_ctx->pts = enc_video_ctx->delayed_pts[enc_video_ctx->read_df];
 
-	if(enc_video_ctx->flush_delayed_frames && enc_verbosity > 1)
+	if (enc_video_ctx->flush_delayed_frames && enc_verbosity > 1)
 		printf("ENCODER: video codec flushing delayed frame %i ( pts: %" PRId64 " )\n",
-			enc_video_ctx->read_df, enc_video_ctx->pts);
+		       enc_video_ctx->read_df, enc_video_ctx->pts);
 
-	if(enc_video_ctx->read_df == enc_video_ctx->write_df)
+	if (enc_video_ctx->read_df == enc_video_ctx->write_df)
 	{
 		printf("ENCODER: no more delayed video frames\n");
-		if(enc_video_ctx->flush_delayed_frames)
+		if (enc_video_ctx->flush_delayed_frames)
 			enc_video_ctx->flush_done = 1;
 		enc_video_ctx->read_df = -1;
 	}
@@ -1494,25 +1505,33 @@ static int libav_send_encode(AVCodecContext *avctx, AVFrame *frame)
 	int ret;
 
 	if (!avcodec_is_open(avctx))
-		fprintf(stderr, "ENCODER: codec not opened\n"); 
-	if(!av_codec_is_encoder(avctx->codec))
+		fprintf(stderr, "ENCODER: codec not opened\n");
+	if (!av_codec_is_encoder(avctx->codec))
 		fprintf(stderr, "ENCODER: codec not an encoder\n");
- 
-	if(frame)
+
+	if (frame)
 	{
 
-		if (avctx->codec_type == AVMEDIA_TYPE_AUDIO && frame->nb_samples != avctx->frame_size) 
+		if (avctx->codec_type == AVMEDIA_TYPE_AUDIO && frame->nb_samples != avctx->frame_size)
 			fprintf(stderr, "ENCODER: audio samples differ from frame size\n");
+#if LIBAVCODEC_VER_AT_LEAST(58, 0)
+		if (frame->ch_layout.nb_channels <= 0) {
+			fprintf(stderr, "ENCODER: no audio channels set in frame\n");
+			av_channel_layout_copy(&frame->ch_layout, &avctx->ch_layout);
+		}
+#else
 		if (avctx->codec_type == AVMEDIA_TYPE_AUDIO && frame->channels <= 0)
-		{ 
+		{
 			fprintf(stderr, "ENCODER: no audio channels set in frame\n");
 			frame->channels = avctx->channels;
 		}
+#endif
+
 		ret = avcodec_send_frame(avctx, frame);
-  		if (ret < 0)
+		if (ret < 0)
 		{
 			fprintf(stderr, "ENCODER: avcodec_send_frame error (%i): %s\n", ret, av_err2str(ret));
-  			return ret; //if (ret == AVERROR(EAGAIN)) //input buffer is full
+			return ret; //if (ret == AVERROR(EAGAIN)) //input buffer is full
 		}
 	}
 	else
@@ -1520,9 +1539,9 @@ static int libav_send_encode(AVCodecContext *avctx, AVFrame *frame)
 		//flush encode buffers
 		avcodec_send_frame(avctx, NULL);
 	}
-	
 
-  return ret;
+
+	return ret;
 }
 
 static int libav_get_encode(AVCodecContext *avctx, AVPacket *pkt, int* got_packet)
@@ -1532,7 +1551,7 @@ static int libav_get_encode(AVCodecContext *avctx, AVPacket *pkt, int* got_packe
 
 	ret = avcodec_receive_packet(avctx, pkt);
 	if (!ret)
-  		*got_packet = 1;
+		*got_packet = 1;
 
 	return ret;
 }
@@ -1562,34 +1581,34 @@ int encoder_encode_video(encoder_context_t *encoder_ctx, void *input_frame)
 
 	int outsize = 0;
 
-	if(!enc_video_ctx)
+	if (!enc_video_ctx)
 	{
-		if(enc_verbosity > 1)
+		if (enc_verbosity > 1)
 			printf("ENCODER: video encoder not set\n");
 		encoder_ctx->enc_video_ctx->outbuf_coded_size = outsize;
 		return outsize;
 	}
 
 	/*raw - direct input no software encoding*/
-	if(encoder_ctx->video_codec_ind == 0)
+	if (encoder_ctx->video_codec_ind == 0)
 	{
-		if(enc_video_ctx->flush_delayed_frames > 0)
+		if (enc_video_ctx->flush_delayed_frames > 0)
 		{
 			enc_video_ctx->flush_done = 1;
 			encoder_ctx->enc_video_ctx->outbuf_coded_size = outsize;
 			return outsize;
 		}
-		if(input_frame == NULL)
+		if (input_frame == NULL)
 		{
 			encoder_ctx->enc_video_ctx->outbuf_coded_size = outsize;
 			return outsize;
 		}
 		/*outbuf_coded_size must already be set*/
 		outsize = enc_video_ctx->outbuf_coded_size;
-		if(outsize > enc_video_ctx->outbuf_size)
+		if (outsize > enc_video_ctx->outbuf_size)
 		{
 			enc_video_ctx->outbuf_size = outsize;
-			if(enc_video_ctx->outbuf)
+			if (enc_video_ctx->outbuf)
 				free(enc_video_ctx->outbuf);
 			enc_video_ctx->outbuf = calloc(enc_video_ctx->outbuf_size, sizeof(uint8_t));
 		}
@@ -1598,7 +1617,7 @@ int encoder_encode_video(encoder_context_t *encoder_ctx, void *input_frame)
 		/*enc_video_ctx->flags must be set*/
 		enc_video_ctx->dts = AV_NOPTS_VALUE;
 
-		if(last_video_pts == 0)
+		if (last_video_pts == 0)
 			last_video_pts = enc_video_ctx->pts;
 
 		enc_video_ctx->duration = enc_video_ctx->pts - last_video_pts;
@@ -1608,53 +1627,53 @@ int encoder_encode_video(encoder_context_t *encoder_ctx, void *input_frame)
 
 	encoder_codec_data_t *video_codec_data = (encoder_codec_data_t *) enc_video_ctx->codec_data;
 
-	if(input_frame != NULL)
+	if (input_frame != NULL)
 		prepare_video_frame(video_codec_data, input_frame, encoder_ctx->video_width, encoder_ctx->video_height);
 
-	if(!enc_video_ctx->monotonic_pts) //generate a real pts based on the frame timestamp
+	if (!enc_video_ctx->monotonic_pts) //generate a real pts based on the frame timestamp
 	{
-		video_codec_data->frame->pts += ((enc_video_ctx->pts - last_video_pts)/1000) * 90;
+		video_codec_data->frame->pts += ((enc_video_ctx->pts - last_video_pts) / 1000) * 90;
 		printf("ENCODER: using non-monotonic pts (this can cause encoding to fail)\n");
 	}
 	else  /*generate a true monotonic pts based on the codec fps*/
 	{
 		video_codec_data->frame->pts +=
-			(video_codec_data->codec_context->time_base.num * 1000 / video_codec_data->codec_context->time_base.den) * 90;
+		    (video_codec_data->codec_context->time_base.num * 1000 / video_codec_data->codec_context->time_base.den) * 90;
 	}
 
-	if(enc_video_ctx->flush_delayed_frames)
+	if (enc_video_ctx->flush_delayed_frames)
 	{
-		if(!enc_video_ctx->flushed_buffers)
+		if (!enc_video_ctx->flushed_buffers)
 		{
 			avcodec_flush_buffers(video_codec_data->codec_context);
 			enc_video_ctx->flushed_buffers = 1;
 		}
- 	}
+	}
 
 	/* encode the video */
 	AVPacket *pkt = video_codec_data->outpkt;
 	int got_packet = 0;
 	int ret = 0;
-    //if(enc_video_ctx->outbuf_size < FF_MIN_BUFFER_SIZE)
-    //{
+	//if(enc_video_ctx->outbuf_size < FF_MIN_BUFFER_SIZE)
+	//{
 	//	av_log(avctx, AV_LOG_ERROR, "buffer smaller than minimum size\n");
-    //    return -1;
-    //}
+	//    return -1;
+	//}
 	ret = libav_send_encode(
-			video_codec_data->codec_context,
-			video_codec_data->frame);
-	
-	if(ret < 0)
+	          video_codec_data->codec_context,
+	          video_codec_data->frame);
+
+	if (ret < 0)
 	{
 		fprintf(stderr, "ENCODER: Error encoding video frame: %i\n", ret);
 		return ret;
 	}
 
-	if(enc_video_ctx->flush_delayed_frames)
+	if (enc_video_ctx->flush_delayed_frames)
 	{
-		if(!enc_video_ctx->flushed_buffers)
-    		avcodec_flush_buffers(video_codec_data->codec_context);
-		
+		if (!enc_video_ctx->flushed_buffers)
+			avcodec_flush_buffers(video_codec_data->codec_context);
+
 		enc_video_ctx->flushed_buffers = 1;
 	}
 
@@ -1668,29 +1687,29 @@ int encoder_encode_video(encoder_context_t *encoder_ctx, void *input_frame)
 		enc_video_ctx->flags = pkt->flags;
 		enc_video_ctx->duration = pkt->duration;
 
-		if(pkt->size <= enc_video_ctx->outbuf_size)
+		if (pkt->size <= enc_video_ctx->outbuf_size)
 			memcpy(enc_video_ctx->outbuf, pkt->data, pkt->size);
 		else
-			fprintf(stderr, "video packet size is bigger than output buffer(%i>%i)\n",pkt->size, enc_video_ctx->outbuf_size);
+			fprintf(stderr, "video packet size is bigger than output buffer(%i>%i)\n", pkt->size, enc_video_ctx->outbuf_size);
 
-    	/* free any side data since we cannot return it */
-    	if (pkt->side_data_elems > 0)
-    	{
-    		int i;
-        	for (i = 0; i < pkt->side_data_elems; i++)
-        		av_free(pkt->side_data[i].data);
-        	av_freep(&pkt->side_data);
-        	pkt->side_data_elems = 0;
-    	}
-    	outsize = pkt->size;
+		/* free any side data since we cannot return it */
+		if (pkt->side_data_elems > 0)
+		{
+			int i;
+			for (i = 0; i < pkt->side_data_elems; i++)
+				av_free(pkt->side_data[i].data);
+			av_freep(&pkt->side_data);
+			pkt->side_data_elems = 0;
+		}
+		outsize = pkt->size;
 
 		av_packet_unref(pkt);
 
-		if(enc_video_ctx->flush_delayed_frames && outsize == 0)
-    		enc_video_ctx->flush_done = 1;
-		else if(outsize == 0) //the frame was delayed
+		if (enc_video_ctx->flush_delayed_frames && outsize == 0)
+			enc_video_ctx->flush_done = 1;
+		else if (outsize == 0) //the frame was delayed
 			store_video_df_pts(enc_video_ctx);
-		else if(enc_video_ctx->write_df >= 0) //we have delayed frames
+		else if (enc_video_ctx->write_df >= 0) //we have delayed frames
 			read_video_df_pts(enc_video_ctx);
 
 		last_video_pts = enc_video_ctx->pts;
@@ -1729,9 +1748,9 @@ int encoder_encode_audio(encoder_context_t *encoder_ctx, void *audio_data)
 
 	int outsize = 0;
 
-	if(!enc_audio_ctx)
+	if (!enc_audio_ctx)
 	{
-		if(enc_verbosity > 1)
+		if (enc_verbosity > 1)
 			printf("ENCODER: audio encoder not set\n");
 
 		return outsize;
@@ -1740,15 +1759,15 @@ int encoder_encode_audio(encoder_context_t *encoder_ctx, void *audio_data)
 	encoder_codec_data_t *audio_codec_data = (encoder_codec_data_t *) enc_audio_ctx->codec_data;
 
 	/*PCM output: no need for encoding - save samples directly to outbuf*/
-	if(audio_codec_data->codec_context->codec_id == AV_CODEC_ID_PCM_F32LE)
+	if (audio_codec_data->codec_context->codec_id == AV_CODEC_ID_PCM_F32LE)
 	{
-		if(enc_audio_ctx->flush_delayed_frames)
+		if (enc_audio_ctx->flush_delayed_frames)
 		{
 			/*since we are not encoding we don't have to flush the encoder buffers*/
 			enc_audio_ctx->flushed_buffers = 1;
 			enc_audio_ctx->flush_done = 1;
 		}
- 	
+
 		if (audio_data == NULL)
 		{
 			enc_audio_ctx->outbuf_coded_size = outsize;
@@ -1758,25 +1777,33 @@ int encoder_encode_audio(encoder_context_t *encoder_ctx, void *audio_data)
 		int align = 0;
 
 		int buffer_size = av_samples_get_buffer_size(
-			NULL,
-			audio_codec_data->codec_context->channels,
-			audio_codec_data->codec_context->frame_size,
-			audio_codec_data->codec_context->sample_fmt,
-			align);
+		                      NULL,
+#if LIBAVCODEC_VER_AT_LEAST(58, 0)
+		                      audio_codec_data->codec_context->ch_layout.nb_channels,
+#else
+		                      audio_codec_data->codec_context->channels,
+#endif
+		                      audio_codec_data->codec_context->frame_size,
+		                      audio_codec_data->codec_context->sample_fmt,
+		                      align);
 
-		if(buffer_size <= 0)
+		if (buffer_size <= 0)
 		{
 			fprintf(stderr, "ENCODER: (encoder_encode_audio) PCM av_samples_get_buffer_size error (%d): chan(%d) nb_samp(%d) samp_fmt(%d)\n",
-				buffer_size,
-				audio_codec_data->codec_context->channels,
-				audio_codec_data->codec_context->frame_size,
-				audio_codec_data->codec_context->sample_fmt);
+			        buffer_size,
+#if LIBAVCODEC_VER_AT_LEAST(58, 0)
+			        audio_codec_data->codec_context->ch_layout.nb_channels,
+#else
+			        audio_codec_data->codec_context->channels,
+#endif
+			        audio_codec_data->codec_context->frame_size,
+			        audio_codec_data->codec_context->sample_fmt);
 
 			return outsize;
 		}
 
 		memcpy(enc_audio_ctx->outbuf, audio_data, buffer_size);
-		enc_audio_ctx->duration = (audio_codec_data->codec_context->time_base.num*1000/audio_codec_data->codec_context->time_base.den) * 90;
+		enc_audio_ctx->duration = (audio_codec_data->codec_context->time_base.num * 1000 / audio_codec_data->codec_context->time_base.den) * 90;
 		enc_audio_ctx->pts += enc_audio_ctx->duration;
 		enc_audio_ctx->dts = enc_audio_ctx->pts;
 		enc_audio_ctx->flags = 0;
@@ -1791,7 +1818,7 @@ int encoder_encode_audio(encoder_context_t *encoder_ctx, void *audio_data)
 	int got_packet = 0;
 	int ret = 0;
 
-	if(!enc_audio_ctx->flush_delayed_frames)
+	if (!enc_audio_ctx->flush_delayed_frames)
 	{
 		/*number of samples per channel*/
 		audio_codec_data->frame->nb_samples  = audio_codec_data->codec_context->frame_size;
@@ -1800,69 +1827,85 @@ int encoder_encode_audio(encoder_context_t *encoder_ctx, void *audio_data)
 		int align = 0;
 
 		int buffer_size = av_samples_get_buffer_size(
-			NULL,
-			audio_codec_data->codec_context->channels,
-			audio_codec_data->frame->nb_samples,
-			audio_codec_data->codec_context->sample_fmt,
-			align);
+		                      NULL,
+#if LIBAVCODEC_VER_AT_LEAST(58, 0)
+		                      audio_codec_data->codec_context->ch_layout.nb_channels,
+#else
+		                      audio_codec_data->codec_context->channels,
+#endif
+		                      audio_codec_data->frame->nb_samples,
+		                      audio_codec_data->codec_context->sample_fmt,
+		                      align);
 
-		if(buffer_size <= 0)
+		if (buffer_size <= 0)
 		{
 			fprintf(stderr, "ENCODER: (encoder_encode_audio) av_samples_get_buffer_size error (%d): chan(%d) nb_samp(%d) samp_fmt(%d)\n",
-				buffer_size,
-				audio_codec_data->codec_context->channels,
-				audio_codec_data->frame->nb_samples,
-				audio_codec_data->codec_context->sample_fmt);
+			        buffer_size,
+#if LIBAVCODEC_VER_AT_LEAST(58, 0)
+			        audio_codec_data->codec_context->ch_layout.nb_channels,
+#else
+			        audio_codec_data->codec_context->channels,
+#endif
+			        audio_codec_data->frame->nb_samples,
+			        audio_codec_data->codec_context->sample_fmt);
 
 			return outsize;
 		}
 
 		/*set the data pointers in frame*/
 		ret = avcodec_fill_audio_frame(
-			audio_codec_data->frame,
-			audio_codec_data->codec_context->channels,
-			audio_codec_data->codec_context->sample_fmt,
-			(const uint8_t *) audio_data,
-			buffer_size,
-			align);
+		          audio_codec_data->frame,
+#if LIBAVCODEC_VER_AT_LEAST(58, 0)
+		          audio_codec_data->codec_context->ch_layout.nb_channels,
+#else
+		          audio_codec_data->codec_context->channels,
+#endif
+		          audio_codec_data->codec_context->sample_fmt,
+		          (const uint8_t *) audio_data,
+		          buffer_size,
+		          align);
 
-		if(ret < 0)
+		if (ret < 0)
 		{
 			fprintf(stderr, "ENCODER: (encoder_encode_audio) avcodec_fill_audio_frame error (%d): chan(%d) nb_samp(%d) samp_fmt(%d) buff(%d bytes)\n",
-				ret,
-				audio_codec_data->codec_context->channels,
-				audio_codec_data->frame->nb_samples,
-				audio_codec_data->codec_context->sample_fmt,
-				buffer_size);
+			        ret,
+#if LIBAVCODEC_VER_AT_LEAST(58, 0)
+			        audio_codec_data->codec_context->ch_layout.nb_channels,
+#else
+			        audio_codec_data->codec_context->channels,
+#endif
+			        audio_codec_data->frame->nb_samples,
+			        audio_codec_data->codec_context->sample_fmt,
+			        buffer_size);
 
 			return outsize;
 		}
 
-		if(audio_codec_data->frame->nb_samples != audio_codec_data->codec_context->frame_size)
+		if (audio_codec_data->frame->nb_samples != audio_codec_data->codec_context->frame_size)
 		{
-			fprintf(stderr, "ENCODER: audio frame->nb_samples(%i) != codec_context->frame_size(%i)", 
-				audio_codec_data->frame->nb_samples, audio_codec_data->codec_context->frame_size);
+			fprintf(stderr, "ENCODER: audio frame->nb_samples(%i) != codec_context->frame_size(%i)",
+			        audio_codec_data->frame->nb_samples, audio_codec_data->codec_context->frame_size);
 		}
 
-		if(!enc_audio_ctx->monotonic_pts) /*generate a real pts based on the frame timestamp*/
-			audio_codec_data->frame->pts += ((enc_audio_ctx->pts - last_audio_pts)/1000) * 90;
+		if (!enc_audio_ctx->monotonic_pts) /*generate a real pts based on the frame timestamp*/
+			audio_codec_data->frame->pts += ((enc_audio_ctx->pts - last_audio_pts) / 1000) * 90;
 		else  if (audio_codec_data->codec_context->time_base.den > 0) /*generate a true monotonic pts based on the codec fps*/
 			audio_codec_data->frame->pts +=
-				(audio_codec_data->codec_context->time_base.num*1000/audio_codec_data->codec_context->time_base.den) * 90;
+			    (audio_codec_data->codec_context->time_base.num * 1000 / audio_codec_data->codec_context->time_base.den) * 90;
 		else
 		{
 			fprintf(stderr, "ENCODER: (encoder_encode_audio) couldn't generate a monotonic ts: time_base.den(%d)\n",
-				 audio_codec_data->codec_context->time_base.den);
+			        audio_codec_data->codec_context->time_base.den);
 		}
 	}
-	
+
 	ret = libav_send_encode(
-				audio_codec_data->codec_context,
-				audio_codec_data->frame);
-	
-	if(!enc_audio_ctx->flushed_buffers)
+	          audio_codec_data->codec_context,
+	          audio_codec_data->frame);
+
+	if (!enc_audio_ctx->flushed_buffers)
 	{
-		if(audio_codec_data)
+		if (audio_codec_data)
 			avcodec_flush_buffers(audio_codec_data->codec_context);
 		enc_audio_ctx->flushed_buffers = 1;
 	}
@@ -1874,32 +1917,32 @@ int encoder_encode_audio(encoder_context_t *encoder_ctx, void *audio_data)
 		//else
 		//	printf("ENCODER: (audio) no pts set\n");
 
-		if(pkt->pts < 0) //avoid negative pts
+		if (pkt->pts < 0) //avoid negative pts
 			pkt->pts = -pkt->pts;
 		enc_audio_ctx->pts = pkt->pts;
 		enc_audio_ctx->dts = pkt->dts;
 		enc_audio_ctx->flags = pkt->flags;
 		enc_audio_ctx->duration = pkt->duration;
 
-		if(pkt->size <= enc_audio_ctx->outbuf_size)
+		if (pkt->size <= enc_audio_ctx->outbuf_size)
 			memcpy(enc_audio_ctx->outbuf, pkt->data, pkt->size);
 		else
-			fprintf(stderr, "audio packet size is bigger than output buffer(%i>%i)\n",pkt->size, enc_audio_ctx->outbuf_size);
+			fprintf(stderr, "audio packet size is bigger than output buffer(%i>%i)\n", pkt->size, enc_audio_ctx->outbuf_size);
 
 		/* free any side data since we cannot return it */
 		//ff_packet_free_side_data(&pkt);
 		if (audio_codec_data->frame &&
-			audio_codec_data->frame->extended_data != audio_codec_data->frame->data)
+		        audio_codec_data->frame->extended_data != audio_codec_data->frame->data)
 			av_freep(audio_codec_data->frame->extended_data);
 
 		outsize = pkt->size;
-			
+
 		av_packet_unref(pkt);
 
 		last_audio_pts = enc_audio_ctx->pts;
 
-		if(enc_audio_ctx->flush_delayed_frames && outsize == 0)
-    		enc_audio_ctx->flush_done = 1;
+		if (enc_audio_ctx->flush_delayed_frames && outsize == 0)
+			enc_audio_ctx->flush_done = 1;
 
 		enc_audio_ctx->outbuf_coded_size = outsize;
 
@@ -1924,7 +1967,7 @@ void encoder_close(encoder_context_t *encoder_ctx)
 {
 	encoder_clean_video_ring_buffer();
 
-	if(!encoder_ctx)
+	if (!encoder_ctx)
 		return;
 
 	encoder_video_context_t *enc_video_ctx = encoder_ctx->enc_video_ctx;
@@ -1932,19 +1975,19 @@ void encoder_close(encoder_context_t *encoder_ctx)
 	encoder_codec_data_t *video_codec_data = NULL;
 	encoder_codec_data_t *audio_codec_data = NULL;
 
-	if(encoder_ctx->h264_pps)
+	if (encoder_ctx->h264_pps)
 		free(encoder_ctx->h264_pps);
 
-	if(encoder_ctx->h264_sps)
+	if (encoder_ctx->h264_sps)
 		free(encoder_ctx->h264_sps);
 
 	/*close video codec*/
-	if(enc_video_ctx)
+	if (enc_video_ctx)
 	{
 		video_codec_data = (encoder_codec_data_t *) enc_video_ctx->codec_data;
-		if(video_codec_data)
+		if (video_codec_data)
 		{
-			if(!(enc_video_ctx->flushed_buffers))
+			if (!(enc_video_ctx->flushed_buffers))
 			{
 				avcodec_flush_buffers(video_codec_data->codec_context);
 				enc_video_ctx->flushed_buffers = 1;
@@ -1954,48 +1997,48 @@ void encoder_close(encoder_context_t *encoder_ctx)
 
 			av_dict_free(&(video_codec_data->private_options));
 
-			if(video_codec_data->frame)
+			if (video_codec_data->frame)
 				av_frame_free(&video_codec_data->frame);
 
-			if(video_codec_data->outpkt)
+			if (video_codec_data->outpkt)
 				av_packet_free(&video_codec_data->outpkt);
 
 			free(video_codec_data);
 		}
 
-		if(enc_video_ctx->priv_data)
+		if (enc_video_ctx->priv_data)
 			free(enc_video_ctx->priv_data);
-		if(enc_video_ctx->tmpbuf)
+		if (enc_video_ctx->tmpbuf)
 			free(enc_video_ctx->tmpbuf);
-		if(enc_video_ctx->outbuf)
+		if (enc_video_ctx->outbuf)
 			free(enc_video_ctx->outbuf);
 
 		free(enc_video_ctx);
 	}
 
 	/*close audio codec*/
-	if(enc_audio_ctx)
+	if (enc_audio_ctx)
 	{
 		audio_codec_data = (encoder_codec_data_t *) enc_audio_ctx->codec_data;
-		if(audio_codec_data)
+		if (audio_codec_data)
 		{
 			avcodec_flush_buffers(audio_codec_data->codec_context);
 
 			avcodec_close(audio_codec_data->codec_context);
 			free(audio_codec_data->codec_context);
 
-			if(audio_codec_data->frame)
+			if (audio_codec_data->frame)
 				av_frame_free(&audio_codec_data->frame);
 
-			if(audio_codec_data->outpkt)
+			if (audio_codec_data->outpkt)
 				av_packet_free(&audio_codec_data->outpkt);
 
 			free(audio_codec_data);
 		}
 
-		if(enc_audio_ctx->priv_data)
+		if (enc_audio_ctx->priv_data)
 			free(enc_audio_ctx->priv_data);
-		if(enc_audio_ctx->outbuf)
+		if (enc_audio_ctx->outbuf)
 			free(enc_audio_ctx->outbuf);
 
 		free(enc_audio_ctx);
