@@ -256,7 +256,7 @@ int main(int argc, char *argv[])
 		set_render_flag(render);
 	
 	if(my_options->disable_libv4l2)
-		v4l2core_disable_libv4l2(vd);
+		v4l2core_disable_libv4l2();
 
 	/*select capture method*/
 	if(strcasecmp(my_config->capture, "read") == 0)

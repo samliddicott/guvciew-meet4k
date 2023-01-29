@@ -290,7 +290,7 @@ audio_context_t *get_audio_context();
 /*
  * start the encoder thread
  * args:
- *   none
+ *  none
  *
  * asserts:
  *   none

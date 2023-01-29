@@ -2617,7 +2617,7 @@ int v4l2core_probe_h264_config_probe_req(
 /*
  * check for new devices
  * args:
- *   vd - pointer to v4l2 device handler
+ *   none
  *
  * asserts:
  *   my_device_list.udev is not null
@@ -2626,9 +2626,9 @@ int v4l2core_probe_h264_config_probe_req(
  *
  * returns: true(1) if device list was updated, false(0) otherwise
  */
-int v4l2core_check_device_list_events(v4l2_dev_t *vd)
+int v4l2core_check_device_list_events()
 {
-	return check_device_list_events(vd);
+	return check_device_list_events(NULL);
 }
 
 /* get frame format index from format list

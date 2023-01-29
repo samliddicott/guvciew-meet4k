@@ -1771,6 +1771,7 @@ void MainWindow::keyPressEvent(QKeyEvent* e)
 	
 	switch (e->key())
     {
+    		case Qt::Key_WebCam:
 		case Qt::Key_Camera:
 			/* camera button pressed */
 			if (get_default_camera_button_action() == DEF_ACTION_IMAGE)
