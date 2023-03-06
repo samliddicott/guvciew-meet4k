@@ -743,7 +743,7 @@ static encoder_audio_context_t *encoder_audio_init(encoder_context_t *encoder_ct
 	audio_codec_data->codec_context->flags |= audio_defaults->flags;
 
 	audio_codec_data->codec_context->sample_rate = encoder_ctx->audio_samprate;
-#if LIBAVCODEC_VER_AT_LEAST(58, 0)
+#if LIBAVCODEC_VER_AT_LEAST(59, 0)
 	if (encoder_ctx->audio_channels < 2)
 		av_channel_layout_copy(&(audio_codec_data->codec_context->ch_layout), &(AVChannelLayout)AV_CHANNEL_LAYOUT_MONO);
 	else
@@ -920,7 +920,7 @@ static encoder_audio_context_t *encoder_audio_init(encoder_context_t *encoder_ct
 	audio_codec_data->frame->nb_samples = frame_size;
 	audio_codec_data->frame->format = audio_defaults->sample_format;
 
-#if LIBAVCODEC_VER_AT_LEAST(58, 0)
+#if LIBAVCODEC_VER_AT_LEAST(59, 0)
 	av_channel_layout_copy(&audio_codec_data->frame->ch_layout, &audio_codec_data->codec_context->ch_layout);
 #else
 	audio_codec_data->frame->channels = audio_codec_data->codec_context->channels;
@@ -1514,7 +1514,7 @@ static int libav_send_encode(AVCodecContext *avctx, AVFrame *frame)
 
 		if (avctx->codec_type == AVMEDIA_TYPE_AUDIO && frame->nb_samples != avctx->frame_size)
 			fprintf(stderr, "ENCODER: audio samples differ from frame size\n");
-#if LIBAVCODEC_VER_AT_LEAST(58, 0)
+#if LIBAVCODEC_VER_AT_LEAST(59, 0)
 		if (frame->ch_layout.nb_channels <= 0) {
 			fprintf(stderr, "ENCODER: no audio channels set in frame\n");
 			av_channel_layout_copy(&frame->ch_layout, &avctx->ch_layout);
@@ -1778,7 +1778,7 @@ int encoder_encode_audio(encoder_context_t *encoder_ctx, void *audio_data)
 
 		int buffer_size = av_samples_get_buffer_size(
 		                      NULL,
-#if LIBAVCODEC_VER_AT_LEAST(58, 0)
+#if LIBAVCODEC_VER_AT_LEAST(59, 0)
 		                      audio_codec_data->codec_context->ch_layout.nb_channels,
 #else
 		                      audio_codec_data->codec_context->channels,
@@ -1791,7 +1791,7 @@ int encoder_encode_audio(encoder_context_t *encoder_ctx, void *audio_data)
 		{
 			fprintf(stderr, "ENCODER: (encoder_encode_audio) PCM av_samples_get_buffer_size error (%d): chan(%d) nb_samp(%d) samp_fmt(%d)\n",
 			        buffer_size,
-#if LIBAVCODEC_VER_AT_LEAST(58, 0)
+#if LIBAVCODEC_VER_AT_LEAST(59, 0)
 			        audio_codec_data->codec_context->ch_layout.nb_channels,
 #else
 			        audio_codec_data->codec_context->channels,
@@ -1828,7 +1828,7 @@ int encoder_encode_audio(encoder_context_t *encoder_ctx, void *audio_data)
 
 		int buffer_size = av_samples_get_buffer_size(
 		                      NULL,
-#if LIBAVCODEC_VER_AT_LEAST(58, 0)
+#if LIBAVCODEC_VER_AT_LEAST(59, 0)
 		                      audio_codec_data->codec_context->ch_layout.nb_channels,
 #else
 		                      audio_codec_data->codec_context->channels,
@@ -1841,7 +1841,7 @@ int encoder_encode_audio(encoder_context_t *encoder_ctx, void *audio_data)
 		{
 			fprintf(stderr, "ENCODER: (encoder_encode_audio) av_samples_get_buffer_size error (%d): chan(%d) nb_samp(%d) samp_fmt(%d)\n",
 			        buffer_size,
-#if LIBAVCODEC_VER_AT_LEAST(58, 0)
+#if LIBAVCODEC_VER_AT_LEAST(59, 0)
 			        audio_codec_data->codec_context->ch_layout.nb_channels,
 #else
 			        audio_codec_data->codec_context->channels,
@@ -1855,7 +1855,7 @@ int encoder_encode_audio(encoder_context_t *encoder_ctx, void *audio_data)
 		/*set the data pointers in frame*/
 		ret = avcodec_fill_audio_frame(
 		          audio_codec_data->frame,
-#if LIBAVCODEC_VER_AT_LEAST(58, 0)
+#if LIBAVCODEC_VER_AT_LEAST(59, 0)
 		          audio_codec_data->codec_context->ch_layout.nb_channels,
 #else
 		          audio_codec_data->codec_context->channels,
@@ -1869,7 +1869,7 @@ int encoder_encode_audio(encoder_context_t *encoder_ctx, void *audio_data)
 		{
 			fprintf(stderr, "ENCODER: (encoder_encode_audio) avcodec_fill_audio_frame error (%d): chan(%d) nb_samp(%d) samp_fmt(%d) buff(%d bytes)\n",
 			        ret,
-#if LIBAVCODEC_VER_AT_LEAST(58, 0)
+#if LIBAVCODEC_VER_AT_LEAST(59, 0)
 			        audio_codec_data->codec_context->ch_layout.nb_channels,
 #else
 			        audio_codec_data->codec_context->channels,
