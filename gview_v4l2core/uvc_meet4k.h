@@ -27,6 +27,7 @@
 #include "v4l2_core.h"
 #include "v4l2_xu_ctrls.h"
 
+uint8_t is_probably_obsbot (int vendor, v4l2_dev_t *vd);
 void add_meet4k(v4l2_dev_t *vd);
 uint8_t get_uvc_meet4k_unit_id (v4l2_dev_t *vd);
 

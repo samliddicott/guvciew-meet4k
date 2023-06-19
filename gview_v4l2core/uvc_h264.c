@@ -320,7 +320,8 @@ void add_h264_format(v4l2_dev_t *vd)
 
 	v4l2_device_list_t *my_device_list = get_device_list();
 
-	if(my_device_list->list_devices[vd->this_device].vendor == 0x6e30)
+	/* 6e30 is original vendor id for OBSBOT. After firmware update, it becomes 0x3564 (REMO TECH Co., Ltd.) */
+	if(is_probably_obsbot(my_device_list->list_devices[vd->this_device].vendor, vd))
 	{
 		if(verbosity > 2)
 			printf("V4L2_CORE: OBSBOT Meet4K abuses H264 guuid (vendor_id=0x%4x): skiping peripheral V3 unit id check\n",
