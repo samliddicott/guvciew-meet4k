@@ -60,6 +60,10 @@ if(USE_QT6)
   endif()
 endif()
 
+if(SFML_FOUND)
+target_link_options(guvcview PUBLIC "-lGL")
+endif()
+
 include_directories(
   ${CMAKE_SOURCE_DIR}/includes
   ${CMAKE_SOURCE_DIR}/gview_audio

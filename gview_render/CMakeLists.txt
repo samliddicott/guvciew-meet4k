@@ -17,7 +17,6 @@ set_target_properties(
   SOVERSION ${LIBSOVERSION}
 )
 
-target_link_options(gviewrender PUBLIC "-lGL")
 
 if(SDL2_FOUND)
   target_sources(gviewrender PRIVATE render_sdl2.c)
@@ -28,6 +27,8 @@ endif()
 if(SFML_FOUND)
   target_sources(gviewrender PRIVATE render_sfml.cpp)
   target_link_libraries(gviewrender ${SFML_LIBRARIES})
+  #in some distros sfml is missing a link to opengl
+  target_link_options(gviewrender PUBLIC "-lGL")
   add_definitions(${SFML_CFLAGS} ${SFML_CFLAGS_OTHER})
 endif()
 
