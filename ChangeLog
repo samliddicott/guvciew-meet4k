@@ -1,3 +1,12 @@
+guvcview (2.1.1)
+
+   * Fix h265 codec defaults
+	 * move from qt5 to qt6
+   * change build system from autoconf to cmake
+
+ -- Paulo Assis <pj.assis@gmail.com> Sun, 2 Jun 2024 20:59:00 +0100
+
+
 guvcview (2.1.0)
 
    * Fix audio channels deprecated warning for avcodec >= 58
