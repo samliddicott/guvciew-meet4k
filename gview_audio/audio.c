@@ -1,25 +1,31 @@
-/*******************************************************************************#
-#           guvcview              http://guvcview.sourceforge.net # # # # Paulo
-Assis <pj.assis@gmail.com>                                    # # Nobuhiro
-Iwamatsu <iwamatsu@nigauri.org>                            # # Add UYVY color
-support(Macbook iSight)            # #           Flemming Frandsen
-<dren.dk@gmail.com>                               # # Add VU meter OSD # # # #
-This program is free software; you can redistribute it and/or modify          #
-# it under the terms of the GNU General Public License as published by # # the
-Free Software Foundation; either version 2 of the License, or             # #
-(at your option) any later version.                                           #
-# # # This program is distributed in the hope that it will be useful, # # but
-WITHOUT ANY WARRANTY; without even the implied warranty of                # #
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                 #
-# GNU General Public License for more details. # # # # You should have received
-a copy of the GNU General Public License             # # along with this
-program; if not, write to the Free Software                   # # Foundation,
-Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA     # # #
-********************************************************************************/
+/******************************************************************************#
+#           guvcview              http://guvcview.sourceforge.net              #
+#                                                                              #
+#           Paulo Assis <pj.assis@gmail.com>                                   #
+#           Nobuhiro Iwamatsu <iwamatsu@nigauri.org>                           #
+#                             Add UYVY color support(Macbook iSight)           #
+#           Flemming Frandsen <dren.dk@gmail.com>                              #
+#                             Add VU meter OSD                                 #
+#                                                                              #
+# This program is free software; you can redistribute it and/or modify         #
+# it under the terms of the GNU General Public License as published by         #
+# the Free Software Foundation; either version 2 of the License, or            #
+# (at your option) any later version.                                          #
+#                                                                              #
+# This program is distributed in the hope that it will be useful,              #
+# but WITHOUT ANY WARRANTY; without even the implied warranty of               #
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                #
+# GNU General Public License for more details.                                 #
+#                                                                              #
+# You should have received a copy of the GNU General Public License            #
+# along with this program; if not, write to the Free Software                  #
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA    #
+#                                                                              #
+*******************************************************************************/
 
-/*******************************************************************************#
+/******************************************************************************
 # # #  Audio library # # #
-********************************************************************************/
+*******************************************************************************/
 
 #include <assert.h>
 #include <errno.h>
@@ -34,7 +40,6 @@ Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA     # # #
 #include <libintl.h>
 #include <locale.h>
 
-// #include "../config.h"
 #include "audio.h"
 #include "audio_portaudio.h"
 #include "gview.h"
@@ -144,13 +149,16 @@ audio_buff_t *audio_get_buffer(audio_context_t *audio_ctx) {
   }
 
   audio_buff_t *audio_buff = calloc(1, sizeof(audio_buff_t));
+
   if (audio_buff == NULL) {
     fprintf(stderr,
             "AUDIO: FATAL memory allocation failure (audio_get_buffer): %s\n",
             strerror(errno));
     exit(-1);
   }
+
   audio_buff->data = calloc(audio_ctx->capture_buff_size, sizeof(sample_t));
+
   if (audio_buff->data == NULL) {
     fprintf(stderr,
             "AUDIO: FATAL memory allocation failure (audio_get_buffer): %s\n",
@@ -212,6 +220,7 @@ static int audio_init_buffers(audio_context_t *audio_ctx) {
 
   audio_ctx->capture_buff =
       calloc(audio_ctx->capture_buff_size, sizeof(sample_t));
+
   if (audio_ctx->capture_buff == NULL) {
     fprintf(stderr,
             "AUDIO: FATAL memory allocation failure (audio_init_buffers): %s\n",
@@ -223,6 +232,7 @@ static int audio_init_buffers(audio_context_t *audio_ctx) {
   audio_free_buffers();
 
   audio_buffers = calloc(AUDBUFF_NUM, sizeof(audio_buff_t));
+
   if (audio_buffers == NULL) {
     fprintf(stderr,
             "AUDIO: FATAL memory allocation failure (audio_init_buffers): %s\n",
@@ -233,6 +243,7 @@ static int audio_init_buffers(audio_context_t *audio_ctx) {
   for (i = 0; i < AUDBUFF_NUM; ++i) {
     audio_buffers[i].data =
         calloc(audio_ctx->capture_buff_size, sizeof(sample_t));
+
     if (audio_buffers[i].data == NULL) {
       fprintf(
           stderr,
@@ -240,6 +251,7 @@ static int audio_init_buffers(audio_context_t *audio_ctx) {
           strerror(errno));
       exit(-1);
     }
+
     audio_buffers[i].flag = AUDIO_BUFF_FREE;
   }
 
@@ -263,6 +275,7 @@ void audio_fill_buffer(audio_context_t *audio_ctx, int64_t ts) {
 
   if (audio_verbosity > 3)
     printf("AUDIO: filling buffer ts:%" PRId64 "\n", ts);
+
   /*in nanosec*/
   uint64_t frame_length = NSEC_PER_SEC / audio_ctx->samprate;
   uint64_t buffer_length =
@@ -289,6 +302,7 @@ void audio_fill_buffer(audio_context_t *audio_ctx, int64_t ts) {
   /*buffer begin time*/
   audio_buffers[buffer_write_index].timestamp =
       audio_ctx->current_ts - buffer_length;
+
   if (audio_buffers[buffer_write_index].timestamp < 0)
     fprintf(stderr,
             "AUDIO: write buffer(%i) - invalid timestamp (< 0): cur_ts:%" PRId64
@@ -345,13 +359,16 @@ int audio_get_next_buffer(audio_context_t *audio_ctx, audio_buff_t *buff,
 
   /*copy data into requested format type*/
   int i = 0;
+
   switch (type) {
+
   case GV_SAMPLE_TYPE_FLOAT: {
     sample_t *my_data = (sample_t *)buff->data;
     memcpy(my_data, audio_buffers[buffer_read_index].data,
            audio_ctx->capture_buff_size * sizeof(sample_t));
     break;
   }
+
   case GV_SAMPLE_TYPE_INT16: {
     int16_t *my_data = (int16_t *)buff->data;
     sample_t *buff_p = (sample_t *)audio_buffers[buffer_read_index].data;
@@ -360,6 +377,7 @@ int audio_get_next_buffer(audio_context_t *audio_ctx, audio_buff_t *buff,
     }
     break;
   }
+
   case GV_SAMPLE_TYPE_FLOATP: {
     int j = 0;
 
@@ -377,6 +395,7 @@ int audio_get_next_buffer(audio_context_t *audio_ctx, audio_buff_t *buff,
       }
     break;
   }
+
   case GV_SAMPLE_TYPE_INT16P: {
     int j = 0;
 
@@ -394,7 +413,8 @@ int audio_get_next_buffer(audio_context_t *audio_ctx, audio_buff_t *buff,
       }
     break;
   }
-  }
+
+  } // end switch
 
   buff->timestamp = audio_buffers[buffer_read_index].timestamp;
 
@@ -435,6 +455,7 @@ audio_context_t *audio_init(int api, int device) {
   int ret = 0;
 
   switch (api) {
+
   case AUDIO_NONE:
     audio_ctx->api = AUDIO_NONE;
     break;
@@ -444,11 +465,12 @@ audio_context_t *audio_init(int api, int device) {
     ret = audio_init_pulseaudio(audio_ctx);
     break;
 #endif
+
   case AUDIO_PORTAUDIO:
   default:
     ret = audio_init_portaudio(audio_ctx);
     break;
-  }
+  } // end switch
 
   /*if api couldn't be initialized set audio to none*/
   if (ret != 0)
@@ -497,6 +519,7 @@ void audio_set_device_index(audio_context_t *audio_ctx, int index) {
   assert(audio_ctx != NULL);
 
   switch (audio_ctx->api) {
+
   case AUDIO_NONE:
     break;
 
@@ -505,11 +528,12 @@ void audio_set_device_index(audio_context_t *audio_ctx, int index) {
     audio_set_pulseaudio_device(audio_ctx, index);
     break;
 #endif
+
   case AUDIO_PORTAUDIO:
   default:
     audio_set_portaudio_device(audio_ctx, index);
     break;
-  }
+  } // end switch
 }
 
 /*
@@ -711,6 +735,7 @@ void audio_set_cap_buffer_size(audio_context_t *audio_ctx, int size) {
 int audio_start(audio_context_t *audio_ctx) {
   if (audio_verbosity > 1)
     printf("AUDIO: starting audio capture\n");
+
   /*assertions*/
   assert(audio_ctx != NULL);
 
@@ -726,6 +751,7 @@ int audio_start(audio_context_t *audio_ctx) {
   int err = 0;
 
   switch (audio_ctx->api) {
+
   case AUDIO_NONE:
     break;
 
@@ -734,11 +760,12 @@ int audio_start(audio_context_t *audio_ctx) {
     err = audio_start_pulseaudio(audio_ctx);
     break;
 #endif
+
   case AUDIO_PORTAUDIO:
   default:
     err = audio_start_portaudio(audio_ctx);
     break;
-  }
+  } // end switch
 
   return err;
 }
@@ -760,6 +787,7 @@ int audio_stop(audio_context_t *audio_ctx) {
   int err = 0;
 
   switch (audio_ctx->api) {
+
   case AUDIO_NONE:
     break;
 
@@ -768,11 +796,12 @@ int audio_stop(audio_context_t *audio_ctx) {
     err = audio_stop_pulseaudio(audio_ctx);
     break;
 #endif
+
   case AUDIO_PORTAUDIO:
   default:
     err = audio_stop_portaudio(audio_ctx);
     break;
-  }
+  } // end switch
 
   /*free the ring buffer (if any)*/
   audio_free_buffers();
@@ -804,6 +833,7 @@ void audio_close(audio_context_t *audio_ctx) {
   __CLOSE_MUTEX(&(audio_ctx->mutex));
 
   switch (audio_ctx->api) {
+
   case AUDIO_NONE:
     break;
 
@@ -812,11 +842,12 @@ void audio_close(audio_context_t *audio_ctx) {
     audio_close_pulseaudio(audio_ctx);
     break;
 #endif
+
   case AUDIO_PORTAUDIO:
   default:
     audio_close_portaudio(audio_ctx);
     break;
-  }
+  } // end switch
 
   if (audio_buffers != NULL)
     audio_free_buffers();

@@ -1,44 +1,44 @@
-/*******************************************************************************#
-#           guvcview              http://guvcview.sourceforge.net               #
-#                                                                               #
-#           Paulo Assis <pj.assis@gmail.com>                                    #
-#           Nobuhiro Iwamatsu <iwamatsu@nigauri.org>                            #
-#                             Add UYVY color support(Macbook iSight)            #
-#           Flemming Frandsen <dren.dk@gmail.com>                               #
-#                             Add VU meter OSD                                  #
-#                                                                               #
-# This program is free software; you can redistribute it and/or modify          #
-# it under the terms of the GNU General Public License as published by          #
-# the Free Software Foundation; either version 2 of the License, or             #
-# (at your option) any later version.                                           #
-#                                                                               #
-# This program is distributed in the hope that it will be useful,               #
-# but WITHOUT ANY WARRANTY; without even the implied warranty of                #
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                 #
-# GNU General Public License for more details.                                  #
-#                                                                               #
-# You should have received a copy of the GNU General Public License             #
-# along with this program; if not, write to the Free Software                   #
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA     #
-#                                                                               #
-********************************************************************************/
+/******************************************************************************#
+#           guvcview              http://guvcview.sourceforge.net              #
+#                                                                              #
+#           Paulo Assis <pj.assis@gmail.com>                                   #
+#           Nobuhiro Iwamatsu <iwamatsu@nigauri.org>                           #
+#                             Add UYVY color support(Macbook iSight)           #
+#           Flemming Frandsen <dren.dk@gmail.com>                              #
+#                             Add VU meter OSD                                 #
+#                                                                              #
+# This program is free software; you can redistribute it and/or modify         #
+# it under the terms of the GNU General Public License as published by         #
+# the Free Software Foundation; either version 2 of the License, or            #
+# (at your option) any later version.                                          #
+#                                                                              #
+# This program is distributed in the hope that it will be useful,              #
+# but WITHOUT ANY WARRANTY; without even the implied warranty of               #
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                #
+# GNU General Public License for more details.                                 #
+#                                                                              #
+# You should have received a copy of the GNU General Public License            #
+# along with this program; if not, write to the Free Software                  #
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA    #
+#                                                                              #
+*******************************************************************************/
 
-#include <stdlib.h>
+#include <assert.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <portaudio.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include <fcntl.h>
-#include <string.h>
-#include <errno.h>
-#include <assert.h>
-#include <portaudio.h>
 /* support for internationalization - i18n */
-#include <locale.h>
 #include <libintl.h>
+#include <locale.h>
 
-#include "gview.h"
 #include "audio.h"
 #include "core_time.h"
+#include "gview.h"
 #include "gviewaudio.h"
 
 extern int audio_verbosity;
@@ -62,115 +62,101 @@ static int sample_index = 0;
  *
  * returns: error code (0 ok)
  */
-static int recordCallback (
-	const void *inputBuffer,
-	void *outputBuffer,
-	unsigned long framesPerBuffer,
-	const PaStreamCallbackTimeInfo* timeInfo,
-	PaStreamCallbackFlags statusFlags,
-	void *userData )
-{
-	audio_context_t *audio_ctx = (audio_context_t *) userData;
+static int recordCallback(const void *inputBuffer, void *outputBuffer,
+                          unsigned long framesPerBuffer,
+                          const PaStreamCallbackTimeInfo *timeInfo,
+                          PaStreamCallbackFlags statusFlags, void *userData) {
+  audio_context_t *audio_ctx = (audio_context_t *)userData;
 
-	/*asserts*/
-	assert(audio_ctx != NULL);
+  /*asserts*/
+  assert(audio_ctx != NULL);
 
-	if(audio_ctx->channels == 0)
-	{
-		fprintf(stderr, "AUDIO: (portaudio) recordCallback failed: channels = 0\n");
-		return (paContinue);
-	}
+  if (audio_ctx->channels == 0) {
+    fprintf(stderr, "AUDIO: (portaudio) recordCallback failed: channels = 0\n");
+    return (paContinue);
+  }
 
-	if(audio_ctx->samprate == 0)
-	{
-		fprintf(stderr, "AUDIO: (portaudio) recordCallback failed: samprate = 0\n");
-		return (paContinue);
-	}
+  if (audio_ctx->samprate == 0) {
+    fprintf(stderr, "AUDIO: (portaudio) recordCallback failed: samprate = 0\n");
+    return (paContinue);
+  }
 
-	uint32_t i = 0;
+  uint32_t i = 0;
 
-	sample_t *rptr = (sample_t*) inputBuffer;
-	sample_t *capture_buff = (sample_t *) audio_ctx->capture_buff;
+  sample_t *rptr = (sample_t *)inputBuffer;
+  sample_t *capture_buff = (sample_t *)audio_ctx->capture_buff;
 
-	unsigned long numSamples = framesPerBuffer * audio_ctx->channels;
-	uint64_t frame_length = NSEC_PER_SEC / audio_ctx->samprate; /*in nanosec (is never 0)*/
+  unsigned long numSamples = framesPerBuffer * audio_ctx->channels;
+  uint64_t frame_length =
+      NSEC_PER_SEC / audio_ctx->samprate; /*in nanosec (is never 0)*/
 
-	PaTime ts_sec = timeInfo->inputBufferAdcTime; /*in seconds (double)*/
-	int64_t ts = ts_sec * NSEC_PER_SEC; /*in nanosec (monotonic time)*/
-	int64_t buff_ts = 0;
+  PaTime ts_sec = timeInfo->inputBufferAdcTime; /*in seconds (double)*/
+  int64_t ts = ts_sec * NSEC_PER_SEC;           /*in nanosec (monotonic time)*/
+  int64_t buff_ts = 0;
 
-	/*determine the number of samples dropped*/
-	if(audio_ctx->last_ts <= 0)
-	{
-		audio_ctx->last_ts = ts;
-	}
+  /*determine the number of samples dropped*/
+  if (audio_ctx->last_ts <= 0) {
+    audio_ctx->last_ts = ts;
+  }
 
-	if(statusFlags & paInputOverflow)
-	{
-		fprintf( stderr, "AUDIO: portaudio buffer overflow\n" );
+  if (statusFlags & paInputOverflow) {
+    fprintf(stderr, "AUDIO: portaudio buffer overflow\n");
 
-		int64_t d_ts = ts - audio_ctx->last_ts;
-		uint32_t n_samples = (d_ts / frame_length) * audio_ctx->channels;
-		for( i = 0; i < n_samples; ++i )
-		{
-			capture_buff[sample_index] = 0;
-			sample_index++;
-			if(sample_index >= audio_ctx->capture_buff_size)
-			{
-				audio_fill_buffer(audio_ctx, audio_ctx->last_ts);
-				sample_index = 0;
-			}
-		}
+    int64_t d_ts = ts - audio_ctx->last_ts;
+    uint32_t n_samples = (d_ts / frame_length) * audio_ctx->channels;
+    for (i = 0; i < n_samples; ++i) {
+      capture_buff[sample_index] = 0;
+      sample_index++;
+      if (sample_index >= audio_ctx->capture_buff_size) {
+        audio_fill_buffer(audio_ctx, audio_ctx->last_ts);
+        sample_index = 0;
+      }
+    }
 
-		if(audio_verbosity > 1)
-			printf("AUDIO: compensate overflow with %i silence samples\n", n_samples);
-	}
-	if(statusFlags & paInputUnderflow)
-		fprintf( stderr, "AUDIO: portaudio buffer underflow\n" );
+    if (audio_verbosity > 1)
+      printf("AUDIO: compensate overflow with %i silence samples\n", n_samples);
+  }
+  if (statusFlags & paInputUnderflow)
+    fprintf(stderr, "AUDIO: portaudio buffer underflow\n");
 
-	if(sample_index == 0)
-	{
-		audio_ctx->capture_buff_level[0] = 0;
-		audio_ctx->capture_buff_level[1] = 0;
-	}
+  if (sample_index == 0) {
+    audio_ctx->capture_buff_level[0] = 0;
+    audio_ctx->capture_buff_level[1] = 0;
+  }
 
-	int chan = 0;
-	/*store capture samples*/
-	for( i = 0; i < numSamples; ++i )
-	{
-		capture_buff[sample_index] = inputBuffer ? *rptr++ : 0;
-		
-		/*store peak value*/
-		if(audio_ctx->capture_buff_level[chan] < capture_buff[sample_index])
-			audio_ctx->capture_buff_level[chan] = capture_buff[sample_index];
-		chan++;
-		if(chan >= audio_ctx->channels)
-			chan = 0;
+  int chan = 0;
+  /*store capture samples*/
+  for (i = 0; i < numSamples; ++i) {
+    capture_buff[sample_index] = inputBuffer ? *rptr++ : 0;
 
-		
-		sample_index++;
-		
-		if(sample_index >= audio_ctx->capture_buff_size)
-		{
-			buff_ts = ts + ( i / audio_ctx->channels ) * frame_length;
+    /*store peak value*/
+    if (audio_ctx->capture_buff_level[chan] < capture_buff[sample_index])
+      audio_ctx->capture_buff_level[chan] = capture_buff[sample_index];
+    chan++;
+    if (chan >= audio_ctx->channels)
+      chan = 0;
 
-			audio_fill_buffer(audio_ctx, buff_ts);
+    sample_index++;
 
-			/*reset*/
-			audio_ctx->capture_buff_level[0] = 0;
-			audio_ctx->capture_buff_level[1] = 0;
-			sample_index = 0;
-		}
-	}
+    if (sample_index >= audio_ctx->capture_buff_size) {
+      buff_ts = ts + (i / audio_ctx->channels) * frame_length;
 
-	audio_ctx->last_ts = ts + (framesPerBuffer * frame_length);
+      audio_fill_buffer(audio_ctx, buff_ts);
 
-	if(audio_ctx->stream_flag == AUDIO_STRM_OFF )
-		return (paComplete); /*capture stopped*/
-	else
-		return (paContinue); /*still capturing*/
+      /*reset*/
+      audio_ctx->capture_buff_level[0] = 0;
+      audio_ctx->capture_buff_level[1] = 0;
+      sample_index = 0;
+    }
+  }
+
+  audio_ctx->last_ts = ts + (framesPerBuffer * frame_length);
+
+  if (audio_ctx->stream_flag == AUDIO_STRM_OFF)
+    return (paComplete); /*capture stopped*/
+  else
+    return (paContinue); /*still capturing*/
 }
-
 
 /*
  * list audio devices for portaudio api
@@ -181,129 +167,133 @@ static int recordCallback (
  *
  * returns: error code (0 ok)
  */
-static int audio_portaudio_list_devices(audio_context_t *audio_ctx)
-{
-	/*asserts*/
-	assert(audio_ctx != NULL);
+static int audio_portaudio_list_devices(audio_context_t *audio_ctx) {
+  /*asserts*/
+  assert(audio_ctx != NULL);
 
-	int numDevices;
-	const PaDeviceInfo *deviceInfo;
+  int numDevices;
+  const PaDeviceInfo *deviceInfo;
 
-	//reset device count
-	audio_ctx->num_input_dev = 0;
+  // reset device count
+  audio_ctx->num_input_dev = 0;
 
-	numDevices = Pa_GetDeviceCount();
-	if( numDevices < 0 )
-	{
-		printf( "AUDIO: Audio disabled: Pa_CountDevices returned %i\n", numDevices );
-	}
-	else
-	{
-		audio_ctx->device = 0;
+  numDevices = Pa_GetDeviceCount();
+  if (numDevices < 0) {
+    printf("AUDIO: Audio disabled: Pa_CountDevices returned %i\n", numDevices);
+  } else {
+    audio_ctx->device = 0;
 
-		int it = 0;
-		for( it=0; it < numDevices; it++ )
-		{
-			deviceInfo = Pa_GetDeviceInfo( it );
-			if (audio_verbosity > 0)
-				printf( "--------------------------------------- device #%d\n", it );
-			/* Mark audio_ctx and API specific default devices*/
-			int defaultDisplayed = 0;
+    int it = 0;
+    for (it = 0; it < numDevices; it++) {
+      deviceInfo = Pa_GetDeviceInfo(it);
+      if (audio_verbosity > 0)
+        printf("--------------------------------------- device #%d\n", it);
+      /* Mark audio_ctx and API specific default devices*/
+      int defaultDisplayed = 0;
 
-			/* with pulse, ALSA is now listed first and doesn't set a API default- 11-2009*/
-			if( it == Pa_GetDefaultInputDevice() )
-			{
-				if (audio_verbosity > 0)
-					printf( "[ Default Input" );
-				defaultDisplayed = 1;
-				audio_ctx->device = audio_ctx->num_input_dev;/*default index in array of input devs*/
-			}
-			else if( it == Pa_GetHostApiInfo( deviceInfo->hostApi )->defaultInputDevice )
-			{
-				const PaHostApiInfo *hostInfo = Pa_GetHostApiInfo( deviceInfo->hostApi );
-				if (audio_verbosity > 0)
-					printf( "[ Default %s Input", hostInfo->name );
-				defaultDisplayed = 2;
-			}
-			/* OUTPUT device doesn't matter for capture*/
-			if( it == Pa_GetDefaultOutputDevice() )
-			{
-			 	if (audio_verbosity > 0)
-				{
-					printf( (defaultDisplayed ? "," : "[") );
-					printf( " Default Output" );
-				}
-				defaultDisplayed = 3;
-			}
-			else if( it == Pa_GetHostApiInfo( deviceInfo->hostApi )->defaultOutputDevice )
-			{
-				const PaHostApiInfo *hostInfo = Pa_GetHostApiInfo( deviceInfo->hostApi );
-				if (audio_verbosity > 0)
-				{
-					printf( (defaultDisplayed ? "," : "[") );
-					printf( " Default %s Output", hostInfo->name );/* OSS ALSA etc*/
-				}
-				defaultDisplayed = 4;
-			}
+      /* with pulse, ALSA is now listed first and doesn't set a API default-
+       * 11-2009*/
+      if (it == Pa_GetDefaultInputDevice()) {
+        if (audio_verbosity > 0)
+          printf("[ Default Input");
+        defaultDisplayed = 1;
+        audio_ctx->device =
+            audio_ctx->num_input_dev; /*default index in array of input devs*/
+      } else if (it ==
+                 Pa_GetHostApiInfo(deviceInfo->hostApi)->defaultInputDevice) {
+        const PaHostApiInfo *hostInfo = Pa_GetHostApiInfo(deviceInfo->hostApi);
+        if (audio_verbosity > 0)
+          printf("[ Default %s Input", hostInfo->name);
+        defaultDisplayed = 2;
+      }
+      /* OUTPUT device doesn't matter for capture*/
+      if (it == Pa_GetDefaultOutputDevice()) {
+        if (audio_verbosity > 0) {
+          printf((defaultDisplayed ? "," : "["));
+          printf(" Default Output");
+        }
+        defaultDisplayed = 3;
+      } else if (it ==
+                 Pa_GetHostApiInfo(deviceInfo->hostApi)->defaultOutputDevice) {
+        const PaHostApiInfo *hostInfo = Pa_GetHostApiInfo(deviceInfo->hostApi);
+        if (audio_verbosity > 0) {
+          printf((defaultDisplayed ? "," : "["));
+          printf(" Default %s Output", hostInfo->name); /* OSS ALSA etc*/
+        }
+        defaultDisplayed = 4;
+      }
 
-			if( defaultDisplayed!=0 )
-				if (audio_verbosity > 0)
-					printf( " ]\n" );
+      if (defaultDisplayed != 0)
+        if (audio_verbosity > 0)
+          printf(" ]\n");
 
-			/* print device info fields */
-			if (audio_verbosity > 0)
-			{
-				printf( "Name                     = %s\n", deviceInfo->name );
-				printf( "Host API                 = %s\n",  Pa_GetHostApiInfo( deviceInfo->hostApi )->name );
-				printf( "Max inputs = %d", deviceInfo->maxInputChannels  );
-			}
-			/* INPUT devices (if it has input channels it's a capture device)*/
-			if (deviceInfo->maxInputChannels > 0)
-			{
-				audio_ctx->num_input_dev++;
-				/*add device to list*/
-				audio_ctx->list_devices = realloc(audio_ctx->list_devices, audio_ctx->num_input_dev * sizeof(audio_device_t));
-				if(audio_ctx->list_devices == NULL)
-				{
-					fprintf(stderr,"AUDIO: FATAL memory allocation failure (audio_portaudio_list_devices): %s\n", strerror(errno));
-					exit(-1);
-				}
-				/*fill device data*/
-				audio_ctx->list_devices[audio_ctx->num_input_dev-1].id = it;
-				strncpy(audio_ctx->list_devices[audio_ctx->num_input_dev-1].name, deviceInfo->name, 511);
-				strncpy(audio_ctx->list_devices[audio_ctx->num_input_dev-1].description, deviceInfo->name, 255);
-				audio_ctx->list_devices[audio_ctx->num_input_dev-1].channels = deviceInfo->maxInputChannels;
-				audio_ctx->list_devices[audio_ctx->num_input_dev-1].samprate = deviceInfo->defaultSampleRate;
-				audio_ctx->list_devices[audio_ctx->num_input_dev-1].high_latency = (double) deviceInfo->defaultHighInputLatency;
-				audio_ctx->list_devices[audio_ctx->num_input_dev-1].low_latency = (double) deviceInfo->defaultLowInputLatency;
-			}
-			if (audio_verbosity > 0)
-			{
-				printf( ", Max outputs = %d\n", deviceInfo->maxOutputChannels  );
-				printf( "Def. low input latency   = %8.3f\n", deviceInfo->defaultLowInputLatency  );
-				printf( "Def. low output latency  = %8.3f\n", deviceInfo->defaultLowOutputLatency  );
-				printf( "Def. high input latency  = %8.3f\n", deviceInfo->defaultHighInputLatency  );
-				printf( "Def. high output latency = %8.3f\n", deviceInfo->defaultHighOutputLatency  );
-				printf( "Def. sample rate         = %8.2f\n", deviceInfo->defaultSampleRate );
-			}
+      /* print device info fields */
+      if (audio_verbosity > 0) {
+        printf("Name                     = %s\n", deviceInfo->name);
+        printf("Host API                 = %s\n",
+               Pa_GetHostApiInfo(deviceInfo->hostApi)->name);
+        printf("Max inputs = %d", deviceInfo->maxInputChannels);
+      }
+      /* INPUT devices (if it has input channels it's a capture device)*/
+      if (deviceInfo->maxInputChannels > 0) {
+        audio_ctx->num_input_dev++;
+        /*add device to list*/
+        audio_ctx->list_devices =
+            realloc(audio_ctx->list_devices,
+                    audio_ctx->num_input_dev * sizeof(audio_device_t));
+        if (audio_ctx->list_devices == NULL) {
+          fprintf(stderr,
+                  "AUDIO: FATAL memory allocation failure "
+                  "(audio_portaudio_list_devices): %s\n",
+                  strerror(errno));
+          exit(-1);
+        }
+        /*fill device data*/
+        audio_ctx->list_devices[audio_ctx->num_input_dev - 1].id = it;
+        strncpy(audio_ctx->list_devices[audio_ctx->num_input_dev - 1].name,
+                deviceInfo->name, 511);
+        strncpy(
+            audio_ctx->list_devices[audio_ctx->num_input_dev - 1].description,
+            deviceInfo->name, 255);
+        audio_ctx->list_devices[audio_ctx->num_input_dev - 1].channels =
+            deviceInfo->maxInputChannels;
+        audio_ctx->list_devices[audio_ctx->num_input_dev - 1].samprate =
+            deviceInfo->defaultSampleRate;
+        audio_ctx->list_devices[audio_ctx->num_input_dev - 1].high_latency =
+            (double)deviceInfo->defaultHighInputLatency;
+        audio_ctx->list_devices[audio_ctx->num_input_dev - 1].low_latency =
+            (double)deviceInfo->defaultLowInputLatency;
+      }
+      if (audio_verbosity > 0) {
+        printf(", Max outputs = %d\n", deviceInfo->maxOutputChannels);
+        printf("Def. low input latency   = %8.3f\n",
+               deviceInfo->defaultLowInputLatency);
+        printf("Def. low output latency  = %8.3f\n",
+               deviceInfo->defaultLowOutputLatency);
+        printf("Def. high input latency  = %8.3f\n",
+               deviceInfo->defaultHighInputLatency);
+        printf("Def. high output latency = %8.3f\n",
+               deviceInfo->defaultHighOutputLatency);
+        printf("Def. sample rate         = %8.2f\n",
+               deviceInfo->defaultSampleRate);
+      }
+    }
 
-		}
+    if (audio_verbosity > 0)
+      printf("----------------------------------------------\n");
+  }
 
-		if (audio_verbosity > 0)
-			printf("----------------------------------------------\n");
-	}
+  if (audio_ctx->num_input_dev <= 0) {
+    printf("AUDIO: Audio disabled: no input devices found (%i)\n",
+           audio_ctx->num_input_dev);
+    return -1;
+  }
 
-	if (audio_ctx->num_input_dev <= 0)
-	{
-		printf( "AUDIO: Audio disabled: no input devices found (%i)\n", audio_ctx->num_input_dev );
-		return -1;
-	}
+  /*set defaults*/
+  audio_ctx->channels = audio_ctx->list_devices[audio_ctx->device].channels;
+  audio_ctx->samprate = audio_ctx->list_devices[audio_ctx->device].samprate;
 
-	/*set defaults*/
-	audio_ctx->channels = audio_ctx->list_devices[audio_ctx->device].channels;
-	audio_ctx->samprate = audio_ctx->list_devices[audio_ctx->device].samprate;
-
-	return 0;
+  return 0;
 }
 
 /*
@@ -316,28 +306,28 @@ static int audio_portaudio_list_devices(audio_context_t *audio_ctx)
  *
  * returns: error code (0 = E_OK)
  */
-int audio_init_portaudio(audio_context_t* audio_ctx)
-{
-	/*assertions*/
-	assert(audio_ctx != NULL);
+int audio_init_portaudio(audio_context_t *audio_ctx) {
+  /*assertions*/
+  assert(audio_ctx != NULL);
 
-	int pa_error = Pa_Initialize();
+  int pa_error = Pa_Initialize();
 
-	if(pa_error != paNoError)
-	{
-		fprintf(stderr,"AUDIO: Failed to Initialize Portaudio (Pa_Initialize returned %i)\n", pa_error);
-		return -1;
-	}
+  if (pa_error != paNoError) {
+    fprintf(
+        stderr,
+        "AUDIO: Failed to Initialize Portaudio (Pa_Initialize returned %i)\n",
+        pa_error);
+    return -1;
+  }
 
-	if(audio_portaudio_list_devices(audio_ctx) != 0)
-	{
-		fprintf(stderr, "AUDIO: Portaudio failed to get audio device list\n");
-		return -1;
-	}
+  if (audio_portaudio_list_devices(audio_ctx) != 0) {
+    fprintf(stderr, "AUDIO: Portaudio failed to get audio device list\n");
+    return -1;
+  }
 
-	audio_ctx->api = AUDIO_PORTAUDIO;
+  audio_ctx->api = AUDIO_PORTAUDIO;
 
-	return 0;
+  return 0;
 }
 
 /*
@@ -351,25 +341,24 @@ int audio_init_portaudio(audio_context_t* audio_ctx)
  *
  * returns: none
  */
-void audio_set_portaudio_device(audio_context_t *audio_ctx, int index)
-{
-	/*assertions*/
-	assert(audio_ctx != NULL);
+void audio_set_portaudio_device(audio_context_t *audio_ctx, int index) {
+  /*assertions*/
+  assert(audio_ctx != NULL);
 
-	if(index >= audio_ctx->num_input_dev)
-		audio_ctx->device = audio_ctx->num_input_dev - 1;
-	else if(index >= 0 )
-		audio_ctx->device = index;
+  if (index >= audio_ctx->num_input_dev)
+    audio_ctx->device = audio_ctx->num_input_dev - 1;
+  else if (index >= 0)
+    audio_ctx->device = index;
 
-	if(audio_verbosity > 1)
-		printf("AUDIO: Portaudio device changed to %i\n", audio_ctx->device);
+  if (audio_verbosity > 1)
+    printf("AUDIO: Portaudio device changed to %i\n", audio_ctx->device);
 
-	audio_ctx->latency = audio_ctx->list_devices[audio_ctx->device].high_latency;
+  audio_ctx->latency = audio_ctx->list_devices[audio_ctx->device].high_latency;
 
-	audio_ctx->channels = audio_ctx->list_devices[audio_ctx->device].channels;
-	if(audio_ctx->channels > 2)
-		audio_ctx->channels = 2;/*limit it to stereo input*/
-	audio_ctx->samprate = audio_ctx->list_devices[audio_ctx->device].samprate;
+  audio_ctx->channels = audio_ctx->list_devices[audio_ctx->device].channels;
+  if (audio_ctx->channels > 2)
+    audio_ctx->channels = 2; /*limit it to stereo input*/
+  audio_ctx->samprate = audio_ctx->list_devices[audio_ctx->device].samprate;
 }
 
 /*
@@ -382,73 +371,72 @@ void audio_set_portaudio_device(audio_context_t *audio_ctx, int index)
  *
  * returns: error code
  */
-int audio_start_portaudio(audio_context_t *audio_ctx)
-{
-	/*assertions*/
-	assert(audio_ctx != NULL);
+int audio_start_portaudio(audio_context_t *audio_ctx) {
+  /*assertions*/
+  assert(audio_ctx != NULL);
 
-	PaError err = paNoError;
-	PaStream *stream = (PaStream *) audio_ctx->stream;
+  PaError err = paNoError;
+  PaStream *stream = (PaStream *)audio_ctx->stream;
 
-	if(stream)
-	{
-		if( !(Pa_IsStreamStopped( stream )))
-		{
-			Pa_AbortStream( stream );
-			Pa_CloseStream( stream );
-			audio_ctx->stream = NULL;
-			stream = audio_ctx->stream;
-		}
-	}
+  if (stream) {
+    if (!(Pa_IsStreamStopped(stream))) {
+      Pa_AbortStream(stream);
+      Pa_CloseStream(stream);
+      audio_ctx->stream = NULL;
+      stream = audio_ctx->stream;
+    }
+  }
 
-	PaStreamParameters inputParameters;
+  PaStreamParameters inputParameters;
 
-	inputParameters.device = audio_ctx->list_devices[audio_ctx->device].id;
-	inputParameters.channelCount = audio_ctx->channels;
-	inputParameters.sampleFormat = paFloat32; /*sample_t - float*/
+  inputParameters.device = audio_ctx->list_devices[audio_ctx->device].id;
+  inputParameters.channelCount = audio_ctx->channels;
+  inputParameters.sampleFormat = paFloat32; /*sample_t - float*/
 
-	inputParameters.suggestedLatency = audio_ctx->latency; /*DEFAULT_LATENCY_DURATION/1000.0;*/
-	
-	inputParameters.hostApiSpecificStreamInfo = NULL;
+  inputParameters.suggestedLatency =
+      audio_ctx->latency; /*DEFAULT_LATENCY_DURATION/1000.0;*/
 
-	/*---------------------------- start recording Audio. ----------------------------- */
-	audio_ctx->snd_begintime = ns_time_monotonic();
+  inputParameters.hostApiSpecificStreamInfo = NULL;
 
-	audio_ctx->stream_flag = AUDIO_STRM_ON;
+  /*---------------------------- start recording Audio.
+   * ----------------------------- */
+  audio_ctx->snd_begintime = ns_time_monotonic();
 
-	err = Pa_OpenStream(
-		&stream,                     /* stream */
-		&inputParameters,            /* inputParameters    */
-		NULL,                        /* outputParameters   */
-		audio_ctx->samprate,         /* sample rate        */
-		paFramesPerBufferUnspecified,/* buffer in frames (use API optimal)*/
-		paNoFlag,                    /* PaNoFlag - clip and dhiter*/
-		recordCallback,              /* sound callback     */
-		audio_ctx );                 /* callback userData  */
+  audio_ctx->stream_flag = AUDIO_STRM_ON;
 
-	if( err == paNoError )
-	{
-		err = Pa_StartStream( stream );
-		audio_ctx->stream = (void *) stream; /* store stream pointer*/
-	}
+  err = Pa_OpenStream(
+      &stream,                      /* stream */
+      &inputParameters,             /* inputParameters    */
+      NULL,                         /* outputParameters   */
+      audio_ctx->samprate,          /* sample rate        */
+      paFramesPerBufferUnspecified, /* buffer in frames (use API optimal)*/
+      paNoFlag,                     /* PaNoFlag - clip and dhiter*/
+      recordCallback,               /* sound callback     */
+      audio_ctx);                   /* callback userData  */
 
-	if( err != paNoError )
-	{
-		fprintf(stderr, "AUDIO: An error occurred while starting the portaudio API\n" );
-		fprintf(stderr, "       Error number: %d\n", err );
-		fprintf(stderr, "       Error message: %s\n", Pa_GetErrorText( err ) );
+  if (err == paNoError) {
+    err = Pa_StartStream(stream);
+    audio_ctx->stream = (void *)stream; /* store stream pointer*/
+  }
 
-		if(stream) Pa_AbortStream( stream );
-		audio_ctx->stream_flag = AUDIO_STRM_OFF;
+  if (err != paNoError) {
+    fprintf(stderr,
+            "AUDIO: An error occurred while starting the portaudio API\n");
+    fprintf(stderr, "       Error number: %d\n", err);
+    fprintf(stderr, "       Error message: %s\n", Pa_GetErrorText(err));
 
-		return(-1);
-	}
+    if (stream)
+      Pa_AbortStream(stream);
+    audio_ctx->stream_flag = AUDIO_STRM_OFF;
 
-	const PaStreamInfo* stream_info = Pa_GetStreamInfo (stream);
-	if(audio_verbosity > 1)
-		printf("AUDIO: latency of %8.3f msec\n", 1000 * stream_info->inputLatency);
+    return (-1);
+  }
 
-	return 0;
+  const PaStreamInfo *stream_info = Pa_GetStreamInfo(stream);
+  if (audio_verbosity > 1)
+    printf("AUDIO: latency of %8.3f msec\n", 1000 * stream_info->inputLatency);
+
+  return 0;
 }
 
 /*
@@ -461,59 +449,52 @@ int audio_start_portaudio(audio_context_t *audio_ctx)
  *
  * returns: error code
  */
-int audio_stop_portaudio(audio_context_t *audio_ctx)
-{
-	/*assertions*/
-	assert(audio_ctx != NULL);
+int audio_stop_portaudio(audio_context_t *audio_ctx) {
+  /*assertions*/
+  assert(audio_ctx != NULL);
 
-	int ret = 0;
-	int err = paNoError;
-	audio_ctx->stream_flag = AUDIO_STRM_OFF;
+  int ret = 0;
+  int err = paNoError;
+  audio_ctx->stream_flag = AUDIO_STRM_OFF;
 
-	PaStream *stream = (PaStream *) audio_ctx->stream;
+  PaStream *stream = (PaStream *)audio_ctx->stream;
 
-	/*stops and closes the audio stream*/
-	if(stream)
-	{
-		if(Pa_IsStreamActive( stream ) > 0)
-		{
-			printf("AUDIO: (portaudio) Aborting audio stream\n");
-			err = Pa_AbortStream( stream );
-		}
-		else
-		{
-			printf("AUDIO: (portaudio) Stoping audio stream\n");
-			err = Pa_StopStream( stream );
-		}
+  /*stops and closes the audio stream*/
+  if (stream) {
+    if (Pa_IsStreamActive(stream) > 0) {
+      printf("AUDIO: (portaudio) Aborting audio stream\n");
+      err = Pa_AbortStream(stream);
+    } else {
+      printf("AUDIO: (portaudio) Stoping audio stream\n");
+      err = Pa_StopStream(stream);
+    }
 
-		if( err != paNoError )
-		{
-			fprintf(stderr, "AUDIO: (portaudio) An error occured while stoping the audio stream\n" );
-			fprintf(stderr, "       Error number: %d\n", err );
-			fprintf(stderr, "       Error message: %s\n", Pa_GetErrorText( err ) );
-			ret = -1;
-		}
+    if (err != paNoError) {
+      fprintf(stderr, "AUDIO: (portaudio) An error occured while stoping the "
+                      "audio stream\n");
+      fprintf(stderr, "       Error number: %d\n", err);
+      fprintf(stderr, "       Error message: %s\n", Pa_GetErrorText(err));
+      ret = -1;
+    }
 
-		printf("AUDIO: Closing audio stream...\n");
-		err = Pa_CloseStream( stream );
+    printf("AUDIO: Closing audio stream...\n");
+    err = Pa_CloseStream(stream);
 
-		if( err != paNoError )
-		{
-			fprintf(stderr, "AUDIO: (portaudio) An error occured while closing the audio stream\n" );
-			fprintf(stderr, "       Error number: %d\n", err );
-			fprintf(stderr, "       Error message: %s\n", Pa_GetErrorText( err ) );
-			ret = -1;
-		}
-	}
-	else
-	{
-		fprintf(stderr, "AUDIO: (portaudio) Invalid stream pointer.\n");
-		ret = -2;
-	}
+    if (err != paNoError) {
+      fprintf(stderr, "AUDIO: (portaudio) An error occured while closing the "
+                      "audio stream\n");
+      fprintf(stderr, "       Error number: %d\n", err);
+      fprintf(stderr, "       Error message: %s\n", Pa_GetErrorText(err));
+      ret = -1;
+    }
+  } else {
+    fprintf(stderr, "AUDIO: (portaudio) Invalid stream pointer.\n");
+    ret = -2;
+  }
 
-	audio_ctx->stream = NULL;
+  audio_ctx->stream = NULL;
 
-	return ret;
+  return ret;
 }
 
 /*
@@ -526,19 +507,18 @@ int audio_stop_portaudio(audio_context_t *audio_ctx)
  *
  * returns: none
  */
-void audio_close_portaudio(audio_context_t *audio_ctx)
-{
-	Pa_Terminate();
+void audio_close_portaudio(audio_context_t *audio_ctx) {
+  Pa_Terminate();
 
-	if(audio_ctx == NULL)
-		return;
+  if (audio_ctx == NULL)
+    return;
 
-	if(audio_ctx->list_devices != NULL)
-		free(audio_ctx->list_devices);
-	audio_ctx->list_devices = NULL;
+  if (audio_ctx->list_devices != NULL)
+    free(audio_ctx->list_devices);
+  audio_ctx->list_devices = NULL;
 
-	if(audio_ctx->capture_buff)
-		free(audio_ctx->capture_buff);
+  if (audio_ctx->capture_buff)
+    free(audio_ctx->capture_buff);
 
-	free(audio_ctx);
+  free(audio_ctx);
 }
