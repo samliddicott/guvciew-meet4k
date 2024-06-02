@@ -17,7 +17,7 @@ set_target_properties(
   SOVERSION ${LIBSOVERSION}
 )
 
-target_link_options(gviewrender PRIVATE "-lGL")
+target_link_options(gviewrender PUBLIC "-lGL")
 
 if(SDL2_FOUND)
   target_sources(gviewrender PRIVATE render_sdl2.c)
