@@ -1,47 +1,40 @@
 /*******************************************************************************#
-#           guvcview              http://guvcview.sourceforge.net               #
-#                                                                               #
-#           Paulo Assis <pj.assis@gmail.com>                                    #
-#                                                                               #
-# This program is free software; you can redistribute it and/or modify          #
-# it under the terms of the GNU General Public License as published by          #
-# the Free Software Foundation; either version 2 of the License, or             #
-# (at your option) any later version.                                           #
-#                                                                               #
-# This program is distributed in the hope that it will be useful,               #
-# but WITHOUT ANY WARRANTY; without even the implied warranty of                #
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                 #
-# GNU General Public License for more details.                                  #
-#                                                                               #
-# You should have received a copy of the GNU General Public License             #
-# along with this program; if not, write to the Free Software                   #
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA     #
-#                                                                               #
+#           guvcview              http://guvcview.sourceforge.net # # # # Paulo
+Assis <pj.assis@gmail.com>                                    # # # # This
+program is free software; you can redistribute it and/or modify          # # it
+under the terms of the GNU General Public License as published by          # #
+the Free Software Foundation; either version 2 of the License, or             #
+# (at your option) any later version. # # # # This program is distributed in the
+hope that it will be useful,               # # but WITHOUT ANY WARRANTY; without
+even the implied warranty of                # # MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE.  See the                 # # GNU General Public License for
+more details.                                  # # # # You should have received
+a copy of the GNU General Public License             # # along with this
+program; if not, write to the Free Software                   # # Foundation,
+Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA     # # #
 ********************************************************************************/
 
 #ifndef FILE_IO_H
 #define FILE_IO_H
 
 #include <inttypes.h>
-#include <sys/types.h>
 #include <stdio.h>
+#include <sys/types.h>
 
-#include "../config.h"
-
+// #include "../config.h"
 
 #define IO_BUFFER_SIZE 32768
 
-typedef struct _io_writer_t
-{
-	FILE *fp;      /* file pointer     */
+typedef struct _io_writer_t {
+  FILE *fp; /* file pointer     */
 
-	uint8_t *buffer;  /* Start of the buffer. */
-    int buffer_size;  /* Maximum buffer size */
-    uint8_t *buf_ptr; /* Current position in the buffer */
-    uint8_t *buf_end; /* End of the buffer. */
+  uint8_t *buffer;  /* Start of the buffer. */
+  int buffer_size;  /* Maximum buffer size */
+  uint8_t *buf_ptr; /* Current position in the buffer */
+  uint8_t *buf_end; /* End of the buffer. */
 
-	int64_t size; //file size (end of file position)
-	int64_t position; //file pointer position (updates on buffer flush)
+  int64_t size;     // file size (end of file position)
+  int64_t position; // file pointer position (updates on buffer flush)
 } io_writer_t;
 
 /*
@@ -182,7 +175,7 @@ void io_write_wb16(io_writer_t *writer, uint16_t val);
  *
  * returns: none
  */
-//void io_write_wl24(io_writer_t *writer, uint32_t val);
+// void io_write_wl24(io_writer_t *writer, uint32_t val);
 
 /*
  * write 3 octets (bid endian)
@@ -195,7 +188,7 @@ void io_write_wb16(io_writer_t *writer, uint16_t val);
  *
  * returns: none
  */
-//void io_write_wb24(io_writer_t *writer, uint32_t val);
+// void io_write_wb24(io_writer_t *writer, uint32_t val);
 
 /*
  * write 4 octets (little endian)
@@ -273,18 +266,18 @@ void io_write_4cc(io_writer_t *writer, const char *str);
  *
  * returns: the size writen
  */
-//int io_write_str(io_writer_t * writer, const char *str);
+// int io_write_str(io_writer_t * writer, const char *str);
 
 #if BIGENDIAN
-	#define io_write_w16 io_write_wb16
-	#define io_write_w24 io_write_wb24
-	#define io_write_w32 io_write_wb32
-	#define io_write_w64 io_write_wb64
+#define io_write_w16 io_write_wb16
+#define io_write_w24 io_write_wb24
+#define io_write_w32 io_write_wb32
+#define io_write_w64 io_write_wb64
 #else
-	#define io_write_w16 io_write_wl16
-	#define io_write_w24 io_write_wl24
-	#define io_write_w32 io_write_wl32
-	#define io_write_w64 io_write_wl64
+#define io_write_w16 io_write_wl16
+#define io_write_w24 io_write_wl24
+#define io_write_w32 io_write_wl32
+#define io_write_w64 io_write_wl64
 #endif
 
 #endif

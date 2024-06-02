@@ -43,7 +43,7 @@
 #include <libintl.h>
 #include <locale.h>
 
-#include "../config.h"
+// #include "../config.h"
 #include "encoder.h"
 #include "gview.h"
 #include "gviewencoder.h"

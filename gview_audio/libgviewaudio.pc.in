@@ -1,0 +1,10 @@
+prefix=@PREFIX@
+exec_prefix=${prefix}
+libdir=${exec_prefix}/@LIBDIR@
+includedir=${prefix}/@INCLUDEDIR@
+
+Name: libgviewaudio
+Description: guvcview audio library.
+Version: @LIBVERSION@
+Libs: -L${libdir} -lgviewaudio
+Cflags: -I{includedir}

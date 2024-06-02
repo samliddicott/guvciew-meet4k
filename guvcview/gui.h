@@ -1,42 +1,42 @@
-/*******************************************************************************#
-#           guvcview              http://guvcview.sourceforge.net               #
-#                                                                               #
-#           Paulo Assis <pj.assis@gmail.com>                                    #
-#           Nobuhiro Iwamatsu <iwamatsu@nigauri.org>                            #
-#                             Add UYVY color support(Macbook iSight)            #
-#           Flemming Frandsen <dren.dk@gmail.com>                               #
-#                             Add VU meter OSD                                  #
-#                                                                               #
-# This program is free software; you can redistribute it and/or modify          #
-# it under the terms of the GNU General Public License as published by          #
-# the Free Software Foundation; either version 2 of the License, or             #
-# (at your option) any later version.                                           #
-#                                                                               #
-# This program is distributed in the hope that it will be useful,               #
-# but WITHOUT ANY WARRANTY; without even the implied warranty of                #
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                 #
-# GNU General Public License for more details.                                  #
-#                                                                               #
-# You should have received a copy of the GNU General Public License             #
-# along with this program; if not, write to the Free Software                   #
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA     #
-#                                                                               #
-********************************************************************************/
+/******************************************************************************#
+#           guvcview              http://guvcview.sourceforge.net              #
+#                                                                              #
+#           Paulo Assis <pj.assis@gmail.com>                                   #
+#           Nobuhiro Iwamatsu <iwamatsu@nigauri.org>                           #
+#                             Add UYVY color support(Macbook iSight)           #
+#           Flemming Frandsen <dren.dk@gmail.com>                              #
+#                             Add VU meter OSD                                 #
+#                                                                              #
+# This program is free software; you can redistribute it and/or modify         #
+# it under the terms of the GNU General Public License as published by         #
+# the Free Software Foundation; either version 2 of the License, or            #
+# (at your option) any later version.                                          #
+#                                                                              #
+# This program is distributed in the hope that it will be useful,              #
+# but WITHOUT ANY WARRANTY; without even the implied warranty of               #
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                #
+# GNU General Public License for more details.                                 #
+#                                                                              #
+# You should have received a copy of the GNU General Public License            #
+# along with this program; if not, write to the Free Software                  #
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA    #
+#                                                                              #
+*******************************************************************************/
 
 #ifndef GUI_H
 #define GUI_H
 
 #include "gviewv4l2core.h"
 
-#define GUI_NONE   (0)
-#define GUI_GTK3   (1)
-#define GUI_QT5    (2)
+#define GUI_NONE (0)
+#define GUI_GTK3 (1)
+#define GUI_QT6 (2)
 
-#define DEF_ACTION_IMAGE  (0)
-#define DEF_ACTION_VIDEO  (1)
+#define DEF_ACTION_IMAGE (0)
+#define DEF_ACTION_VIDEO (1)
 
 /*
- * sets the Gui API 
+ * sets the Gui API
  * args:
  *   gui api
  *
@@ -105,7 +105,7 @@ void set_audio_codec_ind(int index);
  *
  * returns: current fps numerator
  */
-//int gui_get_fps_num();
+// int gui_get_fps_num();
 
 /*
  * gets the current fps denominator
@@ -117,7 +117,7 @@ void set_audio_codec_ind(int index);
  *
  * returns: current fps denominator
  */
-//int gui_get_fps_denom();
+// int gui_get_fps_denom();
 
 /*
  * stores the fps
@@ -467,10 +467,7 @@ void set_webm_codecs();
  *
  * returns: none
  */
-void gui_error(
-	const char *title,
-	const char *message,
-	int fatal);
+void gui_error(const char *title, const char *message, int fatal);
 
 /*
  * adds a message to the status bar

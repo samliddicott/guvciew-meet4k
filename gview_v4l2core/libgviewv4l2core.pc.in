@@ -1,0 +1,10 @@
+prefix=@PREFIX@
+exec_prefix=${prefix}
+libdir=${exec_prefix}/@LIBDIR@
+includedir=${prefix}/@INCLUDEDIR@
+
+Name: gviewv4l2core
+Description: guvcview v4l2 core library.
+Version: @LIBVERSION@
+Libs: -L${libdir} -lgviewv4l2core
+Cflags: -I${includedir}

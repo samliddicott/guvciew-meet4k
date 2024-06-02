@@ -1,58 +1,57 @@
-/*******************************************************************************#
-#           guvcview              http://guvcview.sourceforge.net               #
-#                                                                               #
-#           Paulo Assis <pj.assis@gmail.com>                                    #
-#           Nobuhiro Iwamatsu <iwamatsu@nigauri.org>                            #
-#                             Add UYVY color support(Macbook iSight)            #
-#           Flemming Frandsen <dren.dk@gmail.com>                               #
-#                             Add VU meter OSD                                  #
-#                                                                               #
-# This program is free software; you can redistribute it and/or modify          #
-# it under the terms of the GNU General Public License as published by          #
-# the Free Software Foundation; either version 2 of the License, or             #
-# (at your option) any later version.                                           #
-#                                                                               #
-# This program is distributed in the hope that it will be useful,               #
-# but WITHOUT ANY WARRANTY; without even the implied warranty of                #
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                 #
-# GNU General Public License for more details.                                  #
-#                                                                               #
-# You should have received a copy of the GNU General Public License             #
-# along with this program; if not, write to the Free Software                   #
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA     #
-#                                                                               #
-********************************************************************************/
+/******************************************************************************#
+#           guvcview              http://guvcview.sourceforge.net              #
+#                                                                              #
+#           Paulo Assis <pj.assis@gmail.com>                                   #
+#           Nobuhiro Iwamatsu <iwamatsu@nigauri.org>                           #
+#                             Add UYVY color support(Macbook iSight)           #
+#           Flemming Frandsen <dren.dk@gmail.com>                              #
+#                             Add VU meter OSD                                 #
+#                                                                              #
+# This program is free software; you can redistribute it and/or modify         #
+# it under the terms of the GNU General Public License as published by         #
+# the Free Software Foundation; either version 2 of the License, or            #
+# (at your option) any later version.                                          #
+#                                                                              #
+# This program is distributed in the hope that it will be useful,              #
+# but WITHOUT ANY WARRANTY; without even the implied warranty of               #
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                #
+# GNU General Public License for more details.                                 #
+#                                                                              #
+# You should have received a copy of the GNU General Public License            #
+# along with this program; if not, write to the Free Software                  #
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA    #
+#                                                                              #
+*******************************************************************************/
 
-/*******************************************************************************#
-#                                                                               #
-#  Render library                                                               #
-#                                                                               #
-********************************************************************************/
+/******************************************************************************#
+#                                                                              #
+#  Render library                                                              #
+#                                                                              #
+*******************************************************************************/
 
-#include <stdlib.h>
+#include <assert.h>
+// #include <errno.h>
+#include <fcntl.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include <fcntl.h>
-#include <string.h>
-#include <errno.h>
-#include <assert.h>
 /* support for internationalization - i18n */
-#include <locale.h>
 #include <libintl.h>
+#include <locale.h>
 
+// #include "../config.h"
 #include "gviewrender.h"
 #include "render.h"
-#include "../config.h"
 
 #if ENABLE_SDL2
-	#include "render_sdl2.h"
+#include "render_sdl2.h"
 #endif
 
 #if ENABLE_SFML
-	#include "render_sfml.h"
+#include "render_sfml.h"
 #endif
-
 
 int render_verbosity = 0;
 
@@ -67,55 +66,20 @@ static int my_crosshair_size = 24;
 
 static float osd_vu_level[2] = {0, 0};
 
-static render_events_t render_events_list[] =
-{
-	{
-		.id = EV_QUIT,
-		.callback = NULL,
-		.data = NULL
+static render_events_t render_events_list[] = {
+    {.id = EV_QUIT, .callback = NULL, .data = NULL
 
-	},
-	{
-		.id = EV_KEY_UP,
-		.callback = NULL,
-		.data = NULL
-	},
-	{
-		.id = EV_KEY_DOWN,
-		.callback = NULL,
-		.data = NULL
-	},
-	{
-		.id = EV_KEY_LEFT,
-		.callback = NULL,
-		.data = NULL
-	},
-	{
-		.id = EV_KEY_RIGHT,
-		.callback = NULL,
-		.data = NULL
-	},
-	{
-		.id = EV_KEY_SPACE,
-		.callback = NULL,
-		.data = NULL
-	},
-	{
-		.id = EV_KEY_I,
-		.callback = NULL,
-		.data = NULL
-	},
-	{
-		.id = EV_KEY_V,
-		.callback = NULL,
-		.data = NULL
-	},
-	{
-		.id = -1, /*end of list*/
-		.callback = NULL,
-		.data = NULL
-	}
-};
+    },
+    {.id = EV_KEY_UP, .callback = NULL, .data = NULL},
+    {.id = EV_KEY_DOWN, .callback = NULL, .data = NULL},
+    {.id = EV_KEY_LEFT, .callback = NULL, .data = NULL},
+    {.id = EV_KEY_RIGHT, .callback = NULL, .data = NULL},
+    {.id = EV_KEY_SPACE, .callback = NULL, .data = NULL},
+    {.id = EV_KEY_I, .callback = NULL, .data = NULL},
+    {.id = EV_KEY_V, .callback = NULL, .data = NULL},
+    {.id = -1, /*end of list*/
+     .callback = NULL,
+     .data = NULL}};
 
 /*
  * set verbosity
@@ -127,10 +91,7 @@ static render_events_t render_events_list[] =
  *
  * returns: none
  */
-void render_set_verbosity(int value)
-{
-	render_verbosity = value;
-}
+void render_set_verbosity(int value) { render_verbosity = value; }
 
 /*
  * set the osd mask
@@ -142,10 +103,7 @@ void render_set_verbosity(int value)
  *
  * returns: none
  */
-void render_set_osd_mask(uint32_t mask)
-{
-	my_osd_mask = mask;
-}
+void render_set_osd_mask(uint32_t mask) { my_osd_mask = mask; }
 
 /*
  * set the osd crosshair color
@@ -157,9 +115,8 @@ void render_set_osd_mask(uint32_t mask)
  *
  * returns: none
  */
-void render_set_crosshair_color(uint32_t rgb_color)
-{
-	my_crosshair_color_rgb = rgb_color;
+void render_set_crosshair_color(uint32_t rgb_color) {
+  my_crosshair_color_rgb = rgb_color;
 }
 
 /*
@@ -172,10 +129,7 @@ void render_set_crosshair_color(uint32_t rgb_color)
  *
  * returns: none
  */
-void render_set_crosshair_size(int size)
-{
-	my_crosshair_size = size;
-}
+void render_set_crosshair_size(int size) { my_crosshair_size = size; }
 
 /*
  * get the osd mask
@@ -187,10 +141,7 @@ void render_set_crosshair_size(int size)
  *
  * returns: osd mask
  */
-uint32_t render_get_osd_mask()
-{
-	return (my_osd_mask);
-}
+uint32_t render_get_osd_mask() { return (my_osd_mask); }
 
 /*
  * get the osd crosshair color
@@ -202,10 +153,7 @@ uint32_t render_get_osd_mask()
  *
  * returns: osd crosshair rgb color
  */
-uint32_t render_get_crosshair_color()
-{
-	return (my_crosshair_color_rgb);
-}
+uint32_t render_get_crosshair_color() { return (my_crosshair_color_rgb); }
 
 /*
  * get the osd crosshair size
@@ -217,10 +165,7 @@ uint32_t render_get_crosshair_color()
  *
  * returns: osd crosshair size
  */
-int render_get_crosshair_size()
-{
-	return (my_crosshair_size);
-}
+int render_get_crosshair_size() { return (my_crosshair_size); }
 /*
  * set the vu level for the osd vu meter
  * args:
@@ -231,10 +176,9 @@ int render_get_crosshair_size()
  *
  * returns: none
  */
-void render_set_vu_level(float vu_level[2])
-{
-	osd_vu_level[0] = vu_level[0];
-	osd_vu_level[1] = vu_level[1];
+void render_set_vu_level(float vu_level[2]) {
+  osd_vu_level[0] = vu_level[0];
+  osd_vu_level[1] = vu_level[1];
 }
 
 /*
@@ -247,10 +191,9 @@ void render_set_vu_level(float vu_level[2])
  *
  * returns array with vu meter level
  */
-void render_get_vu_level(float vu_level[2])
-{
-	vu_level[0] = osd_vu_level[0];
-	vu_level[1] = osd_vu_level[1];
+void render_get_vu_level(float vu_level[2]) {
+  vu_level[0] = osd_vu_level[0];
+  vu_level[1] = osd_vu_level[1];
 }
 
 /*
@@ -263,10 +206,7 @@ void render_get_vu_level(float vu_level[2])
  *
  * returns: render width
  */
-int render_get_width()
-{
-	return my_width;
-}
+int render_get_width() { return my_width; }
 
 /*
  * get render height
@@ -278,10 +218,7 @@ int render_get_width()
  *
  * returns: render height
  */
-int render_get_height()
-{
-	return my_height;
-}
+int render_get_height() { return my_height; }
 
 /*
  * render initialization
@@ -301,41 +238,40 @@ int render_get_height()
  *
  * returns: error code
  */
-int render_init(int render, int width, int height, int flags, int win_w, int win_h)
-{
+int render_init(int render, int width, int height, int flags, int win_w,
+                int win_h) {
 
-	int ret = 0;
+  int ret = 0;
 
-	render_api = render;
-	my_width = width;
-	my_height = height;
+  render_api = render;
+  my_width = width;
+  my_height = height;
 
-	switch(render_api)
-	{
-		case RENDER_NONE:
-			break;
+  switch (render_api) {
+  case RENDER_NONE:
+    break;
 
-		#if ENABLE_SFML
-		case RENDER_SFML:
-			ret = init_render_sfml(my_width, my_height, flags, win_w, win_h);
-			break;
-		#endif
+#if ENABLE_SFML
+  case RENDER_SFML:
+    ret = init_render_sfml(my_width, my_height, flags, win_w, win_h);
+    break;
+#endif
 
-		#if ENABLE_SDL2
-		case RENDER_SDL:
-			ret = init_render_sdl2(my_width, my_height, flags, win_w, win_h);
-			break;
-		#endif
+#if ENABLE_SDL2
+  case RENDER_SDL:
+    ret = init_render_sdl2(my_width, my_height, flags, win_w, win_h);
+    break;
+#endif
 
-		default:
-			render_api = RENDER_NONE;
-			break;
-	}
+  default:
+    render_api = RENDER_NONE;
+    break;
+  }
 
-	if(ret)
-		render_api = RENDER_NONE;
+  if (ret)
+    render_api = RENDER_NONE;
 
-	return ret;
+  return ret;
 }
 
 /*
@@ -349,12 +285,11 @@ int render_init(int render, int width, int height, int flags, int win_w, int win
  *
  * returns: void
  */
-void render_frame_fx(uint8_t *frame, uint32_t mask)
-{
-	/*asserts*/
-	assert(frame != NULL);
+void render_frame_fx(uint8_t *frame, uint32_t mask) {
+  /*asserts*/
+  assert(frame != NULL);
 
-	render_fx_apply(frame, my_width, my_height, mask);
+  render_fx_apply(frame, my_width, my_height, mask);
 }
 
 /*
@@ -367,18 +302,17 @@ void render_frame_fx(uint8_t *frame, uint32_t mask)
  *
  * returns: void
  */
-void render_frame_osd(uint8_t *frame)
-{
-	float vu_level[2];
-	render_get_vu_level(vu_level);
+void render_frame_osd(uint8_t *frame) {
+  float vu_level[2];
+  render_get_vu_level(vu_level);
 
-	/*osd vu meter*/
-	if(((render_get_osd_mask() &
-		(REND_OSD_VUMETER_MONO | REND_OSD_VUMETER_STEREO))) != 0)
-		render_osd_vu_meter(frame, my_width, my_height, vu_level);
-	/*osd crosshair*/
-	if(((render_get_osd_mask() & REND_OSD_CROSSHAIR)) != 0)
-		render_osd_crosshair(frame, my_width, my_height);
+  /*osd vu meter*/
+  if (((render_get_osd_mask() &
+        (REND_OSD_VUMETER_MONO | REND_OSD_VUMETER_STEREO))) != 0)
+    render_osd_vu_meter(frame, my_width, my_height, vu_level);
+  /*osd crosshair*/
+  if (((render_get_osd_mask() & REND_OSD_CROSSHAIR)) != 0)
+    render_osd_crosshair(frame, my_width, my_height);
 }
 
 /*
@@ -391,36 +325,34 @@ void render_frame_osd(uint8_t *frame)
  *
  * returns: error code
  */
-int render_frame(uint8_t *frame)
-{
-	/*asserts*/
-	assert(frame != NULL);
+int render_frame(uint8_t *frame) {
+  /*asserts*/
+  assert(frame != NULL);
 
-	int ret = 0;
-	switch(render_api)
-	{
-		case RENDER_NONE:
-			break;
+  int ret = 0;
+  switch (render_api) {
+  case RENDER_NONE:
+    break;
 
-		#if ENABLE_SFML
-		case RENDER_SFML:
-			ret = render_sfml_frame(frame, my_width, my_height);
-			render_sfml_dispatch_events();
-			break;
-		#endif
+#if ENABLE_SFML
+  case RENDER_SFML:
+    ret = render_sfml_frame(frame, my_width, my_height);
+    render_sfml_dispatch_events();
+    break;
+#endif
 
-		#if ENABLE_SDL2
-		case RENDER_SDL:
-			ret = render_sdl2_frame(frame, my_width, my_height);
-			render_sdl2_dispatch_events();
-			break;
-		#endif
+#if ENABLE_SDL2
+  case RENDER_SDL:
+    ret = render_sdl2_frame(frame, my_width, my_height);
+    render_sdl2_dispatch_events();
+    break;
+#endif
 
-		default:
-			break;
-	}
+  default:
+    break;
+  }
 
-	return ret;
+  return ret;
 }
 
 /*
@@ -433,28 +365,26 @@ int render_frame(uint8_t *frame)
  *
  * returns: none
  */
-void render_set_caption(const char* caption)
-{
-	switch(render_api)
-	{
-		case RENDER_NONE:
-			break;
+void render_set_caption(const char *caption) {
+  switch (render_api) {
+  case RENDER_NONE:
+    break;
 
-		#if ENABLE_SFML
-		case RENDER_SFML:
-			set_render_sfml_caption(caption);
-			break;
-		#endif
+#if ENABLE_SFML
+  case RENDER_SFML:
+    set_render_sfml_caption(caption);
+    break;
+#endif
 
-		#if ENABLE_SDL2
-		case RENDER_SDL:
-			set_render_sdl2_caption(caption);
-			break;
-		#endif
+#if ENABLE_SDL2
+  case RENDER_SDL:
+    set_render_sdl2_caption(caption);
+    break;
+#endif
 
-		default:
-			break;
-	}
+  default:
+    break;
+  }
 }
 
 /*
@@ -467,34 +397,32 @@ void render_set_caption(const char* caption)
  *
  * returns: none
  */
-void render_close()
-{
-	switch(render_api)
-	{
-		case RENDER_NONE:
-			break;
+void render_close() {
+  switch (render_api) {
+  case RENDER_NONE:
+    break;
 
-		#if ENABLE_SFML
-		case RENDER_SFML:
-			render_sfml_clean();
-			break;
-		#endif
+#if ENABLE_SFML
+  case RENDER_SFML:
+    render_sfml_clean();
+    break;
+#endif
 
-		#if ENABLE_SDL2
-		case RENDER_SDL:
-			render_sdl2_clean();
-			break;
-		#endif
+#if ENABLE_SDL2
+  case RENDER_SDL:
+    render_sdl2_clean();
+    break;
+#endif
 
-		default:
-			break;
-	}
+  default:
+    break;
+  }
 
-	/*clean fx data*/
-	render_clean_fx();
+  /*clean fx data*/
+  render_clean_fx();
 
-	my_width = 0;
-	my_height = 0;
+  my_width = 0;
+  my_height = 0;
 }
 
 /*
@@ -507,17 +435,15 @@ void render_close()
  *
  * returns: event index or -1 on error
  */
-int render_get_event_index(int id)
-{
-	int i = 0;
-	while(render_events_list[i].id >= 0)
-	{
-		if(render_events_list[i].id == id)
-			return i;
+int render_get_event_index(int id) {
+  int i = 0;
+  while (render_events_list[i].id >= 0) {
+    if (render_events_list[i].id == id)
+      return i;
 
-		i++;
-	}
-	return -1;
+    i++;
+  }
+  return -1;
 }
 
 /*
@@ -532,16 +458,16 @@ int render_get_event_index(int id)
  *
  * returns: error code
  */
-int render_set_event_callback(int id, render_event_callback callback_function, void *data)
-{
-	int index = render_get_event_index(id);
-	if(index < 0)
-		return index;
+int render_set_event_callback(int id, render_event_callback callback_function,
+                              void *data) {
+  int index = render_get_event_index(id);
+  if (index < 0)
+    return index;
 
-	render_events_list[index].callback = callback_function;
-	render_events_list[index].data = data;
+  render_events_list[index].callback = callback_function;
+  render_events_list[index].data = data;
 
-	return 0;
+  return 0;
 }
 
 /*
@@ -554,20 +480,19 @@ int render_set_event_callback(int id, render_event_callback callback_function, v
  *
  * returns: error code
  */
-int render_call_event_callback(int id)
-{
-	int index = render_get_event_index(id);
+int render_call_event_callback(int id) {
+  int index = render_get_event_index(id);
 
-	if(render_verbosity > 1)
-		printf("RENDER: event %i -> callback %i\n", id, index);
+  if (render_verbosity > 1)
+    printf("RENDER: event %i -> callback %i\n", id, index);
 
-	if(index < 0)
-		return index;
+  if (index < 0)
+    return index;
 
-	if(render_events_list[index].callback == NULL)
-		return -1;
+  if (render_events_list[index].callback == NULL)
+    return -1;
 
-	int ret = render_events_list[index].callback(render_events_list[index].data);
+  int ret = render_events_list[index].callback(render_events_list[index].data);
 
-	return ret;
+  return ret;
 }

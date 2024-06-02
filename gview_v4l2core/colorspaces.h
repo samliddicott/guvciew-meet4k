@@ -1,29 +1,24 @@
 /*******************************************************************************#
-#           guvcview              http://guvcview.sourceforge.net               #
-#                                                                               #
-#           Paulo Assis <pj.assis@gmail.com>                                    #
-#                                                                               #
-# This program is free software; you can redistribute it and/or modify          #
-# it under the terms of the GNU General Public License as published by          #
-# the Free Software Foundation; either version 2 of the License, or             #
-# (at your option) any later version.                                           #
-#                                                                               #
-# This program is distributed in the hope that it will be useful,               #
-# but WITHOUT ANY WARRANTY; without even the implied warranty of                #
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                 #
-# GNU General Public License for more details.                                  #
-#                                                                               #
-# You should have received a copy of the GNU General Public License             #
-# along with this program; if not, write to the Free Software                   #
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA     #
-#                                                                               #
+#           guvcview              http://guvcview.sourceforge.net # # # # Paulo
+Assis <pj.assis@gmail.com>                                    # # # # This
+program is free software; you can redistribute it and/or modify          # # it
+under the terms of the GNU General Public License as published by          # #
+the Free Software Foundation; either version 2 of the License, or             #
+# (at your option) any later version. # # # # This program is distributed in the
+hope that it will be useful,               # # but WITHOUT ANY WARRANTY; without
+even the implied warranty of                # # MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE.  See the                 # # GNU General Public License for
+more details.                                  # # # # You should have received
+a copy of the GNU General Public License             # # along with this
+program; if not, write to the Free Software                   # # Foundation,
+Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA     # # #
 ********************************************************************************/
 
 #ifndef COLORSPACES_H
 #define COLORSPACES_H
 
 #include "gview.h"
-#include "../config.h"
+// #include "../config.h"
 
 /*
  *convert from packed 422 yuv (yuyv) to 420 planar (yu12)
@@ -247,7 +242,7 @@ void nv21_to_yu12(uint8_t *out, uint8_t *in, int width, int height);
  *
  * returns: none
  */
-void nv16_to_yu12 (uint8_t *out, uint8_t *in, int width, int height);
+void nv16_to_yu12(uint8_t *out, uint8_t *in, int width, int height);
 
 /*
  * convert yuv444 planar (uv interleaved) (nv24) to yuv420 planar (yu12)
@@ -295,7 +290,7 @@ void nv42_to_yu12(uint8_t *out, uint8_t *in, int width, int height);
  *
  * returns: none
  */
-void nv61_to_yu12 (uint8_t *out, uint8_t *in, int width, int height);
+void nv61_to_yu12(uint8_t *out, uint8_t *in, int width, int height);
 
 /*
  * convert y10b (bit-packed array greyscale format) to yu12
@@ -365,9 +360,8 @@ void y16_to_yu12(uint8_t *out, uint8_t *in, int width, int height);
  * convert y16x (16 bit greyscale format - be) to yu12
  * args:
  *   out: pointer to output buffer (yu12)
- *   in: pointer to input buffer containing y16x (16 bit greyscale bigendian) data frame
- *   width: picture width
- *   height: picture height
+ *   in: pointer to input buffer containing y16x (16 bit greyscale bigendian)
+ * data frame width: picture width height: picture height
  *
  * asserts:
  *    out is not null
@@ -619,7 +613,7 @@ void ba24_to_yu12(uint8_t *out, uint8_t *in, int width, int height);
  *
  * returns: none
  */
-void yu12_to_rgb24 (uint8_t *out, uint8_t *in, int width, int height);
+void yu12_to_rgb24(uint8_t *out, uint8_t *in, int width, int height);
 
 /*
  * FIXME:  yu12 to bgr24 with lines upsidedown
@@ -635,7 +629,7 @@ void yu12_to_rgb24 (uint8_t *out, uint8_t *in, int width, int height);
  *
  * returns: none
  */
-void yu12_to_dib24 (uint8_t *out, uint8_t *in, int width, int height);
+void yu12_to_dib24(uint8_t *out, uint8_t *in, int width, int height);
 
 /*
  * convert yuv 420 planar (yu12) to yuv 422 (save_image_jpeg)
@@ -651,7 +645,7 @@ void yu12_to_dib24 (uint8_t *out, uint8_t *in, int width, int height);
  *
  * returns: none
  */
-void yu12_to_yuyv (uint8_t *out, uint8_t *in, int width, int height);
+void yu12_to_yuyv(uint8_t *out, uint8_t *in, int width, int height);
 
 /*
  * convert bayer raw data to rgb24
@@ -667,7 +661,8 @@ void yu12_to_yuyv (uint8_t *out, uint8_t *in, int width, int height);
  *
  * returns: none
  */
-void bayer_to_rgb24(uint8_t *pBay, uint8_t *pRGB24, int width, int height, int pix_order);
+void bayer_to_rgb24(uint8_t *pBay, uint8_t *pRGB24, int width, int height,
+                    int pix_order);
 
 #if MJPG_BUILTIN
 
@@ -730,4 +725,3 @@ void yuv400pto422(int *out, uint8_t *pic, int width);
 #endif
 
 #endif
-

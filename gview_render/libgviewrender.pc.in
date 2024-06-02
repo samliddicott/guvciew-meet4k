@@ -1,0 +1,10 @@
+prefix=@PREFIX@
+exec_prefix=${prefix}
+libdir=${exec_prefix}/@LIBDIR@
+includedir=${prefix}/@INCLUDEDIR@
+
+Name: gviewrender
+Description: guvcview render library.
+Version: @LIBVERSION@
+Libs: -L${libdir} -lgviewrender
+Cflags: -I${includedir}
