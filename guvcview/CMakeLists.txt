@@ -60,8 +60,9 @@ if(USE_QT6)
   endif()
 endif()
 
-if(SFML_FOUND)
-target_link_options(guvcview PUBLIC "-lGL")
+if(GL_FOUND)
+  message(STATUS "linking guvcview to ${GL_LIBRARIES}")
+  target_link_libraries(guvcview ${GL_LIBRARIES})
 endif()
 
 include_directories(

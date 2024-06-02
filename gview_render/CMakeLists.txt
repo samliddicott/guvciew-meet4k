@@ -27,9 +27,12 @@ endif()
 if(SFML_FOUND)
   target_sources(gviewrender PRIVATE render_sfml.cpp)
   target_link_libraries(gviewrender ${SFML_LIBRARIES})
-  #in some distros sfml is missing a link to opengl
-  target_link_options(gviewrender PUBLIC "-lGL")
   add_definitions(${SFML_CFLAGS} ${SFML_CFLAGS_OTHER})
+endif()
+
+if(GL_FOUND)
+  message(STATUS "linking gviewrender to ${GL_LIBRARIES}")
+  target_link_libraries(gviewrender ${GL_LIBRARIES})
 endif()
 
 pkg_check_modules(GSL gsl>=0.15)

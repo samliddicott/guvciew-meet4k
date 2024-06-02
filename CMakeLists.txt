@@ -25,6 +25,8 @@ if(USE_SFML)
   if(SFML_FOUND)
     message(STATUS "sfml is ON")
     add_compile_definitions(ENABLE_SFML)
+    #linking to gl is needed in some distros for SFML
+    pkg_check_modules(GL gl)
   endif()
 endif()
 
