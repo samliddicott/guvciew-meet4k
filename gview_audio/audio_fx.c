@@ -1118,7 +1118,7 @@ void audio_fx_close() {
 void audio_fx_apply(audio_context_t *audio_ctx, sample_t *data, uint32_t mask) {
   if (mask != AUDIO_FX_NONE) {
     if (audio_verbosity > 2)
-      printf("AUDIO: Apllying Fx (0x%x)\n", mask);
+      printf("AUDIO: Applying Fx (0x%x)\n", mask);
 
     if (aud_fx == NULL)
       audio_fx_init();

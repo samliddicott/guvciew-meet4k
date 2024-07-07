@@ -53,7 +53,7 @@ static int sample_index = 0;
  *    inputBuffer - pointer to captured input data (for recording)
  *    outputBuffer - pointer ouput data (for playing - NOT USED)
  *    framesPerBuffer - buffer size
- *    timeInfo - pointer to time data (for timestamping)
+ *    timeInfo - pointer to time data (for time stamping)
  *    statusFlags - stream status
  *    userData - pointer to user data (audio context)
  *
@@ -465,7 +465,7 @@ int audio_stop_portaudio(audio_context_t *audio_ctx) {
       printf("AUDIO: (portaudio) Aborting audio stream\n");
       err = Pa_AbortStream(stream);
     } else {
-      printf("AUDIO: (portaudio) Stoping audio stream\n");
+      printf("AUDIO: (portaudio) Stopping audio stream\n");
       err = Pa_StopStream(stream);
     }
 
@@ -481,7 +481,7 @@ int audio_stop_portaudio(audio_context_t *audio_ctx) {
     err = Pa_CloseStream(stream);
 
     if (err != paNoError) {
-      fprintf(stderr, "AUDIO: (portaudio) An error occured while closing the "
+      fprintf(stderr, "AUDIO: (portaudio) An error occurred while closing the "
                       "audio stream\n");
       fprintf(stderr, "       Error number: %d\n", err);
       fprintf(stderr, "       Error message: %s\n", Pa_GetErrorText(err));

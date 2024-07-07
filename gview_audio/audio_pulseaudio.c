@@ -55,7 +55,7 @@ static pa_stream *recordstream = NULL;
 static pa_context *pa_ctx = NULL;
 // requested initial latency in milisec: 0 use max
 static uint32_t latency_ms = 15;
-// real latency in usec (for timestamping)
+// real latency in usec (for time stamping)
 static pa_usec_t latency = 0;
 
 static int sink_index = 0;
@@ -67,7 +67,7 @@ static __THREAD_TYPE my_read_thread;
  * clean up and disconnect
  * args:
  *    pa_ctx - pointer to pulse context
- *    pa_ml - pointer to pulse mainloop
+ *    pa_ml - pointer to pulse main loop
  *
  * asserts:
  *    none

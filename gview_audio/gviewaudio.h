@@ -201,7 +201,7 @@ void audio_set_latency(audio_context_t *audio_ctx, double latency);
  * asserts:
  *   audio_ctx is not null
  *
- * returns: defined lantency
+ * returns: defined latency
  */
 double audio_get_latency(audio_context_t *audio_ctx);
 
