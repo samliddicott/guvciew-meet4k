@@ -47,10 +47,8 @@ extern int verbosity;
 // GUID for logitech peripheral (pan/tilt) V3 extension unit:
 // {FFE52D21-8030-4E2C-82d9-f587d00540bd}
 #define GUID_LOGITECH_PERIPHERAL_XU                                            \
-  {                                                                            \
-    0x21, 0x2D, 0xE5, 0xFF, 0x30, 0x80, 0x2C, 0x4E, 0x82, 0xD9, 0xF5, 0x87,    \
-        0xD0, 0x05, 0x40, 0xBD                                                 \
-  }
+  {0x21, 0x2D, 0xE5, 0xFF, 0x30, 0x80, 0x2C, 0x4E,                             \
+   0x82, 0xD9, 0xF5, 0x87, 0xD0, 0x05, 0x40, 0xBD}
 
 /*
  * needed only for language files (not used)

@@ -30,7 +30,6 @@
 #include <assert.h>
 #include <errno.h>
 #include <fcntl.h>
-#include <inttypes.h>
 #include <libavutil/imgutils.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -42,8 +41,6 @@
 #include "frame_decoder.h"
 #include "gviewv4l2core.h"
 #include "jpeg_decoder.h"
-// #include "gview.h"
-// #include "../config.h"
 
 extern int verbosity;
 

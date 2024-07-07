@@ -1,23 +1,23 @@
-/*******************************************************************************#
-#           guvcview              http://guvcview.sourceforge.net               #
-#                                                                               #
-#           Paulo Assis <pj.assis@gmail.com>                                    #
-#                                                                               #
-# This program is free software; you can redistribute it and/or modify          #
-# it under the terms of the GNU General Public License as published by          #
-# the Free Software Foundation; either version 2 of the License, or             #
-# (at your option) any later version.                                           #
-#                                                                               #
-# This program is distributed in the hope that it will be useful,               #
-# but WITHOUT ANY WARRANTY; without even the implied warranty of                #
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                 #
-# GNU General Public License for more details.                                  #
-#                                                                               #
-# You should have received a copy of the GNU General Public License             #
-# along with this program; if not, write to the Free Software                   #
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA     #
-#                                                                               #
-********************************************************************************/
+/******************************************************************************#
+#           guvcview              http://guvcview.sourceforge.net              #
+#                                                                              #
+#           Paulo Assis <pj.assis@gmail.com>                                   #
+#                                                                              #
+# This program is free software; you can redistribute it and/or modify         #
+# it under the terms of the GNU General Public License as published by         #
+# the Free Software Foundation; either version 2 of the License, or            #
+# (at your option) any later version.                                          #
+#                                                                              #
+# This program is distributed in the hope that it will be useful,              #
+# but WITHOUT ANY WARRANTY; without even the implied warranty of               #
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                #
+# GNU General Public License for more details.                                 #
+#                                                                              #
+# You should have received a copy of the GNU General Public License            #
+# along with this program; if not, write to the Free Software                  #
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA    #
+#                                                                              #
+*******************************************************************************/
 #ifndef V4L2_CONTROLS_H
 #define V4L2_CONTROLS_H
 
@@ -90,7 +90,7 @@ v4l2_ctrl_t *get_control_by_id(v4l2_dev_t *vd, int id);
  *
  * returns: ioctl result
  */
-int get_control_value_by_id (v4l2_dev_t *vd, int id);
+int get_control_value_by_id(v4l2_dev_t *vd, int id);
 
 /*
  * sets the value of control id in device
@@ -116,7 +116,7 @@ int set_control_value_by_id(v4l2_dev_t *vd, int id);
  *
  * returns: void
  */
-void get_v4l2_control_values (v4l2_dev_t *vd);
+void get_v4l2_control_values(v4l2_dev_t *vd);
 
 /*
  * goes trough the control list and sets values in device
@@ -128,7 +128,7 @@ void get_v4l2_control_values (v4l2_dev_t *vd);
  *
  * returns: void
  */
-void set_v4l2_control_values (v4l2_dev_t *vd);
+void set_v4l2_control_values(v4l2_dev_t *vd);
 
 /*
  * goes trough the control list and sets values in device to default
@@ -156,8 +156,7 @@ void set_control_defaults(v4l2_dev_t *vd);
  *
  * returns: void
  */
-void disable_special_auto (v4l2_dev_t *vd, int id);
-
+void disable_special_auto(v4l2_dev_t *vd, int id);
 
 /*
  * free control list

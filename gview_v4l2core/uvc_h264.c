@@ -1,47 +1,43 @@
-/*******************************************************************************#
-#           guvcview              http://guvcview.sourceforge.net # # # # Paulo
-Assis <pj.assis@gmail.com>                                    # # Nobuhiro
-Iwamatsu <iwamatsu@nigauri.org>                            # # Add UYVY color
-support(Macbook iSight)            # # # # This program is free software; you
-can redistribute it and/or modify          # # it under the terms of the GNU
-General Public License as published by          # # the Free Software
-Foundation; either version 2 of the License, or             # # (at your option)
-any later version.                                           # # # # This
-program is distributed in the hope that it will be useful,               # # but
-WITHOUT ANY WARRANTY; without even the implied warranty of                # #
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                 #
-# GNU General Public License for more details. # # # # You should have received
-a copy of the GNU General Public License             # # along with this
-program; if not, write to the Free Software                   # # Foundation,
-Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA     # # #
-********************************************************************************/
+/******************************************************************************#
+#           guvcview              http://guvcview.sourceforge.net              #
+#                                                                              #
+#           Paulo Assis <pj.assis@gmail.com>                                   #
+#                                                                              #
+# This program is free software; you can redistribute it and/or modify         #
+# it under the terms of the GNU General Public License as published by         #
+# the Free Software Foundation; either version 2 of the License, or            #
+# (at your option) any later version.                                          #
+#                                                                              #
+# This program is distributed in the hope that it will be useful,              #
+# but WITHOUT ANY WARRANTY; without even the implied warranty of               #
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                #
+# GNU General Public License for more details.                                 #
+#                                                                              #
+# You should have received a copy of the GNU General Public License            #
+# along with this program; if not, write to the Free Software                  #
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA    #
+#                                                                              #
+*******************************************************************************/
 
-/* support for internationalization - i18n */
-#include <inttypes.h>
-#include <libavcodec/avcodec.h>
-#include <libavutil/imgutils.h>
-// #include <math.h>
 #include <assert.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <inttypes.h>
+#include <libavcodec/avcodec.h>
+#include <libavutil/imgutils.h>
 #include <linux/videodev2.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-// #include "gview.h"
 #include "frame_decoder.h"
-// #include "../config.h"
 
 #include "uvc_h264.h"
-// #include "v4l2_formats.h"
 
 // GUID of the UVC H.264 extension unit: {A29E7641-DE04-47E3-8B2B-F4341AFF003B}
 #define GUID_UVCX_H264_XU                                                      \
-  {                                                                            \
-    0x41, 0x76, 0x9E, 0xA2, 0x04, 0xDE, 0xE3, 0x47, 0x8B, 0x2B, 0xF4, 0x34,    \
-        0x1A, 0xFF, 0x00, 0x3B                                                 \
-  }
+  {0x41, 0x76, 0x9E, 0xA2, 0x04, 0xDE, 0xE3, 0x47,                             \
+   0x8B, 0x2B, 0xF4, 0x34, 0x1A, 0xFF, 0x00, 0x3B}
 
 extern int verbosity;
 
@@ -912,25 +908,6 @@ int h264_probe_config_probe_req(
 /*
  * ############# H264 decoder ##############
  */
-
-/*
- * check if h264 decoder is available from libavcodec
- * args:
- *    none
- *
- * asserts:
- *    none
- *
- * returns: TRUE (1)
- *          FALSE(0)
- */
-// uint8_t h264_has_decoder()
-//{
-//	if(avcodec_find_decoder(AV_CODEC_ID_H264))
-//		return TRUE;
-//	else
-//		return FALSE;
-// }
 
 /*
  * init h264 decoder context

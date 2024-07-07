@@ -317,18 +317,15 @@ static void read_422_format(jpeg_encoder_ctx_t *jpeg_ctx, uint8_t *input) {
   uint8_t *tmp = NULL;
   tmp = input;
 
-  for (i = 8; i > 0; i--) /*8 rows*/
-  {
-    for (j = 4; j > 0; j--) /* 8 cols*/
-    {
+  for (i = 8; i > 0; i--) { /*8 rows*/
+    for (j = 4; j > 0; j--) { /* 8 cols*/
       *Y1++ = *tmp++;
       *CB++ = *tmp++;
       *Y1++ = *tmp++;
       *CR++ = *tmp++;
     }
 
-    for (j = 4; j > 0; j--) /* 8 cols*/
-    {
+    for (j = 4; j > 0; j--) { /* 8 cols*/
       *Y2++ = *tmp++;
       *CB++ = *tmp++;
       *Y2++ = *tmp++;
@@ -437,8 +434,7 @@ static uint8_t *huffman(jpeg_encoder_ctx_t *jpeg_ctx, uint16_t component,
   Coeff = *Temp_Ptr++; /* Coeff = DC */
 
   /* code DC - Temp[0] */
-  if (component == 1) /* luminance - Y */
-  {
+  if (component == 1) { /* luminance - Y */
     DcCodeTable = luminance_dc_code_table;
     DcSizeTable = luminance_dc_size_table;
     AcCodeTable = luminance_ac_code_table;
@@ -446,19 +442,16 @@ static uint8_t *huffman(jpeg_encoder_ctx_t *jpeg_ctx, uint16_t component,
 
     LastDc = jpeg_ctx->ldc1;
     jpeg_ctx->ldc1 = Coeff;
-  } else /* Chrominance - U V */
-  {
+  } else { /* Chrominance - U V */
     DcCodeTable = chrominance_dc_code_table;
     DcSizeTable = chrominance_dc_size_table;
     AcCodeTable = chrominance_ac_code_table;
     AcSizeTable = chrominance_ac_size_table;
 
-    if (component == 2) /* Chrominance - U */
-    {
+    if (component == 2) { /* Chrominance - U */
       LastDc = jpeg_ctx->ldc2;
       jpeg_ctx->ldc2 = Coeff;
-    } else /* Chrominance - V */
-    {
+    } else { /* Chrominance - V */
       LastDc = jpeg_ctx->ldc3;
       jpeg_ctx->ldc3 = Coeff;
     }
@@ -901,11 +894,9 @@ static int encode_jpeg(uint8_t *input, uint8_t *output,
   yu12_to_yuyv(yuv422, input, jpeg_ctx->image_width, jpeg_ctx->image_height);
   tmp_iptr = yuv422;
 
-  for (i = 0; i < jpeg_ctx->vertical_mcus; i++) /* height /8 */
-  {
+  for (i = 0; i < jpeg_ctx->vertical_mcus; i++) { /* height /8 */
     tmp_ptr = tmp_iptr;
-    for (j = 0; j < jpeg_ctx->horizontal_mcus; j++) /* width /16 */
-    {
+    for (j = 0; j < jpeg_ctx->horizontal_mcus; j++) { /* width /16 */
       /*reads a block*/
       read_422_format(jpeg_ctx, tmp_iptr); /*YUYV*/
 
