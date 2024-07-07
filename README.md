@@ -30,7 +30,9 @@ packages:
 
 Build configuration:
 --------------------
-guvcview uses cmake since version 2.2.1, basic usage:
+guvcview uses cmake since version 2.2.1.
+
+Basic usage:
 
 mkdir build 
 cd build
