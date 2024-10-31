@@ -61,6 +61,14 @@ void prepare_video_frame(encoder_codec_data_t *video_codec_data, uint8_t *inp, i
 	assert(video_codec_data);
 	assert(inp);
 
+  if(av_frame_make_writable(video_codec_data->frame) < 0) {
+    fprintf(
+        stderr,
+        "ENCODER: FATAL av_frame_make_writable failure (prepare_video_frame): %s\n",
+        strerror(errno));
+    exit(-1);   
+  }
+
 	int size = width * height;
 
 	video_codec_data->frame->format = AV_PIX_FMT_YUV420P;

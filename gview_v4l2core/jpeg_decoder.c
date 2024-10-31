@@ -1315,8 +1315,13 @@ int jpeg_init_decoder(int width, int height) {
 #endif
   {
     fprintf(stderr, "V4L2_CORE: (mjpeg decoder) couldn't open codec\n");
+    
+#if LIBAVCODEC_VER_AT_LEAST(61, 3)
+    avcodec_free_context(&codec_data->context);
+#else
     avcodec_close(codec_data->context);
     free(codec_data->context);
+#endif
     free(codec_data);
     free(jpeg_ctx);
     jpeg_ctx = NULL;
@@ -1441,9 +1446,12 @@ void jpeg_close_decoder() {
 
   codec_data_t *codec_data = (codec_data_t *)jpeg_ctx->codec_data;
 
+#if LIBAVCODEC_VER_AT_LEAST(61, 3)
+  avcodec_free_context(&codec_data->context);
+#else
   avcodec_close(codec_data->context);
-
   free(codec_data->context);
+#endif
 
 #if LIBAVCODEC_VER_AT_LEAST(55, 28)
   av_frame_free(&codec_data->picture);

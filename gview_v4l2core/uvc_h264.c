@@ -984,8 +984,13 @@ int h264_init_decoder(int width, int height) {
 #endif
   {
     fprintf(stderr, "V4L2_CORE: (H264 decoder) couldn't open codec\n");
+    
+#if LIBAVCODEC_VER_AT_LEAST(61, 3)
+    avcodec_free_context(&h264_ctx->context);
+#else
     avcodec_close(h264_ctx->context);
     free(h264_ctx->context);
+#endif
     free(h264_ctx);
     h264_ctx = NULL;
     return E_NO_CODEC;
@@ -1094,9 +1099,12 @@ void h264_close_decoder() {
   if (h264_ctx == NULL)
     return;
 
+#if LIBAVCODEC_VER_AT_LEAST(61, 3)
+  avcodec_free_context(&h264_ctx->context);
+#else
   avcodec_close(h264_ctx->context);
-
   free(h264_ctx->context);
+#endif
 
 #if LIBAVCODEC_VER_AT_LEAST(55, 28)
   av_frame_free(&h264_ctx->picture);
