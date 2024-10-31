@@ -674,8 +674,8 @@ encoder_video_init(encoder_context_t *encoder_ctx) {
     exit(-1);
   }
 
-  enc_video_ctx->read_df = -1;
-  enc_video_ctx->write_df = -1;
+  //enc_video_ctx->read_df = -1;
+  //enc_video_ctx->write_df = -1;
 
   enc_video_ctx->flushed_buffers = 0;
   enc_video_ctx->flush_delayed_frames = 0;
@@ -1461,41 +1461,41 @@ int encoder_process_audio_buffer(encoder_context_t *encoder_ctx, void *data) {
  *
  * returns: delayed frame write index (or <0 if error)
  */
-static int store_video_df_pts(encoder_video_context_t *enc_video_ctx) {
-  /*assertions*/
-  assert(enc_video_ctx != NULL);
-
-  if (enc_video_ctx->write_df < 0)
-    enc_video_ctx->write_df = 0;
-  else
-    enc_video_ctx->write_df++;
-
-  if (enc_video_ctx->write_df == enc_video_ctx->read_df) {
-    fprintf(stderr, "ENCODER: Maximum of %i delayed video frames reached...\n",
-            MAX_DELAYED_FRAMES);
-    fprintf(stderr, "         write: %i read: %i\n", enc_video_ctx->write_df,
-            enc_video_ctx->read_df);
-    return -1;
-  }
-
-  if (enc_video_ctx->write_df >= MAX_DELAYED_FRAMES) {
-    if (enc_video_ctx->read_df > 0)
-      enc_video_ctx->write_df = 0; // go to start
-    else {
-      fprintf(stderr,
-              "ENCODER: Maximum of %i delayed video frames reached...\n",
-              MAX_DELAYED_FRAMES);
-      fprintf(stderr, "         write: %i read: %i\n", enc_video_ctx->write_df,
-              enc_video_ctx->read_df);
-      enc_video_ctx->write_df = MAX_DELAYED_FRAMES - 1;
-      return -1;
-    }
-  }
-
-  enc_video_ctx->delayed_pts[enc_video_ctx->write_df] = enc_video_ctx->pts;
-
-  return enc_video_ctx->write_df;
-}
+//static int store_video_df_pts(encoder_video_context_t *enc_video_ctx) {
+//  /*assertions*/
+//  assert(enc_video_ctx != NULL);
+//
+//  if (enc_video_ctx->write_df < 0)
+//    enc_video_ctx->write_df = 0;
+//  else
+//    enc_video_ctx->write_df++;
+//
+//  if (enc_video_ctx->write_df == enc_video_ctx->read_df) {
+//    fprintf(stderr, "ENCODER: Maximum of %i delayed video frames reached...\n",
+//            MAX_DELAYED_FRAMES);
+//    fprintf(stderr, "         write: %i read: %i\n", enc_video_ctx->write_df,
+//            enc_video_ctx->read_df);
+//    return -1;
+//  }
+//
+//  if (enc_video_ctx->write_df >= MAX_DELAYED_FRAMES) {
+//    if (enc_video_ctx->read_df > 0)
+//      enc_video_ctx->write_df = 0; // go to start
+//    else {
+//      fprintf(stderr,
+//              "ENCODER: Maximum of %i delayed video frames reached...\n",
+//              MAX_DELAYED_FRAMES);
+//      fprintf(stderr, "         write: %i read: %i\n", enc_video_ctx->write_df,
+//              enc_video_ctx->read_df);
+//      enc_video_ctx->write_df = MAX_DELAYED_FRAMES - 1;
+//      return -1;
+//    }
+//  }
+//
+//  enc_video_ctx->delayed_pts[enc_video_ctx->write_df] = enc_video_ctx->pts;
+//
+//  return enc_video_ctx->write_df;
+//}
 
 /*
  * read the next pts in the delayed frame buffer and stores the current one
@@ -1507,41 +1507,41 @@ static int store_video_df_pts(encoder_video_context_t *enc_video_ctx) {
  *
  * returns: delayed frame read index (or <0 if error)
  */
-static int read_video_df_pts(encoder_video_context_t *enc_video_ctx) {
-  /*assertions*/
-  assert(enc_video_ctx != NULL);
-
-  // store the current frame pts
-  if (!enc_video_ctx->flush_delayed_frames)
-    store_video_df_pts(enc_video_ctx);
-
-  if (enc_video_ctx->read_df < 0) {
-    printf("ENCODER: video codec is using %i delayed frames\n",
-           enc_video_ctx->write_df);
-    enc_video_ctx->read_df = 0;
-  } else
-    enc_video_ctx->read_df++;
-
-  if (enc_video_ctx->read_df >= MAX_DELAYED_FRAMES)
-    enc_video_ctx->read_df = 0;
-
-  // read the delayed frame pts
-  enc_video_ctx->pts = enc_video_ctx->delayed_pts[enc_video_ctx->read_df];
-
-  if (enc_video_ctx->flush_delayed_frames && enc_verbosity > 1)
-    printf("ENCODER: video codec flushing delayed frame %i ( pts: %" PRId64
-           " )\n",
-           enc_video_ctx->read_df, enc_video_ctx->pts);
-
-  if (enc_video_ctx->read_df == enc_video_ctx->write_df) {
-    printf("ENCODER: no more delayed video frames\n");
-    if (enc_video_ctx->flush_delayed_frames)
-      enc_video_ctx->flush_done = 1;
-    enc_video_ctx->read_df = -1;
-  }
-
-  return enc_video_ctx->read_df;
-}
+//static int read_video_df_pts(encoder_video_context_t *enc_video_ctx) {
+//  /*assertions*/
+//  assert(enc_video_ctx != NULL);
+//
+//  // store the current frame pts
+//  if (!enc_video_ctx->flush_delayed_frames)
+//    store_video_df_pts(enc_video_ctx);
+//
+//  if (enc_video_ctx->read_df < 0) {
+//    printf("ENCODER: video codec is using %i delayed frames\n",
+//           enc_video_ctx->write_df);
+//    enc_video_ctx->read_df = 0;
+//  } else
+//    enc_video_ctx->read_df++;
+//
+//  if (enc_video_ctx->read_df >= MAX_DELAYED_FRAMES)
+//    enc_video_ctx->read_df = 0;
+//
+//  // read the delayed frame pts
+//  enc_video_ctx->pts = enc_video_ctx->delayed_pts[enc_video_ctx->read_df];
+//
+//  if (enc_video_ctx->flush_delayed_frames && enc_verbosity > 1)
+//    printf("ENCODER: video codec flushing delayed frame %i ( pts: %" PRId64
+//           " )\n",
+//           enc_video_ctx->read_df, enc_video_ctx->pts);
+//
+//  if (enc_video_ctx->read_df == enc_video_ctx->write_df) {
+//    printf("ENCODER: no more delayed video frames\n");
+//    if (enc_video_ctx->flush_delayed_frames)
+//      enc_video_ctx->flush_done = 1;
+//    enc_video_ctx->read_df = -1;
+//  }
+//
+//  return enc_video_ctx->read_df;
+//}
 
 static int libav_send_encode(AVCodecContext *avctx, AVFrame *frame) {
   int ret;
@@ -1614,7 +1614,7 @@ int encoder_encode_video(encoder_context_t *encoder_ctx, void *input_frame) {
       stderr,
       "ENCODER: Error - libavcodec version not supported (minimum 57.16)\n");
   return 0;
-#else
+#endif
 
   encoder_video_context_t *enc_video_ctx = encoder_ctx->enc_video_ctx;
 
@@ -1662,24 +1662,24 @@ int encoder_encode_video(encoder_context_t *encoder_ctx, void *input_frame) {
     return (outsize);
   }
 
+  /*with software encoding*/
   encoder_codec_data_t *video_codec_data =
       (encoder_codec_data_t *)enc_video_ctx->codec_data;
 
-  if (input_frame != NULL)
+  if (input_frame != NULL) {
     prepare_video_frame(video_codec_data, input_frame, encoder_ctx->video_width,
                         encoder_ctx->video_height);
 
-  // generate a real pts based on the frame timestamp
-  if (!enc_video_ctx->monotonic_pts) {
-    video_codec_data->frame->pts = enc_video_ctx->pts;
-    //printf(
-    //    "ENCODER: using non-monotonic pts (this can cause encoding to fail)\n");
-  } else { 
-    /*generate a true monotonic pts based on the codec fps*/
-    video_codec_data->frame->pts +=
+    /* generate the pts based on the real frame timestamp */
+    if (!enc_video_ctx->monotonic_pts) {
+      video_codec_data->frame->pts = enc_video_ctx->pts;
+    } else { 
+      /* generate a true monotonic pts based on the codec fps */
+      video_codec_data->frame->pts +=
         (video_codec_data->codec_context->time_base.num * 1000 /
-         video_codec_data->codec_context->time_base.den) *
-        90;
+          video_codec_data->codec_context->time_base.den) *
+          90;
+    }
   }
 
   if (enc_video_ctx->flush_delayed_frames) {
@@ -1693,20 +1693,14 @@ int encoder_encode_video(encoder_context_t *encoder_ctx, void *input_frame) {
   AVPacket *pkt = video_codec_data->outpkt;
   int got_packet = 0;
   int ret = 0;
-  // if(enc_video_ctx->outbuf_size < FF_MIN_BUFFER_SIZE)
-  //{
-  //	av_log(avctx, AV_LOG_ERROR, "buffer smaller than minimum size\n");
-  //     return -1;
-  // }
+  
   ret = libav_send_encode(video_codec_data->codec_context,
                           video_codec_data->frame);
 
   if (ret < 0) {
-    fprintf(stderr, "ENCODER: Error encoding video frame: %i\n", ret);
+    fprintf(stderr, "ENCODER: Error libav_send_encode: %i\n", ret);
     return ret;
   }
-
-  //store_video_df_pts(enc_video_ctx);
 
   if (enc_video_ctx->flush_delayed_frames) {
     if (!enc_video_ctx->flushed_buffers)
@@ -1715,14 +1709,14 @@ int encoder_encode_video(encoder_context_t *encoder_ctx, void *input_frame) {
     enc_video_ctx->flushed_buffers = 1;
   }
 
-  int count = 0;
+  //int count = 0;
 
   while ( ret >= 0) {
     ret = libav_get_encode(video_codec_data->codec_context, pkt, &got_packet);
     if (ret == AVERROR(EAGAIN)) {
-      if (count == 0) {
-        store_video_df_pts(enc_video_ctx);
-      }
+      //if (count == 0) { //we have a delayed frame
+      //  store_video_df_pts(enc_video_ctx);
+      //}
       break;
     }
     if (ret < 0) {
@@ -1730,21 +1724,31 @@ int encoder_encode_video(encoder_context_t *encoder_ctx, void *input_frame) {
       break;
     }
 
-    count++;
+    //count++;
+     
+    outsize = pkt->size;
+
+    if (enc_video_ctx->flush_delayed_frames && outsize == 0)
+      enc_video_ctx->flush_done = 1;
+    //else if (enc_video_ctx->write_df >= 0) // we have delayed frames
+    //  read_video_df_pts(enc_video_ctx);
+
     // if(pkt.pts != AV_NOPTS_VALUE)
     //	printf("ENCODER: (video) pts:%" PRId64 " dts:%" PRId64 "\n", pkt.pts,
     // pkt.dts); else 	printf("ENCODER: (video) no pts set\n");
+  
+    //printf("video packet pts: %lu, dts:%lu -> true pts: %lu\n", pkt->pts, pkt->dts, enc_video_ctx->pts);
+
+    enc_video_ctx->pts = pkt->pts;
     enc_video_ctx->dts = pkt->dts;
     enc_video_ctx->flags = pkt->flags;
     enc_video_ctx->duration = pkt->duration;
-
-    outsize = pkt->size;
-    
-    if (outsize == 0) { //we have a delayed frame
-      fprintf(stderr, "pkt->size = 0\n");
-      store_video_df_pts(enc_video_ctx);
-      break;
-    }
+ 
+    //if (outsize == 0) { //we have a delayed frame
+    //  fprintf(stderr, "pkt->size = 0\n");
+    //  store_video_df_pts(enc_video_ctx);
+    //  break;
+    //}
 
     if (outsize <= enc_video_ctx->outbuf_size)
       memcpy(enc_video_ctx->outbuf, pkt->data, pkt->size);
@@ -1761,22 +1765,14 @@ int encoder_encode_video(encoder_context_t *encoder_ctx, void *input_frame) {
       pkt->side_data_elems = 0;
     }
 
-    av_packet_unref(pkt);
-
-    if (enc_video_ctx->flush_delayed_frames && outsize == 0)
-      enc_video_ctx->flush_done = 1;
-    else if (enc_video_ctx->write_df >= 0) // we have delayed frames
-      read_video_df_pts(enc_video_ctx);
-
-    last_video_pts = enc_video_ctx->pts;
-
     encoder_ctx->enc_video_ctx->outbuf_coded_size = outsize;
+
+    av_packet_unref(pkt);
 
     encoder_write_video_data(encoder_ctx);
   }
 
   return (outsize);
-#endif
 }
 
 /*
@@ -1799,7 +1795,7 @@ int encoder_encode_audio(encoder_context_t *encoder_ctx, void *audio_data) {
       stderr,
       "ENCODER: Error - libavcodec version not supported (minimum 57.16)\n");
   return outsize;
-#else
+#endif
 
   encoder_audio_context_t *enc_audio_ctx = encoder_ctx->enc_audio_ctx;
 
@@ -1867,6 +1863,8 @@ int encoder_encode_audio(encoder_context_t *encoder_ctx, void *audio_data) {
     enc_audio_ctx->outbuf_coded_size = buffer_size;
 
     outsize = buffer_size;
+
+    encoder_write_audio_data(encoder_ctx);
     return outsize;
   }
 
@@ -1944,8 +1942,7 @@ int encoder_encode_audio(encoder_context_t *encoder_ctx, void *audio_data) {
 
     if (!enc_audio_ctx->monotonic_pts) /*generate a real pts based on the frame
                                           timestamp*/
-      audio_codec_data->frame->pts +=
-          ((enc_audio_ctx->pts - last_audio_pts) / 1000) * 90;
+      audio_codec_data->frame->pts = enc_audio_ctx->pts;
     else if (audio_codec_data->codec_context->time_base.den >
              0) /*generate a true monotonic pts based on the codec fps*/
       audio_codec_data->frame->pts +=
@@ -1998,7 +1995,7 @@ int encoder_encode_audio(encoder_context_t *encoder_ctx, void *audio_data) {
 
     av_packet_unref(pkt);
 
-    last_audio_pts = enc_audio_ctx->pts;
+    //last_audio_pts = enc_audio_ctx->pts;
 
     if (enc_audio_ctx->flush_delayed_frames && outsize == 0)
       enc_audio_ctx->flush_done = 1;
@@ -2009,7 +2006,6 @@ int encoder_encode_audio(encoder_context_t *encoder_ctx, void *audio_data) {
   }
 
   return (outsize);
-#endif
 }
 
 /*

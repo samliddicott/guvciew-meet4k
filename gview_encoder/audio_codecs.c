@@ -58,6 +58,7 @@ static audio_codec_t listSupCodecs[] = //list of software supported formats
 	{
 		.valid        = 1,
 		.bits         = 32,
+    .monotonic_pts = 0,
 		.avi_4cc      = WAVE_FORMAT_IEEE_FLOAT,
 		.mkv_codec    = "A_PCM/FLOAT/IEEE",
 		.description  = N_("PCM - uncompressed (float 32 bit)"),
@@ -74,7 +75,7 @@ static audio_codec_t listSupCodecs[] = //list of software supported formats
 	{
 		.valid        = 1,
 		.bits         = 0,
-		.monotonic_pts= 1,
+		.monotonic_pts= 0,
 		.avi_4cc      = WAVE_FORMAT_MPEG12,
 		.mkv_codec    = "A_MPEG/L2",
 		.description  = N_("MP2 (MPEG audio layer 2)"),
@@ -91,7 +92,7 @@ static audio_codec_t listSupCodecs[] = //list of software supported formats
 	{
 		.valid        = 1,
 		.bits         = 0,
-		.monotonic_pts= 1,
+		.monotonic_pts= 0,
 		.avi_4cc      = WAVE_FORMAT_MP3,
 		.mkv_codec    = "A_MPEG/L3",
 		.description  = N_("MP3 (MPEG audio layer 3)"),
@@ -112,7 +113,7 @@ static audio_codec_t listSupCodecs[] = //list of software supported formats
 	{
 		.valid        = 1,
 		.bits         = 0,
-		.monotonic_pts= 1,
+		.monotonic_pts= 0,
 		.avi_4cc      = WAVE_FORMAT_AC3,
 		.mkv_codec    = "A_AC3",
 		.description  = N_("AC-3 (ATSC A/52A)"),
@@ -133,7 +134,7 @@ static audio_codec_t listSupCodecs[] = //list of software supported formats
 	{
 		.valid        = 1,
 		.bits         = 16,
-		.monotonic_pts= 1,
+		.monotonic_pts= 0,
 		.avi_4cc      = WAVE_FORMAT_AAC,
 		.mkv_codec    = "A_AAC",
 		.description  = N_("AAC (Advanced Audio Coding)"),
@@ -154,7 +155,7 @@ static audio_codec_t listSupCodecs[] = //list of software supported formats
 	{
 		.valid        = 1,
 		.bits         = 16,
-		.monotonic_pts= 1,
+		.monotonic_pts= 0,
 		.avi_4cc      = OGG_FORMAT_VORBIS,
 		.mkv_codec    = "A_VORBIS",
 		.description  = N_("Vorbis"),
