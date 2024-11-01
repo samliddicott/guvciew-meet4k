@@ -910,7 +910,7 @@ int mkv_write_packet(mkv_context_t *mkv_ctx, int stream_index, uint8_t *data,
    */
   if (mkv_ctx->cluster_pos &&
       ((cluster_size > 6 * 1024 * 1024 && ts > mkv_ctx->cluster_pts + 5000) ||
-       //(stream->type == STREAM_TYPE_VIDEO && keyframe) ||
+       (stream->type == STREAM_TYPE_VIDEO && keyframe) ||
        (stream->type == STREAM_TYPE_VIDEO && cluster_size > 3 * 1024 * 1024))) {
     mkv_end_ebml_master(mkv_ctx, mkv_ctx->cluster);
     mkv_ctx->cluster_pos = 0;

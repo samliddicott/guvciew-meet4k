@@ -46,6 +46,7 @@
 
 // #include "../config.h"
 #include "encoder.h"
+#include "packet.h"
 #include "gview.h"
 #include "gviewencoder.h"
 #include "stream_io.h"
@@ -75,6 +76,7 @@ static int video_read_index = 0;
 static int video_write_index = 0;
 static int video_scheduler = 0;
 
+static SPacket_list_t* spkt_list = NULL;
 /*
  * set verbosity
  * args:
@@ -85,7 +87,10 @@ static int video_scheduler = 0;
  *
  * returns: none
  */
-void encoder_set_verbosity(int value) { enc_verbosity = value; }
+void encoder_set_verbosity(int value) { 
+  enc_verbosity = value;
+  //av_log_set_level(AV_LOG_DEBUG);
+}
 
 /*
  * allocate video ring buffer
@@ -94,7 +99,7 @@ void encoder_set_verbosity(int value) { enc_verbosity = value; }
  *   video_height - video frame height (in pixels)
  *   fps_den - frames per sec (denominator)
  *   fps_num - frames per sec (numerator)
- *   codec_ind - video codec index (0 -raw)
+ *   codec_ind - video codec index (-raw)
  *
  * asserts:
  *   none
@@ -182,6 +187,7 @@ void __attribute__((constructor)) gviewencoder_init() {
    */
   avcodec_register_all();
 #endif
+ 
   valid_video_codecs = encoder_set_valid_video_codec_list();
   valid_audio_codecs = encoder_set_valid_audio_codec_list();
 }
@@ -475,6 +481,9 @@ encoder_video_init(encoder_context_t *encoder_ctx) {
     exit(-1);
   }
 
+  /*allocate the SPacket_list*/
+  spkt_list = spacket_list_new();
+
   /*set codec defaults*/
   video_codec_data->codec_context->bit_rate = video_defaults->bit_rate;
   video_codec_data->codec_context->width = encoder_ctx->video_width;
@@ -552,25 +561,28 @@ encoder_video_init(encoder_context_t *encoder_ctx) {
         video_codec_data->codec_context->time_base.den;
 
   switch (video_defaults->codec_id) {
+  case AV_CODEC_ID_MPEG4:
+    
+    break;
   case AV_CODEC_ID_H264: {
     /**/
     //video_codec_data->codec_context->me_range = 16;
     av_opt_set(video_codec_data->codec_context->priv_data, "preset", "faster", 0);
     //av_dict_set(&video_codec_data->private_options, "crf", "23", 0);
-    //av_dict_set(&video_codec_data->private_options, "preset", "ultrafast", 0);
     //av_dict_set(&video_codec_data->private_options, "tune", "zerolatency", 0);
   } break;
   case AV_CODEC_ID_HEVC: {
     //video_codec_data->codec_context->me_range = 57;
     if (video_codec_data->codec_context->max_b_frames > 8)
       video_codec_data->codec_context->max_b_frames = 8; // limit b frames to 8
-    //av_dict_set(&video_codec_data->private_options, "crf", "26", 0);
-    av_opt_set(video_codec_data->codec_context->priv_data, "preset", "faster", 0);
-    av_opt_set(video_codec_data->codec_context->priv_data, "x265-params",
-                "ref=1:rc-lookahead=20", 0);
+    av_opt_set(video_codec_data->codec_context->priv_data, "preset", "medium", 0);
+    //av_opt_set(video_codec_data->codec_context->priv_data, "crf", "26", 0);
+    //av_opt_set(video_codec_data->codec_context->priv_data, "x265-params",
+    //            "ref=1:rc-lookahead=20", 0);
 
   } break;
-  case AV_CODEC_ID_VP8: {
+  case AV_CODEC_ID_VP8:    
+  case AV_CODEC_ID_VP9: {
     av_opt_set(video_codec_data->codec_context->priv_data, "quality", "good", 0);
     av_opt_set(video_codec_data->codec_context->priv_data, "cpu-used", "-10", 0);
     av_opt_set(video_codec_data->codec_context->priv_data, "speed", "10", 0);
@@ -1387,13 +1399,13 @@ int encoder_flush_video_buffer(encoder_context_t *encoder_ctx) {
            flushed_frame_counter - buffer_count);
 
   /*flush libav*/
-  flushed_frame_counter = 0;
+  //flushed_frame_counter = 0;
   encoder_ctx->enc_video_ctx->flush_delayed_frames = 1;
 
   encoder_encode_video(encoder_ctx, NULL);
 
-  if (enc_verbosity > 1)
-    printf("ENCODER: flushed %i delayed video frames\n", flushed_frame_counter);
+  //if (enc_verbosity > 1)
+  //  printf("ENCODER: flushed %i delayed video frames\n", flushed_frame_counter);
 
   if (!buffer_count) {
     fprintf(stderr,
@@ -1544,7 +1556,7 @@ int encoder_process_audio_buffer(encoder_context_t *encoder_ctx, void *data) {
 //}
 
 static int libav_send_encode(AVCodecContext *avctx, AVFrame *frame) {
-  int ret;
+  int ret = 0;
 
   if (!avcodec_is_open(avctx))
     fprintf(stderr, "ENCODER: codec not opened\n");
@@ -1576,7 +1588,7 @@ static int libav_send_encode(AVCodecContext *avctx, AVFrame *frame) {
     }
   } else {
     // flush encode buffers
-    avcodec_send_frame(avctx, NULL);
+    ret = avcodec_send_frame(avctx, NULL);
   }
 
   return ret;
@@ -1592,6 +1604,28 @@ static int libav_get_encode(AVCodecContext *avctx, AVPacket *pkt,
     *got_packet = 1;
 
   return ret;
+}
+
+static void write_pkt_buffer (encoder_context_t *encoder_ctx, SPacket_t *spkt) {
+  
+  encoder_video_context_t *enc_video_ctx = encoder_ctx->enc_video_ctx;
+   
+  //printf("video packet pts: %li, dts:%li\n", spkt->pts, spkt->dts);
+
+  enc_video_ctx->pts = spkt->pts;
+  enc_video_ctx->dts = spkt->dts;
+  enc_video_ctx->flags = spkt->flags;
+  enc_video_ctx->duration = 0;
+ 
+  if (spkt->size <= enc_video_ctx->outbuf_size)
+    memcpy(enc_video_ctx->outbuf, spkt->data, spkt->size);
+  else
+    fprintf(stderr, "video packet size is bigger than output buffer(%i>%i)\n",
+            spkt->size, enc_video_ctx->outbuf_size);
+
+  encoder_ctx->enc_video_ctx->outbuf_coded_size = spkt->size;
+
+  encoder_write_video_data(encoder_ctx);
 }
 
 /*
@@ -1647,6 +1681,7 @@ int encoder_encode_video(encoder_context_t *encoder_ctx, void *input_frame) {
       enc_video_ctx->outbuf =
           calloc(enc_video_ctx->outbuf_size, sizeof(uint8_t));
     }
+
     memcpy(enc_video_ctx->outbuf, input_frame, outsize);
     enc_video_ctx->flags = 0;
     /*enc_video_ctx->flags must be set*/
@@ -1657,14 +1692,17 @@ int encoder_encode_video(encoder_context_t *encoder_ctx, void *input_frame) {
     else {
       enc_video_ctx->duration = enc_video_ctx->pts - last_video_pts;
     }
-    
     last_video_pts = enc_video_ctx->pts;
+    
+    encoder_write_video_data(encoder_ctx);
     return (outsize);
   }
 
   /*with software encoding*/
   encoder_codec_data_t *video_codec_data =
       (encoder_codec_data_t *)enc_video_ctx->codec_data;
+
+  int ret = 0;
 
   if (input_frame != NULL) {
     prepare_video_frame(video_codec_data, input_frame, encoder_ctx->video_width,
@@ -1675,101 +1713,86 @@ int encoder_encode_video(encoder_context_t *encoder_ctx, void *input_frame) {
       video_codec_data->frame->pts = enc_video_ctx->pts;
     } else { 
       /* generate a true monotonic pts based on the codec fps */
-      video_codec_data->frame->pts +=
-        (video_codec_data->codec_context->time_base.num * 1000 /
+      video_codec_data->frame->pts = last_video_pts + 
+        ((video_codec_data->codec_context->time_base.num * 1000 /
           video_codec_data->codec_context->time_base.den) *
-          90;
+          90);
+      last_video_pts = video_codec_data->frame->pts;
     }
+
+    ret = libav_send_encode(video_codec_data->codec_context,
+                            video_codec_data->frame);
+  } else {
+    ret = libav_send_encode(video_codec_data->codec_context,
+                            NULL);
   }
 
-  if (enc_video_ctx->flush_delayed_frames) {
-    if (!enc_video_ctx->flushed_buffers) {
-      avcodec_flush_buffers(video_codec_data->codec_context);
-      enc_video_ctx->flushed_buffers = 1;
-    }
-  }
-
-  /* encode the video */
-  AVPacket *pkt = video_codec_data->outpkt;
-  int got_packet = 0;
-  int ret = 0;
-  
-  ret = libav_send_encode(video_codec_data->codec_context,
-                          video_codec_data->frame);
-
-  if (ret < 0) {
+  if(ret == AVERROR(EAGAIN)) {
+    //buffer is full 
+    fprintf(stderr, "ENCODER: Error libav_send_encode: EAGAIN\n");  
+  } else if (ret == AVERROR(EINVAL)) {
+    fprintf(stderr, "ENCODER: Error libav_send_encode: EINVAL\n");
+  } else if (ret < 0) {
     fprintf(stderr, "ENCODER: Error libav_send_encode: %i\n", ret);
-    return ret;
   }
 
-  if (enc_video_ctx->flush_delayed_frames) {
-    if (!enc_video_ctx->flushed_buffers)
-      avcodec_flush_buffers(video_codec_data->codec_context);
-
-    enc_video_ctx->flushed_buffers = 1;
-  }
-
-  //int count = 0;
+  ret = 0;
+  //if (enc_video_ctx->flush_delayed_frames) {
+  //  if (!enc_video_ctx->flushed_buffers)
+  //    avcodec_flush_buffers(video_codec_data->codec_context);
+  //    enc_video_ctx->flushed_buffers = 1;
+  //}
 
   while ( ret >= 0) {
+    /* encode the video */
+    AVPacket *pkt = video_codec_data->outpkt;
+    int got_packet = 0;
+
     ret = libav_get_encode(video_codec_data->codec_context, pkt, &got_packet);
     if (ret == AVERROR(EAGAIN)) {
-      //if (count == 0) { //we have a delayed frame
-      //  store_video_df_pts(enc_video_ctx);
-      //}
       break;
     }
     if (ret < 0) {
-      fprintf(stderr, "libav_get_encode Error: %i\n", ret);
+      fprintf(stderr, "ENCODER: Error libav_get_encode: %i\n", ret);
       break;
     }
 
-    //count++;
-     
-    outsize = pkt->size;
+    /*rescale the timestamps*/
+    if (enc_video_ctx->monotonic_pts)
+      pkt->pts *= 10000;
 
-    if (enc_video_ctx->flush_delayed_frames && outsize == 0)
-      enc_video_ctx->flush_done = 1;
-    //else if (enc_video_ctx->write_df >= 0) // we have delayed frames
-    //  read_video_df_pts(enc_video_ctx);
-
-    // if(pkt.pts != AV_NOPTS_VALUE)
-    //	printf("ENCODER: (video) pts:%" PRId64 " dts:%" PRId64 "\n", pkt.pts,
-    // pkt.dts); else 	printf("ENCODER: (video) no pts set\n");
-  
-    //printf("video packet pts: %lu, dts:%lu -> true pts: %lu\n", pkt->pts, pkt->dts, enc_video_ctx->pts);
-
-    enc_video_ctx->pts = pkt->pts;
-    enc_video_ctx->dts = pkt->dts;
-    enc_video_ctx->flags = pkt->flags;
-    enc_video_ctx->duration = pkt->duration;
- 
-    //if (outsize == 0) { //we have a delayed frame
-    //  fprintf(stderr, "pkt->size = 0\n");
-    //  store_video_df_pts(enc_video_ctx);
-    //  break;
-    //}
-
-    if (outsize <= enc_video_ctx->outbuf_size)
-      memcpy(enc_video_ctx->outbuf, pkt->data, pkt->size);
+    //lets buffer the packets to sort by pts
+    SPacket_t* spkt = spacket_clone(pkt);
+    
+    if(video_codec_data->codec_context->codec_id == AV_CODEC_ID_HEVC)
+      //order by dts
+      spacket_list_add(spkt_list, spkt, 1);
     else
-      fprintf(stderr, "video packet size is bigger than output buffer(%i>%i)\n",
-              pkt->size, enc_video_ctx->outbuf_size);
-
-    /* free any side data since we cannot return it */
-    if (pkt->side_data_elems > 0) {
-      int i;
-      for (i = 0; i < pkt->side_data_elems; i++)
-        av_free(pkt->side_data[i].data);
-      av_freep(&pkt->side_data);
-      pkt->side_data_elems = 0;
-    }
-
-    encoder_ctx->enc_video_ctx->outbuf_coded_size = outsize;
+      //order by pts
+      spacket_list_add(spkt_list, spkt, 0);  
 
     av_packet_unref(pkt);
+  }
 
-    encoder_write_video_data(encoder_ctx);
+  if (enc_video_ctx->flush_delayed_frames) {
+    SPacket_t* spkt = spacket_list_pop(spkt_list);
+    while (spkt) {
+      outsize = spkt->size;
+      write_pkt_buffer(encoder_ctx, spkt);
+      spacket_free(spkt);
+      spkt = spacket_list_pop(spkt_list);
+    }
+      
+    enc_video_ctx->flush_done = 1;
+  
+  } else {
+    //sort the output packets by pts
+    if (spkt_list->size >= 6) {
+      SPacket_t* spkt = spacket_list_pop(spkt_list);
+      outsize = spkt->size;
+      write_pkt_buffer(encoder_ctx, spkt);
+      spacket_free(spkt);
+    }
   }
 
   return (outsize);
@@ -2103,6 +2126,9 @@ void encoder_close(encoder_context_t *encoder_ctx) {
 
   free(encoder_ctx);
 
+  spacket_list_free(spkt_list);
+  spkt_list = NULL;
+
   /*reset static data*/
   last_video_pts = 0;
   last_audio_pts = 0;
@@ -2115,4 +2141,5 @@ void encoder_close(encoder_context_t *encoder_ctx) {
   video_read_index = 0;
   video_write_index = 0;
   video_scheduler = 0;
+  
 }

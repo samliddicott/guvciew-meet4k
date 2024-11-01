@@ -9,6 +9,7 @@ add_library(gviewencoder SHARED
   encoder.c
   file_io.c
   libav_encoder.c
+  packet.c
   matroska.c
   muxer.c
   stream_io.c
