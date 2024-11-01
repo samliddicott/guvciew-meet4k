@@ -938,7 +938,7 @@ void *capture_loop(void *data) {
 
   if (render_init(render, v4l2core_get_frame_width(my_vd),
                   v4l2core_get_frame_height(my_vd), render_flags,
-                  my_options->render_width, my_options->render_height) < 0)
+                  my_config->render_width, my_config->render_height) < 0)
     render = RENDER_NONE;
   else {
     render_set_event_callback(EV_QUIT, &quit_callback, NULL);
@@ -1019,8 +1019,8 @@ void *capture_loop(void *data) {
         /*restart the render with new format*/
         if (render_init(render, v4l2core_get_frame_width(my_vd),
                         v4l2core_get_frame_height(my_vd), render_flags,
-                        my_options->render_width,
-                        my_options->render_height) < 0)
+                        my_config->render_width,
+                        my_config->render_height) < 0)
           render = RENDER_NONE;
         else {
           render_set_event_callback(EV_QUIT, &quit_callback, NULL);

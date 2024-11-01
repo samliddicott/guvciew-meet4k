@@ -30,6 +30,8 @@ typedef struct _config_t {
   int height;          /*height*/
   uint32_t format;     /*pixelformat - v4l2 fourcc*/
   char render[5];      /*render api*/
+  int render_width;    /*render window width*/
+  int render_height;   /*render window height*/
   char gui[5];         /*gui api*/
   char audio[6];       /*audio api - none; port; pulse*/
   char capture[5];     /*capture method: read or mmap*/

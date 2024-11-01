@@ -69,7 +69,7 @@ static int video_init(int width, int height, int flags, int win_w, int win_h) {
   }
 
   if (render_verbosity > 0)
-    printf("RENDER: Initializing SDL2 render\n");
+    printf("RENDER: Initializing SDL2 render with %ix%i\n", win_w, win_h);
 
   if (sdl_window == NULL) /*init SDL*/
   {
@@ -78,13 +78,15 @@ static int video_init(int width, int height, int flags, int win_w, int win_h) {
       return -1;
     }
 
+
+
     SDL_SetHint("SDL_HINT_RENDER_SCALE_QUALITY", "1");
 
     sdl_window = SDL_CreateWindow("Guvcview Video",        // window title
                                   SDL_WINDOWPOS_UNDEFINED, // initial x position
                                   SDL_WINDOWPOS_UNDEFINED, // initial y position
-                                  w,                       // width, in pixels
-                                  h,                       // height, in pixels
+                                  win_w,                       // width, in pixels
+                                  win_h,                       // height, in pixels
                                   my_flags);
 
     if (sdl_window == NULL) {

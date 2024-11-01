@@ -113,6 +113,41 @@ static void yu12_to_rgba(uint8_t *out, uint8_t *in, int width, int height) {
   }
 }
 
+static sf::View getLetterboxView(sf::View view, int windowWidth, int windowHeight) {
+
+    // Compares the aspect ratio of the window to the aspect ratio of the view,
+    // and sets the view's viewport accordingly in order to achieve a letterbox effect.
+    // A new view (with a new viewport set) is returned.
+
+    float windowRatio = (float) windowWidth / (float) windowHeight;
+    float viewRatio = view.getSize().x / (float) view.getSize().y;
+    float sizeX = 1;
+    float sizeY = 1;
+    float posX = 0;
+    float posY = 0;
+
+    bool horizontalSpacing = true;
+    if (windowRatio < viewRatio)
+        horizontalSpacing = false;
+
+    // If horizontalSpacing is true, the black bars will appear on the left and right side.
+    // Otherwise, the black bars will appear on the top and bottom.
+
+    if (horizontalSpacing) {
+        sizeX = viewRatio / windowRatio;
+        posX = (1 - sizeX) / 2.f;
+    }
+
+    else {
+        sizeY = windowRatio / viewRatio;
+        posY = (1 - sizeY) / 2.f;
+    }
+
+    view.setViewport( sf::FloatRect(posX, posY, sizeX, sizeY) );
+
+    return view;
+}
+
 SFMLRender::SFMLRender(int width, int height, int flags, int win_w, int win_h) {
   int w = width;
   int h = height;
@@ -147,10 +182,10 @@ SFMLRender::SFMLRender(int width, int height, int flags, int win_w, int win_h) {
     if (!window.isOpen()) {
       std::cerr << "RENDER: (SFML) couldn't open window in fullscreen mode"
                 << std::endl;
-      window.create(sf::VideoMode(w, h), "SFML window");
+      window.create(sf::VideoMode(w, h), "SFML window", sf::Style::Resize);
     }
   } else
-    window.create(sf::VideoMode(w, h), "SFML window");
+    window.create(sf::VideoMode(w, h), "SFML window", sf::Style::Resize);
 
   if (!window.isOpen()) {
     std::cerr << "RENDER: (SFML) couldn't open window" << std::endl;
@@ -228,6 +263,12 @@ SFMLRender::SFMLRender(int width, int height, int flags, int win_w, int win_h) {
 
   texture.setSmooth(true);
 
+  sf::View view;
+  view.setSize( width, height );
+  view.setCenter( view.getSize().x / 2, view.getSize().y / 2 );
+  view = getLetterboxView( view, w, h );
+  
+  window.setView(view);
   window.clear(sf::Color::Black);
   window.display();
 
@@ -299,6 +340,7 @@ void SFMLRender::dispatch_events() {
   // Process events
   sf::Event event;
   while (window.pollEvent(event)) {
+
     if (event.type == sf::Event::KeyPressed) {
       switch (event.key.code) {
       case sf::Keyboard::Escape:
@@ -342,6 +384,11 @@ void SFMLRender::dispatch_events() {
       if (render_verbosity > 0)
         std::cout << "RENDER:(SFML) (event) close\n" << std::endl;
       render_call_event_callback(EV_QUIT);
+    }
+
+    if (event.type == sf::Event::Resized) { 
+      sf::View view = getLetterboxView( window.getView(), event.size.width, event.size.height );
+      window.setView(view);
     }
   }
 }

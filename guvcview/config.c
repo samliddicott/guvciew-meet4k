@@ -40,6 +40,8 @@ static config_t my_config = {
     .height = 480,
     .format = V4L2_PIX_FMT_MJPEG,
     .render = "sdl",
+    .render_width = 800,
+    .render_height = 600,
 #if ENABLE_GTK3
     .gui = "gtk3",
 #elif ENABLE_QT6
@@ -122,6 +124,10 @@ int config_save(const char *filename) {
   fprintf(fp, "gui=%s\n", my_config.gui);
   fprintf(fp, "#render api\n");
   fprintf(fp, "render=%s\n", my_config.render);
+  fprintf(fp, "#render window width\n");
+  fprintf(fp, "render_width=%i\n", my_config.render_width);
+  fprintf(fp, "#render window height\n");
+  fprintf(fp, "render_height=%i\n", my_config.render_height);
   fprintf(
       fp,
       "#video codec [raw mjpg mpeg flv1 wmv1 mpg2 mp43 dx50 h264 vp80 theo]\n");
@@ -263,6 +269,10 @@ int config_load(const char *filename) {
       strncpy(my_config.gui, value, 4);
     else if (strcmp(token, "render") == 0)
       strncpy(my_config.render, value, 4);
+    else if (strcmp(token, "render_width") == 0)
+      my_config.render_width = (int)strtoul(value, NULL, 10);
+    else if (strcmp(token, "render_height") == 0)
+      my_config.render_height = (int)strtoul(value, NULL, 10);
     else if (strcmp(token, "video_codec") == 0)
       strncpy(my_config.video_codec, value, 4);
     else if (strcmp(token, "audio_codec") == 0)
@@ -369,6 +379,12 @@ void config_update(options_t *my_options) {
   /*render API*/
   if (strlen(my_options->render) > 2)
     strncpy(my_config.render, my_options->render, 4);
+
+  /*render window resolution*/
+  if (my_options->render_width > 0)
+    my_config.render_width = my_options->render_width;
+  if (my_options->render_height > 0)
+    my_config.render_height = my_options->render_height;
 
   /*gui API*/
   if (strlen(my_options->gui) > 2)

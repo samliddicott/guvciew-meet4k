@@ -433,9 +433,9 @@ int options_parse(int argc, char *argv[]) {
         my_options.height = (int)strtoul(stopstring, &stopstring, 10);
       }
       if (my_options.width <= 0)
-        my_options.width = 640;
+        my_options.width = 0;
       if (my_options.height <= 0)
-        my_options.height = 480;
+        my_options.height = 0;
       break;
 
     case 'f': {
