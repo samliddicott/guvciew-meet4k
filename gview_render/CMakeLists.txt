@@ -2,7 +2,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_C_STANDARD 11)
 
 set(LIBSOVERSION "2")
-set(LIBVERSION  "2.2.0")
+set(LIBVERSION  "2.2.1")
 
 add_library(gviewrender SHARED
   render.c

@@ -1,10 +1,12 @@
-guvcview (2.1.1)
+guvcview (2.2.1)
 
-   * Fix h265 codec defaults
+	 * Fix encoder video timestamps
+   * Fix encoder video codec defaults
 	 * move from qt5 to qt6
    * change build system from autoconf to cmake
+	 * add support for yuv420p pixel format for MJPG decoding
 
- -- Paulo Assis <pj.assis@gmail.com> Sun, 2 Jun 2024 20:59:00 +0100
+ -- Paulo Assis <pj.assis@gmail.com> Sat, 2 Nov 2024 12:59:00 +0100
 
 
 guvcview (2.1.0)
