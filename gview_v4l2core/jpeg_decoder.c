@@ -1421,13 +1421,33 @@ int jpeg_decode(uint8_t *out_buf, uint8_t *in_buf, int size) {
                      codec_data->context->pix_fmt, jpeg_ctx->width,
                      jpeg_ctx->height, jpeg_ctx->tmp_frame, jpeg_ctx->pic_size);
 #endif
-    /* libavcodec output is in yuv422p */
-    yuv422p_to_yu12(out_buf, jpeg_ctx->tmp_frame, jpeg_ctx->width,
-                    jpeg_ctx->height);
+    /* requested libavcodec output format is yuv422p 
+     * but apparently for some cameras
+     * (https://sourceforge.net/u/shicetu/uos-guvcview/ci/fbdc4b23f0072c5285383d09d2724dbf962d8a7f/) 
+     * it can turn out be in yuv420p */
+    if (codec_data->context->pix_fmt == AV_PIX_FMT_YUV422P || 
+        codec_data->context->pix_fmt == AV_PIX_FMT_YUVJ422P) {
+      
+      yuv422p_to_yu12(out_buf, jpeg_ctx->tmp_frame, jpeg_ctx->width, jpeg_ctx->height);
+      return jpeg_ctx->pic_size;
 
-    return jpeg_ctx->pic_size;
-  } else
-    return 0;
+    } else if (codec_data->context->pix_fmt == AV_PIX_FMT_YUVJ420P || 
+               codec_data->context->pix_fmt == AV_PIX_FMT_YUV420P) {
+
+      if (jpeg_ctx->pic_size > (size_t)(jpeg_ctx->width * jpeg_ctx->height * 3 / 2))
+        jpeg_ctx->pic_size  = (size_t)(jpeg_ctx->width * jpeg_ctx->height * 3 / 2);
+
+      memcpy(out_buf, jpeg_ctx->tmp_frame, jpeg_ctx->pic_size);
+      return jpeg_ctx->pic_size;
+    
+    } else {
+      fprintf(stderr, "JPEG_DECODER: output pixel format not supported: %li\n", 
+              codec_data->context->pix_fmt);
+    }
+
+  } 
+  
+  return 0;
 }
 
 /*
