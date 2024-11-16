@@ -22,6 +22,8 @@ set_target_properties(
   SOVERSION ${LIBSOVERSION}
 )
 
+add_definitions("-Wall")
+
 pkg_check_modules(FFMPEG REQUIRED libavcodec libavutil)
 
 target_link_libraries(gviewencoder ${FFMPEG_LIBRARIES})

@@ -18,6 +18,8 @@ set_target_properties(
   SOVERSION ${LIBSOVERSION}
 )
 
+add_definitions("-Wall")
+
 pkg_check_modules(PORTAUDIO2 REQUIRED portaudio-2.0)
 
 target_link_libraries(gviewaudio ${PORTAUDIO2_LIBRARIES})

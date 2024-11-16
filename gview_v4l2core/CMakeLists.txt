@@ -28,6 +28,8 @@ set_target_properties(
   SOVERSION ${LIBSOVERSION}
 )
 
+add_definitions("-Wall")
+
 pkg_check_modules(V4L2 REQUIRED
   libv4l2 libudev libusb-1.0 libavcodec>=57.16 libavutil libpng)
 

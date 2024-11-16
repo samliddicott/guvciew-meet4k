@@ -1,18 +1,23 @@
-/*******************************************************************************#
-#           guvcview              http://guvcview.sourceforge.net # # # # Paulo
-Assis <pj.assis@gmail.com>                                    # # # # This
-program is free software; you can redistribute it and/or modify          # # it
-under the terms of the GNU General Public License as published by          # #
-the Free Software Foundation; either version 2 of the License, or             #
-# (at your option) any later version. # # # # This program is distributed in the
-hope that it will be useful,               # # but WITHOUT ANY WARRANTY; without
-even the implied warranty of                # # MERCHANTABILITY or FITNESS FOR A
-PARTICULAR PURPOSE.  See the                 # # GNU General Public License for
-more details.                                  # # # # You should have received
-a copy of the GNU General Public License             # # along with this
-program; if not, write to the Free Software                   # # Foundation,
-Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA     # # #
-********************************************************************************/
+/******************************************************************************#
+#           guvcview              http://guvcview.sourceforge.net              #
+#                                                                              #
+#           Paulo Assis <pj.assis@gmail.com>                                   #
+#                                                                              #
+# This program is free software; you can redistribute it and/or modify         #
+# it under the terms of the GNU General Public License as published by         #
+# the Free Software Foundation; either version 2 of the License, or            #
+# (at your option) any later version.                                          #
+#                                                                              #
+# This program is distributed in the hope that it will be useful,              #
+# but WITHOUT ANY WARRANTY; without even the implied warranty of               #
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                #
+# GNU General Public License for more details.                                 #
+#                                                                              #
+# You should have received a copy of the GNU General Public License            #
+# along with this program; if not, write to the Free Software                  #
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA    #
+#                                                                              #
+*******************************************************************************/
 
 #include <assert.h>
 #include <inttypes.h>
@@ -90,8 +95,8 @@ static void fx_yu12_mirror(uint8_t *frame, int width, int height) {
 
   int h = 0;
   int w = 0;
-  int y_sizeline = width;
-  int c_sizeline = width / 2;
+  //int y_sizeline = width;
+  //int c_sizeline = width / 2;
 
   uint8_t *end = NULL;
   uint8_t *end2 = NULL;
@@ -157,8 +162,8 @@ static void fx_yu12_half_mirror(uint8_t *frame, int width, int height) {
   uint8_t *pu = frame + (width * height);
   uint8_t *pv = pu + ((width * height) / 4);
 
-  uint8_t pixel = 0;
-  uint8_t pixel2 = 0;
+  //uint8_t pixel = 0;
+  //uint8_t pixel2 = 0;
 
   /*mirror y*/
   for (h = 0; h < height; h++) {
@@ -384,11 +389,11 @@ static void fx_yu12_binary(uint8_t *frame, int width, int height) {
  */
 static void fx_yu12_pieces(uint8_t *frame, int width, int height,
                            int piece_size) {
-  int numx = width / piece_size;  // number of pieces in x axis
-  int numy = height / piece_size; // number of pieces in y axis
+  //int numx = width / piece_size;  // number of pieces in x axis
+  //int numy = height / piece_size; // number of pieces in y axis
 
   uint8_t piece[(piece_size * piece_size * 3) / 2];
-  uint8_t *ppiece = piece;
+  //uint8_t *ppiece = piece;
 
   int i = 0, j = 0, w = 0, h = 0;
 
@@ -400,8 +405,8 @@ static void fx_yu12_pieces(uint8_t *frame, int width, int height,
   int rot = 0;
 
   uint8_t *py = NULL;
-  uint8_t *pu = NULL;
-  uint8_t *pv = NULL;
+  //uint8_t *pu = NULL;
+  //uint8_t *pv = NULL;
 
   for (h = 0; h < height; h += piece_size) {
     for (w = 0; w < width; w += piece_size) {

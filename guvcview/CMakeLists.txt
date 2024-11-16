@@ -18,6 +18,8 @@ add_executable(guvcview
   video_capture.c
 )
 
+add_definitions("-Wall")
+
 if(USE_GTK3)
   pkg_check_modules(GTK3 gtk+-3.0)
   if(GTK3_FOUND)

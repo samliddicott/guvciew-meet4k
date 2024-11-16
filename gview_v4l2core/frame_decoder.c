@@ -733,7 +733,7 @@ int decode_v4l2_frame(v4l2_dev_t *vd, v4l2_frame_buff_t *frame) {
    */
   int format = vd->requested_fmt;
 
-  int framesizeIn = (width * height << 1); // 2 bytes per pixel
+  //int framesizeIn = (width * height << 1); // 2 bytes per pixel
   switch (format) {
   case V4L2_PIX_FMT_H264:
     /*

@@ -149,8 +149,8 @@ static sf::View getLetterboxView(sf::View view, int windowWidth, int windowHeigh
 }
 
 SFMLRender::SFMLRender(int width, int height, int flags, int win_w, int win_h) {
-  int w = width;
-  int h = height;
+  unsigned int w = width;
+  unsigned int h = height;
 
   if (win_w > 0)
     w = win_w;

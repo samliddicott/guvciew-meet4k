@@ -1208,7 +1208,7 @@ void set_control_defaults(v4l2_dev_t *vd) {
   }
 
   v4l2_ctrl_t *current = vd->list_device_controls;
-  v4l2_ctrl_t *next = current->next;
+  //v4l2_ctrl_t *next = current->next;
 
   if (verbosity > 0)
     printf("V4L2_CORE: loading defaults\n");

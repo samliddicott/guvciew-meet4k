@@ -81,7 +81,8 @@ static int video_init(int width, int height, int flags, int win_w, int win_h) {
 
 
     SDL_SetHint("SDL_HINT_RENDER_SCALE_QUALITY", "1");
-
+    //SDL_SetHint("SDL_HINT_VIDEO_WAYLAND_ALLOW_LIBDECOR", "0");
+    
     sdl_window = SDL_CreateWindow("Guvcview Video",        // window title
                                   SDL_WINDOWPOS_UNDEFINED, // initial x position
                                   SDL_WINDOWPOS_UNDEFINED, // initial y position

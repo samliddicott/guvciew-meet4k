@@ -17,6 +17,7 @@ set_target_properties(
   SOVERSION ${LIBSOVERSION}
 )
 
+add_definitions("-Wall")
 
 if(SDL2_FOUND)
   target_sources(gviewrender PRIVATE render_sdl2.c)

@@ -21,12 +21,6 @@
 #                                                                              #
 *******************************************************************************/
 
-/******************************************************************************#
-#                                                                              #
-#  M/Jpeg decoding and frame capture taken from luvcview                       #
-#                                                                              #
-*******************************************************************************/
-
 #include <assert.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -1315,7 +1309,7 @@ int jpeg_init_decoder(int width, int height) {
 #endif
   {
     fprintf(stderr, "V4L2_CORE: (mjpeg decoder) couldn't open codec\n");
-    
+
 #if LIBAVCODEC_VER_AT_LEAST(61, 3)
     avcodec_free_context(&codec_data->context);
 #else
@@ -1421,32 +1415,34 @@ int jpeg_decode(uint8_t *out_buf, uint8_t *in_buf, int size) {
                      codec_data->context->pix_fmt, jpeg_ctx->width,
                      jpeg_ctx->height, jpeg_ctx->tmp_frame, jpeg_ctx->pic_size);
 #endif
-    /* requested libavcodec output format is yuv422p 
+    /* requested libavcodec output format is yuv422p
      * but apparently for some cameras
-     * (https://sourceforge.net/u/shicetu/uos-guvcview/ci/fbdc4b23f0072c5285383d09d2724dbf962d8a7f/) 
+     * (https://sourceforge.net/u/shicetu/uos-guvcview/ci/fbdc4b23f0072c5285383d09d2724dbf962d8a7f/)
      * it can turn out be in yuv420p */
-    if (codec_data->context->pix_fmt == AV_PIX_FMT_YUV422P || 
+    if (codec_data->context->pix_fmt == AV_PIX_FMT_YUV422P ||
         codec_data->context->pix_fmt == AV_PIX_FMT_YUVJ422P) {
-      
-      yuv422p_to_yu12(out_buf, jpeg_ctx->tmp_frame, jpeg_ctx->width, jpeg_ctx->height);
+
+      yuv422p_to_yu12(out_buf, jpeg_ctx->tmp_frame, jpeg_ctx->width,
+                      jpeg_ctx->height);
       return jpeg_ctx->pic_size;
 
-    } else if (codec_data->context->pix_fmt == AV_PIX_FMT_YUVJ420P || 
+    } else if (codec_data->context->pix_fmt == AV_PIX_FMT_YUVJ420P ||
                codec_data->context->pix_fmt == AV_PIX_FMT_YUV420P) {
 
-      if (jpeg_ctx->pic_size > (size_t)(jpeg_ctx->width * jpeg_ctx->height * 3 / 2))
-        jpeg_ctx->pic_size  = (size_t)(jpeg_ctx->width * jpeg_ctx->height * 3 / 2);
+      if (jpeg_ctx->pic_size >
+          (size_t)(jpeg_ctx->width * jpeg_ctx->height * 3 / 2))
+        jpeg_ctx->pic_size =
+            (size_t)(jpeg_ctx->width * jpeg_ctx->height * 3 / 2);
 
       memcpy(out_buf, jpeg_ctx->tmp_frame, jpeg_ctx->pic_size);
       return jpeg_ctx->pic_size;
-    
+
     } else {
-      fprintf(stderr, "JPEG_DECODER: output pixel format not supported: %li\n", 
+      fprintf(stderr, "JPEG_DECODER: output pixel format not supported: %i\n",
               codec_data->context->pix_fmt);
     }
+  }
 
-  } 
-  
   return 0;
 }
 
