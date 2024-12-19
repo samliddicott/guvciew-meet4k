@@ -33,6 +33,8 @@
 #include <errno.h>
 #include <assert.h>
 
+#include "v4l2_devices.h"
+
 #include "gview.h"
 #include "frame_decoder.h"
 #include "../config.h"
@@ -315,6 +317,16 @@ void add_h264_format(v4l2_dev_t *vd)
 	/*assertions*/
 	assert(vd != NULL);
 	assert(vd->list_stream_formats != NULL);
+
+	v4l2_device_list_t *my_device_list = get_device_list();
+
+	if(my_device_list->list_devices[vd->this_device].vendor == 0x6e30)
+	{
+		if(verbosity > 2)
+			printf("V4L2_CORE: OBSBOT Meet4K abuses H264 guuid (vendor_id=0x%4x): skiping peripheral V3 unit id check\n",
+				my_device_list->list_devices[vd->this_device].vendor);
+		return;
+	}
 
 	if(verbosity > 0)
 		printf("V4L2_CORE: checking muxed H264 format support\n");
