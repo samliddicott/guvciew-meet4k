@@ -48,19 +48,26 @@ typedef struct _uvcx_obsbot_meet4k_configuration_t
     struct {
       uint8_t effect;            // 0
 	  uint8_t hdr;               // 1
-      uint8_t dummy0;            // 2
+      uint8_t dummy3;            // 2
       uint8_t face_ae;           // 3
       uint8_t camera_angle;      // 4
       uint8_t bg_mode;           // 5
       uint8_t blur_level;        // 6
-      uint8_t dummy;             // 7
-      uint16_t dummy1;           // 8,9
+      uint8_t dumm7;             // 7
+      uint16_t dummy8;           // 8,9
       uint8_t button_mode;       // set in position 7 // a
-      uint16_t dummy2;           // b,c
-      uint8_t noise_reduction;   //set in position 0xa frame_model;       // d
-      uint16_t dummy4;           // e,f
-      uint8_t bg_color;          // 10
-    };
+      uint16_t dummy11;          // b,c
+      uint8_t dummy13;           // d
+      uint8_t noise_reduction;   //set in position 0xa frame_model;       // e
+      uint8_t dummy15;           // f
+      uint8_t dummy16;           // 10
+      uint8_t dummy17;           // 11
+      uint8_t dummy18;           // 12
+      uint8_t dummy19;           // 13
+      uint8_t dummy20;           // 14
+      uint8_t dummy21;           // 15
+      uint8_t bg_color;          // set in position 0x10 // 0x16
+    } __attribute__((__packed__));
   };
 } __attribute__((__packed__)) uvcx_obsbot_meet4k_configuration_t;
 
@@ -87,14 +94,14 @@ uint8_t get_uvc_meet4k_unit_id (v4l2_dev_t *vd)
 void meet4kcore_dump6(uvcx_obsbot_meet4k_configuration_t *configuration)
 {
 	int i=0;
-	fprintf(stderr, "%04x %02x %02x %02x %02x %02x %02x %02x %02x\n", i, configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++]);
-	fprintf(stderr, "%04x %02x %02x %02x %02x %02x %02x %02x %02x\n", i, configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++]);
-	fprintf(stderr, "%04x %02x %02x %02x %02x %02x %02x %02x %02x\n", i, configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++]);
-	fprintf(stderr, "%04x %02x %02x %02x %02x %02x %02x %02x %02x\n", i, configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++]);
-	fprintf(stderr, "%04x %02x %02x %02x %02x %02x %02x %02x %02x\n", i, configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++]);
-	fprintf(stderr, "%04x %02x %02x %02x %02x %02x %02x %02x %02x\n", i, configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++]);
-	fprintf(stderr, "%04x %02x %02x %02x %02x %02x %02x %02x %02x\n", i, configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++]);
-	fprintf(stderr, "%04x %02x %02x %02x %02x\n", i, configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++], configuration->bytes[i++]);
+	fprintf(stderr, "%04x %02x %02x %02x %02x %02x %02x %02x %02x\n", i, configuration->bytes[i], configuration->bytes[i+1], configuration->bytes[i+2], configuration->bytes[i+3], configuration->bytes[i+4], configuration->bytes[i+5], configuration->bytes[i+6], configuration->bytes[i+7]); i+=8;
+	fprintf(stderr, "%04x %02x %02x %02x %02x %02x %02x %02x %02x\n", i, configuration->bytes[i], configuration->bytes[i+1], configuration->bytes[i+2], configuration->bytes[i+3], configuration->bytes[i+4], configuration->bytes[i+5], configuration->bytes[i+6], configuration->bytes[i+7]); i+=8;
+	fprintf(stderr, "%04x %02x %02x %02x %02x %02x %02x %02x %02x\n", i, configuration->bytes[i], configuration->bytes[i+1], configuration->bytes[i+2], configuration->bytes[i+3], configuration->bytes[i+4], configuration->bytes[i+5], configuration->bytes[i+6], configuration->bytes[i+7]); i+=8;
+	fprintf(stderr, "%04x %02x %02x %02x %02x %02x %02x %02x %02x\n", i, configuration->bytes[i], configuration->bytes[i+1], configuration->bytes[i+2], configuration->bytes[i+3], configuration->bytes[i+4], configuration->bytes[i+5], configuration->bytes[i+6], configuration->bytes[i+7]); i+=8;
+	fprintf(stderr, "%04x %02x %02x %02x %02x %02x %02x %02x %02x\n", i, configuration->bytes[i], configuration->bytes[i+1], configuration->bytes[i+2], configuration->bytes[i+3], configuration->bytes[i+4], configuration->bytes[i+5], configuration->bytes[i+6], configuration->bytes[i+7]); i+=8;
+	fprintf(stderr, "%04x %02x %02x %02x %02x %02x %02x %02x %02x\n", i, configuration->bytes[i], configuration->bytes[i+1], configuration->bytes[i+2], configuration->bytes[i+3], configuration->bytes[i+4], configuration->bytes[i+5], configuration->bytes[i+6], configuration->bytes[i+7]); i+=8;
+	fprintf(stderr, "%04x %02x %02x %02x %02x %02x %02x %02x %02x\n", i, configuration->bytes[i], configuration->bytes[i+1], configuration->bytes[i+2], configuration->bytes[i+3], configuration->bytes[i+4], configuration->bytes[i+5], configuration->bytes[i+6], configuration->bytes[i+7]); i+=8;
+	fprintf(stderr, "%04x %02x %02x %02x %02x\n", i, configuration->bytes[i], configuration->bytes[i+1], configuration->bytes[i+2], configuration->bytes[i+3]);
 }
 
 /*

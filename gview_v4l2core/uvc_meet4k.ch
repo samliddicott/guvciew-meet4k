@@ -61,7 +61,6 @@ meet4kcore_get_set_1(camera_angle, camera_angle, 0x4, 1)
 meet4kcore_get_set_1(bg_mode, bg_mode, 0x5, 1)
 meet4kcore_get_set_1(blur_level, blur_level, 0x6, 1)
 meet4kcore_get_set_1(button_mode, button_mode, 0x7, 1)
-
 meet4kcore_get_set_1(bg_color, bg_color, 0x10, 1)
 
 
