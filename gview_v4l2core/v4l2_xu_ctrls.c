@@ -31,6 +31,8 @@
 #include "v4l2_devices.h"
 #include "v4l2_xu_ctrls.h"
 
+#include "uvc_meet4k.h"
+
 extern int verbosity;
 
 /*
