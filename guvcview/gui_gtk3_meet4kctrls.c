@@ -168,6 +168,11 @@ void meet4k_nr_mode_changed(GtkToggleButton *toggle, void *data)
 	meet4kcore_set_nr_mode(get_v4l2_device_handler(), nr_mode);
 }
 
+void meet4k_button_rotate_changed(GtkToggleButton *toggle, void *data)
+{
+	uint8_t rotate_mode = gtk_toggle_button_get_active(toggle)?1:0;
+	meet4kcore_set_button_mode(get_v4l2_device_handler(), rotate_mode);
+}
 
 /*
  * update controls from commit probe data
@@ -401,12 +406,23 @@ int gui_attach_gtk3_meet4kctrls (GtkWidget *parent)
 	gtk_widget_show (AEModeEnable);
 	g_signal_connect (GTK_CHECK_BUTTON(AEModeEnable), "toggled", G_CALLBACK (meet4k_face_ae_mode_changed), NULL);
 
+	/* Button Mode */
+	GtkWidget *ButtonRotateEnable = gtk_check_button_new_with_label (_("Button Rotate"));
+	g_object_set_data (G_OBJECT (ButtonRotateEnable), "meet4k_nr_mode", GINT_TO_POINTER(1));
+	gtk_widget_set_halign (ButtonRotateEnable, GTK_ALIGN_FILL);
+	gtk_widget_set_hexpand (ButtonRotateEnable, TRUE);
+	gtk_grid_attach(GTK_GRID(table_modes), ButtonRotateEnable, 3, 0, 1, 1);
+
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ButtonRotateEnable), meet4kcore_get_button_mode(get_v4l2_device_handler()));
+	gtk_widget_show (ButtonRotateEnable);
+	g_signal_connect (GTK_CHECK_BUTTON(ButtonRotateEnable), "toggled", G_CALLBACK (meet4k_button_rotate_changed), NULL);
+
 	/* NR Mode */
 	GtkWidget *NRModeEnable = gtk_check_button_new_with_label (_("Noise Reduction (audio)"));
 	g_object_set_data (G_OBJECT (NRModeEnable), "meet4k_nr_mode", GINT_TO_POINTER(1));
 	gtk_widget_set_halign (NRModeEnable, GTK_ALIGN_FILL);
 	gtk_widget_set_hexpand (NRModeEnable, TRUE);
-	gtk_grid_attach(GTK_GRID(table_modes), NRModeEnable, 3, 0, 2, 1);
+	gtk_grid_attach(GTK_GRID(table_modes), NRModeEnable, 4, 0, 1, 1);
 
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(NRModeEnable), meet4kcore_get_nr_mode(get_v4l2_device_handler()));
 	gtk_widget_show (NRModeEnable);
