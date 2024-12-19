@@ -20,18 +20,42 @@
 #                                                                               #
 ********************************************************************************/
 
+// What's this about?
+// It allows lines like this: meet4kcore_get_set_1(background_mode, effect, 0x0, 1)
+// to expand to either a declaration (suitable for a c header file)
+// or a definition (suitable for a c file)
+//
+// If UVC_MEET4K_DEF is undefined then a declaration is emitted
+// if UVC_MEET4K_DEF is defined to UVC_MEET4K_B then the definition is emitted
 
-#ifndef UVC_MEET4K_H
-#define UVC_MEET4K_H
+#define  _MEET4K_JOIN(a, b)       a ## b
+#define  MEET4K_JOIN(a, b)       _MEET4K_JOIN(a,b)
+#define  MEET4K_CALL(call, ...)  call(__VA_ARGS__)
+#define MEET4K_func(func, ...) MEET4K_CALL(MEET4K_JOIN(UVC_MEET4K_DEF, _meet4kcore_get_set_1), __VA_ARGS__)
 
-#include "gviewv4l2core.h"
-#include "v4l2_core.h"
-#include "v4l2_xu_ctrls.h"
+#define meet4kcore_get_set_1(...) MEET4K_func(meet4kcore_get_set_1, __VA_ARGS__)
 
-void add_meet4k(v4l2_dev_t *vd);
-uint8_t get_uvc_meet4k_unit_id (v4l2_dev_t *vd);
+/* declare functions */
+#define UVC_MEET4K_DEF_meet4kcore_get_set_1(name, read, ...) \
+uint8_t meet4kcore_get_##name(v4l2_dev_t *vd); \
+int meet4kcore_set_##name(v4l2_dev_t *vd, uint8_t mode);
 
-#include "uvc_meet4k.chp"
-#include "uvc_meet4k.ch"
+/* define functions */
+#define UVC_MEET4K_B_meet4kcore_get_set_1(name, read, ...) \
+uint8_t meet4kcore_get_##name(v4l2_dev_t *vd) \
+{ \
+	uvcx_obsbot_meet4k_configuration_t configuration; \
+	if (E_OK != meet4kcore_get6(vd, &configuration)) { \
+		return 0xff; \
+	} else { \
+		fprintf(stderr, "V4L2_MEET4K: get " #name ": %d\n", configuration.read); \
+	} \
+	return configuration.read; \
+} \
+int meet4kcore_set_##name(v4l2_dev_t *vd, uint8_t mode) \
+{ \
+	uvcx_obsbot_meet4k_configuration_t command = { __VA_ARGS__, mode }; \
+	fprintf(stderr, "V4L2_MEET4K: set " #name ": %d\n", mode); \
+	return meet4kcore_cmd6(vd, &command); \
+}
 
-#endif /*UVC_MEET4K_H*/
