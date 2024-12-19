@@ -211,6 +211,7 @@ int enum_v4l2_devices()
         my_device_list.list_devices[num_dev-1].location = strdup((char *) v4l2_cap.bus_info);
         my_device_list.list_devices[num_dev-1].valid = 1;
         my_device_list.list_devices[num_dev-1].current = 0;
+        my_device_list.list_devices[num_dev-1].device_caps = v4l2_cap.device_caps;
 				
         /* The device pointed to by dev contains information about
             the v4l2 device. In order to get information about the
