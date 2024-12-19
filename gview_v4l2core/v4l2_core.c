@@ -214,7 +214,7 @@ static int check_v4l2_dev(v4l2_dev_t *vd)
 	add_h264_format(vd);
 
 	/* Detect OBSBOT Meet4K */
-    add_meet4k(vd);
+	add_meet4k(vd);
 
 	/*enumerate device controls*/
 	enumerate_v4l2_control(vd);

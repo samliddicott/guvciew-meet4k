@@ -78,24 +78,24 @@ typedef struct _uvcx_obsbot_meet4k_configuration_t
   };
 } __attribute__((__packed__)) uvcx_obsbot_meet4k_configuration_t;
 
+uint8_t is_probably_obsbot (int vendor, v4l2_dev_t *vd)
+{
+	/* 6e30 is original vendor id for OBSBOT. After firmware update, it becomes 0x3564 (REMO TECH Co., Ltd.) */
+	return(vendor == 0x6e30 ||
+	       vendor == 0x3564 ||
+	       strstr(vd->cap.card, "OBSBOT Meet 4K"));
+}
+
 int check_meet4k(v4l2_dev_t *vd)
 {
 	v4l2_device_list_t *my_device_list = get_device_list();
 
-	if(my_device_list->list_devices[vd->this_device].vendor != 0x6e30)
-	{
+	if (! is_probably_obsbot(my_device_list->list_devices[vd->this_device].vendor, vd)) {
 		if(verbosity > 0)
-			printf("V4L2_CORE: OBSBOT Skipping vendor (vendor_id=0x%4x): skiping peripheral V3 unit id check\n",
-				my_device_list->list_devices[vd->this_device].vendor);
+			printf("V4L2_CORE: OBSBOT Skipping device (vendor_id=0x%4x) (card=%s) (location: %s)\n",
+				my_device_list->list_devices[vd->this_device].vendor, vd->cap.card, vd->cap.bus_info);
 		return 0;
 	}
-
-    if (! strstr(vd->cap.card, "OBSBOT Meet 4K")) {
-		if(verbosity > 0)
-			printf("V4L2_CORE: OBSBOT Skipping card (card=%s: skiping peripheral V3 unit id check\n",
-				vd->cap.card);
-		return 0;
-    }
 
 	printf("%s: Init. %s (location: %s)\n", __FUNCTION__, vd->cap.card, vd->cap.bus_info);
 	return 1;
@@ -113,6 +113,7 @@ void add_meet4k(v4l2_dev_t *vd)
 	if (! check_meet4k(vd)) {
 		if(verbosity > 0)
 			printf("V4L2_CORE: Not Meet4K\n");
+		return;
 	}
 
 	int id;
