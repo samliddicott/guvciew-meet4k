@@ -51,6 +51,7 @@ extern int is_control_panel;
  * Meet4k control widgets
  */
 GtkWidget *BackgroundMode = NULL;
+GtkWidget *CameraAngle = NULL;
 
 /*
  * meet4K background mode mode callback
@@ -68,6 +69,24 @@ void meet4k_background_mode_changed(GtkComboBox *combo, void *data)
 	uint8_t background_mode = (uint8_t) (gtk_combo_box_get_active (combo));
 
 	meet4kcore_set_background_mode(get_v4l2_device_handler(), background_mode);
+}
+
+/*
+ * meet4K background mode mode callback
+ * args:
+ *   combo - widget that caused the event
+ *   data  - user data
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void meet4k_camera_angle_changed(GtkComboBox *combo, void *data)
+{
+	uint8_t camera_angle = (uint8_t) (gtk_combo_box_get_active (combo));
+
+	meet4kcore_set_camera_angle(get_v4l2_device_handler(), camera_angle);
 }
 
 /*
@@ -156,9 +175,9 @@ int gui_attach_gtk3_meet4kctrls (GtkWidget *parent)
 
 	int line = 0;
 
+	/* Background Mode */
 	line++;
 
-	/* Background Mode */
 	GtkWidget* label_BackgroundMode = gtk_label_new(_("Virtual Background Mode:"));
 #if GTK_VER_AT_LEAST(3,15)
 	gtk_label_set_xalign(GTK_LABEL(label_BackgroundMode), 1);
@@ -198,6 +217,49 @@ int gui_attach_gtk3_meet4kctrls (GtkWidget *parent)
 
 	gtk_grid_attach (GTK_GRID(meet4k_controls_grid), BackgroundMode, 1, line, 1 ,1);
 	gtk_widget_show (BackgroundMode);
+
+	/* Camera angle */
+	line++;
+
+	GtkWidget* label_CameraAngle = gtk_label_new(_("Camera Angle:"));
+#if GTK_VER_AT_LEAST(3,15)
+	gtk_label_set_xalign(GTK_LABEL(label_CameraAngle), 1);
+	gtk_label_set_yalign(GTK_LABEL(label_CameraAngle), 0.5);
+#else
+	gtk_misc_set_alignment (GTK_MISC (label_CameraAngle), 1, 0.5);
+#endif
+	gtk_grid_attach (GTK_GRID(meet4k_controls_grid), label_CameraAngle, 0, line, 1, 1);
+	gtk_widget_show (label_CameraAngle);
+
+	uint8_t min_CameraAngle = 0;
+	uint8_t max_CameraAngle = 3;
+
+
+	CameraAngle = gtk_combo_box_text_new();
+	if(max_CameraAngle >= 1 && min_CameraAngle < 2)
+		gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(CameraAngle),
+										_("86 degrees"));
+	if(max_CameraAngle >= 2 && min_CameraAngle < 3)
+		gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(CameraAngle),
+										_("78 degrees"));
+
+	if(max_CameraAngle >= 3 && min_CameraAngle < 4)
+		gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(CameraAngle),
+										_("65 degrees"));
+
+	uint8_t cur_CameraAngle = meet4kcore_get_camera_angle(get_v4l2_device_handler());
+	int CameraAngle_index = cur_CameraAngle;
+	if(CameraAngle_index < 0)
+		CameraAngle_index = 0;
+
+	gtk_combo_box_set_active(GTK_COMBO_BOX(CameraAngle), CameraAngle_index);
+
+	//connect signal
+	g_signal_connect (GTK_COMBO_BOX_TEXT(CameraAngle), "changed",
+			G_CALLBACK (meet4k_camera_angle_changed), NULL);
+
+	gtk_grid_attach (GTK_GRID(meet4k_controls_grid), CameraAngle, 1, line, 1 ,1);
+	gtk_widget_show (CameraAngle);
 
 	/* modes grid*/
 	line++;
