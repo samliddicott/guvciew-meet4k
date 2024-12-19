@@ -32,6 +32,7 @@ if(USE_GTK3)
       gui_gtk3.c
       gui_gtk3_callbacks.c
       gui_gtk3_h264ctrls.c
+      gui_gtk3_meet4kctrls.c
       gui_gtk3_menu.c
       gui_gtk3_v4l2ctrls.c
       gui_gtk3_videoctrls.c)
