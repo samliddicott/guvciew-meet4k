@@ -72,6 +72,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/includes
   ${CMAKE_SOURCE_DIR}/gview_audio
   ${CMAKE_SOURCE_DIR}/gview_encoder
+  ${CMAKE_SOURCE_DIR}/gview_meet4k
   ${CMAKE_SOURCE_DIR}/gview_render
   ${CMAKE_SOURCE_DIR}/gview_v4l2core)
 

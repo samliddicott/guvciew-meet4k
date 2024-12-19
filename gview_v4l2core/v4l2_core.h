@@ -102,6 +102,8 @@ struct _v4l2_dev_t {
   int has_pantilt_control_id; // it's set to 1 if a pan/tilt control is
                               // available
   uint8_t pantilt_unit_id; // logitech peripheral V3 unit id (if any)
+
+  int8_t meet4k_unit_id;   // OBSBOT meet4k unit id, if <= 0 then uvc meet4k is not supported
 };
 
 #endif

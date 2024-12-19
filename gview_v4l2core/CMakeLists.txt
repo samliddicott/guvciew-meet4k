@@ -16,6 +16,7 @@ add_library(gviewv4l2core SHARED
   save_image_png.c
   soft_autofocus.c
   uvc_h264.c
+  uvc_meet4k.c
   v4l2_controls.c
   v4l2_core.c
   v4l2_devices.c
