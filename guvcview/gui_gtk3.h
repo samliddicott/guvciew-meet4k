@@ -205,6 +205,18 @@ int gui_attach_gtk3_v4l2ctrls(GtkWidget *parent);
 int gui_attach_gtk3_h264ctrls (GtkWidget *parent);
 
 /*
+ * attach OBSBOT Meet4k controls tab widget
+ * args:
+ *   parent - tab parent widget
+ *
+ * asserts:
+ *   parent is not null
+ *
+ * returns: error code (0 -OK)
+ */
+int gui_attach_gtk3_meet4kctrls (GtkWidget *parent);
+
+/*
  * attach v4l2 video controls tab widget
  * args:
  *   parent - tab parent widget
