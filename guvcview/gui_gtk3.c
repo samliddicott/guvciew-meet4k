@@ -795,8 +795,8 @@ int gui_attach_gtk3(int width, int height)
 
 	gtk_notebook_append_page(GTK_NOTEBOOK(tab_box), scroll_1, tab_1);
 
-	/*-------------------------- OBSBOT MEet 4K tab --------------------------*/
-    if (1)
+	/*-------------------------- OBSBOT Meet 4K tab --------------------------*/
+    if (get_uvc_meet4k_unit_id(get_v4l2_device_handler()))
     {
 		GtkWidget *scroll = gtk_scrolled_window_new(NULL,NULL);
 		gtk_scrolled_window_set_placement(GTK_SCROLLED_WINDOW(scroll), GTK_CORNER_TOP_LEFT);

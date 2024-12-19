@@ -1322,6 +1322,22 @@ uint8_t v4l2core_get_h264_spatial_scale_mode(v4l2_dev_t *vd, uint8_t query);
 int v4l2core_set_h264_spatial_scale_mode(v4l2_dev_t *vd, uint8_t mode);
 
 /*
+ *  ######### Meet4K ##########
+ */
+
+/*
+ * get h264 unit id
+ * args:
+ *   vd - pointer to v4l2 device handler
+ *
+ * asserts:
+ *   vd is not null
+ *
+ * returns: unit id on success or error code ( < 0 ) on fail
+ */
+uint8_t get_uvc_meet4k_unit_id (v4l2_dev_t *vd);
+
+/*
  *  ######### XU CONTROLS ##########
  */
 

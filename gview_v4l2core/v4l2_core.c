@@ -49,6 +49,7 @@
 #include "soft_autofocus.h"
 #include "core_time.h"
 #include "uvc_h264.h"
+#include "uvc_meet4k.h"
 #include "frame_decoder.h"
 #include "control_profile.h"
 #include "v4l2_formats.h"
@@ -211,6 +212,8 @@ static int check_v4l2_dev(v4l2_dev_t *vd)
 
 	/*add h264 (uvc muxed) to format list if supported by device*/
 	add_h264_format(vd);
+
+    add_meet4k(vd);
 
 	/*enumerate device controls*/
 	enumerate_v4l2_control(vd);
