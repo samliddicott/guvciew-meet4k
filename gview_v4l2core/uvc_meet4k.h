@@ -37,5 +37,12 @@ uint8_t meet4kcore_get_background_mode(v4l2_dev_t *vd);
 int meet4kcore_set_hdr_mode(v4l2_dev_t *vd, uint8_t mode);
 uint8_t meet4kcore_get_hdr_mode(v4l2_dev_t *vd);
 
+int meet4kcore_set_face_ae_mode(v4l2_dev_t *vd, uint8_t mode);
+uint8_t meet4kcore_get_face_ae_mode(v4l2_dev_t *vd);
+
+int meet4kcore_set_nr_mode(v4l2_dev_t *vd, uint8_t mode);
+uint8_t meet4kcore_get_nr_mode(v4l2_dev_t *vd);
+
+
 
 #endif /*UVC_MEET4K_H*/
