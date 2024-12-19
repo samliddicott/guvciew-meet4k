@@ -68,17 +68,24 @@ void meet4k_background_mode_changed(GtkComboBox *combo, void *data)
 	uint8_t background_mode = (uint8_t) (gtk_combo_box_get_active (combo));
 
 	meet4kcore_set_background_mode(get_v4l2_device_handler(), background_mode);
+}
 
-    // Not safe to immediately read, it hasn't changed yet, we need to poll and update all
-	// background_mode = meet4kcore_get_background_mode(get_v4l2_device_handler());
-
-	int backgroundmode_index = background_mode;
-	if(backgroundmode_index < 0)
-		backgroundmode_index = 0;
-
-	g_signal_handlers_block_by_func(combo, G_CALLBACK (meet4k_background_mode_changed), data);
-	gtk_combo_box_set_active(GTK_COMBO_BOX(BackgroundMode), backgroundmode_index);
-	g_signal_handlers_unblock_by_func(combo, G_CALLBACK (meet4k_background_mode_changed), data);
+/*
+ * meet4K background mode mode callback
+ * args:
+ *   combo - widget that caused the event
+ *   data  - user data
+ *
+ * asserts:
+ *   none
+ *
+ * returns: none
+ */
+void meet4k_hdr_mode_changed(GtkToggleButton *toggle, void *data)
+{
+	//uint8_t hdr_mode = (uint8_t) (GPOINTER_TO_INT(g_object_get_data (G_OBJECT (toggle), "meet4k_hdr_mode")));
+	uint8_t hdr_mode = gtk_toggle_button_get_active(toggle)?1:0;
+	meet4kcore_set_hdr_mode(get_v4l2_device_handler(), hdr_mode);
 }
 
 /*
@@ -116,6 +123,7 @@ int gui_attach_gtk3_meet4kctrls (GtkWidget *parent)
 
 	line++;
 
+	/* Background Mode */
 	GtkWidget* label_BackgroundMode = gtk_label_new(_("Virtual Background Mode:"));
 #if GTK_VER_AT_LEAST(3,15)
 	gtk_label_set_xalign(GTK_LABEL(label_BackgroundMode), 1);
@@ -156,9 +164,31 @@ int gui_attach_gtk3_meet4kctrls (GtkWidget *parent)
 	gtk_grid_attach (GTK_GRID(meet4k_controls_grid), BackgroundMode, 1, line, 1 ,1);
 	gtk_widget_show (BackgroundMode);
 
+#if 1
+	/* modes grid*/
+	line++;
+	GtkWidget *table_modes = gtk_grid_new();
+	gtk_grid_set_row_spacing(GTK_GRID (table_modes), 4);
+	gtk_grid_set_column_spacing(GTK_GRID (table_modes), 4);
+	gtk_container_set_border_width(GTK_CONTAINER (table_modes), 4);
+	gtk_widget_set_size_request(table_modes, -1, -1);
 
+	gtk_widget_set_halign(table_modes, GTK_ALIGN_FILL);
+	gtk_widget_set_hexpand(table_modes, TRUE);
+	gtk_grid_attach (GTK_GRID(meet4k_controls_grid), table_modes, 0, line, 3, 1);
+	gtk_widget_show (table_modes);
 
+	/* HDR Mode */
+	GtkWidget *HDRModeEnable = gtk_check_button_new_with_label (_("HDR Mode"));
+	g_object_set_data (G_OBJECT (HDRModeEnable), "meet4k_hdr_mode", GINT_TO_POINTER(1));
+	gtk_widget_set_halign (HDRModeEnable, GTK_ALIGN_FILL);
+	gtk_widget_set_hexpand (HDRModeEnable, TRUE);
+	gtk_grid_attach(GTK_GRID(table_modes), HDRModeEnable, 1, 0, 1, 1);
 
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(HDRModeEnable), meet4kcore_get_hdr_mode(get_v4l2_device_handler()));
+	gtk_widget_show (HDRModeEnable);
+	g_signal_connect (GTK_CHECK_BUTTON(HDRModeEnable), "toggled", G_CALLBACK (meet4k_hdr_mode_changed), NULL);
+#endif
 
 	gtk_widget_show(meet4k_controls_grid);
 
